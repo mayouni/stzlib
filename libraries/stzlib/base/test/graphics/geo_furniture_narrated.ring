@@ -186,6 +186,43 @@ chk("A STREAMLINE IN A UNIFORM FIELD IS STRAIGHT, which is the other " +
     "end of the same test and catches an integrator that curves when " +
     "nothing told it to",
     _FIsStraight(aStr))
+# THE NIGHT IS A FILLED CAP AND NOT SAMPLED PIXELS. The first witness asked
+# every sixth pixel whether the sun was up and painted a rectangle if not:
+# correct, and a staircase along the terminator with two flat tones. The
+# night is the spherical cap about the ANTIPODE of the subsolar point, and
+# a cap is a ring the projection already knows how to cut and fill.
+aCap = StzEngineGeoNightCap(oEE.SunAt(2026, 6, 21, 12)[:lat],
+	oEE.SunAt(2026, 6, 21, 12)[:lon], 0, 181)
+? "   the night cap is " + (len(aCap)/2) + " points; every one of them is " +
+  _FCapElev(aCap) + " degrees of solar elevation"
+chk("THE NIGHT IS A SPHERICAL CAP -- every point on its edge has the sun " +
+    "exactly on the horizon, which is what the terminator IS. Handing a " +
+    "ring to the projection gives a filled antialiased region; sampling " +
+    "pixels gives a staircase and two flat tones",
+    len(aCap) = 362 and fabs(_FCapElev(aCap)) < 0.001)
+chk("...and the twilight bands are the SAME CAP SMALLER -- 6 degrees below " +
+    "the horizon is 84 from the antipode, nautical 78, astronomical 72 -- " +
+    "so four nested caps drawn one over the other give the gradient a " +
+    "reader sees at dusk, out of one routine",
+    _FCapNests())
+
+# EVENLY-SPACED STREAMLINES (Jobard and Lefebvre). Seeding on a grid puts
+# the lines where the SEEDS are and not where the paper has room: the slow
+# places crowd and the fast places go bald, and a reader cannot tell a
+# dense patch from a lucky lattice.
+aFlow = StzEngineGeoEvenStreamlines(aG, aU, aV, -40, -40, 40, 40, 4, 1.3, 400, 300)
+? "   evenly-spaced: " + aFlow[1] + " lines, each grown until it met a neighbour"
+chk("EVENLY-SPACED STREAMLINES ARE AN ALGORITHM AND NOT A STYLING CHOICE. " +
+    "Each stops the moment it comes within half a separation of a line " +
+    "already drawn, and each new seed is one separation to the side of an " +
+    "existing one -- so the curves are that far apart EVERYWHERE, which is " +
+    "what frees the shape to carry the meaning instead of the density",
+    aFlow[1] > 10 and _FEvenlySpaced(aFlow, 4))
+chk("NEGATIVE: and no two of them come closer than the separation allows, " +
+    "which is the property the algorithm exists for and the one a grid of " +
+    "seeds cannot give at any density",
+    _FNoneTooClose(aFlow, 4))
+
 aVec = oEE.VectorsOf(aG, aU, aV, 20)
 ? "   the same field as arrows, every 20th node: " + (len(aVec)/5)
 chk("THE ARROWS COME BACK AS PLACE, COMPONENTS AND MAGNITUDE -- five " +
@@ -362,6 +399,102 @@ func _FIsStraight paLine
 		if fabs(paLine[_i_ * 2]) > 0.001  return FALSE  ok
 	next
 	return paLine[(_n_ - 1) * 2 + 1] > paLine[1]
+
+# the solar elevation at the first point of a cap ring -- zero on the
+# terminator, which is the definition of it
+func _FCapElev paRing
+	_m_ = StzGeoMap(new stzGeoProjection(:EqualEarth), StzGeoFeaturesFromJson(_FSquare()))
+	return _m_.SolarElevationAt(2026, 6, 21, 12, paRing[1], paRing[2])
+
+func _FCapNests()
+	_m_ = StzGeoMap(new stzGeoProjection(:EqualEarth), StzGeoFeaturesFromJson(_FSquare()))
+	_s_ = _m_.SunAt(2026, 6, 21, 12)
+	_prev_ = 99
+	aB = [ 0, 6, 12, 18 ]
+	for _i_ = 1 to len(aB)
+		_r_ = StzEngineGeoNightCap(_s_[:lat], _s_[:lon], aB[_i_], 91)
+		if len(_r_) < 6  return FALSE  ok
+		_e_ = _m_.SolarElevationAt(2026, 6, 21, 12, _r_[1], _r_[2])
+		# each band is FURTHER below the horizon than the last
+		if _e_ >= _prev_  return FALSE  ok
+		if fabs(_e_ + aB[_i_]) > 0.001  return FALSE  ok
+		_prev_ = _e_
+	next
+	return TRUE
+
+# the mean gap between a sampled point of one line and the nearest point of
+# any OTHER line, which the algorithm holds near the separation it was given
+func _FEvenlySpaced paFlow, pnSep
+	_n_ = paFlow[1]
+	if _n_ < 2  return FALSE  ok
+	_base_ = 1 + _n_
+	_prev_ = 0
+	aStart = []
+	aEnd = []
+	for _k_ = 1 to _n_
+		aStart + _prev_
+		aEnd + paFlow[1 + _k_]
+		_prev_ = paFlow[1 + _k_]
+	next
+	_sum_ = 0
+	_cnt_ = 0
+	_cap_ = _n_
+	if _cap_ > 12  _cap_ = 12  ok
+	for _k_ = 1 to _cap_
+		_i_ = aStart[_k_] + floor((aEnd[_k_] - aStart[_k_]) / 2)
+		_x_ = paFlow[_base_ + _i_ * 2 + 1]
+		_y_ = paFlow[_base_ + _i_ * 2 + 2]
+		_best_ = 99999
+		for _m_ = 1 to _n_
+			if _m_ = _k_  loop  ok
+			_j_ = aStart[_m_]
+			while _j_ < aEnd[_m_]
+				_d_ = sqrt(pow(paFlow[_base_ + _j_ * 2 + 1] - _x_, 2) +
+				           pow(paFlow[_base_ + _j_ * 2 + 2] - _y_, 2))
+				if _d_ < _best_  _best_ = _d_  ok
+				_j_ += 3
+			end
+		next
+		if _best_ < 9999
+			_sum_ += _best_
+			_cnt_++
+		ok
+	next
+	if _cnt_ = 0  return FALSE  ok
+	_mean_ = _sum_ / _cnt_
+	? "   the mean gap to the nearest other line is " + _mean_ +
+	  " degrees, against a separation of " + pnSep
+	return _mean_ > pnSep * 0.4 and _mean_ < pnSep * 1.8
+
+func _FNoneTooClose paFlow, pnSep
+	_n_ = paFlow[1]
+	if _n_ < 2  return FALSE  ok
+	_base_ = 1 + _n_
+	_prev_ = 0
+	aStart = []
+	aEnd = []
+	for _k_ = 1 to _n_
+		aStart + _prev_
+		aEnd + paFlow[1 + _k_]
+		_prev_ = paFlow[1 + _k_]
+	next
+	_cap_ = _n_
+	if _cap_ > 8  _cap_ = 8  ok
+	for _k_ = 1 to _cap_
+		_i_ = aStart[_k_] + floor((aEnd[_k_] - aStart[_k_]) / 2)
+		_x_ = paFlow[_base_ + _i_ * 2 + 1]
+		_y_ = paFlow[_base_ + _i_ * 2 + 2]
+		for _m_ = _k_ + 1 to _cap_
+			_j_ = aStart[_m_]
+			while _j_ < aEnd[_m_]
+				_d_ = sqrt(pow(paFlow[_base_ + _j_ * 2 + 1] - _x_, 2) +
+				           pow(paFlow[_base_ + _j_ * 2 + 2] - _y_, 2))
+				if _d_ < pnSep * 0.35  return FALSE  ok
+				_j_ += 2
+			end
+		next
+	next
+	return TRUE
 
 func _FMagnitudesRight paVec
 	for _i_ = 1 to len(paVec) / 5

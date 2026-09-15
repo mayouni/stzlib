@@ -39,32 +39,27 @@ oP.FitFeaturesIn(oW, 40, nY0, 1240, nY0 + 460, 4)
 oM = StzGeoMap(oP, oW)
 oM.SetPaper(30, nY0 - 10, 1250, nY0 + 470)
 oM.SetSource("Natural Earth 110m; solar position from the Astronomical Almanac")
-oM.SetNoData("#F2F2F2")
-oM.DrawSheetOn(oC, "#C9C9C9", 0.4)
+# THE OCEAN IS DRAWN, and that is not decoration. Without it the day-side
+# sea is the canvas showing through, which reads as a bright crescent
+# against the shaded night -- a halo the data does not have. Day and night
+# have to be one surface for the terminator to be a line across it rather
+# than an edge between two materials.
+oP.DrawSphereOn(oC, "#EEF1F4", "#00000000", 0)
+oC.Flush()
+oM.SetNoData("#DCE2E8")
+oM.DrawSheetOn(oC, "#B8C2CC", 0.4)
 
 nYear = 2026  nMon = 6  nDay = 21  nHour = 12
 aSun = oM.SunAt(nYear, nMon, nDay, nHour)
 
-# THE NIGHT SIDE AS SHADING, sampled rather than filled. The terminator is
-# a great circle, so on most projections it leaves the sheet at one edge
-# and returns at the other -- a filled polygon would have to decide what
-# "inside" means on a projection that cuts it, and would get it wrong at
-# exactly the two solstices. Asking each pixel-ish cell instead cannot.
-nStep = 6
-for py = nY0 to nY0 + 460 step nStep
-	for px = 40 to 1240 step nStep
-		aG = oP.Invert(px, py)
-		if len(aG) < 2  loop  ok
-		nEl = oM.SolarElevationAt(nYear, nMon, nDay, nHour, aG[1], aG[2])
-		if nEl >= 0  loop  ok
-		cInk = "#1A2A4422"
-		if nEl < -18  cInk = "#12203A55"  ok
-		oC.AddRectQ(px, py, nStep, nStep).FillQ(cInk).Stroke("#00000000", 0)
-	next
-next
-oC.Flush()
+# THE NIGHT SIDE, FILLED -- four nested spherical caps, drawn outermost
+# first and each translucent, so they accumulate into a gradient rather
+# than a step. The first version of this sheet sampled every sixth pixel
+# and painted a rectangle, which gave a staircase along the terminator and
+# two flat tones; the Principal said so.
+oM.DrawNightOn(oC, nYear, nMon, nDay, nHour, "#16294715")
 
-oM.DrawTwilightOn(oC, nYear, nMon, nDay, nHour, "#2C4A7A")
+oM.DrawTwilightOn(oC, nYear, nMon, nDay, nHour, "#2C4A7A66")
 
 # the subsolar point
 aQ = oP.Project(aSun[:lon], aSun[:lat])
@@ -105,8 +100,10 @@ nY1 = nY0 + 570
 oC.SetFontQ(oFont, 17).AddTextQ("A field that has a direction, shown both ways",
 	40, nY1).Fill("#1A1A1A")
 oC.Flush()
-oC.SetFontQ(oFont, 13).AddTextQ("streamlines carry the SHAPE, which the eye reads as " +
-	"motion at once; arrows carry the MAGNITUDE, which a streamline cannot",
+oC.SetFontQ(oFont, 13).AddTextQ("evenly spaced, so the density says nothing and the " +
+	"shape says everything; the stroke thickens with speed, and the heads sit " +
+	"ALONG each line rather than at its end -- where a line ends is where " +
+	"it met a neighbour, which says nothing about the field",
 	40, nY1 + 20).Fill("#888888")
 oC.Flush()
 
@@ -140,8 +137,15 @@ oP2 = new stzGeoProjection(:EqualEarth)
 oP2.FitFeaturesIn(oW, 40, nY2, 1240, nY2 + 400, 4)
 oM2 = StzGeoMap(oP2, oW)
 oM2.SetPaper(30, nY2 - 10, 1250, nY2 + 410)
-oM2.SetNoData("#F6F6F6")
-oM2.DrawSheetOn(oC, "#DCDCDC", 0.4)
+# THE LAND HAS TO SURVIVE A HUNDRED AND FORTY-SIX LINES ON TOP OF IT. A
+# basemap tuned to look right on its own disappears under a dense flow, so
+# the contrast here is set against what covers it rather than against
+# taste: a pale sea, a warm land, and a border dark enough to read between
+# two streamlines.
+oP2.DrawSphereOn(oC, "#EFF4F9", "#00000000", 0)
+oC.Flush()
+oM2.SetNoData("#E2DCD2")
+oM2.DrawSheetOn(oC, "#9AA4AE", 0.7)
 
 aSeeds = []
 for lat = -70 to 70 step 10
@@ -150,13 +154,17 @@ for lat = -70 to 70 step 10
 		aSeeds + lat
 	next
 next
-nLines = oM2.DrawStreamlinesOn(oC, aG, aU, aV, aSeeds, 0.9, 120, "#3E6FAF", 0.8)
-nArrows = oM2.DrawVectorsOn(oC, aG, aU, aV, 5, 26, "#C0392B", 1.3)
+# EVENLY-SPACED, and the stroke carries the speed. The grid-seeded version
+# put the lines where the SEEDS were: crowded in the gyre centres, bald in
+# the drift between them, with no way to read a dense patch as fast flow
+# rather than as a lucky lattice.
+nLines = oM2.DrawFlowOn(oC, aG, aU, aV, 3.2, "#2F5D9E")
+nArrows = 0
 
-oC.SetFontQ(oFont, 12).AddTextQ("" + nLines + " streamlines and " + nArrows +
-	" arrows over the same invented two-gyre flow; the streamlines are " +
-	"fourth-order Runge-Kutta, because Euler's method turns a closed gyre " +
-	"into an opening spiral", 40, nY2 + 430).Fill("#888888")
+oC.SetFontQ(oFont, 12).AddTextQ("" + nLines + " evenly-spaced streamlines over an " +
+	"invented two-gyre flow -- each stops where it comes within half a separation " +
+	"of another, so the SPACING carries nothing and the shape carries everything; " +
+	"the stroke thickens with speed", 40, nY2 + 430).Fill("#888888")
 oC.Flush()
 
 oC.ToPNG("geo_furniture.png")
@@ -178,7 +186,7 @@ oCity.SetPaper(0, 0, 600, 300)
   ", and a bar of " + oCity.ScaleBarAt(140, 48.85)[:km] + " km draws"
 ? ""
 ? "-- the field --"
-? "  " + nLines + " streamlines, " + nArrows + " arrows"
+? "  " + nLines + " evenly-spaced streamlines"
 ? "-> geo_furniture.png"
 
 func _MaxLat paRing

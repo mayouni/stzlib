@@ -1302,6 +1302,17 @@ fn ring_GeoTerminator(p: *anyopaque) callconv(.c) void {
     retF64s(p, out[0 .. got * 2]);
 }
 
+fn ring_GeoNightCap(p: *anyopaque) callconv(.c) void {
+    const sx = gfu.Sun{ .lat = gn(p, 1), .lon = gn(p, 2), .declination = gn(p, 1), .equation_of_time = 0 };
+    var n = argUsize(p, 4);
+    if (n < 8) n = 8;
+    if (n > 4096) n = 4096;
+    const out = alloc.alloc(f64, n * 2) catch return retEmpty(p);
+    defer alloc.free(out);
+    const got = gfu.nightCap(sx, gn(p, 3), n, out);
+    retF64s(p, out[0 .. got * 2]);
+}
+
 fn ring_GeoSolarElevation(p: *anyopaque) callconv(.c) void {
     const sx = gfu.Sun{ .lat = gn(p, 1), .lon = gn(p, 2), .declination = gn(p, 1), .equation_of_time = 0 };
     rn(p, gfu.solarElevation(sx, gn(p, 3), gn(p, 4)));
@@ -1326,6 +1337,49 @@ fn ring_GeoStreamline(p: *anyopaque) callconv(.c) void {
     defer alloc.free(out);
     const n = gfu.streamline(g, u, v, gn(p, 4), gn(p, 5), gn(p, 6), steps, out);
     retF64s(p, out[0 .. n * 2]);
+}
+
+// (grid, u, v, lon0, lat0, lon1, lat1, dSep, stepDeg, maxSteps, maxLines)
+// Answers ONE flat list: [ n, end1, end2, ... endN, lon, lat, lon, lat ... ]
+// -- the count and the cut points first, then every point end to end. A
+// list of lists would be the natural shape and would cross the bridge as
+// one Ring list per streamline; a plot with four hundred of them would
+// then be four hundred allocations to say what two numbers can.
+fn ring_GeoEvenStreamlines(p: *anyopaque) callconv(.c) void {
+    const g = readGrid(p, 1) orelse return retEmpty(p);
+    const u = readPoints(p, 2) orelse return retEmpty(p);
+    defer alloc.free(u);
+    const v = readPoints(p, 3) orelse return retEmpty(p);
+    defer alloc.free(v);
+    var steps = argUsize(p, 10);
+    if (steps < 4) steps = 4;
+    if (steps > 100_000) steps = 100_000;
+    var lines = argUsize(p, 11);
+    if (lines < 1) lines = 1;
+    if (lines > 20_000) lines = 20_000;
+    const pts = alloc.alloc(f64, lines * steps * 2 + 64) catch return retEmpty(p);
+    defer alloc.free(pts);
+    const ends = alloc.alloc(usize, lines) catch return retEmpty(p);
+    defer alloc.free(ends);
+    const n = gfu.evenStreamlines(alloc, g, u, v, gn(p, 4), gn(p, 5), gn(p, 6), gn(p, 7),
+        gn(p, 8), gn(p, 9), steps, pts, ends) catch return retEmpty(p);
+    if (n == 0) return retEmpty(p);
+    const total = ends[n - 1];
+    const out = alloc.alloc(f64, 1 + n + total * 2) catch return retEmpty(p);
+    defer alloc.free(out);
+    out[0] = @floatFromInt(n);
+    for (0..n) |i| out[1 + i] = @floatFromInt(ends[i]);
+    for (0..total * 2) |i| out[1 + n + i] = pts[i];
+    retF64s(p, out);
+}
+
+fn ring_GeoSpeedAt(p: *anyopaque) callconv(.c) void {
+    const g = readGrid(p, 1) orelse return rn(p, 0);
+    const u = readPoints(p, 2) orelse return rn(p, 0);
+    defer alloc.free(u);
+    const v = readPoints(p, 3) orelse return rn(p, 0);
+    defer alloc.free(v);
+    rn(p, gfu.speedAt(g, u, v, gn(p, 4), gn(p, 5)));
 }
 
 fn ring_GeoVectorField(p: *anyopaque) callconv(.c) void {
@@ -1448,10 +1502,13 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginegeojulianday", .func = ring_GeoJulianDay },
     .{ .name = "stzenginegeosunat", .func = ring_GeoSunAt },
     .{ .name = "stzenginegeoterminator", .func = ring_GeoTerminator },
+    .{ .name = "stzenginegeonightcap", .func = ring_GeoNightCap },
     .{ .name = "stzenginegeosolarelevation", .func = ring_GeoSolarElevation },
     .{ .name = "stzenginegeoscalebar", .func = ring_GeoScaleBar },
     .{ .name = "stzenginegeostreamline", .func = ring_GeoStreamline },
     .{ .name = "stzenginegeovectorfield", .func = ring_GeoVectorField },
+    .{ .name = "stzenginegeoevenstreamlines", .func = ring_GeoEvenStreamlines },
+    .{ .name = "stzenginegeospeedat", .func = ring_GeoSpeedAt },
 };
 
 pub fn registerAll(state: *anyopaque) void {
