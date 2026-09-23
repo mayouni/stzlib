@@ -1,0 +1,8 @@
+knowledge "ex-01-01"
+
+facts
+    ex-01-01 | is-a | exercise
+    ex-01-01 | in-chapter | find-then-apply
+    ex-01-01 | trains | ex-03
+    ex-01-01 | needs-step | finds
+    ex-01-01 | needs-step | applies

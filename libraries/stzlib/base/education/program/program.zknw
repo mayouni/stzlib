@@ -1,0 +1,9 @@
+knowledge "softanza-education"
+
+facts
+    softanza-education | is-a | program
+    softanza-education | has-course | elementary-introduction
+    softanza-education | speaks | en
+    softanza-education | speaks | fr
+    softanza-education | speaks | ar
+    softanza-education | speaks | ha

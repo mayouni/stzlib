@@ -103,6 +103,23 @@ No code is written before that.
 **Budget (PX)**: the guard runs in **under 30 seconds**, prints its per-section wall time, and uses one
 Ring process for the chapter plus one per exercise check.
 
+**Status: DONE, 2026-09-23.** `base/test/education/slice_narrated.ring` passes 64 of 64 assertions, and
+every positive has a negative sibling.
+
+**The budget is missed.** Two gate runs measured 38.5 s and 31.0 s of sections, which is 34 s of wall
+time with the library load. The whole cost is child cold starts (about 3 s each, 11 children). The
+first version took 74 s. Running the fresh processes side by side took it to 31–39 s, and kept one
+process per learner check.
+
+**The plan for the remaining seconds** is to measure a smaller library load for learner programs. That
+is a question for the plane that owns `stzBase.ring`'s load order, and it is not education's to change.
+
+**What E1a did NOT prove**, named so that nobody counts it:
+
+- Rule 2 of the tutor (no spoilers) needs more than one chapter; E3 tests it.
+- The fr, ar and ha texts are drafts awaiting native reviewers.
+- Nothing ran in a browser; that is E1b.
+
 ### E1b · The same slice in the browser (gated on `EDU-BROWSER-STZ-01`)
 
 **Done when** the reader page, opened from a folder with no server, runs the chapter's cells and checks
@@ -158,6 +175,8 @@ has a sibling that must fail and one that must pass.
 | `EDU-BROWSER-STZ-01` | ringscript | Run a stzlib cell in a browser from a folder: the engine in the wasm or Ring fallbacks for the slice's calls, a baked stzlib subset, and an offline `file://` loader (the inlined wasm is untested) | E1b and the browser half of E2 |
 | `EDU-PROMISE-RING-01` | stzlib meta | Take ownership of the Ring port of the `promises.py` matching rules once education has written it | nothing; this prevents drift |
 | `EDU-NARRATION-01` | stznarrations | Note the chapter conventions (recap, exercise reference, runs-where) for the `.narration` migration | nothing now |
+| `EDU-HAUSA-LIST-01` | stzlib natural | Add list vocabulary to the Hausa pack (`jeri` for OBJECT_LIST; `cire maimaitattu` for METHOD_REMOVEDUPLICATES), with a Hausa-speaking reviewer. Until then, `EduPrepareLanguage("ha")` merges these words at run time through `StzAddNaturalLanguage` | nothing; the supplement retires when the pack has the words |
+| `EDU-RUNPATH-01` | stzlib system | `StzEngineSystemRunXT` refuses a quoted program path, so a Ring executable installed under a path with a space cannot be run | learners whose Ring is installed under a path with a space |
 | `EDU-SCOPE-01` | central | Register the plane's paths in `SCOPES.md` | nothing |
 | `EDU-LICENCE-01` | author | Name the licence for course content before anything ships. This was already raised by the compass. | E3 publication |
 

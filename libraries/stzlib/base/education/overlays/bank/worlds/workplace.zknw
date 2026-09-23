@@ -1,0 +1,9 @@
+knowledge "workplace"
+
+facts
+    sahel-savings | is-a | bank
+    ticket-1 | requested | transfer
+    ticket-2 | requested | loan
+    ticket-3 | requested | transfer
+    ticket-4 | requested | deposit
+    ticket-5 | requested | transfer
