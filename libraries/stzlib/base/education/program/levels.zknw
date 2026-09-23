@@ -1,0 +1,37 @@
+knowledge "levels"
+
+facts
+    s0 | is-a | level
+    s0 | named | explorer
+    s0 | rank | 0
+    s0 | needs-chapters-through | 04
+    s0 | earned-by | project-s0
+    project-s0 | is-a | project
+
+    s1 | is-a | level
+    s1 | named | builder
+    s1 | rank | 1
+    s1 | needs-chapters-through | 07
+    s1 | earned-by | project-s1
+    project-s1 | is-a | project
+
+    s2 | is-a | level
+    s2 | named | craftsperson
+    s2 | rank | 2
+    s2 | needs-chapters-through | 11
+    s2 | earned-by | project-s2
+    project-s2 | is-a | project
+
+    s3 | is-a | level
+    s3 | named | architect
+    s3 | rank | 3
+    s3 | needs-chapters-through | 14
+    s3 | earned-by | project-s3
+    project-s3 | is-a | project
+
+    s4 | is-a | level
+    s4 | named | master
+    s4 | rank | 4
+    s4 | needs-chapters-through | 15
+    s4 | earned-by | project-s4
+    project-s4 | is-a | project

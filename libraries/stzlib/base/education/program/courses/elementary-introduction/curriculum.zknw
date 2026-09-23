@@ -1,0 +1,60 @@
+knowledge "curriculum-elementary-introduction"
+
+facts
+    elementary-introduction | plans-chapter-01 | find-then-apply
+    elementary-introduction | plans-chapter-02 | a-first-sentence
+    elementary-introduction | plans-chapter-03 | read-the-name-as-a-sentence
+    elementary-introduction | plans-chapter-04 | say-it-in-your-language
+    elementary-introduction | plans-chapter-05 | one-object-any-structure
+    elementary-introduction | plans-chapter-06 | walk-ask-produce-act
+    elementary-introduction | plans-chapter-07 | declare-what-not-how
+    elementary-introduction | plans-chapter-08 | patterns-in-text
+    elementary-introduction | plans-chapter-09 | patterns-in-structure
+    elementary-introduction | plans-chapter-10 | when-code-meets-cells
+    elementary-introduction | plans-chapter-11 | draw-the-answer
+    elementary-introduction | plans-chapter-12 | teach-a-world
+    elementary-introduction | plans-chapter-13 | the-gap-question
+    elementary-introduction | plans-chapter-14 | an-agent-that-cannot-hurt
+    elementary-introduction | plans-chapter-15 | write-a-narration
+
+    find-then-apply | trains | ex-01
+    find-then-apply | trains | ex-02
+    find-then-apply | trains | ex-03
+    a-first-sentence | trains | fo-01
+    a-first-sentence | trains | ex-01
+    read-the-name-as-a-sentence | trains | ex-04
+    say-it-in-your-language | trains | ex-05
+    one-object-any-structure | trains | fo-03
+    walk-ask-produce-act | trains | fo-02
+    declare-what-not-how | trains | fo-04
+    declare-what-not-how | trains | pa-03
+    patterns-in-text | trains | pa-01
+    patterns-in-structure | trains | pa-02
+    when-code-meets-cells | trains | pa-04
+    draw-the-answer | trains | se-01
+    draw-the-answer | trains | se-02
+    teach-a-world | trains | kn-01
+    teach-a-world | trains | kn-02
+    the-gap-question | trains | kn-03
+    the-gap-question | trains | kn-04
+    an-agent-that-cannot-hurt | trains | go-01
+    an-agent-that-cannot-hurt | trains | go-02
+    an-agent-that-cannot-hurt | trains | go-03
+    write-a-narration | trains | cr-01
+    write-a-narration | trains | cr-02
+    write-a-narration | trains | cr-03
+
+    a-first-sentence | requires | find-then-apply
+    read-the-name-as-a-sentence | requires | a-first-sentence
+    say-it-in-your-language | requires | read-the-name-as-a-sentence
+    one-object-any-structure | requires | find-then-apply
+    walk-ask-produce-act | requires | one-object-any-structure
+    declare-what-not-how | requires | walk-ask-produce-act
+    patterns-in-text | requires | declare-what-not-how
+    patterns-in-structure | requires | patterns-in-text
+    when-code-meets-cells | requires | one-object-any-structure
+    draw-the-answer | requires | when-code-meets-cells
+    teach-a-world | requires | declare-what-not-how
+    the-gap-question | requires | teach-a-world
+    an-agent-that-cannot-hurt | requires | the-gap-question
+    write-a-narration | requires | declare-what-not-how

@@ -1,0 +1,11 @@
+knowledge "skill-fo-04"
+
+facts
+    fo-04 | is-a | skill
+    fo-04 | family | formulate
+    fo-04 | foundation-evidence | elementary-introduction/ex-07-01
+    fo-04 | practitioner-evidence | project-s1
+    fo-04 | expert-evidence | project-s2
+    fo-04 | study | stz-conditional-code-narration
+    fo-04 | anchor | cooperative
+    fo-04 | anchor | ministry

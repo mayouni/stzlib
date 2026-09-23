@@ -1,0 +1,11 @@
+knowledge "skill-cr-01"
+
+facts
+    cr-01 | is-a | skill
+    cr-01 | family | craft
+    cr-01 | foundation-evidence | elementary-introduction/ex-15-01
+    cr-01 | practitioner-evidence | project-s3
+    cr-01 | expert-evidence | project-s4
+    cr-01 | study | stz-mental-mode-narration
+    cr-01 | anchor | school
+    cr-01 | anchor | cooperative

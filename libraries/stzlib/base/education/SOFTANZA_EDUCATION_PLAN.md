@@ -153,6 +153,31 @@ guards prove.
 
 ### E3 · Elementary Introduction, first edition
 
+E3 ships in slices, each with its own gate:
+
+| Slice | What | Status |
+|---|---|---|
+| **E3a** | The spine: 25 skills as `skills/<id>.zknw` + `<id>.<lang>.md`, the curriculum (15 chapters, `trains`, `requires`), the levels S0–S4 with a brief per project, and `spine_narrated.ring` | **DONE 2026-09-24**, 32 of 32 |
+| E3b | Chapters 2–6, the Formulate and Express families | next |
+| E3c | Chapters 7–11, Patterns and See | |
+| E3d | Chapters 12–15, Know, Govern and Craft | |
+| E3e | The Zindara missions (3 × 3 steps) and the five level projects, each with a `guard.ring` | |
+
+**What E3a settled.** The curriculum is the PLAN and `course.zknw` is what SHIPS; the spine guard prints
+the planned chapters not yet written by name (14 of 15) and never counts them as shipped. A skill's text
+lives in one file per language with machine keys (`question:`, `foundation:`, ...) so a missing language
+is red, not filled from English. A level is earned only by a project with a `guard.ring`; none has one
+yet, and the guard says so (5 of 5).
+
+**Two limits of `.zknw` as a manifest, found by the spine guard:** an object is a node id, so it may hold
+no space (a sentence goes in a `.md` beside the facts, never in the fact), and two facts may not share a
+node pair (the craft skills' practitioner and expert evidence had to name different projects).
+
+**Two defects in the shared narrations folder, found the same way and routed to its owner:** one file has
+a space in its name (`stzwalker-beyond-loops-the -walker-metaphor.md`) and one a double extension
+(`stztablex-pattern-langauge-for-tables.md.md`). The spine names the second as it is, and cannot name the
+first at all.
+
 - The core course in en · fr · ar · ha: the 25 skills written out, 12–16 chapters, and a kids' track of
   Zindara missions.
 - Levels are earned by a project that passes its guards.

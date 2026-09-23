@@ -1,0 +1,12 @@
+knowledge "skill-pa-04"
+
+facts
+    pa-04 | is-a | skill
+    pa-04 | family | patterns
+    pa-04 | foundation-evidence | elementary-introduction/ex-10-01
+    pa-04 | practitioner-evidence | project-s2
+    pa-04 | expert-evidence | project-s3
+    pa-04 | study | stztable-when-code-meets-cells
+    pa-04 | study | stztablex-pattern-langauge-for-tables.md
+    pa-04 | anchor | bank
+    pa-04 | anchor | cooperative

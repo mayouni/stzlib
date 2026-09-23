@@ -1,0 +1,12 @@
+knowledge "skill-ex-04"
+
+facts
+    ex-04 | is-a | skill
+    ex-04 | family | express
+    ex-04 | foundation-evidence | elementary-introduction/ex-03-01
+    ex-04 | practitioner-evidence | project-s1
+    ex-04 | expert-evidence | project-s2
+    ex-04 | study | stz-functions-as-linguistic-expressions
+    ex-04 | study | stz-function-forms-narration
+    ex-04 | anchor | bank
+    ex-04 | anchor | school

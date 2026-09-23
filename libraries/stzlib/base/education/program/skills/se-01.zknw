@@ -1,0 +1,12 @@
+knowledge "skill-se-01"
+
+facts
+    se-01 | is-a | skill
+    se-01 | family | see
+    se-01 | foundation-evidence | elementary-introduction/ex-11-01
+    se-01 | practitioner-evidence | project-s2
+    se-01 | expert-evidence | project-s3
+    se-01 | study | stzstring-vizfind-narration
+    se-01 | study | stzgraph-modeling-knowledge-with-nodes-and-connections
+    se-01 | anchor | school
+    se-01 | anchor | cooperative

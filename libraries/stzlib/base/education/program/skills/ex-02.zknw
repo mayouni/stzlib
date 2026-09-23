@@ -1,0 +1,11 @@
+knowledge "skill-ex-02"
+
+facts
+    ex-02 | is-a | skill
+    ex-02 | family | express
+    ex-02 | foundation-evidence | zindara-missions/mission-01
+    ex-02 | practitioner-evidence | project-s1
+    ex-02 | expert-evidence | project-s2
+    ex-02 | study | stz-mental-mode-narration
+    ex-02 | anchor | restaurant
+    ex-02 | anchor | school

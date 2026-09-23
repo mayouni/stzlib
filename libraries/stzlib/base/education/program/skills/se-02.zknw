@@ -1,0 +1,11 @@
+knowledge "skill-se-02"
+
+facts
+    se-02 | is-a | skill
+    se-02 | family | see
+    se-02 | foundation-evidence | elementary-introduction/ex-11-02
+    se-02 | practitioner-evidence | project-s2
+    se-02 | expert-evidence | project-s3
+    se-02 | study | stz-plotting-system-narration
+    se-02 | anchor | ministry
+    se-02 | anchor | cooperative
