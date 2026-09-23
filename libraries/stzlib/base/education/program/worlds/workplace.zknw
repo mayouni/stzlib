@@ -1,0 +1,10 @@
+knowledge "workplace"
+
+facts
+    bella-cucina | is-a | restaurant
+    order-1 | requested | margherita
+    order-2 | requested | tiramisu
+    order-3 | requested | margherita
+    order-4 | requested | lasagna
+    order-5 | requested | tiramisu
+    order-6 | requested | margherita

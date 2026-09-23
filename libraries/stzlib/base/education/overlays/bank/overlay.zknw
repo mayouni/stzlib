@@ -1,0 +1,6 @@
+knowledge "bank"
+
+facts
+    bank | is-a | overlay
+    bank | extends | softanza-education
+    bank | replaces-world | workplace

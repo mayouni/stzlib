@@ -900,6 +900,20 @@ load "geo/stzGeoProcess.ring"
     # onto the classes above, same as the two files just loaded.
     load "agentic/stzAgentRoster.ring"
 
+    # education/ -- THE SOFTANZA LEARNING SYSTEM (plane stzlib-education,
+    # base/education/CHARTER.md): a program is a folder, a chapter is a
+    # narration whose every cell RUNS, an exercise is a promise checked by
+    # running it in a fresh process, and progress is written only by the
+    # checker. Composes natural/, conversation/, graph/ and meta/ above --
+    # no new runtime, no new format (manifests are .zknw facts).
+    load "education/stzEducation.ring"
+    load "education/stzProgram.ring"
+    load "education/stzChapter.ring"
+    load "education/stzExercise.ring"
+    load "education/stzLearner.ring"
+    load "education/stzTutor.ring"
+    load "education/stzEduReader.ring"
+
     # refine/ -- REFINEMENT PROGRAMMING (R6): stzPolyCode comes home --
     # code carries typed refinement points; a change is a typed proposal
     # through the gate, with cascade preview + reversibility.

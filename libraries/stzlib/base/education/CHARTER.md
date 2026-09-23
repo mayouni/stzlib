@@ -158,9 +158,16 @@ ontology
     requires | transitive
 ```
 
-**A known limit:** `.zknw` has no ordered list, so order is carried in the relation name
-(`has-chapter-NN`). If that proves clumsy in E1, the fallback is a numbered filename order. Numbered
-chapter files are already the naming rule, so the fallback costs nothing.
+**Two known limits.**
+
+- **`.zknw` has no ordered list**, so order is carried in the relation name (`has-chapter-NN`). If that
+  proves clumsy, the fallback is a numbered filename order. Numbered chapter files are already the naming
+  rule, so the fallback costs nothing.
+- **The graph keeps one edge per pair of nodes.** This was found by the E1a guard on 2026-09-23:
+  `ali | tried | ex-01-01` and `ali | passed | ex-01-01` cannot both exist, and the second one raises when
+  the file loads. Every manifest therefore gives each fact about the same pair its own subject or its
+  own object. Progress facts hang off `ex-01-01-by-ali`, and prefixes such as `attempt:` and `sha256:`
+  stop two equal hashes from becoming one node. The fact shape is documented in `stzLearner.ring`.
 
 ### 5.3 Chapters: narration markdown now, `.narration` later
 
@@ -192,6 +199,20 @@ nothing about `.narration`.
 4. **Prove the exercise itself.** The exercise's own guard runs every file in `wrong/` (each must
    **fail**) and every file in `right/` (each must **pass**). An exercise that accepts a wrong answer is a
    red guard. Every positive has a negative sibling.
+
+**Two limits of the runner, found in E1a.**
+
+- **A path with a space.** The engine's system call does not accept a quoted program path. The runner
+  therefore refuses a Ring executable whose path contains a space, and says so, instead of failing with a
+  shell message (`EDU-RUNPATH-01`).
+- **The child's working directory.** The child finds the engine by walking up from its working directory,
+  so the checker must run inside the stzlib tree.
+
+Neither limit touches the learner's folder, which can be anywhere.
+
+**Cold start is the cost of a check**, at about 3 s per child process, because each child loads the
+whole library. To stay inside the guard's budget without merging learner programs into one process,
+fresh processes run side by side, at most four at a time (`StzEduRunPrograms`).
 
 The Ring port of the matching rules is education's to write. It is offered to the meta plane as the
 long-term owner, because `promises.py` is theirs and two copies of one rule set drift apart.
