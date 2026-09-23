@@ -1,0 +1,7 @@
+knowledge "gov-01"
+
+facts
+    gov-01 | is-a | exercise
+    gov-01 | in-course | governed-agents
+    gov-01 | trains | go-01
+    gov-01 | submits | pia

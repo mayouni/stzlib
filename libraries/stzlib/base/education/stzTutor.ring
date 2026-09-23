@@ -112,6 +112,16 @@ func _EduTemplates()
 	[ "passed", "ar", "لقد نجحت، وأثبت المدقّق ذلك بتشغيل برنامجك. قارن الآن طريقتك بطرق أخرى: اسألني عن أي دالة." ],
 	[ "passed", "ha", "Ka ci nasara, kuma mai dubawa ya tabbatar da haka ta hanyar gudanar da shirinka. Yanzu kwatanta hanyarka da wasu: tambaye ni game da kowace hanya." ],
 
+	[ "why-passed-decl", "en", "The court judged your declaration, and every promise of the exercise was kept." ],
+	[ "why-passed-decl", "fr", "La cour a jugé votre déclaration, et toutes les promesses de l'exercice ont été tenues." ],
+	[ "why-passed-decl", "ar", "حكمت المحكمة على تصريحك، وتحققت كل وعود التمرين." ],
+	[ "why-passed-decl", "ha", "Kotu ta yi hukunci a kan bayaninka, kuma duk alkawuran aikin sun cika." ],
+
+	[ "why-diverged-decl", "en", "The court judged your declaration, and its verdict is not yet what the task asks. It said: %1" ],
+	[ "why-diverged-decl", "fr", "La cour a jugé votre déclaration, et son verdict n'est pas encore ce que la tâche demande. Elle a dit : %1" ],
+	[ "why-diverged-decl", "ar", "حكمت المحكمة على تصريحك، وحكمها ليس بعدُ ما تطلبه المهمة. قالت: %1" ],
+	[ "why-diverged-decl", "ha", "Kotu ta yi hukunci a kan bayaninka, amma hukuncinta ba shi ne abin da aikin ke nema ba tukuna. Ta ce: %1" ],
+
 	[ "why-passed", "en", "Every promise of the exercise was kept when your program ran." ],
 	[ "why-passed", "fr", "Toutes les promesses de l'exercice ont été tenues quand votre programme s'est exécuté." ],
 	[ "why-passed", "ar", "تحققت كل وعود التمرين عندما شُغّل برنامجك." ],

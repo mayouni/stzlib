@@ -1,0 +1,7 @@
+knowledge "mission-01"
+
+facts
+    mission-01 | is-a | exercise
+    mission-01 | in-course | zindara-missions
+    mission-01 | trains | ex-02
+    mission-01 | needs-step | applies

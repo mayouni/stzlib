@@ -65,6 +65,8 @@ class stzExercise from stzObject
 	@cId = ""
 	@acPromises = []
 	@aFacts = []
+	@cHarness = ""
+	@cExt = ".ring"
 
 	def init(pcFolder)
 		@cFolder = _EduNoSlash(pcFolder)
@@ -78,6 +80,16 @@ class stzExercise from stzObject
 		ok
 		if fexists(@cFolder + "/exercise.zknw")
 			@aFacts = _EduFactsOf(@cFolder + "/exercise.zknw")
+		ok
+		# A HARNESS exercise: the learner submits a file that is not a
+		# program (a .pia declaration, a .zknw world), and check.ring runs
+		# the library's own court on it. %SUBMISSION% names the file.
+		if fexists(@cFolder + "/check.ring")
+			@cHarness = read(@cFolder + "/check.ring")
+			_acX_ = _EduObjects(@aFacts, @cId, "submits")
+			if len(_acX_) > 0
+				@cExt = "." + _acX_[1]
+			ok
 		ok
 
 	def Id()
@@ -105,7 +117,15 @@ class stzExercise from stzObject
 	#-- checking
 
 	def Check(pcCode)
-		return new stzExerciseCheck(@cId, @acPromises, pcCode, [])
+		return This.CheckMany([ pcCode ])[1]
+
+	def HasHarness()
+		return @cHarness != ""
+
+	# What the learner hands in: ".ring" for a program, or the extension
+	# the exercise names with `<id> | submits | pia`.
+	def SubmissionExtension()
+		return @cExt
 
 	def CheckFile(pcFile)
 		return This.Check(read(pcFile))
@@ -119,7 +139,7 @@ class stzExercise from stzObject
 		_acF_ = sort(StzEngineDirListFiles(_cDir_))
 		_nL_ = len(_acF_)
 		for _i_ = 1 to _nL_
-			if StzRight(_acF_[_i_], 5) = ".ring"
+			if StzRight(_acF_[_i_], StzLen(@cExt)) = @cExt
 				_acRes_ + (_cDir_ + "/" + _acF_[_i_])
 			ok
 		next
@@ -134,14 +154,31 @@ class stzExercise from stzObject
 	# Checks several programs, each in its own fresh process, side by side.
 	def CheckMany(pacCodes)
 		_acProgs_ = []
+		_acTemp_ = []
 		_nL_ = len(pacCodes)
 		for _i_ = 1 to _nL_
-			_acProgs_ + StzEduWithLibrary(pacCodes[_i_])
+			if @cHarness = ""
+				_acProgs_ + StzEduWithLibrary(pacCodes[_i_])
+			else
+				$nStzEduRun++
+				_cSub_ = "_edu_sub_" + $nStzEduRun + @cExt
+				write(_cSub_, pacCodes[_i_])
+				_acTemp_ + _cSub_
+				_acProgs_ + StzEduWithLibrary(StzReplace(@cHarness, "%SUBMISSION%", _cSub_))
+			ok
 		next
 		_aRuns_ = StzEduRunPrograms(_acProgs_)
+		_nT_ = len(_acTemp_)
+		for _i_ = 1 to _nT_
+			remove(_acTemp_[_i_])
+		next
 		_aRes_ = []
 		for _i_ = 1 to _nL_
-			_aRes_ + new stzExerciseCheck(@cId, @acPromises, pacCodes[_i_], _aRuns_[_i_])
+			_oK_ = new stzExerciseCheck(@cId, @acPromises, pacCodes[_i_], _aRuns_[_i_])
+			if @cHarness != ""
+				_oK_.SetKind("decl")
+			ok
+			_aRes_ + _oK_
 		next
 		return _aRes_
 
@@ -223,6 +260,10 @@ class stzExerciseCheck from stzObject
 	@bPassed = 0
 	@cHash = ""
 	@nCheckedAtMs = 0
+	@cKind = ""     # "" for a program, "decl" for a submission a harness judged
+
+	def SetKind(pcKind)
+		@cKind = pcKind
 
 	def init(pcId, pacPromises, pcCode, paRun)
 		@cId = pcId
@@ -285,7 +326,7 @@ class stzExerciseCheck from stzObject
 
 	def WhyIn(pcLang)
 		if @bPassed
-			return _EduSay(pcLang, "why-passed", "")
+			return _EduSay(pcLang, "why-passed" + This._Suffix(), "")
 		ok
 		if @cError != ""
 			return _EduSay(pcLang, "why-error", @cError)
@@ -305,5 +346,11 @@ class stzExerciseCheck from stzObject
 		if _c_ = ""
 			_c_ = "(nothing)"
 		ok
-		return _EduSay(pcLang, "why-diverged", _c_)
+		return _EduSay(pcLang, "why-diverged" + This._Suffix(), _c_)
+
+	def _Suffix()
+		if @cKind = "decl"
+			return "-decl"
+		ok
+		return ""
 

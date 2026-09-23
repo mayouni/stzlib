@@ -1,0 +1,6 @@
+knowledge "governed-agents"
+
+facts
+    governed-agents | is-a | course
+    governed-agents | for-level | professional
+    governed-agents | has-exercise | gov-01
