@@ -1,6 +1,6 @@
 # The Softanza Learning System -- Plan
 
-> Companion to `CHARTER.md`. Plane `stzlib-education`. E0 draft, 2026-09-23, against `main` `04cff1c34`.
+> Companion to `CHARTER.md`. Plane `stzlib-education`. E0 RATIFIED 2026-09-23 as proposed, against `main` `04cff1c34`.
 > Every phase has a **definition of done that a guard can prove**. A phase that is done in prose only is not done.
 
 ## A. The Zin contradictions, in full

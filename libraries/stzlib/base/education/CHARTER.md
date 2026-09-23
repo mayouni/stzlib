@@ -1,7 +1,7 @@
 # The Softanza Learning System -- Charter
 
 > `base/education/` · plane `stzlib-education` · task `COMPASS-CT-LEARNING-01`
-> Status: **E0 DRAFT, awaiting the author's ratification.** No code is written before it.
+> Status: **E0 RATIFIED by the author on 2026-09-23, as proposed (D1–D5 accepted).** E1a is next.
 > Written 2026-09-23 against stzlib `main` at `04cff1c34`.
 
 ## 1. What this module is
