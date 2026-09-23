@@ -190,6 +190,91 @@ class stzProgram from stzObject
 	def CourseQ(pcSlug)
 		return new stzCourse(This, pcSlug)
 
+	#-- skills and levels
+
+	# Every skill the core AND the overlay bring, by id, sorted.
+	def SkillIds()
+		_acRes_ = []
+		_acDirs_ = [ @cCore + "/skills" ]
+		if @cOverlay != ""
+			_acDirs_ + (@cOverlay + "/skills")
+		ok
+		_nD_ = len(_acDirs_)
+		for _d_ = 1 to _nD_
+			if NOT StzEngineDirExists(_acDirs_[_d_])
+				loop
+			ok
+			_acF_ = StzEngineDirListFiles(_acDirs_[_d_])
+			_nF_ = len(_acF_)
+			for _i_ = 1 to _nF_
+				if StzRight(_acF_[_i_], 5) = ".zknw"
+					_cId_ = StzLeft(_acF_[_i_], StzLen(_acF_[_i_]) - 5)
+					if StzFindFirst(_cId_, _acRes_) = 0
+						_acRes_ + _cId_
+					ok
+				ok
+			next
+		next
+		return sort(_acRes_)
+
+	def SkillQ(pcId)
+		_cDir_ = This.FolderFor("skills")
+		if @cOverlay != "" and fexists(@cOverlay + "/skills/" + StzLower(pcId) + ".zknw")
+			_cDir_ = @cOverlay + "/skills"
+		else
+			_cDir_ = @cCore + "/skills"
+		ok
+		return new stzSkill(_cDir_, pcId)
+
+	def LevelFacts()
+		_cF_ = This.FileFor("levels.zknw")
+		if _cF_ = ""
+			return []
+		ok
+		return _EduFactsOf(_cF_)
+
+	# Level ids in rank order.
+	def LevelIds()
+		_aF_ = This.LevelFacts()
+		_aPairs_ = []
+		_nL_ = len(_aF_)
+		for _i_ = 1 to _nL_
+			if StzLower(_aF_[_i_][2]) = "is-a" and StzLower(_aF_[_i_][3]) = "level"
+				_acR_ = _EduObjects(_aF_, _aF_[_i_][1], "rank")
+				_nR_ = 0
+				if len(_acR_) > 0
+					_nR_ = 0 + _acR_[1]
+				ok
+				_aPairs_ + [ _nR_, _aF_[_i_][1] ]
+			ok
+		next
+		_aPairs_ = sort(_aPairs_, 1)
+		_acRes_ = []
+		_nP_ = len(_aPairs_)
+		for _i_ = 1 to _nP_
+			_acRes_ + _aPairs_[_i_][2]
+		next
+		return _acRes_
+
+	# One value of a level's fact, "" if absent.
+	def LevelFact(pcLevel, pcRelation)
+		_ac_ = _EduObjects(This.LevelFacts(), pcLevel, pcRelation)
+		if len(_ac_) = 0
+			return ""
+		ok
+		return _ac_[1]
+
+	def ProjectIds()
+		_aF_ = This.LevelFacts()
+		_acRes_ = []
+		_nL_ = len(_aF_)
+		for _i_ = 1 to _nL_
+			if StzLower(_aF_[_i_][2]) = "is-a" and StzLower(_aF_[_i_][3]) = "project"
+				_acRes_ + _aF_[_i_][1]
+			ok
+		next
+		return _acRes_
+
 class stzCourse from stzObject
 
 	@oProgram
@@ -210,6 +295,103 @@ class stzCourse from stzObject
 
 	def Program()
 		return @oProgram
+
+	#-- the curriculum: the PLAN of the course, against which what SHIPS
+	#   (course.zknw) is measured. It carries plans-chapter-NN, trains
+	#   and requires; course.zknw carries only what exists.
+
+	def CurriculumFacts()
+		_cF_ = @oProgram.FileFor("courses/" + @cSlug + "/curriculum.zknw")
+		if _cF_ = ""
+			return []
+		ok
+		return _EduFactsOf(_cF_)
+
+	def HasCurriculum()
+		return len(This.CurriculumFacts()) > 0
+
+	def PlannedChapterIds()
+		_aF_ = This.CurriculumFacts()
+		_aPairs_ = []
+		_cS_ = StzLower(@cSlug)
+		_nL_ = len(_aF_)
+		for _i_ = 1 to _nL_
+			if StzLower(_aF_[_i_][1]) = _cS_ and StzLeft(StzLower(_aF_[_i_][2]), 14) = "plans-chapter-"
+				_aPairs_ + [ _aF_[_i_][2], _aF_[_i_][3] ]
+			ok
+		next
+		_aPairs_ = sort(_aPairs_, 1)
+		_acRes_ = []
+		_nP_ = len(_aPairs_)
+		for _i_ = 1 to _nP_
+			_acRes_ + _aPairs_[_i_][2]
+		next
+		return _acRes_
+
+	# Planned chapters with no text yet -- printed by name, never summed
+	# into the shipped count.
+	def UnwrittenChapterIds()
+		_acPlan_ = This.PlannedChapterIds()
+		_acHave_ = This.ChapterIds()
+		_acRes_ = []
+		_nL_ = len(_acPlan_)
+		for _i_ = 1 to _nL_
+			if StzFindFirst(_acPlan_[_i_], _acHave_) = 0
+				_acRes_ + _acPlan_[_i_]
+			ok
+		next
+		return _acRes_
+
+	def Trains(pcChapterId)
+		return _EduObjects(This.CurriculumFacts(), pcChapterId, "trains")
+
+	def Requires(pcChapterId)
+		return _EduObjects(This.CurriculumFacts(), pcChapterId, "requires")
+
+	def TrainedBy(pcSkillId)
+		_aF_ = This.CurriculumFacts()
+		_acRes_ = []
+		_nL_ = len(_aF_)
+		for _i_ = 1 to _nL_
+			if StzLower(_aF_[_i_][2]) = "trains" and StzLower(_aF_[_i_][3]) = StzLower(pcSkillId)
+				_acRes_ + _aF_[_i_][1]
+			ok
+		next
+		return _acRes_
+
+	# Everything a chapter needs first, walked to the root; a cycle raises.
+	def Prerequisites(pcChapterId)
+		_acRes_ = []
+		This._Walk(pcChapterId, _acRes_, [ pcChapterId ])
+		return _acRes_
+
+	def _Walk(pcId, pacInto, pacPath)
+		_acReq_ = This.Requires(pcId)
+		_nL_ = len(_acReq_)
+		for _i_ = 1 to _nL_
+			_c_ = _acReq_[_i_]
+			if StzFindFirst(_c_, pacPath) > 0
+				StzRaise("The curriculum has a cycle: " + _c_ + " requires itself through " + pcId + ".")
+			ok
+			if StzFindFirst(_c_, pacInto) = 0
+				pacInto + _c_
+				_acDeeper_ = pacPath
+				_acDeeper_ + _c_
+				This._Walk(_c_, pacInto, _acDeeper_)
+			ok
+		next
+
+	def HasCycle()
+		_acPlan_ = This.PlannedChapterIds()
+		_nL_ = len(_acPlan_)
+		for _i_ = 1 to _nL_
+			try
+				This.Prerequisites(_acPlan_[_i_])
+			catch
+				return 1
+			done
+		next
+		return 0
 
 	# Chapter ids in course order (the order lives in the relation name,
 	# has-chapter-NN, because .zknw has no ordered list -- charter 5.2).

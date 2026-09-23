@@ -1,0 +1,12 @@
+knowledge "skill-ex-05"
+
+facts
+    ex-05 | is-a | skill
+    ex-05 | family | express
+    ex-05 | foundation-evidence | elementary-introduction/ex-04-01
+    ex-05 | practitioner-evidence | project-s1
+    ex-05 | expert-evidence | project-s2
+    ex-05 | study | stznatural-narration
+    ex-05 | study | stz-near-natural-language-tutorial
+    ex-05 | anchor | school
+    ex-05 | anchor | ministry

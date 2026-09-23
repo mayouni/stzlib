@@ -1,0 +1,11 @@
+knowledge "skill-fo-01"
+
+facts
+    fo-01 | is-a | skill
+    fo-01 | family | formulate
+    fo-01 | foundation-evidence | elementary-introduction/ex-02-01
+    fo-01 | practitioner-evidence | project-s1
+    fo-01 | expert-evidence | project-s2
+    fo-01 | study | stz-mental-mode-narration
+    fo-01 | anchor | restaurant
+    fo-01 | anchor | bank

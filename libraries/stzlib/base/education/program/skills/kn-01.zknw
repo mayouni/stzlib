@@ -1,0 +1,11 @@
+knowledge "skill-kn-01"
+
+facts
+    kn-01 | is-a | skill
+    kn-01 | family | know
+    kn-01 | foundation-evidence | elementary-introduction/ex-12-01
+    kn-01 | practitioner-evidence | project-s3
+    kn-01 | expert-evidence | project-s4
+    kn-01 | study | stz-knowledge-programming-narration
+    kn-01 | anchor | restaurant
+    kn-01 | anchor | bank

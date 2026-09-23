@@ -1,0 +1,11 @@
+knowledge "skill-kn-04"
+
+facts
+    kn-04 | is-a | skill
+    kn-04 | family | know
+    kn-04 | foundation-evidence | elementary-introduction/ex-13-02
+    kn-04 | practitioner-evidence | project-s3
+    kn-04 | expert-evidence | project-s4
+    kn-04 | study | stz-near-natural-language-tutorial
+    kn-04 | anchor | school
+    kn-04 | anchor | ministry

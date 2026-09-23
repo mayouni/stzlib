@@ -1,0 +1,11 @@
+knowledge "skill-go-02"
+
+facts
+    go-02 | is-a | skill
+    go-02 | family | govern
+    go-02 | foundation-evidence | governed-agents/gov-02
+    go-02 | practitioner-evidence | project-s3
+    go-02 | expert-evidence | project-s4
+    go-02 | study | stz-agents-that-cannot-hurt-you-narration
+    go-02 | anchor | bank
+    go-02 | anchor | ministry

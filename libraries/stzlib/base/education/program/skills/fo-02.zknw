@@ -1,0 +1,11 @@
+knowledge "skill-fo-02"
+
+facts
+    fo-02 | is-a | skill
+    fo-02 | family | formulate
+    fo-02 | foundation-evidence | elementary-introduction/ex-06-01
+    fo-02 | practitioner-evidence | project-s1
+    fo-02 | expert-evidence | project-s2
+    fo-02 | study | stzwalker-walking-at-the-edge-narration
+    fo-02 | anchor | restaurant
+    fo-02 | anchor | cooperative

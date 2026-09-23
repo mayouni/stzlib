@@ -1,0 +1,11 @@
+knowledge "skill-ex-01"
+
+facts
+    ex-01 | is-a | skill
+    ex-01 | family | express
+    ex-01 | foundation-evidence | elementary-introduction/ex-02-01
+    ex-01 | practitioner-evidence | project-s1
+    ex-01 | expert-evidence | project-s2
+    ex-01 | study | stz-mental-mode-narration
+    ex-01 | anchor | restaurant
+    ex-01 | anchor | bank

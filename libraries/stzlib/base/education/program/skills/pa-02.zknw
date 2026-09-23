@@ -1,0 +1,12 @@
+knowledge "skill-pa-02"
+
+facts
+    pa-02 | is-a | skill
+    pa-02 | family | patterns
+    pa-02 | foundation-evidence | elementary-introduction/ex-09-01
+    pa-02 | practitioner-evidence | project-s2
+    pa-02 | expert-evidence | project-s3
+    pa-02 | study | stzlistex-pattern-matching-for-lists
+    pa-02 | study | stznumbrex-pattern-language-for-number
+    pa-02 | anchor | cooperative
+    pa-02 | anchor | school

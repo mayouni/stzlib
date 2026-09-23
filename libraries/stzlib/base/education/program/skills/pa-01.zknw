@@ -1,0 +1,11 @@
+knowledge "skill-pa-01"
+
+facts
+    pa-01 | is-a | skill
+    pa-01 | family | patterns
+    pa-01 | foundation-evidence | elementary-introduction/ex-08-01
+    pa-01 | practitioner-evidence | project-s2
+    pa-01 | expert-evidence | project-s3
+    pa-01 | study | stzregexmaker-making-regex-human-freindly-narration
+    pa-01 | anchor | bank
+    pa-01 | anchor | ministry

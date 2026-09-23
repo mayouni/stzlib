@@ -4,6 +4,5 @@ facts
     elementary-introduction | is-a | course
     elementary-introduction | has-chapter-01 | find-then-apply
     find-then-apply | is-a | chapter
-    find-then-apply | trains | ex-03
     find-then-apply | uses-world | workplace
     find-then-apply | has-exercise | ex-01-01

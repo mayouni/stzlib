@@ -1,0 +1,12 @@
+knowledge "skill-pa-03"
+
+facts
+    pa-03 | is-a | skill
+    pa-03 | family | patterns
+    pa-03 | foundation-evidence | elementary-introduction/ex-07-02
+    pa-03 | practitioner-evidence | project-s2
+    pa-03 | expert-evidence | project-s3
+    pa-03 | study | stz-conditional-code-narration
+    pa-03 | study | stz-rules-as-graph-rules-narration
+    pa-03 | anchor | bank
+    pa-03 | anchor | ministry

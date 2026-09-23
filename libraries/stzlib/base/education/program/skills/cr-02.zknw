@@ -1,0 +1,11 @@
+knowledge "skill-cr-02"
+
+facts
+    cr-02 | is-a | skill
+    cr-02 | family | craft
+    cr-02 | foundation-evidence | elementary-introduction/ex-15-02
+    cr-02 | practitioner-evidence | project-s3
+    cr-02 | expert-evidence | project-s4
+    cr-02 | study | istrue-softanza-truth
+    cr-02 | anchor | school
+    cr-02 | anchor | bank

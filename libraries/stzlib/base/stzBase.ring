@@ -908,6 +908,7 @@ load "geo/stzGeoProcess.ring"
     # no new runtime, no new format (manifests are .zknw facts).
     load "education/stzEducation.ring"
     load "education/stzProgram.ring"
+    load "education/stzSkill.ring"
     load "education/stzChapter.ring"
     load "education/stzExercise.ring"
     load "education/stzLearner.ring"

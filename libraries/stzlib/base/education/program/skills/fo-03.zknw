@@ -1,0 +1,11 @@
+knowledge "skill-fo-03"
+
+facts
+    fo-03 | is-a | skill
+    fo-03 | family | formulate
+    fo-03 | foundation-evidence | elementary-introduction/ex-05-01
+    fo-03 | practitioner-evidence | project-s1
+    fo-03 | expert-evidence | project-s2
+    fo-03 | study | stz-unfied-item-finding-with-@find
+    fo-03 | anchor | bank
+    fo-03 | anchor | school

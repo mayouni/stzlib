@@ -1,0 +1,11 @@
+knowledge "skill-ex-03"
+
+facts
+    ex-03 | is-a | skill
+    ex-03 | family | express
+    ex-03 | foundation-evidence | elementary-introduction/ex-01-01
+    ex-03 | practitioner-evidence | project-s1
+    ex-03 | expert-evidence | project-s2
+    ex-03 | study | stz-mental-mode-narration
+    ex-03 | anchor | restaurant
+    ex-03 | anchor | cooperative
