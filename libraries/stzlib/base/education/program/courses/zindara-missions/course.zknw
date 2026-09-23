@@ -1,0 +1,8 @@
+knowledge "zindara-missions"
+
+facts
+    zindara-missions | is-a | course
+    zindara-missions | for-ages | 8-11
+    zindara-missions | set-in | zindara
+    zindara | is-a | village
+    zindara-missions | has-exercise | mission-01

@@ -133,6 +133,21 @@ the exercise in a browser, and the E1a guard's six points hold there.
 **Done when** the 15-minute script in §D runs end to end from a clean folder, **twice in a row**, with
 nothing but Softanza.
 
+**Status: DONE, 2026-09-24.** `base/education/demo/demo.ring` plays the eight scenes and computes every
+claim while it shows it: 20 proved, 0 not proved. `base/test/education/demo_narrated.ring` runs it twice
+from a clean workspace (17 of 17) and asserts the two transcripts are identical word for word, except the
+one clock reading in a learner's progress file. One run takes 35–40 s; the guard takes about 75 s and is
+E2's gate, run once per change to the demo. The presenter's guide is `demo/DEMO.md`.
+
+**What E2 added to the program:** two more courses, so scene 7 is real. `zindara-missions` holds a child's
+mission (Amina's customers, answerable in Hausa) and `governed-agents` holds a professional's exercise
+whose submission is a `.pia` declaration judged by the library's own court. That needed one new exercise
+form: a **harness** exercise, where `check.ring` names what the court runs on `%SUBMISSION%` and the
+facts say `gov-01 | submits | pia`.
+
+**What E2 did NOT prove:** the browser clause of "zero install", as decided in D4. The demo says on stage
+that cells run on the desktop, and the page says it on every cell.
+
 After E2, education asks Central to rate `base/education/` as a card on the Atlas, graded by what the
 guards prove.
 

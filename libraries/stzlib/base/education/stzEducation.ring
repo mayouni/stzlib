@@ -70,11 +70,43 @@ func StzEduRunProgram(pcCode)
 	return [ "" + _aR_[1], 0 + _aR_[2], "" + _aR_[3] ]
 
 # The same code, preceded by the library -- what a learner's program is.
+func StzEduCopyTree(pcFrom, pcTo)
+	StzEngineDirCreatePath(pcTo)
+	_acF_ = StzEngineDirListFiles(pcFrom)
+	_nF_ = len(_acF_)
+	for _i_ = 1 to _nF_
+		write(pcTo + "/" + _acF_[_i_], read(pcFrom + "/" + _acF_[_i_]))
+	next
+	_acD_ = StzEngineDirListDirs(pcFrom)
+	_nD_ = len(_acD_)
+	for _i_ = 1 to _nD_
+		StzEduCopyTree(pcFrom + "/" + _acD_[_i_], pcTo + "/" + _acD_[_i_])
+	next
+
+func StzEduRemoveTree(pcDir)
+	if NOT StzEngineDirExists(pcDir)
+		return
+	ok
+	_acF_ = StzEngineDirListFiles(pcDir)
+	_nF_ = len(_acF_)
+	for _i_ = 1 to _nF_
+		remove(pcDir + "/" + _acF_[_i_])
+	next
+	_acD_ = StzEngineDirListDirs(pcDir)
+	_nD_ = len(_acD_)
+	for _i_ = 1 to _nD_
+		StzEduRemoveTree(pcDir + "/" + _acD_[_i_])
+	next
+	StzEngineDirDelete(pcDir)
+
 func StzEduRunSoftanza(pcCode)
 	return StzEduRunProgram(StzEduWithLibrary(pcCode))
 
+# The learner's prelude also merges the Hausa supplement, so a child who
+# answers in Hausa is checked like everyone else (EDU-HAUSA-LIST-01).
 func StzEduWithLibrary(pcCode)
-	return 'load "' + StzEduBaseFile() + '"' + char(10) + pcCode + char(10)
+	return 'load "' + StzEduBaseFile() + '"' + char(10) +
+	       'EduPrepareLanguage("ha")' + char(10) + pcCode + char(10)
 
 # Several programs, each in its OWN fresh process (isolation is kept),
 # run side by side -- at most 4 at a time, because each child loads the
