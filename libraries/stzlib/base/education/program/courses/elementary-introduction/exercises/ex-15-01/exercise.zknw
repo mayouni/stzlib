@@ -1,0 +1,6 @@
+knowledge "ex-15-01"
+
+facts
+    ex-15-01 | is-a | exercise
+    ex-15-01 | in-chapter | write-a-narration
+    ex-15-01 | trains | cr-01

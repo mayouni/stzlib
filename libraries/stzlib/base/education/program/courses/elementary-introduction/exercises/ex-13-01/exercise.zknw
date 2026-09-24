@@ -1,0 +1,6 @@
+knowledge "ex-13-01"
+
+facts
+    ex-13-01 | is-a | exercise
+    ex-13-01 | in-chapter | the-gap-question
+    ex-13-01 | trains | kn-03

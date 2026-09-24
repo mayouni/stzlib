@@ -1,0 +1,6 @@
+cDoc = "# Mini" + char(10) + "```ring" + char(10) + "? Q('tea').Uppercased()" + char(10) + "#--> TEA" + char(10) + "```" + char(10)
+write("t_ex15_d.en.md", cDoc)
+oCh = StzChapterQ("t_ex15_d.en.md", "en")
+oCh.Run("")
+? oCh.AllPromisesKept()
+remove("t_ex15_d.en.md")

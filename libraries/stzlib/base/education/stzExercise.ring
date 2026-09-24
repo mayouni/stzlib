@@ -161,7 +161,7 @@ class stzExercise from stzObject
 				_acProgs_ + StzEduWithLibrary(pacCodes[_i_])
 			else
 				$nStzEduRun++
-				_cSub_ = "_edu_sub_" + $nStzEduRun + @cExt
+				_cSub_ = _EduTempName("_edu_sub_", @cExt)
 				write(_cSub_, pacCodes[_i_])
 				_acTemp_ + _cSub_
 				_acProgs_ + StzEduWithLibrary(StzReplace(@cHarness, "%SUBMISSION%", _cSub_))

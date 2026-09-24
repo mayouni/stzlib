@@ -63,7 +63,7 @@ func StzEduBaseFile()
 # next to the caller and removed after the run.
 func StzEduRunProgram(pcCode)
 	$nStzEduRun++
-	_cFile_ = "_edu_run_" + $nStzEduRun + ".ring"
+	_cFile_ = _EduTempName("_edu_run_", ".ring")
 	write(_cFile_, pcCode)
 	_aR_ = StzEngineSystemRunXT(StzEduRingExe() + " " + _cFile_)
 	remove(_cFile_)
@@ -128,7 +128,7 @@ func StzEduRunPrograms(pacCodes)
 		_acFiles_ = []
 		for _i_ = _nFrom_ to _nTo_
 			$nStzEduRun++
-			_cFile_ = "_edu_run_" + $nStzEduRun + ".ring"
+			_cFile_ = _EduTempName("_edu_run_", ".ring")
 			write(_cFile_, pacCodes[_i_])
 			_acFiles_ + _cFile_
 			_aKids_ + SpawnProcess(StzEduRingExe() + " " + _cFile_)
@@ -344,3 +344,9 @@ func EduPrepareLanguage(pcLang)
 			return
 		ok
 	next
+
+# A scratch file name no other process can be using: a chapter cell may
+# itself run a check (chapter 15 does), and the child's first counter
+# value would otherwise collide with the parent's running script.
+func _EduTempName(pcPrefix, pcExt)
+	return pcPrefix + ProcessId() + "_" + $nStzEduRun + pcExt

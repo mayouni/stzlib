@@ -51,3 +51,27 @@ facts
     draw-the-answer | is-a | chapter
     draw-the-answer | has-exercise | ex-11-01
     draw-the-answer | has-exercise | ex-11-02
+
+    elementary-introduction | has-chapter-12 | teach-a-world
+    elementary-introduction | has-chapter-13 | the-gap-question
+    elementary-introduction | has-chapter-14 | an-agent-that-cannot-hurt
+    elementary-introduction | has-chapter-15 | write-a-narration
+
+    teach-a-world | is-a | chapter
+    teach-a-world | uses-world | workplace
+    teach-a-world | has-exercise | ex-12-01
+    teach-a-world | has-exercise | ex-12-02
+
+    the-gap-question | is-a | chapter
+    the-gap-question | has-exercise | ex-13-01
+    the-gap-question | has-exercise | ex-13-02
+
+    an-agent-that-cannot-hurt | is-a | chapter
+    an-agent-that-cannot-hurt | has-exercise | ex-14-01
+    an-agent-that-cannot-hurt | has-exercise | ex-14-02
+    an-agent-that-cannot-hurt | has-exercise | ex-14-03
+
+    write-a-narration | is-a | chapter
+    write-a-narration | has-exercise | ex-15-01
+    write-a-narration | has-exercise | ex-15-02
+    write-a-narration | has-exercise | ex-15-03

@@ -1,0 +1,6 @@
+knowledge "ex-12-01"
+
+facts
+    ex-12-01 | is-a | exercise
+    ex-12-01 | in-chapter | teach-a-world
+    ex-12-01 | trains | kn-01
