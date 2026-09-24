@@ -258,6 +258,39 @@ has a sibling that must fail and one that must pass.
 guide's steps, executed as written, produce a valid overlay; whether the prose is clear to that person
 is for the first institution to say.
 
+### E5 · The tutor's rule 2, the gap E3 left open
+
+E3 closed saying the tutor's no-spoiler rule "holds trivially and is untested". With fifteen chapters
+it can bite, and now it does.
+
+**Status: DONE, 2026-09-24**, `tutor_narrated.ring` 45 of 45 in about 50 s. What shipped:
+
+- **Rule 2 is a question of position.** `stzTutor.WithCourse(oCourse)` gives the tutor the course;
+  `stzLearner.ChapterOn(oCourse)` says where the learner is (the first chapter with an exercise not
+  passed with evidence). A question about a chapter **ahead** is named and not explained, and ends on
+  a question about the current step; a chapter **behind** is recalled in that chapter's own recap
+  words (`stzChapter.RecapAchieved`, the first bullet of the last section, in the learner's language);
+  only the current chapter gets the gap conversation. Without the course the tutor knows one exercise
+  and the rule cannot bite; the guard proves both faces.
+- **What a question is about is read from the course, not guessed.** `stzCourse.TeachesWhere(name)`
+  is the first chapter whose cells call the name (`stzChapter.CalledNames`, indexed once, 0.15 s for
+  fifteen chapters); failing a name, the chapter whose title words the question uses in the learner's
+  language (`TitleOf`), two of them. So "How do I use KnowRelation" and "Comment enseigner un monde ?"
+  both point at chapter 12, and "What is missing in my program?" points at nothing.
+- The guard walks one learner through the course with **real runs**: twelve right answers submitted
+  and accepted in about 35 s, and the same question asked at chapter 2 (ahead), 12 (current) and 13
+  (behind), in English and Arabic.
+
+**Two defects the guard found in rule 1's filter, both fixed.** A promised output `1` (ex-13-01) was
+blanked inside "chapter 12", so the reply read "chapter ......": the filter now blanks WHOLE words
+only, with word edges of either script. And a chapter number is course structure, not a promised
+output, even when the digits agree (chapter 1 exists and ex-13-01 promises `1`): a rule-2 sentence is
+filtered before its number and title are set in.
+
+**Not claimed.** A title match is word-exact after lowercasing and the removal of Arabic writing marks:
+a morphological variant of a title word ("أعلّم" for "علّم") misses, and the guard asks in the title's
+own words. The natural module's resolver is the right home for more than that.
+
 ## D. The demo script, 15 minutes
 
 | Minute | What the decision maker sees | What proves it |

@@ -313,6 +313,8 @@ class stzCourse from stzObject
 	@oProgram
 	@cSlug = ""
 	@aFacts = []
+	@aTeachIndex = []     # [ chapter id, names its cells call, the same lowercased ]
+	@aTitleIndex = []     # [ language, chapter id, title ]
 
 	# The course's facts are the CORE's course.zknw plus, when an overlay
 	# is laid on, the overlay's own courses/<slug>/course.zknw -- MERGED,
@@ -482,6 +484,62 @@ class stzCourse from stzObject
 			StzRaise("Chapter '" + pcId + "' has no text in '" + pcLang + "'.")
 		ok
 		return new stzChapter(_cF_, pcLang)
+
+	#-- what each chapter teaches, read from its own cells (the tutor's rule 2)
+
+	# The names a chapter's cells call, from its English edition: the
+	# cells are identical in every edition, only the prose moves.
+	def NamesTaughtBy(pcId)
+		This._IndexTeaching()
+		_nL_ = len(@aTeachIndex)
+		for _i_ = 1 to _nL_
+			if @aTeachIndex[_i_][1] = pcId
+				return @aTeachIndex[_i_][2]
+			ok
+		next
+		return []
+
+	# The first chapter, in course order, whose cells call a name; ""
+	# when no chapter does. Case does not matter.
+	def TeachesWhere(pcName)
+		This._IndexTeaching()
+		_cN_ = StzLower(pcName)
+		_nL_ = len(@aTeachIndex)
+		for _i_ = 1 to _nL_
+			if StzFindFirst(_cN_, @aTeachIndex[_i_][3]) > 0
+				return @aTeachIndex[_i_][1]
+			ok
+		next
+		return ""
+
+	# The title of a chapter in a language, from that edition's first line.
+	def TitleOf(pcId, pcLang)
+		_cLang_ = StzLower(pcLang)
+		_nL_ = len(@aTitleIndex)
+		for _i_ = 1 to _nL_
+			if @aTitleIndex[_i_][1] = _cLang_ and @aTitleIndex[_i_][2] = pcId
+				return @aTitleIndex[_i_][3]
+			ok
+		next
+		_cT_ = This.ChapterQ(pcId, pcLang).Title()
+		@aTitleIndex + [ _cLang_, pcId, _cT_ ]
+		return _cT_
+
+	def _IndexTeaching()
+		if len(@aTeachIndex) > 0
+			return
+		ok
+		_acCh_ = This.ChapterIds()
+		_nL_ = len(_acCh_)
+		for _i_ = 1 to _nL_
+			_acN_ = This.ChapterQ(_acCh_[_i_], "en").CalledNames()
+			_acLow_ = []
+			_nN_ = len(_acN_)
+			for _j_ = 1 to _nN_
+				_acLow_ + StzLower(_acN_[_j_])
+			next
+			@aTeachIndex + [ _acCh_[_i_], _acN_, _acLow_ ]
+		next
 
 	def WorldRoleOf(pcId)
 		_acR_ = _EduObjects(@aFacts, pcId, "uses-world")

@@ -154,6 +154,67 @@ class stzChapter from stzObject
 
 	#-- running it
 
+	#-- what the chapter teaches, in its own words (the tutor's rule 2)
+
+	# The names the chapter's cells call: what the chapter TEACHES, read
+	# from its code rather than declared beside it.
+	def CalledNames()
+		_acRes_ = []
+		_nL_ = len(@acCells)
+		for _i_ = 1 to _nL_
+			_acN_ = _EduCalledNames(@acCells[_i_])
+			_nN_ = len(_acN_)
+			for _j_ = 1 to _nN_
+				if StzFindFirst(_acN_[_j_], _acRes_) = 0
+					_acRes_ + _acN_[_j_]
+				ok
+			next
+		next
+		return _acRes_
+
+	# The first bullet of the recap -- what the chapter achieved, in the
+	# chapter's own language, without its bold label. The recap is the
+	# chapter's last section in every edition.
+	def RecapAchieved()
+		_acLines_ = StzSplit(StzReplace(read(@cFile), char(13), ""), char(10))
+		_nL_ = len(_acLines_)
+		_nStart_ = 0
+		for _i_ = 1 to _nL_
+			if StzLeft(_acLines_[_i_], 3) = "## "
+				_nStart_ = _i_
+			ok
+		next
+		if _nStart_ = 0
+			return ""
+		ok
+		_cRes_ = ""
+		_bIn_ = 0
+		for _i_ = _nStart_ + 1 to _nL_
+			_c_ = _acLines_[_i_]
+			if StzLeft(_c_, 2) = "- "
+				if _bIn_
+					exit
+				ok
+				_bIn_ = 1
+				_cRes_ = ring_trim(StzRight(_c_, StzLen(_c_) - 2))
+			but _bIn_
+				if ring_trim(_c_) = ""
+					exit
+				ok
+				_cRes_ += " " + ring_trim(_c_)
+			ok
+		next
+		if StzLeft(_cRes_, 2) = "**"
+			_acParts_ = StzSplit(_cRes_, "**")
+			_cRes_ = ""
+			_nP_ = len(_acParts_)
+			for _i_ = 3 to _nP_
+				_cRes_ += _acParts_[_i_]
+			next
+			_cRes_ = ring_trim(_cRes_)
+		ok
+		return _cRes_
+
 	def _Program(pbWithLibrary, pcWorldFile)
 		_c_ = ""
 		if pbWithLibrary
