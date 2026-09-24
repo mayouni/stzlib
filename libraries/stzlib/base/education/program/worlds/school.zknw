@@ -1,0 +1,21 @@
+knowledge "workplace"
+
+# A secondary school in Niamey. Families and pupils request transcripts,
+# textbooks, a place in a class and certificates; the chapters ask what was
+# requested and which subject is taught where. A teaching world: choose it
+# with WithWorld("school").
+
+facts
+    lycee-de-niamey | is-a | school
+    request-1 | requested | transcript
+    request-2 | requested | textbook
+    request-3 | requested | transcript
+    request-4 | requested | enrolment
+    request-5 | requested | certificate
+    request-6 | requested | textbook
+    request-7 | requested | transcript
+    mathematics | taught-in | class-3a
+    physics | taught-in | class-3a
+    history | taught-in | class-3b
+    class-3a | led-by | mme-garba
+    class-3b | led-by | m-issoufou

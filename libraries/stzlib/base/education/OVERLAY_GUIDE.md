@@ -52,6 +52,16 @@ Chapter 1 asks this world what was `requested`, counts the repeats and removes t
 `requested`, and put your own things after it. Add any other facts you like: chapter 12 shows what the
 learners can do with them.
 
+The court holds every world to this contract: one `is-a` fact, and `requested` facts with at least one
+repeat. The core ships three worlds a learner can choose without any overlay -- `workplace` (a restaurant,
+the default), `cooperative` and `school`:
+
+```ring
+oProgram = StzProgramQ("base/education/program").WithWorldQ("school")
+```
+
+Inside your overlay, your `worlds/workplace.zknw` is the workplace, whatever a learner chose.
+
 ## 4. An exercise of your own (optional)
 
 Attach an exercise to a chapter. Two things are needed.

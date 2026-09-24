@@ -1,0 +1,20 @@
+knowledge "workplace"
+
+# A farmers' cooperative on the Tillaberi plain. Its members request seed,
+# fertiliser, credit and storage; the chapters ask what was requested and
+# who grows what. A teaching world: choose it with WithWorld("cooperative").
+
+facts
+    tillaberi-cooperative | is-a | cooperative
+    request-1 | requested | seed
+    request-2 | requested | fertiliser
+    request-3 | requested | seed
+    request-4 | requested | credit
+    request-5 | requested | storage
+    request-6 | requested | seed
+    request-7 | requested | credit
+    amadou | grows | millet
+    hadiza | grows | cowpea
+    issa | grows | millet
+    millet | stored-in | granary-1
+    cowpea | stored-in | granary-2

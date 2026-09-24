@@ -67,6 +67,7 @@ class stzProgram from stzObject
 	@cCore = ""
 	@cOverlay = ""
 	@aFacts = []
+	@cWorld = ""     # the teaching world a learner chose ("" = the role's own file)
 
 	def init(pcFolder)
 		@cCore = _EduNoSlash(pcFolder)
@@ -197,8 +198,63 @@ class stzProgram from stzObject
 		ok
 		return ""
 
+	# The world a chapter reasons over, by ROLE ("workplace"). An overlay
+	# that ships worlds/<role>.zknw wins -- the institution's world IS the
+	# workplace, whatever a learner chose; then the learner's chosen world
+	# (WithWorld); then the core's file of that role.
 	def WorldFile(pcRole)
+		if @cOverlay != "" and fexists(@cOverlay + "/worlds/" + pcRole + ".zknw")
+			return @cOverlay + "/worlds/" + pcRole + ".zknw"
+		ok
+		if @cWorld != ""
+			return This.FileFor("worlds/" + @cWorld + ".zknw")
+		ok
 		return This.FileFor("worlds/" + pcRole + ".zknw")
+
+	#-- the teaching worlds a learner may choose without any overlay
+
+	# The names of every world file the program (and its overlay) ships.
+	def WorldIds()
+		_acRes_ = []
+		_acRoots_ = [ @cCore ]
+		if @cOverlay != ""
+			_acRoots_ + @cOverlay
+		ok
+		_nR_ = len(_acRoots_)
+		for _r_ = 1 to _nR_
+			_cDir_ = _acRoots_[_r_] + "/worlds"
+			if NOT StzEngineDirExists(_cDir_)
+				loop
+			ok
+			_acF_ = StzEngineDirListFiles(_cDir_)
+			_nF_ = len(_acF_)
+			for _i_ = 1 to _nF_
+				if StzRight(_acF_[_i_], 5) = ".zknw"
+					_cId_ = StzLeft(_acF_[_i_], StzLen(_acF_[_i_]) - 5)
+					if StzFindFirst(_cId_, _acRes_) = 0
+						_acRes_ + _cId_
+					ok
+				ok
+			next
+		next
+		return sort(_acRes_)
+
+	# A world that is not shipped is refused, never quietly the default.
+	def WithWorld(pcName)
+		if This.FileFor("worlds/" + pcName + ".zknw") = ""
+			StzRaise("No world '" + pcName + "' in the program; it ships " + @@(This.WorldIds()) + ".")
+		ok
+		@cWorld = pcName
+
+		def WithWorldQ(pcName)
+			This.WithWorld(pcName)
+			return This
+
+	def World()
+		return @cWorld
+
+	def HasWorld()
+		return @cWorld != ""
 
 	def CourseQ(pcSlug)
 		return new stzCourse(This, pcSlug)

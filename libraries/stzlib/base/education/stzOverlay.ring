@@ -125,22 +125,18 @@ class stzOverlay from stzObject
 					"'" + _acL_[_i_] + "' is not a language of the core program (" + @@(_acCoreLangs_) + "); a new language is added to the natural pack, not declared here")
 			ok
 		next
-		# worlds: every world file loads, every replaced world is shipped
+		# worlds: every world file loads and keeps the teaching world's
+		# contract (StzEduWorldFindings); every replaced world is shipped
 		_cW_ = @cFolder + "/worlds"
 		if StzEngineDirExists(_cW_)
 			_acWf_ = StzEngineDirListFiles(_cW_)
 			_nW_ = len(_acWf_)
 			for _i_ = 1 to _nW_
-				try
-					_oK_ = new stzKnowledgeGraph("check")
-					_oK_.ImportKnow(_cW_ + "/" + _acWf_[_i_])
-					if len(_oK_.Facts()) = 0
-						_aF_ + This._Finding("overlay-world", @cName, "worlds/" + _acWf_[_i_], "error", "the world holds no fact")
-					ok
-				catch
-					_aF_ + This._Finding("overlay-world", @cName, "worlds/" + _acWf_[_i_], "error",
-						"the world does not load: " + StzLeft(cCatchError, 120))
-				done
+				_acMsg_ = StzEduWorldFindings(_cW_ + "/" + _acWf_[_i_])
+				_nM_ = len(_acMsg_)
+				for _j_ = 1 to _nM_
+					_aF_ + This._Finding("overlay-world", @cName, "worlds/" + _acWf_[_i_], "error", _acMsg_[_j_])
+				next
 			next
 		ok
 		_acRw_ = This.ReplacedWorlds()

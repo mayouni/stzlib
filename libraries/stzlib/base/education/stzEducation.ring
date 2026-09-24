@@ -297,6 +297,51 @@ func EduWorldObjects(pcRelation)
 	next
 	return _acRes_
 
+# THE CONTRACT OF A TEACHING WORLD, as the chapters need it: one `is-a`
+# fact (the world's name), and `requested` facts with at least one
+# repeat (chapter 1 removes the duplicates, chapter 5 counts the most
+# requested). Returns the messages; empty means the world keeps the
+# contract. The overlay court and the worlds guard both ask this.
+func StzEduWorldFindings(pcFile)
+	_acRes_ = []
+	_oK_ = new stzKnowledgeGraph("world-check")
+	_bLoaded_ = 1
+	try
+		_oK_.ImportKnow(pcFile)
+	catch
+		_bLoaded_ = 0
+		_acRes_ + ("the world does not load: " + StzLeft(cCatchError, 120))
+	done
+	if NOT _bLoaded_
+		return _acRes_
+	ok
+	if len(_oK_.Facts()) = 0
+		_acRes_ + "the world holds no fact"
+		return _acRes_
+	ok
+	if len(_oK_.Query([ "?x", "is-a", "?t" ])) = 0
+		_acRes_ + "no `<name> | is-a | <kind>` fact: the chapters print the world's name from it"
+	ok
+	_aReq_ = _oK_.Query([ "?s", "requested", "?o" ])
+	_nR_ = len(_aReq_)
+	if _nR_ < 2
+		_acRes_ + "fewer than two `requested` facts: chapter 1 asks the world what was requested"
+	else
+		_acSeen_ = []
+		_bRepeat_ = 0
+		for _i_ = 1 to _nR_
+			if StzFindFirst(_aReq_[_i_][2], _acSeen_) > 0
+				_bRepeat_ = 1
+			else
+				_acSeen_ + _aReq_[_i_][2]
+			ok
+		next
+		if NOT _bRepeat_
+			_acRes_ + "no request is repeated: chapter 1 removes the duplicates and chapter 5 counts the most requested"
+		ok
+	ok
+	return _acRes_
+
 # "bella-cucina (restaurant)" -- the first thing the world says it is.
 func EduWorldName()
 	_aPairs_ = EduWorld().Query([ "?x", "is-a", "?t" ])
