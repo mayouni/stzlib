@@ -1,0 +1,6 @@
+knowledge "ex-03-01"
+
+facts
+    ex-03-01 | is-a | exercise
+    ex-03-01 | in-chapter | read-the-name-as-a-sentence
+    ex-03-01 | trains | ex-04

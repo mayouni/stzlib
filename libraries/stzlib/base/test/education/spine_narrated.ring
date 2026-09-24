@@ -154,7 +154,8 @@ for i = 1 to len(acUnwritten)
 next
 Then("shipped + unwritten = planned, and the two are never summed as shipped",
 	len(acHave) + len(acUnwritten), len(acPlan))
-Then("one chapter ships today", len(acHave), 1)
+? "  [shipped] " + len(acHave) + " of " + len(acPlan) + " planned chapters"
+Then("at least one chapter ships", len(acHave) >= 1, 1)
 EndScenario()
 
 #---------------------------------------------------------------------------
@@ -193,8 +194,24 @@ next
 for i = 1 to len(acNotYet)
 	? "      " + acNotYet[i]
 next
-Then("the three skills the E1/E2 exercises train are backed today", len(acBacked), 3)
 Then("backed + not yet = 25, and neither is claimed as the other", len(acBacked) + len(acNotYet), 25)
+acOrphan = []
+for i = 1 to len(acHave)
+	acExIds = oC.ExercisesOf(acHave[i])
+	for e = 1 to len(acExIds)
+		bBacks = 0
+		for j = 1 to len(acSkills)
+			if oP.SkillQ(acSkills[j]).Evidence("foundation") = "elementary-introduction/" + acExIds[e]
+				bBacks = 1
+			ok
+		next
+		if NOT bBacks
+			acOrphan + acExIds[e]
+		ok
+	next
+next
+Then("every exercise a shipped chapter references backs at least one skill", @@(acOrphan), "[ ]")
+Then("the backed count never falls below the three E1/E2 exercises", len(acBacked) >= 3, 1)
 Then("every practitioner and expert evidence names a project the levels file declares", @@(acBadProject), "[ ]")
 EndScenario()
 

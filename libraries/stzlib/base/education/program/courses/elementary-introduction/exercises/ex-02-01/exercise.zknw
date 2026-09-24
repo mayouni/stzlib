@@ -1,0 +1,6 @@
+knowledge "ex-02-01"
+
+facts
+    ex-02-01 | is-a | exercise
+    ex-02-01 | in-chapter | a-first-sentence
+    ex-02-01 | trains | fo-01

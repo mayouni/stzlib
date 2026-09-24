@@ -145,7 +145,9 @@ class stzChapter from stzObject
 		_c_ = ""
 		if pbWithLibrary
 			_c_ += 'load "' + StzEduBaseFile() + '"' + char(10)
-			_c_ += 'EduPrepareLanguage("' + @cLang + '")' + char(10)
+			# every edition of a chapter may show all four languages, so the
+			# Hausa supplement is loaded whatever the chapter's own language
+			_c_ += 'EduPrepareLanguage("ha")' + char(10)
 			if pcWorldFile != ""
 				_c_ += 'EduUseWorld("' + pcWorldFile + '")' + char(10)
 			ok

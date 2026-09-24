@@ -1,0 +1,6 @@
+knowledge "ex-04-01"
+
+facts
+    ex-04-01 | is-a | exercise
+    ex-04-01 | in-chapter | say-it-in-your-language
+    ex-04-01 | trains | ex-05

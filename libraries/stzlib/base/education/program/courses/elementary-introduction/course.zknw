@@ -3,6 +3,29 @@ knowledge "elementary-introduction"
 facts
     elementary-introduction | is-a | course
     elementary-introduction | has-chapter-01 | find-then-apply
+    elementary-introduction | has-chapter-02 | a-first-sentence
+    elementary-introduction | has-chapter-03 | read-the-name-as-a-sentence
+    elementary-introduction | has-chapter-04 | say-it-in-your-language
+    elementary-introduction | has-chapter-05 | one-object-any-structure
+    elementary-introduction | has-chapter-06 | walk-ask-produce-act
+
     find-then-apply | is-a | chapter
     find-then-apply | uses-world | workplace
     find-then-apply | has-exercise | ex-01-01
+
+    a-first-sentence | is-a | chapter
+    a-first-sentence | uses-world | workplace
+    a-first-sentence | has-exercise | ex-02-01
+
+    read-the-name-as-a-sentence | is-a | chapter
+    read-the-name-as-a-sentence | has-exercise | ex-03-01
+
+    say-it-in-your-language | is-a | chapter
+    say-it-in-your-language | has-exercise | ex-04-01
+
+    one-object-any-structure | is-a | chapter
+    one-object-any-structure | uses-world | workplace
+    one-object-any-structure | has-exercise | ex-05-01
+
+    walk-ask-produce-act | is-a | chapter
+    walk-ask-produce-act | has-exercise | ex-06-01

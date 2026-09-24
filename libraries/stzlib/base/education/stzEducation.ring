@@ -326,6 +326,13 @@ func EduPrepareLanguage(pcLang)
 		if StzLower($aLanguageDefinitions[_i_][:code]) = "ha"
 			_aDef_ = $aLanguageDefinitions[_i_]
 			_aMap_ = _aDef_[:semantic_mappings]
+			# idempotent: a second call finds the words already there
+			_nM_ = len(_aMap_)
+			for _j_ = 1 to _nM_
+				if _aMap_[_j_][:natural] = "jeri"
+					return
+				ok
+			next
 			_aMap_ + [ :natural = "jeri", :semantic = "OBJECT_LIST" ]
 			_aMap_ + [ :natural = "jerin", :semantic = "OBJECT_LIST" ]
 			_aDef_[:semantic_mappings] = _aMap_
