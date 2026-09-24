@@ -1,0 +1,6 @@
+knowledge "ex-06-01"
+
+facts
+    ex-06-01 | is-a | exercise
+    ex-06-01 | in-chapter | walk-ask-produce-act
+    ex-06-01 | trains | fo-02

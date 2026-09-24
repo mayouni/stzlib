@@ -1,0 +1,6 @@
+knowledge "ex-05-01"
+
+facts
+    ex-05-01 | is-a | exercise
+    ex-05-01 | in-chapter | one-object-any-structure
+    ex-05-01 | trains | fo-03

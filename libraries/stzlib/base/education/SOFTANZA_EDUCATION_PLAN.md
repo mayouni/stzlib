@@ -158,8 +158,8 @@ E3 ships in slices, each with its own gate:
 | Slice | What | Status |
 |---|---|---|
 | **E3a** | The spine: 25 skills as `skills/<id>.zknw` + `<id>.<lang>.md`, the curriculum (15 chapters, `trains`, `requires`), the levels S0–S4 with a brief per project, and `spine_narrated.ring` | **DONE 2026-09-24**, 32 of 32 |
-| E3b | Chapters 2–6, the Formulate and Express families | next |
-| E3c | Chapters 7–11, Patterns and See | |
+| **E3b** | Chapters 2–6, the Formulate and Express families, each in four languages with one exercise proved by wrong and right answers, and `course_narrated.ring`, the gate over every shipped chapter | **DONE 2026-09-24**, 90 of 90 |
+| E3c | Chapters 7–11, Patterns and See | next |
 | E3d | Chapters 12–15, Know, Govern and Craft | |
 | E3e | The Zindara missions (3 × 3 steps) and the five level projects, each with a `guard.ring` | |
 
@@ -172,6 +172,15 @@ yet, and the guard says so (5 of 5).
 **Two limits of `.zknw` as a manifest, found by the spine guard:** an object is a node id, so it may hold
 no space (a sentence goes in a `.md` beside the facts, never in the fact), and two facts may not share a
 node pair (the craft skills' practitioner and expert evidence had to name different projects).
+
+**What E3b settled.** The course gate (`course_narrated.ring`) runs every shipped chapter in all four
+languages, in fresh processes, and proves every exercise; a scoped run (`ring course_narrated.ring
+<chapter>`) prints the chapters it skipped by name. Editions of a chapter may word a cell in their own
+language, but must make the same promises cell for cell. Every cell was probed before its promise was
+written, and the probe found **three dead promises in the shared narrations** (`AllRemoved`,
+`IsNotUppercase`, `Wk`, which do not exist on this build) and that **`stzWalker` lives in the `max`
+tier**, not in `base`; chapter 6 therefore teaches the four moves on `base` alone and says so. The gate
+costs 120–180 s for six chapters, all of it fresh-process cold starts, and is run once per change.
 
 **Two defects in the shared narrations folder, found the same way and routed to its owner:** one file has
 a space in its name (`stzwalker-beyond-loops-the -walker-metaphor.md`) and one a double extension
