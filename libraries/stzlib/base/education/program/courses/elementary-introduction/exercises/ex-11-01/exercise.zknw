@@ -1,0 +1,6 @@
+knowledge "ex-11-01"
+
+facts
+    ex-11-01 | is-a | exercise
+    ex-11-01 | in-chapter | draw-the-answer
+    ex-11-01 | trains | se-01

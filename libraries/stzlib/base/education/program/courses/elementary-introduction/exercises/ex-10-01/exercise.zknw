@@ -1,0 +1,6 @@
+knowledge "ex-10-01"
+
+facts
+    ex-10-01 | is-a | exercise
+    ex-10-01 | in-chapter | when-code-meets-cells
+    ex-10-01 | trains | pa-04

@@ -159,7 +159,7 @@ E3 ships in slices, each with its own gate:
 |---|---|---|
 | **E3a** | The spine: 25 skills as `skills/<id>.zknw` + `<id>.<lang>.md`, the curriculum (15 chapters, `trains`, `requires`), the levels S0–S4 with a brief per project, and `spine_narrated.ring` | **DONE 2026-09-24**, 32 of 32 |
 | **E3b** | Chapters 2–6, the Formulate and Express families, each in four languages with one exercise proved by wrong and right answers, and `course_narrated.ring`, the gate over every shipped chapter | **DONE 2026-09-24**, 90 of 90 |
-| E3c | Chapters 7–11, Patterns and See | next |
+| **E3c** | Chapters 7–11, Patterns and See (conditions as data, patterns in text, in lists and numbers, tables, drawn answers), each in four languages with proved exercises; a chapter menu in the reader | **DONE 2026-09-24** |
 | E3d | Chapters 12–15, Know, Govern and Craft | |
 | E3e | The Zindara missions (3 × 3 steps) and the five level projects, each with a `guard.ring` | |
 
@@ -181,6 +181,14 @@ written, and the probe found **three dead promises in the shared narrations** (`
 `IsNotUppercase`, `Wk`, which do not exist on this build) and that **`stzWalker` lives in the `max`
 tier**, not in `base`; chapter 6 therefore teaches the four moves on `base` alone and says so. The gate
 costs 120–180 s for six chapters, all of it fresh-process cold starts, and is run once per change.
+
+**What E3c settled.** Two more narration promises are dead on this build and were routed with the
+others: `stzRegexMaker`'s builder (`4Times()`, `DefineGroup`) and the listex claim that `[@N1-3, @S]`
+refuses `[4, 5, 6, "extra"]` (three numbers do satisfy one-to-three; four do not). Chapter 8 therefore
+teaches patterns written by hand and says why the builder is not shown. Two rules for authors, paid for:
+**probe a cell from a file, never through `eval`** (a backslash reads differently), and **`stzNumbrex` is
+used through a variable**, since `new stzNumbrex(...).Match()` inline raises. The reader now shows one
+chapter at a time per language, with a chapter menu; the hash is `lang:n`.
 
 **Two defects in the shared narrations folder, found the same way and routed to its owner:** one file has
 a space in its name (`stzwalker-beyond-loops-the -walker-metaphor.md`) and one a double extension
