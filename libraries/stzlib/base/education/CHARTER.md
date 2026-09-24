@@ -6,8 +6,9 @@
 > projects with guards, the institution kit (overlay guide and court, two reference overlays, cohorts with
 > narrated reports), E5 (the tutor's rule 2, tested against the course: ahead is named, behind is
 > recalled, only the current chapter is explained), E6 (three teaching worlds a learner can choose:
-> the restaurant, a cooperative, a school) and E7 (a page per world, in four languages), ten gates.
-> Every phase of the plan is shipped; the phase record is in `SOFTANZA_EDUCATION_PLAN.md`.
+> the restaurant, a cooperative, a school), E7 (a page per world, in four languages) and E8 (the
+> learner's desk: `tools/learn.ring` and `tools/build_reader.ring`), eleven gates. Every phase of the
+> plan is shipped; the phase record is in `SOFTANZA_EDUCATION_PLAN.md`.
 > Written 2026-09-23 against stzlib `main` at `04cff1c34`.
 
 ## 1. What this module is
