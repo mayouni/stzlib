@@ -256,6 +256,67 @@ class stzProgram from stzObject
 	def HasWorld()
 		return @cWorld != ""
 
+	#-- a page per world: the world itself, questioned, in the chapter format
+
+	def WorldPageFile(pcWorld, pcLang)
+		return This.FileFor("worlds/" + pcWorld + "." + pcLang + ".md")
+
+	# A world with no page in a language is a RED fact, never a quiet
+	# fallback to English (law 7).
+	def WorldPageQ(pcWorld, pcLang)
+		_cF_ = This.WorldPageFile(pcWorld, pcLang)
+		if _cF_ = ""
+			StzRaise("World '" + pcWorld + "' has no page in '" + pcLang + "'.")
+		ok
+		return new stzChapter(_cF_, pcLang)
+
+	# The worlds that have a page in at least one language.
+	def WorldsWithPages()
+		_acRes_ = []
+		_acW_ = This.WorldIds()
+		_acL_ = This.Languages()
+		_nW_ = len(_acW_)
+		_nL_ = len(_acL_)
+		for _i_ = 1 to _nW_
+			for _j_ = 1 to _nL_
+				if This.WorldPageFile(_acW_[_i_], _acL_[_j_]) != ""
+					_acRes_ + _acW_[_i_]
+					exit
+				ok
+			next
+		next
+		return _acRes_
+
+	# Runs every cell of a world's page in one fresh process over THAT
+	# world (never the chosen one), then observes where each cell can run.
+	def RunWorldPageQ(pcWorld, pcLang)
+		_oCh_ = This.WorldPageQ(pcWorld, pcLang)
+		_oCh_.Run(This.FileFor("worlds/" + pcWorld + ".zknw"))
+		_oCh_.ObserveWhere()
+		return _oCh_
+
+	# The page in several languages, each edition in its own fresh
+	# process, side by side (the shape of stzCourse.RunChapterInQ).
+	def RunWorldPageInQ(pcWorld, pacLangs)
+		_aCh_ = []
+		_acProgs_ = []
+		_cWorld_ = This.FileFor("worlds/" + pcWorld + ".zknw")
+		_nL_ = len(pacLangs)
+		for _i_ = 1 to _nL_
+			_oCh_ = This.WorldPageQ(pcWorld, pacLangs[_i_])
+			_acProgs_ + _oCh_.RunProgram(_cWorld_)
+			_aCh_ + _oCh_
+		next
+		for _i_ = 1 to _nL_
+			_acProgs_ + _aCh_[_i_].WhereProgram()
+		next
+		_aRuns_ = StzEduRunPrograms(_acProgs_)
+		for _i_ = 1 to _nL_
+			_aCh_[_i_].AcceptRun(_aRuns_[_i_])
+			_aCh_[_i_].AcceptWhere(_aRuns_[_nL_ + _i_])
+		next
+		return _aCh_
+
 	def CourseQ(pcSlug)
 		return new stzCourse(This, pcSlug)
 

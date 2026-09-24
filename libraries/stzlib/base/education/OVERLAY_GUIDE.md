@@ -62,6 +62,12 @@ oProgram = StzProgramQ("base/education/program").WithWorldQ("school")
 
 Inside your overlay, your `worlds/workplace.zknw` is the workplace, whatever a learner chose.
 
+**A page for your world (optional).** Each core world has a page, `worlds/<world>.<lang>.md`, in the
+chapter format: prose and cells that question the world, with `#-->` promises, and no stored output. You
+may write one for yours, `worlds/workplace.en.md` and so on. If you do, the court holds it to the same
+law as a chapter: one edition in every language you speak, no stored output, and every promise kept when
+the page is RUN over your world. Read `program/worlds/cooperative.en.md` for the shape.
+
 ## 4. An exercise of your own (optional)
 
 Attach an exercise to a chapter. Two things are needed.

@@ -8,3 +8,8 @@ facts
     order-4 | requested | lasagna
     order-5 | requested | tiramisu
     order-6 | requested | margherita
+    margherita | contains | tomato
+    margherita | contains | mozzarella
+    tiramisu | contains | mascarpone
+    lasagna | contains | beef
+    lasagna | contains | pasta

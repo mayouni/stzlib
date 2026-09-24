@@ -200,6 +200,7 @@ class stzEduReader from stzObject
 
 	@oCourse
 	@aChapters = []
+	@acKinds = []    # "chapter" or "world", one per entry of @aChapters
 	@aQandA = []     # [ question, class, method, explanation ]
 
 	def init(poCourse)
@@ -210,10 +211,35 @@ class stzEduReader from stzObject
 			StzRaise("A chapter enters the reader only after ObserveWhere(): runs-where is observed, never assumed.")
 		ok
 		@aChapters + poChapter
+		@acKinds + "chapter"
 
 		def AddChapterQ(poChapter)
 			This.AddChapter(poChapter)
 			return This
+
+	# A world's page: the same article as a chapter, listed in the
+	# language's menu under "World" rather than a number, after the
+	# chapters of that language.
+	def AddWorldPage(poChapter)
+		if len(poChapter.Where()) = 0
+			StzRaise("A world page enters the reader only after ObserveWhere(): runs-where is observed, never assumed.")
+		ok
+		@aChapters + poChapter
+		@acKinds + "world"
+
+		def AddWorldPageQ(poChapter)
+			This.AddWorldPage(poChapter)
+			return This
+
+	def NumberOfWorldPages()
+		_n_ = 0
+		_nL_ = len(@acKinds)
+		for _i_ = 1 to _nL_
+			if @acKinds[_i_] = "world"
+				_n_++
+			ok
+		next
+		return _n_
 
 	# A Q&A generated from the library itself, when the page is built.
 	def AddQuestion(pcQuestion, pcClass)
@@ -300,7 +326,11 @@ class stzEduReader from stzObject
 				if _nK_ = _nMine_
 					_cCls_ = ' class="on"'
 				ok
-				_c_ += '<a href="#' + _cL_ + ':' + _nK_ + '"' + _cCls_ + '>' + _nK_ + ' · ' +
+				_cLabel_ = "" + _nK_
+				if @acKinds[_k_] = "world"
+					_cLabel_ = _EduEsc(_EduSay(_cL_, "world-page", ""))
+				ok
+				_c_ += '<a href="#' + _cL_ + ':' + _nK_ + '"' + _cCls_ + '>' + _cLabel_ + ' · ' +
 				       _EduEsc(@aChapters[_k_].Title()) + '</a>'
 			ok
 		next
