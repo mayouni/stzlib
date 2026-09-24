@@ -158,6 +158,14 @@ next
 Then("no line the world cell printed appears on the page", @@(acLeaked), "[ ]")
 Then("the Arabic article is right to left", StzFindFirst('lang="ar" dir="rtl"', cHtml) > 0, 1)
 Then("the page loads nothing from the network", StzFindFirst("http", cHtml), 0)
+Then("the language menu holds each language once", len(StzFind('data-go="', cHtml)), 4)
+oTwice = new stzEduReader(oC)
+for i = 1 to len(aChapters)
+	oTwice.AddChapter(aChapters[i])
+	oTwice.AddChapter(aChapters[i])
+next
+Then("...even when several chapters share a language (negative sibling)",
+	len(StzFind('data-go="', oTwice.Html())), 4)
 
 Given("a scratch chapter with one plain-Ring cell and one Softanza cell (negative sibling)")
 write("t_edu_where.en.md", "# Where" + char(10) + "```ring" + char(10) + "? 1 + 1" + char(10) + "#--> 2" +
