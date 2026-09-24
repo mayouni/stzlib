@@ -107,8 +107,15 @@ cHashChapter = StzEngineCryptoSha256(read(cChapterFile))
 cHashCoreWorld = StzEngineCryptoSha256(read(cProg + "/worlds/workplace.zknw"))
 Given("the bank overlay, which ships its own worlds/workplace.zknw")
 oPB = StzProgramQ(cProg).WithOverlayQ(cBank)
-Then("the overlay report names the one file it shadows",
-	@@(oPB.OverlayReport()), @@([ [ "worlds/workplace.zknw", "shadows" ] ]))
+acShadowed = []
+aRep = oPB.OverlayReport()
+for i = 1 to len(aRep)
+	if aRep[i][2] = "shadows"
+		acShadowed + aRep[i][1]
+	ok
+next
+Then("the overlay report names the one file it shadows, its world; the rest it adds or merges",
+	@@(acShadowed), @@([ "worlds/workplace.zknw" ]))
 oChB = oPB.CourseQ("elementary-introduction").RunChapterQ("find-then-apply", "en")
 nW = aChapters[1].WorldDependentCells()[1]
 Then("the world cell is the same cell under both", oChB.WorldDependentCells()[1], nW)

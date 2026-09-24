@@ -1,0 +1,9 @@
+governance "bank-regime"
+risks
+permissions
+authorities
+postures
+    transferabove | sandboxed
+reversibility
+    transfer | compensable
+decisions

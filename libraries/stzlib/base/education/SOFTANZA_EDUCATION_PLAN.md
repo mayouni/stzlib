@@ -236,6 +236,28 @@ has a sibling that must fail and one that must pass.
 **Done when** a person with no Softanza expertise builds an overlay from the guide alone, and
 `OverlayReport()` plus the slice guard pass on it.
 
+**Status: DONE, 2026-09-24**, `institution_narrated.ring` 39 of 39. What shipped:
+
+- `OVERLAY_GUIDE.md`, an executable guide: copy `overlays/_template`, fill six placeholders, run the
+  court. The guard performs those steps literally (`StzOverlayFromTemplate`) and the result must be a
+  valid overlay; three broken overlays are refused with the finding named.
+- `stzOverlay`, the overlay's court: findings in the house shape over the manifest, the languages, the
+  worlds, added chapters and exercises, and the governance regime. The rule that matters is
+  `overlay-no-fork`: a file that would replace a core chapter or exercise is refused. A CLI wraps it,
+  `tools/overlay_check.ring`.
+- Overlays now **merge** a `courses/<slug>/course.zknw` into the core's instead of shadowing it, so an
+  overlay attaches an exercise to a chapter with one line; the reader shows it on the chapter's page.
+- Two reference overlays beside the program, in `base/education/overlays/`: `bank` (a world, an approval
+  exercise on chapter 7, a governance regime) and `university` (a faculty world, a knowledge exercise on
+  chapter 12, a regime).
+- `stzCohort`: a cohort is a folder of learners under one course and one overlay; its progress report
+  is a **narration** whose every figure is a promise beside the cell that computes it, so a report run
+  after the learners moved on reports its own staleness.
+
+**A proxy, named as one.** "A person with no Softanza expertise" cannot be a guard. The guard proves the
+guide's steps, executed as written, produce a valid overlay; whether the prose is clear to that person
+is for the first institution to say.
+
 ## D. The demo script, 15 minutes
 
 | Minute | What the decision maker sees | What proves it |

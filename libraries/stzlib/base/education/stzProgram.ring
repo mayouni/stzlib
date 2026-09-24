@@ -81,6 +81,16 @@ class stzProgram from stzObject
 	def Name()
 		return _EduLastSegment(@cCore)
 
+	# The program's own id: the subject of its `is-a program` fact.
+	def Id()
+		_nL_ = len(@aFacts)
+		for _i_ = 1 to _nL_
+			if StzLower(@aFacts[_i_][2]) = "is-a" and StzLower(@aFacts[_i_][3]) = "program"
+				return @aFacts[_i_][1]
+			ok
+		next
+		return ""
+
 	def Languages()
 		return _EduObjects(@aFacts, "softanza-education", "speaks")
 
@@ -126,10 +136,13 @@ class stzProgram from stzObject
 			if _acFiles_[_i_] = "overlay.zknw"
 				loop
 			ok
-			if fexists(@cCore + "/" + _acFiles_[_i_])
-				_aRes_ + [ _acFiles_[_i_], "shadows" ]
-			else
+			if NOT fexists(@cCore + "/" + _acFiles_[_i_])
 				_aRes_ + [ _acFiles_[_i_], "adds" ]
+			but StzRight(_acFiles_[_i_], 12) = "/course.zknw"
+				# a course manifest is MERGED into the core's, never shadowing it
+				_aRes_ + [ _acFiles_[_i_], "merges" ]
+			else
+				_aRes_ + [ _acFiles_[_i_], "shadows" ]
 			ok
 		next
 		return _aRes_
@@ -301,14 +314,28 @@ class stzCourse from stzObject
 	@cSlug = ""
 	@aFacts = []
 
+	# The course's facts are the CORE's course.zknw plus, when an overlay
+	# is laid on, the overlay's own courses/<slug>/course.zknw -- MERGED,
+	# never shadowed: an overlay adds a chapter or attaches an exercise to
+	# a chapter without copying the core manifest (charter 4.1).
 	def init(poProgram, pcSlug)
 		@oProgram = poProgram
 		@cSlug = pcSlug
-		_cF_ = poProgram.FileFor("courses/" + pcSlug + "/course.zknw")
-		if _cF_ = ""
+		_cCore_ = poProgram.Core() + "/courses/" + pcSlug + "/course.zknw"
+		if NOT fexists(_cCore_)
 			StzRaise("No course '" + pcSlug + "' in the program.")
 		ok
-		@aFacts = _EduFactsOf(_cF_)
+		@aFacts = _EduFactsOf(_cCore_)
+		if poProgram.HasOverlay()
+			_cOv_ = poProgram.Overlay() + "/courses/" + pcSlug + "/course.zknw"
+			if fexists(_cOv_)
+				_aMore_ = _EduFactsOf(_cOv_)
+				_nM_ = len(_aMore_)
+				for _i_ = 1 to _nM_
+					@aFacts + _aMore_[_i_]
+				next
+			ok
+		ok
 
 	def Slug()
 		return @cSlug

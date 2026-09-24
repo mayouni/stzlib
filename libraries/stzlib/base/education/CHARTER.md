@@ -1,9 +1,11 @@
 # The Softanza Learning System -- Charter
 
 > `base/education/` · plane `stzlib-education` · task `COMPASS-CT-LEARNING-01`
-> Status: **E0 RATIFIED by the author on 2026-09-23, as proposed (D1–D5 accepted). E1a, E2 and E3 (a–e)
-> shipped by 2026-09-24**: fifteen chapters in four languages, nine Zindara missions, five level projects
-> with guards, six gates. E4, the institution kit, is next. The phase record is in `SOFTANZA_EDUCATION_PLAN.md`.
+> Status: **E0 RATIFIED by the author on 2026-09-23, as proposed (D1–D5 accepted). E1a, E2, E3 (a–e)
+> and E4 shipped by 2026-09-24**: fifteen chapters in four languages, nine Zindara missions, five level
+> projects with guards, the institution kit (overlay guide and court, two reference overlays, cohorts with
+> narrated reports), seven gates. Every phase of the plan is shipped; the phase record is in
+> `SOFTANZA_EDUCATION_PLAN.md`.
 > Written 2026-09-23 against stzlib `main` at `04cff1c34`.
 
 ## 1. What this module is

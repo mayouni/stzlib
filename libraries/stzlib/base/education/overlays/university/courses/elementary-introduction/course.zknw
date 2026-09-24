@@ -1,0 +1,4 @@
+knowledge "university-course"
+
+facts
+    teach-a-world | has-exercise | uni-01

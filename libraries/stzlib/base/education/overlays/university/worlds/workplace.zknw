@@ -1,0 +1,13 @@
+knowledge "workplace"
+
+facts
+    sahel-university | is-a | university
+    request-1 | requested | enrolment
+    request-2 | requested | transcript
+    request-3 | requested | enrolment
+    request-4 | requested | housing
+    request-5 | requested | enrolment
+    request-6 | requested | transcript
+    informatique | offered-by | faculty-of-science
+    mathematiques | offered-by | faculty-of-science
+    droit | offered-by | faculty-of-law

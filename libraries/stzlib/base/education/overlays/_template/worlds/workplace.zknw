@@ -1,0 +1,8 @@
+# The world your learners reason over. Three words per line: subject | relation | object. No spaces inside a word.
+knowledge "workplace"
+
+facts
+    {{WORLD-NAME}} | is-a | {{WORLD-TYPE}}
+    request-1 | requested | {{THING-1}}
+    request-2 | requested | {{THING-2}}
+    request-3 | requested | {{THING-1}}
