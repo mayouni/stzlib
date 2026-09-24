@@ -291,6 +291,33 @@ filtered before its number and title are set in.
 a morphological variant of a title word ("أعلّم" for "علّم") misses, and the guard asks in the title's
 own words. The natural module's resolver is the right home for more than that.
 
+### E6 · Three teaching worlds (`COMPASS-CT-WORLDS-01`)
+
+The compass ratified three `.zknw` teaching worlds -- a restaurant, a cooperative, a school. The core
+world was already the restaurant (`bella-cucina`, in `worlds/workplace.zknw`); the other two did not
+exist, and a learner had no way to choose a world without an institution's overlay.
+
+**Status: DONE, 2026-09-24**, `worlds_narrated.ring` 26 of 26 in about 50 s. What shipped:
+
+- `program/worlds/cooperative.zknw` (a farmers' cooperative on the Tillaberi plain: seed, fertiliser,
+  credit, storage; who grows what) and `program/worlds/school.zknw` (a secondary school in Niamey:
+  transcripts, textbooks, enrolment, certificates; which subject is taught where). `workplace.zknw`
+  stays the default and is the restaurant.
+- **A learner chooses a world**: `StzProgramQ(core).WithWorldQ("school")`; `WorldIds()` lists what is
+  shipped; a world that is not shipped is refused with the list, never quietly the default. Resolution
+  of the `workplace` role, in order: an overlay's own `worlds/workplace.zknw` (the institution's world
+  IS the workplace, whatever the learner chose), then the chosen world, then the role's core file.
+- **One contract for every world**, `StzEduWorldFindings(file)`: one `is-a` fact (the name the chapters
+  print) and `requested` facts with at least one repeat (chapter 1 removes the duplicates, chapter 5
+  counts the most requested). The overlay court's `overlay-world` rule now applies it, so an overlay
+  whose world has no repeated request is refused with the reason; the guide says so.
+- The guard runs the four world chapters (1, 2, 5, 12) over each new world for real -- eight runs,
+  every cell ran, every promise kept -- and proves the overlay's world wins over a learner's choice.
+
+**Not claimed.** The worlds are facts, not lessons of their own: the chapters are the lessons, and
+these worlds are what they reason over. A world with prose beside it (a page per world, in four
+languages) is a later slice, and would need the same native reviewers as the chapters.
+
 ## D. The demo script, 15 minutes
 
 | Minute | What the decision maker sees | What proves it |
