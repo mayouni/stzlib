@@ -1,0 +1,6 @@
+knowledge "bank-01"
+
+facts
+    bank-01 | is-a | exercise
+    bank-01 | in-chapter | declare-what-not-how
+    bank-01 | trains | pa-03

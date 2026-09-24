@@ -1,0 +1,9 @@
+knowledge "university"
+
+facts
+    university | is-a | overlay
+    university | extends | softanza-education
+    university | branded | sahel-university
+    university | replaces-world | workplace
+    university | speaks | fr
+    university | speaks | ha

@@ -75,7 +75,7 @@ func DemoScene1()
 		if NOT _bSeen_
 			_aExt_ + [ _cE_, 1 ]
 		ok
-		if NOT ( _cE_ = ".md" or _cE_ = ".zknw" or _cE_ = ".ring" or _cE_ = ".pia" or _cE_ = ".txt" or _cE_ = ".csv" )
+		if NOT ( _cE_ = ".md" or _cE_ = ".zknw" or _cE_ = ".ring" or _cE_ = ".pia" or _cE_ = ".txt" or _cE_ = ".csv" or _cE_ = ".zgov" )
 			_bText_ = 0
 		ok
 	next
@@ -84,7 +84,7 @@ func DemoScene1()
 		? "    " + _aExt_[_j_][2] + " x " + _aExt_[_j_][1]
 	next
 	? "  The machine runs Ring " + version() + " and the Softanza engine, copied, not installed."
-	DemoProved("every file of the program is plain text a teacher can open (.md .zknw .ring .pia .txt .csv)", _bText_)
+	DemoProved("every file of the program is plain text a teacher can open (.md .zknw .ring .pia .txt .csv .zgov)", _bText_)
 	DemoProved("the program folder holds no database, no server and no binary", _bText_)
 	DemoPause()
 

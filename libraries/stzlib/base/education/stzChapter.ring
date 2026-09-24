@@ -109,6 +109,19 @@ class stzChapter from stzObject
 	def File()
 		return @cFile
 
+	# The chapter id, read from the file name NN-<id>.<lang>.md
+	def Id()
+		_c_ = _EduLastSegment(@cFile)
+		_cTail_ = "." + @cLang + ".md"
+		if StzRight(_c_, StzLen(_cTail_)) = _cTail_
+			_c_ = StzLeft(_c_, StzLen(_c_) - StzLen(_cTail_))
+		ok
+		_nDash_ = StzFindFirst("-", _c_)
+		if _nDash_ > 0
+			_c_ = StzRight(_c_, StzLen(_c_) - _nDash_)
+		ok
+		return _c_
+
 	def Language()
 		return @cLang
 

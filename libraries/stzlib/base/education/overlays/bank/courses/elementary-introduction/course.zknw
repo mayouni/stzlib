@@ -1,0 +1,4 @@
+knowledge "bank-course"
+
+facts
+    declare-what-not-how | has-exercise | bank-01

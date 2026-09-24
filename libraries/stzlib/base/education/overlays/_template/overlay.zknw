@@ -1,0 +1,9 @@
+# Your overlay's manifest. Replace every placeholder written between double braces (OVERLAY_GUIDE.md, step 2). Lines starting with # are comments.
+knowledge "{{NAME}}"
+
+facts
+    {{NAME}} | is-a | overlay
+    {{NAME}} | extends | softanza-education
+    {{NAME}} | branded | {{INSTITUTION-SLUG}}
+    {{NAME}} | replaces-world | workplace
+    {{NAME}} | speaks | en

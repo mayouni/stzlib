@@ -1,0 +1,9 @@
+governance "university-regime"
+risks
+permissions
+authorities
+postures
+    enrolstudent | sandboxed
+reversibility
+    enrol | reversible
+decisions

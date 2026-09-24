@@ -326,6 +326,18 @@ class stzEduReader from stzObject
 				_c_ += '<pre dir="ltr">' + _EduEsc(_aB_[_i_][2]) + '</pre>' + char(10)
 			ok
 		next
+		# exercises an OVERLAY attached to this chapter through the course
+		# facts, which the core text cannot reference: shown after its own
+		_acAttached_ = @oCourse.ExercisesOf(poCh.Id())
+		_acOwn_ = poCh.ExerciseIds()
+		_nA_ = len(_acAttached_)
+		for _i_ = 1 to _nA_
+			if StzFindFirst(_acAttached_[_i_], _acOwn_) = 0
+				_oEx_ = @oCourse.ExerciseQ(_acAttached_[_i_])
+				_c_ += '<aside class="exercise overlay">' + _EduProseToHtml(_oEx_.Task(_cL_)) +
+				       '<p class="note">' + _EduEsc(_EduSay(_cL_, "exercise-note", "")) + '</p></aside>' + char(10)
+			ok
+		next
 		_c_ += '</article>' + char(10)
 		return _c_
 

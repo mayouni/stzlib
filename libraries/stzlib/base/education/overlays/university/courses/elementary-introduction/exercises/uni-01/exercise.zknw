@@ -1,0 +1,6 @@
+knowledge "uni-01"
+
+facts
+    uni-01 | is-a | exercise
+    uni-01 | in-chapter | teach-a-world
+    uni-01 | trains | kn-02

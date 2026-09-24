@@ -3,4 +3,7 @@ knowledge "bank"
 facts
     bank | is-a | overlay
     bank | extends | softanza-education
+    bank | branded | sahel-savings
     bank | replaces-world | workplace
+    bank | speaks | fr
+    bank | speaks | en
