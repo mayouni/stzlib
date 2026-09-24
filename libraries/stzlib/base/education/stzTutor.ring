@@ -230,6 +230,11 @@ func _EduTemplates()
 	[ "cell-no-output", "ar", "لا تخزّن هذه الصفحة أي نتيجة. شغّل الخلية لترى ما تطبعه." ],
 	[ "cell-no-output", "ha", "Wannan shafin ba ya ajiye sakamako. Gudanar da ɗakin don ganin abin da yake bugawa." ],
 
+	[ "world-page", "en", "World" ],
+	[ "world-page", "fr", "Monde" ],
+	[ "world-page", "ar", "عالم" ],
+	[ "world-page", "ha", "Duniya" ],
+
 	[ "exercise-note", "en", "Checked by running your program on the desktop, never by reading it." ],
 	[ "exercise-note", "fr", "Vérifié en exécutant votre programme sur l'ordinateur, jamais en le lisant." ],
 	[ "exercise-note", "ar", "يُتحقق منه بتشغيل برنامجك على الحاسوب، لا بقراءته أبدًا." ],

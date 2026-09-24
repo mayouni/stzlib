@@ -132,12 +132,22 @@ class stzOverlay from stzObject
 			_acWf_ = StzEngineDirListFiles(_cW_)
 			_nW_ = len(_acWf_)
 			for _i_ = 1 to _nW_
+				# only the .zknw files are worlds: a world's PAGE (.md) sits
+				# beside them, and the court read one as a world until the
+				# world-pages guard caught it (2026-09-24)
+				if StzRight(_acWf_[_i_], 5) != ".zknw"
+					loop
+				ok
 				_acMsg_ = StzEduWorldFindings(_cW_ + "/" + _acWf_[_i_])
 				_nM_ = len(_acMsg_)
 				for _j_ = 1 to _nM_
 					_aF_ + This._Finding("overlay-world", @cName, "worlds/" + _acWf_[_i_], "error", _acMsg_[_j_])
 				next
 			next
+			# a world's PAGE, if the overlay writes one: in every language the
+			# overlay speaks (law 7), storing no output, and green when RUN
+			# over that world -- a page is judged the way a chapter is
+			This._CheckWorldPages(poProgram, _aF_)
 		ok
 		_acRw_ = This.ReplacedWorlds()
 		_nR_ = len(_acRw_)
@@ -172,6 +182,54 @@ class stzOverlay from stzObject
 			next
 		ok
 		return _aF_
+
+	# A world page, if the overlay writes one, is judged the way a chapter
+	# is: present in every language the overlay speaks, storing no output,
+	# and green when run over that world.
+	def _CheckWorldPages(poProgram, paFindings)
+		_cW_ = @cFolder + "/worlds"
+		_acF_ = StzEngineDirListFiles(_cW_)
+		_acWorlds_ = []
+		_nF_ = len(_acF_)
+		for _i_ = 1 to _nF_
+			if StzRight(_acF_[_i_], 3) = ".md"
+				_acParts_ = StzSplit(_acF_[_i_], ".")
+				if len(_acParts_) = 3 and StzFindFirst(_acParts_[1], _acWorlds_) = 0
+					_acWorlds_ + _acParts_[1]
+				ok
+			ok
+		next
+		_nW_ = len(_acWorlds_)
+		if _nW_ = 0
+			return
+		ok
+		_acL_ = This.Languages()
+		_nL_ = len(_acL_)
+		_oP_ = StzProgramQ(poProgram.Core()).WithOverlayQ(@cFolder)
+		for _i_ = 1 to _nW_
+			for _j_ = 1 to _nL_
+				_cRel_ = "worlds/" + _acWorlds_[_i_] + "." + _acL_[_j_] + ".md"
+				if NOT fexists(@cFolder + "/" + _cRel_)
+					paFindings + This._Finding("overlay-world-page", @cName, _cRel_, "error",
+						"world '" + _acWorlds_[_i_] + "' has a page, so it needs one in every language the overlay speaks; '" + _acL_[_j_] + "' is missing (law 7)")
+					loop
+				ok
+				try
+					_oCh_ = _oP_.RunWorldPageQ(_acWorlds_[_i_], _acL_[_j_])
+					if _oCh_.HasStoredOutput()
+						paFindings + This._Finding("overlay-world-page", @cName, _cRel_, "error",
+							"the page stores an output; a page stores none, it runs (law 2)")
+					ok
+					if NOT _oCh_.AllCellsRan() or NOT _oCh_.AllPromisesKept()
+						paFindings + This._Finding("overlay-world-page", @cName, _cRel_, "error",
+							"run over the world, a cell raised or a promise was not kept")
+					ok
+				catch
+					paFindings + This._Finding("overlay-world-page", @cName, _cRel_, "error",
+						"the page cannot be run: " + StzLeft(cCatchError, 120))
+				done
+			next
+		next
 
 	def _CheckCourse(poProgram, pcSlug, paFindings, pacCoreLangs)
 		_cCoreCourse_ = poProgram.Core() + "/courses/" + pcSlug

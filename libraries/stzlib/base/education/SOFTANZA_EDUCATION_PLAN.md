@@ -316,7 +316,39 @@ exist, and a learner had no way to choose a world without an institution's overl
 
 **Not claimed.** The worlds are facts, not lessons of their own: the chapters are the lessons, and
 these worlds are what they reason over. A world with prose beside it (a page per world, in four
-languages) is a later slice, and would need the same native reviewers as the chapters.
+languages) is the next slice, E7, and needs the same native reviewers as the chapters.
+
+### E7 · A page per world
+
+Cut on the author's word, 2026-09-24. Each teaching world gets a page: the world itself, questioned,
+in the chapter format -- prose, cells with `#-->` promises, no stored output -- in the four languages.
+
+**Status: DONE, 2026-09-24**, `world_pages_narrated.ring` 45 of 45 in about 30 s. What shipped:
+
+- Twelve pages, `program/worlds/<world>.<lang>.md` for `workplace` (the restaurant), `cooperative` and
+  `school` in en/fr/ar/ha. Each has four cells: the world's name, what was requested (count, the list,
+  the duplicates removed, the most requested), the world's other facts (who grows what; which subject
+  in which class; what a dish contains -- five `contains` facts were added to the restaurant for it),
+  and a question the world cannot answer yet, whose answer is `[ ]` and not a guess. Nine promises a
+  page; the four editions carry the English cells unchanged, so they cannot drift.
+- `stzProgram.WorldPageQ(world, lang)` (a page missing in a language is red, law 7),
+  `RunWorldPageQ`, `RunWorldPageInQ` (the four editions side by side, ~4.4 s a world), and
+  `WorldsWithPages`. A page runs over ITS world, never the chosen one.
+- The reader lists a world page in a language's chapter menu under "World" rather than a number
+  (`stzEduReader.AddWorldPage`), after the chapters, with the same cells-run-nothing-stored article.
+- The overlay court judges an institution's page the way it judges a chapter: one edition in every
+  language the overlay speaks, no stored output, and every promise kept when the page is run over the
+  institution's world (`overlay-world-page`). The guide says how.
+
+**Two things the guard found.** The court's world loop read every file in `worlds/` as a world, so an
+institution's page beside its world was refused as "a world that does not load" -- latent since E4,
+visible only once a page could exist; it reads `.zknw` files only now. And the page's promises are the
+world's own, proved by the negative: the cooperative's page run over the school runs every cell and
+keeps no promise.
+
+**Not claimed.** The fr, ar and ha prose of the twelve pages is a draft awaiting the same native
+reviewers as the chapters; the guard proves that every cell runs and every promise holds in each
+edition, and that each edition carries its own title, nothing more about the words.
 
 ## D. The demo script, 15 minutes
 
