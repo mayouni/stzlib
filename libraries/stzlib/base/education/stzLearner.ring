@@ -110,6 +110,25 @@ class stzLearner from stzObject
 		ok
 		return StzLower(_acE_[1]) = "sha256:" + StzLower(StzEngineCryptoSha256(read(This.WorkFile(pcExerciseId))))
 
+	#-- where the learner is
+
+	# The first chapter, in course order, with an exercise not yet passed
+	# (with evidence); "" once every chapter is. This is what the tutor's
+	# rule 2 means by "where the learner is".
+	def ChapterOn(poCourse)
+		_acCh_ = poCourse.ChapterIds()
+		_nL_ = len(_acCh_)
+		for _i_ = 1 to _nL_
+			_acEx_ = poCourse.ExercisesOf(_acCh_[_i_])
+			_nE_ = len(_acEx_)
+			for _j_ = 1 to _nE_
+				if NOT This.HasPassed(_acEx_[_j_])
+					return _acCh_[_i_]
+				ok
+			next
+		next
+		return ""
+
 	#-- projects and levels
 
 	def ProjectFolder(pcProjectId)

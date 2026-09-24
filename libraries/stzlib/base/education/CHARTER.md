@@ -4,8 +4,9 @@
 > Status: **E0 RATIFIED by the author on 2026-09-23, as proposed (D1–D5 accepted). E1a, E2, E3 (a–e)
 > and E4 shipped by 2026-09-24**: fifteen chapters in four languages, nine Zindara missions, five level
 > projects with guards, the institution kit (overlay guide and court, two reference overlays, cohorts with
-> narrated reports), seven gates. Every phase of the plan is shipped; the phase record is in
-> `SOFTANZA_EDUCATION_PLAN.md`.
+> narrated reports), and E5 (the tutor's rule 2, tested against the course: ahead is named, behind is
+> recalled, only the current chapter is explained), eight gates. Every phase of the plan is shipped; the
+> phase record is in `SOFTANZA_EDUCATION_PLAN.md`.
 > Written 2026-09-23 against stzlib `main` at `04cff1c34`.
 
 ## 1. What this module is

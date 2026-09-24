@@ -28,8 +28,16 @@
 # conversation's own AskInXT names the first missing step. The tutor
 # only chooses the words to say it in the learner's language.
 #
-# Rule 2 needs a course of several chapters to bite; with one chapter
-# it holds trivially and is NOT claimed as tested (E3 tests it).
+# RULE 2 IS A QUESTION OF POSITION. With a course laid on (WithCourse),
+# the tutor knows WHERE the learner is -- the first chapter with an
+# exercise not yet passed -- and WHAT each chapter teaches, read from
+# the names its own cells call and from its title in the learner's
+# language. A question about a chapter AHEAD is not explained: the
+# tutor names the chapter and asks about the current step. A question
+# about a chapter BEHIND is recalled in that chapter's own recap words.
+# Only the current chapter gets the gap conversation. Without a course
+# the tutor knows one exercise, and rule 2 cannot bite (tutor_narrated
+# proves both faces).
 #
 # No language model is involved, and none is needed (law 6).
 
@@ -46,6 +54,58 @@ func _EduHasAnyWord(pcText, pacWords)
 	next
 	return 0
 
+# A word as the tutor compares it: lowercased, and without the Arabic
+# writing marks (tashkeel, tatweel) the natural pack also deletes before
+# matching -- a learner types them freely or not at all.
+func _EduBareWord(pcWord)
+	_c_ = StzLower(pcWord)
+	_acMarks_ = [ StzChar(1600), StzChar(1611), StzChar(1612), StzChar(1613), StzChar(1614),
+		StzChar(1615), StzChar(1616), StzChar(1617), StzChar(1618) ]
+	for _i_ = 1 to 9
+		_c_ = StzReplace(_c_, _acMarks_[_i_], "")
+	next
+	return _c_
+
+# The bare words of a text, punctuation removed (Latin and Arabic).
+func _EduWordsOf(pcText)
+	_c_ = pcText
+	_acP_ = [ ",", ".", "?", "!", ";", ":", "(", ")", "[", "]", "'", '"', "«", "»", "،", "؟", "؛",
+		char(10), char(13), char(9) ]
+	_nP_ = len(_acP_)
+	for _i_ = 1 to _nP_
+		_c_ = StzReplace(_c_, _acP_[_i_], " ")
+	next
+	_acRaw_ = StzSplit(_c_, " ")
+	_acRes_ = []
+	_nL_ = len(_acRaw_)
+	for _i_ = 1 to _nL_
+		_w_ = _EduBareWord(ring_trim(_acRaw_[_i_]))
+		if _w_ != ""
+			_acRes_ + _w_
+		ok
+	next
+	return _acRes_
+
+# A word edge: nothing, a space, or a punctuation mark of either script.
+func _EduIsWordEdge(pcChar)
+	if pcChar = "" or pcChar = " "
+		return 1
+	ok
+	return StzFindFirst(pcChar, [ ",", ".", "?", "!", ";", ":", "(", ")", "[", "]", "'", '"', "«", "»",
+		"،", "؟", "؛", "-", "/", char(10), char(13), char(9) ]) > 0
+
+# The words of a title that carry it: three codepoints or more.
+func _EduContentWords(pcTitle)
+	_acW_ = _EduWordsOf(pcTitle)
+	_acRes_ = []
+	_nL_ = len(_acW_)
+	for _i_ = 1 to _nL_
+		if StzLen(_acW_[_i_]) >= 3
+			_acRes_ + _acW_[_i_]
+		ok
+	next
+	return _acRes_
+
   #=====================================================#
  #  WHAT THE TUTOR AND THE CHECKER SAY, IN 4 LANGUAGES  #
 #=====================================================#
@@ -54,13 +114,21 @@ func _EduHasAnyWord(pcText, pacWords)
 # a native reviewer (plan, section F). %1 is filled with the learner's
 # OWN material (their error line, or what their program printed).
 
-func _EduSay(pcLang, pcKey, pcArg)
+func _EduSay(pcLang, pcKey, pArg)
 	_aT_ = _EduTemplates()
 	_cLang_ = StzLower(pcLang)
 	_nL_ = len(_aT_)
 	for _i_ = 1 to _nL_
 		if _aT_[_i_][1] = pcKey and _aT_[_i_][2] = _cLang_
-			return StzReplace(_aT_[_i_][3], "%1", pcArg)
+			_cT_ = _aT_[_i_][3]
+			if isList(pArg)
+				_nA_ = len(pArg)
+				for _k_ = 1 to _nA_
+					_cT_ = StzReplace(_cT_, "%" + _k_, "" + pArg[_k_])
+				next
+				return _cT_
+			ok
+			return StzReplace(_cT_, "%1", pArg)
 		ok
 	next
 	StzRaise("No '" + pcKey + "' text in '" + pcLang + "' (law 7: a missing translation is red, never English).")
@@ -106,6 +174,16 @@ func _EduTemplates()
 	[ "gap-error", "fr", "Votre programme s'est arrêté sur une erreur avant de répondre. Lisez la première ligne d'erreur : quel nom Ring n'a-t-il pas reconnu ?" ],
 	[ "gap-error", "ar", "توقف برنامجك بخطأ قبل أن يجيب. اقرأ أول سطر خطأ: أيّ اسم لم يتعرّف عليه Ring؟" ],
 	[ "gap-error", "ha", "Shirinka ya tsaya da kuskure kafin ya amsa. Karanta layin kuskure na farko: wane suna Ring bai gane ba?" ],
+
+	[ "ahead", "en", "That belongs to chapter %1, '%2'. You are on chapter %3, and the later chapter stands on what this one teaches, so I will not explain it yet. Which step of your current exercise is still open?" ],
+	[ "ahead", "fr", "Cela relève du chapitre %1, « %2 ». Vous êtes au chapitre %3, et le chapitre suivant repose sur ce que celui-ci enseigne : je ne l'expliquerai donc pas encore. Quelle étape de votre exercice actuel reste ouverte ?" ],
+	[ "ahead", "ar", "هذا من الفصل %1، «%2». أنت في الفصل %3، والفصل اللاحق يقوم على ما يعلّمه هذا الفصل، فلن أشرحه بعدُ. أيّ خطوة في تمرينك الحالي ما زالت مفتوحة؟" ],
+	[ "ahead", "ha", "Wannan na babi na %1 ne, '%2'. Kana a babi na %3, kuma babin da ke gaba ya dogara da abin da wannan yake koyarwa, don haka ba zan bayyana shi ba tukuna. Wane mataki na aikinka na yanzu har yanzu bai cika ba?" ],
+
+	[ "recap", "en", "You met that in chapter %1, '%2'. Its recap says: %3 Which line of it answers your question?" ],
+	[ "recap", "fr", "Vous l'avez vu au chapitre %1, « %2 ». Son récapitulatif dit : %3 Quelle ligne répond à votre question ?" ],
+	[ "recap", "ar", "لقد رأيت ذلك في الفصل %1، «%2». تقول خلاصته: %3 أيّ سطر منها يجيب عن سؤالك؟" ],
+	[ "recap", "ha", "Ka gamu da wannan a babi na %1, '%2'. Taƙaitawarsa ta ce: %3 Wane layi a cikinta yake amsa tambayarka?" ],
 
 	[ "passed", "en", "You passed, and the checker proved it by running your program. Now compare your way with others: ask me about any method." ],
 	[ "passed", "fr", "Vous avez réussi, et le vérificateur l'a prouvé en exécutant votre programme. Comparez maintenant votre manière avec d'autres : interrogez-moi sur n'importe quelle méthode." ],
@@ -166,6 +244,9 @@ class stzTutor from stzObject
 	@acForbidden = []
 	@nFiltered = 0
 	@cLastGap = ""
+	@oCourse
+	@bHasCourse = 0
+	@cLastAbout = ""
 
 	def init(poExercise, pcLearnerFolder, pcLang)
 		@oExercise = poExercise
@@ -185,15 +266,101 @@ class stzTutor from stzObject
 	def ForbiddenWords()
 		return @acForbidden
 
+	#-- the course: what rule 2 needs
+
+	# Rule 2 needs the course: where the learner is in it, and what each
+	# chapter teaches. Without it the tutor knows one exercise only.
+	def WithCourse(poCourse)
+		@oCourse = poCourse
+		@bHasCourse = 1
+
+		def WithCourseQ(poCourse)
+			This.WithCourse(poCourse)
+			return This
+
+	def HasCourse()
+		return @bHasCourse
+
+	# The chapter the last question was about ("" when it named none).
+	def LastAbout()
+		return @cLastAbout
+
+	# Where the learner is: the first chapter of the course with an
+	# exercise not yet passed ("" once every chapter is).
+	def ChapterOn()
+		_oL_ = new stzLearner(@cLearnerFolder)
+		return _oL_.ChapterOn(@oCourse)
+
+	# What a question is ABOUT, read from the course text: the chapter
+	# whose cells first call a name the question mentions; failing that,
+	# the chapter whose title words (in the learner's language) the
+	# question uses -- two of them, or the only one when the title has
+	# one. Nothing is guessed from a word list of the tutor's own.
+	def ChapterAskedAbout(pcQuestion)
+		if NOT @bHasCourse
+			return ""
+		ok
+		_acW_ = _EduWordsOf(pcQuestion)
+		_nW_ = len(_acW_)
+		for _i_ = 1 to _nW_
+			_cCh_ = @oCourse.TeachesWhere(_acW_[_i_])
+			if _cCh_ != ""
+				return _cCh_
+			ok
+		next
+		_acCh_ = @oCourse.ChapterIds()
+		_nL_ = len(_acCh_)
+		_cBest_ = ""
+		_nBest_ = 0
+		for _i_ = 1 to _nL_
+			_acT_ = _EduContentWords(@oCourse.TitleOf(_acCh_[_i_], @cLang))
+			_nT_ = len(_acT_)
+			_nHit_ = 0
+			for _j_ = 1 to _nT_
+				if StzFindFirst(_acT_[_j_], _acW_) > 0
+					_nHit_++
+				ok
+			next
+			if (_nHit_ >= 2 or (_nT_ = 1 and _nHit_ = 1)) and _nHit_ > _nBest_
+				_nBest_ = _nHit_
+				_cBest_ = _acCh_[_i_]
+			ok
+		next
+		return _cBest_
+
 	def Ask(pcQuestion)
 		_oL_ = new stzLearner(@cLearnerFolder)
 		_cEx_ = @oExercise.Id()
 		@cLastGap = ""
+		@cLastAbout = ""
 		_cHead_ = ""
 		if This._AsksForConfirmation(pcQuestion)
 			_cHead_ = _EduSay(@cLang, "confirm", "") + " "
 		but This._AsksForTheAnswer(pcQuestion)
 			_cHead_ = _EduSay(@cLang, "refuse", "") + " "
+		ok
+
+		# Rule 2: a question about another chapter is answered by WHERE the
+		# learner is. Ahead is named and not explained; behind is recalled
+		# in that chapter's own recap words; only the current chapter gets
+		# the gap conversation below.
+		if @bHasCourse
+			@cLastAbout = This.ChapterAskedAbout(pcQuestion)
+			if @cLastAbout != ""
+				_cOn_ = _oL_.ChapterOn(@oCourse)
+				_nOn_ = 9999
+				if _cOn_ != ""
+					_nOn_ = 0 + @oCourse.ChapterNumber(_cOn_)
+				ok
+				_nAbout_ = 0 + @oCourse.ChapterNumber(@cLastAbout)
+				_cTitle_ = @oCourse.TitleOf(@cLastAbout, @cLang)
+				if _nAbout_ > _nOn_
+					return This._SayAbout(_cHead_, "ahead", _nAbout_, _cTitle_, "" + _nOn_)
+				but _nAbout_ < _nOn_
+					_cRecap_ = @oCourse.ChapterQ(@cLastAbout, @cLang).RecapAchieved()
+					return This._SayAbout(_cHead_, "recap", _nAbout_, _cTitle_, This._Filter(_cRecap_))
+				ok
+			ok
 		ok
 
 		if _oL_.HasPassed(_cEx_)
@@ -249,14 +416,47 @@ class stzTutor from stzObject
 			"write the code", "pretend", "ignore", "the code", "réponse", "donne", "montre", "écris",
 			"الجواب", "الحل", "أعطني", "اكتب", "amsa", "bani", "rubuta" ])
 
+	# A rule-2 reply: the sentence (and its refuse/confirm head) is
+	# filtered FIRST, then the chapter's number and title are set in.
+	# A chapter number is course structure, not a promised output, even
+	# when the digits agree: ex-13-01 promises "1", and chapter 1 exists.
+	# The third slot is the learner's own chapter number (ahead) or the
+	# chapter's recap, already filtered by the caller (recap).
+	def _SayAbout(pcHead, pcKey, pnAbout, pcTitle, pcThird)
+		_c_ = This._Filter(pcHead + _EduSay(@cLang, pcKey, [ "{n}", "{t}", "{x}" ]))
+		_c_ = StzReplace(_c_, "{n}", "" + pnAbout)
+		_c_ = StzReplace(_c_, "{t}", pcTitle)
+		return StzReplace(_c_, "{x}", pcThird)
+
+	# Blanks a forbidden word only where it stands as a WHOLE word. A
+	# promised output "1" must not eat the 1 of "chapter 12" -- found by
+	# tutor_narrated, where the rule-2 reply came back "chapter ......".
 	def _Filter(pcReply)
 		_c_ = pcReply
 		_nL_ = len(@acForbidden)
 		for _i_ = 1 to _nL_
-			if StzFindFirst(StzLower(@acForbidden[_i_]), StzLower(_c_)) > 0
-				_c_ = StzReplaceCS(_c_, @acForbidden[_i_], "...", 0)
-				@nFiltered++
+			_w_ = @acForbidden[_i_]
+			_nW_ = StzLen(_w_)
+			if _nW_ = 0
+				loop
 			ok
+			_aPos_ = StzFindCS(_w_, _c_, 0)
+			_nP_ = len(_aPos_)
+			for _k_ = _nP_ to 1 step -1
+				_p_ = _aPos_[_k_]
+				_cBefore_ = ""
+				if _p_ > 1
+					_cBefore_ = StzMid(_c_, _p_ - 1, 1)
+				ok
+				_cAfter_ = ""
+				if _p_ + _nW_ <= StzLen(_c_)
+					_cAfter_ = StzMid(_c_, _p_ + _nW_, 1)
+				ok
+				if _EduIsWordEdge(_cBefore_) and _EduIsWordEdge(_cAfter_)
+					_c_ = StzLeft(_c_, _p_ - 1) + "..." + StzRight(_c_, StzLen(_c_) - (_p_ - 1) - _nW_)
+					@nFiltered++
+				ok
+			next
 		next
 		return _c_
 
