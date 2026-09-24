@@ -157,6 +157,21 @@ The report is a narration: every figure in it is a promise beside the cell that 
 it, and run it through `StzChapterQ` later: if the learners have moved on, the report says so instead of
 lying.
 
+## 9. From the command line
+
+Two tools in `base/education/tools`, for a learner and for whoever publishes the page. Both take
+`--overlay <your folder>`, `--world <name>` and `--lang <en|fr|ar|ha>`:
+
+```
+ring learn.ring cohorts/<cohort>/<learner> status
+ring learn.ring cohorts/<cohort>/<learner> submit ex-01-01 my-answer.ring      --overlay ../overlays/<your-name>
+ring learn.ring cohorts/<cohort>/<learner> ask ex-01-01 "what is missing?"     --lang fr
+ring learn.ring cohorts/<cohort>/<learner> project project-s0
+ring build_reader.ring pages/<your-name>.html --overlay ../overlays/<your-name> --langs fr,ar
+```
+
+Every verdict is the checker's: it ran the file. A scoped build prints what it skipped, by name.
+
 ## What an overlay may not do
 
 - Replace a core chapter or a core exercise. That is a fork, and the court refuses it.

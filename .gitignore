@@ -57,3 +57,6 @@ libraries/stzlib/base/test/graphics/atlas/*
 # ...and the script that CUTS one country out of the 40 MB world file is
 # code, not data: it is committed, the file it reads is not.
 !libraries/stzlib/base/test/graphics/atlas/cut_admin1.ring
+
+# education: scratch programs a cut run can leave behind (StzEduRunProgram)
+libraries/stzlib/base/test/education/_edu_run_*.ring

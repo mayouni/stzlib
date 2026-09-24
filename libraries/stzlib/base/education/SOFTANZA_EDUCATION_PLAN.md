@@ -350,6 +350,39 @@ keeps no promise.
 reviewers as the chapters; the guard proves that every cell runs and every promise holds in each
 edition, and that each edition carries its own title, nothing more about the words.
 
+### E8 · The learner's desk
+
+Seven slices in, the reader page could only be built by a scratch script outside the repository, and a
+learner had no entry point but the API. Two tools under `base/education/tools/`, each a program judged
+by running it from the command line, as a learner or a teacher would.
+
+**Status: DONE, 2026-09-24**, `desk_narrated.ring` 24 of 24 in about 75 s (fourteen fresh processes).
+What shipped:
+
+- `learn.ring <learner folder> status | submit <exercise> <file> | ask <exercise> "<question>" |
+  project <project>`, with `--program`, `--course`, `--overlay`, `--world`, `--lang`. `status` says the
+  chapter the learner is on, what is passed, the levels earned, the NEXT level with what it still
+  needs by name and the later ones by count. `submit` and `project` are the checker's verdicts (exit 0
+  passed, 2 refused, 1 a wrong call); `ask` is the tutor with the course laid on, so rule 2 applies at
+  the command line, in the learner's language.
+- `build_reader.ring <out.html>` with `--langs`, `--chapters all|1-3|1,4`, `--worlds`, `--overlay`,
+  `--world`: runs the chapters and the world pages side by side, writes one page, and PRINTS what it
+  skipped by name; a language with no edition is red, never English. The full page -- fifteen chapters
+  and three worlds in four languages, 72 editions -- builds in 102 s.
+- `.gitignore` now hides the `_edu_run_*.ring` scratch programs a cut run leaves behind (a chain's
+  timeout cut the course gate mid-run today and left four).
+
+**Two things the guard found.** Ring's `isdigit()` judges ONE character, so `"12"` is not a digit to
+it and `--chapters 1-2` picked nothing; the tool counts digits itself now. And a quoted question does
+not survive the process launcher as one argument, so `ask` joins its words.
+
+**PX honesty.** This slice changed no library file: the sweep is the one gate the tools reach,
+`desk_narrated` (run); the other ten are owned and were not run because nothing they load changed.
+
+**Not claimed.** The tools load `../../stzBase.ring` from their own folder, so they run from
+`base/education/tools` (or any folder at that depth); a learner elsewhere must `cd` there first. A
+learner-side install that puts them on the path is a packaging question for the distribution plane.
+
 ## D. The demo script, 15 minutes
 
 | Minute | What the decision maker sees | What proves it |
