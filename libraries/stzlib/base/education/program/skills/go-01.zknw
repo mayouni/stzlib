@@ -3,7 +3,7 @@ knowledge "skill-go-01"
 facts
     go-01 | is-a | skill
     go-01 | family | govern
-    go-01 | foundation-evidence | governed-agents/gov-01
+    go-01 | foundation-evidence | elementary-introduction/ex-14-01
     go-01 | practitioner-evidence | project-s3
     go-01 | expert-evidence | project-s4
     go-01 | study | stz-agents-that-cannot-hurt-you-narration

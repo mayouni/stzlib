@@ -1,0 +1,19 @@
+# Admitted, but its acts are only compensable.
+cPia = "pia: 1
+name: stock-watcher
+kind: pi
+coverage: checks the kitchen stock every morning and notes what is low
+reversibility: compensable
+schedule:
+  timer: 20
+memory:
+  - stock level unknown
+skills:
+  - name: check-stock
+    when: always
+    does: learn stock level checked
+    verify: fact stock level checked
+"
+oDecl = StzAgentDeclarationQ(cPia)
+? oDecl.IsValid()
+? oDecl.ReversibilityClass()

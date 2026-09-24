@@ -1,0 +1,6 @@
+knowledge "ex-14-03"
+
+facts
+    ex-14-03 | is-a | exercise
+    ex-14-03 | in-chapter | an-agent-that-cannot-hurt
+    ex-14-03 | trains | go-03

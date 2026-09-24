@@ -160,7 +160,7 @@ E3 ships in slices, each with its own gate:
 | **E3a** | The spine: 25 skills as `skills/<id>.zknw` + `<id>.<lang>.md`, the curriculum (15 chapters, `trains`, `requires`), the levels S0–S4 with a brief per project, and `spine_narrated.ring` | **DONE 2026-09-24**, 32 of 32 |
 | **E3b** | Chapters 2–6, the Formulate and Express families, each in four languages with one exercise proved by wrong and right answers, and `course_narrated.ring`, the gate over every shipped chapter | **DONE 2026-09-24**, 90 of 90 |
 | **E3c** | Chapters 7–11, Patterns and See (conditions as data, patterns in text, in lists and numbers, tables, drawn answers), each in four languages with proved exercises; a chapter menu in the reader | **DONE 2026-09-24** |
-| E3d | Chapters 12–15, Know, Govern and Craft | |
+| **E3d** | Chapters 12–15, Know, Govern and Craft (teach a world, the gap question, an agent that cannot hurt, write a narration), each in four languages with proved exercises; all fifteen chapters now ship | **DONE 2026-09-24** |
 | E3e | The Zindara missions (3 × 3 steps) and the five level projects, each with a `guard.ring` | |
 
 **What E3a settled.** The curriculum is the PLAN and `course.zknw` is what SHIPS; the spine guard prints
@@ -189,6 +189,15 @@ teaches patterns written by hand and says why the builder is not shown. Two rule
 **probe a cell from a file, never through `eval`** (a backslash reads differently), and **`stzNumbrex` is
 used through a variable**, since `new stzNumbrex(...).Match()` inline raises. The reader now shows one
 chapter at a time per language, with a chapter menu; the hash is `lang:n`.
+
+**What E3d settled.** Chapter 14 rehearses a real file write in the agent's workbench and commits it only
+through a PI actor inside a scope; a `learn`-only agent yields an empty plan, so that lesson needs a write.
+Chapter 15 hands the learner the course's own instruments (`StzChapterQ`, `stzExerciseCheck`), which means
+a chapter cell may itself spawn a check: scratch file names now carry the process id so a child never
+collides with its parent's running script. The govern skills' evidence moved to chapter 14's exercises
+(`ex-14-01..03`); the `governed-agents` course keeps `gov-01` for the demo. Two matcher facts an author
+must know: a promise of `TRUE` is satisfied by any line printing `1`, and a wrong answer must therefore
+print something else; and an inner `\"` inside a Ring string is not an escape, so nested code uses `'`.
 
 **Two defects in the shared narrations folder, found the same way and routed to its owner:** one file has
 a space in its name (`stzwalker-beyond-loops-the -walker-metaphor.md`) and one a double extension

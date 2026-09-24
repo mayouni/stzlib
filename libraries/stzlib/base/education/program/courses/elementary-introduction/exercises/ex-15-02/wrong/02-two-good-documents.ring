@@ -1,0 +1,12 @@
+# The negative case is missing: both documents are right.
+cDoc = "# Mini" + char(10) + "```ring" + char(10) + "? 1 + 1" + char(10) + "#--> 2" + char(10) + "```" + char(10)
+write("t_ex15_f.en.md", cDoc)
+write("t_ex15_g.en.md", cDoc)
+oA = StzChapterQ("t_ex15_f.en.md", "en")
+oA.Run("")
+oB = StzChapterQ("t_ex15_g.en.md", "en")
+oB.Run("")
+? oA.AllPromisesKept()
+? oB.AllPromisesKept()
+remove("t_ex15_f.en.md")
+remove("t_ex15_g.en.md")
