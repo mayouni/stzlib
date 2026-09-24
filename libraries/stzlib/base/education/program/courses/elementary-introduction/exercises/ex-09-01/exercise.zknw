@@ -1,0 +1,6 @@
+knowledge "ex-09-01"
+
+facts
+    ex-09-01 | is-a | exercise
+    ex-09-01 | in-chapter | patterns-in-structure
+    ex-09-01 | trains | pa-02

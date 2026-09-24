@@ -179,14 +179,20 @@ func _EduReaderCss()
 	       "figure.cell{margin:14px 0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel)}figure.cell figcaption{font-size:14px;font-weight:700;padding:6px 12px}" +
 	       "figure[data-where=desktop] figcaption{color:var(--desk);background:var(--desk-bg)}figure[data-where=browser] figcaption{color:var(--web);background:var(--web-bg)}" +
 	       "figure.cell pre{border:0;border-radius:0}.out{padding:8px 12px;color:var(--ink2);border-top:1px dashed var(--line);font-size:15px}" +
+	       "nav.chapters{display:flex;flex-wrap:wrap;gap:6px 14px;margin:0 0 18px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);font-size:15px}nav.chapters a{color:var(--ink2);text-decoration:none;font-weight:600}nav.chapters a.on{color:var(--accent);text-decoration:underline}" +
 	       "aside.exercise{border-inline-start:4px solid var(--accent);background:var(--panel);padding:4px 16px 8px;margin:22px 0;border-radius:8px}.note{color:var(--ink2);font-size:15px}" +
 	       "blockquote{margin:10px 0;padding:6px 12px;border-inline-start:3px solid var(--line);color:var(--ink2)}.qa{border-top:1px solid var(--line);margin-top:30px}" +
 	       "@media print{header{position:static}article{display:block;page-break-after:always}}"
 
 func _EduReaderJs()
-	return "(function(){var arts=document.querySelectorAll('article'),links=document.querySelectorAll('nav a');" +
-	       "function show(l){var hit=false;arts.forEach(function(a){var on=a.getAttribute('data-lang')===l;a.classList.toggle('on',on);if(on)hit=true;});" +
-	       "if(!hit&&arts.length){arts[0].classList.add('on');l=arts[0].getAttribute('data-lang');}" +
+	# the hash is `lang` or `lang:n`: the language shows ONE chapter at a
+	# time (its n-th, 1 by default), and the chapter menu moves between them
+	return "(function(){var arts=document.querySelectorAll('article'),links=document.querySelectorAll('header nav a');" +
+	       "function show(h){var p=h.split(':'),l=p[0],n=parseInt(p[1]||'1',10)||1,hit=false;" +
+	       "arts.forEach(function(a){a.classList.remove('on');});" +
+	       "var mine=[].filter.call(arts,function(a){return a.getAttribute('data-lang')===l;});" +
+	       "if(!mine.length&&arts.length){l=arts[0].getAttribute('data-lang');mine=[].filter.call(arts,function(a){return a.getAttribute('data-lang')===l;});}" +
+	       "if(n<1||n>mine.length)n=1;if(mine.length){mine[n-1].classList.add('on');window.scrollTo(0,0);}" +
 	       "links.forEach(function(a){a.classList.toggle('on',a.getAttribute('data-go')===l);});}" +
 	       "window.addEventListener('hashchange',function(){show(location.hash.slice(1));});show(location.hash.slice(1));})();"
 
@@ -260,13 +266,45 @@ class stzEduReader from stzObject
 		write(pcFile, This.Html())
 		return pcFile
 
+	# The rank of a chapter among those of its language, in reader order.
+	def _IndexIn(pcLang, poCh)
+		_n_ = 0
+		_nAll_ = len(@aChapters)
+		for _k_ = 1 to _nAll_
+			if @aChapters[_k_].Language() = pcLang
+				_n_++
+				if @aChapters[_k_].File() = poCh.File()
+					return _n_
+				ok
+			ok
+		next
+		return _n_
+
 	def _Article(poCh)
 		_cL_ = poCh.Language()
 		_cDir_ = "ltr"
 		if _cL_ = "ar"
 			_cDir_ = "rtl"
 		ok
-		_c_ = '<article data-lang="' + _cL_ + '" lang="' + _cL_ + '" dir="' + _cDir_ + '">' + char(10)
+		_nMine_ = This._IndexIn(_cL_, poCh)
+		_c_ = '<article id="' + _cL_ + '-' + _nMine_ + '" data-lang="' + _cL_ + '" lang="' + _cL_ + '" dir="' + _cDir_ + '">' + char(10)
+		# the CHAPTER MENU of this language: one entry per chapter, the
+		# current one marked -- a language is six chapters now, not one
+		_c_ += '<nav class="chapters">'
+		_nK_ = 0
+		_nAll_ = len(@aChapters)
+		for _k_ = 1 to _nAll_
+			if @aChapters[_k_].Language() = _cL_
+				_nK_++
+				_cCls_ = ""
+				if _nK_ = _nMine_
+					_cCls_ = ' class="on"'
+				ok
+				_c_ += '<a href="#' + _cL_ + ':' + _nK_ + '"' + _cCls_ + '>' + _nK_ + ' · ' +
+				       _EduEsc(@aChapters[_k_].Title()) + '</a>'
+			ok
+		next
+		_c_ += '</nav>' + char(10)
 		_aB_ = poCh.Blocks()
 		_nB_ = len(_aB_)
 		for _i_ = 1 to _nB_

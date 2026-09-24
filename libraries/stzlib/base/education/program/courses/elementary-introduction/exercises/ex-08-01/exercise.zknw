@@ -1,0 +1,6 @@
+knowledge "ex-08-01"
+
+facts
+    ex-08-01 | is-a | exercise
+    ex-08-01 | in-chapter | patterns-in-text
+    ex-08-01 | trains | pa-01

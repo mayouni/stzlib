@@ -8,6 +8,11 @@ facts
     elementary-introduction | has-chapter-04 | say-it-in-your-language
     elementary-introduction | has-chapter-05 | one-object-any-structure
     elementary-introduction | has-chapter-06 | walk-ask-produce-act
+    elementary-introduction | has-chapter-07 | declare-what-not-how
+    elementary-introduction | has-chapter-08 | patterns-in-text
+    elementary-introduction | has-chapter-09 | patterns-in-structure
+    elementary-introduction | has-chapter-10 | when-code-meets-cells
+    elementary-introduction | has-chapter-11 | draw-the-answer
 
     find-then-apply | is-a | chapter
     find-then-apply | uses-world | workplace
@@ -29,3 +34,20 @@ facts
 
     walk-ask-produce-act | is-a | chapter
     walk-ask-produce-act | has-exercise | ex-06-01
+
+    declare-what-not-how | is-a | chapter
+    declare-what-not-how | has-exercise | ex-07-01
+    declare-what-not-how | has-exercise | ex-07-02
+
+    patterns-in-text | is-a | chapter
+    patterns-in-text | has-exercise | ex-08-01
+
+    patterns-in-structure | is-a | chapter
+    patterns-in-structure | has-exercise | ex-09-01
+
+    when-code-meets-cells | is-a | chapter
+    when-code-meets-cells | has-exercise | ex-10-01
+
+    draw-the-answer | is-a | chapter
+    draw-the-answer | has-exercise | ex-11-01
+    draw-the-answer | has-exercise | ex-11-02

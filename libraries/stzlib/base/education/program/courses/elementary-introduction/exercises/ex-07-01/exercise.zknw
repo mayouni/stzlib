@@ -1,0 +1,6 @@
+knowledge "ex-07-01"
+
+facts
+    ex-07-01 | is-a | exercise
+    ex-07-01 | in-chapter | declare-what-not-how
+    ex-07-01 | trains | fo-04
