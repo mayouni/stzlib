@@ -228,9 +228,16 @@ class stzEduReader from stzObject
 		      '<title>' + _EduEsc(@oCourse.Slug()) + '</title>' + char(10) +
 		      '<style>' + _EduReaderCss() + '</style></head><body>' + char(10)
 		_c_ += '<header><div class="brand">Softanza &middot; ' + _EduEsc(@oCourse.Slug()) + '</div><nav>'
+		# one link per LANGUAGE, whatever the number of chapters in it --
+		# the first course page showed 24 links for 4 languages (2026-09-24)
+		_acSeen_ = []
 		_nL_ = len(@aChapters)
 		for _i_ = 1 to _nL_
 			_cL_ = @aChapters[_i_].Language()
+			if StzFindFirst(_cL_, _acSeen_) > 0
+				loop
+			ok
+			_acSeen_ + _cL_
 			_c_ += '<a href="#' + _cL_ + '" data-go="' + _cL_ + '">' + _EduLangName(_cL_) + '</a>'
 		next
 		_c_ += '</nav></header>' + char(10) + '<main>' + char(10)
