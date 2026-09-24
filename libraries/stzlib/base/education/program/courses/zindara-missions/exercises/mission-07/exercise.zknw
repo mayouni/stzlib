@@ -1,0 +1,6 @@
+knowledge "mission-07"
+
+facts
+    mission-07 | is-a | exercise
+    mission-07 | in-mission | what-are-the-rules
+    mission-07 | trains | ex-04

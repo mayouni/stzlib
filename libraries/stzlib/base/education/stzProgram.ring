@@ -264,6 +264,26 @@ class stzProgram from stzObject
 		ok
 		return _ac_[1]
 
+	def ProjectQ(pcId)
+		_cF_ = This.FolderFor("projects/" + StzLower(pcId))
+		if _cF_ = ""
+			StzRaise("No project '" + pcId + "' in the program.")
+		ok
+		return new stzProject(_cF_)
+
+	# The chapter ids a level requires: the course's first N shipped chapters.
+	def ChaptersForLevel(poCourse, pcLevel)
+		_nThrough_ = 0 + This.LevelFact(pcLevel, "needs-chapters-through")
+		_acAll_ = poCourse.ChapterIds()
+		_acRes_ = []
+		_nL_ = len(_acAll_)
+		for _i_ = 1 to _nL_
+			if _i_ <= _nThrough_
+				_acRes_ + _acAll_[_i_]
+			ok
+		next
+		return _acRes_
+
 	def ProjectIds()
 		_aF_ = This.LevelFacts()
 		_acRes_ = []

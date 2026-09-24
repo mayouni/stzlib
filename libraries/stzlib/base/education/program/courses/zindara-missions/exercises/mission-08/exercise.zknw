@@ -1,0 +1,6 @@
+knowledge "mission-08"
+
+facts
+    mission-08 | is-a | exercise
+    mission-08 | in-mission | what-are-the-rules
+    mission-08 | trains | pa-03

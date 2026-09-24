@@ -1,0 +1,6 @@
+knowledge "mission-05"
+
+facts
+    mission-05 | is-a | exercise
+    mission-05 | in-mission | what-happens-each-day
+    mission-05 | trains | fo-04

@@ -249,9 +249,8 @@ for i = 1 to len(acProjects)
 	ok
 next
 Then("every project has a brief in all four languages", @@(acNoBrief), "[ ]")
-? "  [owned, not run] projects with no guard yet, so no level can be earned (" +
-	(len(acProjects) - len(acEarnable)) + " of " + len(acProjects) + ")"
-Then("no level can be earned today, and nothing pretends otherwise", @@(acEarnable), "[ ]")
+? "  [earnable] projects with a guard: " + len(acEarnable) + " of " + len(acProjects) + " (the guards themselves are proved in levels_narrated.ring)"
+Then("every level can be earned: each project has a guard", len(acEarnable), len(acProjects))
 EndScenario()
 
 EduSpineClean()

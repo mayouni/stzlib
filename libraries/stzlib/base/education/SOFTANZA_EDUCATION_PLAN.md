@@ -161,7 +161,7 @@ E3 ships in slices, each with its own gate:
 | **E3b** | Chapters 2–6, the Formulate and Express families, each in four languages with one exercise proved by wrong and right answers, and `course_narrated.ring`, the gate over every shipped chapter | **DONE 2026-09-24**, 90 of 90 |
 | **E3c** | Chapters 7–11, Patterns and See (conditions as data, patterns in text, in lists and numbers, tables, drawn answers), each in four languages with proved exercises; a chapter menu in the reader | **DONE 2026-09-24** |
 | **E3d** | Chapters 12–15, Know, Govern and Craft (teach a world, the gap question, an agent that cannot hurt, write a narration), each in four languages with proved exercises; all fifteen chapters now ship | **DONE 2026-09-24** |
-| E3e | The Zindara missions (3 × 3 steps) and the five level projects, each with a `guard.ring` | |
+| **E3e** | The Zindara missions (3 missions × 3 steps, each a checked exercise, one answerable in Hausa) and the five level projects, each with a `guard.ring` proved against wrong and right sample folders; a learner earns a level only when every exercise of its chapters and its project have passed with matching evidence | **DONE 2026-09-24**, missions 32/32 · levels 35/35 |
 
 **What E3a settled.** The curriculum is the PLAN and `course.zknw` is what SHIPS; the spine guard prints
 the planned chapters not yet written by name (14 of 15) and never counts them as shipped. A skill's text
@@ -198,6 +198,21 @@ collides with its parent's running script. The govern skills' evidence moved to 
 (`ex-14-01..03`); the `governed-agents` course keeps `gov-01` for the demo. Two matcher facts an author
 must know: a promise of `TRUE` is satisfied by any line printing `1`, and a wrong answer must therefore
 print something else; and an inner `\"` inside a Ring string is not an escape, so nested code uses `'`.
+
+**What E3e settled, and with it E3.** A level project is a folder with a brief in four languages, a
+`guard.ring` that judges the learner's folder (`%PROJECT%`) by running it, a `promise.ring`, and sample
+folders under `wrong/` and `right/` that the guard must refuse and accept (`stzProject.ProveItself`). The
+learner's evidence for a project is the hash of every file in their folder. `stzLearner.HasEarned` is the
+one rule for a level: every exercise of the chapters the level needs has passed, and the project has
+passed, each with evidence that still matches; `MissingFor` names what is missing. Two more traps paid
+for: inside an `if` block Ring reads the variable `oK` as the keyword `ok` (a syntax error the probe at
+top level never showed), and two facts about one subject may not share an object, so a project's
+last-attempt and evidence hashes carry different prefixes.
+
+**E3 is therefore complete as the launch prompt defined it**: every cell of every chapter is pinned by a
+guard in all four languages, the skills framework is written, and levels are earned by a project that
+passes its guards. What E3 does not claim: the fr/ar/ha prose is reviewed (it is not), the browser runs a
+cell (it does not), or the tutor's no-spoiler rule is tested (it holds trivially and is untested).
 
 **Two defects in the shared narrations folder, found the same way and routed to its owner:** one file has
 a space in its name (`stzwalker-beyond-loops-the -walker-metaphor.md`) and one a double extension
