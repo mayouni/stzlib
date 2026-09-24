@@ -1,0 +1,6 @@
+knowledge "shop"
+
+facts
+    amina | is-a | baker
+    amina | sells | bread
+    bread | costs | 100

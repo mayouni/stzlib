@@ -1,0 +1,8 @@
+knowledge "shop"
+
+facts
+    amina | is-a | baker
+    amina | sells | bread
+    ibrahim | is-a | merchant
+    ibrahim | sells | cloth
+    bread | costs | 100

@@ -5,4 +5,27 @@ facts
     zindara-missions | for-ages | 8-11
     zindara-missions | set-in | zindara
     zindara | is-a | village
+
+    zindara-missions | has-mission-1 | who-lives-in-zindara
+    zindara-missions | has-mission-2 | what-happens-each-day
+    zindara-missions | has-mission-3 | what-are-the-rules
+
+    who-lives-in-zindara | has-step-1 | mission-01
+    who-lives-in-zindara | has-step-2 | mission-02
+    who-lives-in-zindara | has-step-3 | mission-03
+    what-happens-each-day | has-step-1 | mission-04
+    what-happens-each-day | has-step-2 | mission-05
+    what-happens-each-day | has-step-3 | mission-06
+    what-are-the-rules | has-step-1 | mission-07
+    what-are-the-rules | has-step-2 | mission-08
+    what-are-the-rules | has-step-3 | mission-09
+
     zindara-missions | has-exercise | mission-01
+    zindara-missions | has-exercise | mission-02
+    zindara-missions | has-exercise | mission-03
+    zindara-missions | has-exercise | mission-04
+    zindara-missions | has-exercise | mission-05
+    zindara-missions | has-exercise | mission-06
+    zindara-missions | has-exercise | mission-07
+    zindara-missions | has-exercise | mission-08
+    zindara-missions | has-exercise | mission-09

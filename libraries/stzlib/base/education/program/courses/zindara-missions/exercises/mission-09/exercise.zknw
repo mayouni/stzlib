@@ -1,0 +1,6 @@
+knowledge "mission-09"
+
+facts
+    mission-09 | is-a | exercise
+    mission-09 | in-mission | what-are-the-rules
+    mission-09 | trains | kn-01

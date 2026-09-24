@@ -1,0 +1,4 @@
+acLines = StzSplit(read($cProjectFolder + "/data.csv"), char(10))
+oT = new stzTable([ [ :DISH, :PRICE ], [ "tea", 200 ], [ "rice", 500 ], [ "fish", 900 ] ])
+oT.Show()
+? "pattern: " + rx("^[a-z]+,[0-9]+$").Match(trim(acLines[2]))

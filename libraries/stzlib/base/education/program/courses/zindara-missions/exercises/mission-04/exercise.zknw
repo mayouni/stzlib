@@ -1,0 +1,6 @@
+knowledge "mission-04"
+
+facts
+    mission-04 | is-a | exercise
+    mission-04 | in-mission | what-happens-each-day
+    mission-04 | trains | ex-01

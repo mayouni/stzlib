@@ -1,0 +1,6 @@
+knowledge "mission-02"
+
+facts
+    mission-02 | is-a | exercise
+    mission-02 | in-mission | who-lives-in-zindara
+    mission-02 | trains | ex-01

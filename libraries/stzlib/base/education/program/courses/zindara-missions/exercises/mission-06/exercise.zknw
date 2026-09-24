@@ -1,0 +1,6 @@
+knowledge "mission-06"
+
+facts
+    mission-06 | is-a | exercise
+    mission-06 | in-mission | what-happens-each-day
+    mission-06 | trains | ex-03

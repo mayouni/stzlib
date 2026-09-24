@@ -110,6 +110,87 @@ class stzLearner from stzObject
 		ok
 		return StzLower(_acE_[1]) = "sha256:" + StzLower(StzEngineCryptoSha256(read(This.WorkFile(pcExerciseId))))
 
+	#-- projects and levels
+
+	def ProjectFolder(pcProjectId)
+		return @cFolder + "/projects/" + pcProjectId
+
+	# The learner's own project folder, judged by the project's guard. As
+	# with an exercise, the checker is the only writer of the verdict, and
+	# the evidence is the hash of the whole folder.
+	def SubmitProject(poProject)
+		_cPr_ = poProject.Id()
+		_cDir_ = This.ProjectFolder(_cPr_)
+		if NOT StzEngineDirExists(_cDir_)
+			StzRaise("Learner '" + @cId + "' has no folder for project '" + _cPr_ + "' yet.")
+		ok
+		_oCheck_ = poProject.Check(_cDir_)
+		_cKey_ = _cPr_ + "-by-" + @cId
+		This._Add(@cId, "worked-on", _cPr_)
+		# `attempt:` and `folder:` keep the two hashes two nodes (one edge per pair)
+		This._Set(_cKey_, "last-attempt", "attempt:" + _EduFolderHash(_cDir_))
+		if _oCheck_.Passed()
+			This._Set(_cKey_, "verdict", "passed")
+			This._Set(_cKey_, "evidence", "folder:" + _EduFolderHash(_cDir_))
+			This._Set(_cKey_, "checked-at-ms", "" + _oCheck_.CheckedAtMs())
+		else
+			This._Set(_cKey_, "verdict", "diverged")
+		ok
+		This._Save()
+		return _oCheck_
+
+	def HasPassedProject(pcProjectId)
+		if This.LastVerdict(pcProjectId) != "passed"
+			return 0
+		ok
+		_acE_ = _EduObjects(@aFacts, This._Key(pcProjectId), "evidence")
+		_cDir_ = This.ProjectFolder(pcProjectId)
+		if len(_acE_) = 0 or NOT StzEngineDirExists(_cDir_)
+			return 0
+		ok
+		return StzLower(_acE_[1]) = "folder:" + StzLower(_EduFolderHash(_cDir_))
+
+	# A level is earned when EVERY exercise of the chapters it needs has
+	# been passed AND its project has passed -- each with evidence that
+	# still matches. Nothing else earns it: not a score, not a teacher.
+	def HasEarned(poProgram, poCourse, pcLevel)
+		_acCh_ = poProgram.ChaptersForLevel(poCourse, pcLevel)
+		_nL_ = len(_acCh_)
+		for _i_ = 1 to _nL_
+			_acEx_ = poCourse.ExercisesOf(_acCh_[_i_])
+			_nE_ = len(_acEx_)
+			for _e_ = 1 to _nE_
+				if NOT This.HasPassed(_acEx_[_e_])
+					return 0
+				ok
+			next
+		next
+		_cPr_ = poProgram.LevelFact(pcLevel, "earned-by")
+		if _cPr_ = ""
+			return 0
+		ok
+		return This.HasPassedProject(_cPr_)
+
+	# What still stands between the learner and a level, by name.
+	def MissingFor(poProgram, poCourse, pcLevel)
+		_acRes_ = []
+		_acCh_ = poProgram.ChaptersForLevel(poCourse, pcLevel)
+		_nL_ = len(_acCh_)
+		for _i_ = 1 to _nL_
+			_acEx_ = poCourse.ExercisesOf(_acCh_[_i_])
+			_nE_ = len(_acEx_)
+			for _e_ = 1 to _nE_
+				if NOT This.HasPassed(_acEx_[_e_])
+					_acRes_ + _acEx_[_e_]
+				ok
+			next
+		next
+		_cPr_ = poProgram.LevelFact(pcLevel, "earned-by")
+		if _cPr_ != "" and NOT This.HasPassedProject(_cPr_)
+			_acRes_ + _cPr_
+		ok
+		return _acRes_
+
 	# Reloads the facts from disk -- what another object, or a person, wrote.
 	def Reload()
 		@aFacts = []
