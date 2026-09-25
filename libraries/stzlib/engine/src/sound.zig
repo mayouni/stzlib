@@ -341,6 +341,29 @@ pub fn earconFrames(value: u32, rate: u32) f64 {
     return @floatFromInt(dsp.motifFrames(value, rate));
 }
 
+/// MU0 spike 3: a plucked string as an ordinary buffer. The arithmetic is the
+/// seam's, as the earcon's is; this is only the allocation.
+pub fn pluckOf(hz: f64, rate: u32, seconds: f64, decay: f64) i64 {
+    const need = dsp.pluckFrames(rate, seconds);
+    if (need == 0) {
+        bump(CTR_REFUSALS, 1);
+        setErr("pluckOf: seconds must be positive");
+        return 0;
+    }
+    const data = alloc.alloc(f32, need) catch {
+        setErr("out of memory allocating a pluck");
+        return 0;
+    };
+    @memset(data, 0);
+    if (dsp.renderPluck(hz, rate, seconds, decay, data) == 0) {
+        alloc.free(data);
+        bump(CTR_REFUSALS, 1);
+        setErr("pluckOf: that pitch has no period that fits (too low, or not positive)");
+        return 0;
+    }
+    return adopt(data, need, 1, rate);
+}
+
 // ---------------------------------------------------------------- accessors
 
 pub fn frameCount(id: i64) f64 {

@@ -78,6 +78,11 @@ fn ring_EarconFrames(p: *anyopaque) callconv(.c) void {
     rn(p, snd.earconFrames(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2))));
 }
 
+// MU0 spike 3: PluckOf(hz, rate, seconds, decay) -> buffer id
+fn ring_PluckOf(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(snd.pluckOf(gn(p, 1), @intFromFloat(gn(p, 2)), gn(p, 3), gn(p, 4))));
+}
+
 fn ring_NewSilent(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(snd.newSilent(
         @intFromFloat(gn(p, 1)),
@@ -353,6 +358,15 @@ fn ring_GraphCurrentGain(p: *anyopaque) callconv(.c) void {
     rn(p, gph.currentGain(id(p, 1), nodeIn(p, 2)));
 }
 
+// MU0: SetFrequency(graph, node, hz, rampMs) / CurrentFrequency(graph, node)
+fn ring_GraphSetFrequency(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gph.setFrequency(id(p, 1), nodeIn(p, 2), gn(p, 3), gn(p, 4))));
+}
+
+fn ring_GraphCurrentFrequency(p: *anyopaque) callconv(.c) void {
+    rn(p, gph.currentFrequency(id(p, 1), nodeIn(p, 2)));
+}
+
 // ---------------------------------------------------------------- recorder (SN4)
 
 fn ring_RecorderNew(p: *anyopaque) callconv(.c) void {
@@ -503,6 +517,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginesoundnewsilent", .func = &ring_NewSilent },
     .{ .name = "stzenginesoundearconof", .func = &ring_EarconOf },
     .{ .name = "stzenginesoundearconframes", .func = &ring_EarconFrames },
+    .{ .name = "stzenginesoundpluckof", .func = &ring_PluckOf },
     .{ .name = "stzenginesoundfree", .func = &ring_Free },
     .{ .name = "stzenginesoundframes", .func = &ring_Frames },
     .{ .name = "stzenginesoundchannels", .func = &ring_Channels },
@@ -560,6 +575,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginesoundstreamcounter", .func = &ring_StreamCounter },
     .{ .name = "stzenginesoundgraphsetgain", .func = &ring_GraphSetGain },
     .{ .name = "stzenginesoundgraphcurrentgain", .func = &ring_GraphCurrentGain },
+    .{ .name = "stzenginesoundgraphsetfrequency", .func = &ring_GraphSetFrequency },
+    .{ .name = "stzenginesoundgraphcurrentfrequency", .func = &ring_GraphCurrentFrequency },
 
     // the recorder (SN4)
     .{ .name = "stzenginesoundrecordernew", .func = &ring_RecorderNew },
