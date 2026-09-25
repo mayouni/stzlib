@@ -105,6 +105,7 @@ express:
 | **Raga** (Hindustani / Carnatic) | Ascending and descending scales can DIFFER (aroha/avaroha). **Gamaka** — the ornament between notes — is the identity of the raga, not decoration; a raga played without its gamakas is a different raga. Vadi/samvadi (the emphasised notes), characteristic phrases (pakad), time of day. Rhythm is **tala**: cycles of 3–16+ beats with named subdivisions, and the composition returns to *sam* (beat one) |
 | **Gamelan** (Java / Bali) | **Slendro** (five near-equal steps) and **pelog** (seven unequal), and **every ensemble is tuned differently on purpose** — there is no reference pitch. Structure is **colotomic**: gongs punctuate a cycle at nested intervals. Balinese **kotekan** is two players interlocking one melody, and paired instruments are deliberately detuned to beat |
 | **West and Central African** | The **timeline** (the 12/8 bell pattern) is the reference the ensemble hears, not a downbeat. Polyrhythm is the norm: 3 against 2, 4 against 3, as one texture. Talking-drum pitch follows speech tone |
+| **Niger** (Hausa, Zarma-Songhai, Tuareg, Fulani/Wodaabe, Kanuri) | Five traditions in one country and **almost no written theory for any of them** — the sources are ethnomusicographers, not native theorists, so the declared set here is an outsider's transcription and the listener gate is not optional, it is the whole record. What they share: **anhemitonic pentatonic** pitch sets, but on fretless or single-string instruments (the Tuareg **imzad** and the Hausa/Zarma **goge/godji**, bowed; the Zarma **molo** and Tuareg **tehardent**, plucked), so **intonation is a curve, not a step** — the target pitches are declared and the slide between them is the ornament vocabulary, which means the plan's portamento (MU0 spike 1) is this universe's identity rather than a nicety. Rhythm: polyrhythm on the timeline as the row above says, plus Niger's own — the **takamba** (a slow, hypnotic triplet swing on tehardent and calabash), the Tuareg **tende** cycles (a mortar drum, women's ceremonies), Hausa **bori** possession rhythms, and the Wodaabe **Gerewol**'s clapped-and-stamped cycles under men's vocal polyphony. **And one thing no other row has: the Hausa kalangu** — an hourglass drum whose pitch is squeezed in real time to follow the high/low/falling tones of Hausa, a tonal language, so *a drum phrase is a sentence*. Its declaration is TEXT, and its rendering is a pitch contour |
 | **Afro-Cuban / Brazilian** | **Clave** is a two-bar asymmetric key that everything aligns to, and playing "against the clave" is an error a native listener hears instantly |
 | **Flamenco** | **Compás**: twelve-beat cycles with accents on 3, 6, 8, 10, 12 (soleá), and the palo (style) is defined by its compás before its harmony |
 | **Chinese / Japanese** | Pentatonic modes (gong, shang, jue, zhi, yu); **guqin tablature describes the technique, not the pitch**; shakuhachi honkyoku has breath-phrases rather than bars |
@@ -133,6 +134,23 @@ outdoors), the **darbouka** (goblet drum: *dum* at the centre, *tak* at the rim,
 snares under the head, so every stroke carries a buzz). Two reeds and two
 membranes — and none of the three synthesis engines in §3 makes a reed. That is
 why §3 has a fourth.
+
+**Niger's instruments then show that the fourth engine is not one engine but a
+family of MOUTHS on one bore, and that the string engine is missing a bow.** The
+Hausa **kakaki** is a two-metre metal trumpet — a lip reed, the brass excitation.
+The **algaita** is a double-reed shawm, the zokra's engine exactly. The Fulani
+**sarewa** is a flute — an air jet, no reed at all. So one waveguide bore with four
+excitations (single reed, double reed, lip, jet) covers the mezwed, the zokra, the
+kakaki, the algaita and the sarewa, and every wind in the table. On strings, the
+**imzad** and the **goge/godji** are *bowed*: Karplus-Strong is a pluck and cannot
+sustain, so the string waveguide needs a bow — the stick-slip friction excitation —
+as its second mouth. The plucked **molo**, **tehardent** and **hoddu** are Karplus
+with a gourd's resonance, the kora's engine. And the **kalangu** is a membrane whose
+pitch changes *while it sounds*: that is §3's Gap 1 — `setFrequency` — applied to
+a drum, which is the satisfying kind of consequence, because it means the plan's
+first engine change already serves its hardest instrument. The **calabash** (the
+Zarma *gaasu*, struck with ringed fingers) is the membrane engine with a shell mode
+and a rattle; the **ganga** and **tende** are its plain cases.
 
 ---
 
@@ -228,7 +246,12 @@ three known answers and this plan takes all three, cheapest first:
   burst) gives *dum* and *tak* on a darbouka and, with a buzz gated by the
   membrane's decay, the bendir's snare. Samples would do both faster and teach
   nothing; the model is what makes *pressure*, *strike position* and *detune*
-  parameters a pattern can drive per note.
+  parameters a pattern can drive per note. **Niger (§1.3) generalises this in
+  two directions before it is built**: the reed becomes one of four excitations
+  on the same bore — single reed, double reed, lip (kakaki), air jet (sarewa) —
+  and the string waveguide gains a bow (imzad, goge) beside its pluck. Neither is
+  a fifth engine; each is a second mouth on an engine already listed, and the
+  kalangu's squeezed pitch is Gap 1's `setFrequency` on a membrane's modes.
 
 **Not a gap, and worth saying:** timing *jitter* is separate from *latency*, and
 the plane's ring gives the second and not the first. A scheduler that places
@@ -288,6 +311,9 @@ oM.In(:Gamelan, :Slendro).Colotomy(:Lancaran)   # gong cycle, paired detuning
 oM.In(:Tunisian, :Dhil).Iqa(:Btayhi)            # a ṭabʿ, and the nūba's own cycle
 oM.Loop(:lead, "d e f+ g a ~ a g").With(:Mezwed)   # two chanters, beating, no breath
 oM.Loop(:iqa,  "dum ~ tak ka dum dum tak ~").With(:Darbouka, :Bendir)
+oM.In(:Niger, :Zarma).Rhythm(:Takamba)          # pentatonic targets, slides between
+oM.Loop(:fiddle, "a ~ c' ~ d' c' a ~").With(:Imzad).Slide(0.3)   # the bow sustains
+oM.Say(:Kalangu, "sannu da zuwa")              # Hausa tones become drum pitch
 oM.In(:Major, :C)                               # the default nobody else escapes
 ```
 
@@ -307,7 +333,7 @@ records their name and their verdict or records that nobody has listened yet.
 | **`stzScore`** | Euterpea's algebra: note, rest, sequence, parallel, transform. **Data.** | `base/sound/`, the pivot object; renders to sound, notation, MIDI file |
 | **`stzPattern`** | a function of cycle time + the mini-notation parser | `base/sound/`; the string face; `Fast`, `Slow`, `Rev`, `Every`, `Off`, `Jux` as chained verbs |
 | **`stzScheduler`** | beats → frames; a queue the producer drains ahead of the ring | Zig, in the stream's producer loop, because it must be ahead of the deadline by design |
-| **`stzInstrument`** | Karplus-Strong, FM, sample, and the reed/membrane physical models — one face, four engines | arithmetic in `sounddsp.zig` so both tiers agree; the face in Ring |
+| **`stzInstrument`** | Karplus-Strong, FM, sample, and the reed/membrane physical models — one face, four engines; the wind engine with four excitations (single reed, double reed, lip, jet) and the string engine with pluck and bow | arithmetic in `sounddsp.zig` so both tiers agree; the face in Ring |
 | **`stzUniverse`** | tuning + pitch vocabulary + movement rules + cycle + ornaments + instruments | **declared data** in `base/sound/universes/*.ring` — never code, because a tradition is not an algorithm and the author declares it |
 | **`stzMusic`** | the one-line front: `Play`, `Loop`, `In`, `Tempo`, `With` | `base/sound/`, over everything above; it is the *fun* and it owns no mechanism |
 | `stz-music.js` | the same verbs in the browser, over the same wasm | `webaudio/`; where live performance actually works |
@@ -332,14 +358,19 @@ no faces:
 4. A quarter tone: render D at 24-TET +1 step and measure by FFT. Must be
    **50 ± 2 cents**, or the pitch machinery is not fit for §1.3.
 *Kill:* if (1) cannot be made click-free at 10 ms, pitch is changed only at
-note boundaries and there is no portamento or vibrato — stated, not hidden. If
+note boundaries and there is no portamento or vibrato — stated, not hidden — **and the imzad, the goge and the
+kalangu, whose identity IS the slide, are then out of MU1 until the ramp is
+click-free**. If
 (4) misses, the plan stops until the arithmetic is right.
 
 **MU1 — pitch and the instrument.** `setFrequency`, `setRate`, `stzInstrument`
-with the four engines, sixteen instruments across them (piano, guitar, harp,
+with the four engines, twenty instruments across them (piano, guitar, harp,
 bell, e-piano, brass, flute, oud, koto, kora, metallophone, drum kit from
 samples, and the four Tunisian ones — mezwed and zokra on the reed model,
-darbouka and bendir on the membrane). *Kill:* if a named instrument does not sound like its name to the
+darbouka and bendir on the membrane, and four from Niger that each prove a NEW
+excitation rather than lengthen the list — kakaki for the lip, sarewa for the
+jet, imzad for the bow, kalangu for a membrane whose pitch moves while it
+sounds; the algaita, molo, ganga and calabash then cost nothing new). *Kill:* if a named instrument does not sound like its name to the
 author, it ships under a name that does not lie (`:PluckedString`, not `:Oud`).
 
 **MU2 — the scheduler and the score.** `stzScore` (the algebra), `stzScheduler`
@@ -354,10 +385,11 @@ algebra, on `stzString`. Live loops with boundary replacement over
 speakers disagree by more than one cycle, it is not live coding and is not
 called that.
 
-**MU4 — the universes.** `stzUniverse` as declared data; seven shipped — Western
+**MU4 — the universes.** `stzUniverse` as declared data; eight shipped — Western
 major/minor, Maqam Rast and Hijaz (24-TET with jins), **Tunisian ṭubūʿ — Dhīl, Sīka and
 Raṣd al-Dhīl, each with its own declared tuning rather than the maqam's, the nūba's
-five īqāʿāt, and one mezwed cycle**, Raga Yaman (with three
+five īqāʿāt, and one mezwed cycle**, **Niger — a Zarma pentatonic with declared slide
+targets, the takamba cycle, a tende cycle, and one kalangu tone-sentence**, Raga Yaman (with three
 declared gamakas and teental), Gamelan Slendro (with paired detuning and a
 colotomic cycle), a 12/8 West African timeline, Flamenco soleá compás. The
 same phrase rendered in each. *Kill:* **a listener from the tradition says it
@@ -379,7 +411,11 @@ sound**. *Kill:* the perception law — the author plays it and says whether it
 feels like an instrument. If the native path is also demoed, its 419 ms is
 displayed on the page rather than hidden.
 
-**MU7 — the convergence.** Data → melody in a declared universe (SS-style
+**MU7 — the convergence.** *(Niger adds a row to the four transforms: `text →
+drum`. A Hausa sentence's tones — high, low, falling — become a kalangu pitch
+contour, which is `synthesise` with TEXT as the declaration, exactly the pivot the
+voice plane rests on. Kill: a Hausa speaker hears the sentence back from the drum,
+or the row is recorded as unperceived and the verb refuses with that reason.)* Data → melody in a declared universe (SS-style
 sonification that is *music*). Sound → score (pitch + onsets → `stzScore`,
 confidence per note, exactly as VC3 carries confidence). Score → notation
 (ABC out, MusicXML out) and → MIDI file. *Kill:* the four transforms compose on
@@ -391,8 +427,12 @@ one `stzScore` with no adapter, or the missing step is named as VC6 named its.
 
 - **Scope gravity is the worst in the library.** Music theory, synthesis,
   effects and ethnomusicology are each bottomless. Every phase above has a
-  count, and a session that finds itself adding a thirteenth instrument or a
-  seventh universe before its kill criterion has been run has drifted.
+  count, and a session that finds itself adding an instrument or a universe
+  beyond the count its phase states, before that phase's kill criterion has
+  been run, has drifted. *(This sentence said "a thirteenth instrument or a
+  seventh universe" until 2026-09-25, and was false the same day: Tunisia made
+  it sixteen and seven, Niger twenty and eight. A rule that hard-codes the number
+  it guards is stale the first time the number moves for a good reason.)*
 - **"Universal" invites a tourist's version of every tradition.** The guard is
   §1.3's last paragraph and MU4's kill criterion: a named listener from the
   tradition, or the word *unperceived* in the record. A universe shipped
