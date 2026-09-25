@@ -101,6 +101,7 @@ express:
 | tradition | what it needs that a "tuning file" cannot carry |
 |---|---|
 | **Maqam** (Arabic / Turkish / Persian dastgah) | Quarter tones, yes — but a maqam is not a scale, it is a family of **jins** (three- to five-note building blocks) joined at a pivot, with a **sayr**: rules for which jins you move to and how you return. Rast is a *path*, not a set of pitches. Turkish makam uses Holdrian commas (53 per octave); regional intonation differs and is not an error |
+| **Tunisian ṭubūʿ** (طبوع, sing. *ṭabʿ*) | Adapted from the Arabic maqam and **not the same thing**: the modes of the *maʿlūf*, the Andalusi-descended art repertoire, organised in **nūbāt** (suites), each in one ṭabʿ. The thirteen commonly given — Dhīl, ʿIrāq, Sīka, Ḥsīn, Raṣd, Ramal al-Māya, Nawā, Aṣbaʿayn, Raṣd al-Dhīl, Ramal, Iṣbahān, Māya, Mazmūm — share some names with Eastern maqāmāt (Sīka, ʿIrāq, Iṣbahān) and **differ in intonation and sayr even where the name is shared**, while Dhīl, Raṣd al-Dhīl, Mazmūm, Aṣbaʿayn and Ramal al-Māya are the Maghreb's own. Some Tunisian degrees do not sit cleanly on the 24-quarter-tone grid, so the tuning is declared per ṭabʿ, not inherited from the maqam row above. Rhythm is the nūba's own progression of **īqāʿāt** — btāyḥī, barwal, draj, khafīf, khatm — accelerating through the suite, and beside the art tradition the popular **mezwed** repertoire has its own cycles. **The list above is the theorists'; the listener is the gate, and for this universe the listener is nearer than for any other in this table** |
 | **Raga** (Hindustani / Carnatic) | Ascending and descending scales can DIFFER (aroha/avaroha). **Gamaka** — the ornament between notes — is the identity of the raga, not decoration; a raga played without its gamakas is a different raga. Vadi/samvadi (the emphasised notes), characteristic phrases (pakad), time of day. Rhythm is **tala**: cycles of 3–16+ beats with named subdivisions, and the composition returns to *sam* (beat one) |
 | **Gamelan** (Java / Bali) | **Slendro** (five near-equal steps) and **pelog** (seven unequal), and **every ensemble is tuned differently on purpose** — there is no reference pitch. Structure is **colotomic**: gongs punctuate a cycle at nested intervals. Balinese **kotekan** is two players interlocking one melody, and paired instruments are deliberately detuned to beat |
 | **West and Central African** | The **timeline** (the 12/8 bell pattern) is the reference the ensemble hears, not a downbeat. Polyrhythm is the norm: 3 against 2, 4 against 3, as one texture. Talking-drum pitch follows speech tone |
@@ -122,7 +123,16 @@ render inside it.
 theorists have written down. Gamaka and sayr are partly oral; a declared subset
 is a *starting set with a kill criterion*, exactly as SS1's motifs were, and a
 musician from the tradition is the gate — `CENTRAL-PERCEPTGATE-01` with a name
-attached.
+attached. **And a tradition is its instruments as much as its modes**: the Tunisian
+row cannot be rendered on a piano and called Tunisian. Its sound is the **mezwed**
+(a goatskin bagpipe with two parallel single-reed chanters and no drone — the two
+pipes beat against each other, and the bag never breathes), the **zokra** (a
+double-reed conical shawm, played with circular breathing, penetrating and
+outdoors), the **darbouka** (goblet drum: *dum* at the centre, *tak* at the rim,
+*ka* the weaker rim, slaps and rolls) and the **bendir** (frame drum with gut
+snares under the head, so every stroke carries a buzz). Two reeds and two
+membranes — and none of the three synthesis engines in §3 makes a reed. That is
+why §3 has a fourth.
 
 ---
 
@@ -208,6 +218,17 @@ three known answers and this plan takes all three, cheapest first:
   **SoundFont** (`.sf2`) format is the free, universal, General-MIDI-mapped
   library of them. Vendoring one is a **licence decision recorded before a byte
   moves**, as the voice plan required of neural weights.
+- **A reed, and a membrane** — added for Tunisia and owed to every wind and
+  percussion tradition in §1.3. A single-reed **waveguide** (a delay line, a
+  reflection filter, and a nonlinear reed table driven by breath pressure — the
+  classic clarinet model, some fifty lines of `sounddsp`) gives the mezwed when two
+  are run slightly detuned under a bag's constant pressure, and the zokra when the
+  bore is conical (all harmonics, not only the odd) and the reed is double. A
+  **modal membrane** (a few damped sine modes at a struck point, plus a noise
+  burst) gives *dum* and *tak* on a darbouka and, with a buzz gated by the
+  membrane's decay, the bendir's snare. Samples would do both faster and teach
+  nothing; the model is what makes *pressure*, *strike position* and *detune*
+  parameters a pattern can drive per note.
 
 **Not a gap, and worth saying:** timing *jitter* is separate from *latency*, and
 the plane's ring gives the second and not the first. A scheduler that places
@@ -264,6 +285,9 @@ gate and it has a name on it.**
 ```ring
 oM.In(:Raga, :Yaman).Tala(:Teental)             # 16 beats, returns to sam
 oM.In(:Gamelan, :Slendro).Colotomy(:Lancaran)   # gong cycle, paired detuning
+oM.In(:Tunisian, :Dhil).Iqa(:Btayhi)            # a ṭabʿ, and the nūba's own cycle
+oM.Loop(:lead, "d e f+ g a ~ a g").With(:Mezwed)   # two chanters, beating, no breath
+oM.Loop(:iqa,  "dum ~ tak ka dum dum tak ~").With(:Darbouka, :Bendir)
 oM.In(:Major, :C)                               # the default nobody else escapes
 ```
 
@@ -283,7 +307,7 @@ records their name and their verdict or records that nobody has listened yet.
 | **`stzScore`** | Euterpea's algebra: note, rest, sequence, parallel, transform. **Data.** | `base/sound/`, the pivot object; renders to sound, notation, MIDI file |
 | **`stzPattern`** | a function of cycle time + the mini-notation parser | `base/sound/`; the string face; `Fast`, `Slow`, `Rev`, `Every`, `Off`, `Jux` as chained verbs |
 | **`stzScheduler`** | beats → frames; a queue the producer drains ahead of the ring | Zig, in the stream's producer loop, because it must be ahead of the deadline by design |
-| **`stzInstrument`** | Karplus-Strong, FM, sample — one face, three engines | arithmetic in `sounddsp.zig` so both tiers agree; the face in Ring |
+| **`stzInstrument`** | Karplus-Strong, FM, sample, and the reed/membrane physical models — one face, four engines | arithmetic in `sounddsp.zig` so both tiers agree; the face in Ring |
 | **`stzUniverse`** | tuning + pitch vocabulary + movement rules + cycle + ornaments + instruments | **declared data** in `base/sound/universes/*.ring` — never code, because a tradition is not an algorithm and the author declares it |
 | **`stzMusic`** | the one-line front: `Play`, `Loop`, `In`, `Tempo`, `With` | `base/sound/`, over everything above; it is the *fun* and it owns no mechanism |
 | `stz-music.js` | the same verbs in the browser, over the same wasm | `webaudio/`; where live performance actually works |
@@ -312,9 +336,10 @@ note boundaries and there is no portamento or vibrato — stated, not hidden. If
 (4) misses, the plan stops until the arithmetic is right.
 
 **MU1 — pitch and the instrument.** `setFrequency`, `setRate`, `stzInstrument`
-with the three engines, twelve instruments across them (piano, guitar, harp,
+with the four engines, sixteen instruments across them (piano, guitar, harp,
 bell, e-piano, brass, flute, oud, koto, kora, metallophone, drum kit from
-samples). *Kill:* if a named instrument does not sound like its name to the
+samples, and the four Tunisian ones — mezwed and zokra on the reed model,
+darbouka and bendir on the membrane). *Kill:* if a named instrument does not sound like its name to the
 author, it ships under a name that does not lie (`:PluckedString`, not `:Oud`).
 
 **MU2 — the scheduler and the score.** `stzScore` (the algebra), `stzScheduler`
@@ -329,8 +354,10 @@ algebra, on `stzString`. Live loops with boundary replacement over
 speakers disagree by more than one cycle, it is not live coding and is not
 called that.
 
-**MU4 — the universes.** `stzUniverse` as declared data; six shipped — Western
-major/minor, Maqam Rast and Hijaz (24-TET with jins), Raga Yaman (with three
+**MU4 — the universes.** `stzUniverse` as declared data; seven shipped — Western
+major/minor, Maqam Rast and Hijaz (24-TET with jins), **Tunisian ṭubūʿ — Dhīl, Sīka and
+Raṣd al-Dhīl, each with its own declared tuning rather than the maqam's, the nūba's
+five īqāʿāt, and one mezwed cycle**, Raga Yaman (with three
 declared gamakas and teental), Gamelan Slendro (with paired detuning and a
 colotomic cycle), a 12/8 West African timeline, Flamenco soleá compás. The
 same phrase rendered in each. *Kill:* **a listener from the tradition says it
