@@ -225,6 +225,20 @@ const Node = struct {
     gain_step: f32 = 0,
     gain_seen: f32 = 1.0, // the target this node has already planned a step for
 
+    // MU0 CONTROL: pitch per note. The same three-field discipline as the gain
+    // above -- a target another thread writes, a value the render owns, a step
+    // planned ONCE when a new target is first seen -- because a frequency that
+    // jumps between two samples is a phase discontinuity, and a phase
+    // discontinuity is a click exactly as an amplitude step is. `n.hz` stays
+    // what the node was DECLARED with; `freq_now` is what renders. Both are
+    // lazily seeded from `hz` on the first block (a sentinel of -1 means
+    // "never set"), so adding a node needs no change to know about ramps.
+    freq_target: f64 = -1,
+    freq_now: f64 = -1,
+    freq_ramp_frames: u32 = 0,
+    freq_step: f64 = 0,
+    freq_seen: f64 = -1,
+
     // SN6 CONTROL: "start this voice again, from the top". Written by the Ring
     // thread, consumed by the render, atomically -- the same discipline as
     // gain_target above, and for the same reason: the producer thread is
@@ -487,6 +501,46 @@ pub fn currentGain(id: i64, node: i64) f64 {
     const g = &graphs.items[s];
     if (!validInput(g, node)) return -1;
     return @atomicLoad(f32, &g.nodes.items[@intCast(node)].gain_now, .monotonic);
+}
+
+/// MU0: pitch per note. Built as setGain is built -- an atomic target, a ramp
+/// length released before it, a step the render plans once -- because the
+/// music plan's first engine change had to be the one the whole plane already
+/// knows how to guard. A ramp of 0 is a jump, and a jump is a click; it is
+/// offered so a guard has its negative sibling, exactly as with the gain.
+pub fn setFrequency(id: i64, node: i64, hz: f64, ramp_ms: f64) i32 {
+    const s = slotOf(id) orelse return STALE;
+    const g = &graphs.items[s];
+    if (!validInput(g, node)) {
+        refuse("setFrequency: that node does not exist");
+        return BAD_ARG;
+    }
+    const n = &g.nodes.items[@intCast(node)];
+    if (n.kind != KIND_OSC) {
+        refuse("setFrequency: that node is not an oscillator");
+        return BAD_ARG;
+    }
+    if (hz <= 0 or hz >= @as(f64, @floatFromInt(g.rate)) / 2.0) {
+        refuse("setFrequency: a frequency must be positive and below Nyquist");
+        return BAD_ARG;
+    }
+    const frames: u32 = if (ramp_ms <= 0) 0 else @intFromFloat(ramp_ms * @as(f64, @floatFromInt(g.rate)) / 1000.0);
+    @atomicStore(u32, &n.freq_ramp_frames, frames, .monotonic);
+    @atomicStore(f64, &n.freq_target, hz, .release);
+    return OK;
+}
+
+/// The frequency the render is applying right now -- mid-ramp, somewhere
+/// between the old value and the target. -1 for a node that is not an
+/// oscillator or has not rendered yet, and a guard reads it to prove the ramp
+/// both MOVES and ARRIVES.
+pub fn currentFrequency(id: i64, node: i64) f64 {
+    const s = slotOf(id) orelse return -1;
+    const g = &graphs.items[s];
+    if (!validInput(g, node)) return -1;
+    const n = &g.nodes.items[@intCast(node)];
+    if (n.kind != KIND_OSC) return -1;
+    return @atomicLoad(f64, &n.freq_now, .monotonic);
 }
 
 pub fn addMix(id: i64) i64 {
@@ -788,15 +842,40 @@ pub fn renderBlock(id: i64) i32 {
         const n = &g.nodes.items[i];
         switch (n.kind) {
             KIND_OSC => {
-                const inc = n.hz / @as(f64, @floatFromInt(g.rate));
+                const ratef = @as(f64, @floatFromInt(g.rate));
+                // ACQUIRE, pairing with the release in setFrequency
+                const t_raw = @atomicLoad(f64, &n.freq_target, .acquire);
+                const ramp = @atomicLoad(u32, &n.freq_ramp_frames, .monotonic);
+                if (n.freq_now < 0) n.freq_now = n.hz; // first block: seed from the declaration
+                const target: f64 = if (t_raw < 0) n.freq_now else t_raw;
+                if (target != n.freq_seen) {
+                    n.freq_seen = target;
+                    if (ramp == 0) {
+                        n.freq_now = target;
+                        n.freq_step = 0;
+                    } else {
+                        n.freq_step = (target - n.freq_now) / @as(f64, @floatFromInt(ramp));
+                    }
+                }
+                var fq = n.freq_now;
+                const step = n.freq_step;
                 var ph = n.phase;
                 const dst = chanSlice(g, n, 0);
                 for (dst) |*o| {
+                    // the increment follows the CURRENT frequency, sample by
+                    // sample, so the phase stays continuous through a ramp
+                    const inc = fq / ratef;
                     o.* = @floatCast(n.amp * waveAtBl(n.waveform, ph, inc));
                     ph += inc;
                     if (ph >= 1.0) ph -= 1.0;
+                    if (fq != target) {
+                        fq += step;
+                        if ((step > 0 and fq > target) or (step < 0 and fq < target)) fq = target;
+                    }
                 }
                 n.phase = ph;
+                n.freq_now = fq;
+                @atomicStore(f64, &n.freq_now, fq, .monotonic);
                 // an oscillator is mono; every other channel carries the same
                 var ch: usize = 1;
                 while (ch < nch) : (ch += 1) @memcpy(chanSlice(g, n, ch), dst);
@@ -1762,6 +1841,32 @@ test "the stream table REFUSES past its cap rather than reallocating" {
     };
     // whatever the table already held, one more than the cap must be refused
     try testing.expectEqual(@as(i64, 0), streamStart(gid, 256));
+}
+
+test "MU0: a frequency ramp MOVES, ARRIVES, and keeps the phase continuous" {
+    const gid = graphNew(1, 48000, 64);
+    defer _ = graphFree(gid);
+    const osc = addOsc(gid, WAVE_SINE, 440, 0.5);
+    _ = setOutput(gid, osc);
+    try testing.expectEqual(OK, prepare(gid));
+    // before any render the reader says -1: nothing has been seeded yet
+    try testing.expectEqual(@as(f64, -1), currentFrequency(gid, osc));
+    try testing.expectEqual(OK, renderBlock(gid));
+    try testing.expectApproxEqAbs(@as(f64, 440), currentFrequency(gid, osc), 1e-9);
+    // a 10 ms ramp is 480 frames; after one 64-frame block it has LEFT 440
+    // and NOT reached 880
+    try testing.expectEqual(OK, setFrequency(gid, osc, 880, 10));
+    try testing.expectEqual(OK, renderBlock(gid));
+    const mid = currentFrequency(gid, osc);
+    try testing.expect(mid > 441 and mid < 879);
+    // and after enough blocks it ARRIVES exactly
+    var i: usize = 0;
+    while (i < 10) : (i += 1) try testing.expectEqual(OK, renderBlock(gid));
+    try testing.expectApproxEqAbs(@as(f64, 880), currentFrequency(gid, osc), 1e-9);
+    // refusals: not an oscillator, and above Nyquist
+    const gn = addGain(gid, osc, 1.0);
+    try testing.expectEqual(BAD_ARG, setFrequency(gid, gn, 440, 0));
+    try testing.expectEqual(BAD_ARG, setFrequency(gid, osc, 30000, 0));
 }
 
 test "draining faster than the producer UNDERRUNS, and the counter proves it" {

@@ -371,7 +371,9 @@ pub fn renderMotif(value: u32, rate: u32, out: []f32) usize {
 }
 
 test "every motif renders the frames it promised, and muted renders none" {
-    var buf: [8192]f32 = undefined;
+    // 16384, not 8192: danger is 8640 frames at 48 kHz, and this test was red
+    // on origin/main with the smaller buffer -- found by MU0, not caused by it
+    var buf: [16384]f32 = undefined;
     var v: u32 = 0;
     while (v < EARCON_COUNT) : (v += 1) {
         const n = renderMotif(v, 48000, &buf);
@@ -421,6 +423,109 @@ test "a buffer too small yields NOTHING rather than half a motif" {
     var small: [4]f32 = @splat(0);
     try testing.expectEqual(@as(usize, 0), renderMotif(EARCON_DANGER, 48000, &small));
     try testing.expectEqual(@as(f32, 0), small[0]);
+}
+
+// ── the plucked string ─────────────────────────────────────────────────────
+//
+// KARPLUS-STRONG, 1983: a delay line the length of one period, filled with
+// noise, averaged with its neighbour on every pass. The averaging is a lowpass
+// that eats the high partials first, which is exactly what a real string does
+// as it rings, and the noise burst is the pluck. Thirty lines, and it is the
+// sound MU0's spike 3 puts in front of the author: does this read as a string?
+//
+// It lives in the seam because Niger's imzad and goge (bowed) and Tunisia's
+// oud (plucked) will share this line and differ only in what excites it. The
+// noise is a fixed linear congruential sequence rather than any library's
+// random, so the native tier and the browser render the same pluck to the bit.
+
+pub const PLUCK_MAX_PERIOD: usize = 4096; // 48000 / 4096 = 11.7 Hz, below any note
+
+/// Frames a pluck will occupy, so a caller can size before allocating.
+pub fn pluckFrames(rate: u32, seconds: f64) usize {
+    if (seconds <= 0) return 0;
+    return @intFromFloat(seconds * @as(f64, @floatFromInt(rate)));
+}
+
+/// Render a plucked string at `hz` into `out`. `decay` is per-pass loss,
+/// 0.990..0.999 (0.996 is a guitar; 0.999 rings like a harp). Writes NOTHING
+/// and returns 0 for a period that does not fit, or a buffer too small --
+/// never a partial note.
+pub fn renderPluck(hz: f64, rate: u32, seconds: f64, decay: f64, out: []f32) usize {
+    const need = pluckFrames(rate, seconds);
+    if (need == 0 or out.len < need or hz <= 0) return 0;
+    // THE AVERAGING IS HALF A SAMPLE OF DELAY. A line of N samples whose output
+    // is the mean of two neighbours rings at N + 0.5, not N -- so a 240-sample
+    // line asked for 200 Hz rang at 199.58 Hz, 3.6 cents flat, and the first cut
+    // of this function did exactly that. N is chosen for N + 0.5 = rate / hz.
+    // What remains is the integer quantisation: up to half a sample, which at
+    // A4 (period 109.09) is 8 cents. MU0 measures it; MU1 owes the fractional
+    // delay (an allpass) that removes it, because the plan's bar is 2 cents.
+    const period_f = @as(f64, @floatFromInt(rate)) / hz;
+    const n: usize = @intFromFloat(@round(period_f - 0.5));
+    if (n < 2 or n > PLUCK_MAX_PERIOD) return 0;
+
+    var line: [PLUCK_MAX_PERIOD]f32 = undefined;
+    // the pluck: white noise, from a fixed sequence so both tiers agree
+    var seed: u32 = 0x2545F491;
+    var i: usize = 0;
+    while (i < n) : (i += 1) {
+        seed = seed *% 1664525 +% 1013904223;
+        line[i] = (@as(f32, @floatFromInt(seed >> 8)) / 8388608.0) - 1.0; // -1..1
+    }
+    const d: f32 = @floatCast(decay);
+    var p: usize = 0;
+    var f: usize = 0;
+    while (f < need) : (f += 1) {
+        const cur = line[p];
+        const nxt = line[if (p + 1 == n) 0 else p + 1];
+        out[f] = cur;
+        line[p] = d * 0.5 * (cur + nxt); // the averaging IS the string's damping
+        p = if (p + 1 == n) 0 else p + 1;
+    }
+    return need;
+}
+
+test "a pluck renders its frames, starts loud, and DECAYS" {
+    var buf: [48000]f32 = undefined;
+    const n = renderPluck(220, 48000, 1.0, 0.996, &buf);
+    try testing.expectEqual(@as(usize, 48000), n);
+    var early: f32 = 0;
+    var late: f32 = 0;
+    for (buf[0..4800]) |x| early = @max(early, @abs(x));
+    for (buf[43200..48000]) |x| late = @max(late, @abs(x));
+    try testing.expect(early > 0.3);
+    try testing.expect(late < early * 0.2);
+}
+
+test "a pluck's period is the period asked for, read off its autocorrelation" {
+    // Zero crossings were the first instrument and they lied: partials near
+    // 3 kHz lose only 2% per pass of the averaging, so fifty passes in they
+    // still ride the fundamental at a third of its level and each adds
+    // crossings the fundamental never made. Autocorrelation sees the PERIOD
+    // whatever rides on it.
+    var buf: [48000]f32 = undefined;
+    _ = renderPluck(200, 48000, 1.0, 0.999, &buf); // wants a 240-frame period
+    var best_lag: usize = 0;
+    var best: f64 = -1e9;
+    var lag: usize = 200;
+    while (lag <= 280) : (lag += 1) {
+        var acc: f64 = 0;
+        var i: usize = 12000;
+        while (i < 36000) : (i += 1) acc += @as(f64, buf[i]) * @as(f64, buf[i + lag]);
+        if (acc > best) {
+            best = acc;
+            best_lag = lag;
+        }
+    }
+    // N + 0.5 = 240 exactly, so the peak sits at 240 or its neighbour
+    try testing.expect(best_lag >= 239 and best_lag <= 241);
+}
+
+test "a pluck refuses a period that does not fit rather than aliasing it" {
+    var small: [8]f32 = @splat(0);
+    try testing.expectEqual(@as(usize, 0), renderPluck(220, 48000, 1.0, 0.996, &small));
+    var buf: [4800]f32 = undefined;
+    try testing.expectEqual(@as(usize, 0), renderPluck(5, 48000, 0.1, 0.996, &buf)); // 9600-frame period
 }
 
 test "a sine at rate/4 is exactly 0, 1, 0, -1 -- arithmetic, not vibes" {

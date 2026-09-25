@@ -465,3 +465,138 @@ listener's verdict attached or the word *unperceived* where one is missing.
 the loop is live** — so one line makes music, the same line makes it in Rast or
 Yaman or Slendro, every note is a number a guard can check, and every phase ends
 with a person saying whether it sounds right and the record saying who.
+
+
+---
+
+## MU0 STATUS — 2026-09-25 21:54. Four spikes, two verdicts taken, two owed to an ear
+
+`engine/src/soundgraph.zig` (`setFrequency`, `currentFrequency`, a per-sample
+frequency ramp in the oscillator), `engine/src/sounddsp.zig` (`renderPluck`,
+`pluckFrames`), `engine/src/sound.zig` (`pluckOf`), three Ring bridges. Guard:
+`base/test/sound/sound_mu0_narrated.ring` (**24**), 4 new Zig tests (12 in the
+seam, 57 in the graph, all green). Audible: `sound_mu0_demo.ring`, and four
+WAVs written beside the guard so the artefact outlives the session.
+
+### Spike 1 — a frequency ramp does not click. **MET.**
+
+**The instrument had to change before the measurement meant anything.** SS3's
+click instrument is the first difference, and a gain step is an amplitude
+discontinuity it sees. A frequency change with continuous phase has **no
+amplitude step at all** — the first difference is blind to it whether the change
+is ramped or not. So the instrument here is the **second difference**, which
+sees a kink in the slope, and the bound is the 880 Hz tone's own largest second
+difference, `A·(2πf/rate)² = 0.0066`, derived rather than measured so it cannot
+drift with the thing it judges.
+
+| | worst kink over 16 phases |
+|---|---|
+| no change at all | **0.0017** — the instrument's own noise |
+| jump, no ramp | **0.0290** — 4.4× the tone's curvature, a real kink |
+| 10 ms ramp | **0.0066** — the tone's own curvature, indistinguishable from smooth |
+
+The jump is **4.37×** the ramped kink. The ramp MOVES (627.7 Hz at 85 ms of a
+200 ms ramp) and ARRIVES (880.000). Above Nyquist is refused; a non-oscillator
+is refused.
+
+**Verdict:** portamento and vibrato are IN — and with them the imzad, the goge
+and the kalangu, whose identity is the slide. Built as `setGain` is built: an
+atomic target, a ramp length released before it, a step planned once. The ramp
+fields seed themselves from the declared `hz` on the first block, so no node
+creation site had to change.
+
+### Spike 2 — how late a block-start trigger lands. **Measured; the verdict is the author's.**
+
+Twenty notes at 120 BPM, fired as the plane fires everything — a request the
+render honours at the start of its next block:
+
+| | |
+|---|---|
+| notes fired / onsets found | 20 / 20 |
+| lateness, mean | **4.81 ms** |
+| lateness, worst | **9.48 ms** (one block is 10.67) |
+| onsets early | **none** — a request is never honoured before it is made |
+
+Two instruments were refused on the way. **SN5's onset detector hops by 512
+frames — its resolution IS the error being measured** — so the onsets are read
+by a sample-exact threshold scanner instead. And the first cut of the
+simulation fired a beat that fell *inside* the coming block at that block's
+*start* — early — and reported a **negative** mean lateness, which no
+request-then-honour path can produce. It was measuring the simulation, not the
+mechanism; corrected, and the correction is in the guard's own comment.
+
+**Whether 9.5 ms reads as swing is not a number.** The demo plays the render's
+own grid beside a sample-exact one. **UNPERCEIVED as of this writing**; the
+author's verdict goes here by name and decides whether MU2 builds sub-block
+triggers.
+
+### Spike 3 — a thirty-line pluck. **Measured; the verdict is the author's.**
+
+Karplus-Strong in the seam, noise from a fixed linear congruential sequence so
+both tiers render the same pluck to the bit. 1.5 s at 220 Hz: peak 0.999,
+first 100 ms 0.999, last 100 ms **0.070** — it decays as a string does. A pitch
+whose period does not fit the line is refused rather than aliased.
+
+**Two findings came with it, and one was a prediction that a measurement
+contradicted.** The averaging in the loop is **half a sample of delay**: a
+240-sample line rings at 240.5, so the first cut asked for 200 Hz and got
+199.58 — 3.6 cents flat. The line is now chosen for `N + 0.5 = rate/hz`. What
+remains is integer quantisation, up to half a sample — **8 cents at A4 against
+the plan's 2-cent bar** — so MU1 owes a fractional delay (an allpass). And the
+guard's pitch instrument, an integer-lag autocorrelation, reads **217 frames,
+221.20 Hz, +9.4 cents** — while a first cut of the prose beside it printed a
+**+1.4-cent prediction**. One lag at 218 frames is 7.9 cents wide: the
+instrument cannot see the correction it sits next to. The prediction is gone;
+the resolution is stated; MU1 owes a finer instrument with the fractional
+delay, because nothing in this spike can see 2 cents on a pluck.
+
+**Whether it sounds like a string is not a number.** The demo plays A3 D4 E4 A4
+at a guitar's decay and again at a harp's. **UNPERCEIVED as of this writing.**
+
+### Spike 4 — a quarter tone is fifty cents. **MET, to 0.003 cents.**
+
+| | asked | measured | off |
+|---|---|---|---|
+| D4 | 293.6648 Hz | 293.6638 Hz | −0.006 cents |
+| D4 + 1 step of 24-TET | 302.2698 Hz | 302.2683 Hz | −0.009 cents |
+| **the step** | 50 | **49.997 cents** | |
+| a semitone, the negative sibling | 100 | **100.016 cents** | |
+
+**The instrument's resolution is stated because the obvious instrument
+cannot answer the question.** The FFT with 8192 bins is 5.86 Hz per bin — **34
+cents at D4** — and reads D4 at 292.97 Hz, 4.1 cents off, inside its own bin.
+The fine instrument is the period of a pure sine over the whole 2 s buffer,
+read off its first and last rising zero crossings: one sample in 96 000 is
+0.02 cents. The two agree to within the coarse one's resolution, which is all
+the coarse one can promise.
+
+### Found on the way, and none of it caused here
+
+- **A red test on `origin/main`**: SS5's *every motif renders the frames it
+  promised* asked for 8640 frames from an 8192 buffer and failed on a pristine
+  checkout before this phase touched the file. Fixed (16384), and the commit
+  says found-not-caused.
+- **`zig build test` on `origin/main` does not compile**: the gpu module's
+  `webgpu/webgpu.h` is present on disk and absent from the test step's include
+  line. Not this plane's; the sound modules were tested directly (`zig test
+  src/sounddsp.zig`, `zig test src/soundgraph.zig -I vendor/miniaudio -lc`).
+- **`zig build` fails on `stz_http` and `stz_reactor`** with 117 errors, also
+  not this plane's; `stz_sound.dll`, `stz_audiodev.dll` and `stz_voice.dll`
+  build and are what the guard and demo load.
+
+### What MU0 did NOT do
+
+- **No faces.** `stzScore`, `stzPattern`, `stzInstrument`, `stzMusic` are MU1+.
+- **No fractional delay** and no finer pitch instrument — MU1, and the reason
+  is measured above.
+- **No sub-block trigger** — the decision waits on the author's ear (spike 2).
+- **No bow, reed or membrane** — MU1, as §3 orders them.
+- **No wasm export** of `setFrequency` or the pluck — MU6's, where the browser
+  gets them through the same seam.
+
+### The listener's line
+
+**UNPERCEIVED as of 2026-09-25 21:54.** Spike 2 (does 9.5 ms swing) and spike 3
+(is the pluck a string) each take a name and a verdict here, or stay marked as
+they are. Spikes 1 and 4 are also played, so the person the plan is written for
+has heard what the numbers describe.
