@@ -1161,6 +1161,57 @@ machine-checked, the guard fails when a statement is made false, and a
 machine without Lean reports the door closed by name and stays green on the
 floor. **Ruled**: decision 5.
 
+#### M6 RESULTS -- the floor and the door, 2026-09-26; the checked half waits on Lean
+
+**Shipped**: `stzMathClaim` (`base/math/stzMathClaim.ring`) -- a statement
+with a kind (identity, inequality, divisibility), two sides, a domain
+(natural, integer, rational, real) and named variables, declared as keys or
+as one string (`"7 | 343"`); `stzMathClaimSet`, one lesson's statements;
+`StzSelfCheckLessonClaims()`, chapter 15's six, in `stzMathStories.ring`.
+
+**The floor, law 9**: both sides are compiled by the engine
+(`stzMathFunction`) and evaluated at sampled points -- one for a closed
+statement, sixteen per variable otherwise, integers where the domain is
+integers, a point where a side has no value skipped and not counted. A false
+statement fails HERE with a counterexample that names the point and the
+two sides: the wrong formula gives 26 against 25; the freshman's dream
+gives 16 against 10 at a = 1, b = 3. A set's false claims are `claim_false`
+errors in the house rule shape, and `IsSound()` is the guard.
+
+**The door, decision 5**: `ToLean()` emits `theorem <name> (vars : type) :
+((lhs : type) rel rhs) := by <tactic>` -- the subset spelled Mathlib's way
+(`Real.sqrt`, `Real.pi`, `Real.exp 1`, `∣`, `≠`, `≤`), the tactic by kind
+(`norm_num` closed, `ring` for an identity in variables, `nlinarith` for an
+inequality in variables) or the author's own. `StzLeanDoor()` looks for
+`lean` on PATH or in `STZ_LEAN` and a Lake project in `STZ_LEAN_PROJECT`, and
+answers closed BY NAME when either is missing; `StzLeanCheck()` writes the
+file into the project and runs `lake env lean` when both are present, and
+`StzLeanParseOutput()` reads the answer -- an empty exit-0 run is a proof,
+an error line, a non-zero exit or a `sorry` warning is not. A closed door
+answers `proved = ""`, never 0 or 1: the door's state is not a verdict.
+
+**Chapter 15's identities**: six claims, all true on the floor, emitted to
+`base/test/math/lean/an-identity-is-not-a-self-check.lean` (committed; the
+gate checks the emission equals the file byte for byte). The tactics for
+the three claims that mention `Real.sqrt` (`Real.sq_sqrt`, `Real.lt_sqrt`,
+`Real.sqrt_lt'`) were written from Mathlib's names and NOT run through Lean
+on this machine.
+
+**Done-when, clause by clause**: "the guard fails when a statement is made
+false" -- met, on the floor, both for one claim and for a set; "a machine
+without Lean reports the door closed by name and stays green on the floor"
+-- met, and this machine is that machine; "one chapter's identities are
+machine-checked" -- NOT met here: Lean 4 and Mathlib are not on this disk
+(D:, the user profile and PATH were looked at, after the day R hid at
+D:\R). The gate prints that skip by name on every run. When the author
+installs Lean with Mathlib's downloaded cache (never a from-source build on
+this machine) and sets `STZ_LEAN_PROJECT`, the same gate walks through the
+door with no code change; the six tactics are then the first thing it
+judges.
+
+**Gate**: `base/test/math/claim_narrated.ring`, 47 of 47, five sections,
+under three seconds.
+
 ## 5. The demo bar, mapped
 
 | the 15-minute demo shows | what proves it | lands in |

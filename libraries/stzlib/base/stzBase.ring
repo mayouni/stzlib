@@ -953,6 +953,7 @@ load "geo/stzGeoProcess.ring"
     load "math/stzMathFigure.ring"
     load "math/stzMathMotion.ring"
     load "math/stzMathStories.ring"
+    load "math/stzMathClaim.ring"
     load "math/stzTukey.ring"
     load "math/stzTukeyStory.ring"
 
