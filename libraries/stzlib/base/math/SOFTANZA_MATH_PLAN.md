@@ -1125,6 +1125,31 @@ owning plane through Central:
 plane has accepted or declined through Central. Nothing here is built by
 this plane.
 
+#### M5 RESULTS -- filed, 2026-09-26
+
+**Filed**: one ROUTE block in `D:\GitHub\softanza\mailbox\stzlib-math.md`
+with the ten rows above, their oracle and picture columns unchanged, the
+owner named by the folder that holds the code, and the chapter each would
+serve. The IDs, so the plan and the mailbox name the same rows:
+
+| ID | request | owner |
+|---|---|---|
+| `MATH-RK45-01` | RK45 with error control | number |
+| `MATH-FORWARD-AD-01` | forward-mode AD | number |
+| `MATH-BOOTSTRAP-01` | bootstrap | stats |
+| `MATH-BAYES-DOOR-01` | conjugate beta-binomial | stats |
+| `MATH-HULL-DELAUNAY-01` | convex hull and Delaunay | geo |
+| `MATH-COMBINATORICS-01` | permutations, truth tables, a small SAT | intelligence |
+| `MATH-DISCRETE-RANDOM-01` | Poisson and binomial in `stzRandom` | number |
+| `MATH-BRANCH-CUT-01` | the branch-cut policy in `stzComplex` | number |
+| `MATH-FACTORS-01` | LU and QR factor accessors (standing since 2026-09-25) | number |
+| `MATH-EXACT-LU-01` | LU and Cholesky over the exact tower | number |
+
+**Open**: the owners' accept-or-decline, through Central. A decline with a
+reason closes a row here; an acceptance turns the picture column into a
+figure kind or a chapter section this plane then builds. Nothing was built
+in M5, by design.
+
 ### M6 -- A bridge to formal proof
 
 **Deliverable**: `stzMathClaim.ToLean()` emits a Lean 4 statement against
