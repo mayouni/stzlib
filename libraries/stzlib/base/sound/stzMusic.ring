@@ -31,6 +31,7 @@ class stzMusic
 	@cLastError = ""
 	@nRefusals = 0
 	@oLast = NULL           # the score the last Play or ToSound made
+	@oLive = NULL           # MU3: the live session, made on first use
 
 	def Tempo(pnBpm)
 		if NOT isNumber(pnBpm) or pnBpm < 20 or pnBpm > 400
@@ -82,6 +83,63 @@ class stzMusic
 
 	def LastScore()
 		return @oLast
+
+	#-- MU3: live loops ------------------------------------------------------
+	#
+	#     oM = StzMusicQ().Tempo(96)
+	#     oM.LiveLoop(:iqa, "dum ~ tak ~ dum dum tak ~")   # the rhythm names itself
+	#     oM.LiveLoopOn(:drone, "d2", :Oud)
+	#     oM.WaitCycles(4)
+	#     oM.Every(4, :iqa, :Rev)                          # lands on a boundary
+	#     oM.WaitCycles(4)
+	#     oM.StopLive()
+	#
+	# All of it is stzLive's; this is the one-line front over it.
+
+	def LiveLoop(pName, pcPattern)
+		This._EnsureLive()
+		return @oLive.LiveLoop(pName, pcPattern)
+
+	def LiveLoopOn(pName, pcPattern, pInstrument)
+		This._EnsureLive()
+		return @oLive.LiveLoopOn(pName, pcPattern, pInstrument)
+
+	def Every(pnN, pName, pXform)
+		This._EnsureLive()
+		return @oLive.Every(pnN, pName, pXform)
+
+	def Silence(pName)
+		This._EnsureLive()
+		return @oLive.Silence(pName)
+
+	def Hush()
+		This._EnsureLive()
+		return @oLive.Hush()
+
+	def WaitCycles(pnCycles)
+		This._EnsureLive()
+		@oLive.WaitCycles(pnCycles)
+		return This
+
+	def StopLive()
+		if isObject(@oLive)
+			@oLive.Release()
+			@oLive = NULL
+		ok
+		return This
+
+	# The live session, for reading its logs. Every verb above calls the
+	# ATTRIBUTE directly rather than This.Live().Verb(): Ring copies an object
+	# on assignment, and acting on a returned copy would change nothing.
+	def Live()
+		This._EnsureLive()
+		return @oLive
+
+	def _EnsureLive()
+		if NOT isObject(@oLive)
+			@oLive = StzLiveQ(@nTempo)
+			@oLive.SetDefaultInstrument(@cInstrument)
+		ok
 
 	def LastError()
 		return @cLastError

@@ -953,3 +953,149 @@ the first note is heard; the browser's is 10 ms (§3).
 swung groove (`mu2_03`, against the straight `mu2_02`) *feels* like swing, and
 whether 2/3 or 0.6 is the right default, is not a number. The verdict goes here
 by name.
+
+
+---
+
+## MU3 STATUS — 2026-09-26. Four live redefinitions, each on its bar, and the output equal to the render sample for sample
+
+**Face.** `base/sound/stzPattern.ring`: Tidal's mini-notation (`~ [ ] [a, b] <a b>
+* / ? ! @`), queried one whole cycle at a time, and the algebra `Fast`, `Slow`,
+`Rev`, `Every`, `Off`, plus `ToScoreQ`, where a pattern becomes a score.
+`base/sound/stzLive.ring`: live loops (`LiveLoop`, `LiveLoopOn`, `LiveLoopOf`,
+`Every`, `Silence`, `Hush`, `WaitCycles`, `DriveWith`, `OnCycle`) on a device,
+or drained here into a sound. `stzMusic` carries the same verbs. `stzScore`
+gains `NoteAt`, `StrokeAt`, `SetLength`.
+**Engine.** `soundgraph.zig`: a timeline note carries a TAG (its loop), and
+`timelineCancel(tag, from)` withdraws that loop's notes that have not started;
+a note already sounding is refused and counted, never cut. Two Ring bridges.
+**Guard.** `base/test/sound/sound_mu3_narrated.ring` — **41**. Zig: 1 new (66
+green).
+**Heard.** `sound_mu3_demo.ring` — two live sets, each drained to a WAV and
+then played **live on the card**, the console printing each cycle as it is
+heard: 11 definitions and redefinitions, each landing on the cycle it
+announced; late 0,
+underruns 0, mid-cycle 0.
+
+### The kill criterion — MET
+
+**"A change never lands mid-bar."** 120 BPM, 2 loops, 10 cycles, four changes
+made at chosen *heard* positions:
+
+| change | heard at | posted up to | lands on |
+|---|---|---|---|
+| tune → a new phrase | 2.50 | 3 | **3** |
+| beat → `Every(2, :Rev)` | 4.00 | 5 | **5** |
+| beat → `bd*2 [~ sn] hh?` | 5.95 | 7 | **7** |
+| tune → silence | 6.95 | 8 | **8** |
+
+The captured output, minus a render built **independently** from the patterns
+and the four landing cycles, is **0 in every sample**. The engine withdrew 16
+posted notes and refused **0** withdrawals, so no change landed mid-cycle. 0
+notes were late.
+
+**"The console and the speakers agree."** Notes are posted a ring, a cycle and
+0.5 s ahead, so at these changes the posted cycle was up to **2 cycles** ahead
+of the heard one. A console that printed at posting time would run that far
+ahead of the sound, which is VC4's disagreement. This console reads the
+*heard* clock (frames the device consumed) and reports the *ledger*: what was
+posted for **that** cycle, not the latest definition. All 10 lines name the
+versions the speakers played, each printed at most one drain (worst 3904
+frames, 81 ms) after its boundary. **The disagreement is 0 cycles.**
+
+### Rendering while playing — measured on the card
+
+MU2 rendered every note before it played. A live loop cannot: a new pattern's
+notes are rendered while the old ones sound. `LiveLoop` renders the new
+pattern's distinct notes over its period *before* it touches what is playing,
+and the posting horizon (ring + cycle + 0.5 s = 2.17 s at 180 BPM) is what the
+render may take. On the card, a mezwed loop (5 distinct notes, each tuning
+itself by listening) rendered in 0.14–0.23 s while a kit played: 0 late, 0
+underruns. **A capture drained on this thread cannot test this**, because it
+stalls with the render. So the guard asks the card, and says why.
+
+### How long a change takes to arrive, stated
+
+A change lands on the first cycle whose start the producer has not rendered,
+plus a 0.1 s margin. The producer runs up to a ring (341 ms) ahead. A change
+therefore arrives between that ring-plus-margin and one full cycle more after
+it is typed: up to **~2.45 s at 120 BPM** on the native path. The browser's ring
+is 10 ms (§3), and its live page is MU6's.
+
+### Found, and each one changed the design
+
+1. **The transport's `DriveWith` has never worked** (found, not caused; see
+   below). Ring's anonymous functions see no locals, so a callback that uses a
+   captured `_me_` fails on its first tick. `stzLive.DriveWith` registers the
+   session **by pointer in a global list**, and the timer calls one global
+   function. The guard drives a session through `stzReactive` for 3.2 s and a
+   redefinition made from a timer lands on its cycle.
+2. **A redefinition changed the order of a sum.** Two loops that start notes on
+   the same frame were summed in placement order, and a redefined loop is
+   posted again later, so after a change the live output differed from the
+   render in the last bit. The timeline now breaks start-frame ties by TAG,
+   then placement. **Removing the tag tie-break turns scene 4's check red**
+   (checked, and restored).
+3. **`?` kept 2 of 12.** The first hash was a sum mod a prime and one multiply,
+   read from its low digits. It is now folded input by input and decided from
+   the high end: 1999 of 4000, and the same text keeps the same notes.
+4. **The demo hid a refusal.** Its reed phrase reached B♭5 (932 Hz), above the
+   mezwed's 900 Hz range. The redefinition was refused, the old phrase kept
+   playing (correct), and the console showed `reed v1` for four more cycles
+   while the script believed it had changed. The demo now prints every
+   change's landing or its refusal.
+5. **Ring traps, each met in this phase:**
+   - `loop` is a keyword, so the plan's `oM.Loop(...)` cannot be written. It is
+     `LiveLoop`, Sonic Pi's word.
+   - `new stzLive` without parentheses does not run `init`.
+   - `oR` is the keyword `or`.
+   - `x = [ :fast, x, k ]` produced a node missing its last element, so it now
+     goes through a temporary.
+   - An object handed to `init` is copied, so the renderer never saw a later
+     tempo. `SetTempo` makes a new renderer, and refuses once loops exist.
+
+### Claims in this plan, corrected
+
+- §4 `oM.Loop(:melody, ...)` → `oM.LiveLoop(:melody, ...)`, because `loop` is a
+  Ring keyword; `oM.Loop(:drone, "d2").With(:Oud)` →
+  `oM.LiveLoopOn(:drone, "d2", :Oud)`.
+- §6 MU3 says the parser is built *"on stzString"*. It is a character walk of
+  its own. `stzString` is another plane's file, and a pattern parser needs
+  nothing from it. Recorded, not hidden.
+- The kill criterion allowed the console and speakers to disagree by *up to*
+  one cycle. They disagree by **0**, because the console is fed from the
+  heard clock. The one-cycle allowance was never needed.
+
+### What MU3 did NOT do
+
+- **No `jux`** (§1.1): it is a stereo copy, and the timeline mixes every note
+  to all channels with no pan per note. That is an engine change.
+- **No euclidean rhythms** `bd(3,8)`, fractional `*`/`/` factors, or sample
+  banks: not in MU3's count.
+- **No live tempo change**, and **no swing in live loops**. `SetTempo` is
+  refused once loops exist.
+- **No typing surface.** Here the "live coder" is a script of redefinitions
+  paced by `WaitCycles` or `stzReactive` timers. A text box that re-evaluates
+  on Enter is the browser page's (MU6).
+- **No universe** (MU4): the set in `mu3_01` is labelled *not a ṭabʿ*.
+
+### Found on the way and not caused here
+
+- **`stzSoundTransport.DriveWith` fails on its first tick.** It calls
+  `RunEvery(0.02, ...)`, but `RunEvery` takes **milliseconds**, and its
+  callback uses a local `_me_` that Ring's anonymous functions cannot see.
+  Reproduced: "Using uninitialized variable: _me_". No guard ever drove a
+  transport reactively. Routed as `STZLIB-TRANSPORT-DRIVEWITH-01`, not changed
+  here.
+- `STZLIB-SNDTABLE-RACE-01` (MU2) is still open. `stzLive` uses the timeline,
+  which takes raw views and is not exposed to it.
+- Regression over the sound guards: 754 passed, 3 failed: MU2's 713 plus MU3's 41, and
+  the three are MU1's `:Muted` cross-plane failures (VC6 x2, SS4 x1). Nothing
+  else moved.
+
+### The listener's line
+
+**UNPERCEIVED as of 2026-09-26.** Every change lands on its bar, and that is
+measured. Two questions are not numbers: does it *feel* live, and is a change
+that arrives up to a bar and a third after it is typed quick enough, or does
+it feel like typing into a letterbox? The verdict goes here by name.
