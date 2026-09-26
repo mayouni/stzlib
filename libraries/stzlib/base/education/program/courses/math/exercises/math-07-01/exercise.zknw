@@ -1,0 +1,7 @@
+knowledge "math-07-01"
+
+facts
+    math-07-01 | is-a | exercise
+    math-07-01 | in-chapter | a-number-that-says-why
+    math-07-01 | trains | cr-03
+    math-07-01 | needs-step | asks

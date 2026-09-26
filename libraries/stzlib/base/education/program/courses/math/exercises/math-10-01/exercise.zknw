@@ -1,0 +1,7 @@
+knowledge "math-10-01"
+
+facts
+    math-10-01 | is-a | exercise
+    math-10-01 | in-chapter | probability-by-the-continuum
+    math-10-01 | trains | kn-02
+    math-10-01 | needs-step | asks

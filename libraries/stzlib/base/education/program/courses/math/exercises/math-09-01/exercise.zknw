@@ -1,0 +1,7 @@
+knowledge "math-09-01"
+
+facts
+    math-09-01 | is-a | exercise
+    math-09-01 | in-chapter | statistics-as-a-language
+    math-09-01 | trains | fo-01
+    math-09-01 | needs-step | asks
