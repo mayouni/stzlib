@@ -143,3 +143,41 @@ func _CgIn(px, py, paT, pnMargin)
 	next
 	return (_s_[1] >= pnMargin and _s_[2] >= pnMargin and _s_[3] >= pnMargin) or
 	       (_s_[1] <= -pnMargin and _s_[2] <= -pnMargin and _s_[3] <= -pnMargin)
+
+#-- Thales --------------------------------------------------------------------
+
+# THALES' THEOREM, from library code, and the lesson Byrne's figure taught:
+# the substance says three things -- B and C are on the circle, BC runs
+# through its centre, A is on the circle -- and never that the angle at A
+# is right. Wherever the solver puts A, the angle at A reads 90 degrees:
+# the theorem is a CONSEQUENCE the picture is never asked to satisfy, and
+# StzThalesAngle reads it back off the solved coordinates.
+func StzThalesPictureQ(poFont)
+	_oS_ = new stzMathSubstance(StzGeometryDomain())
+	_oS_.Declare("Circle", "K")
+	_oS_.DeclareAll("Point", [ "B", "C", "A" ])
+	_oS_.Define("BC", "Segment", [ "B", "C" ])
+	_oS_.Define("AB", "Segment", [ "A", "B" ])
+	_oS_.Define("AC", "Segment", [ "A", "C" ])
+	_oS_.Define("ABC", "Triangle", [ "A", "B", "C" ])
+	_oS_.Define("BAC", "InteriorAngle", [ "B", "A", "C" ])
+	_oS_.Assert("OnCircle", [ "B", "K" ])
+	_oS_.Assert("OnCircle", [ "C", "K" ])
+	_oS_.Assert("OnCircle", [ "A", "K" ])
+	_oS_.Assert("Diameter", [ "BC", "K" ])
+	_oS_.AutoLabelAll()
+	_oS_.Label("K", "")
+	_oS_.Label("BC", "")
+	_oS_.Label("AB", "")
+	_oS_.Label("AC", "")
+	_oS_.Label("ABC", "")
+	_oS_.Label("BAC", "")
+	_o_ = new stzMathDiagram(StzGeometryDomain(), _oS_, StzThalesStyle())
+	_o_.SetFont(poFont, 24)
+	_o_.SetVariation("thales")
+	_o_.Layout()
+	return _o_
+
+# the angle at A of a Thales picture, in degrees, read off the coordinates
+func StzThalesAngle(poPicture)
+	return poPicture.Fact(:angle, [ "B.icon", "A.icon", "C.icon" ])[:value]
