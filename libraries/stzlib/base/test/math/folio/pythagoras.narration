@@ -1,0 +1,121 @@
+-- pythagoras.narration -- pythagoras, told in 4 frames
+
+DEFINE NARRATION pythagoras (
+    TITLE "pythagoras"
+    PINS   [ commons:1.0 ]
+) RATIONALE "Emitted by stzStoryboard against .narration grammar v0; every number in the prose is a cell below, never a stored output."
+
+DEFINE PROSE frame_1 (
+    TEXT <[
+A right triangle ABC with its right angle at A ({angle} degrees), and a square on each side. The square on the hypotenuse BC measures {c2} px^2; the squares on AB and AC measure {a2} and {b2}. Their sum is {sum} px^2.
+    ]>
+) RATIONALE "Frame 1 of 4."
+
+DEFINE CELL picture_1 (
+    SOURCE <[
+oStory.FileOf(1)
+    ]>
+) RATIONALE "The picture is named here and drawn on arrival, never stored."
+
+DEFINE CELL angle_1 (
+    SOURCE <[
+oStory.HolesOf(1)[1][2][:value]
+    ]>
+) RATIONALE "The number the prose shows for {angle}: computed, and checked against the picture."
+
+DEFINE CELL c2_1 (
+    SOURCE <[
+oStory.HolesOf(1)[2][2][:value]
+    ]>
+) RATIONALE "The number the prose shows for {c2}: computed, and checked against the picture."
+
+DEFINE CELL a2_1 (
+    SOURCE <[
+oStory.HolesOf(1)[3][2][:value]
+    ]>
+) RATIONALE "The number the prose shows for {a2}: computed, and checked against the picture."
+
+DEFINE CELL b2_1 (
+    SOURCE <[
+oStory.HolesOf(1)[4][2][:value]
+    ]>
+) RATIONALE "The number the prose shows for {b2}: computed, and checked against the picture."
+
+DEFINE CELL sum_1 (
+    SOURCE <[
+oStory.HolesOf(1)[5][2][:value]
+    ]>
+) RATIONALE "The number the prose shows for {sum}: computed, and checked against the picture."
+
+DEFINE PROSE frame_2 (
+    TEXT <[
+Drag A up and to the right. The squares follow, the angle at A stays {angle} degrees, and the two smaller squares still make the larger one: a^2 + b^2 - c^2 = {gap} px^2.
+    ]>
+) RATIONALE "Frame 2 of 4."
+
+DEFINE CELL picture_2 (
+    SOURCE <[
+oStory.FileOf(2)
+    ]>
+) RATIONALE "The picture is named here and drawn on arrival, never stored."
+
+DEFINE CELL angle_2 (
+    SOURCE <[
+oStory.HolesOf(2)[1][2][:value]
+    ]>
+) RATIONALE "The number the prose shows for {angle}: computed, and checked against the picture."
+
+DEFINE CELL gap_2 (
+    SOURCE <[
+oStory.HolesOf(2)[2][2][:value]
+    ]>
+) RATIONALE "The number the prose shows for {gap}: computed, and checked against the picture."
+
+DEFINE PROSE frame_3 (
+    TEXT <[
+Drag A down and to the left, past where it began. The hypotenuse square is now {c2} px^2 and the sum of the other two is {sum} px^2: the difference is {gap} px^2.
+    ]>
+) RATIONALE "Frame 3 of 4."
+
+DEFINE CELL picture_3 (
+    SOURCE <[
+oStory.FileOf(3)
+    ]>
+) RATIONALE "The picture is named here and drawn on arrival, never stored."
+
+DEFINE CELL c2_3 (
+    SOURCE <[
+oStory.HolesOf(3)[1][2][:value]
+    ]>
+) RATIONALE "The number the prose shows for {c2}: computed, and checked against the picture."
+
+DEFINE CELL sum_3 (
+    SOURCE <[
+oStory.HolesOf(3)[2][2][:value]
+    ]>
+) RATIONALE "The number the prose shows for {sum}: computed, and checked against the picture."
+
+DEFINE CELL gap_3 (
+    SOURCE <[
+oStory.HolesOf(3)[3][2][:value]
+    ]>
+) RATIONALE "The number the prose shows for {gap}: computed, and checked against the picture."
+
+DEFINE PROSE frame_4 (
+    TEXT <[
+Bring A back. Nothing in the picture asserts the equality: every square is derived from the three points, and a^2 + b^2 - c^2 = {gap} px^2 is what the coordinates read back. That is Euclid I.47, a consequence of the construction.
+    ]>
+) RATIONALE "Frame 4 of 4."
+
+DEFINE CELL picture_4 (
+    SOURCE <[
+oStory.FileOf(4)
+    ]>
+) RATIONALE "The picture is named here and drawn on arrival, never stored."
+
+DEFINE CELL gap_4 (
+    SOURCE <[
+oStory.HolesOf(4)[1][2][:value]
+    ]>
+) RATIONALE "The number the prose shows for {gap}: computed, and checked against the picture."
+
