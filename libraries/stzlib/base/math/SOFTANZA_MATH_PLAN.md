@@ -800,6 +800,43 @@ parameter; geometry declared and solved (Thales, Byrne) -- the same shape:
 English chapter run first, promises from the run, then the three editions,
 then the exercise proved by its own wrong and right answers.
 
+#### M3b RESULTS -- level L1, 2026-09-26
+
+**Shipped**: chapters 4 to 6 in four languages with one self-proving
+exercise each -- `04-a-function-is-a-picture` (the `:Function` figure: a
+zero found by the figure and checked by arithmetic to a millionth, the
+window read back, a circle and a rose as parametric and polar forms, a
+tangent as a given mark, a pole drawn as two pieces), `05-a-family-under-a-
+parameter` (`stzMathMotion`: Param, Settle, Set, the live samples checked
+against Ring's own sine, the extrema found again after a settle, two
+declared states with a bound fact, Apply), `06-geometry-declared-and-solved`
+(Euclid I.47 and Thales from library code, the right angle and the equality
+read off the coordinates, a vertex dragged through a declared state in each
+picture and the theorem read again; `Substance().Holds("Right", ...)`
+answers 0 for Thales -- the theorem was never asserted). Thales joined the
+stories file as library code: `StzThalesPictureQ`, `StzThalesAngle`. Six of
+fifteen chapters ship; `course.zknw` says six and `curriculum.zknw` fifteen.
+
+**Gates, rerun over six chapters**: `course_math_narrated.ring` 104/104 in
+69 s (8 to 15 s a chapter, four editions each, printed); `tutor_math_
+narrated.ring` 44/44 in 22 s; `demo_math.ring` 11 proved, 0 not proved.
+Every promise of the three new chapters was written from a run
+(`probe_chapter.ring`) and all three ran green on their first pass through
+the education runner.
+
+**Found**: dragging A of Thales' picture keeps the angle at 90 by moving
+the CIRCLE: A lands where the drag says, and the solver shrinks and shifts
+the circle (radius 209 to 198 to 183 px over two drags) so A, B and C stay
+on it with BC through the centre -- lawful, and worth a sentence in the
+chapter, which says "the solver keeps A on the circle" and checks it.
+
+**Not claimed**: chapters 7 to 15; the reader's figure (F13); a number
+vocabulary in the tutor (F14); native review of fr/ar/ha.
+
+**Next**: M3c, level L2 -- a number that says why it is not exact;
+matrices as pictures; statistics as a language of thought; probability by
+the quantifier continuum.
+
 ### M4 -- Tukey, built
 
 **Deliverable**: TK0-TK6 as `SOFTANZA_TUKEY_PLAN.md` wrote them, with every

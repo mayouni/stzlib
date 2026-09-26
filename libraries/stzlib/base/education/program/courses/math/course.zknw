@@ -11,6 +11,9 @@ facts
     math | has-chapter-01 | the-number-line
     math | has-chapter-02 | the-fraction
     math | has-chapter-03 | the-chaos-game
+    math | has-chapter-04 | a-function-is-a-picture
+    math | has-chapter-05 | a-family-under-a-parameter
+    math | has-chapter-06 | geometry-declared-and-solved
 
     the-number-line | is-a | chapter
     the-number-line | uses-world | school
@@ -22,3 +25,13 @@ facts
 
     the-chaos-game | is-a | chapter
     the-chaos-game | has-exercise | math-03-01
+
+    a-function-is-a-picture | is-a | chapter
+    a-function-is-a-picture | uses-world | school
+    a-function-is-a-picture | has-exercise | math-04-01
+
+    a-family-under-a-parameter | is-a | chapter
+    a-family-under-a-parameter | has-exercise | math-05-01
+
+    geometry-declared-and-solved | is-a | chapter
+    geometry-declared-and-solved | has-exercise | math-06-01
