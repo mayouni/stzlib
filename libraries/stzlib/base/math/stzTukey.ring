@@ -96,6 +96,60 @@ func _TkPad(pcText, pnWidth)
 	return _c_
 
 # the letters of the ladder, from the median outward
+# THE SHAPE THRESHOLDS, MEASURED BEFORE ANY FACE USED THEM (TK4, 2026-09-26,
+# base/test/math/probe_tk4.ring, seeded batches, 20 per class and size):
+#   skewness = the mean drift of the F, E and D mid-summaries from M, over
+#   the F-spread. Symmetric classes (normal, uniform, t with 2 df), 60
+#   batches at each n: |skew| at most 0.2313 (n = 100), 0.2058 (200),
+#   0.1408 (400). Exponential batches: at least 0.2366 / 0.2439 / 0.2510;
+#   lognormal: 0.2894 / 0.3863 / 0.4245. Threshold 0.25: fires on 0 of 180
+#   symmetric batches, on 40 of 40 lognormal, on 40 of 40 exponential at
+#   n >= 200 and on fewer at n = 100 (the minimum there is 0.2366).
+#   The single F-level mid-summary alone did NOT separate the classes at
+#   n = 50 or 200 (symmetric up to 0.2562, skewed down to -0.0855) -- the
+#   evidence of skew is the DRIFT across letters, as Tukey read it.
+#   tail weight = the D-spread over the F-spread, divided by the Gaussian's
+#   2.2745. Normal and uniform, 40 batches at each n: at most 1.1595 /
+#   1.1871 / 1.1290. Cauchy: at least 1.1690 / 1.4613 / 1.6215; t with 2 df:
+#   1.0992 / 1.1057 / 1.1796. Threshold 1.2: fires on 0 of 120 light-tailed
+#   batches, on 40 of 40 Cauchy at n >= 200, and MISSES part of t2 (17, 18
+#   and 20 of 20 clear the null maximum; fewer clear 1.2). A verdict on a
+#   batch under 100 values is not made: it was not measured there.
+func StzTukeySkewThreshold()
+	return 0.25
+func StzTukeyTailThreshold()
+	return 1.2
+func StzTukeyGaussianDOverF()
+	return 2.2745
+func StzTukeyShapeMinCount()
+	return 100
+# spread versus level: five groups whose spread is constant give |slope| at
+# most 0.3397 over 20 sets; spread proportional to level gives at least
+# 0.6689. Threshold 0.5, the same as the re-expression's (TK2), fires on
+# 0 of 20 constant and 20 of 20 proportional.
+func StzTukeySpreadLevelThreshold()
+	return 0.5
+
+# ONE REPORT OVER EVERY FACE (TK4): the house gate, stzRuleReport, fed by
+# each face's Diagnostics(subject). Ring's list + list NESTS, so the faces
+# are given as a list and ingested one by one.
+#     oRep = StzTukeyReportQ("deaths", [ oFit, oRe ])
+#     ? oRep.IsSound()
+func StzTukeyReportQ(pcSubject, paFaces)
+	_c_ = "" + pcSubject
+	if _c_ = ""  _c_ = "table"  ok
+	if NOT isList(paFaces)
+		stzraise("StzTukeyReportQ: the faces are a list -- [ oFit, oRe ] -- each answering Diagnostics(subject).")
+	ok
+	_o_ = new stzRuleReport(_c_)
+	for _i_ = 1 to ring_len(paFaces)
+		if NOT isObject(paFaces[_i_]) or NOT ismethod(paFaces[_i_], "diagnostics")
+			stzraise("StzTukeyReportQ: face " + _i_ + " does not answer Diagnostics(subject).")
+		ok
+		_o_.Ingest(paFaces[_i_].Diagnostics(_c_))
+	next
+	return _o_
+
 func StzTukeyLetters()
 	return [ "M", "F", "E", "D", "C", "B", "A", "Z", "Y", "X", "W", "V", "U", "T", "S" ]
 
@@ -240,6 +294,78 @@ class stzTukeySummary from stzObject
 		_c_ = pnC
 		if NOT isNumber(_c_) or _c_ <= 0  _c_ = 9  ok
 		return StzEngineTukeyBiweight(@aNumbers, _c_)
+
+	#-- the shape, measured, and the verdicts (TK4) -----------------------------
+
+	# skewness: the mean drift of the F, E and D mid-summaries from the
+	# median, over the fourth-spread; positive leans right
+	def Skewness()
+		_lv_ = This.LetterValues(4)
+		_m_ = _lv_[1][5]
+		_f_ = _lv_[2][6]
+		if _f_ <= 0  return 0  ok
+		return ((_lv_[2][5] - _m_) + (_lv_[3][5] - _m_) + (_lv_[4][5] - _m_)) / 3 / _f_
+
+	# tail weight: the sixteenth-spread over the fourth-spread, against the
+	# Gaussian's ratio; 1 is Gaussian, above 1.2 is heavy by the measurement
+	def TailWeight()
+		_lv_ = This.LetterValues(4)
+		_f_ = _lv_[2][6]
+		if _f_ <= 0  return 1  ok
+		return (_lv_[4][6] / _f_) / StzTukeyGaussianDOverF()
+
+	# the shape as words, with the numbers they were read from
+	def Shape()
+		_n_ = ring_len(@aNumbers)
+		if _n_ < StzTukeyShapeMinCount()
+			return [ :count = _n_, :skewness = This.Skewness(), :tailweight = This.TailWeight(),
+			         :leans = "unjudged", :tails = "unjudged",
+			         :because = "a shape verdict needs " + StzTukeyShapeMinCount() + " values; the thresholds were measured from there" ]
+		ok
+		_s_ = This.Skewness()
+		_t_ = This.TailWeight()
+		_cL_ = "neither"
+		if _s_ > StzTukeySkewThreshold()  _cL_ = "right"  but _s_ < -StzTukeySkewThreshold()  _cL_ = "left"  ok
+		_cT_ = "not heavy"
+		if _t_ > StzTukeyTailThreshold()  _cT_ = "heavy"  ok
+		return [ :count = _n_, :skewness = _s_, :tailweight = _t_, :leans = _cL_, :tails = _cT_,
+		         :because = "skew threshold " + StzTukeySkewThreshold() + ", tail threshold " + StzTukeyTailThreshold() ]
+
+	# the verdicts in the house shape [ :rule, :subject, :where, :severity, :message ]:
+	# a far-out value is an error, a shape is a warning, and every message
+	# names the measurement and the threshold it crossed
+	def Diagnostics(pcSubject)
+		_c_ = "" + pcSubject
+		if _c_ = ""  _c_ = "batch"  ok
+		_a_ = []
+		_aF_ = This.FarOutFences()
+		_aH_ = This.Hinges()
+		_nS_ = This.FourthSpread()
+		_n_ = ring_len(@aNumbers)
+		for _i_ = 1 to _n_
+			_v_ = @aNumbers[_i_]
+			if _v_ < _aF_[1] or _v_ > _aF_[2]
+				_nK_ = 0
+				if _nS_ > 0
+					if _v_ < _aF_[1]  _nK_ = (_aH_[1] - _v_) / _nS_  else  _nK_ = (_v_ - _aH_[2]) / _nS_  ok
+				ok
+				_a_ + [ :rule = "far_out", :subject = _c_, :where = "value #" + _i_, :severity = :error,
+				        :message = "value " + _FfNum(_v_, 4) + " lies " + _FfNum(_nK_, 2) +
+				        " fourth-spread(s) past the hinge, beyond the far-out fence at 3" ]
+			ok
+		next
+		_sh_ = This.Shape()
+		if _sh_[:leans] = "right" or _sh_[:leans] = "left"
+			_a_ + [ :rule = "skewed", :subject = _c_, :where = "the whole batch", :severity = :warning,
+			        :message = "the mid-summaries drift " + _FfNum(_sh_[:skewness], 4) + " fourth-spread(s) from the median (threshold " +
+			        StzTukeySkewThreshold() + "); the batch leans " + _sh_[:leans] ]
+		ok
+		if _sh_[:tails] = "heavy"
+			_a_ + [ :rule = "heavy_tailed", :subject = _c_, :where = "the whole batch", :severity = :warning,
+			        :message = "the sixteenth-spread is " + _FfNum(_sh_[:tailweight], 4) + " times the Gaussian's for this fourth-spread (threshold " +
+			        StzTukeyTailThreshold() + ")" ]
+		ok
+		return _a_
 
 	def Why()
 		_aH_ = This.Hinges()
@@ -394,6 +520,48 @@ class stzTukeyFit from stzObject
 		next
 		return StzTukeySummaryQ(_a_).FourthSpread()
 
+	# the verdicts (TK4): a cell whose residual lies beyond Tukey's far-out
+	# fence on the residual batch -- hinge -+ 3 fourth-spreads, the rule the
+	# summary and the residual plot use -- is an error the fit does not
+	# describe; a polish that hit its cap is a warning
+	def Diagnostics(pcSubject)
+		This._RequirePolished("Diagnostics")
+		_c_ = "" + pcSubject
+		if _c_ = ""  _c_ = "table"  ok
+		_a_ = []
+		_aFlat_ = []
+		for _i_ = 1 to @nRows
+			for _j_ = 1 to @nCols
+				_aFlat_ + @aResiduals[_i_][_j_]
+			next
+		next
+		_aH_ = StzEngineTukeyFourths(_aFlat_)
+		_nS_ = _aH_[2] - _aH_[1]
+		for _i_ = 1 to @nRows
+			for _j_ = 1 to @nCols
+				_r_ = @aResiduals[_i_][_j_]
+				# A ZERO SPREAD: every other residual is 0, the fences collapse onto
+				# the hinge, and any residual at all is beyond them -- an exactly
+				# additive table with one wild cell lands here (4 x 4 + 1000, 2026-09-26)
+				if _nS_ = 0 and _r_ != 0
+					_a_ + [ :rule = "far_out", :subject = _c_, :where = "cell (" + _i_ + ", " + _j_ + ")", :severity = :error,
+					        :message = "residual " + _FfNum(_r_, 4) + " on a residual batch whose fourth-spread is 0 -- every other cell sits on the fit, so any residual is beyond the far-out fence" ]
+				ok
+				if _nS_ > 0 and (_r_ < _aH_[1] - 3 * _nS_ or _r_ > _aH_[2] + 3 * _nS_)
+					_nK_ = (_r_ - _aH_[2]) / _nS_
+					if _r_ < _aH_[1]  _nK_ = (_aH_[1] - _r_) / _nS_  ok
+					_a_ + [ :rule = "far_out", :subject = _c_, :where = "cell (" + _i_ + ", " + _j_ + ")", :severity = :error,
+					        :message = "residual " + _FfNum(_r_, 4) + " lies " + _FfNum(_nK_, 2) +
+					        " fourth-spread(s) past the hinge, beyond the far-out fence at 3" ]
+				ok
+			next
+		next
+		if NOT @bConverged
+			_a_ + [ :rule = "not_converged", :subject = _c_, :where = "the polish", :severity = :warning,
+			        :message = "the polish stopped at the cap of " + @nSweeps + " sweep(s) without converging to " + @nEps ]
+		ok
+		return _a_
+
 	def Why()
 		if NOT @bPolished
 			return "a two-way table of " + @nRows + " x " + @nCols + ", not yet polished"
@@ -547,6 +715,20 @@ class stzTukeyOneWay from stzObject
 			next
 		next
 		return _nMax_
+
+	# the verdict (TK4): spread that tracks level, as the slope of log
+	# spread on log level over the groups, past the measured threshold
+	def Diagnostics(pcSubject)
+		_c_ = "" + pcSubject
+		if _c_ = ""  _c_ = "groups"  ok
+		_a_ = []
+		_r_ = StzTukeySpreadLevel(@aGroups)
+		if _r_[:ok] and fabs(_r_[:slope]) > StzTukeySpreadLevelThreshold()
+			_a_ + [ :rule = "spread_tracks_level", :subject = _c_, :where = "across " + ring_len(@aGroups) + " group(s)", :severity = :warning,
+			        :message = "log-spread on log-level slope " + _FfNum(_r_[:slope], 4) + " (threshold " +
+			        StzTukeySpreadLevelThreshold() + "); try power " + _FfNum(_r_[:power], 2) + " (" + StzTukeyPowerName(_r_[:power]) + ")" ]
+		ok
+		return _a_
 
 	def Why()
 		if NOT @bPolished

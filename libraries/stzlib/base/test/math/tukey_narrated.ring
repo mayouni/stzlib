@@ -21,6 +21,8 @@ load "../../stzBase.ring"
 nOk = 0
 nBad = 0
 nSecClock = 0
+nTkSeed = 12345
+aDeaths = [ [ 14, 15, 14 ], [ 7, 4, 7 ], [ 8, 2, 10 ], [ 15, 9, 10 ], [ 0, 2, 0 ] ]
 ? "=============================================================="
 ? " TUKEY GATE -- the mathematics plane, M4 / TK1: the resistant core"
 ? "=============================================================="
@@ -196,6 +198,89 @@ aSC = StzTukeySpreadLevel([ [ 9, 10, 11 ], [ 19, 20, 21 ], [ 39, 40, 41 ], [ 79,
 chk("NEGATIVE: constant spread across levels: slope 0, power 1, leave it  [" + _FfNum(aSC[:slope], 4) + "]", aSC[:ok] = 1 and fabs(aSC[:slope]) < 0.000001 and fabs(aSC[:power] - 1) < 0.000001)
 chk("a group whose spread is zero cannot be logged: not ok, never a guess", StzTukeySpreadLevel([ [ 5, 5, 5 ], [ 10, 12, 14 ] ])[:ok] = 0)
 
+sec("-- 8. THE VERDICTS: EVERY FACE INTO ONE REPORT, AND IsSound() BOTH WAYS (TK4)")
+
+# the deaths table again: three cells are three or more residual
+# fourth-spreads from the fit, and each is an ERROR the fit does not describe
+oF8 = StzTukeyFitQ(aDeaths)
+oF8.Polish()
+aD8 = oF8.Diagnostics("deaths")
+chk("the deaths fit carries two far-out cells under Tukey's fences (hinges 0 and 1, far-out fences -3 and 4: -5 and 5 are beyond, 3 is not), each an error in the house shape", len(aD8) = 2 and _TkAllRule(aD8, "far_out", "error"))
+chk("the message names the residual and its distance past the hinge: cell (3, 2), 'residual -5 lies 5 fourth-spread(s) past the hinge'", _TkFindingHas(aD8, "cell (3, 2)", "residual -5 lies 5 fourth-spread(s) past the hinge, beyond the far-out fence at 3"))
+chk("...and cell (4, 1), residual 5, lies 4 past the upper hinge 1", _TkFindingHas(aD8, "cell (4, 1)", "residual 5 lies 4 fourth-spread(s) past the hinge"))
+oRep8 = StzTukeyReportQ("deaths", [ oF8, StzTukeyReexpressionQ(aDeaths) ])
+chk("one report over the fit and the re-expression: NOT sound, 2 errors, 1 warning (non_additive, slope 0.737)", NOT oRep8.IsSound() and len(oRep8.Errors()) = 2 and len(oRep8.Warnings()) = 1 and _TkHasRule(oRep8.Findings(), "non_additive"))
+chk("Explain() says UNSOUND and groups by subject", StzFindFirst("UNSOUND", oRep8.Explain()[1]) > 0 and StzFindFirst("[deaths]", oRep8.Explain()[2]) > 0)
+# BOTH DIRECTIONS on the synthetic additive table of section 6b
+aAdd8 = _TkSynthetic(0)
+oA8 = StzTukeyFitQ(aAdd8)
+oA8.Polish()
+oRA8 = StzTukeyReportQ("additive", [ oA8, StzTukeyReexpressionQ(aAdd8) ])
+chk("the additive table with seeded noise: no re-expression warning, and ONE far-out error -- cell (6, 3), residual -0.0871, 3.92 fourth-spreads past a hinge on a spread of 0.02; the rule reads the batch it is given", len(oRA8.Warnings()) = 0 and len(oRA8.Errors()) = 1 and _TkFindingHas(oRA8.Errors(), "cell (6, 3)", "residual -0.0871 lies 3.92 fourth-spread(s) past the hinge"))
+aExact8 = [ [ 11, 12, 13, 14 ], [ 21, 22, 23, 24 ], [ 31, 32, 33, 34 ], [ 41, 42, 43, 44 ] ]
+oE8 = StzTukeyFitQ(aExact8)
+oE8.Polish()
+oRE8 = StzTukeyReportQ("exact", [ oE8, StzTukeyReexpressionQ(aExact8) ])
+chk("NEGATIVE: an exactly additive table is sound, with no finding at all", oRE8.IsSound() and oRE8.NumberOfFindings() = 0)
+aWild8 = aExact8
+aWild8[3][2] = aWild8[3][2] + 1000
+oW8 = StzTukeyFitQ(aWild8)
+oW8.Polish()
+oRW8 = StzTukeyReportQ("wild", [ oW8 ])
+chk("one wild cell of 1000: the report is unsound, with one error, at cell (3, 2) -- and because every OTHER residual is exactly 0, the message says the fences collapsed onto the hinge", NOT oRW8.IsSound() and len(oRW8.Errors()) = 1 and _TkFindingHas(oRW8.Errors(), "cell (3, 2)", "whose fourth-spread is 0"))
+aWild8[3][2] = aExact8[3][2]
+oR8 = StzTukeyFitQ(aWild8)
+oR8.Polish()
+chk("...and the same table repaired is sound again", StzTukeyReportQ("repaired", [ oR8 ]).IsSound())
+aMul8 = _TkSynthetic(1)
+oM8 = StzTukeyFitQ(aMul8)
+oM8.Polish()
+oRM8 = StzTukeyReportQ("multiplicative", [ oM8, StzTukeyReexpressionQ(aMul8) ])
+chk("a multiplicative table fitted additively: the bow throws one corner past the far-out fence (an error) AND the re-expression warns non_additive -- not sound, and both findings say why", NOT oRM8.IsSound() and len(oRM8.Errors()) = 1 and _TkHasRule(oRM8.Findings(), "non_additive"))
+# A BATCH: a far-out value is an error, both ways
+oS8 = StzTukeySummaryQ([ 2, 4, 4, 5, 7, 9, 12, 40 ])
+aS8 = oS8.Diagnostics("marks")
+chk("eight marks with a 40: one error, far_out at value #8, '4.54 fourth-spread(s) past the hinge'", len(aS8) = 1 and _TkFindingHas(aS8, "value #8", "value 40 lies 4.54 fourth-spread(s) past the hinge"))
+chk("...and with 25 in its place (section 3's batch) there is no finding", len(StzTukeySummaryQ([ 2, 4, 4, 5, 7, 9, 12, 25 ]).Diagnostics("marks")) = 0)
+# THE SHAPE, on seeded batches, against the thresholds MEASURED in probe_tk4.ring
+oLn8 = StzTukeySummaryQ(_TkBatch("lognormal", 200))
+aSh = oLn8.Shape()
+chk("a lognormal batch of 200 leans right: mid-summaries drift " + _FfNum(aSh[:skewness], 4) + " past the threshold " + StzTukeySkewThreshold(), aSh[:leans] = "right" and aSh[:skewness] > StzTukeySkewThreshold())
+chk("...and its diagnostics carry 'skewed' as a warning naming the threshold", _TkFindingHas(oLn8.Diagnostics("batch"), "the whole batch", "threshold 0.25"))
+oNm8 = StzTukeySummaryQ(_TkBatch("normal", 200))
+aShN = oNm8.Shape()
+chk("NEGATIVE: a normal batch of 200 leans neither and is not heavy  [skew " + _FfNum(aShN[:skewness], 4) + ", tail " + _FfNum(aShN[:tailweight], 4) + "]", aShN[:leans] = "neither" and aShN[:tails] = "not heavy" and len(oNm8.Diagnostics("batch")) = 0)
+oCa8 = StzTukeySummaryQ(_TkBatch("cauchy", 200))
+aShC = oCa8.Shape()
+chk("a Cauchy batch of 200 is heavy-tailed: sixteenth-spread " + _FfNum(aShC[:tailweight], 4) + " times the Gaussian's, past " + StzTukeyTailThreshold(), aShC[:tails] = "heavy" and _TkHasRule(oCa8.Diagnostics("batch"), "heavy_tailed"))
+chk("a batch of 50 is UNJUDGED by name -- the thresholds were not measured under 100", StzTukeySummaryQ(_TkBatch("lognormal", 50)).Shape()[:leans] = "unjudged")
+# GROUPS: spread that tracks level
+oG8 = StzTukeyOneWayQ(_TkGroups(1))
+aG8 = oG8.Diagnostics("groups")
+chk("five groups whose spread grows with level: 'spread_tracks_level', a warning that says which power to try", len(aG8) = 1 and aG8[1][:rule] = "spread_tracks_level" and StzFindFirst("try power", aG8[1][:message]) > 0)
+chk("NEGATIVE: five groups of constant spread: no finding", len(StzTukeyOneWayQ(_TkGroups(0)).Diagnostics("groups")) = 0)
+chk("a report over a face without Diagnostics is refused", _TkRefuses("report"))
+
+sec("-- 9. THE STORY COMPUTES NOTHING: EVERY NUMERAL IS READ FROM THE FIT OR A FINDING (TK5)")
+
+oSt = StzTukeyStoryQ(oF8, oRep8)
+cSt = oSt.Text()
+chk("four paragraphs: the fit, the effects, the findings, the verdict", len(oSt.Paragraphs()) = 4)
+chk("the fit paragraph reads the common value and the scale from the fit: '...is 8 and the residuals' fourth-spread... is 1.'", StzFindFirst("The common value is 8 and the residuals' fourth-spread, the scale every judgement below is in, is 1.", cSt) > 0)
+chk("the effects paragraph reads the extremes: 'from -8 at row 5 to 6 at row 1' and 'from -1 at column 2 to 0 at column 1'", StzFindFirst("from -8 at row 5 to 6 at row 1", cSt) > 0 and StzFindFirst("from -1 at column 2 to 0 at column 1", cSt) > 0)
+chk("the findings paragraph retells a finding verbatim: 'An error, far out, at cell (3, 2): residual -5 lies 5 fourth-spread(s) past the hinge'", StzFindFirst("An error, far out, at cell (3, 2): residual -5 lies 5 fourth-spread(s) past the hinge", cSt) > 0)
+chk("the verdict says not sound, 2 error(s), 1 warning(s), and that the fit still holds", StzFindFirst("Verdict: the table is not sound -- 2 error(s), 1 warning(s); the fit still holds", cSt) > 0)
+chk("THE HONESTY LAW: every numeral in the prose is carried by the fit or a finding  [" + len(oSt.Numerals()) + " numerals]", oSt.IsHonest() and len(oSt.Unsourced()) = 0 and len(oSt.Numerals()) > 20)
+chk("...and the story told twice is the same text: deterministic, no LLM face", StzTukeyStoryQ(oF8, oRep8).Text() = cSt)
+oTr = oSt.Transcript()
+chk("on the transcript: three system lines and a verdict at certainty 1", oTr.NumberOfLines() = 4 and oTr.Lines()[4][1] = "verdict" and oTr.Lines()[4][3] = 1)
+# THE CHECK HAS TEETH: the extractor and the sources are pinned
+chk("the numeral extractor: 'cell (3, 2): residual -5 is 5.00 and 0.94' gives 3, 2, 5, 5.00, 0.94", @@( _TsNumerals("cell (3, 2): residual -5 is 5.00 and 0.94") ) = '[ "3", "2", "5", "5.00", "0.94" ]')
+chk("the sources carry -8 (an effect) and 0.737 (a finding's slope) and NOT 0.94", StzFindFirst("-8", oSt.SourceNumerals()) > 0 and StzFindFirst("0.737", oSt.SourceNumerals()) > 0 and StzFindFirst("0.94", oSt.SourceNumerals()) = 0)
+oStA = StzTukeyStoryQ(oE8, oRE8)
+chk("a sound table's story has three paragraphs (no findings) and is honest: " + oStA.Why(), len(oStA.Paragraphs()) = 3 and oStA.IsHonest() and StzFindFirst("the table is sound -- 0 error(s), 0 warning(s)", oStA.Text()) > 0)
+chk("a story about an unpolished fit is refused", _TkRefuses("story"))
+
 sec("-- 7. THE COST, PRINTED -------------------------------------------------")
 
 aBig = []
@@ -272,11 +357,70 @@ func _TkRefuses cWhat
 		but cWhat = "ragged"  StzTukeyFitQ([ [ 1, 2 ], [ 3 ] ])
 		but cWhat = "line"  StzTukeyLineQ([ 1, 2 ], [ 1, 2 ])
 		but cWhat = "oneway"  StzTukeyOneWayQ([ [ 1, 2 ] ])
+		but cWhat = "report"  StzTukeyReportQ("x", [ StzTukeyLineQ([ 1, 2, 3 ], [ 2, 4, 6 ]) ])
+		but cWhat = "story"  StzTukeyStoryQ(StzTukeyFitQ([ [ 1, 2 ], [ 3, 4 ] ]), StzRuleReportQ("x"))
 		ok
 	catch
 		_b_ = TRUE
 	done
 	return _b_
+
+func _TkHasRule aF, cRule
+	for _i_ = 1 to len(aF)
+		if aF[_i_][:rule] = cRule  return TRUE  ok
+	next
+	return FALSE
+
+func _TkAllRule aF, cRule, cSeverity
+	for _i_ = 1 to len(aF)
+		if aF[_i_][:rule] != cRule or "" + aF[_i_][:severity] != cSeverity  return FALSE  ok
+	next
+	return len(aF) > 0
+
+func _TkFindingHas aF, cWhere, cWords
+	for _i_ = 1 to len(aF)
+		if aF[_i_][:where] = cWhere and StzFindFirst(cWords, aF[_i_][:message]) > 0  return TRUE  ok
+	next
+	return FALSE
+
+# the seeded generator of probe_tk4.ring, so the gate sees the batches the
+# thresholds were measured on: Park-Miller, exact in a double
+func _TkU
+	nTkSeed = (nTkSeed * 16807) % 2147483647
+	return nTkSeed / 2147483647
+
+func _TkGaussian
+	_u1_ = _TkU()
+	_u2_ = _TkU()
+	return sqrt(-2 * log(_u1_)) * cos(2 * 3.14159265358979 * _u2_)
+
+func _TkBatch cKind, nCount
+	nTkSeed = 12345
+	_a_ = []
+	for _i_ = 1 to nCount
+		if cKind = "normal"
+			_a_ + _TkGaussian()
+		but cKind = "lognormal"
+			_a_ + exp(_TkGaussian())
+		but cKind = "cauchy"
+			_a_ + tan(3.14159265358979 * (_TkU() - 0.5))
+		ok
+	next
+	return _a_
+
+# five groups whose medians climb; spread constant, or proportional to level
+func _TkGroups bProp
+	nTkSeed = 777
+	_g_ = []
+	for _i_ = 1 to 5
+		_lvl_ = 10 * _i_
+		_sp_ = 2
+		if bProp  _sp_ = 0.2 * _lvl_  ok
+		_a_ = []
+		for _k_ = 1 to 30  _a_ + (_lvl_ + _sp_ * _TkGaussian() * (1 + 0.5 * (_TkU() - 0.5)))  next
+		_g_ + _a_
+	next
+	return _g_
 
 # a 6 x 5 table: additive with seeded noise, or its exponential (multiplicative)
 func _TkSynthetic bMul

@@ -1064,6 +1064,35 @@ re-rendered, both directions pinned in the gate. Details in
 both directions, TK5's `stzTukeyStory` on `stzNarration`, and chapter 13
 `tukeys-first-look`; TK6 stays gated on GUI G5.
 
+#### M4d RESULTS -- TK4 verdicts, TK5 story, chapter 13; M4 CLOSED, 2026-09-26
+
+**Shipped**: `Diagnostics(subject)` on every Tukey face in the house rule
+shape, `StzTukeyReportQ(subject, [ faces ])` over `stzRuleReport`,
+`Shape()` with skewness and tail weight whose thresholds were MEASURED
+first (`probe_tk4.ring`; 0.25, 1.2, 0.5; the single mid-summary did not
+separate the classes and the table says so); one meaning of "far out"
+across the tier (Tukey's fences; the residual plot now draws them, the
+deaths table has two far-out cells, not three); `stzTukeyStory` on
+`stzTranscript` with the honesty law checked on itself and no LLM face
+(the plan's kill criterion, exercised); chapter 13 `tukeys-first-look` in
+four languages, 9 cells and 23 promises kept in each, with exercise
+`math-13-01`; the M4 done-when's three examples hold (R's medpolish to
+1e-9 since TK0; the three-group line since TK1; the synthetic multiplicative
+table's ladder since TK2), no p-value, interval or forecast anywhere, every
+picture looked at.
+
+**Gates**: `tukey_narrated.ring` 95 of 95 (9 sections); `math_narrated.ring`
+282 of 282; `course_math_narrated.ring tukeys-first-look` 19 of 19; the
+tutor gate 89 of 89; the full course gate over the other 14 chapters was
+NOT rerun (nothing they read changed), by name.
+
+**Not built**: TK6 (gated on GUI G5); the smoother family and the N-way
+polish (`MATH-R-ORACLE-01` still open); the shape verdict below 100 values
+(unjudged by name); the spread-versus-level picture.
+
+**Next**: M5 -- the routed requests, filed with their oracle and picture
+columns; then M6, a bridge to Lean.
+
 ### M5 -- Deepen the core (routed)
 
 Requests, each with the oracle and the picture that would prove it, to the
