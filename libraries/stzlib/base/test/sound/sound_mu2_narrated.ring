@@ -21,7 +21,7 @@ nUnreadable = 0
 
 ? "-- Scene 1: a score is data, and its algebra is Euterpea's --"
 
-oS = StzScoreOfQ("c e g c5")
+oS = StzSoundScoreOfQ("c e g c5")
 aE = oS.Events()
 ? "   'c e g c5' -> " + len(aE) + " events, " + oS.Beats() + " beats"
 ? "   hz: " + aE[1][3] + "  " + aE[2][3] + "  " + aE[3][3] + "  " + aE[4][3]
@@ -31,14 +31,14 @@ Chk("four quarter notes, the octave carried: C4 E4 G4 C5",
 Chk("each starts where the last ended: beats 0, 1, 2, 3",
     aE[1][1] = 0 and aE[2][1] = 1 and aE[3][1] = 2 and aE[4][1] = 3)
 
-oA = StzScoreOfQ("c d")
-oB = StzScoreOfQ("e f g")
+oA = StzSoundScoreOfQ("c d")
+oB = StzSoundScoreOfQ("e f g")
 oA.Then(oB)
 Chk("THEN is a sequence: 2 + 3 notes, 5 beats, the second part from beat 2",
     oA.NumberOfEvents() = 5 and oA.Beats() = 5 and oA.Events()[3][1] = 2)
 
-oC = StzScoreOfQ("c5 d5 e5 f5").On(:Harp)
-oD = StzScoreOfQ("c3 g2").On(:Guitar)
+oC = StzSoundScoreOfQ("c5 d5 e5 f5").On(:Harp)
+oD = StzSoundScoreOfQ("c3 g2").On(:Guitar)
 oC.Together(oD)
 aT = oC.Events()
 Chk("TOGETHER is a parallel: both parts from beat 0, the length the longer",
@@ -46,31 +46,31 @@ Chk("TOGETHER is a parallel: both parts from beat 0, the length the longer",
 Chk("and each part keeps its own instrument",
     aT[1][4] = "harp" and aT[2][4] = "guitar")
 
-oIn = StzScoreOfQ("a").On(:Oud)
-oOut = StzScoreOfQ("c").Then(oIn)
+oIn = StzSoundScoreOfQ("a").On(:Oud)
+oOut = StzSoundScoreOfQ("c").Then(oIn)
 oOut.On(:Kora)
 Chk("an outer On names only what is unnamed -- the innermost wins",
     oOut.Events()[1][4] = "kora" and oOut.Events()[2][4] = "oud")
 
-oK = StzScoreQ().On(:Drumkit).Stroke(:kick, 1).Stroke(:hihat, 1)
+oK = StzSoundScoreQ().On(:Drumkit).Stroke(:kick, 1).Stroke(:hihat, 1)
 # THE FIRST CUT FAILED THIS, and it was the class that was wrong: On() was a
 # pure modifier, so On() on an empty score named nothing and these strokes
 # went to the default piano. On now also names what is added after it.
 Chk("On before the notes names the notes that follow",
     oK.Events()[1][4] = "drumkit" and oK.Events()[2][4] = "drumkit")
 
-oRep = StzScoreOfQ("a4 ~ a4").Repeat(3)
+oRep = StzSoundScoreOfQ("a4 ~ a4").Repeat(3)
 Chk("REPEAT: 2 notes and a rest, three times -> 6 notes over 9 beats",
     oRep.NumberOfEvents() = 6 and oRep.Beats() = 9 and oRep.Events()[3][1] = 3)
 
-oTr = StzScoreOfQ("a4").Transpose(0.5)
+oTr = StzSoundScoreOfQ("a4").Transpose(0.5)
 Chk("TRANSPOSE by half a semitone is a quarter tone: 440 -> 452.893 Hz",
     fabs(oTr.Events()[1][3] - 440 * pow(2, 0.5 / 12)) < 0.000001)
-oTk = StzScoreQ().On(:Darbouka).Stroke(:dum, 1).Transpose(7)
+oTk = StzSoundScoreQ().On(:Darbouka).Stroke(:dum, 1).Transpose(7)
 Chk("and a transposed STROKE keeps its drum's own pitch",
     oTk.Events()[1][3] = 0)
 
-oBad = StzScoreQ()
+oBad = StzSoundScoreQ()
 oBad.Note("H4", 1)
 oBad.Note("A4", 0)
 oBad.Stroke(:clap, 1)
@@ -84,7 +84,7 @@ Chk("refused, and counted: a bad name, a zero length, an unknown stroke, " +
 ? ""
 ? "-- Scene 2: where a beat lands -- tempo, grid and swing, in frames --"
 
-oP = StzScoreQ()
+oP = StzSoundScoreQ()
 Chk("120 BPM: beat 1 is frame 24000, beat 2.5 is frame 60000",
     oP.FrameOf(1, nRate) = 24000 and oP.FrameOf(2.5, nRate) = 60000)
 oP.Tempo(180)
@@ -128,7 +128,7 @@ Chk("a tempo of 0, a swing of 1 and a negative grid are refused",
 # silence. So the strokes are now staccato, and the instrument REFUSES a note
 # that does not begin in silence rather than reading it wrong; the count of
 # refusals is asserted to be zero.
-oG = StzScoreQ().On(:Drumkit).Tempo(150).Swing(0.6)
+oG = StzSoundScoreQ().On(:Drumkit).Tempo(150).Swing(0.6)
 for i = 1 to 12
 	switch i % 3
 	on 1  oG.Stroke(:kick, 0.2)
@@ -137,7 +137,7 @@ for i = 1 to 12
 	off
 	oG.Rest(0.3)
 next
-oRd = new stzScoreRenderer(oG)
+oRd = new stzSoundScoreRenderer(oG)
 oPerf = oRd.Offline()
 nWorstF = OnsetWorst(oPerf, oRd, oG)
 ? "   12 strokes, 150 BPM, swung 0.6: worst onset error " + nWorstF +
@@ -156,7 +156,7 @@ oRd.Release()
 ? "   waiting for a speaker, so it runs as fast as the machine can: harder for"
 ? "   the scheduler than a device, not easier."
 
-oKill = StzScoreQ().On(:Drumkit).Tempo(180)
+oKill = StzSoundScoreQ().On(:Drumkit).Tempo(180)
 for i = 1 to 200
 	switch i % 3
 	on 1  oKill.Stroke(:kick, 0.4)
@@ -165,7 +165,7 @@ for i = 1 to 200
 	off
 	oKill.Rest(0.6)
 next
-oSch = StzSchedulerQ(oKill)
+oSch = StzSoundSchedulerQ(oKill)
 t0 = clock()
 oCap = oSch.RenderThroughRing()
 nSecs = (clock() - t0) / clockspersecond()
@@ -200,13 +200,13 @@ oSch.Release()
 # which notes had retired when it was placed -- thread timing. The engine now
 # sums in START order, the order the offline render uses, so the check is
 # equality again, and it runs twice to show the answer no longer moves.
-oH = StzScoreOfQ("c5 e5 g5 c6 b5 g5 e5 d5").On(:Harp).Tempo(160)
-oH.Together(StzScoreOfQ("c3 ~ g2 ~ a2 ~ e2 ~").On(:Guitar))
+oH = StzSoundScoreOfQ("c5 e5 g5 c6 b5 g5 e5 d5").On(:Harp).Tempo(160)
+oH.Together(StzSoundScoreOfQ("c3 ~ g2 ~ a2 ~ e2 ~").On(:Guitar))
 oOffH = oH.ToSound()
 aDiffH = []
 nLateH = 0
 for nRun = 1 to 2
-	oSchH = StzSchedulerQ(oH)
+	oSchH = StzSoundSchedulerQ(oH)
 	oCapH = oSchH.RenderThroughRing()
 	StzEngineSoundMixInto(oCapH.BufferId(), oOffH.BufferId(), 1, -1)
 	aDiffH + oCapH.Peak()
@@ -222,7 +222,7 @@ Chk("two overlapping parts, twice: none late, and IDENTICAL to the offline rende
 ? "-- Scene 5: a scheduler that is NOT ahead is caught -- the negative sibling --"
 ? "   The same 200 notes posted only one block ahead of the render clock, while"
 ? "   the producer runs a ring ahead of what is drained."
-oSchL = StzSchedulerQ(oKill)
+oSchL = StzSoundSchedulerQ(oKill)
 oSchL.SetLookahead(512)
 oCapL = oSchL.RenderThroughRing()
 ? "   late " + oSchL.Late() + " of 200, the worst by " + oSchL.LateMaxInMs() + " ms"

@@ -2,7 +2,7 @@
 #  STZSCHEDULER -- a score, played live, every note at its frame (MU2)       #
 #---------------------------------------------------------------------------#
 #
-#     oP = StzSchedulerQ(oScore)
+#     oP = StzSoundSchedulerQ(oScore)
 #     oP.Play()                # returns at once; the notes are posted ahead
 #     oP.RunToEnd()            # (no DriveWith yet: a live loop driven by the
 #                              #  reactive plane is MU3's, and untested code is
@@ -33,10 +33,10 @@
 # late by construction. A live loop that renders AS it plays is MU3's problem,
 # and it is named there, not solved here by hoping.
 
-func StzSchedulerQ(poScore)
-	return new stzScheduler(poScore)
+func StzSoundSchedulerQ(poScore)
+	return new stzSoundScheduler(poScore)
 
-class stzScheduler
+class stzSoundScheduler
 
 	@oScore = NULL
 	@oR = NULL              # the renderer: notes, and where each one lands
@@ -59,12 +59,12 @@ class stzScheduler
 			return
 		ok
 		if NOT isObject(poScore)
-			@cLastError = "a scheduler needs a stzScore"
+			@cLastError = "a scheduler needs a stzSoundScore"
 			@nRefusals++
 			return
 		ok
 		@oScore = poScore
-		@oR = new stzScoreRenderer(poScore)
+		@oR = new stzSoundScoreRenderer(poScore)
 
 	#-- settings ------------------------------------------------------------
 
