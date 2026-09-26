@@ -798,3 +798,158 @@ list's brass is FM, not lip — the kakaki is the only lip.
 
 **UNPERCEIVED, all twenty, as of 2026-09-26.** One word per instrument settles
 MU1: its name, or its honest name. Each verdict goes here, by name.
+
+
+---
+
+## MU2 STATUS — 2026-09-26. Every note on its frame, live: 0 frames of error across 200 notes at 180 BPM
+
+**Engine.** `soundgraph.zig`: a ninth node kind, the **timeline** — notes placed
+at a frame, mixed into its output at that frame *inside* a block, fed from any
+one thread through a 512-slot lock-free table; `addTimeline`, `timelinePlace`,
+`timelineNow`, `timelineCounter`. `sound.zig`: `rawView`. Four Ring bridges.
+**Face.** `base/sound/stzScore.ring` (`stzScore`, and `stzScoreRenderer`, which
+renders each distinct note once), `stzScheduler.ring`, `stzMusic.ring`;
+`stzSoundGraph.AddTimeline`. Loaded by `stzBase.ring`.
+**Guard.** `base/test/sound/sound_mu2_narrated.ring` — **33**. Zig: 6 new in the
+graph (65 green in that run).
+**Heard.** `sound_mu2_demo.ring` — seven pieces, each written to a WAV and then
+played **live on the sound card** through the scheduler: 134 notes, **0 late,
+0 frames of underrun**.
+
+### The kill criterion — MET, from Ring and in the engine
+
+| 200 notes at 180 BPM, through a live ring | |
+|---|---|
+| notes placed / late | **200 / 0** |
+| worst onset error, each of the 200 read by a threshold | **0 frames** |
+| the ring's output minus the offline render | **0**, every sample |
+| 66.7 s of music took | 2.4–3.2 s of wall time |
+
+The consumer drains the ring as fast as it fills, so the producer runs at full
+CPU speed rather than a speaker's pace — the hard case for a scheduler that
+must stay ahead of it. **The negative sibling** posts the same notes one block
+ahead instead of a ring ahead: 193–194 of 200 late across three runs, the worst
+by 330–403 ms, and the
+engine counts every one. MU0 spike 2's block-start trigger was 4.81 ms late on
+average and 9.48 ms at worst; the timeline is 0.
+
+### How far ahead, derived rather than tuned
+
+The producer renders up to a ring (16384 frames, 341 ms) ahead of what has been
+played, and keeps doing so between two scheduler ticks. So a note must be posted
+a ring plus one tick before its frame. The lookahead is the ring plus 0.5 s: a
+tick may be half a second late before one note is. **Every note is rendered
+before anything plays** — a wind instrument tunes itself by listening (MU1),
+and rendering inside the playing loop would make that loop late by
+construction.
+
+### Beats become frames in one place
+
+`stzScore.FrameOf(beat, rate)`: quantise, then swing, then tempo. The offline
+render and the live scheduler both call it, so they cannot disagree about when
+a note is. Swing warps time piecewise-linearly within each pair of
+subdivisions: at 2/3 the off-beat eighth lands at 16000 of 24000 frames, and a
+note a quarter of the way through lands a third of the way — it moves with its
+neighbours instead of jumping past one.
+
+### The score is data, and its algebra is Euterpea's
+
+`Note`, `Rest`, `Stroke`; `Then` (sequence), `Together` (parallel), `Repeat`;
+`On(:Instrument)` (the innermost wins), `Transpose` (a stroke keeps its drum's
+pitch); `Tempo`, `Quantize`, `Swing`. Stored flat as events in beats, because a
+score is read far more often than it is built. `StzScoreOfQ("c e g c5")` —
+names one beat each, the octave carrying as Alda's does, `~` a rest.
+
+### Found, and each one changed the design rather than a number
+
+1. **Prime before start.** The first engine test posted nothing until the
+   stream ran, and its first note was late: the producer fills the whole ring
+   the instant it starts. A scheduler posts its first window, then starts the
+   device.
+2. **`On()` on an empty score named nothing.** It was a pure modifier, so
+   `StzScoreQ().On(:Drumkit)` followed by twenty strokes sent every stroke to
+   the default piano, which refused them. A rule the first user breaks in the
+   first line is the rule's fault: `On` now also names what is added after it.
+3. **The onset instrument was blind across notes that touch.** Strokes half a
+   beat long at half-beat spacing left the last note's tail above the threshold
+   where the next began, so every "onset" was found at the edge of the search
+   window and the guard reported 8.33 ms. The same run showed the ring's output
+   equal to the offline render to the sample, so the placement could not be
+   what was 400 frames off. The instrument now refuses a note that does not
+   begin in silence, and the guard asserts it refused none.
+4. **The live render was not deterministic.** Two overlapping parts, rendered
+   live, differed from the offline render by 30 billionths on one run and 60 on
+   the next. The engine summed notes in slot order, and which slot a note gets
+   depends on which notes had retired when it was placed, i.e. on thread timing;
+   f32 addition is not associative. The guard's first version held this to "a
+   millionth" and passed, so the bound was hiding the defect. The timeline now
+   sums in start order, the order the offline render uses, and the guard asks
+   for **equality, twice**: 0 and 0. An engine test pins it with three values
+   whose f32 sum depends on order, and **fails with the sort removed** (checked).
+
+### A claim in this plan, corrected
+
+§3 (Gap 2) and §5 said the fix is *"a trigger with a frame offset INSIDE a
+block"* applied to any node. That would change every node kind's render loop. A
+note does not need it: a note is a buffer the instrument already rendered, and
+placing a buffer at frame F is an offset into the block. So MU2 built **one**
+node kind and left every other untouched. **What that does NOT give:** a
+`setFrequency` or a gain change at a frame inside a block. Those still land at
+the top of the next block, and a portamento that has to start on the beat
+inherits MU0's 10.7 ms grid. Recorded here, before a phase discovers it.
+
+And MU0 spike 2's open question, *"is 10.7 ms audible as swing?"*, was going to
+decide whether sub-block placement got built. MU2's own kill criterion decided
+that instead: 1 ms cannot be met on a 10.7 ms grid however early the request
+arrives.
+
+### A phase gate that did not run, confessed
+
+§7: *"the one-line test in §4 runs at the close of every phase from MU1 on."*
+It could not run at MU1's close because there was no `StzMusicQ`, and **MU1's
+STATUS did not say so.** It runs in MU2's guard: `StzMusicQ().ToSound("c e g
+c5")` is ready in 0.008 s, and its four notes read back within **0.151 cents**.
+The demo plays it live as its first line. A device adds its ring, 341 ms, before
+the first note is heard; the browser's is 10 ms (§3).
+
+### What MU2 did NOT do
+
+- **No live loops.** `Loop`, `Every`, and replacing a loop on a boundary are the
+  pattern language (MU3). So is rendering notes *while* playing, which a live
+  loop needs and this scheduler avoids by rendering everything first.
+- **No `DriveWith`** on the scheduler. A reactive-driven score comes with MU3's
+  loops, and untested code would be a claim without a guard.
+- **No glide in a score.** An event carries one pitch, so the kalangu's squeezed
+  pitch is still `ToSoundOfGlide`, outside the score.
+- **No universes.** A pitch is a note name plus cents. The mezwed piece in the
+  demo uses E4−50 and is labelled *not a ṭabʿ*. That is MU4's.
+- **No browser timeline.** `soundwasm.zig` has its own graph and no timeline
+  node. That is MU6's.
+- **No MIDI or notation export** (MU7).
+
+### Found on the way and not caused here
+
+- **The sample-buffer table is not address-stable under a playing stream.** A
+  source node reads `snd.getSample` on the producer thread, which indexes the
+  buffer table, while the Ring thread may append to that table (any new sound,
+  and every note an instrument renders), and an append that grows it
+  reallocates it under the reader. The graph and stream tables were made
+  address-stable for exactly this reason (the comment above `MAX_GRAPHS`); the
+  buffer table was not. The timeline avoids it by taking `rawView` once, on
+  the placing thread. Source nodes are exposed as they have been since SN3.
+  Routed, not changed here.
+- `future/stzMusic.ring` holds an empty `class stzMusic` with two inspiration
+  links (Glicol, Melrose). It is not loaded, so nothing collides today. Loaded
+  beside `base/sound/stzMusic.ring`, the class would be defined twice.
+- Regression over the sound guards: 713 passed, 3 failed. The three are MU1's: two VC6 convergence checks
+  and one SS4, from `fa9251708` (2026-08-22) making `:Muted` a colour-face
+  treatment. Nothing else moved, and they wait on
+  `STZLIB-MUTED-CROSSPLANE-01`.
+
+### The listener's line
+
+**UNPERCEIVED as of 2026-09-26.** Timing is measured: 0 frames. Whether the
+swung groove (`mu2_03`, against the straight `mu2_02`) *feels* like swing, and
+whether 2/3 or 0.6 is the right default, is not a number. The verdict goes here
+by name.
