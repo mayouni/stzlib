@@ -48,7 +48,7 @@ func StzMathFigureFont()
 	return NULL
 
 func StzMathFigureKinds()
-	return [ "function", "numberline", "fraction", "matrix", "complexplane", "boxplot", "surface" ]
+	return [ "function", "numberline", "fraction", "matrix", "complexplane", "boxplot", "surface", "stemplot" ]
 
 func StzMathFigureQ(pcKind, paSpec)
 	return new stzMathFigure(pcKind, paSpec)
@@ -90,6 +90,8 @@ class stzMathFigure from stzObject
 			@oDiagram = StzBoxPlotFigureBuildXT(@oFont, @aSpec)
 		but @cKind = "surface"
 			@oDiagram = StzSurfaceFigureBuildXT(@oFont, @aSpec)
+		but @cKind = "stemplot"
+			@oDiagram = StzStemPlotFigureBuildXT(@oFont, @aSpec)
 		ok
 
 	#-- what it is ------------------------------------------------------------
@@ -151,6 +153,8 @@ class stzMathFigure from stzObject
 			return StzBoxPlotFigureWhy(_oS_) + "; " + @oDiagram.Why()
 		but @cKind = "surface"
 			return StzSurfaceFigureWhy(_oS_) + "; " + @oDiagram.Why()
+		but @cKind = "stemplot"
+			return StzStemPlotFigureWhy(_oS_) + "; " + @oDiagram.Why()
 		ok
 		_c_ = "a " + @cKind + " figure: " + _oS_.DataOf("fr", "samples") + " samples in " +
 			_oS_.DataOf("fr", "pieces") + " piece(s), " + _oS_.DataOf("fr", "marks") + " mark(s)"
@@ -299,7 +303,10 @@ class stzMathFigure from stzObject
 		if @cKind = "boxplot"
 			return StzBoxPlotFigureText(@oDiagram.Substance())
 		ok
-		stzraise("stzMathFigure.Text: a " + @cKind + " figure has no text rendition -- a box plot has.")
+		if @cKind = "stemplot"
+			return StzStemPlotFigureText(@oDiagram.Substance())
+		ok
+		stzraise("stzMathFigure.Text: a " + @cKind + " figure has no text rendition -- a box plot and a stem-and-leaf have.")
 
 	#-- the renditions ----------------------------------------------------------
 

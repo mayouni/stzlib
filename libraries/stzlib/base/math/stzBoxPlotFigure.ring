@@ -101,7 +101,7 @@ func StzBoxPlotFigureMaxGroups()
 #---------------------------------------------------------------------#
 
 func StzBoxPlotFigureKeys()
-	return [ "of", "groups", "numbers", "label" ]
+	return [ "of", "groups", "numbers", "label", "convention" ]
 
 func StzBoxPlotFigureFrom(paSpec)
 	return StzBoxPlotFigureFromXT(NULL, paSpec)
@@ -122,9 +122,14 @@ func StzBoxPlotFigureFromXT(poFont, paSpec)
 	_aSt_ = []
 	_nMin_ = 0  _nMax_ = 0  _bAny_ = FALSE
 	for _g_ = 1 to _nG_
-		_oD_ = new stzDataSet(_aG_[_g_][2])
-		_aB_ = _oD_.BoxPlotStats()
-		_aO_ = _oD_.Outliers()
+		if _d_[:convention] = "fourths"
+			_aB_ = _BpFourthsStats(_aG_[_g_][2])
+			_aO_ = _BpFourthsOutliers(_aG_[_g_][2])
+		else
+			_oD_ = new stzDataSet(_aG_[_g_][2])
+			_aB_ = _oD_.BoxPlotStats()
+			_aO_ = _oD_.Outliers()
+		ok
 		_aSt_ + [ _aB_, _aO_ ]
 		if NOT _bAny_  _nMin_ = _aB_[:min]  _nMax_ = _aB_[:max]  _bAny_ = TRUE  ok
 		if _aB_[:min] < _nMin_  _nMin_ = _aB_[:min]  ok
@@ -154,6 +159,8 @@ func StzBoxPlotFigureFromXT(poFont, paSpec)
 	_oS_.SetData("fr", "tx", 30 + _FfTextWidth(poFont, _d_[:label], StzBoxPlotFigureTitleSize()) / 2)
 	_oS_.SetData("fr", "ty", 30)
 	_oS_.SetData("fr", "numbers", _d_[:numbers])
+	_oS_.SetData("fr", "fourths", 0)
+	if _d_[:convention] = "fourths"  _oS_.SetData("fr", "fourths", 1)  ok
 
 	# the value axis and its ticks
 	_oS_.Declare("Axis", "ax")
@@ -226,7 +233,12 @@ func StzBoxPlotFigureFromXT(poFont, paSpec)
 
 func StzBoxPlotFigureWhy(poSubstance)
 	_nG_ = poSubstance.DataOf("fr", "groups")
-	_c_ = "a box plot of " + _nG_ + " group(s): "
+	_c_ = "a box plot of " + _nG_ + " group(s) under "
+	if poSubstance.DataOf("fr", "fourths") = 1
+		_c_ += "Tukey's fourths: "
+	else
+		_c_ += "percentile quartiles: "
+	ok
 	for _g_ = 1 to _nG_
 		if _g_ > 1  _c_ += "; "  ok
 		_cN_ = poSubstance.LabelOf("b" + _g_)
@@ -278,6 +290,11 @@ func StzBoxPlotFigureText(poSubstance)
 	next
 	_c_ += "  " + _FfNum(_nLo_, 4) + _BpSpaces(_nCols_ - len(_FfNum(_nLo_, 4)) - len(_FfNum(_nHi_, 4))) +
 		_FfNum(_nHi_, 4) + char(10)
+	if poSubstance.DataOf("fr", "fourths") = 1
+		_c_ += "  hinges: Tukey's fourths, fences at 1.5 fourth-spreads" + char(10)
+	else
+		_c_ += "  hinges: percentile quartiles, fences at 1.5 IQR" + char(10)
+	ok
 	return _c_
 
 func _BpSpaces(pn)
@@ -307,7 +324,7 @@ func _BpDeclaration(paSpec)
 			stzraise("StzBoxPlotFigure: ':" + _e_[1] + "' is not a key of a box plot -- the keys are " + @@(_acKeys_) + ".")
 		ok
 	next
-	_d_ = [ :groups = [], :numbers = FALSE, :label = "" ]
+	_d_ = [ :groups = [], :numbers = FALSE, :label = "", :convention = "percentile" ]
 	_aOf_ = _FfGet(paSpec, "of", [])
 	_aGr_ = _FfGet(paSpec, "groups", [])
 	if isList(_aOf_) and len(_aOf_) > 0 and isList(_aGr_) and len(_aGr_) > 0
@@ -342,7 +359,50 @@ func _BpDeclaration(paSpec)
 		stzraise("StzBoxPlotFigure: :label is text.")
 	ok
 	_d_[:label] = _cL_
+	# THE HINGE CONVENTION, NAMED (Tukey plan 2.2): percentile quartiles are
+	# what this figure shipped with in M1 and what stzDataSet uses, so they
+	# stay the default here; :fourths asks for Tukey's hinges from eda.zig,
+	# and Why() and Text() say which was used either way
+	_cC_ = _FfGet(paSpec, "convention", "percentile")
+	if NOT isString(_cC_)
+		stzraise("StzBoxPlotFigure: :convention is :Percentile or :Fourths.")
+	ok
+	_cC_ = StzLower(_cC_)
+	if _cC_ = "tukey" or _cC_ = "hinges"  _cC_ = "fourths"  ok
+	if _cC_ = "quartiles"  _cC_ = "percentile"  ok
+	if _cC_ != "percentile" and _cC_ != "fourths"
+		stzraise("StzBoxPlotFigure: :convention is :Percentile (stzDataSet's quartiles) or :Fourths (Tukey's hinges) -- not '" + _cC_ + "'.")
+	ok
+	_d_[:convention] = _cC_
 	return _d_
+
+# the five numbers under Tukey's fourths, in the shape stzDataSet.BoxPlotStats gives
+func _BpFourthsStats(paValues)
+	_aF_ = StzEngineTukeyFourths(paValues)
+	_aFen_ = StzEngineTukeyFences(paValues, 1.5, 0)
+	_nMin_ = paValues[1]  _nMax_ = paValues[1]
+	_nWlo_ = 0  _nWhi_ = 0  _bW_ = FALSE
+	for _i_ = 1 to len(paValues)
+		_v_ = paValues[_i_]
+		if _v_ < _nMin_  _nMin_ = _v_  ok
+		if _v_ > _nMax_  _nMax_ = _v_  ok
+		if _v_ >= _aFen_[1] and _v_ <= _aFen_[2]
+			if NOT _bW_  _nWlo_ = _v_  _nWhi_ = _v_  _bW_ = TRUE  ok
+			if _v_ < _nWlo_  _nWlo_ = _v_  ok
+			if _v_ > _nWhi_  _nWhi_ = _v_  ok
+		ok
+	next
+	_nMed_ = StzEngineStatsMedian(StzEngineStatsCreate(paValues))
+	return [ :min = _nMin_, :q1 = _aF_[1], :median = _nMed_, :q3 = _aF_[2], :max = _nMax_,
+	         :whisker_low = _nWlo_, :whisker_high = _nWhi_, :iqr = _aF_[2] - _aF_[1] ]
+
+func _BpFourthsOutliers(paValues)
+	_aFen_ = StzEngineTukeyFences(paValues, 1.5, 0)
+	_a_ = []
+	for _i_ = 1 to len(paValues)
+		if paValues[_i_] < _aFen_[1] or paValues[_i_] > _aFen_[2]  _a_ + paValues[_i_]  ok
+	next
+	return _a_
 
 func _BpValues(paV, pcWhat)
 	if NOT isList(paV) or len(paV) < 4

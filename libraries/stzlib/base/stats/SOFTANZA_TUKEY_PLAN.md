@@ -977,3 +977,52 @@ spread: slope 0, power 1; a zero spread: not ok).
 runs the resistant line over as few as three groups, which is thin; the
 plan's own words are "measured, never eyeballed" and the number is
 reported with its evidence either way.
+
+---
+
+## TK3 RESULTS, first half -- the box plot's convention, the stem-and-leaf, two tables, 2026-09-26 (plane stzlib-math, M4)
+
+Every Tukey picture is a figure of M1 (the math plane's charter, decision
+7), so TK3's displays are figure KINDS of `StzMathFigureQ`, judged by their
+own rules, with a text rendition where the display is text by nature.
+
+**The box plot names its hinge convention.** `:BoxPlot` gained
+`:convention = :Percentile | :Fourths`. The default stays percentile
+quartiles -- what the figure shipped with in M1 and what `stzDataSet`
+uses, so the M1 gate and the data set keep agreeing -- and `:Fourths`
+takes the hinges, the fourth-spread, the fences and the outliers from
+`eda.zig`. `Why()` says "under Tukey's fourths" or "under percentile
+quartiles"; `Text()` ends with the hinges' convention and the fence rule.
+On the library's eight values the upper hinge reads 10.5 against 9.75 and
+the upper fence 20.25 against 18.375, while the median, the whisker at 12
+and the one outlier are the same under both. `stzDataSet.BoxPlotStats()`
+is NOT delegated to the engine here: that file is the stats plane's, so
+the delegation is routed as `MATH-BOXPLOT-DELEGATE-01` rather than made.
+
+**The stem-and-leaf** (`base/math/stzStemPlotFigure.ring`, kind
+`:StemPlot`, keys `:of`, `:unit`, `:lines`, `:label`): stems as rows,
+leaves sorted on each row, the leaf unit chosen from the range as the
+power of ten giving 5 to 20 stems or given as a power of ten, one or two
+rows a stem (Tukey's * and .), empty stems shown, a legend saying what a
+row means in the data's own units. Nothing is solved. Three rules judge
+the picture -- `leaves_count_the_values`, `leaves_are_sorted`,
+`stems_are_consecutive` -- and the gate's witness, a row whose count is
+tampered, is convicted by two of them by name. Negative values are
+refused by name (Tukey's -0 stem is not printed in this slice) and so is a
+unit that is not a power of ten or a display of more than forty rows.
+`Text()` prints the rows and the legend.
+
+**Two tables**: `stzTukeySummary.LetterValueTable(levels)` (letter, depth,
+lower, mid, upper, spread, with Tukey's depth rule under it) and
+`stzTukeyReexpression.LadderTable()` (power, its name, slope, residual
+scale, the recommended rung starred, the evidence under it).
+
+**Looked at**: catalogue scenes 30-32 (`fig_30..32.png`, light and dark)
+were opened and read before this section was written -- the fourths box
+plot with its numbers, the seventeen-value stem-and-leaf, the two-rows-a-
+stem display with its empty rows.
+
+**Gate**: `math_narrated.ring` sections 16 and 17, 240 of 240 in all.
+
+**Still to come in TK3**: residual-versus-fit and the coded two-way table
+with its legend (the second half).

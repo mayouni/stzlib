@@ -90,6 +90,11 @@ func StzTukeySpreadLevel(paGroups)
 	ok
 	return [ :slope = _a_[1], :intercept = _a_[2], :power = _a_[3], :ok = _a_[4], :medians = _aM_, :spreads = _aS_ ]
 
+func _TkPad(pcText, pnWidth)
+	_c_ = "" + pcText
+	while len(_c_) < pnWidth  _c_ = " " + _c_  end
+	return _c_
+
 # the letters of the ladder, from the median outward
 func StzTukeyLetters()
 	return [ "M", "F", "E", "D", "C", "B", "A", "Z", "Y", "X", "W", "V", "U", "T", "S" ]
@@ -213,6 +218,18 @@ class stzTukeySummary from stzObject
 
 	def Trimean()
 		return StzEngineTukeyTrimean(@aNumbers)
+
+	# the ladder as a table: letter, depth, lower, mid, upper, spread
+	def LetterValueTable(pnLevels)
+		_a_ = This.LetterValues(pnLevels)
+		_c_ = "  letter  depth   lower      mid    upper   spread" + char(10)
+		for _i_ = 1 to ring_len(_a_)
+			_c_ += "  " + _TkPad(_a_[_i_][1], 6) + "  " + _TkPad(_FfNum(_a_[_i_][2], 2), 5) + "  " +
+				_TkPad(_FfNum(_a_[_i_][3], 4), 7) + "  " + _TkPad(_FfNum(_a_[_i_][5], 4), 7) + "  " +
+				_TkPad(_FfNum(_a_[_i_][4], 4), 7) + "  " + _TkPad(_FfNum(_a_[_i_][6], 4), 7) + char(10)
+		next
+		_c_ += "  depths by Tukey's rule d(next) = (floor(d) + 1) / 2 from d(M) = (n + 1) / 2" + char(10)
+		return _c_
 
 	# the median absolute deviation, unscaled
 	def Mad()
@@ -613,6 +630,25 @@ class stzTukeyReexpression from stzObject
 		                     _p_ + " (" + StzTukeyPowerName(_p_) + "), slope " + _FfNum(_a_[_best_][2], 4) ]
 
 	# the diagnostics in the house rule shape, for stzRuleReport (plan 2.6)
+	# the ladder as a table: power, its name, the slope, the residual scale
+	def LadderTable()
+		_a_ = This.Ladder()
+		_r_ = This.Recommend()
+		_c_ = "  power  re-expression             slope  residual scale" + char(10)
+		for _i_ = 1 to ring_len(_a_)
+			_cMark_ = " "
+			if _r_[:fires] and _a_[_i_][1] = _r_[:power]  _cMark_ = "*"  ok
+			if NOT _r_[:fires] and _a_[_i_][1] = 1  _cMark_ = "*"  ok
+			if _a_[_i_][4] = 0
+				_c_ += "  " + _TkPad(_FfNum(_a_[_i_][1], 1), 5) + "  " + _TkPad(StzTukeyPowerName(_a_[_i_][1]), 22) + "  (cannot be taken)" + char(10)
+			else
+				_c_ += _cMark_ + " " + _TkPad(_FfNum(_a_[_i_][1], 1), 5) + "  " + _TkPad(StzTukeyPowerName(_a_[_i_][1]), 22) + "  " +
+					_TkPad(_FfNum(_a_[_i_][2], 4), 7) + "  " + _FfNum(_a_[_i_][3], 4) + char(10)
+			ok
+		next
+		_c_ += "  * " + _r_[:evidence] + char(10)
+		return _c_
+
 	def Diagnostics(pcSubject)
 		_c_ = "" + pcSubject
 		if _c_ = ""  _c_ = "table"  ok
