@@ -1109,6 +1109,14 @@ its `level_shift` warning, threshold 1.8 measured first on seeded series
 five-sigma steps; gate section 11, 124 of 124. Details in the Tukey plan's
 `TK4 addendum`.
 
+**TK6's memory half, killed by its own criterion**: a memory of which
+re-expression worked ties the ladder on 19 of 20 held-out tables and loses
+on the twentieth, and the whole ladder (one engine crossing, 0.15 ms on a
+lesson-sized table) costs less than the one polish the memory would save.
+Measured in `probe_tk6_memory.ring`; recorded in the Tukey plan's `TK6
+RESULTS, the memory half`. The panel half stays gated on GUI G5. M4 has no
+leftover now.
+
 ### M5 -- Deepen the core (routed)
 
 Requests, each with the oracle and the picture that would prove it, to the
