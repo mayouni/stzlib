@@ -6,8 +6,8 @@
 #     StzMusicQ().Tempo(90).With(:Oud).Play("d e f g a")
 #     StzMusicQ().With(:Kora).ToSound("a c5 e g").SaveAs("kora.wav")
 #
-# IT OWNS NO MECHANISM. Every verb here is one line over stzScore (the data),
-# stzScoreRenderer (the instruments) and stzScheduler (the timing). The plan
+# IT OWNS NO MECHANISM. Every verb here is one line over stzSoundScore (the data),
+# stzSoundScoreRenderer (the instruments) and stzSoundScheduler (the timing). The plan
 # (section 5) says so of this piece, and it is the reason the class is short:
 # "fun" that owns machinery is machinery nobody can test on its own.
 #
@@ -70,7 +70,7 @@ class stzMusic
 	# The score a note string makes here -- so what Play would do can be
 	# looked at, changed, and played later.
 	def ScoreOf(pcNotes)
-		_oS_ = StzScoreOfQ(pcNotes)
+		_oS_ = StzSoundScoreOfQ(pcNotes)
 		_oS_.On(@cInstrument)
 		_oS_.Tempo(@nTempo)
 		if @nSwing != 0.5  _oS_.Swing(@nSwing) ok
@@ -94,7 +94,7 @@ class stzMusic
 	#     oM.WaitCycles(4)
 	#     oM.StopLive()
 	#
-	# All of it is stzLive's; this is the one-line front over it.
+	# All of it is stzSoundLive's; this is the one-line front over it.
 
 	def LiveLoop(pName, pcPattern)
 		This._EnsureLive()
@@ -137,7 +137,7 @@ class stzMusic
 
 	def _EnsureLive()
 		if NOT isObject(@oLive)
-			@oLive = StzLiveQ(@nTempo)
+			@oLive = StzSoundLiveQ(@nTempo)
 			@oLive.SetDefaultInstrument(@cInstrument)
 		ok
 

@@ -178,7 +178,7 @@ while NOT oT.IsStopped()
 	oT.Tick()
 	if n <= len(aTour) and oT.PositionInSeconds() >= aAt[n] - 0.05
 		cHon = ""
-		if n <= 20  cHon = "   (honest name: " + StzInstrumentQ(aTour[n][1]).HonestName() + ")" ok
+		if n <= 20  cHon = "   (honest name: " + StzSoundInstrumentQ(aTour[n][1]).HonestName() + ")" ok
 		? "   " + Mu1Pad(lower(aTour[n][1]), 13) + aTour[n][2] + cHon
 		n++
 	ok
@@ -206,7 +206,7 @@ func Mu1Add pName, cListen, aEvents, nGain
 #   [ t, :glide, from, to, dur ]        a pitch that moves (names or Hz)
 #   [ t, :stroke, :tak, hz, dur ]       where a drum is struck
 func Mu1Phrase pName, aEvents, nGain
-	_oI_ = StzInstrumentQ(pName)
+	_oI_ = StzSoundInstrumentQ(pName)
 	_end_ = 0
 	for _e_ in aEvents
 		_d_ = _e_[len(_e_)]
