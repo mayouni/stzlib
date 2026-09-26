@@ -450,6 +450,29 @@ fn ring_GraphCurrentFrequency(p: *anyopaque) callconv(.c) void {
     rn(p, gph.currentFrequency(id(p, 1), nodeIn(p, 2)));
 }
 
+// MU2: the timeline. AddTimeline(graph) -> node; Place(graph, node, buffer,
+// frame1, gain) -- frame1 is 1-BASED here, frame 1 being the timeline's first
+// rendered frame, and translated once; Now(graph, node) is a COUNT of frames
+// rendered, so it needs no translation; Counter(graph, node, which) takes the
+// engine's 0-based counter index, as StzEngineSoundCounter does.
+fn ring_GraphAddTimeline(p: *anyopaque) callconv(.c) void {
+    retNode(p, gph.addTimeline(id(p, 1)));
+}
+
+fn ring_GraphTimelinePlace(p: *anyopaque) callconv(.c) void {
+    const f1 = gn(p, 4);
+    const f0: f64 = if (f1 < 1) -1 else f1 - 1; // 0 or less -> refused by the engine
+    rn(p, @floatFromInt(gph.timelinePlace(id(p, 1), nodeIn(p, 2), id(p, 3), f0, gn(p, 5))));
+}
+
+fn ring_GraphTimelineNow(p: *anyopaque) callconv(.c) void {
+    rn(p, gph.timelineNow(id(p, 1), nodeIn(p, 2)));
+}
+
+fn ring_GraphTimelineCounter(p: *anyopaque) callconv(.c) void {
+    rn(p, gph.timelineCounter(id(p, 1), nodeIn(p, 2), @intFromFloat(@max(0, gn(p, 3)))));
+}
+
 // ---------------------------------------------------------------- recorder (SN4)
 
 fn ring_RecorderNew(p: *anyopaque) callconv(.c) void {
@@ -674,6 +697,10 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginesoundgraphsetfrequency", .func = &ring_GraphSetFrequency },
     .{ .name = "stzenginesoundgraphcurrentfrequency", .func = &ring_GraphCurrentFrequency },
     .{ .name = "stzenginesoundgraphsetrate", .func = &ring_GraphSetRate },
+    .{ .name = "stzenginesoundgraphaddtimeline", .func = &ring_GraphAddTimeline },
+    .{ .name = "stzenginesoundgraphtimelineplace", .func = &ring_GraphTimelinePlace },
+    .{ .name = "stzenginesoundgraphtimelinenow", .func = &ring_GraphTimelineNow },
+    .{ .name = "stzenginesoundgraphtimelinecounter", .func = &ring_GraphTimelineCounter },
 
     // the recorder (SN4)
     .{ .name = "stzenginesoundrecordernew", .func = &ring_RecorderNew },
