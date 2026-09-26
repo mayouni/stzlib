@@ -208,8 +208,52 @@ func StzMathFigSurfaceWitness()
 	_o_.SetDatum("fr", "z1_1", 7)
 	return _o_
 
+#-- M1 notation: the labels the reader is held to, and three scenes ---------
+
+# THE LABELS the notation reader is held to, byte for byte: the probe
+# writes their runs to base/test/math/expect/notation.txt and the gate
+# compares. Sixteen from before the reader moved here, ten from its growth.
+func StzMathNotationLabels()
+	return [ "$\alpha$", "$\alpha^2 + \beta_1$", "$x^{n+1}$", "$\sum_{i=1}^{n} x_i$", "$e^{i\pi} + 1 = 0$",
+	         "$\Omega \subseteq \Gamma$", "$a \le b \ne c$", "$\int f \, dx$", "$\nabla \cdot F$", "$x_{i_j}$",
+	         "$\sqrt{2}$", "plain text", "$\frac{1}{2}$", "$\levitate$", "$x^{y^{z^{w}}}$", "$\infty$",
+	         "$\frac{a+b}{2}$", "$\frac{1}{\frac{1}{x}}$", "$\sqrt{x^2 + 1}$", "$\prod^{n}_{k=1} k$", "$\matrix{1, 2; 3, 4}$",
+	         "$\matrix{a, b, c}$", "$\frac{1}$", "$\matrix{1, 2; 3}$", "$\matrix{1, ; 3, 4}$", "$\sqrt$" ]
+
+# every label as runs and a box, or its refusal -- one line each
+func StzMathNotationProbeText(poFont)
+	_ac_ = StzMathNotationLabels()
+	_c_ = ""
+	for _i_ = 1 to len(_ac_)
+		_l_ = _ac_[_i_]
+		_cOut_ = "[" + _i_ + "] " + _l_ + " -> has=" + StzHasNotation(_l_)
+		try
+			_a_ = StzNotationRuns(_l_, 20, poFont)
+			_cOut_ += " w=" + _a_[2] + " asc=" + _a_[3] + " desc=" + _a_[4] + " runs=" + @@(_a_[1])
+		catch
+			_cOut_ += " REFUSED: " + StzLeft(StzReplace(cCatchError, char(10), " "), 90)
+		done
+		_c_ += _cOut_ + char(10)
+	next
+	_c_ += "symbol(alpha)=" + StzNotationSymbol("alpha") + " symbol(zzz)=[" + StzNotationSymbol("zzz") + "]" + char(10)
+	return _c_
+
+# fractions and a root as the names of points on a line
+func StzMathFigScene27()
+	return StzMathFigureQ(:NumberLine, [ :on = [ 0, 2 ], :points = [ [ 0.5, "$\frac{1}{2}$" ], [ 0.25, "$\frac{1}{4}$" ],
+		[ 1.5, "$\frac{3}{2}$" ], [ 1.4142, "$\sqrt{2}$" ] ], :label = "fractions and a root, named on the line" ])
+
+# a title with a stacked fraction and a sum with its limits
+func StzMathFigScene28()
+	return StzMathFigureQ(:Function, [ :f = "sin(x) / x", :on = [ -12, 12 ], :mark = [ :extrema ],
+		:label = "$y = \frac{sin x}{x}$    and    $\sum_{k=1}^{n} \frac{1}{k^2} \to \frac{\pi^2}{6}$" ])
+
+# a matrix named in its title
+func StzMathFigScene29()
+	return StzMathFigureQ(:Matrix, [ :of = [ [ 1, 2 ], [ 3, 4 ] ], :label = "$A = \matrix{1, 2; 3, 4}$" ])
+
 func StzMathFigSceneCount()
-	return 26
+	return 29
 
 func StzMathFigSceneTitles()
 	return [ "THE CARDINAL SINE                (zeros at every multiple of pi, extrema where tan x = x; twelve notes solved)",
@@ -237,7 +281,10 @@ func StzMathFigSceneTitles()
 	         "A SADDLE                         (z = x^2 - y^2 projected by the engine's camera, drawn as a wireframe on the vector tier)",
 	         "A RIPPLE                         (24 x 24 samples, lines coloured by their height on one ramp)",
 	         "THE BOX PLOT, TWO THINGS WRONG   (a median past Q3, an outlier inside the fences)",
-	         "THE SURFACE, ONE THING WRONG     (a corner's z that the function does not give)" ]
+	         "THE SURFACE, ONE THING WRONG     (a corner's z that the function does not give)",
+	         "FRACTIONS ON THE LINE            (M1 notation: 1/2, 1/4, 3/2 stacked and sqrt 2 with its bar, as names of points)",
+	         "A TITLE WITH A FRACTION AND A SUM (sin x over x, and the sum of 1/k^2 with its limits stacked on the sign)",
+	         "A MATRIX IN A TITLE              (a 2 x 2 between brackets scaled to it, as notation, beside the same matrix as cells)" ]
 
 func StzMathFigScene(pnI)
 	if pnI = 1  return StzMathFigScene01()  ok
@@ -265,4 +312,7 @@ func StzMathFigScene(pnI)
 	if pnI = 23  return StzMathFigScene23()  ok
 	if pnI = 24  return StzMathFigScene24()  ok
 	if pnI = 25  return StzMathFigBoxPlotWitness()  ok
-	return StzMathFigSurfaceWitness()
+	if pnI = 26  return StzMathFigSurfaceWitness()  ok
+	if pnI = 27  return StzMathFigScene27()  ok
+	if pnI = 28  return StzMathFigScene28()  ok
+	return StzMathFigScene29()

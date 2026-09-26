@@ -167,9 +167,9 @@ func StzComplexPlaneFigureFromXT(poFont, paSpec)
 	_oS_.Declare("Axis", "ay")
 	_oS_.Label("ay", "Im")
 	_oS_.SetData("ay", "x0", _nCx_)  _oS_.SetData("ay", "y0", _nT_ + _nPh_)
-	_oS_.SetData("ay", "x1", _nCx_)  _oS_.SetData("ay", "y1", _nT_ - 10)
+	_oS_.SetData("ay", "x1", _nCx_)  _oS_.SetData("ay", "y1", _nT_ - 2)
 	_oS_.SetData("ay", "lx", _nCx_ + 12 + _FfTextWidth(poFont, "Im", StzComplexPlaneFigureTypeSize() + 2) / 2)
-	_oS_.SetData("ay", "ly", _nT_ - 19)
+	_oS_.SetData("ay", "ly", _nT_ + 17)
 
 	# the ticks at the frame edges, one nice step for both axes
 	_nStep_ = _FfNiceStep(2 * _nExt_, 6)

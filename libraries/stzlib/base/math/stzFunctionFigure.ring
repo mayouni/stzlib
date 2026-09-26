@@ -238,7 +238,7 @@ func StzFunctionFigureFromXT(poFont, paSpec)
 		ok
 		# at least 52 px of air above and below the samples -- a note under
 		# a minimum needs 37 -- and never less than eight per cent
-		_nPh0_ = StzFunctionFigureHeight() - StzFunctionFigureTop() - StzFunctionFigureBottom()
+		_nPh0_ = StzFunctionFigureHeight() - StzFunctionFigureTop() - StzFunctionFigureBottom() - 40
 		_nPad_ = (_nYmax_ - _nYmin_) * 0.08
 		_nAir_ = (_nYmax_ - _nYmin_) * 52 / (_nPh0_ - 104)
 		if _nAir_ > _nPad_  _nPad_ = _nAir_  ok
@@ -259,6 +259,8 @@ func StzFunctionFigureFromXT(poFont, paSpec)
 	# and downward on a canvas, so the map flips it.
 	_nL_ = StzFunctionFigureLeft()
 	_nT_ = StzFunctionFigureTop()
+	_aTb_ = _FfTitleBox(poFont, _d_[:label], StzFunctionFigureTitleSize())
+	if _aTb_[1] + _aTb_[2] + 18 > _nT_  _nT_ = _aTb_[1] + _aTb_[2] + 18  ok
 	_nPw_ = StzFunctionFigureWidth() - _nL_ - StzFunctionFigureRight()
 	_nPh_ = StzFunctionFigureHeight() - _nT_ - StzFunctionFigureBottom()
 	_nKx_ = _nPw_ / (_nXmax_ - _nXmin_)
@@ -444,7 +446,7 @@ func StzFunctionFigureFromXT(poFont, paSpec)
 	_oS_.SetData("fr", "dropped", _nDropped_)
 	_oS_.SetData("fr", "clipped", _bClipped_)
 	_oS_.SetData("fr", "tx", _nX0_ + _FfTextWidth(poFont, _d_[:label], StzFunctionFigureTitleSize()) / 2)
-	_oS_.SetData("fr", "ty", _nT_ / 2)
+	_oS_.SetData("fr", "ty", _aTb_[1] + 6)
 
 	# the axes: through the origin when the window holds it, on the
 	# window's edge when it does not
@@ -461,9 +463,12 @@ func StzFunctionFigureFromXT(poFont, paSpec)
 	_oS_.Declare("Axis", "ay")
 	_oS_.Label("ay", _d_[:yname])
 	_oS_.SetData("ay", "x0", _nAxX_)  _oS_.SetData("ay", "y0", _nY1_)
-	_oS_.SetData("ay", "x1", _nAxX_)  _oS_.SetData("ay", "y1", _nY0_ - 10)
+	# THE Y AXIS ENDS AT THE FRAME'S TOP and its name stands just inside:
+	# above the frame is the title's band, and a stacked title met the
+	# arrow and the name there
+	_oS_.SetData("ay", "x1", _nAxX_)  _oS_.SetData("ay", "y1", _nY0_ - 2)
 	_oS_.SetData("ay", "lx", _nAxX_ + 12 + _FfTextWidth(poFont, _d_[:yname], StzFunctionFigureTypeSize() + 2) / 2)
-	_oS_.SetData("ay", "ly", _nY0_ - 19)
+	_oS_.SetData("ay", "ly", _nY0_ + 17)
 
 	# the ticks: a nice step giving six to eight, on every multiple in the window
 	_nStep_ = _FfNiceStep(_nXmax_ - _nXmin_, 7)
@@ -953,6 +958,18 @@ func _FfNum(pn, pnDec)
 	ok
 	if _c_ = "-0"  _c_ = "0"  ok
 	return _c_
+
+# A TITLE'S BOX -- [ ascent, descent ] in px -- measured through the
+# notation reader when the title carries notation (a stacked fraction is
+# twice as tall as its type), estimated from the size when it does not.
+# Every figure grows its top margin to hold it: at a fixed margin a
+# stacked title ran 9 px off the canvas.
+func _FfTitleBox(poFont, pcText, pnSize)
+	if isObject(poFont) and StzHasNotation("" + pcText)
+		_a_ = StzNotationRuns("" + pcText, pnSize, poFont)
+		return [ _a_[3], _a_[4] ]
+	ok
+	return [ pnSize * 0.78, pnSize * 0.24 ]
 
 # a label's width as it will be drawn, or seven pixels a character
 func _FfTextWidth(poFont, pcText, pnSize)
