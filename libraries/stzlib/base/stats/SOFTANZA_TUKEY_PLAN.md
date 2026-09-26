@@ -1243,6 +1243,37 @@ fires on 0 of 40 null series. A three-sigma step is found only sometimes,
 and the table says so; a trend steeper than 0.1 sigma per point was not
 measured and the verdict does not claim it.
 
+## TK6 RESULTS, the memory half -- the kill criterion fired; the memory does not ship, 2026-09-26
+
+The clause: `stzAgentMemory` recording which re-expressions worked on which
+data shapes ships only if, on held-out tables, its suggestion beats the
+fixed policy "evaluate the whole ladder and take the best slope". Run as an
+experiment before any product code (`base/test/math/probe_tk6_memory.ring`):
+forty training tables and twenty held-out, each a 6 x 5 additive table with
+seeded noise undone by a known power of the ladder; the memory keyed on the
+one-number shape the fixed policy reads first (the non-additivity slope at
+power 1) and suggested the power of the nearest remembered shape.
+
+| measure | memory | fixed ladder |
+|---|---|---|
+| suggests the ladder's own best power | 19 of 20 | -- (it is the ladder) |
+| recovers the generating power | 17 of 20 | 17 of 20 |
+| regret in |slope| against the ladder's best | mean 0.026, worst 0.52 | 0 |
+| cost on 6 x 5 | one polish through the face, 2.33 ms | the whole ladder, one engine crossing, 0.15 ms |
+| cost on 60 x 50 | 2.34 ms | 2.08 ms |
+| cost on 200 x 100 | 16.5 ms | 12.1 ms |
+
+**Why it does not ship.** On quality the memory can only tie the ladder,
+because the ladder evaluates every rung on the table in hand and the memory
+guesses one from tables it saw before; it tied on 19 of 20 and lost 0.52 of
+slope on the twentieth. On cost it saves nothing: the ladder runs its six
+rungs in one engine crossing and costs LESS than the single polish the
+memory would replace, at every size tried -- the face's single polish pays
+the seam once, and the ladder pays it once too. The plan wrote "it may well
+[lose], because the ladder is cheap"; measured, the ladder is cheaper than
+the memory's one step. TK6's memory half is closed with this table; its
+panel half stays gated on GUI G5.
+
 ## TK5 RESULTS -- the story, under the honesty law, 2026-09-26 (plane stzlib-math, M4d)
 
 `stzTukeyStory` (`base/math/stzTukeyStory.ring`) tells a fit and its
