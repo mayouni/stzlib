@@ -935,3 +935,45 @@ smoother work is what touches that neighbourhood.
 build without `vendor/nghttp2/lib/includes/nghttp2/nghttp2ver.h`, a
 generated file git ignores; copied from `_wtv`. `stz_stats` built without
 it, which is why TK1 could land.
+
+---
+
+## TK2 RESULTS -- re-expression, measured, 2026-09-26 (plane stzlib-math, M4)
+
+**Shipped in the engine** (`eda.zig`): `leastSquares`, `spreadLevel`
+(log fourth-spread on log median through the resistant line, the two-point
+slope for two groups, least squares when the outer groups share an x;
+never a guess on a non-positive value), `comparisonValues` (c_ij = row_i
+col_j / common), `nonAdditivitySlope` (residuals on comparison values,
+least squares, power = 1 - slope), `evaluateLadder` (every rung -1, -0.5,
+0, 0.5, 1, 2 applied, polished with R's rule, scored by the slope and the
+residuals' fourth-spread, all in one call; a rung a value cannot take is
+returned as not ok rather than skipped silently), `recommend` and the
+constant `RECOMMEND_THRESHOLD = 0.5`. Four bridge calls
+(`stzenginetukeyspreadlevel`, `stzenginetukeyladder`,
+`stzenginetukeynonadditivity`, `stzenginetukeythreshold`).
+
+**Shipped as faces**: `stzTukeyReexpression` (`Ladder()` in one crossing,
+`Rung(power)`, `NonAdditivity()`, `Recommend()` as a verdict carrying its
+slope and the threshold it was judged by, `Diagnostics(subject)` in the
+house rule shape for `stzRuleReport`, `Why()`), `StzTukeySpreadLevel(groups)`.
+
+**The threshold, measured before it was used (the kill criterion)**: over
+twenty additive 6 x 5 tables with seeded noise the |slope| at power 1
+never exceeded 0.1944; over twenty multiplicative ones (the exponential of
+an additive table) it never fell below 0.8781. The constant sits at 0.5,
+between them with margin on both sides, and the recommender fired on 0 of
+the 20 additive tables. So it ships as a recommendation, not as a slope
+only. Both distributions are printed by `zig test` on every run.
+
+**The gate** (`tukey_narrated.ring`, section 6b, 63 of 63 in all): the
+multiplicative table's slope at power 1 near 1 and the log recommended
+with its evidence; the additive table given NO recommendation and no
+finding -- the negative that matters more; spread versus level built from
+a known power (spread doubling with the level: slope 1, power 0; constant
+spread: slope 0, power 1; a zero spread: not ok).
+
+**Not shipped**: nothing of TK2's list. The spread-versus-level slope
+runs the resistant line over as few as three groups, which is thin; the
+plan's own words are "measured, never eyeballed" and the number is
+reported with its evidence either way.

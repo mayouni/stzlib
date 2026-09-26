@@ -3967,6 +3967,10 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginetukeytrimean", .func = &ring_TukeyTrimean },
     .{ .name = "stzenginetukeypolish", .func = &ring_TukeyPolish },
     .{ .name = "stzenginetukeyline", .func = &ring_TukeyLine },
+    .{ .name = "stzenginetukeyspreadlevel", .func = &ring_TukeySpreadLevel },
+    .{ .name = "stzenginetukeyladder", .func = &ring_TukeyLadder },
+    .{ .name = "stzenginetukeynonadditivity", .func = &ring_TukeyNonAdditivity },
+    .{ .name = "stzenginetukeythreshold", .func = &ring_TukeyThreshold },
     .{ .name = "stzengineerf", .func = &ring_Erf },
     .{ .name = "stzengineerfc", .func = &ring_Erfc },
     .{ .name = "stzenginelgamma", .func = &ring_LogGamma },
@@ -4209,4 +4213,132 @@ fn ring_TukeyLine(p: *anyopaque) callconv(.c) void {
     R.ring_list_adddouble(out, l.intercept);
     R.ring_list_adddouble(out, @floatFromInt(l.iterations));
     R.ring_vm_api_retlist(p, out);
+}
+
+// ─── TK2: re-expression, measured ─────────────────────────────────────
+
+/// (medians, spreads) -> [ slope, intercept, suggested power, ok ]
+fn ring_TukeySpreadLevel(p: *anyopaque) callconv(.c) void {
+    const med = listToF64(p, 1) orelse {
+        rs(p, "");
+        return;
+    };
+    defer allocator.free(med);
+    const sp = listToF64(p, 2) orelse {
+        rs(p, "");
+        return;
+    };
+    defer allocator.free(sp);
+    if (sp.len != med.len or med.len < 2) {
+        rs(p, "");
+        return;
+    }
+    const scratch = allocator.alloc(f64, 6 * med.len) catch {
+        rs(p, "");
+        return;
+    };
+    defer allocator.free(scratch);
+    const r = eda.spreadLevel(med, sp, scratch);
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    R.ring_list_adddouble(out, r.slope);
+    R.ring_list_adddouble(out, r.intercept);
+    R.ring_list_adddouble(out, r.power);
+    R.ring_list_adddouble(out, if (r.ok) 1 else 0);
+    R.ring_vm_api_retlist(p, out);
+}
+
+fn tukeyTableDims(p: *anyopaque, param: c_int, rows: *usize, cols: *usize) bool {
+    const lst = gl(p, param) orelse return false;
+    rows.* = @intCast(R.ringListSize(lst));
+    if (rows.* == 0 or R.ring_list_islist_gc(null, lst, 1) == 0) return false;
+    const first = R.ring_list_getlist_gc(null, lst, 1) orelse return false;
+    cols.* = @intCast(R.ringListSize(first));
+    return cols.* > 0;
+}
+
+/// (rows, powers) -> [ [ power, slope, residual scale, ok ], ... ] -- every rung in one crossing
+fn ring_TukeyLadder(p: *anyopaque) callconv(.c) void {
+    var rows: usize = 0;
+    var cols: usize = 0;
+    if (!tukeyTableDims(p, 1, &rows, &cols)) {
+        rs(p, "");
+        return;
+    }
+    const data = listToF64(p, 1) orelse {
+        rs(p, "");
+        return;
+    };
+    defer allocator.free(data);
+    if (data.len != rows * cols) {
+        rs(p, "");
+        return;
+    }
+    const powers = listToF64(p, 2) orelse {
+        rs(p, "");
+        return;
+    };
+    defer allocator.free(powers);
+    const n = rows * cols;
+    const work = allocator.alloc(f64, 2 * n + rows + cols + @max(rows, cols)) catch {
+        rs(p, "");
+        return;
+    };
+    defer allocator.free(work);
+    const rungs = allocator.alloc(eda.Rung, powers.len) catch {
+        rs(p, "");
+        return;
+    };
+    defer allocator.free(rungs);
+    const k = eda.evaluateLadder(data, rows, cols, powers, rungs, work);
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (rungs[0..k]) |r| {
+        const sub = R.ring_list_newlist(out) orelse continue;
+        R.ring_list_adddouble(sub, r.power);
+        R.ring_list_adddouble(sub, r.slope);
+        R.ring_list_adddouble(sub, r.residual_scale);
+        R.ring_list_adddouble(sub, if (r.ok) 1 else 0);
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
+/// (rows) -> [ slope, intercept, suggested power, ok ] of the untransformed table's polish
+fn ring_TukeyNonAdditivity(p: *anyopaque) callconv(.c) void {
+    var rows: usize = 0;
+    var cols: usize = 0;
+    if (!tukeyTableDims(p, 1, &rows, &cols)) {
+        rs(p, "");
+        return;
+    }
+    const z = listToF64(p, 1) orelse {
+        rs(p, "");
+        return;
+    };
+    defer allocator.free(z);
+    if (z.len != rows * cols) {
+        rs(p, "");
+        return;
+    }
+    const n = rows * cols;
+    const work = allocator.alloc(f64, n + rows + cols + @max(rows, cols)) catch {
+        rs(p, "");
+        return;
+    };
+    defer allocator.free(work);
+    const row = work[0..rows];
+    const col = work[rows .. rows + cols];
+    const scratch = work[rows + cols .. rows + cols + @max(rows, cols)];
+    const cv = work[rows + cols + @max(rows, cols) .. rows + cols + @max(rows, cols) + n];
+    const pr = eda.medianPolish2D(z, rows, cols, row, col, 0.01, 10, scratch);
+    const r = eda.nonAdditivitySlope(pr.common, row, col, z, cv);
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    R.ring_list_adddouble(out, r.slope);
+    R.ring_list_adddouble(out, r.intercept);
+    R.ring_list_adddouble(out, r.power);
+    R.ring_list_adddouble(out, if (r.ok) 1 else 0);
+    R.ring_vm_api_retlist(p, out);
+}
+
+/// the measured recommendation threshold, so the face prints the number it used
+fn ring_TukeyThreshold(p: *anyopaque) callconv(.c) void {
+    rn(p, eda.RECOMMEND_THRESHOLD);
 }

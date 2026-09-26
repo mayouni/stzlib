@@ -49,6 +49,47 @@ func StzTukeyLineQ(paX, paY)
 func StzTukeyOneWayQ(paGroups)
 	return new stzTukeyOneWay(paGroups)
 
+# re-expression, measured: the ladder over a two-way table, the spread-
+# versus-level slope over groups, and a recommendation that carries its
+# slope and fires only past the measured threshold
+func StzTukeyReexpressionQ(paRows)
+	return new stzTukeyReexpression(paRows)
+
+func StzTukeyLadderPowers()
+	return [ -1, -0.5, 0, 0.5, 1, 2 ]
+
+# the word for a rung of the ladder
+func StzTukeyPowerName(pnPower)
+	if pnPower = -1  return "reciprocal"  ok
+	if pnPower = -0.5  return "reciprocal square root"  ok
+	if pnPower = 0  return "log"  ok
+	if pnPower = 0.5  return "square root"  ok
+	if pnPower = 1  return "as is"  ok
+	if pnPower = 2  return "square"  ok
+	return "power " + pnPower
+
+#-- spread versus level, over groups ------------------------------------------
+
+# groups of values -> the slope of log fourth-spread on log median, and the
+# suggested power 1 - slope: [ :slope, :intercept, :power, :ok, :medians, :spreads ]
+func StzTukeySpreadLevel(paGroups)
+	if NOT isList(paGroups) or ring_len(paGroups) < 2
+		stzraise("StzTukeySpreadLevel: at least two groups, each a list of numbers.")
+	ok
+	_aM_ = []
+	_aS_ = []
+	_n_ = ring_len(paGroups)
+	for _i_ = 1 to _n_
+		_o_ = StzTukeySummaryQ(paGroups[_i_])
+		_aM_ + _o_.Median()
+		_aS_ + _o_.FourthSpread()
+	next
+	_a_ = StzEngineTukeySpreadLevel(_aM_, _aS_)
+	if NOT isList(_a_) or ring_len(_a_) < 4
+		stzraise("StzTukeySpreadLevel: the engine refused the groups.")
+	ok
+	return [ :slope = _a_[1], :intercept = _a_[2], :power = _a_[3], :ok = _a_[4], :medians = _aM_, :spreads = _aS_ ]
+
 # the letters of the ladder, from the median outward
 func StzTukeyLetters()
 	return [ "M", "F", "E", "D", "C", "B", "A", "Z", "Y", "X", "W", "V", "U", "T", "S" ]
@@ -496,3 +537,96 @@ class stzTukeyOneWay from stzObject
 		ok
 		return "a one-way median polish of " + ring_len(@aGroups) + " group(s): common " +
 			_FfNum(@nCommon, 4) + ", effects " + @@(@aEffects) + "; Data = Fit + Residual holds to " + _FfNum(This.Check(), 9)
+
+#-- re-expression, measured ---------------------------------------------------
+
+class stzTukeyReexpression from stzObject
+
+	@aRows = []
+	@aLadder = []          # [ [ power, slope, residual scale, ok ], ... ]
+	@bEvaluated = 0
+
+	def init(paRows)
+		if NOT isList(paRows) or ring_len(paRows) = 0 or NOT isList(paRows[1])
+			stzraise("stzTukeyReexpression: give the two-way table as a list of rows.")
+		ok
+		@aRows = paRows
+
+	# the measured threshold the engine carries: a recommendation fires
+	# only when |slope at power 1| exceeds it
+	def Threshold()
+		return StzEngineTukeyThreshold()
+
+	# the non-additivity slope of the table as it stands: residuals on
+	# comparison values, with the suggested power 1 - slope
+	def NonAdditivity()
+		_a_ = StzEngineTukeyNonAdditivity(@aRows)
+		if NOT isList(_a_) or ring_len(_a_) < 4
+			stzraise("stzTukeyReexpression.NonAdditivity: the engine refused the table.")
+		ok
+		return [ :slope = _a_[1], :intercept = _a_[2], :power = _a_[3], :ok = _a_[4] ]
+
+	# EVERY RUNG IN ONE CROSSING: [ [ power, slope, residual scale, ok ], ... ]
+	def Ladder()
+		if NOT @bEvaluated
+			@aLadder = StzEngineTukeyLadder(@aRows, StzTukeyLadderPowers())
+			if NOT isList(@aLadder) or ring_len(@aLadder) = 0
+				stzraise("stzTukeyReexpression.Ladder: the engine refused the table.")
+			ok
+			@bEvaluated = 1
+		ok
+		return @aLadder
+
+	def Rung(pnPower)
+		_a_ = This.Ladder()
+		_n_ = ring_len(_a_)
+		for _i_ = 1 to _n_
+			if _a_[_i_][1] = pnPower  return _a_[_i_]  ok
+		next
+		stzraise("stzTukeyReexpression.Rung: " + pnPower + " is not a rung of the ladder " + @@(StzTukeyLadderPowers()) + ".")
+
+	# THE RECOMMENDATION, AS A VERDICT WITH ITS EVIDENCE:
+	#   [ :power, :name, :slope, :evidence, :fires ]
+	# fires = 0 means "leave it alone", and the slope at power 1 says why
+	def Recommend()
+		_a_ = This.Ladder()
+		_r1_ = This.Rung(1)
+		_nT_ = This.Threshold()
+		if _r1_[4] = 0
+			stzraise("stzTukeyReexpression.Recommend: the table as it stands could not be polished.")
+		ok
+		if fabs(_r1_[2]) <= _nT_
+			return [ :power = 1, :name = "as is", :slope = _r1_[2], :fires = 0,
+			         :evidence = "residuals on comparison values slope " + _FfNum(_r1_[2], 4) +
+			                     " at power 1, within the threshold " + _FfNum(_nT_, 2) + ": leave it" ]
+		ok
+		_best_ = 0
+		_n_ = ring_len(_a_)
+		for _i_ = 1 to _n_
+			if _a_[_i_][4] = 0  loop  ok
+			if _best_ = 0 or fabs(_a_[_i_][2]) < fabs(_a_[_best_][2])  _best_ = _i_  ok
+		next
+		_p_ = _a_[_best_][1]
+		return [ :power = _p_, :name = StzTukeyPowerName(_p_), :slope = _a_[_best_][2], :fires = 1,
+		         :evidence = "residuals on comparison values slope " + _FfNum(_r1_[2], 4) +
+		                     " at power 1, past the threshold " + _FfNum(_nT_, 2) + "; flattest at power " +
+		                     _p_ + " (" + StzTukeyPowerName(_p_) + "), slope " + _FfNum(_a_[_best_][2], 4) ]
+
+	# the diagnostics in the house rule shape, for stzRuleReport (plan 2.6)
+	def Diagnostics(pcSubject)
+		_c_ = "" + pcSubject
+		if _c_ = ""  _c_ = "table"  ok
+		_r_ = This.Recommend()
+		_a_ = []
+		if _r_[:fires]
+			_a_ + [ :rule = "non_additive", :subject = _c_, :where = "residuals on comparison values",
+			        :severity = :warning, :message = _r_[:evidence] ]
+		ok
+		return _a_
+
+	def Why()
+		_r_ = This.Recommend()
+		if _r_[:fires]
+			return "re-expression of a " + ring_len(@aRows) + " x " + ring_len(@aRows[1]) + " table: " + _r_[:evidence]
+		ok
+		return "re-expression of a " + ring_len(@aRows) + " x " + ring_len(@aRows[1]) + " table: " + _r_[:evidence]
