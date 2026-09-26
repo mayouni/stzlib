@@ -32,6 +32,7 @@ class stzMusic
 	@nRefusals = 0
 	@oLast = NULL           # the score the last Play or ToSound made
 	@oLive = NULL           # MU3: the live session, made on first use
+	@oUniverse = NULL       # MU4: the universe In() chose
 
 	def Tempo(pnBpm)
 		if NOT isNumber(pnBpm) or pnBpm < 20 or pnBpm > 400
@@ -83,6 +84,59 @@ class stzMusic
 
 	def LastScore()
 		return @oLast
+
+	#-- MU4: a universe ------------------------------------------------------
+	#
+	#     StzMusicQ().In(:Maqam, :Hijaz, :D).PlayPhrase("1 2 3 4 5 4 3 2")
+	#     StzMusicQ().In(:Raga, :Yaman, "").PhraseToSound("1 2 3 4 5 4 3 2", 2)
+	#
+	# The plan's section-4 line, with one change it states: the phrase is in
+	# DEGREES, so the same line means something in every universe. A tonic
+	# given as a bare letter (:D) takes octave 4; "" keeps the mode's own.
+
+	def In(pUniverse, pMode, pTonic)
+		_o_ = StzSoundUniverseQ(pUniverse)
+		if NOT _o_.IsUsable()
+			@nRefusals++
+			@cLastError = _o_.LastError()
+			return This
+		ok
+		if "" + pMode != ""  _o_.Mode(pMode) ok
+		_t_ = "" + pTonic
+		if _t_ != ""
+			if len(_t_) <= 2 and NOT isdigit(right(_t_, 1))  _t_ += "4" ok
+			_o_.Tonic(_t_)
+		ok
+		if _o_.Refusals() > 0
+			@nRefusals += _o_.Refusals()
+			@cLastError = _o_.LastError()
+			return This
+		ok
+		@oUniverse = _o_
+		return This
+
+	def Universe()
+		return @oUniverse
+
+	def PhraseToSound(pcDegrees, pnCycles)
+		if NOT isObject(@oUniverse)
+			@nRefusals++
+			@cLastError = "PhraseToSound: choose a universe first -- In(:Maqam, :Rast, :C)"
+			return NULL
+		ok
+		_oS_ = @oUniverse.PerformQ(pcDegrees, pnCycles)
+		if @oUniverse.LastError() != ""  @cLastError = @oUniverse.LastError() ok
+		return _oS_.ToSound()
+
+	# Plays two cycles and returns when they have sounded.
+	def PlayPhrase(pcDegrees)
+		if NOT isObject(@oUniverse)
+			@nRefusals++
+			@cLastError = "PlayPhrase: choose a universe first -- In(:Maqam, :Rast, :C)"
+			return This
+		ok
+		@oUniverse.PerformQ(pcDegrees, 2).Play()
+		return This
 
 	#-- MU3: live loops ------------------------------------------------------
 	#
