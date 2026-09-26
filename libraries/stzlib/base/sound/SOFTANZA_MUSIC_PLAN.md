@@ -1147,3 +1147,144 @@ claim a reuse nobody has shown.
 the plan to fix them, are Central's prompt 50
 (`softanza/prompts/50-stzlib-domain-names.md`), to be executed later, plane by
 plane, by each plane's own session.
+
+
+---
+
+## MU4 STATUS — 2026-09-26. Eight universes declared as data, the thin parts left thin, and all eight UNPERCEIVED
+
+**Face.** `base/sound/stzSoundUniverse.ring` reads a declaration and renders a
+phrase inside it: pitch by direction, ornaments, accents, the cycle's layers.
+It adds `Check` (movement rules), `SentenceQ` (a tonal language, drummed) and
+`NoCycle`; `stzSoundDegreePattern` is the MU3 grammar with degrees as words;
+`StzMusicQ().In(universe, mode, tonic)` with `PhraseToSound` and `PlayPhrase`.
+`stzSoundScore` gains `GlideAt`, a note whose pitch moves over its length.
+**Data.** `base/sound/universes/*.ring`, eight files. Each is a Ring list and
+nothing else: the guard asserts **0 lines of logic** across all eight. Each
+carries `:sources`, a `:confidence` per part, and `:listener = "UNPERCEIVED"`.
+**Guard.** `base/test/sound/sound_mu4_narrated.ring` — **32**.
+**Heard.** `sound_mu4_demo.ring`: the same phrase in every universe, plus the
+kalangu sentence. 14 WAVs, each played live.
+**Engine.** Unchanged: the glides MU1 built (bow, wind, membrane) were enough.
+
+### The eight, and what each declaration rests on
+
+| universe | modes | cycles | sources | confidence |
+|---|---|---|---|---|
+| western | major, minor | four, waltz | 12-TET, by definition | high |
+| maqam | rast, hijaz | maqsum | maqamworld; Marcus (1989) | medium: textbook 24-TET, no regional intonation |
+| tunisian | dhil, sika, sika_hijaz, rasdaldhil | btayhi, barwal, draj, khafif, khatm, fazzani | Snoussi (2003) and d'Erlanger vol. 5, via Beyhom & Makhlouf (2021); CNRS/Zghonda (1992) | skeletons high, **cents derived not measured**, strokes low or **absent** |
+| niger | zarma | tende, takamba | Schmidt (2018); Newman (1996, 2007); Surugue (1973) | tende high, tones medium-high, **scale low** |
+| raga | yaman | teental | Bor's *Raga Guide* via Wikipedia; ragakosh | swaras high, tuning medium (a textbook just reading) |
+| gamelan | slendro (30-gamelan average), kanyutmesem, slendro_paired | lancaran | Surjodiningrat et al. (measured); Lindsay (1992) | measured; the pairing is a stated combination |
+| westafrican | **none**: a rhythm | standard bell | Toussaint; Agawu; A. M. Jones | high |
+| flamenco | phrygian | solea | standard | high for the compás |
+
+The sources were gathered by a research pass that was told to leave a gap
+empty rather than fill it. Where it found nothing, the declaration says **not
+found**, and the render plays silence or refuses. It never invents.
+
+### Measured, not asserted
+
+Every interval below was read by the fine pitch instrument off two notes
+rendered on that universe's own instrument:
+
+| interval | declared | measured |
+|---|---|---|
+| Rast's half-flat third | 350 | **350.046** |
+| Hijaz's augmented second | 300 | **300.027** |
+| Tunisian Sika's three-quarter step | 150 | **149.947** |
+| the "Tunisian hijaz" five-quarter step | 250 | **249.986** |
+| Rasd al-Dhil, e-half-flat → f-half-sharp | 200 | **199.946** |
+| Yaman's tivra Ma (45/32) | 590 | **591.407** |
+| slendro's **stretched** octave (30-gamelan average) | 1208 | **1208.000** |
+| slendro nem, average vs. Kyai Kanyut Mesem | 18 apart | **18.000** |
+
+Worst: 1.41 cents. Movement is checked too:
+
+- Rast goes up through 1050 and down through 1000.
+- The flamenco third is 400 going up and 300 coming down.
+- Yaman's rule flags Pa taken going up.
+- Rasd al-Dhil flags the fourth taken going down (Ghānim, 1932).
+
+The cycles land where their sources put them: the bell on 1 3 5 6 8 10 12,
+soleá's accents, lancaran's gong, kenong, kempul and ketuk, and the tende's
+strokes and claps. Ornaments are **heard**: Yaman's meend on the flute starts
+near Sa (295.8 Hz) and ends near Re (322.8 Hz). The paired slendro beats at
+**6 Hz**, counted off the envelope. The kalangu speaks *sannu da zuwa* as
+L H L H L, with 'nu' at 220.001 Hz and 'da' at 165.002 Hz; the long *waa* is
+twice as long.
+
+### The honest result the guard asserts instead of hiding
+
+**Snoussi's Dhil and textbook Rast are the same seven numbers** on the
+quarter-tone grid. The sources locate Dhil's difference in things no fixed
+degree list carries:
+
+- a third that *moves*: 300, 350 and 400 in Tarnān's 1932 recording;
+- a "very high" seventh.
+
+Both are declared as `:variants` and not rendered as if settled. So the
+same phrase gives **seven** distinct renderings in eight universes, not eight
+(the eighth, the West African timeline, refuses a melody). The one question
+the sources could not answer is also the plainest one to put to the author:
+**does `mu4_04` sound like Dhil, or like Rast?**
+
+### Found, and each one changed the design
+
+1. **A rhythm universe has no mode, so it had no tempo.** The first cut read
+   tempo and melody from the mode. The West African bell then played at the
+   score's default 120 rather than 360, and the score counted a refusal. They
+   are now read from the universe first.
+2. **The cycle clipped the melody.** Four colotomic strokes and a melody note
+   on one beat peaked at 1.1. Layers now sit under the melody (0.45 against
+   0.6/0.9), and every universe peaks at 0.7 or below.
+3. **A claim about teental was wrong, and the data was right.** The guard's
+   first version said the bass is absent on beats 9–12. The source's theka
+   has khali's *dha* on 9 and *tin tin ta ta* on 10–13. The pattern followed
+   the source; the sentence about it did not. It failed, was corrected, and
+   the failed version is kept in the guard.
+4. **The kalangu read 0 Hz.** A score renders stereo and the pitch reader
+   reads mono. The guard now reads the mono sum.
+5. **Ring traps.** Case-insensitivity again: `_b_` was `_B_` and `_l_` was
+   `_L_`, so the first render placed no rhythm at all. `oK` is `ok` and `oN`
+   is `on`, and `Lines` collided with a library function.
+
+### Claims in this plan, corrected
+
+- §6 MU4 asks for Tunisian ṭubūʿ *"each with its own declared tuning rather
+  than the maqam's"*. From the sources found, **Dhil's is not its own on
+  paper**; its own lies in intonation the sources describe but do not
+  measure. Sika's own (the Tunisian ḥijāz) *is* declared.
+- §6 asks for *"the nūba's five īqāʿāt"*. Their **meters** are declared.
+  Strokes were found for two, on amateur pages. Three play silent.
+- §6 asks for slendro *"with paired detuning"*. Pairing (ombak) is **Balinese**,
+  not Javanese. It is a third mode, and the file says the combination is its
+  own.
+- §6 asks for *"a Zarma pentatonic"*. The only source for it is user-written.
+  It is declared as a **placeholder** marked LOW, and Surugue's touched-partials
+  hint is written as an inference, not a mode.
+- §4's `oM.In(:Maqam, :Rast, :D)` then note names with `+` for half-flat
+  became `In(...)` plus a phrase in **degrees**, so one phrase means something
+  in every universe. Quarter tones by name remain `e-50`.
+
+### What MU4 did NOT do
+
+- **No sayr engine.** A maqam's path (which jins to move to, and how to
+  return) is declared as text, and only its checkable fragments (a flat
+  seventh descending, avoided degrees) are rules.
+- **No kan swar, no Tunisian ornaments**: no reliable source was found, so
+  none were declared.
+- **No sitar, tabla, bansuri, gong or palmas.** Each stand-in is named in its
+  file.
+- **No text → drum verb.** `SentenceQ` renders a *declared* sentence; turning
+  arbitrary Hausa text into tones is MU7's row.
+- Regression over the sound guards: 793 passed, 3 failed: 761 plus MU4's 32, and the
+  three are MU1's `:Muted` cross-plane failures. Nothing else moved.
+
+### The listener's line
+
+**UNPERCEIVED, all eight, as of 2026-09-26.** The kill criterion is a person
+from each tradition, recorded by name. For Tunisia and Niger that person is
+more than a check: where the sources ran out, they are the only source this
+declaration has. Their corrections go into the universe files, by name.
