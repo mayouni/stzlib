@@ -197,6 +197,12 @@ const Node = struct {
     buffer_id: i64 = 0,
     pos: usize = 0,
     loop: bool = false,
+    // MU1: a source played at a RATE -- how one recording becomes an instrument
+    // at any pitch. -1 means never set, and then the source takes the original
+    // integer path unchanged, so every guard written before MU1 stays
+    // bit-identical. `pos_f` is the fractional read position; -1 = seed from pos.
+    rate_target: f64 = -1,
+    pos_f: f64 = -1,
 
     // GAIN / PAN
     gain: f64 = 1.0,
@@ -543,6 +549,63 @@ pub fn currentFrequency(id: i64, node: i64) f64 {
     return @atomicLoad(f64, &n.freq_now, .monotonic);
 }
 
+/// MU1: play a source at a RATE -- 2 is an octave up, 0.5 an octave down --
+/// by linear interpolation between frames. A rate of exactly 1 returns the
+/// source to its original integer path. The change is immediate: a rate jump
+/// is a kink in the slope, not an amplitude step, and a pitch BEND with a ramp
+/// is a later phase's.
+pub fn setRate(id: i64, node: i64, ratio: f64) i32 {
+    const s = slotOf(id) orelse return STALE;
+    const g = &graphs.items[s];
+    if (!validInput(g, node)) {
+        refuse("setRate: that node does not exist");
+        return BAD_ARG;
+    }
+    const n = &g.nodes.items[@intCast(node)];
+    if (n.kind != KIND_SOURCE) {
+        refuse("setRate: that node is not a source");
+        return BAD_ARG;
+    }
+    if (!(ratio >= 0.0625 and ratio <= 16.0)) {
+        refuse("setRate: a rate must be between 1/16 and 16");
+        return BAD_ARG;
+    }
+    @atomicStore(f64, &n.rate_target, ratio, .release);
+    return OK;
+}
+
+fn renderSourceAtRate(g: *Graph, n: *Node, ratio: f64, src_ch: usize, src_frames: usize, nch: usize, blk: usize) void {
+    if (n.pos_f < 0) n.pos_f = @floatFromInt(n.pos);
+    const last: f64 = if (src_frames >= 2) @floatFromInt(src_frames - 1) else 0;
+    var ch: usize = 0;
+    while (ch < nch) : (ch += 1) {
+        const dst = chanSlice(g, n, ch);
+        const use_ch = if (src_ch == 0) 0 else @min(ch, src_ch - 1);
+        var p = n.pos_f;
+        for (dst) |*o| {
+            if (src_frames < 2 or p >= last) {
+                if (n.loop and src_frames >= 2) {
+                    p = @mod(p, last);
+                } else {
+                    o.* = 0;
+                    p += ratio;
+                    continue;
+                }
+            }
+            const k0: usize = @intFromFloat(@floor(p));
+            const fr = p - @floor(p);
+            const a = snd.getSample(n.buffer_id, k0, @intCast(use_ch));
+            const b = snd.getSample(n.buffer_id, k0 + 1, @intCast(use_ch));
+            o.* = @floatCast(a + (b - a) * fr);
+            p += ratio;
+        }
+    }
+    var p2 = n.pos_f + ratio * @as(f64, @floatFromInt(blk));
+    if (n.loop and src_frames >= 2) p2 = @mod(p2, last);
+    n.pos_f = p2;
+    n.pos = @intFromFloat(@min(@floor(p2), @as(f64, @floatFromInt(src_frames))));
+}
+
 pub fn addMix(id: i64) i64 {
     const s = slotOf(id) orelse return -1;
     return addNode(&graphs.items[s], .{ .kind = KIND_MIX });
@@ -745,6 +808,7 @@ pub fn rewind(id: i64) i32 {
     for (g.nodes.items) |*n| {
         n.phase = 0;
         n.pos = 0;
+        n.pos_f = -1;
         n.env_pos = 0;
         n.line_pos = 0;
         n.x1 = @splat(0);
@@ -808,6 +872,7 @@ fn resetSubtree(g: *Graph, idx: usize, depth: u32) void {
     const n = &g.nodes.items[idx];
     n.phase = 0;
     n.pos = 0;
+    n.pos_f = -1;
     n.env_pos = 0;
     n.line_pos = 0;
     n.x1 = @splat(0);
@@ -883,6 +948,17 @@ pub fn renderBlock(id: i64) i32 {
             KIND_SOURCE => {
                 const src_ch: usize = @intFromFloat(@max(0, snd.channelCount(n.buffer_id)));
                 const src_frames: usize = @intFromFloat(@max(0, snd.frameCount(n.buffer_id)));
+                // ACQUIRE, pairing with the release in setRate
+                const ratio = @atomicLoad(f64, &n.rate_target, .acquire);
+                if (ratio > 0 and ratio != 1.0) {
+                    renderSourceAtRate(g, n, ratio, src_ch, src_frames, nch, blk);
+                    continue;
+                }
+                // back at rate 1 after a fractional stretch: resume at the frame
+                if (n.pos_f >= 0) {
+                    n.pos = @intFromFloat(@floor(n.pos_f));
+                    n.pos_f = -1;
+                }
                 var ch: usize = 0;
                 while (ch < nch) : (ch += 1) {
                     const dst = chanSlice(g, n, ch);
@@ -1867,6 +1943,49 @@ test "MU0: a frequency ramp MOVES, ARRIVES, and keeps the phase continuous" {
     const gn = addGain(gid, osc, 1.0);
     try testing.expectEqual(BAD_ARG, setFrequency(gid, gn, 440, 0));
     try testing.expectEqual(BAD_ARG, setFrequency(gid, osc, 30000, 0));
+}
+
+test "MU1: mixInto ADDS at an offset, refuses a rate mismatch, and stops at the end" {
+    const d = snd.newSilent(100, 1, 48000);
+    defer _ = snd.free(d);
+    const s = snd.newSilent(10, 1, 48000);
+    defer _ = snd.free(s);
+    var i: usize = 0;
+    while (i < 10) : (i += 1) _ = snd.setSample(s, i, 0, 0.25);
+    try testing.expectEqual(@as(f64, 10), snd.mixInto(d, s, 20, 1.0));
+    try testing.expectEqual(@as(f64, 10), snd.mixInto(d, s, 25, 2.0)); // overlaps: ADDS
+    try testing.expectApproxEqAbs(@as(f64, 0), snd.getSample(d, 19, 0), 1e-9);
+    try testing.expectApproxEqAbs(@as(f64, 0.25), snd.getSample(d, 20, 0), 1e-6);
+    try testing.expectApproxEqAbs(@as(f64, 0.75), snd.getSample(d, 27, 0), 1e-6);
+    try testing.expectEqual(@as(f64, 5), snd.mixInto(d, s, 95, 1.0)); // five fit
+    const r = snd.newSilent(10, 1, 44100);
+    defer _ = snd.free(r);
+    try testing.expectEqual(@as(f64, -1), snd.mixInto(d, r, 0, 1.0));
+}
+
+test "MU1: a source at rate 2 sounds an octave up; rate 1 is the old path" {
+    const buf = snd.newSilent(48000, 1, 48000);
+    defer _ = snd.free(buf);
+    var i: usize = 0;
+    while (i < 48000) : (i += 1) _ = snd.setSample(buf, i, 0, @sin(2.0 * std.math.pi * 100.0 * @as(f64, @floatFromInt(i)) / 48000.0));
+    const gid = graphNew(1, 48000, 64);
+    defer _ = graphFree(gid);
+    const src = addSource(gid, buf, false);
+    _ = setOutput(gid, src);
+    try testing.expectEqual(OK, prepare(gid));
+    try testing.expectEqual(OK, setRate(gid, src, 2.0));
+    const out = renderToBuffer(gid, 9600); // 0.2 s
+    defer _ = snd.free(out);
+    var zc: usize = 0;
+    i = 1;
+    while (i < 9600) : (i += 1) {
+        if (snd.getSample(out, i - 1, 0) < 0 and snd.getSample(out, i, 0) >= 0) zc += 1;
+    }
+    // 100 Hz at twice the rate is 200 Hz: forty rising crossings in 0.2 s
+    try testing.expect(zc >= 39 and zc <= 41);
+    // refusals
+    try testing.expectEqual(BAD_ARG, setRate(gid, src, 0));
+    try testing.expectEqual(BAD_ARG, setRate(gid, src, 100));
 }
 
 test "draining faster than the producer UNDERRUNS, and the counter proves it" {

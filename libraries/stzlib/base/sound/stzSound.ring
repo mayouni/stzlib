@@ -233,6 +233,17 @@ class stzSound
 	# 16-bit by default: it is what everything reads, and SN1 measured the
 	# round-trip error at 4.18e-5, one quantum. Ask for 32 when you are
 	# handing the file back to another stage rather than to a listener.
+	# ADD another sound into this one from pnSeconds in, scaled by pnGain --
+	# notes laid on a timeline. Refused when the sample rates differ: a note
+	# mixed at the wrong rate would be a different pitch, silently.
+	def MixIn(poSound, pnSeconds, pnGain)
+		if @nBuf = 0 or NOT isObject(poSound)  return This ok
+		_at_ = floor(pnSeconds * StzEngineSoundRate(@nBuf)) + 1
+		if StzEngineSoundMixInto(@nBuf, poSound.BufferId(), _at_, pnGain) < 0
+			@cLastError = StzEngineSoundLastError()
+		ok
+		return This
+
 	def SaveAs(pcPath)
 		if @nBuf = 0  return ok
 		if StzEngineSoundSaveWav(@nBuf, pcPath, 16) != 0
