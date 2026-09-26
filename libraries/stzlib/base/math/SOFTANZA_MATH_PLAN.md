@@ -468,6 +468,35 @@ with the rim's full 23 points. Six rules joined the one gate. Gate
 later slice draws two wholes); a stacked-fraction notation ("3/4" is
 text until M1's last step); a jump that stacks over another jump.
 
+#### M1c RESULTS -- the `:Matrix` and `:ComplexPlane` figures, 2026-09-26
+
+**Shipped**: `base/math/stzMatrixFigure.ring` and `stzComplexPlaneFigure.ring`.
+`StzMathFigureQ(:Matrix, [ :product = [ A, B ], :show = [ 2, 2 ] ])` draws
+A . B = C with row 2 of A, column 2 of B and the cell they make lit --
+the one thing worth seeing in a product; `:as = :heat` colours every cell
+on one ramp across the figure, so a band shows before a number is read.
+`StzMathFigureQ(:ComplexPlane, [ :roots = [ 1, 0, 0, -1 ], :unit = TRUE ])`
+draws the engine's roots (Francis QR on the companion matrix) as hollow
+points on the unit circle and CHECKS THEM by Horner's rule in Ring -- the
+picture checks the engine, not itself; `:show = [ 3, 2 ]` draws a number's
+ray with |z| and its argument arc. Notes are solved as offsets away from
+the real axis. Six rules joined the one gate; two witnesses convicted.
+Gate `math_narrated.ring`: 155 assertions in 12 sections (about 25 s quiet
+by the earlier sections' figures; the M1c sections measured 6.7 and 6.3 s
+under load and are not yet measured quiet). Catalogue: 20 scenes, looked at.
+
+**Found while building:** one scale for both axes matters -- a unit
+circle drawn with the frame's two scales is an ellipse, so the complex
+plane takes the smaller of the two and widens its horizontal extent; a
+matrix picture and a product have no choice to make and say "nothing to
+lay out"; the "Re" name ran 2.56 px past the canvas margin, an on-canvas
+violation the solver reported although the name is a placed shape --
+margins are part of the layout.
+
+**Not claimed**: exact products over the tower (M3's teaching path);
+the branch cut of complex log (not in the library, M5); a polynomial of
+degree over twelve.
+
 ### M2 -- Motion
 
 **Deliverable**: `stzMathMotion`: `Param(name, from, to)` re-solves a figure

@@ -478,9 +478,9 @@ chkeq("NEGATIVE: the three lawful fraction pictures raise no finding", oFRep.Num
 
 #---------------------------------------------------------------------------
 
-sec("-- 10. THE ENTRY OBJECT KNOWS THREE KINDS ------------------------------")
+sec("-- 10. THE ENTRY OBJECT KNOWS ITS KINDS --------------------------------")
 
-chkeq("the kinds are function, numberline and fraction", len(StzMathFigureKinds()), 3)
+chkeq("the kinds are function, numberline, fraction, matrix and complexplane", len(StzMathFigureKinds()), 5)
 chk("a number line's Why says what it holds", StzFindFirst("6 point(s)", oN8.Why()) > 0 and StzFindFirst("1 jump(s)", oN8.Why()) > 0)
 chk("a fraction's Why says what is shaded", StzFindFirst("3 of 4 shaded", oF10.Why()) > 0)
 bRef = FALSE
@@ -490,6 +490,108 @@ catch
 	bRef = TRUE
 done
 chk("a :Function reader on a number line is refused by name", bRef)
+
+#---------------------------------------------------------------------------
+
+sec("-- 11. A MATRIX: A PRODUCT IS A PICTURE OF HOW EVERY CELL IS MADE -----")
+
+oM2 = StzMathFigureQ(:Matrix, [ :product = [ [ [ 1, 2 ], [ 3, 4 ] ], [ [ 5, 6 ], [ 7, 8 ] ] ] ])
+oM2.Layout()
+chk("a 2 x 2 product is lawful, with nothing to lay out", oM2.IsSolved() and oM2.Diagram().NumberOfUnknowns() = 0)
+oSM = oM2.Substance()
+# the product typed by hand, not computed: [ 19 22 ; 43 50 ]
+chk("the product's cells are 19, 22, 43, 50 -- typed here, computed there",
+    oSM.DataOf("c1_1", "v") = 19 and oSM.DataOf("c1_2", "v") = 22 and oSM.DataOf("c2_1", "v") = 43 and oSM.DataOf("c2_2", "v") = 50)
+chk("and every cell's text is its value", oSM.LabelOf("c2_1") = "43")
+oM15 = StzMathFigScene15()
+oM15.Layout()
+chk("scene 30's product is lawful", oM15.IsSolved())
+oS15 = oM15.Substance()
+chkeq("three grids hold 12 + 12 + 9 cells", oS15.DataOf("fig", "cells"), 33)
+nLit = 0
+acC = oS15.ObjectsOfType("Cell")
+for i = 1 to len(acC)
+	if oS15.Holds("Lit", [ acC[i] ])  nLit++  ok
+next
+chkeq("row 2 of A, column 2 of B and their cell are lit: 4 + 4 + 1", nLit, 9)
+chk("the lit cell of the product is 2*0 + 8*2 + 1*3 + 8*2 = 35", oS15.DataOf("c2_2", "v") = 35 and oS15.Holds("Lit", [ "c2_2" ]))
+cSvg15 = oM15.ToSVG()
+chk("a cell is a named element to a consumer", len(StzFindCS('id="c2_2" class="rect', cSvg15, TRUE)) = 1)
+oM16 = StzMathFigScene16()
+oM16.Layout()
+oS16 = oM16.Substance()
+chk("the heat form puts the least value at 0 on the ramp and the greatest at 1",
+    oS16.DataOf("a1_3", "t") = 0 and oS16.DataOf("a1_1", "t") = 1 and fabs(oS16.DataOf("a1_2", "t") - 0.25) < 0.000001)
+chk("a product of mismatched sizes is refused with the numbers",
+    _MgRefusesKindSpec(:Matrix, [ :product = [ [ [ 1, 2, 3 ] ], [ [ 1, 2 ] ] ] ], "needs them equal"))
+chk("a ragged matrix is refused", _MgRefusesKindSpec(:Matrix, [ :of = [ [ 1, 2 ], [ 3 ] ] ], "rectangular"))
+chk("a cell to show that the product lacks is refused", _MgRefusesKindSpec(:Matrix, [ :product = [ [ [ 1 ] ], [ [ 2 ] ] ], :show = [ 2, 1 ] ], "no cell"))
+chk("NEGATIVE: the lawful forms are accepted", NOT _MgRefusesKindSpec(:Matrix, [ :of = [ [ 1 ] ], :as = :heat ], ""))
+oMW = StzMathFigMatrixWitness()
+oMWRep = StzCheckPictures([ [ "matrix/witness", oMW.Diagram() ] ])
+acMr = []
+aMf = oMWRep.Findings()
+for i = 1 to len(aMf)  acMr + ("" + aMf[i][:rule])  next
+chk("the witness's cell of 999 is found by product_cell_is_the_dot_product", _MgHas(acMr, "product_cell_is_the_dot_product"))
+chk("its five rows of B are found by dimensions_agree", _MgHas(acMr, "dimensions_agree"))
+chk("and by grid_holds_its_cells, since B holds twelve cells and says fifteen", _MgHas(acMr, "grid_holds_its_cells"))
+chkeq("NEGATIVE: exactly one cell is wrong", _MgCount(acMr, "product_cell_is_the_dot_product"), 1)
+oMRep = StzCheckPictures([ [ "matrix/2x2", oM2.Diagram() ], [ "matrix/15", oM15.Diagram() ], [ "matrix/16", oM16.Diagram() ] ])
+chkeq("NEGATIVE: the three lawful matrix pictures raise no finding", oMRep.NumberOfFindings(), 0)
+
+#---------------------------------------------------------------------------
+
+sec("-- 12. THE COMPLEX PLANE: A ROOT IS CHECKED WHERE IT IS DRAWN ----------")
+
+oC17 = StzMathFigScene17()
+oC17.Layout()
+chk("the cube roots of one are lawful", oC17.IsSolved())
+oS17 = oC17.Substance()
+chkeq("three roots were drawn", oS17.DataOf("fr", "points"), 3)
+# the roots, known independently: 1, and -1/2 +- i sqrt(3)/2
+bR = TRUE
+nHalf3 = sqrt(3) / 2
+acP = oS17.ObjectsOfType("Point")
+bOne = FALSE  bUp = FALSE  bDown = FALSE
+for i = 1 to len(acP)
+	re = oS17.DataOf(acP[i], "re")  im = oS17.DataOf(acP[i], "im")
+	if fabs(re - 1) < 0.000000001 and fabs(im) < 0.000000001  bOne = TRUE  ok
+	if fabs(re + 0.5) < 0.000000001 and fabs(im - nHalf3) < 0.000000001  bUp = TRUE  ok
+	if fabs(re + 0.5) < 0.000000001 and fabs(im + nHalf3) < 0.000000001  bDown = TRUE  ok
+	# and every one is on the unit circle
+	if fabs(re * re + im * im - 1) > 0.000000001  bR = FALSE  ok
+next
+chk("they are 1 and -1/2 +- i sqrt(3)/2, to 1e-9", bOne and bUp and bDown)
+chk("and every one lies on the unit circle", bR)
+# THE CHECK OF THE ENGINE: Horner in Ring at each root, on the coefficients
+bH = TRUE
+for i = 1 to len(acP)
+	if _CpHorner(oS17, oS17.DataOf(acP[i], "re"), oS17.DataOf(acP[i], "im")) > 0.000000001  bH = FALSE  ok
+next
+chk("z^3 - 1 is under 1e-9 in modulus at each, by Horner's rule in Ring", bH)
+chk("the unit circle is drawn as a named element", len(StzFindCS('id="unit"', oC17.ToSVG(), TRUE)) = 1)
+chk("the notes read as complex numbers: '-0.5 + 0.866i'", _MgLabelExists(oS17, "-0.5 + 0.866i"))
+oC18 = StzMathFigScene18()
+oC18.Layout()
+chk("z = 3 + 2i with its conjugate is lawful", oC18.IsSolved())
+oS18 = oC18.Substance()
+chk("the ray reads |z| = 3.606 -- sqrt(13) to three places", oS18.LabelOf("ray") = "|z| = 3.606")
+chk("the arc reads arg z = 33.7 deg", oS18.LabelOf("arc") = "arg z = 33.7 deg")
+chk("the modulus datum is sqrt(13) to 1e-12", fabs(oS18.DataOf("ray", "mod") - sqrt(13)) < 0.000000000001)
+chk("a degree-zero polynomial is refused", _MgRefusesKindSpec(:ComplexPlane, [ :roots = [ 5 ] ], "no root"))
+chk("a leading zero is refused", _MgRefusesKindSpec(:ComplexPlane, [ :roots = [ 0, 1, 2 ] ], "leading coefficient"))
+chk("a point to show that is not drawn is refused", _MgRefusesKindSpec(:ComplexPlane, [ :points = [ [ 1, 1 ] ], :show = [ 2, 2 ] ], "not one of"))
+chk("NEGATIVE: the lawful forms are accepted", NOT _MgRefusesKindSpec(:ComplexPlane, [ :points = [ [ 1, 1, "w" ] ], :roots = [ 1, 0, 1 ], :unit = TRUE, :show = [ 1, 1 ] ], ""))
+oCW = StzMathFigComplexWitness()
+oCWRep = StzCheckPictures([ [ "complex/witness", oCW.Diagram() ] ])
+acCr = []
+aCf = oCWRep.Findings()
+for i = 1 to len(aCf)  acCr + ("" + aCf[i][:rule])  next
+chk("the moved root is found by root_is_a_root", _MgHas(acCr, "root_is_a_root"))
+chk("and by conjugates_pair, twice -- it lost its mirror and its mirror lost it", _MgCount(acCr, "conjugates_pair") = 2)
+chkeq("NEGATIVE: exactly one point is no root", _MgCount(acCr, "root_is_a_root"), 1)
+oCRep = StzCheckPictures([ [ "complex/17", oC17.Diagram() ], [ "complex/18", oC18.Diagram() ] ])
+chkeq("NEGATIVE: the two lawful planes raise no finding", oCRep.NumberOfFindings(), 0)
 
 #---------------------------------------------------------------------------
 
@@ -539,6 +641,13 @@ func _MgRefuses aSpec, cWords
 	if NOT _b_  return FALSE  ok
 	if cWords = ""  return TRUE  ok
 	return StzFindFirst(cWords, _c_) > 0
+
+func _MgLabelExists oS, cLabel
+	_aD_ = oS.Definitions()
+	for _i_ = 1 to len(_aD_)
+		if oS.LabelOf(_aD_[_i_][1]) = cLabel  return TRUE  ok
+	next
+	return FALSE
 
 func _MgRefusesKindSpec cKind, aSpec, cWords
 	_b_ = FALSE
