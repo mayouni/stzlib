@@ -36,6 +36,7 @@ const std = @import("std");
 const builtin = @import("builtin");
 // the seam both tiers render from -- see sounddsp.zig's header
 const dsp = @import("sounddsp.zig");
+const ins = @import("soundinstr.zig");
 
 const c = @cImport({
     @cDefine("MA_NO_DEVICE_IO", "1");
@@ -364,6 +365,47 @@ pub fn pluckOf(hz: f64, rate: u32, seconds: f64, decay: f64) i64 {
     return adopt(data, need, 1, rate);
 }
 
+/// MU1: one note of an instrument, as an ordinary buffer. The arithmetic is the
+/// seam's (soundinstr.zig); this is the allocation, and the scratch the
+/// instrument uses to listen to itself while it tunes.
+pub fn noteOf(inst: u32, hz: f64, hz_end: f64, hold: f64, vel: f64, variant: u32, rate: u32) i64 {
+    const need = ins.noteFrames(inst, rate, hold);
+    if (need == 0) {
+        bump(CTR_REFUSALS, 1);
+        setErr(ins.reasonText(if (inst >= ins.count()) ins.R_UNKNOWN else ins.R_ARGS));
+        return 0;
+    }
+    const data = alloc.alloc(f32, need) catch {
+        setErr("out of memory allocating a note");
+        return 0;
+    };
+    const scr = alloc.alloc(f32, ins.scratchFrames(rate)) catch {
+        alloc.free(data);
+        setErr("out of memory allocating a note's tuning scratch");
+        return 0;
+    };
+    defer alloc.free(scr);
+    if (ins.renderNote(inst, hz, hz_end, hold, vel, variant, rate, data, scr) == 0) {
+        alloc.free(data);
+        bump(CTR_REFUSALS, 1);
+        setErr(ins.reasonText(ins.last_reason));
+        return 0;
+    }
+    return adopt(data, need, 1, rate);
+}
+
+/// The pitch of a mono buffer from `from`, by the harmonic instrument (a
+/// normalised period search, octave-guarded) or, with `spectral`, by the
+/// spectral one -- for drums and bars, whose partials are not harmonic.
+/// 0 when the buffer is stale, not mono, too short, or has no such pitch.
+pub fn measurePitchOf(id: i64, from: usize, hz_guess: f64, spectral: bool) f64 {
+    const s = slotOf(id) orelse return 0;
+    const b = bufs.items[s];
+    if (b.channels != 1) return 0;
+    if (spectral) return ins.peakHz(b.data[0..b.frames], b.rate, from, 16384, hz_guess, 0.06);
+    return ins.measureHz(b.data[0..b.frames], b.rate, from, hz_guess);
+}
+
 // ---------------------------------------------------------------- accessors
 
 pub fn frameCount(id: i64) f64 {
@@ -391,6 +433,41 @@ pub fn duration(id: i64) f64 {
 /// One sample. Frame and channel are 0-BASED here: this is the engine side, and
 /// the house law is that engine bridges are 0-based while Ring faces are
 /// 1-based and translate at the face.
+/// MU1: ADD `src` into `dst` from frame `at`, scaled by `gain` -- the offline
+/// mix a demo needs to lay notes on a timeline, and the primitive MU2's
+/// scheduler will render scores with. Rates must match (refused otherwise: a
+/// note mixed at the wrong rate is a different pitch, silently). Channels
+/// match, or a mono source is added to every channel. Frames past the end of
+/// `dst` are not written. Returns the frames mixed, or -1 when refused.
+pub fn mixInto(dst: i64, src: i64, at: usize, gain: f64) f64 {
+    const sd = slotOf(dst) orelse return -1;
+    const ss = slotOf(src) orelse return -1;
+    const d = bufs.items[sd];
+    const s = bufs.items[ss];
+    if (d.rate != s.rate) {
+        bump(CTR_REFUSALS, 1);
+        setErr("mixInto: the two sounds have different sample rates -- resample first");
+        return -1;
+    }
+    if (s.channels != d.channels and s.channels != 1) {
+        bump(CTR_REFUSALS, 1);
+        setErr("mixInto: channel counts differ and the source is not mono");
+        return -1;
+    }
+    if (at >= d.frames) return 0;
+    const n = @min(s.frames, d.frames - at);
+    const g: f32 = @floatCast(gain);
+    var f: usize = 0;
+    while (f < n) : (f += 1) {
+        var ch: usize = 0;
+        while (ch < d.channels) : (ch += 1) {
+            const sv = if (s.channels == 1) s.data[f] else s.data[f * s.channels + ch];
+            d.data[(at + f) * d.channels + ch] += g * sv;
+        }
+    }
+    return @floatFromInt(n);
+}
+
 pub fn getSample(id: i64, frame: usize, ch: u32) f64 {
     const s = slotOf(id) orelse return 0;
     const b = bufs.items[s];
