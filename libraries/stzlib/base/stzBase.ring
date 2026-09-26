@@ -923,6 +923,8 @@ load "geo/stzGeoProcess.ring"
     # diagram system -- one domain file per figure kind, loaded after
     # graph/stzMathDiagram.ring, and one entry object, stzMathFigure
     load "math/stzFunctionFigure.ring"
+    load "math/stzNumberLineFigure.ring"
+    load "math/stzFractionFigure.ring"
     load "math/stzMathFigure.ring"
 
     # refine/ -- REFINEMENT PROGRAMMING (R6): stzPolyCode comes home --

@@ -79,8 +79,54 @@ func StzMathFigWitnessMarks(poFigure)
 	next
 	return [ _cZ_, _cE_ ]
 
+#-- M1b: the :NumberLine and :Fraction figures ----------------------------
+
+# a number line a child reads: four numbers placed, one of them named, and
+# a jump of three from 2 to 5
+func StzMathFigScene08()
+	return StzMathFigureQ(:NumberLine, [ :on = [ -5, 10 ], :points = [ 3, -2, 7.5, [ 0.5, "half" ] ],
+		:jumps = [ [ 2, 5 ] ], :label = "the numbers from -5 to 10, and 2 + 3" ])
+
+# a backward jump: 9 - 5 lands on 4
+func StzMathFigScene09()
+	return StzMathFigureQ(:NumberLine, [ :on = [ 0, 12 ], :jumps = [ [ 9, 4 ] ], :step = 1,
+		:label = "9 - 5 = 4" ])
+
+# three of four, as a bar
+func StzMathFigScene10()
+	return StzMathFigureQ(:Fraction, [ :of = [ 3, 4 ], :label = "three of four" ])
+
+# four fractions compared as bars: 2/4 and 1/2 END at the same place
+func StzMathFigScene11()
+	return StzMathFigureQ(:Fraction, [ :compare = [ [ 3, 4 ], [ 2, 3 ], [ 2, 4 ], [ 1, 2 ] ],
+		:label = "which is more?" ])
+
+# three of eight and one of four, as discs
+func StzMathFigScene12()
+	return StzMathFigureQ(:Fraction, [ :compare = [ [ 3, 8 ], [ 1, 4 ] ], :as = :disc,
+		:label = "three of eight, one of four" ])
+
+# THE NUMBER LINE WITNESS: the jump's difference tampered, and a point's
+# place moved past its neighbour -- the rules must find both
+func StzMathFigNumberLineWitness()
+	_o_ = StzMathFigScene08()
+	_o_.Layout()
+	_o_.SetDatum("j1", "d", 4)
+	_oS_ = _o_.Substance()
+	_o_.SetDatum("p3", "x", _oS_.DataOf("p4", "x") + 30)
+	return _o_
+
+# THE FRACTION WITNESS: the numerator's datum says two while three parts
+# are shaded, the denominator's says five while four are cut
+func StzMathFigFractionWitness()
+	_o_ = StzMathFigScene10()
+	_o_.Layout()
+	_o_.SetDatum("w1", "n", 2)
+	_o_.SetDatum("w1", "d", 5)
+	return _o_
+
 func StzMathFigSceneCount()
-	return 7
+	return 14
 
 func StzMathFigSceneTitles()
 	return [ "THE CARDINAL SINE                (zeros at every multiple of pi, extrema where tan x = x; twelve notes solved)",
@@ -89,7 +135,14 @@ func StzMathFigSceneTitles()
 	         "A THREE-PETAL ROSE               (polar: r = cos 3t; nothing to solve)",
 	         "A HYPERBOLA WITH ITS POLE        (y = 1/x breaks at 0; the window bounds it; nothing to solve)",
 	         "THE TANGENT FUNCTION             (three pieces; the sign change across a pole is NOT a zero)",
-	         "THE WITNESS, THREE THINGS WRONG  (a zero between same-sign samples, an extremum with no turn, a note out of reach)" ]
+	         "THE WITNESS, THREE THINGS WRONG  (a zero between same-sign samples, an extremum with no turn, a note out of reach)",
+	         "A NUMBER LINE                    (M1b: four numbers placed, one named, and 2 + 3 as a jump; notes solved)",
+	         "A BACKWARD JUMP                  (9 - 5 lands on 4; the arc reads leftwards)",
+	         "THREE OF FOUR                    (a fraction as a bar: three shaded parts of four equal ones -- count them)",
+	         "WHICH IS MORE?                   (four bars share one width, so 2/4 and 1/2 end at the same pixel; verdicts cross-multiplied)",
+	         "THREE OF EIGHT, ONE OF FOUR      (as discs: wedges are polygons from the centre round the rim)",
+	         "THE NUMBER LINE, TWO THINGS WRONG (a jump printing + 4 that lands 3 away, a point drawn past its neighbour)",
+	         "THE FRACTION, TWO THINGS WRONG   (a numerator of two over three shaded parts, a denominator of five over four cut)" ]
 
 func StzMathFigScene(pnI)
 	if pnI = 1  return StzMathFigScene01()  ok
@@ -98,4 +151,11 @@ func StzMathFigScene(pnI)
 	if pnI = 4  return StzMathFigScene04()  ok
 	if pnI = 5  return StzMathFigScene05()  ok
 	if pnI = 6  return StzMathFigScene06()  ok
-	return StzMathFigWitness()
+	if pnI = 7  return StzMathFigWitness()  ok
+	if pnI = 8  return StzMathFigScene08()  ok
+	if pnI = 9  return StzMathFigScene09()  ok
+	if pnI = 10  return StzMathFigScene10()  ok
+	if pnI = 11  return StzMathFigScene11()  ok
+	if pnI = 12  return StzMathFigScene12()  ok
+	if pnI = 13  return StzMathFigNumberLineWitness()  ok
+	return StzMathFigFractionWitness()
