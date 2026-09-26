@@ -918,6 +918,13 @@ load "geo/stzGeoProcess.ring"
     load "education/stzTutor.ring"
     load "education/stzEduReader.ring"
 
+    # math/ -- THE MATHEMATICS PLANE (plane stzlib-math, base/math/CHARTER.md):
+    # a figure is DECLARED, COMPUTED by the engine, then SOLVED by the math
+    # diagram system -- one domain file per figure kind, loaded after
+    # graph/stzMathDiagram.ring, and one entry object, stzMathFigure
+    load "math/stzFunctionFigure.ring"
+    load "math/stzMathFigure.ring"
+
     # refine/ -- REFINEMENT PROGRAMMING (R6): stzPolyCode comes home --
     # code carries typed refinement points; a change is a typed proposal
     # through the gate, with cascade preview + reversibility.

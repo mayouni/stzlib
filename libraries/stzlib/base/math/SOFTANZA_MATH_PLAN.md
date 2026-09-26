@@ -383,6 +383,52 @@ is looked at on the author's machine and never asserted, because `ToPNG`
 needs a device), and a wrong declaration is refused by name. **Not claimed**:
 a CPU rasterizer; PNG parity; anything on Linux or macOS.
 
+#### M1a RESULTS -- the `:Function` figure, 2026-09-26
+
+**Shipped**: `base/math/stzFunctionFigure.ring` (the domain, the builder,
+the style, three rules registered into the one gate), `base/math/stzMathFigure.ring`
+(the entry object, `StzMathFigureQ(kind, spec)`), the load block in
+`stzBase.ring`, and `base/test/math/` (scenes, catalogue, gate, two probes,
+the byte expectation, fourteen pictures light and dark). `:Function` takes
+the explicit, parametric and polar forms; zeros, extrema and given points
+are found on the tape and refined by bisection; a pole breaks the curve
+and a window bounds it; nine notes are solved as offsets from their marks.
+Gate `math_narrated.ring`: 73 assertions in 7 sections, about 22 s on a
+quiet machine (2.4 / 1.7 / 2.9 / 0.1 / 9.1 / 6.5 / 0.1 s per section; 94 s
+under load the same hour, which is why the per-section times are the
+measurement and the wall time is not). Catalogue: 7 scenes, looked at.
+
+**Found while building, and what each changed:**
+
+- A spline shape holds at most 64 controls (`stzMathDiagram._MintShape`),
+  so a 400-sample piece is seven runs sharing endpoints. Routed
+  `MATH-POLYLINE-01` to graphics: a data-only polyline kind.
+- From a random start the solver ran 35 penalty rounds and stuck on
+  twelve notes with sixteen chords each. A note declared as an OFFSET from
+  its own mark, started on the mark's free side (below a minimum, above
+  anything else), solves in two rounds. Where a label starts is where its
+  placement is decided; the rules were never the problem.
+- A note's centre derived from offsets is not a "free centre", so
+  `DragTo` and `Pin` refuse it; the figure moves a note through its
+  offsets (`MoveNoteTo`), writing the diagram's own slots. Routed
+  `MATH-DRAGFIELD-01` to graphics: a drag by unknown path.
+- Ring hands back a COPY when a method returns an object: a witness that
+  tampered `oF.Substance()` found nothing. Every mutation goes through the
+  figure's own methods, and the plan says so where it matters.
+- `StzFind(needle, list)` answers a list of positions, not a number,
+  against the sentence in stzlib's `CLAUDE.md`. Routed as a documentation
+  finding; the figure uses a plain loop.
+- The sign change across tan's pole is not a zero: a root is accepted only
+  where the value is small relative to its bracket; the same law on the
+  slope for an extremum.
+- The generic `name_off_ink` rule (0.5 px) placed the tick numbers: at the
+  frame edges, where the curve never goes, with the axes starting at the
+  frame edges too.
+
+**Not claimed**: notation growth (M1's last step); the render on Linux or
+macOS; PNG parity (the SVG is the byte expectation, a PNG needs a device);
+a solve under 100 ms (the cold solve of nine notes is 2.4 s, M2's concern).
+
 ### M2 -- Motion
 
 **Deliverable**: `stzMathMotion`: `Param(name, from, to)` re-solves a figure
