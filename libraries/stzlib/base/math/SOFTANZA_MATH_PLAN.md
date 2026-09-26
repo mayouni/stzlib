@@ -837,6 +837,54 @@ vocabulary in the tutor (F14); native review of fr/ar/ha.
 matrices as pictures; statistics as a language of thought; probability by
 the quantifier continuum.
 
+#### M3c RESULTS -- level L2, 2026-09-26
+
+**Shipped**: chapters 7 to 10 in four languages with one self-proving
+exercise each -- `07-a-number-that-says-why` (the exactness register:
+Ring's float says 0.1 + 0.2 is not 0.3 and prints 0.30; the exact number
+adds the same tenths to 0.3 and says `decimal`; 1/3 stops at six places
+and says "the division does not terminate in 6 decimal place(s)"; "1/3"
+stays rational and 1/3 + 2/3 is the same as 1; the big integer keeps
+9007199254740993 + 1 where the float lands on 9007199254740992),
+`08-matrices-as-pictures` (the `:Matrix` figure: a cell by its name, a
+product as three grids with the lit cell read off the figure and computed
+by hand, a dimension refusal, the heat ramp), `09-statistics-as-a-language`
+(`stzDataSet` words and the `:BoxPlot` figure saying the same numbers, the
+text rendition, the fence rule applied by hand, two groups, the standard
+deviation), `10-probability-by-the-continuum` (the quantifier continuum's
+order held on ten numbers, a seeded coin thrown a thousand times reading
+504, sixty seeded rolls counted by face, the proportion placed on a number
+line and ten rolls shaded as a fraction). Ten of fifteen chapters ship.
+
+**Gates, rerun over ten chapters**: `course_math_narrated.ring` 172 of 172 in 122 s;
+`tutor_math_narrated.ring` 64 of 64 in 38 s; `demo_math.ring` 11 proved, 0 not proved. Every
+promise of the four new chapters was written from a run.
+
+**Found**: the design page of the numeric foundation says the float path
+`StzNum(0.1).Plus(0.2)` answers inexact; the shipped number normalises a
+float through Ring's own rendering and answers exact 0.30 -- so the
+chapter shows the machine's own equals sign failing instead, which is the
+honest cell (`0.1 + 0.2 = 0.3` prints 0), and never claims the float path.
+`SquareRoot()` on "2" left the content at 2 while marking it inexact ("'sqrt'
+has no exact decimal result in general"); the chapter does not use it.
+Both are noted, not routed: the numeric plane's design page is not this
+plane's to correct, and the cells say what runs.
+
+**Found, in the runner**: a wrong answer that prints the single item of a
+promised one-item list (`30` for `[ 30 ]`) is ACCEPTED, because the
+matcher reads a list printed one item per line; the exercise's wrong
+answer was changed to print a count instead. A promise of a one-item
+list is weaker than it reads; worth a line in the education plane's
+contract (not routed: their matcher's rule is documented and deliberate).
+
+**Not claimed**: chapters 11 to 15; the bank overlay's money exercises;
+native review of fr/ar/ha.
+
+**Next**: M3d, level L3 -- money that must not lose a centime (with the
+bank overlay), an optimisation model (`.zopt`); Tukey's first look waits
+for M4 and stays planned-unwritten; then M3e, the derivative that checks
+the formula and the identity that is not a self-check.
+
 ### M4 -- Tukey, built
 
 **Deliverable**: TK0-TK6 as `SOFTANZA_TUKEY_PLAN.md` wrote them, with every

@@ -1,0 +1,7 @@
+knowledge "math-08-01"
+
+facts
+    math-08-01 | is-a | exercise
+    math-08-01 | in-chapter | matrices-as-pictures
+    math-08-01 | trains | pa-04
+    math-08-01 | needs-step | asks

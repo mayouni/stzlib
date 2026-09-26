@@ -14,6 +14,10 @@ facts
     math | has-chapter-04 | a-function-is-a-picture
     math | has-chapter-05 | a-family-under-a-parameter
     math | has-chapter-06 | geometry-declared-and-solved
+    math | has-chapter-07 | a-number-that-says-why
+    math | has-chapter-08 | matrices-as-pictures
+    math | has-chapter-09 | statistics-as-a-language
+    math | has-chapter-10 | probability-by-the-continuum
 
     the-number-line | is-a | chapter
     the-number-line | uses-world | school
@@ -35,3 +39,19 @@ facts
 
     geometry-declared-and-solved | is-a | chapter
     geometry-declared-and-solved | has-exercise | math-06-01
+
+    a-number-that-says-why | is-a | chapter
+    a-number-that-says-why | uses-world | school
+    a-number-that-says-why | has-exercise | math-07-01
+
+    matrices-as-pictures | is-a | chapter
+    matrices-as-pictures | uses-world | school
+    matrices-as-pictures | has-exercise | math-08-01
+
+    statistics-as-a-language | is-a | chapter
+    statistics-as-a-language | uses-world | school
+    statistics-as-a-language | has-exercise | math-09-01
+
+    probability-by-the-continuum | is-a | chapter
+    probability-by-the-continuum | uses-world | school
+    probability-by-the-continuum | has-exercise | math-10-01
