@@ -79,6 +79,45 @@ class stzScore
 	def NoteQ(pNote, pnBeats)
 		return This.Note(pNote, pnBeats)
 
+	# MU3: a note at an explicit beat, for a score built from a pattern. It
+	# does not move where the next Note() goes; the length grows to cover it.
+	def NoteAt(pnBeat, pNote, pnBeats)
+		_hz_ = pNote
+		if isString(pNote)  _hz_ = StzNoteToHz(pNote) ok
+		if NOT isNumber(_hz_) or _hz_ <= 0
+			This._Refuse("NoteAt: '" + pNote + "' is not a note name or a frequency")
+			return This
+		ok
+		if NOT isNumber(pnBeat) or pnBeat < 0
+			This._Refuse("NoteAt: a beat is 0 or later")
+			return This
+		ok
+		if NOT This._GoodBeats(pnBeats, "NoteAt")  return This ok
+		@aEvents + [ pnBeat, pnBeats, _hz_, @cOn, @nVelocity, "" ]
+		if pnBeat + pnBeats > @nBeats  @nBeats = pnBeat + pnBeats ok
+		return This
+
+	def StrokeAt(pnBeat, pStroke, pnBeats)
+		_s_ = lower("" + pStroke)
+		if ring_find([ "dum", "tak", "ka", "kick", "snare", "hihat", "hat" ], _s_) = 0
+			This._Refuse("StrokeAt: '" + pStroke + "' is not a stroke")
+			return This
+		ok
+		if NOT isNumber(pnBeat) or pnBeat < 0
+			This._Refuse("StrokeAt: a beat is 0 or later")
+			return This
+		ok
+		if NOT This._GoodBeats(pnBeats, "StrokeAt")  return This ok
+		@aEvents + [ pnBeat, pnBeats, 0, @cOn, @nVelocity, _s_ ]
+		if pnBeat + pnBeats > @nBeats  @nBeats = pnBeat + pnBeats ok
+		return This
+
+	# The length in beats, set outright -- a pattern's cycles end where they
+	# end, whatever their last note does.
+	def SetLength(pnBeats)
+		if isNumber(pnBeats) and pnBeats >= 0  @nBeats = pnBeats ok
+		return This
+
 	def Rest(pnBeats)
 		if NOT This._GoodBeats(pnBeats, "Rest")  return This ok
 		@nBeats += pnBeats
@@ -546,6 +585,11 @@ class stzScoreRenderer
 			if _end_ > @nEndFrame  @nEndFrame = _end_ ok
 		next
 		@nSeconds = (clock() - _t0_) / clockspersecond()
+
+	# MU3: one note's buffer, rendered once -- the live loops ask for notes
+	# one at a time. [ start, beats, hz, instrument, velocity, stroke ]
+	def BufferFor(paEvent)
+		return This._BufferFor(paEvent)
 
 	def _BufferFor(paEvent)
 		_inst_ = paEvent[4]

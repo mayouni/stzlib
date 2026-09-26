@@ -465,6 +465,25 @@ fn ring_GraphTimelinePlace(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(gph.timelinePlace(id(p, 1), nodeIn(p, 2), id(p, 3), f0, gn(p, 5))));
 }
 
+// MU3: PlaceTagged(graph, node, buffer, frame1, gain, tag) -- a tag names a live
+// loop; Cancel(graph, node, tag, frame1) withdraws that loop's notes asked for
+// frame1 or later that have not started. Frames 1-based, as Place's are.
+fn ring_GraphTimelinePlaceTagged(p: *anyopaque) callconv(.c) void {
+    const f1 = gn(p, 4);
+    const f0: f64 = if (f1 < 1) -1 else f1 - 1;
+    const tg = gn(p, 6);
+    const tag: u32 = if (tg < 0) 0 else @intFromFloat(tg);
+    rn(p, @floatFromInt(gph.timelinePlaceTagged(id(p, 1), nodeIn(p, 2), id(p, 3), f0, gn(p, 5), tag)));
+}
+
+fn ring_GraphTimelineCancel(p: *anyopaque) callconv(.c) void {
+    const tg = gn(p, 3);
+    const tag: u32 = if (tg < 0) 0 else @intFromFloat(tg);
+    const f1 = gn(p, 4);
+    const f0: f64 = if (f1 < 1) -1 else f1 - 1;
+    rn(p, gph.timelineCancel(id(p, 1), nodeIn(p, 2), tag, f0));
+}
+
 fn ring_GraphTimelineNow(p: *anyopaque) callconv(.c) void {
     rn(p, gph.timelineNow(id(p, 1), nodeIn(p, 2)));
 }
@@ -700,6 +719,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginesoundgraphaddtimeline", .func = &ring_GraphAddTimeline },
     .{ .name = "stzenginesoundgraphtimelineplace", .func = &ring_GraphTimelinePlace },
     .{ .name = "stzenginesoundgraphtimelinenow", .func = &ring_GraphTimelineNow },
+    .{ .name = "stzenginesoundgraphtimelineplacetagged", .func = &ring_GraphTimelinePlaceTagged },
+    .{ .name = "stzenginesoundgraphtimelinecancel", .func = &ring_GraphTimelineCancel },
     .{ .name = "stzenginesoundgraphtimelinecounter", .func = &ring_GraphTimelineCounter },
 
     // the recorder (SN4)
