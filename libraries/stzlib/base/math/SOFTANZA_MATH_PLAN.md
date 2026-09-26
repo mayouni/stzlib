@@ -981,6 +981,35 @@ near 1 (`:663-676`); no p-value, interval or forecast anywhere in the tier
 (`:313-314`); the pictures are looked at. **Routed or ruled**: decision 7
 (who owns `eda.zig`). **Not claimed**: TK6's panel before the GUI's G5.
 
+#### M4a RESULTS -- TK0 and TK1, the resistant core, 2026-09-26
+
+**Shipped**: `engine/src/eda.zig` (the Tukey tier's numerics in the
+`stz_stats` DLL, owned by this plane under decision 7), nine bridge calls,
+and `base/math/stzTukey.ring` with four faces: `stzTukeySummary`,
+`stzTukeyFit` (two-way median polish), `stzTukeyOneWay`, `stzTukeyLine`.
+Gate `base/test/math/tukey_narrated.ring` 52 of 52. Full results, with the
+three kill criteria scored, in `base/stats/SOFTANZA_TUKEY_PLAN.md` under
+`TK0 RESULTS` and `TK1 RESULTS`.
+
+**The three kill criteria**: R's `medpolish` example reproduced to 1e-9
+(met; R absent here, the transcription confirmed by an independent NumPy
+route); the two hinge conventions differ by up to 0.21 fourth-spreads, so
+both ship and every display names its own (the plan's simplification did
+not apply); the 1000 x 1000 polish runs in 46 ms single-threaded after
+quickselect, nine times over the 5 ms bar the plan predicted it would
+clear -- the prediction was wrong, and the acceleration question is closed
+by judgement at 46 ms, with the number recorded so the ruling can be argued.
+
+**Not shipped, and why**: the smoother family and the N-way polish wait
+for R's outputs (`MATH-R-ORACLE-01`, routed to the author); TK2
+re-expression, TK3 displays (as figures of M1), TK4 verdicts, TK5 the
+story, and chapter 13 follow.
+
+**Next**: M4b -- TK2, re-expression measured: spread-versus-level,
+comparison values, the ladder in one crossing, the recommendation as a
+verdict with its slope; the synthetic multiplicative and additive tables
+as the oracles, the additive one the negative that matters more.
+
 ### M5 -- Deepen the core (routed)
 
 Requests, each with the oracle and the picture that would prove it, to the
