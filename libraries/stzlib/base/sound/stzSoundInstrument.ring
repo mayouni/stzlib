@@ -3,15 +3,15 @@
 #  MU1 of SOFTANZA_MUSIC_PLAN.md.                                            #
 #---------------------------------------------------------------------------#
 #
-#     oOud = StzInstrumentQ(:Oud)
+#     oOud = StzSoundInstrumentQ(:Oud)
 #     oNote = oOud.ToSoundOfNote("D4", 1.0)          # a stzSound, in tune to the cent
 #     oOud.ToSoundOf(293.66, 1.0)                    # the same note, in Hz
 #     oOud.ToSoundOfNote("E4-50", 1.0)               # a quarter tone below E4
 #
-#     StzInstrumentQ(:Kalangu).ToSoundOfGlide(150, 220, 0.8)     # a drum whose pitch moves
-#     StzInstrumentQ(:Darbouka).ToSoundOfStroke(:Tak, 180, 0.5)  # centre or rim
+#     StzSoundInstrumentQ(:Kalangu).ToSoundOfGlide(150, 220, 0.8)     # a drum whose pitch moves
+#     StzSoundInstrumentQ(:Darbouka).ToSoundOfStroke(:Tak, 180, 0.5)  # centre or rim
 #
-#     StzInstruments()                               # the twenty, by name
+#     StzSoundInstruments()                               # the twenty, by name
 #
 # ── WHAT A NOTE IS HERE ────────────────────────────────────────────────────
 #
@@ -37,11 +37,11 @@
 # :DarkPluck, :Piano to :HammeredString -- so the fallback is a decision already
 # made, not a negotiation after a disappointing listen.
 
-func StzInstrumentQ(pName)
-	return new stzInstrument(pName)
+func StzSoundInstrumentQ(pName)
+	return new stzSoundInstrument(pName)
 
 # The twenty, in the plan's order.
-func StzInstruments()
+func StzSoundInstruments()
 	_a_ = []
 	if NOT StzSoundEngineLoaded()  return _a_ ok
 	for _i_ = 1 to StzEngineSoundInstrumentCount()
@@ -100,7 +100,7 @@ func StzNoteToHz(pcNote)
 	_semis_ = _n_ + 12 * ((0 + _oct_) - 4) + _cents_ / 100
 	return 440 * pow(2, _semis_ / 12)
 
-class stzInstrument
+class stzSoundInstrument
 
 	@nId = 0
 	@cName = ""
@@ -120,7 +120,7 @@ class stzInstrument
 		if _i_ = 0
 			@nRefusals++
 			@cLastError = "no instrument named '" + pName + "' -- this engine has: " +
-			              This._Joined(StzInstruments())
+			              This._Joined(StzSoundInstruments())
 			return
 		ok
 		@nId = _i_

@@ -3,7 +3,7 @@
 #  on the next cycle, never in the middle of one (MU3)                       #
 #---------------------------------------------------------------------------#
 #
-#     oL = StzLiveQ(120)                         # a cycle is one bar: 4 beats
+#     oL = StzSoundLiveQ(120)                         # a cycle is one bar: 4 beats
 #     oL.LiveLoop(:beat, "bd hh sn hh")          # the drum names itself
 #     oL.LiveLoopOn(:tune, "c5 e5 g5 e5", :Harp)
 #     oL.WaitCycles(4)                           # it plays; this returns after 4
@@ -43,28 +43,28 @@
 # `_me_` and fails with "uninitialized variable" the first time it fires --
 # found by MU3, and routed rather than changed here.)
 
-$aStzLiveSessions = []
+$aStzSoundLiveSessions = []
 
-func StzLiveQ(pnBpm)
-	_o_ = new stzLive()     # WITH the parentheses: bare "new stzLive" does not run init
+func StzSoundLiveQ(pnBpm)
+	_o_ = new stzSoundLive()     # WITH the parentheses: bare "new stzSoundLive" does not run init
 	_o_.SetTempo(pnBpm)
 	return _o_
 
 # The one function a reactive timer calls: every session that asked to be
 # driven gets one tick.
-func StzLiveTickAll()
-	for _p_ in $aStzLiveSessions
+func StzSoundLiveTickAll()
+	for _p_ in $aStzSoundLiveSessions
 		pointer2object(_p_).Tick()
 	next
 
-class stzLive
+class stzSoundLive
 
 	@nTempo = 120
 	@nRate = 48000
 	@nCh = 2
 	@nRing = 16384
 	@cDefault = "piano"
-	@oClock = NULL          # a stzScore used only for its FrameOf -- one arithmetic
+	@oClock = NULL          # a stzSoundScore used only for its FrameOf -- one arithmetic
 	@oR = NULL              # the renderer: each distinct note once
 	@oGraph = NULL
 	@nTl = 0
@@ -93,8 +93,8 @@ class stzLive
 	@nUnderruns = 0         # on a device: frames the card asked for and did not get
 
 	def init()
-		@oClock = StzScoreQ()
-		@oR = new stzScoreRenderer(@oClock)
+		@oClock = StzSoundScoreQ()
+		@oR = new stzSoundScoreRenderer(@oClock)
 
 	#-- settings ------------------------------------------------------------
 
@@ -115,7 +115,7 @@ class stzLive
 		@oClock.Tempo(pnBpm)
 		# A NEW renderer: Ring COPIES an object handed to init, so the old
 		# renderer holds its own clock and would never see this tempo
-		@oR = new stzScoreRenderer(@oClock)
+		@oR = new stzSoundScoreRenderer(@oClock)
 		return This
 
 	def Tempo()
@@ -165,7 +165,7 @@ class stzLive
 		return This.LiveLoopOn(pName, pcPattern, "")
 
 	def LiveLoopOn(pName, pcPattern, pInstrument)
-		_oP_ = StzPatternQ(pcPattern)
+		_oP_ = StzSoundPatternQ(pcPattern)
 		if NOT _oP_.IsValid()
 			This._Refuse("Loop " + pName + ": " + _oP_.LastError())
 			return -1
@@ -175,7 +175,7 @@ class stzLive
 	# A loop given a pattern object -- one already transformed by the algebra.
 	def LiveLoopOf(pName, poPattern, pInstrument)
 		if NOT isObject(poPattern) or NOT poPattern.IsValid()
-			This._Refuse("LiveLoopOf: needs a valid stzPattern")
+			This._Refuse("LiveLoopOf: needs a valid stzSoundPattern")
 			return -1
 		ok
 		return This._Define(lower("" + pName), poPattern, "" + pInstrument)
@@ -309,7 +309,7 @@ class stzLive
 		return This
 
 	# The reactive plane drives it instead: one timer, every 20 ms, for every
-	# session registered -- see StzLiveTickAll above for why it is global.
+	# session registered -- see StzSoundLiveTickAll above for why it is global.
 	def DriveWith(poReactive)
 		if NOT isObject(poReactive)
 			This._Refuse("DriveWith needs a stzReactive")
@@ -318,14 +318,14 @@ class stzLive
 		if NOT @bRunning
 			if NOT This.Start()  return This ok
 		ok
-		$aStzLiveSessions + object2pointer(This)
-		poReactive.RunEvery(20, func { StzLiveTickAll() })
+		$aStzSoundLiveSessions + object2pointer(This)
+		poReactive.RunEvery(20, func { StzSoundLiveTickAll() })
 		return This
 
 	def Stop()
-		for _i_ = len($aStzLiveSessions) to 1 step -1
-			if $aStzLiveSessions[_i_] = object2pointer(This)
-				del($aStzLiveSessions, _i_)
+		for _i_ = len($aStzSoundLiveSessions) to 1 step -1
+			if $aStzSoundLiveSessions[_i_] = object2pointer(This)
+				del($aStzSoundLiveSessions, _i_)
 			ok
 		next
 		if NOT @bRunning  return This ok
@@ -449,7 +449,7 @@ class stzLive
 				ok
 			ok
 		ok
-		_oI_ = StzInstrumentQ(_inst_)
+		_oI_ = StzSoundInstrumentQ(_inst_)
 		if NOT _oI_.IsUsable()
 			This._Refuse("Loop " + pcName + ": " + _oI_.LastError())
 			return -1

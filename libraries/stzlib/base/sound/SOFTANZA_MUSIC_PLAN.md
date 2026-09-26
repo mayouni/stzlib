@@ -83,7 +83,7 @@ borrows from all of them and copies none.
 
 | system | the idea worth taking |
 |---|---|
-| **Euterpea** (Haskell) | Music as an **algebraic data type**: a primitive, or `:+:` (sequential), or `:=:` (parallel), or a modifier. Everything — a note, a chord, a symphony — is one type. Analysis and transformation are pattern-matching on it. **This is the shape of `stzScore`** |
+| **Euterpea** (Haskell) | Music as an **algebraic data type**: a primitive, or `:+:` (sequential), or `:=:` (parallel), or a modifier. Everything — a note, a chord, a symphony — is one type. Analysis and transformation are pattern-matching on it. **This is the shape of `stzSoundScore`** |
 | **Csound** | The oldest orchestra/score split, and the **score is a table of events**: instrument, start, duration, parameters. Fifty years old and still the right data model for a scheduler |
 | **LilyPond / ABC / MusicXML** | Notation is a *rendering* of a score, not the score. ABC is a one-line text format a folk musician can type; MusicXML is what every notation program exchanges. Both are outputs of the data model, never inputs to the design |
 | **Alda** | `piano: c d e f g` — notation as a typed line. Proof that text-first composition can be humane |
@@ -168,7 +168,7 @@ one pivot. For music:
     data   ◀──ANALYSE───    score        key, mode, tempo, density, contour (Music21's job)
 ```
 
-**The pivot holds, and it holds twice.** A score is a `stzScore` — data, an
+**The pivot holds, and it holds twice.** A score is a `stzSoundScore` — data, an
 ordinary object — and a rendered performance is a `stzSound`. So a score can be
 analysed before it is heard, transposed into another universe, rendered to
 notation, and the resulting sound fed to SN5's instruments or back into the
@@ -330,16 +330,16 @@ records their name and their verdict or records that nobody has listened yet.
 |---|---|---|
 | `setFrequency` / `setRate` / `currentFrequency` | per-note pitch, atomic and ramped | `soundgraph.zig`, beside `setGain`, same shape, same guard style; exported to wasm |
 | sub-block triggers | a trigger with a frame offset inside the block | `soundgraph.zig`, only if MU0 says the 10.7 ms grid is audible |
-| **`stzScore`** | Euterpea's algebra: note, rest, sequence, parallel, transform. **Data.** | `base/sound/`, the pivot object; renders to sound, notation, MIDI file |
-| **`stzPattern`** | a function of cycle time + the mini-notation parser | `base/sound/`; the string face; `Fast`, `Slow`, `Rev`, `Every`, `Off`, `Jux` as chained verbs |
-| **`stzScheduler`** | beats → frames; a queue the producer drains ahead of the ring | Zig, in the stream's producer loop, because it must be ahead of the deadline by design |
-| **`stzInstrument`** | Karplus-Strong, FM, sample, and the reed/membrane physical models — one face, four engines; the wind engine with four excitations (single reed, double reed, lip, jet) and the string engine with pluck and bow | arithmetic in `sounddsp.zig` so both tiers agree; the face in Ring |
-| **`stzUniverse`** | tuning + pitch vocabulary + movement rules + cycle + ornaments + instruments | **declared data** in `base/sound/universes/*.ring` — never code, because a tradition is not an algorithm and the author declares it |
+| **`stzSoundScore`** | Euterpea's algebra: note, rest, sequence, parallel, transform. **Data.** | `base/sound/`, the pivot object; renders to sound, notation, MIDI file |
+| **`stzSoundPattern`** | a function of cycle time + the mini-notation parser | `base/sound/`; the string face; `Fast`, `Slow`, `Rev`, `Every`, `Off`, `Jux` as chained verbs |
+| **`stzSoundScheduler`** | beats → frames; a queue the producer drains ahead of the ring | Zig, in the stream's producer loop, because it must be ahead of the deadline by design |
+| **`stzSoundInstrument`** | Karplus-Strong, FM, sample, and the reed/membrane physical models — one face, four engines; the wind engine with four excitations (single reed, double reed, lip, jet) and the string engine with pluck and bow | arithmetic in `sounddsp.zig` so both tiers agree; the face in Ring |
+| **`stzSoundUniverse`** | tuning + pitch vocabulary + movement rules + cycle + ornaments + instruments | **declared data** in `base/sound/universes/*.ring` — never code, because a tradition is not an algorithm and the author declares it |
 | **`stzMusic`** | the one-line front: `Play`, `Loop`, `In`, `Tempo`, `With` | `base/sound/`, over everything above; it is the *fun* and it owns no mechanism |
 | `stz-music.js` | the same verbs in the browser, over the same wasm | `webaudio/`; where live performance actually works |
 
 **One thing is deliberately NOT a piece: a MIDI device layer.** MIDI *file*
-export is a rendering of `stzScore` and costs a page; MIDI *hardware* is a
+export is a rendering of `stzSoundScore` and costs a page; MIDI *hardware* is a
 per-OS driver surface and is out in writing.
 
 ---
@@ -363,7 +363,7 @@ kalangu, whose identity IS the slide, are then out of MU1 until the ramp is
 click-free**. If
 (4) misses, the plan stops until the arithmetic is right.
 
-**MU1 — pitch and the instrument.** `setFrequency`, `setRate`, `stzInstrument`
+**MU1 — pitch and the instrument.** `setFrequency`, `setRate`, `stzSoundInstrument`
 with the four engines, twenty instruments across them (piano, guitar, harp,
 bell, e-piano, brass, flute, oud, koto, kora, metallophone, drum kit from
 samples, and the four Tunisian ones — mezwed and zokra on the reed model,
@@ -373,7 +373,7 @@ jet, imzad for the bow, kalangu for a membrane whose pitch moves while it
 sounds; the algaita, molo, ganga and calabash then cost nothing new). *Kill:* if a named instrument does not sound like its name to the
 author, it ships under a name that does not lie (`:PluckedString`, not `:Oud`).
 
-**MU2 — the scheduler and the score.** `stzScore` (the algebra), `stzScheduler`
+**MU2 — the scheduler and the score.** `stzSoundScore` (the algebra), `stzSoundScheduler`
 (beats to frames, ahead of the ring), tempo, quantisation, swing. A score plays
 sample-accurately. *Kill:* onset jitter > 1 ms across 200 notes at 180 BPM means
 the scheduler is not ahead of the deadline, and it is redesigned before
@@ -385,7 +385,7 @@ algebra, on `stzString`. Live loops with boundary replacement over
 speakers disagree by more than one cycle, it is not live coding and is not
 called that.
 
-**MU4 — the universes.** `stzUniverse` as declared data; eight shipped — Western
+**MU4 — the universes.** `stzSoundUniverse` as declared data; eight shipped — Western
 major/minor, Maqam Rast and Hijaz (24-TET with jins), **Tunisian ṭubūʿ — Dhīl, Sīka and
 Raṣd al-Dhīl, each with its own declared tuning rather than the maqam's, the nūba's
 five īqāʿāt, and one mezwed cycle**, **Niger — a Zarma pentatonic with declared slide
@@ -416,10 +416,10 @@ drum`. A Hausa sentence's tones — high, low, falling — become a kalangu pitc
 contour, which is `synthesise` with TEXT as the declaration, exactly the pivot the
 voice plane rests on. Kill: a Hausa speaker hears the sentence back from the drum,
 or the row is recorded as unperceived and the verb refuses with that reason.)* Data → melody in a declared universe (SS-style
-sonification that is *music*). Sound → score (pitch + onsets → `stzScore`,
+sonification that is *music*). Sound → score (pitch + onsets → `stzSoundScore`,
 confidence per note, exactly as VC3 carries confidence). Score → notation
 (ABC out, MusicXML out) and → MIDI file. *Kill:* the four transforms compose on
-one `stzScore` with no adapter, or the missing step is named as VC6 named its.
+one `stzSoundScore` with no adapter, or the missing step is named as VC6 named its.
 
 ---
 
@@ -586,7 +586,7 @@ the coarse one can promise.
 
 ### What MU0 did NOT do
 
-- **No faces.** `stzScore`, `stzPattern`, `stzInstrument`, `stzMusic` are MU1+.
+- **No faces.** `stzSoundScore`, `stzSoundPattern`, `stzSoundInstrument`, `stzMusic` are MU1+.
 - **No fractional delay** and no finer pitch instrument — MU1, and the reason
   is measured above.
 - **No sub-block trigger** — the decision waits on the author's ear (spike 2).
@@ -613,7 +613,7 @@ the entry points exported — checked with exports, because an object with none
 proves nothing: Zig never analyses what nothing references). `soundgraph.zig`:
 `setRate` — a source played at a rate, by fractional read. `sound.zig`: `noteOf`,
 `measurePitchOf`, `mixInto`. Fifteen Ring bridges.
-**Face.** `base/sound/stzInstrument.ring` — `StzInstrumentQ`, `StzInstruments`,
+**Face.** `base/sound/stzSoundInstrument.ring` — `StzSoundInstrumentQ`, `StzInstruments`,
 `StzNoteToHz`; `stzSound.MixIn`.
 **Guard.** `base/test/sound/sound_mu1_narrated.ring` — **37**. Zig: 5 in the
 instrument seam, 2 new in the graph (59 green), 12 in `sounddsp`.
@@ -808,8 +808,8 @@ MU1: its name, or its honest name. Each verdict goes here, by name.
 at a frame, mixed into its output at that frame *inside* a block, fed from any
 one thread through a 512-slot lock-free table; `addTimeline`, `timelinePlace`,
 `timelineNow`, `timelineCounter`. `sound.zig`: `rawView`. Four Ring bridges.
-**Face.** `base/sound/stzScore.ring` (`stzScore`, and `stzScoreRenderer`, which
-renders each distinct note once), `stzScheduler.ring`, `stzMusic.ring`;
+**Face.** `base/sound/stzSoundScore.ring` (`stzSoundScore`, and `stzSoundScoreRenderer`, which
+renders each distinct note once), `stzSoundScheduler.ring`, `stzMusic.ring`;
 `stzSoundGraph.AddTimeline`. Loaded by `stzBase.ring`.
 **Guard.** `base/test/sound/sound_mu2_narrated.ring` — **33**. Zig: 6 new in the
 graph (65 green in that run).
@@ -846,7 +846,7 @@ construction.
 
 ### Beats become frames in one place
 
-`stzScore.FrameOf(beat, rate)`: quantise, then swing, then tempo. The offline
+`stzSoundScore.FrameOf(beat, rate)`: quantise, then swing, then tempo. The offline
 render and the live scheduler both call it, so they cannot disagree about when
 a note is. Swing warps time piecewise-linearly within each pair of
 subdivisions: at 2/3 the off-beat eighth lands at 16000 of 24000 frames, and a
@@ -858,7 +858,7 @@ neighbours instead of jumping past one.
 `Note`, `Rest`, `Stroke`; `Then` (sequence), `Together` (parallel), `Repeat`;
 `On(:Instrument)` (the innermost wins), `Transpose` (a stroke keeps its drum's
 pitch); `Tempo`, `Quantize`, `Swing`. Stored flat as events in beats, because a
-score is read far more often than it is built. `StzScoreOfQ("c e g c5")` —
+score is read far more often than it is built. `StzSoundScoreOfQ("c e g c5")` —
 names one beat each, the octave carrying as Alda's does, `~` a rest.
 
 ### Found, and each one changed the design rather than a number
@@ -868,7 +868,7 @@ names one beat each, the octave carrying as Alda's does, `~` a rest.
    the instant it starts. A scheduler posts its first window, then starts the
    device.
 2. **`On()` on an empty score named nothing.** It was a pure modifier, so
-   `StzScoreQ().On(:Drumkit)` followed by twenty strokes sent every stroke to
+   `StzSoundScoreQ().On(:Drumkit)` followed by twenty strokes sent every stroke to
    the default piano, which refused them. A rule the first user breaks in the
    first line is the rule's fault: `On` now also names what is added after it.
 3. **The onset instrument was blind across notes that touch.** Strokes half a
@@ -959,12 +959,12 @@ by name.
 
 ## MU3 STATUS — 2026-09-26. Four live redefinitions, each on its bar, and the output equal to the render sample for sample
 
-**Face.** `base/sound/stzPattern.ring`: Tidal's mini-notation (`~ [ ] [a, b] <a b>
+**Face.** `base/sound/stzSoundPattern.ring`: Tidal's mini-notation (`~ [ ] [a, b] <a b>
 * / ? ! @`), queried one whole cycle at a time, and the algebra `Fast`, `Slow`,
 `Rev`, `Every`, `Off`, plus `ToScoreQ`, where a pattern becomes a score.
-`base/sound/stzLive.ring`: live loops (`LiveLoop`, `LiveLoopOn`, `LiveLoopOf`,
+`base/sound/stzSoundLive.ring`: live loops (`LiveLoop`, `LiveLoopOn`, `LiveLoopOf`,
 `Every`, `Silence`, `Hush`, `WaitCycles`, `DriveWith`, `OnCycle`) on a device,
-or drained here into a sound. `stzMusic` carries the same verbs. `stzScore`
+or drained here into a sound. `stzMusic` carries the same verbs. `stzSoundScore`
 gains `NoteAt`, `StrokeAt`, `SetLength`.
 **Engine.** `soundgraph.zig`: a timeline note carries a TAG (its loop), and
 `timelineCancel(tag, from)` withdraws that loop's notes that have not started;
@@ -1026,7 +1026,7 @@ is 10 ms (§3), and its live page is MU6's.
 
 1. **The transport's `DriveWith` has never worked** (found, not caused; see
    below). Ring's anonymous functions see no locals, so a callback that uses a
-   captured `_me_` fails on its first tick. `stzLive.DriveWith` registers the
+   captured `_me_` fails on its first tick. `stzSoundLive.DriveWith` registers the
    session **by pointer in a global list**, and the timer calls one global
    function. The guard drives a session through `stzReactive` for 3.2 s and a
    redefinition made from a timer lands on its cycle.
@@ -1047,7 +1047,7 @@ is 10 ms (§3), and its live page is MU6's.
 5. **Ring traps, each met in this phase:**
    - `loop` is a keyword, so the plan's `oM.Loop(...)` cannot be written. It is
      `LiveLoop`, Sonic Pi's word.
-   - `new stzLive` without parentheses does not run `init`.
+   - `new stzSoundLive` without parentheses does not run `init`.
    - `oR` is the keyword `or`.
    - `x = [ :fast, x, k ]` produced a node missing its last element, so it now
      goes through a temporary.
@@ -1087,7 +1087,7 @@ is 10 ms (§3), and its live page is MU6's.
   Reproduced: "Using uninitialized variable: _me_". No guard ever drove a
   transport reactively. Routed as `STZLIB-TRANSPORT-DRIVEWITH-01`, not changed
   here.
-- `STZLIB-SNDTABLE-RACE-01` (MU2) is still open. `stzLive` uses the timeline,
+- `STZLIB-SNDTABLE-RACE-01` (MU2) is still open. `stzSoundLive` uses the timeline,
   which takes raw views and is not exposed to it.
 - Regression over the sound guards: 754 passed, 3 failed: MU2's 713 plus MU3's 41, and
   the three are MU1's `:Muted` cross-plane failures (VC6 x2, SS4 x1). Nothing
@@ -1099,3 +1099,51 @@ is 10 ms (§3), and its live page is MU6's.
 measured. Two questions are not numbers: does it *feel* live, and is a change
 that arrives up to a bar and a third after it is typed quick enough, or does
 it feel like typing into a letterbox? The verdict goes here by name.
+
+
+---
+
+## NAMES — 2026-09-26, before MU4. A class carries its domain; the generic name is kept for the abstraction
+
+**The author's rule:** a class whose name is a concept every domain has
+(pattern, score, scheduler, instrument, universe) but whose body is about ONE
+domain carries that domain in its name. The generic name is kept for an
+abstract class any domain can reuse. So, in this plane:
+
+| was (MU1–MU3) | is | abstract counterpart |
+|---|---|---|
+| `stzPattern` | `stzSoundPattern` | **`stzPattern`** — built now, `base/common/stzPattern.ring` |
+| `stzScore`, `stzScoreRenderer` | `stzSoundScore`, `stzSoundScoreRenderer` | `stzScore` — planned, not built |
+| `stzScheduler` | `stzSoundScheduler` | `stzScheduler` — planned, not built |
+| `stzInstrument` | `stzSoundInstrument` | none: no domain-free "instrument" was found worth a class |
+| `stzLive` | `stzSoundLive` | `stzLive` — planned, not built |
+| `stzUniverse` (MU4, not yet written) | `stzSoundUniverse` | decided when MU4 is built |
+
+The constructors follow (`StzSoundPatternQ`, `StzSoundScoreQ`,
+`StzSoundScoreOfQ`, `StzSoundSchedulerQ`, `StzSoundInstrumentQ`,
+`StzSoundInstruments`, `StzSoundLiveQ`), and so do the files. `stzMusic` and
+`StzNoteToHz` already name their domain and are unchanged. The earlier STATUS
+sections above now read with the new names. The memos and CONCLUSIONS lines of
+MU1–MU3 keep the old ones, because they are the record of what was true then.
+
+**What was built, and why only one.** `stzPattern` holds the whole grammar, the
+cycle query and the algebra (Fast, Slow, Rev, Every, Off). None of it knew what
+a word meant; only three methods did (`_Value`, `_Shift`, and the octave that
+carries). Those three are now hooks, and `stzSoundPattern from stzPattern`
+overrides them. The abstraction was already sitting in working code, so
+extracting it was a cut, not a design. MU3's guard proves the base is one:
+scene 10 defines a light-cue pattern from another domain in eight lines,
+inheriting everything else.
+
+The other three counterparts (`stzScore` as Euterpea's domain-free algebra of
+timed events; `stzScheduler` as "post ahead of a consumer's clock and count
+what is late"; `stzLive` as a loop redefined on a cycle boundary) are real
+abstractions. But each is a design to extract and prove, not a rename, so they
+are in the library-wide plan below and not half-built here. **No hollow
+abstract class was written**: a generic name with nothing behind it would
+claim a reuse nobody has shown.
+
+**The rest of the library** was surveyed for the same defect. The findings, and
+the plan to fix them, are Central's prompt 50
+(`softanza/prompts/50-stzlib-domain-names.md`), to be executed later, plane by
+plane, by each plane's own session.
