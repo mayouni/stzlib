@@ -1,4 +1,4 @@
-# Une fonction est une image
+# La fonction est une image
 
 *Mathématiques · Chapitre 4 · Compétence SE-02 : « Où, et combien ? »*
 

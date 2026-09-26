@@ -67,8 +67,8 @@ EndScenario()
 #---------------------------------------------------------------------------
 t3 = clock()
 Scenario("3. A chapter ahead is named, not explained")
-nLast = len(acCh)
-cLastId = acCh[nLast]
+cLastId = acCh[len(acCh)]
+nLast = 0 + oC.ChapterNumber(cLastId)
 acNamesLast = oC.NamesTaughtBy(cLastId)
 Given("a learner on chapter 1 asking about chapter " + nLast + " (" + cLastId + "), which teaches " + len(acNamesLast) + " names")
 oT1 = StzTutorQ(oEx1, cLearner + "-1", "en").WithCourseQ(oC)
