@@ -349,6 +349,39 @@ chk("fewer than four values are refused, and told why", _TkRefuses("smoother"))
 chk("an end rule that is neither is refused", _TkRefuses("endrule"))
 chk("a kind that is not one of the six is refused with the six", _TkRefuses("kind"))
 
+sec("-- 11. A CHANGE POINT IS A VERDICT WITH A MEASURED THRESHOLD, NEVER A CLAIM (plan row 9)")
+
+# the seeded series of probe_changepoint.ring: a level with noise, a trend of
+# 0.1 sigma per point, and steps of 3 and 5 sigma at the middle, n = 100
+oLv = StzTukeySmootherQ(_TkStepSeries("level", 100))
+aLv = oLv.ChangePoint()
+chk("a level with noise: judged, and no level shift -- contrast " + _FfNum(aLv[:contrast], 3) + " under the threshold " + aLv[:threshold], aLv[:judged] = 1 and aLv[:fires] = 0 and aLv[:threshold] = 1.8)
+oTr = StzTukeySmootherQ(_TkStepSeries("trend", 100))
+aTr = oTr.ChangePoint()
+chk("NEGATIVE: a trend of 0.1 sigma per point is not a level shift -- contrast " + _FfNum(aTr[:contrast], 3) + ", the scale is blind to it", aTr[:fires] = 0)
+oS5 = StzTukeySmootherQ(_TkStepSeries("step5", 100))
+aS5 = oS5.ChangePoint()
+chk("a step of 5 sigma at the middle fires, and is located within two of the cut at 51: index " + aS5[:at] + ", contrast " + _FfNum(aS5[:contrast], 3), aS5[:fires] = 1 and fabs(aS5[:at] - 51) <= 2)
+aD5 = oS5.Diagnostics("series")
+chk("...and the verdict is a warning, level_shift, at that index, naming the contrast and the threshold", len(aD5) = 1 and aD5[1][:rule] = "level_shift" and aD5[1][:where] = "index " + aS5[:at] and StzFindFirst("threshold 1.8", aD5[1][:message]) > 0)
+chk("...and Why() says it: " + oS5.Why(), StzFindFirst("a level shift at index " + aS5[:at], oS5.Why()) > 0)
+chk("NEGATIVE: the level's diagnostics are empty", len(oLv.Diagnostics("series")) = 0)
+nFire = 0
+nLoc = 0
+for k = 1 to 20
+	aK = StzTukeySmootherQ(_TkStepSeriesK("step5", 100, k)).ChangePoint()
+	if aK[:fires]  nFire++  ok
+	if fabs(aK[:at] - 51) <= 2  nLoc++  ok
+next
+nNull = 0
+for k = 1 to 20
+	if StzTukeySmootherQ(_TkStepSeriesK("level", 100, k)).ChangePoint()[:fires]  nNull++  ok
+	if StzTukeySmootherQ(_TkStepSeriesK("trend", 100, k)).ChangePoint()[:fires]  nNull++  ok
+next
+chk("over twenty seeded 5-sigma steps: fires " + nFire + "/20, located within two " + nLoc + "/20; over forty null series: fires " + nNull + "/40", nFire >= 19 and nLoc >= 17 and nNull = 0)
+chk("under forty values the verdict is not made, by name", StzTukeySmootherQ(_TkStepSeries("step5", 30)).ChangePoint()[:judged] = 0 and StzFindFirst("needs 40 values", StzTukeySmootherQ(_TkStepSeries("step5", 30)).ChangePoint()[:because]) > 0)
+chk("a flat series with one jump has no spread of differences to scale by, and says so", StzFindFirst("no spread", StzTukeySmootherQ(_TkFlatJump()).ChangePoint()[:because]) > 0)
+
 sec("-- 7. THE COST, PRINTED -------------------------------------------------")
 
 aBig = []
@@ -528,6 +561,30 @@ func _TkGroups bProp
 		_g_ + _a_
 	next
 	return _g_
+
+# the change-point probe's series: Park-Miller from the probe's seed, a level
+# of 10 with unit noise, a trend of 0.1 per point, or a step at the middle
+func _TkStepSeries cKind, n
+	return _TkStepSeriesK(cKind, n, 1)
+
+func _TkStepSeriesK cKind, n, k
+	nTkSeed = 4242 + 1000 * (k - 1)
+	_a_ = []
+	for _i_ = 1 to n
+		_v_ = 10 + _TkGaussian()
+		if cKind = "trend"  _v_ += 0.1 * _i_  ok
+		if cKind = "step3" and _i_ > n / 2  _v_ += 3  ok
+		if cKind = "step5" and _i_ > n / 2  _v_ += 5  ok
+		_a_ + _v_
+	next
+	return _a_
+
+func _TkFlatJump
+	_a_ = []
+	for _i_ = 1 to 60
+		if _i_ > 30  _a_ + 15  else  _a_ + 10  ok
+	next
+	return _a_
 
 # a 6 x 5 table: additive with seeded noise, or its exponential (multiplicative)
 func _TkSynthetic bMul

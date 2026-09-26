@@ -1210,6 +1210,39 @@ marks with a 40 give one error at value #8, 4.54 spreads past the hinge;
 with 25 in its place, no finding. Lognormal leans right, normal leans
 neither and is not heavy, Cauchy is heavy, fifty values are unjudged.
 
+### TK4 addendum -- the change point, a verdict with a measured threshold, 2026-09-26
+
+Row 9 of the disposition demoted change-point detection to "a verdict with
+a stated threshold, not a claim". The threshold was measured before the
+verdict existed (`base/test/math/probe_changepoint.ring`, seeded series of
+40 and 100 values, 20 per class). The statistic that separates the classes:
+the largest contrast between the medians of the ten values before a cut and
+the ten after it, over the fourth-spread of the consecutive differences --
+a scale blind to a level and to a trend, and resistant to the one large
+difference a step makes. The first statistic tried, the largest step of the
+3RS3R smooth over the rough's fourth-spread, did NOT separate anything (a
+level with noise up to 4.3, a five-sigma step down to 1.97): a median smooth
+of noise is a staircase, and its steps are as large as a real one.
+
+| class, n = 40 / 100 | contrast, min .. max | fires at 1.8 | located within two of the cut |
+|---|---|---|---|
+| a level with noise | 0.16 .. 1.13 / 0.43 .. 0.90 | 0 / 0 of 20 | -- |
+| a trend of 0.1 sigma per point | 0.63 .. 1.50 / 0.96 .. 1.61 | 0 / 0 of 20 | -- |
+| a step of 2 sigma | 0.64 .. 2.26 / 0.78 .. 1.93 | 1 / 1 of 20 | 13 / 16 of 20 |
+| a step of 3 sigma | 1.20 .. 3.70 / 1.13 .. 2.49 | 5 / 7 of 20 | 17 / 17 of 20 |
+| a step of 5 sigma | 1.62 .. 4.86 / 2.16 .. 3.38 | 19 / 20 of 20 | 15 / 19 of 20 |
+
+`stzTukeySmoother.ChangePoint()` answers the contrast, its index, the scale,
+the threshold and whether it fires; `Diagnostics(subject)` turns a firing
+into a `level_shift` warning at that index, naming the contrast and the
+threshold; under 40 values the verdict is not made, by name, and a flat
+series with one jump says its differences have no spread to scale by. The
+gate (`tukey_narrated.ring` section 11, 124 of 124 in all) fires on 20 of 20
+five-sigma steps at n = 100 with its own seeds, locates 17 within two, and
+fires on 0 of 40 null series. A three-sigma step is found only sometimes,
+and the table says so; a trend steeper than 0.1 sigma per point was not
+measured and the verdict does not claim it.
+
 ## TK5 RESULTS -- the story, under the honesty law, 2026-09-26 (plane stzlib-math, M4d)
 
 `stzTukeyStory` (`base/math/stzTukeyStory.ring`) tells a fit and its
