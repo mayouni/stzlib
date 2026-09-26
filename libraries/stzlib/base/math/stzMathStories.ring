@@ -181,3 +181,25 @@ func StzThalesPictureQ(poFont)
 # the angle at A of a Thales picture, in degrees, read off the coordinates
 func StzThalesAngle(poPicture)
 	return poPicture.Fact(:angle, [ "B.icon", "A.icon", "C.icon" ])[:value]
+
+#-- chapter 15's statements, as claims (M6) -----------------------------------------
+# "An identity is not a self-check" states five things a machine can check
+# twice: on the numeric floor here, and in Lean through the door. Each carries
+# the tactic Mathlib wants where norm_num alone would not do; those tactics
+# were written from Mathlib's names (Real.sq_sqrt, Real.lt_sqrt, Real.sqrt_lt')
+# and NOT run through Lean on this machine -- see M6 RESULTS.
+func StzSelfCheckLessonClaims()
+	_o_ = StzMathClaimSetQ("an-identity-is-not-a-self-check")
+	_o_.Add(StzMathClaimQ([ :kind = :Identity, :lhs = "3^2 + 4^2", :rhs = "5^2", :over = :Natural,
+	                        :label = "three four five" ]))
+	_o_.Add(StzMathClaimQ([ :kind = :Inequality, :relation = "!=", :lhs = "3^2 + 4^2 + 1", :rhs = "5^2", :over = :Natural,
+	                        :label = "the wrong formula is not an identity" ]))
+	_o_.Add(StzMathClaimQ([ :kind = :Identity, :lhs = "sqrt(3)^2", :rhs = "3", :over = :Real,
+	                        :label = "the root squared", :tactic = "rw [Real.sq_sqrt (by norm_num)]" ]))
+	_o_.Add(StzMathClaimQ([ :kind = :Inequality, :relation = "<", :lhs = "1.7", :rhs = "sqrt(3)", :over = :Real,
+	                        :label = "the zero lies above 1.7", :tactic = "rw [Real.lt_sqrt (by norm_num)]; norm_num" ]))
+	_o_.Add(StzMathClaimQ([ :kind = :Inequality, :relation = "<", :lhs = "sqrt(3)", :rhs = "1.8", :over = :Real,
+	                        :label = "the zero lies below 1.8", :tactic = "rw [Real.sqrt_lt' (by norm_num)]; norm_num" ]))
+	_o_.Add(StzMathClaimQ([ :kind = :Inequality, :relation = "!=", :lhs = "1.5^2", :rhs = "3", :over = :Real,
+	                        :label = "one and a half is not the root" ]))
+	return _o_
