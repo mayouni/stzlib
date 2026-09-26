@@ -1093,6 +1093,16 @@ polish (`MATH-R-ORACLE-01` still open); the shape verdict below 100 values
 **Next**: M5 -- the routed requests, filed with their oracle and picture
 columns; then M6, a bridge to Lean.
 
+#### M4 addendum -- the smoothers, once R was found at D:\R, 2026-09-26
+
+`MATH-R-ORACLE-01` closed: R 4.5.1 was on the machine, and its transcript
+(`base/test/math/oracle/r_smooth.txt`) is the oracle. The 3-family ships in
+`eda.zig` with `stzTukeySmoother` over it, 592 of 592 cases equal to R
+exactly after one transcription miss that was R's own inversion of
+`do.ends` for the 3RS kinds; Hanning and 4253H ship with copied ends and
+per-window checks. Gate 115 of 115. Details: `SOFTANZA_TUKEY_PLAN.md`,
+`TK1 RESULTS, second half`. The N-way polish stays out, by name.
+
 ### M5 -- Deepen the core (routed)
 
 Requests, each with the oracle and the picture that would prove it, to the

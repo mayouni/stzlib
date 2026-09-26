@@ -55,6 +55,13 @@ func StzTukeyOneWayQ(paGroups)
 func StzTukeyReexpressionQ(paRows)
 	return new stzTukeyReexpression(paRows)
 
+# a func placed after a class becomes that class's method: the constructors live here
+func StzTukeySmootherQ(paNumbers)
+	return new stzTukeySmoother(paNumbers)
+
+func StzTukeySmoothKinds()
+	return [ "3", "3R", "S", "3RSS", "3RS3R", "3RSR" ]
+
 func StzTukeyLadderPowers()
 	return [ -1, -0.5, 0, 0.5, 1, 2 ]
 
@@ -736,6 +743,155 @@ class stzTukeyOneWay from stzObject
 		ok
 		return "a one-way median polish of " + ring_len(@aGroups) + " group(s): common " +
 			_FfNum(@nCommon, 4) + ", effects " + @@(@aEffects) + "; Data = Fit + Residual holds to " + _FfNum(This.Check(), 9)
+
+#-- the smoothers, R's 3-family and 4253H ----------------------------------------
+/*
+	Tukey's resistant smoothers, R's stats::smooth transcribed in eda.zig and
+	verified against R 4.5.1's own output (MATH-R-ORACLE-01, answered
+	2026-09-26; the transcript is base/test/math/oracle/r_smooth.txt):
+
+	    oS = StzTukeySmootherQ([ 4, 1, 3, 6, 6, 4, 1, 6, 2, 4, 2 ])
+	    ? @@( oS.Smooth3R() )
+	    #--> [ 3, 3, 3, 6, 6, 4, 4, 4, 2, 2, 2 ]
+
+	Kinds: "3" (running median of three), "3R" (repeated to convergence),
+	"S" (splitting of two-flats), "3RSS", "3RS3R" (R's default), "3RSR".
+	The end rule is Tukey's by default (:Copy on request); SetSplitEnds is
+	R's do.ends. Twice(kind) is R's twiceit: the smooth of the rough added
+	back. Hanning() and Smooth4253H() are this plane's, with the ends
+	COPIED -- their windows are R's per-window median() and filter(), and
+	their end treatment is named here rather than borrowed.
+*/
+
+class stzTukeySmoother from stzObject
+
+	@aNumbers = []
+	@cEndRule = "tukey"
+	@bSplitEnds = 0
+
+	def init(paNumbers)
+		if NOT isList(paNumbers) or ring_len(paNumbers) < 4
+			stzraise("stzTukeySmoother: give at least four numbers -- below four, R's smooth reads memory it never set, and this face refuses rather than imitate it.")
+		ok
+		_n_ = ring_len(paNumbers)
+		for _i_ = 1 to _n_
+			if NOT isNumber(paNumbers[_i_])
+				stzraise("stzTukeySmoother: item " + _i_ + " is not a number.")
+			ok
+		next
+		@aNumbers = paNumbers
+
+	def Numbers()
+		return @aNumbers
+
+	def Count()
+		return ring_len(@aNumbers)
+
+	def SetEndRule(pcRule)
+		_c_ = StzLower(ring_trim("" + pcRule))
+		if _c_ = "tukey"
+			@cEndRule = "tukey"
+		but _c_ = "copy"
+			@cEndRule = "copy"
+		else
+			stzraise("stzTukeySmoother.SetEndRule: :Tukey (the end-point rule) or :Copy -- '" + pcRule + "' is neither.")
+		ok
+		return This
+
+		def SetEndRuleQ(pcRule)
+			return This.SetEndRule(pcRule)
+
+	def EndRule()
+		return @cEndRule
+
+	# R's do.ends: split the two-flats at the ends too
+	def SetSplitEnds(pbOn)
+		@bSplitEnds = 0
+		if pbOn  @bSplitEnds = 1  ok
+		return This
+
+	def _EndRuleCode()
+		if @cEndRule = "copy"  return 1  ok
+		return 2
+
+	def _KindCode(pcKind)
+		_c_ = StzUpper(ring_trim("" + pcKind))
+		_ac_ = StzTukeySmoothKinds()
+		for _i_ = 1 to ring_len(_ac_)
+			if _ac_[_i_] = _c_  return _i_ - 1  ok
+		next
+		stzraise("stzTukeySmoother: the kinds are " + @@(_ac_) + " -- '" + pcKind + "' is none of them.")
+
+	# the smooth of the given kind, as R's smooth(x, kind, endrule, do.ends)
+	def Smooth(pcKind)
+		_a_ = StzEngineTukeySmooth(@aNumbers, This._KindCode(pcKind), This._EndRuleCode(), @bSplitEnds, 0)
+		if NOT isList(_a_)
+			stzraise("stzTukeySmoother.Smooth: the engine refused the series.")
+		ok
+		return _a_
+
+	def Smooth3()
+		return This.Smooth("3")
+	def Smooth3R()
+		return This.Smooth("3R")
+	def Split()
+		return This.Smooth("S")
+	def Smooth3RSS()
+		return This.Smooth("3RSS")
+	def Smooth3RS3R()
+		return This.Smooth("3RS3R")
+	def Smooth3RSR()
+		return This.Smooth("3RSR")
+
+	# twicing, R's twiceit: the same smoother on the rough, added back
+	def Twice(pcKind)
+		_a_ = StzEngineTukeySmooth(@aNumbers, This._KindCode(pcKind), This._EndRuleCode(), @bSplitEnds, 1)
+		if NOT isList(_a_)
+			stzraise("stzTukeySmoother.Twice: the engine refused the series.")
+		ok
+		return _a_
+
+	# the rough: data minus smooth, the contract Data = Smooth + Rough
+	def Rough(pcKind)
+		_aS_ = This.Smooth(pcKind)
+		_a_ = []
+		for _i_ = 1 to ring_len(@aNumbers)
+			_a_ + (@aNumbers[_i_] - _aS_[_i_])
+		next
+		return _a_
+
+	def Hanning()
+		return StzEngineTukeyHanning(@aNumbers)
+
+	# 4253H: medians of 4 and 2, then 5, then 3, then Hanning; ends copied at every stage
+	def Smooth4253H()
+		if ring_len(@aNumbers) < 7
+			stzraise("stzTukeySmoother.Smooth4253H: seven values at least -- the 4 and 2 stages need them.")
+		ok
+		return StzEngineTukeySmooth4253H(@aNumbers, 0)
+
+	def Smooth4253HTwice()
+		if ring_len(@aNumbers) < 7
+			stzraise("stzTukeySmoother.Smooth4253HTwice: seven values at least.")
+		ok
+		return StzEngineTukeySmooth4253H(@aNumbers, 1)
+
+	# the medians of every window of k values, n - k + 1 of them (no ends)
+	def WindowMedians(pnK)
+		if NOT isNumber(pnK) or pnK < 1 or pnK > ring_len(@aNumbers)
+			stzraise("stzTukeySmoother.WindowMedians: a span from 1 to the count.")
+		ok
+		return StzEngineTukeyWindowMedians(@aNumbers, pnK)
+
+	def Why()
+		_aS_ = This.Smooth("3RS3R")
+		_nMax_ = 0
+		for _i_ = 1 to ring_len(@aNumbers)
+			if fabs(@aNumbers[_i_] - _aS_[_i_]) > _nMax_  _nMax_ = fabs(@aNumbers[_i_] - _aS_[_i_])  ok
+		next
+		return "a Tukey smoother over " + ring_len(@aNumbers) + " value(s), end rule " + @cEndRule +
+			": under 3RS3R the largest rough is " + _FfNum(_nMax_, 4) + "; kinds " + @@(StzTukeySmoothKinds()) +
+			", Hanning and 4253H with copied ends"
 
 #-- re-expression, measured ---------------------------------------------------
 

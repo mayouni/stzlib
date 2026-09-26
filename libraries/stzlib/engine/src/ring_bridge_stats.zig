@@ -3971,6 +3971,10 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginetukeyladder", .func = &ring_TukeyLadder },
     .{ .name = "stzenginetukeynonadditivity", .func = &ring_TukeyNonAdditivity },
     .{ .name = "stzenginetukeythreshold", .func = &ring_TukeyThreshold },
+    .{ .name = "stzenginetukeysmooth", .func = &ring_TukeySmooth },
+    .{ .name = "stzenginetukeyhanning", .func = &ring_TukeyHanning },
+    .{ .name = "stzenginetukeywindowmedians", .func = &ring_TukeyWindowMedians },
+    .{ .name = "stzenginetukeysmooth4253h", .func = &ring_TukeySmooth4253H },
     .{ .name = "stzengineerf", .func = &ring_Erf },
     .{ .name = "stzengineerfc", .func = &ring_Erfc },
     .{ .name = "stzenginelgamma", .func = &ring_LogGamma },
@@ -4341,4 +4345,131 @@ fn ring_TukeyNonAdditivity(p: *anyopaque) callconv(.c) void {
 /// the measured recommendation threshold, so the face prints the number it used
 fn ring_TukeyThreshold(p: *anyopaque) callconv(.c) void {
     rn(p, eda.RECOMMEND_THRESHOLD);
+}
+
+/// (list, kind 0..5, endrule 1 copy | 2 tukey, doends, twice) -> the smoothed list, R's smooth()
+fn ring_TukeySmooth(p: *anyopaque) callconv(.c) void {
+    const x = listToF64(p, 1) orelse {
+        rs(p, "");
+        return;
+    };
+    defer allocator.free(x);
+    const kind_n: i64 = @intFromFloat(g(p, 2));
+    const er_n: i64 = @intFromFloat(g(p, 3));
+    const do_ends = g(p, 4) != 0;
+    const twice = g(p, 5) != 0;
+    if (x.len < 4 or kind_n < 0 or kind_n > 5 or er_n < 1 or er_n > 2) {
+        rs(p, "");
+        return;
+    }
+    const kind: eda.SmoothKind = @enumFromInt(@as(u8, @intCast(kind_n)));
+    const er: eda.EndRule = @enumFromInt(@as(u8, @intCast(er_n)));
+    const n = x.len;
+    const out = allocator.alloc(f64, n) catch {
+        rs(p, "");
+        return;
+    };
+    defer allocator.free(out);
+    const work = allocator.alloc(f64, 4 * n) catch {
+        rs(p, "");
+        return;
+    };
+    defer allocator.free(work);
+    if (twice) {
+        _ = eda.smoothTwice(x, kind, er, do_ends, out, work);
+    } else {
+        _ = eda.smooth(x, kind, er, do_ends, out, work);
+    }
+    retF64List(p, out);
+}
+
+/// (list) -> Hanning (1, 2, 1) / 4 on the interior, the ends copied
+fn ring_TukeyHanning(p: *anyopaque) callconv(.c) void {
+    const x = listToF64(p, 1) orelse {
+        rs(p, "");
+        return;
+    };
+    defer allocator.free(x);
+    const out = allocator.alloc(f64, x.len) catch {
+        rs(p, "");
+        return;
+    };
+    defer allocator.free(out);
+    eda.hanning(x, out);
+    retF64List(p, out);
+}
+
+/// (list, k) -> the n - k + 1 window medians of span k, even k averaging the middle two
+fn ring_TukeyWindowMedians(p: *anyopaque) callconv(.c) void {
+    const x = listToF64(p, 1) orelse {
+        rs(p, "");
+        return;
+    };
+    defer allocator.free(x);
+    const k_n: i64 = @intFromFloat(g(p, 2));
+    if (k_n < 1 or k_n > @as(i64, @intCast(x.len))) {
+        rs(p, "");
+        return;
+    }
+    const k: usize = @intCast(k_n);
+    const out = allocator.alloc(f64, x.len) catch {
+        rs(p, "");
+        return;
+    };
+    defer allocator.free(out);
+    const scratch = allocator.alloc(f64, k) catch {
+        rs(p, "");
+        return;
+    };
+    defer allocator.free(scratch);
+    const m = eda.windowMedians(x, k, out, scratch);
+    retF64List(p, out[0..m]);
+}
+
+/// (list, twice) -> 4253H, ends copied; twice adds the 4253H of the rough back
+fn ring_TukeySmooth4253H(p: *anyopaque) callconv(.c) void {
+    const x = listToF64(p, 1) orelse {
+        rs(p, "");
+        return;
+    };
+    defer allocator.free(x);
+    if (x.len < 7) {
+        rs(p, "");
+        return;
+    }
+    const twice = g(p, 2) != 0;
+    const n = x.len;
+    const out = allocator.alloc(f64, n) catch {
+        rs(p, "");
+        return;
+    };
+    defer allocator.free(out);
+    const work = allocator.alloc(f64, 3 * n + 8) catch {
+        rs(p, "");
+        return;
+    };
+    defer allocator.free(work);
+    eda.smooth4253H(x, out, work);
+    if (twice) {
+        const rough = allocator.alloc(f64, n) catch {
+            rs(p, "");
+            return;
+        };
+        defer allocator.free(rough);
+        const sr = allocator.alloc(f64, n) catch {
+            rs(p, "");
+            return;
+        };
+        defer allocator.free(sr);
+        for (0..n) |i| rough[i] = x[i] - out[i];
+        eda.smooth4253H(rough, sr, work);
+        for (0..n) |i| out[i] += sr[i];
+    }
+    retF64List(p, out);
+}
+
+fn retF64List(p: *anyopaque, v: []const f64) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (v) |a| R.ring_list_adddouble(out, a);
+    R.ring_vm_api_retlist(p, out);
 }
