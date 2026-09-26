@@ -170,8 +170,46 @@ func StzMathFigComplexWitness()
 	_o_.SetDatum(_cP_, "re", _oS_.DataOf(_cP_, "re") + 0.3)
 	return _o_
 
+#-- M1d: the :BoxPlot and :Surface figures ---------------------------------
+
+# one group with an outlier, its five numbers written
+func StzMathFigScene21()
+	return StzMathFigureQ(:BoxPlot, [ :of = [ 2, 4, 4, 5, 7, 9, 12, 25 ], :label = "eight values, one of them alone" ])
+
+# three groups on one axis, so their boxes compare
+func StzMathFigScene22()
+	return StzMathFigureQ(:BoxPlot, [ :groups = [ [ "morning", [ 12, 15, 14, 18, 16, 15, 13, 40 ] ],
+		[ "noon", [ 20, 22, 25, 21, 23, 24, 22, 26 ] ], [ "evening", [ 8, 30, 12, 28, 10, 26, 14, 24 ] ] ],
+		:label = "three groups of eight" ])
+
+# a saddle, seen from the usual corner
+func StzMathFigScene23()
+	return StzMathFigureQ(:Surface, [ :f = "x^2 - y^2", :x = [ -1, 1 ], :y = [ -1, 1 ], :samples = 20,
+		:label = "z = x^2 - y^2" ])
+
+# a ripple, denser
+func StzMathFigScene24()
+	return StzMathFigureQ(:Surface, [ :f = "sin(3 * sqrt(x^2 + y^2)) / (1 + x^2 + y^2)", :x = [ -3, 3 ], :y = [ -3, 3 ],
+		:samples = 24, :view = [ -35, 38 ], :label = "a ripple" ])
+
+# THE BOX PLOT WITNESS: the median datum moved past Q3, and an outlier's
+# value moved inside the fences
+func StzMathFigBoxPlotWitness()
+	_o_ = StzMathFigScene21()
+	_o_.Layout()
+	_o_.SetDatum("b1", "med", 20)
+	_o_.SetDatum("o1", "v", 6)
+	return _o_
+
+# THE SURFACE WITNESS: one corner's z tampered
+func StzMathFigSurfaceWitness()
+	_o_ = StzMathFigScene23()
+	_o_.Layout()
+	_o_.SetDatum("fr", "z1_1", 7)
+	return _o_
+
 func StzMathFigSceneCount()
-	return 20
+	return 26
 
 func StzMathFigSceneTitles()
 	return [ "THE CARDINAL SINE                (zeros at every multiple of pi, extrema where tan x = x; twelve notes solved)",
@@ -193,7 +231,13 @@ func StzMathFigSceneTitles()
 	         "THE ROOTS OF z^3 = 1             (three hollow points on the unit circle, found by the engine, checked by Horner)",
 	         "z = 3 + 2i                       (its ray with |z| and its argument arc, and its conjugate below)",
 	         "THE MATRIX, TWO THINGS WRONG     (a product cell of 999, and B said to have five rows)",
-	         "THE ROOT THAT IS NOT ONE         (a root moved 0.3 to the right: the polynomial is not small there, and it has no mirror)" ]
+	         "THE ROOT THAT IS NOT ONE         (a root moved 0.3 to the right: the polynomial is not small there, and it has no mirror)",
+	         "EIGHT VALUES, ONE ALONE          (M1d: a box plot with its five numbers solved apart, and the outlier past the fence)",
+	         "THREE GROUPS OF EIGHT            (three boxes on one axis; the evening's box is wide, the noon's narrow)",
+	         "A SADDLE                         (z = x^2 - y^2 projected by the engine's camera, drawn as a wireframe on the vector tier)",
+	         "A RIPPLE                         (24 x 24 samples, lines coloured by their height on one ramp)",
+	         "THE BOX PLOT, TWO THINGS WRONG   (a median past Q3, an outlier inside the fences)",
+	         "THE SURFACE, ONE THING WRONG     (a corner's z that the function does not give)" ]
 
 func StzMathFigScene(pnI)
 	if pnI = 1  return StzMathFigScene01()  ok
@@ -215,4 +259,10 @@ func StzMathFigScene(pnI)
 	if pnI = 17  return StzMathFigScene17()  ok
 	if pnI = 18  return StzMathFigScene18()  ok
 	if pnI = 19  return StzMathFigMatrixWitness()  ok
-	return StzMathFigComplexWitness()
+	if pnI = 20  return StzMathFigComplexWitness()  ok
+	if pnI = 21  return StzMathFigScene21()  ok
+	if pnI = 22  return StzMathFigScene22()  ok
+	if pnI = 23  return StzMathFigScene23()  ok
+	if pnI = 24  return StzMathFigScene24()  ok
+	if pnI = 25  return StzMathFigBoxPlotWitness()  ok
+	return StzMathFigSurfaceWitness()

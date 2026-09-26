@@ -275,7 +275,7 @@ chk("a tangent off the range is refused", _MgRefuses([ :f = "x", :on = [ 0, 1 ],
 chk("a function finite nowhere on its range is refused", _MgRefuses([ :f = "sqrt(x)", :on = [ -3, -1 ] ], "finite nowhere"))
 chk("an expression the tape cannot read is refused with the reason", _MgRefuses([ :f = "sin(x", :on = [ 0, 1 ] ], "Can't read"))
 chk(":zeros on a polar curve is refused -- zeros belong to y = f(x)", _MgRefuses([ :r = "cos(t)", :t = [ 0, 3 ], :mark = [ :zeros ] ], "marks of y = f(x)"))
-chk("a figure kind this plane lacks is refused with the kinds", _MgRefusesKind(:Surface, "not a figure kind"))
+chk("a figure kind this plane lacks is refused with the kinds", _MgRefusesKind(:Histogram, "not a figure kind"))
 chk("NEGATIVE: the lawful forms of all of these are accepted", NOT _MgRefuses([ :f = "sin(x)", :on = [ 0, 6 ], :samples = 64, :mark = [ :zeros, 1 ], :tangent = 1, :label = "ok" ], ""))
 
 #---------------------------------------------------------------------------
@@ -480,7 +480,7 @@ chkeq("NEGATIVE: the three lawful fraction pictures raise no finding", oFRep.Num
 
 sec("-- 10. THE ENTRY OBJECT KNOWS ITS KINDS --------------------------------")
 
-chkeq("the kinds are function, numberline, fraction, matrix and complexplane", len(StzMathFigureKinds()), 5)
+chkeq("the kinds are function, numberline, fraction, matrix, complexplane, boxplot and surface", len(StzMathFigureKinds()), 7)
 chk("a number line's Why says what it holds", StzFindFirst("6 point(s)", oN8.Why()) > 0 and StzFindFirst("1 jump(s)", oN8.Why()) > 0)
 chk("a fraction's Why says what is shaded", StzFindFirst("3 of 4 shaded", oF10.Why()) > 0)
 bRef = FALSE
@@ -592,6 +592,96 @@ chk("and by conjugates_pair, twice -- it lost its mirror and its mirror lost it"
 chkeq("NEGATIVE: exactly one point is no root", _MgCount(acCr, "root_is_a_root"), 1)
 oCRep = StzCheckPictures([ [ "complex/17", oC17.Diagram() ], [ "complex/18", oC18.Diagram() ] ])
 chkeq("NEGATIVE: the two lawful planes raise no finding", oCRep.NumberOfFindings(), 0)
+
+#---------------------------------------------------------------------------
+
+sec("-- 13. A BOX PLOT: THE FIVE NUMBERS IT DRAWS ARE THE FIVE IT SAYS ------")
+
+oB21 = StzMathFigScene21()
+oB21.Layout()
+chk("eight values with one alone are lawful", oB21.IsSolved())
+oSB = oB21.Substance()
+# the five numbers, by an independent reading: the engine's percentiles
+# through stzDataSet directly, and the fences by hand
+oDs = new stzDataSet([ 2, 4, 4, 5, 7, 9, 12, 25 ])
+chk("the box's quartiles are the data set's own", oSB.DataOf("b1", "q1") = oDs.Q1() and oSB.DataOf("b1", "med") = oDs.Q2() and oSB.DataOf("b1", "q3") = oDs.Q3())
+nIqr = oDs.Q3() - oDs.Q1()
+chk("the upper fence is Q3 + 1.5 IQR", fabs(oSB.DataOf("b1", "fhi") - (oDs.Q3() + 1.5 * nIqr)) < 0.000000001)
+chkeq("25 is the one value beyond it, drawn alone", oSB.DataOf("fr", "outliers"), 1)
+chk("and the high whisker stops at the last value inside the fence", oSB.DataOf("b1", "whi") <= oSB.DataOf("b1", "fhi") and oSB.DataOf("b1", "whi") < 25)
+chkeq("three numbers are written above the box", oB21.Diagram().NumberOfUnknowns(), 6)
+# the drawn box is the numbers: the rect from Q1 to Q3, the median line at the median
+aBox = oB21.ShapeOf("b1.icon")
+aMed = oB21.ShapeOf("b1.med")
+nX0 = oSB.DataOf("fr", "x0")  nX1 = oSB.DataOf("fr", "x1")
+nVmin = oSB.DataOf("fr", "vmin")  nVmax = oSB.DataOf("fr", "vmax")
+nQ1px = nX0 + (oDs.Q1() - nVmin) * (nX1 - nX0) / (nVmax - nVmin)
+chk("the rect's left edge stands at Q1 on the axis, re-derived", fabs((aBox[:cx] - aBox[:w] / 2) - nQ1px) < 0.000001)
+chk("the median line stands at the median", fabs(aMed[:x1] - (nX0 + (oDs.Q2() - nVmin) * (nX1 - nX0) / (nVmax - nVmin))) < 0.000001)
+# THE TEXT RENDITION (TK3): read back, the columns are the numbers
+cTxt = oB21.Text()
+chk("the text rendition names the five numbers", StzFindFirst("Q1 " + _FfNum(oDs.Q1(), 4), cTxt) > 0 and StzFindFirst("med " + _FfNum(oDs.Q2(), 4), cTxt) > 0)
+chk("and draws the box, the median and the outlier in characters", StzFindFirst("[", cTxt) > 0 and StzFindFirst("|", cTxt) > 0 and StzFindFirst("o", StzStringSection(cTxt, StzFindFirst("[", cTxt), len(cTxt))) > 0)
+oB22 = StzMathFigScene22()
+oB22.Layout()
+chk("three groups on one axis are lawful", oB22.IsSolved())
+chk("their names are written", oB22.Substance().LabelOf("b2") = "noon")
+chk("a group of three values is refused", _MgRefusesKindSpec(:BoxPlot, [ :of = [ 1, 2, 3 ] ], "at least four"))
+chk("a seventh group is refused", _MgRefusesKindSpec(:BoxPlot, [ :groups = [ [ "a", [1,2,3,4] ], [ "b", [1,2,3,4] ], [ "c", [1,2,3,4] ], [ "d", [1,2,3,4] ], [ "e", [1,2,3,4] ], [ "f", [1,2,3,4] ], [ "g", [1,2,3,4] ] ] ], "at most"))
+chk("NEGATIVE: the lawful forms are accepted", NOT _MgRefusesKindSpec(:BoxPlot, [ :of = [ 5, 1, 4, 2 ], :numbers = FALSE ], ""))
+oBW = StzMathFigBoxPlotWitness()
+oBWRep = StzCheckPictures([ [ "boxplot/witness", oBW.Diagram() ] ])
+acBr = []
+aBf = oBWRep.Findings()
+for i = 1 to len(aBf)  acBr + ("" + aBf[i][:rule])  next
+chk("the witness's median past Q3 is found by box_keeps_its_order", _MgHas(acBr, "box_keeps_its_order"))
+chk("its outlier inside the fences is found by outliers_lie_beyond_the_fences", _MgHas(acBr, "outliers_lie_beyond_the_fences"))
+oBRep = StzCheckPictures([ [ "boxplot/21", oB21.Diagram() ], [ "boxplot/22", oB22.Diagram() ] ])
+chkeq("NEGATIVE: the two lawful box plots raise no finding", oBRep.NumberOfFindings(), 0)
+
+#---------------------------------------------------------------------------
+
+sec("-- 14. A SURFACE: z = f(x, y) PROJECTED BY THE ENGINE, DRAWN AS WIRE ---")
+
+oS23 = StzMathFigScene23()
+oS23.Layout()
+chk("the saddle is lawful, with nothing to lay out", oS23.IsSolved() and oS23.Diagram().NumberOfUnknowns() = 0)
+oSS = oS23.Substance()
+chkeq("a 20 x 20 grid is 40 lines", oSS.DataOf("fr", "lines"), 40)
+# twenty samples never land on y = 0, so the top is 1 - (1/19)^2 -- the
+# nearest sample to the ridge, computed here, not read there
+nTop = 1 - pow(1 / 19, 2)
+chk("z spans +-(1 - (1/19)^2), the ridge's nearest samples, to 1e-9", fabs(oSS.DataOf("fr", "zmin") + nTop) < 0.000000001 and fabs(oSS.DataOf("fr", "zmax") - nTop) < 0.000000001)
+# the saddle's corners, known: (-1,-1) -> 0, (1,-1) -> 0, (-1, 1) -> 0, and the centre 0
+chk("the centre sample is 0 -- the saddle point", fabs(oSS.DataOf("fr", "z10_10")) < 0.02)
+chk("the corner (x = -1, y = 1) is 1 - 1 = 0", fabs(oSS.DataOf("fr", "z1_20")) < 0.000000001)
+# the projection is the engine's: a row's points are in canvas range
+aR1 = oS23.ShapeOf("r1.icon")
+chkeq("a row is a spline of twenty controls", aR1[:n], 20)
+bIn = TRUE
+for i = 1 to len(aR1[:controls]) step 2
+	if aR1[:controls][i] < 0 or aR1[:controls][i] > StzSurfaceFigureWidth() or aR1[:controls][i+1] < 0 or aR1[:controls][i+1] > StzSurfaceFigureHeight()  bIn = FALSE  ok
+next
+chk("and every control lands on the paper", bIn)
+# the same point projected twice agrees: a row's j-th point IS the column's i-th
+aC1 = oS23.ShapeOf("c1.icon")
+chk("row 1's first point is column 1's first point, to 1e-9", fabs(aR1[:controls][1] - aC1[:controls][1]) < 0.000000001 and fabs(aR1[:controls][2] - aC1[:controls][2]) < 0.000000001)
+chk("the lines are named elements", len(StzFindCS('id="r1" class="spline', oS23.ToSVG(), TRUE)) = 1)
+oS24 = StzMathFigScene24()
+oS24.Layout()
+chk("a 24 x 24 ripple is lawful", oS24.IsSolved())
+chk("a surface with a pole is refused with the place", _MgRefusesKindSpec(:Surface, [ :f = "1 / (x * y)", :x = [ -1, 1 ], :y = [ -1, 1 ], :samples = 9 ], "not finite"))
+chk("an elevation on the plane is refused", _MgRefusesKindSpec(:Surface, [ :f = "x", :x = [ 0, 1 ], :y = [ 0, 1 ], :view = [ 0, 0 ] ], "elevation"))
+chk("too many samples are refused", _MgRefusesKindSpec(:Surface, [ :f = "x", :x = [ 0, 1 ], :y = [ 0, 1 ], :samples = 100 ], "8 to 48"))
+chk("NEGATIVE: the lawful form is accepted", NOT _MgRefusesKindSpec(:Surface, [ :f = "x * y", :x = [ 0, 1 ], :y = [ 0, 1 ], :samples = 8 ], ""))
+oSW = StzMathFigSurfaceWitness()
+oSWRep = StzCheckPictures([ [ "surface/witness", oSW.Diagram() ] ])
+acSr = []
+aSf = oSWRep.Findings()
+for i = 1 to len(aSf)  acSr + ("" + aSf[i][:rule])  next
+chk("the witness's tampered corner is found by sample_is_the_function", _MgHas(acSr, "sample_is_the_function"))
+oSRep = StzCheckPictures([ [ "surface/23", oS23.Diagram() ], [ "surface/24", oS24.Diagram() ] ])
+chkeq("NEGATIVE: the two lawful surfaces raise no finding", oSRep.NumberOfFindings(), 0)
 
 #---------------------------------------------------------------------------
 
