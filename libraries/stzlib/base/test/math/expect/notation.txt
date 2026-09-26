@@ -1,17 +1,28 @@
 [1] $\alpha$ -> has=1 w=12.28 asc=21.58 desc=5.02 runs=[ [ "α", 0, 0, 20 ] ]
 [2] $\alpha^2 + \beta_1$ -> has=1 w=63.42 asc=23.55 desc=7.61 runs=[ [ "α", 0, 0, 20 ], [ "2", 12.28, -8, 14.40 ], [ " + ", 20.05, 0, 20 ], [ "β", 44.70, 0, 20 ], [ "1", 55.66, 4, 14.40 ] ]
 [3] $x^{n+1}$ -> has=1 w=34.97 asc=23.55 desc=5.02 runs=[ [ "x", 0, 0, 20 ], [ "n+1", 9.19, -8, 14.40 ] ]
-[4] $\sum_{i=1}^{n} x_i$ -> has=1 w=59.75 asc=23.55 desc=7.61 runs=[ [ "∑", 0, 0, 20 ], [ "i=1", 12.33, 4, 14.40 ], [ "n", 33.44, -8, 14.40 ], [ " x", 41.59, 0, 20 ], [ "i", 56.27, 4, 14.40 ] ]
+[4] $\sum_{i=1}^{n} x_i$ -> has=1 w=35.11 asc=31.35 desc=18.62 runs=[ [ "∑", 0, 0, 20 ], [ "i=1", -2.63, 15.60, 12 ], [ "n", 2.77, -18.40, 12 ], [ " x", 16.95, 0, 20 ], [ "i", 31.63, 4, 14.40 ] ]
 [5] $e^{i\pi} + 1 = 0$ -> has=1 w=93.84 asc=23.55 desc=5.02 runs=[ [ "e", 0, 0, 20 ], [ "i", 10.45, -8, 14.40 ], [ "π", 13.94, -8, 14.40 ], [ " + 1 = 0", 22.97, 0, 20 ] ]
 [6] $\Omega \subseteq \Gamma$ -> has=1 REFUSED: StzNotationRuns: this font has no glyph for '\subseteq', so drawing it would put a hollow 
 [7] $a \le b \ne c$ -> has=1 w=80.52 asc=21.58 desc=5.02 runs=[ [ "a ", 0, 0, 20 ], [ "≤", 15.66, 0, 20 ], [ " b ", 29.36, 0, 20 ], [ "≠", 52.09, 0, 20 ], [ " c", 65.80, 0, 20 ] ]
 [8] $\int f \, dx$ -> has=1 REFUSED: StzNotationRuns: a backslash names a symbol, and '\int f \, dx' has one naming nothing. 
 [9] $\nabla \cdot F$ -> has=1 REFUSED: StzNotationRuns: this font has no glyph for '\nabla', so drawing it would put a hollow box
 [10] $x_{i_j}$ -> has=1 w=15.19 asc=21.58 desc=9.49 runs=[ [ "x", 0, 0, 20 ], [ "i", 9.19, 4, 14.40 ], [ "j", 12.67, 6.88, 10.37 ] ]
-[11] $\sqrt{2}$ -> has=1 REFUSED: StzNotationRuns: braces group what a script raises or lowers, and '\sqrt{2}' has one stand
+[11] $\sqrt{2}$ -> has=1 w=30 asc=35.54 desc=5.02 runs=[ [ "√", 0, 0, 20 ], [ "—", 13, -17.20, 17 ], [ "2", 14, 0, 20 ] ]
 [12] plain text -> has=0 w=81.63 asc=21.58 desc=5.02 runs=[ [ "plain text", 0, 0, 20 ] ]
-[13] $\frac{1}{2}$ -> has=1 REFUSED: StzNotationRuns: this reader does not know '\frac'. It reads superscripts, subscripts, Gre
+[13] $\frac{1}{2}$ -> has=1 w=19 asc=32.74 desc=15.27 runs=[ [ "1", 3.91, -14.40, 17 ], [ "—", 0, -6, 17 ], [ "2", 3.91, 11, 17 ] ]
 [14] $\levitate$ -> has=1 REFUSED: StzNotationRuns: this reader does not know '\levitate'. It reads superscripts, subscripts,
 [15] $x^{y^{z^{w}}}$ -> has=1 REFUSED: StzNotationRuns: 'w' stacks scripts more than three deep -- that is an equation rather tha
 [16] $\infty$ -> has=1 w=16.34 asc=21.58 desc=5.02 runs=[ [ "∞", 0, 0, 20 ] ]
+[17] $\frac{a+b}{2}$ -> has=1 w=53 asc=32.74 desc=15.27 runs=[ [ "a+b", 10.36, -14.40, 17 ], [ "———", 0, -6, 17 ], [ "2", 20.91, 11, 17 ] ]
+[18] $\frac{1}{\frac{1}{x}}$ -> has=1 w=36 asc=32.74 desc=23.98 runs=[ [ "1", 12.41, -14.40, 17 ], [ "——", 0, -6, 17 ], [ "1", 12.25, -1.24, 14.45 ], [ "—", 8.92, 5.90, 14.45 ], [ "x", 12.83, 20.35, 14.45 ] ]
+[19] $\sqrt{x^2 + 1}$ -> has=1 w=81 asc=35.54 desc=5.02 runs=[ [ "√", 0, 0, 20 ], [ "————", 13, -17.20, 17 ], [ "x", 14, 0, 20 ], [ "2", 23.19, -8, 14.40 ], [ " + 1", 30.95, 0, 20 ] ]
+[20] $\prod^{n}_{k=1} k$ -> has=1 w=35.28 asc=31.35 desc=18.62 runs=[ [ "∏", 0, 0, 20 ], [ "k=1", -2.78, 15.60, 12 ], [ "n", 4.14, -18.40, 12 ], [ " k", 19.86, 0, 20 ] ]
+[21] $\matrix{1, 2; 3, 4}$ -> has=1 w=57.64 asc=30.69 desc=21.62 runs=[ [ "[", 0, 8.70, 36.50 ], [ "1", 13.72, -6.30, 18 ], [ "3", 13.72, 17.10, 18 ], [ "2", 34.22, -6.30, 18 ], [ "4", 34.22, 17.10, 18 ], [ "]", 46.62, 8.70, 36.50 ] ]
+[22] $\matrix{a, b, c}$ -> has=1 w=67.11 asc=23.75 desc=4.52 runs=[ [ "[", 0, -2.17, 20 ], [ "a", 8.73, 0, 18 ], [ "b", 28.69, 0, 18 ], [ "c", 50.07, 0, 18 ], [ "]", 61.08, -2.17, 20 ] ]
+[23] $\frac{1}$ -> has=1 REFUSED: StzNotationRuns: \frac takes a denominator after the numerator in braces, and '\frac{1}' d
+[24] $\matrix{1, 2; 3}$ -> has=1 REFUSED: StzNotationRuns: row 2 of the matrix has 1 cell(s) where row 1 has 2 -- a matrix is rectan
+[25] $\matrix{1, ; 3, 4}$ -> has=1 REFUSED: StzNotationRuns: cell (1, 2) of the matrix is empty. 
+[26] $\sqrt$ -> has=1 w=13 asc=21.58 desc=5.02 runs=[ [ "√", 0, 0, 20 ] ]
 symbol(alpha)=α symbol(zzz)=[]
+

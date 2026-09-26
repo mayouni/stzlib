@@ -128,8 +128,9 @@ func StzNumberLineFigureFromXT(poFont, paSpec)
 	_oS_.SetData("ax", "y", _nAy_)
 	_oS_.SetData("ax", "a", _nA_)  _oS_.SetData("ax", "b", _nB_)
 	_oS_.SetData("ax", "px0", _nL_)  _oS_.SetData("ax", "px1", _nR_)
+	_aTb_ = _FfTitleBox(poFont, _d_[:label], StzNumberLineFigureTitleSize())
 	_oS_.SetData("ax", "tx", _nL_ + _NlTextWidth(poFont, _d_[:label], StzNumberLineFigureTitleSize()) / 2)
-	_oS_.SetData("ax", "ty", 34)
+	_oS_.SetData("ax", "ty", max([ 34, _aTb_[1] + 8 ]))
 
 	# the ticks: the author's step, or a nice one giving sixteen or fewer
 	_nStep_ = _d_[:step]

@@ -105,6 +105,8 @@ func StzMatrixFigureFromXT(poFont, paSpec)
 	_nGap_ = StzMatrixFigureGap()
 	_nTop_ = 96
 	if _d_[:label] = ""  _nTop_ = 66  ok
+	_aTb_ = _FfTitleBox(poFont, _d_[:label], StzMatrixFigureTitleSize())
+	if _d_[:label] != "" and _aTb_[1] + _aTb_[2] + 50 > _nTop_  _nTop_ = _aTb_[1] + _aTb_[2] + 50  ok
 
 	# the paper: grids side by side, glyphs between, heads above
 	_nMaxRows_ = 0
@@ -137,7 +139,7 @@ func StzMatrixFigureFromXT(poFont, paSpec)
 	_oS_.Label("fig", _d_[:label])
 	_oS_.SetData("fig", "w", _nW_)  _oS_.SetData("fig", "h", _nH_)
 	_oS_.SetData("fig", "tx", 30 + _FfTextWidth(poFont, _d_[:label], StzMatrixFigureTitleSize()) / 2)
-	_oS_.SetData("fig", "ty", 30)
+	_oS_.SetData("fig", "ty", _aTb_[1] + 8)
 	_oS_.SetData("fig", "grids", len(_aG_))
 	_oS_.SetData("fig", "lo", _nLo_)  _oS_.SetData("fig", "hi", _nHi_)
 	_oS_.SetData("fig", "isheat", (_d_[:as] = "heat"))

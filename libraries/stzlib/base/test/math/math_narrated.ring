@@ -685,6 +685,67 @@ chkeq("NEGATIVE: the two lawful surfaces raise no finding", oSRep.NumberOfFindin
 
 #---------------------------------------------------------------------------
 
+sec("-- 15. NOTATION: FRACTIONS, ROOTS, LIMITS AND MATRICES AS STACKED RUNS -")
+
+oNf = StzMathFigureFont()
+# THE READER IS HELD TO ITS BYTES: twenty-six labels, runs and refusals,
+# against the expectation the probe generated from the bytes
+cNow = StzMathNotationProbeText(oNf)
+cNow = StzReplace(cNow, char(13), "")
+cExp = StzReplace(read("expect/notation.txt"), char(13), "")
+chk("the reader answers the committed bytes for all twenty-six labels", ring_trim(cNow) = ring_trim(cExp))
+if ring_trim(cNow) != ring_trim(cExp)
+	write("expect/notation.got.txt", cNow)
+	? "        (this run's bytes are in expect/notation.got.txt)"
+ok
+# a fraction: numerator above the bar above the denominator, the bar at
+# least as wide as either
+aFr = StzNotationRuns("$\frac{a+b}{2}$", 20, oNf)[1]
+chkeq("a fraction is three runs: numerator, bar, denominator", len(aFr), 3)
+chk("stacked in that order: the numerator's baseline above the bar's above the denominator's", aFr[1][3] < aFr[2][3] and aFr[2][3] < aFr[3][3])
+nWn = oNf.WidthOf(aFr[1][1], aFr[1][4])
+nWb = oNf.WidthOf(aFr[2][1], aFr[2][4])
+chk("and the bar spans the numerator", nWb >= nWn)
+chk("the fraction's box is taller than a plain label's, above and below", StzNotationRuns("$\frac{1}{2}$", 20, oNf)[3] > StzNotationRuns("$x$", 20, oNf)[3] and StzNotationRuns("$\frac{1}{2}$", 20, oNf)[4] > StzNotationRuns("$x$", 20, oNf)[4])
+# a root: the sign, a bar over the argument, the argument
+aRt = StzNotationRuns("$\sqrt{x^2 + 1}$", 20, oNf)[1]
+chk("a root begins with the radical sign", aRt[1][1] = StzNotationSymbol("sqrt"))
+chk("and its bar lies above the argument's baseline", aRt[2][3] < aRt[3][3] and StzFindFirst("—", aRt[2][1] + "─") > 0)
+# limits centred on the sign
+aSm = StzNotationRuns("$\sum_{i=1}^{n} x_i$", 20, oNf)[1]
+nSignMid = aSm[1][2] + oNf.WidthOf(aSm[1][1], aSm[1][4]) / 2
+nLoMid = aSm[2][2] + oNf.WidthOf(aSm[2][1], aSm[2][4]) / 2
+nHiMid = aSm[3][2] + oNf.WidthOf(aSm[3][1], aSm[3][4]) / 2
+chk("a sum's lower limit is centred under the sign, to half a pixel", fabs(nLoMid - nSignMid) < 0.5 and aSm[2][3] > 0)
+chk("and its upper limit is centred over it", fabs(nHiMid - nSignMid) < 0.5 and aSm[3][3] < 0)
+chk("NEGATIVE: a script on a letter still sits to its right, not over it", StzNotationRuns("$x^2$", 20, oNf)[1][2][2] > 0)
+# a matrix: columns aligned, rows apart, brackets scaled to the height
+aMx = StzNotationRuns("$\matrix{1, 2; 3, 4}$", 20, oNf)[1]
+chkeq("a 2 x 2 matrix is six runs: two brackets and four cells", len(aMx), 6)
+chk("the cells of a column share one x", fabs(aMx[2][2] - aMx[3][2]) < 0.000001 and fabs(aMx[4][2] - aMx[5][2]) < 0.000001)
+chk("the rows stand apart, one above and one below the axis", aMx[2][3] < 0 and aMx[3][3] > 0)
+chk("and the brackets are drawn larger than the type", aMx[1][4] > 20 and aMx[6][4] > 20)
+chk("\frac with one argument is refused by name", _MgNotationRefuses("$\frac{1}$", "denominator"))
+chk("a ragged matrix is refused", _MgNotationRefuses("$\matrix{1, 2; 3}$", "rectangular"))
+chk("an empty cell is refused", _MgNotationRefuses("$\matrix{1, ; 3, 4}$", "empty"))
+chk("a seven-column matrix is refused -- that is a picture, not a label", _MgNotationRefuses("$\matrix{1,2,3,4,5,6,7}$", "picture"))
+chk("an unknown command is still refused, and the refusal now names the structures", _MgNotationRefuses("$\levitate$", "frac"))
+chk("NEGATIVE: \sqrt with no brace is still the bare sign", len(StzNotationRuns("$\sqrt$", 20, oNf)[1]) = 1)
+# and the notation draws: three scenes, lawful
+oN27 = StzMathFigScene27()
+oN27.Layout()
+chk("fractions as the names of points on a line are lawful", oN27.IsSolved())
+oN28 = StzMathFigScene28()
+oN28.Layout()
+chk("a title with a fraction and a sum is lawful", oN28.IsSolved())
+oN29 = StzMathFigScene29()
+oN29.Layout()
+chk("a matrix in a title is lawful", oN29.IsSolved())
+oNRep = StzCheckPictures([ [ "notation/27", oN27.Diagram() ], [ "notation/28", oN28.Diagram() ], [ "notation/29", oN29.Diagram() ] ])
+chkeq("NEGATIVE: the three raise no finding", oNRep.NumberOfFindings(), 0)
+
+#---------------------------------------------------------------------------
+
 if nSecClock > 0
 	? "        [section took " + ((clock() - nSecClock) / clockspersecond()) + "s]"
 ok
@@ -730,6 +791,18 @@ func _MgRefuses aSpec, cWords
 	done
 	if NOT _b_  return FALSE  ok
 	if cWords = ""  return TRUE  ok
+	return StzFindFirst(cWords, _c_) > 0
+
+func _MgNotationRefuses cLabel, cWords
+	_b_ = FALSE
+	_c_ = ""
+	try
+		_a_ = StzNotationRuns(cLabel, 20, StzMathFigureFont())
+	catch
+		_b_ = TRUE
+		_c_ = cCatchError
+	done
+	if NOT _b_  return FALSE  ok
 	return StzFindFirst(cWords, _c_) > 0
 
 func _MgLabelExists oS, cLabel

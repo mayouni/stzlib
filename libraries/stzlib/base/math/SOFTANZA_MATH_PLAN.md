@@ -534,6 +534,52 @@ it, and the catalogue keeps 24 x 24 meanwhile.
 notation: the `$...$` table grown toward fractions, roots, sums and
 matrices, moved to `base/math/stzMathNotation.ring` per decision 6.
 
+#### M1 NOTATION RESULTS -- the reader moved and grown, 2026-09-26; M1 CLOSED
+
+**The cut** (decision 6): `stzMathDiagram.ring:1230-1473` moved whole to
+`base/math/stzMathNotation.ring` in one commit, a pointer left in place,
+the run-list contract `[ cText, nDx, nDy, nSize ]` untouched. Proven three
+ways before the commit: a sixteen-label probe answered the same bytes;
+the DN10 section of `gg_adversarial` (extracted as a standalone probe with
+its helpers closed transitively) answered 20 ok on the stashed pre-cut
+tree and on the cut one; `math_narrated.ring` stayed 189/189.
+
+**The growth**, as stacked runs within that contract, still not TeX -- a
+closed set of four structures with a fixed number of braced arguments,
+no macro, no environment, refused by name past that:
+
+- `\frac{a}{b}`: numerator and denominator at 0.85 of the size on either
+  side of a bar at the axis, the bar a run of box-drawing horizontals or
+  em dashes (a font with neither refuses), the whole as wide as the wider.
+- `\sqrt{x}`: the radical sign, the argument, a bar over it; `\sqrt` alone
+  is still the bare sign.
+- `\sum`, `\prod`, `\int` with `_{lo}` and `^{hi}` in either order: the
+  limits centred under and over the sign at 0.6 of the size; a script on
+  any other symbol still sits to its right.
+- `\matrix{a, b; c, d}`: cells parted by commas, rows by semicolons,
+  columns as wide as their widest cell, rows a line apart centred on the
+  axis, between brackets scaled to the height; six a side at most.
+
+Twenty-six labels are the reader's byte expectation
+(`base/test/math/expect/notation.txt`, generated from the bytes by
+`probe_notation.ring`, compared by gate section 15); three scenes draw
+the notation (27: fractions and a root as the names of points on a
+line; 28: a title with a fraction and a sum with its limits; 29: a
+matrix in a title) and were looked at. Every figure now measures its
+title's box through the reader and grows its top margin to hold it -- a
+stacked title ran 9 px off the canvas at the fixed margin, which moved
+the function figure's SVG expectation by 254 bytes (the title's place),
+regenerated and committed with this slice.
+
+**Found while building:** a backslash in a Ring string is literal and
+one is one, so a generator that doubles them for another language's
+escaping hands the reader two -- section 15 crashed on exactly that
+until its backslashes were reduced to one; six zero notes alone on the sinc stuck
+within 2 px of lawful (a solver fragility of the fixed start, noted for
+M2's re-solve work; scene 28 marks the extrema instead).
+
+**M1 IS CLOSED**: seven figure kinds and the notation, all on main.
+
 ### M2 -- Motion
 
 **Deliverable**: `stzMathMotion`: `Param(name, from, to)` re-solves a figure
