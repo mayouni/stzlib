@@ -497,6 +497,43 @@ margins are part of the layout.
 the branch cut of complex log (not in the library, M5); a polynomial of
 degree over twelve.
 
+#### M1d RESULTS -- the `:BoxPlot` and `:Surface` figures, 2026-09-26; seven of seven kinds ship
+
+**Shipped**: `base/math/stzBoxPlotFigure.ring` and `stzSurfaceFigure.ring`.
+`StzMathFigureQ(:BoxPlot, [ :of = [ 2, 4, 4, 5, 7, 9, 12, 25 ] ])` draws the
+five numbers `stzDataSet` computes (engine percentiles, the same 1.5 IQR
+fences as `stats.zig`), solves the three numbers written above the box
+apart from one another, draws every value beyond a fence alone, and
+carries a TEXT rendition (`oF.Text()`, the Tukey plan's TK3): the five
+numbers in a header and the box in characters on a sixty-column scale,
+which reads wrong the moment a witness is wrong. `:groups` stacks up to six
+boxes on one axis. `StzMathFigureQ(:Surface, [ :f = "x^2 - y^2", :x = [ -1, 1 ],
+:y = [ -1, 1 ] ])` samples z on the engine's tape, PROJECTS every point
+through the engine's own camera matrices (the four `Mat4` bridges
+`stzScene.Project` uses, which need no device), and draws rows and columns
+as polylines coloured by their height on one ramp inside the cube that
+frames the space -- a true surface on the vector tier, where the plot
+engine's "surface" is a treemap. Five rules joined the one gate; two
+witnesses convicted. Gate `math_narrated.ring`: 189 assertions in 14
+sections, 27.5 s quiet (2.3 / 1.7 / 3.0 / 0.1 / 6.0 / 3.8 / 0.1 / 1.2 / 1.3 /
+0.0 / 1.3 / 1.2 / 0.6 / 5.2 s; 160 s the same hour under load). Catalogue:
+26 scenes, looked at.
+
+**Found while building:** a note left free of its side slid under the
+box onto the value axis -- a note's offset is held above by rule now; the
+names under a cube must go under the NEAR edges, which depend on where
+the eye is (under the far edge they project inside the cube, behind the
+wire), and the projection box must leave room below the cube for them;
+twenty samples never land on y = 0, so a saddle's top is 1 - (1/19)^2 and a
+gate that expected 1 was wrong; the 32 x 32 surface takes 4.6 s to build,
+almost all of it the diagram compiling 4,096 property expressions for 64
+splines -- the data-only polyline kind of `MATH-POLYLINE-01` would remove
+it, and the catalogue keeps 24 x 24 meanwhile.
+
+**M1 stands at seven of seven figure kinds.** What remains of M1 is
+notation: the `$...$` table grown toward fractions, roots, sums and
+matrices, moved to `base/math/stzMathNotation.ring` per decision 6.
+
 ### M2 -- Motion
 
 **Deliverable**: `stzMathMotion`: `Param(name, from, to)` re-solves a figure

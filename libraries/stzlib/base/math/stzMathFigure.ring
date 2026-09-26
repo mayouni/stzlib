@@ -48,7 +48,7 @@ func StzMathFigureFont()
 	return NULL
 
 func StzMathFigureKinds()
-	return [ "function", "numberline", "fraction", "matrix", "complexplane" ]
+	return [ "function", "numberline", "fraction", "matrix", "complexplane", "boxplot", "surface" ]
 
 func StzMathFigureQ(pcKind, paSpec)
 	return new stzMathFigure(pcKind, paSpec)
@@ -86,6 +86,10 @@ class stzMathFigure from stzObject
 			@oDiagram = StzMatrixFigureBuildXT(@oFont, @aSpec)
 		but @cKind = "complexplane"
 			@oDiagram = StzComplexPlaneFigureBuildXT(@oFont, @aSpec)
+		but @cKind = "boxplot"
+			@oDiagram = StzBoxPlotFigureBuildXT(@oFont, @aSpec)
+		but @cKind = "surface"
+			@oDiagram = StzSurfaceFigureBuildXT(@oFont, @aSpec)
 		ok
 
 	#-- what it is ------------------------------------------------------------
@@ -143,6 +147,10 @@ class stzMathFigure from stzObject
 			return StzMatrixFigureWhy(_oS_) + "; " + @oDiagram.Why()
 		but @cKind = "complexplane"
 			return StzComplexPlaneFigureWhy(_oS_) + "; " + @oDiagram.Why()
+		but @cKind = "boxplot"
+			return StzBoxPlotFigureWhy(_oS_) + "; " + @oDiagram.Why()
+		but @cKind = "surface"
+			return StzSurfaceFigureWhy(_oS_) + "; " + @oDiagram.Why()
 		ok
 		_c_ = "a " + @cKind + " figure: " + _oS_.DataOf("fr", "samples") + " samples in " +
 			_oS_.DataOf("fr", "pieces") + " piece(s), " + _oS_.DataOf("fr", "marks") + " mark(s)"
@@ -284,6 +292,14 @@ class stzMathFigure from stzObject
 	def Relayout()
 		@oDiagram.Relayout()
 		return This
+
+	# THE TEXT RENDITION a box plot carries (the Tukey plan's TK3): the
+	# five numbers and the box in characters, for a terminal or a test log
+	def Text()
+		if @cKind = "boxplot"
+			return StzBoxPlotFigureText(@oDiagram.Substance())
+		ok
+		stzraise("stzMathFigure.Text: a " + @cKind + " figure has no text rendition -- a box plot has.")
 
 	#-- the renditions ----------------------------------------------------------
 
