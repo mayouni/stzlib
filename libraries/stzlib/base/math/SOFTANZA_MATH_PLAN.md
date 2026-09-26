@@ -597,6 +597,47 @@ state against the exported state re-rendered, refusing by name when the
 machine has no device. **Routed**: F12. **Not claimed**: 60 fps for the
 solved half (decision 8); GIF or video.
 
+#### M2a RESULTS -- a parameter is a slider, 2026-09-26
+
+**Shipped**: `base/math/stzMathMotion.ring`. `StzMathMotionQ(:Function,
+[ :f = "{a} * sin({b} * x)", :on = [ -6.3, 6.3 ], :curve = :live ])` with
+`Param("a", 0.5, 3, 1)` and `Param("b", 0.5, 3, 1)`: `Set` moves a
+parameter, the COMPUTED half follows on the next frame (the family
+compiled once on the tape with x and the parameters as variables,
+re-sampled into an overlay canvas the window draws over the settled
+picture), the SOLVED half follows on `Settle` (the figure rebuilt and
+re-solved where the parameters last stood). `Play(oWindow)` is the loop:
+left and right on the first parameter, up and down on the second, a
+settle when the keys are released, Escape closes; `Frame()` is the same
+composition offscreen. The function figure took `:curve = :live` (it
+computes everything and draws all but the curve) and `:livesamples`.
+Gate `motion_narrated.ring`: 24 assertions in 3 sections, ~6 s.
+
+**The two numbers decision 8 asked for, measured**: the computed half
+is 6.9 ms median over sixty frames of 240 samples (7.0 mean, 8.3 worst)
+against the 16.7 ms frame, and the gate asserts the median and the
+STRUCTURE by count -- sixty flushes, 240 tape calls a frame, zero
+settles during the drag -- because a count is immune to this machine's
+ambient load and a clock is not; the solved half settles in 446 ms
+(mean of three) against the graph plane's 100 ms drag budget, which is
+OWED as a number and printed by the gate on every run, never claimed.
+
+**Found while building, by a breakdown of one frame (medians of sixty):**
+240 tape calls 5.8 ms, that is 24 us per crossing into the engine for
+one `ValueAt`; the pixel map in Ring 1.8 ms; the overlay's clear,
+polyline and flush 3 to 4 ms; and `StzColorToNumber(:Primary)` 0.77 ms
+PER CALL, which the motion was paying every frame against the colour
+system's own law (resolve at load, never per frame) -- cached at settle
+now, and the frame fell from 15.5 ms to 6.9. Routed `MATH-TAPE-BATCH-01`
+to the number plane: a batch `ValueAt` over many points in one crossing
+would take the 240 calls to one; the samples were cut from 400 to 240
+meanwhile (3.3 px a segment).
+
+**Not claimed**: the window loop under a gate (a gate cannot open a
+window on the author's screen; `base/test/math/play_motion.ring` is the
+demo to run by hand); the 100 ms settle; a mouse slider (the GUI plane's
+widget, when it exists -- keys move the parameters here).
+
 ### M3 -- The mathematics course
 
 **Deliverable**: `program/courses/math/` -- `course.zknw`, fifteen chapters

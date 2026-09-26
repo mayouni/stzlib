@@ -933,6 +933,7 @@ load "geo/stzGeoProcess.ring"
     load "math/stzBoxPlotFigure.ring"
     load "math/stzSurfaceFigure.ring"
     load "math/stzMathFigure.ring"
+    load "math/stzMathMotion.ring"
 
     # refine/ -- REFINEMENT PROGRAMMING (R6): stzPolyCode comes home --
     # code carries typed refinement points; a change is a typed proposal

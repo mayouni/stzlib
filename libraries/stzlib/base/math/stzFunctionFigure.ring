@@ -502,7 +502,13 @@ func StzFunctionFigureFromXT(poFont, paSpec)
 		_oS_.SetData("ty" + _nK_, "ly", _nY0_ + (_nYmax_ - _v_) * _nKy_)
 	next
 
-	# the pieces: every sample a datum in pixels, the count a datum too
+	# the pieces: every sample a datum in pixels, the count a datum too --
+	# unless a motion draws the curve, in which case no run is minted
+	_oS_.SetData("fr", "live", (_d_[:curve] = "live"))
+	if _d_[:curve] = "live"
+		_aRuns_ = []
+		_oS_.SetData("fr", "runs", 0)
+	ok
 	for _p_ = 1 to len(_aRuns_)
 		_cC_ = "c" + _p_
 		_i0_ = _aRuns_[_p_][1]
@@ -654,7 +660,7 @@ func StzFunctionFigureFromXT(poFont, paSpec)
 # can say what is allowed
 func StzFunctionFigureKeys()
 	return [ "f", "x", "y", "r", "t", "on", "samples", "mark", "label",
-	         "tangent", "window", "maxmarks", "xname", "yname" ]
+	         "tangent", "window", "maxmarks", "xname", "yname", "curve", "livesamples" ]
 
 func _FfDeclaration(paSpec)
 	if NOT isList(paSpec) or len(paSpec) = 0
@@ -676,7 +682,7 @@ func _FfDeclaration(paSpec)
 	_d_ = [ :form = "", :f = "", :x = "", :y = "", :r = "", :text = "",
 	        :range = [], :samples = StzFunctionFigureDefaultSamples(),
 	        :zeros = FALSE, :extrema = FALSE, :given = [], :label = "",
-	        :tangent = "", :window = [], :maxmarks = 9, :xname = "x", :yname = "y" ]
+	        :tangent = "", :window = [], :maxmarks = 9, :xname = "x", :yname = "y", :curve = "drawn" ]
 	_cF_ = _FfGet(paSpec, "f", "")
 	_cX_ = _FfGet(paSpec, "x", "")
 	_cY_ = _FfGet(paSpec, "y", "")
@@ -784,6 +790,13 @@ func _FfDeclaration(paSpec)
 	if isString(_cN_) and _cN_ != ""  _d_[:xname] = _cN_  ok
 	_cN_ = _FfGet(paSpec, "yname", "y")
 	if isString(_cN_) and _cN_ != ""  _d_[:yname] = _cN_  ok
+	# :curve = :live -- a MOTION draws the curve where its parameters are
+	# now; the figure computes everything and draws all but the curve
+	_cC_ = StzLower(ring_trim("" + _FfGet(paSpec, "curve", "drawn")))
+	if _cC_ != "drawn" and _cC_ != "live"
+		stzraise("StzFunctionFigure: :curve is :drawn (the figure draws it) or :live (a motion does).")
+	ok
+	_d_[:curve] = _cC_
 	return _d_
 
 # membership, plainly: StzFind answers a list of positions, not a number
