@@ -128,6 +128,8 @@ ok
     # the other door: sound -> text. Closed grammar only -- VC3 measured why.
     load "sound/stzListener.ring"
     load "sound/stzEarcons.ring"
+    # MU1: one note of any of twenty instruments, as a stzSound
+    load "sound/stzInstrument.ring"
     load "sound/stzMicrophone.ring"
 
     # the material graph: a material AS a graph, emitting the material

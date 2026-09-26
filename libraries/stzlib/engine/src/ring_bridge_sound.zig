@@ -83,6 +83,84 @@ fn ring_PluckOf(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(snd.pluckOf(gn(p, 1), @intFromFloat(gn(p, 2)), gn(p, 3), gn(p, 4))));
 }
 
+// MU1: the instruments. Indices are 1-based on the Ring side, translated here.
+const ins = @import("soundinstr.zig");
+
+fn instIdx(p: *anyopaque, n: c_int) u32 {
+    const v = gn(p, n);
+    if (v < 1) return std.math.maxInt(u32);
+    return @intFromFloat(v - 1);
+}
+
+fn retStr(p: *anyopaque, sl: []const u8) void {
+    R.ring_vm_api_retstring2(p, sl.ptr, @intCast(sl.len));
+}
+
+fn ring_InstrumentCount(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(ins.count()));
+}
+
+fn ring_InstrumentName(p: *anyopaque) callconv(.c) void {
+    const i = instIdx(p, 1);
+    retStr(p, if (i < ins.count()) ins.SPECS[i].name else "");
+}
+
+fn ring_InstrumentHonestName(p: *anyopaque) callconv(.c) void {
+    const i = instIdx(p, 1);
+    retStr(p, if (i < ins.count()) ins.SPECS[i].honest else "");
+}
+
+fn ring_InstrumentEngine(p: *anyopaque) callconv(.c) void {
+    const i = instIdx(p, 1);
+    rn(p, if (i < ins.count()) @floatFromInt(ins.SPECS[i].engine) else -1);
+}
+
+fn ring_InstrumentPitchClass(p: *anyopaque) callconv(.c) void {
+    const i = instIdx(p, 1);
+    rn(p, if (i < ins.count()) @floatFromInt(ins.SPECS[i].pitch) else -1);
+}
+
+fn ring_InstrumentLow(p: *anyopaque) callconv(.c) void {
+    const i = instIdx(p, 1);
+    rn(p, if (i < ins.count()) ins.SPECS[i].lo else -1);
+}
+
+fn ring_InstrumentHigh(p: *anyopaque) callconv(.c) void {
+    const i = instIdx(p, 1);
+    rn(p, if (i < ins.count()) ins.SPECS[i].hi else -1);
+}
+
+fn ring_InstrumentIndex(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(ins.indexOf(getStr(p, 1)) + 1)); // 0 = no such instrument
+}
+
+// NoteOf(inst, hz, hzEnd, hold, velocity, variant, rate) -> buffer id or 0
+fn ring_NoteOf(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(snd.noteOf(instIdx(p, 1), gn(p, 2), gn(p, 3), gn(p, 4), gn(p, 5), @intFromFloat(gn(p, 6)), @intFromFloat(gn(p, 7)))));
+}
+
+fn ring_NoteRawCents(p: *anyopaque) callconv(.c) void {
+    rn(p, ins.last_raw_cents);
+}
+
+fn ring_NoteTuningCents(p: *anyopaque) callconv(.c) void {
+    rn(p, ins.last_tuning_cents);
+}
+
+// MixInto(dst, src, atFrame1, gain) -> frames mixed, or -1
+fn ring_MixInto(p: *anyopaque) callconv(.c) void {
+    const at1 = gn(p, 3);
+    const at0: usize = if (at1 < 1) 0 else @intFromFloat(at1 - 1);
+    rn(p, snd.mixInto(id(p, 1), id(p, 2), at0, gn(p, 4)));
+}
+
+// MeasurePitch(buffer, fromFrame1, hzGuess, spectral) -> Hz or 0
+fn ring_MeasurePitch(p: *anyopaque) callconv(.c) void {
+    const from1 = gn(p, 2);
+    const from0: usize = if (from1 < 1) 0 else @intFromFloat(from1 - 1);
+    rn(p, snd.measurePitchOf(id(p, 1), from0, gn(p, 3), gn(p, 4) != 0));
+}
+
 fn ring_NewSilent(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(snd.newSilent(
         @intFromFloat(gn(p, 1)),
@@ -363,6 +441,11 @@ fn ring_GraphSetFrequency(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(gph.setFrequency(id(p, 1), nodeIn(p, 2), gn(p, 3), gn(p, 4))));
 }
 
+// MU1: SetRate(graph, node, ratio) -- a source played at a rate
+fn ring_GraphSetRate(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gph.setRate(id(p, 1), nodeIn(p, 2), gn(p, 3))));
+}
+
 fn ring_GraphCurrentFrequency(p: *anyopaque) callconv(.c) void {
     rn(p, gph.currentFrequency(id(p, 1), nodeIn(p, 2)));
 }
@@ -518,6 +601,19 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginesoundearconof", .func = &ring_EarconOf },
     .{ .name = "stzenginesoundearconframes", .func = &ring_EarconFrames },
     .{ .name = "stzenginesoundpluckof", .func = &ring_PluckOf },
+    .{ .name = "stzenginesoundinstrumentcount", .func = &ring_InstrumentCount },
+    .{ .name = "stzenginesoundinstrumentname", .func = &ring_InstrumentName },
+    .{ .name = "stzenginesoundinstrumenthonestname", .func = &ring_InstrumentHonestName },
+    .{ .name = "stzenginesoundinstrumentengine", .func = &ring_InstrumentEngine },
+    .{ .name = "stzenginesoundinstrumentpitchclass", .func = &ring_InstrumentPitchClass },
+    .{ .name = "stzenginesoundinstrumentlow", .func = &ring_InstrumentLow },
+    .{ .name = "stzenginesoundinstrumenthigh", .func = &ring_InstrumentHigh },
+    .{ .name = "stzenginesoundinstrumentindex", .func = &ring_InstrumentIndex },
+    .{ .name = "stzenginesoundnoteof", .func = &ring_NoteOf },
+    .{ .name = "stzenginesoundnoterawcents", .func = &ring_NoteRawCents },
+    .{ .name = "stzenginesoundnotetuningcents", .func = &ring_NoteTuningCents },
+    .{ .name = "stzenginesoundmeasurepitch", .func = &ring_MeasurePitch },
+    .{ .name = "stzenginesoundmixinto", .func = &ring_MixInto },
     .{ .name = "stzenginesoundfree", .func = &ring_Free },
     .{ .name = "stzenginesoundframes", .func = &ring_Frames },
     .{ .name = "stzenginesoundchannels", .func = &ring_Channels },
@@ -577,6 +673,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginesoundgraphcurrentgain", .func = &ring_GraphCurrentGain },
     .{ .name = "stzenginesoundgraphsetfrequency", .func = &ring_GraphSetFrequency },
     .{ .name = "stzenginesoundgraphcurrentfrequency", .func = &ring_GraphCurrentFrequency },
+    .{ .name = "stzenginesoundgraphsetrate", .func = &ring_GraphSetRate },
 
     // the recorder (SN4)
     .{ .name = "stzenginesoundrecordernew", .func = &ring_RecorderNew },

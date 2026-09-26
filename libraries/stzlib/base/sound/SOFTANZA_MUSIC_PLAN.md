@@ -600,3 +600,201 @@ the coarse one can promise.
 (is the pluck a string) each take a name and a verdict here, or stay marked as
 they are. Spikes 1 and 4 are also played, so the person the plan is written for
 has heard what the numbers describe.
+
+
+---
+
+## MU1 STATUS — 2026-09-26. Twenty instruments, in tune to hundredths of a cent, and all twenty unperceived
+
+**Engine.** `engine/src/soundinstr.zig` — a new seam file (imports `std` only)
+holding five engines, the twenty instruments, a self-tuning render and three
+pitch instruments; it compiles for `wasm32-freestanding` (a 19 KB object with
+the entry points exported — checked with exports, because an object with none
+proves nothing: Zig never analyses what nothing references). `soundgraph.zig`:
+`setRate` — a source played at a rate, by fractional read. `sound.zig`: `noteOf`,
+`measurePitchOf`, `mixInto`. Fifteen Ring bridges.
+**Face.** `base/sound/stzInstrument.ring` — `StzInstrumentQ`, `StzInstruments`,
+`StzNoteToHz`; `stzSound.MixIn`.
+**Guard.** `base/test/sound/sound_mu1_narrated.ring` — **37**. Zig: 5 in the
+instrument seam, 2 new in the graph (59 green), 12 in `sounddsp`.
+**Heard.** `sound_mu1_demo.ring` — a phrase per instrument in its own idiom, a
+Tunisian and a Nigerien ensemble, 23 WAVs, a 110.6 s tour, 0 underruns.
+
+### The one number MU1 exists to change
+
+| A4, read by the same fine instrument | cents |
+|---|---|
+| MU0's integer-period pluck | **+9.404** |
+| MU1's guitar — allpass fractional delay | **−0.022** |
+
+The loop is N whole samples + ½ for the two-point average (MU0's finding) + d
+for a first-order allpass, d kept in [0.5, 1.5). The plucked instruments now
+need no tuning at all: their untuned error is hundredths of a cent.
+
+### Every pitched instrument, bottom, middle and top of its range
+
+`raw c` is the UNTUNED model's error; `tuned` is the correction the
+instrument applied after listening to itself; the last three are the finished
+notes, in cents.
+
+| instrument | engine | raw c | tuned | low | mid | high |
+|---|---|---|---|---|---|---|
+| piano | pluck | 0.004 | 0 | −0.010 | 0.004 | −0.094 |
+| guitar | pluck | −0.010 | 0 | −0.019 | −0.010 | −0.029 |
+| harp | pluck | 0.025 | 0 | −0.005 | 0.025 | −0.073 |
+| bell | fm | 0 | 0 | 0.001 | 0.000 | 0.000 |
+| epiano | fm | 0 | 0 | −0.417 | 0.008 | −0.014 |
+| brass | fm | 0 | 0 | −0.000 | −0.002 | −0.012 |
+| flute | wind (jet) | **+32.9** | −32.8 | 0.041 | −0.034 | 0.054 |
+| oud | pluck | −0.007 | 0 | −0.002 | −0.007 | 0.015 |
+| koto | pluck | −0.000 | 0 | −0.020 | −0.000 | −0.019 |
+| kora | pluck | −0.009 | 0 | −0.018 | −0.009 | −0.072 |
+| metallophone | fm | 0 | 0 | −0.000 | −0.000 | 0.000 |
+| mezwed | wind (single reed ×2) | +6.1 | −6.8 | 0.029 | 0.009 | 0.004 |
+| zokra | wind (double reed) | −17.6 | +17.5 | −0.030 | 0.014 | 0.042 |
+| darbouka | membrane | 0 | 0 | −0.001 | 0.000 | 0.000 |
+| kakaki | wind (lip) | **−248.7** | **+376.7** | 0.001 | −0.010 | 0.011 |
+| sarewa | wind (jet) | +32.5 | −32.3 | 0.048 | 0.175 | 0.168 |
+| imzad | bow | +3.2 | −3.2 | −0.004 | −0.003 | 0.020 |
+| kalangu | membrane | 0 | 0 | −0.002 | 0.000 | 0.000 |
+
+The drum kit and the bendir are unpitched: they render and their peaks are
+checked. **Worst finished note anywhere: 0.417 cents**, against the plan's bar of 2.
+
+The kakaki's row is the argument for self-tuning in one line: the lip model
+starts **two and a half semitones flat**, and the tube needed **+377 cents** of
+correction to move the note +249 — because with the lips held at the asked
+pitch, stretching the tube moves the note only about two-thirds of the way.
+
+### The tuner is not its own witness
+
+The Zig tests and Scene 4 read pitch with the same instrument the tuner tunes
+by — which proves convergence, not correctness. So Scene 5 re-measures one
+instrument per engine family with an instrument that shares **no code** with
+the engine: an eight-pole lowpass at 1.2× the pitch, then the first and last
+rising zero crossing across 0.7 s, each located between samples, in Ring.
+
+| | asked | independently measured | cents |
+|---|---|---|---|
+| guitar (pluck) | 303.600 | 303.600 | **−0.000** |
+| zokra (wind) | 480 | 479.937 | **−0.228** |
+| imzad (bow) | 379.500 | 379.516 | **+0.073** |
+
+The zokra rather than the mezwed, and said why in the guard: two chanters
+BEAT, and a beat null flips the phase and adds a crossing that is not there.
+
+### The engines are distinct by their physics, not by their names
+
+Twenty names on one sound would pass every pitch check above. These cannot:
+
+| claim | measured |
+|---|---|
+| a cylinder suppresses even harmonics | mezwed H2/H3 **0.015** |
+| a cone does not | zokra H2/H3 **0.178** — 11.8× the cylinder's |
+| a bow sustains | imzad loudness at 0.9 s / 0.3 s **1.030** |
+| a pluck decays | guitar **0.427** |
+| a centre stroke is led by the fundamental | dum fundamental / mode (2,1) **17.5** |
+| a rim stroke by the upper mode | tak **0.739** |
+| snares buzz | bendir 2.5 kHz / fundamental **0.039**, darbouka **0.000** |
+
+### A pitch that moves, and a sample at another pitch
+
+- **Kalangu, 150 → 220 Hz over 0.8 s**, read by the spectral instrument in an
+  early and a late window: 161.763 against 162.770 expected, 201.323 against
+  202.740 — and it rose **378.758 cents** between the window centres where the
+  glide rises **380.148**. A plucked string asked to glide is refused.
+- **`setRate`**: a 220 Hz guitar note played at 2^(7/12) reads 329.614 Hz,
+  **−0.069 cents** from the fifth. At rate 1 a source is **bit-identical** to
+  one whose rate was never set — 0 samples differ — so every earlier guard
+  that plays a buffer is untouched.
+
+### Found, and each one changed the design rather than a number
+
+1. **The pitch instrument lied by an octave.** A 440 Hz sine asked about near
+   220 Hz repeats perfectly every 220 Hz period, so the first version answered
+   "220". I had claimed octave errors impossible by construction. It mattered
+   beyond the tool: a self-tuning instrument that jumped an octave UP would have
+   measured itself as correct. Now checked at half and a third of the lag.
+2. **A period estimator is the wrong instrument for a drum.** The kalangu read
+   18.7 cents sharp by it while its fundamental mode was exact by construction:
+   inharmonic partials pull a period estimate. Drums, bells and bars are now
+   read by a spectral instrument on their lowest mode — which answers where the
+   mode IS; what the ear calls the drum's pitch is the listener's.
+3. **The lip, as STK writes it, went silent.** Its filter passed steady pressure
+   at ~40× gain, the lips snapped open, and the loop sat at a fixed point —
+   exact zero after 100 ms, not a decay. Made a band-pass it could never START,
+   because the area is lip² and a square has no small-signal gain at zero. Real
+   lips have a rest opening; so does this one now (0.7, input gain 16 — the one
+   point in a 3×4×3 scan where every test pitch sustained).
+4. **The bowed string broke to its octave** above ~600 Hz at STK's default bow
+   pressure (1205 Hz asked 600) — real bowed-string physics, caught by the
+   octave guard. Bow pressure raised (slope 2), scanned at 400/600/800 Hz.
+5. **Tuning a vibrato-free probe mistuned the flute** by 2.9 cents: a jet's pitch
+   rides on its breath. The probe is now played as the note will be and read as
+   an average across the vibrato.
+6. **The sarewa wanders ±8 cents** for its whole note — breath, not drift. It is
+   read as sixteen readings over 0.25–1.0 s; and a marginal −1.990 was traced to
+   the probe's last readings landing in its RELEASE, fixed by holding the probe
+   past them.
+7. **The kakaki cracked.** The tuner converged on its probe and the note then
+   sounded a fourth up (99 Hz asked 72): the last correction had been computed
+   and never probed, and at that value the lips chose another tube mode. Now
+   only a HEARD correction is ever used, and the tuner moves the tube while the
+   lips stay at the asked pitch — the lips choose the mode.
+8. **A proportional correction under-corrects a lip.** The kakaki ran out of
+   passes 8.5 cents off; the step is now a secant, by what the last pass moved.
+9. **Two of the guard's own criteria were wrong, and the failed versions are
+   kept in its text.** "The cone: H2 above H3" asserted more than bore physics
+   says (a cone PERMITS even harmonics; it does not rank the second over the
+   third) — the replacement threshold, five times the cylinder's even content,
+   was set AFTER the 11.8× measurement and the guard says so. "The glide rose
+   more than 400 cents" was my arithmetic: the windows are centred 0.46 s apart,
+   and the curve rises only 380 between them.
+
+### A claim in this plan, corrected
+
+§6's MU1 said the four Nigerien instruments *"each prove a NEW excitation rather
+than lengthen the list"*. Three do — the kakaki the lip, the imzad the bow, the
+kalangu a membrane whose pitch moves. **The sarewa does not**: the flute already
+needed the jet, so the sarewa is the jet with more breath. And the general
+list's brass is FM, not lip — the kakaki is the only lip.
+
+### What MU1 did NOT do
+
+- **No perception.** All twenty names are provisional, and UNPERCEIVED as of
+  this writing. Each instrument's honest fallback is in the engine's table and
+  printed by the guard and the demo — `:Oud` → `:DarkPluck`, `:Piano` →
+  `:HammeredString` — decided before anyone listened.
+- **No algaita, molo, ganga or calabash.** §3 says they "cost nothing new" and
+  §7 says adding past the phase's count is drift. They are aliases waiting for a
+  phase that names them.
+- **No samples vendored**: the drum kit is synthesised, and a SoundFont remains a
+  licence decision recorded before a byte moves.
+- **No loudness between instruments.** Each note is peak-normalised to 0.7 ×
+  velocity; how instruments sit in a mix is a later phase's.
+- **No browser export** — the seam compiles for wasm; the exports are MU6's.
+- **No scheduler.** `mixInto` lays notes on a timeline offline, and MU2 will
+  build the scheduler on it.
+
+### Found on origin/main and not caused here
+
+- **Three older sound assertions have failed since 2026-08-22, and MU1 did not
+  touch them.** Full regression: **680 passed, 3 failed** — two in
+  `sound_convergence_narrated.ring` (VC6), one in `sound_ss4_narrated.ring`.
+  All three assert that the COLOUR face refuses `:Muted`. Commit `fa9251708`
+  (2026-08-22, *":Muted, family one's fifth value, as a TREATMENT"*) made
+  `:Muted` a colour, so `StzSemanticColors()` now has seven entries and the
+  refusal no longer happens. **The colour plane is arguably right**: SS4's own
+  principle is that the VALUE is shared and the RENDERING is the medium's —
+  silence is sound's rendering of `:Muted`, a quiet treatment is colour's. The
+  sound guards asserted something about colour that colour never owed, the same
+  overreach as this phase's H2-above-H3. Not changed here: it overturns a claim
+  SS4 argued and this plan records, and that is the author's to rule.
+- `zig build` fails `stz_http` and `stz_reactor` in a fresh checkout on a missing
+  generated header, `nghttp2/nghttp2ver.h`. The three sound DLLs build and are
+  what the guard and demo load.
+
+### The listener's line
+
+**UNPERCEIVED, all twenty, as of 2026-09-26.** One word per instrument settles
+MU1: its name, or its honest name. Each verdict goes here, by name.
