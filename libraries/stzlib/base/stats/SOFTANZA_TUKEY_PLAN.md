@@ -938,6 +938,57 @@ it, which is why TK1 could land.
 
 ---
 
+## TK1 RESULTS, second half -- the smoothers against R 4.5.1, 2026-09-26 (plane stzlib-math; MATH-R-ORACLE-01 closed)
+
+**The oracle arrived.** R was at `D:\R\R-4.5.1` all along; the author said
+so when asked why the block was still open. `base/test/math/oracle/r_smooth.R`
+runs `stats::smooth` on R's own `?smooth` example, a ramp with a wild 100, the
+`presidents` series (NAs as 0, n = 120) and forty seeded integer series of 7
+to 30 values with ties and plateaus -- six kinds, both end rules, twicing --
+and its transcript `r_smooth.txt` (651 lines, R's version string on the first)
+is the gate's oracle. Nothing in it was computed by this library.
+
+**Shipped**: the 3-family in `eda.zig` -- `3`, `3R`, `S`, `3RSS`, `3RS3R`,
+`3RSR`, the end rules copy and Tukey, R's `do.ends`, twicing as R's
+`twiceit` -- transcribed from `src/library/stats/src/smooth.c` line for
+line, R's quirks included (`sm_split3` ASSIGNS its change flag; `3RSR`
+subtracts the smooth from the input between rounds); four bridge calls;
+`stzTukeySmoother` in `base/math/stzTukey.ring` (`Smooth(kind)`, the six
+named forms, `Twice`, `Rough`, `SetEndRule`, `SetSplitEnds`, `Hanning`,
+`Smooth4253H`, `Smooth4253HTwice`, `WindowMedians`, `Why`).
+
+**Against R, exactly**: 72 of 72 on the three fixed series and 520 of 520
+on the sweep (`tukey_narrated.ring` section 10, 115 of 115 in all). The
+first run gave 60 of 72 and 491 of 520, every miss a 3RS kind under the copy
+end rule, and the cause was in R's own R code, not its C: `smooth.R` says
+`if (startsWith(kind, "3RS") && !do.ends) iend <- -iend` and `Rsm` reads
+the ends-splitting switch as `iend < 0` -- so for the 3RS kinds R splits the
+ends when `do.ends` is FALSE and leaves them when it is TRUE, while `S`
+takes `do.ends` as written. Reproduced, and named in `eda.zig`, because the
+oracle is what R does, not what its argument is called. Under the Tukey
+end rule the inversion never showed on 296 cases; the copy rule exposed it
+on 41. A transcription checked against one end rule would have shipped it.
+
+**What R does not verify, said by name**: R's `smooth` covers only the
+3-family. Hanning and 4253H are this plane's, with the ends COPIED at every
+stage; their windows are checked against R per window (`median()` on every
+window of 4 and 2, `runmed` interiors of 3 and 5, `filter(c(.25,.5,.25))`
+interior), and their end treatment is this plane's, not Velleman and
+Hoaglin's, whose worked series is not at hand. Two mechanism checks stand
+in: 4253H keeps a straight line exactly, and a spike of 100 on a line of
+slope 2 leaks through the even-span medians by 1.38 (an even median
+averages its two middle values; the plan's "removes the spike" was a
+guess and the measurement replaced it), where 3RS3R answers with the
+neighbour, 25 for 23, and Hanning alone leaves 50. Below four values R
+reads memory it never set (the Tukey end rule at n = 3 uses y[2] before it
+exists), so the face refuses n < 4 rather than imitate it.
+
+**Not built**: the N-way polish (no oracle in R -- `medpolish` is 2-D -- and
+no published table at hand); change-point detection over the rough (the
+plan demotes it to a verdict with a stated threshold, and no threshold has
+been measured). `tukey_narrated.ring` prints "skipped: none" now: every
+gate it owns runs.
+
 ## TK2 RESULTS -- re-expression, measured, 2026-09-26 (plane stzlib-math, M4)
 
 **Shipped in the engine** (`eda.zig`): `leastSquares`, `spreadLevel`

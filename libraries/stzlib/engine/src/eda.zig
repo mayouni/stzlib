@@ -566,6 +566,254 @@ pub fn recommend(rungs: []const Rung) ?usize {
 
 // ── tests: the oracles, transcribed with the command that produced them ──
 
+//-- THE SMOOTHERS (TK1, second half; MATH-R-ORACLE-01 answered 2026-09-26) --
+// R's stats::smooth, src/library/stats/src/smooth.c, transcribed line for
+// line: the 3-family -- 3, 3R, S, 3RSS, 3RS3R, 3RSR -- with the end rules
+// copy and Tukey, the split-ends switch (R's do.ends), and twicing as R
+// does it (the smooth of the rough, added back). R's quirks are kept where
+// they are R's -- sm_split3 ASSIGNS its change flag rather than or-ing it,
+// and 3RSR subtracts the smooth from the input between rounds -- because
+// the oracle is R 4.5.1's own output on fixed inputs and a seeded sweep
+// (base/test/math/oracle/r_smooth.txt, 40 series, every kind, both end
+// rules), read by the Ring gate and compared exactly. Below four values R
+// reads memory it never set (the Tukey end rule at n = 3 uses y[2] before
+// it exists), so the face refuses n < 4 rather than imitate that.
+// Hanning, the running medians and 4253H are this file's, with ends
+// COPIED; their interior windows are verified against R's median() and
+// filter() per window, and their end treatment is named as this plane's.
+
+pub const EndRule = enum(u8) { none = 0, copy = 1, tukey = 2 };
+pub const SmoothKind = enum(u8) { s3 = 0, s3R = 1, split = 2, s3RSS = 3, s3RS3R = 4, s3RSR = 5 };
+
+fn med3(u: f64, v: f64, w: f64) f64 {
+    if ((u <= v and v <= w) or (u >= v and v >= w)) return v;
+    if ((u <= w and w <= v) or (u >= w and w >= v)) return w;
+    return u;
+}
+
+/// the index offset of the median of (u, v, w) relative to v: 0 for v, 1 for w, -1 for u
+fn imed3(u: f64, v: f64, w: f64) i32 {
+    if ((u <= v and v <= w) or (u >= v and v >= w)) return 0;
+    if ((u <= w and w <= v) or (u >= w and w >= v)) return 1;
+    return -1;
+}
+
+fn smEndRule(x: []const f64, y: []f64, end_rule: EndRule, chg: *bool) void {
+    const n = x.len;
+    switch (end_rule) {
+        .none => {},
+        .copy => {
+            y[0] = x[0];
+            y[n - 1] = x[n - 1];
+        },
+        .tukey => {
+            y[0] = med3(3 * y[1] - 2 * y[2], x[0], y[1]);
+            chg.* = chg.* or (y[0] != x[0]);
+            y[n - 1] = med3(y[n - 2], x[n - 1], 3 * y[n - 2] - 2 * y[n - 3]);
+            chg.* = chg.* or (y[n - 1] != x[n - 1]);
+        },
+    }
+}
+
+fn sm3(x: []const f64, y: []f64, end_rule: EndRule) bool {
+    const n = x.len;
+    var chg = false;
+    if (n <= 2) {
+        for (x, 0..) |v, i| y[i] = v;
+        return false;
+    }
+    var i: usize = 1;
+    while (i < n - 1) : (i += 1) {
+        const j = imed3(x[i - 1], x[i], x[i + 1]);
+        y[i] = if (j < 0) x[i - 1] else if (j > 0) x[i + 1] else x[i];
+        chg = chg or (j != 0);
+    }
+    smEndRule(x, y, end_rule, &chg);
+    return chg;
+}
+
+fn sm3R(x: []const f64, y: []f64, z: []f64, end_rule: EndRule) usize {
+    const n = x.len;
+    var chg = sm3(x, y, .copy);
+    var iter: usize = if (chg) 1 else 0;
+    while (chg) {
+        chg = sm3(y, z, .none);
+        if (chg) {
+            iter += 1;
+            var i: usize = 1;
+            while (i < n - 1) : (i += 1) y[i] = z[i];
+        }
+    }
+    if (n > 2) smEndRule(x, y, end_rule, &chg);
+    return if (iter != 0) iter else @intFromBool(chg);
+}
+
+fn sptest(x: []const f64, i: usize) bool {
+    if (x[i] != x[i + 1]) return false;
+    if ((x[i - 1] <= x[i] and x[i + 1] <= x[i + 2]) or (x[i - 1] >= x[i] and x[i + 1] >= x[i + 2])) return false;
+    return true;
+}
+
+fn smSplit3(x: []const f64, y: []f64, do_ends: bool) bool {
+    const n = x.len;
+    var chg = false;
+    for (x, 0..) |v, i| y[i] = v;
+    if (n <= 4) return false;
+    if (do_ends and sptest(x, 1)) {
+        chg = true;
+        y[1] = x[0];
+        y[2] = med3(x[2], x[3], 3 * x[3] - 2 * x[4]);
+    }
+    var i: usize = 2;
+    while (i < n - 3) : (i += 1) {
+        if (sptest(x, i)) {
+            var j = imed3(x[i], x[i - 1], 3 * x[i - 1] - 2 * x[i - 2]);
+            if (-1 < j) {
+                y[i] = if (j == 0) x[i - 1] else 3 * x[i - 1] - 2 * x[i - 2];
+                chg = y[i] != x[i];
+            }
+            j = imed3(x[i + 1], x[i + 2], 3 * x[i + 2] - 2 * x[i + 3]);
+            if (-1 < j) {
+                y[i + 1] = if (j == 0) x[i + 2] else 3 * x[i + 2] - 2 * x[i + 3];
+                chg = y[i + 1] != x[i + 1];
+            }
+        }
+    }
+    if (do_ends and sptest(x, n - 3)) {
+        chg = true;
+        y[n - 2] = x[n - 1];
+        y[n - 3] = med3(x[n - 3], x[n - 4], 3 * x[n - 4] - 2 * x[n - 5]);
+    }
+    return chg;
+}
+
+fn sm3RS3R(x: []const f64, y: []f64, z: []f64, w: []f64, end_rule: EndRule, split_ends: bool) usize {
+    var iter = sm3R(x, y, z, end_rule);
+    const chg = smSplit3(y, z, split_ends);
+    if (chg) iter += sm3R(z, y, w, end_rule);
+    return iter + @intFromBool(chg);
+}
+
+fn sm3RSS(x: []const f64, y: []f64, z: []f64, end_rule: EndRule, split_ends: bool) usize {
+    const iter = sm3R(x, y, z, end_rule);
+    const chg = smSplit3(y, z, split_ends);
+    if (chg) _ = smSplit3(z, y, split_ends);
+    return iter + @intFromBool(chg);
+}
+
+fn sm3RSR(x: []const f64, y: []f64, z: []f64, w: []f64, end_rule: EndRule, split_ends: bool) usize {
+    const n = x.len;
+    var iter = sm3R(x, y, z, end_rule);
+    while (true) {
+        iter += 1;
+        var chg = smSplit3(y, z, split_ends);
+        const ch2 = sm3R(z, y, w, end_rule) != 0;
+        chg = chg or ch2;
+        if (!chg) break;
+        if (iter > 2 * n) break;
+        for (0..n) |i| z[i] = x[i] - y[i];
+    }
+    return iter;
+}
+
+/// R's smooth(x, kind, endrule, do.ends): out gets the smooth, work holds 2n of scratch;
+/// answers R's iteration count
+pub fn smooth(x: []const f64, kind: SmoothKind, end_rule: EndRule, do_ends: bool, out: []f64, work: []f64) usize {
+    const n = x.len;
+    const z = work[0..n];
+    const w = work[n .. 2 * n];
+    // R's smooth.R: `if (startsWith(kind, "3RS") && !do.ends) iend <- -iend`, and Rsm
+    // reads split_ends = (iend < 0) -- so for the 3RS kinds the ends are split when
+    // do.ends is FALSE and left alone when it is TRUE, while "S" takes do.ends as it
+    // is. Found by the oracle (12 of 72 and 29 of 520 cases differed, all of them
+    // 3RS kinds under the copy end rule) and reproduced, because the oracle is R.
+    const split_ends = switch (kind) {
+        .s3RSS, .s3RS3R, .s3RSR => !do_ends,
+        else => do_ends,
+    };
+    return switch (kind) {
+        .s3 => @intFromBool(sm3(x, out, end_rule)),
+        .s3R => sm3R(x, out, z, end_rule),
+        .split => @intFromBool(smSplit3(x, out, split_ends)),
+        .s3RSS => sm3RSS(x, out, z, end_rule, split_ends),
+        .s3RS3R => sm3RS3R(x, out, z, w, end_rule, split_ends),
+        .s3RSR => sm3RSR(x, out, z, w, end_rule, split_ends),
+    };
+}
+
+/// twicing as R's twiceit does it: the same smoother on the rough, added back; work holds 4n
+pub fn smoothTwice(x: []const f64, kind: SmoothKind, end_rule: EndRule, do_ends: bool, out: []f64, work: []f64) usize {
+    const n = x.len;
+    const iter = smooth(x, kind, end_rule, do_ends, out, work);
+    const rough = work[2 * n .. 3 * n];
+    const sr = work[3 * n .. 4 * n];
+    for (0..n) |i| rough[i] = x[i] - out[i];
+    _ = smooth(rough, kind, end_rule, do_ends, sr, work);
+    for (0..n) |i| out[i] += sr[i];
+    return iter;
+}
+
+/// Hanning: (1, 2, 1) / 4 on the interior, the ends copied
+pub fn hanning(x: []const f64, out: []f64) void {
+    const n = x.len;
+    for (x, 0..) |v, i| out[i] = v;
+    if (n < 3) return;
+    var i: usize = 1;
+    while (i < n - 1) : (i += 1) out[i] = 0.25 * x[i - 1] + 0.5 * x[i] + 0.25 * x[i + 1];
+}
+
+/// the medians of every window of k, n - k + 1 of them, even k giving the mean of
+/// the middle two (R's median() on the window); scratch holds k
+pub fn windowMedians(x: []const f64, k: usize, out: []f64, scratch: []f64) usize {
+    const n = x.len;
+    if (k == 0 or k > n) return 0;
+    const m = n - k + 1;
+    for (0..m) |i| {
+        for (0..k) |t| scratch[t] = x[i + t];
+        const win = scratch[0..k];
+        if (k % 2 == 1) {
+            out[i] = medianSelect(win);
+        } else {
+            const hi = selectKth(win, k / 2);
+            const lo = selectKth(win, k / 2 - 1);
+            out[i] = (lo + hi) / 2;
+        }
+    }
+    return m;
+}
+
+/// a running median of odd span k with the ends COPIED (the interior is R's runmed interior)
+fn runningMedianCopyEnds(x: []const f64, k: usize, out: []f64, scratch: []f64) void {
+    const n = x.len;
+    for (x, 0..) |v, i| out[i] = v;
+    if (k > n) return;
+    const h = k / 2;
+    var i: usize = h;
+    while (i + h < n) : (i += 1) {
+        for (0..k) |t| scratch[t] = x[i - h + t];
+        out[i] = medianSelect(scratch[0..k]);
+    }
+}
+
+/// 4253H: running medians of 4 and 2 (the 2 recentres the 4 onto the data's positions),
+/// then 5, then 3, then Hanning; every stage copies its ends. work holds 3n + 8.
+pub fn smooth4253H(x: []const f64, out: []f64, work: []f64) void {
+    const n = x.len;
+    const a = work[0..n];
+    const b = work[n .. 2 * n];
+    const m4 = work[2 * n .. 3 * n];
+    const scratch = work[3 * n .. 3 * n + 8];
+    for (x, 0..) |v, i| a[i] = v;
+    if (n >= 5) {
+        const m = windowMedians(x, 4, m4, scratch);
+        var i: usize = 0;
+        while (i + 1 < m) : (i += 1) a[i + 2] = (m4[i] + m4[i + 1]) / 2;
+    }
+    runningMedianCopyEnds(a, 5, b, scratch);
+    runningMedianCopyEnds(b, 3, a, scratch);
+    hanning(a, out);
+}
+
 test "fourths on the worked examples at every n mod 4" {
     // by hand: depths d(M) = (n+1)/2, d(F) = (floor(d(M)) + 1)/2
     const a4 = [_]f64{ 1, 2, 3, 4 };
@@ -829,4 +1077,39 @@ test "TK2: spread versus level built from a known power" {
     // a non-positive spread cannot be logged: not ok, never a guess
     const bad = [_]f64{ 1, 0, 4, 8 };
     try std.testing.expect(!spreadLevel(&med, &bad, &scratch).ok);
+}
+
+test "smoothers: R's ?smooth example under 3 and 3R, both end rules (oracle r_smooth.txt)" {
+    const x = [_]f64{ 4, 1, 3, 6, 6, 4, 1, 6, 2, 4, 2 };
+    var out: [11]f64 = undefined;
+    var work: [44]f64 = undefined;
+    _ = smooth(&x, .s3, .tukey, false, &out, &work);
+    const want3 = [_]f64{ 3, 3, 3, 6, 6, 4, 4, 2, 4, 2, 2 };
+    for (want3, 0..) |v, i| try std.testing.expectEqual(v, out[i]);
+    _ = smooth(&x, .s3, .copy, false, &out, &work);
+    try std.testing.expectEqual(@as(f64, 4), out[0]);
+    _ = smooth(&x, .s3R, .tukey, false, &out, &work);
+    const want3R = [_]f64{ 3, 3, 3, 6, 6, 4, 4, 4, 2, 2, 2 };
+    for (want3R, 0..) |v, i| try std.testing.expectEqual(v, out[i]);
+    // twicing on 3 under Tukey: R prints 3 3 3 6 6 4 4 0 6 2 2
+    _ = smoothTwice(&x, .s3, .tukey, false, &out, &work);
+    const wantT = [_]f64{ 3, 3, 3, 6, 6, 4, 4, 0, 6, 2, 2 };
+    for (wantT, 0..) |v, i| try std.testing.expectEqual(v, out[i]);
+}
+
+test "4253H and Hanning keep a line and remove a spike on it" {
+    var x: [20]f64 = undefined;
+    for (0..20) |i| x[i] = 2 * @as(f64, @floatFromInt(i)) + 1;
+    var out: [20]f64 = undefined;
+    var work: [68]f64 = undefined;
+    smooth4253H(&x, &out, &work);
+    for (x, 0..) |v, i| try std.testing.expectApproxEqAbs(v, out[i], 1e-12);
+    // a spike of 100 on the line: the even-span medians average their two middle
+    // values, so a little of the spike leaks -- measured 2026-09-26 at 1.38 on a
+    // line of slope 2 -- where Hanning alone leaves 50 of it
+    x[10] += 100;
+    smooth4253H(&x, &out, &work);
+    try std.testing.expect(@abs(out[10] - 21) < 2);
+    hanning(&x, &out);
+    try std.testing.expectApproxEqAbs(@as(f64, 0.25 * 19 + 0.5 * 121 + 0.25 * 23), out[10], 1e-12);
 }

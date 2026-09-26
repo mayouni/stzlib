@@ -281,6 +281,74 @@ oStA = StzTukeyStoryQ(oE8, oRE8)
 chk("a sound table's story has three paragraphs (no findings) and is honest: " + oStA.Why(), len(oStA.Paragraphs()) = 3 and oStA.IsHonest() and StzFindFirst("the table is sound -- 0 error(s), 0 warning(s)", oStA.Text()) > 0)
 chk("a story about an unpolished fit is refused", _TkRefuses("story"))
 
+sec("-- 10. THE SMOOTHERS, EVERY KIND AGAINST R 4.5.1'S OWN OUTPUT (TK1, second half)")
+
+# THE ORACLE: base/test/math/oracle/r_smooth.txt, written by R itself
+# (oracle/r_smooth.R) -- three fixed series and forty seeded ones, every
+# kind, both end rules, twicing; nothing in it was computed by this library
+aOr = _TkOracle("oracle/r_smooth.txt")
+chk("the transcript names the R that wrote it: " + aOr[:version], StzFindFirst("R version 4.5.1", aOr[:version]) > 0)
+oX = StzTukeySmootherQ(aOr["x"])
+chk("R's own ?smooth example, 3R under Tukey's end rule: " + @@(oX.Smooth3R()), _TkClose(oX.Smooth3R(), aOr["x 3R Tukey twice=0"]))
+chk("...and under the copy end rule the first value stays 4", _TkClose(oX.SetEndRuleQ(:Copy).Smooth3R(), aOr["x 3R copy twice=0"]))
+chk("the splitting of two-flats, S, on the same series", _TkClose(StzTukeySmootherQ(aOr["x"]).Split(), aOr["x S Tukey twice=0"]))
+oY = StzTukeySmootherQ(aOr["y"])
+chk("a ramp with a 100 on it: 3RS3R takes the point out: " + @@(oY.Smooth3RS3R()), _TkClose(oY.Smooth3RS3R(), aOr["y 3RS3R Tukey twice=0"]))
+chk("twicing adds the smooth of the rough back, as R's twiceit does", _TkClose(oY.Twice("3RS3R"), aOr["y 3RS3R Tukey twice=1"]))
+chk("the rough is data minus smooth, exactly", _TkClose(_TkAdd(oY.Smooth3RS3R(), oY.Rough("3RS3R")), aOr["y"]))
+nAll = 0
+nSame = 0
+acKinds = StzTukeySmoothKinds()
+for cSeries in [ "x", "y", "p" ]
+	for k = 1 to len(acKinds)
+		for cEr in [ "Tukey", "copy" ]
+			for nTw = 0 to 1
+				oSm = StzTukeySmootherQ(aOr[cSeries])
+				oSm.SetEndRule(cEr)
+				if nTw = 1  aGot = oSm.Twice(acKinds[k])  else  aGot = oSm.Smooth(acKinds[k])  ok
+				nAll++
+				if _TkClose(aGot, aOr[cSeries + " " + acKinds[k] + " " + cEr + " twice=" + nTw])  nSame++  ok
+			next
+		next
+	next
+next
+chk("the three fixed series (11, 10 and the 120 presidents), six kinds, both end rules, twice or not: " + nSame + " of " + nAll + " equal R exactly", nSame = nAll and nAll = 72)
+nAll = 0
+nSame = 0
+for c = 1 to 40
+	aIn = aOr["case " + c + " input"]
+	for k = 1 to len(acKinds)
+		for cEr in [ "Tukey", "copy" ]
+			oSm = StzTukeySmootherQ(aIn)
+			oSm.SetEndRule(cEr)
+			nAll++
+			if _TkClose(oSm.Smooth(acKinds[k]), aOr["case " + c + " " + acKinds[k] + " " + cEr])  nSame++  ok
+		next
+	next
+	nAll++
+	if _TkClose(StzTukeySmootherQ(aIn).Twice("3RS3R"), aOr["case " + c + " 3RS3R Tukey twice"])  nSame++  ok
+next
+chk("forty seeded integer series of 7 to 30 values with ties and plateaus, every kind, both end rules, and twicing: " + nSame + " of " + nAll + " equal R exactly", nSame = nAll and nAll = 520)
+# THE PIECES OF 4253H, each against R per window
+oP = StzTukeySmootherQ(aOr["p"])
+chk("the window medians of 4 and of 2 equal R's median() on every window of the presidents", _TkClose(oP.WindowMedians(4), aOr["p median4-windows"]) and _TkClose(oP.WindowMedians(2), aOr["p median2-windows"]))
+chk("the window medians of 3 and 5 equal the interior of R's runmed", _TkClose(oP.WindowMedians(3), _TkInterior(aOr["p runmed3"], 1)) and _TkClose(oP.WindowMedians(5), _TkInterior(aOr["p runmed5"], 2)))
+chk("Hanning's interior equals R's filter(c(0.25, 0.5, 0.25)) interior; the ends are copied here where R prints NA", _TkClose(_TkInterior(oP.Hanning(), 1), _TkInterior(aOr["p hanning-interior"], 1)) and oP.Hanning()[1] = aOr["p"][1])
+aLine = []
+for i = 1 to 20  aLine + (2 * i + 1)  next
+oL = StzTukeySmootherQ(aLine)
+chk("4253H keeps a straight line exactly -- every median and Hanning of a line is the line", _TkClose(oL.Smooth4253H(), aLine))
+aSpike = aLine
+aSpike[11] += 100
+n4 = StzTukeySmootherQ(aSpike).Smooth4253H()[11]
+chk("...and a spike of 100 on it leaks through the even-span medians by " + _FfNum(fabs(n4 - aLine[11]), 2) + " on a slope of 2 -- under 2, not 0: an even median averages its two middle values", fabs(n4 - aLine[11]) < 2)
+chk("3RS3R replaces the spike by a neighbour, 25 for 23 -- a median smoother does not interpolate", StzTukeySmootherQ(aSpike).Smooth3RS3R()[11] = 25)
+chk("NEGATIVE: Hanning alone leaves 50 of the spike in place", fabs(StzTukeySmootherQ(aSpike).Hanning()[11] - aLine[11]) = 50)
+chk("Why() names the end rule and the largest rough, 94 = 100 - 6: " + oY.Why(), StzFindFirst("end rule tukey", oY.Why()) > 0 and StzFindFirst("largest rough is 94", oY.Why()) > 0)
+chk("fewer than four values are refused, and told why", _TkRefuses("smoother"))
+chk("an end rule that is neither is refused", _TkRefuses("endrule"))
+chk("a kind that is not one of the six is refused with the six", _TkRefuses("kind"))
+
 sec("-- 7. THE COST, PRINTED -------------------------------------------------")
 
 aBig = []
@@ -306,7 +374,7 @@ if nSecClock > 0
 ok
 ? "=============================================================="
 ? " " + nOk + " ok, " + nBad + " failed"
-? " skipped: the smoother family (3, 3R, SS, H, 4253H, twicing) -- no R oracle on this machine; it waits (TK1 kill criterion)"
+? " skipped: none -- every section of this gate ran (the smoother family runs against R 4.5.1's transcript since 2026-09-26; the N-way polish is not built and owns no gate)"
 ? "=============================================================="
 
 func sec cTitle
@@ -359,11 +427,50 @@ func _TkRefuses cWhat
 		but cWhat = "oneway"  StzTukeyOneWayQ([ [ 1, 2 ] ])
 		but cWhat = "report"  StzTukeyReportQ("x", [ StzTukeyLineQ([ 1, 2, 3 ], [ 2, 4, 6 ]) ])
 		but cWhat = "story"  StzTukeyStoryQ(StzTukeyFitQ([ [ 1, 2 ], [ 3, 4 ] ]), StzRuleReportQ("x"))
+		but cWhat = "smoother"  StzTukeySmootherQ([ 1, 2, 3 ])
+		but cWhat = "endrule"  StzTukeySmootherQ([ 1, 2, 3, 4, 5 ]).SetEndRule(:Median)
+		but cWhat = "kind"  StzTukeySmootherQ([ 1, 2, 3, 4, 5 ]).Smooth("4253")
 		ok
 	catch
 		_b_ = TRUE
 	done
 	return _b_
+
+# R's transcript: "tag : v1 v2 ..." per line, NA kept as the string "NA"
+func _TkOracle cFile
+	_a_ = []
+	_c_ = read(cFile)
+	_ac_ = StzSplit(_c_, char(10))
+	for _i_ = 1 to len(_ac_)
+		_cL_ = ring_trim(_ac_[_i_])
+		if _cL_ = ""  loop  ok
+		if StzLeft(_cL_, 17) = "R.version.string:"
+			_a_ + [ "version", ring_trim(StzStringSection(_cL_, 18, len(_cL_))) ]
+			loop
+		ok
+		_n_ = StzFindFirst(" : ", _cL_)
+		if _n_ = 0  loop  ok
+		_cTag_ = ring_trim(StzLeft(_cL_, _n_ - 1))
+		_acV_ = StzSplit(ring_trim(StzStringSection(_cL_, _n_ + 3, len(_cL_))), " ")
+		_aV_ = []
+		for _k_ = 1 to len(_acV_)
+			_t_ = ring_trim(_acV_[_k_])
+			if _t_ = ""  loop  ok
+			if _t_ = "NA"  _aV_ + "NA"  else  _aV_ + number(_t_)  ok
+		next
+		_a_ + [ _cTag_, _aV_ ]
+	next
+	return _a_
+
+func _TkInterior aList, nEnds
+	_a_ = []
+	for _i_ = nEnds + 1 to len(aList) - nEnds  _a_ + aList[_i_]  next
+	return _a_
+
+func _TkAdd aA, aB
+	_a_ = []
+	for _i_ = 1 to len(aA)  _a_ + (aA[_i_] + aB[_i_])  next
+	return _a_
 
 func _TkHasRule aF, cRule
 	for _i_ = 1 to len(aF)
