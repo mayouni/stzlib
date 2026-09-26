@@ -925,6 +925,8 @@ load "geo/stzGeoProcess.ring"
     load "math/stzFunctionFigure.ring"
     load "math/stzNumberLineFigure.ring"
     load "math/stzFractionFigure.ring"
+    load "math/stzMatrixFigure.ring"
+    load "math/stzComplexPlaneFigure.ring"
     load "math/stzMathFigure.ring"
 
     # refine/ -- REFINEMENT PROGRAMMING (R6): stzPolyCode comes home --

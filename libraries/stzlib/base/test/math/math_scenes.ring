@@ -125,8 +125,53 @@ func StzMathFigFractionWitness()
 	_o_.SetDatum("w1", "d", 5)
 	return _o_
 
+#-- M1c: the :Matrix and :ComplexPlane figures ------------------------------
+
+# scene 30's product, with row 2 of A against column 2 of B lit
+func StzMathFigScene15()
+	return StzMathFigureQ(:Matrix, [ :product = [ [ [ 2, 7, 1, 8 ], [ 2, 8, 1, 8 ], [ 2, 8, 4, 5 ] ],
+		[ [ 9, 0, 4 ], [ 5, 2, 3 ], [ 5, 3, 6 ], [ 0, 2, 8 ] ] ], :show = [ 2, 2 ],
+		:label = "how a cell of a product is made" ])
+
+# a matrix as heat: a band, seen before any number is read
+func StzMathFigScene16()
+	return StzMathFigureQ(:Matrix, [ :of = [ [ 4, 1, 0, 0, 0 ], [ 1, 4, 1, 0, 0 ], [ 0, 1, 4, 1, 0 ],
+		[ 0, 0, 1, 4, 1 ], [ 0, 0, 0, 1, 4 ] ], :as = :heat, :names = [ "T" ], :label = "a band matrix, on one ramp" ])
+
+# the three cube roots of one, on the unit circle
+func StzMathFigScene17()
+	return StzMathFigureQ(:ComplexPlane, [ :roots = [ 1, 0, 0, -1 ], :unit = TRUE,
+		:label = "the roots of z^3 = 1" ])
+
+# a number shown with its modulus and argument
+func StzMathFigScene18()
+	return StzMathFigureQ(:ComplexPlane, [ :points = [ [ 3, 2, "z" ], [ 3, -2, "conj z" ] ], :show = [ 3, 2 ],
+		:label = "z = 3 + 2i: its length and its angle" ])
+
+# THE MATRIX WITNESS: a product cell tampered, and B's rows misstated
+func StzMathFigMatrixWitness()
+	_o_ = StzMathFigScene15()
+	_o_.Layout()
+	_o_.SetDatum("c2_2", "v", 999)
+	_o_.SetDatum("g2", "rows", 5)
+	return _o_
+
+# THE COMPLEX WITNESS: a root moved off its place -- it is no root and it
+# has no mirror
+func StzMathFigComplexWitness()
+	_o_ = StzMathFigScene17()
+	_o_.Layout()
+	_oS_ = _o_.Substance()
+	_ac_ = _oS_.ObjectsOfType("Point")
+	_cP_ = ""
+	for _i_ = 1 to len(_ac_)
+		if _cP_ = "" and _oS_.DataOf(_ac_[_i_], "im") > 0.1  _cP_ = _ac_[_i_]  ok
+	next
+	_o_.SetDatum(_cP_, "re", _oS_.DataOf(_cP_, "re") + 0.3)
+	return _o_
+
 func StzMathFigSceneCount()
-	return 14
+	return 20
 
 func StzMathFigSceneTitles()
 	return [ "THE CARDINAL SINE                (zeros at every multiple of pi, extrema where tan x = x; twelve notes solved)",
@@ -142,7 +187,13 @@ func StzMathFigSceneTitles()
 	         "WHICH IS MORE?                   (four bars share one width, so 2/4 and 1/2 end at the same pixel; verdicts cross-multiplied)",
 	         "THREE OF EIGHT, ONE OF FOUR      (as discs: wedges are polygons from the centre round the rim)",
 	         "THE NUMBER LINE, TWO THINGS WRONG (a jump printing + 4 that lands 3 away, a point drawn past its neighbour)",
-	         "THE FRACTION, TWO THINGS WRONG   (a numerator of two over three shaded parts, a denominator of five over four cut)" ]
+	         "THE FRACTION, TWO THINGS WRONG   (a numerator of two over three shaded parts, a denominator of five over four cut)",
+	         "HOW A CELL OF A PRODUCT IS MADE  (M1c: A . B = C with row 2 of A and column 2 of B lit, and the cell they make)",
+	         "A BAND MATRIX, ON ONE RAMP       (heat: every cell coloured by its value; the band shows before a number is read)",
+	         "THE ROOTS OF z^3 = 1             (three hollow points on the unit circle, found by the engine, checked by Horner)",
+	         "z = 3 + 2i                       (its ray with |z| and its argument arc, and its conjugate below)",
+	         "THE MATRIX, TWO THINGS WRONG     (a product cell of 999, and B said to have five rows)",
+	         "THE ROOT THAT IS NOT ONE         (a root moved 0.3 to the right: the polynomial is not small there, and it has no mirror)" ]
 
 func StzMathFigScene(pnI)
 	if pnI = 1  return StzMathFigScene01()  ok
@@ -158,4 +209,10 @@ func StzMathFigScene(pnI)
 	if pnI = 11  return StzMathFigScene11()  ok
 	if pnI = 12  return StzMathFigScene12()  ok
 	if pnI = 13  return StzMathFigNumberLineWitness()  ok
-	return StzMathFigFractionWitness()
+	if pnI = 14  return StzMathFigFractionWitness()  ok
+	if pnI = 15  return StzMathFigScene15()  ok
+	if pnI = 16  return StzMathFigScene16()  ok
+	if pnI = 17  return StzMathFigScene17()  ok
+	if pnI = 18  return StzMathFigScene18()  ok
+	if pnI = 19  return StzMathFigMatrixWitness()  ok
+	return StzMathFigComplexWitness()

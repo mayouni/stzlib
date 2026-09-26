@@ -48,7 +48,7 @@ func StzMathFigureFont()
 	return NULL
 
 func StzMathFigureKinds()
-	return [ "function", "numberline", "fraction" ]
+	return [ "function", "numberline", "fraction", "matrix", "complexplane" ]
 
 func StzMathFigureQ(pcKind, paSpec)
 	return new stzMathFigure(pcKind, paSpec)
@@ -82,6 +82,10 @@ class stzMathFigure from stzObject
 			@oDiagram = StzNumberLineFigureBuildXT(@oFont, @aSpec)
 		but @cKind = "fraction"
 			@oDiagram = StzFractionFigureBuildXT(@oFont, @aSpec)
+		but @cKind = "matrix"
+			@oDiagram = StzMatrixFigureBuildXT(@oFont, @aSpec)
+		but @cKind = "complexplane"
+			@oDiagram = StzComplexPlaneFigureBuildXT(@oFont, @aSpec)
 		ok
 
 	#-- what it is ------------------------------------------------------------
@@ -135,6 +139,10 @@ class stzMathFigure from stzObject
 			return StzNumberLineFigureWhy(_oS_) + "; " + @oDiagram.Why()
 		but @cKind = "fraction"
 			return StzFractionFigureWhy(_oS_) + "; " + @oDiagram.Why()
+		but @cKind = "matrix"
+			return StzMatrixFigureWhy(_oS_) + "; " + @oDiagram.Why()
+		but @cKind = "complexplane"
+			return StzComplexPlaneFigureWhy(_oS_) + "; " + @oDiagram.Why()
 		ok
 		_c_ = "a " + @cKind + " figure: " + _oS_.DataOf("fr", "samples") + " samples in " +
 			_oS_.DataOf("fr", "pieces") + " piece(s), " + _oS_.DataOf("fr", "marks") + " mark(s)"
