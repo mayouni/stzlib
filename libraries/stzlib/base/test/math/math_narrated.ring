@@ -480,7 +480,7 @@ chkeq("NEGATIVE: the three lawful fraction pictures raise no finding", oFRep.Num
 
 sec("-- 10. THE ENTRY OBJECT KNOWS ITS KINDS --------------------------------")
 
-chkeq("the kinds are function, numberline, fraction, matrix, complexplane, boxplot and surface", len(StzMathFigureKinds()), 7)
+chkeq("the kinds are function, numberline, fraction, matrix, complexplane, boxplot, surface and, since M4, stemplot", len(StzMathFigureKinds()), 8)
 chk("a number line's Why says what it holds", StzFindFirst("6 point(s)", oN8.Why()) > 0 and StzFindFirst("1 jump(s)", oN8.Why()) > 0)
 chk("a fraction's Why says what is shaded", StzFindFirst("3 of 4 shaded", oF10.Why()) > 0)
 bRef = FALSE
@@ -746,6 +746,58 @@ chkeq("NEGATIVE: the three raise no finding", oNRep.NumberOfFindings(), 0)
 
 #---------------------------------------------------------------------------
 
+sec("-- 16. A BOX PLOT NAMES ITS HINGE CONVENTION (M4 / TK3) -------------------")
+
+# THE HINGE CONVENTION, NAMED ON THE PICTURE (Tukey plan 2.2): the same eight
+# values under percentile quartiles (stzDataSet's, the M1 default) and under
+# Tukey's fourths (eda.zig's); the five numbers differ where the conventions
+# do, the fences follow, and Why() and Text() say which was used.
+aEight = [ 2, 4, 4, 5, 7, 9, 12, 25 ]
+oP = StzMathFigureQ(:BoxPlot, [ :of = aEight ])
+oT = StzMathFigureQ(:BoxPlot, [ :of = aEight, :convention = :Fourths ])
+chk("the default is unchanged from M1: percentile quartiles, Q3 = 9.75  [" + oP.Fact(:datum, [ "b1", "q3" ])[:value] + "]", oP.Fact(:datum, [ "b1", "q3" ])[:value] = 9.75)
+chk("under Tukey's fourths the upper hinge is 10.5 and the fourth-spread 6.5  [" + oT.Fact(:datum, [ "b1", "q3" ])[:value] + ", " + oT.Fact(:datum, [ "b1", "iqr" ])[:value] + "]", oT.Fact(:datum, [ "b1", "q3" ])[:value] = 10.5 and oT.Fact(:datum, [ "b1", "iqr" ])[:value] = 6.5)
+chk("the median is 6 under both", oP.Fact(:datum, [ "b1", "med" ])[:value] = 6 and oT.Fact(:datum, [ "b1", "med" ])[:value] = 6)
+chk("the upper fence follows the convention: 18.375 against 20.25", fabs(oP.Fact(:datum, [ "b1", "fhi" ])[:value] - 18.375) < 0.000000001 and fabs(oT.Fact(:datum, [ "b1", "fhi" ])[:value] - 20.25) < 0.000000001)
+chk("the whisker stops at 12 under both, the last value inside either fence", oP.Fact(:datum, [ "b1", "whi" ])[:value] = 12 and oT.Fact(:datum, [ "b1", "whi" ])[:value] = 12)
+chk("25 is the one outlier under both", oP.Fact(:datum, [ "b1", "outliers" ])[:value] = 1 and oT.Fact(:datum, [ "b1", "outliers" ])[:value] = 1)
+chk("Why() names the convention: " + oT.Why(), StzFindFirst("under Tukey's fourths", oT.Why()) > 0 and StzFindFirst("under percentile quartiles", oP.Why()) > 0)
+chk("...and so does the text rendition, on its last line", StzFindFirst("hinges: Tukey's fourths", oT.Text()) > 0 and StzFindFirst("hinges: percentile quartiles", oP.Text()) > 0)
+chk("both pictures keep the box plot's own rules  [" + len(oP.Violations()) + ", " + len(oT.Violations()) + "]", len(oP.Violations()) = 0 and len(oT.Violations()) = 0)
+chk("a convention that is neither is refused by name", _MgRefusesKindSpec(:BoxPlot, [ :of = aEight, :convention = :Median ], "Percentile"))
+chk("the summary face agrees with the figure under fourths", StzTukeySummaryQ(aEight).Fourths()[2] = oT.Fact(:datum, [ "b1", "q3" ])[:value])
+
+sec("-- 17. A STEM-AND-LEAF KEEPS EVERY DIGIT, AND ITS ROWS ARE JUDGED (M4 / TK3)")
+
+aSeventeen = [ 112, 125, 131, 134, 138, 142, 145, 147, 150, 151, 153, 158, 162, 166, 171, 184, 197 ]
+oS = StzMathFigureQ(:StemPlot, [ :of = aSeventeen ])
+chk("seventeen values at leaf unit 1 give nine rows, stems 11 to 19: " + oS.Why(), StzFindFirst("17 value(s), leaf unit 1, 9 row(s)", oS.Why()) > 0)
+cText = oS.Text()
+chk("the text rendition keeps every digit: row 15 reads '15 | 0 1 3 8'", StzFindFirst("15 | 0 1 3 8", cText) > 0)
+chk("...and the legend says what a row means: '11 | 2 means 112'", StzFindFirst("11 | 2 means 112", cText) > 0)
+chk("the leaf unit was chosen from the range, 85, as 1", oS.Fact(:datum, [ "fr", "unit" ])[:value] = 1)
+chk("the rows carry the seventeen values, counted row by row", _MgStemLeafTotal(oS) = 17)
+chk("the picture keeps its three rules  [" + len(oS.Violations()) + "]", len(oS.Violations()) = 0)
+oS2 = StzMathFigureQ(:StemPlot, [ :of = [ 2, 4, 4, 5, 7, 9, 12, 25, 31, 33, 38, 41 ], :lines = 2 ])
+chk("two rows a stem: ten rows for stems 0 to 4, three of them empty and shown: " + oS2.Why(), StzFindFirst("10 row(s) (two per stem), 3 empty", oS2.Why()) > 0)
+cT2 = oS2.Text()
+chk("the * row holds leaves 0-4 and the . row 5-9: '0* | 2 4 4' then '0. | 5 7 9'", StzFindFirst("0* | 2 4 4", cT2) > 0 and StzFindFirst("0. | 5 7 9", cT2) > 0)
+chk("a larger unit gives fewer rows: unit 10 on the seventeen values puts them all on stem 1, one row", StzFindFirst("leaf unit 10, 1 row(s)", StzMathFigureQ(:StemPlot, [ :of = aSeventeen, :unit = 10 ]).Why()) > 0)
+# THE WITNESS: a row's count tampered -- two rules convict it, by name
+oW = StzMathFigureQ(:StemPlot, [ :of = [ 2, 4, 4, 5, 7, 9, 12, 25 ] ])
+oW.Layout()
+oW.SetDatum("s1", "k", 9)
+aF = StzCheckPictures([ [ "witness", oW.Diagram() ] ]).Findings()
+chk("a tampered row count is convicted by 'leaves_count_the_values' (the rows carry 11 for 8)", _MgHasRule(aF, "leaves_count_the_values"))
+chk("...and by 'leaves_are_sorted' (the row prints 6 and counts 9)", _MgHasRule(aF, "leaves_are_sorted"))
+chk("NEGATIVE: the untampered picture has no finding", len(StzMathFigureQ(:StemPlot, [ :of = [ 2, 4, 4, 5, 7, 9, 12, 25 ] ]).Violations()) = 0)
+chk("a negative value is refused by name", _MgRefusesKindSpec(:StemPlot, [ :of = [ -1, 2 ] ], "negative"))
+chk("a unit that is not a power of ten is refused", _MgRefusesKindSpec(:StemPlot, [ :of = [ 1, 2 ] , :unit = 3 ], "power of ten"))
+chk("more than forty rows is refused, with the unit to give", _MgRefusesKindSpec(:StemPlot, [ :of = [ 1, 2000 ], :unit = 1 ], "rows"))
+chk("the letter-value ladder prints as a table, from the summary face", StzFindFirst("M      5        5        5        5        0", StzTukeySummaryQ([ 1, 2, 3, 4, 5, 6, 7, 8, 9 ]).LetterValueTable(3)) > 0)
+
+#---------------------------------------------------------------------------
+
 if nSecClock > 0
 	? "        [section took " + ((clock() - nSecClock) / clockspersecond()) + "s]"
 ok
@@ -850,5 +902,19 @@ func _MgCount acList, cItem
 func _MgMessageHas aFindings, cWords
 	for _i_ = 1 to len(aFindings)
 		if StzFindFirst(cWords, "" + aFindings[_i_][:message]) > 0  return TRUE  ok
+	next
+	return FALSE
+
+func _MgStemLeafTotal oF
+	_oS_ = oF.Diagram().Substance()
+	_n_ = 0
+	for _r_ = 1 to _oS_.DataOf("fr", "rows")
+		_n_ += _oS_.DataOf("s" + _r_, "k")
+	next
+	return _n_
+
+func _MgHasRule aFindings, cRule
+	for _i_ = 1 to len(aFindings)
+		if aFindings[_i_][:rule] = cRule  return TRUE  ok
 	next
 	return FALSE

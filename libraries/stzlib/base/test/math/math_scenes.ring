@@ -252,8 +252,20 @@ func StzMathFigScene28()
 func StzMathFigScene29()
 	return StzMathFigureQ(:Matrix, [ :of = [ [ 1, 2 ], [ 3, 4 ] ], :label = "$A = \matrix{1, 2; 3, 4}$" ])
 
+func StzMathFigScene30()
+	return StzMathFigureQ(:BoxPlot, [ :of = [ 2, 4, 4, 5, 7, 9, 12, 25 ], :convention = :Fourths, :numbers = TRUE,
+	                                  :label = "the same eight values under Tukey's fourths" ])
+
+func StzMathFigScene31()
+	return StzMathFigureQ(:StemPlot, [ :of = [ 112, 125, 131, 134, 138, 142, 145, 147, 150, 151, 153, 158, 162, 166, 171, 184, 197 ],
+	                                   :label = "seventeen values, leaf unit 1" ])
+
+func StzMathFigScene32()
+	return StzMathFigureQ(:StemPlot, [ :of = [ 2, 4, 4, 5, 7, 9, 12, 25, 31, 33, 38, 41 ], :lines = 2,
+	                                   :label = "twelve values, two rows per stem" ])
+
 func StzMathFigSceneCount()
-	return 29
+	return 32
 
 func StzMathFigSceneTitles()
 	return [ "THE CARDINAL SINE                (zeros at every multiple of pi, extrema where tan x = x; twelve notes solved)",
@@ -284,7 +296,10 @@ func StzMathFigSceneTitles()
 	         "THE SURFACE, ONE THING WRONG     (a corner's z that the function does not give)",
 	         "FRACTIONS ON THE LINE            (M1 notation: 1/2, 1/4, 3/2 stacked and sqrt 2 with its bar, as names of points)",
 	         "A TITLE WITH A FRACTION AND A SUM (sin x over x, and the sum of 1/k^2 with its limits stacked on the sign)",
-	         "A MATRIX IN A TITLE              (a 2 x 2 between brackets scaled to it, as notation, beside the same matrix as cells)" ]
+	         "A MATRIX IN A TITLE              (a 2 x 2 between brackets scaled to it, as notation, beside the same matrix as cells)",
+	         "A BOX PLOT UNDER TUKEY'S FOURTHS (M4: the same eight values, hinges 4 and 10.5 instead of 4 and 9.75, the convention printed)",
+	         "A STEM-AND-LEAF                  (M4: seventeen values at leaf unit 1, every digit kept, the legend saying what a row means)",
+	         "A STEM-AND-LEAF, TWO ROWS A STEM (M4: twelve values, leaves 0-4 on the * row and 5-9 on the . row, empty stems shown)" ]
 
 func StzMathFigScene(pnI)
 	if pnI = 1  return StzMathFigScene01()  ok
@@ -315,4 +330,7 @@ func StzMathFigScene(pnI)
 	if pnI = 26  return StzMathFigSurfaceWitness()  ok
 	if pnI = 27  return StzMathFigScene27()  ok
 	if pnI = 28  return StzMathFigScene28()  ok
-	return StzMathFigScene29()
+	if pnI = 29  return StzMathFigScene29()  ok
+	if pnI = 30  return StzMathFigScene30()  ok
+	if pnI = 31  return StzMathFigScene31()  ok
+	return StzMathFigScene32()

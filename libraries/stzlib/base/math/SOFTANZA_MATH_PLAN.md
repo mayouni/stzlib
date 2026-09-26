@@ -1027,6 +1027,21 @@ taking `:convention` and printing it, stem-and-leaf as a text-rendition
 figure, letter values as a table, residual-versus-fit, the coded two-way
 table with its legend, the ladder as a table; every picture looked at.
 
+#### M4c RESULTS, first half -- TK3: the box plot's convention, the stem-and-leaf, two tables, 2026-09-26
+
+**Shipped**: `:BoxPlot` takes `:convention` (default unchanged, `:Fourths`
+from `eda.zig`, named in `Why()` and `Text()`); a new figure kind
+`:StemPlot` (`base/math/stzStemPlotFigure.ring`) with three rules of its
+own and a text rendition; `LetterValueTable` and `LadderTable` on the
+Tukey faces; catalogue scenes 30-32, looked at; gate sections 16-17,
+240 of 240 in all. Details in `SOFTANZA_TUKEY_PLAN.md`, `TK3 RESULTS, first
+half`. Routed: `MATH-BOXPLOT-DELEGATE-01` (the stats plane's
+`BoxPlotStats` still computes its fences in Ring).
+
+**Next**: M4c, second half -- residual-versus-fit and the coded two-way
+table with its legend, as figure kinds; then TK4's verdicts into
+`stzRuleReport`, TK5's story, and chapter 13.
+
 ### M5 -- Deepen the core (routed)
 
 Requests, each with the oracle and the picture that would prove it, to the
