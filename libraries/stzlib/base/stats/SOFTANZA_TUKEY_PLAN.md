@@ -805,3 +805,133 @@ the tutorial is **regenerated from run guards**, and the regenerated file
 replaces the tutorial in the documentation set.
 
 Nothing in those files is a specification. This document is.
+
+---
+
+## TK0 RESULTS -- convention and spike, 2026-09-26 (plane stzlib-math, M4)
+
+Ownership first: the math plane's charter (decision 7, ruled 2026-09-26) has
+this plane own the Tukey tier end to end -- `eda.zig` as a math-plane engine
+file inside the `stz_stats` DLL domain, its pictures as figures of the math
+plane -- so the RESULTS of TK0-TK6 are written here by stzlib-math and the
+analysis faces live in `base/math/`.
+
+**The spike is `engine/src/eda.zig` with its tests** (`zig test -j2
+-OReleaseFast src/eda.zig`, 8 tests): fourths, letter values, fences under
+a named convention, MAD, biweight midvariance, trimean, the two-way median
+polish, the resistant line, quickselect medians. It is product code kept,
+not thrown away, because every line of it is pinned below.
+
+**Kill criterion 1 (R's medpolish to 1e-9): MET.** R's own documented
+example (`deaths`, `?medpolish`) is reproduced to 1e-9: overall 8, rows
+6 -1 0 2 -8, columns 0 -1 0, the residual table, and Data = Fit + Residual
+cell by cell. R is not installed on this machine; the transcription of R's
+output was reproduced by an INDEPENDENT NumPy implementation of the same
+algorithm (`scratchpad/tk0/medpolish_np.py`, 2 sweeps, converged), and
+the two agree -- two routes to the oracle rather than one memory of it.
+The stopping rule is R's (sum of |residuals| changing by less than eps
+times itself, eps 0.01, at most 10 sweeps) and the even-count median is R's.
+
+**Kill criterion 2 (conventions within 0.1 fourth-spread): NOT MET, so
+both paths ship.** On a seeded sweep of sizes 4..200 the fourths and the
+percentile quartiles differ by up to 0.2087 fourth-spreads (at n = 4), and
+on the library's own box-plot sample `[2,4,4,5,7,9,12,25]` by 0.1154
+(fourths 4 and 10.5, percentile 4 and 9.75). Both conventions are defined
+once in `eda.zig`'s header in the `stats.zig:204` idiom; every Tukey display
+prints which it used; `stzDataSet` keeps percentile quartiles unchanged.
+
+**Kill criterion 3 (1000x1000 polish under 5 ms): NOT MET, and the
+prediction was wrong.** Single-threaded, release build, 3 sweeps to
+convergence on an additive table with noise:
+
+| size | with sorted medians | with quickselect medians |
+|---|---|---|
+| 10x10 | 0.01 ms | 0.02 ms |
+| 100x100 | 1.12 ms | 0.98 ms |
+| 1000x1000 | 171.65 ms | 46.13 ms |
+| 4000x4000 | 4069 ms | 1199 ms |
+
+The plan predicted "it will close" at under 5 ms; it stands at 46 ms after
+the linear-time selection the estimate assumed, nine times over the bar.
+The bar was set from the multicore tier's `compensatedSum` gate, a kernel
+that touches each element once; a polish touches each element twice per
+sweep and selects a median per line, and the estimate never priced that.
+**Ruling: the acceleration question is CLOSED anyway, by judgement rather
+than by the bar** -- 46 ms for a million cells and 1.2 s for sixteen
+million is exploration speed, the multicore tier admits kernels only on a
+measured 1.5x, and nothing in TK1-TK6 needs a table that large in a frame.
+The number is recorded so the ruling can be argued with.
+
+**Also fixed in passing, as the plan foresaw for TK1**: nothing yet --
+`stz_stats_moving_average`'s uncompensated sum (`stats.zig:602`) is noted
+and left for TK1's smoother work, which waits for an R oracle (below).
+
+**What TK1 will not ship without an oracle**: the smoother family (3, 3R,
+SS, H, 4253H, twicing). R's `smooth()` is the plan's oracle and R is not on
+this machine; NumPy has no smoothers. Under TK1's own kill criterion they
+wait; a request for R outputs on a fixed input goes to the author with the
+TK1 memo. The resistant line's published example (Tukey's three-group line)
+is not at hand either: it is pinned by construction (an exact line
+recovered to 1e-9, one point dragged to 1e6 leaving the slope at 3) and by
+the NumPy route, and that is said here rather than dressed as the book.
+
+---
+
+## TK1 RESULTS -- the resistant core, 2026-09-26 (plane stzlib-math, M4)
+
+**Shipped in the engine** (`engine/src/eda.zig`, in the `stz_stats` DLL
+beside `stats.zig`): `hingeDepth`, `fourths`, `fourthSpread`,
+`percentileQuartiles`, `fences(mult, convention)`, `letterValues`,
+`trimean`, `mad`, `biweightMidvariance(c)`, `medianPolish2D` (R's
+`medpolish` exactly, quickselect medians), `resistantLine` (Tukey's
+three-group line with residual passes), `selectKth` / `medianSelect`.
+Nine bridge calls in `ring_bridge_stats.zig` (`stzenginetukey*`), each
+building a fresh Ring list of whole items -- no fixed buffer, so nothing
+truncates (the graph plane's list-return lesson).
+
+**Shipped as faces** (`base/math/stzTukey.ring`, loaded by `stzBase`):
+`stzTukeySummary` (fourths, percentile quartiles, hinges under the
+convention in force, fourth-spread, fences at any multiplier, `Outside()`
+and `FarOut()`, the letter-value ladder with its letters, trimean, MAD,
+biweight; `Why()` names the convention), `stzTukeyFit` (two-way: `Polish`,
+`Common`, `Effects(:Row|:Col)`, `Residuals`, `Fitted`, `Check` = the
+largest |data - (fit + residual)|, `ResidualScale`, `Sweeps`,
+`IsConverged`; R's eps and cap as defaults, settable), `stzTukeyOneWay`
+(group medians, the common as their median, effects and residuals, the
+same `Check`), `stzTukeyLine` (`Fit(passes)`, `Slope`, `Intercept`,
+`Residuals`). 1-based and named at the face, 0-based and numeric at the
+seam, said in the file.
+
+**The gate** `base/test/math/tukey_narrated.ring`, 52 of 52, in eight
+sections: fourths against quartiles at every n mod 4 by hand and the
+convention printed; the ladder on nine values; the fences under both
+conventions with stzDataSet agreeing on its own; R's `medpolish` example
+to 1e-9 with Data = Fit + Residual over every cell, one cell dragged to
+1e9 moving the resistant effects by 2 (within the data's fourth-spread of
+9) while the mean-based effects move by 266,666,666; the one-way fit; the
+resistant line recovering an exact line and holding its slope at 3 when
+the last point goes to 1e6 while least squares answers 66,668; MAD staying
+at 2 and the biweight within a factor of two under a value at 1e9 while
+the standard deviation answers 333,333,332; and the cost printed (a
+100 x 100 polish through the seam in about 8 ms against 1 ms in the
+engine alone -- the list crossing is the tax).
+
+**Two claims the gate corrected in this author, both worth the plan's
+own words**: the resistance bar is one fourth-spread OF THE DATA, not of
+the residuals (a residual scale of 1 would have failed a fit that moved
+by exactly the wild row's median shift); and a negative sibling that drags
+the point at the centre of x cannot fail, because that point has no
+leverage on any slope -- the wild point must sit at an end.
+
+**Waiting for an oracle (TK1's own kill criterion)**: the smoother family
+(3, 3R, SS, H, 4253H, twicing) and the N-way polish. R is not on this
+machine; the request for R's `smooth()` outputs on a fixed input is routed
+to the author as `MATH-R-ORACLE-01`, and the gate prints the family as
+skipped by name on every run. The uncompensated sum in
+`stz_stats_moving_average` (`stats.zig:602`) waits with them, since the
+smoother work is what touches that neighbourhood.
+
+**Build note for a fresh worktree**: `stz_http` and `stz_reactor` do not
+build without `vendor/nghttp2/lib/includes/nghttp2/nghttp2ver.h`, a
+generated file git ignores; copied from `_wtv`. `stz_stats` built without
+it, which is why TK1 could land.
