@@ -929,6 +929,45 @@ review of fr/ar/ha.
 **Next**: M3e -- the derivative that checks the formula and the identity
 that is not a self-check; then M4 Tukey and chapter 13.
 
+#### M3e RESULTS -- the two closing chapters, 2026-09-26
+
+**Shipped**: chapters 14 and 15 in four languages with one self-proving
+exercise each -- `14-the-derivative-that-checks` (a function compiled on
+the tape; its derivative at 2 read off the tape as 10; the textbook
+formula 3x^2 - 2 checked against it and a slipped 3x^2 - 1 caught at 11;
+a centred finite difference as a third witness to a millionth; a
+gradient of two variables [3, 8]; the slope of sine at zero against
+Ring's cosine; the marks of chapter 4 confirmed by slopes, 0 at the
+extremum and 2.83 at the zero), `15-an-identity-is-not-a-self-check`
+(a check that cannot fail, and the same check passing a wrong formula;
+Byrne's picture measured against a formula it never heard of; the
+function figure's zero of x^2 - 3 against Ring's square root; the
+negative the positive needs, 1.5 refused; the tape as a third route;
+two counts of the school's requests). Fourteen of fifteen ship; chapter
+13, Tukey's first look, stays planned and unwritten until M4, and the
+course gate prints it by name on every run.
+
+**Gates, rerun over fourteen chapters**: `course_math_narrated.ring`
+240 of 240 in 132 s; `tutor_math_narrated.ring` 84 of 84 in 53 s, after the retitle; `demo_math.ring` 11 proved, 0 not proved.
+
+**Found, in the runner, again**: a wrong answer whose printed lines
+coincide with the right ones is accepted (exercise 14's "checks the
+formula against itself" printed 3 and 1 exactly as the right answers
+do); a wrong answer must differ in what it PRINTS, never only in how it
+got there, so it was replaced by a slipped formula that prints 4 and 0.
+The lesson is the chapter's own: a check that cannot fail is not a check.
+
+**M3 done-when, read against this**: `course_math_narrated.ring` is
+green in all four languages with the same promises cell for cell (206
+of 206 over twelve chapters at M3d, 240 of 240 in 132 s now); `tutor_math_narrated
+.ring` asks the gap question on every chapter and refuses the answer in
+four languages; the decision maker's demo runs offline from a clean
+folder by the education demo's own mechanism, 11 proved and 0 not. What
+remains of M3 is chapter 13, which waits for M4 by the plan's own
+order, and the native review of fr/ar/ha, never claimed.
+
+**Next**: M4, Tukey, built -- then chapter 13 and the course's fifteenth.
+
 ### M4 -- Tukey, built
 
 **Deliverable**: TK0-TK6 as `SOFTANZA_TUKEY_PLAN.md` wrote them, with every

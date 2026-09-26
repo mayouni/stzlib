@@ -1,0 +1,7 @@
+knowledge "math-14-01"
+
+facts
+    math-14-01 | is-a | exercise
+    math-14-01 | in-chapter | the-derivative-that-checks
+    math-14-01 | trains | cr-02
+    math-14-01 | needs-step | asks
