@@ -468,6 +468,24 @@ pub fn mixInto(dst: i64, src: i64, at: usize, gain: f64) f64 {
     return @floatFromInt(n);
 }
 
+/// MU2: a buffer's samples as raw memory, resolved ONCE on the caller's thread.
+///
+/// The timeline node plays notes on the producer thread, and the producer must
+/// not read the buffer TABLE: the Ring thread keeps rendering notes while a
+/// score plays, `adopt` appends to the table, and an append that grows it
+/// reallocates the table under a reader. The samples themselves are a separate
+/// allocation that never moves -- so the timeline takes this view when a note
+/// is placed and never looks the id up again. The price is a contract: the
+/// buffer must not be freed while a timeline still holds it.
+pub const RawView = struct { data: [*]const f32, frames: usize, channels: u32, rate: u32 };
+
+pub fn rawView(id: i64) ?RawView {
+    const s = slotOf(id) orelse return null;
+    const b = bufs.items[s];
+    if (b.frames == 0) return null;
+    return .{ .data = b.data.ptr, .frames = b.frames, .channels = b.channels, .rate = b.rate };
+}
+
 pub fn getSample(id: i64, frame: usize, ch: u32) f64 {
     const s = slotOf(id) orelse return 0;
     const b = bufs.items[s];
