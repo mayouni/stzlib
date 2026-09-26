@@ -72,12 +72,32 @@ class stzSoundScore
 			return This
 		ok
 		if NOT This._GoodBeats(pnBeats, "Note")  return This ok
-		@aEvents + [ @nBeats, pnBeats, _hz_, @cOn, @nVelocity, "" ]
+		@aEvents + [ @nBeats, pnBeats, _hz_, @cOn, @nVelocity, "", 0 ]
 		@nBeats += pnBeats
 		return This
 
 	def NoteQ(pNote, pnBeats)
 		return This.Note(pNote, pnBeats)
+
+	# MU4: a note whose pitch MOVES from one pitch to another over its whole
+	# length -- a meend, a Zarma slide, a kalangu's squeezed tone. Names or Hz.
+	def GlideAt(pnBeat, pFrom, pTo, pnBeats)
+		_a_ = pFrom
+		if isString(pFrom)  _a_ = StzNoteToHz(pFrom) ok
+		_b_ = pTo
+		if isString(pTo)  _b_ = StzNoteToHz(pTo) ok
+		if NOT isNumber(_a_) or _a_ <= 0 or NOT isNumber(_b_) or _b_ <= 0
+			This._Refuse("GlideAt: both ends are note names or frequencies")
+			return This
+		ok
+		if NOT isNumber(pnBeat) or pnBeat < 0
+			This._Refuse("GlideAt: a beat is 0 or later")
+			return This
+		ok
+		if NOT This._GoodBeats(pnBeats, "GlideAt")  return This ok
+		@aEvents + [ pnBeat, pnBeats, _a_, @cOn, @nVelocity, "", _b_ ]
+		if pnBeat + pnBeats > @nBeats  @nBeats = pnBeat + pnBeats ok
+		return This
 
 	# MU3: a note at an explicit beat, for a score built from a pattern. It
 	# does not move where the next Note() goes; the length grows to cover it.
@@ -93,7 +113,7 @@ class stzSoundScore
 			return This
 		ok
 		if NOT This._GoodBeats(pnBeats, "NoteAt")  return This ok
-		@aEvents + [ pnBeat, pnBeats, _hz_, @cOn, @nVelocity, "" ]
+		@aEvents + [ pnBeat, pnBeats, _hz_, @cOn, @nVelocity, "", 0 ]
 		if pnBeat + pnBeats > @nBeats  @nBeats = pnBeat + pnBeats ok
 		return This
 
@@ -108,7 +128,7 @@ class stzSoundScore
 			return This
 		ok
 		if NOT This._GoodBeats(pnBeats, "StrokeAt")  return This ok
-		@aEvents + [ pnBeat, pnBeats, 0, @cOn, @nVelocity, _s_ ]
+		@aEvents + [ pnBeat, pnBeats, 0, @cOn, @nVelocity, _s_, 0 ]
 		if pnBeat + pnBeats > @nBeats  @nBeats = pnBeat + pnBeats ok
 		return This
 
@@ -135,7 +155,7 @@ class stzSoundScore
 			return This
 		ok
 		if NOT This._GoodBeats(pnBeats, "Stroke")  return This ok
-		@aEvents + [ @nBeats, pnBeats, 0, @cOn, @nVelocity, _s_ ]
+		@aEvents + [ @nBeats, pnBeats, 0, @cOn, @nVelocity, _s_, 0 ]
 		@nBeats += pnBeats
 		return This
 
@@ -253,6 +273,9 @@ class stzSoundScore
 		_n_ = len(@aEvents)
 		for _i_ = 1 to _n_
 			if @aEvents[_i_][3] > 0  @aEvents[_i_][3] *= _f_ ok
+			if len(@aEvents[_i_]) >= 7
+				if @aEvents[_i_][7] > 0  @aEvents[_i_][7] *= _f_ ok    # a glide's end moves too
+			ok
 		next
 		return This
 
@@ -595,7 +618,9 @@ class stzSoundScoreRenderer
 		_inst_ = paEvent[4]
 		if _inst_ = ""  _inst_ = "piano" ok
 		_hold_ = @oScore.SecondsOf(paEvent[2])
-		_key_ = _inst_ + "|" + paEvent[3] + "|" + _hold_ + "|" + paEvent[5] + "|" + paEvent[6]
+		_end_ = 0
+		if len(paEvent) >= 7  _end_ = paEvent[7] ok
+		_key_ = _inst_ + "|" + paEvent[3] + "|" + _hold_ + "|" + paEvent[5] + "|" + paEvent[6] + "|" + _end_
 		for _k_ in @aKeys
 			if _k_[1] = _key_  return _k_[2] ok
 		next
@@ -613,6 +638,11 @@ class stzSoundScoreRenderer
 				_hz_ = sqrt(_r_[1] * _r_[2])
 			ok
 			_oS_ = _oI_.ToSoundOfStroke(paEvent[6], _hz_, _hold_)
+		but _end_ > 0 and _end_ != paEvent[3]
+			# MU4: a glide -- the pitch moves over the whole note, in log
+			# frequency. Refused by a pluck or an FM voice (MU1), and then the
+			# refusal is counted like any other, never turned into a step.
+			_oS_ = _oI_.ToSoundOfGlide(paEvent[3], _end_, _hold_)
 		else
 			_oS_ = _oI_.ToSoundOf(paEvent[3], _hold_)
 		ok
