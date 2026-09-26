@@ -1212,6 +1212,15 @@ judges.
 **Gate**: `base/test/math/claim_narrated.ring`, 47 of 47, five sections,
 under three seconds.
 
+**The demo bar, closed**: `demo_math.ring` gained scene 6 (the deaths
+table fitted by medians, the report naming the two cells the fit does not
+describe, the story proving it computes nothing, the residual plot drawn)
+and scene 7 (a false identity failing on the floor with 26 against 25, a
+true one emitted as a Mathlib theorem, the Lean door reporting itself by
+name over chapter 15's six claims): 17 proved, 0 not proved, up from 11.
+Every row of the demo bar above now has a proving line in the demo, the
+frontier row on its floor.
+
 ## 5. The demo bar, mapped
 
 | the 15-minute demo shows | what proves it | lands in |
