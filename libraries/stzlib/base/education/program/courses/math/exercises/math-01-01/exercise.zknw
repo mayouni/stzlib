@@ -1,0 +1,7 @@
+knowledge "math-01-01"
+
+facts
+    math-01-01 | is-a | exercise
+    math-01-01 | in-chapter | the-number-line
+    math-01-01 | trains | se-01
+    math-01-01 | needs-step | asks

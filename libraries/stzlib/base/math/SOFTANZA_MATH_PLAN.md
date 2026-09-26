@@ -745,6 +745,61 @@ picture).
 After M3, Central is asked to rate `base/math/` as a card on the Atlas by
 what its guards prove.
 
+#### M3a RESULTS -- the course spine and level L0, 2026-09-26
+
+**Shipped**: `base/education/program/courses/math/` -- `course.zknw` (three
+chapters shipped), `curriculum.zknw` (fifteen planned, every one training a
+skill of the program and a `requires` chain with no cycle), and level L0 in
+four languages: `01-the-number-line`, `02-the-fraction`, `03-the-chaos-game`,
+each `.en/.fr/.ar/.ha.md`, with one exercise each (`math-01-01`,
+`math-02-01`, `math-03-01`: task in four languages, `promise.ring`, two right
+and two or three wrong answers, `needs-step` on every one). Every figure is
+a declaration in a cell (`StzMathFigureQ(:NumberLine, ...)`, `:Fraction`,
+and the chaos game as library code -- `StzChaosGamePictureQ`,
+`StzChaosGameSubstance`, `StzChaosGameCounts` in `stzMathStories.ring`);
+every numeric claim is a `#-->` promise written FROM A RUN; the school world
+is used through `uses-world`. The course is registered in the program's
+manifest by one line (announced in CONCLUSIONS before it landed).
+
+**Gates**: `base/test/math/course_math_narrated.ring` -- the education
+plane's course contract held to this course (text in four languages, every
+cell run in a fresh process with every promise kept, no stored output, the
+same promises cell for cell across editions, a recap, every exercise
+proving itself), plus two of this plane's own: no file under the course
+folder but `.md`, `.zknw`, `.ring`; and every cell but a world cell carries
+a promise. 53 assertions, 27 s, scoped by chapter id and printing what it
+skipped. `tutor_math_narrated.ring` -- on every chapter a learner who handed
+in a wrong answer and asks what is missing gets the gap question of the
+exercise's first declared step, never the fallback; asked for the answer in
+en/fr/ar/ha the tutor refuses and its words carry none a right answer
+calls; a chapter ahead is named and not explained, with the negative that
+the same tutor without the course cannot know. 29 assertions, 10 s.
+`demo_math.ring` -- the fifteen-minute demo offline from a clean folder,
+the education demo's mechanism: 11 proved, 0 not proved (one folder and it
+runs; the chapter in four languages; the reader page storing no output; the
+tutor asking and refusing; the figures drawn by the guard because the page
+cannot show them yet).
+
+**Found, and said**: the tutor's gap question is the STRING vocabulary's --
+on the fraction exercise it asks "does your list contain what you are
+looking for, and how many times?" -- because `GapIn` knows asks / finds /
+applies and reads them off the words contains / find / remove in the code.
+Every math exercise declares `needs-step | asks` (the honest fit: each asks
+a count of the picture) and a wrong answer that names `NumberOfShapes`
+satisfies "asks" by the word alone. `MATH-TUTOR-NUMBERS-01` (F14) stands,
+now with a quoted sentence as evidence. The reader shows no figure (F13):
+the page carries the figure's own sentence and the guard draws the PNG.
+
+**Not claimed**: chapters 4 to 15 (twelve of fifteen are planned and
+unwritten, and the gate prints both numbers, never summed as shipped);
+native review of fr/ar/ha (every translated page carries the banner); the
+bank overlay's money exercises (with L3); a figure in the reader page.
+
+**Next**: M3b, level L1 -- a function is a picture; a family under a
+parameter; geometry declared and solved (Thales, Byrne) -- the same shape:
+English chapter run first, promises from the run, then the three editions,
+then the exercise proved by its own wrong and right answers.
+
 ### M4 -- Tukey, built
 
 **Deliverable**: TK0-TK6 as `SOFTANZA_TUKEY_PLAN.md` wrote them, with every

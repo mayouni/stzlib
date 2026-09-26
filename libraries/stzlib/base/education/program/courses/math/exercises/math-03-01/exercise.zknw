@@ -1,0 +1,7 @@
+knowledge "math-03-01"
+
+facts
+    math-03-01 | is-a | exercise
+    math-03-01 | in-chapter | the-chaos-game
+    math-03-01 | trains | pa-02
+    math-03-01 | needs-step | asks

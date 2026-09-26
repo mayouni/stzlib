@@ -1,0 +1,60 @@
+knowledge "curriculum-math"
+
+# THE PLAN of the mathematics course, by level: L0 the picture of a number,
+# L1 a function and a construction, L2 exactness, matrices, statistics and
+# probability, L3 money, optimisation and Tukey, then the derivative that
+# checks a formula and the identity that is not a self-check. Every planned
+# chapter trains a skill of the program; the skills this course would mint of
+# its own are asked of the education plane (MATH-SKILLS-01).
+
+facts
+    math | plans-chapter-01 | the-number-line
+    math | plans-chapter-02 | the-fraction
+    math | plans-chapter-03 | the-chaos-game
+    math | plans-chapter-04 | a-function-is-a-picture
+    math | plans-chapter-05 | a-family-under-a-parameter
+    math | plans-chapter-06 | geometry-declared-and-solved
+    math | plans-chapter-07 | a-number-that-says-why
+    math | plans-chapter-08 | matrices-as-pictures
+    math | plans-chapter-09 | statistics-as-a-language
+    math | plans-chapter-10 | probability-by-the-continuum
+    math | plans-chapter-11 | money-to-the-centime
+    math | plans-chapter-12 | an-optimisation-model
+    math | plans-chapter-13 | tukeys-first-look
+    math | plans-chapter-14 | the-derivative-that-checks
+    math | plans-chapter-15 | an-identity-is-not-a-self-check
+
+    the-number-line | trains | se-01
+    the-fraction | trains | se-01
+    the-fraction | trains | pa-02
+    the-chaos-game | trains | pa-02
+    a-function-is-a-picture | trains | se-02
+    a-function-is-a-picture | trains | fo-04
+    a-family-under-a-parameter | trains | fo-04
+    geometry-declared-and-solved | trains | fo-04
+    geometry-declared-and-solved | trains | cr-02
+    a-number-that-says-why | trains | cr-03
+    matrices-as-pictures | trains | pa-04
+    statistics-as-a-language | trains | pa-02
+    statistics-as-a-language | trains | fo-01
+    probability-by-the-continuum | trains | kn-02
+    money-to-the-centime | trains | cr-02
+    an-optimisation-model | trains | fo-04
+    tukeys-first-look | trains | se-02
+    the-derivative-that-checks | trains | cr-02
+    an-identity-is-not-a-self-check | trains | cr-02
+
+    the-fraction | requires | the-number-line
+    the-chaos-game | requires | the-number-line
+    a-function-is-a-picture | requires | the-number-line
+    a-family-under-a-parameter | requires | a-function-is-a-picture
+    geometry-declared-and-solved | requires | a-function-is-a-picture
+    a-number-that-says-why | requires | the-fraction
+    matrices-as-pictures | requires | a-function-is-a-picture
+    statistics-as-a-language | requires | the-fraction
+    probability-by-the-continuum | requires | the-chaos-game
+    money-to-the-centime | requires | a-number-that-says-why
+    an-optimisation-model | requires | geometry-declared-and-solved
+    tukeys-first-look | requires | statistics-as-a-language
+    the-derivative-that-checks | requires | a-family-under-a-parameter
+    an-identity-is-not-a-self-check | requires | the-derivative-that-checks
