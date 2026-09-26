@@ -353,6 +353,146 @@ chk("the house font was found on this machine", isObject(StzMathFigureFont()))
 
 #---------------------------------------------------------------------------
 
+sec("-- 8. A NUMBER LINE: EVERY POINT AT ITS VALUE, EVERY JUMP ADDS UP ------")
+
+oN8 = StzMathFigScene08()
+oN8.Layout()
+chk("the number line is lawful", oN8.IsSolved())
+oSN = oN8.Substance()
+chkeq("six points stand on it -- four declared, and the jump's two ends", oSN.DataOf("ax", "points"), 6)
+# every point's dot is where the line maps its value -- re-derived from
+# the axis's own ends with plain arithmetic
+nA = oSN.DataOf("ax", "a")  nB = oSN.DataOf("ax", "b")
+nPx0 = oSN.DataOf("ax", "px0")  nPx1 = oSN.DataOf("ax", "px1")
+bAt = TRUE
+acP = oSN.ObjectsOfType("Point")
+for i = 1 to len(acP)
+	aD = oN8.ShapeOf(acP[i] + ".icon")
+	nWant = nPx0 + (oSN.DataOf(acP[i], "v") - nA) * (nPx1 - nPx0) / (nB - nA)
+	if fabs(aD[:cx] - nWant) > 0.000001  bAt = FALSE  ok
+next
+chk("every dot stands where the line maps its value, to 1e-6", bAt)
+chk("the points are numbered left to right: p1 is -2, p6 is 7.5",
+    oSN.DataOf("p1", "v") = -2 and oSN.DataOf("p6", "v") = 7.5)
+chk("the jump from 2 to 5 prints '+ 3'", oSN.LabelOf("j1") = "+ 3")
+chk("and its landing dot is at 5", oSN.DataOf("p5", "v") = 5 or oSN.DataOf("p4", "v") = 5)
+chk("a named point reads 'half = 0.5'", oSN.LabelOf("n2") = "half = 0.5")
+nNotesN = 0
+for i = 1 to len(oSN.Definitions())
+	if oSN.Definitions()[i][2] = "Note"  nNotesN++  ok
+next
+chkeq("only the two points off the ticks are noted -- a point on a tick is named by the tick", nNotesN, 2)
+bNearN = TRUE
+aDefs = oSN.Definitions()
+for i = 1 to len(aDefs)
+	if aDefs[i][2] != "Note"  loop  ok
+	aT = oN8.ShapeOf(aDefs[i][1] + ".text")
+	aP = oN8.ShapeOf(aDefs[i][3][1] + ".icon")
+	if sqrt(pow(aT[:cx] - aP[:cx], 2) + pow(aT[:cy] - aP[:cy], 2)) > StzNumberLineFigureLeash() + aT[:w] / 2 + 0.5  bNearN = FALSE  ok
+next
+chk("every note stands within its leash of its point, by arithmetic", bNearN)
+oN9 = StzMathFigScene09()
+oN9.Layout()
+chk("9 - 5 is lawful", oN9.IsSolved())
+chk("and its jump prints '- 5' and reads backwards", oN9.Substance().LabelOf("j1") = "- 5" and oN9.Substance().Holds("Backward", [ "j1" ]))
+chkeq("with a step of 1 there are thirteen ticks on [0, 12]", oN9.Substance().DataOf("ax", "ticks"), 13)
+chk("a point off the line is refused", _MgRefusesKindSpec(:NumberLine, [ :on = [ 0, 5 ], :points = [ 9 ] ], "is not on the line"))
+chk("a jump to itself is refused", _MgRefusesKindSpec(:NumberLine, [ :on = [ 0, 5 ], :jumps = [ [ 2, 2 ] ] ], "to itself"))
+chk("a number placed twice is refused", _MgRefusesKindSpec(:NumberLine, [ :on = [ 0, 5 ], :points = [ 2, 2 ] ], "placed twice"))
+chk("NEGATIVE: the lawful forms are accepted", NOT _MgRefusesKindSpec(:NumberLine, [ :on = [ 0, 5 ], :points = [ 2, [ 4, "four" ] ], :jumps = [ [ 1, 3 ] ] ], ""))
+oNW = StzMathFigNumberLineWitness()
+oNWRep = StzCheckPictures([ [ "numberline/witness", oNW.Diagram() ] ])
+acNr = []
+aNf = oNWRep.Findings()
+for i = 1 to len(aNf)  acNr + ("" + aNf[i][:rule])  next
+chk("the witness's jump printing + 4 that lands 3 away is found", _MgHas(acNr, "jump_lands_where_it_says"))
+chk("its point drawn past its neighbour is found", _MgHas(acNr, "points_keep_their_order"))
+oN8Rep = StzCheckPictures([ [ "numberline/08", oN8.Diagram() ], [ "numberline/09", oN9.Diagram() ] ])
+chkeq("NEGATIVE: the two lawful lines raise no finding", oN8Rep.NumberOfFindings(), 0)
+
+#---------------------------------------------------------------------------
+
+sec("-- 9. A FRACTION: THE PICTURE AGREES WITH A COUNT ----------------------")
+
+oF10 = StzMathFigScene10()
+oF10.Layout()
+chk("three of four is lawful, with nothing to lay out", oF10.IsSolved() and oF10.Diagram().NumberOfUnknowns() = 0)
+cSvg10 = oF10.ToSVG()
+# THE CHILD'S PROOF: count the shaded parts -- they are the elements named s1_1, s1_2, s1_3
+chkeq("the picture has exactly three shaded parts, counted by their ids", len(StzFindCS('id="s1_', cSvg10, TRUE)), 3)
+chkeq("and one unshaded", len(StzFindCS('id="u1_', cSvg10, TRUE)), 1)
+oS10 = oF10.Substance()
+aW1 = oF10.ShapeOf("w1.box")
+nSum = 0
+acParts = oS10.ObjectsOfType("Part")
+for i = 1 to len(acParts)
+	aP = oF10.ShapeOf(acParts[i] + ".icon")
+	nSum += aP[:w]
+next
+chk("the four parts add up to the bar's width, by the solved shapes", fabs(nSum - aW1[:w]) < 0.001)
+chk("its name reads 3/4", oS10.LabelOf("nm1") = "3/4")
+
+oF11 = StzMathFigScene11()
+oF11.Layout()
+chk("four fractions compared are lawful", oF11.IsSolved())
+oS11 = oF11.Substance()
+# 2/4 and 1/2 END at the same pixel -- the picture's own proof of equality
+aS3 = oF11.ShapeOf("s3_2.icon")
+aS4 = oF11.ShapeOf("s4_1.icon")
+chk("2/4 and 1/2 end at the same pixel, to 1e-9", fabs((aS3[:cx] + aS3[:w] / 2) - (aS4[:cx] + aS4[:w] / 2)) < 0.000000001)
+aS1 = oF11.ShapeOf("s1_3.icon")
+chk("NEGATIVE: 3/4 ends elsewhere", fabs((aS1[:cx] + aS1[:w] / 2) - (aS4[:cx] + aS4[:w] / 2)) > 10)
+chk("the verdicts are cross-multiplied: 3/4 > 2/3, 2/3 > 2/4, 2/4 = 1/2",
+    oS11.LabelOf("v1") = ">" and oS11.LabelOf("v2") = ">" and oS11.LabelOf("v3") = "=")
+
+oF12 = StzMathFigScene12()
+oF12.Layout()
+chk("three of eight and one of four as discs are lawful", oF12.IsSolved())
+cSvg12 = oF12.ToSVG()
+chkeq("the first disc has three shaded wedges", len(StzFindCS('id="s1_', cSvg12, TRUE)), 3)
+chkeq("and the second one", len(StzFindCS('id="s2_', cSvg12, TRUE)), 1)
+oS12 = oF12.Substance()
+nTurn = 0
+acParts = oS12.ObjectsOfType("Part")
+for i = 1 to len(acParts)
+	if oS12.DataOf(acParts[i], "whole") = 1  nTurn += oS12.DataOf(acParts[i], "angle")  ok
+next
+chk("the eight wedges turn exactly once round", fabs(nTurn - 2 * PI) < 0.000000001)
+chk("the verdict says 3/8 > 1/4", oS12.LabelOf("v1") = ">")
+
+chk("a denominator of zero is refused", _MgRefusesKindSpec(:Fraction, [ :of = [ 1, 0 ] ], "no parts"))
+chk("an improper fraction is refused, and told why", _MgRefusesKindSpec(:Fraction, [ :of = [ 5, 4 ] ], "more than one whole"))
+chk("a fraction of halves of numbers is refused", _MgRefusesKindSpec(:Fraction, [ :of = [ 1.5, 4 ] ], "whole numbers"))
+chk("too many parts to count are refused", _MgRefusesKindSpec(:Fraction, [ :of = [ 1, 100 ] ], "cannot be counted"))
+chk("NEGATIVE: 0/4 and 4/4 are accepted -- nothing and everything are fractions",
+    NOT _MgRefusesKindSpec(:Fraction, [ :of = [ 0, 4 ] ], "") and NOT _MgRefusesKindSpec(:Fraction, [ :of = [ 4, 4 ] ], ""))
+oFW = StzMathFigFractionWitness()
+oFWRep = StzCheckPictures([ [ "fraction/witness", oFW.Diagram() ] ])
+acFr = []
+aFf = oFWRep.Findings()
+for i = 1 to len(aFf)  acFr + ("" + aFf[i][:rule])  next
+chk("the witness's numerator of two over three shaded parts is found", _MgHas(acFr, "shaded_is_the_numerator"))
+chk("its denominator of five over four cut parts is found", _MgHas(acFr, "parts_are_the_denominator"))
+oFRep = StzCheckPictures([ [ "fraction/10", oF10.Diagram() ], [ "fraction/11", oF11.Diagram() ], [ "fraction/12", oF12.Diagram() ] ])
+chkeq("NEGATIVE: the three lawful fraction pictures raise no finding", oFRep.NumberOfFindings(), 0)
+
+#---------------------------------------------------------------------------
+
+sec("-- 10. THE ENTRY OBJECT KNOWS THREE KINDS ------------------------------")
+
+chkeq("the kinds are function, numberline and fraction", len(StzMathFigureKinds()), 3)
+chk("a number line's Why says what it holds", StzFindFirst("6 point(s)", oN8.Why()) > 0 and StzFindFirst("1 jump(s)", oN8.Why()) > 0)
+chk("a fraction's Why says what is shaded", StzFindFirst("3 of 4 shaded", oF10.Why()) > 0)
+bRef = FALSE
+try
+	oN8.SampleCount()
+catch
+	bRef = TRUE
+done
+chk("a :Function reader on a number line is refused by name", bRef)
+
+#---------------------------------------------------------------------------
+
 if nSecClock > 0
 	? "        [section took " + ((clock() - nSecClock) / clockspersecond()) + "s]"
 ok
@@ -392,6 +532,19 @@ func _MgRefuses aSpec, cWords
 	_c_ = ""
 	try
 		_o_ = StzMathFigureQ(:Function, aSpec)
+	catch
+		_b_ = TRUE
+		_c_ = cCatchError
+	done
+	if NOT _b_  return FALSE  ok
+	if cWords = ""  return TRUE  ok
+	return StzFindFirst(cWords, _c_) > 0
+
+func _MgRefusesKindSpec cKind, aSpec, cWords
+	_b_ = FALSE
+	_c_ = ""
+	try
+		_o_ = StzMathFigureQ(cKind, aSpec)
 	catch
 		_b_ = TRUE
 		_c_ = cCatchError

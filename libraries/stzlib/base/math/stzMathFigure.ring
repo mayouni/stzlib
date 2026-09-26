@@ -48,7 +48,7 @@ func StzMathFigureFont()
 	return NULL
 
 func StzMathFigureKinds()
-	return [ "function" ]
+	return [ "function", "numberline", "fraction" ]
 
 func StzMathFigureQ(pcKind, paSpec)
 	return new stzMathFigure(pcKind, paSpec)
@@ -78,6 +78,10 @@ class stzMathFigure from stzObject
 	def _Build()
 		if @cKind = "function"
 			@oDiagram = StzFunctionFigureBuildXT(@oFont, @aSpec)
+		but @cKind = "numberline"
+			@oDiagram = StzNumberLineFigureBuildXT(@oFont, @aSpec)
+		but @cKind = "fraction"
+			@oDiagram = StzFractionFigureBuildXT(@oFont, @aSpec)
 		ok
 
 	#-- what it is ------------------------------------------------------------
@@ -122,9 +126,16 @@ class stzMathFigure from stzObject
 	def LayoutMs()
 		return @oDiagram.LayoutMs()
 
-	# what was computed and what was solved, in one sentence each
+	# what was computed and what was solved, in one sentence each: the
+	# computed half is the domain file's sentence, the solved half the
+	# diagram's own
 	def Why()
 		_oS_ = @oDiagram.Substance()
+		if @cKind = "numberline"
+			return StzNumberLineFigureWhy(_oS_) + "; " + @oDiagram.Why()
+		but @cKind = "fraction"
+			return StzFractionFigureWhy(_oS_) + "; " + @oDiagram.Why()
+		ok
 		_c_ = "a " + @cKind + " figure: " + _oS_.DataOf("fr", "samples") + " samples in " +
 			_oS_.DataOf("fr", "pieces") + " piece(s), " + _oS_.DataOf("fr", "marks") + " mark(s)"
 		if _oS_.DataOf("fr", "marksleft") > 0
@@ -140,24 +151,36 @@ class stzMathFigure from stzObject
 
 	#-- the computed half, read back ------------------------------------------
 
+	# the readers below are the :Function figure's; another kind is told so
+	def _RequireKind(pcKind, pcWhat)
+		if @cKind != pcKind
+			stzraise("stzMathFigure." + pcWhat + ": a " + @cKind + " figure has no " + pcWhat +
+				" -- that is a " + pcKind + " figure's question.")
+		ok
+
 	def SampleCount()
+		This._RequireKind("function", "SampleCount")
 		return @oDiagram.Substance().DataOf("fr", "samples")
 
 	def PieceCount()
+		This._RequireKind("function", "PieceCount")
 		return @oDiagram.Substance().DataOf("fr", "pieces")
 
 	# the polylines drawn: a piece longer than 64 samples is several runs
 	def RunCount()
+		This._RequireKind("function", "RunCount")
 		return @oDiagram.Substance().DataOf("fr", "runs")
 
 	# the window in the author's units: [ xmin, xmax, ymin, ymax ]
 	def Window()
+		This._RequireKind("function", "Window")
 		_oS_ = @oDiagram.Substance()
 		return [ _oS_.DataOf("fr", "xmin"), _oS_.DataOf("fr", "xmax"),
 		         _oS_.DataOf("fr", "ymin"), _oS_.DataOf("fr", "ymax") ]
 
 	# every mark as [ kind, x, y ] -- "zero", "extremum" or "given"
 	def Marks()
+		This._RequireKind("function", "Marks")
 		_oS_ = @oDiagram.Substance()
 		_a_ = []
 		_ac_ = _oS_.ObjectsOfType("Mark")

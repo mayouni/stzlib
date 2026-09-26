@@ -429,6 +429,45 @@ measurement and the wall time is not). Catalogue: 7 scenes, looked at.
 macOS; PNG parity (the SVG is the byte expectation, a PNG needs a device);
 a solve under 100 ms (the cold solve of nine notes is 2.4 s, M2's concern).
 
+#### M1b RESULTS -- the `:NumberLine` and `:Fraction` figures, 2026-09-26
+
+**Shipped**: `base/math/stzNumberLineFigure.ring` and `stzFractionFigure.ring`,
+the child's trio's two figures (the chaos game is scene 34 of the diagram
+catalogue already). `StzMathFigureQ(:NumberLine, [ :on = [ -5, 10 ],
+:points = [ 3, -2, 7.5, [ 0.5, "half" ] ], :jumps = [ [ 2, 5 ] ] ])` places
+every number where the line maps it, draws a jump as an arc printing its
+difference and landing with an arrowhead, and solves the notes of the
+points that are off the ticks -- a point on a tick is named by the tick.
+`StzMathFigureQ(:Fraction, [ :of = [ 3, 4 ] ])` shades three of four equal
+parts of a bar, names the shaded ones `s1_1..s1_3` so a child and a gate
+can COUNT them by their ids; `:compare` stacks bars of one width so that
+2/4 and 1/2 end at the same pixel, and prints the verdicts by
+cross-multiplication on integers; `:as = :disc` draws wedges as polygons
+with the rim's full 23 points. Six rules joined the one gate. Gate
+`math_narrated.ring`: 118 assertions in 10 sections, about 19 s quiet
+(2.3 / 1.8 / 3.1 / 0.1 / 6.1 / 3.5 / 0.1 / 1.1 / 1.2 / 0.0 s). Catalogue:
+14 scenes, two of them witnesses, looked at.
+
+**Found while building:**
+
+- A number plus a string is a Ring trap: `_nN_ + "/" + _nD_` reads the
+  slash as a number and raises "Invalid numeric string"; every label
+  built from numbers starts with `"" +`.
+- A `+` on a Ring list appends IN PLACE, so a property list grown from a
+  shared base must be copied by assignment first, or two rules share one
+  list.
+- A polygon holds 3 to 24 vertices; a wedge with the rim's share of 22
+  points fell a pixel short of the circle and the whole's stroke showed
+  through as a dotted ring -- the render found it, no number did.
+- A note on a tick repeated the tick's number beneath it ("2 2"); the
+  render found that too.
+- A fraction picture has no choice to make, and says so: "nothing to lay
+  out" -- the gantt's and the timeline's honesty, kept.
+
+**Not claimed**: an improper fraction (refused with the reason until a
+later slice draws two wholes); a stacked-fraction notation ("3/4" is
+text until M1's last step); a jump that stacks over another jump.
+
 ### M2 -- Motion
 
 **Deliverable**: `stzMathMotion`: `Param(name, from, to)` re-solves a figure
