@@ -374,6 +374,196 @@ pub fn resistantLine(x: []const f64, y: []const f64, iters: usize, scratch: []f6
     return line;
 }
 
+// ── re-expression, measured (plan 2.4) ─────────────────────────────
+//
+// Two slopes, both computed here and both reported with their evidence:
+//
+//   spread versus level -- for grouped data, a line through
+//   (log median_g, log fourthSpread_g); slope b, suggested power p = 1 - b.
+//   b near 1 says log, near 0.5 says square root, near 0 says leave it.
+//
+//   comparison values -- for a two-way fit, the residual r_ij against
+//   c_ij = rowEffect_i * colEffect_j / common; slope b, suggested power
+//   p = 1 - b. Tukey's one-degree-of-freedom diagnosis of non-additivity.
+//
+// The ladder -1, -0.5, 0, 0.5, 1, 2 is then EVALUATED, each rung applied to
+// the table, polished, and scored on the non-additivity slope and on the
+// residual scale (the fourth-spread of the residuals, in the rung's own
+// units) -- all rungs in one call, so a caller crosses once per algorithm.
+//
+// THE RECOMMENDATION THRESHOLD IS MEASURED, NOT GUESSED (TK2's kill
+// criterion: a recommender that fires on additive data ships as a slope
+// only). The test "TK2 suite" below builds twenty additive and twenty
+// multiplicative tables with seeded noise and prints the non-additivity
+// slope at power 1 for each family; the constant below sits between them
+// and the RESULTS section of the Tukey plan records the two distributions.
+// A recommendation fires only when |slope at power 1| exceeds it.
+
+pub const RECOMMEND_THRESHOLD: f64 = 0.5;
+
+pub const SlopeResult = struct { slope: f64, intercept: f64, power: f64, ok: bool };
+
+/// The least-squares line y on x (with intercept) -- the diagnostic slope
+/// of Tukey's residual-versus-comparison-value plot.
+pub fn leastSquares(x: []const f64, y: []const f64) SlopeResult {
+    const n = x.len;
+    var r = SlopeResult{ .slope = 0, .intercept = 0, .power = 1, .ok = false };
+    if (n < 2 or y.len < n) return r;
+    var sx: f64 = 0;
+    var sy: f64 = 0;
+    for (x, 0..) |v, i| {
+        sx += v;
+        sy += y[i];
+    }
+    const n_f: f64 = @floatFromInt(n);
+    const mx = sx / n_f;
+    const my = sy / n_f;
+    var sxx: f64 = 0;
+    var sxy: f64 = 0;
+    for (x, 0..) |v, i| {
+        sxx += (v - mx) * (v - mx);
+        sxy += (v - mx) * (y[i] - my);
+    }
+    if (sxx == 0) return r;
+    r.slope = sxy / sxx;
+    r.intercept = my - r.slope * mx;
+    r.power = 1.0 - r.slope;
+    r.ok = true;
+    return r;
+}
+
+/// Spread versus level: medians and fourth-spreads per group (all positive),
+/// the line through their logs by the resistant line (3 or more groups) or
+/// the two-point slope. power = 1 - slope. Not ok when a value is not
+/// positive or there are fewer than two groups.
+pub fn spreadLevel(medians: []const f64, spreads: []const f64, scratch: []f64) SlopeResult {
+    const n = medians.len;
+    var r = SlopeResult{ .slope = 0, .intercept = 0, .power = 1, .ok = false };
+    if (n < 2 or spreads.len < n or scratch.len < 6 * n) return r;
+    const lx = scratch[0..n];
+    const ly = scratch[n .. 2 * n];
+    for (medians, 0..) |m, i| {
+        if (m <= 0 or spreads[i] <= 0) return r;
+        lx[i] = @log(m);
+        ly[i] = @log(spreads[i]);
+    }
+    if (n == 2) {
+        if (lx[1] == lx[0]) return r;
+        r.slope = (ly[1] - ly[0]) / (lx[1] - lx[0]);
+        r.intercept = ly[0] - r.slope * lx[0];
+    } else {
+        const l = resistantLine(lx, ly, 5, scratch[2 * n .. 6 * n]);
+        if (l.iterations == 0 and l.slope == 0 and l.intercept == 0) {
+            // the outer groups share an x: fall back to least squares
+            const ls = leastSquares(lx, ly);
+            if (!ls.ok) return r;
+            r.slope = ls.slope;
+            r.intercept = ls.intercept;
+        } else {
+            r.slope = l.slope;
+            r.intercept = l.intercept;
+        }
+    }
+    r.power = 1.0 - r.slope;
+    r.ok = true;
+    return r;
+}
+
+/// c_ij = rowEffect_i * colEffect_j / common, row-major into `out`.
+/// Returns false when the common value is zero.
+pub fn comparisonValues(common: f64, row: []const f64, col: []const f64, out: []f64) bool {
+    if (common == 0 or out.len < row.len * col.len) return false;
+    for (row, 0..) |ri, i| {
+        for (col, 0..) |cj, j| out[i * col.len + j] = ri * cj / common;
+    }
+    return true;
+}
+
+/// The non-additivity slope of a polished table: residuals on comparison
+/// values, least squares. power = 1 - slope.
+pub fn nonAdditivitySlope(common: f64, row: []const f64, col: []const f64, residuals: []const f64, scratch: []f64) SlopeResult {
+    const n = row.len * col.len;
+    const r = SlopeResult{ .slope = 0, .intercept = 0, .power = 1, .ok = false };
+    if (residuals.len < n or scratch.len < n) return r;
+    if (!comparisonValues(common, row, col, scratch[0..n])) return r;
+    return leastSquares(scratch[0..n], residuals[0..n]);
+}
+
+pub const Rung = struct { power: f64, slope: f64, residual_scale: f64, ok: bool };
+
+/// One rung of the ladder applied to a value: x^p, log for 0. Not ok for a
+/// value that is not positive under a log or a negative or fractional power.
+fn reexpress(v: f64, power: f64) ?f64 {
+    if (power == 1.0) return v;
+    if (power == 0.0) {
+        if (v <= 0) return null;
+        return @log(v);
+    }
+    if (power == 2.0) return v * v;
+    if (v <= 0) return null;
+    return std.math.pow(f64, v, power);
+}
+
+/// The ladder, evaluated: each power applied to a copy of the table,
+/// polished with R's rule, scored by the non-additivity slope and the
+/// fourth-spread of the residuals. `work` needs rows*cols + rows + cols +
+/// max(rows, cols) + rows*cols values. Returns how many rungs were written.
+pub fn evaluateLadder(data: []const f64, rows: usize, cols: usize, powers: []const f64, out: []Rung, work: []f64) usize {
+    const n = rows * cols;
+    if (n == 0 or data.len < n or work.len < 2 * n + rows + cols + @max(rows, cols)) return 0;
+    const z = work[0..n];
+    const row = work[n .. n + rows];
+    const col = work[n + rows .. n + rows + cols];
+    const scratch = work[n + rows + cols .. n + rows + cols + @max(rows, cols)];
+    const cv = work[n + rows + cols + @max(rows, cols) .. 2 * n + rows + cols + @max(rows, cols)];
+    var k: usize = 0;
+    for (powers) |pw| {
+        if (k >= out.len) break;
+        var ok = true;
+        for (data[0..n], 0..) |v, i| {
+            if (reexpress(v, pw)) |t| {
+                z[i] = t;
+            } else {
+                ok = false;
+                break;
+            }
+        }
+        if (!ok) {
+            out[k] = .{ .power = pw, .slope = 0, .residual_scale = 0, .ok = false };
+            k += 1;
+            continue;
+        }
+        const pr = medianPolish2D(z, rows, cols, row, col, 0.01, 10, scratch);
+        const sl = nonAdditivitySlope(pr.common, row, col, z, cv);
+        // the residual scale: the fourth-spread of the residuals
+        @memcpy(cv[0..n], z[0..n]);
+        std.mem.sort(f64, cv[0..n], {}, std.sort.asc(f64));
+        const scale = fourthSpread(cv[0..n]);
+        out[k] = .{ .power = pw, .slope = sl.slope, .residual_scale = scale, .ok = sl.ok };
+        k += 1;
+    }
+    return k;
+}
+
+/// The recommendation: the rung with the flattest diagnostic slope among
+/// the rungs that could be taken -- but ONLY when power 1's own slope is
+/// past RECOMMEND_THRESHOLD; otherwise power 1, meaning leave the data
+/// alone. Returns the index into `rungs`, or null when nothing can be said.
+pub fn recommend(rungs: []const Rung) ?usize {
+    var one: ?usize = null;
+    for (rungs, 0..) |r, i| {
+        if (r.ok and r.power == 1.0) one = i;
+    }
+    const idx1 = one orelse return null;
+    if (@abs(rungs[idx1].slope) <= RECOMMEND_THRESHOLD) return idx1;
+    var best: ?usize = null;
+    for (rungs, 0..) |r, i| {
+        if (!r.ok) continue;
+        if (best == null or @abs(r.slope) < @abs(rungs[best.?].slope)) best = i;
+    }
+    return best;
+}
+
 // ── tests: the oracles, transcribed with the command that produced them ──
 
 test "fourths on the worked examples at every n mod 4" {
@@ -543,4 +733,100 @@ test "medianSelect agrees with the sorted median on seeded data, odd and even co
         std.mem.sort(f64, b[0..n], {}, std.sort.asc(f64));
         try std.testing.expectApproxEqAbs(medianSorted(b[0..n]), medianSelect(a[0..n]), 1e-12);
     }
+}
+
+// ── TK2 tests: the oracles are built FROM a known power ─────────────
+
+fn lcg(seed: *u64) f64 {
+    seed.* = seed.* *% 6364136223846793005 +% 1442695040888963407;
+    return @as(f64, @floatFromInt((seed.* >> 33) % 1000000)) / 1000000.0;
+}
+
+// an additive table with noise, and a multiplicative one (exp of an
+// additive table), both 6 x 5, seeded
+fn syntheticTable(seed: *u64, multiplicative: bool, out: []f64, rows: usize, cols: usize) void {
+    var i: usize = 0;
+    while (i < rows) : (i += 1) {
+        const ri = 1.0 + 0.4 * @as(f64, @floatFromInt(i));
+        var j: usize = 0;
+        while (j < cols) : (j += 1) {
+            const cj = 0.5 + 0.3 * @as(f64, @floatFromInt(j));
+            const noise = (lcg(seed) - 0.5) * 0.1;
+            const additive = 2.0 + ri + cj + noise;
+            out[i * cols + j] = if (multiplicative) @exp(additive) else additive;
+        }
+    }
+}
+
+test "TK2: a multiplicative table wants the log, an additive one wants nothing" {
+    var seed: u64 = 99;
+    const rows: usize = 6;
+    const cols: usize = 5;
+    var data: [30]f64 = undefined;
+    var work: [30 + 6 + 5 + 6 + 30]f64 = undefined;
+    const powers = [_]f64{ -1, -0.5, 0, 0.5, 1, 2 };
+    var rungs: [6]Rung = undefined;
+    syntheticTable(&seed, true, &data, rows, cols);
+    const k = evaluateLadder(&data, rows, cols, &powers, &rungs, &work);
+    try std.testing.expectEqual(@as(usize, 6), k);
+    // at power 1 the slope is near 1 (so the suggested power is near 0)
+    try std.testing.expect(rungs[4].ok);
+    try std.testing.expect(@abs(rungs[4].slope - 1.0) < 0.35);
+    const rec = recommend(&rungs) orelse return error.NoRecommendation;
+    try std.testing.expectApproxEqAbs(@as(f64, 0), rungs[rec].power, 1e-12);
+    // the additive table: power 1's slope is small and the recommendation is 1
+    syntheticTable(&seed, false, &data, rows, cols);
+    _ = evaluateLadder(&data, rows, cols, &powers, &rungs, &work);
+    try std.testing.expect(@abs(rungs[4].slope) < RECOMMEND_THRESHOLD);
+    const rec2 = recommend(&rungs) orelse return error.NoRecommendation;
+    try std.testing.expectApproxEqAbs(@as(f64, 1), rungs[rec2].power, 1e-12);
+}
+
+test "TK2 suite: the non-additivity slope at power 1 over twenty tables of each family" {
+    var seed: u64 = 2026;
+    const rows: usize = 6;
+    const cols: usize = 5;
+    var data: [30]f64 = undefined;
+    var work: [30 + 6 + 5 + 6 + 30]f64 = undefined;
+    const powers = [_]f64{1};
+    var rungs: [1]Rung = undefined;
+    var add_max: f64 = 0;
+    var mul_min: f64 = 1e9;
+    var fired_on_additive: usize = 0;
+    var t: usize = 0;
+    while (t < 20) : (t += 1) {
+        syntheticTable(&seed, false, &data, rows, cols);
+        _ = evaluateLadder(&data, rows, cols, &powers, &rungs, &work);
+        if (@abs(rungs[0].slope) > add_max) add_max = @abs(rungs[0].slope);
+        if (@abs(rungs[0].slope) > RECOMMEND_THRESHOLD) fired_on_additive += 1;
+        syntheticTable(&seed, true, &data, rows, cols);
+        _ = evaluateLadder(&data, rows, cols, &powers, &rungs, &work);
+        if (@abs(rungs[0].slope) < mul_min) mul_min = @abs(rungs[0].slope);
+    }
+    std.debug.print("  TK2 suite: |slope| at power 1 -- additive max {d:.4}, multiplicative min {d:.4}, threshold {d:.2}, fired on additive {d} of 20\n", .{ add_max, mul_min, RECOMMEND_THRESHOLD, fired_on_additive });
+    try std.testing.expect(fired_on_additive <= 1);
+    try std.testing.expect(mul_min > RECOMMEND_THRESHOLD);
+}
+
+test "TK2: spread versus level built from a known power" {
+    // groups whose spread grows like the level: slope 1 -> log; constant spread: slope 0 -> power 1
+    const med = [_]f64{ 10, 20, 40, 80 };
+    const sp1 = [_]f64{ 1, 2, 4, 8 };
+    var scratch: [24]f64 = undefined;
+    const a = spreadLevel(&med, &sp1, &scratch);
+    try std.testing.expect(a.ok);
+    try std.testing.expectApproxEqAbs(@as(f64, 1), a.slope, 1e-9);
+    try std.testing.expectApproxEqAbs(@as(f64, 0), a.power, 1e-9);
+    const sp0 = [_]f64{ 3, 3, 3, 3 };
+    const b = spreadLevel(&med, &sp0, &scratch);
+    try std.testing.expect(b.ok);
+    try std.testing.expectApproxEqAbs(@as(f64, 0), b.slope, 1e-9);
+    try std.testing.expectApproxEqAbs(@as(f64, 1), b.power, 1e-9);
+    // square-root data: spread grows like the square root of the level
+    const sp5 = [_]f64{ 1, 1.4142135623730951, 2, 2.8284271247461903 };
+    const c = spreadLevel(&med, &sp5, &scratch);
+    try std.testing.expectApproxEqAbs(@as(f64, 0.5), c.slope, 1e-9);
+    // a non-positive spread cannot be logged: not ok, never a guess
+    const bad = [_]f64{ 1, 0, 4, 8 };
+    try std.testing.expect(!spreadLevel(&med, &bad, &scratch).ok);
 }

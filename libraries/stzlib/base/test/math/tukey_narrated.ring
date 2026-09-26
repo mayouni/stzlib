@@ -168,6 +168,34 @@ chk("...and the biweight midvariance stays within a factor of two of the clean o
 nSd = StzDataSetQ([ 1, 2, 3, 4, 5, 6, 7, 8, 1000000000 ]).StandardDeviation()
 chk("NEGATIVE: the standard deviation of the same values is " + _FfNum(nSd, 0), nSd > 100000000)
 
+sec("-- 6b. RE-EXPRESSION, MEASURED: THE LADDER, THE SLOPE, THE VERDICT ---------")
+
+# the oracles are built FROM a known power: an additive table with seeded
+# noise, and its exponential, which is multiplicative and wants the log
+aAdd = _TkSynthetic(0)
+aMul = _TkSynthetic(1)
+oRe = StzTukeyReexpressionQ(aMul)
+aL = oRe.Ladder()
+chk("the ladder has six rungs, evaluated in one crossing: " + @@(StzTukeyLadderPowers()), len(aL) = 6)
+aR1 = oRe.Rung(1)
+chk("at power 1 the multiplicative table's residuals track the comparison values with slope near 1  [" + _FfNum(aR1[2], 4) + "]", fabs(aR1[2] - 1) < 0.35)
+aRec = oRe.Recommend()
+chk("the recommendation fires and names the log, with its slope as evidence: " + aRec[:evidence], aRec[:fires] = 1 and aRec[:power] = 0 and aRec[:name] = "log")
+chk("...and the diagnostic is a finding in the house rule shape", len(oRe.Diagnostics("sales")) = 1 and oRe.Diagnostics("sales")[1][:rule] = "non_additive")
+oAd = StzTukeyReexpressionQ(aAdd)
+aRecA = oAd.Recommend()
+chk("NEGATIVE, the one that matters more: the additive table gets NO recommendation -- power 1, slope " + _FfNum(aRecA[:slope], 4) + " within the threshold " + _FfNum(oAd.Threshold(), 2), aRecA[:fires] = 0 and aRecA[:power] = 1)
+chk("...and no finding", len(oAd.Diagnostics("sales")) = 0)
+chk("the threshold is the engine's measured constant, 0.5, printed on every verdict", oRe.Threshold() = 0.5 and StzFindFirst("threshold 0.5", aRec[:evidence]) > 0)
+aNA = oAd.NonAdditivity()
+chk("the non-additivity slope of the additive table alone, without the ladder: " + _FfNum(aNA[:slope], 4) + ", suggested power " + _FfNum(aNA[:power], 2), aNA[:ok] = 1 and fabs(aNA[:slope]) < 0.5)
+# spread versus level, from a known power
+aSL = StzTukeySpreadLevel([ [ 9, 10, 11 ], [ 18, 20, 22 ], [ 36, 40, 44 ], [ 72, 80, 88 ] ])
+chk("groups whose spread doubles with the level: log-spread on log-level slope 1, suggested power 0 (log)  [" + _FfNum(aSL[:slope], 4) + "]", aSL[:ok] = 1 and fabs(aSL[:slope] - 1) < 0.000001 and fabs(aSL[:power]) < 0.000001)
+aSC = StzTukeySpreadLevel([ [ 9, 10, 11 ], [ 19, 20, 21 ], [ 39, 40, 41 ], [ 79, 80, 81 ] ])
+chk("NEGATIVE: constant spread across levels: slope 0, power 1, leave it  [" + _FfNum(aSC[:slope], 4) + "]", aSC[:ok] = 1 and fabs(aSC[:slope]) < 0.000001 and fabs(aSC[:power] - 1) < 0.000001)
+chk("a group whose spread is zero cannot be logged: not ok, never a guess", StzTukeySpreadLevel([ [ 5, 5, 5 ], [ 10, 12, 14 ] ])[:ok] = 0)
+
 sec("-- 7. THE COST, PRINTED -------------------------------------------------")
 
 aBig = []
@@ -249,3 +277,20 @@ func _TkRefuses cWhat
 		_b_ = TRUE
 	done
 	return _b_
+
+# a 6 x 5 table: additive with seeded noise, or its exponential (multiplicative)
+func _TkSynthetic bMul
+	_nSeed_ = 99
+	_a_ = []
+	for _i_ = 0 to 5
+		_aRow_ = []
+		for _j_ = 0 to 4
+			_nSeed_ = (_nSeed_ * 1103515245 + 12345) % 2147483648
+			_nNoise_ = (_nSeed_ / 2147483648 - 0.5) * 0.1
+			_v_ = 2 + (1 + 0.4 * _i_) + (0.5 + 0.3 * _j_) + _nNoise_
+			if bMul  _v_ = exp(_v_)  ok
+			_aRow_ + _v_
+		next
+		_a_ + _aRow_
+	next
+	return _a_

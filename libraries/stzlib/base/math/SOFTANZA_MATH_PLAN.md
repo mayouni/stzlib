@@ -1010,6 +1010,23 @@ comparison values, the ladder in one crossing, the recommendation as a
 verdict with its slope; the synthetic multiplicative and additive tables
 as the oracles, the additive one the negative that matters more.
 
+#### M4b RESULTS -- TK2, re-expression measured, 2026-09-26
+
+**Shipped**: the ladder, the two diagnostic slopes and the recommendation
+in `eda.zig`, four bridge calls, `stzTukeyReexpression` and
+`StzTukeySpreadLevel` in `base/math/stzTukey.ring`; gate section 6b,
+63 of 63 in all. The recommendation threshold was MEASURED on forty
+synthetic tables before any face used it (additive max 0.19,
+multiplicative min 0.88, threshold 0.5, fired on additive 0 of 20) and
+the negative -- an additive table gets no recommendation and no finding --
+is the assertion the plan calls the one that matters more. Details in
+`SOFTANZA_TUKEY_PLAN.md` under `TK2 RESULTS`.
+
+**Next**: M4c -- TK3, the displays as figures of M1: the box plot figure
+taking `:convention` and printing it, stem-and-leaf as a text-rendition
+figure, letter values as a table, residual-versus-fit, the coded two-way
+table with its legend, the ladder as a table; every picture looked at.
+
 ### M5 -- Deepen the core (routed)
 
 Requests, each with the oracle and the picture that would prove it, to the
