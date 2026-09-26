@@ -945,6 +945,7 @@ load "geo/stzGeoProcess.ring"
     load "math/stzMathMotion.ring"
     load "math/stzMathStories.ring"
     load "math/stzTukey.ring"
+    load "math/stzTukeyStory.ring"
 
     # refine/ -- REFINEMENT PROGRAMMING (R6): stzPolyCode comes home --
     # code carries typed refinement points; a change is a typed proposal

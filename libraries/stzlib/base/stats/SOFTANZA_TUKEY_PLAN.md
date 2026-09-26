@@ -1096,3 +1096,99 @@ level and comparison-value diagnostic PICTURES (their numbers are in
 `stzTukeyReexpression` and print as `LadderTable`); back-to-back stems; the
 notched box. Each is a kind or a key away and none is owed by the plan's
 done-when.
+
+## TK4 RESULTS -- the verdicts, with their thresholds measured first, 2026-09-26 (plane stzlib-math, M4d)
+
+**One meaning of "far out".** Before the verdicts, the residual plot of
+TK3 coloured a cell by |residual| / scale (2 and 3), while the summary used
+Tukey's fences (hinge -+ 1.5 and 3 fourth-spreads). Two instruments, two
+counts: the deaths table had three "far out" cells under one and two under
+the other (residual 3 lies inside the upper far-out fence 1 + 3 = 4). The
+tier now has ONE rule, Tukey's fences on the batch in hand -- the summary,
+the box plot, the residual plot (which draws the four fences) and the
+fit's verdict all use it -- and the coded table keeps the plan's fixed
+bands of 2.5 as a DISPLAY, named as such in its legend. The gates were
+recounted: four cells outside, two far out, two named on the picture.
+
+**The verdicts**, every one in the house shape and every message naming
+the measurement and the threshold it crossed:
+
+| face | rule | severity | fires when |
+|---|---|---|---|
+| `stzTukeySummary` | `far_out` | error | a value lies beyond hinge -+ 3 fourth-spreads; the message says how many spreads past the hinge |
+| `stzTukeySummary` | `skewed` | warning | the mean drift of the F, E and D mid-summaries from the median, over the fourth-spread, exceeds 0.25 in magnitude |
+| `stzTukeySummary` | `heavy_tailed` | warning | the sixteenth-spread over the fourth-spread, against the Gaussian's 2.2745, exceeds 1.2 |
+| `stzTukeyFit` | `far_out` | error | a cell's residual lies beyond the residual batch's far-out fences; on a batch whose fourth-spread is 0, any residual at all |
+| `stzTukeyFit` | `not_converged` | warning | the polish stopped at its cap |
+| `stzTukeyOneWay` | `spread_tracks_level` | warning | the slope of log spread on log level exceeds 0.5 in magnitude; the message names the power to try |
+| `stzTukeyReexpression` | `non_additive` | warning | TK2's recommendation fires |
+
+`StzTukeyReportQ(subject, [ faces ])` builds the one `stzRuleReport` over
+any faces answering `Diagnostics(subject)`; `IsSound()` is false on an
+error and true on warnings alone. A shape verdict is not made under 100
+values: it was not measured there, and `Shape()` says "unjudged" by name.
+
+**The thresholds were measured before any face used them**
+(`base/test/math/probe_tk4.ring`, seeded Park-Miller batches, 20 per class
+and size, the numbers also in `stzTukey.ring` above the thresholds):
+
+| statistic | null classes, max over 60 or 40 batches | positive classes, min | threshold | fires |
+|---|---|---|---|---|
+| skew, single F-level mid-summary (Tukey's first idea) | symmetric up to 0.2562 at n = 50 | skewed down to -0.0855 | none possible | the classes OVERLAP at n = 50 and 200 |
+| skew, mean drift of F, E, D mids | 0.2313 / 0.2058 / 0.1408 at n = 100 / 200 / 400 (normal, uniform, t2) | exponential 0.2366 / 0.2439 / 0.2510; lognormal 0.2894 / 0.3863 / 0.4245 | 0.25 | 0 of 180 symmetric; 40 of 40 lognormal; 40 of 40 exponential at n >= 200, fewer at 100 |
+| tail, E-spread over F-spread | normal up to 1.1127 at n = 200 | t2 down to 0.9977 | none clean | overlaps |
+| tail, D-spread over F-spread | 1.1595 / 1.1871 / 1.1290 (normal, uniform) | Cauchy 1.1690 / 1.4613 / 1.6215; t2 1.0992 / 1.1057 / 1.1796 | 1.2 | 0 of 120 light-tailed; 40 of 40 Cauchy at n >= 200; t2 only partly (17, 18, 20 of 20 clear the null maximum) |
+| spread versus level, five groups of 30 | constant spread: |slope| up to 0.3397 | proportional spread: 0.6689 and up | 0.5 | 0 of 20 constant, 20 of 20 proportional |
+
+The evidence of skew is the DRIFT across letters, as Tukey read the
+ladder; the single mid-summary he started from does not separate an
+exponential from a normal batch at these sizes. Both facts are in the
+table so the thresholds can be argued rather than believed.
+
+**Both directions, in the gate** (`tukey_narrated.ring` section 8): an
+exactly additive table is sound with no finding; the same table with one
+cell at +1000 is unsound with one error at that cell -- and because every
+other residual is exactly 0, the fences collapse onto the hinge and the
+message says so; repaired, it is sound again. The additive table with
+seeded noise of section 6b carries ONE far-out error (cell (6, 3), residual
+-0.0871, 3.92 spreads past a hinge on a spread of 0.02): the rule reads
+the batch it is given, and the plan's example was less clean than the plan
+assumed. A multiplicative table fitted additively is unsound twice over --
+one corner past the far-out fence and the re-expression's warning. Eight
+marks with a 40 give one error at value #8, 4.54 spreads past the hinge;
+with 25 in its place, no finding. Lognormal leans right, normal leans
+neither and is not heavy, Cauchy is heavy, fifty values are unjudged.
+
+## TK5 RESULTS -- the story, under the honesty law, 2026-09-26 (plane stzlib-math, M4d)
+
+`stzTukeyStory` (`base/math/stzTukeyStory.ring`) tells a fit and its
+report in four paragraphs -- the fit, the extreme effects, the findings
+retold verbatim, the verdict -- and PERFORMS NO ARITHMETIC: every number
+in the prose is read from the fit's accessors or from a finding's message.
+The honesty law of 2.6 is checked on the story itself: `Numerals()` are the
+numeral tokens of `Text()`, `SourceNumerals()` the tokens the fit and the
+findings carry (formatted the one way the prose formats them), and
+`Unsourced()` is the difference -- empty, or the story's `Why()` says
+which numeral no source carries. On the deaths table: 4 paragraphs, 37
+numerals, every one sourced. The story is told on `stzTranscript` (the
+class `stzNarration` became at DN9a, so the plan's "on stzNarration"
+resolves there): the paragraphs as system lines, the verdict as a verdict
+line at certainty 1, because nothing was guessed.
+
+**The LLM face does not ship.** The plan's kill criterion says the LLM
+path does not ship if templated prose reads well enough in the author's
+judgement; this plane's judgement is that it does, and the honesty guard
+the plan wrote for the LLM face (identical numerals with the face on and
+off) is met trivially by a deterministic story that is the same text told
+twice, which the gate asserts. If the author rules otherwise, the seam is
+one method: a phrasing pass over `Paragraphs()` whose output must pass
+`Unsourced()` empty.
+
+**Found on the way, paid for once**: `_ac_` and `_aC_` are ONE variable
+in Ring (case-insensitive), so a loop bounded by the column effects and
+appending to an accumulator of the other spelling appended to its own
+bound -- a hang inside a method call that took six probes to bisect. The
+trap is in the repository's memory; two locals are never told apart by
+case alone.
+
+**Gate**: `tukey_narrated.ring` sections 8 and 9, 95 of 95 in all.

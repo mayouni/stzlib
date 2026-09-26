@@ -5,10 +5,12 @@
 /*
 	The one picture that tells whether a two-way fit is honest: every
 	cell as a point whose x is its FITTED value (common + row effect +
-	column effect) and whose y is its RESIDUAL, with the zero line and the
-	bands at one and two residual fourth-spreads. A fit that misses a
-	corner of the table shows it here as a point far from zero; a fit
-	that needs a re-expression shows it as a bow.
+	column effect) and whose y is its RESIDUAL, with the zero line and
+	Tukey's FENCES on the residual batch -- outside at hinge -+ 1.5
+	fourth-spreads, far out at hinge -+ 3 -- the same rule the summary,
+	the box plot and the verdicts use, so "far out" is one word here. A
+	fit that misses a corner of the table shows it as a point past a
+	fence; a fit that needs a re-expression shows it as a bow.
 
 	    oF = StzMathFigureQ(:ResidualPlot, [ :of = aRows, :names = [ aRowNames, aColNames ] ])
 	    ? oF.Why()
@@ -18,8 +20,8 @@
 	optional), :label. The polish is R's, through eda.zig; nothing is
 	solved -- every point sits where its two numbers put it -- and the
 	rules read it back: a point is its cell (its fit is common + row +
-	column, and it is drawn there), and the bands are the residuals'
-	fourth-spread recomputed from the points themselves.
+	column, and it is drawn there), and the fences are the residuals'
+	hinges and fourth-spread recomputed from the points themselves.
 */
 
 StzRegisterMathRuleSet("residualplot", StzResidualPlotRuleSet())
@@ -87,6 +89,8 @@ func StzResidualPlotFigureFromXT(poFont, paSpec)
 	next
 	_aF_ = StzEngineTukeyFourths(_aFlat_)
 	_nS_ = _aF_[2] - _aF_[1]
+	_nFlo_ = _aF_[1]
+	_nFhi_ = _aF_[2]
 	# the ranges
 	_nFmin_ = 0  _nFmax_ = 0  _nRmax_ = 0  _bAny_ = FALSE
 	for _i_ = 1 to _nR_
@@ -103,7 +107,8 @@ func StzResidualPlotFigureFromXT(poFont, paSpec)
 	_nVmin_ = _nFmin_ - _nPad_
 	_nVmax_ = _nFmax_ + _nPad_
 	_nRr_ = _nRmax_
-	if 2.4 * _nS_ > _nRr_  _nRr_ = 2.4 * _nS_  ok
+	if fabs(_nFhi_ + 3 * _nS_) > _nRr_  _nRr_ = fabs(_nFhi_ + 3 * _nS_)  ok
+	if fabs(_nFlo_ - 3 * _nS_) > _nRr_  _nRr_ = fabs(_nFlo_ - 3 * _nS_)  ok
 	if _nRr_ <= 0  _nRr_ = 1  ok
 	_nRr_ = _nRr_ * 1.15
 	_nL_ = 84
@@ -122,6 +127,7 @@ func StzResidualPlotFigureFromXT(poFont, paSpec)
 	_oS_.SetData("fr", "vmin", _nVmin_)  _oS_.SetData("fr", "vmax", _nVmax_)
 	_oS_.SetData("fr", "kx", _nKx_)  _oS_.SetData("fr", "ky", _nKy_)  _oS_.SetData("fr", "zy", _nZy_)
 	_oS_.SetData("fr", "common", _nCommon_)  _oS_.SetData("fr", "scale", _nS_)
+	_oS_.SetData("fr", "flo", _nFlo_)  _oS_.SetData("fr", "fhi", _nFhi_)
 	_oS_.SetData("fr", "rows", _nR_)  _oS_.SetData("fr", "cols", _nC_)
 	_oS_.SetData("fr", "tx", _nL_ + _FfTextWidth(poFont, _d_[:label], StzResidualPlotFigureTitleSize()) / 2)
 	_oS_.SetData("fr", "ty", 28)
@@ -177,13 +183,16 @@ func StzResidualPlotFigureFromXT(poFont, paSpec)
 		_oS_.SetData("ty" + _nKy2_, "lx", _nL_ - 14 - _FfTextWidth(poFont, _FfNum(_v_, 6), StzResidualPlotFigureTypeSize()) / 2)
 		_oS_.SetData("ty" + _nKy2_, "ly", _nZy_ - _v_ * _nKy_)
 	next
-	# the bands at +-1 and +-2 fourth-spreads
-	_aK_ = [ -2, -1, 1, 2 ]
+	# THE FENCES: outside at hinge -+ 1.5 fourth-spreads, far out at -+ 3
+	_aK_ = [ -3, -1.5, 1.5, 3 ]
 	for _b_ = 1 to 4
+		_v_ = _nFhi_ + _aK_[_b_] * _nS_
+		if _aK_[_b_] < 0  _v_ = _nFlo_ + _aK_[_b_] * _nS_  ok
 		_oS_.Declare("Band", "b" + _b_)
 		_oS_.Label("b" + _b_, "")
 		_oS_.SetData("b" + _b_, "k", _aK_[_b_])
-		_oS_.SetData("b" + _b_, "y", _nZy_ - _aK_[_b_] * _nS_ * _nKy_)
+		_oS_.SetData("b" + _b_, "v", _v_)
+		_oS_.SetData("b" + _b_, "y", _nZy_ - _v_ * _nKy_)
 		_oS_.SetData("b" + _b_, "x0", _nL_)  _oS_.SetData("b" + _b_, "x1", _nL_ + _nPw_)
 	next
 	# the points, one per cell. TWO CELLS WITH THE SAME NUMBERS SIT ON THE
@@ -216,7 +225,16 @@ func StzResidualPlotFigureFromXT(poFont, paSpec)
 				_nStacked_++
 			ok
 			_nB_ = 0
-			if _nS_ > 0  _nB_ = fabs(_r_) / _nS_  ok
+			if _nS_ > 0
+				if _r_ < _nFlo_ - 3 * _nS_ or _r_ > _nFhi_ + 3 * _nS_
+					_nB_ = 3
+				but _r_ < _nFlo_ - 1.5 * _nS_ or _r_ > _nFhi_ + 1.5 * _nS_
+					_nB_ = 2
+				ok
+			but _r_ != 0
+				# a zero spread: the fences sit on the hinge and any residual is past them
+				_nB_ = 3
+			ok
 			if _nB_ >= 3
 				_oS_.Assert("FarOut", [ _cP_ ])
 				_nFar_++
@@ -241,7 +259,7 @@ func StzResidualPlotFigureWhy(poSubstance)
 	return "a residual-versus-fit of " + poSubstance.DataOf("fr", "rows") + " x " + poSubstance.DataOf("fr", "cols") +
 		" cells: common " + _FfNum(poSubstance.DataOf("fr", "common"), 4) + ", residual fourth-spread " +
 		_FfNum(poSubstance.DataOf("fr", "scale"), 4) + ", " + poSubstance.DataOf("fr", "outside") +
-		" beyond 2 fourth-spreads, " + poSubstance.DataOf("fr", "farout") + " far out, " +
+		" beyond the outside fences, " + poSubstance.DataOf("fr", "farout") + " far out, " +
 		poSubstance.DataOf("fr", "stacked") + " ringed on another cell's spot"
 
 #-- the declaration, read and refused by name -------------------------
@@ -396,7 +414,7 @@ func StzResidualPlotRuleSet()
 	_ao_ + _o1_
 
 	_o2_ = StzPlasticRule("bands_are_the_scale")
-	_o2_.SetClaim("each band sits at its multiple of the residuals' fourth-spread, recomputed from the points")
+	_o2_.SetClaim("each fence sits at its multiple of the residuals' fourth-spread beyond the hinge, hinges and spread recomputed from the points")
 	_o2_.SetOrder(94)
 	_o2_.SetReads([ "substance" ])
 	_o2_.SetScope(func(oDg) { return _RpScope(oDg, "Band", "band:") })
@@ -413,9 +431,16 @@ func StzResidualPlotRuleSet()
 			return [ FALSE, "the picture says the scale is " + _FfNum(_oS_.DataOf("fr", "scale"), 4) +
 				" and the points' fourth-spread is " + _FfNum(_nS_, 4) ]
 		ok
-		_nY_ = _oS_.DataOf("fr", "zy") - _oS_.DataOf(_cB_, "k") * _nS_ * _oS_.DataOf("fr", "ky")
+		if fabs(_aF_[1] - _oS_.DataOf("fr", "flo")) > 0.000000001 or fabs(_aF_[2] - _oS_.DataOf("fr", "fhi")) > 0.000000001
+			return [ FALSE, "the picture says the hinges are " + _FfNum(_oS_.DataOf("fr", "flo"), 4) + " and " +
+				_FfNum(_oS_.DataOf("fr", "fhi"), 4) + " and the points' are " + _FfNum(_aF_[1], 4) + " and " + _FfNum(_aF_[2], 4) ]
+		ok
+		_nK_ = _oS_.DataOf(_cB_, "k")
+		_nV_ = _aF_[2] + _nK_ * _nS_
+		if _nK_ < 0  _nV_ = _aF_[1] + _nK_ * _nS_  ok
+		_nY_ = _oS_.DataOf("fr", "zy") - _nV_ * _oS_.DataOf("fr", "ky")
 		if fabs(_nY_ - _oS_.DataOf(_cB_, "y")) > 0.000001
-			return [ FALSE, "the band at " + _oS_.DataOf(_cB_, "k") + " fourth-spread(s) is drawn " +
+			return [ FALSE, "the fence at " + _nK_ + " fourth-spread(s) from the hinge is drawn " +
 				_FfNum(fabs(_nY_ - _oS_.DataOf(_cB_, "y")), 2) + " px from its place" ]
 		ok
 		return [ TRUE, "" ]
