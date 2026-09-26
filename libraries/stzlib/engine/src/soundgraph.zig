@@ -653,10 +653,15 @@ pub const TL_LATE_MAX = 2; // the worst lateness, in frames
 pub const TL_REFUSED = 3; // placements refused: no free slot
 pub const TL_RETIRED = 4; // notes that played out
 pub const TL_ARMED = 5; // slots holding a note right now (read from the table)
+pub const TL_CANCELLED = 6; // MU3: notes withdrawn before they sounded
+pub const TL_CANCEL_TOO_LATE = 7; // MU3: withdrawals refused -- the note was already sounding
 
 const TlSlot = struct {
     state: u32 = 0,
-    frame: u64 = 0,
+    frame: u64 = 0, // the frame ASKED for: written by the placer, never changed while armed
+    start: u64 = 0, // the frame it actually starts: render-owned, set when first seen
+    tag: u32 = 0, // MU3: whose note this is (a live loop), so its future can be withdrawn
+    cancel: u32 = 0, // MU3: "withdraw this if it has not started" -- placer writes, render honours
     data: [*]const f32 = undefined,
     frames: usize = 0,
     channels: u32 = 1,
@@ -668,7 +673,7 @@ const TlSlot = struct {
 const Timeline = struct {
     slots: [TL_SLOTS]TlSlot = @splat(.{}),
     clock: u64 = 0, // frames rendered; written by the render, read by anyone
-    ctr: [5]u64 = @splat(0),
+    ctr: [8]u64 = @splat(0), // index TL_ARMED is unused: that one is read from the table
 };
 
 fn timelineClear(t: *Timeline) void {
@@ -710,6 +715,12 @@ pub fn addTimeline(id: i64) i64 {
 /// freed until the timeline has retired it (TL_ARMED reaches 0) or the stream
 /// is stopped -- the render reads its samples directly.
 pub fn timelinePlace(id: i64, node: i64, buffer_id: i64, frame: f64, gain: f64) i32 {
+    return timelinePlaceTagged(id, node, buffer_id, frame, gain, 0);
+}
+
+/// MU3: the same, with a TAG naming whose note it is -- a live loop -- so that
+/// timelineCancel can withdraw that loop's future without touching another's.
+pub fn timelinePlaceTagged(id: i64, node: i64, buffer_id: i64, frame: f64, gain: f64, tag: u32) i32 {
     const s = slotOf(id) orelse return STALE;
     const g = &graphs.items[s];
     const t = timelineOf(id, node) orelse {
@@ -740,6 +751,8 @@ pub fn timelinePlace(id: i64, node: i64, buffer_id: i64, frame: f64, gain: f64) 
         sl.channels = v.channels;
         sl.gain = @floatCast(gain);
         sl.seen = false;
+        sl.tag = tag;
+        @atomicStore(u32, &sl.cancel, 0, .monotonic);
         sl.seq = @atomicRmw(u64, &t.ctr[TL_PLACED], .Add, 1, .monotonic);
         @atomicStore(u32, &sl.state, 1, .release);
         return OK;
@@ -757,6 +770,31 @@ pub fn timelineNow(id: i64, node: i64) f64 {
     return @floatFromInt(@atomicLoad(u64, &t.clock, .acquire));
 }
 
+/// MU3: withdraw every note tagged `tag` that was asked to start at `from_frame`
+/// or later. Safe while the graph renders: this only raises a flag, and the
+/// render honours it at the top of its next block IF the note has not started
+/// sounding by then (TL_CANCELLED), or refuses it (TL_CANCEL_TOO_LATE) and lets
+/// the note play out. Returns how many notes were flagged, or -1.
+pub fn timelineCancel(id: i64, node: i64, tag: u32, from_frame: f64) f64 {
+    const t = timelineOf(id, node) orelse {
+        refuse("timelineCancel: that node is not a timeline");
+        return -1;
+    };
+    if (!(from_frame >= 0)) {
+        refuse("timelineCancel: a frame is 0 or later");
+        return -1;
+    }
+    const from: u64 = @intFromFloat(@round(from_frame));
+    var k: f64 = 0;
+    for (&t.slots) |*sl| {
+        if (@atomicLoad(u32, &sl.state, .acquire) != 1) continue;
+        if (sl.tag != tag or sl.frame < from) continue;
+        @atomicStore(u32, &sl.cancel, 1, .release);
+        k += 1;
+    }
+    return k;
+}
+
 pub fn timelineCounter(id: i64, node: i64, which: u32) f64 {
     const t = timelineOf(id, node) orelse return -1;
     if (which == TL_ARMED) {
@@ -770,8 +808,15 @@ pub fn timelineCounter(id: i64, node: i64, which: u32) f64 {
     return @floatFromInt(@atomicLoad(u64, &t.ctr[which], .monotonic));
 }
 
+// Start order: the frame, then -- for notes that start on the same frame -- the
+// TAG, then the order they were placed in. The tag is MU3's: a redefined live
+// loop is posted again, later, so by placement order alone its notes would sum
+// AFTER another loop's notes on a shared frame one cycle and BEFORE them the
+// next, and f32 addition would make the two renders differ in the last bit.
+// By tag the order is the loops' own order, whenever each was posted.
 fn tlBefore(x: *const TlSlot, y: *const TlSlot) bool {
-    if (x.frame != y.frame) return x.frame < y.frame;
+    if (x.start != y.start) return x.start < y.start;
+    if (x.tag != y.tag) return x.tag < y.tag;
     return x.seq < y.seq;
 }
 
@@ -789,16 +834,31 @@ fn renderTimeline(g: *Graph, n: *Node) void {
     var na: usize = 0;
     for (&t.slots, 0..) |*sl, si| {
         if (@atomicLoad(u32, &sl.state, .acquire) != 1) continue;
+        // MU3: a withdrawal is honoured only if the note has not started. A
+        // note already sounding plays out -- cutting it would be a click, and
+        // it would be a change landing MID-BAR, which is MU3's kill
+        // criterion. So it is refused, and counted where a guard can see it.
+        if (@atomicLoad(u32, &sl.cancel, .acquire) == 1) {
+            const sounding = sl.seen and sl.start < clock;
+            if (!sounding) {
+                _ = @atomicRmw(u64, &t.ctr[TL_CANCELLED], .Add, 1, .monotonic);
+                @atomicStore(u32, &sl.state, 0, .release);
+                continue;
+            }
+            _ = @atomicRmw(u64, &t.ctr[TL_CANCEL_TOO_LATE], .Add, 1, .monotonic);
+            @atomicStore(u32, &sl.cancel, 0, .monotonic);
+        }
         if (!sl.seen) {
             sl.seen = true;
+            sl.start = sl.frame;
             if (sl.frame < clock) {
                 const late = clock - sl.frame;
                 _ = @atomicRmw(u64, &t.ctr[TL_LATE], .Add, 1, .monotonic);
                 _ = @atomicRmw(u64, &t.ctr[TL_LATE_MAX], .Max, late, .monotonic);
-                sl.frame = clock; // shifted to the top of this block, never cut
+                sl.start = clock; // shifted to the top of this block, never cut
             }
         }
-        if (sl.frame >= clock + blk) continue; // not yet
+        if (sl.start >= clock + blk) continue; // not yet
         act[na] = @intCast(si);
         na += 1;
     }
@@ -821,8 +881,8 @@ fn renderTimeline(g: *Graph, n: *Node) void {
     }
     for (act[0..na]) |si| {
         const sl = &t.slots[si];
-        const off: usize = @intCast(if (sl.frame > clock) sl.frame - clock else 0);
-        const from: usize = @intCast(clock + off - sl.frame);
+        const off: usize = @intCast(if (sl.start > clock) sl.start - clock else 0);
+        const from: usize = @intCast(clock + off - sl.start);
         const count = @min(g.block - off, sl.frames - from);
         ch = 0;
         while (ch < nch) : (ch += 1) {
@@ -2681,4 +2741,36 @@ test "MU2: notes are mixed in START order, not slot order -- live equals offline
     try testing.expect(want != 0); // the order DOES matter for these values
     try testing.expectEqual(@as(f64, want), snd.getSample(off, 5, 0));
     try testing.expectEqual(snd.getSample(off, 5, 0), snd.getSample(live, 5, 0));
+}
+
+test "MU3: a loop's future is withdrawn by tag; another loop's is not; a sounding note plays out" {
+    const gid = graphNew(1, 48000, 64);
+    defer _ = graphFree(gid);
+    const tl = addTimeline(gid);
+    _ = setOutput(gid, tl);
+    _ = prepare(gid);
+    const b = tlTestNote(100);
+    defer _ = snd.free(b);
+
+    try testing.expectEqual(OK, timelinePlaceTagged(gid, tl, b, 10, 1, 1)); // loop 1, sounds first
+    try testing.expectEqual(OK, timelinePlaceTagged(gid, tl, b, 200, 1, 1)); // loop 1, future
+    try testing.expectEqual(OK, timelinePlaceTagged(gid, tl, b, 300, 1, 1)); // loop 1, future
+    try testing.expectEqual(OK, timelinePlaceTagged(gid, tl, b, 200, 1, 2)); // loop 2, future
+    _ = renderBlock(gid); // clock 0 -> 64: the note at 10 is now sounding
+
+    // withdraw loop 1 from frame 0: the sounding one refuses, the two future ones go
+    try testing.expectEqual(@as(f64, 3), timelineCancel(gid, tl, 1, 0));
+    const out = renderToBuffer(gid, 512);
+    defer _ = snd.free(out);
+    try testing.expectEqual(@as(f64, 2), timelineCounter(gid, tl, TL_CANCELLED));
+    try testing.expectEqual(@as(f64, 1), timelineCounter(gid, tl, TL_CANCEL_TOO_LATE));
+    // the sounding note played out: its sample at frame 10+64 is in the second
+    // render at offset 10 (the first block went to renderBlock above)
+    try testing.expect(snd.getSample(out, 10, 0) > 0.5);
+    // at 200 only loop 2's note sounds -- one note, not two
+    try testing.expectApproxEqAbs(@as(f64, 1.0), snd.getSample(out, 200 - 64, 0), 1e-6);
+    // at 300 nothing: loop 1's third note was withdrawn
+    try testing.expectEqual(@as(f64, 0), snd.getSample(out, 300 - 64, 0));
+    // a withdrawal names a timeline, and a frame that exists
+    try testing.expectEqual(@as(f64, -1), timelineCancel(gid, tl, 1, -5));
 }
