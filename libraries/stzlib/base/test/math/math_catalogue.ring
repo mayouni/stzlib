@@ -40,8 +40,10 @@ for i = 1 to StzMathFigSceneCount()
 		loop
 	ok
 	# the same picture under the dark theme: no second solve, a theme
-	# changes no geometry -- only what every role resolves to
-	oD.SetPictureTheme("dark")
+	# changes no geometry -- only what every role resolves to. THROUGH THE
+	# FIGURE: oD above is a copy, and a theme set on it stayed on the copy --
+	# the 32 dark files before 2026-09-26 were the light bytes twice.
+	oF.SetTheme("dark")
 	oF.ToPNG("dark_" + cN + ".png")
 	? "   -> fig_" + cN + ".png, dark_" + cN + ".png"
 next

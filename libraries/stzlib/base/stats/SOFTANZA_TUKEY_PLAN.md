@@ -1026,3 +1026,73 @@ stem display with its empty rows.
 
 **Still to come in TK3**: residual-versus-fit and the coded two-way table
 with its legend (the second half).
+
+## TK3 RESULTS, second half -- residual versus fit, the coded table, and a defect the checksum found, 2026-09-26 (plane stzlib-math, M4)
+
+**Residual versus fit** (`base/math/stzResidualPlotFigure.ring`, kind
+`:ResidualPlot`, keys `:of`, `:names`, `:label`): one polish through
+`eda.zig`, then every cell as a point whose x is its FITTED value (common
++ row effect + column effect) and whose y is its residual; the zero line;
+bands at plus and minus one and two residual fourth-spreads; a cell two
+or more spreads out is coloured, three or more is coloured and NAMED on
+the picture ("75-199, 1974"). Nothing is solved -- every point sits where
+its two numbers put it. Two rules judge it. `point_is_its_cell` recomputes
+each point's fit from the effects the picture carries, recomputes its
+pixel place from the frame's scale, and checks the ring index (below).
+`bands_are_the_scale` recomputes the fourth-spread FROM THE POINTS and
+checks each band's multiple against it. The gate's witnesses: a tampered
+fit, a ring drawn as a dot, a tampered scale, a band moved off its
+multiple -- each convicted by name, and each message says the number it
+should have been.
+
+**Coincident cells are rings, never a dot over a dot.** R's deaths table
+has column effects 0, -1, 0, so a row whose 1973 and 1975 residuals agree
+puts two cells on ONE spot -- three times in fifteen cells. The generic
+`dot_above_figure` rule of M1 convicted the first draft for exactly that:
+the later dot hid the earlier one. The k-th cell on a spot is now an
+UNFILLED ring of radius 6.5 + 4k around the first, so every cell stays
+visible at its own numbers, and a shape without a fill is not a region
+for the dot rule. Integer tables coincide often; this is the case, not an
+edge.
+
+**The coded table** (`base/math/stzCodedTableFigure.ring`, kind
+`:CodedTable`, keys `:of`, `:names`, `:glyphs`, `:label`): the plan's 2.5
+bands, fixed -- |r| / scale below 0.5 at the fit, below 1 mild, below 2
+notable, below 3 outside, 3 and above far out -- with the ASCII glyphs
+`.`, `-`/`+`, `<`/`>`, `v`/`^`, `*` by default and the plan's dot,
+circles, triangles and diamond under `:Symbols`. Glyph SETS swap; the
+meaning of a band never does, and the gate pins that the far-out cell
+keeps band 4 under either set. The legend is printed on the picture and in
+`Text()` with the scale, the common value and the hinge convention, or
+the table is a lie -- `legend_is_printed` says so when it is cut short.
+`glyph_is_its_band` recomputes every cell's band and sign; `cells_tile_the_
+table` counts. On the deaths table: 9 at the fit, 3 outside, 3 far out.
+On a multiplicative 6 x 5 table fitted additively (scene 35) the bow shows
+as a band pattern with the two far-out cells in the last row's corner --
+the picture that says "re-express" before the ladder is run.
+
+**A defect the checksum found, not the eye.** The catalogue rendered every
+scene twice, "light and dark", since M1 -- and every `dark_NN.png` was
+byte-identical to its `fig_NN.png`, all 32 of them, because
+`stzMathFigure.Diagram()` hands back a COPY (Ring copies an object a method
+returns) and the catalogue set the theme on the copy. The first-half
+results above say the dark pictures "were opened and read"; they were,
+and they were light, and the reader did not notice because nothing was
+compared. Fixed by `stzMathFigure.SetTheme(theme)` on the figure's own
+picture, pinned in the gate both ways (through `SetTheme` the SVG changes;
+through `Diagram()` it does not), the catalogue re-rendered: 35 dark
+pictures now differ from their light twins and the 32 light ones are
+byte-unchanged.
+
+**Looked at**: `fig_33..35.png` and `dark_33..35.png`, this time with the
+checksums beside the eye.
+
+**Gate**: `math_narrated.ring` sections 18 and 19, 280 of 280 in all; the
+probe that grew them is `base/test/math/probe_tk3.ring`.
+
+**TK3 is complete**: box plot (two conventions), stem-and-leaf, residual
+versus fit, coded table, two printed tables. Not built: the spread-versus-
+level and comparison-value diagnostic PICTURES (their numbers are in
+`stzTukeyReexpression` and print as `LadderTable`); back-to-back stems; the
+notched box. Each is a kind or a key away and none is owed by the plan's
+done-when.

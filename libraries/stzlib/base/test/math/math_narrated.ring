@@ -480,7 +480,7 @@ chkeq("NEGATIVE: the three lawful fraction pictures raise no finding", oFRep.Num
 
 sec("-- 10. THE ENTRY OBJECT KNOWS ITS KINDS --------------------------------")
 
-chkeq("the kinds are function, numberline, fraction, matrix, complexplane, boxplot, surface and, since M4, stemplot", len(StzMathFigureKinds()), 8)
+chkeq("the kinds are function, numberline, fraction, matrix, complexplane, boxplot, surface and, since M4, stemplot, residualplot and codedtable", len(StzMathFigureKinds()), 10)
 chk("a number line's Why says what it holds", StzFindFirst("6 point(s)", oN8.Why()) > 0 and StzFindFirst("1 jump(s)", oN8.Why()) > 0)
 chk("a fraction's Why says what is shaded", StzFindFirst("3 of 4 shaded", oF10.Why()) > 0)
 bRef = FALSE
@@ -795,6 +795,108 @@ chk("a negative value is refused by name", _MgRefusesKindSpec(:StemPlot, [ :of =
 chk("a unit that is not a power of ten is refused", _MgRefusesKindSpec(:StemPlot, [ :of = [ 1, 2 ] , :unit = 3 ], "power of ten"))
 chk("more than forty rows is refused, with the unit to give", _MgRefusesKindSpec(:StemPlot, [ :of = [ 1, 2000 ], :unit = 1 ], "rows"))
 chk("the letter-value ladder prints as a table, from the summary face", StzFindFirst("M      5        5        5        5        0", StzTukeySummaryQ([ 1, 2, 3, 4, 5, 6, 7, 8, 9 ]).LetterValueTable(3)) > 0)
+
+sec("-- 18. RESIDUAL VERSUS FIT: EVERY CELL A POINT AT ITS TWO NUMBERS, THE BANDS AT THE SCALE (M4 / TK3)")
+
+# R's ?medpolish deaths table: common 8, rows 6 -1 0 2 -8, columns 0 -1 0,
+# residuals 0 2 0 / 0 -2 0 / 0 -5 2 / 5 0 0 / 0 3 0 -- their fourth-spread 1
+aDeaths = [ [ 14, 15, 14 ], [ 7, 4, 7 ], [ 8, 2, 10 ], [ 15, 9, 10 ], [ 0, 2, 0 ] ]
+aNames = [ [ "1-24", "25-74", "75-199", "200++", "NA" ], [ "1973", "1974", "1975" ] ]
+oRp = StzMathFigureQ(:ResidualPlot, [ :of = aDeaths, :names = aNames ])
+chk("fifteen cells, common 8, scale 1: " + oRp.Why(), StzFindFirst("5 x 3 cells: common 8, residual fourth-spread 1", oRp.Why()) > 0)
+chk("the scale is the residuals' fourth-spread, 1, and there are fifteen points", oRp.Fact(:datum, [ "fr", "scale" ])[:value] = 1 and oRp.Fact(:datum, [ "fr", "points" ])[:value] = 15)
+chk("cell (3, 2) is the point p8: fit 7 = 8 + 0 - 1, residual -5", oRp.Fact(:datum, [ "p8", "fit" ])[:value] = 7 and oRp.Fact(:datum, [ "p8", "res" ])[:value] = -5)
+oFit = StzTukeyFitQ(aDeaths)
+oFit.Polish()
+chk("...and the fit face says the same residual for the same cell", oFit.Residual(3, 2) = oRp.Fact(:datum, [ "p8", "res" ])[:value])
+chk("six cells lie beyond two fourth-spreads and three of those are far out (three or more)", oRp.Fact(:datum, [ "fr", "outside" ])[:value] = 6 and oRp.Fact(:datum, [ "fr", "farout" ])[:value] = 3)
+oSb = oRp.Diagram().Substance()
+chk("the far-out cells are named on the picture: '75-199, 1974', '200++, 1973' and 'NA, 1974'", _MgLabelExists(oSb, "75-199, 1974") and _MgLabelExists(oSb, "200++, 1973") and _MgLabelExists(oSb, "NA, 1974"))
+chk("...and a cell inside the bands is not", NOT _MgLabelExists(oSb, "1-24, 1973"))
+chk("the band at one fourth-spread sits one scale above the zero line, in picture units", fabs(oRp.Fact(:datum, [ "b3", "y" ])[:value] - (oRp.Fact(:datum, [ "fr", "zy" ])[:value] - oRp.Fact(:datum, [ "fr", "ky" ])[:value])) < 0.000001)
+# COINCIDENT CELLS: 1973 and 1975 have the same column effect, 0, so a row
+# with equal residuals there puts two cells on one spot -- three times here.
+# The second is a RING around the first, never a dot over a dot.
+chk("three cells sit on another cell's spot and are ringed: p3 on p1, p6 on p4, p15 on p13", oRp.Fact(:datum, [ "fr", "stacked" ])[:value] = 3 and oRp.Fact(:datum, [ "p3", "k" ])[:value] = 1 and oRp.Fact(:datum, [ "p1", "k" ])[:value] = 0)
+chk("NEGATIVE: under the whole check -- the generic dot rule included -- the picture has no finding", len(StzCheckPictures([ [ "deaths", oRp.Diagram() ] ]).Findings()) = 0)
+chk("the picture keeps its own two rules  [" + len(oRp.Violations()) + "]", len(oRp.Violations()) = 0)
+# THE WITNESSES, one per rule and one per clause
+oW = StzMathFigureQ(:ResidualPlot, [ :of = aDeaths, :names = aNames ])
+oW.Layout()
+oW.SetDatum("p8", "fit", 99)
+chk("a tampered fit is convicted by 'point_is_its_cell', naming the cell and the sum it should be", _MgMessageHas(StzCheckPictures([ [ "w", oW.Diagram() ] ]).Findings(), "cell (3, 2) carries fit 99 where common + row + column is 7"))
+oW2 = StzMathFigureQ(:ResidualPlot, [ :of = aDeaths, :names = aNames ])
+oW2.Layout()
+oW2.SetDatum("p3", "k", 0)
+chk("a ring drawn as a dot over its twin is convicted by the same rule ('shares its spot with 1 earlier cell')", _MgMessageHas(StzCheckPictures([ [ "w", oW2.Diagram() ] ]).Findings(), "shares its spot with 1 earlier cell(s) and is drawn as ring 0"))
+oW3 = StzMathFigureQ(:ResidualPlot, [ :of = aDeaths, :names = aNames ])
+oW3.Layout()
+oW3.SetDatum("fr", "scale", 2)
+chk("a tampered scale is convicted by 'bands_are_the_scale', recomputed from the points", _MgMessageHas(StzCheckPictures([ [ "w", oW3.Diagram() ] ]).Findings(), "the picture says the scale is 2 and the points' fourth-spread is 1"))
+oW4 = StzMathFigureQ(:ResidualPlot, [ :of = aDeaths, :names = aNames ])
+oW4.Layout()
+oW4.SetDatum("b1", "y", 5)
+aF4 = StzCheckPictures([ [ "w", oW4.Diagram() ] ]).Findings()
+chk("a band moved off its multiple is convicted by the same rule, in pixels", _MgHasRule(aF4, "bands_are_the_scale") and _MgMessageHas(aF4, "the band at -2 fourth-spread(s) is drawn"))
+chk("a ragged table is refused by name", _MgRefusesKindSpec(:ResidualPlot, [ :of = [ [ 1, 2 ], [ 3 ] ] ], "rectangular"))
+chk("names of the wrong count are refused, with the counts", _MgRefusesKindSpec(:ResidualPlot, [ :of = [ [ 1, 2 ], [ 3, 4 ] ], :names = [ [ "a" ], [ "b", "c" ] ] ], "with 2 and 2 names"))
+chk("a one-row table is refused: a two-way fit needs two rows and two columns", _MgRefusesKindSpec(:ResidualPlot, [ :of = [ [ 1, 2, 3 ] ] ], "at least two rows"))
+chk("a key that is not of a residual plot is refused with the keys", _MgRefusesKindSpec(:ResidualPlot, [ :of = aDeaths, :unit = 1 ], "not a key of a residual plot"))
+
+sec("-- 19. THE CODED TABLE: A GLYPH PER BAND OF RESIDUAL OVER SCALE, AND THE LEGEND OR IT IS A LIE (M4 / TK3)")
+
+oCt = StzMathFigureQ(:CodedTable, [ :of = aDeaths, :names = aNames ])
+chk("the same fit, banded: " + oCt.Why(), StzFindFirst("9 at the fit, 0 mild, 0 notable, 3 outside, 3 far out", oCt.Why()) > 0)
+oSc = oCt.Diagram().Substance()
+chk("cell (3, 2), residual -5 over scale 1, is far out: '*'", oSc.LabelOf("z3_2") = "*" and oSc.DataOf("z3_2", "band") = 4)
+chk("cell (1, 2), residual +2, is outside and signed: '^'; cell (2, 2), -2, is 'v'", oSc.LabelOf("z1_2") = "^" and oSc.LabelOf("z2_2") = "v")
+chk("cell (1, 1), residual 0, is at the fit: '.'", oSc.LabelOf("z1_1") = "." and oSc.DataOf("z1_1", "band") = 0)
+cCt = oCt.Text()
+chk("the text rendition prints the column names in full and a row of glyphs", StzFindFirst("1973 1974 1975", cCt) > 0 and StzFindFirst("*    ^", cCt) > 0)
+chk("...and the legend, with the scale, the common value and the hinge convention", StzFindFirst("scale 1 = the residuals' fourth-spread; common 8; hinges: Tukey's fourths", cCt) > 0)
+chk("...and the five bands, ending with far out", StzFindFirst("*  >= 3    far out", cCt) > 0 and StzFindFirst("v ^  < 3     outside, signed", cCt) > 0)
+# THE BANDS ARE FIXED; ONLY THE GLYPH SET SWAPS
+chk("the band edges: 0.49 is at the fit, 0.5 mild, 1 notable, 2 outside, 3 far out", StzCodedBand(0.49, 1) = 0 and StzCodedBand(0.5, 1) = 1 and StzCodedBand(1, 1) = 2 and StzCodedBand(2, 1) = 3 and StzCodedBand(3, 1) = 4)
+chk("...and a zero scale puts everything at the fit rather than dividing by it", StzCodedBand(5, 0) = 0)
+oSy = StzMathFigureQ(:CodedTable, [ :of = aDeaths, :names = aNames, :glyphs = :Symbols ])
+oSs = oSy.Diagram().Substance()
+chk("under :Symbols the far-out cell shows the diamond and keeps band 4 -- the meaning never moved", oSs.LabelOf("z3_2") = StzCodedGlyph("symbols", 4, 0) and oSs.LabelOf("z3_2") != "*" and oSs.DataOf("z3_2", "band") = 4)
+# A BOW: a multiplicative table fitted additively puts its largest residuals
+# in the corner where both effects are largest (scene 35)
+oBow = StzMathFigScene35()
+chk("a multiplicative 6 x 5 table fitted additively: " + oBow.Why(), StzFindFirst("1 outside, 2 far out", oBow.Why()) > 0)
+oSw = oBow.Diagram().Substance()
+chk("...and the two far-out cells are the last row's last two: (6, 4) and (6, 5)", oSw.LabelOf("z6_4") = "*" and oSw.LabelOf("z6_5") = "*")
+chk("NEGATIVE: the untampered table has no finding under the whole check", len(StzCheckPictures([ [ "coded", oCt.Diagram() ] ]).Findings()) = 0 and len(oCt.Violations()) = 0)
+oV = StzMathFigureQ(:CodedTable, [ :of = aDeaths, :names = aNames ])
+oV.Layout()
+oV.SetDatum("z3_2", "res", 0)
+chk("a residual tampered under a far-out glyph is convicted by 'glyph_is_its_band', naming both glyphs", _MgMessageHas(StzCheckPictures([ [ "w", oV.Diagram() ] ]).Findings(), "shows '*' for a residual of 0, which is at the fit and should show '.'"))
+oV2 = StzMathFigureQ(:CodedTable, [ :of = aDeaths, :names = aNames ])
+oV2.Layout()
+oV2.SetDatum("fr", "legend", 3)
+chk("a legend cut short is convicted by 'legend_is_printed'", _MgMessageHas(StzCheckPictures([ [ "w", oV2.Diagram() ] ]).Findings(), "the legend has 3 line(s); the scale and five bands need six"))
+oV3 = StzMathFigureQ(:CodedTable, [ :of = aDeaths, :names = aNames ])
+oV3.Layout()
+oV3.SetDatum("fr", "rows", 6)
+chk("a table claiming a sixth row is convicted by 'cells_tile_the_table' (15 cells for 18)", _MgMessageHas(StzCheckPictures([ [ "w", oV3.Diagram() ] ]).Findings(), "15 cell(s) for a table of 18"))
+chk("a glyph set that is neither :Ascii nor :Symbols is refused, and told why", _MgRefusesKindSpec(:CodedTable, [ :of = aDeaths, :glyphs = :Emoji ], "only the glyph set does"))
+aTall = []
+for i = 1 to 21  aTall + [ i, i * 2 ]  next
+chk("more than twenty rows is refused by count", _MgRefusesKindSpec(:CodedTable, [ :of = aTall ], "at most 20 rows"))
+chk("a cell that is not a number is refused with its place", _MgRefusesKindSpec(:CodedTable, [ :of = [ [ 1, "x" ], [ 3, 4 ] ] ], "cell (1, 2) is not a number"))
+# THE THEME REACHES THE FIGURE'S OWN PICTURE. Diagram() hands back a COPY,
+# so a theme set on it stayed on the copy: 32 catalogue pictures rendered
+# "dark" before 2026-09-26 were the light bytes twice. SetTheme goes through.
+cLightSvg = oCt.ToSVG()
+oCt.SetTheme("dark")
+cDarkSvg = oCt.ToSVG()
+chk("a figure rendered under the dark theme, through SetTheme, is not the light rendition  [" + len(cLightSvg) + " and " + len(cDarkSvg) + " bytes]", cLightSvg != cDarkSvg and len(cDarkSvg) > 0)
+oCt2 = StzMathFigureQ(:CodedTable, [ :of = aDeaths, :names = aNames ])
+oCt2.Layout()
+oDc = oCt2.Diagram()
+oDc.SetPictureTheme("dark")
+chk("NEGATIVE: the same theme set on Diagram()'s copy leaves the figure's own rendition light", oCt2.ToSVG() = cLightSvg)
 
 #---------------------------------------------------------------------------
 
