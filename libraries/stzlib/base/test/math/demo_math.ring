@@ -5,10 +5,13 @@
 #
 #     ring demo_math.ring [workspace]
 #
-# Five scenes: one folder and it runs; a chapter in four languages, every
+# Seven scenes: one folder and it runs; a chapter in four languages, every
 # promise kept; the reader page that stores no output; the tutor that asks
-# and refuses; and the figures the page cannot show yet, drawn by the guard
-# (MATH-READER-FIGURE-01 stands).
+# and refuses; the figures the page cannot show yet, drawn by the guard
+# (MATH-READER-FIGURE-01 stands); a table fitted by medians whose report names
+# the cells the fit does not describe and whose story computes nothing (M4);
+# and the frontier: a claim that fails on the numeric floor here, and the
+# Lean door reporting itself by name (M6).
 
 load "../../stzBase.ring"
 
@@ -114,6 +117,42 @@ else
 ok
 MathDemoProved("the reader has no figure yet: routed MATH-READER-FIGURE-01, and the page shows the figure's own sentence instead",
 	StzFindFirst("<img", cPage) = 0 and StzFindFirst("oL.Why()", cPage) > 0)
+
+#-- scene 6: a table fitted by medians, and the report that names the misfit --
+MathDemoHeader("15-17", "A table fitted by medians: the cells the fit does not describe, and a story that computes nothing")
+aDeaths = [ [ 14, 15, 14 ], [ 7, 4, 7 ], [ 8, 2, 10 ], [ 15, 9, 10 ], [ 0, 2, 0 ] ]
+aNames = [ [ "1-24", "25-74", "75-199", "200++", "NA" ], [ "1973", "1974", "1975" ] ]
+oFit = StzTukeyFitQ(aDeaths)
+oFit.Polish()
+oRep = StzTukeyReportQ("deaths", [ oFit ])
+aErr = oRep.Errors()
+? "  " + oFit.Why()
+? "  " + aErr[1][:where] + ": " + aErr[1][:message]
+MathDemoProved("Data = Fit + Residual holds exactly, and the report names the two cells the fit does not describe", oFit.Check() = 0 and NOT oRep.IsSound() and len(aErr) = 2 and aErr[1][:where] = "cell (3, 2)")
+oSt = StzTukeyStoryQ(oFit, oRep)
+acP = oSt.Paragraphs()
+? "  " + acP[1]
+MathDemoProved("the story computes nothing: every numeral in its prose is read from the fit or a finding, and it proves that on itself", oSt.IsHonest() and len(oSt.Numerals()) > 20)
+oRes = StzMathFigureQ(:ResidualPlot, [ :of = aDeaths, :names = aNames, :label = "residual versus fit: the deaths table" ])
+cPng3 = oRes.ToPNG($cMathWs + "/residuals.png")
+? "  " + oRes.Why()
+if cPng3 != ""  ? "  <workspace>/residuals.png (" + len(cPng3) + " bytes)"  ok
+MathDemoProved("the misfit drawn: every cell at its two numbers, the fences from the residuals, the far-out cells named, the picture judged clean", len(oRes.Violations()) = 0 and oRes.Fact(:datum, [ "fr", "farout" ])[:value] = 2)
+
+#-- scene 7: the frontier -----------------------------------------------------
+MathDemoHeader("17-18", "Proven at the frontier: a claim fails on the numeric floor here, and the Lean door reports itself")
+oGood = StzMathClaimQ("3^2 + 4^2 = 5^2")
+oBad = StzMathClaimQ("3^2 + 4^2 + 1 = 5^2")
+aBad = oBad.Check()
+? "  " + oBad.Statement() + " -> " + aBad[:evidence]
+MathDemoProved("a false identity FAILS on the floor, on any machine, with its counterexample: 26 against 25", aBad[:verdict] = 0 and StzFindFirst("26 and 25", aBad[:evidence]) > 0)
+? "  " + oGood.Statement() + " -> emitted as a Lean theorem of " + len(oGood.ToLean()) + " bytes, closing by norm_num"
+MathDemoProved("a true one holds on the floor and emits a Mathlib theorem", oGood.IsTrue() and StzFindFirst(":= by norm_num", oGood.ToLean()) > 0)
+aDoor = StzLeanDoor()
+? "  the Lean door: " + aDoor[:because]
+oSet = StzSelfCheckLessonClaims()
+aSw = oSet.CheckWithLean()
+MathDemoProved("chapter 15's six identities are green on the floor, and the door says by name whether Lean judged them (route: " + aSw[:route] + ")", aSw[:floor_errors] = 0 and (aSw[:route] = "door closed" or aSw[:proved] = 1))
 
 ? ""
 ? "DEMO: " + $nMathProved + " proved, " + $nMathNot + " not proved"
