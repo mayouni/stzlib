@@ -1,0 +1,17 @@
+[1] $\alpha$ -> has=1 w=12.28 asc=21.58 desc=5.02 runs=[ [ "α", 0, 0, 20 ] ]
+[2] $\alpha^2 + \beta_1$ -> has=1 w=63.42 asc=23.55 desc=7.61 runs=[ [ "α", 0, 0, 20 ], [ "2", 12.28, -8, 14.40 ], [ " + ", 20.05, 0, 20 ], [ "β", 44.70, 0, 20 ], [ "1", 55.66, 4, 14.40 ] ]
+[3] $x^{n+1}$ -> has=1 w=34.97 asc=23.55 desc=5.02 runs=[ [ "x", 0, 0, 20 ], [ "n+1", 9.19, -8, 14.40 ] ]
+[4] $\sum_{i=1}^{n} x_i$ -> has=1 w=59.75 asc=23.55 desc=7.61 runs=[ [ "∑", 0, 0, 20 ], [ "i=1", 12.33, 4, 14.40 ], [ "n", 33.44, -8, 14.40 ], [ " x", 41.59, 0, 20 ], [ "i", 56.27, 4, 14.40 ] ]
+[5] $e^{i\pi} + 1 = 0$ -> has=1 w=93.84 asc=23.55 desc=5.02 runs=[ [ "e", 0, 0, 20 ], [ "i", 10.45, -8, 14.40 ], [ "π", 13.94, -8, 14.40 ], [ " + 1 = 0", 22.97, 0, 20 ] ]
+[6] $\Omega \subseteq \Gamma$ -> has=1 REFUSED: StzNotationRuns: this font has no glyph for '\subseteq', so drawing it would put a hollow 
+[7] $a \le b \ne c$ -> has=1 w=80.52 asc=21.58 desc=5.02 runs=[ [ "a ", 0, 0, 20 ], [ "≤", 15.66, 0, 20 ], [ " b ", 29.36, 0, 20 ], [ "≠", 52.09, 0, 20 ], [ " c", 65.80, 0, 20 ] ]
+[8] $\int f \, dx$ -> has=1 REFUSED: StzNotationRuns: a backslash names a symbol, and '\int f \, dx' has one naming nothing. 
+[9] $\nabla \cdot F$ -> has=1 REFUSED: StzNotationRuns: this font has no glyph for '\nabla', so drawing it would put a hollow box
+[10] $x_{i_j}$ -> has=1 w=15.19 asc=21.58 desc=9.49 runs=[ [ "x", 0, 0, 20 ], [ "i", 9.19, 4, 14.40 ], [ "j", 12.67, 6.88, 10.37 ] ]
+[11] $\sqrt{2}$ -> has=1 REFUSED: StzNotationRuns: braces group what a script raises or lowers, and '\sqrt{2}' has one stand
+[12] plain text -> has=0 w=81.63 asc=21.58 desc=5.02 runs=[ [ "plain text", 0, 0, 20 ] ]
+[13] $\frac{1}{2}$ -> has=1 REFUSED: StzNotationRuns: this reader does not know '\frac'. It reads superscripts, subscripts, Gre
+[14] $\levitate$ -> has=1 REFUSED: StzNotationRuns: this reader does not know '\levitate'. It reads superscripts, subscripts,
+[15] $x^{y^{z^{w}}}$ -> has=1 REFUSED: StzNotationRuns: 'w' stacks scripts more than three deep -- that is an equation rather tha
+[16] $\infty$ -> has=1 w=16.34 asc=21.58 desc=5.02 runs=[ [ "∞", 0, 0, 20 ] ]
+symbol(alpha)=α symbol(zzz)=[]

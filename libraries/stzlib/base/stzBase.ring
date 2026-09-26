@@ -922,6 +922,7 @@ load "geo/stzGeoProcess.ring"
     # a figure is DECLARED, COMPUTED by the engine, then SOLVED by the math
     # diagram system -- one domain file per figure kind, loaded after
     # graph/stzMathDiagram.ring, and one entry object, stzMathFigure
+    load "math/stzMathNotation.ring"
     load "math/stzFunctionFigure.ring"
     load "math/stzNumberLineFigure.ring"
     load "math/stzFractionFigure.ring"
