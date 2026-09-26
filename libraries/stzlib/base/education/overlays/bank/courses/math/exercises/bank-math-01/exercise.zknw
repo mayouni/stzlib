@@ -1,0 +1,7 @@
+knowledge "bank-math-01"
+
+facts
+    bank-math-01 | is-a | exercise
+    bank-math-01 | in-chapter | money-to-the-centime
+    bank-math-01 | trains | cr-02
+    bank-math-01 | needs-step | asks

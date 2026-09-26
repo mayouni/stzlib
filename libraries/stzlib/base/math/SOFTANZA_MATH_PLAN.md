@@ -885,6 +885,50 @@ bank overlay), an optimisation model (`.zopt`); Tukey's first look waits
 for M4 and stays planned-unwritten; then M3e, the derivative that checks
 the formula and the identity that is not a self-check.
 
+#### M3d RESULTS -- level L3 without Tukey, 2026-09-26
+
+**Shipped**: chapters 11 and 12 in four languages with one self-proving
+exercise each -- `11-money-to-the-centime` (the money regime: a thousand
+dimes on the machine print 100.00 and fail `= 100`, as money they are
+100.00 and `Same(100)`; 100.10 shared three ways is 33.37 with "the
+division does not terminate in 8 decimal place(s)"; three shares make
+100.11 and `Same("100.10")` is 0; the last share takes the remainder,
+33.36; halves round to the even neighbour, 2.675 to 2.68 and 2.665 to
+2.66; a 19.25 per cent tax to 19.27; the exact regime refuses 1/3 by
+name), `12-an-optimisation-model` (the design's own example solved at 130
+with x = 30, y = 20; the engine names itself; violations empty and the
+plan checked by hand; the sentence surface reaching the SAME AST
+signature; a production plan of 60 chairs and 26 tables with one branch;
+an infeasible model; the HiGHS tier and an ambiguous sentence refused by
+name). Twelve of fifteen ship; chapter 13, Tukey's first look, stays
+planned and unwritten until M4, and the gate prints it as such.
+
+**The bank overlay attaches its money exercise**: `base/education/
+overlays/bank/courses/math/course.zknw` adds `bank-math-01` (a 0.75 per
+cent fee on 120 000 francs, 900.00 as money) to chapter 11 through the
+merged course facts, with tasks in the four core languages as the
+overlay court requires; the court answers `[ ]`, the chapter's exercises
+read `math-11-01` alone without the overlay and both with it. The core
+course was not edited to attach it.
+
+**Gates, rerun over twelve chapters**: `course_math_narrated.ring`
+206 of 206 in 113 s; `tutor_math_narrated.ring` 74 of 74 in 42 s; `demo_math.ring` 11 proved, 0 not proved;
+the education plane's `institution_narrated.ring`, which passes the
+bank overlay through the court, 37 of 39 -- the two failures (the overlay's exercise appearing on the chapter's French page, for the bank AND the university overlay) predate this work: they fail identically with the bank's math files moved aside, and are routed to education as MATH-FINDING-EDU-INST-01.
+
+**Found**: `PercentOf(15)` on the money 100.10 answers 15.01 where the
+half-even rule on 15.015 would give 15.02; the chapter uses `MultiplyBy`
+and never `PercentOf`. `StzModelToZopt` is not callable as a global in
+this build although `stzOptimFile.ring` is loaded; the chapter uses the
+object and sentence surfaces and names `.zopt` in prose only (a `.zopt`
+file under `program/` would also fail the demo's whitelist, F16).
+
+**Not claimed**: chapter 13 (after M4); chapters 14 and 15 (M3e); native
+review of fr/ar/ha.
+
+**Next**: M3e -- the derivative that checks the formula and the identity
+that is not a self-check; then M4 Tukey and chapter 13.
+
 ### M4 -- Tukey, built
 
 **Deliverable**: TK0-TK6 as `SOFTANZA_TUKEY_PLAN.md` wrote them, with every
