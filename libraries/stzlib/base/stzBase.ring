@@ -132,6 +132,8 @@ ok
     load "sound/stzInstrument.ring"
     load "sound/stzScore.ring"
     load "sound/stzScheduler.ring"
+    load "sound/stzPattern.ring"
+    load "sound/stzLive.ring"
     load "sound/stzMusic.ring"
     load "sound/stzMicrophone.ring"
 
