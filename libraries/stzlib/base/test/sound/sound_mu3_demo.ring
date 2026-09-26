@@ -34,7 +34,7 @@ for i = 1 to len(aSets)
 	s = aSets[i]
 	? ""
 	? "-- " + s[1] + " : " + s[2]
-	oL = StzLiveQ(s[3])
+	oL = StzSoundLiveQ(s[3])
 	oL.CaptureInsteadOfDevice(s[4] * 4 * 60 / s[3], FALSE)
 	Mu3Play(oL, i)
 	oL.Stop()
@@ -45,7 +45,7 @@ for i = 1 to len(aSets)
 
 	if StzAudioDevEngineLoaded() and StzEngineAudioDevIsAvailable() = 1
 		? "   now LIVE on the card -- each line printed as that cycle is heard:"
-		oD = StzLiveQ(s[3])
+		oD = StzSoundLiveQ(s[3])
 		oD.OnCycle(func cTxt { ? "     " + cTxt })
 		Mu3Play(oD, i)
 		oD.Stop()
@@ -84,7 +84,7 @@ func Mu3Play oL, nSet
 		Mu3Say(oL, "drums", oL.LiveLoop(:drums, "bd*2 [~ sn] hh? hh"))
 		Mu3Say(oL, "bass", oL.LiveLoopOn(:bass, "<c3 g2 a2 f2>*2", :Guitar))
 		oL.WaitCycles(2)
-		Mu3Say(oL, "harp, Off(0.25, 12)", oL.LiveLoopOf(:harp, StzPatternQ("c5 e5 g5 b5").Off(0.25, 12), :Harp))
+		Mu3Say(oL, "harp, Off(0.25, 12)", oL.LiveLoopOf(:harp, StzSoundPatternQ("c5 e5 g5 b5").Off(0.25, 12), :Harp))
 		oL.WaitCycles(3)
 		Mu3Say(oL, "drums, new", oL.LiveLoop(:drums, "bd [hh hh] sn [hh bd]"))
 		oL.WaitCycles(3)

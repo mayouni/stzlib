@@ -29,17 +29,17 @@ Chk("'<c e g>' alternates: C4 on cycle 0, E4 on 1, G4 on 2, C4 again on 3",
 Chk("'a*2 b': the a twice in the first half", Shape("a*2 b", 0) = "A4@0 A4@0.25 B4@0.5")
 Chk("'a/2': once every other cycle, two cycles long",
     Shape("a/2", 0) = "A4@0" and Shape("a/2", 1) = "" and
-    StzPatternQ("a/2").CycleEvents(0)[1][2] = 2)
+    StzSoundPatternQ("a/2").CycleEvents(0)[1][2] = 2)
 Chk("'a@3 b': a weighs three steps", Shape("a@3 b", 0) = "A4@0 B4@0.75")
 Chk("'a!3 b': a as three steps", Shape("a!3 b", 0) = "A4@0 A4@0.25 A4@0.5 B4@0.75")
 Chk("'[c, e] g': a stack -- C and E together", Shape("[c, e] g", 0) = "C4@0 E4@0 G4@0.5")
 Chk("the octave carries left to right: 'c e g c5 e' ends on E5",
     Shape("c e g c5 e", 0) = "C4@0 E4@0.2 G4@0.4 C5@0.6 E5@0.8")
 
-oDeg = StzPatternQ("hh? hh? hh? hh? hh? hh? hh? hh?")
+oDeg = StzSoundPatternQ("hh? hh? hh? hh? hh? hh? hh? hh?")
 nKept = 0
 for c = 0 to 499  nKept += len(oDeg.CycleEvents(c)) next
-oDeg2 = StzPatternQ("hh? hh? hh? hh? hh? hh? hh? hh?")
+oDeg2 = StzSoundPatternQ("hh? hh? hh? hh? hh? hh? hh? hh?")
 bSame = TRUE
 for c = 0 to 99
 	if Shape2(oDeg, c) != Shape2(oDeg2, c)  bSame = FALSE ok
@@ -55,39 +55,39 @@ aBad = [ [ "[a b", "']' is missing" ], [ "a*1.5", "whole number" ], [ "x q", "ne
          [ "a b]", "closes nothing" ], [ "<a, b>", "inside < >" ], [ "", "empty" ] ]
 nRef = 0
 for b in aBad
-	o = StzPatternQ(b[1])
+	o = StzSoundPatternQ(b[1])
 	if NOT o.IsValid() and substr(o.LastError(), b[2]) > 0  nRef++ ok
 next
-? "   e.g. '[a b' -> " + StzPatternQ("[a b").LastError()
+? "   e.g. '[a b' -> " + StzSoundPatternQ("[a b").LastError()
 Chk("six broken patterns are refused, each saying what and where", nRef = 6)
 
 ? ""
 ? "-- Scene 2: the algebra --"
 
-Chk("Fast(2) plays the cycle twice", Shape2(StzPatternQ("a b").Fast(2), 0) = "A4@0 B4@0.25 A4@0.5 B4@0.75")
-Chk("Slow(2) spreads it over two", Shape2(StzPatternQ("a b").Slow(2), 0) = "A4@0" and
-    Shape2(StzPatternQ("a b").Slow(2), 1) = "B4@0")
-Chk("Rev plays it backwards", Shape2(StzPatternQ("a b c d").Rev(), 0) = "D4@0 C4@0.25 B4@0.5 A4@0.75")
-oEv = StzPatternQ("a b c d").Every(3, :Rev)
+Chk("Fast(2) plays the cycle twice", Shape2(StzSoundPatternQ("a b").Fast(2), 0) = "A4@0 B4@0.25 A4@0.5 B4@0.75")
+Chk("Slow(2) spreads it over two", Shape2(StzSoundPatternQ("a b").Slow(2), 0) = "A4@0" and
+    Shape2(StzSoundPatternQ("a b").Slow(2), 1) = "B4@0")
+Chk("Rev plays it backwards", Shape2(StzSoundPatternQ("a b c d").Rev(), 0) = "D4@0 C4@0.25 B4@0.5 A4@0.75")
+oEv = StzSoundPatternQ("a b c d").Every(3, :Rev)
 Chk("Every(3, :Rev) reverses cycles 0 and 3 and leaves 1 and 2",
     Shape2(oEv, 0) = "D4@0 C4@0.25 B4@0.5 A4@0.75" and Shape2(oEv, 1) = "A4@0 B4@0.25 C4@0.5 D4@0.75" and
     Shape2(oEv, 3) = "D4@0 C4@0.25 B4@0.5 A4@0.75")
-oOff = StzPatternQ("c5 e5 g5 b5").Off(0.25, 12)
+oOff = StzSoundPatternQ("c5 e5 g5 b5").Off(0.25, 12)
 ? "   Off(0.25, 12), cycle 1: " + Shape2(oOff, 1)
 Chk("Off(0.25, 12): a copy a quarter later and an octave up -- and the last note's " +
     "copy spills into the NEXT cycle",
     Shape2(oOff, 1) = "C5@0 B6@0 E5@0.25 C6@0.25 G5@0.5 E6@0.5 B5@0.75 G6@0.75" and
     Shape2(oOff, 0) = "C5@0 E5@0.25 C6@0.25 G5@0.5 E6@0.5 B5@0.75 G6@0.75")
 Chk("they compose: Fast(2) of an alternation still alternates",
-    Shape2(StzPatternQ("<a c>").Fast(2), 0) = "A4@0 C4@0.5")
-nR0 = StzPatternQ("a").Fast(1.5).Refusals()
+    Shape2(StzSoundPatternQ("<a c>").Fast(2), 0) = "A4@0 C4@0.5")
+nR0 = StzSoundPatternQ("a").Fast(1.5).Refusals()
 Chk("a fractional factor is refused, not rounded", nR0 = 1)
 Chk("the period counts alternation, slowing and Every: '<a b c> d/2' -> 6, Every(4) of 'a' -> 4",
-    StzPatternQ("<a b c> d/2").Period() = 6 and StzPatternQ("a").Every(4, :Rev).Period() = 4)
+    StzSoundPatternQ("<a b c> d/2").Period() = 6 and StzSoundPatternQ("a").Every(4, :Rev).Period() = 4)
 
 ? ""
 ? "-- Scene 3: a pattern becomes a score --"
-oPs = StzPatternQ("bd [hh hh] sn hh").ToScoreQ(2)
+oPs = StzSoundPatternQ("bd [hh hh] sn hh").ToScoreQ(2)
 Chk("two cycles of 'bd [hh hh] sn hh' are ten events over 8 beats",
     oPs.NumberOfEvents() = 10 and oPs.Beats() = 8)
 Chk("and the second cycle's snare is at beat 6", oPs.Events()[9][1] = 6 and oPs.Events()[9][6] = "snare")
@@ -101,7 +101,7 @@ Chk("and the second cycle's snare is at beat 6", oPs.Events()[9][1] = 6 and oPs.
 ? "   from the patterns and the landing cycles Loop returned -- sample for"
 ? "   sample."
 
-oL = StzLiveQ(120)
+oL = StzSoundLiveQ(120)
 oL.CaptureInsteadOfDevice(20, FALSE)
 oL.LiveLoop(:beat, "bd hh sn hh")
 oL.LiveLoopOn(:tune, "c5 e5 g5 e5", :Harp)
@@ -149,11 +149,11 @@ next
 Chk("each within one cycle plus a ring of the moment it was typed", bOneAhead)
 
 oExpL = [
-	[ "drumkit", [ [ 0, StzPatternQ("bd hh sn hh") ],
-	               [ 5, StzPatternQ("bd hh sn hh").Every(2, :Rev) ],
-	               [ 7, StzPatternQ("bd*2 [~ sn] hh?") ] ] ],
-	[ "harp",    [ [ 0, StzPatternQ("c5 e5 g5 e5") ],
-	               [ 3, StzPatternQ("a4 c5 e5 c5") ],
+	[ "drumkit", [ [ 0, StzSoundPatternQ("bd hh sn hh") ],
+	               [ 5, StzSoundPatternQ("bd hh sn hh").Every(2, :Rev) ],
+	               [ 7, StzSoundPatternQ("bd*2 [~ sn] hh?") ] ] ],
+	[ "harp",    [ [ 0, StzSoundPatternQ("c5 e5 g5 e5") ],
+	               [ 3, StzSoundPatternQ("a4 c5 e5 c5") ],
 	               [ 8, NULL ] ] ] ]
 oExp = Expected(oExpL, 10, 120)
 oCap = oL.Capture()
@@ -218,7 +218,7 @@ oL.Release()
 ? "   thread. So: a kit loop plays on the card; then a MEZWED loop is added --"
 ? "   a wind that tunes itself by listening, rendered while the kit plays."
 if StzAudioDevEngineLoaded() and StzEngineAudioDevIsAvailable() = 1
-	oD = StzLiveQ(180)
+	oD = StzSoundLiveQ(180)
 	oD.LiveLoop(:kit, "bd hh sn hh")
 	oD.WaitCycles(1)
 	nA = oD.HeardFrames() / oD.CycleFrames()
@@ -226,7 +226,7 @@ if StzAudioDevEngineLoaded() and StzEngineAudioDevIsAvailable() = 1
 	K5 = oD.LiveLoopOn(:reed, "d5 e-50 f5 g5 a5 g5 f5 e-50", :Mezwed)
 	nRend = (clock() - t0) / clockspersecond()
 	oD.WaitCycles(3)
-	nDist = len(StzPatternQ("d5 e-50 f5 g5 a5 g5 f5 e-50").DistinctNotes(1))
+	nDist = len(StzSoundPatternQ("d5 e-50 f5 g5 a5 g5 f5 e-50").DistinctNotes(1))
 	? "   the mezwed's " + nDist + " distinct notes rendered in " + nRend +
 	  " s while the kit played; heard at " + nA + ", landed on cycle " + K5
 	? "   (a render longer than the horizon WOULD make notes late -- and Late() would count them)"
@@ -245,8 +245,8 @@ ok
 ? "-- Scene 7: driven by the reactive loop --"
 ? "   A timer every 20 ms ticks the session; another redefines the tune at"
 ? "   1.5 s; a third stops the loop. Ring's anonymous functions see no locals,"
-? "   so the session is reached through a global pointer (stzLive's header)."
-oLive = StzLiveQ(240)
+? "   so the session is reached through a global pointer (stzSoundLive's header)."
+oLive = StzSoundLiveQ(240)
 oLive.CaptureInsteadOfDevice(4, TRUE)
 oLive.LiveLoopOn(:tune, "c5 e5 g5 e5", :Harp)
 nKR = -1
@@ -271,7 +271,7 @@ oLive.Release()
 
 ? ""
 ? "-- Scene 8: refusals leave the music playing --"
-oRf = StzLiveQ(120)
+oRf = StzSoundLiveQ(120)
 oRf.CaptureInsteadOfDevice(6, FALSE)
 oRf.LiveLoop(:beat, "bd hh sn hh")
 oRf.WaitCycles(1)
@@ -300,8 +300,8 @@ for k = 1 to 4
 	if nC > nWorstC  nWorstC = nC ok
 next
 Chk("the first line still makes C E G C, within 2 cents (worst " + nWorstC + ")", nWorstC < 2)
-oP4 = StzPatternQ("dum ~ tak ~ dum dum tak ~")
-oLv = StzLiveQ(96)
+oP4 = StzSoundPatternQ("dum ~ tak ~ dum dum tak ~")
+oLv = StzSoundLiveQ(96)
 oLv.CaptureInsteadOfDevice(3, FALSE)
 Chk("section 4's '# the rhythm names itself': 'dum ~ tak ~ dum dum tak ~' is taken by " +
     "the darbouka with no instrument named", oLv.LiveLoop(:iqa, "dum ~ tak ~ dum dum tak ~") = 0 and
@@ -309,6 +309,29 @@ Chk("section 4's '# the rhythm names itself': 'dum ~ tak ~ dum dum tak ~' is tak
 oLv.WaitCycles(1)
 Chk("and it sounds", oLv.Capture().Peak() > 0.1)
 oLv.Release()
+
+? ""
+? "-- Scene 10: the pattern is not sound's -- the abstract half --"
+? "   On the author's word (2026-09-26) the name stzPattern belongs to a class"
+? "   that knows no domain: the grammar, the query and the algebra. What a word"
+? "   MEANS is a subclass's -- stzSoundPattern reads notes and strokes."
+oW = StzPatternQ("red ~ blue [green green]")
+Chk("a pattern of plain words: kind 'word', placed as any pattern is",
+    Shape2(oW, 0) = "red@0 blue@0.5 green@0.75 green@0.875" and
+    oW.CycleEvents(0)[1][3] = "word")
+Chk("the algebra is the abstract class's: Fast(2) and Every(2, :Rev) on words",
+    Shape2(StzPatternQ("red blue").Fast(2), 0) = "red@0 blue@0.25 red@0.5 blue@0.75" and
+    Shape2(StzPatternQ("a b c").Every(2, :Rev), 0) = "c@0 b@0.3333 a@0.6667")
+Chk("and Off with no argument copies each word unchanged",
+    Shape2(StzPatternQ("x y").Off(0.25, NULL), 0) = "x@0 x@0.25 y@0.5 y@0.75")
+Chk("the same text as a SOUND pattern reads notes: 'c e' is C4 E4, not two words",
+    Shape2(StzSoundPatternQ("c e"), 0) = "C4@0 E4@0.5" and Shape2(StzPatternQ("c e"), 0) = "c@0 e@0.5")
+Chk("stzSoundPattern IS a stzPattern", lower(parentclassname(StzSoundPatternQ("c"))) = "stzpattern")
+oLt = new Mu3LightPattern("red <blue off> green")
+Chk("another domain in eight lines: a light-cue pattern that knows its colours",
+    oLt.IsValid() and Shape2(oLt, 1) = "red@0 off@0.3333 green@0.6667")
+oLt2 = new Mu3LightPattern("red purple")
+Chk("and refuses what is not one", NOT oLt2.IsValid() and substr(oLt2.LastError(), "purple") > 0)
 
 ? ""
 ? "-- The listener's line --"
@@ -336,7 +359,7 @@ func Chk cLabel, bCond
 	ok
 
 func Shape cText, nCycle
-	return Shape2(StzPatternQ(cText), nCycle)
+	return Shape2(StzSoundPatternQ(cText), nCycle)
 
 func Shape2 oP, nCycle
 	_s_ = ""
@@ -368,10 +391,10 @@ func PostedUpTo oS, cName
 	return _m_
 
 # THE INDEPENDENT RENDER. From each loop's instrument and its versions
-# [ fromCycle, pattern-or-NULL ], cycle by cycle, into a stzScore at the given
+# [ fromCycle, pattern-or-NULL ], cycle by cycle, into a stzSoundScore at the given
 # tempo -- nothing read from the live session -- and rendered offline.
 func Expected aLoops, nCycles, nBpm
-	_oS_ = StzScoreQ().Tempo(nBpm)
+	_oS_ = StzSoundScoreQ().Tempo(nBpm)
 	for _c_ = 0 to nCycles - 1
 		for _l_ in aLoops
 			_oP_ = NULL
@@ -389,5 +412,15 @@ func Expected aLoops, nCycles, nBpm
 			next
 		next
 	next
-	_oR_ = new stzScoreRenderer(_oS_)
+	_oR_ = new stzSoundScoreRenderer(_oS_)
 	return _oR_.Offline()
+
+# A domain that is not sound, to prove the abstract class is one: light cues.
+# Only the word's meaning is new; the grammar, query and algebra are inherited.
+class Mu3LightPattern from stzPattern
+	def _Value(pcWord)
+		if ring_find([ "red", "green", "blue", "off" ], lower(pcWord)) = 0
+			This._Refuse("'" + pcWord + "' is not a light cue (red green blue off)")
+			return NULL
+		ok
+		return [ "cue", lower(pcWord) ]

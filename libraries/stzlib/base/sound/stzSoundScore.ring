@@ -2,12 +2,12 @@
 #  STZSCORE -- music as DATA, before it is anything else (MU2)              #
 #---------------------------------------------------------------------------#
 #
-#     oS = StzScoreOfQ("c e g c5")                 # four quarter notes
-#     oS.Then( StzScoreOfQ("g f e d") )           # one after the other
-#     oS.Together( StzScoreOfQ("c3 ~ g2 ~").On(:Harp) )   # at the same time
+#     oS = StzSoundScoreOfQ("c e g c5")                 # four quarter notes
+#     oS.Then( StzSoundScoreOfQ("g f e d") )           # one after the other
+#     oS.Together( StzSoundScoreOfQ("c3 ~ g2 ~").On(:Harp) )   # at the same time
 #     oS.Transpose(2).Tempo(96).Swing(0.62)
 #     oS.ToSoundQ().SaveAs("tune.wav")            # the performance, offline
-#     StzSchedulerQ(oS).Play()                    # the performance, live
+#     StzSoundSchedulerQ(oS).Play()                    # the performance, live
 #
 # THE SHAPE IS EUTERPEA'S (plan 1.2): a note, a rest, a SEQUENCE of scores, a
 # PARALLEL of scores, and modifiers over a whole score -- an instrument, a
@@ -32,16 +32,16 @@
 # pattern language, MU3's. No universe: a pitch is a note name or a frequency,
 # and the tuning is 12-TET plus the cents StzNoteToHz already reads. MU4's.
 
-func StzScoreQ()
-	return new stzScore("")
+func StzSoundScoreQ()
+	return new stzSoundScore("")
 
 # Space-separated note names, each a quarter note (one beat). The octave is
 # optional and CARRIES, as Alda's does: "c e g c5" is C4 E4 G4 C5, and after
 # the C5 an octave-less "e" would be E5. ~ is a rest of one beat.
-func StzScoreOfQ(pcNotes)
-	return new stzScore(pcNotes)
+func StzSoundScoreOfQ(pcNotes)
+	return new stzSoundScore(pcNotes)
 
-class stzScore
+class stzSoundScore
 
 	@aEvents = []          # [ startBeat, beats, hz, instrument, velocity, stroke ]
 	@nBeats = 0            # the length, in beats -- where the next Then() starts
@@ -220,7 +220,7 @@ class stzScore
 	#
 	# AND it names the notes this score gains AFTERWARDS by Note and Stroke.
 	# The first cut was the pure modifier only, and the very first smoke test
-	# fell into it: StzScoreQ().On(:Drumkit) then twenty strokes named NOTHING
+	# fell into it: StzSoundScoreQ().On(:Drumkit) then twenty strokes named NOTHING
 	# (the score was empty when On ran), so every stroke went to the default
 	# piano and was refused. A rule that the first user breaks in the first
 	# line is the rule's fault. Scores joined by Then or Together keep their
@@ -229,7 +229,7 @@ class stzScore
 		_c_ = lower("" + pInstrument)
 		if StzEngineSoundInstrumentIndex(_c_) = 0
 			This._Refuse("On: no instrument named '" + pInstrument + "' -- this engine has: " +
-			             This._Joined(StzInstruments()))
+			             This._Joined(StzSoundInstruments()))
 			return This
 		ok
 		_n_ = len(@aEvents)
@@ -374,7 +374,7 @@ class stzScore
 	# The whole performance, rendered offline into one sound. Every note is
 	# the instrument's (MU1), placed at FrameOf() by mixInto.
 	def ToSound()
-		_oR_ = new stzScoreRenderer(This)
+		_oR_ = new stzSoundScoreRenderer(This)
 		_o_ = _oR_.Offline()
 		@cLastError = _oR_.LastError()
 		_oR_.Release()
@@ -384,7 +384,7 @@ class stzScore
 		return This.ToSound()
 
 	def Play()
-		_oP_ = StzSchedulerQ(This)
+		_oP_ = StzSoundSchedulerQ(This)
 		_oP_.Play()
 		_oP_.RunToEnd()
 		@cLastError = _oP_.LastError()
@@ -411,8 +411,8 @@ class stzScore
 		return TRUE
 
 	def _IsScore(po, pcWho)
-		if isObject(po) and classname(po) = "stzscore"  return TRUE ok
-		This._Refuse(pcWho + ": needs a stzScore")
+		if isObject(po) and classname(po) = "stzsoundscore"  return TRUE ok
+		This._Refuse(pcWho + ": needs a stzSoundScore")
 		return FALSE
 
 	# words split on spaces and tabs -- by hand, because split() is in Ring's
@@ -500,14 +500,14 @@ class stzScore
 # ONCE however often it recurs. A wind instrument tunes itself by listening
 # (MU1) and that is slow; a repeated note must not pay it twice. Shared by the
 # offline render and the scheduler, so both play the same buffers.
-class stzScoreRenderer
+class stzSoundScoreRenderer
 
 	@oScore = NULL
 	@nRate = 48000
 	@nChannels = 2
 	@nGain = 0.6            # per note, so a chord of a few does not clip
 	@aKeys = []             # [ key, bufferId ]
-	@aInst = []             # [ name, stzInstrument ]
+	@aInst = []             # [ name, stzSoundInstrument ]
 	@aPlan = []             # [ frame0, bufferId ] per event, in start order
 	@nEndFrame = 0
 	@cLastError = ""
@@ -630,6 +630,6 @@ class stzScoreRenderer
 		for _p_ in @aInst
 			if _p_[1] = pcName  return _p_[2] ok
 		next
-		_o_ = StzInstrumentQ(pcName)
+		_o_ = StzSoundInstrumentQ(pcName)
 		@aInst + [ pcName, _o_ ]
 		return _o_

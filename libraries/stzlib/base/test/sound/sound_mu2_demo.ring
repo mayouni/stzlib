@@ -22,7 +22,7 @@ decimals(3)
 ? "=================================================================="
 ? ""
 
-aPieces = []    # [ file, what to listen for, stzScore ]
+aPieces = []    # [ file, what to listen for, stzSoundScore ]
 
 # ---- 1. the phase gate: the first line makes a sound ----------------------
 
@@ -44,18 +44,18 @@ aPieces + [ "mu2_03_groove_swung.wav",
 
 # ---- 4. the algebra: two parts, Then and Together -------------------------
 
-oTune = StzScoreOfQ("e5 d5 c5 d5 e5 e5 e5 ~ d5 d5 d5 ~ e5 g5 g5 ~").On(:Harp)
-oBass = StzScoreOfQ("c3 ~ g2 ~ c3 ~ g2 ~ g2 ~ d3 ~ c3 ~ g2 ~").On(:Guitar)
-oTwo = StzScoreQ().Together(oTune).Together(oBass).Tempo(132)
+oTune = StzSoundScoreOfQ("e5 d5 c5 d5 e5 e5 e5 ~ d5 d5 d5 ~ e5 g5 g5 ~").On(:Harp)
+oBass = StzSoundScoreOfQ("c3 ~ g2 ~ c3 ~ g2 ~ g2 ~ d3 ~ c3 ~ g2 ~").On(:Guitar)
+oTwo = StzSoundScoreQ().Together(oTune).Together(oBass).Tempo(132)
 aPieces + [ "mu2_04_two_parts.wav",
             "a harp tune TOGETHER with a guitar bass -- one score, two instruments",
             oTwo ]
 
 # ---- 5. the same score at two tempi ---------------------------------------
 
-oA = StzScoreOfQ("a3 c4 e4 a4 g4 e4 c4 d4").On(:Kora)
-oFast = StzScoreQ().Then(oA).Then(oA).Tempo(90)
-oFaster = StzScoreQ().Then(oA).Then(oA).Tempo(160)
+oA = StzSoundScoreOfQ("a3 c4 e4 a4 g4 e4 c4 d4").On(:Kora)
+oFast = StzSoundScoreQ().Then(oA).Then(oA).Tempo(90)
+oFaster = StzSoundScoreQ().Then(oA).Then(oA).Tempo(160)
 aPieces + [ "mu2_05_kora_90.wav", "a kora figure at 90 BPM", oFast ]
 aPieces + [ "mu2_06_kora_160.wav", "the same notes at 160 BPM -- only the tempo moved", oFaster ]
 
@@ -65,15 +65,15 @@ aPieces + [ "mu2_06_kora_160.wav", "the same notes at 160 BPM -- only the tempo 
 # This is only the algebra carrying three Tunisian instruments at once, with
 # a quarter-flat E written as E4-50.
 
-oLine = StzScoreOfQ("d4 e-50 f g a ~ g f e-50 d ~ ~ a g f e-50").On(:Mezwed)
-oDrum = StzScoreQ().On(:Darbouka)
+oLine = StzSoundScoreOfQ("d4 e-50 f g a ~ g f e-50 d ~ ~ a g f e-50").On(:Mezwed)
+oDrum = StzSoundScoreQ().On(:Darbouka)
 for k = 1 to 4
 	oDrum.Stroke(:dum, 0.5).Stroke(:tak, 0.5).Rest(0.5).Stroke(:tak, 0.5)
 	oDrum.Stroke(:dum, 0.5).Rest(0.5).Stroke(:tak, 0.5).Stroke(:ka, 0.5)
 next
-oFrame = StzScoreQ().On(:Bendir)
+oFrame = StzSoundScoreQ().On(:Bendir)
 for k = 1 to 8  oFrame.Stroke(:dum, 1).Rest(1) next
-oTun = StzScoreQ().Together(oLine).Together(oDrum).Together(oFrame).Tempo(112)
+oTun = StzSoundScoreQ().Together(oLine).Together(oDrum).Together(oFrame).Tempo(112)
 aPieces + [ "mu2_07_mezwed_darbouka_bendir.wav",
             "a mezwed line with a quarter-flat E, over darbouka and bendir -- NOT yet a tab'",
             oTun ]
@@ -88,7 +88,7 @@ for p in aPieces
 	oSnd.SaveAs(p[1])
 	? "  " + p[1] + "   " + oSnd.Duration() + " s, peak " + oSnd.Peak()
 	? "     " + p[2]
-	oP = StzSchedulerQ(p[3])
+	oP = StzSoundSchedulerQ(p[3])
 	oP.Play()
 	oP.RunToEnd()
 	? "     live: " + oP.Placed() + " notes placed, " + oP.Late() + " late, " +
@@ -107,7 +107,7 @@ next
 # kick, hat, snare, hat in eighths -- kick on 1 and 3, snare on 2 and 4 --
 # for two bars
 func Mu2Groove
-	_oK_ = StzScoreQ().On(:Drumkit)
+	_oK_ = StzSoundScoreQ().On(:Drumkit)
 	for _b_ = 1 to 8
 		if _b_ % 2 = 1
 			_oK_.Stroke(:kick, 0.5)

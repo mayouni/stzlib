@@ -33,7 +33,7 @@ nRate = 48000
 # ---------------------------------------------------------------------------
 ? "-- Scene 1: the instruments exist, in the plan's order --"
 
-aNames = StzInstruments()
+aNames = StzSoundInstruments()
 ? "   " + len(aNames) + ": " + Joined(aNames)
 Chk("there are twenty", len(aNames) = 20)
 Chk("in the plan's order: general, then Tunisia, then Niger",
@@ -69,7 +69,7 @@ oSine.Release()
 
 nOld = StzEngineSoundPluckOf(440, nRate, 1.2, 0.996)
 nOldHz = StzEngineSoundMeasurePitch(nOld, 12001, 440, 0)
-oG = StzInstrumentQ(:Guitar)
+oG = StzSoundInstrumentQ(:Guitar)
 oNew = oG.ToSoundOf(440, 1.2)
 nNewHz = StzEngineSoundMeasurePitch(oNew.BufferId(), 12001, 440, 0)
 ? "   MU0 integer line: " + Cents(nOldHz, 440) + " cents     MU1 guitar: " +
@@ -92,7 +92,7 @@ StzEngineSoundFree(nOld)
 nBadPitch = 0
 nBadRender = 0
 for i = 1 to 20
-	oI = StzInstrumentQ(aNames[i])
+	oI = StzSoundInstrumentQ(aNames[i])
 	aR = oI.Range()
 	nLo = aR[1] * 1.2
 	nHi = aR[2] * 0.8
@@ -157,7 +157,7 @@ Chk("every pitched instrument is within 2 cents at low, middle and high", nBadPi
 
 aX = [ [ "guitar", 303.6 ], [ "zokra", 480 ], [ "imzad", 379.5 ] ]
 for k = 1 to len(aX)
-	oN = StzInstrumentQ(aX[k][1]).ToSoundOf(aX[k][2], 1.2)
+	oN = StzSoundInstrumentQ(aX[k][1]).ToSoundOf(aX[k][2], 1.2)
 	nZ = PitchByLowpassCrossings(oN, aX[k][2], 0.3, 1.0)
 	? "   " + Pad(aX[k][1], 8) + " asked " + aX[k][2] + " Hz, independently measured " +
 	  nZ + " Hz = " + Cents(nZ, aX[k][2]) + " cents"
@@ -172,8 +172,8 @@ next
 ? "   Twenty names on one sound would pass every scene above. These cannot."
 
 # a cylinder closed at the reed supports only odd harmonics; a cone supports all
-oMz = StzInstrumentQ(:Mezwed).ToSoundOf(330, 1.2)
-oZk = StzInstrumentQ(:Zokra).ToSoundOf(330, 1.2)
+oMz = StzSoundInstrumentQ(:Mezwed).ToSoundOf(330, 1.2)
+oZk = StzSoundInstrumentQ(:Zokra).ToSoundOf(330, 1.2)
 nMz = Harmonic(oMz, 660) / Harmonic(oMz, 990)
 nZk = Harmonic(oZk, 660) / Harmonic(oZk, 990)
 ? "   2nd / 3rd harmonic: mezwed (single reed, cylinder) " + nMz +
@@ -192,8 +192,8 @@ Chk("the cone does not suppress them -- five times the cylinder's even content",
     nZk > 5 * nMz)
 
 # a bow sustains; a pluck decays
-oIm = StzInstrumentQ(:Imzad).ToSoundOf(330, 1.2)
-oGt = StzInstrumentQ(:Guitar).ToSoundOf(330, 1.2)
+oIm = StzSoundInstrumentQ(:Imzad).ToSoundOf(330, 1.2)
+oGt = StzSoundInstrumentQ(:Guitar).ToSoundOf(330, 1.2)
 nImS = RmsBetween(oIm, 0.9, 1.0) / RmsBetween(oIm, 0.3, 0.4)
 nGtS = RmsBetween(oGt, 0.9, 1.0) / RmsBetween(oGt, 0.3, 0.4)
 ? "   loudness at 0.9 s over 0.3 s: imzad (bowed) " + nImS + "   guitar (plucked) " + nGtS
@@ -201,7 +201,7 @@ Chk("the bow SUSTAINS the note", nImS > 0.7)
 Chk("the pluck DECAYS it", nGtS < 0.5)
 
 # where a drum is struck decides which modes speak
-oDb = StzInstrumentQ(:Darbouka)
+oDb = StzSoundInstrumentQ(:Darbouka)
 oDum = oDb.ToSoundOfStroke(:Dum, 150, 0.5)
 oTak = oDb.ToSoundOfStroke(:Tak, 150, 0.5)
 nDum = Harmonic(oDum, 150) / Harmonic(oDum, 150 * 2.136)
@@ -211,7 +211,7 @@ Chk("DUM, struck at the centre, is led by the fundamental", nDum > 1)
 Chk("TAK, struck at the rim, is led by the upper mode", nTak < 1)
 
 # the bendir's snares buzz; the darbouka has none
-oBd = StzInstrumentQ(:Bendir).ToSoundOf(150, 0.5)
+oBd = StzSoundInstrumentQ(:Bendir).ToSoundOf(150, 0.5)
 nBz = Harmonic(oBd, 2500) / Harmonic(oBd, 150)
 nNo = Harmonic(oDum, 2500) / Harmonic(oDum, 150)
 ? "   2.5 kHz over fundamental: bendir " + nBz + "   darbouka " + nNo
@@ -227,7 +227,7 @@ oDum.Release()  oTak.Release()  oBd.Release()
 ? "   middle of that window -- a glide is not a note, and the tolerance is 30"
 ? "   cents, stated here before it was measured."
 
-oK = StzInstrumentQ(:Kalangu).ToSoundOfGlide(150, 220, 0.8)
+oK = StzSoundInstrumentQ(:Kalangu).ToSoundOfGlide(150, 220, 0.8)
 nWin = 16384 / nRate
 nE = StzEngineSoundMeasurePitch(oK.BufferId(), 1, 150 * pow(220 / 150, (nWin / 2) / 0.8), 1)
 nEx = 150 * pow(220 / 150, (nWin / 2) / 0.8)
@@ -249,7 +249,7 @@ Chk("and the pitch ROSE by the glide's own amount between them, to 30 cents",
     fabs(Cents(nL, nE) - nRise) <= 30)
 oK.Release()
 
-oP = StzInstrumentQ(:Guitar)
+oP = StzSoundInstrumentQ(:Guitar)
 nR0 = oP.Refusals()
 oBad = oP.ToSoundOfGlide(200, 300, 0.5)
 Chk("a plucked string REFUSES to glide -- it holds one pitch", NOT isObject(oBad) and oP.Refusals() > nR0)
@@ -259,7 +259,7 @@ Chk("a plucked string REFUSES to glide -- it holds one pitch", NOT isObject(oBad
 ? ""
 ? "-- Scene 8: a sample played at another pitch -- how a recording becomes an instrument --"
 
-oA = StzInstrumentQ(:Guitar).ToSoundOf(220, 1.4)
+oA = StzSoundInstrumentQ(:Guitar).ToSoundOf(220, 1.4)
 nFifth = pow(2, 7 / 12)
 oGr = new stzSoundGraph()
 oGr.Reshape(1, nRate)
@@ -304,13 +304,13 @@ Chk("Bb3 and A#3 are the same pitch", fabs(StzNoteToHz("Bb3") - StzNoteToHz("A#3
 Chk("'H4', 'A' and 'A4+x' are refused, not guessed",
     StzNoteToHz("H4") = 0 and StzNoteToHz("A") = 0 and StzNoteToHz("A4+x") = 0)
 
-oU = StzInstrumentQ(:Theremin)
+oU = StzSoundInstrumentQ(:Theremin)
 Chk("an unknown instrument is refused", NOT oU.IsUsable() and oU.Refusals() = 1)
 ? "   " + oU.LastError()
-oO = StzInstrumentQ(:Oud)
+oO = StzSoundInstrumentQ(:Oud)
 Chk("a pitch outside the oud's range is refused", NOT isObject(oO.ToSoundOf(5000, 0.5)))
 Chk("a stroke on a plucked string is refused", NOT isObject(oO.ToSoundOfStroke(:Tak, 200, 0.5)))
-oD2 = StzInstrumentQ(:Darbouka)
+oD2 = StzSoundInstrumentQ(:Darbouka)
 Chk("a stroke the drum does not have is refused", NOT isObject(oD2.ToSoundOfStroke(:Slap, 150, 0.5)))
 nV0 = oO.Refusals()
 oO.SetVelocity(1.5)
@@ -326,7 +326,7 @@ Chk("a velocity above 1 is refused, and counted", oO.Refusals() > nV0 and oO.Vel
 ? ""
 cLine = "   "
 for i = 1 to 20
-	oI = StzInstrumentQ(aNames[i])
+	oI = StzSoundInstrumentQ(aNames[i])
 	cLine += aNames[i] + " -> " + oI.HonestName()
 	if i < 20  cLine += ",  " ok
 	if i % 4 = 0

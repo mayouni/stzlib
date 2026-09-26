@@ -1,47 +1,41 @@
 #---------------------------------------------------------------------------#
-#  STZPATTERN -- rhythm is a string, and a pattern is a function of time    #
-#  (MU3)                                                                     #
+#  STZPATTERN -- a pattern is a function of time, in any domain             #
 #---------------------------------------------------------------------------#
 #
-#     oP = StzPatternQ("bd ~ sn [hh hh]")        # Tidal's mini-notation
-#     ? oP.CycleEvents(0)                        # what cycle 0 holds
-#     oP.Fast(2).Every(3, :Rev).Off(0.25, 12)    # the algebra, chained
-#     oP.ToScoreQ(4)                              # four cycles, as a stzScore
+#     oP = StzPatternQ("red ~ blue [green green]")
+#     ? oP.CycleEvents(0)       # [ onset, length, "word", "red" ], ...
+#     oP.Fast(2).Every(3, :Rev).Off(0.25, NULL)
 #
-# THE IDEA IS TIDALCYCLES' (plan 1.1): a pattern is not a list of notes, it is
-# a FUNCTION from a cycle number to the events in that cycle. Every verb below
-# builds a new function out of old ones, which is why they compose: Fast(2) of
-# an alternation still alternates, Rev of a stack reverses both parts.
+# THE ABSTRACT HALF OF MU3's PATTERN LANGUAGE. It was written for sound (as
+# stzPattern, 2026-09-26) and, on the author's word the same day, split: what
+# a pattern IS -- a function from a cycle number to the events in that cycle,
+# the mini-notation that writes one, and the algebra that combines them --
+# lives here and knows no domain. What a WORD means lives in a subclass:
+# stzSoundPattern (base/sound) reads notes and drum strokes. A light show, an
+# animation, a rota of tasks would each be a subclass with its own _Value.
 #
-# ONE CYCLE AT A TIME, and on purpose. Every query asks for one whole cycle,
-# and every event comes back as an onset in [0, 1) of that cycle plus a length.
-# Asking whole cycles is what keeps the arithmetic exact across hours of play:
-# cycle 10000's events are computed from 10000, not by adding 1 ten thousand
-# times. The price is stated: a fast or slow factor must be a WHOLE number
-# here, because a factor of 1.5 does not map whole cycles onto whole cycles.
+# THE IDEA IS TIDALCYCLES': every verb builds a new function out of old ones,
+# which is why they compose -- Fast(2) of an alternation still alternates.
 #
-# THE MINI-NOTATION, MU3's set -- exactly what plan 1.1 names, and no more:
+# ONE WHOLE CYCLE AT A TIME: events come back as an onset in [0, 1) of the
+# cycle asked plus a length, computed from the cycle NUMBER, never by adding
+# up cycles -- exact across hours. The price: a fast or slow factor is a whole
+# number, because 1.5 does not map whole cycles onto whole cycles.
+#
+# THE MINI-NOTATION:
 #
 #     a b c       a sequence: each step gets an equal share of the cycle
 #     ~           a rest
 #     [a b]       a group: the steps share ONE step's time
 #     [a, b]      a stack: both at once (also at the top level: "a b, c d")
 #     <a b c>     alternation: a on cycle 0, b on cycle 1, c on cycle 2, ...
-#     a*2         the step twice as fast (a whole number)
-#     a/2         the step half as fast: it sounds every other cycle
-#     a?          the step sounds on about half the cycles -- DETERMINISTICALLY,
-#                 from the cycle number and a seed, so a guard can hold it
-#     a!3         the step three times, as three steps
-#     a@3         the step weighs three steps (elongation)
+#     a*2 / a/2   the step twice as fast / half as fast (whole numbers)
+#     a?          on about half the cycles -- DETERMINISTICALLY, from the
+#                 cycle number and a seed, so a guard can hold it
+#     a!3 / a@3   the step as three steps / weighing three steps
 #
-# A WORD is a note name ("c", "e5", "bb3", "d4+50", "e-50" -- the octave
-# carries left to right, as in StzScoreOfQ) or a stroke: dum tak ka, kick
-# snare hihat, and Tidal's own bd sn hh for the kit.
-#
-# WHAT IS NOT HERE: euclidean rhythms "bd(3,8)", fractional factors, sample
-# banks "bd:3", and jux (a stereo copy -- the timeline mixes every note to all
-# channels and has no pan per note). Each is a later phase's, or needs an
-# engine change that is not this phase's.
+# A WORD is any run of characters that is not one of  [ ] < > , * / ? ! @ ~
+# or white space. What it means is the subclass's.
 
 func StzPatternQ(pcText)
 	return new stzPattern(pcText)
@@ -57,7 +51,6 @@ class stzPattern
 	# parser state
 	@aChars = []
 	@nPos = 1
-	@cOct = "4"
 	@nDegrades = 0
 
 	def init(pcText)
@@ -94,9 +87,9 @@ class stzPattern
 		return This._SortByOnset(_out_)
 
 	# Every distinct [ kind, name, length ] over the pattern's first `pnCycles`
-	# cycles -- what a player renders BEFORE it starts, so no note is rendered
-	# while a cycle is being posted.
-	def DistinctNotes(pnCycles)
+	# cycles -- what a player prepares BEFORE it starts (in sound: renders), so
+	# nothing is prepared while a cycle is being posted.
+	def DistinctValues(pnCycles)
 		_a_ = []
 		for _c_ = 0 to pnCycles - 1
 			for _e_ in This.CycleEvents(_c_)
@@ -121,45 +114,6 @@ class stzPattern
 		_p_ = This._Period(@aRoot)
 		if _p_ > 64  _p_ = 64 ok
 		return _p_
-
-	# True when every word is a stroke: the pattern names its own drum.
-	def IsAllStrokes()
-		if isNull(@aRoot)  return FALSE ok
-		_n_ = 0
-		for _e_ in This.CycleEvents(0)
-			if _e_[3] != "stroke"  return FALSE ok
-			_n_++
-		next
-		return _n_ > 0
-
-	def HasStroke(pcName)
-		for _c_ = 0 to This.Period() - 1
-			for _e_ in This.CycleEvents(_c_)
-				if _e_[4] = pcName  return TRUE ok
-			next
-		next
-		return FALSE
-
-	# `pnCycles` cycles as a stzScore, a cycle being four beats. The pivot:
-	# a pattern is a function, a score is data, and this is where one
-	# becomes the other.
-	def ToScoreQ(pnCycles)
-		_oS_ = StzScoreQ()
-		for _c_ = 0 to pnCycles - 1
-			for _e_ in This.CycleEvents(_c_)
-				_b_ = 4 * (_c_ + _e_[1])
-				if _e_[3] = "stroke"
-					_oS_.StrokeAt(_b_, _e_[4], 4 * _e_[2])
-				else
-					_oS_.NoteAt(_b_, _e_[4], 4 * _e_[2])
-				ok
-			next
-		next
-		_oS_.SetLength(4 * pnCycles)
-		return _oS_
-
-	#-- the algebra ---------------------------------------------------------
-	# Each wraps the whole pattern and returns it, so they chain.
 
 	def Fast(pnFactor)
 		if NOT This._WholeFactor(pnFactor, "Fast")  return This ok
@@ -196,21 +150,19 @@ class stzPattern
 		@aRoot = [ :every, _t_, pnN, _x_ ]
 		return This
 
-	# The pattern PLUS a copy of itself `pnCycles` later (0 < t < 1), the copy
-	# transposed by `pnSemitones` (strokes keep their drum). What the shift
-	# pushes past the end of a cycle sounds at the start of the next.
-	def Off(pnCycles, pnSemitones)
+	# The pattern PLUS a copy of itself `pnCycles` later (0 < t < 1). What
+	# the shift pushes past the end of a cycle arrives at the start of the
+	# next. `pArg` is handed to _Shift for every copied value: here it changes
+	# nothing; a domain gives it a meaning (in sound: semitones).
+	def Off(pnCycles, pArg)
 		if NOT isNumber(pnCycles) or pnCycles <= 0 or pnCycles >= 1
 			This._Refuse("Off: a shift strictly between 0 and 1 cycle")
 			return This
 		ok
-		if NOT isNumber(pnSemitones)  pnSemitones = 0 ok
 		if isNull(@aRoot)  return This ok
 		_t_ = @aRoot
-		@aRoot = [ :off, _t_, pnCycles, pnSemitones ]
+		@aRoot = [ :off, _t_, pnCycles, pArg ]
 		return This
-
-	#-- private: the query --------------------------------------------------
 
 	# One cycle of a node: [ [ onset, length, value ], ... ], onset in [0, 1).
 	def _Q(paN, pnC)
@@ -323,26 +275,6 @@ class stzPattern
 		This._Refuse("Every: the transformation is :Rev, [ :Fast, n ] or [ :Slow, n ]")
 		return NULL
 
-	# a note moved by semitones; a stroke unchanged
-	def _Shift(paV, pnSemis)
-		if paV[1] != "note" or pnSemis = 0  return paV ok
-		_hz_ = StzNoteToHz(paV[2]) * pow(2, pnSemis / 12)
-		return [ "note", This._HzName(_hz_) ]
-
-	# a frequency as a name StzNoteToHz reads back exactly enough: the nearest
-	# note plus its cents, e.g. "E5+0" -- so a shifted copy is still a WORD
-	def _HzName(pnHz)
-		_semis_ = 12 * log(pnHz / 440) / log(2)
-		_n_ = floor(_semis_ + 0.5)
-		_cents_ = floor((_semis_ - _n_) * 100 + 0.5)
-		_aN_ = [ "A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#" ]
-		_i_ = ((_n_ % 12) + 12) % 12
-		_oct_ = 4 + floor((_n_ + 9) / 12)
-		_c_ = _aN_[_i_ + 1] + _oct_
-		if _cents_ > 0  _c_ += "+" + _cents_ ok
-		if _cents_ < 0  _c_ += "-" + fabs(_cents_) ok
-		return _c_
-
 	# deterministic "about half": a hash of the cycle, the node's seed and the
 	# event's place -- the same pattern plays the same thing every time
 	#
@@ -410,7 +342,7 @@ class stzPattern
 		@aChars = []
 		for _k_ = 1 to len(pcText)  @aChars + pcText[_k_] next
 		@nPos = 1
-		@cOct = "4"
+		This._ResetParse()
 		@nDegrades = 0
 		@cLastError = ""
 		This._Ws()
@@ -586,59 +518,12 @@ class stzPattern
 			@nPos++
 		end
 		if _w_ = ""
-			This._Refuse("at " + @nPos + ": expected a note, a stroke, ~, [ or <")
+			This._Refuse("at " + @nPos + ": expected a word, ~, [ or <")
 			return NULL
 		ok
 		_v_ = This._Value(_w_)
 		if isNull(_v_)  return NULL ok
 		return [ :atom, _v_ ]
-
-	def _Value(pcWord)
-		_c_ = lower(pcWord)
-		_aS_ = [ [ "bd", "kick" ], [ "sn", "snare" ], [ "hh", "hihat" ], [ "kick", "kick" ],
-		         [ "snare", "snare" ], [ "hihat", "hihat" ], [ "hat", "hihat" ],
-		         [ "dum", "dum" ], [ "tak", "tak" ], [ "ka", "ka" ] ]
-		for _p_ in _aS_
-			if _p_[1] = _c_  return [ "stroke", _p_[2] ] ok
-		next
-		_full_ = This._NoteName(_c_)
-		if _full_ = ""
-			This._Refuse("'" + pcWord + "' is neither a note name (c, e5, bb3, d4+50, e-50) " +
-			             "nor a stroke (bd sn hh, kick snare hihat, dum tak ka)")
-			return NULL
-		ok
-		return [ "note", _full_ ]
-
-	# the octave carries, left to right, as StzScoreOfQ's does
-	def _NoteName(pcTok)
-		if ring_find([ "a","b","c","d","e","f","g" ], pcTok[1]) = 0  return "" ok
-		_full_ = upper(pcTok[1])
-		_k_ = 2
-		if len(pcTok) >= 2
-			if pcTok[2] = "#" or pcTok[2] = "b"
-				_full_ += pcTok[2]
-				_k_ = 3
-			ok
-		ok
-		_rest_ = ""
-		for _j_ = _k_ to len(pcTok)  _rest_ += pcTok[_j_] next
-		_digit_ = FALSE
-		if _rest_ != ""
-			if isdigit(_rest_[1])  _digit_ = TRUE ok
-		ok
-		if NOT _digit_  _rest_ = @cOct + _rest_ ok
-		_full_ += _rest_
-		if StzNoteToHz(_full_) = 0  return "" ok
-		_o_ = ""
-		for _j_ = 2 to len(_full_)
-			if isdigit(_full_[_j_])
-				_o_ += _full_[_j_]
-			but _o_ != ""
-				exit
-			ok
-		next
-		@cOct = _o_
-		return _full_
 
 	def _Number()
 		_s_ = ""
@@ -688,3 +573,23 @@ class stzPattern
 			_a_[_j_ + 1] = _e_
 		next
 		return _a_
+
+	#-- the domain's hooks ---------------------------------------------------
+	#
+	# THE ONLY THREE PLACES A DOMAIN SPEAKS. The grammar, the query and the
+	# algebra above know nothing of what a word MEANS; these say it. Left as
+	# they are, every word is a value of kind "word" and a shifted copy is the
+	# same value -- a pattern of anything: light cues, animation keys, tasks.
+	# stzSoundPattern overrides them with notes, strokes and semitones.
+
+	# a word -> [ kind, name ], or NULL (after _Refuse) when it is not one
+	def _Value(pcWord)
+		return [ "word", pcWord ]
+
+	# the value an Off copy carries, given Off's argument
+	def _Shift(paV, pArg)
+		return paV
+
+	# called before each parse: reset whatever reading left to right carries
+	def _ResetParse()
+		return
