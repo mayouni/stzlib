@@ -130,6 +130,9 @@ ok
     load "sound/stzEarcons.ring"
     # MU1: one note of any of twenty instruments, as a stzSound
     load "sound/stzInstrument.ring"
+    load "sound/stzScore.ring"
+    load "sound/stzScheduler.ring"
+    load "sound/stzMusic.ring"
     load "sound/stzMicrophone.ring"
 
     # the material graph: a material AS a graph, emitting the material
