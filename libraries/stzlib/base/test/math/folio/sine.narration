@@ -1,0 +1,61 @@
+-- sine.narration -- sine, told in 3 frames
+
+DEFINE NARRATION sine (
+    TITLE "sine"
+    PINS   [ commons:1.0 ]
+) RATIONALE "Emitted by stzStoryboard against .narration grammar v0; every number in the prose is a cell below, never a stored output."
+
+DEFINE PROSE frame_1 (
+    TEXT <[
+With a = 1 the extremum nearest the origin sits at y = {top}.
+    ]>
+) RATIONALE "Frame 1 of 3."
+
+DEFINE CELL picture_1 (
+    SOURCE <[
+oStory.FileOf(1)
+    ]>
+) RATIONALE "The picture is named here and drawn on arrival, never stored."
+
+DEFINE CELL top_1 (
+    SOURCE <[
+oStory.HolesOf(1)[1][2][:value]
+    ]>
+) RATIONALE "The number the prose shows for {top}: computed, and checked against the picture."
+
+DEFINE PROSE frame_2 (
+    TEXT <[
+With a = 2 the extremum nearest the origin sits at y = {top}.
+    ]>
+) RATIONALE "Frame 2 of 3."
+
+DEFINE CELL picture_2 (
+    SOURCE <[
+oStory.FileOf(2)
+    ]>
+) RATIONALE "The picture is named here and drawn on arrival, never stored."
+
+DEFINE CELL top_2 (
+    SOURCE <[
+oStory.HolesOf(2)[1][2][:value]
+    ]>
+) RATIONALE "The number the prose shows for {top}: computed, and checked against the picture."
+
+DEFINE PROSE frame_3 (
+    TEXT <[
+With a = 3 the extremum nearest the origin sits at y = {top}.
+    ]>
+) RATIONALE "Frame 3 of 3."
+
+DEFINE CELL picture_3 (
+    SOURCE <[
+oStory.FileOf(3)
+    ]>
+) RATIONALE "The picture is named here and drawn on arrival, never stored."
+
+DEFINE CELL top_3 (
+    SOURCE <[
+oStory.HolesOf(3)[1][2][:value]
+    ]>
+) RATIONALE "The number the prose shows for {top}: computed, and checked against the picture."
+

@@ -638,6 +638,82 @@ window on the author's screen; `base/test/math/play_motion.ring` is the
 demo to run by hand); the 100 ms settle; a mouse slider (the GUI plane's
 widget, when it exists -- keys move the parameters here).
 
+#### M2b RESULTS -- declared states, the storyboard, the frame-reality guard, 2026-09-26
+
+**Shipped**: the second subject and the second kind of motion, in
+`base/math/stzMathMotion.ring`. `StzMathMotionOverQ(oDiagram)` takes any
+solved `stzMathDiagram`; `State(caption, acts)` declares a state as a
+caption and the acts that reach it from the state before -- `[:DragTo,
+path, x, y]`, `[:DragBy, path, dx, dy]`, `[:SetData, obj, key, v]`,
+`[:SetTheme, name]` on a picture, `[:Set, param, v]` on a `:Function`
+motion -- every act checked at declaration (a verb that is not an act, a
+drag of a derived shape, a Set on a picture, a DragTo on a figure, all
+refused by name); `StateFact(hole, kind, args)` binds a fact the caption
+must show as `{hole}`. `Apply(n)` is the live pass on the motion's own
+picture; `PlayStates(oW, dwellMs)` holds each state on the window (Right
+or Space advance, Escape closes); `ExportTo(folio, name)` drives an
+`stzStoryboard` with the SAME acts through its `Act`, binds the facts,
+writes `name_NN.png` per state and `name.narration` beside them, and
+leaves the motion where it found it (the storyboard works on its own copy;
+a `:Function` motion's parameters are put back). The story itself is
+library code in `base/math/stzMathStories.ring`: `StzPythagorasPictureQ`
+builds Byrne's I.47 from `StzGeometryDomain` + `StzByrneStyle` and a
+three-point substance; `StzPythagorasMotionQ` tells it in four states, A
+dragged three times, the facts `a2`, `b2`, `c2`, `sum`, `gap` and the angle
+bound in the captions. Demo: `base/test/math/play_states.ring`. The
+exported frames and narrations are committed under `base/test/math/folio/`.
+
+**The frame-reality guard, as the done-when asked**: `motion_narrated.ring`
+sections 4 to 6 (33 new assertions, 57 in all) build a SECOND picture and
+walk it by hand through the declared acts with the diagram's own `DragTo`,
+and every exported frame is byte-for-byte that picture's `ToPNG` -- four
+of four for Pythagoras, three of three for the sine family settled by hand
+at each parameter -- with the negative that consecutive frames differ, so
+the equality is not vacuous; and what `PlayStates` shows, the motion's own
+`Apply`, is the exported frame, four of four. The comparison is PNG bytes
+on both sides rather than `ToPixels`: the encoder is deterministic (proven
+by drawing one state twice) and the same encoder on both sides is the same
+pixels. Without a device `ExportTo` refuses by name and the gate prints
+what it skipped.
+
+**Every claim carries its check (law 3), read from the coordinates**:
+nothing in Byrne's picture asserts a^2 + b^2 = c^2 -- every square is an
+expression over the three points -- so the gate reads the expression
+`dist(A,B)^2 + dist(A,C)^2 - dist(B,C)^2` back from the solved picture in
+every state (worst 0.0008 px^2 over four states) and the angle at A (worst
+0 degrees off 90), and the NEGATIVE, a triangle whose right angle is
+declared at B, reads 83,924 px^2 for the same expression: the zero is
+measured, not an identity. For the sine family, the extremum nearest the
+origin -- found by the engine's own search -- sits at height a in every
+frame, checked against the number the state set.
+
+**The numbers**: a state's drag on Byrne is a WARM re-solve, 27 ms in a
+quiet process and 42 ms under this machine's ambient load -- inside the
+graph plane's 100 ms drag budget, which is the budget the done-when names
+for the solved half. The export costs about 1 s a frame under load (a
+solve, a PNG and a `StzCheckPictures` judgement per frame). The
+`:Function` motion's settle stays OWED (446 ms quiet, 710 ms under load):
+it rebuilds and solves cold, and the warm path needs `MATH-DRAGFIELD-01`.
+
+**Found**: `Right()` declared at B under the Byrne style leaves the angle
+at B reading 34.77 degrees, silently -- the style derives its figure with
+the right angle at the first point of the triangle and the assertion is
+not enforced against it. Routed `MATH-BYRNE-RIGHT-01` to graphics; the
+gate uses the picture as its negative and says so.
+
+**Not claimed**: the rearrangement proof (the two smaller squares
+translating INTO the hypotenuse square) -- under the Byrne style every
+square is derived from the three points, so the motion is the vertex's and
+the squares follow; the rearrangement is another picture, a candidate for
+the course (M3). GIF or video. The 100 ms settle for a rebuilt figure.
+
+**M2 done-when, read against this**: the sine family under two parameters
+runs in the window (M2a); Pythagoras runs in the window as declared states
+(`play_states.ring`); the computed half is at frame rate and the solved
+half is within 100 ms for a state's drag and NOT for a figure's settle,
+both printed by the guard; the exported frames are proven equal to the
+live ones. M2 is CLOSED with one number owed, named above.
+
 ### M3 -- The mathematics course
 
 **Deliverable**: `program/courses/math/` -- `course.zknw`, fifteen chapters
