@@ -18,6 +18,8 @@ facts
     math | has-chapter-08 | matrices-as-pictures
     math | has-chapter-09 | statistics-as-a-language
     math | has-chapter-10 | probability-by-the-continuum
+    math | has-chapter-11 | money-to-the-centime
+    math | has-chapter-12 | an-optimisation-model
 
     the-number-line | is-a | chapter
     the-number-line | uses-world | school
@@ -55,3 +57,11 @@ facts
     probability-by-the-continuum | is-a | chapter
     probability-by-the-continuum | uses-world | school
     probability-by-the-continuum | has-exercise | math-10-01
+
+    money-to-the-centime | is-a | chapter
+    money-to-the-centime | uses-world | school
+    money-to-the-centime | has-exercise | math-11-01
+
+    an-optimisation-model | is-a | chapter
+    an-optimisation-model | uses-world | school
+    an-optimisation-model | has-exercise | math-12-01

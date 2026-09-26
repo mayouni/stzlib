@@ -1,0 +1,7 @@
+knowledge "math-11-01"
+
+facts
+    math-11-01 | is-a | exercise
+    math-11-01 | in-chapter | money-to-the-centime
+    math-11-01 | trains | cr-02
+    math-11-01 | needs-step | asks
