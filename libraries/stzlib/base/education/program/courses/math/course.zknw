@@ -1,0 +1,24 @@
+knowledge "math"
+
+# THE MATHEMATICS COURSE (plane stzlib-math, base/math/CHARTER.md). Every
+# chapter is a narration whose cells RUN; every figure is a declaration in a
+# cell, never a picture file; every numeric claim is a promise. What SHIPS is
+# listed here; the whole plan is curriculum.zknw, and the two are never
+# summed as shipped.
+
+facts
+    math | is-a | course
+    math | has-chapter-01 | the-number-line
+    math | has-chapter-02 | the-fraction
+    math | has-chapter-03 | the-chaos-game
+
+    the-number-line | is-a | chapter
+    the-number-line | uses-world | school
+    the-number-line | has-exercise | math-01-01
+
+    the-fraction | is-a | chapter
+    the-fraction | uses-world | school
+    the-fraction | has-exercise | math-02-01
+
+    the-chaos-game | is-a | chapter
+    the-chaos-game | has-exercise | math-03-01
