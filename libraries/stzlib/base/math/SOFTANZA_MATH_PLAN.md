@@ -1103,6 +1103,12 @@ exactly after one transcription miss that was R's own inversion of
 per-window checks. Gate 115 of 115. Details: `SOFTANZA_TUKEY_PLAN.md`,
 `TK1 RESULTS, second half`. The N-way polish stays out, by name.
 
+**The change point, the same day**: `stzTukeySmoother.ChangePoint()` and
+its `level_shift` warning, threshold 1.8 measured first on seeded series
+(`probe_changepoint.ring`); fires on 0 of 80 null series and 39 of 40
+five-sigma steps; gate section 11, 124 of 124. Details in the Tukey plan's
+`TK4 addendum`.
+
 ### M5 -- Deepen the core (routed)
 
 Requests, each with the oracle and the picture that would prove it, to the

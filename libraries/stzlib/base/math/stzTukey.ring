@@ -137,6 +137,28 @@ func StzTukeyShapeMinCount()
 func StzTukeySpreadLevelThreshold()
 	return 0.5
 
+# A CHANGE POINT, demoted to a verdict with a stated threshold (plan row 9):
+# the largest contrast between the medians of the ten values before a cut and
+# the ten after it, over the fourth-spread of the consecutive differences (a
+# scale blind to a level and a trend and resistant to the one big difference
+# a step makes). MEASURED 2026-09-26 (probe_changepoint.ring, seeded series,
+# 20 per class and size): a level with noise reaches 1.13 (n = 40) / 0.90
+# (n = 100); a trend of 0.1 sigma per point reaches 1.50 / 1.61; a step of 5
+# sigma at the middle runs from 1.62 / 2.16 up; a step of 3 sigma from 1.20 /
+# 1.13; of 2 sigma from 0.64 / 0.78. Threshold 1.8: fires on 0 of 80 null
+# series, on 19 and 20 of 20 five-sigma steps, on 5 and 7 of 20 three-sigma
+# steps, on 1 of 20 two-sigma steps; the location lands within two of the
+# true cut on 15 and 19 of 20 five-sigma steps. The first statistic tried -- the largest
+# step of the 3RS3R smooth over the rough's spread -- did NOT separate the
+# classes (null up to 4.3, a 5-sigma step down to 1.97) and is not used.
+# Under 40 values the verdict is not made: it was not measured there.
+func StzTukeyChangePointThreshold()
+	return 1.8
+func StzTukeyChangePointWindow()
+	return 10
+func StzTukeyChangePointMinCount()
+	return 40
+
 # ONE REPORT OVER EVERY FACE (TK4): the house gate, stzRuleReport, fed by
 # each face's Diagnostics(subject). Ring's list + list NESTS, so the faces
 # are given as a list and ingested one by one.
@@ -883,15 +905,80 @@ class stzTukeySmoother from stzObject
 		ok
 		return StzEngineTukeyWindowMedians(@aNumbers, pnK)
 
+	#-- the change point, a verdict with its threshold (plan row 9) --------------
+
+	# the largest contrast between the medians of the window before a cut and
+	# the window after it, over the fourth-spread of the consecutive differences
+	def ChangePoint()
+		_n_ = ring_len(@aNumbers)
+		_w_ = StzTukeyChangePointWindow()
+		_r_ = [ :contrast = 0, :at = 0, :scale = 0, :threshold = StzTukeyChangePointThreshold(), :fires = 0, :judged = 0,
+		        :because = "" ]
+		if _n_ < StzTukeyChangePointMinCount()
+			_r_[:because] = "a change-point verdict needs " + StzTukeyChangePointMinCount() + " values; the threshold was measured from there"
+			return _r_
+		ok
+		_aDx_ = []
+		for _i_ = 1 to _n_ - 1  _aDx_ + (@aNumbers[_i_ + 1] - @aNumbers[_i_])  next
+		_nF_ = StzTukeySummaryQ(_aDx_).FourthSpread()
+		_r_[:scale] = _nF_
+		if _nF_ <= 0
+			_r_[:because] = "the consecutive differences have no spread; a step in a flat series is not a change point but a jump the rough shows"
+			return _r_
+		ok
+		_nMax_ = 0
+		_nAt_ = 0
+		for _t_ = _w_ to _n_ - _w_
+			_aB_ = []
+			_aA_ = []
+			for _i_ = _t_ - _w_ + 1 to _t_  _aB_ + @aNumbers[_i_]  next
+			for _i_ = _t_ + 1 to _t_ + _w_  _aA_ + @aNumbers[_i_]  next
+			_d_ = fabs(StzEngineStatsMedian(StzEngineStatsCreate(_aA_)) - StzEngineStatsMedian(StzEngineStatsCreate(_aB_))) / _nF_
+			if _d_ > _nMax_
+				_nMax_ = _d_
+				_nAt_ = _t_ + 1
+			ok
+		next
+		_r_[:contrast] = _nMax_
+		_r_[:at] = _nAt_
+		_r_[:judged] = 1
+		if _nMax_ > StzTukeyChangePointThreshold()  _r_[:fires] = 1  ok
+		_r_[:because] = "the medians of " + _w_ + " values either side of index " + _nAt_ + " differ by " + _FfNum(_nMax_, 3) +
+			" spread(s) of the consecutive differences (threshold " + StzTukeyChangePointThreshold() + ")"
+		return _r_
+
+	# the verdict in the house shape: a level shift is a warning naming where and by how much
+	def Diagnostics(pcSubject)
+		_c_ = "" + pcSubject
+		if _c_ = ""  _c_ = "series"  ok
+		_a_ = []
+		_r_ = This.ChangePoint()
+		if _r_[:fires]
+			_a_ + [ :rule = "level_shift", :subject = _c_, :where = "index " + _r_[:at], :severity = :warning,
+			        :message = _r_[:because] ]
+		ok
+		return _a_
+
 	def Why()
 		_aS_ = This.Smooth("3RS3R")
 		_nMax_ = 0
 		for _i_ = 1 to ring_len(@aNumbers)
 			if fabs(@aNumbers[_i_] - _aS_[_i_]) > _nMax_  _nMax_ = fabs(@aNumbers[_i_] - _aS_[_i_])  ok
 		next
-		return "a Tukey smoother over " + ring_len(@aNumbers) + " value(s), end rule " + @cEndRule +
+		_c_ = "a Tukey smoother over " + ring_len(@aNumbers) + " value(s), end rule " + @cEndRule +
 			": under 3RS3R the largest rough is " + _FfNum(_nMax_, 4) + "; kinds " + @@(StzTukeySmoothKinds()) +
 			", Hanning and 4253H with copied ends"
+		_r_ = This.ChangePoint()
+		if _r_[:judged]
+			if _r_[:fires]
+				_c_ += "; a level shift at index " + _r_[:at] + " (contrast " + _FfNum(_r_[:contrast], 3) + " past " + _r_[:threshold] + ")"
+			else
+				_c_ += "; no level shift (largest contrast " + _FfNum(_r_[:contrast], 3) + ", threshold " + _r_[:threshold] + ")"
+			ok
+		else
+			_c_ += "; change point unjudged: " + _r_[:because]
+		ok
+		return _c_
 
 #-- re-expression, measured ---------------------------------------------------
 
