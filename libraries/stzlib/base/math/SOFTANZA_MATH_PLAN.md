@@ -1042,6 +1042,28 @@ half`. Routed: `MATH-BOXPLOT-DELEGATE-01` (the stats plane's
 table with its legend, as figure kinds; then TK4's verdicts into
 `stzRuleReport`, TK5's story, and chapter 13.
 
+#### M4c RESULTS, second half -- TK3 complete: residual versus fit, the coded table, and the dark catalogue that was light, 2026-09-26
+
+**Shipped**: two figure kinds, `:ResidualPlot` (`base/math/
+stzResidualPlotFigure.ring`; every cell a point at (fit, residual), bands at
+the residual fourth-spread, far-out cells named, coincident cells drawn as
+rings so none is hidden; rules `point_is_its_cell`, `bands_are_the_scale`)
+and `:CodedTable` (`base/math/stzCodedTableFigure.ring`; a glyph per fixed
+band of residual over scale, ASCII or symbols, the legend printed with the
+scale; rules `glyph_is_its_band`, `legend_is_printed`,
+`cells_tile_the_table`; `Text()`). Ten kinds now. Scenes 33-35; gate
+sections 18-19, 280 of 280.
+
+**Found and fixed**: `stzMathFigure.Diagram()` returns a copy, so the
+catalogue's dark theme never reached a figure and all 32 `dark_NN.png`
+since M1 were the light bytes. `SetTheme` on the figure, the catalogue
+re-rendered, both directions pinned in the gate. Details in
+`SOFTANZA_TUKEY_PLAN.md`, `TK3 RESULTS, second half`.
+
+**Next**: M4d -- TK4's verdicts into `stzRuleReport` with `IsSound()` in
+both directions, TK5's `stzTukeyStory` on `stzNarration`, and chapter 13
+`tukeys-first-look`; TK6 stays gated on GUI G5.
+
 ### M5 -- Deepen the core (routed)
 
 Requests, each with the oracle and the picture that would prove it, to the

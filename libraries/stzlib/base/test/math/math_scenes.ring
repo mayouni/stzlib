@@ -264,8 +264,34 @@ func StzMathFigScene32()
 	return StzMathFigureQ(:StemPlot, [ :of = [ 2, 4, 4, 5, 7, 9, 12, 25, 31, 33, 38, 41 ], :lines = 2,
 	                                   :label = "twelve values, two rows per stem" ])
 
+# R's ?medpolish example, the deaths table, as the two TK3 pictures of a fit
+func StzMathFigDeaths()
+	return [ [ 14, 15, 14 ], [ 7, 4, 7 ], [ 8, 2, 10 ], [ 15, 9, 10 ], [ 0, 2, 0 ] ]
+
+func StzMathFigDeathsNames()
+	return [ [ "1-24", "25-74", "75-199", "200++", "NA" ], [ "1973", "1974", "1975" ] ]
+
+func StzMathFigScene33()
+	return StzMathFigureQ(:ResidualPlot, [ :of = StzMathFigDeaths(), :names = StzMathFigDeathsNames(),
+	                                       :label = "residual versus fit: R's deaths table, median polish" ])
+
+func StzMathFigScene34()
+	return StzMathFigureQ(:CodedTable, [ :of = StzMathFigDeaths(), :names = StzMathFigDeathsNames(),
+	                                     :label = "the same fit, coded: a glyph per band of residual over scale" ])
+
+func StzMathFigScene35()
+	_a_ = []
+	for _i_ = 1 to 6
+		_aRow_ = []
+		for _j_ = 1 to 5
+			_aRow_ + exp(2 + 0.4 * _i_ + 0.3 * _j_ + ((_i_ * 7 + _j_ * 3) % 5) / 25)
+		next
+		_a_ + _aRow_
+	next
+	return StzMathFigureQ(:CodedTable, [ :of = _a_, :label = "a multiplicative 6 x 5 table fitted additively: the bow shows as a band pattern" ])
+
 func StzMathFigSceneCount()
-	return 32
+	return 35
 
 func StzMathFigSceneTitles()
 	return [ "THE CARDINAL SINE                (zeros at every multiple of pi, extrema where tan x = x; twelve notes solved)",
@@ -299,7 +325,10 @@ func StzMathFigSceneTitles()
 	         "A MATRIX IN A TITLE              (a 2 x 2 between brackets scaled to it, as notation, beside the same matrix as cells)",
 	         "A BOX PLOT UNDER TUKEY'S FOURTHS (M4: the same eight values, hinges 4 and 10.5 instead of 4 and 9.75, the convention printed)",
 	         "A STEM-AND-LEAF                  (M4: seventeen values at leaf unit 1, every digit kept, the legend saying what a row means)",
-	         "A STEM-AND-LEAF, TWO ROWS A STEM (M4: twelve values, leaves 0-4 on the * row and 5-9 on the . row, empty stems shown)" ]
+	         "A STEM-AND-LEAF, TWO ROWS A STEM (M4: twelve values, leaves 0-4 on the * row and 5-9 on the . row, empty stems shown)",
+	         "RESIDUAL VERSUS FIT              (M4: R's deaths table polished, every cell a point, bands at 1 and 2 fourth-spreads, the far-out cells named)",
+	         "A CODED TABLE                    (M4: the same fit as glyphs per band of residual over scale, the legend printed with the scale)",
+	         "A CODED TABLE OF A BOW           (M4: a multiplicative table fitted additively; the corners and the middle disagree in a pattern)" ]
 
 func StzMathFigScene(pnI)
 	if pnI = 1  return StzMathFigScene01()  ok
@@ -333,4 +362,7 @@ func StzMathFigScene(pnI)
 	if pnI = 29  return StzMathFigScene29()  ok
 	if pnI = 30  return StzMathFigScene30()  ok
 	if pnI = 31  return StzMathFigScene31()  ok
-	return StzMathFigScene32()
+	if pnI = 32  return StzMathFigScene32()  ok
+	if pnI = 33  return StzMathFigScene33()  ok
+	if pnI = 34  return StzMathFigScene34()  ok
+	return StzMathFigScene35()

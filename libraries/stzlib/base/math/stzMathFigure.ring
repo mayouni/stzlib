@@ -48,7 +48,7 @@ func StzMathFigureFont()
 	return NULL
 
 func StzMathFigureKinds()
-	return [ "function", "numberline", "fraction", "matrix", "complexplane", "boxplot", "surface", "stemplot" ]
+	return [ "function", "numberline", "fraction", "matrix", "complexplane", "boxplot", "surface", "stemplot", "residualplot", "codedtable" ]
 
 func StzMathFigureQ(pcKind, paSpec)
 	return new stzMathFigure(pcKind, paSpec)
@@ -92,6 +92,10 @@ class stzMathFigure from stzObject
 			@oDiagram = StzSurfaceFigureBuildXT(@oFont, @aSpec)
 		but @cKind = "stemplot"
 			@oDiagram = StzStemPlotFigureBuildXT(@oFont, @aSpec)
+		but @cKind = "residualplot"
+			@oDiagram = StzResidualPlotFigureBuildXT(@oFont, @aSpec)
+		but @cKind = "codedtable"
+			@oDiagram = StzCodedTableFigureBuildXT(@oFont, @aSpec)
 		ok
 
 	#-- what it is ------------------------------------------------------------
@@ -103,9 +107,22 @@ class stzMathFigure from stzObject
 		return @aSpec
 
 	# the solved picture itself: an stzMathDiagram, with everything one
-	# can answer -- ShapeOf, Fact, Violations, the renditions
+	# can answer -- ShapeOf, Fact, Violations, the renditions. IT IS A
+	# COPY: Ring copies an object a method returns, so a theme or a datum
+	# set on it never reaches the figure's own picture. Set the theme and
+	# the data THROUGH the figure (SetTheme, SetDatum); found 2026-09-26 when
+	# 32 catalogue pictures rendered "dark" came out byte-identical to light.
 	def Diagram()
 		return @oDiagram
+
+	# the theme, on the figure's OWN picture: no second solve, a theme
+	# changes only what every role resolves to
+	def SetTheme(pcTheme)
+		@oDiagram.SetPictureTheme(pcTheme)
+		return This
+
+		def SetThemeQ(pcTheme)
+			return This.SetTheme(pcTheme)
 
 	def Substance()
 		return @oDiagram.Substance()
@@ -155,6 +172,10 @@ class stzMathFigure from stzObject
 			return StzSurfaceFigureWhy(_oS_) + "; " + @oDiagram.Why()
 		but @cKind = "stemplot"
 			return StzStemPlotFigureWhy(_oS_) + "; " + @oDiagram.Why()
+		but @cKind = "residualplot"
+			return StzResidualPlotFigureWhy(_oS_) + "; " + @oDiagram.Why()
+		but @cKind = "codedtable"
+			return StzCodedTableFigureWhy(_oS_) + "; " + @oDiagram.Why()
 		ok
 		_c_ = "a " + @cKind + " figure: " + _oS_.DataOf("fr", "samples") + " samples in " +
 			_oS_.DataOf("fr", "pieces") + " piece(s), " + _oS_.DataOf("fr", "marks") + " mark(s)"
@@ -306,7 +327,10 @@ class stzMathFigure from stzObject
 		if @cKind = "stemplot"
 			return StzStemPlotFigureText(@oDiagram.Substance())
 		ok
-		stzraise("stzMathFigure.Text: a " + @cKind + " figure has no text rendition -- a box plot and a stem-and-leaf have.")
+		if @cKind = "codedtable"
+			return StzCodedTableFigureText(@oDiagram.Substance())
+		ok
+		stzraise("stzMathFigure.Text: a " + @cKind + " figure has no text rendition -- a box plot, a stem-and-leaf and a coded table have.")
 
 	#-- the renditions ----------------------------------------------------------
 
