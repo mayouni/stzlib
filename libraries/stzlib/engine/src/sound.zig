@@ -394,6 +394,62 @@ pub fn noteOf(inst: u32, hz: f64, hz_end: f64, hold: f64, vel: f64, variant: u32
     return adopt(data, need, 1, rate);
 }
 
+/// MU5: one sung vowel (0..4 = a e i o u) as an ordinary buffer -- the formant
+/// voice in the seam. Refused, with the reason in lastError, out of range, for
+/// a vowel that is not one, or for arguments that are not.
+pub fn vowelOf(vowel: u32, hz: f64, hz_end: f64, hold: f64, vel: f64, breath: f64, vibrato: f64, rate: u32) i64 {
+    const need = ins.vowelFrames(rate, hold);
+    if (need == 0) {
+        bump(CTR_REFUSALS, 1);
+        setErr(ins.reasonText(ins.R_ARGS));
+        return 0;
+    }
+    const data = alloc.alloc(f32, need) catch {
+        setErr("out of memory allocating a vowel");
+        return 0;
+    };
+    @memset(data, 0);
+    if (ins.renderVowel(vowel, hz, hz_end, hold, vel, breath, vibrato, rate, data) == 0) {
+        alloc.free(data);
+        bump(CTR_REFUSALS, 1);
+        setErr(ins.reasonText(ins.last_reason));
+        return 0;
+    }
+    return adopt(data, need, 1, rate);
+}
+
+/// MU5 (a'): a SPOKEN syllable (a mono buffer -- SAPI's) retuned by PSOLA onto
+/// `hz`, held `hold` seconds, +-`vibrato` cents. A new buffer at the source's
+/// rate, or 0 with the reason in lastError.
+pub fn retuneOf(src: i64, hz: f64, hold: f64, vibrato: f64) i64 {
+    const s = slotOf(src) orelse return 0;
+    const b = bufs.items[s];
+    if (b.channels != 1) {
+        bump(CTR_REFUSALS, 1);
+        setErr("retuneOf: the syllable must be mono -- ToMono first");
+        return 0;
+    }
+    const total: usize = @intFromFloat((hold + 0.05) * @as(f64, @floatFromInt(b.rate)) + 1);
+    const data = alloc.alloc(f32, total) catch {
+        setErr("out of memory allocating a retuned note");
+        return 0;
+    };
+    const marks = alloc.alloc(usize, b.frames / 16 + 64) catch {
+        alloc.free(data);
+        setErr("out of memory allocating pitch marks");
+        return 0;
+    };
+    defer alloc.free(marks);
+    const got = ins.retune(b.data[0..b.frames], b.rate, hz, hold, vibrato, marks, data);
+    if (got == 0) {
+        alloc.free(data);
+        bump(CTR_REFUSALS, 1);
+        setErr(if (ins.last_reason == ins.R_SILENT) "retuneOf: no voiced syllable found to retune" else ins.reasonText(ins.last_reason));
+        return 0;
+    }
+    return adopt(data, total, 1, b.rate);
+}
+
 /// The pitch of a mono buffer from `from`, by the harmonic instrument (a
 /// normalised period search, octave-guarded) or, with `spectral`, by the
 /// spectral one -- for drums and bars, whose partials are not harmonic.

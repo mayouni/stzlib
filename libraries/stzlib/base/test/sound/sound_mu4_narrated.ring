@@ -28,9 +28,15 @@ Chk("the plan's eight universes are declared", len(aU) = 8)
 bAll = TRUE
 for u in aU
 	o = StzSoundUniverseQ(u)
-	if NOT o.IsUsable() or len(o.Sources()) = 0 or o.Listener() != "UNPERCEIVED"  bAll = FALSE ok
+	# the Tunisian universe has been HEARD (2026-09-26) and its line says so;
+	# every other still reads UNPERCEIVED -- a listener line may only change
+	# when a person has listened
+	_cWant_ = "UNPERCEIVED"
+	if u = "tunisian"  _cWant_ = "HEARD" ok
+	if NOT o.IsUsable() or len(o.Sources()) = 0 or ring_left(o.Listener(), len(_cWant_)) != _cWant_  bAll = FALSE ok
 next
-Chk("each loads, names its sources, and reads UNPERCEIVED", bAll)
+Chk("each loads and names its sources; seven read UNPERCEIVED, and Tunisia records who heard it", bAll)
+? "   tunisian: " + StzSoundUniverseQ(:tunisian).Listener()
 nLogic = 0
 for u in aU
 	cT = read("../../sound/universes/" + u + ".ring")
