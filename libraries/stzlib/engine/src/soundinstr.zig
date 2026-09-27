@@ -1065,6 +1065,347 @@ pub fn renderNote(inst: u32, hz: f64, hz_end: f64, hold: f64, vel: f64, variant:
     return need;
 }
 
+// ── MU5: THE FORMANT VOICE -- five vowels, a pitch, a breath ────────────────
+//
+// The plan's MU5 (b): a source and a filter, the oldest model of a singing
+// voice there is. The SOURCE is a Rosenberg glottal pulse -- the airflow
+// through the vocal folds opening smoothly and closing faster -- differentiated
+// (the lips radiate the flow's derivative), with a slow vibrato and a breath of
+// noise that sounds only while the folds are open. The FILTER is five formant
+// resonators in parallel, from the Csound manual's formant table (tenor below
+// 330 Hz, soprano above): the vocal tract's resonances, which are what make an
+// "a" an "a" whatever the pitch.
+//
+// It is NOT one of MU1's twenty instruments, on purpose: those are a record
+// with its own guard, and a voice is judged by a different bar -- whether the
+// author hears SINGING -- which no number here can clear.
+//
+// THE PITCH IS EXACT BY CONSTRUCTION: a phase accumulator, no loop to tune, and
+// a vibrato symmetric in log frequency, so its centre is the note asked.
+
+pub const VOWEL_COUNT: u32 = 5; // a e i o u
+
+const Formant5 = struct { f: [5]f64, db: [5]f64, bw: [5]f64 };
+
+// Csound manual, "Formant values" (MiscFormants): tenor and soprano, a e i o u.
+const TENOR = [5]Formant5{
+    .{ .f = .{ 650, 1080, 2650, 2900, 3250 }, .db = .{ 0, -6, -7, -8, -22 }, .bw = .{ 80, 90, 120, 130, 140 } },
+    .{ .f = .{ 400, 1700, 2600, 3200, 3580 }, .db = .{ 0, -14, -12, -14, -20 }, .bw = .{ 70, 80, 100, 120, 120 } },
+    .{ .f = .{ 290, 1870, 2800, 3250, 3540 }, .db = .{ 0, -15, -18, -20, -30 }, .bw = .{ 40, 90, 100, 120, 120 } },
+    .{ .f = .{ 400, 800, 2600, 2800, 3000 }, .db = .{ 0, -10, -12, -12, -26 }, .bw = .{ 70, 80, 100, 130, 135 } },
+    .{ .f = .{ 350, 600, 2700, 2900, 3300 }, .db = .{ 0, -20, -17, -14, -26 }, .bw = .{ 40, 60, 100, 120, 120 } },
+};
+const SOPRANO = [5]Formant5{
+    .{ .f = .{ 800, 1150, 2900, 3900, 4950 }, .db = .{ 0, -6, -32, -20, -50 }, .bw = .{ 80, 90, 120, 130, 140 } },
+    .{ .f = .{ 350, 2000, 2800, 3600, 4950 }, .db = .{ 0, -20, -15, -40, -56 }, .bw = .{ 60, 100, 120, 150, 200 } },
+    .{ .f = .{ 270, 2140, 2950, 3900, 4950 }, .db = .{ 0, -12, -26, -26, -44 }, .bw = .{ 60, 90, 100, 120, 120 } },
+    .{ .f = .{ 450, 800, 2830, 3800, 4950 }, .db = .{ 0, -11, -22, -22, -50 }, .bw = .{ 40, 80, 100, 120, 120 } },
+    .{ .f = .{ 325, 700, 2700, 3800, 4950 }, .db = .{ 0, -16, -35, -40, -60 }, .bw = .{ 50, 60, 170, 180, 200 } },
+};
+
+pub const VOICE_LO: f64 = 80;
+pub const VOICE_HI: f64 = 1100;
+pub const VOICE_TAIL: f64 = 0.15;
+pub const VOICE_SPLIT: f64 = 330; // below: the tenor table; at or above: the soprano
+
+/// The first two formants of a vowel at a pitch -- what a guard holds the
+/// rendered spectrum against. [F1, F2] in Hz; zeros for a bad vowel.
+pub fn vowelFormants(vowel: u32, hz: f64) [2]f64 {
+    if (vowel >= VOWEL_COUNT) return .{ 0, 0 };
+    const t = if (hz < VOICE_SPLIT) TENOR[vowel] else SOPRANO[vowel];
+    return .{ t.f[0], t.f[1] };
+}
+
+pub fn vowelFrames(rate: u32, hold: f64) usize {
+    if (!(hold > 0 and hold <= 60)) return 0;
+    return @intFromFloat((hold + VOICE_TAIL) * @as(f64, @floatFromInt(rate)));
+}
+
+/// One sung vowel from hz0 to hz1 (a glide when they differ) over `hold`
+/// seconds, `breath` in [0, 1], a vibrato of +-`vibrato_cents`. Returns the frames written, or 0 (reason in
+/// last_reason).
+pub fn renderVowel(vowel: u32, hz0: f64, hz1_in: f64, hold: f64, vel: f64, breath: f64, vibrato_cents: f64, rate: u32, out: []f32) usize {
+    last_reason = R_OK;
+    const hz1 = if (hz1_in > 0) hz1_in else hz0;
+    if (vowel >= VOWEL_COUNT) {
+        last_reason = R_VARIANT;
+        return 0;
+    }
+    if (!(hz0 >= VOICE_LO and hz0 <= VOICE_HI and hz1 >= VOICE_LO and hz1 <= VOICE_HI)) {
+        last_reason = R_RANGE;
+        return 0;
+    }
+    if (!(vel > 0 and vel <= 1) or !(breath >= 0 and breath <= 1) or !(vibrato_cents >= 0 and vibrato_cents <= 100) or rate < 8000) {
+        last_reason = R_ARGS;
+        return 0;
+    }
+    const need = vowelFrames(rate, hold);
+    if (need == 0 or out.len < need) {
+        last_reason = R_BUFFER;
+        return 0;
+    }
+    const ratef: f64 = @floatFromInt(rate);
+    const tab = if (@sqrt(hz0 * hz1) < VOICE_SPLIT) TENOR[vowel] else SOPRANO[vowel];
+
+    // five resonators, each normalised to unit gain at its centre, then
+    // weighted by the table's level
+    var a1: [5]f64 = undefined;
+    var a2: [5]f64 = undefined;
+    var b0: [5]f64 = undefined;
+    var y1: [5]f64 = @splat(0);
+    var y2: [5]f64 = @splat(0);
+    for (0..5) |k| {
+        const r = @exp(-PI * tab.bw[k] / ratef);
+        const th = 2.0 * PI * tab.f[k] / ratef;
+        a1[k] = -2.0 * r * @cos(th);
+        a2[k] = r * r;
+        b0[k] = (1.0 - r) * @sqrt(1.0 - 2.0 * r * @cos(2.0 * th) + r * r) * std.math.pow(f64, 10.0, tab.db[k] / 20.0);
+    }
+
+    const OPEN: f64 = 0.40; // the folds opening, as a fraction of the period
+    const CLOSE: f64 = 0.16; // closing -- faster, which is what gives the pulse its edge
+    const VIB_HZ: f64 = 5.5;
+    // the vibrato's depth is the caller's (a singer's is some +-25 cents), reached
+    // by 0.35 s: a singer's vibrato arrives, it does not start
+    const VIB_CENTS: f64 = vibrato_cents;
+    const ATTACK: f64 = 0.06;
+    var rng = Lcg{};
+    var ph: f64 = 0;
+    var g_prev: f64 = 0;
+    const hold_f: f64 = hold * ratef;
+    for (out[0..need], 0..) |*o, n| {
+        const t = @as(f64, @floatFromInt(n)) / ratef;
+        const depth = VIB_CENTS * @min(1.0, t / 0.35);
+        const f = hzAt(hz0, hz1, t, hold) * std.math.pow(f64, 2.0, depth * @sin(2.0 * PI * VIB_HZ * t) / 1200.0);
+        ph += f / ratef;
+        if (ph >= 1.0) ph -= 1.0;
+        const g: f64 = if (ph < OPEN)
+            0.5 * (1.0 - @cos(PI * ph / OPEN))
+        else if (ph < OPEN + CLOSE)
+            @cos(PI * (ph - OPEN) / (2.0 * CLOSE))
+        else
+            0;
+        var x = g - g_prev; // the lips radiate the DERIVATIVE of the flow
+        g_prev = g;
+        x += breath * 0.02 * g * @as(f64, rng.next()); // aspiration, only while open
+        var s: f64 = 0;
+        for (0..5) |k| {
+            const y = b0[k] * x - a1[k] * y1[k] - a2[k] * y2[k];
+            y2[k] = y1[k];
+            y1[k] = y;
+            s += y;
+        }
+        // attack, hold, then a release over the tail
+        const nf: f64 = @floatFromInt(n);
+        var env: f64 = 1.0;
+        if (t < ATTACK) env = 0.5 * (1.0 - @cos(PI * t / ATTACK));
+        if (nf > hold_f) env = @max(0.0, 1.0 - (nf - hold_f) / (VOICE_TAIL * ratef));
+        o.* = @floatCast(s * env);
+    }
+    if (!finish(out[0..need], vel, rate)) {
+        last_reason = R_SILENT;
+        return 0;
+    }
+    return need;
+}
+
+// ── MU5 (a'): A SPEAKING VOICE, RETUNED -- PSOLA ────────────────────────────
+//
+// The author heard SAPI and said it is "very close from real human voice".
+// It failed MU5's (a) only because it cannot HOLD a note: asked for +6
+// semitones it moves 2.5, and within one syllable its pitch slides 300-500
+// cents -- speech intonation. So (a') keeps the voice and takes the pitch
+// away from it: Pitch-Synchronous Overlap-Add.
+//
+//   1. find where the syllable is VOICED, and its period there;
+//   2. mark each glottal period (a pitch mark on each cycle's largest peak),
+//      tracking the period as it moves;
+//   3. build the output by laying one two-period, Hann-windowed GRAIN per
+//      output period, spaced by the TARGET period -- each grain taken from the
+//      analysis mark nearest the same relative moment.
+//
+// The grain carries the vocal tract's resonances (the formants, which make it
+// sound like THAT voice saying THAT vowel); the spacing carries the pitch. So
+// the timbre stays human and the pitch becomes the engine's, held exactly --
+// and a note can be longer than the syllable, because grains may repeat.
+//
+// The unvoiced start of a syllable (an "s", a "t") is copied through as it
+// is: it has no pitch to correct. Large shifts sound processed; how large is
+// the author's ear, and the guard measures how far it was asked to go.
+
+pub const RETUNE_MIN_MARKS: usize = 4;
+
+/// The normalised square difference of `x` at `at` for lag `lag` over `win`.
+fn nsdfAt(x: []const f32, at: usize, lag: usize, win: usize) f64 {
+    if (at + win + lag >= x.len) return 0;
+    var acf: f64 = 0;
+    var m: f64 = 0;
+    var i: usize = at;
+    while (i < at + win) : (i += 1) {
+        const a: f64 = x[i];
+        const b: f64 = x[i + lag];
+        acf += a * b;
+        m += a * a + b * b;
+    }
+    return if (m > 0) 2.0 * acf / m else 0;
+}
+
+/// The local period near `at`, searched between 0.7 and 1.4 of `guess`, over
+/// a window of two guesses -- short enough to follow speech. 0 = unvoiced here.
+fn localPeriod(x: []const f32, at: usize, guess: f64) f64 {
+    const lo: usize = @intFromFloat(@max(2.0, @floor(guess * 0.7)));
+    const hi: usize = @intFromFloat(@ceil(guess * 1.4));
+    const win: usize = @intFromFloat(@ceil(guess * 2.0));
+    if (at + win + hi + 2 >= x.len) return 0;
+    var best: f64 = -1;
+    var bl: usize = 0;
+    var l: usize = lo;
+    while (l <= hi) : (l += 1) {
+        const v = nsdfAt(x, at, l, win);
+        if (v > best) {
+            best = v;
+            bl = l;
+        }
+    }
+    if (best < 0.6 or bl == lo or bl == hi) return 0;
+    const a = nsdfAt(x, at, bl - 1, win);
+    const c = nsdfAt(x, at, bl + 1, win);
+    const den = a - 2.0 * best + c;
+    const d = if (den != 0) 0.5 * (a - c) / den else 0;
+    return @as(f64, @floatFromInt(bl)) + d;
+}
+
+pub var last_retune_marks: usize = 0; // how many periods the last retune found
+pub var last_retune_from_hz: f64 = 0; // the syllable's own pitch, at its voiced middle
+
+/// Retune a spoken syllable `x` (mono, at `rate`) onto `target_hz`, held for
+/// `hold` seconds, with a vibrato of +-`vib_cents`. `marks` is scratch for the
+/// pitch marks (x.len / 16 is ample). Returns the frames written to `out`
+/// (hold + 0.05 s), or 0 with the reason in last_reason.
+pub fn retune(x: []const f32, rate: u32, target_hz: f64, hold: f64, vib_cents: f64, marks: []usize, out: []f32) usize {
+    last_reason = R_OK;
+    last_retune_marks = 0;
+    last_retune_from_hz = 0;
+    const ratef: f64 = @floatFromInt(rate);
+    if (!(target_hz >= 60 and target_hz <= 1000) or !(hold > 0.05 and hold <= 30) or !(vib_cents >= 0 and vib_cents <= 100)) {
+        last_reason = R_ARGS;
+        return 0;
+    }
+    const total: usize = @intFromFloat((hold + 0.05) * ratef);
+    if (out.len < total or x.len < 4096) {
+        last_reason = R_BUFFER;
+        return 0;
+    }
+    // 1. the sound's extent, and its pitch where it is loudest
+    var peak: f32 = 0;
+    var pk_at: usize = 0;
+    for (x, 0..) |v, i| {
+        if (@abs(v) > peak) {
+            peak = @abs(v);
+            pk_at = i;
+        }
+    }
+    if (peak < 1e-4) {
+        last_reason = R_SILENT;
+        return 0;
+    }
+    var onset: usize = 0;
+    while (onset < x.len and @abs(x[onset]) < 0.02 * peak) onset += 1;
+    const mid = if (pk_at > MEASURE_WINDOW / 2) pk_at - MEASURE_WINDOW / 2 else 0;
+    const f_mid = measureHzWide(x, rate, mid, 170);
+    if (!(f_mid > 0)) {
+        last_reason = R_SILENT; // no voiced part found: nothing to retune
+        return 0;
+    }
+    last_retune_from_hz = f_mid;
+    var guess = ratef / f_mid;
+    // where voicing starts: walk forward from the onset until periodic
+    var vstart: usize = onset;
+    while (vstart + 3 * @as(usize, @intFromFloat(guess)) < x.len and localPeriod(x, vstart, guess) == 0) {
+        vstart += @intFromFloat(guess / 2.0);
+    }
+    // 2. pitch marks: each cycle's largest positive peak, tracked
+    const p0: usize = @intFromFloat(guess);
+    var m: usize = vstart;
+    {
+        var i = vstart;
+        while (i < vstart + p0 and i < x.len) : (i += 1) {
+            if (x[i] > x[m]) m = i;
+        }
+    }
+    var nm: usize = 0;
+    while (nm < marks.len) {
+        marks[nm] = m;
+        nm += 1;
+        const p = localPeriod(x, m, guess);
+        if (p == 0) break; // the voice has stopped
+        guess = p;
+        const lo: usize = m + @as(usize, @intFromFloat(p * 0.85));
+        const hi: usize = m + @as(usize, @intFromFloat(p * 1.15));
+        if (hi >= x.len) break;
+        var nx = lo;
+        var i = lo;
+        while (i <= hi) : (i += 1) {
+            if (x[i] > x[nx]) nx = i;
+        }
+        m = nx;
+    }
+    last_retune_marks = nm;
+    if (nm < RETUNE_MIN_MARKS) {
+        last_reason = R_SILENT;
+        return 0;
+    }
+    const vend = marks[nm - 1];
+    // 3. the output: the unvoiced start as it was, then grains at the target period
+    @memset(out[0..total], 0);
+    const prefix: usize = @min(vstart - onset, total / 4);
+    for (0..prefix) |i| out[i] = x[onset + i];
+    const vlen_in: f64 = @floatFromInt(vend - marks[0]);
+    const vlen_out: f64 = @as(f64, @floatFromInt(total)) - @as(f64, @floatFromInt(prefix)) - 0.05 * ratef;
+    var s: f64 = @floatFromInt(prefix);
+    var k: usize = 0;
+    while (s < @as(f64, @floatFromInt(total)) - 0.05 * ratef) {
+        const u = (s - @as(f64, @floatFromInt(prefix))) / vlen_out;
+        const ta = @as(f64, @floatFromInt(marks[0])) + u * vlen_in;
+        while (k + 1 < nm and @as(f64, @floatFromInt(marks[k + 1])) <= ta) k += 1;
+        if (k + 1 < nm and ta - @as(f64, @floatFromInt(marks[k])) > @as(f64, @floatFromInt(marks[k + 1])) - ta) k += 1;
+        const mk = marks[k];
+        const left: usize = if (k > 0) mk - marks[k - 1] else (if (k + 1 < nm) marks[k + 1] - mk else p0);
+        const right: usize = if (k + 1 < nm) marks[k + 1] - mk else left;
+        const si: usize = @intFromFloat(@round(s));
+        var j: usize = 0;
+        while (j < left + right) : (j += 1) {
+            const src = mk + j;
+            if (src < left or src - left >= x.len) continue;
+            const dst = si + j;
+            if (dst < left or dst - left >= total) continue;
+            // an asymmetric Hann: up over the left period, down over the right
+            const w: f64 = if (j < left)
+                0.5 - 0.5 * @cos(PI * @as(f64, @floatFromInt(j)) / @as(f64, @floatFromInt(left)))
+            else
+                0.5 + 0.5 * @cos(PI * @as(f64, @floatFromInt(j - left)) / @as(f64, @floatFromInt(right)));
+            out[dst - left] += @floatCast(w * x[src - left]);
+        }
+        const t = s / ratef;
+        const depth = vib_cents * @min(1.0, t / 0.35);
+        const f = target_hz * std.math.pow(f64, 2.0, depth * @sin(2.0 * PI * 5.5 * t) / 1200.0);
+        s += ratef / f;
+    }
+    // the last 40 ms fade, so the note ends rather than stops
+    const fade: usize = @intFromFloat(0.04 * ratef);
+    const endv: usize = @intFromFloat(@as(f64, @floatFromInt(total)) - 0.05 * ratef);
+    var q: usize = 0;
+    while (q < fade and endv > q) : (q += 1) {
+        out[endv - q - 1] *= @floatCast(@as(f64, @floatFromInt(q)) / @as(f64, @floatFromInt(fade)));
+    }
+    for (out[endv..total]) |*o| o.* = 0;
+    if (!finish(out[0..total], 0.8, rate)) {
+        last_reason = R_SILENT;
+        return 0;
+    }
+    return total;
+}
+
 // ── tests ───────────────────────────────────────────────────────────────────
 
 const testing = std.testing;
@@ -1156,4 +1497,106 @@ test "every pitched instrument, low, middle and high, is within 2 cents" {
         }
     }
     try testing.expectEqual(@as(usize, 0), bad);
+}
+
+test "MU5: a sung vowel is on its pitch -- held, and centred under its vibrato" {
+    const rate: u32 = 48000;
+    var buf: [120000]f32 = undefined;
+    const vowels = [_]u32{ 0, 1, 2, 3, 4 };
+    const pitches = [_]f64{ 147, 220, 440, 660 };
+    // WITH NO VIBRATO the pitch instrument has one pitch to read: this is the
+    // claim "exact by construction", held to the plan's 2 cents
+    var worst: f64 = 0;
+    for (vowels) |v| {
+        for (pitches) |hz| {
+            @memset(&buf, 0);
+            const n = renderVowel(v, hz, hz, 2.0, 0.8, 0.2, 0, rate, &buf);
+            try testing.expect(n > 0);
+            const r = measureHz(buf[0..n], rate, 24000, hz);
+            try testing.expect(r > 0);
+            worst = @max(worst, @abs(1200.0 * @log2(r / hz)));
+        }
+    }
+    std.debug.print("\n  MU5 formant voice, no vibrato: worst over 5 vowels x 4 pitches {d:.3} cents\n", .{worst});
+    try testing.expect(worst < 2.0);
+
+    // WITH a singer's vibrato the centre is still the note -- read 32 times,
+    // EVENLY across four whole vibrato cycles. The first version read 16 times
+    // 50 ms apart, which samples a 5.5 Hz vibrato unevenly and reported up to
+    // 8 cents of bias the voice does not have.
+    var worst_v: f64 = 0;
+    for ([_]u32{ 0, 4 }) |v| {
+        for ([_]f64{ 220, 440 }) |hz| {
+            @memset(&buf, 0);
+            const n = renderVowel(v, hz, hz, 2.0, 0.8, 0.2, 25, rate, &buf);
+            const per: f64 = 48000.0 / 5.5; // one vibrato cycle, in frames
+            var acc: f64 = 0;
+            var k: usize = 0;
+            while (k < 32) : (k += 1) {
+                const at: usize = @intFromFloat(24000.0 + per * 4.0 * @as(f64, @floatFromInt(k)) / 32.0);
+                const r = measureHz(buf[0..n], rate, at, hz);
+                try testing.expect(r > 0);
+                acc += 1200.0 * @log2(r / hz);
+            }
+            worst_v = @max(worst_v, @abs(acc / 32.0));
+        }
+    }
+    std.debug.print("  MU5 formant voice, 25-cent vibrato: worst centre {d:.3} cents\n", .{worst_v});
+    try testing.expect(worst_v < 2.0);
+
+    try testing.expectEqual(@as(usize, 0), renderVowel(5, 220, 220, 1.0, 0.8, 0.2, 25, rate, &buf));
+    try testing.expectEqual(R_VARIANT, last_reason);
+    try testing.expectEqual(@as(usize, 0), renderVowel(0, 50, 50, 1.0, 0.8, 0.2, 25, rate, &buf));
+    try testing.expectEqual(R_RANGE, last_reason);
+}
+
+test "MU5 (a'): a syllable whose pitch FALLS is retuned to hold one note -- and silence is refused" {
+    const rate: u32 = 22050;
+    const ratef: f64 = 22050;
+    var x: [26460]f32 = @splat(0); // 1.2 s: 0.1 s of silence, then a 'vowel'
+    // an impulse per glottal period, the pitch falling 180 -> 140 Hz as speech
+    // does, through two resonances (a formant-like 'a')
+    var ph: f64 = 0;
+    var y1a: f64 = 0;
+    var y2a: f64 = 0;
+    var y1b: f64 = 0;
+    var y2b: f64 = 0;
+    const ra = @exp(-PI * 100.0 / ratef);
+    const rb = @exp(-PI * 120.0 / ratef);
+    const ta = 2.0 * PI * 700.0 / ratef;
+    const tb = 2.0 * PI * 1200.0 / ratef;
+    var n: usize = 2205;
+    while (n < x.len) : (n += 1) {
+        const t = @as(f64, @floatFromInt(n - 2205)) / ratef;
+        const f = 180.0 * std.math.pow(f64, 140.0 / 180.0, t / 1.1);
+        ph += f / ratef;
+        var e: f64 = 0;
+        if (ph >= 1.0) {
+            ph -= 1.0;
+            e = 1.0;
+        }
+        const ya = e - (-2.0 * ra * @cos(ta)) * y1a - ra * ra * y2a;
+        y2a = y1a;
+        y1a = ya;
+        const yb = e - (-2.0 * rb * @cos(tb)) * y1b - rb * rb * y2b;
+        y2b = y1b;
+        y1b = yb;
+        x[n] = @floatCast(0.02 * ya + 0.01 * yb);
+    }
+    var marks: [4096]usize = undefined;
+    var out: [30000]f32 = undefined;
+    const got = retune(&x, rate, 220, 1.2, 0, &marks, &out);
+    try testing.expect(got > 0);
+    std.debug.print("\n  MU5 (a'): {d} marks, source pitch {d:.1} Hz", .{ last_retune_marks, last_retune_from_hz });
+    var worst: f64 = 0;
+    for ([_]f64{ 0.25, 0.55, 0.85 }) |at| {
+        const r = measureHz(out[0..got], rate, @intFromFloat(at * ratef), 220);
+        try testing.expect(r > 0);
+        worst = @max(worst, @abs(1200.0 * @log2(r / 220.0)));
+    }
+    std.debug.print(", retuned to 220 Hz: worst {d:.3} cents at 0.25 / 0.55 / 0.85 s\n", .{worst});
+    try testing.expect(worst < 2.0);
+    // the NEGATIVE: silence has nothing to retune
+    const zero: [8000]f32 = @splat(0);
+    try testing.expectEqual(@as(usize, 0), retune(&zero, rate, 220, 1.0, 0, &marks, &out));
 }

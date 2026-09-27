@@ -86,5 +86,5 @@ func StzSoundUniverseData_tunisian()
 			"CREM-CNRS archive, Tunisie: Anthologie du Malouf -- Nuba al-ramal (booklet by Fethi Zghonda, 1992): the iqa'at and their meters",
 			"khafif.com/rhy (btayhi, 'Tunisia' variant); zictrad.free.fr/Afrique/Tunisie.htm (barwal, fazzani) -- amateur, low" ],
 		:confidence = "skeletons high, cents derived not measured, strokes low where given and absent where not",
-		:listener = "UNPERCEIVED"
+		:listener = "HEARD 2026-09-26 by the Principal (Mansour Ayouni), through five ORIGINAL examples written in this universe (not committed): 'far from being qualified'. Which part fails -- the tuning, the phrasing, the rhythms or the synthetic timbre -- is not yet said"
 	]
