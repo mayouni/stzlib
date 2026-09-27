@@ -77,6 +77,9 @@ class stzSoundUniverse
 	@cLastError = ""
 	@nRefusals = 0
 	@aNotes = []            # [ beat, degree, cents, hz, ornament ] -- what the last Perform played
+	@aSonified = []         # MU7: the degrees the last SonifyQ chose
+	@cSonifiedPhrase = ""
+	@nSonifiedTop = 0
 
 	def init(pName)
 		_c_ = lower("" + pName)
@@ -359,6 +362,237 @@ class stzSoundUniverse
 			_at_ += _units_
 		next
 		return _oS_
+
+	#-- MU7: RENDER -- a series of numbers becomes a MELODY in this universe --
+	#
+	# The plan's MU7 row "data -> melody in a declared universe": sonification
+	# that a listener from the tradition would hear as music, not as a meter.
+	# The lowest value sits on degree 1 and the highest two octaves of the
+	# mode up; one note per beat of the cycle, the cycle's own rhythm under it,
+	# the mode's movement and ornaments applied as for any phrase. A series
+	# with no spread is refused rather than played as one repeated note.
+	def SonifyQ(paValues)
+		_oS_ = StzSoundScoreQ().Tempo(@nTempo)
+		_n_ = len(This._Get(@aMode, :degrees, []))
+		if _n_ = 0
+			This._Refuse("SonifyQ: " + This.Title() + " declares no scale -- a series needs degrees to become a melody")
+			return _oS_
+		ok
+		if NOT isList(paValues) or len(paValues) < 2
+			This._Refuse("SonifyQ: a series of two numbers or more")
+			return _oS_
+		ok
+		_lo_ = paValues[1]
+		_hi_ = paValues[1]
+		for _v_ in paValues
+			if NOT isNumber(_v_)
+				This._Refuse("SonifyQ: every value is a number")
+				return _oS_
+			ok
+			if _v_ < _lo_  _lo_ = _v_ ok
+			if _v_ > _hi_  _hi_ = _v_ ok
+		next
+		if _hi_ = _lo_
+			This._Refuse("SonifyQ: the series does not move -- one value would be one note, repeated")
+			return _oS_
+		ok
+		# degrees 1 .. 2n -- two octaves of the mode -- but never past what the
+		# melody instrument can play. The first cut did not ask: a series put
+		# degree 14 of Rast (959 Hz) on the oud, whose top is 700, the note was
+		# refused, and the melody came out one note short.
+		_top_ = 2 * _n_
+		_oI_ = StzSoundInstrumentQ(@cMelody)
+		if _oI_.IsUsable()
+			_hi_I_ = _oI_.Range()[2]
+			while _top_ > 2 and This.HzOf("" + _top_, FALSE) > _hi_I_  _top_-- end
+		ok
+		@nSonifiedTop = _top_
+		_B_ = This._Get(@aCycle, :beats, 4)
+		@aSonified = []
+		_cPh_ = "<"
+		_k_ = 0
+		for _v_ in paValues
+			_d_ = 1 + floor((_v_ - _lo_) / (_hi_ - _lo_) * (_top_ - 1) + 0.5)
+			@aSonified + _d_
+			if _k_ % _B_ = 0
+				if _k_ > 0  _cPh_ += "] " ok
+				_cPh_ += "["
+			else
+				_cPh_ += " "
+			ok
+			_cPh_ += "" + _d_
+			_k_++
+		next
+		while _k_ % _B_ != 0
+			_cPh_ += " ~"
+			_k_++
+		end
+		_cPh_ += "]>"
+		@cSonifiedPhrase = _cPh_
+		return This.PerformQ(_cPh_, _k_ / _B_)
+
+	# the degrees the last SonifyQ chose, one per value
+	def SonifiedDegrees()
+		return @aSonified
+
+	# the highest degree it allowed -- 2n, or fewer when the instrument is short
+	def SonifiedTop()
+		return @nSonifiedTop
+
+	def SonifiedPhrase()
+		return @cSonifiedPhrase
+
+	#-- MU7 (Niger's row): TEXT -> DRUM ------------------------------------------
+	#
+	# Hausa is tonal: High, Low, and Falling (High then Low on one heavy
+	# syllable) -- Newman (1996). In writing the tones are marked the way
+	# Newman's dictionary marks them: NO mark is High, a grave (a-grave) is
+	# Low, a circumflex (a-circumflex) is Falling; a doubled vowel or a macron
+	# is long. Everyday Hausa writing marks NO tones at all -- so text without
+	# a single mark is REFUSED: read as all-High it would be a confident lie.
+	#
+	# ToneSyllables returns what was read; DrumTonesQ plays it on the drum.
+	# SayOnDrum is the verb the plan names, and it is GATED: text -> drum is
+	# speech only if a Hausa speaker hears the sentence back, and until one has
+	# (the declaration's :talkingdrum verdict), it refuses with that reason.
+
+	def ToneSyllables(pcText)
+		_aL_ = This._HausaLetters("" + pcText)
+		_bMarked_ = FALSE
+		for _l_ in _aL_
+			if _l_[3] != "H" and _l_[2] = "v"  _bMarked_ = TRUE ok
+			if _l_[5]  _bMarked_ = TRUE ok
+		next
+		if NOT _bMarked_
+			This._Refuse("ToneSyllables: this Hausa carries no tone marks. Everyday writing leaves tone out; mark it as Newman's dictionary does -- no mark = High, a grave = Low, a circumflex = Falling")
+			return []
+		ok
+		_aOut_ = []
+		_i_ = 1
+		_n_ = len(_aL_)
+		while _i_ <= _n_
+			if _aL_[_i_][2] = " "
+				_i_++
+				loop
+			ok
+			_syl_ = ""
+			_tone_ = ""
+			_units_ = 1
+			# onset: consonants up to the vowel
+			while This._Kind(_aL_, _i_) = "c"
+				_syl_ += _aL_[_i_][1]
+				_i_++
+			end
+			if This._Kind(_aL_, _i_) != "v"
+				if _syl_ != ""  _aOut_ + [ _syl_, "H", 1 ] ok      # a stray consonant: carried, not dropped
+				loop
+			ok
+			_syl_ += _aL_[_i_][1]
+			_tone_ = _aL_[_i_][3]
+			if _aL_[_i_][4]  _units_ = 2 ok
+			_i_++
+			# a second vowel: long (the same vowel) or a diphthong -- heavy
+			if This._Kind(_aL_, _i_) = "v"
+				_syl_ += _aL_[_i_][1]
+				_units_ = 2
+				_i_++
+			ok
+			# a coda: one consonant, when the next is a consonant too or the word ends
+			if This._Kind(_aL_, _i_) = "c" and This._Kind(_aL_, _i_ + 1) != "v"
+				_syl_ += _aL_[_i_][1]
+				_i_++
+			ok
+			_aOut_ + [ _syl_, _tone_, _units_ ]
+		end
+		return _aOut_
+
+	def DrumTonesQ(pcText)
+		_oS_ = StzSoundScoreQ().Tempo(@nTempo)
+		_aSy_ = This.ToneSyllables(pcText)
+		if len(_aSy_) = 0  return _oS_ ok
+		_drum_ = This._Get(@aU, :drum, "")
+		if _drum_ = ""
+			This._Refuse("DrumTonesQ: " + This.Title() + " declares no talking drum")
+			return _oS_
+		ok
+		_aTP_ = This._Get(@aU, :tonepitch, [])
+		_h_ = This._Get(_aTP_, :h, 0)
+		_lo_ = This._Get(_aTP_, :l, 0)
+		_oS_.On(_drum_)
+		_at_ = 0
+		@aNotes = []
+		for _y_ in _aSy_
+			_u_ = _y_[3] * 0.5
+			switch _y_[2]
+			on "H"  _oS_.NoteAt(_at_, _h_, _u_)
+			        @aNotes + [ _at_, _y_[1], "H", _h_, "" ]
+			on "L"  _oS_.NoteAt(_at_, _lo_, _u_)
+			        @aNotes + [ _at_, _y_[1], "L", _lo_, "" ]
+			on "F"  _oS_.GlideAt(_at_, _h_, _lo_, _u_)
+			        @aNotes + [ _at_, _y_[1], "F", _h_, "fall" ]
+			off
+			_at_ += _u_
+		next
+		return _oS_
+
+	def SayOnDrum(pcText)
+		_aV_ = This._Get(@aU, :talkingdrum, [])
+		_v_ = This._Get(_aV_, :verdict, "")
+		if _v_ != "SPEAKS"
+			This._Refuse("SayOnDrum is not available: " + This._Get(_aV_, :why, "no Hausa speaker has heard it") +
+			             " (verdict: " + _v_ + ")")
+			return NULL
+		ok
+		return This.DrumTonesQ(pcText)
+
+	# the kind of letter i, or "" past the end -- so no loop leans on whether
+	# `and` short-circuits
+	def _Kind(paL, pnI)
+		if pnI < 1 or pnI > len(paL)  return "" ok
+		return paL[pnI][2]
+
+	# UTF-8 Hausa -> [ letter, kind ("v", "c" or " "), tone, long, marked ]
+	def _HausaLetters(pcText)
+		_aL_ = []
+		_k_ = 1
+		_n_ = len(pcText)
+		while _k_ <= _n_
+			_b_ = ascii(pcText[_k_])
+			if _b_ < 128
+				_c_ = lower(pcText[_k_])
+				if ring_find([ "a", "e", "i", "o", "u" ], _c_) > 0
+					_aL_ + [ _c_, "v", "H", FALSE, FALSE ]
+				but _c_ = " " or _c_ = "-" or _c_ = "," or _c_ = "."
+					_aL_ + [ " ", " ", "", FALSE, FALSE ]
+				else
+					_aL_ + [ _c_, "c", "", FALSE, FALSE ]
+				ok
+				_k_++
+				loop
+			ok
+			# two-byte UTF-8: the Latin-1 supplement and Latin Extended-A
+			_b2_ = 0
+			if _k_ < _n_  _b2_ = ascii(pcText[_k_ + 1]) ok
+			_cp_ = (_b_ % 32) * 64 + (_b2_ % 64)
+			_aV_ = [ [ 224, "a", "L", FALSE ], [ 225, "a", "H", FALSE ], [ 226, "a", "F", FALSE ],
+			         [ 232, "e", "L", FALSE ], [ 233, "e", "H", FALSE ], [ 234, "e", "F", FALSE ],
+			         [ 236, "i", "L", FALSE ], [ 237, "i", "H", FALSE ], [ 238, "i", "F", FALSE ],
+			         [ 242, "o", "L", FALSE ], [ 243, "o", "H", FALSE ], [ 244, "o", "F", FALSE ],
+			         [ 249, "u", "L", FALSE ], [ 250, "u", "H", FALSE ], [ 251, "u", "F", FALSE ],
+			         [ 257, "a", "H", TRUE ], [ 275, "e", "H", TRUE ], [ 299, "i", "H", TRUE ],
+			         [ 333, "o", "H", TRUE ], [ 363, "u", "H", TRUE ] ]
+			_found_ = FALSE
+			for _v_ in _aV_
+				if _v_[1] = _cp_
+					_aL_ + [ _v_[2], "v", _v_[3], _v_[4], TRUE ]
+					_found_ = TRUE
+					exit
+				ok
+			next
+			if NOT _found_  _aL_ + [ "?", "c", "", FALSE, FALSE ] ok     # a hooked consonant, and the like
+			_k_ += 2
+		end
+		return _aL_
 
 	def ToSound(pcPhrase, pnCycles)
 		return This.PerformQ(pcPhrase, pnCycles).ToSound()

@@ -1209,6 +1209,46 @@ pub fn renderVowel(vowel: u32, hz0: f64, hz1_in: f64, hold: f64, vel: f64, breat
     return need;
 }
 
+// ── MU7: a pitch reader that does not need to be told the answer ────────────
+//
+// Every pitch reader above is handed a GUESS and searches near it -- right for
+// a tuner, which knows what it asked for; useless for transcription, which
+// does not. This one searches the whole range asked (fmin .. fmax) with
+// McLeod's normalised square difference, takes the FIRST peak within 0.9 of
+// the highest (the rule that keeps it off the octave below), and refines it
+// with a parabola. It also reports how periodic the window was -- `clarity`,
+// the peak's height, 0..1 -- which is what a transcription calls confidence.
+
+pub var last_clarity: f64 = 0;
+
+pub fn detectPitch(x: []const f32, rate: u32, from: usize, win: usize, fmin: f64, fmax: f64) f64 {
+    last_clarity = 0;
+    if (!(fmin > 0 and fmax > fmin)) return 0;
+    const ratef: f64 = @floatFromInt(rate);
+    const lo: usize = @intFromFloat(@max(2.0, @floor(ratef / fmax)));
+    const hi: usize = @intFromFloat(@ceil(ratef / fmin));
+    if (hi - lo + 1 > MAX_LAGS or from + win + hi + 2 > x.len) return 0;
+    var nsdf: [MAX_LAGS]f64 = undefined;
+    var l: usize = lo;
+    while (l <= hi) : (l += 1) nsdf[l - lo] = nsdfAt(x, from, l, win);
+    const n = hi - lo + 1;
+    var top: f64 = 0;
+    for (nsdf[0..n]) |v| top = @max(top, v);
+    if (top < 0.3) return 0;
+    var k: usize = 1;
+    while (k + 1 < n) : (k += 1) {
+        if (nsdf[k] >= nsdf[k - 1] and nsdf[k] >= nsdf[k + 1] and nsdf[k] >= 0.9 * top) break;
+    }
+    if (k + 1 >= n) return 0;
+    const a = nsdf[k - 1];
+    const b = nsdf[k];
+    const c = nsdf[k + 1];
+    const den = a - 2.0 * b + c;
+    const d = if (den != 0) 0.5 * (a - c) / den else 0;
+    last_clarity = b;
+    return ratef / (@as(f64, @floatFromInt(lo + k)) + d);
+}
+
 // ── MU5 (a'): A SPEAKING VOICE, RETUNED -- PSOLA ────────────────────────────
 //
 // The author heard SAPI and said it is "very close from real human voice".
@@ -1599,4 +1639,30 @@ test "MU5 (a'): a syllable whose pitch FALLS is retuned to hold one note -- and 
     // the NEGATIVE: silence has nothing to retune
     const zero: [8000]f32 = @splat(0);
     try testing.expectEqual(@as(usize, 0), retune(&zero, rate, 220, 1.0, 0, &marks, &out));
+}
+
+test "MU7: the unguided pitch reader finds the note with no guess -- and noise has no pitch" {
+    const rate: u32 = 48000;
+    var buf: [60000]f32 = undefined;
+    var scr: [57600]f32 = undefined;
+    var worst: f64 = 0;
+    var clar: f64 = 1;
+    for ([_]f64{ 110, 196, 330, 523.25, 880 }) |hz| {
+        @memset(&buf, 0);
+        const n = renderNote(1, hz, hz, 1.0, 0.8, 0, rate, &buf, &scr); // guitar
+        try testing.expect(n > 0);
+        const r = detectPitch(buf[0..n], rate, 4800, 2048, 50, 2000);
+        try testing.expect(r > 0);
+        worst = @max(worst, @abs(1200.0 * @log2(r / hz)));
+        clar = @min(clar, last_clarity);
+    }
+    std.debug.print("\n  MU7 unguided pitch: guitar 110..880 Hz, worst {d:.3} cents, lowest clarity {d:.3}\n", .{ worst, clar });
+    try testing.expect(worst < 2.0);
+    try testing.expect(clar > 0.8);
+    // the NEGATIVE: white noise is not a note
+    var rng = Lcg{};
+    for (&buf) |*v| v.* = rng.next() * 0.5;
+    const rn = detectPitch(&buf, rate, 4800, 2048, 50, 2000);
+    std.debug.print("  MU7 unguided pitch on noise: {d:.1} Hz, clarity {d:.3}\n", .{ rn, last_clarity });
+    try testing.expect(rn == 0 or last_clarity < 0.5);
 }

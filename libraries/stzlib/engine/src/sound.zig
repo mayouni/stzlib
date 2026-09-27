@@ -450,6 +450,16 @@ pub fn retuneOf(src: i64, hz: f64, hold: f64, vibrato: f64) i64 {
     return adopt(data, total, 1, b.rate);
 }
 
+/// MU7: the pitch of a mono buffer at `from` with NO guess -- anywhere in
+/// fmin..fmax -- over a window of `win` frames. 0 when there is none; how
+/// periodic the window was is left in ins.last_clarity (0..1).
+pub fn pitchOf(id: i64, from: usize, win: usize, fmin: f64, fmax: f64) f64 {
+    const s = slotOf(id) orelse return 0;
+    const b = bufs.items[s];
+    if (b.channels != 1) return 0;
+    return ins.detectPitch(b.data[0..b.frames], b.rate, from, win, fmin, fmax);
+}
+
 /// The pitch of a mono buffer from `from`, by the harmonic instrument (a
 /// normalised period search, octave-guarded) or, with `spectral`, by the
 /// spectral one -- for drums and bars, whose partials are not harmonic.

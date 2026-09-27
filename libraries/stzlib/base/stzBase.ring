@@ -146,6 +146,8 @@ ok
     load "sound/universes/gamelan.ring"
     load "sound/stzSoundFormantVoice.ring"
     load "sound/stzSoundRetunedVoice.ring"
+    load "sound/stzSoundTranscriber.ring"
+    load "sound/stzSoundNotation.ring"
     load "sound/stzMusic.ring"
     load "sound/stzMicrophone.ring"
 

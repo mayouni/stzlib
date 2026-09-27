@@ -166,6 +166,18 @@ fn ring_RetuneFromHz(p: *anyopaque) callconv(.c) void {
     rn(p, ins.last_retune_from_hz);
 }
 
+// MU7: PitchOf(buffer, fromFrame1, window, fmin, fmax) -> Hz or 0, with no
+// guess; PitchClarity() -> how periodic that window was (0..1)
+fn ring_PitchOf(p: *anyopaque) callconv(.c) void {
+    const f1 = gn(p, 2);
+    const f0: usize = if (f1 < 1) 0 else @intFromFloat(f1 - 1);
+    rn(p, snd.pitchOf(id(p, 1), f0, @intFromFloat(gn(p, 3)), gn(p, 4), gn(p, 5)));
+}
+
+fn ring_PitchClarity(p: *anyopaque) callconv(.c) void {
+    rn(p, ins.last_clarity);
+}
+
 fn ring_NoteRawCents(p: *anyopaque) callconv(.c) void {
     rn(p, ins.last_raw_cents);
 }
@@ -745,6 +757,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginesoundgraphsetrate", .func = &ring_GraphSetRate },
     .{ .name = "stzenginesoundvowelof", .func = &ring_VowelOf },
     .{ .name = "stzenginesoundretune", .func = &ring_Retune },
+    .{ .name = "stzenginesoundpitchof", .func = &ring_PitchOf },
+    .{ .name = "stzenginesoundpitchclarity", .func = &ring_PitchClarity },
     .{ .name = "stzenginesoundretunemarks", .func = &ring_RetuneMarks },
     .{ .name = "stzenginesoundretunefromhz", .func = &ring_RetuneFromHz },
     .{ .name = "stzenginesoundvowelformant", .func = &ring_VowelFormant },
