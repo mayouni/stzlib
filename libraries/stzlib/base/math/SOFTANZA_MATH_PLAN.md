@@ -1230,14 +1230,22 @@ Mathlib pins, `leanprover/lean4:v4.35.0-rc3` (3.5 GB); a Lake project
 seven modules arrived without their `.ir` and were refetched by name with
 `cache get!`; `ELAN_HOME`, `STZ_LEAN_PROJECT` and the `bin` folder on the
 user's PATH. Nothing was built from source. One `lake env lean` on a file
-that imports Mathlib takes about 25 s on this machine, so the gate takes
-64 s with the door open and under a second with it closed.
+that imports Mathlib takes 25 s on this machine when the compiled files
+are warm in the disk cache and about 100 s when they are cold, so the gate
+takes one to five minutes with the door open and under a second with it
+closed.
 
 **A seam paid for on the way**: the door first ran `cmd /c "cd ... &&
 lake env lean ..."` as one quoted argument and cmd's quote rules ate it;
 it now writes a two-line batch runner beside the claims and hands it the
 file, through `stzSystemCall`'s `cmd.exe` branch, which appends arguments
-bare. Paths under the project carry no spaces by construction.
+bare. Paths under the project carry no spaces by construction. A second
+seam the same hour: `stzSystemCall` kills its child after 30 s by default,
+and the first cold Mathlib import took 99 s -- the demo reported "not
+proved" with `lean exited with 143` (SIGTERM) while the gate, running warm,
+had passed. The door now waits ten minutes (`StzLeanTimeoutMs`). A verdict
+that depends on how warm the disk cache is was a defect, and the exit code
+named it.
 
 **Gate**: `claim_narrated.ring` 48 of 48 with the door open (64 s), 46 of 46
 with it closed (under a second); `demo_math.ring` walks the door too.

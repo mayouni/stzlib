@@ -122,6 +122,9 @@ func StzLeanParseOutput(pcOutput, pnExit)
 	ok
 	return [ :proved = 1, :because = "lean accepted the file" ]
 
+func StzLeanTimeoutMs()
+	return 600000
+
 func _LcFirstLineWith(pcText, pcWord)
 	_ac_ = StzSplit(pcText, char(10))
 	for _i_ = 1 to len(_ac_)
@@ -150,6 +153,10 @@ func StzLeanCheck(pcLeanText, pcName)
 	_o_ = StzSystemCallQ("cmd.exe")
 	_o_.SetArgs([ "/c", StzReplace(_cRun_, "/", char(92)), StzReplace(_cFile_, "/", char(92)) ])
 	_o_.HideConsole()
+	# a Mathlib import takes about 25 s on this machine and more when the
+	# files are cold; the call's default timeout killed lean at exit 143
+	# (SIGTERM) once the disk cache had moved on, so the door waits ten minutes
+	_o_.SetTimeout(StzLeanTimeoutMs())
 	_o_.Run()
 	_v_ = StzLeanParseOutput(_o_.Output() + char(10) + _o_.Error(), _o_.ExitCode())
 	return [ :route = "lean", :proved = _v_[:proved], :because = _v_[:because], :file = _cFile_ ]
