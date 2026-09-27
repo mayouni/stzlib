@@ -43,6 +43,9 @@ func StzSoundUniverseData_niger()
 			                 [ "zu", "H", 1 ], [ "waa", "L", 2 ] ],
 			  :confidence = "tones medium-high to high: Wiktionary (sannu), citing Newman 2007 (zuwa, p. 234); 'da' low from academic usage (medium); the long 'waa' takes two units" ] ],
 		:drum = "kalangu",
+		:talkingdrum = [
+			:verdict = "UNPERCEIVED", :by = "", :date = "", :said = "",
+			:why = "plan MU7: text -> drum is SPEECH only if a Hausa speaker hears the sentence back from the drum; until one has, SayOnDrum refuses and DrumTonesQ -- the contour, honestly named -- is what is offered" ],
 		:tonepitch = [ :h = 220, :l = 165 ],
 		:tonewhy = "Hausa has two tones, High and Low; Falling is High then Low on one heavy syllable, and there is no Rising (Newman 1996). NO source was found for how far a kalangu squeezes between them: the fourth (220 / 165 Hz) is this declaration's choice, stated. And one source warns a kalangu does not always follow the words' tones",
 		:sources = [

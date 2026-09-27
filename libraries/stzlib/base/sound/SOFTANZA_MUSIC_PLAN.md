@@ -1562,3 +1562,176 @@ like an instrument".** That is MU6's kill criterion, met by the only judge
 feared was not the one that mattered: the 341 ms ring is. To play it, serve
 `base/test/sound/webaudio/` (or the untracked copy the author was given,
 `base/test/sound/mu6_play/`), open `music.html`, and press *Start sound*.
+
+
+---
+
+## MU7 STATUS — 2026-09-27. The four transforms on one stzSoundScore, no adapter -- and the author heard the sonified series: "it is music". Text → drum refuses until a Hausa speaker hears it
+
+**Engine.** In the seam, `detectPitch`: McLeod's normalised square
+difference over the whole range asked (50–2000 Hz), with **no guess**. It
+takes the first peak within 0.9 of the highest (which keeps it off the octave
+below) and returns its clarity as `last_clarity`. `sound.zig`: `pitchOf`. Two
+bridges.
+**Face.**
+
+- `stzSoundUniverse.SonifyQ` (RENDER). A series becomes a melody: the lowest
+  value on degree 1, the highest two octaves up, or fewer when the instrument
+  is short.
+- `ToneSyllables`, `DrumTonesQ`, `SayOnDrum` (text → drum).
+- `stzSoundTranscriber` (RECOGNISE).
+- `stzSoundScore.PitchedEvents`, `RangeInCents`, `Density`, `Contour` and
+  `BestModes` (ANALYSE).
+- `stzSoundNotation.ToABC`, `ToMusicXML`, `ToMidiFile` and `Losses`
+  (NOTATE).
+
+**Guard.** `base/test/sound/sound_mu7_narrated.ring` — **25**. Zig: 1 new.
+**Heard.** `sound_mu7_demo.ring`: one series in Rast, the West and slendro,
+the Rast melody heard back from its own sound and played again, the kalangu
+saying *sannu da zuwa*, and the heard-back score as ABC, MusicXML and MIDI.
+
+### The kill criterion — MET, and the missing steps named
+
+`data → SonifyQ → stzSoundScore → ToSound → stzSound → TranscribeQ →
+stzSoundScore → BestModes / Contour / ToABC / ToMusicXML / ToMidiFile`.
+Every arrow takes what the last one returned, unchanged. There is **no
+adapter**.
+
+| the round trip, ten notes of Rast | |
+|---|---|
+| notes rendered / heard back | **10 / 10** |
+| worst onset error | **0.042 ms** |
+| worst pitch error, the half-flat third included | **1.869 cents** |
+| lowest confidence (the reader's clarity) | **0.948** |
+| the contour | **identical**: U D U D U D U D U |
+| best-fitting declared modes | **Rast and Dhil, tied** at 0.31 cents off (MU4's "the same seven numbers on paper", found again from the SOUND) |
+| the nearest Western mode | 15.25 cents off |
+| noise | **0** pitched notes transcribed |
+
+**The missing steps, named as VC6 named its:**
+
+1. Sound → score cannot say **which** drum stroke a hit was. An unpitched
+   onset is kept (`Unpitched`) with its time, and never guessed into a dum
+   or a tak.
+2. The transcriber is **monophonic**: it hears one *new* note at a time, and
+   a chord comes back as its loudest new pitch.
+3. ABC and MusicXML cannot carry slendro or a just-intoned Yaman. Such
+   pitches are written at the nearest quarter tone and **counted** in
+   `Losses`. MIDI carries them: a slendro score survives MIDI within **0.072
+   cents**, and its MusicXML reports *"a pitch sits 24 cents from the
+   nearest quarter tone"*.
+
+### Notation, checked by something other than its writer
+
+- **ABC**: Rast's half-flat third is written `_/E`, ABC 2.1's own
+  quarter-tone mark.
+- **MusicXML**: well-formed by the guard's own check **and by Python's XML
+  parser** (11 notes, 3 measures, `<alter>-0.5</alter>`).
+- **MIDI**: read back by a reader written apart from the writer (it handles
+  running status, which the writer never uses): 10 notes, 96 BPM, every pitch
+  (key plus bend) within 1 cent. **Python confirms** the file's three track
+  chunks account for all 585 bytes.
+
+### Text → drum (Niger's row) — GATED, by the plan's own words
+
+*"sànnu dà zuwàa"*, tone-marked as Newman's dictionary marks it (no mark =
+High, grave = Low, circumflex = Falling), is read as `san:L nu:H da:L zu:H
+waa:L`, heavy *waa* two units. That is the declared sentence's contour
+exactly, and the kalangu plays it at 220.001 / 165.002 Hz. **Everyday Hausa,
+which marks no tones, is refused**: read as all-High it would lie. And
+**`SayOnDrum` refuses**, because the plan says text → drum is speech only if a
+Hausa speaker hears it back. `DrumTonesQ`, the contour honestly named, is
+what is offered until one has.
+
+### Found, and each one changed the design
+
+1. **SN5's onsets were the wrong instrument, again** (MU0's finding). Spectral
+   flux with a 43 ms window missed the first note, skipped others, and put the
+   rest up to a window early, so pitches were read inside the previous note.
+   Onsets now come from the first difference's energy in 5 ms hops, refined
+   to the sample.
+2. **Two notes ringing together are periodic at their common period.** C4
+   under G4 repeats at 130.8 Hz, and the first transcription read G4 as C3:
+   right about the mixture, wrong about the note. Each reading and its
+   multiples are now scored by which harmonics GAINED energy at the onset.
+3. **A level threshold placed notes 6 ms early** over a ringing tail. The
+   refinement now reads the attack's edge (the first difference), not its
+   level.
+4. **The sonifier asked the oud for a note it cannot play** (degree 14 of Rast,
+   959 Hz, against the oud's 700). It was refused and the melody came out one
+   short. `SonifyQ` now fits its span to the instrument.
+5. **The analysis ignored a mode's descending form.** A Rast melody that came
+   down through Rast's own flat seventh (as MU4 declares it must) scored 3.4
+   cents off Rast. `BestModes` now reads both directions. **Stated plainly:**
+   that is also what now separates Rast (0.4) from Dhil (3.4) on the demo's
+   descending series, and it rests on a textbook rule in the maqam file, not
+   on Tunisian evidence about Dhil.
+6. **The MIDI writer packed six controller messages into one event** with a
+   single delta time. The independent reader then read everything after it
+   wrong (a note lost, every pitch shifted). Each message is now its own event.
+7. **MusicXML printed a quarter tone as `-0.500`**, which is valid but not
+   what anyone reads as one. It now writes `-0.5`.
+8. **Ring traps**: `new X()` *with* parentheses calls `init` and fails if
+   there is none; `_aT_` is `_at_`; and `oR` is `or`, for the third phase
+   running.
+
+### Claims in this plan, corrected
+
+- §6's MU7 lists *"Sound → score (pitch + onsets…)"* as if SN5 supplied the
+  onsets. It could not at this precision, and the transcriber carries its own.
+- §2's *"The loop VC6 closed for speech closes for music without a new verb"*
+  needed new verbs after all: `SonifyQ`, `TranscribeQ`, `BestModes`, and the
+  three writers. What holds is the part that mattered: **no new type**. Every
+  verb reads and returns the same `stzSoundScore`.
+
+### What MU7 did NOT do
+
+- **No polyphonic transcription, and no drum-stroke recognition** (missing
+  steps 1 and 2).
+- **No MIDI input** (the plan keeps hardware out). MIDI *files* are written,
+  not read, except by the guard's own reader.
+- **No arbitrary Hausa text**: it must carry tone marks. A lexicon or a model
+  that restores tone is beyond this plan.
+- Regression over the sound guards: 842 passed, 3 failed: 817 plus MU7's 25, and the
+  three are MU1's `:Muted` failures -- the ruling still owed.
+
+### The listener's line
+
+- **The sonified series, HEARD 2026-09-27** by Mansour Ayouni (the Principal):
+  *"the sonified series is music, close MU7"*. The RENDER row, a series
+  heard as music rather than a meter in costume, was the plan's claim no
+  number could make, and the author made it.
+- **The talking drum, UNPERCEIVED.** Does the kalangu *say* "sannu da zuwa" to
+  a Hausa speaker (`mu7_06`)? That verdict, and only that one, opens
+  `SayOnDrum`, by the plan's own words.
+
+---
+
+## THE PLAN, AT ITS END — MU0 to MU7, 2026-09-25 → 27
+
+§9's claim was: *"a score is data, a performance is a sound, a universe is a
+declaration, and the loop is live — so one line makes music, the same line
+makes it in Rast or Yaman or Slendro, every note is a number a guard can
+check, and every phase ends with a person saying whether it sounds right and
+the record saying who."*
+
+- **A score is data**: `stzSoundScore`, which every transform makes and reads.
+- **A performance is a sound**: MU1's twenty instruments; MU2's scheduler, 0
+  frames of error.
+- **A universe is a declaration**: MU4's eight, with sources, and the thin
+  parts left thin.
+- **The loop is live**: MU3 natively, and MU6 in the browser, where the
+  author said *"it feels like an instrument"*.
+- **Every note is a number a guard can check**: the sound regression stands
+  at the figure above, and the three failures it carries are the `:Muted`
+  ruling still owed.
+- **And the record says who.** The author heard and ruled on:
+  - SAPI's timbre: *"very close from real human voice"*;
+  - the retuned voice: *"somehow singing"*, and `Sing()` is open;
+  - the browser: *"it feels like an instrument"*;
+  - the sonified series: *"it is music"*;
+  - the Tunisian examples: *"far from being qualified"*.
+
+  Still UNPERCEIVED: MU0's swing and pluck, MU1's twenty instrument names,
+  MU2's swing, MU3's liveness, the other seven universes, the formant voice,
+  and the talking drum. The record says so, by phase.

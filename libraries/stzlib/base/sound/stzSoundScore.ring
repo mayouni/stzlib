@@ -354,6 +354,127 @@ class stzSoundScore
 	def NumberOfEvents()
 		return len(@aEvents)
 
+	#-- MU7: ANALYSE -- a score becomes data -------------------------------------
+	#
+	# The plan's fourth transform: key, mode, density, contour -- Music21's
+	# side, on the same stzSoundScore every other transform makes and reads.
+
+	# the pitched events, in start order
+	def PitchedEvents()
+		_a_ = []
+		for _e_ in This.Events()
+			if _e_[3] > 0  _a_ + _e_ ok
+		next
+		return _a_
+
+	# lowest to highest pitch, in cents
+	def RangeInCents()
+		_a_ = This.PitchedEvents()
+		if len(_a_) = 0  return 0 ok
+		_lo_ = _a_[1][3]
+		_hi_ = _a_[1][3]
+		for _e_ in _a_
+			if _e_[3] < _lo_  _lo_ = _e_[3] ok
+			if _e_[3] > _hi_  _hi_ = _e_[3] ok
+		next
+		return 1200 * log(_hi_ / _lo_) / log(2)
+
+	# pitched notes per beat
+	def Density()
+		if @nBeats <= 0  return 0 ok
+		return len(This.PitchedEvents()) / @nBeats
+
+	# "U", "D" or "S" from each pitched note to the next -- S within 5 cents
+	def Contour()
+		_a_ = This.PitchedEvents()
+		_s_ = ""
+		for _k_ = 2 to len(_a_)
+			_c_ = 1200 * log(_a_[_k_][3] / _a_[_k_ - 1][3]) / log(2)
+			if _s_ != ""  _s_ += " " ok
+			if _c_ > 5
+				_s_ += "U"
+			but _c_ < -5
+				_s_ += "D"
+			else
+				_s_ += "S"
+			ok
+		next
+		return _s_
+
+	# WHICH DECLARED MODE FITS: every mode of every universe, every note tried
+	# as its tonic, scored by how far (in cents) each note sits from the
+	# nearest degree of the mode, going up or coming down -- the mean. [ universe, mode, tonicHz, meanCentsOff ],
+	# best first. It ranks the DECLARATIONS; a tie is reported as a tie.
+	def BestModes(pnTop)
+		_aP_ = This.PitchedEvents()
+		_aOut_ = []
+		if len(_aP_) = 0  return _aOut_ ok
+		_aT_ = []
+		for _e_ in _aP_
+			_seen_ = FALSE
+			for _t_ in _aT_
+				if fabs(1200 * log(_e_[3] / _t_) / log(2)) < 1  _seen_ = TRUE ok
+			next
+			if NOT _seen_  _aT_ + _e_[3] ok
+		next
+		for _u_ in StzSoundUniverses()
+			_oU_ = StzSoundUniverseQ(_u_)
+			for _m_ in _oU_._Get(_oU_.Declaration(), :modes, [])
+				_aD_ = _oU_._Get(_m_, :degrees, [])
+				if len(_aD_) = 0  loop ok
+				# BOTH directions: a mode's descending form is the mode too. The
+				# first cut read :degrees only, and a Rast melody that came down
+				# through Rast's own flat seventh (as MU4 declares it must)
+				# scored 3.4 cents off Rast -- its own notes counted as foreign.
+				_aDesc_ = _oU_._Get(_m_, :descending, [])
+				_aAll_ = []
+				for _d_ in _aD_  _aAll_ + _d_ next
+				for _d_ in _aDesc_
+					if ring_find(_aAll_, _d_) = 0  _aAll_ + _d_ ok
+				next
+				_aD_ = _aAll_
+				_oct_ = _oU_._Get(_m_, :octave, 1200)
+				_best_ = 99999
+				_bestT_ = 0
+				for _t_ in _aT_
+					_sum_ = 0
+					for _e_ in _aP_
+						_c_ = 1200 * log(_e_[3] / _t_) / log(2)
+						_x_ = _c_ - _oct_ * floor(_c_ / _oct_)
+						_md_ = 99999
+						for _d_ in _aD_
+							_df_ = fabs(_x_ - _d_)
+							if _oct_ - _df_ < _df_  _df_ = _oct_ - _df_ ok
+							if _df_ < _md_  _md_ = _df_ ok
+						next
+						_sum_ += _md_
+					next
+					if _sum_ / len(_aP_) < _best_
+						_best_ = _sum_ / len(_aP_)
+						_bestT_ = _t_
+					ok
+				next
+				_aOut_ + [ _u_, _oU_._Get(_m_, :name, ""), _bestT_, _best_ ]
+			next
+		next
+		# best first (insertion sort on the mean)
+		for _i_ = 2 to len(_aOut_)
+			_x_ = _aOut_[_i_]
+			_j_ = _i_ - 1
+			while _j_ >= 1
+				if _aOut_[_j_][4] <= _x_[4]  exit ok
+				_aOut_[_j_ + 1] = _aOut_[_j_]
+				_j_--
+			end
+			_aOut_[_j_ + 1] = _x_
+		next
+		_r_ = []
+		for _i_ = 1 to len(_aOut_)
+			if _i_ > pnTop  exit ok
+			_r_ + _aOut_[_i_]
+		next
+		return _r_
+
 	def Beats()
 		return @nBeats
 
