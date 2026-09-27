@@ -1385,6 +1385,9 @@ pub fn build(b: *std.Build) void {
         wasm.rdynamic = true; // root the exports (with --no-entry + gc-sections,
         //                       this is what keeps the exported functions alive)
         wasm.import_memory = true; // JS owns the linear memory (the stz.js bridge)
+        // MU6: the instruments keep delay lines on the stack (two of 16 KiB in
+        // the worst engine), so the stack is set, not assumed: 1 MiB.
+        wasm.stack_size = 1 << 20;
         const wasm_step = b.step("wasm", "Build the differential engine subset as stz.wasm (the web EDGE)");
         wasm_step.dependOn(&b.addInstallArtifact(wasm, .{}).step);
     }

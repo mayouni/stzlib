@@ -1,0 +1,164 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Softanza Music — play it</title>
+<style>
+  :root { --bg: #faf9f7; --ink: #1d1d1b; --mute: #6b6760; --line: #d9d5ce; --accent: #1f6f5c; --key: #fff; --keydown: #cfe7df; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #161615; --ink: #e8e6e1; --mute: #a19d95; --line: #3a3834; --accent: #5fc2a4; --key: #23221f; --keydown: #2f5a4d; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1rem; font: 14px/1.5 system-ui, sans-serif; background: var(--bg); color: var(--ink); max-width: 62rem; margin-inline: auto; }
+  h1 { font-size: 1.25rem; margin: .2rem 0 .8rem; }
+  h2 { font-size: .95rem; margin: 1.3rem 0 .5rem; color: var(--mute); text-transform: uppercase; letter-spacing: .05em; }
+  button, select, input { font: inherit; color: var(--ink); background: var(--key); border: 1px solid var(--line); border-radius: 6px; padding: .35rem .7rem; }
+  button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .row { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; margin: .35rem 0; }
+  .loop { display: grid; grid-template-columns: 6rem 1fr 9rem; gap: .5rem; align-items: center; margin: .3rem 0; }
+  .loop input[type=text] { width: 100%; font-family: ui-monospace, Consolas, monospace; }
+  #lat { font-family: ui-monospace, Consolas, monospace; padding: .6rem .8rem; border: 1px solid var(--line); border-radius: 8px; }
+  #lat b { color: var(--accent); }
+  #console { font-family: ui-monospace, Consolas, monospace; font-size: 12px; height: 7.5rem; overflow-y: auto; border: 1px solid var(--line); border-radius: 8px; padding: .4rem .6rem; color: var(--mute); }
+  .keys { display: flex; gap: 6px; flex-wrap: wrap; }
+  .k { width: 3.4rem; height: 5rem; border: 1px solid var(--line); border-radius: 0 0 8px 8px; background: var(--key); display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding: .3rem; user-select: none; cursor: pointer; font-size: 12px; }
+  .k.down { background: var(--keydown); }
+  .k small { color: var(--mute); }
+  .note { color: var(--mute); font-size: 12.5px; }
+  @media (max-width: 560px) { .loop { grid-template-columns: 1fr; } .k { width: 2.9rem; } }
+</style>
+
+<h1>Softanza Music — play it</h1>
+<p class="note">Everything you hear is rendered by <code>stz.wasm</code> — the same instruments,
+the same arithmetic, as the native library. Nothing is sampled.</p>
+
+<div class="row"><button id="start" class="primary">Start sound</button>
+  <span class="note">(a browser only makes sound after you ask it to)</span></div>
+
+<h2>Latency — key to sound</h2>
+<div id="lat">start sound to measure</div>
+
+<h2>The keyboard</h2>
+<div class="row">
+  <label>universe <select id="uni"></select></label>
+  <label>mode <select id="mode"></select></label>
+  <label>instrument <select id="inst"></select></label>
+</div>
+<div class="keys" id="keys"></div>
+<p class="note">Keys <b>A S D F G H J K L</b> play degrees 1–9 of the mode (degree 8 is the octave).
+Every tuning is the universe's declared one: Rast's half-flat third, slendro's stretched octave.</p>
+
+<h2>Live loops — edit while they play</h2>
+<div class="row"><label>tempo <input id="bpm" type="number" value="110" min="40" max="240" style="width:5rem"></label>
+  <button id="play">Play loops</button><button id="stop">Stop</button></div>
+<div id="loops"></div>
+<p class="note">Change a pattern and press <b>Update</b>: it lands on the next cycle, never in the middle of one.
+The grammar is MU3's: <code>~ [ ] [a, b] &lt;a b&gt; * / ? ! @</code>.</p>
+<div id="console"></div>
+
+<script src="stz-music.js"></script>
+<script>
+(async function () {
+  const M = await StzMusic.create({ wasmUrl: 'stz.wasm' });
+  const U = await fetch('mu6_universes.json').then(r => r.json());
+  const $ = id => document.getElementById(id);
+  const log = t => { const c = $('console'); c.insertAdjacentHTML('beforeend', t + '<br>'); c.scrollTop = c.scrollHeight; };
+
+  // ---- instruments ----
+  const pitched = M.names.filter(n => !['drumkit', 'bendir'].includes(n));
+  for (const n of pitched) $('inst').insertAdjacentHTML('beforeend', '<option>' + n + '</option>');
+
+  // ---- universes and modes ----
+  for (const u of U.universes) $('uni').insertAdjacentHTML('beforeend', '<option value="' + u.name + '">' + u.title + '</option>');
+  function fillModes() {
+    const u = U.universes.find(x => x.name === $('uni').value);
+    $('mode').innerHTML = u.modes.map(m => '<option>' + m.name + '</option>').join('');
+    fillKeys();
+  }
+  const KEYS = ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'];
+  let keyBufs = [];
+  function mode() {
+    const u = U.universes.find(x => x.name === $('uni').value);
+    return u.modes.find(m => m.name === $('mode').value);
+  }
+  function degreeHz(m, d) {
+    const n = m.degrees.length, up = Math.floor((d - 1) / n), i = (d - 1) % n;
+    return m.tonicHz * Math.pow(2, (m.degrees[i] + up * m.octave) / 1200);
+  }
+  function fillKeys() {
+    const m = mode();
+    if ($('inst').dataset.touched !== '1' && m.melody && pitched.includes(m.melody)) $('inst').value = m.melody;
+    $('keys').innerHTML = KEYS.map((k, i) => '<div class="k" data-i="' + i + '"><span>' + (i + 1) +
+      '</span><small>' + k.toUpperCase() + '</small></div>').join('');
+    keyBufs = [];
+  }
+  $('uni').onchange = fillModes; $('mode').onchange = fillKeys;
+  $('inst').onchange = () => { $('inst').dataset.touched = '1'; keyBufs = []; };
+  fillModes();
+
+  // pre-render the keyboard's notes, so a key only ever STARTS a buffer
+  function prepareKeys() {
+    const m = mode(), inst = $('inst').value;
+    keyBufs = KEYS.map((k, i) => {
+      try { return M.noteBuffer(inst, degreeHz(m, i + 1), 0.9, 0.8, 0); } catch (e) { return null; }
+    });
+  }
+  let started = false;
+  function press(i) {
+    if (!started) return;
+    if (!keyBufs.length) prepareKeys();
+    const t0 = performance.now();
+    if (keyBufs[i]) M.play(keyBufs[i], 0, 0.7);
+    const el = document.querySelector('.k[data-i="' + i + '"]');
+    if (el) { el.classList.add('down'); setTimeout(() => el.classList.remove('down'), 150); }
+    lastJs = performance.now() - t0;
+    showLat();
+  }
+  let lastJs = 0;
+  document.addEventListener('keydown', e => { const i = KEYS.indexOf(e.key.toLowerCase()); if (i >= 0 && !e.repeat) press(i); });
+  $('keys').addEventListener('pointerdown', e => { const k = e.target.closest('.k'); if (k) press(+k.dataset.i); });
+
+  function showLat() {
+    const l = M.latency();
+    const tot = (l.base + l.output) * 1000;
+    $('lat').innerHTML = 'this browser: base <b>' + (l.base * 1000).toFixed(1) + ' ms</b> + output <b>' +
+      (l.output * 1000).toFixed(1) + ' ms</b> = <b>' + tot.toFixed(1) + ' ms</b> key to sound' +
+      (lastJs ? ' (the key handler itself: ' + lastJs.toFixed(2) + ' ms)' : '') +
+      '<br>native Softanza: <b>~419 ms</b> (a 341 ms ring + the device) — why live playing lives here';
+  }
+
+  $('start').onclick = async () => {
+    await M.audio().resume();
+    started = true;
+    prepareKeys();
+    setTimeout(showLat, 300);
+    $('start').textContent = 'Sound on';
+  };
+
+  // ---- live loops ----
+  const DEF = [['beat', 'bd hh sn hh', 'drumkit'], ['tune', '<[c5 e5 g5 e5] [a4 c5 e5 c5]>', 'harp'], ['bass', 'c3 ~ g2 ~', 'guitar']];
+  for (const [n, p, i] of DEF) {
+    $('loops').insertAdjacentHTML('beforeend', '<div class="loop"><b>' + n + '</b><input type="text" id="p_' + n +
+      '" value="' + p + '"><span><select id="i_' + n + '">' + M.names.map(x => '<option' + (x === i ? ' selected' : '') + '>' + x + '</option>').join('') +
+      '</select> <button data-n="' + n + '">Update</button></span></div>');
+  }
+  let live = null;
+  $('play').onclick = async () => {
+    if (!started) $('start').onclick();
+    await M.audio().resume();
+    if (live) live.stop();
+    live = M.live(+$('bpm').value);
+    live.onCycle = log;
+    for (const [n] of DEF) {
+      const k = live.loop(n, $('p_' + n).value, $('i_' + n).value);
+      if (k < 0) log('<b>' + n + ' refused</b>: ' + live.error);
+    }
+    live.start();
+  };
+  $('stop').onclick = () => { if (live) live.stop(); live = null; log('stopped'); };
+  $('loops').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    const n = b.dataset.n;
+    if (!live) { log('press Play loops first'); return; }
+    const k = live.loop(n, $('p_' + n).value, $('i_' + n).value);
+    log(k < 0 ? '<b>' + n + ' refused</b>: ' + live.error : '&gt;&gt; ' + n + ' redefined, lands on cycle ' + k);
+  });
+})();
+</script>
