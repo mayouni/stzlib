@@ -1211,20 +1211,39 @@ the three claims that mention `Real.sqrt` (`Real.sq_sqrt`, `Real.lt_sqrt`,
 `Real.sqrt_lt'`) were written from Mathlib's names and NOT run through Lean
 on this machine.
 
-**Done-when, clause by clause**: "the guard fails when a statement is made
-false" -- met, on the floor, both for one claim and for a set; "a machine
-without Lean reports the door closed by name and stays green on the floor"
--- met, and this machine is that machine; "one chapter's identities are
-machine-checked" -- NOT met here: Lean 4 and Mathlib are not on this disk
-(D:, the user profile and PATH were looked at, after the day R hid at
-D:\R). The gate prints that skip by name on every run. When the author
-installs Lean with Mathlib's downloaded cache (never a from-source build on
-this machine) and sets `STZ_LEAN_PROJECT`, the same gate walks through the
-door with no code change; the six tactics are then the first thing it
-judges.
+**Done-when, clause by clause, 2026-09-27**: all three met. "The guard
+fails when a statement is made false" -- on the floor (26 against 25) AND
+through the door: the wrong formula sent to Lean comes back with Lean's own
+`error: unsolved goals` line, proved 0. "A machine without Lean reports the
+door closed by name and stays green on the floor" -- met on 2026-09-26,
+when this machine was that machine, and the gate's section 4 keeps both
+branches. "One chapter's identities are machine-checked" -- met: Lean
+accepted `an-identity-is-not-a-self-check.lean` with no output, all six
+theorems, the three sqrt tactics written from Mathlib's names included.
 
-**Gate**: `base/test/math/claim_narrated.ring`, 47 of 47, five sections,
-under three seconds.
+**How the door was opened** (the author asked for it to be done on his
+behalf): elan 4.2.4 from the Lean project's release (2 MB), installed under
+`C:\Lean\elan` so no toolchain lives in a path with spaces; the toolchain
+Mathlib pins, `leanprover/lean4:v4.35.0-rc3` (3.5 GB); a Lake project
+`C:\Lean\stz_lean` made with `lake new stz_lean math` on Mathlib revision
+`c55e6e78`; Mathlib's cache by `lake exe cache get`, 8,943 files, of which
+seven modules arrived without their `.ir` and were refetched by name with
+`cache get!`; `ELAN_HOME`, `STZ_LEAN_PROJECT` and the `bin` folder on the
+user's PATH. Nothing was built from source. One `lake env lean` on a file
+that imports Mathlib takes about 25 s on this machine, so the gate takes
+64 s with the door open and under a second with it closed.
+
+**A seam paid for on the way**: the door first ran `cmd /c "cd ... &&
+lake env lean ..."` as one quoted argument and cmd's quote rules ate it;
+it now writes a two-line batch runner beside the claims and hands it the
+file, through `stzSystemCall`'s `cmd.exe` branch, which appends arguments
+bare. Paths under the project carry no spaces by construction.
+
+**Gate**: `claim_narrated.ring` 48 of 48 with the door open (64 s), 46 of 46
+with it closed (under a second); `demo_math.ring` walks the door too.
+
+**Gate, on 2026-09-26 with the door closed**: `base/test/math/claim_narrated.ring`,
+47 of 47, five sections, under three seconds.
 
 **The demo bar, closed**: `demo_math.ring` gained scene 6 (the deaths
 table fitted by medians, the report naming the two cells the fit does not

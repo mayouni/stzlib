@@ -75,7 +75,9 @@ chk("CheckWithLean() carries the floor's verdict and the route it took: floor 1,
 if aD[:open] = 0
 	chk("...and with the door closed, proved is EMPTY, not 0 and not 1: the door's state is not a verdict", aCw[:proved] = "" and StzFindFirst("no lean executable", aCw[:because]) > 0)
 else
-	chk("...and with the door open, proved is a verdict", aCw[:proved] = 0 or aCw[:proved] = 1)
+	chk("...and with the door open, Lean PROVED it: route lean, proved 1, " + aCw[:because], aCw[:route] = "lean" and aCw[:proved] = 1)
+	aCf = StzMathClaimQ([ :kind = :Identity, :lhs = "3^2 + 4^2 + 1", :rhs = "5^2", :over = :Natural, :label = "the wrong formula, sent to Lean" ]).CheckWithLean()
+	chk("NEGATIVE, through the door: the wrong formula is REJECTED by Lean itself, with Lean's own error line: " + aCf[:because], aCf[:route] = "lean" and aCf[:proved] = 0 and StzFindFirst("error", aCf[:because]) > 0)
 ok
 # the half that reads Lean's answer, on Lean's own words
 chk("an empty exit-0 run is a proof", StzLeanParseOutput("", 0)[:proved] = 1)
@@ -100,7 +102,7 @@ aF = oBad.Diagnostics()
 chk("NEGATIVE: a statement made false is an error, claim_false, at its label, with the sides", len(aF) = 1 and aF[1][:rule] = "claim_false" and aF[1][:severity] = "error" and aF[1][:where] = "three four five, made false" and StzFindFirst("25 and 26", aF[1][:message]) > 0)
 chk("...and the tampered lesson's report is not sound", NOT oBad.IsSound())
 aSw = oSet.CheckWithLean()
-chk("the whole set through the door: floor errors 0, route '" + aSw[:route] + "', " + aSw[:because], aSw[:floor_errors] = 0 and (aSw[:route] = "door closed" or aSw[:route] = "lean"))
+chk("the whole set through the door: floor errors 0, route '" + aSw[:route] + "', " + aSw[:because], aSw[:floor_errors] = 0 and (aSw[:route] = "door closed" or (aSw[:route] = "lean" and aSw[:proved] = 1)))
 chk("a set needs a lesson name; a claim that is not a claim is refused", _McSetRefuses())
 
 #---------------------------------------------------------------------------
