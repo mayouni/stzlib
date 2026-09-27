@@ -44,6 +44,7 @@ const graph = if (want_graph) @import("graph.zig") else struct {};
 const gpu_wgsl = if (want_gpu) @import("gpu_wgsl.zig") else struct {};
 const sw = if (want_sound) @import("soundwasm.zig") else struct {};
 const sdsp = if (want_sound) @import("sounddsp.zig") else struct {};
+const sins = if (want_sound) @import("soundinstr.zig") else struct {};
 
 // -- marshalling heap (always present): a bump allocator over a static buffer in
 //    linear memory. 16-aligned so marshalled f64 views are aligned; kept small
@@ -183,6 +184,68 @@ fn snd_earcon_frames(value: u32, rate: u32) callconv(.c) u32 {
     return @intCast(sdsp.motifFrames(value, rate));
 }
 
+// ── MU6: the instruments, in the browser ────────────────────────────────────
+//
+// The twenty instruments of MU1 are pure arithmetic in soundinstr.zig (std
+// only), so the browser renders the SAME notes the native tier does. A note is
+// megabytes, and the marshalling heap above is 8 KiB, so the CALLER owns the
+// buffers: stz-music.js grows the JS-owned linear memory and passes a region
+// above everything this module uses. Nothing here allocates.
+
+fn snd_inst_count() callconv(.c) u32 {
+    return sins.count();
+}
+
+/// the name of instrument `i` (0-based) into [ptr, ptr+cap); returns its length
+fn snd_inst_name(i: u32, ptr: u32, cap: u32) callconv(.c) u32 {
+    if (i >= sins.count()) return 0;
+    const nm = sins.SPECS[i].name;
+    const n = @min(nm.len, cap);
+    const dst: [*]u8 = @ptrFromInt(ptr);
+    @memcpy(dst[0..n], nm[0..n]);
+    return @intCast(n);
+}
+
+fn snd_inst_engine(i: u32) callconv(.c) i32 {
+    if (i >= sins.count()) return -1;
+    return @intCast(sins.SPECS[i].engine);
+}
+
+fn snd_inst_lo(i: u32) callconv(.c) f64 {
+    if (i >= sins.count()) return -1;
+    return sins.SPECS[i].lo;
+}
+
+fn snd_inst_hi(i: u32) callconv(.c) f64 {
+    if (i >= sins.count()) return -1;
+    return sins.SPECS[i].hi;
+}
+
+fn snd_note_frames(inst: u32, rate: u32, hold: f64) callconv(.c) u32 {
+    return @intCast(sins.noteFrames(inst, rate, hold));
+}
+
+fn snd_scratch_frames(rate: u32) callconv(.c) u32 {
+    return @intCast(sins.scratchFrames(rate));
+}
+
+/// One note into the caller's buffers; frames written, or 0 (reason: snd_note_reason)
+fn snd_note(inst: u32, hz: f64, hz_end: f64, hold: f64, vel: f64, variant: u32, rate: u32, out_ptr: u32, out_len: u32, scr_ptr: u32, scr_len: u32) callconv(.c) u32 {
+    const out: [*]f32 = @ptrFromInt(out_ptr);
+    const scr: [*]f32 = @ptrFromInt(scr_ptr);
+    return @intCast(sins.renderNote(inst, hz, hz_end, hold, vel, variant, rate, out[0..out_len], scr[0..scr_len]));
+}
+
+fn snd_note_reason() callconv(.c) u32 {
+    return sins.last_reason;
+}
+
+/// the fine pitch instrument, for the browser guard to read a note back
+fn snd_measure_hz(ptr: u32, len: u32, rate: u32, from: u32, guess: f64) callconv(.c) f64 {
+    const x: [*]const f32 = @ptrFromInt(ptr);
+    return sins.measureHz(x[0..len], rate, from, guess);
+}
+
 fn snd_earcon_count() callconv(.c) u32 {
     return sdsp.EARCON_COUNT;
 }
@@ -284,6 +347,16 @@ comptime {
         @export(&snd_earcon_chunk, .{ .name = "stz_snd_earcon_chunk" });
         @export(&snd_earcon_frames, .{ .name = "stz_snd_earcon_frames" });
         @export(&snd_earcon_count, .{ .name = "stz_snd_earcon_count" });
+        @export(&snd_inst_count, .{ .name = "stz_snd_inst_count" });
+        @export(&snd_inst_name, .{ .name = "stz_snd_inst_name" });
+        @export(&snd_inst_engine, .{ .name = "stz_snd_inst_engine" });
+        @export(&snd_inst_lo, .{ .name = "stz_snd_inst_lo" });
+        @export(&snd_inst_hi, .{ .name = "stz_snd_inst_hi" });
+        @export(&snd_note_frames, .{ .name = "stz_snd_note_frames" });
+        @export(&snd_scratch_frames, .{ .name = "stz_snd_scratch_frames" });
+        @export(&snd_note, .{ .name = "stz_snd_note" });
+        @export(&snd_note_reason, .{ .name = "stz_snd_note_reason" });
+        @export(&snd_measure_hz, .{ .name = "stz_snd_measure_hz" });
     }
     if (want_pattern) {
         @export(&pat_is_palindrome, .{ .name = "stz_is_palindrome" });

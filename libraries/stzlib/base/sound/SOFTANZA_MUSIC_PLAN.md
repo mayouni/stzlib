@@ -1459,3 +1459,106 @@ a verdict:
   Still owed: in `mu5_08`, where does it stop sounding human?
 - **The formant voice (`mu5_02` to `mu5_05`): UNPERCEIVED.** Its `Sing()`
   stays shut until the author rules on it.
+
+
+---
+
+## MU6 STATUS — 2026-09-27. The same notes in the browser, sample for sample; 58 ms from key to sound -- and the author played it: "it feels like an instrument"
+
+**Engine.** `stz_wasm_entry.zig`: the twenty instruments exported to `stz.wasm`
+(`stz_snd_note`, `_note_frames`, `_scratch_frames`, `_inst_*`,
+`_measure_hz`). The caller owns the buffers: the module's heap is 8 KiB, so
+`stz-music.js` grows the JS-owned memory and passes a region above everything
+the module uses. `build.zig`: the wasm stack is **set** to 1 MiB, not assumed,
+because two engines keep 16 KiB delay lines on it. The module's minimum memory
+stays at 19 pages, under the 32 the existing pages allocate.
+**Browser.** `webaudio/stz-music.js`: notes through wasm; the mini-notation
+**ported line for line** (grammar, per-cycle query, the deterministic `?`, the
+carrying octave, `StzNoteToHz`); live loops posted a whole cycle ahead of
+WebAudio's clock; the browser's own latency, reported.
+`webaudio/music.html` is **the instrument**: a keyboard (A–L = degrees 1–9 of
+any declared universe and mode, in its own tuning), three live loops you
+redefine while they play, and the latency next to the native path's.
+**Guard.** Native half: `sound_mu6_narrated.ring` — **4**. It *writes* the
+browser's answers: `mu6_notes_expect.json`, `mu6_patterns_expect.json` and
+`mu6_universes.json`. Browser half: `webaudio/mu6_guard.html` — **8**, run in
+the built-in browser.
+
+### The two tiers agree
+
+| | |
+|---|---|
+| twenty instruments, wasm vs native | **20/20** same frame count; **20/20 identical to 12 decimal places** at every compared sample (6 per note + a 97-step sum) |
+| the JavaScript pattern port vs the Ring classes | **12/12** patterns, cycles 0–3: onsets, lengths, names, Hz, and which `?` notes survive |
+| a wasm piano A4, read back in the browser | **−0.011 cents** |
+| isolated strokes scheduled offline (`bd ~ sn ~`) | **0 frames** of onset error |
+| the dense loop (`bd hh sn hh`), whole 4 s render vs a hand-placed mix | worst difference **1.4e-8**; the same mix one frame late differs by **0.63**, so the check can see a single frame |
+| SS5's earcon guard, re-run on the new `stz.wasm` | **26/26**: the new exports and the stack broke nothing |
+
+"12 decimal places", not "bit-identical": the fixture prints samples to 12
+places, which cannot pin a float32 near zero, so that is the claim made.
+
+### The latency, as the browser reports it
+
+| | |
+|---|---|
+| **this machine, the built-in browser pane** | base **10.0 ms** + output **48.0 ms** = **58 ms** key to sound |
+| the key handler itself (JS, key → `start()`) | **0.10 ms** |
+| the native path (S.5) | **~419 ms**: a 341 ms ring plus the device |
+
+**The plan's §6 said "10 ms from key to sound", and on this machine that is
+not what the browser reports.** The base latency is 10 ms; the output stage
+(the OS mixer and device) adds 48. That is **7× faster than native**, and the
+page shows both numbers side by side as §6 asked. Whether 58 ms *feels like
+an instrument* is the kill criterion, and it is the author's. Other browsers
+and exclusive-mode audio devices may report less; this page reports whatever
+they say.
+
+### Found, and each one changed the design or the reading
+
+1. **A note is megabytes; the wasm heap is 8 KiB.** The caller owns the
+   buffers, in pages it grows itself.
+2. **The stack was a default nobody had read.** Two engines keep 16 KiB delay
+   lines on it; the stack is now declared (1 MiB), and the module's minimum
+   memory was checked (19 pages) so the older pages still load.
+3. **MU2's lesson, met again in the browser.** Notes that touch leave a tail
+   above the threshold where the next begins, and the first onset check read
+   "400 frames", the edge of its search window. Two instruments now: isolated
+   onsets by threshold, and the whole dense render against a hand-placed mix,
+   with the one-frame shift proving the comparison can see a frame.
+4. **The guard's first identity claim was stronger than its fixture.** 12
+   printed decimals cannot certify float32 bits near zero; it says "12
+   decimal places".
+
+### Claims in this plan, corrected
+
+- §6 MU6: *"10 ms from key to sound"* became **58 ms reported** on this
+  machine's built-in browser (10 base + 48 output). The part §6 controls,
+  having no ring, is met; the output stage belongs to the machine.
+- §5's `stz-music.js` *"the same verbs in the browser, over the same wasm"*:
+  the **notes** are the same wasm, and the **pattern language** is a port, held
+  to Ring by a fixture rather than shared, because the grammar is Ring code
+  and not seam arithmetic. A port is a second author, and the fixture is what
+  keeps it honest.
+
+### What MU6 did NOT do
+
+- **No universes' rhythm cycles on the page**, only their tunings on the
+  keyboard: the cycles' drum layers are Ring declarations not yet exported.
+- **No Sing() in the browser**: the retuned voice is SAPI, which is Windows.
+- **No AudioWorklet for the loops.** WebAudio's `start(when)` is
+  sample-accurate on its own, and notes are pre-rendered buffers. The worklet
+  path (SS5, SN6) remains for the graph.
+- **No MIDI keyboard** (hardware is out, §5). The computer keyboard and the
+  pointer are the instrument.
+- Regression over the sound guards: 817 passed, 3 failed: 813 plus MU6's native 4, and the
+  three are MU1's `:Muted` failures. The browser half, `mu6_guard.html`: 8/8.
+
+### The listener's line
+
+**HEARD AND PLAYED 2026-09-27 by Mansour Ayouni (the Principal): "it feels
+like an instrument".** That is MU6's kill criterion, met by the only judge
+§6 names, and at 58 ms, not the 10 the plan wrote. The latency the plan
+feared was not the one that mattered: the 341 ms ring is. To play it, serve
+`base/test/sound/webaudio/` (or the untracked copy the author was given,
+`base/test/sound/mu6_play/`), open `music.html`, and press *Start sound*.
