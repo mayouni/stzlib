@@ -138,6 +138,25 @@ class stzMusic
 		@oUniverse.PerformQ(pcDegrees, 2).Play()
 		return This
 
+	#-- MU5: singing ---------------------------------------------------------
+	#
+	#     StzMusicQ().Sing("la la la", "c4 e4 g4")
+	#
+	# Whichever voice the author has called SINGING (StzSoundSingingVerdict):
+	# today that is SAPI's own voice retuned by PSOLA, opened 2026-09-27. The
+	# voice is made on the FIRST Sing -- so sing before anything opens an
+	# audio device in the same program (STZLIB-VOICE-COMODE-01), or the voice
+	# finds no SAPI voices and Sing says so.
+
+	def Sing(pcLyrics, pcNotes)
+		_oR_ = StzSoundRetunedVoiceQ()
+		_o_ = _oR_.Sing(pcLyrics, pcNotes)
+		if NOT isObject(_o_)
+			@nRefusals++
+			@cLastError = _oR_.LastError()
+		ok
+		return _o_
+
 	#-- MU3: live loops ------------------------------------------------------
 	#
 	#     oM = StzMusicQ().Tempo(96)

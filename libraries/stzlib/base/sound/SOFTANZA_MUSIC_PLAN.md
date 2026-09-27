@@ -1288,3 +1288,174 @@ the sources could not answer is also the plainest one to put to the author:
 from each tradition, recorded by name. For Tunisia and Niger that person is
 more than a check: where the sources ran out, they are the only source this
 declaration has. Their corrections go into the universe files, by name.
+
+
+---
+
+## MU5 STATUS — 2026-09-27. SAPI's voice is human but cannot hold a note; retuned, it holds to 1.6 cents -- and the author heard it sing. Sing() is OPEN for it
+
+**Engine.** In the seam (`soundinstr.zig`, std only, compiles for
+wasm32-freestanding: a 4.7 KB object with an exported entry point),
+`renderVowel`: a Rosenberg glottal pulse, differentiated, with a vibrato that
+arrives by 0.35 s and a breath that sounds only while the folds are open,
+through five parallel formant resonators. It uses the **Csound manual's
+formant table** (tenor below 330 Hz, soprano above), fetched and checked
+against the manual rather than remembered: the tenor "o" bandwidths I
+remembered were wrong. `sound.zig`: `vowelOf`. Two bridges. It is **not** a
+21st instrument: MU1's twenty are a record with their own guard, and a voice
+is judged by a bar no number clears.
+Also in the seam, **`retune`**: PSOLA. It tracks the glottal periods of a
+spoken syllable with a short-window period tracker, marks each cycle, and lays
+two-period Hann grains back down at the note's period. `sound.zig`:
+`retuneOf`. Three more bridges.
+**Face.** `base/sound/stzSoundFormantVoice.ring` (`Vowel`, `VowelGlide`,
+`VowelsQ`, `FormantsOf`) and `base/sound/stzSoundRetunedVoice.ring`
+(`Syllable`, `LineQ`, `Spoken`). Each has a **`Sing()`** gated on its own
+entry in `StzSoundSingingVerdict()`, which is declared data.
+**Guard.** `base/test/sound/sound_mu5_narrated.ring` — **20**. Zig: 2 new.
+**One line.** `StzMusicQ().Sing("la la la", "c4 e4 g4")`: whichever voice the
+author called singing, which today is the retuned one.
+**Heard.** `sound_mu5_demo.ring`: eight WAVs, each played live. One is SAPI
+unretuned, four are the formant voice, three are SAPI retuned.
+
+### (a) SAPI's pitch control — it cannot hold a note (its VOICE was never the problem)
+
+Zira (en-US), slowed to `x-slow`, `<prosody pitch>` per syllable:
+
+| asked | got (median) | off | wander within the syllable |
+|---|---|---|---|
+| −6 st | 148.4 Hz | **407 cents** | 286 cents |
+| −2 st | 159.5 Hz | 131 cents | 433 cents |
+| +2 st | 176.1 Hz | −98 cents | 499 cents |
+| +6 st | 196.0 Hz | −313 cents | 430 cents |
+
+Asked for ±6 semitones, it moves about ±2.5. An absolute `150Hz` is ignored.
+Within one syllable the pitch moves by hundreds of cents, because it is
+*intoning speech*. The bar was 20 cents. The guard asserts this as a record:
+if a future voice held pitch, that check would go red.
+
+**The first version of this section called SAPI "rejected", and the author
+corrected it.** Having heard it, the author said SAPI's voice is *"very close
+from real human voice"* (2026-09-27). What had failed was its pitch control,
+not its voice. The file is now named
+`mu5_01_sapi_speaks_but_cannot_hold_a_note.wav`, and the author's words are
+in the verdict data.
+
+### (a') SAPI's own voice, retuned — HOLDS, measured
+
+Kept the voice, took the pitch: SAPI speaks the syllable slowly, and PSOLA
+holds it on the note (`vibrato 0` for the measurement).
+
+| note | shift from SAPI's own 187 Hz | held at | spread (0.5–0.9 s) |
+|---|---|---|---|
+| G3 | +80 cents | 0.076 | 0.985 |
+| C4 | +580 | −1.098 | 2.351 |
+| E4 | +980 | −0.584 | 1.238 |
+| G4 | +1280 | 0.346 | 0.985 |
+| C5 | +1780 | −1.568 | 2.206 |
+
+**Worst 1.568 cents, against (a)'s bar of 20.** The engine test proves the
+same on a synthetic syllable whose pitch *falls* 180 → 140 Hz as speech does:
+172 periods tracked, held at 220 Hz within 0.778 cents. What no number here
+says is how large a shift can go **before it stops sounding human**:
+`mu5_08` walks G3 → G5 for the author's ear. The words are SAPI's, consonants
+included, which the formant voice cannot do.
+
+### (b) the formant voice — on its pitch, and its vowels are the vowels
+
+| | |
+|---|---|
+| 5 vowels × 4 pitches (110–523 Hz), no vibrato | worst **0.492 cents** (Zig: 0.218 over 147–660 Hz) |
+| under a ±25-cent vibrato, read evenly over 4 cycles | centre **−0.325 cents** |
+| first formants at 110 Hz, pre-emphasised | a 660 (650) · e 440 (400) · i 220 (290) · o 440 (400) · u 330 (350) |
+| second formants | i **1870** (1870) · a **1100** (1080) |
+| a glide 220 → 330 over 1.2 s | on the log curve within 1.4% at both readings |
+
+At 110 Hz the harmonics are 110 Hz apart, so a formant is read to the nearest
+harmonic. For **i**, the nearest reading landed on the harmonic *below* (220,
+70 Hz off the table's 290) rather than the one above (330, 40 off). That is
+inside the one-harmonic tolerance, and it is stated here rather than rounded
+away. The five first formants fall from open **a** to closed **i**: five
+vowels, not one timbre.
+
+### (c) Sing() — OPEN for the retuned voice, by the author's word
+
+`StzSoundSingingVerdict()` has one entry per candidate voice. **`:retuned`
+reads SINGING**: *"the retuned voice is somehow singing, open Sing()"*, from
+Mansour Ayouni (the Principal), 2026-09-27. Its `Sing("la la la", "c4 e4 g4")`
+now sings, and the guard holds what it sings to the same bar the voice was
+measured by: each note within **9.4 cents** under a 20-cent vibrato, against
+20. **`:formant` still reads UNPERCEIVED**, and its `Sing()` stays shut; its
+reason carries the SAPI measurement, so (a) is not tried again blind. The
+author's word was *"somehow"*, and it is recorded as said: the gate is open,
+and how well it sings is still an open question. One line per voice changes
+a verdict:
+
+- `:verdict = "SINGING"`, with the author's name and words, opens `Sing()`,
+  which sings each syllable as its vowel. There are no consonants: "la" is
+  sung as "a".
+- `:verdict = "NOT SINGING"` closes it for good and defers singing to the
+  neural tier, in writing, exactly as the plan's (c) says.
+
+### Found, and each one changed the design or the reading
+
+1. **The pitch reader was biased by the vibrato, not the voice.** Sixteen
+   readings 50 ms apart sample a 5.5 Hz vibrato unevenly and reported up to
+   8 cents the voice does not have. Vibrato depth is now a parameter: the
+   pitch is proven with it off, and the centre is read evenly over whole
+   vibrato cycles.
+2. **A formant is not the loudest harmonic.** Without pre-emphasis, the
+   loudest harmonic of **i** and **o** was the second, because the glottal
+   source's own spectrum falls with frequency. Formant analysis pre-emphasises
+   by +6 dB per octave for exactly this reason; the guard now does, says so,
+   and keeps the failed version in its text.
+3. **A glide spans its whole note.** The guard's first check asked for 330 Hz
+   at 1.05 s; the curve is due at 314 there. Each reading is now held to the
+   curve at its own moment.
+4. **The escaped-newline trap** (MU1's) turned a `\n` in a heredoc into a
+   real newline inside a Zig string. Fixed by hand, again.
+5. **Ring died with no message.** `return _o_.ToMonoQ()` inside a method (the
+   Q form returns `This` of a LOCAL object) ended the process with exit 1 and
+   nothing printed. In place, then return the object.
+6. **A release would have freed the note it returned.** `_r_ =
+   _o_.ResampleToQ(...)` followed by `_o_.Release()`: the Q form returns the
+   same object, so the release frees the buffer `_r_` holds. Found by reading
+   the code while fixing 5, not by a crash, and fixed the same way.
+7. **The disk was full: 10 GB free, and builds need 10.** The shared
+   checkout's `.zig-cache` held 56.5 GB. Only entries untouched for two days
+   were deleted (55.1 GB), because other sessions may be building in that tree.
+   Free space is now 65 GB.
+
+### Claims in this plan, corrected
+
+- §6's (a) asks whether SAPI *"holds pitch within 20 cents"*. It is not
+  close: a 20-cent bar against a 400-cent miss and a 500-cent wander. The
+  plan's wording suggested a near miss; the measurement is not one.
+- §6's (b) *"does it read as a voice to the author?"* is kept exactly as
+  written: no number here answers it, and `Sing()` waits for the answer.
+
+### Found on the way and not caused here
+
+- **SAPI fails after the audio device has been probed in the same process.**
+  `CoInitializeEx` returns 0x80010106 (RPC_E_CHANGED_MODE), because the device
+  DLL has already initialised COM in another threading mode, and the voice
+  then reports **no voices at all**. The demo's first run skipped (a)
+  **silently** for this reason. The demo now creates the voice first and
+  prints a refusal if (a) cannot be heard. The fix belongs in `voice.zig`
+  (treat RPC_E_CHANGED_MODE as "COM is available, do not uninitialise"). Routed
+  as `STZLIB-VOICE-COMODE-01`, not changed here.
+- The Tunisian universe's listener line was false ("UNPERCEIVED") after the
+  Principal heard its examples on 2026-09-26. It now records who heard it and
+  what they said, and MU4's guard checks it.
+- Regression over the sound guards: 813 passed, 3 failed: 793 plus MU5's 20, and the three
+  are MU1's `:Muted` cross-plane failures. Nothing else moved.
+
+### The listener's line
+
+- **SAPI's timbre, HEARD 2026-09-27** by the author: *"very close from real
+  human voice"*.
+- **SAPI retuned (`mu5_06` to `mu5_08`): HEARD 2026-09-27** by the author:
+  *"the retuned voice is somehow singing, open Sing()"*. **Sing() is open.**
+  Still owed: in `mu5_08`, where does it stop sounding human?
+- **The formant voice (`mu5_02` to `mu5_05`): UNPERCEIVED.** Its `Sing()`
+  stays shut until the author rules on it.

@@ -144,6 +144,8 @@ ok
     load "sound/universes/niger.ring"
     load "sound/universes/raga.ring"
     load "sound/universes/gamelan.ring"
+    load "sound/stzSoundFormantVoice.ring"
+    load "sound/stzSoundRetunedVoice.ring"
     load "sound/stzMusic.ring"
     load "sound/stzMicrophone.ring"
 
