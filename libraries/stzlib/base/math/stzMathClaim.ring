@@ -141,8 +141,14 @@ func StzLeanCheck(pcLeanText, pcName)
 	if NOT direxists(_cDir_)  system('mkdir "' + _cDir_ + '"')  ok
 	_cFile_ = _cDir_ + "/" + _LcSlug(pcName) + ".lean"
 	write(_cFile_, pcLeanText)
-	_o_ = StzSystemCallQ("cmd")
-	_o_.SetArgs([ "/c", 'cd /d "' + _d_[:project] + '" && lake env lean "' + _cFile_ + '"' ])
+	# THE RUNNER is a two-line batch file beside the claims, so no quoting
+	# crosses cmd: it steps into the project and hands lake the file
+	_cRun_ = _cDir_ + "/run.cmd"
+	if NOT fexists(_cRun_)
+		write(_cRun_, 'cd /d "%~dp0.."' + char(13) + char(10) + 'lake env lean "%~1"' + char(13) + char(10))
+	ok
+	_o_ = StzSystemCallQ("cmd.exe")
+	_o_.SetArgs([ "/c", StzReplace(_cRun_, "/", char(92)), StzReplace(_cFile_, "/", char(92)) ])
 	_o_.HideConsole()
 	_o_.Run()
 	_v_ = StzLeanParseOutput(_o_.Output() + char(10) + _o_.Error(), _o_.ExitCode())
