@@ -139,6 +139,33 @@ fn ring_NoteOf(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(snd.noteOf(instIdx(p, 1), gn(p, 2), gn(p, 3), gn(p, 4), gn(p, 5), @intFromFloat(gn(p, 6)), @intFromFloat(gn(p, 7)))));
 }
 
+// MU5: VowelOf(vowel1, hz, hzEnd, hold, velocity, breath, vibratoCents, rate)
+// -> buffer id or 0; the vowel is 1-based (1..5 = a e i o u), translated here.
+fn ring_VowelOf(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(snd.vowelOf(instIdx(p, 1), gn(p, 2), gn(p, 3), gn(p, 4), gn(p, 5), gn(p, 6), gn(p, 7), @intFromFloat(gn(p, 8)))));
+}
+
+// VowelFormant(vowel1, hz, which) -> F1 (which = 1) or F2 (which = 2) in Hz
+fn ring_VowelFormant(p: *anyopaque) callconv(.c) void {
+    const f = ins.vowelFormants(instIdx(p, 1), gn(p, 2));
+    const w = gn(p, 3);
+    rn(p, if (w == 1) f[0] else if (w == 2) f[1] else 0);
+}
+
+// MU5 (a'): Retune(buffer, hz, hold, vibratoCents) -> buffer or 0; and what the
+// last retune found: RetuneMarks() periods, RetuneFromHz() the syllable's pitch
+fn ring_Retune(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(snd.retuneOf(id(p, 1), gn(p, 2), gn(p, 3), gn(p, 4))));
+}
+
+fn ring_RetuneMarks(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(ins.last_retune_marks));
+}
+
+fn ring_RetuneFromHz(p: *anyopaque) callconv(.c) void {
+    rn(p, ins.last_retune_from_hz);
+}
+
 fn ring_NoteRawCents(p: *anyopaque) callconv(.c) void {
     rn(p, ins.last_raw_cents);
 }
@@ -716,6 +743,11 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginesoundgraphsetfrequency", .func = &ring_GraphSetFrequency },
     .{ .name = "stzenginesoundgraphcurrentfrequency", .func = &ring_GraphCurrentFrequency },
     .{ .name = "stzenginesoundgraphsetrate", .func = &ring_GraphSetRate },
+    .{ .name = "stzenginesoundvowelof", .func = &ring_VowelOf },
+    .{ .name = "stzenginesoundretune", .func = &ring_Retune },
+    .{ .name = "stzenginesoundretunemarks", .func = &ring_RetuneMarks },
+    .{ .name = "stzenginesoundretunefromhz", .func = &ring_RetuneFromHz },
+    .{ .name = "stzenginesoundvowelformant", .func = &ring_VowelFormant },
     .{ .name = "stzenginesoundgraphaddtimeline", .func = &ring_GraphAddTimeline },
     .{ .name = "stzenginesoundgraphtimelineplace", .func = &ring_GraphTimelinePlace },
     .{ .name = "stzenginesoundgraphtimelinenow", .func = &ring_GraphTimelineNow },
