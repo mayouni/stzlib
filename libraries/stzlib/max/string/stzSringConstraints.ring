@@ -49,6 +49,6 @@ class stzStringConstraints
 
 		for aPair in This.Constraints()
 			cConstraintName = aPair[1]
-			This.VerifyConstraint(cConstraintName) = 0
+			This.VerifyConstraint(cConstraintName)
 			
 		next
