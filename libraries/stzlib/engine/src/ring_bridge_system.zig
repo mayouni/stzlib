@@ -49,6 +49,28 @@ fn ring_RunXT(p: *anyopaque) callconv(.c) void {
 
     R.ring_vm_api_retlist(p, out);
 }
+// StzEngineSystemRunArgv(cPacked) -> [ stdout, exitcode, stderr ]. cPacked is
+// program + arguments joined by char(0); NO shell parses any of it.
+fn ring_RunArgv(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    var out_ptr: [*c]u8 = null;
+    var out_len: usize = 0;
+    var err_ptr: [*c]u8 = null;
+    var err_len: usize = 0;
+    var exit_code: c_int = -1;
+    sys.stz_system_run_argv(gs(p, 1), @intCast(gss(p, 1)), &out_ptr, &out_len, &err_ptr, &err_len, &exit_code);
+    const empty: [*]const u8 = "";
+    if (out_ptr != null and out_len > 0) {
+        R.ring_list_addstring2(out, out_ptr, @intCast(out_len));
+        sys.stz_system_run_free(out_ptr, out_len);
+    } else R.ring_list_addstring2(out, empty, 0);
+    R.ring_list_addint(out, exit_code);
+    if (err_ptr != null and err_len > 0) {
+        R.ring_list_addstring2(out, err_ptr, @intCast(err_len));
+        sys.stz_system_run_free(err_ptr, err_len);
+    } else R.ring_list_addstring2(out, empty, 0);
+    R.ring_vm_api_retlist(p, out);
+}
 fn ring_Exec(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(sys.stz_system_exec(gs(p, 1), @intCast(gss(p, 1)))));
 }
@@ -158,6 +180,7 @@ fn ring_IsMacos(p: *anyopaque) callconv(.c) void { rn(p, @floatFromInt(sys.stz_s
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginesystemrun", .func = &ring_Run },
     .{ .name = "stzenginesystemrunxt", .func = &ring_RunXT },
+    .{ .name = "stzenginesystemrunargv", .func = &ring_RunArgv },
     .{ .name = "stzenginesystemexec", .func = &ring_Exec },
     .{ .name = "stzenginesystemenv", .func = &ring_Env },
     .{ .name = "stzenginesystemenvget", .func = &ring_EnvGet },

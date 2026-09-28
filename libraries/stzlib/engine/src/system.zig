@@ -54,7 +54,10 @@ fn runShellCommand(command: []const u8) !RunResult {
         &[_][]const u8{ shell.name, f, command }
     else
         &[_][]const u8{ shell.name, command };
+    return runArgv(argv);
+}
 
+fn runArgv(argv: []const []const u8) !RunResult {
     var child = std.process.Child.init(argv, gpa);
     child.stdout_behavior = .Pipe;
     child.stderr_behavior = .Pipe;
@@ -119,6 +122,49 @@ pub fn stz_system_run2(
     const command = cmd[0..cmd_len];
     const result = runShellCommand(command) catch return;
 
+    exit_code.* = result.exit_code;
+    if (result.stdout.len > 0) {
+        out_ptr.* = result.stdout.ptr;
+        out_len.* = result.stdout.len;
+    }
+    if (result.stderr.len > 0) {
+        err_ptr.* = result.stderr.ptr;
+        err_len.* = result.stderr.len;
+    }
+}
+
+// Run a program from an ARGUMENT LIST -- no shell in between.
+//
+// Every entry point above hands ONE string to cmd.exe /c or /bin/sh -c, so
+// any data spliced into that string is parsed as shell syntax: a filename
+// holding `$(...)`, a backquote, a double quote (POSIX) or a `%VAR%`
+// (cmd.exe) runs or rewrites a command. Here each argument reaches the
+// program as itself. `packed_args` is the arguments joined by NUL (a NUL
+// cannot occur inside an argument), program first. Same outputs and
+// ownership as stz_system_run2.
+pub fn stz_system_run_argv(
+    packed_args: [*c]const u8,
+    packed_len: usize,
+    out_ptr: *[*c]u8,
+    out_len: *usize,
+    err_ptr: *[*c]u8,
+    err_len: *usize,
+    exit_code: *c_int,
+) callconv(.c) void {
+    out_ptr.* = null;
+    out_len.* = 0;
+    err_ptr.* = null;
+    err_len.* = 0;
+    exit_code.* = -1;
+    if (packed_args == null or packed_len == 0) return;
+
+    var argv = std.ArrayList([]const u8){};
+    defer argv.deinit(gpa);
+    var it = std.mem.splitScalar(u8, packed_args[0..packed_len], 0);
+    while (it.next()) |arg| argv.append(gpa, arg) catch return;
+    if (argv.items.len == 0 or argv.items[0].len == 0) return;
+
+    const result = runArgv(argv.items) catch return;
     exit_code.* = result.exit_code;
     if (result.stdout.len > 0) {
         out_ptr.* = result.stdout.ptr;
