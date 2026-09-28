@@ -98,6 +98,15 @@ func NcgRingExe()
 			return "" + _aA_[_i_]
 		ok
 	next
+	# The scan above knows the interpreter by its FILENAME, which cannot
+	# match one that is not called ring: Ring++ ships as rnxc.exe, so
+	# every spawn here fell back to the literal below and launched
+	# nothing. sysargv[1] IS the interpreter -- [exe, script, args...]
+	# on either runtime -- so it is the honest fallback. The literal
+	# stays for the case where even that is missing.
+	if _nLen_ >= 1
+		return "" + _aA_[1]
+	ok
 	return "ring"
 
 func NcgBaseRing()

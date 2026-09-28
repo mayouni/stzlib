@@ -3876,8 +3876,8 @@ class stzListOfNumbers from stzList
 			_aProduct_ + _anContent_[@i] * paList[@i]
 		next
 
-		_oTempList_ = new steListOfNumbers(_aProduct_)
-		_oCoefList_ = new steListOfNumbers(_paList_)
+		_oTempList_ = new stzListOfNumbers(_aProduct_)
+		_oCoefList_ = new stzListOfNumbers(paList)
 
 		_nResult_ = _oTempList_.Sum() / _oCoefList_.Sum()
 

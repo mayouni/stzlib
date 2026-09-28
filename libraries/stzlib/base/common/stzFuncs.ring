@@ -5024,7 +5024,7 @@ func StzEmpty(pcStzType)
 		return new stzGrid([])
 
 	on :stzentity
-		return new stzEnity(:$nothing)
+		return new stzEntity(:$nothing)
 
 	on :stzlistofentities
 		return new stzListOfEntities([])
