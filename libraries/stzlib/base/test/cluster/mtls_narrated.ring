@@ -152,6 +152,13 @@ func MtlsRingExe
 		c = StzLower("" + aA[i])
 		if StzFindFirst("ring.exe", c) > 0 or c = "ring"  return "" + aA[i]  ok
 	next
+	# The scan above knows the interpreter by its FILENAME, which cannot
+	# match one that is not called ring: Ring++ ships as rnxc.exe, so
+	# every spawn here fell back to the literal below and launched
+	# nothing. sysargv[1] IS the interpreter -- [exe, script, args...]
+	# on either runtime -- so it is the honest fallback. The literal
+	# stays for the case where even that is missing.
+	if nLen >= 1  return "" + aA[1]  ok
 	return "ring"
 
 func MtlsBaseRing

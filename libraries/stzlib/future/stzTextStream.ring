@@ -83,7 +83,7 @@ class stzTextStream from stzObject
 		return bIsSetFromSocket
 
 	def IsSetFromProcess()
-		reurn bIsSetFromProcess
+		return bIsSetFromProcess
 
 	def IsUnicodeAutoDetected()
 		return oQTextStream.autoDetectUnicode()

@@ -8620,7 +8620,7 @@ class stzNumber from stzObject
 			_nResult_ = ring_acos(_n1_)
 	
 		on "atan2"
-			_nResult_ = ring_atan2(_n1_)
+			_nResult_ = ring_atan2(_n1_, _n2_)
 	
 		on "sinh"
 			_nResult_ = ring_sinh(_n1_)
@@ -8629,7 +8629,7 @@ class stzNumber from stzObject
 			_nResult_ = ring_cosh(_n1_)
 	
 		on "tanh"
-			_nResult_ = ring_tanhh(_n1_)
+			_nResult_ = ring_tanh(_n1_)
 	
 		on "exp"
 			_nResult_ = ring_exp(_n1_)
