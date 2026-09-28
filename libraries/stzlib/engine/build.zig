@@ -230,7 +230,7 @@ fn addGgml(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) 
     mod.addIncludePath(b.path(g ++ "/src/ggml-cpu"));
     mod.addIncludePath(b.path(g ++ "/src/ggml-cpu/arch/x86"));
 
-    const cflags = &[_][]const u8{
+    const cflags_common = [_][]const u8{
         "-DGGML_VERSION=\"0.0.0-stz\"",
         "-DGGML_COMMIT=\"stz\"",
         "-DGGML_USE_CPU",
@@ -241,6 +241,12 @@ fn addGgml(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) 
         // works in production (llama.cpp) -- don't run it under our UBSan.
         "-fno-sanitize=undefined",
     };
+    // On glibc, CPU_ZERO and pthread_setaffinity_np are declared only under
+    // _GNU_SOURCE, which ggml's own CMake defines on Linux. Without it ggml-cpu.c
+    // does not compile for Linux at all (found by the first Linux build of the
+    // engine, 2026-09-28). Linux only: nothing changes on Windows.
+    const gnu = [_][]const u8{"-D_GNU_SOURCE"};
+    const cflags: []const []const u8 = if (lib.rootModuleTarget().os.tag == .linux) &(cflags_common ++ gnu) else &cflags_common;
     lib.addCSourceFiles(.{
         .files = &.{
             g ++ "/src/ggml.c",
@@ -881,7 +887,14 @@ fn addTreeSitter(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.B
         // type-punned access for its packed parse tables. Turning the check off
         // for vendored code we do not own is the narrow fix -- OUR Zig keeps every
         // safety check ReleaseSafe gives it, which is the point of choosing it.
-        .flags = &.{ "-std=c11", "-fno-sanitize=undefined" },
+        //
+        // Off Windows, glibc hides le16toh/be16toh (unicode.h) and fdopen
+        // (parser.c) unless a feature level is declared; tree-sitter's own
+        // Makefile declares these two (first Linux build, 2026-09-28).
+        .flags = if (lib.rootModuleTarget().os.tag == .windows)
+            &.{ "-std=c11", "-fno-sanitize=undefined" }
+        else
+            &.{ "-std=c11", "-fno-sanitize=undefined", "-D_DEFAULT_SOURCE", "-D_POSIX_C_SOURCE=200809L" },
     });
 }
 
