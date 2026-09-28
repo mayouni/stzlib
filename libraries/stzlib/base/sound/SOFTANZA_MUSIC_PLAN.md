@@ -1735,3 +1735,125 @@ the record saying who."*
   Still UNPERCEIVED: MU0's swing and pluck, MU1's twenty instrument names,
   MU2's swing, MU3's liveness, the other seven universes, the formant voice,
   and the talking drum. The record says so, by phase.
+
+---
+
+## MU8 STATUS — 2026-09-28. Added after the plan closed, on the Principal's ask: MIDI and ABC read back into the same stzSoundScore
+
+**Why it exists.** MU7 wrote a score as ABC, MusicXML and MIDI, and read none
+of them back. Its only MIDI reader was the guard's own test tool. The recap
+said "NOTATE" without a direction, and the Principal read it as both ways. The
+correction said so, and the Principal asked for the readers.
+
+**Face.** `base/sound/stzSoundNotationReader.ring`:
+
+- `StzSoundNotationReaderQ()`, with `FromMidiFileQ`, `FromMidiBytesQ`,
+  `FromAbcQ`, `Losses`, `LastError`, `Title` and `Voices`
+- the one-call forms `StzSoundScoreFromMidiQ` and `StzSoundScoreFromAbcQ`
+- and in `stzSoundNotation.ring`, `StzSoundGmTable` and
+  `StzSoundGmInstrument`
+
+No engine change: both readers are pure Ring, and both return the
+stzSoundScore that every transform reads.
+
+**Guard.** `base/test/sound/sound_mu8_narrated.ring`: **43**.
+**Heard.** `sound_mu8_demo.ring`: a Rast phrase written by hand in ABC is read,
+played on the oud, written to a MIDI file, read back and played again. The
+two WAVs match in length, and the MIDI copy reads back as the same 29 notes.
+UNPERCEIVED, but nothing here rests on an ear: a reader is right or wrong by
+numbers.
+
+### What is read
+
+- **MIDI**:
+  - formats 0 and 1, all tracks merged in time order;
+  - running status, a note-on at velocity 0 read as a note-off, SysEx skipped;
+  - **pitch = key + bend**, at the bend range each channel's RPN 0 sets (2
+    semitones until a file says otherwise), so a quarter tone or a slendro
+    degree written as a bend comes back as its frequency;
+  - a bend that moves during a note becomes a glide;
+  - channel 10 is read as strokes.
+- **ABC 2.1**:
+  - header fields up to K:, and `%%MIDI program`;
+  - accidentals, including the microtones `^/` `_/` `^n/m`;
+  - octave marks, every length form, ties, broken rhythm, tuplets `(3` and
+    `(p:q:r`, chords, and the rests `z x Z X`;
+  - key signatures in all modes, plus `exp` and added accidentals;
+  - bar accidentals that hold to the barline and for their octave only;
+  - voices, inline fields, and **repeats played out** (`|: :|`, `::`, and
+    endings `|1 :|2` and `[1 [2`).
+
+### The numbers
+
+| | |
+|---|---|
+| Rast, MIDI round trip | 10/10 notes, every onset on its tick, worst pitch **0.049 cents** (the bend's own step), tempo exact |
+| a mixed score, MIDI round trip | 25/25 events: an oud on a channel a guitar used, a chord, a kalangu glide (ends **0.002 cents** from 165 Hz), darbouka and kit strokes |
+| slendro from a MIDI **file** | within **0.072 cents** |
+| Rast, ABC round trip | every pitch **exact**: `_/E` is a quarter tone, read as one |
+| ABC → MIDI → ABC | the **same text**, character for character |
+
+### Checked by more than the writer
+
+- **A MIDI file assembled by hand**, byte by byte from the standard, not by
+  the writer: 112 bytes, read as the standard prescribes. It includes running
+  status, a note-off sent as a velocity-0 note-on, a SysEx message, bends at
+  the default range and at an RPN-set range of 12, a snare, a triangle that
+  maps to no stroke, a tempo change, and a note never released.
+- **Two ABC tunes written for the guard**, each checked note by note against
+  values worked out from the ABC 2.1 standard:
+  - a 6/8 tune in D with a repeat and two endings;
+  - a 4/4 tune in G with two voices, carried and cancelled accidentals, a
+    triplet, broken rhythm, a chord, a quarter tone, octave marks, a
+    whole-bar rest and a tie across a barline.
+- **Nine key signatures**, and the repeat forms `::` and `[1 [2`.
+- **Every check was shown able to fail.** Seven mutations were each run
+  against the guard: removing the instrument name, putting the glide's last
+  bend on the note-off, writing hat as key 39, keeping accidentals across
+  barlines, ignoring endings, ignoring the bend range, and not rounding the
+  tempo. Each one turned at least one check red. The tempo mutation at first
+  passed unnoticed, so a check was added that catches it.
+
+### Found, and each one changed the design
+
+1. **The MIDI writer lost the instrument.** It changed the program only when
+   the PROGRAM changed. An oud played after a guitar on the same channel (both
+   GM 24) therefore left no trace. The writer now names the instrument in a
+   text event (`stz:inst 3 oud`), and the reader prefers that name. Any other
+   reader skips the text.
+2. **A glide's arrival belonged to no note.** Its last bend sat on the note-off
+   tick, and a note-off sorts before a bend on the same tick. The last bend is
+   now one tick inside the note.
+3. **"hat", the score's alias, was written as key 39**, a hand clap. It is now
+   42, the closed hihat.
+4. **MIDI cannot write 90 BPM.** Tempo is stored as microseconds per beat:
+   666667, which reads back as 89.99995, and the ABC writer's `floor` then
+   printed `Q:1/4=89`. The reader now rounds to a thousandth, and the ABC and
+   MusicXML writers round instead of flooring.
+5. **The ABC writer closed on an empty bar** (`| |]`) when a voice ended on a
+   barline. It now closes that bar.
+
+### What is refused, and what is counted
+
+- **Refused**, with the reason in `LastError`:
+  - a file that is not MIDI;
+  - MIDI format 2;
+  - SMPTE timing;
+  - a track that stops partway through a message;
+  - ABC with no K: line;
+  - an empty text.
+- **Counted** in `Losses`:
+  - from MIDI: a tempo change (the first tempo is kept), the sustain pedal,
+    SysEx, a drum key with no stroke here, a note never released, a GM
+    program with no instrument here;
+  - from ABC: chord symbols, decorations, grace notes, lyrics, the parts
+    order (P:), a voice whose name is no instrument here, and a tie that leads
+    nowhere.
+
+### What MU8 did NOT do
+
+- **MusicXML is not read**: it was not asked for.
+- **Vibrato is flattened.** A bend that moves and comes back is read as a
+  glide to where it ended, and that is counted.
+- **No nested repeats, and no P: parts order.** One tune per text.
+- Regression over the sound guards: **885 passed, 3 failed**: MU7's 842 plus MU8's 43. The three are the `:Muted` failures across planes (STZLIB-MUTED-CROSSPLANE-01), unchanged.

@@ -32,16 +32,29 @@ func StzSoundNotationQ(poScore)
 	return new stzSoundNotation(poScore)
 
 # General MIDI programs (0-based), and what GM cannot name honestly
+func StzSoundGmTable()
+	return [ [ "piano", 0 ], [ "guitar", 24 ], [ "harp", 46 ], [ "bell", 14 ], [ "epiano", 4 ],
+	         [ "brass", 61 ], [ "flute", 73 ], [ "oud", 24 ], [ "koto", 107 ], [ "kora", 46 ],
+	         [ "metallophone", 11 ], [ "mezwed", 109 ], [ "zokra", 111 ], [ "kakaki", 56 ],
+	         [ "sarewa", 73 ], [ "imzad", 110 ], [ "kalangu", 116 ], [ "darbouka", 116 ],
+	         [ "bendir", 116 ], [ "drumkit", 116 ] ]
+
 func StzSoundGmProgram(pcInst)
-	_a_ = [ [ "piano", 0 ], [ "guitar", 24 ], [ "harp", 46 ], [ "bell", 14 ], [ "epiano", 4 ],
-	        [ "brass", 61 ], [ "flute", 73 ], [ "oud", 24 ], [ "koto", 107 ], [ "kora", 46 ],
-	        [ "metallophone", 11 ], [ "mezwed", 109 ], [ "zokra", 111 ], [ "kakaki", 56 ],
-	        [ "sarewa", 73 ], [ "imzad", 110 ], [ "kalangu", 116 ], [ "darbouka", 116 ],
-	        [ "bendir", 116 ], [ "drumkit", 116 ] ]
-	for _p_ in _a_
+	for _p_ in StzSoundGmTable()
 		if _p_[1] = pcInst  return _p_[2] ok
 	next
 	return 0
+
+# MU8: a GM program back to an instrument -- the FIRST of this table's names
+# that shares it ("" when none does). Twenty instruments on eleven programs,
+# so the program alone cannot tell an oud from a guitar: the writer names the
+# instrument in a text event beside each program change, and the reader
+# prefers that name when there is one.
+func StzSoundGmInstrument(pnProg)
+	for _p_ in StzSoundGmTable()
+		if _p_[2] = pnProg  return _p_[1] ok
+	next
+	return ""
 
 class stzSoundNotation
 
@@ -60,7 +73,7 @@ class stzSoundNotation
 		@aLosses = []
 		_aV_ = This._Voices()
 		_c_ = "X:1" + nl + "T:" + pcTitle + nl + "M:4/4" + nl + "L:1/16" + nl +
-		      "Q:1/4=" + floor(@oS.TempoInBpm()) + nl + "K:C" + nl
+		      "Q:1/4=" + floor(@oS.TempoInBpm() + 0.5) + nl + "K:C" + nl
 		_n_ = 0
 		for _v_ in _aV_
 			_n_++
@@ -91,6 +104,9 @@ class stzSoundNotation
 			_s_ += This._AbcSplit(_tok_, _t_, _g_[2], _aAcc_)
 			_t_ += _g_[2]
 		next
+		# a voice that ends ON a barline closes that bar; it wrote "| |]", an
+		# empty bar (seen when MU8 read a tune back)
+		if right(_s_, 2) = "| "  return left(_s_, len(_s_) - 2) + "|]" ok
 		return _s_ + " |]"
 
 	# a token of `pnLen` sixteenths from `pnAt`, split and tied at barlines
@@ -196,7 +212,7 @@ class stzSoundNotation
 					if _b_ = 0
 						_x_ += "      <attributes><divisions>4</divisions><time><beats>4</beats>" +
 						       "<beat-type>4</beat-type></time><clef><sign>G</sign><line>2</line></clef></attributes>" + nl +
-						       "      <sound tempo=" + char(34) + floor(@oS.TempoInBpm()) + char(34) + "/>" + nl
+						       "      <sound tempo=" + char(34) + floor(@oS.TempoInBpm() + 0.5) + char(34) + "/>" + nl
 					ok
 				ok
 				_room_ = 16 - (_at_ % 16)
@@ -298,8 +314,8 @@ class stzSoundNotation
 		       This._Vlq(0) + char(255) + char(47) + char(0)
 		# track 1: pitched notes, a channel each, bent onto their pitch
 		_aPool_ = [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15 ]
-		_aBusy_ = [ ]             # [ channel, busyUntilTick, lastUsedOrder, program ]
-		for _ch_ in _aPool_  _aBusy_ + [ _ch_, -1, 0, -1 ] next
+		_aBusy_ = [ ]             # [ channel, busyUntilTick, lastUsedOrder, instrument ]
+		for _ch_ in _aPool_  _aBusy_ + [ _ch_, -1, 0, "" ] next
 		_aT1_ = []                # [ tick, order, bytes ]
 		_ord_ = 0
 		for _ch_ in _aPool_
@@ -314,6 +330,7 @@ class stzSoundNotation
 			_ord_++
 		next
 		_aT2_ = []
+		_cDrum_ = ""
 		_nUse_ = 0
 		for _e_ in _aEv_
 			_tk_ = floor(_e_[1] * _ppq_ + 0.5)
@@ -325,6 +342,12 @@ class stzSoundNotation
 			if _e_[3] <= 0
 				# a stroke: the drum channel, General MIDI's numbers
 				_key_ = This._GmDrum(_e_[6])
+				_cD_ = _e_[4]
+				if _cD_ = ""  _cD_ = "drumkit" ok
+				if _cD_ != _cDrum_
+					_aT2_ + [ _tk_, 1, This._InstText(9, _cD_) ]
+					_cDrum_ = _cD_
+				ok
 				_aT2_ + [ _tk_, 1, char(153) + char(_key_) + char(_vel_) ]
 				_aT2_ + [ _tk_ + _dur_, 0, char(137) + char(_key_) + char(0) ]
 				loop
@@ -351,10 +374,13 @@ class stzSoundNotation
 			_aBusy_[_pick_][3] = _nUse_
 			_inst_ = _e_[4]
 			if _inst_ = ""  _inst_ = "piano" ok
-			_prog_ = StzSoundGmProgram(_inst_)
-			if _aBusy_[_pick_][4] != _prog_
-				_aT1_ + [ _tk_, 1, char(192 + _ch_) + char(_prog_) ]
-				_aBusy_[_pick_][4] = _prog_
+			# MU8: the instrument by NAME in a text event, then its program. The
+			# first cut changed program only when the PROGRAM changed, so an oud
+			# after a guitar on one channel (both GM 24) left no trace at all.
+			if _aBusy_[_pick_][4] != _inst_
+				_aT1_ + [ _tk_, 1, This._InstText(_ch_, _inst_) ]
+				_aT1_ + [ _tk_, 1, char(192 + _ch_) + char(StzSoundGmProgram(_inst_)) ]
+				_aBusy_[_pick_][4] = _inst_
 			ok
 			_m_ = 69 + 12 * log(_e_[3] / 440) / log(2)
 			_key_ = floor(_m_ + 0.5)
@@ -373,7 +399,10 @@ class stzSoundNotation
 						if fabs(_ms_ - _key_) > 12
 							@aLosses + ("MIDI: a glide leaves the +-12 semitone bend range; clipped")
 						ok
-						_aT1_ + [ _tk_ + floor(_dur_ * _s_ / 10), 2, This._Bend(_ch_, _ms_ - _key_) ]
+						# inside the note: the last bend a tick before its off. It was AT
+						# the off, and a note-off sorts before a bend on the same tick,
+						# so the glide's arrival belonged to no note (found by MU8's reader)
+						_aT1_ + [ _tk_ + floor((_dur_ - 1) * _s_ / 10), 2, This._Bend(_ch_, _ms_ - _key_) ]
 					next
 				ok
 			ok
@@ -390,11 +419,18 @@ class stzSoundNotation
 		on "kick"   return 36
 		on "snare"  return 38
 		on "hihat"  return 42
+		on "hat"    return 42      # the score's alias; it was written as 39, a hand clap
 		on "dum"    return 64
 		on "tak"    return 63
 		on "ka"     return 62
 		off
 		return 39
+
+	# a text event naming the instrument on a channel: "stz:inst 3 oud". Any
+	# other reader skips text; this library's reader keeps the name.
+	def _InstText(pnCh, pcInst)
+		_t_ = "stz:inst " + pnCh + " " + pcInst
+		return char(255) + char(1) + This._Vlq(len(_t_)) + _t_
 
 	# a pitch bend of `pnSemis` (+-12 range) on channel ch
 	def _Bend(pnCh, pnSemis)
