@@ -34,13 +34,19 @@ func _stzDiscoverEngineDir()
 	for _depth_ = 1 to 10
 		_cCandidate_ = _cDir_ + "/engine"
 		_cProbe_ = _cCandidate_ + "/zig-out/bin"
-		if fexists(_cProbe_ + "/stz_string.dll") or fexists(_cProbe_ + "/stz_sequence.dll")
+		# zig-out/bin/*.dll on Windows; zig-out/lib/lib*.so or .dylib elsewhere --
+		# the names the engine loaders themselves open on each platform
+		if fexists(_cProbe_ + "/stz_string.dll") or fexists(_cProbe_ + "/stz_sequence.dll") or
+		   fexists(_cCandidate_ + "/zig-out/lib/libstz_string.so") or
+		   fexists(_cCandidate_ + "/zig-out/lib/libstz_string.dylib")
 			return _cCandidate_
 		ok
 		# Also try libraries/stzlib/engine (for when cwd is the repo root)
 		_cCandidate2_ = _cDir_ + "/libraries/stzlib/engine"
 		_cProbe2_ = _cCandidate2_ + "/zig-out/bin"
-		if fexists(_cProbe2_ + "/stz_string.dll") or fexists(_cProbe2_ + "/stz_sequence.dll")
+		if fexists(_cProbe2_ + "/stz_string.dll") or fexists(_cProbe2_ + "/stz_sequence.dll") or
+		   fexists(_cCandidate2_ + "/zig-out/lib/libstz_string.so") or
+		   fexists(_cCandidate2_ + "/zig-out/lib/libstz_string.dylib")
 			return _cCandidate2_
 		ok
 		# Go up one level
