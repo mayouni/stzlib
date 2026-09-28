@@ -45,11 +45,11 @@ func StzConcatenateXT(pacListOfStr, pcSep)
 
 	_nLen_ = len(pacListOfStr)
 	_cResult_ = ""
-	for @i = 1 to _nLen_
-		if @i > 1
+	for _i_ = 1 to _nLen_
+		if _i_ > 1
 			_cResult_ += pcSep
 		ok
-		_cResult_ += pacListOfStr[@i]
+		_cResult_ += pacListOfStr[_i_]
 	next
 
 	return _cResult_

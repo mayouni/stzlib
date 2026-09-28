@@ -302,8 +302,9 @@ class stkNumber
 	def UnSpacified()
 		_bTemp_ = @bSpacify
 		@bSpacify = 0
-		_cResult_ This.SValue()
+		_cResult_ = This.SValue()
 		@bSpacify = _bTemp_
+		return _cResult_
 
 	def Spacified()
 		

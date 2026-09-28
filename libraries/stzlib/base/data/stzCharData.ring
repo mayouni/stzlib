@@ -1804,7 +1804,7 @@ $_cMarquerChar = "#"
 		# "—" : used to —delimiet a portion of text— in the sentence.
 
 	func ArabicTamdeed()
-		return _cArabicTamdeed = "ـ"
+		return $_cArabicTamdeed
 		# used to extend arabic words like in حُسَيْـــــن
 
 	func TurnedDigitUnicodes()

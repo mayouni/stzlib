@@ -738,8 +738,8 @@ func Slice(pStrOrList, _n1_, n2)
 		_aResult_ = []
 		_nLen_ = len(pStrOrList)
 
-		for @i = _n1_ to n2
-			_aResult_ + pStrOrList[@i]
+		for _i_ = _n1_ to n2
+			_aResult_ + pStrOrList[_i_]
 		next
 
 		return _aResult_
@@ -1177,8 +1177,8 @@ func Types(paValues)
 	_nLen_ = len(paValues)
 	_acResult_ = []
 
-	for @i = 1 to _nLen_
-		_acResult_ + type(paValues[@i])
+	for _i_ = 1 to _nLen_
+		_acResult_ + type(paValues[_i_])
 	next
 
 	return _acResult_
@@ -1194,8 +1194,8 @@ func TypesXT(paValues)
 	_nLen_ = len(paValues)
 	_aResult_ = []
 
-	for @i = 1 to _nLen_
-		_aResult_ + [ paValues[@i], type(paValues[@i]) ]
+	for _i_ = 1 to _nLen_
+		_aResult_ + [ paValues[_i_], type(paValues[_i_]) ]
 	next
 
 	return _aResult_
@@ -3839,12 +3839,12 @@ func IsListOfNumbersInStrings(paList)
 
 	_nLen_ = len(paList)
 
-	for @i = 1 to $_nLen
-		if NOT isString(paList[@i])
+	for _i_ = 1 to _nLen_
+		if NOT isString(paList[_i_])
 			return 0
 		ok
 
-		if NOT @IsNumberInString(paList[@i])
+		if NOT @IsNumberInString(paList[_i_])
 			return 0
 		ok
 	next
@@ -7074,32 +7074,32 @@ func FindNumberOrStringInNestedList(pNbrOrStr, paList) #ai #claude #chat-gpt
     _aPositions_ = []
     _nRootPos_ = 1
 
-    for @i = 1 to _nLen_
+    for _i_ = 1 to _nLen_
 
-        if isNumber(paList[@i]) or isString(paList[@i])
-            if paList[@i] = pNbrOrStr
+        if isNumber(paList[_i_]) or isString(paList[_i_])
+            if paList[_i_] = pNbrOrStr
                 _aPositions_ + [ _nRootPos_ ]
             ok
 
-        but isList(paList[@i])
+        but isList(paList[_i_])
 
-            _aSubPositions_ = FindNumberOrStringInNestedList(pNbrOrStr, paList[@i])
+            _aSubPositions_ = FindNumberOrStringInNestedList(pNbrOrStr, paList[_i_])
             _nLenPos_ = len(_aSubPositions_)
 
             # Process nested positions
 
-            for @j = 1 to _nLenPos_
-                if isList(_aSubPositions_[@j])
+            for _j_ = 1 to _nLenPos_
+                if isList(_aSubPositions_[_j_])
                     _aNewPath_ = [ _nRootPos_ ]
-                    _nLenNewPath_ = len(_aSubPositions_[@j])
+                    _nLenNewPath_ = len(_aSubPositions_[_j_])
 
-                    for @k = 1 to _nLenNewPath_
-                        _aNewPath_ + _aSubPositions_[@j][@k]
+                    for _k_ = 1 to _nLenNewPath_
+                        _aNewPath_ + _aSubPositions_[_j_][_k_]
                     next
 
                     _aPositions_ + _aNewPath_
                 else
-                    _aPositions_ + [ _nRootPos_, _aSubPositions_[@j] ]
+                    _aPositions_ + [ _nRootPos_, _aSubPositions_[_j_] ]
                 ok
             next
         ok
@@ -7153,29 +7153,29 @@ func FindStrListInNestedStrList(pcItemProvidedAsStr, pcListProvidedAsStr) #ai #c
 
 					if _nRootPos_ != 1
 
-						for @i = 1 to _nLenSubPos_
+						for _i_ = 1 to _nLenSubPos_
 
-							if isList(_aSubPositions_[@i])
+							if isList(_aSubPositions_[_i_])
 
 								_aNewPath_ = [ _nRootPos_ ]
-								_nLenInnerSubPos_ = len(_aSubPositions_[@i])
+								_nLenInnerSubPos_ = len(_aSubPositions_[_i_])
 
-								for @j = 1 to _nLenInnerSubPos_
-									_aNewPath_ + _aSubPositions_[@i][@j]
+								for _j_ = 1 to _nLenInnerSubPos_
+									_aNewPath_ + _aSubPositions_[_i_][_j_]
 								next
 
 								_aPositions_ + _aNewPath_
 
 							else
-								_aPositions_ + [ _nRootPos_, _aSubPositions_[@i] ]
+								_aPositions_ + [ _nRootPos_, _aSubPositions_[_i_] ]
 							ok
 						next
 
 					else
 						# At root level, add positions as-is
 
-						for @i = 1 to _nLenSubPos_
-							_aPositions_ + _aSubPositions_[@i]
+						for _i_ = 1 to _nLenSubPos_
+							_aPositions_ + _aSubPositions_[_i_]
 						next
 					ok
 				ok
@@ -7203,24 +7203,24 @@ func FindStrListInNestedStrList(pcItemProvidedAsStr, pcListProvidedAsStr) #ai #c
 	func FindMatchingBracket(cStr, nStartPos)
 
 		_nOpenCount_ = 1
-		@i = nStartPos + 1
+		_i_ = nStartPos + 1
 		_nLenStr_ = stzlen(cStr)
 	
-		while @i <= _nLenStr_
+		while _i_ <= _nLenStr_
 
-			if StzReplace(cStr, @i, 1) = "["
+			if StzReplace(cStr, _i_, 1) = "["
 				_nOpenCount_++
 
-			but StzReplace(cStr, @i, 1) = "]"
+			but StzReplace(cStr, _i_, 1) = "]"
 
 				_nOpenCount_--
 
 				if _nOpenCount_ = 0
-					return @i
+					return _i_
 				ok
 			ok
 
-			@i++
+			_i_++
 		end
 	    
 		return _nLenStr_
@@ -7545,7 +7545,7 @@ func ComputableShortFormQ(paList)
 		return ComputableShortFormQ(paList)
 
 func ComputableFormXTQ(pValue, cSep1, cSep2)
-	return new stzString( ComputableFormXT(pValue, _c_) )
+	return new stzString( ComputableFormXT(pValue, cSep1, cSep2) )
 
 	func @@XTQ(pValue, cSep1, cSep2)
 		return new stzString( @@XT(pValue, cSep1, cSep2) )
@@ -7739,24 +7739,24 @@ func Combinations(_aList_, _n_)
 
 	# Main loop for first element
 
-	for @i = 1 to _nLen_ - _n_ + 1
+	for _i_ = 1 to _nLen_ - _n_ + 1
 
 		# Inner loop for remaining elements
 
-		for @j = @i + 1 to _nLen_ - _n_ + 2
+		for _j_ = _i_ + 1 to _nLen_ - _n_ + 2
 			_aCombination_ = []
-			_aCombination_ + _aList_[@i]
+			_aCombination_ + _aList_[_i_]
 
 			# Additional loops for n > 2
 			if _n_ > 2
-				for @k = @j + 1 to _nLen_
+				for _k_ = _j_ + 1 to _nLen_
 					_aTempComb_ = _aCombination_
-					_aTempComb_ + _aList_[@j]
-					_aTempComb_ + _aList_[@k]
+					_aTempComb_ + _aList_[_j_]
+					_aTempComb_ + _aList_[_k_]
 					_aResult_ + _aTempComb_
 				next
 			else
-				_aCombination_ + _aList_[@j]
+				_aCombination_ + _aList_[_j_]
 				_aResult_ + _aCombination_
 			ok
 		next

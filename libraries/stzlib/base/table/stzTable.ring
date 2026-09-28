@@ -655,8 +655,8 @@ Class stzTable from stzList
 		if This.ColNamesQ().Contains(pcName)
 			_bResult_ = 1
 		ok
-*/
 		return _bResult_
+*/
 
 		#< @FunctionAlternativeForm
 
@@ -3640,7 +3640,7 @@ func _NormalizeColLookupKey(pVal)
 			ok
 		ok
 
-		_anColNumbers_ = new stzList( U(TpacColNamesOrNumbers) ).Sorted()
+		_anColNumbers_ = new stzList( U(panColNumbers) ).Sorted()
 		_nLen_ = len(_anColNumbers_)
 
 		_aContent_ = @aContent

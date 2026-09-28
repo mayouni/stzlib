@@ -4,7 +4,7 @@
 
 // o1 = new stzTextCodec("KOI8-R")
 
-_acSupportedTextEncodings = [
+$_acSupportedTextEncodings = [
 	lower("Big5"),
 	lower("Big5-HKSCS"),
 	lower("CP949"),
@@ -50,7 +50,7 @@ _acSupportedTextEncodings = [
 ]
 
 func SupportedTextEncodings()
-		return _acSupportedTextEncodings
+		return $_acSupportedTextEncodings
 
 class stzTextEncoding from stzObject
 	oQTextCodec
@@ -59,7 +59,7 @@ class stzTextEncoding from stzObject
 	def init(pcEncodingName)
 		pcEncodingName = lower(pcEncodingName)
 
-		oSupportedEncodings = new stzList(_acSupportedTextEncodings)
+		oSupportedEncodings = new stzList($_acSupportedTextEncodings)
 		if oSupportedEncodings.Contains(pcEncodingName)
 			oQTextCodec = new QTextCodec
 			oQTextCodec.codecforname(pcEncodingName)
@@ -73,6 +73,6 @@ class stzTextEncoding from stzObject
 
 	def SetSystemEncoding(pcEncodingName)
 		pcEncodingName = lower(pcEncodingName)
-		oSupportedEncodings = new stzList(_acSupportedTextEncodings)
+		oSupportedEncodings = new stzList($_acSupportedTextEncodings)
 		oQTextCodec.setCodecForLocale(cEncodingName)
 

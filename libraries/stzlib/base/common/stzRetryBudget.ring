@@ -25,8 +25,8 @@
 	so a `Try` method raises a C27 syntax error.
 */
 
-func StzRetryBudget(@nBudget, nWindowSeconds)
-	return new stzRetryBudget(@nBudget, nWindowSeconds)
+func StzRetryBudget(pnBudget, nWindowSeconds)
+	return new stzRetryBudget(pnBudget, nWindowSeconds)
 
 class stzRetryBudget from stzObject
 

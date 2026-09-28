@@ -128,7 +128,7 @@ func StzFolderQ(_cPath_)
 	return new stzFolder(_cPath_)
 
 func IsAbsolutePath(_cPath_)
-	return cDir = StzFolderQ(_cPath_).AbsolutePath()
+	return _cPath_ = StzFolderQ(_cPath_).AbsolutePath()
 
 func @dir(_cPath_) # Same as Ring dir() but in lowercase
 	if CheckParams()

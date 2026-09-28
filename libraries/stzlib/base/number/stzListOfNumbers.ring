@@ -1471,11 +1471,15 @@ func FirstNPrimesW(_n_, pcCondition)
 
 	nMax = MaxRingNumber()
 
-	_cCode_ = 'bOk = (' + _StzStripBraces(pcCondition) + ' )'
+	# The condition names @prime; the loop's own variable is _prime_. A
+	# bare @name in a plain function is refused under Ring++'s Rule A (@ is
+	# an attribute), so the condition is rewritten onto the local before it
+	# is evaluated -- case-insensitively, as Ring's names are.
+	_cCode_ = 'bOk = (' + StzReplaceCS(_StzStripBraces(pcCondition), "@prime", "_prime_", FALSE) + ' )'
 
 	_anResult_ = []
 
-	@prime = 0
+	_prime_ = 0
 	_j_ = 0
 
 	while 1
@@ -1484,11 +1488,11 @@ func FirstNPrimesW(_n_, pcCondition)
 			StzRaise("Can't proceed! Maximum Ring number exceeded.")
 		ok
 
-		@prime = NextPrimeAfter(@prime)
+		_prime_ = NextPrimeAfter(_prime_)
 
 		eval(_cCode_)
 		if bOk
-			_anResult_ + @prime
+			_anResult_ + _prime_
 			if len(_anResult_) = _n_
 				exit
 			ok
@@ -3752,7 +3756,7 @@ class stzListOfNumbers from stzList
 	#----------------------------------------#
 
 	def Absolute()
-		_anContent_ = This.Content()*
+		_anContent_ = This.Content()
 		_nLen_ = len(_anContent_)
 
 		for i = 1 to _nLen_

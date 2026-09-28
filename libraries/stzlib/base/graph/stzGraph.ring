@@ -21,13 +21,13 @@ func StzGraphQ(cGraphName)
 	return new stzGraph(cGraphName)
 
 func StzGraphTypes()
-	return @acGraphTypes
+	return $acGraphTypes
 
 	func GraphTypes()
 		return StzGraphTypes()
 
 func StzDefaultGraphType()
-	return @cDefaultGraphType
+	return $cDefaultGraphType
 
 	func DefaultGraphType()
 		return StzDefaultGraphType()
