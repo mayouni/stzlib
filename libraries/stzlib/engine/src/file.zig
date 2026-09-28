@@ -136,6 +136,71 @@ pub fn stz_file_delete(path: [*c]const u8, path_len: usize) callconv(.c) c_int {
     return 1;
 }
 
+// ─── Permissions ───
+//
+// These replace the shell strings `chmod a-w "<name>"` and `attrib +R
+// "<name>"`, which handed the filename to a shell: a name holding `$(...)`
+// ran it, and on Windows cmd.exe expanded a `%VAR%` inside the quotes before
+// attrib ever saw the name. Here the path goes to the OS as a path.
+// 1 = done, 0 = failed.
+
+extern "kernel32" fn GetFileAttributesW(lpFileName: [*:0]const u16) callconv(.winapi) u32;
+extern "kernel32" fn SetFileAttributesW(lpFileName: [*:0]const u16, dwFileAttributes: u32) callconv(.winapi) i32;
+const WIN_ATTR_READONLY: u32 = 0x1;
+const WIN_ATTR_INVALID: u32 = 0xFFFFFFFF;
+
+/// Read-only on (flag != 0: POSIX a-w) or off (flag = 0: POSIX u+w).
+pub fn stz_file_set_readonly(path: [*c]const u8, path_len: usize, flag: c_int) callconv(.c) c_int {
+    if (path == null or path_len == 0) return 0;
+    const p = path[0..path_len];
+    if (!pathIsUsable(p)) return 0;
+    if (builtin.os.tag == .windows) {
+        const w = std.unicode.utf8ToUtf16LeAllocZ(gpa, p) catch return 0;
+        defer gpa.free(w);
+        const attrs = GetFileAttributesW(w.ptr);
+        if (attrs == WIN_ATTR_INVALID) return 0;
+        const next = if (flag != 0) attrs | WIN_ATTR_READONLY else attrs & ~WIN_ATTR_READONLY;
+        return if (SetFileAttributesW(w.ptr, next) != 0) 1 else 0;
+    }
+    return if (flag != 0) chmodWith(p, false, 0o222) else chmodWith(p, true, 0o200);
+}
+
+/// Owner-executable on (POSIX u+x). Windows has no such bit: 1, as before.
+pub fn stz_file_set_executable(path: [*c]const u8, path_len: usize) callconv(.c) c_int {
+    if (path == null or path_len == 0) return 0;
+    const p = path[0..path_len];
+    if (!pathIsUsable(p)) return 0;
+    if (builtin.os.tag == .windows) return stz_file_exists(path, path_len);
+    return chmodWith(p, true, 0o100);
+}
+
+fn chmodWith(p: []const u8, set: bool, bits: u32) c_int {
+    if (builtin.os.tag == .windows) return 0;
+    const file = fs.cwd().openFile(p, .{}) catch return 0;
+    defer file.close();
+    const st = file.stat() catch return 0;
+    const mode: u32 = @intCast(st.mode & 0o7777);
+    const next = if (set) mode | bits else mode & ~bits;
+    file.chmod(@intCast(next)) catch return 0;
+    return 1;
+}
+
+/// 1 when the file is read-only (Windows attribute, or no write bit at all).
+pub fn stz_file_is_readonly(path: [*c]const u8, path_len: usize) callconv(.c) c_int {
+    if (path == null or path_len == 0) return 0;
+    const p = path[0..path_len];
+    if (!pathIsUsable(p)) return 0;
+    if (builtin.os.tag == .windows) {
+        const w = std.unicode.utf8ToUtf16LeAllocZ(gpa, p) catch return 0;
+        defer gpa.free(w);
+        const attrs = GetFileAttributesW(w.ptr);
+        if (attrs == WIN_ATTR_INVALID) return 0;
+        return if ((attrs & WIN_ATTR_READONLY) != 0) 1 else 0;
+    }
+    const st = fs.cwd().statFile(p) catch return 0;
+    return if ((st.mode & 0o222) == 0) 1 else 0;
+}
+
 // ─── File Copy ───
 
 pub fn stz_file_copy(src: [*c]const u8, src_len: usize, dst: [*c]const u8, dst_len: usize) callconv(.c) c_int {

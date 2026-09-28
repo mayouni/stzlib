@@ -111,7 +111,20 @@ fn ring_PathDirname(p: *anyopaque) callconv(.c) void {
     if (n > 0) rs2(p, &buf, @intCast(n)) else rs(p, "");
 }
 
+fn ring_FileSetReadOnly(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(f.stz_file_set_readonly(gs(p, 1), @intCast(gss(p, 1)), @intFromFloat(g(p, 2)))));
+}
+fn ring_FileSetExecutable(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(f.stz_file_set_executable(gs(p, 1), @intCast(gss(p, 1)))));
+}
+fn ring_FileIsReadOnly(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(f.stz_file_is_readonly(gs(p, 1), @intCast(gss(p, 1)))));
+}
+
 pub const regs = [_]R.Reg{
+    .{ .name = "stzenginefilesetreadonly", .func = &ring_FileSetReadOnly },
+    .{ .name = "stzenginefilesetexecutable", .func = &ring_FileSetExecutable },
+    .{ .name = "stzenginefileisreadonly", .func = &ring_FileIsReadOnly },
     .{ .name = "stzenginefileexists", .func = &ring_FileExists },
     .{ .name = "stzenginefilesize", .func = &ring_FileSize },
     .{ .name = "stzenginefilemtime", .func = &ring_FileMTime },
