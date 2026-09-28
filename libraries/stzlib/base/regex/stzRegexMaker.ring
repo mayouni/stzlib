@@ -994,7 +994,7 @@ class stzRegexMaker from stzObject
 			StzRaise("No group named '" + pcGroupName + "' has been defined")
 		ok
 
-		@acFragments + "</(?P=" + pcTagGroupName + ")>"
+		@acFragments + "</(?P=" + pcGroupName + ")>"
 
 	def MatchOppositeTagAs(pcTagGroupName)
 		# Special case for HTML/XML - matches the closing tag

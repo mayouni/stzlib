@@ -637,7 +637,7 @@ class stzCalendar from stzObject
 		for _i_ = 1 to _nLen_
 			_oBreakDate_ = new stzDate(@aBreaks[_i_][1])
 			if _oBreakDate_ >= _cStart_ and _oBreakDate_ <= _cEnd_
-				_aResult_ + @a Breaks[_i_]
+				_aResult_ + @aBreaks[_i_]
 			ok
 		next
 		

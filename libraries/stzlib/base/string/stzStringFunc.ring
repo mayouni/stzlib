@@ -190,8 +190,8 @@ func StzIsInvisibleString(_str_)
 
 	_bResult_ = 1
 
-	for @i = 1 to _nLen_
-		if NOT IsInvisibleChar(_acChars_[@i])
+	for _i_ = 1 to _nLen_
+		if NOT IsInvisibleChar(_acChars_[_i_])
 			_bResult_ = 0
 			exit
 		ok
