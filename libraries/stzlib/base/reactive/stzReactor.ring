@@ -250,13 +250,12 @@ class stzReactor from stzObject
 	# STZM channel over CLIENT-role TLS (the mTLS counterpart of
 	# ListenTls, on the persistent link): this node PRESENTS
 	# cCertPath/cKeyPath for the peer's mutual check ("" for none) and
-	# VALIDATES the peer against cCaPath when bVerify. Link-up (:accept)
-	# fires only when the handshake COMPLETES -- an up channel is a
-	# SECURE channel.
+	# VALIDATES the peer -- see _TlsVerifyMode() for what bVerify may be.
+	# Link-up (:accept) fires only when the handshake COMPLETES -- an up
+	# channel is a SECURE channel.
 	def ConnectStzmTls(cHost, nPort, cCertPath, cKeyPath, cCaPath, bVerify)
 		This._Ensure()
-		_nV_ = 0
-		if bVerify  _nV_ = 1  ok
+		_nV_ = This._TlsVerifyMode(bVerify)
 		return StzEngineReactorConnectTls(@pHandle, cHost, nPort, 2,
 			"" + cCertPath, "" + cKeyPath, "" + cCaPath, _nV_)
 
@@ -294,14 +293,13 @@ class stzReactor from stzObject
 	# Send cRequest (raw HTTP bytes) to cHost:nPort over TLS and return the
 	# response bytes ("" on failure -- see TlsClientStatus). This node
 	# PRESENTS the client cert cCertPath/cKeyPath (for the peer's mutual
-	# check; pass "" for none), and VALIDATES the peer's server cert against
-	# cCaPath when bVerify = TRUE (hostname checked via SNI). A dedicated
-	# mbedTLS transport (PEM certs + mutual auth), separate from the curl
-	# path used for general outbound HTTPS.
+	# check; pass "" for none), and VALIDATES the peer's server cert
+	# (hostname checked via SNI) -- see _TlsVerifyMode() for bVerify. A
+	# dedicated mbedTLS transport (PEM certs + mutual auth), separate from
+	# the curl path used for general outbound HTTPS.
 	def TlsRequest(cHost, nPort, cRequest, cCertPath, cKeyPath, cCaPath, bVerify)
 		This._Ensure()
-		_nV_ = 0
-		if bVerify  _nV_ = 1  ok
+		_nV_ = This._TlsVerifyMode(bVerify)
 		return StzEngineReactorTlsRequest("" + cHost, nPort, "" + cRequest,
 			"" + cCertPath, "" + cKeyPath, "" + cCaPath, _nV_)
 
@@ -313,9 +311,25 @@ class stzReactor from stzObject
 			"Connection: close" + _cCRLF_ + _cCRLF_
 		return This.TlsRequest(cHost, nPort, _cReq_, cCertPath, cKeyPath, cCaPath, bVerify)
 
+	# The client verification policy fails CLOSED. bVerify is one of:
+	#   TRUE               the peer MUST validate -- against cCaPath when
+	#                      given, else against the operating system's
+	#                      trusted roots (no anchor at all: status -19)
+	#   :InsecureNoVerify  no verification, because the caller NAMED it
+	#   FALSE              REFUSED (status -18): switching verification off
+	#                      is a named mode, never a boolean one can drift into
+	def _TlsVerifyMode(bVerify)
+		if isString(bVerify)
+			if StzLower(bVerify) = "insecurenoverify"  return -1  ok
+			return 0
+		ok
+		if bVerify = 1  return 1  ok
+		return 0
+
 	# Result of the last TlsRequest: 0 ok, -1 connect, -2 handshake (an
 	# untrusted/invalid peer SERVER cert aborts here), -3 cert verify, -4
-	# setup. NOTE: a server rejecting a MISSING client cert is enforced
+	# setup, -18 verification switched off without :InsecureNoVerify, -19
+	# no trust anchor. NOTE: a server rejecting a MISSING client cert is enforced
 	# SERVER-side -- under TLS 1.3 the client's handshake still completes
 	# (status 0) but the protected response comes back EMPTY. So the
 	# authoritative "was I let in?" check is the RESPONSE body, not status.

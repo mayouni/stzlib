@@ -1300,11 +1300,18 @@ fn onChanConnect(req: *anyopaque, status: c_int) callconv(.c) void {
             closeConn(conn);
             return;
         }
-        // SNI + hostname verification target = the host we dialed
+        // SNI + hostname verification target = the host we dialed. A host
+        // that cannot be set is a host that cannot be CHECKED: close.
         var hbuf: [256]u8 = undefined;
-        if (std.fmt.bufPrintZ(&hbuf, "{s}", .{s.host})) |host_z| {
-            _ = c.mbedtls_ssl_set_hostname(ssl, host_z.ptr);
-        } else |_| {}
+        const host_ok = if (std.fmt.bufPrintZ(&hbuf, "{s}", .{s.host})) |host_z|
+            c.mbedtls_ssl_set_hostname(ssl, host_z.ptr) == 0
+        else |_| false;
+        if (!host_ok) {
+            c.mbedtls_ssl_free(ssl);
+            gpa.destroy(ssl);
+            closeConn(conn);
+            return;
+        }
         c.mbedtls_ssl_set_bio(ssl, conn, tlsBioSend, tlsBioRecv, null);
         conn.ssl = ssl;
         if (uv_read_start(conn.tcp_buf.ptr, onSrvAlloc, onSrvRead) != 0) {
@@ -1916,11 +1923,95 @@ pub fn reactor_connect(
     return @intCast(id);
 }
 
+// ── CLIENT TLS VERIFICATION POLICY -- fail CLOSED ──
+//
+// Both client paths (the persistent channel and the one-shot request)
+// used to fail OPEN: no CA path gave VERIFY_NONE, and verify = 0 gave
+// VERIFY_OPTIONAL -- so a client with no CA, or one that passed FALSE,
+// completed a handshake with ANY server, forged or not. The policy now:
+//
+//   verify = TLS_VERIFY_REQUIRED (1)       the peer MUST validate, against
+//                                          ca_path when given, else against
+//                                          the operating system's trust store;
+//                                          no anchor at all -> refused (-19)
+//   verify = TLS_INSECURE_NO_VERIFY (-1)   no verification, and only because
+//                                          the caller NAMED that mode
+//   anything else (0 included)             refused (-18): "do not verify"
+//                                          is not a boolean you can drift into
+pub const TLS_VERIFY_REQUIRED: i32 = 1;
+pub const TLS_INSECURE_NO_VERIFY: i32 = -1;
+pub const TLS_ERR_CA_FILE: i32 = -17;
+pub const TLS_ERR_VERIFY_OFF: i32 = -18;
+pub const TLS_ERR_NO_ANCHOR: i32 = -19;
+
+const CERT_CONTEXT = extern struct {
+    dwCertEncodingType: u32,
+    pbCertEncoded: [*]const u8,
+    cbCertEncoded: u32,
+    pCertInfo: ?*anyopaque,
+    hCertStore: ?*anyopaque,
+};
+extern "crypt32" fn CertOpenSystemStoreW(hProv: usize, szSubsystemProtocol: [*:0]const u16) callconv(.winapi) ?*anyopaque;
+extern "crypt32" fn CertEnumCertificatesInStore(hCertStore: ?*anyopaque, pPrevCertContext: ?*const CERT_CONTEXT) callconv(.winapi) ?*const CERT_CONTEXT;
+extern "crypt32" fn CertCloseStore(hCertStore: ?*anyopaque, dwFlags: u32) callconv(.winapi) i32;
+
+/// Load the operating system's trusted roots into `chain`. Returns how
+/// many certificates were added (0 = no usable trust store).
+fn loadSystemTrust(chain: *c.mbedtls_x509_crt) usize {
+    var n: usize = 0;
+    if (@import("builtin").os.tag == .windows) {
+        const store = CertOpenSystemStoreW(0, std.unicode.utf8ToUtf16LeStringLiteral("ROOT")) orelse return 0;
+        defer _ = CertCloseStore(store, 0);
+        var prev: ?*const CERT_CONTEXT = null;
+        while (CertEnumCertificatesInStore(store, prev)) |ctx| {
+            // X509_ASN_ENCODING = 1; a root mbedTLS cannot parse is skipped
+            if ((ctx.dwCertEncodingType & 1) != 0 and
+                c.mbedtls_x509_crt_parse_der(chain, ctx.pbCertEncoded, ctx.cbCertEncoded) == 0) n += 1;
+            prev = ctx;
+        }
+        return n;
+    }
+    const bundles = [_][*:0]const u8{
+        "/etc/ssl/certs/ca-certificates.crt", // Debian, Ubuntu, Arch
+        "/etc/pki/tls/certs/ca-bundle.crt", // Fedora, RHEL
+        "/etc/ssl/ca-bundle.pem", // openSUSE
+        "/etc/ssl/cert.pem", // macOS, Alpine, BSD
+    };
+    for (bundles) |path| {
+        if (c.mbedtls_x509_crt_parse_file(chain, path) >= 0) break;
+    }
+    var p: ?*c.mbedtls_x509_crt = chain;
+    while (p) |crt| : (p = crt.next) {
+        if (crt.raw.len > 0) n += 1;
+    }
+    return n;
+}
+
+/// Apply the verification policy above to a client config. `chain` must
+/// outlive `conf`. Returns 0, or TLS_ERR_CA_FILE / _VERIFY_OFF / _NO_ANCHOR.
+fn applyClientVerify(conf: *c.mbedtls_ssl_config, chain: *c.mbedtls_x509_crt, ca_path: []const u8, verify: i32) i32 {
+    if (verify == TLS_INSECURE_NO_VERIFY) {
+        c.mbedtls_ssl_conf_authmode(conf, c.MBEDTLS_SSL_VERIFY_NONE);
+        return 0;
+    }
+    if (verify != TLS_VERIFY_REQUIRED) return TLS_ERR_VERIFY_OFF;
+    if (ca_path.len > 0) {
+        var abuf: [1024]u8 = undefined;
+        const ca_z = std.fmt.bufPrintZ(&abuf, "{s}", .{ca_path}) catch return TLS_ERR_CA_FILE;
+        if (c.mbedtls_x509_crt_parse_file(chain, ca_z.ptr) != 0) return TLS_ERR_CA_FILE;
+    } else if (loadSystemTrust(chain) == 0) {
+        return TLS_ERR_NO_ANCHOR;
+    }
+    c.mbedtls_ssl_conf_ca_chain(conf, chain, null);
+    c.mbedtls_ssl_conf_authmode(conf, c.MBEDTLS_SSL_VERIFY_REQUIRED);
+    return 0;
+}
+
 // CLIENT-role TLS credentials + config for a channel (mirror of
 // setupServerTls; same persistent structs, freed by freeServerTls).
 // cert/key = THIS node's cert presented for the peer's mutual check
-// (both optional); ca + verify = validate the peer against that anchor.
-fn setupChanTls(s: *Server, cert_path: []const u8, key_path: []const u8, ca_path: []const u8, verify: bool) i32 {
+// (both optional); ca_path + verify follow the policy above.
+fn setupChanTls(s: *Server, cert_path: []const u8, key_path: []const u8, ca_path: []const u8, verify: i32) i32 {
     const entropy = gpa.create(c.mbedtls_entropy_context) catch return -11;
     s.tls_entropy = entropy;
     c.mbedtls_entropy_init(entropy);
@@ -1952,27 +2043,19 @@ fn setupChanTls(s: *Server, cert_path: []const u8, key_path: []const u8, ca_path
         if (c.mbedtls_ssl_conf_own_cert(conf, clicert, pk) != 0) return -16;
     }
 
-    if (ca_path.len > 0) {
-        var abuf: [1024]u8 = undefined;
-        const ca_z = std.fmt.bufPrintZ(&abuf, "{s}", .{ca_path}) catch return -10;
-        const cacert = gpa.create(c.mbedtls_x509_crt) catch return -11;
-        s.tls_cacert = cacert;
-        c.mbedtls_x509_crt_init(cacert);
-        if (c.mbedtls_x509_crt_parse_file(cacert, ca_z.ptr) != 0) return -17;
-        c.mbedtls_ssl_conf_ca_chain(conf, cacert, null);
-        c.mbedtls_ssl_conf_authmode(conf, if (verify) c.MBEDTLS_SSL_VERIFY_REQUIRED else c.MBEDTLS_SSL_VERIFY_OPTIONAL);
-    } else {
-        c.mbedtls_ssl_conf_authmode(conf, c.MBEDTLS_SSL_VERIFY_NONE);
-    }
-    return 0;
+    const cacert = gpa.create(c.mbedtls_x509_crt) catch return -11;
+    s.tls_cacert = cacert;
+    c.mbedtls_x509_crt_init(cacert);
+    return applyClientVerify(conf, cacert, ca_path, verify);
 }
 
 /// Like reactor_connect, but the channel runs CLIENT-role TLS over the
 /// same mbedTLS termination the listeners use (mutual when cert/key are
-/// given; peer verified against ca when verify != 0). Link-up (.accept)
-/// fires only when the HANDSHAKE completes -- a TLS channel that is "up"
-/// is a channel that is SECURE. Returns channel id (>0) or a negative
-/// setup error (-10..-17).
+/// given; the peer verified under the client policy above). Link-up
+/// (.accept) fires only when the HANDSHAKE completes -- a TLS channel
+/// that is "up" is a channel that is SECURE. Returns channel id (>0) or
+/// a negative setup error (-10..-19; -18 verification switched off
+/// without naming the insecure mode, -19 no trust anchor).
 pub fn reactor_connect_tls(
     r_opt: ?*Reactor,
     host_ptr: [*]const u8,
@@ -2007,7 +2090,7 @@ pub fn reactor_connect_tls(
         .listener_closed = true,
         .bind_done = true,
     };
-    const trc = setupChanTls(s, cert_ptr[0..cert_len], key_ptr[0..key_len], ca_ptr[0..ca_len], verify != 0);
+    const trc = setupChanTls(s, cert_ptr[0..cert_len], key_ptr[0..key_len], ca_ptr[0..ca_len], verify);
     if (trc != 0) {
         freeServer(s);
         return trc;
@@ -2178,13 +2261,14 @@ pub fn reactor_listen_tls(
 //
 // A synchronous mbedTLS request over a blocking socket (mbedtls_net): it
 // presents THIS node's client cert (cert_path/key_path, for the server's
-// mutual check), validates the peer's server cert against ca_path when
-// verify != 0 (hostname checked via SNI), sends req_bytes, and reads the
+// mutual check), validates the peer's server cert under the fail-closed
+// client policy (hostname checked via SNI), sends req_bytes, and reads the
 // framed HTTP response. This is deliberately a SEPARATE transport from the
 // Schannel curl path (which stays for general outbound HTTPS): node-to-node
 // mTLS wants PEM certs + mutual auth end to end, which Schannel can't do.
 // Status via reactor_tls_client_status() (0 ok, -1 connect, -2 handshake,
-// -3 cert verify, -4 setup).
+// -3 cert verify, -4 setup, -18 verification switched off without naming
+// the insecure mode, -19 no trust anchor).
 
 var tls_client_status: i32 = 0;
 
@@ -2248,15 +2332,11 @@ pub fn reactor_tls_request(
     c.mbedtls_ssl_conf_rng(&conf, c.mbedtls_ctr_drbg_random, &drbg);
     c.mbedtls_ssl_conf_read_timeout(&conf, 2000);
 
-    // trust anchor + verification mode
-    if (ca_len > 0) {
-        var abuf: [1024]u8 = undefined;
-        const ca_z = std.fmt.bufPrintZ(&abuf, "{s}", .{ca_ptr[0..ca_len]}) catch return -4;
-        if (c.mbedtls_x509_crt_parse_file(&cacert, ca_z.ptr) != 0) return -4;
-        c.mbedtls_ssl_conf_ca_chain(&conf, &cacert, null);
-        c.mbedtls_ssl_conf_authmode(&conf, if (verify != 0) c.MBEDTLS_SSL_VERIFY_REQUIRED else c.MBEDTLS_SSL_VERIFY_OPTIONAL);
-    } else {
-        c.mbedtls_ssl_conf_authmode(&conf, c.MBEDTLS_SSL_VERIFY_NONE);
+    // trust anchor + verification mode (the fail-closed client policy)
+    const vrc = applyClientVerify(&conf, &cacert, ca_ptr[0..ca_len], verify);
+    if (vrc != 0) {
+        if (vrc != TLS_ERR_CA_FILE) tls_client_status = vrc;
+        return tls_client_status;
     }
 
     // this node's CLIENT cert (presented for the server's mutual check)
@@ -2284,7 +2364,7 @@ pub fn reactor_tls_request(
         if (rc == c.MBEDTLS_ERR_SSL_WANT_READ or rc == c.MBEDTLS_ERR_SSL_WANT_WRITE) continue;
         return -2; // handshake failed (bad cert, no client cert offered, etc.)
     }
-    if (verify != 0 and c.mbedtls_ssl_get_verify_result(&ssl) != 0) {
+    if (verify != TLS_INSECURE_NO_VERIFY and c.mbedtls_ssl_get_verify_result(&ssl) != 0) {
         tls_client_status = -3;
         return -3; // peer cert did not validate against the CA / hostname
     }
