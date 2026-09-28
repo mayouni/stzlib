@@ -175,9 +175,14 @@ Scenario("...and it is no longer quadratic")
 	# scheduling hiccup moves it from 2 to 4. Scale the repetition count
 	# until the SMALLER run is long enough that no single stall can
 	# dominate, then time the bigger run over the SAME count.
+	# THE CAP IS A BOUND, NOT A CALIBRATION. At 5,120 a runtime fast enough
+	# to answer 10,240 queries in ~50 ms never reached the 120 ms floor, and
+	# the assertion below failed on a runtime that was merely FASTER (Ring++,
+	# 2026-09-26). 327,680 is five more doublings: room for a faster engine,
+	# and still a bounded loop on a clock that never moves.
 	nReps = 10
 	nH = 0
-	while nReps <= 5120
+	while nReps <= 327680
 		t0 = StzEngineWatchTimestampMs()
 		for r = 1 to nReps
 			v = oK2.Classify(q)
@@ -186,6 +191,10 @@ Scenario("...and it is no longer quadratic")
 		if nH >= 120  exit  ok
 		nReps = nReps * 2
 	end
+	# Stopped by the cap, the loop has already doubled nReps past the count
+	# it TIMED, and the bigger run below would do twice the work of the
+	# smaller -- a ratio near 2 before anything grew. Same count, both runs.
+	if nH < 120  nReps = nReps / 2  ok
 	t0 = StzEngineWatchTimestampMs()
 	for r = 1 to nReps
 		v = oK.Classify(q)
