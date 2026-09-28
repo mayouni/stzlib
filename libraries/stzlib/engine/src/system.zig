@@ -324,9 +324,16 @@ pub fn stz_system_env_set(name: [*c]const u8, name_len: usize, val: [*c]const u8
         defer gpa.free(key_z);
         const val_z = gpa.dupeZ(u8, value) catch return 0;
         defer gpa.free(val_z);
-        return if (std.c.setenv(key_z, val_z, 1) == 0) 1 else 0;
+        return if (c_setenv(key_z, val_z, 1) == 0) 1 else 0;
     }
 }
+
+// Zig 0.15's std.c no longer declares setenv/unsetenv; the libc symbols
+// are there on every POSIX target. Referenced only off Windows.
+extern "c" fn setenv(name: [*:0]const u8, value: [*:0]const u8, overwrite: c_int) c_int;
+extern "c" fn unsetenv(name: [*:0]const u8) c_int;
+const c_setenv = setenv;
+const c_unsetenv = unsetenv;
 
 pub fn stz_system_env_unset(name: [*c]const u8, name_len: usize) callconv(.c) c_int {
     if (name == null or name_len == 0) return 0;
@@ -340,7 +347,7 @@ pub fn stz_system_env_unset(name: [*c]const u8, name_len: usize) callconv(.c) c_
     } else {
         const key_z = gpa.dupeZ(u8, key) catch return 0;
         defer gpa.free(key_z);
-        _ = std.c.unsetenv(key_z);
+        _ = c_unsetenv(key_z);
         return 1;
     }
 }
