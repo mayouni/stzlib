@@ -444,6 +444,58 @@ func StzNeuralVariantsSync()
 		ok
 	next
 
+# --- MODEL DIGESTS ----------------------------------------------------
+# A GGUF file is opened only when its SHA-256 matches a RECORDED digest --
+# checked in the engine before the GGUF parser reads a byte. A digest is
+# recorded either in this process (StzExpectModelDigest, or automatically
+# for a file this process exported) or in a SHA256SUMS file beside the
+# model, in the standard sha256sum format. No recorded digest is a
+# refusal: trusting a model is an explicit act, StzTrustModel().
+
+# The file's SHA-256, 64 lowercase hex characters ("" if unreadable).
+func StzModelDigest(pcPath)
+	return StzEngineModelDigest("" + pcPath)
+
+# Pin the digest a model must have, for this process -- the form to use
+# with a digest published alongside the model.
+func StzExpectModelDigest(pcPath, pcHex)
+	return StzEngineModelExpect("" + pcPath, "" + pcHex) = 1
+
+# TRUST a model as it is on disk now: record its digest in SHA256SUMS
+# beside it (replacing any earlier line for the same file), so this and
+# later processes may load it. Returns the digest. Do this for a file whose
+# origin you have checked -- it is a statement, not a formality.
+func StzTrustModel(pcPath)
+	_cHex_ = StzModelDigest(pcPath)
+	if _cHex_ = ""
+		stzraise("Cannot trust '" + pcPath + "': the file cannot be read.")
+	ok
+	_cDir_ = StzEnginePathDirname("" + pcPath)
+	if _cDir_ = ""  _cDir_ = "."  ok
+	_cName_ = StzEnginePathBasename("" + pcPath)
+	_cSums_ = _cDir_ + "/SHA256SUMS"
+	_cOut_ = ""
+	if fexists(_cSums_)
+		_acLines_ = StzSplit(read(_cSums_), char(10))
+		_n_ = len(_acLines_)
+		for _i_ = 1 to _n_
+			_cL_ = StzReplace(_acLines_[_i_], char(13), "")
+			if ring_trim(_cL_) = ""  loop  ok
+			_cTail_ = ring_trim(StzMidToEnd(_cL_, 65))
+			if _cTail_ = _cName_ or _cTail_ = "*" + _cName_  loop  ok
+			_cOut_ += _cL_ + char(10)
+		next
+	ok
+	_cOut_ += _cHex_ + "  " + _cName_ + char(10)
+	write(_cSums_, _cOut_)
+	StzExpectModelDigest(pcPath, _cHex_)
+	return _cHex_
+
+# Why the last model load was refused: 0 ok, -1 unreadable or not a GGUF,
+# -2 the digest does not match the recorded one, -3 no digest recorded.
+func StzModelLoadStatus()
+	return StzEngineNeuralModelLoadStatus()
+
 class stzNeuralModel from stzNeural
 
 	@cPath = ""
@@ -460,7 +512,13 @@ class stzNeuralModel from stzNeural
 	def LoadFrom(pcPath)
 		if NOT isString(pcPath) return 0 ok
 		@cPath = pcPath
+		# refused unless the file's digest was recorded -- see StzTrustModel
 		return StzEngineNeuralModelLoad(pcPath) = 1
+
+	# Why the last LoadFrom was refused (0 ok, -1 unreadable, -2 digest
+	# mismatch, -3 no recorded digest).
+	def LoadStatus()
+		return StzEngineNeuralModelLoadStatus()
 
 		def Open(pcPath)
 			return This.LoadFrom(pcPath)

@@ -9,6 +9,7 @@
 // until the write.
 
 const std = @import("std");
+const digest = @import("model_digest.zig");
 
 const c = @cImport({
     @cInclude("ggml.h");
@@ -62,6 +63,9 @@ pub fn stz_gguf_export_write(path: [*c]const u8) callconv(.c) i32 {
     const gg = g_gguf orelse return 0;
     const ok = c.gguf_write_to_file(gg, path, false);
     cleanup();
+    // a file this process just wrote is trusted IN THIS PROCESS; recording
+    // it for later processes is the caller's explicit act (StzTrustModel)
+    if (ok) digest.trustWritten(path);
     return if (ok) 1 else 0;
 }
 
@@ -73,9 +77,13 @@ pub fn stz_gguf_export_abort() callconv(.c) void {
 
 var g_arch_buf: [128]u8 = undefined;
 
-/// tensor count of the file, or -1 on failure. The architecture string
-/// is fetched separately after a successful inspect.
+/// tensor count of the file, or -1 unreadable, -2 digest mismatch, -3 no
+/// recorded digest (model_digest.zig: inspection parses the same untrusted
+/// header a load does). The architecture string is fetched separately
+/// after a successful inspect.
 pub fn stz_gguf_inspect(path: [*c]const u8) callconv(.c) i64 {
+    const vr = digest.verify(path);
+    if (vr != digest.OK) return vr;
     const params = c.gguf_init_params{ .no_alloc = true, .ctx = null };
     const gg = c.gguf_init_from_file(path, params) orelse return -1;
     defer c.gguf_free(gg);
