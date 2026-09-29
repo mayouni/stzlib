@@ -135,7 +135,7 @@ Each is a gap with no guard yet. The rung is the plane's plan for it.
 | R12 | No scheduled or coverage-guided fuzzing; no CI; unsigned commits | A03, GV | **deferred by the author** for the development phase -- remind before the first release |
 | R13 | No reporting runbook for the CRA's 24 h / 72 h clocks | RS, GV | before any EU sale of RINGBOL |
 | R14 | POSIX code paths (trust bundles, argv quoting, chmod) are compiled only under a Linux target and unverified here | A02, A05 | when a Linux machine is available |
-| R15 | SQLite is at 3.49.1, behind the 3.50 line | A03 | a vendor move, as done for mbedTLS and curl |
+| R15 | ~~SQLite is at 3.49.1, behind the 3.50 line~~ | A03 | **CLOSED 2026-09-30** -- 3.53.4, SHA3-256 checked against sqlite.org; its record is kept by G25 |
 
 ---
 

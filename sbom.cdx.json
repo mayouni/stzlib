@@ -1,10 +1,10 @@
 {
   "bomFormat": "CycloneDX",
   "specVersion": "1.6",
-  "serialNumber": "urn:uuid:5254bd69-7c80-5033-a168-30ed8ded0ed2",
+  "serialNumber": "urn:uuid:8782c4e4-2339-5c71-a9d8-1a3af1e7c924",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-09-29T08:39:14Z",
+    "timestamp": "2026-09-29T23:00:50Z",
     "tools": {
       "components": [
         {
@@ -20,7 +20,7 @@
       "properties": [
         {
           "name": "softanza:generated-from-commit",
-          "value": "b74bb7aae047abd0935141619682832614fe1959"
+          "value": "13e6d53bebf5599d21792d68e6a84981f1054c5c"
         }
       ]
     }
@@ -458,7 +458,7 @@
       "type": "library",
       "bom-ref": "vendor/sqlite",
       "name": "SQLite",
-      "version": "3.49.1",
+      "version": "3.53.4",
       "licenses": [
         {
           "expression": "blessing"
@@ -467,7 +467,7 @@
       "externalReferences": [
         {
           "type": "website",
-          "url": "https://sqlite.org/2025/sqlite-amalgamation-3490100.zip"
+          "url": "https://sqlite.org/2026/sqlite-amalgamation-3530400.zip"
         }
       ],
       "properties": [
@@ -477,14 +477,16 @@
         },
         {
           "name": "softanza:tree-digest",
-          "value": "07e77743cf9b38856c59d58aea10b4ac59adc155c86d6b5d661945a2c9e1a50c"
-        },
-        {
-          "name": "softanza:archive-sha-256",
-          "value": "not recorded -- the upstream archive was not fetched when this record was written (2026-09-29)"
+          "value": "67c69bab26d82626ccf538142735a9e4896b076924e216d3fd01259af54b459d"
         }
       ],
-      "purl": "pkg:generic/sqlite@3.49.1"
+      "purl": "pkg:generic/sqlite@3.53.4",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "1e71ddf93849c6a6ecf58b827c0692073d2dd7ee40196158068f7b29f422e87d"
+        }
+      ]
     },
     {
       "type": "library",

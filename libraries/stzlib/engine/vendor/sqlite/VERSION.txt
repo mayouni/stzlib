@@ -1,15 +1,37 @@
-SQLite 3.49.1
+SQLite 3.53.4 -- the amalgamation (sqlite3.c + sqlite3.h)
 
-The amalgamation. SQLITE_SOURCE_ID 2025-02-18 13:38:58
-873d4e274b4988d260ba8354a9718324a1c26187a4ab4c1cc0227c03d0f10e70.
-BEHIND the 3.50 line, which carries security fixes -- named in the
-stzlib-security plane's first memo.
+Source:    https://sqlite.org/2026/sqlite-amalgamation-3530400.zip
+Asset:     sqlite-amalgamation-3530400.zip (2,946,650 bytes)
+Released:  2026-07-24 (SQLITE_SOURCE_ID 2026-07-24 19:02:57
+           bf7c7f30031888f4e796e429ab3978879485813aaca6f641c7b33e4e09459bcc)
+SHA3-256:  628a44cfe82c66aed1ccbbe85a562d2e33ebe64b3288981ed76285612227934e
+           (the digest sqlite.org publishes -- checked against the raw
+           download page and the file, 2026-09-29)
+SHA-256:   1e71ddf93849c6a6ecf58b827c0692073d2dd7ee40196158068f7b29f422e87d
+           (computed here from the same verified file, for tools that
+           only speak SHA-256)
+
+Vendored: sqlite3.c and sqlite3.h from the zip, unchanged (shell.c and
+sqlite3ext.h are not vendored). Built with SQLITE_THREADSAFE=1,
+SQLITE_OMIT_LOAD_EXTENSION and SQLITE_DQS=0 (engine/build.zig addSqlite).
+
+HISTORY. Vendored at 3.49.1 (2025-02-18) with the Unicode data store
+(0e3d0ffec) and never updated until 2026-09-29, when the stzlib-security
+plane moved it to 3.53.4 (threat-model R15). The 3.50 line and later
+carry security fixes. Compiled into stz_db, stz_seclog (the durable
+security log), stz_unidata (it reads the pre-built unicode.db -- the same
+answers on both versions, checked) and the SQLite fuzz harness.
+
+UPDATING: take sqlite3.c and sqlite3.h from a newer amalgamation, check
+its SHA3-256 against sqlite.org/download.html, rebuild, run
+base/test/security/sql_bound_narrated.ring, durable_ledger_narrated.ring,
+`zig build fuzz-sqlite`, and engine/tools/sbom.py.
 
 --- SBOM record (read by engine/tools/sbom.py; keep the keys) ---
 Component:        SQLite
-Version:          3.49.1
-Source:           https://sqlite.org/2025/sqlite-amalgamation-3490100.zip
+Version:          3.53.4
+Source:           https://sqlite.org/2026/sqlite-amalgamation-3530400.zip
 Licence:          blessing
-Purl:             pkg:generic/sqlite@3.49.1
-Archive-SHA-256:  not recorded -- the upstream archive was not fetched when this record was written (2026-09-29)
-Tree-Digest:      07e77743cf9b38856c59d58aea10b4ac59adc155c86d6b5d661945a2c9e1a50c
+Purl:             pkg:generic/sqlite@3.53.4
+Archive-SHA-256:  1e71ddf93849c6a6ecf58b827c0692073d2dd7ee40196158068f7b29f422e87d
+Tree-Digest:      67c69bab26d82626ccf538142735a9e4896b076924e216d3fd01259af54b459d
