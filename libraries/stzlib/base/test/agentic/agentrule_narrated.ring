@@ -17,7 +17,7 @@ Scenario("an agent rule IS a graph rule; the set carries the guardrails")
 	Then("stzAgentRule constructs", isObject(oRule), TRUE)
 	Then("...in the agentic domain", oRule.Domain(), "agentic")
 	oSet = StzAgentRuleSetQ()
-	Then("the set carries the 4 guardrails + the dominator rule", oSet.NumberOfRules(), 5)
+	Then("the set carries the 4 guardrails + the dominator rule + external-data-contained", oSet.NumberOfRules(), 6)
 	Then("...effects-dominated is among them", oSet.RuleNamed("effects-dominated").Name(), "effects-dominated")
 EndScenario()
 
