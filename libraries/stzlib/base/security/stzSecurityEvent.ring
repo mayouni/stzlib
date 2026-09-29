@@ -102,6 +102,7 @@ func StzSecurityEventKinds()
 		[ "http.request.unauthorized",    "warning", "T1190",     "a request failed the transport gate (401)" ],
 		[ "http.request.forbidden",       "warning", "T1190",     "a request was refused by policy (403)" ],
 		[ "ratelimit.shed",               "info",    "T1499",     "a caller was shed by the rate limiter" ],
+		[ "ratelimit.blocked",            "warning", "T1499",     "a source was blocked -- containment's :ShedSource" ],
 		[ "service.production_fake_refused", "warning", "",       "a production deploy refused a virtualized service" ],
 		[ "crossworld.call.refused",      "warning", "T1068",     "a cross-world call was refused" ],
 		[ "federation.call.refused",      "warning", "T1068",     "a federated call was refused" ],

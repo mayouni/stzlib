@@ -32,10 +32,82 @@ class stzRateLimiter from stzObject
 
 	@cName = ""
 	@aBuckets = []   # [ key, burst, ratePerSec, pHandle, nAllowed, nRejected ]
+	@aBlocked = []   # [ key, reason, untilWallMs (0 = until Unblock), nRefused ]
 
 	def init(pcName)
 		@cName = "" + pcName
 		@aBuckets = []
+		@aBlocked = []
+
+	#-- BLOCKING a source (containment's :ShedSource) ------------------------
+	#
+	# A limit SLOWS a key; a block STOPS it. A blocked key is refused by
+	# Allow() whether or not it has a limit -- an unconfigured key is
+	# otherwise unlimited, which is exactly the flood a responder must stop.
+	# Every refusal is recorded with the block's reason. A block made with
+	# BlockFor lifts by itself when its time is up; Block holds until Unblock.
+
+	def Block(pcKey, pcReason)
+		return This.BlockFor(pcKey, pcReason, 0)
+
+	def BlockFor(pcKey, pcReason, pnMs)
+		_cK_ = StzLower("" + pcKey)
+		This.Unblock(_cK_)
+		_nUntil_ = 0
+		if pnMs > 0  _nUntil_ = StzEngineTimeWallMs() + pnMs  ok
+		@aBlocked + [ _cK_, "" + pcReason, _nUntil_, 0 ]
+		StzNoteRefusal("ratelimit.blocked", _cK_, "ratelimit:" + @cName + "/" + _cK_, "" + pcReason)
+		return This
+
+	def Unblock(pcKey)
+		_cK_ = StzLower("" + pcKey)
+		_aNew_ = []
+		_n_ = len(@aBlocked)
+		for _i_ = 1 to _n_
+			if @aBlocked[_i_][1] != _cK_
+				_aNew_ + @aBlocked[_i_]
+			ok
+		next
+		@aBlocked = _aNew_
+		return This
+
+	def IsBlocked(pcKey)
+		return This._BlockIndex(StzLower("" + pcKey)) > 0
+
+	# [ :reason, :until, :refused ] or [] when the key is not blocked
+	def BlockOf(pcKey)
+		_i_ = This._BlockIndex(StzLower("" + pcKey))
+		if _i_ = 0  return []  ok
+		return [ :reason = @aBlocked[_i_][2], :until = @aBlocked[_i_][3], :refused = @aBlocked[_i_][4] ]
+
+	def BlockedKeys()
+		This._ExpireBlocks()
+		_a_ = []
+		_n_ = len(@aBlocked)
+		for _i_ = 1 to _n_
+			_a_ + @aBlocked[_i_][1]
+		next
+		return _a_
+
+	def _ExpireBlocks()
+		_nNow_ = StzEngineTimeWallMs()
+		_aNew_ = []
+		_n_ = len(@aBlocked)
+		for _i_ = 1 to _n_
+			if @aBlocked[_i_][3] = 0 or @aBlocked[_i_][3] > _nNow_
+				_aNew_ + @aBlocked[_i_]
+			ok
+		next
+		@aBlocked = _aNew_
+
+	def _BlockIndex(pcKey)
+		if len(@aBlocked) = 0  return 0  ok
+		This._ExpireBlocks()
+		_n_ = len(@aBlocked)
+		for _i_ = 1 to _n_
+			if @aBlocked[_i_][1] = pcKey  return _i_  ok
+		next
+		return 0
 
 	def Name_()
 		return @cName
@@ -83,7 +155,16 @@ class stzRateLimiter from stzObject
 	# Admit n at once (all-or-nothing). Counts one allowed / one rejected
 	# DECISION regardless of n.
 	def AllowN(pcKey, n)
-		_i_ = This._IndexOf(StzLower("" + pcKey))
+		_cK_ = StzLower("" + pcKey)
+		# a BLOCKED key is refused before any bucket is consulted
+		_b_ = This._BlockIndex(_cK_)
+		if _b_ > 0
+			@aBlocked[_b_][4]++
+			StzNoteRefusal("ratelimit.shed", _cK_, "ratelimit:" + @cName + "/" + _cK_,
+				"blocked: " + @aBlocked[_b_][2])
+			return 0
+		ok
+		_i_ = This._IndexOf(_cK_)
 		if _i_ = 0  return 1  ok     # no limit configured -> unlimited
 		if StzEngineRateTryTake(@aBuckets[_i_][4], n) = 1
 			@aBuckets[_i_][5]++          # allowed
