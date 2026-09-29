@@ -301,13 +301,31 @@ func StzGenerationActive()
 	return StzEngineNeuralGenActive()
 
 # The ChatML prompt shape the small instruct models are trained on.
+#
+# pcUser is UNTRUSTED text and passes through StzChatSafeText first: it
+# used to go between the markers as it came, so a user who typed
+# <|im_end|> followed by <|im_start|>system wrote a system turn of their
+# own. pcSystem is the developer's own text and is placed as given.
 func StzChatPrompt(pcSystem, pcUser)
 	if NOT isString(pcSystem) or pcSystem = ""
 		pcSystem = "You are a helpful assistant. Answer briefly."
 	ok
 	return "<|im_start|>system" + char(10) + pcSystem + "<|im_end|>" + char(10) +
-		"<|im_start|>user" + char(10) + pcUser + "<|im_end|>" + char(10) +
+		"<|im_start|>user" + char(10) + StzChatSafeText(pcUser) + "<|im_end|>" + char(10) +
 		"<|im_start|>assistant" + char(10)
+
+# Untrusted text made safe to place inside a chat prompt: every control-
+# token opener "<|" -- and "<" + U+FF5C, the full-width bar some model families
+# use -- becomes "< |", so no special token (<|im_start|>, <|im_end|>,
+# <|endoftext|>, <|eot_id|>, <|start_header_id|>, ...) can be written
+# into the prompt by the text. The words stay readable; only the marker
+# is broken. Deliberately wider than ChatML's three tokens: a model's
+# special tokens share the opener, not a list we could keep current.
+func StzChatSafeText(pcText)
+	_c_ = "" + pcText
+	_c_ = StzReplace(_c_, "<|", "< |")
+	_c_ = StzReplace(_c_, "<" + char(239) + char(189) + char(156), "< " + char(239) + char(189) + char(156))
+	return _c_
 
 # Ask the loaded instruct model a question (ChatML-wrapped, greedy).
 func StzAskModel(pcQuestion, pnMaxNewTokens)
@@ -608,9 +626,11 @@ class stzNeuralChat from stzObject
 		if StzHasGenerativeModel() = 0 return "" ok
 		if NOT isString(pcUser) return "" ok
 		@aTurns + [ "user", pcUser ]
+		# the user's text is untrusted: no control token may pass through it
+		_cSafe_ = StzChatSafeText(pcUser)
 		if @bStarted = 0
 			_cPrompt_ = "<|im_start|>system" + char(10) + @cSystem + "<|im_end|>" + char(10) +
-				"<|im_start|>user" + char(10) + pcUser + "<|im_end|>" + char(10) +
+				"<|im_start|>user" + char(10) + _cSafe_ + "<|im_end|>" + char(10) +
 				"<|im_start|>assistant" + char(10)
 			@bStarted = 1
 			_cReply_ = StzEngineNeuralGenerateXT(_cPrompt_, @nMaxTokens,
@@ -619,7 +639,7 @@ class stzNeuralChat from stzObject
 			# the assistant's own last reply is already in the cache; close it
 			# and open the next user+assistant turn -- APPEND, no reset
 			_cCont_ = "<|im_end|>" + char(10) +
-				"<|im_start|>user" + char(10) + pcUser + "<|im_end|>" + char(10) +
+				"<|im_start|>user" + char(10) + _cSafe_ + "<|im_end|>" + char(10) +
 				"<|im_start|>assistant" + char(10)
 			_cReply_ = StzEngineNeuralGenerateCont(_cCont_, @nMaxTokens,
 				@nTemperature, @nTopP, @nTopK, @nSeed)
