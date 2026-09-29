@@ -1,10 +1,10 @@
 {
   "bomFormat": "CycloneDX",
   "specVersion": "1.6",
-  "serialNumber": "urn:uuid:bb6ae90e-550e-5bf4-b944-170c7fcf8278",
+  "serialNumber": "urn:uuid:c3a43e49-3bce-5dce-b901-c6aa5a94c5cb",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-09-29T00:23:36Z",
+    "timestamp": "2026-09-29T01:09:05Z",
     "tools": {
       "components": [
         {
@@ -20,7 +20,7 @@
       "properties": [
         {
           "name": "softanza:generated-from-commit",
-          "value": "5ba48984ea6d3e67afb6271a6dcb3a7930f4e130"
+          "value": "6e0f2191442680e8dd91b8a7260d46eed62ffe48"
         }
       ]
     }
@@ -227,7 +227,7 @@
       "type": "library",
       "bom-ref": "vendor/mbedtls",
       "name": "Mbed TLS",
-      "version": "3.6.2",
+      "version": "3.6.7",
       "licenses": [
         {
           "expression": "Apache-2.0 OR GPL-2.0-or-later"
@@ -236,7 +236,7 @@
       "externalReferences": [
         {
           "type": "vcs",
-          "url": "https://github.com/Mbed-TLS/mbedtls/releases/tag/mbedtls-3.6.2"
+          "url": "https://github.com/Mbed-TLS/mbedtls/releases/tag/mbedtls-3.6.7"
         }
       ],
       "properties": [
@@ -246,14 +246,16 @@
         },
         {
           "name": "softanza:tree-digest",
-          "value": "bc90866b187c9c97555d878c908ceb87482d5f597c97bc0ec27de030f16b0a20"
-        },
-        {
-          "name": "softanza:archive-sha-256",
-          "value": "not recorded -- the upstream archive was not fetched when this record was written (2026-09-29)"
+          "value": "4567f77dbac4372905bff6515fc6ea10ab33276cd3c0a2bd6376f04d0007b49f"
         }
       ],
-      "purl": "pkg:github/Mbed-TLS/mbedtls@mbedtls-3.6.2"
+      "purl": "pkg:github/Mbed-TLS/mbedtls@mbedtls-3.6.7",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "a7e8bcbec0e6f761b4af24f25677626b35f762f68eef79c08677a363212d11f6"
+        }
+      ]
     },
     {
       "type": "library",
