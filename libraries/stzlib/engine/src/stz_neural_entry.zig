@@ -1,5 +1,6 @@
 pub const neural = @import("neural.zig");
 pub const neural_embed = @import("neural_embed.zig");
+pub const model_digest = @import("model_digest.zig");
 pub const neural_gpu = @import("neural_gpu.zig");
 pub const neural_backbone = @import("neural_backbone.zig");
 pub const schema_gbnf = @import("schema_gbnf.zig");
@@ -27,6 +28,7 @@ fn ringlib_init(pState: ?*anyopaque) callconv(.c) void {
 test {
     _ = neural;
     _ = neural_embed;
+    _ = model_digest;
     _ = schema_gbnf;
     _ = gbnf_machine;
 }
