@@ -182,6 +182,39 @@ class stzSecurityGraph from stzObject
 	def PathToEffectful(pcActor)
 		return This.PathToCapability(pcActor, "effectful")
 
+	  #-- containment: cut a capability away (R10) -------------------------
+	#
+	# Remove EVERY path by which pcActor reaches pcCapability, by cutting the
+	# actor's OWN first-hop edges that lead there: a capability it holds
+	# directly, a tool it uses that grants it, an actor it delegates to that
+	# reaches it. Other actors are untouched -- a colleague using the same
+	# tool keeps it. Returns the edges removed, as [ from, label, to ].
+	def CutCapability(pcActor, pcCapability)
+		_cA_ = StzLower(ring_trim("" + pcActor))
+		_cCap_ = StzLower(ring_trim("" + pcCapability))
+		_aCut_ = []
+		if NOT (@oG.NodeExists(_cA_) and @oG.NodeExists(_cCap_))
+			return _aCut_
+		ok
+		_aE_ = @oG.Edges()
+		_n_ = len(_aE_)
+		for _i_ = 1 to _n_
+			if _aE_[_i_][:from] = _cA_
+				_cTo_ = _aE_[_i_][:to]
+				if _cTo_ = _cCap_ or @oG.PathExists(_cTo_, _cCap_)
+					_aCut_ + [ _cA_, "" + _aE_[_i_][:label], _cTo_ ]
+				ok
+			ok
+		next
+		_nC_ = len(_aCut_)
+		for _i_ = 1 to _nC_
+			@oG.RemoveThisEdge(_aCut_[_i_][1], _aCut_[_i_][3])
+		next
+		if _nC_ > 0
+			StzNoteGrant("capability.revoked", _cA_, "capability:" + _cCap_)
+		ok
+		return _aCut_
+
 	# Every node that can REACH this secret (reverse reachability) -- the blast
 	# radius: which sites and actors a leaked secret exposes. Rotation planning.
 	def BlastRadius(pcSecret)

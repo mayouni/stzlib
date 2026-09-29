@@ -64,10 +64,26 @@ func StzAuthResponder(poAuth)
 func StzSecretStoreResponder(poStore, poActor)
 	return new stzSecretStoreResponder(poStore, poActor)
 
+# THE THIRD REAL RESPONDER: :RevokeCapability cuts the actor's paths to
+# 'effectful' in the security graph AND revokes the kind from every live
+# stzSystemActor registered under that name -- the graph is what audits and
+# incidents ask, the live actor is what the runtime gates ask.
+#
+# Register live actors ONE AT A TIME with AddLiveActor(oActor): an object
+# passed as an ARGUMENT arrives by reference, while an object placed in a
+# list literal ([ oA, oB ]) is COPIED -- and revoking a copy changes nothing.
+func StzCapabilityResponder(poSecurityGraph)
+	return new stzCapabilityResponder(poSecurityGraph)
+
 # ONE PLAN, SEVERAL OWNERS: a plan may lock an account AND rotate a secret,
 # and no single object owns both. A responder set routes each verb to the
 # first member that OWNS it (answers Owns(verb)); a verb no member owns is
 # REFUSED, loudly -- a plan is never half-performed in silence.
+#
+# The list form copies the responders it is given (Ring copies objects in a
+# list literal): harmless for a responder whose state lives behind a
+# reference, wrong for one you want to read afterwards (LastCut). For those,
+# build the set with Add(oResponder), which keeps the object itself.
 func StzResponderSet(paResponders)
 	return new stzResponderSet(paResponders)
 
@@ -359,6 +375,11 @@ class stzResponderSet from stzObject
 			@aMembers + object2pointer(paResponders[_i_])
 		next
 
+	# add one responder BY REFERENCE (see StzResponderSet)
+	def Add(poResponder)
+		@aMembers + object2pointer(poResponder)
+		return This
+
 	def Owns(pcVerb)
 		return This._OwnerOf(pcVerb) > 0
 
@@ -395,3 +416,56 @@ class stzResponderSet from stzObject
 
 	def QuarantinePart(pcTarget)
 		This._Route("quarantinepart").QuarantinePart(pcTarget)
+
+  #=========================================================#
+ #  stzCapabilityResponder -- :RevokeCapability, for real    #
+#=========================================================#
+
+class stzCapabilityResponder from stzObject
+
+	@pGraph = ""
+	@aActors = []	# object2pointer of each live stzSystemActor
+	@aLastCut = []
+
+	def init(poSecurityGraph)
+		@pGraph = object2pointer(poSecurityGraph)
+		@aActors = []
+
+	# a live actor whose capability kinds this responder may revoke
+	def AddLiveActor(poActor)
+		@aActors + object2pointer(poActor)
+		return This
+
+	def Owns(pcVerb)
+		return StzLower("" + pcVerb) = "revokecapability"
+
+	# the incident proposes this when an actor can REACH 'effectful'
+	def RevokeCapability(pcTarget)
+		_cA_ = StzLower(ring_trim("" + pcTarget))
+		@aLastCut = pointer2object(@pGraph).CutCapability(_cA_, "effectful")
+		_n_ = len(@aActors)
+		for _i_ = 1 to _n_
+			_o_ = pointer2object(@aActors[_i_])
+			if StzLower("" + _o_.Name()) = _cA_
+				_o_.RevokeKind("effectful")
+			ok
+		next
+
+	# the graph edges the last revocation removed, as [ from, label, to ]
+	def LastCut()
+		return @aLastCut
+
+	def LockAccount(pcTarget)
+		stzraise("stzCapabilityResponder cannot :LockAccount -- wire an auth responder.")
+
+	def RevokeSession(pcTarget)
+		stzraise("stzCapabilityResponder cannot :RevokeSession -- wire an auth responder.")
+
+	def RotateSecret(pcTarget)
+		stzraise("stzCapabilityResponder cannot :RotateSecret -- wire a secret-store responder.")
+
+	def ShedSource(pcTarget)
+		stzraise("stzCapabilityResponder cannot :ShedSource -- wire a rate-limiter responder.")
+
+	def QuarantinePart(pcTarget)
+		stzraise("stzCapabilityResponder cannot :QuarantinePart -- wire a quarantine responder.")
