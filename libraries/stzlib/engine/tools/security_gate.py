@@ -3,6 +3,17 @@
 
     python libraries/stzlib/engine/tools/security_gate.py          scoped to what is staged
     python libraries/stzlib/engine/tools/security_gate.py --full   everything, whatever is staged
+    python libraries/stzlib/engine/tools/security_gate.py --fast   secrets + vendored only (under 1 s):
+                                                                   the shape for a git pre-commit hook
+
+A HOOK IS THE AUTHOR'S CHOICE, and only --fast is fit for one: the hooks
+folder is shared by every session and worktree of this repository, and a
+hook that builds the fuzz harnesses would start a heavy build in each of
+them at once -- the way this machine freezes. To install it:
+
+    printf '#!/bin/sh
+exec python libraries/stzlib/engine/tools/security_gate.py --fast
+' > .git/hooks/pre-commit
 
 Four gates, each timed, each printed as RAN or SKIPPED with its reason --
 a skip nobody can see is coverage nobody earned:
@@ -135,16 +146,18 @@ def gate(name, fn, skip_reason=None):
 
 def main():
     full = "--full" in sys.argv
+    fast = "--fast" in sys.argv
     staged = staged_files()
     engine_touched = any(p.startswith("libraries/stzlib/engine/src/") or
                          p.startswith("libraries/stzlib/engine/vendor/") or
                          p == "libraries/stzlib/engine/build.zig" for p in staged)
-    print(f"security gate ({'full' if full else 'scoped'}; {len(staged)} staged files)")
+    print(f"security gate ({'full' if full else 'fast' if fast else 'scoped'}; {len(staged)} staged files)")
     t0 = time.time()
     gate("secrets", gate_secrets, None if staged else "nothing staged")
     gate("vendored", gate_vendored)
-    gate("guards", gate_guards)
-    gate("fuzz", gate_fuzz, None if (full or engine_touched) else
+    gate("guards", gate_guards, "--fast (hook mode) -- run the gate without it" if fast else None)
+    gate("fuzz", gate_fuzz, "--fast (hook mode) -- run the gate without it" if fast else
+         None if (full or engine_touched) else
          "no engine source, vendored code or build.zig staged -- run with --full to force")
     ran = [r for r in results if r[1].startswith("RAN")]
     failed = [r for r in results if r[1] == "RAN-FAIL"]

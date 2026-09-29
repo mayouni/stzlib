@@ -2,9 +2,17 @@
 
 ## Reporting a vulnerability
 
-**Please do not open a public issue for a security problem.** Write to:
+**Please do not open a public issue for a security problem.** Report it
+privately through GitHub:
 
-> **`<<SECURITY CONTACT ADDRESS -- TO BE SUPPLIED BY THE AUTHOR>>`**
+> **https://github.com/mayouni/stzlib/security/advisories/new**
+> (the repository's *Security* tab, then *Report a vulnerability*)
+
+The report is visible only to you and the maintainers, the discussion and
+the fix happen in a private advisory, and the advisory is published --
+with a CVE when one is warranted -- once the fix ships. If you cannot use
+GitHub, open a public issue that says only "security contact requested",
+with no detail, and we will reach you privately.
 
 Include what you found, where (file and line, or the call that shows it),
 how to reproduce it, and what an attacker gains. A proof of concept helps;
