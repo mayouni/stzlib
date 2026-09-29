@@ -1,14 +1,43 @@
-curl 8.20.0-DEV
+curl 8.22.0 (libcurl only)
 
-A DEVELOPMENT SNAPSHOT, not a release: LIBCURL_VERSION in include/curl/curlver.h
-reads 8.20.0-DEV and the upstream commit was not recorded. Moving to a
-released curl is week-1 work of the stzlib-security plane.
+Source:   https://github.com/curl/curl/releases/tag/curl-8_22_0
+Asset:    curl-8.22.0.tar.xz (2,953,092 bytes)
+Released: 2026-09-02
+SHA-256:  f7ef3ae8a22e521f289803fe93543eb64c329b58aa73a9e224dfd915a2a5f4f7
+Checked 2026-09-29 before vendoring: the SHA-256 matches GitHub's asset
+digest, and curl-8.22.0.tar.xz.asc is a GOOD signature from Daniel
+Stenberg's release key, fingerprint
+27ED EAF2 2F3A BCEB 50DB 9A12 5CC9 08FD B71E 12C2.
+
+Vendored: COPYING, include/ and lib/ from the tarball, unchanged, PLUS one
+Softanza-owned file, lib/curl_config.h (not upstream -- see below).
+
+HISTORY. Vendored 2026-06-14 as an 8.20.0-DEV snapshot (869cb4a89) with
+one local patch to lib/easy.c (53bac329f): Curl_win32_init before
+Curl_ssl_init, without which Schannel's ALPN gate read a lying OS version
+and HTTP/2 silently fell back to 1.1. Moved to the 8.22.0 RELEASE on
+2026-09-29 by the stzlib-security plane. The patch is NOT carried: 8.22.0
+already initializes Win32 before SSL upstream, and 71_http2_narrated
+proves h2 still negotiates.
+
+WHAT 8.22 CHANGED FOR THIS BUILD, and would change silently again:
+  - resolver sources moved to lib/vdns/; build.zig addLibcurl globs a
+    fixed list of lib folders, so a new folder is sources not built --
+    lib/vdns was added to the list.
+  - lib/config-win32.h now #errors outside Visual Studio 2010-2013 IDE
+    builds. lib/curl_config.h is the 8.20 snapshot's config-win32.h kept
+    unchanged, selected with -DHAVE_CONFIG_H.
+
+UPDATING: take COPYING, include/ and lib/ from a newer release (keep
+lib/curl_config.h), verify the tarball's digest and signature, check
+lib/ for new folders and lib/config-win32.h for new defines, rebuild,
+and run base/test/network/ (52-71, 71 is HTTP/2) and engine/tools/sbom.py.
 
 --- SBOM record (read by engine/tools/sbom.py; keep the keys) ---
 Component:        curl
-Version:          8.20.0-DEV
-Source:           https://github.com/curl/curl
+Version:          8.22.0
+Source:           https://github.com/curl/curl/releases/tag/curl-8_22_0
 Licence:          curl
-Purl:             pkg:github/curl/curl@8.20.0-DEV
-Archive-SHA-256:  not recorded -- the upstream archive was not fetched when this record was written (2026-09-29)
-Tree-Digest:      4f51545a091b9884d390e72a8cd9bf30a4cb0cf750953ce3a3a4eff00da83ce6
+Purl:             pkg:github/curl/curl@curl-8_22_0
+Archive-SHA-256:  f7ef3ae8a22e521f289803fe93543eb64c329b58aa73a9e224dfd915a2a5f4f7
+Tree-Digest:      2b278707c156796c4fb2289146a332b920b4310af9ad4623c2d20ad49895c283

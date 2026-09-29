@@ -461,10 +461,10 @@ fn addLibuv(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build,
 }
 
 // Vendored libcurl (Tier 2 HTTP stack -- HTTP/1.1+2, TLS, pooling, DNS).
-// Compiled from source like our other C deps. On Windows, curl_setup.h
-// pulls in lib/config-win32.h automatically (HAVE_CONFIG_H is NOT
-// defined), giving a CMake-free build; TLS is native Schannel (no extra
-// dependency). Sources are globbed from the 6 lib dirs at configure time
+// Compiled from source like our other C deps. On Windows, -DHAVE_CONFIG_H
+// selects vendor/curl/lib/curl_config.h (Softanza-owned: curl 8.22 limits
+// its own config-win32.h to MSVC IDE builds), giving a CMake-free build; TLS is native Schannel (no extra
+// dependency). Sources are globbed from the 7 lib dirs at configure time
 // so the list tracks the vendored tree. POSIX needs a generated
 // curl_config.h (future work); Windows is the supported target today.
 fn addLibcurl(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build, os_tag: std.Target.Os.Tag) void {
@@ -477,7 +477,9 @@ fn addLibcurl(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Buil
     }
 
     var files: std.ArrayList([]const u8) = .{};
-    const subdirs = [_][]const u8{ "lib", "lib/vauth", "lib/vtls", "lib/vquic", "lib/vssh", "lib/curlx" };
+    // lib/vdns: curl 8.22 moved its resolver code (hostip, doh, asyn-*)
+    // there -- a folder missing from this list is sources silently not built
+    const subdirs = [_][]const u8{ "lib", "lib/vauth", "lib/vtls", "lib/vquic", "lib/vssh", "lib/curlx", "lib/vdns" };
     for (subdirs) |sd| {
         const dirpath = b.fmt("{s}/{s}", .{ cu, sd });
         var dir = std.fs.cwd().openDir(dirpath, .{ .iterate = true }) catch |e|
@@ -503,6 +505,7 @@ fn addLibcurl(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Buil
 
     const flags = [_][]const u8{
         "-DBUILDING_LIBCURL",
+        "-DHAVE_CONFIG_H", // vendor/curl/lib/curl_config.h -- Softanza-owned, see its header
         "-DCURL_STATICLIB",
         "-DUSE_WINDOWS_SSPI",
         "-DUSE_SCHANNEL",
