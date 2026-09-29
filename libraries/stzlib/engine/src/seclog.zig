@@ -23,6 +23,7 @@
 
 const std = @import("std");
 const crypto = @import("crypto.zig");
+const durable = @import("seclog_durable.zig");
 
 const gpa = std.heap.c_allocator;
 
@@ -40,6 +41,8 @@ pub const SecLog = struct {
     head: usize, // next write slot
     head_digest: [DIGEST_LEN]u8, // chain head (survives eviction)
     mutex: std.Thread.Mutex,
+    store: ?durable.Store = null, // the durable log, when attached (rung 2)
+    durable_errors: u64 = 0, // writes the durable log refused
 
     fn size(self: *const SecLog) usize {
         if (self.count < self.cap) return @intCast(self.count);
@@ -116,11 +119,10 @@ fn chainDigest(prev: []const u8, canonical: []const u8, out: *[DIGEST_LEN]u8) vo
     _ = crypto.crypto_sha256(&buf, n, out);
 }
 
-pub fn seclog_append(s_opt: ?*SecLog, canonical: [*]const u8, canonical_len: usize, wall_ms: f64, severity: f64) callconv(.c) void {
-    const s = s_opt orelse return;
-    s.mutex.lock();
-    defer s.mutex.unlock();
-    var cl = canonical_len;
+// The ring half of an append: chain the entry onto the head and store it
+// in the window. The CALLER HOLDS the mutex. Returns the new digest.
+fn appendMem(s: *SecLog, canonical: []const u8, wall_ms: f64, sev: u8) [DIGEST_LEN]u8 {
+    var cl = canonical.len;
     if (cl > CANON_MAX) cl = CANON_MAX;
     const h = s.head;
     @memcpy(s.canon[h * CANON_MAX ..][0..cl], canonical[0..cl]);
@@ -130,9 +132,104 @@ pub fn seclog_append(s_opt: ?*SecLog, canonical: [*]const u8, canonical_len: usi
     @memcpy(s.digests[h * DIGEST_LEN ..][0..DIGEST_LEN], &d);
     s.head_digest = d;
     s.wall[h] = wall_ms;
-    s.sev[h] = @intFromFloat(severity);
+    s.sev[h] = sev;
     s.head = (s.head + 1) % s.cap;
     s.count += 1;
+    return d;
+}
+
+pub fn seclog_append(s_opt: ?*SecLog, canonical: [*]const u8, canonical_len: usize, wall_ms: f64, severity: f64) callconv(.c) void {
+    const s = s_opt orelse return;
+    s.mutex.lock();
+    defer s.mutex.unlock();
+    var cl = canonical_len;
+    if (cl > CANON_MAX) cl = CANON_MAX;
+    const sev: u8 = @intFromFloat(severity);
+    const d = appendMem(s, canonical[0..cl], wall_ms, sev);
+    // write-through, in the same lock, so disk order IS chain order
+    if (s.store) |st| {
+        if (!durable.insert(st, s.count, wall_ms, sev, canonical[0..cl], &d)) s.durable_errors += 1;
+    }
+}
+
+// ── The durable log (HaroBase rung 2) ────────────────────────
+//
+// Attach BEFORE recording: the stored chain is replayed from genesis into
+// this ledger and verified entry by entry; the ring then holds the most
+// recent window and the chain resumes from the stored head. Returns the
+// number of stored entries verified (>= 0), or:
+//   -seq  the first stored entry that breaks the chain (edited, or a gap);
+//         nothing is attached and the ledger is left empty
+//   -1 000 000 001 / -002  the file could not be opened / read
+//   -1 000 000 003  already attached    -1 000 000 004  not empty
+const ReplayCtx = struct { s: *SecLog };
+fn replayRow(ctx: ReplayCtx, row: durable.Row) bool {
+    const d = appendMem(ctx.s, row.canonical, row.wall_ms, row.severity);
+    return std.mem.eql(u8, &d, row.digest);
+}
+
+fn clearMem(s: *SecLog) void {
+    s.count = 0;
+    s.head = 0;
+    s.head_digest = [_]u8{'0'} ** DIGEST_LEN;
+}
+
+pub fn seclog_attach(s_opt: ?*SecLog, path: [*:0]const u8) callconv(.c) f64 {
+    const s = s_opt orelse return -1;
+    s.mutex.lock();
+    defer s.mutex.unlock();
+    if (s.store != null) return -1_000_000_003;
+    if (s.count != 0) return -1_000_000_004;
+    const db = durable.open(path) orelse return @floatFromInt(durable.ERR_OPEN);
+    const n = durable.walk(db, ReplayCtx{ .s = s }, replayRow);
+    if (n < 0) {
+        clearMem(s);
+        _ = durable.c.sqlite3_close(db);
+        return @floatFromInt(n);
+    }
+    const ins = durable.prepareInsert(db) orelse {
+        clearMem(s);
+        _ = durable.c.sqlite3_close(db);
+        return @floatFromInt(durable.ERR_SCHEMA);
+    };
+    s.store = .{ .db = db, .ins = ins };
+    return @floatFromInt(n);
+}
+
+// Re-verify the WHOLE stored history from genesis -- not the window.
+// 0 intact, the 1-based seq of the first broken entry, or -1 (no durable
+// log attached) / -2 (unreadable).
+const VerifyCtx = struct { prev: *[DIGEST_LEN]u8 };
+fn verifyRow(ctx: VerifyCtx, row: durable.Row) bool {
+    var cl = row.canonical.len;
+    if (cl > CANON_MAX) cl = CANON_MAX;
+    var d: [DIGEST_LEN]u8 = undefined;
+    chainDigest(ctx.prev, row.canonical[0..cl], &d);
+    if (!std.mem.eql(u8, &d, row.digest)) return false;
+    ctx.prev.* = d;
+    return true;
+}
+
+pub fn seclog_verify_durable(s_opt: ?*SecLog) callconv(.c) f64 {
+    const s = s_opt orelse return -1;
+    s.mutex.lock();
+    defer s.mutex.unlock();
+    const st = s.store orelse return -1;
+    var prev: [DIGEST_LEN]u8 = [_]u8{'0'} ** DIGEST_LEN;
+    const n = durable.walk(st.db, VerifyCtx{ .prev = &prev }, verifyRow);
+    if (n >= 0) return 0;
+    if (n <= durable.ERR_OPEN) return -2;
+    return @floatFromInt(-n);
+}
+
+pub fn seclog_is_durable(s_opt: ?*SecLog) callconv(.c) f64 {
+    const s = s_opt orelse return 0;
+    return if (s.store != null) 1 else 0;
+}
+
+pub fn seclog_durable_errors(s_opt: ?*SecLog) callconv(.c) f64 {
+    const s = s_opt orelse return 0;
+    return @floatFromInt(s.durable_errors);
 }
 
 pub fn seclog_count(s_opt: ?*SecLog) callconv(.c) f64 {
@@ -234,6 +331,9 @@ pub fn seclog_reset(s_opt: ?*SecLog) callconv(.c) void {
     const s = s_opt orelse return;
     s.mutex.lock();
     defer s.mutex.unlock();
+    // a durable ledger cannot restart its chain: the disk would continue
+    // from the old head while the ring began again at genesis
+    if (s.store != null) return;
     s.count = 0;
     s.head = 0;
     s.head_digest = [_]u8{'0'} ** DIGEST_LEN;
@@ -278,6 +378,7 @@ pub fn seclog_destroy(s_opt: ?*SecLog) callconv(.c) void {
         if (c == s_opt) g_current = null; // never leave a dangling current
     }
     const s = s_opt orelse return;
+    if (s.store) |st| durable.close(st);
     gpa.free(s.canon);
     gpa.free(s.canon_lens);
     gpa.free(s.digests);
