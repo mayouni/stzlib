@@ -33,13 +33,18 @@ func StzSecretStoreQ(pcName)
 # be effectful and not sandboxed. A wrong key or an altered file RAISES --
 # and the refusal is recorded -- it never yields a half-read store.
 func StzSecretStoreFromSealedFile(pcPath, poKeySecret, poActor)
+	return StzSecretStoreFromSealedFileVia(pcPath, poKeySecret, "", poActor)
+
+# As above, with the KEY fetched through a vault resolver (R4): a key
+# secret sourced FromVault(...) is revealed via poResolver.
+func StzSecretStoreFromSealedFileVia(pcPath, poKeySecret, poResolver, poActor)
 	_cRaw_ = read("" + pcPath)
 	_acL_ = StzSplit(_cRaw_, char(10))
 	if len(_acL_) < 3 or ring_trim(_acL_[1]) != "stzsecrets v1"
 		stzraise("Not a sealed secret store: " + pcPath)
 	ok
 	_cName_ = StzMidToEnd(ring_trim(_acL_[2]), 7)       # after "store="
-	_cKey_ = poKeySecret.Reveal(poActor)
+	_cKey_ = poKeySecret.RevealVia(poResolver, poActor)
 	try
 		_cPlain_ = StzOpen(_cKey_, ring_trim(_acL_[3]), "stzsecrets:" + _cName_)
 	catch
@@ -225,12 +230,16 @@ class stzSecretStore from stzObject
 	# file cannot be passed off as another's. Sealing reads every literal
 	# value, so poActor passes the same gate as a reveal.
 	def SaveSealedTo(pcPath, poKeySecret, poActor)
+		return This.SaveSealedToVia(pcPath, poKeySecret, "", poActor)
+
+	# As SaveSealedTo, with the KEY fetched through a vault resolver (R4).
+	def SaveSealedToVia(pcPath, poKeySecret, poResolver, poActor)
 		if NOT (isObject(poActor) and poActor.IsEffectful() and poActor.Posture() != "sandboxed")
 			StzNoteRefusal("secret.reveal.refused", "" + poActor.Name(), "store:" + @cName,
 				"sealing a store reads its secrets -- the actor may not")
 			stzraise("Refused: sealing store '" + @cName + "' reads its secrets; only an effectful, non-sandboxed actor may.")
 		ok
-		_cKey_ = poKeySecret.Reveal(poActor)
+		_cKey_ = poKeySecret.RevealVia(poResolver, poActor)
 		_cBody_ = ""
 		_n_ = len(@aSecrets)
 		for _i_ = 1 to _n_

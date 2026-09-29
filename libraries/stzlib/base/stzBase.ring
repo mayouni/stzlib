@@ -525,6 +525,7 @@ load "geo/stzGeoProcess.ring"
     load "security/stzCryptoFuncs.ring"
     load "security/stzSecret.ring"
     load "security/stzVaultResolver.ring"
+    load "security/stzVaultHttpResolver.ring"
     load "security/stzSecretStore.ring"
     load "security/stzAuthStore.ring"   # the persistence seam stzAuth defaults to
     load "security/stzTotp.ring"        # RFC 6238 second factor (used by stzAuth 2FA)
