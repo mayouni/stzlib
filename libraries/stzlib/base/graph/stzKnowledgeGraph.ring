@@ -19,6 +19,68 @@ func IsStzKnowledgeGraph(pObj)
 	func IsAStzKnowGraph(pObj)
 		return IsStzKnowledgeGraph(pObj)
 
+# --- .zknw field escaping ---------------------------------------------
+# A field may hold | or a line break; written raw, either would split a
+# record. Escapes: \\ for \, \p for |, \n and \r for line breaks. The
+# scan is BYTE-wise on purpose: every escape is ASCII, and no byte of a
+# multi-byte UTF-8 character can equal \ or |, so s[i] is exact and cheap.
+
+func StzKnowEscape(pcField)
+	_c_ = "" + pcField
+	_cOut_ = ""
+	_n_ = len(_c_)
+	for _i_ = 1 to _n_
+		_ch_ = _c_[_i_]
+		if _ch_ = char(92)
+			_cOut_ += char(92) + char(92)
+		but _ch_ = "|"
+			_cOut_ += char(92) + "p"
+		but _ch_ = char(10)
+			_cOut_ += char(92) + "n"
+		but _ch_ = char(13)
+			_cOut_ += char(92) + "r"
+		else
+			_cOut_ += _ch_
+		ok
+	next
+	return _cOut_
+
+func StzKnowUnescape(pcField)
+	_c_ = "" + pcField
+	_cOut_ = ""
+	_n_ = len(_c_)
+	_i_ = 1
+	while _i_ <= _n_
+		_ch_ = _c_[_i_]
+		if _ch_ = char(92) and _i_ < _n_
+			_nx_ = _c_[_i_ + 1]
+			if _nx_ = "p"
+				_cOut_ += "|"
+			but _nx_ = "n"
+				_cOut_ += char(10)
+			but _nx_ = "r"
+				_cOut_ += char(13)
+			else
+				_cOut_ += _nx_
+			ok
+			_i_ += 2
+		else
+			_cOut_ += _ch_
+			_i_++
+		ok
+	end
+	return _cOut_
+
+# One record line -> its unescaped, trimmed fields.
+func StzKnowSplit(pcLine)
+	_acRaw_ = split("" + pcLine, "|")
+	_aOut_ = []
+	_n_ = len(_acRaw_)
+	for _i_ = 1 to _n_
+		_aOut_ + StzKnowUnescape(ring_trim(_acRaw_[_i_]))
+	next
+	return _aOut_
+
 class stzKnowGraph from stzKnowledgeGraph
 class stzKnowledgeGraph from stzGraph
 
@@ -857,12 +919,24 @@ class stzKnowledgeGraph from stzGraph
 	            _oParser_ = new stzKnowParser()
 	            _oLoaded_ = _oParser_.Parse(pSource)
 	        ok
-	        This._MergeKnowledgeBase(_oLoaded_)
+	        return This._MergeKnowledgeBase(_oLoaded_)
 	    ok
+	    return [ :merged = 0, :refused = [] ]
 	
 	    def LoadKnow(pSource)
 		return This.ImportKnow(pSource)
 
+	# PROVENANCE SURVIVES A SAVE (stzlib-security, HaroBase rung 1). A fact's
+	# source and confidence, and every contradiction the graph refused, used
+	# to be dropped here: the file kept the bare triples, so knowledge read
+	# back from disk no longer said where it came from -- and a STRICT graph
+	# could not even load its own export. Two sections now carry them:
+	#
+	#   provenance       s | p | o | key | number|text | value
+	#   contradictions   subject | relation | existing | attempted | source
+	#
+	# Every field is escaped (StzKnowEscape): a | or a newline inside a
+	# value is data, never a separator. Fact lines keep their 3-field shape.
 	def ExportToKnow()
 	    _cKnow_ = 'knowledge "' + @cId + '"' + char(10) + char(10)
 	    _cKnow_ += "facts" + char(10)
@@ -870,8 +944,43 @@ class stzKnowledgeGraph from stzGraph
 	    _nFacts2Len_ = len(_aFacts_)
 	    for _iLoopFacts2_ = 1 to _nFacts2Len_
 	    	_aFact_ = _aFacts_[_iLoopFacts2_]
-	        _cKnow_ += "    " + _aFact_[1] + " | " + _aFact_[2] + " | " + _aFact_[3] + char(10)
+	        _cKnow_ += "    " + StzKnowEscape(_aFact_[1]) + " | " + StzKnowEscape(_aFact_[2]) +
+	                   " | " + StzKnowEscape(_aFact_[3]) + char(10)
 	    end
+	    _nM_ = len(@aFactMeta)
+	    if _nM_ > 0
+	        _cKnow_ += char(10) + "provenance" + char(10)
+	        for _iM_ = 1 to _nM_
+	            _aT_ = @aFactMeta[_iM_][:fact]
+	            _aMeta_ = @aFactMeta[_iM_][:meta]
+	            if NOT isList(_aMeta_)  loop  ok
+	            _cTriple_ = StzKnowEscape(_aT_[1]) + " | " + StzKnowEscape(_aT_[2]) + " | " + StzKnowEscape(_aT_[3])
+	            _nK_ = len(_aMeta_)
+	            for _iK_ = 1 to _nK_
+	                if NOT (isList(_aMeta_[_iK_]) and len(_aMeta_[_iK_]) = 2)  loop  ok
+	                _xV_ = _aMeta_[_iK_][2]
+	                if isNumber(_xV_)
+	                    _cType_ = "number"
+	                    _cVal_ = "" + _xV_
+	                else
+	                    _cType_ = "text"
+	                    if isString(_xV_)  _cVal_ = _xV_  else  _cVal_ = @@(_xV_)  ok
+	                ok
+	                _cKnow_ += "    " + _cTriple_ + " | " + StzKnowEscape("" + _aMeta_[_iK_][1]) +
+	                           " | " + _cType_ + " | " + StzKnowEscape(_cVal_) + char(10)
+	            next
+	        next
+	    ok
+	    _nC_ = len(@aContradictions)
+	    if _nC_ > 0
+	        _cKnow_ += char(10) + "contradictions" + char(10)
+	        for _iC_ = 1 to _nC_
+	            _aC_ = @aContradictions[_iC_]
+	            _cKnow_ += "    " + StzKnowEscape("" + _aC_[:subject]) + " | " + StzKnowEscape("" + _aC_[:relation]) +
+	                       " | " + StzKnowEscape("" + _aC_[:existing]) + " | " + StzKnowEscape("" + _aC_[:attempted]) +
+	                       " | " + StzKnowEscape("" + _aC_[:source]) + char(10)
+	        next
+	    ok
 	    # the LAWS travel with the knowledge (R1: ontology section --
 	    # "relation | law" lines; the parser re-arms them on load)
 	    if len(@aOntology) > 0
@@ -897,13 +1006,45 @@ class stzKnowledgeGraph from stzGraph
 	    def WriteKnowFile(pcFileName)
 		This.WriteToKnowFile(pcFilename)
 
+	# Facts arrive WITH their provenance (AddFactXT), so a strict graph
+	# applies its own rules to them: a fact without :source and :confidence
+	# is refused, a :Unique conflict is refused and recorded -- and the
+	# refusals are RETURNED, never silently dropped. The other graph's
+	# recorded contradictions are carried over.
+	# Returns [ :merged = n, :refused = [ [ s, p, o, why ], ... ] ].
 	def _MergeKnowledgeBase(oOther)
+	    _nMerged_ = 0
+	    _aRefused_ = []
 	    _aFacts_ = oOther.Facts()
 	    _nFacts1Len_ = len(_aFacts_)
 	    for _iLoopFacts1_ = 1 to _nFacts1Len_
 	    	_aFact_ = _aFacts_[_iLoopFacts1_]
-	        This.AddFact(_aFact_[1], _aFact_[2], _aFact_[3])
+	        _aMeta_ = oOther.MetaOfFact(_aFact_[1], _aFact_[2], _aFact_[3])
+	        if len(_aMeta_) > 0
+	            try
+	                _nOk_ = This.AddFactXT(_aFact_[1], _aFact_[2], _aFact_[3], _aMeta_)
+	                if _nOk_ = 1
+	                    _nMerged_++
+	                else
+	                    _aRefused_ + [ _aFact_[1], _aFact_[2], _aFact_[3], "contradicts a :Unique law (recorded)" ]
+	                ok
+	            catch
+	                _aRefused_ + [ _aFact_[1], _aFact_[2], _aFact_[3], cCatchError ]
+	            done
+	        but @bStrictMode
+	            _aRefused_ + [ _aFact_[1], _aFact_[2], _aFact_[3], "strict mode: no provenance" ]
+	        else
+	            This.AddFact(_aFact_[1], _aFact_[2], _aFact_[3])
+	            _nMerged_++
+	        ok
 	    end
+	    _aOtherC_ = oOther.Contradictions()
+	    _nOC_ = len(_aOtherC_)
+	    for _iOC_ = 1 to _nOC_
+	        if NOT This._HasContradiction(_aOtherC_[_iOC_])
+	            @aContradictions + _aOtherC_[_iOC_]
+	        ok
+	    next
 	    # the ontology (laws) merges too -- deduped per (property, law)
 	    _aOnt_ = oOther.Ontology()
 	    _nOnt2Len_ = len(_aOnt_)
@@ -916,6 +1057,53 @@ class stzKnowledgeGraph from stzGraph
 	            ok
 	        next
 	    next
+	    return [ :merged = _nMerged_, :refused = _aRefused_ ]
+
+	def _HasContradiction(paC)
+	    _n_ = len(@aContradictions)
+	    for _i_ = 1 to _n_
+	        _a_ = @aContradictions[_i_]
+	        if "" + _a_[:subject] = "" + paC[:subject] and "" + _a_[:relation] = "" + paC[:relation] and
+	           "" + _a_[:existing] = "" + paC[:existing] and "" + _a_[:attempted] = "" + paC[:attempted] and
+	           "" + _a_[:source] = "" + paC[:source]
+	            return 1
+	        ok
+	    next
+	    return 0
+
+	# The provenance recorded for a fact ([] when none). The match ignores
+	# case, as the graph's own nodes do.
+	def MetaOfFact(pcS, pcP, pcO)
+	    _cS_ = StzLower("" + pcS)
+	    _cP_ = StzLower("" + pcP)
+	    _cO_ = StzLower("" + pcO)
+	    _n_ = len(@aFactMeta)
+	    for _i_ = 1 to _n_
+	        _aT_ = @aFactMeta[_i_][:fact]
+	        if _aT_[1] = _cS_ and _aT_[2] = _cP_ and _aT_[3] = _cO_
+	            if isList(@aFactMeta[_i_][:meta])  return @aFactMeta[_i_][:meta]  ok
+	            return []
+	        ok
+	    next
+	    return []
+
+	# Parser hooks: rebuild what a .zknw file recorded, as it was recorded.
+	def _RestoreFactMeta(pcS, pcP, pcO, pcKey, xValue)
+	    _aKey_ = [ StzLower("" + pcS), StzLower("" + pcP), StzLower("" + pcO) ]
+	    _n_ = len(@aFactMeta)
+	    for _i_ = 1 to _n_
+	        _aT_ = @aFactMeta[_i_][:fact]
+	        if _aT_[1] = _aKey_[1] and _aT_[2] = _aKey_[2] and _aT_[3] = _aKey_[3]
+	            @aFactMeta[_i_][:meta] + [ "" + pcKey, xValue ]
+	            return
+	        ok
+	    next
+	    @aFactMeta + [ :fact = _aKey_, :meta = [ [ "" + pcKey, xValue ] ] ]
+
+	def _RestoreContradiction(paC)
+	    if NOT This._HasContradiction(paC)
+	        @aContradictions + paC
+	    ok
 
 class stzKnowParser from stzObject
     def init()
@@ -952,11 +1140,33 @@ class stzKnowParser from stzObject
                 _cSection_ = "facts"
             but _cLine_ = "rules"
                 _cSection_ = "rules"
+            but _cLine_ = "provenance"
+                _cSection_ = "provenance"
+            but _cLine_ = "contradictions"
+                _cSection_ = "contradictions"
             
             but _cSection_ = "facts" and StzFindFirst("|", _cLine_)
-                _aParts_ = split(_cLine_, "|")
+                _aParts_ = StzKnowSplit(_cLine_)
                 if len(_aParts_) = 3
-                    _oKG_.AddFact(trim(_aParts_[1]), trim(_aParts_[2]), trim(_aParts_[3]))
+                    _oKG_.AddFact(_aParts_[1], _aParts_[2], _aParts_[3])
+                ok
+
+            but _cSection_ = "provenance" and StzFindFirst("|", _cLine_)
+                _aParts_ = StzKnowSplit(_cLine_)
+                if len(_aParts_) = 6
+                    if _aParts_[5] = "number"
+                        _xV_ = 0 + _aParts_[6]
+                    else
+                        _xV_ = _aParts_[6]
+                    ok
+                    _oKG_._RestoreFactMeta(_aParts_[1], _aParts_[2], _aParts_[3], _aParts_[4], _xV_)
+                ok
+
+            but _cSection_ = "contradictions" and StzFindFirst("|", _cLine_)
+                _aParts_ = StzKnowSplit(_cLine_)
+                if len(_aParts_) = 5
+                    _oKG_._RestoreContradiction([ :subject = _aParts_[1], :relation = _aParts_[2],
+                        :existing = _aParts_[3], :attempted = _aParts_[4], :source = _aParts_[5] ])
                 ok
 
             but _cSection_ = "ontology" and StzFindFirst("|", _cLine_)
