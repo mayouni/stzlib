@@ -1,10 +1,10 @@
 {
   "bomFormat": "CycloneDX",
   "specVersion": "1.6",
-  "serialNumber": "urn:uuid:c3a43e49-3bce-5dce-b901-c6aa5a94c5cb",
+  "serialNumber": "urn:uuid:5254bd69-7c80-5033-a168-30ed8ded0ed2",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-09-29T01:09:05Z",
+    "timestamp": "2026-09-29T08:39:14Z",
     "tools": {
       "components": [
         {
@@ -20,7 +20,7 @@
       "properties": [
         {
           "name": "softanza:generated-from-commit",
-          "value": "6e0f2191442680e8dd91b8a7260d46eed62ffe48"
+          "value": "b74bb7aae047abd0935141619682832614fe1959"
         }
       ]
     }
@@ -64,7 +64,7 @@
       "type": "library",
       "bom-ref": "vendor/curl",
       "name": "curl",
-      "version": "8.20.0-DEV",
+      "version": "8.22.0",
       "licenses": [
         {
           "expression": "curl"
@@ -73,7 +73,7 @@
       "externalReferences": [
         {
           "type": "vcs",
-          "url": "https://github.com/curl/curl"
+          "url": "https://github.com/curl/curl/releases/tag/curl-8_22_0"
         }
       ],
       "properties": [
@@ -83,14 +83,16 @@
         },
         {
           "name": "softanza:tree-digest",
-          "value": "4f51545a091b9884d390e72a8cd9bf30a4cb0cf750953ce3a3a4eff00da83ce6"
-        },
-        {
-          "name": "softanza:archive-sha-256",
-          "value": "not recorded -- the upstream archive was not fetched when this record was written (2026-09-29)"
+          "value": "2b278707c156796c4fb2289146a332b920b4310af9ad4623c2d20ad49895c283"
         }
       ],
-      "purl": "pkg:github/curl/curl@8.20.0-DEV"
+      "purl": "pkg:github/curl/curl@curl-8_22_0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "f7ef3ae8a22e521f289803fe93543eb64c329b58aa73a9e224dfd915a2a5f4f7"
+        }
+      ]
     },
     {
       "type": "library",
