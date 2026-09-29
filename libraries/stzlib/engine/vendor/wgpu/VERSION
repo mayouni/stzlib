@@ -21,3 +21,12 @@ vendor decision and its reasoning live in
 libraries/stzlib/base/gpu/SOFTANZA_GPU_PLAN.md section 1. Runner-up
 (OpenCL ICD loader, Zig-compilable) documented there for the day the
 trade changes.
+
+--- SBOM record (read by engine/tools/sbom.py; keep the keys) ---
+Component:        wgpu-native
+Version:          29.0.1.1
+Source:           https://github.com/gfx-rs/wgpu-native/releases/tag/v29.0.1.1
+Licence:          MIT OR Apache-2.0
+Purl:             pkg:github/gfx-rs/wgpu-native@v29.0.1.1
+Archive-SHA-256:  7e67d7445c42aeb85e30f88930fd8d7d83ee769e3390aeb1ada75ebf3cf78132
+Tree-Digest:      dff7392881c1e9879c7d656a04d1c4b6e5d93d5aeee59697918cbb88d268cbfb

@@ -1,0 +1,14 @@
+Mbed TLS 3.6.2
+
+Version from MBEDTLS_VERSION_STRING. BEHIND the 3.6 LTS line (3.6.3 and
+later carry security fixes); the upgrade is week-1 work of the
+stzlib-security plane.
+
+--- SBOM record (read by engine/tools/sbom.py; keep the keys) ---
+Component:        Mbed TLS
+Version:          3.6.2
+Source:           https://github.com/Mbed-TLS/mbedtls/releases/tag/mbedtls-3.6.2
+Licence:          Apache-2.0 OR GPL-2.0-or-later
+Purl:             pkg:github/Mbed-TLS/mbedtls@mbedtls-3.6.2
+Archive-SHA-256:  not recorded -- the upstream archive was not fetched when this record was written (2026-09-29)
+Tree-Digest:      bc90866b187c9c97555d878c908ceb87482d5f597c97bc0ec27de030f16b0a20
