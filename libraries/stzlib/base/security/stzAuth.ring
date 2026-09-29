@@ -11,8 +11,9 @@
 # It holds a credential store (username -> a salted password HASH, never the
 # plaintext) and issues opaque SESSION tokens:
 #
-#   * passwords are hashed with PBKDF2 (StzHashSecret) and verified in
-#     constant time (StzVerifySecret) -- the same engine crypto stzSecret and
+#   * passwords are hashed with Argon2id (StzHashPassword) and verified by the
+#     engine (StzVerifyPassword); a PBKDF2 hash stored before 2026-09-29 is still
+#     accepted and upgraded on the next successful login -- the same engine crypto stzSecret and
 #     stzPlatform use;
 #   * a session is a random 256-bit hex token (StzEngineCryptoRandomHex),
 #     mapped back to its user until Logout.
@@ -72,7 +73,7 @@ class stzAuth from stzObject
 
 	def init()
 		@oStore = new stzAuthMemoryStore()   # durable store injected via SetStore
-		@cDummyHash = StzHashSecret("softanza-timing-equalizer")
+		@cDummyHash = StzHashPassword("softanza-timing-equalizer")
 		@aFailures = []
 		This._DefineBuiltinRoles()
 
@@ -187,7 +188,7 @@ class stzAuth from stzObject
 		if @oStore.HasUser(_u_)
 			StzRaise("stzAuth.Register: user '" + _u_ + "' already exists.")
 		ok
-		@oStore.PutUser(_u_, StzHashSecret("" + pcPassword))
+		@oStore.PutUser(_u_, StzHashPassword("" + pcPassword))
 		return This
 
 	# register an account with NO usable password -- reachable only through a
@@ -201,7 +202,7 @@ class stzAuth from stzObject
 		if @oStore.HasUser(_u_)
 			StzRaise("stzAuth.RegisterPasswordless: user '" + _u_ + "' already exists.")
 		ok
-		@oStore.PutUser(_u_, StzHashSecret(StzEngineCryptoRandomHex(32)))
+		@oStore.PutUser(_u_, StzHashPassword(StzEngineCryptoRandomHex(32)))
 		return This
 
 	def IsRegistered(pcUser)
@@ -214,10 +215,10 @@ class stzAuth from stzObject
 	def ChangePassword(pcUser, pcOld, pcNew)
 		_u_ = ring_trim("" + pcUser)
 		_h_ = @oStore.UserHash(_u_)
-		if _h_ = "" or NOT StzVerifySecret("" + pcOld, _h_)
+		if _h_ = "" or NOT StzVerifyPassword("" + pcOld, _h_)
 			return 0
 		ok
-		@oStore.PutUser(_u_, StzHashSecret("" + pcNew))
+		@oStore.PutUser(_u_, StzHashPassword("" + pcNew))
 		return 1
 
 	# remove a user (and end any of their sessions).
@@ -238,13 +239,25 @@ class stzAuth from stzObject
 	# TIMING-SAFE: an unknown user is verified against a DUMMY hash so it costs
 	# the same PBKDF2 work as a wrong password. Otherwise a fast "no such user"
 	# vs a slow "wrong password" is a username-enumeration oracle.
+	#
+	# MIGRATION: a hash stored before Argon2id (PBKDF2 "salt:hash") is still
+	# accepted, and on a SUCCESSFUL check it is replaced by an Argon2id hash of
+	# the password just proven -- the only moment the plaintext is in hand. So
+	# old accounts upgrade themselves, one login at a time, with no reset.
 	def Authenticate(pcUser, pcPassword)
-		_h_ = @oStore.UserHash(ring_trim("" + pcUser))
+		_u_ = ring_trim("" + pcUser)
+		_h_ = @oStore.UserHash(_u_)
 		if _h_ = ""
-			StzVerifySecret("" + pcPassword, @cDummyHash)   # equalize timing
+			StzVerifyPassword("" + pcPassword, @cDummyHash)   # equalize timing
 			return 0
 		ok
-		return StzVerifySecret("" + pcPassword, _h_)
+		if NOT StzVerifyPassword("" + pcPassword, _h_)
+			return 0
+		ok
+		if StzPasswordNeedsRehash(_h_)
+			@oStore.PutUser(_u_, StzHashPassword("" + pcPassword))
+		ok
+		return 1
 
 	# authenticate AND, on success, open a session -> returns an opaque token
 	# ("" on failure OR lockout -- indistinguishable, so it leaks nothing).

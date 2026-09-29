@@ -1,3 +1,4 @@
+const std = @import("std");
 const crypto = @import("crypto.zig");
 const webauthn = @import("webauthn.zig");
 const xmldsig = @import("xmldsig.zig");
@@ -79,6 +80,73 @@ fn ring_Pbkdf2(p: *anyopaque) callconv(.c) void {
     var buf: [128]u8 = undefined;
     const n = crypto.crypto_pbkdf2_sha256(pw, pl, s, sl, rounds, dk_len, &buf);
     if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
+}
+
+// ── R3: Argon2id + XChaCha20-Poly1305 ──
+
+// StzEngineCryptoArgon2idHash(cPassword) -> "$argon2id$v=19$..." ("" on failure)
+fn ring_Argon2idHash(p: *anyopaque) callconv(.c) void {
+    var buf: [160]u8 = undefined;
+    const n = crypto.crypto_argon2id_hash(@ptrCast(gs(p, 1)), @intCast(gss(p, 1)), &buf, buf.len);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
+}
+
+// StzEngineCryptoArgon2idVerify(cPhc, cPassword) -> 1 match, 0 no, -1 not an Argon2 hash
+fn ring_Argon2idVerify(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(crypto.crypto_argon2id_verify(@ptrCast(gs(p, 1)), @intCast(gss(p, 1)), @ptrCast(gs(p, 2)), @intCast(gss(p, 2)))));
+}
+
+// StzEngineCryptoSeal(cKeyHex64, cPlain, cAad) -> hex blob; raises on a bad key
+fn ring_AeadSeal(p: *anyopaque) callconv(.c) void {
+    const pt_len: usize = @intCast(gss(p, 2));
+    const cap = (pt_len + crypto.AEAD_OVERHEAD) * 2;
+    const out = std.heap.c_allocator.alloc(u8, cap) catch return R.ring_vm_error(p, "seal: out of memory");
+    defer std.heap.c_allocator.free(out);
+    const n = crypto.crypto_aead_seal(@ptrCast(gs(p, 1)), @intCast(gss(p, 1)), @ptrCast(gs(p, 2)), pt_len, @ptrCast(gs(p, 3)), @intCast(gss(p, 3)), out.ptr, cap);
+    if (n == -2) return R.ring_vm_error(p, "seal: the key must be 64 hex characters (32 bytes) -- see StzNewSealKey()");
+    if (n < 0) return R.ring_vm_error(p, "seal: failed");
+    rs2(p, out.ptr, @intCast(n));
+}
+
+// StzEngineCryptoOpen(cKeyHex64, cBlobHex, cAad) -> plaintext; RAISES when
+// the key, the data or the aad do not match -- never returns garbage
+fn ring_AeadOpen(p: *anyopaque) callconv(.c) void {
+    const blob_len: usize = @intCast(gss(p, 2));
+    const cap = blob_len / 2 + 1;
+    const out = std.heap.c_allocator.alloc(u8, cap) catch return R.ring_vm_error(p, "open: out of memory");
+    defer std.heap.c_allocator.free(out);
+    const n = crypto.crypto_aead_open(@ptrCast(gs(p, 1)), @intCast(gss(p, 1)), @ptrCast(gs(p, 2)), blob_len, @ptrCast(gs(p, 3)), @intCast(gss(p, 3)), out.ptr, cap);
+    if (n == -1) return R.ring_vm_error(p, "open: refused -- wrong key, or the sealed data was altered");
+    if (n == -2) return R.ring_vm_error(p, "open: the key must be 64 hex characters (32 bytes)");
+    if (n < 0) return R.ring_vm_error(p, "open: not a sealed blob");
+    rs2(p, out.ptr, @intCast(n));
+    std.crypto.secureZero(u8, out[0..@intCast(n)]);
+}
+
+// StzEngineCryptoHexEncode(cBytes) -> lowercase hex; any bytes, tabs and
+// newlines included, become plain ASCII
+fn ring_HexEncode(p: *anyopaque) callconv(.c) void {
+    const n: usize = @intCast(gss(p, 1));
+    const src: [*]const u8 = @ptrCast(gs(p, 1));
+    const out = std.heap.c_allocator.alloc(u8, n * 2 + 1) catch return R.ring_vm_error(p, "hex: out of memory");
+    defer std.heap.c_allocator.free(out);
+    const hex = "0123456789abcdef";
+    for (src[0..n], 0..) |b, i| {
+        out[i * 2] = hex[b >> 4];
+        out[i * 2 + 1] = hex[b & 0x0f];
+    }
+    rs2(p, out.ptr, @intCast(n * 2));
+}
+
+// StzEngineCryptoHexDecode(cHex) -> the bytes; raises on malformed hex
+fn ring_HexDecode(p: *anyopaque) callconv(.c) void {
+    const n: usize = @intCast(gss(p, 1));
+    if (n % 2 != 0) return R.ring_vm_error(p, "hex: odd length");
+    const src: [*]const u8 = @ptrCast(gs(p, 1));
+    const out = std.heap.c_allocator.alloc(u8, n / 2 + 1) catch return R.ring_vm_error(p, "hex: out of memory");
+    defer std.heap.c_allocator.free(out);
+    const got = std.fmt.hexToBytes(out[0 .. n / 2], src[0..n]) catch return R.ring_vm_error(p, "hex: not hexadecimal");
+    rs2(p, got.ptr, @intCast(got.len));
 }
 
 // StzEngineCryptoRandomHex(nBytes) -> hex string of nBytes CSPRNG bytes.
@@ -398,6 +466,12 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginecryptofnv64", .func = &ring_Fnv64 },
     .{ .name = "stzenginecryptoconstequal", .func = &ring_ConstEqual },
     .{ .name = "stzenginecryptopbkdf2", .func = &ring_Pbkdf2 },
+    .{ .name = "stzenginecryptoargon2idhash", .func = &ring_Argon2idHash },
+    .{ .name = "stzenginecryptoargon2idverify", .func = &ring_Argon2idVerify },
+    .{ .name = "stzenginecryptoseal", .func = &ring_AeadSeal },
+    .{ .name = "stzenginecryptohexencode", .func = &ring_HexEncode },
+    .{ .name = "stzenginecryptohexdecode", .func = &ring_HexDecode },
+    .{ .name = "stzenginecryptoopen", .func = &ring_AeadOpen },
     .{ .name = "stzenginecryptorandomhex", .func = &ring_RandomHex },
     .{ .name = "stzenginecryptototp", .func = &ring_Totp },
     .{ .name = "stzenginecryptoverifyes256", .func = &ring_VerifyEs256 },

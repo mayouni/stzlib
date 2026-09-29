@@ -400,6 +400,134 @@ pub export fn stz_crypto_b64url_decode(s: [*]const u8, sl: usize, o: [*]u8, oc: 
 
 // ── Tests ────────────────────────────────────────────────────
 
+// ── Argon2id: the password hash (stzlib-security, R3) ────────
+//
+// PBKDF2 is CPU-hard only: a GPU runs millions of guesses in parallel.
+// Argon2id is also MEMORY-hard, which is what makes an offline attacker
+// pay per guess on the hardware they actually own. Parameters are
+// OWASP's recommended minimum for Argon2id: 19 MiB, 2 passes, 1 lane.
+// The result is the standard PHC string ($argon2id$v=19$m=...$salt$hash),
+// so salt and parameters travel inside it and can be raised later without
+// breaking stored hashes.
+
+const argon2 = std.crypto.pwhash.argon2;
+pub const ARGON2_PARAMS = argon2.Params{ .t = 2, .m = 19456, .p = 1 };
+
+/// Hash `pw` into a PHC string in `out`. Returns its length, or -1.
+pub fn crypto_argon2id_hash(pw_ptr: [*]const u8, pw_len: usize, out: [*]u8, max: usize) callconv(.c) i32 {
+    const s = argon2.strHash(pw_ptr[0..pw_len], .{
+        .allocator = std.heap.page_allocator,
+        .params = ARGON2_PARAMS,
+        .mode = .argon2id,
+    }, out[0..max]) catch return -1;
+    return @intCast(s.len);
+}
+
+/// 1 when `pw` matches the PHC string, 0 when it does not, -1 when the
+/// string is not a valid Argon2 hash.
+pub fn crypto_argon2id_verify(phc_ptr: [*]const u8, phc_len: usize, pw_ptr: [*]const u8, pw_len: usize) callconv(.c) i32 {
+    argon2.strVerify(phc_ptr[0..phc_len], pw_ptr[0..pw_len], .{
+        .allocator = std.heap.page_allocator,
+    }) catch |e| return if (e == error.PasswordVerificationFailed) 0 else -1;
+    return 1;
+}
+
+// ── XChaCha20-Poly1305: sealing data at rest (R3) ────────────
+//
+// Authenticated encryption: the result is secret AND tamper-evident -- one
+// changed byte, a wrong key or a different `aad` and Open refuses; it never
+// returns garbage. XChaCha's 24-byte nonce is drawn at random per seal,
+// which is safe at any volume a process will produce (the 12-byte nonce of
+// plain ChaCha20-Poly1305 is not). Keys cross the Ring boundary as 64 hex
+// characters and sealed blobs as hex, so no raw bytes meet the text
+// boundary. A sealed blob is nonce(24) || ciphertext || tag(16).
+
+const XChaCha = std.crypto.aead.chacha_poly.XChaCha20Poly1305;
+pub const AEAD_OVERHEAD: usize = XChaCha.nonce_length + XChaCha.tag_length;
+
+fn keyFromHex(key_hex: []const u8, key: *[32]u8) bool {
+    if (key_hex.len != 64) return false;
+    _ = std.fmt.hexToBytes(key, key_hex) catch return false;
+    return true;
+}
+
+/// Seal `pt` under the 64-hex key, binding `aad`. Writes the hex blob to
+/// `out` and returns its length; -2 bad key, -3 `out` too small.
+pub fn crypto_aead_seal(key_hex: [*]const u8, key_len: usize, pt: [*]const u8, pt_len: usize, aad: [*]const u8, aad_len: usize, out: [*]u8, max: usize) callconv(.c) i64 {
+    var key: [32]u8 = undefined;
+    if (!keyFromHex(key_hex[0..key_len], &key)) return -2;
+    defer std.crypto.secureZero(u8, &key);
+    const raw_len = pt_len + AEAD_OVERHEAD;
+    if (max < raw_len * 2) return -3;
+    const raw = std.heap.page_allocator.alloc(u8, raw_len) catch return -3;
+    defer std.heap.page_allocator.free(raw);
+    var nonce: [XChaCha.nonce_length]u8 = undefined;
+    std.crypto.random.bytes(&nonce);
+    @memcpy(raw[0..XChaCha.nonce_length], &nonce);
+    var tag: [XChaCha.tag_length]u8 = undefined;
+    const ct = raw[XChaCha.nonce_length .. XChaCha.nonce_length + pt_len];
+    XChaCha.encrypt(ct, &tag, pt[0..pt_len], aad[0..aad_len], nonce, key);
+    @memcpy(raw[XChaCha.nonce_length + pt_len ..], &tag);
+    const hex = "0123456789abcdef";
+    for (raw, 0..) |b, i| {
+        out[i * 2] = hex[b >> 4];
+        out[i * 2 + 1] = hex[b & 0x0f];
+    }
+    return @intCast(raw_len * 2);
+}
+
+/// Open a hex blob made by crypto_aead_seal. Writes the plaintext to `out`
+/// and returns its length; -1 the key, the data or the aad do not match
+/// (NOTHING is written), -2 bad key, -3 malformed blob or `out` too small.
+pub fn crypto_aead_open(key_hex: [*]const u8, key_len: usize, blob_hex: [*]const u8, blob_len: usize, aad: [*]const u8, aad_len: usize, out: [*]u8, max: usize) callconv(.c) i64 {
+    var key: [32]u8 = undefined;
+    if (!keyFromHex(key_hex[0..key_len], &key)) return -2;
+    defer std.crypto.secureZero(u8, &key);
+    if (blob_len % 2 != 0 or blob_len / 2 < AEAD_OVERHEAD) return -3;
+    const raw_len = blob_len / 2;
+    const pt_len = raw_len - AEAD_OVERHEAD;
+    if (max < pt_len) return -3;
+    const raw = std.heap.page_allocator.alloc(u8, raw_len) catch return -3;
+    defer std.heap.page_allocator.free(raw);
+    _ = std.fmt.hexToBytes(raw, blob_hex[0..blob_len]) catch return -3;
+    var nonce: [XChaCha.nonce_length]u8 = undefined;
+    @memcpy(&nonce, raw[0..XChaCha.nonce_length]);
+    var tag: [XChaCha.tag_length]u8 = undefined;
+    @memcpy(&tag, raw[raw_len - XChaCha.tag_length ..]);
+    const ct = raw[XChaCha.nonce_length .. XChaCha.nonce_length + pt_len];
+    XChaCha.decrypt(out[0..pt_len], ct, tag, aad[0..aad_len], nonce, key) catch {
+        std.crypto.secureZero(u8, out[0..pt_len]);
+        return -1;
+    };
+    return @intCast(pt_len);
+}
+
+test "argon2id: hash verifies, a wrong password does not, garbage is -1" {
+    var buf: [128]u8 = undefined;
+    const n = crypto_argon2id_hash("correct horse", 13, &buf, buf.len);
+    try std.testing.expect(n > 0);
+    try std.testing.expect(std.mem.startsWith(u8, buf[0..@intCast(n)], "$argon2id$v=19$m=19456,t=2,p=1$"));
+    try std.testing.expectEqual(@as(i32, 1), crypto_argon2id_verify(&buf, @intCast(n), "correct horse", 13));
+    try std.testing.expectEqual(@as(i32, 0), crypto_argon2id_verify(&buf, @intCast(n), "wrong horse", 11));
+    try std.testing.expectEqual(@as(i32, -1), crypto_argon2id_verify("salt:hash", 9, "x", 1));
+}
+
+test "aead: seal/open round-trips; a flipped byte, a wrong key or other aad is refused" {
+    const key = "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff";
+    const key2 = "ff112233445566778899aabbccddeeff00112233445566778899aabbccddeeff";
+    var blob: [256]u8 = undefined;
+    const n: usize = @intCast(crypto_aead_seal(key, 64, "attack at dawn", 14, "store:a", 7, &blob, blob.len));
+    try std.testing.expectEqual((14 + AEAD_OVERHEAD) * 2, n);
+    var pt: [64]u8 = undefined;
+    try std.testing.expectEqual(@as(i64, 14), crypto_aead_open(key, 64, &blob, n, "store:a", 7, &pt, pt.len));
+    try std.testing.expectEqualStrings("attack at dawn", pt[0..14]);
+    try std.testing.expectEqual(@as(i64, -1), crypto_aead_open(key2, 64, &blob, n, "store:a", 7, &pt, pt.len));
+    try std.testing.expectEqual(@as(i64, -1), crypto_aead_open(key, 64, &blob, n, "store:b", 7, &pt, pt.len));
+    blob[60] = if (blob[60] == 'a') 'b' else 'a';
+    try std.testing.expectEqual(@as(i64, -1), crypto_aead_open(key, 64, &blob, n, "store:a", 7, &pt, pt.len));
+    try std.testing.expectEqual(@as(i64, -2), crypto_aead_seal("short", 5, "x", 1, "", 0, &blob, blob.len));
+}
+
 test "crypto: sha256" {
     var out: [64]u8 = undefined;
     const len = crypto_sha256("hello".ptr, 5, &out);
