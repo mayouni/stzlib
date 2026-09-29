@@ -103,6 +103,7 @@ class stzAgentHost from stzObject
 	@aDeclared   = []        # [ name, coverage, revClass, priority ]
 	@cLoopWhy    = ""        # the engine's last refusal, verbatim
 	@oFolder     = ""        # the agents/ folder, when one was mounted
+	@aQuarantine = []        # [ name, reason, atMs ] -- containment's :QuarantinePart
 
 	def init()
 		@oReactor = new stzReactor()
@@ -653,12 +654,72 @@ class stzAgentHost from stzObject
 		if _n_ = 0
 			stzraise("stzAgentHost.Resume: not supervising '" + pcName + "'.")
 		ok
+		if This.IsQuarantined(pcName)
+			stzraise("stzAgentHost.Resume: '" + pcName + "' is QUARANTINED (" +
+				This.QuarantineOf(pcName)[:reason] + ") -- Release it, as an effectful actor, first.")
+		ok
 		@aAgents[_n_][4] = 1
 		@aAgents[_n_][5] = StzEngineTimeNowMs()
 		if @bEngineLoop = 1 and @aAgents[_n_][11] >= 0
 			stzengineagentlooppause(@aAgents[_n_][11], 0)
 		ok
 		return This
+
+	#-- QUARANTINE (containment's :QuarantinePart) ----------------------
+	#
+	# Between a pause and a retirement: the agent stops being run, with the
+	# REASON kept, and it stays stopped -- Resume() refuses while it is
+	# quarantined. Only Release(), by an effectful, non-sandboxed actor, lifts
+	# it. A Cancel is an operator's pause; a quarantine is a containment act.
+
+	def Quarantine(pcName, pcReason)
+		if This._IndexOf(pcName) = 0
+			stzraise("stzAgentHost.Quarantine: not supervising '" + pcName + "'.")
+		ok
+		This.Cancel(pcName)
+		This._DropQuarantine(pcName)
+		@aQuarantine + [ StzLower("" + pcName), "" + pcReason, StzEngineTimeNowMs() ]
+		StzNoteRefusal("agent.quarantined", "" + pcName, "agent:" + pcName, "" + pcReason)
+		@cWhy = "quarantined '" + pcName + "': " + pcReason
+		return This
+
+	def IsQuarantined(pcName)
+		return len(This.QuarantineOf(pcName)) > 0
+
+	# [ :reason, :at ] or [] when the agent is not quarantined
+	def QuarantineOf(pcName)
+		_c_ = StzLower("" + pcName)
+		_n_ = len(@aQuarantine)
+		for _i_ = 1 to _n_
+			if @aQuarantine[_i_][1] = _c_
+				return [ :reason = @aQuarantine[_i_][2], :at = @aQuarantine[_i_][3] ]
+			ok
+		next
+		return []
+
+	def Release(pcName, poActor)
+		if NOT (isObject(poActor) and poActor.IsEffectful() and poActor.Posture() != "sandboxed")
+			_cWho_ = "(anonymous)"
+			if isObject(poActor)  _cWho_ = "" + poActor.Name()  ok
+			StzNoteRefusal("capability.refused", _cWho_, "agent:" + pcName,
+				"releasing a quarantined agent is an effect -- the actor may not")
+			stzraise("Refused: only an effectful, non-sandboxed actor may release '" + pcName + "' from quarantine.")
+		ok
+		This._DropQuarantine(pcName)
+		This.Resume(pcName)
+		StzNoteGrant("agent.released", "" + poActor.Name(), "agent:" + pcName)
+		return This
+
+	def _DropQuarantine(pcName)
+		_c_ = StzLower("" + pcName)
+		_aNew_ = []
+		_n_ = len(@aQuarantine)
+		for _i_ = 1 to _n_
+			if @aQuarantine[_i_][1] != _c_
+				_aNew_ + @aQuarantine[_i_]
+			ok
+		next
+		@aQuarantine = _aNew_
 
 	# DECOMMISSION (R4b): retirement is EARNED. When a governance is
 	# wired, the agent may retire ONLY once every declared obligation is
