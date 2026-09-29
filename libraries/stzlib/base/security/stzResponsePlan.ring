@@ -50,6 +50,14 @@
 func StzResponsePlan(pcName)
 	return new stzResponsePlan(pcName)
 
+# THE FIRST REAL RESPONDER: stzAuth answers :LockAccount and
+# :RevokeSession for real. It holds a REFERENCE to the caller's stzAuth
+# (object2pointer), never a copy -- Ring copies an object it stores, and a
+# copy of an auth with a memory store would lock an account nobody logs in
+# through. Keep the stzAuth alive while the responder is in use.
+func StzAuthResponder(poAuth)
+	return new stzAuthResponder(poAuth)
+
 func StzResponseActions()
 	return [ "revokesession", "lockaccount", "rotatesecret",
 		 "revokecapability", "shedsource", "quarantinepart" ]
@@ -225,3 +233,40 @@ class stzResponsePlan from stzObject
 			ok
 		next
 		return _n_
+
+  #=========================================================#
+ #  stzAuthResponder -- containment over a real stzAuth     #
+#=========================================================#
+
+class stzAuthResponder from stzObject
+
+	@pAuth = ""
+
+	def init(poAuth)
+		@pAuth = object2pointer(poAuth)
+
+	def _Auth()
+		return pointer2object(@pAuth)
+
+	# The account is closed: every login path and every live session refuse.
+	def LockAccount(pcTarget)
+		This._Auth().LockAccount("" + pcTarget, "locked by a containment plan")
+
+	# The plan targets an ACTOR, so every session of that user ends.
+	def RevokeSession(pcTarget)
+		This._Auth().RevokeAllSessions("" + pcTarget)
+
+	# Not this responder's to perform: authentication owns accounts and
+	# sessions, nothing else. A plan that proposes these needs another
+	# responder -- refused loudly, never pretended.
+	def RotateSecret(pcTarget)
+		stzraise("stzAuthResponder cannot :RotateSecret '" + pcTarget + "' -- wire a secret-store responder.")
+
+	def RevokeCapability(pcTarget)
+		stzraise("stzAuthResponder cannot :RevokeCapability '" + pcTarget + "' -- wire a capability responder.")
+
+	def ShedSource(pcTarget)
+		stzraise("stzAuthResponder cannot :ShedSource '" + pcTarget + "' -- wire a rate-limiter responder.")
+
+	def QuarantinePart(pcTarget)
+		stzraise("stzAuthResponder cannot :QuarantinePart '" + pcTarget + "' -- wire a quarantine responder.")
