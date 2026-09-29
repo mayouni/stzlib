@@ -58,6 +58,19 @@ func StzResponsePlan(pcName)
 func StzAuthResponder(poAuth)
 	return new stzAuthResponder(poAuth)
 
+# THE SECOND REAL RESPONDER: a secret store answers :RotateSecret for
+# real (RotateToFresh), acting as poActor, the service identity allowed to
+# create credentials. Held by reference, like the auth responder.
+func StzSecretStoreResponder(poStore, poActor)
+	return new stzSecretStoreResponder(poStore, poActor)
+
+# ONE PLAN, SEVERAL OWNERS: a plan may lock an account AND rotate a secret,
+# and no single object owns both. A responder set routes each verb to the
+# first member that OWNS it (answers Owns(verb)); a verb no member owns is
+# REFUSED, loudly -- a plan is never half-performed in silence.
+func StzResponderSet(paResponders)
+	return new stzResponderSet(paResponders)
+
 func StzResponseActions()
 	return [ "revokesession", "lockaccount", "rotatesecret",
 		 "revokecapability", "shedsource", "quarantinepart" ]
@@ -155,6 +168,23 @@ class stzResponsePlan from stzObject
 			next
 			return 0
 		ok
+		# PREFLIGHT: a responder that can say what it OWNS is asked about every
+		# action BEFORE any is committed. A plan with an action nobody owns is
+		# refused WHOLE -- never half-performed, leaving half an incident contained.
+		if ismethod(poResponder, "owns")
+			_nLen_ = ring_len(@aActions)
+			for _i_ = 1 to _nLen_
+				if NOT poResponder.Owns(@aActions[_i_][1])
+					_cWhy_ = "no responder owns :" + @aActions[_i_][1] + " -- the plan was refused whole, nothing was committed"
+					for _j_ = 1 to _nLen_
+						@aAudit + [ _j_, "refused", @aActions[_j_][1], @aActions[_j_][2], _cActor_, _cWhy_ ]
+						StzNoteRefusal("response.action.refused", _cActor_,
+							@aActions[_j_][1] + ":" + @aActions[_j_][2], _cWhy_)
+					next
+					return 0
+				ok
+			next
+		ok
 		_nDone_ = 0
 		_nLen_ = ring_len(@aActions)
 		for _i_ = 1 to _nLen_
@@ -248,6 +278,9 @@ class stzAuthResponder from stzObject
 	def _Auth()
 		return pointer2object(@pAuth)
 
+	def Owns(pcVerb)
+		return ring_find([ "lockaccount", "revokesession" ], StzLower("" + pcVerb)) > 0
+
 	# The account is closed: every login path and every live session refuse.
 	def LockAccount(pcTarget)
 		This._Auth().LockAccount("" + pcTarget, "locked by a containment plan")
@@ -270,3 +303,95 @@ class stzAuthResponder from stzObject
 
 	def QuarantinePart(pcTarget)
 		stzraise("stzAuthResponder cannot :QuarantinePart '" + pcTarget + "' -- wire a quarantine responder.")
+
+  #=========================================================#
+ #  stzSecretStoreResponder -- :RotateSecret, for real       #
+#=========================================================#
+
+class stzSecretStoreResponder from stzObject
+
+	@pStore = ""
+	@oActor = ""
+
+	def init(poStore, poActor)
+		@pStore = object2pointer(poStore)
+		@oActor = poActor
+
+	def Owns(pcVerb)
+		return StzLower("" + pcVerb) = "rotatesecret"
+
+	# the target is the secret's NAME, as the incident names it
+	def RotateSecret(pcTarget)
+		_c_ = "" + pcTarget
+		if StzLeft(StzLower(_c_), 7) = "secret:"
+			_c_ = StzMidToEnd(_c_, 8)
+		ok
+		pointer2object(@pStore).RotateToFresh(_c_, @oActor)
+
+	def LockAccount(pcTarget)
+		stzraise("stzSecretStoreResponder cannot :LockAccount -- wire an auth responder.")
+
+	def RevokeSession(pcTarget)
+		stzraise("stzSecretStoreResponder cannot :RevokeSession -- wire an auth responder.")
+
+	def RevokeCapability(pcTarget)
+		stzraise("stzSecretStoreResponder cannot :RevokeCapability -- wire a capability responder.")
+
+	def ShedSource(pcTarget)
+		stzraise("stzSecretStoreResponder cannot :ShedSource -- wire a rate-limiter responder.")
+
+	def QuarantinePart(pcTarget)
+		stzraise("stzSecretStoreResponder cannot :QuarantinePart -- wire a quarantine responder.")
+
+
+  #=========================================================#
+ #  stzResponderSet -- each verb to the member that owns it  #
+#=========================================================#
+
+class stzResponderSet from stzObject
+
+	@aMembers = []	# object2pointer of each responder
+
+	def init(paResponders)
+		@aMembers = []
+		_n_ = len(paResponders)
+		for _i_ = 1 to _n_
+			@aMembers + object2pointer(paResponders[_i_])
+		next
+
+	def Owns(pcVerb)
+		return This._OwnerOf(pcVerb) > 0
+
+	def _OwnerOf(pcVerb)
+		_n_ = len(@aMembers)
+		for _i_ = 1 to _n_
+			if pointer2object(@aMembers[_i_]).Owns(pcVerb)
+				return _i_
+			ok
+		next
+		return 0
+
+	def _Route(pcVerb)
+		_i_ = This._OwnerOf(pcVerb)
+		if _i_ = 0
+			stzraise("No responder in this set owns :" + pcVerb + " -- the plan cannot be performed in full.")
+		ok
+		return pointer2object(@aMembers[_i_])
+
+	def LockAccount(pcTarget)
+		This._Route("lockaccount").LockAccount(pcTarget)
+
+	def RevokeSession(pcTarget)
+		This._Route("revokesession").RevokeSession(pcTarget)
+
+	def RotateSecret(pcTarget)
+		This._Route("rotatesecret").RotateSecret(pcTarget)
+
+	def RevokeCapability(pcTarget)
+		This._Route("revokecapability").RevokeCapability(pcTarget)
+
+	def ShedSource(pcTarget)
+		This._Route("shedsource").ShedSource(pcTarget)
+
+	def QuarantinePart(pcTarget)
+		This._Route("quarantinepart").QuarantinePart(pcTarget)
