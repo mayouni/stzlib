@@ -95,8 +95,9 @@ assumes one will get through (T3) and makes it harmless.
 | G18 | Evidence leaves the process sealed and attested; tampered evidence is not believed | `SealAttestedTo`, `StzLedgerFromSealedFile` | `base/test/system/security_attest_narrated.ring` (34), `base/test/system/security_drill_narrated.ring` (21) | A08, RS | The seal key is a shared secret |
 | G19 | Known attack shapes are detected, and a sentinel raises them | detections with a corroboration law, an edge-triggered sentinel | `base/test/system/security_detection_narrated.ring` (33), `base/test/system/security_sentinel_narrated.ring` (33) | DE, A09 | Tick-driven; no anomaly detection -- R9 |
 | G20 | Escalation paths and blast radius are computed, not guessed | `stzSecurityGraph`, posture reports | `base/test/system/securitygraph_narrated.ring` (22), `base/test/system/security_posture_narrated.ring` (20) | ID, ASI03, A01 | -- |
-| G21 | Containment is governed: anyone may propose it, only an effectful actor commits it, and a real responder performs it | `stzResponsePlan`, `stzAuthResponder` | `base/test/system/security_response_narrated.ring` (27), `base/test/security/containment_drill_narrated.ring` (27) | RS, ASI10 | One real responder (authentication); secret rotation, capability revocation and shedding have no real responder yet -- R10 |
+| G21 | Containment is governed: anyone may propose it, only an effectful actor commits it, and a real responder performs it | `stzResponsePlan`, `stzAuthResponder` | `base/test/system/security_response_narrated.ring` (27), `base/test/security/containment_drill_narrated.ring` (27) | RS, ASI10 | Two real responders (authentication, secret store); capability revocation, shedding and quarantine have none yet -- R10 |
 | G22 | Responsiveness is MEASURED: in the drill, credential stuffing over real HTTP is detected in 351-357 ms and contained in 53-57 ms (three runs) | `stzSecurityDrill.TimeToDetectMs / TimeToContainMs` | `base/test/security/containment_drill_narrated.ring` (27) | DE, RS | One attack shape, loopback, one machine; detection is run on demand, not continuously |
+| G30 | A secret the application owns can be rotated by containment, and a plan spanning several owners is performed by each owner -- or refused WHOLE, before anything happens, when an action has no owner | `stzSecretStore.RotateToFresh`, `stzSecretStoreResponder`, `stzResponderSet`, the ownership preflight in `stzResponsePlan.ExecuteOn` | `base/test/security/rotate_secret_narrated.ring` (18) | RS, RC, A04 | A secret held in env, a file or a vault must be rotated at its source (it refuses, naming it); rotation does not yet propagate to the services using the old value |
 
 ### Supply chain and data integrity
 
@@ -124,7 +125,7 @@ Each is a gap with no guard yet. The rung is the plane's plan for it.
 | R7 | No per-agent rate limit or tick cap; the negotiation loop is design only | ASI08, ASI09 | rung 6 |
 | R8 | No password-reset flow | A07 | later |
 | R9 | Detection is tick-driven, with no anomaly detection | DE | later |
-| R10 | Only authentication has a real responder; the other four catalogue verbs have none | RS | one responder per owning class |
+| R10 | Two of six catalogue verbs' owners are wired (authentication: lock, revoke session; secret store: rotate -- G13, G30); :RevokeCapability, :ShedSource and :QuarantinePart have no real responder | RS | one responder per owning class, next |
 | R11 | Three other planes still splice paths into shell strings: graphics `stzScene`/`stzCanvas` (open in viewer), math `stzMathClaim` (mkdir), extercode `stzImageToAscii` | A05 | routed to those planes |
 | R12 | No scheduled or coverage-guided fuzzing; no CI; unsigned commits | A03, GV | **deferred by the author** for the development phase -- remind before the first release |
 | R13 | No reporting runbook for the CRA's 24 h / 72 h clocks | RS, GV | before any EU sale of RINGBOL |

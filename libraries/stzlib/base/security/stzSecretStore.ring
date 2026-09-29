@@ -132,6 +132,48 @@ class stzSecretStore from stzObject
 	def RotateQ(poNewSecret)
 		return This.Register(poNewSecret)
 
+	# ROTATE IN PLACE, to a fresh random value -- containment's :RotateSecret.
+	# Only a secret whose value THIS store holds (a :literal) can be
+	# regenerated here: a key it issues, a token it signs with. A secret that
+	# lives in an environment variable, a file or a vault is not this store's
+	# to change -- that REFUSES loudly, naming where to rotate it, rather than
+	# pretending. Creating a credential is an effect, so poActor passes the
+	# same gate as a reveal. The new value is 32 random bytes as 64 hex
+	# characters; kind and name are kept (a token's expiry is cleared -- a new
+	# value is a new credential). Returns This.
+	def RotateToFresh(pcName, poActor)
+		_s_ = This.Secret(pcName)
+		if NOT isObject(_s_)
+			stzraise("stzSecretStore '" + @cName + "': no secret '" + pcName + "' to rotate.")
+		ok
+		if NOT (isObject(poActor) and poActor.IsEffectful() and poActor.Posture() != "sandboxed")
+			StzNoteRefusal("secret.reveal.refused", "" + poActor.Name(), "secret:" + _s_.Name(),
+				"rotating a secret is an effect -- the actor may not")
+			stzraise("Refused: only an effectful, non-sandboxed actor may rotate secret '" + _s_.Name() + "'.")
+		ok
+		if _s_.SourceKind() != "literal"
+			stzraise("Secret '" + _s_.Name() + "' lives in its " + _s_.SourceKind() + " source (" +
+				_s_.SourceLocator() + ") -- rotate it THERE; this store does not own its value.")
+		ok
+		_cKind_ = _s_.Kind()
+		if _cKind_ = "apikey"
+			_n_ = new stzApiKey(_s_.Name())
+		but _cKind_ = "password"
+			_n_ = new stzPassword(_s_.Name())
+		but _cKind_ = "deploykey"
+			_n_ = new stzDeployKey(_s_.Name())
+		but _cKind_ = "token"
+			_n_ = new stzToken(_s_.Name())
+		else
+			_n_ = new stzSecret(_s_.Name())
+			_n_.SetKind(_cKind_)
+		ok
+		_n_.FromLiteral(StzEngineCryptoRandomHex(32))
+		This.Register(_n_)
+		This._Audit(poActor, _s_.Name(), "rotated")
+		StzNoteGrant("secret.rotated", "" + poActor.Name(), "secret:" + _s_.Name())
+		return This
+
 	# revoke (remove) a secret by name.
 	def Revoke(pcName)
 		_nm_ = StzLower(ring_trim("" + pcName))

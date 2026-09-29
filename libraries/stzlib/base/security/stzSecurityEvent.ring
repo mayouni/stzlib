@@ -93,6 +93,7 @@ func StzSecurityEventKinds()
 		[ "sig.key.unknown",              "warning", "T1078",     "a request was signed with an unknown key id" ],
 		[ "secret.reveal.granted",        "info",    "T1552",     "a secret was revealed to an entitled actor" ],
 		[ "secret.reveal.refused",        "error",   "T1552",     "a secret reveal was refused" ],
+		[ "secret.rotated",               "info",    "",          "a secret was replaced by a fresh value" ],
 		[ "capability.refused",           "error",   "T1068",     "an actor lacked the capability an operation required" ],
 		[ "scope.refused",                "warning", "T1068",     "an operation fell outside the commit scope" ],
 		[ "posture.refused",              "error",   "T1068",     "the executing posture was not admitted" ],
