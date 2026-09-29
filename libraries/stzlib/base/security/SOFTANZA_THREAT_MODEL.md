@@ -102,6 +102,7 @@ assumes one will get through (T3) and makes it harmless.
 | G32 | A flooding source can be shed for real: a blocked key is refused whether or not it has a rate limit, each refusal carries the block's reason, and a timed block lifts by itself | `stzRateLimiter.Block/BlockFor/Unblock`, `stzRateLimiterResponder` | `base/test/security/shed_source_narrated.ring` (16) | RS, A04, DE | The block lives in the limiter object the application admits through -- a COPY of that limiter would not see it; blocks are not persisted across a restart |
 | G33 | A rogue agent can be quarantined: the host stops running it, keeps the reason, refuses Resume(), and only an effectful actor can Release it. With it, all six catalogue actions have a real owner, and one plan can use all six at once | `stzAgentHost.Quarantine/Release`, `stzAgentHostResponder`, `stzResponderSet` | `base/test/security/quarantine_part_narrated.ring` (20) | RS, ASI10, ASI08 | Quarantine lives in the host object; it is not persisted across a restart |
 | G34 | A property set around a governed door changes no decision and does not go unseen: the properties a gate decides on (an agent node's kind and granted capabilities, an actor's posture) are sealed by the governed doors out of `GraphQ()`'s reach, the gates read the seal, and every mismatch is reported by `Tampering()`, `Violations()`, `CheckRules()` and `IsSound()` | the sealed record in `stzAgentGraph` and `stzSecurityGraph` | `base/test/security/raw_graph_bypass_narrated.ring` (17), `base/test/agentic/agentrule_narrated.ring` (22) | ASI03, A01, GV | Edges are not sealed: a raw edge is visible to every path audit, but it is not attributed as tampering |
+| G35 | An agent file may call only the Ring functions CODE allowed, at no more trust than code allowed: a `ring:` clause naming any other loaded function is refused at load, and so is a file claiming a more trusted posture than its allowance | `StzAllowAgentFunction`, the load gate in `stzAgentDeclaration` | `base/test/security/agent_function_allowlist_narrated.ring` (12) | ASI02, ASI05, LLM06 | The allowance names the function, not what it does: allowing a function is a code review of it |
 
 ### Supply chain and data integrity
 
@@ -121,7 +122,7 @@ Each is a gap with no guard yet. The rung is the plane's plan for it.
 | ID | Risk | Norms | Rung |
 |---|---|---|---|
 | R1 | ~~A property set on the raw graph walks around `Grant` and `AttachSecret`~~ | ASI03, A01 | **CLOSED 2026-09-29** -- now G34 (a formal capability TYPE remains the stronger form) |
-| R2 | A `ring:` clause in an agent file is checked by name, not by what the function does | ASI02, ASI05 | rung 5 |
+| R2 | ~~A `ring:` clause could name any function loaded in the process~~ | ASI02, ASI05 | **CLOSED 2026-09-29** -- now G35 |
 | R3 | ~~No authenticated encryption for data at rest; PBKDF2 is the only password hash~~ | A04 | **CLOSED 2026-09-29** -- now G27 and G28 |
 | R4 | ~~No Vault or KMS adapter~~ | A04, ASI03 | **CLOSED 2026-09-29** -- now G29 (Vault HTTP API); a cloud-KMS adapter (AWS, GCP, Azure) is not done |
 | R5 | An in-process attacker can wipe the ring; truncating the durable log's tail is undetectable without an anchored head | A09, T6 | anchoring via attestation, later |
