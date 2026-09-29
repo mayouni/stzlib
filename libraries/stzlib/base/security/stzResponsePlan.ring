@@ -81,6 +81,12 @@ func StzCapabilityResponder(poSecurityGraph)
 func StzRateLimiterResponder(poLimiter, pnBlockMs)
 	return new stzRateLimiterResponder(poLimiter, pnBlockMs)
 
+# THE FIFTH REAL RESPONDER: :QuarantinePart stops an agent the host
+# supervises, keeps the reason, and refuses Resume() until an effectful
+# actor Releases it. The "part" is the agent's name as the host knows it.
+func StzAgentHostResponder(poHost)
+	return new stzAgentHostResponder(poHost)
+
 # ONE PLAN, SEVERAL OWNERS: a plan may lock an account AND rotate a secret,
 # and no single object owns both. A responder set routes each verb to the
 # first member that OWNS it (answers Owns(verb)); a verb no member owns is
@@ -510,3 +516,40 @@ class stzRateLimiterResponder from stzObject
 
 	def QuarantinePart(pcTarget)
 		stzraise("stzRateLimiterResponder cannot :QuarantinePart -- wire a quarantine responder.")
+
+
+  #=========================================================#
+ #  stzAgentHostResponder -- :QuarantinePart, for real       #
+#=========================================================#
+
+class stzAgentHostResponder from stzObject
+
+	@pHost = ""
+
+	def init(poHost)
+		@pHost = object2pointer(poHost)
+
+	def Owns(pcVerb)
+		return StzLower("" + pcVerb) = "quarantinepart"
+
+	def QuarantinePart(pcTarget)
+		_c_ = "" + pcTarget
+		if StzLeft(StzLower(_c_), 6) = "agent:"
+			_c_ = StzMidToEnd(_c_, 7)
+		ok
+		pointer2object(@pHost).Quarantine(_c_, "quarantined by a containment plan")
+
+	def LockAccount(pcTarget)
+		stzraise("stzAgentHostResponder cannot :LockAccount -- wire an auth responder.")
+
+	def RevokeSession(pcTarget)
+		stzraise("stzAgentHostResponder cannot :RevokeSession -- wire an auth responder.")
+
+	def RotateSecret(pcTarget)
+		stzraise("stzAgentHostResponder cannot :RotateSecret -- wire a secret-store responder.")
+
+	def RevokeCapability(pcTarget)
+		stzraise("stzAgentHostResponder cannot :RevokeCapability -- wire a capability responder.")
+
+	def ShedSource(pcTarget)
+		stzraise("stzAgentHostResponder cannot :ShedSource -- wire a rate-limiter responder.")
