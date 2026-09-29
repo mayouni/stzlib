@@ -57,7 +57,7 @@ assumes one will get through (T3) and makes it harmless.
 
 | ID | Guarantee | Enforced by | Proven by (assertions) | Norms | Honest limit |
 |---|---|---|---|---|---|
-| G01 | An LLM actor never holds, and so never uses, the `effectful` capability | `stzAgentGraph.Grant` refuses it at construction; `no-llm-effectful` audits it | `base/test/agentic/agentrule_narrated.ring` (21), `base/test/agentic/agentgraph_narrated.ring` (11), `base/test/agentic/safeworld_narrated.ring` (76) | ASI03, ASI01, A01, GV, PR | A raw graph property can be set around `Grant` -- see R1 |
+| G01 | An LLM actor never holds, and so never uses, the `effectful` capability | `stzAgentGraph.Grant` refuses it at construction; `no-llm-effectful` audits it | `base/test/agentic/agentrule_narrated.ring` (21), `base/test/agentic/agentgraph_narrated.ring` (11), `base/test/agentic/safeworld_narrated.ring` (76) | ASI03, ASI01, A01, GV, PR | A raw edit is caught as tampering, and cannot change the gate's decision -- G34 |
 | G02 | Every effect passes a guardian and leaves a trace | invariants `effects-guarded`, `effects-traced`, `effects-dominated` | `base/test/agentic/agentrule_narrated.ring` (21), `base/test/governance/governance_narrated.ring` (19) | ASI02, ASI10, A06 | Checked at composition, not at every call |
 | G03 | Open LLM text and external data reach an effect only through a guardian or a validated checkpoint | invariants `open-text-contained`, `external-data-contained` (reads the `external_data` taint) | `base/test/security/prompt_boundary_narrated.ring` (17), `base/test/agentic/agentrule_narrated.ring` (21) | ASI01, LLM01, A06 | The graph must declare its nodes' taint truthfully |
 | G04 | Untrusted text cannot write a prompt turn | `StzChatSafeText` breaks every `<\|` control-token opener in user text | `base/test/security/prompt_boundary_narrated.ring` (17) | LLM01, ASI01 | Guards the MARKERS; persuasive words still reach the model -- G01 is what makes that harmless |
@@ -101,6 +101,7 @@ assumes one will get through (T3) and makes it harmless.
 | G31 | A compromised actor's capability can be revoked for real: every path by which THAT actor reaches it in the security graph is cut (a direct hold, a granting tool, a delegation), other actors keep theirs, and the live actor object loses the kind the runtime gates ask about | `stzSecurityGraph.CutCapability`, `stzCapabilityResponder` | `base/test/security/revoke_capability_narrated.ring` (16) | RS, ASI03, ASI10, A01 | Live actors must be registered one by one (`AddLiveActor`): Ring copies objects in a list literal, and revoking a copy changes nothing |
 | G32 | A flooding source can be shed for real: a blocked key is refused whether or not it has a rate limit, each refusal carries the block's reason, and a timed block lifts by itself | `stzRateLimiter.Block/BlockFor/Unblock`, `stzRateLimiterResponder` | `base/test/security/shed_source_narrated.ring` (16) | RS, A04, DE | The block lives in the limiter object the application admits through -- a COPY of that limiter would not see it; blocks are not persisted across a restart |
 | G33 | A rogue agent can be quarantined: the host stops running it, keeps the reason, refuses Resume(), and only an effectful actor can Release it. With it, all six catalogue actions have a real owner, and one plan can use all six at once | `stzAgentHost.Quarantine/Release`, `stzAgentHostResponder`, `stzResponderSet` | `base/test/security/quarantine_part_narrated.ring` (20) | RS, ASI10, ASI08 | Quarantine lives in the host object; it is not persisted across a restart |
+| G34 | A property set around a governed door changes no decision and does not go unseen: the properties a gate decides on (an agent node's kind and granted capabilities, an actor's posture) are sealed by the governed doors out of `GraphQ()`'s reach, the gates read the seal, and every mismatch is reported by `Tampering()`, `Violations()`, `CheckRules()` and `IsSound()` | the sealed record in `stzAgentGraph` and `stzSecurityGraph` | `base/test/security/raw_graph_bypass_narrated.ring` (17), `base/test/agentic/agentrule_narrated.ring` (22) | ASI03, A01, GV | Edges are not sealed: a raw edge is visible to every path audit, but it is not attributed as tampering |
 
 ### Supply chain and data integrity
 
@@ -119,7 +120,7 @@ Each is a gap with no guard yet. The rung is the plane's plan for it.
 
 | ID | Risk | Norms | Rung |
 |---|---|---|---|
-| R1 | The security graph hands out its raw graph, so a property can be set around `Grant` | ASI03, A01 | a formal capability type (rung 5) |
+| R1 | ~~A property set on the raw graph walks around `Grant` and `AttachSecret`~~ | ASI03, A01 | **CLOSED 2026-09-29** -- now G34 (a formal capability TYPE remains the stronger form) |
 | R2 | A `ring:` clause in an agent file is checked by name, not by what the function does | ASI02, ASI05 | rung 5 |
 | R3 | ~~No authenticated encryption for data at rest; PBKDF2 is the only password hash~~ | A04 | **CLOSED 2026-09-29** -- now G27 and G28 |
 | R4 | ~~No Vault or KMS adapter~~ | A04, ASI03 | **CLOSED 2026-09-29** -- now G29 (Vault HTTP API); a cloud-KMS adapter (AWS, GCP, Azure) is not done |

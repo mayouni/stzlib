@@ -76,9 +76,13 @@ Scenario("the audit backstop: a RAW-injected effectful llm is still caught")
 	oAG.GraphQ().SetNodeProperty("writer", "capabilities", [ "inference", "effectful" ])
 
 	aF = oAG.CheckRules()          # the agent graph checks itself
-	Then("the graph's guardrails flag it", len(aF), 1)
+	# TWO findings since 2026-09-29 (threat-model R1): the rule, AND the
+	# tampering itself -- a capability no governed door granted
+	Then("the graph's guardrails flag it twice", len(aF), 2)
 	Then("...as no-llm-effectful on writer",
 	     aF[1][:rule] = "no-llm-effectful" and aF[1][:where] = "writer", TRUE)
+	Then("...and as tampering, set around the gate",
+	     aF[2][:rule] = "governed-property-tampered" and aF[2][:where] = "writer", TRUE)
 	# the gate refuses at the sanctioned door; the rule remains the backstop for
 	# anything that reaches the graph another way.
 EndScenario()
