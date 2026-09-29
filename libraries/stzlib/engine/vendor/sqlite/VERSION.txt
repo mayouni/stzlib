@@ -1,0 +1,15 @@
+SQLite 3.49.1
+
+The amalgamation. SQLITE_SOURCE_ID 2025-02-18 13:38:58
+873d4e274b4988d260ba8354a9718324a1c26187a4ab4c1cc0227c03d0f10e70.
+BEHIND the 3.50 line, which carries security fixes -- named in the
+stzlib-security plane's first memo.
+
+--- SBOM record (read by engine/tools/sbom.py; keep the keys) ---
+Component:        SQLite
+Version:          3.49.1
+Source:           https://sqlite.org/2025/sqlite-amalgamation-3490100.zip
+Licence:          blessing
+Purl:             pkg:generic/sqlite@3.49.1
+Archive-SHA-256:  not recorded -- the upstream archive was not fetched when this record was written (2026-09-29)
+Tree-Digest:      07e77743cf9b38856c59d58aea10b4ac59adc155c86d6b5d661945a2c9e1a50c

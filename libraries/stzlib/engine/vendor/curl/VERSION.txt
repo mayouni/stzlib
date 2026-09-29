@@ -1,0 +1,14 @@
+curl 8.20.0-DEV
+
+A DEVELOPMENT SNAPSHOT, not a release: LIBCURL_VERSION in include/curl/curlver.h
+reads 8.20.0-DEV and the upstream commit was not recorded. Moving to a
+released curl is week-1 work of the stzlib-security plane.
+
+--- SBOM record (read by engine/tools/sbom.py; keep the keys) ---
+Component:        curl
+Version:          8.20.0-DEV
+Source:           https://github.com/curl/curl
+Licence:          curl
+Purl:             pkg:github/curl/curl@8.20.0-DEV
+Archive-SHA-256:  not recorded -- the upstream archive was not fetched when this record was written (2026-09-29)
+Tree-Digest:      4f51545a091b9884d390e72a8cd9bf30a4cb0cf750953ce3a3a4eff00da83ce6

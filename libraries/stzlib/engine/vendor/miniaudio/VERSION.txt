@@ -83,3 +83,12 @@ VERIFICATION STATUS, stated rather than implied:
 The file is VERSION.txt, not VERSION: a vendor-root file named VERSION on
 a C include path resolves C++'s #include <version> on case-insensitive
 filesystems, which broke the build once already (see vendor/stb).
+
+--- SBOM record (read by engine/tools/sbom.py; keep the keys) ---
+Component:        miniaudio
+Version:          0.11.25
+Source:           https://github.com/mackron/miniaudio
+Licence:          Unlicense OR MIT-0
+Purl:             pkg:github/mackron/miniaudio@0.11.25
+Archive-SHA-256:  not recorded -- vendored from commit 9634bedb5b5a2ca38c1ee7108a9358a4e233f14d (see above)
+Tree-Digest:      66eadbfa2f4798d2be61813376fabee527d70774781e2f0f0dfc9f08ac7ea3d9

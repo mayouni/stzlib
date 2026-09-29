@@ -29,3 +29,12 @@ Why the largest C++ vendor in the house is justified: OpenType shaping
 specialty; writing a shaper was REJECTED in the plan of record --
 presentation-forms tricks produce WRONG Arabic on modern fonts. This is
 exactly what wise vendoring is for.
+
+--- SBOM record (read by engine/tools/sbom.py; keep the keys) ---
+Component:        HarfBuzz
+Version:          14.3.0
+Source:           https://github.com/harfbuzz/harfbuzz/releases/tag/14.3.0
+Licence:          MIT-Modern-Variant
+Purl:             pkg:github/harfbuzz/harfbuzz@14.3.0
+Archive-SHA-256:  16070d77cfc4ba1f1e7327e83bf9b3f55898081cabdb94e56a33e04fc8874eae
+Tree-Digest:      f29fbba4282dde5eae5e8f97b99cbbae12aef016e7ac660ed186bc2048a494f0

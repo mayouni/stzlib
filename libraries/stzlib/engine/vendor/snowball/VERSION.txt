@@ -1,0 +1,12 @@
+Snowball (libstemmer) unknown
+
+The upstream version was not recorded when vendored: runtime/ and src_c/
+carry no version string.
+
+--- SBOM record (read by engine/tools/sbom.py; keep the keys) ---
+Component:        Snowball (libstemmer)
+Version:          unknown
+Source:           https://github.com/snowballstem/snowball
+Licence:          BSD-3-Clause
+Archive-SHA-256:  not recorded -- the upstream archive was not fetched when this record was written (2026-09-29)
+Tree-Digest:      671ff553c024f4db1e8b8cdecf14788f8e5f07a26509f64366fd14967ae301ed

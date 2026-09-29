@@ -56,3 +56,12 @@ recorded in the G0 STATUS section of the plan.
 
 DO NOT FORK. Patches go upstream. A fork is a permanent tax -- Avalonia
 deleted its second rendering backend for want of parity maintenance.
+
+--- SBOM record (read by engine/tools/sbom.py; keep the keys) ---
+Component:        RmlUi
+Version:          6.2
+Source:           https://github.com/mikke89/RmlUi/releases/tag/6.2
+Licence:          MIT
+Purl:             pkg:github/mikke89/RmlUi@6.2
+Archive-SHA-256:  814c3ff7b9666280338d8f0dda85979f5daf028d01c85fc8975431d1e2fd8e8b
+Tree-Digest:      464ae3a6cb6d044f616628893736ee823e38c597a3795b2412bbad74cbe591a2

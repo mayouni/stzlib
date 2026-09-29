@@ -1,0 +1,673 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "serialNumber": "urn:uuid:bb6ae90e-550e-5bf4-b944-170c7fcf8278",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-09-29T00:23:36Z",
+    "tools": {
+      "components": [
+        {
+          "type": "application",
+          "name": "engine/tools/sbom.py"
+        }
+      ]
+    },
+    "component": {
+      "type": "library",
+      "bom-ref": "stzlib",
+      "name": "stzlib (Softanza engine)",
+      "properties": [
+        {
+          "name": "softanza:generated-from-commit",
+          "value": "5ba48984ea6d3e67afb6271a6dcb3a7930f4e130"
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "bom-ref": "vendor/accesskit",
+      "name": "accesskit-c",
+      "version": "0.22.3",
+      "licenses": [
+        {
+          "expression": "Apache-2.0 OR MIT"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/AccessKit/accesskit-c/releases/tag/0.22.3"
+        }
+      ],
+      "properties": [
+        {
+          "name": "softanza:vendor-path",
+          "value": "libraries/stzlib/engine/vendor/accesskit"
+        },
+        {
+          "name": "softanza:tree-digest",
+          "value": "4dafda8308f19168f7a7d436b7dfa66c1f9774eb98a210e6410dd97e8c3e3ff5"
+        }
+      ],
+      "purl": "pkg:github/AccessKit/accesskit-c@0.22.3",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "b652e380fb78efe6721ad892f15b2224f38f661c3fb20436ef4c5b3ce0fe8177"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "vendor/curl",
+      "name": "curl",
+      "version": "8.20.0-DEV",
+      "licenses": [
+        {
+          "expression": "curl"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/curl/curl"
+        }
+      ],
+      "properties": [
+        {
+          "name": "softanza:vendor-path",
+          "value": "libraries/stzlib/engine/vendor/curl"
+        },
+        {
+          "name": "softanza:tree-digest",
+          "value": "4f51545a091b9884d390e72a8cd9bf30a4cb0cf750953ce3a3a4eff00da83ce6"
+        },
+        {
+          "name": "softanza:archive-sha-256",
+          "value": "not recorded -- the upstream archive was not fetched when this record was written (2026-09-29)"
+        }
+      ],
+      "purl": "pkg:github/curl/curl@8.20.0-DEV"
+    },
+    {
+      "type": "library",
+      "bom-ref": "vendor/ggml",
+      "name": "ggml",
+      "version": "unknown (built as 0.0.0-stz)",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ggml-org/ggml"
+        }
+      ],
+      "properties": [
+        {
+          "name": "softanza:vendor-path",
+          "value": "libraries/stzlib/engine/vendor/ggml"
+        },
+        {
+          "name": "softanza:tree-digest",
+          "value": "a288e4362e0176d1155720ab3df7efb4db2ce714d7c8d13a2fa9cb8139431fc1"
+        },
+        {
+          "name": "softanza:archive-sha-256",
+          "value": "not recorded -- the upstream archive was not fetched when this record was written (2026-09-29)"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "vendor/glfw",
+      "name": "GLFW",
+      "version": "3.4",
+      "licenses": [
+        {
+          "expression": "Zlib"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/glfw/glfw/releases/tag/3.4"
+        }
+      ],
+      "properties": [
+        {
+          "name": "softanza:vendor-path",
+          "value": "libraries/stzlib/engine/vendor/glfw"
+        },
+        {
+          "name": "softanza:tree-digest",
+          "value": "89ead2dda240ab3c923303a03323d9d0d48e8eed465d532aadc3f37440dabb7c"
+        }
+      ],
+      "purl": "pkg:github/glfw/glfw@3.4",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "b5ec004b2712fd08e8861dc271428f048775200a2df719ccf575143ba749a3e9"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "vendor/harfbuzz",
+      "name": "HarfBuzz",
+      "version": "14.3.0",
+      "licenses": [
+        {
+          "expression": "MIT-Modern-Variant"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/harfbuzz/harfbuzz/releases/tag/14.3.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "softanza:vendor-path",
+          "value": "libraries/stzlib/engine/vendor/harfbuzz"
+        },
+        {
+          "name": "softanza:tree-digest",
+          "value": "f29fbba4282dde5eae5e8f97b99cbbae12aef016e7ac660ed186bc2048a494f0"
+        }
+      ],
+      "purl": "pkg:github/harfbuzz/harfbuzz@14.3.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "16070d77cfc4ba1f1e7327e83bf9b3f55898081cabdb94e56a33e04fc8874eae"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "vendor/libuv",
+      "name": "libuv",
+      "version": "1.52.1",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/libuv/libuv/releases/tag/v1.52.1"
+        }
+      ],
+      "properties": [
+        {
+          "name": "softanza:vendor-path",
+          "value": "libraries/stzlib/engine/vendor/libuv"
+        },
+        {
+          "name": "softanza:tree-digest",
+          "value": "d0e0b05489304e9640a140d0137f658941deedaecd8a99c7d6bd85dafa19152a"
+        },
+        {
+          "name": "softanza:archive-sha-256",
+          "value": "not recorded -- the upstream archive was not fetched when this record was written (2026-09-29)"
+        }
+      ],
+      "purl": "pkg:github/libuv/libuv@v1.52.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "vendor/mbedtls",
+      "name": "Mbed TLS",
+      "version": "3.6.2",
+      "licenses": [
+        {
+          "expression": "Apache-2.0 OR GPL-2.0-or-later"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/Mbed-TLS/mbedtls/releases/tag/mbedtls-3.6.2"
+        }
+      ],
+      "properties": [
+        {
+          "name": "softanza:vendor-path",
+          "value": "libraries/stzlib/engine/vendor/mbedtls"
+        },
+        {
+          "name": "softanza:tree-digest",
+          "value": "bc90866b187c9c97555d878c908ceb87482d5f597c97bc0ec27de030f16b0a20"
+        },
+        {
+          "name": "softanza:archive-sha-256",
+          "value": "not recorded -- the upstream archive was not fetched when this record was written (2026-09-29)"
+        }
+      ],
+      "purl": "pkg:github/Mbed-TLS/mbedtls@mbedtls-3.6.2"
+    },
+    {
+      "type": "library",
+      "bom-ref": "vendor/miniaudio",
+      "name": "miniaudio",
+      "version": "0.11.25",
+      "licenses": [
+        {
+          "expression": "Unlicense OR MIT-0"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/mackron/miniaudio"
+        }
+      ],
+      "properties": [
+        {
+          "name": "softanza:vendor-path",
+          "value": "libraries/stzlib/engine/vendor/miniaudio"
+        },
+        {
+          "name": "softanza:tree-digest",
+          "value": "66eadbfa2f4798d2be61813376fabee527d70774781e2f0f0dfc9f08ac7ea3d9"
+        },
+        {
+          "name": "softanza:archive-sha-256",
+          "value": "not recorded -- vendored from commit 9634bedb5b5a2ca38c1ee7108a9358a4e233f14d (see above)"
+        }
+      ],
+      "purl": "pkg:github/mackron/miniaudio@0.11.25"
+    },
+    {
+      "type": "library",
+      "bom-ref": "vendor/nghttp2",
+      "name": "nghttp2",
+      "version": "1.69.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/nghttp2/nghttp2/releases/tag/v1.69.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "softanza:vendor-path",
+          "value": "libraries/stzlib/engine/vendor/nghttp2"
+        },
+        {
+          "name": "softanza:tree-digest",
+          "value": "d1a655cc0b2056e55a44c74233447980bf7ab6501a9dc6ccf6df644782219fd5"
+        },
+        {
+          "name": "softanza:archive-sha-256",
+          "value": "not recorded -- the upstream archive was not fetched when this record was written (2026-09-29)"
+        }
+      ],
+      "purl": "pkg:github/nghttp2/nghttp2@v1.69.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "vendor/pcre2",
+      "name": "PCRE2",
+      "version": "10.47",
+      "licenses": [
+        {
+          "expression": "BSD-3-Clause WITH PCRE2-exception"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/PCRE2Project/pcre2/releases/tag/pcre2-10.47"
+        }
+      ],
+      "properties": [
+        {
+          "name": "softanza:vendor-path",
+          "value": "libraries/stzlib/engine/vendor/pcre2"
+        },
+        {
+          "name": "softanza:tree-digest",
+          "value": "59e00662267a70e6c292d4c88284e5a7f3e945a413fb01b65ffdfe9bb67c65c1"
+        },
+        {
+          "name": "softanza:archive-sha-256",
+          "value": "not recorded -- the upstream archive was not fetched when this record was written (2026-09-29)"
+        }
+      ],
+      "purl": "pkg:github/PCRE2Project/pcre2@pcre2-10.47"
+    },
+    {
+      "type": "library",
+      "bom-ref": "vendor/rmlui",
+      "name": "RmlUi",
+      "version": "6.2",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/mikke89/RmlUi/releases/tag/6.2"
+        }
+      ],
+      "properties": [
+        {
+          "name": "softanza:vendor-path",
+          "value": "libraries/stzlib/engine/vendor/rmlui"
+        },
+        {
+          "name": "softanza:tree-digest",
+          "value": "464ae3a6cb6d044f616628893736ee823e38c597a3795b2412bbad74cbe591a2"
+        }
+      ],
+      "purl": "pkg:github/mikke89/RmlUi@6.2",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "814c3ff7b9666280338d8f0dda85979f5daf028d01c85fc8975431d1e2fd8e8b"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "vendor/sheenbidi",
+      "name": "SheenBidi",
+      "version": "3.0.0",
+      "licenses": [
+        {
+          "expression": "Apache-2.0"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/Tehreer/SheenBidi/releases/tag/v3.0.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "softanza:vendor-path",
+          "value": "libraries/stzlib/engine/vendor/sheenbidi"
+        },
+        {
+          "name": "softanza:tree-digest",
+          "value": "f12e181466c7d884c5aad511a8a5de3fe9a3926865cd689facf0282268cbfede"
+        }
+      ],
+      "purl": "pkg:github/Tehreer/SheenBidi@v3.0.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "86c56014034739ba39a24c23eb00323b0bf6f737354f665786015fca842af786"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "vendor/snowball",
+      "name": "Snowball (libstemmer)",
+      "version": "unknown",
+      "licenses": [
+        {
+          "expression": "BSD-3-Clause"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/snowballstem/snowball"
+        }
+      ],
+      "properties": [
+        {
+          "name": "softanza:vendor-path",
+          "value": "libraries/stzlib/engine/vendor/snowball"
+        },
+        {
+          "name": "softanza:tree-digest",
+          "value": "671ff553c024f4db1e8b8cdecf14788f8e5f07a26509f64366fd14967ae301ed"
+        },
+        {
+          "name": "softanza:archive-sha-256",
+          "value": "not recorded -- the upstream archive was not fetched when this record was written (2026-09-29)"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "vendor/sqlite",
+      "name": "SQLite",
+      "version": "3.49.1",
+      "licenses": [
+        {
+          "expression": "blessing"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://sqlite.org/2025/sqlite-amalgamation-3490100.zip"
+        }
+      ],
+      "properties": [
+        {
+          "name": "softanza:vendor-path",
+          "value": "libraries/stzlib/engine/vendor/sqlite"
+        },
+        {
+          "name": "softanza:tree-digest",
+          "value": "07e77743cf9b38856c59d58aea10b4ac59adc155c86d6b5d661945a2c9e1a50c"
+        },
+        {
+          "name": "softanza:archive-sha-256",
+          "value": "not recorded -- the upstream archive was not fetched when this record was written (2026-09-29)"
+        }
+      ],
+      "purl": "pkg:generic/sqlite@3.49.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "vendor/stb",
+      "name": "stb (stb_truetype, stb_image)",
+      "version": "commit 2c980bb5",
+      "licenses": [
+        {
+          "expression": "MIT OR Unlicense"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/nothings/stb"
+        }
+      ],
+      "properties": [
+        {
+          "name": "softanza:vendor-path",
+          "value": "libraries/stzlib/engine/vendor/stb"
+        },
+        {
+          "name": "softanza:tree-digest",
+          "value": "2aea7e2ad5a41bc2fa4c91c9c39263bb5ce640dd18f1c4734d06f48c84f4e856"
+        },
+        {
+          "name": "softanza:archive-sha-256",
+          "value": "not recorded -- vendored from commit 2c980bb59875b0d32144a71867fbdebb2f77cd20 (see above)"
+        }
+      ],
+      "purl": "pkg:github/nothings/stb@2c980bb59875b0d32144a71867fbdebb2f77cd20"
+    },
+    {
+      "type": "library",
+      "bom-ref": "vendor/tree-sitter",
+      "name": "tree-sitter (runtime + python and javascript grammars)",
+      "version": "runtime ABI 15, versions unknown",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/tree-sitter/tree-sitter"
+        }
+      ],
+      "properties": [
+        {
+          "name": "softanza:vendor-path",
+          "value": "libraries/stzlib/engine/vendor/tree-sitter"
+        },
+        {
+          "name": "softanza:tree-digest",
+          "value": "3e1ab77b4e1ac744fe5b5e2e956ffca8af080f4d0d442c3598a62cdcab754ff9"
+        },
+        {
+          "name": "softanza:archive-sha-256",
+          "value": "not recorded -- the upstream archive was not fetched when this record was written (2026-09-29)"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "vendor/utf8proc",
+      "name": "utf8proc",
+      "version": "2.11.3",
+      "licenses": [
+        {
+          "expression": "MIT AND Unicode-DFS-2016"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/JuliaStrings/utf8proc/releases/tag/v2.11.3"
+        }
+      ],
+      "properties": [
+        {
+          "name": "softanza:vendor-path",
+          "value": "libraries/stzlib/engine/vendor/utf8proc"
+        },
+        {
+          "name": "softanza:tree-digest",
+          "value": "b479269d534f5d43587a5c93ddb86e4fd524ac51c452212ab97dc54ce1bc8fdf"
+        },
+        {
+          "name": "softanza:archive-sha-256",
+          "value": "not recorded -- the upstream archive was not fetched when this record was written (2026-09-29)"
+        }
+      ],
+      "purl": "pkg:github/JuliaStrings/utf8proc@v2.11.3"
+    },
+    {
+      "type": "library",
+      "bom-ref": "vendor/wgpu",
+      "name": "wgpu-native",
+      "version": "29.0.1.1",
+      "licenses": [
+        {
+          "expression": "MIT OR Apache-2.0"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/gfx-rs/wgpu-native/releases/tag/v29.0.1.1"
+        }
+      ],
+      "properties": [
+        {
+          "name": "softanza:vendor-path",
+          "value": "libraries/stzlib/engine/vendor/wgpu"
+        },
+        {
+          "name": "softanza:tree-digest",
+          "value": "dff7392881c1e9879c7d656a04d1c4b6e5d93d5aeee59697918cbb88d268cbfb"
+        }
+      ],
+      "purl": "pkg:github/gfx-rs/wgpu-native@v29.0.1.1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "7e67d7445c42aeb85e30f88930fd8d7d83ee769e3390aeb1ada75ebf3cf78132"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "vendor/zlib",
+      "name": "zlib",
+      "version": "1.3.1",
+      "licenses": [
+        {
+          "expression": "Zlib"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://zlib.net/fossils/zlib-1.3.1.tar.gz"
+        }
+      ],
+      "properties": [
+        {
+          "name": "softanza:vendor-path",
+          "value": "libraries/stzlib/engine/vendor/zlib"
+        },
+        {
+          "name": "softanza:tree-digest",
+          "value": "82f341f8a59c94db59a312fb9847e1b77445448b4a3bdf55791412b1fcee537a"
+        },
+        {
+          "name": "softanza:archive-sha-256",
+          "value": "not recorded -- the upstream archive was not fetched when this record was written (2026-09-29)"
+        }
+      ],
+      "purl": "pkg:generic/zlib@1.3.1"
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "stzlib",
+      "dependsOn": [
+        "vendor/accesskit",
+        "vendor/curl",
+        "vendor/ggml",
+        "vendor/glfw",
+        "vendor/harfbuzz",
+        "vendor/libuv",
+        "vendor/mbedtls",
+        "vendor/miniaudio",
+        "vendor/nghttp2",
+        "vendor/pcre2",
+        "vendor/rmlui",
+        "vendor/sheenbidi",
+        "vendor/snowball",
+        "vendor/sqlite",
+        "vendor/stb",
+        "vendor/tree-sitter",
+        "vendor/utf8proc",
+        "vendor/wgpu",
+        "vendor/zlib"
+      ]
+    }
+  ]
+}
