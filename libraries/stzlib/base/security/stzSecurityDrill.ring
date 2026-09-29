@@ -60,6 +60,11 @@ class stzSecurityDrill from stzObject
 	@cAcquireWhy = ""
 	@cAttestor = ""
 	bSpawned = 0
+	@nAttackStartMs = 0	# wall ms of the first attack sent
+	@nDetectedMs = 0	# wall ms when the evidence showed every expected detection
+	@nContainedMs = 0	# wall ms when containment was applied AND verified
+	@aContainment = []	# what Contain() did and verified
+	@cVictimToken = ""	# a real session opened before the attack
 
 	def init(pcName)
 		@cName = "" + pcName
@@ -116,6 +121,7 @@ class stzSecurityDrill from stzObject
 
 	# Guess a password until the account's failure counter says so.
 	def FireCredentialStuffing(pcUser, pnTimes)
+		This._MarkAttackStart()
 		for _i_ = 1 to pnTimes
 			This._Get("/login?user=" + pcUser + "&pass=wrong-" + _i_)
 		next
@@ -124,6 +130,7 @@ class stzSecurityDrill from stzObject
 
 	# Present a signature that does not verify.
 	def FireForgery()
+		This._MarkAttackStart()
 		_nTs_ = StzEngineTimeNowMs()
 		This._Get("/signed?kid=drill&ts=" + _nTs_ + "&nonce=forge-1&sig=00deadbeef00")
 		This._Expect("forged-request", "a forged signature")
@@ -131,10 +138,11 @@ class stzSecurityDrill from stzObject
 
 	# Send a VALID signed request twice -- the second is a replay.
 	def FireReplay()
-		_oS_ = new stzRequestSigner("attacker")
-		_oS_.AddKey("drill", @cKey)
+		This._MarkAttackStart()
+		$oDrillServer = new stzRequestSigner("attacker")
+		$oDrillServer.AddKey("drill", @cKey)
 		_nTs_ = StzEngineTimeNowMs()
-		_cSig_ = _oS_.Sign("drill", "GET", "/signed", "", _nTs_, "rep-1")[:sig]
+		_cSig_ = $oDrillServer.Sign("drill", "GET", "/signed", "", _nTs_, "rep-1")[:sig]
 		_cQ_ = "/signed?kid=drill&ts=" + _nTs_ + "&nonce=rep-1&sig=" + _cSig_
 		This._Get(_cQ_)
 		This._Get(_cQ_)
@@ -160,7 +168,81 @@ class stzSecurityDrill from stzObject
 		@oLedger = _a_[:ledger]
 		@cAttestor = _a_[:attestor]
 		@aFired = StzDefaultDetectionSet().FiredNames(@oLedger)
+		if This.Passed()
+			@nDetectedMs = StzEngineTimeWallMs()
+		ok
 		return 1
+
+	  #-- containment: the loop closes ----------------------------------
+
+	# Log the victim in for real BEFORE the attack, so containment has a
+	# live session to end and the drill can prove it ended.
+	def OpenVictimSession(pcUser, pcPassword)
+		_cR_ = This._Get("/login?user=" + pcUser + "&pass=" + pcPassword)
+		@cVictimToken = This._Body(_cR_)
+		return @cVictimToken != "" and @cVictimToken != "no"
+
+	# Contain what the evidence shows, as poOperator. The plan is derived
+	# FROM THE ACQUIRED EVIDENCE (an incident per credential-stuffing
+	# finding), governed HERE -- MayCommit is judged on the operator, and
+	# an LLM actor is refused -- and carried to the target, whose REAL
+	# responder (stzAuthResponder over its own stzAuth) performs it. Then
+	# containment is VERIFIED from outside: the right password must now be
+	# refused, and the session opened before the attack must be dead.
+	# Returns the number of actions committed.
+	def Contain(poOperator)
+		@aContainment = []
+		if @oLedger = ""
+			stzraise("Contain(): no acquired evidence -- CollectEvidence() first.")
+		ok
+		_oPlan_ = StzResponsePlan("contain-" + @cName)
+		_aF_ = StzDefaultDetectionSet().CheckAgainst(@oLedger)
+		_n_ = ring_len(_aF_)
+		for _i_ = 1 to _n_
+			if _aF_[_i_][:rule] = "credential-stuffing"
+				_oInc_ = new stzIncident("drill-" + _i_)
+				_oInc_.FromFinding(_aF_[_i_], @oLedger)
+				_oPlan_.ProposeForIncident(_oInc_)
+			ok
+		next
+		_oRemote_ = new stzDrillRemoteResponder(This)
+		_nDone_ = _oPlan_.ExecuteOn(_oRemote_, poOperator)
+		@aContainment + [ :planned = _oPlan_.NumberOfActions(), :committed = _nDone_,
+			:refused = _oPlan_.RefusedCount() ]
+		if _nDone_ > 0 and This.ContainmentHolds()
+			@nContainedMs = StzEngineTimeWallMs()
+		ok
+		return _nDone_
+
+	# Verified from outside the target: the correct password is refused,
+	# and the pre-attack session no longer answers.
+	def ContainmentHolds()
+		_cLogin_ = This._Get("/login?user=victim&pass=correct-horse")
+		_cWho_ = This._Get("/whoami?token=" + @cVictimToken)
+		return StzFindFirst("401", _cLogin_) > 0 and StzFindFirst("401", _cWho_) > 0
+
+	# The two numbers a drill exists to produce, in milliseconds of wall
+	# time: from the first attack sent to the evidence showing every
+	# expected detection, and from there to containment applied and
+	# verified. -1 when that point was never reached.
+	def TimeToDetectMs()
+		if @nDetectedMs = 0 or @nAttackStartMs = 0  return -1  ok
+		return @nDetectedMs - @nAttackStartMs
+
+	def TimeToContainMs()
+		if @nContainedMs = 0 or @nDetectedMs = 0  return -1  ok
+		return @nContainedMs - @nDetectedMs
+
+	def Containment()
+		return @aContainment
+
+	# called by stzDrillRemoteResponder: one committed action, sent to
+	# the target's /contain route. Raises when the target did not do it.
+	def _ContainRemote(pcVerb, pcTarget)
+		_cR_ = This._Get("/contain?do=" + pcVerb + "&target=" + pcTarget)
+		if StzFindFirst("contained", _cR_) = 0
+			stzraise("the target did not perform " + pcVerb + " on '" + pcTarget + "': " + This._Body(_cR_))
+		ok
 
 	def AcquiredLedger()
 		return @oLedger
@@ -221,6 +303,12 @@ class stzSecurityDrill from stzObject
 			ok
 			_aL_ + ("  " + _cMark_ + @aExpected[_i_][2] + " -> " + @aExpected[_i_][1])
 		next
+		if This.TimeToDetectMs() >= 0
+			_aL_ + ("  time to detect  : " + This.TimeToDetectMs() + " ms (first attack -> every expected detection, evidence verified)")
+		ok
+		if This.TimeToContainMs() >= 0
+			_aL_ + ("  time to contain : " + This.TimeToContainMs() + " ms (detection -> account locked + sessions ended, verified from outside)")
+		ok
 		return _aL_
 
 	def Show()
@@ -245,6 +333,17 @@ class stzSecurityDrill from stzObject
 
 	def _Expect(pcDetection, pcLabel)
 		@aExpected + [ pcDetection, pcLabel ]
+
+	def _MarkAttackStart()
+		if @nAttackStartMs = 0
+			@nAttackStartMs = StzEngineTimeWallMs()
+		ok
+
+	# the body of a raw HTTP response
+	def _Body(pcResp)
+		_n_ = StzFindFirst(char(13) + char(10) + char(13) + char(10), pcResp)
+		if _n_ = 0  return ""  ok
+		return StzMidToEnd(pcResp, _n_ + 4)
 
 	def _Get(pcPath)
 		_cCRLF_ = char(13) + char(10)
@@ -280,24 +379,44 @@ class stzSecurityDrill from stzObject
 		@cScript = $cEngineDir + "/../base/security/.stzdrilltarget_gen.ring"
 		_nl_ = char(10)
 		_c_ = 'load "' + @cBaseRing + '"' + _nl_
-		_c_ += '_a_ = sysargv' + _nl_
-		_c_ += '_n_ = len(_a_)' + _nl_
-		_c_ += '_nTtl_ = number(_a_[_n_])' + _nl_
-		_c_ += '$cEvi = _a_[_n_-1]' + _nl_
-		_c_ += '$cSealKey = _a_[_n_-2]' + _nl_
-		_c_ += '$cKey = _a_[_n_-3]' + _nl_
-		_c_ += '_nPort_ = number(_a_[_n_-4])' + _nl_
+		# THE TARGET'S GLOBALS ARE $-PREFIXED AND UNIQUE ON PURPOSE. They were
+		# _a_ / _n_ / _nTtl_ / _nPort_ / _oS_: top-level names, hence GLOBALS,
+		# and Ring lets a function or method that assigns _n_ write the global
+		# when one exists. Library code uses _n_ as a loop bound everywhere, so
+		# inside a handler a nested call rewrote the bound of an outer loop
+		# mid-iteration (found 2026-09-29: stzAuth.RevokeAllSessions failed with
+		# R2 in the target only). It is the likely cause of the 'degraded actor'
+		# recorded below, and the NL/TRUE lesson of CLAUDE.md in another costume.
+		_c_ += '$aDrillArgs = sysargv' + _nl_
+		_c_ += '$nDrillArgs = len($aDrillArgs)' + _nl_
+		_c_ += '$nDrillTtl = number($aDrillArgs[$nDrillArgs])' + _nl_
+		_c_ += '$cEvi = $aDrillArgs[$nDrillArgs-1]' + _nl_
+		_c_ += '$cSealKey = $aDrillArgs[$nDrillArgs-2]' + _nl_
+		_c_ += '$cKey = $aDrillArgs[$nDrillArgs-3]' + _nl_
+		_c_ += '$nDrillPort = number($aDrillArgs[$nDrillArgs-4])' + _nl_
 		_c_ += 'StzOpenSecurityLedger(2048)' + _nl_
 		_c_ += '$oAuth = new stzAuth()' + _nl_
 		_c_ += '$oAuth.Register("victim", "correct-horse")' + _nl_
+		# THE REAL RESPONDER lives with the auth it acts on
+		_c_ += '$oResponder = StzAuthResponder($oAuth)' + _nl_
 		_c_ += '$oSigner = new stzRequestSigner("gate")' + _nl_
 		_c_ += '$oSigner.AddKey("drill", $cKey)' + _nl_
-		_c_ += '_oS_ = new stzAppServer()' + _nl_
-		_c_ += '_oS_.Get_("/health", func oReq, oResp { oResp.Text("ok") })' + _nl_
-		_c_ += '_oS_.Get_("/login", func oReq, oResp {' + _nl_
+		_c_ += '$oDrillServer = new stzAppServer()' + _nl_
+		_c_ += '$oDrillServer.Get_("/health", func oReq, oResp { oResp.Text("ok") })' + _nl_
+		_c_ += '$oDrillServer.Get_("/login", func oReq, oResp {' + _nl_
 		_c_ += '    _t_ = $oAuth.Login(oReq.Query("user"), oReq.Query("pass"))' + _nl_
-		_c_ += '    if _t_ = "" oResp.Status(401, "Unauthorized").Text("no") else oResp.Text("yes") ok })' + _nl_
-		_c_ += '_oS_.Get_("/signed", func oReq, oResp {' + _nl_
+		_c_ += '    if _t_ = "" oResp.Status(401, "Unauthorized").Text("no") else oResp.Text(_t_) ok })' + _nl_
+		_c_ += '$oDrillServer.Get_("/whoami", func oReq, oResp {' + _nl_
+		_c_ += '    _u_ = $oAuth.UserOfSession(oReq.Query("token"))' + _nl_
+		_c_ += '    if _u_ = "" oResp.Status(401, "Unauthorized").Text("no session") else oResp.Text(_u_) ok })' + _nl_
+		# committed actions arrive here, already governed by the parent's plan
+		_c_ += '$oDrillServer.Get_("/contain", func oReq, oResp {' + _nl_
+		_c_ += '    _d_ = oReq.Query("do")' + _nl_
+		_c_ += '    _t_ = oReq.Query("target")' + _nl_
+		_c_ += '    if _d_ = "lockaccount" $oResponder.LockAccount(_t_) oResp.Text("contained")' + _nl_
+		_c_ += '    but _d_ = "revokesession" $oResponder.RevokeSession(_t_) oResp.Text("contained")' + _nl_
+		_c_ += '    else oResp.Status(400, "Bad Request").Text("not wired: " + _d_) ok })' + _nl_
+		_c_ += '$oDrillServer.Get_("/signed", func oReq, oResp {' + _nl_
 		_c_ += '    _ok_ = $oSigner.VerifyNow(oReq.Query("kid"), "GET", "/signed", "",' + _nl_
 		_c_ += '        number(oReq.Query("ts")), oReq.Query("nonce"), oReq.Query("sig"), 60000)' + _nl_
 		_c_ += '    if _ok_ oResp.Text("verified") else oResp.Status(401, "Unauthorized").Text($oSigner.Why()) ok })' + _nl_
@@ -310,13 +429,13 @@ class stzSecurityDrill from stzObject
 		# job is only to put the evidence on disk.
 		# It also REPORTS what it did: a route that always answers
 		# "sealed" hides its own failure (learned here).
-		_c_ += '_oS_.Get_("/seal", func oReq, oResp {' + _nl_
+		_c_ += '$oDrillServer.Get_("/seal", func oReq, oResp {' + _nl_
 		_c_ += '    _oL_ = StzSecurityLedgerQ()' + _nl_
 		_c_ += '    _oL_.SealAttestedTo($cEvi, $cSealKey, "target-process")' + _nl_
 		_c_ += '    oResp.Text("sealed=" + fexists($cEvi) + " count=" + _oL_.Count()) })' + _nl_
-		_c_ += '_oS_.Start(_nPort_, "127.0.0.1")' + _nl_
-		_c_ += '_oS_.RunFor(_nTtl_)' + _nl_
-		_c_ += '_oS_.Stop()' + _nl_
+		_c_ += '$oDrillServer.Start($nDrillPort, "127.0.0.1")' + _nl_
+		_c_ += '$oDrillServer.RunFor($nDrillTtl)' + _nl_
+		_c_ += '$oDrillServer.Stop()' + _nl_
 		write(@cScript, _c_)
 
 	def _Join(paList, pcSep)
@@ -329,3 +448,30 @@ class stzSecurityDrill from stzObject
 			_c_ += ("" + paList[_i_])
 		next
 		return _c_
+
+# The parent's side of a remote containment: the plan (governed in the
+# parent) calls these verbs, and each one is carried to the target.
+class stzDrillRemoteResponder from stzObject
+
+	@pDrill = ""
+
+	def init(poDrill)
+		@pDrill = object2pointer(poDrill)
+
+	def LockAccount(pcTarget)
+		pointer2object(@pDrill)._ContainRemote("lockaccount", pcTarget)
+
+	def RevokeSession(pcTarget)
+		pointer2object(@pDrill)._ContainRemote("revokesession", pcTarget)
+
+	def RotateSecret(pcTarget)
+		pointer2object(@pDrill)._ContainRemote("rotatesecret", pcTarget)
+
+	def RevokeCapability(pcTarget)
+		pointer2object(@pDrill)._ContainRemote("revokecapability", pcTarget)
+
+	def ShedSource(pcTarget)
+		pointer2object(@pDrill)._ContainRemote("shedsource", pcTarget)
+
+	def QuarantinePart(pcTarget)
+		pointer2object(@pDrill)._ContainRemote("quarantinepart", pcTarget)

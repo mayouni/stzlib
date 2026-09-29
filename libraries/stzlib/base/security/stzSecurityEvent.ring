@@ -78,6 +78,8 @@ func StzSecurityEventKinds()
 		[ "auth.passkey.failed",          "warning", "T1556",     "a passkey assertion failed" ],
 		[ "auth.passkey.clone_suspected", "error",   "T1550",     "the signature counter did not advance -- a cloned authenticator is possible" ],
 		[ "auth.lockout.engaged",         "warning", "T1110",     "repeated failures locked the account" ],
+		[ "auth.account.locked",          "warning", "",          "an account was locked by a responder or an operator" ],
+		[ "auth.account.unlocked",        "info",    "",          "an administrative account lock was lifted" ],
 		[ "auth.session.revoked",         "info",    "",          "a session was revoked" ],
 		[ "auth.session.expired",         "info",    "",          "a session reached its expiry" ],
 		[ "sso.assertion.replayed",       "error",   "T1550.001", "a SAML assertion was presented twice" ],

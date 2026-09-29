@@ -47,6 +47,7 @@ class stzAuthMemoryStore from stzObject
 	@aChallenges = []  # [ [ handle, kind, email, codehash, expiresAt ], ... ]
 	@aPasskeys   = []  # [ [ credId, user, kty, k1, k2, signCount ], ... ]
 	@aRoles      = []  # [ [ user, role ], ... ] -- the authz grants
+	@aLocks      = []  # [ [ user, reason, lockedAtSecs ], ... ] -- administrative locks
 
 	def init()
 		@aUsers      = []
@@ -55,6 +56,38 @@ class stzAuthMemoryStore from stzObject
 		@aChallenges = []
 		@aPasskeys   = []
 		@aRoles      = []
+		@aLocks      = []
+
+	  #-- administrative locks (containment) -------------------------------
+	#
+	# A lock is an ACT, not a counter: it stays until someone unlocks it,
+	# unlike the failure lockout stzAuth keeps in memory and lets expire.
+
+	def PutLock(pcUser, pcReason, pnAt)
+		This.DeleteLock(pcUser)
+		@aLocks + [ "" + pcUser, "" + pcReason, pnAt ]
+
+	def DeleteLock(pcUser)
+		_u_ = "" + pcUser
+		_aNew_ = []
+		_n_ = len(@aLocks)
+		for _i_ = 1 to _n_
+			if @aLocks[_i_][1] != _u_
+				_aNew_ + @aLocks[_i_]
+			ok
+		next
+		@aLocks = _aNew_
+
+	# [ :reason, :at ] or [] when the user is not locked.
+	def LockOf(pcUser)
+		_u_ = "" + pcUser
+		_n_ = len(@aLocks)
+		for _i_ = 1 to _n_
+			if @aLocks[_i_][1] = _u_
+				return [ :reason = @aLocks[_i_][2], :at = @aLocks[_i_][3] ]
+			ok
+		next
+		return []
 
 	  #-- users -----------------------------------------------------------
 
@@ -434,6 +467,7 @@ class stzAuthDbStore from stzObject
 		          "usr TEXT, kty TEXT, k1 TEXT, k2 TEXT, signcount INTEGER)")
 		@oDb.Exec("CREATE TABLE IF NOT EXISTS authroles (usr TEXT, role TEXT, " +
 		          "PRIMARY KEY (usr, role))")
+		@oDb.Exec("CREATE TABLE IF NOT EXISTS authlocks (usr TEXT PRIMARY KEY, reason TEXT, lockedat INTEGER)")
 
 	def DatabaseQ()
 		return @oDb
@@ -590,6 +624,22 @@ class stzAuthDbStore from stzObject
 
 	def DeleteUserPasskeys(pcUser)
 		@oDb.ExecWith("DELETE FROM authpasskeys WHERE usr = ?", [ "" + pcUser ])
+
+	  #-- administrative locks (containment) -------------------------------
+
+	def PutLock(pcUser, pcReason, pnAt)
+		@oDb.ExecWith("INSERT OR REPLACE INTO authlocks (usr, reason, lockedat) VALUES (?, ?, ?)",
+		              [ "" + pcUser, "" + pcReason, ring_number("" + pnAt) ])
+
+	def DeleteLock(pcUser)
+		@oDb.ExecWith("DELETE FROM authlocks WHERE usr = ?", [ "" + pcUser ])
+
+	def LockOf(pcUser)
+		_r_ = @oDb.RowsWith("SELECT reason, lockedat FROM authlocks WHERE usr = ?", [ "" + pcUser ])
+		if len(_r_) = 0
+			return []
+		ok
+		return [ :reason = "" + _r_[1][1], :at = ring_number(_r_[1][2]) ]
 
 	  #-- authz roles (the authn->authz bridge) ---------------------------
 

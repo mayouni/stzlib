@@ -348,6 +348,11 @@ class stzAuth from stzObject
 		if @nIdleTTL > 0 and (pnNowSecs - _s_[:lastseen]) >= @nIdleTTL
 			return ""
 		ok
+		# a locked account's sessions stop working at once, before (and
+		# whether or not) anyone revokes them
+		if len(@oStore.LockOf("" + _s_[:user])) > 0
+			return ""
+		ok
 		if @nIdleTTL > 0
 			@oStore.TouchSession("" + pcToken, pnNowSecs)   # slide the idle window
 		ok
@@ -1173,11 +1178,43 @@ class stzAuth from stzObject
 		return This.IsLockedOutAt(ring_trim("" + pcUser), This._NowSecs())
 
 	def IsLockedOutAt(pcUser, pnNow)
+		# an administrative lock (LockAccount) closes every login path
+		if len(@oStore.LockOf("" + pcUser)) > 0
+			return 1
+		ok
 		_i_ = This._FailureIndex("" + pcUser)
 		if _i_ = 0
 			return 0
 		ok
 		return @aFailures[_i_][2] >= @nMaxAttempts and pnNow < @aFailures[_i_][3]
+
+	  #-- the administrative lock (containment's :LockAccount) -------------
+	#
+	# The failure lockout above is a COUNTER: it engages after N bad
+	# passwords and expires by itself. A LOCK is an ACT: a responder or an
+	# operator closes the account until someone opens it again. It refuses
+	# every login path (they all ask IsLockedOutAt) AND every existing
+	# session -- UserOfSession answers "" for a locked user -- and it is
+	# kept in the store, so it survives a restart with a durable store.
+
+	def LockAccount(pcUser, pcReason)
+		_u_ = ring_trim("" + pcUser)
+		@oStore.PutLock(_u_, "" + pcReason, This._NowSecs())
+		StzNoteRefusal("auth.account.locked", _u_, "user:" + _u_, "" + pcReason)
+		return This
+
+	def UnlockAccount(pcUser)
+		_u_ = ring_trim("" + pcUser)
+		@oStore.DeleteLock(_u_)
+		StzNoteGrant("auth.account.unlocked", _u_, "user:" + _u_)
+		return This
+
+	def IsAccountLocked(pcUser)
+		return len(@oStore.LockOf(ring_trim("" + pcUser))) > 0
+
+	# [ :reason, :at ] or [] -- why and since when the account is locked.
+	def AccountLock(pcUser)
+		return @oStore.LockOf(ring_trim("" + pcUser))
 
 	def FailedAttempts(pcUser)
 		_i_ = This._FailureIndex(ring_trim("" + pcUser))

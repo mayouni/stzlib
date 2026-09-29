@@ -79,12 +79,18 @@ chk("...names the evidence and its attestor", StzFindFirst("attested by target-p
 # said -- the same defect shape the router bug turned on.
 nMarked = 0
 nMissed = 0
+nTimed = 0
 for i = 3 to len(aL)
 	if StzFindFirst("[fired]", aL[i]) > 0   nMarked++  ok
 	if StzFindFirst("[MISSED]", aL[i]) > 0  nMissed++  ok
+	if StzFindFirst("time to ", aL[i]) > 0  nTimed++  ok
 next
+# the report now also carries the drill's TIMINGS (time to detect, and to
+# contain once containment ran): counted by name, so the length check
+# still means "nothing else is in the report"
 chk("...and marks each of the three attacks fired, none missed",
-	nMarked = 3 and nMissed = 0 and len(aL) = 5)
+	nMarked = 3 and nMissed = 0 and len(aL) = 5 + nTimed)
+chk("...and states the time to detect", nTimed >= 1)
 
 ? ""
 ? "-- Scene 7: tampered evidence is NOT believed --"
