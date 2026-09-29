@@ -1,3 +1,4 @@
+const std = @import("std");
 const seclog = @import("seclog.zig");
 const R = @import("ring_api.zig");
 
@@ -33,6 +34,28 @@ fn ring_SecLogAppend(p: *anyopaque) callconv(.c) void {
     const cl: usize = @intCast(gss(p, 2));
     seclog.seclog_append(getLog(p, 1), c, cl, gn(p, 3), gn(p, 4));
     rn(p, 0);
+}
+
+// StzEngineSecLogAttach(h, cPath) -> entries verified (>= 0) or negative
+fn ring_SecLogAttach(p: *anyopaque) callconv(.c) void {
+    var buf: [1024]u8 = undefined;
+    const path = std.fmt.bufPrintZ(&buf, "{s}", .{gs(p, 2)[0..@intCast(gss(p, 2))]}) catch {
+        rn(p, -1_000_000_001);
+        return;
+    };
+    rn(p, seclog.seclog_attach(getLog(p, 1), path.ptr));
+}
+
+fn ring_SecLogVerifyDurable(p: *anyopaque) callconv(.c) void {
+    rn(p, seclog.seclog_verify_durable(getLog(p, 1)));
+}
+
+fn ring_SecLogIsDurable(p: *anyopaque) callconv(.c) void {
+    rn(p, seclog.seclog_is_durable(getLog(p, 1)));
+}
+
+fn ring_SecLogDurableErrors(p: *anyopaque) callconv(.c) void {
+    rn(p, seclog.seclog_durable_errors(getLog(p, 1)));
 }
 
 fn ring_SecLogCount(p: *anyopaque) callconv(.c) void {
@@ -121,6 +144,10 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineseclogcurrent", .func = &ring_SecLogCurrent },
     .{ .name = "stzengineseclogcurrentappend", .func = &ring_SecLogCurrentAppend },
     .{ .name = "stzengineseclogcreate", .func = &ring_SecLogCreate },
+    .{ .name = "stzengineseclogattach", .func = &ring_SecLogAttach },
+    .{ .name = "stzengineseclogverifydurable", .func = &ring_SecLogVerifyDurable },
+    .{ .name = "stzengineseclogisdurable", .func = &ring_SecLogIsDurable },
+    .{ .name = "stzengineseclogdurableerrors", .func = &ring_SecLogDurableErrors },
     .{ .name = "stzengineseclogappend", .func = &ring_SecLogAppend },
     .{ .name = "stzengineseclogcount", .func = &ring_SecLogCount },
     .{ .name = "stzengineseclogsize", .func = &ring_SecLogSize },

@@ -84,6 +84,24 @@ func StzOpenSecurityLedger(pnCapacity)
 	StzEngineSecLogSetCurrent(_oLed_.Handle())
 	return _oLed_
 
+# The process ledger, made DURABLE (HaroBase rung 2): every event the
+# seams record is also written, in chain order, to pcPath -- an
+# insert-only SQLite table whose stored chain is verified from genesis
+# before recording resumes. Raises when the stored history is broken:
+# a process must not add to evidence it cannot vouch for.
+func StzOpenDurableSecurityLedger(pnCapacity, pcPath)
+	if StzSecurityLedgerIsOpen()
+		stzraise("A process ledger is already open -- close it before opening a durable one.")
+	ok
+	_oLed_ = new stzSecurityLedger(pnCapacity)
+	_aV_ = _oLed_.PersistTo(pcPath)
+	if NOT _aV_[:ok]
+		_oLed_.Destroy()
+		stzraise(_aV_[:why])
+	ok
+	StzEngineSecLogSetCurrent(_oLed_.Handle())
+	return _oLed_
+
 func StzSecurityLedgerIsOpen()
 	return StzEngineSecLogHasCurrent() = 1
 
@@ -349,8 +367,13 @@ class stzSecurityLedger from stzObject
 	# the digest is under the caller's control.
 	def Record(poEvent)
 		This._Ensure()
+		_nErr_ = StzEngineSecLogDurableErrors(pHandle)
 		StzEngineSecLogAppend(pHandle, poEvent.CanonicalString(),
 			poEvent.AtWall(), This._SevCode(poEvent.Severity()))
+		# evidence that did not reach the disk is not quietly accepted
+		if StzEngineSecLogDurableErrors(pHandle) > _nErr_
+			stzraise("The durable security log refused a write -- the event is in memory only.")
+		ok
 		return This
 
 	# Append a canonical line directly -- the acquisition path (I8),
@@ -360,6 +383,57 @@ class stzSecurityLedger from stzObject
 		This._Ensure()
 		StzEngineSecLogAppend(pHandle, pcCanonical, pnWallMs, pnSeverityCode)
 		return This
+
+	  #-- the durable log (HaroBase rung 2) ----------------------------
+
+	# Make this ledger DURABLE: from now on every Record() is also written,
+	# in the same engine lock and so in chain order, to an insert-only
+	# SQLite table at pcPath (UPDATE and DELETE are refused by triggers).
+	# An existing file is replayed FROM GENESIS and verified entry by
+	# entry first; the ring then shows the newest window, Count() the whole
+	# history, and the chain resumes from the stored head. Bounded memory
+	# stops meaning forgetting: the window evicts, the file does not.
+	#
+	# Call it BEFORE recording. Returns [ :ok, :verified, :brokenAt, :why ];
+	# a broken stored history is REFUSED (:ok = 0) and nothing is attached.
+	def PersistTo(pcPath)
+		This._Ensure()
+		_n_ = StzEngineSecLogAttach(pHandle, "" + pcPath)
+		if _n_ >= 0
+			return [ :ok = 1, :verified = _n_, :brokenAt = 0,
+				:why = "durable at " + pcPath + ": " + _n_ + " stored entr(ies) verified from genesis" ]
+		ok
+		if _n_ = -1000000003
+			return [ :ok = 0, :verified = 0, :brokenAt = 0, :why = "this ledger is already durable" ]
+		but _n_ = -1000000004
+			return [ :ok = 0, :verified = 0, :brokenAt = 0,
+				:why = "this ledger already holds events -- make it durable before recording" ]
+		but _n_ <= -1000000001
+			return [ :ok = 0, :verified = 0, :brokenAt = 0, :why = "cannot open or read the log at " + pcPath ]
+		ok
+		return [ :ok = 0, :verified = 0, :brokenAt = -_n_,
+			:why = "the stored log breaks at entry " + (-_n_) +
+				" (edited, or missing) -- refused, nothing attached" ]
+
+	def IsDurable()
+		This._Ensure()
+		return StzEngineSecLogIsDurable(pHandle) = 1
+
+	# Verify the WHOLE stored history from genesis -- where Verify() can
+	# only speak for the retained window. [ :intact, :brokenAt, :message ]
+	def VerifyDurable()
+		This._Ensure()
+		_n_ = StzEngineSecLogVerifyDurable(pHandle)
+		if _n_ = 0
+			return [ :intact = 1, :brokenAt = 0,
+				:message = "the stored chain is intact over " + This.Count() + " entr(ies), from genesis" ]
+		but _n_ = -1
+			return [ :intact = 0, :brokenAt = 0, :message = "this ledger is not durable" ]
+		but _n_ = -2
+			return [ :intact = 0, :brokenAt = 0, :message = "the stored log cannot be read" ]
+		ok
+		return [ :intact = 0, :brokenAt = _n_,
+			:message = "the stored chain breaks at entry " + _n_ + " -- that row was altered or removed" ]
 
 	# Events ever recorded (keeps counting past capacity).
 	def Count()
@@ -663,6 +737,9 @@ class stzSecurityLedger from stzObject
 
 	def Reset()
 		This._Ensure()
+		if This.IsDurable()
+			stzraise("A durable ledger cannot be reset: its chain continues on disk.")
+		ok
 		StzEngineSecLogReset(pHandle)
 		return This
 
