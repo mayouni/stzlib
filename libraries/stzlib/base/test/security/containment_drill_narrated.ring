@@ -49,6 +49,9 @@ Scenario("the lock is kept in the store, so a durable store keeps it")
 	oA2.SetStore(new stzAuthDbStore($cDb))
 	Then("a second stzAuth over the same database sees the lock", oA2.IsAccountLocked("mallory"), 1)
 	Then("and refuses the login", oA2.Login("mallory", "right-password"), "")
+	# close both connections, or Windows keeps the file and cleanup fails
+	oA1.@oStore.DatabaseQ().Close()
+	oA2.@oStore.DatabaseQ().Close()
 EndScenario()
 
 # =====================================================================
