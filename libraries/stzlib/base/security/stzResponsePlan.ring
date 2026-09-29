@@ -75,6 +75,12 @@ func StzSecretStoreResponder(poStore, poActor)
 func StzCapabilityResponder(poSecurityGraph)
 	return new stzCapabilityResponder(poSecurityGraph)
 
+# THE FOURTH REAL RESPONDER: :ShedSource BLOCKS the source (a client ip, a
+# caller, a key) at the rate limiter the application admits requests
+# through -- for pnBlockMs milliseconds, or until Unblock when 0.
+func StzRateLimiterResponder(poLimiter, pnBlockMs)
+	return new stzRateLimiterResponder(poLimiter, pnBlockMs)
+
 # ONE PLAN, SEVERAL OWNERS: a plan may lock an account AND rotate a secret,
 # and no single object owns both. A responder set routes each verb to the
 # first member that OWNS it (answers Owns(verb)); a verb no member owns is
@@ -469,3 +475,38 @@ class stzCapabilityResponder from stzObject
 
 	def QuarantinePart(pcTarget)
 		stzraise("stzCapabilityResponder cannot :QuarantinePart -- wire a quarantine responder.")
+
+
+  #=========================================================#
+ #  stzRateLimiterResponder -- :ShedSource, for real         #
+#=========================================================#
+
+class stzRateLimiterResponder from stzObject
+
+	@pLimiter = ""
+	@nBlockMs = 0
+
+	def init(poLimiter, pnBlockMs)
+		@pLimiter = object2pointer(poLimiter)
+		@nBlockMs = pnBlockMs
+
+	def Owns(pcVerb)
+		return StzLower("" + pcVerb) = "shedsource"
+
+	def ShedSource(pcTarget)
+		pointer2object(@pLimiter).BlockFor("" + pcTarget, "shed by a containment plan", @nBlockMs)
+
+	def LockAccount(pcTarget)
+		stzraise("stzRateLimiterResponder cannot :LockAccount -- wire an auth responder.")
+
+	def RevokeSession(pcTarget)
+		stzraise("stzRateLimiterResponder cannot :RevokeSession -- wire an auth responder.")
+
+	def RotateSecret(pcTarget)
+		stzraise("stzRateLimiterResponder cannot :RotateSecret -- wire a secret-store responder.")
+
+	def RevokeCapability(pcTarget)
+		stzraise("stzRateLimiterResponder cannot :RevokeCapability -- wire a capability responder.")
+
+	def QuarantinePart(pcTarget)
+		stzraise("stzRateLimiterResponder cannot :QuarantinePart -- wire a quarantine responder.")
