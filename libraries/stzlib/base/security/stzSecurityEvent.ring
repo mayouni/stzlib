@@ -98,6 +98,7 @@ func StzSecurityEventKinds()
 		[ "capability.revoked",           "info",    "",          "an actor's path to a capability was cut" ],
 		[ "agent.quarantined",            "warning", "",          "an agent was quarantined -- containment's :QuarantinePart" ],
 		[ "agent.released",               "info",    "",          "a quarantined agent was released" ],
+		[ "agent.budget.exceeded",        "warning", "T1499",     "an agent exceeded its action budget and was quarantined" ],
 		[ "capability.refused",           "error",   "T1068",     "an actor lacked the capability an operation required" ],
 		[ "scope.refused",                "warning", "T1068",     "an operation fell outside the commit scope" ],
 		[ "posture.refused",              "error",   "T1068",     "the executing posture was not admitted" ],
