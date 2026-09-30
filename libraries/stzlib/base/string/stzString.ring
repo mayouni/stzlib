@@ -18860,7 +18860,7 @@ class stzString from stzObject
 		This.InsertAfterSubStringCS(pcSubStr, pcInsert, 1)
 
 	def InsertBeforeFirstCS(pcSubStr, pcInsert, pCaseSensitive)
-		_oIbfInserter_ = new stzStringInserter(This)
+		_oIbfInserter_ = new stzStringInserter(This.Content())
 		_oIbfInserter_.InsertBeforeFirstCS(pcSubStr, pcInsert, pCaseSensitive)
 		This.Update(_oIbfInserter_.Content())
 
@@ -18868,7 +18868,7 @@ class stzString from stzObject
 		This.InsertBeforeFirstCS(pcSubStr, pcInsert, 1)
 
 	def InsertAfterFirstCS(pcSubStr, pcInsert, pCaseSensitive)
-		_oIafInserter_ = new stzStringInserter(This)
+		_oIafInserter_ = new stzStringInserter(This.Content())
 		_oIafInserter_.InsertAfterFirstCS(pcSubStr, pcInsert, pCaseSensitive)
 		This.Update(_oIafInserter_.Content())
 
@@ -18876,7 +18876,7 @@ class stzString from stzObject
 		This.InsertAfterFirstCS(pcSubStr, pcInsert, 1)
 
 	def InsertBeforeLastCS(pcSubStr, pcInsert, pCaseSensitive)
-		_oIblInserter_ = new stzStringInserter(This)
+		_oIblInserter_ = new stzStringInserter(This.Content())
 		_oIblInserter_.InsertBeforeLastCS(pcSubStr, pcInsert, pCaseSensitive)
 		This.Update(_oIblInserter_.Content())
 
@@ -18884,7 +18884,7 @@ class stzString from stzObject
 		This.InsertBeforeLastCS(pcSubStr, pcInsert, 1)
 
 	def InsertAfterLastCS(pcSubStr, pcInsert, pCaseSensitive)
-		_oIalInserter_ = new stzStringInserter(This)
+		_oIalInserter_ = new stzStringInserter(This.Content())
 		_oIalInserter_.InsertAfterLastCS(pcSubStr, pcInsert, pCaseSensitive)
 		This.Update(_oIalInserter_.Content())
 
@@ -18892,7 +18892,7 @@ class stzString from stzObject
 		This.InsertAfterLastCS(pcSubStr, pcInsert, 1)
 
 	def InsertBeforeNthCS(n, pcSubStr, pcInsert, pCaseSensitive)
-		_oIbnInserter_ = new stzStringInserter(This)
+		_oIbnInserter_ = new stzStringInserter(This.Content())
 		_oIbnInserter_.InsertBeforeNthCS(n, pcSubStr, pcInsert, pCaseSensitive)
 		This.Update(_oIbnInserter_.Content())
 
@@ -18900,7 +18900,7 @@ class stzString from stzObject
 		This.InsertBeforeNthCS(n, pcSubStr, pcInsert, 1)
 
 	def InsertAfterNthCS(n, pcSubStr, pcInsert, pCaseSensitive)
-		_oIanInserter_ = new stzStringInserter(This)
+		_oIanInserter_ = new stzStringInserter(This.Content())
 		_oIanInserter_.InsertAfterNthCS(n, pcSubStr, pcInsert, pCaseSensitive)
 		This.Update(_oIanInserter_.Content())
 
@@ -18918,7 +18918,7 @@ class stzString from stzObject
 		This.RemoveSection(n, n)
 
 	def RemoveW(pcCondition)
-		_oRwRemover_ = new stzStringRemover(This)
+		_oRwRemover_ = new stzStringRemover(This.Content())
 		_oRwRemover_.RemoveW(pcCondition)
 		This.Update(_oRwRemover_.Content())
 
@@ -19540,7 +19540,7 @@ class stzString from stzObject
 	# Remove the 2nd+ occurrences of each duplicated char, keeping the
 	# first (mutating).
 	def RemoveDuplicatesCS(pCaseSensitive)
-		_oRdRemover_ = new stzStringRemover(This)
+		_oRdRemover_ = new stzStringRemover(This.Content())
 		_oRdRemover_.RemoveDuplicatesCS(pCaseSensitive)
 		This.Update(_oRdRemover_.Content())
 
@@ -20774,7 +20774,7 @@ class stzString from stzObject
 		return _oRtc_.Chars()
 
 	def RemoveRepeatedLeadingCharsCS(pCaseSensitive)
-		_oRrlcLt_ = new stzStringLeadTrail(This)
+		_oRrlcLt_ = new stzStringLeadTrail(This.Content())
 		_oRrlcLt_.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
 		This.Update(_oRrlcLt_.Content())
 
@@ -20782,7 +20782,7 @@ class stzString from stzObject
 		This.RemoveRepeatedLeadingCharsCS(1)
 
 	def RemoveRepeatedTrailingCharsCS(pCaseSensitive)
-		_oRrtcLt_ = new stzStringLeadTrail(This)
+		_oRrtcLt_ = new stzStringLeadTrail(This.Content())
 		_oRrtcLt_.RemoveRepeatedTrailingCharsCS(pCaseSensitive)
 		This.Update(_oRrtcLt_.Content())
 
@@ -20876,7 +20876,7 @@ class stzString from stzObject
 
 	# Remove the blank lines (mutating).
 	def RemoveBlankLines()
-		_oRblLines_ = new stzStringLines(This)
+		_oRblLines_ = new stzStringLines(This.Content())
 		_oRblLines_.RemoveBlankLines()
 		This.Update(_oRblLines_.Content())
 
@@ -20892,7 +20892,7 @@ class stzString from stzObject
 	#========================================#
 
 	def TrimCharCS(pcChar, pCaseSensitive)
-		_oTcTrm_ = new stzStringTrimmer(This)
+		_oTcTrm_ = new stzStringTrimmer(This.Content())
 		_oTcTrm_.TrimCharCS(pcChar, pCaseSensitive)
 		This.Update(_oTcTrm_.Content())
 
@@ -20901,7 +20901,7 @@ class stzString from stzObject
 
 	# Trim the run of the given char from the START (mutating).
 	def TrimLeftCharCS(pcChar, pCaseSensitive)
-		_oTlcTrm_ = new stzStringTrimmer(This)
+		_oTlcTrm_ = new stzStringTrimmer(This.Content())
 		_oTlcTrm_.RemoveThisCharFromStartCS(pcChar, pCaseSensitive)
 		This.Update(_oTlcTrm_.Content())
 
@@ -20910,7 +20910,7 @@ class stzString from stzObject
 
 	# Trim the run of the given char from the END (mutating).
 	def TrimRightCharCS(pcChar, pCaseSensitive)
-		_oTrcTrm_ = new stzStringTrimmer(This)
+		_oTrcTrm_ = new stzStringTrimmer(This.Content())
 		_oTrcTrm_.RemoveThisCharFromEndCS(pcChar, pCaseSensitive)
 		This.Update(_oTrcTrm_.Content())
 
