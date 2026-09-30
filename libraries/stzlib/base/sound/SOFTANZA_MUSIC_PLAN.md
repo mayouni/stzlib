@@ -1857,3 +1857,139 @@ numbers.
   glide to where it ended, and that is counted.
 - **No nested repeats, and no P: parts order.** One tune per text.
 - Regression over the sound guards: **885 passed, 3 failed**: MU7's 842 plus MU8's 43. The three are the `:Muted` failures across planes (STZLIB-MUTED-CROSSPLANE-01), unchanged.
+
+---
+
+## MU9 STATUS — 2026-09-30. MusicXML read back, on the Principal's ask; and every sound item pending since MU1 closed on their delegation
+
+**Why.** After MU8, MusicXML was the one format still write-only. The
+Principal asked for it together with *"do any pending task on my behalf"*.
+
+**Face.** In `stzSoundNotationReader.ring`:
+
+- `FromMusicXMLQ` and `FromMusicXMLFileQ`, and `StzSoundScoreFromMusicXMLQ`
+- a small XML reader of the library's own, which handles elements,
+  attributes, text, entities (named and numeric), comments, CDATA,
+  processing instructions and a DOCTYPE
+
+No engine change for the reader.
+
+**Guard.** `sound_mu9_narrated.ring`: **24**.
+**Heard.** `sound_mu9_demo.ring` writes MU8's Rast phrase as a MusicXML file,
+reads it back (29 notes, no losses) and plays it on the oud.
+
+### What is read
+
+What SOUNDS, and only that:
+
+- `<pitch>` with its decimal `<alter>`, so the writer's `-0.5` is a quarter
+  tone again;
+- `<duration>` over `<divisions>`, `<chord/>`, and `<backup>` and `<forward>`
+  (voices within a part);
+- `<tie>`: the sounding tie, not the drawn `<tied>`;
+- `<transpose>`: a clarinet's written D5 sounds C5;
+- `<sound tempo>` and `<metronome>`, `<sound dynamics>` and a note's
+  `dynamics` (a percentage of forte, where forte is MIDI 90);
+- unpitched notes, by their instrument's `<midi-unpitched>` key;
+- **repeats played out**: forward and backward, `times="n"`, and endings.
+
+The key signature is not needed, because MusicXML writes every alteration on
+its note. Instruments are read by part name or instrument name first, then
+by `<midi-program>`, which MusicXML counts from 1.
+
+### Checked by more than the writer
+
+- **The writer's own files**:
+  - Rast comes back exact;
+  - the two-voice score (a chord, and a ten-beat note written as tied
+    pieces) comes back note for note;
+  - MusicXML → score → MusicXML gives the **same text**.
+- **A score written by hand from the MusicXML 4.0 rules**, and checked
+  against values worked out by hand:
+  - three parts: a 'Traverso' found by its `<midi-program>74</midi-program>`,
+    a clarinet in B♭, and percussion;
+  - a DOCTYPE, a comment and an `&amp;` entity;
+  - a chord, a triplet (8 of 24 divisions), a second voice by `<backup>`, a
+    grace note, a lyric, `<harmony>`, and a trill;
+  - repeats with two endings (measures played 1 2 3 2 4 5), a tie from
+    ending 2 across the barline, `<sound dynamics>`, and a tempo change.
+- **Every format through every other.** MusicXML → MIDI → MusicXML and
+  ABC → MusicXML → ABC each give the same text.
+- **Nine mutations**, and each one turned at least one check red: chord
+  ignored, transpose ignored, repeat not played, ties ignored, backup ignored,
+  alter ignored, program counted from 0, the entity left undecoded, endings
+  always skipped.
+
+### Found
+
+1. **Beats summed as floats drift.** Three triplet thirds of 8/24 add up to
+   3.0000000000000004, not 3, and a check then saw voice 2 start after its
+   measure. Positions are now counted in whole divisions and divided once.
+2. **`number("0" + text)`**, a way to default an empty field, turns "-2"
+   into "0-2", which is not a number. It crashed on the clarinet's transpose.
+   A helper, `_Num0`, now handles it.
+
+### Refused, and counted
+
+- **Refused**:
+  - text that is not XML, or XML that is not well-formed;
+  - `score-timewise`;
+  - a compressed `.mxl` ("unzip it first");
+  - XML that is not a score;
+  - a duration before any `<divisions>`.
+- **Counted in Losses**: grace notes, lyrics, `<harmony>`, ornaments and
+  articulations, glissandos (read as their first pitch), jumps (D.C., D.S.,
+  coda), tempo changes, an unpitched note with no stroke here, and a part
+  named after no instrument here.
+
+### The pending items, closed on the Principal's delegation (2026-09-30)
+
+Each was shown to fail before its fix and to pass after it.
+
+- **STZLIB-TRANSPORT-DRIVEWITH-01** (found by MU3).
+  - The defect: `DriveWith` captured a local that Ring's anonymous
+    functions cannot see, and gave `RunEvery` 0.02 where it counts
+    milliseconds, so it crashed on its first tick. The guard's "reactive"
+    scene called `RunToEnd`, so nothing caught it.
+  - The fix: a driven transport is now registered by pointer, and one global
+    function ticks it (stzSoundLive's shape). A transport leaves the list
+    when it stops or is released.
+  - The proof: the new Scene 6b shows the reactive loop ticking it 32 times,
+    and the transport stopping itself at 0.811 s. The old code crashes there
+    with "uninitialized variable: _me_".
+- **STZLIB-VOICE-COMODE-01** (found by MU5).
+  - The defect: after the audio device had been probed, SAPI found no voices.
+    miniaudio sets COM to multithreaded, and the voice treated
+    RPC_E_CHANGED_MODE as a failure.
+  - The fix: `voice.zig` now accepts that code. SpVoice works in either
+    mode.
+  - The proof: a new guard, `sound_voicecom_narrated.ring`, runs the
+    forbidden order. Before the fix it scored 0 of 3 (0x80010106, no voices);
+    after, 3 of 3 (2 voices, "hello" spoken, the retuned voice usable). The
+    "voice first" warnings in `stzMusic.Sing` and `stzSoundRetunedVoice`
+    are retired.
+- **STZLIB-SNDTABLE-RACE-01** (found by MU2).
+  - The defect: source nodes read the sample-buffer table from the audio
+    thread while Ring could grow it, and a growing ArrayList reallocates.
+  - The fix: the whole capacity (65536 slots, about 2.6 MB) is reserved on
+    the first buffer, and the table refuses to grow past it. Its address
+    never changes. Freed slots are reused, so the limit is on buffers alive
+    at once.
+  - The proof: a Zig test shows the table at the same address after a
+    thousand buffers. With the old append it moved (FAIL). All 17 of
+    `sound.zig`'s tests pass.
+- **STZLIB-MUTED-CROSSPLANE-01**, ruled by Central on the Principal's
+  delegation.
+  - The ruling: `:Muted` is ONE value, and each medium renders it in its own
+    terms. Colour renders it as a treatment of a status (fa9251708: a muted
+    danger stays a dusty red, #D6A199, and a muted success a dusty green,
+    #8DA38A). Sound renders it as silence.
+  - The consequence: the sound guards were written when colour refused
+    `:Muted`, and had been red since 2026-08-22. They now follow the colour
+    plane's decision rather than overruling it. The convergence scene reads
+    **5 of 5** values in both channels.
+
+### Regression
+
+The sound regression is **919 passed, 0 failed** over 30 guard files. It is
+the first fully green run since MU1, where the `:Muted` three turned red.
