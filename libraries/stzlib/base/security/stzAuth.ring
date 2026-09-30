@@ -57,6 +57,8 @@ class stzAuth from stzObject
 	@oMailPort = ""          # any object with Send(to, subject, body); NULL = unbound
 	@cMagicLinkBaseUrl = ""    # the app URL a magic link points at ("" = a softanza:// uri)
 	@nPasswordlessTTL = 900    # how long a magic link / OTP is valid (seconds, 15 min)
+	@nResetTTL = 1800          # how long a password-reset link is valid (seconds, 30 min)
+	@nMinPasswordLen = 8       # a reset refuses a shorter new password
 
 	# brute-force lockout (in-memory, per submitted username). Not durable across
 	# restarts by design -- rate-limit state, not identity data; a shared/durable
@@ -677,6 +679,96 @@ class stzAuth from stzObject
 			return ""
 		ok
 		return This._PasswordlessSession(_ch_[:email], pnNow, "" + pcIp, "" + pcUserAgent)
+
+	  #-- password reset (threat-model R8) ---------------------------------
+	#
+	# The recovery path is where accounts are taken over, so it holds the
+	# same line as every other door:
+	#   - ENUMERATION-SAFE: the request answers the same whether or not the
+	#     email has an account; a link is minted and mailed only for a real one;
+	#   - the token is 256 random bits, stored ONLY as its sha256, ONE-TIME and
+	#     short-lived (30 min); a newer request cancels the older link;
+	#   - a reset stores an Argon2id hash and ENDS EVERY SESSION -- an attacker
+	#     holding one is signed out with the rest;
+	#   - it does NOT sign anybody in: the next login still asks for the second
+	#     factor when 2FA is on;
+	#   - it cannot undo CONTAINMENT: an account a responder or an operator
+	#     locked (LockAccount) is refused; a lockout from failed attempts, which
+	#     is what a forgotten password produces, is cleared.
+
+	def SetPasswordResetTTL(pnSeconds)
+		@nResetTTL = pnSeconds
+		return This
+
+	def RequestPasswordReset(pcEmail)
+		return This.RequestPasswordResetAt(pcEmail, This._NowSecs())
+
+	def RequestPasswordResetAt(pcEmail, pnNow)
+		if NOT This.HasMailPort()
+			StzRaise("stzAuth.RequestPasswordReset: no mail port bound -- call SetMailPort.")
+		ok
+		_u_ = ring_trim("" + pcEmail)
+		if @oStore.HasUser(_u_)
+			# one live link per user: the pointer challenge names the current
+			# handle, so a new request can retire the previous one
+			_ptr_ = @oStore.Challenge("pwreset:" + _u_)
+			if len(_ptr_) > 0
+				@oStore.DeleteChallenge("" + _ptr_[:codehash])
+			ok
+			_tok_ = StzEngineCryptoRandomHex(32)
+			_handle_ = StzEngineCryptoSha256(_tok_)
+			@oStore.PutChallenge(_handle_, "pwreset", _u_, "", pnNow + @nResetTTL)
+			@oStore.PutChallenge("pwreset:" + _u_, "pwresetptr", _u_, _handle_, pnNow + @nResetTTL)
+			@oMailPort.Send(_u_, "Reset your password",
+			    "To choose a new password, open: " + This._ResetUrl(_tok_) + char(10) +
+			    "This link works once and expires in " + floor(@nResetTTL / 60) + " minutes." + char(10) +
+			    "If you did not ask for this, ignore this message: nothing has changed.")
+		ok
+		return 1
+
+	# Redeem a reset link. 1 when the password was changed, 0 otherwise --
+	# unknown, used, expired, a new password too short, or a locked account.
+	def ResetPassword(pcToken, pcNewPassword)
+		return This.ResetPasswordAt(pcToken, pcNewPassword, This._NowSecs())
+
+	def ResetPasswordAt(pcToken, pcNewPassword, pnNow)
+		_handle_ = StzEngineCryptoSha256(ring_trim("" + pcToken))
+		_ch_ = @oStore.Challenge(_handle_)
+		if (len(_ch_) = 0) or (_ch_[:kind] != "pwreset")
+			return 0
+		ok
+		@oStore.DeleteChallenge(_handle_)               # one-time, whatever the outcome
+		_u_ = "" + _ch_[:email]
+		@oStore.DeleteChallenge("pwreset:" + _u_)
+		if (_ch_[:expires] > 0) and (pnNow >= _ch_[:expires])
+			return 0
+		ok
+		if NOT @oStore.HasUser(_u_)
+			return 0
+		ok
+		if len(@oStore.LockOf(_u_)) > 0
+			StzNoteRefusal("auth.password.reset", _u_, "user:" + _u_,
+				"refused: the account is locked by containment -- a reset cannot reopen it")
+			return 0
+		ok
+		if len("" + pcNewPassword) < @nMinPasswordLen
+			return 0
+		ok
+		@oStore.PutUser(_u_, StzHashPassword("" + pcNewPassword))
+		This.RevokeAllSessions(_u_)
+		This._ClearFailures(_u_)
+		StzNoteGrant("auth.password.reset", _u_, "user:" + _u_)
+		return 1
+
+	def _ResetUrl(pcToken)
+		if @cMagicLinkBaseUrl = ""
+			return "softanza://reset?reset=" + pcToken
+		ok
+		_sep_ = "?"
+		if StzFindFirst("?", @cMagicLinkBaseUrl) > 0
+			_sep_ = "&"
+		ok
+		return @cMagicLinkBaseUrl + _sep_ + "reset=" + pcToken
 
 	  #-- passwordless: email OTP -----------------------------------------
 	#
