@@ -18844,7 +18844,7 @@ class stzString from stzObject
 	#========================================#
 
 	def InsertBeforeSubStringCS(pcSubStr, pcInsert, pCaseSensitive)
-		_oIbsInserter_ = new stzStringInserter(This)
+		_oIbsInserter_ = new stzStringInserter(This.Content())
 		_oIbsInserter_.InsertBeforeSubStringCS(pcSubStr, pcInsert, pCaseSensitive)
 		This.Update(_oIbsInserter_.Content())
 
@@ -18852,7 +18852,7 @@ class stzString from stzObject
 		This.InsertBeforeSubStringCS(pcSubStr, pcInsert, 1)
 
 	def InsertAfterSubStringCS(pcSubStr, pcInsert, pCaseSensitive)
-		_oIasInserter_ = new stzStringInserter(This)
+		_oIasInserter_ = new stzStringInserter(This.Content())
 		_oIasInserter_.InsertAfterSubStringCS(pcSubStr, pcInsert, pCaseSensitive)
 		This.Update(_oIasInserter_.Content())
 
@@ -19548,7 +19548,7 @@ class stzString from stzObject
 		This.RemoveDuplicatesCS(1)
 
 	def RemoveFromLeftCS(pcSubStr, pCaseSensitive)
-		_oRflRemover_ = new stzStringRemover(This)
+		_oRflRemover_ = new stzStringRemover(This.Content())
 		_oRflRemover_.RemoveFromLeftCS(pcSubStr, pCaseSensitive)
 		This.Update(_oRflRemover_.Content())
 
@@ -19564,7 +19564,7 @@ class stzString from stzObject
 			This.RemoveFromStart(pcSubStr)
 			return
 		ok
-		_oRfrRemover_ = new stzStringRemover(This)
+		_oRfrRemover_ = new stzStringRemover(This.Content())
 		_oRfrRemover_.RemoveFromRightCS(pcSubStr, pCaseSensitive)
 		This.Update(_oRfrRemover_.Content())
 
@@ -20336,12 +20336,12 @@ class stzString from stzObject
 		return This.ContainsWordCS(pcWord, 1)
 
 	def ReverseWords()
-		_oRwText_ = new stzStringText(This)
+		_oRwText_ = new stzStringText(This.Content())
 		_oRwText_.ReverseWords()
 		This.Update(_oRwText_.Content())
 
 	def SortWordsCS(pCaseSensitive)
-		_oSwText_ = new stzStringText(This)
+		_oSwText_ = new stzStringText(This.Content())
 		_oSwText_.SortWordsCS(pCaseSensitive)
 		This.Update(_oSwText_.Content())
 
@@ -20537,7 +20537,7 @@ class stzString from stzObject
 	# --- Text transforms ---
 
 	def Simplify()
-		_oSmText_ = new stzStringText(This)
+		_oSmText_ = new stzStringText(This.Content())
 		_oSmText_.Simplify()
 		This.Update(_oSmText_.Content())
 
@@ -20573,7 +20573,7 @@ class stzString from stzObject
 
 	# Set the content from its hex form (mutating).
 	def FromHex()
-		_oFhEnc_ = new stzStringEncoder(This)
+		_oFhEnc_ = new stzStringEncoder(This.Content())
 		_oFhEnc_.FromHex()
 		This.Update(_oFhEnc_.Content())
 
@@ -20637,7 +20637,7 @@ class stzString from stzObject
 
 	# Normalize the content to Unicode NFC in place (mutating).
 	def NormalizeNFC()
-		_oNnfcEnc_ = new stzStringEncoder(This)
+		_oNnfcEnc_ = new stzStringEncoder(This.Content())
 		_oNnfcEnc_.NormalizeNFC()
 		This.Update(_oNnfcEnc_.Content())
 
@@ -20647,7 +20647,7 @@ class stzString from stzObject
 
 	# Normalize the content to Unicode NFD in place (mutating).
 	def NormalizeNFD()
-		_oNnfdEnc_ = new stzStringEncoder(This)
+		_oNnfdEnc_ = new stzStringEncoder(This.Content())
 		_oNnfdEnc_.NormalizeNFD()
 		This.Update(_oNnfdEnc_.Content())
 
@@ -20657,7 +20657,7 @@ class stzString from stzObject
 
 	# Normalize the content to Unicode NFKC in place (mutating).
 	def NormalizeNFKC()
-		_oNnfkcEnc_ = new stzStringEncoder(This)
+		_oNnfkcEnc_ = new stzStringEncoder(This.Content())
 		_oNnfkcEnc_.NormalizeNFKC()
 		This.Update(_oNnfkcEnc_.Content())
 
@@ -20667,7 +20667,7 @@ class stzString from stzObject
 
 	# Normalize the content to Unicode NFKD in place (mutating).
 	def NormalizeNFKD()
-		_oNnfkdEnc_ = new stzStringEncoder(This)
+		_oNnfkdEnc_ = new stzStringEncoder(This.Content())
 		_oNnfkdEnc_.NormalizeNFKD()
 		This.Update(_oNnfkdEnc_.Content())
 
@@ -20790,7 +20790,7 @@ class stzString from stzObject
 		This.RemoveRepeatedTrailingCharsCS(1)
 
 	def EnsurePrefixCS(pcPrefix, pCaseSensitive)
-		_oEpLt_ = new stzStringLeadTrail(This)
+		_oEpLt_ = new stzStringLeadTrail(This.Content())
 		_oEpLt_.EnsurePrefixCS(pcPrefix, pCaseSensitive)
 		This.Update(_oEpLt_.Content())
 
@@ -20798,7 +20798,7 @@ class stzString from stzObject
 		This.EnsurePrefixCS(pcPrefix, 1)
 
 	def EnsureSuffixCS(pcSuffix, pCaseSensitive)
-		_oEsLt_ = new stzStringLeadTrail(This)
+		_oEsLt_ = new stzStringLeadTrail(This.Content())
 		_oEsLt_.EnsureSuffixCS(pcSuffix, pCaseSensitive)
 		This.Update(_oEsLt_.Content())
 
@@ -20806,7 +20806,7 @@ class stzString from stzObject
 		This.EnsureSuffixCS(pcSuffix, 1)
 
 	def RemoveFromStartCS(pcPrefix, pCaseSensitive)
-		_oRfsLt_ = new stzStringLeadTrail(This)
+		_oRfsLt_ = new stzStringLeadTrail(This.Content())
 		_oRfsLt_.RemoveFromStartCS(pcPrefix, pCaseSensitive)
 		This.Update(_oRfsLt_.Content())
 
@@ -20814,7 +20814,7 @@ class stzString from stzObject
 		This.RemoveFromStartCS(pcPrefix, 1)
 
 	def RemoveFromEndCS(pcSuffix, pCaseSensitive)
-		_oRfeLt_ = new stzStringLeadTrail(This)
+		_oRfeLt_ = new stzStringLeadTrail(This.Content())
 		_oRfeLt_.RemoveFromEndCS(pcSuffix, pCaseSensitive)
 		This.Update(_oRfeLt_.Content())
 
@@ -20867,7 +20867,7 @@ class stzString from stzObject
 
 	# Sort the lines in place (mutating).
 	def SortLinesCS(pCaseSensitive)
-		_oSlLines_ = new stzStringLines(This)
+		_oSlLines_ = new stzStringLines(This.Content())
 		_oSlLines_.SortLinesCS(pCaseSensitive)
 		This.Update(_oSlLines_.Content())
 
