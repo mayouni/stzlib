@@ -50,9 +50,26 @@
 # because a score is what is performed, not what is printed.
 # Beats are quarter notes, as in the writer: Q:3/8=100 is 150 quarter notes a
 # minute, and a 6/8 bar is three beats.
+#
+# MUSICXML (MU9; score-partwise, uncompressed). Parsed by a small XML reader of
+# its own -- elements, attributes, text, entities, comments, CDATA, a DOCTYPE
+# -- because Ring carries none and a reader should not lean on one it cannot
+# see. What is read is what SOUNDS: <pitch> with its decimal <alter> (so the
+# writer's -0.5 is a quarter tone again), <duration> over <divisions>, <chord/>,
+# <backup> and <forward> (voices inside one part), <tie> (the sounding tie, not
+# the drawn one), <transpose> (a clarinet's written D5 is its sounding C5),
+# <sound tempo> and <metronome>, <sound dynamics> and a note's dynamics,
+# unpitched notes by their instrument's <midi-unpitched> key, and repeats
+# PLAYED OUT: forward and backward repeats with times="n", and endings. The key
+# signature is NOT needed: MusicXML writes every alteration on its note.
+# REFUSED: score-timewise, a compressed .mxl (unzip it first), a text that is
+# not well-formed XML, a duration before any <divisions>.
 
 func StzSoundNotationReaderQ()
 	return new stzSoundNotationReader()
+
+func StzSoundScoreFromMusicXMLQ(pcXml)
+	return StzSoundNotationReaderQ().FromMusicXMLQ(pcXml)
 
 func StzSoundScoreFromMidiQ(pcPath)
 	return StzSoundNotationReaderQ().FromMidiFileQ(pcPath)
@@ -83,6 +100,12 @@ class stzSoundNotationReader
 	@nQ = 0                # quarter notes a minute; 0 until Q: gives it
 	@aDefaults = []        # the tune's header state, for a voice that begins later
 	@aVDecl = []           # [ id, name, program ] from V: lines
+
+	# the MusicXML parse
+	@aX = []               # XML nodes: [ name, [ [attr, value] ], parent, [ children ], text ]
+	@nMxDiv = 0            # divisions a quarter note, as the part last said
+	@nMxTrans = 0          # semitones from written to sounding pitch
+	@nMxVel = 0.8          # the velocity a note takes when it names none
 
 	def init()
 
@@ -1425,6 +1448,703 @@ class stzSoundNotationReader
 			This._Loss("ABC: a voice named '" + pcName + "' names no instrument here; it is read on the piano")
 		ok
 		return "piano"
+
+	#== MusicXML (MU9) ==========================================================
+
+	def FromMusicXMLFileQ(pcPath)
+		This._MxReset()
+		if NOT isString(pcPath) or NOT fexists(pcPath)
+			return This._Refuse("FromMusicXMLFileQ: no file at '" + pcPath + "'")
+		ok
+		return This._FromMusicXML(read(pcPath))
+
+	def FromMusicXMLQ(pcXml)
+		This._MxReset()
+		if NOT isString(pcXml) or ring_trim(pcXml) = ""
+			return This._Refuse("MusicXML: the text is empty")
+		ok
+		return This._FromMusicXML(pcXml)
+
+	def _MxReset()
+		@aLosses = []
+		@cLastError = ""
+		@cTitle = ""
+		@aVoicesRead = []
+		@nQ = 0
+		@aX = []
+
+	def _FromMusicXML(pcX)
+		if left(pcX, 2) = "PK"
+			return This._Refuse("MusicXML: this is a compressed .mxl (a zip); unzip it and read the .musicxml inside")
+		ok
+		if NOT This._XmlParse(pcX)  return NULL ok
+		_root_ = 0
+		for _k_ = 1 to len(@aX)
+			if @aX[_k_][3] = 0
+				_root_ = _k_
+				exit
+			ok
+		next
+		if _root_ = 0  return This._Refuse("MusicXML: the text holds no element") ok
+		_nm_ = @aX[_root_][1]
+		if _nm_ = "score-timewise"
+			return This._Refuse("MusicXML: score-timewise is not read; only score-partwise, the form nearly every program writes")
+		ok
+		if _nm_ != "score-partwise"
+			return This._Refuse("MusicXML: the root is <" + _nm_ + ">, not <score-partwise>; this is not a MusicXML score")
+		ok
+		_w_ = This._XChild(_root_, "work")
+		if _w_ > 0  @cTitle = This._XText(This._XChild(_w_, "work-title")) ok
+		if @cTitle = ""  @cTitle = This._XText(This._XChild(_root_, "movement-title")) ok
+
+		# the part list: [ id, instrument, [ [ instrument id, GM drum key ] ] ]
+		_aPL_ = []
+		_pl_ = This._XChild(_root_, "part-list")
+		for _sp_ in This._XChildren(_pl_, "score-part")
+			_aPL_ + This._MxScorePart(_sp_)
+		next
+		_aParts_ = This._XChildren(_root_, "part")
+		if len(_aParts_) = 0  return This._Refuse("MusicXML: the score holds no <part>") ok
+
+		# every part's measures: [ beats, items, forward, backward times, ending numbers, ending ends ]
+		_aPM_ = []
+		for _p_ in _aParts_
+			_id_ = This._XAttr(_p_, "id")
+			_info_ = [ _id_, "piano", [] ]
+			for _q_ in _aPL_
+				if _q_[1] = _id_  _info_ = _q_ ok
+			next
+			@nMxDiv = 0
+			@nMxTrans = 0
+			@nMxVel = 0.8
+			_aM_ = []
+			for _m_ in This._XChildren(_p_, "measure")
+				_r_ = This._MxMeasure(_m_, _info_)
+				if NOT isList(_r_)  return NULL ok
+				_aM_ + _r_
+			next
+			_aPM_ + [ _info_, _aM_ ]
+			@aVoicesRead + [ _id_, _info_[2] ]
+		next
+		_nMeas_ = len(_aPM_[1][2])
+		for _pp_ in _aPM_
+			if len(_pp_[2]) != _nMeas_
+				This._Loss("MusicXML: the parts do not hold the same number of measures; each is read as far as it goes")
+			ok
+		next
+		# one length per measure, the longest any part reached
+		_aLen_ = []
+		for _k_ = 1 to _nMeas_
+			_l_ = 0
+			for _pp_ in _aPM_
+				if _k_ <= len(_pp_[2])
+					if _pp_[2][_k_][1] > _l_  _l_ = _pp_[2][_k_][1] ok
+				ok
+			next
+			_aLen_ + _l_
+		next
+		_aOrder_ = This._MxPlayed(_aPM_[1][2])
+		_aOut_ = []
+		_nSeq_ = 0
+		for _pp_ in _aPM_
+			_t_ = 0
+			_aOpen_ = []          # [ midi, voice, index in _aOut_ ]
+			for _k_ in _aOrder_
+				if _k_ <= len(_pp_[2])
+					for _it_ in _pp_[2][_k_][2]
+						_at_ = _t_ + _it_[1]
+						if _it_[4] != ""
+							_nSeq_++
+							_aOut_ + [ _at_ * 1000000 + _nSeq_, _at_, _it_[2], 0, This._MxDrumOf(_pp_[1][2], _it_[4]),
+							           _it_[8], _it_[4], 0 ]
+							loop
+						ok
+						_ix_ = 0
+						if _it_[6]
+							for _o_ = 1 to len(_aOpen_)
+								if fabs(_aOpen_[_o_][1] - _it_[3]) < 0.001 and _aOpen_[_o_][2] = _it_[7]
+									_ix_ = _aOpen_[_o_][3]
+									del(_aOpen_, _o_)
+									exit
+								ok
+							next
+						ok
+						if _ix_ > 0
+							_aOut_[_ix_][3] = _at_ + _it_[2] - _aOut_[_ix_][2]
+						else
+							_nSeq_++
+							_aOut_ + [ _at_ * 1000000 + _nSeq_, _at_, _it_[2], 440 * pow(2, (_it_[3] - 69) / 12),
+							           _pp_[1][2], _it_[8], "", 0 ]
+							_ix_ = len(_aOut_)
+						ok
+						if _it_[5]  _aOpen_ + [ _it_[3], _it_[7], _ix_ ] ok
+					next
+				ok
+				_t_ += _aLen_[_k_]
+			next
+			if len(_aOpen_) > 0
+				This._Loss("MusicXML: a tie starts and never stops; the note ends where it was written to")
+			ok
+		next
+		_q_ = @nQ
+		if _q_ = 0  _q_ = 120 ok
+		return This._ScoreOf(_aOut_, _q_)
+
+	# a <score-part>: its instrument, by name first, then by its GM program
+	def _MxScorePart(pnSp)
+		_id_ = This._XAttr(pnSp, "id")
+		_aNames_ = [ This._XText(This._XChild(pnSp, "part-name")) ]
+		_aUnp_ = []
+		_prog_ = -1
+		for _si_ in This._XChildren(pnSp, "score-instrument")
+			_aNames_ + This._XText(This._XChild(_si_, "instrument-name"))
+		next
+		for _mi_ in This._XChildren(pnSp, "midi-instrument")
+			_c_ = This._XChild(_mi_, "midi-program")
+			if _c_ > 0 and _prog_ < 0  _prog_ = number(This._XText(_c_)) - 1 ok
+			_u_ = This._XChild(_mi_, "midi-unpitched")
+			if _u_ > 0  _aUnp_ + [ This._XAttr(_mi_, "id"), number(This._XText(_u_)) - 1 ] ok
+		next
+		_inst_ = ""
+		for _n_ in _aNames_
+			_l_ = lower(ring_trim(_n_))
+			if _inst_ = "" and _l_ != ""
+				for _g_ in StzSoundGmTable()
+					if _g_[1] = _l_  _inst_ = _l_ ok
+				next
+			ok
+		next
+		if _inst_ = "" and _prog_ >= 0
+			_inst_ = StzSoundGmInstrument(_prog_)
+			if _inst_ = ""
+				This._Loss("MusicXML: GM program " + (_prog_ + 1) + " (as MusicXML counts) is no instrument here; the part is read on the piano")
+			ok
+		ok
+		if _inst_ = ""
+			if ring_trim(_aNames_[1]) != "" and len(_aUnp_) = 0
+				This._Loss("MusicXML: a part named '" + ring_trim(_aNames_[1]) + "' names no instrument here; it is read on the piano")
+			ok
+			_inst_ = "piano"
+			if len(_aUnp_) > 0  _inst_ = "drumkit" ok
+		ok
+		return [ _id_, _inst_, _aUnp_ ]
+
+	# a stroke's drum: the part's, when the part IS a drum; else by the stroke
+	def _MxDrumOf(pcInst, pcStroke)
+		if ring_find([ "darbouka", "bendir", "drumkit" ], pcInst) > 0  return pcInst ok
+		if ring_find([ "dum", "tak", "ka" ], pcStroke) > 0  return "darbouka" ok
+		return "drumkit"
+
+	# one <measure>: [ beats, items, forward repeat, backward times, ending
+	# numbers begun here, an ending closed here ]; an item is
+	# [ start, beats, midi, stroke, tie start, tie stop, voice, velocity ]
+	def _MxMeasure(pnM, paInfo)
+		_aIt_ = []
+		# the position is counted in WHOLE divisions and divided once: three
+		# triplet thirds of 8/24 summed as beats are 3.0000000000000004, not 3
+		_pB_ = 0          # beats before the last change of divisions
+		_pU_ = 0          # divisions since it
+		_max_ = 0
+		_last_ = 0
+		_bFwd_ = FALSE
+		_nBack_ = 0
+		_aEnd_ = []
+		_bEndStop_ = FALSE
+		for _c_ in @aX[pnM][4]
+			_nm_ = @aX[_c_][1]
+			switch _nm_
+			on "attributes"
+				_d_ = This._XChild(_c_, "divisions")
+				if _d_ > 0
+					if @nMxDiv > 0  _pB_ += _pU_ / @nMxDiv ok
+					_pU_ = 0
+					@nMxDiv = number(This._XText(_d_))
+				ok
+				_tr_ = This._XChild(_c_, "transpose")
+				if _tr_ > 0
+					@nMxTrans = This._Num0(This._XText(This._XChild(_tr_, "chromatic"))) +
+					            12 * This._Num0(This._XText(This._XChild(_tr_, "octave-change")))
+				ok
+			on "note"
+				if This._XChild(_c_, "grace") > 0
+					This._Loss("MusicXML: grace notes are not read")
+					loop
+				ok
+				if This._XChild(_c_, "cue") > 0  loop ok            # a cue is shown, never played
+				_du_ = This._XChild(_c_, "duration")
+				if _du_ = 0  loop ok
+				if @nMxDiv <= 0
+					This._Refuse("MusicXML: a note has a duration before any <divisions> says what a quarter note is")
+					return NULL
+				ok
+				_units_ = number(This._XText(_du_))
+				_len_ = _units_ / @nMxDiv
+				_bChord_ = (This._XChild(_c_, "chord") > 0)
+				_st_ = _pB_ + _pU_ / @nMxDiv
+				if _bChord_  _st_ = _last_ ok
+				if NOT _bChord_
+					_last_ = _st_
+					_pU_ += _units_
+				ok
+				if _st_ + _len_ > _max_  _max_ = _st_ + _len_ ok
+				if This._XChild(_c_, "rest") > 0  loop ok
+				_vel_ = @nMxVel
+				_dy_ = This._XAttr(_c_, "dynamics")
+				if _dy_ != ""  _vel_ = This._MxVelocity(number(_dy_)) ok
+				_voice_ = This._XText(This._XChild(_c_, "voice"))
+				if _voice_ = ""  _voice_ = "1" ok
+				_bTs_ = FALSE
+				_bTe_ = FALSE
+				for _ti_ in This._XChildren(_c_, "tie")
+					if This._XAttr(_ti_, "type") = "start"  _bTs_ = TRUE ok
+					if This._XAttr(_ti_, "type") = "stop"   _bTe_ = TRUE ok
+				next
+				This._MxNotations(_c_)
+				_pi_ = This._XChild(_c_, "pitch")
+				if _pi_ > 0
+					_ln_ = This._LetterNo(This._XText(This._XChild(_pi_, "step")))
+					if _ln_ = 0
+						This._Loss("MusicXML: a pitch with no step A to G was skipped")
+						loop
+					ok
+					_aSemi_ = [ 0, 2, 4, 5, 7, 9, 11 ]
+					_alt_ = 0
+					_al_ = This._XChild(_pi_, "alter")
+					if _al_ > 0  _alt_ = number(This._XText(_al_)) ok
+					_oct_ = number(This._XText(This._XChild(_pi_, "octave")))
+					_midi_ = 12 * (_oct_ + 1) + _aSemi_[_ln_] + _alt_ + @nMxTrans
+					_aIt_ + [ _st_, _len_, _midi_, "", _bTs_, _bTe_, _voice_, _vel_ ]
+					loop
+				ok
+				if This._XChild(_c_, "unpitched") > 0
+					_key_ = -1
+					_iid_ = This._XAttr(This._XChild(_c_, "instrument"), "id")
+					for _u_ in paInfo[3]
+						if _key_ < 0 and (_iid_ = "" or _u_[1] = _iid_)  _key_ = _u_[2] ok
+					next
+					_sk_ = ""
+					if _key_ >= 0  _sk_ = This._GmStroke(_key_) ok
+					if _sk_ = ""
+						This._Loss("MusicXML: an unpitched note with no MIDI key a stroke answers to is dropped")
+						loop
+					ok
+					_aIt_ + [ _st_, _len_, 0, _sk_, FALSE, FALSE, _voice_, _vel_ ]
+				ok
+			on "backup"
+				_pU_ -= This._MxUnits(_c_)
+			on "forward"
+				_pU_ += This._MxUnits(_c_)
+				if @nMxDiv > 0
+					if _pB_ + _pU_ / @nMxDiv > _max_  _max_ = _pB_ + _pU_ / @nMxDiv ok
+				ok
+			on "direction"
+				_so_ = This._XChild(_c_, "sound")
+				_bT_ = FALSE
+				if _so_ > 0  _bT_ = This._MxSound(_so_) ok
+				if NOT _bT_
+					for _dt_ in This._XChildren(_c_, "direction-type")
+						_me_ = This._XChild(_dt_, "metronome")
+						if _me_ > 0  This._MxMetronome(_me_) ok
+					next
+				ok
+			on "sound"
+				This._MxSound(_c_)
+			on "barline"
+				_rp_ = This._XChild(_c_, "repeat")
+				if _rp_ > 0
+					if This._XAttr(_rp_, "direction") = "forward"
+						_bFwd_ = TRUE
+					else
+						_nBack_ = 2
+						_tm_ = This._XAttr(_rp_, "times")
+						if _tm_ != ""  _nBack_ = number(_tm_) ok
+					ok
+				ok
+				_en_ = This._XChild(_c_, "ending")
+				if _en_ > 0
+					_ty_ = This._XAttr(_en_, "type")
+					if _ty_ = "start"
+						_aEnd_ = This._MxNumbers(This._XAttr(_en_, "number"))
+					else
+						_bEndStop_ = TRUE
+					ok
+				ok
+			on "harmony"
+				This._Loss("MusicXML: chord symbols (<harmony>) are not read")
+			off
+		next
+		if @nMxDiv > 0
+			if _pB_ + _pU_ / @nMxDiv > _max_  _max_ = _pB_ + _pU_ / @nMxDiv ok
+		ok
+		return [ _max_, _aIt_, _bFwd_, _nBack_, _aEnd_, _bEndStop_ ]
+
+	def _MxUnits(pnC)
+		_d_ = This._XChild(pnC, "duration")
+		if _d_ = 0  return 0 ok
+		return number(This._XText(_d_))
+
+	# MusicXML's dynamics are a percentage of forte, and forte is MIDI 90
+	def _MxVelocity(pnDyn)
+		_v_ = pnDyn * 90 / 100 / 127
+		if _v_ > 1  _v_ = 1 ok
+		if _v_ < 1 / 127  _v_ = 1 / 127 ok
+		return _v_
+
+	# <sound>: tempo, dynamics, and the jumps a score does not follow. TRUE when it set a tempo
+	def _MxSound(pnS)
+		_bT_ = FALSE
+		_t_ = This._XAttr(pnS, "tempo")
+		if _t_ != ""
+			This._MxTempo(number(_t_))
+			_bT_ = TRUE
+		ok
+		_d_ = This._XAttr(pnS, "dynamics")
+		if _d_ != ""  @nMxVel = This._MxVelocity(number(_d_)) ok
+		for _j_ in [ "dacapo", "dalsegno", "tocoda", "fine", "segno", "coda" ]
+			if This._XAttr(pnS, _j_) != ""
+				This._Loss("MusicXML: jumps (da capo, dal segno, coda, fine) are not followed; the score is read as written, repeats played")
+			ok
+		next
+		return _bT_
+
+	# <metronome>: a beat unit (dotted or not) and a count a minute, in quarters
+	def _MxMetronome(pnM)
+		_u_ = This._XText(This._XChild(pnM, "beat-unit"))
+		_pm_ = This._XText(This._XChild(pnM, "per-minute"))
+		if _pm_ = ""  return ok
+		_q_ = 1
+		switch _u_
+		on "whole"    _q_ = 4
+		on "half"     _q_ = 2
+		on "quarter"  _q_ = 1
+		on "eighth"   _q_ = 0.5
+		on "16th"     _q_ = 0.25
+		off
+		if This._XChild(pnM, "beat-unit-dot") > 0  _q_ *= 1.5 ok
+		This._MxTempo(number(_pm_) * _q_)
+
+	def _MxTempo(pnQ)
+		if pnQ <= 0  return ok
+		if @nQ = 0
+			@nQ = pnQ
+		but fabs(@nQ - pnQ) > 0.001
+			This._Loss("MusicXML: the tempo changes during the score; a score has one tempo, and keeps the first (" + This._Num(@nQ) + " BPM)")
+		ok
+
+	# what a note carries that a score does not hold -- counted, once each
+	def _MxNotations(pnNote)
+		if This._XChild(pnNote, "lyric") > 0  This._Loss("MusicXML: lyrics are not read") ok
+		_n_ = This._XChild(pnNote, "notations")
+		if _n_ = 0  return ok
+		for _c_ in @aX[_n_][4]
+			_nm_ = @aX[_c_][1]
+			if _nm_ = "glissando" or _nm_ = "slide"
+				This._Loss("MusicXML: glissandos and slides are read as their starting pitch")
+			but ring_find([ "ornaments", "articulations", "technical", "fermata", "arpeggiate", "dynamics" ], _nm_) > 0
+				This._Loss("MusicXML: ornaments, articulations and fermatas are not read")
+			ok
+		next
+
+	# "1", "1, 2", "1,2" -> [ 1, 2 ]
+	def _MxNumbers(pc)
+		_a_ = []
+		_d_ = ""
+		for _k_ = 1 to len(pc)
+			if This._IsDigit(pc[_k_])
+				_d_ += pc[_k_]
+			else
+				if _d_ != ""  _a_ + number(_d_) ok
+				_d_ = ""
+			ok
+		next
+		if _d_ != ""  _a_ + number(_d_) ok
+		return _a_
+
+	# the measures in the order they are PLAYED: forward and backward repeats
+	# (times="n" honoured), endings played on their pass and skipped on others
+	def _MxPlayed(paM)
+		_n_ = len(paM)
+		# which measures lie inside which ending
+		_aIn_ = list(_n_)
+		_cur_ = []
+		for _k_ = 1 to _n_
+			if len(paM[_k_][5]) > 0  _cur_ = paM[_k_][5] ok
+			_aIn_[_k_] = _cur_
+			if paM[_k_][6]  _cur_ = [] ok
+		next
+		_aO_ = []
+		_i_ = 1
+		_start_ = 1
+		_pass_ = 1
+		_guard_ = 0
+		while _i_ <= _n_
+			_guard_++
+			if _guard_ > 100000
+				This._Loss("MusicXML: the repeats do not resolve; the score is cut where they loop")
+				exit
+			ok
+			if paM[_i_][3] and _i_ != _start_
+				_start_ = _i_
+				_pass_ = 1
+			ok
+			if len(_aIn_[_i_]) > 0 and ring_find(_aIn_[_i_], _pass_) = 0
+				_i_++
+				loop
+			ok
+			_aO_ + _i_
+			if paM[_i_][4] > 0
+				if _pass_ < paM[_i_][4]
+					_pass_++
+					_i_ = _start_
+					loop
+				ok
+				_pass_ = 1
+				_start_ = _i_ + 1
+			but paM[_i_][6] and len(_aIn_[_i_]) > 0 and _pass_ > 1
+				# the last ending, played: the repeat is over
+				_pass_ = 1
+				_start_ = _i_ + 1
+			ok
+			_i_++
+		end
+		return _aO_
+
+	#-- a small XML reader: elements, attributes, text, entities; comments,
+	#   processing instructions, a DOCTYPE and CDATA understood
+
+	def _XmlParse(pcX)
+		@aX = []
+		_aSt_ = []
+		_n_ = len(pcX)
+		_k_ = 1
+		_tx_ = ""
+		while _k_ <= _n_
+			_c_ = pcX[_k_]
+			if _c_ != "<"
+				_tx_ += _c_
+				_k_++
+				loop
+			ok
+			if len(_aSt_) > 0 and _tx_ != ""
+				@aX[_aSt_[len(_aSt_)]][5] += This._XmlDecode(_tx_)
+			ok
+			_tx_ = ""
+			if substr(pcX, _k_, 4) = "<!--"
+				_e_ = This._FindStr(pcX, "-->", _k_ + 4)
+				if _e_ = 0  return This._XmlBad("a comment never closes") ok
+				_k_ = _e_ + 3
+				loop
+			ok
+			if substr(pcX, _k_, 9) = "<![CDATA["
+				_e_ = This._FindStr(pcX, "]]>", _k_ + 9)
+				if _e_ = 0  return This._XmlBad("a CDATA section never closes") ok
+				if len(_aSt_) > 0  @aX[_aSt_[len(_aSt_)]][5] += substr(pcX, _k_ + 9, _e_ - _k_ - 9) ok
+				_k_ = _e_ + 3
+				loop
+			ok
+			if substr(pcX, _k_, 2) = "<?"
+				_e_ = This._FindStr(pcX, "?>", _k_ + 2)
+				if _e_ = 0  return This._XmlBad("a processing instruction never closes") ok
+				_k_ = _e_ + 2
+				loop
+			ok
+			if substr(pcX, _k_, 2) = "<!"
+				# a DOCTYPE, with an internal subset in [ ] if there is one
+				_dep_ = 0
+				_e_ = _k_ + 2
+				while _e_ <= _n_
+					if pcX[_e_] = "["  _dep_++ ok
+					if pcX[_e_] = "]"  _dep_-- ok
+					if pcX[_e_] = ">" and _dep_ <= 0  exit ok
+					_e_++
+				end
+				_k_ = _e_ + 1
+				loop
+			ok
+			# a tag: find its end, outside quoted attribute values
+			_e_ = _k_ + 1
+			_qc_ = ""
+			while _e_ <= _n_
+				_ch_ = pcX[_e_]
+				if _qc_ != ""
+					if _ch_ = _qc_  _qc_ = "" ok
+				but _ch_ = char(34) or _ch_ = "'"
+					_qc_ = _ch_
+				but _ch_ = ">"
+					exit
+				ok
+				_e_++
+			end
+			if _e_ > _n_  return This._XmlBad("a tag never closes") ok
+			_tag_ = substr(pcX, _k_ + 1, _e_ - _k_ - 1)
+			_k_ = _e_ + 1
+			if left(_tag_, 1) = "/"
+				_nm_ = ring_trim(substr(_tag_, 2, len(_tag_) - 1))
+				if len(_aSt_) = 0  return This._XmlBad("</" + _nm_ + "> closes nothing") ok
+				_top_ = _aSt_[len(_aSt_)]
+				if @aX[_top_][1] != _nm_
+					return This._XmlBad("</" + _nm_ + "> closes <" + @aX[_top_][1] + ">")
+				ok
+				del(_aSt_, len(_aSt_))
+				loop
+			ok
+			_bSelf_ = (right(_tag_, 1) = "/")
+			if _bSelf_  _tag_ = left(_tag_, len(_tag_) - 1) ok
+			_aT_ = This._XmlTag(_tag_)
+			_par_ = 0
+			if len(_aSt_) > 0
+				_par_ = _aSt_[len(_aSt_)]
+			else
+				for _x_ in @aX
+					if _x_[3] = 0  return This._XmlBad("a second root element <" + _aT_[1] + ">") ok
+				next
+			ok
+			@aX + [ _aT_[1], _aT_[2], _par_, [], "" ]
+			_ix_ = len(@aX)
+			if _par_ > 0  @aX[_par_][4] + _ix_ ok
+			if NOT _bSelf_  _aSt_ + _ix_ ok
+		end
+		if len(_aSt_) > 0  return This._XmlBad("<" + @aX[_aSt_[len(_aSt_)]][1] + "> is never closed") ok
+		if len(@aX) = 0  return This._XmlBad("there is no element at all") ok
+		return TRUE
+
+	def _XmlBad(pc)
+		This._Refuse("MusicXML: not well-formed XML -- " + pc)
+		return FALSE
+
+	# "note default-x='12' dynamics=\"80\"" -> [ "note", [ [ "default-x", "12" ], ... ] ]
+	def _XmlTag(pcT)
+		_n_ = len(pcT)
+		_k_ = 1
+		_nm_ = ""
+		while _k_ <= _n_ and NOT This._IsSpace(pcT[_k_])
+			_nm_ += pcT[_k_]
+			_k_++
+		end
+		_aA_ = []
+		while _k_ <= _n_
+			while _k_ <= _n_ and This._IsSpace(pcT[_k_])  _k_++ end
+			if _k_ > _n_  exit ok
+			_an_ = ""
+			while _k_ <= _n_ and pcT[_k_] != "=" and NOT This._IsSpace(pcT[_k_])
+				_an_ += pcT[_k_]
+				_k_++
+			end
+			while _k_ <= _n_ and (pcT[_k_] = "=" or This._IsSpace(pcT[_k_]))  _k_++ end
+			if _k_ > _n_  exit ok
+			_q_ = pcT[_k_]
+			_av_ = ""
+			if _q_ = char(34) or _q_ = "'"
+				_k_++
+				while _k_ <= _n_ and pcT[_k_] != _q_
+					_av_ += pcT[_k_]
+					_k_++
+				end
+				_k_++
+			ok
+			_aA_ + [ _an_, This._XmlDecode(_av_) ]
+		end
+		return [ _nm_, _aA_ ]
+
+	def _XmlDecode(pc)
+		if substr(pc, "&") = 0  return pc ok
+		_s_ = ""
+		_k_ = 1
+		_n_ = len(pc)
+		while _k_ <= _n_
+			if pc[_k_] != "&"
+				_s_ += pc[_k_]
+				_k_++
+				loop
+			ok
+			_e_ = This._FindStr(pc, ";", _k_ + 1)
+			if _e_ = 0
+				_s_ += "&"
+				_k_++
+				loop
+			ok
+			_ent_ = substr(pc, _k_ + 1, _e_ - _k_ - 1)
+			switch _ent_
+			on "amp"   _s_ += "&"
+			on "lt"    _s_ += "<"
+			on "gt"    _s_ += ">"
+			on "quot"  _s_ += char(34)
+			on "apos"  _s_ += "'"
+			other
+				_cp_ = -1
+				if left(_ent_, 2) = "#x" or left(_ent_, 2) = "#X"
+					_cp_ = This._Hex(substr(_ent_, 3, len(_ent_) - 2))
+				but left(_ent_, 1) = "#"
+					_cp_ = number(substr(_ent_, 2, len(_ent_) - 1))
+				ok
+				if _cp_ >= 0
+					_s_ += This._Utf8(_cp_)
+				else
+					_s_ += "&" + _ent_ + ";"
+				ok
+			off
+			_k_ = _e_ + 1
+		end
+		return _s_
+
+	def _Hex(pc)
+		_v_ = 0
+		for _k_ = 1 to len(pc)
+			_d_ = substr("0123456789abcdef", lower(pc[_k_])) - 1
+			if _d_ < 0  return -1 ok
+			_v_ = _v_ * 16 + _d_
+		next
+		return _v_
+
+	def _Utf8(pnCp)
+		if pnCp < 128  return char(pnCp) ok
+		if pnCp < 2048  return char(192 + floor(pnCp / 64)) + char(128 + pnCp % 64) ok
+		if pnCp < 65536
+			return char(224 + floor(pnCp / 4096)) + char(128 + floor(pnCp / 64) % 64) + char(128 + pnCp % 64)
+		ok
+		return char(240 + floor(pnCp / 262144)) + char(128 + floor(pnCp / 4096) % 64) +
+		       char(128 + floor(pnCp / 64) % 64) + char(128 + pnCp % 64)
+
+	def _XChildren(pnI, pcName)
+		_a_ = []
+		if pnI <= 0  return _a_ ok
+		for _c_ in @aX[pnI][4]
+			if @aX[_c_][1] = pcName  _a_ + _c_ ok
+		next
+		return _a_
+
+	def _XChild(pnI, pcName)
+		if pnI <= 0  return 0 ok
+		for _c_ in @aX[pnI][4]
+			if @aX[_c_][1] = pcName  return _c_ ok
+		next
+		return 0
+
+	def _XText(pnI)
+		if pnI <= 0  return "" ok
+		return ring_trim(@aX[pnI][5])
+
+	def _XAttr(pnI, pcName)
+		if pnI <= 0  return "" ok
+		for _a_ in @aX[pnI][2]
+			if _a_[1] = pcName  return _a_[2] ok
+		next
+		return ""
+
+	def _FindStr(pcS, pcPat, pnFrom)
+		_m_ = len(pcPat)
+		for _k_ = pnFrom to len(pcS) - _m_ + 1
+			if substr(pcS, _k_, _m_) = pcPat  return _k_ ok
+		next
+		return 0
+
+	# a number, or 0 for an element that is absent or empty
+	def _Num0(pc)
+		if ring_trim(pc) = ""  return 0 ok
+		return number(pc)
+
+	def _IsSpace(pc)
+		return pc = " " or pc = char(9) or pc = nl or pc = char(13)
 
 	#== both: the rows become ONE stzSoundScore =================================
 
