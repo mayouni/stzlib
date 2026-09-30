@@ -188,8 +188,14 @@ pub fn isAvailable() bool {
 fn ensureCom() void {
     if (!is_windows or com_ready) return;
     const hr = win.CoInitializeEx(null, win.COINIT_APARTMENTTHREADED);
-    // S_FALSE means "already initialised on this thread", which is success here
-    com_ready = hr >= 0;
+    // S_FALSE means "already initialised on this thread", which is success here.
+    // So is RPC_E_CHANGED_MODE: COM IS initialised on this thread, in the
+    // multithreaded apartment -- miniaudio does that when the audio device is
+    // probed first -- and SpVoice (threading model "Both") lives in either.
+    // Treating it as failure left a program that had touched the device with
+    // no voices at all (STZLIB-VOICE-COMODE-01, found by MU5, fixed 2026-09-30).
+    const rpc_e_changed_mode: win.HRESULT = @bitCast(@as(u32, 0x80010106));
+    com_ready = hr >= 0 or hr == rpc_e_changed_mode;
     if (!com_ready) refuse("CoInitializeEx failed: 0x{x}", .{@as(u32, @bitCast(hr))});
 }
 
