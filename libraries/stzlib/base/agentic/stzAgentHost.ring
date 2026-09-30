@@ -104,6 +104,7 @@ class stzAgentHost from stzObject
 	@cLoopWhy    = ""        # the engine's last refusal, verbatim
 	@oFolder     = ""        # the agents/ folder, when one was mounted
 	@aQuarantine = []        # [ name, reason, atMs ] -- containment's :QuarantinePart
+	@aBudgets    = []        # [ name, maxActs, windowMs, windowStart, acts ] -- R7
 
 	def init()
 		@oReactor = new stzReactor()
@@ -530,6 +531,7 @@ class stzAgentHost from stzObject
 			            This._ReasonWord(stzengineagentloopcurrentreason()) +
 			            " " + @aAgents[_nIdx_][6] ]
 			_nActed_ += _nA_
+			This._Account(@aAgents[_nIdx_][1], _nA_, _nNow_)
 		end
 		return _nActed_
 
@@ -587,6 +589,9 @@ class stzAgentHost from stzObject
 					@aTrace + [ _nNow_, @aAgents[_i_][1], _nE_,
 					            "event " + @aAgents[_i_][6] ]
 					_nActed_ += _nE_
+					This._Account(@aAgents[_i_][1], _nE_, _nNow_)
+					# a runaway quarantined mid-catch-up stops HERE
+					if NOT @aAgents[_i_][4]  exit  ok
 				end
 			else
 				# TIMER-DRIVEN: tick once when the interval has elapsed.
@@ -599,6 +604,7 @@ class stzAgentHost from stzObject
 				@aTrace + [ _nNow_, @aAgents[_i_][1], _nA_,
 				            "tick " + @aAgents[_i_][6] ]
 				_nActed_ += _nA_
+				This._Account(@aAgents[_i_][1], _nA_, _nNow_)
 			ok
 		next
 		return _nActed_
@@ -665,6 +671,60 @@ class stzAgentHost from stzObject
 		ok
 		return This
 
+	#-- THE ACTION BUDGET (threat-model R7, OWASP ASI08) ----------------
+	#
+	# One agent acting in a loop floods everything downstream of it -- the
+	# cascading failure. A budget caps the ACTIONS (skill firings: what
+	# causes effects) an agent may take in a sliding window. An agent that
+	# exceeds it is QUARANTINED, not merely slowed: a runaway is a
+	# containment event, it stays stopped until an effectful actor releases
+	# it, and the reason says how far over it went. Both pumps account.
+
+	def SetActionBudget(pcName, pnMaxActs, pnWindowMs)
+		if This._IndexOf(pcName) = 0
+			stzraise("stzAgentHost.SetActionBudget: not supervising '" + pcName + "'.")
+		ok
+		if pnMaxActs < 1 or pnWindowMs < 1
+			stzraise("stzAgentHost.SetActionBudget: a budget is at least 1 act in at least 1 ms.")
+		ok
+		_c_ = StzLower("" + pcName)
+		_i_ = This._BudgetIndex(_c_)
+		if _i_ > 0
+			@aBudgets[_i_] = [ _c_, pnMaxActs, pnWindowMs, StzEngineTimeNowMs(), 0 ]
+		else
+			@aBudgets + [ _c_, pnMaxActs, pnWindowMs, StzEngineTimeNowMs(), 0 ]
+		ok
+		return This
+
+	# [ :max, :windowMs, :acts ] -- the acts counted in the current window
+	def ActionBudgetOf(pcName)
+		_i_ = This._BudgetIndex(StzLower("" + pcName))
+		if _i_ = 0  return []  ok
+		return [ :max = @aBudgets[_i_][2], :windowMs = @aBudgets[_i_][3], :acts = @aBudgets[_i_][5] ]
+
+	def _BudgetIndex(pcName)
+		_n_ = len(@aBudgets)
+		for _i_ = 1 to _n_
+			if @aBudgets[_i_][1] = pcName  return _i_  ok
+		next
+		return 0
+
+	def _Account(pcName, pnActs, pnNow)
+		if len(@aBudgets) = 0 or pnActs <= 0  return  ok
+		_i_ = This._BudgetIndex(StzLower("" + pcName))
+		if _i_ = 0  return  ok
+		if pnNow - @aBudgets[_i_][4] >= @aBudgets[_i_][3]
+			@aBudgets[_i_][4] = pnNow       # a new window
+			@aBudgets[_i_][5] = 0
+		ok
+		@aBudgets[_i_][5] = @aBudgets[_i_][5] + pnActs
+		if @aBudgets[_i_][5] > @aBudgets[_i_][2]
+			_cWhy_ = "exceeded its action budget: " + @aBudgets[_i_][5] + " acts in " +
+				@aBudgets[_i_][3] + " ms, allowed " + @aBudgets[_i_][2]
+			StzNoteRefusal("agent.budget.exceeded", "" + pcName, "agent:" + pcName, _cWhy_)
+			This.Quarantine(pcName, _cWhy_)
+		ok
+
 	#-- QUARANTINE (containment's :QuarantinePart) ----------------------
 	#
 	# Between a pause and a retirement: the agent stops being run, with the
@@ -706,6 +766,13 @@ class stzAgentHost from stzObject
 			stzraise("Refused: only an effectful, non-sandboxed actor may release '" + pcName + "' from quarantine.")
 		ok
 		This._DropQuarantine(pcName)
+		# a released agent starts a FRESH budget window -- the count that
+		# tripped it must not trip it again on its first act
+		_iB_ = This._BudgetIndex(StzLower("" + pcName))
+		if _iB_ > 0
+			@aBudgets[_iB_][4] = StzEngineTimeNowMs()
+			@aBudgets[_iB_][5] = 0
+		ok
 		This.Resume(pcName)
 		StzNoteGrant("agent.released", "" + poActor.Name(), "agent:" + pcName)
 		return This
