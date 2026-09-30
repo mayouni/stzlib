@@ -240,13 +240,23 @@ next
 ? "   values that render in BOTH channels: " + nBoth + " of " + len(StzSemanticValues())
 ? "   sound-only: " + cOnlySound
 
-Chk("four of the five render as a colour AND an earcon", nBoth = 4)
-Chk("and the one that does not is MUTED", cOnlySound = "muted")
+# STZLIB-MUTED-CROSSPLANE-01, RULED 2026-09-30 by Central on the Principal's
+# delegation ("do any pending task on my behalf"): :Muted is ONE value, and
+# each medium renders it in its own terms. This scene expected four of five,
+# because colour refused :Muted when it was written. Colour then gave :Muted
+# a rendering of its own (fa9251708, 2026-08-22: a TREATMENT of a status -- a
+# muted danger stays a dusty red), and these checks were red from that day
+# until the ruling. The sound plane follows the colour plane's decision; it
+# does not overrule it.
+Chk("all five render in BOTH channels -- :Muted included, since colour gave it a treatment", nBoth = 5)
+Chk("and no value is left to one channel alone", cOnlySound = "")
+Chk("colour's :Muted is a TREATMENT, not one grey: a muted danger is not a muted success",
+    StzColorToNumber("danger.muted") != StzColorToNumber("success.muted"))
 ? ""
-? "   That is coherent rather than broken. Muted means waiting is not an"
-? "   event, and its rendering is ABSENCE in every channel: silence in sound,"
-? "   nothing painted in colour, nothing said in speech. A colour face that"
-? "   answered :Muted with a paintable colour would be the bug."
+? "   One value, a rendering per medium: in colour, a status held at a"
+? "   quarter of its chroma (a waiting danger stays a dusty red); in sound,"
+? "   silence -- waiting is not an event. The VALUE is shared; how it is"
+? "   rendered is each medium's own."
 ? ""
 ? "   The colour face's :Primary and :Neutral have no earcon, and should not:"
 ? "   they are theme roles, not states. The overlap is the four STATES, and"

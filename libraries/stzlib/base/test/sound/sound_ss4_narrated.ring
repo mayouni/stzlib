@@ -73,9 +73,9 @@ Chk("and by SOUND", NOT isObject(oE.ToSoundOf("catastrophe")))
 
 # ---------------------------------------------------------------------------
 ? ""
-? "-- Scene 2: :Muted -- absent in both, and that is a RENDERING --"
-? "   Four of the five render. The fifth renders as ABSENCE, which is the"
-? "   one case where 'the channels disagree' would be the wrong reading."
+? "-- Scene 2: :Muted -- one value, each medium's own rendering --"
+? "   Colour renders it as a treatment of a status; sound renders it as"
+? "   silence. Both are RENDERINGS of the same value, not a disagreement."
 
 bMutedColour = TRUE
 try
@@ -83,13 +83,17 @@ try
 catch
 	bMutedColour = FALSE
 done
-Chk("colour refuses :Muted -- there is nothing to paint", bMutedColour = FALSE)
+# STZLIB-MUTED-CROSSPLANE-01, ruled 2026-09-30 by Central on the Principal's
+# delegation: colour's own rendering of :Muted (fa9251708) stands, and this
+# check -- written when colour refused it -- follows. It was red from
+# 2026-08-22 until the ruling.
+Chk("colour renders :Muted -- as a treatment, since fa9251708", bMutedColour = TRUE)
 Chk("sound renders :Muted as silence", NOT isObject(oE.ToSoundOf(:Muted)))
 Chk("and sound says so rather than leaving it to be guessed",
     oE.IsSilentValue(:Muted))
-? "   Muted means waiting is not an event. Silence in sound, nothing painted"
-? "   in colour, nothing said in speech -- one meaning, one rendering, three"
-? "   channels agreeing that the rendering is nothing."
+? "   Muted means waiting is not an event. Sound renders that as silence;"
+? "   colour as the status it quiets, held at a quarter of its chroma. One"
+? "   meaning, a rendering per medium."
 
 # ---------------------------------------------------------------------------
 ? ""
