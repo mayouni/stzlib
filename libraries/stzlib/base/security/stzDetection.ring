@@ -31,6 +31,27 @@
 	  ANY       WhenKind(k).OnAnyOccurrence()
 	            for kinds where one occurrence is already the story
 	            (a cloned authenticator, a replayed nonce).
+	  UNUSUAL   WhenKind(k).Unusual().Buckets(ms).AgainstBaseline(n)
+	            .Sigma(z).AtLeast(m)                [+ PerActor()]
+	            the newest window judged against the SAME kind's own
+	            history (threat-model R9). The three shapes above need a
+	            threshold somebody wrote down; this one learns it. Password
+	            spraying -- one failure on each of fifty accounts -- never
+	            trips a per-account burst, and trips this at once.
+
+	THE UNUSUAL SHAPE'S HONESTY RULES:
+	  - LEAVE-ONE-OUT (perf law 6): the newest window is judged against
+	    the windows BEFORE it, never a baseline that includes itself --
+	    at n=10 an inclusive z can never exceed 3.0, so a z>3 test on it
+	    could never fire;
+	  - a jump off a FLAT baseline is infinitely surprising, so it fires
+	    on the floor (AtLeast) alone;
+	  - COLD START IS NOT AN ANOMALY: until the ledger reaches back over
+	    at least three baseline windows, it says nothing;
+	  - A STORM THAT EVICTED ITS OWN BASELINE IS REPORTED, not silenced:
+	    the ledger's window is bounded, so a flood can push the history
+	    out of reach -- when events were evicted and fewer than three
+	    baseline windows remain, the finding says so, as a warning.
 
 	VERDICTS ARE FINDINGS in the house shape
 	[ :rule, :subject, :where, :severity, :message ] with
@@ -85,6 +106,11 @@ func StzDefaultDetectionSet()
 	_d4_.Explaining("a failed sign-in followed by a reach for a secret -- the classic shape of a stolen-credential attempt")
 	_oS_.Add(_d4_)
 
+	_d9_ = new stzDetection("password-spraying")
+	_d9_.WhenKind("auth.login.failed").Unusual().Buckets(60000).AgainstBaseline(30).Sigma(3).AtLeast(10)
+	_d9_.Explaining("sign-in failures across the whole installation far above their own history -- one guess on each of many accounts never trips a per-account burst")
+	_oS_.Add(_d9_)
+
 	_d5_ = new stzDetection("cloned-authenticator")
 	_d5_.WhenKind("auth.passkey.clone_suspected").OnAnyOccurrence()
 	_d5_.Explaining("a signature counter that did not advance")
@@ -126,6 +152,12 @@ class stzDetection from stzObject
 	@cSeverity = "error"
 	@cMeaning = ""
 	@aEvidence = []		# the events that matched, last check
+	@nBucketMs = 60000	# unusual: the width of one window
+	@nBaseline = 12		# unusual: how many prior windows form the baseline
+	@nSigma = 3		# unusual: how many standard deviations is unusual
+	@nFloor = 3		# unusual: never fire under this many in the window
+	@nAsOf = 0		# unusual: judge at this wall time (0 = the newest event)
+	@nEvicted = 0		# events the ledger's window no longer holds
 	@nMaxFindings = 16	# bounded: a storm reports, it does not flood
 
 	def init(pcName)
@@ -187,6 +219,37 @@ class stzDetection from stzObject
 		@cShape = "any"
 		return This
 
+	# UNUSUAL: the newest window against the kind's own history.
+	def Unusual()
+		@cShape = "unusual"
+		return This
+
+	def Buckets(pnMs)
+		if pnMs < 1
+			stzraise("stzDetection.Buckets: a window is at least 1 ms.")
+		ok
+		@nBucketMs = pnMs
+		return This
+
+	def AgainstBaseline(pnBuckets)
+		if pnBuckets < 3
+			stzraise("stzDetection.AgainstBaseline: a baseline is at least 3 windows.")
+		ok
+		@nBaseline = pnBuckets
+		return This
+
+	def Sigma(pnZ)
+		@nSigma = pnZ
+		return This
+
+	def AtLeast(pnCount)
+		@nFloor = pnCount
+		return This
+
+	def AsOf(pnWallMs)
+		@nAsOf = pnWallMs
+		return This
+
 	# The corroboration law: no error-severity alarm on a single
 	# signal -- one anomalous read is a rumor.
 	def Corroborated()
@@ -219,6 +282,10 @@ class stzDetection from stzObject
 			stzraise("stzDetection '" + @cName + "': nothing is watched -- say WhenKind(...) first.")
 		ok
 		_aAll_ = poLedger.All()
+		@nEvicted = poLedger.Count() - poLedger.Size()
+		if @cShape = "unusual"
+			return This._CheckUnusual(_aAll_)
+		ok
 		if @cShape = "burst"
 			return This._CheckBurst(_aAll_)
 		but @cShape = "sequence"
@@ -243,6 +310,13 @@ class stzDetection from stzObject
 			_cD_ += (@cKind + " then " + @cThenKind + " within " + @nWindowMs + "ms")
 			if @bSameActor
 				_cD_ += ", same actor"
+			ok
+		but @cShape = "unusual"
+			_cD_ += ("an unusual rate of " + @cKind + ": " + @nBucketMs +
+				"ms windows against the " + @nBaseline + " before, over " +
+				@nSigma + " sigma and at least " + @nFloor)
+			if @bPerActor
+				_cD_ += ", per actor"
 			ok
 		else
 			_cD_ += ("any " + @cKind)
@@ -356,6 +430,104 @@ class stzDetection from stzObject
 				if ring_len(_aOut_) >= @nMaxFindings
 					exit
 				ok
+			ok
+		next
+		return _aOut_
+
+	# The newest window against the windows before it, per group.
+	def _CheckUnusual(paAll)
+		_aOut_ = []
+		_nN_ = ring_len(paAll)
+		if _nN_ = 0
+			return _aOut_
+		ok
+		_nT_ = @nAsOf
+		if _nT_ = 0
+			_nT_ = paAll[_nN_][:atWall]
+		ok
+		_nW_ = @nBucketMs
+		# how many prior windows the retained ledger fully covers
+		_nOldest_ = paAll[1][:atWall]
+		_nCovered_ = 0
+		for _k_ = 1 to @nBaseline
+			if _nOldest_ <= (_nT_ - ((_k_ + 1) * _nW_))
+				_nCovered_ = _k_
+			else
+				exit
+			ok
+		next
+		_aGroups_ = This._GroupMatching(paAll, @cKind, @bPerActor)
+		_nG_ = ring_len(_aGroups_)
+		for _g_ = 1 to _nG_
+			_cWho_ = _aGroups_[_g_][1]
+			_aEv_ = _aGroups_[_g_][2]
+			_aCounts_ = []
+			for _k_ = 0 to @nBaseline
+				_aCounts_ + 0
+			next
+			_aNow_ = []
+			_nE_ = ring_len(_aEv_)
+			for _e_ = 1 to _nE_
+				_nAt_ = _aEv_[_e_][:atWall]
+				if _nAt_ > _nT_
+					loop
+				ok
+				_nK_ = floor((_nT_ - _nAt_) / _nW_)
+				if _nK_ > @nBaseline
+					loop
+				ok
+				_aCounts_[_nK_ + 1] = _aCounts_[_nK_ + 1] + 1
+				if _nK_ = 0
+					_aNow_ + _aEv_[_e_]
+				ok
+			next
+			_nCur_ = _aCounts_[1]
+			if _nCur_ < @nFloor
+				loop
+			ok
+			_cBy_ = ""
+			if @bPerActor
+				_cBy_ = " by '" + _cWho_ + "'"
+			ok
+			if _nCovered_ < 3
+				if @nEvicted > 0
+					_aF_ = This._Finding(_cWho_, "" + _nCur_ + " x " + @cKind + _cBy_ +
+						" in the last " + _nW_ + "ms, and the ledger evicted " + @nEvicted +
+						" older event(s): the flood pushed its own baseline out of reach", _aNow_)
+					_aF_[:severity] = "warning"
+					_aOut_ + _aF_
+				ok
+				loop
+			ok
+			_nSum_ = 0
+			for _k_ = 1 to _nCovered_
+				_nSum_ += _aCounts_[_k_ + 1]
+			next
+			_nMean_ = _nSum_ / _nCovered_
+			_nVar_ = 0
+			for _k_ = 1 to _nCovered_
+				_nD_ = _aCounts_[_k_ + 1] - _nMean_
+				_nVar_ += (_nD_ * _nD_)
+			next
+			_nSd_ = sqrt(_nVar_ / _nCovered_)
+			_cMsg_ = "" + _nCur_ + " x " + @cKind + _cBy_ + " in the last " + _nW_ +
+				"ms against a mean of " + (floor(_nMean_ * 100) / 100) + " over the " +
+				_nCovered_ + " window(s) before"
+			if _nSd_ = 0
+				if _nCur_ <= _nMean_
+					loop
+				ok
+				_cMsg_ += " -- off a flat baseline"
+			else
+				_nZ_ = (_nCur_ - _nMean_) / _nSd_
+				if _nZ_ < @nSigma
+					loop
+				ok
+				_cMsg_ += (" -- " + (floor(_nZ_ * 10) / 10) + " sigma")
+			ok
+			_aOut_ + This._Finding(_cWho_, _cMsg_, _aNow_)
+			if ring_len(_aOut_) >= @nMaxFindings
+				exit
 			ok
 		next
 		return _aOut_
