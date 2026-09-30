@@ -40,8 +40,25 @@
 # top but cannot start it from the middle, and a Seek() that silently meant
 # "back to zero" would be a lie. Recorded, not hidden.
 
+# NO CLOSURES IN RING (STZLIB-TRANSPORT-DRIVEWITH-01, fixed 2026-09-30). A
+# reactive timer's callback cannot see a method's locals, so the first
+# DriveWith -- which captured `_me_` -- failed with "uninitialized variable"
+# on its first tick; it also asked RunEvery for 0.02, and RunEvery counts
+# MILLISECONDS. Neither was ever guarded: the guard's "reactive" scene called
+# RunToEnd. A driven transport is now registered by POINTER, and the timer
+# calls one global function -- stzSoundLive's shape, found by MU3.
+# (declared BEFORE the first func: Ring runs a loaded file's statements only
+# up to its first definition, and a global after it is never created)
+$aStzSoundTransportDriven = []
+
 func StzSoundTransportOfQ(poGraph)
 	return new stzSoundTransport(poGraph)
+
+func StzSoundTransportTickAll()
+	_a_ = $aStzSoundTransportDriven      # a copy: a Tick that ends the sound unregisters it
+	for _p_ in _a_
+		pointer2object(_p_).Tick()
+	next
 
 class stzSoundTransport
 
@@ -191,6 +208,7 @@ class stzSoundTransport
 		return This
 
 	def Stop()
+		This._Undrive()
 		if NOT This._Move(:stop)  return This ok
 		This._RampMasterTo(0.0)
 		sleep(@nFadeMs / 1000)
@@ -257,8 +275,12 @@ class stzSoundTransport
 			@nRefusals++
 			return This
 		ok
-		_me_ = This
-		poReactive.RunEvery(0.02, func { _me_.Tick() })
+		_p_ = object2pointer(This)
+		for _q_ in $aStzSoundTransportDriven
+			if _q_ = _p_  return This ok          # driven already
+		next
+		$aStzSoundTransportDriven + _p_
+		poReactive.RunEvery(20, func { StzSoundTransportTickAll() })
 		return This
 
 	def DriveWithQ(poReactive)
@@ -282,6 +304,7 @@ class stzSoundTransport
 	#-- housekeeping --------------------------------------------------------
 
 	def Release()
+		This._Undrive()
 		This._CloseDevice()
 		if isObject(@oFsm)
 			@oFsm.Destroy()
@@ -289,6 +312,14 @@ class stzSoundTransport
 		ok
 
 	#-- private -------------------------------------------------------------
+
+	# out of the driven list: a stopped or released transport is never ticked
+	# through a pointer that may outlive it
+	def _Undrive()
+		_p_ = object2pointer(This)
+		for _i_ = len($aStzSoundTransportDriven) to 1 step -1
+			if $aStzSoundTransportDriven[_i_] = _p_  del($aStzSoundTransportDriven, _i_) ok
+		next
 
 	# Ask the state machine, and READ WHETHER IT MOVED.
 	#
