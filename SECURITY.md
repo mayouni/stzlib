@@ -30,7 +30,8 @@ it is not required.
   us not to.
 - If a vulnerability is **actively exploited**, we treat it as the EU Cyber
   Resilience Act requires of a manufacturer: an early warning within 24
-  hours of becoming aware, a notification within 72 hours.
+  hours of becoming aware, a notification within 72 hours. The procedure is
+  `libraries/stzlib/base/security/SOFTANZA_CRA_RUNBOOK.md`.
 
 ## Scope
 

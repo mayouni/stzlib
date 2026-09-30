@@ -114,7 +114,7 @@ assumes one will get through (T3) and makes it harmless.
 | G23 | A model file is parsed only after its SHA-256 matches a recorded digest | `engine/src/model_digest.zig`, `StzTrustModel` | `base/test/security/model_digest_narrated.ring` (17) | ASI04, LLM03, A08 | Local digests of `models/` are not yet checked against their publishers |
 | G24 | Knowledge keeps its provenance and contradictions through a save; agent memory records who learned what, and when | `.zknw` provenance and contradictions sections; `stzAgentMemory.Learn` | `base/test/security/provenance_survives_save_narrated.ring` (23) | ASI06, LLM04 | Provenance says where a fact came from, not whether it is true |
 | G25 | No vendored file changes without its record; the SBOM is generated, never hand-written | 19 `VERSION.txt` records with a Tree-Digest; `engine/tools/sbom.py` | `engine/tools/sbom.py --check` (19 records) | A03, GV | -- |
-| G26 | Vulnerability reports have a private channel and a response promise | `SECURITY.md`; GitHub private vulnerability reporting, enabled 2026-09-29 | `SECURITY.md` | GV, RS | The promise is a document; no runbook yet -- R13 |
+| G26 | Vulnerability reports have a private channel and a response promise | `SECURITY.md`; GitHub private vulnerability reporting, enabled 2026-09-29 | `SECURITY.md`, `base/security/SOFTANZA_CRA_RUNBOOK.md` | GV, RS | The promise and its runbook are documents: one person owns every clock, and submission is by hand |
 
 ---
 
@@ -136,7 +136,7 @@ Each is a gap with no guard yet. The rung is the plane's plan for it.
 | R10 | ~~Containment actions without a real owner~~ | RS | **CLOSED 2026-09-29** -- all six are performed for real (G13, G30, G31, G32, G33) |
 | R11 | Three other planes still splice paths into shell strings: graphics `stzScene`/`stzCanvas` (open in viewer), math `stzMathClaim` (mkdir), extercode `stzImageToAscii` | A05 | routed to those planes |
 | R12 | No scheduled or coverage-guided fuzzing; no CI; unsigned commits | A03, GV | **deferred by the author** for the development phase -- remind before the first release |
-| R13 | No reporting runbook for the CRA's 24 h / 72 h clocks | RS, GV | before any EU sale of RINGBOL |
+| R13 | ~~No reporting runbook for the CRA's 24 h / 72 h clocks~~ (closed 2026-09-30: `SOFTANZA_CRA_RUNBOOK.md`); a second named owner of the clocks, and counsel on the coordinator CSIRT, remain before the first EU sale | RS, GV | before any EU sale of RINGBOL |
 | R14 | POSIX code paths (trust bundles, argv quoting, chmod) are compiled only under a Linux target and unverified here | A02, A05 | when a Linux machine is available |
 | R15 | ~~SQLite is at 3.49.1, behind the 3.50 line~~ | A03 | **CLOSED 2026-09-30** -- 3.53.4, SHA3-256 checked against sqlite.org; its record is kept by G25 |
 

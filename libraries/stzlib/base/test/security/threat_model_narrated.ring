@@ -19,6 +19,7 @@ Scenario("the threat model exists and has its sections")
 	Then("the document was read", len($cDoc) > 1000, 1)
 	Then("it has a guarantees section", StzFindFirst("## 3. Guarantees", $cDoc) > 0, 1)
 	Then("it has an open-risks section", StzFindFirst("## 4. Open risks", $cDoc) > 0, 1)
+	Then("the reporting runbook it cites exists", fexists("../../security/SOFTANZA_CRA_RUNBOOK.md"), 1)
 EndScenario()
 
 aRows = GuaranteeRows($cDoc)
@@ -75,7 +76,8 @@ func RowsWithoutProof aRows
 	for i = 1 to len(aRows)
 		c = aRows[i]
 		if StzFindFirst("_narrated.ring", c) = 0 and StzFindFirst("sbom.py --check", c) = 0 and
-		   StzFindFirst("zig build fuzz", c) = 0 and StzFindFirst("SECURITY.md` |", c) = 0
+		   StzFindFirst("zig build fuzz", c) = 0 and StzFindFirst("SECURITY.md` |", c) = 0 and
+		   StzFindFirst("_RUNBOOK.md` |", c) = 0
 			aOut + StzLeft(c, 8)
 		ok
 	next
