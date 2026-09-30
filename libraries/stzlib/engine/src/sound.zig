@@ -129,6 +129,18 @@ const Buf = struct {
 
 var bufs: std.ArrayList(Buf) = .{};
 
+/// THE TABLE NEVER MOVES (STZLIB-SNDTABLE-RACE-01, found by MU2, fixed
+/// 2026-09-30). Source nodes read a buffer through this table from the audio
+/// thread (getSample -> bufs.items[s]) while Ring, on its own thread, may add a
+/// buffer. An ArrayList that grows REALLOCATES: the audio thread could read
+/// the old array after it was freed. So the whole capacity is reserved once,
+/// on the first buffer, and the table refuses to grow past it -- its address
+/// is fixed for the life of the process. Freed slots are reused, so this bounds
+/// the buffers alive AT ONCE, not the buffers ever made. 65536 slots cost about
+/// 2.6 MB. (The timeline sidesteps the table with a raw view per note; source
+/// nodes, older than the timeline, never did.)
+pub const MAX_BUFFERS: usize = 65536;
+
 fn makeId(slot: usize, gen: u32) i64 {
     return (@as(i64, gen) << 32) | @as(i64, @intCast(slot + 1));
 }
@@ -159,11 +171,21 @@ fn adopt(data: []f32, frames: usize, channels: u32, rate: u32) i64 {
             return makeId(i, b.gen);
         }
     }
-    bufs.append(alloc, .{ .data = data, .frames = frames, .channels = channels, .rate = rate, .gen = 1, .live = true }) catch {
+    if (bufs.capacity == 0) {
+        bufs.ensureTotalCapacityPrecise(alloc, MAX_BUFFERS) catch {
+            alloc.free(data);
+            setErr("out of memory reserving the sample-buffer table");
+            return 0;
+        };
+    }
+    if (bufs.items.len >= MAX_BUFFERS) {
         alloc.free(data);
-        setErr("out of memory growing the sample-buffer table");
+        setErr("the sample-buffer table is full: 65536 buffers are alive at once -- release some");
         return 0;
-    };
+    }
+    // never append(): with the capacity reserved this cannot reallocate, and
+    // appendAssumeCapacity says so in the code rather than hoping
+    bufs.appendAssumeCapacity(.{ .data = data, .frames = frames, .channels = channels, .rate = rate, .gen = 1, .live = true });
     bump(CTR_BUFFERS_LIVE, 1);
     bump(CTR_BUFFERS_CREATED, 1);
     return makeId(bufs.items.len - 1, 1);
@@ -968,6 +990,20 @@ pub fn toChannels(id: i64, n: u32) i64 {
 //         vendor/miniaudio/stz_miniaudio_dec_impl.c -lc
 
 const testing = std.testing;
+
+test "the sample-buffer table never moves: a thousand buffers later it is where it was" {
+    const first = newSilent(4, 1, 48000);
+    defer _ = free(first);
+    const where = bufs.items.ptr;
+    var ids: [1000]i64 = undefined;
+    for (&ids) |*id| id.* = newSilent(4, 1, 48000);
+    defer for (ids) |id| {
+        _ = free(id);
+    };
+    // an ArrayList that grows reallocates; this one reserved its whole capacity
+    try testing.expectEqual(where, bufs.items.ptr);
+    try testing.expectEqual(MAX_BUFFERS, bufs.capacity);
+}
 
 test "a freed handle is STALE, not reused -- and the detection is counted" {
     countersReset();
