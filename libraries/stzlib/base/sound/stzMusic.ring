@@ -144,9 +144,9 @@ class stzMusic
 	#
 	# Whichever voice the author has called SINGING (StzSoundSingingVerdict):
 	# today that is SAPI's own voice retuned by PSOLA, opened 2026-09-27. The
-	# voice is made on the FIRST Sing -- so sing before anything opens an
-	# audio device in the same program (STZLIB-VOICE-COMODE-01), or the voice
-	# finds no SAPI voices and Sing says so.
+	# voice is made on the FIRST Sing, and may be made before or after the
+	# audio device is opened: until 2026-09-30 it had to come first, or SAPI
+	# found no voices (STZLIB-VOICE-COMODE-01, fixed in the engine's voice.zig).
 
 	def Sing(pcLyrics, pcNotes)
 		_oR_ = StzSoundRetunedVoiceQ()

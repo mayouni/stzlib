@@ -16,9 +16,10 @@
 # periods back down at the note's period. The timbre is SAPI's; the pitch is
 # the engine's, held.
 #
-# THE ORDER MATTERS: create this before anything probes the audio device.
-# Probing the device first initialises COM in a mode SAPI then refuses
-# (0x80010106) and SAPI reports no voices (STZLIB-VOICE-COMODE-01).
+# THE ORDER NO LONGER MATTERS. Until 2026-09-30, probing the audio device
+# first initialised COM in a mode the voice then refused (0x80010106), and
+# SAPI reported no voices (STZLIB-VOICE-COMODE-01). The engine now accepts COM
+# in either mode; sound_voicecom_narrated.ring does the old forbidden order.
 #
 # WHAT IT CANNOT DO WELL, and the guard measures it rather than hides it: a note
 # far from SAPI's own pitch (about 166 Hz for Zira) is a large shift, and large
@@ -41,8 +42,7 @@ class stzSoundRetunedVoice
 	def init()
 		@oV = StzVoiceQ()
 		if NOT @oV.IsUsable() or @oV.VoiceCount() = 0
-			This._Refuse("no SAPI voice: " + @oV.LastError() +
-			             " (if an audio device was opened first, see STZLIB-VOICE-COMODE-01)")
+			This._Refuse("no SAPI voice: " + @oV.LastError())
 			return
 		ok
 		@oV.UseVoice(@oV.VoiceCount())
