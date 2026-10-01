@@ -33,11 +33,27 @@
 # ties, across systems too; the title and the tempo; systems broken to the
 # page width and justified.
 #
-# WHAT IS NOT (named, as the writers name theirs): no key signature -- every
-# alteration is written on its note, which is how a quarter-tone melody is
-# usually written anyway; drum strokes are not drawn (Losses says so); a pitch
-# further than 5 cents from the nearest quarter tone is drawn at that quarter
-# tone and COUNTED (slendro); no dynamics, articulations, lyrics or slurs.
+# THE KEY SIGNATURE (MU11). SetKey("auto") -- the default -- reads it from the
+# music: the circle-of-fifths key that leaves the fewest accidentals, and then,
+# as Arabic notation does, every letter whose quarter-tone alteration is the
+# one it usually carries joins the signature -- so Rast is written with E and B
+# half-flat in the key, and Bayati with B flat and E half-flat. SetKey("Bb"),
+# SetKey("F#m"), SetKey(-3) or SetKey("none") set it; SetKeyOfMode(:maqam,
+# :hijaz) takes it from a declared mode (D: B flat, E flat, F sharp). THE KEY
+# ALSO SPELLS: with one flat in the key the note between A and B is B flat,
+# not A sharp, and an accidental is drawn only where a note leaves the key.
+#
+# THE PERCUSSION STAFF (MU11). Drum strokes are drawn on their own staff, under
+# the pitched ones, with the neutral clef: the drum kit on five lines (kick in
+# the bottom space, snare in the third, the hihat above the staff with an x
+# head); a hand drum -- darbouka, bendir -- on ONE line, as its rhythms are
+# written: dum under the line, tak over it, ka over it with an x head, and the
+# syllables D T K beneath, the way a darbouka player reads them.
+#
+# WHAT IS NOT (named, as the writers name theirs): no key CHANGES inside a
+# piece; a pitch further than 5 cents from the nearest quarter tone is drawn at
+# that quarter tone and COUNTED (slendro); no dynamics, articulations, lyrics or
+# slurs.
 # Clefs are drawn from the Unicode Musical Symbols block (Noto Music, Segoe UI
 # Symbol, Apple Symbols, Bravura Text, Symbola -- whichever the viewer has);
 # every other mark is drawn as a shape and needs no font.
@@ -65,6 +81,16 @@ class stzSoundStaff
 	@nHeight = 0
 	@nLeft = 20
 
+	# the key signature (MU11)
+	@cKey = "auto"             # "auto", "none", "fifths", or "mode"
+	@nKeyFifths = 0            # what SetKey asked for, when it named a key
+	@aSig = [ 0, 0, 0, 0, 0, 0, 0 ]      # the alteration each letter C D E F G A B carries
+	@aSigOrder = []            # [ letter, alteration ] in the order they are drawn
+	@nFifths = 0               # the circle-of-fifths part of the signature
+	@cKeyName = ""
+	@aModeSig = []             # what SetKeyOfMode read from the declaration
+	@cModeName = ""
+
 	def init(poScore)
 		@oS = poScore
 
@@ -83,6 +109,86 @@ class stzSoundStaff
 	def SetWidth(pnPixels)
 		if isNumber(pnPixels) and pnPixels >= 400  @nWidth = pnPixels ok
 		return This
+
+	# "auto" (read from the music), "none", a key ("D", "Bb", "F#m", "Ddor"),
+	# or a number of fifths: 2 is two sharps, -3 three flats
+	def SetKey(pKey)
+		if isNumber(pKey)
+			if pKey < -7 or pKey > 7
+				@cLastError = "SetKey: a number of fifths is -7 (seven flats) to 7 (seven sharps)"
+				return This
+			ok
+			@cKey = "fifths"
+			@nKeyFifths = pKey
+			return This
+		ok
+		_c_ = lower(ring_trim("" + pKey))
+		if _c_ = "auto" or _c_ = "none"
+			@cKey = _c_
+			return This
+		ok
+		_f_ = This._FifthsOfName("" + pKey)
+		if _f_ = 99
+			@cLastError = "SetKey: '" + pKey + "' is not a key -- a tonic and a mode (D, Bb, F#m, Ddor), a number of fifths, auto or none"
+			return This
+		ok
+		@cKey = "fifths"
+		@nKeyFifths = _f_
+		return This
+
+	def SetKeyQ(pKey)
+		return This.SetKey(pKey)
+
+	# the signature a DECLARED mode implies: its degrees spelled on consecutive
+	# letters from the tonic -- quarter tones included, as Arabic notation writes them
+	def SetKeyOfMode(pUniverse, pMode)
+		_oU_ = StzSoundUniverseQ(pUniverse)
+		if NOT _oU_.IsUsable()
+			@cLastError = "SetKeyOfMode: " + _oU_.LastError()
+			return This
+		ok
+		if "" + pMode != ""  _oU_.Mode(pMode) ok
+		_aD_ = []
+		for _m_ in This._GetKV(_oU_.Declaration(), "modes", [])
+			if This._GetKV(_m_, "name", "") = _oU_.ModeName()  _aD_ = This._GetKV(_m_, "degrees", []) ok
+		next
+		if len(_aD_) != 7
+			@cLastError = "SetKeyOfMode: a key signature needs a mode of seven degrees; " + _oU_.Name() + " / " +
+			              _oU_.ModeName() + " has " + len(_aD_)
+			return This
+		ok
+		_oN_ = new stzSoundNotation("")
+		_aT_ = _oN_._Spell(StzNoteToHz(_oU_.TonicName()))
+		_m0_ = This._Midi(_aT_)
+		_l0_ = substr("CDEFGAB", _aT_[1])
+		_aSig_ = [ 0, 0, 0, 0, 0, 0, 0 ]
+		_aSemi_ = [ 0, 2, 4, 5, 7, 9, 11 ]
+		for _i_ = 1 to 7
+			_l_ = ((_l0_ - 1 + _i_ - 1) % 7) + 1
+			_m_ = _m0_ + _aD_[_i_] / 100
+			_o_ = floor((_m_ - _aSemi_[_l_]) / 12 + 0.5) - 1
+			_a_ = _m_ - (12 * (_o_ + 1) + _aSemi_[_l_])
+			_a_ = floor(_a_ * 2 + 0.5) / 2
+			if fabs(_a_) > 1
+				@cLastError = "SetKeyOfMode: degree " + _i_ + " is " + _a_ + " semitones from its letter; no signature writes that"
+				return This
+			ok
+			_aSig_[_l_] = _a_
+		next
+		@aModeSig = _aSig_
+		@cModeName = _oU_.Name() + " / " + _oU_.ModeName()
+		@cKey = "mode"
+		return This
+
+	def SetKeyOfModeQ(pUniverse, pMode)
+		return This.SetKeyOfMode(pUniverse, pMode)
+
+	# the signature drawn: [ letter, alteration ] in drawing order -- after ToSVG
+	def Key()
+		return @aSigOrder
+
+	def KeyName()
+		return @cKeyName
 
 	def Losses()
 		return @aLosses
@@ -138,12 +244,10 @@ class stzSoundStaff
 		_oN_ = new stzSoundNotation(@oS)
 		_aV_ = _oN_._Voices()
 		for _l_ in _oN_.Losses()
-			if substr(_l_, "strokes") > 0
-				This._Loss("strokes are not drawn on the staff (MIDI carries them)")
-			else
-				This._Loss(_l_)
-			ok
+			# MU11: strokes are drawn now, on a percussion staff
+			if substr(_l_, "strokes") = 0  This._Loss(_l_) ok
 		next
+		_aDr_ = This._Strokes()
 		# the end of the music, to the bar
 		_end_ = 0
 		for _v_ in _aV_
@@ -151,10 +255,30 @@ class stzSoundStaff
 				if _g_[1] + _g_[2] > _end_  _end_ = _g_[1] + _g_[2] ok
 			next
 		next
+		for _v_ in _aDr_
+			for _g_ in _v_[2]
+				if _g_[1] + _g_[2] > _end_  _end_ = _g_[1] + _g_[2] ok
+			next
+		next
 		@nBars = ceil(_end_ / @nBarLen)
 		if @nBars < 1  @nBars = 1 ok
+		# the key, then every pitch spelled IN it
+		This._ResolveKey(_aV_)
+		for _vi_ = 1 to len(_aV_)
+			for _gi_ = 1 to len(_aV_[_vi_][2])
+				for _pi_ = 1 to len(_aV_[_vi_][2][_gi_][3])
+					_aV_[_vi_][2][_gi_][3][_pi_] = This._Respell(_aV_[_vi_][2][_gi_][3][_pi_])
+				next
+			next
+		next
 		for _v_ in _aV_
 			@aStaves + [ _v_[1], This._ClefOf(_v_[2]), This._Pieces(_v_[2], @nBars * @nBarLen) ]
+		next
+		# the percussion staves, under the pitched ones
+		for _v_ in _aDr_
+			_cl_ = "perc1"
+			if _v_[1] = "drumkit"  _cl_ = "perc5" ok
+			@aStaves + [ _v_[1], _cl_, This._Pieces(_v_[2], @nBars * @nBarLen) ]
 		next
 		if len(@aStaves) = 0
 			@aStaves + [ "piano", "treble", This._Pieces([], @nBars * @nBarLen) ]
@@ -223,6 +347,14 @@ class stzSoundStaff
 	# a tied continuation shows none; alongside each piece: [ shown or 99 ] per pitch
 	def _Accidentals(pnK)
 		_aP_ = @aStaves[pnK][3]
+		if This._IsPerc(@aStaves[pnK][2])
+			for _i_ = 1 to len(_aP_)
+				_aShow_ = []
+				for _p_ in _aP_[_i_][4]  _aShow_ + 99 next
+				@aStaves[pnK][3][_i_] + _aShow_
+			next
+			return
+		ok
 		_bar_ = -1
 		_aMem_ = []
 		for _i_ = 1 to len(_aP_)
@@ -233,7 +365,7 @@ class stzSoundStaff
 			_aShow_ = []
 			for _p_ in _aP_[_i_][4]
 				_key_ = _p_[1] + _p_[3]
-				_prev_ = 0
+				_prev_ = @aSig[substr("CDEFGAB", _p_[1])]      # the key, until the bar says otherwise
 				for _m_ in _aMem_
 					if _m_[1] = _key_  _prev_ = _m_[2] ok
 				next
@@ -289,8 +421,10 @@ class stzSoundStaff
 			_aBarW_ + _w_
 		next
 		# systems: bars while they fit, then justified (the last one only if nearly full)
-		_head1_ = 4.6 * _sp_ + 3.0 * _sp_      # clef + metre, first system
-		_head_ = 4.6 * _sp_                    # clef, later systems
+		_kw_ = 0
+		if len(@aSigOrder) > 0  _kw_ = len(@aSigOrder) * 1.25 * _sp_ + 0.6 * _sp_ ok
+		_head1_ = 4.6 * _sp_ + _kw_ + 3.0 * _sp_      # clef + key + metre, first system
+		_head_ = 4.6 * _sp_ + _kw_                    # clef + key, later systems
 		_right_ = @nWidth - 20
 		_b_ = 1
 		while _b_ <= @nBars
@@ -396,6 +530,19 @@ class stzSoundStaff
 
 	# the staff step of a pitch: 0 is the bottom line, 8 the top one
 	def _StepOf(paP, pcClef)
+		if pcClef = "perc5"                                         # the kit, on five lines
+			switch paP[1]
+			on "kick"   return 1
+			on "dum"    return 1
+			on "hihat"  return 9
+			on "ka"     return 9
+			off
+			return 5
+		ok
+		if pcClef = "perc1"                                         # a hand drum, on one line
+			if paP[1] = "dum" or paP[1] = "kick"  return 3 ok
+			return 5
+		ok
 		if pcClef = "bass"  return This._Diatonic(paP) - 18 ok     # G2 on the bottom line
 		return This._Diatonic(paP) - 30                             # E4 on the bottom line
 
@@ -409,17 +556,40 @@ class stzSoundStaff
 		_nSt_ = len(@aStaves)
 		for _k_ = 1 to _nSt_
 			_top_ = @aStaffY[pnS][_k_]
-			for _l_ = 0 to 4  _o_ += This._Line(_x0_, _top_ + _l_ * _sp_, _x1_, _top_ + _l_ * _sp_, 1) next
-			# the clef, from the font
-			if @aStaves[_k_][2] = "treble"
+			_clef_ = @aStaves[_k_][2]
+			if _clef_ = "perc1"
+				_o_ += This._Line(_x0_, _top_ + 2 * _sp_, _x1_, _top_ + 2 * _sp_, 1)
+				@aModel + [ "lines", _k_, pnS, 1 ]
+			else
+				for _l_ = 0 to 4  _o_ += This._Line(_x0_, _top_ + _l_ * _sp_, _x1_, _top_ + _l_ * _sp_, 1) next
+				@aModel + [ "lines", _k_, pnS, 5 ]
+			ok
+			# the clef: G and F from the font; the neutral clef drawn
+			if _clef_ = "treble"
 				# calibrated by eye in Segoe UI Symbol: the curl round the G line
 				_o_ += This._Glyph(_x0_ + 0.4 * _sp_, _top_ + 4.3 * _sp_, "&#x1D11E;", 6.6 * _sp_)
-			else
+			but _clef_ = "bass"
 				_o_ += This._Glyph(_x0_ + 0.5 * _sp_, _top_ + 1 * _sp_ + 1.2 * _sp_, "&#x1D122;", 4.1 * _sp_)
+			else
+				_o_ += This._Rect(_x0_ + 1.2 * _sp_, _top_ + 1 * _sp_, 0.4 * _sp_, 2 * _sp_) +
+				       This._Rect(_x0_ + 2.0 * _sp_, _top_ + 1 * _sp_, 0.4 * _sp_, 2 * _sp_)
 			ok
-			@aModel + [ "clef", _k_, pnS, @aStaves[_k_][2] ]
+			@aModel + [ "clef", _k_, pnS, _clef_ ]
+			# the key signature, on every system, on every pitched staff
+			_kx_ = _x0_ + 4.6 * _sp_ + 0.2 * _sp_
+			if NOT This._IsPerc(_clef_)
+				for _ka_ in @aSigOrder
+					_ks_ = This._SigStep(_ka_[1], _ka_[2], _clef_)
+					_ky_ = _top_ + 4 * _sp_ - _ks_ * _sp_ / 2
+					_o_ += This._Accidental(_kx_ + 0.5 * _sp_, _ky_, _ka_[2])
+					@aModel + [ "keysig", _k_, pnS, _ka_[1], _ka_[2], _kx_, _ks_ ]
+					_kx_ += 1.25 * _sp_
+				next
+			ok
+			_kw_ = 0
+			if len(@aSigOrder) > 0  _kw_ = len(@aSigOrder) * 1.25 * _sp_ + 0.6 * _sp_ ok
 			if pnS = 1
-				_mx_ = _x0_ + 4.6 * _sp_ + 1.1 * _sp_
+				_mx_ = _x0_ + 4.6 * _sp_ + _kw_ + 1.1 * _sp_
 				_o_ += This._Text(_mx_, _top_ + 1.75 * _sp_, "" + @nBeats, 2.2 * _sp_, "middle", "bold") +
 				       This._Text(_mx_, _top_ + 3.75 * _sp_, "" + @nUnit, 2.2 * _sp_, "middle", "bold")
 			ok
@@ -452,10 +622,16 @@ class stzSoundStaff
 			# the barline, on every staff; a final barline at the end of the music
 			for _k_ = 1 to _nSt_
 				_top_ = @aStaffY[pnS][_k_]
+				_bt_ = _top_
+				_bh_ = 4 * _sp_
+				if @aStaves[_k_][2] = "perc1"
+					_bt_ = _top_ + _sp_            # a one-line staff's barline spans a space either side
+					_bh_ = 2 * _sp_
+				ok
 				if _b_ = @nBars
-					_o_ += This._Line(_ex_ - 5, _top_, _ex_ - 5, _top_ + 4 * _sp_, 1.1) + This._Rect(_ex_ - 3, _top_, 3.2, 4 * _sp_)
+					_o_ += This._Line(_ex_ - 5, _bt_, _ex_ - 5, _bt_ + _bh_, 1.1) + This._Rect(_ex_ - 3, _bt_, 3.2, _bh_)
 				else
-					_o_ += This._Line(_ex_, _top_, _ex_, _top_ + 4 * _sp_, 1.1)
+					_o_ += This._Line(_ex_, _bt_, _ex_, _bt_ + _bh_, 1.1)
 				ok
 				@aModel + [ "barline", _k_, pnS, _b_, _ex_ ]
 			next
@@ -531,6 +707,7 @@ class stzSoundStaff
 		return _o_
 
 	def _StemDir(paPitches, pcClef)
+		if This._IsPerc(pcClef)  return "up" ok
 		_hi_ = -99
 		_lo_ = 99
 		for _q_ in paPitches
@@ -551,6 +728,7 @@ class stzSoundStaff
 
 	def _DirOfSteps(pnK, paIdx)
 		_clef_ = @aStaves[pnK][2]
+		if This._IsPerc(_clef_)  return "up" ok
 		_sum_ = 0
 		_n_ = 0
 		for _i_ in paIdx
@@ -596,8 +774,8 @@ class stzSoundStaff
 			ok
 			_prev_ = _s_
 			_prevShift_ = _shift_
-			# ledger lines
-			if _s_ <= -2
+			# ledger lines (a percussion staff has none)
+			if _s_ <= -2 and NOT This._IsPerc(pcClef)
 				for _l_ = -2 to _s_ step -2
 					_ly_ = _bot_ - _l_ * _sp_ / 2
 					_o_ += This._Line(_hx_ - 1.6 * _rx_, _ly_, _hx_ + 1.6 * _rx_, _ly_, 1.1)
@@ -611,9 +789,23 @@ class stzSoundStaff
 					@aModel + [ "ledger", pnK, pnS, pnBar, _hx_, _ly_ ]
 				next
 			ok
-			_o_ += This._Head(_hx_, _y_, _len_)
 			_pp_ = paP[4][_h_[2]]
-			@aModel + [ "head", pnK, pnS, pnBar, _hx_, _y_, _s_, _pp_[1] + _pp_[3], _pp_[2], _len_, pcDir, paP[2] ]
+			if This._IsPerc(pcClef)
+				_bX_ = (_pp_[1] = "hihat" or _pp_[1] = "ka")
+				if _bX_
+					_o_ += This._XHead(_hx_, _y_)
+				else
+					_o_ += This._Head(_hx_, _y_, _len_)
+				ok
+				@aModel + [ "head", pnK, pnS, pnBar, _hx_, _y_, _s_, _pp_[1], 0, _len_, pcDir, paP[2] ]
+				@aModel + [ "stroke", pnK, pnS, pnBar, _hx_, _pp_[1], _s_, _bX_ ]
+				if pcClef = "perc1"
+					_o_ += This._Text(_hx_, pnTop + 5.6 * _sp_, This._Syllable(_pp_[1]), 1.2 * _sp_, "middle", "")
+				ok
+			else
+				_o_ += This._Head(_hx_, _y_, _len_)
+				@aModel + [ "head", pnK, pnS, pnBar, _hx_, _y_, _s_, _pp_[1] + _pp_[3], _pp_[2], _len_, pcDir, paP[2] ]
+			ok
 			# the accidental this head shows
 			_show_ = paP[8][_h_[2]]
 			if _show_ != 99
@@ -887,6 +1079,7 @@ class stzSoundStaff
 		ok
 		if _len_ = 16 or _len_ = 12 or _len_ = 8
 			_y_ = pnTop + _sp_
+			if @aStaves[pnK][2] = "perc1" and _len_ = 16  _y_ = pnTop + 2 * _sp_ ok
 			if _len_ != 16  _y_ = pnTop + 2 * _sp_ - 0.5 * _sp_ ok
 			_o_ += This._Rect(_x_ - 0.6 * _sp_, _y_, 1.2 * _sp_, 0.5 * _sp_)
 		but _len_ = 6 or _len_ = 4
@@ -949,6 +1142,313 @@ class stzSoundStaff
 			_o_ += This._BeamSeg(pnX - 0.3 * _sp_, pnY + 0.45 * _sp_, pnX + 0.3 * _sp_, pnY + 0.25 * _sp_, 0.28 * _sp_)
 		ok
 		return _o_
+
+	#== the key signature (MU11) ==================================================
+
+	def _ResolveKey(paV)
+		@aSig = [ 0, 0, 0, 0, 0, 0, 0 ]
+		@nFifths = 0
+		@cKeyName = "no key signature"
+		if @cKey = "none"
+			This._SigOrder()
+			return
+		ok
+		if @cKey = "mode"
+			@aSig = @aModeSig
+			This._SigOrder()
+			@cKeyName = "from the mode " + @cModeName + ": " + This._SigText()
+			return
+		ok
+		if @cKey = "fifths"
+			@nFifths = @nKeyFifths
+			@aSig = This._SigOfFifths(@nFifths)
+			This._SigOrder()
+			@cKeyName = This._FifthsText(@nFifths)
+			return
+		ok
+		# auto: the circle-of-fifths key leaving the fewest accidentals ...
+		_aPc_ = []
+		for _v_ in paV
+			for _g_ in _v_[2]
+				for _p_ in _g_[3]
+					_m_ = This._Midi(_p_)
+					if fabs(_m_ - floor(_m_ + 0.5)) < 0.01  _aPc_ + (floor(_m_ + 0.5) % 12) ok
+				next
+			next
+		next
+		_best_ = 0
+		_bestCost_ = 999999
+		for _f_ in [ 0, 1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6, 7, -7 ]
+			_aIn_ = This._PcsOfFifths(_f_)
+			_c_ = 0
+			for _pc_ in _aPc_
+				if ring_find(_aIn_, _pc_) = 0  _c_++ ok
+			next
+			if _c_ < _bestCost_
+				_bestCost_ = _c_
+				_best_ = _f_
+			ok
+		next
+		@nFifths = _best_
+		@aSig = This._SigOfFifths(_best_)
+		# ... then, as Arabic notation writes it, a letter whose quarter tone is the
+		# alteration it usually carries takes that quarter tone into the key
+		_aCnt_ = []                   # [ letter, alteration, count ]
+		for _v_ in paV
+			for _g_ in _v_[2]
+				for _p_ in _g_[3]
+					_r_ = This._Respell(_p_)
+					_f2_ = 0
+					for _i_ = 1 to len(_aCnt_)
+						if _aCnt_[_i_][1] = _r_[1] and _aCnt_[_i_][2] = _r_[2]
+							_aCnt_[_i_][3] = _aCnt_[_i_][3] + 1
+							_f2_ = 1
+						ok
+					next
+					if _f2_ = 0  _aCnt_ + [ _r_[1], _r_[2], 1 ] ok
+				next
+			next
+		next
+		for _l_ = 1 to 7
+			_cl_ = substr("CDEFGAB", _l_, 1)
+			_tot_ = 0
+			_qa_ = 0
+			_qn_ = 0
+			for _c_ in _aCnt_
+				if _c_[1] = _cl_
+					_tot_ += _c_[3]
+					if fabs(_c_[2]) = 0.5 and _c_[3] > _qn_
+						_qn_ = _c_[3]
+						_qa_ = _c_[2]
+					ok
+				ok
+			next
+			if _qn_ * 2 > _tot_  @aSig[_l_] = _qa_ ok
+		next
+		This._SigOrder()
+		@cKeyName = This._FifthsText(@nFifths)
+		_aQ_ = []
+		for _ka_ in @aSigOrder
+			if fabs(_ka_[2]) = 0.5  _aQ_ + _ka_ ok
+		next
+		if len(_aQ_) > 0
+			_t_ = ""
+			for _ka_ in _aQ_
+				if _t_ != ""  _t_ += ", " ok
+				_t_ += _ka_[1] + " " + This._AltName(_ka_[2])
+			next
+			@cKeyName += ", with " + _t_ + " in the key (as Arabic notation writes it)"
+		ok
+
+	# the pitch classes of the major scale with `pnF` fifths
+	def _PcsOfFifths(pnF)
+		_t_ = ((pnF * 7) % 12 + 12) % 12
+		_a_ = []
+		for _d_ in [ 0, 2, 4, 5, 7, 9, 11 ]  _a_ + ((_t_ + _d_) % 12) next
+		return _a_
+
+	def _SigOfFifths(pnF)
+		_a_ = [ 0, 0, 0, 0, 0, 0, 0 ]
+		if pnF > 0
+			for _i_ = 1 to pnF  _a_[substr("CDEFGAB", substr("FCGDAEB", _i_, 1))] = 1 next
+		but pnF < 0
+			for _i_ = 1 to 0 - pnF  _a_[substr("CDEFGAB", substr("BEADGCF", _i_, 1))] = -1 next
+		ok
+		return _a_
+
+	# flats and half-flats first, in the order of flats; then the sharps, in theirs
+	def _SigOrder()
+		@aSigOrder = []
+		for _i_ = 1 to 7
+			_l_ = substr("BEADGCF", _i_, 1)
+			_a_ = @aSig[substr("CDEFGAB", _l_)]
+			if _a_ < 0  @aSigOrder + [ _l_, _a_ ] ok
+		next
+		for _i_ = 1 to 7
+			_l_ = substr("FCGDAEB", _i_, 1)
+			_a_ = @aSig[substr("CDEFGAB", _l_)]
+			if _a_ > 0  @aSigOrder + [ _l_, _a_ ] ok
+		next
+
+	# where a signature accidental sits: the places the tradition fixed for
+	# each letter (sharps high, flats in their zigzag), two octaves lower in bass
+	def _SigStep(pcLetter, pnAlt, pcClef)
+		_aS_ = [ [ "F", 38 ], [ "C", 35 ], [ "G", 39 ], [ "D", 36 ], [ "A", 33 ], [ "E", 37 ], [ "B", 34 ] ]
+		_aF_ = [ [ "B", 34 ], [ "E", 37 ], [ "A", 33 ], [ "D", 36 ], [ "G", 32 ], [ "C", 35 ], [ "F", 31 ] ]
+		_aU_ = _aS_
+		if pnAlt < 0  _aU_ = _aF_ ok
+		_d_ = 34
+		for _x_ in _aU_
+			if _x_[1] = pcLetter  _d_ = _x_[2] ok
+		next
+		if pcClef = "bass"  return _d_ - 14 - 18 ok
+		return _d_ - 30
+
+	# a pitch spelled IN the key: the letter whose alteration the key already
+	# gives it costs nothing; otherwise the smallest alteration, sharps in a sharp
+	# key and flats in a flat one, and a quarter tone above its letter rather
+	# than below the next (the writers' spelling)
+	def _Respell(paP)
+		_m_ = This._Midi(paP)
+		_aSemi_ = [ 0, 2, 4, 5, 7, 9, 11 ]
+		_best_ = paP
+		_bestCost_ = 999
+		for _l_ = 1 to 7
+			_o_ = floor((_m_ - _aSemi_[_l_]) / 12 + 0.5) - 1
+			_a_ = _m_ - (12 * (_o_ + 1) + _aSemi_[_l_])
+			_a_ = floor(_a_ * 2 + 0.5) / 2
+			if fabs(_a_) > 1  loop ok
+			_c_ = 1 + fabs(_a_)
+			if fabs(_a_ - @aSig[_l_]) < 0.01  _c_ = 0 ok
+			if _c_ > 0
+				if _a_ = -0.5  _c_ += 0.2 ok
+				if _a_ = -1 and @nFifths >= 0  _c_ += 0.1 ok
+				if _a_ = 1 and @nFifths < 0  _c_ += 0.1 ok
+			ok
+			if _c_ < _bestCost_
+				_bestCost_ = _c_
+				_best_ = [ substr("CDEFGAB", _l_, 1), _a_, _o_, paP[4] ]
+			ok
+		next
+		return _best_
+
+	def _Midi(paP)
+		_aSemi_ = [ 0, 2, 4, 5, 7, 9, 11 ]
+		return 12 * (paP[3] + 1) + _aSemi_[substr("CDEFGAB", paP[1])] + paP[2]
+
+	# "D", "Bb", "F#m", "Ddor", "A min" -> fifths; 99 when it is no key
+	def _FifthsOfName(pc)
+		_s_ = ring_trim(pc)
+		if len(_s_) = 0  return 99 ok
+		_t_ = upper(_s_[1])
+		_aT_ = [ [ "C", 0 ], [ "G", 1 ], [ "D", 2 ], [ "A", 3 ], [ "E", 4 ], [ "B", 5 ], [ "F", -1 ] ]
+		_f_ = 99
+		for _x_ in _aT_
+			if _x_[1] = _t_  _f_ = _x_[2] ok
+		next
+		if _f_ = 99  return 99 ok
+		_r_ = substr(_s_, 2, len(_s_) - 1)
+		if left(_r_, 1) = "#"
+			_f_ += 7
+			_r_ = substr(_r_, 2, len(_r_) - 1)
+		but left(_r_, 1) = "b"
+			_f_ -= 7
+			_r_ = substr(_r_, 2, len(_r_) - 1)
+		ok
+		_r_ = lower(ring_trim(_r_))
+		_aM_ = [ [ "", 0 ], [ "maj", 0 ], [ "major", 0 ], [ "ion", 0 ], [ "m", -3 ], [ "min", -3 ], [ "minor", -3 ],
+		         [ "aeo", -3 ], [ "dor", -2 ], [ "phr", -4 ], [ "lyd", 1 ], [ "mix", -1 ], [ "loc", -5 ] ]
+		_off_ = 99
+		for _x_ in _aM_
+			if _x_[1] = _r_  _off_ = _x_[2] ok
+		next
+		if _off_ = 99  return 99 ok
+		_f_ += _off_
+		if _f_ < -7 or _f_ > 7  return 99 ok
+		return _f_
+
+	def _FifthsText(pnF)
+		_aN_ = [ "Cb", "Gb", "Db", "Ab", "Eb", "Bb", "F", "C", "G", "D", "A", "E", "B", "F#", "C#" ]
+		_n_ = _aN_[pnF + 8] + " major"
+		if pnF = 0  return _n_ + " (no sharps or flats)" ok
+		if pnF = 1  return _n_ + " (1 sharp)" ok
+		if pnF = -1  return _n_ + " (1 flat)" ok
+		if pnF > 0  return _n_ + " (" + pnF + " sharps)" ok
+		return _n_ + " (" + (0 - pnF) + " flats)"
+
+	def _SigText()
+		if len(@aSigOrder) = 0  return "no sharps or flats" ok
+		_t_ = ""
+		for _ka_ in @aSigOrder
+			if _t_ != ""  _t_ += ", " ok
+			_t_ += _ka_[1] + " " + This._AltName(_ka_[2])
+		next
+		return _t_
+
+	def _AltName(pnA)
+		if pnA = 1  return "sharp" ok
+		if pnA = -1  return "flat" ok
+		if pnA = 0.5  return "half-sharp" ok
+		if pnA = -0.5  return "half-flat" ok
+		return "natural"
+
+	#== the percussion staff (MU11) ===============================================
+
+	def _IsPerc(pcClef)
+		return left(pcClef, 4) = "perc"
+
+	# every stroke, by its drum: [ instrument, segments [ at16, len16, [ [stroke,0,0,0] ] ] ]
+	def _Strokes()
+		_aRaw_ = []                   # [ instrument, [ [ at, len, stroke ] ] ]
+		for _e_ in @oS.Events()
+			if _e_[3] > 0 or _e_[6] = ""  loop ok
+			_inst_ = _e_[4]
+			if _inst_ = ""  _inst_ = "drumkit" ok
+			_sk_ = _e_[6]
+			if _sk_ = "hat"  _sk_ = "hihat" ok
+			_at_ = floor(_e_[1] * 4 + 0.5)
+			_ln_ = floor(_e_[2] * 4 + 0.5)
+			if _ln_ < 1  _ln_ = 1 ok
+			_vi_ = 0
+			for _k_ = 1 to len(_aRaw_)
+				if _aRaw_[_k_][1] = _inst_  _vi_ = _k_ ok
+			next
+			if _vi_ = 0
+				_aRaw_ + [ _inst_, [] ]
+				_vi_ = len(_aRaw_)
+			ok
+			_aRaw_[_vi_][2] + [ _at_ * 1000 + len(_aRaw_[_vi_][2]), _at_, _ln_, _sk_ ]
+		next
+		_aOut_ = []
+		for _r_ in _aRaw_
+			_aS_ = sort(_r_[2], 1)
+			_aSeg_ = []
+			for _x_ in _aS_
+				_n_ = len(_aSeg_)
+				if _n_ > 0
+					if _aSeg_[_n_][1] = _x_[2]
+						# strokes struck together are one chord, as long as the shortest
+						_bHas_ = FALSE
+						for _q_ in _aSeg_[_n_][3]
+							if _q_[1] = _x_[4]  _bHas_ = TRUE ok
+						next
+						if NOT _bHas_  _aSeg_[_n_][3] + [ _x_[4], 0, 0, 0 ] ok
+						if _x_[3] < _aSeg_[_n_][2]  _aSeg_[_n_][2] = _x_[3] ok
+						loop
+					ok
+					if _aSeg_[_n_][1] + _aSeg_[_n_][2] > _x_[2]
+						_aSeg_[_n_][2] = _x_[2] - _aSeg_[_n_][1]    # a stroke rings until the next
+					ok
+				ok
+				_aSeg_ + [ _x_[2], _x_[3], [ [ _x_[4], 0, 0, 0 ] ] ]
+			next
+			_aOut_ + [ _r_[1], _aSeg_ ]
+		next
+		return _aOut_
+
+	def _Syllable(pcStroke)
+		switch pcStroke
+		on "dum"    return "D"
+		on "tak"    return "T"
+		on "ka"     return "K"
+		on "kick"   return "B"
+		on "snare"  return "S"
+		on "hihat"  return "H"
+		off
+		return "?"
+
+	def _XHead(pnX, pnY)
+		_r_ = 0.5 * @nSp
+		return This._Line(pnX - _r_, pnY - _r_, pnX + _r_, pnY + _r_, 1.6) + This._Line(pnX - _r_, pnY + _r_, pnX + _r_, pnY - _r_, 1.6)
+
+	def _GetKV(paList, pcKey, pDefault)
+		if NOT isList(paList)  return pDefault ok
+		for _p_ in paList
+			if isList(_p_) and len(_p_) = 2
+				if isString(_p_[1]) and lower(_p_[1]) = lower(pcKey)  return _p_[2] ok
+			ok
+		next
+		return pDefault
 
 	#== SVG primitives ============================================================
 
