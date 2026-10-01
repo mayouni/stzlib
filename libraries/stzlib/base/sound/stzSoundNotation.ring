@@ -422,6 +422,10 @@ class stzSoundNotation
 		on "hat"    return 42      # the score's alias; it was written as 39, a hand clap
 		on "crash"  return 49      # MU13: crash cymbal 1
 		on "ride"   return 51      # MU13: ride cymbal 1
+		on "hightom"   return 50   # MU14: high tom
+		on "midtom"    return 47   # low-mid tom
+		on "floortom"  return 43   # high floor tom
+		on "openhat"   return 46   # open hi-hat
 		on "dum"    return 64
 		on "tak"    return 63
 		on "ka"     return 62

@@ -867,7 +867,13 @@ fn rawMembrane(s: Spec, hz0: f64, hz1: f64, hold: f64, variant: u32, rate: u32, 
 /// unrelated), highpassed twice, over highpassed noise. The crash washes and
 /// rings long; the ride has less wash, a shorter body and a BELL -- a sine ping
 /// two octaves over the metal -- which is what a ride's stick-on-bow sounds like.
+/// MU14: three TOMS (5 high, 6 mid, 7 floor) -- membranes again, tuned a fourth
+/// and a fifth apart under the high one, each struck so its pitch drops a little
+/// as the head settles, the floor tom ringing longest; and the OPEN HI-HAT (8),
+/// the closed one's noise left to wash for a third of a second.
 const CYMBAL_R = [_]f64{ 1.0, 1.4831, 1.9318, 2.5460, 2.6302, 3.8970 };
+const TOM_F = [_]f64{ 1.75, 1.3, 0.85 };
+const TOM_TAU = [_]f64{ 0.35, 0.45, 0.6 };
 
 fn rawKit(hz: f64, variant: u32, rate: u32, out: []f32) void {
     const ratef: f64 = @floatFromInt(rate);
@@ -923,6 +929,22 @@ fn rawKit(hz: f64, variant: u32, rate: u32, out: []f32) void {
                         0.3 * @sin(2.0 * PI * ph0) * @exp(-t / 0.3);
                     ph0 += 4.0 * base / ratef;
                 }
+            },
+            5, 6, 7 => {
+                const k: usize = variant - 5;
+                const f0 = hz * TOM_F[k];
+                const fk = f0 * (1.0 + 0.3 * @exp(-t / 0.04));
+                y = @sin(2.0 * PI * ph0) * @exp(-t / TOM_TAU[k]) +
+                    0.35 * @sin(2.0 * PI * ph1) * @exp(-t / (TOM_TAU[k] * 0.6));
+                ph0 += fk / ratef;
+                ph1 += fk * MODE_R[1] / ratef;
+                if (t < 0.002) y += 0.3 * (nz - n1);
+            },
+            8 => {
+                const hp = nz - n1;
+                const hp2 = hp - hp1;
+                hp1 = hp;
+                y = (0.7 * hp2 + 0.3 * hp) * @exp(-t / 0.35) * 0.5;
             },
             else => {
                 const hp = nz - n1;
@@ -1014,8 +1036,8 @@ pub fn renderNote(inst: u32, hz: f64, hz_end: f64, hold: f64, vel: f64, variant:
         last_reason = R_GLIDE;
         return 0;
     }
-    // a hand drum has three strokes; the kit five (MU13 added crash and ride)
-    const most: u32 = if (s.engine == ENGINE_MEMBRANE and s.kind == 2) 4 else 2;
+    // a hand drum has three strokes; the kit nine (MU13 crash, ride; MU14 three toms, open hi-hat)
+    const most: u32 = if (s.engine == ENGINE_MEMBRANE and s.kind == 2) 8 else 2;
     if ((s.engine == ENGINE_MEMBRANE and variant > most) or (s.engine != ENGINE_MEMBRANE and variant != 0)) {
         last_reason = R_VARIANT;
         return 0;
@@ -1733,5 +1755,44 @@ test "MU13: the kit's cymbals ring as metal -- the crash long, the ride with a b
     try testing.expect(late[4] > late[2] * 10);
     // a darbouka has dum, tak and ka -- no cymbal
     try testing.expectEqual(@as(usize, 0), renderNote(drb, 150, 150, 1.0, 0.8, 3, 48000, out, scr));
+    try testing.expectEqual(R_VARIANT, last_reason);
+}
+
+test "MU14: three toms, high over mid over floor, and an open hi-hat that washes where the closed one is gone" {
+    const al = testing.allocator;
+    const out = try al.alloc(f32, 48000 * 4);
+    defer al.free(out);
+    const scr = try al.alloc(f32, scratchFrames(48000));
+    defer al.free(scr);
+    var kit: u32 = 0;
+    for (SPECS, 0..) |sp, i| {
+        if (std.mem.eql(u8, sp.name, "drumkit")) kit = @intCast(i);
+    }
+    // a tom's pitch: zero crossings over 0.05 to 0.25 s, as cycles a second
+    var hzs = [_]f64{0} ** 3;
+    for (0..3) |k| {
+        const n = renderNote(kit, 126, 126, 1.0, 0.8, @intCast(5 + k), 48000, out, scr);
+        try testing.expect(n >= 48000);
+        var zc: f64 = 0;
+        for (2400..12000) |f| {
+            if ((out[f - 1] < 0) != (out[f] < 0)) zc += 1;
+        }
+        hzs[k] = zc / 2.0 / 0.2;
+    }
+    // the open hi-hat against the closed: energy 0.2 to 0.4 s over the first 0.05 s
+    var late = [_]f64{0} ** 2;
+    for ([_]u32{ 2, 8 }, 0..) |v, j| {
+        _ = renderNote(kit, 126, 126, 1.0, 0.8, v, 48000, out, scr);
+        var e0: f64 = 0;
+        var e1: f64 = 0;
+        for (out[0..2400]) |x| e0 += x * x;
+        for (out[9600..19200]) |x| e1 += x * x;
+        late[j] = e1 / (e0 + 1e-12);
+    }
+    std.debug.print("\n  MU14 toms: high {d:.1} Hz, mid {d:.1} Hz, floor {d:.1} Hz; late/early: closed hi-hat {d:.6}, open {d:.4}\n", .{ hzs[0], hzs[1], hzs[2], late[0], late[1] });
+    try testing.expect(hzs[0] > hzs[1] and hzs[1] > hzs[2]);
+    try testing.expect(late[1] > 0.05 and late[0] < 0.001);
+    // the kit has nine strokes and no tenth
+    try testing.expectEqual(@as(usize, 0), renderNote(kit, 126, 126, 1.0, 0.8, 9, 48000, out, scr));
     try testing.expectEqual(R_VARIANT, last_reason);
 }

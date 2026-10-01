@@ -2402,3 +2402,95 @@ half note begun on beat 3 of a 3/4 bar now catches it.
 writes them, is **UNPERCEIVED**.
 
 **Regression.** The sound regression is **1027 passed, 0 failed** (1008 + 19).
+
+---
+
+## MU14 STATUS — 2026-10-01. Toms and the open hi-hat; and the browser's engine rebuilt, so its kit is the native one
+
+**Why.** The Principal: *"add toms, open hi-hat and rebuild the wasm"*. MU13
+had named the toms and the open hi-hat as not done, and the browser's
+`stz.wasm` as not rebuilt.
+
+**Engine.** `soundinstr.zig` (still wasm32-clean): the kit's synthesis gains
+
+- three TOMS, variants 5, 6 and 7: membranes at 1.75, 1.3 and 0.85 × the
+  kit's pitch, each struck so its pitch drops a little as the head settles,
+  the floor tom ringing longest;
+- the OPEN HI-HAT, variant 8: the closed one's noise left to wash for a
+  third of a second.
+
+The kit now has nine strokes, and a tenth is refused. One new Zig test, 10 of
+10 green: the toms sound at 225, 165 and 110 Hz; energy 0.2–0.4 s over the
+first 0.05 s is 0.87 for the open hi-hat against 0.0004 for the closed.
+
+**The wasm, REBUILT** with `zig build wasm`, with every engine group. The
+first rebuild used `-Dwasm-groups=sound`, MU6's command, and came out with 35
+exports against the committed file's 99: since MU6, `stz.wasm` had been
+rebuilt with every group (solver, number theory, graph, GPU and more). A
+sound-only build would have silently cut those planes out of the browser. The
+committed rebuild has the same 99 exports, plus about 900 bytes of the new
+voices.
+
+**Face.**
+
+- `stzSoundInstrument`: :HighTom, :MidTom, :FloorTom and :OpenHat; the open
+  hi-hat rings at least 0.6 s.
+- `stzSoundScore`: accepts all four.
+- `stzSoundPattern`: `ht mt ft oh`.
+- MIDI writes General MIDI 50, 47, 43 and 46, and reads back 48/50, 45/47
+  and 41/43 as the three toms. GM 46, which was read as a closed hi-hat, is
+  now the open one.
+- `stzSoundStaff` draws the high tom in the fourth space, the mid tom on the
+  fourth line and the floor tom in the second space, all in the hands'
+  voice. The open hi-hat is an × where the closed one is, with its small
+  circle above.
+- **The browser:**
+  - `stz-music.js` spells the same nine strokes (cr rd ht mt ft oh among
+    them), maps them to the same synth voices, and rings cymbals and the
+    open hi-hat past their written length with the same minimums as Ring.
+  - The MU6 guard writes native renders of all nine strokes into
+    `mu6_notes_expect.json`, at the exact pitch the browser will ask for,
+    and a thirteenth pattern using the new words.
+
+**Guard.** `sound_mu14_narrated.ring`: **14**. MU6's native guard: 5 of 5 (one
+check added).
+**The browser guards, on the rebuilt `stz.wasm`:**
+
+- `mu6_guard.html`: **10/10**. All nine strokes are identical to the native
+  renders to 12 decimal places, and all 13 patterns give Ring's events.
+- SS5's `earcon_guard.html`: **26/26**.
+- VC5's `voice_guard.html`: **24/24**.
+
+**Heard.** `sound_mu14_demo.ring`: a groove with the open hi-hat on the "and"
+of 4, then a fill down the toms into a crash. It is drawn and sounded
+(`mu14_01_groove_and_fill.wav`).
+
+### Checked, and shown able to fail
+
+**Six mutations**, each of which turned at least one check red: the high tom
+on the mid tom's line; the open hi-hat stopping where written; MIDI
+forgetting key 48; no `ht` in patterns; the browser ringing the open hi-hat
+short; no open-hi-hat circle.
+
+### Found
+
+1. **A build command from the record can be the wrong one.** MU6's
+   `-Dwasm-groups=sound` was right when MU6 ran it; the committed file had
+   since been rebuilt wider. Comparing the export lists before replacing it
+   is what caught it.
+2. **Escapes through a patch are fragile.** The guard page's `kit's` lost
+   its backslash, and the browser threw a syntax error before running a
+   single check. It was found in the console.
+
+### What MU14 does NOT do
+
+- **No pedal hi-hat, splash, china, cowbell or rim shot.**
+- **The toms are not tunable one by one**: they are fixed ratios of the
+  kit's pitch.
+- **The browser's pages are guarded, not heard**: whether `music.html` with
+  the new kit feels like a drummer's instrument is the Principal's to say.
+
+**The listener's line**: whether the toms and the open hi-hat SOUND like a
+kit's (`mu14_01_groove_and_fill.wav`) is **UNPERCEIVED**.
+
+**Regression.** The sound regression is **1042 passed, 0 failed** (1027 + 14 + MU6's new check).

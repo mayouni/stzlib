@@ -76,6 +76,10 @@
 # CYMBALS (MU13). The kit's crash and ride: x heads, the ride on the top line,
 # the crash on a ledger line above, in the hands' voice.
 #
+# TOMS AND THE OPEN HI-HAT (MU14). The high tom in the fourth space, the mid tom
+# on the fourth line, the floor tom in the second space, as drum parts place
+# them; the open hi-hat an x where the closed one is, with a small circle above.
+#
 # WHAT IS NOT (named, as the writers name theirs): a pitch further than 5 cents from the nearest quarter tone is drawn at
 # that quarter tone and COUNTED (slendro); no dynamics, articulations, lyrics or
 # slurs.
@@ -699,6 +703,10 @@ class stzSoundStaff
 			on "ka"     return 9
 			on "ride"   return 8                                    # MU13: the ride on the top line
 			on "crash"  return 10                                   # the crash on a ledger line above
+			on "openhat"   return 9                                 # MU14: where the closed hi-hat is, marked o
+			on "hightom"   return 7                                 # the toms: the fourth space,
+			on "midtom"    return 6                                 # the fourth line,
+			on "floortom"  return 3                                 # and the second space
 			off
 			return 5
 		ok
@@ -1013,7 +1021,7 @@ class stzSoundStaff
 			ok
 			_pp_ = paP[4][_h_[2]]
 			if This._IsPerc(pcClef)
-				_bX_ = (_pp_[1] = "hihat" or _pp_[1] = "ka" or _pp_[1] = "ride" or _pp_[1] = "crash")
+				_bX_ = (_pp_[1] = "hihat" or _pp_[1] = "ka" or _pp_[1] = "ride" or _pp_[1] = "crash" or _pp_[1] = "openhat")
 				if _bX_
 					_o_ += This._XHead(_hx_, _y_)
 				else
@@ -1021,6 +1029,15 @@ class stzSoundStaff
 				ok
 				@aModel + [ "head", This._StaffNo(pnK), pnS, pnBar, _hx_, _y_, _s_, _pp_[1], 0, _len_, pcDir, paP[2] ]
 				@aModel + [ "stroke", This._StaffNo(pnK), pnS, pnBar, _hx_, _pp_[1], _s_, _bX_, @aStaves[pnK][4] ]
+				if _pp_[1] = "openhat"
+					# the open hi-hat's small circle, above the staff, over its head
+					_oy_ = pnTop - 1.6 * _sp_
+					if _y_ - 2.2 * _sp_ < _oy_  _oy_ = _y_ - 2.2 * _sp_ ok
+					_o_ += "<circle cx=" + char(34) + This._F(_hx_) + char(34) + " cy=" + char(34) + This._F(_oy_) + char(34) +
+					       " r=" + char(34) + This._F(0.32 * _sp_) + char(34) + " fill=" + char(34) + "none" + char(34) +
+					       " stroke-width=" + char(34) + "1.1" + char(34) + "/>" + nl
+					@aModel + [ "openmark", This._StaffNo(pnK), pnS, pnBar, _hx_, _oy_ ]
+				ok
 				if pcClef = "perc1"
 					_o_ += This._Text(_hx_, pnTop + 5.6 * _sp_, This._Syllable(_pp_[1]), 1.2 * _sp_, "middle", "")
 				ok
