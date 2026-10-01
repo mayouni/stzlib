@@ -2115,3 +2115,95 @@ musician, and as a ladder to someone who learnt maqam from one, is
 **UNPERCEIVED**.
 
 **Regression.** The sound regression is **952 passed, 0 failed** (919 + 33).
+
+---
+
+## MU11 STATUS — 2026-10-01. The staff gets its key signature, and the drums their own staff
+
+**Why.** MU10 named both as not done, and the Principal asked for them: *"add
+the key signature and the percussion staff"*.
+
+**Face.** In `stzSoundStaff.ring`: `SetKey` ("auto", the default; "none"; a
+key such as "D", "Bb", "F#m" or "Ddor"; or a number of fifths),
+`SetKeyOfMode(universe, mode)`, `Key()` and `KeyName()`. No new class, and
+no engine change.
+
+**Guard.** `sound_mu11_narrated.ring`: **33**. MU10's guard is updated in two
+places and still passes 33 of 33: its accidentals scene now asks for
+`SetKey("none")`, and its strokes check now expects the strokes drawn.
+**Seen.** `sound_mu11_demo.ring` draws:
+
+- the Rast series with its key read from the music;
+- a Hijaz series with its declared key;
+- Dhil over btayhi, and Arab Rast over maqsum, each from its universe;
+- a beat on the kit under a bass line in F.
+
+### The key signature
+
+- **Read from the music** (`"auto"`):
+  - first the circle-of-fifths key that leaves the fewest accidentals;
+  - then, as Arabic notation writes it, every letter whose usual
+    alteration is a quarter tone takes that quarter tone into the key. Rast
+    is written with B and E half-flat, and its third and seventh need no
+    sign.
+- **Taken from a declared mode** (`SetKeyOfMode`): the seven degrees are
+  spelled on consecutive letters from the tonic.
+  - Hijaz on D: B♭, E♭, F♯.
+  - Sika: B and E half-flat.
+  - Rasd al-Dhil: the half-flats, then Snoussi's F half-sharp among the
+    sharps.
+  - A mode of five degrees (slendro) is refused.
+- **The key spells.** Every pitch is written in the key's letters: B♭ in F
+  major, not A♯, and E♯ in F♯ major where a piano would say F. An accidental
+  is drawn only where a note leaves the key, and the bar remembers the key
+  until its own alterations change it.
+- **Drawn as the tradition places it.** Flats (and half-flats) come first in
+  the order of flats, then sharps (and half-sharps) in the order of sharps,
+  at their fixed positions: two octaves lower on the bass staff. The key is
+  repeated on every system, and never drawn on a drum's staff.
+
+### The percussion staff
+
+- Strokes, which MU10 dropped and counted, are drawn under the pitched
+  staves with the **neutral clef**.
+- **The kit** has five lines: kick in the bottom space, snare in the third,
+  hi-hat above the staff with an × head.
+- **A hand drum** (darbouka, bendir) has ONE line, as its rhythms are
+  written: dum under it, tak over it, ka over it with an × head, and the
+  syllables D T K beneath.
+- **Strokes struck together are one chord** on one stem. All drum stems
+  point up, and eighths are beamed by the beat like any eighths.
+- **A universe's performance** draws its melody on a staff and its cycle on
+  the drum's line.
+
+### Checked, and shown able to fail
+
+- **Seven mutations**, each of which turned at least one check red: the key
+  not spelling, the bar forgetting the key, no quarter tones in the key, the
+  bass signature not lowered, dum on the tak side, strokes not merged into
+  chords, and drum stems not forced up.
+- **"The key does not spell" first passed unnoticed.** Preferring flats in
+  flat keys already picks B♭. E♯ in F♯ major, where only the key can decide,
+  now catches it.
+
+### Found
+
+1. **`oK` is `ok`** (in the demo), joining `oR` among Ring's keyword
+   collisions.
+2. **A test made a tie it did not mean**: an F major tune with as many B♮ as
+   B♭ is C major by the count. The guard now uses a clean F tune.
+
+### What MU11 does NOT do
+
+- **No key changes inside a piece.**
+- **One percussion voice per drum**: kick and hi-hat share stems. There is no
+  two-voice kit notation.
+- **Quarter tones are not resolved against the key of a 12-tone tonic**:
+  they join the key by count, which is the Arabic practice and not the only
+  one.
+
+**The listener's line**: whether the drum line reads as a darbouka player
+writes btayhi, and the maqam signature as an Arab musician expects it, is
+**UNPERCEIVED**.
+
+**Regression.** The sound regression is **985 passed, 0 failed** (952 + 33).

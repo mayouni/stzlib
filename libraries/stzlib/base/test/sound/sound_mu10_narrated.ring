@@ -77,7 +77,9 @@ Chk("every gap is a rest, and an empty bar is ONE whole rest", Mu10Col(aRe, 6) =
 ? "-- Scene 3: accidentals hold to the barline; the quarter tones are written --"
 oC = StzSoundScoreQ().On(:flute)
 oC.NoteAt(0, "C#5", 1).NoteAt(1, "C#5", 1).NoteAt(2, "C5", 1).NoteAt(3, "E4-50", 1).NoteAt(4, "C5", 1).NoteAt(5, "E4-50", 3)
-oSC = StzSoundStaffQ(oC)
+# with NO key signature, so every alteration is written on its note (MU11 reads
+# the key from the music by default, and would put the half-flat in the key)
+oSC = StzSoundStaffQ(oC).SetKey("none")
 oSC.ToSVG("")
 aAc = Mu10Of(oSC.Model(), "acc")
 ? "   C#5 C#5 C5 E-half-flat | C5 E-half-flat: accidentals shown " + Mu10Col(aAc, 7)
@@ -134,7 +136,9 @@ Chk("and a metre that is not one is refused", oSE.SetMeter(5, 3).LastError() != 
 oF = StzSoundScoreQ().On(:oud).NoteAt(0, "C4", 1).On(:darbouka).StrokeAt(1, :dum, 1)
 oSF = StzSoundStaffQ(oF)
 oSF.ToSVG("")
-Chk("drum strokes are not drawn, and Losses says so", Mu10Has(oSF.Losses(), "strokes"))
+# MU11 drew them: this check said "not drawn, and Losses says so" until then
+Chk("drum strokes are drawn on a percussion staff of their own, and nothing is lost",
+    NOT Mu10Has(oSF.Losses(), "strokes") and len(oSF.Clefs()) = 2 and oSF.Clefs()[2][2] = "perc1")
 oG = StzSoundUniverseQ(:gamelan).NoCycle(4).SonifyQ([ 1, 2, 3, 4, 5 ])
 oSG = StzSoundStaffQ(oG)
 oSG.ToSVG("")
