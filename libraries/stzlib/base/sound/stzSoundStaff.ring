@@ -50,8 +50,23 @@
 # written: dum under the line, tak over it, ka over it with an x head, and the
 # syllables D T K beneath, the way a darbouka player reads them.
 #
-# WHAT IS NOT (named, as the writers name theirs): no key CHANGES inside a
-# piece; a pitch further than 5 cents from the nearest quarter tone is drawn at
+# KEY CHANGES (MU12). KeyChangeAt(beat, key) and KeyChangeOfModeAt(beat,
+# universe, mode) change the key at a barline (a beat inside a bar is moved to
+# the next barline, and counted); with the key read from the music and no
+# change asked for, the piece is cut into SECTIONS by the key each part fits --
+# a change only where it saves more accidentals than it costs (a penalty of 4).
+# A change is drawn as engravers draw it: a double barline, naturals cancelling
+# what the old key had and the new one has not, then the new signature; at the
+# head of a system the new key, and a COURTESY signature at the end of the
+# system before. Each bar remembers, and spells in, the key in force there.
+#
+# THE TWO-VOICE KIT (MU12). On the drum kit's staff the hands and the feet are
+# two voices, as drum parts are written: hihat and snare with stems UP, the kick
+# with stems DOWN, each voice with its own rhythm and its own rests (raised for
+# the hands, lowered for the feet). A kit with only hands, or only feet, stays
+# one voice.
+#
+# WHAT IS NOT (named, as the writers name theirs): a pitch further than 5 cents from the nearest quarter tone is drawn at
 # that quarter tone and COUNTED (slendro); no dynamics, articulations, lyrics or
 # slurs.
 # Clefs are drawn from the Unicode Musical Symbols block (Noto Music, Segoe UI
@@ -90,6 +105,11 @@ class stzSoundStaff
 	@cKeyName = ""
 	@aModeSig = []             # what SetKeyOfMode read from the declaration
 	@cModeName = ""
+
+	# key changes (MU12)
+	@aKeyReq = []              # [ beat, sig, fifths, name ] asked by KeyChangeAt
+	@bKeyChanges = TRUE        # find changes when the key is read from the music
+	@aKeys = []                # [ from bar (0-based), sig, fifths, order, name ]
 
 	def init(poScore)
 		@oS = poScore
@@ -142,10 +162,19 @@ class stzSoundStaff
 	# the signature a DECLARED mode implies: its degrees spelled on consecutive
 	# letters from the tonic -- quarter tones included, as Arabic notation writes them
 	def SetKeyOfMode(pUniverse, pMode)
+		_r_ = This._SigOfMode(pUniverse, pMode, "SetKeyOfMode")
+		if len(_r_) = 0  return This ok
+		@aModeSig = _r_[1]
+		@cModeName = _r_[2]
+		@cKey = "mode"
+		return This
+
+	# [ signature, "universe / mode" ], or [] with LastError
+	def _SigOfMode(pUniverse, pMode, pcWho)
 		_oU_ = StzSoundUniverseQ(pUniverse)
 		if NOT _oU_.IsUsable()
-			@cLastError = "SetKeyOfMode: " + _oU_.LastError()
-			return This
+			@cLastError = pcWho + ": " + _oU_.LastError()
+			return []
 		ok
 		if "" + pMode != ""  _oU_.Mode(pMode) ok
 		_aD_ = []
@@ -153,9 +182,9 @@ class stzSoundStaff
 			if This._GetKV(_m_, "name", "") = _oU_.ModeName()  _aD_ = This._GetKV(_m_, "degrees", []) ok
 		next
 		if len(_aD_) != 7
-			@cLastError = "SetKeyOfMode: a key signature needs a mode of seven degrees; " + _oU_.Name() + " / " +
+			@cLastError = pcWho + ": a key signature needs a mode of seven degrees; " + _oU_.Name() + " / " +
 			              _oU_.ModeName() + " has " + len(_aD_)
-			return This
+			return []
 		ok
 		_oN_ = new stzSoundNotation("")
 		_aT_ = _oN_._Spell(StzNoteToHz(_oU_.TonicName()))
@@ -170,15 +199,69 @@ class stzSoundStaff
 			_a_ = _m_ - (12 * (_o_ + 1) + _aSemi_[_l_])
 			_a_ = floor(_a_ * 2 + 0.5) / 2
 			if fabs(_a_) > 1
-				@cLastError = "SetKeyOfMode: degree " + _i_ + " is " + _a_ + " semitones from its letter; no signature writes that"
-				return This
+				@cLastError = pcWho + ": degree " + _i_ + " is " + _a_ + " semitones from its letter; no signature writes that"
+				return []
 			ok
 			_aSig_[_l_] = _a_
 		next
-		@aModeSig = _aSig_
-		@cModeName = _oU_.Name() + " / " + _oU_.ModeName()
-		@cKey = "mode"
+		return [ _aSig_, _oU_.Name() + " / " + _oU_.ModeName() ]
+
+	# MU12: the key changes at the barline at (or after) `pnBeat`
+	def KeyChangeAt(pnBeat, pKey)
+		if NOT isNumber(pnBeat) or pnBeat < 0
+			@cLastError = "KeyChangeAt: a beat is 0 or later"
+			return This
+		ok
+		_f_ = 0
+		_bNone_ = FALSE
+		if isNumber(pKey)
+			if pKey < -7 or pKey > 7
+				@cLastError = "KeyChangeAt: a number of fifths is -7 to 7"
+				return This
+			ok
+			_f_ = pKey
+		but lower(ring_trim("" + pKey)) = "none"
+			_bNone_ = TRUE
+		else
+			_f_ = This._FifthsOfName("" + pKey)
+			if _f_ = 99
+				@cLastError = "KeyChangeAt: '" + pKey + "' is not a key -- a tonic and a mode (D, Bb, F#m, Ddor), a number of fifths, or none"
+				return This
+			ok
+		ok
+		if _bNone_
+			@aKeyReq + [ pnBeat, [ 0, 0, 0, 0, 0, 0, 0 ], 0, "no key signature" ]
+		else
+			@aKeyReq + [ pnBeat, This._SigOfFifths(_f_), _f_, This._FifthsText(_f_) ]
+		ok
 		return This
+
+	def KeyChangeAtQ(pnBeat, pKey)
+		return This.KeyChangeAt(pnBeat, pKey)
+
+	def KeyChangeOfModeAt(pnBeat, pUniverse, pMode)
+		if NOT isNumber(pnBeat) or pnBeat < 0
+			@cLastError = "KeyChangeOfModeAt: a beat is 0 or later"
+			return This
+		ok
+		_r_ = This._SigOfMode(pUniverse, pMode, "KeyChangeOfModeAt")
+		if len(_r_) = 0  return This ok
+		@aKeyReq + [ pnBeat, _r_[1], 0, "from the mode " + _r_[2] + ": " + This._SigTextOf(This._SigOrderOf(_r_[1])) ]
+		return This
+
+	def KeyChangeOfModeAtQ(pnBeat, pUniverse, pMode)
+		return This.KeyChangeOfModeAt(pnBeat, pUniverse, pMode)
+
+	# find key changes when the key is read from the music (TRUE, the default)
+	def SetKeyChanges(pbFind)
+		@bKeyChanges = pbFind
+		return This
+
+	# [ bar (from 1), the key's name ] for every change after the first key -- after ToSVG
+	def KeyChanges()
+		_a_ = []
+		for _i_ = 2 to len(@aKeys)  _a_ + [ @aKeys[_i_][1] + 1, @aKeys[_i_][5] ] next
+		return _a_
 
 	def SetKeyOfModeQ(pUniverse, pMode)
 		return This.SetKeyOfMode(pUniverse, pMode)
@@ -207,7 +290,9 @@ class stzSoundStaff
 
 	def Clefs()
 		_a_ = []
-		for _s_ in @aStaves  _a_ + [ _s_[1], _s_[2] ] next
+		for _s_ in @aStaves
+			if _s_[5] = 0  _a_ + [ _s_[1], _s_[2] ] ok          # a second voice draws no staff of its own
+		next
 		return _a_
 
 	def SaveAs(pcPath, pcTitle)
@@ -264,24 +349,51 @@ class stzSoundStaff
 		if @nBars < 1  @nBars = 1 ok
 		# the key, then every pitch spelled IN it
 		This._ResolveKey(_aV_)
+		# each pitch spelled in the key in force where it begins
 		for _vi_ = 1 to len(_aV_)
 			for _gi_ = 1 to len(_aV_[_vi_][2])
+				_aK_ = This._KeyAt(floor(_aV_[_vi_][2][_gi_][1] / @nBarLen))
 				for _pi_ = 1 to len(_aV_[_vi_][2][_gi_][3])
-					_aV_[_vi_][2][_gi_][3][_pi_] = This._Respell(_aV_[_vi_][2][_gi_][3][_pi_])
+					_aV_[_vi_][2][_gi_][3][_pi_] = This._RespellIn(_aV_[_vi_][2][_gi_][3][_pi_], _aK_[2], _aK_[3])
 				next
 			next
 		next
+		# a staff entry: [ instrument, clef, pieces, voice ("" | "up" | "down"), the entry it shares a staff with ]
 		for _v_ in _aV_
-			@aStaves + [ _v_[1], This._ClefOf(_v_[2]), This._Pieces(_v_[2], @nBars * @nBarLen) ]
+			@aStaves + [ _v_[1], This._ClefOf(_v_[2]), This._Pieces(_v_[2], @nBars * @nBarLen), "", 0 ]
 		next
-		# the percussion staves, under the pitched ones
+		# the percussion staves, under the pitched ones; the kit's hands and feet as two voices
+		# the hands (and every one-voice drum) first, so the feet find their staff
+		_aDr2_ = []
 		for _v_ in _aDr_
+			if _v_[3] != "down"  _aDr2_ + _v_ ok
+		next
+		for _v_ in _aDr_
+			if _v_[3] = "down"  _aDr2_ + _v_ ok
+		next
+		for _v_ in _aDr2_
 			_cl_ = "perc1"
 			if _v_[1] = "drumkit"  _cl_ = "perc5" ok
-			@aStaves + [ _v_[1], _cl_, This._Pieces(_v_[2], @nBars * @nBarLen) ]
+			if _v_[3] = "down"
+				_host_ = 0
+				for _k_ = 1 to len(@aStaves)
+					if @aStaves[_k_][1] = _v_[1] and @aStaves[_k_][4] = "up"  _host_ = _k_ ok
+				next
+				if _host_ > 0
+					@aStaves + [ _v_[1], _cl_, This._Pieces(_v_[2], @nBars * @nBarLen), "down", _host_ ]
+				else
+					@aStaves + [ _v_[1], _cl_, This._Pieces(_v_[2], @nBars * @nBarLen), "", 0 ]
+				ok
+			else
+				_role_ = ""
+				for _w_ in _aDr_
+					if _w_[1] = _v_[1] and _w_[3] = "down"  _role_ = "up" ok
+				next
+				@aStaves + [ _v_[1], _cl_, This._Pieces(_v_[2], @nBars * @nBarLen), _role_, 0 ]
+			ok
 		next
 		if len(@aStaves) = 0
-			@aStaves + [ "piano", "treble", This._Pieces([], @nBars * @nBarLen) ]
+			@aStaves + [ "piano", "treble", This._Pieces([], @nBars * @nBarLen), "", 0 ]
 		ok
 		for _k_ = 1 to len(@aStaves)  This._Accidentals(_k_) next
 
@@ -365,7 +477,7 @@ class stzSoundStaff
 			_aShow_ = []
 			for _p_ in _aP_[_i_][4]
 				_key_ = _p_[1] + _p_[3]
-				_prev_ = @aSig[substr("CDEFGAB", _p_[1])]      # the key, until the bar says otherwise
+				_prev_ = This._KeyAt(_bar_)[2][substr("CDEFGAB", _p_[1])]   # the bar's key, until the bar says otherwise
 				for _m_ in _aMem_
 					if _m_[1] = _key_  _prev_ = _m_[2] ok
 				next
@@ -406,41 +518,48 @@ class stzSoundStaff
 			_aAbove_ + (((_hi_ - 8) / 2) * _sp_ + 4.0 * _sp_)
 			_aBelow_ + (((0 - _lo_) / 2) * _sp_ + 3.5 * _sp_)
 		next
+		# a second voice shares its host's staff: the host makes room for both
+		for _k_ = 1 to _nSt_
+			_h_ = @aStaves[_k_][5]
+			if _h_ > 0
+				if _aBelow_[_k_] > _aBelow_[_h_]  _aBelow_[_h_] = _aBelow_[_k_] ok
+				if _aAbove_[_k_] > _aAbove_[_h_]  _aAbove_[_h_] = _aAbove_[_k_] ok
+			ok
+		next
 		_aAbove_[1] += 1.5 * _sp_              # and room for the tempo over the first staff
 		# the left margin: instrument names when there is more than one staff
 		@nLeft = 20
-		if _nSt_ > 1  @nLeft = 90 ok
+		if len(This.Clefs()) > 1  @nLeft = 90 ok
 		# the natural width of every bar, from its columns
 		_aBarCols_ = []
 		_aBarW_ = []
 		for _b_ = 0 to @nBars - 1
 			_aC_ = This._Columns(_b_)
 			_aBarCols_ + _aC_
-			_w_ = 1.2 * _sp_
+			_w_ = 1.2 * _sp_ + This._ChangeW(_b_)         # MU12: room for a key change at its head
 			for _c_ in _aC_  _w_ += _c_[2] next
 			_aBarW_ + _w_
 		next
 		# systems: bars while they fit, then justified (the last one only if nearly full)
-		_kw_ = 0
-		if len(@aSigOrder) > 0  _kw_ = len(@aSigOrder) * 1.25 * _sp_ + 0.6 * _sp_ ok
-		_head1_ = 4.6 * _sp_ + _kw_ + 3.0 * _sp_      # clef + key + metre, first system
-		_head_ = 4.6 * _sp_ + _kw_                    # clef + key, later systems
 		_right_ = @nWidth - 20
 		_b_ = 1
 		while _b_ <= @nBars
 			_x0_ = @nLeft
-			_h_ = _head_
-			if len(@aSystems) = 0  _h_ = _head1_ ok
+			# the head: the clef, the key IN FORCE at this system's first bar, the metre once
+			_h_ = 4.6 * _sp_ + This._KeyW(This._KeyAt(_b_ - 1)[4])
+			if len(@aSystems) = 0  _h_ += 3.0 * _sp_ ok
 			_avail_ = _right_ - _x0_ - _h_
 			_sum_ = 0
 			_e_ = _b_
 			while _e_ <= @nBars
-				if _sum_ + _aBarW_[_e_] > _avail_ and _e_ > _b_  exit ok
+				# a system that ends just before a key change carries a courtesy key
+				if _sum_ + _aBarW_[_e_] + This._CourtesyW(_e_) > _avail_ and _e_ > _b_  exit ok
 				_sum_ += _aBarW_[_e_]
 				_e_++
 			end
 			_e_--
-			_scale_ = _avail_ / _sum_
+			_cw_ = This._CourtesyW(_e_)
+			_scale_ = (_avail_ - _cw_) / _sum_
 			if _e_ = @nBars and _scale_ > 1.35  _scale_ = 1 ok
 			_aX_ = []
 			_x_ = _x0_ + _h_
@@ -449,7 +568,7 @@ class stzSoundStaff
 				_x_ += _aBarW_[_k_] * _scale_
 			next
 			_aX_ + _x_                                  # the end of the last bar
-			@aSystems + [ _b_, _e_, _aX_, _scale_, _h_ ]
+			@aSystems + [ _b_, _e_, _aX_, _scale_, _h_, _cw_ ]
 			_b_ = _e_ + 1
 		end
 		# vertical placement
@@ -458,6 +577,10 @@ class stzSoundStaff
 		for _si_ = 1 to len(@aSystems)
 			_aY_ = []
 			for _k_ = 1 to _nSt_
+				if @aStaves[_k_][5] > 0
+					_aY_ + _aY_[@aStaves[_k_][5]]          # a second voice: its host's staff
+					loop
+				ok
 				_y_ += _aAbove_[_k_]
 				_aY_ + _y_
 				_y_ += 4 * _sp_ + _aBelow_[_k_]
@@ -551,18 +674,24 @@ class stzSoundStaff
 		_sy_ = @aSystems[pnS]
 		_aX_ = _sy_[3]
 		_x0_ = @nLeft
-		_x1_ = _aX_[len(_aX_)]
+		_x1_ = _aX_[len(_aX_)] + _sy_[6]
 		_o_ = ""
 		_nSt_ = len(@aStaves)
+		_aKey_ = This._KeyAt(_sy_[1] - 1)
+		_kw_ = This._KeyW(_aKey_[4])
+		_nLast_ = 0
 		for _k_ = 1 to _nSt_
+			if @aStaves[_k_][5] > 0  loop ok              # a second voice draws no staff
+			_nLast_ = _k_
 			_top_ = @aStaffY[pnS][_k_]
 			_clef_ = @aStaves[_k_][2]
+			_no_ = This._StaffNo(_k_)
 			if _clef_ = "perc1"
 				_o_ += This._Line(_x0_, _top_ + 2 * _sp_, _x1_, _top_ + 2 * _sp_, 1)
-				@aModel + [ "lines", _k_, pnS, 1 ]
+				@aModel + [ "lines", _no_, pnS, 1 ]
 			else
 				for _l_ = 0 to 4  _o_ += This._Line(_x0_, _top_ + _l_ * _sp_, _x1_, _top_ + _l_ * _sp_, 1) next
-				@aModel + [ "lines", _k_, pnS, 5 ]
+				@aModel + [ "lines", _no_, pnS, 5 ]
 			ok
 			# the clef: G and F from the font; the neutral clef drawn
 			if _clef_ = "treble"
@@ -574,32 +703,29 @@ class stzSoundStaff
 				_o_ += This._Rect(_x0_ + 1.2 * _sp_, _top_ + 1 * _sp_, 0.4 * _sp_, 2 * _sp_) +
 				       This._Rect(_x0_ + 2.0 * _sp_, _top_ + 1 * _sp_, 0.4 * _sp_, 2 * _sp_)
 			ok
-			@aModel + [ "clef", _k_, pnS, _clef_ ]
-			# the key signature, on every system, on every pitched staff
-			_kx_ = _x0_ + 4.6 * _sp_ + 0.2 * _sp_
+			@aModel + [ "clef", _no_, pnS, _clef_ ]
+			# the key in force at this system's first bar, on every pitched staff
 			if NOT This._IsPerc(_clef_)
-				for _ka_ in @aSigOrder
+				_kx_ = _x0_ + 4.6 * _sp_ + 0.2 * _sp_
+				for _ka_ in _aKey_[4]
 					_ks_ = This._SigStep(_ka_[1], _ka_[2], _clef_)
-					_ky_ = _top_ + 4 * _sp_ - _ks_ * _sp_ / 2
-					_o_ += This._Accidental(_kx_ + 0.5 * _sp_, _ky_, _ka_[2])
-					@aModel + [ "keysig", _k_, pnS, _ka_[1], _ka_[2], _kx_, _ks_ ]
+					_o_ += This._Accidental(_kx_ + 0.5 * _sp_, _top_ + 4 * _sp_ - _ks_ * _sp_ / 2, _ka_[2])
+					@aModel + [ "keysig", _no_, pnS, _ka_[1], _ka_[2], _kx_, _ks_, _sy_[1] ]
 					_kx_ += 1.25 * _sp_
 				next
 			ok
-			_kw_ = 0
-			if len(@aSigOrder) > 0  _kw_ = len(@aSigOrder) * 1.25 * _sp_ + 0.6 * _sp_ ok
 			if pnS = 1
 				_mx_ = _x0_ + 4.6 * _sp_ + _kw_ + 1.1 * _sp_
 				_o_ += This._Text(_mx_, _top_ + 1.75 * _sp_, "" + @nBeats, 2.2 * _sp_, "middle", "bold") +
 				       This._Text(_mx_, _top_ + 3.75 * _sp_, "" + @nUnit, 2.2 * _sp_, "middle", "bold")
 			ok
-			if pnS = 1 and _nSt_ > 1
+			if pnS = 1 and len(This.Clefs()) > 1
 				_o_ += This._Text(_x0_ - 8, _top_ + 2.4 * _sp_, @aStaves[_k_][1], 13, "end", "")
 			ok
 		next
-		if _nSt_ > 1
+		if len(This.Clefs()) > 1
 			_ytop_ = @aStaffY[pnS][1]
-			_ybot_ = @aStaffY[pnS][_nSt_] + 4 * _sp_
+			_ybot_ = @aStaffY[pnS][_nLast_] + 4 * _sp_
 			_o_ += This._Line(_x0_, _ytop_, _x0_, _ybot_, 1.2) + This._Rect(_x0_ - 5, _ytop_ - 2, 3, _ybot_ - _ytop_ + 4)
 		ok
 		# the bars
@@ -607,9 +733,13 @@ class stzSoundStaff
 			_bx_ = _aX_[_b_ - _sy_[1] + 1]
 			_ex_ = _aX_[_b_ - _sy_[1] + 2]
 			_aC_ = paBarCols[_b_]
+			# a key change inside the system: naturals, then the new key, at the bar's head
+			if _b_ > _sy_[1] and This._ChangeW(_b_ - 1) > 0
+				_o_ += This._DrawKeyChange(pnS, _b_, _bx_ + 0.5 * _sp_, "keychange")
+			ok
 			# column x: the columns' natural widths, stretched with the bar
 			_aCX_ = []
-			_cx_ = _bx_ + 1.0 * _sp_ * _sy_[4]
+			_cx_ = This._ColStart(pnS, _b_ - 1, _bx_)
 			for _c_ in _aC_
 				_px_ = _cx_
 				if _c_[3]  _px_ += 1.5 * _sp_ ok
@@ -619,8 +749,10 @@ class stzSoundStaff
 			for _k_ = 1 to _nSt_
 				_o_ += This._DrawBar(_k_, pnS, _b_ - 1, _bx_, _ex_, _aCX_)
 			next
-			# the barline, on every staff; a final barline at the end of the music
+			# the barline, on every staff: double before a key change, final at the end
+			_bDbl_ = (_b_ < @nBars and This._ChangeW(_b_) > 0)
 			for _k_ = 1 to _nSt_
+				if @aStaves[_k_][5] > 0  loop ok
 				_top_ = @aStaffY[pnS][_k_]
 				_bt_ = _top_
 				_bh_ = 4 * _sp_
@@ -630,13 +762,51 @@ class stzSoundStaff
 				ok
 				if _b_ = @nBars
 					_o_ += This._Line(_ex_ - 5, _bt_, _ex_ - 5, _bt_ + _bh_, 1.1) + This._Rect(_ex_ - 3, _bt_, 3.2, _bh_)
+				but _bDbl_
+					_o_ += This._Line(_ex_ - 3.5, _bt_, _ex_ - 3.5, _bt_ + _bh_, 1.1) + This._Line(_ex_, _bt_, _ex_, _bt_ + _bh_, 1.1)
+					@aModel + [ "dblbar", This._StaffNo(_k_), pnS, _b_, _ex_ ]
 				else
 					_o_ += This._Line(_ex_, _bt_, _ex_, _bt_ + _bh_, 1.1)
 				ok
-				@aModel + [ "barline", _k_, pnS, _b_, _ex_ ]
+				@aModel + [ "barline", This._StaffNo(_k_), pnS, _b_, _ex_ ]
 			next
 		next
+		# the courtesy key, after the last barline, when the next system changes key
+		if _sy_[6] > 0
+			_o_ += This._DrawKeyChange(pnS, _sy_[2] + 1, _aX_[len(_aX_)] + 0.6 * _sp_, "keycourtesy")
+		ok
 		@aModel + [ "system", pnS, _sy_[2] - _sy_[1] + 1 ]
+		return _o_
+
+	# the naturals cancelling what the old key had and the new one has not, then
+	# the new key, on every pitched staff, from x -- for bar `pnBar1` (from 1)
+	def _DrawKeyChange(pnS, pnBar1, pnX, pcKind)
+		_sp_ = @nSp
+		_aOld_ = This._KeyAt(pnBar1 - 2)
+		_aNew_ = This._KeyAt(pnBar1 - 1)
+		_aNat_ = This._Cancels(_aOld_[2], _aNew_[2])
+		_o_ = ""
+		for _k_ = 1 to len(@aStaves)
+			if @aStaves[_k_][5] > 0 or This._IsPerc(@aStaves[_k_][2])  loop ok
+			_top_ = @aStaffY[pnS][_k_]
+			_clef_ = @aStaves[_k_][2]
+			_kx_ = pnX
+			for _n_ in _aNat_
+				_ks_ = This._SigStep(_n_[1], _n_[2], _clef_)
+				_o_ += This._Accidental(_kx_ + 0.5 * _sp_, _top_ + 4 * _sp_ - _ks_ * _sp_ / 2, 0)
+				@aModel + [ pcKind + "nat", This._StaffNo(_k_), pnS, _n_[1], _kx_, _ks_, pnBar1 ]
+				_kx_ += 1.25 * _sp_
+			next
+			for _ka_ in _aNew_[4]
+				_ks_ = This._SigStep(_ka_[1], _ka_[2], _clef_)
+				_o_ += This._Accidental(_kx_ + 0.5 * _sp_, _top_ + 4 * _sp_ - _ks_ * _sp_ / 2, _ka_[2])
+				_kind_ = "keysig"                       # a courtesy key is not the bar's key
+				if pcKind = "keycourtesy"  _kind_ = "keycourtesysig" ok
+				@aModel + [ _kind_, This._StaffNo(_k_), pnS, _ka_[1], _ka_[2], _kx_, _ks_, pnBar1 ]
+				_kx_ += 1.25 * _sp_
+			next
+			@aModel + [ pcKind, This._StaffNo(_k_), pnS, pnBar1, len(_aNat_), len(_aNew_[4]) ]
+		next
 		return _o_
 
 	# one bar of one staff: rests, heads, stems, beams or flags, dots, ties
@@ -698,6 +868,7 @@ class stzSoundStaff
 					if _gi_[1] = _it_[1]  _dir_ = This._GroupDir(pnK, _g_) ok
 				next
 			next
+			if @aStaves[pnK][4] != ""  _dir_ = @aStaves[pnK][4] ok    # the kit's hands up, its feet down
 			_o_ += This._Heads(_p_, _x_, _top_, _clef_, _dir_, pnK, pnS, pnBar, ring_find(_aBeamed_, _it_[1]) = 0)
 			_o_ += This._Tie(pnK, pnS, _it_[1], _x_, _top_, _dir_)
 		next
@@ -727,6 +898,7 @@ class stzSoundStaff
 		return This._DirOfSteps(pnK, _aIdx_)
 
 	def _DirOfSteps(pnK, paIdx)
+		if @aStaves[pnK][4] != ""  return @aStaves[pnK][4] ok
 		_clef_ = @aStaves[pnK][2]
 		if This._IsPerc(_clef_)  return "up" ok
 		_sum_ = 0
@@ -779,14 +951,14 @@ class stzSoundStaff
 				for _l_ = -2 to _s_ step -2
 					_ly_ = _bot_ - _l_ * _sp_ / 2
 					_o_ += This._Line(_hx_ - 1.6 * _rx_, _ly_, _hx_ + 1.6 * _rx_, _ly_, 1.1)
-					@aModel + [ "ledger", pnK, pnS, pnBar, _hx_, _ly_ ]
+					@aModel + [ "ledger", This._StaffNo(pnK), pnS, pnBar, _hx_, _ly_ ]
 				next
 			ok
 			if _s_ >= 10
 				for _l_ = 10 to _s_ step 2
 					_ly_ = _bot_ - _l_ * _sp_ / 2
 					_o_ += This._Line(_hx_ - 1.6 * _rx_, _ly_, _hx_ + 1.6 * _rx_, _ly_, 1.1)
-					@aModel + [ "ledger", pnK, pnS, pnBar, _hx_, _ly_ ]
+					@aModel + [ "ledger", This._StaffNo(pnK), pnS, pnBar, _hx_, _ly_ ]
 				next
 			ok
 			_pp_ = paP[4][_h_[2]]
@@ -797,14 +969,14 @@ class stzSoundStaff
 				else
 					_o_ += This._Head(_hx_, _y_, _len_)
 				ok
-				@aModel + [ "head", pnK, pnS, pnBar, _hx_, _y_, _s_, _pp_[1], 0, _len_, pcDir, paP[2] ]
-				@aModel + [ "stroke", pnK, pnS, pnBar, _hx_, _pp_[1], _s_, _bX_ ]
+				@aModel + [ "head", This._StaffNo(pnK), pnS, pnBar, _hx_, _y_, _s_, _pp_[1], 0, _len_, pcDir, paP[2] ]
+				@aModel + [ "stroke", This._StaffNo(pnK), pnS, pnBar, _hx_, _pp_[1], _s_, _bX_, @aStaves[pnK][4] ]
 				if pcClef = "perc1"
 					_o_ += This._Text(_hx_, pnTop + 5.6 * _sp_, This._Syllable(_pp_[1]), 1.2 * _sp_, "middle", "")
 				ok
 			else
 				_o_ += This._Head(_hx_, _y_, _len_)
-				@aModel + [ "head", pnK, pnS, pnBar, _hx_, _y_, _s_, _pp_[1] + _pp_[3], _pp_[2], _len_, pcDir, paP[2] ]
+				@aModel + [ "head", This._StaffNo(pnK), pnS, pnBar, _hx_, _y_, _s_, _pp_[1] + _pp_[3], _pp_[2], _len_, pcDir, paP[2] ]
 			ok
 			# the accidental this head shows
 			_show_ = paP[8][_h_[2]]
@@ -812,7 +984,7 @@ class stzSoundStaff
 				_ax_ = pnX - _rx_ - 1.0 * _sp_ - _nAcc_ * 1.1 * _sp_
 				_nAcc_++
 				_o_ += This._Accidental(_ax_, _y_, _show_)
-				@aModel + [ "acc", pnK, pnS, pnBar, _ax_, _y_, _show_ ]
+				@aModel + [ "acc", This._StaffNo(pnK), pnS, pnBar, _ax_, _y_, _show_ ]
 			ok
 			# the dot, in the space above when the head sits on a line
 			if ring_find([ 12, 6, 3 ], _len_) > 0
@@ -821,7 +993,7 @@ class stzSoundStaff
 				_dx_ = pnX + _rx_ + 0.55 * _sp_
 				if _shift_ and pcDir = "up"  _dx_ += 2 * _rx_ ok
 				_o_ += This._Ellipse(_dx_, _dy_, 0.17 * _sp_, 0.17 * _sp_, TRUE)
-				@aModel + [ "dot", pnK, pnS, pnBar, _dx_, _dy_ ]
+				@aModel + [ "dot", This._StaffNo(pnK), pnS, pnBar, _dx_, _dy_ ]
 			ok
 		next
 		# the stem, and flags when not beamed
@@ -853,7 +1025,7 @@ class stzSoundStaff
 			for _f_ = 1 to _nf_
 				_o_ += This._Flag(_sx_, _y2_, pcDir, _f_)
 			next
-			if _nf_ > 0  @aModel + [ "flag", pnK, pnS, pnBar, _sx_, _nf_ ] ok
+			if _nf_ > 0  @aModel + [ "flag", This._StaffNo(pnK), pnS, pnBar, _sx_, _nf_ ] ok
 		ok
 		return _o_
 
@@ -991,7 +1163,7 @@ class stzSoundStaff
 			_y2_ = _ya_ + (_yb_ - _ya_) * (_x2_ - _xa_) / (_xb_ - _xa_ + 0.0001) + _off_
 			_o_ += This._BeamSeg(_x1_, _y1_, _x2_, _y2_, _th_ * _sg_)
 		next
-		@aModel + [ "beam", pnK, pnS, pnBar, _n_, _nLv_, _dir_ ]
+		@aModel + [ "beam", This._StaffNo(pnK), pnS, pnBar, _n_, _nLv_, _dir_ ]
 		return _o_
 
 	def _BeamSeg(pnX1, pnY1, pnX2, pnY2, pnTh)
@@ -1023,19 +1195,19 @@ class stzSoundStaff
 			if _ns_ = pnS
 				_x2_ = This._XOf(pnS, _nxt_[1], _nxt_[2]) - 0.7 * _sp_
 				_o_ += This._Arc(_x1_, _x2_, _y_, _sg_)
-				@aModel + [ "tie", pnK, pnS, _x1_, _x2_, _y_ ]
+				@aModel + [ "tie", This._StaffNo(pnK), pnS, _x1_, _x2_, _y_ ]
 			else
 				_sy_ = @aSystems[pnS]
 				_x2_ = _sy_[3][len(_sy_[3])] - 2
 				_o_ += This._Arc(_x1_, _x2_, _y_, _sg_)
-				@aModel + [ "tie", pnK, pnS, _x1_, _x2_, _y_ ]
+				@aModel + [ "tie", This._StaffNo(pnK), pnS, _x1_, _x2_, _y_ ]
 				if _ns_ > 0
 					_top2_ = @aStaffY[_ns_][pnK]
 					_y2_ = _top2_ + 4 * _sp_ - This._StepOf(_q_, @aStaves[pnK][2]) * _sp_ / 2 + _sg_ * 0.7 * _sp_
 					_xs_ = @aSystems[_ns_][3][1] - 1.2 * _sp_
 					_xe_ = This._XOf(_ns_, _nxt_[1], _nxt_[2]) - 0.7 * _sp_
 					_o_ += This._Arc(_xs_, _xe_, _y2_, _sg_)
-					@aModel + [ "tie", pnK, _ns_, _xs_, _xe_, _y2_ ]
+					@aModel + [ "tie", This._StaffNo(pnK), _ns_, _xs_, _xe_, _y2_ ]
 				ok
 			ok
 		next
@@ -1046,7 +1218,7 @@ class stzSoundStaff
 		_sy_ = @aSystems[pnS]
 		_bx_ = _sy_[3][pnBar + 1 - _sy_[1] + 1]
 		_aC_ = This._Columns(pnBar)
-		_cx_ = _bx_ + 1.0 * @nSp * _sy_[4]
+		_cx_ = This._ColStart(pnS, pnBar, _bx_)
 		for _c_ in _aC_
 			_px_ = _cx_
 			if _c_[3]  _px_ += 1.5 * @nSp ok
@@ -1070,6 +1242,9 @@ class stzSoundStaff
 	# slanted stem with one or two hooks
 	def _Rest(paP, pnX, pnX0, pnX1, pnTop, pnK, pnS, pnBar)
 		_sp_ = @nSp
+		# a voice's rests move out of the other's way: the hands' up, the feet's down
+		if @aStaves[pnK][4] = "up"  pnTop -= 1.5 * _sp_ ok
+		if @aStaves[pnK][4] = "down"  pnTop += 2.0 * _sp_ ok
 		_len_ = paP[3]
 		_o_ = ""
 		_x_ = pnX
@@ -1108,7 +1283,7 @@ class stzSoundStaff
 		if ring_find([ 12, 6, 3 ], _len_) > 0
 			_o_ += This._Ellipse(_x_ + 1.1 * _sp_, pnTop + 1.5 * _sp_, 0.17 * _sp_, 0.17 * _sp_, TRUE)
 		ok
-		@aModel + [ "rest", pnK, pnS, pnBar, _x_, _len_, paP[2] ]
+		@aModel + [ "rest", This._StaffNo(pnK), pnS, pnBar, _x_, _len_, paP[2], @aStaves[pnK][4] ]
 		return _o_
 
 	# the accidentals, drawn: sharp, flat, natural, and the quarter tones as
@@ -1145,7 +1320,309 @@ class stzSoundStaff
 
 	#== the key signature (MU11) ==================================================
 
+	# MU12: the first key (as MU11 read it), then the keys bar by bar -- asked
+	# for by KeyChangeAt, or found in the music
 	def _ResolveKey(paV)
+		# with changes asked for, the opening key is read from the music BEFORE the
+		# first of them -- not from passages that belong to a later key
+		_aV1_ = paV
+		if len(@aKeyReq) > 0
+			_first_ = 999999
+			for _q_ in @aKeyReq
+				_b_ = ceil(floor(_q_[1] * 4 + 0.5) / @nBarLen)
+				if _b_ < _first_  _first_ = _b_ ok
+			next
+			if _first_ > 0
+				_aV1_ = []
+				for _v_ in paV
+					_aG_ = []
+					for _g_ in _v_[2]
+						if _g_[1] < _first_ * @nBarLen  _aG_ + _g_ ok
+					next
+					_aV1_ + [ _v_[1], _aG_ ]
+				next
+			ok
+		ok
+		This._ResolveFirstKey(_aV1_)
+		@aKeys = [ [ 0, @aSig, @nFifths, @aSigOrder, @cKeyName ] ]
+		if len(@aKeyReq) > 0
+			_aR_ = []
+			for _q_ in @aKeyReq  _aR_ + [ _q_[1] * 1000 + len(_aR_), _q_ ] next
+			_aR_ = sort(_aR_, 1)
+			for _x_ in _aR_
+				_q_ = _x_[2]
+				_s16_ = floor(_q_[1] * 4 + 0.5)
+				_bar_ = ceil(_s16_ / @nBarLen)
+				if _s16_ % @nBarLen != 0
+					This._Loss("a key change at beat " + _q_[1] + " falls inside bar " + (_bar_) + "; it is written at the next barline")
+				ok
+				if _bar_ >= @nBars  loop ok
+				_aE_ = [ _bar_, _q_[2], _q_[3], This._SigOrderOf(_q_[2]), _q_[4] ]
+				if _bar_ = 0
+					@aKeys[1] = _aE_
+					@aSig = _q_[2]
+					@nFifths = _q_[3]
+					@aSigOrder = _aE_[4]
+					@cKeyName = _q_[4]
+				else
+					@aKeys + _aE_
+				ok
+			next
+			This._PruneKeys()
+			return
+		ok
+		if @cKey = "auto" and @bKeyChanges  This._DetectKeyChanges(paV) ok
+
+	# the keys bar by bar, by the fewest accidentals plus a penalty for each change
+	def _DetectKeyChanges(paV)
+		_nB_ = @nBars
+		if _nB_ < 2  return ok
+		_aF_ = [ 0, 1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6, 7, -7 ]
+		_aPcs_ = []
+		_aSigs_ = []
+		for _f_ in _aF_
+			_aPcs_ + This._PcsOfFifths(_f_)
+			_aSigs_ + This._SigOfFifths(_f_)
+		next
+		# each bar's cost in each key: its semitone notes outside the key
+		_aCost_ = list(_nB_)
+		for _b_ = 1 to _nB_
+			_aRow_ = list(15)
+			for _i_ = 1 to 15  _aRow_[_i_] = 0 next
+			_aCost_[_b_] = _aRow_
+		next
+		for _v_ in paV
+			for _g_ in _v_[2]
+				_b_ = floor(_g_[1] / @nBarLen) + 1
+				if _b_ > _nB_  loop ok
+				for _p_ in _g_[3]
+					_m_ = This._Midi(_p_)
+					if fabs(_m_ - floor(_m_ + 0.5)) > 0.01
+						# a quarter tone: a key that alters its letter by a semitone cannot
+						# also carry it -- the note would need its sign (Rast's B half-flat
+						# against B flat major)
+						_ql_ = substr("CDEFGAB", This._RespellIn(_p_, [ 0, 0, 0, 0, 0, 0, 0 ], 0)[1])
+						for _i_ = 1 to 15
+							if _aSigs_[_i_][_ql_] != 0  _aCost_[_b_][_i_] = _aCost_[_b_][_i_] + 1 ok
+						next
+						loop
+					ok
+					_pc_ = floor(_m_ + 0.5) % 12
+					for _i_ = 1 to 15
+						if ring_find(_aPcs_[_i_], _pc_) = 0  _aCost_[_b_][_i_] = _aCost_[_b_][_i_] + 1 ok
+					next
+				next
+			next
+		next
+		# the cheapest path through the keys: a change costs four accidentals
+		_nPen_ = 4
+		_aDp_ = list(_nB_)
+		_aBk_ = list(_nB_)
+		_aRow_ = list(15)
+		for _i_ = 1 to 15  _aRow_[_i_] = _aCost_[1][_i_] + fabs(_aF_[_i_]) * 0.01 next
+		_aDp_[1] = _aRow_
+		_aBk_[1] = list(15)
+		for _b_ = 2 to _nB_
+			_aRow_ = list(15)
+			_aBack_ = list(15)
+			for _i_ = 1 to 15
+				_best_ = _aDp_[_b_ - 1][_i_]
+				_from_ = _i_
+				for _j_ = 1 to 15
+					if _aDp_[_b_ - 1][_j_] + _nPen_ < _best_
+						_best_ = _aDp_[_b_ - 1][_j_] + _nPen_
+						_from_ = _j_
+					ok
+				next
+				_aRow_[_i_] = _best_ + _aCost_[_b_][_i_]
+				_aBack_[_i_] = _from_
+			next
+			_aDp_[_b_] = _aRow_
+			_aBk_[_b_] = _aBack_
+		next
+		_cur_ = 1
+		for _i_ = 2 to 15
+			if _aDp_[_nB_][_i_] < _aDp_[_nB_][_cur_]  _cur_ = _i_ ok
+		next
+		_aPath_ = list(_nB_)
+		for _b_ = _nB_ to 1 step -1
+			_aPath_[_b_] = _cur_
+			if _b_ > 1  _cur_ = _aBk_[_b_][_cur_] ok
+		next
+		# sections: a run of bars in one key
+		_aSec_ = []
+		for _b_ = 1 to _nB_
+			_n_ = len(_aSec_)
+			if _n_ = 0
+				_aSec_ + [ _b_ - 1, _b_ - 1, _aF_[_aPath_[_b_]] ]
+			but _aSec_[_n_][3] = _aF_[_aPath_[_b_]]
+				_aSec_[_n_][2] = _b_ - 1
+			else
+				_aSec_ + [ _b_ - 1, _b_ - 1, _aF_[_aPath_[_b_]] ]
+			ok
+		next
+		if len(_aSec_) < 2  return ok
+		# each section's key: its fifths, and its own quarter tones by count
+		@aKeys = []
+		for _sc_ in _aSec_
+			_aSig_ = This._SigOfFifths(_sc_[3])
+			_aCnt_ = []
+			for _v_ in paV
+				for _g_ in _v_[2]
+					_b_ = floor(_g_[1] / @nBarLen)
+					if _b_ < _sc_[1] or _b_ > _sc_[2]  loop ok
+					for _p_ in _g_[3]
+						_r_ = This._RespellIn(_p_, _aSig_, _sc_[3])
+						_f2_ = 0
+						for _i_ = 1 to len(_aCnt_)
+							if _aCnt_[_i_][1] = _r_[1] and _aCnt_[_i_][2] = _r_[2]
+								_aCnt_[_i_][3] = _aCnt_[_i_][3] + 1
+								_f2_ = 1
+							ok
+						next
+						if _f2_ = 0  _aCnt_ + [ _r_[1], _r_[2], 1 ] ok
+					next
+				next
+			next
+			for _l_ = 1 to 7
+				_cl_ = substr("CDEFGAB", _l_, 1)
+				_tot_ = 0
+				_qa_ = 0
+				_qn_ = 0
+				for _c_ in _aCnt_
+					if _c_[1] = _cl_
+						_tot_ += _c_[3]
+						if fabs(_c_[2]) = 0.5 and _c_[3] > _qn_
+							_qn_ = _c_[3]
+							_qa_ = _c_[2]
+						ok
+					ok
+				next
+				if _qn_ * 2 > _tot_  _aSig_[_l_] = _qa_ ok
+			next
+			_aOrd_ = This._SigOrderOf(_aSig_)
+			_nm_ = This._FifthsText(_sc_[3])
+			_aQ_ = []
+			for _ka_ in _aOrd_
+				if fabs(_ka_[2]) = 0.5  _aQ_ + _ka_ ok
+			next
+			if len(_aQ_) > 0
+				_t_ = ""
+				for _ka_ in _aQ_
+					if _t_ != ""  _t_ += ", " ok
+					_t_ += _ka_[1] + " " + This._AltName(_ka_[2])
+				next
+				_nm_ += ", with " + _t_ + " in the key (as Arabic notation writes it)"
+			ok
+			@aKeys + [ _sc_[1], _aSig_, _sc_[3], _aOrd_, _nm_ ]
+		next
+		@aSig = @aKeys[1][2]
+		@nFifths = @aKeys[1][3]
+		@aSigOrder = @aKeys[1][4]
+		@cKeyName = @aKeys[1][5]
+		This._PruneKeys()
+
+	# a "change" to the key already in force is no change
+	def _PruneKeys()
+		_a_ = [ @aKeys[1] ]
+		for _i_ = 2 to len(@aKeys)
+			if NOT This._SameSig(@aKeys[_i_][2], _a_[len(_a_)][2])  _a_ + @aKeys[_i_] ok
+		next
+		@aKeys = _a_
+
+	def _SameSig(paA, paB)
+		for _i_ = 1 to 7
+			if paA[_i_] != paB[_i_]  return FALSE ok
+		next
+		return TRUE
+
+	# the key in force in bar `pnBar` (from 0)
+	def _KeyAt(pnBar)
+		_r_ = @aKeys[1]
+		for _k_ in @aKeys
+			if _k_[1] <= pnBar  _r_ = _k_ ok
+		next
+		return _r_
+
+	# the letters the old key altered and the new one does not: naturals
+	def _Cancels(paOld, paNew)
+		_a_ = []
+		for _l_ = 1 to 7
+			if paOld[_l_] != 0 and paNew[_l_] = 0  _a_ + [ substr("CDEFGAB", _l_, 1), paOld[_l_] ] ok
+		next
+		# drawn where the old accidentals stood, in their order
+		_aO_ = This._SigOrderOf(paOld)
+		_r_ = []
+		for _o_ in _aO_
+			for _x_ in _a_
+				if _x_[1] = _o_[1]  _r_ + _x_ ok
+			next
+		next
+		return _r_
+
+	def _KeyW(paOrder)
+		if len(paOrder) = 0  return 0 ok
+		return len(paOrder) * 1.25 * @nSp + 0.6 * @nSp
+
+	# the room a key change takes at the head of bar `pnBar` (from 0): naturals + new key
+	def _ChangeW(pnBar)
+		if pnBar <= 0 or pnBar >= @nBars  return 0 ok
+		_bCh_ = FALSE
+		for _i_ = 2 to len(@aKeys)
+			if @aKeys[_i_][1] = pnBar  _bCh_ = TRUE ok
+		next
+		if NOT _bCh_  return 0 ok
+		_n_ = len(This._Cancels(This._KeyAt(pnBar - 1)[2], This._KeyAt(pnBar)[2])) + len(This._KeyAt(pnBar)[4])
+		return _n_ * 1.25 * @nSp + 1.2 * @nSp
+
+	# a system ending at bar `pnE` (from 1) before a change carries a courtesy key
+	def _CourtesyW(pnE)
+		if pnE >= @nBars  return 0 ok
+		_w_ = This._ChangeW(pnE)
+		if _w_ = 0  return 0 ok
+		return _w_ + 0.4 * @nSp
+
+	# where a bar's first column may start: after its key change, when one is drawn there
+	def _ColStart(pnS, pnBar, pnBx)
+		_sy_ = @aSystems[pnS]
+		_lead_ = 1.0 * @nSp
+		if pnBar + 1 > _sy_[1]  _lead_ += This._ChangeW(pnBar) ok
+		return pnBx + _lead_ * _sy_[4]
+
+	# a staff entry's number as drawn: a second voice is its host's staff
+	def _StaffNo(pnK)
+		_k_ = pnK
+		if @aStaves[pnK][5] > 0  _k_ = @aStaves[pnK][5] ok
+		_n_ = 0
+		for _i_ = 1 to _k_
+			if @aStaves[_i_][5] = 0  _n_++ ok
+		next
+		return _n_
+
+	def _SigOrderOf(paSig)
+		_a_ = []
+		for _i_ = 1 to 7
+			_l_ = substr("BEADGCF", _i_, 1)
+			_x_ = paSig[substr("CDEFGAB", _l_)]
+			if _x_ < 0  _a_ + [ _l_, _x_ ] ok
+		next
+		for _i_ = 1 to 7
+			_l_ = substr("FCGDAEB", _i_, 1)
+			_x_ = paSig[substr("CDEFGAB", _l_)]
+			if _x_ > 0  _a_ + [ _l_, _x_ ] ok
+		next
+		return _a_
+
+	def _SigTextOf(paOrder)
+		if len(paOrder) = 0  return "no sharps or flats" ok
+		_t_ = ""
+		for _ka_ in paOrder
+			if _t_ != ""  _t_ += ", " ok
+			_t_ += _ka_[1] + " " + This._AltName(_ka_[2])
+		next
+		return _t_
+
+	def _ResolveFirstKey(paV)
 		@aSig = [ 0, 0, 0, 0, 0, 0, 0 ]
 		@nFifths = 0
 		@cKeyName = "no key signature"
@@ -1168,11 +1645,16 @@ class stzSoundStaff
 		ok
 		# auto: the circle-of-fifths key leaving the fewest accidentals ...
 		_aPc_ = []
+		_aQl_ = []                    # the letters quarter tones sit on (MU12)
 		for _v_ in paV
 			for _g_ in _v_[2]
 				for _p_ in _g_[3]
 					_m_ = This._Midi(_p_)
-					if fabs(_m_ - floor(_m_ + 0.5)) < 0.01  _aPc_ + (floor(_m_ + 0.5) % 12) ok
+					if fabs(_m_ - floor(_m_ + 0.5)) < 0.01
+						_aPc_ + (floor(_m_ + 0.5) % 12)
+					else
+						_aQl_ + substr("CDEFGAB", This._RespellIn(_p_, [ 0, 0, 0, 0, 0, 0, 0 ], 0)[1])
+					ok
 				next
 			next
 		next
@@ -1180,9 +1662,13 @@ class stzSoundStaff
 		_bestCost_ = 999999
 		for _f_ in [ 0, 1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6, 7, -7 ]
 			_aIn_ = This._PcsOfFifths(_f_)
+			_aSf_ = This._SigOfFifths(_f_)
 			_c_ = 0
 			for _pc_ in _aPc_
 				if ring_find(_aIn_, _pc_) = 0  _c_++ ok
+			next
+			for _ql_ in _aQl_
+				if _aSf_[_ql_] != 0  _c_++ ok
 			next
 			if _c_ < _bestCost_
 				_bestCost_ = _c_
@@ -1289,6 +1775,9 @@ class stzSoundStaff
 	# key and flats in a flat one, and a quarter tone above its letter rather
 	# than below the next (the writers' spelling)
 	def _Respell(paP)
+		return This._RespellIn(paP, @aSig, @nFifths)
+
+	def _RespellIn(paP, paSig, pnFifths)
 		_m_ = This._Midi(paP)
 		_aSemi_ = [ 0, 2, 4, 5, 7, 9, 11 ]
 		_best_ = paP
@@ -1299,11 +1788,11 @@ class stzSoundStaff
 			_a_ = floor(_a_ * 2 + 0.5) / 2
 			if fabs(_a_) > 1  loop ok
 			_c_ = 1 + fabs(_a_)
-			if fabs(_a_ - @aSig[_l_]) < 0.01  _c_ = 0 ok
+			if fabs(_a_ - paSig[_l_]) < 0.01  _c_ = 0 ok
 			if _c_ > 0
 				if _a_ = -0.5  _c_ += 0.2 ok
-				if _a_ = -1 and @nFifths >= 0  _c_ += 0.1 ok
-				if _a_ = 1 and @nFifths < 0  _c_ += 0.1 ok
+				if _a_ = -1 and pnFifths >= 0  _c_ += 0.1 ok
+				if _a_ = 1 and pnFifths < 0  _c_ += 0.1 ok
 			ok
 			if _c_ < _bestCost_
 				_bestCost_ = _c_
@@ -1389,12 +1878,18 @@ class stzSoundStaff
 			_at_ = floor(_e_[1] * 4 + 0.5)
 			_ln_ = floor(_e_[2] * 4 + 0.5)
 			if _ln_ < 1  _ln_ = 1 ok
+			# MU12: on the kit the feet (kick) are a voice of their own, stems down
+			_role_ = ""
+			if _inst_ = "drumkit"
+				_role_ = "up"
+				if _sk_ = "kick" or _sk_ = "dum"  _role_ = "down" ok
+			ok
 			_vi_ = 0
 			for _k_ = 1 to len(_aRaw_)
-				if _aRaw_[_k_][1] = _inst_  _vi_ = _k_ ok
+				if _aRaw_[_k_][1] = _inst_ and _aRaw_[_k_][3] = _role_  _vi_ = _k_ ok
 			next
 			if _vi_ = 0
-				_aRaw_ + [ _inst_, [] ]
+				_aRaw_ + [ _inst_, [], _role_ ]
 				_vi_ = len(_aRaw_)
 			ok
 			_aRaw_[_vi_][2] + [ _at_ * 1000 + len(_aRaw_[_vi_][2]), _at_, _ln_, _sk_ ]
@@ -1422,7 +1917,7 @@ class stzSoundStaff
 				ok
 				_aSeg_ + [ _x_[2], _x_[3], [ [ _x_[4], 0, 0, 0 ] ] ]
 			next
-			_aOut_ + [ _r_[1], _aSeg_ ]
+			_aOut_ + [ _r_[1], _aSeg_, _r_[3] ]
 		next
 		return _aOut_
 

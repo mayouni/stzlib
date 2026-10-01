@@ -116,13 +116,22 @@ aSt3 = Mu11Staff(Mu11Of(aMP, "stroke"), 3)
 ? "   kit: " + Mu11Col(aSt3, 6) + "at steps " + Mu11Col(aSt3, 7)
 Chk("on the kit: the kick in the bottom space, the snare in the third, the hihat above the staff as an x",
     Mu11Has(aSt3, "kick", 1, FALSE) and Mu11Has(aSt3, "snare", 5, FALSE) and Mu11Has(aSt3, "hihat", 9, TRUE))
+# MU12 made the kit TWO voices, as drum parts are written; until then this
+# check read "a kick struck with a hihat is ONE chord: two heads on one stem"
 aH3 = Mu11Staff(Mu11Of(aMP, "head"), 3)
-Chk("a kick struck with a hihat is ONE chord: two heads on one stem", aH3[1][5] = aH3[2][5] and aH3[1][12] = aH3[2][12])
-bUp = TRUE
-for h in Mu11Of(aMP, "head")
-	if h[2] > 1 and h[11] != "up"  bUp = FALSE ok
+nUp = 0
+nDown = 0
+for h in aH3
+	if h[8] = "kick" and h[11] = "down"  nDown++ ok
+	if h[8] != "kick" and h[11] = "up"  nUp++ ok
 next
-Chk("every stem on the drum staves points up", bUp)
+Chk("a kick struck with a hihat: two voices on one staff -- the hands' stems up, the kick's down",
+    nDown = 2 and nUp = 4 and len(aH3) = 6)
+bUp = TRUE
+for h in Mu11Staff(Mu11Of(aMP, "head"), 2)
+	if h[11] != "up"  bUp = FALSE ok
+next
+Chk("every stem on the darbouka's line points up", bUp)
 Chk("tak and ka, two eighths on one beat, are beamed like any eighths", len(Mu11Staff(Mu11Of(aMP, "beam"), 2)) = 1)
 Chk("the key signature is on the oud's staff only, never on a drum's",
     len(Mu11Of(aMP, "keysig")) = 1 and Mu11Of(aMP, "keysig")[1][2] = 1)
