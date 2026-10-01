@@ -102,7 +102,7 @@ func HexPrefixes()
 
 func SetHexPrefix(pcPrefix)
 	if find(HexPrefixes(), pcPrefix) > 0
-		_cHexNumberPrefix = pcPrefix
+		$_cHexNumberPrefix = pcPrefix
 	else
 		StzRaise("Unsupported hex prefix!")
 	ok

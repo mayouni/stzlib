@@ -78,7 +78,7 @@ func SetNo(_nRatio_)
 		ok
 	ok
 
-	_nNoRatio = _nRatio_
+	$_nNoRatio = _nRatio_
 
 	func SetAny(_nRatio_)
 		SetNo(_nRatio_)
@@ -296,7 +296,7 @@ func SetFew(_nRatio_)
 		ok
 	ok
 
-	_nFewRatio = _nRatio_
+	$_nFewRatio = _nRatio_
 
 func Few(paList)
 	return FewXT(paList, DefaultFew())
@@ -417,10 +417,10 @@ func SetSome(_nRatio_)
 		ok
 	ok
 
-	_nSomeRatio = _nRatio_
+	$_nSomeRatio = _nRatio_
 
 	func SetSomeTo(_nRatio_)
-		_nSomeRatio = _nRatio_
+		$_nSomeRatio = _nRatio_
 
 func Some(paList)
 	return SomeXT(paList, DefaultSome())
@@ -546,7 +546,7 @@ func SetHalf(_nRatio_)
 		ok
 	ok
 
-	_nHalfRatio = _nRatio_
+	$_nHalfRatio = _nRatio_
 
 func Half(paList)
 	if CheckingParams()
@@ -618,7 +618,7 @@ func Among(p)
 		return QQ(Among(p))
 
 func SetMany(_n_)
-	_nManyRatio = _n_
+	$_nManyRatio = _n_
 
 func Many(paList)
 	return ManyXT(paList, DefaultMany())
@@ -740,7 +740,7 @@ func SetMost(_nRatio_)
 		ok
 	ok
 
-	_nMostRatio = _nRatio_
+	$_nMostRatio = _nRatio_
 
 func Most(paList)
 	return MostXT(paList, DefaultMost())
@@ -826,7 +826,7 @@ func SetAll(_nRatio_)
 		ok
 	ok
 
-	_nAllRatio = _nRatio_
+	$_nAllRatio = _nRatio_
 
 func All(paList)
 	if CheckingParams()
@@ -1033,7 +1033,7 @@ func SetMaxRandomLoop(_n_)
 		ok
 	ok
 
-	_nMaxRandomLoop = _n_
+	$_nMaxRandomLoop = _n_
 
 func RingMaxRandom()
 	return $_nRingMaxRandom
@@ -1060,7 +1060,7 @@ func SetRandomRound(_n_)
 		ok
 	ok
 
-	_nRandomRound = _n_
+	$_nRandomRound = _n_
 				
 func StzRandom(_n_)
 	if CheckingParams()

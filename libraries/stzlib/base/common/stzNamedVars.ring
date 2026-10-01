@@ -219,9 +219,9 @@ func StzSetV(paVarNamesAndTheirValues)
 	# Memorizing the current var
 
 	if len($_aVars) = 0
-		_oldVar = []
+		$_oldVar = []
 	else
-		_oldVar = $_aVars[ len($_aVars) ]
+		$_oldVar = $_aVars[ len($_aVars) ]
 	ok
 
 	# Setting the new var
@@ -240,7 +240,7 @@ func StzSetV(paVarNamesAndTheirValues)
 
 	# The new var is the temp var
 
-	_var = $_aVars[len($_aVars)]
+	$_var = $_aVars[len($_aVars)]
 
 	func SetV(paVarNamesAndTheirValues)
 		StzSetV(paVarNamesAndTheirValues)
@@ -314,12 +314,12 @@ func StzVr(pacVars)
 		StzRaise("Incorrect param type! pcVars must be a list of strings.")
 	ok
 
-	_aTempVars = []
+	$_aTempVars = []
 	_nLen_ = len(pacVars)
 
 	for i = 1 to _nLen_
 
-		_aTempVars + [ pacVars[i], "" ]
+		$_aTempVars + [ pacVars[i], "" ]
 
 		_oHash_ = StzHashListQ($_aVars)
 		_n_ = _oHash_.FindKey(pacVars[i])
@@ -331,7 +331,7 @@ func StzVr(pacVars)
 	next
 
 	# Set _var to the last one for consistency
-	_var = [ pacVars[_nLen_], "" ]
+	$_var = [ pacVars[_nLen_], "" ]
 
 	func Vr(pacVars)
 		return StzVr(pacVars)
@@ -388,7 +388,7 @@ func StzVl(paVals)
 	ok
 
 	# Taking a copy of the current temp var
-	_oldVar = _Var
+	$_oldVar = $_Var
 
 	# Doing the job
 	_nLen_ = @Min([ len($_aTempVars), len(paVals) ])
@@ -411,9 +411,9 @@ func StzVl(paVals)
 	next
 
 	# Memorizing the last variable/value processed
-	_var = [ $_aTempVars[_nLen_][1], paVals[_nLen_] ]
+	$_var = [ $_aTempVars[_nLen_][1], paVals[_nLen_] ]
 	if StzOldVal() = ""
-		_oldVar = _var
+		$_oldVar = $_var
 	ok
 
 	func Vl(paVals)
@@ -424,11 +424,11 @@ func StzVl(paVals)
 
 # Clear all named variables
 func StzClearVars()
-	_aTempVars = []
-	_aVars = []
-	_var = []
-	_oldVar = []
-	_bVarReset = 0
+	$_aTempVars = []
+	$_aVars = []
+	$_var = []
+	$_oldVar = []
+	$_bVarReset = 0
 
 	func ClearVars()
 		StzClearVars()

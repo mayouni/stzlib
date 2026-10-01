@@ -5786,8 +5786,8 @@ class stzObject
 			return This.HistoricValuesXT()
 		ok
 
-		_aResult_ = _aHisto
-		_aHisto = []
+		_aResult_ = $_aHisto
+		$_aHisto = []
 		return _aResult_
 		
 		def HistValues()
@@ -5800,7 +5800,7 @@ class stzObject
 			return HistoricValues()
 
 	def CleanHistory()
-		_aHisto = []
+		$_aHisto = []
 
 
 	#== XT
@@ -5818,8 +5818,8 @@ class stzObject
 			AddHistoricValueXT(value)
 
 	def HistoricValuesXT()
-		_aResult_ = _aHistoXT
-		_aHistoXT = []
+		_aResult_ = $_aHistoXT
+		$_aHistoXT = []
 		return _aResult_
 
 		def HistValuesXT()
@@ -5832,7 +5832,7 @@ class stzObject
 			return HistoricValuesXT()
 
 	def CleanHistoryXT()
-		_aHistoXT = []
+		$_aHistoXT = []
 
 	  #---------------------------------#
 	 #  TRACING OBJECT EXECUTION TIME  #

@@ -559,8 +559,8 @@ func StzSetKeepingTimeTo(_bTrueOrFalse_)
 		ok
 	ok
 
-	_bKeepTime = _bTrueOrFalse_
-	_nStartTimeInClocks = clock()
+	$_bKeepTime = _bTrueOrFalse_
+	$_nStartTimeInClocks = clock()
 
 	func SetKeepingTimeTo(_bTrueOrFalse_)
 		StzSetKeepingTimeTo(_bTrueOrFalse_)
@@ -578,7 +578,7 @@ func StzSetKeepingTimeTo(_bTrueOrFalse_)
 		StzSetKeepingTimeTo(_bTrueOrFalse_)
 
 func StzStartObjectTime()
-	_nStartTimeInClocks = clock()
+	$_nStartTimeInClocks = clock()
 
 	func StartObjectTime()
 		StzStartObjectTime()
@@ -926,8 +926,8 @@ func Obj(pObject)
 		ok
 	ok
 
-	_bAsObject = 1
-	_bAsObjectQ = 0
+	$_bAsObject = 1
+	$_bAsObjectQ = 0
 
 	return pObject
 
@@ -953,8 +953,8 @@ func ObjQ(pObject)
 		ok
 	ok
 
-	_bAsObjectQ = 1
-	_bAsObject = 0
+	$_bAsObjectQ = 1
+	$_bAsObject = 0
 
 	return pObject
 
@@ -981,7 +981,7 @@ func M(poStzObject)
 		ok
 	ok
 
-	_bModifiable = 1
+	$_bModifiable = 1
 	return poStzObject
 
 func These(p)
@@ -1005,8 +1005,8 @@ func These(p)
 		ok
 	ok
 
-	_bThese = 1
-	_bTheseQ = 0
+	$_bThese = 1
+	$_bTheseQ = 0
 
 	return p
 	# Must be reset to FALSE everytime These() is used.
@@ -1101,8 +1101,8 @@ func These(p)
 	#>
 
 func TheseNumbers(p)
-	_bThese = 1
-	_bTheseQ = 0
+	$_bThese = 1
+	$_bTheseQ = 0
 
 	if CheckingParams()
 		if NOT isList(p)
@@ -1157,8 +1157,8 @@ func TheseNumbers(p)
 	#>
 
 func TheseChars(p)
-	_bThese = 1
-	_bTheseQ = 0
+	$_bThese = 1
+	$_bTheseQ = 0
 
 	if CheckingParams()
 		if NOT isList(p)
@@ -1213,8 +1213,8 @@ func TheseChars(p)
 	#>
 
 func TheseStrings(p)
-	_bThese = 1
-	_bTheseQ = 0
+	$_bThese = 1
+	$_bTheseQ = 0
 
 	if CheckingParams()
 		if NOT isList(p)
@@ -1269,8 +1269,8 @@ func TheseStrings(p)
 	#>
 
 func TheseLists(p)
-	_bThese = 1
-	_bTheseQ = 0
+	$_bThese = 1
+	$_bTheseQ = 0
 
 	if CheckingParams()
 		if NOT isList(p)
@@ -1325,8 +1325,8 @@ func TheseLists(p)
 	#>
 
 func TheseObjects(p)
-	_bThese = 1
-	_bTheseQ = 0
+	$_bThese = 1
+	$_bTheseQ = 0
 
 	if CheckingParams()
 		if NOT isObject(p)
@@ -1383,8 +1383,8 @@ func TheseObjects(p)
 #--
 
 func TheseStzNumbers(p)
-	_bThese = 1
-	_bTheseQ = 0
+	$_bThese = 1
+	$_bTheseQ = 0
 
 	if CheckingParams()
 		if NOT isList(p)
@@ -1439,8 +1439,8 @@ func TheseStzNumbers(p)
 	#>
 
 func TheseStzChars(p)
-	_bThese = 1
-	_bTheseQ = 0
+	$_bThese = 1
+	$_bTheseQ = 0
 
 	if CheckingParams()
 		if NOT isList(p)
@@ -1495,8 +1495,8 @@ func TheseStzChars(p)
 	#>
 
 func TheseStzStrings(p)
-	_bThese = 1
-	_bTheseQ = 0
+	$_bThese = 1
+	$_bTheseQ = 0
 
 	if CheckingParams()
 		if NOT isList(p)
@@ -1551,8 +1551,8 @@ func TheseStzStrings(p)
 	#>
 
 func TheseStzLists(p)
-	_bThese = 1
-	_bTheseQ = 0
+	$_bThese = 1
+	$_bTheseQ = 0
 
 	if CheckingParams()
 		if NOT isList(p)
@@ -1607,8 +1607,8 @@ func TheseStzLists(p)
 	#>
 
 func TheseStzObjects(p)
-	_bThese = 1
-	_bTheseQ = 0
+	$_bThese = 1
+	$_bTheseQ = 0
 
 	if CheckingParams()
 		if NOT isList(p)
@@ -1675,8 +1675,8 @@ func TheseQ(p)
 		ok
 	ok
 
-	_bTheseQ = 1
-	_bThese = 0
+	$_bTheseQ = 1
+	$_bThese = 0
 
 	return p
 	# _bTheseQ Must be reset to FALSE everytime These() is used.
@@ -1778,8 +1778,8 @@ func TheseNumbersQ(p)
 		ok
 	ok
 
-	_bTheseQ = 1
-	_bThese = 0
+	$_bTheseQ = 1
+	$_bThese = 0
 
 	_nLen_ = len(p)
 	_anResult_ = []
@@ -1834,8 +1834,8 @@ func TheseCharsQ(p)
 		ok
 	ok
 
-	_bTheseQ = 1
-	_bThese = 0
+	$_bTheseQ = 1
+	$_bThese = 0
 
 	_nLen_ = len(p)
 	_acResult_ = []
@@ -1890,8 +1890,8 @@ func TheseStringsQ(p)
 		ok
 	ok
 
-	_bTheseQ = 1
-	_bThese = 0
+	$_bTheseQ = 1
+	$_bThese = 0
 
 	_nLen_ = len(p)
 	_acResult_ = []
@@ -1946,8 +1946,8 @@ func TheseListsQ(p)
 		ok
 	ok
 
-	_bTheseQ = 1
-	_bThese = 0
+	$_bTheseQ = 1
+	$_bThese = 0
 
 	_nLen_ = len(p)
 	_aResult_ = []
@@ -2002,8 +2002,8 @@ func TheseObjectsQ(p)
 		ok
 	ok
 
-	_bTheseQ = 1
-	_bThese = 0
+	$_bTheseQ = 1
+	$_bThese = 0
 
 	_nLen_ = len(p)
 	_aoResult_ = []
@@ -2058,8 +2058,8 @@ func TheseStzNumbersQ(p)
 		ok
 	ok
 
-	_bTheseQ = 1
-	_bThese = 0
+	$_bTheseQ = 1
+	$_bThese = 0
 
 	_nLen_ = len(p)
 	_aoResult_ = []
@@ -2114,8 +2114,8 @@ func TheseStzCharsQ(p)
 		ok
 	ok
 
-	_bTheseQ = 1
-	_bThese = 0
+	$_bTheseQ = 1
+	$_bThese = 0
 
 	_nLen_ = len(p)
 	_aoResult_ = []
@@ -2170,8 +2170,8 @@ func TheseStzStringsQ(p)
 		ok
 	ok
 
-	_bTheseQ = 1
-	_bThese = 0
+	$_bTheseQ = 1
+	$_bThese = 0
 
 	_nLen_ = len(p)
 	_aoResult_ = []
@@ -2226,8 +2226,8 @@ func TheseStzListsQ(p)
 		ok
 	ok
 
-	_bTheseQ = 1
-	_bThese = 0
+	$_bTheseQ = 1
+	$_bThese = 0
 
 	_nLen_ = len(p)
 	_aoResult_ = []
@@ -2282,8 +2282,8 @@ func TheseStzObjectsQ(p)
 		ok
 	ok
 
-	_bTheseQ = 1
-	_bThese = 0
+	$_bTheseQ = 1
+	$_bThese = 0
 
 	_nLen_ = len(p)
 	_aoResult_ = []
@@ -2427,7 +2427,7 @@ func @ForEach(p, pIn)
 	#>
 
 func StzActivateParamChecking()
-	_bParamCheck = 1
+	$_bParamCheck = 1
 
 	func ActivateParamChecking()
 		StzActivateParamChecking()
@@ -2469,7 +2469,7 @@ func StzActivateParamChecking()
 	#>
 
 func StzDesactivateParamChecking()
-	_bParamCheck = 0
+	$_bParamCheck = 0
 
 	func DesactivateParamChecking()
 		StzDesactivateParamChecking()
@@ -2621,22 +2621,22 @@ func StzEarlyCheck()
 		return StzEarlyCheck()
 
 func StzEarlyCheckOn()
-	_bEarlyCheck = 1
+	$_bEarlyCheck = 1
 
 	func EarlyCheckOn()
 		StzEarlyCheckOn()
 
 	func ActivateEarlyCheck()
-		_bEarlyCheck = 1
+		$_bEarlyCheck = 1
 
 	func EarlyChecksOn()
-		_bEarlyCheck = 1
+		$_bEarlyCheck = 1
 
 	func ActivateEarlyChecks()
-		_bEarlyCheck = 1
+		$_bEarlyCheck = 1
 
 func StzEarlyCheckOff()
-	_bEarlyCheck = 0
+	$_bEarlyCheck = 0
 
 	func EarlyCheckOff()
 		StzEarlyCheckOff()
@@ -2657,7 +2657,7 @@ func StzSetEarlyCheck(b)
 		ok
 	ok
 
-	_bEarlyCheck = b
+	$_bEarlyCheck = b
 
 	func SetEarlyCheck(b)
 		StzSetEarlyCheck(b)
@@ -2929,7 +2929,7 @@ func StzSetQuietEqualityRatio(_n_)
 	ok
 
 	if _n_ >= 0 and _n_ <= 1
-		_nQuietEqualityRatio = _n_
+		$_nQuietEqualityRatio = _n_
 	ok
 
 	func SetQuietEqualityRatio(_n_)

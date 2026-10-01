@@ -968,7 +968,7 @@ func SetActiveRound(n)
 		StzRaise("Incorrect value! n must be in the range 1 to " + MaxRoundInRing() + ".")
 	ok
 
-	_nActiveRound = n
+	$_nActiveRound = n
 	decimals(n)
 
 	func StzDecimals(n)

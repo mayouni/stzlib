@@ -4,7 +4,7 @@ $_b = 0 	# Used for ternary operators in C
 $_bv = ""	# Idem
 
 func b(e)
-	_b = e
+	$_b = e
 
 func bv(val1, val2)
 	_nLen_ = len($_aVars)

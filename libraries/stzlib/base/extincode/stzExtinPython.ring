@@ -153,7 +153,7 @@ func _if(pExpressionOrBoolean)
 	if len($_aTempVars) = 0
 	    StzRaise("No temp vars defined! Call vr() first.")
 	ok
-	_bVarReset = 0
+	$_bVarReset = 0
 	_bTemp_ = 1
 	if isString(pExpressionOrBoolean)
 		_cCode_ = '_bTemp_ = (' + pExpressionOrBoolean + ')'
@@ -162,7 +162,7 @@ func _if(pExpressionOrBoolean)
 		_bTemp_ = pExpressionOrBoolean
 	ok
 	if _bTemp_ = 0
-		_bVarReset = 1
+		$_bVarReset = 1
 	ok
 	func if_(pExpressionOrBoolean)
 		return _if(pExpressionOrBoolean)
@@ -194,10 +194,10 @@ func _else(_value_)
             ok
         next
         if _nLen_ > 0
-            _var = [ $_aTempVars[_nLen_][1], _aValues_[_nLen_] ]
+            $_var = [ $_aTempVars[_nLen_][1], _aValues_[_nLen_] ]
         ok
         if oldval() = ""
-            _oldVar = _var
+            $_oldVar = $_var
         ok
     ok
     func else_(_value_)

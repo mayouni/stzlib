@@ -2188,7 +2188,7 @@ func StzSetMarquerChar(c)
 		StzRaise("Incorrect param type! c must be a char.")
 	ok
 
-	_cMarquerChar = c
+	$_cMarquerChar = c
 
 	func SetMarquerChar(c)
 		StzSetMarquerChar(c)

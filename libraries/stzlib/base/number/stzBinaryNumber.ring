@@ -28,7 +28,7 @@ def BinaryPrefixes()
 def SetBinaryNumberPrefix(pcBinaryPrefix)
 
 	if isString(pcBinaryPrefix) and StzFindFirst(pcBinaryPrefix, BinaryPrefixes()) > 0
-		_cBinaryNumberPrefix = pcBinaryPrefix
+		$_cBinaryNumberPrefix = pcBinaryPrefix
 
 	else
 		StzRaise("Incorrect hex number prefix!")
