@@ -42,7 +42,7 @@ func StzKeepingHistoryXT()
 #-- Enhanced History Control Functions
 
 func StzKeepHistoryON()
-	_bKeepHisto = 1
+	$_bKeepHisto = 1
 
 	func KeepHistoryON()
 		StzKeepHistoryON()
@@ -57,7 +57,7 @@ func StzKeepHistoryON()
 		StzKeepHistoryON()
 
 func StzKeepHistoryOFF()
-	_bKeepHisto = 0
+	$_bKeepHisto = 0
 
 	func KeepHistoryOFF()
 		StzKeepHistoryOFF()

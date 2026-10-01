@@ -9,7 +9,7 @@ func CheckingParams()
 	return $_bParamCheck
 
 func SetParamCheckingTo(bValue)
-	_bParamCheck = bValue
+	$_bParamCheck = bValue
 
 # Early checking (preliminary validations before heavy operations)
 _bEarlyCheck = 1
@@ -18,7 +18,7 @@ func EarlyChecking()
 	return $_bEarlyCheck
 
 func SetEarlyCheckingTo(bValue)
-	_bEarlyCheck = bValue
+	$_bEarlyCheck = bValue
 
 # Softanza version
 $SOFTANZA_VERSION = "0.9"

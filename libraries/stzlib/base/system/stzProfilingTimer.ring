@@ -19,13 +19,13 @@ func Concat(aList)
 	return _c_
 
 func StzStartTimer()
-	_time0 = clock()
+	$_time0 = clock()
 
 	func StartTimer()
 		StzStartTimer()
 
 func StzResetTimer()
-	_time0 = clock()
+	$_time0 = clock()
 
 	func ResetTimer()
 		StzResetTimer()

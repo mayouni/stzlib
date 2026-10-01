@@ -62,7 +62,7 @@ func INSERT_INTO(pcTableName, pacColNames)
 			StzRaise("Incorrect param type! pacColNames must be a list of string.")
 		ok
 	ok
-	_aINSERT_INTO_VALUES = [ pcTableName, pacColNames ]
+	$_aINSERT_INTO_VALUES = [ pcTableName, pacColNames ]
 	
 	#< @FunctionAlternativeForms
 	func _INSERT_INTO(pcTableName, pacColNames)

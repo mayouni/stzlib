@@ -59,13 +59,13 @@ func StzWordIdentificationMode()
 		return StzWordIdentificationMode()
 
 func StzIdentifyWordsInQuickMode()
-	_cWordIdentificationMode = :Quick
+	$_cWordIdentificationMode = :Quick
 
 	func IdentifyWordsInQuickMode()
 		StzIdentifyWordsInQuickMode()
 
 func StzIdentifyWordsInStrictMode()
-	_cWordIdentificationMode = :Strict
+	$_cWordIdentificationMode = :Strict
 
 	func IdentifyWordsInStrictMode()
 		StzIdentifyWordsInStrictMode()
