@@ -860,7 +860,15 @@ fn rawMembrane(s: Spec, hz0: f64, hz1: f64, hold: f64, variant: u32, rate: u32, 
 }
 
 /// A synthesised kit: kick (a membrane whose pitch drops as it is struck),
-/// snare (a rim-struck membrane plus wires), hi-hat (noise, highpassed twice).
+/// snare (a rim-struck membrane plus wires), hi-hat (noise, highpassed twice),
+/// and -- MU13 -- two CYMBALS: crash (3) and ride (4). A cymbal is metal, not a
+/// membrane: six square partials at inharmonic ratios (the ones drum machines
+/// have used since the 1980s, because a plate's modes are that crowded and that
+/// unrelated), highpassed twice, over highpassed noise. The crash washes and
+/// rings long; the ride has less wash, a shorter body and a BELL -- a sine ping
+/// two octaves over the metal -- which is what a ride's stick-on-bow sounds like.
+const CYMBAL_R = [_]f64{ 1.0, 1.4831, 1.9318, 2.5460, 2.6302, 3.8970 };
+
 fn rawKit(hz: f64, variant: u32, rate: u32, out: []f32) void {
     const ratef: f64 = @floatFromInt(rate);
     var rng = Lcg{};
@@ -869,6 +877,10 @@ fn rawKit(hz: f64, variant: u32, rate: u32, out: []f32) void {
     var n1: f64 = 0;
     var h1: f64 = 0;
     var hp1: f64 = 0;
+    var mph = [_]f64{0} ** 6;
+    var m1: f64 = 0;
+    var mh1: f64 = 0;
+    const base = 3.2 * hz;
     for (out, 0..) |*o, f| {
         const t = @as(f64, @floatFromInt(f)) / ratef;
         const nz: f64 = rng.next();
@@ -889,6 +901,28 @@ fn rawKit(hz: f64, variant: u32, rate: u32, out: []f32) void {
                 ph0 += hz / ratef;
                 ph1 += hz * MODE_R[2] / ratef;
                 y += 0.8 * (nz - n1) * @exp(-t / 0.15);
+            },
+            3, 4 => {
+                var m: f64 = 0;
+                for (&mph, 0..) |*q, k| {
+                    m += if (@sin(2.0 * PI * q.*) >= 0) 1.0 / 6.0 else -1.0 / 6.0;
+                    q.* += base * CYMBAL_R[k] / ratef;
+                    q.* -= @floor(q.*);
+                }
+                const mh = m - m1;
+                const mh2 = mh - mh1;
+                m1 = m;
+                mh1 = mh;
+                const hp = nz - n1;
+                const hp2 = hp - hp1;
+                hp1 = hp;
+                if (variant == 3) {
+                    y = (0.55 * mh2 + 0.45 * hp2) * @exp(-t / 1.1) * 0.6;
+                } else {
+                    y = 0.45 * mh2 * @exp(-t / 0.9) + 0.2 * hp2 * @exp(-t / 0.35) +
+                        0.3 * @sin(2.0 * PI * ph0) * @exp(-t / 0.3);
+                    ph0 += 4.0 * base / ratef;
+                }
             },
             else => {
                 const hp = nz - n1;
@@ -980,7 +1014,9 @@ pub fn renderNote(inst: u32, hz: f64, hz_end: f64, hold: f64, vel: f64, variant:
         last_reason = R_GLIDE;
         return 0;
     }
-    if ((s.engine == ENGINE_MEMBRANE and variant > 2) or (s.engine != ENGINE_MEMBRANE and variant != 0)) {
+    // a hand drum has three strokes; the kit five (MU13 added crash and ride)
+    const most: u32 = if (s.engine == ENGINE_MEMBRANE and s.kind == 2) 4 else 2;
+    if ((s.engine == ENGINE_MEMBRANE and variant > most) or (s.engine != ENGINE_MEMBRANE and variant != 0)) {
         last_reason = R_VARIANT;
         return 0;
     }
@@ -1665,4 +1701,37 @@ test "MU7: the unguided pitch reader finds the note with no guess -- and noise h
     const rn = detectPitch(&buf, rate, 4800, 2048, 50, 2000);
     std.debug.print("  MU7 unguided pitch on noise: {d:.1} Hz, clarity {d:.3}\n", .{ rn, last_clarity });
     try testing.expect(rn == 0 or last_clarity < 0.5);
+}
+
+test "MU13: the kit's cymbals ring as metal -- the crash long, the ride with a bell -- and a hand drum has none" {
+    const al = testing.allocator;
+    const out = try al.alloc(f32, 48000 * 4);
+    defer al.free(out);
+    const scr = try al.alloc(f32, scratchFrames(48000));
+    defer al.free(scr);
+    var kit: u32 = 0;
+    var drb: u32 = 0;
+    for (SPECS, 0..) |sp, i| {
+        if (std.mem.eql(u8, sp.name, "drumkit")) kit = @intCast(i);
+        if (std.mem.eql(u8, sp.name, "darbouka")) drb = @intCast(i);
+    }
+    // energy late (0.6 to 1.0 s) over energy early (0 to 0.1 s), per stroke
+    var late = [_]f64{0} ** 5;
+    for (0..5) |v| {
+        const n = renderNote(kit, 126, 126, 1.5, 0.8, @intCast(v), 48000, out, scr);
+        try testing.expect(n > 48000);
+        var e0: f64 = 0;
+        var e1: f64 = 0;
+        for (out[0..4800]) |x| e0 += x * x;
+        for (out[28800..48000]) |x| e1 += x * x;
+        late[v] = e1 / (e0 + 1e-12);
+    }
+    std.debug.print("\n  MU13 late/early energy: kick {d:.4} snare {d:.4} hihat {d:.6} crash {d:.4} ride {d:.4}\n", .{ late[0], late[1], late[2], late[3], late[4] });
+    // the hihat is gone by 0.6 s; the crash is still ringing
+    try testing.expect(late[2] < 0.001);
+    try testing.expect(late[3] > 0.05);
+    try testing.expect(late[4] > late[2] * 10);
+    // a darbouka has dum, tak and ka -- no cymbal
+    try testing.expectEqual(@as(usize, 0), renderNote(drb, 150, 150, 1.0, 0.8, 3, 48000, out, scr));
+    try testing.expectEqual(R_VARIANT, last_reason);
 }

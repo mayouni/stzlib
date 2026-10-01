@@ -420,6 +420,8 @@ class stzSoundNotation
 		on "snare"  return 38
 		on "hihat"  return 42
 		on "hat"    return 42      # the score's alias; it was written as 39, a hand clap
+		on "crash"  return 49      # MU13: crash cymbal 1
+		on "ride"   return 51      # MU13: ride cymbal 1
 		on "dum"    return 64
 		on "tak"    return 63
 		on "ka"     return 62

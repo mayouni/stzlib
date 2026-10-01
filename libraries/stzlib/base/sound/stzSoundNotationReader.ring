@@ -430,6 +430,10 @@ class stzSoundNotationReader
 		on 42  return "hihat"
 		on 44  return "hihat"
 		on 46  return "hihat"
+		on 49  return "crash"         # MU13: crash cymbals 1 and 2
+		on 57  return "crash"
+		on 51  return "ride"          # ride cymbals 1 and 2
+		on 59  return "ride"
 		on 62  return "ka"
 		on 63  return "tak"
 		on 64  return "dum"
