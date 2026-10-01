@@ -197,6 +197,14 @@ class stzSoundUniverse
 	def HasScale()
 		return len(This._Get(@aMode, :degrees, [])) > 0
 
+	# MU10: this mode drawn as a ladder -- a rung per degree, spaced by cents
+	def LadderQ()
+		# in steps: a method called on an object returned INSIDE a method's
+		# return dies silently in Ring (MU5's finding, met again here)
+		_o_ = StzSoundLadderQ(@cName, This.ModeName())
+		_o_.Tonic(@cTonic)
+		return _o_
+
 	#-- the pitch vocabulary -------------------------------------------------
 
 	# Cents above the tonic of degree `pcDegree` ("5", "5_", "9"), reached

@@ -1993,3 +1993,125 @@ Each was shown to fail before its fix and to pass after it.
 
 The sound regression is **919 passed, 0 failed** over 30 guard files. It is
 the first fully green run since MU1, where the `:Muted` three turned red.
+
+---
+
+## MU10 STATUS — 2026-10-01. The score drawn on the staff, and a mode drawn as a ladder
+
+**Why.** The Principal asked whether the library could display "a music
+ladder", and then said what they meant: *"the graphical music notation used by
+musicians to write down their melodies"*. That notation is the **staff**: the
+stave, *la portée*, *al-madraj al-musiqi*, which is literally "the musical
+ladder", and probably the source of the word. The **maqam ladder** is a
+different picture: one mode drawn as rungs spaced by cents. The Principal asked
+for that too ("do the maqam ladder"). Both are built.
+
+**Face.**
+
+- `base/sound/stzSoundStaff.ring`: `StzSoundStaffQ(oScore)` with `SetMeter`,
+  `SetWidth`, `ToSVG`, `ToHTML`, `SaveAs`, `Model`, `Losses`, `Clefs`, `Bars`
+  and `Systems`.
+- `base/sound/stzSoundLadder.ring`: `StzSoundLadderQ(universe, mode)` with
+  `Rungs`, `DescendingRungs`, `Steps`, `Ajnas`, `ToText`, `ToSVG`, `ToHTML`
+  and `SaveAs`.
+- `stzSoundUniverse.LadderQ()`, which keeps the universe's tonic.
+
+No engine change.
+
+**Guard.** `sound_mu10_narrated.ring`: **33**.
+**Seen.** `sound_mu10_demo.ring` draws:
+
+- MU8's Rast phrase, and MU7's sonified series (the one the Principal heard
+  as music), as sheet music;
+- the ladders of Tunisian Dhil, Tunisian Sika with its "Tunisian hijaz", Arab
+  Rast, and slendro.
+
+### The staff
+
+**The model first, the picture second.** The layout is computed as a list of
+marks: each notehead with its staff step, and each accidental, rest, tie,
+beam, flag, dot, ledger line and barline. Only then is it written as SVG, so
+the guard holds the MODEL to the rules of notation rather than reading pixels.
+
+What is drawn:
+
+- **Staves and clefs**: one staff per instrument, treble or bass chosen by
+  where the voice lies; the metre (`SetMeter`, 4/4 by default); systems
+  broken to the page width, every one but the last justified.
+- **Note values**: notes split at barlines and tied, also across systems;
+  dotted values; the room left in the bar, not the note's length, decides the
+  split.
+- **Chords and stems**: a second's heads are set either side of the stem;
+  stems turn at the middle line and reach it from far ledger lines.
+- **Beams and flags**: eighths and sixteenths are beamed by the beat (by the
+  dotted quarter in 6/8, 9/8 and 12/8), sixteenths take a second beam or a
+  stub, and a lone eighth takes a flag.
+- **Rests** fill every gap, and an empty bar takes one centred whole rest.
+- **Accidentals** hold until the barline, for their octave only, and a tied
+  continuation shows none. **Quarter tones** are drawn as Arabic notation
+  draws them: a half-flat is a flat struck through, a half-sharp a sharp with
+  one vertical.
+- **The title and the tempo.**
+
+Every mark is drawn as a shape except the clefs. Those come from the Unicode
+Musical Symbols block in whichever font the viewer has (Segoe UI Symbol on
+Windows), and the treble clef was calibrated by eye in that font.
+
+### The ladder
+
+- **The rungs** are the mode's declared degrees, spaced by cents, so Rast's
+  half-flat third sits visibly half way between a minor and a major third.
+  The octave is the declared one: slendro's is 1208 cents, not 1200.
+- **Steps between rungs** are labelled in cents and, where one exists, in
+  tones ("150 ¢ (3/4 tone)").
+- **The descending form**, where it differs, is a dashed rung: Rast's seventh
+  is 1050 going up and 1000 coming down.
+- **The variants the sources give** are dotted rungs with the source named:
+  Dhil's third at 300, 350 and 400 cents.
+- **The ajnas** are brackets beside the rails. A jins counted from its own
+  degree lands there (Sika's rast spans 350–850 cents); one declared from
+  below the tonic is drawn below it (Dhil's rast on G).
+- **A degree left out going down** is marked, behind a faint quarter-tone
+  grid.
+- **Nothing is inferred.** A universe with no scale has no ladder, and the
+  refusal says so.
+
+### Checked, and shown able to fail
+
+- **The 33 checks**: the steps of C4, E4, F5 and A5 on the treble staff, and
+  of G2 to C4 on the bass; stem directions; beams and their levels; flags,
+  dots and ties; the barline split from mid-bar; rests; accidentals across
+  barlines; the half-flat drawn; the displaced second; systems and
+  justification; two staves and their clefs; 6/8 beaming; losses; well-formed
+  SVG; and every ladder number against its declaration.
+- **Seven mutations**, each of which turned at least one check red: the clef
+  always treble, accidentals kept across barlines, nothing beamed, no split at
+  the barline, stems inverted, a jins's degree ignored, and the octave forced
+  to 1200.
+- **No split at the barline** first passed unnoticed: the guard's only
+  crossing note began ON a barline. A note begun on beat four now catches it.
+
+### Found
+
+1. **`oR` is `or`**, the fourth phase running: twice in this phase, in a smoke
+   test and in the guard.
+2. **A method called on an object built inside a method's `return` dies
+   silently** (MU5's finding, met again in `LadderQ`). It is now done in
+   steps.
+3. **The treble clef glyph is not drawn to staff metrics.** The first size put
+   its curl on the middle line, and it was calibrated by eye in the browser.
+
+### What MU10 does NOT do
+
+- **No key signature**: every alteration is written on its note, which is how
+  quarter-tone melodies are usually written anyway.
+- **No percussion staff**: strokes are counted in Losses.
+- **No dynamics, articulations, lyrics, slurs or tuplet brackets.**
+- **No collision avoidance beyond the displaced second**, so dense chords with
+  many accidentals may crowd.
+
+**The listener's line**: whether these pages READ as sheet music to a
+musician, and as a ladder to someone who learnt maqam from one, is
+**UNPERCEIVED**.
+
+**Regression.** The sound regression is **952 passed, 0 failed** (919 + 33).
