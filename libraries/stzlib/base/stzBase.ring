@@ -149,6 +149,8 @@ ok
     load "sound/stzSoundTranscriber.ring"
     load "sound/stzSoundNotation.ring"
     load "sound/stzSoundNotationReader.ring"
+    load "sound/stzSoundStaff.ring"
+    load "sound/stzSoundLadder.ring"
     load "sound/stzMusic.ring"
     load "sound/stzMicrophone.ring"
 
