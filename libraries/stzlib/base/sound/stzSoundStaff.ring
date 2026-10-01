@@ -66,6 +66,16 @@
 # the hands, lowered for the feet). A kit with only hands, or only feet, stays
 # one voice.
 #
+# METRE CHANGES (MU13). MeterChangeAt(beat, beats, unit) changes the time
+# signature at a barline (inside a bar it moves to the next, counted): every bar
+# then has its own length, its own beat for beaming (the dotted quarter in 6/8),
+# and the new signature is drawn where it begins -- after a key change, on every
+# staff, in the system's head when it begins one, with a courtesy signature at
+# the end of the system before.
+#
+# CYMBALS (MU13). The kit's crash and ride: x heads, the ride on the top line,
+# the crash on a ledger line above, in the hands' voice.
+#
 # WHAT IS NOT (named, as the writers name theirs): a pitch further than 5 cents from the nearest quarter tone is drawn at
 # that quarter tone and COUNTED (slendro); no dynamics, articulations, lyrics or
 # slurs.
@@ -105,6 +115,10 @@ class stzSoundStaff
 	@cKeyName = ""
 	@aModeSig = []             # what SetKeyOfMode read from the declaration
 	@cModeName = ""
+
+	# metre changes (MU13)
+	@aMeterReq = []            # [ beat, beats, unit ] asked by MeterChangeAt
+	@aBars = []                # [ start16, len16, beats, unit ] per bar
 
 	# key changes (MU12)
 	@aKeyReq = []              # [ beat, sig, fifths, name ] asked by KeyChangeAt
@@ -205,6 +219,30 @@ class stzSoundStaff
 			_aSig_[_l_] = _a_
 		next
 		return [ _aSig_, _oU_.Name() + " / " + _oU_.ModeName() ]
+
+	# MU13: the time signature changes at the barline at (or after) `pnBeat`
+	def MeterChangeAt(pnBeat, pnBeats, pnUnit)
+		if NOT isNumber(pnBeat) or pnBeat < 0
+			@cLastError = "MeterChangeAt: a beat is 0 or later"
+			return This
+		ok
+		if NOT isNumber(pnBeats) or pnBeats < 1 or pnBeats > 32 or ring_find([ 2, 4, 8, 16 ], pnUnit) = 0
+			@cLastError = "MeterChangeAt: beats 1 to 32 over a unit of 2, 4, 8 or 16"
+			return This
+		ok
+		@aMeterReq + [ pnBeat, pnBeats, pnUnit ]
+		return This
+
+	def MeterChangeAtQ(pnBeat, pnBeats, pnUnit)
+		return This.MeterChangeAt(pnBeat, pnBeats, pnUnit)
+
+	# [ bar (from 1), beats, unit ] for the first metre and every change -- after ToSVG
+	def Meters()
+		_a_ = []
+		for _b_ = 0 to len(@aBars) - 1
+			if _b_ = 0 or This._MeterChangesAt(_b_)  _a_ + [ _b_ + 1, @aBars[_b_ + 1][3], @aBars[_b_ + 1][4] ] ok
+		next
+		return _a_
 
 	# MU12: the key changes at the barline at (or after) `pnBeat`
 	def KeyChangeAt(pnBeat, pKey)
@@ -345,14 +383,13 @@ class stzSoundStaff
 				if _g_[1] + _g_[2] > _end_  _end_ = _g_[1] + _g_[2] ok
 			next
 		next
-		@nBars = ceil(_end_ / @nBarLen)
-		if @nBars < 1  @nBars = 1 ok
+		This._BuildBars(_end_)
 		# the key, then every pitch spelled IN it
 		This._ResolveKey(_aV_)
 		# each pitch spelled in the key in force where it begins
 		for _vi_ = 1 to len(_aV_)
 			for _gi_ = 1 to len(_aV_[_vi_][2])
-				_aK_ = This._KeyAt(floor(_aV_[_vi_][2][_gi_][1] / @nBarLen))
+				_aK_ = This._KeyAt(This._BarOf(_aV_[_vi_][2][_gi_][1]))
 				for _pi_ = 1 to len(_aV_[_vi_][2][_gi_][3])
 					_aV_[_vi_][2][_gi_][3][_pi_] = This._RespellIn(_aV_[_vi_][2][_gi_][3][_pi_], _aK_[2], _aK_[3])
 				next
@@ -360,7 +397,7 @@ class stzSoundStaff
 		next
 		# a staff entry: [ instrument, clef, pieces, voice ("" | "up" | "down"), the entry it shares a staff with ]
 		for _v_ in _aV_
-			@aStaves + [ _v_[1], This._ClefOf(_v_[2]), This._Pieces(_v_[2], @nBars * @nBarLen), "", 0 ]
+			@aStaves + [ _v_[1], This._ClefOf(_v_[2]), This._Pieces(_v_[2], This._TotalLen()), "", 0 ]
 		next
 		# the percussion staves, under the pitched ones; the kit's hands and feet as two voices
 		# the hands (and every one-voice drum) first, so the feet find their staff
@@ -380,20 +417,20 @@ class stzSoundStaff
 					if @aStaves[_k_][1] = _v_[1] and @aStaves[_k_][4] = "up"  _host_ = _k_ ok
 				next
 				if _host_ > 0
-					@aStaves + [ _v_[1], _cl_, This._Pieces(_v_[2], @nBars * @nBarLen), "down", _host_ ]
+					@aStaves + [ _v_[1], _cl_, This._Pieces(_v_[2], This._TotalLen()), "down", _host_ ]
 				else
-					@aStaves + [ _v_[1], _cl_, This._Pieces(_v_[2], @nBars * @nBarLen), "", 0 ]
+					@aStaves + [ _v_[1], _cl_, This._Pieces(_v_[2], This._TotalLen()), "", 0 ]
 				ok
 			else
 				_role_ = ""
 				for _w_ in _aDr_
 					if _w_[1] = _v_[1] and _w_[3] = "down"  _role_ = "up" ok
 				next
-				@aStaves + [ _v_[1], _cl_, This._Pieces(_v_[2], @nBars * @nBarLen), _role_, 0 ]
+				@aStaves + [ _v_[1], _cl_, This._Pieces(_v_[2], This._TotalLen()), _role_, 0 ]
 			ok
 		next
 		if len(@aStaves) = 0
-			@aStaves + [ "piano", "treble", This._Pieces([], @nBars * @nBarLen), "", 0 ]
+			@aStaves + [ "piano", "treble", This._Pieces([], This._TotalLen()), "", 0 ]
 		ok
 		for _k_ = 1 to len(@aStaves)  This._Accidentals(_k_) next
 
@@ -431,13 +468,14 @@ class stzSoundStaff
 			_left_ = _e_[2]
 			_bFirst_ = TRUE
 			while _left_ > 0
-				_bar_ = floor(_at_ / @nBarLen)
-				_pos_ = _at_ % @nBarLen
-				_room_ = @nBarLen - _pos_
-				if len(_e_[3]) = 0 and _pos_ = 0 and _left_ >= @nBarLen
-					_aP_ + [ _bar_, 0, @nBarLen, [], FALSE, FALSE, TRUE ]
-					_at_ += @nBarLen
-					_left_ -= @nBarLen
+				_bar_ = This._BarOf(_at_)
+				_bl_ = This._BarLenOf(_bar_)
+				_pos_ = _at_ - This._BarStart(_bar_)
+				_room_ = _bl_ - _pos_
+				if len(_e_[3]) = 0 and _pos_ = 0 and _left_ >= _bl_
+					_aP_ + [ _bar_, 0, _bl_, [], FALSE, FALSE, TRUE ]
+					_at_ += _bl_
+					_left_ -= _bl_
 					loop
 				ok
 				_take_ = This._Value(_left_, _room_)
@@ -536,7 +574,7 @@ class stzSoundStaff
 		for _b_ = 0 to @nBars - 1
 			_aC_ = This._Columns(_b_)
 			_aBarCols_ + _aC_
-			_w_ = 1.2 * _sp_ + This._ChangeW(_b_)         # MU12: room for a key change at its head
+			_w_ = 1.2 * _sp_ + This._LeadW(_b_)           # MU12-13: room for a key or metre change at its head
 			for _c_ in _aC_  _w_ += _c_[2] next
 			_aBarW_ + _w_
 		next
@@ -547,7 +585,7 @@ class stzSoundStaff
 			_x0_ = @nLeft
 			# the head: the clef, the key IN FORCE at this system's first bar, the metre once
 			_h_ = 4.6 * _sp_ + This._KeyW(This._KeyAt(_b_ - 1)[4])
-			if len(@aSystems) = 0  _h_ += 3.0 * _sp_ ok
+			if len(@aSystems) = 0 or This._MeterChangesAt(_b_ - 1)  _h_ += 3.0 * _sp_ ok
 			_avail_ = _right_ - _x0_ - _h_
 			_sum_ = 0
 			_e_ = _b_
@@ -621,7 +659,7 @@ class stzSoundStaff
 		_aPos_ = sort(_aPos_)
 		_aC_ = []
 		for _i_ = 1 to len(_aPos_)
-			_gap_ = @nBarLen - _aPos_[_i_]
+			_gap_ = This._BarLenOf(pnBar) - _aPos_[_i_]
 			if _i_ < len(_aPos_)  _gap_ = _aPos_[_i_ + 1] - _aPos_[_i_] ok
 			_w_ = @nSp * (1.7 + 1.25 * log(_gap_ + 1) / log(2))
 			_acc_ = FALSE
@@ -659,6 +697,8 @@ class stzSoundStaff
 			on "dum"    return 1
 			on "hihat"  return 9
 			on "ka"     return 9
+			on "ride"   return 8                                    # MU13: the ride on the top line
+			on "crash"  return 10                                   # the crash on a ledger line above
 			off
 			return 5
 		ok
@@ -714,10 +754,10 @@ class stzSoundStaff
 					_kx_ += 1.25 * _sp_
 				next
 			ok
-			if pnS = 1
-				_mx_ = _x0_ + 4.6 * _sp_ + _kw_ + 1.1 * _sp_
-				_o_ += This._Text(_mx_, _top_ + 1.75 * _sp_, "" + @nBeats, 2.2 * _sp_, "middle", "bold") +
-				       This._Text(_mx_, _top_ + 3.75 * _sp_, "" + @nUnit, 2.2 * _sp_, "middle", "bold")
+			if pnS = 1 or This._MeterChangesAt(_sy_[1] - 1)
+				_aMh_ = This._MeterOf(_sy_[1] - 1)
+				_o_ += This._MeterGlyph(_x0_ + 4.6 * _sp_ + _kw_ + 1.1 * _sp_, _top_, _aMh_[1], _aMh_[2])
+				@aModel + [ "meter", _no_, pnS, _sy_[1], _aMh_[1], _aMh_[2], "head" ]
 			ok
 			if pnS = 1 and len(This.Clefs()) > 1
 				_o_ += This._Text(_x0_ - 8, _top_ + 2.4 * _sp_, @aStaves[_k_][1], 13, "end", "")
@@ -736,6 +776,9 @@ class stzSoundStaff
 			# a key change inside the system: naturals, then the new key, at the bar's head
 			if _b_ > _sy_[1] and This._ChangeW(_b_ - 1) > 0
 				_o_ += This._DrawKeyChange(pnS, _b_, _bx_ + 0.5 * _sp_, "keychange")
+			ok
+			if _b_ > _sy_[1] and This._MeterChangesAt(_b_ - 1)
+				_o_ += This._DrawMeterChange(pnS, _b_, _bx_ + This._ChangeW(_b_ - 1) + 1.5 * _sp_, "change")
 			ok
 			# column x: the columns' natural widths, stretched with the bar
 			_aCX_ = []
@@ -773,7 +816,12 @@ class stzSoundStaff
 		next
 		# the courtesy key, after the last barline, when the next system changes key
 		if _sy_[6] > 0
-			_o_ += This._DrawKeyChange(pnS, _sy_[2] + 1, _aX_[len(_aX_)] + 0.6 * _sp_, "keycourtesy")
+			if This._ChangeW(_sy_[2]) > 0
+				_o_ += This._DrawKeyChange(pnS, _sy_[2] + 1, _aX_[len(_aX_)] + 0.6 * _sp_, "keycourtesy")
+			ok
+			if This._MeterChangesAt(_sy_[2])
+				_o_ += This._DrawMeterChange(pnS, _sy_[2] + 1, _aX_[len(_aX_)] + This._ChangeW(_sy_[2]) + 1.5 * _sp_, "courtesy")
+			ok
 		ok
 		@aModel + [ "system", pnS, _sy_[2] - _sy_[1] + 1 ]
 		return _o_
@@ -829,8 +877,10 @@ class stzSoundStaff
 			ok
 		next
 		# the beam groups: two or more eighths or shorter inside one beat, no rest between
+		# the beat this bar's metre beams by: the dotted quarter in compound time
+		_aMt_ = This._MeterOf(pnBar)
 		_grp_ = 4
-		if @nUnit = 8 and @nBeats % 3 = 0  _grp_ = 6 ok
+		if _aMt_[2] = 8 and _aMt_[1] % 3 = 0  _grp_ = 6 ok
 		_aGroups_ = []
 		_cur_ = []
 		_curBeat_ = -1
@@ -963,7 +1013,7 @@ class stzSoundStaff
 			ok
 			_pp_ = paP[4][_h_[2]]
 			if This._IsPerc(pcClef)
-				_bX_ = (_pp_[1] = "hihat" or _pp_[1] = "ka")
+				_bX_ = (_pp_[1] = "hihat" or _pp_[1] = "ka" or _pp_[1] = "ride" or _pp_[1] = "crash")
 				if _bX_
 					_o_ += This._XHead(_hx_, _y_)
 				else
@@ -1329,7 +1379,7 @@ class stzSoundStaff
 		if len(@aKeyReq) > 0
 			_first_ = 999999
 			for _q_ in @aKeyReq
-				_b_ = ceil(floor(_q_[1] * 4 + 0.5) / @nBarLen)
+				_b_ = This._BarAtOrAfter(floor(_q_[1] * 4 + 0.5))
 				if _b_ < _first_  _first_ = _b_ ok
 			next
 			if _first_ > 0
@@ -1337,7 +1387,7 @@ class stzSoundStaff
 				for _v_ in paV
 					_aG_ = []
 					for _g_ in _v_[2]
-						if _g_[1] < _first_ * @nBarLen  _aG_ + _g_ ok
+						if _g_[1] < This._BarStart(_first_)  _aG_ + _g_ ok
 					next
 					_aV1_ + [ _v_[1], _aG_ ]
 				next
@@ -1352,8 +1402,8 @@ class stzSoundStaff
 			for _x_ in _aR_
 				_q_ = _x_[2]
 				_s16_ = floor(_q_[1] * 4 + 0.5)
-				_bar_ = ceil(_s16_ / @nBarLen)
-				if _s16_ % @nBarLen != 0
+				_bar_ = This._BarAtOrAfter(_s16_)
+				if _bar_ < @nBars and This._BarStart(_bar_) != _s16_
 					This._Loss("a key change at beat " + _q_[1] + " falls inside bar " + (_bar_) + "; it is written at the next barline")
 				ok
 				if _bar_ >= @nBars  loop ok
@@ -1393,7 +1443,7 @@ class stzSoundStaff
 		next
 		for _v_ in paV
 			for _g_ in _v_[2]
-				_b_ = floor(_g_[1] / @nBarLen) + 1
+				_b_ = This._BarOf(_g_[1]) + 1
 				if _b_ > _nB_  loop ok
 				for _p_ in _g_[3]
 					_m_ = This._Midi(_p_)
@@ -1469,7 +1519,7 @@ class stzSoundStaff
 			_aCnt_ = []
 			for _v_ in paV
 				for _g_ in _v_[2]
-					_b_ = floor(_g_[1] / @nBarLen)
+					_b_ = This._BarOf(_g_[1])
 					if _b_ < _sc_[1] or _b_ > _sc_[2]  loop ok
 					for _p_ in _g_[3]
 						_r_ = This._RespellIn(_p_, _aSig_, _sc_[3])
@@ -1579,6 +1629,7 @@ class stzSoundStaff
 	def _CourtesyW(pnE)
 		if pnE >= @nBars  return 0 ok
 		_w_ = This._ChangeW(pnE)
+		if This._MeterChangesAt(pnE)  _w_ += 3.0 * @nSp ok
 		if _w_ = 0  return 0 ok
 		return _w_ + 0.4 * @nSp
 
@@ -1586,8 +1637,95 @@ class stzSoundStaff
 	def _ColStart(pnS, pnBar, pnBx)
 		_sy_ = @aSystems[pnS]
 		_lead_ = 1.0 * @nSp
-		if pnBar + 1 > _sy_[1]  _lead_ += This._ChangeW(pnBar) ok
+		if pnBar + 1 > _sy_[1]  _lead_ += This._LeadW(pnBar) ok
 		return pnBx + _lead_ * _sy_[4]
+
+	#-- the bar map (MU13) --------------------------------------------------------
+
+	# every bar its start, its length and its metre, through the end of the music
+	def _BuildBars(pnEnd)
+		@aBars = []
+		_aR_ = []
+		for _q_ in @aMeterReq  _aR_ + [ floor(_q_[1] * 4 + 0.5) * 1000 + len(_aR_), floor(_q_[1] * 4 + 0.5), _q_[2], _q_[3], _q_[1] ] next
+		_aR_ = sort(_aR_, 1)
+		_t_ = 0
+		_nb_ = @nBeats
+		_nu_ = @nUnit
+		_i_ = 1
+		while _t_ < pnEnd or len(@aBars) = 0
+			while _i_ <= len(_aR_)
+				if _aR_[_i_][2] > _t_  exit ok
+				if _aR_[_i_][2] < _t_
+					This._Loss("a metre change at beat " + _aR_[_i_][5] + " falls inside a bar; it is written at the next barline")
+				ok
+				_nb_ = _aR_[_i_][3]
+				_nu_ = _aR_[_i_][4]
+				_i_++
+			end
+			_ln_ = _nb_ * 16 / _nu_
+			@aBars + [ _t_, _ln_, _nb_, _nu_ ]
+			_t_ += _ln_
+		end
+		@nBars = len(@aBars)
+		@nBarLen = @aBars[1][2]
+
+	def _TotalLen()
+		_n_ = len(@aBars)
+		return @aBars[_n_][1] + @aBars[_n_][2]
+
+	# the bar (from 0) a sixteenth falls in
+	def _BarOf(pnAt)
+		_b_ = 0
+		for _i_ = 1 to len(@aBars)
+			if @aBars[_i_][1] <= pnAt  _b_ = _i_ - 1 ok
+		next
+		return _b_
+
+	# the first bar (from 0) that begins at or after a sixteenth
+	def _BarAtOrAfter(pnAt)
+		_b_ = This._BarOf(pnAt)
+		if This._BarStart(_b_) < pnAt  _b_++ ok
+		return _b_
+
+	def _BarStart(pnB)
+		if pnB >= len(@aBars)  return This._TotalLen() ok
+		return @aBars[pnB + 1][1]
+
+	def _BarLenOf(pnB)
+		if pnB >= len(@aBars)  return @aBars[len(@aBars)][2] ok
+		return @aBars[pnB + 1][2]
+
+	def _MeterOf(pnB)
+		_k_ = pnB + 1
+		if _k_ > len(@aBars)  _k_ = len(@aBars) ok
+		if _k_ < 1  _k_ = 1 ok
+		return [ @aBars[_k_][3], @aBars[_k_][4] ]
+
+	def _MeterChangesAt(pnB)
+		if pnB <= 0 or pnB >= len(@aBars)  return FALSE ok
+		return @aBars[pnB + 1][3] != @aBars[pnB][3] or @aBars[pnB + 1][4] != @aBars[pnB][4]
+
+	# the room at the head of a bar: a key change, a metre change, or both
+	def _LeadW(pnB)
+		_w_ = This._ChangeW(pnB)
+		if This._MeterChangesAt(pnB)  _w_ += 3.0 * @nSp ok
+		return _w_
+
+	# a time signature: the two numbers, centred at x
+	def _MeterGlyph(pnX, pnTop, pnBeats, pnUnit)
+		return This._Text(pnX, pnTop + 1.75 * @nSp, "" + pnBeats, 2.2 * @nSp, "middle", "bold") +
+		       This._Text(pnX, pnTop + 3.75 * @nSp, "" + pnUnit, 2.2 * @nSp, "middle", "bold")
+
+	# the new metre of bar `pnBar1` (from 1), on every staff, centred at x
+	def _DrawMeterChange(pnS, pnBar1, pnX, pcKind)
+		_aM_ = This._MeterOf(pnBar1 - 1)
+		_o_ = ""
+		for _k_ = 1 to len(@aStaves)
+			if @aStaves[_k_][5] > 0  loop ok
+			_o_ += This._MeterGlyph(pnX, @aStaffY[pnS][_k_], _aM_[1], _aM_[2])
+			@aModel + [ "meter", This._StaffNo(_k_), pnS, pnBar1, _aM_[1], _aM_[2], pcKind ]
+		next
+		return _o_
 
 	# a staff entry's number as drawn: a second voice is its host's staff
 	def _StaffNo(pnK)

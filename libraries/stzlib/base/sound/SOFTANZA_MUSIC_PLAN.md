@@ -2305,3 +2305,100 @@ Two of them passed until a check was added:
 modulation as an engraver would mark it, is **UNPERCEIVED**.
 
 **Regression.** The sound regression is **1008 passed, 0 failed** (985 + 23).
+
+---
+
+## MU13 STATUS — 2026-10-01. Time signature changes, and the kit's cymbals: drawn, sounded and carried
+
+**Why.** MU12 named both as not done, and the Principal asked for them: *"add
+time signature changes and cymbal lines"*.
+
+**Engine.** `soundinstr.zig`, the seam (it still compiles for wasm32): the
+kit's synthesis gains two CYMBALS, variant 3 (crash) and variant 4 (ride).
+
+- Each is six square partials at inharmonic ratios, highpassed twice, over
+  highpassed noise.
+- The crash washes and rings (τ 1.1 s). The ride has less wash and a bell, a
+  sine ping two octaves over the metal (τ 0.9 s and 0.3 s).
+- A hand drum still has three strokes, and asking a darbouka for a cymbal is
+  refused (R_VARIANT).
+- One new Zig test, 9 of 9 green: energy late (0.6–1.0 s) over energy early
+  (0–0.1 s) is 1.01 for the crash, 0.12 for the ride, and 0.000000 for the
+  hi-hat.
+
+**Face.**
+
+- `stzSoundInstrument.ToSoundOfStroke`: :Crash and :Ride, which ring past
+  their written length, as cymbals do (at least 2.0 s and 1.2 s).
+- `stzSoundScore`: accepts both strokes.
+- `stzSoundPattern`: spells them `cr` and `rd`.
+- MIDI writes them as General MIDI 49 and 51, and reads 49/57 and 51/59 back.
+- `stzSoundStaff`: `MeterChangeAt(beat, beats, unit)` and `Meters()`, and
+  cymbals on the kit's staff.
+
+**Guard.** `sound_mu13_narrated.ring`: **19**. MU10, MU11 and MU12 are
+unchanged and green.
+**Seen and heard.** `sound_mu13_demo.ring` draws a melody in 4/4 → 3/4 → 6/8
+→ 4/4, and a beat on the ride with the crash on the one, both drawn and
+**sounded** (`mu13_02_ride_and_crash.wav`).
+
+### Metre changes
+
+- **Every bar has its own start, length and metre**, in a bar map that
+  replaces the one bar length MU10 assumed in about a dozen places: pieces,
+  columns, beaming, key-change bars, and section finding.
+- A change asked for inside a bar is written at the next barline, and
+  counted.
+- **Bars split notes by their OWN lengths.** Into a 3/4 bar, a note crossing
+  the barline is a half tied to a half. Three beats fill it as one dotted
+  half. A half note begun on its third beat is a quarter, tied over.
+- **The beam follows the bar's metre**: by the dotted quarter in 6/8.
+- **Drawn where it begins**:
+  - inside a system, after a key change if both happen at that barline, on
+    every staff;
+  - in the head of a system that begins with a change, with a courtesy
+    signature at the end of the system before.
+
+### Cymbals
+
+- **The ride** is an × on the top line.
+- **The crash** is an × above the staff, on a ledger line of its own.
+- Both are in the hands' voice, with stems up.
+
+### Checked, and shown able to fail
+
+**Eight mutations**, each of which turned at least one check red:
+
+- changes never applied;
+- pieces split by the first bar's length;
+- beaming by the first metre;
+- no signature drawn at a change;
+- no courtesy signature;
+- the crash stopping where written;
+- the crash on the ride's line;
+- MIDI forgetting the crash.
+
+**"Pieces split by the first bar's length" first passed unnoticed.** The
+first crossing note began on a 4/4 barline, where the two lengths agree; a
+half note begun on beat 3 of a 3/4 bar now catches it.
+
+### Found
+
+1. **`oK` is `ok`** again, in the guard. And a Zig string escape written
+   through the patch heredoc became a real newline (MU5's trap); it was
+   repaired in the file.
+
+### What MU13 does NOT do
+
+- **The browser's engine (`stz.wasm`, MU6) is not rebuilt**, so the kit there
+  still has three strokes. The seam compiles for wasm32; the rebuild is a
+  separate step.
+- **No open or pedal hi-hat, no toms, no splash or china.**
+- **Cymbal sizes are not modelled**: one crash and one ride.
+- **No mixed metres** (2+3/8): a metre is beats over a unit.
+
+**The listener's line**: whether the crash and ride SOUND like cymbals
+(`mu13_02_ride_and_crash.wav`), and the changing metres read as an engraver
+writes them, is **UNPERCEIVED**.
+
+**Regression.** The sound regression is **1027 passed, 0 failed** (1008 + 19).

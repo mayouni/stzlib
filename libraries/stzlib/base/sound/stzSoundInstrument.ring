@@ -202,7 +202,9 @@ class stzSoundInstrument
 		return This._Note(pnFromHz, pnToHz, pnSeconds, 0)
 
 	# Where a drum is struck. Hand drums: :Dum (centre), :Tak (rim), :Ka (the
-	# weaker rim). The kit: :Kick, :Snare, :HiHat.
+	# weaker rim). The kit: :Kick, :Snare, :HiHat -- and (MU13) its cymbals,
+	# :Crash and :Ride, which ring PAST the length written for them, as cymbals
+	# do: a crash at least two seconds, a ride at least one and a fifth.
 	def ToSoundOfStroke(pStroke, pnHz, pnSeconds)
 		if This.Engine() != "membrane"
 			@nRefusals++
@@ -218,14 +220,19 @@ class stzSoundInstrument
 		on "snare"  _v_ = 1
 		on "hihat"  _v_ = 2
 		on "hat"    _v_ = 2
+		on "crash"  _v_ = 3
+		on "ride"   _v_ = 4
 		off
 		if _v_ < 0
 			@nRefusals++
 			@cLastError = "ToSoundOfStroke: '" + pStroke + "' is not a stroke " +
-			              "(dum, tak, ka -- or kick, snare, hihat on the kit)"
+			              "(dum, tak, ka -- or kick, snare, hihat, crash, ride on the kit)"
 			return ""
 		ok
-		return This._Note(pnHz, pnHz, pnSeconds, _v_)
+		_s_ = pnSeconds
+		if _v_ = 3 and _s_ < 2.0  _s_ = 2.0 ok
+		if _v_ = 4 and _s_ < 1.2  _s_ = 1.2 ok
+		return This._Note(pnHz, pnHz, _s_, _v_)
 
 	#-- what the last note needed ------------------------------------------
 

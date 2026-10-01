@@ -119,7 +119,7 @@ class stzSoundScore
 
 	def StrokeAt(pnBeat, pStroke, pnBeats)
 		_s_ = lower("" + pStroke)
-		if ring_find([ "dum", "tak", "ka", "kick", "snare", "hihat", "hat" ], _s_) = 0
+		if ring_find([ "dum", "tak", "ka", "kick", "snare", "hihat", "hat", "crash", "ride" ], _s_) = 0
 			This._Refuse("StrokeAt: '" + pStroke + "' is not a stroke")
 			return This
 		ok
@@ -150,7 +150,7 @@ class stzSoundScore
 	# on the kit. Which drum strikes it is the instrument's business (On).
 	def Stroke(pStroke, pnBeats)
 		_s_ = lower("" + pStroke)
-		if ring_find([ "dum", "tak", "ka", "kick", "snare", "hihat", "hat" ], _s_) = 0
+		if ring_find([ "dum", "tak", "ka", "kick", "snare", "hihat", "hat", "crash", "ride" ], _s_) = 0
 			This._Refuse("Stroke: '" + pStroke + "' is not a stroke (dum, tak, ka -- or kick, snare, hihat)")
 			return This
 		ok

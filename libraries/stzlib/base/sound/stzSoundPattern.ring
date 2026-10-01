@@ -106,7 +106,8 @@ class stzSoundPattern from stzPattern
 		_c_ = lower(pcWord)
 		_aS_ = [ [ "bd", "kick" ], [ "sn", "snare" ], [ "hh", "hihat" ], [ "kick", "kick" ],
 		         [ "snare", "snare" ], [ "hihat", "hihat" ], [ "hat", "hihat" ],
-		         [ "dum", "dum" ], [ "tak", "tak" ], [ "ka", "ka" ] ]
+		         [ "dum", "dum" ], [ "tak", "tak" ], [ "ka", "ka" ],
+		         [ "cr", "crash" ], [ "crash", "crash" ], [ "rd", "ride" ], [ "ride", "ride" ] ]
 		for _p_ in _aS_
 			if _p_[1] = _c_  return [ "stroke", _p_[2] ] ok
 		next
