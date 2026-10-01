@@ -2207,3 +2207,101 @@ writes btayhi, and the maqam signature as an Arab musician expects it, is
 **UNPERCEIVED**.
 
 **Regression.** The sound regression is **985 passed, 0 failed** (952 + 33).
+
+---
+
+## MU12 STATUS — 2026-10-01. Key changes inside a piece, and the drum kit in two voices
+
+**Why.** MU11 named both as not done, and the Principal asked for them: *"add
+key changes and the two-voice kit notation"*.
+
+**Face.** In `stzSoundStaff.ring`:
+
+- `KeyChangeAt(beat, key)` and `KeyChangeOfModeAt(beat, universe, mode)`
+- `SetKeyChanges(bool)`, to find changes in the music (on by default when
+  the key is read from it)
+- `KeyChanges()`, which lists them: [ bar, the key's name ]
+
+The kit's two voices need no new call. No engine change.
+
+**Guard.** `sound_mu12_narrated.ring`: **23**. MU11's guard is updated in two
+checks, which had encoded the one-voice kit, and still passes 33 of 33. MU10's
+passes 33 of 33 unchanged.
+**Seen.** `sound_mu12_demo.ring` draws:
+
+- C, then D, then C;
+- a change found in the music (C to E);
+- a Rast series modulating into Hijaz;
+- the kit in two voices under a bass line.
+
+### Key changes
+
+- **Asked for.** The change lands at a barline, and a beat inside a bar is
+  moved to the next barline and counted. When changes are asked for, the
+  opening key is read only from the music before the first of them.
+- **Found in the music**, when the key is read from it. The piece is cut into
+  sections by the cheapest path through the fifteen keys: each bar costs its
+  notes outside the key, a quarter tone costs against a key that alters its
+  letter by a semitone, and a change costs four. So one stray F♯ in eight
+  bars of C changes nothing, while four bars of E after four of C change at
+  the barline where E begins. Each section takes its own quarter tones into
+  its key by count.
+- **Drawn as engravers draw it.**
+  - Inside a system: a double barline, naturals cancelling what the old key
+    had and the new one has not (in the order they stood), then the new key.
+  - At the head of a system: the new key, with a courtesy key at the end of
+    the system before, after its last barline.
+  - Each bar spells in, and remembers, the key in force there: B♭ after a
+    change to F, F♯ in D's bars and F♮ in C's.
+
+### The two-voice kit
+
+The kit is one staff with the hands (hi-hat, snare) in the upper voice and
+the feet (kick) in the lower.
+
+- Stems go up for the hands and down for the feet, whatever the heads'
+  height.
+- Each voice keeps its own rhythm, its own rests (raised for the hands,
+  lowered for the feet) and its own beams: the hands' above, the feet's
+  below.
+- A kit played by the hands alone, or the feet alone, stays one voice.
+
+### Checked, and shown able to fail
+
+**Eight mutations**, each of which turned at least one check red:
+
+- bars remembering the first key only, and spelling in the first key only;
+- no cancelling naturals, no double barline, no courtesy key;
+- a change costing nothing;
+- the feet not a voice of their own;
+- the opening key read from the whole piece.
+
+Two of them passed until a check was added:
+
+- **"spelled in the first key only"** went unnoticed, because C major already
+  writes F♯ with a sharp. B♭ after a change to F now catches it.
+- **"the opening key from the whole piece"** gave a Rast opening a G major key
+  bent by Hijaz's F♯s, and was found in the demo before any check knew of it.
+
+### Found
+
+1. **The key fit was blind to quarter tones.** B♭ major holds every semitone
+   note of Rast (C D F G A) and so "fit" both halves of Rast-then-Hijaz. A
+   quarter tone now counts against a key that alters its letter, in the first
+   key as in the sections.
+2. **`oR`, `oK` and `oN` are `or`, `ok` and `on`**: all three again, this
+   phase.
+
+### What MU12 does NOT do
+
+- **No metre changes.**
+- **Kit voices by limb only**: there are no ride or cymbal lines and no ghost
+  notes.
+- **Change detection weighs the Western circle of fifths**, plus quarter
+  tones by count. A modulation between two maqamat with the same semitone
+  content is found only when it is declared (`KeyChangeOfModeAt`).
+
+**The listener's line**: whether a drummer reads the kit as written, and a
+modulation as an engraver would mark it, is **UNPERCEIVED**.
+
+**Regression.** The sound regression is **1008 passed, 0 failed** (985 + 23).
