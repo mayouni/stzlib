@@ -2397,9 +2397,13 @@ half note begun on beat 3 of a 3/4 bar now catches it.
 - **Cymbal sizes are not modelled**: one crash and one ride.
 - **No mixed metres** (2+3/8): a metre is beats over a unit.
 
-**The listener's line**: whether the crash and ride SOUND like cymbals
-(`mu13_02_ride_and_crash.wav`), and the changing metres read as an engraver
-writes them, is **UNPERCEIVED**.
+**The listener's line**:
+
+- **The crash and ride, HEARD 2026-10-02** by Mansour Ayouni (the Principal).
+  `mu13_02_ride_and_crash.wav` was played for them together with MU14's
+  groove, and the verdict was *"yes it's real drum!!"*.
+- Whether the changing metres read as an engraver writes them stays
+  **UNPERCEIVED**.
 
 **Regression.** The sound regression is **1027 passed, 0 failed** (1008 + 19).
 
@@ -2490,7 +2494,14 @@ short; no open-hi-hat circle.
 - **The browser's pages are guarded, not heard**: whether `music.html` with
   the new kit feels like a drummer's instrument is the Principal's to say.
 
-**The listener's line**: whether the toms and the open hi-hat SOUND like a
-kit's (`mu14_01_groove_and_fill.wav`) is **UNPERCEIVED**.
+**The listener's line**:
+
+- **The kit, HEARD 2026-10-02** by Mansour Ayouni (the Principal):
+  `mu14_01_groove_and_fill.wav` (toms, open and closed hi-hat, kick, snare and
+  crash) and `mu13_02_ride_and_crash.wav` were played for them, and the
+  verdict was *"yes it's real drum!!"*. All nine of the kit's strokes are
+  now PERCEIVED, by name.
+- Still UNPERCEIVED: the kit played live in the browser (`music.html`), and
+  the drum pages read as a drummer reads them.
 
 **Regression.** The sound regression is **1042 passed, 0 failed** (1027 + 14 + MU6's new check).
