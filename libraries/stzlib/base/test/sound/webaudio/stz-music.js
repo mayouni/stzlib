@@ -56,7 +56,10 @@
 
 	// ── the pattern: stzPattern + stzSoundPattern, ported ──────────────────
 	var STROKES = { bd: 'kick', sn: 'snare', hh: 'hihat', kick: 'kick', snare: 'snare',
-		hihat: 'hihat', hat: 'hihat', dum: 'dum', tak: 'tak', ka: 'ka' };
+		hihat: 'hihat', hat: 'hihat', dum: 'dum', tak: 'tak', ka: 'ka',
+		// MU13-14: the kit's cymbals, toms and open hi-hat, spelled as in Ring
+		cr: 'crash', crash: 'crash', rd: 'ride', ride: 'ride', ht: 'hightom', hightom: 'hightom',
+		mt: 'midtom', midtom: 'midtom', ft: 'floortom', floortom: 'floortom', oh: 'openhat', openhat: 'openhat' };
 	var SPECIAL = '[]<>,*/?!@~';
 
 	function Pattern(text) {
@@ -295,7 +298,12 @@
 		return true;
 	};
 
-	var STROKE_VARIANT = { dum: 0, tak: 1, ka: 2, kick: 0, snare: 1, hihat: 2, hat: 2 };
+	var STROKE_VARIANT = { dum: 0, tak: 1, ka: 2, kick: 0, snare: 1, hihat: 2, hat: 2,
+		crash: 3, ride: 4, hightom: 5, midtom: 6, floortom: 7, openhat: 8 };
+	// a cymbal and an open hi-hat ring past their written length -- the same
+	// minimums as stzSoundInstrument.ToSoundOfStroke, so the browser's kit is the native one
+	var STROKE_RING = { crash: 2.0, ride: 1.2, openhat: 0.6 };
+	function strokeHold(stroke, hold) { return Math.max(hold, STROKE_RING[stroke] || 0); }
 
 	// ── the engine: stz.wasm, on the main thread ────────────────────────────
 	async function create(opts) {
@@ -411,7 +419,7 @@
 			for (var i = 0; i < ev.length; i++) {
 				var e = ev[i], hold = Math.min(4, e[1] * cs);
 				var buf = e[2] === 'stroke'
-					? noteBuffer(inst, strokeHz(inst), hold, 0.8, STROKE_VARIANT[e[3]], this.cx)
+					? noteBuffer(inst, strokeHz(inst), strokeHold(e[3], hold), 0.8, STROKE_VARIANT[e[3]], this.cx)
 					: noteBuffer(inst, noteToHz(e[3]), hold, 0.8, 0, this.cx);
 				out.push([e[0], buf]);
 			}
@@ -483,5 +491,6 @@
 		};
 	}
 
-	global.StzMusic = { create: create, Pattern: Pattern, noteToHz: noteToHz, STROKE_VARIANT: STROKE_VARIANT };
+	global.StzMusic = { create: create, Pattern: Pattern, noteToHz: noteToHz, STROKE_VARIANT: STROKE_VARIANT,
+		STROKE_RING: STROKE_RING, strokeHold: strokeHold };
 })(typeof window !== 'undefined' ? window : globalThis);

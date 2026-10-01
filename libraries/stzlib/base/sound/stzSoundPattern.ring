@@ -107,7 +107,9 @@ class stzSoundPattern from stzPattern
 		_aS_ = [ [ "bd", "kick" ], [ "sn", "snare" ], [ "hh", "hihat" ], [ "kick", "kick" ],
 		         [ "snare", "snare" ], [ "hihat", "hihat" ], [ "hat", "hihat" ],
 		         [ "dum", "dum" ], [ "tak", "tak" ], [ "ka", "ka" ],
-		         [ "cr", "crash" ], [ "crash", "crash" ], [ "rd", "ride" ], [ "ride", "ride" ] ]
+		         [ "cr", "crash" ], [ "crash", "crash" ], [ "rd", "ride" ], [ "ride", "ride" ],
+		         [ "ht", "hightom" ], [ "hightom", "hightom" ], [ "mt", "midtom" ], [ "midtom", "midtom" ],
+		         [ "ft", "floortom" ], [ "floortom", "floortom" ], [ "oh", "openhat" ], [ "openhat", "openhat" ] ]
 		for _p_ in _aS_
 			if _p_[1] = _c_  return [ "stroke", _p_[2] ] ok
 		next

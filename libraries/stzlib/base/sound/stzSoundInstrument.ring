@@ -204,7 +204,9 @@ class stzSoundInstrument
 	# Where a drum is struck. Hand drums: :Dum (centre), :Tak (rim), :Ka (the
 	# weaker rim). The kit: :Kick, :Snare, :HiHat -- and (MU13) its cymbals,
 	# :Crash and :Ride, which ring PAST the length written for them, as cymbals
-	# do: a crash at least two seconds, a ride at least one and a fifth.
+	# do: a crash at least two seconds, a ride at least one and a fifth -- and
+	# (MU14) the toms, :HighTom :MidTom :FloorTom, and :OpenHat, which washes
+	# at least six tenths of a second.
 	def ToSoundOfStroke(pStroke, pnHz, pnSeconds)
 		if This.Engine() != "membrane"
 			@nRefusals++
@@ -222,16 +224,21 @@ class stzSoundInstrument
 		on "hat"    _v_ = 2
 		on "crash"  _v_ = 3
 		on "ride"   _v_ = 4
+		on "hightom"   _v_ = 5     # MU14: the toms, high, mid and floor
+		on "midtom"    _v_ = 6
+		on "floortom"  _v_ = 7
+		on "openhat"   _v_ = 8     # and the hi-hat left open
 		off
 		if _v_ < 0
 			@nRefusals++
 			@cLastError = "ToSoundOfStroke: '" + pStroke + "' is not a stroke " +
-			              "(dum, tak, ka -- or kick, snare, hihat, crash, ride on the kit)"
+			              "(dum, tak, ka -- or kick, snare, hihat, openhat, crash, ride, hightom, midtom, floortom on the kit)"
 			return ""
 		ok
 		_s_ = pnSeconds
 		if _v_ = 3 and _s_ < 2.0  _s_ = 2.0 ok
 		if _v_ = 4 and _s_ < 1.2  _s_ = 1.2 ok
+		if _v_ = 8 and _s_ < 0.6  _s_ = 0.6 ok      # an open hi-hat washes until it is closed
 		return This._Note(pnHz, pnHz, _s_, _v_)
 
 	#-- what the last note needed ------------------------------------------

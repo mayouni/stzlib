@@ -429,7 +429,13 @@ class stzSoundNotationReader
 		on 40  return "snare"
 		on 42  return "hihat"
 		on 44  return "hihat"
-		on 46  return "hihat"
+		on 46  return "openhat"       # MU14: the open hi-hat is its own stroke now
+		on 41  return "floortom"      # the toms: low and high floor, low and low-mid, hi-mid and high
+		on 43  return "floortom"
+		on 45  return "midtom"
+		on 47  return "midtom"
+		on 48  return "hightom"
+		on 50  return "hightom"
 		on 49  return "crash"         # MU13: crash cymbals 1 and 2
 		on 57  return "crash"
 		on 51  return "ride"          # ride cymbals 1 and 2

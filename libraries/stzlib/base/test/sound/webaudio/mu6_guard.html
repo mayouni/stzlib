@@ -55,6 +55,27 @@ function chk(label, cond) {
     chk('every instrument renders the SAME number of frames in the browser as natively', framesOk === 20);
     chk('and the SAME samples: all twenty identical to 12 decimal places where compared (6 samples + a 97-step sum each)', exact === 20);
 
+    // MU14: the kit's nine strokes -- cymbals (MU13), toms and open hi-hat (MU14) --
+    // through the REBUILT stz.wasm, against the native engine's own renders
+    h("1b. The kit's nine strokes, through the rebuilt stz.wasm, against the native engine");
+    let sOk = 0, sRows = [];
+    const strokes = notes.strokes || [];
+    for (const k of strokes) {
+      const s = M.renderNote('drumkit', k.hz, k.hold, 0.8, k.variant);
+      let same = s.length === k.frames;
+      for (const [i, v] of k.samples) if (Math.abs(s[i] - v) > 5e-13) same = false;
+      let sum = 0;
+      for (let f = 0; f < s.length; f += 97) sum += s[f];
+      if (same && Math.abs(sum - k.sum97) < 1e-6) sOk++; else sRows.push(k.stroke);
+    }
+    note(sOk + ' of ' + strokes.length + ' strokes identical to 12 decimal places (' + strokes.map(k => k.stroke).join(', ') + ')' +
+         (sRows.length ? '; differing: ' + sRows.join(', ') : ''));
+    chk('all nine strokes of the kit -- crash, ride, three toms, the open hi-hat among them -- are the native ones, sample for sample',
+        strokes.length === 9 && sOk === 9);
+    chk('and the browser rings a cymbal and an open hi-hat past their written length exactly as Ring does',
+        StzMusic.strokeHold('crash', 0.5) === 2 && StzMusic.strokeHold('ride', 0.5) === 1.2 &&
+        StzMusic.strokeHold('openhat', 0.25) === 0.6 && StzMusic.strokeHold('hihat', 0.5) === 0.5);
+
     h('2. The pattern language, ported, against Ring');
     let pOk = 0, pBad = [];
     for (const p of pats.patterns) {

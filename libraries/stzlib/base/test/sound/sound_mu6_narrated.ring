@@ -66,11 +66,54 @@ write("webaudio/mu6_notes_expect.json", cJ)
 ? "   " + nWritten + " instruments -> webaudio/mu6_notes_expect.json"
 Chk("all twenty instruments rendered natively and written for the browser to match", nWritten = 20)
 
+# MU14: every stroke of the kit -- the cymbals (MU13), the toms and the open
+# hi-hat (MU14) among them -- natively, at the hold the browser will ask for
+# (a cymbal or an open hi-hat rings past its written length on BOTH sides)
+? ""
+? "-- Scene 1b: the kit's nine strokes, native, for the rebuilt stz.wasm to match --"
+aKs = [ [ "kick", 0, 0.5 ], [ "snare", 1, 0.5 ], [ "hihat", 2, 0.5 ], [ "crash", 3, 2.0 ], [ "ride", 4, 1.2 ],
+        [ "hightom", 5, 0.5 ], [ "midtom", 6, 0.5 ], [ "floortom", 7, 0.5 ], [ "openhat", 8, 0.6 ] ]
+nKit = 0
+for i = 1 to nInst
+	if StzEngineSoundInstrumentName(i) = "drumkit"  nKit = i ok
+next
+nKHz = floor(sqrt(StzEngineSoundInstrumentLow(nKit) * StzEngineSoundInstrumentHigh(nKit)) * 1000000) / 1000000
+cJ2 = '  "strokes": [' + nl
+nStk = 0
+for ks in aKs
+	nB = StzEngineSoundNoteOf(nKit, nKHz, nKHz, ks[3], 0.8, ks[2], nRate)
+	if nB = 0
+		? "   " + ks[1] + ": REFUSED natively -- " + StzEngineSoundLastError()
+		loop
+	ok
+	nF = StzEngineSoundFrames(nB)
+	decimals(12)
+	cS = ""
+	aAt = [ 1, 101, 1001, floor(nF / 3), floor(nF / 2), nF - 10 ]
+	for k = 1 to len(aAt)
+		if k > 1  cS += ", " ok
+		cS += "[" + (aAt[k] - 1) + ", " + StzEngineSoundGet(nB, aAt[k], 1) + "]"
+	next
+	nSum = 0
+	for f = 1 to nF step 97  nSum += StzEngineSoundGet(nB, f, 1) next
+	if nStk > 0  cJ2 += "," + nl ok
+	cJ2 += '    { "stroke": "' + ks[1] + '", "variant": ' + ks[2] + ', "hz": ' + nKHz + ', "hold": ' + ks[3] + ', "frames": ' + nF +
+	       ', "samples": [' + cS + '], "sum97": ' + nSum + ' }'
+	decimals(3)
+	nStk++
+	StzEngineSoundFree(nB)
+next
+cJ2 += nl + "  ]"
+cJ = left(cJ, len(cJ) - len(nl + "}" + nl)) + "," + nl + cJ2 + nl + "}" + nl
+write("webaudio/mu6_notes_expect.json", cJ)
+? "   " + nStk + " strokes added to webaudio/mu6_notes_expect.json"
+Chk("all nine of the kit's strokes rendered natively -- the cymbals, the toms, the open hi-hat -- for wasm to match", nStk = 9)
+
 ? ""
 ? "-- Scene 2: the pattern language's answers --"
 aPat = [ "bd ~ sn [hh hh]", "<c e g>", "a*2 b", "a/2", "a@3 b", "a!3 b", "[c, e] g",
          "c e g c5 e", "hh? hh? hh? hh? hh? hh? hh? hh?", "<[5_ 6_] [1 2]>*2 ~ d4+50 e-50",
-         "dum ~ tak ~ dum dum tak ~", "bd*2 [~ sn] hh? hh" ]
+         "dum ~ tak ~ dum dum tak ~", "bd*2 [~ sn] hh? hh", "cr ht mt ft [oh rd] rd" ]
 cP = "{" + nl + '  "patterns": [' + nl
 decimals(12)
 for i = 1 to len(aPat)
@@ -96,7 +139,7 @@ decimals(3)
 cP += nl + "  ]" + nl + "}" + nl
 write("webaudio/mu6_patterns_expect.json", cP)
 ? "   " + len(aPat) + " patterns x 4 cycles -> webaudio/mu6_patterns_expect.json"
-Chk("twelve patterns written with their events and each note's frequency",
+Chk("thirteen patterns written with their events and each note's frequency -- the kit's new words among them",
     len(read("webaudio/mu6_patterns_expect.json")) > 500)
 Chk("including the notation's whole set: ~ [ ] , < > * / ? ! @ and the octave carry",
     substr(read("webaudio/mu6_patterns_expect.json"), "C5") > 0)
@@ -137,7 +180,7 @@ Chk("seven universes with scales, each with its listener line, for the keyboard"
 ? ""
 ? "-- The browser half --"
 ? "   Serve webaudio/ and open mu6_guard.html: it renders the twenty notes"
-? "   through wasm, parses the twelve patterns in JavaScript, schedules a loop"
+? "   through wasm, parses the thirteen patterns in JavaScript, schedules a loop"
 ? "   offline, and reads the browser's own latency. Then music.html is the"
 ? "   instrument -- and the kill criterion is the author playing it."
 
