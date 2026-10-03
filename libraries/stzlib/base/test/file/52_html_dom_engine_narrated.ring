@@ -11,7 +11,7 @@ Scenario("Engine parser counts paragraphs in well-formed HTML")
     Given("a small document with two p elements")
     cHtml = "<html><body><p>alpha</p><p>beta</p></body></html>"
     pDoc = StzEngineHtmlParse(cHtml)
-    Then("the parse handle is non-zero", isPointer(pDoc), TRUE)
+    Then("the parse handle is non-zero", pDoc != NULL, TRUE)
     Then("element count is 4 (html + body + 2 p)",
         StzEngineHtmlCount(pDoc), 4)
     Then("two p elements found", StzEngineHtmlCountByTag(pDoc, "p"), 2)
