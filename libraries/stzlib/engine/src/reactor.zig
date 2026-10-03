@@ -443,6 +443,19 @@ fn finishTcp(job: *Job, status: c_int) void {
 // a stdout pipe, spawn, and read the pipe to EOF. The job finishes once
 // BOTH the process has exited AND its stdout pipe is closed.
 
+// ONE SPAWN AT A TIME, ACROSS EVERY REACTOR. On Windows uv_spawn creates
+// the child's ends of its stdio pipes INHERITABLE, calls CreateProcessW
+// with bInheritHandles = TRUE, and closes them again -- all inside the
+// call. Each reactor runs its loop on its own thread, so a second reactor
+// spawning inside that window hands its child the first child's stdout
+// end too. The first job is ready only when its pipe reaches EOF, which
+// then waits for the OTHER child to exit: a supervisor never saw its
+// child die while a watcher spawned beside it was alive. Measured: a
+// child that exits at once, ready in 38-86 ms alone, was ready in
+// ~3,050 ms -- when a 3 s child on another reactor exited -- in 8 of 8
+// trials, on Ring 1.27 and Ring++ alike.
+var spawn_mutex: std.Thread.Mutex = .{};
+
 fn startSpawn(job: *Job) void {
     const r = job.reactor;
     // argv_joined is `content + '\n'-separators` with ONE trailing spare
@@ -497,7 +510,9 @@ fn startSpawn(job: *Job) void {
 
     const proc = job.proc_buf.?.ptr;
     setData(proc, job);
+    spawn_mutex.lock();
     const rc = uv_spawn(&r.loop, proc, &opts);
+    spawn_mutex.unlock();
     if (rc != 0) {
         // spawn failed: close the pipe we inited, mark process "exited".
         r.mutex.lock();
