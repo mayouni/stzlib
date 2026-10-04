@@ -294,7 +294,7 @@ func _StzDocLines(pcFile)
 # TRUE for `class X` / `Class X` (not a comment, not inside a block comment)
 func _StzDocIsClassLine(pcTrim)
 	return len(pcTrim) > 6 and lower(left(pcTrim, 6)) = "class " and
-	       StzFindFirst("{", pcTrim) = 0
+	       substr(pcTrim, "{") = 0
 
 func _StzDocIsPackageLine(pcTrim)
 	return len(pcTrim) > 8 and lower(left(pcTrim, 8)) = "package "
@@ -302,7 +302,7 @@ func _StzDocIsPackageLine(pcTrim)
 # TRUE for a method-opening line: `def Name` or `func Name` (a function literal
 # `func c {` is not one).
 func _StzDocIsDefLine(pcTrim)
-	if StzFindFirst("{", pcTrim) > 0
+	if substr(pcTrim, "{") > 0
 		return 0
 	ok
 	if len(pcTrim) > 4 and lower(left(pcTrim, 4)) = "def "
@@ -316,7 +316,7 @@ func _StzDocIsDefLine(pcTrim)
 # The parameter names of a def line, as written.
 func _StzDocParamsOf(pcTrim)
 	_aOut_ = []
-	_nO_ = StzFindFirst("(", pcTrim)
+	_nO_ = substr(pcTrim, "(")
 	if _nO_ = 0
 		return _aOut_
 	ok
@@ -359,7 +359,7 @@ func _StzDocFwdParse(pcTrim)
 		return []
 	ok
 	_cRest_ = right(pcTrim, len(pcTrim) - 12)
-	_nO_ = StzFindFirst("(", _cRest_)
+	_nO_ = substr(_cRest_, "(")
 	if _nO_ < 2
 		return []
 	ok
@@ -422,6 +422,11 @@ func _StzDocScanRange(pacLines, pnStart, pnEnd)
 	_cSection_ = ""
 	_bBlock_ = 0
 	_bGap_ = 0
+	# the body of the method being read, gathered line by line (one pass)
+	_nCur_ = 0
+	_nCode_ = 0
+	_cFirst_ = ""
+	_bRet_ = 0
 	_nLen_ = len(pacLines)
 	if pnEnd > _nLen_
 		pnEnd = _nLen_
@@ -429,13 +434,13 @@ func _StzDocScanRange(pacLines, pnStart, pnEnd)
 	for _i_ = pnStart to pnEnd
 		_cT_ = ring_trim(pacLines[_i_])
 		if _bBlock_
-			if StzFindFirst("*/", _cT_) > 0
+			if substr(_cT_, "*/") > 0
 				_bBlock_ = 0
 			ok
 			loop
 		ok
 		if left(_cT_, 2) = "/*"
-			if StzFindFirst("*/", _cT_) = 0
+			if substr(_cT_, "*/") = 0
 				_bBlock_ = 1
 			ok
 			_acRun_ = []
@@ -473,18 +478,25 @@ func _StzDocScanRange(pacLines, pnStart, pnEnd)
 				_bGap_ = 0
 				loop
 			ok
-			_cC_ = right(_cT_, len(_cT_) - 1)
-			if left(ring_trim(_cC_), 3) = "---"
+			if left(ring_trim(right(_cT_, len(_cT_) - 1)), 3) = "---"
 				loop
 			ok
 			# the raw line keeps its blanks (indentation carries the field syntax)
 			_cRaw_ = pacLines[_i_]
-			_nHash_ = StzFindFirst("#", _cRaw_)
+			_nHash_ = substr(_cRaw_, "#")
 			_acRun_ + right(_cRaw_, len(_cRaw_) - _nHash_)
 			_bGap_ = 0
 			loop
 		ok
-		if _StzDocIsDefLine(_cT_)
+		_bDef_ = _StzDocIsDefLine(_cT_)
+		if _bDef_ or _StzDocIsClassLine(_cT_)
+			# the method being read ends here
+			if _nCur_ > 0
+				_aOut_[_nCur_] = _StzDocFinishBody(_aOut_[_nCur_], _nCode_, _cFirst_, _bRet_)
+				_nCur_ = 0
+			ok
+		ok
+		if _bDef_
 			_cDefLine_ = _cT_
 			_bFunc_ = (lower(left(_cT_, 5)) = "func ")
 			if _bFunc_
@@ -512,59 +524,61 @@ func _StzDocScanRange(pacLines, pnStart, pnEnd)
 				if len(_acRun_) = 0
 					_aRec_[:legacy] = 0
 				ok
-				# the body: forward / return
+				_aOut_ + _aRec_
+				_nCur_ = len(_aOut_)
 				_nCode_ = 0
 				_cFirst_ = ""
 				_bRet_ = 0
-				for _j_ = _i_ + 1 to pnEnd
-					_cB_ = ring_trim(pacLines[_j_])
-					if _cB_ = "" or left(_cB_, 1) = "#"
-						loop
-					ok
-					if _StzDocIsDefLine(_cB_) or _StzDocIsClassLine(_cB_)
-						exit
-					ok
-					_nCode_++
-					if _nCode_ = 1
-						_cFirst_ = _cB_
-					ok
-					_cLb_ = lower(_cB_)
-					if len(_cLb_) > 7 and left(_cLb_, 7) = "return "
-						_bRet_ = 1
-					ok
-				next
-				_aRec_[:hasreturn] = _bRet_
-				if _nCode_ = 1
-					_aF_ = _StzDocFwdParse(_cFirst_)
-					if len(_aF_) = 2 and lower(_aF_[1]) != lower(_cName_)
-						_aRec_[:fwd] = _aF_[1]
-						# pure: same arguments, same order
-						_bPure_ = (len(_aF_[2]) = len(_aPar_))
-						if _bPure_
-							_nQ_ = len(_aPar_)
-							for _q_ = 1 to _nQ_
-								if lower(_aF_[2][_q_]) != lower(_aPar_[_q_])
-									_bPure_ = 0
-									exit
-								ok
-							next
-						ok
-						_aRec_[:fwdpure] = _bPure_
-					ok
-				ok
-				_aOut_ + _aRec_
 			ok
 			_acRun_ = []
 			_cAka_ = ""
 			_bGap_ = 0
 			loop
 		ok
-		# any other code line breaks the run
+		# a code line of the method body
+		if _nCur_ > 0
+			_nCode_++
+			if _nCode_ = 1
+				_cFirst_ = _cT_
+			ok
+			if len(_cT_) > 7 and lower(left(_cT_, 7)) = "return "
+				_bRet_ = 1
+			ok
+		ok
+		# any code line breaks the comment run
 		_acRun_ = []
 		_cAka_ = ""
 		_bGap_ = 0
 	next
+	if _nCur_ > 0
+		_aOut_[_nCur_] = _StzDocFinishBody(_aOut_[_nCur_], _nCode_, _cFirst_, _bRet_)
+	ok
 	return _aOut_
+
+# What the body of a method says: whether it returns a value, and whether it is
+# one forwarding statement (`return This.X(...)`), pure when the arguments are
+# its own parameters, unchanged and in order.
+func _StzDocFinishBody(paRec, pnCode, pcFirst, pbRet)
+	paRec[:hasreturn] = pbRet
+	if pnCode = 1
+		_aF_ = _StzDocFwdParse(pcFirst)
+		if len(_aF_) = 2 and lower(_aF_[1]) != lower(paRec[:name])
+			paRec[:fwd] = _aF_[1]
+			_aPar_ = paRec[:params]
+			_bPure_ = (len(_aF_[2]) = len(_aPar_))
+			if _bPure_
+				_nQ_ = len(_aPar_)
+				for _q_ = 1 to _nQ_
+					if lower(_aF_[2][_q_]) != lower(_aPar_[_q_])
+						_bPure_ = 0
+						exit
+					ok
+				next
+			ok
+			paRec[:fwdpure] = _bPure_
+		ok
+	ok
+	return paRec
 
 # --- the library: classes, parents, extents ------------------------------
 # [ [ name, file (relative to base), parent, firstLine, lastLine ], ... ].
@@ -585,13 +599,13 @@ func _StzDocScanLibrary(pcBase)
 		for _i_ = 1 to _nL_
 			_cT_ = ring_trim(_aLines_[_i_])
 			if _bBlock_
-				if StzFindFirst("*/", _cT_) > 0
+				if substr(_cT_, "*/") > 0
 					_bBlock_ = 0
 				ok
 				loop
 			ok
 			if left(_cT_, 2) = "/*"
-				if StzFindFirst("*/", _cT_) = 0
+				if substr(_cT_, "*/") = 0
 					_bBlock_ = 1
 				ok
 				loop
@@ -666,7 +680,7 @@ func _StzDocClassBlock(pacLines, pnClassLine)
 			exit
 		ok
 		_cRaw_ = pacLines[_i_]
-		_nH_ = StzFindFirst("#", _cRaw_)
+		_nH_ = substr(_cRaw_, "#")
 		_acRun_ + right(_cRaw_, len(_cRaw_) - _nH_)
 		_i_--
 	end

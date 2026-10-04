@@ -37,7 +37,7 @@ A comment run **immediately above `def`** (no blank line). First line is the *br
 	#   returns    a list of numbers; [ ] when pcSubStr is absent
 	#   note       case-sensitive; FindCS takes the flag
 	#   see        FindFirst, FindNth, Contains
-	#   example    ? Q("banana").Find("an")
+	#   example    ? @@( Q("banana").Find("an") )
 	#              #--> [ 2, 4 ]
 	def Find(pcSubStr)
 ```
