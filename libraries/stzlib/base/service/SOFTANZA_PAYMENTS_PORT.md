@@ -77,7 +77,7 @@ of the reference and a reader of the code find each other.
 | `Requests(aFilter)` / `ReceivedRequests(aFilter)` | `GET /demandes-paiements` / `GET /demandes-paiements-recues` | `demande_paiement.read` | read |
 | `Accounts()` / `Account(cNumero)` | `GET /comptes` / `GET /comptes/{numero}` | `compte.read` | read |
 | `Aliases(cNumero)` / `CreateAlias(cNumero, oAlias)` / `DeleteAlias(cNumero, cCle)` | `GET`/`POST /comptes/{numero}/alias`, `DELETE .../alias/{cle}` | `alias.read` / `alias.write` / `alias.delete` | 409 on an existing alias |
-| `TransferBetweenAccounts(oTransfer)` | `POST /comptes/transactions` | `compte_transaction.write` | 409 on a duplicate `txId` |
+| `TransferBetweenAccounts(cTxId, cFrom, cTo, oAmount)` | `POST /comptes/transactions` | `compte_transaction.write` | 409 on a duplicate `txId` |
 | `Participants()` | `GET /participants` | `participant.read` | read; the only participant list the code may carry is this one, dated |
 | `RegisterWebhook(oHook)` / `Webhooks()` / `ChangeWebhook(cId, oChange)` / `DeleteWebhook(cId)` / `RenewWebhookSecret(cId, cExpiresAt)` | `/webhooks`, `/webhooks/{id}`, `/webhooks/{id}/secrets` | `webhook.*` | at most 20 hooks; 403 on the 21st |
 | `ReceiveWebhook(cBody, cSignature)` | the callback the participant POSTs to the platform | none (inbound) | section 8 |
@@ -89,78 +89,130 @@ passing. They are the shape of a card gateway, and a card gateway is one
 thing a platform may bind to the same registry name. They are not the shape
 of money in the UEMOA.
 
-### 2a. Pay -- one example that will run
+Every block below is RUN by `charter_examples.py` (next to the guards): each `?` line carries
+its expected output after `#-->`, and a block whose output differs fails. The blocks of this
+section share one session and one twin, in order.
+
+*Builders are named for what they say, not for brevity:* `FromAlias`, `ToAlias`, `WithAmount`,
+`Motive` (`For` is a Ring keyword). Two Ring traps the examples avoid, found while building PY2:
+a `return Q().Method()` chain inside a *function* crashes the VM silently (assign first, then
+return), and a call result cannot be indexed with a key, so read it into a variable.
+
+### 2a. Pay
 
 ```ring
 load "../../stzBase.ring"
 
-oHub = StzPiSpiSandboxQ()                      # the twin; IsSandbox() is TRUE
+oHub = StzPiSpiSandboxQ()                            # the twin; IsSandbox() is 1
 oPay = StzPaymentsPortQ(oHub)
 
 oOrder = StzPaymentOrderQ()
-	.WithTxId("DIKO-2026-000417")                # the platform's id, unique
-	.From("9b1b3499-3e50-435b-b757-ac7a83d8aa96") # payeurAlias: the account debited
-	.To("9b1b2499-3e50-435b-b757-ac7a83d8aa8c")   # payeAlias
-	.Of( StzAmountQ("150000", "XOF") )          # 150 000 FCFA, zero decimals
-	.For("Facture 2026-045")                     # motif, at most 140 characters
-	.Documented("INV-2026-045", "CINV")          # refDocNumero, refDocType
-	.WithoutConfirmation()                       # confirmation: false
+oOrder.WithTxId("DIKO-2026-000417")                  # the platform's id, unique
+oOrder.FromAlias(oHub.BusinessAlias())               # payeurAlias: the account debited
+oOrder.ToAlias(oHub.Alias("fatou"))                  # payeAlias
+oOrder.WithAmount( StzAmountQ("150000", "XOF") )     # 150 000 FCFA, zero decimals
+oOrder.Motive("Facture 2026-045")                    # motif, at most 140 characters
+oOrder.Documented("INV-2026-045", "CINV")            # refDocNumero, refDocType
+oOrder.WithoutConfirmation()                         # confirmation: false
 
 aR = oPay.Pay(oOrder)
-? aR[:statut]        #--> "ENVOYE"   (the hub's own word; INITIE when confirmation is asked)
-? aR[:end2endId]     #--> the hub's id, e.g. "ENEB00120261004173045..."
+? aR[:statut]        #--> ENVOYE
+? aR[:end2endId]     #--> ENEB00120261005090001TWIN0000000001
 
-# a final state arrives later, by a signed webhook (section 8), or by asking:
-? oPay.StatusOf(aR[:end2endId])[:statut]   #--> "IRREVOCABLE" or "REJETE", never "pending"
+oHub.AdvanceSeconds(25)                              # the twin's clock: the hub takes up to 20 s
+aS = oPay.StatusOf(aR[:end2endId])
+? aS[:statut]        #--> IRREVOCABLE
 ```
+
+`ENVOYE` is the hub's own word and it is *pending*: the money has left the balance and nothing
+is final. `IRREVOCABLE` or `REJETE` arrives 20 seconds later, by a signed webhook (section 8) or
+by asking, and the port never invents a word such as "pending" or "success".
 
 ### 2b. Request to pay
 
 ```ring
 oRtp = StzPaymentRequestQ()
-	.WithTxId("DIKO-RTP-000091")
-	.From("9b1b3499-3e50-435b-b757-ac7a83d8aa96")  # the payer we ask
-	.To("9b1b2499-3e50-435b-b757-ac7a83d8aa8c")    # where we want the money
-	.Of( StzAmountQ("350000", "XOF") )
-	.InCategory("401")                           # 500 on-site, 521 e-commerce, 401 invoice
-	.PayableBy("2026-10-31").AnswerableBy("2026-10-20")
-	.For("Facture #INV-2026-045")
-	.WithoutConfirmation()
+oRtp.WithTxId("DIKO-RTP-000091")
+oRtp.FromAlias(oHub.Alias("fatou"))                  # the payer we ask
+oRtp.ToAlias(oHub.BusinessAlias())                   # where we want the money
+oRtp.WithAmount( StzAmountQ("350000", "XOF") )
+oRtp.InCategory("401")                               # 500 on-site, 521 e-commerce, 401 invoice
+oRtp.PayableBy("2026-10-31")
+oRtp.AnswerableBy("2026-10-20")
+oRtp.Motive("Facture #INV-2026-045")
+oRtp.WithoutConfirmation()
 
-aR = oPay.RequestPayment(oRtp)
-? aR[:statut]    #--> "ENVOYE"; IRREVOCABLE when the payer pays, REJETE when the payer refuses
+aQ = oPay.RequestPayment(oRtp)
+? aQ[:statut]        #--> ENVOYE
+oHub.AdvanceSeconds(25)
+aQ2 = oPay.RequestedPayment("DIKO-RTP-000091")
+? aQ2[:statut]       #--> IRREVOCABLE
+? oHub.Balance()     #--> 50200000
 ```
+
+IRREVOCABLE here means the payer paid; `REJETE` means the payer refused (with a reason such as `ARFR`).
 
 ### 2c. Answering a request we received
 
 ```ring
-aIn = oPay.ReceivedRequests([ :statut = "ENVOYE" ])
-oPay.AnswerRequest(aIn[1][:end2endId], FALSE, "AM09")   # refuse: wrong amount
+eIn = oHub.SimulateIncomingRequest("kdi", 9000, "Devis 12")
+aIn = oPay.ReceivedRequests([ ["statut", "ENVOYE"] ])
+? len(aIn)           #--> 1
+aA = oPay.AnswerRequest(eIn, FALSE, "AM09")          # refuse: wrong amount
+? aA[:statut]        #--> REJETE
+? aA[:statutRaison]  #--> AM09
 ```
+
+Accepting is *money out* (it pays the request), so it belongs to section 7; rejecting needs one of
+`BE05 AM09 APAR RR07 FR01`.
 
 ### 2d. Return and cancellation
 
 ```ring
-oPay.ReturnFunds(cEnd2EndId)                 # we were paid; we give it back: a NEW movement
-oPay.RequestCancellation(cEnd2EndId, "DUPL") # we paid twice; we ASK, the payee may refuse
-oPay.AnswerCancellation(cEnd2EndId, TRUE)    # someone asked us; TRUE starts our return
+eRecu = oHub.SimulateIncomingPayment("fatou", 40000, "Don")
+aRet = oPay.ReturnFunds(eRecu)                       # we were paid; we give it back: a NEW movement
+? aRet[:retourStatut]        #--> INITIE
+
+oHub.AdvanceSeconds(25)
+aSent = oPay.SentPayment("DIKO-2026-000417")         # the payment of 2a, irrevocable by now
+aQa = oPay.RequestCancellation(aSent[:end2endId], "DUPL")   # we paid twice: we ASK, the payee may refuse
+? aQa[:annulationStatut]     #--> ENVOYE
+
+eAsk = oHub.SimulateIncomingPayment("kdi", 8000, "x")
+oHub.SimulateCancellationRequest(eAsk, "AM09")       # someone asks US to cancel
+aAns = oPay.AnswerCancellation(eAsk, TRUE)           # TRUE starts our return
+? aAns[:annulationStatut]    #--> ACCEPTE
 ```
 
 ### 2e. Bulk
 
 ```ring
 oBatch = StzPaymentBatchQ()
-	.WithInstructionId("DIKO-SAL-2026-10")      # one id for the whole batch
-	.From("9b1b3499-3e50-435b-b757-ac7a83d8aa96")
-	.For("Salaires octobre 2026")
-	.WithConfirmation()
-	.Add( StzPaymentOrderQ().WithTxId("DIKO-SAL-2026-10-001").To(cAlias1).Of(StzAmountQ("150000","XOF")) )
-	.Add( StzPaymentOrderQ().WithTxId("DIKO-SAL-2026-10-002").To(cAlias2).Of(StzAmountQ("200000","XOF")) )
+oBatch.WithInstructionId("DIKO-SAL-2026-10")         # one id for the whole batch
+oBatch.FromAlias(oHub.BusinessAlias())
+oBatch.Motive("Salaires octobre 2026")
+oBatch.WithConfirmation()
 
-aR = oPay.PayInBulk(oBatch)
-? aR[:statut]      #--> "INITIE" (confirmation asked)
+o1 = StzPaymentOrderQ()
+o1.WithTxId("DIKO-SAL-2026-10-001")
+o1.ToAlias(oHub.Alias("fatou"))
+o1.WithAmount( StzAmountQ("150000", "XOF") )
+oBatch.Add(o1)
+
+o2 = StzPaymentOrderQ()
+o2.WithTxId("DIKO-SAL-2026-10-002")
+o2.ToAlias(oHub.Alias("boutique"))
+o2.WithAmount( StzAmountQ("200000", "XOF") )
+oBatch.Add(o2)
+
+aB = oPay.PayInBulk(oBatch)
+? aB[:statut]                #--> INITIE
+? aB[:transactionsTotal]     #--> 2
 oPay.ConfirmBulk("DIKO-SAL-2026-10", TRUE)
-? oPay.Bulk("DIKO-SAL-2026-10")[:statut]   #--> "CONFIRME"; done when irrevocables + rejects = total
+oHub.AdvanceSeconds(25)
+aB2 = oPay.Bulk("DIKO-SAL-2026-10")
+? aB2[:statut]                      #--> CONFIRME
+? aB2[:transactionsIrrevocables]    #--> 2
 ```
 
 Every `txId` inside a batch is still unique for the platform; the batch's
@@ -189,6 +241,14 @@ once and answers the same state; asked twice at the hub face it answers
 `DU03` the second time. Ruling 6 of the launch prompt is kept at the port
 level and its wire-level mechanism is corrected here.
 
+```ring
+nBefore = oHub.NumberOfPayments("ENVOYE")
+aAgain = oPay.Pay(oOrder)                            # the order of 2a, sent again
+? aAgain[:replayed]                                  #--> 1
+? aAgain[:end2endId] = aR[:end2endId]                #--> 1
+? oHub.NumberOfPayments("ENVOYE") - nBefore          #--> 0
+```
+
 ---
 
 ## 4. Money
@@ -201,15 +261,25 @@ XOF to EUR is refused; a fraction of a franc is refused.
 
 ```ring
 a = StzAmountQ("150000", "XOF")
-? a.Currency()        #--> "XOF"
+? a.Currency()        #--> XOF
 ? a.Exponent()        #--> 0
-? a.MinorUnits()      #--> 150000      (what the hub's `montant` field carries for XOF)
-? a.Display()         #--> "150 000 FCFA"
+? a.MinorUnits()      #--> 150000
+? a.Display()         #--> 150 000 FCFA
 
-b = StzAmountQ("50.5", "XOF")        # raises: XOF has no fraction
+try
+	b = StzAmountQ("50.5", "XOF")                    # XOF has no fraction
+catch
+	? "refused"       #--> refused
+done
+
 c = StzAmountQ("12.50", "EUR")
 ? c.MinorUnits()      #--> 1250
-d = a + c                             # raises: cross-currency arithmetic
+
+try
+	d = a.Plus(c)                                    # cross-currency arithmetic
+catch
+	? "refused"       #--> refused
+done
 ```
 
 What this does NOT change:
@@ -313,11 +383,19 @@ its rate-limit refusal (429, the sandbox quota of 100 calls a minute and
 guide, not in the OpenAPI document).
 
 ```ring
+oBig = StzPaymentOrderQ()
+oBig.WithTxId("BIG-1")
+oBig.FromAlias(oHub.BusinessAlias())
+oBig.ToAlias(oHub.Alias("fatou"))                    # a person: at most 10 000 000 FCFA
+oBig.WithAmount( StzAmountQ("20000000", "XOF") )
+oBig.WithoutConfirmation()
 try
-	oPay.Pay(oOrder)        # same txId a second time, at the hub face
+	oPay.Pay(oBig)
 catch
 	oP = StzLastPaymentsProblem()
-	? oP.Status()        #--> 200 with statut REJETE / DU03 at the hub; the PORT answers the journal instead
+	? oP.Status()        #--> 403
+	? oP.Title()         #--> Forbidden
+	? oP.Detail()        #--> Plafond de paiement depasse
 done
 ```
 
@@ -351,7 +429,7 @@ Two invariants join the registry's five (PY3), each a guard that fails before:
   the registry refuses it BEFORE the first call, at `IsSound()`, where
   `live-without-secret` already refuses a missing API key.
 
-```ring
+```ring PY3
 oReg = new stzServiceRegistry("diko")
 oReg.Declare(:payments)
 oReg.Bind(:payments, StzPiSpiSandboxQ())          # posture :sandbox, IsSandbox() TRUE
@@ -382,7 +460,7 @@ judged by `stzRuleReport`, in the house shape
 `[ :rule, :subject, :where, :severity, :message ]`, never a constant inside
 the port.
 
-```ring
+```ring PY4
 oPlan = StzPayoutPlanQ()
 	.Paying(oBatch)                                # the bulk of section 2e
 	.Visa("comptable",  "A. Issoufou")
@@ -445,26 +523,35 @@ The reference disagrees with itself: the prose lists twelve, the enum
 `RTP_REPONSE_REJETE` and `ANNULATION_REPONSE_REJETE`. The port accepts all
 twelve on receipt and offers the ten on registration (section 11).
 
-**Verified before believed.** `ReceiveWebhook(cBody, cSignature)` runs the
-verifier on `stzRequestSigner` (PY3 adds a body-only HMAC-SHA256 form beside
-today's canonical-string form): the unsigned, mis-signed or replayed event
-(same `end2endId` and `evCode` and `evDate` already seen) is refused with
-401 and recorded in the security ledger; only a verified event reaches the
-platform's handler. The HMAC runs in the engine (`stz_crypto`), never in
-Ring.
+**Verified before believed.** `ReceiveWebhook(cBody, cSignature)` checks the HMAC-SHA256 of the
+body against the secret(s) the port was given (at `RegisterWebhook` and `RenewWebhookSecret`),
+with a constant-time comparison; the unsigned, mis-signed, malformed or replayed event (same
+`end2endId`, `evCode` and `evDate` already seen) is refused with 401, and only a verified one
+reaches the platform's handler. The HMAC runs in the engine (`stz_crypto`), never in Ring.
+**PY2 delivers this much; PY3 moves the secret into `stzSecretStore`, adds the body-only form on
+`stzRequestSigner` and writes the refusal into the security ledger.**
 
 ```ring
-oHub.RegisterWebhook( StzWebhookQ().CallingBack("https://diko.example/pispi").OnEvents(["PAIEMENT_RECU"]) )
-# the twin now owns the secret; the platform stores it:
-oStore.Register( StzSecretQ("pispi-webhook-secret").Holding(oHub.LastWebhookSecret()) )
+oPay.RegisterWebhook( StzWebhookQ().CallingBack("https://diko.example/pispi").OnEvents(["PAIEMENT_ENVOYE"]) )
+# the hub returned the secret once; the port kept it to verify what the hub sends
 
-oHub.SettleEverything()                       # the twin finalises pending movements and POSTs its events
+oNext = StzPaymentOrderQ()
+oNext.WithTxId("DIKO-2026-000418")
+oNext.FromAlias(oHub.BusinessAlias())
+oNext.ToAlias(oHub.Alias("fatou"))
+oNext.WithAmount( StzAmountQ("5000", "XOF") )
+oNext.WithoutConfirmation()
+oPay.Pay(oNext)
+oHub.AdvanceSeconds(25)                              # the payment turns final: the hub signs and queues its event
+
 aEv = oPay.ReceiveWebhook(oHub.LastCallbackBody(), oHub.LastCallbackSignature())
-? aEv[:accepted]                              #--> TRUE
-? aEv[:events][1][:evCode]                    #--> "PAIEMENT_RECU"
+? aEv[:accepted]                                     #--> 1
+aEvents = aEv[:events]
+? aEvents[1][:evCode]                                #--> PAIEMENT_ENVOYE
 
 aBad = oPay.ReceiveWebhook(oHub.LastCallbackBody(), "deadbeef")
-? aBad[:accepted]                             #--> FALSE, 401, one ledger line
+? aBad[:accepted]                                    #--> 0
+? aBad[:status]                                      #--> 401
 ```
 
 ---
@@ -587,6 +674,19 @@ the portal's own guide pages. The reference (`openapi.yml` v1.5.0) wins.
     end (`SetClientCert` -> `sslcert`/`sslkey` -> `CURLOPT_SSLCERT`/`SSLKEY`).
     The finding the prompt asked for before PY5 is "present"; nothing goes
     to Central as a blocker.
+13. **Bulk prose names a path that does not exist.** `POST /paiements-groupes` says to read the
+    items at `GET /paiements?instructionId={id}`; the paths section has no `/paiements` list, only
+    `/paiements-envoyes` and `/paiements-recus`. The twin filters `/paiements-envoyes` by
+    `instructionId`.
+14. **One field, two names.** A bulk item identifies a non-bank payee by `payeOther`; a single
+    payment calls the same thing `payeCompte`. The port's builder says `ToAccount` and writes the
+    right name for each.
+15. **A ceiling breach is two different answers.** The reference's own example for
+    `POST /paiements-envoyes` is a 403 problem ("Plafond de paiement depasse"), while `AM02` exists
+    as a rejection reason. The twin answers 403 for a single payment and `AM02` for a bulk item,
+    where a 403 would reject the whole batch.
+16. **Booleans in Ring lists are 1 and 0.** Ring has no boolean type; `confirmation`, `decision`
+    and `programme` travel as 1 and 0 and the HTTP boundary (PY5) maps them to true and false.
 
 ---
 

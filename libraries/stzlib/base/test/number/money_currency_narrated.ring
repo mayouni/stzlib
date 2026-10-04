@@ -156,6 +156,16 @@ Scenario("sign and size")
 		bBig = TRUE
 	done
 	Then("an amount beyond the exact integer range is refused, not silently rounded", bBig, TRUE)
+
+	Then("the largest exact minor-unit count, 2^53 - 1, is accepted",
+		StzAmountQ("9007199254740991", "XOF").MinorUnits(), 9007199254740991)
+	bEdge = FALSE
+	try
+		oEdge = StzAmountQ("9007199254740992", "XOF")
+	catch
+		bEdge = TRUE
+	done
+	Then("...and the next one is refused: a 16-digit amount reaches the boundary check", bEdge, TRUE)
 EndScenario()
 
 Scenario("the ISO table answers for itself")
