@@ -43,6 +43,9 @@ $cStzIsoExp2 = " AED AFN ALL AMD ANG AOA ARS AUD AWG AZN BAM BBD BDT BGN BMD BND
 $cStzIsoExp3 = " BHD IQD JOD KWD LYD OMR TND "
 $cStzIsoExp4 = " CLF "
 
+# The largest minor-unit count a Ring number holds exactly: 2^53 - 1.
+$cStzAmountMax = "9007199254740991"
+
 # The exponent of an ISO 4217 code, or -1 when the code is not in the table.
 func StzCurrencyExponent(pcCode)
 	if NOT isString(pcCode)
@@ -67,9 +70,6 @@ func StzAmountQ(pValue, pcCurrency)
 
 	func StzAmount(pValue, pcCurrency)
 		return StzAmountQ(pValue, pcCurrency)
-
-# The largest minor-unit count a Ring number holds exactly: 2^53 - 1.
-$cStzAmountMax = "9007199254740991"
 
 class stzAmount from stzObject
 

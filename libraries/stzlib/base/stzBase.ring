@@ -510,6 +510,8 @@ load "geo/stzGeoProcess.ring"
     load "service/stzBlobPort.ring"     # the OBJECT-STORE port (local-real: a directory)
     load "service/stzLlmPort.ring"      # the generative port (replay/scripted/local)
     load "service/stzAmount.ring"       # money that knows its currency (ISO 4217 exponent)
+    load "service/stzCardPaymentsAdapter.ring" # the CARD gateway adapter and its sandbox
+    load "service/stzPiSpiSandbox.ring" # the Softanza twin of the PI-SPI hub (API Business v1.5.0)
     load "service/stzPaymentsPort.ring" # the payments port (deterministic gateway)
     load "service/stzHttpPort.ring"   # the generic HTTP port (scripted + replay)
     load "service/stzDataPort.ring"   # the DATABASE port (local-real: sqlite)
