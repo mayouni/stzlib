@@ -1,0 +1,34 @@
+# The parameter glossary: written ONCE, inherited by every method that
+# takes a parameter of that name and does not describe it itself (the record
+# labels such a role `derived`). One `name<TAB>role` per line; '#' = comment.
+# Only names whose meaning is the same wherever they appear belong here.
+pCaseSensitive	1 (TRUE) to compare with case, 0 (FALSE) to ignore case.
+pcSubStr	The text fragment to work with.
+pcStr	The text to work on.
+pcChar	A single character.
+pcName	A name, as text.
+pcId	An identifier, as text.
+pcPath	A file or folder path, as text.
+pcLabel	A label, as text.
+pcKey	A key, as text.
+pcSep	The separator, as text.
+pcText	The text to work on.
+pcType	A type name, as text.
+pcClass	A class name, as text.
+pcPattern	A pattern, as text.
+pcExpr	An expression, as text.
+pcCondition	A condition, as text, in the library's condition syntax.
+pnStartingAt	The position to start from; 1 is the first.
+panPos	A list of positions.
+paItems	A list of items.
+paList	A list.
+paSections	A list of sections, each [ start, end ].
+pCol	A column, given by its name or its position.
+paCols	A list of columns, each given by its name or its position.
+pItem	The item to look for or to use.
+pNewItem	The new item.
+pValue	The value to use.
+pSubValue	A value found inside a cell.
+pCellValue	The value of a cell.
+pOtherNumber	The other number, to compare with or to combine with.
+paOtherList	The other list, to compare with or to combine with.
