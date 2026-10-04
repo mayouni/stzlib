@@ -13,7 +13,7 @@ Scenario("The block: brief, detail, fields, continuation lines")
 	aRun = [ " Returns the positions of every occurrence of pcSubStr.", "",
 	         " A detail line.", "", "   pcSubStr   the text to look for",
 	         "   returns    a list of numbers;", "              [ ] when absent",
-	         '   example    ? Q("banana").Find("an")', "              #--> [ 2, 4 ]",
+	         '   example    ? @@( Q("banana").Find("an") )', "              #--> [ 2, 4 ]",
 	         "   see        FindFirst, FindNth" ]
 	aP = _StzDocParseRun(aRun, [ "pcSubStr" ])
 	Then("the brief is the text before the first bare #",
@@ -26,7 +26,7 @@ Scenario("The block: brief, detail, fields, continuation lines")
 	Then("an indented line continues the field above",
 		aP[3][2][3], "a list of numbers; [ ] when absent")
 	Then("an example keeps its lines, and its #--> promise sits inline",
-		aP[3][3][3], '? Q("banana").Find("an")' + char(10) + "#--> [ 2, 4 ]")
+		aP[3][3][3], '? @@( Q("banana").Find("an") )' + char(10) + "#--> [ 2, 4 ]")
 	Then("the same run with a def that has no such parameter has one field fewer",
 		len(_StzDocParseRun(aRun, [])[3]), 3)
 	aP2 = _StzDocParseRun([ " A legacy comment." ], [])

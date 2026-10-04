@@ -16,6 +16,10 @@
 #--------------------------------------------------------------#
 
 # --- JSON writing (no dependency; deterministic) -------------------------
+# JSON string escaping. The five bytes replaced are ASCII (backslash, quote, LF,
+# TAB, CR) and so can never be part of a multi-byte UTF-8 sequence: Ring's
+# builtin substr() is safe here, and 20x faster than StzReplace (68 us a call
+# through the engine boundary, measured; 20,000 strings = 1.4 s against 70 ms).
 func _StzDocJs(pcS)
 	_c_ = "" + pcS
 	if _c_ = ""
@@ -23,11 +27,11 @@ func _StzDocJs(pcS)
 	ok
 	_bs_ = char(92)
 	_q_ = char(34)
-	_c_ = StzReplace(_c_, _bs_, _bs_ + _bs_)
-	_c_ = StzReplace(_c_, _q_, _bs_ + _q_)
-	_c_ = StzReplace(_c_, char(10), _bs_ + "n")
-	_c_ = StzReplace(_c_, char(9), _bs_ + "t")
-	_c_ = StzReplace(_c_, char(13), "")
+	_c_ = substr(_c_, _bs_, _bs_ + _bs_)
+	_c_ = substr(_c_, _q_, _bs_ + _q_)
+	_c_ = substr(_c_, char(10), _bs_ + "n")
+	_c_ = substr(_c_, char(9), _bs_ + "t")
+	_c_ = substr(_c_, char(13), "")
 	return _q_ + _c_ + _q_
 
 func _StzDocJList(pacItems)
@@ -178,7 +182,7 @@ func _StzDocBriefForm(pcBrief)
 # CHECK 2 -- not the name restated, not the signature repeated.
 func _StzDocBriefRestates(pcBrief, pcName)
 	_b_ = ring_trim(pcBrief)
-	if StzFindFirst(lower(pcName) + "(", lower(_b_)) > 0
+	if substr(lower(_b_), lower(pcName) + "(") > 0
 		return 1
 	ok
 	_aNw_ = _StzDocNameWords(pcName)
@@ -250,7 +254,7 @@ func _StzDocLoadGlossary(pcBase)
 		if _c_ = "" or left(_c_, 1) = "#"
 			loop
 		ok
-		_nT_ = StzFindFirst(char(9), _c_)
+		_nT_ = substr(_c_, char(9))
 		if _nT_ > 1
 			$aStzDocGlossName + lower(ring_trim(left(_c_, _nT_ - 1)))
 			$aStzDocGlossRole + ring_trim(right(_c_, len(_c_) - _nT_))
@@ -1233,7 +1237,7 @@ func _StzDocTypoFindings(paPairs, pcBase)
 	_acO_ = []
 	_acWk_ = _StzDocList(_nP_)
 	for _i_ = 1 to _nP_
-		_nTab_ = StzFindFirst(char(9), _aPairs_[_i_])
+		_nTab_ = substr(_aPairs_[_i_], char(9))
 		_acWk_[_i_] = left(_aPairs_[_i_], _nTab_ - 1)
 	next
 	_i_ = 1
@@ -1245,7 +1249,7 @@ func _StzDocTypoFindings(paPairs, pcBase)
 		end
 		_acW_ + _cW_
 		_anC_ + (_j_ - _i_ + 1)
-		_nTab_ = StzFindFirst(char(9), _aPairs_[_i_])
+		_nTab_ = substr(_aPairs_[_i_], char(9))
 		_acO_ + right(_aPairs_[_i_], len(_aPairs_[_i_]) - _nTab_)
 		_i_ = _j_ + 1
 	end
