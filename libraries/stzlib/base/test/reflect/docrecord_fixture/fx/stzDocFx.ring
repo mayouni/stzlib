@@ -19,7 +19,7 @@ class stzDocFxBase
 # Reach for it when a method of stzString is more than you need.
 #
 #   receiver   o1 = new stzDocFx("banana")
-#   example    ? o1.Find("an")
+#   example    ? @@( o1.Find("an") )
 #              #--> [ 2, 4 ]
 #   see        stzString
 class stzDocFx from stzDocFxBase
@@ -39,9 +39,9 @@ class stzDocFx from stzDocFxBase
 	#   returns    a list of numbers; [ ] when pcSubStr is absent
 	#   note       case-sensitive; FindCS takes the flag
 	#   see        FindFirst, Contains
-	#   example    ? o1.Find("an")
+	#   example    ? @@( o1.Find("an") )
 	#              #--> [ 2, 4 ]
-	#              ? o1.Find("x")
+	#              ? @@( o1.Find("x") )
 	#              #--> [ ]
 	def Find(pcSubStr)
 		return This.FindCS(pcSubStr, 1)
