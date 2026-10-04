@@ -60,10 +60,12 @@ Six checks per public method: **(1)** brief of 20-140 characters, uppercase, end
 
 Step 2 the extractor (Ring first; **if the 652-class export exceeds 60 s in one process, the line scan moves into the engine**, as the engine-first doctrine says). Step 3 pilot: derive first, then write by hand the 300 most used methods (ranked by tests + narrations + recipes), render one class page and one method page, **record who read them**. Step 4 waves by size and use, mechanical part by script, comments only, every touched file syntax-checked, staged by explicit path. Typo and dead-forward *repairs* are **code** edits and form their own wave 0 (a wrong spelling stays as a `deprecated` alias of the right one so no caller breaks).
 
-## 6. Rulings I need from the author
+## 6. Rulings (the author, 2026-10-05)
 
-1. **Brief voice:** third person ("Returns...", "Removes...") as Qt, or imperative ("Remove...") as some of the code does today. *I recommend third person.*
-2. **The block** of section 2, including `#-->` on the next line and the parameter glossary as a legal source of `derived` text.
-3. **Pass = checks 1-4**, Reference = 1-6; the gate's floor for new or changed methods is checks 1-2.
-4. **Wave 0** (repair typos and dead forwards as code, with deprecated aliases) before or after the pilot. *I recommend after: the pilot needs a working method more than a corrected name.*
-5. **Engine threshold:** Ring first, engine only if over 60 s.
+1. **Brief voice: third person** ("Returns...", "Removes..."). Ruled.
+2. **The block: ruled, with one change.** `#-->` shows the output **inline, after each meaningful `?` line**, so a block has **no Output field**: the example is its lines, promises in place. (The guard and the record keep exactly that: `example` is the lines, `promises` the `#-->` payloads in order.)
+3. **Pass = checks 1-4, Reference = 1-6, the gate's floor for new or changed methods = checks 1-2.** Left to me; decided as proposed.
+4. **Wave 0 (typos and dead forwards, as code) comes after the pilot.** Ruled.
+5. **Engine threshold: Ring first, the engine only if the export exceeds 60 s in one process.** Ruled. Measured at step 2: see the CONCLUSIONS line.
+
+**Corrections found while building step 2** (the measures of section 1 stand, these refine them): the parameter glossary is `base/doc/params.txt` (one `name<TAB>role` per line), not JSON; a lone `#` in a doc block is the empty line that ends the brief (the old harvest read it as a boxed line and threw the description away); a class runs to the next `class`/`package` line, so a `func` inside it is a method: with the old rule stzTable was harvested at 1,730 methods of 4,009 and stzObject lost about 2,750.
