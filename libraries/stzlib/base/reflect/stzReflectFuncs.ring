@@ -1084,7 +1084,9 @@ func _StzHarvestClass(pcFile, pcName)
 		if _StzIsClassLineNamed(trim(_aLines_[_i_]), _cNL_)
 			_nEnd_ = _nLen_
 			for _j_ = _i_ + 1 to _nLen_
-				if _StzIsClassOrFuncDecl(trim(_aLines_[_j_]))
+				# a class runs to the next `class` / `package` line: a `func` inside it is
+				# a method (stzTable and stzObject lost ~6,000 methods to the old rule)
+				if _StzDocIsClassLine(trim(_aLines_[_j_])) or _StzDocIsPackageLine(trim(_aLines_[_j_]))
 					_nEnd_ = _j_ - 1
 					exit
 				ok
@@ -1104,23 +1106,37 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 	_aOwn_ = []    # 1 = the method carries its OWN doc-comment
 	_aSect_ = []   # the enclosing section anchor at record time
 	_aFwd_ = []    # pure one-line forward target ("" when none)
-	_cDesc_ = ""
+	_acRun_ = []   # the comment run above the next def (comment texts, '#' removed)
 	_cAka_ = ""
 	_cSection_ = ""
 	if nStart < 1 nStart = 1 ok
 	if nEnd > len(paLines) nEnd = len(paLines) ok
 	for _i_ = nStart to nEnd
 		_cTrim_ = trim(paLines[_i_])
+		# a `func Name` inside a class is a method as much as `def Name` is (Ring's
+		# own rule); a global `func StzXxx` that landed there by position is not
+		_bFuncDef_ = 0
+		if len(_cTrim_) >= 6 and lower(left(_cTrim_, 5)) = "func " and
+		   StzFindFirst("{", _cTrim_) = 0
+			_bFuncDef_ = 1
+			_cTrim_ = "def " + substr(_cTrim_, 6, len(_cTrim_) - 5)
+		ok
 		if len(_cTrim_) >= 4 and lower(left(_cTrim_, 4)) = "def "
 			_cName_ = _StzDefName(_cTrim_)
-			if _cName_ != "" and left(_cName_, 1) != "_"
+			if _cName_ != "" and left(_cName_, 1) != "_" and
+			   NOT (_bFuncDef_ and lower(left(_cName_, 3)) = "stz")
 				# Record = [ name, DISPLAY desc (clean), AKA keywords ]. Keeping
 				# aka separate is what lets Explain show a clean description while
 				# retrieval still scores against the synonyms. The desc stays RAW
 				# here ("" when undocumented) -- the post-pass below fills
 				# variants from their documented base, THEN section-anchors.
-				_cD_ = _StzPolishDesc(trim(_cDesc_))
-				_aMethods_ + [ _cName_, _cD_, trim(_cAka_) ]
+				# the run is parsed as a DOC BLOCK (stzDocRecord.ring): the BRIEF is the
+				# description; the detail, the parameter roles, the notes and the see-also
+				# go to the retrieval-only field, so Ask still finds them and Explain never
+				# shows a design paragraph as a method's description
+				_aRn_ = _StzDocParseRun(_acRun_, _StzDocParamsOf(_cTrim_))
+				_cD_ = _StzPolishDesc(trim(_aRn_[1]))
+				_aMethods_ + [ _cName_, _cD_, trim(_cAka_ + " " + _StzDocRetrievalExtra(_aRn_)) ]
 				if _cD_ != ""
 					_aOwn_ + 1
 				else
@@ -1184,7 +1200,7 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 				next
 				_aFwd_ + _cFwd_
 			ok
-			_cDesc_ = ""
+			_acRun_ = []
 			_cAka_ = ""
 		but len(_cTrim_) >= 1 and left(_cTrim_, 1) = "#"
 			# #TODO / #WARNING lines are maintainer MARKERS, never
@@ -1199,23 +1215,24 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 				# #@ aka/tags/see -> user-language synonyms, into the AKA field
 				# (retrieval-only). Other tags ignored here. Never touches desc.
 				_cAka_ += _StzInfoTagText(_cTrim_)
-			but right(_cTrim_, 1) = "#"   # a boxed line: a border OR a section title
+			but len(_cTrim_) >= 2 and right(_cTrim_, 1) = "#"   # a boxed line: a border OR a section title (a lone # is an empty comment line)
 				_cInner_ = ""
 				if len(_cTrim_) >= 3 _cInner_ = trim(substr(_cTrim_, 2, len(_cTrim_) - 2)) ok
 				_cTitle_ = _StzSectionTitle(_cInner_)
 				if _cTitle_ != "" _cSection_ = _cTitle_ ok
-				_cDesc_ = ""
+				_acRun_ = []
 			else
 				_cCc_ = trim(substr(_cTrim_, 2, len(_cTrim_) - 1))
 				if left(_cCc_, 3) = "---"
 					# a "--- Section ---" divider line, never prose
 					loop
 				ok
-				_cDesc_ += " " + _cCc_
+				# the raw text after '#' keeps its blanks: indentation carries the field syntax
+				_acRun_ + StzReplace(right(paLines[_i_], len(paLines[_i_]) - StzFindFirst("#", paLines[_i_])), char(13), "")
 			ok
 		else
 			if _cTrim_ != ""   # code breaks the comment block
-				_cDesc_ = ""
+				_acRun_ = []
 				_cAka_ = ""
 			ok
 		ok
@@ -1483,10 +1500,12 @@ func _StzHarvestRange(paLines, nStart, nEnd)
 			_aMethods_[_i_][2] = "Same as " + _cSaT_ + ": " + _aSaDescs_[_nSaP_]
 		ok
 	next
-	# LAST RESORT: the coarse section anchor
+	# LAST RESORT: the section a method sits in is STRUCTURE, never its description --
+	# it goes to the retrieval-only field, where it always helped Ask, and Explain no
+	# longer shows 'export' as the explanation of one hundred and ten methods
 	for _i_ = 1 to _nMh_
 		if _aMethods_[_i_][2] = "" and _aSect_[_i_] != ""
-			_aMethods_[_i_][2] = _aSect_[_i_]
+			_aMethods_[_i_][3] = trim(_aMethods_[_i_][3] + " " + _aSect_[_i_])
 		ok
 	next
 	return _aMethods_
