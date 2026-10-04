@@ -509,6 +509,7 @@ load "geo/stzGeoProcess.ring"
     load "service/stzServiceRule.ring"  # the constraint rules (delivery x registry)
     load "service/stzBlobPort.ring"     # the OBJECT-STORE port (local-real: a directory)
     load "service/stzLlmPort.ring"      # the generative port (replay/scripted/local)
+    load "service/stzAmount.ring"       # money that knows its currency (ISO 4217 exponent)
     load "service/stzPaymentsPort.ring" # the payments port (deterministic gateway)
     load "service/stzHttpPort.ring"   # the generic HTTP port (scripted + replay)
     load "service/stzDataPort.ring"   # the DATABASE port (local-real: sqlite)
