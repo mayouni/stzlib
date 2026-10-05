@@ -1,0 +1,15 @@
+{
+ "brief": "Runs the security invariants over a project's surface, its secret store, its sites, its actors and its services, and reports findings.",
+ "detail": "It turns the principle that expression is free and admission is governed into a check. The invariants are no-sandboxed-effectful (an error: a sandboxed actor that holds the effectful capability), inline-key, no-central-store and refused-accesses (warnings), and the findings of an attached service registry. Findings are [ :invariant, :severity, :where, :message ] with the severity written error or warn. IsSound means no error; IsClean means nothing flagged at all. The posture keeps a copy of everything handed to it, so describe the surface completely first and ask last.",
+ "receiver": "o1 = new stzSecurityPosture(\"restolean\")",
+ "example": [
+  "o1.AddActor(LLMActor(\"planner\"))",
+  "? o1.IsSound()",
+  "#--> 1"
+ ],
+ "see": [
+  "stzSecretStore",
+  "stzServiceRegistry",
+  "stzSystemActor"
+ ]
+}

@@ -91,6 +91,23 @@ func StzAgentReversibilityCode(pcClass)
 func StzAgentHostQ()
 	return new stzAgentHost()
 
+# Supervises agents as cancellable, traced, quarantinable and decommissionable jobs ticked on a timer or on events.
+#
+# A host owns a reactor, or shares one. It ticks each supervised agent through its Cycle, on its own
+# timer or once per event of a bus channel, and records a trace. Cancel is a pause anyone can undo;
+# Quarantine is a containment act that only an effectful actor can lift with Release; Retire is
+# permanent and earned, refused until the declared decommission obligations are fulfilled.
+# SetActionBudget caps the acts an agent may take in a window and quarantines a runaway.
+# UseEngineLoop hands the scheduling decision to the engine, which refuses an agent that states
+# neither what it covers nor how reversible it is. UseAgentsFrom mounts agents written as files. The
+# host keeps a copy of each agent: configure it fully before Supervise and reach it afterwards
+# through AgentQ.
+#
+#   receiver   o1 = new stzAgentHost()
+#   example    o1.Supervise(new stzPIAgent("kitchen-bot"), 20)
+#              ? o1.NumberOfAgents()
+#              #--> 1
+#   see        stzPIAgent, stzReactor, stzSecurityLedger
 class stzAgentHost from stzObject
 
 	@oReactor    = ""
@@ -106,12 +123,21 @@ class stzAgentHost from stzObject
 	@aQuarantine = []        # [ name, reason, atMs ] -- containment's :QuarantinePart
 	@aBudgets    = []        # [ name, maxActs, windowMs, windowStart, acts ] -- R7
 
+	# Builds a host that owns a new reactor and supervises no agent yet.
+	#
+	#   returns    nothing; the object is built
+	#   see        SetReactor, Supervise, Shutdown
 	def init()
 		@oReactor = new stzReactor()
 		@bOwnsReactor = 1
 
-	# Share another host's loop (e.g. an stzAppServer's) instead of
-	# owning one -- "the agent host is the same host".
+	# Shares another host's reactor, such as an app server's loop, instead of owning one; a reactor the host owned is destroyed.
+	#
+	#   poReactor   the stzReactor to share
+	#   returns     the host itself, so calls chain
+	#   note        Shutdown leaves a shared reactor alone
+	#   see         ReactorQ, Shutdown
+	#@ aka  Share another host's loop (e.g. an stzAppServer's) instead of owning one -- "the agent host is the same host".
 	def SetReactor(poReactor)
 		if @bOwnsReactor and @oReactor != ""
 			@oReactor.Destroy()
@@ -120,18 +146,29 @@ class stzAgentHost from stzObject
 		@bOwnsReactor = 0
 		return This
 
+	# Returns the reactor the host waits on between ticks.
+	#
+	#   returns    the stzReactor, or an empty text after Shutdown
+	#   see        SetReactor, Shutdown
 	def ReactorQ()
 		return @oReactor
 
+	# Returns the host's last explanation: what a mount, a rescan, a run to quiet, a retirement or a quarantine did.
+	#
+	#   returns    a text; empty until something is recorded
+	#   see        Retire, Quarantine, RescanAgents
 	def Why()
 		return @cWhy
 
-	# The governance whose decommission contract gates Retire(). NOTE:
-	# the stored @oGov is a COPY (governance is pure Ring lists -- no
-	# shared engine handle), so the decommission contract MUST be
-	# declared and fulfilled THROUGH THE HOST (below), which mutates
-	# this live copy. Fulfilling on the caller's original would leave
-	# the host's copy stale (the Ring aliasing doctrine).
+	# Sets the governance whose decommission contracts gate Retire.
+	#
+	#   poGov      the stzGovernance that holds the decommission contracts
+	#   returns    the host itself, so calls chain
+	#   note       once a governance is set, an agent with no declared contract cannot retire
+	#   warning    the host keeps a COPY of the governance, so declare and fulfil obligations
+	#              through the host and never on the original
+	#   see        DeclareDecommission, Retire
+	#@ aka  The governance whose decommission contract gates Retire(). NOTE: the stored @oGov is a COPY (governance is pure Ring lists -- no shared engine handle), so the decommission contract MUST be declared and fulfilled THROUGH THE HOST (below), which mutates this live copy. Fulfilling on the caller's original would leave the host's copy stale (the Ring aliasing doctrine).
 	def SetRetirementGovernance(poGov)
 		@oGov = poGov
 		return This
@@ -141,26 +178,51 @@ class stzAgentHost from stzObject
 			@oGov = new stzGovernance("agent-host")
 		ok
 
-	# Declare an agent's decommission obligations (retirement is earned
-	# only once all are fulfilled).
+	# Declares what an agent must fulfil before it may retire.
+	#
+	#   pcName           the agent's name
+	#   pacObligations   the obligations to fulfil, as a list of text
+	#   returns          the host itself, so calls chain
+	#   note             creates a governance named agent-host when none was set, which makes Retire
+	#                    require a contract for every agent
+	#   see              FulfillObligation, Retire
+	#@ aka  Declare an agent's decommission obligations (retirement is earned only once all are fulfilled).
 	def DeclareDecommission(pcName, pacObligations)
 		This._EnsureGov()
 		@oGov.DeclareDecommission(pcName, pacObligations)
 		return This
 
-	# Fulfill one obligation (mutates the host's live governance copy).
+	# Marks one decommission obligation of an agent as fulfilled.
+	#
+	#   pcName         the agent's name
+	#   pcObligation   the obligation to mark, as text
+	#   returns        the host itself, so calls chain
+	#   note           retirement is earned once every declared obligation is fulfilled
+	#   see            DeclareDecommission, Retire
+	#@ aka  Fulfill one obligation (mutates the host's live governance copy).
 	def FulfillObligation(pcName, pcObligation)
 		This._EnsureGov()
 		@oGov.FulfillObligation(pcName, pcObligation)
 		return This
 
+	# Returns the retirement governance the host holds.
+	#
+	#   returns    the stzGovernance, or an empty text when none was set
+	#   see        SetRetirementGovernance
 	def GovernanceQ()
 		return @oGov
 
-	#-- supervision -----------------------------------------------------
-
-	# Register an agent to be ticked every nTickMs. The agent must be
-	# fully configured (skills, governance) BEFORE this call.
+	# Registers an agent to be ticked on a timer, once every given number of milliseconds.
+	#
+	#   poAgent    an agent that answers Name_ and Cycle, fully configured
+	#   nTickMs    the milliseconds between ticks, at least 1
+	#   returns    the host itself, so calls chain
+	#   note       with the engine loop adopted the agent is registered with it at once, and the
+	#              engine may refuse
+	#   warning    an interval below 1 raises an error; the host keeps a COPY of the agent, so
+	#              configure it fully first and reach it afterwards through AgentQ
+	#   see        SuperviseOnEvent, RunFor, AgentQ
+	#@ aka  -- supervision -----------------------------------------------------
 	def Supervise(poAgent, nTickMs)
 		if nTickMs < 1
 			stzraise("stzAgentHost.Supervise: tick interval must be >= 1ms.")
@@ -175,11 +237,14 @@ class stzAgentHost from stzObject
 		ok
 		return This
 
-	# EVENT-DRIVEN supervision (R5 reactor-runtime): tick the agent once per
-	# EVENT emitted on pcChannel (the engine event bus, stzEventBus), not on a
-	# timer. The perceive-decide-act loop becomes a true event loop -- the
-	# agent reacts to what happens, when it happens. Past events are NOT
-	# replayed (the baseline is the channel's current count at registration).
+	# Registers an agent to be ticked once per event emitted on a channel of the engine event bus, not on a timer.
+	#
+	#   poAgent     an agent that answers Name_ and Cycle, fully configured
+	#   pcChannel   the event bus channel to follow, created when absent
+	#   returns     the host itself, so calls chain
+	#   note        events emitted before the call are not replayed
+	#   see         Supervise, ChannelOf
+	#@ aka  EVENT-DRIVEN supervision (R5 reactor-runtime): tick the agent once per EVENT emitted on pcChannel (the engine event bus, stzEventBus), not on a timer. The perceive-decide-act loop becomes a true event loop -- the agent reacts to what happens, when it happens. Past events are NOT replayed (the baseline is the channel's current count at registration).
 	def SuperviseOnEvent(poAgent, pcChannel)
 		stzengine_reactive_create_channel("" + pcChannel)   # ensure it exists
 		_nBase_ = stzengine_reactive_event_count("" + pcChannel)
@@ -192,65 +257,95 @@ class stzAgentHost from stzObject
 		ok
 		return This
 
-	# The channel an agent is event-supervised on ("" if timer-supervised).
+	# Returns the channel an agent is supervised on.
+	#
+	#   pcName     the agent's name
+	#   returns    a text; empty for a timer-supervised or unknown agent
+	#   see        SuperviseOnEvent, IsSupervising
+	#@ aka  The channel an agent is event-supervised on ("" if timer-supervised).
 	def ChannelOf(pcName)
 		_n_ = This._IndexOf(pcName)
 		if _n_ = 0  return ""  ok
 		return @aAgents[_n_][8]
 
+	# Returns how many agents the host has registered, whether active, cancelled, quarantined or retired.
+	#
+	#   returns    a number
+	#   see        NameAt, IsSupervising
 	def NumberOfAgents()
 		return len(@aAgents)
 
-	# The nth supervised agent's NAME -- enumeration for an observer (the
-	# appserver's /agents surface) that must not hold the agent itself.
+	# Returns the name of the nth supervised agent, so an observer can list agents without holding them.
+	#
+	#   pnIndex    the position, 1 is the first agent supervised
+	#   returns    a text; empty when the position is out of range
+	#   see        NumberOfAgents, AgentQ
+	#@ aka  The nth supervised agent's NAME -- enumeration for an observer (the appserver's /agents surface) that must not hold the agent itself.
 	def NameAt(pnIndex)
 		if pnIndex < 1 or pnIndex > len(@aAgents)
 			return ""
 		ok
 		return @aAgents[pnIndex][1]
 
+	# TRUE if an agent of that name was registered, retired or not.
+	#
+	#   pcName     the agent's name
+	#   returns    TRUE or FALSE
+	#   see        NumberOfAgents, IsActive
 	def IsSupervising(pcName)
 		return This._IndexOf(pcName) > 0
 
+	# TRUE if the agent is registered and not cancelled, quarantined or retired; the answer is the number 1 or 0.
+	#
+	#   pcName     the agent's name
+	#   returns    1 or 0; 0 for an unknown agent
+	#   warning    Resume on a retired agent sets this back to 1 although it never ticks again, so
+	#              read IsRetired too
+	#   see        IsRetired, IsQuarantined, Cancel
 	def IsActive(pcName)
 		_n_ = This._IndexOf(pcName)
 		if _n_ = 0  return 0  ok
 		return @aAgents[_n_][4]
 
+	# Returns how many cycles the host has run for an agent.
+	#
+	#   pcName     the agent's name
+	#   returns    a number; 0 for an unknown agent
+	#   see        Trace, TickDue
 	def TicksOf(pcName)
 		_n_ = This._IndexOf(pcName)
 		if _n_ = 0  return 0  ok
 		return @aAgents[_n_][6]
 
-	# The live supervised agent (reach it here, not via a stale ref).
+	# Returns the live supervised agent, the copy to read and not the reference given to Supervise.
+	#
+	#   pcName     the agent's name
+	#   returns    the agent object, or an empty text for an unknown name
+	#   see        Supervise, NameAt
+	#@ aka  The live supervised agent (reach it here, not via a stale ref).
 	def AgentQ(pcName)
 		_n_ = This._IndexOf(pcName)
 		if _n_ = 0  return ""  ok
 		return @aAgents[_n_][2]
 
+	# Returns the tick trace, one row per cycle the host ran.
+	#
+	#   returns    a list of [ time in ms, agent name, firings, why ] rows
+	#   note       the why reads tick N or event N (the engine loop can also say mail or nudge); a
+	#              remade event channel adds a row of its own
+	#   see        TicksOf, TickDue
 	def Trace()
 		return @aTrace
 
-	#-- agents as FILES (the agents/ folder) -----------------------------
+	# Mounts every valid agent file of a folder on this host, each on the schedule its own file declares.
 	#
-	# AT START: read the folder, mount everything valid on this host, each
-	# on the schedule its own file declared.
-	#
-	#     oHost.UseAgentsFrom("agents")
-	#     oHost.RunFor(500)
-	#
-	# ON CHANGE: RescanAgents() re-reads and reports what moved. It
-	# supervises what ARRIVED and cancels what VANISHED -- and for a file
-	# that CHANGED under a running agent it does neither, and says so.
-	# Swapping a live agent is not a file operation: it has a memory, a
-	# trace and possibly unfulfilled obligations, and replacing it quietly
-	# would discard all three without anyone asking.
-	#
-	# AND THE REFUSALS ARE NOT SWALLOWED. AgentLoadRefusals() carries every
-	# file the folder would not admit, in the unified finding shape, and
-	# CiteAgentLoadRefusals() prints them. A host that mounted three agents
-	# out of five and said nothing is the shape this exists to prevent.
-
+	#   pcPath     the folder that holds the agent files
+	#   returns    a number, how many agents were mounted
+	#   note       a file the folder will not admit is not mounted and is reported through
+	#              AgentLoadRefusals; Why says how many were mounted and refused; UseAgentsFromQ
+	#              does the same and returns the host, so calls chain
+	#   see        RescanAgents, AgentLoadRefusals
+	#@ aka  -- agents as FILES (the agents/ folder) -----------------------------
 	def UseAgentsFrom(pcPath)
 		@oFolder = StzAgentFolderQ(pcPath)
 		@oFolder.ReadAgents()
@@ -263,28 +358,52 @@ class stzAgentHost from stzObject
 			This.UseAgentsFrom(pcPath)
 			return This
 
+	# Returns the folder object mounted by UseAgentsFrom.
+	#
+	#   returns    the stzAgentFolder, or an empty text when none was mounted
+	#   see        UseAgentsFrom, IsUsingAgentFolder
 	def AgentFolderQ()
 		return @oFolder
 
+	# TRUE if an agent folder was mounted; the answer is the number 1 or 0.
+	#
+	#   returns    1 or 0
+	#   see        UseAgentsFrom, AgentFolderQ
 	def IsUsingAgentFolder()
 		if @oFolder = ""
 			return 0
 		ok
 		return 1
 
+	# Returns every file the folder would not admit, as findings in the unified rule shape.
+	#
+	#   returns    a list of [ :rule, :subject, :where, :severity, :message ] findings; [ ] with no
+	#              folder or no refusal
+	#   see        CiteAgentLoadRefusals, UseAgentsFrom
 	def AgentLoadRefusals()
 		if @oFolder = ""
 			return []
 		ok
 		return @oFolder.Refusals()
 
+	# Returns the refusals of the folder as readable text, one line each.
+	#
+	#   returns    a text; empty with no folder or no refusal
+	#   see        AgentLoadRefusals
 	def CiteAgentLoadRefusals()
 		if @oFolder = ""
 			return ""
 		ok
 		return @oFolder.CiteRefusals()
 
-	# Returns [ :added, :changed, :removed ] -- the file names that moved.
+	# Re-reads the folder: supervises what arrived and cancels what vanished, and only reports a file that changed under a running agent.
+	#
+	#   returns    a list [ :added, :changed, :removed ] of file names
+	#   note       a vanished agent is cancelled and not retired, because retirement is earned;
+	#              swapping a live agent is never done quietly
+	#   warning    raises an error when no folder was mounted: call UseAgentsFrom first
+	#   see        UseAgentsFrom, Cancel
+	#@ aka  Returns [ :added, :changed, :removed ] -- the file names that moved.
 	def RescanAgents()
 		if @oFolder = ""
 			stzraise("stzAgentHost.RescanAgents: no agent folder -- call " +
@@ -320,12 +439,18 @@ class stzAgentHost from stzObject
 			" changed, " + len(_a_[:removed]) + " removed"
 		return _a_
 
-	#-- the engine loop (Zig owns the tick) -----------------------------
-
-	# Declare an agent's COVERAGE STATEMENT and REVERSIBILITY CLASS -- what
-	# law 18 obliges before anything schedules it. Needed only for agents
-	# that do not answer CoverageStatement() / ReversibilityClass()
-	# themselves; the host asks the agent first.
+	# Declares an agent's coverage statement and reversibility class, which the engine loop demands before it schedules anything.
+	#
+	#   pcName            the agent's name
+	#   pcCoverage        one sentence saying what the agent covers
+	#   pcReversibility   reversible, compensable or irreversible
+	#   returns           nothing; use DeclareQ to chain
+	#   note              needed only for an agent that does not answer CoverageStatement and
+	#                     ReversibilityClass itself (law 18); DeclareQ does the same and returns the
+	#                     host, so calls chain, and a second call for the same name replaces the
+	#                     first
+	#   see               SetPriority, UseEngineLoop
+	#@ aka  -- the engine loop (Zig owns the tick) -----------------------------
 	def Declare(pcName, pcCoverage, pcReversibility)
 		This.DeclareQ(pcName, pcCoverage, pcReversibility)
 
@@ -340,8 +465,14 @@ class stzAgentHost from stzObject
 		ok
 		return This
 
-	# Higher runs first in a pass. Ties break on registration order, so the
-	# order is total and reproducible whether or not priorities are set.
+	# Sets an agent's priority for the engine loop: a higher number runs first in a pass, and ties run in the order registered.
+	#
+	#   pcName       the agent's name
+	#   pnPriority   the priority, a number
+	#   returns      nothing; use SetPriorityQ to chain
+	#   note         it works before the agent is supervised
+	#   see          PriorityOf
+	#@ aka  Higher runs first in a pass. Ties break on registration order, so the order is total and reproducible whether or not priorities are set.
 	def SetPriority(pcName, pnPriority)
 		This.SetPriorityQ(pcName, pnPriority)
 
@@ -355,14 +486,26 @@ class stzAgentHost from stzObject
 		ok
 		return This
 
+	# Returns the priority set for an agent.
+	#
+	#   pcName     the agent's name
+	#   returns    a number; 0 when none was set
+	#   see        SetPriority
 	def PriorityOf(pcName)
 		_n_ = This._DeclIndex("" + pcName)
 		if _n_ = 0  return 0  ok
 		return @aDeclared[_n_][4]
 
-	# Adopt the Zig loop as this host's pump. Agents already supervised are
-	# registered now, so the call order does not matter -- and a refusal
-	# raises HERE, carrying the engine's own diagnostic.
+	# Adopts the engine loop as this host's pump: the engine decides who ticks and in what order, Ring still runs the cycles.
+	#
+	#   returns    nothing; use UseEngineLoopQ to chain
+	#   note       opt-in; UseEngineLoopQ does the same and returns the host, so calls chain; agents
+	#              already supervised are registered now, so the order of calls does not matter
+	#   warning    raises an error carrying the engine's refusal when it will not schedule an agent,
+	#              but the host then stays in engine mode with that agent unscheduled, so the agent
+	#              never ticks until UseRingLoop is called
+	#   see        UseRingLoop, Declare, EngineLoopWhy
+	#@ aka  Adopt the Zig loop as this host's pump. Agents already supervised are registered now, so the call order does not matter -- and a refusal raises HERE, carrying the engine's own diagnostic.
 	def UseEngineLoop()
 		This.UseEngineLoopQ()
 
@@ -376,19 +519,36 @@ class stzAgentHost from stzObject
 		next
 		return This
 
+	# Returns the host to the Ring pump it ran before the engine loop was adopted.
+	#
+	#   returns    the host itself, so calls chain
+	#   see        UseEngineLoop, IsUsingEngineLoop
 	def UseRingLoop()
 		@bEngineLoop = 0
 		return This
 
+	# TRUE if the engine loop is this host's pump; the answer is the number 1 or 0.
+	#
+	#   returns    1 or 0
+	#   see        UseEngineLoop, UseRingLoop
 	def IsUsingEngineLoop()
 		return @bEngineLoop
 
-	# The engine's last refusal, verbatim. A refusal names its code, its
-	# subject and what to do -- do not paraphrase it.
+	# Returns the engine's last refusal, verbatim: it names its code, its subject and what to do.
+	#
+	#   returns    a text; empty until the engine refuses
+	#   see        UseEngineLoop, Declare
+	#@ aka  The engine's last refusal, verbatim. A refusal names its code, its subject and what to do -- do not paraphrase it.
 	def EngineLoopWhy()
 		return @cLoopWhy
 
-	# The engine slot an agent occupies (-1 when the Ring pump is driving).
+	# Returns the engine slot an agent occupies.
+	#
+	#   pcName     the agent's name
+	#   returns    a number; -1 when the Ring pump drives it, after retirement, or for an unknown
+	#              name
+	#   see        UseEngineLoop, Retire
+	#@ aka  The engine slot an agent occupies (-1 when the Ring pump is driving).
 	def EngineSlotOf(pcName)
 		_n_ = This._IndexOf(pcName)
 		if _n_ = 0  return -1  ok
@@ -535,11 +695,13 @@ class stzAgentHost from stzObject
 		end
 		return _nActed_
 
-	#-- the perceive-act runtime ---------------------------------------
-
-	# Tick every ACTIVE, non-retired agent whose interval has elapsed:
-	# run ONE Cycle() (perceive-decide-act) through the live index.
-	# Returns the number of skill-firings verified this pass.
+	# Runs one cycle of every active agent that is due: a timer agent when its interval has elapsed, an event agent once per new event.
+	#
+	#   returns    a number, the skill firings run this pass
+	#   note       the same call on either pump; every act is counted against its agent's budget,
+	#              and an agent over it is quarantined in the middle of the pass
+	#   see        RunFor, RunToQuiet, SetActionBudget
+	#@ aka  -- the perceive-act runtime ---------------------------------------
 	def TickDue()
 		# ONE CALL, TWO PUMPS. The Ring API does not change when the engine
 		# loop is adopted -- RunFor / RunToQuiet / TickDue are the same
@@ -609,9 +771,12 @@ class stzAgentHost from stzObject
 		next
 		return _nActed_
 
-	# Drive the loop for nMs, ticking due agents. The inter-tick wait is
-	# a REAL libuv timer awaited on the engine loop thread (falls back
-	# to a Ring sleep only when no reactor DLL is present -- LAW 2).
+	# Drives the loop for a number of milliseconds, ticking due agents and waiting on a real timer between ticks.
+	#
+	#   nMs        how long to run, in milliseconds
+	#   returns    the host itself, so calls chain
+	#   see        TickDue, RunToQuiet
+	#@ aka  Drive the loop for nMs, ticking due agents. The inter-tick wait is a REAL libuv timer awaited on the engine loop thread (falls back to a Ring sleep only when no reactor DLL is present -- LAW 2).
 	def RunFor(nMs)
 		_nDeadline_ = StzEngineTimeNowMs() + nMs
 		while StzEngineTimeNowMs() < _nDeadline_
@@ -622,8 +787,14 @@ class stzAgentHost from stzObject
 		end
 		return This
 
-	# Run until every supervised agent reaches fixpoint (a full pass with
-	# zero firings) or the cap is hit -- the cascade at host level.
+	# Runs rounds until a whole pass fires nothing, or until 200 rounds, whichever comes first.
+	#
+	#   returns    the host itself, so calls chain
+	#   note       Why says how many rounds ran
+	#   warning    an agent that fires on every cycle never goes quiet and stops at the 200-round
+	#              cap, yet Why still reads ran to quiet
+	#   see        RunFor, TickDue
+	#@ aka  Run until every supervised agent reaches fixpoint (a full pass with zero firings) or the cap is hit -- the cascade at host level.
 	def RunToQuiet()
 		_nRound_ = 0
 		while _nRound_ < 200
@@ -641,9 +812,14 @@ class stzAgentHost from stzObject
 		@cWhy = "ran " + _nRound_ + " round(s) to quiet"
 		return This
 
-	#-- cancellation + governed decommission ---------------------------
-
-	# Stop ticking an agent WITHOUT retiring it (reversible pause).
+	# Stops ticking an agent without retiring it: a pause anyone can undo.
+	#
+	#   pcName     the agent's name
+	#   returns    the host itself, so calls chain
+	#   note       a quarantine is a containment act, and a cancel is an operator's pause
+	#   warning    raises an error for an agent that is not supervised
+	#   see        Resume, Quarantine, Retire
+	#@ aka  -- cancellation + governed decommission ---------------------------
 	def Cancel(pcName)
 		_n_ = This._IndexOf(pcName)
 		if _n_ = 0
@@ -655,6 +831,14 @@ class stzAgentHost from stzObject
 		ok
 		return This
 
+	# Makes a cancelled agent tick again, from now.
+	#
+	#   pcName     the agent's name
+	#   returns    the host itself, so calls chain
+	#   warning    raises an error for an unknown agent and for a quarantined one, which only
+	#              Release lifts; on a retired agent it sets IsActive back to 1 although the agent
+	#              never ticks again
+	#   see        Cancel, Release
 	def Resume(pcName)
 		_n_ = This._IndexOf(pcName)
 		if _n_ = 0
@@ -671,15 +855,18 @@ class stzAgentHost from stzObject
 		ok
 		return This
 
-	#-- THE ACTION BUDGET (threat-model R7, OWASP ASI08) ----------------
+	# Caps the acts, which are skill firings, that an agent may take in a sliding window; an agent over the cap is quarantined.
 	#
-	# One agent acting in a loop floods everything downstream of it -- the
-	# cascading failure. A budget caps the ACTIONS (skill firings: what
-	# causes effects) an agent may take in a sliding window. An agent that
-	# exceeds it is QUARANTINED, not merely slowed: a runaway is a
-	# containment event, it stays stopped until an effectful actor releases
-	# it, and the reason says how far over it went. Both pumps account.
-
+	#   pcName       the agent as supervised
+	#   pnMaxActs    how many acts the window allows, at least 1
+	#   pnWindowMs   the window length, in milliseconds, at least 1
+	#   returns      the host itself, so calls chain
+	#   note         threat model R7, OWASP ASI08: both pumps account, and the reason names how far
+	#                over it went (action_budget_narrated)
+	#   warning      raises an error for an agent that is not supervised and for a value below 1;
+	#                setting it again starts a fresh window
+	#   see          ActionBudgetOf, Quarantine, Release
+	#@ aka  -- THE ACTION BUDGET (threat-model R7, OWASP ASI08) ----------------
 	def SetActionBudget(pcName, pnMaxActs, pnWindowMs)
 		if This._IndexOf(pcName) = 0
 			stzraise("stzAgentHost.SetActionBudget: not supervising '" + pcName + "'.")
@@ -696,7 +883,13 @@ class stzAgentHost from stzObject
 		ok
 		return This
 
-	# [ :max, :windowMs, :acts ] -- the acts counted in the current window
+	# Returns the budget of an agent and the acts counted in the current window.
+	#
+	#   pcName     the agent's name, matched without regard to case
+	#   returns    a list [ :max, :windowMs, :acts ]; [ ] when the agent has no budget
+	#   note       the count starts again when the window ends or when Release lifts a quarantine
+	#   see        SetActionBudget
+	#@ aka  [ :max, :windowMs, :acts ] -- the acts counted in the current window
 	def ActionBudgetOf(pcName)
 		_i_ = This._BudgetIndex(StzLower("" + pcName))
 		if _i_ = 0  return []  ok
@@ -725,13 +918,16 @@ class stzAgentHost from stzObject
 			This.Quarantine(pcName, _cWhy_)
 		ok
 
-	#-- QUARANTINE (containment's :QuarantinePart) ----------------------
+	# Stops an agent and keeps the reason; it stays stopped until an effectful actor releases it.
 	#
-	# Between a pause and a retirement: the agent stops being run, with the
-	# REASON kept, and it stays stopped -- Resume() refuses while it is
-	# quarantined. Only Release(), by an effectful, non-sandboxed actor, lifts
-	# it. A Cancel is an operator's pause; a quarantine is a containment act.
-
+	#   pcName     the agent's name
+	#   pcReason   why it is contained, as text
+	#   returns    the host itself, so calls chain
+	#   note       writes agent.quarantined to the ledger when one is open; Resume refuses while it
+	#              holds (quarantine_part_narrated)
+	#   warning    raises an error for an agent that is not supervised
+	#   see        IsQuarantined, Release, QuarantineOf
+	#@ aka  -- QUARANTINE (containment's :QuarantinePart) ----------------------
 	def Quarantine(pcName, pcReason)
 		if This._IndexOf(pcName) = 0
 			stzraise("stzAgentHost.Quarantine: not supervising '" + pcName + "'.")
@@ -743,10 +939,20 @@ class stzAgentHost from stzObject
 		@cWhy = "quarantined '" + pcName + "': " + pcReason
 		return This
 
+	# TRUE if the agent is under quarantine.
+	#
+	#   pcName     the agent's name, matched without regard to case
+	#   returns    TRUE or FALSE
+	#   see        Quarantine, QuarantineOf
 	def IsQuarantined(pcName)
 		return len(This.QuarantineOf(pcName)) > 0
 
-	# [ :reason, :at ] or [] when the agent is not quarantined
+	# Returns why and when an agent was quarantined.
+	#
+	#   pcName     the agent's name, matched without regard to case
+	#   returns    a list [ :reason, :at ]; [ ] when it is not quarantined
+	#   see        Quarantine, IsQuarantined
+	#@ aka  [ :reason, :at ] or [] when the agent is not quarantined
 	def QuarantineOf(pcName)
 		_c_ = StzLower("" + pcName)
 		_n_ = len(@aQuarantine)
@@ -757,6 +963,16 @@ class stzAgentHost from stzObject
 		next
 		return []
 
+	# Lifts a quarantine and resumes the agent, on the word of an effectful, non-sandboxed actor only.
+	#
+	#   pcName     the agent to release
+	#   poActor    the actor that releases it, an object that must be effectful and not sandboxed
+	#   returns    the host itself, so calls chain
+	#   note       a released agent starts a fresh budget window
+	#   warning    an actor that is not allowed, a language-model actor or a text, raises an error
+	#              and the refusal reaches the ledger; it also resumes an agent that was merely
+	#              cancelled and records agent.released although nothing was quarantined
+	#   see        Quarantine, Resume
 	def Release(pcName, poActor)
 		if NOT (isObject(poActor) and poActor.IsEffectful() and poActor.Posture() != "sandboxed")
 			_cWho_ = "(anonymous)"
@@ -788,10 +1004,16 @@ class stzAgentHost from stzObject
 		next
 		@aQuarantine = _aNew_
 
-	# DECOMMISSION (R4b): retirement is EARNED. When a governance is
-	# wired, the agent may retire ONLY once every declared obligation is
-	# fulfilled (MayRetire). A retired agent stops ticking permanently.
-	# Returns TRUE on retirement, FALSE (with Why()) on refusal.
+	# Retires an agent for good when every decommission obligation it declared is fulfilled; it never ticks again.
+	#
+	#   pcName     the agent's name
+	#   returns    TRUE when retired, FALSE when refused, with Why saying what is pending
+	#   note       with no governance at all any agent retires at once; a retired agent frees its
+	#              engine slot
+	#   warning    raises an error for an agent that is not supervised; with a governance set, an
+	#              agent that declared no contract is refused
+	#   see        DeclareDecommission, FulfillObligation, IsRetired
+	#@ aka  DECOMMISSION (R4b): retirement is EARNED. When a governance is wired, the agent may retire ONLY once every declared obligation is fulfilled (MayRetire). A retired agent stops ticking permanently. Returns TRUE on retirement, FALSE (with Why()) on refusal.
 	def Retire(pcName)
 		_n_ = This._IndexOf(pcName)
 		if _n_ = 0
@@ -812,13 +1034,21 @@ class stzAgentHost from stzObject
 		@cWhy = "retired '" + pcName + "'"
 		return 1
 
+	# TRUE if the agent was retired; the answer is the number 1 or 0.
+	#
+	#   pcName     the agent's name
+	#   returns    1 or 0; 0 for an unknown agent
+	#   see        Retire, IsActive
 	def IsRetired(pcName)
 		_n_ = This._IndexOf(pcName)
 		if _n_ = 0  return 0  ok
 		return @aAgents[_n_][7]
 
-	#-- teardown --------------------------------------------------------
-
+	# Destroys the reactor the host owns; a reactor shared through SetReactor is left alone.
+	#
+	#   returns    the host itself, so calls chain
+	#   see        SetReactor, ReactorQ
+	#@ aka  -- teardown --------------------------------------------------------
 	def Shutdown()
 		if @bOwnsReactor and @oReactor != ""
 			@oReactor.Destroy()

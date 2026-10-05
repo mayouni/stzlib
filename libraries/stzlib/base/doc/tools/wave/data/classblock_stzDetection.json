@@ -1,0 +1,15 @@
+{
+ "brief": "Declares one rule over a sequence of security events and judges a ledger against it, answering findings.",
+ "detail": "Four shapes, each computable over a bounded ledger without a query language: a burst (n events of one kind inside a window), a sequence (one kind followed by another), any (one occurrence is the story) and unusual (the newest window judged against the same kind's own history, so the threshold is learned instead of written down). The unusual shape is honest: the newest window is judged against the windows before it, a cold start says nothing, and a flood that evicted its own baseline is reported as a warning. Findings come in the unified shape [ :rule, :subject, :where, :severity, :message ], so they join stzRuleReport. Corroborated holds an error back to a warning until two distinct event kinds agree. A detection with nothing watched raises when asked to judge.",
+ "receiver": "o1 = new stzDetection(\"credential-stuffing\")",
+ "example": [
+  "o1.WhenKind(\"auth.login.failed\").PerActor().Repeats(5).Within(60000)",
+  "? o1.Shape()",
+  "#--> burst"
+ ],
+ "see": [
+  "stzDetectionSet",
+  "stzSecurityLedger",
+  "stzSecurityEvent"
+ ]
+}

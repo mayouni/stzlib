@@ -189,6 +189,22 @@ func StzSecurityGrant(pcKind, poActor, pcSubject)
  #  THE OBJECT  #
 #===========#
 
+# Holds one typed security record: what happened, who did it, to which thing, how it ended, why, and when.
+#
+# The kind comes from a closed catalog of dotted names (auth.login.failed, secret.reveal.refused
+# ...), and an unknown kind raises. The setters return the event, so calls chain. An event never
+# carries a secret value: About takes the descriptor of an object, never its value. Both clocks are
+# stamped when the event is built, the wall clock for the forensic when and the monotonic clock for
+# ordering, together with the active trace id. An event is recorded in a stzSecurityLedger, and
+# CanonicalString, ToOcsfJson and AsLine are its three serial forms.
+#
+#   receiver   o1 = new stzSecurityEvent("auth.login.failed")
+#   example    o1.ByActorNamed("bob", "external")
+#              o1.About("user:bob")
+#              o1.Refused("bad password")
+#              ? o1.AsLine()
+#              #--> REFUSED auth.login.failed by bob (external) on user:bob -- bad password
+#   see        stzSecurityLedger, stzDetection, StzSecurityEventKinds
 class stzSecurityEvent from stzObject
 
 	@cKind = ""
@@ -207,6 +223,16 @@ class stzSecurityEvent from stzObject
 	@nAtMono = 0
 	@cTraceId = ""
 
+	# Builds an event of one kind from the closed catalog, stamping both clocks and the active trace id at the moment of detection.
+	#
+	#   pcKind     the event kind, a dotted catalog name such as auth.login.failed, matched without
+	#              regard to case
+	#   returns    nothing; the object is built
+	#   note       the outcome starts as refused; severity and technique start at the catalog values
+	#              for the kind
+	#   warning    an unknown kind raises an error that lists every known kind: the catalog is
+	#              closed
+	#   see        StzSecurityEventKindNames, Kind
 	def init(pcKind)
 		_aInfo_ = StzSecurityEventKindInfo(pcKind)
 		if len(_aInfo_) = 0
@@ -223,17 +249,33 @@ class stzSecurityEvent from stzObject
 		# Correlation, free: the active trace scope if there is one.
 		@cTraceId = StzCurrentTraceId()
 
-	  #-- reads ------------------------------------------------------
-
+	# Returns the catalog name of the event, in lower case.
+	#
+	#   returns    a text
+	#   see        Meaning, Severity
+	#@ aka  -- reads ------------------------------------------------------
 	def Kind()
 		return @cKind
 
+	# Returns the severity of the event: info, warning or error.
+	#
+	#   returns    a text
+	#   note       it starts at the catalog default of the kind and the As calls override it
+	#   see        AsInfo, AsWarning, AsError
 	def Severity()
 		return @cSeverity
 
+	# Returns the MITRE ATT&CK technique id of the kind, or an empty text where no honest mapping exists.
+	#
+	#   returns    a text
+	#   see        Kind
 	def Technique()
 		return @cTechnique
 
+	# Returns the catalog's one-line sentence saying what the kind stands for.
+	#
+	#   returns    a text
+	#   see        Kind, Explain
 	def Meaning()
 		_a_ = StzSecurityEventKindInfo(@cKind)
 		if len(_a_) = 0
@@ -241,54 +283,109 @@ class stzSecurityEvent from stzObject
 		ok
 		return _a_[4]
 
+	# Returns the name of the actor that did it.
+	#
+	#   returns    a text; empty until an actor is given
+	#   see        ByActor, ByActorNamed
 	def Actor()
 		return @cActor
 
+	# Returns the actor's posture in lower case, such as trusted, sandboxed or external.
+	#
+	#   returns    a text; empty until an actor is given
+	#   see        ByActor, ByActorNamed
 	def Posture()
 		return @cPosture
 
+	# Returns the capability kinds the actor object held, as ByActor read them.
+	#
+	#   returns    a list of text; [ ] for an actor given by name
+	#   see        ByActor
 	def ActorKinds()
 		return @aActorKinds
 
+	# Returns the act that was attempted, trimmed and in lower case.
+	#
+	#   returns    a text; empty until Doing sets it
+	#   see        Doing
 	def Action()
 		return @cAction
 
+	# Returns the risk tier of the act that was attempted.
+	#
+	#   returns    a number, 0 until AtRisk sets one
+	#   see        AtRisk
 	def Risk()
 		return @nRisk
 
+	# Returns the descriptor of the thing acted on; the value of a secret is never in it.
+	#
+	#   returns    a text; empty until About sets it
+	#   see        About
 	def Subject()
 		return @cSubject
 
+	# Returns where the event came from, such as an address, a host or an endpoint.
+	#
+	#   returns    a text; empty until FromOrigin sets it
+	#   see        FromOrigin
 	def Origin()
 		return @cOrigin
 
+	# Returns how the attempt ended: granted, refused, failed or observed.
+	#
+	#   returns    a text, refused for a new event
+	#   see        Granted, Refused, Failed, Observed
 	def Outcome()
 		return @cOutcome
 
+	# Returns the gate's own words for a refused, failed or observed event.
+	#
+	#   returns    a text; empty for a grant
+	#   see        Refused, Failed, Observed
 	def Reason()
 		return @cReason
 
+	# Returns the wall-clock time of the event, in epoch milliseconds.
+	#
+	#   returns    a number
+	#   note       stamped when the event was built, which is the moment of detection and not of
+	#              recording
+	#   see        AtMono, OccurredAt
 	def AtWall()
 		return @nAtWall
 
+	# Returns the monotonic-clock stamp of the event, in milliseconds, which keeps its ordering across a clock correction.
+	#
+	#   returns    a number, which may have a fraction
+	#   note       it orders the events of this process only and is not part of the canonical line
+	#   see        AtWall
 	def AtMono()
 		return @nAtMono
 
+	# Returns the id of the trace scope that was active when the event was built.
+	#
+	#   returns    a text; empty outside a trace scope
+	#   see        Record
 	def TraceId()
 		return @cTraceId
 
-	# "granted" and "observed" are not refusals; "refused" and "failed" are.
-	# Written as an explicit list rather than `!= "granted"` because a
-	# fourth outcome arrived later (see Observed) and the negative form
-	# would have silently swept it in -- an expired session would have
-	# counted as a refusal in every pivot.
+	# TRUE if the outcome is refused or failed; a granted or an observed event is not a refusal.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Outcome, Refused
+	#@ aka  "granted" and "observed" are not refusals; "refused" and "failed" are. Written as an explicit list rather than `!= "granted"` because a fourth outcome arrived later (see Observed) and the negative form would have silently swept it in -- an expired session would have counted as a refusal in every pivot.
 	def IsRefusal()
 		return @cOutcome = "refused" or @cOutcome = "failed"
 
-	  #-- building (fluent; every setter returns This) ---------------
-
-	# WHO: an stzSystemActor contributes its own facts -- name, posture,
-	# capability kinds. Nothing is invented here.
+	# Takes the actor's name, posture and capability kinds from an actor object, or only the name from a text.
+	#
+	#   poActor    an actor object such as HumanActor, or the actor's name as text
+	#   returns    the event itself, so calls chain
+	#   note       a text sets only the name, so a posture and kinds set earlier stay as they were;
+	#              an object without Name records its class name
+	#   see        ByActorNamed, Actor
+	#@ aka  -- building (fluent; every setter returns This) ---------------
 	def ByActor(poActor)
 		if isObject(poActor)
 			try
@@ -311,18 +408,27 @@ class stzSecurityEvent from stzObject
 		ok
 		return This
 
-	# For a caller with no actor object yet (an unauthenticated request,
-	# a username at the login door).
+	# Sets the actor from a name and a posture, for a caller with no actor object yet, such as a login door.
+	#
+	#   pcName      the actor name, as text
+	#   pcPosture   the actor's posture, stored in lower case, such as external
+	#   returns     the event itself, so calls chain
+	#   see         ByActor, Actor
+	#@ aka  For a caller with no actor object yet (an unauthenticated request, a username at the login door).
 	def ByActorNamed(pcName, pcPosture)
 		@cActor = "" + pcName
 		@cPosture = StzLower("" + pcPosture)
 		return This
 
-	# WHICH thing. THE REDACTION LAW lives here: an object contributes
-	# its DESCRIPTOR (stzSecret.Descriptor() is the redacted form), never
-	# its value -- this class never calls Reveal(). A string is taken as
-	# already-safe; callers pass descriptors like "user:admin",
-	# "key:billing", "route:/pay".
+	# Sets the subject: a text is taken as already safe, an object contributes its redacted descriptor and never its value.
+	#
+	#   pSubject   a descriptor text such as user:admin, or an object such as a secret
+	#   returns    the event itself, so calls chain
+	#   note       an object that has neither a descriptor nor a name records its class name
+	#   warning    the redaction law lives here: given a secret it records the descriptor and never
+	#              reveals it
+	#   see        Subject
+	#@ aka  WHICH thing. THE REDACTION LAW lives here: an object contributes its DESCRIPTOR (stzSecret.Descriptor() is the redacted form), never its value -- this class never calls Reveal(). A string is taken as already-safe; callers pass descriptors like "user:admin", "key:billing", "route:/pay".
 	def About(pSubject)
 		if isObject(pSubject)
 			try
@@ -339,76 +445,133 @@ class stzSecurityEvent from stzObject
 		ok
 		return This
 
+	# Sets the act that was attempted, trimmed and put in lower case.
+	#
+	#   pcAction   the verb, such as reveal or login
+	#   returns    the event itself, so calls chain
+	#   see        Action, AtRisk
 	def Doing(pcAction)
 		@cAction = StzLower(ring_trim("" + pcAction))
 		return This
 
+	# Sets the risk tier of the act that was attempted; a value that is not a number is ignored.
+	#
+	#   pnTier     the risk tier, as a number
+	#   returns    the event itself, so calls chain
+	#   see        Risk, Doing
 	def AtRisk(pnTier)
 		if isNumber(pnTier)
 			@nRisk = pnTier
 		ok
 		return This
 
+	# Sets where the event came from.
+	#
+	#   pcOrigin   an address, a host or an endpoint, as text
+	#   returns    the event itself, so calls chain
+	#   see        Origin
 	def FromOrigin(pcOrigin)
 		@cOrigin = "" + pcOrigin
 		return This
 
-	# The deterministic form (the house "...At(now)" convention): an
-	# event that did not happen NOW carries its own wall clock -- a
-	# replayed or imported record, or a guard that needs exact window
-	# arithmetic instead of machine speed. The monotonic stamp is left
-	# alone: it orders THIS process's events and cannot be borrowed.
+	# Sets the wall time of an event that did not happen now, such as an imported one or a guard needing exact windows.
+	#
+	#   pnWallMs   the event time, in epoch milliseconds
+	#   returns    the event itself, so calls chain
+	#   note       a value that is not a number is ignored; the monotonic stamp is left alone,
+	#              because it cannot be borrowed
+	#   see        AtWall
+	#@ aka  The deterministic form (the house "...At(now)" convention): an event that did not happen NOW carries its own wall clock -- a replayed or imported record, or a guard that needs exact window arithmetic instead of machine speed. The monotonic stamp is left alone: it orders THIS process's events and cannot be borrowed.
 	def OccurredAt(pnWallMs)
 		if isNumber(pnWallMs)
 			@nAtWall = pnWallMs
 		ok
 		return This
 
-	  #-- outcomes ---------------------------------------------------
-
+	# Sets the outcome to granted.
+	#
+	#   returns    the event itself, so calls chain
+	#   note       the reason is left as it was
+	#   see        Refused, IsRefusal
+	#@ aka  -- outcomes ---------------------------------------------------
 	def Granted()
 		@cOutcome = "granted"
 		return This
 
+	# Sets the outcome to refused, with the gate's own words as the reason.
+	#
+	#   pcReason   the gate's own words, as text
+	#   returns    the event itself, so calls chain
+	#   see        Failed, IsRefusal
 	def Refused(pcReason)
 		@cOutcome = "refused"
 		@cReason = "" + pcReason
 		return This
 
-	# The gate admitted it and the act still did not complete.
+	# Sets the outcome to failed: the gate admitted the act and it still did not complete.
+	#
+	#   pcReason   why it did not complete, as text
+	#   returns    the event itself, so calls chain
+	#   see        Refused, IsRefusal
+	#@ aka  The gate admitted it and the act still did not complete.
 	def Failed(pcReason)
 		@cOutcome = "failed"
 		@cReason = "" + pcReason
 		return This
 
-	# NOT A VERDICT -- something simply happened (incident I2's session
-	# seams). A session reaching its expiry was neither granted nor
-	# refused: no gate ran, nobody was told no. Forcing such a fact into
-	# "refused" would have made every pivot that counts refusals
-	# over-count, and would have taught an investigator that routine
-	# housekeeping was an attack. The ledger's job is to witness, and some
-	# of what it witnesses carries no judgment at all.
+	# Sets the outcome to observed, a fact that carries no verdict, such as a session reaching its expiry.
+	#
+	#   pcReason   what was seen, as text
+	#   returns    the event itself, so calls chain
+	#   note       an observed event is not a refusal, so no pivot that counts refusals counts it
+	#   see        Refused, IsRefusal
+	#@ aka  NOT A VERDICT -- something simply happened (incident I2's session seams). A session reaching its expiry was neither granted nor refused: no gate ran, nobody was told no. Forcing such a fact into "refused" would have made every pivot that counts refusals over-count, and would have taught an investigator that routine housekeeping was an attack. The ledger's job is to witness, and some of what it wit
 	def Observed(pcReason)
 		@cOutcome = "observed"
 		@cReason = "" + pcReason
 		return This
 
-	  #-- severity (the catalog's default, overridable) --------------
-
+	# Sets the severity of the event to info, overriding the catalog default.
+	#
+	#   returns    the event itself, so calls chain
+	#   note       OcsfSeverityId and ToOcsfJson on the event itself do use the override
+	#   warning    the ledger keeps the override, but the OCSF exports of the ledger read the
+	#              catalog default again
+	#   see        AsWarning, AsError
+	#@ aka  -- severity (the catalog's default, overridable) --------------
 	def AsInfo()
 		@cSeverity = "info"
 		return This
 
+	# Sets the severity of the event to warning, overriding the catalog default.
+	#
+	#   returns    the event itself, so calls chain
+	#   note       OcsfSeverityId and ToOcsfJson on the event itself do use the override
+	#   warning    the ledger keeps the override, but the OCSF exports of the ledger read the
+	#              catalog default again
+	#   see        AsInfo, AsError
 	def AsWarning()
 		@cSeverity = "warning"
 		return This
 
+	# Sets the severity of the event to error, overriding the catalog default.
+	#
+	#   returns    the event itself, so calls chain
+	#   note       OcsfSeverityId and ToOcsfJson on the event itself do use the override
+	#   warning    the ledger keeps the override, but the OCSF exports of the ledger read the
+	#              catalog default again
+	#   see        AsInfo, AsWarning
 	def AsError()
 		@cSeverity = "error"
 		return This
 
-	  #-- the native record ------------------------------------------
-
+	# Returns the event as its native record, every field including the actor's kinds and the monotonic stamp.
+	#
+	#   returns    a list of [ key, value ] pairs: kind, severity, technique, actor, posture,
+	#              actorKinds, action, risk, subject, origin, outcome, reason, atWall, atMono,
+	#              traceId
+	#   see        CanonicalString, AsLine
+	#@ aka  -- the native record ------------------------------------------
 	def Record()
 		return [
 			:kind = @cKind,
@@ -428,14 +591,14 @@ class stzSecurityEvent from stzObject
 			:traceId = @cTraceId
 		]
 
-	# The canonical form the I1 ledger hashes into its chain: every
-	# field, fixed order, one line. Two events with identical facts
-	# produce identical strings; any difference shows.
+	# Returns the event as one fixed-order line of twelve fields, the form the ledger hashes into its chain.
 	#
-	# The separator is reserved: a field's own pipes fold to "/" so the
-	# ledger can split the line back into fields without a field's
-	# content (a reason quoting a message, say) shifting every field
-	# after it. Sanitizing at the source beats parsing bravely later.
+	#   returns    a text
+	#   note       a vertical bar inside a field is folded to a slash so the line splits back
+	#              cleanly; two events with the same facts give the same line; the technique, the
+	#              actor kinds and the monotonic stamp are not in it
+	#   see        Record, AsLine
+	#@ aka  The canonical form the I1 ledger hashes into its chain: every field, fixed order, one line. Two events with identical facts produce identical strings; any difference shows.
 	def CanonicalString()
 		_c_ = @cKind + "|" + @cSeverity + "|" + This._NoPipe(@cActor) + "|" + @cPosture
 		_c_ += ("|" + @cAction + "|" + @nRisk + "|" + This._NoPipe(@cSubject))
@@ -443,9 +606,11 @@ class stzSecurityEvent from stzObject
 		_c_ += ("|" + @nAtWall + "|" + @cTraceId)
 		return _c_
 
-	  #-- interop: OCSF (the SIEM schema) ----------------------------
-
-	# OCSF severity_id: 1 Informational, 3 Medium, 4 High.
+	# Returns the OCSF severity id: 1 informational, 3 medium for a warning, 4 high for an error.
+	#
+	#   returns    a number
+	#   see        ToOcsfJson, Severity
+	#@ aka  -- interop: OCSF (the SIEM schema) ----------------------------
 	def OcsfSeverityId()
 		if @cSeverity = "error"
 			return 4
@@ -454,19 +619,26 @@ class stzSecurityEvent from stzObject
 		ok
 		return 1
 
-	# OCSF status_id: 1 Success, 2 Failure.
+	# Returns the OCSF status id: 1 for a granted event, 2 for every other outcome.
+	#
+	#   returns    a number
+	#   note       refused and failed both read 2 as well
+	#   warning    an observed event also reads 2, so a fact with no verdict reaches a SIEM as a
+	#              failure
+	#   see        ToOcsfJson, Outcome
+	#@ aka  OCSF status_id: 1 Success, 2 Failure.
 	def OcsfStatusId()
 		if @cOutcome = "granted"
 			return 1
 		ok
 		return 2
 
-	# Best-effort class mapping, honestly bounded: auth/sso/oauth are
-	# Identity & Access Management (category 3, class 3002
-	# Authentication); http.* is Network Activity (4 / 4002 HTTP
-	# Activity); everything else is Application Activity (6 / 6003 API
-	# Activity). Facts that do not map cleanly ride in "unmapped",
-	# which is what that OCSF field is for.
+	# Returns the OCSF class uid chosen from the kind: 3002 for auth, sso and oauth kinds, 4002 for http kinds, 6003 for the rest.
+	#
+	#   returns    a number
+	#   note       a best-effort mapping: facts that map no field travel under unmapped
+	#   see        OcsfCategoryUid, ToOcsfJson
+	#@ aka  Best-effort class mapping, honestly bounded: auth/sso/oauth are Identity & Access Management (category 3, class 3002 Authentication); http.* is Network Activity (4 / 4002 HTTP Activity); everything else is Application Activity (6 / 6003 API Activity). Facts that do not map cleanly ride in "unmapped", which is what that OCSF field is for.
 	def OcsfClassUid()
 		if This._StartsWith(@cKind, "auth.") or This._StartsWith(@cKind, "sso.") or This._StartsWith(@cKind, "oauth.")
 			return 3002
@@ -475,6 +647,10 @@ class stzSecurityEvent from stzObject
 		ok
 		return 6003
 
+	# Returns the OCSF category uid of the event's class: 3, 4 or 6.
+	#
+	#   returns    a number
+	#   see        OcsfClassUid
 	def OcsfCategoryUid()
 		_n_ = This.OcsfClassUid()
 		if _n_ = 3002
@@ -484,6 +660,12 @@ class stzSecurityEvent from stzObject
 		ok
 		return 6
 
+	# Returns the event as one OCSF JSON object, with the facts that map no field riding under unmapped.
+	#
+	#   returns    a text of JSON
+	#   note       the trace id appears as metadata_trace_id and the technique under unmapped;
+	#              backslashes and quotes in the text are escaped
+	#   see        OcsfClassUid, AsLine
 	def ToOcsfJson()
 		_cJ_ = '{"category_uid":' + This.OcsfCategoryUid()
 		_cJ_ += (',"class_uid":' + This.OcsfClassUid())
@@ -513,9 +695,12 @@ class stzSecurityEvent from stzObject
 		_cJ_ += "}}"
 		return _cJ_
 
-	  #-- legibility -------------------------------------------------
-
-	# One line, human first: who did what to which, how it ended, why.
+	# Returns the event as one readable line: outcome, kind, actor with posture, subject, origin and reason.
+	#
+	#   returns    a text, for example REFUSED auth.login.failed by bob (external) on route:/pay --
+	#              bad password
+	#   see        Explain, CanonicalString
+	#@ aka  -- legibility -------------------------------------------------
 	def AsLine()
 		_c_ = StzUpper(@cOutcome) + " " + @cKind
 		if @cActor != ""
@@ -535,6 +720,10 @@ class stzSecurityEvent from stzObject
 		ok
 		return _c_
 
+	# Returns the event told as lines of text: kind and severity, meaning, the readable line, both times and the ATT&CK id.
+	#
+	#   returns    a list of text
+	#   see        Show, AsLine
 	def Explain()
 		_aL_ = []
 		_aL_ + ("Security event " + @cKind + " [" + @cSeverity + "]")
@@ -550,6 +739,10 @@ class stzSecurityEvent from stzObject
 		ok
 		return _aL_
 
+	# Prints the lines Explain returns, one per line.
+	#
+	#   returns    nothing; it prints
+	#   see        Explain
 	def Show()
 		_aL_ = This.Explain()
 		_nL_ = ring_len(_aL_)

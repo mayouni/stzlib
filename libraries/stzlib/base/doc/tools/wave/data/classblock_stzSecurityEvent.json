@@ -1,0 +1,17 @@
+{
+ "brief": "Holds one typed security record: what happened, who did it, to which thing, how it ended, why, and when.",
+ "detail": "The kind comes from a closed catalog of dotted names (auth.login.failed, secret.reveal.refused ...), and an unknown kind raises. The setters return the event, so calls chain. An event never carries a secret value: About takes the descriptor of an object, never its value. Both clocks are stamped when the event is built, the wall clock for the forensic when and the monotonic clock for ordering, together with the active trace id. An event is recorded in a stzSecurityLedger, and CanonicalString, ToOcsfJson and AsLine are its three serial forms.",
+ "receiver": "o1 = new stzSecurityEvent(\"auth.login.failed\")",
+ "example": [
+  "o1.ByActorNamed(\"bob\", \"external\")",
+  "o1.About(\"user:bob\")",
+  "o1.Refused(\"bad password\")",
+  "? o1.AsLine()",
+  "#--> REFUSED auth.login.failed by bob (external) on user:bob -- bad password"
+ ],
+ "see": [
+  "stzSecurityLedger",
+  "stzDetection",
+  "StzSecurityEventKinds"
+ ]
+}

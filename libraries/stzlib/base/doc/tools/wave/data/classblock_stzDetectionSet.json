@@ -1,0 +1,13 @@
+{
+ "brief": "Groups detections under one name and judges a ledger with all of them at once.",
+ "detail": "StzDefaultDetectionSet builds the house set: credential stuffing, secret probing, escalation attempts, guess-then-reach, password spraying, a cloned authenticator, a replayed request, a forged request and a replayed assertion. The set keeps a copy of each detection added, so configure a detection before Add, or change it through DetectionQ. FiredNames gives the names an incident is opened from.",
+ "receiver": "o1 = StzDefaultDetectionSet()",
+ "example": [
+  "? o1.NumberOfDetections()",
+  "#--> 9"
+ ],
+ "see": [
+  "stzDetection",
+  "stzSecurityLedger"
+ ]
+}

@@ -343,6 +343,26 @@ func StzLedgerFromSealedFile(pcPath, pcKey)
 		:ledger = _oLed_, :attestor = _aV_[:attestor], :count = _aV_[:count] ]
 
 
+# Keeps security events as evidence: a bounded, hash-chained ring in the engine that can be made durable, anchored off the machine and sealed.
+#
+# Each entry's digest is the SHA-256 of the previous digest and the entry, computed in the engine
+# and never handed in, so an edit to any entry breaks every digest after it and Verify names the
+# first broken link. The ring forgets: past its capacity the oldest events give way, Count keeps
+# counting and Size is what remains. PersistTo writes every event to an insert-only SQLite file and
+# verifies it from the first entry on restart; an anchor sent off the machine shows a cut tail,
+# which a chain alone cannot; SealTo exports a keyed file. A refused kind writes at most a budgeted
+# number of lines per window, so a stranger cannot flush the evidence. The chain detects retroactive
+# edits only, and protects nothing against an attacker already running code in the process. The
+# pivots (OfActor, OfKind, Refusals, Since ...) return records rebuilt from the stored canonical
+# line.
+#
+#   receiver   o1 = new stzSecurityLedger(8)
+#   example    o1.Record(StzSecurityRefusal("auth.login.failed", "alice", "user:alice", "bad password"))
+#              ? o1.Count()
+#              #--> 1
+#              ? o1.Verify()[:intact]
+#              #--> 1
+#   see        stzSecurityEvent, stzDetection, StzOpenSecurityLedger, StzVerifySealedLedger
 class stzSecurityLedger from stzObject
 
 	pHandle = ""
@@ -350,6 +370,13 @@ class stzSecurityLedger from stzObject
 	bAdopted = 0	# bound to a ledger owned elsewhere (the process one)
 	@nCapacity = 1024
 
+	# Builds an empty ring ledger that keeps the newest pnCapacity events; a missing, non-numeric or sub-1 capacity gives 1024.
+	#
+	#   pnCapacity   how many events the ring keeps, at least 1
+	#   returns      nothing; the object is built
+	#   note         the ring lives in the engine and is created at birth, so every copy of the
+	#                ledger object reads and writes the same events
+	#   see          Capacity, PersistTo
 	def init(pnCapacity)
 		if isNumber(pnCapacity) and pnCapacity >= 1
 			@nCapacity = pnCapacity
@@ -364,12 +391,23 @@ class stzSecurityLedger from stzObject
 			bReady = 1
 		ok
 
+	# Returns the engine handle of the ring, creating the ring again first if Destroy had freed it.
+	#
+	#   returns    an engine pointer
+	#   note       StzOpenSecurityLedger passes this handle to the engine as the process ledger
+	#   see        AdoptHandle, Destroy
 	def Handle()
 		This._Ensure()
 		return pHandle
 
-	# Bind this face to a ledger owned elsewhere (the process ledger).
-	# Destroy() will not free an adopted handle -- the owner does.
+	# Binds this object to a ledger owned elsewhere, such as the process ledger, so both read and write the same events.
+	#
+	#   pEngineHandle   an engine ledger handle, as Handle gives
+	#   returns         the ledger itself, so calls chain
+	#   note            the ring this object made first is destroyed; Destroy later leaves an
+	#                   adopted handle alone, because its owner frees it
+	#   see             Handle, Destroy
+	#@ aka  Bind this face to a ledger owned elsewhere (the process ledger). Destroy() will not free an adopted handle -- the owner does.
 	def AdoptHandle(pEngineHandle)
 		if bReady and NOT bAdopted
 			StzEngineSecLogDestroy(pHandle)
@@ -379,16 +417,25 @@ class stzSecurityLedger from stzObject
 		bAdopted = 1
 		return This
 
-	# The engine's own answer -- a face bound to the process ledger
-	# (AdoptHandle) never knew the capacity it was created with.
+	# Returns how many events the ring can keep, as the engine reports it, even for an object bound to the process ledger.
+	#
+	#   returns    a number
+	#   see        Size, Count
+	#@ aka  The engine's own answer -- a face bound to the process ledger (AdoptHandle) never knew the capacity it was created with.
 	def Capacity()
 		This._Ensure()
 		return StzEngineSecLogCapacity(pHandle)
 
-	  #-- recording ---------------------------------------------------
-
-	# Append an stzSecurityEvent. The engine chains it; nothing about
-	# the digest is under the caller's control.
+	# Appends an event to the ring; the engine chains its digest to the previous one, so the caller never supplies a digest.
+	#
+	#   poEvent    the stzSecurityEvent to append
+	#   returns    the ledger itself, so calls chain
+	#   note       a refused kind is subject to the refusal budget and grants never are; past
+	#              capacity the oldest event is evicted while Count keeps counting
+	#   warning    raises an error when the ledger is durable and the disk write fails: the event is
+	#              then in memory only
+	#   see        AppendCanonical, Count, Verify
+	#@ aka  -- recording ---------------------------------------------------
 	def Record(poEvent)
 		This._Ensure()
 		_nErr_ = StzEngineSecLogDurableErrors(pHandle)
@@ -400,26 +447,34 @@ class stzSecurityLedger from stzObject
 		ok
 		return This
 
-	# Append a canonical line directly -- the acquisition path (I8),
-	# used when rebuilding a ledger from verified evidence. The chain
-	# is recomputed here; it does not carry the original file's.
+	# Appends a canonical line as it is, with the wall time and severity code given, without building an event first.
+	#
+	#   pcCanonical      the twelve-field line as CanonicalString gives it
+	#   pnWallMs         the event time, in epoch milliseconds
+	#   pnSeverityCode   0 for info, 1 for warning, 2 for error
+	#   returns          the ledger itself, so calls chain
+	#   note             the path that rebuilds a working ledger from a verified sealed file
+	#   warning          the chain is recomputed here and does not carry the digests of the file the
+	#                    line came from; a line that is not canonical is accepted and reads back
+	#                    with empty fields
+	#   see              Record, StzLedgerFromSealedFile
+	#@ aka  Append a canonical line directly -- the acquisition path (I8), used when rebuilding a ledger from verified evidence. The chain is recomputed here; it does not carry the original file's.
 	def AppendCanonical(pcCanonical, pnWallMs, pnSeverityCode)
 		This._Ensure()
 		StzEngineSecLogAppend(pHandle, pcCanonical, pnWallMs, pnSeverityCode)
 		return This
 
-	  #-- the durable log (HaroBase rung 2) ----------------------------
-
-	# Make this ledger DURABLE: from now on every Record() is also written,
-	# in the same engine lock and so in chain order, to an insert-only
-	# SQLite table at pcPath (UPDATE and DELETE are refused by triggers).
-	# An existing file is replayed FROM GENESIS and verified entry by
-	# entry first; the ring then shows the newest window, Count() the whole
-	# history, and the chain resumes from the stored head. Bounded memory
-	# stops meaning forgetting: the window evicts, the file does not.
+	# Makes the ledger durable: later events are also written, in chain order, to an insert-only SQLite file that is checked first.
 	#
-	# Call it BEFORE recording. Returns [ :ok, :verified, :brokenAt, :why ];
-	# a broken stored history is REFUSED (:ok = 0) and nothing is attached.
+	#   pcPath     the SQLite file to create or to resume
+	#   returns    a list [ :ok, :verified, :brokenAt, :why ]
+	#   note       call it before recording; after a restart the ring shows the newest window while
+	#              Count carries the whole history (durable_ledger_narrated)
+	#   warning    a ledger that already holds events, one that is already durable, an unreadable
+	#              path and a stored history with an edited or missing row are all refused with :ok
+	#              0 and nothing is attached
+	#   see        IsDurable, VerifyDurable, Anchor
+	#@ aka  -- the durable log (HaroBase rung 2) ----------------------------
 	def PersistTo(pcPath)
 		This._Ensure()
 		_n_ = StzEngineSecLogAttach(pHandle, "" + pcPath)
@@ -439,12 +494,22 @@ class stzSecurityLedger from stzObject
 			:why = "the stored log breaks at entry " + (-_n_) +
 				" (edited, or missing) -- refused, nothing attached" ]
 
+	# TRUE if PersistTo succeeded, so that every event is also written to a file.
+	#
+	#   returns    TRUE or FALSE
+	#   see        PersistTo, VerifyDurable
 	def IsDurable()
 		This._Ensure()
 		return StzEngineSecLogIsDurable(pHandle) = 1
 
-	# Verify the WHOLE stored history from genesis -- where Verify() can
-	# only speak for the retained window. [ :intact, :brokenAt, :message ]
+	# Checks the whole stored chain from the first entry, where Verify can only speak for the retained window.
+	#
+	#   returns    a list [ :intact, :brokenAt, :message ]
+	#   note       an edited or removed row shows; a cut tail does not, which is what Anchor is for
+	#   warning    a ledger that is not durable answers :intact 0 with :brokenAt 0 and that message,
+	#              so ask IsDurable first
+	#   see        PersistTo, Verify, VerifyAgainstAnchor
+	#@ aka  Verify the WHOLE stored history from genesis -- where Verify() can only speak for the retained window. [ :intact, :brokenAt, :message ]
 	def VerifyDurable()
 		This._Ensure()
 		_n_ = StzEngineSecLogVerifyDurable(pHandle)
@@ -459,26 +524,34 @@ class stzSecurityLedger from stzObject
 		return [ :intact = 0, :brokenAt = _n_,
 			:message = "the stored chain breaks at entry " + _n_ + " -- that row was altered or removed" ]
 
-	# Events ever recorded (keeps counting past capacity).
+	# Returns how many events were ever recorded, including those the ring has already evicted.
+	#
+	#   returns    a number
+	#   see        Size
+	#@ aka  Events ever recorded (keeps counting past capacity).
 	def Count()
 		This._Ensure()
 		return StzEngineSecLogCount(pHandle)
 
-	# Events still retained in the window.
+	# Returns how many events the ring still holds.
+	#
+	#   returns    a number, never above the capacity
+	#   see        Count, Capacity
+	#@ aka  Events still retained in the window.
 	def Size()
 		This._Ensure()
 		return StzEngineSecLogSize(pHandle)
 
-	  #-- the anchor (threat-model R5) ----------------------------------
-
-	# A hash chain shows an EDIT, never a CUT: delete the last rows of the
-	# durable file and what remains still verifies from genesis -- and anyone
-	# holding the file can rebuild a whole new chain, since the chain has no
-	# key. An ANCHOR is the count and head digest at one moment. Send its
-	# line OFF THE MACHINE -- to an operator, another host, a ticket, a
-	# transparency log; where it goes is the deployment's choice -- and any
-	# later VerifyAgainstAnchor() says whether the stored history still
-	# reaches it. [ :count, :head, :atWall, :line ]
+	# Returns the count and head digest of the ledger at this moment, with a one-line text to send off the machine.
+	#
+	#   returns    a list [ :count, :head, :atWall, :line ]
+	#   note       the line reads stzledger-anchor:v1: then the count, a colon and the 64-character
+	#              digest (threat model R5)
+	#   warning    an anchor kept only on the machine that holds the file proves nothing; an empty
+	#              ledger gives count 0 and 64 zeros, which VerifyAgainstAnchor rejects as malformed
+	#              in the list form
+	#   see        VerifyAgainstAnchor, Digest
+	#@ aka  -- the anchor (threat-model R5) ----------------------------------
 	def Anchor()
 		This._Ensure()
 		_n_ = This.Count()
@@ -486,9 +559,15 @@ class stzSecurityLedger from stzObject
 		return [ :count = _n_, :head = _h_, :atWall = StzEngineTimeNowMs(),
 			:line = "stzledger-anchor:v1:" + _n_ + ":" + _h_ ]
 
-	# Check the durable history against an anchor -- the list Anchor()
-	# returned, or its :line. [ :holds, :state, :why ], where :state is one of
-	# holds, truncated, diverged, broken, not-durable, unreadable, malformed.
+	# Checks the durable history against an anchor taken earlier: does the stored file still reach that count with that digest.
+	#
+	#   pAnchor    the list Anchor returned, or its :line text
+	#   returns    a list [ :holds, :state, :why ]
+	#   note       :state is holds, truncated, diverged, broken, not-durable, unreadable or
+	#              malformed; truncated means the tail was cut and diverged means the history was
+	#              rewritten (ledger_anchor_narrated); only a durable ledger can be checked
+	#   see        Anchor, VerifyDurable, PersistTo
+	#@ aka  Check the durable history against an anchor -- the list Anchor() returned, or its :line. [ :holds, :state, :why ], where :state is one of holds, truncated, diverged, broken, not-durable, unreadable, malformed.
 	def VerifyAgainstAnchor(pAnchor)
 		This._Ensure()
 		_a_ = StzLedgerAnchorParse(pAnchor)
@@ -513,36 +592,64 @@ class stzSecurityLedger from stzObject
 		return [ :holds = 0, :state = "broken",
 			:why = "the stored chain breaks at entry " + _r_ + " -- that row was altered or removed" ]
 
-	  #-- the refusal budget (SECURITY-LEDGERFLOOD-01) -----------------
-
-	# A refused kind writes at most pnMax lines per pnWindowMs; past it the
-	# engine counts them, writes one marker, and closes the window with one
-	# summary line carrying the count. 64 per minute by default. pnMax = 0
-	# turns it off. Grants are never budgeted.
+	# Sets how many lines per time window each refused kind may write; past it the engine counts the refusals, writes one marker, then a summary.
+	#
+	#   pnMax        the lines each refused kind may write per window, 0 turns the budget off
+	#   pnWindowMs   the window length, in milliseconds
+	#   returns      the ledger itself, so calls chain
+	#   note         the default is 64 per 60000 ms; grants are never budgeted; the budget is
+	#                counted per kind, so a flood of one kind cannot evict other evidence
+	#                (ledger_flood_narrated)
+	#   warning      a negative pnMax acts as 0 and turns the budget off, a negative window becomes
+	#                1 ms, and neither raises an error
+	#   see          RefusalBudget, Suppressed, FlushRefusalCounts
+	#@ aka  -- the refusal budget (SECURITY-LEDGERFLOOD-01) -----------------
 	def SetRefusalBudget(pnMax, pnWindowMs)
 		This._Ensure()
 		StzEngineSecLogSetRefusalBudget(pHandle, pnMax, pnWindowMs)
 		return This
 
+	# Returns the refusal budget now in force.
+	#
+	#   returns    a list [ :max, :windowMs ]
+	#   warning    64 and 60000 by default
+	#   see        SetRefusalBudget
 	def RefusalBudget()
 		This._Ensure()
 		return [ :max = StzEngineSecLogBudgetMax(pHandle), :windowMs = StzEngineSecLogBudgetWindow(pHandle) ]
 
-	# Refusals counted rather than written, ever.
+	# Returns how many refusals were counted instead of written, since the ledger was made.
+	#
+	#   returns    a number
+	#   warning    a flush does not reset it
+	#   see        SetRefusalBudget, FlushRefusalCounts
+	#@ aka  Refusals counted rather than written, ever.
 	def Suppressed()
 		This._Ensure()
 		return StzEngineSecLogSuppressed(pHandle)
 
-	# Close every open budget window now, writing each count into the chain.
+	# Closes every open budget window now and writes each count of suppressed refusals into the chain as one summary line.
+	#
+	#   returns    the ledger itself, so calls chain
+	#   note       the summary has the outcome observed and the actor ledger, and reads N further
+	#              refusal(s) of this kind were counted; without a flush a window closes only when
+	#              the next refusal of that kind arrives after it
+	#   see        Suppressed, SetRefusalBudget
+	#@ aka  Close every open budget window now, writing each count into the chain.
 	def FlushRefusalCounts()
 		This._Ensure()
 		StzEngineSecLogFlushBudget(pHandle, StzEngineTimeNowMs())
 		return This
 
-	  #-- reading -----------------------------------------------------
-
-	# The record at 1-based position i (oldest retained first), in the
-	# I0 field shape plus its chain digest.
+	# Returns the retained record at a 1-based position, oldest retained first, with its chain digest.
+	#
+	#   pnIndex    the position among the retained events, 1 is the oldest
+	#   returns    a list of [ key, value ] pairs, or [ ] when the position is out of range
+	#   note       the keys are kind, severity, actor, posture, action, risk, subject, origin,
+	#              outcome, reason, atWall, traceId and digest; atMono, technique and actorKinds are
+	#              not stored
+	#   see        All, DigestAt
+	#@ aka  -- reading -----------------------------------------------------
 	def At(pnIndex)
 		This._Ensure()
 		_cCanon_ = StzEngineSecLogCanonicalAt(pHandle, pnIndex)
@@ -553,6 +660,12 @@ class stzSecurityLedger from stzObject
 		_aR_ + [ :digest, StzEngineSecLogDigestAt(pHandle, pnIndex) ]
 		return _aR_
 
+	# Returns every retained record, oldest first, each in the shape At gives.
+	#
+	#   returns    a list of records; [ ] when the ledger is empty
+	#   note       every call rebuilds the records from the stored lines, so on a large ledger keep
+	#              the result instead of calling it in a loop
+	#   see        At, Recent, Refusals
 	def All()
 		This._Ensure()
 		_aOut_ = []
@@ -562,6 +675,12 @@ class stzSecurityLedger from stzObject
 		next
 		return _aOut_
 
+	# Returns the newest records, the oldest of them first.
+	#
+	#   pnHowMany   how many records to take from the end
+	#   returns     a list of records; all of them when pnHowMany exceeds the size, [ ] for 0 or
+	#               less
+	#   see         All, Since
 	def Recent(pnHowMany)
 		_aAll_ = This.All()
 		_nN_ = ring_len(_aAll_)
@@ -575,36 +694,77 @@ class stzSecurityLedger from stzObject
 		next
 		return _aOut_
 
-	  #-- the analyst's pivots ---------------------------------------
-
+	# Returns the retained records made by one actor.
+	#
+	#   pcActor    the actor name
+	#   returns    a list of records
+	#   note       the match is exact and case-sensitive: ALICE does not find alice
+	#   see        OfSubject, Refusals
+	#@ aka  -- the analyst's pivots ---------------------------------------
 	def OfActor(pcActor)
 		return This._Where(:actor, pcActor)
 
+	# Returns the retained records about one subject descriptor.
+	#
+	#   pcSubject   the subject text the event stored, such as user:bob
+	#   returns     a list of records
+	#   see         OfActor, OfKind
 	def OfSubject(pcSubject)
 		return This._Where(:subject, pcSubject)
 
+	# Returns the retained records of one event kind.
+	#
+	#   pcKind     the event kind, a dotted catalog name
+	#   returns    a list of records
+	#   see        OfActor, Refusals
 	def OfKind(pcKind)
 		return This._Where(:kind, pcKind)
 
+	# Returns the retained records stamped with one trace id, which ties events to the log lines and spans of one request.
+	#
+	#   pcTraceId   the trace id, as text
+	#   returns     a list of records
+	#   note        events recorded outside a trace scope carry an empty trace id, which this pivot
+	#               finds when given an empty text
+	#   see         OfKind
 	def OfTrace(pcTraceId)
 		return This._Where(:traceId, pcTraceId)
 
+	# Returns the retained records that ended one way.
+	#
+	#   pcOutcome   granted, refused, failed or observed
+	#   returns     a list of records
+	#   note        the match is exact and case-sensitive
+	#   see         Refusals
 	def OfOutcome(pcOutcome)
 		return This._Where(:outcome, pcOutcome)
 
+	# Returns the retained records of one severity.
+	#
+	#   pcSeverity   info, warning or error
+	#   returns      a list of records
+	#   note         the severity is the one stored with the event, which may be an override of the
+	#                catalog default
+	#   see          OfOutcome
 	def OfSeverity(pcSeverity)
 		return This._Where(:severity, pcSeverity)
 
+	# Returns the retained records that came from one origin.
+	#
+	#   pcOrigin   the address, host or endpoint the event stored
+	#   returns    a list of records
+	#   note       an empty text finds the events that carry no origin
+	#   see        OfActor
 	def OfOrigin(pcOrigin)
 		return This._Where(:origin, pcOrigin)
 
-	# Everything that was not granted -- the signal to watch.
-	# Refused and failed -- NOT "everything that is not granted". The
-	# negative form was here too, and it was wrong the moment the OBSERVED
-	# outcome arrived (I2's session seams): an expired session would have
-	# been counted as a refusal by this pivot, in a system whose whole
-	# point is that a warning must mean something. Kept in step with
-	# stzSecurityEvent.IsRefusal(), deliberately as one positive list.
+	# Returns the retained records whose outcome is refused or failed, the signal to watch.
+	#
+	#   returns    a list of records
+	#   note       granted and observed records are left out, so an expired session is never counted
+	#              as a refusal
+	#   see        OfOutcome, stzDetection
+	#@ aka  Everything that was not granted -- the signal to watch. Refused and failed -- NOT "everything that is not granted". The negative form was here too, and it was wrong the moment the OBSERVED outcome arrived (I2's session seams): an expired session would have been counted as a refusal by this pivot, in a system whose whole point is that a warning must mean something. Kept in step with stzSecurityEven
 	def Refusals()
 		_aOut_ = []
 		_aAll_ = This.All()
@@ -616,6 +776,11 @@ class stzSecurityLedger from stzObject
 		next
 		return _aOut_
 
+	# Returns the retained records at or after a wall time.
+	#
+	#   pnWallMs   the earliest event time, in epoch milliseconds, included
+	#   returns    a list of records
+	#   see        Between, Recent
 	def Since(pnWallMs)
 		_aOut_ = []
 		_aAll_ = This.All()
@@ -627,6 +792,12 @@ class stzSecurityLedger from stzObject
 		next
 		return _aOut_
 
+	# Returns the retained records inside a time range, both ends included.
+	#
+	#   pnFromMs   the start of the range, in epoch milliseconds
+	#   pnToMs     the end of the range, in epoch milliseconds
+	#   returns    a list of records; [ ] when the start is after the end
+	#   see        Since
 	def Between(pnFromMs, pnToMs)
 		_aOut_ = []
 		_aAll_ = This.All()
@@ -638,21 +809,33 @@ class stzSecurityLedger from stzObject
 		next
 		return _aOut_
 
-	  #-- the chain ---------------------------------------------------
-
-	# The head digest: one string that commits to the ENTIRE history
-	# ever recorded (including evicted entries).
+	# Returns the head digest, 64 hex characters, that commits to every event ever recorded, evicted ones included.
+	#
+	#   returns    a text
+	#   note       an empty ledger answers 64 zeros
+	#   see        DigestAt, Anchor, Verify
+	#@ aka  -- the chain ---------------------------------------------------
 	def Digest()
 		This._Ensure()
 		return StzEngineSecLogHeadDigest(pHandle)
 
+	# Returns the chain digest stored with the retained entry at a position.
+	#
+	#   pnIndex    the position among the retained events, 1 is the oldest
+	#   returns    a text; empty when the position is out of range
+	#   see        Digest, At
 	def DigestAt(pnIndex)
 		This._Ensure()
 		return StzEngineSecLogDigestAt(pHandle, pnIndex)
 
-	# [ :intact, :brokenAt, :message ] -- brokenAt is the 1-based index
-	# of the first entry whose stored digest disagrees with a
-	# recomputation, 0 when the retained window is consistent.
+	# Recomputes the chain over the retained window and names the first entry whose stored digest disagrees with it.
+	#
+	#   returns    a list [ :intact, :brokenAt, :message ]
+	#   note       it speaks for the retained window only: after eviction the first retained entry's
+	#              predecessor is gone; chaining shows a retroactive edit and protects nothing
+	#              against code already running in this process
+	#   see        VerifyDurable, Digest
+	#@ aka  [ :intact, :brokenAt, :message ] -- brokenAt is the 1-based index of the first entry whose stored digest disagrees with a recomputation, 0 when the retained window is consistent.
 	def Verify()
 		This._Ensure()
 		_n_ = StzEngineSecLogVerify(pHandle)
@@ -664,16 +847,17 @@ class stzSecurityLedger from stzObject
 			:message = "the chain breaks at entry " + _n_ +
 				" -- that record (or one before it) was altered" ]
 
-	  #-- sealing (evidence leaves the process) -----------------------
-
-	# Write the retained window as a verifiable file: one
-	# "<digest>TAB<canonical>" line per entry, a header carrying the
-	# count and an HMAC seal over (head digest | count). Re-check it
-	# with StzVerifySealedLedger(path, key) -- editing any line breaks
-	# the chain; editing the seal without the key is not possible.
-	# As SealTo, plus WHO attested and WHEN -- the custody header that
-	# turns a sealed file into an attested one (I7). Unknown "#" lines
-	# are ignored by verifiers, so the format stayed compatible.
+	# Writes the retained window as a sealed file like SealTo, with a custody header that names who attested it and when.
+	#
+	#   pcPath       the file to write, overwritten
+	#   pcKey        the secret that keys the seal
+	#   pcAttestor   who vouches for the export, as text
+	#   returns      the ledger itself, so calls chain
+	#   note         the verifier reads the two lines back as attestor and attestedAt (I7)
+	#   warning      the attestor and time lines sit outside the seal: editing them breaks nothing,
+	#                so the verifier accepts a file whose attestor was changed after sealing
+	#   see          SealTo, StzVerifySealedLedger
+	#@ aka  -- sealing (evidence leaves the process) -----------------------
 	def SealAttestedTo(pcPath, pcKey, pcAttestor)
 		This._Ensure()
 		This.SealTo(pcPath, pcKey)
@@ -683,6 +867,16 @@ class stzSecurityLedger from stzObject
 		write("" + pcPath, _cHdr_ + _cRaw_)
 		return This
 
+	# Writes the retained window to a file, one digest and canonical line per event, under a header holding the count and a keyed seal.
+	#
+	#   pcPath     the file to write, overwritten
+	#   pcKey      the secret that keys the HMAC seal, an empty text writes no seal
+	#   returns    the ledger itself, so calls chain
+	#   note       evidence-grade means exported: editing any line breaks the chain, and the seal
+	#              needs the key to be made
+	#   warning    StzVerifySealedLedger skips the seal check when the seal line is missing, so a
+	#              tail cut that also deletes the seal line still verifies with the key
+	#   see        SealAttestedTo, StzVerifySealedLedger, StzLedgerFromSealedFile
 	def SealTo(pcPath, pcKey)
 		This._Ensure()
 		_nN_ = StzEngineSecLogSize(pHandle)
@@ -725,7 +919,14 @@ class stzSecurityLedger from stzObject
 		_e_.OccurredAt(paRec[:atWall])
 		return _e_
 
-	# OCSF, newline-delimited: what a collector ingests as a stream.
+	# Returns the retained events as OCSF JSON objects, one per line, the stream form a collector ingests.
+	#
+	#   returns    a text of JSON lines
+	#   note       each line is the stzSecurityEvent.ToOcsfJson of one record
+	#   warning    the events are rebuilt from the stored record, so a severity override reads as
+	#              the catalog default and an observed fact is exported as refused with status_id 2
+	#   see        ToOcsfJson, ToOtelLogsJson
+	#@ aka  OCSF, newline-delimited: what a collector ingests as a stream.
 	def ToOcsfNdJson()
 		_c_ = ""
 		_aAll_ = This.All()
@@ -735,7 +936,14 @@ class stzSecurityLedger from stzObject
 		next
 		return _c_
 
-	# OCSF as one JSON array (the batch form).
+	# Returns the retained events as one OCSF JSON array, the batch form.
+	#
+	#   returns    a text of JSON
+	#   note       an empty ledger gives []
+	#   warning    the events are rebuilt from the stored record, so a severity override reads as
+	#              the catalog default and an observed fact is exported as refused with status_id 2
+	#   see        ToOcsfNdJson, ToOtelLogsJson
+	#@ aka  OCSF as one JSON array (the batch form).
 	def ToOcsfJson()
 		_c_ = "["
 		_aAll_ = This.All()
@@ -749,9 +957,13 @@ class stzSecurityLedger from stzObject
 		_c_ += "]"
 		return _c_
 
-	# The OTLP logs envelope -- the same shape stzLog ships (perf P9),
-	# so security events and log lines arrive at one collector looking
-	# like what they are: records of the same run, sharing trace ids.
+	# Returns the retained events as one OTLP logs envelope, the shape stzLog ships, so events and log lines reach one collector.
+	#
+	#   returns    a text of JSON
+	#   note       the severity and outcome come from the stored record; trace ids are carried when
+	#              present; the service name is softanza.security
+	#   see        ToOcsfJson
+	#@ aka  The OTLP logs envelope -- the same shape stzLog ships (perf P9), so security events and log lines arrive at one collector looking like what they are: records of the same run, sharing trace ids.
 	def ToOtelLogsJson()
 		_cRecs_ = ""
 		_aAll_ = This.All()
@@ -792,8 +1004,13 @@ class stzSecurityLedger from stzObject
 		_s_ = StzReplace(_s_, char(34), char(92) + char(34))
 		return _s_
 
-	  #-- legibility --------------------------------------------------
-
+	# Returns the ledger told as lines of text: a header with the counts and the chain state, then one line per retained event.
+	#
+	#   returns    a list of text
+	#   note       the header reads N event(s) recorded, M retained of C, chain intact or BROKEN at
+	#              K
+	#   see        Show, Verify
+	#@ aka  -- legibility --------------------------------------------------
 	def Explain()
 		_aL_ = []
 		_aV_ = This.Verify()
@@ -822,6 +1039,10 @@ class stzSecurityLedger from stzObject
 		next
 		return _aL_
 
+	# Prints the lines Explain returns, one per line.
+	#
+	#   returns    nothing; it prints
+	#   see        Explain
 	def Show()
 		_aL_ = This.Explain()
 		_nL_ = ring_len(_aL_)
@@ -829,6 +1050,12 @@ class stzSecurityLedger from stzObject
 			? _aL_[_i_]
 		next
 
+	# Empties the ring and restarts the chain, as a ledger made fresh.
+	#
+	#   returns    the ledger itself, so calls chain
+	#   note       the count and the digest start again from zero
+	#   warning    raises an error for a durable ledger, whose chain continues on disk
+	#   see        Destroy, PersistTo
 	def Reset()
 		This._Ensure()
 		if This.IsDurable()
@@ -837,6 +1064,12 @@ class stzSecurityLedger from stzObject
 		StzEngineSecLogReset(pHandle)
 		return This
 
+	# Frees the engine ring; an object bound to the process ledger by AdoptHandle leaves it open.
+	#
+	#   returns    the ledger itself, so calls chain
+	#   note       the next call that needs the ring creates a fresh empty one, so a destroyed
+	#              ledger is not a closed one
+	#   see        Handle, AdoptHandle
 	def Destroy()
 		if bReady
 			if NOT bAdopted

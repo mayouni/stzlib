@@ -1,0 +1,15 @@
+{
+ "brief": "Supervises agents as cancellable, traced, quarantinable and decommissionable jobs ticked on a timer or on events.",
+ "detail": "A host owns a reactor, or shares one. It ticks each supervised agent through its Cycle, on its own timer or once per event of a bus channel, and records a trace. Cancel is a pause anyone can undo; Quarantine is a containment act that only an effectful actor can lift with Release; Retire is permanent and earned, refused until the declared decommission obligations are fulfilled. SetActionBudget caps the acts an agent may take in a window and quarantines a runaway. UseEngineLoop hands the scheduling decision to the engine, which refuses an agent that states neither what it covers nor how reversible it is. UseAgentsFrom mounts agents written as files. The host keeps a copy of each agent: configure it fully before Supervise and reach it afterwards through AgentQ.",
+ "receiver": "o1 = new stzAgentHost()",
+ "example": [
+  "o1.Supervise(new stzPIAgent(\"kitchen-bot\"), 20)",
+  "? o1.NumberOfAgents()",
+  "#--> 1"
+ ],
+ "see": [
+  "stzPIAgent",
+  "stzReactor",
+  "stzSecurityLedger"
+ ]
+}
