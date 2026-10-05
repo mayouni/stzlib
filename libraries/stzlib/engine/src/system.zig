@@ -485,6 +485,59 @@ pub fn stz_system_is_macos() callconv(.c) c_int {
 
 // ─── Tests ───
 
+// ── Open a file or folder in its default application (threat-model R11) ──
+//
+// The planes that "open the result in a viewer" built a shell string:
+// system('start "" "' + path + '"'). A path is DATA, and a string a shell
+// parses is code: a `"` in it ends the quoting and the rest runs. Here no
+// shell sees the path. Windows: ShellExecuteW, the API the shell's own
+// "start" ends in, given the path as one UTF-16 argument. macOS / Linux:
+// `open` / `xdg-open` spawned with the path as ONE argv element. The caller
+// (StzOpenInDefaultApp) has already refused anything that is not an
+// existing file or folder. Returns 0 on success, or
+//   -1 bad path  -2 out of memory  -3 the launch failed
+// The POSIX branch is comptime-gated: it compiles only for those targets.
+extern "shell32" fn ShellExecuteW(
+    hwnd: ?*anyopaque,
+    op: ?[*:0]const u16,
+    file: [*:0]const u16,
+    params: ?[*:0]const u16,
+    dir: ?[*:0]const u16,
+    show: c_int,
+) callconv(.winapi) isize;
+
+pub fn stz_system_open_default(path: [*c]const u8, path_len: usize) callconv(.c) c_int {
+    if (path == null or path_len == 0) return -1;
+    const p = path[0..path_len];
+    if (mem.indexOfScalar(u8, p, 0) != null) return -1;
+    if (builtin.os.tag == .windows) {
+        const wpath = std.unicode.utf8ToUtf16LeAllocZ(gpa, p) catch return -2;
+        defer gpa.free(wpath);
+        const op = std.unicode.utf8ToUtf16LeStringLiteral("open");
+        const r = ShellExecuteW(null, op, wpath.ptr, null, null, 1); // SW_SHOWNORMAL
+        return if (r > 32) 0 else -3;
+    } else {
+        const opener: []const u8 = if (builtin.os.tag == .macos) "open" else "xdg-open";
+        // a path that begins with '-' would be read as an option: make it ./-x
+        const arg = if (p[0] == '-') std.fmt.allocPrint(gpa, "./{s}", .{p}) catch return -2 else p;
+        defer if (p[0] == '-') gpa.free(arg);
+        var child = std.process.Child.init(&.{ opener, arg }, gpa);
+        child.stdin_behavior = .Ignore;
+        child.stdout_behavior = .Ignore;
+        child.stderr_behavior = .Ignore;
+        const term = child.spawnAndWait() catch return -3;
+        return switch (term) {
+            .Exited => |code| if (code == 0) 0 else -3,
+            else => -3,
+        };
+    }
+}
+
+test "open-default refuses an empty path or one with a NUL" {
+    try std.testing.expectEqual(@as(c_int, -1), stz_system_open_default("", 0));
+    try std.testing.expectEqual(@as(c_int, -1), stz_system_open_default("a\x00b", 3));
+}
+
 test "platform detection" {
     const w = stz_system_is_windows();
     const l = stz_system_is_linux();
