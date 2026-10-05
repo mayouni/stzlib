@@ -47,7 +47,10 @@ class stzList from stzObject
 	 #     INIT     #
 	#--------------#
 
-	# Build the list object from the given Ring list.
+	# Builds the stzList from a Ring list.
+	#
+	#   returns    the new stzList
+	#@ aka  Build the list object from the given Ring list.
 	def init(paList)
 
 		if CheckingParams()
@@ -64,12 +67,18 @@ class stzList from stzObject
 		StartObjectTime()
 		TraceObjectHistory(This)
 
-	  #-- Deep (nested) list view: promotes to stzDeepList for the path-based
-	  #   deep API (DeepFind / Paths / ItemAtPath / ...). Kept modular -- the
-	  #   deep operations live in the stzDeepList subclass, not here.
+	# Returns the list as a stzDeepList, for path-based work on nested items.
+	#
+	#   returns    a stzDeepList
+	#   see        Paths
+	#@ aka  -- Deep (nested) list view: promotes to stzDeepList for the path-based deep API (DeepFind / Paths / ItemAtPath / ...). Kept modular -- the deep operations live in the stzDeepList subclass, not here.
 	def DeepList()
 		return new stzDeepList(This.Content())
 
+		# Returns the list as a stzDeepList.
+		#
+		#   returns    a stzDeepList
+		#   see        DeepList
 		def AsDeepList()
 			return This.DeepList()
 
@@ -161,6 +170,11 @@ class stzList from stzObject
 		def NumberOfItemsCSQ(pCaseSensitive)
 			return new stzNumber( This.NumberOfItemsCS(pCaseSensitive) )
 
+		# TRUE if the count of items equals the last value the library remembers, the B form of a count test.
+		#
+		#   pCaseSensitive   1 to compare with case, 0 to ignore it
+		#   returns          TRUE or FALSE
+		#   see              NumberOfItems
 		def NumberOfItemsCSB(pCaseSensitive)
 			if This.NumberOfItemsCS(pCaseSensitive) = LastValue()
 				return 1
@@ -188,6 +202,10 @@ class stzList from stzObject
 		def NumberOfItemsQ()
 			return new stzNumber( This.NumberOfItems() )
 
+		# TRUE if the count of items equals the last value the library remembers, the B form of a count test.
+		#
+		#   returns    TRUE or FALSE
+		#   see        NumberOfItems
 		def NumberOfItemsB()
 			if This.NumberOfItems() = LastValue()
 				return 1
@@ -288,6 +306,10 @@ class stzList from stzObject
 	 #  GETTING THE FIRST ITEM IN THE LIST  #
 	#--------------------------------------#
 
+	# Returns the item at position 1.
+	#
+	#   returns    the item
+	#   see        LastItem, NthItem
 	#@ aka  head, front, first element, the top, beginning item
 	def FirstItem()
 		return This.NthItem(1)
@@ -299,6 +321,10 @@ class stzList from stzObject
 	 #  GETTING THE LAST ITEM IN THE LIST  #
 	#-------------------------------------#
 
+	# Returns the item at the last position.
+	#
+	#   returns    the item
+	#   see        FirstItem, NthItem
 	#@ aka  tail, back, last element, the end, final item
 	def LastItem()
 		return This.NthItem( This.NumberOfItems() )
@@ -310,10 +336,18 @@ class stzList from stzObject
 	 #  GETTING THE FIRST AND LAST ITEMS IN THE LIST  #
 	#------------------------------------------------#
 
+	# Returns the first and the last items as a pair.
+	#
+	#   returns    a pair [ first, last ]
+	#   see        LastAndFirstItems
 	def FirstAndLastItems()
 		_aResult_ = [ This.FirstItem(), This.LastItem() ]
 		return _aResult_
 
+	# Returns the last and the first items as a pair.
+	#
+	#   returns    a pair [ last, first ]
+	#   see        FirstAndLastItems
 	def LastAndFirstItems()
 		_aResult_ = [ This.LastItem(), FirstItem() ]
 		return _aResult_
@@ -322,6 +356,10 @@ class stzList from stzObject
 	 #  GETTING THE CENTRAL POSITION IN THE LIST  #
 	#--------------------------------------------#
 
+	# Returns the position at the middle of the list; for an even count, the upper of the two middle positions.
+	#
+	#   returns    a number
+	#   see        CentralItem
 	def CentralPosition()
 		_oTemp_ = new stzNumber( (This.NumberOfItems()/2) )
 		_n_ = _oTemp_.IntegerPartValue()
@@ -334,6 +372,10 @@ class stzList from stzObject
 	 #  GETTING THE CENTRAL ITEM IN THE LIST  #
 	#----------------------------------------#
 
+	# Returns the item at the central position.
+	#
+	#   returns    the item
+	#   see        CentralPosition
 	def CentralItem()
 		return This[CentralPosition()]
 
@@ -344,6 +386,10 @@ class stzList from stzObject
 	 #  CHECKING IF THE STRING HAS A CENTRAL ITEM  #
 	#---------------------------------------------#
 
+	# TRUE if the count of items is odd, so that one item stands in the middle.
+	#
+	#   returns    TRUE or FALSE
+	#   see        CentralItem
 	def HasCentralItem()
 		return This.NumberOfItemsQ().IsNotEven()
 
@@ -354,6 +400,11 @@ class stzList from stzObject
 	 #  GETTING THE LIST OF N FIRST ITEMS  #
 	#-------------------------------------#
 
+	# Returns the first n items, or the whole list when n is larger.
+	#
+	#   _n_        how many items
+	#   returns    a list of items
+	#   see        FirstNItems
 	def NFirstItems(_n_)
 		_aContent_ = This.Content()
 		_aResult_ = []
@@ -396,6 +447,11 @@ class stzList from stzObject
 	 #  GETTING THE LIST OF N LAST ITEMS  #
 	#------------------------------------#
 
+	# Returns the last n items, or the whole list when n is larger.
+	#
+	#   _n_        how many items
+	#   returns    a list of items
+	#   see        LastNItems
 	def NLastItems(_n_)
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -441,6 +497,11 @@ class stzList from stzObject
 	 #  GETTING NEXT/PREVIOUS N ITEMS FROM A POSITION  #
 	#-------------------------------------------------#
 
+	# Returns the n items that follow a given position.
+	#
+	#   _n_        how many items
+	#   returns    a list of items
+	#   see        NextNthOccurrence
 	def NextNItems(_n_, pnStartingAt)
 
 		if NOT isNumber(_n_)
@@ -490,9 +551,11 @@ class stzList from stzObject
 	 #      UPDATING      #
 	#--------------------#
 
-	# Replace the whole content with the given list (mutating; the
-	# enforcement guard sits at _SetContent, the single update
-	# point).
+	# Replaces the whole content by the given list, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        UpdateWith
+	#@ aka  Replace the whole content with the given list (mutating; the enforcement guard sits at _SetContent, the single update point).
 	def Update(paNewList)
 		if CheckingParams() = 1
 			if isList(paNewList) and IsWithOrByOrUsingNamedParamList(paNewList)
@@ -514,21 +577,33 @@ class stzList from stzObject
 			This.Update(paNewList)
 			return This
 
-		# Same as Update: replace the whole content (mutating).
+		# Replaces the whole content by the given list, in place.
+		#
+		#   returns    nothing; the list changes
+		#   see        Update
+		#@ aka  Same as Update: replace the whole content (mutating).
 		def UpdateWith(paNewList)
 			This.Update(paNewList)
 
 			def UpdateWithQ(paNewList)
 				return This.UpdateQ(paNewList)
 
-		# Same as Update: replace the whole content (mutating).
+		# Replaces the whole content by the given list, in place.
+		#
+		#   returns    nothing; the list changes
+		#   see        Update
+		#@ aka  Same as Update: replace the whole content (mutating).
 		def UpdateBy(paNewList)
 			This.Update(paNewList)
 
 			def UpdateByQ(paNewList)
 				return This.UpdateQ(paNewList)
 
-	# The value the list would be updated to (the passive twin of Update).
+	# Returns the given list, the content the list would take with Update; the list is unchanged.
+	#
+	#   returns    a list of items
+	#   see        Update
+	#@ aka  The value the list would be updated to (the passive twin of Update).
 	def Updated(paNewList)
 		return paNewList
 
@@ -542,8 +617,12 @@ class stzList from stzObject
 	 #     ADDING ITEMS     #
 	#----------------------#
 
-	# Add the given item at the end of the list (mutating).
+	# Appends the item at the end, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        AddItems
 	#@ aka  append, push, add element, put at the end
+	#@ aka  Add the given item at the end of the list (mutating).
 	def AddItem(pItem)
 		_aCopy_ = This.Content()
 		_aCopy_ + pItem
@@ -589,7 +668,11 @@ class stzList from stzObject
 				This.Append(pItem)
 				return This
 
-	# A copy of the list with the item appended; the original is unchanged.
+	# Returns a copy with the item appended; the list is unchanged.
+	#
+	#   returns    a list of items
+	#   see        AddItem
+	#@ aka  A copy of the list with the item appended; the original is unchanged.
 	def ItemAdded(pItem)
 		_aResult_ = This.Copy().AddItemQ(pItem).Content()
 		return _aResult_
@@ -597,7 +680,11 @@ class stzList from stzObject
 		def Added(pItem)
 			return This.ItemAdded(pItem)
 
-	# A copy with each item of paItems appended; the original is unchanged.
+	# Returns a copy with each of the given items appended; the list is unchanged.
+	#
+	#   returns    a list of items
+	#   see        AddItems
+	#@ aka  A copy with each item of paItems appended; the original is unchanged.
 	def ManyAdded(paItems)
 		# Non-mutating: append each item of paItems to a copy.
 		_aResult_ = This.Copy().AddManyQ(paItems).Content()
@@ -607,6 +694,10 @@ class stzList from stzObject
 	 #  MERGING WITH ANOTHER LIST        #
 	#-----------------------------------#
 
+	# Appends the items of the other list to the list, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        MergedWith
 	def MergeWith(paOtherList)
 		_nLen_ = len(paOtherList)
 		for _i_ = 1 to _nLen_
@@ -617,6 +708,10 @@ class stzList from stzObject
 			This.MergeWith(paOtherList)
 			return This
 
+	# Returns the items of the list followed by those of the other; the list is unchanged.
+	#
+	#   returns    a list of items
+	#   see        MergeWith
 	def MergedWith(paOtherList)
 		_aResult_ = This.Content()
 		_nLen_ = len(paOtherList)
@@ -629,6 +724,11 @@ class stzList from stzObject
 	 #  ADDING AN ITEM AT A GIVEN POSITION --> INSERT OR EXTEND  #
 	#-----------------------------------------------------------#
 
+	# Inserts the item before position n, in place.
+	#
+	#   _n_        the position to insert before
+	#   returns    nothing; the list changes
+	#   see        InsertAt
 	def AddItemAt(_n_, pItem)
 
 		if NOT isNumber(_n_)
@@ -665,6 +765,10 @@ class stzList from stzObject
 			This.AddMany(paItems)
 			return This
 
+		# Appends each of the given items at the end, in place.
+		#
+		#   returns    nothing; the list changes
+		#   see        AddItem
 		def AddItems(paItems)
 			This.AddMany(paItems)
 
@@ -686,7 +790,11 @@ class stzList from stzObject
 	def IsEmpty()
 		return This.NumberOfItems() = 0
 
-	# TRUE if the list has at least one item.
+	# TRUE if the list holds at least one item.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsEmpty
+	#@ aka  TRUE if the list has at least one item.
 	def IsNotEmpty()
 		return NOT This.IsEmpty()
 
@@ -694,222 +802,510 @@ class stzList from stzObject
 	 #  NAMED-PARAM CHECKS (needed by Q() calls) #
 	#------------------------------------------#
 
-	# Generic: checks if this list is a named param (2-item, first is keyword)
+	# TRUE if the list is a named param: a pair whose first item is a keyword and whose second is its value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
+	#@ aka  Generic: checks if this list is a named param (2-item, first is keyword)
 	def IsNamedParam()
 		return StzIsNamedParamList(This.Content())
 
+	# TRUE if the list is a pair whose first item is the keyword :And, such as :And = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	# --- Methods with existing global functions ---
 	def IsAndNamedParam()
 		return StzIsAndNamedParamList(This.Content())
 
+	# TRUE if the list is a pair whose first item is the keyword :At, such as :At = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsAtNamedParam()
 		return StzIsAtNamedParamList(This.Content())
 
+	# TRUE if the list is a pair whose first item is the keyword :At or :AtPosition, such as :At = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsAtOrAtPositionNamedParam()
 		return StzIsOneOfTheseNamedParamsList(This.Content(), ["at", "atposition"])
 
+	# TRUE if the list is a pair whose first item is the keyword :AtPosition, such as :AtPosition = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsAtPositionNamedParam()
 		return StzIsThisNamedParam(This.Content(), "atposition")
 
+	# TRUE if the list is a pair whose first item is the keyword :Between, such as :Between = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsBetweenNamedParam()
 		return StzIsBetweenNamedParamList(This.Content())
 
+	# TRUE if the list is a pair whose first item is the keyword :By, such as :By = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsByNamedParam()
 		return StzIsByNamedParamList(This.Content())
 
+	# TRUE if the list is a pair whose first item is the keyword :CaseSensitive, such as :CaseSensitive = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsCaseSensitiveNamedParam()
 		return StzIsCaseSensitiveNamedParamList(This.Content())
 
+	# TRUE if the list is a pair whose first item is the keyword :Direction or :Going, such as :Direction = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsDirectionOrGoingNamedParam()
 		return StzIsDirectionOrGoingNamedParamList(This.Content())
 
+	# TRUE if the list is a pair whose first item is the keyword :EqualTo, such as :EqualTo = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsEqualToNamedParam()
 		return StzIsEqualToNamedParamList(This.Content())
 
+	# TRUE if the list is a pair whose first item is the keyword :From, such as :From = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsFromNamedParam()
 		return StzIsFromNamedParamList(This.Content())
 
+	# TRUE if the list is a pair whose first item is the keyword :In, such as :In = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsInNamedParam()
 		return StzIsInNamedParamList(This.Content())
 
+	# TRUE if the list is a pair whose first item is the keyword :Nor, such as :Nor = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsNorNamedParam()
 		return StzIsNorNamedParamList(This.Content())
 
+	# TRUE if the list is a pair whose first item is the keyword :Of, such as :Of = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsOfNamedParam()
 		return StzIsOfNamedParamList(This.Content())
 
+	# TRUE if the list is a pair whose first item is the keyword :Of or :OfSubString, such as :Of = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsOfOrOfSubStringNamedParam()
 		return StzIsOfOrOfSubStringNamedParamList(This.Content())
 
+	# TRUE if the list is a pair whose first item is the keyword :Position, such as :Position = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsPositionNamedParam()
 		return StzIsPositionNamedParamList(This.Content())
 
+	# TRUE if the list is a pair whose first item is the keyword :Position or :Positions, such as :Position = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsPositionOrPositionsNamedParam()
 		return StzIsPositionOrPositionsNamedParamList(This.Content())
 
+	# TRUE if the list is a pair whose first item is the keyword :ReturnedAs, such as :ReturnedAs = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsReturnedAsNamedParam()
 		return StzIsReturnedAsNamedParamList(This.Content())
 
+	# TRUE if the list is a pair whose first item is the keyword :StartingAt, such as :StartingAt = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsStartingAtNamedParam()
 		return StzIsStartingAtNamedParamList(This.Content())
 
+	# TRUE if the list is a pair whose first item is the keyword :StoppingAt, such as :StoppingAt = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsStoppingAtNamedParam()
 		return StzIsStoppingAtNamedParamList(This.Content())
 
+	# TRUE if the list is a pair whose first item is the keyword :To, such as :To = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsToNamedParam()
 		return StzIsToNamedParamList(This.Content())
 
+	# TRUE if the list is a pair whose first item is the keyword :Using or :With or :By, such as :Using = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsUsingOrWithOrByNamedParam()
 		return StzIsOneOfTheseNamedParamsList(This.Content(), ["using", "with", "by"])
 
+	# TRUE if the list is a pair whose first item is the keyword :Where, such as :Where = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsWhereNamedParam()
 		return StzIsWhereNamedParamList(This.Content())
 
+	# TRUE if the list is a pair whose first item is the keyword :With, such as :With = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsWithNamedParam()
 		return StzIsWithNamedParamList(This.Content())
 
+	# TRUE if the list is a pair whose first item is the keyword :With or :By, such as :With = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsWithOrByNamedParam()
 		return StzIsWithOrByNamedParamList(This.Content())
 
+	# TRUE if the list is a pair whose first item is the keyword :With or :By or :Using, such as :With = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsWithOrByOrUsingNamedParam()
 		return StzIsWithOrByOrUsingNamedParamList(This.Content())
 
+	# TRUE if the list is a pair whose first item is the keyword :AndcColNamed, such as :AndcColNamed = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	# --- Methods without existing global functions (keyword-based) ---
 	def IsAndcColNamedNamedParam()
 		return StzIsThisNamedParam(This.Content(), "andccolnamed")
 
+	# TRUE if the list is a pair whose first item is the keyword :AndcCol, such as :AndcCol = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsAndcColNamedParam()
 		return StzIsThisNamedParam(This.Content(), "andccol")
 
+	# TRUE if the list is a pair whose first item is the keyword :AndColAt, such as :AndColAt = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsAndColAtNamedParam()
 		return StzIsThisNamedParam(This.Content(), "andcolat")
 
+	# TRUE if the list is a pair whose first item is the keyword :AndColAtPosition, such as :AndColAtPosition = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsAndColAtPositionNamedParam()
 		return StzIsThisNamedParam(This.Content(), "andcolatposition")
 
+	# TRUE if the list is a pair whose first item is the keyword :AndColumnAt, such as :AndColumnAt = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsAndColumnAtNamedParam()
 		return StzIsThisNamedParam(This.Content(), "andcolumnat")
 
+	# TRUE if the list is a pair whose first item is the keyword :AndColumnAtPosition, such as :AndColumnAtPosition = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsAndColumnAtPositionNamedParam()
 		return StzIsThisNamedParam(This.Content(), "andcolumnatposition")
 
+	# TRUE if the list is a pair whose first item is the keyword :AndColumnNamed, such as :AndColumnNamed = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsAndColumnNamedNamedParam()
 		return StzIsThisNamedParam(This.Content(), "andcolumnnamed")
 
+	# TRUE if the list is a pair whose first item is the keyword :AndColumn, such as :AndColumn = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsAndColumnNamedParam()
 		return StzIsThisNamedParam(This.Content(), "andcolumn")
 
+	# TRUE if the list is a pair whose first item is the keyword :AndPosition, such as :AndPosition = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsAndPositionNamedParam()
 		return StzIsThisNamedParam(This.Content(), "andposition")
 
+	# TRUE if the list is a pair whose first item is the keyword :AndReturning, such as :AndReturning = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsAndReturningNamedParam()
 		return StzIsOneOfTheseNamedParamsList(This.Content(), ["andreturning", "andreturnas", "andreturnedas"])
 
+	# TRUE if the list is a pair whose first item is the keyword :AndReturningNth, such as :AndReturningNth = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsAndReturningNthNamedParam()
 		return StzIsThisNamedParam(This.Content(), "andreturningnth")
 
+	# TRUE if the list is a pair whose first item is the keyword :AndReturn, such as :AndReturn = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsAndReturnNamedParam()
 		return StzIsOneOfTheseNamedParamsList(This.Content(), ["andreturn", "andreturnas", "andreturnedas", "andreturnitas"])
 
+	# TRUE if the list is a pair whose first item is the keyword :AndReturnNth, such as :AndReturnNth = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsAndReturnNthNamedParam()
 		return StzIsThisNamedParam(This.Content(), "andreturnnth")
 
+	# TRUE if the list is a pair whose first item is the keyword :AndRowAt, such as :AndRowAt = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsAndRowAtNamedParam()
 		return StzIsThisNamedParam(This.Content(), "androwat")
 
+	# TRUE if the list is a pair whose first item is the keyword :AndRowAtPosition, such as :AndRowAtPosition = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsAndRowAtPositionNamedParam()
 		return StzIsThisNamedParam(This.Content(), "androwatposition")
 
+	# TRUE if the list is a pair whose first item is the keyword :AndRow, such as :AndRow = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsAndRowNamedParam()
 		return StzIsThisNamedParam(This.Content(), "androw")
 
+	# TRUE if the list is a pair whose first item is the keyword :BetweencCol, such as :BetweencCol = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsBetweencColNamedParam()
 		return StzIsThisNamedParam(This.Content(), "betweenccol")
 
+	# TRUE if the list is a pair whose first item is the keyword :BetweenColAt, such as :BetweenColAt = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsBetweenColAtNamedParam()
 		return StzIsThisNamedParam(This.Content(), "betweencolat")
 
+	# TRUE if the list is a pair whose first item is the keyword :BetweenColAtPosition, such as :BetweenColAtPosition = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsBetweenColAtPositionNamedParam()
 		return StzIsThisNamedParam(This.Content(), "betweencolatposition")
 
+	# TRUE if the list is a pair whose first item is the keyword :BetweenColumnAt, such as :BetweenColumnAt = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsBetweenColumnAtNamedParam()
 		return StzIsThisNamedParam(This.Content(), "betweencolumnat")
 
+	# TRUE if the list is a pair whose first item is the keyword :BetweenColumnAtPosition, such as :BetweenColumnAtPosition = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsBetweenColumnAtPositionNamedParam()
 		return StzIsThisNamedParam(This.Content(), "betweencolumnatposition")
 
+	# TRUE if the list is a pair whose first item is the keyword :BetweenColumn, such as :BetweenColumn = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsBetweenColumnNamedParam()
 		return StzIsThisNamedParam(This.Content(), "betweencolumn")
 
+	# TRUE if the list is a pair whose first item is the keyword :BetweenPosition, such as :BetweenPosition = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsBetweenPositionNamedParam()
 		return StzIsOneOfTheseNamedParamsList(This.Content(), ["betweenposition", "betweenpositions"])
 
+	# TRUE if the list is a pair whose first item is the keyword :BetweenPositions, such as :BetweenPositions = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsBetweenPositionsNamedParam()
 		return StzIsThisNamedParam(This.Content(), "betweenpositions")
 
+	# TRUE if the list is a pair whose first item is the keyword :BetweenRowAt, such as :BetweenRowAt = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsBetweenRowAtNamedParam()
 		return StzIsThisNamedParam(This.Content(), "betweenrowat")
 
+	# TRUE if the list is a pair whose first item is the keyword :BetweenRowAtPosition, such as :BetweenRowAtPosition = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsBetweenRowAtPositionNamedParam()
 		return StzIsThisNamedParam(This.Content(), "betweenrowatposition")
 
+	# TRUE if the list is a pair whose first item is the keyword :BetweenRow, such as :BetweenRow = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsBetweenRowNamedParam()
 		return StzIsThisNamedParam(This.Content(), "betweenrow")
 
+	# TRUE if the list is a pair whose first item is the keyword :ByCol or :ByColNumber, such as :ByCol = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsByColOrByColNumberNamedParam()
 		return StzIsOneOfTheseNamedParamsList(This.Content(), ["bycol", "bycolnumber"])
 
+	# TRUE if the list is a pair whose first item is the keyword :By or :Using or :With, such as :By = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsByOrUsingOrWithNamedParam()
 		return StzIsOneOfTheseNamedParamsList(This.Content(), ["by", "using", "with"])
 
+	# TRUE if the list is a pair whose first item is the keyword :By or :With or :Using, such as :By = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsByOrWithOrUsingNamedParam()
 		return StzIsOneOfTheseNamedParamsList(This.Content(), ["by", "with", "using"])
 
+	# TRUE if the list is a pair whose first item is the keyword :ByRow, such as :ByRow = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsByRowNamedParam()
 		return StzIsThisNamedParam(This.Content(), "byrow")
 
+	# TRUE if the list is a pair whose first item is the keyword :Coming, such as :Coming = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsComingNamedParam()
 		return StzIsThisNamedParam(This.Content(), "coming")
 
+	# TRUE if the list is a pair whose first item is the keyword :From or :Of, such as :From = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsFromOrOfNamedParam()
 		return StzIsOneOfTheseNamedParamsList(This.Content(), ["from", "of"])
 
+	# TRUE if the list is a pair whose first item is the keyword :FromPosition, such as :FromPosition = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsFromPositionNamedParam()
 		return StzIsOneOfTheseNamedParamsList(This.Content(), ["fromposition", "from"])
 
+	# TRUE if the list is a pair whose first item is the keyword :InA, such as :InA = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsInANamedParam()
 		return StzIsThisNamedParam(This.Content(), "ina")
 
+	# TRUE if the list is a pair whose first item is the keyword :In or :InList, such as :In = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsInOrInListNamedParam()
 		return StzIsOneOfTheseNamedParamsList(This.Content(), ["in", "inlist"])
 
+	# TRUE if the list is a pair whose first item is the keyword :In or :InString, such as :In = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsInOrInStringNamedParam()
 		return StzIsOneOfTheseNamedParamsList(This.Content(), ["in", "instring"])
 
+	# TRUE if the list is a pair whose first item is the keyword :OfSize, such as :OfSize = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsOfSizeNamedParam()
 		return StzIsOneOfTheseNamedParamsList(This.Content(), ["ofsize", "size"])
 
+	# TRUE if the list is a pair whose first item is the keyword :Returning, such as :Returning = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsReturningNamedParam()
 		return StzIsThisNamedParam(This.Content(), "returning")
 
+	# TRUE if the list is a pair whose first item is the keyword :ReturningNth, such as :ReturningNth = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsReturningNthNamedParam()
 		return StzIsThisNamedParam(This.Content(), "returningnth")
 
+	# TRUE if the list is a pair whose first item is the keyword :Return, such as :Return = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsReturnNamedParam()
 		return StzIsOneOfTheseNamedParamsList(This.Content(), ["return", "returnas", "returnedas", "returnitas"])
 
+	# TRUE if the list is a pair whose first item is the keyword :ReturnNth, such as :ReturnNth = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsReturnNthNamedParam()
 		return StzIsThisNamedParam(This.Content(), "returnnth")
 
+	# TRUE if the list is a pair whose first item is the keyword :Seed, such as :Seed = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsSeedNamedParam()
 		return StzIsThisNamedParam(This.Content(), "seed")
 
+	# TRUE if the list is a pair whose first item is the keyword :Size, such as :Size = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsSizeNamedParam()
 		return StzIsThisNamedParam(This.Content(), "size")
 
+	# TRUE if the list is a pair whose first item is the keyword :To or :Of, such as :To = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsToOrOfNamedParam()
 		return StzIsOneOfTheseNamedParamsList(This.Content(), ["to", "of"])
 
+	# TRUE if the list is a pair whose first item is the keyword :ToPosition, such as :ToPosition = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsToPositionNamedParam()
 		return StzIsOneOfTheseNamedParamsList(This.Content(), ["toposition", "to"])
 
@@ -928,15 +1324,27 @@ class stzList from stzObject
 		StzEngineListFree(_pList_)
 		return _nResult_
 
+		# TRUE if only one distinct value occurs among the items.
+		#
+		#   returns    TRUE or FALSE
+		#   see        ItemsAreEqualTo
 		def AllItemsAreEqual()
 			return This.AllItemsAreEqualCS(1)
 
 		def AllAreEqualCS(pCaseSensitive)
 			return This.AllItemsAreEqualCS(pCaseSensitive)
 
+		# TRUE if only one distinct value occurs among the items.
+		#
+		#   returns    TRUE or FALSE
+		#   see        AllItemsAreEqual
 		def AllAreEqual()
 			return This.AllItemsAreEqualCS(1)
 
+	# TRUE if the list is a pair whose first item is the keyword :WithRow, such as :WithRow = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsWithRowNamedParam()
 		return StzIsThisNamedParam(This.Content(), "withrow")
 
@@ -1011,7 +1419,12 @@ class stzList from stzObject
 	def ShowShort()
 		? @@S( This.Content() )
 
-	# Print the abbreviated form showing n items at each end.
+	# Prints the abbreviated form of the list, with n items at each end.
+	#
+	#   _n_        how many items to show at each end
+	#   returns    nothing; the form is printed
+	#   see        Show
+	#@ aka  Print the abbreviated form showing n items at each end.
 	def ShowShortN(_n_)
 		? ComputableShortFormXT( This.Content(), _n_ )
 
@@ -1024,7 +1437,10 @@ class stzList from stzObject
 	 #  CLASS NAME                 #
 	#-----------------------------#
 
-	# The lowercase class name: "stzlist".
+	# Returns the class name in lowercase, "stzlist".
+	#
+	#   returns    a string
+	#@ aka  The lowercase class name: "stzlist".
 	def ClassName()
 		return "stzlist"
 
@@ -1063,6 +1479,11 @@ class stzList from stzObject
 		_oRplN_.ReplaceNthOccurrenceCS(_n_, pItem, pNewItem, pCaseSensitive)
 		This._SetContent(_oRplN_.Content())
 
+	# Replaces the nth occurrence of the item by a new item, in place.
+	#
+	#   _n_        which occurrence
+	#   returns    nothing; the list changes
+	#   see        ReplaceFirst
 	def ReplaceNth(_n_, pItem, pNewItem)
 		This.ReplaceNthCS(_n_, pItem, pNewItem, 1)
 
@@ -1083,6 +1504,11 @@ class stzList from stzObject
 		_oRplNO_.ReplaceNthOccurrenceCS(_n_, pItem, pNewItem, pCaseSensitive)
 		This._SetContent(_oRplNO_.Content())
 
+	# Replaces the nth occurrence of the item by a new item, in place.
+	#
+	#   _n_        which occurrence
+	#   returns    nothing; the list changes
+	#   see        ReplaceNth
 	def ReplaceNthOccurrence(_n_, pItem, pNewItem)
 		This.ReplaceNthOccurrenceCS(_n_, pItem, pNewItem, 1)
 
@@ -1109,6 +1535,11 @@ class stzList from stzObject
 		_nRpvPos_ = _anRpvPos_[ ring_len(_anRpvPos_) - _n_ + 1 ]
 		This.ReplaceAt(_nRpvPos_, pNewItem)
 
+	# Replaces the nth occurrence of the item before a given position by a new item, in place.
+	#
+	#   _n_        which occurrence, counted backwards
+	#   returns    nothing; the list changes
+	#   see        ReplaceNextNthOccurrence
 	def ReplacePreviousNthOccurrence(_n_, pItem, pNewItem, pnStartingAt)
 		This.ReplacePreviousNthOccurrenceCS(_n_, pItem, pNewItem, pnStartingAt, 1)
 
@@ -1135,6 +1566,11 @@ class stzList from stzObject
 		next
 		return _anFpnRes_
 
+	# Returns the positions of the given ranks of next occurrences of the item after a given position.
+	#
+	#   panList    the ranks of the occurrences wanted
+	#   returns    a list of positions
+	#   see        FindNextNth
 	def FindNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 		if isList(pItem) and ring_len(pItem) = 2 and isString(pItem[1]) and
 		   (pItem[1] = :of or pItem[1] = :Of)
@@ -1166,9 +1602,19 @@ class stzList from stzObject
 		_anRpnPos_ = This.FindPreviousNthOccurrencesCS(panList, pItem, pnStartingAt, 1)
 		This.ReplaceItemsAtPositions(_anRpnPos_, pNewItem)
 
+		# Replaces the given ranks of occurrences of the item before a position by a new item, in place.
+		#
+		#   panList    the ranks of the occurrences to replace
+		#   returns    nothing; the list changes
+		#   see        ReplacePreviousNthOccurrence
 		def ReplacePreviousNthOccurrences(panList, pItem, pNewItem, pnStartingAt)
 			This.ReplacePreviousNthOccurrencesST(panList, pItem, pNewItem, pnStartingAt)
 
+	# Replaces the given ranks of occurrences of the item after a position by a new item, in place.
+	#
+	#   panList    the ranks of the occurrences to replace
+	#   returns    nothing; the list changes
+	#   see        ReplaceNextNthOccurrence
 	def ReplaceNextNthOccurrences(panList, pItem, pNewItem, pnStartingAt)
 		if isList(pNewItem) and ring_len(pNewItem) = 2 and isString(pNewItem[1]) and
 		   (pNewItem[1] = :with or pNewItem[1] = :With or pNewItem[1] = :by or pNewItem[1] = :By)
@@ -1180,21 +1626,33 @@ class stzList from stzObject
 		def ReplaceNextNthOccurrencesST(panList, pItem, pNewItem, pnStartingAt)
 			This.ReplaceNextNthOccurrences(panList, pItem, pNewItem, pnStartingAt)
 
-	# Passive (non-mutating) forms: return a fresh content list.
-
+	# Returns a copy with the given ranks of next occurrences of the item after a position replaced; the list is unchanged.
+	#
+	#   panList    the ranks of the occurrences to replace
+	#   returns    a list of items
+	#   see        ReplaceNextNthOccurrences
+	#@ aka  Passive (non-mutating) forms: return a fresh content list.
 	def NextNthOccurrencesReplaced(panList, pItem, pNewItem, pnStartingAt)
 		_oNnrCopy_ = This.Copy()
 		_oNnrCopy_.ReplaceNextNthOccurrences(panList, pItem, pNewItem, pnStartingAt)
 		return _oNnrCopy_.Content()
 
+	# Returns a copy with the given ranks of previous occurrences of the item before a position replaced; the list is unchanged.
+	#
+	#   panList    the ranks of the occurrences to replace
+	#   returns    a list of items
+	#   see        ReplacePreviousNthOccurrences
 	def PreviousNthOccurrencesReplaced(panList, pItem, pNewItem, pnStartingAt)
 		_oPnrCopy_ = This.Copy()
 		_oPnrCopy_.ReplacePreviousNthOccurrencesST(panList, pItem, pNewItem, pnStartingAt)
 		return _oPnrCopy_.Content()
 
-	# Replace every item by a single new one:
-	# ReplaceAllItems(:With = newItem) or ReplaceAllItems(newItem).
-
+	# Replaces every item by one new item, in place; :With = item is accepted.
+	#
+	#   pNewItem   the item that every position receives
+	#   returns    nothing; the list changes
+	#   see        ReplaceAtPositions
+	#@ aka  Replace every item by a single new one: ReplaceAllItems(:With = newItem) or ReplaceAllItems(newItem).
 	def ReplaceAllItems(pNewItem)
 		if isList(pNewItem) and len(pNewItem) = 2 and isString(pNewItem[1]) and
 		   (pNewItem[1] = :with or pNewItem[1] = :With or pNewItem[1] = :by or pNewItem[1] = :By)
@@ -1213,6 +1671,10 @@ class stzList from stzObject
 		_oRplF_.ReplaceFirstOccurrenceCS(pItem, pNewItem, pCaseSensitive)
 		This._SetContent(_oRplF_.Content())
 
+	# Replaces the first occurrence of the item by a new item, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        ReplaceLast, ReplaceNth
 	def ReplaceFirst(pItem, pNewItem)
 		This.ReplaceFirstCS(pItem, pNewItem, 1)
 
@@ -1221,6 +1683,10 @@ class stzList from stzObject
 		_oRplL_.ReplaceLastOccurrenceCS(pItem, pNewItem, pCaseSensitive)
 		This._SetContent(_oRplL_.Content())
 
+	# Replaces the last occurrence of the item by a new item, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        ReplaceFirst
 	def ReplaceLast(pItem, pNewItem)
 		This.ReplaceLastCS(pItem, pNewItem, 1)
 
@@ -1265,6 +1731,12 @@ class stzList from stzObject
 			This.ReplaceSection(_n1_, _n2_, pNewItem)
 			return This
 
+	# Replaces the items from one position to another by the new items, in place.
+	#
+	#   _n1_       the position of the first item
+	#   _n2_       the position of the last item
+	#   returns    nothing; the list changes
+	#   see        ReplaceSection
 	def ReplaceSectionByMany(_n1_, _n2_, paNewItems)
 		_oRpSM_ = new stzListReplacer(This)
 		_oRpSM_.ReplaceSectionByMany(_n1_, _n2_, paNewItems)
@@ -1310,15 +1782,35 @@ class stzList from stzObject
 			This.ReplaceAt(_n_, pNewItem)
 			return This
 
+		# Replaces the item at position n by a new item, in place.
+		#
+		#   _n_        the position
+		#   returns    nothing; the list changes
+		#   see        ReplaceItemAtPosition
 		def UpdateAt(_n_, pNewItem)
 			This.ReplaceAt(_n_, pNewItem)
 
+		# Replaces the item at position n by a new item, in place.
+		#
+		#   _n_        the position
+		#   returns    nothing; the list changes
+		#   see        ReplaceItemAtPosition
 		def SetItemAt(_n_, pNewItem)
 			This.ReplaceAt(_n_, pNewItem)
 
+		# Replaces the item at position n by a new item, in place.
+		#
+		#   _n_        the position
+		#   returns    nothing; the list changes
+		#   see        ReplaceItemAtPosition
 		def ReplaceAnyItemAt(_n_, pNewItem)
 			This.ReplaceAt(_n_, pNewItem)
 
+		# Replaces the item at position n by a new item, in place.
+		#
+		#   _n_        the position
+		#   returns    nothing; the list changes
+		#   see        ReplaceAnyItemAt
 		def ReplaceItemAtPosition(_n_, pNewItem)
 			This.ReplaceAt(_n_, pNewItem)
 
@@ -1326,30 +1818,59 @@ class stzList from stzObject
 	 #  POSITIONAL REPLACE DELEGATIONS (Replacer)  #
 	#=============================================#
 
+	# Replaces the items at the given positions by a new item, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        ReplaceAtPositions
 	def ReplaceAnyItemAtPositions(panPos, pNewItem)
 		_o_ = new stzListReplacer(This)
 		_o_.ReplaceAnyItemAtPositions(panPos, pNewItem)
 		This._SetContent(_o_.Content())
 
+		# Replaces every item at the given positions by the new item, in place.
+		#
+		#   returns    nothing; the list changes
+		#   see        ReplaceItemsAtPositions
 		def ReplaceAnyItemsAtPositions(panPos, pNewItem)
 			This.ReplaceAnyItemAtPositions(panPos, pNewItem)
 
+		# Replaces every item at the given positions by the new item, in place.
+		#
+		#   returns    nothing; the list changes
+		#   see        ReplaceAnyItemsAtPositions
 		def ReplaceItemsAtPositions(panPos, pNewItem)
 			This.ReplaceAnyItemAtPositions(panPos, pNewItem)
 
+		# Replaces the items at the given positions by a new item, in place.
+		#
+		#   returns    nothing; the list changes
+		#   see        ReplaceItemsAtPositions
 		def ReplaceAtPositions(panPos, pNewItem)
 			This.ReplaceAnyItemAtPositions(panPos, pNewItem)
 
+	# Replaces the given item by a new item at each of the given positions where it stands, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        ReplaceItemsAtPositions
 	def ReplaceThisItemAtPositions(panPos, pItem, pNewItem)
 		_o_ = new stzListReplacer(This)
 		_o_.ReplaceThisItemAtPositions(panPos, pItem, pNewItem)
 		This._SetContent(_o_.Content())
 
+	# Replaces the given item by a new item at position n, in place, when the item stands there.
+	#
+	#   _n_        the position
+	#   returns    nothing; the list changes
+	#   see        ReplaceItemAtPositions
 	def ReplaceThisItemAt(_n_, pItem, pNewItem)
 		_o_ = new stzListReplacer(This)
 		_o_.ReplaceThisItemAt(_n_, pItem, pNewItem)
 		This._SetContent(_o_.Content())
 
+	# Replaces, at the given positions, the items that are among the given ones by the new item, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        ReplaceItemsAtPositions
 	def ReplaceTheseItemsAtPositions(panPos, paItems, pNewItem)
 		_o_ = new stzListReplacer(This)
 		_o_.ReplaceTheseItemsAtPositions(panPos, paItems, pNewItem)
@@ -1379,9 +1900,17 @@ class stzList from stzObject
 		_o_.ReplaceByManyXT(pItem, paNewItems)
 		This._SetContent(_o_.Content())
 
+		# Replaces the occurrences of the item by the new items, one by one, in place.
+		#
+		#   returns    nothing; the list changes
+		#   see        ReplaceOccurrencesByMany
 		def ReplaceItemByManyXT(pItem, paNewItems)
 			This.ReplaceByManyXT(pItem, paNewItems)
 
+	# Replaces the items at the given positions by the new items, one by one, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        ReplaceItemAtPositionsByMany
 	def ReplaceOccurrencesByMany(panPos, paNewItems)
 		_o_ = new stzListReplacer(This)
 		_o_.ReplaceOccurrencesByMany(panPos, paNewItems)
@@ -1394,6 +1923,11 @@ class stzList from stzObject
 		_o_.ReplaceOccurrencesByManyXT(panPos, paNewItems)
 		This._SetContent(_o_.Content())
 
+	# Replaces the given item, where it stands at the given positions, by the new items, in place.
+	#
+	#   pItem      the item that must stand at each position
+	#   returns    nothing; the list changes
+	#   see        ReplaceItemAtPositions
 	def ReplaceItemAtPositionsByMany(panPos, pItem, paNewItems)
 		_o_ = new stzListReplacer(This)
 		_o_.ReplaceItemAtPositionsByMany(panPos, pItem, paNewItems)
@@ -1404,6 +1938,10 @@ class stzList from stzObject
 		_o_.ReplaceItemAtPositionsByManyXT(panPos, pItem, paNewItems)
 		This._SetContent(_o_.Content())
 
+	# Replaces, at the given positions, the items that are among the given ones by the new items, one by one, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        ReplaceOccurrencesByMany
 	def ReplaceTheseItemsAtPositionsByMany(panPos, paItems, paNewItems)
 		_o_ = new stzListReplacer(This)
 		_o_.ReplaceTheseItemsAtPositionsByMany(panPos, paItems, paNewItems)
@@ -1414,11 +1952,19 @@ class stzList from stzObject
 		_o_.ReplaceTheseItemsAtPositionsByManyXT(panPos, paItems, paNewItems)
 		This._SetContent(_o_.Content())
 
+	# Replaces the items at the given positions by the new items, one by one, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        ReplaceOccurrencesByMany
 	def ReplaceAnyItemAtPositionsByMany(panPos, paNewItems)
 		_o_ = new stzListReplacer(This)
 		_o_.ReplaceAnyItemAtPositionsByMany(panPos, paNewItems)
 		This._SetContent(_o_.Content())
 
+		# Replaces the items at the given positions by the new items, one by one, in place.
+		#
+		#   returns    nothing; the list changes
+		#   see        ReplaceOccurrencesByMany
 		def ReplaceAnyItemsAtPositionsByMany(panPos, paNewItems)
 			This.ReplaceAnyItemAtPositionsByMany(panPos, paNewItems)
 
@@ -1430,6 +1976,10 @@ class stzList from stzObject
 		def ReplaceAnyItemsAtPositionsByManyXT(panPos, paNewItems)
 			This.ReplaceAnyItemAtPositionsByManyXT(panPos, paNewItems)
 
+		# Replaces the items at the given positions by the new items, one by one, in place.
+		#
+		#   returns    nothing; the list changes
+		#   see        ReplaceOccurrencesByMany
 		def ReplaceAtByManyXT(panPos, paNewItems)
 			This.ReplaceAnyItemAtPositionsByManyXT(panPos, paNewItems)
 
@@ -1440,9 +1990,20 @@ class stzList from stzObject
 		_o_.ReplaceW(pWhere, pBy)
 		This._SetContent(_o_.Content())
 
+		# Replaces the items that meet the W condition by the new value, in place.
+		#
+		#   pWhere     the W condition
+		#   pBy        the value that takes their place
+		#   returns    nothing; the list changes
+		#   see        FindW
 		def ReplaceItemsW(pWhere, pBy)
 			This.ReplaceW(pWhere, pBy)
 
+	# Replaces the nth occurrence of the item after a given position by a new item, in place.
+	#
+	#   _n_        which occurrence, counted from the starting position
+	#   returns    nothing; the list changes
+	#   see        ReplaceNth
 	def ReplaceNextNthOccurrence(_n_, pItem, pNewItem, pnStartingAt)
 		_o_ = new stzListReplacer(This)
 		_o_.ReplaceNextNthOccurrence(_n_, pItem, pNewItem, pnStartingAt)
@@ -1451,6 +2012,11 @@ class stzList from stzObject
 		def ReplaceNextNthOccurrenceST(_n_, pItem, pNewItem, pnStartingAt)
 			This.ReplaceNextNthOccurrence(_n_, pItem, pNewItem, pnStartingAt)
 
+		# Replaces the nth occurrence of the item after a given position by a new item, in place.
+		#
+		#   _n_        which occurrence, counted from the starting position
+		#   returns    nothing; the list changes
+		#   see        ReplaceNextNthOccurrence
 		def ReplaceNthNextOccurrenceST(_n_, pItem, pNewItem, pnStartingAt)
 			This.ReplaceNextNthOccurrence(_n_, pItem, pNewItem, pnStartingAt)
 
@@ -1458,6 +2024,10 @@ class stzList from stzObject
 	 #  STRINGIFY DELEGATION (via stzListStringify) #
 	#=============================================#
 
+	# Turns every item into text, in place; a list item becomes its written form.
+	#
+	#   returns    nothing; the list changes
+	#   see        StringifyAndReplace
 	def Stringify()
 		_oStfy_ = new stzListStringify(This)
 		_oStfy_.Stringify()
@@ -1467,12 +2037,19 @@ class stzList from stzObject
 			This.Stringify()
 			return This
 
-	# ToListInAString: the content rendered as a "[ ... ]" string (computable
-	# form). Delegates to stzListStringify, like the rest of this section.
+	# Returns the list written as text in its computable form, such as "[ 1, 2 ]".
+	#
+	#   returns    a string
+	#   see        ToListInAStringInShortForm
+	#@ aka  ToListInAString: the content rendered as a "[ ... ]" string (computable form). Delegates to stzListStringify, like the rest of this section.
 	def ToListInAString()
 		_oTlasStfy_ = new stzListStringify(This)
 		return _oTlasStfy_.ToListInAString()
 
+	# Returns the list written as text in its short form.
+	#
+	#   returns    a string
+	#   see        ToListInAString
 	def ToListInAStringInShortForm()
 		_oTlsfStfy_ = new stzListStringify(This)
 		return _oTlsfStfy_.ToListInAStringInShortForm()
@@ -1480,13 +2057,13 @@ class stzList from stzObject
 		def ToListInShortForm()
 			return This.ToListInAStringInShortForm()
 
-	# StringifyAndReplace: Stringify the content, then replace every
-	# occurrence of pItem with the supplied value (pWith). pWith
-	# accepts the :With named-param form or a bare string.
-	# StringifyAndReplaceQ(item, with) returns This.
-	# XT variant is just an alias for the moment -- the original
-	# Softanza distinguished "internal-staff" semantics, but they
-	# collapse to the same engine path here.
+	# Turns every item into text, then replaces a text by another inside each, in place.
+	#
+	#   pSubStr    the text to replace
+	#   pWith      the text that takes its place
+	#   returns    nothing; the list changes
+	#   see        Stringify
+	#@ aka  StringifyAndReplace: Stringify the content, then replace every occurrence of pItem with the supplied value (pWith). pWith accepts the :With named-param form or a bare string. StringifyAndReplaceQ(item, with) returns This. XT variant is just an alias for the moment -- the original Softanza distinguished "internal-staff" semantics, but they collapse to the same engine path here.
 	def StringifyAndReplace(pSubStr, pWith)
 		# Stringify every item, then SUBSTRING-replace pSubStr with pWith in
 		# each (monolith semantics: the params are substrings, not whole
@@ -1517,9 +2094,11 @@ class stzList from stzObject
 			This.StringifyAndReplace(pItem, pWith)
 			return This
 
-	# StringifyLowercase / StringifyUppercase / StringifyAndLower /
-	# StringifyAndUpper -- Stringify then map case. Used by misc
-	# narrative tests that need a uniform-case string list.
+	# Turns every item into lowercase text, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        StringifyUppercase
+	#@ aka  StringifyLowercase / StringifyUppercase / StringifyAndLower / StringifyAndUpper -- Stringify then map case. Used by misc narrative tests that need a uniform-case string list.
 	def StringifyLowercase()
 		This.Stringify()
 		_aData_ = @aContent
@@ -1531,6 +2110,10 @@ class stzList from stzObject
 		next
 		This._SetContent(_aData_)
 
+		# Turns every item into lowercase text, in place.
+		#
+		#   returns    nothing; the list changes
+		#   see        StringifyAndUpper
 		def StringifyAndLower()
 			This.StringifyLowercase()
 
@@ -1538,6 +2121,10 @@ class stzList from stzObject
 			This.StringifyLowercase()
 			return This
 
+	# Turns every item into uppercase text, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        StringifyLowercase
 	def StringifyUppercase()
 		This.Stringify()
 		_aData_ = @aContent
@@ -1549,6 +2136,10 @@ class stzList from stzObject
 		next
 		This._SetContent(_aData_)
 
+		# Turns every item into uppercase text, in place.
+		#
+		#   returns    nothing; the list changes
+		#   see        StringifyAndLower
 		def StringifyAndUpper()
 			This.StringifyUppercase()
 
@@ -1556,9 +2147,12 @@ class stzList from stzObject
 			This.StringifyUppercase()
 			return This
 
-	# StringifyLowercaseAndReplace / StringifyUppercaseAndReplace --
-	# stringify + lower (or upper) every string item, THEN replace
-	# every occurrence of pItem with pWith. XT variant is alias.
+	# Turns every item into lowercase text, then replaces a text by another inside each, in place.
+	#
+	#   pWith      the text that takes its place
+	#   returns    nothing; the list changes
+	#   see        StringifyAndReplace
+	#@ aka  StringifyLowercaseAndReplace / StringifyUppercaseAndReplace -- stringify + lower (or upper) every string item, THEN replace every occurrence of pItem with pWith. XT variant is alias.
 	def StringifyLowercaseAndReplace(pItem, pWith)
 		if isList(pWith) and len(pWith) = 2 and isString(pWith[1])
 			pWith = pWith[2]
@@ -1584,6 +2178,11 @@ class stzList from stzObject
 			This.StringifyLowercaseAndReplace(pItem, pWith)
 			return This
 
+	# Turns every item into uppercase text, then replaces a text by another inside each, in place.
+	#
+	#   pWith      the text that takes its place
+	#   returns    nothing; the list changes
+	#   see        StringifyLowercaseAndReplace
 	def StringifyUppercaseAndReplace(pItem, pWith)
 		if isList(pWith) and len(pWith) = 2 and isString(pWith[1])
 			pWith = pWith[2]
@@ -1629,6 +2228,12 @@ class stzList from stzObject
 	def ContainsOneOfThese(paItems)
 		return This.ContainsOneOfTheseCS(paItems, 1)
 
+		# TRUE if at least one of the two given items occurs.
+		#
+		#   pItem1     the first item
+		#   pItem2     the second item
+		#   returns    TRUE or FALSE
+		#   see        ContainsBoth
 		def ContainsEither(pItem1, pItem2)
 			# XOR: TRUE when EXACTLY ONE of the two items is present
 			# (:or names the second). For "contains any of a list", use
@@ -1651,6 +2256,10 @@ class stzList from stzObject
 		_oCmpAll_ = new stzListComparator(This)
 		return _oCmpAll_.ContainsAllOfTheseCS(paItems, pCaseSensitive)
 
+	# TRUE if every one of the given items occurs in the list.
+	#
+	#   returns    TRUE or FALSE
+	#   see        ContainsEach, ContainsThese
 	def ContainsAllOfThese(paItems)
 		return This.ContainsAllOfTheseCS(paItems, 1)
 
@@ -1658,6 +2267,10 @@ class stzList from stzObject
 	 #  CHECKER DELEGATIONS (via stzListChecker)       #
 	#================================================#
 
+	# TRUE if every item is of the given type, such as "number".
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsListOf
 	def AllItemsAreOfType(pcType)
 		_oChkType_ = new stzListChecker(This)
 		return _oChkType_.AllItemsAreOfType(pcType)
@@ -1668,6 +2281,10 @@ class stzList from stzObject
 		def EachItemIs(pcType)
 			return This.AllItemsAreOfType(pcType)
 
+	# TRUE if some item is an empty string.
+	#
+	#   returns    TRUE or FALSE
+	#   see        FindEmptyStrings
 	def ContainsEmptyStrings()
 		_aEsContent_ = @aContent
 		_nEsLen_ = len(_aEsContent_)
@@ -1678,6 +2295,10 @@ class stzList from stzObject
 		next
 		return 0
 
+	# Returns the positions of the items that are empty strings.
+	#
+	#   returns    a list of positions
+	#   see        ContainsEmptyStrings
 	def FindEmptyStrings()
 		_pFesList_ = This._EngineListFromContent()
 		if _pFesList_ = ""
@@ -1692,6 +2313,10 @@ class stzList from stzObject
 		StzEngineListFree(_pFesResult_)
 		return _aFesOut_
 
+	# Returns how many items are empty strings.
+	#
+	#   returns    a number
+	#   see        FindEmptyStrings
 	def CountEmptyStrings()
 		_pCesList_ = This._EngineListFromContent()
 		if _pCesList_ = ""
@@ -1701,6 +2326,10 @@ class stzList from stzObject
 		StzEngineListFree(_pCesList_)
 		return _nCesCount_
 
+	# Replaces every empty string by a new item, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        RemoveEmptyStrings
 	def ReplaceEmptyStrings(pNewItem)
 		if CheckParams()
 			if isList(pNewItem) and len(pNewItem) = 2 and
@@ -1718,6 +2347,10 @@ class stzList from stzObject
 		next
 		This._SetContent(_aResContent_)
 
+	# Removes the items that are empty strings, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        ContainsEmptyStrings
 	def RemoveEmptyStrings()
 		_anRmesPos_ = This.FindEmptyStrings()
 		_nRmesLen_ = len(_anRmesPos_)
@@ -1826,7 +2459,11 @@ class stzList from stzObject
 			This.SortCS(pCaseSensitive)
 			return This
 
-	#-- Sort by a key expression (engine-backed via the W DSL).
+	# Sorts the items by a key expression, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        SortInAscending
+	#@ aka  -- Sort by a key expression (engine-backed via the W DSL).
 	def SortBy(pcExpr)
 		pcExpr = _StzStripBraces(pcExpr)
 		_pList_ = This._Engine()
@@ -1837,20 +2474,32 @@ class stzList from stzObject
 			This.SortBy(pcExpr)
 			return This
 
-	# Sort the items by the given expression, descending (mutating).
+	# Sorts the items by the key expression, from the greatest to the least, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        SortBy
+	#@ aka  Sort the items by the given expression, descending (mutating).
 	def SortByDescending(pcExpr)
 		pcExpr = _StzStripBraces(pcExpr)
 		_pList_ = This._Engine()
 		StzEngineListSortByExpr(_pList_, pcExpr, 0)
 		This._RefreshFromEngine()
 
-	#-- non-mutating: return the sorted-by-key copy
+	# Returns a copy sorted by the key expression; the list is unchanged.
+	#
+	#   returns    a list of items
+	#   see        SortBy
+	#@ aka  -- non-mutating: return the sorted-by-key copy
 	def SortedBy(pcExpr)
 		_oSb_ = new stzList(This.Content())
 		_oSb_.SortBy(pcExpr)
 		return _oSb_.Content()
 
-	# Same as Sort: ascending, in place (mutating).
+	# Sorts the items from the least to the greatest, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        SortDown
+	#@ aka  Same as Sort: ascending, in place (mutating).
 	def SortUp()
 		This.Sort()
 
@@ -1858,7 +2507,11 @@ class stzList from stzObject
 			This.Sort()
 			return This
 
-	# Same as SortInDescending: descending, in place (mutating).
+	# Sorts the items from the greatest to the least, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        SortInDescending, SortUp
+	#@ aka  Same as SortInDescending: descending, in place (mutating).
 	def SortDown()
 		This.SortInDescending()
 
@@ -1899,6 +2552,10 @@ class stzList from stzObject
 			This.Sort()
 			return This
 
+		# Sorts the items from the least to the greatest, in place.
+		#
+		#   returns    nothing; the list changes
+		#   see        SortUp
 		def SortAscending()
 			This.Sort()
 
@@ -2034,7 +2691,12 @@ class stzList from stzObject
 		def ItemsSortedInAscending()
 			return This.SortedInAscending()
 
-	# Every item except those equal to p (p may be a single item).
+	# Returns every item except those equal to the given one.
+	#
+	#   p          the item to leave out
+	#   returns    a list of items
+	#   see        RemoveAll
+	#@ aka  Every item except those equal to p (p may be a single item).
 	def AllItemsExcept(p)
 		_aResult_ = []
 		_nLen_ = len(@aContent)
@@ -2050,7 +2712,12 @@ class stzList from stzObject
 		def ItemsExcept(p)
 			return This.AllItemsExcept(p)
 
-	# First n items (clamped to the list length; n<=0 -> empty).
+	# Returns the first n items, or the whole list when n is larger.
+	#
+	#   _n_        how many items
+	#   returns    a list of items
+	#   see        LastNItems
+	#@ aka  First n items (clamped to the list length; n<=0 -> empty).
 	def FirstNItems(_n_)
 		if NOT isNumber(_n_) or _n_ <= 0
 			return []
@@ -2064,7 +2731,11 @@ class stzList from stzObject
 		next
 		return _aResult_
 
-	# Max nesting depth (a flat list is 1 level).
+	# Returns the depth of nesting; a flat list has one level.
+	#
+	#   returns    a number
+	#   see        Paths
+	#@ aka  Max nesting depth (a flat list is 1 level).
 	def NumberOfLevels()
 		return This._DepthOf(@aContent)
 
@@ -2084,7 +2755,11 @@ class stzList from stzObject
 		next
 		return _nMax_
 
-	# TRUE if any two adjacent items are equal.
+	# TRUE if two adjacent items are equal.
+	#
+	#   returns    TRUE or FALSE
+	#   see        FindDupSecutiveItems
+	#@ aka  TRUE if any two adjacent items are equal.
 	def ContainsDupSecutiveItems()
 		_nLen_ = len(@aContent)
 		for _i_ = 2 to _nLen_
@@ -2097,7 +2772,11 @@ class stzList from stzObject
 		def ContainsConsecutiveDuplicates()
 			return This.ContainsDupSecutiveItems()
 
-	# A fresh copy with every occurrence of any item in paItems removed.
+	# Returns a copy without any occurrence of the given items; the list is unchanged.
+	#
+	#   returns    a list of items
+	#   see        ItemRemoved
+	#@ aka  A fresh copy with every occurrence of any item in paItems removed.
 	def ManyRemoved(paItems)
 		if NOT isList(paItems)
 			paItems = [ paItems ]
@@ -2119,8 +2798,11 @@ class stzList from stzObject
 		next
 		return _aResult_
 
-	# TRUE if this list's items appear inside paOther in the same relative
-	# order (i.e. this list is an order-preserving subsequence of paOther).
+	# TRUE if the items appear in the other list in the same relative order.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsReverseOf
+	#@ aka  TRUE if this list's items appear inside paOther in the same relative order (i.e. this list is an order-preserving subsequence of paOther).
 	def ItemsHaveSameOrderAs(paOther)
 		if NOT isList(paOther)
 			return 0
@@ -2350,6 +3032,10 @@ class stzList from stzObject
 	def NumberOfDuplicatedItemsCS(pCaseSensitive)
 		return len(This.DuplicatedItemsCS(pCaseSensitive))
 
+	# Returns how many distinct items occur more than once.
+	#
+	#   returns    a number
+	#   see        NumberOfNonDuplicatedItems
 	def NumberOfDuplicatedItems()
 		return This.NumberOfDuplicatedItemsCS(1)
 
@@ -2433,6 +3119,10 @@ class stzList from stzObject
 		def DuplicatesZ()
 			return This.DuplicatesCSZ(1)
 
+		# Returns each duplicated item with the positions of its repeats.
+		#
+		#   returns    a list of [ item, positions ] pairs
+		#   see        DuplicatesZ
 		def DuplicateItemsZ()
 			return This.DuplicatesCSZ(1)
 
@@ -2442,10 +3132,12 @@ class stzList from stzObject
 		def DuplicatedItemsZ()
 			return This.DuplicatesCSZ(1)
 
-	# FindNextNthItem(n, :StartingAt = pos): the POSITION of the n-th item
-	# AFTER pos (pos+n). Find* returns the position (0 if out of range);
-	# the NextNthItem accessor returns the item there. :StartingAt accepts
-	# the bare integer or the named-param form.
+	# Returns the position n places after a given position.
+	#
+	#   _n_        how many places to move forward
+	#   returns    a number
+	#   see        FindPreviousNthItem
+	#@ aka  FindNextNthItem(n, :StartingAt = pos): the POSITION of the n-th item AFTER pos (pos+n). Find* returns the position (0 if out of range); the NextNthItem accessor returns the item there. :StartingAt accepts the bare integer or the named-param form.
 	def FindNextNthItem(_n_, pnStartingAt)
 		if isList(pnStartingAt) and len(pnStartingAt) = 2
 			pnStartingAt = pnStartingAt[2]
@@ -2456,14 +3148,23 @@ class stzList from stzObject
 		ok
 		return _nIdx_
 
-		# The nth item after the given position.
+		# Returns the nth item after a given position.
+		#
+		#   _n_        how many places to move forward
+		#   returns    the item
+		#   see        PreviousNthItem
+		#@ aka  The nth item after the given position.
 		def NextNthItem(_n_, pnStartingAt)
 			_nP_ = This.FindNextNthItem(_n_, pnStartingAt)
 			if _nP_ = 0 return "" ok
 			return This.Content()[_nP_]
 
-	# FindPreviousNthItem(n, :StartingAt = pos): the POSITION of the n-th
-	# item counting BACK from pos inclusive (pos-n+1).
+	# Returns the position n places back from a given position, that position included in the count.
+	#
+	#   _n_        how many places to move back
+	#   returns    a number
+	#   see        FindNextNthItem
+	#@ aka  FindPreviousNthItem(n, :StartingAt = pos): the POSITION of the n-th item counting BACK from pos inclusive (pos-n+1).
 	def FindPreviousNthItem(_n_, pnStartingAt)
 		if isList(pnStartingAt) and len(pnStartingAt) = 2
 			pnStartingAt = pnStartingAt[2]
@@ -2474,7 +3175,12 @@ class stzList from stzObject
 		ok
 		return _nIdx_
 
-		# The nth item before the given position.
+		# Returns the nth item before a given position.
+		#
+		#   _n_        how many places to move back
+		#   returns    the item
+		#   see        NextNthItem
+		#@ aka  The nth item before the given position.
 		def PreviousNthItem(_n_, pnStartingAt)
 			_nP_ = This.FindPreviousNthItem(_n_, pnStartingAt)
 			if _nP_ = 0 return "" ok
@@ -2507,12 +3213,21 @@ class stzList from stzObject
 		next
 		return _anFdosRes_
 
+	# Returns the positions of the repeats of a string item.
+	#
+	#   pItem      the string to look for
+	#   returns    a list of positions
+	#   see        FindDuplicates
 	def FindDuplicatesOfString(pItem)
 		return This.FindDuplicatesOfStringCS(pItem, 1)
 
 		def FindDuplicatesOfItemCS(pItem, pCaseSensitive)
 			return This.FindDuplicatesOfStringCS(pItem, pCaseSensitive)
 
+		# Returns the positions of the repeats of the item, leaving out its first occurrence.
+		#
+		#   returns    a list of positions
+		#   see        FindDuplicationsOf
 		def FindDuplicatesOfItem(pItem)
 			return This.FindDuplicatesOfStringCS(pItem, 1)
 
@@ -2524,33 +3239,61 @@ class stzList from stzObject
 		ok
 		return This.FindDuplicatesOfStringCS(pItem, pCaseSensitive)
 
+		# Returns the positions of the repeats of the item, leaving out its first occurrence.
+		#
+		#   returns    a list of positions
+		#   see        FindDuplicationsOf
 		def FindDuplicationsOfItem(pItem)
 			return This.FindDuplicatesOfStringCS(pItem, 1)
 
+		# Returns the positions of the repeats of the item, leaving out its first occurrence.
+		#
+		#   returns    a list of positions
+		#   see        FindDuplicationsOfItem
 		def FindDuplicationsOf(pItem)
 			return This.FindDuplicatesOfStringCS(pItem, 1)
 
 	def NumberOfDuplicatesOfStringCS(pItem, pCaseSensitive)
 		return len(This.FindDuplicatesOfStringCS(pItem, pCaseSensitive))
 
+	# Returns how many repeats of the string occur beyond its first occurrence.
+	#
+	#   pItem      the string to count
+	#   returns    a number
+	#   see        FindDuplicatesOfString
 	def NumberOfDuplicatesOfString(pItem)
 		return This.NumberOfDuplicatesOfStringCS(pItem, 1)
 
 		def NumberOfDuplicatesOfItemCS(pItem, pCaseSensitive)
 			return This.NumberOfDuplicatesOfStringCS(pItem, pCaseSensitive)
 
+		# Returns how many repeats of the item occur beyond its first occurrence.
+		#
+		#   returns    a number
+		#   see        FindDuplicatesOfItem
 		def NumberOfDuplicatesOfItem(pItem)
 			return This.NumberOfDuplicatesOfStringCS(pItem, 1)
 
 	def StringIsDuplicatedNTimesCS(pItem, _n_, pCaseSensitive)
 		return This.NumberOfDuplicatesOfStringCS(pItem, pCaseSensitive) = _n_
 
+	# TRUE if the string repeats exactly n times after its first occurrence.
+	#
+	#   pItem      the string to count
+	#   _n_        how many repeats
+	#   returns    TRUE or FALSE
+	#   see        FindDuplicatedString
 	def StringIsDuplicatedNTimes(pItem, _n_)
 		return This.StringIsDuplicatedNTimesCS(pItem, _n_, 1)
 
 		def ItemIsDuplicatedNTimesCS(pItem, _n_, pCaseSensitive)
 			return This.StringIsDuplicatedNTimesCS(pItem, _n_, pCaseSensitive)
 
+		# TRUE if the item repeats exactly n times after its first occurrence.
+		#
+		#   _n_        how many repeats
+		#   returns    TRUE or FALSE
+		#   see        NumberOfDuplicatesOfItem
 		def ItemIsDuplicatedNTimes(pItem, _n_)
 			return This.StringIsDuplicatedNTimesCS(pItem, _n_, 1)
 
@@ -2561,24 +3304,42 @@ class stzList from stzObject
 		if len(_anFdsAll_) <= 1 return [] ok
 		return _anFdsAll_
 
+	# Returns the positions of every occurrence of a string that occurs more than once.
+	#
+	#   pItem      the string to look for
+	#   returns    a list of positions
+	#   see        FindDuplicatesOfString
 	def FindDuplicatedString(pItem)
 		return This.FindDuplicatedStringCS(pItem, 1)
 
 		def FindDuplicatedItemCS(pItem, pCaseSensitive)
 			return This.FindDuplicatedStringCS(pItem, pCaseSensitive)
 
+		# Returns the positions of every occurrence of an item that occurs more than once.
+		#
+		#   returns    a list of positions
+		#   see        FindDuplicationsOf
 		def FindDuplicatedItem(pItem)
 			return This.FindDuplicatedStringCS(pItem, 1)
 
 	def ContainsDuplicatedStringCS(pItem, pCaseSensitive)
 		return len(This.FindAllCS(pItem, pCaseSensitive)) > 1
 
+	# TRUE if the string occurs more than once.
+	#
+	#   pItem      the string to look for
+	#   returns    TRUE or FALSE
+	#   see        FindDuplicatedString
 	def ContainsDuplicatedString(pItem)
 		return This.ContainsDuplicatedStringCS(pItem, 1)
 
 		def ContainsDuplicatedItemCS(pItem, pCaseSensitive)
 			return This.ContainsDuplicatedStringCS(pItem, pCaseSensitive)
 
+		# TRUE if the item occurs more than once.
+		#
+		#   returns    TRUE or FALSE
+		#   see        FindDuplicatedItem
 		def ContainsDuplicatedItem(pItem)
 			return This.ContainsDuplicatedStringCS(pItem, 1)
 
@@ -2592,6 +3353,10 @@ class stzList from stzObject
 	def NumberOfDuplicatedStringsCS(pCaseSensitive)
 		return len(This.DuplicatesCS(pCaseSensitive))
 
+	# Returns how many distinct strings occur more than once.
+	#
+	#   returns    a number
+	#   see        NumberOfDuplicatedItems
 	def NumberOfDuplicatedStrings()
 		return len(This.Duplicates())
 
@@ -2635,6 +3400,11 @@ class stzList from stzObject
 		end
 		return _anFsbR_
 
+	# Returns the positions where the given sublist starts.
+	#
+	#   paSubList   the run of items to look for
+	#   returns     a list of positions
+	#   see         ContainsSubList
 	def FindSubList(paSubList)
 		return This.FindSubListCS(paSubList, 1)
 
@@ -2649,14 +3419,19 @@ class stzList from stzObject
 	def ContainsSubListCS(paSubList, pCaseSensitive)
 		return len(This.FindSubListCS(paSubList, pCaseSensitive)) > 0
 
+	# TRUE if the given run of items occurs in the list.
+	#
+	#   paSubList   the run of items to look for
+	#   returns     TRUE or FALSE
+	#   see         FindSubList
 	def ContainsSubList(paSubList)
 		return This.ContainsSubListCS(paSubList, 1)
 
-	#-- Merge: flatten ONE level only. For each item: if it's a list,
-	#   spread its items; otherwise keep as-is. Distinct from
-	#   Flatten() which fully recurses. Port from archive line 37074;
-	#   used by stzHashList.Items() to coalesce list-of-lists values.
-
+	# Flattens the list by one level, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        Merged, Flatten
+	#@ aka  -- Merge: flatten ONE level only. For each item: if it's a list, spread its items; otherwise keep as-is. Distinct from Flatten() which fully recurses. Port from archive line 37074; used by stzHashList.Items() to coalesce list-of-lists values.
 	def Merge()
 		_pList_ = This._Engine()
 		pRes = StzEngineListFlattenToDepth(_pList_, 1)		#-- one-level flatten
@@ -2666,16 +3441,22 @@ class stzList from stzObject
 			This.Merge()
 			return This
 
-	# A copy flattened by ONE level: sublists spread out, other items
-	# kept as they are.
+	# Returns a copy flattened by one level; the list is unchanged.
+	#
+	#   returns    a list of items
+	#   see        Merge, Flattened
+	#@ aka  A copy flattened by ONE level: sublists spread out, other items kept as they are.
 	def Merged()
 		_oMdTmp_ = new stzList(@aContent)
 		_oMdTmp_.Merge()
 		return _oMdTmp_.Content()
 
+	# Flattens a nested list to a single level, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        Flattened, Merge
 	#@ aka  unnest, merge levels, single level, ungroup, collapse nesting
-	# Flatten the nested list to a single level in place (mutating).
-	# For a copy, use Flattened.
+	#@ aka  Flatten the nested list to a single level in place (mutating). For a copy, use Flattened.
 	def Flatten()
 		_pList_ = This._Engine()
 		if _pList_ = "" return ok
@@ -2945,6 +3726,10 @@ class stzList from stzObject
 
 		return _result_
 
+	# Reduces the items to one value with an expression, starting from the first item instead of an initial value.
+	#
+	#   returns    the reduced value
+	#   see        Reduce
 	def ReduceNoInit(pcExpr)
 		_pList_ = This._Engine()
 		if _pList_ = "" return 0 ok
@@ -2980,7 +3765,10 @@ class stzList from stzObject
 	 #  SORTING ORDER CHECK                      #
 	#-------------------------------------------#
 
-	# TRUE if the items are sorted, ascending OR descending.
+	# TRUE if the items are sorted, ascending or descending.
+	#
+	#   returns    TRUE or FALSE
+	#   see        SortingOrder
 	def IsSorted()
 		return This.IsSortedInAscending() or This.IsSortedInDescending()
 
@@ -3021,16 +3809,19 @@ class stzList from stzObject
 	def SortingOrder()
 		return _ListSortingOrder(@aContent)
 
-	# TRUE if the given list is sorted the same way as this one.
+	# TRUE if both lists are sorted the same way, ascending or descending.
+	#
+	#   returns    TRUE or FALSE
+	#   see        SortingOrder
+	#@ aka  TRUE if the given list is sorted the same way as this one.
 	def HasSameSortingOrderAs(paOther)
 		return This.SortingOrder() = _ListSortingOrder(paOther)
 
-	# HasSameContentAs: order-independent equality check. Two lists
-	# have the same content iff each is a permutation of the other
-	# -- same length, and every item in A appears (with the same
-	# multiplicity) in B. Walk-and-mark, O(N*M) -- fine for narrative
-	# test sizes; lift to a hash-based approach when called on large
-	# lists in real code paths.
+	# TRUE if both lists hold the same items, in any order.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsEqualTo
+	#@ aka  HasSameContentAs: order-independent equality check. Two lists have the same content iff each is a permutation of the other -- same length, and every item in A appears (with the same multiplicity) in B. Walk-and-mark, O(N*M) -- fine for narrative test sizes; lift to a hash-based approach when called on large lists in real code paths.
 	def HasSameContentAs(paOther)
 		if NOT isList(paOther)
 			return 0
@@ -3076,7 +3867,11 @@ class stzList from stzObject
 	 #  TYPE-CHECKING METHODS                    #
 	#-------------------------------------------#
 
-	# TRUE if every item is a [key, value] pair (a hash list).
+	# TRUE if every item is a [ key, value ] pair.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Pairs
+	#@ aka  TRUE if every item is a [key, value] pair (a hash list).
 	def IsHashList()
 		# One implementation, in the global (stzHashList.ring): same shape
 		# check, but the key-uniqueness scan goes to the engine once the
@@ -3088,13 +3883,19 @@ class stzList from stzObject
 		def IsAHashList()
 			return This.IsHashList()
 
-		# TRUE if the list is NOT a hash list.
+		# TRUE if some item is not a [ key, value ] pair.
+		#
+		#   returns    TRUE or FALSE
+		#   see        IsHashList
+		#@ aka  TRUE if the list is NOT a hash list.
 		def IsNotHashList()
 			return NOT This.IsHashList()
 
-	#-- ToStzHashList: view this list (a hashlist / list of [key,value] pairs,
-	#   e.g. [ :a = 1, :b = 2 ]) as a stzHashList, so you can chain KeysQ(),
-	#   ValuesQ(), etc. The stzHashList ctor normalizes a list of pairs.
+	# Views the list as a stzHashList, reading each item as a [ key, value ] pair.
+	#
+	#   returns    a stzHashList
+	#   see        ToStzTable
+	#@ aka  -- ToStzHashList: view this list (a hashlist / list of [key,value] pairs, e.g. [ :a = 1, :b = 2 ]) as a stzHashList, so you can chain KeysQ(), ValuesQ(), etc. The stzHashList ctor normalizes a list of pairs.
 	def ToStzHashList()
 		return new stzHashList(This.Content())
 
@@ -3105,13 +3906,20 @@ class stzList from stzObject
 			return This.ToStzHashList()
 
 	# TRUE if the list holds exactly two items.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsSingle
 	def IsPair()
 		return len(@aContent) = 2
 
 		def IsAPair()
 			return This.IsPair()
 
-	# TRUE if the list is non-empty and every item is a string.
+	# TRUE if the list is not empty and every item is a string.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsListOfNumbers
+	#@ aka  TRUE if the list is non-empty and every item is a string.
 	def IsListOfStrings()
 		if len(@aContent) = 0 return 0 ok   # empty is NOT a list-of-strings (monolith semantics)
 		_pList_ = This._EngineListFromContent()
@@ -3187,7 +3995,11 @@ class stzList from stzObject
 		def AllItemsAreLowercase()
 			return This.IsLowercase()
 
-	# TRUE if the list is non-empty and every item is a number.
+	# TRUE if the list is not empty and every item is a number.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsListOfStrings
+	#@ aka  TRUE if the list is non-empty and every item is a number.
 	def IsListOfNumbers()
 		if len(@aContent) = 0 return 0 ok   # empty is NOT a list-of-numbers (monolith semantics)
 		_pList_ = This._EngineListFromContent()
@@ -3198,15 +4010,23 @@ class stzList from stzObject
 		def IsAListOfNumbers()
 			return This.IsListOfNumbers()
 
-	# TRUE if every item is a single char.
+	# TRUE if every item is a single character.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsListOfStrings
+	#@ aka  TRUE if every item is a single char.
 	def IsListOfChars()
 		return @IsListOfChars(@aContent)
 
 		def IsAListOfChars()
 			return This.IsListOfChars()
 
-	# Polymorphic membership test: IsListOf(:Numbers/:Strings/:Chars/
-	# :Lists/:StzNumbers/:StzStrings/:ListsOfNumbers/:PairsOfNumbers).
+	# TRUE if every item is of the given kind, such as :Numbers or :Strings.
+	#
+	#   pType      the kind, as a symbol or a text
+	#   returns    TRUE or FALSE
+	#   see        IsListOfNumbers, IsListOfStrings
+	#@ aka  Polymorphic membership test: IsListOf(:Numbers/:Strings/:Chars/ :Lists/:StzNumbers/:StzStrings/:ListsOfNumbers/:PairsOfNumbers).
 	def IsListOf(pType)
 		_cType_ = StzLower("" + pType)
 		switch _cType_
@@ -3323,7 +4143,11 @@ class stzList from stzObject
 		next
 		return 1
 
-	# TRUE if every item is a list (vacuously TRUE when empty).
+	# TRUE if every item is a list; an empty list counts as TRUE.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsListOfStrings
+	#@ aka  TRUE if every item is a list (vacuously TRUE when empty).
 	def IsListOfLists()
 		if len(@aContent) = 0 return 1 ok		#-- vacuously true (engine returns 0 on empty)
 		_pList_ = This._EngineListFromContent()
@@ -3340,8 +4164,11 @@ class stzList from stzObject
 		def ContainsOnlyLists()
 			return This.IsListOfLists()
 
-	# IsListOfListsOfNumbers: each top-level item must be a list,
-	# and each inner item must be a number.
+	# TRUE if every item is a list and every item of those lists is a number.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsListOfNumbers
+	#@ aka  IsListOfListsOfNumbers: each top-level item must be a list, and each inner item must be a number.
 	def IsListOfListsOfNumbers()
 		_nIllonLen_ = len(@aContent)
 		if _nIllonLen_ = 0
@@ -3363,7 +4190,11 @@ class stzList from stzObject
 		def IsAListOfListsOfNumbers()
 			return This.IsListOfListsOfNumbers()
 
-	# TRUE if every item is a list and all the sublists have the same size.
+	# TRUE if every item is a list and all those lists have the same size.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsListOfLists
+	#@ aka  TRUE if every item is a list and all the sublists have the same size.
 	def IsListOfListsOfSameSize()
 		_pList_ = This._EngineListFromContent()
 		_nResult_ = StzEngineListIsAllListsSameSize(_pList_)
@@ -3376,7 +4207,11 @@ class stzList from stzObject
 		def AllItemsAreListsOfSameSize()
 			return This.IsListOfListsOfSameSize()
 
-	# TRUE if the list is exactly a pair of two numbers.
+	# TRUE if the list holds exactly two items and both are numbers.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsPairOfStrings
+	#@ aka  TRUE if the list is exactly a pair of two numbers.
 	def IsPairOfNumbers()
 		if len(@aContent) = 2 and isNumber(@aContent[1]) and isNumber(@aContent[2])
 			return 1
@@ -3387,7 +4222,11 @@ class stzList from stzObject
 		def IsAPairOfNumbers()
 			return This.IsPairOfNumbers()
 
-	# TRUE if every item is a pair (vacuously TRUE when empty).
+	# TRUE if every item is a pair; an empty list counts as TRUE.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsPair
+	#@ aka  TRUE if every item is a pair (vacuously TRUE when empty).
 	def IsListOfPairs()
 		if len(@aContent) = 0 return 1 ok		#-- vacuously true (engine returns 0 on empty)
 		_pList_ = This._EngineListFromContent()
@@ -3398,8 +4237,10 @@ class stzList from stzObject
 		def IsAListOfPairs()
 			return This.IsListOfPairs()
 
-	# True iff the list of numbers is sorted ascending with consecutive
-	# values (e.g. [3,4,5] -> TRUE, [3,5,6] -> FALSE).
+	# TRUE if the items are numbers in ascending order that follow each other, such as [ 3, 4, 5 ].
+	#
+	#   returns    TRUE or FALSE
+	#@ aka  True iff the list of numbers is sorted ascending with consecutive values (e.g. [3,4,5] -> TRUE, [3,5,6] -> FALSE).
 	def IsContiguous()
 		_nLen_ = len(@aContent)
 		if _nLen_ < 2
@@ -3421,6 +4262,9 @@ class stzList from stzObject
 			return This.IsContiguous()
 
 	# TRUE if every item is a pair of numbers.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsListOfPairs
 	def IsListOfPairsOfNumbers()
 		_nLen_ = len(@aContent)
 		for _i_ = 1 to _nLen_
@@ -3435,6 +4279,9 @@ class stzList from stzObject
 			return This.IsListOfPairsOfNumbers()
 
 	# TRUE if every item is a pair of strings.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsListOfPairs
 	def IsListOfPairsOfStrings()
 		_nLen_ = len(@aContent)
 		for _i_ = 1 to _nLen_
@@ -3448,7 +4295,11 @@ class stzList from stzObject
 		def IsAListOfPairsOfStrings()
 			return This.IsListOfPairsOfStrings()
 
-	# TRUE if all the items are unique (the list is a set).
+	# TRUE if no item occurs twice, so that the list is a set.
+	#
+	#   returns    TRUE or FALSE
+	#   see        ContainsNoDuplicates
+	#@ aka  TRUE if all the items are unique (the list is a set).
 	def IsSet()
 		# Engine-backed: a set == all items unique. The engine's all-unique
 		# compares by content (UTF-8 + nested-list correct), so it matches
@@ -3645,8 +4496,12 @@ class stzList from stzObject
 		def RangeXTQ(pnStart, pnRange)
 			return new stzList(This.RangeXT(pnStart, pnRange))
 
-	  #-- InsertAt: insert an item at a given position
-
+	# Inserts the item before position n, in place.
+	#
+	#   _n_        the position to insert before
+	#   returns    nothing; the list changes
+	#   see        InsertBefore, AddItemAt
+	#@ aka  -- InsertAt: insert an item at a given position
 	def InsertAt(_n_, pItem)
 		if isList(_n_) and IsOneOfTheseNamedParamsList(_n_, [ :Position, :ItemAt, :ItemAtPosition ])
 			_n_ = _n_[2]
@@ -3672,8 +4527,12 @@ class stzList from stzObject
 			This.InsertAt(_n_, pItem)
 			return This
 
-	  #-- RemoveItemAtPosition: remove item at a specific position
-
+	# Removes the item at position n, in place.
+	#
+	#   _n_        the position to remove
+	#   returns    nothing; the list changes
+	#   see        RemoveNthItem
+	#@ aka  -- RemoveItemAtPosition: remove item at a specific position
 	def RemoveItemAtPosition(_n_)
 		if isString(_n_)
 			if StzFindFirst(_n_, [:First, :FirstPosition, :FirstItem]) > 0
@@ -3708,8 +4567,11 @@ class stzList from stzObject
 		def RemoveAt(_n_)
 			This.RemoveItemAtPosition(_n_)
 
-	  #-- RemoveItemsAtPositions: remove items at multiple positions
-
+	# Removes the items at the given positions, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        RemoveNthItem
+	#@ aka  -- RemoveItemsAtPositions: remove items at multiple positions
 	def RemoveItemsAtPositions(panPos)
 		if NOT isList(panPos)
 			StzRaise("Incorrect param type! panPos must be a list.")
@@ -3728,6 +4590,10 @@ class stzList from stzObject
 			This.RemoveItemsAtPositions(panPos)
 			return This
 
+		# Removes the items at the given positions, in place.
+		#
+		#   returns    nothing; the list changes
+		#   see        RemoveItemsAtPositions
 		def RemoveItemsAtThesePositions(panPos)
 			This.RemoveItemsAtPositions(panPos)
 
@@ -3844,8 +4710,11 @@ class stzList from stzObject
 			_StzHistoAdd(This.Content())
 			return This
 
-	# RemoveDuplicatedItems / Q: in-place dedup. Order-preserving:
-	# keeps the first occurrence of each unique value.
+	# Removes the later repeats of every item, keeping the first occurrence, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        UniqueItems
+	#@ aka  RemoveDuplicatedItems / Q: in-place dedup. Order-preserving: keeps the first occurrence of each unique value.
 	def RemoveDuplicatedItems()
 		_aSeen_ = []
 		_aOut_ = []
@@ -3870,8 +4739,11 @@ class stzList from stzObject
 			_StzHistoAdd(This.Content())
 			return This
 
-	# IsReverseOf(paOther): TRUE iff @aContent is the reverse of
-	# paOther (deep-equal item-by-item).
+	# TRUE if the list is the other list read backwards, item by item.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Reversed
+	#@ aka  IsReverseOf(paOther): TRUE iff @aContent is the reverse of paOther (deep-equal item-by-item).
 	def IsReverseOf(paOther)
 		if NOT isList(paOther) return 0 ok
 		_nLen_ = len(@aContent)
@@ -3883,9 +4755,11 @@ class stzList from stzObject
 		next
 		return 1
 
-	  #-- RemoveFirstItem / RemoveLastItem
-
-	# Remove the first item of the list (mutating).
+	# Removes the first item, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        RemoveLastItem, Pop
+	#@ aka  -- RemoveFirstItem / RemoveLastItem
 	def RemoveFirstItem()
 		This.RemoveItemAtPosition(1)
 
@@ -3893,6 +4767,10 @@ class stzList from stzObject
 			This.RemoveFirstItem()
 			return This
 
+	# Removes the last item, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        Pop
 	def RemoveLastItem()
 		This.RemoveItemAtPosition(This.NumberOfItems())
 
@@ -3900,6 +4778,10 @@ class stzList from stzObject
 			This.RemoveLastItem()
 			return This
 
+	# Removes the first and the last items, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        RemoveFirstItem
 	def RemoveFirstAndLastItems()
 		This.RemoveFirstItem()
 		This.RemoveLastItem()
@@ -3908,8 +4790,13 @@ class stzList from stzObject
 			This.RemoveFirstAndLastItems()
 			return This
 
-	  #-- RemoveRange: remove items from start for a count
-
+	# Removes a run of items from a position, in place; a negative count runs backwards.
+	#
+	#   _nStart_   the position of the first item to remove
+	#   nRange     how many items to remove
+	#   returns    nothing; the list changes
+	#   see        RemoveSection
+	#@ aka  -- RemoveRange: remove items from start for a count
 	def RemoveRange(_nStart_, nRange)
 		if nRange > 0
 			This.RemoveSection(_nStart_, _nStart_ + nRange - 1)
@@ -3920,9 +4807,11 @@ class stzList from stzObject
 			ok
 		ok
 
-	  #-- RemoveAllItems
-
-	# Empty the list (mutating).
+	# Empties the list, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        RemoveFirstItem
+	#@ aka  -- RemoveAllItems
 	def RemoveAllItems()
 		This.UpdateWith([])
 
@@ -4062,6 +4951,10 @@ class stzList from stzObject
 		def FindAll(pItem)
 			return This.FindAllOccurrencesCS(pItem, 1)
 
+		# Returns the positions of every occurrence of the item.
+		#
+		#   returns    a list of positions
+		#   see        FindItem
 		def FindAllOccurrences(pItem)
 			return This.FindAllOccurrencesCS(pItem, 1)
 
@@ -4086,12 +4979,22 @@ class stzList from stzObject
 		ok
 		return new stzList(_a_)
 
+	# Returns the last n items, or the whole list when n is larger.
+	#
+	#   _n_        how many items
+	#   returns    a list of items
+	#   see        FirstNItems
 	def LastNItems(_n_)
 		_o_ = This.LastNItemsQRT(_n_, :stzList)
 		if isObject(_o_) return _o_.List() ok
 		return _o_
 
-	# AddedToEach(n): add n to every numeric item; return a new list.
+	# Returns a copy where n is added to every number item; the list is unchanged.
+	#
+	#   _n_        the number to add
+	#   returns    a list of items
+	#   see        MultipliedByEach
+	#@ aka  AddedToEach(n): add n to every numeric item; return a new list.
 	def AddedToEach(_n_)
 		_l_ = This.List()
 		_nL_ = len(_l_)
@@ -4106,6 +5009,11 @@ class stzList from stzObject
 		next
 		return _aR_
 
+	# Adds n to every number item, in place.
+	#
+	#   _n_        the number to add
+	#   returns    nothing; the list changes
+	#   see        AddedToEach
 	def AddToEach(_n_)
 		_l_ = This.List()
 		_nL_ = len(_l_)
@@ -4117,8 +5025,11 @@ class stzList from stzObject
 	def LastNItemsQ(_n_)
 		return new stzList( This.LastNItems(_n_) )
 
-	# SectionsOfSameItems(): group consecutive equal items into runs.
-	# "AABBCCAA" -> [["A","A"], ["B","B"], ["C","C"], ["A","A"]]
+	# Returns each run of equal consecutive items as a list.
+	#
+	#   returns    a list of lists
+	#   see        RepeatedLeadingItems
+	#@ aka  SectionsOfSameItems(): group consecutive equal items into runs. "AABBCCAA" -> [["A","A"], ["B","B"], ["C","C"], ["A","A"]]
 	def SectionsOfSameItems()
 		# Groups the SAME items together across the whole list
 		# (first-seen order), not just adjacent runs:
@@ -4138,8 +5049,11 @@ class stzList from stzObject
 		next
 		return _aRes_
 
-	# FindInSections(pItem, aSections): absolute-position occurrences of
-	# pItem inside any of the given sections.
+	# Returns the positions of the item inside any of the given sections.
+	#
+	#   returns    a list of positions
+	#   see        FindItem
+	#@ aka  FindInSections(pItem, aSections): absolute-position occurrences of pItem inside any of the given sections.
 	def FindInSections(pItem, _aSections_)
 		_aRes_ = []
 		if NOT isList(_aSections_) return _aRes_ ok
@@ -4159,13 +5073,21 @@ class stzList from stzObject
 		next
 		return _aRes_
 
+	# Returns how many times the item occurs inside the given sections.
+	#
+	#   returns    a number
+	#   see        FindInSections
 	def CountInSections(pItem, _aSections_)
 		return len(This.FindInSections(pItem, _aSections_))
 
 	def NumberOfOccurrencesInSections(pItem, _aSections_)
 		return This.CountInSections(pItem, _aSections_)
 
-	# HexUnicodes(): hex code-points of every char of every string-item.
+	# Returns the hexadecimal code points of every character of every string item.
+	#
+	#   returns    a list of lists of code points, such as "U+0061"
+	#   see        StzUnicodes
+	#@ aka  HexUnicodes(): hex code-points of every char of every string-item.
 	def HexUnicodes()
 		_l_ = This.List()
 		_nL_ = len(_l_)
@@ -4238,10 +5160,13 @@ class stzList from stzObject
 		next
 		return _aU_
 
-	# PreviousNItems: two shapes --
-	#   PreviousNItems(n, :StartingAt/:StartingAtPosition = p): the n
-	#   items strictly BEFORE position p;
-	#   PreviousNItems(pcAnchor, n): the n items before the anchor item.
+	# Returns the n items that come before the first occurrence of the anchor item.
+	#
+	#   pcAnchor   the item to count back from
+	#   _n_        how many items
+	#   returns    a list of items
+	#   see        NextNItemsAfter
+	#@ aka  PreviousNItems: two shapes -- PreviousNItems(n, :StartingAt/:StartingAtPosition = p): the n items strictly BEFORE position p; PreviousNItems(pcAnchor, n): the n items before the anchor item.
 	def PreviousNItems(pcAnchor, _n_)
 		_l_ = This.List()
 		_nL_ = len(_l_)
@@ -4265,7 +5190,10 @@ class stzList from stzObject
 		next
 		return _aR_
 
-	# SpacesRemoved (non-mutating): every string item stripped of spaces.
+	# Returns a copy where every text item has its spaces removed; the list is unchanged.
+	#
+	#   returns    a list of items
+	#@ aka  SpacesRemoved (non-mutating): every string item stripped of spaces.
 	def SpacesRemoved()
 		_l_ = This.List()
 		_nL_ = len(_l_)
@@ -4287,9 +5215,11 @@ class stzList from stzObject
 	def WithoutSapces()
 		return This.SpacesRemoved()
 
-	# Substrongs/Substrinks (deliberate Softanza wordplay): the string
-	# items that CONTAIN another item of the list, and the ones that are
-	# CONTAINED IN another item (case-sensitive, engine-backed find).
+	# Returns the string items that contain another string item of the list.
+	#
+	#   returns    a list of strings
+	#   see        FindSubList
+	#@ aka  Substrongs/Substrinks (deliberate Softanza wordplay): the string items that CONTAIN another item of the list, and the ones that are CONTAINED IN another item (case-sensitive, engine-backed find).
 	def SubStrongs()
 		_aSbg_ = This.Content()
 		_nSbg_ = ring_len(_aSbg_)
@@ -4311,6 +5241,10 @@ class stzList from stzObject
 		next
 		return _aSbgRes_
 
+	# Returns the string items contained in another string item of the list.
+	#
+	#   returns    a list of strings
+	#   see        SubStrongs
 	def SubStrinks()
 		_aSbk_ = This.Content()
 		_nSbk_ = ring_len(_aSbk_)
@@ -4348,9 +5282,17 @@ class stzList from stzObject
 		next
 		return _c_
 
+	# Returns the scalar items joined into one string, with no separator.
+	#
+	#   returns    a string
+	#   see        Concatenated
 	def Concatenate()
 		return This.ConcatenateXT("")
 
+	# Returns the scalar items joined into one string, with no separator.
+	#
+	#   returns    a string
+	#   see        Concatenate
 	def Concatenated()
 		return This.ConcatenateXT("")
 
@@ -4481,6 +5423,10 @@ class stzList from stzObject
 			"() / Is" + pcSing + "() on the item. Answering 0 here would " +
 			"report an unanswerable question as a failed one.")
 
+	# Returns the positions of the items that are a single space.
+	#
+	#   returns    a list of positions
+	#   see        FindEmptyStrings
 	def FindSpaces()
 		_l_ = This.List()
 		_nL_ = len(_l_)
@@ -4490,35 +5436,39 @@ class stzList from stzObject
 		next
 		return _aR_
 
+	# Answers TRUE: the content is a list, not a string.
+	#
+	#   returns    TRUE
 	def IsNotAString()
 		return NOT isString(This.List())
 
+	# Answers FALSE: the content of a stzList is a list, not a string.
+	#
+	#   returns    FALSE
 	def IsAString()
 		return isString(This.List())
 
-	# A LIST SAYS SO. stzObject answers 0 to all three of IsANumber(),
-	# IsAString() and IsAList(), expecting each class to override the one
-	# that is true of it -- stzString and stzNumber do, and this class
-	# overrode IsAString (above) but never IsAList.
+	# Answers TRUE: the content of a stzList is a list.
 	#
-	# So a stzList answered "no" to being a list, and every `but IsAList()`
-	# arm in the library fell past it. stzObject.IsEither() has such an arm,
-	# followed by `but IsAnObject()` -- which a stzList IS -- so comparing
-	# two lists raised "Feature not implemented yet!" from a branch meant for
-	# something else entirely.
+	#   returns    TRUE
+	#   see        IsAString
+	#@ aka  A LIST SAYS SO. stzObject answers 0 to all three of IsANumber(), IsAString() and IsAList(), expecting each class to override the one that is true of it -- stzString and stzNumber do, and this class overrode IsAString (above) but never IsAList.
 	def IsAList()
 		return isList(This.List())
 
-	# SAME SHAPE, SAME OMISSION. stzObject.HasSameTypeAs(p) answers
-	# isObject(p), and each wrapper overrides it to test the type it WRAPS --
-	# stzNumber asks isNumber, stzString asks isString. stzList never asked
-	# isList, so comparing a stzList to a plain list said "different type",
-	# and IsStrictlyEqualTo() -- the conjunction of same type, same content
-	# and same order -- could never be true for the one comparison it exists
-	# to make.
+	# TRUE if the other value is a list too.
+	#
+	#   p          the value to compare with
+	#   returns    TRUE or FALSE
+	#   see        IsList
+	#@ aka  SAME SHAPE, SAME OMISSION. stzObject.HasSameTypeAs(p) answers isObject(p), and each wrapper overrides it to test the type it WRAPS -- stzNumber asks isNumber, stzString asks isString. stzList never asked isList, so comparing a stzList to a plain list said "different type", and IsStrictlyEqualTo() -- the conjunction of same type, same content and same order -- could never be true for the one compar
 	def HasSameTypeAs(p)
 		return isList(p)
 
+	# TRUE if the content is not in lowercase.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Lowercase
 	def IsNotInLowercase()
 		_l_ = This.List()
 		_nL_ = len(_l_)
@@ -4528,9 +5478,18 @@ class stzList from stzObject
 		next
 		return 0
 
+	# TRUE if every text item is in lowercase.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNotInLowercase
 	def IsInLowercase()
 		return NOT This.IsNotInLowercase()
 
+	# TRUE if the item does not occur in the list.
+	#
+	#   p          the item to look for
+	#   returns    TRUE or FALSE
+	#   see        Contains
 	def DoesNotContain(p)
 		_l_ = This.List()
 		_nL_ = len(_l_)
@@ -4562,6 +5521,11 @@ class stzList from stzObject
 		next
 		return new stzNumber(_n_)
 
+	# TRUE if every item of the list occurs in the other list.
+	#
+	#   pOther     the list to look in
+	#   returns    TRUE or FALSE
+	#   see        IsIncludedIn
 	def AreIncludedIn(pOther)
 		return This.EachItemExistsInCS(pOther, 1)  # plural = subset (every item of mine exists in pOther)
 
@@ -4615,11 +5579,19 @@ class stzList from stzObject
 		next
 		return _aR_
 
-	# The list turned into a stzTable object (rows; per the stzTable
-	# contract, the first row may carry the column names).
+	# Returns the list as a stzTable, one row per item.
+	#
+	#   returns    a stzTable
+	#   see        ToStzHashList
+	#@ aka  The list turned into a stzTable object (rows; per the stzTable contract, the first row may carry the column names).
 	def ToStzTable()
 		return new stzTable(This.Content())
 
+	# Returns each of the named objects with its position.
+	#
+	#   pacNames   the names of the objects to look for
+	#   returns    a list of [ name, positions ] pairs
+	#   see        FindNamedObjects
 	def TheseObjectsZ(pacNames)
 		_l_ = This.List()
 		_nL_ = len(_l_)
@@ -4652,12 +5624,24 @@ class stzList from stzObject
 	def FindStzObjects()
 		return This.FindObjects()
 
+	# Returns the positions of the items that are Q objects.
+	#
+	#   returns    a list of positions
+	#   see        FindStzObjects
 	def FindQObjects()
 		return []
 
+	# Returns the positions of the items that are not Softanza objects.
+	#
+	#   returns    a list of positions
+	#   see        FindStzObjects
 	def FindNonStzObjects()
 		return []
 
+	# Returns the variable names of the items that are named objects.
+	#
+	#   returns    a list of names
+	#   see        FindNamedObjects
 	def ObjectsVarNames()
 		_l_ = This.List()
 		_nL_ = len(_l_)
@@ -4674,21 +5658,45 @@ class stzList from stzObject
 		next
 		return _aR_
 
+	# Returns how many items are objects with a name.
+	#
+	#   returns    a number
+	#   see        FindNamedObjects
 	def NumberOfNamedObjects()
 		return len(This.FindNamedObjects())
 
+	# Returns how many items are objects without a name.
+	#
+	#   returns    a number
+	#   see        NumberOfNamedObjects
 	def NumberOfUnnamedObjects()
 		return len(This.FindUnnamedObjects())
 
+	# Returns how many items are objects.
+	#
+	#   returns    a number
+	#   see        Objects
 	def NumberOfObjects()
 		return len(This.FindObjects())
 
+	# Returns how many items are Softanza objects.
+	#
+	#   returns    a number
+	#   see        NumberOfNonStzObjects
 	def NumberOfStzObjects()
 		return len(This.FindObjects())
 
+	# Returns how many items are Q objects.
+	#
+	#   returns    a number
+	#   see        FindQObjects
 	def NumberOfQObjects()
 		return 0
 
+	# Returns how many items are not Softanza objects.
+	#
+	#   returns    a number
+	#   see        NumberOfStzObjects
 	def NumberOfNonStzObjects()
 		return 0
 
@@ -4707,6 +5715,10 @@ class stzList from stzObject
 		next
 		return _aR_
 
+	# Returns how many distinct named objects the list holds.
+	#
+	#   returns    a number
+	#   see        NumberOfNamedObjects
 	def NumberOfUniqueNamedObjects()
 		return len(This.ObjectsVarNamesU())
 
@@ -4734,6 +5746,11 @@ class stzList from stzObject
 		This._SetContent(_aR_)
 		return This
 
+	# Returns each string item split at the separator, as a list of lists.
+	#
+	#   pNamedUsing   the separator, or :Using = separator
+	#   returns       a list of lists
+	#   see           SplittedAt
 	def StringsSplitted(pNamedUsing)
 		_sep_ = " "
 		if isList(pNamedUsing) and len(pNamedUsing) = 2 and isString(pNamedUsing[1]) and
@@ -4756,6 +5773,10 @@ class stzList from stzObject
 		next
 		return _aR_
 
+	# Returns each named object item with its variable name.
+	#
+	#   returns    a list of [ object, name ] pairs
+	#   see        ObjectsVarNames
 	def ObjectsAndTheirVarNames()
 		_l_ = This.List()
 		_nL_ = len(_l_)
@@ -4772,6 +5793,10 @@ class stzList from stzObject
 		next
 		return _aR_
 
+	# Returns the positions of the items that are objects without a name.
+	#
+	#   returns    a list of positions
+	#   see        FindNamedObjects
 	def FindUnnamedObjects()
 		_l_ = This.List()
 		_nL_ = len(_l_)
@@ -4792,6 +5817,10 @@ class stzList from stzObject
 		next
 		return _aR_
 
+	# Returns the positions of the items that are objects with a name.
+	#
+	#   returns    a list of positions
+	#   see        FindUnnamedObjects
 	def FindNamedObjects()
 		_l_ = This.List()
 		_nL_ = len(_l_)
@@ -4810,6 +5839,11 @@ class stzList from stzObject
 		next
 		return _aR_
 
+	# Returns the positions where the given object occurs among the items.
+	#
+	#   pObj       the object to look for
+	#   returns    a list of positions
+	#   see        FindItem
 	def FindObject(pObj)
 		_l_ = This.List()
 		_nL_ = len(_l_)
@@ -4836,6 +5870,10 @@ class stzList from stzObject
 		next
 		return _aR_
 
+	# Returns each object item with its position.
+	#
+	#   returns    a list of [ object, position ] pairs
+	#   see        FindObject
 	def ObjectsAndTheirPositions()
 		_l_ = This.List()
 		_nL_ = len(_l_)
@@ -4866,6 +5904,10 @@ class stzList from stzObject
 		next
 		return _aR_
 
+	# Returns the items that meet the expression, where @item stands for each.
+	#
+	#   returns    a list of items
+	#   see        FindW
 	def ItemsWhere(pcExpr)
 		if NOT isString(pcExpr) return [] ok
 		_l_ = This.List()
@@ -4886,6 +5928,11 @@ class stzList from stzObject
 		next
 		return _aR_
 
+	# Inserts the item after each of the given positions, in place.
+	#
+	#   panPositions   the positions to insert after
+	#   returns        nothing; the list changes
+	#   see            InsertBeforePositions
 	def InsertAfterPositions(panPositions, pItem)
 		if NOT isList(panPositions) return ok
 		_aSorted_ = _ListCopy(panPositions)
@@ -4908,6 +5955,12 @@ class stzList from stzObject
 			ok
 		next
 
+	# Replaces the items at the given positions by the new items, one by one, in place.
+	#
+	#   _anPos_     the positions to replace
+	#   paNewList   the new items, one per position
+	#   returns     nothing; the list changes
+	#   see         ReplaceOccurrencesByMany
 	def ReplaceItemsAtPositionsByMany(_anPos_, paNewList)
 		if NOT (isList(_anPos_) and isList(paNewList)) return ok
 		# Flatten :And.
@@ -4937,6 +5990,11 @@ class stzList from stzObject
 		This._SetContent(_l_)
 
 
+	# TRUE if every item of the list occurs in the other list.
+	#
+	#   pOther     the list to look in
+	#   returns    TRUE or FALSE
+	#   see        AreIncludedIn
 	def IsIncludedIn(pOther)
 		if NOT isList(pOther) return 0 ok
 		_pList_ = This._EngineListFromContent()
@@ -4946,6 +6004,10 @@ class stzList from stzObject
 		StzEngineListFree(pOth)
 		return _nResult_
 
+	# Returns how many items equal the first one, from the start.
+	#
+	#   returns    a number
+	#   see        LeadingItems
 	def NumberOfLeadingItems()
 		_nLen_ = len(@aContent)
 		if _nLen_ <= 1 return _nLen_ ok		#-- engine reports 0 for n<2
@@ -4957,6 +6019,10 @@ class stzList from stzObject
 		if _nResult_ = 0 return 1 ok
 		return _nResult_
 
+	# Returns how many items equal the last one, from the end.
+	#
+	#   returns    a number
+	#   see        HasTrailingItems
 	def NumberOfTrailingItems()
 		_nLen_ = len(@aContent)
 		if _nLen_ <= 1 return _nLen_ ok		#-- engine reports 0 for n<2
@@ -4966,6 +6032,11 @@ class stzList from stzObject
 		if _nResult_ = 0 return 1 ok
 		return _nResult_
 
+	# Replaces the run of leading items equal to the first by a new item, in place.
+	#
+	#   p1         the new item
+	#   returns    nothing; the list changes
+	#   see        ReplaceTrailingItems
 	def ReplaceLeadingItems(p1)
 		_new_ = p1
 		if isList(p1) and len(p1) = 2 and isString(p1[1]) and
@@ -4981,6 +6052,11 @@ class stzList from stzObject
 		next
 		This._SetContent(_l_)
 
+	# Replaces the run of trailing items equal to the last by a new item, in place.
+	#
+	#   p1         the new item
+	#   returns    nothing; the list changes
+	#   see        ReplaceLeadingItems
 	def ReplaceTrailingItems(p1)
 		_new_ = p1
 		if isList(p1) and len(p1) = 2 and isString(p1[1]) and
@@ -4996,10 +6072,19 @@ class stzList from stzObject
 		next
 		This._SetContent(_l_)
 
+	# Replaces the run of leading items and the run of trailing items by a new item, in place.
+	#
+	#   p1         the new item
+	#   returns    nothing; the list changes
+	#   see        ReplaceLeadingItems
 	def ReplaceLeadingAndTrailingItems(p1)
 		This.ReplaceLeadingItems(p1)
 		This.ReplaceTrailingItems(p1)
 
+	# Returns the run of items equal to the first one.
+	#
+	#   returns    a list of items
+	#   see        RepeatedLeadingItems
 	def LeadingItems()
 		_l_ = This.List()
 		_nL_ = len(_l_)
@@ -5010,6 +6095,10 @@ class stzList from stzObject
 		next
 		return _aR_
 
+	# Returns the run of items equal to the last one.
+	#
+	#   returns    a list of items
+	#   see        LeadingItems
 	def TrailingItems()
 		_l_ = This.List()
 		_nL_ = len(_l_)
@@ -5020,18 +6109,29 @@ class stzList from stzObject
 		next
 		return _aR_
 
+	# TRUE if the first two items are equal.
+	#
+	#   returns    TRUE or FALSE
+	#   see        LeadingItems
 	def HasLeadingItems()
 		_l_ = This.List()
 		_nL_ = len(_l_)
 		if _nL_ < 2 return 0 ok
 		return _l_[1] = _l_[2]
 
+	# TRUE if the last two items are equal.
+	#
+	#   returns    TRUE or FALSE
+	#   see        LeadingItems
 	def HasTrailingItems()
 		_l_ = This.List()
 		_nL_ = len(_l_)
 		if _nL_ < 2 return 0 ok
 		return _l_[_nL_] = _l_[_nL_ - 1]
 
+	# Returns every pair of items, taken in order, as two-item lists.
+	#
+	#   returns    a list of two-item lists
 	def Combinations()
 		_l_ = This.List()
 		_nL_ = len(_l_)
@@ -5043,6 +6143,10 @@ class stzList from stzObject
 		next
 		return _aR_
 
+	# TRUE if the list is a pair whose first item is the keyword :AtChars, such as :AtChars = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsAtCharsNamedParam()
 		_l_ = This.List()
 		if len(_l_) != 2 return 0 ok
@@ -5051,6 +6155,11 @@ class stzList from stzObject
 		if ring_left(_kw_, 1) = ":" _kw_ = StzMidToEnd(_kw_, 2) ok
 		return _kw_ = "atchars"
 
+	# TRUE if the list is a named param whose name is one of the given names.
+	#
+	#   pacNames   the names to compare with, as a list of text
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsOneOfTheseNamedParams(pacNames)
 		if NOT isList(pacNames) return 0 ok
 		_l_ = This.List()
@@ -5067,15 +6176,27 @@ class stzList from stzObject
 		next
 		return 0
 
+	# TRUE if the list is a pair whose first item is the keyword :Step, such as :Step = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsStepNamedParam()
 		_l_ = This.List()
 		return len(_l_) = 2 and isString(_l_[1]) and lower(_l_[1]) = "step"
 
+	# TRUE if the list is a pair whose first item is the keyword :IsBoundedBy, such as :IsBoundedBy = value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNamedParam
 	def IsIsBoundedByNamedParam()
 		_l_ = This.List()
 		return len(_l_) = 2 and isString(_l_[1]) and
 		       (lower(_l_[1]) = "isboundedby" or lower(_l_[1]) = "boundedby")
 
+	# Returns each distinct item with how many times it occurs.
+	#
+	#   returns    a list of [ item, count ] pairs
+	#   see        Frequencies
 	def ItemsAndTheirNumberOfOccurrence()
 		_l_ = This.List()
 		_nL_ = len(_l_)
@@ -5113,6 +6234,10 @@ class stzList from stzObject
 	def CountST(pItem, pStartingAt)
 		return This.HowManyST(pItem, pStartingAt)
 
+	# Returns the parts of the list that lie around each occurrence of the item.
+	#
+	#   returns    a list of lists
+	#   see        SplitAtPosition
 	def SplitAround(pItem)
 		_l_ = This.List()
 		_nL_ = len(_l_)
@@ -5129,8 +6254,12 @@ class stzList from stzObject
 		_aRes_ + _grp_
 		return _aRes_
 
-	# TheseCharsZ([chars]): each char grouped with ALL its positions in
-	# the list -- [ [c, [positions]], ... ].
+	# Returns each given character with all the positions where it occurs.
+	#
+	#   pacChars   the characters to look for
+	#   returns    a list of [ character, positions ] pairs
+	#   see        TheseItemsZ
+	#@ aka  TheseCharsZ([chars]): each char grouped with ALL its positions in the list -- [ [c, [positions]], ... ].
 	def TheseCharsZ(pacChars)
 		if NOT isList(pacChars) return [] ok
 		_l_ = This.List()
@@ -5146,6 +6275,12 @@ class stzList from stzObject
 		next
 		return _aR_
 
+	# Returns the n items that follow the first occurrence of the anchor item.
+	#
+	#   pcAnchor   the item to count from
+	#   _n_        how many items
+	#   returns    a list of items
+	#   see        NextNItems
 	def NextNItemsAfter(pcAnchor, _n_)
 		_l_ = This.List()
 		_nL_ = len(_l_)
@@ -5267,10 +6402,11 @@ class stzList from stzObject
 		def FindNthOccurrence(_n_, pItem)
 			return This.FindNthOccurrenceCS(_n_, pItem, 1)
 
-	# FindNumbersAsSections: scan content, return [[startPos,endPos],...]
-	# for each contiguous run of numeric items. Each section endpoint is
-	# a 1-based position in the original list. Single-number runs are
-	# returned as [pos, pos] (degenerate section).
+	# Returns each run of consecutive number items as a [ start, end ] pair.
+	#
+	#   returns    a list of [ start, end ] pairs
+	#   see        FindNumbers
+	#@ aka  FindNumbersAsSections: scan content, return [[startPos,endPos],...] for each contiguous run of numeric items. Each section endpoint is a 1-based position in the original list. Single-number runs are returned as [pos, pos] (degenerate section).
 	def FindNumbersAsSections()
 		_aRes_ = []
 		_aData_ = This.Content()
@@ -5318,6 +6454,10 @@ class stzList from stzObject
 		def FindFirst(pItem)
 			return This.FindFirstOccurrenceCS(pItem, 1)
 
+	# Returns the position of the last occurrence of the item.
+	#
+	#   returns    a number
+	#   see        FindFirstOccurrence
 	def FindLastOccurrenceCS(pItem, pCaseSensitive)
 		_anAll_ = This.FindAllOccurrencesCS(pItem, pCaseSensitive)
 		_nLen_ = len(_anAll_)
@@ -5394,12 +6534,24 @@ class stzList from stzObject
 		def ContainsMany(paItems)
 			return This.ContainsManyCS(paItems, 1)
 
+		# TRUE if every one of the given items occurs in the list.
+		#
+		#   returns    TRUE or FALSE
+		#   see        ContainsAllOfThese
 		def ContainsThese(paItems)
 			return This.ContainsManyCS(paItems, 1)
 
+		# TRUE if every one of the given items occurs in the list.
+		#
+		#   returns    TRUE or FALSE
+		#   see        ContainsAllOfThese
 		def ContainsEach(paItems)
 			return This.ContainsManyCS(paItems, 1)
 
+		# TRUE if every one of the given items occurs in the list.
+		#
+		#   returns    TRUE or FALSE
+		#   see        ContainsAllOfThese
 		def ContainsAll(paItems)
 			return This.ContainsManyCS(paItems, 1)
 
@@ -5456,6 +6608,10 @@ class stzList from stzObject
 		def FindAllWCS(pcCondition, pCaseSensitive)
 			return This.FindAllItemsWCS(pcCondition, pCaseSensitive)
 
+	# Returns the positions of the items that meet the W condition.
+	#
+	#   returns    a list of positions
+	#   see        FindW, CheckW
 	def FindAllItemsW(pcCondition)
 		#-- W is the single performant + expressive engine DSL (no eval).
 		#-- It accepts the basic keywords (@item, @string, @i, This[@i+1]/
@@ -5590,8 +6746,11 @@ class stzList from stzObject
 		def AllItemsWF(pFunc)
 			return This.CheckWF(pFunc)
 
-	#-- CheckW: all items satisfy a W (DSL) condition. CheckW is the same
-	#-- now that the DSL is engine-backed (the perf/expressiveness split is gone).
+	# TRUE if every item meets the W condition.
+	#
+	#   returns    TRUE or FALSE
+	#   see        FindW, FindAllItemsW
+	#@ aka  -- CheckW: all items satisfy a W (DSL) condition. CheckW is the same -- now that the DSL is engine-backed (the perf/expressiveness split is gone).
 	def CheckW(pcCondition)
 		return ring_len(This.FindAllItemsW(pcCondition)) = This.NumberOfItems()
 
@@ -5610,7 +6769,11 @@ class stzList from stzObject
 			return This.AllItemsVerifyW(pcCondition)
 
 
-	#-- the items at panPos all satisfy a W (DSL) condition
+	# TRUE if the items at the given positions all meet the W condition.
+	#
+	#   returns    TRUE or FALSE
+	#   see        ContainsItemsAtW
+	#@ aka  -- the items at panPos all satisfy a W (DSL) condition
 	def CheckItemsAtW(panPos, pcCondition)
 		return _StzAllIn(panPos, This.FindAllItemsW(pcCondition))
 
@@ -5651,6 +6814,11 @@ class stzList from stzObject
 	def ItemsAndTheirPositionsWF(pFunc)
 		return _StzGroupItemsAtPos(This.Content(), This.FindWF(pFunc))
 
+	# Returns how many distinct items the named function gives.
+	#
+	#   pFunc      the name of a function applied to each item
+	#   returns    a number
+	#   see        NumberOfUniqueItemsW
 	def CountUniqueItemsWF(pFunc)
 		return ring_len(_StzUniqueItems(This.ItemsWF(pFunc)))
 
@@ -5713,14 +6881,11 @@ class stzList from stzObject
 			This.PerformWF(pCondFunc, pActionFunc)
 			return This
 
-	  #-- FindW: the extended (expressive) where-scan. Returns the matching
-	  #-- POSITIONS (use ItemsW for the items at those positions). It accepts
-	  #-- @NextItem/@PreviousItem/... and the Q(EXPR).Method(...) predicate form.
-
-
-
-	  #-- ItemsAtPositions: get items at given positions
-
+	# Returns the items that stand at the given places, in the order given.
+	#
+	#   returns    a list of items
+	#   see        NthItem
+	#@ aka  -- FindW: the extended (expressive) where-scan. Returns the matching -- POSITIONS (use ItemsW for the items at those positions). It accepts -- @NextItem/@PreviousItem/... and the Q(EXPR).Method(...) predicate form.
 	def ItemsAtPositions(panPos)
 		if NOT isList(panPos)
 			StzRaise("Incorrect param type! panPos must be a list.")
@@ -5756,6 +6921,12 @@ class stzList from stzObject
 			next
 		ok
 
+		# Extends the list up to position n by adding the given item, in place.
+		#
+		#   _n_        the position to reach
+		#   pWith      the item used to fill
+		#   returns    nothing; the list changes
+		#   see        ExtendToWith
 		def ExtendToPositionWith(_n_, pWith)
 			This.ExtendToPositionXT(_n_, pWith)
 
@@ -5777,6 +6948,12 @@ class stzList from stzObject
 			This.ExtendTo(_n_)
 			return This
 
+		# Extends the list up to position n by adding the given item, in place.
+		#
+		#   _n_        the position to reach
+		#   pWith      the item used to fill
+		#   returns    nothing; the list changes
+		#   see        ExtendToPosition
 		def ExtendToWith(_n_, pWith)
 			This.ExtendToPositionXT(_n_, pWith)
 
@@ -5842,6 +7019,10 @@ class stzList from stzObject
 			:modified = []
 		]
 
+		# Returns the items found in only one of the two lists.
+		#
+		#   returns    a list of items
+		#   see        DiffWith, DifferentItemsWith
 		def DifferenceWith(paOther)
 			_aDwx_ = This.DifferenceWithXT(paOther)
 			# Plain form: return only the symmetric difference items
@@ -5861,8 +7042,12 @@ class stzList from stzObject
 			next
 			return _aDwRes_
 
-	# Shrink: truncate the list to the first n items (in place).
-
+	# Cuts the list down to its first n items, in place.
+	#
+	#   _n_        how many items to keep
+	#   returns    nothing; the list changes
+	#   see        Shrink
+	#@ aka  Shrink: truncate the list to the first n items (in place).
 	def ShrinkTo(_n_)
 		_nShLen_ = len(@aContent)
 		if _n_ < 0
@@ -5881,9 +7066,19 @@ class stzList from stzObject
 			This.ShrinkTo(_n_)
 			return This
 
+		# Cuts the list down to its first n items, in place.
+		#
+		#   _n_        how many items to keep
+		#   returns    nothing; the list changes
+		#   see        TrimToSize
 		def TruncateTo(_n_)
 			This.ShrinkTo(_n_)
 
+		# Keeps only the first n items, in place.
+		#
+		#   _n_        how many items to keep
+		#   returns    nothing; the list changes
+		#   see        Shrink
 		def KeepFirst(_n_)
 			This.ShrinkTo(_n_)
 
@@ -5968,6 +7163,11 @@ class stzList from stzObject
 			This.Extend(pWith)
 			return This
 
+		# Appends the item at the end, in place.
+		#
+		#   pWith      the item to append
+		#   returns    nothing; the list changes
+		#   see        AddItem
 		def ExtendWith(pWith)
 			This.Extend(pWith)
 
@@ -5987,8 +7187,13 @@ class stzList from stzObject
 			This.Perform(pcAction)
 			return This
 
-	  #-- PerformOn: execute code on specific positions
-
+	# Runs the action on the items at the given positions.
+	#
+	#   panPos     the positions to act on
+	#   pcAction   the expression to run for each item
+	#   returns    nothing; the items may change
+	#   see        PerformAtW
+	#@ aka  -- PerformOn: execute code on specific positions
 	def PerformOn(panPos, pcAction)
 		pcAction = _StzStripBraces(pcAction)
 		_nLen_ = len(panPos)
@@ -6136,11 +7341,19 @@ class stzList from stzObject
 		_nVarResult_ = StzEngineListVariance(_pVarList_)
 		return _nVarResult_
 
+		# Returns the sample variance of the numbers in the list.
+		#
+		#   returns    a number
+		#   see        VariancePopulation
 		def VarianceSample()
 			if len(@aContent) = 0 return 0 ok
 			_pVsList_ = This._Engine()
 			return StzEngineListVarianceSample(_pVsList_)
 
+		# Returns the population variance of the numbers in the list.
+		#
+		#   returns    a number
+		#   see        VarianceSample
 		def VariancePopulation()
 			if len(@aContent) = 0 return 0 ok
 			_pVpList_ = This._Engine()
@@ -6162,11 +7375,19 @@ class stzList from stzObject
 		def StandardDeviation()
 			return This.Stddev()
 
+		# Returns the sample standard deviation of the numbers in the list.
+		#
+		#   returns    a number
+		#   see        StddevPopulation
 		def StddevSample()
 			if len(@aContent) = 0 return 0 ok
 			_pSsList_ = This._Engine()
 			return StzEngineListStddevSample(_pSsList_)
 
+		# Returns the population standard deviation of the numbers in the list.
+		#
+		#   returns    a number
+		#   see        VariancePopulation
 		def StddevPopulation()
 			if len(@aContent) = 0 return 0 ok
 			_pSpList_ = This._Engine()
@@ -6193,6 +7414,11 @@ class stzList from stzObject
 		_nMdResult_ = StzEngineListMedian(_pMdList_)
 		return _nMdResult_
 
+	# Returns the nth smallest distinct value.
+	#
+	#   _n_        the rank, 1 for the smallest
+	#   returns    the value
+	#   see        NthLargest
 	def NthSmallest(_n_)
 		# The n-th smallest DISTINCT value (dedup, then ascending rank),
 		# matching the monolith. (The engine NthSmallest ranks with
@@ -6202,17 +7428,23 @@ class stzList from stzObject
 		_oNs_.RemoveDuplicates()
 		return _oNs_.Sorted()[_n_]
 
+	# Returns the nth largest distinct value.
+	#
+	#   _n_        the rank, 1 for the largest
+	#   returns    the value
+	#   see        NthSmallest
 	def NthLargest(_n_)
 		if len(@aContent) = 0 return 0 ok
 		_oNl_ = This.Copy()
 		_oNl_.RemoveDuplicates()
 		return _oNl_.SortedInDescending()[_n_]
 
-	  #-- Repeat (engine-backed)
-
-	# Turn the content into n copies of the whole list, NESTED
-	# ([1,2] -> [[1,2],[1,2]]) -- mutating. For flat tiling, use the
-	# * operator.
+	# Turns the content into n copies of the whole list, nested, in place.
+	#
+	#   _n_        how many copies
+	#   returns    nothing; the list changes
+	#   see        ExtendToWithItemsRepeated
+	#@ aka  -- Repeat (engine-backed)
 	def Repeat(_n_)
 		if CheckParams()
 			if isList(_n_) and len(_n_) = 2 and
@@ -6293,9 +7525,11 @@ class stzList from stzObject
 		StzEngineListFree(_pSaResult_)
 		return _aSaOut_
 
-	  #-- Ranked (engine-backed)
-
-	# The rank of each item in the sorted order, as a list.
+	# Returns the rank of each item in sorted order, equal items sharing the lowest rank.
+	#
+	#   returns    a list of numbers
+	#   see        SortedBy
+	#@ aka  -- Ranked (engine-backed)
 	def Ranked()
 		_pRkList_ = This._EngineListFromContent()
 		if _pRkList_ = "" return [] ok
@@ -6329,6 +7563,10 @@ class stzList from stzObject
 	 #  ADDITIONAL TYPE CHECKING METHODS       #
 	#=========================================#
 
+	# TRUE if every item is a hash list.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsHashList
 	def IsListOfHashLists()
 		_aIlhContent_ = This.Content()
 		_nIlhLen_ = len(_aIlhContent_)
@@ -6348,6 +7586,10 @@ class stzList from stzObject
 
 		return 1
 
+	# TRUE if every item of the list is one of the given values.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsMadeOf
 	def IsMadeOfSome(paValues)
 		_pList_ = This._EngineListFromContent()
 		pVals = StzEngineMarshalList(paValues)
@@ -6356,6 +7598,10 @@ class stzList from stzObject
 		StzEngineListFree(pVals)
 		return _nResult_
 
+	# TRUE if the list holds exactly two items and both are strings.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsPairOfNumbers
 	def IsPairOfStrings()
 		_aIpContent_ = This.Content()
 		if len(_aIpContent_) != 2
@@ -6376,6 +7622,10 @@ class stzList from stzObject
 		_oAfFinder_ = new stzListFinder(This)
 		return _oAfFinder_.AntiFindCS(pItem, pCaseSensitive)
 
+	# Returns the positions of the items that differ from the given item.
+	#
+	#   returns    a list of positions
+	#   see        FindItem
 	def AntiFind(pItem)
 		return This.AntiFindCS(pItem, 1)
 
@@ -6385,6 +7635,10 @@ class stzList from stzObject
 		_oAfsaFinder_ = new stzListFinder(This)
 		return _oAfsaFinder_.AntiFindAsSectionsCS(pItem, pCaseSensitive)
 
+	# Returns the stretches of items that differ from the given item, as [ start, end ] pairs.
+	#
+	#   returns    a list of [ start, end ] pairs
+	#   see        AntiFind
 	def AntiFindAsSections(pItem)
 		return This.AntiFindAsSectionsCS(pItem, 1)
 
@@ -6398,6 +7652,11 @@ class stzList from stzObject
 		def AntiFindZZCS(pItem, pCaseSensitive)
 			return This.AntiFindAsSectionsCS(pItem, pCaseSensitive)
 
+	# Returns the positions that are not among the given ones.
+	#
+	#   _anPos_    the positions to leave out
+	#   returns    a list of positions
+	#   see        FindAntiSections
 	def AntiPositions(_anPos_)
 		_oApFinder_ = new stzListFinder(This)
 		return _oApFinder_.AntiPositions(_anPos_)
@@ -6433,7 +7692,12 @@ class stzList from stzObject
 		_oFnoFinder_ = new stzListFinder(This)
 		return _oFnoFinder_.FindNOccurrencesCS(_n_, pItem, pCaseSensitive)
 
-	# The positions of the first n occurrences of the given item.
+	# Returns the positions of the first n occurrences of the item.
+	#
+	#   _n_        how many occurrences
+	#   returns    a list of positions
+	#   see        FindGivenOccurrences
+	#@ aka  The positions of the first n occurrences of the given item.
 	def FindNOccurrences(_n_, pItem)
 		return This.FindNOccurrencesCS(_n_, pItem, 1)
 
@@ -6443,6 +7707,11 @@ class stzList from stzObject
 		_oFgoFinder_ = new stzListFinder(This)
 		return _oFgoFinder_.FindGivenOccurrencesCS(panOccurrences, pItem, pCaseSensitive)
 
+	# Returns the positions of the given occurrences of the item, counted from 1.
+	#
+	#   panOccurrences   the ranks of the occurrences wanted
+	#   returns          a list of positions
+	#   see              FindNOccurrences
 	def FindGivenOccurrences(panOccurrences, pItem)
 		return This.FindGivenOccurrencesCS(panOccurrences, pItem, 1)
 
@@ -6450,7 +7719,11 @@ class stzList from stzObject
 		_oFaefFinder_ = new stzListFinder(This)
 		return _oFaefFinder_.FindAllExceptFirstCS(pItem, pCaseSensitive)
 
-	# The positions of every occurrence of the item EXCEPT the first.
+	# Returns the positions of every occurrence of the item but the first.
+	#
+	#   returns    a list of positions
+	#   see        FindAllExceptLast
+	#@ aka  The positions of every occurrence of the item EXCEPT the first.
 	def FindAllExceptFirst(pItem)
 		return This.FindAllExceptFirstCS(pItem, 1)
 
@@ -6458,7 +7731,11 @@ class stzList from stzObject
 		_oFaelFinder_ = new stzListFinder(This)
 		return _oFaelFinder_.FindAllExceptLastCS(pItem, pCaseSensitive)
 
-	# The positions of every occurrence of the item EXCEPT the last.
+	# Returns the positions of every occurrence of the item but the last.
+	#
+	#   returns    a list of positions
+	#   see        FindAllExceptFirst
+	#@ aka  The positions of every occurrence of the item EXCEPT the last.
 	def FindAllExceptLast(pItem)
 		return This.FindAllExceptLastCS(pItem, 1)
 
@@ -6466,8 +7743,12 @@ class stzList from stzObject
 		_oFnnoFinder_ = new stzListFinder(This)
 		return _oFnnoFinder_.FindNextNthOccurrenceCS(_n_, pItem, pnStartingAt, pCaseSensitive)
 
-	# The position of the nth occurrence of the item AFTER the given
-	# position (0 when there is none).
+	# Returns the position of the nth occurrence of the item after a given position; 0 when there is none.
+	#
+	#   _n_        which occurrence, counted from the starting position
+	#   returns    a number
+	#   see        FindNextNth
+	#@ aka  The position of the nth occurrence of the item AFTER the given position (0 when there is none).
 	def FindNextNthOccurrence(_n_, pItem, pnStartingAt)
 		return This.FindNextNthOccurrenceCS(_n_, pItem, pnStartingAt, 1)
 
@@ -6475,8 +7756,11 @@ class stzList from stzObject
 		_oFnoFinder2_ = new stzListFinder(This)
 		return _oFnoFinder2_.FindNextOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
 
-	# The position of the next occurrence of the item after the given
-	# position (0 when there is none).
+	# Returns the position of the next occurrence of the item after a given position; 0 when there is none.
+	#
+	#   returns    a number
+	#   see        FindPreviousOccurrence
+	#@ aka  The position of the next occurrence of the item after the given position (0 when there is none).
 	def FindNextOccurrence(pItem, pnStartingAt)
 		return This.FindNextOccurrenceCS(pItem, pnStartingAt, 1)
 
@@ -6550,7 +7834,12 @@ class stzList from stzObject
 			ok
 			return This.FindPreviousNthOccurrenceCS(_n_, pItem, pnStartingAt, pCaseSensitive)
 
-	# FindNthNext(n, pItem, pnStartingAt): symmetric forward variant.
+	# Returns the position of the nth occurrence of the item after a given position; 0 when there is none.
+	#
+	#   _n_        which occurrence, counted from the starting position
+	#   returns    a number
+	#   see        FindNextNth
+	#@ aka  FindNthNext(n, pItem, pnStartingAt): symmetric forward variant.
 	def FindNthNext(_n_, pItem, pnStartingAt)
 		if isList(pnStartingAt) and len(pnStartingAt) = 2
 			pnStartingAt = pnStartingAt[2]
@@ -6567,8 +7856,12 @@ class stzList from stzObject
 		_oFpnoFinder_ = new stzListFinder(This)
 		return _oFpnoFinder_.FindPreviousNthOccurrenceCS(_n_, pItem, pnStartingAt, pCaseSensitive)
 
-	# The position of the nth occurrence of the item BEFORE the given
-	# position (0 when there is none).
+	# Returns the position of the nth occurrence of the item before a given position; 0 when there is none.
+	#
+	#   _n_        which occurrence, counted backwards from the starting position
+	#   returns    a number
+	#   see        FindPreviousNth
+	#@ aka  The position of the nth occurrence of the item BEFORE the given position (0 when there is none).
 	def FindPreviousNthOccurrence(_n_, pItem, pnStartingAt)
 		return This.FindPreviousNthOccurrenceCS(_n_, pItem, pnStartingAt, 1)
 
@@ -6576,23 +7869,39 @@ class stzList from stzObject
 		_oFpoFinder_ = new stzListFinder(This)
 		return _oFpoFinder_.FindPreviousOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
 
-	# The position of the nearest occurrence of the item before the
-	# given position (0 when there is none).
+	# Returns the position of the nearest occurrence of the item before a given position; 0 when there is none.
+	#
+	#   returns    a number
+	#   see        FindNextOccurrence
+	#@ aka  The position of the nearest occurrence of the item before the given position (0 when there is none).
 	def FindPreviousOccurrence(pItem, pnStartingAt)
 		return This.FindPreviousOccurrenceCS(pItem, pnStartingAt, 1)
 
-	#-- Missing name-variants for the next/previous occurrence family
-	#-- (delegating to stzListFinder; strictly-after / strictly-before).
+	# Returns the position of the nth occurrence of the item after a given position; 0 when there is none.
+	#
+	#   _n_        which occurrence, counted from the starting position
+	#   returns    a number
+	#   see        FindNextNth
+	#@ aka  -- Missing name-variants for the next/previous occurrence family -- (delegating to stzListFinder; strictly-after / strictly-before).
 	def FindNthNextOccurrence(_n_, pItem, pnStartingAt)
 		_oFnx_ = new stzListFinder(This)
 		return _oFnx_.FindNthNextOccurrence(_n_, pItem, pnStartingAt)
 
-	# The position of the nth occurrence of the item after the given position.
+	# Returns the position of the nth occurrence of the item after a given position; 0 when there is none.
+	#
+	#   _n_        which occurrence, counted from the starting position
+	#   returns    a number
+	#   see        FindPreviousNth, FindNthNext
+	#@ aka  The position of the nth occurrence of the item after the given position.
 	def FindNextNth(_n_, pItem, pnStartingAt)
 		_oFnx_ = new stzListFinder(This)
 		return _oFnx_.FindNextNth(_n_, pItem, pnStartingAt)
 
-	# The positions of ALL the occurrences after the given position.
+	# Returns the positions of every occurrence of the item after a given position.
+	#
+	#   returns    a list of positions
+	#   see        FindNextNth
+	#@ aka  The positions of ALL the occurrences after the given position.
 	def FindNextOccurrences(pItem, pnStartingAt)
 		_oFnx_ = new stzListFinder(This)
 		return _oFnx_.FindNextOccurrences(pItem, pnStartingAt)
@@ -6600,11 +7909,20 @@ class stzList from stzObject
 		def FindNextOccurrencesST(pItem, pnStartingAt)
 			return This.FindNextOccurrences(pItem, pnStartingAt)
 
+	# Returns the positions of the nth next occurrence of the item, for each of the given ranks.
+	#
+	#   panN       the ranks of the occurrences wanted
+	#   returns    a list of positions
+	#   see        FindNextNth
 	def FindNextNthOccurrencesST(panN, pItem, pnStartingAt)
 		_oFnx_ = new stzListFinder(This)
 		return _oFnx_.FindNextNthOccurrencesST(panN, pItem, pnStartingAt)
 
-	# The positions of ALL the occurrences before the given position.
+	# Returns the positions of every occurrence of the item before a given position.
+	#
+	#   returns    a list of positions
+	#   see        FindPreviousOccurrence
+	#@ aka  The positions of ALL the occurrences before the given position.
 	def FindPreviousOccurrences(pItem, pnStartingAt)
 		_oFnx_ = new stzListFinder(This)
 		return _oFnx_.FindPreviousOccurrences(pItem, pnStartingAt)
@@ -6612,38 +7930,69 @@ class stzList from stzObject
 		def FindPreviousOccurrencesST(pItem, pnStartingAt)
 			return This.FindPreviousOccurrences(pItem, pnStartingAt)
 
+	# Returns the positions of the given ranks of previous occurrences of the item before a given position.
+	#
+	#   panN       the ranks of the occurrences wanted
+	#   returns    a list of positions
+	#   see        FindPreviousNth
 	def FindPreviousNthOccurrences(panN, pItem, pnStartingAt)
 		_oFnx_ = new stzListFinder(This)
 		return _oFnx_.FindPreviousNthOccurrences(panN, pItem, pnStartingAt)
 
-	# The position of the first occurrence after the given position.
+	# Returns the position of the first occurrence of the item after a given position.
+	#
+	#   returns    a number; 0 when none
+	#   see        FindNextOccurrence
+	#@ aka  The position of the first occurrence after the given position.
 	def FindFirstNext(pItem, pnStartingAt)
 		_oFnx_ = new stzListFinder(This)
 		return _oFnx_.FindFirstNext(pItem, pnStartingAt)
 
-	# The position of the first occurrence before the given position
-	# (scanning backward).
+	# Returns the position of the first occurrence of the item before a given position, scanning backwards.
+	#
+	#   returns    a number; 0 when none
+	#   see        FindPreviousOccurrence
+	#@ aka  The position of the first occurrence before the given position (scanning backward).
 	def FindFirstPrevious(pItem, pnStartingAt)
 		_oFnx_ = new stzListFinder(This)
 		return _oFnx_.FindFirstPrevious(pItem, pnStartingAt)
 
+	# Returns the positions of every occurrence of the item.
+	#
+	#   returns    a list of positions
+	#   see        FindFirst, FindLast
 	#@ aka  index of, position of, locate, where is, at what index
-	# The positions of every occurrence of the item (the Find contract).
+	#@ aka  The positions of every occurrence of the item (the Find contract).
 	def FindItem(pItem)
 		_oFnx_ = new stzListFinder(This)
 		return _oFnx_.FindItem(pItem)
 
-	# The position of the nth occurrence before the given position.
+	# Returns the position of the nth occurrence of the item before a given position; 0 when there is none.
+	#
+	#   _n_        which occurrence, counted backwards from the starting position
+	#   returns    a number
+	#   see        FindNextNth
+	#@ aka  The position of the nth occurrence before the given position.
 	def FindPreviousNth(_n_, pItem, pnStartingAt)
 		_oFnx_ = new stzListFinder(This)
 		return _oFnx_.FindPreviousNth(_n_, pItem, pnStartingAt)
 
-	# The position of the nth occurrence after the given position.
+	# Returns the position of the nth occurrence of the item after a given position; 0 when there is none.
+	#
+	#   _n_        which occurrence, counted from the starting position
+	#   returns    a number
+	#   see        FindNextNth
+	#@ aka  The position of the nth occurrence after the given position.
 	def NthNextOccurrence(_n_, pItem, pnStartingAt)
 		_oFnx_ = new stzListFinder(This)
 		return _oFnx_.NthNextOccurrence(_n_, pItem, pnStartingAt)
 
-	# The position of the nth occurrence after the given position.
+	# Returns the position of the nth occurrence of the item after a given position; 0 when there is none.
+	#
+	#   _n_        which occurrence, counted from the starting position
+	#   returns    a number
+	#   see        FindNextNth
+	#@ aka  The position of the nth occurrence after the given position.
 	def NextNthOccurrence(_n_, pItem, pnStartingAt)
 		_oFnx_ = new stzListFinder(This)
 		return _oFnx_.NextNthOccurrence(_n_, pItem, pnStartingAt)
@@ -6652,21 +8001,45 @@ class stzList from stzObject
 	 #  SMALLEST/LARGEST POSITIONS, ITEMS-WITH-POSITIONS, etc. #
 	#=========================================================#
 
+	# Returns the positions of the smallest value.
+	#
+	#   returns    a list of positions
+	#   see        FindLargest
 	def FindSmallest()
 		return This.Find(This.Smallest())
 
+		# Returns how many times the smallest value occurs.
+		#
+		#   returns    a number
+		#   see        FindSmallest
 		def NumberOfSmallest()
 			return ring_len(This.FindSmallest())
 
+		# Returns how many times the smallest value occurs.
+		#
+		#   returns    a number
+		#   see        FindSmallest
 		def NumberOfOccurrencesOfSmallestItem()
 			return ring_len(This.FindSmallest())
 
+	# Returns the positions of the largest value.
+	#
+	#   returns    a list of positions
+	#   see        FindSmallest
 	def FindLargest()
 		return This.Find(This.Largest())
 
+		# Returns how many times the largest value occurs.
+		#
+		#   returns    a number
+		#   see        FindLargest
 		def NumberOfLargest()
 			return ring_len(This.FindLargest())
 
+		# Returns how many times the largest value occurs.
+		#
+		#   returns    a number
+		#   see        NumberOfLargest
 		def NumberOfOccurrencesOfLargestItem()
 			return ring_len(This.FindLargest())
 
@@ -6683,7 +8056,11 @@ class stzList from stzObject
 		def ItemsZ()
 			return This.FindItems()
 
-	#-- [[item, count], ...] in first-appearance order (type-sensitive)
+	# Returns each distinct item with its count, in order of first appearance, comparing by type as well as by value.
+	#
+	#   returns    a list of [ item, count ] pairs
+	#   see        Frequencies
+	#@ aka  -- [[item, count], ...] in first-appearance order (type-sensitive)
 	def ItemsCount()
 		return _StzItemsCount(This.Content())
 
@@ -6697,7 +8074,11 @@ class stzList from stzObject
 		ok
 		return _StzFindDupSecutive(This.Content(), pCaseSensitive)
 
-	# The positions of the items that repeat consecutively.
+	# Returns the positions of the items that repeat the one before them.
+	#
+	#   returns    a list of positions
+	#   see        DupSecutiveItems
+	#@ aka  The positions of the items that repeat consecutively.
 	def FindDupSecutiveItems()
 		return _StzFindDupSecutive(This.Content(), 1)
 
@@ -6709,6 +8090,10 @@ class stzList from stzObject
 		ok
 		return _StzDupSecutiveValues(This.Content(), pCaseSensitive)
 
+	# Returns the items that occur twice or more in a row.
+	#
+	#   returns    a list of items
+	#   see        FindDupSecutiveItems
 	def DupSecutiveItems()
 		return _StzDupSecutiveValues(This.Content(), 1)
 
@@ -6718,7 +8103,11 @@ class stzList from stzObject
 		ok
 		return _StzFindThisDupSecutive(This.Content(), pItem, pCaseSensitive)
 
-	# The positions where the GIVEN item repeats consecutively.
+	# Returns the positions where the given item repeats the one before it.
+	#
+	#   returns    a list of positions
+	#   see        FindDupSecutiveItems
+	#@ aka  The positions where the GIVEN item repeats consecutively.
 	def FindThisDupSecutiveItem(pItem)
 		return _StzFindThisDupSecutive(This.Content(), pItem, 1)
 
@@ -6731,14 +8120,23 @@ class stzList from stzObject
 	def DupSecutiveItemsZ()
 		return _StzDupSecutiveItemsZ(This.Content(), 1)
 
-	# The consecutive-duplicate run of the given item, along with
-	# its positions.
+	# Returns the run of the given item that repeats directly, with its positions.
+	#
+	#   pItem      the item to look for
+	#   returns    a list [ item, positions ]
+	#   see        DupSecutiveItems
+	#@ aka  The consecutive-duplicate run of the given item, along with its positions.
 	def DupSecutiveItemCSZ(pItem, pCaseSensitive)
 		if isList(pCaseSensitive) and ring_len(pCaseSensitive) = 2
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 		return [ pItem, _StzFindThisDupSecutive(This.Content(), pItem, pCaseSensitive) ]
 
+	# Returns the given item with the positions where it repeats the one before it.
+	#
+	#   pItem      the item to look for
+	#   returns    a list [ item, positions ]
+	#   see        DupSecutiveItems
 	def DupSecutiveItemZ(pItem)
 		return This.DupSecutiveItemCSZ(pItem, 1)
 
@@ -6753,6 +8151,10 @@ class stzList from stzObject
 			This.RemoveDupSecutiveItemsCS(pCaseSensitive)
 			return This
 
+	# Removes the items that repeat the one before them, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        DupSecutiveItems
 	def RemoveDupSecutiveItems()
 		This.RemoveDupSecutiveItemsCS(1)
 
@@ -6763,39 +8165,69 @@ class stzList from stzObject
 		ok
 		This._SetContent(_StzRemoveThisDupSecutive(This.Content(), pItem, pCaseSensitive))
 
+	# Removes the repeats of the given item that follow it directly, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        RemoveDuplicatedItems
 	def RemoveDupSecutiveItem(pItem)
 		This.RemoveDupSecutiveItemCS(pItem, 1)
 
-	# The position(s) of the nth smallest item.
+	# Returns the positions of the nth smallest value.
+	#
+	#   _n_        the rank, 1 for the smallest
+	#   returns    a list of positions
+	#   see        NthSmallest
+	#@ aka  The position(s) of the nth smallest item.
 	def FindNthSmallest(_n_)
 		return This.Find(This.NthSmallest(_n_))
 
-	# The position(s) of the nth largest item.
+	# Returns the positions of the nth largest value.
+	#
+	#   _n_        the rank, 1 for the largest
+	#   returns    a list of positions
+	#   see        NthLargest
+	#@ aka  The position(s) of the nth largest item.
 	def FindNthLargest(_n_)
 		return This.Find(This.NthLargest(_n_))
 
-	#-- contiguous runs of strings / lists as [start,end] sections
+	# Returns each run of consecutive string or list items as a [ start, end ] pair.
+	#
+	#   returns    a list of [ start, end ] pairs
+	#   see        FindNumbersAsSections
+	#@ aka  -- contiguous runs of strings / lists as [start,end] sections
 	def FindStringsAsSections()
 		return _StzFindTypeRuns(This.Content(), "string")
 
 		def FindStringsZZ()
 			return This.FindStringsAsSections()
 
-	# The [start, end] runs of consecutive LIST items.
+	# Returns each run of consecutive list items as a [ start, end ] pair.
+	#
+	#   returns    a list of [ start, end ] pairs
+	#   see        FindNumbersAsSections
+	#@ aka  The [start, end] runs of consecutive LIST items.
 	def FindListsAsSections()
 		return _StzFindTypeRuns(This.Content(), "list")
 
 		def FindListsZZ()
 			return This.FindListsAsSections()
 
-	# The [start, end] runs of consecutive OBJECT items.
+	# Returns each run of consecutive object items as a [ start, end ] pair.
+	#
+	#   returns    a list of [ start, end ] pairs
+	#   see        FindNumbersAsSections
+	#@ aka  The [start, end] runs of consecutive OBJECT items.
 	def FindObjectsAsSections()
 		return _StzFindTypeRuns(This.Content(), "object")
 
 		def FindObjectsZZ()
 			return This.FindObjectsAsSections()
 
-	#-- first position type-sensitively equal to pItem ("2" != 2 != [2])
+	# Returns the position of the first item equal to the given one, by type as well as by value.
+	#
+	#   returns    a number; 0 when absent
+	#   see        FindItem
+	#@ aka  -- first position type-sensitively equal to pItem ("2" != 2 != [2])
 	def FindFirstOccurrence(pItem)
 		return _StzFindFirstTyped(This.Content(), pItem)
 
@@ -6835,6 +8267,10 @@ class stzList from stzObject
 			This.RemoveAllCS(paItems[_i_], 1)
 		next
 
+		# Removes every occurrence of each of the given items, in place.
+		#
+		#   returns    nothing; the list changes
+		#   see        RemoveItemsOtherThan
 		def RemoveTheseItems(paItems)
 			This.RemoveMany(paItems)
 
@@ -6846,67 +8282,135 @@ class stzList from stzObject
 		ok
 		This._SetContent(_StzKeepMembers(This.Content(), _items_))
 
+		# Removes every item that is not among the given ones, in place.
+		#
+		#   returns    nothing; the list changes
+		#   see        RemoveTheseItems
 		def RemoveItemsOtherThan(paItems)
 			This.RemoveAllExcept(paItems)
 
-	#-- remove the panOcc-th occurrences of pItem (by occurrence index)
+	# Removes the given occurrences of the item, counted from 1, in place.
+	#
+	#   panOcc     the ranks of the occurrences to remove
+	#   returns    nothing; the list changes
+	#   see        RemoveNth
+	#@ aka  -- remove the panOcc-th occurrences of pItem (by occurrence index)
 	def RemoveOccurrences(panOcc, pItem)
 		_pos_ = This.FindAllCS(pItem, 1)
 		This._SetContent(_StzRemoveAtPositions(This.Content(), _StzPickPositions(panOcc, _pos_)))
 
+	# Removes the given item from the start of the list, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        RemoveAnyItemFromEnd
 	def RemoveAnyItemFromStart(pItem)
 		This._SetContent(_StzRemoveLeadingRun(This.Content(), pItem))
 
+	# Removes the given item from the end of the list, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        RemoveAnyItemFromStart
 	def RemoveAnyItemFromEnd(pItem)
 		This._SetContent(_StzRemoveTrailingRun(This.Content(), pItem))
 
+	# Removes the items that occur only once, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        NonDuplicatedItems
 	def RemoveNonDuplicates()
 		This._SetContent(_StzRemoveNonDuplicates(This.Content()))
 
-	#-- remove the n-th occurrence of pItem
+	# Removes the nth occurrence of the item, in place.
+	#
+	#   _n_        which occurrence
+	#   returns    nothing; the list changes
+	#   see        RemoveNth
+	#@ aka  -- remove the n-th occurrence of pItem
 	def RemoveThisNthItem(_n_, pItem)
 		_pos_ = This.FindAllCS(pItem, 1)
 		if _n_ >= 1 and ring_len(_pos_) >= _n_
 			This._SetContent(_StzRemoveAtPositions(This.Content(), [ _pos_[_n_] ]))
 		ok
 
+		# Removes the nth occurrence of the item, in place.
+		#
+		#   _n_        which occurrence
+		#   returns    nothing; the list changes
+		#   see        RemoveFirst
 		def RemoveNth(_n_, pItem)
 			This.RemoveThisNthItem(_n_, pItem)
 
-	#-- occurrence removal relative to a position (Next strictly after,
-	#-- Previous strictly before; the Nth index is forward into that run)
+	# Removes the nth occurrence of the item after a given position, in place.
+	#
+	#   _n_        which occurrence, counted from the starting position
+	#   returns    nothing; the list changes
+	#   see        RemovePreviousNthOccurrence
+	#@ aka  -- occurrence removal relative to a position (Next strictly after, -- Previous strictly before; the Nth index is forward into that run)
 	def RemoveNextNthOccurrence(_n_, pItem, pnStartingAt)
 		_p_ = This.FindNthNextOccurrence(_n_, pItem, pnStartingAt)
 		if _p_ > 0
 			This._SetContent(_StzRemoveAtPositions(This.Content(), [ _p_ ]))
 		ok
 
+	# Removes the given ranks of occurrences of the item after a position, in place.
+	#
+	#   panN       the ranks of the occurrences to remove
+	#   returns    nothing; the list changes
+	#   see        RemoveNextNthOccurrence
 	def RemoveNextNthOccurrences(panN, pItem, pnStartingAt)
 		_ps_ = This.FindNextNthOccurrencesST(panN, pItem, pnStartingAt)
 		This._SetContent(_StzRemoveAtPositions(This.Content(), _ps_))
 
+		# Returns a copy without the given ranks of next occurrences of the item after a position; the list is unchanged.
+		#
+		#   panN       the ranks of the occurrences to remove
+		#   returns    a list of items
+		#   see        RemoveNextNthOccurrences
 		def NextNthOccurrencesRemoved(panN, pItem, pnStartingAt)
 			_ps_ = This.FindNextNthOccurrencesST(panN, pItem, pnStartingAt)
 			return _StzRemoveAtPositions(This.Content(), _ps_)
 
+	# Removes the nth occurrence of the item before a given position, in place.
+	#
+	#   _n_        which occurrence, counted backwards
+	#   returns    nothing; the list changes
+	#   see        RemoveNextNthOccurrence
 	def RemovePreviousNthOccurrence(_n_, pItem, pnStartingAt)
 		_ps_ = This.FindPreviousNthOccurrences([ _n_ ], pItem, pnStartingAt)
 		if ring_len(_ps_) > 0
 			This._SetContent(_StzRemoveAtPositions(This.Content(), [ _ps_[1] ]))
 		ok
 
+	# Removes the given ranks of occurrences of the item before a position, in place.
+	#
+	#   panN       the ranks of the occurrences to remove
+	#   returns    nothing; the list changes
+	#   see        RemovePreviousNthOccurrence
 	def RemovePreviousNthOccurrences(panN, pItem, pnStartingAt)
 		_ps_ = This.FindPreviousNthOccurrences(panN, pItem, pnStartingAt)
 		This._SetContent(_StzRemoveAtPositions(This.Content(), _ps_))
 
+		# Returns a copy without the given ranks of previous occurrences of the item before a position; the list is unchanged.
+		#
+		#   panN       the ranks of the occurrences to remove
+		#   returns    a list of items
+		#   see        RemovePreviousNthOccurrences
 		def PreviousNthOccurrencesRemoved(panN, pItem, pnStartingAt)
 			_ps_ = This.FindPreviousNthOccurrences(panN, pItem, pnStartingAt)
 			return _StzRemoveAtPositions(This.Content(), _ps_)
 
-	#-- remove the first occurrence of pItem
+	# Removes the first occurrence of the item, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        RemoveNth, RemoveLast
+	#@ aka  -- remove the first occurrence of pItem
 	def RemoveFirst(pItem)
 		This.RemoveThisNthItem(1, pItem)
 
+		# Removes the first occurrence of the item, in place.
+		#
+		#   returns    nothing; the list changes
+		#   see        RemoveFirst
 		def RemoveThisFirstItem(pItem)
 			This.RemoveFirst(pItem)
 
@@ -6919,7 +8423,12 @@ class stzList from stzObject
 			This._SetContent(_StzRemoveAtPositions(This.Content(), [ _pos_[1] ]))
 		ok
 
-	#-- remove the item at position n; accepts :First / :Last
+	# Removes the item at position n, in place; :First and :Last are accepted.
+	#
+	#   _n_        the position to remove
+	#   returns    nothing; the list changes
+	#   see        RemoveItemAtPosition
+	#@ aka  -- remove the item at position n; accepts :First / :Last
 	def RemoveNthItem(_n_)
 		if isString(_n_)
 			if _n_ = :Last or _n_ = :LastItem
@@ -6934,34 +8443,68 @@ class stzList from stzObject
 	 #  CONTAINS predicates (no / both / each / only-one / by-type) #
 	#=========================================================#
 
+	# TRUE if the item does not occur in the list.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Contains
 	def ContainsNo(pItem)
 		return NOT This.Contains(pItem)
 
+	# TRUE if both of the given items occur in the list.
+	#
+	#   p1         the first item
+	#   p2         the second item
+	#   returns    TRUE or FALSE
+	#   see        ContainsEach
 	def ContainsBoth(p1, p2)
 		return This.Contains(p1) and This.Contains(p2)
 
 	def ContainsEachOneOfThese(paItems)
 		return This.ContainsEach(paItems)
 
-	#-- TRUE iff exactly ONE distinct member of paItems is present
+	# TRUE if exactly one distinct item among the given ones occurs in the list.
+	#
+	#   returns    TRUE or FALSE
+	#   see        ContainsOneOfThese
+	#@ aka  -- TRUE iff exactly ONE distinct member of paItems is present
 	def ContainsOnlyOneOfThese(paItems)
 		return _StzCountMembersPresent(This.Content(), paItems) = 1
 
+	# TRUE if no item is an object.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Objects
 	def ContainsNoObjects()
 		return NOT _StzContainsType(This.Content(), "object")
 
+	# TRUE if at least one item is an object.
+	#
+	#   returns    TRUE or FALSE
+	#   see        ContainsNoObjects
 	def ContainsObjects()
 		return _StzContainsType(This.Content(), "object")
 
+	# TRUE if at least one item is a list.
+	#
+	#   returns    TRUE or FALSE
+	#   see        ContainsNoObjects
 	def ContainsOneOrMoreLists()
 		return _StzContainsType(This.Content(), "list")
 
 		def ContainsLists()
 			return This.ContainsOneOrMoreLists()
 
+	# TRUE if no item is a number.
+	#
+	#   returns    TRUE or FALSE
+	#   see        ContainsNoStrings
 	def ContainsNoNumbers()
 		return NOT _StzContainsType(This.Content(), "number")
 
+	# TRUE if no item is a string.
+	#
+	#   returns    TRUE or FALSE
+	#   see        ContainsNoNumbers
 	def ContainsNoStrings()
 		return NOT _StzContainsType(This.Content(), "string")
 
@@ -6969,12 +8512,24 @@ class stzList from stzObject
 	 #  SINGLES (1-elem lists) and PAIRS (2-elem lists)        #
 	#=========================================================#
 
+	# TRUE if the list holds exactly one item.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsPair
 	def IsSingle()
 		return ring_len(@aContent) = 1
 
+	# Returns the positions of the items that are lists of one item.
+	#
+	#   returns    a list of positions
+	#   see        Singles
 	def FindSingles()
 		return _StzFindListsOfLen(This.Content(), 1)
 
+	# Returns the items that are lists of one item.
+	#
+	#   returns    a list of one-item lists
+	#   see        FindSingles
 	def Singles()
 		return _StzItemsAtPos(This.Content(), This.FindSingles())
 
@@ -6984,15 +8539,31 @@ class stzList from stzObject
 	def SinglesZ()
 		return _StzGroupItemsAtPos(This.Content(), This.FindSingles())
 
+	# TRUE if at least one item is a list of one item.
+	#
+	#   returns    TRUE or FALSE
+	#   see        FindSingles
 	def ContainsSingles()
 		return ring_len(This.FindSingles()) > 0
 
+	# Returns each item wrapped in a one-item list.
+	#
+	#   returns    a list of one-item lists
+	#   see        Pairified
 	def Singlified()
 		return _StzSinglified(This.Content())
 
+	# Returns the positions of the items that are pairs, lists of two items.
+	#
+	#   returns    a list of positions
+	#   see        Pairs
 	def FindPairs()
 		return _StzFindListsOfLen(This.Content(), 2)
 
+	# Returns the items that are pairs, lists of two items.
+	#
+	#   returns    a list of pairs
+	#   see        Pairs
 	def ItemsThatArePairs()
 		return _StzItemsAtPos(This.Content(), This.FindPairs())
 
@@ -7002,9 +8573,17 @@ class stzList from stzObject
 	def PairsZ()
 		return _StzGroupItemsAtPos(This.Content(), This.FindPairs())
 
+	# TRUE if at least one item is a pair, a list of two items.
+	#
+	#   returns    TRUE or FALSE
+	#   see        FindPairs
 	def ContainsPairs()
 		return ring_len(This.FindPairs()) > 0
 
+	# Returns each item as the first of a two-item list whose second item is empty.
+	#
+	#   returns    a list of two-item lists
+	#   see        Singlified
 	def Pairified()
 		return _StzPairified(This.Content())
 
@@ -7012,11 +8591,20 @@ class stzList from stzObject
 	 #  ITEMS / THESE-ITEMS family                             #
 	#=========================================================#
 
-	#-- [[item,[positions]],...] for each given item (includes empties)
+	# Returns each given item with the positions where it occurs, empty lists included.
+	#
+	#   returns    a list of [ item, positions ] pairs
+	#   see        FindTheseItems
+	#@ aka  -- [[item,[positions]],...] for each given item (includes empties)
 	def TheseItemsZ(paItems)
 		return _StzTheseItemsZ(This.Content(), paItems)
 
-	#-- distinct items by occurrence count (>= n by default)
+	# Returns the distinct items that occur at least n times.
+	#
+	#   _n_        the number of occurrences
+	#   returns    a list of items
+	#   see        ItemsAppearingNTimes
+	#@ aka  -- distinct items by occurrence count (>= n by default)
 	def ItemsOccurringNTimes(_n_)
 		return _StzItemsByCountOp(This.Content(), _n_, "ge")
 
@@ -7026,27 +8614,55 @@ class stzList from stzObject
 		def ItemsOccurringNTimesOrMore(_n_)
 			return This.ItemsOccurringNTimes(_n_)
 
+	# Returns the distinct items that occur exactly n times.
+	#
+	#   _n_        the number of occurrences
+	#   returns    a list of items
+	#   see        ItemsAppearingNTimes
 	def ItemsOccurringExactlyNTimes(_n_)
 		return _StzItemsByCountOp(This.Content(), _n_, "eq")
 
 		def ItemsOccuringExactlyNTimes(_n_)
 			return This.ItemsOccurringExactlyNTimes(_n_)
 
+	# Returns the distinct items that occur fewer than n times.
+	#
+	#   _n_        the number of occurrences
+	#   returns    a list of items
+	#   see        ItemsOccurringNTimes
 	def ItemsOccurringLessThanNTimes(_n_)
 		return _StzItemsByCountOp(This.Content(), _n_, "lt")
 
+	# Returns the distinct items that occur n times or fewer.
+	#
+	#   _n_        the number of occurrences
+	#   returns    a list of items
+	#   see        ItemsOccurringNTimes
 	def ItemsOccurringNTimesOrLess(_n_)
 		return _StzItemsByCountOp(This.Content(), _n_, "le")
 
+	# Returns the distinct items that occur more than n times.
+	#
+	#   _n_        the number of occurrences
+	#   returns    a list of items
+	#   see        ItemsAppearingNTimes
 	def ItemsOccurringMoreThanNTimes(_n_)
 		return _StzItemsByCountOp(This.Content(), _n_, "gt")
 
+	# TRUE if every item has the same type.
+	#
+	#   returns    TRUE or FALSE
+	#   see        UniqueTypes
 	def ItemsHaveSameType()
 		return _StzAllSameType(This.Content())
 
 		def AllItemsHaveSameType()
 			return This.ItemsHaveSameType()
 
+	# TRUE if every item is an empty list.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsListOfEmptyLists
 	def ItemsAreEmptyLists()
 		return _StzAllEmptyLists(This.Content())
 
@@ -7056,6 +8672,10 @@ class stzList from stzObject
 		ok
 		return _StzAllEqualCS(This.Content(), pItem, pCaseSensitive)
 
+	# TRUE if every item equals the given value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        AllItemsAreEqual
 	def ItemsAreEqualTo(pItem)
 		return _StzAllEqualTyped(This.Content(), pItem)
 
@@ -7067,7 +8687,11 @@ class stzList from stzObject
 		def ContainsOnlyCS(pItem, pCaseSensitive)
 			return This.ItemsAreEqualToCS(pItem, pCaseSensitive)
 
-	#-- all items satisfy a W-condition
+	# TRUE if every item meets the W condition.
+	#
+	#   returns    TRUE or FALSE
+	#   see        CheckW
+	#@ aka  -- all items satisfy a W-condition
 	def ItemsHaveXT(pcCondition)
 		return ring_len(This.FindAllItemsW(pcCondition)) = This.NumberOfItems()
 
@@ -7081,9 +8705,17 @@ class stzList from stzObject
 	 #  INSERT after/before many positions / by W-condition    #
 	#=========================================================#
 
+	# Inserts the item after each of the given positions, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        InsertAfterPositions
 	def InsertAfterManyPositions(panPos, pItem)
 		This._SetContent(_StzInsertAfterPositions(This.Content(), panPos, pItem))
 
+	# Inserts the item before each of the given positions, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        InsertBeforePositions
 	def InsertBeforeManyPositions(panPos, pItem)
 		This._SetContent(_StzInsertBeforePositions(This.Content(), panPos, pItem))
 
@@ -7096,7 +8728,12 @@ class stzList from stzObject
 	 #  COUNTER DELEGATIONS        #
 	#-----------------------------#
 
-	# How many unique items satisfy the given W condition.
+	# Returns how many distinct items meet the W condition.
+	#
+	#   pCondition   the W condition
+	#   returns      a number
+	#   see          NumberOfUniqueNamedObjects
+	#@ aka  How many unique items satisfy the given W condition.
 	def NumberOfUniqueItemsW(pCondition)
 		_oNuiwCounter_ = new stzListCounter(This)
 		return _oNuiwCounter_.NumberOfUniqueItemsW(pCondition)
@@ -7117,35 +8754,71 @@ class stzList from stzObject
 	 #  SPLITTER DELEGATIONS       #
 	#-----------------------------#
 
-	# SplitAt already defined in core
-
+	# Raises error R14 today instead of splitting the list with the given options.
+	#
+	#   p          the item or the options to split with
+	#   returns    nothing today
+	#   warning    known defect: the call raises error R14 today, because it calls a method that is
+	#              not defined
+	#   see        SplittedAt
+	#@ aka  SplitAt already defined in core
 	def SplitXT(p)
 		_oSxtSplitter_ = new stzListSplits(This)
 		return _oSxtSplitter_.SplitXT(p)
 
-	# Split with the given item-or-options param; the parts, as data.
+	# Raises error R14 today instead of returning the parts split with the given options.
+	#
+	#   p          the item or the options to split with
+	#   returns    nothing today
+	#   warning    known defect: the call raises error R14 today, because it calls a method that is
+	#              not defined
+	#   see        SplittedAt
+	#@ aka  Split with the given item-or-options param; the parts, as data.
 	def SplittedXT(p)
 		_oSdxtSplitter_ = new stzListSplits(This)
 		return _oSdxtSplitter_.SplittedXT(p)
 
-	# Split with the given item-or-options param; the [start, end]
-	# sections of the parts.
+	# Raises error R14 today instead of returning the sections of the parts.
+	#
+	#   p          the item or the options to split with
+	#   returns    nothing today
+	#   warning    known defect: the call raises error R14 today, because it calls a method that is
+	#              not defined
+	#   see        SplittedAt
+	#@ aka  Split with the given item-or-options param; the [start, end] sections of the parts.
 	def SplitAsSectionsXT(p)
 		_oSasxtSplitter_ = new stzListSplits(This)
 		return _oSasxtSplitter_.SplitAsSectionsXT(p)
 
-	# The [start, end] sections of the parts, as data (XT options form).
+	# Raises error R14 today instead of returning the sections of the parts.
+	#
+	#   p          the item or the options to split with
+	#   returns    nothing today
+	#   warning    known defect: the call raises error R14 today, because it calls a method that is
+	#              not defined
+	#   see        SplittedAt
+	#@ aka  The [start, end] sections of the parts, as data (XT options form).
 	def SplittedAsSectionsXT(p)
 		_oSdasxtSplitter_ = new stzListSplits(This)
 		return _oSdasxtSplitter_.SplittedAsSectionsXT(p)
 
-	# Split the list at the given item (or position): the parts.
+	# Leaves the list unchanged today instead of splitting it at an item or position.
+	#
+	#   pItemOrPos   the item or the position to split at
+	#   returns      nothing today
+	#   warning      known defect: the call computes the parts on a copy and drops them; use the
+	#                Splitted forms
+	#   see          SplittedAtPosition
+	#@ aka  Split the list at the given item (or position): the parts.
 	def SplitCS(pItemOrPos, pCaseSensitive)
 		_oScsSplitter_ = new stzListSplits(This)
 		return _oScsSplitter_.SplitCS(pItemOrPos, pCaseSensitive)
 
-	# SplitAtPositions MUTATES the content into the list of parts; the
-	# items AT the positions are DROPPED (split "at", not "before").
+	# Splits the list at the given positions, in place; the items at those positions are dropped.
+	#
+	#   returns    nothing; the list becomes the list of parts
+	#   see        SplitAfterPositions
+	#@ aka  SplitAtPositions MUTATES the content into the list of parts; the items AT the positions are DROPPED (split "at", not "before").
 	def SplitAtPositions(panPos)
 		if NOT isList(panPos) return [ This.Content() ] ok
 		_aSap_ = This.Content()
@@ -7172,7 +8845,11 @@ class stzList from stzObject
 		This.Update(_aSapParts_)
 		return _aSapParts_
 
-	# The parts of the list split at the given positions.
+	# Returns the list cut at the given positions; the list is unchanged.
+	#
+	#   returns    a list of lists
+	#   see        SplitAtPositions
+	#@ aka  The parts of the list split at the given positions.
 	def SplittedAtPositions(panPos)
 		_oSdapSplitter_ = new stzListSplits(This)
 		return _oSdapSplitter_.SplittedAtPositions(panPos)
@@ -7185,12 +8862,24 @@ class stzList from stzObject
 		_oSdapzzSplitter_ = new stzListSplits(This)
 		return _oSdapzzSplitter_.SplittedAtPositionsZZ(panPos)
 
-	# Split the list at the given position: the parts.
+	# Leaves the list unchanged today instead of splitting it at a position.
+	#
+	#   _n_        the position to split at
+	#   returns    nothing today
+	#   warning    known defect: the call computes the parts on a copy and drops them;
+	#              SplittedAtPosition returns them
+	#   see        SplittedAtPosition
+	#@ aka  Split the list at the given position: the parts.
 	def SplitAtPosition(_n_)
 		_oSaposSplitter_ = new stzListSplits(This)
 		return _oSaposSplitter_.SplitAtPosition(_n_)
 
-	# The parts of the list split at the given position.
+	# Returns the list cut at the given position into two parts; the list is unchanged.
+	#
+	#   _n_        the position to cut at
+	#   returns    a list of two lists
+	#   see        SplittedBeforePosition
+	#@ aka  The parts of the list split at the given position.
 	def SplittedAtPosition(_n_)
 		_oSdaposSplitter_ = new stzListSplits(This)
 		return _oSdaposSplitter_.SplittedAtPosition(_n_)
@@ -7211,8 +8900,11 @@ class stzList from stzObject
 		_oSdacsSplitter_ = new stzListSplits(This)
 		return _oSdacsSplitter_.SplittedAtCS(pItem, pCaseSensitive)
 
-	# The parts of the list split at each occurrence of the given item
-	# (the item itself is not kept in the parts).
+	# Returns the parts of the list cut at each occurrence of the item, the item itself not kept.
+	#
+	#   returns    a list of lists
+	#   see        SplitAtPositions
+	#@ aka  The parts of the list split at each occurrence of the given item (the item itself is not kept in the parts).
 	def SplittedAt(pItem)
 		return This.SplittedAtCS(pItem, 1)
 
@@ -7230,12 +8922,24 @@ class stzList from stzObject
 	def SplittedAtZZ(pItem)
 		return This.SplittedAtCSZZ(pItem, 1)
 
-	# Split the list before the given position: the parts.
+	# Leaves the list unchanged today instead of splitting it before a position.
+	#
+	#   _n_        the position to split before
+	#   returns    nothing today
+	#   warning    known defect: the call computes the parts on a copy and drops them;
+	#              SplittedBeforePosition returns them
+	#   see        SplittedBeforePosition
+	#@ aka  Split the list before the given position: the parts.
 	def SplitBeforePosition(_n_)
 		_oSbpSplitter_ = new stzListSplits(This)
 		return _oSbpSplitter_.SplitBeforePosition(_n_)
 
-	# The parts of the list split before the given position.
+	# Returns the list cut before the given position into two parts; the list is unchanged.
+	#
+	#   _n_        the position to cut before
+	#   returns    a list of two lists
+	#   see        SplittedAtPosition, SplittedAfterPosition
+	#@ aka  The parts of the list split before the given position.
 	def SplittedBeforePosition(_n_)
 		_oSdbpSplitter_ = new stzListSplits(This)
 		return _oSdbpSplitter_.SplittedBeforePosition(_n_)
@@ -7255,12 +8959,24 @@ class stzList from stzObject
 	def SplitBefore(pItem)
 		return This.SplitBeforeCS(pItem, 1)
 
-	# Split the list after the given position: the parts.
+	# Leaves the list unchanged today instead of splitting it after a position.
+	#
+	#   _n_        the position to split after
+	#   returns    nothing today
+	#   warning    known defect: the call computes the parts on a copy and drops them;
+	#              SplittedAfterPosition returns them
+	#   see        SplittedAfterPosition
+	#@ aka  Split the list after the given position: the parts.
 	def SplitAfterPosition(_n_)
 		_oSafpSplitter_ = new stzListSplits(This)
 		return _oSafpSplitter_.SplitAfterPosition(_n_)
 
-	# The parts of the list split after the given position.
+	# Returns the list cut after the given position into two parts; the list is unchanged.
+	#
+	#   _n_        the position to cut after
+	#   returns    a list of two lists
+	#   see        SplittedAtPosition
+	#@ aka  The parts of the list split after the given position.
 	def SplittedAfterPosition(_n_)
 		_oSdafpSplitter_ = new stzListSplits(This)
 		return _oSdafpSplitter_.SplittedAfterPosition(_n_)
@@ -7280,8 +8996,15 @@ class stzList from stzObject
 	def SplitAfter(pItem)
 		return This.SplitAfterCS(pItem, 1)
 
-	# Split the list into n (near-)equal parts.
+	# Leaves the list unchanged today instead of splitting it into n parts.
+	#
+	#   _n_        the number of parts
+	#   returns    nothing today
+	#   warning    known defect: the call computes the parts on a copy and drops them;
+	#              SplittedToNParts returns them
+	#   see        SplittedToNParts
 	#@ aka  divide, chunk, break into parts, portions
+	#@ aka  Split the list into n (near-)equal parts.
 	def SplitToNParts(_n_)
 		_oStnpSplitter_ = new stzListSplits(This)
 		return _oStnpSplitter_.SplitToNParts(_n_)
@@ -7289,21 +9012,41 @@ class stzList from stzObject
 		def SplitToNPartsQ(_n_)
 			return new stzList( This.SplitToNParts(_n_) )
 
-	# The n (near-)equal parts of the list, as data.
+	# Returns the list divided into n parts of near-equal size; the list is unchanged.
+	#
+	#   _n_        the number of parts
+	#   returns    a list of lists
+	#   see        SplittedToPartsOfNItems
+	#@ aka  The n (near-)equal parts of the list, as data.
 	def SplittedToNParts(_n_)
 		_oSdtnpSplitter_ = new stzListSplits(This)
 		return _oSdtnpSplitter_.SplittedToNParts(_n_)
 
-	# Split the list into parts of n items each.
+	# Splits the list into parts of n items each, in place.
+	#
+	#   _n_        the number of items in each part
+	#   returns    nothing; the list becomes the list of parts
+	#   see        SplittedToPartsOfNItems
+	#@ aka  Split the list into parts of n items each.
 	def SplitToPartsOfNItems(_n_)
 		# Mutator: delegating to new stzListSplits(This) would mutate a COPY of
 		# This (Ring copies objects passed to a constructor), so the change was
 		# lost. Write back through This itself using the returning form.
 		This.UpdateWith( This.SplittedToPartsOfNItems(_n_) )
 
+		# Splits the list into parts of n items each, in place.
+		#
+		#   _n_        the number of items in each part
+		#   returns    nothing; the list becomes the list of parts
+		#   see        SplittedToPartsOfNItems
 		def SplitToPartsOf(_n_)
 			This.SplitToPartsOfNItems(_n_)
 
+	# Returns the list cut into parts of n items each; the list is unchanged.
+	#
+	#   _n_        the number of items in each part
+	#   returns    a list of lists
+	#   see        SplittedToNParts, Chunks
 	def SplittedToPartsOfNItems(_n_)
 		_oSdtponiSplitter_ = new stzListSplits(This)
 		return _oSdtponiSplitter_.SplittedToPartsOfNItems(_n_)
@@ -7311,19 +9054,40 @@ class stzList from stzObject
 		def SplittedToPartsOf(_n_)
 			return This.SplittedToPartsOfNItems(_n_)
 
+	# Leaves the list unchanged today instead of splitting it every few items.
+	#
+	#   nPace      how many items in each part
+	#   _nStart_   the position to start from
+	#   returns    nothing today
+	#   warning    known defect: the call computes the parts on a copy and drops them;
+	#              SplittedAtPacer returns them
+	#   see        SplittedAtPacer
 	def SplitAtPacer(nPace, _nStart_)
 		_oSapcrSplitter_ = new stzListSplits(This)
 		return _oSapcrSplitter_.SplitAtPacer(nPace, _nStart_)
 
+	# Returns the list cut into parts of a fixed number of items, from a position; the list is unchanged.
+	#
+	#   nPace      how many items in each part
+	#   _nStart_   the position to start from
+	#   returns    a list of lists
+	#   see        SplitAtPacer
 	def SplittedAtPacer(nPace, _nStart_)
 		_oSdapcrSplitter_ = new stzListSplits(This)
 		return _oSdapcrSplitter_.SplittedAtPacer(nPace, _nStart_)
 
-	# SplitW MUTATES the content into the list of parts (the matching
-	# items are dropped; SplittedW is the passive twin).
+	# Splits the list at the items that meet the W condition, in place; the items that match are dropped.
+	#
+	#   returns    nothing; the list becomes the list of parts
+	#   see        SplittedW
+	#@ aka  SplitW MUTATES the content into the list of parts (the matching items are dropped; SplittedW is the passive twin).
 	def SplitW(pcCondition)
 		return This.SplitAtPositions( This.FindW(pcCondition) )
 
+	# Returns the list cut at the items that meet the W condition; the list is unchanged.
+	#
+	#   returns    a list of lists
+	#   see        SplitW
 	def SplittedW(pcCondition)
 		_oSdwSplitter_ = new stzListSplits(This)
 		return _oSdwSplitter_.SplittedW(pcCondition)
@@ -7339,6 +9103,10 @@ class stzList from stzObject
 		_oHrliLt_ = new stzListLeadTrail(This)
 		return _oHrliLt_.HasRepeatedLeadingItemsCS(pCaseSensitive)
 
+	# TRUE if the first item is repeated right after itself.
+	#
+	#   returns    TRUE or FALSE
+	#   see        RepeatedLeadingItems
 	def HasRepeatedLeadingItems()
 		return This.HasRepeatedLeadingItemsCS(1)
 
@@ -7346,6 +9114,10 @@ class stzList from stzObject
 		_oRliLt_ = new stzListLeadTrail(This)
 		return _oRliLt_.RepeatedLeadingItemsCS(pCaseSensitive)
 
+	# Returns the run of equal items at the start of the list.
+	#
+	#   returns    a list of items
+	#   see        SectionsOfSameItems
 	def RepeatedLeadingItems()
 		return This.RepeatedLeadingItemsCS(1)
 
@@ -7353,6 +9125,12 @@ class stzList from stzObject
 		_oRlicLt_ = new stzListLeadTrail(This)
 		return _oRlicLt_.RepeatedLeadingItemCS(pCaseSensitive)
 
+	# Leaves nothing today instead of returning the item that repeats at the start.
+	#
+	#   returns    nothing today
+	#   warning    known defect: the call returns an empty string whatever the list holds;
+	#              RepeatedLeadingItems returns the run
+	#   see        RepeatedLeadingItems
 	def RepeatedLeadingItem()
 		return This.RepeatedLeadingItemCS(1)
 
@@ -7360,6 +9138,10 @@ class stzList from stzObject
 		_oNrliLt_ = new stzListLeadTrail(This)
 		return _oNrliLt_.NumberOfRepeatedLeadingItemsCS(pCaseSensitive)
 
+	# Returns how many items follow the first one and equal it.
+	#
+	#   returns    a number
+	#   see        RepeatedLeadingItems
 	def NumberOfRepeatedLeadingItems()
 		return This.NumberOfRepeatedLeadingItemsCS(1)
 
@@ -7367,6 +9149,10 @@ class stzList from stzObject
 		_oHrtiLt_ = new stzListLeadTrail(This)
 		return _oHrtiLt_.HasRepeatedTrailingItemsCS(pCaseSensitive)
 
+	# TRUE if the last item is repeated right before itself.
+	#
+	#   returns    TRUE or FALSE
+	#   see        RepeatedTrailingItems
 	def HasRepeatedTrailingItems()
 		return This.HasRepeatedTrailingItemsCS(1)
 
@@ -7374,6 +9160,10 @@ class stzList from stzObject
 		_oRtiLt_ = new stzListLeadTrail(This)
 		return _oRtiLt_.RepeatedTrailingItemsCS(pCaseSensitive)
 
+	# Returns the run of items equal to the last one.
+	#
+	#   returns    a list of items
+	#   see        TrailingItems
 	def RepeatedTrailingItems()
 		return This.RepeatedTrailingItemsCS(1)
 
@@ -7382,6 +9172,12 @@ class stzList from stzObject
 		_oRticLt_ = new stzListLeadTrail(This)
 		return _oRticLt_.RepeatedTrailingItemCS(pCaseSensitive)
 
+	# Raises error R14 today instead of returning the item that repeats at the end.
+	#
+	#   returns    nothing today
+	#   warning    known defect: the call raises error R14 today, because it calls a method that is
+	#              not defined
+	#   see        RepeatedTrailingItems
 	def RepeatedTrailingItem()
 		return This.RepeatedTrailingItemCS(1)
 
@@ -7390,6 +9186,12 @@ class stzList from stzObject
 		_oNrtiLt_ = new stzListLeadTrail(This)
 		return _oNrtiLt_.NumberOfRepeatedTrailingItemsCS(pCaseSensitive)
 
+	# Raises error R14 today instead of returning how many items before the last equal it.
+	#
+	#   returns    nothing today
+	#   warning    known defect: the call raises error R14 today, because it calls a method that is
+	#              not defined
+	#   see        NumberOfRepeatedLeadingItems
 	def NumberOfRepeatedTrailingItems()
 		return This.NumberOfRepeatedTrailingItemsCS(1)
 
@@ -7415,7 +9217,11 @@ class stzList from stzObject
 	def ExtractMany(paItems)
 		return This.ExtractManyCS(paItems, 1)
 
-	# Empty the list, returning everything that was in it.
+	# Empties the list and returns everything that was in it.
+	#
+	#   returns    a list of items
+	#   see        Extract
+	#@ aka  Empty the list, returning everything that was in it.
 	def ExtractAll()
 		_aContent_ = This.Content()
 		_oEaExt_ = new stzListExtractor(This)
@@ -7423,25 +9229,44 @@ class stzList from stzObject
 		This.UpdateWith(_oEaExt_.Content())
 		return _aContent_
 
-	# Remove the nth item and return it.
+	# Removes the item at position n and returns it.
+	#
+	#   _n_        the position to remove
+	#   returns    the removed item
+	#   see        ExtractAt
+	#@ aka  Remove the nth item and return it.
 	def ExtractNth(_n_)
 		_oEnExt_ = new stzListExtractor(This)
 		_oEnExt_.ExtractNth(_n_)
 		This.UpdateWith(_oEnExt_.Content())
 		return This.Content()[_n_]
 
-	# Remove the FIRST occurrence of the item and return it.
+	# Removes the first occurrence of the item and returns it.
+	#
+	#   returns    the removed item
+	#   see        RemoveFirst
+	#@ aka  Remove the FIRST occurrence of the item and return it.
 	def ExtractFirst(pItem)
 		# Extract = remove the FIRST occurrence of pItem from the list and
 		# return it (the destructive sibling of FindFirst).
 		return This.ExtractFirstCS(pItem, 1)
 
-	# Remove the LAST occurrence of the item and return it.
+	# Removes the last occurrence of the item and returns it.
+	#
+	#   returns    the removed item
+	#   see        ExtractFirst
+	#@ aka  Remove the LAST occurrence of the item and return it.
 	def ExtractLast(pItem)
 		# Remove the LAST occurrence of pItem and return it.
 		return This.ExtractLastCS(pItem, 1)
 
-	# Remove the items at positions n1..n2 and return them.
+	# Removes the items from one position to another, and returns them.
+	#
+	#   _n1_       the position of the first item
+	#   _n2_       the position of the last item
+	#   returns    a list of the removed items
+	#   see        RemoveSection, Section
+	#@ aka  Remove the items at positions n1..n2 and return them.
 	def ExtractSection(_n1_, _n2_)
 		# Capture the section BEFORE removing it (afterwards the list is shorter,
 		# so This.Section(n1,n2) would go out of range).
@@ -7451,7 +9276,13 @@ class stzList from stzObject
 		This.UpdateWith(_oEsExt_.Content())
 		return _aEsSection_
 
-	# Remove nRange items starting at nStart and return them.
+	# Removes a run of items from a position and returns them.
+	#
+	#   pnStart    the position of the first item
+	#   pnRange    how many items
+	#   returns    a list of the removed items
+	#   see        ExtractSection
+	#@ aka  Remove nRange items starting at nStart and return them.
 	def ExtractRange(pnStart, pnRange)
 		# Capture the range BEFORE removing it (same as ExtractSection).
 		_aErRange_ = This.Range(pnStart, pnRange)
@@ -7480,6 +9311,11 @@ class stzList from stzObject
 		This.RemoveItemAtPosition(_nPos_)
 		return pItem
 
+	# Removes the nth occurrence of the item and returns it.
+	#
+	#   _n_        which occurrence
+	#   returns    the removed item
+	#   see        ExtractFirst
 	def ExtractNthOccurrence(_n_, pItem)
 		return This.ExtractNthOccurrenceCS(_n_, pItem, 1)
 
@@ -7490,6 +9326,12 @@ class stzList from stzObject
 		This.UpdateWith(_oEfocsExt_.Content())
 		return This.FirstOccurrenceCS(pItem, pCaseSensitive)
 
+	# Raises error R14 today instead of removing the first occurrence of the item and returning it.
+	#
+	#   returns    nothing today
+	#   warning    known defect: the call raises error R14 today, because it calls
+	#              FirstOccurrenceCS, which is not defined; ExtractFirst works
+	#   see        ExtractFirst
 	def ExtractFirstOccurrence(pItem)
 		return This.ExtractFirstOccurrenceCS(pItem, 1)
 
@@ -7500,6 +9342,12 @@ class stzList from stzObject
 		This.UpdateWith(_oElocsExt_.Content())
 		return This.LastOccurrenceCS(pItem, pCaseSensitive)
 
+	# Raises error R14 today instead of removing the last occurrence of the item and returning it.
+	#
+	#   returns    nothing today
+	#   warning    known defect: the call raises error R14 today, because it calls LastOccurrenceCS,
+	#              which is not defined; ExtractLast works
+	#   see        ExtractLast
 	def ExtractLastOccurrence(pItem)
 		return This.ExtractLastOccurrenceCS(pItem, 1)
 
@@ -7510,31 +9358,53 @@ class stzList from stzObject
 		This.UpdateWith(_oEdcsExt_.Content())
 		return This.DuplicatesCS(pCaseSensitive)
 
+	# Removes the repeats of duplicated items, in place, but answers an empty list instead of the removed items.
+	#
+	#   returns    an empty list today
+	#   warning    known defect: the repeats are removed from the list but the call returns [ ]
+	#              instead of them
+	#   see        RemoveDuplicatedItems
 	def ExtractDuplicates()
 		return This.ExtractDuplicatesCS(1)
 
-	# Remove and return all the STRING items.
+	# Removes the string items and returns them.
+	#
+	#   returns    a list of strings
+	#   see        ExtractNumbers
+	#@ aka  Remove and return all the STRING items.
 	def ExtractStrings()
 		_oEsExt2_ = new stzListExtractor(This)
 		_oEsExt2_.ExtractStrings()
 		This.UpdateWith(_oEsExt2_.Content())
 		return This.OnlyStrings()
 
-	# Remove and return all the NUMBER items.
+	# Removes the number items and returns them.
+	#
+	#   returns    a list of numbers
+	#   see        ExtractStrings
+	#@ aka  Remove and return all the NUMBER items.
 	def ExtractNumbers()
 		_oEnExt2_ = new stzListExtractor(This)
 		_oEnExt2_.ExtractNumbers()
 		This.UpdateWith(_oEnExt2_.Content())
 		return This.OnlyNumbers()
 
-	# Remove and return all the LIST items.
+	# Removes the list items and returns them.
+	#
+	#   returns    a list of lists
+	#   see        ExtractNumbers
+	#@ aka  Remove and return all the LIST items.
 	def ExtractLists()
 		_oElExt2_ = new stzListExtractor(This)
 		_oElExt2_.ExtractLists()
 		This.UpdateWith(_oElExt2_.Content())
 		return This.OnlyLists()
 
-	# Remove the LAST item and return it.
+	# Removes the last item and returns it.
+	#
+	#   returns    the removed item
+	#   see        RemoveLastItem
+	#@ aka  Remove the LAST item and return it.
 	def Pop()
 		_nPopLen_ = This.NumberOfItems()
 		if _nPopLen_ = 0
@@ -7544,7 +9414,11 @@ class stzList from stzObject
 		This.RemoveLastItem()
 		return _pPopItem_
 
-	# Remove the FIRST item and return it.
+	# Removes the first item and returns it.
+	#
+	#   returns    the removed item
+	#   see        Pop
+	#@ aka  Remove the FIRST item and return it.
 	def PopFirst()
 		if This.NumberOfItems() = 0
 			return ""
@@ -7553,15 +9427,25 @@ class stzList from stzObject
 		This.RemoveFirstItem()
 		return _pPfItem_
 
-	# Remove the first n items and return them.
+	# Removes the first n items and returns them.
+	#
+	#   _n_        how many items
+	#   returns    a list of the removed items
+	#   see        TakeLast
 	#@ aka  pop first items, grab, draw from the front
+	#@ aka  Remove the first n items and return them.
 	def Take(_n_)
 		_oTkExt_ = new stzListExtractor(This)
 		_aTkResult_ = _oTkExt_.Take(_n_)
 		This.UpdateWith(_oTkExt_.Content())
 		return _aTkResult_
 
-	# Remove the last n items and return them.
+	# Removes the last n items and returns them.
+	#
+	#   _n_        how many items
+	#   returns    a list of the removed items
+	#   see        Take
+	#@ aka  Remove the last n items and return them.
 	def TakeLast(_n_)
 		_oTlExt_ = new stzListExtractor(This)
 		_aTlResult_ = _oTlExt_.TakeLast(_n_)
@@ -7606,9 +9490,17 @@ class stzList from stzObject
 		_oTlcsTr_.TrimLeftCS(pCaseSensitive)
 		This.UpdateWith(_oTlcsTr_.Content())
 
+	# Removes the empty items (0, an empty string, an empty list) from the start, in place; the last item is always kept.
+	#
+	#   returns    nothing; the list changes
+	#   see        TrimRight, Trim
 	def TrimLeft()
 		This.TrimLeftCS(1)
 
+	# Returns a copy without the empty items at its start; the list is unchanged.
+	#
+	#   returns    a list of items
+	#   see        TrimLeft
 	def TrimmedLeft()
 		return This.TrimmedCS(1)
 
@@ -7617,11 +9509,18 @@ class stzList from stzObject
 		_oTrcsTr_.TrimRightCS(pCaseSensitive)
 		This.UpdateWith(_oTrcsTr_.Content())
 
+	# Removes the empty items (0, an empty string, an empty list) from the end, in place; the first item is always kept.
+	#
+	#   returns    nothing; the list changes
+	#   see        TrimLeft, Trim
 	def TrimRight()
 		This.TrimRightCS(1)
 
-	# A copy with the trailing empty run trimmed; the original is
-	# unchanged.
+	# Returns a copy without the empty items at its end; the list is unchanged.
+	#
+	#   returns    a list of items
+	#   see        TrimRight
+	#@ aka  A copy with the trailing empty run trimmed; the original is unchanged.
 	def TrimmedRight()
 		_oTdrTr_ = new stzListTrimmer(This)
 		return _oTdrTr_.TrimmedRight()
@@ -7632,6 +9531,10 @@ class stzList from stzObject
 		_oTicsTr_.TrimItemCS(pItem, pCaseSensitive)
 		This.UpdateWith(_oTicsTr_.Content())
 
+	# Removes the runs of the given item from both ends of the list, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        TrimLeft
 	def TrimItem(pItem)
 		This.TrimItemCS(pItem, 1)
 
@@ -7641,6 +9544,10 @@ class stzList from stzObject
 		_oTiflcsTr_.TrimItemFromLeftCS(pItem, pCaseSensitive)
 		This.UpdateWith(_oTiflcsTr_.Content())
 
+	# Removes the run of the given item from the start of the list, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        TrimItemFromRight
 	def TrimItemFromLeft(pItem)
 		This.TrimItemFromLeftCS(pItem, 1)
 
@@ -7650,43 +9557,81 @@ class stzList from stzObject
 		_oTifrcsTr_.TrimItemFromRightCS(pItem, pCaseSensitive)
 		This.UpdateWith(_oTifrcsTr_.Content())
 
+	# Removes the run of the given item from the end of the list, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        TrimItemFromLeft
 	def TrimItemFromRight(pItem)
 		This.TrimItemFromRightCS(pItem, 1)
 
+	# Removes the empty items, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        Compacted
 	def Compact()
 		_oCpTr_ = new stzListTrimmer(This)
 		_oCpTr_.Compact()
 		This.UpdateWith(_oCpTr_.Content())
 
+	# Returns a copy without the empty items; the list is unchanged.
+	#
+	#   returns    a list of items
+	#   see        Compact
 	def Compacted()
 		_oCpdTr_ = new stzListTrimmer(This)
 		return _oCpdTr_.Compacted()
 
+	# Squeezes the list, in place, through its trimmer.
+	#
+	#   returns    nothing; the list changes
+	#   see        Squeezed
 	def Squeeze()
 		_oSqTr_ = new stzListTrimmer(This)
 		_oSqTr_.Squeeze()
 		This.UpdateWith(_oSqTr_.Content())
 
+	# Returns the list squeezed through its trimmer; the list is unchanged.
+	#
+	#   returns    a list of items
+	#   see        Squeeze
 	def Squeezed()
 		_oSqdTr_ = new stzListTrimmer(This)
 		return _oSqdTr_.Squeezed()
 
-	# Remove the null items from the list (mutating).
+	# Removes the empty items, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        NullsStripped
+	#@ aka  Remove the null items from the list (mutating).
 	def StripNulls()
 		_oSnTr_ = new stzListTrimmer(This)
 		_oSnTr_.StripNulls()
 		This.UpdateWith(_oSnTr_.Content())
 
+	# Returns a copy without the empty items; the list is unchanged.
+	#
+	#   returns    a list of items
+	#   see        StripNulls
 	def NullsStripped()
 		_oNsTr_ = new stzListTrimmer(This)
 		return _oNsTr_.NullsStripped()
 
-	# Cut the list down to its first n items (mutating).
+	# Cuts the list down to its first n items, in place.
+	#
+	#   _n_        how many items to keep
+	#   returns    nothing; the list changes
+	#   see        TrimmedToSize
+	#@ aka  Cut the list down to its first n items (mutating).
 	def TrimToSize(_n_)
 		_oTtsTr_ = new stzListTrimmer(This)
 		_oTtsTr_.TrimToSize(_n_)
 		This.UpdateWith(_oTtsTr_.Content())
 
+	# Returns the first n items; the list is unchanged.
+	#
+	#   _n_        how many items to keep
+	#   returns    a list of items
+	#   see        TrimToSize
 	def TrimmedToSize(_n_)
 		_oTdtsTr_ = new stzListTrimmer(This)
 		return _oTdtsTr_.TrimmedToSize(_n_)
@@ -7708,13 +9653,26 @@ class stzList from stzObject
 		_oUicsGt_ = new stzListGetter(This)
 		return _oUicsGt_.UniqueItemsCS(pCaseSensitive)
 
+	# Returns each distinct item once, in order of first appearance.
+	#
+	#   returns    a list of items
+	#   see        Classes
 	def UniqueItems()
 		return This.UniqueItemsCS(1)
 
+	# Returns one item picked at random.
+	#
+	#   returns    the item
+	#   see        NRandomItems
 	def RandomItem()
 		_oRiGt_ = new stzListGetter(This)
 		return _oRiGt_.RandomItem()
 
+	# Returns n items picked at random from the list.
+	#
+	#   _n_        how many items
+	#   returns    a list of n items
+	#   see        RandomItem, Shuffled
 	def NRandomItems(_n_)
 		_oNriGt_ = new stzListGetter(This)
 		return _oNriGt_.NRandomItems(_n_)
@@ -7730,7 +9688,11 @@ class stzList from stzObject
 		def RandomNItems(_n_)
 			return This.NRandomItems(_n_)
 
-	# The items of the list, in random order.
+	# Returns some of the items, picked at random.
+	#
+	#   returns    a list of items
+	#   see        NRandomItems
+	#@ aka  The items of the list, in random order.
 	def rndItems()
 		_nRiN_ = This.NumberOfItems()
 		if _nRiN_ = 0 return [] ok
@@ -7740,7 +9702,12 @@ class stzList from stzObject
 		def RandomItems()
 			return This.rndItems()
 
-	# Remove n randomly-chosen items (mutating).
+	# Removes n items chosen at random, in place.
+	#
+	#   _n_        how many items
+	#   returns    the list itself
+	#   see        rndRemoveItems
+	#@ aka  Remove n randomly-chosen items (mutating).
 	def rndRemoveNItems(_n_)
 		_nRrN_ = This.NumberOfItems()
 		if _n_ <= 0 or _nRrN_ = 0 return This ok
@@ -7766,7 +9733,11 @@ class stzList from stzObject
 		def RandomRemoveNItems(_n_)
 			return This.rndRemoveNItems(_n_)
 
-	# Remove randomly-chosen items (mutating).
+	# Removes randomly chosen items, in place.
+	#
+	#   returns    the list itself
+	#   see        RemoveItems
+	#@ aka  Remove randomly-chosen items (mutating).
 	def rndRemoveItems()
 		_nRr2N_ = This.NumberOfItems()
 		if _nRr2N_ = 0 return This ok
@@ -7779,22 +9750,47 @@ class stzList from stzObject
 		def RandomRemoveItems()
 			return This.rndRemoveItems()
 
+	# Returns the items from one position to another, both included.
+	#
+	#   _n1_       the position of the first item
+	#   _n2_       the position of the last item
+	#   returns    a list of items
+	#   see        Section
 	def ItemsBetween(_n1_, _n2_)
 		_oIbGt_ = new stzListGetter(This)
 		return _oIbGt_.ItemsBetween(_n1_, _n2_)
 
+	# Returns every nth item, starting with the nth.
+	#
+	#   _n_        the step between the items kept
+	#   returns    a list of items
+	#   see        WalkNForward
 	def EveryNthItem(_n_)
 		_oEniGt_ = new stzListGetter(This)
 		return _oEniGt_.EveryNthItem(_n_)
 
+	# Returns the first n items.
+	#
+	#   _n_        how many items
+	#   returns    a list of items
+	#   see        NFirstItems
 	def Head(_n_)
 		_oHdGt_ = new stzListGetter(This)
 		return _oHdGt_.Head(_n_)
 
+	# Returns the last n items.
+	#
+	#   _n_        how many items
+	#   returns    a list of items
+	#   see        Head
 	def Tail(_n_)
 		_oTlGt_ = new stzListGetter(This)
 		return _oTlGt_.Tail(_n_)
 
+	# Returns the items that are strings.
+	#
+	#   returns    a list of strings
+	#   see        Strings, OnlyNumbers
 	def OnlyStrings()
 		_oOsGt_ = new stzListGetter(This)
 		return _oOsGt_.OnlyStrings()
@@ -7802,6 +9798,10 @@ class stzList from stzObject
 		def OnlyStringsQ()
 			return new stzList( This.OnlyStrings() )
 
+	# Returns the items that are numbers.
+	#
+	#   returns    a list of numbers
+	#   see        Numbers, OnlyStrings
 	def OnlyNumbers()
 		_oOnGt_ = new stzListGetter(This)
 		return _oOnGt_.OnlyNumbers()
@@ -7809,6 +9809,10 @@ class stzList from stzObject
 		def OnlyNumbersQ()
 			return new stzList( This.OnlyNumbers() )
 
+	# Returns the items that are lists.
+	#
+	#   returns    a list of lists
+	#   see        Lists
 	def OnlyLists()
 		_oOlGt_ = new stzListGetter(This)
 		return _oOlGt_.OnlyLists()
@@ -7816,6 +9820,10 @@ class stzList from stzObject
 		def OnlyListsQ()
 			return new stzList( This.OnlyLists() )
 
+	# Returns the items that are single characters.
+	#
+	#   returns    a list of characters
+	#   see        OnlyStrings
 	def OnlyChars()
 		_oOcGt_ = new stzListGetter(This)
 		return _oOcGt_.OnlyChars()
@@ -7823,13 +9831,19 @@ class stzList from stzObject
 		def OnlyCharsQ()
 			return new stzList( This.OnlyChars() )
 
-	#-- Pairs(): the items of the list that are themselves pairs (2-element
-	#-- lists). For the sliding/consecutive grouping use Pairify()/ToPairs().
+	# Returns the items that are themselves pairs, lists of two items.
+	#
+	#   returns    a list of pairs
+	#   see        FindPairs
+	#@ aka  -- Pairs(): the items of the list that are themselves pairs (2-element -- lists). For the sliding/consecutive grouping use Pairify()/ToPairs().
 	def Pairs()
 		return _StzItemsAtPos(This.Content(), This.FindPairs())
 
-	#-- Pairify()/ToPairs(): group the list into consecutive (sliding) pairs,
-	#-- e.g. [1,2,3,4] -> [[1,2],[2,3],[3,4]].
+	# Returns the sliding pairs of consecutive items, such as [ [ 1, 2 ], [ 2, 3 ] ].
+	#
+	#   returns    a list of two-item lists
+	#   see        Pairified
+	#@ aka  -- Pairify()/ToPairs(): group the list into consecutive (sliding) pairs, -- e.g. [1,2,3,4] -> [[1,2],[2,3],[3,4]].
 	def Pairify()
 		_oPrGt_ = new stzListGetter(This)
 		return _oPrGt_.Pairs()
@@ -7837,10 +9851,19 @@ class stzList from stzObject
 		def ToPairs()
 			return This.Pairify()
 
+	# Returns the sliding triplets of consecutive items, such as [ [ 1, 2, 3 ], [ 2, 3, 4 ] ].
+	#
+	#   returns    a list of three-item lists
+	#   see        Pairify
 	def Triplets()
 		_oTrGt_ = new stzListGetter(This)
 		return _oTrGt_.Triplets()
 
+	# Returns every run of n consecutive items, moving one place at a time.
+	#
+	#   _n_        the size of the window
+	#   returns    a list of lists
+	#   see        Chunks
 	def SlidingWindow(_n_)
 		_oSwGt_ = new stzListGetter(This)
 		return _oSwGt_.SlidingWindow(_n_)
@@ -7849,15 +9872,15 @@ class stzList from stzObject
 	 #  WALKER DELEGATIONS           #
 	#-------------------------------#
 
-	#-- AddWalker: register a NAMED walker over this list. The 4 args may be
-	#-- given positionally (name, start, end, step) OR as named pairs /
-	#-- function-style helpers in any order:
-	#--   AddWalker(:Named=:W, :StartingAt=1, :EndingAt=10, :NStep=2)
-	#--   AddWalker(Named(:W), StartingAt(1), EndingAt(10), NStepsATime(2))
-	#--   AddWalker(:W, 6, 10, [:NStepsATime, 3])
-	#--   AddWalker(Named(:W), StartingAt(1), EndingAt(10), TakingNEqualMoves(3))
-	#-- The walker is stored on THIS list (@aWalkers) and queried later with
-	#-- WalkedItems/WalkedPositions/... ( :By = <name> ).
+	# Registers a named walker over the list.
+	#
+	#   p1         the name of the walker
+	#   p2         where it starts
+	#   p3         where it stops
+	#   p4         its step
+	#   returns    nothing; the walker is stored
+	#   see        Walk
+	#@ aka  -- AddWalker: register a NAMED walker over this list. The 4 args may be -- given positionally (name, start, end, step) OR as named pairs / -- function-style helpers in any order: -- AddWalker(:Named=:W, :StartingAt=1, :EndingAt=10, :NStep=2) -- AddWalker(Named(:W), StartingAt(1), EndingAt(10), NStepsATime(2)) -- AddWalker(:W, 6, 10, [:NStepsATime, 3]) -- AddWalker(Named(:W), StartingAt(1), EndingA
 	def AddWalker(p1, p2, p3, p4)
 		_cAwName_ = ""
 		_nAwStart_ = 1
@@ -7900,7 +9923,11 @@ class stzList from stzObject
 
 		@aWalkers + [ _cAwName_, [ _nAwStart_, _nAwEnd_, _nAwStep_, _cAwMode_, _nAwMoves_ ] ]
 
-	# The named walkers attached to this list.
+	# Returns the named walkers attached to the list.
+	#
+	#   returns    a list of walkers
+	#   see        AddWalker
+	#@ aka  The named walkers attached to this list.
 	def Walkers()
 		return @aWalkers
 
@@ -7921,7 +9948,12 @@ class stzList from stzObject
 		next
 		return ""
 
-	# The positions visited by the given walker.
+	# Returns the positions that the given walker visited.
+	#
+	#   pBy        the name of the walker
+	#   returns    a list of positions
+	#   see        WalkedItems
+	#@ aka  The positions visited by the given walker.
 	def WalkedPositions(pBy)
 		_aWp_ = This._WalkerDef(pBy)
 		if _aWp_ = "" return [] ok
@@ -7949,30 +9981,53 @@ class stzList from stzObject
 		ok
 		return _anRes_
 
-	# The items visited by the given walker.
+	# Returns the items that the given walker visited.
+	#
+	#   pBy        the name of the walker
+	#   returns    a list of items
+	#   see        WalkedPositions
+	#@ aka  The items visited by the given walker.
 	def WalkedItems(pBy)
 		return This.ItemsAtPositions( This.WalkedPositions(pBy) )
 
-	# How many items the given walker visited.
+	# Returns how many items the given walker visited.
+	#
+	#   pBy        the name of the walker
+	#   returns    a number
+	#   see        WalkedItems
+	#@ aka  How many items the given walker visited.
 	def NumberOfWalkedItems(pBy)
 		return len( This.WalkedPositions(pBy) )
 
-	# The last position the given walker reached.
+	# Returns the last position the given walker reached.
+	#
+	#   pBy        the name of the walker
+	#   returns    a number
+	#   see        WalkedLastItem
+	#@ aka  The last position the given walker reached.
 	def WalkedLastPosition(pBy)
 		_anWlp_ = This.WalkedPositions(pBy)
 		if len(_anWlp_) = 0 return 0 ok
 		return _anWlp_[ len(_anWlp_) ]
 
-	# The item at the walker's last position.
+	# Returns the item at the last position the given walker reached.
+	#
+	#   pBy        the name of the walker
+	#   returns    the item
+	#   see        WalkedLastPosition
+	#@ aka  The item at the walker's last position.
 	def WalkedLastItem(pBy)
 		_nWli_ = This.WalkedLastPosition(pBy)
 		if _nWli_ = 0 return "" ok
 		return This.Item(_nWli_)
 
-	#-- YieldWhileWalking: project each item the named walker visits through an
-	#-- engine W-DSL yielder (e.g. '@item * 2', 'Q(@item).Upper()'). Eval-free
-	#-- and engine-backed (stz_list_map_expr). For arbitrary Ring logic
-	#-- (ring_type, upper, StringContains, ...) use YieldWhileWalkingWF.
+	# Returns the yielder applied to each item that the named walker visits.
+	#
+	#   pcYielder   the expression that makes each value
+	#   pWalker     the name of the walker
+	#   returns     a list of values
+	#   see         Walk
+	#@ aka  -- YieldWhileWalking: project each item the named walker visits through an -- engine W-DSL yielder (e.g. '@item * 2', 'Q(@item).Upper()'). Eval-free -- and engine-backed (stz_list_map_expr). For arbitrary Ring logic -- (ring_type, upper, StringContains, ...) use YieldWhileWalkingWF.
 	def YieldWhileWalking(pcYielder, pWalker)
 		_aYwSub_ = This.ItemsAtPositions( This.WalkedPositions(pWalker) )
 		_oYwSub_ = new stzList(_aYwSub_)
@@ -7985,10 +10040,20 @@ class stzList from stzObject
 		_oYwfSub_ = new stzList(_aYwfSub_)
 		return _oYwfSub_.MapWF(pFunc)
 
+	# Returns positions from the first, stepping n at a time.
+	#
+	#   _n_        the step
+	#   returns    a list of positions
+	#   see        WalkBetween
 	def WalkNForward(_n_)
 		_oWnfWk_ = new stzListWalker(This)
 		return _oWnfWk_.WalkNForward(_n_)
 
+	# Returns the positions walked backwards from the last, n at a time.
+	#
+	#   _n_        the step
+	#   returns    a list of positions
+	#   see        WalkNForward
 	def WalkNBackward(_n_)
 		_oWnbWk_ = new stzListWalker(This)
 		return _oWnbWk_.WalkNBackward(_n_)
@@ -8007,6 +10072,12 @@ class stzList from stzObject
 		ok
 		return _anWbPos_
 
+	# Returns the positions from one position to another, as a walk.
+	#
+	#   _n1_       the position to start from
+	#   _n2_       the position to stop at
+	#   returns    a list of positions
+	#   see        Walk
 	def WalkBetween(_n1_, _n2_)
 		return This.WalkBetweenIB(_n1_, _n2_, :WalkedPositions)
 
@@ -8030,11 +10101,18 @@ class stzList from stzObject
 		ok
 		return _anWfPos_
 
+	# Returns the positions walked from the first to the last and back to the first.
+	#
+	#   returns    a list of positions
+	#   see        WalkBackAndForth
 	def WalkForthAndBack()
 		return This.WalkForthAndBackXT(:WalkedPositions)
 
-	# Walk forward up to and including the first occurrence of pItem.
-
+	# Returns the positions walked from the first up to and including the first occurrence of the item.
+	#
+	#   returns    a list of positions
+	#   see        WalkUntil
+	#@ aka  Walk forward up to and including the first occurrence of pItem.
 	def WalkUntilItem(pItem)
 		_nWuiPos_ = This.FindFirst(pItem)
 		if _nWuiPos_ > 0
@@ -8042,47 +10120,90 @@ class stzList from stzObject
 		ok
 		return []
 
+	# Returns the positions of the items that meet the W condition.
+	#
+	#   returns    a list of positions
+	#   see        WalkWhen
 	def WalkW(pcCondition)
 		_oWwWk_ = new stzListWalker(This)
 		return _oWwWk_.WalkW(pcCondition)
 
+	# Returns the positions walked from the first until an item meets the condition, that one included.
+	#
+	#   returns    a list of positions
+	#   see        WalkBetween
 	def WalkUntil(pcCondition)
 		_oWuWk_ = new stzListWalker(This)
 		return _oWuWk_.WalkUntil(pcCondition)
 
+	# Returns the positions walked from the first while the items meet the condition.
+	#
+	#   returns    a list of positions
+	#   see        WalkWhen
 	def WalkWhile(pcCondition)
 		_oWwhWk_ = new stzListWalker(This)
 		return _oWwhWk_.WalkWhile(pcCondition)
 
+	# Returns the positions walked forwards by step, then backwards over those skipped.
+	#
+	#   _nStep_    the step
+	#   returns    a list of positions
+	#   see        WalkBackAndForth
 	def WalkZigZag(_nStep_)
 		_oWzzWk_ = new stzListWalker(This)
 		return _oWzzWk_.WalkZigZag(_nStep_)
 
+	# Returns the positions n, 2n, 3n and so on.
+	#
+	#   _n_        the step
+	#   returns    a list of positions
+	#   see        WalkNForward
 	def WalkEveryNth(_n_)
 		_oWenWk_ = new stzListWalker(This)
 		return _oWenWk_.WalkEveryNth(_n_)
 
-	# PositionsWhere already defined above as alias of FindAllItemsW
-
+	# Returns the positions from one position to another, both included.
+	#
+	#   nFrom      the position to start from
+	#   nTo        the position to stop at
+	#   returns    a list of positions
+	#   see        WalkBetween
+	#@ aka  PositionsWhere already defined above as alias of FindAllItemsW
 	def WalkFromTo(nFrom, nTo)
 		_oWftWk_ = new stzListWalker(This)
 		return _oWftWk_.WalkFromTo(nFrom, nTo)
 
+	# Returns the positions walked forwards, skipping n items between each.
+	#
+	#   _n_        how many items to skip
+	#   returns    a list of positions
+	#   see        WalkEveryNth
 	def WalkSkipping(_n_)
 		_oWsWk_ = new stzListWalker(This)
 		return _oWsWk_.WalkSkipping(_n_)
 
+	# Returns the running result of the expression over the items.
+	#
+	#   returns    a list of values
+	#   see        Walk
 	def WalkAccumulating(pcExpr)
 		_oWaWk_ = new stzListWalker(This)
 		return _oWaWk_.WalkAccumulating(pcExpr)
 
+	# Returns the positions of the items that meet the W condition.
+	#
+	#   returns    a list of positions
+	#   see        WalkW
 	def WalkWhere(pcCondition)
 		_oWhWk_ = new stzListWalker(This)
 		return _oWhWk_.WalkWhere(pcCondition)
 
 
-	# The When-walk over the items (see stzListWalker), driven by the
-	# given condition.
+	# Returns the positions walked from the first item that meets the condition to the end.
+	#
+	#   returns    a list of positions
+	#   see        WalkWhile
+	#@ aka  The When-walk over the items (see stzListWalker), driven by the given condition.
 	def WalkWhen(pcCondition)
 		_oWnWk_ = new stzListWalker(This)
 		return _oWnWk_.WalkWhen(pcCondition)
@@ -8109,9 +10230,13 @@ class stzList from stzObject
 	 #  MOVER DELEGATIONS            #
 	#-------------------------------#
 
-	# Move / Swap accept the named-param spellings
-	# Move(:ItemFromPosition = a, :To = b), Swap(:Positions = a, :And = b),
-	# and the value form Swap(item1, :And = item2).
+	# Moves the item at one position to another position, in place.
+	#
+	#   _n1_       the position to take the item from
+	#   _n2_       the position to put it at
+	#   returns    nothing; the list changes
+	#   see        SwapItems
+	#@ aka  Move / Swap accept the named-param spellings Move(:ItemFromPosition = a, :To = b), Swap(:Positions = a, :And = b), and the value form Swap(item1, :And = item2).
 	def Move(_n1_, _n2_)
 		if isList(_n1_) and len(_n1_) = 2 and isString(_n1_[1]) and
 		   (lower(_n1_[1]) = "itemfromposition" or lower(_n1_[1]) = "fromposition" or
@@ -8168,19 +10293,32 @@ class stzList from stzObject
 		_oSwMvr_.Swap(_n1_, _n2_)
 		This.UpdateWith(_oSwMvr_.Content())
 
-	# Move the item at position n to the START of the list
-	# (mutating).
+	# Moves the item at position n to the start, in place.
+	#
+	#   _n_        the position of the item
+	#   returns    nothing; the list changes
+	#   see        MoveToEnd
+	#@ aka  Move the item at position n to the START of the list (mutating).
 	def MoveToStart(_n_)
 		_oMtsMvr_ = new stzListMover(This)
 		_oMtsMvr_.MoveToStart(_n_)
 		This.UpdateWith(_oMtsMvr_.Content())
 
-	# Move the item at position n to the END of the list (mutating).
+	# Moves the item at position n to the end, in place.
+	#
+	#   _n_        the position of the item
+	#   returns    nothing; the list changes
+	#   see        MoveToStart
+	#@ aka  Move the item at position n to the END of the list (mutating).
 	def MoveToEnd(_n_)
 		_oMteMvr_ = new stzListMover(This)
 		_oMteMvr_.MoveToEnd(_n_)
 		This.UpdateWith(_oMteMvr_.Content())
 
+	# Swaps the first and the last items, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        SwapItems
 	def SwapFirstAndLast()
 		_oSfalMvr_ = new stzListMover(This)
 		_oSfalMvr_.SwapFirstAndLast()
@@ -8193,39 +10331,75 @@ class stzList from stzObject
 		_oMmMvr_.MoveMany(panPositions, nTo)
 		This.UpdateWith(_oMmMvr_.Content())
 
+	# Moves the items n places to the left, in place, the first ones coming round to the end.
+	#
+	#   _n_        how many places to rotate
+	#   returns    nothing; the list changes
+	#   see        RotatedLeft
 	def RotateLeft(_n_)
 		_oRlMvr_ = new stzListMover(This)
 		_oRlMvr_.RotateLeft(_n_)
 		This.UpdateWith(_oRlMvr_.Content())
 
+	# Returns a copy with the items moved n places to the left, the first ones coming round to the end.
+	#
+	#   _n_        how many places to rotate
+	#   returns    a list of items
+	#   see        RotatedRight
 	def RotatedLeft(_n_)
 		_oRdlMvr_ = new stzListMover(This)
 		return _oRdlMvr_.RotatedLeft(_n_)
 
+	# Moves the items n places to the right, in place, the last ones coming round to the start.
+	#
+	#   _n_        how many places to rotate
+	#   returns    nothing; the list changes
+	#   see        RotatedRight
 	def RotateRight(_n_)
 		_oRrMvr_ = new stzListMover(This)
 		_oRrMvr_.RotateRight(_n_)
 		This.UpdateWith(_oRrMvr_.Content())
 
+	# Returns a copy with the items moved n places to the right, the last ones coming round to the start.
+	#
+	#   _n_        how many places to rotate
+	#   returns    a list of items
+	#   see        RotatedLeft
 	def RotatedRight(_n_)
 		_oRdrMvr_ = new stzListMover(This)
 		return _oRdrMvr_.RotatedRight(_n_)
 
+	# Puts the items in random order, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        Shuffled
 	def Shuffle()
 		_oShMvr_ = new stzListMover(This)
 		_oShMvr_.Shuffle()
 		This.UpdateWith(_oShMvr_.Content())
 
+	# Returns a copy with the items in random order; the list is unchanged.
+	#
+	#   returns    a list of items
+	#   see        Randomize
 	#@ aka  randomize, mix, scramble, random order, jumble
 	def Shuffled()
 		_oShdMvr_ = new stzListMover(This)
 		return _oShdMvr_.Shuffled()
 
+	# Moves the first occurrence of the item to the start, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        MoveItemToEnd
 	def MoveItemToStart(pItem)
 		_oMitsMvr_ = new stzListMover(This)
 		_oMitsMvr_.MoveItemToStart(pItem)
 		This.UpdateWith(_oMitsMvr_.Content())
 
+	# Moves the first occurrence of the item to the end, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        MoveItemToStart
 	def MoveItemToEnd(pItem)
 		_oMiteMvr_ = new stzListMover(This)
 		_oMiteMvr_.MoveItemToEnd(pItem)
@@ -8260,10 +10434,24 @@ class stzList from stzObject
 		_oSsSec_ = new stzListSections(This)
 		return _oSsSec_.Sections(paSections)
 
+	# Returns the sections outside one section, as [ start, end ] pairs.
+	#
+	#   _n1_       the position of the first item
+	#   _n2_       the position of the last item
+	#   returns    a list of [ start, end ] pairs
+	#   see        FindAntiSections
 	def FindAntiSection(_n1_, _n2_)
 		_oFasSec_ = new stzListSections(This)
 		return _oFasSec_.FindAntiSection(_n1_, _n2_)
 
+	# Raises error R19 today instead of returning the items outside one section.
+	#
+	#   _n1_       the position of the first item
+	#   _n2_       the position of the last item
+	#   returns    nothing today
+	#   warning    known defect: the call raises error R19 today, because it passes too few
+	#              arguments to the code behind it
+	#   see        FindAntiSection
 	def AntiSection(_n1_, _n2_)
 		_oAsSec_ = new stzListSections(This)
 		return _oAsSec_.AntiSection(_n1_, _n2_)
@@ -8276,7 +10464,11 @@ class stzList from stzObject
 		_oAsibSec_ = new stzListSections(This)
 		return _oAsibSec_.AntiSectionIB(_n1_, _n2_)
 
-	# The [start, end] sections OUTSIDE the given sections.
+	# Returns the sections that lie outside the given sections, as [ start, end ] pairs.
+	#
+	#   returns    a list of [ start, end ] pairs
+	#   see        AntiSections
+	#@ aka  The [start, end] sections OUTSIDE the given sections.
 	def FindAntiSections(paSections)
 		if isList(paSections) and StzLen(paSections) = 2 and
 		   isString(paSections[1]) and StzCaseFold(paSections[1]) = "of"
@@ -8310,7 +10502,11 @@ class stzList from stzObject
 		next
 		return _aFasResult_
 
-	# The items lying outside the given sections.
+	# Returns the items that lie outside the given sections.
+	#
+	#   returns    a list of lists, one per stretch between the sections
+	#   see        FindAntiSections, Sections
+	#@ aka  The items lying outside the given sections.
 	def AntiSections(paSections)
 		if isList(paSections) and StzLen(paSections) = 2 and
 		   isString(paSections[1]) and StzCaseFold(paSections[1]) = "of"
@@ -8381,14 +10577,31 @@ class stzList from stzObject
 		next
 		return _aAsibResult_
 
+	# Returns the run of items of each given range, one list per range.
+	#
+	#   paRanges   the ranges, each [ start, end ]
+	#   returns    a list with one entry per range
+	#   see        AntiRanges, Sections
 	def Ranges(paRanges)
 		_oRgsSec_ = new stzListSections(This)
 		return _oRgsSec_.Ranges(paRanges)
 
+	# Returns the runs of items that lie outside the given ranges.
+	#
+	#   paRanges   the ranges, each [ start, end ]
+	#   returns    a list of lists
+	#   see        Ranges
 	def AntiRanges(paRanges)
 		_oArgsSec_ = new stzListSections(This)
 		return _oArgsSec_.AntiRanges(paRanges)
 
+	# Raises error R14 today instead of returning the ranges and the runs outside them.
+	#
+	#   paRanges   the ranges, each [ start, end ]
+	#   returns    nothing today
+	#   warning    known defect: the call raises error R14 today, because it calls
+	#              SectionsAndAntiSections, which is not defined
+	#   see        Ranges
 	def RangesAndAntiRanges(paRanges)
 		_oRaarSec_ = new stzListSections(This)
 		return _oRaarSec_.RangesAndAntiRanges(paRanges)
@@ -8415,17 +10628,27 @@ class stzList from stzObject
 		_oCfClf_ = new stzListClassifier(This)
 		return _oCfClf_.Classify()
 
+	# Returns each distinct item with the positions where it occurs.
+	#
+	#   returns    a list of [ item, positions ] pairs
+	#   see        Classify
 	def Classified()
 		_oCfdClf_ = new stzListClassifier(This)
 		return _oCfdClf_.Classified()
 
+	# Returns the distinct items, each standing as a class of the list.
+	#
+	#   returns    a list of items
+	#   see        Classify, Klass
 	def Classes()
 		_oClsClf_ = new stzListClassifier(This)
 		return _oClsClf_.Classes()
 
-	# Short-form classification for lists of (contiguous) number-lists:
-	# each list-class key is rendered as "min:max" (e.g. "1:5").
-
+	# Returns the classes of a list of number lists, each written in short form as "min:max".
+	#
+	#   returns    a list of classes
+	#   see        ClassifySF
+	#@ aka  Short-form classification for lists of (contiguous) number-lists: each list-class key is rendered as "min:max" (e.g. "1:5").
 	def ClassesSF()
 		_aCsfC_ = This.Classes()
 		_aCsfR_ = []
@@ -8435,7 +10658,11 @@ class stzList from stzObject
 		next
 		return _aCsfR_
 
-	# The classification of the items, in short form.
+	# Returns the classification of the items, with each class written in short form.
+	#
+	#   returns    a list of [ class, items ] pairs
+	#   see        ClassesSF
+	#@ aka  The classification of the items, in short form.
 	def ClassifySF()
 		_aClsfC_ = This.Classify()
 		_aClsfR_ = []
@@ -8448,7 +10675,12 @@ class stzList from stzObject
 		def ClassifiedSF()
 			return This.ClassifySF()
 
-	# The members of the given class, short-form access.
+	# Returns the positions of the items that belong to the class given in short form.
+	#
+	#   pcShortForm   the class, in short form such as "1:5"
+	#   returns       a list of positions
+	#   see           Klass
+	#@ aka  The members of the given class, short-form access.
 	def KlassSF(pcShortForm)
 		_aKsfC_ = This.ClassifySF()
 		_nKsfL_ = ring_len(_aKsfC_)
@@ -8459,6 +10691,10 @@ class stzList from stzObject
 		next
 		return []
 
+	# Groups the positions of the items by the value the expression gives for each.
+	#
+	#   returns    a list of [ value, positions ] pairs
+	#   see        Classify
 	def ClassifyBy(pcExpr)
 		_oCbClf_ = new stzListClassifier(This)
 		return _oCbClf_.ClassifyBy(pcExpr)
@@ -8473,6 +10709,10 @@ class stzList from stzObject
 		_oNcClf_ = new stzListClassifier(This)
 		return _oNcClf_.NumberOfClasses()
 
+	# Returns each distinct item with how many times it occurs.
+	#
+	#   returns    a list of [ item, count ] pairs
+	#   see        FrequencyOf
 	def Frequencies()
 		_oFqClf_ = new stzListClassifier(This)
 		return _oFqClf_.Frequencies()
@@ -8487,6 +10727,10 @@ class stzList from stzObject
 		_oMfClf_ = new stzListClassifier(This)
 		return _oMfClf_.MostFrequent()
 
+	# Returns the item that occurs the fewest times.
+	#
+	#   returns    the item
+	#   see        MostFrequent
 	def LeastFrequent()
 		_oLfClf_ = new stzListClassifier(This)
 		return _oLfClf_.LeastFrequent()
@@ -8504,22 +10748,46 @@ class stzList from stzObject
 		_oGbClf_ = new stzListClassifier(This)
 		return _oGbClf_.GroupBy(pcExpr)
 
+	# Returns each distinct item with how many times it occurs.
+	#
+	#   returns    a list of [ item, count ] pairs
+	#   see        Frequencies
 	def Histogram()
 		_oHgClf_ = new stzListClassifier(This)
 		return _oHgClf_.Histogram()
 
+	# Returns the distinct items that occur exactly n times.
+	#
+	#   _n_        the number of occurrences
+	#   returns    a list of items
+	#   see        ItemsOccurringNTimes
 	def ItemsAppearingNTimes(_n_)
 		_oIantClf_ = new stzListClassifier(This)
 		return _oIantClf_.ItemsAppearingNTimes(_n_)
 
+	# Returns the distinct items that occur more than n times.
+	#
+	#   _n_        the number of occurrences
+	#   returns    a list of items
+	#   see        ItemsAppearingNTimes
 	def ItemsAppearingMoreThanNTimes(_n_)
 		_oIamtntClf_ = new stzListClassifier(This)
 		return _oIamtntClf_.ItemsAppearingMoreThanNTimes(_n_)
 
+	# Returns the distinct items that occur fewer than n times; today each comes back as text.
+	#
+	#   _n_        the number of occurrences
+	#   returns    a list of strings
+	#   warning    known defect: numbers come back as text, such as "3" for 3
+	#   see        ItemsAppearingNTimes
 	def ItemsAppearingLessThanNTimes(_n_)
 		_oIaltntClf_ = new stzListClassifier(This)
 		return _oIaltntClf_.ItemsAppearingLessThanNTimes(_n_)
 
+	# Returns how many times the item occurs.
+	#
+	#   returns    a number
+	#   see        Frequencies
 	def FrequencyOf(pItem)
 		_oFoClf_ = new stzListClassifier(This)
 		return _oFoClf_.FrequencyOf(pItem)
@@ -8534,28 +10802,49 @@ class stzList from stzObject
 		_oMdClf_ = new stzListClassifier(This)
 		return _oMdClf_.Mode()
 
+	# Returns the list cut into its two halves.
+	#
+	#   returns    a list of two lists
+	#   see        Halves
 	def Bisect()
 		_oBsClf_ = new stzListClassifier(This)
 		return _oBsClf_.Bisect()
 
-	# The first floor(n/2) items of the list.
+	# Returns the first floor(n/2) items.
+	#
+	#   returns    a list of items
+	#   see        SecondHalf
+	#@ aka  The first floor(n/2) items of the list.
 	def FirstHalf()
 		# Authoritative Softanza split: the FIRST half is the floor(n/2)
 		# leading items (the middle item of an odd list goes to neither
 		# plain half -- use FirstHalfXT/SecondHalfXT to include it).
 		return This.Section(1, floor(This.NumberOfItems() / 2))
 
-	# The items from floor(n/2)+1 on (the longer half when odd).
+	# Returns the items from position floor(n/2)+1 on; the longer half when the count is odd.
+	#
+	#   returns    a list of items
+	#   see        FirstHalf
+	#@ aka  The items from floor(n/2)+1 on (the longer half when odd).
 	def SecondHalf()
 		# The SECOND half is everything from floor(n/2)+1 onward -- so for
 		# an odd list it carries the middle item (mirror of FirstHalf).
 		_nLen_ = This.NumberOfItems()
 		return This.Section(floor(_nLen_ / 2) + 1, _nLen_)
 
+	# Splits the items into those that meet the W condition and those that do not.
+	#
+	#   returns    a list of two lists
+	#   see        FindW
 	def PartitionW(pcCondition)
 		_oPwClf_ = new stzListClassifier(This)
 		return _oPwClf_.PartitionW(pcCondition)
 
+	# Returns the list cut into parts of n items each, the last part taking what remains.
+	#
+	#   _n_        the number of items in each part
+	#   returns    a list of lists
+	#   see        SplittedToPartsOfNItems
 	def Chunks(_n_)
 		_oChClf_ = new stzListClassifier(This)
 		return _oChClf_.Chunks(_n_)
@@ -8564,6 +10853,10 @@ class stzList from stzObject
 	 #  RANDOM DELEGATIONS           #
 	#-------------------------------#
 
+	# Returns a position picked at random.
+	#
+	#   returns    a number
+	#   see        RandomItem
 	def RandomPosition()
 		_oRpRnd_ = new stzListRandom(This)
 		return _oRpRnd_.RandomPosition()
@@ -8577,7 +10870,11 @@ class stzList from stzObject
 		def AnyPosition()
 			return This.RandomPosition()
 
-	# A random [start, end] pair within the list's positions.
+	# Returns a random [ start, end ] pair of positions within the list.
+	#
+	#   returns    a pair [ start, end ]
+	#   see        RandomPosition
+	#@ aka  A random [start, end] pair within the list's positions.
 	def RandomSection()
 		# Return a random [start, end] pair within 1..N.
 		_nRsN_ = len(@aContent)
@@ -8602,10 +10899,20 @@ class stzList from stzObject
 		def AnySection()
 			return This.RandomSection()
 
+	# Returns a position picked at random, after position n.
+	#
+	#   _n_        the position to stay after
+	#   returns    a number
+	#   see        RandomPositionLessThan
 	def RandomPositionGreaterThan(_n_)
 		_oRpgtRnd_ = new stzListRandom(This)
 		return _oRpgtRnd_.RandomPositionGreaterThan(_n_)
 
+	# Returns a position picked at random, before position n.
+	#
+	#   _n_        the position to stay before
+	#   returns    a number
+	#   see        RandomPositionGreaterThan
 	def RandomPositionLessThan(_n_)
 		_oRpltRnd_ = new stzListRandom(This)
 		return _oRpltRnd_.RandomPositionLessThan(_n_)
@@ -8614,10 +10921,19 @@ class stzList from stzObject
 		_oRpeRnd_ = new stzListRandom(This)
 		return _oRpeRnd_.RandomPositionExcept(_n_)
 
+	# Returns a position picked at random, outside the given positions.
+	#
+	#   returns    a number
+	#   see        RandomPosition
 	def RandomPositionExceptPositions(panPos)
 		_oRpepRnd_ = new stzListRandom(This)
 		return _oRpepRnd_.RandomPositionExceptPositions(panPos)
 
+	# Returns n positions picked at random.
+	#
+	#   _n_        how many positions
+	#   returns    a list of positions
+	#   see        NRandomItems
 	def NRandomPositions(_n_)
 		_oNrpRnd_ = new stzListRandom(This)
 		return _oNrpRnd_.NRandomPositions(_n_)
@@ -8629,46 +10945,95 @@ class stzList from stzObject
 	def RandomItemExcept(pItem)
 		return This.RandomItemExceptCS(pItem, 1)
 
+	# Returns an item picked at random, leaving out the item at the given position.
+	#
+	#   _n_        the position to leave out
+	#   returns    the item
+	#   see        RandomItem
 	def RandomItemExceptPosition(_n_)
 		_oRiepRnd_ = new stzListRandom(This)
 		return _oRiepRnd_.RandomItemExceptPosition(_n_)
 
+	# Shuffles the items into a random order, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        Shuffled
 	def Randomize()
 		_oRzRnd_ = new stzListRandom(This)
 		_oRzRnd_.Randomize()
 		This.UpdateWith(_oRzRnd_.Content())
 
+	# Returns a copy with the items in random order; the list is unchanged.
+	#
+	#   returns    a list of items
+	#   see        Randomize
 	def Randomized()
 		_oRzdRnd_ = new stzListRandom(This)
 		return _oRzdRnd_.Randomized()
 
+	# Shuffles the number items among their own places, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        Randomize
 	def RandomizeNumbers()
 		_oRznRnd_ = new stzListRandom(This)
 		_oRznRnd_.RandomizeNumbers()
 		This.UpdateWith(_oRznRnd_.Content())
 
+		# Shuffles the number items among their own places, in place.
+		#
+		#   returns    nothing; the list changes
+		#   see        RandomizeNumbers
 		def RandomiseNumbers()
 			This.RandomizeNumbers()
 
+		# Shuffles the number items among their own places, in place.
+		#
+		#   returns    nothing; the list changes
+		#   see        RandomizeNumbers
 		def ShuffleNumbers()
 			This.RandomizeNumbers()
 
+	# Shuffles the string items among their own places, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        RandomizeNumbers
 	def RandomizeStrings()
 		_oRzsStr_ = new stzListRandom(This)
 		_oRzsStr_.RandomizeStrings()
 		This.UpdateWith(_oRzsStr_.Content())
 
+		# Shuffles the string items among their own places, in place.
+		#
+		#   returns    nothing; the list changes
+		#   see        RandomizeStrings
 		def RandomiseStrings()
 			This.RandomizeStrings()
 
+		# Shuffles the string items among their own places, in place.
+		#
+		#   returns    nothing; the list changes
+		#   see        RandomizeStrings
 		def ShuffleStrings()
 			This.RandomizeStrings()
 
+	# Shuffles the items between two positions, in place.
+	#
+	#   _n1_       the position of the first item
+	#   _n2_       the position of the last item
+	#   returns    nothing; the list changes
+	#   see        Randomize
 	def RandomizeSection(_n1_, _n2_)
 		_oRzsRnd_ = new stzListRandom(This)
 		_oRzsRnd_.RandomizeSection(_n1_, _n2_)
 		This.UpdateWith(_oRzsRnd_.Content())
 
+	# Returns a copy with the items between two positions shuffled; the list is unchanged.
+	#
+	#   _n1_       the position of the first item
+	#   _n2_       the position of the last item
+	#   returns    a list of items
+	#   see        RandomizeSection
 	def SectionRandomized(_n1_, _n2_)
 		_oSrRnd_ = new stzListRandom(This)
 		return _oSrRnd_.SectionRandomized(_n1_, _n2_)
@@ -8684,11 +11049,24 @@ class stzList from stzObject
 		_oPwPrf_.PerformW(pcCondition, pcAction)
 		This.UpdateWith(_oPwPrf_.Content())
 
+	# Applies the action to the items at the given positions that meet the condition.
+	#
+	#   panPos        the positions to look at
+	#   pcCondition   the W condition
+	#   pcAction      the expression to run for each item
+	#   returns       nothing; the items may change
+	#   see           YieldAtW
 	def PerformAtW(panPos, pcCondition, pcAction)
 		_oPawPrf_ = new stzListPerformer(This)
 		_oPawPrf_.PerformAtW(panPos, pcCondition, pcAction)
 		This.UpdateWith(_oPawPrf_.Content())
 
+	# Returns the yielder applied to the items at the given positions.
+	#
+	#   panPos      the positions to look at
+	#   pcYielder   the expression that makes each value
+	#   returns     a list of values
+	#   see         YieldAtW
 	def YieldOn(panPos, pcYielder)
 		_oYoPrf_ = new stzListPerformer(This)
 		return _oYoPrf_.YieldOn(panPos, pcYielder)
@@ -8764,13 +11142,14 @@ class stzList from stzObject
 		# no window -> yield every item
 		return _aC_
 
-	# YieldW(pcCondition, pcYielder): the @item-syntax form of YieldW
-	# -- for items matching pcCondition, yield the value of pcYielder.
-	# Engine-backed via YieldW (no eval).
-
-
-	# YieldAtW / YieldAtW: restrict to the given positions first,
-	# then yield over those.
+	# Returns the yielder applied to the items at the given positions that meet the condition.
+	#
+	#   panPos        the positions to look at
+	#   pcCondition   the W condition
+	#   pcYielder     the expression that makes each value
+	#   returns       a list of values
+	#   see           YieldW
+	#@ aka  YieldW(pcCondition, pcYielder): the @item-syntax form of YieldW -- for items matching pcCondition, yield the value of pcYielder. Engine-backed via YieldW (no eval).
 	def YieldAtW(panPos, pcCondition, pcYielder)
 		_oYawSub_ = This.ItemsAtPositionsQ(panPos)
 		return _oYawSub_.YieldW(pcCondition, pcYielder)
@@ -8795,11 +11174,20 @@ class stzList from stzObject
 		def Where(pcCondition)
 			return This.ItemsW(pcCondition)
 
+	# Runs the action on every item and its position, in place.
+	#
+	#   returns    nothing; the items may change
+	#   see        PerformOn
 	def PerformOnEachItemAndItsPosition(pcAction)
 		_oPoeiapPrf_ = new stzListPerformer(This)
 		_oPoeiapPrf_.PerformOnEachItemAndItsPosition(pcAction)
 		This.UpdateWith(_oPoeiapPrf_.Content())
 
+	# Returns the yielder applied to each item.
+	#
+	#   pcYielder   the expression that makes each value
+	#   returns     a list of values
+	#   see         YieldAtW
 	def YieldPairs(pcYielder)
 		_oYpPrf_ = new stzListPerformer(This)
 		return _oYpPrf_.YieldPairs(pcYielder)
@@ -8808,10 +11196,18 @@ class stzList from stzObject
 	 #  MERGER DELEGATIONS           #
 	#-------------------------------#
 
+	# Returns the items paired with those of the other list; a missing partner becomes an empty string.
+	#
+	#   returns    a list of [ item, other item ] pairs
+	#   see        ZippedWith
 	def AssociateWith(paOtherList)
 		_oAwMrg_ = new stzListMerger(This)
 		return _oAwMrg_.AssociateWith(paOtherList)
 
+	# Returns the items paired with those of the other list; a missing partner becomes an empty string.
+	#
+	#   returns    a list of [ item, other item ] pairs
+	#   see        AssociateWith
 	def AssociatedWith(paOtherList)
 		_oAdwMrg_ = new stzListMerger(This)
 		return _oAdwMrg_.AssociatedWith(paOtherList)
@@ -8826,49 +11222,87 @@ class stzList from stzObject
 		_oMdwmMrg_ = new stzListMerger(This)
 		return _oMdwmMrg_.MergedWithMany(paLists)
 
-	# Interleave the given list's items with this one's (mutating).
+	# Interleaves the items of the other list with its own, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        InterleavedWith
+	#@ aka  Interleave the given list's items with this one's (mutating).
 	def InterleaveWith(paOtherList)
 		_oIwMrg_ = new stzListMerger(This)
 		_oIwMrg_.InterleaveWith(paOtherList)
 		This.UpdateWith(_oIwMrg_.Content())
 
+	# Returns the items of both lists interleaved, one from each in turn; the list is unchanged.
+	#
+	#   returns    a list of items
+	#   see        InterleaveWith
 	def InterleavedWith(paOtherList)
 		_oIdwMrg_ = new stzListMerger(This)
 		return _oIdwMrg_.InterleavedWith(paOtherList)
 
+	# Returns the items paired with those of the other list, up to the shorter one.
+	#
+	#   returns    a list of [ item, other item ] pairs
+	#   see        ZippedWith
 	def ZipWith(paOtherList)
 		_oZwMrg_ = new stzListMerger(This)
 		return _oZwMrg_.ZipWith(paOtherList)
 
+	# Returns the items paired with those of the other list, up to the shorter one.
+	#
+	#   returns    a list of [ item, other item ] pairs
+	#   see        Zipped
 	def ZippedWith(paOtherList)
 		_oZdwMrg_ = new stzListMerger(This)
 		return _oZdwMrg_.ZippedWith(paOtherList)
 
+	# Returns the first items and the second items of the pairs as two lists; the list is unchanged.
+	#
+	#   returns    a list of two lists
+	#   see        Unzipped
 	def Unzip()
 		_oUzMrg_ = new stzListMerger(This)
 		return _oUzMrg_.Unzip()
 
+	# Returns the first items and the second items of the pairs as two lists.
+	#
+	#   returns    a list of two lists
+	#   see        Unzip
 	def Unzipped()
 		_oUzdMrg_ = new stzListMerger(This)
 		return _oUzdMrg_.Unzipped()
 
-	# Put the given list's items in front (mutating).
+	# Puts the items of the other list in front of the list, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        PrependedWith
+	#@ aka  Put the given list's items in front (mutating).
 	def PrependWith(paOtherList)
 		_oPwMrg_ = new stzListMerger(This)
 		_oPwMrg_.PrependWith(paOtherList)
 		This.UpdateWith(_oPwMrg_.Content())
 
+	# Returns the items of the other list followed by those of the list; the list is unchanged.
+	#
+	#   returns    a list of items
+	#   see        MergedWith
 	def PrependedWith(paOtherList)
 		_oPdwMrg_ = new stzListMerger(This)
 		return _oPdwMrg_.PrependedWith(paOtherList)
 
+	# Returns the items of the list that the other list does not hold.
+	#
+	#   returns    a list of items
+	#   see        DifferentItemsWith, DifferenceWith
 	def DiffWith(paOtherList)
 		_oDwMrg_ = new stzListMerger(This)
 		return _oDwMrg_.DiffWith(paOtherList)
 
-	# Set-ops fetch the engine RESULT HANDLE from the merger (a number, no list
-	# copy) and unmarshal ONCE here -- one Ring method-return copy instead of
-	# two (merger return + this return).
+	# Returns the items present in both lists.
+	#
+	#   returns    a list of items
+	#   see        CommonItemsWith, UnionWith, DiffWith
+	#@ aka  Set-ops fetch the engine RESULT HANDLE from the merger (a number, no list copy) and unmarshal ONCE here -- one Ring method-return copy instead of two (merger return + this return).
 	def IntersectWith(paOtherList)
 		_pIsw_ = (new stzListMerger(This))._IntersectHandle(paOtherList)
 		_aIsw_ = StzEngineListContentToRingList(_pIsw_)
@@ -8920,23 +11354,45 @@ class stzList from stzObject
 		next
 		return 0
 
+	# Inserts the item before a position, in place, but one place too early today.
+	#
+	#   pWhere     the position, or [ :Before, n ] or [ :After, n ]
+	#   returns    nothing; the list changes
+	#   warning    known defect: Insert(item, n) puts the item at position n-1, and raises an error
+	#              for n = 1 or past the end; InsertBefore(n, item) puts it at n
+	#   see        InsertBefore, InsertAfter
 	#@ aka  put at position, add at, place into, inject at index
 	def Insert(pItem, pWhere)
 		_oIIns_ = new stzListInserter(This)
 		_oIIns_.Insert(pItem, pWhere)
 		This.UpdateWith(_oIIns_.Content())
 
+	# Inserts the item before position n, in place.
+	#
+	#   _n_        the position to insert before
+	#   returns    nothing; the list changes
+	#   see        InsertAfterPosition
 	def InsertBeforePosition(_n_, pItem)
 		_oIbpIns_ = new stzListInserter(This)
 		_oIbpIns_.InsertBeforePosition(_n_, pItem)
 		This.UpdateWith(_oIbpIns_.Content())
 
+	# Inserts the item after position n, in place.
+	#
+	#   _n_        the position to insert after
+	#   returns    nothing; the list changes
+	#   see        InsertBeforePosition
 	def InsertAfterPosition(_n_, pItem)
 		_oIapIns_ = new stzListInserter(This)
 		_oIapIns_.InsertAfterPosition(_n_, pItem)
 		This.UpdateWith(_oIapIns_.Content())
 
-	# Insert the item before EACH of the given positions (mutating).
+	# Inserts the item before each of the given positions, in place.
+	#
+	#   panPositions   the positions to insert before
+	#   returns        nothing; the list changes
+	#   see            InsertAfterPositions, InsertBefore
+	#@ aka  Insert the item before EACH of the given positions (mutating).
 	def InsertBeforePositions(panPositions, pItem)
 		if NOT isList(panPositions) return ok
 		_aIbpSorted_ = _ListCopy(panPositions)
@@ -8973,6 +11429,12 @@ class stzList from stzObject
 		_oAbocsBnd_ = new stzListBounder(This)
 		return _oAbocsBnd_.AreBoundsOfCS(pcSubStr, pIn, pCaseSensitive)
 
+	# TRUE if the list holds the bounds of the given item inside the other list.
+	#
+	#   pItem      the item to test
+	#   pIn        the pair, or the list of pairs, of bounds
+	#   returns    TRUE or FALSE
+	#   see        IsBoundedBy
 	def AreBoundsOf(pItem, pIn)
 		return This.AreBoundsOfCS(pItem, pIn, 1)
 
@@ -8991,6 +11453,11 @@ class stzList from stzObject
 	def IsBoundedBy(paBounds)
 		return This.IsBoundedByCS(paBounds, 1)
 
+	# Returns the first n items and the last n items as two lists.
+	#
+	#   _n_        how many items on each side
+	#   returns    a list of two lists
+	#   see        Bounds
 	def BoundsUpToNItems(_n_)
 		_oButniBnd_ = new stzListBounder(This)
 		return _oButniBnd_.BoundsUpToNItems(_n_)
@@ -9011,30 +11478,67 @@ class stzList from stzObject
 		_oRbcsBnd_.RemoveBoundsCS(paBounds, pCaseSensitive)
 		This.UpdateWith(_oRbcsBnd_.Content())
 
+	# Removes the two given bounds from the ends of the list, in place.
+	#
+	#   paBounds   the pair of bounds, [ first, last ]
+	#   returns    nothing; the list changes
+	#   see        BoundsRemoved
 	def RemoveBounds(paBounds)
 		This.RemoveBoundsCS(paBounds, 1)
 
+	# Returns a copy without the two bounds at its ends; the list is unchanged.
+	#
+	#   paBounds   the pair of bounds, [ first, last ]
+	#   returns    a list of items
+	#   see        RemoveBounds
 	def BoundsRemoved(paBounds)
 		_oBrBnd_ = new stzListBounder(This)
 		return _oBrBnd_.BoundsRemoved(paBounds)
 
+	# Returns the items between the first and the last.
+	#
+	#   returns    a list of items
+	#   see        FirstAndLastItems
 	def Middle()
 		_oMdBnd_ = new stzListBounder(This)
 		return _oMdBnd_.Middle()
 
+	# Returns a copy where every number is kept between a minimum and a maximum; the list is unchanged.
+	#
+	#   nMin       the lowest value allowed
+	#   _nMax_     the highest value allowed
+	#   returns    a list of items
+	#   see        ClampTo
 	def ClampedTo(nMin, _nMax_)
 		_oCtBnd_ = new stzListBounder(This)
 		return _oCtBnd_.ClampedTo(nMin, _nMax_)
 
+	# Brings every number between a minimum and a maximum, in place.
+	#
+	#   nMin       the lowest value allowed
+	#   _nMax_     the highest value allowed
+	#   returns    nothing; the list changes
+	#   see        ClampedTo
 	def ClampTo(nMin, _nMax_)
 		_oCltBnd_ = new stzListBounder(This)
 		_oCltBnd_.ClampTo(nMin, _nMax_)
 		This.UpdateWith(_oCltBnd_.Content())
 
+	# TRUE if the position lies within the list.
+	#
+	#   _n_        the position to test
+	#   returns    TRUE or FALSE
+	#   see        NumberOfItems
 	def IsWithinBounds(_n_)
 		_oIwbBnd_ = new stzListBounder(This)
 		return _oIwbBnd_.IsWithinBounds(_n_)
 
+	# Returns the items from one position to another, both included.
+	#
+	#   _n1_       the position of the first item
+	#   _n2_       the position of the last item
+	#   returns    a list of items
+	#   see        Section
 	def ItemsBetweenPositions(_n1_, _n2_)
 		_oIbpBnd_ = new stzListBounder(This)
 		return _oIbpBnd_.ItemsBetweenPositions(_n1_, _n2_)
@@ -9043,29 +11547,13 @@ class stzList from stzObject
 	 #  EACH-ITEM-IS-EITHER MINI-DSL #
 	#-------------------------------#
 
-	#-- AllItemsAreEither / EachItemIsEither[A/An]: a symbol-DSL
-	#   predicate that returns TRUE iff every item satisfies the
-	#   LEFT side OR the RIGHT side. Accepted argument forms:
+	# TRUE if every item meets one of two descriptions, each a predicate such as :Even and a type such as :Number.
 	#
-	#   1. (PRED, :Or = OTHERPRED, TYPE)
-	#        Both sides share TYPE. Left uses PRED; right uses
-	#        OTHERPRED. Ring resolves ":Or = OTHERPRED" to a 2-list
-	#        [ "Or", OTHERPRED ] which we detect.
-	#
-	#   2. (TYPE1, :Or, TYPE2)
-	#        Each side is just a type check.
-	#
-	#   3. ([ pred1, pred2, ..., TYPE ], :Or, [ pred1', ..., TYPE' ])
-	#        Each side is a list whose LAST element is the type and
-	#        the rest are predicates that must all hold.
-	#
-	#   Side forms mix freely; a single non-type symbol on one side
-	#   inherits the type from the other.
-	#
-	#   On any unknown predicate / type, the side fails silently and
-	#   returns FALSE rather than crashing -- callers can rely on the
-	#   method always returning a boolean.
-
+	#   p1         the first predicate, or a list of predicates
+	#   p2         [ :Or, second predicate ], or the second description
+	#   p3         the type the items must have, such as :Number
+	#   returns    TRUE or FALSE
+	#@ aka  -- AllItemsAreEither / EachItemIsEither[A/An]: a symbol-DSL predicate that returns TRUE iff every item satisfies the LEFT side OR the RIGHT side. Accepted argument forms:
 	def AllItemsAreEither(p1, p2, p3)
 		_aEieSpec_ = This._EieResolve(p1, p2, p3)
 		if _aEieSpec_ = ""
@@ -9252,6 +11740,10 @@ class stzList from stzObject
 	def DeepContainsCS(pItem, pCaseSensitive)
 		return This._DeepContainsCS(@aContent, pItem, pCaseSensitive)
 
+	# TRUE if the item occurs at any depth of a nested list.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Contains, DeepFind
 	def DeepContains(pItem)
 		return This.DeepContainsCS(pItem, 1)
 
@@ -9277,11 +11769,11 @@ class stzList from stzObject
 		def DeepFindCS(pItem, pCaseSensitive)
 			return This.DeepFind(pItem)
 
-	# Paths(): the index-path to every node (containers AND leaves) of the
-	# nested list, in depth-first order. Documented Softanza feature whose
-	# wiring was dropped in the split; engine-backed (stz_list_deep_paths) --
-	# same all-node format as the reference GeneratePaths() in stzListPaths.
-
+	# Returns the index path of every item of a nested list, depth first.
+	#
+	#   returns    a list of index paths, each a list of positions
+	#   see        DeepList
+	#@ aka  Paths(): the index-path to every node (containers AND leaves) of the nested list, in depth-first order. Documented Softanza feature whose wiring was dropped in the split; engine-backed (stz_list_deep_paths) -- same all-node format as the reference GeneratePaths() in stzListPaths.
 	def Paths()
 		_oPthDl_ = This.DeepList()
 		return _oPthDl_.Paths()
@@ -9289,19 +11781,28 @@ class stzList from stzObject
 		def AllPaths()
 			return This.Paths()
 
-	# Every list-valued item at any depth (depth-first pre-order). Objects
-	# are excluded (isList is false for them). E.g. ListsAtAnyLevel.
-
+	# Returns every list item at any depth, parents before their children.
+	#
+	#   returns    a list of lists
+	#   see        Paths
+	#@ aka  Every list-valued item at any depth (depth-first pre-order). Objects are excluded (isList is false for them). E.g. ListsAtAnyLevel.
 	def DeepLists()
 		return _StzCollectDeepLists(@aContent)
 
-		# Every sublist at ANY nesting depth.
+		# Returns every sublist at any depth of nesting.
+		#
+		#   returns    a list of lists
+		#   see        DeepLists
+		#@ aka  Every sublist at ANY nesting depth.
 		def ListsAtAnyLevel()
 			return _StzCollectDeepLists(@aContent)
 
-	# FilledWith(pItems): replace the wrapped list with pItems, then
-	# return its content. Used for the 'start from an empty list and
-	# fill it with these items' fluent shape.
+	# Replaces the content by the given list, and returns the new content.
+	#
+	#   pItems     the list that becomes the content, or an item to append
+	#   returns    a list of items
+	#   see        Update
+	#@ aka  FilledWith(pItems): replace the wrapped list with pItems, then return its content. Used for the 'start from an empty list and fill it with these items' fluent shape.
 	def FilledWith(pItems)
 		if isList(pItems)
 			This._SetContent(pItems)
@@ -9348,6 +11849,12 @@ class stzList from stzObject
 			This.DeepReplace(pOld, pNew)
 			return This
 
+		# Replaces the item by a new one at any depth of a nested list, in place.
+		#
+		#   pOld       the item to replace
+		#   pNew       the item that takes its place
+		#   returns    nothing; the list changes
+		#   see        DeepRemove
 		def DeeplyReplace(pOld, pNew)
 			This.DeepReplace(pOld, pNew)
 
@@ -9407,8 +11914,11 @@ class stzList from stzObject
 		next
 		return 0
 
-	# Remove every occurrence of the item at ANY depth of the nested
-	# list (mutating).
+	# Removes every occurrence of the item at any depth of a nested list, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        RemoveAll
+	#@ aka  Remove every occurrence of the item at ANY depth of the nested list (mutating).
 	def DeepRemove(pItem)
 		This._SetContent(This._DeepFilterCS(@aContent, [pItem], 1))
 		
@@ -9440,14 +11950,21 @@ class stzList from stzObject
 			This._SetContent(This._DeepFilterCS(@aContent, paItems, pCaseSensitive))
 			
 
-	# A copy with the item removed at ANY depth; the original is
-	# unchanged.
+	# Returns a copy with the item removed at any depth; the list is unchanged.
+	#
+	#   returns    a list of items
+	#   see        DeepRemove
+	#@ aka  A copy with the item removed at ANY depth; the original is unchanged.
 	def DeepRemoved(pItem)
 		_oDrTmp_ = new stzList(@aContent)
 		_oDrTmp_.DeepRemove(pItem)
 		return _oDrTmp_.Content()
 
-	# A copy with each given item removed at any depth.
+	# Returns a copy with each of the given items removed at any depth; the list is unchanged.
+	#
+	#   returns    a list of items
+	#   see        DeepRemoved
+	#@ aka  A copy with each given item removed at any depth.
 	def ManyDeepRemoved(paItems)
 		_oMdrTmp_ = new stzList(@aContent)
 		_oMdrTmp_.DeepRemoveMany(paItems)
@@ -9543,10 +12060,12 @@ class stzList from stzObject
 			StzRaise("Can't proceed! In order to return names, the list must be a list of chars.")
 		ok
 
-	# SortOnDown / SortedOnDown for stzList: when the list is flat
-	# (numbers / strings), forwards to descending sort on the
-	# whole list. When the list is a list-of-lists, forwards to the
-	# stzListOfLists.SortOnDown(n) which sorts on column n.
+	# Sorts the items from the greatest to the least, in place.
+	#
+	#   _n_        the key position, ignored for a flat list
+	#   returns    nothing; the list changes
+	#   see        SortDown
+	#@ aka  SortOnDown / SortedOnDown for stzList: when the list is flat (numbers / strings), forwards to descending sort on the whole list. When the list is a list-of-lists, forwards to the stzListOfLists.SortOnDown(n) which sorts on column n.
 	def SortOnDown(_n_)
 		if This.IsListOfLists()
 			_oLol_ = new stzListOfLists(@aContent)
@@ -9560,16 +12079,22 @@ class stzList from stzObject
 			This.SortOnDown(_n_)
 			return This
 
-		# A descending-sorted copy; the original is unchanged.
+		# Returns a copy sorted from the greatest to the least; the list is unchanged.
+		#
+		#   _n_        the key position, ignored for a flat list
+		#   returns    a list of items
+		#   see        SortOnDown
+		#@ aka  A descending-sorted copy; the original is unchanged.
 		def SortedOnDown(_n_)
 			_oLolc_ = This.Copy()
 			_oLolc_.SortOnDown(_n_)
 			return _oLolc_.Content()
 
-	# IsMadeOf*: predicates that answer "is every item one of the
-	# listed types?". Used by the narrative tests for mixed-content
-	# guards. The Or/And variants are synonyms -- both mean 'every
-	# item is in {numbers, strings}'.
+	# TRUE if every item is a number or a string.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsMadeOfSome
+	#@ aka  IsMadeOf*: predicates that answer "is every item one of the listed types?". Used by the narrative tests for mixed-content guards. The Or/And variants are synonyms -- both mean 'every item is in {numbers, strings}'.
 	def IsMadeOfNumbersOrStrings()
 		_nImnsLen_ = len(@aContent)
 		for _iImns_ = 1 to _nImnsLen_
@@ -9582,11 +12107,19 @@ class stzList from stzObject
 		def IsMadeOfNumbersAndStrings()
 			return This.IsMadeOfNumbersOrStrings()
 
-	# Same as IsListOfNumbers.
+	# TRUE if the list is not empty and every item is a number.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsListOfNumbers
+	#@ aka  Same as IsListOfNumbers.
 	def IsMadeOfNumbers()
 		return This.IsListOfNumbers()		#-- engine-backed (StzEngineListIsAllNumbers)
 
-	# Same as IsListOfStrings.
+	# TRUE if the list is not empty and every item is a string.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsListOfStrings
+	#@ aka  Same as IsListOfStrings.
 	def IsMadeOfStrings()
 		return This.IsListOfStrings()		#-- engine-backed (StzEngineListIsAllStrings)
 
@@ -9609,8 +12142,11 @@ class stzList from stzObject
 		def TypesQ()
 			return new stzList( This.Types() )
 
-	#-- Unique list of the item types (Types() with duplicates removed)
-
+	# Returns the distinct item types, in order of first appearance.
+	#
+	#   returns    a list of type names, such as "STRING"
+	#   see        Types
+	#@ aka  -- Unique list of the item types (Types() with duplicates removed)
 	def UniqueTypes()
 		_oTypes_ = new stzList( This.Types() )
 		return _oTypes_.Unique()
@@ -9621,8 +12157,11 @@ class stzList from stzObject
 		def UniqueTypesQ()
 			return new stzList( This.UniqueTypes() )
 
-	#-- ItemsAndTheirTypes: each item paired with its type name, in order.
-	#-- e.g. [ 1, "A", [2] ] -> [ [1,"NUMBER"], ["A","STRING"], [[2],"LIST"] ].
+	# Returns each item with its type name, in order.
+	#
+	#   returns    a list of [ item, type ] pairs
+	#   see        UniqueTypes
+	#@ aka  -- ItemsAndTheirTypes: each item paired with its type name, in order. -- e.g. [ 1, "A", [2] ] -> [ [1,"NUMBER"], ["A","STRING"], [[2],"LIST"] ].
 	def ItemsAndTheirTypes()
 		_aItt_ = []
 		_nIttLen_ = len(@aContent)
@@ -9634,10 +12173,11 @@ class stzList from stzObject
 		def ItemsAndTheirTypesQ()
 			return new stzList( This.ItemsAndTheirTypes() )
 
-	#-- TypesAndTheirSections (alias TypesZZ): group the list into maximal
-	#-- runs of one type, then collect, per distinct type, the [start,end]
-	#-- position ranges of its runs. e.g. [1,2,"A",3] ->
-	#-- [ ["NUMBER",[[1,2],[4,4]]], ["STRING",[[3,3]]] ].
+	# Returns each item type with the [ start, end ] runs where it occurs.
+	#
+	#   returns    a list of [ type, sections ] pairs
+	#   see        UniqueTypes
+	#@ aka  -- TypesAndTheirSections (alias TypesZZ): group the list into maximal -- runs of one type, then collect, per distinct type, the [start,end] -- position ranges of its runs. e.g. [1,2,"A",3] -> -- [ ["NUMBER",[[1,2],[4,4]]], ["STRING",[[3,3]]] ].
 	def TypesAndTheirSections()
 		_nTtsLen_ = len(@aContent)
 		if _nTtsLen_ = 0 return [] ok
@@ -9683,31 +12223,43 @@ class stzList from stzObject
 		def TypesZZ()
 			return This.TypesAndTheirSections()
 
-	#-- The items that are NOT numbers (engine DSL)
-
+	# Returns the items that are not numbers.
+	#
+	#   returns    a list of items
+	#   see        OnlyNumbers
+	#@ aka  -- The items that are NOT numbers (engine DSL)
 	def NonNumbers()
 		return This.ItemsW('{ not isNumber(@item) }')
 
 		def NonNumbersQ()
 			return new stzList( This.NonNumbers() )
 
-	#-- A copy of the list with every numeric 0 removed (non-mutating)
-
+	# Returns a copy without the numeric zeros; the list is unchanged.
+	#
+	#   returns    a list of items
+	#   see        RemoveZeros
+	#@ aka  -- A copy of the list with every numeric 0 removed (non-mutating)
 	def ZerosRemoved()
 		return This.ItemsW('{ not isNumber(@item) or @item != 0 }')
 
 		def ZerosRemovedQ()
 			return new stzList( This.ZerosRemoved() )
 
-	#-- The nth item counted from the end: NthToLast(1) is the item
-	#-- before the last, NthToLast(2) the one before it, and so on.
-
+	# Returns the item n places before the last one, so 1 gives the item just before it.
+	#
+	#   _n_        how far back to count
+	#   returns    the item
+	#   see        NthItem
+	#@ aka  -- The nth item counted from the end: NthToLast(1) is the item -- before the last, NthToLast(2) the one before it, and so on.
 	def NthToLast(_n_)
 		return @aContent[ ring_len(@aContent) - _n_ ]
 
-	#-- Shrink the list down to its first n items (mutating).
-	#-- Accepts Shrink(n) or the named form Shrink(:ToPosition = n).
-
+	# Cuts the list down to its first n items, in place.
+	#
+	#   p          n, or :ToPosition = n
+	#   returns    the list itself
+	#   see        ShrinkTo
+	#@ aka  -- Shrink the list down to its first n items (mutating). -- Accepts Shrink(n) or the named form Shrink(:ToPosition = n).
 	def Shrink(p)
 		_n_ = p
 		if isList(p) and ring_len(p) = 2
@@ -9720,9 +12272,13 @@ class stzList from stzObject
 			This.Shrink(p)
 			return This
 
-	#-- Swap two items by position (mutating). Accepts SwapItems(n1, n2)
-	#-- or the named form SwapItems(:AtPositions = n1, :And = n2).
-
+	# Swaps the items at two positions, in place.
+	#
+	#   p1         the first position
+	#   p2         the second position
+	#   returns    the list itself
+	#   see        Move
+	#@ aka  -- Swap two items by position (mutating). Accepts SwapItems(n1, n2) -- or the named form SwapItems(:AtPositions = n1, :And = n2).
 	def SwapItems(p1, p2)
 		_n1_ = p1
 		_n2_ = p2
@@ -9739,8 +12295,10 @@ class stzList from stzObject
 			This.SwapItems(p1, p2)
 			return This
 
-	#-- A two-item list whose both items share a given type.
-
+	# TRUE if the list holds two items and both are numbers.
+	#
+	#   returns    TRUE or FALSE
+	#@ aka  -- A two-item list whose both items share a given type.
 	def BothAreNumbers()
 		if This.NumberOfItems() = 2 and
 		   isNumber(This.Item(1)) and isNumber(This.Item(2))
@@ -9755,7 +12313,11 @@ class stzList from stzObject
 		def Contains2Numbers()
 			return This.BothAreNumbers()
 
-	# For a PAIR: TRUE if both items are strings.
+	# TRUE if the list is a pair whose two items are strings.
+	#
+	#   returns    TRUE or FALSE
+	#   see        BothAreLists
+	#@ aka  For a PAIR: TRUE if both items are strings.
 	def BothAreStrings()
 		if This.NumberOfItems() = 2 and
 		   isString(This.Item(1)) and isString(This.Item(2))
@@ -9770,7 +12332,11 @@ class stzList from stzObject
 		def Contains2Strings()
 			return This.BothAreStrings()
 
-	# For a PAIR: TRUE if both items are lists.
+	# TRUE if the list is a pair whose two items are lists.
+	#
+	#   returns    TRUE or FALSE
+	#   see        BothAreStrings
+	#@ aka  For a PAIR: TRUE if both items are lists.
 	def BothAreLists()
 		if This.NumberOfItems() = 2 and
 		   isList(This.Item(1)) and isList(This.Item(2))
@@ -9785,7 +12351,11 @@ class stzList from stzObject
 		def Contains2Lists()
 			return This.BothAreLists()
 
-	# For a PAIR: TRUE if both items are objects.
+	# TRUE if the list is a pair whose two items are objects.
+	#
+	#   returns    TRUE or FALSE
+	#   see        BothAreLists
+	#@ aka  For a PAIR: TRUE if both items are objects.
 	def BothAreObjects()
 		if This.NumberOfItems() = 2 and
 		   isObject(This.Item(1)) and isObject(This.Item(2))
@@ -9818,7 +12388,12 @@ class stzList from stzObject
 		def IsMadeOfThisItem(pItem)
 			return This.ItemsAreEqualTo(pItem)
 
-		# TRUE if every item is of the given type.
+		# TRUE if every item is of the given type, such as "string".
+		#
+		#   pItem      the type name, as text
+		#   returns    TRUE or FALSE
+		#   see        AllItemsAreOfType
+		#@ aka  TRUE if every item is of the given type.
 		def AllItemsAre(pItem)
 			if isString(pItem) and
 			   (@IsRingOrStzType(pItem) or
@@ -9854,20 +12429,39 @@ class stzList from stzObject
 		next
 		return _bResult_
 
+		# TRUE if at least one of the given items occurs in the list.
+		#
+		#   returns    TRUE or FALSE
+		#   see        ContainsNoneOfThese
 		def ContainsSome(paItems)
 			return This.ContainsSomeCS(paItems, 1)
 
+		# TRUE if every item of the list is one of the given items.
+		#
+		#   returns    TRUE or FALSE
+		#   see        IsMadeOfSome
 		def IsMadeOfSomeOfThese(paItems)
 			return This.ContainsSomeCS(paItems, 1)
 
+		# TRUE if every item of the list is one of the given items.
+		#
+		#   returns    TRUE or FALSE
+		#   see        IsMadeOfSome
 		def IsMadeOfOneOrMoreOfThese(paItems)
 			return This.ContainsSomeCS(paItems, 1)
 
+		# TRUE if every item of the list is one of the given items.
+		#
+		#   returns    TRUE or FALSE
+		#   see        IsMadeOfSome
 		def IsMadeOfOneOrMoreOf(paItems)
 			return This.ContainsSomeCS(paItems, 1)
 
-	#-- IsMadeOfUniformLists  -> all items are lists with the same size.
-
+	# TRUE if every item is a list and all the lists have the same size.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsMadeOfUniformLists
+	#@ aka  -- IsMadeOfUniformLists -> all items are lists with the same size.
 	def ContainsOnlyListsWithSameNumberOfItems()
 		_aContent_ = This.Content()
 		_nLen_ = ring_len(_aContent_)
@@ -9951,6 +12545,11 @@ class stzList from stzObject
 	def BoundsOf(pItem, pUpTo)
 		return This.BoundsCS(pItem, pUpTo, 1)
 
+		# Returns, for each occurrence of the item, the items found on its two sides, up to n of them.
+		#
+		#   pUpTo      how many items to take on each side
+		#   returns    a list
+		#   see        BoundsOf
 		def NBoundsOf(pItem, pUpTo)
 			return This.BoundsCS(pItem, pUpTo, 1)
 
@@ -9987,7 +12586,12 @@ class stzList from stzObject
 	def ItemsAre(p)
 		return This.Are(p)
 
-	# The members of the given class (from Classify).
+	# Returns the positions of the items that belong to the given class.
+	#
+	#   pcClass    the class, as an item of the list
+	#   returns    a list of positions
+	#   see        Classes, Classify
+	#@ aka  The members of the given class (from Classify).
 	def Klass(pcClass)
 		return This.Classify()[pcClass]
 
@@ -10004,6 +12608,10 @@ class stzList from stzObject
 	def RemoveCS(pItem, pCaseSensitive)
 		This.RemoveAllCS(pItem, pCaseSensitive)
 
+		# Removes the first occurrence of the item, with the case rule given, in place.
+		#
+		#   returns    nothing; the list changes
+		#   see        RemoveFirst
 		def RemoveItemCS(pItem, pCaseSensitive)
 			This.RemoveAllCS(pItem, pCaseSensitive)
 
@@ -10045,6 +12653,12 @@ class stzList from stzObject
 		next
 		return This.Sections(_anSbPairs_)
 
+	# Returns the runs of items that lie between the two given items.
+	#
+	#   pItem1     the item that opens a run
+	#   pItem2     the item that closes a run
+	#   returns    a list of lists
+	#   see        Sections
 	def SectionsBetween(pItem1, pItem2)
 		return This.SectionsBetweenCS(pItem1, pItem2, 1)
 
@@ -10089,8 +12703,11 @@ class stzList from stzObject
 		next
 		return _aDoResult_
 
-	# Distribute the items over the given beneficiaries,
-	# round-robin.
+	# Shares the items out among the given beneficiaries in consecutive blocks, as [ beneficiary, items ] pairs.
+	#
+	#   acBeneficiaryItems   the beneficiaries that receive the items
+	#   returns              a list of [ beneficiary, items ] pairs
+	#@ aka  Distribute the items over the given beneficiaries, round-robin.
 	def DistributeOver(acBeneficiaryItems)
 		_nDoLenList_ = This.NumberOfItems()
 		_nDoLenBenef_ = ring_len(acBeneficiaryItems)
@@ -10113,8 +12730,11 @@ class stzList from stzObject
 		ok
 		return This.DistributeOverXT(acBeneficiaryItems, _anDoShare_)
 
-	#-- A copy with all occurrences of an item removed (non-mutating).
-
+	# Returns a copy without any occurrence of the item; the list is unchanged.
+	#
+	#   returns    a list of items
+	#   see        ManyRemoved
+	#@ aka  -- A copy with all occurrences of an item removed (non-mutating).
 	def ItemRemoved(pItem)
 		_oIrCopy_ = This.Copy()
 		_oIrCopy_.RemoveAllCS(pItem, 1)
@@ -10145,8 +12765,11 @@ class stzList from stzObject
 		next
 		return _aIrwRes_
 
-	#-- True if EVERY given position holds an item matching a W condition.
-
+	# TRUE if every given position holds an item that meets the W condition.
+	#
+	#   returns    TRUE or FALSE
+	#   see        CheckItemsAtW
+	#@ aka  -- True if EVERY given position holds an item matching a W condition.
 	def ContainsItemsAtW(panPos, pcCondition)
 		_anCiwMatch_ = This.FindAllItemsW(pcCondition)
 		_nCiwP_ = ring_len(panPos)
@@ -10188,12 +12811,20 @@ class stzList from stzObject
 		next
 		return _bResult_
 
+		# TRUE if every item contains the given item.
+		#
+		#   returns    TRUE or FALSE
+		#   see        Contains
 		def EachContains(pItem)
 			return This.EachContainsCS(pItem, 1)
 
 		def EachItemContainsCS(pItem, pCaseSensitive)
 			return This.EachContainsCS(pItem, pCaseSensitive)
 
+		# TRUE if every item contains the given item.
+		#
+		#   returns    TRUE or FALSE
+		#   see        EachContains
 		def EachItemContains(pItem)
 			return This.EachContainsCS(pItem, 1)
 
@@ -10217,6 +12848,10 @@ class stzList from stzObject
 		next
 		return _bResult_
 
+		# TRUE if every item contains all the given items.
+		#
+		#   returns    TRUE or FALSE
+		#   see        EachContains
 		def EachContainsThese(paItems)
 			return This.EachContainsTheseCS(paItems, 1)
 
@@ -10226,11 +12861,19 @@ class stzList from stzObject
 	def Intersection(pNamedWith)
 		return This.CommonItems(pNamedWith)
 
-	# The items shared with the given list.
+	# Returns the items that both lists hold.
+	#
+	#   returns    a list of items
+	#   see        IntersectWith, DiffWith
+	#@ aka  The items shared with the given list.
 	def CommonItemsWith(paOtherList)
 		return This.CommonItems([ :With, paOtherList ])
 
-		# The items shared with the given list (pairwise intersection).
+		# Returns the items present in both lists.
+		#
+		#   returns    a list of items
+		#   see        IntersectWith, CommonItemsWith
+		#@ aka  The items shared with the given list (pairwise intersection).
 		def IntersectionWith(paOtherList)
 			return This.CommonItems([ :With, paOtherList ])
 
@@ -10294,6 +12937,10 @@ class stzList from stzObject
 		next
 		return _aDiwR_
 
+	# Returns the items found in only one of the two lists.
+	#
+	#   returns    a list of items
+	#   see        DiffWith, CommonItemsWith
 	def DifferentItemsWith(paOtherList)
 		return This.DifferentItemsWithCS(paOtherList, 1)
 
@@ -10309,6 +12956,10 @@ class stzList from stzObject
 		_oCsiOther_ = new stzList(paOtherList)
 		return _oCsiOther_.EachItemExistsInCS(This.Content(), pCaseSensitive)
 
+	# TRUE if both lists hold the same items.
+	#
+	#   returns    TRUE or FALSE
+	#   see        HasSameContentAs
 	def ContainsSameItemsAs(paOtherList)
 		return This.ContainsSameItemsAsCS(paOtherList, 1)
 
@@ -10327,12 +12978,22 @@ class stzList from stzObject
 			return 0
 		ok
 
+		# TRUE if every item of the list occurs in the given list.
+		#
+		#   p          the list to look in
+		#   returns    TRUE or FALSE
+		#   see        AreContainedIn
 		def IsContainedIn(p)
 			return This.IsContainedInCS(p, 1)
 
 		def ExistsInCS(p, pCaseSensitive)
 			return This.IsContainedInCS(p, pCaseSensitive)
 
+		# TRUE if every item of the list occurs in the given list.
+		#
+		#   p          the list to look in
+		#   returns    TRUE or FALSE
+		#   see        IsContainedIn
 		def ExistsIn(p)
 			return This.IsContainedInCS(p, 1)
 
@@ -10362,12 +13023,24 @@ class stzList from stzObject
 		next
 		return _bResult_
 
+		# TRUE if every item of the list occurs in the other list.
+		#
+		#   returns    TRUE or FALSE
+		#   see        IsContainedIn
 		def EachItemExistsIn(paOtherList)
 			return This.EachItemExistsInCS(paOtherList, 1)
 
+		# TRUE if every item of the list occurs in the other list.
+		#
+		#   returns    TRUE or FALSE
+		#   see        ExistsIn
 		def ExistIn(paOtherList)
 			return This.EachItemExistsInCS(paOtherList, 1)
 
+		# TRUE if every item of the list occurs in the other list.
+		#
+		#   returns    TRUE or FALSE
+		#   see        IsContainedIn
 		def AreContainedIn(paOtherList)
 			return This.EachItemExistsInCS(paOtherList, 1)
 
@@ -10380,25 +13053,46 @@ class stzList from stzObject
 			return 0
 		ok
 
+		# TRUE if both lists hold the same number of items.
+		#
+		#   returns    TRUE or FALSE
+		#   see        HasMoreNumberOfItems
 		def HasSameNumberOfItemsAs(paOtherList)
 			return This.HasSameNumberOfItemsAsCS(paOtherList, 1)
 
+		# TRUE if both lists hold the same number of items.
+		#
+		#   returns    TRUE or FALSE
+		#   see        HasSameNumberOfItemsAs
 		def HasSameSizeAs(paOtherList)
 			return This.HasSameNumberOfItemsAsCS(paOtherList, 1)
 
+		# TRUE if both lists hold the same number of items.
+		#
+		#   returns    TRUE or FALSE
+		#   see        HasSameSizeAs
 		def HasSameWidthAs(paOtherList)
 			return This.HasSameNumberOfItemsAsCS(paOtherList, 1)
 
-	#-- Negative form of ContainsOneOfThese.
-
+	# TRUE if none of the given items occurs in the list.
+	#
+	#   returns    TRUE or FALSE
+	#   see        ContainsOneOfThese
+	#@ aka  -- Negative form of ContainsOneOfThese.
 	def ContainsNoOneOfThese(paItems)
 		return NOT This.ContainsOneOfThese(paItems)
 
-		# TRUE if NONE of the given items occurs in the list.
+		# TRUE if none of the given items occurs in the list.
+		#
+		#   returns    TRUE or FALSE
+		#   see        ContainsSome
 		def ContainsNoneOfThese(paItems)
 			return NOT This.ContainsOneOfThese(paItems)
 
-		# TRUE if NONE of the given items occurs in the list.
+		# TRUE if none of the given items occurs in the list.
+		#
+		#   returns    TRUE or FALSE
+		#   see        ContainsSome
 		def ContainsNoItemOfThese(paItems)
 			return NOT This.ContainsOneOfThese(paItems)
 
@@ -10412,8 +13106,11 @@ class stzList from stzObject
 	def HowMany(pItem)
 		return This.NumberOfOccurrence(pItem)
 
-	#-- Objects: the items that are objects.
-
+	# Returns the items that are objects.
+	#
+	#   returns    a list of the object items
+	#   see        Strings, Lists, Numbers
+	#@ aka  -- Objects: the items that are objects.
 	def Objects()
 		_aContent_ = This.Content()
 		_nLen_ = ring_len(_aContent_)
@@ -10428,9 +13125,11 @@ class stzList from stzObject
 		def OnlyObjects()
 			return This.Objects()
 
-	#-- NumbersAndStrings: the scalar items (numbers or strings).
-	#-- The Z form pairs each with its 1-based position.
-
+	# Returns the items that are numbers or strings, leaving out lists and objects.
+	#
+	#   returns    a list of items
+	#   see        OnlyNumbers, OnlyStrings
+	#@ aka  -- NumbersAndStrings: the scalar items (numbers or strings). -- The Z form pairs each with its 1-based position.
 	def NumbersAndStrings()
 		_aContent_ = This.Content()
 		_nLen_ = ring_len(_aContent_)
@@ -10513,6 +13212,10 @@ class stzList from stzObject
 	def VizFindAllOccurrencesCS(pItem, pCaseSensitive)
 		return This.VizFindCS(pItem, pCaseSensitive)
 
+	# Returns the list written as text for display, with every occurrence of the item marked.
+	#
+	#   returns    a string
+	#   see        VizFindAll
 	def VizFindAllOccurrences(pItem)
 		return This.VizFindAllOccurrencesCS(pItem, 1)
 
@@ -10536,6 +13239,10 @@ class stzList from stzObject
 			_cMark_ = This._VizMarkerLine(pItem, [], _cCode_, pCaseSensitive, 0)
 			return This._VizWrap(_cCode_, [ [ "", _cMark_, "" ] ], This._VizWidth())
 
+		# Returns the list written as text.
+		#
+		#   returns    a string
+		#   see        ToListInAString
 		def VizFindAll(pItem)
 			return This.VizFindCS(pItem, 1)
 
@@ -10722,9 +13429,17 @@ class stzList from stzObject
 		_cMark_ = This._VizMarkerLine(pItem, [], _cCode_, pCaseSensitive, 1)
 		return This._VizWrap(_cCode_, [ [ "", _cMark_, "" ] ], This._VizWidth())
 
+	# Returns the list written as text for display, with the occurrences of the item marked at any depth.
+	#
+	#   returns    a string
+	#   see        VizFindAll
 	def VizDeepFind(pItem)
 		return This.VizDeepFindCS(pItem, 1)
 
+		# Returns the list written as text for display, with every occurrence of the item marked at any depth.
+		#
+		#   returns    a string
+		#   see        VizFindAll
 		def VizDeepFindAll(pItem)
 			return This.VizDeepFindCS(pItem, 1)
 
@@ -10814,11 +13529,19 @@ class stzList from stzObject
 			next
 			return _aTfR_
 
-		# How many NUMBER items the list holds.
+		# Returns how many items are numbers.
+		#
+		#   returns    a number
+		#   see        NumberOfStrings
+		#@ aka  How many NUMBER items the list holds.
 		def NumberOfNumbers()
 			return ring_len(This.Numbers())
 
-	# Only the STRING items of the list.
+	# Returns the items that are strings.
+	#
+	#   returns    a list of strings
+	#   see        Objects, Lists, OnlyStrings
+	#@ aka  Only the STRING items of the list.
 	def Strings()
 		_aTfC_ = This.Content()
 		_nTfL_ = ring_len(_aTfC_)
@@ -10841,7 +13564,11 @@ class stzList from stzObject
 			next
 			return _aTfR_
 
-		# How many STRING items the list holds.
+		# Returns how many items are strings.
+		#
+		#   returns    a number
+		#   see        NumberOfLists, Strings
+		#@ aka  How many STRING items the list holds.
 		def NumberOfStrings()
 			return ring_len(This.Strings())
 
@@ -10875,7 +13602,11 @@ class stzList from stzObject
 			next
 			return _aTfR_
 
-	# Only the LETTER items of the list.
+	# Returns the items that are a single ASCII letter.
+	#
+	#   returns    a list of letters
+	#   see        Numbers, Strings
+	#@ aka  Only the LETTER items of the list.
 	def Letters()
 		_aTfC_ = This.Content()
 		_nTfL_ = ring_len(_aTfC_)
@@ -10906,11 +13637,19 @@ class stzList from stzObject
 			next
 			return _aTfR_
 
-		# How many LETTER items the list holds.
+		# Returns how many items are a single ASCII letter.
+		#
+		#   returns    a number
+		#   see        Letters
+		#@ aka  How many LETTER items the list holds.
 		def NumberOfLetters()
 			return ring_len(This.Letters())
 
-	# Only the LIST items of the list.
+	# Returns the items that are lists.
+	#
+	#   returns    a list of lists
+	#   see        Strings, Objects
+	#@ aka  Only the LIST items of the list.
 	def Lists()
 		_aTfC_ = This.Content()
 		_nTfL_ = ring_len(_aTfC_)
@@ -10933,7 +13672,11 @@ class stzList from stzObject
 			next
 			return _aTfR_
 
-		# How many LIST items the list holds.
+		# Returns how many items are lists.
+		#
+		#   returns    a number
+		#   see        NumberOfStrings
+		#@ aka  How many LIST items the list holds.
 		def NumberOfLists()
 			return ring_len(This.Lists())
 
@@ -10950,10 +13693,12 @@ class stzList from stzObject
 	def NumberOfPairs()
 		return ring_len(This.Pairs())
 
-	#-- Extend the list up to position n. ExtendToPosition pads with 0
-	#-- (number lists) or "" ; the WithItemsIn/Repeated forms pad by
-	#-- cycling through a given list (or the list's own items).
-
+	# Extends the list up to position n, in place; a list already that long is left as it is.
+	#
+	#   _n_        the position to reach
+	#   returns    nothing; the list changes
+	#   see        ExtendToWith
+	#@ aka  -- Extend the list up to position n. ExtendToPosition pads with 0 -- (number lists) or "" ; the WithItemsIn/Repeated forms pad by -- cycling through a given list (or the list's own items).
 	def ExtendToPosition(_n_)
 		_nLen_ = This.NumberOfItems()
 		_aContent_ = This.Content()
@@ -10969,8 +13714,13 @@ class stzList from stzObject
 		ok
 		This.UpdateWith(_aContent_)
 
-	# Extend the list to position n by cycling the given items
-	# (mutating).
+	# Extends the list up to position n by adding the given items in turn, in place.
+	#
+	#   _n_        the position to reach
+	#   paItems    the items used to fill, in turn
+	#   returns    nothing; the list changes
+	#   see        ExtendToWithItemsIn
+	#@ aka  Extend the list to position n by cycling the given items (mutating).
 	def ExtendToPositionWithItemsIn(_n_, paItems)
 		_nLen_ = ring_len(paItems)
 		# fill (target - CURRENT length) slots; cycle the pool (length nLen)
@@ -10988,23 +13738,45 @@ class stzList from stzObject
 		ok
 		This.ExtendWith(_aTemp_)
 
+		# Extends the list up to position n by adding the given items in turn, in place.
+		#
+		#   _n_        the position to reach
+		#   paItems    the items used to fill, in turn
+		#   returns    nothing; the list changes
+		#   see        ExtendToWith
 		def ExtendToWithItemsIn(_n_, paItems)
 			This.ExtendToPositionWithItemsIn(_n_, paItems)
 
-	# Extend to position n by cycling the list's own items
-	# (mutating).
+	# Extends the list up to position n by repeating its own items, in place.
+	#
+	#   _n_        the position to reach
+	#   returns    nothing; the list changes
+	#   see        ExtendToWithItemsRepeated
+	#@ aka  Extend to position n by cycling the list's own items (mutating).
 	def ExtendToPositionWithItemsRepeated(_n_)
 		This.ExtendToPositionWithItemsIn(_n_, This.List())
 
+		# Extends the list up to position n by repeating its own items, in place.
+		#
+		#   _n_        the position to reach
+		#   returns    nothing; the list changes
+		#   see        ExtendToWith
 		def ExtendToWithItemsRepeated(_n_)
 			This.ExtendToPositionWithItemsRepeated(_n_)
 
+		# Extends the list up to position n by repeating its own items, in place.
+		#
+		#   _n_        the position to reach
+		#   returns    nothing; the list changes
+		#   see        ExtendToWithItemsRepeated
 		def ExtendToByRepeatingItems(_n_)
 			This.ExtendToPositionWithItemsRepeated(_n_)
 
-	#-- Size comparison with another list. Accept the named form
-	#-- IsLarger(:Than = otherList) or the raw list.
-
+	# TRUE if the list has more items than the other list.
+	#
+	#   returns    TRUE or FALSE
+	#   see        HasLessNumberOfItems
+	#@ aka  -- Size comparison with another list. Accept the named form -- IsLarger(:Than = otherList) or the raw list.
 	def HasMoreNumberOfItems(paOtherList)
 		if isList(paOtherList) and ring_len(paOtherList) = 2 and isString(paOtherList[1]) and
 		   (paOtherList[1] = :Than or paOtherList[1] = :than)
@@ -11025,7 +13797,11 @@ class stzList from stzObject
 		def HasMoreItems(paOtherList)
 			return This.HasMoreNumberOfItems(paOtherList)
 
-	# TRUE if this list has fewer items than the given one.
+	# TRUE if the list has fewer items than the other list.
+	#
+	#   returns    TRUE or FALSE
+	#   see        HasMoreNumberOfItems
+	#@ aka  TRUE if this list has fewer items than the given one.
 	def HasLessNumberOfItems(paOtherList)
 		if isList(paOtherList) and ring_len(paOtherList) = 2 and isString(paOtherList[1]) and
 		   (paOtherList[1] = :Than or paOtherList[1] = :than)
@@ -11049,8 +13825,11 @@ class stzList from stzObject
 		def HasFewerItems(paOtherList)
 			return This.HasLessNumberOfItems(paOtherList)
 
-	#-- IsListOfEmptyLists: every item is an empty list.
-
+	# TRUE if every item is an empty list.
+	#
+	#   returns    TRUE or FALSE
+	#   see        ItemsAreEmptyLists
+	#@ aka  -- IsListOfEmptyLists: every item is an empty list.
 	def IsListOfEmptyLists()
 		_aContent_ = This.Content()
 		_nLen_ = ring_len(_aContent_)
@@ -11088,49 +13867,58 @@ class stzList from stzObject
 		next
 		return ring_sort(_aRes_)
 
+		# Returns the position of the first occurrence of each duplicated item.
+		#
+		#   returns    a list of positions
+		#   see        FindDupOrigins
 		def FindFirstDuplicates()
 			return This.FindFirstDuplicatesCS(1)
 
+		# Returns the position of the first occurrence of each duplicated item.
+		#
+		#   returns    a list of positions
+		#   see        FindDupOrigins
 		def FindFirstDuplicatedItems()
 			return This.FindFirstDuplicatesCS(1)
 
+		# Returns the position of the first occurrence of each duplicated item.
+		#
+		#   returns    a list of positions
+		#   see        FindDupOrigins
 		def FindFirstOccurrenceOfEachDuplicatedItem()
 			return This.FindFirstDuplicatesCS(1)
 
+		# Returns the positions of the first occurrence of each item that is duplicated.
+		#
+		#   returns    a list of positions
+		#   see        RemoveDupOrigins
 		def FindDupOrigins()
 			return This.FindFirstDuplicatesCS(1)
 
-	#-- Remove the first occurrence of each duplicated item (mutating).
-
+	# Removes the first occurrence of each duplicated item, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        FindDupOrigins
+	#@ aka  -- Remove the first occurrence of each duplicated item (mutating).
 	def RemoveDupOrigins()
 		This.RemoveItemsAtPositions( This.FindFirstDuplicates() )
 
+		# Removes the first occurrence of each duplicated item, in place.
+		#
+		#   returns    nothing; the list changes
+		#   see        RemoveDupOrigins
 		def RemoveDuplicatesOrigins()
 			This.RemoveDupOrigins()
 
 	  #=====================================#
 	 #   OPERATOR OVERLOADING              #
 	#=====================================#
+	# Applies a Ring operator to the list and a value; + appends the value.
 	#
-	# stzList supports the natural Ring operator-overload set so
-	# narrative tests can write things like
-	#
-	#   Q([1, 2, 3]) - 2          # -> [1, 3]
-	#   Q([1, 2, 3]) + 4          # -> [1, 2, 3, 4]
-	#   Q([1, 2]) * 3             # -> [1, 2, 1, 2, 1, 2]
-	#
-	# Semantics for `+` and `-`:
-	#   - the RHS is treated AS A SINGLE ITEM (it's added or removed
-	#     literally, even when it's itself a list).
-	#   - this matches the legacy Softanza contract documented in the
-	#     stzlistofnumbers narrative blocks: `Q([1,2,3,4,5]) - [1,3,5]`
-	#     returns [1,2,3,4,5] unchanged because the literal list
-	#     [1,3,5] is NOT an element of [1,2,3,4,5].
-	#
-	# For element-wise operations, use the explicit method calls
-	# (AddMany / RemoveMany / etc.) -- the operator is reserved for
-	# the simple "single item" reading.
-
+	#   pOp        the operator, as text
+	#   pValue     the right-hand value
+	#   returns    the result of the operator
+	#@ aka  stzList supports the natural Ring operator-overload set so narrative tests can write things like
 	def operator(pOp, pValue)
 
 		# Softanza operator rules (NON-mutating -- the object is never
@@ -11725,6 +14513,10 @@ class stzList from stzObject
 
 		return len( This.FindDuplicatesCS(pCaseSensitive) ) = 0
 
+	# TRUE if no item occurs twice.
+	#
+	#   returns    TRUE or FALSE
+	#   see        ContainsDuplicates
 	def ContainsNoDuplicates()
 		return This.ContainsNoDuplicatesCS(1)
 
@@ -11749,6 +14541,10 @@ class stzList from stzObject
 			return 0
 		ok
 
+	# TRUE if some item occurs only once.
+	#
+	#   returns    TRUE or FALSE
+	#   see        NonDuplicatedItems
 	def ContainsNonDuplicatedItems()
 		return This.ContainsNonDuplicatedItemsCS(1)
 
@@ -11835,12 +14631,20 @@ class stzList from stzObject
 
 		return _aResult_
 
+	# Returns the items that occur only once.
+	#
+	#   returns    a list of items
+	#   see        FindNonDuplicatedItems
 	def NonDuplicatedItems()
 		return This.NonDuplicatedItemsCS(1)
 
 	def NumberOfNonDuplicatedItemsCS(pCaseSensitive)
 		return len(This.NonDuplicatedItemsCS(pCaseSensitive))
 
+	# Returns how many items occur only once.
+	#
+	#   returns    a number
+	#   see        NonDuplicatedItems
 	def NumberOfNonDuplicatedItems()
 		return This.NumberOfNonDuplicatedItemsCS(1)
 
@@ -11912,6 +14716,10 @@ class stzList from stzObject
 
 		return _anResult_
 
+	# Returns the positions of the items that occur only once.
+	#
+	#   returns    a list of positions
+	#   see        FindDuplicates
 	def FindNonDuplicatedItems()
 		return This.FindNonDuplicatedItemsCS(1)
 
@@ -11925,6 +14733,10 @@ class stzList from stzObject
 		next
 		return _aResult_
 
+	# Returns each item that occurs once with its position.
+	#
+	#   returns    a list of [ item, position ] pairs
+	#   see        NonDuplicatedItems
 	def NonDuplicatedItemsAndTheirPositions()
 		return This.NonDuplicatedItemsAndTheirPositionsCS(1)
 
@@ -11999,8 +14811,12 @@ class stzList from stzObject
 	def ItemsOccuringNTimesCS(_n_, pCaseSensitive)
 		return This.ItemsOccurringNTimesCS(_n_, pCaseSensitive)
 
-	#-- N-LISTIFY (pad each item into an n-element sublist)
-
+	# Turns every item into the first of a list of n items, padded with empty strings, in place.
+	#
+	#   _n_        the size of each new list
+	#   returns    nothing; the list changes
+	#   see        NListified
+	#@ aka  -- N-LISTIFY (pad each item into an n-element sublist)
 	def NListify(_n_)
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -12040,6 +14856,11 @@ class stzList from stzObject
 		This.NListify(_n_)
 		return This
 
+	# Returns each item as the first of a list of n items, padded with empty strings; the list is unchanged.
+	#
+	#   _n_        the size of each new list
+	#   returns    a list of lists
+	#   see        Pairified
 	def NListified(_n_)
 		return This.Copy().NListifyQ(_n_).Content()
 
@@ -12069,9 +14890,17 @@ class stzList from stzObject
 		_nPos_ = ceil(_nLen_ / 2) + 1
 		return This.Section(_nPos_, _nLen_)
 
+	# Returns the first half with the position where it starts.
+	#
+	#   returns    a pair [ half, position ]
+	#   see        FirstHalf
 	def FirstHalfAndPosition()
 		return [ This.FirstHalf(), 1 ]
 
+	# Returns the first half with its section, as [ start, end ].
+	#
+	#   returns    a pair [ half, [ start, end ] ]
+	#   see        FirstHalf
 	def FirstHalfAndSection()
 		return [ This.FirstHalf(), [1, floor(This.NumberOfItems() / 2)] ]
 
@@ -12081,11 +14910,19 @@ class stzList from stzObject
 	def FirstHalfAndSectionXT()
 		return [ This.FirstHalfXT(), [1, ceil(This.NumberOfItems() / 2)] ]
 
+	# Returns the second half with the position where it starts.
+	#
+	#   returns    a pair [ half, position ]
+	#   see        SecondHalf
 	def SecondHalfAndPosition()
 		_nLen_ = This.NumberOfItems()
 		_nPos_ = floor(_nLen_ / 2) + 1
 		return [ This.SecondHalf(), _nPos_ ]
 
+	# Returns the second half with its section, as [ start, end ].
+	#
+	#   returns    a pair [ half, [ start, end ] ]
+	#   see        SecondHalf
 	def SecondHalfAndSection()
 		_nLen_ = This.NumberOfItems()
 		_nPos_ = floor(_nLen_ / 2) + 1
@@ -12125,6 +14962,10 @@ class stzList from stzObject
 	def SecondHalfAndItsSectionXT()
 		return This.SecondHalfAndSectionXT()
 
+	# Returns the list cut into its two halves.
+	#
+	#   returns    a list of two lists
+	#   see        FirstHalf, SecondHalf, Bisect
 	def Halves()
 		_acResult_ = []
 		_acResult_ + This.FirstHalf() + This.SecondHalf()
@@ -12135,12 +14976,20 @@ class stzList from stzObject
 		_acResult_ + This.FirstHalfXT() + This.SecondHalfXT()
 		return _acResult_
 
+	# Returns each half with the position where it starts.
+	#
+	#   returns    a list of two [ half, position ] pairs
+	#   see        Halves
 	def HalvesAndPositions()
 		return [ This.FirstHalfAndPosition(), This.SecondHalfAndPosition() ]
 
 	def HalvesAndPositionsXT()
 		return [ This.FirstHalfAndPositionXT(), This.SecondHalfAndPositionXT() ]
 
+	# Returns each half with its section, as [ start, end ].
+	#
+	#   returns    a list of two [ half, [ start, end ] ] pairs
+	#   see        Halves
 	def HalvesAndSections()
 		return [ This.FirstHalfAndSection(), This.SecondHalfAndSection() ]
 
@@ -12153,6 +15002,11 @@ class stzList from stzObject
 	#  removed" -- the destructive counterpart of Find.      #
 	#========================================================#
 
+	# Removes the item at position n and returns it.
+	#
+	#   _n_        the position to remove
+	#   returns    the removed item
+	#   see        ExtractNth
 	def ExtractAt(_n_)
 		_TempItem_ = This.ItemAt(_n_)
 		This.RemoveAt(_n_)
@@ -12218,6 +15072,12 @@ class stzList from stzObject
 	#  AllItemsAreEqualTo (split-dropped / new).             #
 	#========================================================#
 
+	# TRUE if the list equals neither of the two given lists.
+	#
+	#   paList1    the first list
+	#   paList2    the second list
+	#   returns    TRUE or FALSE
+	#   see        IsEither
 	def IsNeither(paList1, paList2)
 		return This.IsNeitherCS(paList1, paList2, 1)
 
@@ -12238,9 +15098,11 @@ class stzList from stzObject
 			return 0
 		ok
 
-	#-- HasSameContent: order-INsensitive content equality (a multiset
-	#-- comparison). Same items, any order, optionally case-folded.
-
+	# TRUE if both lists hold the same items, in any order, counting repeats.
+	#
+	#   returns    TRUE or FALSE
+	#   see        HasSameContentAs
+	#@ aka  -- HasSameContent: order-INsensitive content equality (a multiset -- comparison). Same items, any order, optionally case-folded.
 	def HasSameContent(paOtherList)
 		return This.HasSameContentCS(paOtherList, 1)
 
@@ -12297,8 +15159,11 @@ class stzList from stzObject
 		# string for non-contiguous / non-numeric lists.
 		return This.ToListInAStringInShortForm()
 
-	#-- First sublist (item that is itself a list) and its position.
-
+	# Returns the position of the first item that is a list; 0 when there is none.
+	#
+	#   returns    a number
+	#   see        FirstList
+	#@ aka  -- First sublist (item that is itself a list) and its position.
 	def FindFirstList()
 		_aC_ = This.Content()
 		_n_ = len(_aC_)
@@ -12309,6 +15174,10 @@ class stzList from stzObject
 		next
 		return 0
 
+	# Returns the first item that is a list.
+	#
+	#   returns    the list
+	#   see        FindFirstList
 	def FirstList()
 		_nPos_ = This.FindFirstList()
 		if _nPos_ = 0
@@ -12333,6 +15202,10 @@ class stzList from stzObject
 		next
 		return 1
 
+	# TRUE if every item equals the given value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        AllItemsAreEqual
 	def AllItemsAreEqualTo(pItem)
 		return This.AllItemsAreEqualToCS(pItem, 1)
 
@@ -12341,7 +15214,11 @@ class stzList from stzObject
 	#  counts, ItemsAndTheirPositions (split-dropped).        #
 	#========================================================#
 
-	# The positions of the NUMBER items.
+	# Returns the positions of the items that are numbers.
+	#
+	#   returns    a list of positions
+	#   see        OnlyNumbers
+	#@ aka  The positions of the NUMBER items.
 	def FindNumbers()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -12353,7 +15230,11 @@ class stzList from stzObject
 		next
 		return _aResult_
 
-	# The positions of the non-number items.
+	# Returns the positions of the items that are not numbers.
+	#
+	#   returns    a list of positions
+	#   see        FindNumbers
+	#@ aka  The positions of the non-number items.
 	def FindNonNumbers()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -12365,23 +15246,47 @@ class stzList from stzObject
 		next
 		return _aResult_
 
-	# Remove all the number items (mutating).
+	# Removes the items that are numbers, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        RemoveNonNumbers
+	#@ aka  Remove all the number items (mutating).
 	def RemoveNumbers()
 		This.RemoveItemsAtPositions( This.FindNumbers() )
 
+		# Removes every item that is a number, in place.
+		#
+		#   returns    nothing; the list changes
+		#   see        RemoveNumbers
 		def RemoveOnlyNumbers()
 			This.RemoveNumbers()
 
+		# Removes every number, keeping the items that are not numbers, in place.
+		#
+		#   returns    nothing; the list changes
+		#   see        RemoveNonNumbers
 		def RemoveAllExceptNonNumbers()
 			This.RemoveNumbers()
 
-	# Remove every non-number item (mutating).
+	# Removes every item that is not a number, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        RemoveNumbers
+	#@ aka  Remove every non-number item (mutating).
 	def RemoveNonNumbers()
 		This.RemoveItemsAtPositions( This.FindNonNumbers() )
 
+		# Removes every item that is not a number, in place.
+		#
+		#   returns    nothing; the list changes
+		#   see        RemoveNonNumbers
 		def RemoveOnlyNonNumbers()
 			This.RemoveNonNumbers()
 
+		# Removes every item that is not a number, in place.
+		#
+		#   returns    nothing; the list changes
+		#   see        RemoveNonNumbers
 		def RemoveAllExceptNumbers()
 			This.RemoveNonNumbers()
 
@@ -12426,6 +15331,10 @@ class stzList from stzObject
 
 		return _aResult_
 
+	# Returns each distinct item with how many times it occurs.
+	#
+	#   returns    a list of [ item, count ] pairs
+	#   see        Frequencies
 	def NumberOfOccurrenceOfItems()
 		return This.NumberOfOccurrenceOfItemsCS(1)
 
@@ -12439,6 +15348,9 @@ class stzList from stzObject
 	#========================================================#
 
 	# TRUE if every item is a number or a pair of numbers.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsListOfNumbers
 	def IsListOfNumbersAndPairsOfNumbers()
 		# Each item must be a number, or a 2-element list of two numbers.
 		# (Pair check inlined: the class also has a 0-arg IsPairOfNumbers
@@ -12472,7 +15384,11 @@ class stzList from stzObject
 	def SplittedToPartsOfNItemsXT(_n_)
 		return This.Copy().SplitToPartsOfNItemsXTQ(_n_).Content()
 
-	# Split the list after EACH of the given positions.
+	# Splits the list into parts after each of the given positions, in place.
+	#
+	#   returns    nothing; the list becomes the list of parts
+	#   see        SplitAtPositions
+	#@ aka  Split the list after EACH of the given positions.
 	def SplitAfterPositions(panPos)
 		_aSections_ = StzSplitterQ(This.NumberOfItems()).SplitAfterPositions(panPos)
 		This.UpdateWith( This.Sections(_aSections_) )
@@ -12481,7 +15397,11 @@ class stzList from stzObject
 		This.SplitAfterPositions(panPos)
 		return This
 
-	# The parts split after the given positions, as data.
+	# Returns the list cut after each of the given positions; the list is unchanged.
+	#
+	#   returns    a list of lists
+	#   see        SplitAfterPositions
+	#@ aka  The parts split after the given positions, as data.
 	def SplittedAfterPositions(panPos)
 		return This.Copy().SplitAfterPositionsQ(panPos).Content()
 
@@ -12502,7 +15422,11 @@ class stzList from stzObject
 		This.SplitBeforePositions(panPos)
 		return This
 
-	# The parts split before the given positions, as data.
+	# Returns the list cut before each of the given positions; the list is unchanged.
+	#
+	#   returns    a list of lists
+	#   see        SplittedAfterPositions
+	#@ aka  The parts split before the given positions, as data.
 	def SplittedBeforePositions(panPos)
 		return This.Copy().SplitBeforePositionsQ(panPos).Content()
 
@@ -12566,6 +15490,12 @@ class stzList from stzObject
 
 		return 0
 
+	# Returns the position of the nth occurrence of the item before a given position; 0 when there is none.
+	#
+	#   _n_        which occurrence, counted backwards
+	#   _nStart_   the position to count back from
+	#   returns    a number
+	#   see        FindPreviousNth
 	def FindNthPreviousOccurrence(_n_, pItem, _nStart_)
 		return This.FindNthPreviousOccurrenceCS(_n_, pItem, _nStart_, 1)
 
@@ -12584,6 +15514,10 @@ class stzList from stzObject
 			This.RemoveLastItem()
 		ok
 
+	# Removes the two given bounds from the ends of the list, in place, when both are there.
+	#
+	#   returns    nothing; the list changes
+	#   see        TheseBoundsRemoved
 	def RemoveTheseBounds(pBound1, pBound2)
 		This.RemoveTheseBoundsCS(pBound1, pBound2, 1)
 
@@ -12591,7 +15525,11 @@ class stzList from stzObject
 		This.RemoveTheseBounds(pBound1, pBound2)
 		return This
 
-	# A copy with the two given bounds removed from the ends.
+	# Returns a copy without the two given bounds at its ends; the list is unchanged.
+	#
+	#   returns    a list of items
+	#   see        RemoveTheseBounds
+	#@ aka  A copy with the two given bounds removed from the ends.
 	def TheseBoundsRemoved(pBound1, pBound2)
 		return This.Copy().RemoveTheseBoundsQ(pBound1, pBound2).Content()
 
@@ -12652,7 +15590,11 @@ class stzList from stzObject
 	def TypesXT()
 		return This.ListQ().AssociatedWith( This.Types() )
 
-	# The positions of the stzNumber OBJECT items.
+	# Returns the positions of the items that are stzNumber objects.
+	#
+	#   returns    a list of positions
+	#   see        FindStzLists
+	#@ aka  The positions of the stzNumber OBJECT items.
 	def FindStzNumbers()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -12664,14 +15606,27 @@ class stzList from stzObject
 		next
 		return _anResult_
 
+	# Replaces the given item by a new item at position n, in place, when the item stands there.
+	#
+	#   _n_        the position
+	#   returns    nothing; the list changes
+	#   see        ReplaceThisItemAt
 	def ReplaceThisAt(_n_, pItem, pNewItem)
 		This.ReplaceThisItemAt(_n_, pItem, pNewItem)
 
+	# Replaces the item at a position by a new item, in place.
+	#
+	#   pPos       the position
+	#   returns    nothing; the list changes
+	#   see        ReplaceAnyItemAt
 	def ReplaceAnyAt(pPos, pNewItem)
 		This.ReplaceAt(pPos, pNewItem)
 
-	#-- Positions of items that are stz objects of a given kind.
-
+	# Returns the positions of the items that are stzString objects.
+	#
+	#   returns    a list of positions
+	#   see        FindStzLists
+	#@ aka  -- Positions of items that are stz objects of a given kind.
 	def FindStzStrings()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -12683,7 +15638,11 @@ class stzList from stzObject
 		next
 		return _anResult_
 
-	# The positions of the stzList OBJECT items.
+	# Returns the positions of the items that are stzList objects.
+	#
+	#   returns    a list of positions
+	#   see        FindStzNumbers
+	#@ aka  The positions of the stzList OBJECT items.
 	def FindStzLists()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -12695,9 +15654,10 @@ class stzList from stzObject
 		next
 		return _anResult_
 
-	#-- Convert to a stzListOfStrings (for string-oriented chaining like
-	#-- ConcatenatedUsing / Joined). Needed by the ..Q() chain idioms.
-
+	# Returns the content as a stzListOfStrings, for chaining string operations such as joining.
+	#
+	#   returns    a stzListOfStrings
+	#@ aka  -- Convert to a stzListOfStrings (for string-oriented chaining like -- ConcatenatedUsing / Joined). Needed by the ..Q() chain idioms.
 	def ToStzListOfStrings()
 		return new stzListOfStrings(This.Content())
 
@@ -12734,7 +15694,11 @@ class stzList from stzObject
 		_StzHistoAdd(This.Content())
 		return This
 
-		# Lowercase every string item, chainable.
+		# Lowercases every string item, in place, and returns the list for chaining.
+		#
+		#   returns    the list itself
+		#   see        Lowercase
+		#@ aka  Lowercase every string item, chainable.
 		def LowercaseQ()
 			_StzHistoOpen(This.Content())
 			This.UpdateWith( This.Lowercased() )
@@ -12747,6 +15711,10 @@ class stzList from stzObject
 	#  from the monolith (split-dropped).                    #
 	#========================================================#
 
+	# Returns the items of the other list that the list does not hold.
+	#
+	#   returns    a list of items
+	#   see        RemovedItemsComparedToCS
 	def AddedItemsComparedToCS(paOtherList, pCaseSensitive)
 		if NOT isList(paOtherList)
 			StzRaise("Incorrect param type! paOtherList must be a list.")
@@ -12774,6 +15742,10 @@ class stzList from stzObject
 		next
 		return _aResult_
 
+	# Returns the items of the list that the other list does not hold.
+	#
+	#   returns    a list of items
+	#   see        AddedItemsComparedToCS
 	def RemovedItemsComparedToCS(paOtherList, pCaseSensitive)
 		if NOT isList(paOtherList)
 			StzRaise("Incorrect param type! paOtherList must be a list.")
@@ -12801,6 +15773,10 @@ class stzList from stzObject
 		next
 		return _aResult_
 
+	# Returns the [ old, new ] pairs of items that changed against the other list, matched by overlap.
+	#
+	#   returns    a list of [ old, new ] pairs
+	#   see        AddedItemsComparedToCS
 	def ModifiedItemsComparedToCSXT(paOtherList, pCaseSensitive)
 		if NOT isList(paOtherList)
 			StzRaise("Incorrect param type! paOtherList must be a list.")
@@ -12894,10 +15870,11 @@ class stzList from stzObject
 		def DiffXT(paOtherList)
 			return This.DiffXTT(paOtherList)
 
-	#-- Objectify: wrap each item in a Q() stz object (so per-item stz
-	#-- methods like ContainsCS can be called). Needed by DiffXTT's
-	#-- similarity matching.
-
+	# Wraps each item in a Q object, in place, so that object methods can be called on it.
+	#
+	#   returns    nothing; the list changes
+	#   see        Objectified
+	#@ aka  -- Objectify: wrap each item in a Q() stz object (so per-item stz -- methods like ContainsCS can be called). Needed by DiffXTT's -- similarity matching.
 	def Objectify()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -12911,14 +15888,18 @@ class stzList from stzObject
 		This.Objectify()
 		return This
 
+	# Returns each item wrapped as a Q object; the list is unchanged.
+	#
+	#   returns    a list of objects
+	#   see        Objectify
 	def Objectified()
 		return This.Copy().ObjectifyQ().Content()
 
-	#-- IsQuietEqualTo: approximate equality. Exact-equal (engine-backed
-	#-- IsEqualTo) OR the length-difference ratio is below the tunable
-	#-- QuietEqualityRatio (default 0.09; SetQuietEqualityRatio to change).
-	#-- No element loop here -- the content compare is the engine's job.
-
+	# TRUE if the two lists are equal when letter case and tiny numeric differences are ignored.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsEqualTo
+	#@ aka  -- IsQuietEqualTo: approximate equality. Exact-equal (engine-backed -- IsEqualTo) OR the length-difference ratio is below the tunable -- QuietEqualityRatio (default 0.09; SetQuietEqualityRatio to change). -- No element loop here -- the content compare is the engine's job.
 	def IsQuietEqualTo(paOtherList)
 		if isList(paOtherList) and IsToNamedParamList(paOtherList)
 			paOtherList = paOtherList[2]
@@ -12949,6 +15930,10 @@ class stzList from stzObject
 	def DeepContainsMany(paItems)
 		return This.DeepContainsManyCS(paItems, 1)
 
+		# TRUE if every one of the given items occurs at any depth of a nested list.
+		#
+		#   returns    TRUE or FALSE
+		#   see        DeepContains
 		def DeepContainsThese(paItems)
 			return This.DeepContainsManyCS(paItems, 1)
 
@@ -12958,6 +15943,12 @@ class stzList from stzObject
 		ok
 		return This.DeepContainsManyCS([ pItem1, pItem2 ], pCaseSensitive)
 
+	# TRUE if both items occur at any depth of a nested list.
+	#
+	#   pItem1     the first item
+	#   pItem2     the second item
+	#   returns    TRUE or FALSE
+	#   see        DeepContains
 	def DeepContainsBoth(pItem1, pItem2)
 		return This.DeepContainsBothCS(pItem1, pItem2, 1)
 
@@ -12970,6 +15961,10 @@ class stzList from stzObject
 		next
 		return 0
 
+	# TRUE if at least one of the given items occurs at any depth of a nested list.
+	#
+	#   returns    TRUE or FALSE
+	#   see        DeepContains
 	def DeepContainsOneOfThese(paItems)
 		return This.DeepContainsOneOfTheseCS(paItems, 1)
 
@@ -12986,6 +15981,11 @@ class stzList from stzObject
 		next
 		return 0
 
+	# TRUE if at least n of the given items occur at any depth of a nested list.
+	#
+	#   _n_        how many of them must occur
+	#   returns    TRUE or FALSE
+	#   see        DeepContains
 	def DeepContainsNOfThese(_n_, paItems)
 		return This.DeepContainsNOfTheseCS(_n_, paItems, 1)
 
@@ -12994,6 +15994,10 @@ class stzList from stzObject
 	#  tion over the established per-string locale lookups.   #
 	#========================================================#
 
+	# Returns each item as a stzString; every item must be a string.
+	#
+	#   returns    a list of stzString objects
+	#   see        ToStzListOfStrings
 	def ToListOfStzStrings()
 		if NOT This.IsListOfStrings()
 			StzRaise("Can't proceed! All items must be strings.")
@@ -13006,6 +16010,10 @@ class stzList from stzObject
 		next
 		return _aoResult_
 
+	# TRUE if every item is a language abbreviation, such as "en".
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsLocaleList
 	def AreLanguageAbbreviations()
 		if NOT @IsListOfStrings(@aContent)
 			return 0
@@ -13019,6 +16027,10 @@ class stzList from stzObject
 		next
 		return 1
 
+	# TRUE if the list holds one locale name, such as "default" or "system".
+	#
+	#   returns    TRUE or FALSE
+	#   see        AreLanguageAbbreviations
 	def IsLocaleList()
 		_nLen_ = len(@aContent)
 
@@ -13065,6 +16077,10 @@ class stzList from stzObject
 		ok
 		return 1
 
+	# TRUE if the list is a hash list whose values are all strings, one per language.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsHashList
 	def IsMultilingualString()
 		if NOT This.IsHashlist()
 			return 0
@@ -13086,9 +16102,11 @@ class stzList from stzObject
 		next
 		return 1
 
-	#-- Replace the run of repeated LEADING items with a given value
-	#-- (:with names it). Delegates to ReplaceLeadingItems.
-
+	# Replaces the run of repeated leading items by a new item, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        ReplaceLeadingItems
+	#@ aka  -- Replace the run of repeated LEADING items with a given value -- (:with names it). Delegates to ReplaceLeadingItems.
 	def ReplaceRepeatedLeadingItem(pItem)
 		if isList(pItem) and IsWithNamedParamList(pItem)
 			pItem = pItem[2]
@@ -13101,6 +16119,10 @@ class stzList from stzObject
 	#  sequences (arithmetic); ItemsAt does the gather.      #
 	#========================================================#
 
+	# Returns the positions walked from the last to the first and back to the last.
+	#
+	#   returns    a list of positions
+	#   see        WalkForthAndBack
 	def WalkBackAndForth()
 		return This.WalkBackAndForthXT(:Return = :WalkedPositions)
 
@@ -13125,8 +16147,13 @@ class stzList from stzObject
 			return _anPos_
 		ok
 
-	#-- N-step (every nth item)
-
+	# Returns the positions walked n at a time forwards, in the form the second argument asks for.
+	#
+	#   _n_        the step
+	#   pReturn    what to return, positions or items
+	#   returns    a list of positions
+	#   see        WalkNForward
+	#@ aka  -- N-step (every nth item)
 	def WalkNItemsForwardXT(_n_, pReturn)
 		if isList(pReturn) and IsOneOfTheseNamedParamsList(pReturn, [ :Return, :AndReturn ])
 			pReturn = pReturn[2]
@@ -13148,6 +16175,12 @@ class stzList from stzObject
 			return _anPos_
 		ok
 
+	# Returns the positions walked n at a time backwards, in the form the second argument asks for.
+	#
+	#   _n_        the step
+	#   pReturn    what to return, positions or items
+	#   returns    a list of positions
+	#   see        WalkNBackward
 	def WalkNItemsBackwardXT(_n_, pReturn)
 		if isList(pReturn) and IsOneOfTheseNamedParamsList(pReturn, [ :Return, :AndReturn ])
 			pReturn = pReturn[2]
@@ -13244,9 +16277,19 @@ class stzList from stzObject
 			return _anPos_
 		ok
 
+	# Returns the positions walked forwards with a growing step.
+	#
+	#   _n_        the first step
+	#   returns    a list of positions
+	#   see        WalkNProgressiveItemsBackward
 	def WalkNProgressiveItemsForward(_n_)
 		return This.WalkNProgressiveItemsForwardXT(_n_, :Return = :WalkedPositions)
 
+	# Returns the positions walked backwards with a growing step.
+	#
+	#   _n_        the first step
+	#   returns    a list of positions
+	#   see        WalkNProgressiveItemsForward
 	def WalkNProgressiveItemsBackward(_n_)
 		return This.WalkNProgressiveItemsBackwardXT(_n_, :Return = :WalkedPositions)
 
@@ -13342,9 +16385,13 @@ class stzList from stzObject
 			return _anPos_
 		end
 	
+	# Returns the positions walked n items forwards, then n items backwards.
+	#
+	#   pnForward    how many items forward
+	#   pnBackward   how many items back
+	#   returns      a list of positions
+	#   see          WalkNItemsBackwardNItemsForward
 		#< @FunctionAlternativeForm
-
-
 	def WalkNItemsForwardNItemsBackward(pnForward, pnBackward)
 		return This.WalkNItemsForwardNItemsBackwardXT(pnForward, pnBackward, :Return = :WalkedPositions)
 
@@ -13427,9 +16474,13 @@ class stzList from stzObject
 			return _anPos_
 		end
 
+	# Returns the positions walked n items backwards, then n items forwards.
+	#
+	#   pnBackward   how many items back
+	#   pnForward    how many items forward
+	#   returns      a list of positions
+	#   see          WalkNItemsForwardNItemsBackward
 		#< @FunctionAlternativeForm
-
-
 	def WalkNItemsBackwardNItemsForward(pnBackward, pnForward)
 		return This.WalkNItemsBackwardNItemsForwardXT(pnBackward, pnForward, :Return = :WalkedPositions)
 
@@ -13502,9 +16553,13 @@ class stzList from stzObject
 			return _anPos_
 		end
 	
+	# Returns the positions walked from the start and from the end, the given number of items each way.
+	#
+	#   nFromStart   how many items from the start
+	#   nFromEnd     how many items from the end
+	#   returns      a list of positions
+	#   see          WalkNItemsFromEndNItemsFromStart
 		#< @FunctionAlternativeForm
-
-
 	def WalkNItemsFromStartNItemsFromEnd(nFromStart, nFromEnd)
 		return This.WalkNItemsFromStartNItemsFromEndXT(nFromStart, nFromEnd, :Return = :WalkedPositions)
 
@@ -13579,9 +16634,13 @@ class stzList from stzObject
 			return _anPos_
 		end
 
+	# Returns the positions walked from the end and from the start, the given number of items each way.
+	#
+	#   pnFromEnd     how many items from the end
+	#   pnFromStart   how many items from the start
+	#   returns       a list of positions
+	#   see           WalkNItemsFromStartNItemsFromEnd
 		#< @FunctionAlternativeForm
-
-
 	def WalkNItemsFromEndNItemsFromStart(pnFromEnd, pnFromStart)
 		return This.WalkNItemsFromEndNItemsFromStartXT(pnFromEnd, pnFromStart, :Return = :WalkedPositions)
 

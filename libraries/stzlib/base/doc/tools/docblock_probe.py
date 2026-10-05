@@ -26,6 +26,11 @@ RECV = {
     "stzHashList": ['new stzHashList([ :one = "a", :two = "b", :three = "a", :four = 4 ])',
                     'new stzHashList([ :one = :NONE, :two = [ :is, :will, :can ], :three = [ :can, :will ] ])'],
 }
+if os.environ.get("PROBE_MODE") == "2":
+    RECV["stzList"] = ['new stzList([ " a ", "", "b", [ 1, [ 2 ] ], 7 ])']
+    RECV["stzString"] = ['new stzString("  the cat and the hat  ")']
+
+
 TEXTY = {"stzString": '"an"', "stzList": '"b"', "stzHashList": '"a"', "stzNumber": '"2"'}
 SKIP = re.compile(r"^(show|print|save|write|save|load|read|open|delete|draw|play|speak|init|stztype|classname)", re.I)
 
@@ -68,14 +73,14 @@ def arg_for(cls, name, idx):
         if k == "pn":
             return "3" if idx > 0 else "2"
         if k == "pc":
-            return TEXTY[cls]
+            return TEXTY[cls] if (idx == 0 or os.environ.get("PROBE_MODE") != "2") else '"X"'
     if n in ("n", "_n_", "n1", "n2", "_n1_", "_n2_", "_nstart_", "_nfrom_", "_nrange_", "nwidth", "pstartingat", "nmin", "_nmax_", "nplaces", "_nround_", "pround", "pnumber"):
         return "3" if idx > 0 else "2"
     if n.startswith("c"):
         return TEXTY[cls]
     if cls == "stzNumber":
         return "3"
-    return TEXTY[cls]
+    return TEXTY[cls] if (idx == 0 or os.environ.get("PROBE_MODE") != "2") else '"X"'
 
 
 def fmt_fn():
