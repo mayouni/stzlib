@@ -1,0 +1,5 @@
+init | Builds the converter and writes the Mermaid text of a diagram at once; only a stzDiagram or a stzOrgChart is accepted. | nothing; the text is generated | poDiagram=The stzDiagram or stzOrgChart to convert | Code, WriteToFile |  | the text is a snapshot: later changes to the diagram are not seen
+Code | Returns the flowchart text generated at construction, in graph TD syntax. | text |  | MermaidCode, Content, WriteToFile
+MermaidCode | Returns the flowchart text generated at construction; another spelling of the text getter. | text |  | Code
+Content | Returns the flowchart text generated at construction; another spelling of the text getter. | text |  | Code
+WriteToFile | Writes the flowchart text to a file, replacing it. | 1 | pFilename=The path of the file to write, as text | Code

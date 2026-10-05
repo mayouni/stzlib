@@ -394,6 +394,32 @@ func StzFactUnitText(pcUnit)
 	return " " + _u_
 
 
+# Holds a flow diagram of typed, coloured nodes and labelled edges, and draws it as SVG or PNG with no graphviz, or exports it as DOT, Mermaid, JSON or the native .stzdiag text.
+#
+# A stzDiagram is a stzGraph with a look: a theme, a layout direction, edge routing, pen and arrow
+# settings, 24 node shapes (AddCircle, AddBox, AddDiamond and so on, each a node with a type and a
+# label equal to its id), clusters drawn as boxes behind their nodes, annotators, and visual rules
+# over node and edge properties. The inherited stzGraph methods (AddNodeXTT, Connect, AddEdgeXT,
+# NodeProperty, Edges) build the content. ToCanvas lays the diagram out and draws it natively;
+# ToSVG, ToPNG and ToPages are the outputs, and after ToCanvas the Render methods report where
+# everything was drawn and PickAt answers what lies under a pixel. On top of that picture sits a
+# headless editor: OnPress, OnMove, OnRelease and OnCancel feed a pointer into a state machine, Edit
+# runs commands that Undo and Redo take back, and Pin fixes a node in the layout. Ids are folded to
+# lowercase. Known defects, each carried as a warning: PenWidth, NodesWith, propertiesLegend and
+# SaveToStzDiagInFolder raise; Explain raises once a visual rule is registered; ComputeMetrics
+# divides by zero for a diagram with no path of two nodes; ToSVG and ToPNG leave the last picture
+# freed, so picking fails after them; ImportDiag into a diagram that holds the first node adds
+# duplicates; the pen-width setters are named the wrong way round. Display and View need graphviz
+# and a viewer and Step and RunIn need a window; none of the three was run.
+#
+#   receiver   o1 = new stzDiagram("flow"); o1.AddNodeXTT("start", "Order Received", [ :type =
+#              "start" ]); o1.AddNodeXT("validate", "Validate"); o1.AddNodeXTT("done", "Done", [
+#              :type = "endpoint" ]); o1.AddEdgeXT("start", "validate", "next");
+#              o1.AddEdge("validate", "done")
+#   example    ? @@( o1.Edges()[1][:label] )
+#              #--> "next"
+#   see        stzGraph, stzCanvas, stzOrgChart, stzDiagramToDot, stzDiagramToMermaid,
+#              stzDiagramToJSON, stzDiagramToStzDiag
 class stzDiagram from stzGraph
 
 	@cTheme = $cDefaultColorTheme
@@ -619,6 +645,13 @@ class stzDiagram from stzGraph
 
 	@aTooltipConfig = []
 
+	# Builds an empty diagram with a name, folded to lowercase; a name with a space or line break, or a non-text name, raises an error.
+	#
+	#   pcName     The diagram name, as text, without spaces or line breaks
+	#   returns    nothing; the diagram is built
+	#   note       the diagram starts with the neutral theme, top-down layout, Helvetica 12 and no
+	#              node
+	#   see        Name, SetTheme
 	def init(pcName)
 
 		super.init(pcName)
@@ -627,9 +660,21 @@ class stzDiagram from stzGraph
 		@cFocusColor = ResolveColor($cDefaultFocusColor)
 		@cSplineType = $cDefaultSplineType
 
+	# Returns the id the diagram was built with, in lowercase.
+	#
+	#   returns    text
+	#   see        init, SetTitle
 	def Name()
 		return super.Id()
 
+	# Chooses the colour theme; a name that is not a theme is ignored and the earlier theme stays.
+	#
+	#   pTheme     The theme name, as text: neutral, light, dark, vibrant, pro, access, print, gray,
+	#              lightgray or darkgray; an unknown name is ignored.
+	#   returns    nothing; the diagram changes
+	#   note       unless SetFont or SetFontSize was called, the theme also sets the font: access
+	#              gives Arial 16, print gives Times 11
+	#   see        Theme, SetNotation
 	def SetTheme(pTheme)
 	    _cThemeKey_ = StzLower(pTheme)
 	    
@@ -643,11 +688,14 @@ class stzDiagram from stzGraph
 	        ok
 	    ok
 	
-	#-- THE NOTATION (DN0) ------------------------------------------------
-
-	# Takes a registered name or a profile object. A name the registry
-	# does not know resolves to the default -- a diagram always has a
-	# notation, the way it always has a theme.
+	# Chooses the notation whose grammar, layout and rules the diagram follows, and returns the diagram so calls can be chained.
+	#
+	#   pNotation   A notation, as the name of a registered notation or as a notation object; an
+	#               unknown name leaves the default notation in force.
+	#   returns     the diagram itself
+	#   note        an unknown name is kept as the name but gives the default notation object
+	#   see         Notation, NotationO, NotationFindings
+	#@ aka  -- THE NOTATION (DN0) ------------------------------------------------
 	def SetNotation(pNotation)
 		if isObject(pNotation)
 			@oNotation = pNotation
@@ -701,10 +749,18 @@ class stzDiagram from stzGraph
 		next
 		return ""
 
+	# Returns the notation object in force, built from the notation name when none was given as an object.
+	#
+	#   returns    a notation object
+	#   see        Notation, SetNotation
 	def NotationO()
 		if isObject(@oNotation)  return @oNotation  ok
 		return StzNotation(@cNotation)
 
+	# Returns the registered name of the rule set the diagram follows; "default" until another is chosen.
+	#
+	#   returns    text
+	#   see        SetNotation, NotationO
 	def Notation()
 		return @cNotation
 
@@ -1411,6 +1467,10 @@ class stzDiagram from stzGraph
 		if _cbH_ < nBoxH  _cbH_ = nBoxH  ok
 		return [ ceil(_cbW_), ceil(_cbH_) ]
 
+	# Returns what the notation's rules find wrong in the diagram, in the house rule shape; an empty list for the default notation.
+	#
+	#   returns    a list of findings; [ ] when nothing is wrong
+	#   see        SetNotation, NotationO
 	def NotationFindings()
 		return This.NotationO().Check(This)
 
@@ -1442,12 +1502,15 @@ class stzDiagram from stzGraph
 		next
 		return _aOut_
 
-	# A LAYOUT NAME THIS DOES NOT KNOW IS REFUSED, not stored. It used to
-	# take anything, and an unrecognised name became top-down in silence --
-	# so `SetLayout(:LeftToRight)` drew a top-down picture and there was
-	# nothing anywhere to say the instruction had been dropped. A setter
-	# that accepts a value it will not honour is worse than one that
-	# refuses: the caller has evidence of neither.
+	# Sets the direction the diagram is laid out in; a name it does not know raises an error and leaves the layout as it was.
+	#
+	#   pLayout    A direction, :TopDown, :BottomUp, :LeftRight or :RightLeft (or tb, bt, lr, rl),
+	#              or a graphviz engine such as dot or neato; anything else raises an error.
+	#   returns    nothing; the diagram changes
+	#   note       the name is stored in lowercase, as typed: leftright for :LeftRight, but lr stays
+	#              lr
+	#   see        Layout, SetLayoutPreset
+	#@ aka  A LAYOUT NAME THIS DOES NOT KNOW IS REFUSED, not stored. It used to take anything, and an unrecognised name became top-down in silence -- so `SetLayout(:LeftToRight)` drew a top-down picture and there was nothing anywhere to say the instruction had been dropped. A setter that accepts a value it will not honour is worse than one that refuses: the caller has evidence of neither.
 	def SetLayout(pLayout)
 		_c_ = StzLower("" + pLayout)
 		if _c_ = ""
@@ -1473,26 +1536,57 @@ class stzDiagram from stzGraph
 		ok
 		@cLayout = _c_
 
+	# Sets the style name of the edges, such as normal or dashed, kept in lowercase without a check.
+	#
+	#   pStyle     The edge style, as text such as "dashed"; kept in lowercase without a check.
+	#   returns    nothing; the diagram changes
+	#   see        EdgeStyle, SetEdgePenStyle
 	def SetEdgeStyle(pStyle)
 		@cEdgeStyle = StzLower(pStyle)
 
+	# Sets the colour of the edges, resolved to a #rrggbb code.
+	#
+	#   pColor     A colour: a name such as red, a semantic name such as success, a name with a
+	#              shade mark such as blue+, or a #rrggbb code.
+	#   returns    nothing; the diagram changes
+	#   see        EdgeColor, SetFocusColor
 	def SetEdgeColor(pColor)
 		@cEdgeColor = ResolveColor(pColor)
 
-	# The focus colour's setter, missing until now. ExportToStyl() has always
-	# WRITTEN a focus section (color + penwidth), and _ApplyStyle() has always
-	# called This.SetFocusColor() to read it back -- a method nobody had
-	# written, so loading any exported .stzstyl died on R14. Same shape as its
-	# siblings: resolve the name, keep the resolved value.
+	# Sets the colour that ApplyFocusTo gives to the nodes it highlights, resolved to a #rrggbb code.
+	#
+	#   pColor     A colour: a name such as red, a semantic name such as success, a name with a
+	#              shade mark such as blue+, or a #rrggbb code.
+	#   returns    nothing; the diagram changes
+	#   see        FocusColor, ApplyFocusTo
+	#@ aka  The focus colour's setter, missing until now. ExportToStyl() has always WRITTEN a focus section (color + penwidth), and _ApplyStyle() has always called This.SetFocusColor() to read it back -- a method nobody had written, so loading any exported .stzstyl died on R14. Same shape as its siblings: resolve the name, keep the resolved value.
 	def SetFocusColor(pColor)
 		@cFocusColor = ResolveColor(pColor)
 
+	# Returns the focus colour as a #rrggbb code; #C94DC9 until set.
+	#
+	#   returns    text
+	#   see        SetFocusColor, ApplyFocusTo
 	def FocusColor()
 		return @cFocusColor
 
+	# Sets the default fill colour of the nodes, resolved to a #rrggbb code; ResetAllNodeColors then paints every node with it.
+	#
+	#   pColor     A colour: a name such as red, a semantic name such as success, a name with a
+	#              shade mark such as blue+, or a #rrggbb code.
+	#   returns    nothing; the diagram changes
+	#   note       no getter exists; ExportToStyl writes it
+	#   see        ResetAllNodeColors, SetNodeStrokeColor
 	def SetNodeColor(pColor)
 		@cNodeColor = ResolveColor(pColor)
 
+	# Sets the outline colour of the nodes; an empty text or "invisible" removes the outline.
+	#
+	#   pColor     A colour: a name such as red, a semantic name such as success, a name with a
+	#              shade mark such as blue+, or a #rrggbb code.
+	#   returns    nothing; the diagram changes
+	#   note       the outline starts as gray
+	#   see        NodeStrokeColor, SetStrokeColor
 	def SetNodeStrokeColor(pColor)
 	    if pColor = "" or StzLower(pColor) = 'invisible'
 	        @cNodeStrokeColor = ""
@@ -1500,32 +1594,80 @@ class stzDiagram from stzGraph
 	        @cNodeStrokeColor = ResolveColor(pColor)
 	    ok
 
+	    # Sets the outline colour of the nodes; another spelling of the node-outline call.
+	    #
+	    #   pColor     A colour: a name such as red, a semantic name such as success, a name with a
+	    #              shade mark such as blue+, or a #rrggbb code.
+	    #   returns    nothing; the diagram changes
+	    #   see        SetNodeStrokeColor, NodeStrokeColor
 	    def SetStrokeColor(pColor)
 		This.SetNodeStrokeColor(pColor)
 
+	# Sets the font family for the diagram, kept in lowercase, and stops a theme from choosing the font.
+	#
+	#   pFont      A font family name, as text, kept in lowercase.
+	#   returns    nothing; the diagram changes
+	#   see        Font, SetFontSize
 	def SetFont(pFont)
 		@cFont = StzLower(pFont)
 		@bFontCustomized = 1
 
+	# Sets the font size, and stops a theme from choosing the size.
+	#
+	#   pSize      The font size, in points.
+	#   returns    nothing; the diagram changes
+	#   see        FontSize, SetFont
 	def SetFontSize(pSize)
 	    @nFontSize = pSize
 	    @bFontCustomized = 1
 	
 
+	# Sets the pen width of the nodes only, despite the general name; the edges keep theirs.
+	#
+	#   pnWidth    The pen width of the node outlines, in pixels
+	#   returns    nothing; the diagram changes
+	#   note       SetNodePenWidth is the call that sets both
+	#   warning    named as if it set every pen: only the node width changes, so NodePenWidth then
+	#              answers a pair
+	#   see        SetNodePenWidth, SetEdgePenWidth, NodePenWidth
 	def SetPenWidth(pnWidth)
 		@nNodePenWidth = pnWidth
 
+	# Sets the pen width of both the node outlines and the edges, despite its name.
+	#
+	#   pnWidth    The pen width, in pixels, for nodes and edges alike
+	#   returns    nothing; the diagram changes
+	#   note       SetEdgePenWidth afterwards gives the edges a width of their own
+	#   warning    named for nodes, it also overwrites the edge width
+	#   see        SetPenWidth, SetEdgePenWidth, NodePenWidth
 	def SetNodePenWidth(pnWidth)
 		@nNodePenWidth = pnWidth
 		@nEdgePenWidth = pnWidth
 
+	# Sets the pen width of the edges.
+	#
+	#   pnWidth    The pen width of the edges, in pixels
+	#   returns    nothing; the diagram changes
+	#   see        EdgePenWidth, SetNodePenWidth
 	def SetEdgePenWidth(pnWidth)
 		@nEdgePenWidth = pnWidth
 	
+	# Sets the pen style of the node outlines, in lowercase, with + read as a comma so bold+dashed becomes bold,dashed.
+	#
+	#   pcStyle    A pen style such as solid, dashed, dotted, bold or invis, or several joined by +
+	#              or a comma
+	#   returns    nothing; the diagram changes
+	#   see        NodePenStyle, SetEdgePenStyle
 	def SetNodePenStyle(pcStyle)
 		# Parse + and , as separators
 		@cNodePenStyle = This._NormalizeStyle(pcStyle)
 	
+	# Sets the pen style of the edges, in lowercase, with + read as a comma.
+	#
+	#   pcStyle    A pen style such as solid, dashed, dotted, bold or invis, or several joined by +
+	#              or a comma
+	#   returns    nothing; the diagram changes
+	#   see        EdgePenStyle, SetNodePenStyle
 	def SetEdgePenStyle(pcStyle)
 		@cEdgePenStyle = This._NormalizeStyle(pcStyle)
 	
@@ -1535,12 +1677,29 @@ class stzDiagram from stzGraph
 		_cStyle_ = StzReplace(_cStyle_, "+", ",")
 		return _cStyle_
 	
+	# Sets the arrowhead shape at the end of every edge, kept in lowercase without a check.
+	#
+	#   pcStyle    An arrow shape such as normal, vee, diamond, dot, inv, curve, box, crow, tee or
+	#              none
+	#   returns    nothing; the diagram changes
+	#   see        ArrowHead, SetArrowTail
 	def SetArrowHead(pcStyle)
 		@cArrowHead = StzLower(pcStyle)
 
+	# Sets the arrow shape at the start of every edge, kept in lowercase without a check.
+	#
+	#   pcStyle    An arrow shape such as normal, vee, diamond, dot, inv, curve, box, crow, tee or
+	#              none
+	#   returns    nothing; the diagram changes
+	#   see        ArrowTail, SetArrowHead
 	def SetArrowTail(pcStyle)
 		@cArrowTail = StzLower(pcStyle)
 
+	# Sets how edges are routed: ortho, spline, polyline, curved, line or none; any other value is ignored and the earlier one stays.
+	#
+	#   pcType     The routing name, as text, case ignored
+	#   returns    nothing; the diagram changes
+	#   see        Splines, SetEdgeLineStyle
 	def SetSplines(pcType)
 
 	    # A VALUE THIS DOES NOT RECOGNISE USED TO RESET THE SPLINE TO THE DEFAULT,
@@ -1553,18 +1712,23 @@ class stzDiagram from stzGraph
 	        @cSplineType = _cType_
 	    ok
 
-	    # THESE TWO ARE NAMED FOR A DIFFERENT GRAPHVIZ ATTRIBUTE than the one they
-	    # reach. A spline is the ROUTE an edge takes (ortho, curved, polyline); a
-	    # line style is how it is DRAWN (dashed, dotted, bold). Both names read as
-	    # the second and both delegated to the first, so SetEdgeLineStyle("dashed")
-	    # -- the obvious call -- was swallowed.
+	    # Sets the edge routing when given a routing name, or the edge pen style when given a pen style name; anything else changes nothing.
 	    #
-	    # Routing on the value keeps every call that works today working: a spline
-	    # name still sets the spline, and a pen style now sets the pen style
-	    # instead of vanishing.
+	    #   pcType     A routing name such as ortho or curved, or a pen style name such as dashed or
+	    #              dotted
+	    #   returns    nothing; the diagram changes
+	    #   note       its getter EdgeLineStyle answers the routing, not the pen style
+	    #   see        SetSplines, SetEdgePenStyle
+	    #@ aka  THESE TWO ARE NAMED FOR A DIFFERENT GRAPHVIZ ATTRIBUTE than the one they reach. A spline is the ROUTE an edge takes (ortho, curved, polyline); a line style is how it is DRAWN (dashed, dotted, bold). Both names read as the second and both delegated to the first, so SetEdgeLineStyle("dashed") -- the obvious call -- was swallowed.
 	    def SetEdgeLineStyle(pcType)
 		This._SetEdgeLine(pcType)
 
+	    # Sets the edge routing or the edge pen style by the name given; another spelling of the line-style call.
+	    #
+	    #   pcType     A routing name such as ortho or curved, or a pen style name such as dashed or
+	    #              dotted
+	    #   returns    nothing; the diagram changes
+	    #   see        SetEdgeLineStyle, SetSplines
 	    def SetEdgeLineType(pcType)
 		This._SetEdgeLine(pcType)
 
@@ -1576,22 +1740,50 @@ class stzDiagram from stzGraph
 			This.SetEdgePenStyle(_cWanted_)
 		ok
 
+	    # Sets the edge routing; another spelling of the routing call.
+	    #
+	    #   pcType     The routing name, as text
+	    #   returns    nothing; the diagram changes
+	    #   see        SetSplines
 	    def SetEdgeSpline(pcType)
 		This.SetSplines(pcType)
 
+	# Sets the spacing between nodes of the same rank, in inches; zero, a negative number or a non-number is ignored.
+	#
+	#   pnValue    The separation, a number above 0
+	#   returns    nothing; the diagram changes
+	#   see        NodeSeparation, SetRankSeparation
 	def SetNodeSeparation(pnValue)
 	    if isNumber(pnValue) and pnValue > 0
 	        @nNodeSep = pnValue
 	    ok
 	
+	# Sets the spacing between ranks, in inches; zero, a negative number or a non-number is ignored.
+	#
+	#   pnValue    The separation, a number above 0
+	#   returns    nothing; the diagram changes
+	#   see        RankSeparation, SetNodeSeparation
 	def SetRankSeparation(pnValue)
 	    if isNumber(pnValue) and pnValue > 0
 	        @nRankSep = pnValue
 	    ok
 	
+	# Turns edge merging on or off, so that edges sharing a path are drawn as one.
+	#
+	#   pbValue    1 to merge edges, 0 not to
+	#   returns    nothing; the diagram changes
+	#   note       the value is stored without a check
+	#   see        Concentrate, SetLayoutPreset
 	def SetConcentrate(pbValue) #TODO // Check this
 	    @bConcentrate = pbValue
 
+	# Applies a named bundle of routing and spacing settings; an unknown name changes nothing.
+	#
+	#   pcPreset   A preset name, as text: orgchart, orgchart_compact, compact, spacious or
+	#              flowchart
+	#   returns    nothing; the diagram changes
+	#   note       orgchart also sets the edge colour to gray; compact also turns edge merging on
+	#   see        SetSplines, SetNodeSeparation, SetRankSeparation
 	def SetLayoutPreset(pcPreset)
 	    switch StzLower(pcPreset)
 	    on "orgchart"
@@ -1626,25 +1818,60 @@ class stzDiagram from stzGraph
 	        This.SetConcentrate(0)
 	    off
 
+	# Sets the title of the diagram; it is stored as given.
+	#
+	#   pcTitle    The title, as text, stored as given.
+	#   returns    nothing; the diagram changes
+	#   see        Title, SetSubtitle
 	def SetTitle(pcTitle)
 	    @cTitle = pcTitle
 	
+	# Sets the subtitle of the diagram; it is stored as given.
+	#
+	#   pcSubtitle   The subtitle, as text, stored as given.
+	#   returns      nothing; the diagram changes
+	#   see          Subtitle, SetTitle
 	def SetSubtitle(pcSubtitle)
 	    @cSubtitle = pcSubtitle
 
+	# Sets the image format asked of graphviz by Display, kept in lowercase without a check.
+	#
+	#   cFormat    The format name, as text, such as svg or png
+	#   returns    nothing; the diagram changes
+	#   see        OutputFormat, SetOutput, Display
 	def SetOutputFormat(cFormat)
 		@cOutputFormat = StzLower(cFormat)
 
+		# Sets the image format asked of graphviz by Display; another spelling of the output-format call.
+		#
+		#   cFormat    The format name, as text, such as svg or png
+		#   returns    nothing; the diagram changes
+		#   see        SetOutputFormat
 		def SetOutput(cFormat)
 			@cOutputFormat = StzLower(cFormat)
 
+	# Stores the tooltip configuration without checking it.
+	#
+	#   paConfig   The tooltip settings, as a list
+	#   returns    nothing; the diagram changes
+	#   see        TooltipConfig, DisableTooltip
 	def SetTooltip(paConfig)
 	    @aTooltipConfig = paConfig
 
+	# Clears the tooltip configuration.
+	#
+	#   returns    nothing; the diagram changes
+	#   see        SetTooltip, TooltipConfig
 	def DisableTooltip()
 		@aTooltipConfig = []
 
-	# Getters
+	# Returns the pen width of the nodes; a pair is returned when the node and edge widths differ, and then both numbers are the node width.
+	#
+	#   returns    a number, or a list of two numbers when the widths differ
+	#   note       1 until set
+	#   warning    the pair repeats the node width twice instead of giving [ node, edge ]
+	#   see        SetNodePenWidth, EdgePenWidth
+	#@ aka  Getters
 	def NodePenWidth()
 		if @nNodePenWidth = @nEdgePenWidth
 			return @nNodePenWidth
@@ -1652,81 +1879,189 @@ class stzDiagram from stzGraph
 			return [ @nNodePenWidth, @nNodePenWidth ]
 		ok
 	
+	# Returns the pen width of the edges; 1 until set.
+	#
+	#   returns    a number
+	#   see        SetEdgePenWidth, NodePenWidth
 	def EdgePenWidth()
 		return @nEdgePenWidth
 	
+	# Returns the pen style of the node outlines; solid until set.
+	#
+	#   returns    text
+	#   see        SetNodePenStyle, EdgePenStyle
 	def NodePenStyle()
 		return @cNodePenStyle
 	
+	# Returns the pen style of the edges; solid until set.
+	#
+	#   returns    text
+	#   see        SetEdgePenStyle, NodePenStyle
 	def EdgePenStyle()
 		return @cEdgePenStyle
 	
+	# Returns the shape drawn at the end of each edge; normal until set.
+	#
+	#   returns    text
+	#   see        SetArrowHead, ArrowTail
 	def ArrowHead()
 		return @cArrowHead
 	
+	# Returns the arrow shape at the start of the edges; none until set.
+	#
+	#   returns    text
+	#   see        SetArrowTail, ArrowHead
 	def ArrowTail()
 		return @cArrowTail
 
+	# Returns the edge routing; spline until set.
+	#
+	#   returns    text
+	#   see        SetSplines, EdgeSplines
 	def Splines()
 	    return @cSplineType
 	
+	# Returns the spacing between nodes of a rank, in inches; 0.6 until set.
+	#
+	#   returns    a number
+	#   see        SetNodeSeparation, RankSeparation
 	def NodeSeparation()
 	    return @nNodeSep
 	
+	# Returns the spacing between ranks, in inches; 0.8 until set.
+	#
+	#   returns    a number
+	#   see        SetRankSeparation, NodeSeparation
 	def RankSeparation()
 	    return @nRankSep
 	
+	# Returns 1 when edge merging is on and 0 when it is off, the default.
+	#
+	#   returns    1 or 0
+	#   see        SetConcentrate
 	def Concentrate()
 	    return @bConcentrate
 
+	# Returns the colour scheme in force, in lowercase; neutral until set.
+	#
+	#   returns    text
+	#   see        SetTheme
 	#---
-
 	def Theme()
 		return @cTheme
 	
+	# Returns the direction the diagram is laid out in, as stored in lowercase; topdown until set.
+	#
+	#   returns    text
+	#   see        SetLayout
 	def Layout()
 		return @cLayout
 	
+	# Returns the colour of the edges as a #rrggbb code.
+	#
+	#   returns    text
+	#   see        SetEdgeColor
 	def EdgeColor()
 		return @cEdgeColor
 
+	# Returns the outline colour of the nodes, gray until set; an empty text means no outline.
+	#
+	#   returns    text
+	#   see        SetNodeStrokeColor
 	def NodeStrokeColor()
 		return @cNodeStrokeColor
 	
+	# Returns the style name of the edges; normal until set.
+	#
+	#   returns    text
+	#   see        SetEdgeStyle
 	def EdgeStyle()
 		return @cEdgeStyle
 	
+	# Returns the typeface in force, in lowercase; helvetica until a theme or a setter changes it.
+	#
+	#   returns    text
+	#   see        SetFont, FontSize
 	def Font()
 		return @cFont
 	
+	# Returns the point size of the text in force; 12 until a theme or a setter changes it.
+	#
+	#   returns    a number
+	#   see        SetFontSize, Font
 	def FontSize()
 		return @nFontSize
 	
+	# Raises error R24 today instead of returning the pen width.
+	#
+	#   returns    nothing today
+	#   note       NodePenWidth and EdgePenWidth are the working getters
+	#   warning    known defect: it reads the attribute @nPenWidth, which nothing declares or sets,
+	#              so every call raises R24 (uninitialized variable)
+	#   see        NodePenWidth, EdgePenWidth
 	def PenWidth()
 		return @nPenWidth
 
+	# Returns the edge routing; another spelling of the routing getter.
+	#
+	#   returns    text
+	#   see        Splines
 	def EdgeSplines()
 		return @cSplineType
 
+		# Returns the edge routing; another spelling of the routing getter.
+		#
+		#   returns    text
+		#   see        Splines
 		def SplineType()
 			return @cSplineType
 
+		# Returns the edge routing, not the edge pen style, whatever its name suggests.
+		#
+		#   returns    text
+		#   note       EdgePenStyle answers the pen style
+		#   warning    named like the pen style but answers the routing, so after
+		#              SetEdgeLineStyle("dashed") it still says the old routing
+		#   see        Splines, EdgePenStyle
 		def EdgeLineStyle()
 			return @cSplineType
 
+		# Returns the edge routing, not the edge pen style, whatever its name suggests.
+		#
+		#   returns    text
+		#   warning    answers the routing, not a pen style
+		#   see        Splines, EdgePenStyle
 		def EdgeLineType()
 			return @cSplineType
 
+	# Returns the heading of the diagram; empty until set.
+	#
+	#   returns    text
+	#   see        SetTitle, Subtitle
 	def Title()
 	    return @cTitle
 	
+	# Returns the second heading of the diagram; empty until set.
+	#
+	#   returns    text
+	#   see        SetSubtitle, Title
 	def Subtitle()
 	    return @cSubtitle
 
+	# Returns the output format set for Display; the text NULL until one is set.
+	#
+	#   returns    text
+	#   warning    the default comes from a global that is never defined, so a diagram that never
+	#              called SetOutputFormat answers the text NULL
+	#   see        SetOutputFormat
 	def OutputFormat()
 		return @cOutputFormat
 
 	
+	# Returns the tooltip configuration; an empty list until set.
+	#
+	#   returns    a list
+	#   see        SetTooltip
 	def TooltipConfig()
 	    return @aTooltipConfig
 
@@ -1734,26 +2069,51 @@ class stzDiagram from stzGraph
 	#  COLOR RESOLUTION  #
 	#--------------------#
 
+	# Returns black or white, whichever reads better on a given background colour.
+	#
+	#   pBgColor   The background colour, as a name or a #rrggbb code
+	#   returns    text, black or white
+	#   see        ContrastingTextColor
 	def ResolveFontColor(pBgColor)
 		_oResolver_ = new stzColorResolver()
 		_cResult_ = _oResolver_.ResolveFontColor(pBgColor)
 		return _cResult_
 	
+	# Returns black or white, whichever reads better on a given colour, by its luminance.
+	#
+	#   _cColor_   A colour: a name, a semantic name such as success, or a #rrggbb code.
+	#   returns    text, black or white
+	#   see        ResolveFontColor
 	def ContrastingTextColor(_cColor_)
 		_oResolver_ = new stzColorResolver()
 		_cResult_ = _oResolver_.ContrastingTextColor(_cColor_)
 		return _cResult_
 	
+	# Returns the red, green and blue values of a colour; an unknown colour name gives white.
+	#
+	#   _cColor_   A colour: a name, a semantic name such as success, or a #rrggbb code.
+	#   returns    a list of three numbers from 0 to 255
+	#   see        ConvertColorTogray
 	def ColorToRGB(_cColor_)
 		_oResolver_ = new stzColorResolver()
 		_cResult_ = _oResolver_.ColorToRGB(_cColor_)
 		return _cResult_
 
+	# Returns black for the print and gray themes and an empty text for every other, case included.
+	#
+	#   _cTheme_   A theme name, as text; case matters.
+	#   returns    text
+	#   see        SetNodeStrokeColor
 	def NodeStrokeColorForTheme(_cTheme_)
 		_oResolver_ = new stzColorResolver()
 		_cResult_ = _oResolver_.NodeStrokeColorForTheme(_cTheme_)
 		return _cResult_
 
+	# Returns the grey of the same brightness as a colour, as a #rrggbb code.
+	#
+	#   _cColor_   A colour: a name, a semantic name such as success, or a #rrggbb code.
+	#   returns    text
+	#   see        ColorToRGB
 	def ConvertColorTogray(_cColor_)
 		_oResolver_ = new stzColorResolver()
 		_cResult_ = _oResolver_.ConvertColorTogray(_cColor_)
@@ -1763,10 +2123,13 @@ class stzDiagram from stzGraph
 	# ADDING SPECIFIC FORMS OF NODES (ALL SUPPORTED FORMS IN GRAPHVIZ DOT LANGAUGE)  #
 	#--------------------------------------------------------------------------------#
 	
-	#NOTE // We can add nodes using parent stzGraph methods AddNode(), AddNodeXT() and AddNodeXTT()
-	
-	# Rounded/Elliptical Shapes
-	
+	# Adds a node drawn as a circle, labelled with its own id; the id is folded to lowercase and a repeated id is added again.
+	#
+	#   returns    nothing; the diagram changes
+	#   note       the node's type property is "circle" and its colour white; XT adds a label, XTT a
+	#              label and properties
+	#   see        AddCircleXT, AddCircleXTT, AddBox
+	#@ aka  NOTE // We can add nodes using parent stzGraph methods AddNode(), AddNodeXT() and AddNodeXTT()
 	def AddCircle(pcId)
 		This.AddNodeXTT(pcId, pcId, [:type = "circle", :color = $cDefaultNodeColor])
 	
@@ -1779,8 +2142,13 @@ class stzDiagram from stzGraph
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	#--
-	
+	# Adds a node drawn as a double circle, labelled with its own id; the id is folded to lowercase and a repeated id is added again.
+	#
+	#   returns    nothing; the diagram changes
+	#   note       the node's type property is "doublecircle" and its colour white; XT adds a label,
+	#              XTT a label and properties
+	#   see        AddDoubleCircleXT, AddDoubleCircleXTT, AddCircle
+	#@ aka  --
 	def AddDoubleCircle(pcId)
 		This.AddNodeXTT(pcId, pcId, [:type = "doublecircle", :color = $cDefaultNodeColor])
 	
@@ -1793,8 +2161,13 @@ class stzDiagram from stzGraph
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	#--
-	
+	# Adds a node drawn as a ellipse, labelled with its own id; the id is folded to lowercase and a repeated id is added again.
+	#
+	#   returns    nothing; the diagram changes
+	#   note       the node's type property is "ellipse" and its colour white; XT adds a label, XTT
+	#              a label and properties
+	#   see        AddEllipseXT, AddEllipseXTT, AddCircle
+	#@ aka  --
 	def AddEllipse(pcId)
 		This.AddNodeXTT(pcId, pcId, [:type = "ellipse", :color = $cDefaultNodeColor])
 	
@@ -1807,8 +2180,13 @@ class stzDiagram from stzGraph
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	#--
-	
+	# Adds a node drawn as a egg, labelled with its own id; the id is folded to lowercase and a repeated id is added again.
+	#
+	#   returns    nothing; the diagram changes
+	#   note       the node's type property is "egg" and its colour white; XT adds a label, XTT a
+	#              label and properties
+	#   see        AddEggXT, AddEggXTT, AddCircle
+	#@ aka  --
 	def AddEgg(pcId)
 		This.AddNodeXTT(pcId, pcId, [:type = "egg", :color = $cDefaultNodeColor])
 	
@@ -1821,8 +2199,13 @@ class stzDiagram from stzGraph
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	# Quadrilateral Shapes
-	
+	# Adds a node drawn as a square, labelled with its own id; the id is folded to lowercase and a repeated id is added again.
+	#
+	#   returns    nothing; the diagram changes
+	#   note       the node's type property is "square" and its colour white; XT adds a label, XTT a
+	#              label and properties
+	#   see        AddSquareXT, AddSquareXTT, AddCircle
+	#@ aka  Quadrilateral Shapes
 	def AddSquare(pcId)
 		This.AddNodeXTT(pcId, pcId, [:type = "square", :color = $cDefaultNodeColor])
 	
@@ -1835,8 +2218,13 @@ class stzDiagram from stzGraph
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	#--
-	
+	# Adds a node drawn as a rectangle, labelled with its own id; the id is folded to lowercase and a repeated id is added again.
+	#
+	#   returns    nothing; the diagram changes
+	#   note       the node's type property is "rect" and its colour white; XT adds a label, XTT a
+	#              label and properties
+	#   see        AddRectXT, AddRectXTT, AddCircle
+	#@ aka  --
 	def AddRect(pcId)
 		This.AddNodeXTT(pcId, pcId, [:type = "rect", :color = $cDefaultNodeColor])
 	
@@ -1849,8 +2237,13 @@ class stzDiagram from stzGraph
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	#--
-	
+	# Adds a node drawn as a box, labelled with its own id; the id is folded to lowercase and a repeated id is added again.
+	#
+	#   returns    nothing; the diagram changes
+	#   note       the node's type property is "box" and its colour white; XT adds a label, XTT a
+	#              label and properties
+	#   see        AddBoxXT, AddBoxXTT, AddCircle
+	#@ aka  --
 	def AddBox(pcId)
 		This.AddNodeXTT(pcId, pcId, [:type = "box", :color = $cDefaultNodeColor])
 	
@@ -1863,8 +2256,13 @@ class stzDiagram from stzGraph
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	#--
-	
+	# Adds a node drawn as a parallelogram, labelled with its own id; the id is folded to lowercase and a repeated id is added again.
+	#
+	#   returns    nothing; the diagram changes
+	#   note       the node's type property is "parallelogram" and its colour white; XT adds a
+	#              label, XTT a label and properties
+	#   see        AddParallelogramXT, AddParallelogramXTT, AddCircle
+	#@ aka  --
 	def AddParallelogram(pcId)
 		This.AddNodeXTT(pcId, pcId, [:type = "parallelogram", :color = $cDefaultNodeColor])
 	
@@ -1877,8 +2275,13 @@ class stzDiagram from stzGraph
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	#--
-	
+	# Adds a node drawn as a trapezium, labelled with its own id; the id is folded to lowercase and a repeated id is added again.
+	#
+	#   returns    nothing; the diagram changes
+	#   note       the node's type property is "trapezium" and its colour white; XT adds a label,
+	#              XTT a label and properties
+	#   see        AddTrapeziumXT, AddTrapeziumXTT, AddCircle
+	#@ aka  --
 	def AddTrapezium(pcId)
 		This.AddNodeXTT(pcId, pcId, [:type = "trapezium", :color = $cDefaultNodeColor])
 	
@@ -1891,8 +2294,13 @@ class stzDiagram from stzGraph
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	#--
-	
+	# Adds a node drawn as a upside-down trapezium, labelled with its own id; the id is folded to lowercase and a repeated id is added again.
+	#
+	#   returns    nothing; the diagram changes
+	#   note       the node's type property is "invtrapezium" and its colour white; XT adds a label,
+	#              XTT a label and properties
+	#   see        AddInvTrapeziumXT, AddInvTrapeziumXTT, AddCircle
+	#@ aka  --
 	def AddInvTrapezium(pcId)
 		This.AddNodeXTT(pcId, pcId, [:type = "invtrapezium", :color = $cDefaultNodeColor])
 	
@@ -1905,8 +2313,13 @@ class stzDiagram from stzGraph
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	#--
-	
+	# Adds a node drawn as a diamond, labelled with its own id; the id is folded to lowercase and a repeated id is added again.
+	#
+	#   returns    nothing; the diagram changes
+	#   note       the node's type property is "diamond" and its colour white; XT adds a label, XTT
+	#              a label and properties
+	#   see        AddDiamondXT, AddDiamondXTT, AddCircle
+	#@ aka  --
 	def AddDiamond(pcId)
 		This.AddNodeXTT(pcId, pcId, [:type = "diamond", :color = $cDefaultNodeColor])
 	
@@ -1919,8 +2332,13 @@ class stzDiagram from stzGraph
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	# Polygon Shapes
-	
+	# Adds a node drawn as a triangle, labelled with its own id; the id is folded to lowercase and a repeated id is added again.
+	#
+	#   returns    nothing; the diagram changes
+	#   note       the node's type property is "triangle" and its colour white; XT adds a label, XTT
+	#              a label and properties
+	#   see        AddTriangleXT, AddTriangleXTT, AddCircle
+	#@ aka  Polygon Shapes
 	def AddTriangle(pcId)
 		This.AddNodeXTT(pcId, pcId, [:type = "triangle", :color = $cDefaultNodeColor])
 	
@@ -1933,8 +2351,13 @@ class stzDiagram from stzGraph
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	#--
-	
+	# Adds a node drawn as a upside-down triangle, labelled with its own id; the id is folded to lowercase and a repeated id is added again.
+	#
+	#   returns    nothing; the diagram changes
+	#   note       the node's type property is "invtriangle" and its colour white; XT adds a label,
+	#              XTT a label and properties
+	#   see        AddInvTriangleXT, AddInvTriangleXTT, AddCircle
+	#@ aka  --
 	def AddInvTriangle(pcId)
 		This.AddNodeXTT(pcId, pcId, [:type = "invtriangle", :color = $cDefaultNodeColor])
 	
@@ -1947,8 +2370,13 @@ class stzDiagram from stzGraph
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	#--
-	
+	# Adds a node drawn as a pentagon, labelled with its own id; the id is folded to lowercase and a repeated id is added again.
+	#
+	#   returns    nothing; the diagram changes
+	#   note       the node's type property is "pentagon" and its colour white; XT adds a label, XTT
+	#              a label and properties
+	#   see        AddPentagonXT, AddPentagonXTT, AddCircle
+	#@ aka  --
 	def AddPentagon(pcId)
 		This.AddNodeXTT(pcId, pcId, [:type = "pentagon", :color = $cDefaultNodeColor])
 	
@@ -1961,8 +2389,13 @@ class stzDiagram from stzGraph
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	#--
-	
+	# Adds a node drawn as a hexagon, labelled with its own id; the id is folded to lowercase and a repeated id is added again.
+	#
+	#   returns    nothing; the diagram changes
+	#   note       the node's type property is "hexagon" and its colour white; XT adds a label, XTT
+	#              a label and properties
+	#   see        AddHexagonXT, AddHexagonXTT, AddCircle
+	#@ aka  --
 	def AddHexagon(pcId)
 		This.AddNodeXTT(pcId, pcId, [:type = "hexagon", :color = $cDefaultNodeColor])
 	
@@ -1975,8 +2408,13 @@ class stzDiagram from stzGraph
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	#--
-	
+	# Adds a node drawn as a seven-sided polygon, labelled with its own id; the id is folded to lowercase and a repeated id is added again.
+	#
+	#   returns    nothing; the diagram changes
+	#   note       the node's type property is "septagon" and its colour white; XT adds a label, XTT
+	#              a label and properties
+	#   see        AddSeptagonXT, AddSeptagonXTT, AddCircle
+	#@ aka  --
 	def AddSeptagon(pcId)
 		This.AddNodeXTT(pcId, pcId, [:type = "septagon", :color = $cDefaultNodeColor])
 	
@@ -1989,8 +2427,13 @@ class stzDiagram from stzGraph
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	#--
-	
+	# Adds a node drawn as a octagon, labelled with its own id; the id is folded to lowercase and a repeated id is added again.
+	#
+	#   returns    nothing; the diagram changes
+	#   note       the node's type property is "octagon" and its colour white; XT adds a label, XTT
+	#              a label and properties
+	#   see        AddOctagonXT, AddOctagonXTT, AddCircle
+	#@ aka  --
 	def AddOctagon(pcId)
 		This.AddNodeXTT(pcId, pcId, [:type = "octagon", :color = $cDefaultNodeColor])
 	
@@ -2003,8 +2446,13 @@ class stzDiagram from stzGraph
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	#--
-	
+	# Adds a node drawn as a octagon drawn three times, labelled with its own id; the id is folded to lowercase and a repeated id is added again.
+	#
+	#   returns    nothing; the diagram changes
+	#   note       the node's type property is "tripleoctagon" and its colour white; XT adds a
+	#              label, XTT a label and properties
+	#   see        AddTripleOctagonXT, AddTripleOctagonXTT, AddCircle
+	#@ aka  --
 	def AddTripleOctagon(pcId)
 		This.AddNodeXTT(pcId, pcId, [:type = "tripleoctagon", :color = $cDefaultNodeColor])
 	
@@ -2017,8 +2465,13 @@ class stzDiagram from stzGraph
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	# Non-geometric/Conceptual Shapes
-	
+	# Adds a node drawn as a cylinder, labelled with its own id; the id is folded to lowercase and a repeated id is added again.
+	#
+	#   returns    nothing; the diagram changes
+	#   note       the node's type property is "cylinder" and its colour white; XT adds a label, XTT
+	#              a label and properties
+	#   see        AddCylinderXT, AddCylinderXTT, AddCircle
+	#@ aka  Non-geometric/Conceptual Shapes
 	def AddCylinder(pcId)
 		This.AddNodeXTT(pcId, pcId, [:type = "cylinder", :color = $cDefaultNodeColor])
 	
@@ -2031,8 +2484,13 @@ class stzDiagram from stzGraph
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	#--
-	
+	# Adds a node drawn as a house, labelled with its own id; the id is folded to lowercase and a repeated id is added again.
+	#
+	#   returns    nothing; the diagram changes
+	#   note       the node's type property is "house" and its colour white; XT adds a label, XTT a
+	#              label and properties
+	#   see        AddHouseXT, AddHouseXTT, AddCircle
+	#@ aka  --
 	def AddHouse(pcId)
 		This.AddNodeXTT(pcId, pcId, [:type = "house", :color = $cDefaultNodeColor])
 	
@@ -2045,8 +2503,13 @@ class stzDiagram from stzGraph
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	#--
-	
+	# Adds a node drawn as a tab, labelled with its own id; the id is folded to lowercase and a repeated id is added again.
+	#
+	#   returns    nothing; the diagram changes
+	#   note       the node's type property is "tab" and its colour white; XT adds a label, XTT a
+	#              label and properties
+	#   see        AddTabXT, AddTabXTT, AddCircle
+	#@ aka  --
 	def AddTab(pcId)
 		This.AddNodeXTT(pcId, pcId, [:type = "tab", :color = $cDefaultNodeColor])
 	
@@ -2059,8 +2522,13 @@ class stzDiagram from stzGraph
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	#--
-	
+	# Adds a node drawn as a folder, labelled with its own id; the id is folded to lowercase and a repeated id is added again.
+	#
+	#   returns    nothing; the diagram changes
+	#   note       the node's type property is "folder" and its colour white; XT adds a label, XTT a
+	#              label and properties
+	#   see        AddFolderXT, AddFolderXTT, AddCircle
+	#@ aka  --
 	def AddFolder(pcId)
 		This.AddNodeXTT(pcId, pcId, [:type = "folder", :color = $cDefaultNodeColor])
 	
@@ -2073,8 +2541,13 @@ class stzDiagram from stzGraph
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	#--
-	
+	# Adds a node drawn as a component box, labelled with its own id; the id is folded to lowercase and a repeated id is added again.
+	#
+	#   returns    nothing; the diagram changes
+	#   note       the node's type property is "component" and its colour white; XT adds a label,
+	#              XTT a label and properties
+	#   see        AddComponentXT, AddComponentXTT, AddCircle
+	#@ aka  --
 	def AddComponent(pcId)
 		This.AddNodeXTT(pcId, pcId, [:type = "component", :color = $cDefaultNodeColor])
 	
@@ -2087,8 +2560,13 @@ class stzDiagram from stzGraph
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	#--
-	
+	# Adds a node drawn as a note, labelled with its own id; the id is folded to lowercase and a repeated id is added again.
+	#
+	#   returns    nothing; the diagram changes
+	#   note       the node's type property is "note" and its colour white; XT adds a label, XTT a
+	#              label and properties
+	#   see        AddNoteXT, AddNoteXTT, AddCircle
+	#@ aka  --
 	def AddNote(pcId)
 		This.AddNodeXTT(pcId, pcId, [:type = "note", :color = $cDefaultNodeColor])
 	
@@ -2105,9 +2583,23 @@ class stzDiagram from stzGraph
 	#  CLUSTER OPERATIONS  #
 	#----------------------#
 
+	# Sets the colour given to the clusters added afterwards, resolved to a #rrggbb code.
+	#
+	#   pcColor    A colour: a name such as blue--, a semantic name or a #rrggbb code.
+	#   returns    nothing; the diagram changes
+	#   note       the default is blue--, which resolves to #E0E0FF
+	#   see        AddCluster, Clusters
 	def SetClusterColor(pcColor)
 		@cClusterColor = ResolveColor(pcColor)
 
+	# Groups nodes under a cluster drawn as a box behind them; the node ids are not checked and a repeated cluster id is added again.
+	#
+	#   pClusterId   The cluster id, as text; it is also the label.
+	#   aNodeIds     The ids of the nodes the cluster holds, as a list of text; they are not
+	#                checked.
+	#   returns      nothing; the diagram changes
+	#   note         AddClusterXT adds a label, AddClusterXTT a label and a colour
+	#   see          Clusters, SetClusterColor
 	def AddCluster(pClusterId, aNodeIds)
 		This.AddClusterXT(pClusterId, pClusterId, aNodeIds)
 
@@ -2123,6 +2615,10 @@ class stzDiagram from stzGraph
 		]
 		@aClusters + _aCluster_
 
+	# Returns the groups added, as hash lists [ :id, :label, :nodes, :color ], in the order added.
+	#
+	#   returns    a list of hash lists; [ ] when there is none
+	#   see        AddCluster
 	def Clusters()
 		return @aClusters
 
@@ -2130,9 +2626,19 @@ class stzDiagram from stzGraph
 	#  ANNOTATION OPERATIONS  #
 	#-------------------------#
 
+	# Attaches an annotator to the diagram, without checking what it is.
+	#
+	#   oAnnotation   A stzDiagramAnnotator object.
+	#   returns       nothing; the diagram changes
+	#   see           Annotations, AnnotationsByType, stzDiagramAnnotator
 	def AddAnnotation(oAnnotation)
 		@aoAnnotations + oAnnotation
 
+	# Returns the annotators of one type, which must match in case.
+	#
+	#   pcType     The annotation type, as text, in the case it was created with
+	#   returns    a list of stzDiagramAnnotator objects; [ ] when none
+	#   see        Annotations, AddAnnotation
 	def AnnotationsByType(pcType)
 		_aoFiltered_ = []
 		_nLen_ = len(@aoAnnotations)
@@ -2148,7 +2654,12 @@ class stzDiagram from stzGraph
 	def AnnotationsQ()
 		return @aoAnnotations
 
-	# ... and what they are, as data: the type each one annotates.
+	# Returns the types of the attached annotators, in the order attached.
+	#
+	#   returns    a list of text
+	#   note       AnnotationsQ answers the annotator objects themselves
+	#   see        AnnotationsQ, AddAnnotation
+	#@ aka  ... and what they are, as data: the type each one annotates.
 	def Annotations()
 		_acTypes_ = []
 		_nLen_ = len(@aoAnnotations)
@@ -2161,9 +2672,22 @@ class stzDiagram from stzGraph
 	#  TEMPLATE OPERATIONS  #
 	#-----------------------#
 
+	# Stores a template object for ApplyTemplates, without checking it.
+	#
+	#   oTemplate   A template object that has an Apply method taking the diagram.
+	#   returns     nothing; the diagram changes
+	#   warning     the object must have an Apply method taking the diagram, or ApplyTemplates
+	#               raises R14
+	#   see         ApplyTemplates
 	def AddTemplate(oTemplate) #TODO // #TODO Test this
 		@aoTemplates + oTemplate
 
+	# Calls Apply on every stored template, passing the diagram.
+	#
+	#   returns    nothing
+	#   warning    raises R14 (method without definition: apply) when a stored object has no Apply
+	#              method
+	#   see        AddTemplate
 	def ApplyTemplates()
 		_nLen_ = len(@aoTemplates)
 		for i = 1 to _nLen_
@@ -2174,9 +2698,18 @@ class stzDiagram from stzGraph
 	#  VISUAL RULES  #
 	#----------------#
 
-	# This section manages visual styling rules that change
-	# diagram appearance based on node/edge properties.
-
+	# Stores a visual rule that ApplyVisualRules later tests against each node and edge; the definition is not checked.
+	#
+	#   pcRuleName     The name of the rule, as text.
+	#   paDefinition   The rule, as a hash list [ :conditionType, :conditionParams, :effects ];
+	#                  conditionType is property_range, property_equals, property_exists or
+	#                  tag_exists.
+	#   returns        nothing; the diagram changes
+	#   note           a rule is a hash list [ :conditionType, :conditionParams, :effects ]; the
+	#                  types are property_range [ key, min, max ], property_equals [ key, value ],
+	#                  property_exists [ key ] and tag_exists [ tag ]
+	#   see            ApplyVisualRules, VisualRulesApplied
+	#@ aka  This section manages visual styling rules that change diagram appearance based on node/edge properties.
 	def RegisterVisualRule(pcRuleName, paDefinition)
 		# Store visual rule as data structure
 		_aRule_ = [
@@ -2187,6 +2720,12 @@ class stzDiagram from stzGraph
 		]
 		@aoVisualRules + _aRule_
 	
+	# Tests every rule against every node and edge and records the effects of those that match, which NodesAffectedByVisualRules then lists.
+	#
+	#   returns    nothing; the recorded effects are replaced
+	#   note       the effects are kept in the diagram for NodesAffectedByVisualRules to list;
+	#              nothing here paints them
+	#   see        RegisterVisualRule, NodesAffectedByVisualRules
 	def ApplyVisualRules()
 		@aNodeRulesEffects = []
 		@aEdgesRulesEffects = []
@@ -2327,6 +2866,10 @@ class stzDiagram from stzGraph
 		return _aContext_
 	
 
+	# Returns the ids of the nodes that a rule matched at the last ApplyVisualRules.
+	#
+	#   returns    a list of text; [ ] before any application
+	#   see        ApplyVisualRules, VisualRulesApplied
 	def NodesAffectedByVisualRules()
 	    _acResult_ = []
 	    _acKeys_ = keys(@aNodeRulesEffects)
@@ -2337,6 +2880,11 @@ class stzDiagram from stzGraph
 	    next
 	    return _acResult_
 	
+	# Returns a summary of the registered rules: each name, condition type and number of effects.
+	#
+	#   returns    a list of hash lists [ :name, :conditionType, :effectsCount ]
+	#   note       it lists the registered rules, whether or not they were applied
+	#   see        RegisterVisualRule, ApplyVisualRules
 	def VisualRulesApplied()
 	    _aResult_ = []
 	    _nAoVisualRules2Len_ = len(@aoVisualRules)
@@ -2354,7 +2902,12 @@ class stzDiagram from stzGraph
 	#  QUERY METHODS  #
 	#-----------------#
 	
-	# properties-based queries
+	# Returns the ids of the nodes that have a property, whatever its value.
+	#
+	#   pcProp     A property name, as text.
+	#   returns    a list of text
+	#   see        NodesWith, NodesWithTag, EdgesWithProperty
+	#@ aka  properties-based queries
 	def NodesWithProperty(pcProp)
 		_acResult_ = []
 		_aNodes_ = This.Nodes()
@@ -2370,12 +2923,27 @@ class stzDiagram from stzGraph
 		
 		return _acResult_
 	
+	# Raises error R20 today instead of returning the nodes whose property satisfies a comparison.
+	#
+	#   pcProp     A property name, as text.
+	#   pcOp       The comparison, as text, such as =, > or <
+	#   pValue     The value to compare with
+	#   returns    nothing today
+	#   note       NodesWithProperty and NodesWithTag work
+	#   warning    known defect: it builds a stzGraphQuery with two arguments where its constructor
+	#              takes a different number, so every call raises R20
+	#   see        NodesWithProperty
 	def NodesWith(pcProp, pcOp, pValue)
 		# Reuse graph query system
 		_oQuery_ = new stzGraphQuery(This, "nodes")
 		_oQuery_.Where(pcProp, pcOp, pValue)
 		return _oQuery_.Run()
 	
+	# Returns the ids of the nodes whose :tags property lists a tag, matched exactly.
+	#
+	#   pcTag      A tag, as text, as found in a node's :tags list.
+	#   returns    a list of text
+	#   see        NodesWithProperty
 	def NodesWithTag(pcTag)
 		_acResult_ = []
 		_aNodes_ = This.Nodes()
@@ -2392,6 +2960,11 @@ class stzDiagram from stzGraph
 		
 		return _acResult_
 	
+	# Returns the edges that have a property, as "from->to" text, whatever its value.
+	#
+	#   pcProp     A property name, as text.
+	#   returns    a list of text such as "a->b"
+	#   see        EdgesWithPropertyValue, NodesWithProperty
 	def EdgesWithProperty(pcProp)
 		_acResult_ = []
 		_aEdges_ = This.Edges()
@@ -2407,6 +2980,12 @@ class stzDiagram from stzGraph
 		
 		return _acResult_
 	
+	# Returns the edges whose property equals a value, as "from->to" text.
+	#
+	#   pcProp     A property name, as text.
+	#   pValue     The value the property must equal
+	#   returns    a list of text such as "a->b"
+	#   see        EdgesWithProperty
 	def EdgesWithPropertyValue(pcProp, pValue)
 		_acResult_ = []
 		_aEdges_ = This.Edges()
@@ -2427,6 +3006,14 @@ class stzDiagram from stzGraph
 	#  properties LEGEND  # #TODO Should be abstarcted in stzGraph!!
 	#---------------------#
 	
+	# Raises error R13 today when a visual rule is registered, instead of returning a text legend of the rules.
+	#
+	#   returns    a list of text lines; with no rule only the heading and a blank line
+	#   note       with no rule it answers [ "=== properties LEGEND ===", "" ]
+	#   warning    known defect: it reads fields of the rules as if they were objects
+	#              (.@cConditionType) while RegisterVisualRule stores hash lists, so any rule raises
+	#              R13 (object is required)
+	#   see        RegisterVisualRule, VisualRulesApplied
 	def propertiesLegend()
 		_acLegend_ = ["=== properties LEGEND ===", ""]
 		
@@ -2462,6 +3049,15 @@ class stzDiagram from stzGraph
 	#  METRICS  # #TODO Should be abstracted in stzGraph!
 	#-----------#
 
+	# Returns average and longest path counts, the bottleneck nodes, the density and the node and edge counts.
+	#
+	#   returns    a hash list [ :avgPathLength, :maxPathLength, :bottlenecks, :density, :nodeCount,
+	#              :edgeCount ]
+	#   note       for a to b, a to c, c to d the answer is average 2 and maximum 2
+	#   warning    raises R1 (divide by zero) for a diagram without edges, or whose nodes reach one
+	#              node at most; a path count here is the number of nodes reachable minus one, and
+	#              nodes reaching a single node are left out
+	#   see        NodeCount, EdgeCount
 	def ComputeMetrics()
 		_aMetrics_ = []
 		_anAllPaths_ = []
@@ -2508,30 +3104,13 @@ class stzDiagram from stzGraph
 	#-----------------------------------------------------------------#
 	#  THE NATIVE TIER -- a diagram drawn WITHOUT dot.exe             #
 	#-----------------------------------------------------------------#
+	# Lays the diagram out and draws it on a new canvas, which it returns and also keeps as the last picture; no graphviz is needed.
 	#
-	#     oD.ToSVG()               # vector, needs no GPU and no graphviz
-	#     oD.ToPNG("d.png")        # pixels, through the GPU
-	#     oD.ToCanvas()            # the stzCanvas, to compose further
-	#
-	# ToDot() and Display() are untouched: emitting the dot LANGUAGE is a
-	# legitimate export, and a caller with graphviz installed may still
-	# want its renderer. What changes is that neither is REQUIRED any more.
-	#
-	# LAYOUT IS BORROWED, DRAWING IS NOT. Positions come from
-	# stzGraphCanvas -- the engine-side layout GG1 built, measured and
-	# guarded -- because layout is the expensive, correctness-critical part
-	# and a second implementation of it would diverge. The DRAWING is here,
-	# because a diagram is a different picture from a graph: boxes with
-	# labels inside, twenty-four shapes, clusters behind. That is the same
-	# split stzOrgChart already made.
-	#
-	# KILL CRITERION, written before the code: dot still wins on two things
-	# this route does not attempt -- SPLINE edges routed around nodes, and
-	# nested clusters. If a diagram needs those, ToDot() remains the honest
-	# answer and this tier is a convenience, not a replacement. What it must
-	# do is draw every shape in the vocabulary, keep cluster members inside
-	# their cluster, and never need an external binary.
-
+	#   returns    a stzCanvas holding the drawing; raises an error when the diagram has no node
+	#   note       ToCanvasXT takes options such as width, height, nodewidth, nodeheight, font,
+	#              fontsize, background and edgecolor; the canvas is 182x352 for three stacked nodes
+	#   see        ToSVG, ToPNG, LastCanvas
+	#@ aka  oD.ToSVG() # vector, needs no GPU and no graphviz oD.ToPNG("d.png") # pixels, through the GPU oD.ToCanvas() # the stzCanvas, to compose further
 	def ToCanvas()
 		return This.ToCanvasXT([])
 
@@ -6444,6 +7023,14 @@ class stzDiagram from stzGraph
 
 		return _oC_
 
+	# Returns the diagram drawn as SVG text, the vector tier, with no graphviz and no graphics device; raises an error for a diagram with no node.
+	#
+	#   returns    text, a complete SVG document
+	#   note       ToSVGXT takes the options of ToCanvasXT
+	#   warning    it frees its canvas after taking the answer but leaves it recorded as the last
+	#              picture, so PickAt, OnPress and the other gestures find nothing until ToCanvas is
+	#              called again
+	#   see        ToPNG, ToCanvas, Rendition
 	def ToSVG()
 		# the canvas is TRANSIENT: its engine scene (a target texture on the GPU
 		# tier, vertex buffers, the command list) is freed once the answer is taken --
@@ -6462,28 +7049,14 @@ class stzDiagram from stzGraph
 		_oCv_.Free()
 		return _cOut_
 
-	# A PICTURE LARGER THAN ITS MEDIUM IS RENDERED PER TILE, never
-	# rendered whole and cut -- because "whole" is exactly what fails. A
-	# GPU texture stops at 8192 in either axis and this library ships that
-	# as a refusal; print never had a whole at all. dot has tiled
-	# PostScript across A4 since the eighties for the same reason.
+	# Draws the diagram tile by tile onto A4 sheets at 150 dpi, writing one PNG per sheet named from the path plus _r1c1; needs a graphics device.
 	#
-	# Each page is drawn from the SAME retained scene through a moved
-	# projection (stzCanvas.SetRegion), so a tile is the picture seen
-	# through a window rather than a crop of an image nobody could
-	# allocate. The pages are then composed at page size, which is what
-	# lets the marks and the caption live in the MARGIN in page
-	# coordinates instead of being smuggled into the diagram's own
-	# geometry.
-	#
-	# Overlap is a glue margin: sheets are meant to be trimmed and joined,
-	# so consecutive tiles share a band. Strip the overlap and the tiles
-	# reassemble pixel-identical to a single render -- which is the
-	# property the guard asserts, and the only one that makes tiling a
-	# rendering rather than a resampling.
-	#
-	# Returns [ [ path, row, col, sceneX, sceneY ], ... ] -- what was
-	# written and which part of the picture each sheet holds.
+	#   pcPath     The path of the first PNG, as text
+	#   returns    a list of [ file, row, column, x, y ], one per sheet written
+	#   note       ToPagesXT takes page, dpi, landscape, overlap and marks options; neighbouring
+	#              sheets share a 12 mm band to trim
+	#   see        ToPNG, ToCanvas
+	#@ aka  A PICTURE LARGER THAN ITS MEDIUM IS RENDERED PER TILE, never rendered whole and cut -- because "whole" is exactly what fails. A GPU texture stops at 8192 in either axis and this library ships that as a refusal; print never had a whole at all. dot has tiled PostScript across A4 since the eighties for the same reason.
 	def ToPages(pcPath)
 		return This.ToPagesXT(pcPath, [ :Page = :A4 ])
 
@@ -6599,6 +7172,14 @@ class stzDiagram from stzGraph
 		oSheet.Flush()
 		return This
 
+	# Draws the diagram on the graphics device and returns the PNG bytes; a path also writes the file; raises an error for a diagram with no node.
+	#
+	#   pcPath     Where to write the PNG file too
+	#   returns    the PNG bytes as a string; "" when no device is available
+	#   note       ToPNGXT adds the options of ToCanvasXT
+	#   warning    like ToSVG, it frees its canvas and leaves it recorded as the last picture, so
+	#              gestures find nothing afterwards
+	#   see        ToSVG, ToCanvas, ToPages
 	def ToPNG(pcPath)
 		# the canvas is TRANSIENT: its engine scene (a target texture on the GPU
 		# tier, vertex buffers, the command list) is freed once the answer is taken --
@@ -10212,24 +10793,19 @@ class stzDiagram from stzGraph
 		next
 		return []
 
-	# An edge that spans more than one rank, drawn THROUGH the bend points
-	# the layout reserved for it.
+	# Answers a question about the picture with a record: a count, a node position, a distance between two nodes, or a verdict.
 	#
-	# Without this an edge from rank 1 to rank 9 was a straight line and
-	# crossed every box between them -- and no routing rule could have
-	# saved it, because the edge had no presence in those ranks for
-	# anything to route around. The dummy chain is what gives it one.
-	#
-	# CATMULL-ROM through the bends rather than a polyline: the bends are
-	# where the edge must BE, not where it must turn a corner, and a curve
-	# reading smoothly past a box is what distinguishes a routed edge from
-	# a dog-leg. Ortho keeps its corners -- that is the point of ortho.
-	#-- WHAT THIS PICTURE CAN ANSWER (DN9b) --------------------------------
-
-	# The same verb the math plane answers, over the things a notation
-	# picture holds: its nodes, its edges, where the renderer put them, and
-	# the verdicts its own governance reaches. A kind this plane cannot
-	# answer is refused by name rather than answered with a zero.
+	#   pcKind     count, position, distance or verdict, as text
+	#   paArgs     The question's arguments as a list: [ "nodes" ], [ "edges" ] or [ "crossings" ]
+	#              for count, [ node ] for position, [ node, node ] for distance, [ subject ] for
+	#              verdict
+	#   returns    a hash list [ :kind, :subject, :value, :unit, :where, :message ]
+	#   note       positions and distances are in pixels, from the centres of the drawn node boxes;
+	#              count crossings is -1 before the first render
+	#   warning    position and distance raise an error before the diagram has been rendered, and
+	#              the arguments must be a list: a bare text such as "edges" raises R21
+	#   see        RenderNodeRects, RenderCrossings
+	#@ aka  An edge that spans more than one rank, drawn THROUGH the bend points the layout reserved for it.
 	def Fact(pcKind, paArgs)
 		_k_ = StzLower(ring_trim("" + pcKind))
 		_a_ = paArgs
@@ -10313,21 +10889,29 @@ class stzDiagram from stzGraph
 			"nothing is found against " + pcSubject)
 
 
-	#-- A VALUE THAT SAYS WHAT IT IS (DN9g) ---------------------------------
-
-	# NOTE THE NAME. This class already has a Display(), and it does not
-	# return anything: it writes Graphviz source and opens a viewer. Six
-	# such methods exist under base/, and they already mean two
-	# incompatible things -- three print, three launch. That is why the
-	# returning verb is called Rendition() here, and why the display
-	# contract cannot take the name Display() without first deciding which
-	# of its two existing meanings to break.
+	# Returns the diagram as a vector picture value: its SVG with the mime type image/svg+xml and a title.
+	#
+	#   returns    a hash list [ :kind, :mime, :content, :locator, :title ]
+	#   see        RenditionAs, RenditionKinds, ToSVG
+	#@ aka  -- A VALUE THAT SAYS WHAT IT IS (DN9g) ---------------------------------
 	def Rendition()
 		return This.RenditionAs(:vector)
 
+	# Returns the ways the diagram can present itself: vector, image, graph and text.
+	#
+	#   returns    a list of four names
+	#   see        RenditionAs, Rendition
 	def RenditionKinds()
 		return [ :vector, :image, :graph, :text ]
 
+	# Returns the diagram in one presentation: vector (SVG), graph (DOT), text (a count line) or image (a PNG file); another kind raises an error.
+	#
+	#   pcKind     vector, image, graph or text, as text
+	#   returns    a hash list [ :kind, :mime, :content, :locator, :title ]
+	#   note       text answers "3 nodes, 2 edges, 0 crossings" style counts
+	#   warning    the image kind writes rendition_notation.png in the current folder; it was not
+	#              run here
+	#   see        Rendition, RenditionKinds
 	def RenditionAs(pcKind)
 		return This.RenditionAsXT(pcKind, "")
 
@@ -10369,117 +10953,151 @@ class stzDiagram from stzGraph
 		def RenditionAtQ(pcKind, pcPath)
 			return This.RenditionAsXT(pcKind, pcPath)
 
+	# Returns the rectangles drawn for the clusters at the last render.
+	#
+	#   returns    a list of rectangle records; [ ] before a render or without a cluster
+	#   see        Clusters, RenderNodeRects
 	def RenderClusterRects()
 		return @aRenderClusRects
 
+	# Returns where each node was drawn at the last render, as [ x, y, width, height, id ] with pixel values.
+	#
+	#   returns    a list of [ x, y, width, height, id ] lists; [ ] before a render
+	#   see        Fact, RenderEdgePaths, PickAt
 	def RenderNodeRects()
 		return @aRenderNodeRects
 
+	# Returns the routing channels the last render reserved for edges that leave their row.
+	#
+	#   returns    a list of channel records; [ ] when no edge needed one
+	#   see        LanePlan, RenderEdgePaths
 	def ClaimedChannels()
 		return @aChanUsed
 
+	# Returns how many edge crossings the last render left, or -1 when the diagram has not been rendered by the natural layout.
+	#
+	#   returns    a number; -1 before a render
+	#   see        Fact, RenderHops
 	def RenderCrossings()
 		return @nRenderCrossings
 
+	# Returns the path drawn for each edge at the last render, as [ "from>to", flat list of x and y values ].
+	#
+	#   returns    a list of [ key, points ] lists; [ ] before a render
+	#   see        RenderNodeRects, RenderArrows
 	def RenderEdgePaths()
 		return @aEdgePaths
 
-	# What each edge ended in, when it declared a relationship:
-	# [ key, shape, filled, x, y ]. See _DrawRelationEnd.
-	# WHERE AN ARROWHEAD WAS ACTUALLY PAINTED: [ x, y ] of each tip.
+	# Returns the tip of every arrowhead painted at the last render, as [ x, y ].
 	#
-	# Recorded because "an arrow means a loop" is the law in this
-	# notation most able to break without showing: it is enforced in the
-	# two places that draw a head, and gating one of them alone produced
-	# a picture identical to the one before. A law with two enforcement
-	# points and no way to count the result is a law on trust.
+	#   returns    a list of [ x, y ] pairs
+	#   see        RenderEdgePaths, RenderAdornments
+	#@ aka  What each edge ended in, when it declared a relationship: [ key, shape, filled, x, y ]. See _DrawRelationEnd. WHERE AN ARROWHEAD WAS ACTUALLY PAINTED: [ x, y ] of each tip.
 	def RenderArrows()
 		return @aRenderArrows
 
+	# Returns the relationship ends drawn on edges that declare one, such as a diamond or a crow's foot, with their position.
+	#
+	#   returns    a list of records; [ ] when no edge declared a relationship
+	#   see        RenderArrows
 	def RenderAdornments()
 		return @aRenderAdorn
 
-	# The vertices where a stem forked and the corner was therefore drawn
-	# SQUARE: [ x, y, key ]. See _VertexIsFork.
+	# Returns the points where a stem forked, so the corner was drawn square, as [ x, y, key ].
+	#
+	#   returns    a list of [ x, y, key ] lists
+	#   see        RenderEdgePaths
+	#@ aka  The vertices where a stem forked and the corner was therefore drawn SQUARE: [ x, y, key ]. See _VertexIsFork.
 	def RenderForks()
 		return @aRenderForks
 
-	# Where the picture declared a crossing with a wire hop. Published
-	# so an instrument can ask whether each one had room to be read as
-	# one -- a bump a few pixels from a rounded elbow is two curves in a
-	# row, and the reader cannot tell which is the corner.
+	# Returns the crossings drawn with a wire hop, as [ x, y, key ] records.
+	#
+	#   returns    a list of records; [ ] when no hop was drawn
+	#   see        RenderCrossings, RenderEdgePaths
+	#@ aka  Where the picture declared a crossing with a wire hop. Published so an instrument can ask whether each one had room to be read as one -- a bump a few pixels from a rounded elbow is two curves in a row, and the reader cannot tell which is the corner.
 	def RenderHops()
 		return @aRenderHops
 
-	# Which edges left their row, and how deep each one runs. Published
-	# for the same reason the paths are: a frame has to be tall enough
-	# to hold its rails, and an instrument has to be able to ask whether
-	# it is -- without either of them re-deriving the answer.
+	# Returns which edges left their row at the last render and how deep each one runs.
+	#
+	#   returns    a list of records; [ ] when none did
+	#   see        ClaimedChannels
+	#@ aka  Which edges left their row, and how deep each one runs. Published for the same reason the paths are: a frame has to be tall enough to hold its rails, and an instrument has to be able to ask whether it is -- without either of them re-deriving the answer.
 	def LanePlan()
 		return @aLaneKept
 
+	# Returns the labels drawn inside the nodes at the last render, with their positions.
+	#
+	#   returns    a list of records; [ ] before a render
+	#   note       empty in the plain top-down flow tried here
+	#   see        RenderLabels, RenderNodeRects
 	def RenderNodeLabels()
 		return @aRenderNodeLabels
 
+	# Returns the edge labels placed at the last render, as [ text, x, y, width, height, key ].
+	#
+	#   returns    a list of records; [ ] when no label was placed
+	#   note       empty in the small flow tried here, which has one labelled edge
+	#   see        RenderNodeLabels
 	def RenderLabels()
 		return @aRenderLabels
 
+	# Returns the table behind picking: for each tag, whether it is a node or an edge and which.
+	#
+	#   returns    a list of [ tag, kind, a, b ] lists, such as [ 1, "node", "start", "" ] and [
+	#              1000001, "edge", "start", "validate" ]
+	#   see        PickAt, LastCanvas
 	def RenderPicks()
 		return @aRenderPicks
 
-	# The picture as last drawn. A live session redraws THIS between
-	# gestures instead of building a new one -- the difference between a
-	# frame that costs a present and a frame that costs a layout.
+	# Returns the canvas of the last render, kept so a live session can redraw it between gestures.
+	#
+	#   returns    a stzCanvas; an empty list before any render
+	#   warning    after ToSVG or ToPNG it is a canvas whose engine scene has been freed
+	#   see        ToCanvas, PickAt
+	#@ aka  The picture as last drawn. A live session redraws THIS between gestures instead of building a new one -- the difference between a frame that costs a present and a frame that costs a layout.
 	def LastCanvas()
 		return @oLastCanvas
 
-	#-- READING THE PICTURE BACKWARDS ------------------------------------
+	# Converts a pixel coordinate to the layout's own slot unit, the inverse of PixelAtSlot; 0 when the render recorded no map.
 	#
-	# A pin lives in the layout's coordinate and a cursor lives in
-	# pixels. Without a way between them a drag cannot become a pin, and
-	# the whole inversion GG7 is about -- the author owns positions --
-	# stops at the mouse.
-	#
-	# The fit is linear (scale and shift into the canvas), so the map is
-	# two numbers and its inverse is exact. Both are published because a
-	# session needs the round trip: pixels in to place a cell, slots out
-	# to show where it will land.
+	#   pnPx       A pixel coordinate along the layout axis
+	#   returns    a number
+	#   warning    the map was empty after ToCanvas for the plain flows tried, so the answer is 0
+	#              and a dragged node is pinned at slot 0
+	#   see        PixelAtSlot, SlotMap, Pin
+	#@ aka  -- READING THE PICTURE BACKWARDS ------------------------------------
 	def SlotAtPixel(pnPx)
 		if len(@aSlotMap) != 2 or fabs(@aSlotMap[2]) < 0.000001  return 0  ok
 		return (pnPx - @aSlotMap[1]) / @aSlotMap[2]
 
+	# Converts a layout slot to a pixel coordinate, the inverse of SlotAtPixel; 0 when the render recorded no map.
+	#
+	#   pnSlot     A position in the layout's slot unit
+	#   returns    a number
+	#   see        SlotAtPixel, SlotMap
 	def PixelAtSlot(pnSlot)
 		if len(@aSlotMap) != 2  return 0  ok
 		return @aSlotMap[1] + @aSlotMap[2] * pnSlot
 
+	# Returns the linear fit between layout slots and pixels as [ offset, scale ].
+	#
+	#   returns    a list of two numbers; [ ] when the render recorded none
+	#   see        SlotAtPixel, PixelAtSlot
 	def SlotMap()
 		return @aSlotMap
 
-	#-- THE INTERACTION, as a state machine ------------------------------
+	# Feeds a pointer press at a pixel to the editor: on a node it starts a drag, or a link after BeginLinking; at an edge end, a rewire.
 	#
-	# Not event soup. A pointer that is pressed, moved and released means
-	# different things depending on what was under it when it went down,
-	# and code that answers each event on its own has to reconstruct that
-	# every time -- which is how editors grow flags that contradict each
-	# other. Four states cover the whole vocabulary:
-	#
-	#   idle      nothing is being done
-	#   dragging  a cell is following the pointer
-	#   linking   an edge is being drawn from a cell
-	#   labelling a cell's text is being typed
-	#
-	# The events are fed in explicitly rather than polled, and that is a
-	# design decision, not a convenience: a state machine that reads a
-	# window can only be tested by opening one. This one is a function of
-	# (state, event) and is therefore testable headless, which is why the
-	# guard for it runs in the same suite as everything else. A window
-	# session just calls these from what it polled.
-	#
-	# A DRAG IS ONE UNDO, not one per pointer-move. The cell follows the
-	# cursor by pinning directly -- the picture has to keep up -- and the
-	# COMMAND is issued once, at release, from the position the cell held
-	# when the drag began. Otherwise a single drag would leave a hundred
-	# entries in the log and an undo would move the cell one pixel.
+	#   pnX        The horizontal pixel of the press
+	#   pnY        The vertical pixel of the press
+	#   returns    the diagram itself, so calls can be chained
+	#   note       pressing bare paper or the middle of an edge leaves the state idle
+	#   warning    needs a last picture, so it does nothing after ToSVG or ToPNG, or before any
+	#              render
+	#   see        OnMove, OnRelease, OnCancel, UiState
+	#@ aka  -- THE INTERACTION, as a state machine ------------------------------
 	def OnPress(pnX, pnY)
 		@cUiState = :Idle
 		@cUiSubject = ""
@@ -10520,34 +11138,38 @@ class stzDiagram from stzGraph
 		ok
 		return This
 
-	# A MOVE PREVIEWS. IT DOES NOT RE-LAY-OUT.
+	# Records where the pointer is during a gesture, for a preview; nothing is laid out again and the model is untouched.
 	#
-	# Measured before it was designed: re-rendering a 500-node diagram
-	# per pointer-move costs 11,675 ms a frame against a 16 ms budget --
-	# 730 times over, and no faster scene upload could rescue it, since
-	# the cost is the layout and the edge work rather than the drawing.
-	# A live editor cannot re-lay-out while a cell is moving, and every
-	# editor that feels alive knows it: the cell moves, the picture does
-	# not.
-	#
-	# So a move records where the pointer is and nothing else. The
-	# window draws the scene it already has and puts the dragged cell on
-	# top of it -- DragPreview() says where -- and the layout runs ONCE,
-	# at release, when the author has decided. The model is untouched
-	# until then, which is also why an abandoned drag leaves nothing
-	# behind: there was nothing to undo.
+	#   pnX        The horizontal pixel of the pointer
+	#   pnY        The vertical pixel of the pointer
+	#   returns    the diagram itself, so calls can be chained
+	#   note       does nothing while the state is idle
+	#   see        DragPreview, OnPress
+	#@ aka  A MOVE PREVIEWS. IT DOES NOT RE-LAY-OUT.
 	def OnMove(pnX, pnY)
 		if @cUiState = :Idle  return This  ok
 		@aUiAt = [ pnX, pnY ]
 		return This
 
-	# Where the gesture currently is: [ subject, x, y ], or [] when
-	# nothing is being dragged. What a window paints over the picture.
+	# Returns where the gesture in hand is, [ node, x, y ], for a window to paint over the picture.
+	#
+	#   returns    a list [ node, x, y ]; [ ] when nothing is being dragged or no move was seen
+	#   see        OnMove, UiSubject
+	#@ aka  Where the gesture currently is: [ subject, x, y ], or [] when nothing is being dragged. What a window paints over the picture.
 	def DragPreview()
 		if @cUiState = :Idle or @cUiSubject = ""  return []  ok
 		if len(@aUiAt) != 2  return []  ok
 		return [ @cUiSubject, @aUiAt[1], @aUiAt[2] ]
 
+	# Ends a gesture at a pixel: a drag becomes one MoveCell edit, linking over another node one Link edit, rewiring over a node one Rewire edit.
+	#
+	#   pnX        The horizontal pixel of the release
+	#   pnY        The vertical pixel of the release
+	#   returns    the diagram itself, so calls can be chained
+	#   note       the state returns to idle; a release over bare paper changes nothing
+	#   warning    a drag pins the node at SlotAtPixel(pnX), which is 0 when the render recorded no
+	#              map
+	#   see        OnPress, OnCancel, Edit
 	def OnRelease(pnX, pnY)
 		if @cUiState = :Dragging
 			# ONE command, from the position the author chose. The model
@@ -10576,9 +11198,11 @@ class stzDiagram from stzGraph
 		@aUiRewire = []
 		return This
 
-	# ABANDONED, not completed: the cell goes back where it was and
-	# nothing enters the log. A gesture the author gave up on should
-	# leave no trace to undo.
+	# Abandons the gesture in hand and returns to idle; nothing was changed in the model, so nothing enters the log.
+	#
+	#   returns    the diagram itself, so calls can be chained
+	#   see        OnPress, OnRelease
+	#@ aka  ABANDONED, not completed: the cell goes back where it was and nothing enters the log. A gesture the author gave up on should leave no trace to undo.
 	def OnCancel()
 		# nothing to restore: a gesture in progress never touched the
 		# model, which is what makes abandoning one free
@@ -10613,8 +11237,11 @@ class stzDiagram from stzGraph
 		next
 		return ""
 
-	# During :Rewiring, the pixel of the end that is NOT moving -- what a
-	# window draws the ghost line from. [] outside the gesture.
+	# Returns the pixel of the end of a link that is not moving during rewiring, from which a window draws the ghost line.
+	#
+	#   returns    a list [ x, y ]; [ ] outside rewiring
+	#   see        UiRewire, OnPress
+	#@ aka  During :Rewiring, the pixel of the end that is NOT moving -- what a window draws the ghost line from. [] outside the gesture.
 	def RewireAnchor()
 		if @cUiState != :Rewiring or len(@aUiRewire) != 3  return []  ok
 		_raKey_ = StzLower(@aUiRewire[1] + ">" + @aUiRewire[2])
@@ -10634,36 +11261,59 @@ class stzDiagram from stzGraph
 		next
 		return []
 
-	# What the gesture in hand is doing to which link: [ from, to, end ],
-	# or [] outside :Rewiring. The window half reads this, the guard
-	# asserts on it.
+	# Returns what the rewiring gesture is doing, [ from, to, end ] for the link and the end in hand.
+	#
+	#   returns    a list of three texts; [ ] outside rewiring
+	#   see        RewireAnchor, OnPress
+	#@ aka  What the gesture in hand is doing to which link: [ from, to, end ], or [] outside :Rewiring. The window half reads this, the guard asserts on it.
 	def UiRewire()
 		if @cUiState != :Rewiring  return []  ok
 		return @aUiRewire
 
-	# REMOVE THE LINK UNDER THE POINTER, as one logged command. Not a
-	# gesture: removal is instantaneous, so it is a verb the window binds
-	# to whatever it likes (a key held while clicking, a context action)
-	# rather than a state the machine has to carry.
+	# Removes the edge under a pixel, as one logged Unlink edit that Undo can take back.
+	#
+	#   pnX        The horizontal pixel
+	#   pnY        The vertical pixel
+	#   returns    TRUE if an edge was removed, FALSE when none was under the point
+	#   see        Edit, Undo, PickAt
+	#@ aka  REMOVE THE LINK UNDER THE POINTER, as one logged command. Not a gesture: removal is instantaneous, so it is a verb the window binds to whatever it likes (a key held while clicking, a context action) rather than a state the machine has to carry.
 	def RemoveLinkAt(pnX, pnY)
 		_rlAt_ = This.PickAt(pnX, pnY)
 		if len(_rlAt_) != 3 or _rlAt_[1] != :edge  return FALSE  ok
 		return This.Edit(:Unlink, [ "" + _rlAt_[2], "" + _rlAt_[3] ])
 
+	# Turns on linking, so the next press on a node starts drawing an edge from it.
+	#
+	#   returns    the diagram itself, so calls can be chained
+	#   see        EndLinking, OnPress
 	def BeginLinking()
 		@bUiLinking = TRUE
 		return This
 
+	# Turns linking off, so presses drag nodes again.
+	#
+	#   returns    the diagram itself, so calls can be chained
+	#   see        BeginLinking
 	def EndLinking()
 		@bUiLinking = FALSE
 		return This
 
+	# Starts typing a node's label: the state becomes labelling for that node; a node that does not exist leaves the state as it was.
+	#
+	#   pcNode     A node id, as text; case is ignored.
+	#   returns    the diagram itself, so calls can be chained
+	#   see        CommitLabel, UiState
 	def BeginLabelling(pcNode)
 		if NOT This.NodeExists(pcNode)  return This  ok
 		@cUiState = :Labelling
 		@cUiSubject = "" + pcNode
 		return This
 
+	# Ends labelling by changing the label of the node being labelled, as one logged SetLabel edit.
+	#
+	#   pcText     The new label, as text
+	#   returns    TRUE if the label was set, FALSE when no labelling was in progress
+	#   see        BeginLabelling, Edit
 	def CommitLabel(pcText)
 		if @cUiState != :Labelling  return FALSE  ok
 		_clOk_ = This.Edit(:SetLabel, [ @cUiSubject, "" + pcText ])
@@ -10671,30 +11321,29 @@ class stzDiagram from stzGraph
 		@cUiSubject = ""
 		return _clOk_
 
+	# Returns the state of the editing machine: idle, dragging, linking, labelling or rewiring.
+	#
+	#   returns    a text such as "idle"
+	#   see        UiSubject, OnPress
 	def UiState()
 		return @cUiState
 
+	# Returns the node, or the from>to link, that the current gesture acts on; an empty text when idle.
+	#
+	#   returns    text
+	#   see        UiState, DragPreview
 	def UiSubject()
 		return @cUiSubject
 
-	#-- THE SESSION: one poll, one frame ---------------------------------
+	# Runs one frame of a live session on a window: reads the pointer, feeds the gestures, re-renders only if the model changed, and draws.
 	#
-	# The window half of a live diagram is small on purpose, and it is
-	# small because everything above it was built to be driven rather
-	# than to drive. Picking reads the retained scene; the state machine
-	# is a function of (state, event); the log is over the model's own
-	# mutations. So a session is the loop that turns polled input into
-	# those calls, and nothing else -- no second rulebook, no parallel
-	# graph, no event soup.
-	#
-	# Step(oWindow) is ONE frame: read what the pointer did, feed the
-	# machine, re-render only when the model actually changed, and draw.
-	# It answers whether anything changed, so a caller can idle.
-	#
-	# The re-render is the whole reason a drag previews instead of
-	# moving: laying a 500-node diagram out again costs eleven seconds,
-	# and a gesture cannot pay that per frame. Structure changes pay it
-	# once, where the author expects a pause.
+	#   oWindow     A stzWindow object, as built by the gui layer
+	#   paOptions   The render options, as for ToCanvasXT
+	#   returns     TRUE if the model changed in this frame, FALSE otherwise or when the window is
+	#               not an object
+	#   warning     needs a window, so only the not-an-object answer FALSE was run here
+	#   see         RunIn, OnPress, ToCanvas
+	#@ aka  -- THE SESSION: one poll, one frame ---------------------------------
 	def Step(oWindow, paOptions)
 		if NOT isObject(oWindow)  return FALSE  ok
 		if NOT isList(paOptions)  paOptions = []  ok
@@ -10727,8 +11376,14 @@ class stzDiagram from stzGraph
 		ok
 		return _stChanged_
 
-	# The loop, for a caller that has nothing else to do. Answers when the
-	# window closes.
+	# Runs frames on a window until it closes, then returns the diagram; given something that is not an object it returns at once.
+	#
+	#   oWindow     A stzWindow object
+	#   paOptions   The render options, as for ToCanvasXT
+	#   returns     the diagram itself, so calls can be chained
+	#   warning     needs a window, so only the not-an-object case was run here
+	#   see         Step
+	#@ aka  The loop, for a caller that has nothing else to do. Answers when the window closes.
 	def RunIn(oWindow, paOptions)
 		if NOT isObject(oWindow)  return This  ok
 		while oWindow.IsOpen()
@@ -10736,29 +11391,19 @@ class stzDiagram from stzGraph
 		end
 		return This
 
-	#-- EDITS: the session executes COMMANDS, never mutations ------------
+	# Runs one command that has an inverse, so Undo can take it back: movecell, freecell, addcell, removecell, link, unlink, rewire or setlabel.
 	#
-	# A live editor that mutates the model directly can offer no undo, so
-	# nothing here mutates: every edit is a command with an inverse, and
-	# the log is the session's memory. mxGraph's model, and the reason it
-	# has one -- an editor without undo is an editor nobody trusts enough
-	# to explore with.
-	#
-	# The commands go through the EXISTING mutation API and its existing
-	# refusals, so every guard in this plane governs the editor for free
-	# and a refused edit surfaces as feedback rather than as a second
-	# rulebook. That was the design decision: the model stays stzDiagram,
-	# and a session is state ALONGSIDE it, not a parallel graph.
-	#
-	# Five commands cover the editor's whole vocabulary:
-	#   MoveCell   pin a cell somewhere      <-> pin it back (or unpin)
-	#   AddCell    a node exists             <-> it does not
-	#   RemoveCell a node is gone            <-> it is back, with its edges
-	#   Link       an edge exists            <-> it does not
-	#   SetLabel   a node reads this         <-> it read that
-	# NOT Do() -- "do" is a Ring keyword (do...again), so a method named
-	# for it is a parse error four hundred lines away from anything that
-	# looks wrong. Edit() says what it does anyway.
+	#   pcKind     The command name, as text, case ignored
+	#   paArgs     The command's arguments, as a list: [ node, slot ] for movecell, [ node ] for
+	#              freecell and removecell, [ node, label ] for addcell, [ from, to ] for link and
+	#              unlink, [ from, to, "from" or "to", newNode ] for rewire, [ node, label ] for
+	#              setlabel
+	#   returns    TRUE if the command was carried out, FALSE if it was refused
+	#   note       an unknown command or too few arguments answer FALSE and enter nothing in the log
+	#   warning    a link between nodes that are already linked, or one that names a missing node,
+	#              raises an error instead of answering FALSE
+	#   see        Undo, Redo, EditLog, Pin
+	#@ aka  -- EDITS: the session executes COMMANDS, never mutations ------------
 	def Edit(pcKind, paArgs)
 		_dcK_ = StzLower("" + pcKind)
 		if NOT isList(paArgs)  paArgs = []  ok
@@ -10770,6 +11415,10 @@ class stzDiagram from stzGraph
 		@aUndo + [ _dcK_, paArgs, _dcInv_[1], _dcInv_[2] ]
 		return TRUE
 
+	# Takes back the last edit by running its inverse, and keeps it for Redo.
+	#
+	#   returns    TRUE if an edit was undone, FALSE when the log is empty
+	#   see        Redo, Edit, CanUndo
 	def Undo()
 		if len(@aUndo) = 0  return FALSE  ok
 		_uE_ = @aUndo[ len(@aUndo) ]
@@ -10780,6 +11429,11 @@ class stzDiagram from stzGraph
 		@aRedo + _uE_
 		return TRUE
 
+	# Repeats the last edit that was undone.
+	#
+	#   returns    TRUE if an edit was repeated, FALSE when there is none
+	#   note       a new edit clears what could be redone
+	#   see        Undo, CanRedo
 	def Redo()
 		if len(@aRedo) = 0  return FALSE  ok
 		_rE_ = @aRedo[ len(@aRedo) ]
@@ -10790,15 +11444,31 @@ class stzDiagram from stzGraph
 		@aUndo + _rE_
 		return TRUE
 
+	# TRUE if the edit log holds at least one edit to take back.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Undo, EditLog
 	def CanUndo()
 		return len(@aUndo) > 0
 
+	# TRUE if an undone edit is waiting to be repeated.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Redo, CanUndo
 	def CanRedo()
 		return len(@aRedo) > 0
 
+	# Returns the edits made, each as [ command, arguments, inverse command, inverse arguments ].
+	#
+	#   returns    a list of lists; [ ] when none
+	#   see        Edit, ClearEditLog
 	def EditLog()
 		return @aUndo
 
+	# Forgets every edit and every undone edit; the model keeps its current state.
+	#
+	#   returns    the diagram itself, so calls can be chained
+	#   see        EditLog, Undo
 	def ClearEditLog()
 		@aUndo = []
 		@aRedo = []
@@ -10956,18 +11626,13 @@ class stzDiagram from stzGraph
 		next
 		return 0
 
-	#-- PINS: the layout advises, the author decides ---------------------
+	# Fixes a node at a position in layout slot units that no layout pass may move; doing it again moves it.
 	#
-	# The batch pipeline lets the layout own positions. A live diagram
-	# inverts that: a cell someone has placed by hand is PINNED, and no
-	# pass may argue with it -- not the relaxation, not the territories,
-	# not the alignment, not the centring. Unpinned cells are laid out
-	# around the pins as they stand.
-	#
-	# Pinned in SLOT units, the layout's own coordinate, so a pin means
-	# the same thing whatever size the picture is rendered at. That is
-	# what makes a pin survive a re-render, which is the only reason to
-	# have one.
+	#   pcNode     The id of the node to pin, case ignored
+	#   nSlotX     The position, in the layout's slot unit
+	#   returns    the diagram itself, so calls can be chained
+	#   see        Unpin, IsPinned, Pins
+	#@ aka  -- PINS: the layout advises, the author decides ---------------------
 	def Pin(pcNode, nSlotX)
 		_pnN_ = StzLower("" + pcNode)
 		for _pnI_ = 1 to len(@aPins)
@@ -10979,6 +11644,11 @@ class stzDiagram from stzGraph
 		@aPins + [ _pnN_, nSlotX ]
 		return This
 
+	# Releases the pin of a node, leaving it to the layout; a node that was not pinned changes nothing.
+	#
+	#   pcNode     The id of the node to release, case ignored
+	#   returns    the diagram itself, so calls can be chained
+	#   see        Pin, UnpinAll
 	def Unpin(pcNode)
 		_pnN_ = StzLower("" + pcNode)
 		_pnNew_ = []
@@ -10991,10 +11661,19 @@ class stzDiagram from stzGraph
 		@aPins = _pnNew_
 		return This
 
+	# Releases every pinned node, leaving them all to the layout.
+	#
+	#   returns    the diagram itself, so calls can be chained
+	#   see        Pin, Unpin
 	def UnpinAll()
 		@aPins = []
 		return This
 
+	# TRUE if a node is pinned; the id is matched in any case.
+	#
+	#   pcNode     The id of the node to test
+	#   returns    TRUE or FALSE
+	#   see        Pin, Pins
 	def IsPinned(pcNode)
 		_pnN_ = StzLower("" + pcNode)
 		_aPnP51_ = @aPins
@@ -11005,6 +11684,10 @@ class stzDiagram from stzGraph
 		next
 		return FALSE
 
+	# Returns the fixed nodes as [ node id in lowercase, slot ] pairs, in the order fixed.
+	#
+	#   returns    a list of pairs; [ ] when none
+	#   see        Pin, IsPinned
 	def Pins()
 		return @aPins
 
@@ -11027,18 +11710,16 @@ class stzDiagram from stzGraph
 		next
 		return _pvOut_
 
-	# WHAT IS AT THIS POINT OF THE LAST PICTURE -- [ :node, id ],
-	# [ :edge, from, to ], or [] for bare paper.
+	# Returns what the last picture holds at a pixel: [ "node", id ], [ "edge", from, to ] or [ ] for bare paper, with 3 pixels of reach.
 	#
-	# This is the batch pipeline's one-way street opened: model, layout
-	# and paint each own their successor, so the picture could never be
-	# asked anything. Now it can, and the answer is in the GRAPH's terms
-	# rather than the display list's, because the face tags what it draws
-	# as it draws it.
-	#
-	# The reading itself is engine work over the retained command list --
-	# no copy, one crossing per question -- which is what makes it fast
-	# enough to sit under a cursor.
+	#   pnX        The horizontal position, in pixels of the last picture.
+	#   pnY        The vertical position, in pixels of the last picture.
+	#   returns    a list; [ ] for bare paper or before a render
+	#   note       PickAtXT takes the reach in pixels
+	#   warning    after ToSVG or ToPNG the answer is always [ ], because those leave the last
+	#              picture freed
+	#   see        PickAtXT, RenderPicks, OnPress
+	#@ aka  WHAT IS AT THIS POINT OF THE LAST PICTURE -- [ :node, id ], [ :edge, from, to ], or [] for bare paper.
 	def PickAt(pnX, pnY)
 		return This.PickAtXT(pnX, pnY, 3)
 
@@ -15359,66 +16040,18 @@ class stzDiagram from stzGraph
 		next
 		return _nOv_
 
-	# HOW FAR A RETURN LANE SITS FROM ITS ROW -- ONE ANSWER, THREE
-	# CALLERS. The offset was counted from the row's CENTRE-LINE, so the
-	# first lane landed a clearance from the centre and four pixels from
-	# the boxes: a rail hugging the cells it runs under, which is what
-	# the Principal circled. A clearance is clearance FROM THE INK, and
-	# the ink here is the row of cells -- so a lane clears the box first
-	# and then counts.
+	# Adds a message from one participant to another, in order, and makes sure the two are linked; a message with the same pair may repeat.
 	#
-	# One method because three places need this number -- the drawing,
-	# the twin's mirror, and the frame that has to contain them -- and
-	# the last time one rule lived in several places an edge ended 28px
-	# from the state it named.
-	# IS ANYTHING STANDING BETWEEN THESE TWO?
-	#
-	# Two peers on one row are joined by one straight segment, which is
-	# right when they are neighbours and a LIE when they are not: the
-	# Principal's player drew paused>stopped as a horizontal line
-	# through the middle of Playing, and the picture then said that
-	# Playing was on the way from Paused to Stopped. It is not on the
-	# way; it is merely in the way.
-	#
-	# The margin is half a box plus a clearance on each side, so a node
-	# whose EDGE reaches into the corridor counts as standing in it --
-	# grazing a box is as unreadable as crossing it.
-	# WHAT THE PICTURE ACTUALLY OCCUPIES -- every mark, not every
-	# coordinate the layout reserved. A canvas sized from a reservation
-	# is a canvas with white on it nobody drew, and that white reads as
-	# space the author left deliberately.
-	#
-	# Five kinds of mark reach past a node's centre, and each of them was
-	# learnt by something falling off an edge: half a cell; the name
-	# written UNDER a cell that is not a rectangle; the loop that
-	# radiates out of a cell; the word beside that loop; and the frame
-	# drawn around a region, with its own name above it.
+	#   pcFrom     The id of the sending node
+	#   pcTo       The id of the receiving node
+	#   pcLabel    The text of the message
+	#   returns    the diagram itself, so calls can be chained
+	#   note       AddMessageXT adds properties; a repeated pair adds a message but no second edge
+	#   warning    raises an error when either node does not exist
+	#   see        Messages, NumberOfMessages
 	#---------------------------------------------------------------
-	# MESSAGES -- the ordered list a sequence diagram is made of
 	#---------------------------------------------------------------
-
-	# A MESSAGE IS NOT AN EDGE, AND THE GRAPH WAS RIGHT TO SAY SO.
-	#
-	# The first sequence pictures used AddEdge, and it worked until the
-	# ordinary case: a checkout that calls Inventory twice, once to
-	# reserve and once to commit. stzGraph refused the second -- it is a
-	# SIMPLE graph, deliberately, so that counts, paths and metrics stay
-	# true -- and that refusal is correct and must not be weakened for a
-	# picture.
-	#
-	# The two things are genuinely different. WHO TALKS TO WHOM is a
-	# relation, and Checkout-to-Inventory is one relation however many
-	# times it is used; that is the graph, and every metric the tier
-	# computes is about it. WHAT WAS SAID AND WHEN is a sequence over
-	# that relation, and it repeats. Modelling the second as the first
-	# would have made a graph in which Inventory has degree 4, which is
-	# false about the system being described.
-	#
-	# So messages are their own ordered list, and adding one also
-	# ensures the RELATION exists -- ConnectIfAbsent, never Connect, so
-	# the tenth call between two participants does not raise. The graph
-	# stays true and the picture becomes possible, without either giving
-	# ground to the other.
+	#@ aka  HOW FAR A RETURN LANE SITS FROM ITS ROW -- ONE ANSWER, THREE CALLERS. The offset was counted from the row's CENTRE-LINE, so the first lane landed a clearance from the centre and four pixels from the boxes: a rail hugging the cells it runs under, which is what the Principal circled. A clearance is clearance FROM THE INK, and the ink here is the row of cells -- so a lane clears the box first and the
 	def AddMessage(pcFrom, pcTo, pcLabel)
 		return This.AddMessageXT(pcFrom, pcTo, pcLabel, [])
 
@@ -15440,6 +16073,10 @@ class stzDiagram from stzGraph
 			:label = "" + pcLabel, :properties = _amP_ ]
 		return This
 
+	# Returns the sent items, each a hash list [ :from, :to, :label, :properties ], in the order they were added.
+	#
+	#   returns    a list of hash lists
+	#   see        AddMessage, NumberOfMessages
 	def Messages()
 		return @aMessages
 
@@ -15496,6 +16133,10 @@ class stzDiagram from stzGraph
 		if @bSequence  _dkK_ += "#" + pnIx  ok
 		return _dkK_
 
+	# Returns how many messages have been added, repeats included.
+	#
+	#   returns    a number
+	#   see        Messages, AddMessage
 	def NumberOfMessages()
 		return len(@aMessages)
 
@@ -17215,15 +17856,12 @@ class stzDiagram from stzGraph
 		next
 		return _deep_
 
-	# DISPLAY, not View. In this very module `View` is already a NOUN for a
-	# data projection -- stzGraphView, stzGraphQuery.ToView(), IsView() --
-	# so one word carried two meanings in one namespace: "a filtered
-	# projection of the graph" and "open a window on the picture".
-	# Display() says only the second thing.
+	# Writes the DOT code, runs graphviz on it in the output format and opens the result in a viewer; needs graphviz installed.
 	#
-	# View() stays as an alternative form because callers exist (the
-	# diagram suite among them), and breaking working code over a naming
-	# improvement is a worse trade than carrying an alias.
+	#   returns    nothing
+	#   warning    not run here, since it needs graphviz and opens a viewer; read from the body
+	#   see        View, Dot, ToSVG
+	#@ aka  DISPLAY, not View. In this very module `View` is already a NOUN for a data projection -- stzGraphView, stzGraphQuery.ToView(), IsView() -- so one word carried two meanings in one namespace: "a filtered projection of the graph" and "open a window on the picture". Display() says only the second thing.
 	def Display()
 
 		# Generate DOT code
@@ -17235,8 +17873,12 @@ class stzDiagram from stzGraph
 		_oDotExec_.SetOutputFormat(@cOutputFormat)
 		_oDotExec_.ExecuteAndView()
 
+		# Writes the DOT code, runs graphviz on it and opens the result; another spelling of the display call.
+		#
+		#   returns    nothing
+		#   warning    not run here, since it needs graphviz and opens a viewer
+		#   see        Display, ToSVG
 		#< @FunctionAlternativeForm
-
 		def View()
 			This.Display()
 
@@ -17246,6 +17888,11 @@ class stzDiagram from stzGraph
 	#  EXPORT  #
 	#----------#
 
+	# Returns the diagram as a hash list of its graph data plus theme, layout, clusters, annotations and templates.
+	#
+	#   returns    a hash list [ :id, :nodes, :edges, :properties, :theme, :layout, :clusters,
+	#              :annotations, :templates ]
+	#   see        Json, stzdiag
 	def ToHashlist()
 		_aBase_ = super.ToHashlist()
 		_aBase_["theme"] = @cTheme
@@ -17255,6 +17902,12 @@ class stzDiagram from stzGraph
 		_aBase_["templates"] = @aoTemplates
 		return _aBase_
 
+	# Returns the diagram in the library's native text format: properties, nodes with label, type and colour, edges with labels, and clusters.
+	#
+	#   returns    text
+	#   note       the format is read back by ImportDiag; ToStzDiag and the other spellings answer
+	#              the same text
+	#   see        ImportDiag, Dot, Json
 	def stzdiag()
 		_oConv_ = new stzDiagramToStzDiag(This)
 		return _oConv_.stzdiag()
@@ -17277,6 +17930,11 @@ class stzDiagram from stzGraph
 		def DiagFormat()
 			return This.stzdiag()
 
+	# Returns the diagram as graphviz source text, with the theme, layout and pen settings written as attributes.
+	#
+	#   returns    text, a digraph
+	#   note       ToDot, Code and DotCode answer the same text
+	#   see        Mermaid, Json, Display
 	def Dot()
 		_oConv_ = new stzDiagramToDot(This)
 		_cResult_ = _oConv_.Code()
@@ -17297,6 +17955,11 @@ class stzDiagram from stzGraph
 		def Code()
 			return This.Dot()
 
+	# Returns the diagram's hash list serialised as indented text that any standard parser reads.
+	#
+	#   returns    text, valid JSON
+	#   note       ToJson answers the same text
+	#   see        ToHashlist, Dot
 	def Json()
 		_oConv_ = new stzDiagramToJson(This)
 		return _oConv_.Code()
@@ -17304,6 +17967,12 @@ class stzDiagram from stzGraph
 		def ToJson()
 			return This.Json()
 
+	# Returns the diagram as flowchart text in graph TD syntax: start and end nodes as stadiums, edge labels between pipes.
+	#
+	#   returns    text
+	#   note       ToMermaid answers the same text
+	#   warning    a node whose id is start is written as node_start
+	#   see        Dot, Json
 	def Mermaid()
 		_oConv_ = new stzDiagramToMermaid(This)
 		return _oConv_.Code()
@@ -17315,6 +17984,11 @@ class stzDiagram from stzGraph
 	#  WRITE TO FILE  # #TODO Shoulmd move to stzGraph level
 	#-----------------#
 
+	# Writes the diagram in the .stzdiag format to a file named after it in the current folder.
+	#
+	#   returns    1
+	#   note       the file is <name>.stzdiag
+	#   see        stzdiag, ImportDiag
 	def WriteToFile()
 		_oConv_ = new stzDiagramToStzDiag(This)
 		_bSuccess_ = _oConv_.WriteToFile(This.Name() + ".stzdiag")
@@ -17468,6 +18142,15 @@ class stzDiagram from stzGraph
 		def SaveToStzDiagFileInFolder(pcFolder)
 			return This.WriteToDiagFile(pcFolder)
 
+		# Raises error R14 today instead of writing the .stzdiag file in a folder.
+		#
+		#   returns    nothing today
+		#   note       WriteToFile writes the file; SaveStzDiagInFolder with a folder calls the same
+		#              missing method
+		#   warning    known defect: it takes no folder argument and calls WriteToDiagFileXT with a
+		#              global that is never set, and that method exists nowhere, so every call
+		#              raises R14
+		#   see        WriteToFile
 		def SaveToStzDiagInFolder()
 			return This.WriteToDiagFileXT($pcFolder)
 
@@ -17493,9 +18176,13 @@ class stzDiagram from stzGraph
 		def SaveStzDiagInFolder(pcFolder)
 			return This.WriteToDiagFileXT(pcFolder)
 
+	# Writes the DOT code to a file named after the diagram in the current folder.
+	#
+	#   returns    1
+	#   note       the file is <name>.dot
+	#   see        Dot, WriteToMermaidFile
 		#>
 	#---
-
 	def WriteToDotFile()
 		_oConv_ = new stzDiagramToDot(This)
 		_bSuccess_ = _oConv_.WriteToFile(This.Name() + ".dot")
@@ -17563,10 +18250,13 @@ class stzDiagram from stzGraph
 		def SaveToDotInFolder(pcFolder)
 			return This.WriteToDotFileXT(pcFolder)
 
+	# Writes the Mermaid text to a file named after the diagram in the current folder.
+	#
+	#   returns    1
+	#   note       the file is <name>.mmd
+	#   see        Mermaid, WriteToDotFile
 		#>
-
 	#---
-
 	def WriteToMermaidFile()
 		_oConv_ = new stzDiagramToMermaid(This)
 		_bSuccess_ = _oConv_.WriteToFile(This.Name() + ".mmd")
@@ -17635,10 +18325,14 @@ class stzDiagram from stzGraph
 		def SaveToMermaidInFolder(pcFolder)
 			return This.WriteToMermaidFileXT(pcFolder)
 
+	# Writes the JSON to a file named after the diagram in the current folder, whatever file name is passed.
+	#
+	#   pcFileName   A file name, as text
+	#   returns      1
+	#   warning      the argument is ignored: the file is always <name>.json
+	#   see          Json, WriteToDotFile
 		#>
-
-	#--
-
+	#@ aka  --
 	def WriteToJsonFile(pcFileName)
 		_oConv_ = new stzDiagramToJson(This)
 		_bSuccess_ = _oConv_.WriteToFile(This.Name() + ".json")
@@ -17713,8 +18407,15 @@ class stzDiagram from stzGraph
 	# Get diagram overview with rules context #
 	#-----------------------------------------#
 
-	#NOTE // There also is an Explain() at the parent stzGraph level
-
+	# Returns a short account of the diagram: its size, its visual rules and what they affected; raises error R13 as soon as a rule is registered.
+	#
+	#   returns    a hash list [ :diagram, :structure, :rules, :effects ]
+	#   note       stzGraph has its own Explain
+	#   warning    known defect: with a registered rule it reads the rule's id as a field of an
+	#              object (.@cRuleId) while rules are stored as hash lists, so it raises R13;
+	#              without rules it answers "No visual rules defined."
+	#   see        RegisterVisualRule, ComputeMetrics
+	#@ aka  NOTE // There also is an Explain() at the parent stzGraph level
 	def Explain()
 		_aExplanation_ = [
 			:diagram = @cId,
@@ -17766,6 +18467,16 @@ class stzDiagram from stzGraph
 	#  IMPORT WITH SUBDIAGRAM SUPPORT  #
 	#----------------------------------#
 
+	# Reads .stzdiag text into an empty diagram, or as a subdiagram under the node named like its first node; raises an error otherwise.
+	#
+	#   cDiagString   The text of a diagram in the .stzdiag format, as stzdiag writes it.
+	#   returns       nothing; the diagram changes
+	#   note          reading into an empty diagram also renames the diagram to the text's name and
+	#                 keeps edge labels
+	#   warning       into a diagram that already holds the first node it adds the remaining nodes
+	#                 again and raises on the first existing edge, leaving duplicate nodes; text
+	#                 with no node raises "Cannot parse imported diagram"
+	#   see           stzdiag, ImportAsSubdiagram, ParseAndImport
 	def ImportDiag(cDiagString)
 		# Parse first node of imported diagram
 		_cFirstNodeId_ = This.ExtractFirstNodeId(cDiagString)
@@ -17789,6 +18500,11 @@ class stzDiagram from stzGraph
 			This.ParseAndImport(cDiagString)
 		ok
 
+	# Returns the id of the first node listed in .stzdiag text.
+	#
+	#   cDiagString   The text of a diagram in the .stzdiag format, as stzdiag writes it.
+	#   returns       text; an empty text when there is no nodes section
+	#   see           ImportDiag
 	def ExtractFirstNodeId(cDiagString)
 		_acLines_ = @split(cDiagString, char(10))
 		_nLen_ = len(_acLines_)
@@ -17813,6 +18529,14 @@ class stzDiagram from stzGraph
 			ok
 		end
 	
+	# Adds the nodes of .stzdiag text except the parent, and its edges, to the diagram, which must already hold the parent node.
+	#
+	#   cDiagString     The text of a diagram in the .stzdiag format, as stzdiag writes it.
+	#   cParentNodeId   The id of the node of this diagram that the imported first node stands for
+	#   returns         nothing; the diagram changes
+	#   warning         edge labels of the imported text are dropped, because the edges are added
+	#                   without them
+	#   see             ImportDiag, ParseAndImport
 	def ImportAsSubdiagram(cDiagString, cParentNodeId)
 		_oTemp_ = new stzDiagram("temp")
 		_oTemp_.ParseAndImport(cDiagString)
@@ -17843,6 +18567,13 @@ class stzDiagram from stzGraph
 			This.Connect(_cFrom_, _cTo_)
 		end
 
+	# Reads .stzdiag text into the diagram, taking its name, theme, layout, nodes with type and colour, and edges with labels.
+	#
+	#   cDiagString   The text of a diagram in the .stzdiag format, as stzdiag writes it.
+	#   returns       nothing; the diagram changes
+	#   note          it adds to what the diagram already holds, without checking for repeats; a
+	#                 name line replaces the diagram's name
+	#   see           ImportDiag, stzdiag
 	def ParseAndImport(cDiagString)
 		_acLines_ = @split(cDiagString, char(10))
 		_cCurrentSection_ = ""
@@ -17951,6 +18682,12 @@ class stzDiagram from stzGraph
 	#  FOCUS MANAGEMENT  #
 	#--------------------#
 
+	# Gives the focus colour to the listed nodes after painting every node back with the default node colour.
+	#
+	#   acNodeIds   The ids of the nodes to give the focus colour, as a list of text.
+	#   returns     nothing; the diagram changes
+	#   note        a node id that does not exist raises nothing visible in the case tried
+	#   see         ResetAllNodeColors, SetFocusColor
 	def ApplyFocusTo(acNodeIds)
 	    # Reset all first
 	    This.ResetAllNodeColors()
@@ -17961,6 +18698,10 @@ class stzDiagram from stzGraph
 	        This.SetNodeProperty(acNodeIds[i], "color", @cFocusColor)
 	    end
 	
+	# Paints every node with the default node colour, undoing any focus.
+	#
+	#   returns    nothing; the diagram changes
+	#   see        ApplyFocusTo, SetNodeColor
 	def ResetAllNodeColors()
 	    _aNodes_ = This.Nodes()
 	    _nLen_ = len(_aNodes_)
@@ -17973,6 +18714,13 @@ class stzDiagram from stzGraph
 	#  STYLE FILE MANAGEMENT  #
 	#-------------------------#
 
+	# Applies a style given as a .stzstyl file path or as its text: theme, layout, palette, fonts, edge and node settings, focus colour.
+	#
+	#   pSource    The path of a .stzstyl file, or the text of a style
+	#   returns    nothing; the diagram changes
+	#   note       the style's name is added to LoadedStyles
+	#   warning    a path that does not exist raises error R35; a value that is not text is ignored
+	#   see        ExportToStyl, LoadedStyles, stzStylParser
 	def LoadStyle(pSource)
 		if isString(pSource)
 			if StzRight(pSource, 8) = ".stzstyl"
@@ -18087,9 +18835,17 @@ class stzDiagram from stzGraph
 			end
 		ok
 	
+	# Returns the names of the styles loaded, in order.
+	#
+	#   returns    a list of text; [ ] when none
+	#   see        LoadStyle
 	def LoadedStyles()
 		return @aLoadedStyles
 	
+	# Returns the current theme, layout, palette, fonts, edge and node settings and focus colour as .stzstyl text that LoadStyle can read back.
+	#
+	#   returns    text
+	#   see        LoadStyle, WriteToStylFile
 	def ExportToStyl()
 		_cStyl_ = 'style "' + @cId + '_style"' + char(10)
 		_cStyl_ += '    theme: ' + @cTheme + char(10)
@@ -18133,12 +18889,22 @@ class stzDiagram from stzGraph
 		
 		return _cStyl_
 	
+	# Writes the style text to a file, adding .stzstyl to the name when it is missing.
+	#
+	#   pcFilename   The path of the style file, as text
+	#   returns      nothing
+	#   see          ExportToStyl, WriteStyl
 	def WriteToStylFile(pcFilename)
 		if NOT StzRight(pcFileName, 8) = ".stzstyl"
 			pcFileName += ".stzstyl"
 		ok
 		write(pcFilename, This.ExportToStyl())
 
+		# Writes the style text to a file; another spelling of the style-writing call.
+		#
+		#   pcFileName   The path of the style file, as text
+		#   returns      nothing
+		#   see          WriteToStylFile
 		def WriteStyl(pcFileName)
 			This.WriteToStylFile(pcFilename)
 
@@ -18146,17 +18912,41 @@ class stzDiagram from stzGraph
 #  stzDiagramAnnotator - properties OVERLAY  #
 #==========================================#
 
+# Holds extra data about nodes of a diagram, of one kind such as risk or cost, for attaching with AddAnnotation.
+#
+# An annotator has a type and a table from node id to a hash list of data. AnnotationsByType finds
+# annotators by their type, matching case.
+#
+#   receiver   o1 = new stzDiagramAnnotator("risk"); o1.Annotate("start", [ :level = "high" ])
+#   example    ? @@( o1.NodeData("start") )
+#              #--> [ [ "level", "high" ] ]
+#   see        stzDiagram
 class stzDiagramAnnotator from stzObject
 
 	@cType = ""
 	@aNodeData = []
 
+	# Builds an annotator for one kind of information, such as risk or cost, to be attached to a diagram.
+	#
+	#   pcType     The kind of annotation, as text
+	#   returns    nothing; the annotator is built
+	#   see        Type, Annotate
 	def init(pcType)
 		@cType = pcType
 
+	# Returns the kind of annotation this annotator carries, as it was given.
+	#
+	#   returns    text
+	#   see        init, ToHashlist
 	def Type()
 		return @cType
 
+	# Records the data of one node, replacing what was recorded for it before; the data is a hash list or :With = a hash list.
+	#
+	#   pNodeId    The id of the node, as text
+	#   _aData_    The data, as a hash list such as [ :level = "high" ], or [ :With = hashlist ]
+	#   returns    nothing; the annotator changes
+	#   see        NodeData, NodesData
 	def Annotate(pNodeId, _aData_)
 		if CheckParams()
 			if isList(_aData_) and IsWithNamedParamList(_aData_)
@@ -18166,14 +18956,27 @@ class stzDiagramAnnotator from stzObject
 
 		@aNodeData[pNodeId] = _aData_
 
+	# Returns the data recorded for a node; nothing when none was recorded.
+	#
+	#   pNodeId    The id of the node, as text
+	#   returns    the hash list given to Annotate; an empty text when the node has none
+	#   see        Annotate, NodesData
 	def NodeData(pNodeId)
 		if HasKey(@aNodeData, pNodeId)
 			return @aNodeData[pNodeId]
 		ok
 
+	# Returns the data of every annotated node, as [ node id, data ] pairs in the order recorded.
+	#
+	#   returns    a list of [ node id, hash list ] pairs
+	#   see        NodeData, ToHashlist
 	def NodesData()
 		return @aNodeData
 
+	# Returns the annotator as a hash list of its type and node data.
+	#
+	#   returns    a hash list [ :type, :nodedata ]
+	#   see        Type, NodesData
 	def ToHashlist()
 		return [
 			:type = @cType,
@@ -18185,11 +18988,31 @@ class stzDiagramAnnotator from stzObject
 #  stzDiagramToStzDiag - NATIVE FORMAT  #
 #=======================================#
 
+# Converts a stzDiagram to its native .stzdiag text once, at construction, and offers that text and a file writer.
+#
+# The text lists the diagram's properties, its nodes with label, type and colour, its edges with
+# their labels and its clusters. stzDiagram.ImportDiag reads it back. The helpers EscapeString,
+# NodeListToString and DataToString are small formatters; DataToString raises for a value that is a
+# list.
+#
+#   receiver   o1 = new stzDiagram("flow"); o1.AddNodeXTT("start", "Order Received", [ :type =
+#              "start" ]); o1.AddNodeXT("validate", "Validate"); o1.AddNodeXTT("done", "Done", [
+#              :type = "endpoint" ]); o1.AddEdgeXT("start", "validate", "next");
+#              o1.AddEdge("validate", "done"); o2 = new stzDiagramToStzDiag(o1)
+#   example    ? StzLeft(o2.stzdiag(), 14)
+#              #--> diagram "flow"
+#   see        stzDiagram, stzDiagramToDot
 class stzDiagramToStzDiag from stzObject
 
 	@oDiagram
 	@cStzDiagCode
 
+	# Builds the converter and writes the .stzdiag text of a diagram at once; anything but a stzDiagram raises an error.
+	#
+	#   poDiagram   The stzDiagram to convert
+	#   returns     nothing; the text is generated
+	#   note        the text is a snapshot: later changes to the diagram are not seen
+	#   see         stzdiag, WriteToFile
 	def init(poDiagram)
 		if NOT ( isObject(poDiagram) and ring_classname(poDiagram) = "stzdiagram")
 			StzRaise("Incorrect param type! poDiagram must be a stzDiagram object.")
@@ -18317,25 +19140,53 @@ class stzDiagramToStzDiag from stzObject
 
 		@cStzDiagCode = _cOutput_
 
+	# Returns the text in the native format generated at construction: properties, nodes, edges with labels, clusters.
+	#
+	#   returns    text
+	#   see        Content, WriteToFile
 	def stzdiag()
 		return @cStzDiagCode
 
+		# Returns the generated .stzdiag text; another spelling of the text getter.
+		#
+		#   returns    text
+		#   see        stzdiag
 		def stzdiagCode()
 			return @cStzDiagCode
 
+		# Returns the generated .stzdiag text; another spelling of the text getter.
+		#
+		#   returns    text
+		#   see        stzdiag
 		def Content()
 			return @cStzDiagCode
 
+	# Writes the generated text to a file, replacing it.
+	#
+	#   pFilename   The path of the file to write, as text
+	#   returns     1
+	#   warning     raises error R35 when the file cannot be opened
+	#   see         stzdiag
 	def WriteToFile(pFilename)
 		_oFile_ = fopen(pFilename, "w")
 		fwrite(_oFile_, This.stzdiag())
 		fclose(_oFile_)
 		return 1
 
+	# Wraps a text in double quotes, putting a backslash before every double quote inside it.
+	#
+	#   pStr       The text to quote
+	#   returns    text, with surrounding quotes
+	#   see        NodeListToString, DataToString
 	def EscapeString(pStr)
 		return '"' +
 			Replace(pStr, '"', '\"') + '"'
 
+	# Joins a list of texts with a comma and a space.
+	#
+	#   _aNodes_   A list of texts, such as node ids
+	#   returns    text; an empty text for an empty list
+	#   see        EscapeString, DataToString
 	def NodeListToString(_aNodes_)
 		_cResult_ = ""
 		_nNodes1Len_ = len(_aNodes_)
@@ -18348,6 +19199,13 @@ class stzDiagramToStzDiag from stzObject
 		ok
 		return _cResult_
 
+	# Writes a hash list as { key: value, ... }, quoting text values; a value that is not a hash list gives the text null.
+	#
+	#   _aData_    A hash list whose values are texts or numbers
+	#   returns    text
+	#   note       gives {name: "x", n: 5} for [ :name = "x", :n = 5 ]
+	#   warning    a value that is itself a list raises a bad parameter type error
+	#   see        EscapeString
 	def DataToString(_aData_)
 		if NOT @IsHashList(_aData_)
 			return "null"
@@ -18376,11 +19234,30 @@ class stzDiagramToStzDiag from stzObject
 #  stzDiagramToDot - GRAPHVIZ DOT  #
 #==================================#
 
+# Converts a stzDiagram to graphviz DOT text once, at construction, and offers that text and a file writer.
+#
+# The text is a digraph with the theme, layout, pen and arrow settings written as attributes, one
+# line per node with its shape, fill and font colour, the clusters as subgraphs and the edges with
+# their labels.
+#
+#   receiver   o1 = new stzDiagram("flow"); o1.AddNodeXTT("start", "Order Received", [ :type =
+#              "start" ]); o1.AddNodeXT("validate", "Validate"); o1.AddNodeXTT("done", "Done", [
+#              :type = "endpoint" ]); o1.AddEdgeXT("start", "validate", "next");
+#              o1.AddEdge("validate", "done"); o2 = new stzDiagramToDot(o1)
+#   example    ? StzLeft(o2.Code(), 14)
+#              #--> digraph "flow"
+#   see        stzDiagram, stzDiagramToMermaid
 class stzDiagramToDot from stzObject
 
 	@oDiagram
 	@cDotCode
 
+	# Builds the converter and writes the graphviz DOT text of a diagram at once; anything but a stzDiagram raises an error.
+	#
+	#   poDiagram   The stzDiagram to convert
+	#   returns     nothing; the DOT text is generated
+	#   note        the text is a snapshot: later changes to the diagram are not seen
+	#   see         DotCode, WriteToFile
 	def init(poDiagram)
 		if NOT ( isObject(poDiagram) and
 
@@ -19021,16 +19898,33 @@ class stzDiagramToDot from stzObject
 
 		return _cResult_
 
+	# Returns the DOT text generated at construction.
+	#
+	#   returns    text, a digraph
+	#   see        Code, Content, WriteToFile
 	def DotCode()
 		return @cDotCode
 
+		# Returns the DOT text generated at construction; another spelling of the text getter.
+		#
+		#   returns    text
+		#   see        DotCode
 		def Code()
 			return @cDotCode
 
+		# Returns the DOT text generated at construction; another spelling of the text getter.
+		#
+		#   returns    text
+		#   see        DotCode
 		def Content()
 			return @cDotCode
 
 
+	# Writes the DOT text to a file, replacing it.
+	#
+	#   pFilename   The path of the file to write, as text
+	#   returns     1
+	#   see         DotCode
 	def WriteToFile(pFilename)
 		_oFile_ = fopen(pFilename, "w")
 		fwrite(_oFile_, This.DotCode())
@@ -19041,11 +19935,29 @@ class stzDiagramToDot from stzObject
 #  stzDiagramToMermaid - MERMAID.JS  #
 #====================================#
 
+# Converts a stzDiagram or a stzOrgChart to flowchart text for Mermaid once, at construction, and offers that text and a file writer.
+#
+# The text starts with graph TD; start and end nodes are written as stadium shapes, other nodes as
+# boxes, and an edge label between pipes. A node whose id is start is written as node_start.
+#
+#   receiver   o1 = new stzDiagram("flow"); o1.AddNodeXTT("start", "Order Received", [ :type =
+#              "start" ]); o1.AddNodeXT("validate", "Validate"); o1.AddNodeXTT("done", "Done", [
+#              :type = "endpoint" ]); o1.AddEdgeXT("start", "validate", "next");
+#              o1.AddEdge("validate", "done"); o2 = new stzDiagramToMermaid(o1)
+#   example    ? StzLeft(o2.Code(), 8)
+#              #--> graph TD
+#   see        stzDiagram, stzDiagramToDot
 class stzDiagramToMermaid from stzObject
 
 	@oDiagram
 	@cMermaidCode
 
+	# Builds the converter and writes the Mermaid text of a diagram at once; only a stzDiagram or a stzOrgChart is accepted.
+	#
+	#   poDiagram   The stzDiagram or stzOrgChart to convert
+	#   returns     nothing; the text is generated
+	#   note        the text is a snapshot: later changes to the diagram are not seen
+	#   see         Code, WriteToFile
 	def init(poDiagram)
 
 		if NOT ( isObject(poDiagram) and ( ring_classname(poDiagram) = "stzdiagram" or
@@ -19124,15 +20036,32 @@ class stzDiagramToMermaid from stzObject
 	
 		@cMermaidCode = _cOutput_
 	
+	# Returns the flowchart text generated at construction, in graph TD syntax.
+	#
+	#   returns    text
+	#   see        MermaidCode, Content, WriteToFile
 	def Code()
 		return @cMermaidCode
 
+		# Returns the flowchart text generated at construction; another spelling of the text getter.
+		#
+		#   returns    text
+		#   see        Code
 		def MermaidCode()
 			return @cMermaidCode
 
+		# Returns the flowchart text generated at construction; another spelling of the text getter.
+		#
+		#   returns    text
+		#   see        Code
 		def Content()
 			return @cMermaidCode
 
+	# Writes the flowchart text to a file, replacing it.
+	#
+	#   pFilename   The path of the file to write, as text
+	#   returns     1
+	#   see         Code
 	def WriteToFile(pFilename)
 		_oFile_ = fopen(pFilename, "w")
 		fwrite(_oFile_, This.Code())
@@ -19143,11 +20072,29 @@ class stzDiagramToMermaid from stzObject
 #  stzDiagramToJSON - JSON FORMAT  #
 #==================================#
 
+# Converts a stzDiagram to JSON text once, at construction, from the diagram's hash list, and offers that text and a file writer.
+#
+# The JSON holds the id, nodes, edges, properties, theme, layout, clusters, annotations and
+# templates. The text passes the engine's JSON validator.
+#
+#   receiver   o1 = new stzDiagram("flow"); o1.AddNodeXTT("start", "Order Received", [ :type =
+#              "start" ]); o1.AddNodeXT("validate", "Validate"); o1.AddNodeXTT("done", "Done", [
+#              :type = "endpoint" ]); o1.AddEdgeXT("start", "validate", "next");
+#              o1.AddEdge("validate", "done"); o2 = new stzDiagramToJSON(o1)
+#   example    ? StzJsonIsValid(o2.Json())
+#              #--> TRUE
+#   see        stzDiagram, stzDiagramToDot
 class stzDiagramToJSON from stzObject
 
 	@oDiagram
 	@cJsonCode
 
+	# Builds the converter and serialises the diagram's hash list to JSON at once; anything but a stzDiagram raises an error.
+	#
+	#   poDiagram   The stzDiagram to convert
+	#   returns     nothing; the JSON is generated
+	#   note        the text is a snapshot: later changes to the diagram are not seen
+	#   see         Json, WriteToFile
 	def init(poDiagram)
 		if NOT ( isObject(poDiagram) and ring_classname(poDiagram) = "stzdiagram" )
 			StzRaise("Incorrect param type! poDiagram must be a stzDiagram object.")
@@ -19159,18 +20106,39 @@ class stzDiagramToJSON from stzObject
 		_aData_ = @oDiagram.ToHashlist()
 		@cJsonCode = ToJSONXT(_aData_)
 
+	# Returns the text generated at construction, which the engine's own validator accepts as well-formed.
+	#
+	#   returns    text, valid JSON
+	#   see        JsonCode, Code, Content
 	def Json()
 		return @cJsonCode
 
+		# Returns the generated JSON text; another spelling of the text getter.
+		#
+		#   returns    text
+		#   see        Json
 		def JsonCode()
 			return @cJsonCode
 
+		# Returns the generated JSON text; another spelling of the text getter.
+		#
+		#   returns    text
+		#   see        Json
 		def Code()
 			return @cJsonCode
 
+		# Returns the generated JSON text; another spelling of the text getter.
+		#
+		#   returns    text
+		#   see        Json
 		def Content()
 			return @cJsonCode
 
+	# Writes the JSON text to a file, replacing it.
+	#
+	#   pFilename   The path of the file to write, as text
+	#   returns     1
+	#   see         Json
 	def WriteToFile(pFilename)
 		_oFile_ = fopen(pFilename, "w")
 		fwrite(_oFile_, This.JsonCode())
@@ -19181,10 +20149,29 @@ class stzDiagramToJSON from stzObject
 #  COLOR RESOLVER CLASS  #
 #========================#
 
+# Resolves colour names and answers colour questions for diagrams: the text colour that reads on a background, RGB values, grey, and palette lookups.
+#
+# It holds no state. A colour is a name, a semantic name such as success, a name with a shade mark
+# such as blue+, or a #rrggbb code. Unknown names resolve to white in ColorToRGB and to an empty
+# text in ResolveWithPalette. stzDiagram forwards its colour helpers to it.
+#
+#   receiver   o1 = new stzColorResolver()
+#   example    ? o1.ContrastingTextColor("#101010")
+#              #--> white
+#   see        stzDiagram
 class stzColorResolver from stzObject
 
+	# Builds a colour resolver, which holds no state.
+	#
+	#   returns    nothing; the resolver is built
+	#   see        ResolveFontColor
 	def init()
 
+	# Returns black or white, whichever reads better on a given background colour, after resolving its name.
+	#
+	#   pBgColor   The background colour, as a name or a #rrggbb code
+	#   returns    text, black or white
+	#   see        ContrastingTextColor
 	def ResolveFontColor(pBgColor)
 		# Get actual resolved background color
 		_cBgColor_ = ResolveColor(pBgColor)
@@ -19192,25 +20179,41 @@ class stzColorResolver from stzObject
 		# Always use luminance calculation for consistent contrast
 		return This.ContrastingTextColor(_cBgColor_)
 	
-	# DELEGATES to the universal StzContrastingText. This carried its own
-	# copy of the BT.709 rule, so a plot or a canvas wanting the same
-	# answer had to instantiate a diagram to borrow it. One rule, one
-	# place -- the two colour TABLES already showed what happens when
-	# that slips.
+	# Returns black or white, whichever reads better on a given colour, by its luminance.
+	#
+	#   _cColor_   A colour, as a name or a #rrggbb code
+	#   returns    text, black or white
+	#   see        ResolveFontColor
+	#@ aka  DELEGATES to the universal StzContrastingText. This carried its own copy of the BT.709 rule, so a plot or a canvas wanting the same answer had to instantiate a diagram to borrow it. One rule, one place -- the two colour TABLES already showed what happens when that slips.
 	def ContrastingTextColor(_cColor_)
 		return StzContrastingText(_cColor_)
 	
+	# Returns the red, green and blue values of a colour; an unknown colour name gives white.
+	#
+	#   _cColor_   A colour, as a name, a semantic name or a #rrggbb code
+	#   returns    a list of three numbers from 0 to 255
+	#   see        ConvertColorToGray
 	def ColorToRGB(_cColor_)
 		# First resolve to hex, then convert
 		_cHex_ = ResolveColor(_cColor_)
 		return HexToRGB(_cHex_)
 
+	# Returns black for the print and gray themes and an empty text for any other name, case included.
+	#
+	#   _cTheme_   A theme name, as text
+	#   returns    text
+	#   see        ColorToRGB
 	def NodeStrokeColorForTheme(_cTheme_)
 		if _cTheme_ = "print" or _cTheme_ = "gray"
 			return "black"
 		ok
 		return ""
 
+	# Returns the grey of the same perceived brightness as a colour, as a #rrggbb code.
+	#
+	#   _cColor_   A colour, as a name or a #rrggbb code
+	#   returns    text
+	#   see        ColorToRGB
 	def ConvertColorToGray(_cColor_)
 		_aRGB_ = This.ColorToRGB(_cColor_)
 		_nR_ = _aRGB_[1]
@@ -19223,6 +20226,16 @@ class stzColorResolver from stzObject
 		# Use global helper
 		return RGBToHex(_nGray_, _nGray_, _nGray_)
 
+	# Resolves a colour name through a palette, then semantic and node-type names, then legacy names; an unknown name gives an empty text.
+	#
+	#   pcColor      The colour, as text: a palette key, a semantic name such as success, a node
+	#                type such as start, a legacy name such as lightblue, or a #rrggbb code
+	#   pacPalette   The palette, as a hash list [ :name = code ]
+	#   returns      a #rrggbb code, or an empty text when nothing matches
+	#   note         keys are matched in lowercase
+	#   warning      a plain name carrying a shade mark that is not itself a semantic or node-type
+	#                name, such as green+, gives an empty text
+	#   see          ResolveFontColor
 	def ResolveWithPalette(pcColor, pacPalette)
 
 		if isString(pcColor) and StzFindFirst("#", pcColor)
@@ -19295,14 +20308,45 @@ class stzColorResolver from stzObject
 #  Visual theme and styling definitions      #
 #============================================#
 
+# Reads the .stzstyl style format, the text that ExportToStyl writes, into a hash list of its name, theme, layout and sections.
+#
+# A style has a header line, theme and layout lines, and the sections colors, fonts, edges, nodes,
+# focus and custom, each holding indented key: value lines. Every section is parsed into a list of [
+# key, value ] pairs. Only a single-digit value becomes a number.
+#
+#   receiver   o1 = new stzStylParser()
+#   example    ? o1.Parse("theme: dark")[:theme]
+#              #--> dark
+#   see        stzDiagram
 class stzStylParser from stzObject
 	
+	# Builds a parser for the .stzstyl style format, which holds no state.
+	#
+	#   returns    nothing; the parser is built
+	#   see        Parse, ParseFile
 	def init()
 
+	# Reads a .stzstyl file and parses its text; raises error R35 when the file cannot be opened.
+	#
+	#   pcFilename   The path of the .stzstyl file, as text
+	#   returns      a hash list [ :name, :theme, :layout, :colors, :fonts, :edges, :nodes, :focus,
+	#                :custom ]
+	#   note         gives what Parse gives for the text of the file
+	#   see          Parse
 	def ParseFile(pcFilename)
 		_cContent_ = read(pcFilename)
 		return This.Parse(_cContent_)
 	
+	# Reads .stzstyl text into its name, theme, layout and sections, each section a list of [ key, value ] pairs.
+	#
+	#   pcContent   The style, as text: a style header, theme and layout lines and sections of
+	#               indented key: value lines
+	#   returns     a hash list [ :name, :theme, :layout, :colors, :fonts, :edges, :nodes, :focus,
+	#               :custom ]
+	#   note        empty text gives the defaults, theme neutral and layout topdown, with empty
+	#               sections
+	#   warning     only a single-digit value becomes a number; a value such as 14 stays text
+	#   see         ParseFile
 	def Parse(pcContent)
 		_aStyle_ = [
 			:name = "",

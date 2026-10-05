@@ -1,0 +1,5 @@
+init | Builds the converter and writes the graphviz DOT text of a diagram at once; anything but a stzDiagram raises an error. | nothing; the DOT text is generated | poDiagram=The stzDiagram to convert | DotCode, WriteToFile |  | the text is a snapshot: later changes to the diagram are not seen
+DotCode | Returns the DOT text generated at construction. | text, a digraph |  | Code, Content, WriteToFile
+Code | Returns the DOT text generated at construction; another spelling of the text getter. | text |  | DotCode
+Content | Returns the DOT text generated at construction; another spelling of the text getter. | text |  | DotCode
+WriteToFile | Writes the DOT text to a file, replacing it. | 1 | pFilename=The path of the file to write, as text | DotCode
