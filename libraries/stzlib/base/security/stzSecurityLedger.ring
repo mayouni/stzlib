@@ -133,6 +133,30 @@ func StzRecordSecurityEvent(poEvent)
 # The one-liners a seam actually writes. Each returns before building
 # anything when no ledger is open -- that is the zero-cost-when-off
 # property, and it is why a seam can call these unconditionally.
+# An anchor, from Anchor()'s list or its line, as [ :count, :head ]; [] if
+# it is not one.
+func StzLedgerAnchorParse(pAnchor)
+	if isList(pAnchor)
+		_nC_ = 0  _cH_ = ""
+		for _i_ = 1 to len(pAnchor)
+			if isList(pAnchor[_i_]) and len(pAnchor[_i_]) = 2
+				if pAnchor[_i_][1] = "count"  _nC_ = pAnchor[_i_][2]  ok
+				if pAnchor[_i_][1] = "head"   _cH_ = "" + pAnchor[_i_][2]  ok
+			ok
+		next
+		if NOT isNumber(_nC_) or _nC_ < 1 or len(_cH_) != 64  return []  ok
+		return [ :count = _nC_, :head = _cH_ ]
+	ok
+	if NOT isString(pAnchor)  return []  ok
+	_p_ = StzSplit(ring_trim(pAnchor), ":")
+	if len(_p_) != 4  return []  ok
+	if _p_[1] != "stzledger-anchor" or _p_[2] != "v1"  return []  ok
+	if len(_p_[3]) = 0 or len(_p_[4]) != 64  return []  ok
+	for _i_ = 1 to len(_p_[3])
+		if ascii(_p_[3][_i_]) < 48 or ascii(_p_[3][_i_]) > 57  return []  ok
+	next
+	return [ :count = 0 + _p_[3], :head = _p_[4] ]
+
 func StzNoteRefusal(pcKind, pcActor, pcSubject, pcReason)
 	if StzEngineSecLogHasCurrent() != 1
 		return
@@ -444,6 +468,50 @@ class stzSecurityLedger from stzObject
 	def Size()
 		This._Ensure()
 		return StzEngineSecLogSize(pHandle)
+
+	  #-- the anchor (threat-model R5) ----------------------------------
+
+	# A hash chain shows an EDIT, never a CUT: delete the last rows of the
+	# durable file and what remains still verifies from genesis -- and anyone
+	# holding the file can rebuild a whole new chain, since the chain has no
+	# key. An ANCHOR is the count and head digest at one moment. Send its
+	# line OFF THE MACHINE -- to an operator, another host, a ticket, a
+	# transparency log; where it goes is the deployment's choice -- and any
+	# later VerifyAgainstAnchor() says whether the stored history still
+	# reaches it. [ :count, :head, :atWall, :line ]
+	def Anchor()
+		This._Ensure()
+		_n_ = This.Count()
+		_h_ = This.Digest()
+		return [ :count = _n_, :head = _h_, :atWall = StzEngineTimeNowMs(),
+			:line = "stzledger-anchor:v1:" + _n_ + ":" + _h_ ]
+
+	# Check the durable history against an anchor -- the list Anchor()
+	# returned, or its :line. [ :holds, :state, :why ], where :state is one of
+	# holds, truncated, diverged, broken, not-durable, unreadable, malformed.
+	def VerifyAgainstAnchor(pAnchor)
+		This._Ensure()
+		_a_ = StzLedgerAnchorParse(pAnchor)
+		if len(_a_) = 0
+			return [ :holds = 0, :state = "malformed", :why = "not an anchor: expected stzledger-anchor:v1:<count>:<digest>" ]
+		ok
+		_r_ = StzEngineSecLogVerifyAnchor(pHandle, _a_[:count], _a_[:head])
+		if _r_ = 0
+			return [ :holds = 1, :state = "holds",
+				:why = "the stored history reaches entry " + _a_[:count] + " with the anchored digest, intact from genesis" ]
+		but _r_ = -1
+			return [ :holds = 0, :state = "not-durable", :why = "this ledger is not durable -- an anchor checks the stored file" ]
+		but _r_ = -2
+			return [ :holds = 0, :state = "unreadable", :why = "the stored log cannot be read" ]
+		but _r_ = -3
+			return [ :holds = 0, :state = "truncated",
+				:why = "the stored history ends before entry " + _a_[:count] + ": its tail was cut" ]
+		but _r_ = -4
+			return [ :holds = 0, :state = "diverged",
+				:why = "entry " + _a_[:count] + " exists with another digest: the history was rewritten" ]
+		ok
+		return [ :holds = 0, :state = "broken",
+			:why = "the stored chain breaks at entry " + _r_ + " -- that row was altered or removed" ]
 
 	  #-- the refusal budget (SECURITY-LEDGERFLOOD-01) -----------------
 

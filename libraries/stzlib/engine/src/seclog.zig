@@ -381,6 +381,49 @@ pub fn seclog_verify_durable(s_opt: ?*SecLog) callconv(.c) f64 {
     return @floatFromInt(-n);
 }
 
+// ── The anchor (threat-model R5) ─────────────────────────────
+//
+// A hash chain shows an EDIT, never a CUT: delete the last rows of the file
+// and what remains is still a perfect chain from genesis, and someone with
+// the file can even rebuild a whole new chain, since the chain has no key.
+// An anchor is (count, head digest) taken at some moment and kept where the
+// file's attacker cannot reach -- off the machine. This checks the stored
+// chain against it: every link from genesis, AND entry `seq` still exists
+// with the anchored digest. Returns
+//    0  the anchor holds (the chain may have grown since: that is normal)
+//   -1  this ledger is not durable          -2  the store cannot be read
+//   -3  TRUNCATED: fewer stored entries than the anchor counted
+//   -4  DIVERGED: entry `seq` exists with another digest -- history rewritten
+//   >0  the chain itself breaks at that entry
+const AnchorCtx = struct { prev: *[DIGEST_LEN]u8, seq: i64, want: []const u8, matched: *i8 };
+fn anchorRow(ctx: AnchorCtx, row: durable.Row) bool {
+    var cl = row.canonical.len;
+    if (cl > CANON_MAX) cl = CANON_MAX;
+    var d: [DIGEST_LEN]u8 = undefined;
+    chainDigest(ctx.prev, row.canonical[0..cl], &d);
+    if (!std.mem.eql(u8, &d, row.digest)) return false;
+    ctx.prev.* = d;
+    if (row.seq == ctx.seq) ctx.matched.* = if (std.mem.eql(u8, row.digest, ctx.want)) 1 else -1;
+    return true;
+}
+
+pub fn seclog_verify_anchor(s_opt: ?*SecLog, seq_f: f64, digest: [*]const u8, digest_len: usize) callconv(.c) f64 {
+    const s = s_opt orelse return -1;
+    s.mutex.lock();
+    defer s.mutex.unlock();
+    const st = s.store orelse return -1;
+    if (seq_f < 1) return -3;
+    var prev: [DIGEST_LEN]u8 = [_]u8{'0'} ** DIGEST_LEN;
+    var matched: i8 = 0;
+    const ctx = AnchorCtx{ .prev = &prev, .seq = @intFromFloat(seq_f), .want = digest[0..digest_len], .matched = &matched };
+    const n = durable.walk(st.db, ctx, anchorRow);
+    if (n <= durable.ERR_OPEN) return -2;
+    if (n < 0) return @floatFromInt(-n);
+    if (matched == 0) return -3;
+    if (matched < 0) return -4;
+    return 0;
+}
+
 pub fn seclog_is_durable(s_opt: ?*SecLog) callconv(.c) f64 {
     const s = s_opt orelse return 0;
     return if (s.store != null) 1 else 0;

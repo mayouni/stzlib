@@ -117,6 +117,14 @@ fn ring_SecLogFlushBudget(p: *anyopaque) callconv(.c) void {
     rn(p, 0);
 }
 
+// StzEngineSecLogVerifyAnchor(h, nSeq, cDigestHex) -> 0 holds, -1 not durable,
+// -2 unreadable, -3 truncated, -4 diverged, >0 the chain breaks at that entry
+fn ring_SecLogVerifyAnchor(p: *anyopaque) callconv(.c) void {
+    const d: [*]const u8 = @ptrCast(gs(p, 3));
+    const dl: usize = @intCast(gss(p, 3));
+    rn(p, seclog.seclog_verify_anchor(getLog(p, 1), gn(p, 2), d, dl));
+}
+
 fn ring_SecLogVerify(p: *anyopaque) callconv(.c) void {
     rn(p, seclog.seclog_verify(getLog(p, 1)));
 }
@@ -182,6 +190,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineseclogwallat", .func = &ring_SecLogWallAt },
     .{ .name = "stzengineseclogseverityat", .func = &ring_SecLogSeverityAt },
     .{ .name = "stzengineseclogverify", .func = &ring_SecLogVerify },
+    .{ .name = "stzengineseclogverifyanchor", .func = &ring_SecLogVerifyAnchor },
     .{ .name = "stzengineseclogsetrefusalbudget", .func = &ring_SecLogSetRefusalBudget },
     .{ .name = "stzengineseclogbudgetmax", .func = &ring_SecLogBudgetMax },
     .{ .name = "stzengineseclogbudgetwindow", .func = &ring_SecLogBudgetWindow },
