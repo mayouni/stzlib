@@ -1605,8 +1605,8 @@ class stzNumbers from stzListOfNumbers
 # the totals (Sum, Mean, Median), arithmetic on every number at once (AddToEach, MultiplyEachBy),
 # filters (NumbersBetween) and sorting. Active forms change the list in place, passive forms (the
 # ones ending in ed, or beginning with Each) return a changed copy. Rank methods such as Bottom3 and
-# Top3 work on distinct values and answer in ascending order. Many random-pick and statistics-on-
-# positions methods carry a warning today; read it before relying on them.
+# Top3 work on distinct values and answer in ascending order. The random picks draw from the list
+# itself, every position equally likely, and raise when nothing qualifies.
 #
 #   receiver   o1 = new stzListOfNumbers([ 3, 1, 4, 1, 5, 9, 2, 6 ])
 #   example    ? @@( o1.Top3() )
@@ -1821,16 +1821,26 @@ class stzListOfNumbers from stzList
 	 #  FINDING THE LOWEST N NUMBERS  #
 	#================================#
 
-	# Returns the n smallest distinct numbers, in ascending order.
+	# Returns the n smallest distinct numbers, in ascending order; fewer when the list has fewer distinct numbers.
 	#
 	#   _n_        how many numbers to return
 	#   returns    a list of numbers
-	#   note       raises an error when the list holds fewer than n distinct numbers; repeated
-	#              values count once
+	#   note       repeated values count once; n below 1 answers an empty list
 	#   see        FindNLowestNumbers, NLargestNumbers
 	#@ aka  The n smallest numbers, as a list.
 	def NLowestNumbers(_n_)
-		_anResult_ = This.ToStzList().RemoveDuplicatesQ().SortInAscendingQ().Section(1, _n_)
+		_anSet_ = This.ToSetQ().Sorted()
+		_nSet_ = len(_anSet_)
+
+		if _n_ > _nSet_
+			_n_ = _nSet_
+		ok
+
+		_anResult_ = []
+		for i = 1 to _n_
+			_anResult_ + _anSet_[i]
+		next
+
 		return _anResult_
 
 		#< @FunctionAlternativeForms
@@ -1883,7 +1893,7 @@ class stzListOfNumbers from stzList
 	#
 	#   _n_        how many distinct numbers to take
 	#   returns    a list of positions
-	#   note       raises an error when the list holds fewer than n distinct numbers
+	#   note       answers fewer numbers when it holds fewer than n distinct ones
 	#   see        NLowestNumbers, FindNLargestNumbers
 		#>
 	#@ aka  The positions of the n smallest numbers.
@@ -1945,11 +1955,28 @@ class stzListOfNumbers from stzList
 	 #  GETTING THE LOWEST N NUMBERS ALONG WITH THEIR POSITIONS  #
 	#------------------------------------------------------------#
 
+	# Pairs each wanted number with every position it occupies: [ [number, position], ... ],
+	# the numbers in the order given, the positions of one number ascending.
+	def _PairsOfNumbersWithPositions(panWanted)
+		_anContent_ = @aContent
+		_nLen_ = len(_anContent_)
+		_nWanted_ = len(panWanted)
+
+		_aResult_ = []
+		for j = 1 to _nWanted_
+			for i = 1 to _nLen_
+				if _anContent_[i] = panWanted[j]
+					_aResult_ + [ panWanted[j], i ]
+				ok
+			next
+		next
+
+		return _aResult_
+
 	# The n smallest numbers along with their positions:
 	# [ [number, position], ... ].
 	def NLowestNumbersZ(_n_)
-		_aResult_ = @Association([ This.NLowestNumbers(_n_), This.FindNLowestNumbers(_n_) ])
-		return _aResult_
+		return This._PairsOfNumbersWithPositions( This.NLowestNumbers(_n_) )
 
 		#< @FunctionAlternativeForms
 
@@ -2101,8 +2128,16 @@ class stzListOfNumbers from stzList
 		def MinNumber()
 			return This.Min()
 
+	# Returns the smallest number with the position of its first occurrence, as [ number, position ].
+	#
+	#   returns    a [ number, position ] pair; an empty list for an empty list
+	#   see        Min, FindMin
 	def MinZ()
-		return This.TopNZ(1)[1]
+		if len(@aContent) = 0
+			return []
+		ok
+
+		return This.NLowestNumbersZ(1)[1]
 
 		def MinNumberZ()
 			return This.MinZ()
@@ -2116,7 +2151,7 @@ class stzListOfNumbers from stzList
 	# Returns the 3 smallest distinct numbers, in ascending order.
 	#
 	#   returns    a list of 3 numbers
-	#   note       raises an error when the list holds fewer than 3 distinct numbers
+	#   note       answers fewer numbers when it holds fewer than 3 distinct ones
 	#   see        Bottom5, Top3
 	#@ aka  --
 	def Bottom3()
@@ -2125,7 +2160,7 @@ class stzListOfNumbers from stzList
 	# Returns the three smallest distinct numbers, in ascending order.
 	#
 	#   returns    a list of 3 numbers
-	#   note       raises an error when the list holds fewer than 3 distinct numbers
+	#   note       answers fewer numbers when it holds fewer than 3 distinct ones
 	#   see        Bottom3
 	def Bottom3Numbers()
 		return This.BottomN(3)
@@ -2133,7 +2168,7 @@ class stzListOfNumbers from stzList
 	# Returns the 5 smallest distinct numbers, in ascending order.
 	#
 	#   returns    a list of 5 numbers
-	#   note       raises an error when the list holds fewer than 5 distinct numbers
+	#   note       answers fewer numbers when it holds fewer than 5 distinct ones
 	#   see        Bottom3, Top5
 	def Bottom5()
 		return This.BottomN(5)
@@ -2141,7 +2176,7 @@ class stzListOfNumbers from stzList
 	# Returns the five smallest distinct numbers, in ascending order.
 	#
 	#   returns    a list of 5 numbers
-	#   note       raises an error when the list holds fewer than 5 distinct numbers
+	#   note       answers fewer numbers when it holds fewer than 5 distinct ones
 	#   see        Bottom5
 	def Bottom5Numbers()
 		return This.BottomN(5)
@@ -2149,7 +2184,7 @@ class stzListOfNumbers from stzList
 	# Returns the 7 smallest distinct numbers, in ascending order.
 	#
 	#   returns    a list of 7 numbers
-	#   note       raises an error when the list holds fewer than 7 distinct numbers
+	#   note       answers fewer numbers when it holds fewer than 7 distinct ones
 	#   see        Bottom5, Top7
 	def Bottom7()
 		return This.BottomN(7)
@@ -2157,7 +2192,7 @@ class stzListOfNumbers from stzList
 	# Returns the seven smallest distinct numbers, in ascending order.
 	#
 	#   returns    a list of 7 numbers
-	#   note       raises an error when the list holds fewer than 7 distinct numbers
+	#   note       answers fewer numbers when it holds fewer than 7 distinct ones
 	#   see        Bottom7
 	def Bottom7Numbers()
 		return This.BottomN(7)
@@ -2165,7 +2200,7 @@ class stzListOfNumbers from stzList
 	# Returns the 10 smallest distinct numbers, in ascending order.
 	#
 	#   returns    a list of 10 numbers
-	#   note       raises an error when the list holds fewer than 10 distinct numbers
+	#   note       answers fewer numbers when it holds fewer than 10 distinct ones
 	#   see        Bottom7, Top10
 	def Bottom10()
 		return This.BottomN(10)
@@ -2173,7 +2208,7 @@ class stzListOfNumbers from stzList
 	# Returns the ten smallest distinct numbers, in ascending order.
 	#
 	#   returns    a list of 10 numbers
-	#   note       raises an error when the list holds fewer than 10 distinct numbers
+	#   note       answers fewer numbers when it holds fewer than 10 distinct ones
 	#   see        Bottom10
 	def Bottom10Numbers()
 		return This.BottomN(10)
@@ -2181,7 +2216,7 @@ class stzListOfNumbers from stzList
 	# Returns the positions of every number that is among the 3 smallest distinct ones.
 	#
 	#   returns    a list of positions
-	#   note       raises an error when the list holds fewer than 3 distinct numbers
+	#   note       answers fewer numbers when it holds fewer than 3 distinct ones
 	#   see        Bottom3, FindTop3
 	#@ aka  --
 	def FindBottom3()
@@ -2190,7 +2225,7 @@ class stzListOfNumbers from stzList
 	# Returns the positions where the three smallest distinct numbers occur, in position order.
 	#
 	#   returns    a list of positions
-	#   note       raises an error when the list holds fewer than 3 distinct numbers
+	#   note       answers fewer numbers when it holds fewer than 3 distinct ones
 	#   see        FindBottom3
 	def FindBottom3Numbers()
 		return This.FindBottomN(3)
@@ -2198,7 +2233,7 @@ class stzListOfNumbers from stzList
 	# Returns the positions of every number that is among the 5 smallest distinct ones.
 	#
 	#   returns    a list of positions
-	#   note       raises an error when the list holds fewer than 5 distinct numbers
+	#   note       answers fewer numbers when it holds fewer than 5 distinct ones
 	#   see        Bottom5, FindTop5
 	def FindBottom5()
 		return This.FindBottomN(5)
@@ -2206,7 +2241,7 @@ class stzListOfNumbers from stzList
 	# Returns the positions where the five smallest distinct numbers occur, in position order.
 	#
 	#   returns    a list of positions
-	#   note       raises an error when the list holds fewer than 5 distinct numbers
+	#   note       answers fewer numbers when it holds fewer than 5 distinct ones
 	#   see        FindBottom5
 	def FindBottom5Numbers()
 		return This.FindBottomN(5)
@@ -2214,7 +2249,7 @@ class stzListOfNumbers from stzList
 	# Returns the positions of every number that is among the 7 smallest distinct ones.
 	#
 	#   returns    a list of positions
-	#   note       raises an error when the list holds fewer than 7 distinct numbers
+	#   note       answers fewer numbers when it holds fewer than 7 distinct ones
 	#   see        Bottom7, FindTop7
 	def FindBottom7()
 		return This.FindBottomN(7)
@@ -2222,7 +2257,7 @@ class stzListOfNumbers from stzList
 	# Returns the positions where the seven smallest distinct numbers occur, in position order.
 	#
 	#   returns    a list of positions
-	#   note       raises an error when the list holds fewer than 7 distinct numbers
+	#   note       answers fewer numbers when it holds fewer than 7 distinct ones
 	#   see        FindBottom7
 	def FindBottom7Numbers()
 		return This.FindBottomN(7)
@@ -2230,7 +2265,7 @@ class stzListOfNumbers from stzList
 	# Returns the positions of every number that is among the 10 smallest distinct ones.
 	#
 	#   returns    a list of positions
-	#   note       raises an error when the list holds fewer than 10 distinct numbers
+	#   note       answers fewer numbers when it holds fewer than 10 distinct ones
 	#   see        Bottom10, FindTop10
 	def FindBottom10()
 		return This.FindBottomN(10)
@@ -2238,7 +2273,7 @@ class stzListOfNumbers from stzList
 	# Returns the positions where the ten smallest distinct numbers occur, in position order.
 	#
 	#   returns    a list of positions
-	#   note       raises an error when the list holds fewer than 10 distinct numbers
+	#   note       answers fewer numbers when it holds fewer than 10 distinct ones
 	#   see        FindBottom10
 	def FindBottom10Numbers()
 		return This.FindBottomN(10)
@@ -2269,82 +2304,58 @@ class stzListOfNumbers from stzList
 	def Bottom10NumbersZ()
 		return This.BottomNZ(10)
 
-	# Returns [ number, position ] pairs for the 3 smallest distinct numbers, right only in an ascending list.
+	# Returns [ number, position ] pairs for the 3 smallest distinct numbers, one pair per occurrence.
 	#
 	#   returns    a list of [ number, position ] pairs
-	#   warning    known defect: the numbers and the positions come from two separately ordered
-	#              lists and are paired index by index, so a pair names the number's own position
-	#              only when the list is already ascending and has no repeats
 	#   see        Bottom3, FindBottom3
 	def Bottom3AndTheirPositions()
 		return This.BottomNZ(3)
 
-	# Returns [ number, position ] pairs for the three smallest distinct numbers, right only in an ascending list.
+	# Returns [ number, position ] pairs for the three smallest distinct numbers, one pair per occurrence.
 	#
 	#   returns    a list of [ number, position ] pairs
-	#   warning    known defect: the numbers and the positions come from two separately ordered
-	#              lists and are paired index by index, so a pair names the number's own position
-	#              only when the list is already ascending and has no repeats
 	#   see        Bottom3AndTheirPositions
 	def Bottom3NumbersAndTheirPositions()
 		return This.BottomNZ(3)
 
-	# Returns [ number, position ] pairs for the 5 smallest distinct numbers, right only in an ascending list.
+	# Returns [ number, position ] pairs for the 5 smallest distinct numbers, one pair per occurrence.
 	#
 	#   returns    a list of [ number, position ] pairs
-	#   warning    known defect: the numbers and the positions come from two separately ordered
-	#              lists and are paired index by index, so a pair names the number's own position
-	#              only when the list is already ascending and has no repeats
 	#   see        Bottom5, FindBottom5
 	def Bottom5AndTheirPositions()
 		return This.BottomNZ(5)
 
-	# Returns [ number, position ] pairs for the five smallest distinct numbers, right only in an ascending list.
+	# Returns [ number, position ] pairs for the five smallest distinct numbers, one pair per occurrence.
 	#
 	#   returns    a list of [ number, position ] pairs
-	#   warning    known defect: the numbers and the positions come from two separately ordered
-	#              lists and are paired index by index, so a pair names the number's own position
-	#              only when the list is already ascending and has no repeats
 	#   see        Bottom5AndTheirPositions
 	def Bottom5NumbersAndTheirPositions()
 		return This.BottomNZ(5)
 
-	# Returns [ number, position ] pairs for the 7 smallest distinct numbers, right only in an ascending list.
+	# Returns [ number, position ] pairs for the 7 smallest distinct numbers, one pair per occurrence.
 	#
 	#   returns    a list of [ number, position ] pairs
-	#   warning    known defect: the numbers and the positions come from two separately ordered
-	#              lists and are paired index by index, so a pair names the number's own position
-	#              only when the list is already ascending and has no repeats
 	#   see        Bottom7, FindBottom7
 	def Bottom7AndTheirPositions()
 		return This.BottomNZ(7)
 
-	# Returns [ number, position ] pairs for the seven smallest distinct numbers, right only in an ascending list.
+	# Returns [ number, position ] pairs for the seven smallest distinct numbers, one pair per occurrence.
 	#
 	#   returns    a list of [ number, position ] pairs
-	#   warning    known defect: the numbers and the positions come from two separately ordered
-	#              lists and are paired index by index, so a pair names the number's own position
-	#              only when the list is already ascending and has no repeats
 	#   see        Bottom7AndTheirPositions
 	def Bottom7NumbersAndTheirPositions()
 		return This.BottomNZ(7)
 
-	# Returns [ number, position ] pairs for the 10 smallest distinct numbers, right only in an ascending list.
+	# Returns [ number, position ] pairs for the 10 smallest distinct numbers, one pair per occurrence.
 	#
 	#   returns    a list of [ number, position ] pairs
-	#   warning    known defect: the numbers and the positions come from two separately ordered
-	#              lists and are paired index by index, so a pair names the number's own position
-	#              only when the list is already ascending and has no repeats
 	#   see        Bottom10, FindBottom10
 	def Bottom10AndTheirPositions()
 		return This.BottomNZ(10)
 
-	# Returns [ number, position ] pairs for the ten smallest distinct numbers, right only in an ascending list.
+	# Returns [ number, position ] pairs for the ten smallest distinct numbers, one pair per occurrence.
 	#
 	#   returns    a list of [ number, position ] pairs
-	#   warning    known defect: the numbers and the positions come from two separately ordered
-	#              lists and are paired index by index, so a pair names the number's own position
-	#              only when the list is already ascending and has no repeats
 	#   see        Bottom10AndTheirPositions
 	def Bottom10NumbersAndTheirPositions()
 		return This.BottomNZ(10)
@@ -2508,8 +2519,7 @@ class stzListOfNumbers from stzList
 	# The n largest numbers along with their positions:
 	# [ [number, position], ... ].
 	def NLargestNumbersZ(_n_)
-		_aResult_ = Association([ This.NLargestNumbers(_n_), This.FindNLargestNumbers(_n_) ])
-		return _aResult_
+		return This._PairsOfNumbersWithPositions( This.NLargestNumbers(_n_) )
 
 		#< @FunctionAlternativeForms
 
@@ -2688,8 +2698,16 @@ class stzListOfNumbers from stzList
 		def MaxNumber()
 			return This.Max()
 
+	# Returns the largest number with the position of its first occurrence, as [ number, position ].
+	#
+	#   returns    a [ number, position ] pair; an empty list for an empty list
+	#   see        Max, FindMax
 	def MaxZ()
-		return This.TopNZ(1)[1]
+		if len(@aContent) = 0
+			return []
+		ok
+
+		return This.NLargestNumbersZ(1)[1]
 
 		def MaxNumberZ()
 			return This.MaxZ()
@@ -2840,82 +2858,58 @@ class stzListOfNumbers from stzList
 	def Top10NumbersZ()
 		return This.TopNZ(10)
 
-	# Returns [ number, position ] pairs for the 3 largest distinct numbers, right only in an ascending list.
+	# Returns [ number, position ] pairs for the 3 largest distinct numbers, one pair per occurrence.
 	#
 	#   returns    a list of [ number, position ] pairs
-	#   warning    known defect: the numbers and the positions come from two separately ordered
-	#              lists and are paired index by index, so a pair names the number's own position
-	#              only when the list is already ascending and has no repeats
 	#   see        Top3, FindTop3
 	def Top3AndTheirPositions()
 		return This.TopNZ(3)
 
-	# Returns [ number, position ] pairs for the three largest distinct numbers, right only in an ascending list.
+	# Returns [ number, position ] pairs for the three largest distinct numbers, one pair per occurrence.
 	#
 	#   returns    a list of [ number, position ] pairs
-	#   warning    known defect: the numbers and the positions come from two separately ordered
-	#              lists and are paired index by index, so a pair names the number's own position
-	#              only when the list is already ascending and has no repeats
 	#   see        Top3AndTheirPositions
 	def Top3NumbersAndTheirPositions()
 		return This.TopNZ(3)
 
-	# Returns [ number, position ] pairs for the 5 largest distinct numbers, right only in an ascending list.
+	# Returns [ number, position ] pairs for the 5 largest distinct numbers, one pair per occurrence.
 	#
 	#   returns    a list of [ number, position ] pairs
-	#   warning    known defect: the numbers and the positions come from two separately ordered
-	#              lists and are paired index by index, so a pair names the number's own position
-	#              only when the list is already ascending and has no repeats
 	#   see        Top5, FindTop5
 	def Top5AndTheirPositions()
 		return This.TopNZ(5)
 
-	# Returns [ number, position ] pairs for the five largest distinct numbers, right only in an ascending list.
+	# Returns [ number, position ] pairs for the five largest distinct numbers, one pair per occurrence.
 	#
 	#   returns    a list of [ number, position ] pairs
-	#   warning    known defect: the numbers and the positions come from two separately ordered
-	#              lists and are paired index by index, so a pair names the number's own position
-	#              only when the list is already ascending and has no repeats
 	#   see        Top5AndTheirPositions
 	def Top5NumbersAndTheirPositions()
 		return This.TopNZ(5)
 
-	# Returns [ number, position ] pairs for the 7 largest distinct numbers, right only in an ascending list.
+	# Returns [ number, position ] pairs for the 7 largest distinct numbers, one pair per occurrence.
 	#
 	#   returns    a list of [ number, position ] pairs
-	#   warning    known defect: the numbers and the positions come from two separately ordered
-	#              lists and are paired index by index, so a pair names the number's own position
-	#              only when the list is already ascending and has no repeats
 	#   see        Top7, FindTop7
 	def Top7AndTheirPositions()
 		return This.TopNZ(7)
 
-	# Returns [ number, position ] pairs for the seven largest distinct numbers, right only in an ascending list.
+	# Returns [ number, position ] pairs for the seven largest distinct numbers, one pair per occurrence.
 	#
 	#   returns    a list of [ number, position ] pairs
-	#   warning    known defect: the numbers and the positions come from two separately ordered
-	#              lists and are paired index by index, so a pair names the number's own position
-	#              only when the list is already ascending and has no repeats
 	#   see        Top7AndTheirPositions
 	def Top7NumbersAndTheirPositions()
 		return This.TopNZ(7)
 
-	# Returns [ number, position ] pairs for the 10 largest distinct numbers, right only in an ascending list.
+	# Returns [ number, position ] pairs for the 10 largest distinct numbers, one pair per occurrence.
 	#
 	#   returns    a list of [ number, position ] pairs
-	#   warning    known defect: the numbers and the positions come from two separately ordered
-	#              lists and are paired index by index, so a pair names the number's own position
-	#              only when the list is already ascending and has no repeats
 	#   see        Top10, FindTop10
 	def Top10AndTheirPositions()
 		return This.TopNZ(10)
 
-	# Returns [ number, position ] pairs for the ten largest distinct numbers, right only in an ascending list.
+	# Returns [ number, position ] pairs for the ten largest distinct numbers, one pair per occurrence.
 	#
 	#   returns    a list of [ number, position ] pairs
-	#   warning    known defect: the numbers and the positions come from two separately ordered
-	#              lists and are paired index by index, so a pair names the number's own position
-	#              only when the list is already ascending and has no repeats
 	#   see        Top10AndTheirPositions
 	def Top10NumbersAndTheirPositions()
 		return This.TopNZ(10)
@@ -3315,16 +3309,14 @@ class stzListOfNumbers from stzList
 		def NearstNumberTo(_n_)
 			return This.Nearest(_n_)
 
-		# Raises error R19 today instead of returning the number closest to n.
+		# Returns the number of the list closest to n.
 		#
 		#   _n_        the number to measure from
-		#   returns    nothing today
-		#   warning    known defect: it calls Nearest without passing n, so the call raises error
-		#              R19; ClosestTo works
+		#   returns    a number
 		#   see        Nearest
-		#@ aka  ==
+		#@ aka  Same as Nearest.
 		def Closest(_n_)
-			return This.Nearest()
+			return This.Nearest(_n_)
 
 		#--
 
@@ -3472,9 +3464,6 @@ class stzListOfNumbers from stzList
 	#
 	#   _n_        the number whose neighbors are wanted
 	#   returns    a list of one or two numbers
-	#   warning    known defect: for an absent n that is greater than the COUNT of numbers, it
-	#              answers only the largest number instead of the pair around n (n = 8 in [ 4, 7,
-	#              10, 3, 6, 9 ] answers [ 10 ])
 	#   see        Nearest, FarthestNeighbors
 	def Neighbors(_n_)
 		/* EXAMPLE
@@ -3507,34 +3496,34 @@ class stzListOfNumbers from stzList
 		ok
 
 		_anSorted_ = This.ToSetQ().Sorted()
+		_nSet_ = len(_anSorted_)	# the number of DISTINCT numbers: the list below is that long
 		_nPos_ = StzFindFirst(_n_, _anSorted_)
 
 		if _nPos_ = 0
 			if _n_ < _anSorted_[1]
 				return [ _anSorted_[1] ]
-
-			but _n_ > _nLen_
-				return [ _anSorted_[_nLen_] ]
-
-			but _n_ = _anSorted_[1]
-				return [ _anSorted_[2] ]
-
-			but _n_ = _anSorted_[_nLen_]
-				return [ _anSorted_[_nLen_-1] ]
-
-			else
-				for i = 1 to _nLen_-1
-					if _n_ > _anSorted_[i] and _n_ < _anSorted_[i+1]
-						return [ _anSorted_[i], _anSorted_[i+1] ]
-					ok
-				next
 			ok
 
-		but _nPos_ = 1
+			if _n_ > _anSorted_[_nSet_]
+				return [ _anSorted_[_nSet_] ]
+			ok
+
+			for i = 1 to _nSet_-1
+				if _n_ > _anSorted_[i] and _n_ < _anSorted_[i+1]
+					return [ _anSorted_[i], _anSorted_[i+1] ]
+				ok
+			next
+		ok
+
+		if _nSet_ = 1
+			return []
+		ok
+
+		if _nPos_ = 1
 			return [ _anSorted_[2] ]
 
-		but _nPos_ = _nLen_
-			return [ _anSorted_[_nLen_-1] ]
+		but _nPos_ = _nSet_
+			return [ _anSorted_[_nSet_-1] ]
 
 		else
 			return [ _anSorted_[_nPos_-1], _anSorted_[_nPos_+1] ]
@@ -3617,8 +3606,6 @@ class stzListOfNumbers from stzList
 		#   _n_        the number whose neighbors are wanted
 		#   returns    a list of one or two numbers
 		#   note       a misspelling of Neighbors, kept as an alias
-		#   warning    known defect: for an absent n that is greater than the COUNT of numbers, it
-		#              answers only the largest number instead of the pair around n
 		#   see        Neighbors
 		#>
 		#< @FunctionMisspelledForms
@@ -3630,8 +3617,6 @@ class stzListOfNumbers from stzList
 		#   _n_        the number whose neighbors are wanted
 		#   returns    a list of one or two numbers
 		#   note       a misspelling of NearestNeighbors, kept as an alias
-		#   warning    known defect: for an absent n that is greater than the COUNT of numbers, it
-		#              answers only the largest number instead of the pair around n
 		#   see        Neighbors
 		def NearestNighbors(_n_)
 			return NeighborsOf(_n_)
@@ -3641,8 +3626,6 @@ class stzListOfNumbers from stzList
 		#   _n_        the number whose neighbors are wanted
 		#   returns    a list of one or two numbers
 		#   note       a misspelling of NeighborsOf, kept as an alias
-		#   warning    known defect: for an absent n that is greater than the COUNT of numbers, it
-		#              answers only the largest number instead of the pair around n
 		#   see        Neighbors
 		def NighborsOf(_n_)
 			return NeighborsOf(_n_)
@@ -3652,8 +3635,6 @@ class stzListOfNumbers from stzList
 		#   _n_        the number whose neighbors are wanted
 		#   returns    a list of one or two numbers
 		#   note       a misspelling of NearestNeighborsOf, kept as an alias
-		#   warning    known defect: for an absent n that is greater than the COUNT of numbers, it
-		#              answers only the largest number instead of the pair around n
 		#   see        Neighbors
 		def NearestNighborsOf(_n_)
 			return NeighborsOf(_n_)
@@ -3663,8 +3644,6 @@ class stzListOfNumbers from stzList
 		#   _n_        the number whose neighbors are wanted
 		#   returns    a list of one or two numbers
 		#   note       a misspelling of NeighborsTo, kept as an alias
-		#   warning    known defect: for an absent n that is greater than the COUNT of numbers, it
-		#              answers only the largest number instead of the pair around n
 		#   see        Neighbors
 		def NighborsTo(_n_)
 			return NeighborsOf(_n_)
@@ -3674,8 +3653,6 @@ class stzListOfNumbers from stzList
 		#   _n_        the number whose neighbors are wanted
 		#   returns    a list of one or two numbers
 		#   note       a misspelling of NearestNeighborsTo, kept as an alias
-		#   warning    known defect: for an absent n that is greater than the COUNT of numbers, it
-		#              answers only the largest number instead of the pair around n
 		#   see        Neighbors
 		def NearestNighborsTo(_n_)
 			return NeighborsOf(_n_)
@@ -4033,14 +4010,16 @@ class stzListOfNumbers from stzList
 	 #  REVERSE-ENGENEERING THE LIST OF NUMBERS INTO A STZWALKER OBJECT  #
 	#-------------------------------------------------------------------#
 
-	# Raises error R11 today instead of returning a walker that reproduces the list.
+	# Returns a stzWalker that starts at the first number, repeats the steps and visits the same numbers as the list.
 	#
-	#   returns    nothing today
-	#   warning    known defect: the class stzWalker is not defined anywhere, so the call raises
-	#              error R11
+	#   returns    a stzWalker
+	#   note       raises an error for fewer than two numbers
 	#   see        Steps
 	def Walker()
-		return new stzWalker(@aContent[1], @aContent[len(@aContent)], This.Steps())
+		_oWalker_ = new stzWalker(@aContent[1], @aContent[len(@aContent)], This.Steps())
+		_oWalker_.WalkNumberOfTimes(len(@aContent))
+
+		return _oWalker_
 
 		def StzWalker()
 			return This.Walker()
@@ -4196,14 +4175,12 @@ class stzListOfNumbers from stzList
 	 #     "ABSOLUTING' THE LIST OF NUMBERS   #
 	#----------------------------------------#
 
-	# Raises error R24 today instead of replacing every negative number by its absolute value.
+	# Replaces every negative number by its absolute value, in place.
 	#
-	#   returns    nothing today
-	#   warning    known defect: a stray * after This.Content() joins the next line to it, so the
-	#              local list and its length are never set
+	#   returns    nothing; the list changes
 	#   see        Absoluted
 	def Absolute()
-		_anContent_ = This.Content()*
+		_anContent_ = This.Content()
 		_nLen_ = len(_anContent_)
 
 		for i = 1 to _nLen_
@@ -4212,14 +4189,15 @@ class stzListOfNumbers from stzList
 			ok
 		next
 
+		This.UpdateWith(_anContent_)
+
 		def AbsoluteQ()
 			This.Absolute()
 			return This
 
-	# Raises error R24 today instead of returning a copy with every number made positive.
+	# Returns a copy with every number made positive; the list itself is left alone.
 	#
-	#   returns    nothing today
-	#   warning    known defect: it calls Absolute, which raises error R24
+	#   returns    a list of numbers
 	#   see        Absolute
 	def Absoluted()
 		return This.Copy().AbsoluteQ().Content()
@@ -4228,10 +4206,9 @@ class stzListOfNumbers from stzList
 	 #     "NEGATING' THE LIST OF NUMBERS     #
 	#----------------------------------------#
 
-	# Leaves the list unchanged today instead of turning every positive number negative.
+	# Turns every positive number negative, in place.
 	#
-	#   returns    nothing today
-	#   warning    known defect: it edits a local copy of the numbers and never stores it back
+	#   returns    nothing; the list changes
 	#   see        Negated
 	def Negate()
 		_anContent_ = This.Content()
@@ -4243,14 +4220,15 @@ class stzListOfNumbers from stzList
 			ok
 		next
 
+		This.UpdateWith(_anContent_)
+
 		def NegateQ()
 			This.Negate()
 			return This
 
-	# Returns the numbers unchanged today instead of a copy with every positive number made negative.
+	# Returns a copy with every positive number made negative; the list itself is left alone.
 	#
-	#   returns    a copy of the numbers, unchanged
-	#   warning    known defect: it copies the list and calls Negate, which changes nothing
+	#   returns    a list of numbers
 	#   see        Negate
 	def Negated()
 		return This.Copy().NegateQ().Content()
@@ -4345,48 +4323,44 @@ class stzListOfNumbers from stzList
 				return (_aValuesSorted_[_nLen_/2] + _aValuesSorted_[(_nLen_/2)+1]) / 2
 			ok
 
-	# Raises error R11 today instead of returning the mean weighted by the given coefficients.
+	# Returns the mean of the numbers weighted by the given coefficients, one per number.
 	#
 	#   paList     the coefficients, one per number
-	#   returns    nothing today
-	#   warning    known defect: it builds objects of a class that does not exist (steListOfNumbers)
+	#   returns    a number
+	#   note       raises an error when the coefficients are not one per number
 	#   see        Mean
 	#@ aka  The weighted mean of the numbers, using the given coefficients.
 	def MeanByCoefficient(paList)
 		// [ 16, 18, 20, 17 ]
 		// [  4,  2,  2,  1 ]
-		@i = 0
 		_anContent_ = This.Content()
+		_nLen_ = len(_anContent_)
 
-		_aProduct_ = []
-		_nLen_ = This.NumberOfNumbers()
+		if NOT ( isList(paList) and len(paList) = _nLen_ and @IsListOfNumbers(paList) )
+			StzRaise("Incorrect param! paList must hold one number per number of the list.")
+		ok
 
-		for @i = 1 to _nLen_
-			_aProduct_ + _anContent_[@i] * paList[@i]
+		_nSumProducts_ = 0
+		_nSumCoefs_ = 0
+
+		for i = 1 to _nLen_
+			_nSumProducts_ += _anContent_[i] * paList[i]
+			_nSumCoefs_ += paList[i]
 		next
 
-		_oTempList_ = new steListOfNumbers(_aProduct_)
-		_oCoefList_ = new steListOfNumbers(_paList_)
-
-		_nResult_ = _oTempList_.Sum() / _oCoefList_.Sum()
-
-		return _nResult_
+		return _nSumProducts_ / _nSumCoefs_
 
 	  #---------------------------------------#
 	 #     CONTAINING DIVIDABLE NUMBER BY    #
 	#---------------------------------------#
 
-	# TRUE if the product of all the numbers is divisible by n, which is not the same as one number being divisible.
+	# Tells whether at least one number of the list is divisible by n.
 	#
 	#   _n_        the divisor
 	#   returns    TRUE or FALSE
-	#   warning    known defect: it tests the product of the numbers, not each number, and raises an
-	#              error when that product is negative
 	#   see        DividableNumbersBy
 	def ContainsADividableNumberBy(_n_)
-		_oNumber_ = new stzNumber( This.Product() )
-
-		if _oNumber_.IsDividableBy(_n_)
+		if len( This.DividableNumbersBy(_n_) ) > 0
 			return 1
 		else
 			return 0
@@ -4396,20 +4370,27 @@ class stzListOfNumbers from stzList
 	 #  GETTING THE NUMBERS DIVIDABLE BY A GIVEN NUMBER   #
 	#----------------------------------------------------#
 
-	# Returns the even numbers whatever n is, instead of the numbers divisible by n.
+	# Returns the numbers of the list that n divides evenly, in their order.
 	#
-	#   _n_        the divisor, which is ignored today
+	#   _n_        the divisor; zero divides nothing
 	#   returns    a list of numbers
-	#   warning    known defect: the body tests number % 2 and never reads n
 	#   see        ContainsADividableNumberBy
 	def DividableNumbersBy(_n_)
+		if NOT isNumber(_n_)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
 		_anContent_ = This.Content()
 		_nLen_ = len(_anContent_)
 
 		_anResult_ = []
 
+		if _n_ = 0
+			return _anResult_
+		ok
+
 		for i = 1 to _nLen_
-			if _anContent_[i] % 2 = 0
+			if _anContent_[i] % _n_ = 0
 				_anResult_ + _anContent_[i]
 			ok
 		next
@@ -4524,11 +4505,9 @@ class stzListOfNumbers from stzList
 	 #     CUMULATING NUMBERS     #
 	#----------------------------#
 
-	# Turns the numbers into running sums, in place, but the second number is never added to the first.
+	# Turns the numbers into running sums, in place: [ 1, 2, 3, 4, 5 ] becomes [ 1, 3, 6, 10, 15 ].
 	#
 	#   returns    nothing; the list changes
-	#   warning    known defect: the loop starts at the third number, so [ 1, 2, 3, 4, 5 ] becomes [
-	#              1, 2, 5, 9, 14 ] instead of [ 1, 3, 6, 10, 15 ]
 	#   see        Cumulated
 	#@ aka  Turn each number into the running sum up to it (mutating). For a copy, use Cumulated.
 	def Cumulate()
@@ -4536,7 +4515,7 @@ class stzListOfNumbers from stzList
 		_anContent_ = This.Content()
 		_nLen_ = len(_anContent_)
 
-		for i = 3 to _nLen_
+		for i = 2 to _nLen_
 			_anContent_[i] += _anContent_[i-1]
 		next
 			
@@ -4544,7 +4523,8 @@ class stzListOfNumbers from stzList
 
 
 		def CumulateQ()
-			return This.CumulateQRT()
+			This.Cumulate()
+			return This
 
 		# The running sums, in the requested return type (QRT).
 		def CumulateQRT()
@@ -4563,25 +4543,23 @@ class stzListOfNumbers from stzList
 				StzRaise("Unsupported return type!")
 			off
 
-	# Raises error R24 today instead of returning the running sums of the numbers.
+	# Returns the running sums of the numbers as a copy; the list itself is left alone.
 	#
-	#   returns    nothing today
-	#   warning    known defect: it calls the chaining form of Cumulate, which reads a return-type
-	#              variable that is never set
+	#   returns    a list of numbers
 	#   see        Cumulate
 	#@ aka  The running sums of the numbers, as a copy; the original is unchanged.
 	def Cumulated()
-		_anResult_ = This.Copy().CumulateQ().Content()
-		return _anResult_
+		_oCopy_ = This.Copy()
+		_oCopy_.Cumulate()
+		return _oCopy_.Content()
 
 	  #-------------------------------------------------------------#
 	 #  GETTING ONLY UNICODE NUMBERS AMONG THE NUMBER IN THE LIST  #
 	#-------------------------------------------------------------#
 
-	# Raises error R3 today instead of returning the numbers that are Unicode code points.
+	# Returns the numbers that are Unicode code points: whole numbers from 0 to 1114111.
 	#
-	#   returns    nothing today
-	#   warning    known defect: it calls IsUnicodeNumber, which is defined nowhere
+	#   returns    a list of numbers
 	#   see        ToStzListOfChars
 	def OnlyUnicodes()
 		_anContent_ = This.Content()
@@ -4592,7 +4570,7 @@ class stzListOfNumbers from stzList
 		for i = 1 to _nLen_
 			_n_ = _anContent_[i]
 
-			if IsUnicodeNumber(_n_)
+			if _n_ = floor(_n_) and _n_ >= 0 and _n_ <= 1114111
 				_aResult_ + _n_
 			ok
 		next
@@ -5387,17 +5365,57 @@ class stzListOfNumbers from stzList
 	 #   MULTIPLYING NUMBERS BY AN OTHER NUMBER UNDER A GIVEN CONDITION   #
 	#--------------------------------------------------------------------#
 
-	# Multiplies by n the numbers whose position meets the condition and drops the others, in place.
+	# Multiplies by n the numbers whose position meets the condition, in place; the others stay as they are.
 	#
 	#   _n_           the factor
 	#   pcCondition   a condition on @i, the position
 	#   returns       nothing; the list changes
-	#   note          write the condition on the position, for example "@i > 1"
-	#   warning       known defect: the numbers that fail the condition are removed from the list,
-	#                 and a condition that does not mention @i is refused
+	#   note          write the condition on the position, for example "@i > 1"; a condition that
+	#                 does not mention @i is refused
 	#   see           EachMultipliedWithW, DivideEachWithW
 	#@ aka  Multiply by n each number satisfying the given W condition (mutating).
 	def MultiplyEachWithW(_n_, pcCondition)
+		This._ScaleEachWithW(_n_, pcCondition, 0)
+
+		#< @FunctionFluentForm
+
+		def MultiplyEachWithWQ(_n_, pcCondition)
+			This.MultiplyEachWithW(_n_, pcCondition)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def MultiplyEachByW(_n_, pcCondition)
+			This.MultiplyEachWithW(_n_, pcCondition)
+
+			def MultiplyEachByWQ(_n_, pcCondition)
+				This.MultiplyEachByW(_n_, pcCondition)
+				return This
+
+	# Returns a copy multiplied by n where the condition holds; the other numbers are kept.
+	#
+	#   _n_            the factor
+	#   pcCondition    a condition on @i, the position
+	#   returns        a list of numbers
+	#   see            MultiplyEachWithW
+		#>
+	#@ aka  The numbers multiplied by n where the W condition holds, as a copy.
+	def EachMultipliedWithW(_n_, pcCondition)
+		_oCopy_ = This.Copy()
+		_oCopy_.MultiplyEachWithW(_n_, pcCondition)
+		return _oCopy_.Content()
+
+		def EachMultipliedByW(_n_, pcCondition)
+			return This.EachMultipliedWithW(_n_, pcCondition)
+
+		#TODO
+		# Add other alternatives
+
+	# The shared body of MultiplyEachWithW and DivideEachWithW: applies the factor, or its
+	# division, to the numbers whose position meets the condition, and keeps the others.
+	def _ScaleEachWithW(_n_, pcCondition, bDivide)
 
 		# Checking params
 
@@ -5405,11 +5423,11 @@ class stzListOfNumbers from stzList
 			if NOT isNumber(_n_)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
-	
+
 			if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
 				pcCondition = pcCondition[2]
 			ok
-	
+
 			if NOT isString(pcCondition)
 				StzRaise("Incorrect param type! pcCondition must be a string.")
 			ok
@@ -5420,7 +5438,7 @@ class stzListOfNumbers from stzList
 		_anContent_ = This.Content()
 		_nLen_ = len(_anContent_)
 		if _nLen_ = 0
-			StzRaise("Can't multiply anything! Because the list is empty.")
+			StzRaise("Can't change anything! Because the list is empty.")
 		ok
 
 		_oCCode_ = StzCCodeQ(pcCondition)
@@ -5436,92 +5454,59 @@ class stzListOfNumbers from stzList
 		_cCode_ = _oCCode_.Transpiled()
 		_cCode_ = 'bOk = (' + _cCode_ + ')'
 
-		_anResult_ = []
+		_anResult_ = _anContent_
 
 		for @i = _nStart_ to _nEnd_
 			eval(_cCode_)
 			if bOk
-				_anResult_ + (_anContent_[@i] * _n_)
+				if bDivide
+					_anResult_[@i] = _anContent_[@i] / _n_
+				else
+					_anResult_[@i] = _anContent_[@i] * _n_
+				ok
 			ok
 		next
 
 		This.Update( _anResult_ )
 
-		#< @FunctionFluentForm
-
-		def MultiplyEachWithWQ(_n_)
-			This.MultiplyEachWithW(_n_)
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def MultiplyEachByW()
-			This.MultiplyEachWithW(_n_, pcCondition)
-
-			def MultiplyEachByWQ()
-				This.MultiplyEachByW()
-				return This
-
-	# Raises error R19 today instead of returning a copy multiplied by n where the condition holds.
-	#
-	#   _n_        the factor
-	#   returns    nothing today
-	#   warning    known defect: it takes no condition and calls the chaining form of
-	#              MultiplyEachWithW with one argument, so the call raises error R19
-	#   see        MultiplyEachWithW
-		#>
-	#@ aka  The numbers multiplied by n where the W condition holds, as a copy.
-	def EachMultipliedWithW(_n_)
-		_aResult_ = This.Copy().MultiplyEachWithWQ(_n_).Content()
-		return _aResult_
-
-		def EachMultipliedByW(_n_)
-			return This.EachMultipliedWithW(_n_)
-
-		#TODO
-		# Add other alternatives
-
 	  #-------------------------------------------------------------------#
 	 #   DIVIDE EACH NUMBER BY AN OTHER NUMBER UNDER A GIVEN CONDITION   #
 	#-------------------------------------------------------------------#
 
-	# Divides by n the numbers whose position meets the condition and drops the others, in place.
+	# Divides by n the numbers whose position meets the condition, in place; the others stay as they are.
 	#
 	#   _n_           the divisor
 	#   pcCondition   a condition on @i, the position
 	#   returns       nothing; the list changes
-	#   note          write the condition on the position, for example "@i > 4"
-	#   warning       known defect: the numbers that fail the condition are removed from the list,
-	#                 and a condition that does not mention @i is refused
+	#   note          write the condition on the position, for example "@i > 4"; a condition that
+	#                 does not mention @i is refused
 	#   see           EachDividedWithW, MultiplyEachWithW
 	def DivideEachWithW(_n_, pcCondition)
-		This.MultiplyEachWithW( 1/_n_, pcCondition )
+		This._ScaleEachWithW(_n_, pcCondition, 1)
 
-		def DivideEachWithWQ(_n_)
-			This.DivideEachWithW(_n_)
+		def DivideEachWithWQ(_n_, pcCondition)
+			This.DivideEachWithW(_n_, pcCondition)
 			return This
 
 		def DivideEachByW(_n_, pcCondition)
 			This.DivideEachWithW(_n_, pcCondition)
 
-	# Raises error R19 today instead of returning a copy divided by n where the condition holds.
+	# Returns a copy divided by n where the condition holds; the other numbers are kept.
 	#
-	#   _n_        the divisor
-	#   returns    nothing today
-	#   warning    known defect: it takes no condition and calls the chaining form of
-	#              DivideEachWithW with one argument, so the call raises error R19
-	#   see        DivideEachWithW
+	#   _n_            the divisor
+	#   pcCondition    a condition on @i, the position
+	#   returns        a list of numbers
+	#   see            DivideEachWithW
 		#TODO
 	#@ aka  Add alternatives
-	def EachDividedWithW(_n_)
-		_aResult_ = This.Copy().DivideEachWithWQ(_n_).Content()
-		return _aResult_
+	def EachDividedWithW(_n_, pcCondition)
+		_oCopy_ = This.Copy()
+		_oCopy_.DivideEachWithW(_n_, pcCondition)
+		return _oCopy_.Content()
 
-		def EachDividedByW(_n_)
-			return This.EachDividedWithW(_n_)
-	
+		def EachDividedByW(_n_, pcCondition)
+			return This.EachDividedWithW(_n_, pcCondition)
+
 		#TODO
 		# Add alternatives
 
@@ -5887,76 +5872,222 @@ class stzListOfNumbers from stzList
 			return This.IsContiguous()
 
 	  #=========================================#
-	 #  GETTING A RANDOM NUMBER FROM THE LIST  #
+	 #  PRIVATE HELPERS OF THE RANDOM PICKS    #
 	#=========================================#
 
-	# Returns a number taken at random from the list, but only when one of its numbers lies strictly between 1 and its size.
-	#
-	#   returns    a number
-	#   warning    known defect: the body calls ARandomNumberBetween, which resolves to this class's
-	#              own method, so a number from the list is used as a position; with no number
-	#              strictly between 1 and the size it raises "No valid numbers found in the list!"
-	#   see        NRandomNumbers, SomeRandomNumbers
-	def ARandomNumber()
-		_nRandom_  = ARandomNumberBetween(1, This.NumberOfNumbers())
-		_anResult_ = This.Content()[_nRandom_]
+	# The random picks below draw from the engine through StzEngineRandomInt, and never
+	# through a method of this class named like a global random function: a class method
+	# with the name of a global shadows it inside the class (ARandomNumberBetween did).
+
+	# One position drawn at random from a list of positions; raises when the list is empty.
+	def _RandomPositionAmong(panPos)
+		_nCount_ = len(panPos)
+		if _nCount_ = 0
+			StzRaise("No valid numbers found in the list!")
+		ok
+
+		return panPos[ StzEngineRandomInt(1, _nCount_) ]
+
+	# Every position of the list, 1 to its size.
+	def _AllPositions()
+		_anPos_ = []
+		_nLen_ = len(@aContent)
+		for i = 1 to _nLen_
+			_anPos_ + i
+		next
+
+		return _anPos_
+
+	# The positions of the numbers strictly below n.
+	def _PositionsBelow(_n_)
+		_anPos_ = []
+		_nLen_ = len(@aContent)
+		for i = 1 to _nLen_
+			if @aContent[i] < _n_
+				_anPos_ + i
+			ok
+		next
+
+		return _anPos_
+
+	# The positions of the numbers strictly above n.
+	def _PositionsAbove(_n_)
+		_anPos_ = []
+		_nLen_ = len(@aContent)
+		for i = 1 to _nLen_
+			if @aContent[i] > _n_
+				_anPos_ + i
+			ok
+		next
+
+		return _anPos_
+
+	# The positions of the numbers that are none of the given numbers.
+	def _PositionsOtherThan(panNumbers)
+		_anPos_ = []
+		_nLen_ = len(@aContent)
+		for i = 1 to _nLen_
+			if ring_find(panNumbers, @aContent[i]) = 0
+				_anPos_ + i
+			ok
+		next
+
+		return _anPos_
+
+	# The positions of the numbers NOT between the two limits; both limits count as outside
+	# when bIncluded is 0 (strictly between) or are kept as inside when it is 1.
+	def _PositionsNotBetween(nMin, nMax, bIncluded)
+		_anPos_ = []
+		_nLen_ = len(@aContent)
+		for i = 1 to _nLen_
+			if bIncluded
+				if @aContent[i] < nMin or @aContent[i] > nMax
+					_anPos_ + i
+				ok
+			else
+				if @aContent[i] <= nMin or @aContent[i] >= nMax
+					_anPos_ + i
+				ok
+			ok
+		next
+
+		return _anPos_
+
+	# The positions of the numbers between the two limits, bounds kept out or in.
+	def _PositionsBetween(nMin, nMax, bIncluded)
+		_anPos_ = []
+		_nLen_ = len(@aContent)
+		for i = 1 to _nLen_
+			if bIncluded
+				if @aContent[i] >= nMin and @aContent[i] <= nMax
+					_anPos_ + i
+				ok
+			else
+				if @aContent[i] > nMin and @aContent[i] < nMax
+					_anPos_ + i
+				ok
+			ok
+		next
+
+		return _anPos_
+
+	# Every position of 1 to the size of the list that is not in the given positions.
+	def _PositionsOutside(panExcluded)
+		_anPos_ = []
+		_nLen_ = len(@aContent)
+		for i = 1 to _nLen_
+			if ring_find(panExcluded, i) = 0
+				_anPos_ + i
+			ok
+		next
+
+		return _anPos_
+
+	# n numbers drawn at random (repeats allowed) from the given positions.
+	def _NNumbersAmong(_n_, panPos)
+		if NOT isNumber(_n_)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		if _n_ <= 0
+			StzRaise("Can't proceed because n must be a positive number greater then 0!")
+		ok
+
+		_anResult_ = []
+		for i = 1 to _n_
+			_anResult_ + @aContent[ This._RandomPositionAmong(panPos) ]
+		next
 
 		return _anResult_
 
-		# Returns a number taken at random from the list, but only when one of its numbers lies strictly between 1 and its size.
+	# The same draw, as [ number, position ] pairs.
+	def _NNumbersAmongZ(_n_, panPos)
+		if NOT isNumber(_n_)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		if _n_ <= 0
+			StzRaise("Can't proceed because n must be a positive number greater then 0!")
+		ok
+
+		_aResult_ = []
+		for i = 1 to _n_
+			_nPos_ = This._RandomPositionAmong(panPos)
+			_aResult_ + [ @aContent[_nPos_], _nPos_ ]
+		next
+
+		return _aResult_
+
+	# Some numbers (a random count from 1 to the number of positions) drawn from the given positions.
+	def _SomeNumbersAmong(panPos)
+		if len(panPos) = 0
+			return []
+		ok
+
+		return This._NNumbersAmong( StzEngineRandomInt(1, len(panPos)), panPos )
+
+	# The same draw, as [ number, position ] pairs.
+	def _SomeNumbersAmongZ(panPos)
+		if len(panPos) = 0
+			return []
+		ok
+
+		return This._NNumbersAmongZ( StzEngineRandomInt(1, len(panPos)), panPos )
+
+	  #=========================================#
+	 #  GETTING A RANDOM NUMBER FROM THE LIST  #
+	#=========================================#
+
+	# Returns a number taken at random from the list, every position equally likely.
+	#
+	#   returns    a number
+	#   note       raises an error for an empty list
+	#   see        NRandomNumbers, SomeRandomNumbers
+	def ARandomNumber()
+		_nPos_ = This._RandomPositionAmong( This._AllPositions() )
+		return @aContent[_nPos_]
+
+		# Returns a number taken at random from the list, every position equally likely.
 		#
 		#   returns    a number
-		#   warning    known defect: same as ARandomNumber; the picked list number is used as a
-		#              position, and the call raises when no number lies strictly between 1 and the
-		#              size
 		#   see        ARandomNumber
 		def ANumber()
-			return ARandomNumber()
+			return This.ARandomNumber()
 
-		# Returns a number taken at random from the list, but only when one of its numbers lies strictly between 1 and its size.
+		# Returns a number taken at random from the list, every position equally likely.
 		#
 		#   returns    a number
-		#   warning    known defect: same as ARandomNumber; the picked list number is used as a
-		#              position, and the call raises when no number lies strictly between 1 and the
-		#              size
 		#   see        ARandomNumber
 		def AnyRandomNumber()
-			return ARandomNumber()
+			return This.ARandomNumber()
 
-		# Returns a number taken at random from the list, but only when one of its numbers lies strictly between 1 and its size.
+		# Returns a number taken at random from the list, every position equally likely.
 		#
 		#   returns    a number
-		#   warning    known defect: same as ARandomNumber; the picked list number is used as a
-		#              position, and the call raises when no number lies strictly between 1 and the
-		#              size
 		#   see        ARandomNumber
 		def AnyNumber()
-			return ARandomNumber()
+			return This.ARandomNumber()
 
 	#-- Z/EXTENDED FORM
 
 	# One number picked at random, along with its position.
 	def ARandomNumberZ()
-		_nRandom_  = ARandomNumberBetween(1, This.NumberOfNumbers())
-		_aResult_ = [ This.Content()[_nRandom_], _nRandom_ ]
-
-		return _aResult_
+		_nPos_ = This._RandomPositionAmong( This._AllPositions() )
+		return [ @aContent[_nPos_], _nPos_ ]
 
 	  #------------------------------------------------------------------#
 	 #  GETTING A RANDOM NUMBER FROM THE LIST LESS THAN A GIVEN NUMBER  #
 	#------------------------------------------------------------------#
 
-	# Returns a random number among those below n, but only when one of them lies strictly between 1 and their count.
+	# Returns a number taken at random from those below n.
 	#
 	#   _nNumber_   the number the answer must be below
 	#   returns     a number
-	#   warning     known defect: it draws with ARandomNumber from the numbers below n, so it raises
-	#               "No valid numbers found in the list!" when none of them lies strictly between 1
-	#               and their count
+	#   note        raises an error when no number is below n
 	#   see         NumbersSmallerThan, ARandomNumber
 	def ANumberLessThan(_nNumber_)
-		_nResult_ = This.NumbersLessThanQRT(_nNumber_, :stzListOfNumbers).ARandomNumber()
-		return _nResult_
+		_nPos_ = This._RandomPositionAmong( This._PositionsBelow(_nNumber_) )
+		return @aContent[_nPos_]
 
 		#< @FunctionAlternativeForms
 
@@ -6000,9 +6131,8 @@ class stzListOfNumbers from stzList
 
 	# One number less than n, picked at random, with its position.
 	def ANumberLessThanZ(_nNumber_)
-		_aResult_ = This.NumbersLessThanQRT(_nNumber_, :stzListOfNumbers).ARandomNumberZ()
-
-		return _aResult_
+		_nPos_ = This._RandomPositionAmong( This._PositionsBelow(_nNumber_) )
+		return [ @aContent[_nPos_], _nPos_ ]
 
 		#< @FunctionAlternativeForms
 
@@ -6047,15 +6177,15 @@ class stzListOfNumbers from stzList
 	 #  GETTING A RANDOM NUMBER FROM THE LIST GREATER THAN A GIVEN NUMBER  #
 	#---------------------------------------------------------------------#
 
-	# Raises error R14 today instead of returning a random number above n.
+	# Returns a number taken at random from those above n.
 	#
 	#   _nNumber_   the number the answer must be above
-	#   returns     nothing today
-	#   warning     known defect: it calls NumbersGreaterThanQRT, which is defined nowhere
+	#   returns     a number
+	#   note        raises an error when no number is above n
 	#   see         NumbersGreaterThan
 	def ANumberGreaterThan(_nNumber_)
-		_nResult_ = This.NumbersGreaterThanQRT(_nNumber_, :stzListOfNumbers).ARandomNumber()
-		return _nResult_
+		_nPos_ = This._RandomPositionAmong( This._PositionsAbove(_nNumber_) )
+		return @aContent[_nPos_]
 
 		#< @FunctionAlternativeForms
 
@@ -6111,8 +6241,8 @@ class stzListOfNumbers from stzList
 	# One number greater than n, picked at random, with its
 	# position.
 	def ANumberGreaterThanZ(_nNumber_)
-		_aResult_ = This.NumbersGreaterThanQRT(_nNumber_, :stzListOfNumbers).ARandomNumberZ()
-		return _aResult_
+		_nPos_ = This._RandomPositionAmong( This._PositionsAbove(_nNumber_) )
+		return [ @aContent[_nPos_], _nPos_ ]
 
 		#< @FunctionAlternativeForms
 
@@ -6167,28 +6297,14 @@ class stzListOfNumbers from stzList
 	 #  GETTING ANY NUMBER BEFORE OR AFTER A GIVEN NUMBER (OTHER THAN)  #
 	#==================================================================#
 
-	# Picks a number before or after n at random, then reads that number as a position, so the answer is often wrong or an error.
+	# Returns a number taken at random from the side of n that exists: before it, after it, or either.
 	#
 	#   _n_        a number of the list
-	#   returns    a number, or an error
-	#   warning    known defect: AnyNumberBefore and AnyNumberAfter already return numbers and the
-	#              result is passed to Item() as a position; it also raises when n is absent
+	#   returns    a number
+	#   note       raises an error when n is absent or is the only number
 	#   see        AnyNumberBefore, AnyNumberAfter
 	def AnyNumberBeforeOrAfter(_n_) # Or AnyNumberOtherThan()
-		if isList(_n_) and Q(_n_).IsPositionNamedParam()
-			_n_ = _n_[2]
-		ok
-
-		_nPos_ = 0
-		if StzEngineRandomInt(0, 1) = 0
-			_nPos_ = This.AnyNumberBefore(_n_)
-
-		else
-			_nPos_ = This.AnyNumberAfter(_n_)
-		ok
-
-		_nResult_ = This.Item(_nPos_)
-		return _nResult_
+		return This.AnyNumberBeforeOrAfterZ(_n_)[1]
 
 		#< @FunctionAlternativeForms
 
@@ -6283,16 +6399,34 @@ class stzListOfNumbers from stzList
 			_n_ = _n_[2]
 		ok
 
-		_nPos_ = 0
-		if StzEngineRandomInt(0, 1) = 0
-			_nPos_ = This.AnyNumberBefore(_n_)
-
-		else
-			_nPos_ = This.AnyNumberAfter(_n_)
+		if NOT isNumber(_n_)
+			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		_aResult_ = [ This.Item(_nPos_), _nPos_ ]
-		return _aResult_
+		_nLen_ = len(@aContent)
+		_nPos_ = StzFindFirst(_n_, @aContent)
+
+		if _nPos_ = 0
+			StzRaise("Can't proceed! The number you provided does not exist in the list.")
+		ok
+
+		if _nLen_ < 2
+			StzRaise("Can't proceed! The list holds no other number than the one you provided.")
+		ok
+
+		if _nPos_ = 1
+			return This.AnyNumberAfterPositionZ(_nPos_)
+		ok
+
+		if _nPos_ = _nLen_
+			return This.AnyNumberBeforePositionZ(_nPos_)
+		ok
+
+		if StzEngineRandomInt(0, 1) = 0
+			return This.AnyNumberBeforePositionZ(_nPos_)
+		ok
+
+		return This.AnyNumberAfterPositionZ(_nPos_)
 
 		#< @FunctionAlternativeForms
 
@@ -6474,14 +6608,7 @@ class stzListOfNumbers from stzList
 			StzRaise("Index out of range!")
 		ok
 
-		if _n_ = 2
-			return This.Number(1)
-		ok
-
-		_nRandom_ = StzEngineRandomInt(0, _n_ - 1)
-		if _nRandom_ = 0
-			_nRandom_ = 1
-		ok
+		_nRandom_ = StzEngineRandomInt(1, _n_ - 1)
 
 		_nResult_ = This.Number(_nRandom_)
 
@@ -6517,14 +6644,7 @@ class stzListOfNumbers from stzList
 			StzRaise("Index out of range!")
 		ok
 
-		if _n_ = 2
-			return This.Number(1)
-		ok
-
-		_nRandom_ = StzEngineRandomInt(0, _n_ - 1)
-		if _nRandom_ = 0
-			_nRandom_ = 1
-		ok
+		_nRandom_ = StzEngineRandomInt(1, _n_ - 1)
 
 		_aResult_ = [ This.Number(_nRandom_), _nRandom_ ]
 
@@ -6550,13 +6670,11 @@ class stzListOfNumbers from stzList
 	 #  GETTING ANY NUMBER AFTER A GIVEN NUMBER OR POSITION  #
 	#-------------------------------------------------------#
 
-	# Returns a number from the positions after the place n holds counted from the END of the list, which is not the place after n.
+	# Returns a number taken at random from those after the first occurrence of n.
 	#
 	#   _n_        a number of the list
 	#   returns    a number
 	#   note       raises an error when n is absent or is the last number
-	#   warning    known defect: it looks n up in the reversed list and uses that position on the
-	#              original list, so 200 in [ 100, 200, 300, 400, 500 ] always answers 500
 	#   see        AnyNumberAfterPosition, AnyNumberBefore
 	def AnyNumberAfter(_n_)
 		if isList(_n_) and Q(_n_).IsPositionNamedParam(_n_)
@@ -6578,13 +6696,7 @@ class stzListOfNumbers from stzList
 			stzRaise("Can't proceed! The number you provided does not exist in the list.")
 		ok
 
-		_anReverse_ = []
-
-		for i = _nLen_ to 1 step -1
-			_anReverse_ + _anContent_[i]
-		next
-
-		_nPos_ = ring_find( _anReverse_, _n_ )
+		_nPos_ = ring_find( _anContent_, _n_ )
 		_nResult_ = This.AnyNumberAfterPosition(_nPos_)
 
 		return _nResult_
@@ -6618,7 +6730,7 @@ class stzListOfNumbers from stzList
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		_nPos_ = StzFindFirst(_n_, new stzList(This.Content()).Reversed())
+		_nPos_ = StzFindFirst(_n_, This.Content())
 		_aResult_ = This.AnyNumberAfterPositionZ(_nPos_)
 
 		return _aResult_
@@ -6643,13 +6755,11 @@ class stzListOfNumbers from stzList
 	 #  GETTING ANY NUMBER AFETR A GIVEN POSITION  #
 	#---------------------------------------------#
 
-	# Returns a number from a position meant to come after the given one, but computed so that it can come before it.
+	# Returns a number taken at random from the positions after the given one.
 	#
-	#   _n_        the position that the answer should come after
+	#   _n_        the position that the answer must come after
 	#   returns    a number
 	#   note       raises an error unless n is below the size of the list
-	#   warning    known defect: the position is chosen between n-1 and 2n-3 instead of after n, so
-	#              n = 2 always answers the first number
 	#   see        AnyNumberAfter, AnyNumberBeforePosition
 	def AnyNumberAfterPosition(_n_)
 		if NOT isNumber(_n_)
@@ -6662,17 +6772,7 @@ class stzListOfNumbers from stzList
 			StzRaise("Index out of range!")
 		ok
 
-		if _n_ = _nLen_ - 1
-			return This.Number(_nLen_)
-		ok
-
-		_n_--
-		_nRandom_ = StzEngineRandomInt(0, _n_)
-		if _nRandom_ = 0
-			_nRandom_ = 1
-		ok
-
-		_nResult_ = This.Number(_n_ + _nRandom_ - 1)
+		_nResult_ = This.Number( StzEngineRandomInt(_n_ + 1, _nLen_) )
 
 		return _nResult_
 
@@ -6706,17 +6806,7 @@ class stzListOfNumbers from stzList
 			StzRaise("Index out of range!")
 		ok
 
-		if _n_ = _nLen_ - 1
-			return This.Number(_nLen_)
-		ok
-
-		_n_--
-		_nRandom_ = StzEngineRandomInt(0, _n_)
-		if _nRandom_ = 0
-			_nRandom_ = 1
-		ok
-
-		_nPos_ = _n_ + _nRandom_ - 1
+		_nPos_ = StzEngineRandomInt(_n_ + 1, _nLen_)
 		_aResult_ = [ This.Number(_nPos_), _nPos_ ]
 
 		return _aResult_
@@ -7256,12 +7346,12 @@ class stzListOfNumbers from stzList
 	 #  GETTING A RANDOM NUMBER FROM THE LISTS NOT BETWEEN TWO OTHER POSITIONS  #
 	#--------------------------------------------------------------------------#
 
-	# Raises error R3 today instead of returning a number from outside the given positions.
+	# Returns a number taken at random from the positions outside the two given ones, bounds included in the section.
 	#
 	#   _n1_       the first position
 	#   _n2_       the last position
-	#   returns    nothing today
-	#   warning    known defect: it calls AnyNumberNotIn, which is defined nowhere
+	#   returns    a number
+	#   note       raises an error when the two positions cover the whole list
 	#   see        AnyNumberBetweenPositions
 	def AnyNumberNotBetweenPositions(_n1_, _n2_)
 		if isList(_n2_) and Q(_n2_).IsAndNamedParam()
@@ -7276,7 +7366,7 @@ class stzListOfNumbers from stzList
 		nMax = @Max([ _n1_, _n2_ ])
 
 		_anPos_ = nMin : nMax
-		_nRandom_ = AnyNumberNotIn(_anPos_) #TODO
+		_nRandom_ = This._RandomPositionAmong( This._PositionsOutside(_anPos_) )
 		_nResult_ = This.Number(_nRandom_)
 
 		return _nResult_
@@ -7348,7 +7438,7 @@ class stzListOfNumbers from stzList
 		nMax = @Max([ _n1_, _n2_ ])
 
 		_anPos_ = nMin : nMax
-		_nRandom_ = AnyNumberNotIn(_anPos_)
+		_nRandom_ = This._RandomPositionAmong( This._PositionsOutside(_anPos_) )
 		_aResult_ = [ This.Number(_nRandom_), _nRandom_ ]
 
 		return _aResult_
@@ -7407,16 +7497,14 @@ class stzListOfNumbers from stzList
 	 #  GETTING A RANDOM NUMBER OUSIDE A GIVEN POSITION  #
 	#---------------------------------------------------#
 
-	# Raises error R24 today instead of returning a number from any position but the given one.
+	# Returns a number taken at random from every position but the given one.
 	#
 	#   _n_        the position to avoid
-	#   returns    nothing today
-	#   warning    known defect: it builds the list of positions into one variable and reads another
-	#              (_anPos_), which is never set
+	#   returns    a number
+	#   note       raises an error when the list holds only that position
 	#   see        NumbersOutsidePosition
 	def AnyNumberOutsidePosition(_n_)
-		_anPositions_ = Q(1 : This.NumberOfItems()) - _n_
-		_nRandom_ = AnyNumberIn(_anPos_)
+		_nRandom_ = This._RandomPositionAmong( This._PositionsOutside([ _n_ ]) )
 		_nResult_ = This.Number(_nRandom_)
 
 		return _nResult_
@@ -7492,8 +7580,7 @@ class stzListOfNumbers from stzList
 	# One number at a position OTHER than the given one, with its
 	# position.
 	def AnyNumberOutsidePositionZ(_n_)
-		_anPositions_ = Q(1 : This.NumberOfItems()) - _n_
-		_nRandom_ = AnyNumberIn(_anPos_)
+		_nRandom_ = This._RandomPositionAmong( This._PositionsOutside([ _n_ ]) )
 		_aResult_ = [ This.Number(_nRandom_), _nRandom_ ]
 
 		return _aResult_
@@ -7568,44 +7655,16 @@ class stzListOfNumbers from stzList
 	 #  GETTING N RANDOM NUMBERS FROM THE LIST  #
 	#------------------------------------------#
 
-	# Returns n numbers drawn at random, repeats allowed, from those strictly between 1 and the list size.
+	# Returns n numbers taken at random from the list, repeats allowed.
 	#
 	#   _n_        how many numbers to draw
 	#   returns    a list of numbers
 	#   note       raises an error when n is 0, negative or greater than the size
-	#   warning    known defect: it draws with ARandomNumberBetween(1, size), which resolves to this
-	#              class's own method, so it picks list numbers lying between 1 and the size instead
-	#              of any item of the list; it raises when none lies there
 	#   see        SomeRandomNumbers, ARandomNumber
 	def NRandomNumbers(_n_)
+		This._CheckHowManyRandomNumbers(_n_)
 
-		# Checking param n and the size of the list of numbers
-
-		if NOT isNumber(_n_)
-			StzRaise("Incorrect param type! n must be a number.")
-		ok
-		if _n_ <= 0
-			StzRaise("Can't proceed because n must be a positive number greater then 0!")
-		ok
-
-		_nLen_ = This.NumberOfNumbers()
-		if _nLen_ = 0
-			StzRaise("Can't get random numbers because the list is empty!")
-		ok
-
-		if _n_ > _nLen_
-			StzRaise("Can't proceed because n must be a number equal or less then the size of the list ("+ _nLen_ +")!")
-		ok
-
-		# Doing the job
-
-		_anResult_ = []
-
-		for i = 1 to _n_
-			_anResult_ + ARandomNumberBetween(1, _nLen_)
-		next
-
-		return _anResult_
+		return This._NNumbersAmong( _n_, This._AllPositions() )
 
 		#< @FunctionAlternativeForms
 
@@ -7621,12 +7680,26 @@ class stzListOfNumbers from stzList
 
 	# n numbers picked at random, with their positions.
 	def NRandomNumbersZ(_n_)
+		This._CheckHowManyRandomNumbers(_n_)
 
-		# Checking param n and the size of the list of numbers
+		return This._NNumbersAmongZ( _n_, This._AllPositions() )
 
+		#< @FunctionAlternativeForms
+
+		def RandomNNumbersZ(_n_)
+			return This.NRandomNumbersZ(_n_)
+
+		def NNumbersZ(_n_)
+			return This.NRandomNumbersZ(_n_)
+
+		#>
+
+	# Checks the count asked of NRandomNumbers: a positive number, and not more than the size.
+	def _CheckHowManyRandomNumbers(_n_)
 		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
+
 		if _n_ <= 0
 			StzRaise("Can't proceed because n must be a positive number greater then 0!")
 		ok
@@ -7640,29 +7713,9 @@ class stzListOfNumbers from stzList
 			StzRaise("Can't proceed because n must be a number equal or less then the size of the list ("+ _nLen_ +")!")
 		ok
 
-		# Doing the job
-
-		_aResult_ = []
-
-		for i = 1 to _n_
-			_aResult_ + ARandomNumberBetweenZ(1, _nLen_)
-		next
-
-		return _aResult_
-
-		#< @FunctionAlternativeForms
-
-		def RandomNNumbersZ(_n_)
-			return This.NRandomNumbersZ(_n_)
-
-		def NNumbersZ(_n_)
-			return This.NRandomNumbersZ(_n_)
-
-		#>
-
 	# U/EXTENDED FORM (TODO)
 
-	
+
 	# UZ/EXTENDED FORM (TODO)
 
 
@@ -7670,93 +7723,56 @@ class stzListOfNumbers from stzList
 	 #  GETTING N RANDOM NUMBERS OTHER THEN A GIVEN NUMBER  #
 	#------------------------------------------------------#
 
-	# Raises error R19 today instead of returning n random numbers other than a given number.
+	# Returns n numbers taken at random from those that differ from a given number, repeats allowed.
 	#
 	#   _n_         how many numbers to draw
-	#   _nNumber_   the number to leave out
-	#   returns     nothing today
-	#   warning     known defect: it calls NRandomNumbersIn with too few arguments and looks up n,
-	#               the count, instead of the number to leave out
+	#   _nNumber_   the number to leave out, or a list of numbers to leave out
+	#   returns     a list of numbers
+	#   note        raises an error when every number is left out
 	#   see         NumbersOtherThan
 	def NNumbersOtherThan(_n_, _nNumber_)
-		if isList(_n_)
-
-			_oParam_ = new stzList(_n_)
-
-			if _oParam_.IsPositionNamedParam()
-				return This.NNumbersOutSidePosition(_n_[2], _nNumber_)
-
-			but _oParam_.IsPositionsNamedParam()
-				return This.NNumbersOutsidePositions(_n_[2], _nNumber_)
-
-			else
-				return This.NNumbersOutsidePositions(_n_, _nNumber_)
-			ok
+		if isList(_nNumber_)
+			return This.NNumbersOtherThanMany(_n_, _nNumber_)
 		ok
 
-		_anPos_ = This.Find(_n_)
-		_anPos_ = Q( 1 : This.NumberOfNumbers() ) - These(_anPos_)
-		// #TODO Make a more performant solution!
+		if NOT isNumber(_nNumber_)
+			StzRaise("Incorrect param type! nNumber must be a number.")
+		ok
 
-		_anRandoms_ = NRandomNumbersIn(_anPos_)
-		_anResult_ = This.ItemsAtPositions(_anRandoms_)
-
-		return _anResult_
+		return This._NNumbersAmong( _n_, This._PositionsOtherThan([ _nNumber_ ]) )
 
 	#-- Z/EXTENDED FORM
 
 	# n numbers other than the given one, with their positions.
 	def NNumbersOtherThanZ(_n_, _nNumber_)
-		if isList(_n_)
-
-			_oParam_ = new stzList(_n_)
-
-			if _oParam_.IsPositionNamedParam()
-				return This.NNumbersOutSidePosition(_n_[2], _nNumber_)
-
-			but _oParam_.IsPositionsNamedParam()
-				return This.NNumbersOutsidePositions(_n_[2], _nNumber_)
-
-			else
-				return This.NNumbersOutsidePositions(_n_, _nNumber_)
-			ok
+		if isList(_nNumber_)
+			return This.NNumbersOtherThanManyZ(_n_, _nNumber_)
 		ok
 
-		_anPos_ = This.Find(_n_)
-		_anPos_ = Q( 1 : This.NumberOfNumbers() ) - These(_anPos_)
-		// #TODO Make a more performant solution!
+		if NOT isNumber(_nNumber_)
+			StzRaise("Incorrect param type! nNumber must be a number.")
+		ok
 
-		_anRandoms_ = NRandomNumbersIn(_anPos_)
-		_nLen_ = len(_anRandoms_)
-
-		_aResult_ = []
-
-		for i = 1 to _nLen_
-			_aResult_ + [ This.ItemAtPosition(_anRandoms_[i]), _anRandoms_[i] ]
-		next
-
-		return _aResult_
+		return This._NNumbersAmongZ( _n_, This._PositionsOtherThan([ _nNumber_ ]) )
 
 	# U/EXTENDED FORM (TODO)
 
-	
+
 	# UZ/EXTENDED FORM (TODO)
 
 	  #-----------------------------------------------------#
 	 #  GETTING N RANDOM NUMBERS LESS THEN A GIVEN NUMBER  #
 	#-----------------------------------------------------#
 
-	# Raises error R14 today instead of returning n random numbers below a given number.
+	# Returns n numbers taken at random from those below a given number, repeats allowed.
 	#
 	#   _n_         how many numbers to draw
 	#   _nNumber_   the number the answers must be below
-	#   returns     nothing today
-	#   warning     known defect: it asks NumbersLessThanQ for NRandomNumbers, which the object it
-	#               gets back does not have
+	#   returns     a list of numbers
+	#   note        raises an error when no number is below it
 	#   see         NumbersSmallerThan
 	def NNumbersLessThan(_n_, _nNumber_)
-		_anResult_ = This.NumbersLessThanQ(_nNumber_).NRandomNumbers(_n_)
-		return _anResult_
+		return This._NNumbersAmong( _n_, This._PositionsBelow(_nNumber_) )
 
 		#< @FunctionAlternativeForms
 
@@ -7775,8 +7791,7 @@ class stzListOfNumbers from stzList
 
 	# n numbers less than the given one, with their positions.
 	def NNumbersLessThanZ(_n_, _nNumber_)
-		_aResult_ = This.NumbersLessThanQ(_nNumber_).NRandomNumbersZ(_n_)
-		return _anResult_
+		return This._NNumbersAmongZ( _n_, This._PositionsBelow(_nNumber_) )
 
 		#< @FunctionAlternativeForms
 
@@ -7793,40 +7808,39 @@ class stzListOfNumbers from stzList
 
 	# U/EXTENDED FORM (TODO)
 
-	
+
 	# UZ/EXTENDED FORM (TODO)
 
 	  #--------------------------------------------------------#
 	 #  GETTING N RANDOM NUMBERS GREATER THEN A GIVEN NUMBER  #
 	#--------------------------------------------------------#
 
-	# Raises error R14 today instead of returning n random numbers above a given number.
+	# Returns n numbers taken at random from those above a given number, repeats allowed.
 	#
 	#   _n_         how many numbers to draw
 	#   _nNumber_   the number the answers must be above
-	#   returns     nothing today
-	#   warning     known defect: it calls NumbersGreaterThanQ, which is defined nowhere
+	#   returns     a list of numbers
+	#   note        raises an error when no number is above it
 	#   see         NumbersGreaterThan
 	def NNumbersGreaterThan(_n_, _nNumber_)
-		_anResult_ = This.NumbersGreaterThanQ(_nNumber_).NRandomNumbers(_n_)
-		return _anResult_
+		return This._NNumbersAmong( _n_, This._PositionsAbove(_nNumber_) )
 
 		#< @FunctionAlternativeForms
 
 		def NRandomNumbersGreaterThan(_n_, _nNumber_)
-			return This.NNumbersLessThan(_n_, _nNumber_)
+			return This.NNumbersGreaterThan(_n_, _nNumber_)
 
 		def NNumbersBiggerThan(_n_, _nNumber_)
-			return This.NNumbersLessThan(_n_, _nNumber_)
+			return This.NNumbersGreaterThan(_n_, _nNumber_)
 
 		def NRandomNumbersBiggerThan(_n_, _nNumber_)
-			return This.NNumbersLessThan(_n_, _nNumber_)
+			return This.NNumbersGreaterThan(_n_, _nNumber_)
 
 		def NNumbersMoreThan(_n_, _nNumber_)
-			return This.NNumbersLessThan(_n_, _nNumber_)
+			return This.NNumbersGreaterThan(_n_, _nNumber_)
 
 		def NRandomNumbersMoreThan(_n_, _nNumber_)
-			return This.NNumbersLessThan(_n_, _nNumber_)
+			return This.NNumbersGreaterThan(_n_, _nNumber_)
 
 		#>
 
@@ -7834,31 +7848,30 @@ class stzListOfNumbers from stzList
 
 	# n numbers greater than the given one, with their positions.
 	def NNumbersGreaterThanZ(_n_, _nNumber_)
-		_aResult_ = This.NumbersGreaterThanQ(_nNumber_).NRandomNumbersZ(_n_)
-		return _aResult_
+		return This._NNumbersAmongZ( _n_, This._PositionsAbove(_nNumber_) )
 
 		#< @FunctionAlternativeForms
 
 		def NRandomNumbersGreaterThanZ(_n_, _nNumber_)
-			return This.NNumbersLessThanZ(_n_, _nNumber_)
+			return This.NNumbersGreaterThanZ(_n_, _nNumber_)
 
 		def NNumbersBiggerThanZ(_n_, _nNumber_)
-			return This.NNumbersLessThanZ(_n_, _nNumber_)
+			return This.NNumbersGreaterThanZ(_n_, _nNumber_)
 
 		def NRandomNumbersBiggerThanZ(_n_, _nNumber_)
-			return This.NNumbersLessThanZ(_n_, _nNumber_)
+			return This.NNumbersGreaterThanZ(_n_, _nNumber_)
 
 		def NNumbersMoreThanZ(_n_, _nNumber_)
-			return This.NNumbersLessThanZ(_n_, _nNumber_)
+			return This.NNumbersGreaterThanZ(_n_, _nNumber_)
 
 		def NRandomNumbersMoreThanZ(_n_, _nNumber_)
-			return This.NNumbersLessThanZ(_n_, _nNumber_)
+			return This.NNumbersGreaterThanZ(_n_, _nNumber_)
 
 		#>
 
 	# U/EXTENDED FORM (TODO)
 
-	
+
 	# UZ/EXTENDED FORM (TODO)
 
 	  #---------------------------------------------------------#
@@ -7868,14 +7881,7 @@ class stzListOfNumbers from stzList
 	// #TODO // Add alternatives of (DifferentTo / Of / From / With) all over the library!
 
 	def NNumbersOtherThanMany(_n_, _anNumbers_)
-
-		_anPos_ = Q( 1 : This.NumberOfItems() ) - These(This.Find(_anNumbers_))
-		// #TODO Make a more performant solution!
-
-		_anRandoms_ = NRandomNumbersIn(_anPos_)
-		_aResult_ = This.ItemsAtPositions(_anRandoms_)
-
-		return _anResult_
+		return This._NNumbersAmong( _n_, This._PositionsOtherThan(_anNumbers_) )
 
 		#< @FunctionAlternativeForms
 
@@ -7914,20 +7920,7 @@ class stzListOfNumbers from stzList
 
 	# n numbers other than the given ones, with their positions.
 	def NNumbersOtherThanManyZ(_n_, _anNumbers_)
-
-		_anPos_ = Q( 1 : This.NumberOfItems() ) - These(This.Find(_anNumbers_))
-		// #TODO Make a more performant solution!
-
-		_anRandoms_ = NRandomNumbersIn(_anPos_)
-		_nLen_ = len(aRandoms)
-		
-		_aResult_ = []
-
-		for i = 1 to _nLen_
-			_aResult_ + [ This.ItemAtPosition(_anRandoms_[i]), _anRandoms_[i] ]
-		next
-
-		return _aResult_
+		return This._NNumbersAmongZ( _n_, This._PositionsOtherThan(_anNumbers_) )
 
 		#< @FunctionAlternativeForms
 
@@ -8132,16 +8125,30 @@ class stzListOfNumbers from stzList
 		return This.NItemsOutsidePositions(panPos)
 
 
-	# Raises error R4 today instead of returning n items from outside a position, with their positions.
+	# Returns every number at a position outside the given one(s), as [ number, position ] pairs.
 	#
-	#   _anPos_    the positions to avoid
-	#   returns    nothing today
-	#   warning    known defect: the method calls itself with the same argument, so it recurses
-	#              until the stack overflows
+	#   _anPos_    the position to avoid, or a list of positions to avoid
+	#   returns    a list of [ number, position ] pairs, in position order
 	#   see        NumbersOutsidePosition
-	#@ aka  n items at positions other than the given one, with their positions.
+	#@ aka  The numbers at positions other than the given one, with their positions.
 	def NItemsOutsidePositionZ(_anPos_)
-		return This.NItemsOutsidePositionZ(_anPos_)
+		_anAvoid_ = []
+		if isNumber(_anPos_)
+			_anAvoid_ + _anPos_
+		but isList(_anPos_)
+			_anAvoid_ = _anPos_
+		else
+			StzRaise("Incorrect param type! the positions must be a number or a list of numbers.")
+		ok
+
+		_aResult_ = []
+		_anOutside_ = This._PositionsOutside(_anAvoid_)
+		_nLen_ = len(_anOutside_)
+		for i = 1 to _nLen_
+			_aResult_ + [ @aContent[ _anOutside_[i] ], _anOutside_[i] ]
+		next
+
+		return _aResult_
 
 	# U/EXTENDED FORM (TODO)
 
@@ -8157,10 +8164,7 @@ class stzListOfNumbers from stzList
 	#   returns    a list of numbers
 	#   see        NRandomNumbers, ARandomNumber
 	def SomeRandomNumbers()
-		_anPos_ = SomeRandomNumbersIn(1 : This.NumberOfItems())
-		_anResult_ = This.ItemsAtPositions(_anPos_)
-
-		return _anResult_
+		return This._SomeNumbersAmong( This._AllPositions() )
 
 		def SomeNumbers()
 			return This.SomeRandomNumbers()
@@ -8168,16 +8172,7 @@ class stzListOfNumbers from stzList
 
 	# Some numbers picked at random, with their positions.
 	def SomeRandomNumbersZ()
-		_anPos_ = SomeRandomNumbersIn(1 : This.NumberOfItems())
-		_nLen_  = len(_anPos_)
-
-		_aResult_ = []
-
-		for i = 1 to _nLen_
-			_aResult_ + [ This.Number(i), _anPos_[i] ]
-		next
-
-		return _aResult_
+		return This._SomeNumbersAmongZ( This._AllPositions() )
 
 	# U/EXTENDED FORM (TODO)
 
@@ -8188,193 +8183,135 @@ class stzListOfNumbers from stzList
 	 #  GETTING SOME RANDOM NUMBERS OTHER THEN A GIVEN NUMBER  #
 	#---------------------------------------------------------#
 
-	# Returns some numbers picked at random from those other than n; the second parameter is not used.
+	# Returns some numbers picked at random from those that differ from both given numbers.
 	#
-	#   _n_         the number to leave out
-	#   _nNumber_   ignored
+	#   _n_         a number to leave out
+	#   _nNumber_   a second number to leave out
 	#   returns     a list of numbers
-	#   warning     known defect: only the first parameter is read
+	#   note        raises an error when a position is named instead of a number
 	#   see         NumbersOtherThan, SomeRandomNumbers
 	def SomeNumbersOtherThan(_n_, _nNumber_)
-		if isList(_n_)
-
-			_oParam_ = new stzList(_n_)
-
-			if _oParam_.IsPositionNamedParam()
-				return This.SomeNumbersOutSidePosition(_n_[2], _nNumber_)
-
-			but _oParam_.IsPositionsNamedParam()
-				return This.SomeNumbersOutsidePositions(_n_[2], _nNumber_)
-
-			else
-				return This.SomeNumbersOutsidePositions(_n_, _nNumber_)
-			ok
+		if NOT ( isNumber(_n_) and isNumber(_nNumber_) )
+			StzRaise("Incorrect param type! both parameters must be numbers.")
 		ok
 
-		_anPos_ = This.Find(_n_)
-		_anPos_ = Q( 1 : This.NumberOfNumbers() ) - These(_anPos_)
-		// #TODO Make a more performant solution!
+		return This._SomeNumbersAmong( This._PositionsOtherThan([ _n_, _nNumber_ ]) )
 
-		_anRandoms_ = SomeRandomNumbersIn(_anPos_)
-		_anResult_ = This.ItemsAtPositions(_anRandoms_)
+	# Some numbers other than the two given ones, with their positions.
+	def SomeNumbersOtherThanZ(_n_, _nNumber_)
+		if NOT ( isNumber(_n_) and isNumber(_nNumber_) )
+			StzRaise("Incorrect param type! both parameters must be numbers.")
+		ok
 
-		return _anResult_
+		return This._SomeNumbersAmongZ( This._PositionsOtherThan([ _n_, _nNumber_ ]) )
 
 	  #--------------------------------------------------------#
 	 #  GETTING SOME RANDOM NUMBERS LESS THEN A GIVEN NUMBER  #
 	#--------------------------------------------------------#
 
-	# Raises error R3 today instead of returning some random numbers below a given number.
+	# Returns some numbers picked at random from those below a given number; the count is random.
 	#
-	#   _n_         how many numbers
+	#   _n_         not used; kept so the call reads like NNumbersLessThan
 	#   _nNumber_   the number the answers must be below
-	#   returns     nothing today
-	#   warning     known defect: it calls StzListOfNumbers(), which is not a function
-	#               (StzListOfNumbersQ is)
+	#   returns     a list of numbers; empty when none is below it
 	#   see         NumbersSmallerThan
 	def SomeNumbersLessThan(_n_, _nNumber_)
-		_anNumbers_ = This.NumbersLessThan(_nNumber_)
-		_anResult_ = StzListOfNumbers(_anNumbers_).SomeRandomNumbers()
-
-		return _anResult_
+		return This._SomeNumbersAmong( This._PositionsBelow(_nNumber_) )
 
 
 	# Some numbers less than n, with their positions.
 	def SomeNumbersLessThanZ(_n_, _nNumber_)
-		_anNumbers_ = This.NumbersLessThan(_nNumber_)
-		_aResult_ = StzListOfNumbers(_anNumbers_).SomeRandomNumbersZ()
-
-		return _aResult_
+		return This._SomeNumbersAmongZ( This._PositionsBelow(_nNumber_) )
 
 	  #----------------------------------------------------------#
 	 #  GETTING SOME RANDOM NUMBERS GRATER THEN A GIVEN NUMBER  #
 	#----------------------------------------------------------#
 
-	# Raises error R3 today instead of returning some random numbers above a given number.
+	# Returns some numbers picked at random from those above a given number; the count is random.
 	#
-	#   _n_         how many numbers
+	#   _n_         not used; kept so the call reads like NNumbersGreaterThan
 	#   _nNumber_   the number the answers must be above
-	#   returns     nothing today
-	#   warning     known defect: it calls StzListOfNumbers(), which is not a function
-	#               (StzListOfNumbersQ is)
+	#   returns     a list of numbers; empty when none is above it
 	#   see         NumbersGreaterThan
 	def SomeNumbersGreaterThan(_n_, _nNumber_)
-		_anNumbers_ = This.NumbersGreaterThan(_nNumber_)
-		_anResult_ = StzListOfNumbers(_anNumbers_).SomeRandomNumbers()
-
-		return _anResult_
+		return This._SomeNumbersAmong( This._PositionsAbove(_nNumber_) )
 
 
 	# Some numbers greater than n, with their positions.
 	def SomeNumbersGreaterThanZ(_n_, _nNumber_)
-		_anNumbers_ = This.NumbersGreaterThan(_nNumber_)
-		_aResult_ = StzListOfNumbers(_anNumbers_).SomeRandomNumbersZ()
-
-		return _aResult_
+		return This._SomeNumbersAmongZ( This._PositionsAbove(_nNumber_) )
 
 	  #------------------------------------------------------------#
 	 #  GETTING SOME RANDOM NUMBERS OTHER THEN THE GIVEN NUMBERS  #
 	#------------------------------------------------------------#
 
 	def SomeNumbersOtherThanMany(paNumbers)
-		_anNumbers_ = This.NumbersOtherThanMany(paNumbers)
-		_anResult_  = StzListOfNumbers(_anNumbers_).SomeRandomNumbers()
-
-		return _anResult_
+		return This._SomeNumbersAmong( This._PositionsOtherThan(paNumbers) )
 
 
 	# Some numbers other than the given ones, with their positions.
 	def SomeNumbersOtherThanManyZ(paNumbers)
-		_anNumbers_ = This.NumbersOtherThanMany(_nNumber_)
-		_aResult_   = StzListOfNumbers(_anNumbers_).SomeRandomNumbersZ()
-
-		return _aResult_
+		return This._SomeNumbersAmongZ( This._PositionsOtherThan(paNumbers) )
 
 	  #---------------------------------------------------------#
 	 #  GETTING SOME RANDOM NUMBERS BETWEEN TWO GIVEN NUMBERS  #
 	#---------------------------------------------------------#
 
-	# Raises error R3 today instead of returning some random numbers between two limits.
+	# Returns some numbers picked at random from those strictly between two limits; the count is random.
 	#
-	#   nMin       the lower limit
-	#   nMax       the upper limit
-	#   returns    nothing today
-	#   warning    known defect: it calls StzListOfNumbers(), which is not a function
-	#              (StzListOfNumbersQ is)
+	#   nMin       the lower limit, not included
+	#   nMax       the upper limit, not included
+	#   returns    a list of numbers; empty when none lies between them
 	#   see        NumbersBetween
-	func SomeNumbersBetween(nMin, nMax)
-		_anNumbers_ = This.NumbersBetween(nMin, nMax)
-		_anResult_  = StzListOfNumbers(_anNumbers_).SomeRandomNumbers()
-
-		return _anResult_
+	def SomeNumbersBetween(nMin, nMax)
+		return This._SomeNumbersAmong( This._PositionsBetween(nMin, nMax, 0) )
 
 	#-- Z/EXTENDED FORM
 
 	def SomeNumbersBetweenZ(nMin, nMax)
-		_anNumbers_ = This.NumbersBetween(nMin, nMax)
-		_aResult_   = StzListOfNumbers(_anNumbers_).SomeRandomNumbersZ()
-
-		return _aResult_
+		return This._SomeNumbersAmongZ( This._PositionsBetween(nMin, nMax, 0) )
 
 	  #-------------------------------------------------------------#
 	 #  GETTING SOME RANDOM NUMBERS NOT BETWEEN TWO GIVEN NUMBERS  #
 	#-------------------------------------------------------------#
 
-	# Raises error R3 today instead of returning some random numbers outside two limits.
+	# Returns some numbers picked at random from those outside two limits; the count is random.
 	#
-	#   nMin       the lower limit
-	#   nMax       the upper limit
-	#   returns    nothing today
-	#   warning    known defect: it calls StzListOfNumbers(), which is not a function
-	#              (StzListOfNumbersQ is)
+	#   nMin       the lower limit; the number itself counts as outside
+	#   nMax       the upper limit; the number itself counts as outside
+	#   returns    a list of numbers; empty when none lies outside
 	#   see        NumbersNotBetween
-	func SomeNumbersNotBetween(nMin, nMax)
-		_anNumbers_ = This.NumbersNotBetween(nMin, nMax)
-		_anResult_  = StzListOfNumbers(_anNumbers_).SomeRandomNumbers()
-
-		return _anResult_
+	def SomeNumbersNotBetween(nMin, nMax)
+		return This._SomeNumbersAmong( This._PositionsNotBetween(nMin, nMax, 0) )
 
 	#-- Z/EXTENDED FORM
 
 	def SomeNumbersNotBetweenZ(nMin, nMax)
-		_anNumbers_ = This.NumbersNotBetween(nMin, nMax)
-		_aResult_   = StzListOfNumbers(_anNumbers_).SomeRandomNumbersZ()
-
-		return _aResult_
+		return This._SomeNumbersAmongZ( This._PositionsNotBetween(nMin, nMax, 0) )
 
 	  #------------------------------------------------------------------------#
 	 #  GETTING SOME RANDOM NUMBERS BETWEEN TWO GIVEN NUMBERS -- IB/EXTENDED  #
 	#------------------------------------------------------------------------#
 
-	func SomeNumbersBetweenIB(nMin, nMax)
-		_anNumbers_ = This.NumbersBetweenIB(nMin, nMax)
-		_anResult_  = StzListOfNumbers(_anNumbers_).SomeRandomNumbers()
-
-		return _anResult_
+	def SomeNumbersBetweenIB(nMin, nMax)
+		return This._SomeNumbersAmong( This._PositionsBetween(nMin, nMax, 1) )
 
 	#-- Z/EXTENDED FORM
 
 	def SomeNumbersBetweenIBZ(nMin, nMax)
-		_anNumbers_ = This.NumbersBetweenIB(nMin, nMax)
-		_aResult_   = StzListOfNumbers(_anNumbers_).SomeRandomNumbersZ()
-
-		return _aResult_
+		return This._SomeNumbersAmongZ( This._PositionsBetween(nMin, nMax, 1) )
 
 	  #----------------------------------------------------------------------------#
 	 #  GETTING SOME RANDOM NUMBERS NOT BETWEEN TWO GIVEN NUMBERS -- IB/EXTENDED  #
 	#----------------------------------------------------------------------------#
 
-	func SomeNumbersNotBetweenIB(nMin, nMax)
-		_anNumbers_ = This.NumbersNotBetween(nMin, nMax)
-		_anResult_  = StzListOfNumbers(_anNumbers_).SomeRandomNumbers()
-
-		return _anResult_
+	def SomeNumbersNotBetweenIB(nMin, nMax)
+		return This._SomeNumbersAmong( This._PositionsNotBetween(nMin, nMax, 1) )
 
 	#-- Z/EXTENDED FORM
 
 	def SomeNumbersNotBetweenIBZ(nMin, nMax)
-		_anNumbers_ = This.NumbersNotBetween(nMin, nMax)
-		_aResult_   = StzListOfNumbers(_anNumbers_).SomeRandomNumbersZ()
+		return This._SomeNumbersAmongZ( This._PositionsNotBetween(nMin, nMax, 1) )
 
 		return _aResult_
 
@@ -8439,7 +8376,7 @@ class stzListOfNumbers from stzList
 		_anContent_ = This.Content()
 		_nLen_ = len(_anContent_)
 
-		_anResult_ = []
+		_aResult_ = []
 
 		for i = 1 to _nLen_
 			if _anContent_[i] < _n_
@@ -8466,10 +8403,6 @@ class stzListOfNumbers from stzList
 	#   returns    a list of numbers
 	#   see        NumbersSmallerThan, NumbersBetween
 	def NumbersGreaterThan(_n_)
-		if NOT This.Contains(_n_)
-			return []
-		ok
-	
 		_anContent_ = This.Content()
 		_nLen_ = len(_anContent_)
 
@@ -8488,7 +8421,7 @@ class stzListOfNumbers from stzList
 		def NumbersGreaterThanQ(_n_)
 			return This.NumbersGreaterThanQRT(_n_, :stzList)
 
-		def NumberGreaterThanQRT(_n_, pcReturnType)
+		def NumbersGreaterThanQRT(_n_, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.NumbersGreaterThan(_n_) )
@@ -8505,41 +8438,37 @@ class stzListOfNumbers from stzList
 		#< @FunctionAlternativeForms
 
 		def NumbersLargerThan(_n_)
-			return This.NumberSmallerThan(_n_)
+			return This.NumbersGreaterThan(_n_)
 
 			def NumbersLargerThanQ(_n_)
-				return This.NumberSmallerThanQ(_n_)
+				return This.NumbersGreaterThanQ(_n_)
 
 			def NumbersLargerThanQRT(_n_, pcReturnType)
-				return This.NumberSmallerThanQ(_n_, pcReturnType)
+				return This.NumbersGreaterThanQRT(_n_, pcReturnType)
 
 		def NumbersBiggerThan(_n_)
-			return This.NumberSmallerThan(_n_)
+			return This.NumbersGreaterThan(_n_)
 
 			def NumbersBiggerThanQ(_n_)
-				return This.NumberSmallerThanQ(_n_)
+				return This.NumbersGreaterThanQ(_n_)
 
 			def NumbersBiggerThanQRT(_n_, pcReturnType)
-				return This.NumberSmallerThanQ(_n_, pcReturnType)
+				return This.NumbersGreaterThanQRT(_n_, pcReturnType)
 
 		def NumbersMoreThan(_n_)
-			return This.NumberSmallerThan(_n_)
+			return This.NumbersGreaterThan(_n_)
 
 			def NumbersMoreThanQ(_n_)
-				return This.NumberSmallerThanQ(_n_)
+				return This.NumbersGreaterThanQ(_n_)
 
 			def NumbersMoreThanQRT(_n_, pcReturnType)
-				return This.NumberSmallerThanQ(_n_, pcReturnType)
+				return This.NumbersGreaterThanQRT(_n_, pcReturnType)
 
 		#>
 
 	#-- Z/EXTENDED FORM
 
 	def NumbersGreaterThanZ(_n_)
-		if NOT This.Contains(_n_)
-			return []
-		ok
-	
 		_anContent_ = This.Content()
 		_nLen_ = len(_anContent_)
 
@@ -8547,7 +8476,7 @@ class stzListOfNumbers from stzList
 
 		for i = 1 to _nLen_
 			if _anContent_[i] > _n_
-				_aResult_ + [ _aContent_[i], i ]
+				_aResult_ + [ _anContent_[i], i ]
 			ok
 		next
 
@@ -8556,13 +8485,13 @@ class stzListOfNumbers from stzList
 		#< @FunctionAlternativeForms
 
 		def NumbersLargerThanZ(_n_)
-			return This.NumberSmallerThan(_n_)
+			return This.NumbersGreaterThanZ(_n_)
 
 		def NumbersBiggerThanZ(_n_)
-			return This.NumberSmallerThan(_n_)
+			return This.NumbersGreaterThanZ(_n_)
 
 		def NumbersMoreThanZ(_n_)
-			return This.NumberSmallerThan(_n_)
+			return This.NumbersGreaterThanZ(_n_)
 
 		#>
 
@@ -9162,12 +9091,11 @@ class stzListOfNumbers from stzList
 
 		return _bResult_
 
-	# TRUE if every number is at least n, the limit itself counting as greater.
+	# Tells whether every number is strictly above n; a number equal to n makes it FALSE.
 	#
 	#   _n_        the limit
 	#   returns    TRUE or FALSE
 	#   note       the name spells Then for Than
-	#   warning    known defect: the test is number >= n, not strictly greater
 	#   see        AreSmallerThen
 	def AreGreaterThen(_n_)
 		if CheckParams()
@@ -9182,7 +9110,7 @@ class stzListOfNumbers from stzList
 		_nLen_ = len(_anContent_)
 
 		for @i = 1 to _nLen_
-			if _anContent_[@i] < _n_
+			if _anContent_[@i] <= _n_
 				_bResult_ = 0
 				exit
 			ok
@@ -9193,12 +9121,11 @@ class stzListOfNumbers from stzList
 		def AreOver(_n_)
 			return This.AreGreaterThen(_n_)
 
-	# TRUE if every number is at most n, the limit itself counting as smaller.
+	# Tells whether every number is strictly below n; a number equal to n makes it FALSE.
 	#
 	#   _n_        the limit
 	#   returns    TRUE or FALSE
 	#   note       the name spells Then for Than
-	#   warning    known defect: the test is number <= n, not strictly smaller
 	#   see        AreGreaterThen
 	def AreSmallerThen(_n_)
 		if CheckParams()
@@ -9213,7 +9140,7 @@ class stzListOfNumbers from stzList
 		_nLen_ = len(_anContent_)
 
 		for @i = 1 to _nLen_
-			if _anContent_[@i] > _n_
+			if _anContent_[@i] >= _n_
 				_bResult_ = 0
 				exit
 			ok
@@ -9722,26 +9649,30 @@ class stzListOfNumbers from stzList
 	 #  SORTING THE NUMBERS BY AN EXPRESSION - IN DESCENDING  #
 	#--------------------------------------------------------#
  
-	# Raises error R13 today instead of sorting the numbers by an expression, largest first, in place.
+	# Sorts the numbers by an expression, the largest value of the expression first, in place.
 	#
 	#   pcExpr     an expression that contains @number, the current number
-	#   returns    nothing today
-	#   warning    known defect: the body chains .Reversed() directly onto new stzList(...), which
-	#              Ring answers with error R13
+	#   returns    nothing; the list changes
 	#   see        SortBy
 	def SortByInDescending(pcExpr)
-		_aResult_ = new stzList( This.SortedByInAscending(pcExpr) ).Reversed()
+		_aSorted_ = This.SortedByInAscending(pcExpr)
+		_nSorted_ = len(_aSorted_)
+
+		_aResult_ = []
+		for i = _nSorted_ to 1 step -1
+			_aResult_ + _aSorted_[i]
+		next
+
 		This.UpdateWith(_aResult_)
 
 		def SortByInDescendingQ(pcExpr)
 			This.SortByInDescending(pcExpr)
 			return This
 
-		# Raises error R13 today instead of sorting the numbers by an expression, largest first, in place.
+		# Sorts the numbers by an expression, the largest value of the expression first, in place.
 		#
 		#   pcExpr     an expression that contains @number, the current number
-		#   returns    nothing today
-		#   warning    known defect: it calls SortByInDescending, which raises error R13
+		#   returns    nothing; the list changes
 		#   see        SortByInDescending
 		def SortByDown(pcExpr)
 			This.SortByInDescending(pcExpr)
@@ -9749,11 +9680,10 @@ class stzListOfNumbers from stzList
 			def SortByDownQ(pcExpr)
 				return This.SortByInDescendingQ(pcExpr)
 
-	# Raises error R13 today instead of returning the numbers sorted by an expression, largest first.
+	# Returns the numbers sorted by an expression, the largest value of the expression first.
 	#
 	#   pcExpr     an expression that contains @number, the current number
-	#   returns    nothing today
-	#   warning    known defect: it calls SortByInDescending, which raises error R13
+	#   returns    a list of numbers
 	#   see        SortedBy
 	def SortedByInDescending(pcExpr)
 		_aResult_ = This.Copy().SortByInDescendingQ(pcExpr).Content()
@@ -10069,3 +9999,121 @@ class stzListOfNumbers from stzList
 	#   see        Steps, Diff
 	def HaveSameDifference()
 		return @HaveSameDifference(This.Content())
+
+
+  /////////////////////////
+ ///  THE WALKER CLASS  ///
+/////////////////////////
+
+# Walks from a start number toward an end number, taking a repeating pattern of steps.
+#
+# A stzWalker holds a start, an end and a pattern of steps; its walkables are the numbers it
+# visits. stzListOfNumbers.Walker() builds the walker that reproduces a list: for [ 1, 2, 5, 6, 9, 10 ]
+# the pattern is [ 1, 3 ], so from 1 it visits 1, 2, 5, 6, 9, 10. Without a number of times it stops
+# when it lands on the end, or goes past it.
+#
+#   receiver   o1 = new stzWalker(1, 10, [ 1, 3 ])
+#   example    ? @@( o1.Walkables() )
+#              #--> [ 1, 2, 5, 6, 9, 10 ]
+#   see        stzListOfNumbers
+class stzWalker
+	@nStart
+	@nEnd
+	@anSteps
+	@nTimes = 0
+
+	# Builds the walker from a start, an end and the steps to repeat; the steps must be a non-empty list of numbers.
+	#
+	#   pnStart    the number to start from
+	#   pnEnd      the number to stop at
+	#   panSteps   the steps taken in turn, over and over
+	#   returns    nothing; the walker is built
+	#   note       raises an error when a parameter is not a number or the steps are empty
+	#@ aka  Build the walker from its start, its end and its steps.
+	def init(pnStart, pnEnd, panSteps)
+		if NOT ( isNumber(pnStart) and isNumber(pnEnd) )
+			StzRaise("Incorrect param type! the start and the end must be numbers.")
+		ok
+
+		if NOT ( isList(panSteps) and len(panSteps) > 0 and @IsListOfNumbers(panSteps) )
+			StzRaise("Incorrect param type! the steps must be a non-empty list of numbers.")
+		ok
+
+		@nStart = pnStart
+		@nEnd = pnEnd
+		@anSteps = panSteps
+
+	# Returns the number the walker starts from.
+	#
+	#   returns    a number
+	#   see        EndNumber
+	#@ aka  The first number of the walk.
+	def StartNumber()
+		return @nStart
+
+	# Returns the number the walker stops at.
+	#
+	#   returns    a number
+	#   see        StartNumber
+	#@ aka  The last number of the walk.
+	def EndNumber()
+		return @nEnd
+
+	# Returns the steps the walker takes in turn.
+	#
+	#   returns    a list of numbers
+	#   see        Walkables
+	#@ aka  The repeating pattern of steps.
+	def Steps()
+		return @anSteps
+
+	# Makes the walk visit exactly n numbers, whatever the end is.
+	#
+	#   _n_        how many numbers to visit; 0 goes back to stopping at the end
+	#   returns    nothing; the walker changes
+	#   see        Walkables
+	#@ aka  Fix how many numbers the walk visits.
+	def WalkNumberOfTimes(_n_)
+		if NOT isNumber(_n_)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		@nTimes = _n_
+
+	# Returns the numbers the walker visits, in order, starting with the start.
+	#
+	#   returns    a list of numbers
+	#   note       with no fixed count it stops at the end, or when it would go past it
+	#   see        WalkNumberOfTimes
+	#@ aka  The numbers visited by the walk.
+	def Walkables()
+		_anResult_ = [ @nStart ]
+		_nCurrent_ = @nStart
+		_nSteps_ = len(@anSteps)
+		_i_ = 0
+
+		while 1
+			if @nTimes > 0
+				if len(_anResult_) >= @nTimes
+					exit
+				ok
+			else
+				if _nCurrent_ = @nEnd
+					exit
+				ok
+			ok
+
+			_nStep_ = @anSteps[ (_i_ % _nSteps_) + 1 ]
+			_nCurrent_ += _nStep_
+			_i_++
+
+			if @nTimes = 0
+				if ( _nStep_ > 0 and _nCurrent_ > @nEnd ) or ( _nStep_ < 0 and _nCurrent_ < @nEnd ) or _nStep_ = 0
+					exit
+				ok
+			ok
+
+			_anResult_ + _nCurrent_
+		end
+
+		return _anResult_
