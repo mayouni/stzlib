@@ -1,0 +1,14 @@
+{
+ "brief": "Holds a list of strings and answers questions about it: find, count, sort, filter, replace, split and change case.",
+ "detail": "Reach for it when the strings of a list are the subject and a stzList is more than you need. It checks at birth that every item is a string, and the per-string work goes to the engine. Methods such as Add, SortInAscending, Unique, ToUpper and Trim change the list in place; the Sorted, Uppercased and Trimmed forms return a plain Ring list and leave it alone. Search methods come in a case-sensitive form and a CS form that takes a flag, as in FindCS(pcStr, 0).",
+ "receiver": "o1 = new stzStringList([ \"ab\", \"cd\", \"ab\" ])",
+ "example": [
+  "? @@( o1.Find(\"ab\") )",
+  "#--> [ 1, 3 ]"
+ ],
+ "see": [
+  "stzListOfstrings",
+  "stzList",
+  "stzString"
+ ]
+}

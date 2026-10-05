@@ -49,10 +49,12 @@ def pristine_blob(cls, rel, data):
 
 def main():
     data = pathlib.Path(sys.argv[1])
+    restored = set()                      # a file shared by several classes is restored ONCE, then every class applied
     for cls in sys.argv[2:]:
         rel = "libraries/stzlib/base/" + file_of(cls)
-        blob = pristine_blob(cls, rel, data)
-        (pathlib.Path(REPO) / rel).write_bytes(blob)
+        if rel not in restored:
+            (pathlib.Path(REPO) / rel).write_bytes(pristine_blob(cls, rel, data))
+            restored.add(rel)
         for docs, exs in (("docs_%s.json" % cls, "examples_%s.json" % cls), ("w1_docs_%s.json" % cls, None)):
             d = data / docs
             if not d.exists():

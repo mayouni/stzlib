@@ -1,0 +1,40 @@
+init | Builds the table from rows with a header row, rows alone, a hash list of columns, or a [ columns, rows ] size pair. | nothing; the table is built | paTable=the content, in one of the four shapes | | Rows of unequal sizes with no header, or any other shape, raise an error | Rows alone get the column names col1, col2 ...; a size pair gives empty cells named COL1, COL2 ...
+ClassName | Returns the class name, in lowercase. | the text "stztable"
+KlassName | Returns the class name, in lowercase. | the text "stztable" | | ClassName
+Content | Returns the table as a list of [ column name, cells ] pairs, one pair per column. | a list of [ name, list of cells ] pairs | | Rows, Cols
+Value | Returns the table as a list of [ column name, cells ] pairs, one pair per column. | a list of [ name, list of cells ] pairs | | Content
+Copy | Returns a new table holding the same columns and cells; the original is unchanged. | a new stzTable
+IsEmpty | TRUE if the table has no column, or if every cell is an empty string. | TRUE or FALSE | | | | A table of one column and one empty cell counts as empty.
+HasColumName | TRUE if a column has that name, ignoring case. | TRUE or FALSE | | HasColumnsNames | Raises an error when pcName is not text
+HasColumnsNames | TRUE if every given name is the name of a column, ignoring case. | TRUE or FALSE | pacNames=the list of column names to look for | HasColumName
+NumberOfColumns | Returns how many columns the table has. | a number | | NumberOfRows
+ColumnsNames | Returns the column names, in column order. | a list of text | | NumberOfColumns
+FindCalculatedCols | Returns the sorted positions of the columns that were added as calculated columns. | a list of numbers; [ ] when there are none | | CalculatedCols
+CalculatedCols | Returns the cells of every calculated column, one list per column. | a list of lists of cells; [ ] when there are none | | FindCalculatedCols
+CalculatedColNames | Returns the names of the calculated columns, in column order. | a list of text; [ ] when there are none | | CalculatedCols
+FindCalculatedRows | Returns the sorted positions of the rows that were added as calculated rows. | a list of numbers; [ ] when there are none | | CalculatedRows
+CalculatedRows | Returns the cells of every calculated row, one list per row. | a list of lists of cells; [ ] when there are none | | FindCalculatedRows
+IsColName | TRUE if a column bears this name, ignoring case. | TRUE or FALSE | | IsColNumber | Raises an error when pcName is not text
+IsColNumber | TRUE if the number lies between 1 and the number of columns. | TRUE or FALSE | _n_=the position to test | IsColName | Raises an error when the argument is not a number
+IsColNameOrNumber | TRUE if the argument is the name of a column or a valid column position. | TRUE or FALSE | | IsColName, IsColNumber
+AreColNamesOrNumbers | TRUE if every item of the list is the name or the position of a column. | TRUE or FALSE | | IsColNameOrNumber | Raises R14 today when the list mixes numbers and names, because IsListOfNumbersAndStrings is defined nowhere; a list of numbers only, or of names only, works
+FindCol | Returns the position of a column given by name or by number; 0 when there is no such column. | a number | | FindColByName
+FindColByName | Returns the position of the column with this name, ignoring case; 0 when there is none. | a number | pcColName=the column name to look for | FindCol
+ColToColNumber | Returns the position of a column: a number passes through unchecked, a name is looked up and gives 0 when absent. | a number | | FindCol
+NumberOfRows | Returns how many rows the table has, read from its first column; 0 when there is no column. | a number | | NumberOfColumns
+Col | Returns the cells of one column, top to bottom. | a list of cells | | Row, Cell | Raises the error Column not found! for an unknown column
+Row | Returns the cells of one row, left to right, one per column. | a list of cells | pnRow=the row position, 1 for the first | Col, Rows | Raises R2 when the row is past the last one
+Cell | Returns the content of one cell, given its column and its row. | the cell value | pnRow=the row position, 1 for the first | Col, Row | Raises Column not found! for an unknown column and R2 for a row past the last one
+NumberOfCells | Returns the number of columns times the number of rows. | a number | | NumberOfColumns, NumberOfRows
+NthColName | Returns the name of the nth column. | the column name, as text | _n_=the position of the column | FirstColName, LastColName | Raises R2 when n is 0 or past the last column
+FirstColName | Returns the name of the first column. | the column name, as text | | NthColName, LastColName
+LastColName | Returns the name of the last column. | the column name, as text | | NthColName, FirstColName
+LastRow | Returns the cells of the last row, one per column. | a list of cells | | Row
+Rows | Returns every row, top to bottom, each as a list of cells. | a list of rows | | Row, Content
+ReplaceRow | Puts the given values in a row, one per column, in place. | nothing; the table changes | pnRow=the row position; paNewRow=the new cells, one per column | ReplaceCell | A list shorter than the number of columns raises R5 and a row past the last one raises R2
+ReplaceCell | Puts a value in one cell, in place. | nothing; the table changes | pnRow=the row position, 1 for the first | ReplaceCol | Raises Column not found! for an unknown column
+ReplaceCol | Puts a whole new list of cells in a column, in place. | nothing; the table changes | paNewData=the new cells of the column | ReplaceCell | The length is not checked: a list of another length leaves the columns of unequal size
+Section | Returns columns n1 to n2 as [ name, cells ] pairs, or the cells of the block between two [ column, row ] corners, row by row. | a list | p1=the first position, :First, or a [ column, row ] corner; p2=the last position, :Last, or the opposite corner | Cell, Col | Swapped numbers are put in order; a number out of range raises Indexes out of range!
+EngineHandle | Returns the handle of the engine-side copy of the table, rebuilding it first when it is stale. | a number
+RemoveNthCol | Removes the nth column, in place; removing the only column leaves one empty column. | nothing; the table changes | _n_=the position of the column to remove | RemoveColumn | Raises Bad parameters value, error in range! when n is past the last column
+RemoveColAt | Removes the nth column, in place; removing the only column leaves one empty column. | nothing; the table changes | _n_=the position of the column to remove | RemoveNthCol

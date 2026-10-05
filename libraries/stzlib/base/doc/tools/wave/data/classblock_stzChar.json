@@ -1,0 +1,13 @@
+{
+ "brief": "Holds one Unicode char, exactly as stzStringChar does, and reports its own type name, stzchar.",
+ "detail": "A thin subclass: the only thing it adds to stzStringChar is StzType, which answers :stzChar instead of the stzstring it would inherit. Every other method is stzStringChar's.",
+ "receiver": "o1 = new stzChar(\"a\")",
+ "example": [
+  "? o1.StzType()",
+  "#--> stzchar"
+ ],
+ "see": [
+  "stzStringChar",
+  "stzString"
+ ]
+}
