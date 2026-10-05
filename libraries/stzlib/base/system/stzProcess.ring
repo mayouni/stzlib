@@ -78,6 +78,7 @@ class stzProcess from stzObject
 	@pChildHandle = ""
 	@nCachedExit = -1
 	@bWaited = 0
+	@bStdoutEnded = 0
 
 	def init()
 		# Stateless for the introspection face: every fact is read live from
@@ -112,6 +113,34 @@ class stzProcess from stzObject
 		def SpawnQ(pcCommand)
 			This.Spawn(pcCommand)
 			return This
+
+	# Spawns a program by its ARGV, no shell between, in a working directory
+	# of your choosing ("" inherits). The form a RUNNER wants: an argument
+	# with a quote or a space reaches the program unparsed, and Kill() reaches
+	# the program itself -- through the shell form it reached only cmd.exe and
+	# left the program running (measured, Testoor TR1). Each argv item is a
+	# string; the first is the program.
+	#   oP.SpawnIn("D:/work/uuid", [ "ring", "00_uuid_narrated.ring" ])
+	def SpawnIn(pcDir, pacArgv)
+		if NOT isList(pacArgv) or ring_len(pacArgv) = 0
+			StzRaise("Incorrect param type! pacArgv must be a non-empty list of strings.")
+		ok
+		_cPacked_ = "" + pacArgv[1]
+		_n_ = ring_len(pacArgv)
+		for _k_ = 2 to _n_
+			_cPacked_ += char(0) + pacArgv[_k_]
+		next
+		@pChildHandle = StzEngineProcessSpawnArgv(_cPacked_, "" + pcDir)
+		@bWaited = 0
+		@nCachedExit = -1
+		@bStdoutEnded = 0
+		if @pChildHandle = ""
+			StzRaise("Failed to spawn: " + pacArgv[1] + " in " + pcDir)
+		ok
+		return This
+
+		def SpawnInQ(pcDir, pacArgv)
+			return This.SpawnIn(pcDir, pacArgv)
 
 	# TRUE if this object is managing a spawned child.
 	def HasChild()
@@ -168,6 +197,45 @@ class stzProcess from stzObject
 
 		def Error()
 			return This.ReadErrorAll()
+
+	# Reads what the child has ALREADY printed, without waiting: "" when
+	# nothing has arrived yet, and "" again once its stdout has closed --
+	# StdoutEnded() tells the two apart. This is the read a RUNNER polls so a
+	# tour that prints nothing and never ends cannot hold it (Testoor TR1):
+	#   while oP.IsRunning() { c = oP.ReadAvailable() ... check the clock }
+	def ReadAvailable()
+		This._RequireChild()
+		_x_ = StzEngineProcessReadStdoutAvailable(@pChildHandle)
+		if isNumber(_x_)
+			# -2: the child closed its stdout and it is drained; -1: there is
+			# no pipe any more (std's wait() or kill() closed it). Either way
+			# nothing more will come.
+			if _x_ = -2 or _x_ = -1  @bStdoutEnded = 1  ok
+			return ""
+		ok
+		return _x_
+
+		def ReadStdoutAvailable()
+			return This.ReadAvailable()
+
+	def StdoutEnded()
+		return @bStdoutEnded = 1
+
+	# Waits up to pnMs milliseconds for the child to exit: its exit code once
+	# it has, -2 while it still runs. WaitFor(0) is a poll.
+	def WaitFor(pnMs)
+		This._RequireChild()
+		if @bWaited  return @nCachedExit  ok
+		_n_ = StzEngineProcessWaitFor(@pChildHandle, 0 + pnMs)
+		if _n_ != -2
+			@nCachedExit = _n_
+			@bWaited = 1
+		ok
+		return _n_
+
+	def IsRunning()
+		if @pChildHandle = "" or @bWaited  return 0  ok
+		return This.WaitFor(0) = -2
 
 	# Waits for the child to exit and returns its exit code. Idempotent.
 	def Wait()
