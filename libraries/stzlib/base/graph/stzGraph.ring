@@ -2589,6 +2589,7 @@ class stzGraph from stzObject
 	#               :Impact ].
 	#   returns     a stzGraphCanvas
 	#   note        takes the same options as ToCanvas
+	#   warning    seen in the gallery: no arrowheads, so a directed graph reads as undirected; SizeBy degree shrinks degree-1 nodes to a dot of about 2 pixels; an edge can run through a label
 	#   see         ToCanvas
 	#@ aka  The face itself, when a caller wants the metrics or the positions rather than only the drawing.
 	def GraphCanvas(paOptions)
@@ -5203,6 +5204,7 @@ class stzGraph from stzObject
 	#
 	#   returns    text; each line ends with a line break
 	#   warning    raises error R1 on a graph without nodes
+	#              seen in the gallery: a branching graph prints as separate chains split by //// with shared nodes repeated, so the fork and the join cannot be seen although every edge is present
 	#   see        Show, AsciiArtHorizontal
 	#@ aka  The same picture as DATA, for a file, a report, or a test. Show() prints it; these hand it back.
 	def AsciiArt()
@@ -5213,6 +5215,7 @@ class stzGraph from stzObject
 	#
 	#   returns    text
 	#   warning    raises error R1 on a graph without nodes
+	#              seen in the gallery: on a branching graph (8 nodes, fork and join) it follows the first path only and drops the other nodes and edges without a hint
 	#   see        ShowHorizontal, AsciiArt
 	def AsciiArtHorizontal()
 		_oViz_ = new stzGraphAsciiVisualizer(This)

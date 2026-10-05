@@ -1,0 +1,27 @@
+# made g1.ring ; run: cd libraries/stzlib/base/test/reflect && ring <this file>  (picture: graph_canvas_hier.png)
+load "../../../stzlib.ring"
+# chdir("<an output folder>") here, after the load, so the picture lands there (the engine DLL path breaks if Ring starts elsewhere: run from base/test/reflect)
+oF = new stzFont("C:/Windows/Fonts/segoeui.ttf")
+
+oG = new stzGraph("supply")
+oG.AddNodes([ "mine","smelt","chip","cell","board","pack","ecu","car" ])
+oG.AddEdge("mine","smelt")
+oG.AddEdge("smelt","chip")
+oG.AddEdge("smelt","cell")
+oG.AddEdge("chip","board")
+oG.AddEdge("cell","pack")
+oG.AddEdge("board","ecu")
+oG.AddEdge("pack","ecu")
+oG.AddEdge("ecu","car")
+
+write("graph_ascii_vertical.txt", oG.AsciiArt())
+write("graph_ascii_horizontal.txt", oG.AsciiArtHorizontal())
+? oG.AsciiArt()
+? oG.AsciiArtHorizontal()
+
+oGC = oG.GraphCanvas([ :Layout = :Hierarchical, :SizeBy = :Impact, :ColorBy = :Impact, :Font = oF, :Margin = 60 ])
+oGC.SetSize(760, 520)
+? len(oGC.ToPNG("graph_canvas_hier.png"))
+oGC3 = oG.GraphCanvas([ :Layout = :Force, :SizeBy = :Degree, :ColorBy = :Degree, :Font = oF, :Margin = 60 ])
+oGC3.SetSize(760, 520)
+? len(oGC3.ToPNG("graph_canvas_force.png"))

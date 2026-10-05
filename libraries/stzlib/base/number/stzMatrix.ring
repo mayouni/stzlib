@@ -4993,6 +4993,7 @@ class stzMatrix from stzListOfLists
 	#
 	#   returns    nothing; it prints
 	#   note       the matrix is not changed; an empty matrix prints an empty frame
+	#   warning    seen in the gallery: a cell holding 0.001 prints as 0, the same as a true zero, because Show uses Ring's global decimals() (2 by default); the data is intact
 	#   see        Content
 	def Show()
 

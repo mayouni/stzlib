@@ -1,5 +1,5 @@
 ToCanvas | Returns a stzCanvas drawing of the graph, with node sizes and colours computed from the graph's own shape. | a stzCanvas | | GraphCanvas, Show | | options: :Layout = :Hierarchical or :Force; :SizeBy and :ColorBy = :Impact, :Depth, :Degree, :InDegree or :OutDegree; ToCanvasQ is the chaining form
-GraphCanvas | Returns the stzGraphCanvas behind the drawing, for its metrics and node positions rather than only the picture. | a stzGraphCanvas | | ToCanvas | | takes the same options as ToCanvas
+GraphCanvas | Returns the stzGraphCanvas behind the drawing, for its metrics and node positions rather than only the picture. | a stzGraphCanvas | | ToCanvas | seen in the gallery: no arrowheads, so a directed graph reads as undirected; SizeBy degree shrinks degree-1 nodes to a dot of about 2 pixels; an edge can run through a label | takes the same options as ToCanvas
 PathExists | TRUE if the second node can be reached from the first by following edges; a node reaches itself. | TRUE or FALSE | | ReachableFrom, EdgeExists, ShortestPath
 FirstNode | Returns the first node added, as a hash list [ :id, :label, :properties ]; raises an error on a graph with no node. | a hash list | | FirstNodeId, LastNode
 FirstNodeId | Returns the id of the first node added; raises an error on a graph with no node. | text | | FirstNode

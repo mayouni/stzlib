@@ -1,0 +1,23 @@
+# made d1.ring ; run: cd libraries/stzlib/base/test/reflect && ring <this file>  (picture: diag_flow_default.png)
+load "../../../stzlib.ring"
+# chdir("<an output folder>") here, after the load, so the picture lands there (the engine DLL path breaks if Ring starts elsewhere: run from base/test/reflect)
+
+? "device: " + StzGraphicsDevice()
+
+o1 = new stzDiagram("flow")
+o1.AddNodeXTT("start", "Order Received", [ :type = "start" ])
+o1.AddNodeXT("validate", "Validate")
+o1.AddNodeXTT("ok", "Valid?", [ :type = "decision" ])
+o1.AddNodeXTT("done", "Done", [ :type = "endpoint" ])
+o1.AddNodeXTT("rej", "Rejected", [ :type = "process", :color = "danger" ])
+o1.AddEdgeXT("start", "validate", "next")
+o1.AddEdge("validate", "ok")
+o1.AddEdgeXT("ok", "done", "yes")
+o1.AddEdgeXT("ok", "rej", "no")
+cPng = o1.ToPNG("diag_flow.png")
+? "png bytes: " + len(cPng)
+cSvg = o1.ToSVG()
+? "svg bytes: " + len(cSvg)
+write("diag_flow.svg", cSvg)
+? o1.Dot()
+? o1.Mermaid()

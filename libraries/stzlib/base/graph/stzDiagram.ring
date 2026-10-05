@@ -674,6 +674,7 @@ class stzDiagram from stzGraph
 	#   returns    nothing; the diagram changes
 	#   note       unless SetFont or SetFontSize was called, the theme also sets the font: access
 	#              gives Arial 16, print gives Times 11
+	#   warning    seen in the gallery: the native canvas tier ignores SetTheme("dark") and keeps a white background; the Dot tier honours it
 	#   see        Theme, SetNotation
 	def SetTheme(pTheme)
 	    _cThemeKey_ = StzLower(pTheme)
@@ -1822,6 +1823,7 @@ class stzDiagram from stzGraph
 	#
 	#   pcTitle    The title, as text, stored as given.
 	#   returns    nothing; the diagram changes
+	#   warning    seen in the gallery: the native canvas tier does not draw the title; the Dot tier does
 	#   see        Title, SetSubtitle
 	def SetTitle(pcTitle)
 	    @cTitle = pcTitle
@@ -2708,6 +2710,7 @@ class stzDiagram from stzGraph
 	#   note           a rule is a hash list [ :conditionType, :conditionParams, :effects ]; the
 	#                  types are property_range [ key, min, max ], property_equals [ key, value ],
 	#                  property_exists [ key ] and tag_exists [ tag ]
+	#   warning    seen in the gallery: the rules reach the Dot output only; the native canvas tier draws every node in the default colour
 	#   see            ApplyVisualRules, VisualRulesApplied
 	#@ aka  This section manages visual styling rules that change diagram appearance based on node/edge properties.
 	def RegisterVisualRule(pcRuleName, paDefinition)
@@ -7030,6 +7033,7 @@ class stzDiagram from stzGraph
 	#   warning    it frees its canvas after taking the answer but leaves it recorded as the last
 	#              picture, so PickAt, OnPress and the other gestures find nothing until ToCanvas is
 	#              called again
+	#              seen in the gallery: with no options the shapes carry no text, because the font option defaults to empty; pass a :Font
 	#   see        ToPNG, ToCanvas, Rendition
 	def ToSVG()
 		# the canvas is TRANSIENT: its engine scene (a target texture on the GPU
@@ -7179,6 +7183,7 @@ class stzDiagram from stzGraph
 	#   note       ToPNGXT adds the options of ToCanvasXT
 	#   warning    like ToSVG, it frees its canvas and leaves it recorded as the last picture, so
 	#              gestures find nothing afterwards
+	#              seen in the gallery: with no options the picture has the right shapes and NO text, because the font option defaults to empty; ToPNGXT with a :Font draws the labels (doc/gallery/stzDiagram)
 	#   see        ToSVG, ToCanvas, ToPages
 	def ToPNG(pcPath)
 		# the canvas is TRANSIENT: its engine scene (a target texture on the GPU
@@ -17972,6 +17977,7 @@ class stzDiagram from stzGraph
 	#   returns    text
 	#   note       ToMermaid answers the same text
 	#   warning    a node whose id is start is written as node_start
+	#              seen in the gallery: a left-to-right diagram still comes out as graph TD, without colours, and a decision shape is drawn as a hexagon, not a rhombus
 	#   see        Dot, Json
 	def Mermaid()
 		_oConv_ = new stzDiagramToMermaid(This)

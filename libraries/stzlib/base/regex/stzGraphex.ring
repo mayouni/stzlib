@@ -1231,6 +1231,7 @@ class stzGraphex from stzGraph
 	# Prints the pattern graph as boxes and arrows, one box per token joined by sequences arrows; a negated token is shown between ! marks.
 	#
 	#   returns    nothing; text is printed
+	#   warning    seen in the gallery: the middle token of any pattern is printed between ! marks, negated or not, so a negated token and a plain one cannot be told apart
 	#   see        ListifyPatternGraph, Match
 	def ShowPatternGraph()
 		This.Show()
