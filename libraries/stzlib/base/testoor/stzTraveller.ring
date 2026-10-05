@@ -204,26 +204,75 @@ func _TravJudge(paRec, paLines, pcEnd, pnExit, pnWall)
 		_aStops_[_nCur_][:closed] = paLines[_nL_][2]
 	ok
 
-	# promises: each wanted value must appear at or after the cursor
+	# PROMISES, walked in order against the output (TR2: the rules of
+	# base/meta/promises.py, ported). An ordered subsequence: extra output is
+	# skipped over, but the promises must appear in the order the file makes
+	# them. A promise that is not found consumes one line, so one divergence
+	# cannot hand its line to the next promise. A file that RAISED part-way
+	# has not broken the promises below the raise: they are unreached.
+	# ... and so has a tour that never started or was killed: its promises
+	# are unknown, not broken
+	_bRaised_ = (pcEnd = "broke" or pcEnd = "not-started" or pcEnd = "hung" or pcEnd = "unreadable")
+	_acNorm_ = []
+	for _i_ = 1 to _nL_
+		_acNorm_ + _TravNorm(paLines[_i_][1])
+	next
 	for _s_ = 1 to _nS_
 		_nC_ = len(_aStops_[_s_][:claims])
 		for _c_ = 1 to _nC_
-			if _aStops_[_s_][:claims][_c_][:kind] != "promise"  loop  ok
-			_cWant_ = _TravWantText(_aStops_[_s_][:claims][_c_][:want])
-			_bHit_ = 0
-			for _i_ = _nCursor_ to _nL_
-				_cT_ = trim(paLines[_i_][1])
-				if _cT_ = _cWant_ or (_cWant_ != "" and substr(_cT_, _cWant_) > 0)
-					_bHit_ = 1
-					_nCursor_ = _i_ + 1
-					_aStops_[_s_][:claims][_c_][:at] = paLines[_i_][2]
-					exit
-				ok
-			next
-			if _bHit_
+			_cKind_ = _aStops_[_s_][:claims][_c_][:kind]
+			if _cKind_ = "prose"
+				# a note, not a checkable promise: reported, never judged
+				_aStops_[_s_][:claims][_c_][:state] = "unjudged"
+				loop
+			ok
+			if _cKind_ != "promise"  loop  ok
+			_cRaw_ = _aStops_[_s_][:claims][_c_][:want]
+			_nFound_ = _TravPromiseAt(_cRaw_, _acNorm_, _nCursor_)
+			if _nFound_ > 0
 				_aStops_[_s_][:claims][_c_][:state] = "kept"
+				_aStops_[_s_][:claims][_c_][:at] = paLines[_nFound_][2]
+				if NOT _TravIsErrorPromise(_cRaw_)  _nCursor_ = _nFound_ + 1  ok
+			but _bRaised_
+				_aStops_[_s_][:claims][_c_][:state] = "unreached"
 			else
 				_aStops_[_s_][:claims][_c_][:state] = "diverged"
+				if _nCursor_ <= _nL_  _nCursor_++  ok
+			ok
+		next
+	next
+
+	# PICTURES (_expect.ring): Shows() and Same() compare exactly and raise on
+	# the first mismatch, printing PICTURE DOES NOT MATCH or VALUE DOES NOT
+	# MATCH and the first row that differs. A success prints nothing, so WHICH
+	# picture failed cannot be read from the output -- only that one did, and
+	# which row. So: no mismatch and a tour that ran to its end, every picture
+	# kept; a mismatch, the printed verdict joins the stop in progress as a
+	# diverged claim of its own, naming the row, and the file's picture claims
+	# are unjudged (which one it was is in the rows, not in the numbering).
+	_cMis_ = ""
+	for _i_ = 1 to _nL_
+		if substr(paLines[_i_][1], "DOES NOT MATCH") > 0
+			_cMis_ = trim(paLines[_i_][1])
+			if _i_ + 2 <= _nL_ and substr(paLines[_i_ + 2][1], "first difference at row") > 0
+				_cMis_ += " -- " + trim(paLines[_i_ + 2][1])
+			ok
+			_nTo_ = _nCur_
+			if _nTo_ = 0  _nTo_ = 1  ok
+			_aStops_[_nTo_][:claims] + [ :claim = _cMis_, :kind = "picture", :line = 0,
+			                              :want = "", :state = "diverged", :at = paLines[_i_][2] ]
+			exit
+		ok
+	next
+	for _s_ = 1 to _nS_
+		_nC_ = len(_aStops_[_s_][:claims])
+		for _c_ = 1 to _nC_
+			if _aStops_[_s_][:claims][_c_][:kind] != "picture"  loop  ok
+			if _aStops_[_s_][:claims][_c_][:state] != ""  loop  ok
+			if _cMis_ != ""
+				_aStops_[_s_][:claims][_c_][:state] = "unjudged"
+			but pcEnd = "finished" or pcEnd = "finished-timed"
+				_aStops_[_s_][:claims][_c_][:state] = "kept"
 			ok
 		next
 	next
@@ -265,23 +314,54 @@ func _TravJudge(paRec, paLines, pcEnd, pnExit, pnWall)
 		if _nO_ >= 0 and _nCl_ >= _nO_  _aStops_[_s_][:wall_ms] = floor((_nCl_ - _nO_) * 1000)  ok
 	next
 
-	return [ :end = pcEnd, :exit = pnExit, :wall_ms = pnWall, :seed = "",
+	# A RAISE THAT WAS PROMISED IS NOT A BREAK: a tour whose last promise is
+	# "#--> ERROR: ..." and was kept, with nothing diverged or unreached
+	# after it, ended the way it said it would
+	_cEnd_ = pcEnd
+	if _cEnd_ = "broke" and _nDiv_ = 0 and _nUnr_ = 0 and _TravKeptAnErrorPromise(_aStops_)
+		_cEnd_ = "finished"
+	ok
+	return [ :end = _cEnd_, :exit = pnExit, :wall_ms = pnWall, :seed = "",
 	         :state = _cTour_, :kept = _nKept_, :diverged = _nDiv_,
 	         :unreached = _nUnr_, :unjudged = _nUnj_, :stops = _aStops_,
 	         :printed = _nL_ ]
 
+func _TravKeptAnErrorPromise(paStops)
+	_nS_ = len(paStops)
+	for _s_ = 1 to _nS_
+		_nC_ = len(paStops[_s_][:claims])
+		for _c_ = 1 to _nC_
+			if paStops[_s_][:claims][_c_][:kind] = "promise" and
+			   paStops[_s_][:claims][_c_][:state] = "kept" and
+			   _TravIsErrorPromise(paStops[_s_][:claims][_c_][:want])
+				return 1
+			ok
+		next
+	next
+	return 0
+
 # how the child ended, from its output, its stderr and its exit code
 func _TravEndingOf(paLines, pcErr, pnExit, pbHung)
 	if pbHung  return "hung"  ok
+	# a line Ring prefixes with "eval " is a W-condition that failed to
+	# parse INSIDE a running file (promises.py): a finding about that
+	# condition, never a file that did not run
 	_cAll_ = pcErr
 	_nL_ = len(paLines)
 	for _i_ = 1 to _nL_
+		if substr(trim(paLines[_i_][1]), "eval ") = 1  loop  ok
 		_cAll_ += char(10) + paLines[_i_][1]
 	next
 	if substr(_cAll_, "STOPPED!") > 0  return "finished-timed"  ok
-	if substr(_cAll_, "Error (E") > 0 or substr(_cAll_, "Error (C") > 0  return "not-started"  ok
+	# compile (C), scanner (S) and open (E) errors: nothing ran
+	if substr(_cAll_, "Error (E") > 0 or substr(_cAll_, "Error (C") > 0 or
+	   substr(_cAll_, "Error (S") > 0 or substr(_cAll_, "Can't open file") > 0
+		return "not-started"
+	ok
 	if substr(_cAll_, "Error (R") > 0  return "broke"  ok
-	if substr(_cAll_, "Can't open file") > 0  return "not-started"  ok
+	# _expect.ring's own verdict raises after it prints: that is the
+	# assertion's ending, not a break
+	if substr(_cAll_, "DOES NOT MATCH") > 0  return "finished"  ok
 	if pnExit != 0  return "broke"  ok
 	return "finished"
 
@@ -308,6 +388,231 @@ func _TravHostPath(pcPath)
 		_c_ = substr(_c_, char(92), "/")
 	ok
 	return _c_
+
+#--- promises: the rules of base/meta/promises.py, in Ring (TR2) -----------
+#
+# Each rule below was learned there by watching the harness accuse the
+# library of things it had not done, and is kept with its reason.
+
+# whitespace runs collapsed to one space, trimmed
+func _TravNorm(pcS)
+	_c_ = "" + pcS
+	_c_ = substr(_c_, char(9), " ")
+	_c_ = substr(_c_, char(13), " ")
+	while substr(_c_, "  ") > 0  _c_ = substr(_c_, "  ", " ")  end
+	return trim(_c_)
+
+# whitespace around [ ] , removed and ONLY there: @@() prints "[ 6, 28 ]"
+# and the hand writes "[6, 28]"; removing spaces wholesale would invent
+# matches inside prose
+func _TravCanon(pcS)
+	_c_ = "" + pcS
+	_acP_ = [ "[", "]", "," ]
+	for _k_ = 1 to 3
+		_p_ = _acP_[_k_]
+		while substr(_c_, " " + _p_) > 0  _c_ = substr(_c_, " " + _p_, _p_)  end
+		while substr(_c_, _p_ + " ") > 0  _c_ = substr(_c_, _p_ + " ", _p_)  end
+	next
+	return _c_
+
+func _TravStripQuotes(pcS)
+	_c_ = "" + pcS
+	_n_ = len(_c_)
+	if _n_ >= 2
+		if (_c_[1] = '"' and _c_[_n_] = '"') or (_c_[1] = "'" and _c_[_n_] = "'")
+			return substr(_c_, 2, _n_ - 2)
+		ok
+	ok
+	return _c_
+
+func _TravIsAlpha(pcCh)
+	_n_ = ascii(pcCh)
+	return (_n_ >= 65 and _n_ <= 90) or (_n_ >= 97 and _n_ <= 122)
+
+func _TravIsWordChar(pcCh)
+	_n_ = ascii(pcCh)
+	return _TravIsAlpha(pcCh) or (_n_ >= 48 and _n_ <= 57) or pcCh = "_"
+
+# "#--> ERROR: message" / "#--> ERRORS! message" means THIS LINE RAISES, not
+# "this line prints the word ERROR"; 26 files use the convention
+func _TravIsErrorPromise(pcRaw)
+	_lt_ = lower(trim("" + pcRaw))
+	if substr(_lt_, "error") != 1  return 0  ok
+	_c_ = substr(_lt_, 6, len(_lt_) - 5)
+	if substr(_c_, "s") = 1  _c_ = substr(_c_, 2, len(_c_) - 1)  ok
+	_c_ = trim(_c_)
+	if substr(_c_, ":") = 1 or substr(_c_, "!") = 1  return 1  ok
+	return 0
+
+# the message after the first : or !, quotes off -- the raise arrives as
+# "Line NNNN <message>", so the message is what to look for
+func _TravErrorMessage(pcRaw)
+	_c_ = trim("" + pcRaw)
+	_n_ = substr(_c_, ":")
+	_m_ = substr(_c_, "!")
+	if _n_ = 0 or (_m_ > 0 and _m_ < _n_)  _n_ = _m_  ok
+	if _n_ = 0  return ""  ok
+	return _TravStripQuotes(_TravNorm(substr(_c_, _n_ + 1, len(_c_) - _n_)))
+
+func _TravLastIndexOf(pcS, pcSub)
+	_nLast_ = 0
+	_nAt_ = substr(pcS, pcSub)
+	while _nAt_ > 0
+		_nLast_ = _nAt_
+		_cRest_ = substr(pcS, _nAt_ + 1, len(pcS) - _nAt_)
+		_nNext_ = substr(_cRest_, pcSub)
+		if _nNext_ = 0  exit  ok
+		_nAt_ = _nAt_ + _nNext_
+	end
+	return _nLast_
+
+func _TravIsSymbol(pcS)
+	_n_ = len(pcS)
+	if _n_ < 2 or substr(pcS, ":") != 1  return 0  ok
+	if NOT _TravIsAlpha(pcS[2])  return 0  ok
+	for _k_ = 3 to _n_
+		if NOT _TravIsWordChar(pcS[_k_])  return 0  ok
+	next
+	return 1
+
+# ":Name" inside a list, where the colon follows no word character, prints
+# as "name": the colon is source syntax and the value comes out lowercased
+func _TravLowerSymbols(pcS)
+	_c_ = "" + pcS
+	_n_ = len(_c_)
+	_cOut_ = ""
+	_k_ = 1
+	while _k_ <= _n_
+		_ch_ = _c_[_k_]
+		if _ch_ = ":" and _k_ < _n_ and _TravIsAlpha(_c_[_k_ + 1]) and
+		   (_k_ = 1 or NOT _TravIsWordChar(_c_[_k_ - 1]))
+			_j_ = _k_ + 1
+			while _j_ <= _n_ and _TravIsWordChar(_c_[_j_])  _j_++  end
+			_cOut_ += lower(substr(_c_, _k_ + 1, _j_ - _k_ - 1))
+			_k_ = _j_
+		else
+			_cOut_ += _ch_
+			_k_++
+		ok
+	end
+	return _cOut_
+
+func _TravAddVariant(paSeen, pcV)
+	_c_ = _TravNorm(pcV)
+	if _c_ = ""  return  ok
+	if ring_find(paSeen, _c_) > 0  return  ok
+	paSeen + _c_
+
+# every spelling the promised value could legitimately print as: a human
+# note in parentheses dropped; a second # starts a note; quotes off; TRUE
+# and FALSE print as 1 and 0; :Symbol prints bare and lowercased
+func _TravVariants(pcRaw)
+	_aSeen_ = []
+	_TravAddVariant(_aSeen_, pcRaw)
+	_c_ = _TravNorm(pcRaw)
+	if right(_c_, 1) = ")"
+		_nOpen_ = _TravLastIndexOf(_c_, " (")
+		if _nOpen_ > 0  _TravAddVariant(_aSeen_, substr(_c_, 1, _nOpen_ - 1))  ok
+	ok
+	_nH_ = substr(_c_, " #")
+	if _nH_ > 0  _TravAddVariant(_aSeen_, substr(_c_, 1, _nH_ - 1))  ok
+	_nB_ = len(_aSeen_)
+	for _k_ = 1 to _nB_
+		_cB_ = _aSeen_[_k_]
+		_cQ_ = _TravStripQuotes(_cB_)
+		if _cQ_ != _cB_  _TravAddVariant(_aSeen_, _cQ_)  ok
+		_cU_ = upper(_cB_)
+		if _cU_ = "TRUE"   _TravAddVariant(_aSeen_, "1")  ok
+		if _cU_ = "FALSE"  _TravAddVariant(_aSeen_, "0")  ok
+		if _TravIsSymbol(_cB_)
+			_TravAddVariant(_aSeen_, substr(_cB_, 2, len(_cB_) - 1))
+			_TravAddVariant(_aSeen_, lower(substr(_cB_, 2, len(_cB_) - 1)))
+		ok
+		if substr(_cB_, "[") = 1 and substr(_cB_, ":") > 0
+			_TravAddVariant(_aSeen_, _TravLowerSymbols(_cB_))
+		ok
+	next
+	return _aSeen_
+
+# the items of "[a, b, c]", quotes off; [] when it is not a list text
+func _TravListItems(pcInner)
+	_c_ = "" + pcInner
+	if substr(_c_, "[") != 1 or right(_c_, 1) != "]"  return []  ok
+	_c_ = substr(_c_, 2, len(_c_) - 2)
+	_acOut_ = []
+	_cCur_ = ""
+	_n_ = len(_c_)
+	for _k_ = 1 to _n_
+		if _c_[_k_] = ","
+			if trim(_cCur_) != ""  _acOut_ + _TravStripQuotes(trim(_cCur_))  ok
+			_cCur_ = ""
+		else
+			_cCur_ += _c_[_k_]
+		ok
+	next
+	if trim(_cCur_) != ""  _acOut_ + _TravStripQuotes(trim(_cCur_))  ok
+	return _acOut_
+
+# the output line (normalised, from pnFrom on) where the promise is met, or 0.
+# A SHORT PROMISE MUST EQUAL THE LINE: "#--> 6" against a real 3 was once
+# recorded kept because "6" sits inside a later "[ 6, 28 ]". Longer promises
+# may be substrings, since a ? often prints a label with the value.
+func _TravPromiseAt(pcRaw, pacNorm, pnFrom)
+	_nL_ = len(pacNorm)
+	_cRaw_ = "" + pcRaw
+	if _TravIsErrorPromise(_cRaw_)
+		_cMsg_ = _TravErrorMessage(_cRaw_)
+		if _cMsg_ = ""  return 0  ok
+		for _k_ = pnFrom to _nL_
+			if substr(pacNorm[_k_], _cMsg_) > 0  return _k_  ok
+		next
+		return 0
+	ok
+	_cN_ = _TravNorm(_cRaw_)
+	if _cN_ = "''" or _cN_ = '""'
+		for _k_ = pnFrom to _nL_
+			if pacNorm[_k_] = ""  return _k_  ok
+		next
+		return 0
+	ok
+	_acV_ = _TravVariants(_cRaw_)
+	_nV_ = len(_acV_)
+	for _v_ = 1 to _nV_
+		_cCand_ = _acV_[_v_]
+		_cCC_ = _TravCanon(_cCand_)
+		_bLoose_ = (len(_cCC_) >= 5)
+		for _k_ = pnFrom to _nL_
+			_cLine_ = pacNorm[_k_]
+			_cCL_ = _TravCanon(_cLine_)
+			if _cCC_ = _cCL_ or _cCand_ = _cLine_  return _k_  ok
+			if _bLoose_ and (substr(_cLine_, _cCand_) > 0 or substr(_cCL_, _cCC_) > 0)
+				return _k_
+			ok
+		next
+	next
+	# a list printed without @@() arrives one bare item per line: compare
+	# item by item against exactly as many non-blank lines as it has items
+	if substr(trim(_cRaw_), "[") = 1 and _nV_ > 0
+		_acItems_ = _TravListItems(_TravCanon(_acV_[1]))
+		_nI_ = len(_acItems_)
+		if _nI_ > 0
+			for _k_ = pnFrom to _nL_
+				_acSeg_ = []
+				_j_ = _k_
+				while _j_ <= _nL_ and len(_acSeg_) < _nI_
+					if pacNorm[_j_] != ""  _acSeg_ + _TravStripQuotes(pacNorm[_j_])  ok
+					_j_++
+				end
+				if len(_acSeg_) < _nI_  exit  ok
+				_bSame_ = 1
+				for _m_ = 1 to _nI_
+					if _acSeg_[_m_] != _acItems_[_m_]  _bSame_ = 0  exit  ok
+				next
+				if _bSame_  return _j_ - 1  ok
+			next
+		ok
+	ok
+	return 0
 
 #--- the run as JSON and prose --------------------------------------------
 

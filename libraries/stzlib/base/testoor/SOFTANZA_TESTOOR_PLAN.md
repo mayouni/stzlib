@@ -97,11 +97,30 @@ minutes. Central was asked about COMPASS-AGENTTOOLS-01 before TR1 and had not
 answered; the runner was written here, as the ASK allows, and the stz desk's verb
 calls it as a child.
 
-### TR2 -- Promises as stops -- PLANNED
+### TR2 -- Promises as stops -- DONE 2026-10-05
 
-The Ring port of `base/meta/promises.py`; `_expect.ring` joins the logbook. A
-planted lie is diverged; a prose promise is prose; `#--> ERROR:` honoured; lists
-item by item; did-not-compile is not diverged.
+The rules of `base/meta/promises.py` live in the traveller (`_TravPromise*`,
+`_TravVariants`, `_TravCanon` in `stzTraveller.ring`) and judge a promise as a
+claim of a stop. Kept with their reasons: a promise is walked as an ordered
+subsequence of the output; a short promise must equal its line (a `6` once hid
+inside a later `[ 6, 28 ]`); a divergence consumes one line so it cannot hand its
+line to the next promise; `TRUE`/`FALSE` print as `1`/`0`; a note in parentheses
+and a second `#` are dropped; quotes are dropped; `:Symbol` prints bare and
+lowercased; `@@()` list spacing is canonical; a bare list arrives one item per
+line and is compared item by item; `''` is an empty line; `#--> ERROR: msg` means
+the line raises, and a tour whose last kept promise is one of those FINISHED as it
+said it would; a trailing `#-->` followed by a standalone one is a label; a promise
+that argues with itself (`but should`, `see why`, `TODO` ...) is PROSE -- kind
+prose, state unjudged, never diverged; a file that did not compile (C, S, E9) or
+raised part-way has not broken the promises below: they are unreached. `_expect.
+ring`'s `Shows()`/`Same()` are picture claims: silent is kept; `PICTURE DOES NOT
+MATCH` is one diverged claim naming its row (which picture it was is in the rows,
+not in the numbering, so the file's picture claims are unjudged), and the raise
+that follows it is the assertion's ending, not a break. Guard:
+`base/test/testoor/testoor_promises_narrated.ring`, 46 assertions, every rule
+planted both ways (the lie it must catch and the truth it must not accuse), plus
+one real plot example. The Python harness and the Ring port were run on numbrex,
+char, locale and file; the comparison is in the TR2 memo.
 
 ### TR3 -- Routes and the map -- PLANNED
 

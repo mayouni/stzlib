@@ -66,4 +66,4 @@ libraries/stzlib/base/test/education/_edu_run_*.ring
 WHATS-NEXT.md
 
 # Testoor: tours planted by base/test/testoor guards (written and removed by the guard)
-**/test/testoor/_planted/
+**/test/testoor/_planted*/
