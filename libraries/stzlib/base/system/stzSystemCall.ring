@@ -26,6 +26,22 @@ ShellBuiltInCommands = [
 # GLOBAL FUNCTIONS
 #==================
 
+# Open a file or folder in the application the system associates with it --
+# the safe form of system('start "" "' + path + '"'), which hands the path to
+# a shell: a `"` in it ends the quoting and the rest is RUN (threat-model R11).
+# Here no shell sees the path (ShellExecuteW on Windows; `open` / `xdg-open`
+# with the path as one argument elsewhere), and anything that is not an
+# EXISTING file or folder is refused before anything is launched.
+# Returns 1 when the viewer was launched, 0 when the launch failed.
+func StzOpenInDefaultApp(pcPath)
+	if NOT isString(pcPath) or ring_trim(pcPath) = ""
+		stzraise("StzOpenInDefaultApp: a path is required.")
+	ok
+	if NOT ( fexists(pcPath) or direxists(pcPath) )
+		stzraise("StzOpenInDefaultApp: '" + pcPath + "' is not an existing file or folder -- nothing is launched.")
+	ok
+	return StzEngineSystemOpenDefault(pcPath) = 0
+
 func StzSystemCallQ(pcProgram)
 	return new stzSystemCall(pcProgram)
 
