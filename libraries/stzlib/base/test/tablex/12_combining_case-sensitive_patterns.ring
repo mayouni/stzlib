@@ -20,7 +20,8 @@ oTable = new stzTable([
 # Case-sensitive validation
 oTx = new stzTablex("{@cs:unique(name) & @cs:contains(Ali) & @cs:sorted(name)}")
 ? oTx.Match(oTable)
-#--> TRUE
+#--> FALSE
+# (the names Ali, Sara, Omar are not in ascending order, so sorted(name) fails and the whole pattern does)
 
 pf()
 # Executed in 0.17 second(s) in Ring 1.24

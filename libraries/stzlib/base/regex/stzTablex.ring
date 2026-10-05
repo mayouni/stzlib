@@ -18,19 +18,16 @@ func IsStzTablex(pObj)
 		return 0
 	ok
 
-# Tests whether a stzTable fits a pattern written in a small regex-like language, such as {cols(3) & unique(name)}; the pattern parser is broken today.
+# Tests whether a stzTable fits a pattern written in a small regex-like language, such as {cols(3) & unique(name)}.
 #
 # A pattern is text in braces made of terms: cols, rows, col, row, cell, colname, hascol, property,
 # contains, sorted, unique, duplicates, grouped, filtered, aggregated, transposed, calculated,
 # coltype, colpattern, sumcol, avgcol, mincol, maxcol, nulls, completeness, numeric, alphabetic and
 # format, written like cols(3) or sumcol(sales:>50000). Terms are joined by & (all must hold), a
 # vertical bar (one must hold) and -> (a sequence), @! negates a term, @cs: makes it case-sensitive,
-# and results are cached per pattern and table content. Known gaps today, each carried as a warning
-# on its method: the parser reads text with a count-based call where an end position is meant, so
-# most patterns parse into wrong tokens and Match answered FALSE or raised for every pattern tried;
-# And_, Or_ and Not_ end their pattern with a stray brace; the Check methods are sound when handed a
-# correct token, except CheckRow, CheckCell, CheckColPattern, CheckAlphabetic, CheckFormat and
-# MatchesFormat, which raise, and CountMatchedParts and HowManyMatchedParts raise too.
+# and results are cached per pattern and table content. cols and rows take a number or a comparison:
+# > and < are strict, >= and <= are at-least and at-most. A name the table does not have is simply
+# not satisfied, it does not raise.
 #
 #   receiver   o1 = new stzTablex("{cols(3)}")
 #   example    ? o1.Pattern()
@@ -53,11 +50,9 @@ class stzTablex from stzObject
 
 	# Builds a table pattern from text such as {cols(3) & unique(name)} and parses it into tokens; a non-text value raises an error.
 	#
+	#   pcPattern  the pattern text, with or without braces
 	#   returns    nothing; the object is built
-	#   note       the braces are added when missing
-	#   warning    known defect: the parser reads text with a count-based call where it wants an end
-	#              position, so most patterns parse into wrong tokens, and a term written without
-	#              parentheses, such as {cols}, raises error R24
+	#   note       the braces are added when missing; a term written without parentheses, such as {cols}, parses into a token with no constraint
 	#   see        Match, Pattern, Tokens
 	def init(pcPattern)
 		if NOT isString(pcPattern)
@@ -72,6 +67,19 @@ class stzTablex from stzObject
 			? "Pattern: " + @cPattern
 			? "Tokens parsed: " + len(@aTokens)
 		ok
+
+	# The pattern text from position n1 to position n2, both included.
+	#
+	#   s            the text
+	#   n1           the position to start at
+	#   n2           the position to stop at, included
+	#   returns      the slice, a string
+	#
+	# The global @StzMid takes a COUNT, not an end position (it was made codepoint-addressed in
+	# commit 5976bb3de); every slice of this parser is written from a start and an end, so they
+	# all go through here, as in stzMatrex.
+	def _Mid(s, n1, n2)
+		return @StzMid(s, n1, n2 - n1 + 1)
 
 	# Trims the pattern text and wraps it in braces when it has none.
 	#
@@ -89,19 +97,15 @@ class stzTablex from stzObject
 	 #  PATTERN PARSING   #
 	#--------------------#
 
-	# Splits a braced pattern at its top-level -> into parts and parses each part into a token; the result is wrong today.
+	# Splits a braced pattern at its top-level -> into parts and parses each part into a token.
 	#
 	#   _cPattern_   the pattern text, with its braces
-	#   returns      a list of tokens, each a list of [ key, value ] pairs
-	#   note         the same slip is in And_, Or_, Not_ and in the value readers of
-	#                ParseSingleToken
-	#   warning      known defect: the inner text and the splitting use a count where an end
-	#                position is meant, so {cols(2) -> rows(1)} gives one token of type col with no
-	#                value
+	#   returns      a list of tokens, each a list of [ key, value ] pairs; one token per part, so {cols(2) -> rows(1)} gives two
+	#   note         a part joined by & or a vertical bar is ONE token, a conjunction or an alternation, holding its conditions
 	#   see          Tokens, ParseSingleToken
 	def ParsePattern(_cPattern_)
 		# Remove outer braces
-		_cInner_ = @StzMid(_cPattern_, 2, StzLen(_cPattern_) - 1)
+		_cInner_ = This._Mid(_cPattern_, 2, StzLen(_cPattern_) - 1)
 		_cInner_ = trim(_cInner_)
 
 		if @bDebugMode
@@ -135,13 +139,12 @@ class stzTablex from stzObject
 
 		return _aTokens_
 
-	# Returns garbled text today instead of the parts of a text split at an operator outside brackets.
+	# Returns the parts of a text split at an operator that stands outside brackets.
 	#
 	#   cStr        the text to split
 	#   cOperator   the operator, such as "->"
-	#   returns     a list holding one garbled text, whatever the input
-	#   warning     known defect: it reads each character with a count-based call, so "a->b->(c->d)"
-	#               gives one text full of repeated pieces instead of a, b and (c->d)
+	#   returns     a list of trimmed texts; "a->b->(c->d)" gives a, b and (c->d)
+	#   note        an operator inside parentheses or braces does not split
 	#   see         ParsePattern
 	def SplitByOperator(cStr, cOperator)
 		_aParts_ = []
@@ -151,7 +154,7 @@ class stzTablex from stzObject
 		_nOpLen_ = len(cOperator)
 
 		for _i_ = 1 to _nLen_
-			_cChar_ = @StzMid(cStr, _i_, _i_)
+			_cChar_ = This._Mid(cStr, _i_, _i_)
 	
 			if _cChar_ = "(" or _cChar_ = "{"
 				_nDepth_++
@@ -159,7 +162,7 @@ class stzTablex from stzObject
 			but _cChar_ = ")" or _cChar_ = "}"
 				_nDepth_--
 				_cCurrent_ += _cChar_
-			but _nDepth_ = 0 and @StzMid(cStr, _i_, _i_ + _nOpLen_ - 1) = cOperator
+			but _nDepth_ = 0 and This._Mid(cStr, _i_, _i_ + _nOpLen_ - 1) = cOperator
 				_aParts_ + trim(_cCurrent_)
 				_cCurrent_ = ""
 				_i_ += _nOpLen_ - 1
@@ -174,17 +177,14 @@ class stzTablex from stzObject
 
 		return _aParts_
 
-	# Parses a part whose terms are joined by a vertical bar into an alternation token; the alternatives come out wrong today.
+	# Parses a part whose terms are joined by a vertical bar into an alternation token holding the alternatives.
 	#
 	#   _cTokenStr_   the text of the part, with or without outer parentheses
-	#   returns       a token: [ type, alternation ], [ alternatives, a list of tokens ] and [
-	#                 negated, 0 ]
-	#   warning       known defect: it splits with the broken splitter, so a bar-joined pair gives
-	#                 one alternative of type col
+	#   returns       a token: [ type, alternation ], [ alternatives, a list of tokens ] and [ negated, 0 ]
 	#   see           ParseConjunction, ParseSingleToken
 	def ParseAlternation(_cTokenStr_)
 		if startsWith(_cTokenStr_, "(") and endsWith(_cTokenStr_, ")")
-			_cTokenStr_ = @StzMid(_cTokenStr_, 2, StzLen(_cTokenStr_) - 1)
+			_cTokenStr_ = This._Mid(_cTokenStr_, 2, StzLen(_cTokenStr_) - 1)
 		ok
 
 		_aParts_ = This.SplitByOperator(_cTokenStr_, "|")
@@ -207,17 +207,14 @@ class stzTablex from stzObject
 			["negated", 0]
 		]
 
-	# Parses a part whose terms are joined by & into a conjunction token; the conditions come out wrong today.
+	# Parses a part whose terms are joined by & into a conjunction token holding the conditions.
 	#
 	#   _cTokenStr_   the text of the part, with or without outer parentheses
-	#   returns       a token: [ type, conjunction ], [ conditions, a list of tokens ] and [
-	#                 negated, 0 ]
-	#   warning       known defect: it splits with the broken splitter, so (cols(1) & rows(2)) gives
-	#                 one condition of type col
+	#   returns       a token: [ type, conjunction ], [ conditions, a list of tokens ] and [ negated, 0 ]
 	#   see           ParseAlternation, ParseSingleToken
 	def ParseConjunction(_cTokenStr_)
 		if startsWith(_cTokenStr_, "(") and endsWith(_cTokenStr_, ")")
-			_cTokenStr_ = @StzMid(_cTokenStr_, 2, StzLen(_cTokenStr_) - 1)
+			_cTokenStr_ = This._Mid(_cTokenStr_, 2, StzLen(_cTokenStr_) - 1)
 		ok
 
 		_aParts_ = This.SplitByOperator(_cTokenStr_, "&")
@@ -238,15 +235,11 @@ class stzTablex from stzObject
 			["negated", 0]
 		]
 
-	# Parses one term such as unique(name) or @cs:contains(Ali) into a token; the value keeps the closing parenthesis today.
+	# Parses one term such as unique(name) or @cs:contains(Ali) into a token: its type, value, constraints and flags.
 	#
 	#   _cTokenStr_   the text of one term
-	#   returns       a token as a list of [ key, value ] pairs; [ ] for empty text; an ERROR token
-	#                 for a term it does not know
-	#   note          @! sets negated, @cs: sets casesensitive, the quantifiers + * ? and n-m fill
-	#                 min and max, and Match never reads min and max
-	#   warning       known defect: a count-based call reads the text inside the parentheses, so
-	#                 unique(Name) gives the value "Name)" and rows(2) gives no constraint
+	#   returns       a token as a list of [ key, value ] pairs; [ ] for empty text; an ERROR token for a term it does not know
+	#   note          @! sets negated, @cs: sets casesensitive, the quantifiers + * ? and n-m fill min and max, and Match never reads min and max; a term with no parentheses, such as cols, gets no constraint
 	#   see           ParseConstraints, ParsePattern
 	def ParseSingleToken(_cTokenStr_)
 		_cTokenStr_ = trim(_cTokenStr_)
@@ -265,13 +258,13 @@ class stzTablex from stzObject
 		# Check for negation
 		if startsWith(StzLower(_cTokenStr_), "@!")
 			_bNegated_ = 1
-			_cTokenStr_ = @StzMid(_cTokenStr_, 3, StzLen(_cTokenStr_))
+			_cTokenStr_ = This._Mid(_cTokenStr_, 3, StzLen(_cTokenStr_))
 		ok
 
 		# Check for case sensitivity flag
 		if startsWith(StzLower(_cTokenStr_), "@cs:")
 			_bCaseSensitive_ = 1
-			_cTokenStr_ = @StzMid(_cTokenStr_, 5, StzLen(_cTokenStr_))
+			_cTokenStr_ = This._Mid(_cTokenStr_, 5, StzLen(_cTokenStr_))
 		ok
 
 		_cType_ = ""
@@ -279,6 +272,7 @@ class stzTablex from stzObject
 		_aConstraints_ = []
 		_nMin_ = 1
 		_nMax_ = 1
+		_nCloseParen_ = 0
 
 		# Extract and preserve content in parentheses BEFORE lowercasing
 		_cPreservedValue_ = ""
@@ -286,7 +280,7 @@ class stzTablex from stzObject
 		if _nOpenParen_ > 0
 			_nCloseParen_ = StzFindFirst(")", _cTokenStr_)
 			if _nCloseParen_ > _nOpenParen_
-				_cPreservedValue_ = @StzMid(_cTokenStr_, _nOpenParen_ + 1, _nCloseParen_ - 1)
+				_cPreservedValue_ = This._Mid(_cTokenStr_, _nOpenParen_ + 1, _nCloseParen_ - 1)
 				if @bDebugMode
 					? "Preserved value: " + _cPreservedValue_
 				ok
@@ -435,7 +429,7 @@ class stzTablex from stzObject
 			if _nCloseParen_ > _nOpenParen_
 				_cContent_ = _cPreservedValue_
 
-				if _cType_ = "property" or _cType_ = "colname" or 
+				if _cType_ = "property" or _cType_ = "colname" or _cType_ = "row" or 
 				   _cType_ = "contains" or _cType_ = "sorted" or 
 				   _cType_ = "unique" or _cType_ = "duplicates" or _cType_ = "hascol" or 
 				   _cType_ = "grouped" or _cType_ = "filtered" or _cType_ = "calculated" or
@@ -460,7 +454,7 @@ class stzTablex from stzObject
 		# Parse quantifiers (same as before...)
 		_cQuantPart_ = ""
 		if _nCloseParen_ > 0 and _nCloseParen_ < len(_cTokenStr_)
-			_cQuantPart_ = @StzMid(_cTokenStr_, _nCloseParen_ + 1, StzLen(_cTokenStr_))
+			_cQuantPart_ = This._Mid(_cTokenStr_, _nCloseParen_ + 1, StzLen(_cTokenStr_))
 		ok
 
 		_cQuantPart_ = trim(_cQuantPart_)
@@ -517,19 +511,17 @@ class stzTablex from stzObject
 		_nLen_ = len(aPrefixes)
 		for _i_ = 1 to _nLen_
 			if startsWith(cStr, aPrefixes[_i_])
-				return @StzMid(cStr, StzLen(aPrefixes[_i_]) + 1, StzLen(cStr))
+				return This._Mid(cStr, StzLen(aPrefixes[_i_]) + 1, StzLen(cStr))
 			ok
 		next
 		return cStr
 
-	# Reads the text inside a term's parentheses into constraints: exact, greater and less for cols and rows, a range or a set for cell.
+	# Reads the text inside a term's parentheses into constraints: exact, greater, less, greaterequal and lessequal for cols and rows, a range or a set for cell.
 	#
 	#   cConstraintStr   the text to read
 	#   _cType_          the term type, such as cols, rows or cell
-	#   returns          a list of constraints; [ ] for empty text or any other type
-	#   note             the greater and less forms are tested as at least and at most by CheckCols
-	#                    and CheckRows
-	#   warning          a set loses its brace the wrong way: {a;b} gives the values a and b}
+	#   returns          a list of constraints; [ ] for empty text, any other type, or a text it does not read, such as 2-5 for rows
+	#   note             the greater and less forms are strict: cols(>4) is false for exactly 4 columns; the at-least and at-most forms are written >= and <=
 	#   see              ParseSingleToken
 	def ParseConstraints(cConstraintStr, _cType_)
 		_aConstraints_ = []
@@ -546,15 +538,25 @@ class stzTablex from stzObject
 					["type", "exact"],
 					["value", 0 + cConstraintStr]
 				]
+			but startsWith(cConstraintStr, ">=")
+				_aConstraints_ + [
+					["type", "greaterequal"],
+					["value", 0 + This._Mid(cConstraintStr, 3, StzLen(cConstraintStr))]
+				]
+			but startsWith(cConstraintStr, "<=")
+				_aConstraints_ + [
+					["type", "lessequal"],
+					["value", 0 + This._Mid(cConstraintStr, 3, StzLen(cConstraintStr))]
+				]
 			but startsWith(cConstraintStr, ">")
 				_aConstraints_ + [
 					["type", "greater"],
-					["value", 0 + @StzMid(cConstraintStr, 2, StzLen(cConstraintStr))]
+					["value", 0 + This._Mid(cConstraintStr, 2, StzLen(cConstraintStr))]
 				]
 			but startsWith(cConstraintStr, "<")
 				_aConstraints_ + [
 					["type", "less"],
-					["value", 0 + @StzMid(cConstraintStr, 2, StzLen(cConstraintStr))]
+					["value", 0 + This._Mid(cConstraintStr, 2, StzLen(cConstraintStr))]
 				]
 			ok
 
@@ -564,15 +566,25 @@ class stzTablex from stzObject
 					["type", "exact"],
 					["value", 0 + cConstraintStr]
 				]
+			but startsWith(cConstraintStr, ">=")
+				_aConstraints_ + [
+					["type", "greaterequal"],
+					["value", 0 + This._Mid(cConstraintStr, 3, StzLen(cConstraintStr))]
+				]
+			but startsWith(cConstraintStr, "<=")
+				_aConstraints_ + [
+					["type", "lessequal"],
+					["value", 0 + This._Mid(cConstraintStr, 3, StzLen(cConstraintStr))]
+				]
 			but startsWith(cConstraintStr, ">")
 				_aConstraints_ + [
 					["type", "greater"],
-					["value", 0 + @StzMid(cConstraintStr, 2, StzLen(cConstraintStr))]
+					["value", 0 + This._Mid(cConstraintStr, 2, StzLen(cConstraintStr))]
 				]
 			but startsWith(cConstraintStr, "<")
 				_aConstraints_ + [
 					["type", "less"],
-					["value", 0 + @StzMid(cConstraintStr, 2, StzLen(cConstraintStr))]
+					["value", 0 + This._Mid(cConstraintStr, 2, StzLen(cConstraintStr))]
 				]
 			ok
 
@@ -589,7 +601,7 @@ class stzTablex from stzObject
 			but StzFindFirst("{", cConstraintStr) > 0
 				_nStart_ = StzFindFirst("{", cConstraintStr)
 				_nEnd_ = StzFindFirst("}", cConstraintStr)
-				_cSet_ = @StzMid(cConstraintStr, _nStart_ + 1, _nEnd_ - 1)
+				_cSet_ = This._Mid(cConstraintStr, _nStart_ + 1, _nEnd_ - 1)
 				_aValues_ = @split(_cSet_, ";")
 				_aConstraints_ + [
 					["type", "set"],
@@ -608,10 +620,7 @@ class stzTablex from stzObject
 	#
 	#   poTable    the stzTable to test
 	#   returns    TRUE or FALSE (1 or 0)
-	#   note       a non-table raises an error
-	#   warning    known defect: because the parser gives wrong tokens, every pattern tried answered
-	#              FALSE or raised an error, rows and row terms raise R14 (hasrow), and {cols}
-	#              raises R24
+	#   note       a non-table raises an error; a name that does not exist, such as sorted(zzz), is not satisfied, it does not raise
 	#   see        MatchedParts, MatchingTables, ClearCache
 	def Match(poTable)
 		if NOT IsStzTable(poTable)
@@ -831,10 +840,18 @@ class stzTablex from stzObject
 							return 1
 						ok
 					on "greater"
-						if _nCols_ >= _aConstraint_["value"]
+						if _nCols_ > _aConstraint_["value"]
 							return 1
 						ok
 					on "less"
+						if _nCols_ < _aConstraint_["value"]
+							return 1
+						ok
+					on "greaterequal"
+						if _nCols_ >= _aConstraint_["value"]
+							return 1
+						ok
+					on "lessequal"
 						if _nCols_ <= _aConstraint_["value"]
 							return 1
 						ok
@@ -868,10 +885,18 @@ class stzTablex from stzObject
 							return 1
 						ok
 					on "greater"
-						if _nRows_ >= _aConstraint_["value"]
+						if _nRows_ > _aConstraint_["value"]
 							return 1
 						ok
 					on "less"
+						if _nRows_ < _aConstraint_["value"]
+							return 1
+						ok
+					on "greaterequal"
+						if _nRows_ >= _aConstraint_["value"]
+							return 1
+						ok
+					on "lessequal"
 						if _nRows_ <= _aConstraint_["value"]
 							return 1
 						ok
@@ -896,50 +921,87 @@ class stzTablex from stzObject
 		ok
 		return 0
 
-	# Raises error R14 today instead of testing whether the table holds a given row.
+	# TRUE if the table holds a row whose cells equal the comma-separated values of the token, the case being ignored.
 	#
-	#   _aToken_   a row token whose value is the row, as a list
+	#   _aToken_   a row token whose value is the cells separated by commas, such as 2,Sara,32,Paris
 	#   oTable     the stzTable to test
-	#   returns    nothing today
-	#   warning    known defect: it calls HasRow on the table, a method stzTable does not have
+	#   returns    TRUE or FALSE (1 or 0)
+	#   note       the row must have exactly as many cells as the token lists
 	#   see        CheckCol
 	def CheckRow(_aToken_, oTable)
 		# Check specific column properties
 		if HasKey(_aToken_, "value")
-			_aRow_ = _aToken_["value"]
-			return oTable.HasRow(_aRow_)
-		ok
-		return 0
-
-	# Raises error R2 today instead of testing whether a cell value lies in a range of the table.
-	#
-	#   _aToken_   a cell token with a range constraint
-	#   oTable     the stzTable to test
-	#   returns    nothing today
-	#   warning    known defect: it reads a "range" key that the parser never writes into the token,
-	#              so the list access fails
-	#   see        CheckContains
-	def CheckCell(_aToken_, oTable)
-		# Check cell value constraints across table
-		if HasKey(_aToken_, "constraints")
-			_aConstraints_ = _aToken_["constraints"]
-			_nLen_ = len(_aConstraints_)
-
-			for _i_ = 1 to _nLen_
-				_aConstraint_ = _aConstraints_[_i_]
-
-				if HasKey(_aConstraint_, "type")
-					if _aConstraint_["type"] = "range"
-						_aRange_ = _aToken_["range"]
-						if HasKey(_aToken_, "casesensitive")
-							return oTable.ContainsInSectionCS(_aRange_[1], _aRange_[2], _aToken_["value"], 1)
-						else
-							return oTable.ContainsInSectionCS(_aRange_[1], _aRange_[2], _aToken_["value"], 0)
+			_aWanted_ = @split(_aToken_["value"], ",")
+			_nWanted_ = len(_aWanted_)
+			_nRows_ = oTable.NumberOfRows()
+			for _i_ = 1 to _nRows_
+				_aRow_ = oTable.Row(_i_)
+				if len(_aRow_) = _nWanted_
+					_bSame_ = 1
+					for _j_ = 1 to _nWanted_
+						if StzLower("" + _aRow_[_j_]) != StzLower(trim(_aWanted_[_j_]))
+							_bSame_ = 0
+							exit
 						ok
+					next
+					if _bSame_
+						return 1
 					ok
 				ok
 			next
 		ok
+		return 0
+
+	# TRUE if some cell of the table lies in the range of the token, or equals one of the values of its set.
+	#
+	#   _aToken_   a cell token with a range constraint such as 25..45, or a set such as {Ali;Zed}
+	#   oTable     the stzTable to test
+	#   returns    TRUE or FALSE (1 or 0)
+	#   note       a range holds for number cells only; a set compares the written form of each cell, the case being ignored
+	#   see        CheckContains
+	def CheckCell(_aToken_, oTable)
+		if NOT HasKey(_aToken_, "constraints")
+			return 0
+		ok
+		_aConstraints_ = _aToken_["constraints"]
+		_nLen_ = len(_aConstraints_)
+		_nRows_ = oTable.NumberOfRows()
+
+		for _i_ = 1 to _nLen_
+			_aConstraint_ = _aConstraints_[_i_]
+			if NOT HasKey(_aConstraint_, "type")
+				loop
+			ok
+
+			if _aConstraint_["type"] = "range" and This.IsNumeric(_aConstraint_["start"]) and This.IsNumeric(_aConstraint_["end"])
+				_nStart_ = 0 + _aConstraint_["start"]
+				_nEnd_ = 0 + _aConstraint_["end"]
+				for _r_ = 1 to _nRows_
+					_aRow_ = oTable.Row(_r_)
+					_nCells_ = len(_aRow_)
+					for _c_ = 1 to _nCells_
+						if isNumber(_aRow_[_c_]) and _aRow_[_c_] >= _nStart_ and _aRow_[_c_] <= _nEnd_
+							return 1
+						ok
+					next
+				next
+
+			but _aConstraint_["type"] = "set"
+				_aValues_ = _aConstraint_["values"]
+				_nValues_ = len(_aValues_)
+				for _r_ = 1 to _nRows_
+					_aRow_ = oTable.Row(_r_)
+					_nCells_ = len(_aRow_)
+					for _c_ = 1 to _nCells_
+						for _v_ = 1 to _nValues_
+							if StzLower("" + _aRow_[_c_]) = StzLower(trim(_aValues_[_v_]))
+								return 1
+							ok
+						next
+					next
+				next
+			ok
+		next
 		return 0
 
 	# TRUE if the table has a column of the name held in the token value, the case being ignored.
@@ -955,12 +1017,11 @@ class stzTablex from stzObject
 		ok
 		return 0
 
-	# TRUE if the table has the property named in the token: empty, nonempty, sorted or calculated; any other name gives TRUE.
+	# TRUE if the table has the property named in the token: empty, nonempty, sorted or calculated; any other name gives FALSE.
 	#
 	#   _aToken_   a property token whose value is the property name
 	#   oTable     the stzTable to test
 	#   returns    TRUE or FALSE (1 or 0)
-	#   warning    known defect: an unknown property name such as zzz answers TRUE instead of FALSE
 	#   see        Match
 	def CheckProperty(_aToken_, oTable)
 		if HasKey(_aToken_, "value")
@@ -980,15 +1041,14 @@ class stzTablex from stzObject
 				return len(oTable.FindCalculatedCols()) > 0
 			off
 		ok
-		return 1
+		return 0
 
 	# TRUE if some cell of the table equals the value of the token, the case being ignored unless the token says otherwise.
 	#
 	#   _aToken_   a contains token whose value is the cell value
 	#   oTable     the stzTable to test
 	#   returns    TRUE or FALSE (1 or 0)
-	#   note       numbers and lists are read from the text; objects are not understood
-	#   warning    a value that reads as a number, such as 28, raises an error
+	#   note       a value that reads as a number is compared with the number cells by value; text and lists are compared by their written form
 	#   see        CheckCell, Match
 	def CheckContains(_aToken_, oTable)
 		if HasKey(_aToken_, "value")
@@ -1012,25 +1072,49 @@ class stzTablex from stzObject
 			# of type OBJECT, only NUMBER, STRING and LIST.
 			# TODO: Clarify this in the documentation
 
-			# Check with case sensitivity
-			if _bCaseSensitive_
-				_bResult_ = oTable.ContainsCellCS(_value_, 1)
-			else
-				_bResult_ = oTable.ContainsCellCS(_value_, 0)
-			ok
-
-			return _bResult_
+			# scan the cells: numbers by value, text and lists by their written form
+			_nRows_ = oTable.NumberOfRows()
+			for _r_ = 1 to _nRows_
+				_aRow_ = oTable.Row(_r_)
+				_nCells_ = len(_aRow_)
+				for _c_ = 1 to _nCells_
+					_xCell_ = _aRow_[_c_]
+					if isNumber(_value_)
+						if isNumber(_xCell_) and _xCell_ = _value_
+							return 1
+						ok
+					else
+						_cCell_ = "" + _xCell_
+						_cWanted_ = "" + _value_
+						if isList(_xCell_)
+							_cCell_ = @@(_xCell_)
+						ok
+						if isList(_value_)
+							_cWanted_ = @@(_value_)
+						ok
+						if _bCaseSensitive_
+							if strcmp(_cCell_, _cWanted_) = 0
+								return 1
+							ok
+						else
+							if StzLower(_cCell_) = StzLower(_cWanted_)
+								return 1
+							ok
+						ok
+					ok
+				next
+			next
+			return 0
 		ok
 
 		return 0
 
-	# TRUE if the named column is in ascending order, comparing numbers as numbers and text as text, case counting by default.
+	# TRUE if the named column is in ascending order, comparing numbers as numbers and text as text, the case being ignored unless the token says otherwise.
 	#
 	#   _aToken_   a sorted token whose value is the column name
 	#   oTable     the stzTable to test
-	#   returns    TRUE or FALSE (1 or 0)
-	#   note       only neighbours of the same type are compared
-	#   warning    known defect: an unknown column name answers TRUE
+	#   returns    TRUE or FALSE (1 or 0); FALSE for a column the table does not have
+	#   note       only neighbours of the same type are compared; with @cs: a lower-case letter sorts after an upper-case one
 	#   see        CheckUnique, Match
 	def CheckSorted(_aToken_, oTable)
 		if HasKey(_aToken_, "value")
@@ -1069,14 +1153,14 @@ class stzTablex from stzObject
 				return 1
 			ok
 		ok
-		return 1
+		return 0
 
-	# TRUE if no value repeats in the named column; the case counts unless the token says otherwise.
+	# TRUE if no value repeats in the named column; the case is ignored unless the token says otherwise.
 	#
 	#   _aToken_   a unique token whose value is the column name
 	#   oTable     the stzTable to test
-	#   returns    TRUE or FALSE (1 or 0)
-	#   warning    known defect: an unknown column name answers TRUE
+	#   returns    TRUE or FALSE (1 or 0); FALSE for a column the table does not have
+	#   note       a and A repeat each other, but with @cs: they are two values
 	#   see        CheckDuplicates, Match
 	def CheckUnique(_aToken_, oTable)
 		if HasKey(_aToken_, "value")
@@ -1106,7 +1190,7 @@ class stzTablex from stzObject
 				ok
 			ok
 		ok
-		return 1
+		return 0
 
 	# TRUE if some value repeats in the named column; the case is ignored unless the token says otherwise.
 	#
@@ -1355,12 +1439,11 @@ class stzTablex from stzObject
 		ok
 		return 0
 
-	# Raises error R14 today instead of testing that every text of a column matches a regex pattern.
+	# TRUE if every text of the named column matches a regex pattern.
 	#
 	#   _aToken_   a colpattern token whose value reads name:pattern
 	#   oTable     the stzTable to test
-	#   returns    nothing today
-	#   warning    known defect: it calls MatchesRX on a stzString, a method that does not exist
+	#   returns    TRUE or FALSE (1 or 0)
 	#   see        CheckFormat
 	def CheckColPattern(_aToken_, oTable)
 		if HasKey(_aToken_, "value")
@@ -1379,7 +1462,7 @@ class stzTablex from stzObject
 						# Check if all values match the pattern
 						for _i_ = 1 to _nLen_
 							if isString(_aCol_[_i_])
-								if NOT Q(_aCol_[_i_]).MatchesRX(_cPattern_)
+								if NOT Q(_aCol_[_i_]).MatchesRegex(_cPattern_)
 									return 0
 								ok
 							ok
@@ -1420,9 +1503,9 @@ class stzTablex from stzObject
 						next
 
 						if startsWith(_cConstraint_, ">")
-							return _nSum_ > (0 + @StzMid(_cConstraint_, 2, StzLen(_cConstraint_)))
+							return _nSum_ > (0 + This._Mid(_cConstraint_, 2, StzLen(_cConstraint_)))
 						but startsWith(_cConstraint_, "<")
-							return _nSum_ < (0 + @StzMid(_cConstraint_, 2, StzLen(_cConstraint_)))
+							return _nSum_ < (0 + This._Mid(_cConstraint_, 2, StzLen(_cConstraint_)))
 						but This.IsNumeric(_cConstraint_)
 							return _nSum_ = (0 + _cConstraint_)
 						ok
@@ -1464,9 +1547,9 @@ class stzTablex from stzObject
 							_nAvg_ = _nSum_ / _nCount_
 							
 							if startsWith(_cConstraint_, ">")
-								return _nAvg_ > (0 + @StzMid(_cConstraint_, 2, StzLen(_cConstraint_)))
+								return _nAvg_ > (0 + This._Mid(_cConstraint_, 2, StzLen(_cConstraint_)))
 							but startsWith(_cConstraint_, "<")
-								return _nAvg_ < (0 + @StzMid(_cConstraint_, 2, StzLen(_cConstraint_)))
+								return _nAvg_ < (0 + This._Mid(_cConstraint_, 2, StzLen(_cConstraint_)))
 							but This.IsNumeric(_cConstraint_)
 								return _nAvg_ = (0 + _cConstraint_)
 							ok
@@ -1508,9 +1591,9 @@ class stzTablex from stzObject
 
 						if _nMin_ != ""
 							if startsWith(_cConstraint_, ">")
-								return _nMin_ > (0 + @StzMid(_cConstraint_, 2, StzLen(_cConstraint_)))
+								return _nMin_ > (0 + This._Mid(_cConstraint_, 2, StzLen(_cConstraint_)))
 							but startsWith(_cConstraint_, "<")
-								return _nMin_ < (0 + @StzMid(_cConstraint_, 2, StzLen(_cConstraint_)))
+								return _nMin_ < (0 + This._Mid(_cConstraint_, 2, StzLen(_cConstraint_)))
 							but This.IsNumeric(_cConstraint_)
 								return _nMin_ = (0 + _cConstraint_)
 							ok
@@ -1553,9 +1636,9 @@ class stzTablex from stzObject
 
 						if _nMax_ != ""
 							if startsWith(_cConstraint_, ">")
-								return _nMax_ > (0 + @StzMid(_cConstraint_, 2, StzLen(_cConstraint_)))
+								return _nMax_ > (0 + This._Mid(_cConstraint_, 2, StzLen(_cConstraint_)))
 							but startsWith(_cConstraint_, "<")
-								return _nMax_ < (0 + @StzMid(_cConstraint_, 2, StzLen(_cConstraint_)))
+								return _nMax_ < (0 + This._Mid(_cConstraint_, 2, StzLen(_cConstraint_)))
 							but This.IsNumeric(_cConstraint_)
 								return _nMax_ = (0 + _cConstraint_)
 							ok
@@ -1644,12 +1727,11 @@ class stzTablex from stzObject
 		ok
 		return 0
 
-	# Raises error R14 today for a column of text instead of testing that every value is made of letters.
+	# TRUE if every value of the named column is a text made of letters only.
 	#
 	#   _aToken_   an alphabetic token whose value is the column name
 	#   oTable     the stzTable to test
-	#   returns    nothing today for text; FALSE for a column holding a non-text
-	#   warning    known defect: it calls IsAlphabetic on a stzString, a method that does not exist
+	#   returns    TRUE or FALSE (1 or 0); FALSE for a column holding a non-text
 	#   see        CheckNumeric
 	def CheckAlphabetic(_aToken_, oTable)
 		if HasKey(_aToken_, "value")
@@ -1659,7 +1741,7 @@ class stzTablex from stzObject
 				_nLen_ = len(_aCol_)
 				for _i_ = 1 to _nLen_
 					if isString(_aCol_[_i_])
-						if NOT Q(_aCol_[_i_]).IsAlphabetic()
+						if NOT Q(_aCol_[_i_]).IsAlphaString()
 							return 0
 						ok
 					else
@@ -1671,13 +1753,11 @@ class stzTablex from stzObject
 		ok
 		return 0
 
-	# Raises an error today instead of testing that every text of a column fits a format, the token value being column:format.
+	# TRUE if every text of the named column fits a regex format, the token value being column:format.
 	#
 	#   _aToken_   a format token whose value reads name:format
 	#   oTable     the stzTable to test
-	#   returns    nothing today
-	#   warning    known defect: it relies on MatchesFormat, which fails for a format that is not a
-	#              named pattern
+	#   returns    TRUE or FALSE (1 or 0)
 	#   see        MatchesFormat, CheckColPattern
 	def CheckFormat(_aToken_, oTable)
 		if HasKey(_aToken_, "value")
@@ -1708,19 +1788,16 @@ class stzTablex from stzObject
 		ok
 		return 0
 
-	# Raises an error today instead of testing whether a text fits a regex format.
+	# TRUE if a text fits a regex format.
 	#
 	#   _cValue_    the text to test
 	#   _cFormat_   the regex pattern to match it against
-	#   returns     nothing today
-	#   warning     known defect: it first calls the pattern helper on the text, which raises "The
-	#               pattern name you provided does not exist" for any text that is not a registered
-	#               name
+	#   returns     TRUE or FALSE (1 or 0)
 	#   see         CheckFormat
 	def MatchesFormat(_cValue_, _cFormat_)
 
 		_oRegex_ = new stzRegex(_cFormat_)
-		if _oRegex_.Match(pat(_cValue_)) or _oRegex_.Match(_cValue_)
+		if _oRegex_.Match(_cValue_)
 			return 1
 		else
 			return 0
@@ -1763,9 +1840,7 @@ class stzTablex from stzObject
 
 	# Returns what was recorded by the last successful match: the pairs cols, rows, colnames and properties.
 	#
-	#   returns    a list of [ name, value ] pairs; [ ] before any success
-	#   warning    known defect: since Match does not succeed today, this stays [ ] unless
-	#              ExtractParts is called by hand
+	#   returns    a list of [ name, value ] pairs; [ ] before any success, and after a match that failed
 	#   see        ExtractParts, Explain
 	def MatchedParts()
 		return @aMatchedParts
@@ -1777,35 +1852,30 @@ class stzTablex from stzObject
 	def NumberOfMatchedParts()
 		return len(@aMatchedParts)
 
-		# Raises error R24 today instead of returning how many parts were matched.
+		# Returns how many parts were recorded by the last successful match.
 		#
-		#   returns    nothing today
-		#   warning    known defect: the body reads @MatchedParts, which is an uninitialized name
+		#   returns    a number; 4 after a success, 0 before one
 		#   see        NumberOfMatchedParts
 		def CountMatchedParts()
-			return len(@MatchedParts)
+			return len(@aMatchedParts)
 
-		# Raises error R24 today instead of returning how many parts were matched.
+		# Returns how many parts were recorded by the last successful match.
 		#
-		#   returns    nothing today
-		#   warning    known defect: the body reads @MatchedParts, which is an uninitialized name
+		#   returns    a number; 4 after a success, 0 before one
 		#   see        NumberOfMatchedParts
 		def HowManyMatchedParts()
-			return len(@MatchedParts)
+			return len(@aMatchedParts)
 
 	# Returns the parsed tokens of the pattern.
 	#
 	#   returns    a list of tokens, each a list of [ key, value ] pairs
-	#   warning    known defect: the tokens are wrong for most patterns, see the parser
 	#   see        Pattern, ParsePattern
 	def Tokens()
 		return @aTokens
 
 	# Returns how many tokens the pattern was parsed into.
 	#
-	#   returns    a number
-	#   warning    known defect: a pattern of two terms joined by -> gives 1, because the splitter
-	#              is broken
+	#   returns    a number; terms joined by -> give one token each, while terms joined by & or a vertical bar are ONE token
 	#   see        Tokens
 	def NumberOfTokens()
 		return len(@aTokens)
@@ -1813,8 +1883,6 @@ class stzTablex from stzObject
 		# Returns how many tokens the pattern was parsed into.
 		#
 		#   returns    a number
-		#   warning    known defect: a pattern of two terms joined by -> gives 1, because the
-		#              splitter is broken
 		#   see        NumberOfTokens
 		def CountTokens()
 			return len(@aTokens)
@@ -1822,8 +1890,6 @@ class stzTablex from stzObject
 		# Returns how many tokens the pattern was parsed into.
 		#
 		#   returns    a number
-		#   warning    known defect: a pattern of two terms joined by -> gives 1, because the
-		#              splitter is broken
 		#   see        NumberOfTokens
 		def HowManyTokens()
 			return len(@aTokens)
@@ -1855,8 +1921,6 @@ class stzTablex from stzObject
 	#
 	#   paTables   a list of stzTable objects, or [ "in", list ]
 	#   returns    a list of tables; [ ] when none match
-	#   warning    known defect: Match answers FALSE for every pattern tried, so the list comes back
-	#              empty
 	#   see        CountMatchingTables, Match
 	def MatchingTables(paTables)
 		if CheckParams() and isList(paTables) and IsInNamedParamList(paTables)
@@ -1879,7 +1943,6 @@ class stzTablex from stzObject
 	#
 	#   paTables   a list of stzTable objects, or [ "in", list ]
 	#   returns    a number
-	#   warning    known defect: Match answers FALSE for every pattern tried, so the count is 0
 	#   see        MatchingTables, Match
 	def CountMatchingTables(paTables)
 		if CheckParams() and isList(paTables) and IsInNamedParamList(paTables)
@@ -1928,12 +1991,10 @@ class stzTablex from stzObject
 	 #  HELPER METHODS      #
 	#----------------------#
 
-	# TRUE if the text is made only of digits, minus signs and dots, but it answers wrongly today for most numbers.
+	# TRUE if the text reads as a number: an optional minus sign, digits, and at most one dot.
 	#
 	#   cStr       the text to test
-	#   returns    TRUE or FALSE (1 or 0)
-	#   warning    known defect: it reads each character with a count-based call, so 12 and -3 give
-	#              TRUE while 123, 1.5 and 1-2 give FALSE
+	#   returns    TRUE or FALSE (1 or 0); FALSE for empty text, for 1-2 and for 1.2.3
 	#   see        ParseSingleToken
 	def IsNumeric(cStr)
 		if cStr = ""
@@ -1941,26 +2002,32 @@ class stzTablex from stzObject
 		ok
 
 		_nLen_ = len(cStr)
+		_nDigits_ = 0
+		_nDots_ = 0
 		for _i_ = 1 to _nLen_
-			_cChar_ = @StzMid(cStr, _i_, _i_)
-			if not isDigit(_cChar_) and _cChar_ != "-" and _cChar_ != "."
+			_cChar_ = This._Mid(cStr, _i_, _i_)
+			if isDigit(_cChar_)
+				_nDigits_++
+			but _cChar_ = "-" and _i_ = 1
+				# a leading minus sign
+			but _cChar_ = "."
+				_nDots_++
+			else
 				return 0
 			ok
 		next
 
-		return 1
+		return (_nDigits_ > 0 and _nDots_ <= 1)
 
 	  #-----------------------#
 	 #  PATTERN COMBINATION  #
 	#-----------------------#
 
-	# Returns a new tablex whose pattern joins this pattern and the other one with &; the joined text ends with a stray brace today.
+	# Returns a new tablex whose pattern joins this pattern and the other one with &.
 	#
 	#   oOtherTablex   the tablex to combine with
-	#   returns        a stzTablex; neither original changes
+	#   returns        a stzTablex; neither original changes; {cols(3)} and {rows(3)} give {cols(3) & rows(3)}
 	#   note           raises an error when the argument is not a stzTablex
-	#   warning        known defect: the joined pattern is built with a count-based call, so
-	#                  {cols(3)} and {rows(3)} give {cols(3)} & rows(3)}}
 	#   see            Or_, Not_
 	def And_(oOtherTablex)
 		if NOT IsStzTablex(oOtherTablex)
@@ -1968,20 +2035,18 @@ class stzTablex from stzObject
 		ok
 
 		_cCombined_ = "{" + 
-		            @StzMid(@cPattern, 2, StzLen(@cPattern) - 1) + 
+		            This._Mid(@cPattern, 2, StzLen(@cPattern) - 1) + 
 		            " & " + 
-		            @StzMid(oOtherTablex.Pattern(), 2, StzLen(oOtherTablex.Pattern()) - 1) +
+		            This._Mid(oOtherTablex.Pattern(), 2, StzLen(oOtherTablex.Pattern()) - 1) +
 		            "}"
 		
 		return new stzTablex(_cCombined_)
 
-	# Returns a new tablex whose pattern joins this pattern and the other one with a vertical bar; the text ends with a stray brace today.
+	# Returns a new tablex whose pattern joins this pattern and the other one with a vertical bar.
 	#
 	#   oOtherTablex   the tablex to combine with
-	#   returns        a stzTablex; neither original changes
+	#   returns        a stzTablex; neither original changes; {cols(3)} and {rows(9)} give {cols(3) | rows(9)}
 	#   note           raises an error when the argument is not a stzTablex
-	#   warning        known defect: the joined pattern is built with a count-based call, so
-	#                  {cols(3)} and {rows(9)} give a text ending in two braces
 	#   see            And_, Not_
 	def Or_(oOtherTablex)
 		if NOT IsStzTablex(oOtherTablex)
@@ -1989,22 +2054,20 @@ class stzTablex from stzObject
 		ok
 
 		_cCombined_ = "{" + 
-		            @StzMid(@cPattern, 2, StzLen(@cPattern) - 1) + 
+		            This._Mid(@cPattern, 2, StzLen(@cPattern) - 1) + 
 		            " | " + 
-		            @StzMid(oOtherTablex.Pattern(), 2, StzLen(oOtherTablex.Pattern()) - 1) +
+		            This._Mid(oOtherTablex.Pattern(), 2, StzLen(oOtherTablex.Pattern()) - 1) +
 		            "}"
 		
 		return new stzTablex(_cCombined_)
 
-	# Returns a new tablex whose pattern has @! in front of the inner text; the text ends with a stray brace today.
+	# Returns a new tablex whose pattern has @! in front of the inner text.
 	#
-	#   returns    a stzTablex
-	#   note       the @! prefix is read as part of the first term only
-	#   warning    known defect: the pattern is built with a count-based call, so {cols(3)} gives
-	#              {@!cols(3)}}
+	#   returns    a stzTablex; {cols(3)} gives {@!cols(3)}
+	#   note       the @! prefix is read as part of the first term only: for a pattern of two terms joined by & it negates the first term, not the whole
 	#   see        And_, Or_
 	def Not_()
-		_cInner_ = @StzMid(@cPattern, 2, StzLen(@cPattern) - 1)
+		_cInner_ = This._Mid(@cPattern, 2, StzLen(@cPattern) - 1)
 		_cNegated_ = "{@!" + _cInner_ + "}"
 		return new stzTablex(_cNegated_)
 
