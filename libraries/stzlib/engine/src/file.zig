@@ -185,6 +185,74 @@ fn chmodWith(p: []const u8, set: bool, bits: u32) c_int {
     return 1;
 }
 
+// -- A private file: the bytes, readable by their owner alone (SECURITY-PRIVATEFILE-01) --
+//
+// The read-only setters above stop a file being OVERWRITTEN; they say nothing
+// about who may READ it. A key or a token written to disk for a call that
+// wants a path (a TLS client key) needs the other half. Windows: the file is
+// CREATED with a protected DACL granting only the owner (SDDL D:P(A;;FA;;;OW)),
+// so there is no moment when it exists with the inherited, wider ACL. POSIX:
+// created 0600 and chmod'ed 0600 again in case the file already existed.
+// An existing file is replaced. 1 = written, 0 = failed.
+const SecurityAttributes = extern struct {
+    nLength: u32,
+    lpSecurityDescriptor: ?*anyopaque,
+    bInheritHandle: i32,
+};
+extern "advapi32" fn ConvertStringSecurityDescriptorToSecurityDescriptorW(
+    sddl: [*:0]const u16,
+    revision: u32,
+    sd: *?*anyopaque,
+    size: ?*u32,
+) callconv(.winapi) i32;
+extern "kernel32" fn LocalFree(mem: ?*anyopaque) callconv(.winapi) ?*anyopaque;
+extern "kernel32" fn CreateFileW(
+    name: [*:0]const u16,
+    access: u32,
+    share: u32,
+    sa: ?*SecurityAttributes,
+    disposition: u32,
+    flags: u32,
+    template: ?*anyopaque,
+) callconv(.winapi) ?*anyopaque;
+extern "kernel32" fn WriteFile(h: ?*anyopaque, buf: [*]const u8, n: u32, written: *u32, ov: ?*anyopaque) callconv(.winapi) i32;
+extern "kernel32" fn CloseHandle(h: ?*anyopaque) callconv(.winapi) i32;
+
+pub fn stz_file_write_private(path: [*c]const u8, path_len: usize, data: [*c]const u8, data_len: usize) callconv(.c) c_int {
+    if (path == null or path_len == 0) return 0;
+    const p = path[0..path_len];
+    if (!pathIsUsable(p)) return 0;
+    const bytes: []const u8 = if (data_len == 0) "" else data[0..data_len];
+    if (builtin.os.tag == .windows) {
+        const w = std.unicode.utf8ToUtf16LeAllocZ(gpa, p) catch return 0;
+        defer gpa.free(w);
+        const sddl = std.unicode.utf8ToUtf16LeStringLiteral("D:P(A;;FA;;;OW)");
+        var sd: ?*anyopaque = null;
+        if (ConvertStringSecurityDescriptorToSecurityDescriptorW(sddl, 1, &sd, null) == 0) return 0;
+        defer _ = LocalFree(sd);
+        var sa = SecurityAttributes{ .nLength = @sizeOf(SecurityAttributes), .lpSecurityDescriptor = sd, .bInheritHandle = 0 };
+        const GENERIC_WRITE: u32 = 0x40000000;
+        const CREATE_ALWAYS: u32 = 2;
+        const FILE_ATTRIBUTE_NORMAL: u32 = 0x80;
+        const h = CreateFileW(w.ptr, GENERIC_WRITE, 0, &sa, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, null);
+        if (h == null or @intFromPtr(h) == std.math.maxInt(usize)) return 0;
+        defer _ = CloseHandle(h);
+        var off: usize = 0;
+        while (off < bytes.len) {
+            const chunk: u32 = @intCast(@min(bytes.len - off, 1 << 20));
+            var wrote: u32 = 0;
+            if (WriteFile(h, bytes.ptr + off, chunk, &wrote, null) == 0 or wrote == 0) return 0;
+            off += wrote;
+        }
+        return 1;
+    }
+    const file = fs.cwd().createFile(p, .{ .truncate = true, .mode = 0o600 }) catch return 0;
+    defer file.close();
+    file.chmod(0o600) catch return 0;
+    file.writeAll(bytes) catch return 0;
+    return 1;
+}
+
 /// 1 when the file is read-only (Windows attribute, or no write bit at all).
 pub fn stz_file_is_readonly(path: [*c]const u8, path_len: usize) callconv(.c) c_int {
     if (path == null or path_len == 0) return 0;

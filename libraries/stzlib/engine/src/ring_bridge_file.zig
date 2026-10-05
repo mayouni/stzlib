@@ -117,12 +117,17 @@ fn ring_FileSetReadOnly(p: *anyopaque) callconv(.c) void {
 fn ring_FileSetExecutable(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(f.stz_file_set_executable(gs(p, 1), @intCast(gss(p, 1)))));
 }
+// StzEngineFileWritePrivate(cPath, cBytes) -> 1 written (owner-only), 0 failed
+fn ring_FileWritePrivate(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(f.stz_file_write_private(gs(p, 1), @intCast(gss(p, 1)), gs(p, 2), @intCast(gss(p, 2)))));
+}
 fn ring_FileIsReadOnly(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(f.stz_file_is_readonly(gs(p, 1), @intCast(gss(p, 1)))));
 }
 
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginefilesetreadonly", .func = &ring_FileSetReadOnly },
+    .{ .name = "stzenginefilewriteprivate", .func = &ring_FileWritePrivate },
     .{ .name = "stzenginefilesetexecutable", .func = &ring_FileSetExecutable },
     .{ .name = "stzenginefileisreadonly", .func = &ring_FileIsReadOnly },
     .{ .name = "stzenginefileexists", .func = &ring_FileExists },
