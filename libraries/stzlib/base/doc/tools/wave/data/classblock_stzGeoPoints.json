@@ -1,0 +1,17 @@
+{
+ "brief": "Holds a list of places and the window they were observed in, and answers whether they are clustered, scattered or random, where their middle is and which way they spread.",
+ "detail": "A pattern is never a bare list: it is the places AND the region, because a hundred wells in Tunisia and the same hundred in Niger are one list and two opposite answers. The places are one flat list lon, lat, lon, lat, ... (longitude first); distances are kilometres on a sphere of 6371 km, areas on WGS84. The measures are Clark-Evans (edge-corrected by Donnelly), Ripley's K, L, G and F, the null band by simulation (Envelope, 39 simulations being the classic count), the mean centre, the spatial median and the standard deviational ellipse. Three generators make patterns whose truth is known, all seeded so a picture does not move: Sample (uniform), SampleClustered (Matern) and SampleDispersed (hard core); StzGeoProcess is the general form. A point outside the window is reported by Outside and Findings, never dropped. Pictures, each looked at by 'stzlib-docs visual pass (a model reading the PNG)' on 2026-10-05: doc/gallery/stzGeoPoints/three_patterns.png, three invented patterns in Niger with ellipse, centres and Clark-Evans verdicts, RIGHT (random, clustered and dispersed are named as the patterns were made); ripley_g_f.png, L with its band, G and F, RIGHT (L climbs far above the band for clusters, G stays at 0 below the hard-core distance for the dispersed pattern); outside_the_window.png, places across the border counted but flagged, RIGHT. Index: doc/gallery/INDEX_geo.md.",
+ "receiver": "o1 = StzGeoPoints([ 2.1, 13.5, 8.0, 15.0 ], StzGeoFeaturesFromJson(read(\"../graphics/niger_adm1.geojson\")))",
+ "example": [
+  "? o1.Count()",
+  "#--> 2",
+  "? o1.Outside()",
+  "#--> 0"
+ ],
+ "see": [
+  "stzGeoProcess",
+  "stzGeoFeatures",
+  "stzGeoField",
+  "stzGeoSamples"
+ ]
+}

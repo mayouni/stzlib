@@ -1,0 +1,17 @@
+{
+ "brief": "Holds a map made of layers: a projection and a set of features, with values, classes, groups, labels, insets, legends, scale bar, sun and flows drawn on a canvas.",
+ "detail": "Build it with StzGeoMap(oProjection, oFeatures) after fitting the projection to the features. The data layer takes one value per feature (SetValues, from stzGeoAtlas.ValuesFor, CountPointsIn or ValuesFromArea) or named groups (SetGroups), the classes are the author's (SetClasses, SetRamp, SetOpenTop) and a region with no value is hatched, never coloured as zero. SetPaper tells the map its sheet and should be the first call: labels are kept on it and the scale bar and the stream-density raster are measured over it. DrawSheetOn is the statistical map: dark hairline borders, the no-data hatch and the selection outlined; DrawLabelsOn writes a name inside its region or numbers it with a key; AddInset magnifies a place too small to label. A map judges itself (Findings, IsSound): a choropleth, a membership map or hexagon bins on a projection that is not equal-area is an error, as is a number with no key. Known gaps: with values set and no classes, ClassOf, ColourOf and the Draw methods that colour raise error R2; an inset does not copy SetOpenTop; DensityPointsIn is per 10000 km2. Pictures, each looked at by 'stzlib-docs visual pass (a model reading the PNG)' on 2026-10-05: doc/gallery/stzGeoMap/niger_density.png, a density choropleth with inset, legend, scale bar and north arrow, RIGHT except the Niamey inset, which is grey instead of red (WRONG, see FINDINGS_geo.md); world_area.png, country areas on Equal Earth with a hatched no-data region, RIGHT; africa_blocs.png, a membership map, RIGHT; daynight_world.png, the night side and twilight on 2026-10-05, RIGHT; hexbin_flows.png, hexagon bins, area-true circles and great-circle routes, RIGHT; wind_streams.png and wind_arrows.png, an invented wind field, RIGHT as far as a picture can say. Index: doc/gallery/INDEX_geo.md.",
+ "receiver": "o1 = StzGeoMap(oP, oN)  # oN = StzGeoFeaturesFromJson(read(\"../graphics/niger_adm1.geojson\")), oP = StzGeoConicFor(oN, :ConicEqualArea) fitted to oN",
+ "example": [
+  "? o1.Features().Count()",
+  "#--> 8",
+  "? o1.LabelMode()",
+  "#--> auto"
+ ],
+ "see": [
+  "stzGeoProjection",
+  "stzGeoFeatures",
+  "stzGeoAtlas",
+  "stzGeoField"
+ ]
+}

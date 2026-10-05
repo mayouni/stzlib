@@ -384,6 +384,36 @@ func _GeoTagged(paFindings, pcName)
 	next
 	return _a_
 
+# Holds a map made of layers: a projection and a set of features, with values, classes, groups, labels, insets, legends, scale bar, sun and flows drawn on a canvas.
+#
+# Build it with StzGeoMap(oProjection, oFeatures) after fitting the projection to the features. The
+# data layer takes one value per feature (SetValues, from stzGeoAtlas.ValuesFor, CountPointsIn or
+# ValuesFromArea) or named groups (SetGroups), the classes are the author's (SetClasses, SetRamp,
+# SetOpenTop) and a region with no value is hatched, never coloured as zero. SetPaper tells the map
+# its sheet and should be the first call: labels are kept on it and the scale bar and the stream-
+# density raster are measured over it. DrawSheetOn is the statistical map: dark hairline borders,
+# the no-data hatch and the selection outlined; DrawLabelsOn writes a name inside its region or
+# numbers it with a key; AddInset magnifies a place too small to label. A map judges itself
+# (Findings, IsSound): a choropleth, a membership map or hexagon bins on a projection that is not
+# equal-area is an error, as is a number with no key. Known gaps: with values set and no classes,
+# ClassOf, ColourOf and the Draw methods that colour raise error R2; an inset does not copy
+# SetOpenTop; DensityPointsIn is per 10000 km2. Pictures, each looked at by 'stzlib-docs visual pass
+# (a model reading the PNG)' on 2026-10-05: doc/gallery/stzGeoMap/niger_density.png, a density
+# choropleth with inset, legend, scale bar and north arrow, RIGHT except the Niamey inset, which is
+# grey instead of red (WRONG, see FINDINGS_geo.md); world_area.png, country areas on Equal Earth
+# with a hatched no-data region, RIGHT; africa_blocs.png, a membership map, RIGHT;
+# daynight_world.png, the night side and twilight on 2026-10-05, RIGHT; hexbin_flows.png, hexagon
+# bins, area-true circles and great-circle routes, RIGHT; wind_streams.png and wind_arrows.png, an
+# invented wind field, RIGHT as far as a picture can say. Index: doc/gallery/INDEX_geo.md.
+#
+#   receiver   o1 = StzGeoMap(oP, oN)  # oN =
+#              StzGeoFeaturesFromJson(read("../graphics/niger_adm1.geojson")), oP =
+#              StzGeoConicFor(oN, :ConicEqualArea) fitted to oN
+#   example    ? o1.Features().Count()
+#              #--> 8
+#              ? o1.LabelMode()
+#              #--> auto
+#   see        stzGeoProjection, stzGeoFeatures, stzGeoAtlas, stzGeoField
 class stzGeoMap from stzObject
 	@oP = NULL
 	@oF = NULL
@@ -426,6 +456,14 @@ class stzGeoMap from stzObject
 	@nGy = 0
 	@aLand = []
 
+	# Binds the map to a projection and to the features it draws; raises an error unless both are objects.
+	#
+	#   poProjection   the stzGeoProjection that places everything
+	#   poFeatures     the stzGeoFeatures to draw
+	#   returns        nothing; the map is bound
+	#   note           StzGeoMap(oProjection, oFeatures) builds and binds in one call. Fit the
+	#                  projection to the features first
+	#   see            StzGeoMap, Projection
 	def Bind(poProjection, poFeatures)
 		if NOT isObject(poProjection) or NOT isObject(poFeatures)
 			stzraise("stzGeoMap: give a projection and a set of features.")
@@ -433,17 +471,28 @@ class stzGeoMap from stzObject
 		@oP = poProjection
 		@oF = poFeatures
 
+	# Returns the projection the map draws with.
+	#
+	#   returns    a stzGeoProjection
+	#   see        Bind, Features
 	def Projection()
 		return @oP
 
+	# Returns the features the map draws.
+	#
+	#   returns    a stzGeoFeatures
+	#   see        Bind, Projection
 	def Features()
 		return @oF
 
-	#-- what is being shown -------------------------------------------------
-
-	# one value per feature, in the features' own order; "" where the map
-	# has a hole. A region with no value is DRAWN as no data and says so in
-	# the legend -- it is never quietly coloured as zero.
+	# Sets the value that colours each feature, one per feature in the features' own order, "" where there is none.
+	#
+	#   paValues   one number per feature, or "" for no data
+	#   returns    nothing; the values are stored
+	#   note       A region with no value is drawn as no data, never as zero. Set the classes before
+	#              drawing: with values and no classes the Draw methods that colour raise error R2
+	#   see        ValueOf, SetClasses, stzGeoAtlas.ValuesFor
+	#@ aka  -- what is being shown -------------------------------------------------
 	def SetValues(paValues)
 		@aValues = paValues
 
@@ -451,16 +500,31 @@ class stzGeoMap from stzObject
 			This.SetValues(paValues)
 			return This
 
-	# every feature's own true area in square kilometres, measured on the
-	# SPHERE from its rings -- a value that needs no other file, and the
-	# one an equal-area projection can be checked against
+	# Returns every feature's own area in square kilometres, a value that needs no other file.
+	#
+	#   returns    a list of numbers, one per feature
+	#   note       Measured on WGS84, like AreasKm2; an older comment in the source says sphere
+	#   see        SetValues, stzGeoFeatures.AreasKm2
+	#@ aka  every feature's own true area in square kilometres, measured on the SPHERE from its rings -- a value that needs no other file, and the one an equal-area projection can be checked against
 	def ValuesFromArea()
 		return @oF.AreasKm2()
 
+	# Returns the value of feature pnI.
+	#
+	#   pnI        the position of the feature, from 1
+	#   returns    the stored value, or "" when pnI is outside the list of values
+	#   see        SetValues, ClassOf
 	def ValueOf(pnI)
 		if pnI < 1 or pnI > len(@aValues)  return ""  ok
 		return @aValues[pnI]
 
+	# Sets the class edges that colour the regions, and gives a Blues ramp of the right size when the number of classes changed.
+	#
+	#   paEdges    a rising list of at least two edges
+	#   returns    nothing; the edges are stored
+	#   note       Raises an error for fewer than two edges or edges that do not rise. The edges are
+	#              the author's: there are no automatic breaks
+	#   see        SetRamp, SetPalette, SetOpenTop, ClassOf
 	def SetClasses(paEdges)
 		if NOT (isList(paEdges) and len(paEdges) >= 2)
 			stzraise("stzGeoMap: the classes need at least two edges.")
@@ -480,7 +544,16 @@ class stzGeoMap from stzObject
 			This.SetClasses(paEdges)
 			return This
 
-	# the palette by the name of a ramp, in the classes already set
+	# Sets the class colours from a named ramp, in as many steps as there are classes.
+	#
+	#   pName      the ramp's name: :Blues, :YlOrRd, :YlGnBu, :Greens, :Oranges, :Purples, :Reds,
+	#              :BuPu, :Earth, :Viridis, :Magma, :Cividis or :Flow
+	#   returns    nothing; the palette is stored
+	#   note       Raises an error before the classes are set
+	#   warning    Defect: the error for an unknown name lists nine ramps although thirteen exist
+	#              (Viridis, Magma, Cividis and Flow are missing from the message).
+	#   see        SetPalette, StzGeoRamps
+	#@ aka  the palette by the name of a ramp, in the classes already set
 	def SetRamp(pName)
 		if len(@aEdges) < 2
 			stzraise("stzGeoMap.SetRamp: set the classes before the ramp -- a ramp " +
@@ -492,6 +565,14 @@ class stzGeoMap from stzObject
 			This.SetRamp(pName)
 			return This
 
+	# Sets the colour of each class by hand.
+	#
+	#   paColours   one colour per class, as hex text
+	#   returns     nothing; the palette is stored
+	#   note        Set the classes first, then the palette or the ramp
+	#   warning     Defect: before SetClasses it raises with the message -1 classes need -1 colours,
+	#               because an empty edge list counts as -1 classes.
+	#   see         SetRamp, SetClasses
 	def SetPalette(paColours)
 		if len(paColours) != len(@aEdges) - 1
 			stzraise("stzGeoMap: " + (len(@aEdges) - 1) + " classes need " +
@@ -503,12 +584,18 @@ class stzGeoMap from stzObject
 			This.SetPalette(paColours)
 			return This
 
-	# where the boundaries came from and when. A map asserts where a border
-	# lies; this class will not invent the authority for it.
-	# THE BOX THE MAP WAS DRAWN IN, so a name cannot be written off the edge
-	# of it. Without this the label engine only knows where a region is, not
-	# where the sheet ends, and the first version wrote "Diffa" half into the
-	# margin beside it. Unset, nothing is clipped.
+	# Tells the map the box it is drawn in, so no label is written off the sheet and the scale bar is measured over that box.
+	#
+	#   pnX0       left edge of the sheet
+	#   pnY0       top edge of the sheet
+	#   pnX1       right edge of the sheet
+	#   pnY1       bottom edge of the sheet
+	#   returns    nothing; the box is stored
+	#   note       Call it first
+	#   warning    Defect: when it is not called, the scale-bar and stream-density methods guess the
+	#              sheet from the projection's scale and misjudge a country map.
+	#   see        DrawLabelsOn, DrawScaleBarOn
+	#@ aka  where the boundaries came from and when. A map asserts where a border lies; this class will not invent the authority for it. THE BOX THE MAP WAS DRAWN IN, so a name cannot be written off the edge of it. Without this the label engine only knows where a region is, not where the sheet ends, and the first version wrote "Diffa" half into the margin beside it. Unset, nothing is clipped.
 	def SetPaper(pnX0, pnY0, pnX1, pnY1)
 		@aPaper = [ pnX0, pnY0, pnX1, pnY1 ]
 
@@ -516,10 +603,13 @@ class stzGeoMap from stzObject
 			This.SetPaper(pnX0, pnY0, pnX1, pnY1)
 			return This
 
-	# THE COLOUR OF A REGION NO CLASS AND NO GROUP CLAIMS. It is a real
-	# statement -- "this one is not in the data" -- and a caller drawing a
-	# bloc map wants it quieter than the default, because on that sheet the
-	# unclaimed countries are most of the world.
+	# Sets the fill colour of a region no class and no group claims.
+	#
+	#   pColour    the colour, as hex text
+	#   returns    nothing; the colour is stored
+	#   note       The default is #E8E8E8
+	#   see        SetHatch, ColourOf
+	#@ aka  THE COLOUR OF A REGION NO CLASS AND NO GROUP CLAIMS. It is a real statement -- "this one is not in the data" -- and a caller drawing a bloc map wants it quieter than the default, because on that sheet the unclaimed countries are most of the world.
 	def SetNoData(pColour)
 		@cNoData = pColour
 
@@ -527,11 +617,13 @@ class stzGeoMap from stzObject
 			This.SetNoData(pColour)
 			return This
 
-	# THE COLOUR OF THE HATCH THAT SAYS "NOT MEASURED", on the map and in the
-	# legend's swatch, which are one thing and read from one place. The
-	# default is a blue-grey: cool, so it cannot be mistaken for a step in a
-	# warm ramp, and light, so a hatched country does not out-shout a
-	# measured one.
+	# Sets the colour of the hatch that says "not measured", on the map and in the legend swatch.
+	#
+	#   pColour    the hatch colour, as hex text
+	#   returns    nothing; the colour is stored
+	#   note       The default is #9EB6D8
+	#   see        Hatch, DrawNoDataHatchOn
+	#@ aka  THE COLOUR OF THE HATCH THAT SAYS "NOT MEASURED", on the map and in the legend's swatch, which are one thing and read from one place. The default is a blue-grey: cool, so it cannot be mistaken for a step in a warm ramp, and light, so a hatched country does not out-shout a measured one.
 	def SetHatch(pColour)
 		@cHatch = pColour
 
@@ -539,13 +631,21 @@ class stzGeoMap from stzObject
 			This.SetHatch(pColour)
 			return This
 
+	# Returns the colour of the no-data hatch.
+	#
+	#   returns    text, "#9EB6D8" by default
+	#   see        SetHatch
 	def Hatch()
 		return @cHatch
 
-	# IS THE TOP CLASS OPEN -- "30 and over" rather than "20 to 30". It is a
-	# statement about the SCALE, so it lives with the scale and not in the
-	# legend's argument list: the classifier and the legend both read it, and
-	# a reader must never meet an arrow the map refused to fill.
+	# Declares that the top class has no upper edge, so a value above the last edge belongs to it and the legend draws an arrow.
+	#
+	#   pbOn       1 to make the top class open
+	#   returns    nothing; the flag is stored
+	#   warning    Defect: an inset made by DrawInsetsOn does not copy it, so a region above the
+	#              last edge shows as no data in the inset (Niamey on the Niger sheet).
+	#   see        IsOpenTop, ClassOf, DrawRampLegendOn
+	#@ aka  IS THE TOP CLASS OPEN -- "30 and over" rather than "20 to 30". It is a statement about the SCALE, so it lives with the scale and not in the legend's argument list: the classifier and the legend both read it, and a reader must never meet an arrow the map refused to fill.
 	def SetOpenTop(pbOn)
 		@bOpenTop = pbOn
 
@@ -553,9 +653,19 @@ class stzGeoMap from stzObject
 			This.SetOpenTop(pbOn)
 			return This
 
+	# TRUE if the top class has been declared open.
+	#
+	#   returns    TRUE or FALSE
+	#   see        SetOpenTop
 	def IsOpenTop()
 		return @bOpenTop
 
+	# Sets the text that says where the boundaries came from and when; the caption prints it.
+	#
+	#   pcSource   the source of the boundaries as text
+	#   returns    nothing; the text is stored
+	#   note       Without it the caption says "boundaries: source not stated" and Findings warns
+	#   see        Caption, Findings
 	def SetSource(pcSource)
 		@cSource = "" + pcSource
 
@@ -563,26 +673,16 @@ class stzGeoMap from stzObject
 			This.SetSource(pcSource)
 			return This
 
-	#-- MEMBERSHIP, WHICH IS NOT A QUANTITY --------------------------------
+	# Sets a membership map: groups of named regions each with a colour, in place of any quantity.
 	#
-	# A choropleth says HOW MUCH. This says WHICH ONE OF, and the two are
-	# different maps that happen to share a renderer. There is no scale, no
-	# ramp and no order: G7 is not more than BRICS, it is other than BRICS.
-	# So the colours are named by the caller rather than taken from a ramp,
-	# the legend is a KEY of names rather than a row of ranges, and nothing
-	# here interpolates between two groups.
-	#
-	# THE MEMBERS ARE NAMED, NOT INDEXED. A bloc is a list of country names,
-	# which is how anybody actually has one; the map resolves them through
-	# its own features. A name that matches nothing is REPORTED and never
-	# dropped, because a map of eleven members that silently draws ten is
-	# wrong about the thing it exists to show -- GE4's whole doctrine, and
-	# the reason StzGeoAtlas refuses fuzzy matching.
-	#
-	# paGroups is [ [ label, colour, [ member names ] ], ... ]. A country in
-	# two groups belongs to the FIRST that claims it, and that is reported
-	# too: overlapping blocs are a fact a reader must be told, not a tie for
-	# this file to break quietly.
+	#   paGroups   a list of [ label, colour, [ names ] ] rows
+	#   returns    nothing; the groups are stored, and the names that matched nothing are kept for
+	#              UnresolvedMembers
+	#   note       Raises an error for no groups or a row with fewer than three items. A country
+	#              named in two groups goes to the first. "Cabo Verde" matches nothing in the 110m
+	#              file: no alias, unlike stzGeoAtlas
+	#   see        Groups, GroupOf, UnresolvedMembers, DrawGroupKeyOn
+	#@ aka  -- MEMBERSHIP, WHICH IS NOT A QUANTITY --------------------------------
 	def SetGroups(paGroups)
 		if NOT isList(paGroups) or len(paGroups) = 0
 			stzraise("stzGeoMap.SetGroups: the groups are " +
@@ -622,23 +722,52 @@ class stzGeoMap from stzObject
 			This.SetGroups(paGroups)
 			return This
 
+	# Returns the groups with how many members were found and how many were already taken by an earlier group.
+	#
+	#   returns    a list of hash lists [ :label, :colour, :members, :found, :taken ]
+	#   see        SetGroups, GroupOf
 	def Groups()
 		return @aGroups
 
-	# which group claimed this feature, or 0 for none
+	# Returns the group that claimed feature pnI.
+	#
+	#   pnI        the position of the feature, from 1
+	#   returns    a number from 1, or 0 for none or a position out of range
+	#   see        SetGroups, IsGrouped
+	#@ aka  which group claimed this feature, or 0 for none
 	def GroupOf(pnI)
 		if len(@aGroupOf) < pnI  return 0  ok
 		return @aGroupOf[pnI]
 
-	# [ [ :group, :name ], ... ] -- every member name that matched no feature
+	# Returns every member name that matched no feature.
+	#
+	#   returns    a list of hash lists [ :group, :name ], [ ] when all matched
+	#   note       A non-empty list makes Findings report an error: the map draws fewer members than
+	#              its key claims
+	#   see        SetGroups, Findings
+	#@ aka  [ [ :group, :name ], ... ] -- every member name that matched no feature
 	def UnresolvedMembers()
 		return @aUnresolved
 
+	# TRUE if groups have been set.
+	#
+	#   returns    TRUE or FALSE
+	#   see        SetGroups
 	def IsGrouped()
 		return len(@aGroups) > 0
 
-	# the key a membership map owes: one swatch and one label per group, with
-	# the count it actually DREW rather than the count it was handed
+	# Draws one swatch and one label per group on a canvas.
+	#
+	#   poCanvas   the stzCanvas to draw on
+	#   poFont     the stzFont to write with
+	#   pnSize     the type size, never below 13
+	#   pnX        left edge of the key
+	#   pnY        baseline of the first row
+	#   pInk       the text colour
+	#   returns    the y to continue from, or pnY when there are no groups
+	#   note       Rows are pnSize + 10 pixels apart
+	#   see        SetGroups, DrawLegendOn
+	#@ aka  the key a membership map owes: one swatch and one label per group, with the count it actually DREW rather than the count it was handed
 	def DrawGroupKeyOn(poCanvas, poFont, pnSize, pnX, pnY, pInk)
 		if len(@aGroups) = 0  return pnY  ok
 		_sz_ = pnSize
@@ -654,6 +783,14 @@ class stzGeoMap from stzObject
 		poCanvas.Flush()
 		return _y_
 
+	# Returns the class that feature pnI's value falls in.
+	#
+	#   pnI        the position of the feature, from 1
+	#   returns    a number from 1, or 0 for no value or a value outside the classes
+	#   note       An edge belongs to the class above it, the top edge to the top class
+	#   warning    Defect: raises error R2 when values are set and the classes are not, because the
+	#              class edges are an empty list read at index 0.
+	#   see        ColourOf, SetOpenTop
 	def ClassOf(pnI)
 		_v_ = This.ValueOf(pnI)
 		if NOT isNumber(_v_)  return 0  ok
@@ -671,6 +808,14 @@ class stzGeoMap from stzObject
 		if @bOpenTop and _v_ > @aEdges[_n_ + 1]  return _n_  ok
 		return 0
 
+	# Returns the fill colour of feature pnI: its group's colour, its class's colour, or the no-data colour.
+	#
+	#   pnI        the position of the feature, from 1
+	#   returns    the colour as hex text
+	#   note       A group outranks a class
+	#   warning    Defect: raises error R2 when values are set and the classes are not, because the
+	#              class edges are an empty list read at index 0.
+	#   see        ClassOf, SetNoData
 	def ColourOf(pnI)
 		# a group is MEMBERSHIP and outranks any numeric class: a map cannot
 		# be both "which bloc" and "how much" at once, and a caller who set
@@ -684,10 +829,15 @@ class stzGeoMap from stzObject
 		if _c_ < 1  return @cNoData  ok
 		return @aPalette[_c_]
 
-	#-- the layers ----------------------------------------------------------
-
-	# the sphere, the graticule, then every feature in its class's colour,
-	# then the world's edge on top: the order an atlas draws them in
+	# Draws the old-style layers on a canvas: sphere, graticule every 30 degrees, regions with white edges, the world's edge.
+	#
+	#   poCanvas   the stzCanvas to draw on
+	#   returns    nothing; the layers are added to the canvas
+	#   note       The sheet the statistical maps use is DrawSheetOn
+	#   warning    Defect: raises error R2 when values are set and the classes are not, because the
+	#              class edges are an empty list read at index 0.
+	#   see        DrawSheetOn, DrawRegionsOn
+	#@ aka  -- the layers ----------------------------------------------------------
 	def DrawOn(poCanvas)
 		This.DrawSphereOn(poCanvas, "#EAF1FB", "#8FA8C8", 1)
 		This.DrawGraticuleOn(poCanvas, 30, "#D2DCEA", 1)
@@ -698,29 +848,71 @@ class stzGeoMap from stzObject
 			This.DrawOn(poCanvas)
 			return This
 
+	# Draws the sphere, the sea of the map, on a canvas.
+	#
+	#   poCanvas   the stzCanvas to draw on
+	#   pFill      the fill colour
+	#   pStroke    the edge colour
+	#   pnW        the edge width in pixels
+	#   returns    nothing; the polygon is added to the canvas
+	#   note       Draw it first
+	#   see        DrawGraticuleOn, stzGeoProjection.DrawSphereOn
 	def DrawSphereOn(poCanvas, pFill, pStroke, pnW)
 		@oP.DrawSphereOn(poCanvas, pFill, pStroke, pnW)
 
+	# Draws the meridians and parallels every pnStep degrees on a canvas.
+	#
+	#   poCanvas   the stzCanvas to draw on
+	#   pnStep     the spacing of the lines in degrees
+	#   pStroke    the line colour
+	#   pnW        the line width in pixels
+	#   returns    nothing; the lines are added to the canvas
+	#   note       The whole sphere, not only the fitted window
+	#   see        DrawSphereOn
 	def DrawGraticuleOn(poCanvas, pnStep, pStroke, pnW)
 		@oP.DrawGraticuleOn(poCanvas, pnStep, pStroke, pnW)
 
-	# every feature, in the colour its value earns it
+	# Draws every feature in the colour its value earns, with one edge colour.
+	#
+	#   poCanvas    the stzCanvas to draw on
+	#   pStroke     the edge colour
+	#   pnStrokeW   the edge width in pixels
+	#   returns     nothing; the polygons are added to the canvas
+	#   warning     Defect: raises error R2 when values are set and the classes are not, because the
+	#               class edges are an empty list read at index 0.
+	#   see         DrawSheetOn, ColourOf
+	#@ aka  every feature, in the colour its value earns it
 	def DrawRegionsOn(poCanvas, pStroke, pnStrokeW)
 		for _i_ = 1 to @oF.Count()
 			@oP.DrawFeatureOn(poCanvas, @oF, _i_, This.ColourOf(_i_), pStroke, pnStrokeW)
 		next
 
-	# one feature picked out, over the rest
+	# Draws one feature again over the rest in a colour of the caller's choice.
+	#
+	#   poCanvas    the stzCanvas to draw on
+	#   pnI         the position of the feature, from 1
+	#   pFill       the fill colour
+	#   pStroke     the edge colour
+	#   pnStrokeW   the edge width in pixels
+	#   returns     nothing; the feature is added to the canvas
+	#   note        Recolours: to outline a selection instead use SetHighlight
+	#   see         SetHighlight, DrawHighlightOn
+	#@ aka  one feature picked out, over the rest
 	def HighlightOn(poCanvas, pnI, pFill, pStroke, pnStrokeW)
 		@oP.DrawFeatureOn(poCanvas, @oF, pnI, pFill, pStroke, pnStrokeW)
 
-	#-- symbols -------------------------------------------------------------
-
-	# A CIRCLE'S AREA CARRIES THE VALUE, NEVER ITS RADIUS. Doubling a radius
-	# quadruples the ink, so a symbol map scaled by radius overstates its
-	# largest places fourfold -- the oldest lie in the genre, and the one a
-	# reader cannot see being told. The radius here is proportional to the
-	# SQUARE ROOT of the value, so equal values draw equal ink.
+	# Draws one circle per feature at its mean point, the circle's AREA carrying the value.
+	#
+	#   poCanvas      the stzCanvas to draw on
+	#   paValues      one value per feature, numbers above 0 drawn and the rest skipped
+	#   pnMaxRadius   the radius of the circle of the largest value, in pixels
+	#   pFill         the fill colour
+	#   pStroke       the edge colour
+	#   returns       nothing; the circles are added to the canvas
+	#   note          The radius is proportional to the square root of the value. Draws nothing when
+	#                 no value is above 0
+	#   see           CentroidOf, DrawSymbolAt
+	#@ aka  -- symbols -------------------------------------------------------------
 	def DrawSymbolsOn(poCanvas, paValues, pnMaxRadius, pFill, pStroke)
 		_max_ = 0
 		for _i_ = 1 to len(paValues)
@@ -738,15 +930,31 @@ class stzGeoMap from stzObject
 			poCanvas.AddCircleQ(_q_[1], _q_[2], _r_).FillQ(pFill).Stroke(pStroke, 1)
 		next
 
-	# a symbol at a place the caller names, rather than at a feature
+	# Draws one circle at a place the caller names.
+	#
+	#   poCanvas   the stzCanvas to draw on
+	#   pnLon      longitude in degrees east
+	#   pnLat      latitude in degrees north
+	#   pnRadius   the radius in pixels
+	#   pFill      the fill colour
+	#   pStroke    the edge colour
+	#   returns    nothing; the circle is added to the canvas
+	#   note       LONGITUDE FIRST. A place with no image is skipped
+	#   see        DrawSymbolsOn
+	#@ aka  a symbol at a place the caller names, rather than at a feature
 	def DrawSymbolAt(poCanvas, pnLon, pnLat, pnRadius, pFill, pStroke)
 		_q_ = @oP.Project(pnLon, pnLat)
 		if len(_q_) < 2  return  ok
 		poCanvas.AddCircleQ(_q_[1], _q_[2], pnRadius).FillQ(pFill).Stroke(pStroke, 1)
 
-	# the middle of a feature's largest part, in longitude and latitude:
-	# the mean of its outer ring, which is where a symbol belongs and is
-	# NOT where a label belongs on a crescent-shaped country
+	# Returns the mean of the points of the outer ring of feature pnI's largest part, in longitude and latitude.
+	#
+	#   pnI        the position of the feature, from 1
+	#   returns    a list [ lon, lat ]; [ ] for a position out of range
+	#   note       A mean of vertices, not the area centroid: it follows the sampling, so on a
+	#              ragged coast it slides toward the coast
+	#   see        LabelPointOf, DrawSymbolsOn
+	#@ aka  the middle of a feature's largest part, in longitude and latitude: the mean of its outer ring, which is where a symbol belongs and is NOT where a label belongs on a crescent-shaped country
 	def CentroidOf(pnI)
 		if pnI < 1 or pnI > @oF.Count()  return []  ok
 		_r_ = @oF.OuterRingOf(pnI, @oF.LargestPartOf(pnI))
@@ -759,19 +967,14 @@ class stzGeoMap from stzObject
 		next
 		return [ _sx_ / _n_, _sy_ / _n_ ]
 
-	#-- hexagonal bins ------------------------------------------------------
-
-	# TEN THOUSAND DOTS ON A MAP ARE A STAIN, not a picture: they overplot,
-	# and the densest places look exactly like the merely busy ones. Binning
-	# answers the question the dots were asked -- HOW MANY HERE -- and the
-	# cell is a HEXAGON because a square grid lies twice: its cells touch
-	# their diagonal neighbours at a point and their orthogonal ones along an
-	# edge, so "next to" means two distances, and its rows line up into
-	# stripes the eye invents structure out of.
+	# Projects places onto the paper and counts them in hexagonal cells.
 	#
-	# The points arrive as longitude and latitude and are PROJECTED first,
-	# so the bins are cells of the paper. That is d3's choice too, and the
-	# map's own rules say what it costs on a projection that distorts area.
+	#   paLonLat   the places as one flat list lon, lat, lon, lat, ...
+	#   pnRadius   the radius of a hexagon in paper units
+	#   returns    a list of [ x, y, count ]: the cell centre in paper units and its places
+	#   note       Marks the map as binned, so Findings then demands an equal-area projection
+	#   see        DrawHexBinsOn, HexBinMax
+	#@ aka  -- hexagonal bins ------------------------------------------------------
 	def HexBin(paLonLat, pnRadius)
 		_xy_ = []
 		for _i_ = 1 to len(paLonLat) - 1 step 2
@@ -784,9 +987,18 @@ class stzGeoMap from stzObject
 		@bBinned = TRUE
 		return StzEngineGeoHexBin(_xy_, pnRadius)
 
-	# the bins drawn, each in the colour its COUNT earns from the edges
-	# given. A bin holding nothing is not drawn: an empty cell is not a
-	# quantity of zero, it is a place nobody counted.
+	# Draws the bins on a canvas, each in the colour its count earns from the edges; an empty bin is not drawn.
+	#
+	#   poCanvas    the stzCanvas to draw on
+	#   paBins      the bins as HexBin answers them
+	#   pnRadius    the radius of a hexagon in paper units
+	#   paEdges     rising count edges
+	#   paPalette   one colour per class
+	#   pStroke     the edge colour
+	#   returns     nothing; the hexagons are added to the canvas
+	#   note        A count past the last edge takes the top class
+	#   see         HexBin, HexBinMax
+	#@ aka  the bins drawn, each in the colour its COUNT earns from the edges given. A bin holding nothing is not drawn: an empty cell is not a quantity of zero, it is a place nobody counted.
 	def DrawHexBinsOn(poCanvas, paBins, pnRadius, paEdges, paPalette, pStroke)
 		for _i_ = 1 to len(paBins)
 			_b_ = paBins[_i_]
@@ -797,7 +1009,12 @@ class stzGeoMap from stzObject
 				FillQ(paPalette[_c_]).Stroke(pStroke, 0.5)
 		next
 
-	# the biggest count in a set of bins -- what a legend's last edge wants
+	# Returns the largest count among the bins, what a legend's last edge wants.
+	#
+	#   paBins     the bins as HexBin answers them
+	#   returns    a number, 0 for no bins
+	#   see        HexBin
+	#@ aka  the biggest count in a set of bins -- what a legend's last edge wants
 	def HexBinMax(paBins)
 		_m_ = 0
 		for _i_ = 1 to len(paBins)
@@ -805,12 +1022,16 @@ class stzGeoMap from stzObject
 		next
 		return _m_
 
-	#-- flows ---------------------------------------------------------------
-
-	# A FLOW IS A GREAT CIRCLE, not a straight line on the paper: the route
-	# between two places bends on every projection, and drawing it straight
-	# is drawing a journey nobody takes. Each route is
-	# [ lon1, lat1, lon2, lat2 ] or the same with a width as a fifth item.
+	# Draws great-circle routes between places on a canvas, each as the curve it is.
+	#
+	#   poCanvas   the stzCanvas to draw on
+	#   paRoutes   a list of [ lon1, lat1, lon2, lat2 ] or the same with a width as a fifth item
+	#   pStroke    the line colour
+	#   pnWidth    the width in pixels when a route gives none
+	#   returns    nothing; the lines are added to the canvas
+	#   note       A route is a great circle on the sphere, not an ellipsoid geodesic
+	#   see        stzGeoProjection.Arc, DrawFlowOn
+	#@ aka  -- flows ---------------------------------------------------------------
 	def DrawFlowsOn(poCanvas, paRoutes, pStroke, pnWidth)
 		for _i_ = 1 to len(paRoutes)
 			_r_ = paRoutes[_i_]
@@ -825,17 +1046,13 @@ class stzGeoMap from stzObject
 			next
 		next
 
-	#-- observations, joined to the regions they fell in ---------------------
+	# Returns which feature each place fell in: a spatial join.
 	#
-	# THIS IS THE SPATIAL JOIN, and it is the whole of spatial analytics'
-	# first step: a table of places -- wells, clinics, rain gauges, sales --
-	# each with a longitude and a latitude, and the question "how many in
-	# each region". Nothing about it is a picture yet.
-
-	# which feature each point fell in, one index per point, 0 for a point
-	# outside every one of them. A point outside is NOT an error and not
-	# rounded to the nearest region: it is reported as 0, because a well
-	# across the border belongs to the other side.
+	#   paLonLat   the places as one flat list lon, lat, lon, lat, ...
+	#   returns    a list with one number per place, 0 for a place outside every feature
+	#   note       A place across the border is 0, not the nearest region
+	#   see        CountPointsIn, PointsOutside
+	#@ aka  -- observations, joined to the regions they fell in ---------------------
 	def AssignPoints(paLonLat)
 		_a_ = []
 		_n_ = len(paLonLat) / 2
@@ -844,9 +1061,13 @@ class stzGeoMap from stzObject
 		next
 		return _a_
 
-	# how many points fell in each feature, in the features' own order --
-	# which is exactly the shape SetValues takes, so a table of coordinates
-	# becomes a choropleth in two calls
+	# Returns how many places fell in each feature, in the features' order, ready for SetValues.
+	#
+	#   paLonLat   the places as one flat list lon, lat, lon, lat, ...
+	#   returns    a list with one count per feature
+	#   note       A count is not a density: colour a choropleth with DensityPointsIn
+	#   see        DensityPointsIn, AssignPoints
+	#@ aka  how many points fell in each feature, in the features' own order -- which is exactly the shape SetValues takes, so a table of coordinates becomes a choropleth in two calls
 	def CountPointsIn(paLonLat)
 		_a_ = []
 		for _i_ = 1 to @oF.Count()  _a_ + 0  next
@@ -857,8 +1078,12 @@ class stzGeoMap from stzObject
 		next
 		return _a_
 
-	# ...and how many fell outside every region, which a caller must be told
-	# rather than left to notice that their totals do not add up
+	# Returns how many places fell outside every feature.
+	#
+	#   paLonLat   the places as one flat list lon, lat, lon, lat, ...
+	#   returns    a number
+	#   see        AssignPoints, CountPointsIn
+	#@ aka  ...and how many fell outside every region, which a caller must be told rather than left to notice that their totals do not add up
 	def PointsOutside(paLonLat)
 		_c_ = 0
 		_n_ = len(paLonLat) / 2
@@ -867,10 +1092,15 @@ class stzGeoMap from stzObject
 		next
 		return _c_
 
-	# the same counts, divided by each region's own area in square
-	# kilometres: a DENSITY, which is the number a choropleth may honestly
-	# colour. A count may not -- a big region collects more of anything --
-	# and that is the commonest lie in the genre after the radius one.
+	# Returns the places per feature divided by the feature's area, ready for SetValues.
+	#
+	#   paLonLat   the places as one flat list lon, lat, lon, lat, ...
+	#   returns    a list with one number per feature: places per 10000 km2, "" for a feature with
+	#              no area
+	#   warning    Defect in the comment: the source says per square kilometre but the code
+	#              multiplies by 10000, so the figure is per 10000 km2.
+	#   see        CountPointsIn, ValuesFromArea
+	#@ aka  the same counts, divided by each region's own area in square kilometres: a DENSITY, which is the number a choropleth may honestly colour. A count may not -- a big region collects more of anything -- and that is the commonest lie in the genre after the radius one.
 	def DensityPointsIn(paLonLat)
 		_c_ = This.CountPointsIn(paLonLat)
 		_a_ = This.ValuesFromArea()
@@ -884,16 +1114,14 @@ class stzGeoMap from stzObject
 		next
 		return _d_
 
-	# PLACES SCATTERED INSIDE THE REGIONS, for a demonstration or a
-	# rehearsal. REJECTION SAMPLING: a point is drawn in the bounding box and
-	# kept only if it falls in a region, which is the standard way and the
-	# only one that needs no assumption about the shape.
+	# Returns invented places thrown at random inside the features, by rejection sampling in the bounding box.
 	#
-	# The sequence is the caller's seed, so the same call gives the same
-	# places every time -- a committed picture that moves on every render is
-	# a diff nobody can read. And the answer is INVENTED DATA: the caller who
-	# draws it owes their reader that word, which is why the map's caption
-	# takes a source line.
+	#   pnHowMany   how many places
+	#   pnSeed      the seed of the sequence, the same seed giving the same places
+	#   returns     a flat list lon, lat, lon, lat, ...; fewer than asked if the tries run out
+	#   note        Invented data: say so in the caption
+	#   see         CountPointsIn, stzGeoPoints.Sample
+	#@ aka  PLACES SCATTERED INSIDE THE REGIONS, for a demonstration or a rehearsal. REJECTION SAMPLING: a point is drawn in the bounding box and kept only if it falls in a region, which is the standard way and the only one that needs no assumption about the shape.
 	def SamplePointsInside(pnHowMany, pnSeed)
 		_b_ = @oF.Bounds()
 		if len(_b_) < 4  return []  ok
@@ -914,15 +1142,13 @@ class stzGeoMap from stzObject
 		end
 		return _a_
 
-	#-- labels ---------------------------------------------------------------
-
-	# WHERE A NAME GOES. The mean of a ring is not inside it whenever the
-	# region is a crescent, a horseshoe or a pair of islands -- and a label
-	# outside its own region is a label on somebody else's. So the mean is
-	# TRIED and, when it lands outside, an interior point is searched for:
-	# the point of a coarse grid that is inside and furthest from the edge,
-	# which is the pole of inaccessibility a cartographer would use, taken
-	# at a resolution a map at this size cannot tell from the exact one.
+	# Returns where a name goes: the area centroid of the largest part, or the roomiest inner point when the centroid is outside it.
+	#
+	#   pnI        the position of the feature, from 1
+	#   returns    a list [ lon, lat ]; [ ] for a ring of fewer than 3 points
+	#   warning    Defect: no range check, so a position of 0 or past the last raises error R2.
+	#   see        CentroidOf, PaperCentreOf
+	#@ aka  -- labels ---------------------------------------------------------------
 	def LabelPointOf(pnI)
 		_k_ = @oF.LargestPartOf(pnI)
 		_r_ = @oF.OuterRingOf(pnI, _k_)
@@ -956,76 +1182,37 @@ class stzGeoMap from stzObject
 		if len(_best_) = 2  return _best_  ok
 		return [ _cx_, _cy_ ]
 
-	#-- naming the regions ---------------------------------------------------
+	# Returns the smallest type size, in pixels, the labelling will draw.
 	#
-	# A NAME GOES INSIDE ITS REGION OR IT BECOMES A NUMBER. There is no
-	# third thing, and there are no lines.
-	#
-	# There WERE lines. Three rounds of this drew leaders -- a name parked
-	# in the nearest empty paper, or out in a margin, with a rule back to
-	# the region it belonged to -- and the Principal returned every one of
-	# them, the last time as "these lines are a total mess". They were
-	# right, and the finding is worth more than the fix: THE LEADERS WERE
-	# MY INVENTION AND NOT THE FIELD'S. Asked what the best tools actually
-	# do, the answer is that none of them does this for an area:
-	#
-	#   nivo, Datawrapper, Flourish, ThoughtSpot -- a name is drawn where it
-	#     FITS inside its region, and otherwise not at all; the rest is a
-	#     tooltip.
-	#   d3-geo's own examples -- centroid text above an area threshold.
-	#   QGIS (PAL), Mapbox GL, ArcGIS (Maplex) -- collision placement by
-	#     priority, and what does not fit is DROPPED at that scale. Maplex
-	#     will draw a leader for a POINT feature, capped and short; never a
-	#     sheaf of them across a choropleth.
-	#   every printed atlas -- IGN, Michelin, National Geographic -- puts a
-	#     NUMBER in the small unit and a KEY beside the map. "1 Tunis,
-	#     2 Ariana, 3 Ben Arous, 4 Manouba" is how a map of Tunisia has
-	#     always handled Grand Tunis.
-	#
-	# So this file does what the atlases do, in two tiers and a key:
-	#
-	#   1. THE NAME INSIDE, where its whole box lies within the region it
-	#      names -- not merely within that region's bounding box, which is
-	#      how a ragged region's name ends up on its neighbour.
-	#   2. OTHERWISE A NUMBER, inside the region if the digits fit, and
-	#      otherwise in the empty paper TOUCHING its border. Touching, and
-	#      not merely near: with no line, what says the number belongs to
-	#      this region is that it sits against its edge. One that cannot be
-	#      set there is DROPPED AND COUNTED, because a number floating in
-	#      open paper is a riddle, not a label.
-	#   3. THE KEY beside the map, number to name, NUMBERED IN READING
-	#      ORDER -- rows down the sheet, west to east within a row -- so a
-	#      reader looking for 17 walks to it instead of hunting.
-	#
-	# Two things from the leader era were sound and are kept: the ink comes
-	# from the colour system (StzReadableTextOn), never from an opinion held
-	# in a drawing file; and a label is a BOX, measured at the size it will
-	# be drawn and judged against the region AS DRAWN.
-	#
-	# What is not here, named: INSETS. A zoomed box for Grand Tunis or the
-	# Ile-de-France is how an atlas rescues the numbers this drops, and it
-	# is the next step, not this one.
-
-	# THE SMALLEST TYPE THIS WILL DRAW. The Principal has returned a picture
-	# for unreadable text once per plane; a label below this is not a label.
+	#   returns    a number, 13
+	#   see        DrawLabelsOn
+	#@ aka  -- naming the regions ---------------------------------------------------
 	def LabelFloor()
 		return 13
 
-	# WHAT THE LABELLING DID, in four numbers that add up to the feature
-	# count. `unlisted` is the one that was nearly left out: entries the key
-	# box had no room for. A key that runs off the bottom of its box loses
-	# names SILENTLY, and the first version of DrawKeyOn did exactly that --
-	# 39 of France's 75 entries drawn and 36 gone, under a comment in this
-	# same file claiming a key must never do that. So it is counted here and
-	# the gate refuses it.
+	# Returns what the last labelling did, in counts.
+	#
+	#   returns    a hash list [ :named, :numbered, :inset, :dropped, :unlisted ] that adds up to
+	#              the feature count
+	#   note       Unlisted counts key entries the key box had no room for
+	#   see        DrawLabelsOn, Findings
+	#@ aka  WHAT THE LABELLING DID, in four numbers that add up to the feature count. `unlisted` is the one that was nearly left out: entries the key box had no room for. A key that runs off the bottom of its box loses names SILENTLY, and the first version of DrawKeyOn did exactly that -- 39 of France's 75 entries drawn and 36 gone, under a comment in this same file claiming a key must never do that. So it is
 	def LabelReport()
 		return [ :named = @nLblNamed, :numbered = @nLblNumbered,
 		         :inset = @nLblInset, :dropped = @nLblDropped,
 		         :unlisted = @nKeyUnlisted ]
 
-	# where the key is written: [ x0, y0, x1, y1 ]. With no key box set, a
-	# region that cannot carry its own name is dropped -- a number with
-	# nothing to look it up in is worse than a blank.
+	# Sets the box where the key is written, so a region too small for its name can be numbered.
+	#
+	#   pnX0       left edge of the key box
+	#   pnY0       top edge of the key box
+	#   pnX1       right edge of the key box
+	#   pnY1       bottom edge of the key box
+	#   returns    nothing; the box is stored
+	#   note       Without a key box and without key codes, a region that cannot carry its name is
+	#              dropped and counted
+	#   see        DrawKeyOn, SetLabelMode
+	#@ aka  where the key is written: [ x0, y0, x1, y1 ]. With no key box set, a region that cannot carry its own name is dropped -- a number with nothing to look it up in is worse than a blank.
 	def SetKeyBox(pnX0, pnY0, pnX1, pnY1)
 		@aKeyBox = [ pnX0, pnY0, pnX1, pnY1 ]
 
@@ -1033,6 +1220,11 @@ class stzGeoMap from stzObject
 			This.SetKeyBox(pnX0, pnY0, pnX1, pnY1)
 			return This
 
+	# Sets the title written above the key.
+	#
+	#   pcTitle    the title as text
+	#   returns    nothing; the title is stored
+	#   see        DrawKeyOn
 	def SetKeyTitle(pcTitle)
 		@cKeyTitle = "" + pcTitle
 
@@ -1040,16 +1232,14 @@ class stzGeoMap from stzObject
 			This.SetKeyTitle(pcTitle)
 			return This
 
-	# NUMBER THEM WITH THE CODE THEY ALREADY HAVE, where the file carries
-	# one. Natural Earth's iso_3166_2 is "FR-59" for the Nord and "TN-83"
-	# for Tataouine, and the part after the dash IS the number printed on
-	# every French number plate and written on every Tunisian address.
+	# Marks the regions by a property's official code, the part after its last dash, instead of 1, 2, 3 in reading order.
 	#
-	# OFF BY DEFAULT, and deliberately: official codes are not in reading
-	# order, so "08" sitting beside "59" tells a reader who does not
-	# already know them nothing about where to look. Sequential in reading
-	# order is the atlas default; the code is for a sheet drawn for people
-	# who are at home in it.
+	#   pcProperty   the property that holds the code, such as iso_3166_2 where "FR-59" gives 59
+	#   returns      nothing; the property name is stored
+	#   note         Off by default: codes are not in reading order. A property that is absent or
+	#                empty falls back to the sequence
+	#   see          DrawKeyOn
+	#@ aka  NUMBER THEM WITH THE CODE THEY ALREADY HAVE, where the file carries one. Natural Earth's iso_3166_2 is "FR-59" for the Nord and "TN-83" for Tataouine, and the part after the dash IS the number printed on every French number plate and written on every Tunisian address.
 	def SetKeyCodes(pcProperty)
 		@cKeyCode = "" + pcProperty
 
@@ -1057,29 +1247,15 @@ class stzGeoMap from stzObject
 			This.SetKeyCodes(pcProperty)
 			return This
 
+	# Sets how regions are labelled: :Names, :Numbers or :Auto.
+	#
+	#   pcMode     :Names for a name or nothing, :Numbers for a number everywhere with the names in
+	#              the key, :Auto for the name where it fits and a number where it does not
+	#   returns    nothing; the mode is stored
+	#   note       Raises an error for another word. The mode is the caller's, not the engine's
+	#   see        LabelMode, DrawLabelsOn
 	# --- THE THREE WAYS TO LABEL A MAP -----------------------------------
-	#
-	#   :Names    every region carries its NAME, or nothing at all. What
-	#             nivo, Datawrapper and Flourish do, and what a map with a
-	#             dozen big regions wants: no key to consult, no number to
-	#             decode, and the units too small to hold a name simply go
-	#             unlabelled. The report says how many.
-	#
-	#   :Numbers  every region carries a NUMBER and the key carries every
-	#             name. What an atlas plate does when the units are many or
-	#             uniformly small: the map reads as a clean figure and the
-	#             whole legend is in one ordered column. Nothing is treated
-	#             as a special case, so nothing looks like one.
-	#
-	#   :Auto     the hybrid, and the default: the name where it fits, a
-	#             number where it does not. Best when the regions differ
-	#             wildly in size -- Tunisia, where Tataouine has room for
-	#             its name ten times over and Tunis has room for none of it.
-	#
-	# THE MODE IS THE CALLER'S AND NEVER THE ENGINE'S, because the right
-	# answer depends on who is reading. A sheet for people who know the
-	# country wants :Names; a plate in a report wants :Numbers; a screen
-	# where one region is huge and its neighbour is a city wants :Auto.
+	#@ aka  :Names every region carries its NAME, or nothing at all. What nivo, Datawrapper and Flourish do, and what a map with a dozen big regions wants: no key to consult, no number to decode, and the units too small to hold a name simply go unlabelled. The report says how many.
 	def SetLabelMode(pcMode)
 		_m_ = StzLower(ring_trim("" + pcMode))
 		if _m_ != "auto" and _m_ != "names" and _m_ != "numbers"
@@ -1093,27 +1269,64 @@ class stzGeoMap from stzObject
 			This.SetLabelMode(pcMode)
 			return This
 
+	# Returns the labelling mode.
+	#
+	#   returns    text, "auto" by default
+	#   see        SetLabelMode
 	def LabelMode()
 		return @cLabelMode
 
+	# Returns the key the last labelling built.
+	#
+	#   returns    a list of [ mark, name, value ] rows; the value is "" unless the labelling showed
+	#              values
+	#   see        DrawKeyOn, DrawLabelsOn
 	def KeyEntries()
 		return @aKey
 
-	# EVERY BOX THE LAST LABELLING PUT DOWN, as [ x0, y0, x1, y1 ]. Exposed
-	# so a guard can assert the MECHANISM rather than a number that agrees
-	# with it by accident: the suite used to check "fewer regions were named
-	# than exist", which passes just as well when nothing was drawn at all.
-	# With the boxes in hand it can test every pair and prove they are
-	# disjoint.
+	# Returns every box the last labelling put down, so a guard can check they do not overlap.
+	#
+	#   returns    a list of [ x0, y0, x1, y1 ] boxes in paper units
+	#   see        DrawLabelsOn, LabelReport
+	#@ aka  EVERY BOX THE LAST LABELLING PUT DOWN, as [ x0, y0, x1, y1 ]. Exposed so a guard can assert the MECHANISM rather than a number that agrees with it by accident: the suite used to check "fewer regions were named than exist", which passes just as well when nothing was drawn at all. With the boxes in hand it can test every pair and prove they are disjoint.
 	def PlacedBoxes()
 		return @aPlaced
 
+	# Writes the regions' names on a canvas inside their regions, and numbers the ones whose name does not fit.
+	#
+	#   poCanvas   the stzCanvas to draw on
+	#   poFont     the stzFont to write with
+	#   pnSize     the type size, never below 13
+	#   pInk       the text colour where no class colour calls for a better one
+	#   returns    nothing; the text is added to the canvas, and LabelReport and KeyEntries are
+	#              filled
+	#   note       The biggest region speaks first. A map with groups names its members only; a
+	#              region held by an inset is left to it
+	#   see        DrawLabelsWithValuesOn, DrawKeyOn, LabelReport
 	def DrawLabelsOn(poCanvas, poFont, pnSize, pInk)
 		This.DrawLabelsXT(poCanvas, poFont, pnSize, pInk, FALSE)
 
+	# Writes each region's name with its value under it, the same labelling as DrawLabelsOn.
+	#
+	#   poCanvas   the stzCanvas to draw on
+	#   poFont     the stzFont to write with
+	#   pnSize     the type size, never below 13
+	#   pInk       the text colour
+	#   returns    nothing; the text is added to the canvas
+	#   note       The key shows values too
+	#   see        DrawLabelsOn
 	def DrawLabelsWithValuesOn(poCanvas, poFont, pnSize, pInk)
 		This.DrawLabelsXT(poCanvas, poFont, pnSize, pInk, TRUE)
 
+	# Writes the regions' names on a canvas, with each value under its name when pbValues is TRUE.
+	#
+	#   poCanvas   the stzCanvas to draw on
+	#   poFont     the stzFont to write with
+	#   pnSize     the type size, never below 13
+	#   pInk       the text colour
+	#   pbValues   1 to show the values
+	#   returns    nothing; the text is added to the canvas
+	#   see        DrawLabelsOn, DrawLabelsWithValuesOn
 	def DrawLabelsXT(poCanvas, poFont, pnSize, pInk, pbValues)
 		@bLabelled = TRUE
 		@bKeyDrawn = FALSE
@@ -1297,10 +1510,11 @@ class stzGeoMap from stzObject
 		next
 		return []
 
-	# HOW FAR OUTSIDE ITS REGION A NUMBER MAY BE SET, in pixels. Sixteen is
-	# about a line of type: far enough to clear a border stroke and the
-	# region's own neighbour, near enough that no reader has to decide which
-	# of two regions a number belongs to.
+	# Returns how far outside its region a number may be set, in pixels.
+	#
+	#   returns    a number, 16
+	#   see        DrawLabelsOn
+	#@ aka  HOW FAR OUTSIDE ITS REGION A NUMBER MAY BE SET, in pixels. Sixteen is about a line of type: far enough to clear a border stroke and the region's own neighbour, near enough that no reader has to decide which of two regions a number belongs to.
 	def KeyReachPixels()
 		return 16
 
@@ -1448,9 +1662,13 @@ class stzGeoMap from stzObject
 		next
 		return _out_
 
-	# THE CENTRE OF A REGION ON THE PAPER: the area centroid of its largest
-	# part's outline, projected. This is the point a name goes at when it
-	# fits there, and the point a reader checks the placement against.
+	# Returns the area centroid of feature pnI's largest part as drawn, in paper units.
+	#
+	#   pnI        the position of the feature, from 1
+	#   returns    a list [ x, y ]; [ ] for a ring of fewer than 3 points
+	#   note       The point a name goes at when it fits there
+	#   see        LabelPointOf, PaperBoxOf
+	#@ aka  THE CENTRE OF A REGION ON THE PAPER: the area centroid of its largest part's outline, projected. This is the point a name goes at when it fits there, and the point a reader checks the placement against.
 	def PaperCentreOf(pnI)
 		_k_ = @oF.LargestPartOf(pnI)
 		_r_ = @oF.OuterRingOf(pnI, _k_)
@@ -1549,10 +1767,18 @@ class stzGeoMap from stzObject
 		next
 		return _r_
 
-	# THE KEY, in as many columns as its box will carry. A key that runs off
-	# the bottom of its box is a key that lost entries silently, so the
-	# column width comes from the widest entry ACTUALLY PRESENT and the row
-	# count from the box's own height.
+	# Writes the key, number to name, in as many columns as its box carries.
+	#
+	#   poCanvas   the stzCanvas to draw on
+	#   poFont     the stzFont to write with
+	#   pnSize     the type size, never below 13
+	#   pInk       the text colour
+	#   returns    nothing; the text is added to the canvas, and LabelReport counts the entries that
+	#              did not fit
+	#   note       Does nothing without SetKeyBox, and a number on the map with no key is an error
+	#              in Findings
+	#   see        SetKeyBox, KeyEntries
+	#@ aka  THE KEY, in as many columns as its box will carry. A key that runs off the bottom of its box is a key that lost entries silently, so the column width comes from the widest entry ACTUALLY PRESENT and the row count from the box's own height.
 	def DrawKeyOn(poCanvas, poFont, pnSize, pInk)
 		if len(@aKeyBox) != 4  return  ok
 		@bKeyDrawn = TRUE
@@ -1749,15 +1975,16 @@ class stzGeoMap from stzObject
 		_w2_ = poFont.WidthOf(_t_, pnSize - 2)
 		poCanvas.SetFontQ(poFont, pnSize - 2).AddTextQ(_t_, pnCx - _w2_ / 2, pnY + pnSize).Fill(_ink_)
 
-	# --- 3. THE INK IS THE COLOUR SYSTEM'S ANSWER, NOT THIS FILE'S --------
+	# Returns the readable text colour for the class colour under feature pnI, from the colour system's contrast rule.
 	#
-	# This used to ask StzIsDarkColor and choose white or the caller's ink,
-	# and it put black names on dark blue and dark red -- which the
-	# Principal returned twice. The house HAS a contrast contract:
-	# StzReadableTextOn(background, sizePx, bold) answers the ink AND
-	# whether that size can carry it, measured against WCAG's 4.5:1 for
-	# normal text and 3:1 for large. A drawing file has no business having
-	# its own opinion about contrast when the colour system holds one.
+	#   pnI        the position of the feature, from 1
+	#   pInk       the ink to use when no class colour decides
+	#   pnSize     the type size in pixels the ink must be readable at
+	#   returns    the colour as hex text; pInk itself when there are no classes or values
+	#   note       #FFFFFF over a dark class, #000000 over a pale one
+	#   see        DrawLabelsOn
+	# --- 3. THE INK IS THE COLOUR SYSTEM'S ANSWER, NOT THIS FILE'S --------
+	#@ aka  This used to ask StzIsDarkColor and choose white or the caller's ink, and it put black names on dark blue and dark red -- which the Principal returned twice. The house HAS a contrast contract: StzReadableTextOn(background, sizePx, bold) answers the ink AND whether that size can carry it, measured against WCAG's 4.5:1 for normal text and 3:1 for large. A drawing file has no business having its own 
 	def InkOver(pnI, pInk, pnSize)
 		if len(@aEdges) < 2 or len(@aValues) = 0  return pInk  ok
 		_c_ = This.ClassOf(pnI)
@@ -1805,8 +2032,13 @@ class stzGeoMap from stzObject
 		return paBox[1] >= @aPaper[1] and paBox[3] <= @aPaper[3] and
 		       paBox[2] >= @aPaper[2] and paBox[4] <= @aPaper[4]
 
-	# a region's box ON THE PAPER: what the reader's eye measures a name
-	# against, which is not the box it has on the sphere
+	# Returns the box of feature pnI's largest part on the paper.
+	#
+	#   pnI        the position of the feature, from 1
+	#   returns    a list [ x0, y0, x1, y1 ] in paper units; [ 0, 0, 0, 0 ] when nothing projects
+	#   note       Niamey on the Niger sheet is 9 by 8 pixels
+	#   see        PaperCentreOf, IsOnPaper
+	#@ aka  a region's box ON THE PAPER: what the reader's eye measures a name against, which is not the box it has on the sphere
 	def PaperBoxOf(pnI)
 		_k_ = @oF.LargestPartOf(pnI)
 		_r_ = @oF.OuterRingOf(pnI, _k_)
@@ -1823,55 +2055,13 @@ class stzGeoMap from stzObject
 		if _x0_ > _x1_  return [ 0, 0, 0, 0 ]  ok
 		return [ _x0_, _y0_, _x1_, _y1_ ]
 
-	#-- insets ---------------------------------------------------------------
+	# Sets the colour of the insets' frames and locator rectangles.
 	#
-	# AN INSET IS THE ATLAS'S ANSWER TO A PLACE TOO SMALL TO LABEL AT THE
-	# SHEET'S SCALE, and it is the answer because it is the only one that
-	# does not lie. The alternatives all cost something true: a leader line
-	# says "this name belongs over there" and clutters the sheet saying it;
-	# a number says "look this up" and spends the reader's attention; and
-	# dropping the name says nothing at all. An inset says "here is the same
-	# ground, larger", which is a statement a reader can check.
-	#
-	# Every one of the three sheets in this plane wanted one. Niger's Niamey
-	# is a capital district inside Tillaberi with no empty paper anywhere
-	# near it. Tunisia's Grand Tunis is three governorates inside one city
-	# -- Tunis, Ben Arous and Manubah, Natural Earth having folded Ariana
-	# into its neighbours, which is a fact about the FILE and not about
-	# Tunisia. France's Petite Couronne is four departments inside another
-	# city. Those are ALL of the regions those sheets could not label: the
-	# failure is not spread across the map, it is concentrated in one spot
-	# per country, which is exactly the shape an inset is for.
-	#
-	# THREE THINGS MAKE IT AN INSET RATHER THAN A SECOND MAP:
-	#
-	#   1. THE SAME PROJECTION, only larger. The inset takes a COPY of the
-	#      parent's projection and refits it -- same parallels, same
-	#      rotation, same family -- so a shape has the same shape in both
-	#      places and a reader comparing them is comparing like with like.
-	#      A fresh projection fitted to a small window would silently
-	#      re-derive its parallels and quietly change every shape in it.
-	#   2. THE SAME COLOURS. Values, class edges and palette are the
-	#      parent's, so a region that is dark on the main map is dark in the
-	#      inset. An inset with its own scale would be a different map
-	#      wearing this one's frame.
-	#   3. A LOCATOR ON THE PARENT. The frame round the inset and the
-	#      rectangle on the main map are drawn in one ink and one weight,
-	#      because that pairing is the only thing telling the reader WHERE
-	#      the inset is of. Without it an inset is a floating fragment.
-	#
-	# AND IT SAYS ITS SCALE. An inset drawn at six times the parent, with no
-	# word of it, tells the reader that Tunis is the size of Kairouan -- the
-	# same family of lie as colouring a count, and this file refuses that
-	# one too. The multiplier is measured from the two projections and
-	# printed; it is never taken on trust from the caller.
-	#
-	# AN INSET LABELS THE WAY ITS PARENT LABELS ITS UNITS -- names, or the
-	# parent's official codes where it has them, and never a sequential
-	# number, which would need a second key and a sheet with two keys has
-	# given up. If a mark still will not fit at the inset's scale it is
-	# REPORTED, and the answer is a larger box, not a cleverer placement.
-
+	#   pInk       the colour
+	#   returns    nothing; the colour is stored
+	#   note       The default is #5A6B7C
+	#   see        SetInsetPaper, AddInset
+	#@ aka  -- insets ---------------------------------------------------------------
 	def SetInsetInk(pInk)
 		@cInsetInk = pInk
 
@@ -1879,6 +2069,12 @@ class stzGeoMap from stzObject
 			This.SetInsetInk(pInk)
 			return This
 
+	# Sets the fill of the insets' background.
+	#
+	#   pFill      the colour
+	#   returns    nothing; the colour is stored
+	#   note       The default is white
+	#   see        SetInsetInk
 	def SetInsetPaper(pFill)
 		@cInsetPaper = pFill
 
@@ -1886,8 +2082,15 @@ class stzGeoMap from stzObject
 			This.SetInsetPaper(pFill)
 			return This
 
-	# paWindow is the ground to magnify, [ lon0, lat0, lon1, lat1 ]; paBox is
-	# where it goes on the canvas, [ x0, y0, x1, y1 ].
+	# Adds an inset: a window of ground to magnify and the box on the canvas where it goes.
+	#
+	#   paWindow   the ground as [ lon0, lat0, lon1, lat1 ], given in either order
+	#   paBox      the box on the canvas as [ x0, y0, x1, y1 ]
+	#   returns    nothing; the inset is stored
+	#   note       Raises an error unless both are lists of four. The inset takes a copy of the
+	#              parent's projection refitted, so the shapes stay the same
+	#   see        Insets, DrawInsetsOn
+	#@ aka  paWindow is the ground to magnify, [ lon0, lat0, lon1, lat1 ]; paBox is where it goes on the canvas, [ x0, y0, x1, y1 ].
 	def AddInset(paWindow, paBox)
 		This.AddInsetXT(paWindow, paBox, "")
 
@@ -1912,6 +2115,11 @@ class stzGeoMap from stzObject
 			This.AddInsetXT(paWindow, paBox, pcTitle)
 			return This
 
+	# Returns the insets with what resolving them found.
+	#
+	#   returns    a list of hash lists [ :window, :box, :title, :idx, :count, :scale, :named,
+	#              :dropped ]
+	#   see        AddInset, InsetReports
 	def Insets()
 		return @aInsets
 
@@ -1936,8 +2144,13 @@ class stzGeoMap from stzObject
 			@aInsets[_k_][:count] = len(@aInsets[_k_][:idx])
 		next
 
-	# the FIRST inset holding it, and not the nearest: two insets over the
-	# same ground is a mistake the caller should see, not a tie to break here
+	# Returns the first inset that has taken feature pnI.
+	#
+	#   pnI        the position of the feature, from 1
+	#   returns    a number from 1, or 0 when none has it
+	#   note       Resolved when the labelling or DrawInsetsOn runs: 0 before
+	#   see        Insets, DrawLabelsOn
+	#@ aka  the FIRST inset holding it, and not the nearest: two insets over the same ground is a mistake the caller should see, not a tie to break here
 	def InsetHolding(pnI)
 		for _k_ = 1 to len(@aInsets)
 			_x_ = @aInsets[_k_][:idx]
@@ -1947,6 +2160,12 @@ class stzGeoMap from stzObject
 		next
 		return 0
 
+	# Returns what each inset drew: its title, the regions it took, its scale and how many it named or dropped.
+	#
+	#   returns    a list of hash lists [ :title, :count, :scale, :named, :dropped ]
+	#   note       The scale is measured from the two projections: 15.3 for Niamey on the Niger
+	#              sheet
+	#   see        Insets, Findings
 	def InsetReports()
 		_a_ = []
 		for _k_ = 1 to len(@aInsets)
@@ -1956,6 +2175,17 @@ class stzGeoMap from stzObject
 		next
 		return _a_
 
+	# Draws every inset on a canvas: its locator rectangle on the parent, its enlarged map, its frame, its title and its scale.
+	#
+	#   poCanvas   the stzCanvas to draw on
+	#   poFont     the stzFont to write with
+	#   pnSize     the type size, never below 13
+	#   pInk       the text colour
+	#   returns    nothing; the pieces are added to the canvas, and InsetReports is filled
+	#   warning    Defect: the inset copies values, edges and palette but not SetOpenTop, so a value
+	#              above the last edge draws as no data inside the inset while the parent paints it
+	#              in the top colour (Niamey on the Niger sheet).
+	#   see        AddInset, InsetReports
 	def DrawInsetsOn(poCanvas, poFont, pnSize, pInk)
 		if len(@aInsets) = 0  return  ok
 		@bInsetsDrawn = TRUE
@@ -2091,33 +2321,13 @@ class stzGeoMap from stzObject
 		if pnRatio >= 10  return "x" + floor(pnRatio + 0.5) + " the main map"  ok
 		return "x" + StzFactNumText(floor(pnRatio * 10 + 0.5) / 10) + " the main map"
 
-	#-- THE SHEET A READER BELIEVES (GE2c) ----------------------------------
+	# Selects regions by name to be outlined heavily, replacing any earlier selection.
 	#
-	# Four things the good statistical maps do that this plane did not, all
-	# of them about whether a reader can READ the picture rather than about
-	# what it computes:
-	#
-	#   1. BORDERS ARE DARK AND THIN, NOT WHITE. A white border between two
-	#      pale classes erases the boundary exactly where the map is doing
-	#      its work; a hairline of the ink colour separates them at every
-	#      shade. Our World in Data, the Financial Times and the Economist
-	#      all stroke dark, and the reason is legibility at the light end.
-	#   2. THE LEGEND IS A RAMP WITH ITS EDGES LABELLED, not a stack of
-	#      "10 to 20" rows. A reader matches a colour to a position on a
-	#      bar, and the numbers belong at the JOINS because that is where
-	#      the meaning changes. It carries a NO-DATA swatch, hatched, so
-	#      "not measured" is visibly not a value.
-	#   3. WHAT IS SELECTED IS OUTLINED, NOT RECOLOURED. Recolouring a
-	#      selection destroys the one thing the map encodes. A heavy dark
-	#      outline says "this one" while leaving its class readable.
-	#   4. TEXT OVER COLOUR NEEDS A HALO. A white name on a mid-orange is
-	#      unreadable at every size; the same name with a thin dark halo is
-	#      readable on every shade in the ramp. This is the colour system's
-	#      contrast contract solved the way cartographers solve it, since a
-	#      label on a choropleth has no single background to contrast with.
-
-	# the regions to outline heavily: by name, or by class through
-	# HighlightClass below
+	#   paNames    the regions' names
+	#   returns    nothing; the selection is stored
+	#   note       Outlines, never recolours
+	#   see        Highlighted, DrawHighlightOn, HighlightClass
+	#@ aka  -- THE SHEET A READER BELIEVES (GE2c) ----------------------------------
 	def SetHighlight(paNames)
 		@aHighlit = []
 		for _i_ = 1 to len(paNames)
@@ -2129,9 +2339,13 @@ class stzGeoMap from stzObject
 			This.SetHighlight(paNames)
 			return This
 
-	# SELECT A WHOLE CLASS, which is what clicking a legend swatch means:
-	# "show me everyone between 2 and 5 per cent". The class is outlined on
-	# the map AND framed in the legend, so the two read as one gesture.
+	# Selects every region of one class to be outlined, which is what clicking a legend swatch means.
+	#
+	#   pnClass    the class, from 1
+	#   returns    nothing; the selection is stored
+	#   note       The legend frames the same swatch. A class past the last selects nothing
+	#   see        SetHighlight, DrawRampLegendOn
+	#@ aka  SELECT A WHOLE CLASS, which is what clicking a legend swatch means: "show me everyone between 2 and 5 per cent". The class is outlined on the map AND framed in the legend, so the two read as one gesture.
 	def HighlightClass(pnClass)
 		@nHiClass = pnClass
 		@aHighlit = []
@@ -2144,22 +2358,31 @@ class stzGeoMap from stzObject
 			This.HighlightClass(pnClass)
 			return This
 
+	# Returns the positions of the selected regions.
+	#
+	#   returns    a list of numbers
+	#   see        SetHighlight, HighlightClass
 	def Highlighted()
 		return @aHighlit
 
+	# TRUE if feature pnI is selected.
+	#
+	#   pnI        the position of the feature, from 1
+	#   returns    TRUE or FALSE
+	#   see        Highlighted
 	def IsHighlighted(pnI)
 		for _i_ = 1 to len(@aHighlit)
 			if @aHighlit[_i_] = pnI  return TRUE  ok
 		next
 		return FALSE
 
-	# EVERY REGION CARRIES ITS OWN IDENTITY INTO THE SVG, which is what an
-	# interactive layer is made of: an id a script can address, a class a
-	# stylesheet can hover, and a <title> the browser shows as a tooltip
-	# with no script at all. The diagram plane has had this since DN3b; a
-	# map is the surface that wants it most, because a reader's first
-	# question of any choropleth is "which country is that and what is its
-	# number".
+	# Makes DrawSheetOn put an id, a class and a tooltip title on every region in the SVG.
+	#
+	#   pbOn       1 to carry identity into the SVG
+	#   returns    nothing; the flag is stored
+	#   note       A script can then address a region; the browser shows the title with no script
+	#   see        IsInteractive, IdentOf
+	#@ aka  EVERY REGION CARRIES ITS OWN IDENTITY INTO THE SVG, which is what an interactive layer is made of: an id a script can address, a class a stylesheet can hover, and a <title> the browser shows as a tooltip with no script at all. The diagram plane has had this since DN3b; a map is the surface that wants it most, because a reader's first question of any choropleth is "which country is that and what is
 	def SetInteractive(pbOn)
 		@bIdentify = pbOn
 
@@ -2167,11 +2390,22 @@ class stzGeoMap from stzObject
 			This.SetInteractive(pbOn)
 			return This
 
+	# TRUE if the map carries identity into the SVG.
+	#
+	#   returns    TRUE or FALSE
+	#   see        SetInteractive
 	def IsInteractive()
 		return @bIdentify
 
-	# the id a region takes in the SVG: its name, lowercased, with anything
-	# that is not a letter or a digit turned into a hyphen
+	# Returns the id feature pnI takes in the SVG: "geo-" and its name in lowercase, anything but a letter or digit turned into one hyphen.
+	#
+	#   pnI        the position of the feature, from 1
+	#   returns    text such as "geo-agadez"; "geo-region-" and the position for a name with no
+	#              letter or digit
+	#   note       Works on bytes: a multibyte letter becomes hyphens, so Cote d'Ivoire with a
+	#              circumflex gives geo-c-te-d-ivoire
+	#   see        SetInteractive
+	#@ aka  the id a region takes in the SVG: its name, lowercased, with anything that is not a letter or a digit turned into a hyphen
 	def IdentOf(pnI)
 		# BYTES, DELIBERATELY, and the two are consistent: len() counts
 		# bytes and [] indexes them. Only a-z and 0-9 survive, so a
@@ -2199,9 +2433,18 @@ class stzGeoMap from stzObject
 		if _o_ = ""  _o_ = "region-" + pnI  ok
 		return "geo-" + _o_
 
-	# THE REGIONS, DRAWN THE WAY A STATISTICAL MAP DRAWS THEM: dark hairline
-	# borders, the highlighted ones outlined heavily on top, and each one
-	# carrying its identity when the map is interactive.
+	# Draws the regions as a statistical map does: dark hairline borders, the no-data hatch, then the heavy outline of the selection.
+	#
+	#   poCanvas     the stzCanvas to draw on
+	#   pInk         the border colour
+	#   pnHairline   the border width in pixels
+	#   returns      nothing; the layers are added to the canvas
+	#   note         Does not draw the sphere or the graticule. With SetInteractive each region
+	#                carries its id
+	#   warning      Defect: raises error R2 when values are set and the classes are not, because
+	#                the class edges are an empty list read at index 0.
+	#   see          DrawNoDataHatchOn, DrawHighlightOn, DrawLabelsOn
+	#@ aka  THE REGIONS, DRAWN THE WAY A STATISTICAL MAP DRAWS THEM: dark hairline borders, the highlighted ones outlined heavily on top, and each one carrying its identity when the map is interactive.
 	def DrawSheetOn(poCanvas, pInk, pnHairline)
 		_nF_ = @oF.Count()
 		for _i_ = 1 to _nF_
@@ -2236,7 +2479,15 @@ class stzGeoMap from stzObject
 		if _c_ < 1  return "geo-nodata"  ok
 		return "geo-class-" + _c_
 
-	# the heavy outline, drawn OVER everything so a neighbour cannot cover it
+	# Draws the heavy outline of the selected regions over everything else, so a neighbour cannot cover it.
+	#
+	#   poCanvas   the stzCanvas to draw on
+	#   pInk       the outline colour
+	#   pnWidth    the outline width in pixels
+	#   returns    nothing; the outlines are added to the canvas
+	#   note       DrawSheetOn calls it with #1A1A1A and 2.2
+	#   see        SetHighlight, DrawSheetOn
+	#@ aka  the heavy outline, drawn OVER everything so a neighbour cannot cover it
 	def DrawHighlightOn(poCanvas, pInk, pnWidth)
 		if len(@aHighlit) = 0  return  ok
 		for _h_ = 1 to len(@aHighlit)
@@ -2249,26 +2500,17 @@ class stzGeoMap from stzObject
 		next
 		poCanvas.Flush()
 
-	# NO DATA IS HATCHED, NOT COLOURED, and it is hatched ON THE MAP.
+	# Hatches every region that has no value, at 45 degrees and clipped to its shape.
 	#
-	# The first version of this sheet filled unclassed countries white and
-	# left it there. On a white page that is invisible: the five countries
-	# with no value read as ocean, and the legend promised a category the
-	# map never showed. The Principal saw it at once -- "there is no no-data
-	# illustrated in the map you made".
-	#
-	# A colour cannot fix it either. Any colour put on an unclassed country
-	# joins the scale in the reader's eye: pale grey reads as "low", and
-	# anything warmer reads as a value. HATCHING is the only mark that says
-	# NOT MEASURED rather than MEASURED LOW, which is why every serious
-	# statistical map uses it -- Our World in Data hatch Greenland, and the
-	# reader knows instantly that it is a different kind of statement.
-	#
-	# The lines are CLIPPED TO THE SHAPE, by the same routine for a country
-	# and for the legend's own swatch. The first legend swatch drew its
-	# hatching as unclipped diagonals and they ran out of the box on both
-	# sides -- "its rectangle in the legend is not correct", which it was
-	# not. One clipper, two callers, and no second definition of a hatch.
+	#   poCanvas    the stzCanvas to draw on
+	#   pColour     the hatch colour
+	#   pnWidth     the line width in pixels
+	#   pnSpacing   the distance between lines in pixels
+	#   returns     nothing; the lines are added to the canvas
+	#   note        A shape too narrow for the spacing still gets one mark. Does nothing on a map
+	#               with no values and no groups
+	#   see         IsUnclassed, SetHatch
+	#@ aka  NO DATA IS HATCHED, NOT COLOURED, and it is hatched ON THE MAP.
 	def DrawNoDataHatchOn(poCanvas, pColour, pnWidth, pnSpacing)
 		_n_ = @oF.Count()
 		for _i_ = 1 to _n_
@@ -2286,12 +2528,14 @@ class stzGeoMap from stzObject
 		if @bIdentify  poCanvas.ClearSvgIdent()  ok
 		poCanvas.Flush()
 
-	# NO DATA MEANS NO VALUE, and it does not mean "a value my scale has no
-	# box for". A country measured at 35 on a scale topping out at 30 is
-	# data -- badly classed data, which is the cartographer's problem and not
-	# the country's -- and hatching it would tell the reader nobody counted
-	# it. So this asks for the VALUE where the map is numeric, and for
-	# membership where the map is categorical, since a map cannot be both.
+	# TRUE if feature pnI has no value, or in a grouped map belongs to no group.
+	#
+	#   pnI        the position of the feature, from 1
+	#   returns    TRUE or FALSE
+	#   note       A value outside the classes is not unclassed: it is data badly classed. A map
+	#              with no values and no groups has none
+	#   see        NoDataCount, HasThematicLayer
+	#@ aka  NO DATA MEANS NO VALUE, and it does not mean "a value my scale has no box for". A country measured at 35 on a scale topping out at 30 is data -- badly classed data, which is the cartographer's problem and not the country's -- and hatching it would tell the reader nobody counted it. So this asks for the VALUE where the map is numeric, and for membership where the map is categorical, since a map can
 	def IsUnclassed(pnI)
 		# A MAP WITH NO THEMATIC LAYER HAS NO NO-DATA. "Not measured" is a
 		# statement about a measurement that was supposed to exist, so it
@@ -2308,10 +2552,18 @@ class stzGeoMap from stzObject
 		if len(@aGroups) > 0  return This.GroupOf(pnI) = 0  ok
 		return NOT isNumber(This.ValueOf(pnI))
 
-	# is this map ABOUT something, or is it the ground under one?
+	# TRUE if the map is about something: values or groups were set.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsUnclassed
+	#@ aka  is this map ABOUT something, or is it the ground under one?
 	def HasThematicLayer()
 		return len(@aGroups) > 0 or len(@aValues) > 0
 
+	# Returns how many features have no value or no group.
+	#
+	#   returns    a number
+	#   see        IsUnclassed, DrawRampLegendOn
 	def NoDataCount()
 		_n_ = 0
 		for _i_ = 1 to @oF.Count()
@@ -2319,34 +2571,21 @@ class stzGeoMap from stzObject
 		next
 		return _n_
 
-	# A NAME WITH A HALO, because a label on a choropleth has no single
-	# background to contrast with: the same word crosses a pale class and a
-	# dark one. The halo is the ink's opposite, drawn as eight offset copies
-	# under the text -- which is what every map library does and what the
-	# colour system cannot answer, since its question is "this ink on THAT
-	# background" and here there is no one background.
-	# ONE REGION'S LABEL, PLACED BY THE LABEL ENGINE AND NOT BY THE CALLER.
+	# Writes one text inside feature pnI with a halo, only if the whole text fits inside the region.
 	#
-	# The GE2c sheet wanted a single named country to show text over colour,
-	# and it wrote the label itself: it projected Niger's label point and
-	# nudged the text left by a hand-picked 26 pixels to centre it. Twenty-
-	# six was wrong -- the run is about seventy-eight pixels wide -- so the
-	# word started at x 642 while Niger begins at 650, and "Niger 19.46%"
-	# was printed across MALI, which on that sheet is hatched as no data.
-	# The Principal read exactly what the picture said: Niger drawn as a
-	# region with no data, next to its own number.
-	#
-	# The engine already answers this. _FitInside searches a region's
-	# anchors for a box that lies wholly INSIDE it -- the same test that
-	# stopped "Zinder" being written into Maradi -- and the caller had no
-	# business having a second opinion about where a label goes. It is the
-	# same defect as the hatch, one file later: a thing defined twice, and
-	# the second definition wrong.
-	#
-	# IT RETURNS FALSE AND DRAWS NOTHING rather than placing a label that
-	# does not fit. A name that will not fit inside its region lands on a
-	# neighbour, and a label on the wrong region is worse than no label --
-	# it is a false statement, where silence is only a missing one.
+	#   poCanvas   the stzCanvas to draw on
+	#   poFont     the stzFont to write with
+	#   pnSize     the type size in pixels
+	#   pnI        the position of the feature, from 1
+	#   pcText     the text to write
+	#   pInk       the text colour
+	#   pHalo      the halo colour
+	#   pnR        the halo radius in pixels
+	#   returns    TRUE if drawn, FALSE when nothing was drawn because it does not fit or pnI is out
+	#              of range
+	#   note       A label that would land on a neighbour is worse than none
+	#   see        DrawHaloTextOn, DrawLabelsOn
+	#@ aka  A NAME WITH A HALO, because a label on a choropleth has no single background to contrast with: the same word crosses a pale class and a dark one. The halo is the ink's opposite, drawn as eight offset copies under the text -- which is what every map library does and what the colour system cannot answer, since its question is "this ink on THAT background" and here there is no one background. ONE REG
 	def DrawNamedLabelOn(poCanvas, poFont, pnSize, pnI, pcText, pInk, pHalo, pnR)
 		if pnI < 1 or pnI > @oF.Count()  return FALSE  ok
 		This._EnsureLabelCaches()
@@ -2377,6 +2616,19 @@ class stzGeoMap from stzObject
 			@aCentroidCache + This.PaperCentreOf(_i_)
 		next
 
+	# Writes text with a halo of eight offset copies underneath, readable on every shade of a ramp.
+	#
+	#   poCanvas   the stzCanvas to draw on
+	#   poFont     the stzFont to write with
+	#   pnSize     the type size in pixels
+	#   pcText     the text to write
+	#   pnX        left edge of the text
+	#   pnY        baseline of the text
+	#   pInk       the text colour
+	#   pHalo      the halo colour
+	#   pnR        the halo radius in pixels
+	#   returns    nothing; the text is added to the canvas
+	#   see        DrawNamedLabelOn
 	def DrawHaloTextOn(poCanvas, poFont, pnSize, pcText, pnX, pnY, pInk, pHalo, pnR)
 		_off_ = [ [ -1, 0 ], [ 1, 0 ], [ 0, -1 ], [ 0, 1 ],
 		          [ -0.7, -0.7 ], [ 0.7, -0.7 ], [ -0.7, 0.7 ], [ 0.7, 0.7 ] ]
@@ -2387,19 +2639,21 @@ class stzGeoMap from stzObject
 		poCanvas.SetFontQ(poFont, pnSize).AddTextQ(pcText, pnX, pnY).Fill(pInk)
 		poCanvas.Flush()
 
-	# THE RAMP LEGEND: one bar, the classes butted together, the numbers at
-	# the JOINS, and a hatched no-data swatch to its left. Returns where it
-	# ended, so a caller can stack a caption under it.
+	# Draws the ramp legend: one bar of classes butted together, the edges written at the joins, a hatched no-data swatch when needed.
 	#
-	# An open-ended top class is drawn as an ARROW rather than a box,
-	# because "20% and over" has no right-hand edge and a box claims one.
-	#
-	# WHETHER THE TOP IS OPEN IS NOT AN ARGUMENT HERE. It used to be, and
-	# that made two places answer one question: the legend drew an arrow
-	# saying "30 and over" while the classifier, which had never been told,
-	# answered NOTHING for 35 and the map drew that country as no data. It is
-	# SetOpenTop now -- declared once with the scale, read by the classifier
-	# and by this method, and it cannot be set after the map is drawn.
+	#   poCanvas   the stzCanvas to draw on
+	#   poFont     the stzFont to write with
+	#   pnSize     the type size, at least 11
+	#   pnX        left edge of the legend
+	#   pnY        top edge of the bar
+	#   pnW        width of the bar of classes
+	#   pnH        height of the bar
+	#   pInk       the text and frame colour
+	#   returns    the y below the legend; pnY when no classes are set
+	#   note       The top class is an arrow when SetOpenTop was called. The no-data swatch appears
+	#              only when NoDataCount is above 0
+	#   see        DrawLegendOn, SetOpenTop, HighlightClass
+	#@ aka  THE RAMP LEGEND: one bar, the classes butted together, the numbers at the JOINS, and a hatched no-data swatch to its left. Returns where it ended, so a caller can stack a caption under it.
 	def DrawRampLegendOn(poCanvas, poFont, pnSize, pnX, pnY, pnW, pnH, pInk)
 		if len(@aEdges) < 2  return pnY  ok
 		_n_ = len(@aEdges) - 1
@@ -2472,25 +2726,23 @@ class stzGeoMap from stzObject
 		poCanvas.Flush()
 		return pnY + pnH + _sz_ + 8
 
-	#-- GE10: THE FURNITURE, and the two plots a field still owed ----------
-
-	# A SCALE BAR THAT SAYS WHERE IT IS TRUE, or refuses to be drawn.
+	# Draws a scale bar at a stated latitude and prints that latitude; draws nothing when the scale varies too much over the sheet.
 	#
-	# A scale bar claims "this length is 500 km". On a world map that is
-	# true along ONE line and nowhere else: a Mercator's scale is nearly six
-	# times greater at 80 degrees than at the equator, so a bar drawn once
-	# is wrong by that factor at the top of the same sheet. Almost every
-	# world map carries one anyway, and almost every one is a lie.
-	#
-	# GE9 measured exactly that, so this can do the honest thing. It draws
-	# the bar at a STATED latitude and prints that latitude beside it, and
-	# it REFUSES ALTOGETHER when the scale varies across the sheet by more
-	# than the caller's tolerance -- answering 0 so a caller knows nothing
-	# was drawn. The default tolerance is 1.25: a quarter is about as much
-	# as a reader can be asked to forgive on something presented as a
-	# measurement.
-	#
-	# Answers the y it ended at, or 0 if it drew nothing.
+	#   poCanvas     the stzCanvas to draw on
+	#   poFont       the stzFont to write with
+	#   pnSize       the type size in pixels
+	#   pnX          left edge of the bar
+	#   pnY          top edge of the bar
+	#   pnTargetPx   the wished width of the bar in pixels, rounded to a round number of km
+	#   pnAtLat      the latitude the bar is true at, in degrees north
+	#   pInk         the colour
+	#   returns      the y the bar ended at, or 0 when nothing was drawn
+	#   note         Refuses when the largest scale over the smallest exceeds 1.25
+	#   warning      Defect: without SetPaper the sheet is guessed from the projection's scale as
+	#                plus and minus pi times it, so a country map measures a scale variation of
+	#                57.85 instead of 1.009 and the bar is refused.
+	#   see          ScaleBarAt, ScaleVariation
+	#@ aka  -- GE10: THE FURNITURE, and the two plots a field still owed ----------
 	def DrawScaleBarOn(poCanvas, poFont, pnSize, pnX, pnY, pnTargetPx, pnAtLat, pInk)
 		return This.DrawScaleBarOnXT(poCanvas, poFont, pnSize, pnX, pnY,
 			pnTargetPx, pnAtLat, pInk, 1.25)
@@ -2529,14 +2781,31 @@ class stzGeoMap from stzObject
 		poCanvas.Flush()
 		return pnY + _h_ + pnSize + 6
 
-	# WOULD A SCALE BAR BE HONEST ON THIS MAP? The ratio of the largest
-	# local scale on the sheet to the smallest. 1 means a bar is true
-	# everywhere; anything much above it means the bar is decoration.
+	# Returns the ratio of the largest local scale to the smallest over the sheet: 1 means a scale bar is true everywhere.
+	#
+	#   returns    a number from 1: 1.009 for Niger on its conic with SetPaper
+	#   note       A world Mercator measures 7.9 million, because the poles are in the sheet
+	#   warning    Defect: without SetPaper the sheet is guessed from the projection's scale as plus
+	#              and minus pi times it, so a country map measures a scale variation of 57.85
+	#              instead of 1.009 and the bar is refused.
+	#   see        ScaleBarAt, DrawScaleBarOn
+	#@ aka  WOULD A SCALE BAR BE HONEST ON THIS MAP? The ratio of the largest local scale on the sheet to the smallest. 1 means a bar is true everywhere; anything much above it means the bar is decoration.
 	def ScaleVariation()
 		_b_ = This._ScaleBarRaw(100, 0)
 		if len(_b_) < 4  return 1  ok
 		return _b_[4]
 
+	# Returns the scale bar that would be drawn, without drawing it.
+	#
+	#   pnTargetPx   the wished width of the bar in pixels
+	#   pnAtLat      the latitude the bar is true at, in degrees north
+	#   returns      a hash list [ :km, :pixels, :atLat, :variation ]: the round length in km, its
+	#                length in pixels, the latitude and the variation
+	#   note         Niger on its conic with SetPaper: 200 km is 57.6 pixels at 15 N
+	#   warning      Defect: without SetPaper the sheet is guessed from the projection's scale as
+	#                plus and minus pi times it, so a country map measures a scale variation of
+	#                57.85 instead of 1.009 and the bar is refused.
+	#   see          DrawScaleBarOn
 	def ScaleBarAt(pnTargetPx, pnAtLat)
 		_b_ = This._ScaleBarRaw(pnTargetPx, pnAtLat)
 		if len(_b_) < 4  return []  ok
@@ -2565,11 +2834,21 @@ class stzGeoMap from stzObject
 		_h_ = 1.570796326794897 * _s_
 		return [ _t_[1] - _w_, _t_[2] - _h_, _t_[1] + _w_, _t_[2] + _h_ ]
 
-	# NORTH, WHICH IS NOT ALWAYS UP. On most world projections it is, and
-	# the arrow is then decoration; on a rotated or oblique one it is not,
-	# and a reader has no other way to know. So the arrow is MEASURED --
-	# project a short step due north from the given place and draw where it
-	# actually went -- rather than drawn pointing up and hoped over.
+	# Draws an arrow pointing where north really goes at a place, measured by projecting a step north.
+	#
+	#   poCanvas   the stzCanvas to draw on
+	#   poFont     the stzFont to write with
+	#   pnSize     the type size in pixels
+	#   pnX        x of the arrow's foot
+	#   pnY        y of the arrow's foot
+	#   pnLen      length of the arrow in pixels
+	#   pnAtLon    longitude of the place whose north is drawn, in degrees east
+	#   pnAtLat    latitude of that place, in degrees north
+	#   pInk       the colour
+	#   returns    1 when drawn, 0 when the place has no image
+	#   note       North is not always up: on a rotated or conic map the arrow tilts
+	#   see        DrawScaleBarOn
+	#@ aka  NORTH, WHICH IS NOT ALWAYS UP. On most world projections it is, and the arrow is then decoration; on a rotated or oblique one it is not, and a reader has no other way to know. So the arrow is MEASURED -- project a short step due north from the given place and draw where it actually went -- rather than drawn pointing up and hoped over.
 	def DrawNorthArrowOn(poCanvas, poFont, pnSize, pnX, pnY, pnLen, pnAtLon, pnAtLat, pInk)
 		_a_ = @oP.Project(pnAtLon, pnAtLat)
 		_b_ = @oP.Project(pnAtLon, pnAtLat + 0.5)
@@ -2597,11 +2876,17 @@ class stzGeoMap from stzObject
 		poCanvas.Flush()
 		return 1
 
-	#-- day and night -------------------------------------------------------
-
-	# WHERE THE SUN IS OVERHEAD at a moment, as [ :lat, :lon, :declination,
-	# :equationOfTime ]. The latitude is the solar declination -- which IS
-	# the seasons -- and the longitude is simply where noon is.
+	# Returns where the sun is overhead at a moment, with the equation of time.
+	#
+	#   pnYear      the year
+	#   pnMonth     the month from 1
+	#   pnDay       the day of the month
+	#   pnHourUtc   the hour in UTC, with decimals
+	#   returns     a hash list [ :lat, :lon, :declination, :equationOfTime ]; degrees and minutes;
+	#               on 2026-10-05 at 12 UTC the latitude is -4.85 and the longitude -2.90
+	#   note        The latitude is the solar declination, which is the seasons
+	#   see         TerminatorAt, SolarElevationAt
+	#@ aka  -- day and night -------------------------------------------------------
 	def SunAt(pnYear, pnMonth, pnDay, pnHourUtc)
 		_jd_ = StzEngineGeoJulianDay(pnYear, pnMonth, pnDay, pnHourUtc)
 		_s_ = StzEngineGeoSunAt(_jd_)
@@ -2609,38 +2894,78 @@ class stzGeoMap from stzObject
 		return [ :lat = _s_[1], :lon = _s_[2], :declination = _s_[3],
 		         :equationOfTime = _s_[4] ]
 
-	# THE LINE BETWEEN DAY AND NIGHT, as lon/lat: every place ninety degrees
-	# from the subsolar point, which is where the sun is exactly on the
-	# horizon.
+	# Returns the line between day and night, every place 90 degrees from the sun's overhead point.
+	#
+	#   pnYear      the year
+	#   pnMonth     the month from 1
+	#   pnDay       the day of the month
+	#   pnHourUtc   the hour in UTC
+	#   returns     a flat list lon, lat, lon, lat, ... of 181 places
+	#   note        The same as TwilightAt with 90
+	#   see         TwilightAt, DrawTerminatorOn
+	#@ aka  THE LINE BETWEEN DAY AND NIGHT, as lon/lat: every place ninety degrees from the subsolar point, which is where the sun is exactly on the horizon.
 	def TerminatorAt(pnYear, pnMonth, pnDay, pnHourUtc)
 		return This.TwilightAt(pnYear, pnMonth, pnDay, pnHourUtc, 90)
 
-	# ...AND TWILIGHT IS THE SAME CIRCLE, FURTHER OUT: civil twilight ends
-	# with the sun 6 degrees below the horizon, nautical at 12 and
-	# astronomical at 18 -- so they are the circles at 96, 102 and 108. One
-	# routine draws all four because they are one thing.
+	# Returns the circle of places where the sun is a stated angle below the horizon.
+	#
+	#   pnYear       the year
+	#   pnMonth      the month from 1
+	#   pnDay        the day of the month
+	#   pnHourUtc    the hour in UTC
+	#   pnAngleDeg   the angle from the sun's overhead point: 90 horizon, 96 civil twilight, 102
+	#                nautical, 108 astronomical
+	#   returns      a flat list lon, lat, lon, lat, ... of 181 places
+	#   see          TerminatorAt, DrawTwilightOn
+	#@ aka  ...AND TWILIGHT IS THE SAME CIRCLE, FURTHER OUT: civil twilight ends with the sun 6 degrees below the horizon, nautical at 12 and astronomical at 18 -- so they are the circles at 96, 102 and 108. One routine draws all four because they are one thing.
 	def TwilightAt(pnYear, pnMonth, pnDay, pnHourUtc, pnAngleDeg)
 		_s_ = This.SunAt(pnYear, pnMonth, pnDay, pnHourUtc)
 		if len(_s_) = 0  return []  ok
 		return StzEngineGeoTerminator(_s_[:lat], _s_[:lon], pnAngleDeg, 181)
 
-	# HOW HIGH THE SUN IS at a place, degrees -- negative is night. It is
-	# the terminator asked as a question rather than drawn as a line, and
-	# is what SHADES a map rather than outlining it.
+	# Returns how high the sun is above the horizon at a place, in degrees; negative is night.
+	#
+	#   pnYear      the year
+	#   pnMonth     the month from 1
+	#   pnDay       the day of the month
+	#   pnHourUtc   the hour in UTC
+	#   pnLon       longitude of the place in degrees east
+	#   pnLat       latitude of the place in degrees north
+	#   returns     a number from -90 to 90, 79.95 at Niamey at 12 UTC on 2026-06-21
+	#   note        LONGITUDE FIRST
+	#   see         IsDaylightAt, SunAt
+	#@ aka  HOW HIGH THE SUN IS at a place, degrees -- negative is night. It is the terminator asked as a question rather than drawn as a line, and is what SHADES a map rather than outlining it.
 	def SolarElevationAt(pnYear, pnMonth, pnDay, pnHourUtc, pnLon, pnLat)
 		_s_ = This.SunAt(pnYear, pnMonth, pnDay, pnHourUtc)
 		if len(_s_) = 0  return 0  ok
 		return StzEngineGeoSolarElevation(_s_[:lat], _s_[:lon], pnLon, pnLat)
 
+	# TRUE if the sun is above the horizon at a place.
+	#
+	#   pnYear      the year
+	#   pnMonth     the month from 1
+	#   pnDay       the day of the month
+	#   pnHourUtc   the hour in UTC
+	#   pnLon       longitude of the place in degrees east
+	#   pnLat       latitude of the place in degrees north
+	#   returns     TRUE or FALSE
+	#   note        LONGITUDE FIRST. Niamey at 12 UTC is day and at 0 UTC night
+	#   see         SolarElevationAt
 	def IsDaylightAt(pnYear, pnMonth, pnDay, pnHourUtc, pnLon, pnLat)
 		return This.SolarElevationAt(pnYear, pnMonth, pnDay, pnHourUtc, pnLon, pnLat) > 0
 
-	# THE NIGHT SIDE, drawn. The terminator is a great circle, so on most
-	# projections it is a curve that leaves the sheet at one edge and comes
-	# back at the other -- which is why it is drawn as a LINE over a
-	# shading rather than as a filled polygon: a polygon would have to
-	# decide what "inside" means on a projection that cuts it, and would
-	# get it wrong at exactly the two solstices.
+	# Draws the line between day and night on a canvas.
+	#
+	#   poCanvas    the stzCanvas to draw on
+	#   pnYear      the year
+	#   pnMonth     the month from 1
+	#   pnDay       the day of the month
+	#   pnHourUtc   the hour in UTC
+	#   pInk        the line colour
+	#   pnWidth     the line width in pixels
+	#   returns     1 when drawn, 0 when nothing was
+	#   see         TerminatorAt, DrawNightOn
+	#@ aka  THE NIGHT SIDE, drawn. The terminator is a great circle, so on most projections it is a curve that leaves the sheet at one edge and comes back at the other -- which is why it is drawn as a LINE over a shading rather than as a filled polygon: a polygon would have to decide what "inside" means on a projection that cuts it, and would get it wrong at exactly the two solstices.
 	def DrawTerminatorOn(poCanvas, pnYear, pnMonth, pnDay, pnHourUtc, pInk, pnWidth)
 		_a_ = This.TerminatorAt(pnYear, pnMonth, pnDay, pnHourUtc)
 		if len(_a_) < 6  return 0  ok
@@ -2648,24 +2973,19 @@ class stzGeoMap from stzObject
 		poCanvas.Flush()
 		return 1
 
-	# THE NIGHT SIDE, FILLED -- and this is the method that matters.
+	# Fills the night side on a canvas with four nested translucent caps, so full dark is reached gradually.
 	#
-	# The first witness shaded night by asking every sixth pixel whether the
-	# sun was up and painting a small rectangle if it was not. That is
-	# correct, and it looks like what it is: a staircase along the
-	# terminator, two flat tones, and the land greyed rather than dimmed.
-	#
-	# The night is a SPHERICAL CAP -- every place more than ninety degrees
-	# from where the sun is overhead -- and a cap is a ring. GE0c already
-	# closes a ring the projection cut along the map's own edge, so handing
-	# it to the projection gives a filled, antialiased region with no
-	# staircase and no decision about what "inside" means on a cut map.
-	#
-	# FOUR NESTED CAPS give the gradient a reader sees at dusk: the sun is
-	# 6 degrees below the horizon at 84 from the antipode, nautical at 78,
-	# astronomical at 72. Drawn outermost first, each translucent, so they
-	# ACCUMULATE -- the deepest night is four layers deep and full dark is
-	# reached gradually rather than in one step.
+	#   poCanvas    the stzCanvas to draw on
+	#   pnYear      the year
+	#   pnMonth     the month from 1
+	#   pnDay       the day of the month
+	#   pnHourUtc   the hour in UTC
+	#   pInk        the colour of one cap, translucent
+	#   returns     the number of caps drawn, 4
+	#   note        The caps are 0, 6, 12 and 18 degrees past the horizon; the alpha of pInk
+	#               accumulates
+	#   see         DrawTwilightOn, DrawTerminatorOn
+	#@ aka  THE NIGHT SIDE, FILLED -- and this is the method that matters.
 	def DrawNightOn(poCanvas, pnYear, pnMonth, pnDay, pnHourUtc, pInk)
 		_s_ = This.SunAt(pnYear, pnMonth, pnDay, pnHourUtc)
 		if len(_s_) = 0  return 0  ok
@@ -2680,8 +3000,17 @@ class stzGeoMap from stzObject
 		poCanvas.Flush()
 		return _n_
 
-	# ...and the twilight bands with it, each fainter than the last, which
-	# is what a day-night map actually looks like
+	# Draws the four lines of the horizon and of civil, nautical and astronomical twilight, each thinner than the last.
+	#
+	#   poCanvas    the stzCanvas to draw on
+	#   pnYear      the year
+	#   pnMonth     the month from 1
+	#   pnDay       the day of the month
+	#   pnHourUtc   the hour in UTC
+	#   pInk        the line colour
+	#   returns     the number of lines drawn, 4
+	#   see         DrawNightOn, TwilightAt
+	#@ aka  ...and the twilight bands with it, each fainter than the last, which is what a day-night map actually looks like
 	def DrawTwilightOn(poCanvas, pnYear, pnMonth, pnDay, pnHourUtc, pInk)
 		_n_ = 0
 		aAng = [ 90, 96, 102, 108 ]
@@ -2695,27 +3024,38 @@ class stzGeoMap from stzObject
 		poCanvas.Flush()
 		return _n_
 
-	#-- a field that has a direction ----------------------------------------
-
-	# ARROWS ANSWER "WHAT IS HAPPENING HERE" and streamlines answer "WHERE
-	# DOES THIS GO". A field with two components usually needs both: the
-	# streamlines carry the shape, which the eye reads as motion at once,
-	# and the arrows carry the magnitude, which a streamline cannot.
+	# Draws a vector field as arrows whose colour comes from a ramp by speed and whose length carries it too.
 	#
-	# The arrow's length is a SCALE the caller sets, because this class does
-	# not know how big the paper is or what the field's units are.
-	# ...AND THE ARROWS CARRY MAGNITUDE TWICE, in length and in colour.
-	#
-	# An arrow's LENGTH is the natural encoding and it is a poor one at
-	# small sizes: a reader compares two short strokes by eye and gets the
-	# ordering, not the ratio. Colour gives the ratio. Wolfram's VectorPlot
-	# uses both together and that is why its fields read at a glance, so
-	# this does too -- and the two agreeing is what makes a long arrow read
-	# as fast rather than merely as long.
+	#   poCanvas      the stzCanvas to draw on
+	#   paGrid        the field's grid as [ lon0, lat0, dlon, dlat, nx, ny ]
+	#   paU           the eastward component at every node, row 0 south
+	#   paV           the northward component at every node, row 0 south
+	#   pnEvery       draw every n-th node
+	#   pnPxPerUnit   arrow length in pixels per unit of speed
+	#   pcRamp        the ramp's name, such as :Viridis
+	#   pnWidth       the line width in pixels
+	#   returns       the number of arrows drawn
+	#   note          A zero vector is skipped; each arrow's direction is measured on the paper, not
+	#                 assumed
+	#   see           DrawVectorsOn, DrawFlowRampedOn
+	#@ aka  -- a field that has a direction ----------------------------------------
 	def DrawVectorsRampedOn(poCanvas, paGrid, paU, paV, pnEvery, pnPxPerUnit, pcRamp, pnWidth)
 		return This._DrawVectorsCore(poCanvas, paGrid, paU, paV, pnEvery,
 			pnPxPerUnit, "", pnWidth, StzGeoRamp(pcRamp, 9))
 
+	# Draws a vector field as arrows in one colour, each as long as its speed.
+	#
+	#   poCanvas      the stzCanvas to draw on
+	#   paGrid        the field's grid as [ lon0, lat0, dlon, dlat, nx, ny ]
+	#   paU           the eastward component at every node, row 0 south
+	#   paV           the northward component at every node, row 0 south
+	#   pnEvery       draw every n-th node
+	#   pnPxPerUnit   arrow length in pixels per unit of speed
+	#   pInk          the colour
+	#   pnWidth       the line width in pixels
+	#   returns       the number of arrows drawn
+	#   note          Returns 0 for a grid that is not six numbers
+	#   see           DrawVectorsRampedOn
 	def DrawVectorsOn(poCanvas, paGrid, paU, paV, pnEvery, pnPxPerUnit, pInk, pnWidth)
 		return This._DrawVectorsCore(poCanvas, paGrid, paU, paV, pnEvery,
 			pnPxPerUnit, pInk, pnWidth, [])
@@ -2781,14 +3121,21 @@ class stzGeoMap from stzObject
 		poCanvas.Flush()
 		return _drawn_
 
-	# STREAMLINES: a particle released at each seed and followed while the
-	# field carries it, integrated by fourth-order Runge-Kutta.
+	# Draws the path of a particle released at each seed, followed by fourth-order Runge-Kutta.
 	#
-	# Euler's method is three lines shorter and spirals OUTWARD on a field
-	# that rotates -- so a closed circular flow comes back as an opening
-	# spiral, which a reader takes for a real divergence rather than for the
-	# integrator's own error. RK4 costs four samples a step and holds the
-	# circle to a part in ten thousand over three thousand steps.
+	#   poCanvas    the stzCanvas to draw on
+	#   paGrid      the field's grid as [ lon0, lat0, dlon, dlat, nx, ny ]
+	#   paU         the eastward component at every node
+	#   paV         the northward component at every node
+	#   paSeeds     the starting places as one flat list lon, lat, ...
+	#   pnStepDeg   the step in degrees of ground
+	#   pnSteps     how many steps
+	#   pInk        the line colour
+	#   pnWidth     the width in pixels
+	#   returns     the number of streamlines drawn
+	#   note        A line that makes fewer than three points is not drawn
+	#   see         StreamlineFrom, DrawFlowOn
+	#@ aka  STREAMLINES: a particle released at each seed and followed while the field carries it, integrated by fourth-order Runge-Kutta.
 	def DrawStreamlinesOn(poCanvas, paGrid, paU, paV, paSeeds, pnStepDeg, pnSteps, pInk, pnWidth)
 		_n_ = len(paSeeds) / 2
 		_drawn_ = 0
@@ -2802,47 +3149,34 @@ class stzGeoMap from stzObject
 		poCanvas.Flush()
 		return _drawn_
 
-	# EVENLY-SPACED STREAMLINES, which is the difference between a stream
-	# plot that reads and one that does not.
+	# Draws evenly spaced streamlines of a field, which read as motion, with a head every 24 pixels.
 	#
-	# Seeding on a grid puts the lines where the SEEDS are, not where the
-	# paper has room: the field's slow places fill with short crowded curves
-	# and its fast places go bald, and a reader cannot tell a dense patch
-	# from a lucky lattice. Jobard and Lefebvre's method grows one line at a
-	# time, stops it the moment it comes within half a separation of any
-	# line already drawn, and takes the next seed from a point one
-	# separation to the side of an existing one.
-	#
-	# What comes out is a set of curves about d_sep apart EVERYWHERE -- so
-	# the spacing carries no information at all, which is exactly what frees
-	# the shape to carry it.
-	#
-	# The stroke then varies with SPEED, because a streamline of constant
-	# width says every part of the flow is equally fast, and that is the one
-	# thing a streamline cannot otherwise deny.
+	#   poCanvas   the stzCanvas to draw on
+	#   paGrid     the field's grid as [ lon0, lat0, dlon, dlat, nx, ny ]
+	#   paU        the eastward component at every node
+	#   paV        the northward component at every node
+	#   pnSepDeg   the spacing of the lines in degrees
+	#   pInk       the line and head colour
+	#   returns    the number of lines drawn
+	#   note       A line stops within half a spacing of another. The stroke widens with speed
+	#   see        DrawFlowRampedOn, DrawStreamlinesOn
+	#@ aka  EVENLY-SPACED STREAMLINES, which is the difference between a stream plot that reads and one that does not.
 	def DrawFlowOn(poCanvas, paGrid, paU, paV, pnSepDeg, pInk)
 		return This.DrawFlowOnXT(poCanvas, paGrid, paU, paV, pnSepDeg, pInk,
 			pInk, 0.35, 1.9, 400)
 
-	# THE HEAD TAKES ITS OWN COLOUR, because it is a different statement
-	# from the line. The line says WHERE the flow goes and the head says
-	# WHICH WAY -- two facts, and a reader separates them faster when the
-	# ink does. Blue lines with red heads is the pairing the Principal
-	# asked for and it is the right one: the path is the quiet layer and
-	# the direction is the loud one.
-	# ...AND THE SAME FLOW WITH SPEED AS COLOUR, which is the version that
-	# actually reads.
+	# Draws the same evenly spaced streamlines with speed as colour and as width, and heads in their own colour.
 	#
-	# The Principal put this beside Wolfram's stream plots and said theirs
-	# were more expressive. They are, and the reason is specific: Wolfram
-	# encodes magnitude as COLOUR. This encoded it as stroke width, from
-	# 0.3 pixels to 1.8 -- a range no eye resolves at this size, so the
-	# speed was present in the drawing and absent from the reading.
-	#
-	# Colour is the strongest channel there is for a scalar. Width is one
-	# of the weakest, and it is spent here anyway -- kept as a SECOND
-	# encoding of the same quantity, because the two agreeing is what makes
-	# a fast line read as fast rather than merely as orange.
+	#   poCanvas   the stzCanvas to draw on
+	#   paGrid     the field's grid as [ lon0, lat0, dlon, dlat, nx, ny ]
+	#   paU        the eastward component at every node
+	#   paV        the northward component at every node
+	#   pnSepDeg   the spacing of the lines in degrees
+	#   pcRamp     the ramp's name, such as :Viridis
+	#   pHeadInk   the colour of the heads
+	#   returns    the number of lines drawn
+	#   see        DrawFlowOn, DrawVectorsRampedOn
+	#@ aka  THE HEAD TAKES ITS OWN COLOUR, because it is a different statement from the line. The line says WHERE the flow goes and the head says WHICH WAY -- two facts, and a reader separates them faster when the ink does. Blue lines with red heads is the pairing the Principal asked for and it is the right one: the path is the quiet layer and the direction is the loud one. ...AND THE SAME FLOW WITH SPEED AS 
 	def DrawFlowRampedOn(poCanvas, paGrid, paU, paV, pnSepDeg, pcRamp, pHeadInk)
 		return This.DrawFlowRampedOnXT(poCanvas, paGrid, paU, paV, pnSepDeg,
 			pcRamp, pHeadInk, 0.5, 2.2, 600)
@@ -3022,39 +3356,42 @@ class stzGeoMap from stzObject
 			_b_[1] - _dx_ * _L_ - _px_ * _L_ * 0.30,
 			_b_[2] - _dy_ * _L_ - _py_ * _L_ * 0.30 ]).FillQ(pInk).Stroke("#00000000", 0)
 
+	# Returns the path of a particle released at a place and carried by the field.
+	#
+	#   paGrid      the field's grid as [ lon0, lat0, dlon, dlat, nx, ny ]
+	#   paU         the eastward component at every node
+	#   paV         the northward component at every node
+	#   pnLon       longitude of the release in degrees east
+	#   pnLat       latitude of the release in degrees north
+	#   pnStepDeg   the step in degrees of ground
+	#   pnSteps     how many steps
+	#   returns     a flat list lon, lat, lon, lat, ... starting at the place
+	#   note        LONGITUDE FIRST
+	#   see         DrawStreamlinesOn
 	def StreamlineFrom(paGrid, paU, paV, pnLon, pnLat, pnStepDeg, pnSteps)
 		return StzEngineGeoStreamline(paGrid, paU, paV, pnLon, pnLat, pnStepDeg, pnSteps)
 
+	# Returns the field's vectors at every pnEvery-th node.
+	#
+	#   paGrid     the field's grid as [ lon0, lat0, dlon, dlat, nx, ny ]
+	#   paU        the eastward component at every node
+	#   paV        the northward component at every node
+	#   pnEvery    take every n-th node
+	#   returns    a flat list of five numbers per vector: lon, lat, u, v, speed
+	#   note       A 6 by 5 grid with pnEvery 1 gives 30 vectors
+	#   see        SpeedField, DrawVectorsOn
 	def VectorsOf(paGrid, paU, paV, pnEvery)
 		return StzEngineGeoVectorField(paGrid, paU, paV, pnEvery)
 
-	# STREAM DENSITY: THE FLOW DRAWN OVER ITS OWN MAGNITUDE, which is the one
-	# thing Wolfram's field plots did that this plane could not.
+	# Returns the speed sqrt(u squared + v squared) at every node.
 	#
-	# A streamline shows a DIRECTION and hides a SPEED -- two lines an inch
-	# apart carry the same shape whether the flow through them is a crawl or
-	# a gale. The stroke-and-colour of DrawFlowRampedOn puts the speed back
-	# ON the lines, which helps and which a reader still has to trace. A
-	# DENSITY behind them puts it on the GROUND: the whole field is a
-	# continuous wash of colour, brightest where the flow is fastest, and the
-	# eye reads the fast places before it reads a single line.
-	#
-	# THIS IS A COMPOSITION AND NOT A NEW THING. The scalar it shades is the
-	# SPEED, sqrt(u^2 + v^2) at every node, and a scalar field is exactly
-	# what GE7b draws -- so this builds a stzGeoField from the speed, hands
-	# it GE7b's own raster and GE7b's own marching-squares contours, and
-	# lays GE10's flow on top. Three planes the plane already had, joined in
-	# one call; nothing here reimplements any of them, which is why the
-	# density carries a real legend and Wolfram's does not.
-	#
-	# THE LINES ARE ONE DARK INK, not the ramp. The colour is in the ground
-	# now, and a second colour scale on the lines would be two encodings of
-	# one quantity fighting for the same eye. The flow's job over a density
-	# is to show the SHAPE; the ground shows the magnitude.
-	# THE SPEED AT EVERY NODE, sqrt(u^2 + v^2) -- the scalar a stream-density
-	# plot shades, exposed so a caller can hand it to a stzGeoField of their
-	# own, and so the property that the background IS the magnitude can be
-	# checked rather than trusted.
+	#   paGrid     the field's grid as [ lon0, lat0, dlon, dlat, nx, ny ]
+	#   paU        the eastward component at every node
+	#   paV        the northward component at every node
+	#   returns    a list of numbers, one per node, the south row first
+	#   note       What a stream-density plot shades
+	#   see        DrawStreamDensityOn, stzGeoField
+	#@ aka  STREAM DENSITY: THE FLOW DRAWN OVER ITS OWN MAGNITUDE, which is the one thing Wolfram's field plots did that this plane could not.
 	def SpeedField(paGrid, paU, paV)
 		_n_ = paGrid[5] * paGrid[6]
 		_s_ = []
@@ -3063,6 +3400,18 @@ class stzGeoMap from stzObject
 		next
 		return _s_
 
+	# Draws a field's speed as a shaded raster with evenly spaced streamlines on top, the speed on the ground and the shape on the lines.
+	#
+	#   poCanvas   the stzCanvas to draw on
+	#   paGrid     the field's grid as [ lon0, lat0, dlon, dlat, nx, ny ]
+	#   paU        the eastward component at every node
+	#   paV        the northward component at every node
+	#   pnSepDeg   the spacing of the lines in degrees
+	#   pcRamp     the ramp's name for the raster
+	#   returns    the number of streamlines drawn, 0 when the grid or the components are too short
+	#   warning    Defect: without SetPaper the sheet is guessed from the projection's scale, so the
+	#              raster covers a box thousands of pixels wide.
+	#   see        DrawFlowOn, SpeedField
 	def DrawStreamDensityOn(poCanvas, paGrid, paU, paV, pnSepDeg, pcRamp)
 		return This.DrawStreamDensityOnXT(poCanvas, paGrid, paU, paV, pnSepDeg,
 			pcRamp, "#1A2A44", 20, 8, 800)
@@ -3101,12 +3450,19 @@ class stzGeoMap from stzObject
 		return This._DrawFlowCoreXT(poCanvas, paGrid, paU, paV, pnSepDeg,
 			pLineInk, pLineInk, 0.5, 1.8, pnMaxLines, [], "#FFFFFFAA")
 
-	#-- the legend and the caption -------------------------------------------
-
-	# THE LEGEND SAYS WHAT EVERY SHADE MEANS, and a class that colours
-	# nothing says so: a legend promising a shade the map never shows is
-	# the fault DN24's own rules were written to catch, and it is the same
-	# fault here.
+	# Draws the older legend: one row per class with its range, "(no region)" for a class nothing falls in, and a no-data row.
+	#
+	#   poCanvas   the stzCanvas to draw on
+	#   poFont     the stzFont to write with
+	#   pnX        left edge of the legend
+	#   pnY        baseline of the title
+	#   pcTitle    the title, "" for none
+	#   returns    the y below the legend
+	#   note       DrawRampLegendOn is the statistical map's legend
+	#   warning    Defect: raises error R2 when values are set and the classes are not, because the
+	#              class edges are an empty list read at index 0.
+	#   see        DrawRampLegendOn, Findings
+	#@ aka  -- the legend and the caption -------------------------------------------
 	def DrawLegendOn(poCanvas, poFont, pnX, pnY, pcTitle)
 		_n_ = len(@aEdges) - 1
 		_y_ = pnY
@@ -3135,9 +3491,11 @@ class stzGeoMap from stzObject
 		ok
 		return _y_
 
-	# how the map was made, and on whose word its borders are where they
-	# are. A map with no source says "source not stated" rather than
-	# nothing, because silence reads as authority.
+	# Returns how the map was made: the projection with its parameters and the source of the boundaries.
+	#
+	#   returns    text such as "ConicEqualArea (13.67N, 21.56N) rotated -8.08, 0, 0
+	#   warning    DrawCaptionOn, SetSource
+	#@ aka  how the map was made, and on whose word its borders are where they are. A map with no source says "source not stated" rather than nothing, because silence reads as authority.
 	def Caption()
 		_c_ = @oP.Caption()
 		if @cSource != ""
@@ -3147,27 +3505,25 @@ class stzGeoMap from stzObject
 		ok
 		return _c_
 
+	# Writes the caption on a canvas in grey.
+	#
+	#   poCanvas   the stzCanvas to draw on
+	#   poFont     the stzFont to write with
+	#   pnX        left edge of the text
+	#   pnY        baseline of the text
+	#   returns    nothing; the text is added to the canvas
+	#   note       Size 15
+	#   see        Caption
 	def DrawCaptionOn(poCanvas, poFont, pnX, pnY)
 		poCanvas.SetFontQ(poFont, 15).AddTextQ(This.Caption(), pnX, pnY).Fill("#555555")
 
-	#-- WHAT THE GATE OWES A MAP (GE3) --------------------------------------
+	# Returns where the map argues against itself: area-distorting projection, lost members, missing keys, bad insets, no source.
 	#
-	# A map is not judged the way a diagram is. DN24's choropleth is a
-	# mathematical picture with a substance the math governance can read; a
-	# map is a projection, a file and a set of values, and the mistakes it
-	# makes are mistakes of ARGUMENT rather than of geometry. So it reports
-	# itself, in the house's unified finding shape --
-	#
-	#     [ :rule, :subject, :where, :severity, :message ]
-	#
-	# -- which stzRuleReport ingests, so a map joins the one CI gate beside
-	# every other domain instead of growing a second one.
-	#
-	# The severities follow the house convention: an ERROR is a picture that
-	# ARGUES AGAINST ITSELF and a warning ADVISES. A map missing its source
-	# is a warning because the picture is still true; a choropleth on a
-	# projection that distorts area is an ERROR because the picture is not.
-
+	#   returns    a list of [ :rule, :subject, :where, :severity, :message ]; [ ] when clean
+	#   note       An error is a picture that argues against its own legend, a warning an advice. It
+	#              does not see values set without classes
+	#   see        IsSound, StzCheckGeoMaps
+	#@ aka  -- WHAT THE GATE OWES A MAP (GE3) --------------------------------------
 	def Findings()
 		_a_ = []
 		_cM_ = "map"
@@ -3532,7 +3888,14 @@ class stzGeoMap from stzObject
 
 		return _a_
 
-	# does any point of this feature reach the paper at all?
+	# TRUE if any part of feature pnI reaches the paper at all.
+	#
+	#   pnI        the position of the feature, from 1
+	#   returns    TRUE or FALSE
+	#   note       Looks at the outer ring of each part
+	#   warning    Defect: no range check, so a position of 0 or past the last raises error R2.
+	#   see        Findings, PaperBoxOf
+	#@ aka  does any point of this feature reach the paper at all?
 	def IsOnPaper(pnI)
 		_p_ = @oF.PartsOf(pnI)
 		for _k_ = 1 to len(_p_)
@@ -3546,6 +3909,11 @@ class stzGeoMap from stzObject
 		next
 		return FALSE
 
+	# TRUE if the map has no finding of severity error.
+	#
+	#   returns    TRUE or FALSE
+	#   note       Warnings do not count
+	#   see        Findings
 	def IsSound()
 		_a_ = This.Findings()
 		for _i_ = 1 to len(_a_)
@@ -3553,31 +3921,47 @@ class stzGeoMap from stzObject
 		next
 		return TRUE
 
-	#-- GE5: THE HANDS ------------------------------------------------------
+	# Returns the longitude and latitude under a pixel, the inverse of the projection.
 	#
-	# What a click is over. The projection is inverted to a place on the
-	# sphere and the place is asked of the features -- so the answer is
-	# right on a globe, on a cut map, and under any rotation, because none
-	# of that is special-cased: it is the same invert the guard asserts
-	# round-trips on all sixteen projections.
-
-	# [ lon, lat ] under a pixel, or [] off the sphere
+	#   pnX        paper x
+	#   pnY        paper y
+	#   returns    a list [ lon, lat ], or [ ] off the sphere
+	#   see        FeatureAt, stzGeoProjection.Invert
+	#@ aka  -- GE5: THE HANDS ------------------------------------------------------
 	def PlaceAt(pnX, pnY)
 		return @oP.Invert(pnX, pnY)
 
-	# the feature under a pixel, or 0 for the sea, the sky and the margin
+	# Returns the feature under a pixel: what a click asks.
+	#
+	#   pnX        paper x
+	#   pnY        paper y
+	#   returns    a number from 1, or 0 for the sea, the sky and the margin
+	#   see        NameAt, ValueAt, PlaceAt
+	#@ aka  the feature under a pixel, or 0 for the sea, the sky and the margin
 	def FeatureAt(pnX, pnY)
 		_g_ = @oP.Invert(pnX, pnY)
 		if len(_g_) < 2  return 0  ok
 		return @oF.IndexAt(_g_[1], _g_[2])
 
-	# ...and what it is called, or "" -- what a tooltip shows
+	# Returns the name of the feature under a pixel, what a tooltip shows.
+	#
+	#   pnX        paper x
+	#   pnY        paper y
+	#   returns    text, "" where there is none
+	#   see        FeatureAt
+	#@ aka  ...and what it is called, or "" -- what a tooltip shows
 	def NameAt(pnX, pnY)
 		_i_ = This.FeatureAt(pnX, pnY)
 		if _i_ < 1  return ""  ok
 		return @oF.NameOf(_i_)
 
-	# ...and its value, or "" where it has none
+	# Returns the value of the feature under a pixel.
+	#
+	#   pnX        paper x
+	#   pnY        paper y
+	#   returns    the stored value, or "" where there is no feature or no value
+	#   see        FeatureAt, NameAt
+	#@ aka  ...and its value, or "" where it has none
 	def ValueAt(pnX, pnY)
 		_i_ = This.FeatureAt(pnX, pnY)
 		if _i_ < 1  return ""  ok

@@ -1,0 +1,17 @@
+{
+ "brief": "Holds a quantity that has a value everywhere, a grid of numbers over longitude and latitude, and draws it as a classed raster, as contours and with its legend.",
+ "detail": "The grid is [ lon0, lat0, dlon, dlat, nx, ny ] with row 0 the SOUTH row, and an unknown node is the empty text, never a number: the commonest way an elevation map acquires a trench eleven kilometres deep is a NODATA of -9999 read as a depth. A field comes from StzGeoDensityField (the kernel density of a stzGeoPoints, in places per km2, edge-corrected and clipped to the window), from StzGeoFieldFromAsciiGrid (an ESRI ASCII grid, whose first text row is the north row and whose xllcorner is turned into a node centre) or from stzGeoSamples (inverse distance weighting and kriging). Classes must be set before DrawOn, which raises otherwise. The raster is resampled through the projection pixel by pixel, so a conic does not turn cells into wrong quadrilaterals. A field in per km2 refuses a projection that does not preserve area (FindingsOn). Set classes, ramp and unit on the field BEFORE putting it in a list: Ring copies an object it stores, so a change made through the list does not reach the original. Pictures, each looked at by 'stzlib-docs visual pass (a model reading the PNG)' on 2026-10-05: doc/gallery/stzGeoField/rain_kriging.png, IDW, kriging and kriging variance of invented gauges, RIGHT (the variance is low at each gauge and high in the gaps); density_and_contours.png, a kernel density as raster and contours, RIGHT; ascii_grid_terrain.png, an ASCII grid read three ways, WRONG in one detail (a scatter of white pixels in the lowest class, see FINDINGS_geo.md). Index: doc/gallery/INDEX_geo.md.",
+ "receiver": "o1 = new stzGeoField([ 0, 10, 1, 1, 4, 3 ], [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ])",
+ "example": [
+  "? o1.ValueAt(1.5, 10.5)",
+  "#--> 4.5",
+  "? o1.Max()",
+  "#--> 12"
+ ],
+ "see": [
+  "stzGeoSamples",
+  "stzGeoPoints",
+  "stzGeoProjection",
+  "stzGeoMap"
+ ]
+}

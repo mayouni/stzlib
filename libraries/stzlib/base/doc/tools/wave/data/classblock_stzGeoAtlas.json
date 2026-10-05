@@ -1,0 +1,15 @@
+{
+ "brief": "Binds the names and codes a caller types to the shapes of a boundary file the caller loaded, and reports what did not bind instead of guessing.",
+ "detail": "A business table has a column of place names and wants a map: the user types USA and a shape appears. This class does the tedious and safe half: folding case, accents and punctuation, knowing that Burma and Myanmar are one country (about 50 aliases, each a fact about language, not about a border), finding a numeric id in a file that writes names, and a 2 or 3 letter code through the library's country table. The shapes are the CALLER'S file, never vendored here: the boundary data carries a position on every disputed border, a vintage and a licence the library will not own (test/graphics/atlas/README.md). A near miss is reported by Unresolved and never guessed, because a map that silently colours Niger for Nigeria is worse than one with a hole. IndexOf tries, in order, the file's id as written, the file's own name folded, an alias in either direction, then a country code. ValuesFor answers one value per feature, in the file's order, with the empty text where nothing bound: exactly what stzGeoMap.SetValues takes, so a table becomes a choropleth in two calls. Pictures, each looked at by 'stzlib-docs visual pass (a model reading the PNG)' on 2026-10-05: doc/gallery/stzGeoAtlas/table_to_map.png, a typed table drawn on the world with the unbound keys listed and the unmentioned countries hatched, RIGHT; how_a_key_resolves.png, the page of 21 keys and what each found, RIGHT; niger_regions_table.png, a table with a misspelt region, RIGHT (the misspelt region and the forgotten one are hatched and named). Index: doc/gallery/INDEX_geo.md.",
+ "receiver": "o1 = StzGeoAtlas(StzGeoFeaturesFromJson(read(\"../graphics/niger_adm1.geojson\")))",
+ "example": [
+  "? o1.IndexOf(\"AGADEZ\")",
+  "#--> 1",
+  "? o1.IndexOf(\"Tillabery\")",
+  "#--> 0"
+ ],
+ "see": [
+  "stzGeoFeatures",
+  "stzGeoMap"
+ ]
+}

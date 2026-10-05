@@ -1,0 +1,16 @@
+{
+ "brief": "Holds one of seven point processes, a mechanism for putting points down, with its parameters, and generates patterns from it and judges a pattern against it.",
+ "detail": "The seven are Poisson (no interaction, random count), Binomial (the same with a fixed count), Inhomogeneous (no interaction, varying intensity from a surface), MaternCluster (parents you never see, children in a disc), Thomas (children scattered by a Gaussian, so a cluster has a scale but no edge), MaternII (inhibition by deletion, which has a ceiling) and SSI (inhibition by refusal, which keeps packing). Asking whether a pattern is more clustered than a model that already explains something, not than complete spatial randomness, is the point. The setters write three shared slots, shown by Content: a (intensity, count or parent intensity), b (mean children) and c (radius, sigma or hard-core distance). GenerateIn throws one pattern in the window of a stzGeoPoints; EnvelopeOf, EscapesOf and VerdictOn judge an observed pattern against the band the process makes: 39 simulations being the classic count, and the band widens with the count. Counts of the cluster processes vary widely between seeds (a standard deviation of about 90 on a mean of 190). Known gaps: PatternIn raises today, and ExpectedCount for Inhomogeneous is the mean of the whole grid times the window area. Pictures, each looked at by 'stzlib-docs visual pass (a model reading the PNG)' on 2026-10-05: doc/gallery/stzGeoProcess/seven_processes.png, one pattern from each process, RIGHT (clusters compact, inhibited processes evenly spaced, the inhomogeneous one follows its field); null_models.png, one pattern against three nulls, RIGHT (it escapes Poisson and Binomial everywhere and never the MaternCluster that made it); matern_ii_ceiling.png, survivors against proposal rate, RIGHT (MaternII levels off near the ceiling, SSI packs about twice as many). Index: doc/gallery/INDEX_geo.md.",
+ "receiver": "o1 = new stzGeoProcess(:MaternCluster)",
+ "example": [
+  "? o1.Kind()",
+  "#--> MaternCluster",
+  "? o1.IsClustering()",
+  "#--> 1"
+ ],
+ "see": [
+  "stzGeoPoints",
+  "stzGeoField",
+  "stzGeoFeatures"
+ ]
+}
