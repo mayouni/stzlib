@@ -1370,23 +1370,64 @@ Class stzTable from stzList
 	# FindRow / FindRowCS -- look up a row's position by its value
 	# array. Forwarded version of stzTableFinder.FindRow.
 	def FindRowCS(paRow, pCaseSensitive)
+		# Two lists are never equal under =, so the rows are compared cell by cell
+		_aResultLocal_ = []
+		if NOT isList(paRow)
+			return _aResultLocal_
+		ok
+
 		_aRowsLocal_ = This.Rows()
 		_nLenRowsLocal_ = len(_aRowsLocal_)
-		_aResultLocal_ = []
 		for _iFrLocal_ = 1 to _nLenRowsLocal_
-			if _aRowsLocal_[_iFrLocal_] = paRow
+			if This._SameRowCS(_aRowsLocal_[_iFrLocal_], paRow, pCaseSensitive)
 				_aResultLocal_ + _iFrLocal_
 			ok
 		next
 		return _aResultLocal_
 
+	# TRUE if the two rows have the same cells in the same order; text compares without case when the flag is 0.
+	def _SameRowCS(paRowA, paRowB, pCaseSensitive)
+		_nLenSr_ = len(paRowA)
+		if _nLenSr_ != len(paRowB)
+			return 0
+		ok
+
+		for _iSr_ = 1 to _nLenSr_
+			_xA_ = paRowA[_iSr_]
+			_xB_ = paRowB[_iSr_]
+
+			if isString(_xA_) and isString(_xB_)
+				if pCaseSensitive
+					if _xA_ != _xB_
+						return 0
+					ok
+				else
+					if StzLower(_xA_) != StzLower(_xB_)
+						return 0
+					ok
+				ok
+
+			but isNumber(_xA_) and isNumber(_xB_)
+				if _xA_ != _xB_
+					return 0
+				ok
+
+			but isList(_xA_) and isList(_xB_)
+				if @@(_xA_) != @@(_xB_)
+					return 0
+				ok
+
+			else
+				return 0
+			ok
+		next
+
+		return 1
+
 		# Looks for a row equal to the given cells and answers its positions.
 		#
 		#   paRow      the cells of the row to look for
-		#   returns    a list of positions
-		#   note       Use Rows with a loop, or FindInCol, until the comparison is fixed
-		#   warning    Answers [ ] today even for a row that exists, because rows are compared with
-		#              = , which never holds between two lists
+		#   returns    a list of positions; [ ] when no row matches
 		def FindRow(paRow)
 			return This.FindRowCS(paRow, 1)
 
@@ -2256,14 +2297,11 @@ func _NormalizeColLookupKey(pVal)
 			def CellsInSectionAndItsPositionQRT( panCellPos1, panCellPos2, pcReturnType )
 				return This.SectionZQRT( panCellPos1, panCellPos2, pcReturnType )
 
-	# Returns the positions between two [ column, row ] corners, read column by column.
+	# Returns the positions of the block between two [ column, row ] corners, row by row, like Section.
 	#
 	#   panCellPos1   the first corner, [ column, row ] or :FirstCell
 	#   panCellPos2   the last corner, [ column, row ] or :LastCell
 	#   returns       a list of [ column, row ] pairs
-	#   warning       The first column is read from its row down, the other columns from the first
-	#                 corner row down, the last column from row 1 to its row; this is not the block
-	#                 Section returns
 	#   see           Section
 		#>
 	def SectionAsPositions( panCellPos1, panCellPos2 )
@@ -2339,7 +2377,7 @@ func _NormalizeColLookupKey(pVal)
 			StzRaise("Incorrect params types! panCellPos1 and panCellPos2 must be pairs of numbers.")
 		ok
 
-		# Doing the job
+		# Doing the job: the block between the two corners, row by row, exactly the cells Section gives
 
 		_nCol1_ = panCellPos1[1]
 		_nRow1_ = panCellPos1[2]
@@ -2349,47 +2387,10 @@ func _NormalizeColLookupKey(pVal)
 
 		_aResult_ = []
 
-		# If only one column is concerned
-
-		if _nCol1_ = _nCol2_
-			for j = _nRow1_ to _nRow2_
-				_aResult_ + [ _nCol1_, j ]
+		for j = _nRow1_ to _nRow2_
+			for i = _nCol1_ to _nCol2_
+				_aResult_ + [ i, j ]
 			next
-
-			return _aResult_
-		ok
-
-		# If the sections span mote then one column
-
-		_nRows_ = This.NumberOfRows()
-
-		# Adding the first column
-
-		for j = _nRow1_ to _nRows_
-			_aResult_ + [ _nCol1_, j ]
-		next
-
-		_nCols_ = len( @aContent )
-		if _nCols_ = 1
-			return
-		ok
-
-		# Adding all the cells except the first and last columns
-
-		if _nCols_ > 2
-
-			for i = (_nCol1_ + 1) to (_nCol2_ - 1)
-				for j = _nRow1_ to _nRows_
-					_aResult_ + [ i, j ]
-				next
-			next
-
-		ok
-
-		# Adding the remaining cells in the last column
-
-		for j = 1 to _nRow2_
-			_aResult_ + [ _nCol2_, j ]
 		next
 
 		return _aResult_
@@ -4478,8 +4479,6 @@ func _NormalizeColLookupKey(pVal)
 	#
 	#   pRowOrRowNumber   the row to remove, as its position
 	#   returns           nothing; the table changes
-	#   warning           A position outside the table raises a bad-range error; a row given as a
-	#                     list of cells raises R2 today because FindRow answers [ ]
 	#   see               RemoveNthRow
 	def RemoveRow(pRowOrRowNumber)
 		if CheckingParams()
@@ -4492,8 +4491,11 @@ func _NormalizeColLookupKey(pVal)
 			This.RemoveNthRow(pRowOrRowNumber)
 
 		else
-			_n_ = This.FindRow(pRowOrRowNumber)[1]
-			This.RemoveNthRow(_n_)
+			_anPos_ = This.FindRow(pRowOrRowNumber)
+			if len(_anPos_) = 0
+				StzRaise("Row not found!")
+			ok
+			This.RemoveNthRow(_anPos_[1])
 		ok
 
 	# Removes the nth row from every column, in place.
@@ -4547,12 +4549,10 @@ func _NormalizeColLookupKey(pVal)
 	 #  REMOVING THE GIVEN ROWS  #
 	#---------------------------#
 
-	# Raises error R13 today instead of removing the rows at the given positions.
+	# Removes the rows at the given positions, in place; a position outside the table is ignored.
 	#
 	#   panRows    the positions of the rows to remove
-	#   returns    nothing; it raises
-	#   warning    Raises R13 because the body sorts the positions through U(), which does not give
-	#              an object; RemoveNthRow works one row at a time
+	#   returns    nothing; the table changes
 	#   see        RemoveNthRow
 	def RemoveNthRows(panRows)
 
@@ -4564,34 +4564,35 @@ func _NormalizeColLookupKey(pVal)
 
 		_aContent_ = @aContent
 		_nLen_ = len(_aContent_)
-		_anPos_ = new stzList( U(panRows) ).Sorted()
+		_nRows_ = This.NumberOfRows()
+		_anPos_ = ring_sort( U(panRows) )
 		_nLenPos_ = len(_anPos_)
 
-		for i = _nLen_ to 1 step -1
-			for j = 1 to _nLen_
-				ring_remove(_aContent_[j][2], _anPos_[i])
-			next
+		# From the last position down, so that a removal never shifts a position still to come;
+		# a position outside the table is ignored.
+		for i = _nLenPos_ to 1 step -1
+			if _anPos_[i] >= 1 and _anPos_[i] <= _nRows_
+				for j = 1 to _nLen_
+					ring_remove(_aContent_[j][2], _anPos_[i])
+				next
+			ok
 		next
 
 		This.UpdateWith(_aContent_)
 
 
-		# Raises error R13 today instead of removing the rows at the given positions.
+		# Removes the rows at the given positions, in place; a position outside the table is ignored.
 		#
 		#   panRows    the positions of the rows to remove
-		#   returns    nothing; it raises
-		#   warning    Raises R13 because the body sorts the positions through U(), which does not
-		#              give an object; RemoveNthRow works one row at a time
+		#   returns    nothing; the table changes
 		#   see        RemoveNthRow
 		def RemoveRowsAt(panRows)
 			This.RemoveNthRows(panRows)
 
-	# Raises error R13 today instead of removing the given rows, listed by position or as lists of cells.
+	# Removes the given rows, written as positions or as lists of cells, in place.
 	#
 	#   pRowsOrRowsNumbers   the positions of the rows to remove, or the rows themselves
-	#   returns              nothing; it raises
-	#   warning              Positions raise R13 through RemoveNthRows; rows raise R14 because
-	#                        FindTheseRows is defined nowhere
+	#   returns              nothing; the table changes
 	#   see                  RemoveNthRow
 	def RemoveRows(pRowsOrRowsNumbers)
 		if CheckingParams()
@@ -4616,11 +4617,10 @@ func _NormalizeColLookupKey(pVal)
 	 #  REMOVING ALL THE ROWS EXCEPT THOSE PROVIDED  #
 	#-----------------------------------------------#
 
-	# Raises error R13 today instead of keeping only the rows at the given positions.
+	# Keeps only the rows at the given positions, in place.
 	#
 	#   panRows    the positions of the rows to keep
-	#   returns    nothing; it raises
-	#   warning    Raises R13 through RemoveRows, which relies on RemoveNthRows
+	#   returns    nothing; the table changes
 	#   see        FindRowsExceptAt
 	def RemoveAllRowsExceptAt(panRows)
 		if CheckingParams()
@@ -4630,42 +4630,37 @@ func _NormalizeColLookupKey(pVal)
 		ok
 
 		_anPos_ = This.FindRowsExceptAt(panRows)
-		This.RemoveRows(_anPos_)
+		This.RemoveRowsAt(_anPos_)
 
-		# Raises error R13 today instead of keeping only the rows at the given positions.
+		# Keeps only the rows at the given positions, in place.
 		#
 		#   panRow     the positions of the rows to keep
-		#   returns    nothing; it raises
-		#   warning    Raises R13 through RemoveRows, which relies on RemoveNthRows
+		#   returns    nothing; the table changes
 		#   see        FindRowsExceptAt
 		#< @FunctionAlternativeForms
 		def RemoveRowsExceptAt(panRow)
 			This.RemoveAllRowsExceptAt(panRow)
 
-		# Raises error R13 today instead of keeping only the rows at the given positions.
+		# Keeps only the rows at the given positions, in place.
 		#
 		#   panRow     the positions of the rows to keep
-		#   returns    nothing; it raises
-		#   warning    Raises R13 through RemoveRows, which relies on RemoveNthRows
+		#   returns    nothing; the table changes
 		#   see        FindRowsExceptAt
 		def RemoveAllRowsOtherThanPositions(panRow)
 			This.RemoveAllRowsExceptAt(panRow)
 
-		# Raises error R13 today instead of keeping only the rows at the given positions.
+		# Keeps only the rows at the given positions, in place.
 		#
 		#   panRow     the positions of the rows to keep
-		#   returns    nothing; it raises
-		#   warning    Raises R13 through RemoveRows, which relies on RemoveNthRows
+		#   returns    nothing; the table changes
 		#   see        FindRowsExceptAt
 		def RemoveRowsOtherThanPositions(panRow)
 			This.RemoveAllRowsExceptAt(panRow)
 
-	# Raises error R13 today instead of keeping only the given rows.
+	# Keeps only the given rows, written as positions or as lists of cells, in place.
 	#
 	#   pRowsOrRowsNumbers   the rows to keep, as positions or as lists of cells
-	#   returns              nothing; it raises
-	#   warning              Positions are passed to RemoveRowsAt, which would remove the rows to
-	#                        keep and raises R13; rows rely on FindRowsExceptThese
+	#   returns              nothing; the table changes
 	#   see                  FindRowsExceptAt
 		#>
 	def RemoveAllRowsExcept(pRowsOrRowsNumbers)
@@ -4681,7 +4676,7 @@ func _NormalizeColLookupKey(pVal)
 		ok
 
 		if @IsListOfNumbers(pRowsOrRowsNumbers)
-			This.RemoveRowsAt(pRowsOrRowsNumbers)
+			This.RemoveAllRowsExceptAt(pRowsOrRowsNumbers)
 
 		else // @IsListOfLists(pRowsOrRowsNumbers)
 
@@ -4695,22 +4690,18 @@ func _NormalizeColLookupKey(pVal)
 		def RemoveRowsExcept(pRowsOrRowsNumbers)
 			This.RemoveAllRowsExcept(pRowsOrRowsNumbers)
 
-		# Raises error R13 today instead of keeping only the given rows.
+		# Keeps only the given rows, written as positions or as lists of cells, in place.
 		#
 		#   pRowsOrRowsNumbers   the rows to keep, as positions or as lists of cells
-		#   returns              nothing; it raises
-		#   warning              Positions are passed to RemoveRowsAt, which would remove the rows
-		#                        to keep and raises R13; rows rely on FindRowsExceptThese
+		#   returns              nothing; the table changes
 		#   see                  FindRowsExceptAt
 		def RemoveAllRowsOtherThan(pRowsOrRowsNumbers)
 			This.RemoveAllRowsExcept(pRowsOrRowsNumbers)
 
-		# Raises error R13 today instead of keeping only the given rows.
+		# Keeps only the given rows, written as positions or as lists of cells, in place.
 		#
 		#   pRowsOrRowsNumbers   the rows to keep, as positions or as lists of cells
-		#   returns              nothing; it raises
-		#   warning              Positions are passed to RemoveRowsAt, which would remove the rows
-		#                        to keep and raises R13; rows rely on FindRowsExceptThese
+		#   returns              nothing; the table changes
 		#   see                  FindRowsExceptAt
 		def RemoveRowsOtherThan(pRowsOrRowsNumbers)
 			This.RemoveAllRowsExcept(pRowsOrRowsNumbers)
@@ -4895,16 +4886,14 @@ func _NormalizeColLookupKey(pVal)
 	 #  ERASING A SECTION OF CELLS  #
 	#------------------------------#
 
-	# Raises error R19 today instead of emptying the cells between two corners.
+	# Empties every cell of the block between two [ column, row ] corners, in place.
 	#
 	#   paCellPos1   the first corner, [ column, row ]
 	#   paCellPos2   the last corner, [ column, row ]
-	#   returns      nothing; it raises
-	#   warning      Raises R19 because it calls SectionAsPositions without the corners; EraseCells
-	#                with a list of positions works
+	#   returns      nothing; the table changes
 	#   see          EraseCells
 	def EraseSection(paCellPos1, paCellPos2)
-		_aCellsPso_ = This.SectionAsPositions()
+		_aCellsPos_ = This.SectionAsPositions(paCellPos1, paCellPos2)
 		This.EraseCells(_aCellsPos_)
 
 	  #======================#
@@ -5255,13 +5244,11 @@ func _NormalizeColLookupKey(pVal)
 	 #  INSERTING A ROW IN MANY POSITIONS  #
 	#-------------------------------------#
 
-	# Raises error R13 today instead of inserting one row at each of several positions.
+	# Inserts the same row at each of the given positions, in place.
 	#
 	#   panPos     the positions where the row is inserted
 	#   paRow      the cells of the new row, one per column
-	#   returns    nothing; it raises
-	#   warning    Raises R13 because the body sorts the positions through U(), which does not give
-	#              an object
+	#   returns    nothing; the table changes
 	#   see        InsertRow
 	def InsertRowAtPositions(panPos, paRow)
 		if CheckingParams()
@@ -5270,34 +5257,31 @@ func _NormalizeColLookupKey(pVal)
 			ok
 		ok
 
-		_anPos_ = new stzList( U(panPos) ).Sorted()
+		_anPos_ = ring_sort( U(panPos) )
 		_nLen_ = len(_anPos_)
 
+		# From the last position down, so that each position means a place in the table as it was given
 		for i = _nLen_ to 1 step -1
-			This.InsertRowAtPosition(panPos[i], paRow)
+			This.InsertRowAtPosition(_anPos_[i], paRow)
 		next
 
-		# Raises error R13 today instead of inserting one row at each of several positions.
+		# Inserts the same row at each of the given positions, in place.
 		#
 		#   panPos     the positions where the row is inserted
 		#   paRow      the cells of the new row, one per column
-		#   returns    nothing; it raises
-		#   warning    Raises R13 through InsertRowAtPositions, which sorts the positions through
-		#              U(), which does not give an object
+		#   returns    nothing; the table changes
 		#   see        InsertRow
 		def InsertRows(panPos, paRow)
 			This.InsertRowAtPositions(panPos, paRow)
 
-		# Raises error R13 today instead of inserting one row at each of several positions.
+		# Inserts the same row at each of the given positions, in place.
 		#
 		#   panPos     the positions where the row is inserted
 		#   paRow      the cells of the new row, one per column
-		#   returns    nothing; it raises
-		#   warning    Raises R13 through InsertRowAtPositions, which sorts the positions through
-		#              U(), which does not give an object
+		#   returns    nothing; the table changes
 		#   see        InsertRow
 		def InsertRowsAt(panPos, paRow)
-			InsertRowAtPositions(panPos, paRow)
+			This.InsertRowAtPositions(panPos, paRow)
 
 	# Returns the cells of every column, one list per column, in column order.
 	#
@@ -6687,32 +6671,51 @@ func _NormalizeColLookupKey(pVal)
 	 #  FINDING A ROW BY ITS VALUE  #
 	#==============================#
 
-	def FindNthRowCS(paRow, pCaseSensitive)
-		_nPos_ = Q(This.Rows()).FindNthCS(parow, pCaseSensitive)
-		return _nPos_
+	def FindNthRowCS(_n_, paRow, pCaseSensitive)
+		_anPos_ = This.FindRowCS(paRow, pCaseSensitive)
+		if isNumber(_n_) and _n_ >= 1 and _n_ <= len(_anPos_)
+			return _anPos_[_n_]
+		ok
+		return 0
 
-		def FindNthOccurrenceOfRowCS(paRow, pCaseSensitive)
-			return This.FindNthRowCS(paRow, pCaseSensitive)
+		def FindNthOccurrenceOfRowCS(_n_, paRow, pCaseSensitive)
+			return This.FindNthRowCS(_n_, paRow, pCaseSensitive)
 
-	# Raises error R19 today instead of returning the position of the nth occurrence of a row.
+	# Returns the position of the nth row equal to the given cells; 0 when there is none.
 	#
+	#   _n_        which occurrence to return, 1 for the first
 	#   paRow      the cells of the row to look for
-	#   returns    nothing; it raises
-	#   warning    Raises R19 because it passes too few arguments to FindNthRowCS
+	#   returns    a number
 	#   see        FindRows
 	#@ aka  -- WITHOUT CASESENSITIVITY
-	def FindNthRow(paRow)
-		return This.FindNthRowCS(paRow, 1)
+	def FindNthRow(_n_, paRow)
+		return This.FindNthRowCS(_n_, paRow, 1)
 
-		def FindNthOccurrenceOfRow(paRow)
-			return This.FindNthRow(paRow)
+		def FindNthOccurrenceOfRow(_n_, paRow)
+			return This.FindNthRow(_n_, paRow)
 
 	  #----------------------------------------#
 	 #  FINDINING MANYS ROWS BY THEIR VALUES  #
 	#----------------------------------------#
 
 	def FindRowsCS(paRows, pCaseSensitive)
-		_anResult_ = Q(This.Rows()).FindManyCS(paRows, pCaseSensitive)
+		_anResult_ = []
+		if NOT isList(paRows)
+			return _anResult_
+		ok
+
+		_nLenRows_ = len(paRows)
+		for i = 1 to _nLenRows_
+			_anPos_ = This.FindRowCS(paRows[i], pCaseSensitive)
+			_nLenPos_ = len(_anPos_)
+			for j = 1 to _nLenPos_
+				if StzFindFirst(_anPos_[j], _anResult_) = 0
+					_anResult_ + _anPos_[j]
+				ok
+			next
+		next
+
+		_anResult_ = ring_sort(_anResult_)
 		return _anResult_
 
 		def FindManyRowsCS(paRows, pCaseSensitive)
@@ -6728,6 +6731,9 @@ func _NormalizeColLookupKey(pVal)
 		return This.FindRowsCS(paRows, 1)
 
 		def FindManyRows(paRows)
+			return This.FindRows(paRows)
+
+		def FindTheseRows(paRows)
 			return This.FindRows(paRows)
 
 	  #------------------------------------------------------------------#
@@ -8060,9 +8066,9 @@ func _NormalizeColLookupKey(pVal)
 	def ContainsRowCS(paRow, pCaseSensitive)
 		_bResult_ = 0
 
-		if isList(paRow) and len(paRow) = This.NumberOfRows()
+		if isList(paRow) and len(paRow) = This.NumberOfCols()
 
-			_bResult_ = This.RowsQ().ContainsCS(paRow, pCaseSensitive)
+			_bResult_ = ( len(This.FindRowCS(paRow, pCaseSensitive)) > 0 )
 		ok
 
 		return _bResult_
@@ -8071,9 +8077,6 @@ func _NormalizeColLookupKey(pVal)
 	#
 	#   paRow      the cells of a row, one per column
 	#   returns    TRUE or FALSE
-	#   warning    Answers FALSE for an existing row unless the table has as many rows as columns,
-	#              because the length test compares the row with NumberOfRows instead of
-	#              NumberOfCols
 	#   see        ContainsRows
 	#@ aka  -- WITHOUT CASESENSITIVITY
 	def ContainsRow(paRow)
@@ -8120,8 +8123,6 @@ func _NormalizeColLookupKey(pVal)
 	#
 	#   paRows     the rows to look for, each a list of cells
 	#   returns    TRUE or FALSE
-	#   warning    Inherits the ContainsRow fault: FALSE for existing rows unless the table has as
-	#              many rows as columns
 	#   see        ContainsRow
 	#@ aka  -- WITHOUT CASESENSITIVITY
 	def ContainsRows(paRows)
@@ -18277,12 +18278,10 @@ func _NormalizeColLookupKey(pVal)
 		def RowAsNumber(pRow)
 			return This.RowToRowNumber(pRow)
 
-	# Raises an error today instead of returning the positions of the given rows.
+	# Returns the position of each given row, 0 for a row the table does not hold.
 	#
 	#   paRows     the rows to look up, each a list of cells
-	#   returns    nothing; it raises
-	#   warning    Raises Incorrect param type! pRow must be a number. because each row is handed to
-	#              RowToRowNumber, which refuses a list
+	#   returns    a list of numbers
 	#   see        FindRows
 	def TheseRowsToRowsNumbers(paRows)
 		if NOT ( isList(paRows) and @IsListOfLists(paRows) )
@@ -18293,7 +18292,12 @@ func _NormalizeColLookupKey(pVal)
 		_aResult_ = []
 
 		for i = 1 to _nLen_
-			_aResult_ + This.RowToNumber(paRows[i])
+			_anPos_ = This.FindRow(paRows[i])
+			if len(_anPos_) > 0
+				_aResult_ + _anPos_[1]
+			else
+				_aResult_ + 0
+			ok
 		next
 
 		return _aResult_
