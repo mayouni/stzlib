@@ -68,6 +68,22 @@ func StzFileAppend(pcPath, pcContent)
 func StzFileDelete(pcPath)
 	return StzEngineFileDelete(pcPath)
 
+# Write pcContent to pcPath so that ONLY ITS OWNER can read it -- for a key or a
+# token that has to exist as a file for a call that wants a path (a TLS client
+# key). StzFileManager's MakeReadOnly stops an overwrite and says nothing about
+# who may read; this is the other half. The file is created with the narrow
+# access from the first byte (a protected DACL on Windows, 0600 elsewhere), an
+# existing file is replaced, and the caller deletes it as soon as the call that
+# needed it returns. Returns 1 when written; raises when it could not be.
+func StzWritePrivateFile(pcPath, pcContent)
+	if NOT isString(pcPath) or ring_trim(pcPath) = ""
+		stzraise("StzWritePrivateFile: a path is required.")
+	ok
+	if StzEngineFileWritePrivate(pcPath, "" + pcContent) != 1
+		stzraise("StzWritePrivateFile: could not write '" + pcPath + "'.")
+	ok
+	return 1
+
 func StzFileCopy(pcSrc, pcDst)
 	return StzEngineFileCopy(pcSrc, pcDst)
 

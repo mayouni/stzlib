@@ -1,0 +1,12 @@
+{
+ "brief": "Is another name of stzListOfPairs: a list of pairs [ first, second ], with every method of it.",
+ "detail": "The class adds nothing: it is built, ordered and queried exactly as a stzListOfPairs, and Copy answers a stzListOfPairs.",
+ "receiver": "o1 = new stzPairs([ [ \"a\", 1 ], [ \"b\", 2 ] ])",
+ "example": [
+  "? o1.NumberOfPairs()",
+  "#--> 2"
+ ],
+ "see": [
+  "stzListOfPairs"
+ ]
+}

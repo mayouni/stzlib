@@ -56,5 +56,8 @@ Complete, every root (1,087): stzCalendar 164, stzDate 93, stzTime 78, stzDataSe
 Agents can be stopped and resumed (TaskStop, then SendMessage to the same id): they resumed from their scratch files.
 Memory hook: a hook refuses heavy Ring jobs when under 4 GB RAM is free (another session's rnxc can hold 2.7 GB); wait and retry, do not force.
 
+## Wave 4 -- ON MAIN at be85c8105
+stzGrid, stzListOfPairs, stzAuth, stzJson, stzFolder, stzSplitter, stzAppServer, stzText, stzOrgChart (+ helpers), stzGraphPlanner (+ helpers), stzGraphQuery, stzGraphex, stzMathFigure: 1,262 roots, all pass. Library 21,714 roots, 7,312 pass (33.7 percent). Baseline 14,402 (grandfathers 37 stzPispi* methods). Defects: tools/wave/data/w4_defects_*.md.
+
 ## Next (author's three decisions still open)
 Wave 0 (stash 'wave0-list'), Codeberg login, a human read of a sample of briefs. Wave 4: `tools/wave/class_rank.py` -> stzFolder, stzGrid, stzOrgChart, stzGraphPlanner, stzAppServer, stzAuth, stzListOfPairs, stzJson ... three agents at a time, each batch verified, `gate.ring --update`, re-export, rebase, push.

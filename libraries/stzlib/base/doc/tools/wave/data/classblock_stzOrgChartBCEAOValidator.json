@@ -1,0 +1,13 @@
+{
+ "brief": "Checks an org chart against three BCEAO governance rules: a board, audit under the board, and a risk function.",
+ "detail": "It takes a snapshot of the chart when it is built. stzOrgChart.ValidateBCEAOGovernance builds one for you.",
+ "receiver": "oc = new stzOrgChart(\"TechCo\"); oc.AddExecutiveXT(\"ceo\", \"CEO\"); oc.AddManagerXT(\"vp\", \"VP Sales\"); oc.ReportsTo(\"vp\", \"ceo\"); oc.AddPersonXT(\"p1\", \"Alice\"); oc.AssignPerson(\"p1\", \"ceo\"); o1 = new stzOrgChartBCEAOValidator(oc)",
+ "example": [
+  "? o1.Validate()[:status]",
+  "#--> fail"
+ ],
+ "see": [
+  "stzOrgChart",
+  "stzOrgChartSODValidator"
+ ]
+}

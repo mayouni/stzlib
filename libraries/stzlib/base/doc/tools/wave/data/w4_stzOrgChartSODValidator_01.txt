@@ -1,0 +1,2 @@
+init | Builds a segregation-of-duties validator over an org chart, taking a snapshot of it at that moment. | nothing; the validator is built | poOrgChart=The stzOrgChart to validate | Validate | a position added to the chart afterwards is not seen: build the validator last
+Validate | Fails when a position of the operations department reports directly to a position of the treasury department. | a hash list [ :status, :domain, :issueCount, :issues ] | | init | one rule, code SOD-001; only a direct supervisor is checked, though the message says through

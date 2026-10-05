@@ -1,0 +1,13 @@
+{
+ "brief": "Builds a MATCH, WHERE, SELECT query over a stzGraph with a chain of calls, runs it and returns the matching rows.",
+ "detail": "A query is a definition, a hash list of 11 parts that the Match, Where, Select, OrderBy, Create, Set and Delete calls fill in; nothing touches the graph until Select, Execute, ToGraphQ or ToViewQ runs it. Rows are lists of [ field, value ] pairs, or of [ alias, node ] pairs for a bare alias. Queries that create, set or delete change the source graph on every run. For plain filters on nodes or edges, stzGraphFinder is lighter.",
+ "receiver": "g1 = new stzGraph(\"g1\"); g1.AddNodeXTT(\"a\", \"Person\", [ :name = \"Ann\", :age = 30 ]); g1.AddNodeXTT(\"b\", \"Person\", [ :name = \"Bob\", :age = 25 ]); o1 = new stzGraphQuery(g1)",
+ "example": [
+  "? @@( o1.MatchQ([ :node = \"n\", :labeled = \"Person\" ]).WhereQ([ :age, \">\", 26 ]).Select(\"n.name\") )",
+  "#--> [ [ [ \"n.name\", \"Ann\" ] ] ]"
+ ],
+ "see": [
+  "stzGraph",
+  "stzGraphFinder"
+ ]
+}

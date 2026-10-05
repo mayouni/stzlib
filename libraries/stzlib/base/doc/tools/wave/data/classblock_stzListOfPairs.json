@@ -1,0 +1,16 @@
+{
+ "brief": "Holds a list whose every item is a pair [ first, second ], and answers questions about the first items, the second items and the order of the pairs.",
+ "detail": "Reach for it when the data is naturally two-column: sections [ start, end ], key and value, name and score. It orders the pairs by the first or the second item (Sort, SortOn), exchanges the items of every pair (SwapItems), lists the first and the second items apart and checks their types. Most mutators change the object in place and return nothing; the Sorted, Swapped and Stringified forms return a copy. Some methods are broken today: the key-expression sorts (SortBy and its forms), ReplacePair, AreAnagrams, ExpandedIfPairsOfNumbers and ToStzSetOfSections; see their warnings. The Reverse and Inverse families exchange the two items of each pair, they do not reverse the order of the pairs.",
+ "receiver": "o1 = new stzListOfPairs([ [ \"b\", 2 ], [ \"a\", 9 ], [ \"c\", 5 ] ])",
+ "example": [
+  "? @@( o1.FirstItems() )",
+  "#--> [ \"b\", \"a\", \"c\" ]",
+  "? @@( o1.SortedOn(2) )",
+  "#--> [ [ \"b\", 2 ], [ \"c\", 5 ], [ \"a\", 9 ] ]"
+ ],
+ "see": [
+  "stzListOfLists",
+  "stzHashList",
+  "stzPairs"
+ ]
+}

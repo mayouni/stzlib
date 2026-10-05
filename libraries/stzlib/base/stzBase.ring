@@ -218,6 +218,12 @@ ok
     load "meta/stzGovernanceChecks.ring"
     load "meta/stzPredicateSet.ring"
 
+    # testoor/ -- the testing framework that fits the tests the library
+    # already has (TR0, base/testoor/SOFTANZA_TESTOOR_PLAN.md): a test file
+    # read as a TOUR, never edited. Loads after meta/ because TR3 joins the
+    # court (stzCodeRules, stzCodeGraph) and reads nothing above it.
+    load "testoor/stzTour.ring"
+
     load "string/stzWordStream.ring"
 
     # Modular subclasses
@@ -567,6 +573,8 @@ load "geo/stzGeoProcess.ring"
     load "security/stzDetection.ring"
     load "service/stzPaymentsSecrets.ring" # the five payments secrets, their expiry watch and their detections
     load "service/stzPayouts.ring"  # money out is a plan a human commits: plan, policy, desk
+    load "service/stzPispiHttpAdapter.ring"  # the live adapter: the same contract over HTTP, for any participant
+    load "service/stzPiSpiHttpFront.ring"    # the twin of the hub served over HTTP, with OAuth, API key and scopes
     # I4: the sentinel -- detections on a cadence, edge-triggered (a
     # standing attack is one story, not one per second), event-bus
     # fanout, hostable on any stzAgentHost, and a case snapshot
