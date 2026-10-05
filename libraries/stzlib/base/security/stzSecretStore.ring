@@ -63,6 +63,13 @@ func StzSecretStoreFromSealedFileVia(pcPath, poKeySecret, poResolver, poActor)
 	return _o_
 
 # [ kind, name, source, locator-or-value(hex), expiry ] -> a stzSecret of that kind
+#
+# A kind of the form "<family>-<part>" belongs to whoever defines the function
+# StzSecretFromKind_<family>(name, part): the payments plane defines
+# StzSecretFromKind_pispi, so "pispi-mtls-cert" is built as a stzPispiSecret.
+# The store names no family itself. A family whose function is not loaded is
+# read as a plain secret that keeps its kind, never refused: a sealed file
+# written by a build with payments loaded stays readable without it.
 func _StzSecretFromRecord(paRec)
 	_cKind_ = paRec[1]
 	if _cKind_ = "apikey"
@@ -74,10 +81,12 @@ func _StzSecretFromRecord(paRec)
 	but _cKind_ = "token"
 		_s_ = new stzToken(paRec[2])
 		if len(paRec) >= 5 and ring_number(paRec[5]) > 0  _s_.SetExpiry(ring_number(paRec[5]))  ok
-	but StzLeft(_cKind_, 6) = "pispi-"
-		# a payments descriptor (stzPispiSecret): its kind names the part, and it carries an expiry
-		_s_ = new stzPispiSecret(paRec[2], StzMidToEnd(_cKind_, 7))
-		if len(paRec) >= 5 and ring_number(paRec[5]) > 0  _s_.SetExpiry(ring_number(paRec[5]))  ok
+	but _StzSecretKindFactory(_cKind_) != ""
+		_cF_ = _StzSecretKindFactory(_cKind_)
+		_s_ = call _cF_(paRec[2], StzMidToEnd(_cKind_, StzFindFirst("-", _cKind_) + 1))
+		if len(paRec) >= 5 and ring_number(paRec[5]) > 0 and isMethod(_s_, "setexpiry")
+			_s_.SetExpiry(ring_number(paRec[5]))
+		ok
 	else
 		_s_ = new stzSecret(paRec[2])
 		_s_.SetKind(_cKind_)
@@ -95,6 +104,15 @@ func _StzSecretFromRecord(paRec)
 	ok
 	return _s_
 
+
+
+# The factory function for a kind's family, or "" when there is none loaded.
+func _StzSecretKindFactory(pcKind)
+	_n_ = StzFindFirst("-", pcKind)
+	if _n_ < 2  return ""  ok
+	_cF_ = "stzsecretfromkind_" + StzLower(StzLeft(pcKind, _n_ - 1))
+	if ring_find(functions(), _cF_) = 0  return ""  ok
+	return _cF_
 
   #=================#
  #  STZSECRETSTORE #
