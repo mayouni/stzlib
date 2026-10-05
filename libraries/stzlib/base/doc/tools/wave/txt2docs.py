@@ -43,5 +43,10 @@ for f in files:
         if warn: e["warning"] = [warn]
         if note: e["note"] = [note]
         entries.append(e)
-json.dump({"class": cls, "entries": entries}, open(S + "w1_docs_%s.json" % cls, "w", encoding="utf-8"), indent=1, ensure_ascii=False)
+doc = {"class": cls, "entries": entries}
+cbf = S + "classblock_%s.json" % cls
+if os.path.exists(cbf):                      # {"brief", "detail", "receiver", "example", "see"}
+    doc["class_block"] = json.load(open(cbf, encoding="utf-8"))
+    doc["receiver"] = doc["class_block"].get("receiver", "")
+json.dump(doc, open(S + "w1_docs_%s.json" % cls, "w", encoding="utf-8"), indent=1, ensure_ascii=False)
 print(len(entries), "entries ->", "w1_docs_%s.json" % cls)

@@ -37,3 +37,23 @@ Set `DOCWAVE_DIR` (that folder), `DOCWAVE_BASE` (`.../libraries/stzlib/base`) an
 `data/` holds the entries of wave 1: stzHashList (a Python file with `E(...)` calls, the first form),
 stzList and stzString (the compact lines). `reapply_all.py` reads `w1_docs_<Class>.json` built by
 `txt2docs.py` / `docblock_json.py`; it restores each source from commit 40e2288ea first.
+
+## Any other class (wave 2 and on)
+
+- **Scratch folder per class set**, e.g. `<scratch>/w2_stzTable/`: it holds `empty_examples.json` (the text `{}`),
+  `usage_rank.json` (copy of `../pilot/usage_rank.json`), the probe files, the wave lines, `pristine/`.
+  Set `DOCWAVE_DIR` to it, `DOCWAVE_BASE` to `.../libraries/stzlib/base`, `DOCWAVE_REF` to `.../base/doc/reference.json`,
+  `DOCWAVE_CLASSES` to the class names, `RING` to the ring executable, `PYTHONIOENCODING=utf-8`.
+- **Probing a class the table does not know**: `PROBE_CFG=<file.json>` with
+  `{"stzTable": {"recv": ["new stzTable([ ... ])"], "texty": "\"Henri\"", "rules": [["col", ":SALARY"]], "override": {"pcol": ":ID"}}}`:
+  `recv` = receiver expressions (a second is tried only when the first raised), `rules` = regexes on the lowercased
+  parameter name, first match wins, `texty` = the default text argument. A method that kills the Ring process
+  is recorded as CRASH and the run goes on. For classes whose methods take structured arguments the generic probe
+  answers little (stzTable: 288 of 740): read the table, then write small `.ring` scripts with real data for the families.
+- **Class block**: write `classblock_<Class>.json` in the scratch folder
+  (`{"brief", "detail", "receiver", "example": ["? @@( o1.X() )", "#--> ..."], "see": [...]}`); `txt2docs.py` merges it.
+- **Pristine source**: the first `reapply_all.py` run for a class snapshots the file from HEAD into `pristine/`; every later
+  run restarts from that snapshot, so a correction never applies over its own output. Classes that share a file go in ONE
+  call (`./runwave.sh` takes one class; call `reapply_all.py . ClassA ClassB` by hand for a shared file, with the wave
+  lines of each class built first).
+- Do not commit from a wave scratch folder, do not regenerate `reference.json` there, do not edit shared tooling.

@@ -32,6 +32,8 @@ if os.environ.get("PROBE_MODE") == "2":
 
 
 TEXTY = {"stzString": '"an"', "stzList": '"b"', "stzHashList": '"a"', "stzNumber": '"2"'}
+RULES = {}          # class -> [ [ regex on the lowercased param name, ring expression ], ... ], first match wins
+
 SKIP = re.compile(r"^(show|print|save|write|save|load|read|open|delete|draw|play|speak|init|stztype|classname)", re.I)
 
 
@@ -48,8 +50,29 @@ OVERRIDE = {
 }
 
 
+def _load_cfg():
+    """PROBE_CFG=<file.json>: {"stzTable": {"recv": [...], "texty": "\"x\"", "override": {"pcol": "\":ID"}, "rules": [["col", ":ID"]]}}
+    lets a wave probe a class the built-in table does not know."""
+    f = os.environ.get("PROBE_CFG")
+    if not f:
+        return
+    import json as _j
+    cfg = _j.load(open(f, encoding="utf-8"))
+    for cls, c in cfg.items():
+        if "recv" in c: RECV[cls] = c["recv"]
+        if "texty" in c: TEXTY[cls] = c["texty"]
+        if "override" in c: OVERRIDE.setdefault(cls, {}).update({k.lower(): v for k, v in c["override"].items()})
+        if "rules" in c: RULES[cls] = c["rules"]
+
+
+_load_cfg()
+
+
 def arg_for(cls, name, idx):
     n = name.lower()
+    for rx, val in RULES.get(cls, []):
+        if re.search(rx, n):
+            return val
     if n in OVERRIDE.get(cls, {}):
         return OVERRIDE[cls][n]
     if n in ("pcasesensitive", "pbcs", "pcs"):
@@ -123,20 +146,7 @@ def build(cls, methods):
     return "\n".join(out)
 
 
-def main():
-    if len(sys.argv) < 4:
-        print(__doc__); sys.exit(2)
-    ref = json.load(open(sys.argv[1], encoding="utf-8"))
-    cls = sys.argv[2]
-    c = next(x for x in ref["classes"] if x["name"] == cls)
-    only = None
-    if "--only" in sys.argv:
-        only = set(sys.argv[sys.argv.index("--only") + 1].split(","))
-    methods = []
-    for m in c["methods"]:
-        if SKIP.match(m["name"]) or m["name"].startswith("@") or (only and m["name"] not in only):
-            continue
-        methods.append((m["name"], [p["name"] for p in m["parameters"]]))
+def run_batch(cls, methods):
     tmp = pathlib.Path(tempfile.gettempdir()) / ("docblock_probe_%s.ring" % cls)
     tmp.write_text(build(cls, methods), encoding="utf-8")
     p = subprocess.run([RING, str(tmp)], cwd=str(BASE / "test" / "reflect"), capture_output=True,
@@ -160,14 +170,47 @@ def main():
                 res[cur]["runs"][-1]["args"] = raw[2:]
         elif raw.startswith("E|"):
             res[cur]["runs"].append({"err": raw[2:].strip()[:140]})
-    if "func zzFmt" in p.stdout or p.returncode not in (0, None):
-        pass
+    return res, p.stdout
+
+
+def main():
+    if len(sys.argv) < 4:
+        print(__doc__); sys.exit(2)
+    ref = json.load(open(sys.argv[1], encoding="utf-8"))
+    cls = sys.argv[2]
+    c = next(x for x in ref["classes"] if x["name"] == cls)
+    only = None
+    if "--only" in sys.argv:
+        only = set(sys.argv[sys.argv.index("--only") + 1].split(","))
+    methods = []
+    for m in c["methods"]:
+        if SKIP.match(m["name"]) or m["name"].startswith("@") or (only and m["name"] not in only):
+            continue
+        methods.append((m["name"], [p["name"] for p in m["parameters"]]))
+    res = {}
+    crashed = []
+    todo = list(methods)
+    for _round in range(200):
+        if not todo:
+            break
+        part, out = run_batch(cls, todo)
+        names = [n for n, _ in todo]
+        if len(part) >= len(todo) and names[-1] in part:
+            res.update(part)
+            break
+        # the process stopped inside the last method it started: record it, go on with the rest
+        last = list(part)[-1] if part else names[0]
+        for k, v in part.items():
+            if k != last:
+                res[k] = v
+        res[last] = {"runs": [{"err": "CRASH: the process stopped inside this call"}]}
+        crashed.append(last)
+        todo = todo[names.index(last) + 1:]
     json.dump(res, open(sys.argv[3], "w", encoding="utf-8"), indent=0, ensure_ascii=False)
     ok = sum(1 for v in res.values() if any("ret" in r for r in v["runs"]))
-    print("%d methods probed, %d answered, %d only raised" % (len(res), ok, len(res) - ok))
-    tail = p.stdout[-300:] if len(res) < len(methods) else ""
-    if tail:
-        print("run stopped early? last output:", tail)
+    print("%d methods probed, %d answered, %d only raised, %d crashed the process" % (len(res), ok, len(res) - ok, len(crashed)))
+    if crashed:
+        print("crashed:", ", ".join(crashed))
 
 
 if __name__ == "__main__":
