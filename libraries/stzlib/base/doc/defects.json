@@ -1,5 +1,5 @@
 {
- "count": 702,
+ "count": 706,
  "defects": [
   {
    "class": "stzAppServer",
@@ -642,10 +642,274 @@
    "cause": "Raises error R14 because it calls CountFilesIn, which exists nowhere"
   },
   {
+   "class": "stzGeoFeatures",
+   "file": "geo/stzGeoFeatures.ring",
+   "method": "IndicesWithin",
+   "line": 776,
+   "symptom": "Returns the positions of the features whose bounding box has its middle inside a box of longitude and latitude.",
+   "cause": "Defect: a feature across the antimeridian has a box 360 degrees wide whose middle is longitude 0, so Fiji is taken by a window around Africa."
+  },
+  {
+   "class": "stzGeoFeatures",
+   "file": "geo/stzGeoFeatures.ring",
+   "method": "Within",
+   "line": 800,
+   "symptom": "Returns a new set of the features whose bounding box has its middle inside a box of longitude and latitude.",
+   "cause": "Defect: the same antimeridian trap as IndicesWithin: Fiji is taken by a window around Africa."
+  },
+  {
+   "class": "stzGeoField",
+   "file": "geo/stzGeoField.ring",
+   "method": "ValueAt",
+   "line": 270,
+   "symptom": "Returns the field's value at a place: bilinear between four known nodes, the nearest node where some are unknown.",
+   "cause": "Defect: a bilinear read of a constant field comes back one rounding step under the node value about 6 per cent of the time, so with SetClassesEvery a pixel at the first class edge draws as no data (white specks)."
+  },
+  {
+   "class": "stzGeoField",
+   "file": "geo/stzGeoField.ring",
+   "method": "SetClassesEvery",
+   "line": 338,
+   "symptom": "Sets pnHowMany equal classes between the field's lowest and highest value.",
+   "cause": "Defect: a bilinear read of a constant field comes back one rounding step under the node value about 6 per cent of the time, so with SetClassesEvery a pixel at the first class edge draws as no data (white specks)."
+  },
+  {
+   "class": "stzGeoField",
+   "file": "geo/stzGeoField.ring",
+   "method": "SetRamp",
+   "line": 361,
+   "symptom": "Sets the colours of the classes from a named ramp, in as many steps as there are classes.",
+   "cause": "Defect: the error for an unknown name lists nine ramps although thirteen exist."
+  },
+  {
+   "class": "stzGeoField",
+   "file": "geo/stzGeoField.ring",
+   "method": "DrawOn",
+   "line": 460,
+   "symptom": "Draws the field as one image on a canvas, resampled through a projection into a box, coloured by class.",
+   "cause": "Defect: a bilinear read of a constant field comes back one rounding step under the node value about 6 per cent of the time, so with SetClassesEvery a pixel at the first class edge draws as no data (white specks)."
+  },
+  {
+   "class": "stzGeoField",
+   "file": "geo/stzGeoField.ring",
+   "method": "DrawXT",
+   "line": 478,
+   "symptom": "Draws the field as one image like DrawOn, with an opacity so the map underneath can show through.",
+   "cause": "Defect: a bilinear read of a constant field comes back one rounding step under the node value about 6 per cent of the time, so with SetClassesEvery a pixel at the first class edge draws as no data (white specks)."
+  },
+  {
+   "class": "stzGeoMap",
+   "file": "geo/stzGeoMap.ring",
+   "method": "SetRamp",
+   "line": 557,
+   "symptom": "Sets the class colours from a named ramp, in as many steps as there are classes.",
+   "cause": "Defect: the error for an unknown name lists nine ramps although thirteen exist (Viridis, Magma, Cividis and Flow are missing from the message)."
+  },
+  {
+   "class": "stzGeoMap",
+   "file": "geo/stzGeoMap.ring",
+   "method": "SetPalette",
+   "line": 576,
+   "symptom": "Sets the colour of each class by hand.",
+   "cause": "Defect: before SetClasses it raises with the message -1 classes need -1 colours, because an empty edge list counts as -1 classes."
+  },
+  {
+   "class": "stzGeoMap",
+   "file": "geo/stzGeoMap.ring",
+   "method": "SetPaper",
+   "line": 599,
+   "symptom": "Tells the map the box it is drawn in, so no label is written off the sheet and the scale bar is measured over that box.",
+   "cause": "Defect: when it is not called, the scale-bar and stream-density methods guess the sheet from the projection's scale and misjudge a country map."
+  },
+  {
+   "class": "stzGeoMap",
+   "file": "geo/stzGeoMap.ring",
+   "method": "SetOpenTop",
+   "line": 649,
+   "symptom": "Declares that the top class has no upper edge, so a value above the last edge belongs to it and the legend draws an arrow.",
+   "cause": "Defect: an inset made by DrawInsetsOn does not copy it, so a region above the last edge shows as no data in the inset (Niamey on the Niger sheet)."
+  },
+  {
+   "class": "stzGeoMap",
+   "file": "geo/stzGeoMap.ring",
+   "method": "ClassOf",
+   "line": 794,
+   "symptom": "Returns the class that feature pnI's value falls in.",
+   "cause": "Defect: raises error R2 when values are set and the classes are not, because the class edges are an empty list read at index 0."
+  },
+  {
+   "class": "stzGeoMap",
+   "file": "geo/stzGeoMap.ring",
+   "method": "ColourOf",
+   "line": 819,
+   "symptom": "Returns the fill colour of feature pnI: its group's colour, its class's colour, or the no-data colour.",
+   "cause": "Defect: raises error R2 when values are set and the classes are not, because the class edges are an empty list read at index 0."
+  },
+  {
+   "class": "stzGeoMap",
+   "file": "geo/stzGeoMap.ring",
+   "method": "DrawOn",
+   "line": 841,
+   "symptom": "Draws the old-style layers on a canvas: sphere, graticule every 30 degrees, regions with white edges, the world's edge.",
+   "cause": "Defect: raises error R2 when values are set and the classes are not, because the class edges are an empty list read at index 0."
+  },
+  {
+   "class": "stzGeoMap",
+   "file": "geo/stzGeoMap.ring",
+   "method": "DrawRegionsOn",
+   "line": 885,
+   "symptom": "Draws every feature in the colour its value earns, with one edge colour.",
+   "cause": "Defect: raises error R2 when values are set and the classes are not, because the class edges are an empty list read at index 0."
+  },
+  {
+   "class": "stzGeoMap",
+   "file": "geo/stzGeoMap.ring",
+   "method": "DensityPointsIn",
+   "line": 1104,
+   "symptom": "Returns the places per feature divided by the feature's area, ready for SetValues.",
+   "cause": "Defect in the comment: the source says per square kilometre but the code multiplies by 10000, so the figure is per 10000 km2."
+  },
+  {
+   "class": "stzGeoMap",
+   "file": "geo/stzGeoMap.ring",
+   "method": "LabelPointOf",
+   "line": 1152,
+   "symptom": "Returns where a name goes: the area centroid of the largest part, or the roomiest inner point when the centroid is outside it.",
+   "cause": "Defect: no range check, so a position of 0 or past the last raises error R2."
+  },
+  {
+   "class": "stzGeoMap",
+   "file": "geo/stzGeoMap.ring",
+   "method": "DrawInsetsOn",
+   "line": 2189,
+   "symptom": "Draws every inset on a canvas: its locator rectangle on the parent, its enlarged map, its frame, its title and its scale.",
+   "cause": "Defect: the inset copies values, edges and palette but not SetOpenTop, so a value above the last edge draws as no data inside the inset while the parent paints it in the top colour (Niamey on the Niger sheet)."
+  },
+  {
+   "class": "stzGeoMap",
+   "file": "geo/stzGeoMap.ring",
+   "method": "DrawSheetOn",
+   "line": 2448,
+   "symptom": "Draws the regions as a statistical map does: dark hairline borders, the no-data hatch, then the heavy outline of the selection.",
+   "cause": "Defect: raises error R2 when values are set and the classes are not, because the class edges are an empty list read at index 0."
+  },
+  {
+   "class": "stzGeoMap",
+   "file": "geo/stzGeoMap.ring",
+   "method": "DrawScaleBarOn",
+   "line": 2746,
+   "symptom": "Draws a scale bar at a stated latitude and prints that latitude; draws nothing when the scale varies too much over the sheet.",
+   "cause": "Defect: without SetPaper the sheet is guessed from the projection's scale as plus and minus pi times it, so a country map measures a scale variation of 57.85 instead of 1.009 and the bar is refused."
+  },
+  {
+   "class": "stzGeoMap",
+   "file": "geo/stzGeoMap.ring",
+   "method": "ScaleVariation",
+   "line": 2793,
+   "symptom": "Returns the ratio of the largest local scale to the smallest over the sheet: 1 means a scale bar is true everywhere.",
+   "cause": "Defect: without SetPaper the sheet is guessed from the projection's scale as plus and minus pi times it, so a country map measures a scale variation of 57.85 instead of 1.009 and the bar is refused."
+  },
+  {
+   "class": "stzGeoMap",
+   "file": "geo/stzGeoMap.ring",
+   "method": "ScaleBarAt",
+   "line": 2809,
+   "symptom": "Returns the scale bar that would be drawn, without drawing it.",
+   "cause": "Defect: without SetPaper the sheet is guessed from the projection's scale as plus and minus pi times it, so a country map measures a scale variation of 57.85 instead of 1.009 and the bar is refused."
+  },
+  {
+   "class": "stzGeoMap",
+   "file": "geo/stzGeoMap.ring",
+   "method": "DrawStreamDensityOn",
+   "line": 3415,
+   "symptom": "Draws a field's speed as a shaded raster with evenly spaced streamlines on top, the speed on the ground and the shape on the lines.",
+   "cause": "Defect: without SetPaper the sheet is guessed from the projection's scale, so the raster covers a box thousands of pixels wide."
+  },
+  {
+   "class": "stzGeoMap",
+   "file": "geo/stzGeoMap.ring",
+   "method": "DrawLegendOn",
+   "line": 3466,
+   "symptom": "Draws the older legend: one row per class with its range, \"(no region)\" for a class nothing falls in, and a no-data row.",
+   "cause": "Defect: raises error R2 when values are set and the classes are not, because the class edges are an empty list read at index 0."
+  },
+  {
+   "class": "stzGeoMap",
+   "file": "geo/stzGeoMap.ring",
+   "method": "IsOnPaper",
+   "line": 3899,
+   "symptom": "TRUE if any part of feature pnI reaches the paper at all.",
+   "cause": "Defect: no range check, so a position of 0 or past the last raises error R2."
+  },
+  {
+   "class": "stzGeoProcess",
+   "file": "geo/stzGeoProcess.ring",
+   "method": "ExpectedCount",
+   "line": 397,
+   "symptom": "Returns how many points the process puts down on average in a window of the given area.",
+   "cause": "Defect: for Inhomogeneous it is the mean of all the grid values times the window area, not the integral over the window: 191.9 against 149.4 drawn on average and 144.3 integrated."
+  },
+  {
+   "class": "stzGeoProcess",
+   "file": "geo/stzGeoProcess.ring",
+   "method": "PatternIn",
+   "line": 429,
+   "symptom": "Raises error today instead of returning the pattern of GenerateIn as a stzGeoPoints ready to measure.",
+   "cause": "Defect: it passes the window's list of rings to StzGeoPoints, which takes the stzGeoFeatures. Seen with SSI and MaternCluster on the fixtures and Poisson on Niger"
+  },
+  {
+   "class": "stzGeoProjection",
+   "file": "geo/stzGeoProjection.ring",
+   "method": "Caption",
+   "line": 1082,
+   "symptom": "Returns the projection written for a picture: its name, the parallels of a conic and the rotation if any.",
+   "cause": "Defect: the parallels of a conic always carry an N, so 22.78 degrees south prints as -22.78N."
+  },
+  {
+   "class": "stzGeoSamples",
+   "file": "geo/stzGeoSamples.ring",
+   "method": "ValueOf",
+   "line": 182,
+   "symptom": "Returns the value of measurement pnI.",
+   "cause": "Defect: no range check, so a position of 0 or past the last raises error R2."
+  },
+  {
+   "class": "stzGeoSamples",
+   "file": "geo/stzGeoSamples.ring",
+   "method": "PlaceOf",
+   "line": 191,
+   "symptom": "Returns where measurement pnI was made.",
+   "cause": "Defect: no range check, so a position of 0 or past the last raises error R2."
+  },
+  {
+   "class": "stzGeoSamples",
+   "file": "geo/stzGeoSamples.ring",
+   "method": "FitAndUse",
+   "line": 315,
+   "symptom": "Fits a variogram model and adopts it in one move.",
+   "cause": "Defect: on gauges with a trend the Gaussian fit reaches a range longer than the window and the estimate leaves the measured range by tens of thousands (-30825 to 29761 for gauges of 180 to 799) while Findings only warns."
+  },
+  {
+   "class": "stzGeoSamples",
+   "file": "geo/stzGeoSamples.ring",
+   "method": "KrigeFields",
+   "line": 351,
+   "symptom": "Returns the ordinary-kriging estimate and its variance as two fields, from one factorisation.",
+   "cause": "Defect: on gauges with a trend the Gaussian fit reaches a range longer than the window and the estimate leaves the measured range by tens of thousands (-30825 to 29761 for gauges of 180 to 799) while Findings only warns."
+  },
+  {
+   "class": "stzGeoSamples",
+   "file": "geo/stzGeoSamples.ring",
+   "method": "Findings",
+   "line": 402,
+   "symptom": "Returns what is wrong with the set: gauges outside the window, too few gauges, a range beyond the data, a nugget that is most of the sill.",
+   "cause": "Defect: a kriging that leaves the measured range by tens of thousands is only a warning (range over half the diagonal), so IsSound stays TRUE."
+  },
+  {
    "class": "stzDiagram",
    "file": "graph/stzDiagram.ring",
    "method": "PenWidth",
-   "line": 2002,
+   "line": 2004,
    "symptom": "Raises error R24 today instead of returning the pen width.",
    "cause": "known defect: it reads the attribute @nPenWidth, which nothing declares or sets, so every call raises R24 (uninitialized variable)"
   },
@@ -653,7 +917,7 @@
    "class": "stzDiagram",
    "file": "graph/stzDiagram.ring",
    "method": "NodesWith",
-   "line": 2936,
+   "line": 2939,
    "symptom": "Raises error R20 today instead of returning the nodes whose property satisfies a comparison.",
    "cause": "known defect: it builds a stzGraphQuery with two arguments where its constructor takes a different number, so every call raises R20"
   },
@@ -661,7 +925,7 @@
    "class": "stzDiagram",
    "file": "graph/stzDiagram.ring",
    "method": "propertiesLegend",
-   "line": 3017,
+   "line": 3020,
    "symptom": "Raises error R13 today when a visual rule is registered, instead of returning a text legend of the rules.",
    "cause": "known defect: it reads fields of the rules as if they were objects (.@cConditionType) while RegisterVisualRule stores hash lists, so any rule raises R13 (object is required)"
   },
@@ -669,7 +933,7 @@
    "class": "stzDiagram",
    "file": "graph/stzDiagram.ring",
    "method": "SaveToStzDiagInFolder",
-   "line": 18154,
+   "line": 18160,
    "symptom": "Raises error R14 today instead of writing the .stzdiag file in a folder.",
    "cause": "known defect: it takes no folder argument and calls WriteToDiagFileXT with a global that is never set, and that method exists nowhere, so every call raises R14"
   },
@@ -677,7 +941,7 @@
    "class": "stzDiagram",
    "file": "graph/stzDiagram.ring",
    "method": "Explain",
-   "line": 18419,
+   "line": 18425,
    "symptom": "Returns a short account of the diagram: its size, its visual rules and what they affected; raises error R13 as soon as a rule is registered.",
    "cause": "known defect: with a registered rule it reads the rule's id as a field of an object (.@cRuleId) while rules are stored as hash lists, so it raises R13; without rules it answers \"No visual rules defined.\""
   },
@@ -709,7 +973,7 @@
    "class": "stzGraph",
    "file": "graph/stzGraph.ring",
    "method": "LongestPath",
-   "line": 3295,
+   "line": 3296,
    "symptom": "Returns the largest number of nodes reachable from any one node, which is not the hop count of the longest path.",
    "cause": "known defect: the name promises a path length, but the body counts reachable nodes, so a node that reaches two branches of two nodes each answers 4, though no path is longer than 2 hops"
   },
@@ -717,7 +981,7 @@
    "class": "stzGraph",
    "file": "graph/stzGraph.ring",
    "method": "CyclicNodes",
-   "line": 3320,
+   "line": 3321,
    "symptom": "Returns an empty list today instead of the ids of the nodes that lie on a cycle.",
    "cause": "known defect: it looks for the node among the nodes it reaches, but ReachableFrom never lists the start node, so the test is never true; use HasCyclicDependencies for the graph"
   },
@@ -725,7 +989,7 @@
    "class": "stzGraph",
    "file": "graph/stzGraph.ring",
    "method": "LoadFromGraphML",
-   "line": 4950,
+   "line": 4951,
    "symptom": "Raises error \"Incorrect Id\" today instead of reading a GraphML file into the graph, and leaves odd nodes behind.",
    "cause": "known defect: the parser cuts the text at fixed positions instead of the positions it finds, so even a file written by SaveToGraphML yields garbled ids such as \"sion=\" and raises; the graph is left with those nodes"
   },
@@ -733,7 +997,7 @@
    "class": "stzGraph",
    "file": "graph/stzGraph.ring",
    "method": "LoadGraphML",
-   "line": 4964,
+   "line": 4965,
    "symptom": "Raises error \"Incorrect Id\" today instead of reading a GraphML file into the graph.",
    "cause": "known defect: it only calls LoadFromGraphML, whose parser fails on every file written by SaveToGraphML and leaves garbled nodes behind"
   },
@@ -741,7 +1005,7 @@
    "class": "stzGraph",
    "file": "graph/stzGraph.ring",
    "method": "ImportFromGraphML",
-   "line": 4973,
+   "line": 4974,
    "symptom": "Raises error \"Incorrect Id\" today instead of importing a GraphML file into the graph.",
    "cause": "known defect: it only calls LoadFromGraphML, whose parser fails on every file written by SaveToGraphML and leaves garbled nodes behind"
   },
@@ -749,7 +1013,7 @@
    "class": "stzGraph",
    "file": "graph/stzGraph.ring",
    "method": "ImportGraphML",
-   "line": 4982,
+   "line": 4983,
    "symptom": "Raises error \"Incorrect Id\" today instead of importing a GraphML file into the graph.",
    "cause": "known defect: it only calls LoadFromGraphML, whose parser fails on every file written by SaveToGraphML and leaves garbled nodes behind"
   },
@@ -757,7 +1021,7 @@
    "class": "stzGraph",
    "file": "graph/stzGraph.ring",
    "method": "HasRule",
-   "line": 5937,
+   "line": 5940,
    "symptom": "TRUE if a constraint rule has that name; the name is folded to upper case first.",
    "cause": "known defect: derivation and validation rules are never found, because their names are lowered before the comparison with an upper-case name, so a rule that is loaded can still answer FALSE"
   },
@@ -765,7 +1029,7 @@
    "class": "stzGraph",
    "file": "graph/stzGraph.ring",
    "method": "ValidationSummary",
-   "line": 6222,
+   "line": 6225,
    "symptom": "Returns the record of the last validation that passed; before any pass it answers that none has run.",
    "cause": "known defect: a failed validation is never recorded, so after a failure the summary still shows the older pass, or none has run, and its violations list is always empty"
   },
@@ -773,7 +1037,7 @@
    "class": "stzGraph",
    "file": "graph/stzGraph.ring",
    "method": "Anomalies",
-   "line": 6257,
+   "line": 6260,
    "symptom": "Returns the violations of the last recorded validation, which is always an empty list today.",
    "cause": "known defect: only passing validations are recorded, so this can never list a violation; read the issues of Validate instead"
   },
@@ -781,7 +1045,7 @@
    "class": "stzGraphComparison",
    "file": "graph/stzGraph.ring",
    "method": "Content",
-   "line": 8701,
+   "line": 8704,
    "symptom": "Returns nothing today instead of the comparison data.",
    "cause": "known defect: the body is empty, so the call answers empty text; Data returns the comparison"
   },
@@ -789,7 +1053,7 @@
    "class": "stzGraphComparison",
    "file": "graph/stzGraph.ring",
    "method": "WithCycles",
-   "line": 8784,
+   "line": 8787,
    "symptom": "Returns an empty list today instead of the names of the variations that contain a cycle.",
    "cause": "known defect: the rows hold the text TRUE or FALSE in the cycle field, and the body tests it against the number 1"
   },
@@ -797,7 +1061,7 @@
    "class": "stzGraphComparison",
    "file": "graph/stzGraph.ring",
    "method": "WithoutCycles",
-   "line": 8804,
+   "line": 8807,
    "symptom": "Returns an empty list today instead of the names of the variations that stay acyclic.",
    "cause": "known defect: the rows hold the text TRUE or FALSE in the cycle field, and the body tests it against the number 0"
   },
@@ -829,9 +1093,9 @@
    "class": "stzKnowledgeGraph",
    "file": "graph/stzKnowledgeGraph.ring",
    "method": "Explain",
-   "line": 999,
+   "line": 1000,
    "symptom": "Raises error R14 today instead of describing the knowledge graph in sections: structure, facts, entities, predicates, ontology and insights.",
-   "cause": "known defect: it calls ApplyInference, which is defined nowhere, so the call always raises R14; stzGraph.Explain is shadowed by this version"
+   "cause": "known defect: it calls ApplyInference, which is defined nowhere, so the call always raises R14; stzGraph.Explain is shadowed by this version seen in the gallery: drawn through GraphCanvas a knowledge graph shows no predicate on its edges and no arrowheads; Dot() with graphviz draws each fact as an edge labelled with its predicate"
   },
   {
    "class": "stzOrgChart",
@@ -3544,238 +3808,6 @@
    "line": 1938,
    "symptom": "Returns a one-line explanation of the pattern when the library knows it by name; any other pattern raises an error.",
    "cause": "known defect: for a pattern outside the library's named list it builds stzRegexAnalyzer, a class that does not exist, and raises error R11"
-  },
-  {
-   "class": "stzTablex",
-   "file": "regex/stzTablex.ring",
-   "method": "init",
-   "line": 62,
-   "symptom": "Builds a table pattern from text such as {cols(3) & unique(name)} and parses it into tokens; a non-text value raises an error.",
-   "cause": "known defect: the parser reads text with a count-based call where it wants an end position, so most patterns parse into wrong tokens, and a term written without parentheses, such as {cols}, raises error R24"
-  },
-  {
-   "class": "stzTablex",
-   "file": "regex/stzTablex.ring",
-   "method": "ParsePattern",
-   "line": 102,
-   "symptom": "Splits a braced pattern at its top-level -> into parts and parses each part into a token; the result is wrong today.",
-   "cause": "known defect: the inner text and the splitting use a count where an end position is meant, so {cols(2) -> rows(1)} gives one token of type col with no value"
-  },
-  {
-   "class": "stzTablex",
-   "file": "regex/stzTablex.ring",
-   "method": "SplitByOperator",
-   "line": 146,
-   "symptom": "Returns garbled text today instead of the parts of a text split at an operator outside brackets.",
-   "cause": "known defect: it reads each character with a count-based call, so \"a->b->(c->d)\" gives one text full of repeated pieces instead of a, b and (c->d)"
-  },
-  {
-   "class": "stzTablex",
-   "file": "regex/stzTablex.ring",
-   "method": "ParseAlternation",
-   "line": 185,
-   "symptom": "Parses a part whose terms are joined by a vertical bar into an alternation token; the alternatives come out wrong today.",
-   "cause": "known defect: it splits with the broken splitter, so a bar-joined pair gives one alternative of type col"
-  },
-  {
-   "class": "stzTablex",
-   "file": "regex/stzTablex.ring",
-   "method": "ParseConjunction",
-   "line": 218,
-   "symptom": "Parses a part whose terms are joined by & into a conjunction token; the conditions come out wrong today.",
-   "cause": "known defect: it splits with the broken splitter, so (cols(1) & rows(2)) gives one condition of type col"
-  },
-  {
-   "class": "stzTablex",
-   "file": "regex/stzTablex.ring",
-   "method": "ParseSingleToken",
-   "line": 251,
-   "symptom": "Parses one term such as unique(name) or @cs:contains(Ali) into a token; the value keeps the closing parenthesis today.",
-   "cause": "known defect: a count-based call reads the text inside the parentheses, so unique(Name) gives the value \"Name)\" and rows(2) gives no constraint"
-  },
-  {
-   "class": "stzTablex",
-   "file": "regex/stzTablex.ring",
-   "method": "Match",
-   "line": 616,
-   "symptom": "TRUE if the table satisfies every term of the pattern; the answer is cached per pattern and table content.",
-   "cause": "known defect: because the parser gives wrong tokens, every pattern tried answered FALSE or raised an error, rows and row terms raise R14 (hasrow), and {cols} raises R24"
-  },
-  {
-   "class": "stzTablex",
-   "file": "regex/stzTablex.ring",
-   "method": "CheckRow",
-   "line": 906,
-   "symptom": "Raises error R14 today instead of testing whether the table holds a given row.",
-   "cause": "known defect: it calls HasRow on the table, a method stzTable does not have"
-  },
-  {
-   "class": "stzTablex",
-   "file": "regex/stzTablex.ring",
-   "method": "CheckCell",
-   "line": 922,
-   "symptom": "Raises error R2 today instead of testing whether a cell value lies in a range of the table.",
-   "cause": "known defect: it reads a \"range\" key that the parser never writes into the token, so the list access fails"
-  },
-  {
-   "class": "stzTablex",
-   "file": "regex/stzTablex.ring",
-   "method": "CheckProperty",
-   "line": 965,
-   "symptom": "TRUE if the table has the property named in the token: empty, nonempty, sorted or calculated; any other name gives TRUE.",
-   "cause": "known defect: an unknown property name such as zzz answers TRUE instead of FALSE"
-  },
-  {
-   "class": "stzTablex",
-   "file": "regex/stzTablex.ring",
-   "method": "CheckSorted",
-   "line": 1035,
-   "symptom": "TRUE if the named column is in ascending order, comparing numbers as numbers and text as text, case counting by default.",
-   "cause": "known defect: an unknown column name answers TRUE"
-  },
-  {
-   "class": "stzTablex",
-   "file": "regex/stzTablex.ring",
-   "method": "CheckUnique",
-   "line": 1081,
-   "symptom": "TRUE if no value repeats in the named column; the case counts unless the token says otherwise.",
-   "cause": "known defect: an unknown column name answers TRUE"
-  },
-  {
-   "class": "stzTablex",
-   "file": "regex/stzTablex.ring",
-   "method": "CheckColPattern",
-   "line": 1365,
-   "symptom": "Raises error R14 today instead of testing that every text of a column matches a regex pattern.",
-   "cause": "known defect: it calls MatchesRX on a stzString, a method that does not exist"
-  },
-  {
-   "class": "stzTablex",
-   "file": "regex/stzTablex.ring",
-   "method": "CheckAlphabetic",
-   "line": 1654,
-   "symptom": "Raises error R14 today for a column of text instead of testing that every value is made of letters.",
-   "cause": "known defect: it calls IsAlphabetic on a stzString, a method that does not exist"
-  },
-  {
-   "class": "stzTablex",
-   "file": "regex/stzTablex.ring",
-   "method": "CheckFormat",
-   "line": 1682,
-   "symptom": "Raises an error today instead of testing that every text of a column fits a format, the token value being column:format.",
-   "cause": "known defect: it relies on MatchesFormat, which fails for a format that is not a named pattern"
-  },
-  {
-   "class": "stzTablex",
-   "file": "regex/stzTablex.ring",
-   "method": "MatchesFormat",
-   "line": 1720,
-   "symptom": "Raises an error today instead of testing whether a text fits a regex format.",
-   "cause": "known defect: it first calls the pattern helper on the text, which raises \"The pattern name you provided does not exist\" for any text that is not a registered name"
-  },
-  {
-   "class": "stzTablex",
-   "file": "regex/stzTablex.ring",
-   "method": "MatchedParts",
-   "line": 1770,
-   "symptom": "Returns what was recorded by the last successful match: the pairs cols, rows, colnames and properties.",
-   "cause": "known defect: since Match does not succeed today, this stays [ ] unless ExtractParts is called by hand"
-  },
-  {
-   "class": "stzTablex",
-   "file": "regex/stzTablex.ring",
-   "method": "CountMatchedParts",
-   "line": 1785,
-   "symptom": "Raises error R24 today instead of returning how many parts were matched.",
-   "cause": "known defect: the body reads @MatchedParts, which is an uninitialized name"
-  },
-  {
-   "class": "stzTablex",
-   "file": "regex/stzTablex.ring",
-   "method": "HowManyMatchedParts",
-   "line": 1793,
-   "symptom": "Raises error R24 today instead of returning how many parts were matched.",
-   "cause": "known defect: the body reads @MatchedParts, which is an uninitialized name"
-  },
-  {
-   "class": "stzTablex",
-   "file": "regex/stzTablex.ring",
-   "method": "Tokens",
-   "line": 1801,
-   "symptom": "Returns the parsed tokens of the pattern.",
-   "cause": "known defect: the tokens are wrong for most patterns, see the parser"
-  },
-  {
-   "class": "stzTablex",
-   "file": "regex/stzTablex.ring",
-   "method": "NumberOfTokens",
-   "line": 1810,
-   "symptom": "Returns how many tokens the pattern was parsed into.",
-   "cause": "known defect: a pattern of two terms joined by -> gives 1, because the splitter is broken"
-  },
-  {
-   "class": "stzTablex",
-   "file": "regex/stzTablex.ring",
-   "method": "CountTokens",
-   "line": 1819,
-   "symptom": "Returns how many tokens the pattern was parsed into.",
-   "cause": "known defect: a pattern of two terms joined by -> gives 1, because the splitter is broken"
-  },
-  {
-   "class": "stzTablex",
-   "file": "regex/stzTablex.ring",
-   "method": "HowManyTokens",
-   "line": 1828,
-   "symptom": "Returns how many tokens the pattern was parsed into.",
-   "cause": "known defect: a pattern of two terms joined by -> gives 1, because the splitter is broken"
-  },
-  {
-   "class": "stzTablex",
-   "file": "regex/stzTablex.ring",
-   "method": "MatchingTables",
-   "line": 1861,
-   "symptom": "Returns the tables of a list that match the pattern, in their order.",
-   "cause": "known defect: Match answers FALSE for every pattern tried, so the list comes back empty"
-  },
-  {
-   "class": "stzTablex",
-   "file": "regex/stzTablex.ring",
-   "method": "CountMatchingTables",
-   "line": 1884,
-   "symptom": "Returns how many tables of a list match the pattern.",
-   "cause": "known defect: Match answers FALSE for every pattern tried, so the count is 0"
-  },
-  {
-   "class": "stzTablex",
-   "file": "regex/stzTablex.ring",
-   "method": "IsNumeric",
-   "line": 1938,
-   "symptom": "TRUE if the text is made only of digits, minus signs and dots, but it answers wrongly today for most numbers.",
-   "cause": "known defect: it reads each character with a count-based call, so 12 and -3 give TRUE while 123, 1.5 and 1-2 give FALSE"
-  },
-  {
-   "class": "stzTablex",
-   "file": "regex/stzTablex.ring",
-   "method": "And_",
-   "line": 1965,
-   "symptom": "Returns a new tablex whose pattern joins this pattern and the other one with &; the joined text ends with a stray brace today.",
-   "cause": "known defect: the joined pattern is built with a count-based call, so {cols(3)} and {rows(3)} give {cols(3)} & rows(3)}}"
-  },
-  {
-   "class": "stzTablex",
-   "file": "regex/stzTablex.ring",
-   "method": "Or_",
-   "line": 1986,
-   "symptom": "Returns a new tablex whose pattern joins this pattern and the other one with a vertical bar; the text ends with a stray brace today.",
-   "cause": "known defect: the joined pattern is built with a count-based call, so {cols(3)} and {rows(9)} give a text ending in two braces"
-  },
-  {
-   "class": "stzTablex",
-   "file": "regex/stzTablex.ring",
-   "method": "Not_",
-   "line": 2006,
-   "symptom": "Returns a new tablex whose pattern has @! in front of the inner text; the text ends with a stray brace today.",
-   "cause": "known defect: the pattern is built with a count-based call, so {cols(3)} gives {@!cols(3)}}"
   },
   {
    "class": "stzDataSet",
