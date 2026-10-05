@@ -1,0 +1,53 @@
+# stzGeoAtlas: the same binding on a file that has no ids and calls its names shapeName (Niger's eight
+# regions, shipped in test/graphics): a table typed with accents and a misspelling, bound by name only.
+# "Tillabery" is not "Tillaberi" and is reported, not painted; Uncovered says which region the table forgot.
+# Run from libraries/stzlib/base/test/reflect:  ring ../../doc/gallery/stzGeoAtlas/niger_regions_table.ring
+load "../../stzBase.ring"
+decimals(1)
+oFont = new stzFont("C:/Windows/Fonts/segoeui.ttf")
+oBold = new stzFont("C:/Windows/Fonts/segoeuib.ttf")
+oN = StzGeoFeaturesFromJson(read("../graphics/niger_adm1.geojson"))
+oA = StzGeoAtlas(oN)
+aRows = [ [ "AGADEZ", 487620 ], [ "Diffa", 593821 ], [ "Dosso", 2037713 ], [ "Maradi", 3402094 ],
+          [ "Tahoua", 3328365 ], [ "Tillabery", 2722482 ], [ "Zinder", 3539764 ] ]
+aVal = oA.ValuesFor(aRows)
+aLost = oA.Unresolved(aRows)
+aUnc = oA.Uncovered(aRows)
+? "names the file uses: " + @@( oA.Names() )
+? "ValuesFor: " + @@( aVal )
+? "unresolved: " + @@( aLost ) + "  uncovered: " + @@( aUnc )
+? "PointOf Agadez: " + @@( oA.PointOf("agadez") ) + ", parts of Diffa: " + len(oA.PartsOf("Diffa"))
+
+oC = new stzCanvas(1000, 520)
+oC.SetBackground("#FFFFFF")
+oC.SetFontQ(oBold, 22).AddTextQ("Niger's regions from a typed table", 20, 34).Fill("#111111")
+oC.Flush()
+oP = StzGeoConicFor(oN, :ConicEqualArea)
+oP.FitFeaturesIn(oN, 20, 60, 560, 440, 8)
+oM = StzGeoMap(oP, oN)
+oM.SetPaper(10, 50, 570, 450)
+oM.SetSource("geoBoundaries ADM1; population RGPH 2012 (typed with errors on purpose)")
+oM.SetValues(aVal)
+oM.SetClasses([ 0, 500000, 1000000, 2000000, 3000000, 4000000 ])
+oM.SetRamp(:Purples)
+oM.DrawSheetOn(oC, "#4A3A22", 0.8)
+oM.SetLabelMode(:Names)
+oM.DrawLabelsOn(oC, oFont, 14, "#222222")
+oM.DrawRampLegendOn(oC, oFont, 13, 590, 110, 280, 20, "#333333")
+oC.SetFontQ(oFont, 14).AddTextQ("people", 590, 80).Fill("#333333")
+oC.Flush()
+oC.SetFontQ(oBold, 15).AddTextQ("did not bind: " + aLost[1], 590, 200).Fill("#C0392B")
+oC.Flush()
+oC.SetFontQ(oBold, 15).AddTextQ("the table forgot: " + aUnc[1] + ", " + aUnc[2], 590, 224).Fill("#C0392B")
+oC.Flush()
+oC.SetFontQ(oFont, 14).AddTextQ("Tillaberi is hatched: its number sits in the table under", 590, 260).Fill("#333333")
+oC.Flush()
+oC.SetFontQ(oFont, 14).AddTextQ("another spelling (Tillabery). Niamey is hatched because", 590, 280).Fill("#333333")
+oC.Flush()
+oC.SetFontQ(oFont, 14).AddTextQ("the table has no row for it. Neither is guessed.", 590, 300).Fill("#333333")
+oC.Flush()
+oM.DrawCaptionOn(oC, oFont, 20, 480)
+oC.Flush()
+chdir("../../doc/gallery/stzGeoAtlas")
+oC.ToPNGXT("niger_regions_table.png", 9)
+? "-> niger_regions_table.png"

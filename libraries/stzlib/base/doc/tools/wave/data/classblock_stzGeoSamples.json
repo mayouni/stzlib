@@ -1,0 +1,16 @@
+{
+ "brief": "Holds measurements at places, rain gauges say, and estimates the value in between by inverse distance weighting or ordinary kriging, with the error kriging owes.",
+ "detail": "The measurements are one flat list lon, lat, value, ... and the window is the ground the estimate is made over and clipped to. Three answers, in the order an analyst uses them: IDWField (needs no model, tells nothing of its error, never leaves the measured range), Variogram with FitVariogram (the curve everything else is read from: nugget, sill and range) and KrigeFields, which returns TWO fields, the estimate and its variance, together on purpose: the variance depends only on where the gauges are and on the variogram, never on the values. A model must be adopted (FitAndUse) before GammaAt, KrigeAt, KrigeFields and CrossValidate, which raise otherwise. Kriging expects a field without a trend: for gauges whose value falls steadily to the north the fitted range is longer than the window, and the estimate leaves the measured range by tens of thousands, with only a warning from Findings. Pictures, each looked at by 'stzlib-docs visual pass (a model reading the PNG)' on 2026-10-05: doc/gallery/stzGeoSamples/variogram_and_fit.png, gauges over an IDW surface beside the variogram and its three fitted models, RIGHT; kriging_transect.png, the estimate with isohyets and the doubt along a line, RIGHT (the band pinches at gauges and swells in gaps); kriging_on_a_trend.png, the same method on a trend, WRONG (white inside the country marks kriged values far outside the classes, see FINDINGS_geo.md). Index: doc/gallery/INDEX_geo.md.",
+ "receiver": "o1 = new stzGeoSamples([ 2.1, 13.5, 100, 8.0, 15.0, 200, 5.0, 14.0, 150 ], StzGeoFeaturesFromJson(read(\"../graphics/niger_adm1.geojson\")))",
+ "example": [
+  "? o1.Count()",
+  "#--> 3",
+  "? o1.MaxValue()",
+  "#--> 200"
+ ],
+ "see": [
+  "stzGeoField",
+  "stzGeoPoints",
+  "stzGeoFeatures"
+ ]
+}

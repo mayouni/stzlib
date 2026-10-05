@@ -1,0 +1,16 @@
+{
+ "brief": "Holds one reference ellipsoid by name and measures on it: shortest and constant-bearing paths, destinations, meridian and parallel lengths, ECEF and ENU frames, areas.",
+ "detail": "Fifteen ellipsoids are known (WGS84, GRS80, WGS72, GRS67, Airy1830, AiryModified, Bessel1841, Clarke1866, Clarke1880, International1924, Krassovsky1940, Everest1830, AustralianNational, SouthAmerican1969 and Sphere) and WGS84 is the default everywhere, because it is what a GPS reports. The engine speaks metres and degrees: a method ending Km answers kilometres, one ending M metres. Mind the axis order: the point methods take LATITUDE FIRST, then longitude (DistanceKm, Azimuth, DestinationKm, MidpointOf ...), while every flat list of places (AreaKm2, PathLengthKm and the Flat methods) and every stzGeoProjection method take LONGITUDE FIRST; swapping them raises nothing and measures another pair of places. Niamey to Paris is 3919.43 km on WGS84 and 3931.58 km if the arguments are swapped. A shortest path (geodesic) is not a constant-bearing path (rhumb line): New York to London is 5585.2 km by the first and 5809.8 km by the second. Pictures, each looked at by 'stzlib-docs visual pass (a model reading the PNG)' on 2026-10-05: doc/gallery/stzGeoEllipsoid/geodesic_vs_rhumb.png, a geodesic and a rhumb line on a Mercator, RIGHT (the rhumb line is straight, the geodesic bows toward the pole); doc/gallery/stzGeoEllipsoid/rings_and_areas.png, rings made with DestinationKm on an azimuthal equidistant map, RIGHT (they are true circles); ellipsoids_compared.png, six ellipsoids as the gap from WGS84 in metres and km2, RIGHT (the Sphere is 10.8 km long on Niamey to Paris). Index: doc/gallery/INDEX_geo.md.",
+ "receiver": "o1 = new stzGeoEllipsoid(\"WGS84\")",
+ "example": [
+  "? o1.IsSphere()",
+  "#--> 0",
+  "? o1.DistanceKm(13.5116, 2.1254, 48.8566, 2.3522)",
+  "#--> 3919.43"
+ ],
+ "see": [
+  "stzGeoProjection",
+  "stzGeoFeatures",
+  "stzGeoMap"
+ ]
+}

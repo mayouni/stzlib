@@ -230,6 +230,33 @@ func StzGeoUtmZoneArithmetic(pnLon)
 	while _l_ >= 180  _l_ -= 360  end
 	return floor((_l_ + 180) / 6) + 1
 
+# Holds the choice of how to flatten the sphere: one of 44 named projections with its rotation, parallels, scale and clip, and answers where a place goes on paper and what place a pixel is.
+#
+# The object keeps eleven numbers (Params) and crosses the bridge to the engine with them on every
+# call, so the Ring object is the single source of truth. Project takes LONGITUDE FIRST, then
+# latitude, and answers paper units with y growing downward, or an empty list for a place behind a
+# globe or without an image; Invert goes back. A new projection has scale 150 and translation 480,
+# 250: use a Fit method (FitToSphere, FitSphereIn for the world, FitFeaturesIn, FitPointsIn,
+# FitFeatureIn for a place) to put the picture in the box you draw in. Lines come back as pieces,
+# cut where a flat map's seam or a globe's horizon cuts them. The sphere is a sphere: no projection
+# here uses an ellipsoid (stzGeoEllipsoid measures on one). IsEqualArea and IsConformal say what the
+# projection claims, Distortion and HoldsItsClaim measure it, and stzGeoMap refuses a choropleth on
+# a projection that is not equal-area. Pictures, each looked at by 'stzlib-docs visual pass (a model
+# reading the PNG)' on 2026-10-05: doc/gallery/stzGeoProjection/projections_compared.png, six
+# projections with Tissot circles, RIGHT (Mercator circles swell toward the poles, the equal-area
+# ones keep their size and squash); globe_routes.png, an orthographic globe with great-circle routes
+# and range rings, RIGHT; niger_conic_utm.png, Niger on a conic and on a Mercator, RIGHT (the
+# printed area scales 1.06 and 1.18 are the secant squared of 13.5 and 23 degrees). Index:
+# doc/gallery/INDEX_geo.md.
+#
+#   receiver   o1 = new stzGeoProjection(:Mercator)
+#   example    ? o1.Name()
+#              #--> Mercator
+#              ? o1.IsConformal()
+#              #--> 1
+#              ? @@( o1.Project(2.35, 48.85) )
+#              #--> [ 486.15, 103.03 ]
+#   see        stzGeoMap, stzGeoFeatures, stzGeoEllipsoid
 class stzGeoProjection from stzObject
 	@nKind = 0
 	@aRot = [ 0, 0, 0 ]
@@ -240,6 +267,14 @@ class stzGeoProjection from stzObject
 	@nClip = 0
 	@nPrecision = 0.7
 
+	# Builds the projection called pKind (case ignored) with default parameters; raises an error naming all 44 kinds when pKind is unknown.
+	#
+	#   pKind      the projection's name as text or a symbol, such as :Mercator, :EqualEarth or
+	#              :Orthographic
+	#   returns    nothing; the object is built
+	#   note       The defaults are scale 150, translation 480, 250, no rotation. The conics start
+	#              with parallels 30 and 30; the others with 0 and 0
+	#   see        Name, StzGeoProjectionKinds
 	def init(pKind)
 		@nKind = StzGeoKindNumber(pKind)
 		_t_ = StzEngineGeoKindTraits(@nKind)
@@ -253,66 +288,81 @@ class stzGeoProjection from stzObject
 			@aPar = [ 0, 0 ]
 		ok
 
+	# Returns the canonical name of the projection, as the engine spells it.
+	#
+	#   returns    text, for example "Mercator"
+	#   see        KindNumber, Caption
 	def Name()
 		return StzGeoProjectionKinds()[@nKind + 1]
 
+	# Returns the engine's own index of the projection, counted from 0 in the order StzGeoProjectionKinds lists them.
+	#
+	#   returns    a number from 0 to 43, 1 for Mercator
+	#   see        Name, Params
 	def KindNumber()
 		return @nKind
 
-	# THE ELEVEN NUMBERS, the shape the engine reads
+	# Returns the eleven numbers that define the projection, in the order the engine reads them.
+	#
+	#   returns    a list [ kind, yaw, pitch, roll, parallel1, parallel2, scale, translateX,
+	#              translateY, clipAngle, precision ]
+	#   note       The object holds nothing else, so this list is the whole truth about it
+	#   see        Rotate, Scale, Translate, ClipAngle, Precision
+	#@ aka  THE ELEVEN NUMBERS, the shape the engine reads
 	def Params()
 		return [ @nKind, @aRot[1], @aRot[2], @aRot[3], @aPar[1], @aPar[2],
 		         @nScale, @nTx, @nTy, @nClip, @nPrecision ]
 
-	#-- GE9: WHAT THE LIE MEASURES, not just what it is called --------------
-
-	# EVERY PROJECTION LIES, and until GE9 this plane could say only WHICH
-	# lie: IsEqualArea, IsConformal, two booleans and a rule that reads
-	# them. That is enough to refuse a choropleth on a Mercator and nowhere
-	# near enough to tell a reader that Greenland on that map is drawn at
-	# fourteen times its area.
+	# Returns how the projection distorts the map at one place: scales along and across, area scale and bending.
 	#
-	# The Jacobian answers all of it. A projection is a map from (lon, lat)
-	# to (x, y); its derivative at a place is four numbers; and every
-	# classical distortion measure is a function of those four.
-	#
-	#   :h         the scale along the MERIDIAN, 1 meaning true
-	#   :k         the scale along the PARALLEL
-	#   :a, :b     the semi-axes of Tissot's indicatrix -- the greatest and
-	#              least scale in ANY direction. They are NOT h and k:
-	#              those are the scales along two particular directions,
-	#              which need not be the extremes, and confusing the pairs
-	#              is the classic error in this subject.
-	#   :areal     the area scale. 1 everywhere on an equal-area projection.
-	#   :angular   the largest angle this place bends, degrees. 0 everywhere
-	#              on a conformal one.
-	#   :crossing  the angle the meridian and parallel cross at on paper.
+	#   pnLon      longitude in degrees east
+	#   pnLat      latitude in degrees north
+	#   returns    a hash list [ :h, :k, :a, :b, :areal, :angular, :crossing ]: meridian and
+	#              parallel scale, greatest and least scale, area scale, largest angle bent in
+	#              degrees, angle at which they cross
+	#   note       On Mercator at 70 N the area scale is 8.55 and no angle is bent. 1 means true
+	#   see        ArealScaleAt, AngularDistortionAt, Distortion
+	#@ aka  -- GE9: WHAT THE LIE MEASURES, not just what it is called --------------
 	def DistortionAt(pnLon, pnLat)
 		_v_ = StzEngineGeoDistortionAt(This.Params(), pnLon, pnLat)
 		if len(_v_) < 7  return []  ok
 		return [ :h = _v_[1], :k = _v_[2], :a = _v_[3], :b = _v_[4],
 		         :areal = _v_[5], :angular = _v_[6], :crossing = _v_[7] ]
 
-	# HOW MUCH BIGGER OR SMALLER THIS PLACE IS DRAWN than it really is.
-	# On a Mercator at 70 degrees it is 8.5, which is the whole Greenland
-	# argument in one number.
+	# Returns how many times larger or smaller than on the ground a small area at this place is drawn.
+	#
+	#   pnLon      longitude in degrees east
+	#   pnLat      latitude in degrees north
+	#   returns    a number, 1 where true, 8.55 for Mercator at 70 degrees north, 0 when the place
+	#              has no image
+	#   note       Equal-area projections answer 1 everywhere
+	#   see        DistortionAt, AngularDistortionAt
+	#@ aka  HOW MUCH BIGGER OR SMALLER THIS PLACE IS DRAWN than it really is. On a Mercator at 70 degrees it is 8.5, which is the whole Greenland argument in one number.
 	def ArealScaleAt(pnLon, pnLat)
 		_v_ = StzEngineGeoDistortionAt(This.Params(), pnLon, pnLat)
 		if len(_v_) < 7  return 0  ok
 		return _v_[5]
 
+	# Returns the largest angle, in degrees, that the projection bends at this place.
+	#
+	#   pnLon      longitude in degrees east
+	#   pnLat      latitude in degrees north
+	#   returns    a number of degrees, 0 for a conformal projection and 0 when the place has no
+	#              image
+	#   see        DistortionAt, ArealScaleAt
 	def AngularDistortionAt(pnLon, pnLat)
 		_v_ = StzEngineGeoDistortionAt(This.Params(), pnLon, pnLat)
 		if len(_v_) < 7  return 0  ok
 		return _v_[6]
 
-	# THE WHOLE MAP AT ONCE, which is how two projections get compared.
+	# Returns the area and angle distortion of the whole map, weighted by the ground each cell covers, over a 72 by 36 grid.
 	#
-	# The means are weighted by GROUND -- cos(latitude) per cell -- because
-	# an unweighted average over a latitude grid counts the polar rows,
-	# which are slivers, as heavily as the equatorial ones, which are not.
-	# That flatters exactly the projections that are worst at the poles,
-	# which are the ones a reader most needs warning about.
+	#   returns    a hash list [ :arealMin, :arealMax, :arealMean, :angularMax, :angularMean,
+	#              :sampled ]
+	#   note       Mercator: mean area x3.11 and largest x58.7; EqualEarth: area 1 everywhere and
+	#              mean bend 29.1 degrees
+	#   see        HoldsItsClaim, DistortionAt
+	#@ aka  THE WHOLE MAP AT ONCE, which is how two projections get compared.
 	def Distortion()
 		return This.DistortionXT(72, 36)
 
@@ -322,13 +372,12 @@ class stzGeoProjection from stzObject
 		return [ :arealMin = _v_[1], :arealMax = _v_[2], :arealMean = _v_[3],
 		         :angularMax = _v_[4], :angularMean = _v_[5], :sampled = _v_[6] ]
 
-	# DOES THIS PROJECTION KEEP ITS OWN PROMISE, measured rather than
-	# declared? An equal-area projection whose areal scale is not 1
-	# everywhere has a wrong formula, and so does a conformal one that
-	# bends an angle. It is the check that caught two real defects the day
-	# this gallery was written -- a Mollweide half with the wrong
-	# normalisation, and a symmetry claim made for a projection that is a
-	# triangle.
+	# TRUE if the measured distortion agrees with what the projection claims: area scale 1 for equal-area, no bend for conformal.
+	#
+	#   returns    TRUE or FALSE
+	#   note       A check on the formulas, not on a map
+	#   see        Distortion, IsEqualArea, IsConformal
+	#@ aka  DOES THIS PROJECTION KEEP ITS OWN PROMISE, measured rather than declared? An equal-area projection whose areal scale is not 1 everywhere has a wrong formula, and so does a conformal one that bends an angle. It is the check that caught two real defects the day this gallery was written -- a Mollweide half with the wrong normalisation, and a symmetry claim made for a projection that is a triangle.
 	def HoldsItsClaim()
 		_d_ = This.Distortion()
 		if len(_d_) = 0  return FALSE  ok
@@ -341,38 +390,62 @@ class stzGeoProjection from stzObject
 		ok
 		return TRUE
 
-	# TISSOT'S INDICATRIX AS A RING TO DRAW, in the paper's own coordinates.
+	# Returns the projected outline of a small circle of true radius pnRadiusDeg around a place, Tissot's indicatrix, 48 points.
 	#
-	# It is built by PROJECTING A SMALL CIRCLE rather than by drawing the
-	# ellipse the numbers above describe. The two agree in the limit and
-	# the first is the honest one: it shows what the projection actually
-	# does to a circle of that size, including the bending an ellipse
-	# cannot represent -- which at a radius anybody can see is not nothing.
+	#   pnLon         longitude in degrees east of the circle's centre
+	#   pnLat         latitude in degrees north of the circle's centre
+	#   pnRadiusDeg   radius of the circle on the ground, in degrees of arc
+	#   returns       a flat list of 96 numbers x, y, x, y, ... in paper units, to draw as a closed
+	#                 polygon
+	#   note          Built by projecting the circle, so it shows the bending an ellipse could not
+	#   see           DrawTissotOn, DistortionAt
+	#@ aka  TISSOT'S INDICATRIX AS A RING TO DRAW, in the paper's own coordinates.
 	def IndicatrixAt(pnLon, pnLat, pnRadiusDeg)
 		return This.IndicatrixAtXT(pnLon, pnLat, pnRadiusDeg, 48)
 
 	def IndicatrixAtXT(pnLon, pnLat, pnRadiusDeg, pnPoints)
 		return StzEngineGeoIndicatrix(This.Params(), pnLon, pnLat, pnRadiusDeg, pnPoints)
 
-	#-- what kind of lie this projection tells -----------------------------
-
+	# TRUE if the projection preserves areas, so a region of the ground has the same area on paper everywhere.
+	#
+	#   returns    TRUE or FALSE
+	#   note       A choropleth of a density wants this
+	#   see        IsConformal, HoldsItsClaim
+	#@ aka  -- what kind of lie this projection tells -----------------------------
 	def IsEqualArea()
 		return StzEngineGeoKindTraits(@nKind)[1] = 1
 
+	# TRUE if the projection preserves angles, so small shapes keep their form.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsEqualArea
 	def IsConformal()
 		return StzEngineGeoKindTraits(@nKind)[2] = 1
 
+	# TRUE if the projection is azimuthal, drawing the sphere around one centre point.
+	#
+	#   returns    TRUE or FALSE
+	#   see        ClipAngle, CenterOn
 	def IsAzimuthal()
 		return StzEngineGeoKindTraits(@nKind)[3] = 1
 
+	# TRUE if the projection is a cone developed on two standard parallels, whose name starts with Conic.
+	#
+	#   returns    TRUE or FALSE
+	#   note       Polyconic is not counted
+	#   see        Parallels
 	def IsConic()
 		_c_ = StzLower(This.Name())
 		return StzLeft(_c_, 5) = "conic"
 
-	#-- the parameters ------------------------------------------------------
-
-	# yaw, pitch, roll in degrees: d3's [lambda, phi, gamma]. To centre a
-	# globe on a place at (lon, lat), rotate by [-lon, -lat, 0].
+	# Turns the sphere under the map by yaw, pitch and roll, in degrees, as d3 does; a missing roll is 0.
+	#
+	#   paLPG      the rotation as [ yaw, pitch, roll ] in degrees, or [ yaw, pitch ]
+	#   returns    nothing; the rotation is stored
+	#   note       To put a place at (lon, lat) in the middle rotate by [ -lon, -lat, 0 ]. A roll
+	#              puts north somewhere other than up
+	#   see        CenterOn, RotationOf
+	#@ aka  -- the parameters ------------------------------------------------------
 	def Rotate(paLPG)
 		@aRot = [ paLPG[1], paLPG[2], 0 ]
 		if len(paLPG) >= 3  @aRot[3] = paLPG[3]  ok
@@ -381,6 +454,13 @@ class stzGeoProjection from stzObject
 			This.Rotate(paLPG)
 			return This
 
+	# Rotates the sphere so the place at (pnLon, pnLat) sits in the middle of the map.
+	#
+	#   pnLon      longitude in degrees east of the new centre
+	#   pnLat      latitude in degrees north of the new centre
+	#   returns    nothing; the rotation is stored
+	#   note       The same as Rotate([ -pnLon, -pnLat, 0 ])
+	#   see        Rotate, Center
 	def CenterOn(pnLon, pnLat)
 		This.Rotate([ -pnLon, -pnLat, 0 ])
 
@@ -388,6 +468,12 @@ class stzGeoProjection from stzObject
 			This.CenterOn(pnLon, pnLat)
 			return This
 
+	# Sets the standard parallels, in degrees north; a single number serves for both.
+	#
+	#   paP        a list with one or two latitudes in degrees
+	#   returns    nothing; the parallels are stored
+	#   note       Used by the conics and the cylindrical equal-area; Equirectangular ignores them
+	#   see        IsConic
 	def Parallels(paP)
 		@aPar = [ paP[1], paP[1] ]
 		if len(paP) >= 2  @aPar[2] = paP[2]  ok
@@ -396,6 +482,12 @@ class stzGeoProjection from stzObject
 			This.Parallels(paP)
 			return This
 
+	# Sets the scale factor, in paper units per radian of the unit sphere; the default is 150.
+	#
+	#   pn         the scale factor
+	#   returns    nothing; the scale is stored
+	#   note       A Fit method overwrites it
+	#   see        Translate, ScaleOf, FitToSphere
 	def Scale(pn)
 		@nScale = pn
 
@@ -403,6 +495,12 @@ class stzGeoProjection from stzObject
 			This.Scale(pn)
 			return This
 
+	# Sets where the centre of the projection falls on the paper; the default is 480, 250.
+	#
+	#   paXY       the paper position of the centre as [ x, y ]
+	#   returns    nothing; the translation is stored
+	#   note       It REPLACES the translation a Fit just computed instead of adding to it
+	#   see        Scale, TranslateOf
 	def Translate(paXY)
 		@nTx = paXY[1]
 		@nTy = paXY[2]
@@ -411,6 +509,13 @@ class stzGeoProjection from stzObject
 			This.Translate(paXY)
 			return This
 
+	# Sets the angle from the centre, in degrees, beyond which an azimuthal map shows nothing.
+	#
+	#   pn         the clip angle in degrees, 0 for no clipping
+	#   returns    nothing; the angle is stored
+	#   note       Defaults seen: 90 for Orthographic, 142 for Stereographic, 0 for Mercator. With
+	#              60, a place 70 degrees from the centre has no image
+	#   see        IsAzimuthal
 	def ClipAngle(pn)
 		@nClip = pn
 
@@ -418,6 +523,12 @@ class stzGeoProjection from stzObject
 			This.ClipAngle(pn)
 			return This
 
+	# Sets how closely lines follow curves: the tolerance, in paper units, below which the engine stops adding points.
+	#
+	#   pn         the tolerance, 0.7 by default and smaller for a smoother line
+	#   returns    nothing; the precision is stored
+	#   note       A straight parallel on Mercator needs no extra point whatever the value
+	#   see        Line, Ring
 	def Precision(pn)
 		@nPrecision = pn
 
@@ -425,19 +536,37 @@ class stzGeoProjection from stzObject
 			This.Precision(pn)
 			return This
 
+	# Returns the scale factor set by Scale or by a Fit method.
+	#
+	#   returns    a number
+	#   see        Scale, FitToSphere
 	def ScaleOf()
 		return @nScale
 
+	# Returns where the centre of the projection falls on the paper.
+	#
+	#   returns    a list [ x, y ]
+	#   see        Translate
 	def TranslateOf()
 		return [ @nTx, @nTy ]
 
+	# Returns the rotation as it is stored.
+	#
+	#   returns    a list [ yaw, pitch, roll ] in degrees
+	#   see        Rotate, CenterOn
 	def RotationOf()
 		return @aRot
 
-	#-- fitting -------------------------------------------------------------
-
-	# scale and place so the WHOLE sphere fills a w x h box with pad px of
-	# air: what a world map asks for
+	# Sets the scale and translation so the whole sphere fills a box of pnW by pnH at the origin, leaving pnPad of air.
+	#
+	#   pnW        width of the box in paper units
+	#   pnH        height of the box in paper units
+	#   pnPad      the empty margin kept on each side
+	#   returns    nothing; scale and translation are stored
+	#   note       Raises an error when nothing of the sphere projects. Mercator is cut at about 85
+	#              degrees
+	#   see        FitSphereIn, FitToPoints
+	#@ aka  -- fitting -------------------------------------------------------------
 	def FitToSphere(pnW, pnH, pnPad)
 		_pp_ = This.Params()
 		_a_ = StzEngineGeoFitSphere(_pp_, 0, 0, pnW, pnH, pnPad)
@@ -452,7 +581,17 @@ class stzGeoProjection from stzObject
 			This.FitToSphere(pnW, pnH, pnPad)
 			return This
 
-	# the same for a box [x0, y0, x1, y1] on a larger sheet
+	# Sets the scale and translation so the whole sphere fills the box x0, y0, x1, y1 on a larger sheet.
+	#
+	#   pnX0       left edge of the box
+	#   pnY0       top edge of the box
+	#   pnX1       right edge of the box
+	#   pnY1       bottom edge of the box
+	#   pnPad      the empty margin kept on each side
+	#   returns    nothing; scale and translation are stored
+	#   note       Raises an error when nothing of the sphere projects
+	#   see        FitToSphere, FitFeaturesIn
+	#@ aka  the same for a box [x0, y0, x1, y1] on a larger sheet
 	def FitSphereIn(pnX0, pnY0, pnX1, pnY1, pnPad)
 		_pp_ = This.Params()
 		_a_ = StzEngineGeoFitSphere(_pp_, pnX0, pnY0, pnX1, pnY1, pnPad)
@@ -467,8 +606,17 @@ class stzGeoProjection from stzObject
 			This.FitSphereIn(pnX0, pnY0, pnX1, pnY1, pnPad)
 			return This
 
-	# scale and place so these points fill the box: what a map of one
-	# country asks for
+	# Sets the scale and translation so the given places fill a box of pnW by pnH at the origin.
+	#
+	#   paLonLat   the places as one flat list lon, lat, lon, lat, ...
+	#   pnW        width of the box in paper units
+	#   pnH        height of the box in paper units
+	#   pnPad      the empty margin kept on each side
+	#   returns    nothing; scale and translation are stored
+	#   note       Raises an error when none of the points projects. Use it before Translate, never
+	#              after
+	#   see        FitPointsIn, FitToFeatures
+	#@ aka  scale and place so these points fill the box: what a map of one country asks for
 	def FitToPoints(paLonLat, pnW, pnH, pnPad)
 		_pp_ = This.Params()
 		_a_ = StzEngineGeoFitPoints(_pp_, paLonLat, 0, 0, pnW, pnH, pnPad)
@@ -483,11 +631,19 @@ class stzGeoProjection from stzObject
 			This.FitToPoints(paLonLat, pnW, pnH, pnPad)
 			return This
 
-	# scale and place so ALL the features fill the box. This is what "draw
-	# Tunisia" means, and it is NOT FitToSphere -- which fits the whole
-	# globe and leaves a country a speck in the middle of it. The first
-	# sheet of the three countries was drawn that way and came out as three
-	# clusters of labels over nothing at all.
+	# Sets the scale and translation so all the features of a set fill the box x0, y0, x1, y1: what drawing one country means.
+	#
+	#   poFeatures   a stzGeoFeatures holding the boundaries
+	#   pnX0         left edge of the box
+	#   pnY0         top edge of the box
+	#   pnX1         right edge of the box
+	#   pnY1         bottom edge of the box
+	#   pnPad        the empty margin kept on each side
+	#   returns      nothing; scale and translation are stored
+	#   note         The sheet shows only the fitted extent: one feature that lies far from the
+	#                rest, such as an island across the antimeridian, shrinks the rest to a speck
+	#   see          FitToFeatures, FitFeatureIn, FitSphereIn
+	#@ aka  scale and place so ALL the features fill the box. This is what "draw Tunisia" means, and it is NOT FitToSphere -- which fits the whole globe and leaves a country a speck in the middle of it. The first sheet of the three countries was drawn that way and came out as three clusters of labels over nothing at all.
 	def FitFeaturesIn(poFeatures, pnX0, pnY0, pnX1, pnY1, pnPad)
 		_pp_ = This.Params()
 		_a_ = StzEngineGeoFitPoints(_pp_, poFeatures.AllPoints(), pnX0, pnY0, pnX1, pnY1, pnPad)
@@ -502,15 +658,19 @@ class stzGeoProjection from stzObject
 			This.FitFeaturesIn(poFeatures, pnX0, pnY0, pnX1, pnY1, pnPad)
 			return This
 
-	# THE SIBLING FitFeaturesIn AND FitFeatureIn ALREADY HAD, and the one a
-	# caller needs to fit a WINDOW OF THE WORLD into a box: Mercator runs to
-	# infinity at the poles, so a world sheet on it is fitted to a lon/lat
-	# box cut at about 83 degrees rather than to the features themselves.
+	# Sets the scale and translation so the given places fill the box x0, y0, x1, y1 of a larger sheet.
 	#
-	# It exists because the first bloc sheet reached for FitToPoints and
-	# then Translate, and Translate REPLACES the translation the fit just
-	# computed rather than offsetting it -- so the map left the paper. A fit
-	# that takes its box is the method that was missing.
+	#   paLonLat   the places as one flat list lon, lat, lon, lat, ...
+	#   pnX0       left edge of the box
+	#   pnY0       top edge of the box
+	#   pnX1       right edge of the box
+	#   pnY1       bottom edge of the box
+	#   pnPad      the empty margin kept on each side
+	#   returns    nothing; scale and translation are stored
+	#   note       The way to fit a window of the world on a Mercator, which runs to infinity at the
+	#              poles
+	#   see        FitToPoints, FitFeaturesIn
+	#@ aka  THE SIBLING FitFeaturesIn AND FitFeatureIn ALREADY HAD, and the one a caller needs to fit a WINDOW OF THE WORLD into a box: Mercator runs to infinity at the poles, so a world sheet on it is fitted to a lon/lat box cut at about 83 degrees rather than to the features themselves.
 	def FitPointsIn(paLonLat, pnX0, pnY0, pnX1, pnY1, pnPad)
 		_pp_ = This.Params()
 		_a_ = StzEngineGeoFitPoints(_pp_, paLonLat, pnX0, pnY0, pnX1, pnY1, pnPad)
@@ -526,6 +686,14 @@ class stzGeoProjection from stzObject
 			This.FitPointsIn(paLonLat, pnX0, pnY0, pnX1, pnY1, pnPad)
 			return This
 
+	# Sets the scale and translation so all the features fill a box of pnW by pnH at the origin.
+	#
+	#   poFeatures   a stzGeoFeatures holding the boundaries
+	#   pnW          width of the box in paper units
+	#   pnH          height of the box in paper units
+	#   pnPad        the empty margin kept on each side
+	#   returns      nothing; scale and translation are stored
+	#   see          FitFeaturesIn, FitToFeature
 	def FitToFeatures(poFeatures, pnW, pnH, pnPad)
 		This.FitToPoints(poFeatures.AllPoints(), pnW, pnH, pnPad)
 
@@ -533,8 +701,16 @@ class stzGeoProjection from stzObject
 			This.FitToFeatures(poFeatures, pnW, pnH, pnPad)
 			return This
 
-	# scale and place so ONE feature fills the box: what "zoom to Tunisia"
-	# means, and what a caller does before drawing its governorates
+	# Sets the scale and translation so one feature fills a box of pnW by pnH at the origin: zoom to a country.
+	#
+	#   poFeatures   a stzGeoFeatures holding the boundaries
+	#   pnI          the position of the feature, from 1
+	#   pnW          width of the box in paper units
+	#   pnH          height of the box in paper units
+	#   pnPad        the empty margin kept on each side
+	#   returns      nothing; scale and translation are stored
+	#   see          FitFeatureIn, FitToFeatures
+	#@ aka  scale and place so ONE feature fills the box: what "zoom to Tunisia" means, and what a caller does before drawing its governorates
 	def FitToFeature(poFeatures, pnI, pnW, pnH, pnPad)
 		This.FitToPoints(poFeatures.PointsOf(pnI), pnW, pnH, pnPad)
 
@@ -542,6 +718,18 @@ class stzGeoProjection from stzObject
 			This.FitToFeature(poFeatures, pnI, pnW, pnH, pnPad)
 			return This
 
+	# Sets the scale and translation so one feature fills the box x0, y0, x1, y1 of a larger sheet.
+	#
+	#   poFeatures   a stzGeoFeatures holding the boundaries
+	#   pnI          the position of the feature, from 1
+	#   pnX0         left edge of the box
+	#   pnY0         top edge of the box
+	#   pnX1         right edge of the box
+	#   pnY1         bottom edge of the box
+	#   pnPad        the empty margin kept on each side
+	#   returns      nothing; scale and translation are stored
+	#   note         Raises an error when the feature projects nowhere
+	#   see          FitToFeature, FitFeaturesIn
 	def FitFeatureIn(poFeatures, pnI, pnX0, pnY0, pnX1, pnY1, pnPad)
 		_pp_ = This.Params()
 		_a_ = StzEngineGeoFitPoints(_pp_, poFeatures.PointsOf(pnI), pnX0, pnY0, pnX1, pnY1, pnPad)
@@ -556,60 +744,110 @@ class stzGeoProjection from stzObject
 			This.FitFeatureIn(poFeatures, pnI, pnX0, pnY0, pnX1, pnY1, pnPad)
 			return This
 
-	#-- the two questions ---------------------------------------------------
-
-	# where a place goes: [x, y] in pixels, or [] when it is behind the
-	# globe or has no image on this projection
+	# Returns the paper position of the place at longitude pnLon and latitude pnLat.
+	#
+	#   pnLon      longitude in degrees east
+	#   pnLat      latitude in degrees north
+	#   returns    a list [ x, y ] in paper units with y growing downward, or [ ] when the place is
+	#              behind a globe or has no image
+	#   note       LONGITUDE FIRST. Mercator at the defaults: Paris (2.35, 48.85) lands at [ 486.15,
+	#              103.03 ] and the pole has no image
+	#   see        Invert, Line
+	#@ aka  -- the two questions ---------------------------------------------------
 	def Project(pnLon, pnLat)
 		_pp_ = This.Params()
 		return StzEngineGeoProject(_pp_, pnLon, pnLat)
 
-	# what place a pixel is: [lon, lat], or [] off the sphere
+	# Returns the place under a paper position, the inverse of Project.
+	#
+	#   pnX        paper x
+	#   pnY        paper y
+	#   returns    a list [ lon, lat ] in degrees, or [ ] off the sphere
+	#   note       The paper centre of a Mercator at the defaults, 480 and 250, is [ 0, 0 ]
+	#   see        Project, Center
+	#@ aka  what place a pixel is: [lon, lat], or [] off the sphere
 	def Invert(pnX, pnY)
 		_pp_ = This.Params()
 		return StzEngineGeoInvert(_pp_, pnX, pnY)
 
-	#-- lines on paper ------------------------------------------------------
+	# Returns the visible stretches of a line given by places, resampled so a straight edge on the sphere bends as it should.
 	#
-	# Each answers PIECES: a list of flat [x1, y1, x2, y2, ...] polylines,
-	# one per visible stretch. A line that goes behind a globe or crosses
-	# the seam of a flat map comes back in two, cut exactly at the edge.
-
+	#   paLonLat   the line as one flat list lon, lat, lon, lat, ...
+	#   returns    a list of pieces, each a flat list x, y, x, y, ...; two pieces when the map's
+	#              seam or a globe's horizon cuts the line
+	#   note       The straight segment between two places is a great circle, not a parallel
+	#   see        Ring, Arc, DrawLineOn
+	#@ aka  -- lines on paper ------------------------------------------------------
 	def Line(paLonLat)
 		_pp_ = This.Params()
 		return StzEngineGeoProjectLine(_pp_, paLonLat)
 
-	# a ring as the LINES it is: pieces, cut where the map cuts them
+	# Returns a ring of places as the outline pieces the map leaves of it, cut where the map cuts them.
+	#
+	#   paLonLat   the ring as one flat list lon, lat, lon, lat, ...
+	#   returns    a list of pieces, each a flat list x, y, x, y, ...; not closed polygons
+	#   note       To fill a ring use FilledRing
+	#   see        FilledRing, Line
+	#@ aka  a ring as the LINES it is: pieces, cut where the map cuts them
 	def Ring(paLonLat)
 		_pp_ = This.Params()
 		return StzEngineGeoProjectRing(_pp_, paLonLat)
 
-	# a ring as the POLYGONS it is (GE0c): the same pieces, rejoined along
-	# the map's own edge so each one closes and can be filled. A country
-	# across the antimeridian comes back as two polygons that meet the two
-	# seams; a continent around the pole comes back as one that runs along
-	# the bottom of the map.
+	# Returns a ring of places as closed polygons, the pieces rejoined along the map's own edge so each can be filled.
+	#
+	#   paLonLat   the ring as one flat list lon, lat, lon, lat, ...
+	#   returns    a list of closed polygons, each a flat list x, y, x, y, ...; a ring across the
+	#              seam comes back as two
+	#   note       What DrawRingOn draws
+	#   see        Ring, DrawRingOn, FilledPolygon
+	#@ aka  a ring as the POLYGONS it is (GE0c): the same pieces, rejoined along the map's own edge so each one closes and can be filled. A country across the antimeridian comes back as two polygons that meet the two seams; a continent around the pole comes back as one that runs along the bottom of the map.
 	def FilledRing(paLonLat)
 		_pp_ = This.Params()
 		return StzEngineGeoProjectRingFilled(_pp_, paLonLat)
 
+	# Returns the meridians and parallels every pnStepDeg degrees as lines on the paper.
+	#
+	#   pnStepDeg   the spacing of the lines in degrees
+	#   returns     a list of pieces, each a flat list x, y, x, y, ...
+	#   note        The whole sphere, not only the part a fitted window shows
+	#   see         DrawGraticuleOn, Outline
 	def Graticule(pnStepDeg)
 		_pp_ = This.Params()
 		return StzEngineGeoGraticule(_pp_, pnStepDeg)
 
+	# Returns the edge of the world as pieces of line on the paper.
+	#
+	#   returns    a list of pieces, each a flat list x, y, x, y, ...
+	#   note       A globe's horizon is a circle; a flat map's is its seam and its poles
+	#   see        DrawOutlineOn, Graticule
 	def Outline()
 		_pp_ = This.Params()
 		return StzEngineGeoOutline(_pp_)
 
-	# the great circle between two places, as pieces
+	# Returns the great circle between two places as lines on the paper, 64 steps, cut where the map cuts it.
+	#
+	#   pnLon1     longitude of the start in degrees east
+	#   pnLat1     latitude of the start in degrees north
+	#   pnLon2     longitude of the end in degrees east
+	#   pnLat2     latitude of the end in degrees north
+	#   returns    a list of pieces, each a flat list x, y, x, y, ...
+	#   note       LONGITUDE FIRST, unlike stzGeoEllipsoid. The path is the sphere's great circle,
+	#              not the ellipsoid's geodesic
+	#   see        Line, DrawLineOn
+	#@ aka  the great circle between two places, as pieces
 	def Arc(pnLon1, pnLat1, pnLon2, pnLat2)
 		return This.Line(StzGeoArc(pnLon1, pnLat1, pnLon2, pnLat2, 64))
 
-	#-- drawing the base map on a canvas ------------------------------------
+	# Fills the world's outline with a colour and strokes its edge on a canvas: the sea or the sky of a map.
 	#
-	# The sphere's fill, the graticule and the outline: what every map
-	# stands on. Colours are the caller's; the shapes are the engine's.
-
+	#   poCanvas    the stzCanvas to draw on
+	#   pFill       the fill colour
+	#   pStroke     the edge colour
+	#   pnStrokeW   the edge width in pixels
+	#   returns     nothing; the polygon is added to the canvas
+	#   note        Draw it first
+	#   see         DrawGraticuleOn, DrawOutlineOn
+	#@ aka  -- drawing the base map on a canvas ------------------------------------
 	def DrawSphereOn(poCanvas, pFill, pStroke, pnStrokeW)
 		_a_ = This.Outline()
 		for _i_ = 1 to len(_a_)
@@ -618,6 +856,16 @@ class stzGeoProjection from stzObject
 			ok
 		next
 
+	# Draws the meridians and parallels every pnStep degrees on a canvas.
+	#
+	#   poCanvas    the stzCanvas to draw on
+	#   pnStepDeg   the spacing of the lines in degrees
+	#   pStroke     the line colour
+	#   pnStrokeW   the line width in pixels
+	#   returns     nothing; the lines are added to the canvas
+	#   note        It draws the whole sphere, so lines show outside a fitted window; draw your own
+	#               lines for a small area
+	#   see         Graticule, DrawSphereOn
 	def DrawGraticuleOn(poCanvas, pnStepDeg, pStroke, pnStrokeW)
 		_a_ = This.Graticule(pnStepDeg)
 		for _i_ = 1 to len(_a_)
@@ -626,6 +874,13 @@ class stzGeoProjection from stzObject
 			ok
 		next
 
+	# Strokes the edge of the world on a canvas.
+	#
+	#   poCanvas    the stzCanvas to draw on
+	#   pStroke     the line colour
+	#   pnStrokeW   the line width in pixels
+	#   returns     nothing; the line is added to the canvas
+	#   see         Outline, DrawSphereOn
 	def DrawOutlineOn(poCanvas, pStroke, pnStrokeW)
 		_a_ = This.Outline()
 		for _i_ = 1 to len(_a_)
@@ -634,6 +889,15 @@ class stzGeoProjection from stzObject
 			ok
 		next
 
+	# Strokes a line given by places on a canvas, cut where the map cuts it.
+	#
+	#   poCanvas    the stzCanvas to draw on
+	#   paLonLat    the line as one flat list lon, lat, lon, lat, ...
+	#   pStroke     the line colour
+	#   pnStrokeW   the line width in pixels
+	#   returns     nothing; the pieces are added to the canvas
+	#   note        Pass StzGeoArc or a geodesic from stzGeoEllipsoid for a route
+	#   see         Line, DrawRingOn
 	def DrawLineOn(poCanvas, paLonLat, pStroke, pnStrokeW)
 		_a_ = This.Line(paLonLat)
 		for _i_ = 1 to len(_a_)
@@ -642,12 +906,18 @@ class stzGeoProjection from stzObject
 			ok
 		next
 
-	# a ring, FILLED where it came back whole and stroked where the seam or
-	# the horizon cut it in two -- a cut piece is not a polygon and filling
-	# it would draw a shape the sphere does not have
-	# A RING, FILLED -- every piece of it. Since GE0c a cut ring comes back
-	# closed along the map's edge, so there is no longer a case where a
-	# region can only be outlined.
+	# Fills a ring of places with a colour and strokes its edge on a canvas, every piece of it.
+	#
+	#   poCanvas    the stzCanvas to draw on
+	#   paLonLat    the ring as one flat list lon, lat, lon, lat, ...
+	#   pFill       the fill colour
+	#   pStroke     the edge colour
+	#   pnStrokeW   the edge width in pixels
+	#   returns     nothing; the polygons are added to the canvas
+	#   note        Used for range rings and night caps. A transparent fill such as "#00000000"
+	#               gives an outline
+	#   see         FilledRing, DrawRingOutlineOn
+	#@ aka  a ring, FILLED where it came back whole and stroked where the seam or the horizon cut it in two -- a cut piece is not a polygon and filling it would draw a shape the sphere does not have A RING, FILLED -- every piece of it. Since GE0c a cut ring comes back closed along the map's edge, so there is no longer a case where a region can only be outlined.
 	def DrawRingOn(poCanvas, paLonLat, pFill, pStroke, pnStrokeW)
 		_a_ = This.FilledRing(paLonLat)
 		for _i_ = 1 to len(_a_)
@@ -656,19 +926,37 @@ class stzGeoProjection from stzObject
 			ok
 		next
 
-	# A POLYGON -- an outer ring and its HOLES (GE1) -- closed on the paper.
-	# paRings[1] is the outer edge; every ring after it is a hole, bridged
-	# into it so a lake inside a country is not filled in as land.
+	# Returns a polygon with its holes as closed shapes on the paper, each hole bridged into its outer ring.
+	#
+	#   paRings    the polygon as a list of rings, each a flat list lon, lat, ...: the outer ring
+	#              first, then the holes
+	#   returns    a list of closed polygons, each a flat list x, y, x, y, ...
+	#   note       A hole whose outer ring the map cuts cannot carry its bridge and is counted by
+	#              HolesDropped
+	#   see        HolesDropped, DrawFeatureOn
+	#@ aka  A POLYGON -- an outer ring and its HOLES (GE1) -- closed on the paper. paRings[1] is the outer edge; every ring after it is a hole, bridged into it so a lake inside a country is not filled in as land.
 	def FilledPolygon(paRings)
 		_pp_ = This.Params()
 		return StzEngineGeoProjectPolygonFilled(_pp_, paRings)
 
-	# how many holes the last FilledPolygon could not give: a hole whose
-	# outer ring the map cut cannot carry a bridge, and it is counted
+	# Returns how many holes the last FilledPolygon could not give, because the map cut their outer ring.
+	#
+	#   returns    a number, 0 when every hole was kept
+	#   note       A global count of the engine, not of this object
+	#   see        FilledPolygon
+	#@ aka  how many holes the last FilledPolygon could not give: a hole whose outer ring the map cut cannot carry a bridge, and it is counted
 	def HolesDropped()
 		return StzEngineGeoHolesDropped()
 
-	# ...and the same ring as an outline only, uncut and unfilled
+	# Strokes a ring of places as a line on a canvas, uncut and unfilled.
+	#
+	#   poCanvas    the stzCanvas to draw on
+	#   paLonLat    the ring as one flat list lon, lat, lon, lat, ...
+	#   pStroke     the line colour
+	#   pnStrokeW   the line width in pixels
+	#   returns     nothing; the lines are added to the canvas
+	#   see         DrawRingOn, Ring
+	#@ aka  ...and the same ring as an outline only, uncut and unfilled
 	def DrawRingOutlineOn(poCanvas, paLonLat, pStroke, pnStrokeW)
 		_a_ = This.Ring(paLonLat)
 		for _i_ = 1 to len(_a_)
@@ -677,10 +965,18 @@ class stzGeoProjection from stzObject
 			ok
 		next
 
-	#-- a whole feature, from a boundary file (GE1) -------------------------
-
-	# every part of it, each with its holes -- the islands DN24b's reader
-	# dropped and the lakes it filled in
+	# Draws one feature of a boundary file on a canvas: polygons with their parts and holes, lines as lines, points as circles.
+	#
+	#   poCanvas     the stzCanvas to draw on
+	#   poFeatures   a stzGeoFeatures holding the boundaries
+	#   pnI          the position of the feature, from 1
+	#   pFill        the fill colour
+	#   pStroke      the edge colour
+	#   pnStrokeW    the edge width in pixels, 0 for no edge
+	#   returns      nothing; the shapes are added to the canvas
+	#   note         A point is a circle of radius twice pnStrokeW, so a width of 0 draws no point
+	#   see          DrawFeaturesOn, FilledPolygon
+	#@ aka  -- a whole feature, from a boundary file (GE1) -------------------------
 	def DrawFeatureOn(poCanvas, poFeatures, pnI, pFill, pStroke, pnStrokeW)
 		if poFeatures.KindOf(pnI) = "line"
 			_a_ = poFeatures.PartsOf(pnI)
@@ -722,17 +1018,33 @@ class stzGeoProjection from stzObject
 			next
 		ok
 
+	# Draws every feature of a boundary file on a canvas in one fill and one edge colour.
+	#
+	#   poCanvas     the stzCanvas to draw on
+	#   poFeatures   a stzGeoFeatures holding the boundaries
+	#   pFill        the fill colour
+	#   pStroke      the edge colour
+	#   pnStrokeW    the edge width in pixels, 0 for no edge
+	#   returns      nothing; the shapes are added to the canvas
+	#   note         stzGeoMap colours each feature by its class instead
+	#   see          DrawFeatureOn
 	def DrawFeaturesOn(poCanvas, poFeatures, pFill, pStroke, pnStrokeW)
 		for _i_ = 1 to poFeatures.Count()
 			This.DrawFeatureOn(poCanvas, poFeatures, _i_, pFill, pStroke, pnStrokeW)
 		next
 
-	# fit the paper to everything a file holds
-	# TISSOT'S INDICATRIX: circles of one true size all over the sphere,
-	# projected. Where they stay round the projection keeps shapes; where
-	# they stay the same size it keeps areas; where they do neither it says
-	# so. The honest way to show what a projection does, and it needs no
-	# atlas at all.
+	# Draws circles of one true size all over the sphere, as Tissot's indicatrix shows what the projection does to shape and area.
+	#
+	#   poCanvas      the stzCanvas to draw on
+	#   pnRadiusDeg   radius of each circle on the ground in degrees of arc
+	#   pnStepDeg     the spacing of the circle centres in degrees
+	#   pFill         the fill colour
+	#   pStroke       the edge colour
+	#   returns       nothing; the polygons are added to the canvas
+	#   note          Centres run between 60 S and 60 N; on an azimuthal map a circle near the
+	#                 horizon is left out
+	#   see           IndicatrixAt, Distortion
+	#@ aka  fit the paper to everything a file holds TISSOT'S INDICATRIX: circles of one true size all over the sphere, projected. Where they stay round the projection keeps shapes; where they stay the same size it keeps areas; where they do neither it says so. The honest way to show what a projection does, and it needs no atlas at all.
 	def DrawTissotOn(poCanvas, pnRadiusDeg, pnStepDeg, pFill, pStroke)
 		# A CIRCLE THAT ENCLOSES THE ANTIPODE OF THE CENTRE IS INSIDE-OUT
 		# on an azimuthal map: its inside is everything, so filled it paints
@@ -751,13 +1063,22 @@ class stzGeoProjection from stzObject
 			next
 		next
 
-	# the place at the middle of the paper: what the rotation put there
+	# Returns the place at the middle of the paper: the point the rotation puts at the translation.
+	#
+	#   returns    a list [ lon, lat ] in degrees
+	#   see        CenterOn, Invert
+	#@ aka  the place at the middle of the paper: what the rotation put there
 	def Center()
 		_pp_ = This.Params()
 		return StzEngineGeoInvert(_pp_, @nTx, @nTy)
 
-	# the projection, named on the picture: a map that does not say how it
-	# was flattened is asserting what it cannot check
+	# Returns the projection written for a picture: its name, the parallels of a conic and the rotation if any.
+	#
+	#   returns    text such as "ConicEqualArea (13.67N, 21.56N) rotated -8.08, 0, 0"
+	#   warning    Defect: the parallels of a conic always carry an N, so 22.78 degrees south prints
+	#              as -22.78N.
+	#   see        stzGeoMap.Caption
+	#@ aka  the projection, named on the picture: a map that does not say how it was flattened is asserting what it cannot check
 	def Caption()
 		_c_ = This.Name()
 		if This.IsConic()

@@ -61,6 +61,31 @@ func _GeoModelName(pnK)
 	if pnK = 2  return "gaussian"  ok
 	return "unknown"
 
+# Holds measurements at places, rain gauges say, and estimates the value in between by inverse distance weighting or ordinary kriging, with the error kriging owes.
+#
+# The measurements are one flat list lon, lat, value, ... and the window is the ground the estimate
+# is made over and clipped to. Three answers, in the order an analyst uses them: IDWField (needs no
+# model, tells nothing of its error, never leaves the measured range), Variogram with FitVariogram
+# (the curve everything else is read from: nugget, sill and range) and KrigeFields, which returns
+# TWO fields, the estimate and its variance, together on purpose: the variance depends only on where
+# the gauges are and on the variogram, never on the values. A model must be adopted (FitAndUse)
+# before GammaAt, KrigeAt, KrigeFields and CrossValidate, which raise otherwise. Kriging expects a
+# field without a trend: for gauges whose value falls steadily to the north the fitted range is
+# longer than the window, and the estimate leaves the measured range by tens of thousands, with only
+# a warning from Findings. Pictures, each looked at by 'stzlib-docs visual pass (a model reading the
+# PNG)' on 2026-10-05: doc/gallery/stzGeoSamples/variogram_and_fit.png, gauges over an IDW surface
+# beside the variogram and its three fitted models, RIGHT; kriging_transect.png, the estimate with
+# isohyets and the doubt along a line, RIGHT (the band pinches at gauges and swells in gaps);
+# kriging_on_a_trend.png, the same method on a trend, WRONG (white inside the country marks kriged
+# values far outside the classes, see FINDINGS_geo.md). Index: doc/gallery/INDEX_geo.md.
+#
+#   receiver   o1 = new stzGeoSamples([ 2.1, 13.5, 100, 8.0, 15.0, 200, 5.0, 14.0, 150 ],
+#              StzGeoFeaturesFromJson(read("../graphics/niger_adm1.geojson")))
+#   example    ? o1.Count()
+#              #--> 3
+#              ? o1.MaxValue()
+#              #--> 200
+#   see        stzGeoField, stzGeoPoints, stzGeoFeatures
 class stzGeoSamples from stzObject
 	@aS = []
 	@oW = NULL
@@ -69,6 +94,14 @@ class stzGeoSamples from stzObject
 	@aModel = []
 	@nOutside = 0
 
+	# Builds the measurements from places with values and a window; raises an error for a list not in triples, an empty window or a non-number.
+	#
+	#   paLonLatValue   the measurements as one flat list lon, lat, value, lon, lat, value, ...
+	#   poWindow        the stzGeoFeatures of the ground the estimate is made over
+	#   returns         nothing; the samples are built
+	#   note            A measurement not made is left out, never entered as 0. Counts the gauges
+	#                   that fall outside the window
+	#   see             StzGeoSamples, Count
 	def init(paLonLatValue, poWindow)
 		if NOT isList(paLonLatValue) or len(paLonLatValue) % 3 != 0
 			stzraise("stzGeoSamples: the samples are a flat list " +
@@ -104,49 +137,99 @@ class stzGeoSamples from stzObject
 			if @oW.IndexAt(@aS[_i_ * 3 - 2], @aS[_i_ * 3 - 1]) = 0  @nOutside++  ok
 		next
 
+	# Returns the measurements as they were given.
+	#
+	#   returns    a flat list lon, lat, value, lon, lat, value, ...
+	#   see        Count, Values
 	def Samples()
 		return @aS
 
+	# Returns how many measurements there are.
+	#
+	#   returns    a number
+	#   see        Samples
 	def Count()
 		return len(@aS) / 3
 
+	# Returns the features that make the window.
+	#
+	#   returns    a stzGeoFeatures
+	#   see        WindowRings, Outside
 	def Window()
 		return @oW
 
+	# Returns the outer ring of every part of the window, the shape the engine takes.
+	#
+	#   returns    a list of flat lon, lat lists
+	#   see        Window
 	def WindowRings()
 		return @aRings
 
+	# Returns how many measurements lie outside the window.
+	#
+	#   returns    a number, 0 for a clean set
+	#   note       They weigh on the estimate and stand on none of its ground
+	#   see        Findings
 	def Outside()
 		return @nOutside
 
+	# Returns the value of measurement pnI.
+	#
+	#   pnI        the position of the measurement, from 1
+	#   returns    a number
+	#   warning    Defect: no range check, so a position of 0 or past the last raises error R2.
+	#   see        PlaceOf, Values
 	def ValueOf(pnI)
 		return @aS[pnI * 3]
 
+	# Returns where measurement pnI was made.
+	#
+	#   pnI        the position of the measurement, from 1
+	#   returns    a list [ lon, lat ] in degrees
+	#   warning    Defect: no range check, so a position of 0 or past the last raises error R2.
+	#   see        ValueOf
 	def PlaceOf(pnI)
 		return [ @aS[pnI * 3 - 2], @aS[pnI * 3 - 1] ]
 
+	# Returns the measured values, without their places.
+	#
+	#   returns    a list of numbers
+	#   see        MinValue, MaxValue, ValueOf
 	def Values()
 		_a_ = []
 		for _i_ = 1 to This.Count()  _a_ + @aS[_i_ * 3]  next
 		return _a_
 
+	# Returns the lowest measured value.
+	#
+	#   returns    a number
+	#   see        MaxValue, Values
 	def MinValue()
 		_a_ = This.Values()
 		_m_ = _a_[1]
 		for _i_ = 2 to len(_a_)  if _a_[_i_] < _m_  _m_ = _a_[_i_]  ok  next
 		return _m_
 
+	# Returns the highest measured value.
+	#
+	#   returns    a number
+	#   see        MinValue, Values
 	def MaxValue()
 		_a_ = This.Values()
 		_m_ = _a_[1]
 		for _i_ = 2 to len(_a_)  if _a_[_i_] > _m_  _m_ = _a_[_i_]  ok  next
 		return _m_
 
-	#-- 1. the baseline ----------------------------------------------------
-
-	# IDW as a field, clipped to the window. Power 2 is the usual default
-	# and is a CHOICE, not a fact: a higher power leans harder on the
-	# nearest gauge and makes bullseyes round each one.
+	# Returns an inverse-distance-weighted surface over the window as a stzGeoField, clipped to the window.
+	#
+	#   pnCellKm   the size of a grid cell in km
+	#   pnPower    how fast a gauge's vote falls with distance, 2 being usual and a higher power
+	#              giving bullseyes
+	#   returns    a stzGeoField, 28 columns by 22 rows for Niger at 60 km
+	#   note       Raises an error for a power of 0 or less. A weighted mean never leaves the
+	#              measured range, and says nothing of its own error
+	#   see        KrigeFields, stzGeoField
+	#@ aka  -- 1. the baseline ----------------------------------------------------
 	def IDWField(pnCellKm, pnPower)
 		if pnPower <= 0
 			stzraise("stzGeoSamples.IDWField: the power is positive -- it is how " +
@@ -159,17 +242,29 @@ class stzGeoSamples from stzObject
 		_f_.SetSource("inverse distance weighting, power " + pnPower)
 		return _f_
 
-	#-- 2. the diagnostic --------------------------------------------------
-
-	# [ [ h, gamma, pairs ], ... ]. pnMaxKm of 0 takes HALF the greatest
-	# distance in the data, which is the standard cut: beyond it only the
-	# opposite corners contribute and the far bins are a handful of pairs
-	# sharing the same few gauges.
+	# Returns half the mean squared difference of pairs of measurements, against their distance, in pnLags bins.
+	#
+	#   pnLags     how many distance bins
+	#   pnMaxKm    the greatest distance in km, 0 for half of the greatest distance in the data
+	#   returns    a list of [ h, gamma, pairs ]: the bin's distance in km, its semivariance and the
+	#              number of pairs
+	#   note       The diagnostic almost nobody draws: near 0 for close pairs, rising to a plateau,
+	#              the sill, at the range
+	#   see        FitVariogram, GammaAt
+	#@ aka  -- 2. the diagnostic --------------------------------------------------
 	def Variogram(pnLags, pnMaxKm)
 		return StzEngineGeoVariogram(@aS, pnLags, pnMaxKm)
 
-	# [ :model, :nugget, :sill, :range, :rss ] -- :Best fits all three and
-	# keeps the one with the least weighted residual
+	# Fits a variogram model to the data's 12-lag variogram and returns it, without adopting it.
+	#
+	#   pcModel    the model to fit: :Spherical, :Exponential, :Gaussian, or :Best to fit all three
+	#              and keep the least weighted residual
+	#   returns    a hash list [ :model, :nugget, :sill, :range, :rss ]; model is "spherical",
+	#              "exponential" or "gaussian"
+	#   note       Raises an error for another name or for fewer than two bins. Data with a trend
+	#              fits a range longer than the window
+	#   see        FitAndUse, SetModel, Variogram
+	#@ aka  [ :model, :nugget, :sill, :range, :rss ] -- :Best fits all three and keeps the one with the least weighted residual
 	def FitVariogram(pcModel)
 		return This.FitVariogramXT(This.Variogram(12, 0), pcModel)
 
@@ -183,7 +278,13 @@ class stzGeoSamples from stzObject
 		return [ :model = _GeoModelName(_a_[1]), :nugget = _a_[2], :sill = _a_[3],
 		         :range = _a_[4], :rss = _a_[5] ]
 
-	# the fitted model this object will krige with
+	# Adopts a fitted model as the one kriging uses.
+	#
+	#   paModel    a model as FitVariogram answers it, with at least four items
+	#   returns    nothing; the model is stored
+	#   note       Raises an error for anything shorter
+	#   see        Model, FitAndUse
+	#@ aka  the fitted model this object will krige with
 	def SetModel(paModel)
 		if NOT (isList(paModel) and len(paModel) >= 4)
 			stzraise("stzGeoSamples.SetModel: a model is what FitVariogram answers.")
@@ -194,10 +295,23 @@ class stzGeoSamples from stzObject
 			This.SetModel(paModel)
 			return This
 
+	# Returns the model kriging will use.
+	#
+	#   returns    a hash list [ :model, :nugget, :sill, :range, :rss ], or [ ] until one is set
+	#   see        SetModel, FitAndUse
 	def Model()
 		return @aModel
 
-	# fit and adopt in one move, which is what most callers want
+	# Fits a variogram model and adopts it in one move.
+	#
+	#   pcModel    the model to fit: :Spherical, :Exponential, :Gaussian, or :Best
+	#   returns    the fitted hash list [ :model, :nugget, :sill, :range, :rss ]
+	#   note       Kriging and GammaAt raise an error until a model is adopted
+	#   warning    Defect: on gauges with a trend the Gaussian fit reaches a range longer than the
+	#              window and the estimate leaves the measured range by tens of thousands (-30825 to
+	#              29761 for gauges of 180 to 799) while Findings only warns.
+	#   see        FitVariogram, KrigeFields
+	#@ aka  fit and adopt in one move, which is what most callers want
 	def FitAndUse(pcModel)
 		This.SetModel(This.FitVariogram(pcModel))
 		return @aModel
@@ -212,19 +326,28 @@ class stzGeoSamples from stzObject
 		return [ _GeoModelNumber(@aModel[:model]), @aModel[:nugget],
 		         @aModel[:sill], @aModel[:range], 0 ]
 
-	# gamma(h) under the fitted model, for drawing the curve over the cloud
+	# Returns the adopted model's semivariance at a distance, for drawing the curve over the variogram.
+	#
+	#   pnHkm      the distance in km
+	#   returns    a number; 0 at distance 0
+	#   note       Raises an error until a model is adopted
+	#   see        Variogram, FitAndUse
+	#@ aka  gamma(h) under the fitted model, for drawing the curve over the cloud
 	def GammaAt(pnHkm)
 		return StzEngineGeoVariogramAt(This._ModelNumbers(), pnHkm)
 
-	#-- 3. the answer, with its own doubt ----------------------------------
-
-	# [ estimate, variance ] as two stzGeoField, from ONE factorisation.
+	# Returns the ordinary-kriging estimate and its variance as two fields, from one factorisation.
 	#
-	# THEY COME BACK TOGETHER ON PURPOSE. A kriged surface published without
-	# its variance is the one abuse this method makes easy: it looks like
-	# measurement everywhere, and half of it is arithmetic over empty
-	# ground. Taking them apart is the caller's decision to make, not a
-	# default to stumble into.
+	#   pnCellKm   the size of a grid cell in km
+	#   returns    a list of two stzGeoField: the estimate, then the kriging variance with the unit
+	#              "kriging variance"
+	#   note       Raises an error with no model, with two gauges at one place that read
+	#              differently, or past 1200 gauges
+	#   warning    Defect: on gauges with a trend the Gaussian fit reaches a range longer than the
+	#              window and the estimate leaves the measured range by tens of thousands (-30825 to
+	#              29761 for gauges of 180 to 799) while Findings only warns.
+	#   see        KrigeAt, CrossValidate, IDWField
+	#@ aka  -- 3. the answer, with its own doubt ----------------------------------
 	def KrigeFields(pnCellKm)
 		_m_ = This._ModelNumbers()
 		_g_ = StzEngineGeoGridOver(@aBox, pnCellKm)
@@ -244,19 +367,38 @@ class stzGeoSamples from stzObject
 		_v_.SetSource("ordinary kriging variance, " + @aModel[:model] + " variogram")
 		return [ _e_, _v_ ]
 
-	# [ estimate, variance ] at one place
+	# Returns the kriging estimate and its variance at one place.
+	#
+	#   pnLon      longitude in degrees east
+	#   pnLat      latitude in degrees north
+	#   returns    a list [ estimate, variance ]; the variance is 0 at a gauge
+	#   note       LONGITUDE FIRST. Raises an error until a model is adopted. Far outside the window
+	#              it answers about the mean with a variance near the sill
+	#   see        KrigeFields, CrossValidate
+	#@ aka  [ estimate, variance ] at one place
 	def KrigeAt(pnLon, pnLat)
 		return StzEngineGeoKrigeAt(@aS, This._ModelNumbers(), pnLon, pnLat)
 
-	# [ :bias, :rmse ] by leave-one-out: every gauge predicted from all the
-	# others. The honest test of an interpolator and the one a report owes.
+	# Predicts every gauge from all the others and returns the average error and the root mean square error.
+	#
+	#   returns    a hash list [ :bias, :rmse ] in the units of the values
+	#   note       The honest test of an interpolator. Raises an error until a model is adopted
+	#   see        KrigeAt, Findings
+	#@ aka  [ :bias, :rmse ] by leave-one-out: every gauge predicted from all the others. The honest test of an interpolator and the one a report owes.
 	def CrossValidate()
 		_a_ = StzEngineGeoCrossValidate(@aS, This._ModelNumbers())
 		if len(_a_) < 2  return [ :bias = 0, :rmse = 0 ]  ok
 		return [ :bias = _a_[1], :rmse = _a_[2] ]
 
-	#-- what the gate owes an interpolation --------------------------------
-
+	# Returns what is wrong with the set: gauges outside the window, too few gauges, a range beyond the data, a nugget that is most of the sill.
+	#
+	#   returns    a list of [ :rule, :subject, :where, :severity, :message ]; [ ] when clean
+	#   note       The range rule is an error beyond the window's diagonal and a warning beyond half
+	#              of it; fewer than 20 gauges is a warning
+	#   warning    Defect: a kriging that leaves the measured range by tens of thousands is only a
+	#              warning (range over half the diagonal), so IsSound stays TRUE.
+	#   see        IsSound
+	#@ aka  -- what the gate owes an interpolation --------------------------------
 	def Findings()
 		_a_ = []
 		_c_ = "" + This.Count() + " samples in " + @oW.NameOf(1)
@@ -329,6 +471,11 @@ class stzGeoSamples from stzObject
 		ok
 		return _a_
 
+	# TRUE if the set has no finding of severity error.
+	#
+	#   returns    TRUE or FALSE
+	#   note       Warnings do not count, so a kriging that overshoots wildly can still be sound
+	#   see        Findings
 	def IsSound()
 		_a_ = This.Findings()
 		for _i_ = 1 to len(_a_)

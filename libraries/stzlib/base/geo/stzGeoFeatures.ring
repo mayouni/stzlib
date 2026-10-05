@@ -80,6 +80,32 @@ func StzGeoNameKeys()
 	         "NAME_LONG", "name_en", "shapeName", "shapeName_en",
 	         "title", "label", "id" ]
 
+# Holds the polygons, lines and points of a boundary file whole, every part and every hole, read from GeoJSON or TopoJSON, and answers what lies where.
+#
+# Build one with StzGeoFeaturesFromJson, StzGeoFeaturesFromTopoJson or StzGeoFeaturesFromJsonWhere,
+# which also compute the boxes that make point-in-region tests fast. Each feature is a kind, an id,
+# a hash list of properties and its parts; a polygon part is a list of rings, the first the outer
+# edge and every one after it a hole. Every ring is closed, whichever format it came from.
+# Coordinates are longitude then latitude, degrees, as both formats require, and every place-taking
+# method here is LONGITUDE FIRST (Contains, IndexAt, Within). Nothing is simplified or reprojected,
+# and this library vendors no boundary data: the atlas files are the caller's
+# (test/graphics/atlas/README.md). Areas are measured on WGS84. One trap in the windows: a feature
+# that crosses the antimeridian (Fiji, Russia, Antarctica) has a bounding box 360 degrees wide whose
+# middle falls anywhere, so Within and IndicesWithin take Fiji for an Africa window. Pictures, each
+# looked at by 'stzlib-docs visual pass (a model reading the PNG)' on 2026-10-05:
+# doc/gallery/stzGeoFeatures/parts_holes_lookup.png, parts, holes, an IndexAt raster of Niger and
+# South Africa's hole, RIGHT; doc/gallery/stzGeoFeatures/window_and_areas.png, the areas panel RIGHT
+# and the Within panel WRONG (Fiji is taken, see FINDINGS_geo.md); lines_points_kinds.png, a river,
+# wells and a lake with a hole read from GeoJSON, RIGHT. Index: doc/gallery/INDEX_geo.md.
+#
+#   receiver   o1 = StzGeoFeaturesFromJson(read("../graphics/fixtures/two_countries.geojson"))
+#   example    ? o1.Count()
+#              #--> 2
+#              ? o1.NameOf(2)
+#              #--> Berea
+#              ? o1.IndexAt(8, 5)
+#              #--> 2
+#   see        stzGeoMap, stzGeoProjection, stzGeoAtlas, stzGeoPoints
 class stzGeoFeatures from stzObject
 	@aFeat = []      # each: [ cKind, cId, aProps, aParts ]
 	@nSkipped = 0
@@ -105,8 +131,15 @@ class stzGeoFeatures from stzObject
 	# the measurement. It stands here as the number it actually is.
 	@aBox = []
 
-	#-- reading ------------------------------------------------------------
-
+	# Replaces the features with those of a GeoJSON text: a FeatureCollection, one Feature or a bare geometry; raises an error for anything else.
+	#
+	#   pcJson     the GeoJSON text to read
+	#   returns    nothing; the features are stored, and SkippedCount says how many geometries were
+	#              unusable
+	#   note       Called directly it does not compute the per-feature boxes that make Contains fast
+	#              (StzGeoFeaturesFromJson does); answers stay correct
+	#   see        ReadTopoJson, Count, SkippedCount
+	#@ aka  -- reading ------------------------------------------------------------
 	def ReadGeoJson(pcJson)
 		if NOT (isString(pcJson) and len(ring_trim(pcJson)) > 0)
 			stzraise("stzGeoFeatures: give the GeoJSON text to read.")
@@ -224,11 +257,16 @@ class stzGeoFeatures from stzObject
 		next
 		return _a_
 
-	# THE ARCS ARE SHARED AND THE NUMBERS ARE DELTAS. A TopoJSON stores each
-	# border once and every shape as the arcs that bound it; -1 means arc 0
-	# walked backwards (the format writes ~i, which is -i-1). The positions
-	# inside an arc are cumulative sums on a quantised grid and become
-	# degrees through the transform.
+	# Replaces the features with those of one object of a TopoJSON topology, its shared arcs decoded and every ring closed.
+	#
+	#   pcJson     the TopoJSON text to read
+	#   pcObject   the name of the object to take, such as "countries", or "" for the only or first
+	#              one
+	#   returns    nothing; the features are stored
+	#   note       Raises an error that names the objects the file holds when pcObject is not one of
+	#              them. The two readers give the same closed rings for the same border
+	#   see        ReadGeoJson, Count
+	#@ aka  THE ARCS ARE SHARED AND THE NUMBERS ARE DELTAS. A TopoJSON stores each border once and every shape as the arcs that bound it; -1 means arc 0 walked backwards (the format writes ~i, which is -i-1). The positions inside an arc are cumulative sums on a quantised grid and become degrees through the transform.
 	def ReadTopoJson(pcJson, pcObject)
 		if NOT (isString(pcJson) and len(ring_trim(pcJson)) > 0)
 			stzraise("stzGeoFeatures: give the TopoJSON text to read.")
@@ -374,36 +412,76 @@ class stzGeoFeatures from stzObject
 		next
 		return _out_
 
-	#-- what it holds -------------------------------------------------------
-
+	# Returns how many features the set holds.
+	#
+	#   returns    a number, 8 for Niger's regions and 177 for the 110m world
+	#   see        SkippedCount, NameOf
+	#@ aka  -- what it holds -------------------------------------------------------
 	def Count()
 		return len(@aFeat)
 
-	# how many geometries the reader could not use, counted rather than
-	# guessed at -- a record that drops counts what it dropped
+	# Returns how many geometries the last read could not use and left out.
+	#
+	#   returns    a number, 0 for a clean file
+	#   see        ReadGeoJson, Count
+	#@ aka  how many geometries the reader could not use, counted rather than guessed at -- a record that drops counts what it dropped
 	def SkippedCount()
 		return @nSkipped
 
+	# Returns what kind of shape feature pn is.
+	#
+	#   pn         the position of the feature, from 1
+	#   returns    one of the texts "polygon", "line" or "point"
+	#   see        PartsOf, DrawFeatureOn
 	def KindOf(pn)
 		return @aFeat[pn][1]
 
+	# Returns the id the file gives feature pn, as text.
+	#
+	#   pn         the position of the feature, from 1
+	#   returns    text, "" when the file gives none, "242" for Fiji in the 110m world
+	#   see        NameOf, IndexOfName
 	def IdOf(pn)
 		return @aFeat[pn][2]
 
+	# Returns the properties the file gives feature pn.
+	#
+	#   pn         the position of the feature, from 1
+	#   returns    a hash list of the file's own keys and values, [ ] when it has none
+	#   see        PropertyOf, NameOf
 	def PropertiesOf(pn)
 		return @aFeat[pn][3]
 
+	# Returns one property of feature pn, the value a map is coloured by.
+	#
+	#   pn         the position of the feature, from 1
+	#   pcKey      the property's key, case as in the file
+	#   returns    the value as the file wrote it, a number or text; "" when the feature lacks the
+	#              key
+	#   see        HasProperty, PropertiesOf
 	def PropertyOf(pn, pcKey)
 		_p_ = @aFeat[pn][3]
 		if isList(_p_) and HasKey(_p_, pcKey)  return _p_[pcKey]  ok
 		return ""
 
+	# TRUE if feature pn carries the property pcKey.
+	#
+	#   pn         the position of the feature, from 1
+	#   pcKey      the property's key, case as in the file
+	#   returns    TRUE or FALSE
+	#   see        PropertyOf
 	def HasProperty(pn, pcKey)
 		_p_ = @aFeat[pn][3]
 		return isList(_p_) and HasKey(_p_, pcKey)
 
-	# what the file calls it: the first of the usual name keys it carries,
-	# or its id, or "" -- and the caller who knows better says so themselves
+	# Returns what the file calls feature pn: the first of the usual name keys it carries, else its id.
+	#
+	#   pn         the position of the feature, from 1
+	#   returns    text; "Agadez" for Niger's first region, whose key is shapeName
+	#   note       The keys tried, in order: name, NAME, Name, nom, admin, ADMIN, NAME_EN,
+	#              NAME_LONG, name_en, shapeName, shapeName_en, title, label, id
+	#   see        IndexOfName, IdOf, StzGeoNameKeys
+	#@ aka  what the file calls it: the first of the usual name keys it carries, or its id, or "" -- and the caller who knows better says so themselves
 	def NameOf(pn)
 		_p_ = @aFeat[pn][3]
 		if isList(_p_)
@@ -414,6 +492,12 @@ class stzGeoFeatures from stzObject
 		ok
 		return @aFeat[pn][2]
 
+	# Returns the position of the feature the file calls pcName, ignoring case and surrounding blanks.
+	#
+	#   pcName     the name to look for, as NameOf would give it
+	#   returns    a number from 1, or 0 when no feature has that name
+	#   note       Exact match only: no accents folded, no alias. The atlas does that
+	#   see        NameOf, StzGeoAtlas.IndexOf
 	def IndexOfName(pcName)
 		_c_ = StzLower(ring_trim("" + pcName))
 		for _i_ = 1 to len(@aFeat)
@@ -421,19 +505,50 @@ class stzGeoFeatures from stzObject
 		next
 		return 0
 
+	# Returns every part of feature pn, each part a list of rings.
+	#
+	#   pn         the position of the feature, from 1
+	#   returns    a list of parts; each part is a list of flat lon, lat lists, the first the outer
+	#              edge and the rest holes
+	#   note       Every ring is closed, whichever file it came from
+	#   see        RingsOf, PartCount
 	def PartsOf(pn)
 		return @aFeat[pn][4]
 
+	# Returns how many parts feature pn has: 1 for a country in one piece, more with islands.
+	#
+	#   pn         the position of the feature, from 1
+	#   returns    a number, 3 for France in the 110m world (Guyane, the mainland, Corsica)
+	#   see        PartsOf, LargestPartOf
 	def PartCount(pn)
 		return len(@aFeat[pn][4])
 
-	# a part's rings: [1] is the outer edge, every one after it is a HOLE
+	# Returns the rings of one part of feature pn.
+	#
+	#   pn         the position of the feature, from 1
+	#   pnPart     the position of the part, from 1
+	#   returns    a list of flat lon, lat lists: the first is the outer edge and every one after it
+	#              is a hole
+	#   note       Raises an error when pnPart is past the last part
+	#   see        OuterRingOf, PartsOf
+	#@ aka  a part's rings: [1] is the outer edge, every one after it is a HOLE
 	def RingsOf(pn, pnPart)
 		return @aFeat[pn][4][pnPart]
 
+	# Returns the outer edge of one part of feature pn.
+	#
+	#   pn         the position of the feature, from 1
+	#   pnPart     the position of the part, from 1
+	#   returns    a flat list lon, lat, lon, lat, ..., closed
+	#   see        RingsOf, LargestPartOf
 	def OuterRingOf(pn, pnPart)
 		return @aFeat[pn][4][pnPart][1]
 
+	# Returns how many holes feature pn has, over all its parts.
+	#
+	#   pn         the position of the feature, from 1
+	#   returns    a number, 1 for South Africa in the 110m world, the hole being Lesotho
+	#   see        RingsOf, Contains
 	def HoleCountOf(pn)
 		_n_ = 0
 		_a_ = @aFeat[pn][4]
@@ -442,7 +557,13 @@ class stzGeoFeatures from stzObject
 		next
 		return _n_
 
-	# every lon/lat this feature holds, flat -- what FitToPoints takes
+	# Returns every place of feature pn, holes included, as one flat list.
+	#
+	#   pn         the position of the feature, from 1
+	#   returns    a flat list lon, lat, lon, lat, ...
+	#   note       What the FitTo methods of stzGeoProjection take
+	#   see        AllPoints, BoundsOf
+	#@ aka  every lon/lat this feature holds, flat -- what FitToPoints takes
 	def PointsOf(pn)
 		_a_ = []
 		_p_ = @aFeat[pn][4]
@@ -454,6 +575,10 @@ class stzGeoFeatures from stzObject
 		next
 		return _a_
 
+	# Returns every place of every feature as one flat list.
+	#
+	#   returns    a flat list lon, lat, lon, lat, ...
+	#   see        PointsOf, Bounds
 	def AllPoints()
 		_a_ = []
 		for _i_ = 1 to len(@aFeat)
@@ -462,23 +587,33 @@ class stzGeoFeatures from stzObject
 		next
 		return _a_
 
-	# [ lonMin, latMin, lonMax, latMax ]
+	# Returns the box around feature pn, in longitude and latitude.
+	#
+	#   pn         the position of the feature, from 1
+	#   returns    a list [ lonMin, latMin, lonMax, latMax ] in degrees, [ 0, 0, 0, 0 ] for a
+	#              feature with no point
+	#   note       A feature that crosses the antimeridian, such as Fiji or Russia, has a box 360
+	#              degrees wide: its middle is then no place at all
+	#   see        Bounds, IndicesWithin
+	#@ aka  [ lonMin, latMin, lonMax, latMax ]
 	def BoundsOf(pn)
 		return _GeoLonLatBounds(This.PointsOf(pn))
 
+	# Returns the box around the whole set, in longitude and latitude.
+	#
+	#   returns    a list [ lonMin, latMin, lonMax, latMax ] in degrees; [ 0.17, 11.70, 16.00, 23.53
+	#              ] for Niger
+	#   see        BoundsOf, AllPoints
 	def Bounds()
 		return _GeoLonLatBounds(This.AllPoints())
 
-	# the biggest part by point count -- the mainland, and the only thing
-	# DN24b's reader ever kept
-	# A FEATURE'S AREA ON THE SPHERE, km2, with its holes taken out and all
-	# its parts added in. This lived in stzGeoMap.ValuesFromArea and moved
-	# here when the point patterns (GE7a) needed a window's area and the
-	# map's own copy would have been a second one -- duplicated logic
-	# diverges, and it diverges in cost first.
-	# THE AREA OF A FEATURE, km2, ON WGS84 SINCE GE8 -- outer rings added
-	# and holes taken out, which is what makes a country with a lake come
-	# out as the land and not as the outline.
+	# Returns the area of feature pn in square kilometres, measured on WGS84, outer rings added and holes taken out.
+	#
+	#   pn         the position of the feature, from 1
+	#   returns    a number of km2; 621917.6 for Niger's Agadez region
+	#   note       Meaningful for polygons only
+	#   see        AreasKm2, AreaKm2
+	#@ aka  the biggest part by point count -- the mainland, and the only thing DN24b's reader ever kept A FEATURE'S AREA ON THE SPHERE, km2, with its holes taken out and all its parts added in. This lived in stzGeoMap.ValuesFromArea and moved here when the point patterns (GE7a) needed a window's area and the map's own copy would have been a second one -- duplicated logic diverges, and it diverges in cost fir
 	def AreaKm2Of(pn)
 		_s_ = 0
 		for _k_ = 1 to This.PartCount(pn)
@@ -491,19 +626,33 @@ class stzGeoFeatures from stzObject
 		next
 		return _s_
 
-	# every feature's area, in feature order
+	# Returns the area of every feature, in the features' own order.
+	#
+	#   returns    a list of numbers in km2
+	#   see        AreaKm2Of, AreaKm2
+	#@ aka  every feature's area, in feature order
 	def AreasKm2()
 		_a_ = []
 		for _i_ = 1 to This.Count()  _a_ + This.AreaKm2Of(_i_)  next
 		return _a_
 
-	# the whole set's area: what a point pattern observed over all of it
-	# divides by
+	# Returns the area of the whole set, the sum over its features, in square kilometres.
+	#
+	#   returns    a number of km2; 1183623.9 for Niger's eight regions
+	#   note       The window area a point pattern's density divides by
+	#   see        AreasKm2, stzGeoPoints.AreaKm2
+	#@ aka  the whole set's area: what a point pattern observed over all of it divides by
 	def AreaKm2()
 		_s_ = 0
 		for _i_ = 1 to This.Count()  _s_ += This.AreaKm2Of(_i_)  next
 		return _s_
 
+	# Returns the position of the part of feature pn whose outer ring has the most points: the mainland.
+	#
+	#   pn         the position of the feature, from 1
+	#   returns    a number from 1
+	#   note       Counts points, not area
+	#   see        PartCount, OuterRingOf
 	def LargestPartOf(pn)
 		_a_ = @aFeat[pn][4]
 		_best_ = 1
@@ -516,12 +665,15 @@ class stzGeoFeatures from stzObject
 		next
 		return _best_
 
-	# is this place inside this feature? Any part counts; a hole excludes.
+	# TRUE if the place lies inside feature pn: in one of its parts and in none of that part's holes.
 	#
-	# THE BOX FIRST. A ring test walks every edge; a box test is four
-	# comparisons, and for a point that is not in this region -- which is
-	# almost every pair a spatial join asks about -- the box is the whole
-	# answer.
+	#   pn         the position of the feature, from 1
+	#   pnLon      longitude of the place in degrees east
+	#   pnLat      latitude of the place in degrees north
+	#   returns    TRUE or FALSE
+	#   note       LONGITUDE FIRST. On the fixtures a point in Arda's lake answers FALSE
+	#   see        IndexAt, PartContains
+	#@ aka  is this place inside this feature? Any part counts; a hole excludes.
 	def Contains(pn, pnLon, pnLat)
 		if len(@aBox) >= pn
 			_bx_ = @aBox[pn]
@@ -541,9 +693,16 @@ class stzGeoFeatures from stzObject
 		next
 		return FALSE
 
-	# is this place inside ONE PART of this feature? What a label placer
-	# asks: a name belongs in the part it was measured against, not merely
-	# somewhere in the country.
+	# TRUE if the place lies inside one part of feature pn and in none of that part's holes.
+	#
+	#   pn         the position of the feature, from 1
+	#   pnK        the position of the part, from 1
+	#   pnLon      longitude of the place in degrees east
+	#   pnLat      latitude of the place in degrees north
+	#   returns    TRUE or FALSE
+	#   note       FALSE when pnK is past the last part
+	#   see        Contains
+	#@ aka  is this place inside ONE PART of this feature? What a label placer asks: a name belongs in the part it was measured against, not merely somewhere in the country.
 	def PartContains(pn, pnK, pnLon, pnLat)
 		_a_ = @aFeat[pn][4]
 		if pnK < 1 or pnK > len(_a_)  return FALSE  ok
@@ -553,19 +712,27 @@ class stzGeoFeatures from stzObject
 		next
 		return TRUE
 
-	# which feature is at this place, or 0 -- what a click will ask
+	# Returns the position of the first feature that contains a place: what a click asks.
+	#
+	#   pnLon      longitude of the place in degrees east
+	#   pnLat      latitude of the place in degrees north
+	#   returns    a number from 1, or 0 for the sea or for nothing
+	#   note       LONGITUDE FIRST. A place on a shared border goes to the first feature that claims
+	#              it
+	#   see        Contains, stzGeoMap.FeatureAt
+	#@ aka  which feature is at this place, or 0 -- what a click will ask
 	def IndexAt(pnLon, pnLat)
 		for _i_ = 1 to len(@aFeat)
 			if This.Contains(_i_, pnLon, pnLat)  return _i_  ok
 		next
 		return 0
 
-	#-- taking part of a file ------------------------------------------------
-
-	# SOME OF THE FEATURES, as a feature set of their own. Everything else
-	# -- the map, the atlas, the rules -- takes a feature set, so a subset
-	# is a first-class thing and not a list of indices the caller has to
-	# carry around beside it.
+	# Returns a new set made of the features at the given positions, in that order.
+	#
+	#   paIndices   a list of feature positions, from 1
+	#   returns     a stzGeoFeatures; positions out of range are skipped
+	#   see         Within, Adopt
+	#@ aka  -- taking part of a file ------------------------------------------------
 	def Subset(paIndices)
 		_o_ = new stzGeoFeatures
 		_a_ = []
@@ -577,6 +744,12 @@ class stzGeoFeatures from stzObject
 		_o_.Adopt(_a_)
 		return _o_
 
+	# Replaces the features with raw records and recomputes the boxes.
+	#
+	#   paFeat     a list of records [ kind, id, properties, parts ] as Subset builds them
+	#   returns    nothing; the features are stored
+	#   note       Used by Subset
+	#   see        Subset
 	def Adopt(paFeat)
 		@aFeat = paFeat
 		@nSkipped = 0
@@ -589,10 +762,17 @@ class stzGeoFeatures from stzObject
 			@aBox + This.BoundsOf(_i_)
 		next
 
-	# THE FEATURES WHOSE MIDDLE FALLS IN A BOX, by index. What "metropolitan
-	# France" means to a file that also carries Réunion and Guyane: not a
-	# political statement, a WINDOW -- the caller says which piece of the
-	# world they are drawing, and the file is unchanged.
+	# Returns the positions of the features whose bounding box has its middle inside a box of longitude and latitude.
+	#
+	#   pnLon0     western edge in degrees east
+	#   pnLat0     southern edge in degrees north
+	#   pnLon1     eastern edge in degrees east
+	#   pnLat1     northern edge in degrees north
+	#   returns    a list of numbers
+	#   warning    Defect: a feature across the antimeridian has a box 360 degrees wide whose middle
+	#              is longitude 0, so Fiji is taken by a window around Africa.
+	#   see        Within, BoundsOf
+	#@ aka  THE FEATURES WHOSE MIDDLE FALLS IN A BOX, by index. What "metropolitan France" means to a file that also carries Réunion and Guyane: not a political statement, a WINDOW -- the caller says which piece of the world they are drawing, and the file is unchanged.
 	def IndicesWithin(pnLon0, pnLat0, pnLon1, pnLat1)
 		_a_ = []
 		for _i_ = 1 to len(@aFeat)
@@ -606,12 +786,27 @@ class stzGeoFeatures from stzObject
 		next
 		return _a_
 
+	# Returns a new set of the features whose bounding box has its middle inside a box of longitude and latitude.
+	#
+	#   pnLon0     western edge in degrees east
+	#   pnLat0     southern edge in degrees north
+	#   pnLon1     eastern edge in degrees east
+	#   pnLat1     northern edge in degrees north
+	#   returns    a stzGeoFeatures
+	#   note       Metropolitan France is a window, not a political claim
+	#   warning    Defect: the same antimeridian trap as IndicesWithin: Fiji is taken by a window
+	#              around Africa.
+	#   see        IndicesWithin, Subset
 	def Within(pnLon0, pnLat0, pnLon1, pnLat1)
 		return This.Subset(This.IndicesWithin(pnLon0, pnLat0, pnLon1, pnLat1))
 
-	# the regions the choropleth builder takes, so a file read here can go
-	# straight into DN24's picture: [ name, value, flatOuterRing ] each,
-	# from the LARGEST part of every feature
+	# Returns the polygons as the regions the older choropleth builder takes, each from its largest part.
+	#
+	#   pcValueKey   the property that gives each region's value
+	#   returns      a list of [ name, value, flat outer ring ]; the value is "" when the feature
+	#                lacks pcValueKey; lines and points are left out
+	#   see          PropertyOf, LargestPartOf
+	#@ aka  the regions the choropleth builder takes, so a file read here can go straight into DN24's picture: [ name, value, flatOuterRing ] each, from the LARGEST part of every feature
 	def AsRegions(pcValueKey)
 		_a_ = []
 		for _i_ = 1 to len(@aFeat)

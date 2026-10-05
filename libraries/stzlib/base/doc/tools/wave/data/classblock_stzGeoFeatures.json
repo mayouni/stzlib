@@ -1,0 +1,19 @@
+{
+ "brief": "Holds the polygons, lines and points of a boundary file whole, every part and every hole, read from GeoJSON or TopoJSON, and answers what lies where.",
+ "detail": "Build one with StzGeoFeaturesFromJson, StzGeoFeaturesFromTopoJson or StzGeoFeaturesFromJsonWhere, which also compute the boxes that make point-in-region tests fast. Each feature is a kind, an id, a hash list of properties and its parts; a polygon part is a list of rings, the first the outer edge and every one after it a hole. Every ring is closed, whichever format it came from. Coordinates are longitude then latitude, degrees, as both formats require, and every place-taking method here is LONGITUDE FIRST (Contains, IndexAt, Within). Nothing is simplified or reprojected, and this library vendors no boundary data: the atlas files are the caller's (test/graphics/atlas/README.md). Areas are measured on WGS84. One trap in the windows: a feature that crosses the antimeridian (Fiji, Russia, Antarctica) has a bounding box 360 degrees wide whose middle falls anywhere, so Within and IndicesWithin take Fiji for an Africa window. Pictures, each looked at by 'stzlib-docs visual pass (a model reading the PNG)' on 2026-10-05: doc/gallery/stzGeoFeatures/parts_holes_lookup.png, parts, holes, an IndexAt raster of Niger and South Africa's hole, RIGHT; doc/gallery/stzGeoFeatures/window_and_areas.png, the areas panel RIGHT and the Within panel WRONG (Fiji is taken, see FINDINGS_geo.md); lines_points_kinds.png, a river, wells and a lake with a hole read from GeoJSON, RIGHT. Index: doc/gallery/INDEX_geo.md.",
+ "receiver": "o1 = StzGeoFeaturesFromJson(read(\"../graphics/fixtures/two_countries.geojson\"))",
+ "example": [
+  "? o1.Count()",
+  "#--> 2",
+  "? o1.NameOf(2)",
+  "#--> Berea",
+  "? o1.IndexAt(8, 5)",
+  "#--> 2"
+ ],
+ "see": [
+  "stzGeoMap",
+  "stzGeoProjection",
+  "stzGeoAtlas",
+  "stzGeoPoints"
+ ]
+}

@@ -1,0 +1,18 @@
+{
+ "brief": "Holds the choice of how to flatten the sphere: one of 44 named projections with its rotation, parallels, scale and clip, and answers where a place goes on paper and what place a pixel is.",
+ "detail": "The object keeps eleven numbers (Params) and crosses the bridge to the engine with them on every call, so the Ring object is the single source of truth. Project takes LONGITUDE FIRST, then latitude, and answers paper units with y growing downward, or an empty list for a place behind a globe or without an image; Invert goes back. A new projection has scale 150 and translation 480, 250: use a Fit method (FitToSphere, FitSphereIn for the world, FitFeaturesIn, FitPointsIn, FitFeatureIn for a place) to put the picture in the box you draw in. Lines come back as pieces, cut where a flat map's seam or a globe's horizon cuts them. The sphere is a sphere: no projection here uses an ellipsoid (stzGeoEllipsoid measures on one). IsEqualArea and IsConformal say what the projection claims, Distortion and HoldsItsClaim measure it, and stzGeoMap refuses a choropleth on a projection that is not equal-area. Pictures, each looked at by 'stzlib-docs visual pass (a model reading the PNG)' on 2026-10-05: doc/gallery/stzGeoProjection/projections_compared.png, six projections with Tissot circles, RIGHT (Mercator circles swell toward the poles, the equal-area ones keep their size and squash); globe_routes.png, an orthographic globe with great-circle routes and range rings, RIGHT; niger_conic_utm.png, Niger on a conic and on a Mercator, RIGHT (the printed area scales 1.06 and 1.18 are the secant squared of 13.5 and 23 degrees). Index: doc/gallery/INDEX_geo.md.",
+ "receiver": "o1 = new stzGeoProjection(:Mercator)",
+ "example": [
+  "? o1.Name()",
+  "#--> Mercator",
+  "? o1.IsConformal()",
+  "#--> 1",
+  "? @@( o1.Project(2.35, 48.85) )",
+  "#--> [ 486.15, 103.03 ]"
+ ],
+ "see": [
+  "stzGeoMap",
+  "stzGeoFeatures",
+  "stzGeoEllipsoid"
+ ]
+}
