@@ -92,9 +92,19 @@ func StzSecurityEventKinds()
 		[ "sig.signature.forged",         "error",   "T1550",     "an HMAC signature did not match (forged, tampered, or wrong key)" ],
 		[ "sig.timestamp.stale",          "warning", "T1550",     "a signed request fell outside the freshness window" ],
 		[ "sig.key.unknown",              "warning", "T1078",     "a request was signed with an unknown key id" ],
+		# Webhooks (payments PY3): the hub tells the platform that money moved by POSTing an event,
+		# and anyone who can reach the callback can POST too. Four refusals, four kinds.
+		[ "webhook.unsigned",             "warning", "T1190",     "a webhook arrived with no signature at all" ],
+		[ "webhook.signature.forged",     "error",   "T1550",     "a webhook signature did not recompute (tampered body, or a secret the platform does not hold)" ],
+		[ "webhook.replayed",             "error",   "T1550",     "a webhook that was already believed was presented again" ],
+		[ "webhook.malformed",            "warning", "T1190",     "a correctly signed webhook was not an event envelope" ],
 		[ "secret.reveal.granted",        "info",    "T1552",     "a secret was revealed to an entitled actor" ],
 		[ "secret.reveal.refused",        "error",   "T1552",     "a secret reveal was refused" ],
 		[ "secret.rotated",               "info",    "",          "a secret was replaced by a fresh value" ],
+		# Expiry is a detection the ledger raises (payments PY3): an mTLS certificate that lapses is
+		# the outage nobody schedules. The watch writes these; a detection reads them.
+		[ "secret.expiring",              "warning", "",          "a secret with an expiry date is inside its warning window" ],
+		[ "secret.expired",               "error",   "",          "a secret with an expiry date is past it" ],
 		[ "capability.revoked",           "info",    "",          "an actor's path to a capability was cut" ],
 		[ "agent.quarantined",            "warning", "",          "an agent was quarantined -- containment's :QuarantinePart" ],
 		[ "agent.released",               "info",    "",          "a quarantined agent was released" ],

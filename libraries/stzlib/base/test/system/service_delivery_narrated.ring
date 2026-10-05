@@ -262,6 +262,37 @@ Scenario("ONE CI gate: the outside world joins the other domains")
 	Then("it simply has nothing to say about services", oP2.NumberOfFindings(), 0)
 EndScenario()
 
+Scenario("a part destined for production must not depend on a CONFORMANCE service either")
+	# virtual money is not a fake in the sense a mail sink is, and it is not shippable either.
+	oReg = new stzServiceRegistry("shop")
+	oReg.DeclareMany([ :payments ])
+	oReg.BindConformance(:payments, new stzString("pispi-sandbox-adapter"), "pispi-sandbox-client")
+
+	oDel = new stzDelivery("shop")
+	oDel.AddBackend("api", "linux")
+	oDel.AddApp("web", "browser")
+	oDel.UseServicesQ(oReg)
+	oDel.NeedsServiceInQ("api", [ :payments ])
+	oDel.DeployTo(StzDeploymentSiteQ("host1"), "api")
+
+	Then("the phase is still development, so the registry says nothing", len(oReg.Findings()), 0)
+	aF = StzCheckServiceDelivery(oDel)
+	Then("but the part bound for a real site is named", len(aF), 1)
+	Then("...for depending on virtual money", aF[1][:rule], "production-part-uses-conformance")
+	Then("...on the PART, not the service", aF[1][:where], "api")
+	Then("...as an error", aF[1][:severity], "error")
+	Then("...saying the money behind it is virtual", StzFindFirst("VIRTUAL money", aF[1][:message]) > 0, TRUE)
+
+	oReg2 = new stzServiceRegistry("shop2")
+	oReg2.BindLive(:payments, new stzString("pispi-bia-adapter"), "pispi-bia-client")
+	oDel2 = new stzDelivery("shop2")
+	oDel2.AddBackend("api", "linux")
+	oDel2.UseServicesQ(oReg2)
+	oDel2.NeedsServiceInQ("api", [ :payments ])
+	oDel2.DeployTo(StzDeploymentSiteQ("host1"), "api")
+	Then("bound to a live adapter, the same part is clean", len(StzCheckServiceDelivery(oDel2)), 0)
+EndScenario()
+
 if fexists(CurrentDir() + "/_p7test.db")  remove(CurrentDir() + "/_p7test.db") ok
 
 Summary()

@@ -148,6 +148,83 @@ class stzRequestSigner from stzObject
 		return This.VerifyNow(paEnvelope[:kid], pcMethod, pcPath, pcBody,
 			paEnvelope[:ts], paEnvelope[:nonce], paEnvelope[:sig], pnMaxSkewMs)
 
+	#-- the body-only form: a WEBHOOK's X-Signature -------------------------
+	#
+	# A participant signs the RAW BODY it POSTs, nothing else: no method, no path, no
+	# timestamp, no nonce. That is a different message from the canonical string above and
+	# the same job: a keyed MAC, compared in constant time, with a replay cache and a
+	# ledger line for every refusal. The HMAC runs in the engine.
+
+	# The signature of a body under a key's secret, as hex. Raises on an unknown key.
+	def SignBody(pcKeyId, pcBody)
+		_i_ = This._KeyIndex("" + pcKeyId)
+		if _i_ = 0
+			stzraise("stzRequestSigner.SignBody: unknown key '" + pcKeyId + "'.")
+		ok
+		return This._Hmac("" + pcBody, @aKeys[_i_][2])
+
+	# Does this body carry the signature this key would give it? No replay check: one body,
+	# one key. Why() explains a refusal, and the ledger hears it.
+	def VerifyBody(pcKeyId, pcBody, pcSig)
+		@cWhy = ""
+		_i_ = This._KeyIndex("" + pcKeyId)
+		if _i_ = 0
+			@cWhy = "unknown key '" + pcKeyId + "'"
+			return 0
+		ok
+		if NOT isString(pcSig) or pcSig = ""
+			@cWhy = "unsigned"
+			StzNoteRefusal("webhook.unsigned", @cName, "body:" + StzLen("" + pcBody) + " bytes", @cWhy)
+			return 0
+		ok
+		_cExpect_ = This._Hmac("" + pcBody, @aKeys[_i_][2])
+		if NOT This._SecureEq(_cExpect_, "" + pcSig)
+			@cWhy = "signature mismatch (tampered body, or the wrong key)"
+			StzNoteRefusal("webhook.signature.forged", @cName, "key:" + pcKeyId, @cWhy)
+			return 0
+		ok
+		return 1
+
+	# THE WEBHOOK VERIFIER. A hub renews a webhook's secret on a date, so a receiver may hold
+	# the old and the new at once: try every key, and answer WHICH one signed it ("" when none).
+	# A refusal is ONE ledger line, not one per key tried:
+	#   unsigned  no signature at all
+	#   forged    no key recomputes it
+	#   replayed  a body already believed, inside the window (pnWindowMs from pnNowMs)
+	# Outside the window the same body is a fresh delivery again: the cache is bounded by the
+	# window, not by traffic. Why() explains.
+	def VerifyWebhook(pcBody, pcSig, pnNowMs, pnWindowMs)
+		@cWhy = ""
+		if NOT isString(pcSig) or pcSig = ""
+			@cWhy = "unsigned"
+			StzNoteRefusal("webhook.unsigned", @cName, "body:" + StzLen("" + pcBody) + " bytes", @cWhy)
+			return ""
+		ok
+		_cKid_ = ""
+		_n_ = len(@aKeys)
+		for _i_ = 1 to _n_
+			_cExpect_ = This._Hmac("" + pcBody, @aKeys[_i_][2])
+			if This._SecureEq(_cExpect_, "" + pcSig)
+				_cKid_ = @aKeys[_i_][1]
+				exit
+			ok
+		next
+		if _cKid_ = ""
+			@cWhy = "signature mismatch (tampered body, or a secret this receiver does not hold)"
+			StzNoteRefusal("webhook.signature.forged", @cName, "body:" + StzLen("" + pcBody) + " bytes", @cWhy)
+			return ""
+		ok
+		This._EvictSeen(pnNowMs, pnWindowMs)
+		_cMark_ = "webhook:" + _cKid_ + ":" + pcSig
+		if This._SeenIndex(_cMark_) > 0
+			@cWhy = "replay detected (this body was already believed inside the window)"
+			StzNoteRefusal("webhook.replayed", @cName, "key:" + _cKid_, @cWhy)
+			return ""
+		ok
+		@aSeen + [ _cMark_, pnNowMs ]
+		if len(@aSeen) > @nMaxSeen  del(@aSeen, 1)  ok
+		return _cKid_
+
 	#-- internals ----------------------------------------------------------
 
 	# An INJECTIVE canonical string: length-prefixing method/path/body means

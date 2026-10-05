@@ -74,6 +74,10 @@ func _StzSecretFromRecord(paRec)
 	but _cKind_ = "token"
 		_s_ = new stzToken(paRec[2])
 		if len(paRec) >= 5 and ring_number(paRec[5]) > 0  _s_.SetExpiry(ring_number(paRec[5]))  ok
+	but StzLeft(_cKind_, 6) = "pispi-"
+		# a payments descriptor (stzPispiSecret): its kind names the part, and it carries an expiry
+		_s_ = new stzPispiSecret(paRec[2], StzMidToEnd(_cKind_, 7))
+		if len(paRec) >= 5 and ring_number(paRec[5]) > 0  _s_.SetExpiry(ring_number(paRec[5]))  ok
 	else
 		_s_ = new stzSecret(paRec[2])
 		_s_.SetKind(_cKind_)
@@ -293,7 +297,7 @@ class stzSecretStore from stzObject
 				_cVal_ = _s_.SourceLocator()
 			ok
 			_nExp_ = 0
-			if _s_.Kind() = "token"  _nExp_ = _s_.ExpiresAt()  ok
+			if isMethod(_s_, "ExpiresAt")  _nExp_ = _s_.ExpiresAt()  ok
 			# values travel hex-encoded: a tab or a newline inside a value is data
 			_cBody_ += _s_.Kind() + char(9) + _s_.Name() + char(9) + _cSrc_ + char(9) +
 				StzEngineCryptoHexEncode(_cVal_) + char(9) + _nExp_ + char(10)

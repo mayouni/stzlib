@@ -562,6 +562,7 @@ load "geo/stzGeoProcess.ring"
     # structure at ONE INSTANT; an incident is a story. Verdicts are
     # findings in the unified shape, so they join the ONE CI gate.
     load "security/stzDetection.ring"
+    load "service/stzPaymentsSecrets.ring" # the five payments secrets, their expiry watch and their detections
     # I4: the sentinel -- detections on a cadence, edge-triggered (a
     # standing attack is one story, not one per second), event-bus
     # fanout, hostable on any stzAgentHost, and a case snapshot

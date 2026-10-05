@@ -473,6 +473,13 @@ ratelimit.shed               service.production_fake_refused
 graph.escalation_path_found                              (T1078 valid accounts)
 ```
 
+*Added 2026-10-05 by the payments plane (PY3), additively, because a webhook is the one place
+the library takes a signed message from a stranger and a payments secret is the one kind that
+lapses on a date:* `webhook.unsigned` (T1190), `webhook.signature.forged` (T1550),
+`webhook.replayed` (T1550), `webhook.malformed` (T1190), `secret.expiring` and `secret.expired`.
+The signer writes the first three and the port the fourth; `stzSecretExpiryWatch` writes the last
+two, once per change of state, and `StzPaymentsDetectionSet()` raises them.
+
 ### 6.2 `stzSecurityLedger` — evidence, not a log (I1)
 
 Engine-backed bounded ring (the `perf_trace_*` shape), each entry

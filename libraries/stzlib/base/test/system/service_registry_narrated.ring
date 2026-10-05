@@ -185,4 +185,150 @@ Scenario("the CI globals, in the shape the other gates already use")
 	Then("...so a production phase refuses all three", len(oFull.SetPhaseQ(:production).Findings()), 3)
 EndScenario()
 
+Scenario("a FOURTH posture: the genuine hub protocol over virtual money (conformance)")
+	# The BCEAO's sandbox is neither a fake nor the real thing: it speaks the REAL protocol,
+	# with real OAuth credentials, over VIRTUAL money and simulated participants. A conformance
+	# run is exactly what a platform does BEFORE going live, so it is expected in development --
+	# and it is exactly what must never be bound when the platform ships.
+	oStore = new stzSecretStore("acme")
+	oStore.Register( (new stzApiKey("pispi-sandbox-client")).FromLiteralQ(StzEngineCryptoRandomHex(8)) )
+	oReg = new stzServiceRegistry("diko")
+	oReg.BindConformance(:payments, new stzString("pispi-sandbox-adapter"), "pispi-sandbox-client")
+	Then("the posture is its own word", oReg.PostureOf(:payments), :conformance)
+	Then("...it is not a sandbox", oReg.IsSandboxed(:payments), FALSE)
+	Then("...and it is listed apart", @@(oReg.ConformanceServices()), @@([ "payments" ]))
+	Then("...a conformance binding says whose credential it uses", oReg.SecretNameOf(:payments), "pispi-sandbox-client")
+	Then("in development it is expected: the surface is sound", oReg.IsSoundVia(oStore), TRUE)
+	Then("...with nothing to report", len(oReg.FindingsVia(oStore)), 0)
+
+	oReg.SetPhase(:production)
+	Then("in production it is an ERROR", oReg.IsSoundVia(oStore), FALSE)
+	aF = oReg.FindingsVia(oStore)
+	Then("...named conformance-in-production", aF[1][:invariant], "conformance-in-production")
+	Then("...an error, like sandbox-in-production", aF[1][:severity], :error)
+	Then("...pointing at the service", aF[1][:where], "diko/payments")
+	Then("...and saying why virtual money must not ship", StzFindFirst("virtual money", aF[1][:message]) > 0, TRUE)
+	oHuman = HumanActor("dana")
+	Then("so no actor may take it live", oReg.MayGoLive(oHuman, oStore), FALSE)
+	Then("...and it says why", StzFindFirst("conformance-in-production", oReg.WhyNotLive(oHuman, oStore)) > 0, TRUE)
+
+	oDev = new stzServiceRegistry("diko-dev")
+	oDev.BindConformance(:payments, new stzString("pispi-sandbox-adapter"), "pispi-sandbox-client")
+	Then("asked from development, going live is already refused", oDev.MayGoLive(oHuman, oStore), FALSE)
+	Then("...and the phase is left alone", oDev.Phase(), "development")
+	Then("FindingsForProduction names it without changing the phase", len(oDev.FindingsForProductionVia(oStore)), 1)
+
+	When("an object declares itself a conformance adapter, no word from the caller")
+	oSelf = new stzRegistryConformanceDouble()
+	oReg2 = new stzServiceRegistry("self")
+	oReg2.Bind(:payments, oSelf)
+	Then("the registry reads the posture off the object", oReg2.PostureOf(:payments), :conformance)
+
+	When("the Softanza twin is bound")
+	oTwin = new stzServiceRegistry("twin")
+	oTwin.Bind(:payments, StzPaymentsPortQ(StzPiSpiSandboxQ()))
+	Then("a port over the twin is a SANDBOX", oTwin.PostureOf(:payments), :sandbox)
+	aTw = oTwin.SetPhaseQ(:production).Findings()
+	Then("...and production refuses it", aTw[1][:invariant], "sandbox-in-production")
+EndScenario()
+
+Scenario("a conformance adapter needs its credential too, and a descriptor with no value is not one")
+	oReg = new stzServiceRegistry("diko")
+	oStore = new stzSecretStore("acme")
+	oReg.BindConformance(:payments, new stzString("pispi-sandbox-adapter"), "pispi-sandbox-client")
+	Then("a credential the store does not hold is an ERROR even for conformance", oReg.IsSoundVia(oStore), FALSE)
+	aF1 = oReg.FindingsVia(oStore)
+	Then("...the same invariant as a live adapter", aF1[1][:invariant], "live-without-secret")
+
+	oStore.Register( StzPispiSecretQ("sandbox", "client") )
+	Then("a descriptor registered but never given a value does not count", oReg.IsSoundVia(oStore), FALSE)
+	aF2 = oReg.FindingsVia(oStore)
+	Then("...and the message says it has no value", StzFindFirst("no value", aF2[1][:message]) > 0, TRUE)
+
+	oSet = StzPispiSecretQ("sandbox", "client")
+	oSet.FromLiteral(StzEngineCryptoRandomHex(8))
+	oStore.Register(oSet)
+	Then("with a value it is sound", oReg.IsSoundVia(oStore), TRUE)
+EndScenario()
+
+Scenario("live-without-certificate: a live payment without its mTLS identity is refused BEFORE the first call")
+	# The hub refuses a call that does not present a client certificate from the BCEAO's CA, and
+	# the certificate expires. The registry refuses the BINDING, at IsSound(), exactly where
+	# live-without-secret already refuses a missing API key: in any phase, from the store alone.
+	nNow = StzEngineTimeNowMs() / 1000
+	oStore = new stzSecretStore("acme")
+	oClient = StzPispiSecretQ("bia", "client")
+	oClient.FromLiteral(StzEngineCryptoRandomHex(8))
+	oStore.Register(oClient)
+	oReg = new stzServiceRegistry("diko")
+	oReg.BindLive(:payments, new stzRegistryLiveNeedingCertificate(), "pispi-bia-client")
+
+	Then("a live adapter that declares it needs a certificate, and the store has none: ERROR", oReg.IsSoundVia(oStore), FALSE)
+	aF = oReg.FindingsVia(oStore)
+	Then("...named live-without-certificate", aF[1][:invariant], "live-without-certificate")
+	Then("...an error", aF[1][:severity], :error)
+	Then("...naming the certificate it looked for", StzFindFirst("pispi-bia-mtls-cert", aF[1][:message]) > 0, TRUE)
+	Then("...in a DEVELOPMENT phase too: the phase is not what decides", oReg.Phase(), "development")
+	Then("...though no store offered means nothing to check against", oReg.IsSound(), TRUE)
+
+	oStore.Register( StzPispiSecretQ("bia", "mtls-cert") )
+	Then("a certificate descriptor with no value is not a certificate", oReg.IsSoundVia(oStore), FALSE)
+	aF = oReg.FindingsVia(oStore)
+	Then("...and says so", StzFindFirst("no value", aF[1][:message]) > 0, TRUE)
+
+	oOld = StzPispiSecretQ("bia", "mtls-cert")
+	oOld.FromLiteral("CERT-" + StzEngineCryptoRandomHex(4))
+	oOld.SetExpiry(1000000000)
+	oStore.Register(oOld)
+	Then("a certificate past its date is an ERROR", oReg.IsSoundVia(oStore), FALSE)
+	aF = oReg.FindingsVia(oStore)
+	Then("...and says expired", StzFindFirst("expired", aF[1][:message]) > 0, TRUE)
+
+	oGood = StzPispiSecretQ("bia", "mtls-cert")
+	oGood.FromLiteral("CERT-" + StzEngineCryptoRandomHex(4))
+	oGood.SetExpiry(nNow + 365 * 86400)
+	oStore.Register(oGood)
+	Then("a valid certificate makes it sound", oReg.IsSoundVia(oStore), TRUE)
+	Then("...with nothing left to report", len(oReg.FindingsVia(oStore)), 0)
+
+	oForever = StzPispiSecretQ("bia", "mtls-cert")
+	oForever.FromLiteral("CERT-" + StzEngineCryptoRandomHex(4))
+	oStore.Register(oForever)
+	Then("a certificate that carries no expiry is accepted: the store cannot say it lapsed", oReg.IsSoundVia(oStore), TRUE)
+
+	When("the adapter cannot declare it, the binding can")
+	oReg2 = new stzServiceRegistry("diko2")
+	oReg2.BindLiveWithCertificate(:payments, new stzString("some-adapter"), "pispi-bia-client", "pispi-other-mtls-cert")
+	Then("the binding remembers the certificate's name", oReg2.CertificateNameOf(:payments), "pispi-other-mtls-cert")
+	Then("...and refuses it absent", oReg2.IsSoundVia(oStore), FALSE)
+	aF3 = oReg2.FindingsVia(oStore)
+	Then("...naming that certificate", StzFindFirst("pispi-other-mtls-cert", aF3[1][:message]) > 0, TRUE)
+
+	When("a live adapter needs no certificate")
+	oReg3 = new stzServiceRegistry("diko3")
+	oReg3.BindLive(:mail, new stzString("smtp-adapter"), "pispi-bia-client")
+	Then("nothing about certificates is asked of it", oReg3.IsSoundVia(oStore), TRUE)
+
+	aNames = StzSecurityInvariantNames()
+	Then("both new invariants are documented ones",
+	     StzFindFirst("conformance-in-production", @@(aNames)) > 0 and
+	     StzFindFirst("live-without-certificate", @@(aNames)) > 0, TRUE)
+EndScenario()
+
 Summary()
+
+# a double that declares itself a conformance adapter
+class stzRegistryConformanceDouble
+	def init()
+		return
+	def IsConformance()
+		return 1
+
+# a live adapter that says it needs an mTLS client certificate, and where it lives
+class stzRegistryLiveNeedingCertificate
+	def init()
+		return
+	def RequiresCertificate()
+		return 1
+	def CertificateSecretName()
+		return "pispi-bia-mtls-cert"

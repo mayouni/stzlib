@@ -403,13 +403,12 @@ done
 
 ## 6. Four postures, one law
 
-The service registry (`stzServiceRegistry`) knows three postures: `:sandbox`
-a fake that must not ship, `:local` a genuine local equivalent that may
-ship, `:live` a remote service reached with a credential. Payments adds a
-fourth, because the BCEAO sandbox is neither a fake nor the real thing: it
-is the GENUINE hub protocol over VIRTUAL money, with simulated participants
-and simulated customers, free, and reached with real OAuth credentials, an
-API key and (in production only) an mTLS certificate.
+The service registry (`stzServiceRegistry`) knew three postures: `:sandbox` a fake that must
+not ship, `:local` a genuine local equivalent that may ship, `:live` a remote service reached
+with a credential. Payments adds a fourth, because the BCEAO sandbox is neither a fake nor the
+real thing: it is the GENUINE hub protocol over VIRTUAL money, with simulated participants and
+simulated customers, free, reached with real OAuth credentials and an API key (mTLS is off in
+the sandbox).
 
 | posture | what it is | may ship? | credential |
 |---|---|---|---|
@@ -418,30 +417,59 @@ API key and (in production only) an mTLS certificate.
 | `:local` | not applicable to payments; listed so the registry's law stays one law | -- | -- |
 | `:live` | a homologated participant's base URL; today BIA Niger | yes | client id and secret, API key, mTLS key and certificate from the BCEAO CA, webhook HMAC secret |
 
-Two invariants join the registry's five (PY3), each a guard that fails before:
+Two invariants joined the registry's five (PY3), each a guard that failed before:
 
-- **conformance-in-production** (ERROR): the BCEAO sandbox bound while the
-  phase is `:production`. Virtual money in production is the same mistake
-  as a fake in production and must be caught by the same gate.
-- **live-without-certificate** (ERROR): a `:live` payments binding whose
-  secret store holds no mTLS certificate descriptor, or holds an expired
-  one. A live payment without a certificate is refused by the hub anyway;
-  the registry refuses it BEFORE the first call, at `IsSound()`, where
-  `live-without-secret` already refuses a missing API key.
+- **conformance-in-production** (ERROR): the BCEAO sandbox bound while the phase is `:production`.
+  Virtual money in production is the same mistake as a fake in production and is caught by the
+  same gate. A conformance run is what a platform does BEFORE going live, so in development it is
+  expected and the surface is sound.
+- **live-without-certificate** (ERROR): a `:live` binding whose mTLS certificate is not in the
+  store, has no value, or has lapsed. The adapter says it needs one (`RequiresCertificate()` and
+  `CertificateSecretName()`), or the binding names it (`BindLiveWithCertificate`). Refused at
+  `IsSound()`, BEFORE the first call, in any phase, from the store alone, exactly where
+  `live-without-secret` already refuses a missing API key. A certificate that carries no expiry is
+  accepted: the store cannot say it lapsed.
 
-```ring PY3
-oReg = new stzServiceRegistry("diko")
+`live-without-secret` was widened to the conformance posture, and to a descriptor that is in the
+store but has no value: a name is not a credential. A graph rule joins them,
+`production-part-uses-conformance` in `stzServiceRule`, so "which PART of my solution depends on
+virtual money?" is answered while the phase is still development.
+
+```ring
+oStore = StzSecretStoreQ("diko")
+oClient = StzPispiSecretQ("bia", "client")
+oClient.FromLiteral(StzEngineCryptoRandomHex(8))     # generated here; a real one comes from the environment or a vault
+oStore.Register(oClient)
+
+oReg = StzServiceRegistryQ("diko")
 oReg.Declare(:payments)
-oReg.Bind(:payments, StzPiSpiSandboxQ())          # posture :sandbox, IsSandbox() TRUE
+oReg.Bind(:payments, oPay)                           # a port over the twin
+? oReg.PostureOf(:payments)                          #--> sandbox
 oReg.SetPhase(:production)
-? oReg.IsSound()                                  #--> FALSE: sandbox-in-production
+? oReg.IsSoundVia(oStore)                            #--> 0
+aS = oReg.FindingsVia(oStore)
+? aS[1][:invariant]                                  #--> sandbox-in-production
 
-oReg.BindConformance(:payments, oBceaoSandboxAdapter, "pispi-sandbox-client")
-? oReg.IsSound()                                  #--> FALSE: conformance-in-production
+oReg.BindConformance(:payments, oPay, "pispi-bia-client")   # the BCEAO's sandbox: real protocol, virtual money
+? oReg.PostureOf(:payments)                          #--> conformance
+aC = oReg.FindingsVia(oStore)
+? aC[1][:invariant]                                  #--> conformance-in-production
 
-oReg.BindLive(:payments, oBiaAdapter, "pispi-bia-client")
-? oReg.IsSound()                                  #--> FALSE until "pispi-bia-mtls-cert" is in the store: live-without-certificate
+oReg.BindLiveWithCertificate(:payments, oPay, "pispi-bia-client", "pispi-bia-mtls-cert")
+? oReg.PostureOf(:payments)                          #--> live
+? oReg.IsSoundVia(oStore)                            #--> 0
+aL = oReg.FindingsVia(oStore)
+? aL[1][:invariant]                                  #--> live-without-certificate
+
+oCert = StzPispiSecretQ("bia", "mtls-cert")
+oCert.FromLiteral(StzEngineCryptoRandomHex(8))
+oCert.SetExpiry( StzEngineTimeNowMs() / 1000 + 365 * 86400 )
+oStore.Register(oCert)
+? oReg.IsSoundVia(oStore)                            #--> 1
 ```
+
+(The stand-in above binds the port itself as the live adapter, only to show the invariants; the
+live adapter is PY5.)
 
 ---
 
@@ -528,8 +556,13 @@ body against the secret(s) the port was given (at `RegisterWebhook` and `RenewWe
 with a constant-time comparison; the unsigned, mis-signed, malformed or replayed event (same
 `end2endId`, `evCode` and `evDate` already seen) is refused with 401, and only a verified one
 reaches the platform's handler. The HMAC runs in the engine (`stz_crypto`), never in Ring.
-**PY2 delivers this much; PY3 moves the secret into `stzSecretStore`, adds the body-only form on
-`stzRequestSigner` and writes the refusal into the security ledger.**
+The verifier is `stzRequestSigner.VerifyWebhook` (PY3): the body-only form `SignBody`/`VerifyBody`
+beside the canonical-string form the grid already used, over every key the port holds (a hub that
+renews a secret leaves both valid until the old one lapses). A refusal is ONE ledger line, not one
+per key tried: `webhook.unsigned`, `webhook.signature.forged`, `webhook.replayed`,
+`webhook.malformed`. The secret can come from the store through the governed door,
+`UseWebhookSecretFrom(oStore, name, oActor)`, which only an effectful, non-sandboxed actor passes
+and the store audits either way.
 
 ```ring
 oPay.RegisterWebhook( StzWebhookQ().CallingBack("https://diko.example/pispi").OnEvents(["PAIEMENT_ENVOYE"]) )
@@ -558,26 +591,35 @@ aBad = oPay.ReceiveWebhook(oHub.LastCallbackBody(), "deadbeef")
 
 ## 9. Secrets and certificates
 
-Five descriptors in `stzSecretStore`, never a value in a versioned file, a
-memo or a guard (a guard that needs one GENERATES it):
+Five descriptors in `stzSecretStore`, named `pispi-<participant>-<part>`, never a value in a
+versioned file, a memo or a guard (a guard that needs one GENERATES it):
 
 | descriptor | what it holds | expiry |
 |---|---|---|
 | `pispi-<participant>-client` | OAuth client id and client secret | the participant's; rotation is a store `Rotate()` |
 | `pispi-<participant>-api-key` | the `x-api-key` value | the participant's |
 | `pispi-<participant>-mtls-key` | the private key of the client certificate | with the certificate |
-| `pispi-<participant>-mtls-cert` | the client certificate from the BCEAO CA, 365 days in the sandbox | its `notAfter`; the ledger raises a detection 30 days before (the portal's own recommended alert) |
+| `pispi-<participant>-mtls-cert` | the client certificate from the BCEAO CA, 365 days in the sandbox | its `notAfter` |
 | `pispi-<participant>-webhook-secret` | the HMAC secret of one webhook | the `dateExpiration` the platform set at renewal |
 
-Expiry is a **detection** the security ledger raises (`stzDetection`), not a
-check the port runs at call time: the port reads the store, the store knows
-the dates, the ledger watches the store.
+`StzPispiRegisterDescriptors(oStore, "bia")` registers the five as NAMES with no value
+(`stzPispiSecret`, a `stzToken` underneath, so it carries an expiry and the sealed store keeps it:
+a descriptor comes back from a sealed file with its kind and its expiry). The value arrives from
+an environment variable, a file or a vault. A part that is not one of the five is refused.
 
-The OAuth token itself is not a secret descriptor: it is a bearer the live
-adapter obtains at `POST /oauth/token` (`grant_type=client_credentials`,
-`scope` a space-separated list) with `expires_in` 3600, caches in memory,
-and refreshes before expiry. It is **certificate-bound**: a token taken
-under one mTLS certificate is refused with another.
+**Expiry is a detection the security ledger raises, not a check the port runs at call time.**
+`stzSecretExpiryWatch` (a periodic `Name_()` and `Cycle()`, hostable on any `stzAgentHost`) reads
+the store and writes `secret.expiring` (inside the warning window, 30 days by default, the
+portal's own advice) and `secret.expired` into the ledger **once per change of state**: a second
+cycle announces nothing twice, and a renewed secret is forgotten so its next lapse is announced
+afresh. `StzPaymentsDetectionSet()` raises them in the house shape, with the secret named, so they
+join `stzRuleReport`, the one CI gate. A watch holds the store as it was handed over (Ring copies
+an object on assignment), so a host hands it the current store each cycle with `Watch(oStore)`.
+
+The OAuth token itself is not a secret descriptor: it is a bearer the live adapter obtains at
+`POST /oauth/token` (`grant_type=client_credentials`, `scope` a space-separated list) with
+`expires_in` 3600, caches in memory, and refreshes before expiry. It is **certificate-bound**: a
+token taken under one mTLS certificate is refused with another.
 
 ---
 
@@ -687,6 +729,15 @@ the portal's own guide pages. The reference (`openapi.yml` v1.5.0) wins.
     where a 403 would reject the whole batch.
 16. **Booleans in Ring lists are 1 and 0.** Ring has no boolean type; `confirmation`, `decision`
     and `programme` travel as 1 and 0 and the HTTP boundary (PY5) maps them to true and false.
+17. **The security event catalog is closed, and PY3 added to it.** `stzSecurityEvent` raises on a kind
+    it does not know (`SOFTANZA_INCIDENT_ANALYSIS.md` 6.1). Six kinds were added, additively:
+    `webhook.unsigned`, `webhook.signature.forged`, `webhook.replayed`, `webhook.malformed`,
+    `secret.expiring`, `secret.expired`; and two invariants to `StzSecurityInvariantNames()`. The
+    guard that pins the catalog asserts "at least 25 kinds", and stood. Reported to Central because
+    the catalog is the security plane's, not this one's.
+18. **A retry that reformats is not a replay of the BODY and is one of the EVENT.** A hub that
+    re-signs the same event in a re-serialised envelope defeats a body-level replay cache, so the
+    port also remembers events (`end2endId`, `evCode`, `evDate`).
 
 ---
 

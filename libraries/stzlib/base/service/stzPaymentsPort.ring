@@ -30,15 +30,19 @@ WHAT THE PORT ADDS to the contract, and nothing else:
     another currency is refused before a request exists.
   * AN ERROR IS A PROBLEM. A status of 400 or more raises, and StzLastPaymentsProblem() answers
     the RFC 7807 fields the hub returned: status, title, detail, invalid-params.
-  * A WEBHOOK IS VERIFIED BEFORE IT IS BELIEVED. ReceiveWebhook checks the HMAC-SHA256 of the body
-    against X-Signature, refuses the unsigned, the mis-signed and the replayed, and answers the
-    HTTP status the callback owes the participant (204 or 401).
+  * A WEBHOOK IS VERIFIED BEFORE IT IS BELIEVED. ReceiveWebhook hands the body and X-Signature to
+    a stzRequestSigner (the HMAC runs in the engine, the comparison is constant-time), refuses the
+    unsigned, the mis-signed, the replayed and the malformed, writes each refusal into the security
+    ledger, and answers the HTTP status the callback owes the participant (204 or 401). The
+    secrets it verifies with come from RegisterWebhook / RenewWebhookSecret, or from the secret
+    store through the governed door (UseWebhookSecretFrom).
 
 Boolean fields travel as 1 and 0 inside Ring lists (confirmation, decision, programme); the HTTP
 boundary of the live adapter turns them into true and false.
 
 STATE IS SHARED, because Ring copies a registry's binding on every fetch: the journal, the
-secrets and the seen events live in global tables keyed by the port's id.
+signer (and so the secrets and its replay cache) and the seen events live in global tables keyed
+by the port's id, and the signer is always called THROUGH the table so there is only one.
 
 The CARD verbs (Authorize, Capture, Refund) are one ADAPTER, in stzCardPaymentsAdapter.ring. They
 are the shape of a card gateway, not of money in the UEMOA.
@@ -48,7 +52,7 @@ The charter is SOFTANZA_PAYMENTS_PORT.md, next to this file.
 
 $nPayPortSeq = 0
 $aPayJournal = []
-$aPaySecrets = []
+$aPaySigners = []
 $aPaySeen = []
 $aPayRefused = []
 $aPayEvents = []
@@ -87,14 +91,6 @@ func StzWebhookQ()
 func StzWebhookSignature(pcBody, pcSecret)
 	_oC_ = new stzStringCrypto("" + pcBody)
 	return _oC_.HmacSha256("" + pcSecret)
-
-# constant-time equality by double HMAC: re-key both sides with a fresh random secret
-func _StzPaySecureEq(pcA, pcB)
-	if StzLen("" + pcA) != StzLen("" + pcB)
-		return 0
-	ok
-	_k_ = StzEngineCryptoRandomHex(16)
-	return StzWebhookSignature(pcA, _k_) = StzWebhookSignature(pcB, _k_)
 
 # a status that will not change again
 func StzPaymentsIsFinal(pcStatut)
@@ -554,6 +550,26 @@ class stzPaymentsPort from stzObject
 		ok
 		return 0
 
+	# a conformance backend (the BCEAO's sandbox) says so, and the registry reads it off the port
+	def IsConformance()
+		if isMethod(@oBackend, "IsConformance")
+			return @oBackend.IsConformance()
+		ok
+		return 0
+
+	# a live backend that presents an mTLS client certificate says so, and where it lives
+	def RequiresCertificate()
+		if isMethod(@oBackend, "RequiresCertificate")
+			return @oBackend.RequiresCertificate()
+		ok
+		return 0
+
+	def CertificateSecretName()
+		if isMethod(@oBackend, "CertificateSecretName")
+			return @oBackend.CertificateSecretName()
+		ok
+		return ""
+
 	def Backend()
 		return @oBackend
 
@@ -794,42 +810,68 @@ class stzPaymentsPort from stzObject
 
 	  #-- webhooks the hub sends -------------------------------------------
 
-	# a secret the port will accept a signature under. PY3 moves this into the secret store.
+	# the port's signer, found in the shared table (made on first use)
+	def _SignerSlot()
+		for _i_ = 1 to ring_len($aPaySigners)
+			if $aPaySigners[_i_][1] = @nId
+				return _i_
+			ok
+		next
+		_o_ = new stzRequestSigner("webhooks")
+		$aPaySigners + [ @nId, _o_ ]
+		return ring_len($aPaySigners)
+
+	# A secret the port will accept a signature under: one key in the signer, named secret-N. A
+	# hub that renews a secret leaves both valid until the old one lapses, so keys accumulate.
+	# Answers the key's id.
 	def SetWebhookSecret(pcSecret)
-		if pcSecret != ""
-			$aPaySecrets + [ @nId, pcSecret ]
+		if pcSecret = ""
+			return ""
 		ok
-		return This
+		_k_ = This._SignerSlot()
+		_cId_ = "secret-" + ( ring_len($aPaySigners[_k_][2].Keys()) + 1 )
+		$aPaySigners[_k_][2].AddKey(_cId_, pcSecret)
+		return _cId_
+
+	# THE GOVERNED DOOR: the secret comes out of the store through Reveal(), which only an
+	# effectful, non-sandboxed actor may call and which the store audits either way. A refused
+	# actor, or a name the store does not hold, RAISES and the port gains no key.
+	def UseWebhookSecretFrom(poStore, pcSecretName, poActor)
+		_c_ = poStore.Reveal(pcSecretName, poActor)
+		return This.SetWebhookSecret(_c_)
 
 	def _Refuse(pcWhy)
 		$aPayRefused + [ @nId, pcWhy ]
 		return [ [ "accepted", 0 ], [ "status", 401 ], [ "reason", pcWhy ], [ "events", [] ] ]
 
-	# Verified BEFORE believed: unsigned, mis-signed, malformed and replayed are all refused.
+	# Verified BEFORE believed: unsigned, mis-signed, replayed and malformed are all refused, and
+	# the signer writes the first three into the security ledger (the port writes the others).
 	# Answers [ accepted, status, reason, events ]: status is what the callback owes the hub.
 	def ReceiveWebhook(pcBody, pcSignature)
-		if NOT isString(pcSignature) or pcSignature = ""
-			return This._Refuse("unsigned")
-		ok
-		_bSigned_ = 0
-		for _i_ = 1 to ring_len($aPaySecrets)
-			if $aPaySecrets[_i_][1] = @nId and _StzPaySecureEq(pcSignature, StzWebhookSignature(pcBody, $aPaySecrets[_i_][2]))
-				_bSigned_ = 1
-				exit
+		_k_ = This._SignerSlot()
+		_cKid_ = $aPaySigners[_k_][2].VerifyWebhook(pcBody, pcSignature, StzEngineTimeNowMs(), 300000)
+		if _cKid_ = ""
+			_cWhy_ = $aPaySigners[_k_][2].Why()
+			if _cWhy_ = "unsigned"
+				return This._Refuse("unsigned")
 			ok
-		next
-		if _bSigned_ = 0
+			if StzFindFirst("replay", _cWhy_) > 0
+				return This._Refuse("replay")
+			ok
 			return This._Refuse("bad-signature")
 		ok
 		if NOT StzJsonIsValid(pcBody)
+			StzNoteRefusal("webhook.malformed", "port:" + @nId, "body:" + StzLen("" + pcBody) + " bytes", "signed, and not JSON")
 			return This._Refuse("malformed")
 		ok
 		_a_ = StzJsonToList(pcBody)
 		_aData_ = _StzPiGet(_a_, "data", [])
 		if NOT isList(_aData_) or ring_len(_aData_) = 0
+			StzNoteRefusal("webhook.malformed", "port:" + @nId, "body:" + StzLen("" + pcBody) + " bytes", "signed, and carries no event")
 			return This._Refuse("malformed")
 		ok
-		# a replay is an event already seen: same end2endId, same code, same date
+		# a replay is an EVENT already seen -- same end2endId, code and date -- even when the
+		# envelope around it was re-signed and so is a different body
 		_aNew_ = []
 		for _i_ = 1 to ring_len(_aData_)
 			_mark_ = "" + _StzPiGet(_aData_[_i_], "end2endId", "") + "|" + _StzPiGet(_aData_[_i_], "evCode", "") + "|" +
@@ -848,6 +890,7 @@ class stzPaymentsPort from stzObject
 			ok
 		next
 		if ring_len(_aNew_) = 0
+			StzNoteRefusal("webhook.replayed", "port:" + @nId, "key:" + _cKid_, "every event in the envelope was already believed")
 			return This._Refuse("replay")
 		ok
 		return [ [ "accepted", 1 ], [ "status", 204 ], [ "reason", "" ], [ "events", _aNew_ ] ]

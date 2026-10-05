@@ -34,7 +34,7 @@ service have a credential, and is that credential in the store rather than inlin
 Findings()/IsSound() answer those, in the same shape stzSecurityPosture and the
 graph rules use -- so they drop into the same CI gate.
 
-THREE POSTURES, because "fake vs real" turned out to be too coarse. Building the
+FOUR POSTURES, because "fake vs real" turned out to be too coarse. Building the
 database exemplar (phase 2) made it obvious: a mail sandbox does not send, but a
 database sandbox is SQLITE -- a real database in a file you own. The plan calls
 that LOCAL-REAL, and shipping it is not a violation; plenty of good systems run
@@ -44,12 +44,17 @@ sqlite in production forever.
   :local    a genuine local equivalent (sqlite, the filesystem, a local model).
             MAY ship -- self-hosting is a choice, not a mistake.
   :live     a hosted/remote service reached with a credential.
+  :conformance  the GENUINE protocol of a hosted service over VIRTUAL money: the BCEAO's
+            sandbox for payments. Neither a fake (it speaks the real hub's protocol, with
+            real OAuth credentials) nor shippable (nothing in it is real). A conformance
+            run is what a platform does BEFORE going live, so it is expected in
+            development and must never be bound when the platform ships.
 
 An object declares which it is: IsSandbox() -> :sandbox, else IsLocalReal() ->
 :local, else :live. No opinion means :live, because defaulting to :sandbox would
 excuse the very thing the production check exists to catch.
 
-FIVE INVARIANTS (severities as elsewhere: ERROR blocks, WARN advises):
+SEVEN INVARIANTS (severities as elsewhere: ERROR blocks, WARN advises):
   * sandbox-in-production  (ERROR) -- a fake bound in a production phase. This is
     the plane's whole reason to exist: "flip it to real before shipping" must be
     ENFORCED, not remembered.
@@ -63,6 +68,13 @@ FIVE INVARIANTS (severities as elsewhere: ERROR blocks, WARN advises):
     why it needs a check rather than a convention.
   * inline-credential     (WARN)  -- a live adapter bound without naming a store
     secret at all, i.e. holding its key some other way.
+  * conformance-in-production (ERROR) -- virtual money bound in a production phase, the
+    same mistake as a fake in production and caught by the same gate.
+  * live-without-certificate (ERROR) -- a live adapter that needs an mTLS client
+    certificate (it says so: RequiresCertificate() and CertificateSecretName(), or the
+    binding names it) whose certificate is not in the store, has no value, or has
+    lapsed. Refused at IsSound(), BEFORE the first call, in any phase, exactly where
+    live-without-secret refuses a missing API key.
 
 RING NOTE, and it is a real one: Ring copies an object on `=` AND on insertion
 into a list, so a registry hands out a COPY of what was bound. For a stateless
@@ -152,14 +164,14 @@ class stzServiceRegistry from stzObject
 		This.BindQ(pcService, poImpl)
 
 	def BindQ(pcService, poImpl)
-		return This._BindWith(pcService, poImpl, This._PostureOf(poImpl), "")
+		return This._BindWith(pcService, poImpl, This._PostureOf(poImpl), "", "")
 
 	# ...say it explicitly when the object cannot.
 	def BindSandbox(pcService, poImpl)
 		This.BindSandboxQ(pcService, poImpl)
 
 	def BindSandboxQ(pcService, poImpl)
-		return This._BindWith(pcService, poImpl, :sandbox, "")
+		return This._BindWith(pcService, poImpl, :sandbox, "", "")
 
 	# Bind a genuine LOCAL equivalent -- sqlite, the filesystem, a local model. Not
 	# a fake, so unlike a sandbox this may ship; see the posture note above.
@@ -167,7 +179,7 @@ class stzServiceRegistry from stzObject
 		This.BindLocalQ(pcService, poImpl)
 
 	def BindLocalQ(pcService, poImpl)
-		return This._BindWith(pcService, poImpl, :local, "")
+		return This._BindWith(pcService, poImpl, :local, "", "")
 
 	# Bind the real thing, naming the STORE SECRET its credential lives in. The
 	# name, not the key: a registry that held credentials would be one more place
@@ -176,7 +188,24 @@ class stzServiceRegistry from stzObject
 		This.BindLiveQ(pcService, poImpl, pcSecretName)
 
 	def BindLiveQ(pcService, poImpl, pcSecretName)
-		return This._BindWith(pcService, poImpl, :live, "" + pcSecretName)
+		return This._BindWith(pcService, poImpl, :live, "" + pcSecretName, "")
+
+	# Bind the genuine protocol over virtual money (see :conformance above), naming the store
+	# secret its credential lives in. Never shippable: production refuses it.
+	def BindConformance(pcService, poImpl, pcSecretName)
+		This.BindConformanceQ(pcService, poImpl, pcSecretName)
+
+	def BindConformanceQ(pcService, poImpl, pcSecretName)
+		return This._BindWith(pcService, poImpl, :conformance, "" + pcSecretName, "")
+
+	# Bind the real thing AND name the store secret that holds its mTLS client certificate, for
+	# an adapter that cannot say so itself. An adapter that can (RequiresCertificate()) needs
+	# only BindLive.
+	def BindLiveWithCertificate(pcService, poImpl, pcSecretName, pcCertSecretName)
+		This.BindLiveWithCertificateQ(pcService, poImpl, pcSecretName, pcCertSecretName)
+
+	def BindLiveWithCertificateQ(pcService, poImpl, pcSecretName, pcCertSecretName)
+		return This._BindWith(pcService, poImpl, :live, "" + pcSecretName, "" + pcCertSecretName)
 
 	# Remove the IMPLEMENTATION but keep the dependency. The service is then
 	# declared-and-unbound, which IS a finding -- your solution still needs the
@@ -252,6 +281,28 @@ class stzServiceRegistry from stzObject
 			return ""
 		ok
 		return $aStzServiceRegistries[This._Slot()][3][_i_][4]
+
+	# the store secret holding a service's mTLS certificate, when the BINDING named one
+	def CertificateNameOf(pcService)
+		_i_ = This._BoundIndex(pcService)
+		if _i_ = 0
+			return ""
+		ok
+		return $aStzServiceRegistries[This._Slot()][3][_i_][5]
+
+	# every service bound to the genuine protocol over virtual money
+	def ConformanceServices()
+		_out_ = []
+		_n_ = len($aStzServiceRegistries[This._Slot()][3])
+		for _i_ = 1 to _n_
+			if $aStzServiceRegistries[This._Slot()][3][_i_][3] = :conformance
+				_out_ + $aStzServiceRegistries[This._Slot()][3][_i_][1]
+			ok
+		next
+		return _out_
+
+	def IsConformance(pcService)
+		return This.PostureOf(pcService) = :conformance
 
 	# every service still bound to a fake -- the "what is not real yet" list.
 	def SandboxedServices()
@@ -346,7 +397,17 @@ class stzServiceRegistry from stzObject
 		for _i_ = 1 to _n_
 			_aF_ + _a1_[_i_]
 		next
+		_a1_ = This._CheckConformanceInProduction()
+		_n_ = len(_a1_)
+		for _i_ = 1 to _n_
+			_aF_ + _a1_[_i_]
+		next
 		_a1_ = This._CheckLiveCredentials(poStore)
+		_n_ = len(_a1_)
+		for _i_ = 1 to _n_
+			_aF_ + _a1_[_i_]
+		next
+		_a1_ = This._CheckLiveCertificates(poStore)
 		_n_ = len(_a1_)
 		for _i_ = 1 to _n_
 			_aF_ + _a1_[_i_]
@@ -376,7 +437,8 @@ class stzServiceRegistry from stzObject
 		_aF_ = This.FindingsVia(poStore)
 		? "Service registry '" + @cName + "' [" + $aStzServiceRegistries[This._Slot()][4] + "] -- " +
 		  len($aStzServiceRegistries[This._Slot()][3]) + " bound: " + len(This.SandboxedServices()) + " sandboxed, " +
-		  len(This.LocalServices()) + " local, " + len(This.LiveServices()) + " live"
+		  len(This.LocalServices()) + " local, " + len(This.LiveServices()) + " live" +
+		  This._ConformanceNote()
 		if len(_aF_) = 0
 			? "  (no findings)"
 			return This
@@ -586,11 +648,84 @@ class stzServiceRegistry from stzObject
 		next
 		return _aF_
 
+	# virtual money in a production phase: the same mistake as a fake, caught by the same gate
+	def _CheckConformanceInProduction()
+		_aF_ = []
+		if NOT This.IsProduction()
+			return _aF_
+		ok
+		_a_ = This.ConformanceServices()
+		_n_ = len(_a_)
+		for _i_ = 1 to _n_
+			_aF_ + [ :invariant = "conformance-in-production", :severity = :error,
+			         :where = @cName + "/" + _a_[_i_],
+			         :message = "still bound to a CONFORMANCE sandbox in a production phase -- " +
+			                    "virtual money must never ship" ]
+		next
+		return _aF_
+
+	# A live adapter that needs an mTLS client certificate. Asked of the OBJECT (it says so with
+	# RequiresCertificate() and CertificateSecretName()), or named by the binding. Judged from
+	# the store alone, in any phase, like live-without-secret.
+	def _CheckLiveCertificates(poStore)
+		_aF_ = []
+		if NOT isObject(poStore)
+			return _aF_
+		ok
+		_nNow_ = StzEngineTimeNowMs() / 1000
+		_n_ = len($aStzServiceRegistries[This._Slot()][3])
+		for _i_ = 1 to _n_
+			if $aStzServiceRegistries[This._Slot()][3][_i_][3] != :live
+				loop
+			ok
+			_svc_ = $aStzServiceRegistries[This._Slot()][3][_i_][1]
+			_cert_ = $aStzServiceRegistries[This._Slot()][3][_i_][5]
+			if _cert_ = ""
+				try
+					if $aStzServiceRegistries[This._Slot()][3][_i_][2].RequiresCertificate()
+						_cert_ = "" + $aStzServiceRegistries[This._Slot()][3][_i_][2].CertificateSecretName()
+					ok
+				catch
+					# says nothing about needing one
+				done
+			ok
+			if _cert_ = ""
+				loop
+			ok
+			_cWhere_ = @cName + "/" + _svc_
+			if NOT poStore.Has(_cert_)
+				_aF_ + [ :invariant = "live-without-certificate", :severity = :error, :where = _cWhere_,
+				         :message = "the mTLS certificate '" + _cert_ + "' is not in the secret store" ]
+				loop
+			ok
+			_oC_ = poStore.Secret(_cert_)
+			if _oC_.SourceKind() = "unset"
+				_aF_ + [ :invariant = "live-without-certificate", :severity = :error, :where = _cWhere_,
+				         :message = "the mTLS certificate '" + _cert_ + "' is in the store but has no value" ]
+				loop
+			ok
+			if isMethod(_oC_, "IsExpiredAt")
+				if _oC_.IsExpiredAt(_nNow_)
+					_aF_ + [ :invariant = "live-without-certificate", :severity = :error, :where = _cWhere_,
+					         :message = "the mTLS certificate '" + _cert_ + "' is expired -- the hub will refuse every call" ]
+				ok
+			ok
+		next
+		return _aF_
+
+	def _ConformanceNote()
+		_n_ = len(This.ConformanceServices())
+		if _n_ = 0
+			return ""
+		ok
+		return ", " + _n_ + " conformance"
+
 	def _CheckLiveCredentials(poStore)
 		_aF_ = []
 		_n_ = len($aStzServiceRegistries[This._Slot()][3])
 		for _i_ = 1 to _n_
-			if $aStzServiceRegistries[This._Slot()][3][_i_][3] != :live
+			if $aStzServiceRegistries[This._Slot()][3][_i_][3] != :live and
+			   $aStzServiceRegistries[This._Slot()][3][_i_][3] != :conformance
 				loop
 			ok
 			_svc_ = $aStzServiceRegistries[This._Slot()][3][_i_][1]
@@ -606,12 +741,19 @@ class stzServiceRegistry from stzObject
 					_aF_ + [ :invariant = "live-without-secret", :severity = :error,
 					         :where = @cName + "/" + _svc_,
 					         :message = "credential '" + _sec_ + "' is not in the secret store" ]
+				else
+					# a descriptor registered and never given a value is a NAME, not a credential
+					if poStore.Secret(_sec_).SourceKind() = "unset"
+						_aF_ + [ :invariant = "live-without-secret", :severity = :error,
+						         :where = @cName + "/" + _svc_,
+						         :message = "credential '" + _sec_ + "' is in the secret store but has no value" ]
+					ok
 				ok
 			ok
 		next
 		return _aF_
 
-	def _BindWith(pcService, poImpl, pcPosture, pcSecret)
+	def _BindWith(pcService, poImpl, pcPosture, pcSecret, pcCert)
 		if NOT isObject(poImpl)
 			StzRaise("stzServiceRegistry.Bind: an implementation object is required for '" +
 			         This._Key(pcService) + "'.")
@@ -619,7 +761,7 @@ class stzServiceRegistry from stzObject
 		_s_ = This._Key(pcService)
 		This.DeclareQ(_s_)              # binding implies the dependency
 		_i_ = This._BoundIndex(_s_)
-		_rec_ = [ _s_, poImpl, pcPosture, "" + pcSecret ]
+		_rec_ = [ _s_, poImpl, pcPosture, "" + pcSecret, "" + pcCert ]
 		if _i_ > 0
 			$aStzServiceRegistries[This._Slot()][3][_i_] = _rec_        # re-binding replaces: dev -> live at deploy
 		else
@@ -636,6 +778,13 @@ class stzServiceRegistry from stzObject
 			ok
 		catch
 			# says nothing about being a fake -- fall through
+		done
+		try
+			if poImpl.IsConformance()
+				return :conformance
+			ok
+		catch
+			# says nothing about being a conformance adapter -- fall through
 		done
 		try
 			if poImpl.IsLocalReal()
