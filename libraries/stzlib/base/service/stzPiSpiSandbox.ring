@@ -2028,6 +2028,12 @@ class stzPiSpiSandbox from stzObject
 	def Id()
 		return @nId
 
+	# a face onto a hub that already exists (state is global, so a face is only an id): how the
+	# HTTP front's handler reaches the twin it serves
+	def AdoptHub(pnId)
+		@nId = pnId
+		return This
+
 	# THE contract: [ httpStatus, body ]. body is a list, or "" for a 204.
 	def Request(pcMethod, pcPath, paQuery, paBody)
 		_aQ_ = []
@@ -2151,6 +2157,20 @@ class stzPiSpiSandbox from stzObject
 			ok
 		next
 		return _n_
+
+	# every undelivered webhook, oldest first, marked delivered: what a hub's delivery loop would POST.
+	# [ hookId, callbackUrl, evCode, body, signature ] as records
+	def TakeUndelivered()
+		_a_ = []
+		for _i_ = 1 to ring_len($aPiOut)
+			if $aPiOut[_i_]["_hub"] = @nId and $aPiOut[_i_]["delivered"] = 0
+				$aPiOut[_i_]["delivered"] = 1
+				_a_ + [ [ "hookId", $aPiOut[_i_]["hookId"] ], [ "callbackUrl", $aPiOut[_i_]["callbackUrl"] ],
+					[ "evCode", $aPiOut[_i_]["evCode"] ], [ "body", $aPiOut[_i_]["body"] ],
+					[ "signature", $aPiOut[_i_]["signature"] ] ]
+			ok
+		next
+		return _a_
 
 	def LastCallbackBody()
 		_a_ = This.Deliveries()

@@ -684,6 +684,50 @@ token taken under one mTLS certificate is refused with another.
 
 ---
 
+## 9b. The live adapter, and the three stages
+
+`stzPispiHttpAdapter` is the other backend of the port: the same `Request(method, path, query, body)` the
+twin answers in-process, over the wire, to ANY participant. The base URL is configuration, the contract is
+the BCEAO's, and nothing in it names a bank; it promises no homologation (ruling 13).
+
+For every call it does, in this order: an **OAuth 2.0 client-credentials** token (asked for with the scopes it
+was configured with, prefixed `piz/` in the BCEAO's sandbox, cached for the process, refreshed a minute early,
+dropped and retried ONCE on a 401, because a revoked token and a stale one look the same); the **API key** in
+`x-api-key`; **mutual TLS** when the participant requires it (the certificate and key are PEM files the engine
+reads, named by a file-sourced secret descriptor so the private key never enters Ring, through
+`stzReactor.TlsRequest`); JSON written by a **schema-aware encoder** (arrays and booleans are the contract's);
+the query as `[ "montant[gte]", "4000" ]` pairs, percent-encoded where the wire needs it and not on the
+reference's brackets; and an RFC 7807 problem comes back as the same `[ status, problem ]` the twin gives, so
+the port raises the same `stzPaymentsProblem`.
+
+**A transport failure is not a payment problem.** When a request was sent and its response was lost, the
+platform cannot know whether money moved. The adapter RAISES a transport error, and the port journals the
+`txId` (and `instructionId`) so the next attempt READS the payment from the hub first; a 404 means the first
+attempt never arrived, and only then is it sent for real.
+
+`stzPiSpiHttpFront` is the twin served over HTTP behind `stzAppServer`, with what a participant puts in
+front of the contract: a token endpoint, the API key, the scope each operation needs, and (in a second
+process) mutual TLS. Its `/_twin/...` control surface, off unless `EnableControl()` is called, is for a test to
+drive the twin behind the wire.
+
+```ring live
+oAd = StzPispiHttpAdapterQ()
+oAd.WithParticipant("bia")
+oAd.WithBaseUrl("https://<the participant's base URL, version included>")
+oAd.WithSecretsFrom(oStore, oActor)        # client and API key, through the governed door
+oAd.WithCertificateFrom(oStore)            # production: descriptors that point at the PEM files
+oAd.AsLive()                               # or AsConformance() for the BCEAO's sandbox
+oPay = StzPaymentsPortQ(oAd)               # the port cannot tell it from the twin
+```
+
+| stage | what | status |
+|---|---|---|
+| (a) | the twin served over HTTP, plain and mutual TLS, in real server processes: tokens, scopes, all verbs, paging and filters, the twelve events verified by the port, a lost response, the registry's verdicts | **run**: `payments_live_adapter_narrated.ring` |
+| (b) | the BCEAO's sandbox, under DIKO's account, the author as mandataire | **UNPERCEIVED**: `payments_conformance_run.ring` needs credentials only the author holds and a named person to watch a payment land in the sandbox dashboard |
+| (c) | BIA in production | never from this plane, only inside DIKO's amendment |
+
+---
+
 ## 10. The don'ts, in this plane's own words
 
 - **No fee, ever.** Softanza takes nothing on any transaction, anywhere, in
@@ -711,9 +755,10 @@ token taken under one mTLS certificate is refused with another.
 - **No amount without a currency, no fractional franc, no cross-currency
   arithmetic.**
 - **No credential in a file, no cryptography in Ring, no second HTTP
-  client.** Client TLS exists: `stzHttpClient.SetClientCert(cert, key)`
-  reaches `CURLOPT_SSLCERT` / `CURLOPT_SSLKEY` in the engine's
-  `curlcore.zig` (read 2026-10-04); PY5 builds on it.
+  client.** Client TLS exists in ONE place: `stzReactor.TlsRequest`, the mbedTLS
+  client of `MTLS_PLAN.md` slice 3, which presents a PEM certificate. The live
+  adapter uses it. (`stzHttpClient.SetClientCert` does NOT work on Windows: see
+  section 11, item 12, which corrects what this line said until 2026-10-05.)
 - **No participant list in code without a date on it.** `GET /participants`
   is the list; anything cached from it carries the day it was read.
 - **No homologation promised that the BCEAO has not published.** The live
@@ -773,10 +818,18 @@ the portal's own guide pages. The reference (`openapi.yml` v1.5.0) wins.
     country table gives the CFA franc `Centime` / base 100. The amount
     type of PY1 does not read `stzCurrency` for the exponent. Both reported
     to the i18n owner through Central; not fixed from this plane.
-12. **Engine side, the good news:** mTLS on the HTTP client exists end to
-    end (`SetClientCert` -> `sslcert`/`sslkey` -> `CURLOPT_SSLCERT`/`SSLKEY`).
-    The finding the prompt asked for before PY5 is "present"; nothing goes
-    to Central as a blocker.
+12. **CORRECTED 2026-10-05, BY MEASUREMENT: `stzHttpClient.SetClientCert` does not present a client
+    certificate on this Windows build.** This item said "mTLS exists end to end through `SetClientCert`",
+    read from the code (`sslcert` reaches `CURLOPT_SSLCERT`) and never run. Run against the cluster
+    plane's own mutual-TLS worker, `stzHttpClient` with the certificate answers code -1 with no body, and
+    `stzReactor.TlsGet` with the same certificate is served. `MTLS_PLAN.md` slice 3 says why: the vendored
+    curl uses Schannel, which wants a Windows certificate-store reference and not a PEM. The client that
+    works is `stzReactor.TlsRequest`; the live adapter uses it, and no HTTP client was built. Its limits,
+    which the adapter handles: one request per connection, a response framed by Content-Length or read
+    until the peer closes (2 s idle), a 4 MB cap (a chunked body arrives with its markers and the adapter
+    decodes it). The mbedTLS client also verifies a real public server against the operating system's roots,
+    so the BCEAO sandbox, which has mTLS off, needs no certificate and no CA file. Reported to Central
+    before the adapter was written, as the launch prompt required; a premise that was only read is now run.
 13. **Bulk prose names a path that does not exist.** `POST /paiements-groupes` says to read the
     items at `GET /paiements?instructionId={id}`; the paths section has no `/paiements` list, only
     `/paiements-envoyes` and `/paiements-recus`. The twin filters `/paiements-envoyes` by
@@ -806,6 +859,17 @@ the portal's own guide pages. The reference (`openapi.yml` v1.5.0) wins.
 21. **The security event catalog gained three kinds** (`payout.committed`, `payout.refused`,
     `payout.unplanned`), additively, with `StzSecurityInvariantNames()` gaining
     `ungoverned-payouts-in-production`. Reported to the security desk with the PY3 kinds.
+22. **The engine's HTTP client ejects a host that refuses a few connections** ("host ejected by outlier
+    detector", code -1), so polling a server that is still starting makes it unreachable for the rest of
+    the run. A guard waits for the server's own announcement (a log line) and never polls it over HTTP.
+    This applies to the plain-HTTP path of the adapter (the twin in development); the production path is
+    https through `TlsRequest`, which has no such ejector.
+23. **The certificate-bound token is not modelled by the HTTP front.** The real hub refuses a token taken
+    under one mTLS certificate when it is used under another. The engine does not expose the peer
+    certificate to a handler, so the front cannot see which certificate a call came on. The front says so.
+24. **`ListToJson` cannot write the contract's bodies**: `[]` becomes `{}`, and a one-pair array becomes an
+    object. The adapter writes its JSON with a small schema-aware encoder, and reads with `StzJsonToList`,
+    which maps `true`/`false` to 1/0, the convention the whole port already uses.
 
 ---
 
@@ -818,7 +882,7 @@ the portal's own guide pages. The reference (`openapi.yml` v1.5.0) wins.
 | PY2 | `stzPaymentsPort` on the PI-SPI verbs; `stzPiSpiSandbox` the twin; card verbs in `stzCardPaymentsAdapter`; `payments_port_narrated` (49) unchanged | `base/test/system/pispi_twin_narrated.ring` |
 | PY3 | `:conformance` posture, the two invariants, the webhook verifier, five secret descriptors, expiry as a detection | `service_registry_narrated` extended; `payments_webhooks_narrated.ring`; `payments_secrets_narrated.ring` |
 | PY4 | payout plan, four-visa rule, payout journal, `payout-without-plan` refused by the port | `payments_governance_narrated.ring` |
-| PY5 | the live adapter, generic over the participant: (a) against the twin over HTTP behind `stzAppServer`; (b) conformance under DIKO's sandbox account, *unperceived* until a named person sees a payment land; (c) BIA in production only inside DIKO's amendment | `payments_live_adapter_narrated.ring` |
+| PY5 | the live adapter, generic over the participant: (a) against the twin over HTTP behind `stzAppServer`, plain and mutual TLS; (b) conformance under DIKO's sandbox account, *unperceived* until a named person sees a payment land; (c) BIA in production only inside DIKO's amendment | `payments_live_adapter_narrated.ring` (a); `payments_conformance_run.ring` (b, UNPERCEIVED without credentials) |
 | PY6 | the chapter: a dynamic QR, a customer pays, the webhook lands and is verified, a supplier is paid under four visas, and the registry refuses it all in production while the twin is bound | the chapter itself, run end to end |
 
 Baseline measured 2026-10-04 on the worktree at 010743cce, each guard run
