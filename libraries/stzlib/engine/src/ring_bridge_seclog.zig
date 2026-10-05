@@ -93,6 +93,30 @@ fn ring_SecLogSeverityAt(p: *anyopaque) callconv(.c) void {
     rn(p, seclog.seclog_severity_at(getLog(p, 1), gn(p, 2)));
 }
 
+// StzEngineSecLogSetRefusalBudget(h, nMax, nWindowMs) -- nMax 0 = off
+fn ring_SecLogSetRefusalBudget(p: *anyopaque) callconv(.c) void {
+    seclog.seclog_set_refusal_budget(getLog(p, 1), gn(p, 2), gn(p, 3));
+    rn(p, 0);
+}
+
+fn ring_SecLogBudgetMax(p: *anyopaque) callconv(.c) void {
+    rn(p, seclog.seclog_budget_max(getLog(p, 1)));
+}
+
+fn ring_SecLogBudgetWindow(p: *anyopaque) callconv(.c) void {
+    rn(p, seclog.seclog_budget_window(getLog(p, 1)));
+}
+
+fn ring_SecLogSuppressed(p: *anyopaque) callconv(.c) void {
+    rn(p, seclog.seclog_suppressed(getLog(p, 1)));
+}
+
+// StzEngineSecLogFlushBudget(h, nWallMs)
+fn ring_SecLogFlushBudget(p: *anyopaque) callconv(.c) void {
+    seclog.seclog_flush_budget(getLog(p, 1), gn(p, 2));
+    rn(p, 0);
+}
+
 fn ring_SecLogVerify(p: *anyopaque) callconv(.c) void {
     rn(p, seclog.seclog_verify(getLog(p, 1)));
 }
@@ -158,6 +182,11 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineseclogwallat", .func = &ring_SecLogWallAt },
     .{ .name = "stzengineseclogseverityat", .func = &ring_SecLogSeverityAt },
     .{ .name = "stzengineseclogverify", .func = &ring_SecLogVerify },
+    .{ .name = "stzengineseclogsetrefusalbudget", .func = &ring_SecLogSetRefusalBudget },
+    .{ .name = "stzengineseclogbudgetmax", .func = &ring_SecLogBudgetMax },
+    .{ .name = "stzengineseclogbudgetwindow", .func = &ring_SecLogBudgetWindow },
+    .{ .name = "stzengineseclogsuppressed", .func = &ring_SecLogSuppressed },
+    .{ .name = "stzengineseclogflushbudget", .func = &ring_SecLogFlushBudget },
     .{ .name = "stzengineseclogreset", .func = &ring_SecLogReset },
     .{ .name = "stzengineseclogdestroy", .func = &ring_SecLogDestroy },
 };

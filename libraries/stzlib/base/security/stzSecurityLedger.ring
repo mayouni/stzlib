@@ -445,6 +445,32 @@ class stzSecurityLedger from stzObject
 		This._Ensure()
 		return StzEngineSecLogSize(pHandle)
 
+	  #-- the refusal budget (SECURITY-LEDGERFLOOD-01) -----------------
+
+	# A refused kind writes at most pnMax lines per pnWindowMs; past it the
+	# engine counts them, writes one marker, and closes the window with one
+	# summary line carrying the count. 64 per minute by default. pnMax = 0
+	# turns it off. Grants are never budgeted.
+	def SetRefusalBudget(pnMax, pnWindowMs)
+		This._Ensure()
+		StzEngineSecLogSetRefusalBudget(pHandle, pnMax, pnWindowMs)
+		return This
+
+	def RefusalBudget()
+		This._Ensure()
+		return [ :max = StzEngineSecLogBudgetMax(pHandle), :windowMs = StzEngineSecLogBudgetWindow(pHandle) ]
+
+	# Refusals counted rather than written, ever.
+	def Suppressed()
+		This._Ensure()
+		return StzEngineSecLogSuppressed(pHandle)
+
+	# Close every open budget window now, writing each count into the chain.
+	def FlushRefusalCounts()
+		This._Ensure()
+		StzEngineSecLogFlushBudget(pHandle, StzEngineTimeNowMs())
+		return This
+
 	  #-- reading -----------------------------------------------------
 
 	# The record at 1-based position i (oldest retained first), in the
