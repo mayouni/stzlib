@@ -3911,25 +3911,66 @@ func _NormalizeColLookupKey(pVal)
 	 #  EXTANDING THE TABLE  # // TODO
 	#=======================#
 
-	# Raises error today instead of growing the table to a given size.
+	# Grows the table to at least the given number of columns and rows, in place; the new cells are empty text.
 	#
 	#   _nCol_     the number of columns to reach
 	#   _nRow_     the number of rows to reach
-	#   returns    nothing; it raises
-	#   warning    Always raises Unsupported feature in this release!
+	#   returns    nothing; the table changes
 	def Extend(_nCol_, _nRow_)
+		if NOT ( isNumber(_nCol_) and isNumber(_nRow_) )
+			StzRaise("Incorrect param type! _nCol_ and _nRow_ must be numbers.")
+		ok
 
-		/* ... */
-		StzRaise("Unsupported feature in this release!")
+		_nColsEx_ = This.NumberOfCols()
+		_nRowsEx_ = This.NumberOfRows()
 
-		# Does nothing today instead of growing the table to a given size.
+		# The table only grows: a size smaller than the present one changes nothing
+		if _nRow_ < _nRowsEx_
+			_nRow_ = _nRowsEx_
+		ok
+
+		_aContentEx_ = @aContent
+
+		if _nRow_ > _nRowsEx_
+			for i = 1 to _nColsEx_
+				for j = _nRowsEx_ + 1 to _nRow_
+					_aContentEx_[i][2] + ""
+				next
+			next
+		ok
+
+		for i = _nColsEx_ + 1 to _nCol_
+			_cNameEx_ = "col" + i
+			while This._ColNameTakenIn(_aContentEx_, _cNameEx_)
+				_cNameEx_ += "_"
+			end
+
+			_aCellsEx_ = []
+			for j = 1 to _nRow_
+				_aCellsEx_ + ""
+			next
+			_aContentEx_ + [ _cNameEx_, _aCellsEx_ ]
+		next
+
+		This.UpdateWith(_aContentEx_)
+
+	def _ColNameTakenIn(paContent, pcName)
+		_nLenCn_ = len(paContent)
+		for _iCn_ = 1 to _nLenCn_
+			if StzLower(paContent[_iCn_][1]) = StzLower(pcName)
+				return 1
+			ok
+		next
+		return 0
+
+		# Grows the table to at least the given number of columns and rows, in place; the new cells are empty text.
 		#
 		#   _nCol_     the number of columns to reach
 		#   _nRow_     the number of rows to reach
-		#   returns    nothing; the table is unchanged
-		#   warning    Its body is empty
+		#   returns    nothing; the table changes
 		#   see        Extend
 		def ExtendTo(_nCol_, _nRow_)
+			This.Extend(_nCol_, _nRow_)
 
 	  #======================#
 	 #  UPDATING THE TABLE  #
@@ -4051,15 +4092,16 @@ func _NormalizeColLookupKey(pVal)
 			def UpdateUsingQ(paNewTable)
 				return This.UpdateQ(paNewTable)
 
-	# Returns its argument unchanged and leaves the table alone, instead of returning an updated copy.
+	# Returns a copy of the table whose whole content is replaced, leaving the original untouched.
 	#
 	#   paNewTable   the value handed back
-	#   returns      the argument itself
-	#   warning      Does not apply the new content: its body is only a return of the argument
+	#   returns      a new stzTable
 	#   see          Update
 		#>
 	def Updated(paNewTable)
-		return paNewTable
+		_oUpdated_ = This.Copy()
+		_oUpdated_.Update(paNewTable)
+		return _oUpdated_
 
 		#< @FunctionAlternativeForms
 
@@ -4900,14 +4942,11 @@ func _NormalizeColLookupKey(pVal)
 	 #  INSERTING A COLUMN  #
 	#======================#
 
-	# Does nothing today instead of inserting a new column before or after a given position.
+	# Inserts a new column so that it becomes column n, in place; its cells are padded or cut to the number of rows.
 	#
 	#   _n_         the position of the column
 	#   paColData   the new column as [ name, list of cells ]
-	#   returns     nothing; the table is unchanged
-	#   warning     Does nothing today: the body appends the column to the stored content but then
-	#               restores the content copied before, so the table is unchanged; AddColumn appends
-	#               a column
+	#   returns     nothing; the table changes
 	#   see         AddColumn
 	def InsertCol(_n_, paColData)
 		if CheckingParams()
@@ -4930,8 +4969,16 @@ func _NormalizeColLookupKey(pVal)
 		ok
 
 		if isList(_n_)
-			This.InsertColAtPositions(_n_, paRowData)
-			return
+			StzRaise("Incorrect param type! A column is inserted at one position: n must be a number.")
+		ok
+
+		_cColNameIc_ = paColData[1]
+		if This.IsColName(_cColNameIc_)
+			StzRaise("Can't insert the column! The name you provided already exists.")
+		ok
+
+		if _n_ < 1 or _n_ > This.NumberOfCols() + 1
+			StzRaise("Incorrect param value! n must be between 1 and the number of columns plus one.")
 		ok
 
 		# Preparing the column name and data
@@ -4955,159 +5002,132 @@ func _NormalizeColLookupKey(pVal)
 			next
 		ok
 
-		# Adding the column
+		# Inserting the column, so that it becomes column n
 
-		_aContent_ = @aContent
-		@aContent + [ _cColName_, _aColData_ ]
-		This.UpdateWith(_aContent_)
+		ring_insert(@aContent, _n_, [ _cColName_, _aColData_ ])
+		This._InvalidateEngine()
 
 
-		# Does nothing today instead of inserting a new column before or after a given position.
+		# Inserts a new column so that it becomes column n, in place; its cells are padded or cut to the number of rows.
 		#
 		#   _n_         the position of the column
 		#   paRowData   the new column as [ name, list of cells ]
-		#   returns     nothing; the table is unchanged
-		#   warning     Does nothing today: the body appends the column to the stored content but
-		#               then restores the content copied before, so the table is unchanged
+		#   returns     nothing; the table changes
 		#   see         AddColumn
 		#< @FunctionAlternativeForms
 		def InsertColBefore(_n_, paRowData)
 			This.InsertCol(_n_, paRowData)
 
-		# Does nothing today instead of inserting a new column before or after a given position.
+		# Inserts a new column so that it becomes column n, in place; its cells are padded or cut to the number of rows.
 		#
 		#   _n_         the position of the column
 		#   paRowData   the new column as [ name, list of cells ]
-		#   returns     nothing; the table is unchanged
-		#   warning     Does nothing today: the body appends the column to the stored content but
-		#               then restores the content copied before, so the table is unchanged
+		#   returns     nothing; the table changes
 		#   see         AddColumn
 		def InsertColBeforePosition(_n_, paRowData)
 			This.InsertCol(_n_, paRowData)
 
-		# Does nothing today instead of inserting a new column before or after a given position.
+		# Inserts a new column so that it becomes column n, in place; its cells are padded or cut to the number of rows.
 		#
 		#   _n_         the position of the column
 		#   paRowData   the new column as [ name, list of cells ]
-		#   returns     nothing; the table is unchanged
-		#   warning     Does nothing today: the body appends the column to the stored content but
-		#               then restores the content copied before, so the table is unchanged
+		#   returns     nothing; the table changes
 		#   see         AddColumn
 		#@ aka  --
 		def insertColAt(_n_, paRowData)
 			This.InsertCol(_n_, paRowData)
 
-		# Does nothing today instead of inserting a new column before or after a given position.
+		# Inserts a new column so that it becomes column n, in place; its cells are padded or cut to the number of rows.
 		#
 		#   _n_         the position of the column
 		#   paRowData   the new column as [ name, list of cells ]
-		#   returns     nothing; the table is unchanged
-		#   warning     Does nothing today: the body appends the column to the stored content but
-		#               then restores the content copied before, so the table is unchanged
+		#   returns     nothing; the table changes
 		#   see         AddColumn
 		def InsertColAtPosition(_n_, paRowData)
 			This.InsertCol(_n_, paRowData)
 
-		# Does nothing today instead of inserting a new column before or after a given position.
+		# Inserts a new column so that it becomes column n, in place; its cells are padded or cut to the number of rows.
 		#
 		#   _n_         the position of the column
 		#   paRowData   the new column as [ name, list of cells ]
-		#   returns     nothing; the table is unchanged
-		#   warning     Does nothing today: the body appends the column to the stored content but
-		#               then restores the content copied before, so the table is unchanged
+		#   returns     nothing; the table changes
 		#   see         AddColumn
 		#@ aka  ==
 		def InsertColumn(_n_, paRowData)
 			This.InsertCol(_n_, paRowData)
 
-		# Does nothing today instead of inserting a new column before or after a given position.
+		# Inserts a new column so that it becomes column n, in place; its cells are padded or cut to the number of rows.
 		#
 		#   _n_         the position of the column
 		#   paRowData   the new column as [ name, list of cells ]
-		#   returns     nothing; the table is unchanged
-		#   warning     Does nothing today: the body appends the column to the stored content but
-		#               then restores the content copied before, so the table is unchanged
+		#   returns     nothing; the table changes
 		#   see         AddColumn
 		def InsertColumnBefore(_n_, paRowData)
 			This.InsertCol(_n_, paRowData)
 
-		# Does nothing today instead of inserting a new column before or after a given position.
+		# Inserts a new column so that it becomes column n, in place; its cells are padded or cut to the number of rows.
 		#
 		#   _n_         the position of the column
 		#   paRowData   the new column as [ name, list of cells ]
-		#   returns     nothing; the table is unchanged
-		#   warning     Does nothing today: the body appends the column to the stored content but
-		#               then restores the content copied before, so the table is unchanged
+		#   returns     nothing; the table changes
 		#   see         AddColumn
 		def InsertColumnBeforePosition(_n_, paRowData)
 			This.InsertCol(_n_, paRowData)
 
-		# Does nothing today instead of inserting a new column before or after a given position.
+		# Inserts a new column so that it becomes column n, in place; its cells are padded or cut to the number of rows.
 		#
 		#   _n_         the position of the column
 		#   paRowData   the new column as [ name, list of cells ]
-		#   returns     nothing; the table is unchanged
-		#   warning     Does nothing today: the body appends the column to the stored content but
-		#               then restores the content copied before, so the table is unchanged
+		#   returns     nothing; the table changes
 		#   see         AddColumn
 		#@ aka  --
 		def insertColumnAt(_n_, paRowData)
 			This.InsertCol(_n_, paRowData)
 
-		# Does nothing today instead of inserting a new column before or after a given position.
+		# Inserts a new column so that it becomes column n, in place; its cells are padded or cut to the number of rows.
 		#
 		#   _n_         the position of the column
 		#   paRowData   the new column as [ name, list of cells ]
-		#   returns     nothing; the table is unchanged
-		#   warning     Does nothing today: the body appends the column to the stored content but
-		#               then restores the content copied before, so the table is unchanged
+		#   returns     nothing; the table changes
 		#   see         AddColumn
 		def InsertColumnAtPosition(_n_, paRowData)
 			This.InsertCol(_n_, paRowData)
 
-	# Does nothing today instead of inserting a new column before or after a given position.
+	# Inserts a new column just after column n, in place, so that it becomes column n+1.
 	#
 	#   _n_         the position of the column
 	#   paRowData   the new column as [ name, list of cells ]
-	#   returns     nothing; the table is unchanged
-	#   warning     Does nothing today: the body appends the column to the stored content but then
-	#               restores the content copied before, so the table is unchanged
+	#   returns     nothing; the table changes
 	#   see         AddColumn
 		#>
 	def InsertColAfter(_n_, paRowData)
 		This.InsertColAt(_n_+1, paRowData)
 
-		# Does nothing today instead of inserting a new column before or after a given position.
+		# Inserts a new column just after column n, in place, so that it becomes column n+1.
 		#
 		#   _n_         the position of the column
 		#   paRowData   the new column as [ name, list of cells ]
-		#   returns     nothing; the table is unchanged
-		#   warning     Does nothing today: the body appends the column to the stored content but
-		#               then restores the content copied before, so the table is unchanged
+		#   returns     nothing; the table changes
 		#   see         AddColumn
 		#< @FunctionAlternativeForm
 		def InsertColAfterPosition(_n_, paRowData)
 			This.InsertColAfter(_n_, paRowData)
 
-		# Does nothing today instead of inserting a new column before or after a given position.
+		# Inserts a new column just after column n, in place, so that it becomes column n+1.
 		#
 		#   _n_         the position of the column
 		#   paRowData   the new column as [ name, list of cells ]
-		#   returns     nothing; the table is unchanged
-		#   warning     Does nothing today: the body appends the column to the stored content but
-		#               then restores the content copied before, so the table is unchanged
+		#   returns     nothing; the table changes
 		#   see         AddColumn
 		#@ aka  --
 		def InsertColumnAfter(_n_, paRowData)
 			This.InsertColAfter(_n_, paRowData)
 
-		# Does nothing today instead of inserting a new column before or after a given position.
+		# Inserts a new column just after column n, in place, so that it becomes column n+1.
 		#
 		#   _n_         the position of the column
 		#   paRowData   the new column as [ name, list of cells ]
-		#   returns     nothing; the table is unchanged
-		#   warning     Does nothing today: the body appends the column to the stored content but
-		#               then restores the content copied before, so the table is unchanged
+		#   returns     nothing; the table changes
 		#   see         AddColumn
 		def InsertColumnAfterPosition(_n_, paRowData)
 			This.InsertColAfter(_n_, paRowData)
@@ -6210,13 +6230,11 @@ func _NormalizeColLookupKey(pVal)
 	 #   REPLACING A COLUMN NAME   #
 	#=============================#
 
-	# Leaves the table unchanged today instead of giving a column a new name.
+	# Gives a column a new name, in place; a name already used by another column raises an error.
 	#
 	#   _n_            the position of the column
 	#   pcNewColName   the new name, as text, or [ :With, name ]
-	#   returns        nothing; the table is unchanged
-	#   warning        Does nothing because the body renames the stored content and then restores
-	#                  the content copied before; a name that already exists still raises an error
+	#   returns        nothing; the table changes
 	#   see            RenameNthCol
 	def ReplaceNthColName(_n_, pcNewColName)
 		if NOT isNumber(_n_)
@@ -6225,12 +6243,10 @@ func _NormalizeColLookupKey(pVal)
 
 		This.ReplaceColName(_n_, pcNewColName)
 
-	# Leaves the table unchanged today instead of giving a column a new name.
+	# Gives a column a new name, in place; a name already used by another column raises an error.
 	#
 	#   pcNewColName   the new name, as text, or [ :With, name ]
-	#   returns        nothing; the table is unchanged
-	#   warning        Does nothing because the body renames the stored content and then restores
-	#                  the content copied before; a name that already exists still raises an error
+	#   returns        nothing; the table changes
 	#   see            RenameNthCol
 	def ReplaceColName(pCol, pcNewColName)
 		if isList(pcNewColName) and Q(pcNewColName).IsWithOrByNamedParam()
@@ -6241,23 +6257,23 @@ func _NormalizeColLookupKey(pVal)
 			StzRaise("Incorrect param type! pcNewColName must be a string.")
 		ok
 
-		if This.IsColName(pcNewColName)
+		_nSame_ = This.FindColByName(pcNewColName)
+		if _nSame_ != 0 and _nSame_ != This.FindCol(pCol)
 			StzRaise("Can't replace the column with this name (" + pcNewColName + ")! Name you provided already exists.")
 		ok
 
-		_aContent_ = @aContent
-		_n_ = This.ColNumber(pCol)
-		@aContent[_n_][1] = pcNewColName
-		This.UpdateWith(_aContent_)
+		_n_ = This.FindCol(pCol)
+		if _n_ = 0
+			StzRaise("Column not found!")
+		ok
+
+		This.RenameNthCol(_n_, pcNewColName)
 
 
-		# Leaves the table unchanged today instead of giving a column a new name.
+		# Gives a column a new name, in place; a name already used by another column raises an error.
 		#
 		#   pcNewColName   the new name, as text, or [ :With, name ]
-		#   returns        nothing; the table is unchanged
-		#   warning        Does nothing because the body renames the stored content and then
-		#                  restores the content copied before; a name that already exists still
-		#                  raises an error
+		#   returns        nothing; the table changes
 		#   see            RenameNthCol
 		#< @FunctionAlternativeForm
 		def ReplaceColumnName(pCol, pcNewColName)
@@ -16981,26 +16997,22 @@ func _NormalizeColLookupKey(pVal)
 	 #  REPLACING A COLUMN BY AN OTHER PROVIDED AS A COLUMN NAME AND A LIST OF ROWS  #
 	#===============================================================================#
 
-	# Replaces the cells of a column, in place, but leaves its name unchanged today.
+	# Gives a column a new name and new cells, in place.
 	#
 	#   pcColName   the new column name, as text
 	#   paColData   the new cells of the column
 	#   returns     nothing; the table changes
-	#   warning     The new name is dropped because the renaming it relies on, ReplaceNthColName,
-	#               changes nothing; the new cells are applied
 	#   see         ReplaceNthColNamedAndData
 	def ReplaceColNameAndData(pCol, pcColName, paColData)
 		_nCol_ = This.ColToColNumber(pCol)
 		This.ReplaceNthColName(_nCol_, pcColName)
 		This.ReplaceNthCol(_nCol_, paColData)
 
-		# Replaces the cells of a column, in place, but leaves its name unchanged today.
+		# Gives a column a new name and new cells, in place.
 		#
 		#   pcColName   the new column name, as text
 		#   paColData   the new cells of the column
 		#   returns     nothing; the table changes
-		#   warning     The new name is dropped because the renaming it relies on,
-		#               ReplaceNthColName, changes nothing; the new cells are applied
 		#   see         ReplaceNthColNamedAndData
 		#< @FunctionAlternativeForm
 		def ReplaceColumnNamedAndData(pCol, pcColName, paColData)
