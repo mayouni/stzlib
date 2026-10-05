@@ -218,6 +218,7 @@ func _TourRead(pcPath)
 			_bLabel_ = 0
 			if _i_ < _nL_ and substr(trim(_acL_[_i_ + 1]), "#-->") = 1  _bLabel_ = 1  ok
 			if _cWant_ != "" and NOT _bLabel_
+				_cWant_ += _TourContinuation(_acL_, _i_)
 				_aC_ = [ :line = _i_, :kind = _TourPromiseKind(_cWant_),
 				         :claim = trim(substr(_t_, 2, _nAt_ - 2)), :want = _cWant_ ]
 			ok
@@ -228,7 +229,15 @@ func _TourRead(pcPath)
 				_cW_ = trim(_acL_[_j_])
 				_cWant_ = trim(substr(_cW_, 5, len(_cW_) - 4))
 				if _cWant_ != ""
-					_aC_ = [ :line = _i_, :kind = _TourPromiseKind(_cWant_),
+					# the ? line's own trailing comment is part of the promise's
+					# words: "? o.Name()  # Should return China but returns C"
+					# followed by "#--> This induces ... in error:" is prose
+					# (locale/19, found comparing with promises.py)
+					_cNote_ = ""
+					_nHash_ = substr(_t_, "#")
+					if _nHash_ > 0  _cNote_ = substr(_t_, _nHash_, len(_t_) - _nHash_ + 1)  ok
+					_cWant_ += _TourContinuation(_acL_, _j_)
+					_aC_ = [ :line = _i_, :kind = _TourPromiseKind(_cWant_ + " " + _cNote_),
 					         :claim = trim(substr(_t_, 2, len(_t_) - 1)), :want = _cWant_ ]
 				ok
 			but _TourIsVerdictLine(_lt_)
@@ -241,6 +250,7 @@ func _TourRead(pcPath)
 			_cWant_ = trim(substr(_t_, 5, len(_t_) - 4))
 			_cPrev_ = trim(_acL_[_i_ - 1])
 			if _cWant_ != "" and substr(_cPrev_, "#-->") > 0 and substr(_cPrev_, "?") = 1
+				_cWant_ += _TourContinuation(_acL_, _i_)
 				_aC_ = [ :line = _i_, :kind = _TourPromiseKind(_cWant_),
 				         :claim = trim(substr(_cPrev_, 2, substr(_cPrev_, "#-->") - 2)), :want = _cWant_ ]
 			ok
@@ -401,6 +411,35 @@ func _TourFirstString(pcLine)
 		ok
 	next
 	return substr(pcLine, _nOpen_ + 1, _n_ - _nOpen_)
+
+# A promise may run over several lines: "#--> [" then "#   [ 1, 2 ]," ... --
+# 933 such blocks in 641 files. The lines after the #--> that open with a
+# plain # (never a second #-->) continue it, until a blank or a non-comment
+# line; joined with newlines, the traveller matches them line by line.
+func _TourContinuation(pacL, pnAfter)
+	# ... and only while it READS as a continuation: the line before ends
+	# with [ { or a comma, or this line opens like a list item ([ ] " ' } a
+	# digit or a minus). "#--> 5" followed by "# This shows that ..." is a
+	# promise and an explanation, not a two-line promise.
+	_c_ = ""
+	_n_ = len(pacL)
+	_j_ = pnAfter + 1
+	_cPrev_ = trim(pacL[pnAfter])
+	while _j_ <= _n_
+		_t_ = trim(pacL[_j_])
+		if _t_ = "" or substr(_t_, "#") != 1 or substr(_t_, "#-->") = 1  exit  ok
+		_cPart_ = trim(substr(_t_, 2, len(_t_) - 1))
+		if _cPart_ = ""  exit  ok
+		_cEnd_ = right(_cPrev_, 1)
+		_cOpen_ = left(_cPart_, 1)
+		_bOpens_ = (_cOpen_ = "[" or _cOpen_ = "]" or _cOpen_ = '"' or _cOpen_ = "'" or
+		            _cOpen_ = "}" or _cOpen_ = "-" or (ascii(_cOpen_) >= 48 and ascii(_cOpen_) <= 57))
+		if NOT (_cEnd_ = "[" or _cEnd_ = "," or _cEnd_ = "{" or _bOpens_)  exit  ok
+		_c_ += char(10) + _cPart_
+		_cPrev_ = _cPart_
+		_j_++
+	end
+	return _c_
 
 # A promise that argues with itself is PROSE, not an expectation (promises.py):
 #   #--> "C" but should be "sm_AS"      #--> NULL! (see why)
