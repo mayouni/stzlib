@@ -29,17 +29,17 @@ oTx = new stzTablex("{@cs:grouped(dept)}")
 #--> FALSE
 
 #--> DEBUG OUTPUT
-'
-=== CheckGrouped ===
-Token: [ [ "type", "grouped" ], [ "value", "dept" ], [ "constraints", [ ] ], [ "min", 1 ], [ "max", 1 ], [ "negated", 0 ], [ "casesensitive", 0 ] ]
-Column name: dept
-Has column: 1
-Case sensitive: 0
-Column data: [ "IT", "it", "HR" ]
-Comparing [1] 'IT' vs [2] 'it': 1
-Comparing [2] 'it' vs [3] 'HR': 0
-Consecutive duplicates found: 1
-'
+# '
+# === CheckGrouped ===
+# Token: [ [ "type", "grouped" ], [ "value", "dept" ], [ "constraints", [ ] ], [ "min", 1 ], [ "max", 1 ], [ "negated", 0 ], [ "casesensitive", 0 ] ]
+# Column name: dept
+# Has column: 1
+# Case sensitive: 0
+# Column data: [ "IT", "it", "HR" ]
+# Comparing [1] 'IT' vs [2] 'it': 1
+# Comparing [2] 'it' vs [3] 'HR': 0
+# Consecutive duplicates found: 1
+# '
 
 pf()
 # Executed in 0.12 second(s) in Ring 1.24
