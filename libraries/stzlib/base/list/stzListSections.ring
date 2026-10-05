@@ -259,7 +259,12 @@ class stzListSections from stzObject
 			return This.FindAntiSection(_n1_, _n2_)
 
 	def AntiSection(_n1_, _n2_)
-		_aAsResult_ = This.Section( This.FindAntiSection(_n1_, _n2_) )
+		_aAsSecs_ = This.FindAntiSection(_n1_, _n2_)
+		_aAsResult_ = []
+		_nAsLen_ = len(_aAsSecs_)
+		for _iAs_ = 1 to _nAsLen_
+			_aAsResult_ + This.Section(_aAsSecs_[_iAs_][1], _aAsSecs_[_iAs_][2])
+		next
 		return _aAsResult_
 
 		def AntiSectionQ(paSections)
@@ -390,7 +395,7 @@ class stzListSections from stzObject
 			return new stzList( This.AntiRanges(paRanges) )
 
 	def RangesAndAntiRanges(paRanges)
-		_aRarSections_ = SectionsToRanges(paRanges)
+		_aRarSections_ = RangesToSections(paRanges)
 		_aRarResult_ = @oList.SectionsAndAntiSections(_aRarSections_)
 		return _aRarResult_
 
@@ -417,7 +422,7 @@ class stzListSections from stzObject
 			return new stzList( This.AntiRangesIB(paRanges) )
 
 	def RangesAndAntiRangesIB(paRanges)
-		_aRaribSections_ = SectionsToRanges(paRanges)
+		_aRaribSections_ = RangesToSections(paRanges)
 		_aRaribResult_ = @oList.SectionsAndAntiSectionsIB(_aRaribSections_)
 		return _aRaribResult_
 

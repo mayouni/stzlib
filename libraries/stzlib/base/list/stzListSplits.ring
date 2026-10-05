@@ -461,3 +461,162 @@ class stzListSplits from stzObject
 		next
 		_aR_ + [ _prev_ + 1, _nL_ ]
 		return _aR_
+
+	  #=====================================================#
+	 #  SPLITTING WITH OPTIONS -- THE XT FORMS             #
+	#=====================================================#
+
+	# Turns the options of an XT form into [ kind, argument ].
+	#   kind  "before" : the argument lists the positions where a new part starts
+	#         "after"  : the argument lists the positions after which a new part starts
+	#         "at"     : the argument lists the positions where a new part starts, as "before" does
+	#         "parts"  : the argument is the number of parts
+	#         "size"   : the argument is the number of items in each part
+	def _XTResolve(p)
+		_vXrKey_ = ""
+		_vXrArg_ = ""
+		_bXrNamed_ = 0
+		if isList(p) and len(p) = 2 and isString(p[1])
+			_vXrKey_ = lower(p[1])
+			_vXrArg_ = p[2]
+			_bXrNamed_ = 1
+		ok
+
+		if _bXrNamed_
+			_aXrNames_ = [
+				[ "at", "before" ], [ "atposition", "before" ], [ "atthisposition", "before" ],
+				[ "atpositions", "at" ], [ "atthesepositions", "at" ], [ "atmanypositions", "at" ],
+				[ "before", "before" ], [ "beforeposition", "before" ], [ "beforethisposition", "before" ],
+				[ "beforepositions", "before" ], [ "beforethesepositions", "before" ],
+				[ "beforemanypositions", "before" ],
+				[ "after", "after" ], [ "afterposition", "after" ], [ "afterthisposition", "after" ],
+				[ "afterpositions", "after" ], [ "afterthesepositions", "after" ],
+				[ "aftermanypositions", "after" ],
+				[ "tonparts", "parts" ], [ "topartsofnitems", "size" ], [ "topartsofexactlynitems", "size" ]
+			]
+			_nXrNames_ = len(_aXrNames_)
+			for _iXr_ = 1 to _nXrNames_
+				if _aXrNames_[_iXr_][1] = _vXrKey_
+					_cXrKind_ = _aXrNames_[_iXr_][2]
+					if _cXrKind_ = "parts" or _cXrKind_ = "size"
+						return [ _cXrKind_, _vXrArg_ ]
+					ok
+					_aXrList_ = []
+					if isNumber(_vXrArg_)
+						_aXrList_ + _vXrArg_
+					but isList(_vXrArg_)
+						_aXrList_ = _vXrArg_
+					else
+						return [ "at", [] ]
+					ok
+					return [ _cXrKind_, _aXrList_ ]
+				ok
+			next
+		ok
+
+		if isNumber(p)
+			return [ "before", [ p ] ]
+		ok
+
+		_bXrNums_ = isList(p) and len(p) > 0
+		if _bXrNums_
+			_nXrP_ = len(p)
+			for _iXr_ = 1 to _nXrP_
+				if NOT isNumber(p[_iXr_])
+					_bXrNums_ = 0
+					exit
+				ok
+			next
+		ok
+		if _bXrNums_
+			return [ "at", p ]
+		ok
+
+		return [ "at", @oList.FindAllCS(p, 1) ]
+
+	# Orders positions ascending, without repeats and without those outside nMin to nMax.
+	def _XTSortedPositions(panPos, nMin, nMax)
+		_anXsOut_ = []
+		_nXsLen_ = len(panPos)
+		for _iXs_ = 1 to _nXsLen_
+			_nXsPos_ = panPos[_iXs_]
+			if _nXsPos_ >= nMin and _nXsPos_ <= nMax and find(_anXsOut_, _nXsPos_) = 0
+				_nXsAt_ = len(_anXsOut_) + 1
+				while _nXsAt_ > 1 and _anXsOut_[_nXsAt_ - 1] > _nXsPos_
+					_nXsAt_ = _nXsAt_ - 1
+				end
+				ring_insert(_anXsOut_, _nXsAt_, _nXsPos_)
+			ok
+		next
+		return _anXsOut_
+
+	# Returns the parts the options cut the list into; the list is unchanged.
+	def SplittedXT(p)
+		_aXtPlan_ = This._XTResolve(p)
+		_cXtKind_ = _aXtPlan_[1]
+		_vXtArg_ = _aXtPlan_[2]
+		if _cXtKind_ = "before"
+			return @oList.SplittedBeforePositions(_vXtArg_)
+		but _cXtKind_ = "after"
+			return @oList.SplittedAfterPositions(_vXtArg_)
+		but _cXtKind_ = "parts"
+			return This.SplittedToNParts(_vXtArg_)
+		but _cXtKind_ = "size"
+			return This.SplittedToPartsOfNItems(_vXtArg_)
+		ok
+		return This.SplittedAtPositions(_vXtArg_)
+
+	# Cuts the list into the parts the options give, in place.
+	def SplitXT(p)
+		@oList.UpdateWith( This.SplittedXT(p) )
+
+		def SplitXTQ(p)
+			This.SplitXT(p)
+			return This
+
+	# Returns the [ first, last ] position pair of each part the options give; the list is unchanged.
+	def SplittedAsSectionsXT(p)
+		_aSxPlan_ = This._XTResolve(p)
+		_cSxKind_ = _aSxPlan_[1]
+		_vSxArg_ = _aSxPlan_[2]
+		_nSxLen_ = This.NumberOfItems()
+		_aSxOut_ = []
+
+		if _cSxKind_ = "parts" or _cSxKind_ = "size"
+			_aSxParts_ = This.SplittedXT(p)
+			_nSxParts_ = len(_aSxParts_)
+			_nSxFrom_ = 1
+			for _iSx_ = 1 to _nSxParts_
+				_nSxTo_ = _nSxFrom_ + len(_aSxParts_[_iSx_]) - 1
+				_aSxOut_ + [ _nSxFrom_, _nSxTo_ ]
+				_nSxFrom_ = _nSxTo_ + 1
+			next
+			return _aSxOut_
+		ok
+
+		# "before" and "at" (the engine cuts before the position, keeping its item) and "after":
+		# a part starts at each position, or just past it
+		_anSxStarts_ = []
+		_nSxArg_ = len(_vSxArg_)
+		for _iSx_ = 1 to _nSxArg_
+			if _cSxKind_ = "after"
+				_anSxStarts_ + (_vSxArg_[_iSx_] + 1)
+			else
+				_anSxStarts_ + _vSxArg_[_iSx_]
+			ok
+		next
+		_anSxStarts_ = This._XTSortedPositions(_anSxStarts_, 2, _nSxLen_)
+		_nSxStarts_ = len(_anSxStarts_)
+		_nSxFrom_ = 1
+		for _iSx_ = 1 to _nSxStarts_
+			_aSxOut_ + [ _nSxFrom_, _anSxStarts_[_iSx_] - 1 ]
+			_nSxFrom_ = _anSxStarts_[_iSx_]
+		next
+		if _nSxLen_ > 0
+			_aSxOut_ + [ _nSxFrom_, _nSxLen_ ]
+		ok
+		return _aSxOut_
+
+	# Returns the [ first, last ] position pair of each part the options give; the list is unchanged.
+	def SplitAsSectionsXT(p)
+		return This.SplittedAsSectionsXT(p)

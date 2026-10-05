@@ -8754,65 +8754,59 @@ class stzList from stzObject
 	 #  SPLITTER DELEGATIONS       #
 	#-----------------------------#
 
-	# Raises error R14 today instead of splitting the list with the given options.
+	# Cuts the list into the parts the options give, in place; the options are a position, positions, an item or a named pair.
 	#
-	#   p          the item or the options to split with
-	#   returns    nothing today
-	#   warning    known defect: the call raises error R14 today, because it calls a method that is
-	#              not defined
-	#   see        SplittedAt
+	#   p          a position, a list of positions, an item, or a pair such as [ :AfterPosition, 3 ]
+	#   returns    nothing; the list becomes the list of parts
+	#   see        SplittedXT
+	#   example    o1.SplitXT([ :AfterPositions, [ 2, 4 ] ])
 	#@ aka  SplitAt already defined in core
 	def SplitXT(p)
 		_oSxtSplitter_ = new stzListSplits(This)
-		return _oSxtSplitter_.SplitXT(p)
+		_oSxtSplitter_.SplitXT(p)
+		This.UpdateWith(_oSxtSplitter_.Content())
 
-	# Raises error R14 today instead of returning the parts split with the given options.
+	# Returns the parts the options give; the list is unchanged.
 	#
-	#   p          the item or the options to split with
-	#   returns    nothing today
-	#   warning    known defect: the call raises error R14 today, because it calls a method that is
-	#              not defined
+	#   p          a position, a list of positions, an item, or a pair such as [ :AfterPosition, 3 ]
+	#   returns    a list of lists
 	#   see        SplittedAt
+	#   example    ? @@( o1.SplittedXT([ :BeforePosition, 3 ]) )
 	#@ aka  Split with the given item-or-options param; the parts, as data.
 	def SplittedXT(p)
 		_oSdxtSplitter_ = new stzListSplits(This)
 		return _oSdxtSplitter_.SplittedXT(p)
 
-	# Raises error R14 today instead of returning the sections of the parts.
+	# Returns the [ first, last ] positions of the parts the options give; the list is unchanged.
 	#
-	#   p          the item or the options to split with
-	#   returns    nothing today
-	#   warning    known defect: the call raises error R14 today, because it calls a method that is
-	#              not defined
-	#   see        SplittedAt
+	#   p          a position, a list of positions, an item, or a pair such as [ :AfterPosition, 3 ]
+	#   returns    a list of [ first, last ] pairs
+	#   see        SplittedXT
 	#@ aka  Split with the given item-or-options param; the [start, end] sections of the parts.
 	def SplitAsSectionsXT(p)
 		_oSasxtSplitter_ = new stzListSplits(This)
-		return _oSasxtSplitter_.SplitAsSectionsXT(p)
+		return _oSasxtSplitter_.SplittedAsSectionsXT(p)
 
-	# Raises error R14 today instead of returning the sections of the parts.
+	# Returns the [ first, last ] positions of the parts the options give; the list is unchanged.
 	#
-	#   p          the item or the options to split with
-	#   returns    nothing today
-	#   warning    known defect: the call raises error R14 today, because it calls a method that is
-	#              not defined
-	#   see        SplittedAt
+	#   p          a position, a list of positions, an item, or a pair such as [ :AfterPosition, 3 ]
+	#   returns    a list of [ first, last ] pairs
+	#   see        SplittedXT
 	#@ aka  The [start, end] sections of the parts, as data (XT options form).
 	def SplittedAsSectionsXT(p)
 		_oSdasxtSplitter_ = new stzListSplits(This)
 		return _oSdasxtSplitter_.SplittedAsSectionsXT(p)
 
-	# Leaves the list unchanged today instead of splitting it at an item or position.
+	# Splits the list in place before each occurrence of an item, or at a position.
 	#
 	#   pItemOrPos   the item or the position to split at
-	#   returns      nothing today
-	#   warning      known defect: the call computes the parts on a copy and drops them; use the
-	#                Splitted forms
+	#   returns    nothing; the list becomes the list of parts
 	#   see          SplittedAtPosition
 	#@ aka  Split the list at the given item (or position): the parts.
 	def SplitCS(pItemOrPos, pCaseSensitive)
 		_oScsSplitter_ = new stzListSplits(This)
-		return _oScsSplitter_.SplitCS(pItemOrPos, pCaseSensitive)
+		_oScsSplitter_.SplitCS(pItemOrPos, pCaseSensitive)
+		This.UpdateWith(_oScsSplitter_.Content())
 
 	# Splits the list at the given positions, in place; the items at those positions are dropped.
 	#
@@ -8862,17 +8856,16 @@ class stzList from stzObject
 		_oSdapzzSplitter_ = new stzListSplits(This)
 		return _oSdapzzSplitter_.SplittedAtPositionsZZ(panPos)
 
-	# Leaves the list unchanged today instead of splitting it at a position.
+	# Splits the list before the given position into two parts, in place.
 	#
 	#   _n_        the position to split at
-	#   returns    nothing today
-	#   warning    known defect: the call computes the parts on a copy and drops them;
-	#              SplittedAtPosition returns them
+	#   returns    nothing; the list becomes the list of parts
 	#   see        SplittedAtPosition
 	#@ aka  Split the list at the given position: the parts.
 	def SplitAtPosition(_n_)
 		_oSaposSplitter_ = new stzListSplits(This)
-		return _oSaposSplitter_.SplitAtPosition(_n_)
+		_oSaposSplitter_.SplitAtPosition(_n_)
+		This.UpdateWith(_oSaposSplitter_.Content())
 
 	# Returns the list cut at the given position into two parts; the list is unchanged.
 	#
@@ -8900,7 +8893,7 @@ class stzList from stzObject
 		_oSdacsSplitter_ = new stzListSplits(This)
 		return _oSdacsSplitter_.SplittedAtCS(pItem, pCaseSensitive)
 
-	# Returns the parts of the list cut at each occurrence of the item, the item itself not kept.
+	# Returns the list cut before each occurrence of the item, each part after the first starting with it.
 	#
 	#   returns    a list of lists
 	#   see        SplitAtPositions
@@ -8922,17 +8915,16 @@ class stzList from stzObject
 	def SplittedAtZZ(pItem)
 		return This.SplittedAtCSZZ(pItem, 1)
 
-	# Leaves the list unchanged today instead of splitting it before a position.
+	# Splits the list before the given position into two parts, in place.
 	#
 	#   _n_        the position to split before
-	#   returns    nothing today
-	#   warning    known defect: the call computes the parts on a copy and drops them;
-	#              SplittedBeforePosition returns them
+	#   returns    nothing; the list becomes the list of parts
 	#   see        SplittedBeforePosition
 	#@ aka  Split the list before the given position: the parts.
 	def SplitBeforePosition(_n_)
 		_oSbpSplitter_ = new stzListSplits(This)
-		return _oSbpSplitter_.SplitBeforePosition(_n_)
+		_oSbpSplitter_.SplitBeforePosition(_n_)
+		This.UpdateWith(_oSbpSplitter_.Content())
 
 	# Returns the list cut before the given position into two parts; the list is unchanged.
 	#
@@ -8945,31 +8937,30 @@ class stzList from stzObject
 		return _oSdbpSplitter_.SplittedBeforePosition(_n_)
 
 	def SplitBeforeCS(pItem, pCaseSensitive)
-		_oSbcsSplitter_ = new stzListSplits(This)
-		return _oSbcsSplitter_.SplitBeforeCS(pItem, pCaseSensitive)
+		_anSbcsPos_ = This.FindAllCS(pItem, pCaseSensitive)
+		if ring_len(_anSbcsPos_) > 0
+			This.SplitBeforePositions(_anSbcsPos_)
+		ok
 
-	# Splits the list before each occurrence of the item, but a known defect makes the call do nothing today.
+	# Splits the list in place, starting a new part at each occurrence of the item.
 	#
 	#   pItem      the item that opens each part
-	#   returns    nothing today
-	#   warning    known defect: the call changes nothing and returns nothing, because it splits a
-	#              copy of the list; SplitAt and SplitBeforePositions work
-	#   see        SplitAt, SplitBeforePositions
+	#   returns    nothing; the list becomes the list of parts
+	#   see        SplitAfter, SplitBeforePositions
 	#@ aka  Split the list before each occurrence of the item: each occurrence starts a new part.
 	def SplitBefore(pItem)
 		return This.SplitBeforeCS(pItem, 1)
 
-	# Leaves the list unchanged today instead of splitting it after a position.
+	# Splits the list after the given position into two parts, in place.
 	#
 	#   _n_        the position to split after
-	#   returns    nothing today
-	#   warning    known defect: the call computes the parts on a copy and drops them;
-	#              SplittedAfterPosition returns them
+	#   returns    nothing; the list becomes the list of parts
 	#   see        SplittedAfterPosition
 	#@ aka  Split the list after the given position: the parts.
 	def SplitAfterPosition(_n_)
 		_oSafpSplitter_ = new stzListSplits(This)
-		return _oSafpSplitter_.SplitAfterPosition(_n_)
+		_oSafpSplitter_.SplitAfterPosition(_n_)
+		This.UpdateWith(_oSafpSplitter_.Content())
 
 	# Returns the list cut after the given position into two parts; the list is unchanged.
 	#
@@ -8982,32 +8973,31 @@ class stzList from stzObject
 		return _oSdafpSplitter_.SplittedAfterPosition(_n_)
 
 	def SplitAfterCS(pItem, pCaseSensitive)
-		_oSafcsSplitter_ = new stzListSplits(This)
-		return _oSafcsSplitter_.SplitAfterCS(pItem, pCaseSensitive)
+		_anSafcsPos_ = This.FindAllCS(pItem, pCaseSensitive)
+		if ring_len(_anSafcsPos_) > 0
+			This.SplitAfterPositions(_anSafcsPos_)
+		ok
 
-	# Splits the list after each occurrence of the item, but a known defect makes the call do nothing today.
+	# Splits the list in place, ending a part at each occurrence of the item.
 	#
 	#   pItem      the item that closes each part
-	#   returns    nothing today
-	#   warning    known defect: the call changes nothing and returns nothing, because it splits a
-	#              copy of the list; SplitAt and SplitBeforePositions work
-	#   see        SplitAt, SplitBeforePositions
+	#   returns    nothing; the list becomes the list of parts
+	#   see        SplitBefore, SplitAfterPositions
 	#@ aka  Split the list after each occurrence of the item: each occurrence closes its part.
 	def SplitAfter(pItem)
 		return This.SplitAfterCS(pItem, 1)
 
-	# Leaves the list unchanged today instead of splitting it into n parts.
+	# Splits the list into n parts of near-equal size, in place.
 	#
 	#   _n_        the number of parts
-	#   returns    nothing today
-	#   warning    known defect: the call computes the parts on a copy and drops them;
-	#              SplittedToNParts returns them
+	#   returns    nothing; the list becomes the list of parts
 	#   see        SplittedToNParts
 	#@ aka  divide, chunk, break into parts, portions
 	#@ aka  Split the list into n (near-)equal parts.
 	def SplitToNParts(_n_)
 		_oStnpSplitter_ = new stzListSplits(This)
-		return _oStnpSplitter_.SplitToNParts(_n_)
+		_oStnpSplitter_.SplitToNParts(_n_)
+		This.UpdateWith(_oStnpSplitter_.Content())
 
 		def SplitToNPartsQ(_n_)
 			return new stzList( This.SplitToNParts(_n_) )
@@ -9054,17 +9044,16 @@ class stzList from stzObject
 		def SplittedToPartsOf(_n_)
 			return This.SplittedToPartsOfNItems(_n_)
 
-	# Leaves the list unchanged today instead of splitting it every few items.
+	# Splits the list into parts of a fixed number of items, from a position, in place.
 	#
 	#   nPace      how many items in each part
 	#   _nStart_   the position to start from
-	#   returns    nothing today
-	#   warning    known defect: the call computes the parts on a copy and drops them;
-	#              SplittedAtPacer returns them
+	#   returns    nothing; the list becomes the list of parts
 	#   see        SplittedAtPacer
 	def SplitAtPacer(nPace, _nStart_)
 		_oSapcrSplitter_ = new stzListSplits(This)
-		return _oSapcrSplitter_.SplitAtPacer(nPace, _nStart_)
+		_oSapcrSplitter_.SplitAtPacer(nPace, _nStart_)
+		This.UpdateWith(_oSapcrSplitter_.Content())
 
 	# Returns the list cut into parts of a fixed number of items, from a position; the list is unchanged.
 	#
@@ -9125,11 +9114,9 @@ class stzList from stzObject
 		_oRlicLt_ = new stzListLeadTrail(This)
 		return _oRlicLt_.RepeatedLeadingItemCS(pCaseSensitive)
 
-	# Leaves nothing today instead of returning the item that repeats at the start.
+	# Returns the item that repeats at the start; empty when there is no run.
 	#
-	#   returns    nothing today
-	#   warning    known defect: the call returns an empty string whatever the list holds;
-	#              RepeatedLeadingItems returns the run
+	#   returns    the item, or an empty string
 	#   see        RepeatedLeadingItems
 	def RepeatedLeadingItem()
 		return This.RepeatedLeadingItemCS(1)
@@ -9138,7 +9125,7 @@ class stzList from stzObject
 		_oNrliLt_ = new stzListLeadTrail(This)
 		return _oNrliLt_.NumberOfRepeatedLeadingItemsCS(pCaseSensitive)
 
-	# Returns how many items follow the first one and equal it.
+	# Returns the length of the run of equal items at the start; 0 when there is none.
 	#
 	#   returns    a number
 	#   see        RepeatedLeadingItems
@@ -9172,11 +9159,9 @@ class stzList from stzObject
 		_oRticLt_ = new stzListLeadTrail(This)
 		return _oRticLt_.RepeatedTrailingItemCS(pCaseSensitive)
 
-	# Raises error R14 today instead of returning the item that repeats at the end.
+	# Returns the item that repeats at the end; empty when there is no run.
 	#
-	#   returns    nothing today
-	#   warning    known defect: the call raises error R14 today, because it calls a method that is
-	#              not defined
+	#   returns    the item, or an empty string
 	#   see        RepeatedTrailingItems
 	def RepeatedTrailingItem()
 		return This.RepeatedTrailingItemCS(1)
@@ -9186,11 +9171,9 @@ class stzList from stzObject
 		_oNrtiLt_ = new stzListLeadTrail(This)
 		return _oNrtiLt_.NumberOfRepeatedTrailingItemsCS(pCaseSensitive)
 
-	# Raises error R14 today instead of returning how many items before the last equal it.
+	# Returns the length of the run of equal items at the end; 0 when there is none.
 	#
-	#   returns    nothing today
-	#   warning    known defect: the call raises error R14 today, because it calls a method that is
-	#              not defined
+	#   returns    a number
 	#   see        NumberOfRepeatedLeadingItems
 	def NumberOfRepeatedTrailingItems()
 		return This.NumberOfRepeatedTrailingItemsCS(1)
@@ -9321,48 +9304,37 @@ class stzList from stzObject
 
 	# Remove the first occurrence of the item and return it.
 	def ExtractFirstOccurrenceCS(pItem, pCaseSensitive)
-		_oEfocsExt_ = new stzListExtractor(This)
-		_oEfocsExt_.ExtractFirstOccurrenceCS(pItem, pCaseSensitive)
-		This.UpdateWith(_oEfocsExt_.Content())
-		return This.FirstOccurrenceCS(pItem, pCaseSensitive)
+		return This.ExtractFirstCS(pItem, pCaseSensitive)
 
-	# Raises error R14 today instead of removing the first occurrence of the item and returning it.
+	# Removes the first occurrence of the item and returns it.
 	#
-	#   returns    nothing today
-	#   warning    known defect: the call raises error R14 today, because it calls
-	#              FirstOccurrenceCS, which is not defined; ExtractFirst works
+	#   returns    the removed item
 	#   see        ExtractFirst
 	def ExtractFirstOccurrence(pItem)
 		return This.ExtractFirstOccurrenceCS(pItem, 1)
 
 	# Remove the last occurrence of the item and return it.
 	def ExtractLastOccurrenceCS(pItem, pCaseSensitive)
-		_oElocsExt_ = new stzListExtractor(This)
-		_oElocsExt_.ExtractLastOccurrenceCS(pItem, pCaseSensitive)
-		This.UpdateWith(_oElocsExt_.Content())
-		return This.LastOccurrenceCS(pItem, pCaseSensitive)
+		return This.ExtractLastCS(pItem, pCaseSensitive)
 
-	# Raises error R14 today instead of removing the last occurrence of the item and returning it.
+	# Removes the last occurrence of the item and returns it.
 	#
-	#   returns    nothing today
-	#   warning    known defect: the call raises error R14 today, because it calls LastOccurrenceCS,
-	#              which is not defined; ExtractLast works
+	#   returns    the removed item
 	#   see        ExtractLast
 	def ExtractLastOccurrence(pItem)
 		return This.ExtractLastOccurrenceCS(pItem, 1)
 
 	# Remove the duplicated occurrences and return them.
 	def ExtractDuplicatesCS(pCaseSensitive)
+		_aEdcsDups_ = This.DuplicatesCS(pCaseSensitive)
 		_oEdcsExt_ = new stzListExtractor(This)
 		_oEdcsExt_.ExtractDuplicatesCS(pCaseSensitive)
 		This.UpdateWith(_oEdcsExt_.Content())
-		return This.DuplicatesCS(pCaseSensitive)
+		return _aEdcsDups_
 
-	# Removes the repeats of duplicated items, in place, but answers an empty list instead of the removed items.
+	# Removes the repeats of duplicated items, in place, and returns them.
 	#
-	#   returns    an empty list today
-	#   warning    known defect: the repeats are removed from the list but the call returns [ ]
-	#              instead of them
+	#   returns    a list of the removed items
 	#   see        RemoveDuplicatedItems
 	def ExtractDuplicates()
 		return This.ExtractDuplicatesCS(1)
@@ -10444,13 +10416,11 @@ class stzList from stzObject
 		_oFasSec_ = new stzListSections(This)
 		return _oFasSec_.FindAntiSection(_n1_, _n2_)
 
-	# Raises error R19 today instead of returning the items outside one section.
+	# Returns the runs of items that lie outside the section from one position to another.
 	#
 	#   _n1_       the position of the first item
 	#   _n2_       the position of the last item
-	#   returns    nothing today
-	#   warning    known defect: the call raises error R19 today, because it passes too few
-	#              arguments to the code behind it
+	#   returns    a list of lists
 	#   see        FindAntiSection
 	def AntiSection(_n1_, _n2_)
 		_oAsSec_ = new stzListSections(This)
@@ -10577,6 +10547,67 @@ class stzList from stzObject
 		next
 		return _aAsibResult_
 
+	# Returns the given sections together with the sections outside them, as [ start, end ] pairs in order.
+	#
+	#   paSections the sections, each [ start, end ]
+	#   returns    a list of [ start, end ] pairs that tile the list
+	#   see        FindAntiSections
+	def FindAsSectionsAndAntiSections(paSections)
+		_aFsasAll_ = []
+		_nFsasLen_ = ring_len(paSections)
+		for _iFsas_ = 1 to _nFsasLen_
+			_aFsasAll_ + paSections[_iFsas_]
+		next
+		_aFsasAnti_ = This.FindAntiSections(paSections)
+		_nFsasAntiLen_ = ring_len(_aFsasAnti_)
+		for _iFsas_ = 1 to _nFsasAntiLen_
+			_aFsasAll_ + _aFsasAnti_[_iFsas_]
+		next
+		return This._SortedPairsByStart(_aFsasAll_)
+
+	# Returns the items of the given sections together with the runs outside them, in list order.
+	#
+	#   paSections the sections, each [ start, end ]
+	#   returns    a list of lists
+	#   see        AntiSections, Sections
+	def SectionsAndAntiSections(paSections)
+		return This.Sections( This.FindAsSectionsAndAntiSections(paSections) )
+
+	# The given sections with the sections outside them, bounds included (IB), ordered by start.
+	def FindAsSectionsAndAntiSectionsIB(paSections)
+		_aFsasibAll_ = []
+		_nFsasibLen_ = ring_len(paSections)
+		for _iFsasib_ = 1 to _nFsasibLen_
+			_aFsasibAll_ + paSections[_iFsasib_]
+		next
+		_aFsasibAnti_ = This.FindAntiSectionsIB(paSections)
+		_nFsasibAntiLen_ = ring_len(_aFsasibAnti_)
+		for _iFsasib_ = 1 to _nFsasibAntiLen_
+			_aFsasibAll_ + _aFsasibAnti_[_iFsasib_]
+		next
+		return This._SortedPairsByStart(_aFsasibAll_)
+
+	# The items of the given sections with the runs outside them, bounds included (IB).
+	def SectionsAndAntiSectionsIB(paSections)
+		return This.Sections( This.FindAsSectionsAndAntiSectionsIB(paSections) )
+
+	# Orders [ start, end ] pairs by start, then by end (insertion sort; the pair lists are short).
+	def _SortedPairsByStart(paPairs)
+		_aSpbsOut_ = []
+		_nSpbsLen_ = ring_len(paPairs)
+		for _iSpbs_ = 1 to _nSpbsLen_
+			_aSpbsPair_ = paPairs[_iSpbs_]
+			_nSpbsAt_ = ring_len(_aSpbsOut_) + 1
+			while _nSpbsAt_ > 1 and
+			      ( _aSpbsOut_[_nSpbsAt_ - 1][1] > _aSpbsPair_[1] or
+			        ( _aSpbsOut_[_nSpbsAt_ - 1][1] = _aSpbsPair_[1] and
+			          _aSpbsOut_[_nSpbsAt_ - 1][2] > _aSpbsPair_[2] ) )
+				_nSpbsAt_ = _nSpbsAt_ - 1
+			end
+			ring_insert(_aSpbsOut_, _nSpbsAt_, _aSpbsPair_)
+		next
+		return _aSpbsOut_
+
 	# Returns the run of items of each given range, one list per range.
 	#
 	#   paRanges   the ranges, each [ start, end ]
@@ -10595,13 +10626,11 @@ class stzList from stzObject
 		_oArgsSec_ = new stzListSections(This)
 		return _oArgsSec_.AntiRanges(paRanges)
 
-	# Raises error R14 today instead of returning the ranges and the runs outside them.
+	# Returns the runs of the given ranges together with the runs outside them, in list order.
 	#
-	#   paRanges   the ranges, each [ start, end ]
-	#   returns    nothing today
-	#   warning    known defect: the call raises error R14 today, because it calls
-	#              SectionsAndAntiSections, which is not defined
-	#   see        Ranges
+	#   paRanges   the ranges, each [ start, length ]
+	#   returns    a list of lists
+	#   see        Ranges, AntiRanges
 	def RangesAndAntiRanges(paRanges)
 		_oRaarSec_ = new stzListSections(This)
 		return _oRaarSec_.RangesAndAntiRanges(paRanges)
@@ -10774,11 +10803,10 @@ class stzList from stzObject
 		_oIamtntClf_ = new stzListClassifier(This)
 		return _oIamtntClf_.ItemsAppearingMoreThanNTimes(_n_)
 
-	# Returns the distinct items that occur fewer than n times; today each comes back as text.
+	# Returns the distinct items that occur fewer than n times, each with its own type.
 	#
 	#   _n_        the number of occurrences
-	#   returns    a list of strings
-	#   warning    known defect: numbers come back as text, such as "3" for 3
+	#   returns    a list of items
 	#   see        ItemsAppearingNTimes
 	def ItemsAppearingLessThanNTimes(_n_)
 		_oIaltntClf_ = new stzListClassifier(This)
@@ -11354,12 +11382,10 @@ class stzList from stzObject
 		next
 		return 0
 
-	# Inserts the item before a position, in place, but one place too early today.
+	# Inserts the item before a position, in place; [ :After, n ] inserts after it.
 	#
 	#   pWhere     the position, or [ :Before, n ] or [ :After, n ]
 	#   returns    nothing; the list changes
-	#   warning    known defect: Insert(item, n) puts the item at position n-1, and raises an error
-	#              for n = 1 or past the end; InsertBefore(n, item) puts it at n
 	#   see        InsertBefore, InsertAfter
 	#@ aka  put at position, add at, place into, inject at index
 	def Insert(pItem, pWhere)

@@ -95,11 +95,16 @@ class stzListInserter from stzObject
 		ok
 
 		if _n_ >= 1 and _n_ <= This.NumberOfItems()
-			ring_insert(@oList.List(), _n_-1, pItem)
+			ring_insert(@oList.List(), _n_, pItem)
 
 		but _n_ > This.NumberofItems()
-			@oList.ExtendToN(_n_)
-			ring_insert(@oList.List(), _n_-1, pItem)
+			# one past the end appends; further out, the list is first extended up to n-1
+			if _n_ > This.NumberOfItems() + 1
+				@oList.ExtendToN(_n_ - 1)
+			ok
+			_aIbpContent_ = @oList.Content()
+			_aIbpContent_ + pItem
+			@oList.UpdateWith(_aIbpContent_)
 		ok
 
 		def InsertBeforePositionQ(_n_, pItem)
@@ -133,8 +138,18 @@ class stzListInserter from stzObject
 			return
 		ok
 
-		if _n_ > 0 and _n_ < This.NumberOfItems()
-			ring_insert(@oList.List(), _n_, pItem)
+		if _n_ > 0 and _n_ <= This.NumberOfItems()
+			# after position n = the item takes position n+1 (n = the last position appends)
+			_aIapContent_ = @oList.Content()
+			_aIapOut_ = []
+			_nIapLen_ = len(_aIapContent_)
+			for _iIap_ = 1 to _nIapLen_
+				_aIapOut_ + _aIapContent_[_iIap_]
+				if _iIap_ = _n_
+					_aIapOut_ + pItem
+				ok
+			next
+			@oList.UpdateWith(_aIapOut_)
 		ok
 
 		def InsertAfterPositionQ(_n_, pItem)
