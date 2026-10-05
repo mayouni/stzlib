@@ -68,6 +68,12 @@ Scenario("The scan: class extents, methods, forwards")
 	Then("the doc of Find is read: brief", aR[nF][:brief],
 		"Returns the positions of every occurrence of pcSubStr, as a list of numbers.")
 	Then("the section Find sits in is recorded", aR[nF][:section], "finding")
+	nT = 0
+	for i = 1 to len(aR)
+		if aR[i][:name] = "Tricky" nT = i ok
+	next
+	Then("a comment after the def holding parentheses does not leak into the parameters",
+		len(aR[nT][:params]), 2)
 EndScenario()
 
 Scenario("The harvest the library already had still answers the same way")

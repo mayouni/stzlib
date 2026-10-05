@@ -2648,8 +2648,12 @@ class stzNumber from stzObject
 	 #    INIT    #
 	#------------#
 
-	# Build the number from a number, a number-in-string, or another
-	# stzNumber.
+	# Builds the number from a number, a number written as text, or another stzNumber.
+	#
+	#   pNumber    the value to hold, as a number, as text, or as a stzNumber
+	#   returns    the new stzNumber
+	#   warning    a value that is not a number raises an error
+	#@ aka  Build the number from a number, a number-in-string, or another stzNumber.
 	def init(pNumber)
 
 		# A stzNumber object can be initiated in 3 ways:
@@ -2897,7 +2901,11 @@ class stzNumber from stzObject
 		def NumberQ() # Same as Copy()
 			return new stzNumber( This.Content() )
 
-	# The value the number was created with.
+	# Returns the value the number was created with.
+	#
+	#   returns    the value as given, of any type
+	#   see        Content
+	#@ aka  The value the number was created with.
 	def InitialContent()
 		return @pInitialValue
 
@@ -2915,11 +2923,20 @@ class stzNumber from stzObject
 		_oCopy_ = new stzNumber( This.Content() )
 		return _oCopy_
 
-	# Whether values are returned as :Number or :String.
+	# Returns whether values come back as :Number or :String.
+	#
+	#   returns    a symbol, which prints in lowercase
+	#   see        SetReturnType
+	#@ aka  Whether values are returned as :Number or :String.
 	def ReturnType()
 		return @cReturnType
 
-	# Choose whether values are returned as :Number or :String.
+	# Chooses whether values come back as :Number or :String, in place.
+	#
+	#   _cType_    the type, :Number or :String
+	#   returns    nothing; the object changes
+	#   see        ReturnType
+	#@ aka  Choose whether values are returned as :Number or :String.
 	def SetReturnType(_cType_)
 		if CheckingParams()
 			if isList(_cType_) and Q(_cType_).IsToOrAsNamedParams()
@@ -2937,9 +2954,13 @@ class stzNumber from stzObject
 
 		@cReturnType = _cType_
 
+		# Chooses whether values come back as :Number or :String, in place.
+		#
+		#   _cType_    the type, :Number or :String
+		#   returns    nothing; the object changes
+		#   see        SetReturnType
 		#< @FunctionAlternativeForms
-
-		# Choose whether values come back as :Number or :String.
+		#@ aka  Choose whether values come back as :Number or :String.
 		def SetReturnTypeTo(_cType_)
 			if CheckingParams()
 				if NOT isString(_cType_)
@@ -2949,17 +2970,29 @@ class stzNumber from stzObject
 
 			This.SetReturnType(_cType_)
 
-		# Choose whether values come back as :Number or :String.
+		# Chooses whether values come back as :Number or :String, in place.
+		#
+		#   _cType_    the type, :Number or :String
+		#   returns    nothing; the object changes
+		#   see        SetReturnType
+		#@ aka  Choose whether values come back as :Number or :String.
 		def SetReturnTypeAs(_cType_)
 			SetReturnTypeTo(_cType_)
 
+	# Makes values come back as numbers, in place.
+	#
+	#   returns    nothing; the object changes
+	#   see        ReturnType
 		#>
-
-	# Make values come back as :Number (the return-type dial).
+	#@ aka  Make values come back as :Number (the return-type dial).
 	def ReturnNumber()
 		SetReturnType(:Number)
 		
-	# The number as a string with its explicit sign (+ or -).
+	# Returns the number as text with its explicit sign: + for zero and above.
+	#
+	#   returns    a string such as +12
+	#   see        Sign, RemoveSign
+	#@ aka  The number as a string with its explicit sign (+ or -).
 	def NumberWithSign()
 		If This.IsPositive()
 			return "+" + This.Content()
@@ -3038,6 +3071,11 @@ class stzNumber from stzObject
 	 #  CHECKING IF THE NUMBER IS A CHAR  #
 	#------------------------------------#
 
+	# Answers TRUE for any number, which can stand where a character is expected.
+	#
+	#   returns    TRUE
+	#   note       both branches of its body return TRUE: the digit test inside changes nothing
+	#   see        IsADigit
 	def IsChar()
 
 		if This.IsInteger()
@@ -3056,8 +3094,13 @@ class stzNumber from stzObject
 	 #   UPDATING THE NUMBER   #
 	#-------------------------#
 
-	# Replace the content with the given number (mutating; the single
-	# update point).
+	# Replaces the number by the given one, in place.
+	#
+	#   pNumber    the new number, a number or a number written as text; :With = n is accepted
+	#   returns    nothing; the number changes
+	#   warning    a value that is not a number raises an error
+	#   see        UpdateWith, Updated
+	#@ aka  Replace the content with the given number (mutating; the single update point).
 	def Update(pNumber)
 		if CheckingParams() = 1
 
@@ -3133,37 +3176,51 @@ class stzNumber from stzObject
 			This.Update(pNumber)
 			return This
 
+		# Replaces the number by the given one, in place, as Update does.
+		#
+		#   pNumber    the new number
+		#   returns    nothing; the number changes
+		#   see        Update
 		#>
-
 		#< @FunctionAlternativeForms
-
-		# Same as Update: replace the content with the given number
-		# (mutating).
+		#@ aka  Same as Update: replace the content with the given number (mutating).
 		def UpdateWith(pNumber)
 			This.Update(pNumber)
 
 			def UpdateWithQ(pNumber)
 				return This.UpdateQ(pNumber)
 	
-		# Same as Update: replace the content with the given number
-		# (mutating).
+		# Replaces the number by the given one, in place, as Update does.
+		#
+		#   pNumber    the new number
+		#   returns    nothing; the number changes
+		#   see        Update
+		#@ aka  Same as Update: replace the content with the given number (mutating).
 		def UpdateBy(pNumber)
 			This.Update(pNumber)
 
 			def UpdateByQ(pNumber)
 				return This.UpdateQ(pNumber)
 
-		# Same as Update: replace the content with the given number
-		# (mutating).
+		# Replaces the number by the given one, in place, as Update does.
+		#
+		#   pNumber    the new number
+		#   returns    nothing; the number changes
+		#   see        Update
+		#@ aka  Same as Update: replace the content with the given number (mutating).
 		def UpdateUsing(pNumber)
 			This.Update(pNumber)
 
 			def UpdateUsingQ(pNumber)
 				return This.UpdateQ(pNumber)
 
+	# Returns the number the object would become with Update; the number is unchanged.
+	#
+	#   pNumber    the new number
+	#   returns    a number
+	#   see        Update
 		#>
-
-	# The value the number would be updated to (passive twin of Update).
+	#@ aka  The value the number would be updated to (passive twin of Update).
 	def Updated(pNumber)
 		return pNumber
 
@@ -3274,6 +3331,11 @@ class stzNumber from stzObject
 	 #   CHECKING IF THE NUMBER IS MULTIPLE OF A GIVEN NUMBER  #
 	#---------------------------------------------------------#
 
+	# TRUE if the number is a multiple of n.
+	#
+	#   n          the number to compare with, a number or a number written as text
+	#   returns    TRUE or FALSE
+	#   see        IsDividableBy, Multiples
 	def IsMultipleOf(n)
 
 		if CheckingParams()
@@ -3307,6 +3369,11 @@ class stzNumber from stzObject
 		def IsTheMultipleOf(n)
 			return This.IsMultipleOf(n)
 
+	# TRUE if the number is twice n.
+	#
+	#   n          the number to compare with, a number or a number written as text
+	#   returns    TRUE or FALSE
+	#   see        IsMultipleOf
 	def IsDoubleOf(n)
 		if CheckingParams()
 			if NOT @IsStringOrNumber(n)
@@ -3335,6 +3402,11 @@ class stzNumber from stzObject
 		def IsTheDoubleOf(n)
 			return This.IsDoubleOf(n)
 
+	# TRUE if the number is three times n.
+	#
+	#   n          the number to compare with, a number or a number written as text
+	#   returns    TRUE or FALSE
+	#   see        IsMultipleOf
 	def IsTripleOf(n)
 		if CheckingParams()
 			if NOT @IsStringOrNumber(n)
@@ -3363,6 +3435,11 @@ class stzNumber from stzObject
 		def IsTheTripleOf(n)
 			return This.IsTripleOf(n)
 
+	# TRUE if the number is four times n.
+	#
+	#   n          the number to compare with, a number or a number written as text
+	#   returns    TRUE or FALSE
+	#   see        IsMultipleOf
 	def IsQuadrupleOf(n)
 		if CheckingParams()
 			if NOT @IsStringOrNumber(n)
@@ -3391,6 +3468,11 @@ class stzNumber from stzObject
 		def IsTheQuadrupleOf(n)
 			return This.IsQuadrupleOf(n)
 
+	# TRUE if the number is five times n.
+	#
+	#   n          the number to compare with, a number or a number written as text
+	#   returns    TRUE or FALSE
+	#   see        IsMultipleOf
 	def IsQuintupleOf(n)
 		if CheckingParams()
 			if NOT @IsStringOrNumber(n)
@@ -3419,6 +3501,11 @@ class stzNumber from stzObject
 		def IsTheQuintupleOf(n)
 			return This.IsQuintupleOf(n)
 
+	# TRUE if the number is six times n.
+	#
+	#   n          the number to compare with, a number or a number written as text
+	#   returns    TRUE or FALSE
+	#   see        IsMultipleOf
 	def IsSextupleOf(n)
 		if CheckingParams()
 			if NOT @IsStringOrNumber(n)
@@ -3448,6 +3535,11 @@ class stzNumber from stzObject
 			return This.IsSextupleOf(n)
 
 
+	# TRUE if the number is eight times n.
+	#
+	#   n          the number to compare with, a number or a number written as text
+	#   returns    TRUE or FALSE
+	#   see        IsMultipleOf
 	def IsOctupleOf(n)
 		if CheckingParams()
 			if NOT @IsStringOrNumber(n)
@@ -3476,6 +3568,11 @@ class stzNumber from stzObject
 		def IsTheOctupleOf(n)
 			return This.IsOctupleOf(n)
 
+	# TRUE if the number is nine times n.
+	#
+	#   n          the number to compare with, a number or a number written as text
+	#   returns    TRUE or FALSE
+	#   see        IsMultipleOf
 	def IsNonupleOf(n)
 		if CheckingParams()
 			if NOT @IsStringOrNumber(n)
@@ -3504,6 +3601,11 @@ class stzNumber from stzObject
 		def IsTheNonupleOf(n)
 			return This.IsNonupleOf(n)
 
+	# TRUE if the number is ten times n.
+	#
+	#   n          the number to compare with, a number or a number written as text
+	#   returns    TRUE or FALSE
+	#   see        IsMultipleOf
 	def IsDecupleOf(n)
 		if CheckingParams()
 			if NOT @IsStringOrNumber(n)
@@ -3588,6 +3690,9 @@ class stzNumber from stzObject
         #------------#
 
 	# TRUE if the number has no fractional part.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsReal
 	def IsInteger()
 		if NOT This.HasFractionalPart()
 			return 1
@@ -3595,7 +3700,11 @@ class stzNumber from stzObject
 			return 0
 		ok
 
-	# TRUE if the number is an integer greater than zero.
+	# TRUE if the number is an integer above zero.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNegativeInteger
+	#@ aka  TRUE if the number is an integer greater than zero.
 	def IsPositiveInteger()
 		if This.IsInteger() and This.IsPositive()
 			return 1
@@ -3603,7 +3712,11 @@ class stzNumber from stzObject
 			return 0
 		ok
 
-	# TRUE if the number is an integer less than zero.
+	# TRUE if the number is an integer below zero.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsPositiveInteger
+	#@ aka  TRUE if the number is an integer less than zero.
 	def IsNegativeInteger()
 		if This.IsInteger() and This.IsNegative()
 			return 1
@@ -3612,6 +3725,9 @@ class stzNumber from stzObject
 		ok
 
 	# TRUE if the number has a fractional part.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsInteger, HasFractionalPart
 	def IsReal()
 		if This.HasFractionalPart()
 			return 1
@@ -3622,7 +3738,11 @@ class stzNumber from stzObject
 		def IsRealNumber()
 			return This.IsReal()
 
-	# TRUE if the number has more digits than the configured maximum.
+	# TRUE if the number has more digits than the maximum.
+	#
+	#   returns    TRUE or FALSE
+	#   see        MaxNumberOfDigits
+	#@ aka  TRUE if the number has more digits than the configured maximum.
 	def IsBigNumber()
 		if This.NumberOfDigits() > This.MaxNumberOfDigits()
 			return 1
@@ -3630,7 +3750,11 @@ class stzNumber from stzObject
 			return 0
 		ok
 
-	# TRUE if the number is a single-digit integer.
+	# TRUE if the number is an integer written with one digit.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsADigit
+	#@ aka  TRUE if the number is a single-digit integer.
 	def IsOneDigit()
 		if This.IsInteger() and len(This.Content()) = 1
 			return 1
@@ -3639,52 +3763,70 @@ class stzNumber from stzObject
 		ok
 
 	# TRUE if the number is odd.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsEven
 	#@ aka  not divisible by two, odd number
 	def IsOdd()
 		return StzEngineNumberIsOdd(This.NumericValue())
 
+		# Answers TRUE for an odd number: fardi is the Arabic word for odd.
+		#
+		#   returns    TRUE or FALSE
+		#   see        IsOdd
 		#< @FunctionAlternativeForm
-
 		def IsFardi() # Added because I have a confusion between odd() and even()
 			return This.IsOdd()
 
 		ded IsNotMultipleOf2()
 			return This.IsOdd()
 
+		# TRUE if the number is not odd.
+		#
+		#   returns    TRUE or FALSE
+		#   see        IsEven
 		#>
-
 		#< @FunctionNegativeForm
-
-		# TRUE if the number is even.
+		#@ aka  TRUE if the number is even.
 		def IsNotOdd()
 			return NOT This.IsOdd()
 
-		#>
-
 	# TRUE if the number is even.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsOdd
+		#>
 	#@ aka  divisible by two, even number
 	def IsEven()
 		return StzEngineNumberIsEven(This.NumericValue())
 
+		# Answers TRUE for an even number: zawji is the Arabic word for even.
+		#
+		#   returns    TRUE or FALSE
+		#   see        IsEven
 		#< @FunctionAlternativeForm
-
 		def IsZawji() # Added because I have a confusion between odd() and even()
 			return This.IsEven()
 
 		ded IsMultipleOf2()
 			return This.IsEven()
 
+		# TRUE if the number is not even.
+		#
+		#   returns    TRUE or FALSE
+		#   see        IsOdd
 		#>
-
 		#< @FunctionNegativeForm
-
-		# TRUE if the number is odd.
+		#@ aka  TRUE if the number is odd.
 		def IsNotEven()
 			return NOT This.IsEven()
 
+	# Returns :odd or :even, whichever the number is.
+	#
+	#   returns    a symbol, which prints in lowercase
+	#   see        IsOdd, IsEven
 		#>
-
-	# :Odd or :Even, whichever the number is.
+	#@ aka  :Odd or :Even, whichever the number is.
 	def IsOddOrEven()
 		If This.IsOdd()
 			return :Odd
@@ -3695,11 +3837,11 @@ class stzNumber from stzObject
 		def IsEvenOrOdd()
 			return This.IsOddOrEven()
 
-		# Two alternatives (in arabic) made
-		# because I always get confused in
-		# distniguishing Odd fro Even!
-		#--> PX, or Programmer Experience
-
+		# Returns :zawji for an even number and :fardi for an odd one, the Arabic words for even and odd.
+		#
+		#   returns    a symbol
+		#   see        IsOddOrEven
+		#@ aka  Two alternatives (in arabic) made because I always get confused in distniguishing Odd fro Even! --> PX, or Programmer Experience
 		def IsZawjiOrFardi()
 			If This.IsZawji()
 				return :Zawji
@@ -3710,8 +3852,12 @@ class stzNumber from stzObject
 		def IsFardiOrZawji()
 			return This.IsZawjiOrFardi()
 
-	# TRUE if the number is prime.
+	# TRUE if the number is a prime: an integer greater than 1 with no other divisor than 1 and itself.
+	#
+	#   returns    TRUE or FALSE
+	#   see        PrimeFactors
 	#@ aka  prime number, only divisible by one and itself
+	#@ aka  TRUE if the number is prime.
 	def IsPrime()
 		if This.IsInteger() and This.IsGreaterThan(1)
 			return StzEngineNumberIsPrime( This.NumericValue() )
@@ -3728,11 +3874,19 @@ class stzNumber from stzObject
 		def IsPrimeNumber()
 			return This.IsPrime()
 
-	# TRUE if the number is a Wieferich prime.
+	# Answers an empty string today instead of telling whether the number is a Wieferich prime.
+	#
+	#   s          unused
+	#   returns    nothing today
+	#   warning    the call answers an empty string today
+	#@ aka  TRUE if the number is a Wieferich prime.
 	def isWeiferich(s)
 		_bResult_ = @isWeiferich(This.NumericValue())
 
 	# TRUE if the number is 0 or 1.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsTrue, IsFalse
 	def IsBoolean()
 		if This.Number() = 1 or This.Number() = 0
 			return 1
@@ -3741,6 +3895,9 @@ class stzNumber from stzObject
 		ok
 
 	# TRUE if the number is 1.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsFalse, IsBoolean
 	def IsTrue()
 		if This.Number() = 1
 			return 1
@@ -3749,6 +3906,9 @@ class stzNumber from stzObject
 		ok
 
 	# TRUE if the number is 0.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsTrue, IsBoolean
 	def IsFalse()
 		if This.Number() = 0
 			return 1
@@ -3760,6 +3920,11 @@ class stzNumber from stzObject
 	 #    NULL, POSITIVE OR NEGATIVE    #
 	#----------------------------------#
 
+	# TRUE if the number is written 0.
+	#
+	#   returns    TRUE or FALSE
+	#   note       it reads the written form: 0.0 is not written 0
+	#   see        IsPositive, IsNegative
 	def IsZero()
 		if This.Content() = "0"
 			return 1
@@ -3767,6 +3932,10 @@ class stzNumber from stzObject
 			return 0
 		ok
 
+	# TRUE if the number is written with a minus sign.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsPositive, Sign
 	#@ aka  below zero, less than zero, minus, negative sign
 	def IsNegative()
 		if This.Sign() = "-"
@@ -3775,6 +3944,10 @@ class stzNumber from stzObject
 			return 0
 		ok	
 		 
+	# TRUE if the number is below zero.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNegative
 	def IsStrictlyNegative()
 		if This.IsNegative() or This.IsZero()
 			return 1
@@ -3804,6 +3977,10 @@ class stzNumber from stzObject
 			return 0
 		ok
 
+	# TRUE if the number is above zero.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsPositive
 	def IsStrictlyPositive()
 		if This.IsPositive() or This.IsZero()
 			return 1
@@ -3843,7 +4020,11 @@ class stzNumber from stzObject
 
 		ok
 
-	# Drop the sign from the number (mutating).
+	# Removes the sign from the number, in place.
+	#
+	#   returns    nothing; the number changes
+	#   see        SignRemoved, Absolute
+	#@ aka  Drop the sign from the number (mutating).
 	def RemoveSign()
 		_cNumber_ = This.Content()
 		_nLenNumber_ = len(_cNumber_)
@@ -3859,12 +4040,20 @@ class stzNumber from stzObject
 				This.RemoveSign()
 				return This
 
-	# A copy without the sign; the original is unchanged.
+	# Returns a copy of the number without its sign, as text; the number is unchanged.
+	#
+	#   returns    a string
+	#   see        RemoveSign
+	#@ aka  A copy without the sign; the original is unchanged.
 	def SignRemoved()
 		_cResult_ = This.Copy().RemoveSignQ().Content()
 		return _cResult_
 
-	# TRUE if the number carries an explicit sign.
+	# TRUE if the number is written with an explicit sign.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsUnsigned, Sign
+	#@ aka  TRUE if the number carries an explicit sign.
 	def IsSigned()
 		if This.Sign() != ""
 			return 1
@@ -3872,11 +4061,19 @@ class stzNumber from stzObject
 			return 0
 		ok
 
-		# TRUE if the number carries no explicit sign.
+		# TRUE if the number is written without a sign.
+		#
+		#   returns    TRUE or FALSE
+		#   see        IsSigned
+		#@ aka  TRUE if the number carries no explicit sign.
 		def IsNotSigned()
 			return NOT IsSigned()
 
-	# TRUE if the number carries no explicit sign.
+	# TRUE if the number is written without a sign.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsSigned
+	#@ aka  TRUE if the number carries no explicit sign.
 	def IsUnsigned()
 		if This.IsSigned() = 1
 			return 0
@@ -3963,11 +4160,12 @@ class stzNumber from stzObject
 		def EqualsCS(pOtherNumber, pCaseSensitive)
 			return This.IsEqualTo(pOtherNumber)
 
-		#>
-
-		#< @FunctionNegativeForm
-
 		# TRUE if the number differs from the given one.
+		#
+		#   returns    TRUE or FALSE
+		#   see        IsEqualTo
+		#>
+		#< @FunctionNegativeForm
 		def IsNotEqualTo(pOtherNumber)
 			return NOT This.IsEqualTo(pOtherNumber)
 	
@@ -4015,11 +4213,14 @@ class stzNumber from stzObject
 			def IsEqualtToCS(pcOtherNumber, pCaseSensitive)
 				return This.IsEqualTo(pcOtherNumber)
 
+	# TRUE if the number equals neither of the two given numbers.
+	#
+	#   _n1_       the first number
+	#   _n2_       the second number; :Nor = n is accepted
+	#   returns    TRUE or FALSE
+	#   see        IsNotEqualTo
 		#>
-
-	#=====
-
-	# TRUE if the number equals NEITHER of the two given numbers.
+	#@ aka  =====
 	def IsNeither(_n1_, _n2_)
 		if CheckingParams()
 			if isList(_n1_) and Q(_n1_).IsEqualToNamedParam()
@@ -4054,6 +4255,10 @@ class stzNumber from stzObject
 			return This.IsNeither(_n1_, _n2_)
 
 	# TRUE if the number is less than or equal to the given one.
+	#
+	#   returns    TRUE or FALSE
+	#   note       the name says less, the test includes equality: IsStrictlyLess leaves it out
+	#   see        IsStrictlyLess, IsGreater
 	def IsLess(pOtherNumber)
 		if CheckingParams()
 			if NOT Q(pOtherNumber).IsNumberOrString()
@@ -4089,15 +4294,17 @@ class stzNumber from stzObject
 		def IsSmallerThqn(pOtherNumber)
 			return This.IsLess(pOtherNumber)
 
-		#>
-	
-	# TRUE if the number is strictly less than the given one.
+	# TRUE if the number is less than the given one, equality excluded.
 	#
-	# FIXED 2026-07-25: the canonical method was spelled IsStriclyLess (missing a
-	# "t") while all SIX of its alternative forms below called the correct
-	# IsStrictlyLess -- so every one of them raised R14. Canonical name corrected;
-	# the misspelling is kept as an alias.
+	#   returns    TRUE or FALSE
+	#   see        IsLess
+		#>
+	#@ aka  TRUE if the number is strictly less than the given one.
 	def IsStrictlyLess(pOtherNumber)
+		# FIXED 2026-07-25: the canonical method was spelled IsStriclyLess (missing a
+		# "t") while all SIX of its alternative forms below called the correct
+		# IsStrictlyLess -- so every one of them raised R14. Canonical name corrected;
+		# the misspelling is kept as an alias.
 		if CheckingParams()
 			if NOT Q(pOtherNumber).IsNumberOrString()
 				StzRaise("Incorrect param types! pNumber1 and pNumber2 must be numbers or strings.")
@@ -4142,9 +4349,13 @@ class stzNumber from stzObject
 		def IsStriclyLess(pOtherNumber)
 			return This.IsStrictlyLess(pOtherNumber)
 
-		#>
-
 	# TRUE if the number is greater than or equal to the given one.
+	#
+	#   returns    TRUE or FALSE
+	#   note       the name says greater, the test includes equality: IsStrictlyGreater leaves it
+	#              out
+	#   see        IsStrictlyGreater, IsLess
+		#>
 	def IsGreater(pOtherNumber)
 		if CheckingParams()
 			if NOT Q(pOtherNumber).IsNumberOrString()
@@ -4183,9 +4394,12 @@ class stzNumber from stzObject
 		def IsEqualOrBiggerThan(pOtherNumber)
 			return This.IsGreater(pOtherNumber)
 
+	# TRUE if the number is greater than the given one, equality excluded.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsGreater
 		#>
-
-	# TRUE if the number is strictly greater than the given one.
+	#@ aka  TRUE if the number is strictly greater than the given one.
 	def IsStrictlyGreater(pOtherNumber)
 		if CheckingParams()
 			if NOT Q(pOtherNumber).IsNumberOrString()
@@ -4294,8 +4508,13 @@ class stzNumber from stzObject
 		def IsBetweenXT(pNumber1, pNumber2)
 			return This.IsBetweenIB(pNumber1, pNumber2)
 
-	# TRUE if the number lies strictly between the two given numbers
-	# (bounds excluded).
+	# TRUE if the number lies between the two given numbers, bounds excluded.
+	#
+	#   pNumber1   the lower bound
+	#   pNumber2   the upper bound
+	#   returns    TRUE or FALSE
+	#   see        IsBetween
+	#@ aka  TRUE if the number lies strictly between the two given numbers (bounds excluded).
 	def IsStrictlyBetween(pNumber1, pNumber2)
 		if CheckingParams()
 			if isList(pNumber2) and Q(pNumber2).IsAndNamedParam()
@@ -4317,8 +4536,13 @@ class stzNumber from stzObject
 
 		return _bResult_
 
-	# Quiet equality: TRUE if the values match, tolerating
-	# number/string form.
+	# Raises an error today instead of telling whether two numbers differ by less than the quiet ratio.
+	#
+	#   returns    nothing today
+	#   warning    known defect: the call raises error R13 today, because it subtracts a plain
+	#              number with an operator that needs an object
+	#   see        IsEqualTo, Same
+	#@ aka  Quiet equality: TRUE if the values match, tolerating number/string form.
 	def IsQuietEqualTo(pOtherNumber)
 
 		if NOT Q(pOtherNumber).IsNumberOrString()
@@ -4346,6 +4570,10 @@ class stzNumber from stzObject
 	 #    INTEGER & FRACTIONAL PARTS (CALLED ALSO DECIMAL PARTS)   #
 	#-------------------------------------------------------------#
 
+	# Returns how many digits the number is written with.
+	#
+	#   returns    a number
+	#   see        DigitCount
 	def NumberOfDigits()
 		return This.NumberOfDigitsInIntegerPart() + This.NumberOfDigitsInFractionalPart()
 
@@ -4354,8 +4582,11 @@ class stzNumber from stzObject
 		def NumberOfDigitsTheNumberActuallyContains()
 			return This.NumberOfDigits()
 
+	# Returns the integer part of the number, as text.
+	#
+	#   returns    a string
+	#   see        FractionalPart, IntegerPartValue
 		#>
-
 	def IntegerPart()
 		if This.HasFractionalPart()
 			return This.ToStzString().Split(".")[1]
@@ -4397,8 +4628,11 @@ class stzNumber from stzObject
 			def IntergerPartStringValueQ()
 				return This.IntegrPartQ()
 
+	# Returns the integer part of the number without its sign, as text.
+	#
+	#   returns    a string
+	#   see        IntegerPart
 		#>
-
 	def IntegerPartWithoutSign()
 		if NOT This.IsSigned()
 			return This.IntegerPart()
@@ -4419,6 +4653,10 @@ class stzNumber from stzObject
 			def IntegerPartStringValueWithoutSignQ()
 				return This.IntegerPartWithoutSignQ()
 
+	# Returns how many digits the integer part is written with.
+	#
+	#   returns    a number
+	#   see        NumberOfDigits
 	def NumberOfDigitsInIntegerPart()
 		if This.Sign() = ""
 			return len(This.IntegerPart())
@@ -4429,6 +4667,10 @@ class stzNumber from stzObject
 		def NumberOfIntegers()
 			return This.NumberOfDigitsInIntegerPart()
 
+	# TRUE if the number has a fractional part.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsInteger
 	def HasFractionalPart()
 		if This.ToStzString().Contains(".")
 			return 1
@@ -4458,12 +4700,20 @@ class stzNumber from stzObject
 		def ContainsAFractionalPart()
 			return This.HasFractionalPart()
 
+		# TRUE if the number has a fractional part.
+		#
+		#   returns    TRUE or FALSE
+		#   see        HasFractionalPart
 		def ContainsADecimalPart()
 			return This.HasFractionalPart()
 
 		#>
 
 	// Returns the fraction part of the number (with a leading "0.")
+	# Returns the fractional part of the number, as text such as 0.5.
+	#
+	#   returns    a string; empty for an integer
+	#   see        IntegerPart, FractionalPartValue
 	def FractionalPart()
 		if This.HasFractionalPart()
 			if This.IsNegative()
@@ -4495,6 +4745,10 @@ class stzNumber from stzObject
 				return This.FractionalPartQ()
 
 	// Returninig only the digits of the fractional part without the "0."
+	# Returns the digits after the dot, as text.
+	#
+	#   returns    a string; empty for an integer
+	#   see        FractionalPart
 	def FractionalPartWithoutZeroDot()
 		if This.HasFractionalPart()
 			return This.ToStzString().Split(".")[2]
@@ -4558,11 +4812,18 @@ class stzNumber from stzObject
 			def DecimalPartwihtoutDotQ()
 				return This.FractionalPartWithoutZeroDotQ()
 
+	# Returns how many digits follow the dot.
+	#
+	#   returns    a number
+	#   see        NumberOfDigits, Round
 		#>
-
 	def NumberOfDecimals()
 		return len(This.FractionalPartWithoutZeroDot())
 
+	# Returns how many digits follow the dot.
+	#
+	#   returns    a number
+	#   see        NumberOfDecimals
 	def NumberOfDigitsInFractionalPart()
 		if NOT This.HasFractionalPart()
 			return 0
@@ -4573,6 +4834,10 @@ class stzNumber from stzObject
 		def NumberOfDigitsInDecimalPart()
 			return This.NumberOfDigitsInFractionalPart()
 
+	# Returns the greatest number of digits a number can have before it counts as big.
+	#
+	#   returns    a number
+	#   see        IsBigNumber
 	def MaxNumberOfDigits() # Maximum number of digits the number can contain
 		_nMaxDigits_ = 0
 		switch This.IsIntegerOrReal()
@@ -4598,8 +4863,11 @@ class stzNumber from stzObject
 		def MaxNumberOfDigitsTheNumberCanContain()
 			return This.MaxNumberOfDigits()
 
+	# Returns whether the number is an integer or a real.
+	#
+	#   returns    a string, INTEGER or REAL
+	#   see        IsInteger, IsReal
 		#>
-
 	def IsIntegerOrReal()
 		if This.IsInteger()
 			return "INTEGER"
@@ -4612,8 +4880,11 @@ class stzNumber from stzObject
 		def IsIntergerOrReal()
 			return This.IsIntegerOrReal()
 
+	# Returns the digits of the integer part, as a list of numbers.
+	#
+	#   returns    a list of numbers
+	#   see        Digits, Decimals
 		#>
-
 	def Integers()
 		_anResult_ = This.IntegerPartWithoutSignQ().CharsQ().Numberified()
 		return _anResult_
@@ -4648,8 +4919,11 @@ class stzNumber from stzObject
 			def IntergersQRT(pcReturnType)
 				return This.IntegersQRT(pcReturnType)
 
+	# Returns the digits of the fractional part, as a list of numbers.
+	#
+	#   returns    a list of numbers; [ ] for an integer
+	#   see        Digits, Integers
 		#>
-
 	def Decimals()
 		_anResult_ = This.DecimalPartWihtoutDotQ().CharsQ().Numberified()
 		#NOTE // This is a misspelled form in Wihtout (sould be Without)
@@ -4674,12 +4948,19 @@ class stzNumber from stzObject
 				StzRaise("Unsupported return type!")
 			off
 
+	# Returns the sum of the digits of the integer part.
+	#
+	#   returns    a number
+	#   see        DigitSum
 		#>
-
 	def SumOfIntegers()
 		_nResult_ = This.IntegersQRT(:stzListOfNumbers).Sum()
 		return _nResult_
 
+	# Returns the sum of the digits after the dot.
+	#
+	#   returns    a number
+	#   see        SumOfIntegers
 	def SumOfDecimals()
 		_nResult_ = This.DecimalsQRT(:stzListOfNumbers).Sum()
 		return _nResult_
@@ -4703,7 +4984,11 @@ class stzNumber from stzObject
 	       	- RoundUnnecessary
 	*/
 
-	# The largest round (decimals) this number can still carry.
+	# Returns the largest number of decimals the number can still carry.
+	#
+	#   returns    a number
+	#   see        SetRound, RoundToMax
+	#@ aka  The largest round (decimals) this number can still carry.
 	def MaxRound()
 		_nResult_ = len( ""+ MaxNumberInRing() ) - This.NumberOfIntegers()
 
@@ -4713,7 +4998,11 @@ class stzNumber from stzObject
 
 		return _nResult_
 
-	# How many more decimals can be added before the max round.
+	# Returns how many more decimals can be added before the maximum is reached.
+	#
+	#   returns    a number
+	#   see        MaxRound
+	#@ aka  How many more decimals can be added before the max round.
 	def NumberOfRoundsWeCanAddBeforeMaxRoundIsReached()
 
 		_nResult_ =  This.MaxNumberOfDigitsTheNumberCanContain() -
@@ -4721,10 +5010,14 @@ class stzNumber from stzObject
 
 		return _nResult_
 
+	# Puts the number in a regime, such as :money with 2 decimals, and returns the object.
+	#
+	#   pcRegime   the regime, such as :money or :measured
+	#   pnPlaces   the number of decimals the regime fixes
+	#   returns    the object itself
+	#   see        Regime
 	#@ aka  round to nearest, nearest whole number, round off
-	# Round the number to the nearest integer (mutating).
-	  #-- THE REGIME (numeric foundation phase 2) --------------------------
-
+	#@ aka  Round the number to the nearest integer (mutating). -- THE REGIME (numeric foundation phase 2) --------------------------
 	def SetRegime(pcRegime, pnPlaces)
 		@cRegime = pcRegime
 		@nRegimePlaces = pnPlaces
@@ -4732,19 +5025,39 @@ class stzNumber from stzObject
 		This.Update( This.Content() )
 		return This
 
+	# Returns the numeric regime the number lives in, such as machine or money.
+	#
+	#   returns    a symbol
+	#   see        SetRegime, IsMoney, RegimePlaces
 	#@ aka  what kind of quantity, which regime, money or exact
 	def Regime()
 		return @cRegime
 
+	# Returns the number of decimals the regime fixes.
+	#
+	#   returns    a number
+	#   see        Regime
 	def RegimePlaces()
 		return @nRegimePlaces
 
+	# TRUE if the number is in the money regime.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Regime
 	def IsMoney()
 		return @cRegime = :money
 
+	# TRUE if the number is in the measured regime.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Regime
 	def IsMeasured()
 		return @cRegime = :measured
 
+	# TRUE if the number is in the exact regime.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Regime
 	def IsExactRegime()
 		return @cRegime = :exact
 
@@ -4771,29 +5084,24 @@ class stzNumber from stzObject
 		ok
 		return _c_
 
-	  #-- ROUNDING, WITH THE MODE IN THE VERB (numeric foundation phase 2)--
-	  #
-	  # Scope-Oriented Programming, move M3: the frame goes in the VERB at the call
-	  # site, not in a setting made somewhere else. Regex says MatchLine() rather
-	  # than Match()-with-a-flag; this says RoundedToHalfEven(2) rather than
-	  # RoundedTo(2) with a mode set three lines up.
-	  #
-	  # The tie rule is exactly the kind of frame the paradigm is about: it is
-	  # invisible at the call site, it changes the answer, and money depends on it.
-	  # Half-up is BIASED -- every tie moves the same way, so over a long ledger the
-	  # total drifts upward. Half-even splits ties and the bias cancels. That is why
-	  # accounting uses it, and why it deserves a name you can see.
-	  #
-	  # RoundedTo() keeps its historical half-up behaviour, so nothing existing
-	  # moves; the mode is something you ASK for.
-
+	# Returns the number rounded to the given decimals, ties to the even digit; the number is unchanged.
+	#
+	#   pnPlaces   the number of decimals to keep
+	#   returns    a string
+	#   see        RoundToHalfEven
 	#@ aka  banker's rounding, round half to even, accounting rounding
+	#@ aka  -- ROUNDING, WITH THE MODE IN THE VERB (numeric foundation phase 2)--
 	def RoundedToHalfEven(pnPlaces)
 		return _StzRoundDecimalString("" + This.Content(), pnPlaces, :HalfEven)
 
 		def RoundedToHalfEvenQ(pnPlaces)
 			return new stzNumber(This.RoundedToHalfEven(pnPlaces))
 
+		# Rounds the number to the given decimals, ties to the even digit, in place.
+		#
+		#   pnPlaces   the number of decimals to keep
+		#   returns    nothing; the number changes
+		#   see        RoundedToHalfEven
 		def RoundToHalfEven(pnPlaces)
 			This.Update( This.RoundedToHalfEven(pnPlaces) )
 
@@ -4801,6 +5109,11 @@ class stzNumber from stzObject
 				This.RoundToHalfEven(pnPlaces)
 				return This
 
+	# Returns the number rounded to the given decimals, ties upward; the number is unchanged.
+	#
+	#   pnPlaces   the number of decimals to keep
+	#   returns    a string
+	#   see        RoundToHalfUp
 	#@ aka  round half away from zero, commercial rounding
 	def RoundedToHalfUp(pnPlaces)
 		return _StzRoundDecimalString("" + This.Content(), pnPlaces, :HalfUp)
@@ -4808,6 +5121,11 @@ class stzNumber from stzObject
 		def RoundedToHalfUpQ(pnPlaces)
 			return new stzNumber(This.RoundedToHalfUp(pnPlaces))
 
+		# Rounds the number to the given decimals, ties upward, in place.
+		#
+		#   pnPlaces   the number of decimals to keep
+		#   returns    nothing; the number changes
+		#   see        RoundedToHalfUp
 		def RoundToHalfUp(pnPlaces)
 			This.Update( This.RoundedToHalfUp(pnPlaces) )
 
@@ -4815,22 +5133,12 @@ class stzNumber from stzObject
 				This.RoundToHalfUp(pnPlaces)
 				return This
 
-	  #-- THE REPRESENTATION LADDER (numeric foundation phase 1) ----------
-	  #
-	  # stzNumber keeps ONE front door and carries a representation inside, rather
-	  # than making the caller pick between six classes. This reports which rung the
-	  # value is currently on, so the ladder is observable instead of folklore:
-	  #
-	  #   :integer     a whole number inside the range an f64 represents exactly
-	  #   :bigInteger  a whole number beyond that (2^53), held exactly as digits
-	  #   :decimal     a value with a fractional part, held exactly as digits
-	  #
-	  # Promotion is automatic and upward only: adding 1 to a 2^53 integer yields a
-	  # :bigInteger, and nothing silently demotes. :rational and :complex are named
-	  # in the plan and not built yet, so they are not reported -- a ladder that
-	  # claims rungs it does not have is worse than a short one.
-
+	# Returns how the number is held: as an integer, a decimal, a rational or a big integer.
+	#
+	#   returns    a symbol such as integer, decimal, rational or bigInteger
+	#   see        IsRational, IsBigInteger, IsExact
 	#@ aka  which representation, what kind of number, integer or decimal
+	#@ aka  -- THE REPRESENTATION LADDER (numeric foundation phase 1) ----------
 	def Representation()
 		_c_ = "" + This.Content()
 		if _StzIsRationalString(_c_)
@@ -4847,12 +5155,24 @@ class stzNumber from stzObject
 		ok
 		return :integer
 
+	# TRUE if the number is held as a big integer.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Representation
 	def IsBigInteger()
 		return This.Representation() = :bigInteger
 
+	# TRUE if the number has a fractional part.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsInteger
 	def IsDecimalNumber()
 		return This.Representation() = :decimal
 
+	# TRUE if the number is held as a fraction, such as 1/3.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Representation
 	def IsRational()
 		return This.Representation() = :rational
 
@@ -4871,6 +5191,10 @@ class stzNumber from stzObject
 	def IsExact()
 		return @cExactness = :exact
 
+	# TRUE if the value is not held exactly.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsExact, WhyNotExact
 	def IsApproximate()
 		return NOT This.IsExact()
 
@@ -4894,12 +5218,20 @@ class stzNumber from stzObject
 		def Why()
 			return This.WhyNotExact()
 
+	# Returns whether the value is exact or inexact.
+	#
+	#   returns    a symbol such as exact
+	#   see        IsExact, WhyNotExact
 	def Exactness()
 		return @cExactness
 
-	# MATHEMATICAL equality, as opposed to Ring's `=` on the rendered strings.
-	# "1.50" and "1.5" are the same number; "0.1" and 0.1 are not the same BITS.
+	# TRUE if both are the same number, whatever their written form: 1.50 and 1.5 are the same.
+	#
+	#   pOther     a number, a number written as text, or a stzNumber
+	#   returns    TRUE or FALSE
+	#   see        IsEqualTo
 	#@ aka  same number, equal in value, numerically equal
+	#@ aka  MATHEMATICAL equality, as opposed to Ring's `=` on the rendered strings. "1.50" and "1.5" are the same number; "0.1" and 0.1 are not the same BITS.
 	def Same(pOther)
 		_cOther_ = ""
 		if isObject(pOther)
@@ -5016,10 +5348,14 @@ class stzNumber from stzObject
 	def RoundedToMaxXT()
 		return This.RoundedTo(MaxRoundXT())
 
+	# Rounds the number to the given number of decimals, in place.
+	#
+	#   _nRound_   the number of decimals to keep
+	#   returns    nothing; the number changes
+	#   see        RoundedTo, SetRound
 	#---
-
-	# Round the number to the given number of decimals (mutating).
 	#@ aka  decimals, precision, digits after the point
+	#@ aka  Round the number to the given number of decimals (mutating).
 	def RoundTo(_nRound_)
 		# Round to _nRound_ places, then TIDY: "12.4560" reads back as "12.456".
 		# That tidying is deliberate -- test 61_roundedto records RoundedTo(4) of
@@ -5051,47 +5387,72 @@ class stzNumber from stzObject
 			This.RoundTo(pRound)
 			return This
 
+		# Sets the number of decimals the number is shown with, in place.
+		#
+		#   _nRound_   the number of decimals
+		#   returns    nothing; the number changes
+		#   see        Round, RoundTo
 		#>
-
 		#< @FunctionAlternativeForm
-
-		# Set how many decimals (the round) this number renders with.
+		#@ aka  Set how many decimals (the round) this number renders with.
 		def SetRound(_nRound_)
 			This.RoundTo(_nRound_)
 
 			def SetRoundQ(_nRound_)
 				return This.RoundToQ(_nRound_)
 
+	# Returns the number rounded to the given number of decimals, as a string; the number is unchanged.
+	#
+	#   pRound     the number of decimals to keep
+	#   returns    a string
+	#   see        RoundTo, RoundedToHalfUp
 		#>
-
-	# A copy rounded to the given number of decimals; the original
-	# is unchanged.
+	#@ aka  A copy rounded to the given number of decimals; the original is unchanged.
 	def RoundedTo(pRound)
 		_cResult_ = This.Copy().RoundToQ(pRound).Content()
 		return _cResult_
 
-	#--
-
-	# Round to the maximum round available (mutating).
+	# Rounds the number to the greatest number of decimals it can carry, in place.
+	#
+	#   returns    nothing; the number changes
+	#   see        MaxRound
+	#@ aka  --
 	def RoundToMax()
 		This.RoundTo(:Max)
 
-	# A copy rounded to the maximum round available.
+	# Returns the number rounded to the greatest number of decimals it can carry.
+	#
+	#   returns    a string
+	#   warning    it raises an error when that round exceeds the maximum of the host language
+	#   see        RoundToMax
+	#@ aka  A copy rounded to the maximum round available.
 	def RoundedToMax()
 		return This.RoundedTo(MaxRound())
 
+	# Raises an error today instead of returning the number rounded up.
+	#
+	#   returns    nothing today
+	#   warning    known defect: the call raises error R24 today (a variable used before it is set)
+	#   see        RoundDown
 	#---
-
-	# The number rounded UP (toward the next integer).
+	#@ aka  The number rounded UP (toward the next integer).
 	def RoundUp()
 		return This.pvtCalculate( "floor", "" )
 
-	# The number rounded DOWN (toward the previous integer).
+	# Raises an error today instead of returning the number rounded down.
+	#
+	#   returns    nothing today
+	#   warning    known defect: the call raises error R24 today (a variable used before it is set)
+	#   see        RoundUp
+	#@ aka  The number rounded DOWN (toward the previous integer).
 	def RoundDown()
 		return This.pvtCalculate( "ceil", "" )
 			
-	# Round to the same number of decimals as the given number
-	# (mutating).
+	# Rounds the number to the same number of decimals as the given number, in place.
+	#
+	#   returns    nothing; the number changes
+	#   see        RoundIsSameAsRoundOf
+	#@ aka  Round to the same number of decimals as the given number (mutating).
 	def RoundToSameRoundAs(pOtherNumber)
 		_oOtherNumber_ = new stzNumber(pOtherNumber)
 		_nRoundOtherNumber_ = _oOtherNumber_.Round()
@@ -5099,6 +5460,9 @@ class stzNumber from stzObject
 		This.RoundTo(_nRoundOtherNumber_)
 
 	# TRUE if this number carries more decimals than the given one.
+	#
+	#   returns    TRUE or FALSE
+	#   see        CompareRoundsWith
 	def RoundIsGreaterThanRoundOf(pOtherNumber)
 
 		_nRound_ = This.Round()
@@ -5113,6 +5477,9 @@ class stzNumber from stzObject
 		ok
 
 	# TRUE if this number carries fewer decimals than the given one.
+	#
+	#   returns    TRUE or FALSE
+	#   see        CompareRoundsWith
 	def RoundIsLessThanRoundOf(pOtherNumber)
 		_nRound_ = This.Round()
 
@@ -5126,6 +5493,9 @@ class stzNumber from stzObject
 		ok
 	
 	# TRUE if both numbers carry the same number of decimals.
+	#
+	#   returns    TRUE or FALSE
+	#   see        CompareRoundsWith
 	def RoundIsSameAsRoundOf(pOtherNumber)
 		_nRound_ = This.Round()
 
@@ -5138,7 +5508,11 @@ class stzNumber from stzObject
 			return 0
 		ok
 
-	# Compare the rounds: :Greater, :Less or :Same.
+	# Compares the decimals of the two numbers: :Greater, :Less or :Equal.
+	#
+	#   returns    a symbol, which prints in lowercase
+	#   see        RoundIsSameAsRoundOf
+	#@ aka  Compare the rounds: :Greater, :Less or :Same.
 	def CompareRoundsWith(pOtherNumber)
 		# FIXED 2026-07-25: these were called as IsRound...; the methods are named
 		# RoundIs... (defined just above). Three R14s in one three-branch switch.
@@ -5178,12 +5552,12 @@ class stzNumber from stzObject
 			This.Add(pOtherNumber)
 			return This
 
+	# Returns the sum with the given number; the number is unchanged.
+	#
+	#   returns    a number
+	#   see        Add
 		#>
-
-	#-- @FunctionPassiveForm
-
-	# The sum with the given number, as data; the original is
-	# unchanged.
+	#@ aka  -- @FunctionPassiveForm
 	def Added(pOtherNumber)
 		_nResult_ = This.Copy().AddQ(pOtherNumber).NumericValue()
 		return _nResult_
@@ -5199,11 +5573,14 @@ class stzNumber from stzObject
 			This.AddMany(paOtherNumbers)
 			return This
 
+		# Adds the given numbers to this one, in place.
+		#
+		#   paOtherNumbers   the numbers to add
+		#   returns          nothing; the number changes
+		#   see              Add
 		#>
-
 		#< @FunctionAlternativeForm
-
-		# Same as AddMany.
+		#@ aka  Same as AddMany.
 		def AddThese(paOtherNumbers)
 			This.AddMany(paOtherNumbers)
 
@@ -5228,9 +5605,13 @@ class stzNumber from stzObject
 			def TheseAdded(pOtherNumbers)
 				return This.ManyAdded(pOtherNumbers)
 
+	# Adds the given numbers one after the other, in place, and returns every running sum.
+	#
+	#   paOtherNumbers   the numbers to add
+	#   returns          a list of the sums after each addition
+	#   see              Add
 		#>
-	
-	# AddMany returning every intermediate sum along the way.
+	#@ aka  AddMany returning every intermediate sum along the way.
 	def AddManyWithIntermediateResults(paOtherNumbers)
 		return This.AddManyXT(paOtherNumbers, :ReturnIntermediateResults = 1)
 
@@ -5239,10 +5620,13 @@ class stzNumber from stzObject
 		def AddManyWithIntermediateResultsQ(paOtherNumbers)
 			return new stzListOfNumbers( This.AddManyWithIntermediateResults(paOtherNumbers) )
 	
+		# Adds the given numbers one after the other, in place.
+		#
+		#   paOtherNumbers   the numbers to add
+		#   returns          nothing today; AddManyWithIntermediateResults returns the running sums
+		#   see              AddManyWithIntermediateResults
 		#>
-
 		#< @FunctionAlternativeForm
-
 		def AddTheseWithIntermediateResults(paOtherNumbers)
 			This.AddManyWithIntermediateResults(paOtherNumbers)
 
@@ -5301,8 +5685,13 @@ class stzNumber from stzObject
 	 #    SubStructION    #
 	#--------------------#
 
-	# Subtract the given number from this one (mutating).
+	# Subtracts the given number from this one, in place.
+	#
+	#   pOtherNumber   the number to subtract
+	#   returns        nothing; the number changes
+	#   see            Subtract
 	#@ aka  subtract, minus, decrease, take away
+	#@ aka  Subtract the given number from this one (mutating).
 	def SubStruct(pOtherNumber)
 
 		_StzHistoOpen(This.NumericValue())
@@ -5315,11 +5704,14 @@ class stzNumber from stzObject
 			This.SubStruct(pOtherNumber)
 			return This
 	
+		# Subtracts the given number from this one, in place, as SubStruct does.
+		#
+		#   pOtherNumber   the number to subtract
+		#   returns        nothing; the number changes
+		#   see            SubStruct
 		#>
-
 		#< @FunctionAlternativeForms
-
-		# Subtract the given number from this one (same as SubStruct).
+		#@ aka  Subtract the given number from this one (same as SubStruct).
 		def Retrieve(pOtherNumber)
 			This.SubStruct(pOtherNumber)
 
@@ -5327,29 +5719,46 @@ class stzNumber from stzObject
 				This.Retrieve(pOtherNumber)
 				return This
 
+		# Subtracts the given number from this one, in place, as SubStruct does.
+		#
+		#   pOtherNumber   the number to subtract
+		#   returns        nothing; the number changes
+		#   see            SubStruct
 		def Substract(pOtherNumber)
 			This.SubStruct(pOtherNumber)
 
 			def SubstractQ(pOtherNumber)
 				return This.RetrieveQ(pOtherNumber)
 
+		# Subtracts the given number from this one, in place.
+		#
+		#   pOtherNumber   the number to subtract
+		#   returns        nothing; the number changes
+		#   see            Subtracted, SubStruct
 		def Subtract(pOtherNumber)
 			This.SubStruct(pOtherNumber)
 
 			def SubtractQ(pOtherNumber)
 				return This.RetrieveQ(pOtherNumber)
 
+		# Subtracts the given number from this one, in place, as SubStruct does.
+		#
+		#   pOtherNumber   the number to subtract
+		#   returns        nothing; the number changes
+		#   see            SubStruct
 		def Subtruct(pOtherNumber)
 			This.SubStruct(pOtherNumber)
 
 			def SubtructQ(pOtherNumber)
 				return This.RetrieveQ(pOtherNumber)
 
+		# Returns the difference after subtracting the given number; the number is unchanged.
+		#
+		#   returns    a number
+		#   see        SubStruct
 		#>
-
 		#< @FunctionPassiveForm
-
-		# The difference after subtracting the given number, as data.
+		#@ aka  The difference after subtracting the given number, as data.
 		def Substructed(pOtherNumber)
 			_nResult_ = This.Copy().SubstructQ(pOtherNumber).NumericValue()
 			return _nResult_
@@ -5485,13 +5894,16 @@ class stzNumber from stzObject
 	 #  INCRMENET / DECREMENT THE NUMBER (BY 1)  #
 	#-------------------------------------------#
 
-	# The value one greater / one less, WITHOUT changing this number.
+	# Returns the number plus 1, as a string; the number is unchanged.
 	#
-	# ADDED 2026-07-25. The operator() hook has always answered "++" and "--" with
-	# these, but they did not exist. They RETURN rather than mutate, because that
-	# hook returns the result of the operation -- Increment()/Decrement() just below
-	# are the mutating pair.
+	#   returns    a string
+	#   see        PreviousNumber, Increment
+	#@ aka  The value one greater / one less, WITHOUT changing this number.
 	def NextNumber()
+		# ADDED 2026-07-25. The operator() hook has always answered "++" and "--" with
+		# these, but they did not exist. They RETURN rather than mutate, because that
+		# hook returns the result of the operation -- Increment()/Decrement() just below
+		# are the mutating pair.
 		_o_ = new stzNumber(This.Content())
 		_o_.Add(1)
 		return _o_.Content()
@@ -5499,6 +5911,10 @@ class stzNumber from stzObject
 		def NextNumberQ()
 			return new stzNumber(This.NextNumber())
 
+	# Returns the number minus 1, as a string; the number is unchanged.
+	#
+	#   returns    a string
+	#   see        NextNumber, Decrement
 	def PreviousNumber()
 		_o_ = new stzNumber(This.Content())
 		_o_.Subtract(1)
@@ -5522,11 +5938,19 @@ class stzNumber from stzObject
 			return This        # FIXED 2026-07-25: a Q form must return the object
 			return This
 
+	# Answers an empty string today instead of the number plus 1; the number is unchanged.
+	#
+	#   returns    an empty string today
+	#   warning    known defect: it answers an empty string; NextNumber answers the number plus 1
+	#   see        NextNumber
 	def Incremented()
 		_nResult_ = This.NumericValue() + 1
 
-	#--
-
+	# Subtracts 1 from the number, in place.
+	#
+	#   returns    nothing; the number changes
+	#   see        Increment, PreviousNumber
+	#@ aka  --
 	def Decrement()
 		This.Substract(1)
 
@@ -5535,6 +5959,12 @@ class stzNumber from stzObject
 			return This        # FIXED 2026-07-25: a Q form must return the object
 			return This
 
+	# Answers an empty string today instead of the number minus 1; the number is unchanged.
+	#
+	#   returns    an empty string today
+	#   warning    known defect: it answers an empty string; PreviousNumber answers the number minus
+	#              1
+	#   see        PreviousNumber
 	def Decremented()
 		_nResult_ = This.NumericValue() - 1
 
@@ -5569,10 +5999,13 @@ class stzNumber from stzObject
 			This.MultiplyBy(pOtherNumber)
 			return This
 	
+		# Multiplies this number by the given one, in place, as MultiplyBy does.
+		#
+		#   pOtherNumber   the factor; :By = n is accepted
+		#   returns        nothing; the number changes
+		#   see            MultiplyBy
 		#>
-
 		#< @FunctionAlternativeForm
-
 		def Multiply(pOtherNumber)
 			if CheckingParams()
 				if isList(pOtherNumber) and Q(pOtherNumber).IsByOrWithOrUsingNamedParam()
@@ -5582,8 +6015,11 @@ class stzNumber from stzObject
 
 			This.MultiplyBy(pOtherNumber)
 
+	# Returns the product of the number and the given one; the number is unchanged.
+	#
+	#   returns    a number
+	#   see        MultiplyBy, DividedBy
 		#>
-
 	def MultipliedBy(pOtherNumber)
 		_nResult_ = This.Copy().MultiplyByQ(pOtherNumber).NumericValue()
 		return _nResult_
@@ -5650,7 +6086,12 @@ class stzNumber from stzObject
 	 #    DIVISION    #
 	#----------------#
 
-	# Divide this number by the given one (mutating).
+	# Divides this number by the given one, in place, as DivideBy does.
+	#
+	#   pOtherNumber   the divisor; :By = n is accepted
+	#   returns        nothing; the number changes
+	#   see            DivideBy
+	#@ aka  Divide this number by the given one (mutating).
 	def Divide(pOtherNumber)
 		if CheckingParams()
 
@@ -5668,20 +6109,26 @@ class stzNumber from stzObject
 			This.Divide(pOtherNumber)
 			return This
 
+		# Returns the quotient by the given number; the number is unchanged.
+		#
+		#   pOtherNumber   the divisor
+		#   returns        a number
+		#   see            DivideBy
 		#>
-
 		#< @FunctionPassiveForm
-
-		# The quotient by the given number, as data; the original is
-		# unchanged.
+		#@ aka  The quotient by the given number, as data; the original is unchanged.
 		def Divided(pOtherNumber)
 			_nResult_ = This.Copy().DivideQ(pOtherNumber).NumericValue()
 			return _nResult_
 
+	# Divides this number by the given one, in place.
+	#
+	#   pOtherNumber   the divisor
+	#   returns        nothing; the number changes
+	#   see            Divided, Divide
 		#>
-
-	# Divide this number by the given one (mutating).
 	#@ aka  over, quotient, split by, divided
+	#@ aka  Divide this number by the given one (mutating).
 	def DivideBy(pOtherNumber)
 		_StzHistoOpen(This.NumericValue())
 		This.Update( pvtCalculate("/", pOtherNumber ) )
@@ -5693,11 +6140,14 @@ class stzNumber from stzObject
 			This.DivideBy(pOtherNumber)
 			return This
 
+		# Returns the quotient by the given number; the number is unchanged.
+		#
+		#   pOtherNumber   the divisor
+		#   returns        a number
+		#   see            DivideBy
 		#>
-
 		#< @FunctionPassiveForm
-
-		# The quotient by the given number, as data.
+		#@ aka  The quotient by the given number, as data.
 		def DividedBy(pOtherNumber)
 			_nResult_ = This.Copy().DivideByQ(pOtherNumber).NumericValue()
 			return _nResult_
@@ -5759,156 +6209,191 @@ class stzNumber from stzObject
 	 #    MATHS    #
 	#-------------#
 
-	# MODULO
-
+	# Returns the remainder of the division by the given number.
+	#
+	#   pOtherNumber   the divisor
+	#   returns        a string
+	#   see            Divided
 	#@ aka  remainder, mod, leftover of division
-	# The remainder of the division by the given number.
+	#@ aka  MODULO
 	def Modulo(pOtherNumber)
 		return This.pvtCalculate("%", pOtherNumber)
 
 		def ModuloQ(pOtherNumber)
 			return new stzNumber(This.Modulo(pOtherNumber))
 	
-	# POWER
-
+	# Returns the number raised to the given power, rounded to the number's decimals; the number is unchanged.
+	#
+	#   pOtherNumber   the exponent
+	#   returns        a string
+	#   see            SquareRoot, Exponential
 	#@ aka  to the power of, exponent, raised to, power
-	# Raise the number to the given power (mutating).
+	#@ aka  POWER
 	def Power(pOtherNumber)
 		return This.pvtCalculate("^", pOtherNumber)
 
 		def PowerQ(pOtherNumber)
 			return new stzNumber(This.Power(pOtherNumber))
 	
-	# SINE
-
-	# The sine of the number (mutating: the number becomes it).
+	# Returns the sine of the number, rounded to the number's decimals; the number is unchanged.
+	#
+	#   returns    a string
+	#   note       an integer has no decimals, so the sine of 12 reads -1: write 12.0 or round later
+	#              for more
+	#@ aka  SINE
 	def Sine()
 		return This.pvtCalculate( "sin", "" )
 
 		def SineQ()
 			return new stzNumber(This.Sine())
 	
-	# COSINE
-
-	# The cosine of the number (mutating).
+	# Returns the cosine of the number, rounded to the number's decimals; the number is unchanged.
+	#
+	#   returns    a string
+	#@ aka  COSINE
 	def Cosine()
 		return This.pvtCalculate( "cos", "" )
 
 		def CosineQ()
 			return new stzNumber(This.Cosine())
 	
-	# TANGENT
-
-	# The tangent of the number (mutating).
+	# Returns the tangent of the number, rounded to the number's decimals; the number is unchanged.
+	#
+	#   returns    a string
+	#@ aka  TANGENT
 	def Tangent()
 		return This.pvtCalculate( "tan", "" )
 		
 		def TangentQ()
 			return new stzNumber(This.Tangent())
 	
-	# COTANGENT
-
-	# The cotangent of the number (mutating).
+	# Returns the cotangent of the number, rounded to the number's decimals; the number is unchanged.
+	#
+	#   returns    a string
+	#@ aka  COTANGENT
 	def Cotangent()
 		return This.pvtCalculate( "cotan", "" )
 
 		def CotangentQ()
 			return new stzNumber(This.Cotangent())
 	
-	# ARCSINE
-
-	# The arc sine of the number (mutating).
+	# Raises a value error for any number outside -1 to 1, so for every integer but -1, 0 and 1, instead of returning the arc sine.
+	#
+	#   returns    nothing today
+	#   warning    the call raises a value error for a number outside -1 to 1, which includes every
+	#              integer but -1, 0 and 1
+	#@ aka  ARCSINE
 	def ArcSine()
 		return This.pvtCalculate( "asin", "" )
 	
 		def ArcSineQ()
 			return new stzNumber(This.ArcSine())
 	
-	# ARCCOSINE
-
-	# The arc cosine of the number (mutating).
+	# Raises a value error for any number outside -1 to 1, so for every integer but -1, 0 and 1, instead of returning the arc cosine.
+	#
+	#   returns    nothing today
+	#   warning    the call raises a value error for a number outside -1 to 1, which includes every
+	#              integer but -1, 0 and 1
+	#@ aka  ARCCOSINE
 	def ArcCosine()
 		return This.pvtCalculate( "acos", "" )
 
 		def ArcCosineQ()
 			return new stzNumber(This.ArcCosine())
 	
-	# ARCTANGENT
-
-	# The arc tangent of the number (mutating).
+	# Raises an error today instead of returning the arc tangent of the number.
+	#
+	#   returns    nothing today
+	#   warning    known defect: the call raises error R24 today (a variable used before it is set)
+	#@ aka  ARCTANGENT
 	def ArcTangent()
 		return This.pvtCalculate( "atan", "" )
 
 		def ArcTangentQ()
 			return new stzNumber(This.ArcTangent())
 	
-	# ARCTANGENT2
-
-	# The two-argument arc tangent (atan2) of the number (mutating).
+	# Raises an error today instead of returning the two-argument arc tangent.
+	#
+	#   returns    nothing today
+	#   warning    known defect: the call raises an error about its parameter count today
+	#@ aka  ARCTANGENT2
 	def ArcTangent2()
 		return This.pvtCalculate( "atan2", "" )
 
 		def ArcTangent2Q()
 			return new stzNumber(This.ArcTangent2())
 	
-	# SINH
-
-	# The hyperbolic sine of the number (mutating).
+	# Returns the hyperbolic sine of the number, rounded to the number's decimals; the number is unchanged.
+	#
+	#   returns    a string
+	#@ aka  SINH
 	def HyperbolicSine()
 		return This.pvtCalculate( "sinh", "" )
 
 		def HyperbolicSineQ()
 			return new stzNumber(This.HyperbolicSine())
 	
-	# COSH
-
-	# The hyperbolic cosine of the number (mutating).
+	# Returns the hyperbolic cosine of the number, rounded to the number's decimals; the number is unchanged.
+	#
+	#   returns    a string
+	#@ aka  COSH
 	def HyperbolicCosine()
 		return This.pvtCalculate( "cosh", "" )
 
 		def HyperbolicCosineQ()
 			return new stzNumber(This.HyperbolicCosine())
 	
-	# TANH
-
-	# The hyperbolic tangent of the number (mutating).
+	# Raises an error today instead of returning the hyperbolic tangent of the number.
+	#
+	#   returns    nothing today
+	#   warning    known defect: the call raises error R3 today (it calls tanhh, which is not
+	#              defined)
+	#@ aka  TANH
 	def HyperbolicTangent()
 		return This.pvtCalculate( "tanh", "" )
 
 		def HyperbolicTangentQ()
 				return new stzNumber(This.HyperbolicTangent())
 	
-	# EXP
-
-	# e raised to the number (mutating).
+	# Returns e raised to the number, rounded to the number's decimals; the number is unchanged.
+	#
+	#   returns    a string
+	#   see        NaturalLogarithm
+	#@ aka  EXP
 	def Exponential()
 		return This.pvtCalculate( "exp", "" )
 
 		def ExponentialQ()
 			return new stzNumber(This.Exponential())
 	
-	# LOG
-
-	# The natural logarithm (base e) of the number (mutating).
+	# Returns the natural logarithm of the number, rounded to the number's decimals; the number is unchanged.
+	#
+	#   returns    a string
+	#   see        Exponential, CommonLogarithm
+	#@ aka  LOG
 	def NaturalLogarithm()
 		return This.pvtCalculate( "log", "" )
 
 		def NaturalLogarithmQ()
 			return new stzNumber(This.NaturalLogarithmQ())
 	
-	# LOG10
-
-	# The common logarithm (base 10) of the number (mutating).
+	# Returns the base 10 logarithm of the number, rounded to the number's decimals; the number is unchanged.
+	#
+	#   returns    a string
+	#   see        NaturalLogarithm
+	#@ aka  LOG10
 	def CommonLogarithm()
 		return This.pvtCalculate( "log10", "" )
 
 		def CommonLogarithmQ()
 			return new stzNumber(This.CommonLogarithm())
 	
-	# ABS
-
-	# The absolute value of the number (mutating).
+	# Returns the absolute value of the number; the number is unchanged.
+	#
+	#   returns    a number
+	#   see        Sign, RemoveSign
 	#@ aka  abs, magnitude, positive value, without sign
+	#@ aka  ABS
 	def Absolute()
 		if This.IsInteger()
 			_n_ = This.NumericValue()
@@ -5936,20 +6421,25 @@ class stzNumber from stzObject
 			def AbsQ()
 				return This.AbsoluteQ()
 	
-	# SQRT
-
+	# Returns the square root of the number, rounded to the number's decimals; the number is unchanged.
+	#
+	#   returns    a string
+	#   see        Power
 	#@ aka  square root, sqrt, root of the number
-	# The square root of the number (mutating).
+	#@ aka  SQRT
 	def SquareRoot()
 		return This.pvtCalculate( "sqrt", "" )
 
 		def SquareRootQ()
 			return new stzNumber(This.SquareRoot())
 	
-	# FACT
-
-	# The factorial of the (integer) number (mutating).
+	# Returns the factorial of an integer, as a string; the number is unchanged.
+	#
+	#   returns    a string, exact for large numbers
+	#   warning    a negative number or a number with a fractional part raises an error
+	#   see        Fibonacci
 	#@ aka  factorial of, n bang, product of integers up to
+	#@ aka  FACT
 	def Factorial()
 		if NOT This.IsInteger()
 			StzRaise("Can't compute factorial of a non-integer!")
@@ -5966,15 +6456,19 @@ class stzNumber from stzObject
 		def FactorialQ()
 				return new stzNumber(This.Factorial())
 	
-	# PERCENT
-
-	# The number as a percentage string.
+	# Returns the number divided by 100, written as a percentage.
+	#
+	#   returns    a string such as 1.2%
+	#   see        Percent
+	#@ aka  PERCENT
 	def InPercentage()
 		return This.pvtCalculate( "/", 10 ) + "%"
 
-	# SIGMOID
-
-	# The sigmoid of the number (mutating).
+	# Returns the sigmoid of the number, rounded to the number's decimals; the number is unchanged.
+	#
+	#   returns    a string
+	#   see        DerivativeSigmoid
+	#@ aka  SIGMOID
 	def Sigmoid()
 		return This.pvtCalculate( "sigmoid", "" )
 
@@ -5982,16 +6476,23 @@ class stzNumber from stzObject
 			return new stzNumber(This.Sigmoid())
 	
 
-	# The derivative via the engine calculator (reserved form).
+	# Raises an error today instead of returning the derivative of a function at the number.
+	#
+	#   pcFunc     the function, as text
+	#   returns    nothing today
+	#   warning    known defect: the call raises error R24 today (a variable used before it is set)
+	#@ aka  The derivative via the engine calculator (reserved form).
 	def Derivative(pcFunc)
 		return This.pvtCalculate( "derivative", pcdef ) 
 
 		def DerivativeQ(pcFunc)
 				return new stzNumber(This.Derivative(pcFunc))
 	
-	# DERIVATIVE SIGMOID
-
-	# The sigmoid derivative of the number (mutating).
+	# Returns the derivative of the sigmoid at the number, rounded to the number's decimals; the number is unchanged.
+	#
+	#   returns    a string
+	#   see        Sigmoid
+	#@ aka  DERIVATIVE SIGMOID
 	def DerivativeSigmoid()
 		return This.pvtCalculate( "DerivativeSigmoid", "" )
 
@@ -5999,7 +6500,12 @@ class stzNumber from stzObject
 			return new stzNumber(This.DerivativeSigmoid())
 	
 
-	# The least common multiple with the given number.
+	# Returns the least common multiple of the number and the given one, or of a list of numbers.
+	#
+	#   pOtherNumber   the other number, or a list of numbers; :With = n is accepted
+	#   returns        a string
+	#   see            GreatestCommonDividor
+	#@ aka  The least common multiple with the given number.
 	def LeastCommonMultiple(pOtherNumber)
 
 		if isList(pOtherNumber) and Q(pOtherNumber).IsWithNamedParam()
@@ -6029,14 +6535,18 @@ class stzNumber from stzObject
 		def LeastCommonMultipleQ(pOtherNumber)
 			return new stzNumber(This.LeastCommonMultiple(pOtherNumber))
 
-	# The LCM of this number with EVERY number in the given list.
+	# Returns the least common multiple of the number and every number of the list.
 	#
-	# ADDED 2026-07-25. LeastCommonMultiple() has always branched here for a list
-	# argument, but the method did not exist -- so
-	# stzListOfNumbers([4,6,8]).LeastCommonMultiple(), which routes through it,
-	# silently answered 0 instead of 24. lcm is associative, so folding pairwise is
-	# the whole implementation.
+	#   paNumbers   the numbers
+	#   returns     a number
+	#   see         LeastCommonMultiple
+	#@ aka  The LCM of this number with EVERY number in the given list.
 	def LeastCommonMultipleOfManyNumbers(paNumbers)
+		# ADDED 2026-07-25. LeastCommonMultiple() has always branched here for a list
+		# argument, but the method did not exist -- so
+		# stzListOfNumbers([4,6,8]).LeastCommonMultiple(), which routes through it,
+		# silently answered 0 instead of 24. lcm is associative, so folding pairwise is
+		# the whole implementation.
 		if NOT isList(paNumbers)
 			StzRaise("Incorrect param type! paNumbers must be a list of numbers.")
 		ok
@@ -6058,7 +6568,11 @@ class stzNumber from stzObject
 			return This.LeastCommonMultipleOfManyNumbers(paNumbers)
 
 
-	# The greatest common divisor with the given number.
+	# Returns the greatest common divisor of the number and the given one.
+	#
+	#   returns    a string
+	#   see        LeastCommonMultiple
+	#@ aka  The greatest common divisor with the given number.
 	def GreatestCommonDividor(pOtherNumber)
 		return This.pvtCalculate( "GCD", pOtherNumber)
 
@@ -6086,9 +6600,12 @@ class stzNumber from stzObject
 		def InverseQ()
 			return new stzNumber(This.Inverse())
 	
-	# FACTORS
-
-	# The factors (divisors) of the integer number, as a list.
+	# Returns the factors of the integer part of a positive number, in ascending order.
+	#
+	#   returns    a list of numbers
+	#   warning    it raises an error for a number that is not an integer or not positive
+	#   see        PrimeFactors, IsDividableBy
+	#@ aka  FACTORS
 	def Factors()
 		if NOT This.IsInteger()
 			StzRaise("Factors can't be computed for a non integer!")
@@ -6147,9 +6664,12 @@ class stzNumber from stzObject
 
 		return _aResult_
 
+		# Returns the factors in the requested return type.
+		#
+		#   returns    a stzList
+		#   see        Factors
 		#< @FunctionFluentForm
-
-		# The factors, in the requested return type (variant form).
+		#@ aka  The factors, in the requested return type (variant form).
 		def FactorsXRQ()
 			return This.FactorsXTQRT(:stzList)
 
@@ -6181,9 +6701,12 @@ class stzNumber from stzObject
 		def DivirdosXT()
 			return This.Factors()
 
+	# Returns the prime factors of the number, each once, in ascending order.
+	#
+	#   returns    a list of numbers
+	#   see        Factors, IsPrime
 		#>
-
-	# The prime factors of the number, as a list.
+	#@ aka  The prime factors of the number, as a list.
 	def PrimeFactors()
 		_aResult_ = []
 
@@ -6246,10 +6769,12 @@ class stzNumber from stzObject
 		next
 		return _aResult_
 
+		# Returns the prime factors in the requested return type.
+		#
+		#   returns    a stzList
+		#   see        PrimeFactors
 		#< @FunctionFluentForm
-
-		# The prime factors, in the requested return type (variant
-		# form).
+		#@ aka  The prime factors, in the requested return type (variant form).
 		def PrimeFactorsXRQ()
 			return This.PrimeFactorsXTQRT(:stzList)
 
@@ -6281,29 +6806,49 @@ class stzNumber from stzObject
 		def PrimeDivirdosXT()
 			return This.PrimeFactors()
 
+	# Returns the pair of factors closest to a square, as rows by columns.
+	#
+	#   returns    a list of two numbers
+	#   warning    a number that is not a positive integer raises an error
+	#   see        Factors
 		#>
-
-	# The factor pair closest to a square (rows x cols).
+	#@ aka  The factor pair closest to a square (rows x cols).
 	def MostSquareLikeFactors()
 		return @MostSquareLikeFactors(This.Content())
 
 		def MSLF()
 			return This.MostSquareLikeFactors()
 
-	# MULTIPLES UNTIL
-
-	# How many multiples of the given number divide into this one.
+	# Returns how many multiples of the number fit up to a limit.
+	#
+	#   pOtherNumber   the limit, not smaller than the number
+	#   returns        a number
+	#   warning        a limit smaller than the number raises an error
+	#   see            MultiplesUntil
+	#@ aka  MULTIPLES UNTIL
 	def NumberOfMultiples(pOtherNumber)
 		return len( This.Multiples(pOtherNumber) )
 
-	# How many multiples fit up to the given limit.
+	# Returns how many multiples of the number fit up to a limit.
+	#
+	#   pOtherNumber   the limit, not smaller than the number
+	#   returns        a number
+	#   warning        a limit smaller than the number raises an error
+	#   see            MultiplesUntil
+	#@ aka  How many multiples fit up to the given limit.
 	def NumberOfMultiplesUntil(pOtherNumber)
 		return len( This.MultiplesUntil(pOtherNumber) )
 
 		def NumberOfMultiplesUpTo(pOtherNumber)
 			return This.NumberOfMultiplesUntil(pOtherNumber)
 
-	# The multiples of the number up to the given count.
+	# Returns the multiples of the number up to a limit, as MultiplesUntil does.
+	#
+	#   pOtherNumber   the limit, or :Until = n, :UpTo = n
+	#   returns        a list of numbers
+	#   warning        a limit smaller than the number raises an error
+	#   see            MultiplesUntil
+	#@ aka  The multiples of the number up to the given count.
 	def Multiples(pOtherNumber)
 		if isList(pOtherNumber) and
 		   IsOneOfTheseNamedParamsList(pOtherNumber, [ :Until, :UpTo, :Under ])
@@ -6312,7 +6857,13 @@ class stzNumber from stzObject
 
 		return This.MultiplesUntil(pOtherNumber)
 
-	# The multiples of the number up to the given limit.
+	# Returns the multiples of the number up to a limit.
+	#
+	#   pOtherNumber   the limit, not smaller than the number
+	#   returns        a list of numbers
+	#   warning        a limit smaller than the number raises an error
+	#   see            Multiples, NumberOfMultiplesUntil
+	#@ aka  The multiples of the number up to the given limit.
 	def MultiplesUntil(pOtherNumber)
 
 		if CheckingParams()
@@ -6506,20 +7057,33 @@ class stzNumber from stzObject
 		def CanBeDividedBy(n)
 			return This.IsDividableBy(n)
 			
-	# TRUE if the number divides evenly INTO n.
+	# TRUE if the number divides n evenly.
+	#
+	#   n          the number to compare with, a number or a number written as text
+	#   returns    TRUE or FALSE
+	#   see        IsDividableBy, IsMultipleOf
+	#@ aka  TRUE if the number divides evenly INTO n.
 	def IsDividorOf(n)	// Main Number and n must be integers!
 		_oNumber_ = new stzNumber(n)
 
 		return _oNumber_.IsDividableBy(This.IntegerPartValue())
 
-	# The integer part, as a number.
+	# Returns the integer part of the number, as a number.
+	#
+	#   returns    a number
+	#   see        IntegerPart
+	#@ aka  The integer part, as a number.
 	def IntegerPartValue()
 		return 0+ This.IntegerPart()
 
 		def IntegerPartNumericValue()
 			return This.IntegerPartValue()
 
-	# The fractional part, as a number.
+	# Returns the fractional part of the number, as a number.
+	#
+	#   returns    a number; 0 for an integer
+	#   see        FractionalPart
+	#@ aka  The fractional part, as a number.
 	def FractionalPartValue()
 		return 0+ This.FractionalPart()
 
@@ -6536,12 +7100,19 @@ class stzNumber from stzObject
 	 #     CONVERSION    #
 	#-------------------#
 
-	# The number wrapped as a stzString object.
+	# Returns the number as a stzString object.
+	#
+	#   returns    a stzString
+	#   see        StringValue
+	#@ aka  The number wrapped as a stzString object.
 	def ToStzString()
 		return new stzString(This.Content())
 	
-	# Converting decimal to hex form
-	
+	# Returns the number written in base 16, with the 0x prefix.
+	#
+	#   returns    a string such as 0xC
+	#   see        ToHexFormWithoutPrefix, ToHex
+	#@ aka  Converting decimal to hex form
 	def ToHexForm()
 		_cResult_ = HexNumberPrefix() + This.ToHexFormWithoutPrefix()
 		return _cResult_
@@ -6568,29 +7139,44 @@ class stzNumber from stzObject
 			def ToHexQ()
 				return new stzHexNumber( This.ToHex() )
 
+	# Returns the number as a stzHexNumber object.
+	#
+	#   returns    a stzHexNumber
+	#   see        ToHexForm
 		#>
-
-	# The number wrapped as a stzHexNumber object.
+	#@ aka  The number wrapped as a stzHexNumber object.
 	def ToHexNumber()
 		return new stzHexNumber( This.ToHex() )
 
-	# The number in Unicode hex form (U+0041).
+	# Returns the number written as a Unicode code point label in hexadecimal, such as U+C for 12.
+	#
+	#   returns    a string
+	#   see        Unicode
+	#@ aka  The number in Unicode hex form (U+0041).
 	def ToUnicodeHexForm()
 		return "U+" + This.ToHexFormWithoutPrefix()
 	
+		# Returns the number written as a Unicode code point label, as ToUnicodeHexForm does.
+		#
+		#   returns    a string
 		#< @FunctionAlternativeForms
-
-		# The number in Unicode hex form (U+0041).
+		#@ aka  The number in Unicode hex form (U+0041).
 		def ToUnicodeHex()
 			return ToUnicodeHexForm()
 
-		# The number in Unicode hex form (U+0041).
+		# Returns the number written as a Unicode code point label, as ToUnicodeHexForm does.
+		#
+		#   returns    a string
+		#@ aka  The number in Unicode hex form (U+0041).
 		def ToHexUnicode()
 			return ToUnicodeHexForm()
 
+	# Returns the number written in base 16, without the 0x prefix.
+	#
+	#   returns    a string
+	#   see        ToHexForm
 		#>
-
-	# The hexadecimal form without the 0x prefix.
+	#@ aka  The hexadecimal form without the 0x prefix.
 	def ToHexFormWithoutPrefix()
 		_cResult_ = This.IntegerPartToHexForm()
 
@@ -6605,13 +7191,19 @@ class stzNumber from stzObject
 		def ToHexWithoutPrefix()
 			return This.ToHexFormWithoutPrefix()
 
+	# Returns the integer part written in base 16.
+	#
+	#   returns    a string
+	#   see        ToHexFormWithoutPrefix
 		#>
-			
-	# The integer part in hexadecimal form.
+	#@ aka  The integer part in hexadecimal form.
 	def IntegerPartToHexForm()
 		return StzUpper(StzEngineNumberToBase(This.IntegerPartValue(), 16))
 
-	# The fractional part in hexadecimal form.
+	# Returns the fractional part written in base 16.
+	#
+	#   returns    a string; empty for an integer
+	#@ aka  The fractional part in hexadecimal form.
 	def FractionalPartToHexForm()
 		_cFraction_ = This.FractionalPart()
 
@@ -6636,12 +7228,19 @@ class stzNumber from stzObject
 		def ToBinaryQ()
 			return new stzBinaryNumber( This.ToBinaryForm() )
 
-		# The number wrapped as a stzBinaryNumber object.
+		# Returns the number as a stzBinaryNumber object.
+		#
+		#   returns    a stzBinaryNumber
+		#   see        ToBinaryForm
+		#@ aka  The number wrapped as a stzBinaryNumber object.
 		def ToBinaryNumber()
 			return new stzBinaryNumber( This.ToBinaryForm() )
 
-	# Variant that strips the "0b" prefix from the binary form, for
-	# callers that just want the raw bit-string.
+	# Returns the number written in base 2, without the 0b prefix.
+	#
+	#   returns    a string of 0 and 1
+	#   see        ToBinaryForm
+	#@ aka  Variant that strips the "0b" prefix from the binary form, for callers that just want the raw bit-string.
 	def ToBinaryFormWithoutPrefix()
 		_cBin_ = This.ToBinaryForm()
 		if isString(_cBin_) and StzLen(_cBin_) >= 2 and StzMid(_cBin_, 1, 2) = "0b"
@@ -6658,25 +7257,25 @@ class stzNumber from stzObject
 		def ToBinaryNoPrefix()
 			return This.ToBinaryFormWithoutPrefix()
 	
-	# Converting decimal to octal form
-
+	# Returns the integer part written in base 8.
+	#
+	#   returns    a string
+	#   see        ToOctalFormWithoutPrefix
+	#@ aka  Converting decimal to octal form
 	def IntegerPartToOctalForm()
 		# Use fabs -- bare abs() resolves case-insensitively to this
 		# class's own Abs() method (0 params) and raises R20 on the
 		# argument. Same family as the Insert/Swap/Add shadows.
 		return This.Sign() + StzEngineNumberToBase(fabs(This.IntegerPartValue()), 8)
 
-	# The fractional part written in octal.
+	# Returns the fractional part written in base 8.
 	#
-	# ADDED 2026-07-25. ToOctalFormWithoutPrefix() has always called this for a real
-	# number, but it did not exist -- so any octal rendering of a number with a
-	# fractional part raised R14.
-	#
-	# A fraction is converted by repeatedly multiplying by 8 and taking the integer
-	# part as the next digit. Unlike the integer side this can run forever (1/3 in
-	# octal is 0.2525...), so it is bounded by the number's own round -- the digits
-	# the caller asked to keep -- and stops early when the fraction reaches zero.
+	#   returns    a string; empty for an integer
+	#@ aka  The fractional part written in octal.
 	def FractionalPartToOctalForm()
+		# ADDED 2026-07-25. ToOctalFormWithoutPrefix() has always called this for a real
+		# number, but it did not exist -- so any octal rendering of a number with a
+		# fractional part raised R14.
 		_cFrac_ = This.FractionalPartWithoutZeroDot()
 		if _cFrac_ = ""
 			return ""
@@ -6717,11 +7316,19 @@ class stzNumber from stzObject
 		def ToOctalQ()
 			return new stzOctalNumber( This.ToOctalForm() ) 
 
-		# The number wrapped as a stzOctalNumber object.
+		# Returns the number as a stzOctalNumber object.
+		#
+		#   returns    a stzOctalNumber
+		#   see        ToOctalForm
+		#@ aka  The number wrapped as a stzOctalNumber object.
 		def ToOctalNumber()
 			return new stzOctalNumber( This.ToOctalForm() )
 	
-	# The octal form without the prefix.
+	# Returns the number written in base 8, without the prefix.
+	#
+	#   returns    a string
+	#   see        ToOctalForm
+	#@ aka  The octal form without the prefix.
 	def ToOctalFormWithoutPrefix()
 		_cResult_ = This.IntegerPartToOctalForm()
 
@@ -6733,7 +7340,11 @@ class stzNumber from stzObject
 
 	// Returns a string containing the equivalent of the interger part
 	// in the specified base n (between 2 and 36)
-	# The integer part written in base n (2..36).
+	# Returns the integer part written in base n.
+	#
+	#   n          the base, from 2 to 36
+	#   returns    a string
+	#@ aka  The integer part written in base n (2..36).
 	def IntegerPartToBaseNForm(n)
 		if n >= 2 and n <= 36
 			_nVal_ = This.IntegerPartValue()   # FIXED 2026-07-25: was This.IntegerValue()
@@ -6750,29 +7361,63 @@ class stzNumber from stzObject
 			StzRaise(stzNumberError(:CanNotConvertNumberToSpecifiedBase))
 		ok
 
-	# Converting decimal number to bytes
-
+	# Raises a parameter-type error today instead of returning the number as bytes.
+	#
+	#   returns    nothing today
+	#   warning    known defect: the call raises a parameter-type error today
+	#@ aka  Converting decimal number to bytes
 	def ToBytes()
 		return double2bytes( This.Content() )
-		# Because Ring uses double C type to represent numbers internally
-
+	# Sets the number from a number written in base 2, in place.
+	#
+	#   cBinary    the binary digits, as text
+	#   returns    nothing; the number changes
+	#   warning    text that is not a binary number raises an error
+	#   see        ToBinaryForm
+	#@ aka  Because Ring uses double C type to represent numbers internally
 	def FromBinaryForm(cBinary)
 		This.Update( StzBinaryNumberQ(cBinary).ToDecimalForm() )
 
+		# Sets the number from a number written in base 2, in place.
+		#
+		#   cBinary    the binary digits, as text
+		#   returns    nothing; the number changes
+		#   warning    text that is not a binary number raises an error
+		#   see        ToBinaryForm, FromBinaryForm
 		def FromBinary(cBinary)
 			This.FromBinaryForm(cBinary)
 
-	# Set the number from the given octal form (mutating).
+	# Sets the number from a number written in base 8, in place.
+	#
+	#   cOctal     the octal digits, as text
+	#   returns    nothing; the number changes
+	#   see        ToOctalForm
+	#@ aka  Set the number from the given octal form (mutating).
 	def FromOctalForm(cOctal)
 		This.Update( StzOctalNumberQ(cOctal).ToDecimalForm() )
 
+		# Sets the number from a number written in base 8, in place.
+		#
+		#   cOctal     the octal digits, as text
+		#   returns    nothing; the number changes
+		#   see        ToOctalForm, FromOctalForm
 		def FromOctal(cOctal)
 			This.FromOctalForm(cOctal)
 
-	# Set the number from the given hex form (mutating).
+	# Sets the number from a number written in base 16, in place.
+	#
+	#   cHex       the hexadecimal digits, as text
+	#   returns    nothing; the number changes
+	#   see        ToHexForm
+	#@ aka  Set the number from the given hex form (mutating).
 	def FromHexForm(cHex)
 		This.Update( StzHexNumberQ(cHex).ToDecimalForm() )
 
+		# Sets the number from a number written in base 16, in place.
+		#
+		#   cHex       the hexadecimal digits, as text
+		#   returns    nothing; the number changes
+		#   see        ToHexForm, FromHexForm
 		def FromHex(cHex)
 			This.FromHexForm(cHex)
 
@@ -6850,6 +7495,10 @@ class stzNumber from stzObject
 
 		return _aStructure_
 
+	# Returns the number split into units, dozens and hundreds of each group of three digits.
+	#
+	#   returns    a list of [ name, value ] pairs, from trillions down to hundreds
+	#   see        Hundreds, Thousands, Millions
 	def Structure()
 		# Given a number, the function returns its structure in a hashlist
 		# taking the following form:
@@ -6896,7 +7545,11 @@ class stzNumber from stzObject
 		return _aStructure_
 
 	#-- HUNDREDS --#
-	# The hundreds part of the number's structure.
+	# Returns the last group of three digits of the integer part, as text.
+	#
+	#   returns    a string
+	#   see        Thousands, Structure
+	#@ aka  The hundreds part of the number's structure.
 	def Hundreds()
 		return This.Structure()[ :cHundreds ]		
 
@@ -6904,25 +7557,40 @@ class stzNumber from stzObject
 	def HundredsXT()
 		return This.StructureXT()[ :aHundreds ]
 
-	# The units digit inside the number's hundreds.
+	# Returns the units digit of the last group of three digits of the integer part, as text.
+	#
+	#   returns    a one-digit string; empty when the group is absent
+	#   see        Structure
+	#@ aka  The units digit inside the number's hundreds.
 	def UnitsInHundreds()
 		return This.HundredsXT()[ :Units ]
 
 		def Units()
 			return This.UnitsInHundreds()
 
-	# The dozens digit inside the number's hundreds.
+	# Returns the tens digit of the last group of three digits of the integer part, as text.
+	#
+	#   returns    a one-digit string; empty when the group is absent
+	#   see        Structure
+	#@ aka  The dozens digit inside the number's hundreds.
 	def DozensInHundreds()
 		return This.HundredsXT()[ :Dozens ]
 
 		def Dozens()
 			return This.DozensInHundreds()
 
-	# The hundreds digit inside the number's hundreds.
+	# Returns the hundreds digit of the last group of three digits of the integer part, as text.
+	#
+	#   returns    a one-digit string
+	#   see        Structure
+	#@ aka  The hundreds digit inside the number's hundreds.
 	def HundredsInHundreds()
 		return This.HundredsXT()[ :Hundreds ]
 
-	# TRUE if the number reaches the hundreds.
+	# TRUE if the number is at least 100.
+	#
+	#   returns    TRUE or FALSE
+	#@ aka  TRUE if the number reaches the hundreds.
 	def HasHundreds()
 		_oNumber_ = new stzNumber(This.Content())
 			
@@ -6938,7 +7606,11 @@ class stzNumber from stzObject
 			return This.HasHundreds()
 
 	#-- TOUHSANDS --#
-	# The thousands part of the number's structure.
+	# Returns the thousands group of the integer part, as text.
+	#
+	#   returns    a string; empty below a thousand
+	#   see        Hundreds, Millions
+	#@ aka  The thousands part of the number's structure.
 	def Thousands()
 		return This.Structure()[ :cThousands ]
 
@@ -6946,19 +7618,34 @@ class stzNumber from stzObject
 	def ThousandsXT()
 		return This.StructureXT()[ :aThousands ]
 
-	# The units digit inside the number's thousands.
+	# Returns the units digit of the thousands group of the integer part, as text.
+	#
+	#   returns    a one-digit string; empty when the group is absent
+	#   see        Structure
+	#@ aka  The units digit inside the number's thousands.
 	def UnitsInThousands()
 		return This.ThousandsXT()[ :Units ]
 
-	# The dozens digit inside the number's thousands.
+	# Returns the tens digit of the thousands group of the integer part, as text.
+	#
+	#   returns    a one-digit string; empty when the group is absent
+	#   see        Structure
+	#@ aka  The dozens digit inside the number's thousands.
 	def DozensInThousands()
 		return This.ThousandsXT()[ :Dozens ]
 
-	# The hundreds digit inside the number's thousands.
+	# Returns the hundreds digit of the thousands group of the integer part, as text.
+	#
+	#   returns    a one-digit string; empty when the group is absent
+	#   see        Structure
+	#@ aka  The hundreds digit inside the number's thousands.
 	def HundredsInThousands()
 		return This.ThousandsXT()[ :Hundreds ]
 
-	# TRUE if the number reaches the thousands.
+	# TRUE if the number is at least 1,000.
+	#
+	#   returns    TRUE or FALSE
+	#@ aka  TRUE if the number reaches the thousands.
 	def HasThousands()
 		_oNumber_ = new stzNumber(This.Content())
 			
@@ -6973,7 +7660,11 @@ class stzNumber from stzObject
 			return This.HasThousands()
 
 	#-- MILLIONS --#
-	# The millions part of the number's structure.
+	# Returns the millions group of the integer part, as text.
+	#
+	#   returns    a string; empty below a million
+	#   see        Thousands, Billions
+	#@ aka  The millions part of the number's structure.
 	def Millions()
 		return This.Structure()[ :cMillions ]
 
@@ -6981,19 +7672,34 @@ class stzNumber from stzObject
 	def MillionsXT()
 		return This.StructureXT()[ :aMillions ]
 
-	# The units digit inside the number's millions.
+	# Returns the units digit of the millions group of the integer part, as text.
+	#
+	#   returns    a one-digit string; empty when the group is absent
+	#   see        Structure
+	#@ aka  The units digit inside the number's millions.
 	def UnitsInMillions()
 		return This.MillionsXT()[ :Units ]
 
-	# The dozens digit inside the number's millions.
+	# Returns the tens digit of the millions group of the integer part, as text.
+	#
+	#   returns    a one-digit string; empty when the group is absent
+	#   see        Structure
+	#@ aka  The dozens digit inside the number's millions.
 	def DozensInMillions()
 		return This.MillionsXT()[ :Dozens ]
 
-	# The hundreds digit inside the number's millions.
+	# Returns the hundreds digit of the millions group of the integer part, as text.
+	#
+	#   returns    a one-digit string; empty when the group is absent
+	#   see        Structure
+	#@ aka  The hundreds digit inside the number's millions.
 	def HundredsInMillions()
 		return This.MillionsXT()[ :Hundreds ]
 
-	# TRUE if the number reaches the millions.
+	# TRUE if the number is at least 1,000,000.
+	#
+	#   returns    TRUE or FALSE
+	#@ aka  TRUE if the number reaches the millions.
 	def HasMillions()
 		_oNumber_ = new stzNumber(This.Content())
 			
@@ -7008,7 +7714,11 @@ class stzNumber from stzObject
 			return This.HasMillions()
 
 	#-- BILLIONS --#
-	# The billions part of the number's structure.
+	# Returns the billions group of the integer part, as text.
+	#
+	#   returns    a string; empty below a billion
+	#   see        Millions, Trillions
+	#@ aka  The billions part of the number's structure.
 	def Billions()
 		return This.Structure()[ :cBillions ]
 
@@ -7016,19 +7726,34 @@ class stzNumber from stzObject
 	def BillionsXT()
 		return This.StructureXT()[ :aBillions ]
 			
-	# The units digit inside the number's billions.
+	# Returns the units digit of the billions group of the integer part, as text.
+	#
+	#   returns    a one-digit string; empty when the group is absent
+	#   see        Structure
+	#@ aka  The units digit inside the number's billions.
 	def UnitsInBillions()
 		return This.BillionsXT()[ :Units ]
 
-	# The dozens digit inside the number's billions.
+	# Returns the tens digit of the billions group of the integer part, as text.
+	#
+	#   returns    a one-digit string; empty when the group is absent
+	#   see        Structure
+	#@ aka  The dozens digit inside the number's billions.
 	def DozensInBillions()
 		return This.BillionsXT()[ :Dozens ]
 
-	# The hundreds digit inside the number's billions.
+	# Returns the hundreds digit of the billions group of the integer part, as text.
+	#
+	#   returns    a one-digit string; empty when the group is absent
+	#   see        Structure
+	#@ aka  The hundreds digit inside the number's billions.
 	def HundredsInBillions()
 		return This.BillionsXT()[ :Hundreds ]
 
-	# TRUE if the number reaches the billions.
+	# TRUE if the number is at least 1 billion.
+	#
+	#   returns    TRUE or FALSE
+	#@ aka  TRUE if the number reaches the billions.
 	def HasBillions()
 		_oNumber_ = new stzNumber(This.Content())
 			
@@ -7042,7 +7767,11 @@ class stzNumber from stzObject
 			return This.HasBillions()
 
 	#-- TRILLIONS --#
-	# The trillions part of the number's structure.
+	# Returns the trillions group of the integer part, as text.
+	#
+	#   returns    a string; empty below a trillion
+	#   see        Billions
+	#@ aka  The trillions part of the number's structure.
 	def Trillions()
 		return This.Structure()[ :cTrillions ]
 
@@ -7050,19 +7779,34 @@ class stzNumber from stzObject
 	def TrillionsXT()
 		return This.StructureXT()[ :aTrillions ]
 
-	# The units digit inside the number's trillions.
+	# Returns the units digit of the trillions group of the integer part, as text.
+	#
+	#   returns    a one-digit string; empty when the group is absent
+	#   see        Structure
+	#@ aka  The units digit inside the number's trillions.
 	def UnitsInTrillions()
 		return This.TrillionsXT()[ :Units ]
 
-	# The dozens digit inside the number's trillions.
+	# Returns the tens digit of the trillions group of the integer part, as text.
+	#
+	#   returns    a one-digit string; empty when the group is absent
+	#   see        Structure
+	#@ aka  The dozens digit inside the number's trillions.
 	def DozensInTrillions()
 		return This.TrillionsXT()[ :Dozens ]
 
-	# The hundreds digit inside the number's trillions.
+	# Returns the hundreds digit of the trillions group of the integer part, as text.
+	#
+	#   returns    a one-digit string; empty when the group is absent
+	#   see        Structure
+	#@ aka  The hundreds digit inside the number's trillions.
 	def HundredsInTrillions()
 		return This.TrillionsXT()[ :Hundreds ]
 
-	# TRUE if the number reaches the trillions.
+	# TRUE if the number is at least 1 trillion.
+	#
+	#   returns    TRUE or FALSE
+	#@ aka  TRUE if the number reaches the trillions.
 	def HasTrillions()
 		_oNumber_ = new stzNumber(This.Content())
 			
@@ -7077,7 +7821,12 @@ class stzNumber from stzObject
 			return This.HasTrillions()
 
 	#-- ALL IN ONCE --#
-	# The units digit at every scale level, as a hash.
+	# Returns the units digit of every group of three digits, as [ scale, digit ] pairs.
+	#
+	#   returns    a list of [ name, text ] pairs: inhundreds, inthousands, inmillions, inbillions,
+	#              intrillions
+	#   see        Structure
+	#@ aka  The units digit at every scale level, as a hash.
 	def AllUnits()
 		return 	[ :InHundreds  = This.UnitsInHundreds(),
 			  :InThousands = This.UnitsInThousands(),
@@ -7086,7 +7835,12 @@ class stzNumber from stzObject
 			  :InTrillions = This.UnitsInTrillions()
 			]
 
-	# The dozens digit at every scale level, as a hash.
+	# Returns the tens digit of every group of three digits, as [ scale, digit ] pairs.
+	#
+	#   returns    a list of [ name, text ] pairs: inhundreds, inthousands, inmillions, inbillions,
+	#              intrillions
+	#   see        Structure
+	#@ aka  The dozens digit at every scale level, as a hash.
 	def AllDozens()
 		return 	[ :InHundreds  = This.DozensInHundreds(),
 			  :InThousands = This.DozensInThousands(),
@@ -7095,7 +7849,12 @@ class stzNumber from stzObject
 			  :InTrillions = This.DozensInTrillions()
 			]
 
-	# The hundreds digit at every scale level, as a hash.
+	# Returns the hundreds digit of every group of three digits, as [ scale, digit ] pairs.
+	#
+	#   returns    a list of [ name, text ] pairs: inhundreds, inthousands, inmillions, inbillions,
+	#              intrillions
+	#   see        Structure
+	#@ aka  The hundreds digit at every scale level, as a hash.
 	def AllHundreds()
 		return 	[ :InHundreds  = This.HundredsInHundreds(),
 			  :InThousands = This.HundredsInThousands(),
@@ -7108,7 +7867,10 @@ class stzNumber from stzObject
 	 #    CONTAINABILITY     #
 	#-----------------------#
 
-	# Always TRUE: a number is made of digits.
+	# Answers TRUE, because a number is made of digits.
+	#
+	#   returns    TRUE
+	#@ aka  Always TRUE: a number is made of digits.
 	def ContainsDigits()
 		return 1
 
@@ -7126,21 +7888,38 @@ class stzNumber from stzObject
 		return StzFindFirst(pcDigit, This.Content()) > 0
 
 	# TRUE if the number occurs in the given list.
+	#
+	#   paList     the list to look in
+	#   returns    TRUE or FALSE
+	#   see        IsItemOf
 	def ExistsIn(paList)
 		return ListContains(paList, This.NumericValue())
 
-		# Same as ExistsIn: TRUE if the number occurs in the given list.
+		# TRUE if the number occurs in the given list, as ExistsIn does.
+		#
+		#   paList     the list to look in
+		#   returns    TRUE or FALSE
+		#   see        ExistsIn
+		#@ aka  Same as ExistsIn: TRUE if the number occurs in the given list.
 		def Inn(paList)
 			return ExistsIn(paList)
 
-	# TRUE if the number contains the digit 0.
+	# TRUE if the digit 0 occurs in the number.
+	#
+	#   returns    TRUE or FALSE
+	#   see        ContainsOnes
+	#@ aka  TRUE if the number contains the digit 0.
 	def ContainsZeros()
 		return This.Contains("0")
 
 		def HasZeros()
 			return This.ContainsZeros()
 
-	# TRUE if the number contains the digit 1.
+	# TRUE if the digit 1 occurs in the number.
+	#
+	#   returns    TRUE or FALSE
+	#   see        ContainsZeros
+	#@ aka  TRUE if the number contains the digit 1.
 	def ContainsOnes()
 		return This.Contains("1")
 
@@ -7148,6 +7927,10 @@ class stzNumber from stzObject
 			return This.ContainsOnes()
 
 	# TRUE if the given digit occurs more than once.
+	#
+	#   pcDigit    the digit to count, as text
+	#   returns    TRUE or FALSE
+	#   see        HowMany
 	def ContainsSeveral(pcDigit)
 		return StringNumberOfOccurrence(This.Content(), pcDigit) > 1
 
@@ -7161,6 +7944,9 @@ class stzNumber from stzObject
 			return This.ContainsSeveral(pcDigit)
 
 	# TRUE if the digit 0 occurs more than once.
+	#
+	#   returns    TRUE or FALSE
+	#   see        ContainsSeveral
 	def ContainsSeveralZeros()
 		return This.ContainsSeveral("0")
 
@@ -7174,6 +7960,9 @@ class stzNumber from stzObject
 			return This.ContainsSeveralZeros()
 
 	# TRUE if the digit 1 occurs more than once.
+	#
+	#   returns    TRUE or FALSE
+	#   see        ContainsSeveral
 	def ContainsSeveralOnes()
 		return This.ContainsSeveral("1")
 
@@ -7187,6 +7976,8 @@ class stzNumber from stzObject
 			return This.ContainsSeveralOnes()
 
 	# TRUE if the number is at least 10.
+	#
+	#   returns    TRUE or FALSE
 	def ContainsDozens()
 		return This.NumericValue() >= 10
 
@@ -7196,7 +7987,10 @@ class stzNumber from stzObject
 		def ContainsManyDozens()
 			return This.ContainsDozens()
 
-	# TRUE if the number is at least 200 (several hundreds).
+	# TRUE if the number is at least 200.
+	#
+	#   returns    TRUE or FALSE
+	#@ aka  TRUE if the number is at least 200 (several hundreds).
 	def ContainsSeveralHundreds()
 		return This.NumericValue() >= 200
 
@@ -7209,7 +8003,10 @@ class stzNumber from stzObject
 		def HasManyHundreds()
 			return This.ContainsSeveralHundreds()
 
-	# TRUE if the number is at least 2000 (several thousands).
+	# TRUE if the number is at least 2,000.
+	#
+	#   returns    TRUE or FALSE
+	#@ aka  TRUE if the number is at least 2000 (several thousands).
 	def ContainsSeveralThousands()
 		return This.NumericValue() >= 2000
 
@@ -7222,7 +8019,10 @@ class stzNumber from stzObject
 		def HasManyThousands()
 			return This.ContainsSeveralThousands()
 
-	# TRUE if the number is at least 10 000.
+	# TRUE if the number is at least 10,000.
+	#
+	#   returns    TRUE or FALSE
+	#@ aka  TRUE if the number is at least 10 000.
 	def ContainsTensOfThousands()
 		return This.NumericValue() >= 10_000
 
@@ -7241,7 +8041,10 @@ class stzNumber from stzObject
 		def HasManyTensOfThousands()
 			return This.ContainsSeveralTensOfThousands()
 
-	# TRUE if the number is at least 100 000.
+	# TRUE if the number is at least 100,000.
+	#
+	#   returns    TRUE or FALSE
+	#@ aka  TRUE if the number is at least 100 000.
 	def ContainsHundredsOfThousands()
 		return This.NumericValue() >= 100_000
 
@@ -7260,7 +8063,10 @@ class stzNumber from stzObject
 		def HasManyHundredsOfThousands()
 			return This.ContainsHundredsOfThousands()
 
-	# TRUE if the number is at least 2 000 000.
+	# TRUE if the number is at least 2,000,000.
+	#
+	#   returns    TRUE or FALSE
+	#@ aka  TRUE if the number is at least 2 000 000.
 	def ContainsSeveralMillions()
 		return This.NumericValue() >= 2_000_000
 
@@ -7293,7 +8099,10 @@ class stzNumber from stzObject
 		def HasManyThousandsOfThousands()
 			return This.ContainsSeveralMillions()
 
-	# TRUE if the number is at least 10 000 000.
+	# TRUE if the number is at least 10,000,000.
+	#
+	#   returns    TRUE or FALSE
+	#@ aka  TRUE if the number is at least 10 000 000.
 	def ContainsTensOfMillions()
 		return This.NumericValue() >= 10_000_000
 
@@ -7314,7 +8123,10 @@ class stzNumber from stzObject
 		def HasMayTensOfMillions()
 			return This.ContainsTensOfMillions()
 
-	# TRUE if the number is at least 100 000 000.
+	# TRUE if the number is at least 100,000,000.
+	#
+	#   returns    TRUE or FALSE
+	#@ aka  TRUE if the number is at least 100 000 000.
 	def ContainsHundredsOfMillions()
 		return This.NumericValue() >= 100_000_000
 
@@ -7335,7 +8147,10 @@ class stzNumber from stzObject
 		def HasManyHundredsOfMillions()
 			return This.ContainsHundredsOfMillions()
 
-	# TRUE if the number is at least 2 000 000 000.
+	# TRUE if the number is at least 2,000,000,000.
+	#
+	#   returns    TRUE or FALSE
+	#@ aka  TRUE if the number is at least 2 000 000 000.
 	def ContainsSeveralBillions()
 			return This.NumericValue() >= 2_000_000_000
 
@@ -7377,6 +8192,8 @@ class stzNumber from stzObject
 			return This.ContainsSeveralBillions()
 
 	# TRUE if the number is at least 10 billion.
+	#
+	#   returns    TRUE or FALSE
 	def ContainsTensOfBillions()
 		return This.NumericValue() >= 10_000_000_000
 
@@ -7396,10 +8213,14 @@ class stzNumber from stzObject
 			return This.HasManyTensOfBillions()
 
 		# TRUE if the number is at least 20 billion.
+		#
+		#   returns    TRUE or FALSE
 		def HasManyTensOfBillions()
 			return This.HasManyTensOfBillions()
 
 	# TRUE if the number is at least 100 billion.
+	#
+	#   returns    TRUE or FALSE
 	def ContainsHundredsOfBillions()
 		return This.NumericValue() >= 100_000_000_000
 
@@ -7421,6 +8242,8 @@ class stzNumber from stzObject
 			return This.ContainsHundredsOfBillions()
 
 	# TRUE if the number is at least 2 trillion.
+	#
+	#   returns    TRUE or FALSE
 	def ContainsSeveralTrillions()
 		return This.NumericValue() >= 2_000_000_000_000
 
@@ -7437,6 +8260,8 @@ class stzNumber from stzObject
 
 
 	# TRUE if the number is at least 10 trillion.
+	#
+	#   returns    TRUE or FALSE
 	def ContainsTensOfTrillions()
 		return This.NumericValue() >= 10_000_000_000_000
 
@@ -7458,6 +8283,8 @@ class stzNumber from stzObject
 			return This.ContainsTensOfTrillions()
 
 	# TRUE if the number is at least 100 trillion.
+	#
+	#   returns    TRUE or FALSE
 	def ContainsHundredsOfTrillions()
 		return This.NumericValue() >= 100_000_000_000_000
 
@@ -7497,10 +8324,19 @@ class stzNumber from stzObject
 		This.RemoveSpaces()
 		return This
 
+	# Returns the written form without spaces, as text; the number is unchanged.
+	#
+	#   returns    a string
+	#   see        RemoveSpaces
 	def SpacesRemoved()
 		_cResult_ = This.Copy().RemoveSpacesQ().Content()
 		return _cResult_
 
+	# Raises an error today instead of removing the spaces before the number.
+	#
+	#   returns    nothing today
+	#   warning    known defect: the call raises error R14 today, because it calls a stzString
+	#              method that does not exist
 	def RemoveLeadingSpaces()
 		This.Update( This.ToStzString().LeadingSpacesRemoved() )
 
@@ -7508,10 +8344,20 @@ class stzNumber from stzObject
 			This.RemoveLeadingSpaces()
 			return This
 
+	# Raises an error today instead of returning the number without its leading spaces.
+	#
+	#   returns    nothing today
+	#   warning    known defect: the call raises error R14 today, because it calls a stzString
+	#              method that does not exist
 	def LeadingSpacesRemoved()
 		_cResult_ = This.Copy().RemoveLeadingSpacesQ().Content()
 		return _cResult_
 
+	# Raises an error today instead of removing the spaces after the number.
+	#
+	#   returns    nothing today
+	#   warning    known defect: the call raises error R14 today, because it calls a stzString
+	#              method that does not exist
 	def RemoveTrailingSpaces()
 		This.Update( This.ToStzString().TrailingSpacesRemoved() )
 
@@ -7519,6 +8365,11 @@ class stzNumber from stzObject
 			This.RemoveTrailingSpaces()
 			return This
 
+	# Raises an error today instead of returning the number without its trailing spaces.
+	#
+	#   returns    nothing today
+	#   warning    known defect: the call raises error R14 today, because it calls a stzString
+	#              method that does not exist
 	def TrailingSpacesRemoved()
 		_cResult_ = This.Copy().RemoveTrailingSpacesQ().Content()
 		return _cResult_
@@ -7527,20 +8378,11 @@ class stzNumber from stzObject
 	 #    REMOVING ZEROS FROM NUMBER   #
 	#---------------------------------#
 
-	# REWRITTEN 2026-07-25. All three of these called stzString methods that do not
-	# exist -- RepeatedLeadingcharIs, RepeatedTrailingCharIs,
-	# RemoveThisRepeatedLeadingCharQ, RemoveRepeatedTrailingCharQ -- so every one
-	# raised R14. That is how ApplyFormatXT() came to fail: Structure() reaches here.
+	# Removes the zeros at the start of the written form, in place.
 	#
-	# The LOGIC was wrong too, independently of the names:
-	#   * RemoveZerosFromLeft ALSO stripped trailing zeros, which is not "from left";
-	#   * RemoveZeros stripped TRAILING twice and never touched the leading zeros.
-	#
-	# They are now expressed directly on the digits. The right-hand strip stays
-	# guarded by IsReal(): trailing zeros of an INTEGER are significant, and turning
-	# 100 into 1 would be a catastrophe rather than a tidy-up.
-
-	# "007" -> "7", "00.5" -> "0.5". A single leading zero before the point is kept.
+	#   returns    nothing; the number changes
+	#   see        RemoveZeros
+	#@ aka  REWRITTEN 2026-07-25. All three of these called stzString methods that do not exist -- RepeatedLeadingcharIs, RepeatedTrailingCharIs, RemoveThisRepeatedLeadingCharQ, RemoveRepeatedTrailingCharQ -- so every one raised R14. That is how ApplyFormatXT() came to fail: Structure() reaches here.
 	def RemoveZerosFromLeft()
 		This.Update( _StzStripLeadingZeros("" + This.Content()) )
 
@@ -7548,7 +8390,11 @@ class stzNumber from stzObject
 			This.RemoveZerosFromLeft()
 			return This
 
-	# "1.500" -> "1.5". Only for a real number, and only in the fractional part.
+	# Removes the zeros at the end of the fractional part, in place: 1.500 becomes 1.5.
+	#
+	#   returns    nothing; the number changes
+	#   see        RemoveZeros
+	#@ aka  "1.500" -> "1.5". Only for a real number, and only in the fractional part.
 	def RemoveZerosFromRight()
 		if This.IsReal()
 			This.Update( _StzStripTrailingFractionZeros("" + This.Content()) )
@@ -7558,13 +8404,22 @@ class stzNumber from stzObject
 			This.RemoveZerosFromRight()
 			return This
 
-	# both ends: "007.500" -> "7.5"
+	# Removes the zeros at both ends of the written form, in place: 007.500 becomes 7.5.
+	#
+	#   returns    nothing; the number changes
+	#   see        RemoveZerosFromRight, RemoveZerosFromLeft
+	#@ aka  both ends: "007.500" -> "7.5"
 	def RemoveZeros()
 		This.RemoveZerosFromLeft()
 		This.RemoveZerosFromRight()
 
 		
 
+	# Raises an error today instead of returning the number without the zeros at its ends.
+	#
+	#   returns    nothing today
+	#   warning    known defect: the call raises error R14 today, because it calls a method that
+	#              does not exist
 	def ZerosRemoved()
 		_cResult_ = This.Copy().RemoveZerosQ().Content()
 		return _cResult_
@@ -7573,11 +8428,19 @@ class stzNumber from stzObject
 	 #    FORMATTING    #
 	#------------------#
 
-	# Apply the default number format (mutating).
+	# Returns the number in the default format, which gives it an explicit sign; the number is unchanged.
+	#
+	#   returns    a string such as +12
+	#   see        Format, NumberWithSign
+	#@ aka  Apply the default number format (mutating).
 	def ApplyFormat()
 		return This.ApplyFormatXT([])
 
-		# Format the number with the default options (mutating).
+		# Returns the number in the default format, which gives it an explicit sign; the number is unchanged.
+		#
+		#   returns    a string such as +12
+		#   see        ApplyFormat
+		#@ aka  Format the number with the default options (mutating).
 		def Format()
 			return This.ApplyFormatXT([])
 
@@ -7962,21 +8825,11 @@ class stzNumber from stzObject
 		return _cNumber_
 
 
-	# The number in compact form (1.2K / 3.4M style).
+	# Returns the number in compact form, such as 1.2M for 1,234,567.
 	#
-	# A NUMBER TOO SMALL TO ABBREVIATE IS RETURNED AS ITSELF. The chain below used
-	# to have no else, so every value under 1000 compacted to the EMPTY STRING --
-	# and 12.25 has no shorter form than "12.25", so nothing is the one answer that
-	# cannot be right. KForm() and MForm() just below already end with
-	# `return This.Content()`; this one simply lost its branch.
-	#
-	# It was found through stzHistogram, whose bin labels are built from this: a
-	# histogram of small numbers reserved two label rows under its axis and drew
-	# nothing in them.
-	#
-	# The billion boundary was wrong too -- `> 1_000_000_000` let EXACTLY one
-	# billion fall through to the same empty answer, where every other boundary in
-	# the chain is inclusive.
+	#   returns    a string; the number itself when it is below a thousand
+	#   see        KForm, MForm, BForm
+	#@ aka  The number in compact form (1.2K / 3.4M style).
 	def CompactForm()
 		_nNumber_ = This.Value()
 	    if _nNumber_ >= 1000 and _nNumber_ < 1_000_000
@@ -7996,7 +8849,11 @@ class stzNumber from stzObject
 			return This.CompactForm()
 
 
-	# The number in K (thousands) form.
+	# Returns the number in thousands, such as 1234.6K for 1,234,567.
+	#
+	#   returns    a string; the number itself when it is below a thousand
+	#   see        CompactForm
+	#@ aka  The number in K (thousands) form.
 	def KForm()
 		_nNumber_ = This.Value()
 	    if _nNumber_ >= 1000
@@ -8009,7 +8866,11 @@ class stzNumber from stzObject
 			return This.KForm()
 
 
-	# The number in M (millions) form.
+	# Returns the number in millions, such as 1.2M for 1,234,567.
+	#
+	#   returns    a string; the number itself when it is below a million
+	#   see        CompactForm
+	#@ aka  The number in M (millions) form.
 	def MForm()
 		_nNumber_ = This.Value()
 	    if _nNumber_ >= 1_000_000
@@ -8021,7 +8882,11 @@ class stzNumber from stzObject
 		def ToMForm()
 			return This.MForm()
 
-	# The number in B (billions) form.
+	# Returns the number in billions, such as 1.2B for 1,234,567,890.
+	#
+	#   returns    a string; the number itself when it is below a billion
+	#   see        CompactForm
+	#@ aka  The number in B (billions) form.
 	def BForm()
 		_nNumber_ = This.Value()
 	    if _nNumber_ >= 1000_000_000
@@ -8034,11 +8899,20 @@ class stzNumber from stzObject
 			return This.BForm()
 
 
-	# Default-format setting (unsupported in this version: raises).
+	# Raises an unsupported-feature error today instead of setting the default number format.
+	#
+	#   returns    nothing today
+	#   warning    the call raises an unsupported-feature error today
+	#@ aka  Default-format setting (unsupported in this version: raises).
 	def SetDefaultFormat() // TODO
 		StzRaise("Unsupported feature in this version!")
 
-	# Locale application (unsupported in this version: raises).
+	# Raises an unsupported-feature error today instead of applying a locale to the number.
+	#
+	#   pcLocale   the locale
+	#   returns    nothing today
+	#   warning    the call raises an unsupported-feature error today
+	#@ aka  Locale application (unsupported in this version: raises).
 	def ApplyLocale(pcLocale) // TODO
 		StzRaise("Unsupported feature in this version!")
 
@@ -8052,13 +8926,15 @@ class stzNumber from stzObject
 	 #     OPERATORS OVERLOADING   #
 	#-----------------------------#
 
+	# Applies an operator to the number and a value; kept for the host language's operator calls.
+	#
+	#   pOp        the operator
+	#   pValue     the right-hand value
+	#   returns    nothing today
 	#TODO // Operators should carry same semantics in all classes...
 	#TODO // Make a request to Mahmoud to enable multichar operators in Ring
-
 	#WARNING // DON'T ADD = OPERATOR
-	# Because it causes semantic conflict with
-	# feature in stzExtCode (see CREATE_TABLE sql function)
-
+	#@ aka  Because it causes semantic conflict with feature in stzExtCode (see CREATE_TABLE sql function)
 	def operator (pOp, pValue)
 
 		#WARNING // DON'T ADD = OPERATOR
@@ -8229,7 +9105,10 @@ class stzNumber from stzObject
 	 #    USUED FOR NATURAL-CODING    #
 	#--------------------------------#
 
-	# Always TRUE: the object IS a stzNumber.
+	# Answers TRUE, because the object is a stzNumber.
+	#
+	#   returns    TRUE
+	#@ aka  Always TRUE: the object IS a stzNumber.
 	def IsStzNumber()
 		return 1
 
@@ -8242,9 +9121,11 @@ class stzNumber from stzObject
 	def stzType()
 		return :stzNumber
 
+	# Answers TRUE, because a number can be an item of a list.
+	#
+	#   returns    TRUE
 	#--- ITEM
-	
-	# Always TRUE: a number can be a list item.
+	#@ aka  Always TRUE: a number can be a list item.
 	def IsItem()
 		return 1
 	
@@ -8268,13 +9149,20 @@ class stzNumber from stzObject
 		def IsAnItemIn(paList)
 			return This.IsItemOf(paList)
 
+	# Answers TRUE, because a number can be a member of a list.
+	#
+	#   returns    TRUE
 	#--- MEMEBER
-
-	# Always TRUE: a number can be a member.
+	#@ aka  Always TRUE: a number can be a member.
 	def IsMember()
 		return 1
 	
-	# TRUE if the number (as held) occurs in the given list.
+	# TRUE if the number occurs in the given list.
+	#
+	#   paList     the list to look in
+	#   returns    TRUE or FALSE
+	#   see        IsItemOf
+	#@ aka  TRUE if the number (as held) occurs in the given list.
 	def IsMemberOf(paList)
 		return ListContains(paList, This.Content())
 		
@@ -8297,35 +9185,59 @@ class stzNumber from stzObject
 	def IsANumber()
 		return 1
 
-		# Always FALSE: it IS a number.
+		# Answers FALSE, because this is a number.
+		#
+		#   returns    FALSE
+		#@ aka  Always FALSE: it IS a number.
 		def IsNotANumber()
 			return 0
 
-	# Always FALSE: a number is not a string.
+	# Answers FALSE, because a number is not a string.
+	#
+	#   returns    FALSE
+	#@ aka  Always FALSE: a number is not a string.
 	def IsAString()
 		return 0
 
-		# Always TRUE: a number is not a string.
+		# Answers TRUE, because a number is not a string.
+		#
+		#   returns    TRUE
+		#@ aka  Always TRUE: a number is not a string.
 		def IsNotAString()
 			return 1
 
-	# Always FALSE: a number is not a list.
+	# Answers FALSE, because a number is not a list.
+	#
+	#   returns    FALSE
+	#@ aka  Always FALSE: a number is not a list.
 	def IsAList()
 		return 0
 
-		# Always TRUE: a number is not a list.
+		# Answers TRUE, because a number is not a list.
+		#
+		#   returns    TRUE
+		#@ aka  Always TRUE: a number is not a list.
 		def IsNotAList()
 			return 1
 
-	# Always TRUE: the wrapper is an object.
+	# Answers TRUE, because the wrapper is an object.
+	#
+	#   returns    TRUE
+	#@ aka  Always TRUE: the wrapper is an object.
 	def IsAnObject()
 		return 1
 
-		# Always TRUE: the wrapper is an object.
+		# Answers TRUE, because the wrapper is an object.
+		#
+		#   returns    TRUE
+		#@ aka  Always TRUE: the wrapper is an object.
 		def IsAObject()
 			return 1
 
-		# Always FALSE: the wrapper is an object.
+		# Answers FALSE, because the wrapper is an object.
+		#
+		#   returns    FALSE
+		#@ aka  Always FALSE: the wrapper is an object.
 		def IsNotAnObject()
 			return 1
 
@@ -8346,7 +9258,11 @@ class stzNumber from stzObject
 	def IsOneOfThese(paList)
 		return This.IsItemOf(paList)
 
-		# TRUE if the number occurs in NONE of the given values.
+		# TRUE if the number occurs in none of the given values.
+		#
+		#   paList     the values
+		#   returns    TRUE or FALSE
+		#   see        IsItemOf
 		def IsNotOneOfThese(paList)
 			return NOT This.IsOneOfThese(paList)
 	
@@ -8360,39 +9276,74 @@ class stzNumber from stzObject
 	def IsLetter()
 		return 0
 	
-	# Always FALSE: a number is not a letter.
+	# Answers FALSE, because a number is not a letter.
+	#
+	#   returns    FALSE
+	#@ aka  Always FALSE: a number is not a letter.
 	def IsALetter()
 		return 0
 	
-	# Always FALSE: a number is not a letter.
+	# Answers FALSE for any text, because a number is not a character or a letter.
+	#
+	#   pStrOrListOfChars   the text or list of characters, ignored
+	#   returns             FALSE
+	#@ aka  Always FALSE: a number is not a letter.
 	def IsLetterOf(pStrOrListOfChars)
 		return 0
 	
-		# Always FALSE: a number is not a letter.
+		# Answers FALSE for any text, because a number is not a character or a letter.
+		#
+		#   pcStr      the text, ignored
+		#   returns    FALSE
+		#@ aka  Always FALSE: a number is not a letter.
 		def IsALetterOf(pcStr)
 			return 0
 		
-	# Always FALSE: a number is not a letter.
+	# Answers FALSE for any text, because a number is not a character or a letter.
+	#
+	#   pcStr      the text, ignored
+	#   returns    FALSE
+	#@ aka  Always FALSE: a number is not a letter.
 	def IsLetterIn(pcStr)
 		return 0
 	
-		# Always FALSE: a number is not a letter.
+		# Answers FALSE for any text, because a number is not a character or a letter.
+		#
+		#   pcStr      the text, ignored
+		#   returns    FALSE
+		#@ aka  Always FALSE: a number is not a letter.
 		def IsALetterIn(pcStr)
 			return 0
 	
-	# Always FALSE: a number is not a char.
+	# Answers FALSE for any text, because a number is not a character or a letter.
+	#
+	#   pStrOrListOfChars   the text or list of characters, ignored
+	#   returns             FALSE
+	#@ aka  Always FALSE: a number is not a char.
 	def IsCharOf(pStrOrListOfChars)
 		return 0
 	
-		# Always FALSE: a number is not a char.
+		# Answers FALSE for any text, because a number is not a character or a letter.
+		#
+		#   pcStr      the text, ignored
+		#   returns    FALSE
+		#@ aka  Always FALSE: a number is not a char.
 		def IsACharOf(pcStr)
 			return 0
 	
-	# Always FALSE: a number is not a char.
+	# Answers FALSE for any text, because a number is not a character or a letter.
+	#
+	#   pcStr      the text, ignored
+	#   returns    FALSE
+	#@ aka  Always FALSE: a number is not a char.
 	def IsCharIn(pcStr)
 		return 0
 	
-		# Always FALSE: a number is not a char.
+		# Answers FALSE for any text, because a number is not a character or a letter.
+		#
+		#   pcStr      the text, ignored
+		#   returns    FALSE
+		#@ aka  Always FALSE: a number is not a char.
 		def IsACharIn(pcStr)
 			return 0
 	
@@ -8400,6 +9351,12 @@ class stzNumber from stzObject
 	 #   STRINGIFY(), TOSTRING(), AND TOCODE()  #
 	#------------------------------------------#
 
+	# Answers an empty string today instead of the number as text, because its body is empty.
+	#
+	#   returns    an empty string today
+	#   warning    known defect: the body is empty, so the call answers nothing; StringValue answers
+	#              the number as a string
+	#   see        StringValue
 	def Stringify()
 		# Do nothing, the object is naturally stringified
 		# becauses it contains its value always as a string
@@ -8407,6 +9364,11 @@ class stzNumber from stzObject
 		def StringifyQ()
 			return new stzString( This.StringValue() )
 
+		# Answers an empty string today instead of the number as text, because its body is empty.
+		#
+		#   returns    an empty string today
+		#   warning    the body is empty today; StringValue answers the number as a string
+		#   see        StringValue
 		def DeepStringifiy()
 			// Nothing
 
@@ -8435,34 +9397,63 @@ class stzNumber from stzObject
 	 #    MISC.    #
 	#-------------#
 
-	# TRUE if the number is a valid RGB color value.
+	# Raises an error for a number: it needs a list of three numbers to judge as an RGB colour.
+	#
+	#   returns    TRUE or FALSE
+	#   warning    it needs a list of numbers: the number itself raises an error
+	#   see        IsAnRGBColor
+	#@ aka  TRUE if the number is a valid RGB color value.
 	def IsRGBColor()
 		return @IsRGBColor(This.Content())
 
-		# TRUE if the number is a valid RGB color value.
+		# Raises an error for a number: it needs a list of three numbers to judge as an RGB colour.
+		#
+		#   returns    TRUE or FALSE
+		#   warning    it needs a list of numbers: the number itself raises an error
+		#   see        IsRGBColor
+		#@ aka  TRUE if the number is a valid RGB color value.
 		def IsAnRGBColor()
 			return @IsRGBColor(This.Content())
 
 	# TRUE if the given value is a number too.
+	#
+	#   p          the value to test
+	#   returns    TRUE or FALSE
 	def HasSameTypeAs(p)
 		return isNumber(p)
 
-	# The numbers from this one UP TO n, as a list.
+	# Returns the numbers from this one up to the given one, as a list.
+	#
+	#   pnOtherNumber   the number to stop at, greater than this one
+	#   returns         a list of numbers; nothing when it is not greater
+	#   see             DownTo
+	#@ aka  The numbers from this one UP TO n, as a list.
 	def UpTo(pnOtherNumber)
 		if pnOtherNumber > This.Value()
 			_anResult_ = This.Value() : pnOtherNumber
 			return _anResult_
 		ok
 	
-	# The numbers from this one DOWN TO n, as a list.
+	# Returns the numbers from this one down to the given one, as a list.
+	#
+	#   pnOtherNumber   the number to stop at, smaller than this one
+	#   returns         a list of numbers
+	#   warning         a number that is not smaller makes it raise or answer nothing
+	#   see             UpTo
+	#@ aka  The numbers from this one DOWN TO n, as a list.
 	def DownTo(pnOtherNumber)
 		if This.Value() > pnOtherNumber
 			_anResult_ = This.Value() : pnOtherNumber
 			return _anResult_
 		ok
 
-	# Swapping the content of the stzNumber with an other stzNumber
-
+	# Exchanges the content of this number with another stzNumber, in place.
+	#
+	#   pOtherStzNumber   the other stzNumber
+	#   returns           nothing; both numbers change
+	#   warning           the argument must be a stzNumber object
+	#   see               SwapContentWith
+	#@ aka  Swapping the content of the stzNumber with an other stzNumber
 	def SwapWith(pOtherStzNumber)
 
 		if CheckingParams()
@@ -8484,6 +9475,12 @@ class stzNumber from stzObject
 			This.SwapWith(pOtherStzNumber)
 			return This
 
+		# Exchanges the content of this number with another stzNumber, in place.
+		#
+		#   pOtherStzNumber   the other stzNumber
+		#   returns           nothing; both numbers change
+		#   warning           the argument must be a stzNumber object
+		#   see               SwapWith
 		def SwapContentWith(pOtherStzNumber)
 			This.SwapWith(pOtherStzNumber)
 
@@ -8508,8 +9505,11 @@ class stzNumber from stzObject
 	 #  ENGINE-BACKED NUMBER OPERATIONS        #
 	#=========================================#
 
-	# TRUE if the integer is a perfect number (equals the sum of its
-	# divisors).
+	# TRUE if the integer equals the sum of its divisors other than itself.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Factors
+	#@ aka  TRUE if the integer is a perfect number (equals the sum of its divisors).
 	def IsPerfect()
 		if NOT This.IsInteger()
 			return 0
@@ -8519,7 +9519,11 @@ class stzNumber from stzObject
 		def IsPerfectNumber()
 			return This.IsPerfect()
 
-	# How many digits the integer has.
+	# Returns how many digits the integer has.
+	#
+	#   returns    a number
+	#   see        NumberOfDigits
+	#@ aka  How many digits the integer has.
 	def DigitCount()
 		if NOT This.IsInteger()
 			return len(This.IntegerPartValue())
@@ -8529,8 +9533,12 @@ class stzNumber from stzObject
 		def HowManyDigits()
 			return This.DigitCount()
 
-	# The sum of the digits of the integer.
+	# Returns the sum of the digits of the integer.
+	#
+	#   returns    a number
+	#   see        Digits
 	#@ aka  sum of the digits, add the digits together
+	#@ aka  The sum of the digits of the integer.
 	def DigitSum()
 		if NOT This.IsInteger()
 			StzRaise("Can't compute digit sum of a non-integer!")
@@ -8540,7 +9548,11 @@ class stzNumber from stzObject
 		def SumOfDigits()
 			return This.DigitSum()
 
-	# The digits of the integer, reversed.
+	# Returns the digits of the integer in reverse order, as a number.
+	#
+	#   returns    a number
+	#   see        IsDigitPalindrome
+	#@ aka  The digits of the integer, reversed.
 	def ReverseDigits()
 		if NOT This.IsInteger()
 			StzRaise("Can't reverse digits of a non-integer!")
@@ -8551,6 +9563,9 @@ class stzNumber from stzObject
 			return This.ReverseDigits()
 
 	# TRUE if the digits read the same backward.
+	#
+	#   returns    TRUE or FALSE
+	#   see        ReverseDigits
 	def IsDigitPalindrome()
 		if NOT This.IsInteger()
 			return 0
@@ -8560,7 +9575,12 @@ class stzNumber from stzObject
 		def IsPalindromeNumber()
 			return This.IsDigitPalindrome()
 
-	# The Fibonacci value for this integer.
+	# Returns the Fibonacci value of an integer, as a string; the number is unchanged.
+	#
+	#   returns    a string, exact for large numbers
+	#   warning    a negative number or a number with a fractional part raises an error
+	#   see        Factorial
+	#@ aka  The Fibonacci value for this integer.
 	def Fibonacci()
 		if NOT This.IsInteger()
 			StzRaise("Can't compute Fibonacci of a non-integer!")
@@ -8577,15 +9597,24 @@ class stzNumber from stzObject
 		def FibonacciQ()
 			return new stzNumber(This.Fibonacci())
 
-	# The methods of the object (Ring reflection).
+	# Returns the methods of the object, through the host language's reflection.
+	#
+	#   returns    a list of method names
+	#@ aka  The methods of the object (Ring reflection).
 	def Methods()
 		return ring_methods(This)
 
-	# The attributes of the object (Ring reflection).
+	# Returns the attributes of the object, through the host language's reflection.
+	#
+	#   returns    a list of attribute names
+	#@ aka  The attributes of the object (Ring reflection).
 	def Attributes()
 		return ring_attributes(This)
 
-	# The lowercase class name: "stznumber".
+	# Returns the lowercase name of the class, stznumber.
+	#
+	#   returns    the string stznumber
+	#@ aka  The lowercase class name: "stznumber".
 	def ClassName()
 		return "stznumber"
 
@@ -8595,11 +9624,19 @@ class stzNumber from stzObject
 		def StzClass()
 			return This.ClassName()
 
-	# Always FALSE: plain numbers carry no name.
+	# Answers FALSE, because a plain number carries no name.
+	#
+	#   returns    FALSE
+	#@ aka  Always FALSE: plain numbers carry no name.
 	def IsNamedObject()
 		return 0
 
-	# How many times the given digit occurs in the number.
+	# Returns how many times the given digit occurs in the number.
+	#
+	#   n          the digit to count, a number or a text
+	#   returns    a number
+	#   see        Contains
+	#@ aka  How many times the given digit occurs in the number.
 	def HowMany(n)
 		if isNumber(n)
 			n = "" + n
@@ -8612,7 +9649,11 @@ class stzNumber from stzObject
 		_nResult_ = This.ToStzString().HowMany(n)
 		return _nResult_
 
-	# The digits of the number, as a list.
+	# Returns the digits of the number, without its sign or dot, as a list of numbers.
+	#
+	#   returns    a list of numbers
+	#   see        Integers, Decimals, DigitSum
+	#@ aka  The digits of the number, as a list.
 	def Digits()
 		_acChars_ = This.StringValueQ().RemoveManyQ([ "+", "-", "." ]).Chars()
 		_nLen_ = len(_acChars_)
@@ -8644,11 +9685,20 @@ class stzNumber from stzObject
 	 # PERCENTAGE FORMS  #
 	#-------------------#
 
-	# The number as a percentage string.
+	# Returns the number divided by 100.
+	#
+	#   returns    a number: 12 gives 0.12
+	#   see        InPercentage, PercentOf
+	#@ aka  The number as a percentage string.
 	def Percent()
 		return This.NumericValue() / 100
 
-	# What percentage this number is OF the given one.
+	# Returns this number as a percentage of n: 12 percent of 48 is 5.76.
+	#
+	#   n          the number the percentage is taken of
+	#   returns    a number
+	#   see        Percent
+	#@ aka  What percentage this number is OF the given one.
 	def PercentOf(n)
 		return This.NumbericValue() * (n/100)
 
@@ -8686,6 +9736,13 @@ class stzNumber from stzObject
 		@cExactness = :exact
 		@cInexactReason = ""
 
+	# Computes an operation on the number and a value for the other methods, internally.
+	#
+	#   pcOperation    the operation, as text
+	#   pOtherNumber   the other operand
+	#   returns        the result of the operation
+	#   see            Power
+	#   status         internal
 	def pvtCalculate(pcOperation, pOtherNumber)
 
 		# Makes basic arithmetic operations (+, -, *, and /) and

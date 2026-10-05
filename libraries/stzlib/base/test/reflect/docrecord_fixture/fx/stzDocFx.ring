@@ -74,6 +74,9 @@ class stzDocFx from stzDocFxBase
 	def Describe()
 		return "x"
 
+	def Tricky(pcA, pcB) # a comment with (parentheses) and more ()
+		return pcA
+
 	#===# Internals #===#
 
 	def pvtHelper()
