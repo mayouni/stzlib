@@ -516,7 +516,7 @@ class stzTablex from stzObject
 		next
 		return cStr
 
-	# Reads the text inside a term's parentheses into constraints: exact, greater, less, greaterequal and lessequal for cols and rows, a range or a set for cell.
+	# Reads the text inside a term's parentheses into constraints: a number or comparison for cols and rows, a range or a set for cell.
 	#
 	#   cConstraintStr   the text to read
 	#   _cType_          the term type, such as cols, rows or cell
@@ -1109,12 +1109,12 @@ class stzTablex from stzObject
 
 		return 0
 
-	# TRUE if the named column is in ascending order, comparing numbers as numbers and text as text, the case being ignored unless the token says otherwise.
+	# TRUE if the named column is in ascending order, the case being ignored unless the token says otherwise.
 	#
 	#   _aToken_   a sorted token whose value is the column name
 	#   oTable     the stzTable to test
 	#   returns    TRUE or FALSE (1 or 0); FALSE for a column the table does not have
-	#   note       only neighbours of the same type are compared; with @cs: a lower-case letter sorts after an upper-case one
+	#   note       numbers compare as numbers and text as text, only neighbours of the same type; with @cs: a lower-case letter sorts after an upper-case one
 	#   see        CheckUnique, Match
 	def CheckSorted(_aToken_, oTable)
 		if HasKey(_aToken_, "value")

@@ -5,7 +5,7 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 702 methods in 36 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 706 methods in 41 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
@@ -14,12 +14,12 @@ and each was checked with a second call on different data. **None is fixed yet.*
 | number/stzListOfNumbers.ring | stzListOfNumbers | 65 |
 | list/stzHashList.ring | stzHashList | 56 |
 | file/stzFolder.ring | stzFolder | 34 |
-| regex/stzTablex.ring | stzTablex | 29 |
 | list/stzGrid.ring | stzGrid | 26 |
 | datetime/stzCalendar.ring | stzCalendar | 25 |
 | string/stzStringChar.ring | stzStringChar | 23 |
 | list/stzList.ring | stzList | 22 |
 | number/stzNumber.ring | stzNumber | 20 |
+| geo/stzGeoMap.ring | stzGeoMap | 18 |
 | i18n/stzLocale.ring | stzLocale | 17 |
 | regex/stzMatrex.ring | stzMatrex | 17 |
 | datetime/stzDateTime.ring | stzDateTime | 15 |
@@ -29,11 +29,15 @@ and each was checked with a second call on different data. **None is fixed yet.*
 | regex/stzRegex.ring | stzRegex | 10 |
 | string/stzString.ring | stzString | 9 |
 | reactive/stzReactive.ring | stzReactiveSystem | 7 |
+| geo/stzGeoField.ring | stzGeoField | 5 |
+| geo/stzGeoSamples.ring | stzGeoSamples | 5 |
 | graph/stzDiagram.ring | stzDiagram | 5 |
 | stats/stzDataSet.ring | stzDataSet | 5 |
 | graph/stzGraph.ring | stzGraphComparison | 3 |
 | appserver/stzAppServer.ring | stzAppServer | 2 |
 | datetime/stzDate.ring | stzDate | 2 |
+| geo/stzGeoFeatures.ring | stzGeoFeatures | 2 |
+| geo/stzGeoProcess.ring | stzGeoProcess | 2 |
 | graph/stzGraphQuery.ring | stzGraphQuery | 2 |
 | graph/stzKnowledgeGraph.ring | stzKnowledgeGraph | 2 |
 | math/stzMathFigure.ring | stzMathFigure | 2 |
@@ -42,6 +46,7 @@ and each was checked with a second call on different data. **None is fixed yet.*
 | string/stzStringList.ring | stzStringList | 2 |
 | common/stzSplitter.ring | stzSplitter | 1 |
 | datetime/stzTimeLine.ring | stzTimeLine | 1 |
+| geo/stzGeoProjection.ring | stzGeoProjection | 1 |
 | graph/stzOrgChart.ring | stzOrgChartReporter | 1 |
 | graph/stzOrgChart.ring | stzOrgChartSimulation | 1 |
 | linguistic/stzText.ring | stzText | 1 |
@@ -147,34 +152,85 @@ and each was checked with a second call on different data. **None is fixed yet.*
 - `GetPhysicalOrder` (line 6083): Raises error R24 today instead of listing a folder's entries as name and type records in disk order. -- Raises error R24 because a file entry reads a variable _aEntry_ that is never set
 - `FormatStatsForFolder` (line 6297): Raises error R14 today instead of writing the statistics pattern for a child folder. -- Raises error R14 because it calls CountFilesIn, which exists nowhere
 
+## stzGeoFeatures -- geo/stzGeoFeatures.ring (2)
+
+- `IndicesWithin` (line 776): Returns the positions of the features whose bounding box has its middle inside a box of longitude and latitude. -- Defect: a feature across the antimeridian has a box 360 degrees wide whose middle is longitude 0, so Fiji is taken by a window around Africa.
+- `Within` (line 800): Returns a new set of the features whose bounding box has its middle inside a box of longitude and latitude. -- Defect: the same antimeridian trap as IndicesWithin: Fiji is taken by a window around Africa.
+
+## stzGeoField -- geo/stzGeoField.ring (5)
+
+- `ValueAt` (line 270): Returns the field's value at a place: bilinear between four known nodes, the nearest node where some are unknown. -- Defect: a bilinear read of a constant field comes back one rounding step under the node value about 6 per cent of the time, so with SetClassesEvery a pixel at the first class edge draws as no data (white specks).
+- `SetClassesEvery` (line 338): Sets pnHowMany equal classes between the field's lowest and highest value. -- Defect: a bilinear read of a constant field comes back one rounding step under the node value about 6 per cent of the time, so with SetClassesEvery a pixel at the first class edge draws as no data (white specks).
+- `SetRamp` (line 361): Sets the colours of the classes from a named ramp, in as many steps as there are classes. -- Defect: the error for an unknown name lists nine ramps although thirteen exist.
+- `DrawOn` (line 460): Draws the field as one image on a canvas, resampled through a projection into a box, coloured by class. -- Defect: a bilinear read of a constant field comes back one rounding step under the node value about 6 per cent of the time, so with SetClassesEvery a pixel at the first class edge draws as no data (white specks).
+- `DrawXT` (line 478): Draws the field as one image like DrawOn, with an opacity so the map underneath can show through. -- Defect: a bilinear read of a constant field comes back one rounding step under the node value about 6 per cent of the time, so with SetClassesEvery a pixel at the first class edge draws as no data (white specks).
+
+## stzGeoMap -- geo/stzGeoMap.ring (18)
+
+- `SetRamp` (line 557): Sets the class colours from a named ramp, in as many steps as there are classes. -- Defect: the error for an unknown name lists nine ramps although thirteen exist (Viridis, Magma, Cividis and Flow are missing from the message).
+- `SetPalette` (line 576): Sets the colour of each class by hand. -- Defect: before SetClasses it raises with the message -1 classes need -1 colours, because an empty edge list counts as -1 classes.
+- `SetPaper` (line 599): Tells the map the box it is drawn in, so no label is written off the sheet and the scale bar is measured over that box. -- Defect: when it is not called, the scale-bar and stream-density methods guess the sheet from the projection's scale and misjudge a country map.
+- `SetOpenTop` (line 649): Declares that the top class has no upper edge, so a value above the last edge belongs to it and the legend draws an arrow. -- Defect: an inset made by DrawInsetsOn does not copy it, so a region above the last edge shows as no data in the inset (Niamey on the Niger sheet).
+- `ClassOf` (line 794): Returns the class that feature pnI's value falls in. -- Defect: raises error R2 when values are set and the classes are not, because the class edges are an empty list read at index 0.
+- `ColourOf` (line 819): Returns the fill colour of feature pnI: its group's colour, its class's colour, or the no-data colour. -- Defect: raises error R2 when values are set and the classes are not, because the class edges are an empty list read at index 0.
+- `DrawOn` (line 841): Draws the old-style layers on a canvas: sphere, graticule every 30 degrees, regions with white edges, the world's edge. -- Defect: raises error R2 when values are set and the classes are not, because the class edges are an empty list read at index 0.
+- `DrawRegionsOn` (line 885): Draws every feature in the colour its value earns, with one edge colour. -- Defect: raises error R2 when values are set and the classes are not, because the class edges are an empty list read at index 0.
+- `DensityPointsIn` (line 1104): Returns the places per feature divided by the feature's area, ready for SetValues. -- Defect in the comment: the source says per square kilometre but the code multiplies by 10000, so the figure is per 10000 km2.
+- `LabelPointOf` (line 1152): Returns where a name goes: the area centroid of the largest part, or the roomiest inner point when the centroid is outside it. -- Defect: no range check, so a position of 0 or past the last raises error R2.
+- `DrawInsetsOn` (line 2189): Draws every inset on a canvas: its locator rectangle on the parent, its enlarged map, its frame, its title and its scale. -- Defect: the inset copies values, edges and palette but not SetOpenTop, so a value above the last edge draws as no data inside the inset while the parent paints it in the top colour (Niamey on the Niger sheet).
+- `DrawSheetOn` (line 2448): Draws the regions as a statistical map does: dark hairline borders, the no-data hatch, then the heavy outline of the selection. -- Defect: raises error R2 when values are set and the classes are not, because the class edges are an empty list read at index 0.
+- `DrawScaleBarOn` (line 2746): Draws a scale bar at a stated latitude and prints that latitude; draws nothing when the scale varies too much over the sheet. -- Defect: without SetPaper the sheet is guessed from the projection's scale as plus and minus pi times it, so a country map measures a scale variation of 57.85 instead of 1.009 and the bar is refused.
+- `ScaleVariation` (line 2793): Returns the ratio of the largest local scale to the smallest over the sheet: 1 means a scale bar is true everywhere. -- Defect: without SetPaper the sheet is guessed from the projection's scale as plus and minus pi times it, so a country map measures a scale variation of 57.85 instead of 1.009 and the bar is refused.
+- `ScaleBarAt` (line 2809): Returns the scale bar that would be drawn, without drawing it. -- Defect: without SetPaper the sheet is guessed from the projection's scale as plus and minus pi times it, so a country map measures a scale variation of 57.85 instead of 1.009 and the bar is refused.
+- `DrawStreamDensityOn` (line 3415): Draws a field's speed as a shaded raster with evenly spaced streamlines on top, the speed on the ground and the shape on the lines. -- Defect: without SetPaper the sheet is guessed from the projection's scale, so the raster covers a box thousands of pixels wide.
+- `DrawLegendOn` (line 3466): Draws the older legend: one row per class with its range, "(no region)" for a class nothing falls in, and a no-data row. -- Defect: raises error R2 when values are set and the classes are not, because the class edges are an empty list read at index 0.
+- `IsOnPaper` (line 3899): TRUE if any part of feature pnI reaches the paper at all. -- Defect: no range check, so a position of 0 or past the last raises error R2.
+
+## stzGeoProcess -- geo/stzGeoProcess.ring (2)
+
+- `ExpectedCount` (line 397): Returns how many points the process puts down on average in a window of the given area. -- Defect: for Inhomogeneous it is the mean of all the grid values times the window area, not the integral over the window: 191.9 against 149.4 drawn on average and 144.3 integrated.
+- `PatternIn` (line 429): Raises error today instead of returning the pattern of GenerateIn as a stzGeoPoints ready to measure. -- Defect: it passes the window's list of rings to StzGeoPoints, which takes the stzGeoFeatures. Seen with SSI and MaternCluster on the fixtures and Poisson on Niger
+
+## stzGeoProjection -- geo/stzGeoProjection.ring (1)
+
+- `Caption` (line 1082): Returns the projection written for a picture: its name, the parallels of a conic and the rotation if any. -- Defect: the parallels of a conic always carry an N, so 22.78 degrees south prints as -22.78N.
+
+## stzGeoSamples -- geo/stzGeoSamples.ring (5)
+
+- `ValueOf` (line 182): Returns the value of measurement pnI. -- Defect: no range check, so a position of 0 or past the last raises error R2.
+- `PlaceOf` (line 191): Returns where measurement pnI was made. -- Defect: no range check, so a position of 0 or past the last raises error R2.
+- `FitAndUse` (line 315): Fits a variogram model and adopts it in one move. -- Defect: on gauges with a trend the Gaussian fit reaches a range longer than the window and the estimate leaves the measured range by tens of thousands (-30825 to 29761 for gauges of 180 to 799) while Findings only warns.
+- `KrigeFields` (line 351): Returns the ordinary-kriging estimate and its variance as two fields, from one factorisation. -- Defect: on gauges with a trend the Gaussian fit reaches a range longer than the window and the estimate leaves the measured range by tens of thousands (-30825 to 29761 for gauges of 180 to 799) while Findings only warns.
+- `Findings` (line 402): Returns what is wrong with the set: gauges outside the window, too few gauges, a range beyond the data, a nugget that is most of the sill. -- Defect: a kriging that leaves the measured range by tens of thousands is only a warning (range over half the diagonal), so IsSound stays TRUE.
+
 ## stzDiagram -- graph/stzDiagram.ring (5)
 
-- `PenWidth` (line 2002): Raises error R24 today instead of returning the pen width. -- it reads the attribute @nPenWidth, which nothing declares or sets, so every call raises R24 (uninitialized variable)
-- `NodesWith` (line 2936): Raises error R20 today instead of returning the nodes whose property satisfies a comparison. -- it builds a stzGraphQuery with two arguments where its constructor takes a different number, so every call raises R20
-- `propertiesLegend` (line 3017): Raises error R13 today when a visual rule is registered, instead of returning a text legend of the rules. -- it reads fields of the rules as if they were objects (.@cConditionType) while RegisterVisualRule stores hash lists, so any rule raises R13 (object is required)
-- `SaveToStzDiagInFolder` (line 18154): Raises error R14 today instead of writing the .stzdiag file in a folder. -- it takes no folder argument and calls WriteToDiagFileXT with a global that is never set, and that method exists nowhere, so every call raises R14
-- `Explain` (line 18419): Returns a short account of the diagram: its size, its visual rules and what they affected; raises error R13 as soon as a rule is registered. -- with a registered rule it reads the rule's id as a field of an object (.@cRuleId) while rules are stored as hash lists, so it raises R13; without rules it answers "No visual rules defined."
+- `PenWidth` (line 2004): Raises error R24 today instead of returning the pen width. -- it reads the attribute @nPenWidth, which nothing declares or sets, so every call raises R24 (uninitialized variable)
+- `NodesWith` (line 2939): Raises error R20 today instead of returning the nodes whose property satisfies a comparison. -- it builds a stzGraphQuery with two arguments where its constructor takes a different number, so every call raises R20
+- `propertiesLegend` (line 3020): Raises error R13 today when a visual rule is registered, instead of returning a text legend of the rules. -- it reads fields of the rules as if they were objects (.@cConditionType) while RegisterVisualRule stores hash lists, so any rule raises R13 (object is required)
+- `SaveToStzDiagInFolder` (line 18160): Raises error R14 today instead of writing the .stzdiag file in a folder. -- it takes no folder argument and calls WriteToDiagFileXT with a global that is never set, and that method exists nowhere, so every call raises R14
+- `Explain` (line 18425): Returns a short account of the diagram: its size, its visual rules and what they affected; raises error R13 as soon as a rule is registered. -- with a registered rule it reads the rule's id as a field of an object (.@cRuleId) while rules are stored as hash lists, so it raises R13; without rules it answers "No visual rules defined."
 
 ## stzGraph -- graph/stzGraph.ring (12)
 
 - `InsertNodesBefore` (line 715): Raises error R20 today instead of inserting a chain of nodes in front of an existing node. -- it calls InsertNodeBefore with three arguments, but that method takes two, so even a valid list of pairs raises R20
 - `InsertNodesAfter` (line 731): Raises error R20 today instead of inserting a chain of nodes behind an existing node. -- it calls InsertNodeAfter with three arguments, but that method takes two, so even a valid list of pairs raises R20
 - `ConnectEdgesXTT` (line 1484): Raises error R19 today instead of adding edges to several nodes, each with its own label and properties. -- it calls AddEdgeXTT with two arguments where four are needed, so any non-empty list raises R19, and an empty list does nothing
-- `LongestPath` (line 3295): Returns the largest number of nodes reachable from any one node, which is not the hop count of the longest path. -- the name promises a path length, but the body counts reachable nodes, so a node that reaches two branches of two nodes each answers 4, though no path is longer than 2 hops
-- `CyclicNodes` (line 3320): Returns an empty list today instead of the ids of the nodes that lie on a cycle. -- it looks for the node among the nodes it reaches, but ReachableFrom never lists the start node, so the test is never true; use HasCyclicDependencies for the graph
-- `LoadFromGraphML` (line 4950): Raises error "Incorrect Id" today instead of reading a GraphML file into the graph, and leaves odd nodes behind. -- the parser cuts the text at fixed positions instead of the positions it finds, so even a file written by SaveToGraphML yields garbled ids such as "sion=" and raises; the graph is left with those nodes
-- `LoadGraphML` (line 4964): Raises error "Incorrect Id" today instead of reading a GraphML file into the graph. -- it only calls LoadFromGraphML, whose parser fails on every file written by SaveToGraphML and leaves garbled nodes behind
-- `ImportFromGraphML` (line 4973): Raises error "Incorrect Id" today instead of importing a GraphML file into the graph. -- it only calls LoadFromGraphML, whose parser fails on every file written by SaveToGraphML and leaves garbled nodes behind
-- `ImportGraphML` (line 4982): Raises error "Incorrect Id" today instead of importing a GraphML file into the graph. -- it only calls LoadFromGraphML, whose parser fails on every file written by SaveToGraphML and leaves garbled nodes behind
-- `HasRule` (line 5937): TRUE if a constraint rule has that name; the name is folded to upper case first. -- derivation and validation rules are never found, because their names are lowered before the comparison with an upper-case name, so a rule that is loaded can still answer FALSE
-- `ValidationSummary` (line 6222): Returns the record of the last validation that passed; before any pass it answers that none has run. -- a failed validation is never recorded, so after a failure the summary still shows the older pass, or none has run, and its violations list is always empty
-- `Anomalies` (line 6257): Returns the violations of the last recorded validation, which is always an empty list today. -- only passing validations are recorded, so this can never list a violation; read the issues of Validate instead
+- `LongestPath` (line 3296): Returns the largest number of nodes reachable from any one node, which is not the hop count of the longest path. -- the name promises a path length, but the body counts reachable nodes, so a node that reaches two branches of two nodes each answers 4, though no path is longer than 2 hops
+- `CyclicNodes` (line 3321): Returns an empty list today instead of the ids of the nodes that lie on a cycle. -- it looks for the node among the nodes it reaches, but ReachableFrom never lists the start node, so the test is never true; use HasCyclicDependencies for the graph
+- `LoadFromGraphML` (line 4951): Raises error "Incorrect Id" today instead of reading a GraphML file into the graph, and leaves odd nodes behind. -- the parser cuts the text at fixed positions instead of the positions it finds, so even a file written by SaveToGraphML yields garbled ids such as "sion=" and raises; the graph is left with those nodes
+- `LoadGraphML` (line 4965): Raises error "Incorrect Id" today instead of reading a GraphML file into the graph. -- it only calls LoadFromGraphML, whose parser fails on every file written by SaveToGraphML and leaves garbled nodes behind
+- `ImportFromGraphML` (line 4974): Raises error "Incorrect Id" today instead of importing a GraphML file into the graph. -- it only calls LoadFromGraphML, whose parser fails on every file written by SaveToGraphML and leaves garbled nodes behind
+- `ImportGraphML` (line 4983): Raises error "Incorrect Id" today instead of importing a GraphML file into the graph. -- it only calls LoadFromGraphML, whose parser fails on every file written by SaveToGraphML and leaves garbled nodes behind
+- `HasRule` (line 5940): TRUE if a constraint rule has that name; the name is folded to upper case first. -- derivation and validation rules are never found, because their names are lowered before the comparison with an upper-case name, so a rule that is loaded can still answer FALSE
+- `ValidationSummary` (line 6225): Returns the record of the last validation that passed; before any pass it answers that none has run. -- a failed validation is never recorded, so after a failure the summary still shows the older pass, or none has run, and its violations list is always empty
+- `Anomalies` (line 6260): Returns the violations of the last recorded validation, which is always an empty list today. -- only passing validations are recorded, so this can never list a violation; read the issues of Validate instead
 
 ## stzGraphComparison -- graph/stzGraph.ring (3)
 
-- `Content` (line 8701): Returns nothing today instead of the comparison data. -- the body is empty, so the call answers empty text; Data returns the comparison
-- `WithCycles` (line 8784): Returns an empty list today instead of the names of the variations that contain a cycle. -- the rows hold the text TRUE or FALSE in the cycle field, and the body tests it against the number 1
-- `WithoutCycles` (line 8804): Returns an empty list today instead of the names of the variations that stay acyclic. -- the rows hold the text TRUE or FALSE in the cycle field, and the body tests it against the number 0
+- `Content` (line 8704): Returns nothing today instead of the comparison data. -- the body is empty, so the call answers empty text; Data returns the comparison
+- `WithCycles` (line 8787): Returns an empty list today instead of the names of the variations that contain a cycle. -- the rows hold the text TRUE or FALSE in the cycle field, and the body tests it against the number 1
+- `WithoutCycles` (line 8807): Returns an empty list today instead of the names of the variations that stay acyclic. -- the rows hold the text TRUE or FALSE in the cycle field, and the body tests it against the number 0
 
 ## stzGraphQuery -- graph/stzGraphQuery.ring (2)
 
@@ -184,7 +240,7 @@ and each was checked with a second call on different data. **None is fixed yet.*
 ## stzKnowledgeGraph -- graph/stzKnowledgeGraph.ring (2)
 
 - `ValidateOntology` (line 865): Returns 1 whatever the ontology holds; the check is not written yet. -- the body only returns 1, so no inconsistency is ever reported
-- `Explain` (line 999): Raises error R14 today instead of describing the knowledge graph in sections: structure, facts, entities, predicates, ontology and insights. -- it calls ApplyInference, which is defined nowhere, so the call always raises R14; stzGraph.Explain is shadowed by this version
+- `Explain` (line 1000): Raises error R14 today instead of describing the knowledge graph in sections: structure, facts, entities, predicates, ontology and insights. -- it calls ApplyInference, which is defined nowhere, so the call always raises R14; stzGraph.Explain is shadowed by this version seen in the gallery: drawn through GraphCanvas a knowledge graph shows no predicate on its edges and no arrowheads; Dot() with graphviz draws each fact as an edge labelled with its predicate
 
 ## stzOrgChart -- graph/stzOrgChart.ring (10)
 
@@ -578,38 +634,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 - `RecursiveDepth` (line 1889): Returns the number of distinct nested matches found by the last recursive match, which is the nesting depth only for a single chain. -- it counts matches, so ((x)(y)(z)) answers 4 although the nesting is 2 deep, while (((x))) answers 3
 - `NestedDepth` (line 1898): Returns the number of distinct nested matches found by the last recursive match; the same count as the recursive depth. -- it counts matches, so ((x)(y)(z)) answers 4 although the nesting is 2 deep
 - `Explain` (line 1938): Returns a one-line explanation of the pattern when the library knows it by name; any other pattern raises an error. -- for a pattern outside the library's named list it builds stzRegexAnalyzer, a class that does not exist, and raises error R11
-
-## stzTablex -- regex/stzTablex.ring (29)
-
-- `init` (line 62): Builds a table pattern from text such as {cols(3) & unique(name)} and parses it into tokens; a non-text value raises an error. -- the parser reads text with a count-based call where it wants an end position, so most patterns parse into wrong tokens, and a term written without parentheses, such as {cols}, raises error R24
-- `ParsePattern` (line 102): Splits a braced pattern at its top-level -> into parts and parses each part into a token; the result is wrong today. -- the inner text and the splitting use a count where an end position is meant, so {cols(2) -> rows(1)} gives one token of type col with no value
-- `SplitByOperator` (line 146): Returns garbled text today instead of the parts of a text split at an operator outside brackets. -- it reads each character with a count-based call, so "a->b->(c->d)" gives one text full of repeated pieces instead of a, b and (c->d)
-- `ParseAlternation` (line 185): Parses a part whose terms are joined by a vertical bar into an alternation token; the alternatives come out wrong today. -- it splits with the broken splitter, so a bar-joined pair gives one alternative of type col
-- `ParseConjunction` (line 218): Parses a part whose terms are joined by & into a conjunction token; the conditions come out wrong today. -- it splits with the broken splitter, so (cols(1) & rows(2)) gives one condition of type col
-- `ParseSingleToken` (line 251): Parses one term such as unique(name) or @cs:contains(Ali) into a token; the value keeps the closing parenthesis today. -- a count-based call reads the text inside the parentheses, so unique(Name) gives the value "Name)" and rows(2) gives no constraint
-- `Match` (line 616): TRUE if the table satisfies every term of the pattern; the answer is cached per pattern and table content. -- because the parser gives wrong tokens, every pattern tried answered FALSE or raised an error, rows and row terms raise R14 (hasrow), and {cols} raises R24
-- `CheckRow` (line 906): Raises error R14 today instead of testing whether the table holds a given row. -- it calls HasRow on the table, a method stzTable does not have
-- `CheckCell` (line 922): Raises error R2 today instead of testing whether a cell value lies in a range of the table. -- it reads a "range" key that the parser never writes into the token, so the list access fails
-- `CheckProperty` (line 965): TRUE if the table has the property named in the token: empty, nonempty, sorted or calculated; any other name gives TRUE. -- an unknown property name such as zzz answers TRUE instead of FALSE
-- `CheckSorted` (line 1035): TRUE if the named column is in ascending order, comparing numbers as numbers and text as text, case counting by default. -- an unknown column name answers TRUE
-- `CheckUnique` (line 1081): TRUE if no value repeats in the named column; the case counts unless the token says otherwise. -- an unknown column name answers TRUE
-- `CheckColPattern` (line 1365): Raises error R14 today instead of testing that every text of a column matches a regex pattern. -- it calls MatchesRX on a stzString, a method that does not exist
-- `CheckAlphabetic` (line 1654): Raises error R14 today for a column of text instead of testing that every value is made of letters. -- it calls IsAlphabetic on a stzString, a method that does not exist
-- `CheckFormat` (line 1682): Raises an error today instead of testing that every text of a column fits a format, the token value being column:format. -- it relies on MatchesFormat, which fails for a format that is not a named pattern
-- `MatchesFormat` (line 1720): Raises an error today instead of testing whether a text fits a regex format. -- it first calls the pattern helper on the text, which raises "The pattern name you provided does not exist" for any text that is not a registered name
-- `MatchedParts` (line 1770): Returns what was recorded by the last successful match: the pairs cols, rows, colnames and properties. -- since Match does not succeed today, this stays [ ] unless ExtractParts is called by hand
-- `CountMatchedParts` (line 1785): Raises error R24 today instead of returning how many parts were matched. -- the body reads @MatchedParts, which is an uninitialized name
-- `HowManyMatchedParts` (line 1793): Raises error R24 today instead of returning how many parts were matched. -- the body reads @MatchedParts, which is an uninitialized name
-- `Tokens` (line 1801): Returns the parsed tokens of the pattern. -- the tokens are wrong for most patterns, see the parser
-- `NumberOfTokens` (line 1810): Returns how many tokens the pattern was parsed into. -- a pattern of two terms joined by -> gives 1, because the splitter is broken
-- `CountTokens` (line 1819): Returns how many tokens the pattern was parsed into. -- a pattern of two terms joined by -> gives 1, because the splitter is broken
-- `HowManyTokens` (line 1828): Returns how many tokens the pattern was parsed into. -- a pattern of two terms joined by -> gives 1, because the splitter is broken
-- `MatchingTables` (line 1861): Returns the tables of a list that match the pattern, in their order. -- Match answers FALSE for every pattern tried, so the list comes back empty
-- `CountMatchingTables` (line 1884): Returns how many tables of a list match the pattern. -- Match answers FALSE for every pattern tried, so the count is 0
-- `IsNumeric` (line 1938): TRUE if the text is made only of digits, minus signs and dots, but it answers wrongly today for most numbers. -- it reads each character with a count-based call, so 12 and -3 give TRUE while 123, 1.5 and 1-2 give FALSE
-- `And_` (line 1965): Returns a new tablex whose pattern joins this pattern and the other one with &; the joined text ends with a stray brace today. -- the joined pattern is built with a count-based call, so {cols(3)} and {rows(3)} give {cols(3)} & rows(3)}}
-- `Or_` (line 1986): Returns a new tablex whose pattern joins this pattern and the other one with a vertical bar; the text ends with a stray brace today. -- the joined pattern is built with a count-based call, so {cols(3)} and {rows(9)} give a text ending in two braces
-- `Not_` (line 2006): Returns a new tablex whose pattern has @! in front of the inner text; the text ends with a stray brace today. -- the pattern is built with a count-based call, so {cols(3)} gives {@!cols(3)}}
 
 ## stzDataSet -- stats/stzDataSet.ring (5)
 
