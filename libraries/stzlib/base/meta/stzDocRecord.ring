@@ -321,6 +321,11 @@ func _StzDocIsDefLine(pcTrim)
 # The parameter names of a def line, as written.
 func _StzDocParamsOf(pcTrim)
 	_aOut_ = []
+	# a trailing comment may hold parentheses of its own (def IsFardi() # odd() and even())
+	_nCm_ = substr(pcTrim, "#")
+	if _nCm_ > 1
+		pcTrim = left(pcTrim, _nCm_ - 1)
+	ok
 	_nO_ = substr(pcTrim, "(")
 	if _nO_ = 0
 		return _aOut_
