@@ -728,6 +728,43 @@ oPay = StzPaymentsPortQ(oAd)               # the port cannot tell it from the tw
 
 ---
 
+## 9c. The QR: the string is built here, the picture is not
+
+A PI-SPI QR code is a picture of an EMV payload in the BCEAO's published format, scheme `int.bceao.pi`.
+`stzPispiQr` builds and reads **the string**; drawing the matrix of black and white squares a camera reads
+is ISO/IEC 18004 (Reed-Solomon and masks), generic, and **not built in this plane**.
+
+**Decided 2026-10-05, on the author's behalf** (the author asked the desk to decide): the payload is
+built from the format as published, in the library, and not taken from the BCEAO's SDK, because the SDKs are
+JavaScript, Python, Flutter and Java and the library neither ships nor runs another language, and a vendor
+artefact must not become a dependency. The SDK is the **oracle**, not the source: no code was copied (the
+JavaScript one carries no licence file), a Python builder written from the same tag table holds Ring to an
+independent implementation (`payments_qr_vectors.py`), and `payments_qr_oracle.mjs` is what a person runs
+to hold the string against the BCEAO's SDK itself. The picture is routed to the owner of the graphics and
+security engine seams, as ONE generic encoder that the TOTP enrolment also needs (`stzTotp` and `stzAuth`
+both say "render as a QR code" and nothing in the library can).
+
+```ring
+oQr = StzPispiQrQ()
+oQr.WithAlias(oHub.BusinessAlias())                  # the receiver's PI-SPI alias: a UUID
+oQr.InCountry("NE")                                  # BJ BF CI GW ML NE SN TG
+oQr.AsDynamic()                                      # channel 400, one sale; AsStatic() is channel 000
+oQr.WithReference("BOUTIQUE-2026-001")               # at most 25 characters, printable ASCII
+oQr.WithAmount( StzAmountQ("18500", "XOF") )         # whole francs, XOF only; omit it and the payer types it
+cQr = oQr.Payload()
+? StzPispiQrParse(cQr)[:valid]                       #--> 1
+```
+
+| what | how |
+|---|---|
+| the string | `00 "01"`, `36 { 00 "int.bceao.pi", 01 <alias> }`, `52 "0000"`, `53 "952"`, `54 <amount>`, `58 <country>`, `59 "X"`, `60 "X"`, `62 { 05 <label>, 11 <channel>, 12 <purpose> }`, `63 <CRC-16/CCITT-FALSE>` |
+| refused at build | a non-UUID alias, a country outside the union, a label over 25 or not printable ASCII, an amount not whole positive XOF, a custom tag that is not two digits or capitals |
+| the reader | never raises: `[ :valid, :errors, :notes, :data ]`; a tag 01, channel 731 and an unlisted channel are read and noted, not refused |
+| proven | `payments_qr_narrated.ring` (58) against four vectors from an independent Python builder |
+| **unperceived** | no PI-SPI application has scanned a code made here, and the SDK has not been compared |
+
+---
+
 ## 10. The don'ts, in this plane's own words
 
 - **No fee, ever.** Softanza takes nothing on any transaction, anywhere, in
@@ -870,6 +907,19 @@ the portal's own guide pages. The reference (`openapi.yml` v1.5.0) wins.
 24. **`ListToJson` cannot write the contract's bodies**: `[]` becomes `{}`, and a one-pair array becomes an
     object. The adapter writes its JSON with a small schema-aware encoder, and reads with `StzJsonToList`,
     which maps `true`/`false` to 1/0, the convention the whole port already uses.
+25. **The BCEAO's own builder and its own validator disagree about tag 01.** The SDK's builder (and the portal's
+    demo, which embeds it) emits no point-of-initiation tag; the placeholder in the portal's validator starts
+    `000201 0102 11`, which has one. `stzPispiQr` builds like the SDK and reads both.
+26. **The alias is "alphanumeric" in the prose and a UUID v4 in the SDK**, and a third-party PHP port enforces the
+    length only. The builder requires the UUID *shape* (36 characters, hyphens in place) and not the version.
+27. **The merchant channel has three listed values (000 static, 400 dynamic, 731 transfer) and the BCEAO's own
+    worked example carries 500.** Read and noted, never refused.
+28. **A dynamic QR is a payment to an alias, not a request to pay**: the code carries the alias, the amount and a
+    label, and the payer's application makes an ordinary payment. This charter's PY6 first modelled it as a request
+    to pay of category 500, an assumption not read from anything; the chapter now follows the format.
+29. **The portal's guides are a script-rendered application**, so the format could not be read from the pages
+    themselves: it was read from the portal's own client bundle and the published SDK. Reported as a fact about
+    how reproducible this reading is.
 
 ---
 
@@ -883,7 +933,8 @@ the portal's own guide pages. The reference (`openapi.yml` v1.5.0) wins.
 | PY3 | `:conformance` posture, the two invariants, the webhook verifier, five secret descriptors, expiry as a detection | `service_registry_narrated` extended; `payments_webhooks_narrated.ring`; `payments_secrets_narrated.ring` |
 | PY4 | payout plan, four-visa rule, payout journal, `payout-without-plan` refused by the port | `payments_governance_narrated.ring` |
 | PY5 | the live adapter, generic over the participant: (a) against the twin over HTTP behind `stzAppServer`, plain and mutual TLS; (b) conformance under DIKO's sandbox account, *unperceived* until a named person sees a payment land; (c) BIA in production only inside DIKO's amendment | `payments_live_adapter_narrated.ring` (a); `payments_conformance_run.ring` (b, UNPERCEIVED without credentials) |
-| PY6 | the chapter: a dynamic QR, a customer pays, the webhook lands and is verified, a supplier is paid under four visas, and the registry refuses it all in production while the twin is bound | `doc/narrations/stz-getting-paid-and-paying-narration.md`, run by `test/system/payments_chapter.py` (14 blocks, 30 values). The dynamic QR is the request to pay of category 500; the EMV picture of it is the BCEAO SDK's and is not built here |
+| PY6 | the chapter: a dynamic QR, a customer pays, the webhook lands and is verified, a supplier is paid under four visas, and the registry refuses it all in production while the twin is bound | `doc/narrations/stz-getting-paid-and-paying-narration.md`, run by `test/system/payments_chapter.py` (14 blocks, 30 values). The dynamic QR is the BCEAO's payload, built by `stzPispiQr` (PY7); its picture is not built. Corrected 2026-10-05: PY6 first modelled the QR as a request to pay, see section 11 item 28 |
+| PY7 | the QR payload: `stzPispiQr` builds and reads the BCEAO's EMV string, with its CRC; the picture is not built | `payments_qr_narrated.ring` (58), `payments_qr_vectors.py --check`; `payments_qr_oracle.mjs` is for a person |
 
 Baseline measured 2026-10-04 on the worktree at 010743cce, each guard run
 from inside its topic directory: `payments_port_narrated` 49/49,
