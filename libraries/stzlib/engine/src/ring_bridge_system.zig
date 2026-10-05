@@ -152,6 +152,11 @@ fn ring_ProcSpawn(p: *anyopaque) callconv(.c) void {
     const h = sys.stz_process_spawn(gs(p, 1), @intCast(gss(p, 1)));
     R.retHandle(p, @ptrCast(h));
 }
+// (packed NUL-separated argv, cwd) -> handle; no shell between
+fn ring_ProcSpawnArgv(p: *anyopaque) callconv(.c) void {
+    const h = sys.stz_process_spawn_argv(gs(p, 1), @intCast(gss(p, 1)), gs(p, 2), @intCast(gss(p, 2)));
+    R.retHandle(p, @ptrCast(h));
+}
 fn ring_ProcReadStdout(p: *anyopaque) callconv(.c) void {
     const raw = R.getHandle(p, 1);
     var buf: [65536]u8 = undefined;
@@ -166,8 +171,22 @@ fn ring_ProcReadStderr(p: *anyopaque) callconv(.c) void {
     const n = sys.stz_process_read_stderr(raw, &buf, 65536);
     if (n > 0) rs2(p, &buf, @intCast(n)) else rs(p, "");
 }
+// Non-blocking: a chunk when one is there, else a NUMBER -- 0 nothing yet,
+// -2 the stream ended, -1 error. A string and a number are different Ring
+// types, so the caller tells "nothing yet" from "" without a second call.
+fn ring_ProcReadStdoutAvailable(p: *anyopaque) callconv(.c) void {
+    const raw = R.getHandle(p, 1);
+    var buf: [65536]u8 = undefined;
+    const n = sys.stz_process_read_stdout_available(raw, &buf, 65536);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rn(p, @floatFromInt(n));
+}
 fn ring_ProcWait(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(sys.stz_process_wait(R.getHandle(p, 1))));
+}
+fn ring_ProcWaitFor(p: *anyopaque) callconv(.c) void {
+    const ms_f = R.ring_vm_api_getnumber(p, 2);
+    const ms: u32 = if (ms_f <= 0) 0 else @intFromFloat(ms_f);
+    rn(p, @floatFromInt(sys.stz_process_wait_for(R.getHandle(p, 1), ms)));
 }
 fn ring_ProcKill(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(sys.stz_process_kill(R.getHandle(p, 1))));
@@ -200,9 +219,12 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginesystemusername", .func = &ring_Username },
     .{ .name = "stzenginesystemcpucount", .func = &ring_CpuCount },
     .{ .name = "stzengineprocessspawn", .func = &ring_ProcSpawn },
+    .{ .name = "stzengineprocessspawnargv", .func = &ring_ProcSpawnArgv },
     .{ .name = "stzengineprocessreadstdout", .func = &ring_ProcReadStdout },
     .{ .name = "stzengineprocessreadstderr", .func = &ring_ProcReadStderr },
+    .{ .name = "stzengineprocessreadstdoutavailable", .func = &ring_ProcReadStdoutAvailable },
     .{ .name = "stzengineprocesswait", .func = &ring_ProcWait },
+    .{ .name = "stzengineprocesswaitfor", .func = &ring_ProcWaitFor },
     .{ .name = "stzengineprocesskill", .func = &ring_ProcKill },
     .{ .name = "stzengineprocesschildpid", .func = &ring_ProcPid },
     .{ .name = "stzengineprocessspawnfree", .func = &ring_ProcFree },

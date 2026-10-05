@@ -223,6 +223,7 @@ ok
     # read as a TOUR, never edited. Loads after meta/ because TR3 joins the
     # court (stzCodeRules, stzCodeGraph) and reads nothing above it.
     load "testoor/stzTour.ring"
+    load "testoor/stzTraveller.ring"
 
     load "string/stzWordStream.ring"
 

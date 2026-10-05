@@ -19,6 +19,19 @@ extern "kernel32" fn SetEnvironmentVariableW(name: [*:0]const u16, value: ?[*:0]
 // GetProcessId turns the handle into the pid. (On POSIX, child.id already is
 // the pid.)
 extern "kernel32" fn GetProcessId(process: *anyopaque) callconv(.winapi) u32;
+extern "kernel32" fn GetExitCodeProcess(process: *anyopaque, code: *u32) callconv(.winapi) i32;
+// PeekNamedPipe answers how many bytes a pipe holds WITHOUT reading them, which
+// is the one call a non-blocking stdout read needs on Windows (Zig's std does
+// not bind it). Fails with ERROR_BROKEN_PIPE once the writer is gone and the
+// pipe is drained -- that failure IS the end-of-stream signal.
+extern "kernel32" fn PeekNamedPipe(
+    hNamedPipe: *anyopaque,
+    lpBuffer: ?*anyopaque,
+    nBufferSize: u32,
+    lpBytesRead: ?*u32,
+    lpTotalBytesAvail: ?*u32,
+    lpBytesLeftThisMessage: ?*u32,
+) callconv(.winapi) i32;
 
 // ─── Run command and capture output ───
 
@@ -234,6 +247,9 @@ const SpawnHandle = struct {
     child: std.process.Child,
     waited: bool,
     exit_code: c_int,
+    // reaped by stz_process_wait_for, bypassing std's wait(): on Windows the
+    // process handle is then ours to close in free()
+    reaped_here: bool,
 };
 
 pub fn stz_process_spawn(cmd: [*c]const u8, cmd_len: usize) callconv(.c) ?*anyopaque {
@@ -254,11 +270,46 @@ pub fn stz_process_spawn(cmd: [*c]const u8, cmd_len: usize) callconv(.c) ?*anyop
         .child = std.process.Child.init(argv_list.items, gpa),
         .waited = false,
         .exit_code = -1,
+        .reaped_here = false,
     };
     h.child.stdout_behavior = .Pipe;
     h.child.stderr_behavior = .Pipe;
     h.child.create_no_window = true;
 
+    h.child.spawn() catch {
+        gpa.destroy(h);
+        return null;
+    };
+    return @ptrCast(h);
+}
+
+// Spawns a program by ARGV, no shell between, in a working directory of the
+// caller's choosing. argv arrives NUL-packed like stz_system_run_argv's; cwd
+// may be empty (inherit). Three things the shell form cannot give a runner
+// (Testoor TR1, measured 2026-10-05): a quote in an argument reaches the
+// program instead of killing the command silently; a path with spaces needs
+// no quoting at all; and kill() reaches THE program, where through cmd.exe it
+// reached only cmd.exe and left the grandchild running (a planted hung tour
+// kept beating its heartbeat after the kill).
+pub fn stz_process_spawn_argv(packed_args: [*c]const u8, packed_len: usize, cwd: [*c]const u8, cwd_len: usize) callconv(.c) ?*anyopaque {
+    if (packed_args == null or packed_len == 0) return null;
+    var argv_list = std.ArrayList([]const u8){};
+    defer argv_list.deinit(gpa);
+    var it = std.mem.splitScalar(u8, packed_args[0..packed_len], 0);
+    while (it.next()) |arg| argv_list.append(gpa, arg) catch return null;
+    if (argv_list.items.len == 0 or argv_list.items[0].len == 0) return null;
+
+    const h = gpa.create(SpawnHandle) catch return null;
+    h.* = .{
+        .child = std.process.Child.init(argv_list.items, gpa),
+        .waited = false,
+        .exit_code = -1,
+        .reaped_here = false,
+    };
+    if (cwd != null and cwd_len > 0) h.child.cwd = cwd[0..cwd_len];
+    h.child.stdout_behavior = .Pipe;
+    h.child.stderr_behavior = .Pipe;
+    h.child.create_no_window = true;
     h.child.spawn() catch {
         gpa.destroy(h);
         return null;
@@ -280,6 +331,78 @@ pub fn stz_process_read_stderr(h: ?*anyopaque, buf: [*c]u8, buf_len: usize) call
     const err = handle.child.stderr orelse return -1;
     const n = err.read(buf[0..buf_len]) catch return -1;
     return @intCast(n);
+}
+
+// Reads what is ALREADY on the child's stdout, without blocking. Returns the
+// bytes read; 0 = nothing yet; -2 = end of stream (the child closed its
+// stdout); -1 = error / no pipe.
+//
+// WHY (Testoor TR1): a RUNNER that reads a tour's output with the blocking
+// read above cannot tell a slow tour from a hung one -- a child that prints
+// nothing and never ends holds the runner forever. With this it polls: read
+// what is there, check the clock, kill past the deadline. The POSIX branch is
+// comptime-gated and was not run on the machine that wrote it (Windows).
+pub fn stz_process_read_stdout_available(h: ?*anyopaque, buf: [*c]u8, buf_len: usize) callconv(.c) isize {
+    const handle: *SpawnHandle = @ptrCast(@alignCast(h orelse return -1));
+    const out = handle.child.stdout orelse return -1;
+    if (builtin.os.tag == .windows) {
+        var avail: u32 = 0;
+        if (PeekNamedPipe(out.handle, null, 0, null, &avail, null) == 0) return -2;
+        if (avail == 0) return 0;
+        const want: usize = @min(buf_len, @as(usize, avail));
+        const n = out.read(buf[0..want]) catch return -1;
+        if (n == 0) return -2;
+        return @intCast(n);
+    } else {
+        var fds = [_]std.posix.pollfd{.{ .fd = out.handle, .events = std.posix.POLL.IN, .revents = 0 }};
+        const ready = std.posix.poll(&fds, 0) catch return -1;
+        if (ready == 0) return 0;
+        const n = out.read(buf[0..buf_len]) catch return -1;
+        if (n == 0) return -2;
+        return @intCast(n);
+    }
+}
+
+// Waits up to `ms` milliseconds for the child to exit. Returns its exit code
+// once it has; -2 while it is still running; -1 on error. Idempotent after
+// the exit, like stz_process_wait.
+//
+// THE PIPES STAY OPEN. std's Child.wait() closes stdout and stderr as it
+// reaps, which is right for a caller that drained them first and wrong for a
+// poller: whatever the child printed between the last poll and its exit
+// would be closed unread (found by the TR1 guard, which hung on exactly
+// this). So the reap here reads the exit code without std -- on Windows the
+// child id IS the process handle, WaitForSingleObject then GetExitCodeProcess;
+// on POSIX (comptime-gated, not run here) waitpid with WNOHANG -- and leaves
+// the pipes for the caller to drain to end-of-stream; stz_process_spawn_free
+// closes whatever is still open.
+pub fn stz_process_wait_for(h: ?*anyopaque, ms: u32) callconv(.c) c_int {
+    const handle: *SpawnHandle = @ptrCast(@alignCast(h orelse return -1));
+    if (handle.waited) return handle.exit_code;
+    if (builtin.os.tag == .windows) {
+        const r = std.os.windows.kernel32.WaitForSingleObject(handle.child.id, ms);
+        if (r == std.os.windows.WAIT_TIMEOUT) return -2;
+        var code: u32 = 0;
+        if (GetExitCodeProcess(handle.child.id, &code) == 0) return -1;
+        handle.waited = true;
+        handle.reaped_here = true;
+        handle.exit_code = @intCast(code & 0x7fffffff);
+        return handle.exit_code;
+    } else {
+        var waited: u32 = 0;
+        while (true) {
+            const res = std.posix.waitpid(handle.child.id, std.posix.W.NOHANG);
+            if (res.pid != 0) {
+                handle.waited = true;
+                handle.reaped_here = true;
+                handle.exit_code = if (std.posix.W.IFEXITED(res.status)) @intCast(std.posix.W.EXITSTATUS(res.status)) else -1;
+                return handle.exit_code;
+            }
+            if (waited >= ms) return -2;
+            std.Thread.sleep(5 * std.time.ns_per_ms);
+            waited += 5;
+        }
+    }
 }
 
 // Waits for exit and returns the code. Idempotent (a second wait returns the
@@ -325,6 +448,22 @@ pub fn stz_process_spawn_free(h: ?*anyopaque) callconv(.c) void {
     const handle: *SpawnHandle = @ptrCast(@alignCast(h orelse return));
     if (!handle.waited) {
         _ = handle.child.kill() catch {};
+    }
+    // a child reaped by stz_process_wait_for still owns its pipes (see there);
+    // std's own wait() and kill() set these to null after closing, so this
+    // closes exactly what nobody else did
+    if (handle.child.stdout) |f| {
+        f.close();
+        handle.child.stdout = null;
+    }
+    if (handle.child.stderr) |f| {
+        f.close();
+        handle.child.stderr = null;
+    }
+    // std's wait() closes the Windows process handle as it reaps; a child
+    // reaped here bypassed that, so the handle is ours to close
+    if (handle.reaped_here and builtin.os.tag == .windows) {
+        std.os.windows.CloseHandle(handle.child.id);
     }
     gpa.destroy(handle);
 }
