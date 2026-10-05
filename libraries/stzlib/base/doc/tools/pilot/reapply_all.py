@@ -21,10 +21,22 @@ BASE = TOOLS.parent.parent                      # .../libraries/stzlib/base
 REPO = subprocess.run(["git", "rev-parse", "--show-toplevel"], cwd=str(HERE), capture_output=True, text=True).stdout.strip()
 
 
+def file_of(cls):
+    """The source file of a class: the four pilot classes, or what reference.json says.
+    Classes that share a file must be given in ONE call: the file is restored from PRISTINE first."""
+    if cls in FILES:
+        return FILES[cls]
+    ref = json.load(open(BASE / "doc" / "reference.json", encoding="utf-8"))
+    for c in ref["classes"]:
+        if c["name"] == cls:
+            return c["file"]
+    sys.exit("unknown class " + cls)
+
+
 def main():
     data = pathlib.Path(sys.argv[1])
     for cls in sys.argv[2:]:
-        rel = "libraries/stzlib/base/" + FILES[cls]
+        rel = "libraries/stzlib/base/" + file_of(cls)
         blob = subprocess.run(["git", "show", "%s:%s" % (PRISTINE, rel)], cwd=REPO, capture_output=True).stdout
         (pathlib.Path(REPO) / rel).write_bytes(blob)
         for docs, exs in (("docs_%s.json" % cls, "examples_%s.json" % cls), ("w1_docs_%s.json" % cls, None)):
