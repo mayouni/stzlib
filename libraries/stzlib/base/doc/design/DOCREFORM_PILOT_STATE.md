@@ -61,3 +61,66 @@ stzGrid, stzListOfPairs, stzAuth, stzJson, stzFolder, stzSplitter, stzAppServer,
 
 ## Next (author's three decisions still open)
 Wave 0 (stash 'wave0-list'), Codeberg login, a human read of a sample of briefs. Wave 4: `tools/wave/class_rank.py` -> stzFolder, stzGrid, stzOrgChart, stzGraphPlanner, stzAppServer, stzAuth, stzListOfPairs, stzJson ... three agents at a time, each batch verified, `gate.ring --update`, re-export, rebase, push.
+
+## STOP of 2026-10-05 (about 21:50) -- read this first on resume
+
+Author's order: "stop and save your state". main is f9665f4a3 at BOTH remotes (verified by ls-remote). Everything below
+is on main: waves 5 (geo 9 classes + plots 7 classes, galleries under doc/gallery/) and 6 (security 7 classes), the
+stzTablex fix (test/regex/tablex_narrated.ring, 95 assertions), DOCBLOCK.md with the heading trap and the
+outside-documents section, reference.json (schema 1, header 739f15470, 659 classes, 21,791 roots, 8,169 pass, 293 with
+an example), DEFECTS.md (706 defects in 41 classes), doc_baseline.txt (13,622 roots; gate.ring prints OK). The cost line
+of this desk is in D:\GitHub\stzlib\.central\cost.jsonl (untracked since CENTRAL-PUBLICREPO-01), outcome partial.
+
+### Six fix tasks the author asked for ("Do this task here"), five started as subagents
+
+Each in its OWN worktree and branch from main 739f15470. THE AGENTS WERE CUT BY THE STOP: a worktree may hold a file
+mid-edit. On resume, for EACH worktree, in this order: syntax-check every modified .ring (a load check; Ring fails fast
+on a duplicate definition, case-insensitively), run the guards it added, check that every comment-only claim holds,
+then commit by explicit path or finish the work. Never integrate a branch whose guards you did not run yourself.
+Snapshot at the stop (git log origin/main..HEAD and git status in each worktree):
+
+| worktree | branch | commits | uncommitted at the stop |
+|---|---|---|---|
+| D:\GitHub\_wtf_dt | fix/dt (datetime) | 0 | stzCalendar, stzDate, stzDateTime, stzTime modified; 4 new guards test/datetime/dtfix_*_narrated.ring |
+| D:\GitHub\_wtf_tbl | fix/tbl (stzTable) | 4: 0caaf5a42 columns, c1a6c71fb rows, 523cc5512 no-ops, 43cd48775 finders | clean |
+| D:\GitHub\_wtf_lol | fix/lol (ListOfNumbers, ListOfLists) | 1: 4a2e3d042 stzListOfNumbers | stzListOfLists.ring modified; guard test/list/listoflists_defects_narrated.ring |
+| D:\GitHub\_wtf_lsn | fix/lsn (List, String, Number, HashList) | 3: 0aa65da5f stzList incl. the wave-0 patch, 549d15aec stzString, 53dc23ba0 stzNumber | stzHashList.ring modified, no guard yet |
+| D:\GitHub\_wtf_fgcl | fix/fgcl (Folder, Grid, StringChar, Locale) | 0 | stzFolder.ring modified; test/_tmp_fgcl/ is the agent's fixture: delete it |
+| D:\GitHub\_wtf_eng | fix/eng (engine panics) | 0 | NOT STARTED: it overlaps dt (month <= 0), tbl (FillCQ) and fgcl (StringLowercased(5)) and needs zig build -j2 |
+
+The task texts are the six spawn_task chips of 2026-10-05 (copies in the scratchpad of session 9a0dccae, chips/*.txt;
+if gone, the chips' text is in the session transcript). Each agent was told: no reference.json / DEFECTS.md / baseline
+edits, one commit per family, no push, no rebase, doc blocks of fixed methods rewritten (third-person brief, no
+known-defect warning). The wave-0 stash 'wave0-list' is superseded by fix/lsn 0aa65da5f: drop it once that branch is on main.
+
+### Integration order (one branch at a time, one regeneration at the end)
+
+1. tbl (clean, 4 commits): rebase on origin/main, run the test/table guards it added plus the older stzTable guards, merge fast-forward.
+2. lsn, then lol (both touch base/number/: the perf-system notice was filed in CONCLUSIONS at 21:11; run the test/number and test/perf guards that load stzNumber or stzListOfNumbers), then dt, then fgcl.
+3. Then eng, alone (zig build -j2, free RAM above 6 GB, nothing else building on the machine).
+4. Then ONCE: cd base/doc; ring export_reference.ring <commit> <date>; python tools/wave/mk_defects.py reference.json DEFECTS.md defects.json; ring gate.ring (if other desks landed undocumented methods meanwhile: --seed and say so in CONCLUSIONS); ring gate.ring --update to drop the roots the fixes documented; commit; push docs/reform:main (origin) and docs/reform:refs/heads/main (codeberg); verify both by ls-remote; FOR STZSITE line with the rebuilt measure (the Python at the end of this section).
+
+### Step 5 of the mission, what is NOT done
+
+- gate.ring does not run StzDocFindings (meta/stzDocExport.ring, line 1115). Measured on main 2026-10-05 21:30: 117 dead forwards (error), 21 pvt names public and not 'status internal' (warning), 45 typo-shaped words (warning, after doc/typo-reviewed.txt). Plan: a dead-forward RATCHET like doc-floor (doc/deadforward_baseline.txt seeded with the 117; a new one fails the gate), typos and internals printed as warnings, the three kinds written deterministically to doc/findings.json by gate.ring and folded into DEFECTS.md by mk_defects.py (a 4th argument) so "fixed or listed" holds; extend test/reflect/docgate_narrated.ring (21 assertions today) with a planted dead forward, a baseline key and a typo. The 21 pvt names: add '#   status  internal' to their blocks AFTER the fix branches land (stzTime.ring is in fix/dt).
+- The repository has no CI pipeline (no .github/workflows anywhere): the gate is one command, documented at the top of gate.ring; the CI step, when one exists, reads its last line (OK or FAILED).
+- Nothing is wired into StzCheckProjectKnobs (text rules per file); the join is stzRuleReport.Ingest of both outputs (graph/stzRuleReport.ring).
+
+### Waves still owed, in order
+
+- Education: 12 classes, 206 roots in the baseline; stzProgram, stzCourse, stzExercise, stzTutor first (the learner-facing API). base/doc/education/README.md is the accepted door. Never edit base/education code; message stzlib-education.
+- Payments: 19 classes, 310 roots, 0 pass (125 have an old one-line brief). The class blocks of stzPispiHttpAdapter and stzPispiQr MUST open with the status the payments desk asked for: the live adapter is proven against the twin over real HTTP and NOT run against the BCEAO sandbox, so UNPERCEIVED; no QR made by the library has been scanned; the library builds the QR STRING and does not draw the picture. docs/payments-guide.md (repository root) stays outside the extractor: test/system/charter_examples.py checks it (fence `ring` is run, `ring live` never).
+- Then by tools/wave/class_rank.py. A STANCE, not a wave, is owed on stzObject (1,944 unpassed roots), stzListNamedParams (1,345) and stzQuestion (1,076): generated or dispatch surfaces, a fifth of the library.
+
+### Open with the author
+
+- Perception gate (CENTRAL-PERCEPTGATE-01): no person has read a sample of the briefs or seen a gallery picture; every verdict so far is a model's reading of a PNG or a page.
+- Codeberg: the single-use refresh token fails every few pushes; cure = `cmdkey /delete:'LegacyGeneric:target=git:https://refresh_token.codeberg.org'` then push again (worked at 21:38); the durable fix (an application token or an SSH key) is the author's.
+- stzKnowledgeGraph's class block still claims predicate-labelled edges via GraphCanvas (only the Explain method carries the warning).
+- The six fix chips in the desktop app were started by the author ("Do this task here"); they cannot be withdrawn and the work is the branches above.
+
+### The measure, from reference.json (run from base/doc)
+
+    python -c "import json,collections as C;r=json.load(open('reference.json',encoding='utf-8'));ms=[m for c in r['classes'] for m in c['methods']];n=len(ms);o=C.Counter(m.get('origin',{}).get('brief') or 'none' for m in ms);print(n,dict(o),'pass',sum(m['pass'] for m in ms),'example',sum(1 for m in ms if m.get('example')))"
+
+At f9665f4a3: 21,791 roots; written 10,696 (49.1%), derived 2,712 (12.4%), none 8,383 (38.5%); pass 8,169 (37.5%); example 293 (1.3%).
