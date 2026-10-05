@@ -1,6 +1,6 @@
 # DOCREFORM -- state after the pilot session of 2026-10-05 (handoff)
 
-Branch `docs/reform` (worktree `D:\GitHub\_wtd`), pushed to origin as `docs/reform-step2`. NOT on main: the push to main was refused by the auto-mode classifier and waits for the author. origin/main moves often (payments, security): rebase first, re-export if library sources changed.
+Branch `docs/reform` (worktree `D:\GitHub\_wtd`), pushed to origin as `docs/reform-pilot` (the older `docs/reform-step2` is the pre-rebase history and can be deleted). NOT on main: the push to main was refused by the auto-mode classifier and waits for the author. origin/main moves often (payments, security): rebase first, re-export if library sources changed.
 
 ## Done
 - Step 1: proposal (`DOCREFORM_PROPOSAL.md`), the five rulings in its section 6.
