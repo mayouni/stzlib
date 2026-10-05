@@ -2604,6 +2604,16 @@ func _StzInexactPlaces(pnA, pnB)
 
 class stzDecimalNumber from stzNumber
 
+# Holds one number, exact or rounded, and answers questions about it and its written form.
+#
+# A stzNumber keeps the number as text, with its own round (the decimals it prints), so what you put
+# in is what it holds. Reach for it when the value matters as a number AND as written: signs,
+# digits, bases, exactness. For plain arithmetic on many numbers use stzListOfNumbers.
+#
+#   receiver   o1 = new stzNumber(12)
+#   example    ? o1.IsDividableBy(4)
+#              #--> TRUE
+#   see        stzListOfNumbers, stzString, stzDecimalToBinary
 class stzNumber from stzObject
 
 	@cContent = ""
@@ -2864,7 +2874,15 @@ class stzNumber from stzObject
 	 #    CONTENT AND VALUE    #
 	#-------------------------#
 
-	# The number as it is held: a STRING (use NumericValue for the number).
+	# Returns the number as it is held: a string, exactly as given.
+	#
+	#   returns    a string; use NumericValue for a Ring number
+	#   see        NumericValue, StringValue
+	#   example    ? @@( o1.Content() )
+	#              #--> "12"
+	#              o1 = new stzNumber("007.50")
+	#              ? @@( o1.Content() )
+	#              #--> "007.50"
 	def Content()
 		return @cContent
 
@@ -2882,7 +2900,15 @@ class stzNumber from stzObject
 	def InitialContent()
 		return @pInitialValue
 
-	# A new stzNumber with the same content.
+	# Returns a new stzNumber with the same content, so the copy can change without touching this one.
+	#
+	#   returns    a new stzNumber
+	#   example    o2 = o1.Copy()
+	#              o2.Add(1)
+	#              ? o1.Content()
+	#              #--> 12
+	#              ? o2.Content()
+	#              #--> 13
 	def Copy()
 		_oCopy_ = new stzNumber( This.Content() )
 		return _oCopy_
@@ -2940,7 +2966,14 @@ class stzNumber from stzObject
 			return This.Content()
 		ok
 
-	# The number as a Ring number.
+	# Returns the number as a Ring number, an approximation when the content is a fraction.
+	#
+	#   returns    a number
+	#   note       a fraction such as 1/3 is divided out, so the result is an approximation of an
+	#              exact value
+	#   see        Content, StringValue
+	#   example    ? o1.NumericValue() + 1
+	#              #--> 13
 	def NumericValue()
 		# a fraction has to be divided out before it can be an f64 -- and the
 		# result is an APPROXIMATION of an exact value, which is the whole reason
@@ -2961,7 +2994,17 @@ class stzNumber from stzObject
 		def NumbericValue()
 			return This.NumericValue()
 
-	# The number as a string (rendered with its round).
+	# Returns the number as a string, rounded to the number's own round (2 decimals by default).
+	#
+	#   returns    a string
+	#   warning    the call also replaces the held content by the rounded text: after it, Content
+	#              returns 3.14, not 3.14159
+	#   see        Content, NumericValue, Round
+	#   example    o1 = new stzNumber(3.14159)
+	#              ? o1.StringValue()
+	#              #--> 3.14
+	#              ? o1.Content()
+	#              #--> 3.14
 	def StringValue()
 
 		# Memorizing the current round (to reset it before leaving)
@@ -3162,6 +3205,14 @@ class stzNumber from stzObject
 		("integer part of floating point value out of bounds"), which
 		no try/catch can hold. A legible refusal beats a crash.
 	*/
+	# Returns the number read as a Unicode codepoint, and raises when it is not one.
+	#
+	#   returns    the number itself, when it is a whole number from 0 to 1114111
+	#   warning    a fraction or a number outside the Unicode range raises an error
+	#   see        Unicodes
+	#   example    o1 = new stzNumber(65)
+	#              ? o1.Unicode()
+	#              #--> 65
 	def Unicode()
 		_n_ = This.NumericValue()
 		if _n_ != floor(_n_)
@@ -3175,15 +3226,18 @@ class stzNumber from stzObject
 		ok
 		return _n_
 
-	# The codepoints of the number's WRITTEN FORM, digit by digit:
-	# 65 -> [ 54, 53 ], the codepoints of '6' and '5'. A different
-	# question from Unicode() above, despite the singular/plural
-	# names -- that one reads the number AS a codepoint.
+	# Returns the codepoints of the number's written form, one per digit.
 	#
-	# Chars(), not ToChars(): StringValueQ() hands back an stzString,
-	# and ToChars() lives on stzStringUnicodeList -- so this raised
-	# R14 for every caller until 2026-08-02.
+	#   returns    a list of numbers: 65 gives the codepoints of the characters 6 and 5
+	#   note       a different question from Unicode, which reads the number itself as a codepoint
+	#   see        Unicode
+	#   example    o1 = new stzNumber(65)
+	#              ? @@( o1.Unicodes() )
+	#              #--> [ 54, 53 ]
 	def Unicodes()
+		# Chars(), not ToChars(): StringValueQ() hands back an stzString,
+		# and ToChars() lives on stzStringUnicodeList -- so this raised
+		# R14 for every caller until 2026-08-02.
 		_acChars_ = This.StringValueQ().Chars()
 		_anResult_ = StzListOfCharsQ(_acChars_).Unicodes()
 		return _anResult_
@@ -3192,6 +3246,14 @@ class stzNumber from stzObject
 	 #  CHECKING IF THE NUMBER IS DIGIT  #
 	#-----------------------------------#
 
+	# TRUE if the number is a single digit, from 0 to 9.
+	#
+	#   returns    TRUE or FALSE
+	#   example    ? o1.IsADigit()
+	#              #--> FALSE
+	#              o1 = new stzNumber(7)
+	#              ? o1.IsADigit()
+	#              #--> TRUE
 	def IsADigit()
 		_n_ = This.NumericValue()
 		if 0 <= _n_ and _n_ <= 9
@@ -3469,7 +3531,16 @@ class stzNumber from stzObject
 	 #    BOUNDNESS    #
 	#-----------------#
 
-	# TRUE if the number lies between n1 and n2.
+	# TRUE if the number lies between the two given numbers, bounds included.
+	#
+	#   _n1_       the lower bound, a number or a number written as text
+	#   _n2_       the upper bound, in the same forms
+	#   returns    TRUE or FALSE
+	#   see        IsBetween
+	#   example    ? o1.IsBoundedBy(12, 20)
+	#              #--> TRUE
+	#              ? o1.IsBoundedBy(13, 20)
+	#              #--> FALSE
 	def IsBoundedBy(_n1_, _n2_)
 		if CheckingParams()
 			if NOT ( @IsStringOrNumber(_n1_) and @IsStringOrNumber(_n2_) )
@@ -3706,6 +3777,19 @@ class stzNumber from stzObject
 			return 0
 		ok
 
+	# TRUE if the number carries no sign or a plus sign.
+	#
+	#   returns    TRUE or FALSE
+	#   note       zero counts as positive
+	#   see        Sign
+	#   example    ? o1.IsPositive()
+	#              #--> TRUE
+	#              o1 = new stzNumber(-12)
+	#              ? o1.IsPositive()
+	#              #--> FALSE
+	#              o1 = new stzNumber(0)
+	#              ? o1.IsPositive()
+	#              #--> TRUE
 	#@ aka  above zero, greater than zero, plus, positive sign
 	def IsPositive()
 		if This.IsNotSigned() or This.Sign() = "+"
@@ -3726,7 +3810,19 @@ class stzNumber from stzObject
 	 #    SIGN    #
 	#------------#
 	
-	# The sign of the number: "+", "-" or "" for zero.
+	# Returns the sign written in front of the number, or an empty string when there is none.
+	#
+	#   returns    "+", "-" or an empty string
+	#   note       the sign is read from the written form: 12 has no sign, +12 has one
+	#   see        IsPositive
+	#   example    ? @@( o1.Sign() )
+	#              #--> ""
+	#              o1 = new stzNumber("+12")
+	#              ? @@( o1.Sign() )
+	#              #--> "+"
+	#              o1 = new stzNumber(-12)
+	#              ? @@( o1.Sign() )
+	#              #--> "-"
 	def Sign()
 
 		_oStr_ = new stzString(This.Content())
@@ -3798,6 +3894,17 @@ class stzNumber from stzObject
 	 #    COMPARAISON    #
         #-------------------#
 	
+	# TRUE if the number is equal to the given one, compared at this number's round.
+	#
+	#   pOtherNumber   a number, or a number written as text
+	#   returns        TRUE or FALSE; FALSE when the argument is not a number
+	#   see            IsEqual, IsBetween
+	#   example        ? o1.IsEqualTo(12)
+	#                  #--> TRUE
+	#                  ? o1.IsEqualTo("12.0")
+	#                  #--> TRUE
+	#                  ? o1.IsEqualTo("abc")
+	#                  #--> FALSE
 	def IsEqualTo(pOtherNumber)
 
 		if NOT @IsNumberOrNumberInString(pOtherNumber)
@@ -3813,8 +3920,16 @@ class stzNumber from stzObject
 
 		return _bResult_
 
+		# TRUE if the number is equal to the given one, which may be given as :To = n.
+		#
+		#   pOtherNumber   a number, a number written as text, or the named form :To = n
+		#   returns        TRUE or FALSE
+		#   see            IsEqualTo
+		#   example        ? o1.IsEqual(12)
+		#                  #--> TRUE
+		#                  ? o1.IsEqual(:To = 13)
+		#                  #--> FALSE
 		#< @FunctionAlternativeForms
-
 		def IsEqual(pOtherNumber)
 			if isList(pOtherNumber) and Q(pOtherNumber).IsToNamedParam()
 				pOtherNumber = pOtherNumber[2]
@@ -4102,10 +4217,20 @@ class stzNumber from stzObject
 		def IsStrictlyEqualOrBiggerThan(pOtherNumber)
 			return This.IsStrictlyGreater(pOtherNumber)
 
+	# TRUE if the number lies strictly between the two given numbers, bounds excluded.
+	#
+	#   pNumber1   the lower bound, a number or a number written as text
+	#   pNumber2   the upper bound, in the same forms
+	#   returns    TRUE or FALSE
+	#   note       the bounds themselves do not count: IsBetweenIB includes them
+	#   see        IsBoundedBy, IsEqualTo
+	#   example    ? o1.IsBetween(10, 20)
+	#              #--> TRUE
+	#              ? o1.IsBetween(12, 20)
+	#              #--> FALSE
+	#              ? o1.IsBetweenIB(12, 20)
+	#              #--> TRUE
 		#>
-
-	# TRUE if the number lies between the two given numbers (bounds
-	# included).
 	def IsBetween(pNumber1, pNumber2)
 
 		if CheckingParams()
@@ -4723,13 +4848,16 @@ class stzNumber from stzObject
 	def IsRational()
 		return This.Representation() = :rational
 
-	  #-- EXACTNESS (numeric foundation phase 1) --------------------------
-	  #
-	  # Numeric surprise is almost always about a frame the caller could not see:
-	  # a rounding, a binary-float representation, a division that does not
-	  # terminate. So the number carries that fact rather than making you deduce
-	  # it -- the same habit as the natural layer's evidential register.
-
+	# TRUE unless an operation on the number lost precision, such as a division that does not terminate.
+	#
+	#   returns    TRUE or FALSE
+	#   see        WhyNotExact
+	#   example    ? o1.IsExact()
+	#              #--> TRUE
+	#              o1 = new stzNumber(1)
+	#              o1.DivideBy(3)
+	#              ? o1.IsExact()
+	#              #--> FALSE
 	#@ aka  is it exact, was anything lost, is this precise
 	def IsExact()
 		return @cExactness = :exact
@@ -4737,8 +4865,18 @@ class stzNumber from stzObject
 	def IsApproximate()
 		return NOT This.IsExact()
 
-	# Empty when the value is exact; otherwise a plain sentence saying what was
-	# lost and where.
+	# Returns a plain sentence saying what was lost and where, or an empty string when the value is exact.
+	#
+	#   returns    a string; empty when IsExact is TRUE
+	#   see        IsExact
+	#   example    ? @@( o1.WhyNotExact() )
+	#              #--> ""
+	#              o1 = new stzNumber(1)
+	#              o1.DivideBy(3)
+	#              ? o1.IsExact()
+	#              #--> FALSE
+	#              ? @@( o1.WhyNotExact() )
+	#              #--> "the division does not terminate in 6 decimal place(s)"
 	#@ aka  why not exact, what was lost, explain the precision
 	def WhyNotExact()
 		return @cInexactReason
@@ -4782,6 +4920,12 @@ class stzNumber from stzObject
 		def IsSameAs(pOther)
 			return This.Same(pOther)
 
+	# Returns the round of the number: how many decimals it prints.
+	#
+	#   returns    a number
+	#   see        StringValue
+	#   example    ? o1.Round()
+	#              #--> 2
 	def Round()
 		return @nRound
 
@@ -5002,8 +5146,15 @@ class stzNumber from stzObject
 	 #    ADDITION    #
 	#----------------#
 
-	# Add the given number to this one (mutating). For a copy, use
-	# Added.
+	# Adds the given number to this one, in place.
+	#
+	#   pOtherNumber   the number to add, or a number written as text
+	#   returns        nothing; the number changes. AddQ does the same and returns the object for
+	#                  chaining
+	#   see            MultiplyBy, Increment
+	#   example        o1.Add(8)
+	#                  ? o1.Content()
+	#                  #--> 20
 	#@ aka  plus, sum, increase, increment
 	def Add(pOtherNumber)
 		_StzHistoOpen(This.NumericValue())
@@ -5345,6 +5496,13 @@ class stzNumber from stzObject
 		def PreviousNumberQ()
 			return new stzNumber(This.PreviousNumber())
 
+	# Adds 1 to the number, in place.
+	#
+	#   returns    nothing; the number changes. IncrementQ returns the object for chaining
+	#   see        Add
+	#   example    o1.Increment()
+	#              ? o1.Content()
+	#              #--> 13
 	def Increment()
 		This.Add(1)
 
@@ -5373,6 +5531,14 @@ class stzNumber from stzObject
 	 #    MULTIPLYING THE NUMBER BY AN OTHER NUMBER    #
 	#-------------------------------------------------#
 
+	# Multiplies this number by the given one, in place.
+	#
+	#   pOtherNumber   the factor, or a list of factors (then MultiplyByMany does the work)
+	#   returns        nothing; the number changes
+	#   see            Add, Inverse
+	#   example        o1.MultiplyBy(3)
+	#                  ? o1.Content()
+	#                  #--> 36
 	def MultiplyBy(pOtherNumber)
 
 		if CheckingParams()
@@ -5893,9 +6059,15 @@ class stzNumber from stzObject
 		def CommonGreatestDividor(pOtherNumber)
 			return This.GreatestCommonDividor(pOtherNumber)
 	
-	# INVERSE
-
-	# The multiplicative inverse (1/n) of the number (mutating).
+	# Returns the inverse of the number, 1 divided by the number, and leaves the number unchanged.
+	#
+	#   returns    a number
+	#   see        MultiplyBy
+	#   example    o1 = new stzNumber(4)
+	#              ? o1.Inverse()
+	#              #--> 0.25
+	#              ? o1.Content()
+	#              #--> 4
 	def Inverse()
 		return This.pvtCalculate( "inverse", "" )
 
@@ -6258,9 +6430,14 @@ class stzNumber from stzObject
 		def MultiplesUnder(pOtherNumber)
 			return This.MultiplesUntil(pOtherNumber)
 
-	# DIVIDABILITY
-
 	# TRUE if the number divides evenly by n.
+	#
+	#   n          the divisor, a number or a number written as text
+	#   returns    TRUE or FALSE
+	#   example    ? o1.IsDividableBy(4)
+	#              #--> TRUE
+	#              ? o1.IsDividableBy(5)
+	#              #--> FALSE
 	def IsDividableBy(n)
 		if CheckingParams()
 			if NOT @IsNumberOrString(n)
@@ -6361,12 +6538,16 @@ class stzNumber from stzObject
 		def ToHexFormQ()
 			return new stzHexNumber( This.ToHexForm() )
 
+		# Returns the number written in base 16, with the 0x prefix.
+		#
+		#   returns    a string such as 0xFF
+		#   see        ToBinaryForm, ToOctalForm
+		#   example    o1 = new stzNumber(255)
+		#              ? o1.ToHex()
+		#              #--> 0xFF
 		#>
-
 		#< @FunctionAlternativeForm
-
 		#@ aka  hexadecimal, hex, base 16
-		# The number in hexadecimal form.
 		def ToHex()
 			return ToHexForm()
 
@@ -6423,8 +6604,12 @@ class stzNumber from stzObject
 		def DecimalPartToHexForm()
 			return This.FractionalPartToHexForm()
   
-	# Converting decimal to binary form
-
+	# Returns the number written in base 2, with the 0b prefix.
+	#
+	#   returns    a string such as 0b1100
+	#   see        ToHex, ToOctalForm
+	#   example    ? o1.ToBinaryForm()
+	#              #--> 0b1100
 	def ToBinaryForm()
 		_oConversion_ = new stzDecimalToBinary(This.Content())
 		return _oConversion_.ToBinaryForm()
@@ -6500,7 +6685,13 @@ class stzNumber from stzObject
 		ok
 		return _cOut_
 
-	# The number in octal form (with prefix).
+	# Returns the number written in base 8, with its prefix.
+	#
+	#   returns    a string
+	#   see        ToBinaryForm, ToHex
+	#   example    o1 = new stzNumber(8)
+	#              ? o1.ToOctalForm()
+	#              #--> 0o10
 	def ToOctalForm()
 		return OctalNumberPrefix() + This.ToOctalFormWithoutPrefix()
 
@@ -6905,7 +7096,15 @@ class stzNumber from stzObject
 	def ContainsDigits()
 		return 1
 
-	# TRUE if the number contains the given digit.
+	# TRUE if the written form of the number contains the given digit or run of digits.
+	#
+	#   pcDigit    a digit, or a run of digits, given as text
+	#   returns    TRUE or FALSE
+	#   note       give the digit as text: Contains(2) with a number answers FALSE even for 12
+	#   example    ? o1.Contains("2")
+	#              #--> TRUE
+	#              ? o1.Contains("5")
+	#              #--> FALSE
 	def Contains(pcDigit)
 		return StzFindFirst(pcDigit, This.Content()) > 0
 
@@ -7266,6 +7465,14 @@ class stzNumber from stzObject
 	 #    REMOVING SPACES FROM NUMBER   #
 	#----------------------------------#
 
+	# Removes the spaces inside the written form of the number, in place.
+	#
+	#   returns    nothing; the number changes
+	#   note       a number accepted by stzNumber holds no space, so on one built the usual way the
+	#              call changes nothing
+	#   example    o1.RemoveSpaces()
+	#              ? o1.Content()
+	#              #--> 12
 	def RemoveSpaces()
 		This.Update( This.ToStzString().SpacesRemoved() )
 
@@ -8009,7 +8216,11 @@ class stzNumber from stzObject
 	def IsStzNumber()
 		return 1
 
-	# The Softanza type symbol: :stzNumber.
+	# Returns the Softanza type symbol of the object, always :stzNumber.
+	#
+	#   returns    the symbol :stzNumber, which prints as stznumber
+	#   example    ? o1.stzType()
+	#              #--> stznumber
 	def stzType()
 		return :stzNumber
 
@@ -8020,6 +8231,13 @@ class stzNumber from stzObject
 		return 1
 	
 	# TRUE if the number occurs in the given list.
+	#
+	#   paList     the list to look in
+	#   returns    TRUE or FALSE
+	#   example    ? o1.IsItemOf([ 3, 12, 40 ])
+	#              #--> TRUE
+	#              ? o1.IsItemOf([ 3, 40 ])
+	#              #--> FALSE
 	def IsItemOf(paList)
 		return ListContains(paList, This.NumericValue())
 		
@@ -8051,9 +8269,12 @@ class stzNumber from stzObject
 			def IsAMemberIn(paList)
 				return This.IsMemberOf(paList)
 	
+	# Always TRUE: the object holds a number, answered so a number can be told from a text.
+	#
+	#   returns    TRUE
+	#   example    ? o1.IsANumber()
+	#              #--> TRUE
 	#--- NUMBER
-	
-	# Always TRUE: the object holds a number.
 	def IsANumber()
 		return 1
 
@@ -8110,9 +8331,12 @@ class stzNumber from stzObject
 		def IsNotOneOfThese(paList)
 			return NOT This.IsOneOfThese(paList)
 	
+	# Always FALSE: a number is not a letter, answered so a number can stand where a character is expected.
+	#
+	#   returns    FALSE
+	#   example    ? o1.IsLetter()
+	#              #--> FALSE
 	#--- STRING
-	
-	# Always FALSE: a number is not a letter.
 	def IsLetter()
 		return 0
 	
