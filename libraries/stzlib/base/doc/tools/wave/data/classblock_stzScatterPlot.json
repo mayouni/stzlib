@@ -1,0 +1,15 @@
+{
+ "brief": "Draws points given as [ h, v ] pairs on two axes: as text for a terminal, as SVG, or as a PNG picture.",
+ "detail": "The points come as pairs, as two lists named H and V (or X and Y), or as labelled points. ToString draws a circle per point on ticked axes with the letters X and Y at the axis ends, and switches to the Ring renderer when the dashed grid or the point labels are on; ToSVG and ToPNG draw one circle per point and carry the coordinates and nothing else, so the grid, labels, letters, axis switches and point character do not reach pixels. The axis letters read the opposite of the usual way (X on the vertical axis), the text picture writes one x tick label per point so many points make them collide, and the pixel picture draws no x tick labels at all; see the warnings. Gallery: doc/gallery/stzScatterPlot/clusters.png (two clusters of 40 points) and negative.png (points around the origin), each with its script, seen wrong by stzlib-docs visual pass (a model reading the PNG), 2026-10-05, not a person because the horizontal axis carries no numbers; terminal.txt is the text picture of the clusters, read as text and judged wrong because the x tick labels run together.",
+ "receiver": "o1 = new stzScatterPlot([ [ 1, 4 ], [ 2, 9 ], [ 3, 6 ] ])",
+ "example": [
+  "? @@( o1.HValues() )",
+  "#--> [ 1, 2, 3 ]",
+  "? @@( o1.PointLabels() )",
+  "#--> [ \"P1\", \"P2\", \"P3\" ]"
+ ],
+ "see": [
+  "stzBarPlot",
+  "stzHistogram"
+ ]
+}

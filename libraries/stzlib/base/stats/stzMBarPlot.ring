@@ -3,6 +3,27 @@ class stzMultiBarChart from stzMBarPlot
 class stzMBarChart from stzMBarPlot
 
 class stzMultiBarPlot from stzMBarPlot
+# Draws several series of numbers over the same categories as grouped bars, with a legend.
+#
+# The data is a hash list of series, each series a hash list of category = number pairs, such as
+# :Sales = [ :Q1 = 25, :Q2 = 35 ]. Categories come from the first series. ToString draws one cluster
+# of bars per category with a different character for each series and a legend line; ToSVG and ToPNG
+# draw coloured bars and a legend, with no values above the bars. It inherits the axis, label and
+# size settings of stzBarPlot. The average line raises an error in every form, SetLegendLayout is
+# obeyed only by ToStringInRing, and AddValues draws nothing in the text picture; see the warnings.
+# Gallery: doc/gallery/stzMBarPlot/quarters.png (three series over four quarters), seen right by
+# stzlib-docs visual pass (a model reading the PNG), 2026-10-05, not a person; twoseries.png (two
+# series over six months), seen uncertain by the same pass because the legend touches the last bar;
+# terminal.txt is the text picture, read as text and judged right. The pixel labels are in lower
+# case, the text ones capitalised.
+#
+#   receiver   o1 = new stzMBarPlot([ :Sales = [ :Q1 = 25, :Q2 = 35 ], :Costs = [ :Q1 = 15, :Q2 = 20
+#              ] ])
+#   example    ? o1.SeriesCount()
+#              #--> 2
+#              ? @@( o1.Categories() )
+#              #--> [ "q1", "q2" ]
+#   see        stzBarPlot, stzHBarPlot
 class stzMBarPlot from stzBarPlot
 
 	# Multi-series data properties
@@ -22,6 +43,17 @@ class stzMBarPlot from stzBarPlot
 	# Default series characters
 	@acDefaultSeriesChars = [char(226) + char(150) + char(136), char(226) + char(150) + char(146), char(226) + char(150) + char(147), char(226) + char(150) + char(145), char(226) + char(150) + char(140), char(226) + char(150) + char(144), char(226) + char(150) + char(128), char(226) + char(150) + char(132)]
 
+	# Builds a grouped bar plot from series of category = number pairs; raises an error for any other data.
+	#
+	#   paMultiSeriesData   The series, such as [ :Sales = [ :Q1 = 25, :Q2 = 35 ], :Costs = [ :Q1 =
+	#                       15, :Q2 = 20 ] ]
+	#   returns             nothing; the plot is built
+	#   note                a series that is not a hash list raises "Each series must be a hashlist
+	#                       of category:value pairs" and a negative or non-number value raises "All
+	#                       values must be positive numbers"
+	#   warning             Categories come from the first series only, so a later series with other
+	#                       category names is drawn under the first series' names
+	#   see                 SeriesNames, Categories, SeriesData
 	def init(paMultiSeriesData)
 		if not isList(paMultiSeriesData)
 			StzRaise("Multi-series dataset must be a list")
@@ -30,10 +62,18 @@ class stzMBarPlot from stzBarPlot
 		_processMultiSeriesData(paMultiSeriesData)
 		_calculateMultiSeriesMetrics()
 
-	#-- the PIXEL tiers (GR6c) --------------------------------------------
-	# Grouped bars: one cluster per category, one bar per series, with the
-	# legend a multi-series chart cannot be read without. Series names and
-	# categories come from the model, so the legend cannot go stale.
+	# Draws the series as grouped bars with a legend on a new canvas and answers it, so the plot can become SVG or PNG.
+	#
+	#   paOptions   A list of options [ :Width = , :Height = , :Title = , :Font = an stzFont, :Color
+	#               = , :Background = , :Grid = , :ShowAverage = , :Min = , :Max = ]
+	#   returns     an stzCanvas holding the picture
+	#   note        the legend is always drawn, no values are written above the bars, and
+	#               :ShowAverage = 1 adds an average line that the text picture cannot
+	#   warning     Only the series names, the categories and the values carry over to pixels, so
+	#               the legend switch, the bar characters, the spacing and the sizes set on this
+	#               object do not
+	#   see         ToSVG, ToPNG
+	#@ aka  -- the PIXEL tiers (GR6c) -------------------------------------------- Grouped bars: one cluster per category, one bar per series, with the legend a multi-series chart cannot be read without. Series names and categories come from the model, so the legend cannot go stale.
 	def ToCanvasQ(paOptions)
 		_aSeries_ = []
 		_nL_ = len(@aSeriesData)
@@ -43,6 +83,13 @@ class stzMBarPlot from stzBarPlot
 		next
 		return StzPlotCanvasQ(:MultiBar, _aSeries_, @acCategories, paOptions)
 
+	# Returns the grouped bars as SVG text, with no graphics device needed.
+	#
+	#   paOptions   A list of options [ :Width = , :Height = , :Title = , :Font = an stzFont, ... ],
+	#               as for ToCanvasQ
+	#   returns     the SVG document as a string
+	#   note        the default size is 900 by 500 and text needs a Font
+	#   see         ToCanvasQ, ToPNG
 	def ToSVG(paOptions)
 		# the canvas is TRANSIENT: its engine scene (a target texture on the GPU
 		# tier, vertex buffers, the command list) is freed once the answer is taken --
@@ -52,6 +99,13 @@ class stzMBarPlot from stzBarPlot
 		_oCv_.Free()
 		return _cOut_
 
+	# Draws the grouped bars on the graphics device and returns the PNG bytes, writing them to a file when a path is given.
+	#
+	#   pcPath      The file to write, or an empty text to write none
+	#   paOptions   A list of options [ :Width = , :Height = , :Title = , :Font = an stzFont, ... ],
+	#               as for ToCanvasQ
+	#   returns     the PNG bytes as a string, empty when no device is available
+	#   see         ToSVG, ToCanvasQ
 	def ToPNG(pcPath, paOptions)
 		# the canvas is TRANSIENT: its engine scene (a target texture on the GPU
 		# tier, vertex buffers, the command list) is freed once the answer is taken --
@@ -136,8 +190,14 @@ class stzMBarPlot from stzBarPlot
 
 		@nAverage = iff(_nTotalValues_ > 0, @nSum / _nTotalValues_, 0)
 
+	# Sets the character each series is drawn with, in series order; a series whose entry is not a single character keeps its own.
+	#
+	#   acChars    A list of single characters, one per series, the extra ones being ignored
+	#   returns    nothing; the plot changes
+	#   note       the defaults are the block characters, cycling after eight series and a non-list
+	#              is ignored
+	#   see        SeriesData, SetBarsChars
 	# --- Configuration Methods ---
-
 	def SetSeriesChars(acChars)
 		if not isList(acChars)
 			return
@@ -149,34 +209,91 @@ class stzMBarPlot from stzBarPlot
 			ok
 		next
 
+		# Sets the character each series is drawn with, under another name.
+		#
+		#   acChars    A list of single characters, one per series
+		#   returns    nothing; the plot changes
+		#   see        SetSeriesChars
 		def SetBarsChars(acChars)
 			This.SetSeriesChars(acChars)
 
 
+	# Sets how many blank columns separate the bars of one category.
+	#
+	#   n          The number of blank columns, raised to 0 when negative
+	#   returns    nothing; the plot changes
+	#   note       with 0 the bars of a category touch and the default is 1
+	#   see        SetCategorySpace
 	def SetSeriesSpace(n)
 		@nSeriesSpace = max([0, n])
 
+		# Sets how many blank columns separate the bars of one category, under the bar name.
+		#
+		#   n          The number of blank columns, raised to 0 when negative
+		#   returns    nothing; the plot changes
+		#   see        SetSeriesSpace
 		def SetBarInterSpace(n)
 			This.SetSeriesSpace(n)
 
+		# Sets how many blank columns separate the bars of one category, under a shorter name.
+		#
+		#   n          The number of blank columns, raised to 0 when negative
+		#   returns    nothing; the plot changes
+		#   see        SetSeriesSpace
 		def SetBarSpace(n)
 			This.SetSeriesSpace(n)
 
+		# Sets how many blank columns separate the bars of one category, in the other word order.
+		#
+		#   n          The number of blank columns, raised to 0 when negative
+		#   returns    nothing; the plot changes
+		#   see        SetSeriesSpace
 		def SetInterBarSpace(n)
 			This.SetSeriesSpace(n)
 
+	# Sets how many blank columns separate one category's group of bars from the next.
+	#
+	#   n          The number of blank columns, raised to 1 when smaller
+	#   returns    nothing; the plot changes
+	#   note       the default is 2
+	#   see        SetSeriesSpace
 	def SetCategorySpace(n)
 		@nCategorySpace = max([1, n])
 
+		# Sets how many blank columns separate one category's group of bars from the next, under the longer name.
+		#
+		#   n          The number of blank columns, raised to 1 when smaller
+		#   returns    nothing; the plot changes
+		#   see        SetCategorySpace
 		def SetCategoryInterSpace(n)
 			This.SetCategorySpace(n)
 
+	# Shows or hides the legend line that pairs each series' character with its name under the plot.
+	#
+	#   bShow      1 to show the legend, 0 to hide it
+	#   returns    nothing; the plot changes
+	#   note       it is shown by default
+	#   see        AddLegend, SetLegendLayout
 	def SetLegend(bShow)
 		@bShowLegend = bShow
 
+		# Shows the legend line that pairs each series' character with its name.
+		#
+		#   returns    nothing; the plot changes
+		#   see        SetLegend
 		def AddLegend()
 			@bShowLegend = 1
 
+	# Chooses whether the legend runs along one line or down one line per series, but only ToStringInRing obeys.
+	#
+	#   cLayout    The layout, in lower case: "horizontal", "vertical" or "h", "v" (or the symbols
+	#              :Horizontal and :Vertical)
+	#   returns    nothing; ToStringInRing changes
+	#   note       any other value raises "Incorrect legend layout value! Must be 'horizontal' or
+	#              'vertical'."
+	#   warning    ToString and the pixel output always draw the legend on one line, and
+	#              "Horizontal" or "H" with a capital raise the layout error
+	#   see        SetLegend, ToStringInRing
 	def SetLegendLayout(cLayout)
 		if NOT StzFindFirst(cLayout, [:Horizontal, :Vertical, "horizontal", "vertical", "h", "v"])
 			stzRaise("Incorrect legend layout value! Must be 'horizontal' or 'vertical'.")
@@ -189,15 +306,39 @@ class stzMBarPlot from stzBarPlot
 		ok
 
 
+	# Raises the error "Unsupported feature in the current version." instead of drawing an average line.
+	#
+	#   bShow      Ignored, since the call raises before reading it
+	#   returns    nothing; it always raises an error
+	#   note       the single-series plot has a working average line
+	#   warning    Raises an error for every argument: the average line was never built for grouped
+	#              bars
+	#   see        AddAverage
 	def SetAverage(bShow)
 		StzRaise("Unsupported feature in the current version.")
 
+		# Raises the error "Unsupported feature in the current version." instead of drawing an average line, under the Line name.
+		#
+		#   bShow      Ignored, since the call raises before reading it
+		#   returns    nothing; it always raises an error
+		#   warning    Raises an error for every argument
+		#   see        SetAverage
 		def SetAverageLine(bShow)
 			This.SetAverage(bShow)
 
+		# Raises the error "Unsupported feature in the current version." instead of drawing an average line.
+		#
+		#   returns    nothing; it always raises an error
+		#   warning    Raises an error whatever the data
+		#   see        SetAverage
 		def AddAverage()
 			This.SetAverage(1)
 
+		# Raises the error "Unsupported feature in the current version." instead of drawing an average line, under the Line name.
+		#
+		#   returns    nothing; it always raises an error
+		#   warning    Raises an error whatever the data
+		#   see        AddAverage
 		def AddAverageLine()
 			This.SetAverage(1)
 
@@ -577,19 +718,15 @@ class stzMBarPlot from stzBarPlot
 			next
 		ok
 
+	# Returns the grouped bars as text, one cluster per category, with the category names under them and the legend below.
+	#
+	#   returns    a multi-line string
+	#   note       values and percentages are not drawn here even after AddValues, and the legend is
+	#              always on one line
+	#   warning    Raises an error when the engine cannot render the plot
+	#   see        Show, ToStringInRing, ToSVG
 	# --- Override Main Methods ---
-
-	# THE GROUPED PICTURE, rendered by the engine.
-	#
-	# Three subclasses inherit this method -- stzMultiBarChart, stzMBarChart and
-	# stzMultiBarPlot -- so they all move together, which is the SAFE direction.
-	# The unsafe direction is a subclass inheriting a BASE method that moved: that
-	# is how stzHBarPlot started drawing vertical bars.
-	#
-	# THE LEGEND SETS THE WIDTH here, which is why it cannot be left to a host to
-	# bolt on afterwards: three series named Sales, Costs and Profit need 31
-	# columns of legend under a chart whose bars occupy 32, and a fourth series
-	# would make the legend the wider of the two. The engine lays out both together.
+	#@ aka  THE GROUPED PICTURE, rendered by the engine.
 	def ToString()
 		if @nSeries = 0
 			return ""
@@ -650,8 +787,12 @@ class stzMBarPlot from stzBarPlot
 		ok
 		return _cOut_
 
-	# The Ring renderer this was ported from, kept so the guard can prove the two
-	# agree character for character.
+	# Returns the grouped bars as text drawn by the Ring code the engine renderer was ported from.
+	#
+	#   returns    a multi-line string
+	#   note       it obeys SetLegendLayout, which ToString does not
+	#   see        ToString
+	#@ aka  The Ring renderer this was ported from, kept so the guard can prove the two agree character for character.
 	def ToStringInRing()
 		if @nSeries = 0
 			return ""
@@ -669,19 +810,40 @@ class stzMBarPlot from stzBarPlot
 
 		return _canvasToString()
 
+	# Returns the name of each series, in order, as the keys were stored.
+	#
+	#   returns    a list of text
+	#   note       the names come back in lower case and the picture capitalises them
+	#   see        Categories, SeriesData
 	# --- Multi-Series Accessors ---
-
 	def SeriesNames()
 		return @acSeriesNames
 
+	# Returns the name of each category, taken from the first series.
+	#
+	#   returns    a list of text
+	#   note       the names come back in lower case and the picture capitalises them
+	#   see        SeriesNames, CategoryCount
 	def Categories()
 		return @acCategories
 
+	# Returns one record per series holding its name, its categories, its values and its drawing character.
+	#
+	#   returns    a list of hash lists with the keys seriesname, categories, values and char
+	#   see        SeriesNames, SetSeriesChars
 	def SeriesData()
 		return @aSeriesData
 
+	# Returns how many series the plot holds.
+	#
+	#   returns    a number
+	#   see        SeriesNames, CategoryCount
 	def SeriesCount()
 		return @nSeries
 
+	# Returns how many categories the plot holds.
+	#
+	#   returns    a number
+	#   see        Categories, SeriesCount
 	def CategoryCount()
 		return @nCategories

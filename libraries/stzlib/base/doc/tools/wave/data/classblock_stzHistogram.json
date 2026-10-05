@@ -1,0 +1,16 @@
+{
+ "brief": "Bins a list of numbers into equal-width classes and draws the counts, or another aggregate, as touching bars.",
+ "detail": "Built from raw measurements, it cuts the range into 5 or more bins by Sturges' rule, or into the number SetBinCount gives, and each bar shows how many values fall in its bin; UseSum, UseAverage, UseMin and UseMax make it show another aggregate. ToString draws the text picture (bin edges in two rows under the bars), ToSVG and ToPNG the pixel picture; Mean, StandardDeviation, Median, Mode and DataCount describe the data. The text picture is drawn by the engine, except when statistics are on or the horizontal axis is off, when the slower Ring renderer takes over and obeys SetHeight, SetMaxWidth and AddValues, which the engine route ignores. SetBinRange gives the wrong number of bins, SetAggregation with an unknown name leaves the histogram unusable, and the X and Y axis names are the reverse of the usual ones; see the warnings. Gallery: doc/gallery/stzHistogram/normal.png (200 values, 9 bins), bins20.png (20 bins) and sums.png (UseSum), each with its script, seen right by stzlib-docs visual pass (a model reading the PNG), 2026-10-05, not a person; terminal.txt is the text picture, read as text and judged right.",
+ "receiver": "o1 = new stzHistogram([ 12, 15, 18, 22, 23, 25, 26, 27, 28, 30, 31, 33, 35, 38, 41, 45, 52, 58, 61, 70 ])",
+ "example": [
+  "? o1.DataCount()",
+  "#--> 20",
+  "? @@( o1.Mode() )",
+  "#--> [ 21.67, 31.33 ]"
+ ],
+ "see": [
+  "stzBarPlot",
+  "stzDataSet",
+  "stzListOfNumbers"
+ ]
+}

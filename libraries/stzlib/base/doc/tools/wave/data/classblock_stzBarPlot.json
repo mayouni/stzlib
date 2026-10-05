@@ -1,0 +1,17 @@
+{
+ "brief": "Draws a list of numbers, or labelled numbers, as vertical bars: as text for a terminal, as SVG, or as a PNG picture.",
+ "detail": "One plot object answers three ways. ToString (and Show) draws block characters, axes and labels in text; ToSVG needs no graphics device; ToPNG draws on the GPU. The setters (height, bar width and spacing, axes, labels, values, percentages, average line, characters) shape the text picture only: the SVG and PNG carry the values, the labels, AddValues and AddAverage and nothing else, and print no text unless a :Font option is given. Bars are scaled so the largest value fills the height. Setters answer nothing, so they cannot be chained. stzHBarPlot (sideways bars) and stzMBarPlot (grouped bars) inherit from it. Several settings store a value no picture reads today (SetWidth, SetMaxWidth and the width of SetSize), SetMaxLabelWidth does not truncate, and SetLabelChar renames labels taken from the keys; see their warnings. Gallery: doc/gallery/stzBarPlot/basic.png (average line), values.png (values above twelve bars) and nofont.png (no font: bars and gridlines only), each with its .ring script, seen right by stzlib-docs visual pass (a model reading the PNG), 2026-10-05, not a person; terminal.txt is the text picture, read as text and judged right.",
+ "receiver": "o1 = new stzBarPlot([ :Jan = 34, :Feb = 58, :Mar = 47 ])",
+ "example": [
+  "? @@( o1.Values() )",
+  "#--> [ 34, 58, 47 ]",
+  "? @@( o1.Labels() )",
+  "#--> [ \"Jan\", \"Feb\", \"Mar\" ]"
+ ],
+ "see": [
+  "stzHBarPlot",
+  "stzMBarPlot",
+  "stzHistogram",
+  "stzCanvas"
+ ]
+}

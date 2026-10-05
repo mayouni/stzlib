@@ -7,6 +7,24 @@ class stzSurfaceChart from stzSurfacePlot
 class stzSquareChart from stzSurfacePlot
 class stzSquarePlot from stzSurfacePlot
 
+# Draws parts of a whole as a treemap whose cell areas are proportional to the values: as text, SVG or PNG.
+#
+# Despite its name it draws no function surface: it is a composition plot. The data is positive
+# numbers, or label = number pairs, and the largest values get the largest cells. ToString draws
+# box-drawing borders with a name centred in each cell; ToSVG and ToPNG draw coloured rectangles
+# with the name and the share of the total, which :ShowValues = 0 removes. Setters answer the plot
+# itself so calls can be chained, unlike the other plot classes. In the text picture a name wider
+# than its cell is cut at both ends (Support reads upp.), values and percentages together run into
+# each other, and in the pixel picture parts too small for a label get none; see the warnings.
+# Gallery: doc/gallery/stzSurfacePlot/budget.png (five departments), seen right by stzlib-docs
+# visual pass (a model reading the PNG), 2026-10-05, not a person; manyparts.png (twelve parts,
+# seven with no label), seen uncertain by the same pass; terminal.txt is the text picture, read as
+# text and judged wrong because a label is clipped.
+#
+#   receiver   o1 = new stzSurfacePlot([ :Eng = 45, :Sales = 25, :Admin = 10 ])
+#   example    ? o1.Sum([ 1, 2, 3 ])
+#              #--> 6
+#   see        stzBarPlot, stzHistogram
 class stzSurfacePlot from stzObject
 
 	@bShowPercent = 0
@@ -41,11 +59,16 @@ class stzSurfacePlot from stzObject
 	@anValues = []
 	@acLabels = []
 	@acCanvas = []
-	# NO LEGEND HERE. There were three public ways to ask for one --
-	# AddLegend(), SetLegend(), IncludeLegend() -- all writing a flag that
-	# nothing read, and an @aLegend list nothing filled. A surface plot has
-	# never drawn a legend. stzMBarPlot has a real one if you need the shape.
-
+# Builds a treemap whose cell areas are proportional to the values, from positive numbers or label = number pairs.
+#
+#   paData     The parts of the whole: a list of positive numbers (labelled 1, 2, 3 ...), or pairs
+#              such as [ :Sales = 25, :Admin = 10 ]
+#   returns    nothing; the plot is built
+#   note       it is not a function surface: it draws shares of a total
+#   warning    Zero and negative values raise "You must provide only positive numbers", and an empty
+#              list is accepted but its picture then raises "the engine could not render this plot"
+#   see        Sum, ToString
+#@ aka  NO LEGEND HERE. There were three public ways to ask for one -- AddLegend(), SetLegend(), IncludeLegend() -- all writing a flag that nothing read, and an @aLegend list nothing filled. A surface plot has never drawn a legend. stzMBarPlot has a real one if you need the shape.
 def init(paData)
 	if NOT isList(paData)
 		raise("Can't create the stzSquareChart object! paData must be a list.")
@@ -80,13 +103,27 @@ def init(paData)
 	@nSum = Sum(@anValues)	
 	_calculateSquaremap()
 
-	#-- the PIXEL tiers (GR6c) --------------------------------------------
-	# A surface chart is a COMPOSITION: area is the value. Drawn as a
-	# treemap, so the picture is the proportion rather than a legend a
-	# reader has to convert.
+	# Draws the parts as a treemap on a new canvas, each rectangle's area proportional to its value, and answers it.
+	#
+	#   paOptions   A list of options [ :Width = , :Height = , :Title = , :Font = an stzFont,
+	#               :ShowValues = ]
+	#   returns     an stzCanvas holding the picture
+	#   note        each cell carries its name and its share of the total unless :ShowValues = 0
+	#               removes all text, and without a Font option there is none anyway
+	#   warning     Percent, value, border and label switches set on this object do not carry over
+	#               to pixels
+	#   see         ToSVG, ToPNG
+	#@ aka  -- the PIXEL tiers (GR6c) -------------------------------------------- A surface chart is a COMPOSITION: area is the value. Drawn as a treemap, so the picture is the proportion rather than a legend a reader has to convert.
 	def ToCanvasQ(paOptions)
 		return StzPlotCanvasQ(:Treemap, @anValues, @acLabels, paOptions)
 
+	# Returns the treemap as SVG text, with one rectangle per part and no graphics device needed.
+	#
+	#   paOptions   A list of options [ :Width = , :Height = , :Title = , :Font = an stzFont, ... ],
+	#               as for ToCanvasQ
+	#   returns     the SVG document as a string
+	#   note        the default size is 900 by 500 and text needs a Font
+	#   see         ToCanvasQ, ToPNG
 	def ToSVG(paOptions)
 		# the canvas is TRANSIENT: its engine scene (a target texture on the GPU
 		# tier, vertex buffers, the command list) is freed once the answer is taken --
@@ -96,6 +133,13 @@ def init(paData)
 		_oCv_.Free()
 		return _cOut_
 
+	# Draws the treemap on the graphics device and returns the PNG bytes, writing them to a file when a path is given.
+	#
+	#   pcPath      The file to write, or an empty text to write none
+	#   paOptions   A list of options [ :Width = , :Height = , :Title = , :Font = an stzFont, ... ],
+	#               as for ToCanvasQ
+	#   returns     the PNG bytes as a string, empty when no device is available
+	#   see         ToSVG, ToCanvasQ
 	def ToPNG(pcPath, paOptions)
 		# the canvas is TRANSIENT: its engine scene (a target texture on the GPU
 		# tier, vertex buffers, the command list) is freed once the answer is taken --
@@ -105,6 +149,13 @@ def init(paData)
 		_oCv_.Free()
 		return _cOut_
 
+	# Returns the total of a list of numbers, a helper the plot also uses on its own values.
+	#
+	#   anNumbers   The list of numbers to add up
+	#   returns     a number
+	#   note        0 for an empty list
+	#   warning     It adds the list given, not the plot's values, and a non-list raises R41
+	#   see         IsListOfNumbers
 	def Sum(anNumbers)
 		_nResult_ = 0
 		_nAnNumbers1Len_ = len(anNumbers)
@@ -114,6 +165,14 @@ def init(paData)
 		next
 		return _nResult_
 
+	# TRUE if every item of the list given is a number, which is also the case for an empty list.
+	#
+	#   aList      The list to test
+	#   returns    1 (TRUE) or 0 (FALSE)
+	#   note       an internal helper reachable as a method
+	#   warning    It tests the argument, not the plot, and answers 1 or 0 where the library's own
+	#              predicates answer TRUE and FALSE
+	#   see        IsListOfPositiveNumbers
 	def IsListOfNumbers(aList)
 		_nList3Len_ = len(aList)
 		for _iLoopList3_ = 1 to _nList3Len_
@@ -124,6 +183,13 @@ def init(paData)
 		next
 		return 1
 
+	# TRUE if every item of the list given is a number above zero, which is also the case for an empty list.
+	#
+	#   aList      The list to test
+	#   returns    1 (TRUE) or 0 (FALSE)
+	#   note       an internal helper reachable as a method
+	#   warning    It tests the argument, not the plot
+	#   see        IsListOfNumbers
 	def IsListOfPositiveNumbers(aList)
 		_nList2Len_ = len(aList)
 		for _iLoopList2_ = 1 to _nList2Len_
@@ -134,6 +200,14 @@ def init(paData)
 		next
 		return 1
 
+	# TRUE if the list given is not empty and every item is a list of exactly two items.
+	#
+	#   aList      The list to test
+	#   returns    1 (TRUE) or 0 (FALSE)
+	#   note       an internal helper reachable as a method
+	#   warning    It tests the argument, not the plot, and only the shape of the items, not their
+	#              types
+	#   see        IsListOfNumbers
 	def IsHashList(aList)
 		if len(aList) = 0
 			return 0
@@ -147,46 +221,105 @@ def init(paData)
 		next
 		return 1
 
+	# Writes each part's share of the total in its cell, such as 45%.
+	#
+	#   returns    the plot itself, so calls can be chained
+	#   note       the figure is cut when the cell is narrow
+	#   see        SetPercent, AddValues
 	def AddPercent()
 		@bShowPercent = 1
 		return This
 
+		# Shows or hides each part's share of the total in its cell.
+		#
+		#   bShow      1 to write the shares, 0 to stop
+		#   returns    the plot itself, so calls can be chained
+		#   note       the figure is cut when the cell is narrow
+		#   see        AddPercent, SetValues
 		def SetPercent(bShow)
 			@bShowPercent = bShow
 			return This
 
+		# Writes each part's share of the total in its cell, under the Include name.
+		#
+		#   returns    the plot itself, so calls can be chained
+		#   see        SetPercent
 		def IncludePercent()
 			@bShowPercent = 1
 			return This
 
+	# Writes each part's value in its cell below the label.
+	#
+	#   returns    the plot itself, so calls can be chained
+	#   note       together with the shares the two figures run into each other and are cut, as in 5
+	#              (25%)
+	#   see        SetValues, AddPercent
 	def AddValues()
 		@bShowValues = 1
 		return This
 
+		# Shows or hides each part's value in its cell.
+		#
+		#   bShow      1 to write the values, 0 to stop
+		#   returns    the plot itself, so calls can be chained
+		#   note       turning values and percentages on together gives a garbled cell
+		#   see        AddValues, SetPercent
 		def SetValues(bShow)
 			@bShowValues = bShow
 			return This
 
+		# Writes each part's value in its cell, under the Include name.
+		#
+		#   returns    the plot itself, so calls can be chained
+		#   see        SetValues
 		def IncludeValues()
 			@bShowValues = 1
 			return This
 
+	# Removes the frame and the lines between the cells, leaving the labels where the cells were.
+	#
+	#   returns    the plot itself, so calls can be chained
+	#   see        SetBorders
 	def WithoutBorders()
 		@bShowBorders = 0
 		return This
 
+	# Shows or hides the frame and the lines between the cells.
+	#
+	#   bShow      1 to draw the borders, 0 to hide them
+	#   returns    the plot itself, so calls can be chained
+	#   note       they are shown by default
+	#   see        WithoutBorders
 	def SetBorders(bShow)
 		@bShowBorders = bShow
 		return This
 
+	# Removes the name written in each cell.
+	#
+	#   returns    the plot itself, so calls can be chained
+	#   note       a value or a share still shows when it is on
+	#   see        SetLabels
 	def WithoutLabels()
 		@bShowLabels = 0
 		return This
 
+	# Shows or hides the name written in each cell.
+	#
+	#   bShow      1 to write the names, 0 to hide them
+	#   returns    the plot itself, so calls can be chained
+	#   note       they are shown by default
+	#   see        WithoutLabels
 	def SetLabels(bShow)
 		@bShowLabels = bShow
 		return This
 
+	# Sets how many columns wide the picture is drawn.
+	#
+	#   nWidth     The width in characters, kept between 40 and 120
+	#   returns    the plot itself, so calls can be chained
+	#   note       the default is 40
+	#   warning    Raises "Incorrect param type! nWidth must be a number." for a non-number
+	#   see        SetHeight, SetSize
 	def SetWidth(nWidth)
 		if NOT isNumber(nWidth)
 			raise("Incorrect param type! nWidth must be a number.")
@@ -201,6 +334,13 @@ def init(paData)
 		_calculateSquaremap()
 		return This
 
+	# Sets how many rows tall the picture is drawn.
+	#
+	#   nHeight    The height in rows, kept between 12 and 30
+	#   returns    the plot itself, so calls can be chained
+	#   note       the default is 12
+	#   warning    Raises "Incorrect param type! nHeight must be a number." for a non-number
+	#   see        SetWidth, SetSize
 	def SetHeight(nHeight)
 		if NOT isNumber(nHeight)
 			raise("Incorrect param type! nHeight must be a number.")
@@ -215,6 +355,14 @@ def init(paData)
 		_calculateSquaremap()
 		return This
 
+	# Sets how many columns and rows the picture is drawn with.
+	#
+	#   nWidth     The width in characters, kept between 40 and 120
+	#   nHeight    The height in rows, kept between 12 and 30
+	#   returns    the plot itself, so calls can be chained
+	#   note       the other name, SetDimensions, does the same
+	#   warning    Raises an error unless both are numbers
+	#   see        SetWidth, SetHeight
 	def SetSize(nWidth, nHeight)
 		if NOT (isNumber(nWidth) and isNumber(nHeight))
 			raise("Incorrect param type! nWidth and nHeight must be both numbers.")
@@ -237,17 +385,22 @@ def init(paData)
 		def SetDimensions(nWidth, nHeight)
 			return This.SetSize(nWidth, nHeight)
 
+	# Prints the treemap as text on the console.
+	#
+	#   returns    nothing; the plot is printed
+	#   see        ToString
 	def Show()
 		? This.ToString()
 
-	# THE PICTURE, rendered by the engine.
+	# Returns the treemap as text, with box-drawing borders and a name centred in each cell.
 	#
-	# stzSurfaceChart, stzSquareChart and stzSquarePlot all inherit this, so the
-	# whole family moves with it.
-	#
-	# The labels cross as ONE newline-joined string rather than a Ring list: the
-	# layout, the border junctions and the centring all happen engine-side, so a
-	# face in any language gets the finished picture from a single call.
+	#   returns    a multi-line string
+	#   note       small parts get narrow cells
+	#   warning    A name wider than its cell is cut at both ends, so Support in a narrow cell reads
+	#              upp. and Admin reads dmin; the engine also raises an error for a plot of no
+	#              values
+	#   see        Show, ToStringInRing, ToSVG
+	#@ aka  THE PICTURE, rendered by the engine.
 	def ToString()
 		_cLabels_ = ""
 		_nLenL_ = len(@acLabels)
@@ -270,8 +423,12 @@ def init(paData)
 		ok
 		return _cOut_
 
-	# The Ring renderer this was ported from, kept so the guard can prove the two
-	# agree character for character.
+	# Returns the treemap as text drawn by the Ring code the engine renderer was ported from.
+	#
+	#   returns    a multi-line string
+	#   note       slower than ToString and kept for the parity guard
+	#   see        ToString
+	#@ aka  The Ring renderer this was ported from, kept so the guard can prove the two agree character for character.
 	def ToStringInRing()
 		_autoResize()  # Auto-resize based on content needs
 		_calculateSquaremap()

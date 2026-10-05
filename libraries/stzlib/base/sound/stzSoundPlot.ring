@@ -45,6 +45,25 @@
 func StzSoundPlotQ(pnWidth, pnHeight)
 	return new stzSoundPlot(pnWidth, pnHeight)
 
+# Draws a sound's analysis, a spectrogram, spectra or a waveform, as a readable picture on a dark plate, in SVG or PNG.
+#
+# Create the plate with a width and a height, set the title and the note, call one Draw method with
+# the analysis it needs, add markers, then ToSVG, SaveAsSVG or SaveAsPNG. The title and the note are
+# read when the Draw method runs, so they must be set before it. The spectrogram uses the inferno
+# colour ramp, the spectra a fixed order of hues with a legend, and every magnitude axis is in
+# decibels. Reach for it when a number about a sound is not enough: it needs the sound engine for
+# the analysis grids, and the PNG needs the graphics device while the SVG does not. Only the first
+# two lines of the note are drawn, and DrawSpectra raises for a starting frequency of 0; see the
+# warnings. Gallery: doc/gallery/stzSoundPlot/spectrogram.png (a sweep), spectra.png (two tones with
+# a marker) and wave.png (beats, with a marker), each with its script, seen right by stzlib-docs
+# visual pass (a model reading the PNG), 2026-10-05, not a person; wave.png carries thin dark
+# hairlines inside the filled band.
+#
+#   receiver   o1 = new stzSoundPlot(300, 200)
+#   example    o1.SetNote("A short note.")
+#              ? @@( o1.ToNoteLines() )
+#              #--> [ "A short note." ]
+#   see        stzCanvas, stzFont
 class stzSoundPlot
 
 	@nW = 900
@@ -75,6 +94,16 @@ class stzSoundPlot
 	# and the structure you came to see disappears into it.
 	@nRangeDb = 70
 
+	# Builds an empty dark plate of a width and a height in pixels, ready for one of the Draw methods, and looks for a system font.
+	#
+	#   pnWidth    The width of the plate, in pixels
+	#   pnHeight   The height of the plate, in pixels
+	#   returns    nothing; the plate is built
+	#   note       the plot area leaves 64 pixels at the left, 22 at the right, 74 at the top and 62
+	#              at the bottom
+	#   warning    A non-number or a size outside 1 to 16384 raises the stzCanvas error, and with no
+	#              font found the plate is drawn without any text
+	#   see        Canvas, DrawSpectrogram
 	def init(pnWidth, pnHeight)
 		@nW = pnWidth
 		@nH = pnHeight
@@ -85,9 +114,22 @@ class stzSoundPlot
 			@oC.SetFont(@oFont, 12)
 		ok
 
+	# Returns the stzCanvas the plate is drawn on, so extra shapes can be added to the picture.
+	#
+	#   returns    the stzCanvas of the plot
+	#   note       a shape added through it shows in the plot only after the canvas's Flush has
+	#              posted it
+	#   see        ToSVG, SaveAsPNG
 	def Canvas()
 		return @oC
 
+	# Sets the title and the subtitle written at the top left of the next picture drawn; one called after a Draw method changes nothing.
+	#
+	#   pcTitle      The title, drawn at 17 pixels in white
+	#   pcSubtitle   The subtitle under it, drawn at 12 pixels in grey
+	#   returns      nothing; the next picture changes
+	#   note         call it before the Draw method and SetTitleQ answers the plot for chaining
+	#   see          SetNote
 	def SetTitle(pcTitle, pcSubtitle)
 		@cTitle = pcTitle
 		@cSubtitle = pcSubtitle
@@ -96,8 +138,15 @@ class stzSoundPlot
 		This.SetTitle(pcTitle, pcSubtitle)
 		return This
 
-	# One line under the plot saying what the picture MEANS. A chart that
-	# needs a paragraph of explanation elsewhere is a chart that failed.
+	# Sets the sentence written under the plot to say what the picture means; one called after a Draw method changes nothing.
+	#
+	#   pcNote     The sentence, wrapped to the plate width
+	#   returns    nothing; the next picture changes
+	#   note       call it before the Draw method and SetNoteQ answers the plot for chaining
+	#   warning    Only the first two wrapped lines are drawn, the rest are dropped without a
+	#              message
+	#   see        ToNoteLines, SetTitle
+	#@ aka  One line under the plot saying what the picture MEANS. A chart that needs a paragraph of explanation elsewhere is a chart that failed.
 	def SetNote(pcNote)
 		@cNote = pcNote
 
@@ -105,14 +154,24 @@ class stzSoundPlot
 		This.SetNote(pcNote)
 		return This
 
-	# The note as it will actually be laid out -- DATA, so To... is right. It
-	# exists so a guard can check the wrapping without reading the picture:
-	# text reaches the SVG as glyph OUTLINES, not as characters, so there is
-	# nothing in the output to read the sentence back out of.
+	# Returns the note cut into the lines it will be laid out in, ready to be checked without reading the picture.
+	#
+	#   returns    a list of text, empty when there is no note
+	#   note       the line length follows the plate width at about 5.6 pixels a character
+	#   warning    The plot draws only the first two lines of the list
+	#   see        SetNote
+	#@ aka  The note as it will actually be laid out -- DATA, so To... is right. It exists so a guard can check the wrapping without reading the picture: text reaches the SVG as glyph OUTLINES, not as characters, so there is nothing in the output to read the sentence back out of.
 	def ToNoteLines()
 		if @cNote = ""  return [] ok
 		return This._Wrap(@cNote, This._NoteWidthInChars())
 
+	# Sets how many decibels below the loudest cell of a spectrogram still get ink; a value of zero or less is ignored.
+	#
+	#   pnDb       The range in decibels
+	#   returns    nothing; the next spectrogram changes
+	#   note       the default is 70, and a tighter range hides a broadband floor
+	#   warning    Only DrawSpectrogram reads it, since DrawSpectra always spans 72 dB
+	#   see        DrawSpectrogram
 	def SetDynamicRange(pnDb)
 		if pnDb > 0  @nRangeDb = pnDb ok
 
@@ -120,20 +179,43 @@ class stzSoundPlot
 		This.SetDynamicRange(pnDb)
 		return This
 
+	# Draws the picture on the graphics device and writes it to a PNG file.
+	#
+	#   pcPath     The file to write
+	#   returns    nothing; the file is written
+	#   note       use SaveAsSVG on a machine without a GPU
+	#   warning    With no graphics device no file is written, and the answer is empty either way
+	#   see        SaveAsSVG, ToSVG
 	def SaveAsPNG(pcPath)
 		@oC.ToPNG(pcPath)
 
+	# Writes the picture to an SVG file, with no graphics device needed.
+	#
+	#   pcPath     The file to write
+	#   returns    nothing; the file is written
+	#   note       text reaches the file as glyph outlines, not as characters
+	#   see        SaveAsPNG, ToSVG
 	def SaveAsSVG(pcPath)
 		write(pcPath, @oC.ToSVG())
 
+	# Returns the picture as SVG text, with no graphics device needed.
+	#
+	#   returns    the SVG document as a string
+	#   note       an undrawn plate gives a bare background of about 160 characters
+	#   see        SaveAsSVG
 	def ToSVG()
 		return @oC.ToSVG()
 
-	#-- THE SPECTROGRAM -----------------------------------------------------
-
-	# Time across, frequency up, magnitude as lightness. nMaxHz crops the top:
-	# nearly all musical energy lives low, and drawing to Nyquist spends most
-	# of the picture on silence.
+	# Draws a spectrogram from an analysis grid, with time across, frequency up and loudness as brightness, in the inferno colour ramp.
+	#
+	#   poGrid     The analysis grid of a sound, from its ToSpectrogram
+	#   pnMaxHz    The highest frequency to show, or 0 to show them all
+	#   returns    nothing; the picture is drawn
+	#   note       the time axis ends at the grid's own span (0.96 s for a one second sound), so
+	#              give MarkTimeAt that span
+	#   warning    A silent or empty grid draws only the title, with no axes
+	#   see        SetDynamicRange, MarkTimeAt, SaveAsPNG
+	#@ aka  -- THE SPECTROGRAM -----------------------------------------------------
 	def DrawSpectrogram(poGrid, pnMaxHz)
 		This._Chrome()
 		if poGrid.IsEmpty()  return ok
@@ -197,11 +279,18 @@ class stzSoundPlot
 		This._Legend_Sequential()
 		This._Footer()
 
-	#-- THE SPECTRUM (one or more series) -----------------------------------
-
-	# paSeries: [ [cLabel, oGrid], ... ] -- each a one-row spectrum grid.
-	# Log frequency across, decibels up. Several series is a CATEGORICAL job:
-	# fixed hue order, a legend always, and a direct label on each line.
+	# Draws one or more spectra as lines on a log frequency axis in decibels, all measured against the loudest point of any of them.
+	#
+	#   paSeries   The spectra, as pairs [ label, one-row grid ] where the grid comes from a sound's
+	#              ToSpectrumOf
+	#   pnFromHz   The lowest frequency shown, which must be above 0
+	#   pnToHz     The highest frequency shown
+	#   returns    nothing; the picture is drawn
+	#   note       the first series is drawn on top, a legend appears from two series and the hues
+	#              cycle after five
+	#   warning    A starting frequency of 0 raises R51 because its logarithm is undefined
+	#   see        MarkFrequencyAt, SetTitle
+	#@ aka  -- THE SPECTRUM (one or more series) -----------------------------------
 	def DrawSpectra(paSeries, pnFromHz, pnToHz)
 		This._Chrome()
 		_pw_ = @nW - @nL - @nR
@@ -293,8 +382,15 @@ class stzSoundPlot
 		This._AxisTitles("frequency", "level")
 		This._Footer()
 
-	#-- THE WAVEFORM --------------------------------------------------------
-
+	# Draws the waveform of a sound's first channel as a band between its lowest and highest sample in each pixel column.
+	#
+	#   poSound    The sound to draw, any object answering Frames, SampleAt and Duration
+	#   returns    nothing; the picture is drawn
+	#   note       the axis shows the time from 0 to the sound's duration and the amplitude from -1
+	#              to 1
+	#   warning    A sound of fewer than two frames draws only the title
+	#   see        MarkTimeAt, DrawSpectrogram
+	#@ aka  -- THE WAVEFORM --------------------------------------------------------
 	def DrawWave(poSound)
 		This._Chrome()
 		_pw_ = @nW - @nL - @nR
@@ -342,8 +438,16 @@ class stzSoundPlot
 		This._AxisTitles("time", "amplitude")
 		This._Footer()
 
-	# A vertical marker with a label -- for pointing at the moment something
-	# happens ("the click is HERE").
+	# Draws a red vertical line with a label at a moment of the picture, to point at where something happens.
+	#
+	#   pnSeconds        The moment to mark, in seconds
+	#   pnTotalSeconds   The time span the horizontal axis shows
+	#   pcLabel          The text written beside the line
+	#   returns          nothing; the marker is added
+	#   note             call it after the Draw method
+	#   warning          A moment past the span is drawn outside the plot area without an error
+	#   see              MarkFrequencyAt, DrawWave
+	#@ aka  A vertical marker with a label -- for pointing at the moment something happens ("the click is HERE").
 	def MarkTimeAt(pnSeconds, pnTotalSeconds, pcLabel)
 		_pw_ = @nW - @nL - @nR
 		_ph_ = @nH - @nT - @nB
@@ -352,9 +456,17 @@ class stzSoundPlot
 		@oC.Stroke("#e34948", 1)
 		This._Label(pcLabel, _x_ + 5, @nT + 14, "#e34948")
 
-	# The same marker on a LOG frequency axis -- for pointing at a filter's
-	# corner, a fundamental, or Nyquist. The from/to must match the DrawSpectra
-	# call, because the axis is only as wide as what was drawn on it.
+	# Draws a red vertical line with a label at a frequency on the log axis of DrawSpectra, to point at a corner or a fundamental.
+	#
+	#   pnHz       The frequency to mark
+	#   pnFromHz   The lowest frequency of the axis, as given to DrawSpectra
+	#   pnToHz     The highest frequency of the axis, as given to DrawSpectra
+	#   pcLabel    The text written beside the line
+	#   returns    nothing; the marker is added
+	#   note       call it after the Draw method with the same two limits
+	#   warning    A frequency outside the axis is skipped without a message
+	#   see        MarkTimeAt, DrawSpectra
+	#@ aka  The same marker on a LOG frequency axis -- for pointing at a filter's corner, a fundamental, or Nyquist. The from/to must match the DrawSpectra call, because the axis is only as wide as what was drawn on it.
 	def MarkFrequencyAt(pnHz, pnFromHz, pnToHz, pcLabel)
 		_pw_ = @nW - @nL - @nR
 		_ph_ = @nH - @nT - @nB

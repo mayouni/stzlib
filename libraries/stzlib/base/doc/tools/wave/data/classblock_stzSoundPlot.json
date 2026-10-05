@@ -1,0 +1,14 @@
+{
+ "brief": "Draws a sound's analysis, a spectrogram, spectra or a waveform, as a readable picture on a dark plate, in SVG or PNG.",
+ "detail": "Create the plate with a width and a height, set the title and the note, call one Draw method with the analysis it needs, add markers, then ToSVG, SaveAsSVG or SaveAsPNG. The title and the note are read when the Draw method runs, so they must be set before it. The spectrogram uses the inferno colour ramp, the spectra a fixed order of hues with a legend, and every magnitude axis is in decibels. Reach for it when a number about a sound is not enough: it needs the sound engine for the analysis grids, and the PNG needs the graphics device while the SVG does not. Only the first two lines of the note are drawn, and DrawSpectra raises for a starting frequency of 0; see the warnings. Gallery: doc/gallery/stzSoundPlot/spectrogram.png (a sweep), spectra.png (two tones with a marker) and wave.png (beats, with a marker), each with its script, seen right by stzlib-docs visual pass (a model reading the PNG), 2026-10-05, not a person; wave.png carries thin dark hairlines inside the filled band.",
+ "receiver": "o1 = new stzSoundPlot(300, 200)",
+ "example": [
+  "o1.SetNote(\"A short note.\")",
+  "? @@( o1.ToNoteLines() )",
+  "#--> [ \"A short note.\" ]"
+ ],
+ "see": [
+  "stzCanvas",
+  "stzFont"
+ ]
+}
