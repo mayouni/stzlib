@@ -28,6 +28,7 @@ You write **only what a machine cannot know**. The extractor already derives the
 - `detour`: the natural name a host-language collision forced away (`IsAChar` for `IsChar`).
 - `forms`: the accepted named-parameter calls (`HasMoreChars(:Than = 3)`).
 - No blank line between the block and the `def`.
+- **Nothing but the block between the previous line of code and the `def`.** The extractor collects every comment line above a `def` **across blank lines**: only a line of code ends the run. So a `#-- section heading` written above the first method of a section, even with a blank line after it, becomes the FIRST LINE of that method's brief, and the gate then says the brief does not begin with a third-person verb about a brief that is correct. Write a section heading in the boxed banner form (`  #---#`, `  #  TITLE  #`, `#---#`), which the extractor reads as the section and not as the brief (every banner in stzTablex is one).
 - An old one-line comment is still a valid brief. `#@ aka ...` lines are unchanged: they feed retrieval only.
 
 A parameter named like one in `params.txt` (`pCaseSensitive`, `pcSubStr`, `pCol`...) is described **once**, there, and every method that does not describe it itself inherits it, marked `derived`. Describe a parameter in the block only when its meaning here differs.
@@ -58,3 +59,15 @@ A method **passes** when: (1) the brief has the form above, (2) it is not the na
 Export: `cd base/doc; ring export_reference.ring <commit> <date>` (one process, under a minute; run it alone).
 
 **The ratchet in CI (`meta/stzDocGate.ring`, runner `doc/gate.ring`).** `doc/doc_baseline.txt` lists, one `class.method` per line, the roots that do not yet pass. A root **not** in the baseline must have a brief that passes checks 1 and 2 (third-person voice, not the name restated): otherwise `doc-floor`, an ERROR. A root not in the baseline that lacks a parameter role or a `returns` line is a `doc-complete` warning. A baseline root that now passes is `doc-baseline-stale`: run `ring gate.ring --update`, which drops it and never adds a key, so the debt only shrinks and a written method that regresses (it is no longer in the baseline) is an error. The runner prints `OK` or `FAILED` as its last line (a Ring script cannot set an exit code). One export of the library, about a minute: run it before a commit that adds or renames methods, once.
+
+## Documents the extractor does not read
+
+A guide, a chapter or a charter lives in its own markdown file and is checked by its own harness, not by this extractor:
+`test/system/charter_examples.py` takes a markdown path, runs the fences that read exactly `ring`, and compares each `?` line
+with the value after its `#-->`. A fence reading `ring live` is a specification that talks to a real service and is never run.
+The documents using it today are the payments charter (`service/SOFTANZA_PAYMENTS_PORT.md`), the payments chapter
+(`doc/narrations/stz-getting-paid-and-paying-narration.md`) and the payments guide (`docs/payments-guide.md`, at the root of
+the repository). The method blocks of this system use the same `#-->` promise, so one reader can follow both; the guide's fence
+words are not copied into the blocks, which have one kind of example and run it. The reference, not the guide, is the place a
+class is described; the guide links to a class and does not restate it.
+
