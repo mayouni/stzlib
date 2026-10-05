@@ -14041,18 +14041,15 @@ func _NormalizeColLookupKey(pVal)
 			This.SortDownOn(pCol)
 			return This
 
-		# Reorders the columns instead of sorting the rows today, by handing the call to the inherited list sort.
+		# Sorts the rows in place, in descending order of one column.
 		#
 		#   pCol       the column to sort on
-		#   returns    nothing; the columns are reordered
-		#   warning    Hands the call to SortOnDown, which is not a table method: the inherited list
-		#              method sorts the [ name, cells ] column pairs on their nth item and leaves
-		#              the rows alone, and a column name raises an error; SortDownOn works
+		#   returns    nothing; the table changes
 		#   see        SortDownOn
 		#>
 		#< @FunctionAlternativeForms
 		def SortInDescendingOn(pCol)
-			This.SortOnDown(pCol)
+			This.SortDownOn(pCol)
 
 			def SortInDescendingOnQ(pCol)
 				return This.SortDownOnQ(pCol)
@@ -14101,34 +14098,32 @@ func _NormalizeColLookupKey(pVal)
 			def SortInDescendingOnColumnQ(pCol)
 				return This.SortDownOnQ(pCol)
 
-	# Raises error R19 today instead of returning the content sorted in descending order of one column.
+	# Returns the content with the rows sorted in descending order of one column, leaving the table as it is.
 	#
 	#   pCol       the column to sort on
-	#   returns    nothing; it raises
-	#   warning    Raises R19 because the body calls SortDownOnQ without the column; SortedOn works
-	#              for ascending order
+	#   returns    a list of [ name, cells ] pairs
 	#   see        SortDownOn
 		#>
 	def SortedDownOn(pCol)
-		_aResult_ = This.Copy().SortDownOnQ().Content()
+		_aResult_ = This.Copy().SortDownOnQ(pCol).Content()
 		return _aResult_
 
 		#< @FunctionAlternativeForms
 
 		def SortedInDescendingOn(pCol)
-			return This.SortedDown(pcol)
+			return This.SortedDownOn(pCol)
 
 		def SortedColDownOn(pCol)
-			return This.SortedDown(pcol)
+			return This.SortedDownOn(pCol)
 
 		def SortedInDescendingOnCol(pCol)
-			return This.SortedDown(pcol)
+			return This.SortedDownOn(pCol)
 
 		def SortedDownOnColumn(pCol)
-			return This.SortedDown(pcol)
+			return This.SortedDownOn(pCol)
 
 		def SortedInDescendingOnColumn(pCol)
-			return This.SortedDown(pcol)
+			return This.SortedDownOn(pCol)
 
 		#>
 
@@ -14443,34 +14438,30 @@ func _NormalizeColLookupKey(pVal)
 			This.SortDownOnBy(pCol, pcExpr)
 			return This
 
-		# Raises error R24 today instead of sorting the rows in descending order of an expression on a column.
+		# Sorts the rows in place, in descending order of an expression applied to one column.
 		#
 		#   pCol       the column to sort on
 		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
-		#   returns    nothing; it raises
-		#   warning    Raises R24 (uninitialized variable _ncol_) because the body passes a name
-		#              that is not its parameter; SortDownOnBy works
+		#   returns    nothing; the table changes
 		#   see        SortDownOnBy
 		#>
 		#< @FunctionAlternativeForms
 		def SortInDescendingOnBy(pCol, pcExpr)
-			This.SortDownOnBy(_nCol_, pcExpr)
+			This.SortDownOnBy(pCol, pcExpr)
 
 			def SortInDescendingOnByQ(pCol, pcExpr)
 				return This.SortDownOnByQ(pCol, pcExpr)
 
-		# Raises error R24 today instead of sorting the rows in descending order of an expression on a column.
+		# Sorts the rows in place, in descending order of an expression applied to one column.
 		#
 		#   _nCol_     the column to sort on
 		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
-		#   returns    nothing; it raises
-		#   warning    Raises R24 (uninitialized variable pcol) because the parameter is named
-		#              _nCol_ while the body passes pCol; SortDownOnBy works
+		#   returns    nothing; the table changes
 		#   see        SortDownOnBy
-		def SortDownOnColBy(_nCol_, pcExpr)
+		def SortDownOnColBy(pCol, pcExpr)
 			This.SortDownOnBy(pCol, pcExpr)
 
-			def SortDownOnColByQ(_nCol_, pcExpr)
+			def SortDownOnColByQ(pCol, pcExpr)
 				return This.SortDownOnByQ(pCol, pcExpr)
 
 		# Sorts the rows in place, in descending order of an expression applied to one column.
@@ -14525,15 +14516,13 @@ func _NormalizeColLookupKey(pVal)
 		def SortedInDescendingOnBy(pCol, pcExpr)
 			return This.SortedDownOnBy(pCol, pcExpr)
 
-		# Raises error R24 today instead of returning the content sorted in descending order of an expression on a column.
+		# Returns the content sorted in descending order of an expression applied to one column.
 		#
 		#   _nCol_     the column to sort on
 		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
-		#   returns    nothing; it raises
-		#   warning    Raises R24 (uninitialized variable pcol) because the parameter is named
-		#              _nCol_ while the body passes pCol; SortedDownOnBy works
+		#   returns    a list of [ name, cells ] pairs
 		#   see        SortedDownOnBy
-		def SortedDownOnColBy(_nCol_, pcExpr)
+		def SortedDownOnColBy(pCol, pcExpr)
 			return This.SortedDownOnBy(pCol, pcExpr)
 
 		def SortedInDescendingInColBy(pCol, pcExpr)
@@ -14700,33 +14689,30 @@ func _NormalizeColLookupKey(pVal)
 		def IsSortedInDescendingOnColumn(pCol)
 			return THis.IsSortedDownOn(pCol)
 
-	# Raises error R14 today instead of testing the order given by an expression on the first column.
+	# TRUE if the rows are in ascending order of an expression applied to the first column.
 	#
 	#   pcExpr     the expression to sort by, as text, with @item standing for a cell
-	#   returns    nothing; it raises
-	#   warning    Raises R14 because the body calls IsSotedOnBy, a misspelling; IsSortedOnBy works
+	#   returns    TRUE or FALSE
 	#   see        IsSortedOnBy
 	#@ aka  --
 	def IsSortedBy(pcExpr)
-		return This.IsSotedOnBy(1, pcExpr)
+		return This.IsSortedOnBy(1, pcExpr)
 
-	# Raises error R20 today instead of testing the ascending order given by an expression on the first column.
+	# TRUE if the rows are in ascending order of an expression applied to the first column.
 	#
 	#   pcExpr     the expression to sort by, as text, with @item standing for a cell
-	#   returns    nothing; it raises
-	#   warning    Raises R20 because it passes the expression as an extra argument to IsSortedUpOn
+	#   returns    TRUE or FALSE
 	#   see        IsSortedOnBy
 	def IsSortedUpBy(pcExpr)
-		return This.IsSortedUpOn(1, pcExpr)
+		return This.IsSortedUpOnBy(1, pcExpr)
 
-		# Raises error R20 today instead of testing the ascending order given by an expression on the first column.
+		# TRUE if the rows are in ascending order of an expression applied to the first column.
 		#
 		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
-		#   returns    nothing; it raises
-		#   warning    Raises R20 because it passes an extra argument to IsSortedUpBy
+		#   returns    TRUE or FALSE
 		#   see        IsSortedOnBy
 		def IsSortedInAscendingBy(pcExpr)
-			return This.IsSortedUpBy(1, pcExpr)
+			return This.IsSortedUpBy(pcExpr)
 
 	# TRUE if the rows are already in descending order of an expression on the first column.
 	#
@@ -14800,17 +14786,15 @@ func _NormalizeColLookupKey(pVal)
 		def IsSortedByOnColumn(pcExpr, pCol)
 			return This.IsSortedOnBy(pCol, pcExpr)
 
-	# Raises error R14 today instead of testing the ascending order given by an expression on one column.
+	# TRUE if the rows are in ascending order of an expression applied to one column.
 	#
 	#   pCol       the column to test
 	#   pcExpr     the expression to sort by, as text, with @item standing for a cell
-	#   returns    nothing; it raises
-	#   warning    Raises R14 because the body relies on SortUpOnBy, which is defined nowhere;
-	#              IsSortedOnBy works
+	#   returns    TRUE or FALSE
 	#   see        IsSortedOnBy
 	def IsSortedUpOnBy(pCol, pcExpr)
 		_oCopy_ = This.Copy()
-		_oCopy_.SortUpOnBy(pCol, pcExpr)
+		_oCopy_.SortOnBy(pCol, pcExpr)
 
 		_bResult_ = 1
 		_nLen_ = This.NumberOfCols()
@@ -14830,36 +14814,30 @@ func _NormalizeColLookupKey(pVal)
 		def IsSortedUpOnColumnBy(pCol, pcExpr)
 			return This.IsSortedUpOnBy(pCol, pcExpr)
 
-		# Raises error R14 today instead of testing the ascending order given by an expression on one column.
+		# TRUE if the rows are in ascending order of an expression applied to one column.
 		#
 		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
 		#   pCol       the column to test
-		#   returns    nothing; it raises
-		#   warning    Raises R14 because the body relies on SortUpOnBy, which is defined nowhere;
-		#              IsSortedOnBy works
+		#   returns    TRUE or FALSE
 		#   see        IsSortedOnBy
 		#@ aka  --
 		def IsSorteUpByOn(pcExpr, pCol)
 			return This.IsSortedUpOnBy(pCol, pcExpr)
 
-		# Raises error R14 today instead of testing the ascending order given by an expression on one column.
+		# TRUE if the rows are in ascending order of an expression applied to one column.
 		#
 		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
 		#   pCol       the column to test
-		#   returns    nothing; it raises
-		#   warning    Raises R14 because the body relies on SortUpOnBy, which is defined nowhere;
-		#              IsSortedOnBy works
+		#   returns    TRUE or FALSE
 		#   see        IsSortedOnBy
 		def IsSortedUpByOnCol(pcExpr, pCol)
 			return This.IsSortedUpOnBy(pCol, pcExpr)
 
-		# Raises error R14 today instead of testing the ascending order given by an expression on one column.
+		# TRUE if the rows are in ascending order of an expression applied to one column.
 		#
 		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
 		#   pCol       the column to test
-		#   returns    nothing; it raises
-		#   warning    Raises R14 because the body relies on SortUpOnBy, which is defined nowhere;
-		#              IsSortedOnBy works
+		#   returns    TRUE or FALSE
 		#   see        IsSortedOnBy
 		def IsSortedUpByOnColumn(pcExpr, pCol)
 			return This.IsSortedUpOnBy(pCol, pcExpr)
@@ -14872,36 +14850,30 @@ func _NormalizeColLookupKey(pVal)
 		def IsSortedInAscendingOnColumnBy(pCol, pcExpr)
 			return This.IsSortedUpOnBy(pCol, pcExpr)
 
-		# Raises error R14 today instead of testing the ascending order given by an expression on one column.
+		# TRUE if the rows are in ascending order of an expression applied to one column.
 		#
 		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
 		#   pCol       the column to test
-		#   returns    nothing; it raises
-		#   warning    Raises R14 because the body relies on SortUpOnBy, which is defined nowhere;
-		#              IsSortedOnBy works
+		#   returns    TRUE or FALSE
 		#   see        IsSortedOnBy
 		#@ aka  --
 		def IsSorteInAscendingByOn(pcExpr, pCol)
 			return This.IsSortedUpOnBy(pCol, pcExpr)
 
-		# Raises error R14 today instead of testing the ascending order given by an expression on one column.
+		# TRUE if the rows are in ascending order of an expression applied to one column.
 		#
 		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
 		#   pCol       the column to test
-		#   returns    nothing; it raises
-		#   warning    Raises R14 because the body relies on SortUpOnBy, which is defined nowhere;
-		#              IsSortedOnBy works
+		#   returns    TRUE or FALSE
 		#   see        IsSortedOnBy
 		def IsSortedInAscendingByOnCol(pcExpr, pCol)
 			return This.IsSortedUpOnBy(pCol, pcExpr)
 
-		# Raises error R14 today instead of testing the ascending order given by an expression on one column.
+		# TRUE if the rows are in ascending order of an expression applied to one column.
 		#
 		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
 		#   pCol       the column to test
-		#   returns    nothing; it raises
-		#   warning    Raises R14 because the body relies on SortUpOnBy, which is defined nowhere;
-		#              IsSortedOnBy works
+		#   returns    TRUE or FALSE
 		#   see        IsSortedOnBy
 		def IsSortedInAscendingByOnColumn(pcExpr, pCol)
 			return This.IsSortedUpOnBy(pCol, pcExpr)
