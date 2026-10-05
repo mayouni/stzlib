@@ -14847,12 +14847,11 @@ class stzString from stzObject
 		next
 		return _aRes_
 
-	# Raises error R14 today instead of splitting around the substring with a case rule.
+	# Returns the parts of the string around the substring, with a case rule.
 	#
+	#   pcSub            the substring to split around
 	#   pCaseSensitive   1 to compare with case, 0 to ignore case
-	#   returns          nothing today
-	#   warning          known defect: the call raises error R14 today, because it calls a method
-	#                    that is not defined
+	#   returns          a list of strings
 	#   see              SplitAroundCSNamed
 	#@ aka  (FindAntiSectionsZZ already exists earlier; the FindExceptZZ helper above covers the gap-sections semantic.)
 	def SplitAroundCS_named(pcSub, pCaseSensitive)
@@ -14860,8 +14859,7 @@ class stzString from stzObject
 		   isString(pCaseSensitive[1]) and lower(pCaseSensitive[1]) = "cs"
 			pCaseSensitive = pCaseSensitive[2]
 		ok
-		_oSarSplitter_ = new stzStringSplitter(This)
-		return _oSarSplitter_.SplitAroundCS(pcSub, pCaseSensitive)
+		return This.SplitAroundCS(pcSub, pCaseSensitive)
 
 	# Returns a substring chosen by a flexible form of arguments.
 	#
@@ -15457,17 +15455,17 @@ class stzString from stzObject
 	def SplitToPartsOfNCharsXT(n)
 		return This._SplitToPartsOfNCharsKeep(n)
 
-	# Raises error R19 today instead of splitting the string into parts of n chars with options.
+	# Returns the string cut into parts of n chars, the shorter last part kept.
 	#
-	#   n          the number of chars in each part
-	#   pNamed     the options, such as keeping the remainder
-	#   returns    nothing today
-	#   warning    known defect: the call raises error R19 today when given the one argument it
-	#              documents
-	#   see        SplitToPartsOfNChars
+	#   pnOrOptions   the number of chars in each part, or a list that starts with it
+	#   returns       a list of strings
+	#   see           SplitToPartsOfNChars
 	#@ aka  Split into n-char parts with options (keep-remainder form).
-	def SplitToPartsOfNCharsXTOpt(n, pNamed)
-		return This._SplitToPartsOfNCharsKeep(n)
+	def SplitToPartsOfNCharsXTOpt(pnOrOptions)
+		if isList(pnOrOptions)
+			return This._SplitToPartsOfNCharsKeep(pnOrOptions[1])
+		ok
+		return This._SplitToPartsOfNCharsKeep(pnOrOptions)
 
 	# FindMadeOfZZ alias.
 	# The [start, end] sections of the runs made of the given char.
@@ -16120,14 +16118,16 @@ class stzString from stzObject
 		ok
 		return [ _cL_, _cR_ ]
 
-	# Moves the char at one position to another, in place, but lands one place early today.
+	# Moves the char at one position to another, in place, so that it ends at the second position.
 	#
 	#   _n1_       the position to take the char from
-	#   _n2_       the position to put it at
+	#   _n2_       the position the char ends at
 	#   returns    nothing; the string changes
-	#   warning    known defect: Move(1, 3) on "banana" gives "abnana", the char landing at position
-	#              2 and not 3
 	#   see        InsertAt
+	#   example    o1 = new stzString("banana")
+	#              o1.Move(1, 3)
+	#              ? o1.Content()
+	#              #--> anbana
 	#@ aka  Move(n1, n2): move char from position n1 to position n2. Accepts named-param form Move(:CharFromPosition = N, :To = M).
 	def Move(_n1_, _n2_)
 		if isList(_n1_) and len(_n1_) = 2 and isString(_n1_[1]) and
@@ -16149,10 +16149,9 @@ class stzString from stzObject
 		if _n1_ > 1 _cBefore1_ = This._EngineSlice(_cTxt_, 1, _n1_ - 1) ok
 		_cAfter1_ = This._EngineSliceFrom(_cTxt_, _n1_ + 1)
 		_cTmp_ = _cBefore1_ + _cAfter1_
-		# Adjust n2 if it was after n1.
+		# The char ends AT n2 once the rest is closed up, whichever side n2 lies on.
 		_n2adj_ = _n2_
-		if _n2_ > _n1_ _n2adj_ = _n2_ - 1 ok
-		# Insert at adjusted position.
+		# Insert at the position.
 		_cBefore2_ = ""
 		if _n2adj_ > 1
 			_cBefore2_ = This._EngineSlice(_cTmp_, 1, _n2adj_ - 1)
@@ -16766,17 +16765,18 @@ class stzString from stzObject
 	def ContainsMarkers()
 		return This.ContainsMarquers()
 
-	# TRUE if the other string occurs inside this one; the two sides are read the other way round today.
+	# Tells whether the string occurs inside the given one.
 	#
+	#   pcOther    the string that may hold this one
 	#   returns    TRUE or FALSE
-	#   warning    known defect: IsIncludedIn("bananas") on "banana" answers FALSE, and
-	#              IsIncludedIn("an") answers TRUE, so it tests whether the argument is inside the
-	#              string
 	#   see        Contains
+	#   example    o1 = new stzString("banana")
+	#              ? o1.IsIncludedIn("bananas")
+	#              #--> TRUE
 	#@ aka  TRUE if the string occurs inside the given one.
 	def IsIncludedIn(pcOther)
 		if NOT isString(pcOther) return 0 ok
-		return StzFindFirst(pcOther, This.Content()) > 0
+		return StzFindFirst(This.Content(), pcOther) > 0
 
 	# Replaces the old text by the new one at each of the given positions, in place.
 	#
@@ -17724,27 +17724,23 @@ class stzString from stzObject
 		next
 		return _aRes_
 
-	# Answers FALSE today for a string that ends with the given char, such as "banana" and "a".
+	# Tells whether the last char of the string is the given one.
 	#
-	#   returns    FALSE today
-	#   warning    known defect: the call answers FALSE where the last char equals the argument;
-	#              HasThisTrailingChar answers correctly
+	#   pcChar     the char to compare with
+	#   returns    TRUE or FALSE
 	#   see        HasThisTrailingChar
 	#@ aka  TRUE if the last char equals the given one.
 	def TrailingCharIs(pcChar)
-		_c_ = This.TrailingChar()
-		return _c_ = pcChar
+		return This.HasThisTrailingChar(pcChar)
 
-	# Answers FALSE today for a string that starts with the given char, such as "banana" and "b".
+	# Tells whether the first char of the string is the given one.
 	#
-	#   returns    FALSE today
-	#   warning    known defect: the call answers FALSE where the first char equals the argument;
-	#              HasThisLeadingChar answers correctly
+	#   pcChar     the char to compare with
+	#   returns    TRUE or FALSE
 	#   see        HasThisLeadingChar
 	#@ aka  TRUE if the first char equals the given one.
 	def LeadingCharIs(pcChar)
-		_c_ = This.LeadingChar()
-		return _c_ = pcChar
+		return This.HasThisLeadingChar(pcChar)
 
 	# Returns the position of the middle char, 0 when the length is even.
 	#
@@ -22678,8 +22674,19 @@ class stzString from stzObject
 		# Codepoint-aware split: return the pieces between every
 		# occurrence of pcSubStr.
 		_cTxt_ = This.Content()
-		_aPos_ = This.AllPositionsOf(pcSubStr)
+		_aPos_ = []
 		_nSubLen_ = This._EngineCount(pcSubStr)
+		_nCsFlag_ = 1
+		if pCaseSensitive = 0
+			_nCsFlag_ = 0
+		ok
+		_nSearch_ = 1
+		while _nSubLen_ > 0
+			_nFound_ = StzEngineStringFindFirstFromCS(@pEngine, pcSubStr, _nSearch_, _nCsFlag_)
+			if _nFound_ < 1 exit ok
+			_aPos_ + _nFound_
+			_nSearch_ = _nFound_ + _nSubLen_
+		end
 		_nL_ = len(_aPos_)
 		_aRes_ = []
 		_nPrev_ = 1
@@ -23590,11 +23597,9 @@ class stzString from stzObject
 		_oRdRemover_.RemoveDuplicatesCS(pCaseSensitive)
 		This.Update(_oRdRemover_.Content())
 
-	# Removes the repeated characters of the text, in place, but a known defect makes the call raise an error today.
+	# Removes the repeated characters of the text, in place, keeping the first of each.
 	#
-	#   returns    nothing today
-	#   warning    known defect: the call raises error R14 today, because it calls UpdateWith, which
-	#              this class does not define
+	#   returns    nothing; the string changes
 	#   see        Duplicates, Remove
 	def RemoveDuplicates()
 		This.RemoveDuplicatesCS(1)
@@ -25415,16 +25420,14 @@ class stzString from stzObject
 	def SortLines()
 		This.SortLinesCS(1)
 
-	# Raises error R14 today instead of removing the blank lines.
+	# Removes the lines that hold nothing, in place.
 	#
-	#   returns    nothing today
-	#   warning    known defect: the call raises error R14 today, because it calls a method that is
-	#              not defined; RemoveEmptyLines works
+	#   returns    nothing; the string changes
 	#   see        RemoveEmptyLines
 	#@ aka  Remove the blank lines (mutating).
 	def RemoveBlankLines()
 		_oRblLines_ = new stzStringLines(This)
-		_oRblLines_.RemoveBlankLines()
+		_oRblLines_.RemoveEmptyLines()
 		This.Update(_oRblLines_.Content())
 
 	def LinesContainingCS(pcSubStr, pCaseSensitive)

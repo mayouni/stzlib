@@ -460,7 +460,6 @@ class stzStringRemover from stzObject
 		if len(_aSections_) > 0
 			@oString.RemoveSections(_aSections_)
 		ok
-		This.UpdateWith(_cResult_)
 
 		def RemoveDuplicatesCSQ(pCaseSensitive)
 			This.RemoveDuplicatesCS(pCaseSensitive)
