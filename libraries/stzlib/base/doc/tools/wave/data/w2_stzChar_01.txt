@@ -1,0 +1,1 @@
+StzType | Returns the type name of this subclass, stzchar, where the parent class stzStringChar answers stzstring. | a string | | | |

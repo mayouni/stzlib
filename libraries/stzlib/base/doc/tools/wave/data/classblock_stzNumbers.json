@@ -1,0 +1,7 @@
+{
+ "brief": "Is another name for stzListOfNumbers, so every method and every form is the same.",
+ "detail": "Use whichever name reads better at the call site; the class adds nothing of its own.",
+ "receiver": "o1 = new stzNumbers([ 3, 1, 4, 1, 5, 9, 2, 6 ])",
+ "example": ["? @@( o1.Top3() )", "#--> [ 5, 6, 9 ]"],
+ "see": ["stzListOfNumbers"]
+}

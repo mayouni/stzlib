@@ -73,8 +73,29 @@ func StzListOfStrings(paList)
  ///   CLASS   ///
 /////////////////
 
+# Gives stzStringList its other name: the class that holds a list of strings.
+#
+# An empty subclass: every method is stzStringList's, and new stzListOfStrings([ ... ]) builds the
+# same kind of object as new stzStringList([ ... ]).
+#
+#   receiver   o1 = new stzListOfStrings([ "ab", "cd", "ab" ])
+#   example    ? o1.NumberOfStrings()
+#              #--> 3
+#   see        stzStringList, stzList
 class stzListOfstrings from stzStringList
 
+# Holds a list of strings and answers questions about it: find, count, sort, filter, replace, split and change case.
+#
+# Reach for it when the strings of a list are the subject and a stzList is more than you need. It
+# checks at birth that every item is a string, and the per-string work goes to the engine. Methods
+# such as Add, SortInAscending, Unique, ToUpper and Trim change the list in place; the Sorted,
+# Uppercased and Trimmed forms return a plain Ring list and leave it alone. Search methods come in a
+# case-sensitive form and a CS form that takes a flag, as in FindCS(pcStr, 0).
+#
+#   receiver   o1 = new stzStringList([ "ab", "cd", "ab" ])
+#   example    ? @@( o1.Find("ab") )
+#              #--> [ 1, 3 ]
+#   see        stzListOfstrings, stzList, stzString
 class stzStringList from stzObject
 
 	@acContent = []
@@ -83,7 +104,14 @@ class stzStringList from stzObject
 	 #   INITIALIZATION  #
 	#===================#
 
-	# Build the string-list object from the given list of strings.
+	# Builds the string list from a Ring list whose items are all strings, and raises for anything else.
+	#
+	#   paList     the list of strings to hold
+	#   returns    nothing; builds the object
+	#   note       a non-list raises "Can't create stzStringList!", and so does one item that is not
+	#              a string
+	#   see        Update, Content
+	#@ aka  Build the string-list object from the given list of strings.
 	def init(paList)
 		if NOT isList(paList)
 			StzRaise("Can't create stzStringList! Parameter must be a list of strings.")
@@ -101,16 +129,26 @@ class stzStringList from stzObject
 	 #     CONTENT ACCESS            #
 	#===============================#
 
-	# (Doc()/Ask()/AskFor()/ExplainMethod() are inherited from stzObject.)
-
+	# Returns the strings held, as a plain Ring list.
+	#
+	#   returns    a list of strings
+	#   see        Copy, ToStzList
+	#@ aka  (Doc()/Ask()/AskFor()/ExplainMethod() are inherited from stzObject.)
 	def Content()
 		return @acContent
 
-	# A new stzStringList with the same strings.
+	# Returns a new stzStringList holding the same strings, so changing the copy leaves the original alone.
+	#
+	#   returns    a stzStringList object
+	#   see        Content
+	#@ aka  A new stzStringList with the same strings.
 	def Copy()
 		return new stzStringList(@acContent)
 
-	# How many strings the list holds.
+	# Returns how many strings the list holds.
+	#
+	#   returns    a number
+	#@ aka  How many strings the list holds.
 	def NumberOfStrings()
 		return len(@acContent)
 
@@ -121,18 +159,31 @@ class stzStringList from stzObject
 	 #     NTH STRING ACCESS         #
 	#===============================#
 
-	# The string at position n.
+	# Returns the string at position n; it raises R2 when n is 0 or past the end.
+	#
+	#   n          the position, 1 is the first
+	#   returns    a string
+	#   see        FirstString, LastString
+	#@ aka  The string at position n.
 	def NthString(n)
 		return @acContent[n]
 
 		def String(n)
 			return This.NthString(n)
 
-	# The first string of the list.
+	# Returns the first string of the list; it raises R2 on an empty list.
+	#
+	#   returns    a string
+	#   see        LastString, NthString
+	#@ aka  The first string of the list.
 	def FirstString()
 		return @acContent[1]
 
-	# The last string of the list.
+	# Returns the last string of the list; it raises R2 on an empty list.
+	#
+	#   returns    a string
+	#   see        FirstString, NthString
+	#@ aka  The last string of the list.
 	def LastString()
 		return @acContent[len(@acContent)]
 
@@ -140,7 +191,12 @@ class stzStringList from stzObject
 	 #     ADD / REMOVE              #
 	#===============================#
 
-	# Add the given string at the end of the list (mutating).
+	# Appends the string at the end of the list, in place; it raises for a value that is not a string.
+	#
+	#   pcStr      the string to append
+	#   returns    nothing; the list changes
+	#   see        Prepend
+	#@ aka  Add the given string at the end of the list (mutating).
 	def Add(pcStr)
 		if NOT isString(pcStr)
 			StzRaise("Incorrect param type! pcStr must be a string.")
@@ -151,7 +207,12 @@ class stzStringList from stzObject
 			This.Add(pcStr)
 			return This
 
-	# Insert the given string at the start of the list (mutating).
+	# Puts the string at the start of the list, in place; it raises for a value that is not a string.
+	#
+	#   pcStr      the string to put first
+	#   returns    nothing; the list changes
+	#   see        Add
+	#@ aka  Insert the given string at the start of the list (mutating).
 	def Prepend(pcStr)
 		if NOT isString(pcStr)
 			StzRaise("Incorrect param type! pcStr must be a string.")
@@ -162,7 +223,13 @@ class stzStringList from stzObject
 			This.Prepend(pcStr)
 			return This
 
-	# Remove the string at position n (mutating).
+	# Removes the string at position n, in place; it raises "error in range" when n is out of range.
+	#
+	#   n          the position of the string to remove
+	#   returns    nothing; the list changes
+	#   note       RemoveStringAtPosition does the same but ignores a bad position silently
+	#   see        RemoveStringAtPosition
+	#@ aka  Remove the string at position n (mutating).
 	def RemoveAt(n)
 		del(@acContent, n)
 
@@ -170,7 +237,13 @@ class stzStringList from stzObject
 			This.RemoveAt(n)
 			return This
 
-	# Replace the string at position n with the given one (mutating).
+	# Replaces the string at position n with the new one, in place; it raises R2 when n is 0 or past the end.
+	#
+	#   n          the position of the string to replace
+	#   pcNewStr   the string that takes its place
+	#   returns    nothing; the list changes
+	#   see        ReplaceString
+	#@ aka  Replace the string at position n with the given one (mutating).
 	def ReplaceAt(n, pcNewStr)
 		@acContent[n] = pcNewStr
 
@@ -178,8 +251,12 @@ class stzStringList from stzObject
 			This.ReplaceAt(n, pcNewStr)
 			return This
 
-	# Replace the whole content with the given list of strings
-	# (mutating; the single update point).
+	# Replaces the whole content with a new list of strings, in place; it raises unless every item is a string.
+	#
+	#   paNewList   the new strings, all of them text
+	#   returns     nothing; the list changes
+	#   see         Content
+	#@ aka  Replace the whole content with the given list of strings (mutating; the single update point).
 	def Update(paNewList)
 		if isList(paNewList) and @IsListOfStrings(paNewList)
 			@acContent = paNewList
@@ -195,7 +272,11 @@ class stzStringList from stzObject
 	 #   CONCATENATION                                      #
 	#======================================================#
 
-	# All the strings concatenated into one string.
+	# Returns all the strings joined end to end, with nothing between them, as one string.
+	#
+	#   returns    a string
+	#   see        ConcatUsing, Concatenate
+	#@ aka  All the strings concatenated into one string.
 	def Concat()
 		# Engine-backed: build result by concatenating
 		# engine handles pairwise
@@ -229,7 +310,13 @@ class stzStringList from stzObject
 	 #   CONCATENATION WITH SEPARATOR                       #
 	#------------------------------------------------------#
 
-	# The strings concatenated with the given separator between them.
+	# Returns all the strings joined as one string, with the separator between each two.
+	#
+	#   pcSep      the text put between the strings
+	#   returns    a string
+	#   note       an empty list answers an empty string
+	#   see        Concat
+	#@ aka  The strings concatenated with the given separator between them.
 	def ConcatUsing(pcSep)
 		_nLen_ = len(@acContent)
 		if _nLen_ = 0
@@ -293,6 +380,12 @@ class stzStringList from stzObject
 		ok
 		return 0
 
+	# TRUE if one string of the list equals the given string as a whole, case-sensitive.
+	#
+	#   pcStr      the string to look for, matched against whole items
+	#   returns    TRUE or FALSE
+	#   note       Contains("") is FALSE unless an item is empty
+	#   see        ContainsCS, ContainsSubString
 	def Contains(pcStr)
 		return This.ContainsCS(pcStr, 1)
 
@@ -314,6 +407,10 @@ class stzStringList from stzObject
 		next
 		return 0
 
+	# TRUE if the text occurs inside at least one string of the list, case-sensitive.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Contains, ContainsSubstringInEachString
 	def ContainsSubString(pcSubStr)
 		return This.ContainsSubStringCS(pcSubStr, 1)
 
@@ -346,10 +443,20 @@ class stzStringList from stzObject
 		ok
 		return _anResult_
 
+	# Returns the positions of every string equal to the given one, case-sensitive.
+	#
+	#   pcStr      the string to look for, matched against whole items
+	#   returns    a list of numbers; an empty list when none match
+	#   see        FindCS, FindFirst, FindLast
 	def Find(pcStr)
 		return This.FindCS(pcStr, 1)
 
-	# The position of the first string equal to pcStr (0 if none).
+	# Returns the position of the first string equal to the given one, or 0 when none is.
+	#
+	#   pcStr      the string to look for, matched against whole items
+	#   returns    a number
+	#   see        FindLast, Find
+	#@ aka  The position of the first string equal to pcStr (0 if none).
 	def FindFirst(pcStr)
 		_anAll_ = This.Find(pcStr)
 		if len(_anAll_) > 0
@@ -357,7 +464,12 @@ class stzStringList from stzObject
 		ok
 		return 0
 
-	# The position of the last string equal to pcStr (0 if none).
+	# Returns the position of the last string equal to the given one, or 0 when none is.
+	#
+	#   pcStr      the string to look for, matched against whole items
+	#   returns    a number
+	#   see        FindFirst, Find
+	#@ aka  The position of the last string equal to pcStr (0 if none).
 	def FindLast(pcStr)
 		_anAll_ = This.Find(pcStr)
 		_nLen_ = len(_anAll_)
@@ -393,6 +505,11 @@ class stzStringList from stzObject
 		def FindStringQCS(pcStr, pCaseSensitive)
 			return new stzList( This.FindStringCS(pcStr, pCaseSensitive) )
 
+	# Returns the positions of every string equal to the given one, as the plain form does.
+	#
+	#   pcStr      the string to look for, matched against whole items
+	#   returns    a list of numbers; an empty list when none match
+	#   see        Find
 	def FindString(pcStr)
 		return This.FindCS(pcStr, 1)
 
@@ -423,6 +540,12 @@ class stzStringList from stzObject
 		ok
 		return 0
 
+		# Returns the position of the nth string equal to the given one, or 0 when fewer than n are.
+		#
+		#   n          which occurrence, 1 is the first
+		#   pcStr      the string to look for
+		#   returns    a number
+		#   see        Find, FindFirst
 		def FindNthOccurrence(n, pcStr)
 			return This.FindNthOccurrenceCS(n, pcStr, 1)
 
@@ -432,9 +555,19 @@ class stzStringList from stzObject
 	def NumberOfOccurrenceCS(pcStr, pCaseSensitive)
 		return len( This.FindCS(pcStr, pCaseSensitive) )
 
+		# Returns how many strings of the list equal the given one as a whole, case-sensitive.
+		#
+		#   pcStr      the string to count, matched against whole items
+		#   returns    a number
+		#   see        NumberOfOccurrenceOfSubString
 		def NumberOfOccurrence(pcStr)
 			return This.NumberOfOccurrenceCS(pcStr, 1)
 
+		# Returns how many strings of the list equal the given one as a whole, case-sensitive.
+		#
+		#   pcStr      the string to count, matched against whole items
+		#   returns    a number
+		#   see        NumberOfOccurrenceOfSubString
 		def NumberOfOccurrences(pcStr)
 			return This.NumberOfOccurrenceCS(pcStr, 1)
 
@@ -450,6 +583,11 @@ class stzStringList from stzObject
 		next
 		return _nTotal_
 
+		# Returns how many times the text occurs inside the strings, summed over all of them.
+		#
+		#   returns    a number
+		#   note       Hello, world, hello, World hold four o's
+		#   see        NumberOfOccurrence
 		def NumberOfOccurrenceOfSubString(pcSubStr)
 			return This.NumberOfOccurrenceOfSubStringCS(pcSubStr, 1)
 
@@ -477,6 +615,12 @@ class stzStringList from stzObject
 		next
 		return _acDup_
 
+		# Returns each string that appears more than once, named once, in the order of its first appearance.
+		#
+		#   returns    a list of strings
+		#   note       the CS form with the flag 0 answers the folded lowercase spelling, not the
+		#              original
+		#   see        UniqueItems, Unique
 		def DuplicatedStrings()
 			return This.DuplicatedStringsCS(1)
 
@@ -505,6 +649,11 @@ class stzStringList from stzObject
 			This.RemoveAllCS(pcStr, pCaseSensitive)
 			return This
 
+	# Removes every string equal to the given one, in place, case-sensitive.
+	#
+	#   pcStr      the string to remove, matched against whole items
+	#   returns    nothing; the list changes
+	#   see        RemoveFirst, RemoveMany
 	def RemoveAll(pcStr)
 		This.RemoveAllCS(pcStr, 1)
 
@@ -523,6 +672,11 @@ class stzStringList from stzObject
 			This.RemoveFirstCS(pcStr, pCaseSensitive)
 			return This
 
+	# Removes only the first string equal to the given one, in place, case-sensitive.
+	#
+	#   pcStr      the string to remove, matched against whole items
+	#   returns    nothing; the list changes
+	#   see        RemoveAll
 	def RemoveFirst(pcStr)
 		This.RemoveFirstCS(pcStr, 1)
 
@@ -530,7 +684,11 @@ class stzStringList from stzObject
 			This.RemoveFirst(pcStr)
 			return This
 
-	# No argument: drop whatever sits first, whatever it is.
+	# Removes the first string, whatever it is, in place; an empty list stays empty.
+	#
+	#   returns    nothing; the list changes
+	#   see        RemoveLastString
+	#@ aka  No argument: drop whatever sits first, whatever it is.
 	def RemoveFirstString()
 		if len(@acContent) > 0
 			del(@acContent, 1)
@@ -540,6 +698,10 @@ class stzStringList from stzObject
 			This.RemoveFirstString()
 			return This
 
+	# Removes the last string, whatever it is, in place; an empty list stays empty.
+	#
+	#   returns    nothing; the list changes
+	#   see        RemoveFirstString
 	def RemoveLastString()
 		if len(@acContent) > 0
 			del(@acContent, len(@acContent))
@@ -555,6 +717,12 @@ class stzStringList from stzObject
 			del(@acContent, _nPos_)
 		ok
 
+		# Removes the nth string equal to the given one, in place; nothing happens when fewer than n are.
+		#
+		#   n          which occurrence, 1 is the first
+		#   pcStr      the string to remove
+		#   returns    nothing; the list changes
+		#   see        RemoveFirst
 		def RemoveNthOccurrence(n, pcStr)
 			This.RemoveNthOccurrenceCS(n, pcStr, 1)
 
@@ -562,13 +730,22 @@ class stzStringList from stzObject
 			This.RemoveNthOccurrence(n, pcStr)
 			return This
 
+	# Removes the string at position n, in place; a position out of range is ignored silently.
+	#
+	#   n          the position of the string to remove
+	#   returns    nothing; the list changes
+	#   see        RemoveAt
 	def RemoveStringAtPosition(n)
 		if isNumber(n) and n >= 1 and n <= len(@acContent)
 			del(@acContent, n)
 		ok
 
-		# The test file says it plainly: "RemoveNthString(3) # or
-		# RemoveStringAtPosition(3)". Both spellings, one implementation.
+		# Removes the string at position n, in place; a position out of range is ignored silently.
+		#
+		#   n          the position of the string to remove
+		#   returns    nothing; the list changes
+		#   see        RemoveAt
+		#@ aka  The test file says it plainly: "RemoveNthString(3) # or RemoveStringAtPosition(3)". Both spellings, one implementation.
 		def RemoveNthString(n)
 			This.RemoveStringAtPosition(n)
 
@@ -580,9 +757,13 @@ class stzStringList from stzObject
 			This.RemoveStringAtPosition(n)
 			return This
 
-	# Positions are read against the ORIGINAL list, so they are sorted and
-	# applied from the back. Taking them in the order given would make each
-	# removal shift the ones after it.
+	# Removes the strings at all the given positions in one go, in place; positions out of range are ignored.
+	#
+	#   panPositions   the positions of the strings to remove, read against the original list
+	#   returns        nothing; the list changes
+	#   note           the positions may come in any order
+	#   see            RemoveAt
+	#@ aka  Positions are read against the ORIGINAL list, so they are sorted and applied from the back. Taking them in the order given would make each removal shift the ones after it.
 	def RemoveStringsAtThesePositions(panPositions)
 		if NOT isList(panPositions)
 			return
@@ -599,6 +780,11 @@ class stzStringList from stzObject
 			This.RemoveStringsAtThesePositions(panPositions)
 			return This
 
+	# Removes every string equal to any string of the given list, in place, case-sensitive.
+	#
+	#   pacStrings   the strings to remove
+	#   returns      nothing; the list changes
+	#   see          RemoveAll
 	def RemoveMany(pacStrings)
 		if NOT isList(pacStrings)
 			return
@@ -614,8 +800,11 @@ class stzStringList from stzObject
 			This.RemoveMany(pacStrings)
 			return This
 
-	# An empty string is "", not a string of spaces -- RemoveSpaces() above
-	# is the one that judges whitespace.
+	# Removes the strings that are empty, in place; a string of spaces is not empty and stays.
+	#
+	#   returns    nothing; the list changes
+	#   see        RemoveSpaces
+	#@ aka  An empty string is "", not a string of spaces -- RemoveSpaces() above is the one that judges whitespace.
 	def RemoveEmptyStrings()
 		for i = len(@acContent) to 1 step -1
 			if @acContent[i] = ""
@@ -651,6 +840,11 @@ class stzStringList from stzObject
 			This.ReplaceStringCS(pcOld, pcNew, pCaseSensitive)
 			return This
 
+	# Turns every string equal to the old one into the new one, in place; only whole strings match.
+	#
+	#   returns    nothing; the list changes
+	#   note       to change a part of each string, use stzString methods on the items
+	#   see        ReplaceAt, ReplaceManyOneByOne
 	def ReplaceString(pcOld, pcNew)
 		This.ReplaceStringCS(pcOld, pcNew, 1)
 
@@ -686,6 +880,12 @@ class stzStringList from stzObject
 			This.ReplaceManyOneByOneCS(pacOld, pacNew, pCaseSensitive)
 			return This
 
+	# Replaces the old strings by the new ones pairwise, the first by the first, in place; unequal lengths change nothing.
+	#
+	#   pacOld     the strings to replace
+	#   pacNew     the strings that replace them, one for each old one, or :With = list
+	#   returns    nothing; the list changes
+	#   see        ReplaceString
 	def ReplaceManyOneByOne(pacOld, pacNew)
 		This.ReplaceManyOneByOneCS(pacOld, pacNew, 1)
 
@@ -693,16 +893,15 @@ class stzStringList from stzObject
 			This.ReplaceManyOneByOne(pacOld, pacNew)
 			return This
 
+	# Takes the string at one position and puts it at another, the others closing up; a bad position changes nothing.
+	#
+	#   pFrom      the position to take the string from, or :StringAtPosition = n
+	#   pTo        the position to put it at, or :ToPosition = n
+	#   returns    nothing; the list changes
+	#   note       on a b c d, Move(1, 3) gives b c a d
+	#   see        Swap
 	# --- MOVING -------------------------------------------------------
-
-	# Take the string at one position and put it at another, the rest
-	# closing up behind it.
-	#
-	#     Move( :StringAtPosition = 3, :ToPosition = 1 )
-	#
-	# Both arguments arrive as named pairs, so the number is the SECOND
-	# element. A bare number is accepted too, for callers who do not need
-	# the ceremony.
+	#@ aka  Take the string at one position and put it at another, the rest closing up behind it.
 	def Move(pFrom, pTo)
 		_nFrom_ = This._PositionArg(pFrom)
 		_nTo_   = This._PositionArg(pTo)
@@ -725,10 +924,13 @@ class stzStringList from stzObject
 			This.Move(pFrom, pTo)
 			return This
 
-	# Exchange the strings at two positions. Unlike Move(), nothing shifts:
-	# the two trade places and every other string stays where it was.
+	# Exchanges the strings at two positions, in place, every other string staying where it was; a bad position changes nothing.
 	#
-	#     Swap( :BetweenString = 1, :AndString = 2 )
+	#   pFirst     the first position, or :BetweenString = n
+	#   pSecond    the second position, or :AndString = n
+	#   returns    nothing; the list changes
+	#   see        Move
+	#@ aka  Exchange the strings at two positions. Unlike Move(), nothing shifts: the two trade places and every other string stays where it was.
 	def Swap(pFirst, pSecond)
 		_n1_ = This._PositionArg(pFirst)
 		_n2_ = This._PositionArg(pSecond)
@@ -756,14 +958,20 @@ class stzStringList from stzObject
 	def FindAllCS(pcStr, pCaseSensitive)
 		return This.FindCS(pcStr, pCaseSensitive)
 
+	# Returns the positions of every string equal to the given one, as the plain form does.
+	#
+	#   pcStr      the string to look for, matched against whole items
+	#   returns    a list of numbers; an empty list when none match
+	#   see        Find
 	def FindAll(pcStr)
 		return This.FindCS(pcStr, 1)
 
-	# One verdict per string: how ITS OWN words are ordered.
+	# Returns one verdict per string, ascending, descending or unsorted, for the order of that string's own words.
 	#
-	# :Ascending, :Descending, or :Unsorted for neither. A string of fewer
-	# than two words is :Ascending -- there is no pair to be out of order,
-	# and calling it unsorted would read as a complaint.
+	#   returns    a list of strings
+	#   note       a string of fewer than two words is ascending
+	#   see        WordsOfEachStringAreSortedInAscending
+	#@ aka  One verdict per string: how ITS OWN words are ordered.
 	def WordsSortingOrders()
 		_aResult_ = []
 		_nLen_ = len(@acContent)
@@ -782,15 +990,25 @@ class stzStringList from stzObject
 		def WordsSortingOrdersQ()
 			return new stzList( This.WordsSortingOrders() )
 
-	# How many strings fall in each verdict. Counted from the one list above
-	# so the three can never disagree with it, or with each other -- they sum
-	# to NumberOfStrings() by construction.
+	# Returns how many strings have their own words in ascending order, a one-word string included.
+	#
+	#   returns    a number
+	#   see        WordsSortingOrders
+	#@ aka  How many strings fall in each verdict. Counted from the one list above so the three can never disagree with it, or with each other -- they sum to NumberOfStrings() by construction.
 	def NumberOfStringsWhereWordsAreSortedInAscending()
 		return This._CountWordsOrder(:Ascending)
 
+	# Returns how many strings have their own words in descending order; a one-word string counts as ascending instead.
+	#
+	#   returns    a number
+	#   see        WordsSortingOrders
 	def NumberOfStringsWhereWordsAreSortedInDescending()
 		return This._CountWordsOrder(:Descending)
 
+	# Returns how many strings have their own words in neither ascending nor descending order.
+	#
+	#   returns    a number
+	#   see        WordsSortingOrders
 	def NumberOfStringsWhereWordsAreUnsorted()
 		return This._CountWordsOrder(:Unsorted)
 
@@ -815,11 +1033,12 @@ class stzStringList from stzObject
 		ok
 		return 0
 
+	# TRUE if every string is uppercase; an empty list answers FALSE.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsLowercase
 	# --- PREDICATES ---------------------------------------------------
-
-	# TRUE when EVERY string is uppercase. An empty list answers FALSE: there
-	# is no string in it that is uppercase, and answering TRUE for "all of
-	# nothing" reads as a claim about content that is not there.
+	#@ aka  TRUE when EVERY string is uppercase. An empty list answers FALSE: there is no string in it that is uppercase, and answering TRUE for "all of nothing" reads as a claim about content that is not there.
 	def IsUppercase()
 		_nLen_ = len(@acContent)
 		if _nLen_ = 0
@@ -833,6 +1052,10 @@ class stzStringList from stzObject
 		return 1
 
 
+	# TRUE if every string is lowercase, a string with no letters counting as lowercase; an empty list answers FALSE.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsUppercase
 	def IsLowercase()
 		_nLen_ = len(@acContent)
 		if _nLen_ = 0
@@ -861,23 +1084,30 @@ class stzStringList from stzObject
 		next
 		return 1
 
+		# TRUE if the text occurs inside every string of the list, case-sensitive; an empty list answers FALSE.
+		#
+		#   returns    TRUE or FALSE
+		#   see        ContainsSubString
 		def ContainsSubstringInEachString(pcSubStr)
 			return This.ContainsSubstringInEachStringCS(pcSubStr, 1)
 
-	# TRUE when the WORDS INSIDE each string are in order -- read per string,
-	# not across the list. "ali ben salah" is ascending on its own; whether
-	# the next string sorts after it is a different question, which
-	# IsSortedInAscending() answers.
+	# TRUE if the words inside each string are in ascending order, read per string; an empty list answers FALSE.
 	#
-	# A string of one word is trivially in order, so a list of them answers
-	# TRUE; an EMPTY list answers FALSE, matching IsUppercase above rather
-	# than claiming something about content that is not there.
+	#   returns    TRUE or FALSE
+	#   note       a one-word string is in order both ways
+	#   see        WordsSortingOrders, SortInAscending
+	#@ aka  TRUE when the WORDS INSIDE each string are in order -- read per string, not across the list. "ali ben salah" is ascending on its own; whether the next string sorts after it is a different question, which IsSortedInAscending() answers.
 	def WordsOfEachStringAreSortedInAscending()
 		return This._WordsOfEachStringAreSorted(1)
 
 		def WordsOfEachStringSortedInAscending()
 			return This.WordsOfEachStringAreSortedInAscending()
 
+	# TRUE if the words inside each string are in descending order, read per string; an empty list answers FALSE.
+	#
+	#   returns    TRUE or FALSE
+	#   note       a one-word string is in order both ways
+	#   see        WordsSortingOrders, SortInDescending
 	def WordsOfEachStringAreSortedInDescending()
 		return This._WordsOfEachStringAreSorted(0)
 
@@ -961,6 +1191,10 @@ class stzStringList from stzObject
 			This.SortInAscendingCS(pCaseSensitive)
 			return This
 
+	# Sorts the strings in ascending order, in place, case-sensitive: capitals come before lowercase letters.
+	#
+	#   returns    nothing; the list changes
+	#   see        SortedInAscending, SortInDescending
 	def SortInAscending()
 		This.SortInAscendingCS(1)
 
@@ -968,6 +1202,10 @@ class stzStringList from stzObject
 			This.SortInAscending()
 			return This
 
+		# Sorts the strings in ascending order, in place, as the plain form does.
+		#
+		#   returns    nothing; the list changes
+		#   see        SortInAscending
 		def SortUp()
 			This.SortInAscending()
 
@@ -977,21 +1215,30 @@ class stzStringList from stzObject
 		_oCopy_.SortInAscendingCS(pCaseSensitive)
 		return _oCopy_.Content()
 
+	# Returns the strings in ascending order as a plain list, case-sensitive; the list itself is unchanged.
+	#
+	#   returns    a list of strings
+	#   see        SortInAscending
 	def SortedInAscending()
 		return This.SortedInAscendingCS(1)
 
-		# Sorted() shorthand -- default ascending case-sensitive sort,
-		# used by narrative one-liners like `o.Sorted()` that don't
-		# distinguish direction.
+		# Returns the strings in ascending order as a plain list, case-sensitive; the list itself is unchanged.
+		#
+		#   returns    a list of strings
+		#   see        SortedInAscending
+		#@ aka  Sorted() shorthand -- default ascending case-sensitive sort, used by narrative one-liners like `o.Sorted()` that don't distinguish direction.
 		def Sorted()
 			return This.SortedInAscendingCS(1)
 
 		def SortedUp()
 			return This.SortedInAscending()
 
-	# WithoutSpaces / WithoutSapces (Softanza intentionally accepts
-	# the misspelled form): return the content with every space removed
-	# from each string item.
+	# Returns the strings with every space char removed from each, as a plain list; the list is unchanged.
+	#
+	#   returns    a list of strings
+	#   note       only the space char goes; a tab stays
+	#   see        RemoveSpaces, SpacesRemoved
+	#@ aka  WithoutSpaces / WithoutSapces (Softanza intentionally accepts the misspelled form): return the content with every space removed from each string item.
 	def WithoutSpaces()
 		_aRes_ = []
 		_nLen_ = len(@acContent)
@@ -1016,7 +1263,11 @@ class stzStringList from stzObject
 	 #   SORT DESCENDING                                    #
 	#------------------------------------------------------#
 
-	# Sort the strings in descending order in place (mutating).
+	# Sorts the strings in descending order, in place, case-sensitive: lowercase letters come before capitals.
+	#
+	#   returns    nothing; the list changes
+	#   see        SortedInDescending, SortInAscending
+	#@ aka  Sort the strings in descending order in place (mutating).
 	def SortInDescending()
 		This.SortInAscending()
 		This.Reverse()
@@ -1025,10 +1276,18 @@ class stzStringList from stzObject
 			This.SortInDescending()
 			return This
 
+		# Sorts the strings in descending order, in place, as the plain form does.
+		#
+		#   returns    nothing; the list changes
+		#   see        SortInDescending
 		def SortDown()
 			This.SortInDescending()
 
-	# A descending-sorted copy; the original is unchanged.
+	# Returns the strings in descending order as a plain list, case-sensitive; the list itself is unchanged.
+	#
+	#   returns    a list of strings
+	#   see        SortInDescending
+	#@ aka  A descending-sorted copy; the original is unchanged.
 	def SortedInDescending()
 		_oCopy_ = This.Copy()
 		_oCopy_.SortInDescending()
@@ -1038,9 +1297,17 @@ class stzStringList from stzObject
 	 #   SORT BY EXPRESSION                                 #
 	#------------------------------------------------------#
 
-	# SortBy(cExpr): sort by an eval'd expression where @string
-	# aliases the per-item string. Pre-compute keys once, then
-	# insertion-sort over (key, value) pairs.
+	# Sorts the strings in place by a numeric key computed from each one, such as its length; a text key raises.
+	#
+	#   pcExpr     a Ring expression that gives a number, with @string standing for the current
+	#              string
+	#   returns    nothing; the list changes
+	#   note       the sort is stable
+	#   warning    known defect: @item is not defined here and raises R24, and a key that is text
+	#              raises R41 because keys are compared with a greater-than, so only numeric keys
+	#              such as len(@string) work
+	#   see        SortInAscending
+	#@ aka  SortBy(cExpr): sort by an eval'd expression where @string aliases the per-item string. Pre-compute keys once, then insertion-sort over (key, value) pairs.
 	def SortBy(pcExpr)
 		# NOTE: `This.Content() + []` does NOT copy -- Ring's `+`
 		# appends the empty list as a nested element, which then
@@ -1084,7 +1351,11 @@ class stzStringList from stzObject
 	 #   REVERSE                                            #
 	#======================================================#
 
-	# Reverse the order of the strings in place (mutating).
+	# Reverses the order of the strings, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        Reversed
+	#@ aka  Reverse the order of the strings in place (mutating).
 	def Reverse()
 		# Use ring_reverse -- bare `reverse(...)` resolves
 		# case-insensitively to this class's own Reverse() (0 params)
@@ -1095,7 +1366,11 @@ class stzStringList from stzObject
 			This.Reverse()
 			return This
 
-	# The strings in reverse order, as a Ring list; the original is unchanged.
+	# Returns the strings in reverse order as a plain list; the list itself is unchanged.
+	#
+	#   returns    a list of strings
+	#   see        Reverse
+	#@ aka  The strings in reverse order, as a Ring list; the original is unchanged.
 	def Reversed()
 		return ring_reverse(@acContent)
 
@@ -1134,6 +1409,10 @@ class stzStringList from stzObject
 			This.UniqueCS(pCaseSensitive)
 			return This
 
+	# Removes repeated strings, in place, keeping the first of each in its place; case-sensitive.
+	#
+	#   returns    nothing; the list changes
+	#   see        UniqueItems, RemoveDuplicates
 	def Unique()
 		This.UniqueCS(1)
 
@@ -1141,9 +1420,17 @@ class stzStringList from stzObject
 			This.Unique()
 			return This
 
+		# Removes repeated strings, in place, keeping the first of each in its place; case-sensitive.
+		#
+		#   returns    nothing; the list changes
+		#   see        Unique
 		def RemoveDuplicates()
 			This.Unique()
 
+	# Returns the strings without repeats as a plain list, the first of each kept in place; the list is unchanged.
+	#
+	#   returns    a list of strings
+	#   see        Unique
 	def UniqueItems()
 		_oCopy_ = This.Copy()
 		_oCopy_.Unique()
@@ -1171,6 +1458,10 @@ class stzStringList from stzObject
 		next
 		return _acResult_
 
+	# Returns the strings that contain the text, case-sensitive, as a plain list; the list is unchanged.
+	#
+	#   returns    a list of strings
+	#   see        FilterCS, ThatContain
 	def Filter(pcSubStr)
 		return This.FilterCS(pcSubStr, 1)
 
@@ -1201,6 +1492,11 @@ class stzStringList from stzObject
 		ok
 		return _acResult_
 
+	# Returns the strings that begin with the prefix, case-sensitive, as a plain list; the list is unchanged.
+	#
+	#   pcPrefix   the text the strings must begin with
+	#   returns    a list of strings
+	#   see        FilterByEndsWith
 	def FilterByStartsWith(pcPrefix)
 		return This.FilterByStartsWithCS(pcPrefix, 1)
 
@@ -1227,6 +1523,10 @@ class stzStringList from stzObject
 		ok
 		return _acResult_
 
+	# Returns the strings that end with the suffix, case-sensitive, as a plain list; the list is unchanged.
+	#
+	#   returns    a list of strings
+	#   see        FilterByStartsWith
 	def FilterByEndsWith(pcSuffix)
 		return This.FilterByEndsWithCS(pcSuffix, 1)
 
@@ -1234,7 +1534,11 @@ class stzStringList from stzObject
 	 #   CASE OPERATIONS (engine-backed)                    #
 	#======================================================#
 
-	# Uppercase every string in place (mutating).
+	# Turns every string to uppercase, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        Uppercased, ToLower
+	#@ aka  Uppercase every string in place (mutating).
 	def ToUpper()
 		_acResult_ = []
 		_nLen_ = len(@acContent)
@@ -1247,13 +1551,21 @@ class stzStringList from stzObject
 			This.ToUpper()
 			return This
 
-	# A copy with every string uppercased; the original is unchanged.
+	# Returns the strings in uppercase as a plain list; the list itself is unchanged.
+	#
+	#   returns    a list of strings
+	#   see        ToUpper
+	#@ aka  A copy with every string uppercased; the original is unchanged.
 	def Uppercased()
 		_oCopy_ = This.Copy()
 		_oCopy_.ToUpper()
 		return _oCopy_.Content()
 
-	# Lowercase every string in place (mutating).
+	# Turns every string to lowercase, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        Lowercased, ToUpper
+	#@ aka  Lowercase every string in place (mutating).
 	def ToLower()
 		_acResult_ = []
 		_nLen_ = len(@acContent)
@@ -1266,7 +1578,11 @@ class stzStringList from stzObject
 			This.ToLower()
 			return This
 
-	# A copy with every string lowercased; the original is unchanged.
+	# Returns the strings in lowercase as a plain list; the list itself is unchanged.
+	#
+	#   returns    a list of strings
+	#   see        ToLower
+	#@ aka  A copy with every string lowercased; the original is unchanged.
 	def Lowercased()
 		_oCopy_ = This.Copy()
 		_oCopy_.ToLower()
@@ -1276,6 +1592,11 @@ class stzStringList from stzObject
 	 #   SIMILARITY (engine-backed Jaro / JaroWinkler)      #
 	#======================================================#
 
+	# Returns the string closest to the target by the engine's Jaro-Winkler score, the first on a tie; an empty list answers an empty string.
+	#
+	#   pcTarget   the text to compare each string with
+	#   returns    a string
+	#   see        SimilarTo
 	def MostSimilarTo(pcTarget)
 		# Returns the string from the list most similar to pcTarget
 		# Uses engine JaroWinkler for best results
@@ -1325,6 +1646,14 @@ class stzStringList from stzObject
 		StzEngineStringFree(pTarget)
 		return _acResult_
 
+	# Returns the strings whose Jaro-Winkler score against the target is at least the threshold, on the engine's 0 to 1000 scale.
+	#
+	#   pcTarget     the text to compare each string with
+	#   nThreshold   the lowest score kept, from 0 to 1000
+	#   returns      a list of strings
+	#   note         a threshold of 800 keeps banana for the target banan; a fraction such as 0.8
+	#                keeps most strings
+	#   see          MostSimilarTo
 	def SimilarTo(pcTarget, nThreshold)
 		return This.SimilarToCS(pcTarget, nThreshold, 1)
 
@@ -1332,11 +1661,19 @@ class stzStringList from stzObject
 	 #   CONVERSION                                         #
 	#======================================================#
 
-	# The strings joined with newlines, as one string.
+	# Returns the strings joined with newlines as one string.
+	#
+	#   returns    a string
+	#   see        Concat, ConcatUsing
+	#@ aka  The strings joined with newlines, as one string.
 	def ToString()
 		return This.ConcatUsing(char(10))
 
-	# Each string wrapped as a stzString object, as a list.
+	# Returns each string wrapped in a stzString object, as a list of objects.
+	#
+	#   returns    a list of stzString objects
+	#   see        ToStzList
+	#@ aka  Each string wrapped as a stzString object, as a list.
 	def ToListOfStzStrings()
 		_aResult_ = []
 		_nLen_ = len(@acContent)
@@ -1345,7 +1682,11 @@ class stzStringList from stzObject
 		next
 		return _aResult_
 
-	# The strings as a stzList object.
+	# Returns the strings as a stzList object.
+	#
+	#   returns    a stzList object
+	#   see        Content, ToListOfStzStrings
+	#@ aka  The strings as a stzList object.
 	def ToStzList()
 		return new stzList(@acContent)
 
@@ -1353,7 +1694,13 @@ class stzStringList from stzObject
 	 #   SPLIT EACH STRING                                  #
 	#======================================================#
 
-	# Split each string on the given separator.
+	# Splits each string on the separator and returns the parts of each, a list of lists; the list is unchanged.
+	#
+	#   _cSep_     the separator text, or :Using = text
+	#   returns    a list of lists of strings
+	#   note       the separator itself is dropped
+	#   see        stzString
+	#@ aka  Split each string on the given separator.
 	def Split(_cSep_)
 		if isList(_cSep_) and len(_cSep_) = 2 and isString(_cSep_[1]) and
 		   (StzCaseFold(_cSep_[1]) = "using" or StzCaseFold(_cSep_[1]) = "with" or StzCaseFold(_cSep_[1]) = "by")
@@ -1372,7 +1719,11 @@ class stzStringList from stzObject
 	 #   TRIM EACH STRING                                   #
 	#======================================================#
 
-	# Trim the spaces around each string in place (mutating).
+	# Trims the leading and trailing spaces of every string, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        Trimmed
+	#@ aka  Trim the spaces around each string in place (mutating).
 	def Trim()
 		_nLen_ = len(@acContent)
 		for i = 1 to _nLen_
@@ -1384,7 +1735,11 @@ class stzStringList from stzObject
 			This.Trim()
 			return This
 
-	# A copy with each string trimmed; the original is unchanged.
+	# Returns the strings trimmed of leading and trailing spaces, as a plain list; the list is unchanged.
+	#
+	#   returns    a list of strings
+	#   see        Trim
+	#@ aka  A copy with each string trimmed; the original is unchanged.
 	def Trimmed()
 		_oCopy_ = This.Copy()
 		_oCopy_.Trim()
@@ -1394,7 +1749,14 @@ class stzStringList from stzObject
 	 #   REGEX MATCHING                                     #
 	#======================================================#
 
-	# The strings matching the given regex pattern.
+	# TRUE if every string matches the pattern as a whole, so "a." matches ab and "a" does not; an empty list is TRUE.
+	#
+	#   pcRegexPatt   the regular expression, matched against each whole string
+	#   returns       TRUE or FALSE
+	#   warning       known defect: the old comment says it returns the strings that match, but it
+	#                 answers one verdict for the whole list
+	#   see           StringsW
+	#@ aka  The strings matching the given regex pattern.
 	def Matches(pcRegexPatt)
 		_nLen_ = len(@acContent)
 		for i = 1 to _nLen_
@@ -1408,11 +1770,19 @@ class stzStringList from stzObject
 	 #   TYPE IDENTITY                                      #
 	#======================================================#
 
-	# Always TRUE: the object IS a stzStringList.
+	# Answers TRUE every time: the object is a stzStringList.
+	#
+	#   returns    TRUE
+	#   see        stzType
+	#@ aka  Always TRUE: the object IS a stzStringList.
 	def IsStzStringList()
 		return 1
 
-	# The Softanza type symbol: :stzStringList.
+	# Returns the type name of the object as a lowercase string, stzstringlist.
+	#
+	#   returns    a string
+	#   see        IsStzStringList
+	#@ aka  The Softanza type symbol: :stzStringList.
 	def stzType()
 		return :stzStringList
 
@@ -1441,11 +1811,19 @@ class stzStringList from stzObject
 		next
 		return _c_
 
-	# All the strings concatenated, no separator.
+	# Returns all the strings joined end to end, with nothing between them, as one string.
+	#
+	#   returns    a string
+	#   see        Concat
+	#@ aka  All the strings concatenated, no separator.
 	def Concatenate()
 		return This.ConcatenateXT("")
 
-	# The strings with their spaces removed, as data.
+	# Returns the strings with their spaces removed as a plain list; the list is unchanged.
+	#
+	#   returns    a list of strings
+	#   see        RemoveSpaces, WithoutSpaces
+	#@ aka  The strings with their spaces removed, as data.
 	def SpacesRemoved()
 		_l_ = @acContent
 		_nL_ = len(_l_)
@@ -1465,7 +1843,11 @@ class stzStringList from stzObject
 	def ConcatenateUsing(pcSep)
 		return This.ConcatenateXT(pcSep)
 
-	# Remove the spaces inside each string (mutating).
+	# Removes the spaces inside every string, in place.
+	#
+	#   returns    nothing; the list changes
+	#   see        SpacesRemoved
+	#@ aka  Remove the spaces inside each string (mutating).
 	def RemoveSpaces()
 		@acContent = This.SpacesRemoved()
 
@@ -1473,9 +1855,12 @@ class stzStringList from stzObject
 			This.RemoveSpaces()
 			return This
 
-	# Substrongs/Substrinks (deliberate Softanza wordplay): the strings
-	# that CONTAIN another item of the list, and the ones that are
-	# CONTAINED IN another item (case-sensitive, engine-backed find).
+	# Returns the strings that contain another, different string of the list, one entry per such string.
+	#
+	#   returns    a list of strings
+	#   note       in sea, seashell, shell, ocean, only seashell contains another item
+	#   see        SubStrinks
+	#@ aka  Substrongs/Substrinks (deliberate Softanza wordplay): the strings that CONTAIN another item of the list, and the ones that are CONTAINED IN another item (case-sensitive, engine-backed find).
 	def SubStrongs()
 		_aSbg_ = @acContent
 		_nSbg_ = ring_len(_aSbg_)
@@ -1494,9 +1879,12 @@ class stzStringList from stzObject
 		next
 		return _aSbgRes_
 
-	# The items CONTAINED IN another item of the list -- the mirror of
-	# SubStrongs, not an alias of it (the old comment said "the
-	# substrings of each string", which describes neither).
+	# Returns the strings that sit inside another, different string of the list, repeats included.
+	#
+	#   returns    a list of strings
+	#   note       in sea, seashell, shell, ocean, sea the answer is sea, shell, sea
+	#   see        SubStrongs
+	#@ aka  The items CONTAINED IN another item of the list -- the mirror of SubStrongs, not an alias of it (the old comment said "the substrings of each string", which describes neither).
 	def SubStrinks()
 		_aSbk_ = @acContent
 		_nSbk_ = ring_len(_aSbk_)
@@ -1514,7 +1902,14 @@ class stzStringList from stzObject
 		next
 		return _aSbkRes_
 
-	# The strings satisfying the given W expression.
+	# Returns the strings for which the condition is true; an error inside the condition counts as false.
+	#
+	#   pcExpr     a Ring condition, with @string or @item for the current string and @i for its
+	#              position
+	#   returns    a list of strings
+	#   note       StringsW("len(@string) = 2") keeps the two-char strings
+	#   see        Yield, Filter
+	#@ aka  The strings satisfying the given W expression.
 	def StringsW(pcExpr)
 		_l_ = @acContent
 		_nL_ = len(_l_)
@@ -1535,11 +1930,13 @@ class stzStringList from stzObject
 		next
 		return _aR_
 
-	# The condition's verdict for EVERY string, in order -- 1 or 0 each.
+	# Returns the condition's verdict for every string, 1 or 0, so it lines up with the list position by position.
 	#
-	# StringsW above answers WHICH strings matched; this answers what the
-	# condition said about each one, so the result lines up with Content()
-	# position for position. Same evaluation, two questions.
+	#   pcExpr     a Ring condition, with @string or @item for the current string and @i for its
+	#              position
+	#   returns    a list of 1 and 0
+	#   see        StringsW
+	#@ aka  The condition's verdict for EVERY string, in order -- 1 or 0 each.
 	def Yield(pcExpr)
 		_l_ = @acContent
 		_nL_ = len(_l_)
@@ -1582,14 +1979,11 @@ class stzStringList from stzObject
 	  #==================================================#
 	 #  STRING-LIST SELECTION (lexical)                 #
 	#==================================================#
-	# Lexical (non-semantic) selection over a list of fragments -- substring
-	# membership and word-length ranking -- so chains like
-	# Q(text).WordsQ().ThatContain("ing").Longest() read naturally. These are
-	# STRING ops (any list of strings has them). MEANING-based selection
-	# (MostSimilarByMeaning, ThatAre by sentiment) lives on stzListOfTexts, the
-	# list-of-texts domain -- because that is natural processing, not a string op.
-
-	# Fragments that contain pcSub (engine-backed, codepoint-safe).
+	# Returns the strings that contain the text, case-sensitive, as a plain list; a non-string argument answers an empty list.
+	#
+	#   returns    a list of strings
+	#   see        Filter
+	#@ aka  Lexical (non-semantic) selection over a list of fragments -- substring membership and word-length ranking -- so chains like Q(text).WordsQ().ThatContain("ing").Longest() read naturally. These are STRING ops (any list of strings has them). MEANING-based selection (MostSimilarByMeaning, ThatAre by sentiment) lives on stzListOfTexts, the list-of-texts domain -- because that is natural processing, not
 	def ThatContain(pcSub)
 		if NOT isString(pcSub) return [] ok
 		_aTcOut_ = []
@@ -1622,10 +2016,20 @@ class stzStringList from stzObject
 		next
 		return _cBwBest_
 
-	# The string with the MOST words.
+	# Returns the string with the most words, the first on a tie; an empty list answers an empty string.
+	#
+	#   returns    a string
+	#   note       it counts words, not chars
+	#   see        Shortest
+	#@ aka  The string with the MOST words.
 	def Longest()
 		return This._ByWordCount(1)
 
-	# The string with the FEWEST words.
+	# Returns the string with the fewest words, the first on a tie; an empty list answers an empty string.
+	#
+	#   returns    a string
+	#   note       it counts words, not chars
+	#   see        Longest
+	#@ aka  The string with the FEWEST words.
 	def Shortest()
 		return This._ByWordCount(0)

@@ -1,0 +1,127 @@
+IsLatinScript | TRUE if the engine's Unicode data puts the char in the Latin script. | TRUE or FALSE | | ScriptIs, Script | |
+IsGreekScript | TRUE if the engine's Unicode data puts the char in the Greek script. | TRUE or FALSE | | ScriptIs, Script | |
+IsCyrillicScript | TRUE if the engine's Unicode data puts the char in the Cyrillic script. | TRUE or FALSE | | ScriptIs, Script | |
+IsArmenianScript | TRUE if the engine's Unicode data puts the char in the Armenian script. | TRUE or FALSE | | ScriptIs, Script | |
+IsHebrewScript | TRUE if the engine's Unicode data puts the char in the Hebrew script. | TRUE or FALSE | | ScriptIs, Script | |
+IsArabicScript | TRUE if the engine's Unicode data puts the char in the Arabic script. | TRUE or FALSE | | ScriptIs, Script | |
+IsSyriacScript | TRUE if the engine's Unicode data puts the char in the Syriac script. | TRUE or FALSE | | ScriptIs, Script | |
+IsThaanaScript | TRUE if the engine's Unicode data puts the char in the Thaana script. | TRUE or FALSE | | ScriptIs, Script | |
+IsDevanagariScript | TRUE if the engine's Unicode data puts the char in the Devanagari script. | TRUE or FALSE | | ScriptIs, Script | |
+IsBengaliScript | TRUE if the engine's Unicode data puts the char in the Bengali script. | TRUE or FALSE | | ScriptIs, Script | |
+IsGurmukhiScript | TRUE if the engine's Unicode data puts the char in the Gurmukhi script. | TRUE or FALSE | | ScriptIs, Script | |
+IsGujaratiScript | TRUE if the engine's Unicode data puts the char in the Gujarati script. | TRUE or FALSE | | ScriptIs, Script | |
+IsOriyaScript | TRUE if the engine's Unicode data puts the char in the Oriya script. | TRUE or FALSE | | ScriptIs, Script | |
+IsTamilScript | TRUE if the engine's Unicode data puts the char in the Tamil script. | TRUE or FALSE | | ScriptIs, Script | |
+IsTeluguScript | TRUE if the engine's Unicode data puts the char in the Telugu script. | TRUE or FALSE | | ScriptIs, Script | |
+IsKannadaScript | TRUE if the engine's Unicode data puts the char in the Kannada script. | TRUE or FALSE | | ScriptIs, Script | |
+IsMalayalamScript | TRUE if the engine's Unicode data puts the char in the Malayalam script. | TRUE or FALSE | | ScriptIs, Script | |
+IsSinhalaScript | TRUE if the engine's Unicode data puts the char in the Sinhala script. | TRUE or FALSE | | ScriptIs, Script | |
+IsThaiScript | TRUE if the engine's Unicode data puts the char in the Thai script. | TRUE or FALSE | | ScriptIs, Script | |
+IsLaoScript | TRUE if the engine's Unicode data puts the char in the Lao script. | TRUE or FALSE | | ScriptIs, Script | |
+IsTibetanScript | TRUE if the engine's Unicode data puts the char in the Tibetan script. | TRUE or FALSE | | ScriptIs, Script | |
+IsMyanmarScript | TRUE if the engine's Unicode data puts the char in the Myanmar script. | TRUE or FALSE | | ScriptIs, Script | |
+IsGeorgianScript | TRUE if the engine's Unicode data puts the char in the Georgian script. | TRUE or FALSE | | ScriptIs, Script | |
+IsHangulScript | TRUE if the engine's Unicode data puts the char in the Hangul script. | TRUE or FALSE | | ScriptIs, Script | |
+IsEthiopicScript | TRUE if the engine's Unicode data puts the char in the Ethiopic script. | TRUE or FALSE | | ScriptIs, Script | |
+IsCherokeeScript | TRUE if the engine's Unicode data puts the char in the Cherokee script. | TRUE or FALSE | | ScriptIs, Script | |
+IsCanadianAboriginalScript | TRUE if the engine's Unicode data puts the char in the Canadian Aboriginal script. | TRUE or FALSE | | ScriptIs, Script | |
+IsOghamScript | TRUE if the engine's Unicode data puts the char in the Ogham script. | TRUE or FALSE | | ScriptIs, Script | |
+IsRunicScript | TRUE if the engine's Unicode data puts the char in the Runic script. | TRUE or FALSE | | ScriptIs, Script | |
+IsKhmerScript | TRUE if the engine's Unicode data puts the char in the Khmer script. | TRUE or FALSE | | ScriptIs, Script | |
+IsMongolianScript | TRUE if the engine's Unicode data puts the char in the Mongolian script. | TRUE or FALSE | | ScriptIs, Script | |
+IsHiraganaScript | TRUE if the engine's Unicode data puts the char in the Hiragana script. | TRUE or FALSE | | ScriptIs, Script | |
+IsKatakanaScript | TRUE if the engine's Unicode data puts the char in the Katakana script. | TRUE or FALSE | | ScriptIs, Script | |
+IsBopomofoScript | TRUE if the engine's Unicode data puts the char in the Bopomofo script. | TRUE or FALSE | | ScriptIs, Script | |
+IsHanScript | TRUE if the engine's Unicode data puts the char in the Han script. | TRUE or FALSE | | ScriptIs, Script | |
+IsYiScript | TRUE if the engine's Unicode data puts the char in the Yi script. | TRUE or FALSE | | ScriptIs, Script | |
+IsOldItalicScript | TRUE if the engine's Unicode data puts the char in the Old Italic script. | TRUE or FALSE | | ScriptIs, Script | |
+IsGothicScript | TRUE if the engine's Unicode data puts the char in the Gothic script. | TRUE or FALSE | | ScriptIs, Script | |
+IsDeseretScript | TRUE if the engine's Unicode data puts the char in the Deseret script. | TRUE or FALSE | | ScriptIs, Script | |
+IsTagalogScript | TRUE if the engine's Unicode data puts the char in the Tagalog script. | TRUE or FALSE | | ScriptIs, Script | |
+IsHanunooScript | TRUE if the engine's Unicode data puts the char in the Hanunoo script. | TRUE or FALSE | | ScriptIs, Script | |
+IsBuhidScript | TRUE if the engine's Unicode data puts the char in the Buhid script. | TRUE or FALSE | | ScriptIs, Script | |
+IsTagbanwaScript | TRUE if the engine's Unicode data puts the char in the Tagbanwa script. | TRUE or FALSE | | ScriptIs, Script | |
+IsCopticScript | TRUE if the engine's Unicode data puts the char in the Coptic script. | TRUE or FALSE | | ScriptIs, Script | |
+IsLimbuScript | TRUE if the engine's Unicode data puts the char in the Limbu script. | TRUE or FALSE | | ScriptIs, Script | |
+IsTaiLeScript | TRUE if the engine's Unicode data puts the char in the Tai Le script. | TRUE or FALSE | | ScriptIs, Script | |
+IsLinearBScript | TRUE if the engine's Unicode data puts the char in the Linear B script. | TRUE or FALSE | | ScriptIs, Script | |
+IsUgariticScript | TRUE if the engine's Unicode data puts the char in the Ugaritic script. | TRUE or FALSE | | ScriptIs, Script | |
+IsShavianScript | TRUE if the engine's Unicode data puts the char in the Shavian script. | TRUE or FALSE | | ScriptIs, Script | |
+IsOsmanyaScript | TRUE if the engine's Unicode data puts the char in the Osmanya script. | TRUE or FALSE | | ScriptIs, Script | |
+IsCypriotScript | TRUE if the engine's Unicode data puts the char in the Cypriot script. | TRUE or FALSE | | ScriptIs, Script | |
+IsBrailleScript | TRUE if the engine's Unicode data puts the char in the Braille script. | TRUE or FALSE | | ScriptIs, Script | |
+IsBugineseScript | TRUE if the engine's Unicode data puts the char in the Buginese script. | TRUE or FALSE | | ScriptIs, Script | |
+IsNewTaiLueScript | TRUE if the engine's Unicode data puts the char in the New Tai Lue script. | TRUE or FALSE | | ScriptIs, Script | |
+IsGlagoliticScript | TRUE if the engine's Unicode data puts the char in the Glagolitic script. | TRUE or FALSE | | ScriptIs, Script | |
+IsTifinaghScript | TRUE if the engine's Unicode data puts the char in the Tifinagh script. | TRUE or FALSE | | ScriptIs, Script | |
+IsSylotiNagriScript | TRUE if the engine's Unicode data puts the char in the Syloti Nagri script. | TRUE or FALSE | | ScriptIs, Script | |
+IsOldPersianScript | TRUE if the engine's Unicode data puts the char in the Old Persian script. | TRUE or FALSE | | ScriptIs, Script | |
+IsKharoshthiScript | TRUE if the engine's Unicode data puts the char in the Kharoshthi script. | TRUE or FALSE | | ScriptIs, Script | |
+IsBalineseScript | TRUE if the engine's Unicode data puts the char in the Balinese script. | TRUE or FALSE | | ScriptIs, Script | |
+IsCuneiformScript | TRUE if the engine's Unicode data puts the char in the Cuneiform script. | TRUE or FALSE | | ScriptIs, Script | |
+IsPhoenicianScript | TRUE if the engine's Unicode data puts the char in the Phoenician script. | TRUE or FALSE | | ScriptIs, Script | |
+IsPhagsPaScript | TRUE if the engine's Unicode data puts the char in the Phags Pa script. | TRUE or FALSE | | ScriptIs, Script | |
+IsNkoScript | TRUE if the engine's Unicode data puts the char in the Nko script. | TRUE or FALSE | | ScriptIs, Script | |
+IsSundaneseScript | TRUE if the engine's Unicode data puts the char in the Sundanese script. | TRUE or FALSE | | ScriptIs, Script | |
+IsLepchaScript | TRUE if the engine's Unicode data puts the char in the Lepcha script. | TRUE or FALSE | | ScriptIs, Script | |
+IsOlChikiScript | TRUE if the engine's Unicode data puts the char in the Ol Chiki script. | TRUE or FALSE | | ScriptIs, Script | |
+IsVaiScript | TRUE if the engine's Unicode data puts the char in the Vai script. | TRUE or FALSE | | ScriptIs, Script | |
+IsSaurashtraScript | TRUE if the engine's Unicode data puts the char in the Saurashtra script. | TRUE or FALSE | | ScriptIs, Script | |
+IsKayahLiScript | TRUE if the engine's Unicode data puts the char in the Kayah Li script. | TRUE or FALSE | | ScriptIs, Script | |
+IsRejangScript | TRUE if the engine's Unicode data puts the char in the Rejang script. | TRUE or FALSE | | ScriptIs, Script | |
+IsLycianScript | TRUE if the engine's Unicode data puts the char in the Lycian script. | TRUE or FALSE | | ScriptIs, Script | |
+IsCarianScript | TRUE if the engine's Unicode data puts the char in the Carian script. | TRUE or FALSE | | ScriptIs, Script | |
+IsLydianScript | TRUE if the engine's Unicode data puts the char in the Lydian script. | TRUE or FALSE | | ScriptIs, Script | |
+IsChamScript | TRUE if the engine's Unicode data puts the char in the Cham script. | TRUE or FALSE | | ScriptIs, Script | |
+IsTaiVietScript | TRUE if the engine's Unicode data puts the char in the Tai Viet script. | TRUE or FALSE | | ScriptIs, Script | |
+IsAvestanScript | TRUE if the engine's Unicode data puts the char in the Avestan script. | TRUE or FALSE | | ScriptIs, Script | |
+IsEgyptianHieroglyphsScript | TRUE if the engine's Unicode data puts the char in the Egyptian Hieroglyphs script. | TRUE or FALSE | | ScriptIs, Script | |
+IsSamaritanScript | TRUE if the engine's Unicode data puts the char in the Samaritan script. | TRUE or FALSE | | ScriptIs, Script | |
+IsLisuScript | TRUE if the engine's Unicode data puts the char in the Lisu script. | TRUE or FALSE | | ScriptIs, Script | |
+IsBamumScript | TRUE if the engine's Unicode data puts the char in the Bamum script. | TRUE or FALSE | | ScriptIs, Script | |
+IsJavaneseScript | TRUE if the engine's Unicode data puts the char in the Javanese script. | TRUE or FALSE | | ScriptIs, Script | |
+IsMeeteiMayekScript | TRUE if the engine's Unicode data puts the char in the Meetei Mayek script. | TRUE or FALSE | | ScriptIs, Script | |
+IsImperialAramaicScript | TRUE if the engine's Unicode data puts the char in the Imperial Aramaic script. | TRUE or FALSE | | ScriptIs, Script | |
+IsOldSouthArabianScript | TRUE if the engine's Unicode data puts the char in the Old South Arabian script. | TRUE or FALSE | | ScriptIs, Script | |
+IsInscriptionalParthianScript | TRUE if the engine's Unicode data puts the char in the Inscriptional Parthian script. | TRUE or FALSE | | ScriptIs, Script | |
+IsInscriptionalPahlaviScript | TRUE if the engine's Unicode data puts the char in the Inscriptional Pahlavi script. | TRUE or FALSE | | ScriptIs, Script | |
+IsOldTurkicScript | TRUE if the engine's Unicode data puts the char in the Old Turkic script. | TRUE or FALSE | | ScriptIs, Script | |
+IsKaithiScript | TRUE if the engine's Unicode data puts the char in the Kaithi script. | TRUE or FALSE | | ScriptIs, Script | |
+IsBatakScript | TRUE if the engine's Unicode data puts the char in the Batak script. | TRUE or FALSE | | ScriptIs, Script | |
+IsBrahmiScript | TRUE if the engine's Unicode data puts the char in the Brahmi script. | TRUE or FALSE | | ScriptIs, Script | |
+IsMandaicScript | TRUE if the engine's Unicode data puts the char in the Mandaic script. | TRUE or FALSE | | ScriptIs, Script | |
+IsChakmaScript | TRUE if the engine's Unicode data puts the char in the Chakma script. | TRUE or FALSE | | ScriptIs, Script | |
+IsMeroiticCursiveScript | TRUE if the engine's Unicode data puts the char in the Meroitic Cursive script. | TRUE or FALSE | | ScriptIs, Script | |
+IsMeroiticHieroglyphsScript | TRUE if the engine's Unicode data puts the char in the Meroitic Hieroglyphs script. | TRUE or FALSE | | ScriptIs, Script | |
+IsMiaoScript | TRUE if the engine's Unicode data puts the char in the Miao script. | TRUE or FALSE | | ScriptIs, Script | |
+IsSharadaScript | TRUE if the engine's Unicode data puts the char in the Sharada script. | TRUE or FALSE | | ScriptIs, Script | |
+IsSoraSompengScript | TRUE if the engine's Unicode data puts the char in the Sora Sompeng script. | TRUE or FALSE | | ScriptIs, Script | |
+IsTakriScript | TRUE if the engine's Unicode data puts the char in the Takri script. | TRUE or FALSE | | ScriptIs, Script | |
+IsCaucasianAlbanianScript | TRUE if the engine's Unicode data puts the char in the Caucasian Albanian script. | TRUE or FALSE | | ScriptIs, Script | |
+IsBassaVahScript | TRUE if the engine's Unicode data puts the char in the Bassa Vah script. | TRUE or FALSE | | ScriptIs, Script | |
+IsDuployanScript | TRUE if the engine's Unicode data puts the char in the Duployan script. | TRUE or FALSE | | ScriptIs, Script | |
+IsElbasanScript | TRUE if the engine's Unicode data puts the char in the Elbasan script. | TRUE or FALSE | | ScriptIs, Script | |
+IsGranthaScript | TRUE if the engine's Unicode data puts the char in the Grantha script. | TRUE or FALSE | | ScriptIs, Script | |
+IsPahawhHmongScript | TRUE if the engine's Unicode data puts the char in the Pahawh Hmong script. | TRUE or FALSE | | ScriptIs, Script | |
+IsKhojkiScript | TRUE if the engine's Unicode data puts the char in the Khojki script. | TRUE or FALSE | | ScriptIs, Script | |
+IsLinearAScript | TRUE if the engine's Unicode data puts the char in the Linear A script. | TRUE or FALSE | | ScriptIs, Script | |
+IsMahajaniScript | TRUE if the engine's Unicode data puts the char in the Mahajani script. | TRUE or FALSE | | ScriptIs, Script | |
+IsManichaeanScript | TRUE if the engine's Unicode data puts the char in the Manichaean script. | TRUE or FALSE | | ScriptIs, Script | |
+IsMendeKikakuiScript | TRUE if the engine's Unicode data puts the char in the Mende Kikakui script. | TRUE or FALSE | | ScriptIs, Script | |
+IsModiScript | TRUE if the engine's Unicode data puts the char in the Modi script. | TRUE or FALSE | | ScriptIs, Script | |
+IsMroScript | TRUE if the engine's Unicode data puts the char in the Mro script. | TRUE or FALSE | | ScriptIs, Script | |
+IsOldNorthArabianScript | TRUE if the engine's Unicode data puts the char in the Old North Arabian script. | TRUE or FALSE | | ScriptIs, Script | |
+IsNabataeanScript | TRUE if the engine's Unicode data puts the char in the Nabataean script. | TRUE or FALSE | | ScriptIs, Script | |
+IsPalmyreneScript | TRUE if the engine's Unicode data puts the char in the Palmyrene script. | TRUE or FALSE | | ScriptIs, Script | |
+IsPauCinHauScript | TRUE if the engine's Unicode data puts the char in the Pau Cin Hau script. | TRUE or FALSE | | ScriptIs, Script | |
+IsOldPermicScript | TRUE if the engine's Unicode data puts the char in the Old Permic script. | TRUE or FALSE | | ScriptIs, Script | |
+IsPsalterPahlaviScript | TRUE if the engine's Unicode data puts the char in the Psalter Pahlavi script. | TRUE or FALSE | | ScriptIs, Script | |
+IsSiddhamScript | TRUE if the engine's Unicode data puts the char in the Siddham script. | TRUE or FALSE | | ScriptIs, Script | |
+IsKhudawadiScript | TRUE if the engine's Unicode data puts the char in the Khudawadi script. | TRUE or FALSE | | ScriptIs, Script | |
+IsTirhutaScript | TRUE if the engine's Unicode data puts the char in the Tirhuta script. | TRUE or FALSE | | ScriptIs, Script | |
+IsWarangCitiScript | TRUE if the engine's Unicode data puts the char in the Warang Citi script. | TRUE or FALSE | | ScriptIs, Script | |
+IsAhomScript | TRUE if the engine's Unicode data puts the char in the Ahom script. | TRUE or FALSE | | ScriptIs, Script | |
+IsAnatolianHieroglyphsScript | TRUE if the engine's Unicode data puts the char in the Anatolian Hieroglyphs script. | TRUE or FALSE | | ScriptIs, Script | |
+IsHatranScript | TRUE if the engine's Unicode data puts the char in the Hatran script. | TRUE or FALSE | | ScriptIs, Script | |
+IsMultaniScript | TRUE if the engine's Unicode data puts the char in the Multani script. | TRUE or FALSE | | ScriptIs, Script | |
+TaiThamScript | Raises error R14 today instead of testing for the Tai Tham script. | TRUE or FALSE once repaired | | ScriptIs, Script | known defect: the body calls ScriptCode, which was retired; ScriptIs("taitham") is the working test | the engine names the script taitham
