@@ -3841,12 +3841,12 @@ func IsListOfNumbersAndStrings(paList)
 	_acTypes_ = U(_acTypes_)
 
 	if len(_acTypes_) = 2 and
-		ring_substr1(_acTypes_, "NUMBER") > 0 and
-		ring_substr1(_acTypes_, "STRING") > 0
+		ring_find(_acTypes_, "NUMBER") > 0 and
+		ring_find(_acTypes_, "STRING") > 0
 
 			return 1
 	else
-			return _FALSE
+			return 0
 
 	ok
 
