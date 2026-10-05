@@ -26,6 +26,13 @@ WHAT THE PORT ADDS to the contract, and nothing else:
     comes back, it REJECTS the replay with DU03. A platform that retries after a timeout must
     not reach the hub twice, so the port keeps a journal keyed by txId: a re-submission answers
     the CURRENT state of the original and sends nothing. aR[:replayed] says which it was.
+  * MONEY OUT IS A PLAN A HUMAN COMMITS. Pay, PayInBulk, ReturnFunds and the ACCEPTING answers to a
+    request or a cancellation (each of which moves money out) refuse, before any request exists,
+    unless a committed plan authorised that exact payout for that exact amount
+    (payout-without-plan, payout-amount-differs). The port knows no policy: how many people must
+    approve what is the plan's business (stzPayouts.ring), and a platform that wants another rule
+    changes the policy, never the port. Asking for money, declining to pay, and moving money
+    between the platform's own accounts are not money out and need no plan.
   * AMOUNTS CARRY A CURRENCY. An order is built with StzAmountQ, and the hub speaks XOF only, so
     another currency is refused before a request exists.
   * AN ERROR IS A PROBLEM. A status of 400 or more raises, and StzLastPaymentsProblem() answers
@@ -57,6 +64,8 @@ $aPaySeen = []
 $aPayRefused = []
 $aPayEvents = []
 $aPayLastProblem = []
+$aPayGov = []          # [ portId, 1 when told to skip the plan ]
+$aPayAuth = []         # [ portId, kind, key, amount, planId, used ]
 
 $cPayReasons = "|DU03=the txId is not unique|BE23=the alias, IBAN or account of the payee is invalid" +
 	"|AC01=no such account at the destination participant|AB05=the destination participant did not answer the identity check in time" +
@@ -468,6 +477,14 @@ class stzPaymentBatch from stzObject
 	def NumberOfItems()
 		return ring_len(@aItems)
 
+	# the sum of the items, in francs: what a plan authorises for the instruction
+	def TotalAmount()
+		_n_ = 0
+		for _i_ = 1 to ring_len(@aItems)
+			_n_ = _n_ + _StzPiGet(@aItems[_i_], "montant", 0)
+		next
+		return _n_
+
 	def _Head(pcPayerKey, pcPayer)
 		if @cId = ""
 			StzRaise("A batch needs an instructionId: one identifier for the whole batch.")
@@ -573,6 +590,102 @@ class stzPaymentsPort from stzObject
 	def Backend()
 		return @oBackend
 
+	  #-- governance: money out is a plan -------------------------------
+
+	# THE LOUD, NAMED ACT: a test of the twin drives the hub directly. A registry refuses a port
+	# that did this in a production phase (ungoverned-payouts-in-production).
+	def AllowUngovernedPayouts()
+		for _i_ = 1 to ring_len($aPayGov)
+			if $aPayGov[_i_][1] = @nId
+				$aPayGov[_i_][2] = 1
+				return This
+			ok
+		next
+		$aPayGov + [ @nId, 1 ]
+		return This
+
+	def AllowsUngovernedPayouts()
+		for _i_ = 1 to ring_len($aPayGov)
+			if $aPayGov[_i_][1] = @nId and $aPayGov[_i_][2] = 1
+				return 1
+			ok
+		next
+		return 0
+
+	def IsGoverned()
+		return NOT This.AllowsUngovernedPayouts()
+
+	# An ADMISSION: only an effectful actor that is not sandboxed may authorise a payout, which
+	# is the test the registry's MayGoLive applies. An LLM can propose a plan and cannot do this.
+	# One authorisation is for one payout of one amount, held by THIS port.
+	def AuthorisePayout(poActor, pcPlanId, pcKind, pcKey, pnAmount)
+		_cWho_ = "?"
+		if isObject(poActor)
+			_cWho_ = "" + poActor.Name()
+		ok
+		if NOT isObject(poActor) or NOT poActor.IsEffectful() or poActor.Posture() = "sandboxed"
+			StzNoteRefusal("payout.refused", _cWho_, "plan:" + pcPlanId, "the actor may not authorise a payout")
+			StzRaise("payout-refused: only an effectful, non-sandboxed actor may authorise a payout (" + _cWho_ + " may not).")
+		ok
+		for _i_ = 1 to ring_len($aPayAuth)
+			if $aPayAuth[_i_][1] = @nId and $aPayAuth[_i_][2] = pcKind and $aPayAuth[_i_][3] = pcKey
+				$aPayAuth[_i_] = [ @nId, pcKind, pcKey, pnAmount, pcPlanId, 0 ]
+				return 1
+			ok
+		next
+		$aPayAuth + [ @nId, pcKind, pcKey, pnAmount, pcPlanId, 0 ]
+		return 1
+
+	# [ [ kind, key, amount, plan, used ], ... ] as records, oldest first
+	def AuthorisedPayouts()
+		_a_ = []
+		for _i_ = 1 to ring_len($aPayAuth)
+			if $aPayAuth[_i_][1] = @nId
+				_a_ + [ [ "kind", $aPayAuth[_i_][2] ], [ "key", $aPayAuth[_i_][3] ], [ "amount", $aPayAuth[_i_][4] ],
+					[ "plan", $aPayAuth[_i_][5] ], [ "used", $aPayAuth[_i_][6] ] ]
+			ok
+		next
+		return _a_
+
+	# The gate every money-out verb passes BEFORE it asks the hub anything. pnAmount < 0 means
+	# "only that the plan exists" (a confirmation). Answers the row index, 0 when ungoverned.
+	def _Gate(pcKind, pcKey, pnAmount, pbConsume)
+		if This.AllowsUngovernedPayouts()
+			return 0
+		ok
+		_k_ = 0
+		for _i_ = 1 to ring_len($aPayAuth)
+			if $aPayAuth[_i_][1] = @nId and $aPayAuth[_i_][2] = pcKind and $aPayAuth[_i_][3] = pcKey
+				_k_ = _i_
+				exit
+			ok
+		next
+		_cWhat_ = pcKind + " " + pcKey
+		if _k_ = 0
+			StzNoteRefusal("payout.unplanned", "port:" + @nId, _cWhat_, "no committed plan authorised this payout")
+			StzRaise("payout-without-plan: no committed plan authorised " + _cWhat_ + ".")
+		ok
+		if pnAmount >= 0 and $aPayAuth[_k_][4] != pnAmount
+			StzNoteRefusal("payout.unplanned", "port:" + @nId, _cWhat_, "the amount is not the amount the plan authorised")
+			StzRaise("payout-amount-differs: plan " + $aPayAuth[_k_][5] + " authorised " + $aPayAuth[_k_][4] +
+				" for " + _cWhat_ + ", and " + pnAmount + " was asked.")
+		ok
+		if pbConsume and $aPayAuth[_k_][6] = 1
+			StzNoteRefusal("payout.unplanned", "port:" + @nId, _cWhat_, "the authorisation was already used")
+			StzRaise("payout-already-released: the authorisation for " + _cWhat_ + " was already used; a new plan is needed.")
+		ok
+		return _k_
+
+	def _Release(pnRow)
+		if pnRow > 0
+			$aPayAuth[pnRow][6] = 1
+		ok
+
+	# the amount the HUB holds for something, so a plan cannot name an amount the hub does not
+	def _AmountAt(pcPath)
+		_a_ = This._Call("GET", pcPath, [], [])
+		return _StzPiGet(_a_, "montant", 0)
+
 	def IsFinal(pcStatut)
 		return StzPaymentsIsFinal(pcStatut)
 
@@ -656,14 +769,19 @@ class stzPaymentsPort from stzObject
 			_a_ + [ "replayed", 1 ]
 			return _a_
 		ok
+		_nRow_ = This._Gate("pay", _cTx_, poOrder.Amount(), 1)
 		_a_ = This._Call("POST", "/paiements-envoyes", [], _aBody_)
 		if NOT ( _StzPiGet(_a_, "statut", "") = "REJETE" and _StzPiGet(_a_, "statutRaison", "") = "DU03" )
 			This._Remember("pay", _cTx_, _StzPiGet(_a_, "end2endId", ""))
+			This._Release(_nRow_)
 		ok
 		_a_ + [ "replayed", 0 ]
 		return _a_
 
 	def ConfirmPayment(pcTxId, pbYes)
+		if pbYes
+			This._Gate("pay", pcTxId, -1, 0)
+		ok
 		return This._Call("PUT", "/paiements-envoyes/" + pcTxId + "/confirmations", [], [ [ "decision", This._Bool(pbYes) ] ])
 
 	def SentPayment(pcTxId)
@@ -690,13 +808,25 @@ class stzPaymentsPort from stzObject
 		return This._Call("GET", "/paiements/" + pcEnd2EndId, [], [])
 
 	def ReturnFunds(pcEnd2EndId)
-		return This._Call("PUT", "/paiements/" + pcEnd2EndId + "/retours", [], [])
+		_nRow_ = 0
+		if This.IsGoverned()
+			_nRow_ = This._Gate("return", pcEnd2EndId, This._AmountAt("/paiements/" + pcEnd2EndId), 1)
+		ok
+		_a_ = This._Call("PUT", "/paiements/" + pcEnd2EndId + "/retours", [], [])
+		This._Release(_nRow_)
+		return _a_
 
 	def RequestCancellation(pcEnd2EndId, pcMotif)
 		return This._Call("POST", "/paiements/" + pcEnd2EndId + "/annulations", [], [ [ "raison", pcMotif ] ])
 
 	def AnswerCancellation(pcEnd2EndId, pbAccept)
-		return This._Call("PUT", "/paiements/" + pcEnd2EndId + "/annulations/reponses", [], [ [ "decision", This._Bool(pbAccept) ] ])
+		_nRow_ = 0
+		if pbAccept and This.IsGoverned()
+			_nRow_ = This._Gate("answer-cancellation", pcEnd2EndId, This._AmountAt("/paiements/" + pcEnd2EndId), 1)
+		ok
+		_a_ = This._Call("PUT", "/paiements/" + pcEnd2EndId + "/annulations/reponses", [], [ [ "decision", This._Bool(pbAccept) ] ])
+		This._Release(_nRow_)
+		return _a_
 
 	  #-- requests to pay ------------------------------------------------
 
@@ -720,11 +850,17 @@ class stzPaymentsPort from stzObject
 
 	# a request we RECEIVED: accepting pays it, so it is money out; rejecting needs a reason
 	def AnswerRequest(pcEnd2EndId, pbAccept, pcReason)
+		_nRow_ = 0
+		if pbAccept and This.IsGoverned()
+			_nRow_ = This._Gate("answer-request", pcEnd2EndId, This._AmountAt("/demandes-paiements-recues/" + pcEnd2EndId), 1)
+		ok
 		_a_ = [ [ "decision", This._Bool(pbAccept) ] ]
 		if NOT pbAccept
 			_a_ + [ "raison", pcReason ]
 		ok
-		return This._Call("PUT", "/demandes-paiements-recues/" + pcEnd2EndId + "/reponses", [], _a_)
+		_aR_ = This._Call("PUT", "/demandes-paiements-recues/" + pcEnd2EndId + "/reponses", [], _a_)
+		This._Release(_nRow_)
+		return _aR_
 
 	def Requests(paFilter)
 		_a_ = This._Call("GET", "/demandes-paiements", paFilter, [])
@@ -748,13 +884,18 @@ class stzPaymentsPort from stzObject
 			_a_ + [ "replayed", 1 ]
 			return _a_
 		ok
+		_nRow_ = This._Gate("bulk", _cId_, poBatch.TotalAmount(), 1)
 		This._Call("POST", "/paiements-groupes", [], _aBody_)
 		This._Remember("bulk", _cId_, "")
+		This._Release(_nRow_)
 		_a_ = This.Bulk(_cId_)
 		_a_ + [ "replayed", 0 ]
 		return _a_
 
 	def ConfirmBulk(pcInstructionId, pbYes)
+		if pbYes
+			This._Gate("bulk", pcInstructionId, -1, 0)
+		ok
 		return This._Call("PUT", "/paiements-groupes/" + pcInstructionId + "/confirmations", [], [ [ "decision", This._Bool(pbYes) ] ])
 
 	def Bulk(pcInstructionId)

@@ -93,7 +93,7 @@ Scenario("the port verifies through the signer, and the hub's secret never leave
 	StzOpenSecurityLedger(256)
 	oLed = StzSecurityLedgerQ()
 	oHub = StzPiSpiSandboxQ()
-	oPay = StzPaymentsPortQ(oHub)
+	oPay = UngovernedPort(oHub)
 	oPay.RegisterWebhook( StzWebhookQ().CallingBack("https://diko.example/pispi") )
 	cSecret = oHub.LastWebhookSecret()
 
@@ -141,7 +141,7 @@ EndScenario()
 
 Scenario("the secret comes from the store, through the governed door")
 	oHub = StzPiSpiSandboxQ()
-	oSetup = StzPaymentsPortQ(oHub)
+	oSetup = UngovernedPort(oHub)
 	oSetup.RegisterWebhook( StzWebhookQ().CallingBack("https://diko.example/pispi") )
 	cSecret = oHub.LastWebhookSecret()
 
@@ -152,7 +152,7 @@ Scenario("the secret comes from the store, through the governed door")
 	oHuman = HumanActor("dana")
 	oLlm = LLMActor("assistant")
 
-	oPort = StzPaymentsPortQ(oHub)
+	oPort = UngovernedPort(oHub)
 	oOrder = StzPaymentOrderQ()
 	oOrder.WithTxId("WH-2")
 	oOrder.FromAlias(oHub.BusinessAlias())
@@ -197,3 +197,10 @@ func pzSeverity(aFindings, cRule)
 		ok
 	next
 	return ""
+
+# This guard tests the TWIN's contract and the webhook path, not governance: it drives the hub
+# directly, and says so by name. payments_governance_narrated is where money out is a plan.
+func UngovernedPort(oBackend)
+	oUg = StzPaymentsPortQ(oBackend)
+	oUg.AllowUngovernedPayouts()
+	return oUg
