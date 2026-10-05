@@ -3022,7 +3022,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	  #-----------------------------------------------------------------------#
 	 #   WHEN THE VALUE IS A LIST, FINDING THE GIVEN ITEM INSIDE THAT TLIST  #
 	#=======================================================================#
-	# Returns, for every list value that holds the given item, its position and the item's positions inside it.
+	# Returns, for each list value holding the item, the pair's position and the item's positions inside that list.
 	#
 	#   pItem      the item to look for inside the list values
 	#   returns    a list of [ position of the pair, list of positions of the item ] pairs

@@ -159,6 +159,10 @@ func _StzDocBriefForm(pcBrief)
 	ok
 	_aW_ = _StzWords(_b_)
 	_w_ = lower(_aW_[1])
+	# "Returns, for each ..." opens with Returns: the comma is punctuation
+	while len(_w_) > 1 and ring_find([ ",", ";", ":" ], right(_w_, 1)) > 0
+		_w_ = left(_w_, len(_w_) - 1)
+	end
 	if _w_ = "true" or _w_ = "false"
 		if len(_aW_) >= 2 and lower(_aW_[2]) = "if"
 			return 1
@@ -524,6 +528,11 @@ func _StzDocRootJson(pcClass, paRoot, paExts, pacAliases, pcPassive)
 			_cRo_ = "derived"
 		but NOT paRoot[:hasreturn]
 			_cRet_ = "Nothing."
+			_cRo_ = "derived"
+		but _StzDocIsCountName(_cName_)
+			# NumberOfX and HowManyX answer a count: true of every such method of the
+			# four pilot classes, checked by running them
+			_cRet_ = "a number."
 			_cRo_ = "derived"
 		ok
 	ok
@@ -1317,3 +1326,17 @@ func _StzDocList(pn)
 		return []
 	ok
 	return list(pn)
+
+# NumberOfX / HowManyX: a count (the next letter opens a word)
+func _StzDocIsCountName(pcName)
+	_acLead_ = [ "NumberOf", "HowMany" ]
+	for _i_ = 1 to 2
+		_n_ = len(_acLead_[_i_])
+		if len(pcName) > _n_ and left(pcName, _n_) = _acLead_[_i_]
+			_c_ = pcName[_n_ + 1]
+			if _c_ != lower(_c_) or isdigit(_c_)
+				return 1
+			ok
+		ok
+	next
+	return 0

@@ -122,7 +122,7 @@ DOC = {
   "note": ["every value is written as text, so the number 4 comes out as \"4\""],
   "example": ['? o1.ToCode()']},
  {"name": "FindItem",
-  "brief": "Returns, for every list value that holds the given item, its position and the item's positions inside it.",
+  "brief": "Returns, for each list value holding the item, the pair's position and the item's positions inside that list.",
   "params": {"pItem": "the item to look for inside the list values"},
   "returns": "a list of [ position of the pair, list of positions of the item ] pairs",
   "see": ["Items", "NumberOfItems"],

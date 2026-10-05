@@ -142,6 +142,8 @@ EndScenario()
 Scenario("The score: the brief checks")
 	Then("a good brief passes the form check",
 		_StzDocBriefForm("Returns the positions of every occurrence of pcSubStr."), 1)
+	Then("a comma after the first word is punctuation: Returns, for each ...",
+		_StzDocBriefForm("Returns, for each occurrence, the items on both sides."), 1)
 	Then("TRUE if is a valid opening",
 		_StzDocBriefForm("TRUE if the text is made of letters only."), 1)
 	Then("a lowercase start fails", _StzDocBriefForm("returns the positions of every occurrence."), 0)

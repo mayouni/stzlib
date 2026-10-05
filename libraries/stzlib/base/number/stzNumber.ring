@@ -4848,7 +4848,7 @@ class stzNumber from stzObject
 	def IsRational()
 		return This.Representation() = :rational
 
-	# TRUE unless an operation on the number lost precision, such as a division that does not terminate.
+	# TRUE if no operation has lost precision, such as a division that does not terminate.
 	#
 	#   returns    TRUE or FALSE
 	#   see        WhyNotExact
@@ -8269,7 +8269,7 @@ class stzNumber from stzObject
 			def IsAMemberIn(paList)
 				return This.IsMemberOf(paList)
 	
-	# Always TRUE: the object holds a number, answered so a number can be told from a text.
+	# Answers TRUE for any number, so a number can be told from a text.
 	#
 	#   returns    TRUE
 	#   example    ? o1.IsANumber()
@@ -8331,7 +8331,7 @@ class stzNumber from stzObject
 		def IsNotOneOfThese(paList)
 			return NOT This.IsOneOfThese(paList)
 	
-	# Always FALSE: a number is not a letter, answered so a number can stand where a character is expected.
+	# Answers FALSE for any number, so a number can stand where a character is expected.
 	#
 	#   returns    FALSE
 	#   example    ? o1.IsLetter()
