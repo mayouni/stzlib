@@ -1839,7 +1839,7 @@ func _pvtIsExactIntegerOp(pcOp)
 	return StzFindFirst(pcOp, [ "+", "-", "*", "%", "^", "/" ]) > 0
 
 func _pvtIsTranscendental(pcOp)
-	return StzFindFirst(pcOp, [ "sin", "cos", "tan", "cotan", "sinh", "cosh",
+	return StzFindFirst(pcOp, [ "sin", "cos", "tan", "cotan", "atan", "atan2", "sinh", "cosh",
 		"tanh", "exp", "log", "log10", "sqrt", "sigmoid", "DerivativeSigmoid",
 		"inverse" ]) > 0
 
@@ -3874,14 +3874,17 @@ class stzNumber from stzObject
 		def IsPrimeNumber()
 			return This.IsPrime()
 
-	# Answers an empty string today instead of telling whether the number is a Wieferich prime.
+	# Tells whether the number is a Wieferich prime: a prime p where p squared divides 2^(p-1) - 1.
 	#
 	#   s          unused
-	#   returns    nothing today
-	#   warning    the call answers an empty string today
+	#   returns    TRUE or FALSE
+	#   example    o1 = new stzNumber(1093)
+	#              ? o1.isWeiferich(0)
+	#              #--> TRUE
 	#@ aka  TRUE if the number is a Wieferich prime.
 	def isWeiferich(s)
 		_bResult_ = @isWeiferich(This.NumericValue())
+		return _bResult_
 
 	# TRUE if the number is 0 or 1.
 	#
@@ -4536,12 +4539,11 @@ class stzNumber from stzObject
 
 		return _bResult_
 
-	# Raises an error today instead of telling whether two numbers differ by less than the quiet ratio.
+	# Tells whether the number and the given one differ by no more than the quiet equality ratio.
 	#
-	#   returns    nothing today
-	#   warning    known defect: the call raises error R13 today, because it subtracts a plain
-	#              number with an operator that needs an object
-	#   see        IsEqualTo, Same
+	#   pOtherNumber   a number, or a string holding one
+	#   returns        TRUE or FALSE
+	#   see            IsEqualTo, Same
 	#@ aka  Quiet equality: TRUE if the values match, tolerating number/string form.
 	def IsQuietEqualTo(pOtherNumber)
 
@@ -4552,7 +4554,13 @@ class stzNumber from stzObject
 		_nCurrentRound_ = StzCurrentRound()
 
 		StzDecimals(This.Round())
-		_bResult_ = ( fabs( (This - pOtherNumber).NumericValue() ) <= QuietEqualityRatio() )
+		_nQeOther_ = 0
+		if isString(pOtherNumber)
+			_nQeOther_ = StringToNumber(pOtherNumber)
+		else
+			_nQeOther_ = pOtherNumber
+		ok
+		_bResult_ = ( fabs( This.NumericValue() - _nQeOther_ ) <= QuietEqualityRatio() )
 		StzDecimals(_nCurrentRound_)
 
 		return _bResult_
@@ -5429,24 +5437,28 @@ class stzNumber from stzObject
 	def RoundedToMax()
 		return This.RoundedTo(MaxRound())
 
-	# Raises an error today instead of returning the number rounded up.
+	# Returns the smallest whole number that is not below the number, as text; the number is unchanged.
 	#
-	#   returns    nothing today
-	#   warning    known defect: the call raises error R24 today (a variable used before it is set)
+	#   returns    a string
 	#   see        RoundDown
+	#   example    o1 = new stzNumber(3.14)
+	#              ? o1.RoundUp()
+	#              #--> 4
 	#---
 	#@ aka  The number rounded UP (toward the next integer).
 	def RoundUp()
-		return This.pvtCalculate( "floor", "" )
+		return This.pvtCalculate( "ceil", "" )
 
-	# Raises an error today instead of returning the number rounded down.
+	# Returns the largest whole number that is not above the number, as text; the number is unchanged.
 	#
-	#   returns    nothing today
-	#   warning    known defect: the call raises error R24 today (a variable used before it is set)
+	#   returns    a string
 	#   see        RoundUp
+	#   example    o1 = new stzNumber(3.99)
+	#              ? o1.RoundDown()
+	#              #--> 3
 	#@ aka  The number rounded DOWN (toward the previous integer).
 	def RoundDown()
-		return This.pvtCalculate( "ceil", "" )
+		return This.pvtCalculate( "floor", "" )
 			
 	# Rounds the number to the same number of decimals as the given number, in place.
 	#
@@ -5938,13 +5950,12 @@ class stzNumber from stzObject
 			return This        # FIXED 2026-07-25: a Q form must return the object
 			return This
 
-	# Answers an empty string today instead of the number plus 1; the number is unchanged.
+	# Returns the number plus 1, as text; the number is unchanged.
 	#
-	#   returns    an empty string today
-	#   warning    known defect: it answers an empty string; NextNumber answers the number plus 1
+	#   returns    a string
 	#   see        NextNumber
 	def Incremented()
-		_nResult_ = This.NumericValue() + 1
+		return This.NextNumber()
 
 	# Subtracts 1 from the number, in place.
 	#
@@ -5959,14 +5970,12 @@ class stzNumber from stzObject
 			return This        # FIXED 2026-07-25: a Q form must return the object
 			return This
 
-	# Answers an empty string today instead of the number minus 1; the number is unchanged.
+	# Returns the number minus 1, as text; the number is unchanged.
 	#
-	#   returns    an empty string today
-	#   warning    known defect: it answers an empty string; PreviousNumber answers the number minus
-	#              1
+	#   returns    a string
 	#   see        PreviousNumber
 	def Decremented()
-		_nResult_ = This.NumericValue() - 1
+		return This.PreviousNumber()
 
 	  #-------------------------------------------------#
 	 #    MULTIPLYING THE NUMBER BY AN OTHER NUMBER    #
@@ -6301,10 +6310,9 @@ class stzNumber from stzObject
 		def ArcCosineQ()
 			return new stzNumber(This.ArcCosine())
 	
-	# Raises an error today instead of returning the arc tangent of the number.
+	# Returns the arc tangent of the number in radians, rounded to the number's decimals; the number is unchanged.
 	#
-	#   returns    nothing today
-	#   warning    known defect: the call raises error R24 today (a variable used before it is set)
+	#   returns    a string
 	#@ aka  ARCTANGENT
 	def ArcTangent()
 		return This.pvtCalculate( "atan", "" )
@@ -6312,16 +6320,20 @@ class stzNumber from stzObject
 		def ArcTangentQ()
 			return new stzNumber(This.ArcTangent())
 	
-	# Raises an error today instead of returning the two-argument arc tangent.
+	# Returns the angle in radians of the point (x, number), rounded to the number's decimals; the number is the y side.
 	#
-	#   returns    nothing today
-	#   warning    known defect: the call raises an error about its parameter count today
+	#   pnX        the x side
+	#   returns    a string
+	#   see        ArcTangent
+	#   example    o1 = new stzNumber(1)
+	#              ? o1.ArcTangent2(1)
+	#              #--> 0.8
 	#@ aka  ARCTANGENT2
-	def ArcTangent2()
-		return This.pvtCalculate( "atan2", "" )
+	def ArcTangent2(pnX)
+		return This.pvtCalculate( "atan2", pnX )
 
-		def ArcTangent2Q()
-			return new stzNumber(This.ArcTangent2())
+		def ArcTangent2Q(pnX)
+			return new stzNumber(This.ArcTangent2(pnX))
 	
 	# Returns the hyperbolic sine of the number, rounded to the number's decimals; the number is unchanged.
 	#
@@ -6343,11 +6355,9 @@ class stzNumber from stzObject
 		def HyperbolicCosineQ()
 			return new stzNumber(This.HyperbolicCosine())
 	
-	# Raises an error today instead of returning the hyperbolic tangent of the number.
+	# Returns the hyperbolic tangent of the number, rounded to the number's decimals; the number is unchanged.
 	#
-	#   returns    nothing today
-	#   warning    known defect: the call raises error R3 today (it calls tanhh, which is not
-	#              defined)
+	#   returns    a string
 	#@ aka  TANH
 	def HyperbolicTangent()
 		return This.pvtCalculate( "tanh", "" )
@@ -6476,14 +6486,24 @@ class stzNumber from stzObject
 			return new stzNumber(This.Sigmoid())
 	
 
-	# Raises an error today instead of returning the derivative of a function at the number.
+	# Returns the slope of a function of x at the number, from exact automatic differentiation, as text.
 	#
-	#   pcFunc     the function, as text
-	#   returns    nothing today
-	#   warning    known defect: the call raises error R24 today (a variable used before it is set)
+	#   pcFunc     the function written in x, such as "x^2 + 3*x"
+	#   returns    a string, rounded to the number's decimals
+	#   see        DerivativeSigmoid
+	#   example    o1 = new stzNumber(3)
+	#              ? o1.Derivative("x^2")
+	#              #--> 6
 	#@ aka  The derivative via the engine calculator (reserved form).
 	def Derivative(pcFunc)
-		return This.pvtCalculate( "derivative", pcdef ) 
+		_oDrvFn_ = new stzMathFunction(pcFunc, [ "x" ])
+		_nDrv_ = _oDrvFn_.DerivativeAt("x", [ This.NumericValue() ])
+		_oDrvFn_.Free()
+		_nDrvRound_ = StzCurrentRound()
+		StzDecimals(This.Round())
+		_cDrv_ = "" + _nDrv_
+		StzDecimals(_nDrvRound_)
+		return _cDrv_ 
 
 		def DerivativeQ(pcFunc)
 				return new stzNumber(This.Derivative(pcFunc))
@@ -7361,13 +7381,14 @@ class stzNumber from stzObject
 			StzRaise(stzNumberError(:CanNotConvertNumberToSpecifiedBase))
 		ok
 
-	# Raises a parameter-type error today instead of returning the number as bytes.
+	# Returns the eight bytes of the number as a double, as a binary string.
 	#
-	#   returns    nothing today
-	#   warning    known defect: the call raises a parameter-type error today
+	#   returns    a string of 8 bytes
+	#   see        ToBinaryForm
 	#@ aka  Converting decimal number to bytes
 	def ToBytes()
-		return double2bytes( This.Content() )
+		return double2bytes( This.NumericValue() )
+
 	# Sets the number from a number written in base 2, in place.
 	#
 	#   cBinary    the binary digits, as text
@@ -8332,44 +8353,50 @@ class stzNumber from stzObject
 		_cResult_ = This.Copy().RemoveSpacesQ().Content()
 		return _cResult_
 
-	# Raises an error today instead of removing the spaces before the number.
+	# Removes the spaces before the number, in place.
 	#
-	#   returns    nothing today
-	#   warning    known defect: the call raises error R14 today, because it calls a stzString
-	#              method that does not exist
+	#   returns    nothing; the number changes
+	#   see        RemoveSpaces
 	def RemoveLeadingSpaces()
-		This.Update( This.ToStzString().LeadingSpacesRemoved() )
+		_cRlsWas_ = "" + This.Content()
+		_oRlsStr_ = new stzString( _cRlsWas_ )
+		_oRlsStr_.RemoveLeadingSpaces()
+		if _oRlsStr_.Content() != _cRlsWas_
+			This.Update( _oRlsStr_.Content() )
+		ok
 
 		def RemoveLeadingSpacesQ()
 			This.RemoveLeadingSpaces()
 			return This
 
-	# Raises an error today instead of returning the number without its leading spaces.
+	# Returns the number written without spaces before it, as text; the number is unchanged.
 	#
-	#   returns    nothing today
-	#   warning    known defect: the call raises error R14 today, because it calls a stzString
-	#              method that does not exist
+	#   returns    a string
+	#   see        RemoveLeadingSpaces
 	def LeadingSpacesRemoved()
 		_cResult_ = This.Copy().RemoveLeadingSpacesQ().Content()
 		return _cResult_
 
-	# Raises an error today instead of removing the spaces after the number.
+	# Removes the spaces after the number, in place.
 	#
-	#   returns    nothing today
-	#   warning    known defect: the call raises error R14 today, because it calls a stzString
-	#              method that does not exist
+	#   returns    nothing; the number changes
+	#   see        RemoveSpaces
 	def RemoveTrailingSpaces()
-		This.Update( This.ToStzString().TrailingSpacesRemoved() )
+		_cRtsWas_ = "" + This.Content()
+		_oRtsStr_ = new stzString( _cRtsWas_ )
+		_oRtsStr_.RemoveTrailingSpaces()
+		if _oRtsStr_.Content() != _cRtsWas_
+			This.Update( _oRtsStr_.Content() )
+		ok
 
 		def RemoveTrailingSpacesQ()
 			This.RemoveTrailingSpaces()
 			return This
 
-	# Raises an error today instead of returning the number without its trailing spaces.
+	# Returns the number written without spaces after it, as text; the number is unchanged.
 	#
-	#   returns    nothing today
-	#   warning    known defect: the call raises error R14 today, because it calls a stzString
-	#              method that does not exist
+	#   returns    a string
+	#   see        RemoveTrailingSpaces
 	def TrailingSpacesRemoved()
 		_cResult_ = This.Copy().RemoveTrailingSpacesQ().Content()
 		return _cResult_
@@ -8413,13 +8440,16 @@ class stzNumber from stzObject
 		This.RemoveZerosFromLeft()
 		This.RemoveZerosFromRight()
 
+		def RemoveZerosQ()
+			This.RemoveZeros()
+			return This
+
 		
 
-	# Raises an error today instead of returning the number without the zeros at its ends.
+	# Returns the number written without the zeros at its ends, as text; the number is unchanged.
 	#
-	#   returns    nothing today
-	#   warning    known defect: the call raises error R14 today, because it calls a method that
-	#              does not exist
+	#   returns    a string
+	#   see        RemoveZeros
 	def ZerosRemoved()
 		_cResult_ = This.Copy().RemoveZerosQ().Content()
 		return _cResult_
@@ -9351,26 +9381,22 @@ class stzNumber from stzObject
 	 #   STRINGIFY(), TOSTRING(), AND TOCODE()  #
 	#------------------------------------------#
 
-	# Answers an empty string today instead of the number as text, because its body is empty.
+	# Returns the number as text; the number already holds its value as a string, so it is unchanged.
 	#
-	#   returns    an empty string today
-	#   warning    known defect: the body is empty, so the call answers nothing; StringValue answers
-	#              the number as a string
+	#   returns    a string
 	#   see        StringValue
 	def Stringify()
-		# Do nothing, the object is naturally stringified
-		# becauses it contains its value always as a string
+		return This.StringValue()
 
 		def StringifyQ()
 			return new stzString( This.StringValue() )
 
-		# Answers an empty string today instead of the number as text, because its body is empty.
+		# Returns the number as text, the same answer as the plain form; the number is unchanged.
 		#
-		#   returns    an empty string today
-		#   warning    the body is empty today; StringValue answers the number as a string
+		#   returns    a string
 		#   see        StringValue
 		def DeepStringifiy()
-			// Nothing
+			return This.StringValue()
 
 			def DeepStringfyQ()
 				return This.StringifyQ()
@@ -9866,8 +9892,17 @@ class stzNumber from stzObject
 		on "acos"
 			_nResult_ = ring_acos(_n1_)
 	
+		on "atan"
+			_nResult_ = ring_atan(_n1_)
+
 		on "atan2"
-			_nResult_ = ring_atan2(_n1_)
+			_nResult_ = ring_atan2(_n1_, _n2_)
+
+		on "floor"
+			_nResult_ = ring_floor(_n1_)
+
+		on "ceil"
+			_nResult_ = ring_ceil(_n1_)
 	
 		on "sinh"
 			_nResult_ = ring_sinh(_n1_)
@@ -9876,7 +9911,7 @@ class stzNumber from stzObject
 			_nResult_ = ring_cosh(_n1_)
 	
 		on "tanh"
-			_nResult_ = ring_tanhh(_n1_)
+			_nResult_ = ring_tanh(_n1_)
 	
 		on "exp"
 			_nResult_ = ring_exp(_n1_)
