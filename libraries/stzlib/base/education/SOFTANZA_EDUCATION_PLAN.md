@@ -383,6 +383,77 @@ not survive the process launcher as one argument, so `ask` joins its words.
 `base/education/tools` (or any folder at that depth); a learner elsewhere must `cd` there first. A
 learner-side install that puts them on the path is a packaging question for the distribution plane.
 
+### E9 · What another plane found by using it
+
+Eleven days after E8, the mathematics plane had written a course inside this program and had run the
+module's gates and tutor over a corpus they were not written on. It sent seven rows. Three were defects
+in this module's code, one of them against a gate that had passed on every run here.
+
+**Status: DONE, 2026-10-05.** `tutor_gaps_narrated.ring` 31 of 31 (28 s) and `program_narrated.ring`
+21 of 21 (5 s) are new; thirteen gates are owned, and all thirteen were run, in a fresh checkout. What
+changed, finding by finding:
+
+- **MATH-FINDING-EDU-INST-01, reproduced and fixed. The rule that came out of it matters more than the
+  fix.** `institution_narrated.ring` was 37 of 39 on a fresh checkout of main and 39 of 39 here. Every
+  file in the working tree of this plane was written with LF, the committed blobs are LF, and a fresh
+  checkout on this machine (`core.autocrlf=true`) holds CRLF. `stzExercise.Task()` returned the raw
+  text, so the first line of a task kept a trailing `\r` that the page does not; the guard split on
+  `char(10)` and looked for it. **The gates had only ever run on the author's LF tree.** Measured, not
+  assumed: the other twelve gates were run in a throwaway worktree of `origin/main` -- slice 68,
+  worlds 26, world pages 45, tutor 45, levels 35, spine 33, missions 32, desk 24, demo 17, course 249
+  -- and all passed; only the institution gate failed, on exactly the two assertions the finding named.
+  `Task()` and `Brief()` strip the CR at the source now, and `program_narrated` proves, on a CRLF copy
+  of a real exercise, a project brief, a gap file and a chapter, that the text read is the text an LF
+  tree gives. **From now on the gate chain runs in a fresh checkout of the commit being pushed**
+  (`git worktree add --detach <path> <commit>`, then the engine DLLs copied in), never in the tree the
+  code was written in.
+- **MATH-FINDING-EDU-TUTOR-01, fixed.** The chapter matcher counted a title word once per repetition,
+  so a chapter titled "The derivative that checks the formula" claimed every question containing "the".
+  A title word may now reach a chapter only if it **distinguishes** it -- a content word of that title
+  and of no other title of the course -- and counts once; two such words are needed, or the only one.
+  No stop-word list: a common word is common because several titles use it. It is a pure function
+  (`_EduChapterByTitle`), so the repeated-"the" oracle is tested on titles alone and on both real
+  courses.
+- **MATH-TUTOR-NUMBERS-01, fixed -- and it exposed a bug of mine.** The gap question was chapter 1's,
+  hard-wired to three verbs and to the words "list" and "duplicates". The vocabulary is the exercise's
+  now: `<step> | seen-by | <word>` in `exercise.zknw` says what shows a step, `gaps.<lang>.md` says what
+  to ask, and the three chapter-1 steps keep their defaults, so no existing exercise changed. A step
+  with no question in the learner's language is red, never another language. Written for a fraction
+  exercise of another subject, the guard also found that a learner whose code shows **two** steps made
+  the tutor raise: the attempt recorded every seen step as `attempt | <step> | yes`, and the graph keeps
+  one edge per pair of words. Latent since E1a; no earlier test showed two steps. One object per step
+  fixes it.
+- **MATH-COURSEFOLDER-01, accepted.** A course is a folder `program/courses/<slug>/` declared by a
+  `has-course` fact; `courses/math/` is where the mathematics course belongs, and the manifest line the
+  math plane added stands. The gap they named was real: no gate counted courses. `program_narrated`
+  now asserts that every declared course is a folder with a `course.zknw`, that every folder is
+  declared, and that every one opens -- with no number hard-coded, so adding a course never needs this
+  plane's permission.
+- **MATH-SKILLS-01, standing.** The spine asserts the ratified twenty-five skills (decision D1), and the
+  mathematics course trains existing ones, so nothing is broken. A twenty-sixth skill would amend D1,
+  and is routed to the author with its guiding question the day one is needed.
+- **MATH-ZFIG-DEMO-01, declined for now.** The demo's plain-text claim lists the extensions found under
+  `program/`; no `.zfig` is there (figures stay inline in cells, the math plane's own default). The
+  extension joins the list the day one lands, in the same commit.
+- **MATH-READER-FIGURE-01, held.** The page stores no output (law 2); a figure drawn into the page at
+  build time would be one. A figure drawn at view time needs the browser to run the engine, which is
+  `EDU-BROWSER-STZ-01`. Until then the page shows the figure's declaration and its sentence.
+- **EDU-INSTALL-01, declined as premature.** Central returned it to this plane. A tool cannot be put
+  on a learner's path before the runtime it needs is: Ring, the engine DLLs and stzlib have no
+  learner-side package yet, and E8's "distribution plane" does not exist. The tools run from
+  `base/education/tools`. Whether the estate's `stz` command line takes education verbs is a question for
+  whoever owns it, and is not asked here; the two tools' exit codes (0 done, 2 refused, 1 a wrong call)
+  are written down for that day.
+- **EDU-LICENCE-01, decided** on the author's delegation: the repository's MIT licence, no second
+  instrument (charter §8).
+
+**PX.** Thirteen gates are owned (`ls test/education/*_narrated.ring`) and thirteen were run; the chain
+is about 17 minutes in a fresh checkout, of which the course gate is 210 s and the demo 97 s.
+
+**Not claimed.** That a fresh Windows checkout is the only environment that can differ: a Linux
+checkout, a different Ring build or an engine built on another branch can each differ in ways this
+plane has not measured; the engine DLLs used here are the ones built for the education worktree.
+
 ## D. The demo script, 15 minutes
 
 | Minute | What the decision maker sees | What proves it |
@@ -401,12 +472,13 @@ learner-side install that puts them on the path is a packaging question for the 
 | ID | To | Ask | Blocks |
 |---|---|---|---|
 | `EDU-BROWSER-STZ-01` | ringscript | Run a stzlib cell in a browser from a folder: the engine in the wasm or Ring fallbacks for the slice's calls, a baked stzlib subset, and an offline `file://` loader (the inlined wasm is untested) | E1b and the browser half of E2 |
-| `EDU-PROMISE-RING-01` | stzlib meta | Take ownership of the Ring port of the `promises.py` matching rules once education has written it | nothing; this prevents drift |
+| `EDU-PROMISE-RING-01` | stzlib-general (owns base/meta; placed by Central 2026-09-28) | Take ownership of the Ring port of the `promises.py` matching rules once education has written it | nothing; this prevents drift |
 | `EDU-NARRATION-01` | stznarrations | Note the chapter conventions (recap, exercise reference, runs-where) for the `.narration` migration | nothing now |
-| `EDU-HAUSA-LIST-01` | stzlib natural | Add list vocabulary to the Hausa pack (`jeri` for OBJECT_LIST; `cire maimaitattu` for METHOD_REMOVEDUPLICATES), with a Hausa-speaking reviewer. Until then, `EduPrepareLanguage("ha")` merges these words at run time through `StzAddNaturalLanguage` | nothing; the supplement retires when the pack has the words |
-| `EDU-RUNPATH-01` | stzlib system | `StzEngineSystemRunXT` refuses a quoted program path, so a Ring executable installed under a path with a space cannot be run | learners whose Ring is installed under a path with a space |
-| `EDU-SCOPE-01` | central | Register the plane's paths in `SCOPES.md` | nothing |
-| `EDU-LICENCE-01` | author | Name the licence for course content before anything ships. This was already raised by the compass. | E3 publication |
+| `EDU-HAUSA-LIST-01` | stzlib-general (owns base/natural; placed 2026-09-28) | Add list vocabulary to the Hausa pack (`jeri` for OBJECT_LIST; `cire maimaitattu` for METHOD_REMOVEDUPLICATES), with a Hausa-speaking reviewer. Until then, `EduPrepareLanguage("ha")` merges these words at run time through `StzAddNaturalLanguage` | nothing; the supplement retires when the pack has the words |
+| `EDU-RUNPATH-01` | stzlib-binary (the call is an engine call; placed 2026-09-28) | `StzEngineSystemRunXT` refuses a quoted program path, so a Ring executable installed under a path with a space cannot be run | learners whose Ring is installed under a path with a space |
+| `EDU-SCOPE-01` | central | Register the plane's paths in `SCOPES.md` | **DONE by Central, 2026-09-27** |
+| `EDU-LICENCE-01` | author | Name the licence for course content before anything ships. This was already raised by the compass. | **DECIDED 2026-10-05** on the author's delegation: the repository's MIT licence, no second instrument (charter §8). The author may replace it before the first institution ships |
+| `EDU-INSTALL-01` | (returned to this plane by Central, 2026-09-28) | Put `tools/learn.ring` and `tools/build_reader.ring` on a learner's path | **DECLINED as premature, 2026-10-05**: see E9 |
 
 ## F. Risks
 

@@ -104,12 +104,60 @@ class stzExercise from stzObject
 	def NeededSteps()
 		return _EduObjects(@aFacts, @cId, "needs-step")
 
+	#-- the tutor's gap vocabulary is the EXERCISE'S, not chapter 1's
+
+	# The words in a learner's code that show a step was attempted:
+	# `<step> | seen-by | <word>` facts in exercise.zknw. A step the
+	# exercise does not describe falls back to the three chapter-1 steps'
+	# defaults (asks, finds, applies), so the first exercises stay as they
+	# were; any other step with no `seen-by` is never seen, and is asked.
+	def StepWords(pcStep)
+		_acW_ = _EduObjects(@aFacts, pcStep, "seen-by")
+		if len(_acW_) > 0
+			return _acW_
+		ok
+		_cS_ = StzLower(pcStep)
+		if _cS_ = "asks"
+			return [ "contains", "numberof", "count" ]
+		but _cS_ = "finds"
+			return [ "find" ]
+		but _cS_ = "applies"
+			return [ "remove", "replace" ]
+		ok
+		return []
+
+	# The question the tutor asks about a step, in a language: the line
+	# `<step>: <question>` of the exercise's own gaps.<lang>.md; failing
+	# that, the built-in text of the three chapter-1 steps; failing that,
+	# RED -- a step with no question in the learner's language is never
+	# answered in another one (law 7).
+	def GapText(pcStep, pcLang)
+		_cF_ = @cFolder + "/gaps." + StzLower(pcLang) + ".md"
+		if fexists(_cF_)
+			_acL_ = StzSplit(StzReplace(read(_cF_), char(13), ""), char(10))
+			_cKey_ = StzLower(pcStep) + ":"
+			_nL_ = len(_acL_)
+			for _i_ = 1 to _nL_
+				_c_ = ring_trim(_acL_[_i_])
+				if StzLeft(StzLower(_c_), StzLen(_cKey_)) = _cKey_
+					return ring_trim(StzRight(_c_, StzLen(_c_) - StzLen(_cKey_)))
+				ok
+			next
+		ok
+		if StzFindFirst(StzLower(pcStep), [ "asks", "finds", "applies" ]) > 0
+			return _EduSay(pcLang, "gap-" + StzLower(pcStep), "")
+		ok
+		StzRaise("Exercise '" + @cId + "' has no question for step '" + pcStep + "' in '" + pcLang +
+			"': add `" + pcStep + ": ...` to gaps." + pcLang + ".md (law 7: never another language instead).")
+
 	def Task(pcLang)
 		_cF_ = @cFolder + "/task." + pcLang + ".md"
 		if NOT fexists(_cF_)
 			StzRaise("Exercise '" + @cId + "' has no task in '" + pcLang + "'.")
 		ok
-		return read(_cF_)
+		# the same text from an LF tree and from a CRLF checkout (autocrlf):
+		# found by MATH-FINDING-EDU-INST-01, which failed on a fresh checkout
+		return StzReplace(read(_cF_), char(13), "")
 
 	def HasTaskIn(pcLang)
 		return fexists(@cFolder + "/task." + pcLang + ".md")
