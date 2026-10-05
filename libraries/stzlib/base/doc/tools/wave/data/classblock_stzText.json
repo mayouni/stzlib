@@ -1,0 +1,16 @@
+{
+ "brief": "Holds a text as meaning rather than characters and answers natural-language questions about it: stems, tags, entities, tone, keywords, summaries, readability.",
+ "detail": "A stzString is raw characters; a stzText carries meaning. It builds on stzStringText, which already gives Words, Sentences, the counts and the content, and adds the meaning layer, all computed by the engine: Snowball stemming in 25 languages and lemmatization in three, WordNet synonyms and hypernyms, VADER sentiment, Penn Treebank part-of-speech tags with chunking and a nested parse tree, rule-based named entities, stopwords and Flesch readability, RAKE key phrases, TextRank keywords and summaries, and language detection. Two groups upgrade themselves when a model is loaded for the process: the semantic group (Embedding, SemanticSimilarityWith, Classify, MostSimilarSentenceTo, NamedEntities) uses embeddings and a transformer NER head, and the generative pair (SummarizedAbstractively, AnswerAbout) asks a language model. With no model loaded they fall back to word overlap or answer an empty value, so a call never needs a model to run, with one exception noted on SummarizedAbstractively. The word-list methods work on one word or one sentence at a time and are only as good as the rule-based tagger. Known gaps today, each carried as a warning on its method: SummarizedAbstractively raises error R19 without a model, NamedEntities merges a capitalized word after a full stop into the previous entity, and EntityTypeOf and ClassifiedAs pick the first candidate on a tie.",
+ "receiver": "o1 = new stzText(\"The food was terrible. I love this wonderful place.\")",
+ "example": [
+  "? o1.Sentiment()",
+  "#--> \"positive\"",
+  "? @@( o1.Nouns() )",
+  "#--> [ \"food\", \"place\" ]"
+ ],
+ "see": [
+  "stzString",
+  "stzStringText",
+  "stzListOfTexts"
+ ]
+}
