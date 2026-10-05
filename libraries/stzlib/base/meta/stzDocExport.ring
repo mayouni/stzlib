@@ -577,6 +577,9 @@ func _StzDocRootJson(pcClass, paRoot, paExts, pacAliases, pcPassive)
 	_nC5_ = (_cEx_ != "")
 	_nPass_ = (_nC1_ and _nC2_ and _nC3_ and _nC4_)
 	_nPassW_ = (_nPass_ and _cBo_ = "written")
+	if NOT _nPass_
+		$aStzDocFails + [ lower(pcClass) + "." + lower(_cName_), _nC1_, _nC2_, _nC3_, _nC4_ ]
+	ok
 	# the JSON
 	_q_ = char(34)
 	_c_ = "{" + _q_ + "key" + _q_ + ":" + _StzDocJs(lower(pcClass) + "." + lower(_cName_)) +
@@ -676,6 +679,10 @@ func _StzDocFieldText2(paFields, pcKind)
 	return _c_
 
 # --- the export --------------------------------------------------------------
+# The roots that failed checks 1-4 in the last export, as [ key, c1, c2, c3, c4 ] (key = class.method, lowercase).
+func StzDocFailures()
+	return $aStzDocFails
+
 func StzReferenceExport(pcBase, pcOut, pcCommit, pcDate)
 	return StzReferenceExportOnly(pcBase, pcOut, pcCommit, pcDate, [])
 
@@ -754,6 +761,7 @@ func _StzDocPass1(pcBase, pacOnly)
 
 func StzReferenceExportOnly(pcBase, pcOut, pcCommit, pcDate, pacOnly)
 	_t0_ = clock()
+	$aStzDocFails = []
 	_aP1_ = _StzDocPass1(pcBase, pacOnly)
 	_aOut_ = _aP1_[1]
 	_aNeed_ = _aP1_[2]

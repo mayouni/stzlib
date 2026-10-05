@@ -209,6 +209,7 @@ ok
     load "meta/stzLibDoc.ring"
     load "meta/stzDocRecord.ring"
     load "meta/stzDocExport.ring"
+    load "meta/stzDocGate.ring"
     load "meta/stzCodeGraph.ring"
     load "meta/stzRingCodeGraph.ring"
     load "meta/stzPyCodeGraph.ring"

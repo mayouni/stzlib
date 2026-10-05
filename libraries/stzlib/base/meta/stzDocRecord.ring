@@ -45,6 +45,7 @@ $aStzDocExt = []         # the extension table
 $aStzDocGlossName = []   # the parameter glossary: names ...
 $aStzDocGlossRole = []   # ... and roles
 $aStzDocRecCache = []    # [ classLower, records ] -- StzDocRecordOf
+$aStzDocFails = []       # the roots that failed checks 1-4 in the last export: [ key, c1, c2, c3, c4 ] -- the doc gate reads it
 
 # --- the closed list of keys ---------------------------------------------
 func _StzDocKeys()
