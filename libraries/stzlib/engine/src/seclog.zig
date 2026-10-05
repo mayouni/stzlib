@@ -30,6 +30,32 @@ const gpa = std.heap.c_allocator;
 const CANON_MAX = 512;
 const DIGEST_LEN = 64; // sha256 hex
 
+// -- The refusal budget (SECURITY-LEDGERFLOOD-01) --------------------------
+//
+// A refusal is written by whoever is REFUSED, and some of them are
+// strangers: anyone who can reach a webhook callback can make the signer
+// refuse, and each refusal is a line. Measured 2026-10-05: 1,100 forged
+// webhooks took 1.7 s and pushed every earlier event out of a 1,024-entry
+// window. So a refused or failed outcome spends a budget PER KIND: at most
+// `budget_max` lines of one kind per `budget_window` ms. Past it, one
+// marker line says the budget was reached, further refusals of that kind
+// are COUNTED, not written, and when the window rolls one summary line
+// carries the count. A flood of one kind can no longer evict other kinds'
+// evidence, and nothing is lost silently: the count is in the chain.
+// Grants and observations are never budgeted. Replay from the durable file
+// bypasses it: history is restored as it was written.
+const BUDGET_SLOTS = 64;
+const KIND_MAX = 64;
+
+const BudgetSlot = struct {
+    kind: [KIND_MAX]u8 = undefined,
+    kind_len: usize = 0,
+    start: f64 = 0,
+    recorded: u32 = 0,
+    suppressed: u32 = 0,
+    used: bool = false,
+};
+
 pub const SecLog = struct {
     canon: []u8, // cap * CANON_MAX
     canon_lens: []u16,
@@ -43,6 +69,10 @@ pub const SecLog = struct {
     mutex: std.Thread.Mutex,
     store: ?durable.Store = null, // the durable log, when attached (rung 2)
     durable_errors: u64 = 0, // writes the durable log refused
+    budget_max: u32 = 64, // refusal lines of one kind per window; 0 = no budget
+    budget_window: f64 = 60000, // ms
+    slots: [BUDGET_SLOTS]BudgetSlot = [_]BudgetSlot{.{}} ** BUDGET_SLOTS,
+    suppressed_total: u64 = 0, // refusals counted rather than written, ever
 
     fn size(self: *const SecLog) usize {
         if (self.count < self.cap) return @intCast(self.count);
@@ -138,6 +168,76 @@ fn appendMem(s: *SecLog, canonical: []const u8, wall_ms: f64, sev: u8) [DIGEST_L
     return d;
 }
 
+// One entry into the ring and, when attached, the durable log. The CALLER
+// HOLDS the mutex.
+fn writeEntry(s: *SecLog, canonical: []const u8, wall_ms: f64, sev: u8) void {
+    const d = appendMem(s, canonical, wall_ms, sev);
+    // write-through, in the same lock, so disk order IS chain order
+    if (s.store) |st| {
+        if (!durable.insert(st, s.count, wall_ms, sev, canonical, &d)) s.durable_errors += 1;
+    }
+}
+
+// Field i (0-based) of a pipe-separated canonical line.
+fn field(canonical: []const u8, i: usize) []const u8 {
+    var it = std.mem.splitScalar(u8, canonical, '|');
+    var k: usize = 0;
+    while (it.next()) |f| : (k += 1) {
+        if (k == i) return f;
+    }
+    return "";
+}
+
+// The kind, when this entry spends the refusal budget; null otherwise.
+fn budgetedKind(canonical: []const u8) ?[]const u8 {
+    const outcome = field(canonical, 8);
+    if (!std.mem.eql(u8, outcome, "refused") and !std.mem.eql(u8, outcome, "failed")) return null;
+    const k = field(canonical, 0);
+    if (k.len == 0) return null;
+    if (k.len > KIND_MAX) return k[0..KIND_MAX];
+    return k;
+}
+
+// A line the LEDGER writes about itself: same kind, outcome "observed",
+// actor "ledger", so a reader filtering by kind still finds it.
+fn writeNote(s: *SecLog, kind: []const u8, wall_ms: f64, comptime fmt: []const u8, args: anytype) void {
+    var reason: [256]u8 = undefined;
+    const r = std.fmt.bufPrint(&reason, fmt, args) catch return;
+    var buf: [CANON_MAX]u8 = undefined;
+    const wall_i: i64 = @intFromFloat(wall_ms);
+    const c = std.fmt.bufPrint(&buf, "{s}|warning|ledger|engine|record|0|budget:{s}|engine|observed|{s}|{d}|", .{ kind, kind, r, wall_i }) catch return;
+    writeEntry(s, c, wall_ms, 1);
+}
+
+fn writeSummary(s: *SecLog, slot: *BudgetSlot, wall_ms: f64) void {
+    if (slot.suppressed == 0) return;
+    writeNote(s, slot.kind[0..slot.kind_len], wall_ms,
+        "{d} further refusal(s) of this kind were counted, not recorded one by one (budget {d} per {d} ms)",
+        .{ slot.suppressed, s.budget_max, @as(i64, @intFromFloat(s.budget_window)) });
+}
+
+fn slotFor(s: *SecLog, kind: []const u8, wall_ms: f64) *BudgetSlot {
+    var free: ?*BudgetSlot = null;
+    var oldest: *BudgetSlot = &s.slots[0];
+    for (&s.slots) |*sl| {
+        if (sl.used and std.mem.eql(u8, sl.kind[0..sl.kind_len], kind)) return sl;
+        if (!sl.used and free == null) free = sl;
+        if (sl.used and sl.start < oldest.start) oldest = sl;
+    }
+    const sl = free orelse blk: {
+        // every slot is taken: the oldest window closes now, with its count
+        writeSummary(s, oldest, wall_ms);
+        break :blk oldest;
+    };
+    @memcpy(sl.kind[0..kind.len], kind);
+    sl.kind_len = kind.len;
+    sl.start = wall_ms;
+    sl.recorded = 0;
+    sl.suppressed = 0;
+    sl.used = true;
+    return sl;
+}
+
 pub fn seclog_append(s_opt: ?*SecLog, canonical: [*]const u8, canonical_len: usize, wall_ms: f64, severity: f64) callconv(.c) void {
     const s = s_opt orelse return;
     s.mutex.lock();
@@ -145,10 +245,69 @@ pub fn seclog_append(s_opt: ?*SecLog, canonical: [*]const u8, canonical_len: usi
     var cl = canonical_len;
     if (cl > CANON_MAX) cl = CANON_MAX;
     const sev: u8 = @intFromFloat(severity);
-    const d = appendMem(s, canonical[0..cl], wall_ms, sev);
-    // write-through, in the same lock, so disk order IS chain order
-    if (s.store) |st| {
-        if (!durable.insert(st, s.count, wall_ms, sev, canonical[0..cl], &d)) s.durable_errors += 1;
+    const line = canonical[0..cl];
+    if (s.budget_max > 0) {
+        if (budgetedKind(line)) |kind| {
+            const sl = slotFor(s, kind, wall_ms);
+            if (wall_ms - sl.start >= s.budget_window) {
+                writeSummary(s, sl, wall_ms);
+                sl.start = wall_ms;
+                sl.recorded = 0;
+                sl.suppressed = 0;
+            }
+            if (sl.recorded >= s.budget_max) {
+                if (sl.suppressed == 0) {
+                    writeNote(s, kind, wall_ms,
+                        "budget reached: further refusals of this kind are counted, not recorded, until the window ends ({d} per {d} ms)",
+                        .{ s.budget_max, @as(i64, @intFromFloat(s.budget_window)) });
+                }
+                sl.suppressed += 1;
+                s.suppressed_total += 1;
+                return;
+            }
+            sl.recorded += 1;
+        }
+    }
+    writeEntry(s, line, wall_ms, sev);
+}
+
+// Set the refusal budget: at most max lines of one refused kind per
+// window_ms. max = 0 turns it off (every refusal is written).
+pub fn seclog_set_refusal_budget(s_opt: ?*SecLog, max_f: f64, window_f: f64) callconv(.c) void {
+    const s = s_opt orelse return;
+    s.mutex.lock();
+    defer s.mutex.unlock();
+    s.budget_max = if (max_f < 1) 0 else @intFromFloat(max_f);
+    s.budget_window = if (window_f < 1) 1 else window_f;
+}
+
+pub fn seclog_budget_max(s_opt: ?*SecLog) callconv(.c) f64 {
+    const s = s_opt orelse return 0;
+    return @floatFromInt(s.budget_max);
+}
+
+pub fn seclog_budget_window(s_opt: ?*SecLog) callconv(.c) f64 {
+    const s = s_opt orelse return 0;
+    return s.budget_window;
+}
+
+pub fn seclog_suppressed(s_opt: ?*SecLog) callconv(.c) f64 {
+    const s = s_opt orelse return 0;
+    s.mutex.lock();
+    defer s.mutex.unlock();
+    return @floatFromInt(s.suppressed_total);
+}
+
+// Close every open window now: each kind with counted refusals gets its
+// summary line. For a sentinel's tick, or before an export.
+pub fn seclog_flush_budget(s_opt: ?*SecLog, wall_ms: f64) callconv(.c) void {
+    const s = s_opt orelse return;
+    s.mutex.lock();
+    defer s.mutex.unlock();
+    for (&s.slots) |*sl| {
+        if (!sl.used) continue;
+        writeSummary(s, sl, wall_ms);
+        sl.used = false;
     }
 }
 
@@ -451,6 +610,52 @@ test "seclog: the process ledger is opt-in and self-clearing" {
     try std.testing.expectEqual(@as(f64, 1), seclog_count(s));
     seclog_destroy(s); // destroying the current one clears it
     try std.testing.expectEqual(@as(f64, 0), seclog_has_current());
+}
+
+test "seclog: a flood of one refused kind cannot evict another kind's evidence" {
+    const s = seclog_create(64).?;
+    defer seclog_destroy(s);
+    seclog_set_refusal_budget(s, 8, 60000);
+    const real = "secret.reveal.refused|error|intruder||||secret:db||refused|real|1000|";
+    seclog_append(s, real, real.len, 1000, 2);
+    var i: usize = 0;
+    while (i < 1000) : (i += 1) {
+        const f = "webhook.signature.forged|error|hub||||body||refused|forged|1001|";
+        seclog_append(s, f, f.len, 1001, 2);
+    }
+    // 1 real + 8 forged + 1 marker; 992 counted
+    try std.testing.expectEqual(@as(f64, 10), seclog_count(s));
+    try std.testing.expectEqual(@as(f64, 992), seclog_suppressed(s));
+    var buf: [512]u8 = undefined;
+    const n = seclog_canonical_at(s, 1, &buf, buf.len);
+    try std.testing.expectEqualStrings(real, buf[0..@intCast(n)]);
+    // the window rolls: one summary line carries the count, and recording resumes
+    const g = "webhook.signature.forged|error|hub||||body||refused|forged|70000|";
+    seclog_append(s, g, g.len, 70000, 2);
+    try std.testing.expectEqual(@as(f64, 12), seclog_count(s));
+    const m = seclog_canonical_at(s, 11, &buf, buf.len);
+    try std.testing.expect(std.mem.indexOf(u8, buf[0..@intCast(m)], "992 further") != null);
+    try std.testing.expectEqual(@as(f64, 0), seclog_verify(s));
+}
+
+test "seclog: grants are never budgeted, and a zero budget writes everything" {
+    const s = seclog_create(64).?;
+    defer seclog_destroy(s);
+    seclog_set_refusal_budget(s, 2, 60000);
+    var i: usize = 0;
+    while (i < 5) : (i += 1) {
+        const g = "secret.reveal.granted|info|ops||||secret:db||granted||1|";
+        seclog_append(s, g, g.len, 1, 0);
+    }
+    try std.testing.expectEqual(@as(f64, 5), seclog_count(s));
+    seclog_set_refusal_budget(s, 0, 60000);
+    i = 0;
+    while (i < 5) : (i += 1) {
+        const f = "sig.signature.forged|error|x||||y||refused||2|";
+        seclog_append(s, f, f.len, 2, 2);
+    }
+    try std.testing.expectEqual(@as(f64, 10), seclog_count(s));
+    try std.testing.expectEqual(@as(f64, 0), seclog_suppressed(s));
 }
 
 test "seclog: ring evicts oldest, count keeps counting" {
