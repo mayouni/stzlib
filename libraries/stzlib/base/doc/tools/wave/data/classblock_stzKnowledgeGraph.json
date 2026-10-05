@@ -1,0 +1,14 @@
+{
+ "brief": "Holds knowledge as facts, triples of subject, predicate and object, in a graph, with queries, laws, proofs and conversations.",
+ "detail": "A stzKnowledgeGraph is a stzGraph of type semantic: each fact is an edge labelled with its predicate between two entity nodes, so every stzGraph method is also available. Facts are set-like (adding a known fact is a no-op), but only one fact can link a given ordered pair of entities. Laws (:unique, :symmetric, :transitive) are declared per relation with ConstrainRelation, and only :unique and :transitive are acted on here: Admit is the governed door that checks :unique and records a refusal as a named contradiction, and Prove follows :transitive; strict mode makes every fact carry provenance. Prove answers a goal with a replayable proof, and the space can hold stzConversation objects that elicit missing facts. Knowledge is saved and read as .zknw text. A number of methods carry a warning today.",
+ "receiver": "o1 = new stzKnowledgeGraph(\"zoo\"); o1.AddFact(\"Dog\", \"is-a\", \"Animal\"); o1.AddFact(\"Cat\", \"is-a\", \"Animal\"); o1.AddFact(\"Dog\", \"eats\", \"Meat\")",
+ "example": [
+  "? @@( o1.Query([ \"?x\", \"is-a\", \"Animal\" ]) )",
+  "#--> [ \"Dog\", \"Cat\" ]"
+ ],
+ "see": [
+  "stzGraph",
+  "stzConversation",
+  "stzKnowParser"
+ ]
+}

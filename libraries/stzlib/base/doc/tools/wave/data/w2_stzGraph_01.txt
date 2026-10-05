@@ -1,0 +1,49 @@
+init | Builds an empty graph with the given id, folded to lowercase; an id holding a space or a line break raises an error. | nothing; the object is built | pcName=the graph id, as text, without spaces or line breaks | Id, SetGraphType | | the graph starts as type "structural", with no node and no edge
+EngineHandle | Returns the handle of the engine graph that backs the fast algorithms, building it first when it is missing or out of date. | the engine handle | | Neighbors, PathExists | | the handle is rebuilt after most changes, so ask again instead of keeping it
+Copy | Returns an independent graph holding the same nodes and edges; adding or removing nodes in it never reaches the original. | a stzGraph | | Id
+Id | Returns the id the graph was given, in lowercase. | text | | Name, SetGraphType
+Name | Returns the graph id, the same text as the id accessor. | text | | Id
+GraphType | Returns the graph type: "structural" until SetGraphType says otherwise. | text | | SetGraphType, CyclesAllowed
+SetGraphType | Sets the graph type, folded to lowercase; any text is accepted, but only structural, flow and semantic change the checks. | nothing; the graph changes | | GraphType, CyclesAllowed, ShouldAutoDerive
+IsGraph | TRUE if the receiver is a graph, which a stzGraph always is. | TRUE | | IsStzGraph
+IsAGraph | TRUE if the receiver is a graph, spelled with an article; always TRUE for a stzGraph. | TRUE | | IsGraph
+IsStzGraph | TRUE if the receiver is a stzGraph, which it always is; the test tells graphs from other objects. | TRUE | | IsGraph
+IsAStzGraph | TRUE if the receiver is a stzGraph, spelled with an article; always TRUE here. | TRUE | | IsStzGraph
+IsStzGraphObject | TRUE if the receiver is a stzGraph object; always TRUE for a graph. | TRUE | | IsStzGraph
+IsAStzGraphObject | TRUE if the receiver is a stzGraph object, spelled with an article; always TRUE here. | TRUE | | IsStzGraphObject
+IsGraphObject | TRUE if the receiver is a graph object; always TRUE for a stzGraph. | TRUE | | IsGraph
+IsAGraphObject | TRUE if the receiver is a graph object, spelled with an article; always TRUE here. | TRUE | | IsGraphObject
+AddNode | Adds a node labelled with its own id at the end of the node list; an id already in use is added again without complaint. | nothing; the graph changes | pcNodeId=the node id, folded to lowercase; no spaces or line breaks | AddNodes, NodeExists | the id is not checked against the existing nodes, so a second node with the same id is appended | for a label or properties call AddNodeXT or AddNodeXTT
+Node | Returns the node with that id as a hash list [ :id, :label, :properties ]; the id is matched in lowercase. | a hash list; raises an error when the node does not exist | | NodeLabel, NodeProperties
+NodeExists | TRUE if a node has that id; the id is matched in lowercase. | TRUE or FALSE | | EdgeExists, NodePosition
+SetNodes | Replaces the whole node list by the given one, without any check; the edges are left as they are. | nothing; the graph changes | paNodes=the nodes, each a hash list [ :id, :label, :properties ] | SetEdges, AddNodes | the engine copy used by Neighbors, ReachableFrom and the metrics is not refreshed, and the edges are not checked against the new nodes
+SetEdges | Replaces the whole edge list by the given one, without any check; the nodes are left as they are. | nothing; the graph changes | paEdges | SetNodes | the engine copy used by Neighbors, ReachableFrom and the metrics is not refreshed, so they keep answering from the old edges | EdgeExists, Edges and Path read the new list at once
+Nodes | Returns every node as a hash list [ :id, :label, :properties ], in the order they were added. | a list of hash lists | | NodesIds, Edges
+NodesIds | Returns the ids of all nodes, in the order they were added. | a list of text | | Nodes
+NodesCount | Returns how many nodes the graph holds. | a number | | EdgesCount, NodeCount
+NodeCount | Returns the number of nodes held; the same answer as the plural spelling. | a number | | NodesCount
+HowManyNodes | Returns the count of nodes, phrased as a question. | a number | | NodesCount
+HowManyNode | Returns the count of nodes, in the singular form of the question. | a number | | HowManyNodes
+NumberOfNodes | Returns the node total, 0 for an empty graph. | a number | | NodesCount
+AddNodes | Adds one node per id, each labelled with its own id, in the order given. | nothing; the graph changes | | AddNode
+InsertNodeBefore | Adds a node on every route into an existing node: the edges that arrived there now arrive at the new node, which points to the existing one. | nothing; the graph changes | | InsertNodeAfter, Connect | the existing id must be given in lowercase, and the re-routed edges lose their labels and properties | call InsertNodeBeforeXT or InsertNodeBeforeXTT for a label or properties
+InsertNodeAfter | Adds a node on every route out of an existing node: the edges that left there now leave the new node, which the existing one points to. | nothing; the graph changes | | InsertNodeBefore, Connect | the existing id must be given in lowercase, and the re-routed edges lose their labels and properties | call InsertNodeAfterXT or InsertNodeAfterXTT for a label or properties
+InsertNodesBefore | Raises error R20 today instead of inserting a chain of nodes in front of an existing node. | nothing today | paNodes=the nodes to insert, each a pair [ id, label ] | InsertNodeBefore | known defect: it calls InsertNodeBefore with three arguments, but that method takes two, so even a valid list of pairs raises R20 | call InsertNodeBefore once per node instead
+InsertNodesAfter | Raises error R20 today instead of inserting a chain of nodes behind an existing node. | nothing today | paNodes=the nodes to insert, each a pair [ id, label ] | InsertNodeAfter | known defect: it calls InsertNodeAfter with three arguments, but that method takes two, so even a valid list of pairs raises R20 | call InsertNodeAfter once per node instead
+RemoveNodes | Removes every node and every edge, and forgets which rules were applied; the id, type and rules stay. | nothing; the graph is emptied | | Clear, RemoveEdges
+RemoveAllNodes | Empties the graph of nodes and edges; another spelling of the clearing call. | nothing; the graph is emptied | | RemoveNodes
+Clear | Empties the graph of all its nodes and edges, keeping its id, type and rules. | nothing; the graph is emptied | | RemoveNodes
+RemoveTheseNodes | Removes each listed node together with its edges. | nothing; the graph changes | | RemoveThisNode
+RemoveThisNode | Removes a node and every edge that starts or ends at it; an id that matches no node is ignored. | nothing; the graph changes | pcNodeId=the node id, exactly as stored (lowercase) | RemoveTheseNodes, RemoveEdgesConnectedTo | the id is not folded to lowercase, so "A" removes nothing from a node stored as "a", and no error says so
+RemoveNode | Removes a node and its edges; another spelling of the removal call. | nothing; the graph changes | pcNodeId=the node id, exactly as stored (lowercase) | RemoveThisNode | the id is not folded to lowercase, so "A" removes nothing from a node stored as "a"
+RemoveNodeAt | Removes the node named by the last id of a path, together with its edges. | nothing; the graph changes | | RemoveNodesAt, RemoveThisNode | the id is used as written, so a path ending in "B" does not remove node "b" | an empty path does nothing
+RemoveNodeAtPath | Removes the node at the end of a path, with its edges; another spelling of the path removal. | nothing; the graph changes | | RemoveNodeAt | the id is used as written, so a path ending in "B" does not remove node "b"
+RemoveNodesAt | Removes the node named by the last id of each path, with its edges; the ids are folded to lowercase first. | nothing; the graph changes | | RemoveNodeAt
+RemoveNodesAtPaths | Removes the node at the end of each path, with its edges; another spelling of the multi-path removal. | nothing; the graph changes | | RemoveNodesAt
+RemoveEdges | Removes every edge and keeps the nodes. | nothing; the graph changes | | RemoveNodes, RemoveThisEdge
+RemoveAllEdges | Removes all the edges and keeps the nodes; another spelling of the edge clearing. | nothing; the graph changes | | RemoveEdges
+ClearEdges | Clears the edges and keeps the nodes. | nothing; the graph changes | | RemoveEdges
+RemoveThisEdge | Removes the edge from one node to another; the ids are folded to lowercase, and a missing edge is ignored. | nothing; the graph changes | | RemoveEdgesBetween, RemoveEdgeByLabel, Disconnect
+RemoveEdge | Removes the edge from one node to another; another spelling of the edge removal. | nothing; the graph changes | | RemoveThisEdge
+Disconnect | Cuts the link from one node to another, the counterpart of Connect. | nothing; the graph changes | | Connect, RemoveThisEdge
+RemoveEdgesConnectedTo | Removes every edge that starts or ends at a node, and keeps the node itself. | nothing; the graph changes | | RemoveThisNode | the id is not folded to lowercase, and the engine copy is not refreshed, so Neighbors and ReachableFrom keep answering from the old edges until another change

@@ -1,0 +1,13 @@
+{
+ "brief": "Filters the nodes or the edges of a graph by key, comparison and property, then answers the ids that match.",
+ "detail": "Built by stzGraph.FindQ and chained: each filter call adds a condition and returns the finder, and Run answers the elements that pass every condition, node ids for a node search and [ from, to ] pairs for an edge search. A key is looked up on the element first (id, label, from, to) and then among its properties, and dots reach nested values. For queries it cannot express, use stzGraphQuery.",
+ "receiver": "g1 = new stzGraph(\"g1\"); g1.AddNodeXTT(\"a\", \"Alpha\", [ :priority = 10 ]); g1.AddNodeXTT(\"b\", \"Beta\", [ :priority = 5 ]); o1 = g1.FindQ(\"nodes\")",
+ "example": [
+  "? @@( o1.Where(\"priority\", \">\", 7).Run() )",
+  "#--> [ \"a\" ]"
+ ],
+ "see": [
+  "stzGraph",
+  "stzGraphQuery"
+ ]
+}

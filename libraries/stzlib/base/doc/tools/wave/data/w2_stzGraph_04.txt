@@ -1,0 +1,51 @@
+BetweennessCentrality | Returns how often a node lies on the shortest paths between other node pairs, computed by the engine; 0 for an unknown node. | a number | | BetweennessCentralityAll, ClosenessCentrality
+BetweennessCentralityAll | Returns the betweenness of every node as [ id, value ] pairs, in node order. | a list of [ id, value ] pairs | | BetweennessCentrality
+ClosenessCentrality | Returns how close a node is to the nodes it reaches: reachable count over the sum of distances; 0 when unknown or isolated. | a number | | ClosenessCentralityAll, BetweennessCentrality
+ClosenessCentralityAll | Returns the closeness of every node as [ id, value ] pairs, in node order. | a list of [ id, value ] pairs | | ClosenessCentrality
+CoreNumber | Returns the core number of a node: the largest k for which it stays in the k-core of the undirected view; 0 for an unknown node. | a number | | CoreNumbers
+CoreNumbers | Returns the core number of every node as [ id, value ] pairs, in node order. | a list of [ id, value ] pairs | | CoreNumber
+PageRank | Returns the PageRank score of a node, by power iteration with damping 0.85; 0 for an unknown node. | a number | | PageRankAll
+PageRankAll | Returns the PageRank score of every node as [ id, value ] pairs, in node order. | a list of [ id, value ] pairs | | PageRank
+AStarPath | Returns the cheapest path from a start to a goal by A*, using the :weight of edges and the :x and :y of nodes as the heuristic when present. | a list of node ids; [ ] when none or unknown | | AStarPathManhattan, AStarPathWeighted, WeightedShortestPath | | without coordinates it behaves like the weighted shortest path
+AStarPathManhattan | Returns the cheapest path from a start to a goal by A* with the Manhattan heuristic over the :x and :y of nodes. | a list of node ids; [ ] when none or unknown | | AStarPath
+AStarPathWeighted | Returns the cheapest path by A* with a heuristic scaled to the edge weights, so the path stays optimal when weights are not distances. | a list of node ids; [ ] when none or unknown | | AStarPath, AStarPlan
+SetEdgeWeight | Overrides the weight of an edge in the engine copy only, the stored :weight property staying as it is. | 1 when the edge is known, 0 when it is not | | WeightedShortestPath, SetEdgeProperty | the override is lost when the engine copy is rebuilt, which most graph changes cause, and the ids are matched in lowercase
+AStarPlan | Returns the route and the explored nodes of one A* search as [ route, explored ], mode 0 being plain Dijkstra. | a list of two lists of ids; [ [ ], [ ] ] when a node is unknown | | AStarPath | | when the goal cannot be reached the route is [ ] and the explored list still shows the nodes visited
+Diameter | Returns the longest of all the shortest paths between reachable pairs, counted in edges. | a number; 0 for a graph without edges | | Radius, Eccentricity, AveragePathLength
+Radius | Returns the smallest eccentricity among the nodes that reach others. | a number | | Diameter, Eccentricity
+Eccentricity | Returns the length in edges of the longest shortest path from a node to any node it reaches; 0 for an unknown node. | a number | | Eccentricities, Diameter
+Eccentricities | Returns the eccentricity of every node as [ id, value ] pairs, in node order. | a list of [ id, value ] pairs | | Eccentricity
+AveragePathLength | Returns the mean length of the shortest paths over all reachable pairs of nodes. | a number | | Diameter
+MaxFlow | Returns the maximum flow from a source to a sink, taking the :weight of each edge as its capacity, 1 by default. | a number; 0 when a node is unknown or no flow can pass | | MinCut, MinCostMaxFlow
+MinCut | Returns the saturated edges that separate the sink from the source, as [ from, to ] pairs, by max-flow and min-cut. | a list of pairs of ids; [ ] when a node is unknown | | MaxFlow
+Communities | Returns the communities found by label propagation on the undirected view, as lists of node ids. | a list of lists of text | | NumberOfCommunities, ConnectedComponents
+NumberOfCommunities | Returns how many communities label propagation finds. | a number | | Communities
+MinCostMaxFlow | Returns the maximum flow from a source to a sink and its cost, :weight being the capacity and :cost the price per unit. | a pair [ flow, cost ]; [ 0, 0 ] when a node is unknown | | MaxFlow
+ClusteringCoefficient | Returns the share of the possible links among a node's neighbours that exist, on the undirected view; 0 for an unknown node. | a number between 0 and 1 | | ClusteringCoefficients
+ClusteringCoefficients | Returns the clustering coefficient of every node as [ id, value ] pairs, in node order. | a list of [ id, value ] pairs | | ClusteringCoefficient
+PathWeight | Returns the sum of the :weight of the edges along a path; a step with no edge in the graph is skipped. | a number | | WeightedShortestPathLength, EdgeProperty | an edge on the path that has no :weight property raises an error, because the weight is read with EdgeProperty
+ToHashlist | Returns the graph as one hash list [ :id, :nodes, :edges, :properties ], for conversion or inspection. | a hash list | | ExportToJSON, Nodes, Edges
+ExportToDOT | Returns the graph as Graphviz DOT text, one box per node and one arrow per edge with its label. | text | | Display, ToCanvas | | ToDot is another spelling and ExportToDotQ chains a stzDotCode
+ExportToJSON | Returns the graph as JSON text holding its id, nodes, edges and a metrics block with counts, density, longest path and cycles. | text | | ExportToYAML, ToHashlist | | the metrics block uses the density and the longest path of this class, so it inherits their limits
+ExportToYAML | Returns the graph as YAML text with its nodes, edges and the names of the node properties. | text | | ExportToJSON | | node property values and edge properties are not written, only the node property names
+ExportToGraphML | Returns the graph as GraphML text, with node labels, edge labels and properties written as data keys. | text | | SaveToGraphML, ExportToDOT | | LoadFromGraphML cannot read this text back today
+SaveToGraphML | Writes the graph to a file as GraphML text, replacing any file there. | nothing; a file is written | | ExportToGraphML, LoadFromGraphML
+SaveAsGraphML | Writes the graph to a GraphML file; another spelling of the save. | nothing; a file is written | | SaveToGraphML
+LoadFromGraphML | Raises error "Incorrect Id" today instead of reading a GraphML file into the graph, and leaves odd nodes behind. | nothing useful today | | ExportToGraphML, LoadFromStzGraf | known defect: the parser cuts the text at fixed positions instead of the positions it finds, so even a file written by SaveToGraphML yields garbled ids such as "sion=" and raises; the graph is left with those nodes | LoadFromStzGraf reads back a graph written by SaveToStzGraf, within the limits of its own warning
+LoadGraphML | Raises error "Incorrect Id" today instead of reading a GraphML file into the graph. | nothing useful today | | LoadFromGraphML | known defect: it only calls LoadFromGraphML, whose parser fails on every file written by SaveToGraphML and leaves garbled nodes behind
+ImportFromGraphML | Raises error "Incorrect Id" today instead of importing a GraphML file into the graph. | nothing useful today | | LoadFromGraphML | known defect: it only calls LoadFromGraphML, whose parser fails on every file written by SaveToGraphML and leaves garbled nodes behind
+ImportGraphML | Raises error "Incorrect Id" today instead of importing a GraphML file into the graph. | nothing useful today | | LoadFromGraphML | known defect: it only calls LoadFromGraphML, whose parser fails on every file written by SaveToGraphML and leaves garbled nodes behind
+Show | Prints the graph as boxes and arrows in the console, vertically, with the bottleneck nodes marked by exclamation marks. | nothing; text is printed | | AsciiArt, ShowHorizontal, BottleneckNodes | | raises error R1 on a graph without nodes
+Shwo | Prints the graph as boxes and arrows; a misspelled alternative form of the display call. | nothing; text is printed | | Show
+AsciiArt | Returns the vertical picture of the graph as text instead of printing it, the same drawing the display call prints. | text; each line ends with a line break | | Show, AsciiArtHorizontal | raises error R1 on a graph without nodes
+AsciiArtHorizontal | Returns the horizontal picture of the graph as text: boxes in a row joined by labelled arrows. | text | | ShowHorizontal, AsciiArt | raises error R1 on a graph without nodes
+Rendition | Returns the graph as a rendition value of kind graph, holding its DOT text, for a consumer to lay out. | a rendition hash list [ :kind, :mime, :content, :locator, :title ] | | RenditionAs, RenditionKinds
+RenditionKinds | Returns the kinds of rendition a graph can give: graph and text. | a list of text | | RenditionAs
+RenditionAs | Returns the graph as a rendition of the given kind: graph holds the DOT text, text holds a one-line count of nodes and edges. | a rendition hash list | | Rendition, RenditionKinds | any other kind raises an error
+Display | Writes the graph as DOT code and opens it in the external Graphviz viewer; it returns nothing. | nothing; a viewer is started | | Show, ExportToDOT | | not checked here: it starts an external Graphviz viewer
+View | Opens the graph in the external Graphviz viewer; an alternative form of the display call. | nothing; a viewer is started | | Display | | not checked here: it starts an external Graphviz viewer
+Veiw | Opens the graph in the external Graphviz viewer; a misspelled alternative form of the display call. | nothing; a viewer is started | | Display | | not checked here: it starts an external Graphviz viewer
+ShowHorizontal | Prints the graph in the console as a row of boxes joined by labelled arrows. | nothing; text is printed | | ShowH, AsciiArtHorizontal | | raises error R1 on a graph without nodes
+ShowH | Prints the graph as a row of boxes; the short spelling of the horizontal display. | nothing; text is printed | | ShowHorizontal
+ShowVertical | Prints the graph as a column of boxes joined by arrows, the default layout of the display. | nothing; text is printed | | Show, ShowV
+ShowV | Prints the graph as a column of boxes; the short spelling of the vertical display. | nothing; text is printed | | ShowVertical

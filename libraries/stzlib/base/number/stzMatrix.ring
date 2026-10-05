@@ -183,6 +183,25 @@ func IsListOfMatrices(paList)
 
 	return _bResult_
 
+# Holds a rectangle of numbers and edits it in place, searches it, and answers linear-algebra questions such as determinant, inverse, rank and eigenvalues.
+#
+# A stzMatrix is a list of rows of numbers, all of the same length, or a zero matrix built from a [
+# rows, columns ] pair. Positions are [ row, column ] and start at 1. Methods that add, multiply,
+# replace or transpose change the matrix itself and answer nothing; methods that ask a question
+# (Sum, Rank, Determinant, Inverse, SVD, the matrix functions such as MatrixExp) answer a plain Ring
+# list or number and leave the matrix alone, and their Q forms wrap the answer in a stzMatrix. The
+# heavy numeric work runs in the Softanza engine. Power raises every element to a power, while
+# MatrixPower and GeneralPower raise the matrix itself. Several decompositions refuse what has no
+# real answer (a singular matrix has no logarithm, a defective one no full set of eigenvectors) with
+# an error rather than a wrong number. Known gaps today, each carried as a warning on its method:
+# Section reads its corners as [ column, row ] and FindElementsInSection returns [ column, row ]
+# pairs, so ReplaceSection changes the wrong cells on a non-square rectangle; MultiplyByInRow scales
+# a column; Add given a matrix adds it and then raises; Diagonal1 answers nothing.
+#
+#   receiver   o1 = new stzMatrix([ [ 1, 2, 3 ], [ 4, 5, 6 ] ])
+#   example    ? @@( o1.Size() )
+#              #--> [ 2, 3 ]
+#   see        stzListOfLists, stzListOfNumbers, stzNumBuffer, stzComplex
 class stzMatrix from stzListOfLists
 
 	# Matrix core attributes
@@ -192,14 +211,28 @@ class stzMatrix from stzListOfLists
 	@nCols       # Number of columns
 	@pEngineMatrix = ""
 
+	# Returns the class name as lowercase text.
+	#
+	#   returns    the string stzmatrix
+	#   note       the StzClassName form answers the same
+	#   see        Size
 	def ClassName()
 		return "stzmatrix"
 
 		def StzClassName()
 			return This.ClassName()
 
-	# Constructor with flexible initialization
-
+	# Builds the matrix from a list of rows, or a zero matrix from a [ rows, columns ] pair of numbers.
+	#
+	#   paInput    a list of rows, each a list of numbers of the same length, or a pair of two
+	#              numbers [ rows, columns ] for a matrix of zeros
+	#   returns    nothing; the object is built
+	#   note       the rows are kept as given, with the first row setting the column count
+	#   warning    a list of exactly two numbers is read as the size of a zero matrix, never as a
+	#              1x2 matrix (write [ [ 2, 3 ] ] for that); an empty list raises R2 and anything
+	#              that is not a list raises an error; row lengths are not checked
+	#   see        StzMatrixQ, Copy
+	#@ aka  Constructor with flexible initialization
 	def init(paInput)
 
 		if NOT isList(paInput)
@@ -296,22 +329,40 @@ class stzMatrix from stzListOfLists
 		StzEngineMatrixUpdateRegion(@pEngineMatrix, _nOp_, nR1, nR2, nC1, nC2, nVal)
 		This._SyncFromEngine()
 
-	# Raw matrix access
-
+	# Returns the rows as a list of lists of numbers.
+	#
+	#   returns    a list of rows
+	#   see        Copy, Size
+	#@ aka  Raw matrix access
 	def Content()
 		return @aContent
 
+	# Returns a new stzMatrix with the same rows, so the copy can change without touching this one.
+	#
+	#   returns    a new stzMatrix
+	#   see        Content
 	def Copy()
 		return new stzMatrix(@aContent)
 
-	# Matrix Structure Queries
-
+	# Returns the number of rows.
+	#
+	#   returns    a number
+	#   see        Cols, Size
+	#@ aka  Matrix Structure Queries
 	def Rows()
 		return @nRows
 
+	# Returns the number of columns, counted on the first row.
+	#
+	#   returns    a number
+	#   see        Rows, Size
 	def Cols()
 		return @nCols
 
+	# Returns the dimensions as the pair [ rows, columns ].
+	#
+	#   returns    a list of two numbers
+	#   see        Rows, Cols
 	def Size()
 		return [ @nRows, @nCols ]
 
@@ -319,8 +370,16 @@ class stzMatrix from stzListOfLists
 	 # Element-Level Operations #
 	#--------------------------#
 
-	# Adds a value to each matrix element
-
+	# Adds a number to every element, or to one row or column when given as a pair, changing the matrix in place.
+	#
+	#   p          a number for every element
+	#   returns    nothing; the matrix changes in place
+	#   note       AddMatrix is the call for adding a matrix
+	#   warning    a matrix argument is added and then the call raises Incorrect param type or
+	#              incorrect syntax; the [ value, :ToCol = n ] and [ value, :ToRow = n ] spellings
+	#              read the pair backwards and change nothing
+	#   see        AddInCol, AddInRow, AddMatrix
+	#@ aka  Adds a value to each matrix element
 	def Add(p)
 
 		if isList(p) and len(p) = 2 and
@@ -369,26 +428,74 @@ class stzMatrix from stzListOfLists
 
 		stzraise("Incorrect param type or incorrect syntax!")
 
+	# Adds a value to every element of one column, changing the matrix in place.
+	#
+	#   _nCol_     the column to change
+	#   _nValue_   the value to add
+	#   returns    nothing; the matrix changes in place
+	#   note       the column then the value
+	#   see        AddInCol, AddVC
 	def AddCV(_nCol_, _nValue_)
 		This.AddInCol(_nCol_, _nValue_)
 
+	# Adds a value to every element of one column, changing the matrix in place.
+	#
+	#   _nValue_   the value to add
+	#   _nCol_     the column to change
+	#   returns    nothing; the matrix changes in place
+	#   note       the value then the column
+	#   see        AddInCol, AddCV
 	def AddVC(_nValue_, _nCol_)
 		This.AddInCol(_nCol_, _nValue_)
 
+	# Adds a value to every element of one row, changing the matrix in place.
+	#
+	#   _nRow_     the row to change
+	#   _nValue_   the value to add
+	#   returns    nothing; the matrix changes in place
+	#   note       the row then the value
+	#   see        AddInRow, AddVR
 	def AddRV(_nRow_, _nValue_)
 		This.AddInRow(_nRow_, _nValue_)
 
+	# Adds a value to every element of one row, changing the matrix in place.
+	#
+	#   _nValue_   the value to add
+	#   _nRow_     the row to change
+	#   returns    nothing; the matrix changes in place
+	#   note       the value then the row
+	#   see        AddInRow, AddRV
 	def AddVR(_nValue_, _nRow_)
 		This.AddInRow(_nRow_, _nValue_)
 
-	# The "To" spelling, which test 01 has always documented -- both the names and
-	# the resulting matrices -- while nothing defined them.
+	# Adds a value to every element of one column, changing the matrix in place.
+	#
+	#   _nCol_     the column to change
+	#   _nValue_   the value to add
+	#   returns    nothing; the matrix changes in place
+	#   note       the column then the value
+	#   see        AddInCol, AddToColumn
+	#@ aka  The "To" spelling, which test 01 has always documented -- both the names and the resulting matrices -- while nothing defined them.
 	def AddToCol(_nCol_, _nValue_)
 		This.AddInCol(_nCol_, _nValue_)
 
+		# Adds a value to every element of one column, changing the matrix in place.
+		#
+		#   _nCol_     the column to change
+		#   _nValue_   the value to add
+		#   returns    nothing; the matrix changes in place
+		#   note       the column then the value
+		#   see        AddInCol, AddToCol
 		def AddToColumn(_nCol_, _nValue_)
 			This.AddInCol(_nCol_, _nValue_)
 
+	# Adds a value to every element of one row, changing the matrix in place.
+	#
+	#   _nRow_     the row to change
+	#   _nValue_   the value to add
+	#   returns    nothing; the matrix changes in place
+	#   note       the row then the value
+	#   see        AddInRow, AddToCol
 	def AddToRow(_nRow_, _nValue_)
 		This.AddInRow(_nRow_, _nValue_)
 
@@ -454,34 +561,41 @@ class stzMatrix from stzListOfLists
 
 		stzraise("Unsupported syntax!")
 
+	# Adds a value to every element of one column, changing the matrix in place.
+	#
+	#   pnCol      the column to change
+	#   pnValue    the value to add
+	#   returns    nothing; the matrix changes in place
+	#   note       done in the engine in one pass
+	#   see        AddInRow, AddInCols
 	def AddInCol(pnCol, pnValue)
 
 		# Using RingFastPro
 
 		This._UpdateRegion(:add, 1, @nRows, pnCol, pnCol, pnValue)
 
-		# Instead of this:
-
-		# for i = 1 to @nRows
-		# 	@aContent[i][pnCol] += pnValue
-		# next
-
-	# Adds a value to a specific row
-
+	# Adds a value to every element of one row, changing the matrix in place.
+	#
+	#   pnRow      the row to change
+	#   pnValue    the value to add
+	#   returns    nothing; the matrix changes in place
+	#   note       done in the engine in one pass
+	#   see        AddInCol, AddInRows
+	#@ aka  Instead of this:
 	def AddInRow(pnRow, pnValue)
 
 		# Using RingFastPro
 
 		This._UpdateRegion(:add, pnRow, pnRow, 1, @nCols, pnValue)
 
-		# Instead of this:
-
-		# for j = 1 to @nCols
-		# 	@aContent[pnRow][j] += pnValue
-		# next
-
-	# Adds a value to multiple columns
-
+	# Adds a value to every element of several columns, changing the matrix in place.
+	#
+	#   paColumns   a list of columns, or a range written [ :From = 1, :To = 3 ]
+	#   pnValue     the value to add
+	#   returns     nothing; the matrix changes in place
+	#   note        raises an error when pnValue is not a number
+	#   see         AddInCol, AddInRows
+	#@ aka  Instead of this:
 	def AddInCols(paColumns, pnValue)
 
 		if CheckParams()
@@ -520,12 +634,14 @@ class stzMatrix from stzListOfLists
 			next
 		next
 
-	# Adds a value to multiple rows
-
-	# A copy of AddInCols that was never finished being renamed: every reference
-	# below said `paColumns`, which is not a parameter of this method, and the
-	# fallback loop read `panRows` and `_nRow_`, which do not exist either -- while
-	# adding the value TWICE per cell. The method could not run on any input.
+	# Adds a value to every element of several rows, changing the matrix in place.
+	#
+	#   paRows     a list of rows, or a range written [ :From = 1, :To = 3 ]
+	#   pnValue    the value to add
+	#   returns    nothing; the matrix changes in place
+	#   note       raises an error when pnValue is not a number
+	#   see        AddInRow, AddInCols
+	#@ aka  Adds a value to multiple rows
 	def AddInRows(paRows, pnValue)
 
 		if CheckParams()
@@ -564,8 +680,13 @@ class stzMatrix from stzListOfLists
 			next
 		next
 
-	# Add value to main diagonal elements
-
+	# Adds a value to the main diagonal, the cells from the top left down, changing the matrix in place.
+	#
+	#   pnValue    the value to add
+	#   returns    nothing; the matrix changes in place
+	#   note       a rectangular matrix has min(rows, columns) diagonal cells
+	#   see        AddInDiagonal2, MultiplyDiagonal1
+	#@ aka  Add value to main diagonal elements
 	def AddInDiagonal(pnValue)
 
 		_nMin_ = @min([@nRows, @nCols])
@@ -574,8 +695,13 @@ class stzMatrix from stzListOfLists
 			@aContent[i][i] += pnValue
 		next
 
-	# Add value to secondary diagonal elements
-
+	# Adds a value to the secondary diagonal, the cells from the top right down, changing the matrix in place.
+	#
+	#   pnValue    the value to add
+	#   returns    nothing; the matrix changes in place
+	#   note       a rectangular matrix has min(rows, columns) diagonal cells
+	#   see        AddInDiagonal, MultiplyDiagonal2
+	#@ aka  Add value to secondary diagonal elements
 	def AddInDiagonal2(pnValue)
 
 		_nMin_ = @min([@nRows, @nCols])
@@ -588,6 +714,13 @@ class stzMatrix from stzListOfLists
 	 # Element-wise multiplication #
 	#-----------------------------#
 
+	# Multiplies every element by a number, or one row or column when given as a pair, changing the matrix in place.
+	#
+	#   p          a number for every element, :By = n for the same, [ row, factor ] for one row, or
+	#              [ :Col = c, :By = f ] or [ :Row = r, :By = f ]
+	#   returns    nothing; the matrix changes in place
+	#   note       raises Incorrect param type or incorrect syntax for any other shape
+	#   see        MultiplyBy, MultiplyCol, MultiplyRow
 	def Multiply(p)
 
 		if isList(p) and IsByNamedParamList(p)
@@ -626,18 +759,53 @@ class stzMatrix from stzListOfLists
 
 		stzraise("Incorrect param type or incorrect syntax!")
 
+	# Multiplies every element of one column by a number, changing the matrix in place.
+	#
+	#   _nCol_     the column to scale
+	#   _nValue_   the factor
+	#   returns    nothing; the matrix changes in place
+	#   note       the column then the factor
+	#   see        MultiplyCol, MultiplyVC
 	def MultiplyCV(_nCol_, _nValue_)
 		This.MultiplyCol(_nCol_, _nValue_)
 
+	# Multiplies every element of one column by a number, changing the matrix in place.
+	#
+	#   _nValue_   the factor
+	#   _nCol_     the column to scale
+	#   returns    nothing; the matrix changes in place
+	#   note       the factor then the column
+	#   see        MultiplyCol, MultiplyCV
 	def MultiplyVC(_nValue_, _nCol_)
 		This.MultiplyCol(_nCol_, _nValue_)
 
+	# Multiplies every element of one row by a number, changing the matrix in place.
+	#
+	#   _nRow_     the row to scale
+	#   _nValue_   the factor
+	#   returns    nothing; the matrix changes in place
+	#   note       the row then the factor
+	#   see        MultiplyRow, MultiplyVR
 	def MultiplyRV(_nRow_, _nValue_)
 		This.MultiplyRow(_nRow_, _nValue_)
 
+	# Multiplies every element of one row by a number, changing the matrix in place.
+	#
+	#   _nValue_   the factor
+	#   _nRow_     the row to scale
+	#   returns    nothing; the matrix changes in place
+	#   note       the factor then the row
+	#   see        MultiplyRow, MultiplyRV
 	def MultiplyVR(_nValue_, _nRow_)
 		This.MultiplyRow(_nRow_, _nValue_)
 
+	# Multiplies every element by a number, or takes the matrix product with a second matrix on the right, in place.
+	#
+	#   pnValue    a number to scale every element, or a matrix (a list of rows) whose row count
+	#              equals this matrix's column count
+	#   returns    nothing; the matrix changes in place
+	#   note       with a matrix it gives the same result as MultiplyByMatrix and the shape changes
+	#   see        MultiplyByMatrix, Multiply
 	def MultiplyBy(pnValue)
 
 		if isList(pnValue) and @IsMatrix(pnValue)
@@ -651,8 +819,14 @@ class stzMatrix from stzListOfLists
 			This.MultiplyBy(pnValue)
 			return This
 
-	# Multiply a specific column by a value
-
+	# Multiplies every element of one column by a number, changing the matrix in place.
+	#
+	#   pnCol      the column to scale
+	#   pnValue    the factor, or written :By = factor
+	#   returns    nothing; the matrix changes in place
+	#   note       raises an error when pnCol is not a number
+	#   see        MultiplyCols, MultiplyRow
+	#@ aka  Multiply a specific column by a value
 	def MultiplyCol(pnCol, pnValue)
 
 		if CheckParams()
@@ -672,6 +846,13 @@ class stzMatrix from stzListOfLists
 
 		This._UpdateRegion(:mul, 1, @nRows, pnCol, pnCol, pnValue)
 
+		# Multiplies every element of one column by a number, changing the matrix in place.
+		#
+		#   pnCol      the column to scale
+		#   pnValue    the factor
+		#   returns    nothing; the matrix changes in place
+		#   note       raises an error when pnValue is not a number
+		#   see        MultiplyCol
 		def MultiplyColBy(pnCol, pnValue)
 			if NOT isNumber(pnValue)
 				stzraise("Incorrect param type! pnValue must be a number.")
@@ -679,11 +860,23 @@ class stzMatrix from stzListOfLists
 
 			This.MultiplyCol(pnCol, pnValue)
 
+		# Multiplies every element of one column by a number, changing the matrix in place.
+		#
+		#   pnValue    the factor
+		#   pnCol      the column to scale
+		#   returns    nothing; the matrix changes in place
+		#   note       the factor then the column
+		#   see        MultiplyCol, MultiplyColBy
 		def MultiplyByInCol(pnValue, pnCol)
 			This.MultiplyColBy(pnCol, pnValue)
 
-	# Multiply many columns at one time
-
+	# Multiplies every element of several columns by a number, changing the matrix in place.
+	#
+	#   panCols    a list of columns, or a range written [ :From = 1, :To = 3 ]
+	#   pnValue    the factor, or written :By = factor
+	#   returns    nothing; the matrix changes in place
+	#   see        MultiplyCol, MultiplyRows
+	#@ aka  Multiply many columns at one time
 	def MultiplyCols(panCols, pnValue)
 
 		if CheckParams()
@@ -734,8 +927,14 @@ class stzMatrix from stzListOfLists
 			This._UpdateRegion(:mul, 1, @nRows, panCols[i], panCols[i], pnValue)
 		next
 
-	# Multiply a specific row by a value
-
+	# Multiplies every element of one row by a number, changing the matrix in place.
+	#
+	#   pnRow      the row to scale
+	#   pnValue    the factor, or written :By = factor
+	#   returns    nothing; the matrix changes in place
+	#   note       raises an error when pnRow is not a number
+	#   see        MultiplyRows, MultiplyCol
+	#@ aka  Multiply a specific row by a value
 	def MultiplyRow(pnRow, pnValue)
 
 		if CheckParams()
@@ -755,6 +954,13 @@ class stzMatrix from stzListOfLists
 
 		This._UpdateRegion(:mul, pnRow, pnRow, 1, @nCols, pnValue)
 
+		# Multiplies every element of one row by a number, changing the matrix in place.
+		#
+		#   pnRow      the row to scale
+		#   pnValue    the factor
+		#   returns    nothing; the matrix changes in place
+		#   note       raises an error when pnValue is not a number
+		#   see        MultiplyRow
 		def MultiplyRowBy(pnRow, pnValue)
 			if NOT isNumber(pnValue)
 				stzraise("Incorrect param type! pnValue must be a number.")
@@ -762,11 +968,25 @@ class stzMatrix from stzListOfLists
 
 			This.MultiplyRow(pnRow, pnValue)
 
+		# Multiplies every element of one COLUMN by a number today, changing the matrix in place, where the row was meant.
+		#
+		#   pnValue    the factor
+		#   pnRow      the position scaled, which is taken as a column
+		#   returns    nothing; the matrix changes in place
+		#   note       the arguments are the factor then the position
+		#   warning    scales column pnRow instead of row pnRow, because the body calls
+		#              MultiplyColBy; MultiplyRow and MultiplyRowBy scale the row
+		#   see        MultiplyRow, MultiplyByInCol
 		def MultiplyByInRow(pnValue, pnRow)
 			This.MultiplyColBy(pnRow, pnValue)
 
-	# Multiply many rows at one time
-
+	# Multiplies every element of several rows by a number, changing the matrix in place.
+	#
+	#   panRows    a list of rows, or a range written [ :From = 1, :To = 3 ]
+	#   pnValue    the factor, or written :By = factor
+	#   returns    nothing; the matrix changes in place
+	#   see        MultiplyRow, MultiplyCols
+	#@ aka  Multiply many rows at one time
 	def MultiplyRows(panRows, pnValue)
 
 		if CheckParams()
@@ -811,8 +1031,13 @@ class stzMatrix from stzListOfLists
 		 	This._UpdateRegion(:mul, panRows[i], panRows[i], 1, @nCols, pnValue)
 		next
 
-	# Multiply main diagonal elements by a value
-
+	# Multiplies the main diagonal, the cells from the top left down, by a number, changing the matrix in place.
+	#
+	#   pnValue    the factor, or written :By = factor
+	#   returns    nothing; the matrix changes in place
+	#   note       a rectangular matrix has min(rows, columns) diagonal cells
+	#   see        MultiplyDiagonal2, AddInDiagonal
+	#@ aka  Multiply main diagonal elements by a value
 	def MultiplyDiagonal1(pnValue)
 
 		if CheckParams()
@@ -827,21 +1052,42 @@ class stzMatrix from stzListOfLists
 			@aContent[i][i] *= pnValue
 		next
 
+		# Multiplies the main diagonal by a number, changing the matrix in place.
+		#
+		#   pnValue    the factor
+		#   returns    nothing; the matrix changes in place
+		#   note       the same as the main-diagonal form
+		#   see        MultiplyDiagonal1
 		#< @FunctionAlternativeForms
-
 		def MultiplyDiagonal(pnValue)
 			This.MultiplyDiagonal1(pnValue)
 
+		# Multiplies the main diagonal by a number, changing the matrix in place.
+		#
+		#   pnValue    the factor
+		#   returns    nothing; the matrix changes in place
+		#   note       the same as the main-diagonal form
+		#   see        MultiplyDiagonal1
 		def MultiplyByInDiagonal1(pnValue)
 			This.MultiplyDiagonal1(pnValue)
 
+		# Multiplies the main diagonal by a number, changing the matrix in place.
+		#
+		#   pnValue    the factor
+		#   returns    nothing; the matrix changes in place
+		#   note       the same as the main-diagonal form
+		#   see        MultiplyDiagonal1
 		def MultiplyByInDiagonal(pnValue)
 			This.MultiplyDiagonal1(pnValue)
 
+	# Multiplies the secondary diagonal, the cells from the top right down, by a number, changing the matrix in place.
+	#
+	#   pnValue    the factor, or written :By = factor
+	#   returns    nothing; the matrix changes in place
+	#   note       a rectangular matrix has min(rows, columns) diagonal cells
+	#   see        MultiplyDiagonal1, AddInDiagonal2
 		#>
-
-	# Multiply secondary diagonal elements by a value
-
+	#@ aka  Multiply secondary diagonal elements by a value
 	def MultiplyDiagonal2(pnValue)
 
 		if CheckParams()
@@ -856,6 +1102,12 @@ class stzMatrix from stzListOfLists
 			@aContent[i][@nCols - i + 1] *= pnValue
 		next
 
+		# Multiplies the secondary diagonal by a number, changing the matrix in place.
+		#
+		#   pnValue    the factor
+		#   returns    nothing; the matrix changes in place
+		#   note       the spelling Dagonal is in the name as shipped
+		#   see        MultiplyDiagonal2
 		def MultiplyByInDagonal2(pnValue)
 			This.MultiplyDiagonal2(pnValue)
 
@@ -863,6 +1115,13 @@ class stzMatrix from stzListOfLists
 	 #  Matrix-to-Matrix Operations  #
 	#-------------------------------#
 
+	# Adds another matrix element by element, changing this one in place.
+	#
+	#   paMatrix   the matrix to add, a list of rows with the same size as this one
+	#   returns    nothing; the matrix changes in place
+	#   note       raises Matrices must have the same dimensions before changing anything when the
+	#              sizes differ
+	#   see        SubtractMatrix, Add
 	def AddMatrix(paMatrix)
 
 		# Validate input is a matrix with same dimensions
@@ -887,10 +1146,14 @@ class stzMatrix from stzListOfLists
 		next
 		This._InvalidateEngineMatrix()
 
-	# R4 step 1 -- MATRIX HYGIENE: the training prerequisites
-	# (elementwise ops, trace, norm, Ax=b). Ring floor; the engine
-	# tier accelerates behind the same surface later.
-
+	# Subtracts another matrix element by element, changing this one in place.
+	#
+	#   paMatrix   the matrix to subtract, a list of rows with the same size as this one
+	#   returns    nothing; the matrix changes in place
+	#   note       raises Matrices must have the same dimensions before changing anything when the
+	#              sizes differ
+	#   see        AddMatrix
+	#@ aka  R4 step 1 -- MATRIX HYGIENE: the training prerequisites (elementwise ops, trace, norm, Ax=b). Ring floor; the engine tier accelerates behind the same surface later.
 	def SubtractMatrix(paMatrix)
 		if not (isList(paMatrix) and @IsMatrix(paMatrix))
 			raise("Input must be a valid matrix")
@@ -905,6 +1168,12 @@ class stzMatrix from stzListOfLists
 		next
 		This._InvalidateEngineMatrix()
 
+	# Multiplies by another matrix element by element, which is the Hadamard product, changing this one in place.
+	#
+	#   paMatrix   the matrix of factors, a list of rows with the same size as this one
+	#   returns    nothing; the matrix changes in place
+	#   note       not the matrix product: that is MultiplyByMatrix
+	#   see        HadamardProduct, MultiplyByMatrix
 	def MultiplyElementwise(paMatrix)
 		if not (isList(paMatrix) and @IsMatrix(paMatrix))
 			raise("Input must be a valid matrix")
@@ -919,9 +1188,24 @@ class stzMatrix from stzListOfLists
 		next
 		This._InvalidateEngineMatrix()
 
+		# Multiplies by another matrix element by element, changing this one in place.
+		#
+		#   paMatrix   the matrix of factors, a list of rows with the same size as this one
+		#   returns    nothing; the matrix changes in place
+		#   note       the name mathematicians use for the element-by-element product
+		#   see        MultiplyElementwise
 		def HadamardProduct(paMatrix)
 			This.MultiplyElementwise(paMatrix)
 
+	# Divides by another matrix element by element, changing this one in place.
+	#
+	#   paMatrix   the matrix of divisors, a list of rows with the same size as this one
+	#   returns    nothing; the matrix changes in place
+	#   note       raises Matrices must have the same dimensions before changing anything when the
+	#              sizes differ
+	#   warning    raises Division by zero at (row, col) at the first zero divisor, after the cells
+	#              before it have already been divided, so the matrix is left half changed
+	#   see        MultiplyElementwise
 	def DivideElementwise(paMatrix)
 		if not (isList(paMatrix) and @IsMatrix(paMatrix))
 			raise("Input must be a valid matrix")
@@ -939,6 +1223,11 @@ class stzMatrix from stzListOfLists
 		next
 		This._InvalidateEngineMatrix()
 
+	# Returns the sum of the main diagonal.
+	#
+	#   returns    a number
+	#   note       raises an error unless the matrix is square
+	#   see        Diagonal, Determinant
 	def Trace()
 		if @nRows != @nCols
 			raise("Trace is only defined for square matrices")
@@ -949,6 +1238,11 @@ class stzMatrix from stzListOfLists
 		next
 		return _nT_
 
+	# Returns the square root of the sum of the squares of every element.
+	#
+	#   returns    a number
+	#   note       the Norm form answers the same
+	#   see        Sum, Rank
 	def FrobeniusNorm()
 		_nS_ = 0
 		for i = 1 to @nRows
@@ -961,22 +1255,15 @@ class stzMatrix from stzListOfLists
 		def Norm()
 			return This.FrobeniusNorm()
 
-	# Solve A x = b -- returns the solution VECTOR (list). Singular systems
-	# REFUSE (LAW 3); no least-squares guessing.
+	# Solves the linear system A x = b for x, where this matrix is A, and returns x.
 	#
-	# ENGINE-BACKED since phase 4 of the numeric foundation: one LU factorisation
-	# with partial pivoting, then forward and back substitution, in linalg.zig.
-	# The Ring-side Gauss-Jordan below is kept as the fallback for when the engine
-	# is unavailable -- it implements the same algorithm class and the same
-	# contract, so the two agree; it is simply an O(n^3) triple loop running in the
-	# interpreter, which is the cost §2.4 of the plan is about. Measured over a
-	# 60x60 system, ten solves: 0.21s in Ring, 0.01s through the engine.
-	#
-	# A note on what NOT to do here: this method already existed, and the first
-	# instinct on adding an engine solve was to write a new one beside it. That is
-	# exactly how LCM and GCD became second, divergent implementations that
-	# answered 0 instead of 24. A short name must alias the full method, and a
-	# faster path must replace the slow one INSIDE it -- never sit next to it.
+	#   paB        the right-hand side, a list of as many numbers as the matrix has rows
+	#   returns    a list of n numbers, one per column
+	#   note       the matrix is not changed; the Solve form answers the same
+	#   warning    raises an error when the matrix is not square, when paB has the wrong length, or
+	#              when the system is singular
+	#   see        LeastSquaresFor, Inverse
+	#@ aka  Solve A x = b -- returns the solution VECTOR (list). Singular systems REFUSE (LAW 3); no least-squares guessing.
 	def SolveFor(paB)
 		if @nRows != @nCols
 			raise("SolveFor needs a square system (A must be n x n)")
@@ -1110,6 +1397,15 @@ class stzMatrix from stzListOfLists
 		This.MultiplyByMatrix(paMatrix)
 		$cStzLastWhyB = "matmul ran on the NAIVE tier (ggml unavailable)"
 
+	# Replaces this matrix by its matrix product with a second matrix on the right.
+	#
+	#   paMatrix   the right factor, a list of rows whose count equals this matrix's column count
+	#   returns    nothing; the matrix changes in place and may change shape
+	#   note       a 2x3 times a 3x2 becomes a 2x2
+	#   warning    raises Matrices cannot be multiplied: incompatible dimensions when the counts
+	#              differ; the Q form of this call raises today because it wraps an answer that is
+	#              nothing
+	#   see        MultiplyBy, MultiplyElementwise
 	def MultiplyByMatrix(paMatrix)
 
 		# Validate input is a list of lists
@@ -1178,8 +1474,12 @@ class stzMatrix from stzListOfLists
 	 # Statistical Operations #
 	#------------------------#
 
-	# Calculates the sum of all elements
-
+	# Returns the sum of every element.
+	#
+	#   returns    a number
+	#   note       computed in the engine
+	#   see        Mean, Max
+	#@ aka  Calculates the sum of all elements
 	def Sum()
 		This._EnsureEngineMatrix()
 		if @pEngineMatrix != ""
@@ -1198,13 +1498,21 @@ class stzMatrix from stzListOfLists
 
 		return _nTotal_
 
-	# Calculates the mean of all elements
-
+	# Returns the average of every element.
+	#
+	#   returns    a number
+	#   note       the sum divided by rows times columns
+	#   see        Sum
+	#@ aka  Calculates the mean of all elements
 	def Mean()
 		return Sum() / (@nRows * @nCols)
 
-	# Finds the maximum value in the matrix
-
+	# Returns the largest element.
+	#
+	#   returns    a number
+	#   note       computed in the engine
+	#   see        Min
+	#@ aka  Finds the maximum value in the matrix
 	def Max()
 		This._EnsureEngineMatrix()
 		if @pEngineMatrix != ""
@@ -1223,8 +1531,12 @@ class stzMatrix from stzListOfLists
 
 		return _nMax_
 
-	# Finds the minimum value in the matrix
-
+	# Returns the smallest element.
+	#
+	#   returns    a number
+	#   note       computed in the engine
+	#   see        Max
+	#@ aka  Finds the minimum value in the matrix
 	def Min()
 		This._EnsureEngineMatrix()
 		if @pEngineMatrix != ""
@@ -1243,8 +1555,14 @@ class stzMatrix from stzListOfLists
 
 		return _nMin_
 
-	# Calculates the power of all elements
-
+	# Raises every element to a power, changing the matrix in place.
+	#
+	#   n          the exponent, a number
+	#   returns    nothing; the matrix changes in place
+	#   note       element by element, not the matrix power: Power(2) squares each cell,
+	#              MatrixPower(2) multiplies the matrix by itself
+	#   see        MatrixPower, GeneralPower
+	#@ aka  Calculates the power of all elements
 	def Power(n)
 		This._EnsureEngineMatrix()
 		if @pEngineMatrix != ""
@@ -1267,12 +1585,24 @@ class stzMatrix from stzListOfLists
 			This.Power(n)
 			return This
 
+		# Raises every element to a power, changing the matrix in place.
+		#
+		#   n          the exponent, a number
+		#   returns    nothing; the matrix changes in place
+		#   note       element by element, not the matrix power
+		#   see        Power, MatrixPower
 		def RaiseToPower(n)
 			This.Power(n)
 
 			def RaiseToPowerQ(n)
 				return This.PowerQ(n)
 
+		# Raises every element to a power, changing the matrix in place.
+		#
+		#   n          the exponent, a number
+		#   returns    nothing; the matrix changes in place
+		#   note       element by element, not the matrix power
+		#   see        Power, MatrixPower
 		def ToPower(n)
 			This.Power(n)
 
@@ -1283,6 +1613,12 @@ class stzMatrix from stzListOfLists
 	#  FINDING THING IN THE MATRIX  #
 	#-------------------------------#
 
+	# Returns the positions [ row, column ] of every cell equal to a number, scanning row by row.
+	#
+	#   nElm       the number to look for
+	#   returns    a list of [ row, column ] pairs; empty when absent
+	#   note       the matrix is not changed
+	#   see        FindElements, FindRow
 	def FindElement(nElm)
 		_aPositions_ = []
     
@@ -1296,6 +1632,12 @@ class stzMatrix from stzListOfLists
     
 		return _aPositions_
 
+	# Returns the positions [ row, column ] of every cell equal to any of several numbers, grouped by number.
+	#
+	#   panElms    the numbers to look for
+	#   returns    a list of [ row, column ] pairs; empty when none is found
+	#   note       the positions of the first number come first, then those of the second
+	#   see        FindElement
 	def FindElements(panElms)
 
 		_aResult_ = []
@@ -1314,10 +1656,13 @@ class stzMatrix from stzListOfLists
 
 		return _aResult_
 
-	# `def`, not `func`. Inside a class body `func` does not define a method, so
-	# FindCol was unreachable and FindCols -- its only caller -- raised R14. It was
-	# the sole `func` among 95 definitions here; FindRow, FindRows and FindCols all
-	# use `def`.
+	# Returns the positions of the columns that are equal to a given column, written as a list of numbers.
+	#
+	#   paCol      the column to match, a list with one number per row
+	#   returns    a list of column positions; empty when none matches
+	#   note       the whole column must match
+	#   see        FindCols, FindRow
+	#@ aka  `def`, not `func`. Inside a class body `func` does not define a method, so FindCol was unreachable and FindCols -- its only caller -- raised R14. It was the sole `func` among 95 definitions here; FindRow, FindRows and FindCols all use `def`.
 	def FindCol(paCol)
 		_aResult_ = []
 
@@ -1338,6 +1683,12 @@ class stzMatrix from stzListOfLists
     
 		return _aResult_
 
+	# Returns the positions of the columns that match any of several given columns, sorted and without repeats.
+	#
+	#   panCols    the columns to match, a list of lists with one number per row each
+	#   returns    a list of column positions; empty when none matches
+	#   note       a plain list of numbers raises R5: wrap each column in its own list
+	#   see        FindCol, FindRows
 	def FindCols(panCols)
 		
 		_nLen_ = len(panCols)
@@ -1355,6 +1706,12 @@ class stzMatrix from stzListOfLists
 
 		return U(@sort(_anResult_))
 
+	# Returns the positions of the rows that are equal to a given row, written as a list of numbers.
+	#
+	#   panRow     the row to match, a list with one number per column
+	#   returns    a list of row positions; empty when none matches
+	#   note       the whole row must match
+	#   see        FindRows, FindCol
 	def FindRow(panRow)
 		_anResult_ = []
 
@@ -1375,6 +1732,12 @@ class stzMatrix from stzListOfLists
     
 		return _anResult_
 
+	# Returns the positions of the rows that match any of several given rows, sorted and without repeats.
+	#
+	#   panRows    the rows to match, a list of lists with one number per column each
+	#   returns    a list of row positions; empty when none matches
+	#   note       a plain list of numbers raises R5: wrap each row in its own list
+	#   see        FindRow, FindCols
 	def FindRows(panRows)
 
 		_nLen_ = len(panRows)
@@ -1392,10 +1755,17 @@ class stzMatrix from stzListOfLists
 
 		return U(@sort(_anResult_))
 
-	#--
-
-	# Getting the section of elements between two positions
-
+	# Returns the cells of the rectangle between two corners as [ column, row ] pairs, row by row of the rectangle.
+	#
+	#   panStart   the first corner [ row, column ], or :From = pair
+	#   panEnd     the last corner [ row, column ], or :To = pair
+	#   returns    a list of [ column, row ] pairs
+	#   note       the corners are read as [ row, column ] here
+	#   warning    the pairs come out as [ column, row ], the reverse of every other Find method, so
+	#              on a rectangular section the pairs name the wrong cells (a 2x3 rectangle returns
+	#              a row 3 that does not exist) and ReplaceSection changes the wrong cells
+	#   see        FindElementInSection, Section
+	#@ aka  --
 	def FindElementsInSection(panStart, panEnd)
 		if CheckParams()
 
@@ -1440,6 +1810,15 @@ class stzMatrix from stzListOfLists
 		def FindNumbersInSection(panStart, panEnd)
 			return This.FindElementsInSection(panStart, panEnd)
 
+	# Returns the positions [ row, column ] inside a rectangle of one number or of any of several numbers.
+	#
+	#   pElmOrMany   a number, or a list of numbers
+	#   panStart     the first corner [ row, column ]
+	#   panEnd       the last corner [ row, column ]
+	#   returns      a list of [ row, column ] pairs
+	#   note         a number goes to FindElementInSection and a list to FindTheseElementsInSection
+	#   warning      raises an error when pElmOrMany is neither a number nor a list
+	#   see          FindElementInSection, FindTheseElementsInSection
 	def FindInSection(pElmOrMany, panStart, panEnd)
 
 		if isNumber(pElmOrMany)
@@ -1454,6 +1833,14 @@ class stzMatrix from stzListOfLists
 			stzraise("Incorrect param type! pElmOrMany must be a number or a list of numbers.")
 		ok
 
+	# Returns the positions [ row, column ] of a number inside the rectangle between two corners, scanning row by row.
+	#
+	#   pnElm      the number to look for
+	#   panStart   the first corner [ row, column ], or :From = pair
+	#   panEnd     the last corner [ row, column ], or :To = pair
+	#   returns    a list of [ row, column ] pairs; empty when absent
+	#   note       the corners are included
+	#   see        FindTheseElementsInSection, FindElement
 	def FindElementInSection(pnElm, panStart, panEnd)
 
 		if CheckParams()
@@ -1509,8 +1896,15 @@ class stzMatrix from stzListOfLists
 		def FindThisNumberInSection(pnElm, panStart, panEnd)
 			return This.FindElementInSection(pnElm, panStart, panEnd)
 
+	# Returns the positions [ row, column ] inside the rectangle between two corners of every cell equal to any of several numbers.
+	#
+	#   panElms    the numbers to look for
+	#   panStart   the first corner [ row, column ], or :From = pair
+	#   panEnd     the last corner [ row, column ], or :To = pair
+	#   returns    a list of [ row, column ] pairs; empty when none is found
+	#   note       the corners are included and the scan goes row by row
+	#   see        FindElementInSection, FindElements
 		#>
-
 	def FindTheseElementsInSection(panElms, panStart, panEnd)
 
 		if CheckParams()
@@ -1561,6 +1955,16 @@ class stzMatrix from stzListOfLists
 		def FindTheseNumbersInSection(panElms, panStart, panEnd)
 			return This.FindTheseElementsInSection(panElms, panStart, panEnd)
 
+	# Returns the numbers of the rectangle between two corners as one flat list, reading column by column.
+	#
+	#   panStart   the first corner, read as [ column, row ], or :From = pair
+	#   panEnd     the last corner, read as [ column, row ], or :To = pair
+	#   returns    a flat list of numbers, column by column
+	#   note       the matrix is not changed
+	#   warning    the corners are read as [ column, row ], the reverse of SubMatrix, so Section([
+	#              1, 1 ], [ 2, 3 ]) raises R2 on a 2x3 matrix; a section one column wide comes back
+	#              wrapped in one more list
+	#   see        SubMatrix, FindElementInSection
 	def Section(panStart, panEnd)
 
 		if CheckParams()
@@ -1642,8 +2046,14 @@ class stzMatrix from stzListOfLists
 		def NumbersInSectionZ(panStart, panEnd)
 			return This.ElementsInSectionZ(panStart, panEnd)
 
-	# Creates a submatrix by extracting specific rows and columns
-
+	# Returns a new stzMatrix made of the rows and columns between two corners, both included.
+	#
+	#   panStart   the first corner [ row, column ]
+	#   panEnd     the last corner [ row, column ]
+	#   returns    a new stzMatrix
+	#   note       the original is not changed
+	#   see        Section, Copy
+	#@ aka  Creates a submatrix by extracting specific rows and columns
 	def SubMatrix(panStart, panEnd)
 
 		if CheckParams()
@@ -1681,8 +2091,15 @@ class stzMatrix from stzListOfLists
 	 #  REPLACING THINGS IN THE MATRIX  #
 	#----------------------------------#
 
-	# Replaces a specific column with a given list
-
+	# Replaces one column with a list of new numbers, changing the matrix in place.
+	#
+	#   pnCol       the column to replace
+	#   panNewCol   the new values, one per row, or written :By = list
+	#   returns     nothing; the matrix changes in place
+	#   note        any numbers are accepted, zero and negative ones included
+	#   warning     raises Can't proceed when the list length differs from the row count
+	#   see         ReplaceCols, ReplaceRow
+	#@ aka  Replaces a specific column with a given list
 	def ReplaceCol(pnCol, panNewCol)
 
 		if CheckParams()
@@ -1709,8 +2126,16 @@ class stzMatrix from stzListOfLists
 			@aContent[i][pnCol] = panNewCol[i]
 		next
 
-	# Replace multiple columns
-
+	# Replaces several columns with lists of new numbers, changing the matrix in place.
+	#
+	#   panCols      the columns to replace, positive numbers
+	#   panNewCols   a list of new columns, each with one number per row, or written :By = lists
+	#   returns      nothing; the matrix changes in place
+	#   note         the nth column of panCols takes the nth new column
+	#   warning      raises Incorrect param type when a new value is zero or negative, because the
+	#                check wants strictly positive numbers; raises when the counts or lengths differ
+	#   see          ReplaceCol, ReplaceRows
+	#@ aka  Replace multiple columns
 	def ReplaceCols(panCols, panNewCols)
 
 		if CheckParams()
@@ -1752,8 +2177,17 @@ class stzMatrix from stzListOfLists
 			next
 		next
 
-	# Replace a specific row
-
+	# Replaces one row with a list of new numbers, changing the matrix in place.
+	#
+	#   pnRow       the row to replace, a positive number
+	#   panNewRow   the new values, one per column, or written :By = list
+	#   returns     nothing; the matrix changes in place
+	#   note        ReplaceCol has no such limit on the values
+	#   warning     raises Incorrect param type when a new value is zero or negative, because the
+	#               check wants strictly positive numbers; raises when the list length differs from
+	#               the column count
+	#   see         ReplaceRows, ReplaceCol
+	#@ aka  Replace a specific row
 	def ReplaceRow(pnRow, panNewRow)
 
 		if CheckParams()
@@ -1780,8 +2214,16 @@ class stzMatrix from stzListOfLists
 
 		@aContent[pnRow] = panNewRow
 
-	# Replace multiple rows
-
+	# Replaces several rows with lists of new numbers, changing the matrix in place.
+	#
+	#   panRows     the rows to replace, positive numbers
+	#   paNewRows   a list of new rows, each with one number per column, or written :By = lists
+	#   returns     nothing; the matrix changes in place
+	#   note        the nth row of panRows takes the nth new row
+	#   warning     raises Incorrect param type when a new value is zero or negative, because the
+	#               check wants strictly positive numbers; raises when the counts or lengths differ
+	#   see         ReplaceRow, ReplaceCols
+	#@ aka  Replace multiple rows
 	def ReplaceRows(panRows, paNewRows)
 
 		if CheckParams()
@@ -1819,8 +2261,15 @@ class stzMatrix from stzListOfLists
 	 #  REPLACING ELEMENTS IN THE MATRIX  #
 	#------------------------------------#
 
-	# Replacing all the occurrence of an element by a new element
-
+	# Replaces every cell equal to one number by another number, changing the matrix in place.
+	#
+	#   pnElm      the number to replace
+	#   pnNewElm   the new number, or written :By = n, or :ByMany = list to spread several values
+	#              over the occurrences
+	#   returns    nothing; the matrix changes in place
+	#   note       the occurrences are taken row by row
+	#   see        ReplaceElementByMany, ReplaceElementAt
+	#@ aka  Replacing all the occurrence of an element by a new element
 	def ReplaceElement(pnElm, pnNewElm)
 
 		_bXT_ = 0
@@ -1883,14 +2332,33 @@ class stzMatrix from stzListOfLists
 			next
 		next
 
+		# Replaces every cell equal to one number by another number, changing the matrix in place.
+		#
+		#   pnElm      the number to replace
+		#   pnNewElm   the new number
+		#   returns    nothing; the matrix changes in place
+		#   see        ReplaceElement
 		def ReplaceAllOccurrences(pnElm, pnNewElm)
 			This.ReplaceElement(pnElm, pnNewElm)
 
+		# Replaces every cell equal to one number by another number, changing the matrix in place.
+		#
+		#   pnElm      the number to replace
+		#   pnNewElm   the new number
+		#   returns    nothing; the matrix changes in place
+		#   see        ReplaceElement
 		def ReplaceNumber(pnElm, pnNewElm)
 			This.ReplaceElement(pnElm, pnNewElm)
 
-	# Replacing any element at the given position by a new element
-
+	# Puts a new number in the cell at a position, changing the matrix in place.
+	#
+	#   panRowCol   the position as [ row, column ]
+	#   pnNewElm    the new number
+	#   returns     nothing; the matrix changes in place
+	#   note        the old value is not checked
+	#   warning     raises R2 when the position is outside the matrix
+	#   see         ReplaceThisElementAt, ReplaceElementsAt
+	#@ aka  Replacing any element at the given position by a new element
 	def ReplaceElementAt(panRowCol, pnNewElm)
 
 		if CheckParams()
@@ -1916,12 +2384,27 @@ class stzMatrix from stzListOfLists
 
 		@aContent[_nRow_][_nCol_] = pnNewElm
 
+		# Puts a new number in the cell at a position, changing the matrix in place.
+		#
+		#   panRowCol   the position as [ row, column ]
+		#   pnNewElm    the new number
+		#   returns     nothing; the matrix changes in place
+		#   warning     raises R2 when the position is outside the matrix
+		#   see         ReplaceElementAt
 		def ReplaceNumberAt(panRowCol, pnNewElm)
 			This.ReplaceElementAt(panRowCol, pnNewElm)
 
-	# Replacing a given element by a new element, only if
-	# it exists at the given posisiton
-
+	# Puts a new number in the cell at a position only when it holds a given number, changing the matrix in place.
+	#
+	#   pnElm       the number the cell must hold
+	#   panRowCol   the position as [ row, column ]
+	#   pnNewElm    the new number
+	#   returns     nothing; the matrix changes in place
+	#   note        the matrix is left unchanged in that case
+	#   warning     raises Can't proceed when the cell holds another number, instead of leaving it
+	#               alone
+	#   see         ReplaceElementAt
+	#@ aka  Replacing a given element by a new element, only if it exists at the given posisiton
 	def ReplaceThisElementAt(pnElm, panRowCol, pnNewElm)
 
 		if CheckParams()
@@ -1951,12 +2434,28 @@ class stzMatrix from stzListOfLists
 			stzraise("Can't proceed! pnElm must be equal to the element in position panRowCol.")
 		ok
 
+		# Puts a new number in the cell at a position only when it holds a given number, changing the matrix in place.
+		#
+		#   pnElm       the number the cell must hold
+		#   panRowCol   the position as [ row, column ]
+		#   pnNewElm    the new number
+		#   returns     nothing; the matrix changes in place
+		#   warning     raises Can't proceed when the cell holds another number, instead of leaving
+		#               it alone
+		#   see         ReplaceThisElementAt
 		def ReplaceThisNumberAt(pnElm, panRowCol, pnNewElm)
 			This.ReplaceThisElementAt(pnElm, panRowCol, pnNewElm)
 
-	# Replacing the occureences of the given elements in the matrix by
-	# the given new element, only they exist at the given positions
-
+	# Replaces the cells at several positions by one number, each only when it holds the matching number of a list.
+	#
+	#   panElms    the numbers expected, the nth at the nth position
+	#   panPos     the positions as [ row, column ] pairs
+	#   pnNewElm   the new number
+	#   returns    nothing; the matrix changes in place
+	#   note       a position that does not hold its number, or lies outside the matrix, is skipped
+	#              without a message
+	#   see        ReplaceThisElementAt, ReplaceElementsAt
+	#@ aka  Replacing the occureences of the given elements in the matrix by the given new element, only they exist at the given positions
 	def ReplaceTheseElementsAt(panElms, panPos, pnNewElm)
 
 		if CheckParams()
@@ -1992,6 +2491,14 @@ class stzMatrix from stzListOfLists
 			ok
 		next
 
+		# Replaces the cells at several positions by one number, each only when it holds the matching number of a list.
+		#
+		#   panElms    the numbers expected, the nth at the nth position
+		#   panPos     the positions as [ row, column ] pairs
+		#   pnNewElm   the new number
+		#   returns    nothing; the matrix changes in place
+		#   note       a position that does not hold its number is skipped without a message
+		#   see        ReplaceTheseElementsAt
 		def ReplaceTheseNumbersAt(panElms, panPos, pnNewElm)
 			This.ReplaceTheseElementsAt(panElms, panPos, pnNewElm)
 
@@ -1999,8 +2506,15 @@ class stzMatrix from stzListOfLists
 	 #  REPLACEMENT BY MANY ELEMENTS  #
 	#--------------------------------#
 
-	# Replacing all the occurrences of an element by the given new element
-
+	# Replaces the occurrences of a number, taken row by row, by a list of new numbers in order, changing the matrix in place.
+	#
+	#   pnElm        the number to replace
+	#   panNewElms   the new numbers, the first for the first occurrence
+	#   returns      nothing; the matrix changes in place
+	#   note         extra new numbers are ignored and occurrences beyond the list are left as they
+	#                are
+	#   see          ReplaceElementByManyXT, ReplaceElement
+	#@ aka  Replacing all the occurrences of an element by the given new element
 	def ReplaceElementByMany(pnElm, panNewElms)
 
 		if CheckParams()
@@ -2027,9 +2541,25 @@ class stzMatrix from stzListOfLists
 			@aContent[_nRow_][_nCol_] = panNewElms[i]
 		next
 
+		# Replaces the occurrences of a number, taken row by row, by a list of new numbers in order, changing the matrix in place.
+		#
+		#   pnElm        the number to replace
+		#   panNewElms   the new numbers, the first for the first occurrence
+		#   returns      nothing; the matrix changes in place
+		#   note         extra new numbers are ignored and occurrences beyond the list are left as
+		#                they are
+		#   see          ReplaceElementByMany
 		def ReplaceAllOccurrencesByMany(pnElm, panNewElms)
 			This.ReplaceElementByMany(pnElm, panNewElms)
 
+		# Replaces the occurrences of a number, taken row by row, by a list of new numbers in order, changing the matrix in place.
+		#
+		#   pnElm        the number to replace
+		#   panNewElms   the new numbers, the first for the first occurrence
+		#   returns      nothing; the matrix changes in place
+		#   note         extra new numbers are ignored and occurrences beyond the list are left as
+		#                they are
+		#   see          ReplaceElementByMany
 		def ReplaceNumberByMany(pnElm, panNewElms)
 			This.ReplaceElementByMany(pnElm, panNewElms)
 
@@ -2068,11 +2598,16 @@ class stzMatrix from stzListOfLists
 		def ReplaceNumberByManyXT(pnElm, panNewElms)
 			This.ReplaceElementByManyXT(pnElm, panNewElms)
 
-	#--
-
-	# Replacing the occureences of the given elements in the matrix by
-	# the given new elements, only if they exist at the given positions
-
+	# Replaces the cells at several positions by the numbers of a list, each only when it holds the matching expected number.
+	#
+	#   panElms      the numbers expected, the nth at the nth position
+	#   panPos       the positions as [ row, column ] pairs
+	#   panNewElms   the new numbers, the nth for the nth position
+	#   returns      nothing; the matrix changes in place
+	#   note         positions that do not hold their expected number are skipped, and the shortest
+	#                of the three lists sets how many are tried
+	#   see          ReplaceTheseElementsAt, ReplaceElementsAtByMany
+	#@ aka  --
 	def ReplaceTheseElementsAtByMany(panElms, panPos, panNewElms)
 
 		if CheckParams()
@@ -2112,6 +2647,14 @@ class stzMatrix from stzListOfLists
 			ok
 		next
 
+		# Replaces the cells at several positions by the numbers of a list, each only when it holds the matching expected number.
+		#
+		#   panElms      the numbers expected, the nth at the nth position
+		#   panPos       the positions as [ row, column ] pairs
+		#   panNewElms   the new numbers, the nth for the nth position
+		#   returns      nothing; the matrix changes in place
+		#   note         positions that do not hold their expected number are skipped
+		#   see          ReplaceTheseElementsAtByMany
 		def ReplaceTheseNumbersAtByMany(panElms, panPos, panNewElms)
 			This.ReplaceTheseElementsAtByMany(panElms, panPos, panNewElms)
 
@@ -2160,8 +2703,16 @@ class stzMatrix from stzListOfLists
 		def ReplaceTheseNumbersAtByManyXT(panElms, panPos, panNewElms)
 			This.ReplaceTheseElementsAtByManyXT(panElms, panPos, panNewElms)
 
-	#--
-
+	# Puts one number, or a list of numbers in order, at several positions, changing the matrix in place.
+	#
+	#   panPos     the positions as [ row, column ] pairs
+	#   pBy        a number for every position, a list of numbers taken in order, :ByMany = list, or
+	#              :ByManyXT = list to cycle through the list
+	#   returns    nothing; the matrix changes in place
+	#   note       the old values are not checked
+	#   warning    raises R2 when a position is outside the matrix
+	#   see        ReplaceElementsAtByMany, ReplaceElementAt
+	#@ aka  --
 	def ReplaceElementsAt(panPos, pBy)
 
 		if CheckParams() and isList(pBy)
@@ -2204,6 +2755,13 @@ class stzMatrix from stzListOfLists
 			@aContent[ panPos[i][1] ][ panPos[i][2] ] = pBy
 		next
 
+	# Puts the numbers of a list, in order, at several positions, changing the matrix in place.
+	#
+	#   panPos     the positions as [ row, column ] pairs
+	#   panMany    the new numbers, the nth for the nth position
+	#   returns    nothing; the matrix changes in place
+	#   note       the shorter of the two lists sets how many cells change
+	#   see        ReplaceElementsAt
 	def ReplaceElementsAtByMany(panPos, panMany)
 
 		if CheckParams()
@@ -2236,24 +2794,83 @@ class stzMatrix from stzListOfLists
 			@aContent[_nRow_][_nCol_] = panByMany[_nIndex_]
 		next
 
+	# Sets every cell of the rectangle between two corners to one number, but changes the wrong cells on a non-square rectangle today.
+	#
+	#   panStart   the first corner [ row, column ]
+	#   panEnd     the last corner [ row, column ]
+	#   pBy        the new number
+	#   returns    nothing; the matrix changes in place
+	#   note       a square rectangle such as [ 1, 1 ] to [ 2, 2 ] is right
+	#   warning    takes the cells from FindElementsInSection, whose pairs are [ column, row ]: on a
+	#              3x3 matrix ReplaceSection([ 1, 1 ], [ 1, 3 ], 0) zeroes column 1 instead of row
+	#              1, and on a 2x3 matrix it raises R2 after changing some cells
+	#   see        ReplaceElementInSection, SubMatrix
 	def ReplaceSection(panStart, panEnd, pBy)
 		_aElmsPos_ = This.FindElementsInSection(panStart, panEnd)
 		This.ReplaceElementsAt(_aElmsPos_, pby)
 
+	# Fills the rectangle between two corners with a list of numbers in order, but reads the cells in the wrong order today.
+	#
+	#   panStart   the first corner [ row, column ]
+	#   panEnd     the last corner [ row, column ]
+	#   paMany     the new numbers, taken in order
+	#   returns    nothing; the matrix changes in place
+	#   note       the shorter of the two lists sets how many cells change
+	#   warning    takes the cells from FindElementsInSection, whose pairs are [ column, row ]: a
+	#              square rectangle is filled down each column in turn, and a non-square rectangle
+	#              changes the wrong cells
+	#   see        ReplaceSection, ReplaceElementsAtByMany
 	def ReplaceSectionByMany(panStart, panEnd, paMany)
 		_aElmsPos_ = This.FindElementsInSection(panStart, panEnd)
 		This.ReplaceElementsAtByMany(_aElmsPos_, paMany)
 
+		# Fills the rectangle between two corners with a list of numbers in order, but reads the cells in the wrong order today.
+		#
+		#   panStart   the first corner [ row, column ]
+		#   panEnd     the last corner [ row, column ]
+		#   paMany     the new numbers, taken in order
+		#   returns    nothing; the matrix changes in place
+		#   warning    takes the cells from FindElementsInSection, whose pairs are [ column, row ]:
+		#              a square rectangle is filled down each column in turn, and a non-square
+		#              rectangle changes the wrong cells
+		#   see        ReplaceSectionByMany
 		def ReplaceElementsInSectionByMany(panStart, panEnd, paMany)
 			This.ReplaceSectionByMany(panStart, panEnd, paMany)
 
+	# Replaces every cell equal to one number inside a rectangle by another number, changing the matrix in place.
+	#
+	#   pnElm      the number to replace
+	#   panStart   the first corner [ row, column ]
+	#   panEnd     the last corner [ row, column ]
+	#   pBy        the new number, or :ByMany = list
+	#   returns    nothing; the matrix changes in place
+	#   note       the corners are included; cells outside the rectangle are not touched
+	#   see        ReplaceTheseElementsInSection, ReplaceElementAt
 	def ReplaceElementInSection(pnElm, panStart, panEnd, pBy)
 		_aElmsPos_ = This.FindElementInSection(pnElm, panStart, panEnd)
 		This.ReplaceElementsAt(_aElmsPos_, pby)
 
+		# Replaces every cell equal to one number inside a rectangle by another number, changing the matrix in place.
+		#
+		#   pnElm      the number to replace
+		#   panStart   the first corner [ row, column ]
+		#   panEnd     the last corner [ row, column ]
+		#   pBy        the new number
+		#   returns    nothing; the matrix changes in place
+		#   note       cells outside the rectangle are not touched
+		#   see        ReplaceElementInSection
 		def ReplaceThisElementInSection(pnElm, panStart, panEnd, pBy)
 			This.ReplaceElementInSection(pnElm, panStart, panEnd, pBy)
 
+	# Replaces the occurrences of a number inside a rectangle by a list of new numbers in order, changing the matrix in place.
+	#
+	#   pnElm      the number to replace
+	#   panStart   the first corner [ row, column ]
+	#   panEnd     the last corner [ row, column ]
+	#   paMany     the new numbers, the first for the first occurrence
+	#   returns    nothing; the matrix changes in place
+	#   note       the shorter of the two lists sets how many cells change
+	#   see        ReplaceElementInSection, ReplaceElementsAtByMany
 	def ReplaceElementInSectionByMany(pnElm, panStart, panEnd, paMany)
 		# pnElm was being DROPPED here -- the call passed only the bounds into a
 		# method that takes (element, start, end), so it raised R20. Its sibling
@@ -2261,6 +2878,15 @@ class stzMatrix from stzListOfLists
 		_aElmsPos_ = This.FindElementInSection(pnElm, panStart, panEnd)
 		This.ReplaceElementsAtByMany(_aElmsPos_, paMany)
 
+		# Replaces the occurrences of a number inside a rectangle by a list of new numbers in order, changing the matrix in place.
+		#
+		#   pnElm      the number to replace
+		#   panStart   the first corner [ row, column ]
+		#   panEnd     the last corner [ row, column ]
+		#   paMany     the new numbers, the first for the first occurrence
+		#   returns    nothing; the matrix changes in place
+		#   note       the shorter of the two lists sets how many cells change
+		#   see        ReplaceElementInSectionByMany
 		def ReplaceThisElementInSectionByMany(pnElm, panStart, panEnd, paMany)
 			This.ReplaceElementInSectionByMany(pnElm, panStart, panEnd, paMany)
 
@@ -2272,10 +2898,29 @@ class stzMatrix from stzListOfLists
 		def ReplaceThisElementInSectionByManyXT(pnElm, panStart, panEnd, paMany)
 			This.ReplaceElementInSectionByManyXT(pnElm, panStart, panEnd, paMany)
 
+	# Replaces every cell inside a rectangle that equals any of several numbers by one new number, in place.
+	#
+	#   panElms    the numbers to replace
+	#   panStart   the first corner [ row, column ]
+	#   panEnd     the last corner [ row, column ]
+	#   pBy        the new number
+	#   returns    nothing; the matrix changes in place
+	#   note       cells outside the rectangle are not touched
+	#   see        ReplaceElementInSection, FindTheseElementsInSection
 	def ReplaceTheseElementsInSection(panElms, panStart, panEnd, pBy)
 		_aElmsPos_ = This.FindTheseElementsInSection(panElms, panStart, panEnd)
 		This.ReplaceElementsAt(_aElmsPos_, pby)
 
+	# Replaces the cells inside a rectangle that equal any of several numbers by a list of new numbers in order, in place.
+	#
+	#   panElms    the numbers to replace
+	#   panStart   the first corner [ row, column ]
+	#   panEnd     the last corner [ row, column ]
+	#   paMany     the new numbers, taken in order
+	#   returns    nothing; the matrix changes in place
+	#   note       the cells are taken row by row; the shorter of the two lists sets how many cells
+	#              change
+	#   see        ReplaceTheseElementsInSection
 	def ReplaceTheseElementsInSectionByMany(panElms, panStart, panEnd, paMany)
 		_aElmsPos_ = This.FindTheseElementsInSection(panElms, panStart, panEnd)
 		This.ReplaceElementsAtByMany(_aElmsPos_, paMany)
@@ -2289,8 +2934,12 @@ class stzMatrix from stzListOfLists
 	 # Specialized Data Extraction #
 	#-----------------------------#
 
-	# Extracts diagonal elements
-
+	# Returns the main diagonal, the cells from the top left down, as a list of numbers.
+	#
+	#   returns    a list of min(rows, columns) numbers
+	#   note       the matrix is not changed
+	#   see        Diagonal2, Trace
+	#@ aka  Extracts diagonal elements
 	def Diagonal()
 
 		_nMin_ = @min([ @nRows, @nCols ])
@@ -2302,10 +2951,21 @@ class stzMatrix from stzListOfLists
 
 		return _aDiagonal_
 
+		# Returns nothing today instead of the main diagonal, because its body is empty.
+		#
+		#   returns    nothing today
+		#   note       the intended answer is the same as Diagonal
+		#   warning    the method exists but has no body, so it answers an empty value for every
+		#              matrix; Diagonal gives the main diagonal
+		#   see        Diagonal
 		func Diagonal1()
 
-	# Secondary diagonal elements
-
+	# Returns the secondary diagonal, the cells from the top right down, as a list of numbers.
+	#
+	#   returns    a list of min(rows, columns) numbers
+	#   note       the matrix is not changed
+	#   see        Diagonal, AddInDiagonal2
+	#@ aka  Secondary diagonal elements
 	def Diagonal2()
 
 		_nMin_ = @min([@nRows, @nCols])
@@ -2321,9 +2981,13 @@ class stzMatrix from stzListOfLists
 	 # Advanced Calculations #
 	#-----------------------#
 
-	# Recursive method for calculating determinant
-	# ~> Efficient up to ~10x10 matrices
-
+	# Returns the determinant of a square matrix, the signed volume factor of the transformation it describes.
+	#
+	#   returns    a number
+	#   note       raises an error unless the matrix is square; the engine does the work, with a
+	#              recursive Ring fallback efficient up to about 10x10
+	#   see        Inverse, Rank, Trace
+	#@ aka  Recursive method for calculating determinant ~> Efficient up to ~10x10 matrices
 	def Determinant()
 
 		# Only handle square matrices
@@ -2384,31 +3048,16 @@ class stzMatrix from stzListOfLists
 
 		return _nDeterminant_
 
-	# Simple Gaussian elimination for matrix inversion
-	# ~> Reliable up to ~50x50 matrices
-
-	# LEAST SQUARES: the coefficients minimising ||A x - b||, where this matrix is A.
+	# Returns the coefficients x that minimise the length of A x - b, where this matrix is A, using Householder QR.
 	#
-	# NEW in phase 4 slice 7 of the numeric foundation, and it is a capability rather
-	# than a speedup. An OVERDETERMINED system -- more equations than unknowns, which
-	# is what fitting a model to data always is -- had no answer anywhere in the
-	# library. SolveFor needs a square A; stats.zig's regression is SIMPLE
-	# regression, one predictor giving a slope and an intercept. This is multiple
-	# regression.
-	#
-	#     # fit z = c1 + c2*u + c3*v to five observations
-	#     oA = new stzMatrix([ [1,1,1], [1,2,1], [1,3,2], [1,4,3], [1,5,5] ])
-	#     oA.LeastSquaresFor([ 1.5, 3.5, 4, 4.5, 3.5 ])
-	#     #--> [ 3, 2, -1.50 ]
-	#
-	# Householder QR, not the normal equations. Forming A-transpose-A SQUARES THE
-	# CONDITION NUMBER -- a fit that would lose 8 digits loses 16, which in a double
-	# is all of them. Householder costs about twice as much and is unconditionally
-	# stable, which is the right trade for something computed once.
-	#
-	# Returns [] when the columns are linearly dependent: there is no unique
-	# minimiser then, and choosing one of infinitely many silently would be worse
-	# than saying so.
+	#   panB       the observations, a list with one number per row
+	#   returns    a list of one coefficient per column; an empty list when the columns are
+	#              dependent
+	#   note       the LeastSquares and BestFitFor forms answer the same; the matrix is not changed
+	#   warning    raises an error when the length of panB differs from the row count, or when there
+	#              are fewer rows than columns
+	#   see        MinimumNormSolutionFor, SolveFor
+	#@ aka  Simple Gaussian elimination for matrix inversion ~> Reliable up to ~50x50 matrices
 	def LeastSquaresFor(panB)
 
 		if NOT isList(panB) or len(panB) != @nRows
@@ -2457,41 +3106,15 @@ class stzMatrix from stzListOfLists
 		def BestFitFor(panB)
 			return This.LeastSquaresFor(panB)
 
+	# Returns a real square root of any square matrix, symmetric or not, built from its Schur form.
+	#
+	#   returns    a list of rows, the root
+	#   note       the Q form returns a stzMatrix; the matrix is not changed
+	#   warning    raises an error when the matrix has a negative real eigenvalue, whose root is
+	#              complex, and it also refuses the nilpotent matrix [ [ 0, 1 ], [ 0, 0 ] ]
+	#   see        MatrixSquareRoot, MatrixLog
 		#>
-
-	# THE MOORE-PENROSE PSEUDO-INVERSE, A+. Works for ANY shape and ANY rank -- wide,
-	# tall, square, singular -- which is what makes it the true generalisation of an
-	# inverse rather than a fallback for one.
-	#
-	#     new stzMatrix([ [4,7], [2,6] ]).PseudoInverse()   # = the ordinary inverse
-	#
-	# It generalises everything around it:
-	#     square and invertible  ->  A+ IS the inverse
-	#     tall and full rank     ->  A+b IS the least-squares solution
-	#     rank deficient         ->  A+b is the MINIMUM-NORM least-squares solution
-	#     wide                   ->  A+b is the minimum-norm EXACT solution
-	#
-	# Defined by the four Penrose conditions, which is also how it is tested:
-	# A A+ A = A, A+ A A+ = A+, and both A A+ and A+ A symmetric. Those four
-	# determine A+ uniquely, so nothing else needs asserting.
-	# -- MATRIX FUNCTIONS OF A NON-SYMMETRIC MATRIX: f(A) = Q f(T) Q' --
-	#
-	# MatrixSquareRoot() above applies f to a DIAGONAL and is done, which is why it
-	# refuses every non-symmetric matrix. Here T is only quasi-triangular, so f(T) has
-	# to be built block by block -- and that block recurrence is the whole algorithm.
-	#
-	# -- WHY NOT JUST DIAGONALISE --
-	#
-	# Because it does not always work. A DEFECTIVE matrix has fewer eigenvectors than
-	# dimensions, so there is nothing to diagonalise -- while EVERY real matrix has a
-	# Schur form. [[1,1],[0,1]] is the smallest example: one eigenvector, and a square
-	# root of [[1,0.5],[0,1]] that no eigendecomposition can reach.
-	#
-	# Refused rather than returned as NaN when the matrix has a NEGATIVE REAL
-	# eigenvalue: that square root exists and is COMPLEX, and this returns real
-	# matrices. A complex eigenvalue PAIR is fine -- that is what T's 2x2 blocks are
-	# for, and inside one the arithmetic is ordinary complex arithmetic wearing a real
-	# basis.
+	#@ aka  THE MOORE-PENROSE PSEUDO-INVERSE, A+. Works for ANY shape and ANY rank -- wide, tall, square, singular -- which is what makes it the true generalisation of an inverse rather than a fallback for one.
 	def GeneralSquareRoot()
 		if @nRows = 0 or @nRows != @nCols
 			StzRaise("GeneralSquareRoot: this needs a square matrix.")
@@ -2514,43 +3137,27 @@ class stzMatrix from stzListOfLists
 		def GeneralSquareRootQ()
 			return new stzMatrix(This.GeneralSquareRoot())
 
-	# THE MATRIX COTANGENT, and its hyperbolic partner.
+	# Returns the matrix cotangent, cos(A) times the inverse of sin(A), as a list of rows.
 	#
-	#     MatrixCot()  = MatrixCos()  * MatrixSin()^-1
-	#     MatrixCoth() = MatrixCosh() * MatrixSinh()^-1
-	#
-	# -- AND NOT MatrixTan()^-1, THOUGH cot(x) = 1/tan(x) IS EXACT --
-	#
-	# The scalar identity is exact and the matrix one is too: everything here commutes, so
-	# the two expressions give the same matrix wherever both exist. The difference is in
-	# WHERE BOTH EXIST.
-	#
-	#     MatrixTan()^-1   needs cos(A) invertible TO FORM THE TANGENT AT ALL, then sin(A)
-	#     Cos * Sin^-1     needs sin(A) invertible, and nothing else
-	#
-	# So the route through the tangent is STRICTLY NARROWER, and it is narrower exactly
-	# where cos(A) is singular -- an eigenvalue at pi/2 + k*pi. WHICH IS WHERE THE
-	# COTANGENT IS ZERO. cot(pi/2) = 0/1 = 0, as untroubled a value as it ever takes, and
-	# deriving it as 1/tan(pi/2) asks for the reciprocal of an infinity that was never
-	# there. Taking the obvious identity as the implementation would have thrown away a
-	# piece of the domain, silently, at the one point where the answer is easiest.
-	#
-	# -- AND THE DOMAINS PAIR OFF BY DENOMINATOR, NOT BY FAMILY --
-	#
-	#     MatrixTan() and MatrixSec()   both need cos(A) invertible
-	#     MatrixCot() and MatrixCsc()   both need sin(A) invertible
-	#
-	# Which puts the cotangent in the narrow half with the cosecant: sin(A) is singular
-	# whenever A is, so MatrixCot() refuses EVERY SINGULAR MATRIX, while MatrixTan() --
-	# sharing its domain with the secant -- takes them all. Four functions, two domains,
-	# and the pairing is by which of sin/cos sits in the denominator, not by whether the
-	# name starts with "co".
+	#   returns    a list of rows, the same size as the matrix
+	#   note       the function of the matrix, not of each element; the Q form returns a stzMatrix
+	#   warning    raises an error unless the matrix is square, and for every singular matrix (an
+	#              eigenvalue at 0 or at k*pi makes sin(A) singular)
+	#   see        MatrixTan, MatrixCoth
+	#@ aka  THE MATRIX COTANGENT, and its hyperbolic partner.
 	def MatrixCot()
 		return This._Cotangent(:Circular)
 
 		def MatrixCotQ()
 			return new stzMatrix(This.MatrixCot())
 
+	# Returns the hyperbolic matrix cotangent, cosh(A) times the inverse of sinh(A), as a list of rows.
+	#
+	#   returns    a list of rows, the same size as the matrix
+	#   note       the function of the matrix, not of each element; the Q form returns a stzMatrix
+	#   warning    raises an error unless the matrix is square, and for every singular matrix,
+	#              because sinh(A) is singular at an eigenvalue 0
+	#   see        MatrixCot, MatrixTanh
 	def MatrixCoth()
 		return This._Cotangent(:Hyperbolic)
 
@@ -2581,52 +3188,53 @@ class stzMatrix from stzListOfLists
 		StzEngineMatrixFree(_pCtV_)
 		return _aCtV_
 
-	# THE MATRIX SECANT AND COSECANT, and their hyperbolic partners.
+	# Returns the matrix secant, the inverse of cos(A), as a list of rows.
 	#
-	#     MatrixSec()   = MatrixCos()^-1        MatrixSech() = MatrixCosh()^-1
-	#     MatrixCsc()   = MatrixSin()^-1        MatrixCsch() = MatrixSinh()^-1
-	#
-	# -- THERE IS NO ALGORITHM HERE, AND THAT IS THE POINT --
-	#
-	# Every other function in this family had something to construct: a series to scale,
-	# a recurrence to climb, a decomposition to walk. These are one inverse of a matrix
-	# already computed. All four are the same three lines.
-	#
-	# So the entire content is WHICH MATRIX IS SINGULAR WHEN, and the four answers are
-	# not alike:
-	#
-	#     MatrixSec()    cos(A) singular at an eigenvalue of pi/2 + k*pi
-	#     MatrixCsc()    sin(A) singular at an eigenvalue of k*pi -- INCLUDING ZERO
-	#     MatrixSech()   cosh(A) singular only at a purely imaginary i*pi/2 + i*k*pi
-	#     MatrixCsch()   sinh(A) singular at zero, or at a purely imaginary i*k*pi
-	#
-	# -- THE COSECANT'S DOMAIN IS THE NARROW ONE --
-	#
-	# Zero is an eigenvalue of sin(A) whenever it is an eigenvalue of A, so MatrixCsc()
-	# refuses EVERY SINGULAR MATRIX -- and MatrixCsch() with it. Nothing else in this
-	# family is that narrow, and it is the difference between a function that
-	# occasionally declines and one that declines a whole common class.
-	#
-	# A nilpotent matrix makes it concrete in a line: cos(N) = I - N^2/2 is invertible
-	# and sin(N) = N is not, so THE SAME MATRIX HAS A SECANT AND NO COSECANT.
+	#   returns    a list of rows, the same size as the matrix
+	#   note       the function of the matrix, not of each element; the Q form returns a stzMatrix
+	#   warning    raises an error unless the matrix is square, and when an eigenvalue sits at pi/2
+	#              + k*pi where cos(A) is singular
+	#   see        MatrixCsc, MatrixCos
+	#@ aka  THE MATRIX SECANT AND COSECANT, and their hyperbolic partners.
 	def MatrixSec()
 		return This._Reciprocal("sec")
 
 		def MatrixSecQ()
 			return new stzMatrix(This.MatrixSec())
 
+	# Returns the matrix cosecant, the inverse of sin(A), as a list of rows.
+	#
+	#   returns    a list of rows, the same size as the matrix
+	#   note       the function of the matrix, not of each element; the Q form returns a stzMatrix
+	#   warning    raises an error unless the matrix is square, and for every singular matrix
+	#              because sin(A) is singular at an eigenvalue 0
+	#   see        MatrixSec, MatrixSin
 	def MatrixCsc()
 		return This._Reciprocal("csc")
 
 		def MatrixCscQ()
 			return new stzMatrix(This.MatrixCsc())
 
+	# Returns the hyperbolic matrix secant, the inverse of cosh(A), as a list of rows.
+	#
+	#   returns    a list of rows, the same size as the matrix
+	#   note       the function of the matrix, not of each element; the Q form returns a stzMatrix
+	#   warning    raises an error unless the matrix is square; a real spectrum never makes cosh(A)
+	#              singular
+	#   see        MatrixSec, MatrixCosh
 	def MatrixSech()
 		return This._Reciprocal("sech")
 
 		def MatrixSechQ()
 			return new stzMatrix(This.MatrixSech())
 
+	# Returns the hyperbolic matrix cosecant, the inverse of sinh(A), as a list of rows.
+	#
+	#   returns    a list of rows, the same size as the matrix
+	#   note       the function of the matrix, not of each element; the Q form returns a stzMatrix
+	#   warning    raises an error unless the matrix is square, and for every singular matrix
+	#              because sinh(A) is singular at an eigenvalue 0
+	#   see        MatrixCsc, MatrixSinh
 	def MatrixCsch()
 		return This._Reciprocal("csch")
 
@@ -2661,72 +3269,53 @@ class stzMatrix from stzListOfLists
 		StzEngineMatrixFree(_pRcV_)
 		return _aRcV_
 
-	# THE MATRIX ARCSECANT AND ARCCOSECANT, and their hyperbolic partners.
+	# Returns the matrix arcsecant, the arccosine of the inverse, as a list of rows.
 	#
-	#     MatrixAsec()  = MatrixAcos()  of the INVERSE
-	#     MatrixAcsc()  = MatrixAsin()  of the INVERSE
-	#     MatrixAsech() = MatrixAcosh() of the INVERSE
-	#     MatrixAcsch() = MatrixAsinh() of the INVERSE
-	#
-	# -- THESE INVERT THE DOMAIN OF MatrixAsin() AND MatrixAcos() --
-	#
-	# MatrixAsin() and MatrixAcos() want every eigenvalue INSIDE the unit interval,
-	# |L| < 1, because that is where the scalar functions are real. Going through the
-	# inverse turns that condition inside out: MatrixAsec() and MatrixAcsc() want every
-	# eigenvalue OUTSIDE it, |L| > 1.
-	#
-	# So a matrix with an eigenvalue at 2 has an arcsecant and no arcsine, and one with an
-	# eigenvalue at 0.5 has an arcsine and no arcsecant. Both directions hold.
-	#
-	# -- AND THE BOUNDARY BELONGS TO NEITHER --
-	#
-	# The domains are complements, so one would expect them to meet on the unit circle.
-	# THEY DO NOT. MatrixAsin() is built on (I - A^2)^(-1/2), and at |L| = 1 that is the
-	# inverse of a zero matrix, so the arcsine dies exactly at the endpoint -- and the
-	# arcsecant dies there too, since the inverse carries the same eigenvalue into the
-	# same wall. The scalar functions are perfectly ordinary there (asin(1) = pi/2,
-	# asec(1) = 0), so this is the ROUTE's boundary and not the function's, and it leaves
-	# a gap of measure zero between two domains that otherwise tile the line.
-	#
-	# -- AND THE ROUTE THAT AVOIDS THE INVERSE IS A DIFFERENT FUNCTION --
-	#
-	# asec(x) = atan(sqrt(x^2 - 1)) is a real identity needing no inverse at all, and it
-	# is CORRECT FOR POSITIVE x AND WRONG FOR NEGATIVE x, because the square root discards
-	# the sign. Note what kind of wrong: MatrixAcot()'s two routes differed by EXACTLY pi,
-	# a constant, the same function shifted. Here the gap is 1.4595, 1.0472, 0.6797 at
-	# x = -1.5, -2, -3 -- IT VARIES WITH THE EIGENVALUE. The true relation is
-	# asec(-x) = pi - asec(x), a REFLECTION, and no constant offset repairs a reflection.
-	# The cheap route is not another branch of this function; it is a different function
-	# that happens to agree on half the line.
-	#
-	# -- AND ALL FOUR REFUSE A SINGULAR MATRIX --
-	#
-	# Every one of them goes through the inverse, so for once there is no wide partner to
-	# contrast with. MatrixAsech() is the narrowest thing here -- it wants 0 < L <= 1,
-	# POSITIVE and inside the unit interval, not merely |L| < 1: a negative eigenvalue in
-	# (-1, 0) lands on acosh's forbidden left ray and is refused. MatrixAcsch() is the
-	# widest, refusing nothing but singularity, since MatrixAsinh() is ODD and has no
-	# branch point on the real line -- so it takes BOTH signs where MatrixAsech() takes
-	# only the positive one. Their round trips say it plainest: csch(acsch(A)) = A holds
-	# on the whole punctured line, sech(asech(A)) = A only on a positive spectrum.
+	#   returns    a list of rows, the same size as the matrix
+	#   note       the Q form returns a stzMatrix
+	#   warning    raises an error unless the matrix is square, for a singular matrix, and unless
+	#              every eigenvalue lies strictly outside [-1, 1]
+	#   see        MatrixAcsc, MatrixAcos
+	#@ aka  THE MATRIX ARCSECANT AND ARCCOSECANT, and their hyperbolic partners.
 	def MatrixAsec()
 		return This._ArcReciprocal("asec")
 
 		def MatrixAsecQ()
 			return new stzMatrix(This.MatrixAsec())
 
+	# Returns the matrix arccosecant, the arcsine of the inverse, as a list of rows.
+	#
+	#   returns    a list of rows, the same size as the matrix
+	#   note       the Q form returns a stzMatrix
+	#   warning    raises an error unless the matrix is square, for a singular matrix, and unless
+	#              every eigenvalue lies strictly outside [-1, 1]
+	#   see        MatrixAsec, MatrixAsin
 	def MatrixAcsc()
 		return This._ArcReciprocal("acsc")
 
 		def MatrixAcscQ()
 			return new stzMatrix(This.MatrixAcsc())
 
+	# Returns the hyperbolic matrix arcsecant, the hyperbolic arccosine of the inverse, as a list of rows.
+	#
+	#   returns    a list of rows, the same size as the matrix
+	#   note       the Q form returns a stzMatrix
+	#   warning    raises an error unless the matrix is square, and unless every eigenvalue is
+	#              positive and at most 1 (a singular matrix raises)
+	#   see        MatrixAsec, MatrixAcosh
 	def MatrixAsech()
 		return This._ArcReciprocal("asech")
 
 		def MatrixAsechQ()
 			return new stzMatrix(This.MatrixAsech())
 
+	# Returns the hyperbolic matrix arccosecant, the hyperbolic arcsine of the inverse, as a list of rows.
+	#
+	#   returns    a list of rows, the same size as the matrix
+	#   note       the Q form returns a stzMatrix
+	#   warning    raises an error unless the matrix is square, and for a singular matrix; both
+	#              signs of eigenvalue are accepted
+	#   see        MatrixAcsc, MatrixAsinh
 	def MatrixAcsch()
 		return This._ArcReciprocal("acsch")
 
@@ -2766,53 +3355,28 @@ class stzMatrix from stzListOfLists
 		StzEngineMatrixFree(_pArV_)
 		return _aArV_
 
-	# THE MATRIX ARCCOTANGENT, and its hyperbolic partner.
+	# Returns the matrix arccotangent, pi/2 times the identity minus the arctangent, as a list of rows.
 	#
-	#     MatrixAcot()  = (pi/2) I - MatrixAtan()
-	#     MatrixAcoth() = MatrixAtanh() of the INVERSE
-	#
-	# -- TWO ROUTES AGAIN, AND THIS TIME THEY DISAGREE --
-	#
-	# MatrixCot() had two candidate definitions that differed only in DOMAIN. Here there
-	# are two again, and the difference is worse than domain:
-	#
-	#     (pi/2) I - MatrixAtan(A)        and        MatrixAtan(A^-1)
-	#
-	# They agree on a positive eigenvalue and DIFFER BY EXACTLY pi on a negative one.
-	# arccot(-2) is 2.6779 by the first and -0.4636 by the second -- both are arccotangents
-	# of the same number, sitting on different branches. So choosing a route here is not
-	# choosing how much domain to keep. IT IS CHOOSING WHICH FUNCTION TO IMPLEMENT.
-	#
-	# -- AND THE OBVIOUS TEST CANNOT TELL THEM APART --
-	#
-	# MatrixCot() has period pi. So cot(acot(A)) = A holds for BOTH routes, exactly, to
-	# full precision. The round trip -- the first thing anyone would reach for -- is blind
-	# to the difference, and a branch error would pass it without a murmur. What
-	# distinguishes them is the VALUE on a negative eigenvalue, and nothing else does.
-	#
-	# The subtraction is taken here: it is the continuous branch, range (0, pi), and it is
-	# defined at zero, where acot(0) = pi/2 and the reciprocal route has nothing to say.
-	# Being exact rather than a second algorithm, it inherits MatrixAtan()'s domain
-	# UNCHANGED -- a singular matrix has an arccotangent, which is the second half of the
-	# same point.
+	#   returns    a list of rows, the same size as the matrix
+	#   note       the Q form returns a stzMatrix
+	#   warning    raises an error unless the matrix is square, and where MatrixAtan raises; a
+	#              singular matrix is accepted, and an eigenvalue 0 gives pi/2
+	#   see        MatrixAtan, MatrixAcoth
+	#@ aka  THE MATRIX ARCCOTANGENT, and its hyperbolic partner.
 	def MatrixAcot()
 		return This._Arccotangent(:Circular)
 
 		def MatrixAcotQ()
 			return new stzMatrix(This.MatrixAcot())
 
-	# -- AND HERE THERE IS NO SUBTRACTION TO TAKE --
+	# Returns the hyperbolic matrix arccotangent, the hyperbolic arctangent of the inverse, as a list of rows.
 	#
-	# The circular pair share a domain: atan and acot are both defined on the whole real
-	# line, so one can be written as a constant minus the other. THE HYPERBOLIC PAIR HAVE
-	# DISJOINT DOMAINS -- atanh wants |x| < 1 and acoth wants |x| > 1 -- and the identity
-	# connecting them, acoth(x) = atanh(x) + i*pi/2, is IMAGINARY. There is no real
-	# constant to subtract, so the inverse is not one route of two. It is the only one.
-	#
-	# Which makes this THE FIRST PLACE WHERE THE CIRCULAR SIDE IS THE WIDER ONE.
-	# Everywhere else the hyperbolic partner refused less; here MatrixAcot() takes every
-	# matrix MatrixAtan() takes, singular ones included, while MatrixAcoth() needs the
-	# matrix invertible on top of everything MatrixAtanh() needed.
+	#   returns    a list of rows, the same size as the matrix
+	#   note       the Q form returns a stzMatrix
+	#   warning    raises an error unless the matrix is square, for a singular matrix, and unless
+	#              every eigenvalue lies strictly outside [-1, 1]
+	#   see        MatrixAcot, MatrixAtanh
+	#@ aka  -- AND HERE THERE IS NO SUBTRACTION TO TAKE --
 	def MatrixAcoth()
 		return This._Arccotangent(:Hyperbolic)
 
@@ -2851,66 +3415,54 @@ class stzMatrix from stzListOfLists
 		StzEngineMatrixFree(_pAcV_)
 		return _aAcV_
 
-	# THE MATRIX ARCSINE AND ARCCOSINE.
+	# Returns the matrix arcsine as a list of rows.
 	#
-	#     asin(A) = MatrixAtan( A * (I - A^2)^(-1/2) )
-	#     acos(A) = (pi/2) I - asin(A)
-	#
-	# The scalar identities lifted. Everything commutes -- A and any function of A -- so
-	# the lift is the same expression with matrix inverses where the divisions were, and
-	# nothing has to be reordered. The arccosine is EXACT rather than a second
-	# algorithm: acos + asin = pi/2 holds term by term, so it is a subtraction.
-	#
-	# -- AND THE REFUSAL IS THE BRANCH POINT AGAIN --
-	#
-	# sqrt(I - A^2) needs I - A^2 to have no negative real eigenvalue, and for a real
-	# eigenvalue L that is 1 - L^2 -- negative exactly when |L| passes ONE. Which is
-	# where asin stops being real: asin(2) has no real value, and neither has the
-	# arcsine of a matrix with an eigenvalue at 2.
-	#
-	# Compare MatrixAtan(), whose obstacle was |b| > 1 on the IMAGINARY axis. Same
-	# square root, same mechanism, different branch points -- because they belong to
-	# different functions.
+	#   returns    a list of rows, the same size as the matrix
+	#   note       the Q form returns a stzMatrix
+	#   warning    raises an error unless the matrix is square, and unless every eigenvalue lies
+	#              strictly between -1 and 1 (an eigenvalue 1 raises)
+	#   see        MatrixAcos, MatrixAsinh
+	#@ aka  THE MATRIX ARCSINE AND ARCCOSINE.
 	def MatrixAsin()
 		return This._ArcTrig("asin")
 
 		def MatrixAsinQ()
 			return new stzMatrix(This.MatrixAsin())
 
+	# Returns the matrix arccosine, pi/2 times the identity minus the arcsine, as a list of rows.
+	#
+	#   returns    a list of rows, the same size as the matrix
+	#   note       the Q form returns a stzMatrix
+	#   warning    raises an error unless the matrix is square, and unless every eigenvalue lies
+	#              strictly between -1 and 1
+	#   see        MatrixAsin, MatrixAcosh
 	def MatrixAcos()
 		return This._ArcTrig("acos")
 
 		def MatrixAcosQ()
 			return new stzMatrix(This.MatrixAcos())
 
-	# THE HYPERBOLIC ARCSINE AND ARCCOSINE, both closed forms in the logarithm:
+	# Returns the hyperbolic matrix arcsine as a list of rows.
 	#
-	#     asinh(A) = MatrixLog( A + sqrt(A^2 + I) )
-	#     acosh(A) = MatrixLog( A + sqrt(A^2 - I) )
-	#
-	# WHICH COMPLETES A PATTERN WORTH STATING. Every hyperbolic inverse here is a closed
-	# form in the logarithm -- atanh, asinh, acosh alike -- while each circular one had
-	# to be built: MatrixAtan() needed a halving recurrence, and MatrixAsin() is defined
-	# through it. The families matched sign for sign all the way up and part company at
-	# the inverses.
-	#
-	# -- AND ONE CHARACTER SEPARATES THE LAST TWO --
-	#
-	# The MINUS in acosh inverts the domain -- but NOT into a mirror image, which is the
-	# part easy to get wrong. A^2 - I gives L^2 - 1, so the square root wants |L| >= 1,
-	# the opposite of MatrixAcos()'s inside; but THEN the log wants L + sqrt(L^2 - 1) > 0,
-	# which fails for L <= -1. Only the intersection survives: MatrixAcos() owns the open
-	# interval (-1, 1), MatrixAcosh() owns the RAY [1, inf), not the two-sided outside.
-	#
-	# MatrixAsinh() refuses nothing for a REAL spectrum: A^2 + I gives 1 + L^2, always
-	# positive. Note "real SPECTRUM", not "real entries" -- a real matrix may have
-	# complex eigenvalues, and then it can decline after all.
+	#   returns    a list of rows, the same size as the matrix
+	#   note       the Q form returns a stzMatrix
+	#   warning    raises an error unless the matrix is square; any real eigenvalue is accepted, but
+	#              a complex pair can still be refused
+	#   see        MatrixAsin, MatrixAcosh
+	#@ aka  THE HYPERBOLIC ARCSINE AND ARCCOSINE, both closed forms in the logarithm:
 	def MatrixAsinh()
 		return This._ArcTrig("asinh")
 
 		def MatrixAsinhQ()
 			return new stzMatrix(This.MatrixAsinh())
 
+	# Returns the hyperbolic matrix arccosine as a list of rows.
+	#
+	#   returns    a list of rows, the same size as the matrix
+	#   note       the Q form returns a stzMatrix
+	#   warning    raises an error unless the matrix is square, and unless every eigenvalue is at
+	#              least 1
+	#   see        MatrixAcos, MatrixAsinh
 	def MatrixAcosh()
 		return This._ArcTrig("acosh")
 
@@ -2948,55 +3500,28 @@ class stzMatrix from stzListOfLists
 		StzEngineMatrixFree(_pArV_)
 		return _aArV_
 
-	# THE MATRIX ARCTANGENT.
+	# Returns the matrix arctangent as a list of rows.
 	#
-	# -- THE FIRST INVERSE HERE, AND IT NEEDED A DIFFERENT IDEA --
-	#
-	# Everything before it had either a series that converges after scaling (MatrixExp,
-	# MatrixSin, MatrixCos) or a decomposition that hands the answer over block by block
-	# (GeneralSquareRoot). The arctangent has neither: its Taylor series converges only
-	# for ||X|| < 1, and there is no doubling recurrence to climb back with.
-	#
-	# What it has is a HALVING one:
-	#
-	#     atan(A) = 2 * atan( A * (I + sqrt(I + A^2))^-1 )
-	#
-	# the half-angle formula for the tangent read backwards. Apply it until the argument
-	# is small, take the series there, multiply by 2^k on the way out. So the scaling is
-	# done by the identity itself rather than by dividing -- and each step costs a
-	# MATRIX SQUARE ROOT, another layer on the same construction.
-	#
-	# -- WHAT IT REFUSES IS THE BRANCH POINT, NOT A LIMITATION --
-	#
-	# sqrt(I + A^2) needs I + A^2 to have no negative real eigenvalue. A real eigenvalue
-	# L gives 1 + L^2, comfortably positive; a PURELY IMAGINARY one i*b gives 1 - b^2,
-	# which turns negative once |b| passes one.
-	#
-	# That is the mathematics. atan has branch points at exactly +i and -i, so a matrix
-	# with an eigenvalue on the imaginary axis beyond them has no principal arctangent.
+	#   returns    a list of rows, the same size as the matrix
+	#   note       the Q form returns a stzMatrix
+	#   warning    raises an error unless the matrix is square, and when an eigenvalue lies on the
+	#              imaginary axis beyond +i or -i
+	#   see        MatrixAtanh, MatrixTan
+	#@ aka  THE MATRIX ARCTANGENT.
 	def MatrixAtan()
 		return This._ArcTangent("atan")
 
 		def MatrixAtanQ()
 			return new stzMatrix(This.MatrixAtan())
 
-	# THE HYPERBOLIC ARCTANGENT: (1/2) [ MatrixLog(I + A) - MatrixLog(I - A) ].
+	# Returns the hyperbolic matrix arctangent as a list of rows.
 	#
-	# -- AND THIS ONE NEEDED NO NEW IDEA AT ALL --
-	#
-	# Where the circular arctangent had to invent a halving recurrence, its hyperbolic
-	# twin is a closed form in the logarithm, which was already here. Two logs and a
-	# subtraction.
-	#
-	# THE ASYMMETRY IS WORTH NOTICING rather than glossing. The two families have
-	# matched each other line for line all the way up -- MatrixSin against MatrixSinh,
-	# MatrixCos against MatrixCosh, MatrixTan against MatrixTanh, each differing by one
-	# sign -- and at the inverse they stop. atanh has a real closed form and atan does
-	# not, because the logarithm expressing atan wants complex arguments and the one
-	# expressing atanh does not.
-	#
-	# Refused at an eigenvalue of +/- 1, where atanh runs to infinity exactly as
-	# atanh(1) does.
+	#   returns    a list of rows, the same size as the matrix
+	#   note       the Q form returns a stzMatrix
+	#   warning    raises an error unless the matrix is square, and unless every eigenvalue lies
+	#              strictly between -1 and 1
+	#   see        MatrixAtan, MatrixTanh
+	#@ aka  THE HYPERBOLIC ARCTANGENT: (1/2) [ MatrixLog(I + A) - MatrixLog(I - A) ].
 	def MatrixAtanh()
 		return This._ArcTangent("atanh")
 
@@ -3027,36 +3552,27 @@ class stzMatrix from stzListOfLists
 		StzEngineMatrixFree(_pAtV_)
 		return _aAtV_
 
-	# THE MATRIX TANGENT: MatrixSin() * MatrixCos()^-1.
+	# Returns the matrix tangent, sin(A) times the inverse of cos(A), as a list of rows.
 	#
-	# -- AND THE SIDE DOES NOT MATTER, WHICH IS NOT OBVIOUS --
-	#
-	# For two arbitrary matrices X*Y^-1 and Y^-1*X are different things, and writing one
-	# where the other was meant is a classic way to be quietly wrong. Here they are
-	# EQUAL, because sin(A) and cos(A) are both functions of the SAME A -- limits of
-	# polynomials in it -- and any two such functions commute.
-	#
-	# So there is no left-tangent and right-tangent to choose between. The guard asserts
-	# the two orders agree rather than leaving it to be assumed.
-	#
-	# -- AND UNLIKE THE SINE AND COSINE, THIS ONE CAN FAIL TO EXIST --
-	#
-	# cos(A) is singular exactly when A has an eigenvalue at pi/2 + k*pi, and there the
-	# tangent is undefined for the same reason tan(pi/2) is. MatrixSin() and
-	# MatrixCos() refuse nothing; this refuses, and the refusal is the mathematics
-	# rather than a limitation of the method.
+	#   returns    a list of rows, the same size as the matrix
+	#   note       the Q form returns a stzMatrix
+	#   warning    raises an error unless the matrix is square, and when an eigenvalue sits at pi/2
+	#              + k*pi where cos(A) is singular
+	#   see        MatrixTanh, MatrixCot
+	#@ aka  THE MATRIX TANGENT: MatrixSin() * MatrixCos()^-1.
 	def MatrixTan()
 		return This._Tangent("tan")
 
 		def MatrixTanQ()
 			return new stzMatrix(This.MatrixTan())
 
-	# THE HYPERBOLIC TANGENT: MatrixSinh() * MatrixCosh()^-1.
+	# Returns the hyperbolic matrix tangent, sinh(A) times the inverse of cosh(A), as a list of rows.
 	#
-	# Same two lines, same commuting property. What differs is when it can fail: cosh(A)
-	# is singular only at PURELY IMAGINARY eigenvalues, so a real matrix with a real
-	# spectrum can never break this, while a single diagonal entry of pi/2 breaks the
-	# circular one.
+	#   returns    a list of rows, the same size as the matrix
+	#   note       the Q form returns a stzMatrix
+	#   warning    raises an error unless the matrix is square; a real spectrum never makes it fail
+	#   see        MatrixTan, MatrixCoth
+	#@ aka  THE HYPERBOLIC TANGENT: MatrixSinh() * MatrixCosh()^-1.
 	def MatrixTanh()
 		return This._Tangent("tanh")
 
@@ -3087,36 +3603,25 @@ class stzMatrix from stzListOfLists
 		StzEngineMatrixFree(_pTnV_)
 		return _aTnV_
 
-	# THE HYPERBOLIC MATRIX SINE AND COSINE.
+	# Returns the hyperbolic matrix sine as a list of rows.
 	#
-	# -- THE SAME ROUTINE AS THE CIRCULAR PAIR, WITH ONE SIGN CHANGED --
-	#
-	# Write the two families out and the difference is a single alternating sign:
-	#
-	#     cos(X)  = I - X^2/2! + X^4/4! - ...    cosh(X) = I + X^2/2! + X^4/4! + ...
-	#     sin(X)  = X - X^3/3! + X^5/5! - ...    sinh(X) = X + X^3/3! + X^5/5! + ...
-	#
-	# And the double-angle recurrences that climb back from the scaled matrix are not
-	# merely similar -- they are IDENTICAL:
-	#
-	#     cos(2X)  = 2 cos(X)^2  - I             cosh(2X) = 2 cosh(X)^2 - I
-	#     sin(2X)  = 2 sin(X) cos(X)             sinh(2X) = 2 sinh(X) cosh(X)
-	#
-	# So underneath there is ONE routine and a flag. A second copy would be a second
-	# transcription of one algorithm, and two copies drift.
-	#
-	# The check that keeps them honest is a nilpotent matrix, where N^3 = 0 truncates
-	# both series exactly: cos(N) = I - N^2/2 while cosh(N) = I + N^2/2. The only
-	# difference is that sign, so the pair of tests pins the shared branch from both
-	# sides -- a routine that ignored the flag would pass one and fail the other.
-	#
-	# Nothing is refused: every real matrix has these, as it has the circular pair.
+	#   returns    a list of rows, the same size as the matrix
+	#   note       the function of the matrix, not of each element; the Q form returns a stzMatrix
+	#   warning    raises an error unless the matrix is square
+	#   see        MatrixCosh, MatrixSin
+	#@ aka  THE HYPERBOLIC MATRIX SINE AND COSINE.
 	def MatrixSinh()
 		return This._Hyperbolic("sinh")
 
 		def MatrixSinhQ()
 			return new stzMatrix(This.MatrixSinh())
 
+	# Returns the hyperbolic matrix cosine as a list of rows.
+	#
+	#   returns    a list of rows, the same size as the matrix
+	#   note       the function of the matrix, not of each element; the Q form returns a stzMatrix
+	#   warning    raises an error unless the matrix is square
+	#   see        MatrixSinh, MatrixCos
 	def MatrixCosh()
 		return This._Hyperbolic("cosh")
 
@@ -3143,42 +3648,27 @@ class stzMatrix from stzListOfLists
 		StzEngineMatrixFree(_pHyV_)
 		return _aHyV_
 
-	# THE MATRIX SINE AND COSINE.
+	# Returns the matrix sine as a list of rows.
 	#
-	# -- SCALING AND THE DOUBLE-ANGLE RECURRENCES --
-	#
-	# The Taylor series converge everywhere, but slowly for a large matrix and with
-	# cancellation that eats the answer. So the same trick as MatrixExp(): scale A down
-	# until its norm is small, where a handful of terms is exact to rounding, then climb
-	# back with
-	#
-	#     cos(2X) = 2 cos(X)^2 - I
-	#     sin(2X) = 2 sin(X) cos(X)
-	#
-	# The two are computed TOGETHER underneath, because the sine's recurrence needs the
-	# cosine -- so asking for both costs no more than asking for one.
-	#
-	# -- AND THESE NEED NOTHING BENEATH THEM --
-	#
-	# GeneralSquareRoot() needed a Schur form, MatrixLog() needed the square root, and
-	# GeneralPower() needed the logarithm. These need none of it: no eigenvalues, no
-	# triangularisation, no factorisation at all.
-	#
-	# Worth saying, because three entries in a row might suggest a house style. A
-	# decomposition is reached for when the algorithm requires one, and here it does not.
-	#
-	# Nothing is refused: every real matrix has a sine and a cosine. There is no
-	# singularity to trip over and no eigenvalue whose real answer fails to exist.
-	#
-	# THIS IS sin OF THE MATRIX, not of its entries -- the same distinction Power() and
-	# MatrixPower() carry. sin(A)^2 here means the matrix squared, and for a
-	# non-symmetric A that is a very different object from squaring each entry.
+	#   returns    a list of rows, the same size as the matrix
+	#   note       the function of the matrix, not of each element: sin of a zero matrix is zero;
+	#              the Q form returns a stzMatrix
+	#   warning    raises an error unless the matrix is square
+	#   see        MatrixCos, MatrixSinh
+	#@ aka  THE MATRIX SINE AND COSINE.
 	def MatrixSin()
 		return This._Trig("sin")
 
 		def MatrixSinQ()
 			return new stzMatrix(This.MatrixSin())
 
+	# Returns the matrix cosine as a list of rows.
+	#
+	#   returns    a list of rows, the same size as the matrix
+	#   note       the function of the matrix, not of each element: cos of a zero matrix is the
+	#              identity; the Q form returns a stzMatrix
+	#   warning    raises an error unless the matrix is square
+	#   see        MatrixSin, MatrixCosh
 	def MatrixCos()
 		return This._Trig("cos")
 
@@ -3205,25 +3695,14 @@ class stzMatrix from stzListOfLists
 		StzEngineMatrixFree(_pTgV_)
 		return _aTgV_
 
-	# THE MATRIX LOGARITHM: the X with MatrixExp(X) = A.
+	# Returns the matrix logarithm, the matrix X with MatrixExp(X) equal to this matrix, as a list of rows.
 	#
-	# -- INVERSE SCALING AND SQUARING, the exponential's method run backwards --
-	#
-	# A series for log converges only near the identity, and a general matrix is not
-	# near it. So: take repeated SQUARE ROOTS until it is, evaluate the series there,
-	# and multiply back by 2^k, since log(A) = 2^k * log(A^(1/2^k)).
-	#
-	# THE SQUARE ROOTS ARE GeneralSquareRoot(). This is the third layer of one
-	# construction: the Schur form gives the square root, the square root gives the
-	# logarithm, and the logarithm with the exponential gives every real power. Each is
-	# short because the one beneath it did the work.
-	#
-	# -- WHAT IT REFUSES, AND WHY THE REASONS DIFFER --
-	#
-	# A SINGULAR matrix has no logarithm at all: MatrixExp() is never singular, so
-	# nothing maps to one. A NEGATIVE REAL eigenvalue has only a complex logarithm, for
-	# exactly the reason it has only a complex square root -- and that refusal arrives
-	# from GeneralSquareRoot(), which is where the constraint actually lives.
+	#   returns    a list of rows, the same size as the matrix
+	#   note       the Q form returns a stzMatrix
+	#   warning    raises an error unless the matrix is square, for a singular matrix, and for a
+	#              negative real eigenvalue
+	#   see        MatrixExp, GeneralPower
+	#@ aka  THE MATRIX LOGARITHM: the X with MatrixExp(X) = A.
 	def MatrixLog()
 		if @nRows = 0 or @nRows != @nCols
 			StzRaise("MatrixLog: this needs a square matrix.")
@@ -3246,15 +3725,16 @@ class stzMatrix from stzListOfLists
 		def MatrixLogQ()
 			return new stzMatrix(This.MatrixLog())
 
-	# A RAISED TO ANY REAL POWER, for a matrix with no symmetry: exp(p * log(A)).
+	# Returns the matrix raised to any real power, as exp(p log A), for a matrix with no symmetry required.
 	#
-	# MatrixPower() refuses every non-symmetric matrix, and this is the answer it could
-	# not give. It is two lines in the engine, because the logarithm and the exponential
-	# above did the work -- which is what a foundation is supposed to look like.
-	#
-	# The constraints follow through: no negative real eigenvalue, and non-singular. An
-	# INTEGER power needs neither and is better done by repeated multiplication; this is
-	# for the fractional case, where there is no other route.
+	#   p          the exponent, any real number
+	#   returns    a list of rows, the same size as the matrix
+	#   note       prefer repeated multiplication for a whole-number power; the Q form returns a
+	#              stzMatrix
+	#   warning    raises an error unless the matrix is square, for a singular matrix, and for a
+	#              negative real eigenvalue
+	#   see        MatrixPower, MatrixLog
+	#@ aka  A RAISED TO ANY REAL POWER, for a matrix with no symmetry: exp(p * log(A)).
 	def GeneralPower(p)
 		if @nRows = 0 or @nRows != @nCols
 			StzRaise("GeneralPower: this needs a square matrix.")
@@ -3275,19 +3755,14 @@ class stzMatrix from stzListOfLists
 		def GeneralPowerQ(p)
 			return new stzMatrix(This.GeneralPower(p))
 
-	# THE MATRIX EXPONENTIAL -- and it does NOT want a Schur decomposition.
+	# Returns the matrix exponential as a list of rows, by scaling and squaring with a Pade approximant.
 	#
-	# Scaling and squaring with a Pade approximant: exp(A) = (exp(A/2^s))^(2^s), the
-	# inner one accurate precisely because A/2^s has been made small. It is what every
-	# serious library uses, and it needs no decomposition at all.
-	#
-	# Worth saying next to the square root: NOT EVERY MATRIX FUNCTION WANTS A SCHUR
-	# FORM. The square root does -- the block recurrence IS the algorithm. The
-	# exponential does not, and routing it through one would be slower and no more
-	# accurate. A decomposition is a tool, not a house style.
-	#
-	# This is exp of the MATRIX, not of its entries. There is no elementwise Exp() next
-	# door today, but the distinction is the same one Power() and MatrixPower() carry.
+	#   returns    a list of rows, the same size as the matrix
+	#   note       the exponential of the matrix, not of each element: exp of a zero matrix is the
+	#              identity; the Q form returns a stzMatrix
+	#   warning    raises an error unless the matrix is square
+	#   see        MatrixLog, MatrixSin
+	#@ aka  THE MATRIX EXPONENTIAL -- and it does NOT want a Schur decomposition.
 	def MatrixExp()
 		if @nRows = 0 or @nRows != @nCols
 			StzRaise("MatrixExp: this needs a square matrix.")
@@ -3308,32 +3783,28 @@ class stzMatrix from stzListOfLists
 		def MatrixExpQ()
 			return new stzMatrix(This.MatrixExp())
 
-	# -- THE SCHUR DECOMPOSITION: A = Q T Q', with Q ORTHOGONAL --
+	# Returns the orthogonal factor Q of the Schur decomposition A = Q T Q', as a list of rows.
 	#
-	# T is quasi-upper-triangular: 1x1 blocks on the diagonal for real eigenvalues, 2x2
-	# for conjugate pairs. Every real matrix has one, which is more than can be said for
-	# an eigendecomposition -- a defective matrix has no full set of eigenvectors, and
-	# this exists regardless.
-	#
-	# -- IT NEEDED A SECOND HESSENBERG REDUCTION, AND THAT WAS MEASURED --
-	#
-	# The eigenvalue path already produced a triangular T. Its accumulated transform is
-	# NOT orthogonal: it reduces by Gaussian elimination, which is cheaper and perfectly
-	# good for eigenvalues. On a 4x4:
-	#
-	#     elimination path    ||Z'Z - I|| = 0.607    ||Z T Z' - A|| = 3.38
-	#     this one            ||Q'Q - I|| = 6.7e-16  ||Q T Q' - A|| = 7.1e-11
-	#
-	# A decomposition whose Q is not orthogonal is not a Schur decomposition -- it is a
-	# similarity that happens to end in triangular form, and everything worth having
-	# downstream rests on Q' being Q-inverse. So this reduces by Householder reflections
-	# instead, on its own path, leaving the eigenvalue numerics untouched.
+	#   returns    a list of rows, the same size as the matrix
+	#   note       the SchurQQ form returns a stzMatrix
+	#   warning    raises an error unless the matrix is square, or when the QR iteration does not
+	#              converge
+	#   see        SchurT, GeneralSquareRoot
+	#@ aka  -- THE SCHUR DECOMPOSITION: A = Q T Q', with Q ORTHOGONAL --
 	def SchurQ()
 		return This._SchurPart("q")
 
 		def SchurQQ()
 			return new stzMatrix(This.SchurQ())
 
+	# Returns the quasi-triangular factor T of the Schur decomposition A = Q T Q', as a list of rows.
+	#
+	#   returns    a list of rows, the same size as the matrix
+	#   note       1x1 blocks on the diagonal for real eigenvalues, 2x2 for complex pairs; the
+	#              SchurTQ form returns a stzMatrix
+	#   warning    raises an error unless the matrix is square, or when the QR iteration does not
+	#              converge
+	#   see        SchurQ, GeneralSquareRoot
 	def SchurT()
 		return This._SchurPart("t")
 
@@ -3360,17 +3831,14 @@ class stzMatrix from stzListOfLists
 		StzEngineMatrixFree(_pScV_)
 		return _aScV_
 
-	# A^-1 = Q T^-1 Q'. CORRECT, AND THE WRONG ROUTE TO USE.
+	# Returns the inverse computed as Q T^-1 Q' from the Schur form, a slower route to the usual inverse.
 	#
-	# It agrees with the other five and it is the one not to reach for: this runs an
-	# ITERATIVE QR to arrive where LUInverse() arrives by direct factorisation. It is
-	# here because the decomposition is worth having and an inverse is the obvious thing
-	# to ask of a decomposition -- so it should exist, and it should say what it is.
-	#
-	# WHAT THE SCHUR FORM IS ACTUALLY FOR is f(A) for a NON-SYMMETRIC matrix: the square
-	# root, the exponential, a general power. MatrixPower() refuses every non-symmetric
-	# matrix by construction, and an eigendecomposition cannot always supply one. This
-	# function is the f = 1/x case, and the least interesting of them.
+	#   returns    a list of rows, the same size as the matrix
+	#   note       LUInverse reaches the same answer by direct factorisation and is the one to
+	#              prefer
+	#   warning    raises an error unless the matrix is square, and for a numerically singular one
+	#   see        LUInverse, PseudoInverse
+	#@ aka  A^-1 = Q T^-1 Q'. CORRECT, AND THE WRONG ROUTE TO USE.
 	def SchurInverse()
 		if @nRows = 0 or @nRows != @nCols
 			StzRaise("SchurInverse: this needs a square matrix.")
@@ -3394,33 +3862,14 @@ class stzMatrix from stzListOfLists
 		def SchurInverseQ()
 			return new stzMatrix(This.SchurInverse())
 
-	# -- INVERTING AN LU DECOMPOSITION: the fastest general square route --
+	# Returns the inverse of a square matrix by LU factorisation, the fastest route for a general invertible matrix.
 	#
-	# A = P L U, so each column of the inverse is one forward and one back substitution
-	# against a unit vector, with the factorisation done once. This completes the set:
-	#
-	#     CholeskyInverse()   symmetric positive definite   ~n^3/6   fastest of all
-	#     LUInverse()         any nonsingular SQUARE        ~n^3/3   fastest general
-	#     QRInverse()         any full-rank square or TALL  ~2n^3/3
-	#     MatrixPower(-1)     symmetric                     iterative, gives powers too
-	#     PseudoInverse()     everything, incl. rank-def.   iterative, most general
-	#
-	# -- WHY BOTH THIS AND QR, WHEN LU DOES HALF THE WORK --
-	#
-	# Not stability, which is what I assumed and measured to be false. On the 9x9
-	# Hilbert matrix, condition number around 1e12:
-	#
-	#     LU   residual 3.81e-6
-	#     QR   residual 8.34e-6
-	#
-	# "QR is more stable than LU" is a rule about LEAST SQUARES, where the alternative
-	# is forming A'A and squaring the condition number. Inverting a square matrix never
-	# faces that choice, and LU with partial pivoting is famously well behaved -- here
-	# it is twice as accurate, not half.
-	#
-	# THE REAL REASON IS SHAPE. QR takes a tall matrix and this cannot, which is why
-	# LeastSquares stays QR's. Reach for LU when the matrix is square and merely
-	# invertible; for QR when it is tall.
+	#   returns    a list of rows, the same size as the matrix
+	#   note       the Q form returns a stzMatrix; the matrix is not changed
+	#   warning    raises an error unless the matrix is square, and for a numerically singular one
+	#              (PseudoInverse answers there)
+	#   see        QRInverse, CholeskyInverse, PseudoInverse
+	#@ aka  -- INVERTING AN LU DECOMPOSITION: the fastest general square route --
 	def LUInverse()
 		if @nRows = 0 or @nRows != @nCols
 			StzRaise("LUInverse: this needs a square matrix. For a tall one, " +
@@ -3446,30 +3895,13 @@ class stzMatrix from stzListOfLists
 		def LUInverseQ()
 			return new stzMatrix(This.LUInverse())
 
-	# -- INVERTING A QR DECOMPOSITION: the route for a matrix with no symmetry --
+	# Returns the inverse by QR factorisation, which for a tall full-rank matrix is its pseudo-inverse.
 	#
-	# A = Q R with Q orthogonal and R upper triangular, so A^-1 = R^-1 Q': one
-	# back-substitution per column, no iteration anywhere.
-	#
-	# -- THE GAP THIS FILLS, WHICH IS WHY IT EXISTS --
-	#
-	# There are four routes to an inverse here now, and until this one the plain
-	# general square case had no fast road at all:
-	#
-	#     CholeskyInverse()    symmetric positive definite ONLY    fastest
-	#     MatrixPower(-1)      symmetric ONLY
-	#     QRInverse()          any full-rank square or tall        no symmetry needed
-	#     PseudoInverse()      everything, including rank-deficient    slowest
-	#
-	# A transition matrix, a Jacobian, a change of basis -- these are symmetric only by
-	# accident, so the first two decline and the SVD was all that was left.
-	#
-	# -- AND FOR A TALL MATRIX THE SAME FORMULA IS THE PSEUDO-INVERSE --
-	#
-	# Unchanged, not adapted. When A is m-by-n with m > n and full column rank,
-	# R^-1 Q' IS the Moore-Penrose inverse, which is why LeastSquares has always been a
-	# QR solve underneath. Building it column by column just makes the operator itself
-	# available rather than one solution at a time.
+	#   returns    a list of columns-by-rows numbers, the inverse or pseudo-inverse
+	#   note       needs at least as many rows as columns; the Q form returns a stzMatrix
+	#   warning    raises an error for a wide matrix, and for a rank-deficient one
+	#   see        LUInverse, PseudoInverse
+	#@ aka  -- INVERTING A QR DECOMPOSITION: the route for a matrix with no symmetry --
 	def QRInverse()
 		if @nRows = 0 or @nCols = 0 or @nRows < @nCols
 			StzRaise("QRInverse: this needs at least as many rows as columns. A wide " +
@@ -3502,25 +3934,15 @@ class stzMatrix from stzListOfLists
 		def QRInverseQ()
 			return new stzMatrix(This.QRInverse())
 
-	# -- INVERTING A CHOLESKY DECOMPOSITION: the same inverse, the cheapest road --
+	# Returns the inverse of a symmetric positive-definite matrix through its Cholesky factor, the cheapest route.
 	#
-	# A = L L' for a symmetric positive-definite A, and once you have that triangular
-	# factor the inverse is forward-and-back substitution: no iteration, no sweeps,
-	# nothing to converge.
-	#
-	# THIS IS NOT A FOURTH OPINION ABOUT WHAT A-INVERSE IS. PseudoInverse() reaches the
-	# same matrix through an SVD and MatrixPower(-1) through an eigendecomposition; all
-	# three agree, and the guard checks them against each other rather than against a
-	# tabulated answer. What differs is the work. MEASURED on a 120x120 SPD matrix:
-	#
-	#     CholeskyInverse()     6 ms
-	#     MatrixPower(-1)     112 ms     19x
-	#     PseudoInverse()     123 ms     20x
-	#
-	# Both of the others run an iterative diagonalisation to answer a question that
-	# direct substitution settles. Reach for this one when the matrix is SPD -- a
-	# covariance, a Gram matrix, a normal-equations matrix -- and for the others when it
-	# is not.
+	#   returns    a list of rows, the same size as the matrix
+	#   note       its source comment measures it about 19 times faster than MatrixPower(-1) on a
+	#              120x120 matrix; the Q form returns a stzMatrix
+	#   warning    raises an error unless the matrix is square, and when it is not symmetric
+	#              positive definite
+	#   see        LUInverse, CholeskyFactor
+	#@ aka  -- INVERTING A CHOLESKY DECOMPOSITION: the same inverse, the cheapest road --
 	def CholeskyInverse()
 		if @nRows = 0 or @nRows != @nCols
 			StzRaise("CholeskyInverse: this needs a square matrix.")
@@ -3544,18 +3966,15 @@ class stzMatrix from stzListOfLists
 		def CholeskyInverseQ()
 			return new stzMatrix(This.CholeskyInverse())
 
-	# THE INVERSE OF THE FACTOR ITSELF, and it is a WHITENING MATRIX.
+	# Returns the inverse of the Cholesky factor L, a triangular whitening matrix, as a list of rows.
 	#
-	# A = L L', so L^-1 A L^-1' = I -- the defining property. WhiteningMatrix() produces
-	# one too, and THEY ARE DIFFERENT MATRICES. Neither is more correct.
-	#
-	# WHITENING IS NOT UNIQUE. Any W with W A W' = I qualifies, and if W works then so
-	# does QW for any orthogonal Q. The eigen route picks the SYMMETRIC whitener; this
-	# one picks the TRIANGULAR one, which is cheaper and is what a sampler wants -- it
-	# turns independent normals into correlated ones with a single multiply.
-	#
-	# The same distinction as the two square roots above, and for the same reason: "give
-	# me something that undoes A" is a question with many answers.
+	#   returns    a list of rows, lower triangular
+	#   note       differs from WhiteningMatrix, which is symmetric: both whiten, neither is more
+	#              correct; the Q form returns a stzMatrix
+	#   warning    raises an error unless the matrix is square, and when it is not symmetric
+	#              positive definite
+	#   see        CholeskyFactor, WhiteningMatrix
+	#@ aka  THE INVERSE OF THE FACTOR ITSELF, and it is a WHITENING MATRIX.
 	def CholeskyFactorInverse()
 		if @nRows = 0 or @nRows != @nCols
 			StzRaise("CholeskyFactorInverse: this needs a square matrix.")
@@ -3576,23 +3995,16 @@ class stzMatrix from stzListOfLists
 		def CholeskyFactorInverseQ()
 			return new stzMatrix(This.CholeskyFactorInverse())
 
-	# -- INVERTING AN EIGENDECOMPOSITION, which is one power among several --
+	# Returns a symmetric matrix raised to a real power through its eigendecomposition, as a list of rows.
 	#
-	# A = Q L Q', so A^p = Q L^p Q' -- apply the power to the EIGENVALUES and reassemble.
-	# Undoing the decomposition is p = 1. The inverse is p = -1. But nothing in the
-	# machinery cares which function reaches the diagonal, and the two that earn their
-	# keep are the ones no other decomposition here offers:
-	#
-	#     MatrixSquareRoot()      p =  0.5
-	#     WhiteningMatrix()       p = -0.5
-	#
-	# So the inverse arrives as a special case rather than as the feature.
-	#
-	# -- NOT Power(), WHICH IS NEXT DOOR AND MEANS SOMETHING ELSE --
-	#
-	# Power(n) raises every ELEMENT to a power. This raises the MATRIX to one. They
-	# agree only for a diagonal matrix, and they are one keystroke apart, so the names
-	# have to carry the difference.
+	#   p          the exponent, any real number
+	#   returns    a list of rows, the same size as the matrix
+	#   note       not Power: that one raises every element to a power; the Q form returns a
+	#              stzMatrix
+	#   warning    raises an error unless the matrix is square and symmetric; a negative power also
+	#              needs it non-singular and a fractional power non-negative eigenvalues
+	#   see        GeneralPower, MatrixSquareRoot
+	#@ aka  -- INVERTING AN EIGENDECOMPOSITION, which is one power among several --
 	def MatrixPower(p)
 		if @nRows = 0 or @nRows != @nCols
 			StzRaise("MatrixPower: this needs a square matrix -- an eigendecomposition " +
@@ -3617,33 +4029,42 @@ class stzMatrix from stzListOfLists
 		def MatrixPowerQ(p)
 			return new stzMatrix(This.MatrixPower(p))
 
-	# THE PRINCIPAL SQUARE ROOT: symmetric, positive semi-definite, and unique.
+	# Returns the principal square root of a symmetric positive semi-definite matrix, itself symmetric, as a list of rows.
 	#
-	# Cholesky() also gives a "square root" -- L with L L' = A -- but that one is
-	# TRIANGULAR and one of many. Both square back to A; only this one is itself a
-	# covariance-shaped object you can hand to something expecting symmetry.
+	#   returns    a list of rows, the same size as the matrix
+	#   note       MatrixPower(0.5); the Q form returns a stzMatrix
+	#   warning    raises an error unless the matrix is square and symmetric with no negative
+	#              eigenvalue
+	#   see        MatrixPower, GeneralSquareRoot
+	#@ aka  THE PRINCIPAL SQUARE ROOT: symmetric, positive semi-definite, and unique.
 	def MatrixSquareRoot()
 		return This.MatrixPower(0.5)
 
 		def MatrixSquareRootQ()
 			return new stzMatrix(This.MatrixSquareRoot())
 
-	# THE WHITENING TRANSFORM, A^-0.5: the matrix W for which W A W is the identity.
+	# Returns the symmetric whitening transform A^-0.5, the matrix W with W A W equal to the identity.
 	#
-	# Named for what it is for rather than for the arithmetic. Given a covariance, it is
-	# the transform under which every direction has unit variance and none correlate --
-	# the operation no other decomposition here provides, and the reason a general power
-	# is worth more than an inverse.
+	#   returns    a list of rows, the same size as the matrix
+	#   note       MatrixPower(-0.5); the Q form returns a stzMatrix
+	#   warning    raises an error unless the matrix is square, symmetric and positive definite
+	#   see        MatrixPower, CholeskyFactorInverse
+	#@ aka  THE WHITENING TRANSFORM, A^-0.5: the matrix W for which W A W is the identity.
 	def WhiteningMatrix()
 		return This.MatrixPower(-0.5)
 
 		def WhiteningMatrixQ()
 			return new stzMatrix(This.WhiteningMatrix())
 
-	# A rebuilt from its k leading eigenpairs. For a symmetric positive-definite matrix
-	# this and LowRank() agree exactly -- the singular values ARE the eigenvalues -- and
-	# they are kept separate so that a caller thinking in eigenpairs need not reach for
-	# a different factorisation to ask the question.
+	# Returns a symmetric matrix rebuilt from its k leading eigenpairs, as a list of rows.
+	#
+	#   k          how many of the largest eigenpairs to keep, at least 1
+	#   returns    a list of rows, the same size as the matrix
+	#   note       for a symmetric positive-definite matrix it equals LowRank(k); the Q form returns
+	#              a stzMatrix
+	#   warning    raises an error unless the matrix is square and symmetric, or when k is below 1
+	#   see        LowRank, EigenValues
+	#@ aka  A rebuilt from its k leading eigenpairs. For a symmetric positive-definite matrix this and LowRank() agree exactly -- the singular values ARE the eigenvalues -- and they are kept separate so that a caller thinking in eigenpairs need not reach for a different factorisation to ask the question.
 	def EigenReconstructed(k)
 		if @nRows = 0 or @nRows != @nCols
 			StzRaise("EigenReconstructed: this needs a square matrix.")
@@ -3678,24 +4099,15 @@ class stzMatrix from stzListOfLists
 		next
 		return _aMfh_
 
-	# -- THE OTHER SENSE OF INVERTING AN SVD: the best rank-k approximation --
+	# Returns the best rank-k approximation of the matrix, from its k largest singular values, as a list of rows.
 	#
-	# PseudoInverse() below answers "undo this transformation". This answers "keep the k
-	# strongest directions and discard the rest" -- the sense the embedding work means
-	# by an inverse. PCA's reconstruction is exactly this, on the centered matrix.
-	#
-	# ITS ERROR IS AN IDENTITY, NOT A MEASUREMENT. Eckart and Young proved that no
-	# rank-k matrix is closer in the Frobenius norm, and that the distance is exactly
-	# the squares of the singular values dropped:
-	#
-	#     ||A - A_k||_F^2  =  s_(k+1)^2 + s_(k+2)^2 + ...
-	#
-	# So a caller who kept k components already knows what it cost, from
-	# SingularValues() alone and without reconstructing anything. It is the same shape
-	# of statement as PCA's "reconstruction error equals discarded variance", and for
-	# the same reason -- these are the same theorem wearing two names.
-	#
-	# Keeping every singular value returns the matrix itself, to rounding.
+	#   k          how many singular values to keep, at least 1
+	#   returns    a list of rows, the same size as the matrix
+	#   note       works for any shape; keeping every value returns the matrix itself; the Q form
+	#              returns a stzMatrix
+	#   warning    raises an error when k is below 1
+	#   see        EigenReconstructed, SVD
+	#@ aka  -- THE OTHER SENSE OF INVERTING AN SVD: the best rank-k approximation --
 	def LowRank(k)
 		if @nRows = 0 or @nCols = 0
 			StzRaise("LowRank: the matrix is empty.")
@@ -3726,6 +4138,12 @@ class stzMatrix from stzListOfLists
 		def LowRankQ(k)
 			return new stzMatrix(This.LowRank(k))
 
+	# Returns the Moore-Penrose pseudo-inverse, defined for every shape and rank, as a list of rows.
+	#
+	#   returns    a list of columns-by-rows numbers
+	#   note       for an invertible matrix it is the ordinary inverse; the MoorePenroseInverse form
+	#              answers the same
+	#   see        Inverse, QRInverse, MinimumNormSolutionFor
 	def PseudoInverse()
 
 		if @nRows = 0 or @nCols = 0
@@ -3756,24 +4174,16 @@ class stzMatrix from stzListOfLists
 		def MoorePenroseInverse()
 			return This.PseudoInverse()
 
+	# Returns the shortest vector among the least-squares solutions of A x = b, where this matrix is A.
+	#
+	#   panB       the right-hand side, a list with one number per row
+	#   returns    a list of one number per column
+	#   note       answers for rank-deficient and underdetermined systems where LeastSquaresFor
+	#              refuses; the MinimumNormSolution form answers the same
+	#   warning    raises an error when the length of panB differs from the row count
+	#   see        LeastSquaresFor, PseudoInverse
 		#>
-
-	# THE MINIMUM-NORM LEAST-SQUARES SOLUTION, x = A+b.
-	#
-	# This is the method LeastSquaresFor sends you to. That one REFUSES a
-	# rank-deficient system, on the grounds that infinitely many coefficient vectors
-	# share the minimum residual and least squares has no opinion about which to
-	# prefer. This one does have an opinion, and a principled one: among all the
-	# minimisers it returns the SHORTEST. Same for an underdetermined system, where
-	# infinitely many solutions are exact and this returns the smallest.
-	#
-	#     oA = new stzMatrix([ [1,0,1], [0,1,1], [1,1,2], [2,0,2], [0,3,3] ])
-	#     oA.LeastSquaresFor(ab)              #--> [ ]   -- refuses, rank deficient
-	#     oA.MinimumNormSolutionFor(ab)       #--> the shortest of the minimisers
-	#
-	# Prefer LeastSquaresFor when the design is full rank: a refusal there is
-	# information -- it means your predictors are collinear -- and silently accepting
-	# it would hide that.
+	#@ aka  THE MINIMUM-NORM LEAST-SQUARES SOLUTION, x = A+b.
 	def MinimumNormSolutionFor(panB)
 
 		if NOT isList(panB) or len(panB) != @nRows
@@ -3813,12 +4223,15 @@ class stzMatrix from stzListOfLists
 		def MinimumNormSolution(panB)
 			return This.MinimumNormSolutionFor(panB)
 
+	# Returns the lower-triangular Cholesky factor L, with the matrix equal to L times its transpose, as a list of rows.
+	#
+	#   returns    a list of rows, or an empty list when the matrix is not symmetric positive
+	#              definite
+	#   note       the cells above the diagonal are zero
+	#   warning    raises an error unless the matrix is square
+	#   see        CholeskyInverse, IsPositiveDefinite
 		#>
-
-	# The Cholesky factor L, where A = L * L-transpose. Lower triangular, zeros
-	# above the diagonal. Returns [] when the matrix is not symmetric positive
-	# definite -- the factorisation exists exactly when that property holds, which
-	# is what makes IsPositiveDefinite() below cheap.
+	#@ aka  The Cholesky factor L, where A = L * L-transpose. Lower triangular, zeros above the diagonal. Returns [] when the matrix is not symmetric positive definite -- the factorisation exists exactly when that property holds, which is what makes IsPositiveDefinite() below cheap.
 	def CholeskyFactor()
 
 		if @nRows != @nCols
@@ -3846,21 +4259,14 @@ class stzMatrix from stzListOfLists
 		StzEngineMatrixFree(_pLCh_)
 		return _aLCh_
 
-	# EIGENVALUES of a symmetric matrix, sorted DESCENDING -- the convention PCA
-	# expects, so the first is the dominant one.
+	# Returns the eigenvalues as plain numbers: largest first for a symmetric matrix, in the order found for any other.
 	#
-	# NEW in phase 4 slice 8. Symmetric only, and that is a refusal rather than a
-	# limitation: a general matrix has COMPLEX eigenvalues, which needs a different
-	# algorithm and a complex type the library does not have. Handed a non-symmetric
-	# matrix this raises, instead of returning the eigenvalues of (A + A')/2 and
-	# letting you believe they belong to A.
-	#
-	#     new stzMatrix([ [2,1], [1,2] ]).EigenValues()   #--> [ 3, 1 ]
-	#
-	# Cyclic Jacobi rotations. Slower than the tridiagonal-QR iteration LAPACK uses,
-	# but eighty lines instead of several hundred, and it gets the SMALL eigenvalues
-	# to high relative accuracy -- which is what a condition number and a rank test
-	# actually depend on.
+	#   returns    a list of numbers, one per row
+	#   note       the matrix is not changed
+	#   warning    raises an error unless the matrix is square, and when the matrix has complex
+	#              eigenvalues (use ComplexEigenValues)
+	#   see        ComplexEigenValues, EigenVectors
+	#@ aka  EIGENVALUES of a symmetric matrix, sorted DESCENDING -- the convention PCA expects, so the first is the dominant one.
 	def EigenValues()
 
 		if @nRows != @nCols
@@ -3904,23 +4310,14 @@ class stzMatrix from stzListOfLists
 		StzEngineMatrixFree(_pEvV_)
 		return _anEvV_
 
-	# EVERY eigenvalue, complex ones included, as stzComplex objects (phase 7).
+	# Returns every eigenvalue, complex ones included, as a list of stzComplex objects in the order they were found.
 	#
-	# A real symmetric matrix has real eigenvalues. A general real one need not: a
-	# quarter-turn rotation [[0,-1],[1,0]] has eigenvalues +i and -i, and no amount
-	# of care produces a real answer, because a rotation genuinely has no real
-	# eigendirection. Complex eigenvalues of a REAL matrix always come in conjugate
-	# pairs, so they arrive here that way.
-	#
-	# Balanced, reduced to Hessenberg form, then Francis double-shift QR -- the
-	# standard three steps. The double shift is what lets an implementation in real
-	# arithmetic find complex pairs at all: shifting by a complex number would need
-	# complex arithmetic throughout, while shifting by a conjugate PAIR is an
-	# equivalent real operation.
-	#
-	# The order is the order deflation found them, and is deliberately not sorted:
-	# imposing one would be a claim about which eigenvalue is "first" that the
-	# mathematics does not make.
+	#   returns    a list of stzComplex, one per row
+	#   note       a rotation such as [ [ 0, -1 ], [ 1, 0 ] ] gives i and -i
+	#   warning    raises an error unless the matrix is square, or when the QR iteration does not
+	#              converge
+	#   see        EigenValues, ComplexEigenVectors
+	#@ aka  EVERY eigenvalue, complex ones included, as stzComplex objects (phase 7).
 	def ComplexEigenValues()
 
 		if @nRows != @nCols
@@ -3947,33 +4344,41 @@ class stzMatrix from stzListOfLists
 		next
 		return _aOutCe_
 
-	# EVERY eigenvector, complex ones included (phase 7, second pass). Row i,
-	# column j is component i of the eigenvector belonging to ComplexEigenValues()[j].
+	# Returns the eigenvectors, complex ones included, as a matrix of stzComplex objects with one eigenvector per column.
 	#
-	# WHY THIS IS HARDER THAN THE EIGENVALUES WERE. Eigenvalues can be read off a
-	# matrix you have destroyed -- balancing, Hessenberg reduction and QR are all
-	# similarities, and a similarity does not move the spectrum. An EIGENVECTOR of
-	# the final triangular matrix belongs to THAT matrix, so getting back to one of
-	# the original needs every transformation the eigenvalue routine threw away.
-	# The whole pipeline accumulates now: v_A = D . Q . Z . v_T.
-	#
-	# NORMALISATION: unit length, with the largest component rotated to be real and
-	# positive. An eigenvector is only defined up to scale and (when complex) phase,
-	# so "the" eigenvector is a family; pinning both is what makes two runs agree.
+	#   returns    a list of rows of stzComplex; column j belongs to the jth complex eigenvalue
+	#   note       each vector has unit length with its largest part real and positive
+	#   warning    raises an error unless the matrix is square
+	#   see        EigenVectors, ComplexEigenValues
+	#@ aka  EVERY eigenvector, complex ones included (phase 7, second pass). Row i, column j is component i of the eigenvector belonging to ComplexEigenValues()[j].
 	def ComplexEigenVectors()
 		return This._EigenSystem()[:vectors]
 
-	# How many of the eigenvectors are linearly independent. Fewer than the size of
-	# the matrix means it is DEFECTIVE: a repeated eigenvalue without a full set of
-	# eigenvectors. [[1,1],[0,1]] is the smallest example -- eigenvalue 1 twice, one
-	# eigenvector. No algorithm can supply the second, so this reports the shortfall
-	# rather than returning two vectors of which one is a copy.
+	# Returns how many linearly independent eigenvectors the matrix has.
+	#
+	#   returns    a number, at most the row count
+	#   note       [ [ 1, 1 ], [ 0, 1 ] ] has one
+	#   warning    raises an error unless the matrix is square
+	#   see        IsDefective, EigenVectors
+	#@ aka  How many of the eigenvectors are linearly independent. Fewer than the size of the matrix means it is DEFECTIVE: a repeated eigenvalue without a full set of eigenvectors. [[1,1],[0,1]] is the smallest example -- eigenvalue 1 twice, one eigenvector. No algorithm can supply the second, so this reports the shortfall rather than returning two vectors of which one is a copy.
 	def NumberOfIndependentEigenVectors()
 		return This._EigenSystem()[:independent]
 
+	# TRUE if the matrix has fewer independent eigenvectors than rows, so it cannot be diagonalised.
+	#
+	#   returns    TRUE or FALSE
+	#   note       [ [ 1, 1 ], [ 0, 1 ] ] is defective
+	#   warning    raises an error unless the matrix is square
+	#   see        IsDiagonalizable, NumberOfIndependentEigenVectors
 	def IsDefective()
 		return This.NumberOfIndependentEigenVectors() < @nRows
 
+	# TRUE if the matrix has a full set of independent eigenvectors.
+	#
+	#   returns    TRUE or FALSE
+	#   note       the opposite of IsDefective
+	#   warning    raises an error unless the matrix is square
+	#   see        IsDefective
 	def IsDiagonalizable()
 		return NOT This.IsDefective()
 
@@ -4017,9 +4422,14 @@ class stzMatrix from stzListOfLists
 
 		return [ :independent = _aEs_[1], :values = _aValsEs_, :vectors = _aVecsEs_ ]
 
-	# The eigenvectors, as a matrix whose COLUMN j is the unit eigenvector belonging
-	# to eigenvalue j -- same order as EigenValues(), so column 1 goes with the
-	# first (largest) eigenvalue. For a symmetric matrix they are orthonormal.
+	# Returns the unit eigenvectors as the columns of a matrix, in the same order as the eigenvalues.
+	#
+	#   returns    a list of rows; column j is the eigenvector of eigenvalue j
+	#   note       orthonormal for a symmetric matrix
+	#   warning    raises an error unless the matrix is square, for a defective matrix, and when an
+	#              eigenvector is complex
+	#   see        EigenValues, ComplexEigenVectors
+	#@ aka  The eigenvectors, as a matrix whose COLUMN j is the unit eigenvector belonging to eigenvalue j -- same order as EigenValues(), so column 1 goes with the first (largest) eigenvalue. For a symmetric matrix they are orthonormal.
 	def EigenVectors()
 
 		if @nRows != @nCols
@@ -4074,10 +4484,12 @@ class stzMatrix from stzListOfLists
 		StzEngineMatrixFree(_pEvc_)
 		return _aEvc_
 
-	# Is the matrix equal to its own transpose? Compared with a RELATIVE tolerance,
-	# because data that came out of a real computation is rarely symmetric to the
-	# last bit and an exact test would reject matrices symmetric in every meaningful
-	# sense.
+	# TRUE if the matrix equals its transpose within a relative tolerance of one part in 10^12.
+	#
+	#   returns    TRUE or FALSE
+	#   note       a matrix that is not square answers FALSE
+	#   see        Transposed, IsPositiveDefinite
+	#@ aka  Is the matrix equal to its own transpose? Compared with a RELATIVE tolerance, because data that came out of a real computation is rarely symmetric to the last bit and an exact test would reject matrices symmetric in every meaningful sense.
 	def IsSymmetric()
 
 		if @nRows != @nCols
@@ -4104,19 +4516,12 @@ class stzMatrix from stzListOfLists
 		next
 		return 1
 
-	# THE CONDITION NUMBER: the largest eigenvalue over the smallest, in magnitude.
-	# It answers "how many digits can a solve with this matrix lose?" -- a condition
-	# number of 10^k costs about k of the sixteen a double has. Infinite for a
-	# singular matrix, which is the honest answer rather than a large finite one.
-	# GENERAL since phase 4 slice 9: a rectangular matrix is answered from its
-	# SINGULAR values, a square symmetric one from its eigenvalues. Slice 8 could only
-	# do the symmetric case and raised otherwise -- but a DESIGN MATRIX is neither
-	# square nor symmetric, and "are my predictors collinear?" is the question a fit
-	# most needs answered.
+	# Returns the ratio of the largest to the smallest singular value, a measure of how much a solve can lose; infinite when singular.
 	#
-	#     oA = new stzMatrix([ [1,0,1], [0,1,1], [1,1,2], [2,0,2], [0,3,3] ])
-	#     oA.Rank()               #--> 2   (column 3 IS column 1 + column 2)
-	#     oA.ConditionNumber()    #--> inf, so LeastSquaresFor would refuse
+	#   returns    a number, inf for a singular matrix
+	#   note       works for any shape; 10^k costs about k digits
+	#   see        Rank, SingularValues
+	#@ aka  THE CONDITION NUMBER: the largest eigenvalue over the smallest, in magnitude. It answers "how many digits can a solve with this matrix lose?" -- a condition number of 10^k costs about k of the sixteen a double has. Infinite for a singular matrix, which is the honest answer rather than a large finite one. GENERAL since phase 4 slice 9: a rectangular matrix is answered from its SINGULAR values, a sq
 	def ConditionNumber()
 
 		# ANY SHAPE since phase 7, for the same reason as Rank(): cond(A) = cond(A'),
@@ -4134,27 +4539,14 @@ class stzMatrix from stzListOfLists
 		ok
 		return StzEngineMatrixConditionGeneral(@pEngineMatrix)
 
-	# THE FULL DECOMPOSITION A = U S V' (phase 7).
+	# Returns the singular value decomposition A = U S V' as a hash of three parts.
 	#
-	#   aD = oM.SVD()
-	#   aD[:u]                 the left singular vectors, COLUMN j for value j
-	#   aD[:singularValues]    min(rows, cols) of them, descending, never negative
-	#   aD[:v]                 the right singular vectors, same column convention
-	#
-	# UNTIL NOW ONLY THE SINGULAR VALUES REACHED RING. That was enough for rank,
-	# conditioning and a least-squares diagnosis -- which is what phase 4 built it
-	# for -- and not enough for anything that needs the DIRECTIONS: a principal-
-	# component analysis, a low-rank approximation, an orthonormal basis for the
-	# range or the null space. The values say how much; the vectors say where.
-	#
-	# WHY U AND V ARE NOT INTERCHANGEABLE, which is the trap the old advice hid.
-	# "Transpose it, the singular values are the same" is true, and a caller who
-	# followed it to get the FACTORS ended up with a decomposition of A' -- because
-	# transposing swaps U and V. The engine does the transpose internally now.
-	#
-	# A SINGULAR VALUE HAS NO SIGN. They come back non-negative and descending, so
-	# the first is the largest and the ratio of first to last is the condition
-	# number. The sign a caller might expect lives in the vectors instead.
+	#   returns    a hash with the keys u, singularValues and v: u and v are lists of rows with one
+	#              column per singular value
+	#   note       singular values come back non-negative and in descending order
+	#   warning    raises an error when the sweeps do not converge
+	#   see        SingularValues, LowRank
+	#@ aka  THE FULL DECOMPOSITION A = U S V' (phase 7).
 	def SVD()
 
 		if @nRows = 0 or @nCols = 0
@@ -4205,17 +4597,30 @@ class stzMatrix from stzListOfLists
 
 		return [ :u = _aU_, :singularValues = _anS_, :v = _aV_ ]
 
-	# The LEFT singular vectors: an orthonormal basis for the column space, ordered
-	# by how much of the matrix each direction accounts for.
+	# Returns the left singular vectors, one per column, an orthonormal basis of the column space.
+	#
+	#   returns    a list of rows
+	#   note       ordered by the size of the singular value
+	#   see        RightSingularVectors, SVD
+	#@ aka  The LEFT singular vectors: an orthonormal basis for the column space, ordered by how much of the matrix each direction accounts for.
 	def LeftSingularVectors()
 		return This.SVD()[:u]
 
-	# The RIGHT singular vectors: an orthonormal basis for the row space, same order.
+	# Returns the right singular vectors, one per column, an orthonormal basis of the row space.
+	#
+	#   returns    a list of rows
+	#   note       ordered by the size of the singular value
+	#   see        LeftSingularVectors, SVD
+	#@ aka  The RIGHT singular vectors: an orthonormal basis for the row space, same order.
 	def RightSingularVectors()
 		return This.SVD()[:v]
 
-	# The SINGULAR VALUES, sorted descending. Defined for any matrix with at least as
-	# many rows as columns, and always non-negative -- a singular value has no sign.
+	# Returns the singular values, never negative, largest first.
+	#
+	#   returns    a list of min(rows, columns) numbers
+	#   note       works for any shape
+	#   see        SVD, Rank
+	#@ aka  The SINGULAR VALUES, sorted descending. Defined for any matrix with at least as many rows as columns, and always non-negative -- a singular value has no sign.
 	def SingularValues()
 
 		# WIDE MATRICES ARE ANSWERED SINCE PHASE 7. This used to say "give me at
@@ -4244,13 +4649,12 @@ class stzMatrix from stzListOfLists
 		StzEngineMatrixFree(_pSvV_)
 		return _anSvV_
 
-	# THE RANK: how many eigenvalues are non-negligible relative to the largest.
-	# Relative, not absolute -- an absolute threshold would call a matrix of
-	# uniformly tiny entries rank zero.
-	# GENERAL since slice 9, by the same rule as ConditionNumber above. Counted from
-	# whichever spectrum applies, with ONE definition of "negligible" shared between
-	# them -- so a matrix called rank deficient always has an infinite condition
-	# number, and never the finite 9e16 the two used to disagree on.
+	# Returns the number of singular values that are not negligible next to the largest.
+	#
+	#   returns    a number
+	#   note       works for any shape; an all-zero matrix has rank 0
+	#   see        IsFullRank, ConditionNumber
+	#@ aka  THE RANK: how many eigenvalues are non-negligible relative to the largest. Relative, not absolute -- an absolute threshold would call a matrix of uniformly tiny entries rank zero. GENERAL since slice 9, by the same rule as ConditionNumber above. Counted from whichever spectrum applies, with ONE definition of "negligible" shared between them -- so a matrix called rank deficient always has an infini
 	def Rank()
 
 		# ANY SHAPE since phase 7. rank(A) = rank(A') always, so refusing one
@@ -4265,22 +4669,33 @@ class stzMatrix from stzListOfLists
 		ok
 		return StzEngineMatrixRankGeneral(@pEngineMatrix)
 
-	# Rank deficient? For a rectangular matrix that means the COLUMNS are dependent,
-	# which is exactly when LeastSquaresFor has no unique answer.
+	# TRUE if the rank is smaller than the number of columns, so the columns are dependent.
+	#
+	#   returns    TRUE or FALSE
+	#   note       for a wide matrix it is always TRUE, because the rank cannot exceed the row
+	#              count; the IsRankDeficient form answers the same
+	#   see        Rank, IsFullRank
+	#@ aka  Rank deficient? For a rectangular matrix that means the COLUMNS are dependent, which is exactly when LeastSquaresFor has no unique answer.
 	def IsSingular()
 		return This.Rank() < @nCols
 
 		def IsRankDeficient()
 			return This.IsSingular()
 
+	# TRUE if the rank equals the number of columns.
+	#
+	#   returns    TRUE or FALSE
+	#   note       for a wide matrix it is always FALSE
+	#   see        Rank, IsSingular
 	def IsFullRank()
 		return This.Rank() = @nCols
 
-	# Symmetric positive definite? Asked of the Cholesky factorisation, which
-	# succeeds if and only if the property holds -- so this is the cheapest test
-	# available, and needs no eigenvalues. (numeric_eigen_narrated cross-checks it
-	# against "every eigenvalue is positive", which is the same question answered by
-	# an unrelated algorithm.)
+	# TRUE if the matrix is symmetric with only positive eigenvalues, tested by attempting its Cholesky factor.
+	#
+	#   returns    TRUE or FALSE
+	#   note       a matrix that is not square answers FALSE
+	#   see        CholeskyFactor, IsSymmetric
+	#@ aka  Symmetric positive definite? Asked of the Cholesky factorisation, which succeeds if and only if the property holds -- so this is the cheapest test available, and needs no eigenvalues. (numeric_eigen_narrated cross-checks it against "every eigenvalue is positive", which is the same question answered by an unrelated algorithm.)
 	def IsPositiveDefinite()
 		if @nRows != @nCols
 			return 0
@@ -4291,6 +4706,12 @@ class stzMatrix from stzListOfLists
 		ok
 		return StzEngineMatrixIsPositiveDefinite(@pEngineMatrix) = 1
 
+	# Returns the inverse of a square matrix as a list of rows, leaving the matrix itself unchanged.
+	#
+	#   returns    a list of rows, the same size as the matrix
+	#   note       the Inverted form answers the same and the InverseQ form returns a stzMatrix
+	#   warning    raises an error unless the matrix is square, and when it is singular
+	#   see        Invert, LUInverse, PseudoInverse
 	def Inverse()
 
 		# Only handle square matrices
@@ -4404,21 +4825,13 @@ class stzMatrix from stzListOfLists
 			def InvertedQ()
 				return This.InverseQ()
 
-	# Replace this matrix BY its inverse -- the verb form, mutating in place, the
-	# way Transpose() does.
+	# Replaces this matrix by its inverse, changing it in place.
 	#
-	# WHY BOTH FORMS EXIST. Inverse() used to be the mutating one, and it returned
-	# nothing, so `aInv = oM.Inverse()` handed back an empty value AND destroyed the
-	# caller's matrix. Two things settled which way to fix it: the six noun-named
-	# siblings -- LUInverse(), QRInverse(), CholeskyInverse(),
-	# CholeskyFactorInverse(), SchurInverse(), PseudoInverse() -- all RETURN the
-	# inverse as data and leave the receiver alone, and this class already carries
-	# the Transpose()/Transposed()/TransposeQ() trio. So the noun returns data, and
-	# the verb mutates:
-	#
-	#     Inverse()  / Inverted()   the inverse AS DATA, receiver untouched
-	#     InverseQ()                the inverse as a chainable stzMatrix
-	#     Invert()   / InvertQ()    replace THIS matrix by its inverse
+	#   returns    nothing; the matrix changes in place
+	#   note       the verb that changes the matrix, where Inverse hands back the answer
+	#   warning    raises an error unless the matrix is square, and when it is singular
+	#   see        Inverse, Transpose
+	#@ aka  Replace this matrix BY its inverse -- the verb form, mutating in place, the way Transpose() does.
 	def Invert()
 		@aContent = This.Inverse()
 		This._InvalidateEngineMatrix()
@@ -4428,8 +4841,12 @@ class stzMatrix from stzListOfLists
 			return This
 
 
-	# Transpose the matrix in place (engine-backed, pure-Ring fallback)
-
+	# Swaps rows and columns, so a 2x3 matrix becomes 3x2, changing the matrix in place.
+	#
+	#   returns    nothing; the matrix changes in place
+	#   note       the TransposeQ form returns the matrix itself for chaining
+	#   see        Transposed, Invert
+	#@ aka  Transpose the matrix in place (engine-backed, pure-Ring fallback)
 	def Transpose()
 
 		# Engine fast path
@@ -4489,8 +4906,12 @@ class stzMatrix from stzListOfLists
 			This.Transpose()
 			return This
 
-	# Passive form: the transposed content, original unchanged
-
+	# Returns the transposed rows as a list, leaving this matrix unchanged.
+	#
+	#   returns    a list of rows, columns by rows
+	#   note       the TransposedQ form returns a stzMatrix
+	#   see        Transpose
+	#@ aka  Passive form: the transposed content, original unchanged
 	def Transposed()
 		_oTrCopy_ = new stzMatrix(This.Content())
 		_oTrCopy_.Transpose()
@@ -4500,8 +4921,12 @@ class stzMatrix from stzListOfLists
 			return new stzMatrix(This.Transposed())
 
 
-	# Computes the difference between adjacent elements in the matrix
-
+	# Returns the differences between neighbouring elements of each row, a list of rows one column shorter.
+	#
+	#   returns    a list of rows with one fewer column
+	#   note       the matrix is not changed; a 3x3 gives 3x2
+	#   see        SubMean, Diagonal
+	#@ aka  Computes the difference between adjacent elements in the matrix
 	def Diff()
 
 		_aResult_ = []
@@ -4520,8 +4945,12 @@ class stzMatrix from stzListOfLists
 
 		return _aResult_
 
-	# Subtracts the mean of each row from its respective elements
-
+	# Subtracts the mean of its row from every element, changing the matrix in place so each row sums to zero.
+	#
+	#   returns    nothing; the matrix changes in place
+	#   note       the SubMeanQ form returns the matrix itself for chaining
+	#   see        SubtractMean, Mean
+	#@ aka  Subtracts the mean of each row from its respective elements
 	def SubMean()
 
 		_aResult_ = []
@@ -4545,6 +4974,11 @@ class stzMatrix from stzListOfLists
 			This.SubMean()
 			return This
 
+		# Subtracts the mean of its row from every element, changing the matrix in place so each row sums to zero.
+		#
+		#   returns    nothing; the matrix changes in place
+		#   note       the same as SubMean
+		#   see        SubMean
 		def SubtractMean()
 			This.SubMean()
 
@@ -4555,6 +4989,11 @@ class stzMatrix from stzListOfLists
 	 # Visualization of the matrix #
 	#-----------------------------#
 
+	# Prints the matrix to the console as a bordered grid of right-aligned numbers, without trailing zeros.
+	#
+	#   returns    nothing; it prints
+	#   note       the matrix is not changed; an empty matrix prints an empty frame
+	#   see        Content
 	def Show()
 
 		# If matrix is empty, just show empty border
@@ -4624,8 +5063,12 @@ class stzMatrix from stzListOfLists
 
 		see char(226) + char(148) + char(148) + ring_copy(" ", _nTotalWidth_) + char(226) + char(148) + char(152) + nl
 
+		# Prints the matrix as a bordered grid, the misspelt twin of Show.
+		#
+		#   returns    nothing; it prints
+		#   note       the misspelling is in the name as shipped
+		#   see        Show
 		#< @FunctionMisspelledForm
-
 		def Shwo()
 			return Show()
 

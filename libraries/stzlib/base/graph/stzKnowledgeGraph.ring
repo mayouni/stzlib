@@ -82,6 +82,23 @@ func StzKnowSplit(pcLine)
 	return _aOut_
 
 class stzKnowGraph from stzKnowledgeGraph
+# Holds knowledge as facts, triples of subject, predicate and object, in a graph, with queries, laws, proofs and conversations.
+#
+# A stzKnowledgeGraph is a stzGraph of type semantic: each fact is an edge labelled with its
+# predicate between two entity nodes, so every stzGraph method is also available. Facts are set-like
+# (adding a known fact is a no-op), but only one fact can link a given ordered pair of entities.
+# Laws (:unique, :symmetric, :transitive) are declared per relation with ConstrainRelation, and only
+# :unique and :transitive are acted on here: Admit is the governed door that checks :unique and
+# records a refusal as a named contradiction, and Prove follows :transitive; strict mode makes every
+# fact carry provenance. Prove answers a goal with a replayable proof, and the space can hold
+# stzConversation objects that elicit missing facts. Knowledge is saved and read as .zknw text. A
+# number of methods carry a warning today.
+#
+#   receiver   o1 = new stzKnowledgeGraph("zoo"); o1.AddFact("Dog", "is-a", "Animal");
+#              o1.AddFact("Cat", "is-a", "Animal"); o1.AddFact("Dog", "eats", "Meat")
+#   example    ? @@( o1.Query([ "?x", "is-a", "Animal" ]) )
+#              #--> [ "Dog", "Cat" ]
+#   see        stzGraph, stzConversation, stzKnowParser
 class stzKnowledgeGraph from stzGraph
 
 	@aNamespaces = []
@@ -91,6 +108,11 @@ class stzKnowledgeGraph from stzGraph
 	@aContradictions = []   # named, NEVER silently resolved
 	@aoConversations = []   # the stzConversation objects HAPPENING IN this space
 
+	# Builds an empty knowledge graph of type semantic, with no fact, no law and no conversation; the id is folded to lowercase.
+	#
+	#   returns    nothing; the object is built
+	#   note       the id follows the rules of stzGraph: no space, no line break
+	#   see        stzGraph.init, AddFact
 	def init(pcId)
 		super.init(pcId)
 		super.SetGraphType("semantic")
@@ -98,9 +120,17 @@ class stzKnowledgeGraph from stzGraph
 		@aNamespaces = []
 		@aOntology = []
 
+	# TRUE if the receiver is a knowledge graph, which a stzKnowledgeGraph always is.
+	#
+	#   returns    TRUE
+	#   see        IsAKnowledgeGraph
 	def IsKnowledgeGraph()
 		return 1
 
+		# TRUE if the receiver is a knowledge graph, spelled with an article; always TRUE here.
+		#
+		#   returns    TRUE
+		#   see        IsKnowledgeGraph
 		def IsAKnowledgeGraph()
 			return 1
 
@@ -108,6 +138,17 @@ class stzKnowledgeGraph from stzGraph
 	#  TRIPLE INTERFACE  #
 	#--------------------#
 
+	# Adds a fact: entity nodes are created for the subject and the object when missing, and an edge labelled with the predicate links them.
+	#
+	#   pcSubject     The subject of the fact, as text.
+	#   pcPredicate   The predicate (the relation) of the fact, as text.
+	#   pcObject      The object of the fact, as text.
+	#   returns       nothing; the graph changes
+	#   note          AddFactXT adds a fact with provenance; AddTriple is another spelling
+	#   warning       stating a known fact again does nothing, but a different predicate between the
+	#                 same two entities raises an error, and strict mode refuses any fact added this
+	#                 way
+	#   see           Know, Admit, RemoveFact
 	def AddFact(pcSubject, pcPredicate, pcObject)
 		# STRICT MODE (G8): once enabled, naked facts are refused --
 		# every fact must carry provenance through AddFactXT. Enable
@@ -124,16 +165,13 @@ class stzKnowledgeGraph from stzGraph
 		def AddTriple(pcSubject, pcPredicate, pcObject)
 			return This.AddFact(pcSubject, pcPredicate, pcObject)
 
-	#-- domain-modeling verbs (INSTANCE-scoped, chainable) --------------------
-	# Build a domain knowledgebase with NO globals:
-	#   oKB = new stzKnowledgeGraph("restaurant")
-	#   oKB.Know("margherita", "dish").
-	#       KnowRelation("margherita", "contains", "tomato-sauce").
-	#       ConstrainRelation("pairs-with", :Symmetric)
-	# The natural-world globals (StzKnow/StzKnowRelation) are a SEPARATE
-	# feature -- the default shared world behind WhatIs/AreRelated. A scoped
-	# domain (a DLM's brain, an app's world) owns its own graph instance.
-
+	# Records that an entity is of a type, as the fact entity is-a type, and returns the graph so calls chain.
+	#
+	#   pcName     the entity name, as text
+	#   pcType     the type of the entity, as text
+	#   returns    the graph itself
+	#   see        KnowRelation, AddFact
+	#@ aka  -- domain-modeling verbs (INSTANCE-scoped, chainable) -------------------- Build a domain knowledgebase with NO globals: oKB = new stzKnowledgeGraph("restaurant") oKB.Know("margherita", "dish"). KnowRelation("margherita", "contains", "tomato-sauce"). ConstrainRelation("pairs-with", :Symmetric) The natural-world globals (StzKnow/StzKnowRelation) are a SEPARATE feature -- the default shared world be
 	def Know(pcName, pcType)
 		This.AddFact(pcName, "is-a", pcType)
 		return This
@@ -141,6 +179,14 @@ class stzKnowledgeGraph from stzGraph
 		def KnowEntity(pcName, pcType)
 			return This.Know(pcName, pcType)
 
+	# Records a fact, subject predicate object, and returns the graph so calls chain.
+	#
+	#   pcSubject     The subject of the fact, as text.
+	#   pcPredicate   The predicate (the relation) of the fact, as text.
+	#   pcObject      The object of the fact, as text.
+	#   returns       the graph itself
+	#   note          KnowFact is another spelling
+	#   see           Know, AddFact
 	def KnowRelation(pcSubject, pcPredicate, pcObject)
 		This.AddFact(pcSubject, pcPredicate, pcObject)
 		return This
@@ -148,9 +194,15 @@ class stzKnowledgeGraph from stzGraph
 		def KnowFact(pcSubject, pcPredicate, pcObject)
 			return This.KnowRelation(pcSubject, pcPredicate, pcObject)
 
-	# Record a relation LAW on THIS graph's ontology (:Symmetric, :Unique,
-	# :Transitive). Prove() reads it for transitive closure; forging a DLM
-	# reads it as the domain's laws.
+	# Declares a law on a relation, such as unique or transitive, once, and returns the graph; an empty relation or law does nothing.
+	#
+	#   pcRel      The relation (the predicate), as text.
+	#   pcLaw      The law, as text: unique, symmetric or transitive.
+	#   returns    the graph itself
+	#   note       the laws unique and transitive are acted on by Admit and Prove; symmetric is only
+	#              recorded
+	#   see        RelationHasLaw, Admit, Prove
+	#@ aka  Record a relation LAW on THIS graph's ontology (:Symmetric, :Unique, :Transitive). Prove() reads it for transitive closure; forging a DLM reads it as the domain's laws.
 	def ConstrainRelation(pcRel, pcLaw)
 		_cR_ = StzLower(ring_trim("" + pcRel))
 		_cL_ = StzLower(ring_trim("" + pcLaw))
@@ -237,13 +289,18 @@ class stzKnowledgeGraph from stzGraph
 		]
 		return 1
 
-	#-- GOVERNED ADMISSION (instance-scoped) ---------------------------------
-	# The door a conversation / agent / importer admits facts through: the
-	# LAW is checked, the verdict is EXPLAINED, and a refusal is RECORDED as
-	# a named contradiction -- never silently resolved (G8). Admission is
-	# governed because it comes through THIS door, not because a global flag
-	# is set -- so a scoped domain graph governs itself, with no global world.
-	# Returns [ :admitted = 1|0, :why = "..." ].
+	# Offers a fact through the governed door: one that breaks a unique law is refused and noted, any other is added with its provenance.
+	#
+	#   pcSubject     The subject of the fact, as text.
+	#   pcPredicate   The predicate (the relation) of the fact, as text.
+	#   pcObject      The object of the fact, as text.
+	#   paMeta        The provenance, as a hash list such as [ :source = "vet", :confidence = 0.9 ].
+	#   returns       a hash list [ :admitted, :why ]: admitted is 1 or 0 and why says so in a
+	#                 sentence
+	#   note          a structural refusal, such as a different predicate already linking the pair,
+	#                 is returned as a refusal and does not raise
+	#   see           AddFact, Contradictions, FactMeta
+	#@ aka  -- GOVERNED ADMISSION (instance-scoped) --------------------------------- The door a conversation / agent / importer admits facts through: the LAW is checked, the verdict is EXPLAINED, and a refusal is RECORDED as a named contradiction -- never silently resolved (G8). Admission is governed because it comes through THIS door, not because a global flag is set -- so a scoped domain graph governs itse
 	def Admit(pcSubject, pcPredicate, pcObject, paMeta)
 		_cS_ = StzLower("" + pcSubject)
 		_cP_ = StzLower("" + pcPredicate)
@@ -286,15 +343,14 @@ class stzKnowledgeGraph from stzGraph
 		ok
 		return "unknown"
 
-	#-- CONVERSATIONS IN THIS SPACE (composition) -----------------------------
-	# A knowledge space HOLDS its conversations: an elicitation is an EPISODE
-	# that happens INSIDE the space it grows -- never a session that owns a
-	# space. So the space is the door for everything that needs knowledge
-	# (AskIn / ReplyIn / GapsIn / ConcludeIn hand THIS graph, live, into the
-	# session); session-only state is reached through ConversationQ(topic).
-
-	#-- the conversations, as a collection this space OWNS -----------------
-
+	# Opens a named conversation inside the space; raises an error for an empty name or a name already in use.
+	#
+	#   pcConvName   The conversation name, as text; case is ignored.
+	#   returns      nothing; the space changes
+	#   note         AddConversationQ returns the new conversation so a goal can be set on it at
+	#                once
+	#   see          AddConversationQ, ConversationQ, Conversations
+	#@ aka  -- CONVERSATIONS IN THIS SPACE (composition) ----------------------------- A knowledge space HOLDS its conversations: an elicitation is an EPISODE that happens INSIDE the space it grows -- never a session that owns a space. So the space is the door for everything that needs knowledge (AskIn / ReplyIn / GapsIn / ConcludeIn hand THIS graph, live, into the session); session-only state is reached thro
 	def AddConversation(pcConvName)
 		_cN_ = ring_trim("" + pcConvName)
 		if _cN_ = ""
@@ -314,6 +370,11 @@ class stzKnowledgeGraph from stzGraph
 		This.AddConversation(pcConvName)
 		return @aoConversations[This._ConvIndex(pcConvName)]
 
+	# Opens several named conversations, one per name, in order; a name already in use raises an error.
+	#
+	#   pacNames   The conversation names, as a list of text.
+	#   returns    nothing; the space changes
+	#   see        AddConversation
 	def AddConversations(pacNames)
 		if NOT isList(pacNames)
 			stzraise("AddConversations() takes a list of names.")
@@ -327,17 +388,35 @@ class stzKnowledgeGraph from stzGraph
 			This.AddConversations(pacNames)
 			return This
 
+	# Closes the named conversation and returns the graph; an unknown name raises an error.
+	#
+	#   pcConvName   The conversation name, as text; case is ignored.
+	#   returns      the graph itself
+	#   see          RemoveAllConversations, AddConversation
 	def RemoveConversation(pcConvName)
 		del(@aoConversations, This._ConvIndexOrRaise(pcConvName))
 		return This
 
+	# Closes every conversation held by the space and returns the graph.
+	#
+	#   returns    the graph itself
+	#   see        RemoveConversation
 	def RemoveAllConversations()
 		@aoConversations = []
 		return This
 
+	# Returns the stzConversation held under that name, to work on its goal and turns; an unknown name raises an error.
+	#
+	#   pcConvName   The conversation name, as text; case is ignored.
+	#   returns      a stzConversation
+	#   see          AddConversation, Conversations
 	def ConversationQ(pcConvName)
 		return @aoConversations[This._ConvIndexOrRaise(pcConvName)]
 
+	# Returns the topics of the conversations held by the space, in the order opened.
+	#
+	#   returns    a list of text
+	#   see        NumberOfConversations, OpenConversations
 	def Conversations()
 		_ac_ = []
 		_n_ = len(@aoConversations)
@@ -346,9 +425,18 @@ class stzKnowledgeGraph from stzGraph
 		next
 		return _ac_
 
+	# Returns how many conversations the space holds.
+	#
+	#   returns    a number
+	#   see        Conversations
 	def NumberOfConversations()
 		return len(@aoConversations)
 
+	# TRUE if a conversation of that name is held; the name is matched without regard to case.
+	#
+	#   pcConvName   The conversation name, as text; case is ignored.
+	#   returns      TRUE or FALSE
+	#   see          AddConversation, Conversations
 	def HasConversation(pcConvName)
 		return This._ConvIndex(pcConvName) > 0
 
@@ -366,7 +454,11 @@ class stzKnowledgeGraph from stzGraph
 		next
 		return _a_
 
-	# the sessions still working (a goal neither fulfilled nor revoked)
+	# Returns the topics of the conversations still pursuing their goal, neither fulfilled nor revoked.
+	#
+	#   returns    a list of text
+	#   see        Conversations, GapsIn
+	#@ aka  the sessions still working (a goal neither fulfilled nor revoked)
 	def OpenConversations()
 		_ac_ = []
 		_n_ = len(@aoConversations)
@@ -377,20 +469,44 @@ class stzKnowledgeGraph from stzGraph
 		next
 		return _ac_
 
-	# -- the wise-coding loop, driven BY the space (This goes in live) --
-
+	# Returns what the conversation's goal still lacks in this space, as [ subject, relation, why ] triples; an unknown name raises an error.
+	#
+	#   pcConvName   The conversation name, as text; case is ignored.
+	#   returns      a list of triples
+	#   note         a conversation with no goal raises an error
+	#   see          AskIn, ReplyIn, ConcludeIn
+	#@ aka  -- the wise-coding loop, driven BY the space (This goes in live) --
 	def GapsIn(pcConvName)
 		return @aoConversations[This._ConvIndexOrRaise(pcConvName)].Gaps(This)
 
+	# Returns the next question born from the first gap of the conversation's goal; empty text when nothing is left to ask.
+	#
+	#   pcConvName   The conversation name, as text; case is ignored.
+	#   returns      text
+	#   note         a conversation with no goal raises an error
+	#   see          GapsIn, ReplyIn
 	def AskIn(pcConvName)
 		return @aoConversations[This._ConvIndexOrRaise(pcConvName)].NextQuestion(This)
 
 	def AskInXT(pcConvName)
 		return @aoConversations[This._ConvIndexOrRaise(pcConvName)].NextQuestionXT(This)
 
+	# Passes an answer to the conversation, which admits the facts it implies through the governed door and reports what happened.
+	#
+	#   pcConvName   The conversation name, as text; case is ignored.
+	#   pAnswer      The reply: a text, a list of texts, or numbers that pick the proposed options.
+	#   returns      a hash list [ :admitted, :refused, :narration, :goalstate ]
+	#   note         raises an error when no question was asked first
+	#   see          AskIn, GapsIn
 	def ReplyIn(pcConvName, pAnswer)
 		return @aoConversations[This._ConvIndexOrRaise(pcConvName)].Reply(This, pAnswer)
 
+	# Writes the space as a .zknw file once the conversation's goal has no gap left, and returns 1; gaps left or a revoked goal raise an error.
+	#
+	#   pcConvName   The conversation name, as text; case is ignored.
+	#   pcKnowFile   The knowledge file to write, as text; .zknw is added when missing.
+	#   returns      1
+	#   see          GapsIn, WriteToKnowFile
 	def ConcludeIn(pcConvName, pcKnowFile)
 		return @aoConversations[This._ConvIndexOrRaise(pcConvName)].Conclude(This, pcKnowFile)
 
@@ -411,30 +527,79 @@ class stzKnowledgeGraph from stzGraph
 		ok
 		return _i_
 
+	# Turns strict mode on or off: in strict mode a fact must carry provenance, so AddFact is refused.
+	#
+	#   bOnOff     1 to turn strict mode on, 0 to turn it off.
+	#   returns    nothing; the setting changes
+	#   see        EnableStrictMode, DisableStrictMode, IsStrict
 	def SetStrictMode(bOnOff)
 		@bStrictMode = bOnOff
 
+		# Turns strict mode on, so every fact must be added with provenance.
+		#
+		#   returns    nothing; the setting changes
+		#   note       turn it on after loading the facts, which use AddFact
+		#   see        SetStrictMode, IsStrict
 		def EnableStrictMode()
 			@bStrictMode = 1
 
+		# Turns strict mode off, the default, so facts may be added without provenance.
+		#
+		#   returns    nothing; the setting changes
+		#   see        SetStrictMode, IsStrict
 		def DisableStrictMode()
 			@bStrictMode = 0
 
+	# TRUE if strict mode is on; it is off by default.
+	#
+	#   returns    TRUE or FALSE (1 or 0)
+	#   see        SetStrictMode
 	def IsStrict()
 		return @bStrictMode
 
+	# Returns the refused attempts recorded so far, each as [ :subject, :relation, :existing, :attempted, :source ].
+	#
+	#   returns    a list of hash lists
+	#   see        Admit, FactMeta
 	def Contradictions()
 		return @aContradictions
 
+	# Returns the provenance recorded for facts, each as a hash list [ :fact, :meta ] holding the triple and its metadata.
+	#
+	#   returns    a list of hash lists
+	#   see        MetaOfFact, Admit
 	def FactMeta()
 		return @aFactMeta
 
+	# Removes the link between the subject and the object, whatever the predicate says; the two entity nodes stay.
+	#
+	#   pcSubject     The subject of the fact, as text.
+	#   pcPredicate   The predicate (the relation) of the fact, as text.
+	#   pcObject      The object of the fact, as text.
+	#   returns       nothing; the graph changes
+	#   warning       the predicate is ignored, so naming a wrong predicate still removes the fact
+	#                 that links the pair, and without an error
+	#   see           RemoveTriple, AddFact
 	def RemoveFact(pcSubject, pcPredicate, pcObject)
 		This.RemoveThisEdge(pcSubject, pcObject)
 
+		# Removes the link between the subject and the object whatever the predicate; another spelling of the removal.
+		#
+		#   pcSubject     The subject of the fact, as text.
+		#   pcPredicate   The predicate (the relation) of the fact, as text.
+		#   pcObject      The object of the fact, as text.
+		#   returns       nothing; the graph changes
+		#   warning       the predicate is ignored, so a wrong predicate still removes the fact
+		#                 between the pair
+		#   see           RemoveFact
 		def RemoveTriple(pcSubject, pcPredicate, pcObject)
 			This.RemoveFact(pcSubject, pcPredicate, pcObject)
 
+	# Returns every fact as a [ subject, predicate, object ] triple, with the entity names as they were first written.
+	#
+	#   returns    a list of triples
+	#   note       Triples is another spelling
+	#   see        Query, Relations
 	def Facts()
 		_aFacts_ = []
 		_aEdges_ = This.Edges()
@@ -460,6 +625,14 @@ class stzKnowledgeGraph from stzGraph
 	#  QUERY INTERFACE  #
 	#-------------------#
 
+	# Answers a pattern [ subject, predicate, object ]: the matching names for one variable, name pairs for two, 1 or 0 when none is a variable.
+	#
+	#   paPattern   A pattern [ subject, predicate, object ]; a subject or object starting with ? is
+	#               a variable.
+	#   returns     a list of names or of pairs, or 1 or 0
+	#   note        a variable starts with ?; the predicate cannot be a variable; in a pattern
+	#               without variable the predicate must be written in lowercase
+	#   see         QueryPath, Facts, Prove
 	def Query(paPattern)
 		# Pattern: ["?x", :IsA, "Animals"] or ["Dogs", :Eats, "?what"]
 		# stzGraph stores edge :from / :to / :label all lowercased
@@ -538,6 +711,12 @@ class stzKnowledgeGraph from stzGraph
 		
 		return _acResults_
 
+	# Answers the first pattern of a list of patterns and ignores the rest, so it is no multi-step query yet.
+	#
+	#   paaPatterns   A list of patterns, each [ subject, predicate, object ].
+	#   returns       the answer of the first pattern, as Query gives it; [ ] for an empty list
+	#   note          the binding of a variable across patterns is not implemented
+	#   see           Query
 	def QueryPath(paaPatterns)
 		# Multi-hop: [["?x", :IsA, "Animals"], ["?x", :Eats, "?food"]]
 		
@@ -557,6 +736,11 @@ class stzKnowledgeGraph from stzGraph
 	#  ENTITY ANALYSIS  #
 	#-------------------#
 
+	# Returns the distinct predicates that leave an entity, in order of first appearance, in lowercase.
+	#
+	#   pcEntity   The entity, as text; case is ignored.
+	#   returns    a list of text
+	#   see        Relations, SimilarTo
 	def Predicates(pcEntity)
 		# Edge :from / :label are stored lowercased; lowercase the
 		# query term once so case-insensitive lookups still match.
@@ -578,6 +762,12 @@ class stzKnowledgeGraph from stzGraph
 		def PredicatesOf(pcEntity)
 			return This.Predicates(pcEntity)
 
+	# Returns what an entity points to as [ predicate, object ] pairs, the object with the name as first written.
+	#
+	#   pcEntity   The entity, as text; case is ignored.
+	#   returns    a list of pairs
+	#   note       RelationsOf is another spelling
+	#   see        Predicates, Facts
 	def Relations(pcEntity)
 		_cRelE_ = StzLower(pcEntity)
 		_aRelations_ = []
@@ -597,6 +787,11 @@ class stzKnowledgeGraph from stzGraph
 		def RelationsOf(pcEntity)
 			return This.Relations(pcEntity)
 
+	# Returns the other entities that share at least one predicate with the given one, as [ name, shared count ] pairs.
+	#
+	#   pcEntity   The entity, as text; case is ignored.
+	#   returns    a list of pairs
+	#   see        Predicates, Relations
 	def SimilarTo(pcEntity)
 		_aMyPredicates_ = This.Predicates(pcEntity)
 		_cSimE_ = StzLower(pcEntity)
@@ -635,25 +830,49 @@ class stzKnowledgeGraph from stzGraph
 	#  ONTOLOGY SUPPORT  #
 	#--------------------#
 
+	# Declares a class as a subclass of another, as the fact class subclassof superclass.
+	#
+	#   pcSuperClass   the parent class, as text
+	#   returns        nothing; the graph changes
+	#   see            AddFact, DefineProperty
 	def DefineClass(pcClass, pcSuperClass)
 		This.AddFact(pcClass, :SubClassOf, pcSuperClass)
 
+	# Adds an entry to the ontology: a property or relation with a list of laws; the entry is added even when a law is already declared.
+	#
+	#   pcProperty      The property or relation to define, as text.
+	#   paConstraints   The laws to declare, as a list of text such as [ "unique", "transitive" ].
+	#   returns         nothing; the ontology changes
+	#   see             ConstrainRelation, Ontology, RelationHasLaw
 	def DefineProperty(pcProperty, paConstraints)
 		@aOntology + [
 			:property = pcProperty,
 			:constraints = paConstraints
 		]
 
+	# Returns the ontology as a list of hash lists [ :property, :constraints ], in the order declared.
+	#
+	#   returns    a list of hash lists
+	#   see        DefineProperty, RelationHasLaw
 	def Ontology()
 		return @aOntology
 
+	# Returns 1 whatever the ontology holds; the check is not written yet.
+	#
+	#   returns    1
+	#   warning    known defect: the body only returns 1, so no inconsistency is ever reported
+	#   see        Ontology
 	def ValidateOntology()
 		# Basic validation - checks if defined properties are used consistently
 		return 1
 
-	# Does the ontology declare this LAW for this relation?
-	# (Laws land here through DefineProperty(rel, [ law ]) -- the R1
-	# home of :unique / :symmetric / :transitive.)
+	# TRUE if the ontology declares that law for the relation; both are matched without regard to case.
+	#
+	#   pcRel      The relation (the predicate), as text.
+	#   pcLaw      The law, as text: unique, symmetric or transitive.
+	#   returns    TRUE or FALSE (1 or 0)
+	#   see        ConstrainRelation, DefineProperty
+	#@ aka  Does the ontology declare this LAW for this relation? (Laws land here through DefineProperty(rel, [ law ]) -- the R1 home of :unique / :symmetric / :transitive.)
 	def RelationHasLaw(pcRel, pcLaw)
 		_cR_ = StzLower("" + pcRel)
 		_cL_ = StzLower("" + pcLaw)
@@ -675,11 +894,16 @@ class stzKnowledgeGraph from stzGraph
 	#  PROOF (G4 seed: structured derivation trace)  #
 	#-----------------------------------------------#
 
-	# Prove([ subject, relation, object ]) -> a STRUCTURED, replayable
-	# proof: [ :verdict, :goal, :steps, :narration, :certainty ].
-	# Each step: [ :kind ("fact"|"law"|"chain-link"), :fact, :narration ].
-	# Deterministic over recorded facts + declared laws, so certainty
-	# is 1 WHATEVER the verdict (a certain no is still certain, LAW 3).
+	# Tries to prove a goal [ subject, relation, object ] from the recorded facts and the transitive law, and returns a replayable proof.
+	#
+	#   paPattern   A pattern [ subject, predicate, object ]; a subject or object starting with ? is
+	#               a variable.
+	#   returns     a hash list [ :verdict, :goal, :steps, :narration, :certainty ]; the verdict is
+	#               1 or 0 and the certainty is always 1
+	#   note        the goal is shown in lowercase, and a transitive chain is searched to a depth of
+	#               16
+	#   see         Query, ConstrainRelation
+	#@ aka  Prove([ subject, relation, object ]) -> a STRUCTURED, replayable proof: [ :verdict, :goal, :steps, :narration, :certainty ]. Each step: [ :kind ("fact"|"law"|"chain-link"), :fact, :narration ]. Deterministic over recorded facts + declared laws, so certainty is 1 WHATEVER the verdict (a certain no is still certain, LAW 3).
 	def Prove(paPattern)
 		_cS_ = StzLower("" + paPattern[1])
 		_cP_ = StzLower("" + paPattern[2])
@@ -766,6 +990,12 @@ class stzKnowledgeGraph from stzGraph
 	#  KNOWLEDGE GRAPH EXPLAIN  #
 	#---------------------------#
 
+	# Raises error R14 today instead of describing the knowledge graph in sections: structure, facts, entities, predicates, ontology and insights.
+	#
+	#   returns    nothing today
+	#   warning    known defect: it calls ApplyInference, which is defined nowhere, so the call
+	#              always raises R14; stzGraph.Explain is shadowed by this version
+	#   see        Facts, Ontology
 	def Explain()
 		_aExplanation_ = [
 			:type = "Knowledge Graph",
@@ -910,6 +1140,15 @@ class stzKnowledgeGraph from stzGraph
 	#  (legacy .stzknow still READS)  #
 	#----------------------------------#
 
+	# Reads knowledge from a .zknw or .stzknow file, or from its text, and merges its facts, laws and contradictions into this graph.
+	#
+	#   pSource    the path of a .zknw or .stzknow file, or the text of a knowledge file that starts
+	#              with a knowledge header
+	#   returns    a hash list [ :merged, :refused ]: the number of facts added and the refused ones
+	#              as [ s, p, o, why ]
+	#   note       LoadKnow is another spelling; text with no header raises error R13, and a strict
+	#              graph refuses the facts that carry no provenance
+	#   see        ExportToKnow, AddFact
 	def ImportKnow(pSource)
 	    if isString(pSource)
 	        if StzRight(pSource, 5) = ".zknw" or StzRight(pSource, 8) = ".stzknow"
@@ -926,17 +1165,11 @@ class stzKnowledgeGraph from stzGraph
 	    def LoadKnow(pSource)
 		return This.ImportKnow(pSource)
 
-	# PROVENANCE SURVIVES A SAVE (stzlib-security, HaroBase rung 1). A fact's
-	# source and confidence, and every contradiction the graph refused, used
-	# to be dropped here: the file kept the bare triples, so knowledge read
-	# back from disk no longer said where it came from -- and a STRICT graph
-	# could not even load its own export. Two sections now carry them:
+	# Returns the knowledge as .zknw text: its facts, then the provenance, the contradictions and the laws when there are any.
 	#
-	#   provenance       s | p | o | key | number|text | value
-	#   contradictions   subject | relation | existing | attempted | source
-	#
-	# Every field is escaped (StzKnowEscape): a | or a newline inside a
-	# value is data, never a separator. Fact lines keep their 3-field shape.
+	#   returns    text
+	#   see        WriteToKnowFile, ImportKnow
+	#@ aka  PROVENANCE SURVIVES A SAVE (stzlib-security, HaroBase rung 1). A fact's source and confidence, and every contradiction the graph refused, used to be dropped here: the file kept the bare triples, so knowledge read back from disk no longer said where it came from -- and a STRICT graph could not even load its own export. Two sections now carry them:
 	def ExportToKnow()
 	    _cKnow_ = 'knowledge "' + @cId + '"' + char(10) + char(10)
 	    _cKnow_ += "facts" + char(10)
@@ -997,12 +1230,22 @@ class stzKnowledgeGraph from stzGraph
 	    ok
 	    return _cKnow_
 	
+	# Writes the knowledge to a file as .zknw text, adding the .zknw extension when it is missing.
+	#
+	#   pcFilename   The file name, as text; .zknw is added when missing.
+	#   returns      nothing; a file is written
+	#   see          ExportToKnow, ImportKnow
 	def WriteToKnowFile(pcFilename)
 	    if StzRight(pcFilename, 5) != ".zknw"
 	        pcFilename += ".zknw"
 	    ok
 	    write(pcFilename, This.ExportToKnow())
 	
+	    # Writes the knowledge to a .zknw file; another spelling of the write.
+	    #
+	    #   pcFileName   The file name, as text; .zknw is added when missing.
+	    #   returns      nothing; a file is written
+	    #   see          WriteToKnowFile
 	    def WriteKnowFile(pcFileName)
 		This.WriteToKnowFile(pcFilename)
 
@@ -1071,8 +1314,14 @@ class stzKnowledgeGraph from stzGraph
 	    next
 	    return 0
 
-	# The provenance recorded for a fact ([] when none). The match ignores
-	# case, as the graph's own nodes do.
+	# Returns the provenance recorded for a fact, as [ name, value ] pairs; [ ] when none; the match ignores case.
+	#
+	#   pcS        the subject of the fact
+	#   pcP        the predicate of the fact
+	#   pcO        the object of the fact
+	#   returns    a list of pairs
+	#   see        FactMeta, Admit
+	#@ aka  The provenance recorded for a fact ([] when none). The match ignores case, as the graph's own nodes do.
 	def MetaOfFact(pcS, pcP, pcO)
 	    _cS_ = StzLower("" + pcS)
 	    _cP_ = StzLower("" + pcP)

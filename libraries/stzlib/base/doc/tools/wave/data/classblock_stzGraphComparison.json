@@ -1,0 +1,13 @@
+{
+ "brief": "Compares a baseline graph with several variations and ranks them by what changed: nodes, edges, density, cycles and bottlenecks.",
+ "detail": "Built by stzGraph.CompareWithManyQR(..., :stzGraphComparison) or directly. It runs the comparison once when built and answers from the stored rows: Summary for a text report, MostImpactful and LeastImpactful, ByMetric to sort, Recommend for a suggestion, ToStzTable for a table. The cycle questions (WithCycles, WithoutCycles) and the acyclic bonus of Recommend do not work today; see their warnings.",
+ "receiver": "g1 = new stzGraph(\"g1\"); g1.AddNode(\"a\"); g1.AddNode(\"b\"); g1.Connect(\"a\", \"b\"); o1 = new stzGraphComparison(g1, [ g1 ])",
+ "example": [
+  "? o1.LeastImpactful()",
+  "#--> V1"
+ ],
+ "see": [
+  "stzGraph",
+  "stzTable"
+ ]
+}

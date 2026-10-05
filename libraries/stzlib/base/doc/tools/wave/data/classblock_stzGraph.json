@@ -1,0 +1,15 @@
+{
+ "brief": "Holds a directed graph of named nodes and labelled edges, and answers questions about its paths, metrics, rules and changes.",
+ "detail": "A node has an id (folded to lowercase, no space), a label and properties; an edge runs from one node to another with a label and properties. The graph is simple: a second edge between the same ordered pair is refused. Paths, components and the centrality metrics run in the engine, on a copy that is rebuilt after most changes (a few removal methods do not refresh it, see their warnings). Rules come in two forms: the three typed stores filled by UseRulesFrom, and attached stzGraphRule objects judged by CheckRules. The graph reads and writes .stzgraf, .stzrulz and .stzsim files and writes DOT, JSON, YAML and GraphML; reading GraphML back is broken today. Many methods fold an id to lowercase and some do not (the removals, Incoming, SetNodeProperty), so ids are safest given in lowercase. The file also holds stzGraphFinder, stzGraphAsciiVisualizer and stzGraphComparison, which the graph builds for you. A number of methods carry a warning today.",
+ "receiver": "o1 = new stzGraph(\"g1\"); o1.AddNodeXT(\"a\", \"Alpha\"); o1.AddNodeXT(\"b\", \"Beta\"); o1.AddNodeXT(\"c\", \"Gamma\"); o1.Connect(\"a\", \"b\"); o1.Connect(\"b\", \"c\")",
+ "example": [
+  "? @@( o1.ShortestPath(\"a\", \"c\") )",
+  "#--> [ \"a\", \"b\", \"c\" ]"
+ ],
+ "see": [
+  "stzGraphFinder",
+  "stzGraphComparison",
+  "stzKnowledgeGraph",
+  "stzGraphRule"
+ ]
+}

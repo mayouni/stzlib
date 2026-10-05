@@ -1,0 +1,12 @@
+{
+ "brief": "Draws a graph in the console as boxed labels joined by arrows, vertically or horizontally, or hands the drawing back as text.",
+ "detail": "Built by stzGraph.Show and AsciiArt, or on its own over a graph. The vertical drawing starts a tree at every node that nothing points to and writes a CYCLE marker where a path comes back; the horizontal drawing follows the first out-edge of each node. Nodes whose degree is above the average are wrapped in exclamation marks. The Show forms print and the AsciiArt forms return the same text. A graph with no node raises error R1.",
+ "receiver": "g1 = new stzGraph(\"g1\"); g1.AddNodeXT(\"a\", \"Alpha\"); g1.AddNodeXT(\"b\", \"Beta\"); g1.Connect(\"a\", \"b\"); o1 = new stzGraphAsciiVisualizer(g1)",
+ "example": [
+  "? o1.AsciiArtHorizontal() != \"\"",
+  "#--> 1"
+ ],
+ "see": [
+  "stzGraph"
+ ]
+}

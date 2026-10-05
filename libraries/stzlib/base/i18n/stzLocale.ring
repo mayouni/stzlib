@@ -646,6 +646,24 @@ func StzNamesOfMonthsIn(pcLangOrCountry)
 	func NamesOfMonthsIn(pcLangOrCountry)
 		return StzNamesOfMonthsIn(pcLangOrCountry)
 
+# Holds a locale such as fr-FR and answers its country, language, script, currency, week days, time patterns and number symbols.
+#
+# A stzLocale is a locale code kept as text with an underscore (fr_FR). Build it from a code, a
+# language name, a country name, a hash of parts, :System or :Default; the library's own tables then
+# answer the facts: CountryName, LanguageName, CurrencyInfo, the first day of the week (monday for
+# fr-FR, sunday for en-US, saturday for ar-EG), time patterns, DecimalPoint and GroupSeparator. The
+# week methods come in three faces, English, native (the locale's own language) and the abbreviation
+# and one-letter symbol of each, all counted from the locale's first day. A locale the tables do not
+# know answers empty text. Known gaps today, each carried as a warning on its method: the case
+# conversions change only the ASCII letters and ignore the locale; the title-case and capital-case
+# methods and the ToTimeAs methods raise; the fold-case methods answer nothing; the script of most
+# locales comes out as common; and day names exist only for ten languages, the others answer
+# English.
+#
+#   receiver   o1 = new stzLocale("fr-FR")
+#   example    ? o1.CountryName()
+#              #--> france
+#   see        stzCountry, stzLanguage, stzScript, stzTime
 class stzLocale from stzObject
 	@cAbbreviation
 	@cLangAbbreviation
@@ -674,6 +692,19 @@ class stzLocale from stzObject
 		* bu providing a country name as a string
 	*/
 
+	# Builds the locale from a code such as fr-FR or ar_Arab_TN, a language or country name, a hash of parts, :System or :Default.
+	#
+	#   pLocale    a locale code with - or _ between its parts, a language name such as French, a
+	#              country name such as France, [ :Language = ..., :Script = ..., :Country = ... ],
+	#              :System or :Default
+	#   returns    nothing; the object is built
+	#   note       a language code alone completes to its default country (fr gives fr_FR); :System
+	#              gives the C locale and :Default gives the library's default locale (en_US when
+	#              probed); the code is stored with an underscore
+	#   warning    a code the library does not know (xx-YY) is kept as given and every lookup
+	#              answers empty text; a hash with none of the three keys raises Can't create the
+	#              stzLocale object!; a number builds an empty locale without an error
+	#   see        StzLocaleQ
 	def init(pLocale)
 
 		if IsString(pLocale)
@@ -807,17 +838,29 @@ class stzLocale from stzObject
 	 #  INFO   #
 	#---------#
 
-	# LOCALE ABBREVIATION
-
+	# Returns the locale code as normalised text, with an underscore, such as fr_FR.
+	#
+	#   returns    a string such as fr_FR
+	#   note       the Content form answers the same
+	#   see        bcp47Abbreviation, Content
+	#@ aka  LOCALE ABBREVIATION
 	def Abbreviation()
 		return @cAbbreviation
 
 	def Content()
 		return This.Abbreviation()
 
+		# Returns the locale code as normalised text, such as fr_FR.
+		#
+		#   returns    a string such as fr_FR
+		#   see        Abbreviation
 		def Value()
 			return Content()
 
+	# Returns the locale code with a hyphen between its parts, the BCP 47 spelling, such as fr-FR.
+	#
+	#   returns    a string such as fr-FR
+	#   see        Abbreviation
 	def bcp47Abbreviation()
 		return StzReplace(@cAbbreviation, "_", "-")
 
@@ -825,6 +868,11 @@ class stzLocale from stzObject
 	 #    COUNTRY    #
 	#---------------#
 
+	# Returns the library's number for the locale's country, as text; 0 when the country is not known.
+	#
+	#   returns    a string of digits such as 74, or 0
+	#   note       the number belongs to the library's own country table
+	#   see        CountryName, CountryShortAbbreviation
 	def CountryNumber()
 		_cCode_ = _LocaleCountryCodeFromAbbr(@cAbbreviation)
 		if _cCode_ != ""
@@ -835,6 +883,12 @@ class stzLocale from stzObject
 	def CountryAbbreviation()
 		return This.CountryShortAbbreviation()
 
+	# Returns the two-letter country code, such as FR or US.
+	#
+	#   returns    a string of two letters
+	#   note       empty when the country is not known; the CountryAbbreviation form answers the
+	#              same
+	#   see        CountryLongAbbreviation, CountryName
 	def CountryShortAbbreviation()
 		_cCountryQtNumber_ = This.CountryNumber()
 
@@ -847,6 +901,11 @@ class stzLocale from stzObject
 			ok
 		next
 
+	# Returns the three-letter country code, such as FRA or USA.
+	#
+	#   returns    a string of three letters
+	#   note       empty when the country is not known
+	#   see        CountryShortAbbreviation
 	def CountryLongAbbreviation()
 		_cCountryQtNumber_ = This.CountryNumber()
 
@@ -859,6 +918,11 @@ class stzLocale from stzObject
 			ok
 		next
 
+	# Returns the international dialling code of the country, with its plus sign, such as +33.
+	#
+	#   returns    a string such as +33
+	#   note       empty when the country is not known
+	#   see        CountryName
 	def CountryPhoneCode()
 		_cCountry_ = This.CountryName()
 
@@ -871,6 +935,12 @@ class stzLocale from stzObject
 			ok
 		next
 
+	# Returns the English name of the country in lowercase, with underscores for spaces, such as united_states.
+	#
+	#   returns    a string such as france
+	#   note       empty when the country is not known; the CountryNativeName form gives the same
+	#              English name, not a native one
+	#   see        CountryNumber, LanguageName
 	def CountryName()
 		_aLocaleCountriesXT3_ = LocaleCountriesXT()
 		_nLocaleCountriesXT3Len_ = len(_aLocaleCountriesXT3_)
@@ -891,6 +961,11 @@ class stzLocale from stzObject
 	 #  LANGUAGE   #
 	#-------------#
 
+	# Returns the library's number for the locale's language, as text.
+	#
+	#   returns    a string of digits such as 37
+	#   note       the number belongs to the library's own language table
+	#   see        LanguageName
 	def LanguageNumber()
 		_cLangName_ = This.LanguageName()
 
@@ -903,22 +978,13 @@ class stzLocale from stzObject
 			ok
 		next
 
-	# THE LANGUAGE COMES FROM THE LANGUAGE CODE.
+	# Returns the English name of the locale's language in lowercase, such as french.
 	#
-	# This used to derive it from the COUNTRY alone, and got two things wrong at
-	# once. en-PW answered "palauan" -- Palau's primary language -- because the
-	# "en" was never consulted. And a locale with NO country, such as the ar_ARAB
-	# you get by selecting a script, fell off the end of the chain and returned
-	# NULL; _DayNameInLang read that as "language unknown" and silently answered
-	# from its first table entry, English. That is why NativeNthDayOfWeek() said
-	# "Monday" for an Arabic locale, and NativeNthDayOfWeekAbbreviation() "Mon".
-	#
-	# _LangNameFromCode has been in this file the whole time, resolving a code
-	# against $aLocaleLanguagesXT, and nothing called it.
-	#
-	# The country stays as the FALLBACK: a locale naming a country but no
-	# recognised language is still better answered by that country's language
-	# than by nothing.
+	#   returns    a string such as french
+	#   note       taken from the language code, and from the country when the code names no
+	#              language; empty for an unknown locale
+	#   see        LanguageNativeName, CountryName
+	#@ aka  THE LANGUAGE COMES FROM THE LANGUAGE CODE.
 	def LanguageName()
 		if @cLangAbbreviation != ""
 			_cFromCode_ = _LangNameFromCode(@cLangAbbreviation)
@@ -942,6 +1008,11 @@ class stzLocale from stzObject
 		def Langauge()
 			return This.LanguageName()
 
+	# Returns the name of the language written in that language, such as Français.
+	#
+	#   returns    a string such as Français
+	#   note       falls back to the English name when no native name is known
+	#   see        LanguageName
 	def LanguageNativeName()
 		_cLangCode_ = _LocaleLangCodeFromAbbr(@cAbbreviation)
 		_cNative_ = _LangNativeNameFromCode(_cLangCode_)
@@ -951,12 +1022,24 @@ class stzLocale from stzObject
 		return This.LanguageName()
 
 
+	# Returns the language code of the locale, such as fr.
+	#
+	#   returns    a string such as fr
+	#   see        LanguageShortAbbreviation, LanguageLongAbbreviation
 	def LanguageAbbreviation()
 		return StzLanguageQ(This.Language()).Abbreviation()
 
+	# Returns the two-letter language code of the locale, such as fr.
+	#
+	#   returns    a string of two letters
+	#   see        LanguageLongAbbreviation
 	def LanguageShortAbbreviation()
 		return StzLanguageQ(This.Language()).ShortAbbreviation()
 
+	# Returns the three-letter language code of the locale, such as fra.
+	#
+	#   returns    a string of three letters
+	#   see        LanguageShortAbbreviation
 	def LanguageLongAbbreviation()
 		return StzLanguageQ(This.Language()).LongAbbreviation()
 
@@ -964,6 +1047,15 @@ class stzLocale from stzObject
 	 #  SCRIPT   #
 	#-----------#
 
+	# Returns the library's number for the locale's script, as text, but answers 0 (common) for most locales today.
+	#
+	#   returns    a string of digits; 0 means common
+	#   note       the ScriptCode form answers the same
+	#   warning    answers 0, the common script, for a locale written without a script, so fr-FR,
+	#              en-US, ar-EG, ja-JP and ru-RU all give common instead of Latin, Arabic or
+	#              Cyrillic; a script written in the code (ar_Arab_TN gives 1) or a locale built
+	#              from a country name (France gives Latin) is honoured
+	#   see        ScriptName, ScriptAbbreviation
 	def ScriptNumber()
 		if @cScriptAbbreviation != "" and @cScriptAbbreviation != ""
 			return _LocaleQtScriptNumber(@cScriptAbbreviation)
@@ -993,12 +1085,26 @@ class stzLocale from stzObject
 		def ScriptCode()
 			return This.ScriptNumber()
 
+	# Returns the English name of the locale's script in lowercase, but answers common for most locales today.
+	#
+	#   returns    a string such as common or arabic
+	#   note       follows ScriptNumber; the Script form answers the same
+	#   warning    answers common for a locale written without a script, so fr-FR and ar-EG give
+	#              common instead of latin and arabic; ar_Arab_TN gives arabic
+	#   see        ScriptNumber, ScriptAbbreviation
 	def ScriptName()
 		return StzScriptQ(This.ScriptNumber()).Name()
 
 	def Script()
 		return This.ScriptName()
 
+	# Returns the four-letter script code, such as Latn or Arab, but answers Zyyy (common) for most locales today.
+	#
+	#   returns    a string such as Zyyy or Arab
+	#   note       follows ScriptNumber
+	#   warning    answers Zyyy for a locale written without a script, so fr-FR gives Zyyy instead
+	#              of Latn
+	#   see        ScriptName, ScriptNumber
 	def ScriptAbbreviation()
 		_cScriptNumber_ = This.ScriptNumber()
 		_aLocaleScriptsXT1_ = LocaleScriptsXT()
@@ -1014,6 +1120,11 @@ class stzLocale from stzObject
 	 #   CURRENCY   #
 	#--------------#
 
+	# Returns the English name of the country's currency with only its first letter capitalised, such as Euro.
+	#
+	#   returns    a string such as United states dollar
+	#   note       empty when the country is not known; the Currency form answers the same
+	#   see        CurrencyNativeName, CurrencyInfo
 	def CurrencyName()
 		_nLen_ = len(_aLocaleCountriesXT)
 		_cNumber_ = This.CountryNumber()
@@ -1030,21 +1141,50 @@ class stzLocale from stzObject
 		def Currency()
 			return This.CurrencyName()
 
+	# Returns the currency name in lowercase with spaces, such as euro or united states dollar.
+	#
+	#   returns    a string such as euro
+	#   note       still the English name: the library holds no native currency names
+	#   see        CurrencyName
 	def CurrencyNativeName()
 		return This.pvtCurrencyXT(:NativeName)
 
+	# Returns the three-letter ISO code of the country's currency, such as EUR.
+	#
+	#   returns    a string of three letters
+	#   note       empty when the country is not known
+	#   see        CurrencyISOSymbol, CurrencySymbol
 	def CurrencyAbbreviation()
 		return This.pvtCurrencyXT(:ISOSymbol)
 
+	# Returns the three-letter ISO code of the country's currency, such as USD.
+	#
+	#   returns    a string of three letters
+	#   see        CurrencyAbbreviation
 	def CurrencyISOSymbol()
 		return This.pvtCurrencyXT(:ISOSymbol)
 
+	# Returns the currency sign of the country, such as the euro sign or $.
+	#
+	#   returns    a string such as $
+	#   note       the CurrencyNativeSymbol form answers the same
+	#   see        CurrencyISOSymbol, CurrencyInfo
 	def CurrencySymbol()
 		return This.pvtCurrencyXT(:NativeSymbol)
 
+		# Returns the currency sign as written in the country, such as the euro sign or £.
+		#
+		#   returns    a string such as £
+		#   note       the same sign as CurrencySymbol
+		#   see        CurrencySymbol
 		def CurrencyNativeSymbol()
 			return This.pvtCurrencyXT(:NativeSymbol)
 
+	# Returns the name of the currency's subunit, such as Cent, Sen or Piastre.
+	#
+	#   returns    a string such as Cent
+	#   note       empty when the country is not known; the CurrencyFraction form answers the same
+	#   see        CurrencyBase
 	def CurrencyFractionalUnit()
 		_aLocaleCountriesXT2_ = LocaleCountriesXT()
 		_nLocaleCountriesXT2Len_ = len(_aLocaleCountriesXT2_)
@@ -1058,6 +1198,11 @@ class stzLocale from stzObject
 		def CurrencyFraction()
 			return This.CurrencyFractionalUnit()
 
+	# Returns how many subunits make one unit of the currency, such as 100.
+	#
+	#   returns    a number
+	#   note       empty text when the country is not known
+	#   see        CurrencyFractionalUnit
 	def CurrencyBase()
 		_aLocaleCountriesXT1_ = LocaleCountriesXT()
 		_nLocaleCountriesXT1Len_ = len(_aLocaleCountriesXT1_)
@@ -1068,6 +1213,12 @@ class stzLocale from stzObject
 			ok
 		next
 
+	# Returns the currency facts as one hash: name, native name, abbreviation, symbols, fractional unit and base.
+	#
+	#   returns    a hash with the keys name, nativename, abbreviation, symbol, nativesymbol,
+	#              isosymbol, fractionalunit, fraction and base
+	#   note       every value is empty text for an unknown country
+	#   see        CurrencyName, CurrencyBase
 	def CurrencyInfo()
 		_aResult_ = [
 			:Name = This.CurrencyName(),
@@ -1091,25 +1242,54 @@ class stzLocale from stzObject
 		return This.CurrencyInfo()[StzLower(pcInfo)]
 
 	  #-----------------------------#
-	 #  LOCALISED TIME MANAGEMENT  #	#TODO :Should be used by default in
+	# Returns the text that marks the morning in a 12-hour time, AM.
+	#
+	#   returns    a string, AM
+	#   note       takes nothing from the locale: fr-FR and en-US both answer AM
+	#   see        pmText, TimeShortFormat
 	#-----------------------------#		# formatting time in stzTime
-
+	#@ aka  LOCALISED TIME MANAGEMENT # #TODO :Should be used by default in
 	def amText()
 		return StzEngineLocaleAMText()
 
+	# Returns the text that marks the afternoon in a 12-hour time, PM.
+	#
+	#   returns    a string, PM
+	#   note       takes nothing from the locale: fr-FR and en-US both answer PM
+	#   see        amText
 	def pmText()
 		return StzEngineLocalePMText()
 
+	# Returns the locale's short time pattern, such as HH:mm or h:mm AP.
+	#
+	#   returns    a pattern as text
+	#   note       24-hour for fr-FR, 12-hour with AP for en-US
+	#   see        TimeLongFormat, TimeFormat
 	def TimeShortFormat()
 		return This.TimeFormat(:Short)
-		# You can get the list of supported types by using LocaleTimeFormatTypes()
-
+	# Returns the locale's long time pattern, with seconds and a zone mark, such as HH:mm:ss t.
+	#
+	#   returns    a pattern as text
+	#   note       24-hour for fr-FR, 12-hour with AP for en-US
+	#   see        TimeShortFormat, TimeFormat
+	#@ aka  You can get the list of supported types by using LocaleTimeFormatTypes()
 	def TimeLongFormat()
 		return This.TimeFormat(:Long)
 
+	# Returns the locale's narrow time pattern, such as HH:mm or h:mm AP.
+	#
+	#   returns    a pattern as text
+	#   note       the same as the short pattern in the locales tried
+	#   see        TimeShortFormat, TimeFormat
 	def TimeNarrowFormat()
 		return This.TimeFormat(:Narrow)
 
+	# Returns the locale's time pattern of one kind: long, short or narrow.
+	#
+	#   cType      the kind of pattern: :Long, :Short or :Narrow
+	#   returns    a pattern as text
+	#   note       an unknown kind answers the long pattern
+	#   see        TimeShortFormat, TimeLongFormat
 	def TimeFormat(cType)
 		/*
 		cType can be:
@@ -1122,6 +1302,12 @@ class stzLocale from stzObject
 		return _LocaleTimeFormatStr(@cAbbreviation, _nType_)
 
 	// Returns a stzTime object from the localised string cTime
+	# Returns a stzTime object made from a time text such as 14:30:00.
+	#
+	#   cTime      the time text, as hh:mm:ss
+	#   returns    a stzTime
+	#   note       ignores the locale: the same object comes back for every locale
+	#   see        ToTimeAsString
 	def ToStzTime(cTime)
 		return new stzTime(cTime)
 		/*
@@ -1137,6 +1323,15 @@ class stzLocale from stzObject
 
 		*/
 
+	# Raises error R20 today instead of returning the time text written in a chosen format.
+	#
+	#   cTime      the time text, as hh:mm:ss
+	#   cFormat    the format to use: :Default, :Long, :Short or :Narrow
+	#   returns    nothing today; the call raises
+	#   note       the other ToTimeAs methods call this one and raise the same way
+	#   warning    raises R20 (extra number of parameters) on every call: the body calls the stzTime
+	#              ToString method with an argument it does not take
+	#   see        ToStzTime, TimeFormat
 	def ToTimeAsString(cTime, cFormat)
 		/*
 		cTime string should contain a time string conforming to the locale
@@ -1153,15 +1348,31 @@ class stzLocale from stzObject
 		off
 
 		return This.ToStzTime(cTime).ToString(:Default)
-		#       --------v-----------	       ---v---
-		#         stzTime object              "hh:mm:ss"
-
+	# Raises error R20 today instead of returning the time text in the long format.
+	#
+	#   cTime      the time text, as hh:mm:ss
+	#   returns    nothing today; the call raises
+	#   warning    raises R20 because ToTimeAsString raises
+	#   see        ToTimeAsString, TimeLongFormat
+	#@ aka  --------v----------- ---v--- stzTime object "hh:mm:ss"
 	def ToTimeAsLongString(cTime)
 		return This.ToTimeAsString(cTime, :Long)
 
+	# Raises error R20 today instead of returning the time text in the short format.
+	#
+	#   cTime      the time text, as hh:mm:ss
+	#   returns    nothing today; the call raises
+	#   warning    raises R20 because ToTimeAsString raises
+	#   see        ToTimeAsString, TimeShortFormat
 	def ToTimeAsShortString(cTime)
 		return This.ToTimeAsString(cTime, :Short)
 
+	# Raises error R20 today instead of returning the time text in the narrow format.
+	#
+	#   cTime      the time text, as hh:mm:ss
+	#   returns    nothing today; the call raises
+	#   warning    raises R20 because ToTimeAsString raises
+	#   see        ToTimeAsString, TimeNarrowFormat
 	def ToTimeAsNarrowString(cTime)
 		return This.ToTimeAsString(cTime, :Narrow)
 
@@ -1169,6 +1380,11 @@ class stzLocale from stzObject
 	 #   DAY   #
 	#---------#
 
+	# Returns the seven English day names, in lowercase, starting from the locale's first day of the week.
+	#
+	#   returns    a list of seven strings
+	#   note       fr-FR starts on monday, en-US on sunday, ar-EG on saturday
+	#   see        NativeDaysOfWeek, FirstDayOfWeek
 	def DaysOfWeek()	# In english
 
 		# Let's define the 1st of week in this locale
@@ -1194,8 +1410,14 @@ class stzLocale from stzObject
 
 		return _aResult_
 
+	# Returns the seven day names in the locale's language, starting from its first day of the week.
+	#
+	#   returns    a list of seven strings
+	#   note       English names come back for a language the library has no day names for
+	#              (Japanese, Chinese, Hindi, Swahili); French, German, Spanish, Italian,
+	#              Portuguese, Russian, Turkish, Arabic, Persian and Dutch have them
+	#   see        DaysOfWeek, NthNativeDayOfWeek
 	#---
-
 	def NativeDaysOfWeek()
 		_cFirstDayInEnglish_ = This.FirstDayOfWeek()
 		_aDaysInEnglish_ = [ :monday, :tuesday, :wednesday, :thursday, :friday, :saturday, :sunday ]
@@ -1215,6 +1437,14 @@ class stzLocale from stzObject
 
 		return _aDaysInLocaleLanguage_
 
+	# Returns the English name of the nth day of the locale's week, in lowercase, counting from its first day.
+	#
+	#   _n_        the position in the week, from 1 to 7
+	#   returns    a string such as tuesday
+	#   note       day 1 is monday for fr-FR and saturday for ar-EG
+	#   warning    raises an error for a position outside 1 to 7, and that error is R3 because the
+	#              library function that builds the message does not exist
+	#   see        FirstDayOfWeek, NthNativeDayOfWeek
 	def NthDayOfWeek(_n_)
 		/*
 		FYI: read this discussion about the week having 5 days in Javaneese:
@@ -1240,32 +1470,63 @@ class stzLocale from stzObject
 			StzRaise(stzLocaleError(:CanNotDefineNthDayOfWeek))
 		ok
 
+	# Returns the English name of the first day of the locale's week, in lowercase.
+	#
+	#   returns    a string such as monday
+	#   note       monday for fr-FR, sunday for en-US, saturday for ar-EG
+	#   see        LastDayOfWeek, NthDayOfWeek
 	def FirstDayOfWeek()
 		return This.NthDayOfWeek(1)
 
+	# Returns the English name of the last day of the locale's week, in lowercase.
+	#
+	#   returns    a string such as sunday
+	#   note       sunday for fr-FR, saturday for en-US
+	#   see        FirstDayOfWeek
 	def LastDayOfWeek()
 		return This.NthDayOfWeek(7)
 
+	# Returns the nth day name of the locale's week in its own language, counting from its first day.
+	#
+	#   _n_        the position in the week, from 1 to 7
+	#   returns    a string such as Mardi
+	#   note       English when the library has no day names for the language
+	#   see        NativeDaysOfWeek, NthDayOfWeek
 	def NthNativeDayOfWeek(_n_)
 		return This.NativeDaysOfWeek()[_n_]
 
 		def NativeNthDayOfWeek(_n_)
 			return This.NthNativeDayOfWeek(_n_)
 
+	# Returns the name of the first day of the locale's week in its own language.
+	#
+	#   returns    a string such as Lundi
+	#   note       English when the library has no day names for the language
+	#   see        LastNativeDayOfWeek, NthNativeDayOfWeek
 	def FirstNativeDayOfWeek()
 		return This.NthNativeDayOfWeek(1)
 
 		def NativeFirstDayOfWeek()
 			return This.FirstNativeDayOfWeek()
 
+	# Returns the name of the last day of the locale's week in its own language.
+	#
+	#   returns    a string such as Dimanche
+	#   note       English when the library has no day names for the language
+	#   see        FirstNativeDayOfWeek
 	def LastNativeDayOfWeek()
 		return This.NthNativeDayOfWeek(7)
 
 		def NativeLastDayOfWeek()
 			return This.LastNativeDayOfWeek()
 
+	# Returns the three-letter English abbreviation of the nth day of the locale's week, such as Tue.
+	#
+	#   _n_        the position in the week, from 1 to 7
+	#   returns    a string of three letters
+	#   note       counted from the locale's first day
+	#   see        NthDayOfWeekNativeAbbreviation, NthDayOfWeek
 	#---
-
 	def NthDayOfWeekAbbreviation(_n_)
 		_cFirstDay_ = This.FirstDayOfWeek()
 		_aDaysInEnglish_ = [ :monday, :tuesday, :wednesday, :thursday, :friday, :saturday, :sunday ]
@@ -1276,12 +1537,13 @@ class stzLocale from stzObject
 		if _nDay_ > 7 _nDay_ = _nDay_ - 7 ok
 		return _DayAbbrInLang(:english, _nDay_)
 
-	# ROTATED TO THE LOCALE'S OWN FIRST DAY, like every sibling here.
+	# Returns the abbreviation, in the locale's language, of the nth day of its week, such as Mar for Mardi.
 	#
-	# This indexed the language's Monday-first list with _n_ directly, so it
-	# ignored the locale entirely: for Iran, NthDayOfWeekAbbreviation(1) said
-	# Sat and NthDayOfWeekNativeAbbreviation(1) said Mon -- the same day of
-	# the same week, named twice, differently.
+	#   _n_        the position in the week, from 1 to 7
+	#   returns    a short string
+	#   note       English abbreviations when the library has no day names for the language
+	#   see        NthDayOfWeekAbbreviation, NthNativeDayOfWeek
+	#@ aka  ROTATED TO THE LOCALE'S OWN FIRST DAY, like every sibling here.
 	def NthDayOfWeekNativeAbbreviation(_n_)
 		_cLang_ = This.LanguageName()
 		return _DayAbbrInLang(_cLang_, This._NthWeekdayIndex(_n_))
@@ -1289,21 +1551,44 @@ class stzLocale from stzObject
 		def NativeNthDayOfWeekAbbreviation(_n_)
 			return This.NthDayOfWeekNativeAbbreviation(_n_)
 
+	# Returns the three-letter English abbreviation of the first day of the locale's week.
+	#
+	#   returns    a string such as Mon
+	#   see        LastDayOfWeekAbbreviation, NthDayOfWeekAbbreviation
 	def FirstDayOfWeekAbbreviation()
 		return This.NthDayOfWeekAbbreviation(1)
 
+	# Returns the abbreviation, in the locale's language, of the first day of its week, such as Lun.
+	#
+	#   returns    a short string
+	#   note       English when the library has no day names for the language
+	#   see        LastNativeDayOfWeekAbbreviation
 	def FirstNativeDayOfWeekAbbreviation()
 		return This.NthDayOfWeekNativeAbbreviation(1)
 
 		def NativeFirstDayOfWeekAbbreviation()
 			return This.FirstNativeDayOfWeekAbbreviation()
 
+	# Returns the three-letter English abbreviation of the last day of the locale's week.
+	#
+	#   returns    a string such as Sun
+	#   see        FirstDayOfWeekAbbreviation
 	def LastDayOfWeekAbbreviation()
 		return This.NthDayOfWeekAbbreviation(7)
 
+	# Returns the abbreviation, in the locale's language, of the last day of its week, such as Dim.
+	#
+	#   returns    a short string
+	#   note       English when the library has no day names for the language
+	#   see        FirstNativeDayOfWeekAbbreviation
 	def LastNativeDayOfWeekAbbreviation()
 		return This.NthDayOfWeekNativeAbbreviation(7)
 
+		# Returns the abbreviation, in the locale's language, of the last day of its week, such as Dim.
+		#
+		#   returns    a short string
+		#   note       the same as the other spelling
+		#   see        LastNativeDayOfWeekAbbreviation
 		def NativeLastDayOfWeekAbbreviation()
 			return This.LastNativeDayOfWeekAbbreviation()
 
@@ -1312,6 +1597,12 @@ class stzLocale from stzObject
 	// Day symbols are a narrow form (usually one letter) used
 	// when you need to enumerate weekdays
 
+	# Returns the one-letter English symbol of the nth day of the locale's week, such as T for tuesday.
+	#
+	#   _n_        the position in the week, from 1 to 7
+	#   returns    a string of one letter
+	#   note       counted from the locale's first day
+	#   see        NthDayOfWeekNativeSymbol, NthDayOfWeekAbbreviation
 	def NthDayOfWeekSymbol(_n_)
 		_cFirstDay_ = This.FirstDayOfWeek()
 		_aDaysInEnglish_ = [ :monday, :tuesday, :wednesday, :thursday, :friday, :saturday, :sunday ]
@@ -1322,6 +1613,12 @@ class stzLocale from stzObject
 		if _nDay_ > 7 _nDay_ = _nDay_ - 7 ok
 		return _DaySymbolInLang(:english, _nDay_)
 
+	# Returns the narrow symbol, in the locale's language, of the nth day of its week, such as M for Mardi.
+	#
+	#   _n_        the position in the week, from 1 to 7
+	#   returns    a string of one letter
+	#   note       English symbols when the library has no day names for the language
+	#   see        NthDayOfWeekSymbol, NthNativeDayOfWeek
 	def NthDayOfWeekNativeSymbol(_n_)
 		_cLang_ = This.LanguageName()
 		return _DaySymbolInLang(_cLang_, This._NthWeekdayIndex(_n_))
@@ -1346,18 +1643,36 @@ class stzLocale from stzObject
 		def NativeNthDayOfWeekSymbol(_n_)
 			return This.NthDayOfWeekNativeSymbol(_n_)
 
+	# Returns the one-letter English symbol of the first day of the locale's week.
+	#
+	#   returns    a string of one letter
+	#   see        LastDayOfWeekSymbol, NthDayOfWeekSymbol
 	def FirstDayOfWeekSymbol()
 		return This.NthDayOfWeekSymbol(1)
 
+	# Returns the narrow symbol, in the locale's language, of the first day of its week, such as L for Lundi.
+	#
+	#   returns    a string of one letter
+	#   note       English when the library has no day names for the language
+	#   see        LastDayOfWeekNativeSymbol
 	def FirstDayOfWeekNativeSymbol()
 		return This.NthDayOfWeekNativeSymbol(1)
 
 		def NativeFirstDayOfWeekSymbol()
 			return This.FirstDayOfWeekNativeSymbol()
 
+	# Returns the one-letter English symbol of the last day of the locale's week.
+	#
+	#   returns    a string of one letter
+	#   see        FirstDayOfWeekSymbol
 	def LastDayOfWeekSymbol()
 		return This.NthDayOfWeekSymbol(7)
 
+	# Returns the narrow symbol, in the locale's language, of the last day of its week, such as D for Dimanche.
+	#
+	#   returns    a string of one letter
+	#   note       English when the library has no day names for the language
+	#   see        FirstDayOfWeekNativeSymbol
 	def LastDayOfWeekNativeSymbol()
 		return This.NthDayOfWeekNativeSymbol(7)
 
@@ -1370,27 +1685,56 @@ class stzLocale from stzObject
 
 
 	  #----------------#
-	 #  NUMBER FORM   #	#TODO: Should be used by default in
+	# Returns the character that separates the whole part from the decimals, such as , for fr-FR and . for en-US.
+	#
+	#   returns    a one-character string
+	#   note       the character comes from the locale's number conventions
+	#   see        GroupSeparator, Percent
 	#----------------#	# formatting numbers in stzNumber
-
+	#@ aka  NUMBER FORM # #TODO: Should be used by default in
 	def DecimalPoint()
 		return _LocaleDecimalPointChar(@cAbbreviation)
 
+	# Returns the letter that introduces the exponent in scientific notation, e.
+	#
+	#   returns    the string e
+	#   note       the same for every locale
+	#   see        DecimalPoint
 	def Exponential()
 		return "e"
 
+	# Returns the character that groups thousands, such as a space for fr-FR, a comma for en-US and a dot for de-DE.
+	#
+	#   returns    a one-character string
+	#   note       the GroupSeperator form answers the same
+	#   see        DecimalPoint
 	def GroupSeparator()
 		return _LocaleGroupSepChar(@cAbbreviation)
 
 		def GroupSeperator()
 			return This.GroupSeparator()
 
+	# Returns the sign written before a negative number, -.
+	#
+	#   returns    the string -
+	#   note       the same for every locale
+	#   see        PositiveSign
 	def NegativeSign()
 		return "-"
 
+	# Returns the sign written before a positive number, +.
+	#
+	#   returns    the string +
+	#   note       the same for every locale
+	#   see        NegativeSign
 	def PositiveSign()
 		return "+"
 
+	# Returns the percent sign, %.
+	#
+	#   returns    the string %
+	#   note       the same for every locale
+	#   see        DecimalPoint
 	def Percent()
 		return "%"
 
@@ -1404,6 +1748,15 @@ class stzLocale from stzObject
 	--> http://unicode.org/Public/UNIDATA/SpecialCasing.txt
 	*/
 
+	# Returns the text with its ASCII capital letters turned to lowercase; accented and non-Latin capitals are not changed today.
+	#
+	#   pcStr      the text to convert
+	#   returns    the text, lowercased
+	#   note       the ToLowercase, Lowercase and Lower forms answer the same
+	#   warning    the locale has no effect and only A to Z change, so É stays É and Turkish I gives
+	#              i; a number as argument stops the Ring process without a message, and a list
+	#              answers empty text
+	#   see        StringUppercased, CharLowercased
 	def StringLowercased(pcStr)
 		_cResult_ = StzEngineLocaleToLower(pcStr)
 		return _cResult_
@@ -1417,17 +1770,36 @@ class stzLocale from stzObject
 		def Lower(pcStr)
 			return This.StringLowercased(pcStr)
 
+	# Returns one character turned to lowercase when it is an ASCII capital letter, and empty text when the argument is not one character.
+	#
+	#   pcChar     the character to convert
+	#   returns    a one-character string; empty when not a single character
+	#   warning    only A to Z change, so É stays É
+	#   see        StringLowercased, CharIsLowercased
 	def CharLowercased(pcChar)
 		if @IsChar(pcChar)
 			return This.StringLowercased(pcChar)
 		ok
 
+	# TRUE if lowercasing the text changes nothing, so it holds no ASCII capital letter.
+	#
+	#   pcStr      the text to test
+	#   returns    TRUE or FALSE
+	#   note       the StringIsLowercase form answers the same
+	#   warning    accented capitals are not noticed: École answers TRUE, ÉCOLE answers FALSE only
+	#              because of its ASCII letters
+	#   see        StringLowercased, StringIsUppercased
 	def StringIsLowercased(pcStr)
 		return This.StringLowercased(pcStr) = pcStr
 
 		def StringIsLowercase(pcStr)
 			return This.StringIsLowercased(pcStr)
 
+	# TRUE if lowercasing the character changes nothing, so digits and symbols answer TRUE.
+	#
+	#   pcChar     the character to test
+	#   returns    TRUE or FALSE; nothing when the argument is not one character
+	#   see        StringIsLowercased, CharIsUppercased
 	def CharIsLowercased(pcChar)
 		if @IsChar(pcChar)
 			return This.StringIsLowercased(pcChar)
@@ -1436,9 +1808,16 @@ class stzLocale from stzObject
 	  #-----------------------#
 	 #   STRING UPPER CASE   #
 	#-----------------------#
-	# --? TODO: support the special cases documented in unicode here:
-	# http://unicode.org/Public/UNIDATA/SpecialCasing.txt
-
+	# Returns the text with its ASCII small letters turned to capitals; accented and non-Latin letters are not changed today.
+	#
+	#   pcStr      the text to convert
+	#   returns    the text, uppercased
+	#   note       the ToUppercase, Uppercase and Upper forms answer the same
+	#   warning    the locale has no effect and only a to z change, so école gives éCOLE, straße
+	#              gives STRAßE and Turkish i gives I; a number as argument stops the Ring process
+	#              without a message
+	#   see        StringLowercased, CharUppercased
+	#@ aka  --? TODO: support the special cases documented in unicode here: http://unicode.org/Public/UNIDATA/SpecialCasing.txt
 	def StringUppercased(pcStr)
 		_cResult_ = StzEngineLocaleToUpper(pcStr)
 		return _cResult_
@@ -1452,17 +1831,35 @@ class stzLocale from stzObject
 		def Upper(pcStr)
 			return This.StringUppercased(pcStr)
 
+	# Returns one character turned to a capital when it is an ASCII small letter, and empty text when the argument is not one character.
+	#
+	#   pcChar     the character to convert
+	#   returns    a one-character string; empty when not a single character
+	#   warning    only a to z change, so é stays é
+	#   see        StringUppercased, CharIsUppercased
 	def CharUppercased(pcChar)
 		if @IsChar(pcChar)
 			return This.StringUppercased(pcChar)
 		ok
 
+	# TRUE if uppercasing the text changes nothing, so it holds no ASCII small letter.
+	#
+	#   pcStr      the text to test
+	#   returns    TRUE or FALSE
+	#   note       the StringIsUppercase form answers the same
+	#   warning    an empty text answers TRUE
+	#   see        StringUppercased, StringIsLowercased
 	def StringIsUppercased(pcStr)
 		return This.StringUppercased(pcStr) = pcStr
 
 		def StringIsUppercase(pcStr)
 			return This.StringIsUppercased(pcStr)
 
+	# TRUE if uppercasing the character changes nothing, so digits and symbols answer TRUE.
+	#
+	#   pcChar     the character to test
+	#   returns    TRUE or FALSE; nothing when the argument is not one character
+	#   see        StringIsUppercased, CharIsLowercased
 	def CharIsUppercased(pcChar)
 		if @IsChar(pcChar)
 			return This.StringIsUppercased(pcChar)
@@ -1472,6 +1869,15 @@ class stzLocale from stzObject
 	 #   STRING TITLE CASE   #
 	#-----------------------#
 
+	# Raises error R14 today instead of returning the text in title case.
+	#
+	#   pcStr      the text to convert
+	#   returns    nothing today; the call raises
+	#   note       the ToTitleCase form raises the same way
+	#   warning    raises R14 on every call: for English it goes through StringCapitalcased, which
+	#              calls the missing method CharAtPositionQ, and for other Latin-script languages it
+	#              calls the missing method Char
+	#   see        StringCapitalcased, StringUppercased
 	def StringTitlecased(pcStr)
 		if StzTextQ(pcStr).IsLatinScript()
 
@@ -1508,9 +1914,22 @@ class stzLocale from stzObject
 			return _cResult_
 		ok
 
+		# Raises error R14 today instead of returning the text in title case.
+		#
+		#   pcStr      the text to convert
+		#   returns    nothing today; the call raises
+		#   note       the intended result is In Search Of Lost Time for English
+		#   warning    raises R14 on every call, through StringTitlecased
+		#   see        StringTitlecased, StringCapitalcased
 		def ToTitleCase(pcStr)
 			return StringTitlecased(pcStr)
 
+	# Raises error R14 today instead of telling whether the text is already in title case.
+	#
+	#   pcStr      the text to test
+	#   returns    nothing today; the call raises
+	#   warning    raises R14 on every call, through StringTitlecased
+	#   see        StringTitlecased
 	def StringIsTitlecased(pcStr)
 		return This.StringTitlecased(pcStr) = pcStr
 
@@ -1521,23 +1940,51 @@ class stzLocale from stzObject
 	 #   STRING FOLD CASE   #
 	#----------------------#
 
+	# Returns nothing today, because its body is an unwritten TODO instead of case folding.
+	#
+	#   pcStr      the text to fold
+	#   returns    nothing today
+	#   note       the intended result is the Unicode case-folded text
+	#   warning    the body is empty, so every call answers empty text; the ToFoldcase form answers
+	#              the same
+	#   see        StringLowercased, StringIsfoldcased
 	def StringFoldcased(pcStr)
 		// TODO
 
 		def ToFoldcase(pcStr)
 			return This.StringFoldcased(pcStr)
 
+	# Returns nothing today instead of the case-folded character, because StringFoldcased is not written.
+	#
+	#   pcChar     the character to fold
+	#   returns    empty text; nothing when the argument is not one character
+	#   warning    answers empty text for every character, because StringFoldcased does
+	#   see        StringFoldcased
 	def CharFoldcased(pcChar)
 		if @IsChar(pcChar)
 			return This.StringFoldcased(pcChar)
 		ok
 
+	# TRUE if the text is empty today, because the folding it compares with answers empty text for every input.
+	#
+	#   pcStr      the text to test
+	#   returns    TRUE or FALSE
+	#   note       the StringIsFoldcase form answers the same
+	#   warning    answers FALSE for any non-empty text, and TRUE for an empty one, because it
+	#              compares the text with an empty fold
+	#   see        StringFoldcased
 	def StringIsfoldcased(pcStr)
 		return This.Stringfoldcased(pcStr) = pcStr
 
 		def StringIsFoldcase(pcStr)
 			return This.StringIsFoldcased(pcStr)
 
+	# Returns FALSE today for any character, because StringFoldcased answers empty text.
+	#
+	#   pcChar     the character to test
+	#   returns    FALSE; nothing when the argument is not one character
+	#   warning    answers FALSE for every character, because StringFoldcased is not written
+	#   see        StringIsfoldcased
 	def CharIsFoldcased(pcChar)
 		if @IsChar(pcChar)
 			return This.StringIsFoldcased(pcChar)
@@ -1547,6 +1994,15 @@ class stzLocale from stzObject
 	 #   STRING CAPITAL CASE   #
 	#-------------------------#
 
+	# Raises error R14 today instead of returning the text with the first letter of every word capitalised.
+	#
+	#   pcStr      the text to convert
+	#   returns    nothing today; the call raises
+	#   note       the StringCapitalised, StringCapitalized and toCapitalcase forms raise the same
+	#              way
+	#   warning    raises R14 on every call: the body calls the missing method CharAtPositionQ on a
+	#              stzString
+	#   see        StringTitlecased, StringUppercased
 	def StringCapitalcased(pcStr)
 
 		# Lowercasing all the string first
@@ -1588,8 +2044,15 @@ class stzLocale from stzObject
 		def StringCapitalized(pcStr)
 			return This.StringCapitalcased(pcStr)
 
+	# Raises error R14 today instead of telling whether every word of the text starts with a capital.
+	#
+	#   pcStr      the text to test
+	#   returns    nothing today; the call raises
+	#   note       the StringIsCapitalized, StringIsCapitalcased and StringIsCapitalcase forms raise
+	#              the same way
+	#   warning    raises R14 on every call, through StringCapitalcased
+	#   see        StringCapitalcased
 		#>
-
 	def StringIsCapitalised(pcStr)
 		return This.StringCapitalised(pcStr) = pcStr
 
@@ -1606,11 +2069,25 @@ class stzLocale from stzObject
 	 #  MEASUREMENT SYSTEM   #
 	#-----------------------#
 
+	# Returns the name of the measurement system the locale uses, such as metric or imperial, as library text.
+	#
+	#   returns    a string such as metricsytem, imperialussystem or imperialuksystem
+	#   note       the metric name is spelled metricsytem as shipped; en-US gives imperialussystem
+	#              and en-GB imperialuksystem
+	#   see        CountryName, DecimalPoint
 	def MeasurementSystem()
 		return StzLocaleMeasurementSystems()[ _LocaleMeasurementSysNum(@cAbbreviation) ]
 
 	PRIVATE
 
+	# Returns one piece of currency text for the locale's country: its ISO code, native symbol or native name.
+	#
+	#   pcTypeOfSymbol   which piece: :ISOSymbol, :NativeSymbol or :NativeName
+	#   returns          the piece of text asked for
+	#   note             the public Currency methods call it; status internal
+	#   warning          raises an error for any other kind; private, so a call from outside the
+	#                    class raises R26
+	#   see              CurrencyISOSymbol, CurrencyNativeSymbol
 	def pvtCurrencyXT(pcTypeOfSymbol)
 		_cCurrencyName_ = ""
 		_nLen_ = len(_aLocaleCountriesXT)
