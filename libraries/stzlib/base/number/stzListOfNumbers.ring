@@ -5324,15 +5324,17 @@ class stzListOfNumbers from stzList
 			_n_ = _n_[2]
 		ok
 
-		_nPos_ = 0
+		# AnyNumberBefore() and AnyNumberAfter() answer the NUMBER itself,
+		# not its position: reading This.Item() of it took the number for
+		# a position and went past the list
+		_nResult_ = 0
 		if StzEngineRandomInt(0, 1) = 0
-			_nPos_ = This.AnyNumberBefore(_n_)
+			_nResult_ = This.AnyNumberBefore(_n_)
 
 		else
-			_nPos_ = This.AnyNumberAfter(_n_)
+			_nResult_ = This.AnyNumberAfter(_n_)
 		ok
 
-		_nResult_ = This.Item(_nPos_)
 		return _nResult_
 
 		#< @FunctionAlternativeForms
@@ -5428,15 +5430,15 @@ class stzListOfNumbers from stzList
 			_n_ = _n_[2]
 		ok
 
-		_nPos_ = 0
+		# the Z forms of Before and After answer [ number, position ]
+		_aResult_ = []
 		if StzEngineRandomInt(0, 1) = 0
-			_nPos_ = This.AnyNumberBefore(_n_)
+			_aResult_ = This.AnyNumberBeforeZ(_n_)
 
 		else
-			_nPos_ = This.AnyNumberAfter(_n_)
+			_aResult_ = This.AnyNumberAfterZ(_n_)
 		ok
 
-		_aResult_ = [ This.Item(_nPos_), _nPos_ ]
 		return _aResult_
 
 		#< @FunctionAlternativeForms
@@ -5651,7 +5653,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		if _n_ = 2
-			return This.Number(1)
+			return [ This.Number(1), 1 ]
 		ok
 
 		_nRandom_ = StzEngineRandomInt(0, _n_ - 1)
@@ -5709,7 +5711,10 @@ class stzListOfNumbers from stzList
 			_anReverse_ + _anContent_[i]
 		next
 
-		_nPos_ = ring_find( _anReverse_, _n_ )
+		# the reversed list finds the LAST occurrence -- its position is
+		# counted from the end, and AnyNumberAfterPosition() counts from
+		# the front
+		_nPos_ = _nLen_ - ring_find( _anReverse_, _n_ ) + 1
 		_nResult_ = This.AnyNumberAfterPosition(_nPos_)
 
 		return _nResult_
@@ -5743,7 +5748,9 @@ class stzListOfNumbers from stzList
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		_nPos_ = StzFindFirst(_n_, new stzList(This.Content()).Reversed())
+		# the LAST occurrence, counted from the front (see AnyNumberAfter);
+		# `new stzList(...).Reversed()` without parentheses is R13 on Ring
+		_nPos_ = This.NumberOfNumbers() - StzFindFirst(_n_, (new stzList(This.Content())).Reversed()) + 1
 		_aResult_ = This.AnyNumberAfterPositionZ(_nPos_)
 
 		return _aResult_
@@ -5783,13 +5790,11 @@ class stzListOfNumbers from stzList
 			return This.Number(_nLen_)
 		ok
 
-		_n_--
-		_nRandom_ = StzEngineRandomInt(0, _n_)
-		if _nRandom_ = 0
-			_nRandom_ = 1
-		ok
-
-		_nResult_ = This.Number(_n_ + _nRandom_ - 1)
+		# a random POSITION after n: n+1 to the last. It read n + r - 2
+		# for r in 1..n-1, which never looked at the length and went past
+		# the list whenever n passed its middle
+		_nRandom_ = StzEngineRandomInt(_n_ + 1, _nLen_)
+		_nResult_ = This.Number(_nRandom_)
 
 		return _nResult_
 
@@ -5824,16 +5829,11 @@ class stzListOfNumbers from stzList
 		ok
 
 		if _n_ = _nLen_ - 1
-			return This.Number(_nLen_)
+			return [ This.Number(_nLen_), _nLen_ ]
 		ok
 
-		_n_--
-		_nRandom_ = StzEngineRandomInt(0, _n_)
-		if _nRandom_ = 0
-			_nRandom_ = 1
-		ok
-
-		_nPos_ = _n_ + _nRandom_ - 1
+		# a random POSITION after n (see AnyNumberAfterPosition)
+		_nPos_ = StzEngineRandomInt(_n_ + 1, _nLen_)
 		_aResult_ = [ This.Number(_nPos_), _nPos_ ]
 
 		return _aResult_
