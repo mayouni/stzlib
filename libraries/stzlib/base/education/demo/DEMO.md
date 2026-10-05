@@ -38,8 +38,11 @@ browser at minute 2, and switch it to العربية to show the right-to-left l
 - **"Does it run in the browser?"** The page opens in any browser. Its cells run on the desktop today, and the
   page says so on every cell. Running them in the browser is the next step (E1b), and it depends on the
   Softanza browser engine.
-- **"Is the Hausa, Arabic and French reviewed?"** Not yet. Every page says it is a draft awaiting a native
-  reviewer, and the demo does not hide that.
+- **"Is the Hausa, Arabic and French reviewed?"** Not yet, and the page says so: each translated chapter and
+  world page opens with a *draft translation* notice until a native speaker's sign-off is recorded for it
+  (`program/reviews/<lang>.zknw`), and then it names who signed. `tools/review_sheet.ring` prints how many
+  units are signed and writes the sheet a reviewer reads. Until E10 this answer was a sentence, not a fact
+  of the page; `review_narrated.ring` proves it now.
 - **"Does it need an AI model or the internet?"** No. The tutor uses Softanza's own reasoning. A model may be
   added later as an option, never as a requirement.
 

@@ -182,6 +182,7 @@ func _EduReaderCss()
 	       "nav.chapters{display:flex;flex-wrap:wrap;gap:6px 14px;margin:0 0 18px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);font-size:15px}nav.chapters a{color:var(--ink2);text-decoration:none;font-weight:600}nav.chapters a.on{color:var(--accent);text-decoration:underline}" +
 	       "aside.exercise{border-inline-start:4px solid var(--accent);background:var(--panel);padding:4px 16px 8px;margin:22px 0;border-radius:8px}.note{color:var(--ink2);font-size:15px}" +
 	       "blockquote{margin:10px 0;padding:6px 12px;border-inline-start:3px solid var(--line);color:var(--ink2)}.qa{border-top:1px solid var(--line);margin-top:30px}" +
+	       "p.draft{border:1px dashed var(--desk);background:var(--desk-bg);color:var(--desk);padding:6px 12px;border-radius:8px;font-size:15px;font-weight:600}p.reviewed{color:var(--web);font-size:15px;font-weight:600}" +
 	       "@media print{header{position:static}article{display:block;page-break-after:always}}"
 
 func _EduReaderJs()
@@ -306,6 +307,40 @@ class stzEduReader from stzObject
 		next
 		return _n_
 
+	# A translation says what it is: a draft until a native speaker has
+	# signed the unit off in reviews/<lang>.zknw, then who did. English is
+	# the source edition and carries no note.
+	def _ReviewNote(poCh)
+		_cL_ = poCh.Language()
+		_oP_ = @oCourse.Program()
+		if _cL_ = _oP_.SourceLanguage()
+			return ""
+		ok
+		_acWho_ = _oP_.ReviewersOf(_cL_, This._UnitOf(poCh))
+		if len(_acWho_) = 0
+			return '<p class="draft" role="note">' + _EduEsc(_EduSay(_cL_, "draft-note", "")) + '</p>' + char(10)
+		ok
+		_cIds_ = ""
+		for _i_ = 1 to len(_acWho_)
+			if _i_ > 1
+				_cIds_ += ", "
+			ok
+			_cIds_ += _acWho_[_i_]
+		next
+		_c_ = StzReplace(_EduEsc(_EduSay(_cL_, "reviewed-note", "{ids}")), "{ids}", "<bdi>" + _EduEsc(_cIds_) + "</bdi>")
+		return '<p class="reviewed" role="note">' + _c_ + '</p>' + char(10)
+
+	# The review unit of an entry: chapter:<course>.<id> or world:<name>.
+	def _UnitOf(poCh)
+		_nAll_ = len(@aChapters)
+		for _k_ = 1 to _nAll_
+			if @aChapters[_k_].File() = poCh.File() and @acKinds[_k_] = "world"
+				_c_ = _EduLastSegment(poCh.File())
+				return "world:" + StzLeft(_c_, StzLen(_c_) - StzLen("." + poCh.Language() + ".md"))
+			ok
+		next
+		return "chapter:" + @oCourse.Slug() + "." + poCh.Id()
+
 	def _Article(poCh)
 		_cL_ = poCh.Language()
 		_cDir_ = "ltr"
@@ -335,6 +370,7 @@ class stzEduReader from stzObject
 			ok
 		next
 		_c_ += '</nav>' + char(10)
+		_c_ += This._ReviewNote(poCh)
 		_aB_ = poCh.Blocks()
 		_nB_ = len(_aB_)
 		for _i_ = 1 to _nB_
