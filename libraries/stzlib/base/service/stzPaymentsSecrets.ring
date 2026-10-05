@@ -63,6 +63,12 @@ func StzPispiRegisterDescriptors(poStore, pcParticipant)
 	next
 	return poStore
 
+# The secret store's kind factory for the "pispi-" family: a sealed file holding a
+# payments descriptor is read back as a stzPispiSecret, expiry included. The store
+# finds this by name, so it never has to name the payments plane.
+func StzSecretFromKind_pispi(pcName, pcPart)
+	return new stzPispiSecret(pcName, pcPart)
+
 func StzSecretExpiryWatchQ(poStore)
 	return new stzSecretExpiryWatch(poStore)
 
