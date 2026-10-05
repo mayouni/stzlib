@@ -883,7 +883,7 @@ the portal's own guide pages. The reference (`openapi.yml` v1.5.0) wins.
 | PY3 | `:conformance` posture, the two invariants, the webhook verifier, five secret descriptors, expiry as a detection | `service_registry_narrated` extended; `payments_webhooks_narrated.ring`; `payments_secrets_narrated.ring` |
 | PY4 | payout plan, four-visa rule, payout journal, `payout-without-plan` refused by the port | `payments_governance_narrated.ring` |
 | PY5 | the live adapter, generic over the participant: (a) against the twin over HTTP behind `stzAppServer`, plain and mutual TLS; (b) conformance under DIKO's sandbox account, *unperceived* until a named person sees a payment land; (c) BIA in production only inside DIKO's amendment | `payments_live_adapter_narrated.ring` (a); `payments_conformance_run.ring` (b, UNPERCEIVED without credentials) |
-| PY6 | the chapter: a dynamic QR, a customer pays, the webhook lands and is verified, a supplier is paid under four visas, and the registry refuses it all in production while the twin is bound | the chapter itself, run end to end |
+| PY6 | the chapter: a dynamic QR, a customer pays, the webhook lands and is verified, a supplier is paid under four visas, and the registry refuses it all in production while the twin is bound | `doc/narrations/stz-getting-paid-and-paying-narration.md`, run by `test/system/payments_chapter.py` (14 blocks, 30 values). The dynamic QR is the request to pay of category 500; the EMV picture of it is the BCEAO SDK's and is not built here |
 
 Baseline measured 2026-10-04 on the worktree at 010743cce, each guard run
 from inside its topic directory: `payments_port_narrated` 49/49,

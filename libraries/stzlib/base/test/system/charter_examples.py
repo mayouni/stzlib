@@ -25,8 +25,8 @@ def blocks(text):
     return re.findall(r"^```ring\n(.*?)^```", text, flags=re.S | re.M)
 
 
-def main():
-    text = open(CHARTER, encoding="utf-8").read()
+def main(path=None):
+    text = open(path or CHARTER, encoding="utf-8").read()
     bs = blocks(text)
     script = "\n\n".join(bs) + "\n"
     expected = []
@@ -61,4 +61,4 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(sys.argv[1] if len(sys.argv) > 1 else None))
