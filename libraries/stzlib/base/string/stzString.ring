@@ -20340,7 +20340,7 @@ class stzString from stzObject
 		_oRdRemover_.RemoveDuplicatesCS(pCaseSensitive)
 		This.Update(_oRdRemover_.Content())
 
-	# Is meant to remove the repeated characters of the text, in place.
+	# Removes the repeated characters of the text, in place, but a known defect makes the call raise an error today.
 	#
 	#   returns    nothing today
 	#   warning    known defect: the call raises error R14 today, because it calls UpdateWith, which

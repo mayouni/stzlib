@@ -74,7 +74,7 @@ DOC = {
  E("Uppercased", "Returns a copy of the text in uppercase; the text is unchanged.",
    returns="a string", note=["it follows Unicode rules: the German sharp s becomes SS"], see=["Uppercase", "Lowercased"],
    example=['? o1.Uppercased()', '? o1.Content()', 'o1 = new stzString("straße")', '? o1.Uppercased()']),
- E("RemoveDuplicates", "Is meant to remove the repeated characters of the text, in place.",
+ E("RemoveDuplicates", "Removes the repeated characters of the text, in place, but a known defect makes the call raise an error today.",
    returns="nothing today",
    warning=["known defect: the call raises error R14 today, because it calls UpdateWith, which this class does not define"],
    see=["Duplicates", "Remove"]),

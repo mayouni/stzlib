@@ -32,3 +32,49 @@ pSubValue	A value found inside a cell.
 pCellValue	The value of a cell.
 pOtherNumber	The other number, to compare with or to combine with.
 paOtherList	The other list, to compare with or to combine with.
+pcSub	The substring to look for or work with, as text.
+pacBounds	The pair of bounds, [ open, close ].
+pStartingAt	The position to start from; :StartingAt = n is accepted.
+pcOther	The other text, to compare with or combine with.
+pcNew	The new text that takes the place.
+pcOpen	The opening bound, as text.
+pcClose	The closing bound, as text.
+pBound1	The opening bound.
+pBound2	The closing bound.
+pcBound1	The opening bound, as text.
+pcBound2	The closing bound, as text.
+_aSections_	A list of sections, each [ start, end ].
+pacSubStr	A list of substrings, as text.
+paSubStr	A list of substrings.
+nWidth	The width, in characters.
+anPos	A list of positions.
+paNewItems	The list of new items.
+paNewList	The new list.
+cFillChar	The character used to fill the empty places.
+paValues	A list of values.
+_nStart_	The position to start from.
+pNumber	A number.
+pcLocale	A locale name or code, as text.
+pcNewSubStr	The new substring, as text.
+paNewHashList	The new hash list.
+paNewPair	The new pair, as [ key, value ].
+pcNewKey	The new key, as text.
+panList	A list of numbers.
+paOther	The other list, to compare with or combine with.
+pcYielder	The expression applied to each item, as text, where @item stands for the current item.
+pnPlaces	The number of decimal places.
+paReplacements	The list of replacements, used one by one.
+pcOld	The old text, to be replaced.
+pcLang	A language name or code, as text.
+pcWord	A word, as text.
+pcReplacement	The replacement text.
+pcChars	A text made of the characters to work with.
+pcSuffix	The suffix, as text.
+pcNewChar	The new character, as text.
+pacKeys	A list of keys, as text.
+paNumbers	A list of numbers.
+pItem1	The first item.
+pItem2	The second item.
+pOther	The other value, to compare with or combine with.
+pcAction	The expression to apply, as text, where @item stands for the current item.
+pVal	A value.

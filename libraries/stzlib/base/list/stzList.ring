@@ -7204,7 +7204,7 @@ class stzList from stzObject
 		_oSbcsSplitter_ = new stzListSplits(This)
 		return _oSbcsSplitter_.SplitBeforeCS(pItem, pCaseSensitive)
 
-	# Is meant to split the list before each occurrence of the item.
+	# Splits the list before each occurrence of the item, but a known defect makes the call do nothing today.
 	#
 	#   pItem      the item that opens each part
 	#   returns    nothing today
@@ -7228,7 +7228,7 @@ class stzList from stzObject
 		_oSafcsSplitter_ = new stzListSplits(This)
 		return _oSafcsSplitter_.SplitAfterCS(pItem, pCaseSensitive)
 
-	# Is meant to split the list after each occurrence of the item.
+	# Splits the list after each occurrence of the item, but a known defect makes the call do nothing today.
 	#
 	#   pItem      the item that closes each part
 	#   returns    nothing today
@@ -9890,7 +9890,7 @@ class stzList from stzObject
 		next
 		return _aResult_
 
-	# Returns, for every occurrence of the item, the n items just before it and the n just after it, as [ before, after ].
+	# Returns, for each occurrence of the item, the n items before it and the n after it, as [ before, after ].
 	#
 	#   pItem      the item to look around
 	#   pUpTo      how many items on each side; :UpToNItems = n is accepted
