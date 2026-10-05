@@ -1,0 +1,15 @@
+{
+ "brief": "Draws several series of numbers over the same categories as grouped bars, with a legend.",
+ "detail": "The data is a hash list of series, each series a hash list of category = number pairs, such as :Sales = [ :Q1 = 25, :Q2 = 35 ]. Categories come from the first series. ToString draws one cluster of bars per category with a different character for each series and a legend line; ToSVG and ToPNG draw coloured bars and a legend, with no values above the bars. It inherits the axis, label and size settings of stzBarPlot. The average line raises an error in every form, SetLegendLayout is obeyed only by ToStringInRing, and AddValues draws nothing in the text picture; see the warnings. Gallery: doc/gallery/stzMBarPlot/quarters.png (three series over four quarters), seen right by stzlib-docs visual pass (a model reading the PNG), 2026-10-05, not a person; twoseries.png (two series over six months), seen uncertain by the same pass because the legend touches the last bar; terminal.txt is the text picture, read as text and judged right. The pixel labels are in lower case, the text ones capitalised.",
+ "receiver": "o1 = new stzMBarPlot([ :Sales = [ :Q1 = 25, :Q2 = 35 ], :Costs = [ :Q1 = 15, :Q2 = 20 ] ])",
+ "example": [
+  "? o1.SeriesCount()",
+  "#--> 2",
+  "? @@( o1.Categories() )",
+  "#--> [ \"q1\", \"q2\" ]"
+ ],
+ "see": [
+  "stzBarPlot",
+  "stzHBarPlot"
+ ]
+}

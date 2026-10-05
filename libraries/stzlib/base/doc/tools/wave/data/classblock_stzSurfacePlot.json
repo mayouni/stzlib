@@ -1,0 +1,13 @@
+{
+ "brief": "Draws parts of a whole as a treemap whose cell areas are proportional to the values: as text, SVG or PNG.",
+ "detail": "Despite its name it draws no function surface: it is a composition plot. The data is positive numbers, or label = number pairs, and the largest values get the largest cells. ToString draws box-drawing borders with a name centred in each cell; ToSVG and ToPNG draw coloured rectangles with the name and the share of the total, which :ShowValues = 0 removes. Setters answer the plot itself so calls can be chained, unlike the other plot classes. In the text picture a name wider than its cell is cut at both ends (Support reads upp.), values and percentages together run into each other, and in the pixel picture parts too small for a label get none; see the warnings. Gallery: doc/gallery/stzSurfacePlot/budget.png (five departments), seen right by stzlib-docs visual pass (a model reading the PNG), 2026-10-05, not a person; manyparts.png (twelve parts, seven with no label), seen uncertain by the same pass; terminal.txt is the text picture, read as text and judged wrong because a label is clipped.",
+ "receiver": "o1 = new stzSurfacePlot([ :Eng = 45, :Sales = 25, :Admin = 10 ])",
+ "example": [
+  "? o1.Sum([ 1, 2, 3 ])",
+  "#--> 6"
+ ],
+ "see": [
+  "stzBarPlot",
+  "stzHistogram"
+ ]
+}

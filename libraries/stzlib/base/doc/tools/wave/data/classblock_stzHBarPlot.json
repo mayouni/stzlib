@@ -1,0 +1,15 @@
+{
+ "brief": "Draws a list of numbers, or labelled numbers, as horizontal bars with their labels at the left.",
+ "detail": "It is stzBarPlot turned on its side: one row per bar, the longest bar as long as the width, the labels in a column at the left. It inherits the data, the value, percentage and character settings, ToSVG and ToPNG from stzBarPlot and overrides only the size and layout settings and ToString. The average line is not drawn in the text picture, SetBarHeight spaces the bars out instead of thickening them, and SetBarInterSpace and SetHeight change nothing; see their warnings. In the pixel pictures the label column has a fixed width, so a long label is clipped at the left edge. Gallery: doc/gallery/stzHBarPlot/ranked.png (six bars with values), seen right by stzlib-docs visual pass (a model reading the PNG), 2026-10-05, not a person; longlabels.png (long labels clipped at the left edge), seen wrong by the same pass; terminal.txt is the text picture, read as text and judged right.",
+ "receiver": "o1 = new stzHBarPlot([ :Jan = 34, :Feb = 58, :Mar = 47 ])",
+ "example": [
+  "? @@( o1.Size() )",
+  "#--> [ 12, 18 ]",
+  "? o1.PlotKind()",
+  "#--> hbar"
+ ],
+ "see": [
+  "stzBarPlot",
+  "stzMBarPlot"
+ ]
+}

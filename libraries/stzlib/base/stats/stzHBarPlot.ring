@@ -1,6 +1,25 @@
 ﻿
 class stzHBarChart from stzHBarPlot
 
+# Draws a list of numbers, or labelled numbers, as horizontal bars with their labels at the left.
+#
+# It is stzBarPlot turned on its side: one row per bar, the longest bar as long as the width, the
+# labels in a column at the left. It inherits the data, the value, percentage and character
+# settings, ToSVG and ToPNG from stzBarPlot and overrides only the size and layout settings and
+# ToString. The average line is not drawn in the text picture, SetBarHeight spaces the bars out
+# instead of thickening them, and SetBarInterSpace and SetHeight change nothing; see their warnings.
+# In the pixel pictures the label column has a fixed width, so a long label is clipped at the left
+# edge. Gallery: doc/gallery/stzHBarPlot/ranked.png (six bars with values), seen right by stzlib-
+# docs visual pass (a model reading the PNG), 2026-10-05, not a person; longlabels.png (long labels
+# clipped at the left edge), seen wrong by the same pass; terminal.txt is the text picture, read as
+# text and judged right.
+#
+#   receiver   o1 = new stzHBarPlot([ :Jan = 34, :Feb = 58, :Mar = 47 ])
+#   example    ? @@( o1.Size() )
+#              #--> [ 12, 18 ]
+#              ? o1.PlotKind()
+#              #--> hbar
+#   see        stzBarPlot, stzMBarPlot
 class stzHBarPlot from stzBarPlot
 
 	# Data properties (inherited from stzBarChart)
@@ -42,89 +61,198 @@ class stzHBarPlot from stzBarPlot
 	@nHAxisHeight = 1
 	@nAxisPadding = 1
 
-	# Override configuration methods for horizontal orientation
-
-	# The pixel backends (GR6) are inherited whole; only the ORIENTATION
-	# differs, and saying so here is the entire override. Placed AFTER the
-	# attribute block on purpose: in Ring, a class's attributes must all
-	# precede its first method, and putting this at the top of the class
-	# quietly turned every declaration below it into dead code.
+	# Returns the kind of plot, which the pixel output uses to lay its bars out sideways.
+	#
+	#   returns    the symbol :HBar, as the text "hbar"
+	#   note       the vertical plot answers :VBar
+	#   see        ToCanvasQ
+	#@ aka  Override configuration methods for horizontal orientation
 	def PlotKind()
 		return :HBar
 
+	# Sets how wide the longest bar may be and how tall the plot is asked to be; only the width changes the picture.
+	#
+	#   nWidth     The length of the longest bar in characters, raised to 20 when smaller
+	#   nHeight    The height in rows, raised to 4 when smaller
+	#   returns    nothing; the plot changes
+	#   note       the plot is as tall as its bars need
+	#   warning    The height is stored but the picture has one row per bar whatever it says
+	#   see        Size, SetWidth, SetHeight
 	def SetSize(nWidth, nHeight)
 		@nWidth = max([20, nWidth])
 		@nHeight = max([4, nHeight])
 
+	# Returns the height and the width the plot is set to, in that order.
+	#
+	#   returns    a list of two numbers [ height, width ]
+	#   note       the defaults are [ 12, 18 ]
+	#   see        SizeHV, SizeVH, SetSize
 	def Size()
 		return [@nHeight, @nWidth]
 
+		# Returns the width and the height the plot is set to, in that order.
+		#
+		#   returns    a list of two numbers [ width, height ]
+		#   note       the defaults are [ 18, 12 ]
+		#   see        Size, SizeVH
 		def SizeHV()
 			return [@nWidth, @nHeight]
 
+		# Returns the height and the width the plot is set to, in that order.
+		#
+		#   returns    a list of two numbers [ height, width ]
+		#   note       the same answer as Size
+		#   see        Size, SizeHV
 		def SizeVH()
 			return [@nHeight, @nWidth]
 
+	# Sets how many rows each bar takes; the bar itself stays one row high and the extra rows are left blank under it.
+	#
+	#   nHeight    The rows given to each bar, raised to 1 when smaller
+	#   returns    nothing; the plot changes
+	#   note       the default is 1
+	#   warning    The bar is not drawn thicker: SetBarHeight(2) spaces the bars out, and the Ring
+	#              renderer ToStringInRing puts the blank rows after the last bar instead
+	#   see        SetMaxHeight
 	def SetBarHeight(nHeight)
 		@nBarHeight = max([1, nHeight])
 
+	# Stores the gap between two bars, which the horizontal picture never reads, so it changes nothing today.
+	#
+	#   n          The gap in rows, raised to 0 when negative
+	#   returns    nothing; the value is only remembered
+	#   note       use SetBarHeight to space the bars out
+	#   warning    The engine renderer and the Ring renderer both ignore it for horizontal bars
+	#   see        SetBarHeight
 	def SetBarInterSpace(n)
 		@nBarInterSpace = max([0, n])
 
+		# Stores the gap between two bars, under another name, which changes nothing today.
+		#
+		#   n          The gap in rows, raised to 0 when negative
+		#   returns    nothing; the value is only remembered
+		#   warning    The horizontal picture never reads it
+		#   see        SetBarInterSpace
 		def SetBarSpace(n)
 			This.SetBarInterSpace(n)
 
+		# Stores the gap between two bars, in the other word order, which changes nothing today.
+		#
+		#   n          The gap in rows, raised to 0 when negative
+		#   returns    nothing; the value is only remembered
+		#   warning    The horizontal picture never reads it
+		#   see        SetBarInterSpace
 		def SetInterBarSpace(n)
 			This.SetBarInterSpace(n)
 
+	# Sets the length of the longest bar in characters; the other bars are drawn in proportion to it.
+	#
+	#   n          The length of the longest bar, raised to 10 when smaller
+	#   returns    nothing; the plot changes
+	#   note       the default is 18
+	#   see        Width, SetSize
 	def SetWidth(n)
 		@nWidth = max([10, n])
 
+	# Shows or hides the horizontal axis and the vertical axis, and shows the bar labels only while the vertical axis is shown.
+	#
+	#   bHShow     1 to show the horizontal axis at the bottom, 0 to hide it
+	#   bVShow     1 to show the vertical axis and the labels, 0 to hide both
+	#   returns    nothing; the plot changes
+	#   note       with 0, 0 only the bars remain
+	#   see        SetVAxisLabels, SetHAxis
 	def SetHVAxis(bHShow, bVShow)
 		@bShowHAxis = bHShow
 
 		@bShowVAxis = bVShow
 		@bShowAxisLabels = bVShow
 
+	# Returns how long the longest bar is set to be, in characters.
+	#
+	#   returns    a number
+	#   note       the default is 18
+	#   see        SetWidth, SetSize
 	def Width()
 		return @nWidth
 
+	# Stores a height that the horizontal picture never reads, so it changes nothing today.
+	#
+	#   n          The height in rows, raised to 4 when smaller
+	#   returns    nothing; only Height answers differently
+	#   note       Height() answers the number set here
+	#   warning    The picture has one row per bar, plus the axis rows, whatever this says
+	#   see        Height, SetBarHeight
 	def SetHeight(n)  
 		@nHeight = max([4, n])
 
+	# Returns the height the plot is set to, which the picture does not use.
+	#
+	#   returns    a number
+	#   note       the default is 12
+	#   see        SetHeight, SetSize
 	def Height()
 		return @nHeight
 
+	# Limits how many bars are drawn; the bars after the limit are left out without a message.
+	#
+	#   n          The most bars to draw, raised to 3 when smaller
+	#   returns    nothing; the plot changes
+	#   note       the default is 30
+	#   warning    The omitted bars are lost silently, although the largest value still sets the
+	#              scale
+	#   see        MaxHeight, SetBarHeight
 	def SetMaxHeight(n)
 		@nMaxHeight = max([3, n])
 
+	# Returns the most bars the plot draws.
+	#
+	#   returns    a number
+	#   note       the default is 30
+	#   see        SetMaxHeight
 	def MaxHeight()
 		return @nMaxHeight
 
+	# Shows or hides the labels at the left of the bars.
+	#
+	#   bShow      1 to show the labels, 0 to hide them
+	#   returns    nothing; the plot changes
+	#   note       the vertical axis stays when the labels are hidden
+	#   see        AddVAxisLabels, SetHVAxis
 	def SetVAxisLabels(bShow)
 		This.SetAxisLabels(bShow)
 
+		# Shows or hides the labels at the left of the bars, although the name says Add.
+		#
+		#   bShow      1 to show the labels, 0 to hide them
+		#   returns    nothing; the plot changes
+		#   note       it takes a flag, so AddVAxisLabels(0) hides them
+		#   see        SetVAxisLabels
 		def AddVAxisLabels(bShow)
 			This.SetAxisLabels(bShow)
 
+		# Hides the labels at the left of the bars.
+		#
+		#   returns    nothing; the plot changes
+		#   see        SetVAxisLabels
 		def WithoutAxisLabels()
 			This.SetAxisLabels(0)
 
+		# Hides the labels at the left of the bars, under the V name.
+		#
+		#   returns    nothing; the plot changes
+		#   see        WithoutAxisLabels
 		def WithoutVAxisLabels()
 			This.SetAxisLabels(0)
 
-	# --- Horizontal Layout Calculation ---
-
-	# THE HORIZONTAL PICTURE, rendered by the engine.
+	# Returns the plot as text with one row of block characters per bar, the labels at the left and an arrowed axis below.
 	#
-	# THIS OVERRIDE IS LOAD-BEARING. stzHBarPlot inherits from stzBarPlot, and when
-	# the vertical ToString() moved to the engine this class silently inherited it --
-	# so horizontal plots rendered as VERTICAL ones. Nothing errored: the examples
-	# only check for errors and the subclass guard did not compare pictures, so a
-	# wrong plot sailed through. A horizontal plot is not the vertical one transposed
-	# -- different bar glyph, labels down the left, one row per bar, different axis
-	# columns -- which is why this class overrode nearly every drawing routine in the
-	# first place.
+	#   returns    a multi-line string
+	#   note       the longest bar fills the width and a label longer than the room is cut and ended
+	#              with two dots
+	#   warning    Raises an error when the engine cannot render the plot
+	#   see        Show, ToStringInRing, ToSVG
+	# --- Horizontal Layout Calculation ---
+	#@ aka  THE HORIZONTAL PICTURE, rendered by the engine.
 	def ToString()
 		_cLabels_ = ""
 		_nL_ = len(@acLabels)
@@ -156,8 +284,13 @@ class stzHBarPlot from stzBarPlot
 		ok
 		return _cOut_
 
-	# The Ring renderer this was ported from, kept so the guard can prove the two
-	# agree character for character.
+	# Returns the horizontal text picture drawn by the Ring code the engine renderer was ported from.
+	#
+	#   returns    a multi-line string
+	#   note       slower than ToString and kept for the parity guard
+	#   warning    The two renderers differ once SetBarHeight is above 1
+	#   see        ToString
+	#@ aka  The Ring renderer this was ported from, kept so the guard can prove the two agree character for character.
 	def ToStringInRing()
 		_oLayout_ = _calculateLayout()
 		_initCanvas(_oLayout_[:total_width], _oLayout_[:total_height])

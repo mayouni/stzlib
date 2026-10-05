@@ -3,6 +3,28 @@
 #  HISTOGRAM CHART CLASS  #
 #-------------------------#
 
+# Bins a list of numbers into equal-width classes and draws the counts, or another aggregate, as touching bars.
+#
+# Built from raw measurements, it cuts the range into 5 or more bins by Sturges' rule, or into the
+# number SetBinCount gives, and each bar shows how many values fall in its bin; UseSum, UseAverage,
+# UseMin and UseMax make it show another aggregate. ToString draws the text picture (bin edges in
+# two rows under the bars), ToSVG and ToPNG the pixel picture; Mean, StandardDeviation, Median, Mode
+# and DataCount describe the data. The text picture is drawn by the engine, except when statistics
+# are on or the horizontal axis is off, when the slower Ring renderer takes over and obeys
+# SetHeight, SetMaxWidth and AddValues, which the engine route ignores. SetBinRange gives the wrong
+# number of bins, SetAggregation with an unknown name leaves the histogram unusable, and the X and Y
+# axis names are the reverse of the usual ones; see the warnings. Gallery:
+# doc/gallery/stzHistogram/normal.png (200 values, 9 bins), bins20.png (20 bins) and sums.png
+# (UseSum), each with its script, seen right by stzlib-docs visual pass (a model reading the PNG),
+# 2026-10-05, not a person; terminal.txt is the text picture, read as text and judged right.
+#
+#   receiver   o1 = new stzHistogram([ 12, 15, 18, 22, 23, 25, 26, 27, 28, 30, 31, 33, 35, 38, 41,
+#              45, 52, 58, 61, 70 ])
+#   example    ? o1.DataCount()
+#              #--> 20
+#              ? @@( o1.Mode() )
+#              #--> [ 21.67, 31.33 ]
+#   see        stzBarPlot, stzDataSet, stzListOfNumbers
 class stzHistogram from stzObject
 
 	@bShowVAxis = 1      # Vertical axis (was Y-axis)
@@ -55,6 +77,15 @@ class stzHistogram from stzObject
 	@cAggregationType = "frequency"  # frequency, sum, average, min, max
 	@bShowValues = 0 # General flag to control value display for any aggregation
 
+	# Bins a list of numbers into equal-width classes, 5 or more by Sturges' rule, and prepares them to be drawn as bars.
+	#
+	#   paData     The raw measurements, a list of numbers
+	#   returns    nothing; the histogram is built
+	#   note       text or a non-list raises "paData must be a list of numbers"
+	#   warning    An empty list raises "paData must contain only numbers", which does not say it is
+	#              empty, and a list of equal numbers gives a last bin whose upper edge is below its
+	#              lower edge
+	#   see        SetBinCount, DataCount
 	def init(paData)
 		
 		# For histogram, we expect a simple list of numbers (raw data)
@@ -72,22 +103,26 @@ class stzHistogram from stzObject
 		_calculateBins()
 		_processBinnedData()
 
-	# THE ONE PLACE A BIN EDGE BECOMES TEXT.
+	# Draws the bin counts and the bin labels as touching bars on a new canvas and answers it, so the histogram can become SVG or PNG.
 	#
-	# Three places used to format edges and they disagreed: _calculateBins built
-	# labels with CompactForm, _calculateLayout MEASURED them with RoundN, and
-	# _drawLabels drew CompactForm again. So the layout reserved room for "3.4"
-	# while the drawer wrote "3.40000000004", and the labels overlapped.
-	#
-	# ROUND FIRST, THEN COMPACT. Rounding kills the float artefact that makes an
-	# edge print as 3.40000000004, and compacting keeps a large edge short (2.7K).
-	#-- the PIXEL tiers (GR6c) --------------------------------------------
-	# The SAME bins the terminal draws -- counts and labels come from the
-	# binning, so the two pictures cannot disagree about the distribution.
-	# Bars touch, because the bins do.
+	#   paOptions   A list of options [ :Width = , :Height = , :Title = , :Font = an stzFont, :Color
+	#               = , :Background = , :Grid = , :ShowValues = , :Min = , :Max = ]
+	#   returns     an stzCanvas holding the picture
+	#   note        the count above each bar is written unless :ShowValues = 0
+	#   warning     The bins, the aggregation and the labels carry over, while percentages, axis
+	#               switches, characters and spacing do not
+	#   see         ToSVG, ToPNG
+	#@ aka  THE ONE PLACE A BIN EDGE BECOMES TEXT.
 	def ToCanvasQ(paOptions)
 		return StzPlotCanvasQ(:Histogram, @aBinCounts, @aBinLabels, paOptions)
 
+	# Returns the histogram as SVG text, with no graphics device needed.
+	#
+	#   paOptions   A list of options [ :Width = , :Height = , :Title = , :Font = an stzFont, ... ],
+	#               as for ToCanvasQ
+	#   returns     the SVG document as a string
+	#   note        the default size is 900 by 500 and text needs a Font
+	#   see         ToCanvasQ, ToPNG
 	def ToSVG(paOptions)
 		# the canvas is TRANSIENT: its engine scene (a target texture on the GPU
 		# tier, vertex buffers, the command list) is freed once the answer is taken --
@@ -97,6 +132,13 @@ class stzHistogram from stzObject
 		_oCv_.Free()
 		return _cOut_
 
+	# Draws the histogram on the graphics device and returns the PNG bytes, writing them to a file when a path is given.
+	#
+	#   pcPath      The file to write, or an empty text to write none
+	#   paOptions   A list of options [ :Width = , :Height = , :Title = , :Font = an stzFont, ... ],
+	#               as for ToCanvasQ
+	#   returns     the PNG bytes as a string, empty when no device is available
+	#   see         ToSVG, ToCanvasQ
 	def ToPNG(pcPath, paOptions)
 		# the canvas is TRANSIENT: its engine scene (a target texture on the GPU
 		# tier, vertex buffers, the command list) is freed once the answer is taken --
@@ -173,7 +215,15 @@ class stzHistogram from stzObject
 		
 		return 0  # Should not happen with valid data
 
-	# Configuration methods
+	# Splits the data into n equal-width bins again; a value of 0 or less is ignored.
+	#
+	#   n          The number of bins
+	#   returns    nothing; the bins and the picture change
+	#   note       the default is 5 or more by Sturges' rule
+	#   warning    A count that is not a whole number drops the largest values, because the last bin
+	#              then ends before the maximum
+	#   see        SetBinRange, SetBarCount
+	#@ aka  Configuration methods
 	def SetBinCount(n)
 		if n > 0
 			@nBinCount = n
@@ -181,18 +231,47 @@ class stzHistogram from stzObject
 			_processBinnedData()
 		ok
 
+		# Splits the data into n equal-width bins, under the bar name.
+		#
+		#   n          The number of bins, ignored when 0 or less
+		#   returns    nothing; the bins and the picture change
+		#   see        SetBinCount
 		def SetBarCount(n)
 			This.SetBinCount(n)
 
+		# Splits the data into n equal-width bins, under the class name of statistics.
+		#
+		#   n          The number of bins, ignored when 0 or less
+		#   returns    nothing; the bins and the picture change
+		#   see        SetBinCount
 		def SetClassCount(n)
 			This.SetBinCount(n)
 
+		# Splits the data into n equal-width bins, worded as a division into classes.
+		#
+		#   n          The number of bins, ignored when 0 or less
+		#   returns    nothing; the bins and the picture change
+		#   see        SetBinCount
 		def DivideToNClasses(n)
 			This.SetBinCount(n)
 
+		# Splits the data into n equal-width bins, worded as a division into groups.
+		#
+		#   n          The number of bins, ignored when 0 or less
+		#   returns    nothing; the bins and the picture change
+		#   see        SetBinCount
 		def DivideToNGroups(n)
 			This.SetBinCount(n)
 
+	# Cuts the data into ceil((largest count - smallest count) / n) bins, usually one, instead of bins n wide.
+	#
+	#   n          The wanted width of a bin, ignored when 0 or less
+	#   returns    nothing; the bins change, wrongly
+	#   note       use SetBinCount for a number of bins
+	#   warning    The bin count is worked out from the range of the bar heights, not of the data,
+	#              so SetBinRange(10) on values from 12 to 70 gives one bin and SetBinRange(3) gives
+	#              two
+	#   see        SetBinCount
 	def SetBinRange(n)
 		if n > 0
 			@nBinRange = n
@@ -201,151 +280,391 @@ class stzHistogram from stzObject
 			_processBinnedData()
 		ok
 
+		# Cuts the data into the same wrong number of classes as SetBinRange does, usually one, instead of classes n wide.
+		#
+		#   n          The wanted width of a class, ignored when 0 or less
+		#   returns    nothing; the bins change, wrongly
+		#   warning    Same cause: the count comes from the bar heights, so the result is one or two
+		#              bins
+		#   see        SetBinRange
 		def SetClassRange(n)
 			This.SetBinRange(n)
 
+	# Sets the height the Ring renderer draws, which the engine renderer fixes at 10 rows and so ignores.
+	#
+	#   n          The height in rows
+	#   returns    nothing; only the Ring renderer changes
+	#   note       the default is 10
+	#   warning    The usual ToString ignores it, and obeys it only when statistics are on or the
+	#              horizontal axis is off, since those use the Ring renderer
+	#   see        ToStringInRing
 	def SetHeight(n) #TODO //n should be the number of positions in the bar
 		@nHeight = n
 
+	# Shows or hides the count above each bar, but only the Ring renderer draws it.
+	#
+	#   bShow      1 to write the counts, 0 to stop
+	#   returns    nothing; only the Ring renderer changes
+	#   note       the counts appear when statistics are on or the horizontal axis is off
+	#   warning    ToString never draws the counts because the engine renderer reads a flag nothing
+	#              sets, so use AddPercent or ToStringInRing
+	#   see        AddValues, SetPercent
 	def SetValues(bShow)
 		@bShowValues = bShow
 	
+		# Turns the count above each bar on, but only the Ring renderer draws it.
+		#
+		#   returns    nothing; only the Ring renderer changes
+		#   warning    ToString never draws the counts
+		#   see        SetValues
 		def IncludeValues()
 			@bShowValues = 1
 
+		# Turns the count above each bar on, but only the Ring renderer draws it.
+		#
+		#   returns    nothing; only the Ring renderer changes
+		#   warning    ToString never draws the counts
+		#   see        SetValues
 		def AddValues()
 			@bShowValues = 1
 
+		# Turns the count above each bar off.
+		#
+		#   returns    nothing; the flag changes
+		#   see        SetValues
 		def WithoutValues()
 			@bShowValues = 0
 
+	# Chooses what each bar shows: the count of values in the bin or their sum, mean, smallest or largest.
+	#
+	#   cType      The aggregation, in lower case: "frequency", "sum", "average", "min" or "max"
+	#   returns    nothing; the bars change
+	#   note       an empty bin shows 0
+	#   warning    Any other text, "SUM" with capitals included, raises R2 from max() and leaves the
+	#              histogram empty, so ToString then raises too
+	#   see        AggregationTypes, AggregationType
 	def SetAggregation(cType)
 		@cAggregationType = cType
 		_processBinnedData()
 
+	# Returns which aggregation the bars show now.
+	#
+	#   returns    the text "frequency", "sum", "average", "min" or "max"
+	#   note       the default is "frequency"
+	#   see        SetAggregation, AggregationTypes
 	def AggregationType()
 		return @cAggregationType
 
+		# Returns which aggregation the bars show now, under a shorter name.
+		#
+		#   returns    the text "frequency", "sum", "average", "min" or "max"
+		#   see        AggregationType
 		def Aggregation()
 			return @cAggregationType
 
+	# Returns the five aggregations a histogram accepts.
+	#
+	#   returns    a list of text [ "frequency", "sum", "average", "min", "max" ]
+	#   see        SetAggregation
 	def AggregationTypes()
 		return [ "frequency", "sum", "average", "min", "max" ]
 
+	# Makes each bar show how many values fall in its bin.
+	#
+	#   returns    nothing; the bars change
+	#   note       this is the default
+	#   see        SetAggregation, UseSum
 	def UseFrequency()
 		@cAggregationType = "frequency"
 		_processBinnedData()
 
+		# Makes each bar show how many values fall in its bin, under a shorter name.
+		#
+		#   returns    nothing; the bars change
+		#   see        UseFrequency
 		def UseFreq()
 			This.UseFrequency()
 
+	# Makes each bar show the sum of the values in its bin.
+	#
+	#   returns    nothing; the bars change
+	#   note       Mode then names the bin with the largest sum
+	#   see        SetAggregation, UseFrequency
 	def UseSum()
 		@cAggregationType = "sum"
 		_processBinnedData()
 
+	# Makes each bar show the mean of the values in its bin, 0 for an empty bin.
+	#
+	#   returns    nothing; the bars change
+	#   see        SetAggregation, UseSum
 	def UseAverage()
 		@cAggregationType = "average"
 		_processBinnedData()
 
+	# Makes each bar show the smallest value in its bin, 0 for an empty bin.
+	#
+	#   returns    nothing; the bars change
+	#   see        SetAggregation, UseMax
 	def UseMin()
 		@cAggregationType = "min"
 		_processBinnedData()
 
+	# Makes each bar show the largest value in its bin, 0 for an empty bin.
+	#
+	#   returns    nothing; the bars change
+	#   see        SetAggregation, UseMin
 	def UseMax()
 		@cAggregationType = "max"
 		_processBinnedData()
 
+	# Shows or hides four lines under the picture giving the mean, standard deviation, median and count of the data.
+	#
+	#   bShow      1 to add the lines, 0 to remove them
+	#   returns    nothing; the picture changes
+	#   note       it switches the drawing to the Ring renderer, which obeys SetHeight and SetValues
+	#   see        AddStats, Mean
 	def SetStats(bShow) # Displays a recap of stats line at the bottom
 		@bShowStats = bShow
 
+		# Adds four lines under the picture giving the mean, standard deviation, median and count of the data.
+		#
+		#   returns    nothing; the picture changes
+		#   see        SetStats
 		def AddStats()
 			@bShowStats = 1
 
+		# Adds the statistics lines under the picture, under the Include name.
+		#
+		#   returns    nothing; the picture changes
+		#   see        SetStats
 		def IncludeStats()
 			@bShowStats = 1
 
-	# Vertical axis methods (with X aliases for compatibility)
+	# Shows or hides the vertical axis with its arrow, the one that runs up beside the bars.
+	#
+	#   bShow      1 to show it, 0 to hide it
+	#   returns    nothing; the picture changes
+	#   note       the bars and labels keep their place
+	#   see        AddVAxis, WithoutVAxis, SetHAxis
+	#@ aka  Vertical axis methods (with X aliases for compatibility)
 	def SetVAxis(bShow)
 		@bShowVAxis = bShow
 
+		# Shows the vertical axis with its arrow.
+		#
+		#   returns    nothing; the picture changes
+		#   see        SetVAxis
 		def AddVAxis()
 			@bShowVAxis = 1
 
+		# Shows the vertical axis with its arrow, under the Include name.
+		#
+		#   returns    nothing; the picture changes
+		#   see        SetVAxis
 		def IncludeVAxis()
 			@bShowVAxis = 1
 
+		# Hides the vertical axis and its arrow.
+		#
+		#   returns    nothing; the picture changes
+		#   see        SetVAxis
 		def WithoutVAxis()
 			@bShowVAxis = 0
 
-		# X-axis aliases for backward compatibility
+		# Shows or hides the VERTICAL axis, under the X name kept for old code.
+		#
+		#   bShow      1 to show it, 0 to hide it
+		#   returns    nothing; the picture changes
+		#   note       SetYAxis is the horizontal one
+		#   warning    The X name here means the vertical axis, the reverse of the usual X for the
+		#              horizontal axis
+		#   see        SetVAxis
+		#@ aka  X-axis aliases for backward compatibility
 		def SetXAxis(bShow)
 			This.SetVAxis(bShow)
 
+		# Shows the VERTICAL axis, under the X name kept for old code.
+		#
+		#   returns    nothing; the picture changes
+		#   warning    The X name here means the vertical axis
+		#   see        SetXAxis
 		def AddXAxis()
 			This.AddVAxis()
 
+		# Shows the VERTICAL axis, under the X name and the Include name.
+		#
+		#   returns    nothing; the picture changes
+		#   warning    The X name here means the vertical axis
+		#   see        SetXAxis
 		def IncludeXAxis()
 			This.IncludeVAxis()
 
+		# Hides the VERTICAL axis, under the X name kept for old code.
+		#
+		#   returns    nothing; the picture changes
+		#   warning    The X name here means the vertical axis
+		#   see        SetXAxis
 		def WithoutXAxis()
 			This.WithoutVAxis()
 
-	# Horizontal axis methods (with Y aliases for compatibility)
+	# Shows or hides the horizontal axis line under the bars, with its arrow and the origin mark.
+	#
+	#   bShow      1 to show it, 0 to hide it
+	#   returns    nothing; the picture changes
+	#   note       hiding it switches the drawing to the Ring renderer and keeps the bin labels
+	#   see        AddHAxis, WithoutHAxis, SetVAxis
+	#@ aka  Horizontal axis methods (with Y aliases for compatibility)
 	def SetHAxis(bShow)
 		@bShowHAxis = bShow
 
+		# Shows the horizontal axis line under the bars.
+		#
+		#   returns    nothing; the picture changes
+		#   see        SetHAxis
 		def AddHAxis()
 			@bShowHAxis = 1
 
+		# Shows the horizontal axis line under the bars, under the Include name.
+		#
+		#   returns    nothing; the picture changes
+		#   see        SetHAxis
 		def IncludeHAxis()
 			@bShowHAxis = 1
 
+		# Hides the horizontal axis line, its arrow and its origin mark.
+		#
+		#   returns    nothing; the picture changes
+		#   see        SetHAxis
 		def WithoutHAxis()
 			@bShowHAxis = 0
 
-		# Y-axis aliases for backward compatibility
+		# Shows or hides the HORIZONTAL axis, under the Y name kept for old code.
+		#
+		#   bShow      1 to show it, 0 to hide it
+		#   returns    nothing; the picture changes
+		#   note       SetXAxis is the vertical one
+		#   warning    The Y name here means the horizontal axis, the reverse of the usual Y for the
+		#              vertical axis
+		#   see        SetHAxis
+		#@ aka  Y-axis aliases for backward compatibility
 		def SetYAxis(bShow)
 			This.SetHAxis(bShow)
 
+		# Shows the HORIZONTAL axis, under the Y name kept for old code.
+		#
+		#   returns    nothing; the picture changes
+		#   warning    The Y name here means the horizontal axis
+		#   see        SetYAxis
 		def AddYAxis()
 			This.AddHAxis()
 
+		# Shows the HORIZONTAL axis, under the Y name and the Include name.
+		#
+		#   returns    nothing; the picture changes
+		#   warning    The Y name here means the horizontal axis
+		#   see        SetYAxis
 		def IncludeYAxis()
 			This.IncludeHAxis()
 
+		# Hides the HORIZONTAL axis, under the Y name kept for old code.
+		#
+		#   returns    nothing; the picture changes
+		#   warning    The Y name here means the horizontal axis
+		#   see        SetYAxis
 		def WithoutYAxis()
 			This.WithoutHAxis()
 
+	# Shows or hides the two rows of bin labels under the bars, each giving a bin's lower and upper edge.
+	#
+	#   bShow      1 to show the labels, 0 to hide them
+	#   returns    nothing; the picture changes
+	#   note       an edge is rounded to one decimal
+	#   see        AddLabels, WithoutLabels
 	def SetLabels(bShow)
 		@bShowLabels = bShow
 
+		# Shows the two rows of bin labels under the bars.
+		#
+		#   returns    nothing; the picture changes
+		#   see        SetLabels
 		def AddLabels()
 			@bShowLabels = 1
 
+		# Shows the two rows of bin labels under the bars, under the Include name.
+		#
+		#   returns    nothing; the picture changes
+		#   see        SetLabels
 		def IncludeLabels()
 			@bShowLabels = 1
 
+		# Hides the two rows of bin labels under the bars.
+		#
+		#   returns    nothing; the picture changes
+		#   see        SetLabels
 		def WithoutLabels()
 			@bShowLabels = 0
 
+	# Shows or hides each bar's share of all the data above it, such as 40%.
+	#
+	#   bShow      1 to write the percentages, 0 to stop
+	#   returns    nothing; the picture changes
+	#   note       the share is of the total of all the bars, so after UseSum it is each bin's share
+	#              of the overall sum
+	#   see        AddPercent, SetValues
 	def SetPercent(bShow)
 		@bShowPercent = bShow
 
+		# Writes each bar's share of all the data above it.
+		#
+		#   returns    nothing; the picture changes
+		#   see        SetPercent
 		def AddPercent()
 			@bShowPercent = 1
 
+		# Writes each bar's share of all the data above it, under the Include name.
+		#
+		#   returns    nothing; the picture changes
+		#   see        SetPercent
 		def IncludePercent()
 			@bShowPercent = 1
 
+	# Sets how many characters wide each bar is drawn.
+	#
+	#   nWidth     The width of a bar in characters, raised to 1 when smaller
+	#   returns    nothing; the picture changes
+	#   note       the default is 2
+	#   see        SetBarInterSpace
 	def SetBarWidth(nWidth)
 		@nBarWidth = max([1, nWidth])
 
+	# Sets the widest picture the Ring renderer accepts, which the engine renderer does not check.
+	#
+	#   nWidth     The largest total width in characters
+	#   returns    nothing; the limit changes
+	#   note       the default is 132
+	#   warning    The usual ToString ignores it, while a wider Ring-rendered picture (statistics
+	#              on, or no horizontal axis) raises "Histogram width (n) exceeds maximum (m)"
+	#   see        SetStats
 	def SetMaxWidth(nWidth)
 		@nMaxWidth = nWidth
 
+	# Sets the blank columns between neighbouring bars, which add to the label spacing.
+	#
+	#   n          The number of blank columns
+	#   returns    nothing; the picture changes
+	#   note       the default is 1
+	#   see        SetLabelInterSpace, SetBarWidth
 	def SetBarInterSpace(n)
 		@nBarInterSpace = n  # 0 = auto-calculate, >0 = fixed spacing
 
+	# Sets the character the bars are drawn with; a text of more than one character raises an error.
+	#
+	#   c          The single character to draw bars with
+	#   returns    nothing; the picture changes
+	#   note       the default is a full block
+	#   warning    Raises "Incorrect param type! c must be a char." for a longer text
+	#   see        SetFinalBarChar
 	def SetBarChar(c)
 		if CheckParams()
 			if not IsChar(c)
@@ -354,6 +673,13 @@ class stzHistogram from stzObject
 		ok
 		@cBarChar = c
 
+	# Sets the character that draws the top row of each bar; a text of more than one character raises an error.
+	#
+	#   c          The single character for the top row
+	#   returns    nothing; the picture changes
+	#   note       an empty top character, the default, uses the bar character
+	#   warning    Raises "Incorrect param type! c must be a char." for a longer text
+	#   see        SetBarChar, SetTopBarChar
 	def SetFinalBarChar(c)
 		if CheckParams()
 			if not IsChar(c)
@@ -362,13 +688,28 @@ class stzHistogram from stzObject
 		ok
 		@cFinalBarChar = c
 
+		# Sets the character that draws the top row of each bar, under the Top name.
+		#
+		#   c          The single character for the top row
+		#   returns    nothing; the picture changes
+		#   see        SetFinalBarChar
 		def SetTopBarChar(c)
 			This.SetFinalBarChar(c)
 
+	# Sets the extra blank columns kept between neighbouring bin labels, which add to the bar spacing.
+	#
+	#   n          The number of blank columns
+	#   returns    nothing; the picture changes
+	#   note       the default is 1
+	#   see        SetBarInterSpace
 	def SetLabelInterSpace(n)
 	    @nLabelInterSpace = n
 
-	# Statistical methods for histogram
+	# Returns the arithmetic mean of the raw data.
+	#
+	#   returns    a number
+	#   see        StandardDeviation, Median
+	#@ aka  Statistical methods for histogram
 	def Mean()
 		_nLen_ = len(@anRawData)
 
@@ -384,6 +725,11 @@ class stzHistogram from stzObject
 
 		return _nSum_ / _nLen_
 
+	# Returns the sample standard deviation of the raw data, dividing by n minus 1.
+	#
+	#   returns    a number
+	#   note       0 for one value or none
+	#   see        Mean, Median
 	def StandardDeviation()
 		_nLen_ = len(@anRawData)
 
@@ -400,6 +746,10 @@ class stzHistogram from stzObject
 		
 		return sqrt(_nSumSquares_ / (_nLen_ - 1))
 
+	# Returns the middle value of the raw data, or the mean of the two middle ones.
+	#
+	#   returns    a number
+	#   see        Mean, Mode
 	def Median()
 		_nLen_ = len(@anRawData)
 		if _nLen_ = 0
@@ -417,6 +767,11 @@ class stzHistogram from stzObject
 			return (_nMid1_ + _nMid2_) / 2
 		ok
 
+	# Returns the lower and upper edge of the bin with the largest bar, the first one when several tie.
+	#
+	#   returns    a list of two numbers [ low, high ]
+	#   note       it reads the bar heights, so after UseSum it names the bin with the largest sum
+	#   see        Median, UseFrequency
 	def Mode()
 		# Find the bin with highest frequency
 		_nMaxFreq_ = max(@aBinCounts)
@@ -428,6 +783,10 @@ class stzHistogram from stzObject
 			return [0, 0]
 		ok
 
+	# Returns how many values the histogram was built from.
+	#
+	#   returns    a number
+	#   see        Mean
 	def DataCount()
 		return len(@anRawData)
 
@@ -563,17 +922,22 @@ class stzHistogram from stzObject
 		
 		return _cResult_
 	
+	# Prints the histogram as text on the console.
+	#
+	#   returns    nothing; the histogram is printed
+	#   see        ToString
 	#--- DISPLAY
-
 	def Show()
 		? This.ToString()
 
-	# THE PICTURE, rendered by the engine.
+	# Returns the histogram as text, with bars that follow the bins, a vertical axis, and the bin edges written in two rows.
 	#
-	# The binning and the drawing both live in plot.zig now, so a Python or C face
-	# over the engine gets a histogram, not a pile of edges it must draw itself.
-	# What stays here is what a face is for: read the configuration, cross once,
-	# hand back the text.
+	#   returns    a multi-line string
+	#   note       it hands over to the Ring renderer when statistics are on or the horizontal axis
+	#              is off
+	#   warning    Raises an error when the engine cannot render the histogram
+	#   see        Show, ToStringInRing, ToSVG
+	#@ aka  THE PICTURE, rendered by the engine.
 	def ToString()
 		This._EnsureBins()
 		_nB_ = len(@aBinRanges)
@@ -621,8 +985,13 @@ class stzHistogram from stzObject
 		ok
 		return _cOut_
 
-	# THE RING RENDERER THIS WAS PORTED FROM, verbatim, so the guard can prove the
-	# two agree character for character.
+	# Returns the histogram as text drawn by the Ring code the engine renderer was ported from.
+	#
+	#   returns    a multi-line string
+	#   note       it honours SetHeight, SetValues and SetStats, which ToString only does by falling
+	#              back to it
+	#   see        ToString
+	#@ aka  THE RING RENDERER THIS WAS PORTED FROM, verbatim, so the guard can prove the two agree character for character.
 	def ToStringInRing()
 		
 		# Use the same layout logic as bar chart
