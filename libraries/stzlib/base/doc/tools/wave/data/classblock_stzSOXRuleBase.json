@@ -1,0 +1,13 @@
+{
+ "brief": "Holds the SOX compliance rules for an org chart, ready to pass to CheckCompliance.",
+ "detail": "Holds the four universal org rules plus a separation-of-duties rule that flags a position holding both approver and executor roles.",
+ "receiver": "o1 = new stzSOXRuleBase()",
+ "example": [
+  "? o1.NumberOfRules()",
+  "#--> 5"
+ ],
+ "see": [
+  "stzRuleBase",
+  "stzOrgChart"
+ ]
+}

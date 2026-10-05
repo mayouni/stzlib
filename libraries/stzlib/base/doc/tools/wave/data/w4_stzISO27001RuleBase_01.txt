@@ -1,0 +1,1 @@
+init | Builds the ISO 27001 rule base: the four universal org rules under the name ISO 27001; it adds no rule of its own. | nothing; the rule base is built | | CheckCompliance, AddRule | only the name tells the regimes apart today

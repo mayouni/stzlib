@@ -1,0 +1,14 @@
+{
+ "brief": "Declares a mathematical figure by its kind and keys, solves its picture, and answers for it: its sentence, its facts, its SVG and PNG.",
+ "detail": "A figure is declared (a kind such as function, numberline, fraction, matrix, complexplane, boxplot, surface, stemplot, residualplot or codedtable, and its keys), computed (the engine samples or tabulates it), then solved (the diagram engine places every name). It is already solved when built. Ring hands back a copy of any object a method returns, so Diagram and Substance are copies: change the figure through SetTheme and SetDatum, never through them. The readers for samples, pieces, window and marks belong to the function kind only.",
+ "receiver": "o1 = new stzMathFigure(:Function, [ :f = \"x * x\", :on = [ -2, 2 ] ])",
+ "example": [
+  "? o1.SampleCount()",
+  "#--> 400"
+ ],
+ "see": [
+  "stzMathDiagram",
+  "stzMathSubstance",
+  "stzDiagram"
+ ]
+}
