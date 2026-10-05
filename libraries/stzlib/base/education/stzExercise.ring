@@ -104,13 +104,15 @@ class stzExercise from stzObject
 	def NeededSteps()
 		return _EduObjects(@aFacts, @cId, "needs-step")
 
-	#-- the tutor's gap vocabulary is the EXERCISE'S, not chapter 1's
-
-	# The words in a learner's code that show a step was attempted:
-	# `<step> | seen-by | <word>` facts in exercise.zknw. A step the
-	# exercise does not describe falls back to the three chapter-1 steps'
-	# defaults (asks, finds, applies), so the first exercises stay as they
-	# were; any other step with no `seen-by` is never seen, and is asked.
+	# Returns the words in a learner's code that show a step of the exercise was attempted.
+	#
+	# They are the <step> | seen-by | <word> facts of exercise.zknw. The three steps of chapter 1 (asks, finds,
+	# applies) keep default words when the exercise declares none; any other step without them is never seen,
+	# so the tutor always asks about it.
+	#
+	#   pcStep     the step's name, as written in a needs-step fact
+	#   returns    a list of text; [ ] for a step with no declared words
+	#   see        GapText, NeededSteps
 	def StepWords(pcStep)
 		_acW_ = _EduObjects(@aFacts, pcStep, "seen-by")
 		if len(_acW_) > 0
@@ -126,11 +128,16 @@ class stzExercise from stzObject
 		ok
 		return []
 
-	# The question the tutor asks about a step, in a language: the line
-	# `<step>: <question>` of the exercise's own gaps.<lang>.md; failing
-	# that, the built-in text of the three chapter-1 steps; failing that,
-	# RED -- a step with no question in the learner's language is never
-	# answered in another one (law 7).
+	# Returns the question the tutor asks about a step of the exercise, in a language.
+	#
+	# It is the <step>: line of the exercise's own gaps.<lang>.md; failing that, the built-in text of the three
+	# chapter-1 steps. A step with no question in that language raises, and is never answered in another one.
+	#
+	#   pcStep     the step's name, as written in a needs-step fact
+	#   pcLang     the language code
+	#   returns    the question, as text
+	#   warning    raises when the exercise has no question for the step in that language
+	#   see        StepWords
 	def GapText(pcStep, pcLang)
 		_cF_ = @cFolder + "/gaps." + StzLower(pcLang) + ".md"
 		if fexists(_cF_)
