@@ -1,0 +1,15 @@
+{
+ "brief": "Declarative reactive programming: schedules timers and tasks, makes functions and objects reactive, makes streams and non-blocking HTTP calls, and runs them all in one loop.",
+ "detail": "Create one system, register what should happen (RunAfter, RunEvery, CreateTimer, CreateTask, HttpGet, the stream makers), then call Start: the loop runs the pending tasks, ticks the timers and drains the HTTP answers until nothing is left, the patience runs out or a callback calls Stop. The system sits on a stzReactor when the engine library is present, and falls back to a polling loop when it is not. Callbacks always run on the Ring thread. Timers are named by the id that RunAfter and RunEvery answer; StopTimer and StopAllTimers end them. Reactivate wraps a function or an object so that calls take success and error handlers. Known gaps today, each carried as a warning on its method: StopSafe and its five aliases raise the STOPPED banner from the timer they schedule, and BindObjects binds copies, so neither object you pass changes.",
+ "receiver": "o1 = new stzReactiveSystem()",
+ "example": [
+  "? isObject( o1.ReactorQ() )",
+  "#--> 1"
+ ],
+ "see": [
+  "stzReactor",
+  "stzReactiveObject",
+  "stzReactiveStream",
+  "stzTimerManager"
+ ]
+}

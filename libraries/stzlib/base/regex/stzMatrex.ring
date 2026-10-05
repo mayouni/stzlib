@@ -19,6 +19,24 @@ func IsStzMatrex(pObj)
 		return 0
 	ok
 
+# Tests whether a matrix of numbers fits a pattern written in a small regex-like language, such as {size(3x3) & property(symmetric)}.
+#
+# A pattern is text in braces made of terms: size, shape, element, property, row, col, diagonal,
+# pattern, determinant and sum, written like size(3x3) or element(0..10). Terms are joined by & (all
+# must hold), | (one must hold) and -> (a sequence, all must hold), @! negates a term, and
+# parentheses group. Match tests one matrix and, on success, records its size, properties and matrix
+# as the matched parts; MatchingMatrices, CountMatchingMatrices and the other list methods test a
+# whole list. SimilarityScore, MostSimilarMatrix and CommonProperties compare matrices. Known gaps
+# today, each carried as a warning on its method: the terms row, col, pattern, determinant and sum
+# accept every matrix and diagonal every square one, size(<n), size(>n) and sizes with m or n in
+# place of a number accept every matrix, quantifiers are parsed but never applied, MatchesNone
+# answers the opposite of its name, Not_ negates only the first term, Andd and the JSON methods
+# raise errors, and CommonProperties never reports square.
+#
+#   receiver   o1 = new stzMatrex("{size(2x2) & property(symmetric)}")
+#   example    ? o1.Match([ [1,2], [2,1] ])
+#              #--> 1
+#   see        stzMatrix, stzRegex, stzTablex
 class stzMatrex from stzObject
 	
 	@cPattern           # Pattern string
@@ -31,6 +49,12 @@ class stzMatrex from stzObject
 	 #  INITIALIZATION   #
 	#-------------------#
 	
+	# Builds a matrix pattern from text such as {size(3x3) & property(symmetric)} and parses it into tokens; a non-text value raises an error.
+	#
+	#   returns    nothing; the object is built
+	#   note       the braces are added when missing and an empty pattern is allowed; a word it does
+	#              not know becomes an ERROR token instead of raising
+	#   see        Match, Pattern, Tokens
 	def init(pcPattern)
 		if NOT isString(pcPattern)
 			StzRaise("Error: Pattern must be a string")
@@ -52,6 +76,11 @@ class stzMatrex from stzObject
 	def _Mid(s, n1, n2)
 		return @StzMid(s, n1, n2 - n1 + 1)
 
+	# Trims the pattern text and wraps it in braces when it has none.
+	#
+	#   _cPattern_   the pattern text, with or without braces
+	#   returns      the pattern text, with braces
+	#   see          Pattern, ParsePattern
 	def NormalizePattern(_cPattern_)
 		_cPattern_ = trim(_cPattern_)
 		if NOT (startsWith(_cPattern_, "{") and endsWith(_cPattern_, "}"))
@@ -63,6 +92,13 @@ class stzMatrex from stzObject
 	 #  PATTERN PARSING   #
 	#--------------------#
 	
+# Splits a braced pattern at its top-level -> into parts and parses each part into a token.
+#
+#   _cPattern_   the pattern text, with its braces
+#   returns      a list of tokens, each a list of [ key, value ] pairs
+#   note         init calls it; a part holding a vertical bar becomes an alternation, one holding &
+#                a conjunction
+#   see          Tokens, ParseSingleToken, ParseAlternation, ParseConjunction
 def ParsePattern(_cPattern_)
 	_cInner_ = This._Mid(_cPattern_, 2, len(_cPattern_) - 1)
 	_cInner_ = trim(_cInner_)
@@ -118,6 +154,13 @@ def ParsePattern(_cPattern_)
 	
 	return _aTokens_
 	
+	# Splits text at an operator and trims each part, ignoring any operator inside parentheses or braces.
+	#
+	#   cStr        the text to split
+	#   cOperator   the operator, such as "->"
+	#   returns     a list of text
+	#   note        "a->b->(c->d)" gives "a", "b" and "(c->d)"
+	#   see         ParsePattern
 	def SplitByOperator(cStr, cOperator)
 		_aParts_ = []
 		_cCurrent_ = ""
@@ -149,6 +192,12 @@ def ParsePattern(_cPattern_)
 		
 		return _aParts_
 	
+	# Parses a part whose terms are joined by a vertical bar into an alternation token that lists the alternatives.
+	#
+	#   _cTokenStr_   the text of the part, with or without outer parentheses
+	#   returns       a token: [ type, alternation ], [ alternatives, a list of tokens ] and [
+	#                 negated, 0 ]
+	#   see           ParseConjunction, ParseSingleToken
 	def ParseAlternation(_cTokenStr_)
 		if startsWith(_cTokenStr_, "(") and endsWith(_cTokenStr_, ")")
 			_cTokenStr_ = This._Mid(_cTokenStr_, 2, len(_cTokenStr_) - 1)
@@ -174,6 +223,12 @@ def ParsePattern(_cPattern_)
 			["negated", 0]
 		]
 	
+# Parses a part whose terms are joined by & into a conjunction token that lists the conditions.
+#
+#   _cTokenStr_   the text of the part, with or without outer parentheses
+#   returns       a token: [ type, conjunction ], [ conditions, a list of tokens ] and [ negated, 0
+#                 ]
+#   see           ParseAlternation, ParseSingleToken
 def ParseConjunction(_cTokenStr_)
 	if startsWith(_cTokenStr_, "(") and endsWith(_cTokenStr_, ")")
 		_cTokenStr_ = This._Mid(_cTokenStr_, 2, len(_cTokenStr_) - 1)
@@ -212,6 +267,14 @@ def ParseConjunction(_cTokenStr_)
 		["negated", 0]
 	]
 	
+	# Parses one term such as size(3x3), shape(square)* or @!property(zero) into a token with its type, value, constraints, min, max and negated.
+	#
+	#   _cTokenStr_   the text of one term
+	#   returns       a token as a list of [ key, value ] pairs; [ ] for empty text; an ERROR token
+	#                 for a term it does not know
+	#   note          the quantifiers + * ? and n-m fill min and max, but Match never reads them; @!
+	#                 sets negated, and the type is checked after it, so @!zero is an ERROR token
+	#   see           ParseConstraints, ParsePattern
 	def ParseSingleToken(_cTokenStr_)
 		_cTokenStr_ = trim(_cTokenStr_)
 		if _cTokenStr_ = ""
@@ -412,6 +475,12 @@ def ParseConjunction(_cTokenStr_)
 			["negated", _bNegated_]
 		]
 	
+	# Reads the text inside a term's parentheses into constraints: a range 1..5, a set {1;2} or one value for element; 3x3, >4 or <4 for size.
+	#
+	#   cConstraintStr   the text to read
+	#   _cType_          the term type, element or size
+	#   returns          a list of constraints; [ ] for empty text or any other type
+	#   see              ParseSingleToken
 	def ParseConstraints(cConstraintStr, _cType_)
 		_aConstraints_ = []
 		
@@ -475,6 +544,16 @@ def ParseConjunction(_cTokenStr_)
 	 #  MATCHING LOGIC    #
 	#--------------------#
 	
+	# TRUE if the matrix satisfies every term of the pattern; a success also records its size, properties and matrix as the matched parts.
+	#
+	#   paMatrix   the matrix to test, a list of rows of numbers, all of the same length
+	#   returns    TRUE or FALSE (1 or 0)
+	#   note       a non-matrix or an empty list raises an error; a failed match leaves the earlier
+	#              matched parts as they were
+	#   warning    known defects: the terms row, col, pattern, determinant and sum accept every
+	#              matrix, diagonal accepts every square one, quantifiers are never applied, and
+	#              size(<n), size(>n) or a size with m or n for a number accept every matrix
+	#   see        MatchedParts, MatchingMatrices, Explain
 	def Match(paMatrix)
 		if NOT (isList(paMatrix) and @IsMatrix(paMatrix))
 			StzRaise("Incorrect param type! paMatrix must be a valid matrix.")
@@ -499,6 +578,12 @@ def ParseConjunction(_cTokenStr_)
 		
 		return _bResult_
 	
+	# TRUE if the matrix satisfies every token of the list, an alternation needing one alternative and a conjunction all of its conditions.
+	#
+	#   _aTokens_   the parsed tokens
+	#   aMatrix     the matrix to test
+	#   returns     TRUE or FALSE (1 or 0)
+	#   see         Match, MatchSingleToken
 	def MatchTokens(_aTokens_, aMatrix)
 		_nLenTokens_ = len(_aTokens_)
 		for _i_ = 1 to _nLenTokens_
@@ -538,6 +623,12 @@ def ParseConjunction(_cTokenStr_)
 		
 		return 1
 	
+	# TRUE if the matrix satisfies one token, after applying the token's negation.
+	#
+	#   _aToken_   one parsed token
+	#   aMatrix    the matrix to test
+	#   returns    TRUE or FALSE (1 or 0)
+	#   see        MatchTokens, CheckSize, CheckProperty
 	def MatchSingleToken(_aToken_, aMatrix)
 		_bResult_ = 0
 		
@@ -610,6 +701,15 @@ def ParseConjunction(_cTokenStr_)
 	 #  CHECKING METHODS      #
 	#------------------------#
 	
+	# TRUE if the matrix has the size a token states, such as 3x3.
+	#
+	#   _aToken_   a size token
+	#   aMatrix    the matrix to test
+	#   returns    TRUE or FALSE (1 or 0)
+	#   note       only a size of two numbers, such as 3x3, is compared
+	#   warning    known defect: a size with m or n in place of a number, such as 3xn, accepts every
+	#              matrix, and the > and < forms never apply
+	#   see        CheckShape, Match
 	def CheckSize(_aToken_, aMatrix)
 		_nRows_ = len(aMatrix)
 		_nCols_ = len(aMatrix[1])
@@ -674,6 +774,13 @@ def ParseConjunction(_cTokenStr_)
 		
 		return 1
 	
+	# TRUE if the matrix has the named shape: square, rectangular (not square), tall, wide, row or column; any other name gives FALSE.
+	#
+	#   _cShape_   the shape name
+	#   aMatrix    the matrix to test
+	#   returns    TRUE or FALSE (1 or 0)
+	#   note       rowvector and colvector are accepted for row and column
+	#   see        CheckSize, CheckProperty
 	def CheckShape(_cShape_, aMatrix)
 		_cShape_ = StzLower(trim(_cShape_))
 		_nRows_ = len(aMatrix)
@@ -695,6 +802,12 @@ def ParseConjunction(_cTokenStr_)
 		
 		return 0
 	
+	# TRUE if every element of the matrix satisfies the element constraints of the token: a range, a set or one exact value.
+	#
+	#   _aToken_   an element token
+	#   aMatrix    the matrix to test
+	#   returns    TRUE or FALSE (1 or 0)
+	#   see        CheckProperty, Match
 	def CheckElements(_aToken_, aMatrix)
 		_nRows_ = len(aMatrix)
 		_nCols_ = len(aMatrix[1])
@@ -755,14 +868,38 @@ def ParseConjunction(_cTokenStr_)
 		
 		return 1
 	
+	# Returns TRUE for every matrix today instead of testing a condition on the rows.
+	#
+	#   _aToken_   a row token
+	#   aMatrix    the matrix to test
+	#   returns    TRUE, always
+	#   warning    known defect: the body is a stub that returns 1, so a row term never rejects a
+	#              matrix
+	#   see        CheckCols
 	def CheckRows(_aToken_, aMatrix)
 		# Check row-specific patterns
 		return 1
 	
+	# Returns TRUE for every matrix today instead of testing a condition on the columns.
+	#
+	#   _aToken_   a col token
+	#   aMatrix    the matrix to test
+	#   returns    TRUE, always
+	#   warning    known defect: the body is a stub that returns 1, so a col term never rejects a
+	#              matrix
+	#   see        CheckRows
 	def CheckCols(_aToken_, aMatrix)
 		# Check column-specific patterns
 		return 1
 	
+	# TRUE if the matrix is square; the diagonal terms of the token are not tested.
+	#
+	#   _aToken_   a diagonal token
+	#   aMatrix    the matrix to test
+	#   returns    TRUE or FALSE (1 or 0)
+	#   warning    known defect: it only tests squareness, so any square matrix passes whatever the
+	#              term asks
+	#   see        CheckProperty
 	def CheckDiagonal(_aToken_, aMatrix)
 		_nRows_ = len(aMatrix)
 		_nCols_ = len(aMatrix[1])
@@ -779,6 +916,12 @@ def ParseConjunction(_cTokenStr_)
 		
 		return 1
 	
+	# TRUE if the matrix has the named property: symmetric, diagonal, identity, zero, upper or lower; any other name, square too, gives FALSE.
+	#
+	#   _cProperty_   the property name, upper and lower also as uppertriangular and lowertriangular
+	#   aMatrix       the matrix to test
+	#   returns       TRUE or FALSE (1 or 0)
+	#   see           CheckShape, IsSymmetric, IsDiagonal, IsIdentity
 	def CheckProperty(_cProperty_, aMatrix)
 		_cProperty_ = StzLower(trim(_cProperty_))
 		_nRows_ = len(aMatrix)
@@ -868,10 +1011,25 @@ def ParseConjunction(_cTokenStr_)
 		
 		return 0
 	
+	# Returns TRUE for every matrix today instead of testing a visual or structural pattern.
+	#
+	#   _cPattern_   the pattern name
+	#   aMatrix      the matrix to test
+	#   returns      TRUE, always
+	#   warning      known defect: the body is a stub that returns 1
+	#   see          Match
 	def CheckPattern(_cPattern_, aMatrix)
 		# Check for visual/structural patterns
 		return 1
 	
+	# TRUE if the matrix is square; the determinant value that the token states is not tested.
+	#
+	#   _aToken_   a determinant token
+	#   aMatrix    the matrix to test
+	#   returns    TRUE or FALSE (1 or 0)
+	#   warning    known defect: the body only tests squareness, so determinant(5) accepts a matrix
+	#              whose determinant is -3
+	#   see        Match
 	def CheckDeterminant(_aToken_, aMatrix)
 		_nRows_ = len(aMatrix)
 		_nCols_ = len(aMatrix[1])
@@ -883,6 +1041,13 @@ def ParseConjunction(_cTokenStr_)
 		# Would call stzMatrix determinant method
 		return 1
 	
+	# Returns TRUE for every matrix today instead of testing the sum of its elements.
+	#
+	#   _aToken_   a sum token
+	#   aMatrix    the matrix to test
+	#   returns    TRUE, always
+	#   warning    known defect: the body adds the elements up and ignores the result
+	#   see        Match
 	def CheckSum(_aToken_, aMatrix)
 		_nSum_ = 0
 		_nRows_ = len(aMatrix)
@@ -904,6 +1069,13 @@ def ParseConjunction(_cTokenStr_)
 	 #  PART EXTRACTION     #
 	#----------------------#
 	
+	# Records the size, the matrix and the properties of a matrix as the matched parts of this object.
+	#
+	#   aMatrix    the matrix to describe
+	#   returns    nothing; the matched parts change
+	#   note       the properties are Square, with Symmetric, Diagonal and Identity when they hold,
+	#              or Rectangular
+	#   see        MatchedParts, Size, Properties
 	def ExtractParts(aMatrix)
 		@aMatchedParts = []
 		
@@ -932,6 +1104,12 @@ def ParseConjunction(_cTokenStr_)
 		
 		@aMatchedParts + ["Properties", _aProps_]
 	
+	# TRUE if the matrix is square and equal to its transpose.
+	#
+	#   aMatrix    the matrix to test
+	#   returns    TRUE or FALSE (1 or 0)
+	#   note       an empty list raises error R2
+	#   see        IsDiagonal, IsIdentity, CheckProperty
 	def IsSymmetric(aMatrix)
 		_nRows_ = len(aMatrix)
 		_nCols_ = len(aMatrix[1])
@@ -947,6 +1125,11 @@ def ParseConjunction(_cTokenStr_)
 		next
 		return 1
 	
+	# TRUE if the matrix is square and every element off the main diagonal is 0.
+	#
+	#   aMatrix    the matrix to test
+	#   returns    TRUE or FALSE (1 or 0)
+	#   see        IsSymmetric, IsIdentity, CheckProperty
 	def IsDiagonal(aMatrix)
 		_nRows_ = len(aMatrix)
 		_nCols_ = len(aMatrix[1])
@@ -962,6 +1145,11 @@ def ParseConjunction(_cTokenStr_)
 		next
 		return 1
 	
+	# TRUE if the matrix is square with 1 on the main diagonal and 0 everywhere else.
+	#
+	#   aMatrix    the matrix to test
+	#   returns    TRUE or FALSE (1 or 0)
+	#   see        IsDiagonal, IsSymmetric, CheckProperty
 	def IsIdentity(aMatrix)
 		_nRows_ = len(aMatrix)
 		_nCols_ = len(aMatrix[1])
@@ -987,36 +1175,73 @@ def ParseConjunction(_cTokenStr_)
 	 #  QUERY METHODS       #
 	#----------------------#
 	
+	# Returns what the last successful match recorded: the pairs Size, Matrix and Properties.
+	#
+	#   returns    a list of [ name, value ] pairs; [ ] before any success
+	#   see        Size, Matrix, Properties, Explain
 	def MatchedParts()
 		return @aMatchedParts
 	
+	# Returns the size of the last matched matrix as [ rows, columns ]; [ 0, 0 ] before a successful match.
+	#
+	#   returns    a list of two numbers
+	#   see        Matrix, Properties
 	def Size()
 		if HasKey(@aMatchedParts, "Size")
 			return @aMatchedParts["Size"]
 		ok
 		return [0, 0]
 	
+	# Returns the properties of the last matched matrix: Square, Symmetric, Diagonal, Identity, or Rectangular.
+	#
+	#   returns    a list of text; [ ] before a successful match
+	#   see        Size, IsSymmetric
 	def Properties()
 		if HasKey(@aMatchedParts, "Properties")
 			return @aMatchedParts["Properties"]
 		ok
 		return []
 	
+	# Returns the last matrix that matched; [ ] before a successful match.
+	#
+	#   returns    a list of rows; [ ] before any success
+	#   note       SetTarget does not change this answer
+	#   see        Size, SetTarget
 	def Matrix()
 		if HasKey(@aMatchedParts, "Matrix")
 			return @aMatchedParts["Matrix"]
 		ok
 		return []
 	
+	# Returns the parsed tokens of the pattern, one per part joined by ->.
+	#
+	#   returns    a list of tokens, each a list of [ key, value ] pairs
+	#   see        Pattern, ParsePattern
 	def Tokens()
 		return @aTokens
 	
+	# Returns the pattern text with its braces.
+	#
+	#   returns    text
+	#   see        Tokens, NormalizePattern
 	def Pattern()
 		return @cPattern
 	
+	# Stores a matrix as the target to show in Explain, without matching it.
+	#
+	#   paMatrix   the matrix to keep as target
+	#   returns    nothing; the object changes
+	#   note       Matrix and Size are not changed by it
+	#   warning    the value is not checked: a non-matrix is stored, and Explain then raises "Bad
+	#              parameter type!"
+	#   see        Match, Explain
 	def SetTarget(paMatrix)
 		@aMatrix = paMatrix
 	
+	# Returns the pattern, its token count and tokens, plus the target and the matched parts when there are some.
+	#
+	#   returns    a list of [ name, value ] pairs
+	#   see        Tokens, MatchedParts
 	def Explain()
 		_aExplanation_ = [
 			["Pattern", @cPattern],
@@ -1038,6 +1263,13 @@ def ParseConjunction(_cTokenStr_)
 	 #  ADVANCED QUERY METHODS   #
 	#---------------------------#
 	
+	# Returns the matrices of a list that match the pattern, in their order.
+	#
+	#   paMatrices   a list of matrices, or [ "in", list ]
+	#   returns      a list of matrices; [ ] when none match
+	#   note         each tested matrix becomes the target, so the last matching one stays in the
+	#                matched parts
+	#   see          FindMatchingMatrices, CountMatchingMatrices, Match
 	def MatchingMatrices(paMatrices)
 		if CheckParams() and isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and StzLower(paMatrices[1]) = "in"
 			paMatrices = paMatrices[2]
@@ -1062,6 +1294,11 @@ def ParseConjunction(_cTokenStr_)
 		def MatchingMatricesIn(paMatrices)
 			return THis.MatchingMatrices(paMatrices)
 
+	# Returns the positions in a list of the matrices that match the pattern.
+	#
+	#   paMatrices   a list of matrices, or [ "in", list ]
+	#   returns      a list of numbers; [ ] when none match
+	#   see          MatchingMatrices, FindFirstMatchingMatrix
 	def FindMatchingMatrices(paMatrices)
 		# Find all matrices in a list that match the pattern
 		# and retyurning their positions in paMatrices
@@ -1088,6 +1325,11 @@ def ParseConjunction(_cTokenStr_)
 		def FindMatchingMatricesIn(paMatrices)
 			return This.FindMatchingMatrices(paMatrices)
 
+	# Returns how many matrices of a list match the pattern.
+	#
+	#   paMatrices   a list of matrices, or [ "in", list ]
+	#   returns      a number
+	#   see          MatchingMatrices, MatchesAll
 	def CountMatchingMatrices(paMatrices)
 
 		if CheckParams() and isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and StzLower(paMatrices[1]) = "in"
@@ -1112,6 +1354,11 @@ def ParseConjunction(_cTokenStr_)
 		def CountMatchingMatricesIn(paMatrices)
 			return This.CountMatchingMatrices(paMatrices)
 
+	# Returns the first matrix of a list that matches the pattern; raises an error when none does.
+	#
+	#   paMatrices   a list of matrices, or [ "in", list ]
+	#   returns      a matrix
+	#   see          FindFirstMatchingMatrix, MatchingMatrices
 	def FirstMatchingMatrix(paMatrices)
 
 		if CheckParams() and isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and StzLower(paMatrices[1]) = "in"
@@ -1135,6 +1382,11 @@ def ParseConjunction(_cTokenStr_)
 		def FirstMatchingMatrixIn(paMatrices)
 			return This.FirstMatchingMatrix(paMatrices)
 
+	# Returns the position of the first matrix of a list that matches the pattern; raises an error when none does.
+	#
+	#   paMatrices   a list of matrices, or [ "in", list ]
+	#   returns      a number
+	#   see          FirstMatchingMatrix, FindMatchingMatrices
 	def FindFirstMatchingMatrix(paMatrices)
 
 		if CheckParams() and isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and StzLower(paMatrices[1]) = "in"
@@ -1158,6 +1410,14 @@ def ParseConjunction(_cTokenStr_)
 		def FindFirstMatchingMatrixIn(paMatrices)
 			return This.FindFirstMatchingMatrix(paMatrices)
 
+	# Returns TRUE when at least one matrix of the list matches, which is the reverse of what its name promises.
+	#
+	#   paMatrices   a list of matrices, or [ "in", list ]
+	#   returns      TRUE if any matrix matches, FALSE if none does
+	#   note         test CountMatchingMatrices = 0 for the intended question
+	#   warning      known defect: the loop returns 1 at the first match and 0 when there is none,
+	#                the opposite of none matching
+	#   see          MatchesAll, CountMatchingMatrices
 	def MatchesNone(paMatrices)
 
 		if CheckParams() and isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and StzLower(paMatrices[1]) = "in"
@@ -1181,6 +1441,11 @@ def ParseConjunction(_cTokenStr_)
 		def MatchesNoneIn(paMatrices)
 			return This.MatchesNone(paMatrices)
 
+	# TRUE if every matrix of the list matches the pattern; an empty list gives TRUE.
+	#
+	#   paMatrices   a list of matrices, or [ "in", list ]
+	#   returns      TRUE or FALSE (1 or 0)
+	#   see          MatchesNone, CountMatchingMatrices
 	def MatchesAll(paMatrices)
 
 		if CheckParams() and isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and StzLower(paMatrices[1]) = "in"
@@ -1208,6 +1473,11 @@ def ParseConjunction(_cTokenStr_)
 	 #  PATTERN CONSTRAINT       #
 	#---------------------------#
 	
+	# Appends a term to the pattern after a -> and parses the pattern again.
+	#
+	#   cConstraint   the term to add, such as property(symmetric)
+	#   returns       nothing; the pattern and tokens change
+	#   see           RemoveConstraint, Pattern
 	def AddConstraint(cConstraint)
 		# Add a new constraint to existing pattern
 		_cInner_ = This._Mid(@cPattern, 2, len(@cPattern) - 1)
@@ -1219,6 +1489,14 @@ def ParseConjunction(_cTokenStr_)
 		@cPattern = "{" + _cInner_ + "}"
 		@aTokens = This.ParsePattern(@cPattern)
 	
+	# Removes the token at a position from the parsed tokens, so that Match stops testing it.
+	#
+	#   nIndex     the position of the token, 1 is the first
+	#   returns    nothing; the tokens change
+	#   note       a non-number raises error R41
+	#   warning    known defect: the pattern text is not changed, so Pattern and Explain still show
+	#              the removed term
+	#   see        AddConstraint, Tokens
 	def RemoveConstraint(nIndex)
 		# Remove a constraint by index
 		if nIndex > 0 and nIndex <= len(@aTokens)
@@ -1229,6 +1507,16 @@ def ParseConjunction(_cTokenStr_)
 	 #  MATRIX COMPARISON METHODS    #
 	#-------------------------------#
 	
+	# Returns the share of cells that are equal in two matrices of the same size, from 0 to 1; matrices of different sizes score 0.
+	#
+	#   aMatrix1   the first matrix
+	#   aMatrix2   the second matrix
+	#   returns    a number from 0 to 1
+	#   note       only two plain matrices work
+	#   warning    known defect: the wrapped forms [ "between", m ] and [ "and", m ] that the body
+	#              tries to accept raise an error, because it stores the inner matrix in a
+	#              misspelled variable
+	#   see        MostSimilarMatrix
 	def SimilarityScore(aMatrix1, aMatrix2)
 
 		if CheckParams()
@@ -1273,6 +1561,12 @@ def ParseConjunction(_cTokenStr_)
 		def SimilarityScoreBetween(aMatrix1, aMatrix2)
 			return This.SimilarityScore(aMatrix1, aMatrix2)
 
+	# Returns the matrix of a list with the highest similarity score to a target; the first wins a tie, and an empty list raises an error.
+	#
+	#   _aTargetMatrix_   the target matrix, or [ "to", m ]
+	#   paMatrices        a list of matrices, or [ "in", list ]
+	#   returns           a matrix
+	#   see               FindMostSimilarMatrix, SimilarityScore
 	def MostSimilarMatrix(_aTargetMatrix_, paMatrices)
 		# Get the matrix in the list most similar to target
 		
@@ -1311,6 +1605,12 @@ def ParseConjunction(_cTokenStr_)
 
 		return _aBestMatrix_
 	
+	# Returns the position in a list of the matrix most similar to a target matrix; the first one wins a tie.
+	#
+	#   _aTargetMatrix_   the target matrix, or [ "to", m ]
+	#   paMatrices        a list of matrices, or [ "in", list ]
+	#   returns           a number; 0 for an empty list
+	#   see               MostSimilarMatrix, SimilarityScore
 	def FindMostSimilarMatrix(_aTargetMatrix_, paMatrices)
 		# Find the matrix in the list most similar to target
 		# and return its position in paMatrices
@@ -1358,6 +1658,13 @@ def ParseConjunction(_cTokenStr_)
 	 #  STATISTICAL ANALYSIS         #
 	#-------------------------------#
 	
+	# Returns how a list splits under the pattern: the counts, the match rate and the matching and non matching matrices.
+	#
+	#   paMatrices   a list of matrices
+	#   returns      a list of [ name, value ] pairs: pattern, totalmatrices, matchingcount,
+	#                nonmatchingcount, matchrate, matching, nonmatching
+	#   warning      an empty list raises error R1, a division by zero
+	#   see          MatchingMatrices, CountMatchingMatrices
 	def AnalyzeMatches(paMatrices)
 		# Provide detailed analysis of matching matrices
 		
@@ -1385,6 +1692,14 @@ def ParseConjunction(_cTokenStr_)
 		
 		return _aAnalysis_
 	
+	# Returns the names among square, symmetric, diagonal, identity, zero, upper and lower that every matching matrix of the list has.
+	#
+	#   paMatrices   a list of matrices
+	#   returns      a list of text
+	#   note         the answer for [ diag, identity ] is symmetric, diagonal, upper, lower
+	#   warning      known defects: square is never reported, because the property test has no such
+	#                branch, and when no matrix matches every name is returned
+	#   see          AnalyzeMatches, CheckProperty
 	def CommonProperties(paMatrices)
 		# Find properties common to all matching matrices
 		
@@ -1419,13 +1734,27 @@ def ParseConjunction(_cTokenStr_)
 	 #  DEBUG METHODS       #
 	#----------------------#
 	
+	# Turns debug printing on and parses the pattern again, printing each step of the parsing.
+	#
+	#   returns    nothing; the object changes
+	#   see        DisableDebug, SetDebug
 	def EnableDebug()
 		@bDebugMode = 1
 		@aTokens = This.ParsePattern(@cPattern)
 
+	# Turns debug printing off.
+	#
+	#   returns    nothing; the object changes
+	#   see        EnableDebug, SetDebug
 	def DisableDebug()
 		@bDebugMode = 0
 	
+	# Turns debug printing on or off.
+	#
+	#   bFlag      1 to print the steps of parsing and matching, 0 for none
+	#   returns    nothing; the object changes
+	#   note       unlike EnableDebug it does not parse again
+	#   see        EnableDebug, DisableDebug
 	def SetDebug(bFlag)
 		@bDebugMode = bFlag
 	
@@ -1433,6 +1762,11 @@ def ParseConjunction(_cTokenStr_)
 	 #  HELPER METHODS      #
 	#----------------------#
 	
+	# TRUE if the text is made only of digits, minus signs and dots, so 1-2 and 1.5 both count.
+	#
+	#   cStr       the text to test
+	#   returns    TRUE or FALSE (1 or 0)
+	#   see        ParseSingleToken
 	def IsNumeric(cStr)
 		if cStr = ""
 			return 0
@@ -1452,6 +1786,12 @@ def ParseConjunction(_cTokenStr_)
 	 #  PATTERN COMBINATION  #
 	#-----------------------#
 	
+	# Returns a new matrex whose pattern holds this pattern and the other one joined by &, so a matrix must satisfy both.
+	#
+	#   oOtherMatrex   the matrex to combine with
+	#   returns        a stzMatrex; neither original changes
+	#   warning        raises an error when the argument is not a stzMatrex
+	#   see            Or_, Not_
 	def And_(oOtherMatrex)
 		if CheckParams() and NOT IsStzMatrex(oOtherMatrex)
 			StzRaise("Incorrect param! oOtherMatrex must be a stzMatrex object (matrEx not matrIx).")
@@ -1466,9 +1806,23 @@ def ParseConjunction(_cTokenStr_)
 
 		return new stzMatrex(_cCombined_)
 	
+		# Raises error R24 today instead of returning a pattern that holds both patterns joined by &.
+		#
+		#   oOtherMatrex   the matrex to combine with
+		#   returns        nothing today
+		#   note           And_ does the work
+		#   warning        known defect: it forwards the misspelled variable oOtherMatriex, which is
+		#                  uninitialized
+		#   see            And_
 		def Andd(oOtherMatrex)
 			return THis.And_(oOtherMatriex)
 
+	# Returns a new matrex whose pattern holds this pattern and the other one joined by a vertical bar, so a matrix may satisfy either.
+	#
+	#   oOtherMatrex   the matrex to combine with
+	#   returns        a stzMatrex; neither original changes
+	#   warning        raises an error when the argument is not a stzMatrex
+	#   see            And_, Not_
 	def Or_(oOtherMatrex)
 		if CheckParams() and NOT IsStzMatrex(oOtherMatrex)
 			StzRaise("Incorrect param! oOtherMatrex must be a stzMatrex object (matrEx not matrIx).")
@@ -1483,6 +1837,13 @@ def ParseConjunction(_cTokenStr_)
 
 		return new stzMatrex(_cCombined_)
 	
+	# Returns a new matrex whose pattern has @! in front of the whole pattern; this object does not change.
+	#
+	#   returns    a stzMatrex
+	#   note       the @! prefix is read as part of the first term
+	#   warning    known defect: the negation lands on the first term only, so for a pattern with
+	#              several terms the result is not the opposite of the original
+	#   see        And_, Or_
 	def Not_()
 		# Negate the entire pattern
 		_cInner_ = This._Mid(@cPattern, 2, len(@cPattern) - 1)
@@ -1494,6 +1855,12 @@ def ParseConjunction(_cTokenStr_)
 	 #  SERIALIZATION                #
 	#-------------------------------#
 	
+	# Raises error R21 today instead of returning the pattern and its tokens as JSON text; only the empty pattern works.
+	#
+	#   returns    JSON text; an error for any pattern with a token
+	#   warning    known defect: it joins pair lists into a text, which is an operator on the wrong
+	#              type, so every token raises R21
+	#   see        TokensToJSON, TokenToJSON
 	def ToJSON()
 		# Convert pattern to JSON representation
 		_cJSON_ = '{'
@@ -1502,6 +1869,12 @@ def ParseConjunction(_cTokenStr_)
 		_cJSON_ += '}'
 		return _cJSON_
 	
+	# Raises error R21 today instead of returning the tokens as a JSON array; an empty token list gives [].
+	#
+	#   returns    JSON text; an error for any pattern with a token
+	#   warning    known defect: each token is a list of pairs and the body adds a pair to a text,
+	#              which raises R21
+	#   see        ToJSON, TokenToJSON
 	def TokensToJSON()
 		# Convert tokens to JSON array
 		_cJSON_ = '['
@@ -1515,6 +1888,13 @@ def ParseConjunction(_cTokenStr_)
 		_cJSON_ += ']'
 		return _cJSON_
 	
+	# Raises error R21 today instead of returning one token as a JSON object.
+	#
+	#   _aToken_   one parsed token
+	#   returns    an error for any token
+	#   warning    known defect: it adds a pair list to a text, which raises R21, because tokens are
+	#              lists of pairs and not flat key and value lists
+	#   see        TokensToJSON, ToJSON
 	def TokenToJSON(_aToken_)
 		# Convert single token to JSON
 		_cJSON_ = '{'
