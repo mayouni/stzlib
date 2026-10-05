@@ -138,6 +138,22 @@ func StzDefaultDetectionSet()
  #  A DETECTION  #
 #===============#
 
+# Declares one rule over a sequence of security events and judges a ledger against it, answering findings.
+#
+# Four shapes, each computable over a bounded ledger without a query language: a burst (n events of
+# one kind inside a window), a sequence (one kind followed by another), any (one occurrence is the
+# story) and unusual (the newest window judged against the same kind's own history, so the threshold
+# is learned instead of written down). The unusual shape is honest: the newest window is judged
+# against the windows before it, a cold start says nothing, and a flood that evicted its own
+# baseline is reported as a warning. Findings come in the unified shape [ :rule, :subject, :where,
+# :severity, :message ], so they join stzRuleReport. Corroborated holds an error back to a warning
+# until two distinct event kinds agree. A detection with nothing watched raises when asked to judge.
+#
+#   receiver   o1 = new stzDetection("credential-stuffing")
+#   example    o1.WhenKind("auth.login.failed").PerActor().Repeats(5).Within(60000)
+#              ? o1.Shape()
+#              #--> burst
+#   see        stzDetectionSet, stzSecurityLedger, stzSecurityEvent
 class stzDetection from stzObject
 
 	@cName = ""
@@ -160,26 +176,58 @@ class stzDetection from stzObject
 	@nEvicted = 0		# events the ledger's window no longer holds
 	@nMaxFindings = 16	# bounded: a storm reports, it does not flood
 
+	# Builds a detection of that name, which watches nothing yet and reports its findings at error severity.
+	#
+	#   pcName     the detection's name, which becomes the rule of its findings
+	#   returns    nothing; the object is built
+	#   see        WhenKind, Explaining
 	def init(pcName)
 		@cName = "" + pcName
 
+	# Returns the detection's name, the rule its findings carry.
+	#
+	#   returns    a text
+	#   see        Explain
 	def Name()
 		return @cName
 
+	# Returns the event kind the detection watches, trimmed and in lower case.
+	#
+	#   returns    a text; empty until WhenKind sets it
+	#   see        WhenKind
 	def Kind()
 		return @cKind
 
+	# Returns which shape the detection has: burst, sequence, any or unusual.
+	#
+	#   returns    a text; empty until a declaring call sets it
+	#   see        WhenKind, Repeats, ThenKind, Unusual
 	def Shape()
 		return @cShape
 
+	# Returns the severity its findings carry, which is error until AsWarning or AsInfo changes it.
+	#
+	#   returns    a text
+	#   see        AsError, AsWarning, AsInfo
 	def Severity()
 		return @cSeverity
 
+	# Returns the sentence given by Explaining, which is added to every finding message.
+	#
+	#   returns    a text; empty until Explaining sets it
+	#   see        Explaining
 	def Meaning()
 		return @cMeaning
 
-	  #-- declaring ---------------------------------------------------
-
+	# Sets the event kind to watch, and makes the shape any when no shape was chosen yet.
+	#
+	#   pcKind     the event kind to watch, trimmed and put in lower case
+	#   returns    the detection itself, so calls chain
+	#   note       start every detection with it
+	#   warning    the kind is not checked against the catalog, so a misspelled kind watches nothing
+	#              and never fires
+	#   see        ThenKind, Repeats, OnAnyOccurrence
+	#@ aka  -- declaring ---------------------------------------------------
 	def WhenKind(pcKind)
 		@cKind = StzLower(ring_trim("" + pcKind))
 		if @cShape = ""
@@ -187,43 +235,91 @@ class stzDetection from stzObject
 		ok
 		return This
 
-	# BURST: n of them...
+	# Makes the detection a burst: this many events of the watched kind inside the window fire it.
+	#
+	#   pnTimes    how many events make a burst
+	#   returns    the detection itself, so calls chain
+	#   note       the BURST shape of stzDetection
+	#   warning    without Within the window is 0 ms, so only events stamped with the same
+	#              millisecond count together
+	#   see        Within, PerActor
+	#@ aka  BURST: n of them...
 	def Repeats(pnTimes)
 		@nRepeats = pnTimes
 		@cShape = "burst"
 		return This
 
-	# ...inside this window (ms of wall time).
+	# Sets the window of a burst or a sequence, in milliseconds of event wall time.
+	#
+	#   pnMs       the window length, in milliseconds
+	#   returns    the detection itself, so calls chain
+	#   see        Repeats, ThenKind
+	#@ aka  ...inside this window (ms of wall time).
 	def Within(pnMs)
 		@nWindowMs = pnMs
 		return This
 
-	# count per actor rather than across all actors -- credential
-	# stuffing is per account, not per installation.
+	# Counts events actor by actor instead of across all actors, for a burst or an unusual rate.
+	#
+	#   returns    the detection itself, so calls chain
+	#   note       credential stuffing is per account, not per installation
+	#   see        Repeats, Unusual
+	#@ aka  count per actor rather than across all actors -- credential stuffing is per account, not per installation.
 	def PerActor()
 		@bPerActor = 1
 		return This
 
-	# SEQUENCE: this kind must follow the watched one.
+	# Makes the detection a sequence: an event of this kind must follow one of the watched kind.
+	#
+	#   pcKind     the event kind that must follow, trimmed and put in lower case
+	#   returns    the detection itself, so calls chain
+	#   warning    the kind is not checked against the catalog, so a misspelled kind never follows
+	#              and the detection never fires
+	#   see        WhenKind, Within, BySameActor
+	#@ aka  SEQUENCE: this kind must follow the watched one.
 	def ThenKind(pcKind)
 		@cThenKind = StzLower(ring_trim("" + pcKind))
 		@cShape = "sequence"
 		return This
 
+	# Requires both events of a sequence to come from the same actor.
+	#
+	#   returns    the detection itself, so calls chain
+	#   note       without it the whole ledger counts as one actor and a sequence gives one finding
+	#              in all
+	#   see        ThenKind
 	def BySameActor()
 		@bSameActor = 1
 		return This
 
-	# ANY: one occurrence is already the story.
+	# Makes the detection fire on any single event of the watched kind, for kinds where one occurrence is already the story.
+	#
+	#   returns    the detection itself, so calls chain
+	#   note       one finding per matching event, at most 16
+	#   see        WhenKind
+	#@ aka  ANY: one occurrence is already the story.
 	def OnAnyOccurrence()
 		@cShape = "any"
 		return This
 
-	# UNUSUAL: the newest window against the kind's own history.
+	# Makes the detection judge the newest window of the watched kind against the history of that same kind.
+	#
+	#   returns    the detection itself, so calls chain
+	#   note       the defaults are windows of 60000 ms, a baseline of 12 windows, 3 sigma and a
+	#              floor of 3 (threat model R9)
+	#   see        Buckets, AgainstBaseline, Sigma, AtLeast
+	#@ aka  UNUSUAL: the newest window against the kind's own history.
 	def Unusual()
 		@cShape = "unusual"
 		return This
 
+	# Sets the width of one window of the unusual shape, in milliseconds.
+	#
+	#   pnMs       the window width, in milliseconds, at least 1
+	#   returns    the detection itself, so calls chain
+	#   note       the baseline is this width times AgainstBaseline
+	#   warning    a width below 1 raises an error, and a value that is not a number raises R41
+	#   see        Unusual, AgainstBaseline
 	def Buckets(pnMs)
 		if pnMs < 1
 			stzraise("stzDetection.Buckets: a window is at least 1 ms.")
@@ -231,6 +327,15 @@ class stzDetection from stzObject
 		@nBucketMs = pnMs
 		return This
 
+	# Sets how many windows before the newest one form the baseline of the unusual shape.
+	#
+	#   pnBuckets   the number of baseline windows, at least 3
+	#   returns     the detection itself, so calls chain
+	#   note        the newest window is judged against the windows before it, never against a
+	#               baseline that includes itself
+	#   warning     fewer than 3 raises an error; until the ledger reaches back over 3 baseline
+	#               windows nothing is said, because a cold start is not an anomaly
+	#   see         Buckets, Sigma
 	def AgainstBaseline(pnBuckets)
 		if pnBuckets < 3
 			stzraise("stzDetection.AgainstBaseline: a baseline is at least 3 windows.")
@@ -238,44 +343,90 @@ class stzDetection from stzObject
 		@nBaseline = pnBuckets
 		return This
 
+	# Sets how many standard deviations above the baseline mean make a window unusual.
+	#
+	#   pnZ        the number of standard deviations
+	#   returns    the detection itself, so calls chain
+	#   note       on a flat baseline, where the windows before all hold the same count, sigma is
+	#              not used: any count above that mean and at or over the floor fires
+	#   see        AtLeast, Unusual
 	def Sigma(pnZ)
 		@nSigma = pnZ
 		return This
 
+	# Sets the floor of the unusual shape: a window with fewer events than this never fires.
+	#
+	#   pnCount    the smallest number of events in the newest window that can fire
+	#   returns    the detection itself, so calls chain
+	#   see        Sigma, Unusual
 	def AtLeast(pnCount)
 		@nFloor = pnCount
 		return This
 
+	# Judges the unusual shape at a given wall time instead of at the newest event, so a guard can be exact.
+	#
+	#   pnWallMs   the moment of judgement, in epoch milliseconds, 0 for the newest event
+	#   returns    the detection itself, so calls chain
+	#   see        Unusual, Buckets
 	def AsOf(pnWallMs)
 		@nAsOf = pnWallMs
 		return This
 
-	# The corroboration law: no error-severity alarm on a single
-	# signal -- one anomalous read is a rumor.
+	# Marks the detection so that an error finding drops to a warning unless the matched events span two distinct kinds.
+	#
+	#   returns    the detection itself, so calls chain
+	#   note       the corroboration law: one anomalous signal is a rumor, and the message says it
+	#              is a single signal
+	#   see        AsError, CheckAgainst
+	#@ aka  The corroboration law: no error-severity alarm on a single signal -- one anomalous read is a rumor.
 	def Corroborated()
 		@bCorroborated = 1
 		return This
 
+	# Sets the one-sentence meaning that is added to every finding message and to the explanation.
+	#
+	#   pcMeaning   what the detection means, as text
+	#   returns     the detection itself, so calls chain
+	#   see         Meaning, Explain
 	def Explaining(pcMeaning)
 		@cMeaning = "" + pcMeaning
 		return This
 
+	# Sets the severity of the findings to error.
+	#
+	#   returns    the detection itself, so calls chain
+	#   see        AsWarning, AsInfo, Corroborated
 	def AsError()
 		@cSeverity = "error"
 		return This
 
+	# Sets the severity of the findings to warning.
+	#
+	#   returns    the detection itself, so calls chain
+	#   see        AsError, AsInfo
 	def AsWarning()
 		@cSeverity = "warning"
 		return This
 
+	# Sets the severity of the findings to info.
+	#
+	#   returns    the detection itself, so calls chain
+	#   see        AsError, AsWarning
 	def AsInfo()
 		@cSeverity = "info"
 		return This
 
-	  #-- judging -----------------------------------------------------
-
-	# Judge a ledger. Returns findings in the unified rule shape --
-	# hand them to stzRuleReport.Ingest().
+	# Judges a ledger and returns the findings in the unified rule shape, ready for stzRuleReport.
+	#
+	#   poLedger   the stzSecurityLedger to judge, read through its retained window
+	#   returns    a list of [ :rule, :subject, :where, :severity, :message ] findings; [ ] when
+	#              nothing matches
+	#   note       the subject is security and where is the detection name, then a slash and the
+	#              actor when there is one; at most 16 findings, so a storm reports and does not
+	#              flood
+	#   warning    raises an error when nothing is watched, so call WhenKind first
+	#   see        LastEvidence, Corroborated, Explain
+	#@ aka  -- judging -----------------------------------------------------
 	def CheckAgainst(poLedger)
 		@aEvidence = []
 		if @cKind = ""
@@ -293,11 +444,19 @@ class stzDetection from stzObject
 		ok
 		return This._CheckAny(_aAll_)
 
+	# Returns the events that matched in the last check, so an incident can build its timeline from them.
+	#
+	#   returns    a list of records; [ ] before any check or when nothing matched
+	#   see        CheckAgainst
 	def LastEvidence()
 		return @aEvidence
 
-	  #-- legibility --------------------------------------------------
-
+	# Returns the detection told as lines of text: its shape with its numbers, and its meaning when given.
+	#
+	#   returns    a list of text
+	#   note       the first line reads Detection name [severity] followed by the shape
+	#   see        Show, Explaining
+	#@ aka  -- legibility --------------------------------------------------
 	def Explain()
 		_aL_ = []
 		_cD_ = "Detection " + @cName + " [" + @cSeverity + "] -- "
@@ -327,6 +486,10 @@ class stzDetection from stzObject
 		ok
 		return _aL_
 
+	# Prints the lines Explain returns, one per line.
+	#
+	#   returns    nothing; it prints
+	#   see        Explain
 	def Show()
 		_aL_ = This.Explain()
 		_nL_ = ring_len(_aL_)
@@ -600,24 +763,61 @@ class stzDetection from stzObject
  #  A SET OF THEM     #
 #====================#
 
+# Groups detections under one name and judges a ledger with all of them at once.
+#
+# StzDefaultDetectionSet builds the house set: credential stuffing, secret probing, escalation
+# attempts, guess-then-reach, password spraying, a cloned authenticator, a replayed request, a
+# forged request and a replayed assertion. The set keeps a copy of each detection added, so
+# configure a detection before Add, or change it through DetectionQ. FiredNames gives the names an
+# incident is opened from.
+#
+#   receiver   o1 = StzDefaultDetectionSet()
+#   example    ? o1.NumberOfDetections()
+#              #--> 9
+#   see        stzDetection, stzSecurityLedger
 class stzDetectionSet from stzObject
 
 	@cName = ""
 	@aDetections = []
 
+	# Builds an empty set of detections with a name.
+	#
+	#   pcName     the set's name, as text
+	#   returns    nothing; the object is built
+	#   see        Add, StzDefaultDetectionSet
 	def init(pcName)
 		@cName = "" + pcName
 
+	# Returns the name of the set.
+	#
+	#   returns    a text
+	#   see        Explain
 	def Name()
 		return @cName
 
+	# Adds a detection to the set, kept in the order added.
+	#
+	#   poDetection   the stzDetection to add, already configured
+	#   returns       the set itself, so calls chain
+	#   note          no check for a repeated name; DetectionQ finds the first
+	#   warning       the set stores a COPY, so a change made to the original afterwards does not
+	#                 reach it: configure before adding, or reach the stored one through DetectionQ
+	#   see           DetectionQ, Names
 	def Add(poDetection)
 		@aDetections + poDetection
 		return This
 
+	# Returns how many detections the set holds.
+	#
+	#   returns    a number
+	#   see        Names, Add
 	def NumberOfDetections()
 		return ring_len(@aDetections)
 
+	# Returns the names of the detections, in the order they were added.
+	#
+	#   returns    a list of text
+	#   see        DetectionQ, NumberOfDetections
 	def Names()
 		_a_ = []
 		_n_ = ring_len(@aDetections)
@@ -626,6 +826,14 @@ class stzDetectionSet from stzObject
 		next
 		return _a_
 
+	# Returns the stored detection of that name, so it can be configured or explained.
+	#
+	#   pcName     the detection's name, matched with case
+	#   returns    a stzDetection
+	#   note       a change made through it persists, which a change to the original passed to Add
+	#              does not
+	#   warning    an unknown name raises an error
+	#   see        Names, Add
 	def DetectionQ(pcName)
 		_n_ = ring_len(@aDetections)
 		for _i_ = 1 to _n_
@@ -635,8 +843,14 @@ class stzDetectionSet from stzObject
 		next
 		stzraise("stzDetectionSet '" + @cName + "': no detection named '" + pcName + "'.")
 
-	# Judge a ledger with every detection; findings in the unified
-	# shape, ready for stzRuleReport.Ingest().
+	# Judges a ledger with every detection and returns all findings, in the unified rule shape.
+	#
+	#   poLedger   the stzSecurityLedger to judge
+	#   returns    a list of [ :rule, :subject, :where, :severity, :message ] findings; [ ] when
+	#              nothing matches
+	#   note       ready for stzRuleReport; the findings come detection by detection, in order
+	#   see        FiredNames, stzDetection
+	#@ aka  Judge a ledger with every detection; findings in the unified shape, ready for stzRuleReport.Ingest().
 	def CheckAgainst(poLedger)
 		_aOut_ = []
 		_n_ = ring_len(@aDetections)
@@ -649,7 +863,13 @@ class stzDetectionSet from stzObject
 		next
 		return _aOut_
 
-	# The names that fired, in order (what an incident is opened from).
+	# Returns the names of the detections that fired on a ledger, once each, in order.
+	#
+	#   poLedger   the stzSecurityLedger to judge
+	#   returns    a list of text
+	#   note       what an incident is opened from
+	#   see        CheckAgainst
+	#@ aka  The names that fired, in order (what an incident is opened from).
 	def FiredNames(poLedger)
 		_a_ = []
 		_aF_ = This.CheckAgainst(poLedger)
@@ -661,6 +881,10 @@ class stzDetectionSet from stzObject
 		next
 		return _a_
 
+	# Returns the set told as lines of text: a header with the count, then each detection indented.
+	#
+	#   returns    a list of text
+	#   see        Show, Names
 	def Explain()
 		_aL_ = []
 		_aL_ + ("Detection set " + @cName + " -- " + ring_len(@aDetections) + " detection(s).")
@@ -674,6 +898,10 @@ class stzDetectionSet from stzObject
 		next
 		return _aL_
 
+	# Prints the lines Explain returns, one per line.
+	#
+	#   returns    nothing; it prints
+	#   see        Explain
 	def Show()
 		_aL_ = This.Explain()
 		_nL_ = ring_len(_aL_)

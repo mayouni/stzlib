@@ -118,22 +118,52 @@ func _StzSecretKindFactory(pcKind)
  #  STZSECRETSTORE #
 #=================#
 
+# Holds a project's secrets in one registry, with one governed and audited door through which a value can leave.
+#
+# Secrets are registered once by name, so the whole credential surface is enumerable and every entry
+# is self-redacting. Reveal applies the actor gate (only an effectful, non-sandboxed actor passes; a
+# language-model actor is refused) and records the attempt in the access log and in the security
+# ledger, by the secret's name and never its value. RotateToFresh renews a value the store owns, and
+# refuses a secret that lives in an environment variable, a file or a vault, naming where to rotate
+# it. SaveSealedTo writes the store as one authenticated-encryption blob, and
+# StzSecretStoreFromSealedFile reads it back. The store keeps a copy of what it registers.
+#
+#   receiver   o1 = new stzSecretStore("billing")
+#   example    o1.Register(StzApiKeyQ("stripe").FromEnvQ("INVENTED_STRIPE_ENV"))
+#              ? o1.DescriptorOf("stripe")
+#              #--> <secret 'stripe' (apikey) from env:INVENTED_STRIPE_ENV>
+#   see        stzSecurityPosture, stzSecurityLedger, StzSecretStoreFromSealedFile
 class stzSecretStore from stzObject
 
 	@cName = ""
 	@aSecrets = []   # [ [ name, secretObject ], ... ]
 	@aLog = []       # [ [ seq, actorName, secretName, outcome ], ... ]  -- the audit trail
 
+	# Builds an empty store, the one registry in which a project governs its secrets.
+	#
+	#   pcName     the store's name, bound into sealed files as their authenticated context
+	#   returns    nothing; the object is built
+	#   see        Register, Reveal
 	def init(pcName)
 		@cName = "" + pcName
 
+	# Returns the store's name.
+	#
+	#   returns    a text
+	#   see        init
 	def Name()
 		return @cName
 
-	  #-- the registry -----------------------------------------------------
-
-	# register a secret under its own Name(). Registering a name that exists
-	# REPLACES it -- that is rotation (RotateQ is the explicit alias).
+	# Adds a secret under its own name, in lower case; a name already registered is replaced, which is rotation.
+	#
+	#   poSecret   the stzSecret, or a kind of one such as stzApiKey, to register
+	#   returns    the store itself, so calls chain
+	#   note       secrets are enumerable by Names and show only their descriptor
+	#   warning    a non-object raises an error; the store keeps a COPY of the secret, so changing
+	#              the original afterwards does not reach it; replacing a name leaves no entry in
+	#              the access log and none in the ledger
+	#   see        Rotate, Revoke, Reveal
+	#@ aka  -- the registry -----------------------------------------------------
 	def Register(poSecret)
 		if NOT isObject(poSecret)
 			StzRaise("stzSecretStore.Register expects a stzSecret (or a kind of one).")
@@ -147,22 +177,33 @@ class stzSecretStore from stzObject
 		ok
 		return This
 
-	# rotate a secret: replace whatever is registered under poNewSecret's name.
+	# Replaces the secret registered under the new secret's name, or adds it when the name is new.
+	#
+	#   poNewSecret   the stzSecret that takes the place of the registered one
+	#   returns       nothing; use RotateQ to chain
+	#   note          RotateQ is the same call and returns the store
+	#   warning       the replacement leaves no entry in the access log and none in the ledger
+	#   see           Register, RotateToFresh
+	#@ aka  rotate a secret: replace whatever is registered under poNewSecret's name.
 	def Rotate(poNewSecret)
 		This.RotateQ(poNewSecret)
 
 	def RotateQ(poNewSecret)
 		return This.Register(poNewSecret)
 
-	# ROTATE IN PLACE, to a fresh random value -- containment's :RotateSecret.
-	# Only a secret whose value THIS store holds (a :literal) can be
-	# regenerated here: a key it issues, a token it signs with. A secret that
-	# lives in an environment variable, a file or a vault is not this store's
-	# to change -- that REFUSES loudly, naming where to rotate it, rather than
-	# pretending. Creating a credential is an effect, so poActor passes the
-	# same gate as a reveal. The new value is 32 random bytes as 64 hex
-	# characters; kind and name are kept (a token's expiry is cleared -- a new
-	# value is a new credential). Returns This.
+	# Replaces the value of a secret the store owns with 32 fresh random bytes as 64 hex characters, keeping its kind and name.
+	#
+	#   pcName     the name of the registered secret to renew
+	#   poActor    the actor that performs the rotation, which must be effectful and not sandboxed
+	#   returns    the store itself, so calls chain
+	#   note       the access log gets a rotated entry and the ledger a secret.rotated grant; a
+	#              token's expiry is cleared (rotate_secret_narrated)
+	#   warning    raises an error for an unknown name, for a refused actor and for a secret whose
+	#              source is an environment variable, a file or a vault, naming where to rotate it;
+	#              an actor that is not an object also fails closed, but with R13 Object is required
+	#              and no refusal is recorded
+	#   see        Rotate, Reveal, Revoke
+	#@ aka  ROTATE IN PLACE, to a fresh random value -- containment's :RotateSecret. Only a secret whose value THIS store holds (a :literal) can be regenerated here: a key it issues, a token it signs with. A secret that lives in an environment variable, a file or a vault is not this store's to change -- that REFUSES loudly, naming where to rotate it, rather than pretending. Creating a credential is an effect,
 	def RotateToFresh(pcName, poActor)
 		_s_ = This.Secret(pcName)
 		if NOT isObject(_s_)
@@ -196,7 +237,14 @@ class stzSecretStore from stzObject
 		StzNoteGrant("secret.rotated", "" + poActor.Name(), "secret:" + _s_.Name())
 		return This
 
-	# revoke (remove) a secret by name.
+	# Removes a secret by name; an unknown name changes nothing.
+	#
+	#   pcName     the name of the secret to remove
+	#   returns    the store itself, so calls chain
+	#   note       the name is matched without regard to case
+	#   warning    the removal leaves no entry in the access log and none in the ledger
+	#   see        Register, Has
+	#@ aka  revoke (remove) a secret by name.
 	def Revoke(pcName)
 		_nm_ = StzLower(ring_trim("" + pcName))
 		_aNew_ = []
@@ -209,15 +257,28 @@ class stzSecretStore from stzObject
 		@aSecrets = _aNew_
 		return This
 
-	  #-- safe reads (never leak a value) ---------------------------------
-
+	# TRUE if a secret of that name is registered.
+	#
+	#   pcName     the secret's name, matched without regard to case
+	#   returns    TRUE or FALSE
+	#   see        Secret, Names
+	#@ aka  -- safe reads (never leak a value) ---------------------------------
 	def Has(pcName)
 		return This._Index(StzLower(ring_trim("" + pcName))) > 0
 
+	# Returns how many secrets are registered.
+	#
+	#   returns    a number
+	#   see        Names, Has
 	def NumberOfSecrets()
 		return len(@aSecrets)
 
-	# the project's whole credential surface, by name -- safe to show/log.
+	# Returns the names of the registered secrets, in lower case, in the order registered: the project's whole credential surface.
+	#
+	#   returns    a list of text
+	#   note       safe to show or log, because no value is in it
+	#   see        Has, DescriptorOf
+	#@ aka  the project's whole credential surface, by name -- safe to show/log.
 	def Names()
 		_out_ = []
 		_n_ = len(@aSecrets)
@@ -226,7 +287,14 @@ class stzSecretStore from stzObject
 		next
 		return _out_
 
-	# the secret OBJECT (still self-redacting -- holding it does not reveal it).
+	# Returns the stored secret object, which is still self-redacting.
+	#
+	#   pcName     the secret's name, matched without regard to case
+	#   returns    a stzSecret, or an empty text when the name is unknown
+	#   note       holding it reveals nothing, and it is a copy: changing it does not change the
+	#              store
+	#   see        DescriptorOf, Reveal
+	#@ aka  the secret OBJECT (still self-redacting -- holding it does not reveal it).
 	def Secret(pcName)
 		_i_ = This._Index(StzLower(ring_trim("" + pcName)))
 		if _i_ = 0
@@ -234,7 +302,13 @@ class stzSecretStore from stzObject
 		ok
 		return @aSecrets[_i_][2]
 
-	# the redacted descriptor of a registered secret (never its value).
+	# Returns the redacted descriptor of a registered secret, never its value.
+	#
+	#   pcName     the secret's name, matched without regard to case
+	#   returns    a text such as <secret 'stripe' (apikey) from env:STRIPE_KEY>, or <no secret
+	#              'name'> when unknown
+	#   see        Secret, Names
+	#@ aka  the redacted descriptor of a registered secret (never its value).
 	def DescriptorOf(pcName)
 		_s_ = This.Secret(pcName)
 		if NOT isObject(_s_)
@@ -242,17 +316,32 @@ class stzSecretStore from stzObject
 		ok
 		return _s_.Descriptor()
 
-	  #-- the ONE governed door to a value (gate + audit) -----------------
-
-	# reveal a secret's plaintext -- GATED (only an effectful, non-sandboxed
-	# actor) and AUDITED (the access is recorded either way). This is the only
-	# path a value leaves the store, so the log is complete.
+	# Returns a secret's plaintext through the store's governed door: only an effectful, non-sandboxed actor passes, and each try is audited.
+	#
+	#   pcName     the name of the secret to read
+	#   poActor    the actor asking, an object that must be effectful and not sandboxed
+	#   returns    a text, the secret's value
+	#   note       a granted read is logged and recorded as secret.reveal.granted, with the secret's
+	#              name and never its value
+	#   warning    raises an error for an unknown name, which is not logged, and for a refused
+	#              actor, which is logged as refused and recorded in the ledger as
+	#              secret.reveal.refused
+	#   see        RevealVia, IsRevealableBy, AccessLog
+	#@ aka  -- the ONE governed door to a value (gate + audit) -----------------
 	def Reveal(pcName, poActor)
 		return This.RevealVia(pcName, "", poActor)
 
-	# reveal through a vault RESOLVER (for a :vault-sourced secret), still gated
-	# and AUDITED by the store. For a non-vault secret the resolver is ignored, so
-	# this is a safe superset of Reveal.
+	# Reveals a secret through a vault resolver for a vault-sourced secret, still gated and audited; for any other secret the resolver is ignored.
+	#
+	#   pcName       the name of the secret to read
+	#   poResolver   the vault resolver object, or an empty text when the secret is not vault-
+	#                sourced
+	#   poActor      the actor asking, an object that must be effectful and not sandboxed
+	#   returns      a text, the secret's value
+	#   note         a superset of Reveal, which calls it with no resolver
+	#   warning      an unknown name and a refused actor raise errors, as for Reveal
+	#   see          Reveal, IsRevealableBy
+	#@ aka  reveal through a vault RESOLVER (for a :vault-sourced secret), still gated and AUDITED by the store. For a non-vault secret the resolver is ignored, so this is a safe superset of Reveal.
 	def RevealVia(pcName, poResolver, poActor)
 		_nm_ = StzLower(ring_trim("" + pcName))
 		_i_ = This._Index(_nm_)
@@ -272,7 +361,13 @@ class stzSecretStore from stzObject
 		This._Audit(poActor, _nm_, "granted")
 		return _sec_.RevealVia(poResolver, poActor)
 
-	# may this actor reveal this secret? (no side effect, no audit entry.)
+	# TRUE if the actor could reveal that secret; asking changes nothing and leaves no audit entry.
+	#
+	#   pcName     the secret's name
+	#   poActor    the actor to test
+	#   returns    TRUE or FALSE; FALSE for an unknown name or an actor that is not an object
+	#   see        Reveal, Secret
+	#@ aka  may this actor reveal this secret? (no side effect, no audit entry.)
 	def IsRevealableBy(pcName, poActor)
 		_s_ = This.Secret(pcName)
 		if NOT isObject(_s_)
@@ -280,23 +375,34 @@ class stzSecretStore from stzObject
 		ok
 		return _s_.IsRevealableBy(poActor)
 
-	  #-- the audit trail (governance made visible) -----------------------
-
-	# [ [ seq, actor, secret, outcome ], ... ] -- who read (or was refused) what.
-	  #-- sealed at rest (R3) ----------------------------------------------
+	# Writes the whole store to a file as one encrypted blob keyed by a key secret; literal values are sealed, other sources by pointer only.
 	#
-	# Write the whole store to pcPath as ONE authenticated-encryption blob
-	# (XChaCha20-Poly1305), keyed by poKeySecret -- itself a stzSecret, whose
-	# 64-hex value comes from wherever secrets come from (an environment
-	# variable, a file, a vault). Literal values are sealed; env / file /
-	# vault secrets are saved as their POINTER only -- the plaintext never
-	# leaves its source. The store's name is bound as the aad, so one store's
-	# file cannot be passed off as another's. Sealing reads every literal
-	# value, so poActor passes the same gate as a reveal.
+	#   pcPath        the file to write, overwritten
+	#   poKeySecret   the stzSecret whose 64-hex value keys the seal
+	#   poActor       the actor performing the seal, effectful and not sandboxed
+	#   returns       the store itself, so calls chain
+	#   note          an environment, file or vault secret is saved as its pointer, so its plaintext
+	#                 never leaves its source; the store's name is bound as context, so a file
+	#                 cannot pass for another store's
+	#   warning       a refused actor raises an error and is recorded; an actor that is not an
+	#                 object also fails closed, but with R13 Object is required and no refusal is
+	#                 recorded
+	#   see           StzSecretStoreFromSealedFile, SaveSealedToVia, Reveal
+	#@ aka  -- the audit trail (governance made visible) -----------------------
 	def SaveSealedTo(pcPath, poKeySecret, poActor)
 		return This.SaveSealedToVia(pcPath, poKeySecret, "", poActor)
 
-	# As SaveSealedTo, with the KEY fetched through a vault resolver (R4).
+	# Writes the sealed store as SaveSealedTo does, with the key secret fetched through a vault resolver.
+	#
+	#   pcPath        the file to write, overwritten
+	#   poKeySecret   the stzSecret that keys the seal
+	#   poResolver    the vault resolver object, or an empty text
+	#   poActor       the actor performing the seal, effectful and not sandboxed
+	#   returns       the store itself, so calls chain
+	#   note          the file reads back with StzSecretStoreFromSealedFile
+	#   warning       same as SaveSealedTo
+	#   see           SaveSealedTo, StzSecretStoreFromSealedFileVia
+	#@ aka  As SaveSealedTo, with the KEY fetched through a vault resolver (R4).
 	def SaveSealedToVia(pcPath, poKeySecret, poResolver, poActor)
 		if NOT (isObject(poActor) and poActor.IsEffectful() and poActor.Posture() != "sandboxed")
 			StzNoteRefusal("secret.reveal.refused", "" + poActor.Name(), "store:" + @cName,
@@ -324,13 +430,28 @@ class stzSecretStore from stzObject
 		write("" + pcPath, "stzsecrets v1" + char(10) + "store=" + @cName + char(10) + _cBlob_ + char(10))
 		return This
 
+	# Returns the audit trail: who read, or was refused, which secret, in order.
+	#
+	#   returns    a list of [ number, actor, secret, outcome ] rows, outcome granted, refused or
+	#              rotated
+	#   note       an unknown name is not logged; the log lives in the object and dies with it,
+	#              which is why each entry also reaches the ledger
+	#   see        NumberOfAccesses, RefusedAccesses
 	def AccessLog()
 		return @aLog
 
+	# Returns how many entries the audit trail holds.
+	#
+	#   returns    a number
+	#   see        AccessLog, RefusedAccesses
 	def NumberOfAccesses()
 		return len(@aLog)
 
-	# refused reveals -- a misuse signal worth watching.
+	# Returns how many reveals were refused, a misuse signal worth watching.
+	#
+	#   returns    a number
+	#   see        AccessLog, stzSecurityPosture
+	#@ aka  refused reveals -- a misuse signal worth watching.
 	def RefusedAccesses()
 		_c_ = 0
 		_n_ = len(@aLog)
@@ -341,6 +462,11 @@ class stzSecretStore from stzObject
 		next
 		return _c_
 
+	# Prints a summary line of the store, then the redacted descriptor of each secret.
+	#
+	#   returns    nothing; it prints
+	#   note       no value is printed
+	#   see        DescriptorOf, AccessLog
 	def Show()
 		? "Secret store '" + @cName + "': " + len(@aSecrets) + " secret(s), " +
 			len(@aLog) + " access(es), " + This.RefusedAccesses() + " refused"

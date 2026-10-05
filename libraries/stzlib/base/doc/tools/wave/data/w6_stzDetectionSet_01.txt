@@ -1,0 +1,10 @@
+init | Builds an empty set of detections with a name. | nothing; the object is built | pcName=the set's name, as text | Add, StzDefaultDetectionSet
+Name | Returns the name of the set. | a text | | Explain
+Add | Adds a detection to the set, kept in the order added. | the set itself, so calls chain | poDetection=the stzDetection to add, already configured | DetectionQ, Names | the set stores a COPY, so a change made to the original afterwards does not reach it: configure before adding, or reach the stored one through DetectionQ | no check for a repeated name; DetectionQ finds the first
+NumberOfDetections | Returns how many detections the set holds. | a number | | Names, Add
+Names | Returns the names of the detections, in the order they were added. | a list of text | | DetectionQ, NumberOfDetections
+DetectionQ | Returns the stored detection of that name, so it can be configured or explained. | a stzDetection | pcName=the detection's name, matched with case | Names, Add | an unknown name raises an error | a change made through it persists, which a change to the original passed to Add does not
+CheckAgainst | Judges a ledger with every detection and returns all findings, in the unified rule shape. | a list of [ :rule, :subject, :where, :severity, :message ] findings; [ ] when nothing matches | poLedger=the stzSecurityLedger to judge | FiredNames, stzDetection | | ready for stzRuleReport; the findings come detection by detection, in order
+FiredNames | Returns the names of the detections that fired on a ledger, once each, in order. | a list of text | poLedger=the stzSecurityLedger to judge | CheckAgainst | | what an incident is opened from
+Explain | Returns the set told as lines of text: a header with the count, then each detection indented. | a list of text | | Show, Names
+Show | Prints the lines Explain returns, one per line. | nothing; it prints | | Explain

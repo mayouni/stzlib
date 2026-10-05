@@ -1,0 +1,18 @@
+{
+ "brief": "Keeps security events as evidence: a bounded, hash-chained ring in the engine that can be made durable, anchored off the machine and sealed.",
+ "detail": "Each entry's digest is the SHA-256 of the previous digest and the entry, computed in the engine and never handed in, so an edit to any entry breaks every digest after it and Verify names the first broken link. The ring forgets: past its capacity the oldest events give way, Count keeps counting and Size is what remains. PersistTo writes every event to an insert-only SQLite file and verifies it from the first entry on restart; an anchor sent off the machine shows a cut tail, which a chain alone cannot; SealTo exports a keyed file. A refused kind writes at most a budgeted number of lines per window, so a stranger cannot flush the evidence. The chain detects retroactive edits only, and protects nothing against an attacker already running code in the process. The pivots (OfActor, OfKind, Refusals, Since ...) return records rebuilt from the stored canonical line.",
+ "receiver": "o1 = new stzSecurityLedger(8)",
+ "example": [
+  "o1.Record(StzSecurityRefusal(\"auth.login.failed\", \"alice\", \"user:alice\", \"bad password\"))",
+  "? o1.Count()",
+  "#--> 1",
+  "? o1.Verify()[:intact]",
+  "#--> 1"
+ ],
+ "see": [
+  "stzSecurityEvent",
+  "stzDetection",
+  "StzOpenSecurityLedger",
+  "StzVerifySealedLedger"
+ ]
+}

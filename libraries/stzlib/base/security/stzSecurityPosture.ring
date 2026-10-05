@@ -55,6 +55,21 @@ func StzSecurityPostureIsSound(poPosture)
  #  STZSECURITYPOSTURE  #
 #=====================#
 
+# Runs the security invariants over a project's surface, its secret store, its sites, its actors and its services, and reports findings.
+#
+# It turns the principle that expression is free and admission is governed into a check. The
+# invariants are no-sandboxed-effectful (an error: a sandboxed actor that holds the effectful
+# capability), inline-key, no-central-store and refused-accesses (warnings), and the findings of an
+# attached service registry. Findings are [ :invariant, :severity, :where, :message ] with the
+# severity written error or warn. IsSound means no error; IsClean means nothing flagged at all. The
+# posture keeps a copy of everything handed to it, so describe the surface completely first and ask
+# last.
+#
+#   receiver   o1 = new stzSecurityPosture("restolean")
+#   example    o1.AddActor(LLMActor("planner"))
+#              ? o1.IsSound()
+#              #--> 1
+#   see        stzSecretStore, stzServiceRegistry, stzSystemActor
 class stzSecurityPosture from stzObject
 
 	@cName = ""
@@ -63,41 +78,84 @@ class stzSecurityPosture from stzObject
 	@aActors = []      # actors to audit
 	@oReg = ""       # the project's stzServiceRegistry (or NULL)
 
+	# Builds an empty posture audit of a project's security surface, with no store, no sites, no actors and no service registry.
+	#
+	#   pcName     the project's name, shown in the report and in findings
+	#   returns    nothing; the object is built
+	#   see        SetStore, AddSite, AddActor
 	def init(pcName)
 		@cName = "" + pcName
 
-	  #-- describe the surface --------------------------------------------
-
+	# Sets the project's central secret store, so the audit can see its refused reveals and tell a store-backed site from an inline key.
+	#
+	#   poStore    the stzSecretStore of the project
+	#   returns    the posture itself, so calls chain
+	#   note       without a store, secret-bearing sites raise the no-central-store warning
+	#   warning    the posture keeps a COPY of the store: reveals refused after this call are not
+	#              seen, so set the store last, just before asking
+	#   see        AddSite, Findings
+	#@ aka  -- describe the surface --------------------------------------------
 	def SetStore(poStore)
 		@oStore = poStore
 		return This
 
+	# Adds a deployment site to audit for a secret it holds inline instead of through the store.
+	#
+	#   poSite     the stzDeploymentSite to audit
+	#   returns    the posture itself, so calls chain
+	#   note       an inline secret raises the inline-key warning
+	#   warning    the posture keeps a COPY of the site
+	#   see        AddActor, SetStore
 	def AddSite(poSite)
 		@aSites + poSite
 		return This
 
+	# Adds an actor to audit for the load-bearing rule that a sandboxed actor must never hold the effectful capability.
+	#
+	#   poActor    the actor to audit, such as HumanActor or LLMActor
+	#   returns    the posture itself, so calls chain
+	#   note       a sandboxed actor that holds effectful is an ERROR finding
+	#   warning    the posture keeps a COPY of the actor: a posture or capability changed after this
+	#              call is not seen
+	#   see        AddSite, Findings
 	def AddActor(poActor)
 		@aActors + poActor
 		return This
 
-	# Attach the external-dependency surface. Its findings already carry this
-	# class's exact shape, so they join the report verbatim -- see
-	# _CheckServiceBindings.
+	# Attaches the project's service registry, so findings about fakes and unbound services join the same audit.
+	#
+	#   poReg      the stzServiceRegistry of the project
+	#   returns    the posture itself, so calls chain
+	#   note       the audit asks the registry in the production frame and restores its phase, so a
+	#              sandbox still bound is reported while there is time to act
+	#   see        ServicesQ, HasServices, Findings
+	#@ aka  Attach the external-dependency surface. Its findings already carry this class's exact shape, so they join the report verbatim -- see _CheckServiceBindings.
 	def SetServices(poReg)
 		@oReg = poReg
 		return This
 
+	# Returns the attached service registry.
+	#
+	#   returns    the stzServiceRegistry, or an empty text when none was attached
+	#   see        SetServices, HasServices
 	def ServicesQ()
 		return @oReg
 
+	# TRUE if a service registry was attached with SetServices.
+	#
+	#   returns    TRUE or FALSE
+	#   see        SetServices, ServicesQ
 	def HasServices()
 		return isObject(@oReg)
 
-	  #-- run the invariants ----------------------------------------------
-
-	# every invariant, as a flat finding list. A finding is
-	# [ :invariant, :severity, :where, :message ] -- same spirit as
-	# stzGovernanceChecks (invariant / severity / message).
+	# Runs every invariant over the described surface and returns the findings as one flat list.
+	#
+	#   returns    a list of [ :invariant, :severity, :where, :message ] findings; [ ] when nothing
+	#              is flagged
+	#   note       the severity is the symbol error or warn, not the word warning that stzDetection
+	#              uses; the findings are recomputed at each call
+	#   see        IsSound, NumberOf, Report, StzSecurityInvariantNames
+	#@ aka  -- run the invariants ----------------------------------------------
 	def Findings()
 		_aF_ = []
 		_a1_ = This._CheckSandboxedEffectful()
@@ -127,17 +185,37 @@ class stzSecurityPosture from stzObject
 		next
 		return _aF_
 
-	# sound = no ERROR findings (warnings are advisory, not blocking).
+	# TRUE if no finding is an error; warnings are advisory and do not block.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsClean, NumberOf, Findings
+	#@ aka  sound = no ERROR findings (warnings are advisory, not blocking).
 	def IsSound()
 		return This.NumberOf(:error) = 0
 
-	# clean = nothing flagged at all.
+	# TRUE if nothing at all is flagged, neither an error nor a warning.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsSound, NumberOfFindings
+	#@ aka  clean = nothing flagged at all.
 	def IsClean()
 		return len(This.Findings()) = 0
 
+	# Returns how many findings the audit raises, errors and warnings together.
+	#
+	#   returns    a number
+	#   see        Findings, NumberOf
 	def NumberOfFindings()
 		return len(This.Findings())
 
+	# Returns how many findings have one severity.
+	#
+	#   pcSeverity   error or warn, as the findings spell it
+	#   returns      a number
+	#   note         NumberOf(:error) and NumberOf(:warn) are the two that count
+	#   warning      warning does not match: the findings say warn, so NumberOf with the word
+	#                warning answers 0, and the match is case-sensitive
+	#   see          Findings, NumberOfFindings
 	def NumberOf(pcSeverity)
 		_c_ = 0
 		_aF_ = This.Findings()
@@ -149,6 +227,11 @@ class stzSecurityPosture from stzObject
 		next
 		return _c_
 
+	# Prints a verdict line for the project, then one line per finding with its severity, invariant, place and message.
+	#
+	#   returns    nothing; it prints
+	#   note       the verdict reads SOUND or UNSOUND (errors present)
+	#   see        Findings, IsSound
 	def Report()
 		_aF_ = This.Findings()
 		? "Security posture of '" + @cName + "': " + This.NumberOf(:error) +
