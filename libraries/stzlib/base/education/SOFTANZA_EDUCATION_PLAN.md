@@ -454,6 +454,38 @@ is about 17 minutes in a fresh checkout, of which the course gate is 210 s and t
 checkout, a different Ring build or an engine built on another branch can each differ in ways this
 plane has not measured; the engine DLLs used here are the ones built for the education worktree.
 
+### E10 · Honest drafts
+
+Building the reviewer's sheet turned up a claim that no guard backed. Since E2 the demo script has told
+decision-makers "every page says it is a draft awaiting a native reviewer"; the reader never said so (the
+word "draft" appears nowhere in the E8 reader). The plan said it in section F and the page did not.
+
+**Status: DONE, 2026-10-05**, `review_narrated.ring` 51 of 51 (70 s). What shipped:
+
+- **A review is a fact.** `program/reviews/<lang>.zknw` holds `<reviewer> | reviewed | <unit>`, and a
+  unit is `chapter:<course>.<id>` (its exercises come with it), `world:<name>`, `skills` or `tutor`.
+  Core and overlay files are merged, so an institution that reviews its own pages never hides the
+  core's. English is the source edition and has no units. Each of fr, ar and ha has **35 units today,
+  and none is reviewed**: the shipped state is 0 of 35 in every language, and the guard never asserts
+  it, because it will change the day someone signs.
+- **`stzProgram`**: `SourceLanguage`, `ReviewUnits`, `ReviewFacts`, `ReviewersOf`, `IsReviewed`,
+  `ReviewCoverage` and `UnknownReviews` (a typo'd unit would otherwise count for nothing, silently).
+- **The page says what a translation is.** Every translated chapter and world page opens with a *draft
+  translation* notice, in the article's own language and direction, until a unit is signed; then it
+  names who signed, in a `<bdi>` so the names keep their direction. English carries nothing.
+- **`tools/review_sheet.ring <out.md> --lang <fr|ar|ha>`** writes the whole language in one file: the
+  instructions, the line that records a sign-off, then every unit -- chapters with their exercise
+  tasks, world pages, the twenty-five skills, and the tutor's texts beside their English originals --
+  with headings demoted so the sheet's outline holds and the code cells untouched. It prints the
+  coverage and warns of review facts that name no unit. A reviewer needs no Softanza and no Git.
+  `build_reader.ring` prints the coverage line too.
+- The demo script's answer to "is it reviewed?" is corrected to what is now true.
+
+**Not claimed.** That anyone has reviewed anything: the coverage is 0 of 35. That a sign-off is
+verified: it is a recorded claim by a named person, and the module cannot check that they speak the
+language. That the unit is the right size: a whole chapter is one unit, so a reviewer who read half of
+it cannot say so.
+
 ## D. The demo script, 15 minutes
 
 | Minute | What the decision maker sees | What proves it |

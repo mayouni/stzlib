@@ -80,6 +80,14 @@ func main
 		next
 		_oRd_.WriteTo(_cOut_)
 		? "WROTE " + _cOut_
+		# a translation says what it is: the page marks every unreviewed one a
+		# draft, and the build prints how many of its units that still is
+		for _i_ = 1 to len(_acLangs_)
+			if _acLangs_[_i_] != _oP_.SourceLanguage()
+				_aCov_ = _oP_.ReviewCoverage(_acLangs_[_i_])
+				? "REVIEW " + _acLangs_[_i_] + ": " + _aCov_[1] + " of " + _aCov_[2] + " units reviewed by a native speaker; the page marks the rest as draft"
+			ok
+		next
 		_acSk_ = EduBuildLeftOut(_acAll_, _acPick_)
 		if len(_acSk_) > 0
 			? "SKIPPED chapters: " + EduBuildJoin(_acSk_)

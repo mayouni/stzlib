@@ -190,6 +190,22 @@ ring build_reader.ring pages/<your-name>.html --overlay ../overlays/<your-name> 
 
 Every verdict is the checker's: it ran the file. A scoped build prints what it skipped, by name.
 
+## 10. Translations, and who has read them
+
+A page in a language says it is a **draft translation** until a native speaker has read it. If your
+overlay carries pages in a language, the reader has recorded who signed them off in
+`reviews/<lang>.zknw` in your overlay (merged with the core's, never hiding it):
+
+```
+knowledge "reviews-fr"
+
+facts
+    aminu | reviewed | chapter:elementary-introduction.find-then-apply
+```
+
+`ring review_sheet.ring sheet.md --lang fr --overlay ../overlays/<your-name>` writes everything a
+reviewer reads, in one file, with the line to record the sign-off.
+
 ## What an overlay may not do
 
 - Replace a core chapter or a core exercise. That is a fork, and the court refuses it.

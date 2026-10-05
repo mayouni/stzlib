@@ -139,8 +139,10 @@ class stzProgram from stzObject
 			ok
 			if NOT fexists(@cCore + "/" + _acFiles_[_i_])
 				_aRes_ + [ _acFiles_[_i_], "adds" ]
-			but StzRight(_acFiles_[_i_], 12) = "/course.zknw"
-				# a course manifest is MERGED into the core's, never shadowing it
+			but StzRight(_acFiles_[_i_], 12) = "/course.zknw" or StzLeft(_acFiles_[_i_], 8) = "reviews/"
+				# a course manifest and a language's reviews are MERGED into the
+				# core's, never shadowing it (an institution never hides who
+				# signed a core page off)
 				_aRes_ + [ _acFiles_[_i_], "merges" ]
 			else
 				_aRes_ + [ _acFiles_[_i_], "shadows" ]
@@ -255,6 +257,115 @@ class stzProgram from stzObject
 
 	def HasWorld()
 		return @cWorld != ""
+
+	#-- review state: which translated units a native speaker has read
+
+	# English is the source edition and is not reviewed here: only the
+	# translations are drafts until someone who speaks them says otherwise.
+	def SourceLanguage()
+		return "en"
+
+	# Every unit a native reviewer can sign off, in a language: each
+	# chapter (with its exercises) of each course that has an edition in
+	# it, each world page, the skills, and the tutor's texts. A unit is
+	# named `chapter:<course>.<id>`, `world:<name>`, `skills` or `tutor`.
+	def ReviewUnits(pcLang)
+		_acRes_ = []
+		if StzLower(pcLang) = This.SourceLanguage()
+			return _acRes_
+		ok
+		_acC_ = This.Courses()
+		_nC_ = len(_acC_)
+		for _i_ = 1 to _nC_
+			_oC_ = This.CourseQ(_acC_[_i_])
+			_acCh_ = _oC_.ChapterIds()
+			_nCh_ = len(_acCh_)
+			for _j_ = 1 to _nCh_
+				if _oC_.ChapterFile(_acCh_[_j_], pcLang) != ""
+					_acRes_ + ("chapter:" + _acC_[_i_] + "." + _acCh_[_j_])
+				ok
+			next
+		next
+		_acW_ = This.WorldIds()
+		_nW_ = len(_acW_)
+		for _i_ = 1 to _nW_
+			if This.WorldPageFile(_acW_[_i_], pcLang) != ""
+				_acRes_ + ("world:" + _acW_[_i_])
+			ok
+		next
+		_acRes_ + "skills"
+		_acRes_ + "tutor"
+		return _acRes_
+
+	# The facts `<reviewer> | reviewed | <unit>` of a language, from the
+	# core's reviews/<lang>.zknw AND the overlay's (merged, so an
+	# institution that reviews its own pages never hides the core's).
+	def ReviewFacts(pcLang)
+		_aRes_ = []
+		_cRel_ = "reviews/" + StzLower(pcLang) + ".zknw"
+		_acRoots_ = [ @cCore ]
+		if @cOverlay != ""
+			_acRoots_ + @cOverlay
+		ok
+		_nR_ = len(_acRoots_)
+		for _r_ = 1 to _nR_
+			if fexists(_acRoots_[_r_] + "/" + _cRel_)
+				_aF_ = _EduFactsOf(_acRoots_[_r_] + "/" + _cRel_)
+				_nF_ = len(_aF_)
+				for _i_ = 1 to _nF_
+					if StzLower(_aF_[_i_][2]) = "reviewed"
+						_aRes_ + _aF_[_i_]
+					ok
+				next
+			ok
+		next
+		return _aRes_
+
+	# Who has reviewed a unit, in a language ([] when nobody has).
+	def ReviewersOf(pcLang, pcUnit)
+		_acRes_ = []
+		_aF_ = This.ReviewFacts(pcLang)
+		_nF_ = len(_aF_)
+		_cU_ = StzLower(pcUnit)
+		for _i_ = 1 to _nF_
+			if StzLower(_aF_[_i_][3]) = _cU_ and StzFindFirst(_aF_[_i_][1], _acRes_) = 0
+				_acRes_ + _aF_[_i_][1]
+			ok
+		next
+		return _acRes_
+
+	def IsReviewed(pcLang, pcUnit)
+		return len(This.ReviewersOf(pcLang, pcUnit)) > 0
+
+	# [ units reviewed, units in all ] for a language.
+	def ReviewCoverage(pcLang)
+		_acU_ = This.ReviewUnits(pcLang)
+		_nU_ = len(_acU_)
+		_n_ = 0
+		for _i_ = 1 to _nU_
+			if This.IsReviewed(pcLang, _acU_[_i_])
+				_n_++
+			ok
+		next
+		return [ _n_, _nU_ ]
+
+	# Review facts that name no unit of the language: a typo would
+	# otherwise count for nothing, silently.
+	def UnknownReviews(pcLang)
+		_acRes_ = []
+		_acU_ = This.ReviewUnits(pcLang)
+		_aF_ = This.ReviewFacts(pcLang)
+		_nF_ = len(_aF_)
+		_acLow_ = []
+		for _i_ = 1 to len(_acU_)
+			_acLow_ + StzLower(_acU_[_i_])
+		next
+		for _i_ = 1 to _nF_
+			if StzFindFirst(StzLower(_aF_[_i_][3]), _acLow_) = 0 and StzFindFirst(_aF_[_i_][3], _acRes_) = 0
+				_acRes_ + _aF_[_i_][3]
+			ok
+		next
+		return _acRes_
 
 	#-- a page per world: the world itself, questioned, in the chapter format
 

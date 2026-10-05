@@ -284,6 +284,16 @@ func _EduTemplates()
 	[ "cell-no-output", "ar", "لا تخزّن هذه الصفحة أي نتيجة. شغّل الخلية لترى ما تطبعه." ],
 	[ "cell-no-output", "ha", "Wannan shafin ba ya ajiye sakamako. Gudanar da ɗakin don ganin abin da yake bugawa." ],
 
+	[ "draft-note", "en", "Draft translation: not yet reviewed by a native speaker." ],
+	[ "draft-note", "fr", "Traduction provisoire : pas encore relue par un locuteur natif." ],
+	[ "draft-note", "ar", "ترجمة أولية: لم يراجعها بعدُ ناطق أصلي بالعربية." ],
+	[ "draft-note", "ha", "Fassara ta farko: wani ɗan asalin harshen Hausa bai riga ya duba ta ba tukuna." ],
+
+	[ "reviewed-note", "en", "Reviewed by a native speaker: %1." ],
+	[ "reviewed-note", "fr", "Relue par un locuteur natif : %1." ],
+	[ "reviewed-note", "ar", "راجعها ناطق أصلي: %1." ],
+	[ "reviewed-note", "ha", "Wani ɗan asalin harshe ya duba ta: %1." ],
+
 	[ "world-page", "en", "World" ],
 	[ "world-page", "fr", "Monde" ],
 	[ "world-page", "ar", "عالم" ],
