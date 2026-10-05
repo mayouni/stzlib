@@ -219,7 +219,7 @@ func _TourRead(pcPath)
 				         :claim = trim(substr(_t_, 2, len(_t_) - 1)),
 				         :want = trim(substr(_cW_, 5, len(_cW_) - 4)) ]
 			but _TourIsVerdictLine(_lt_)
-				_aC_ = [ :line = _i_, :kind = "marker", :claim = _TourFirstString(_t_), :want = "" ]
+				_aC_ = [ :line = _i_, :kind = "marker", :claim = _TourMarkerText(_TourFirstString(_t_)), :want = "" ]
 			ok
 		ok
 		if len(_aC_) = 0  loop  ok
@@ -378,6 +378,23 @@ func _TourFirstString(pcLine)
 		ok
 	next
 	return substr(pcLine, _nOpen_ + 1, _n_ - _nOpen_)
+
+# a hand-printed verdict, reduced to the claim it names, so the traveller's
+# reading of the same line matches it: "  [OK] one is one" -> "one is one",
+# "THEN  it validates  [PASS]" -> "it validates"
+func _TourMarkerText(pcPrinted)
+	_c_ = trim("" + pcPrinted)
+	if substr(_c_, "THEN ") = 1  _c_ = trim(substr(_c_, 6, len(_c_) - 5))  ok
+	_acM_ = [ "[PASS]", "[FAIL]", "[OK]", "[ok]", "[pass]", "[fail]", "[Ok]" ]
+	_nM_ = len(_acM_)
+	for _k_ = 1 to _nM_
+		_n_ = substr(_c_, _acM_[_k_])
+		if _n_ > 0
+			_c_ = substr(_c_, 1, _n_ - 1) + substr(_c_, _n_ + len(_acM_[_k_]), len(_c_))
+			exit
+		ok
+	next
+	return trim(_c_)
 
 # a printed line that names a scene, a section or a part is a stop
 func _TourIsBanner(pcLowerLine)

@@ -62,16 +62,40 @@ was case-sensitive and did not count it); a planted file with no claim reports
 "runs, asserts nothing"; an unknown dialect is named, and the file is byte-identical
 after the read.
 
-### TR1 -- The runner -- NEXT
+### TR1 -- The runner -- DONE 2026-10-05
 
-One process per batch; exit 0 when every stop is kept or unperceived, 1 when a stop
-diverged or a tour did not start, 2 when the runner itself refused. JSON on a pipe,
-prose on a terminal, from one run. Wall time per stop. Skipped by name. Owned and
-run as two figures, never summed. `pf()` as a state. A `--topic` scope that prints
-what it skipped. Probed 2026-10-05: `shutdown(n)` sets Ring's process exit code
-(n modulo 256), an uncaught error exits 1, a missing `load` prints E9 and exits 0.
-Before writing it: ask Central whether stzlib-general has begun
-COMPASS-AGENTTOOLS-01; if so, consume its runner and add the tour contract.
+`base/testoor/stzTraveller.ring` and the entry `base/testoor/testoor.ring` (run from
+its folder: `ring testoor.ring --topic uuid [--json] [--file F] [--all] [--root D]
+[--timeout MS] [--by WHO]`). One runner process per batch; one child Ring per tour,
+started BY ARGV in the tour's own folder (Ring resolves `load` against the working
+directory), read as it prints, held to a deadline, then judged by pairing the
+printed verdicts with the reader's claims by text. Exit 0 when every stop is kept
+or unperceived; 1 when a stop diverged or a tour did not start -- and when a tour
+broke or hung, a decision recorded in CONCLUSIONS; 2 when the runner refused. JSON
+on a pipe, prose on a terminal, from one run. Wall time per stop from the arrival
+of its opening line. Owned and run as two figures. Skipped by name, and under
+`--topic` the other topics named. `pf()` is the state finished-timed, never a
+failure. Guard: `base/test/testoor/testoor_runner_narrated.ring`, 80 assertions,
+exit 0/1/2 read in-process and again through the OS from a child `ring
+testoor.ring`.
+
+Three engine seams, all in `engine/src/system.zig`: `stz_process_spawn_argv` (no
+shell between: a quote in an argument no longer kills the command silently, and
+kill() reaches the program -- through cmd.exe it reached only cmd.exe and the hung
+tour kept beating), `stz_process_read_stdout_available` (non-blocking) and
+`stz_process_wait_for` (timed; the pipes stay open so a child that exits between
+two polls is drained to its last line). Ring faces: `stzProcess.SpawnIn()`,
+`ReadAvailable()`, `StdoutEnded()`, `WaitFor()`, `IsRunning()`.
+
+Measured: the uuid topic, 9 tours, owned 9 run 9, 20 kept 9 diverged (the one-off
+UUID values recorded as promises), 8 finished-timed, exit 1, 43 s of which every
+second is a child loading the library (each tour's own stops take under a
+millisecond once loaded). The guard: 69 s, 41 of them the uuid children. A
+per-line trace hook was probed and refused as the default instrument: 11.5
+microseconds per event, and the library load does not finish under it in three
+minutes. Central was asked about COMPASS-AGENTTOOLS-01 before TR1 and had not
+answered; the runner was written here, as the ASK allows, and the stz desk's verb
+calls it as a child.
 
 ### TR2 -- Promises as stops -- PLANNED
 
