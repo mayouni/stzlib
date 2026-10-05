@@ -14,9 +14,10 @@ a platform meets them, and every `#-->` is what the block printed when the guard
 that Softanza ships in-process, so nobody's money moves while you read.
 
 What this page does **not** claim, in the order it matters: no payment here was made at the
-BCEAO, so *nobody has perceived* the live adapter pay anyone; the picture of a QR code
-(the EMV payload a phone's camera reads) is the BCEAO's published SDK's job and is not
-built here; and the platform is promised the BCEAO's contract, not the homologation of any
+BCEAO, so *nobody has perceived* the live adapter pay anyone; the code's
+payload is built and read here, but the black-and-white picture of it (the matrix a camera
+reads) is a different layer, not built, and no PI-SPI application has scanned a payload
+made here; and the platform is promised the BCEAO's contract, not the homologation of any
 one participant.
 
 ---
@@ -55,39 +56,33 @@ done
 
 ## The platform shows a dynamic QR
 
-A dynamic QR is a request to pay that is made for ONE sale: the shop's till asks the hub for
-the money, and the customer's own banking application, after scanning the code, answers it.
-At the level of the contract that is a *demande de paiement*, in the category the hub
-reserves for a payment made on the spot (`500`), with an identifier the platform chose and
-a time after which it no longer stands.
+A dynamic QR is made for ONE sale. What the customer's camera reads is not a picture of
+an order; it is a short string in the format the BCEAO published, and it says three things:
+whose account is paid (the shop's PI-SPI alias), how much, and a label the shop will
+reconcile on. The customer's own banking application reads it and makes an ordinary payment
+to that alias. Nothing else travels in the code, and nobody in between takes a fee for carrying it.
 
 ```ring
-oRtp = StzPaymentRequestQ()
-oRtp.WithTxId("BOUTIQUE-2026-001")                   # the platform's own id for this sale: the idempotency key
-oRtp.FromAlias(oHub.Alias("fatou"))                  # who is asked
-oRtp.ToAlias(oHub.BusinessAlias())                   # where the money goes
-oRtp.WithAmount( StzAmountQ("18500", "XOF") )
-oRtp.InCategory("500")                               # on-site
-oRtp.PayableBy("2026-10-05")
-oRtp.AnswerableBy("2026-10-05")
-oRtp.Motive("Boutique, panier 001")
-oRtp.WithoutConfirmation()
+oQr = StzPispiQrQ()
+oQr.WithAlias(oHub.BusinessAlias())
+oQr.InCountry("NE")
+oQr.AsDynamic()                                      # made for one sale
+oQr.WithReference("BOUTIQUE-2026-001")               # at most 25 characters: what the payer sees, what we reconcile on
+oQr.WithAmount( StzAmountQ("18500", "XOF") )
+cQr = oQr.Payload()
+? StzFindFirst("int.bceao.pi", cQr) > 0              #--> 1
 
-aQ = oPay.RequestPayment(oRtp)
-? aQ[:statut]                                        #--> ENVOYE
+aRead = StzPispiQrParse(cQr)                         # any such string can be read back
+? aRead[:valid]                                      #--> 1
+aData = aRead[:data]
+? aData[:qrType]                                     #--> DYNAMIC
+? aData[:amount]                                     #--> 18500
 ```
 
-`ENVOYE` is the whole truth at this moment: the hub has the request and the customer has not
-answered. *Pending is a state*, not an error, and nothing in the platform should treat a
-customer who is still reading the screen as one who has refused.
-
-Sending the same sale twice does not ask the customer twice. The `txId` is the key, and
-the port answers a second send with the first one's result:
-
-```ring
-aAgain = oPay.RequestPayment(oRtp)
-? aAgain[:replayed]                                  #--> 1
-```
+A string whose checksum does not match is read as invalid, and the reader says why instead
+of raising, since a till will meet strings it did not make. The picture of the string, the
+black-and-white matrix, is drawn by a layer this page does not build; the string is what
+the hub's world agrees on.
 
 ---
 
@@ -100,14 +95,17 @@ every call with it; the port keeps the secret and verifies what arrives.
 ```ring
 oPay.RegisterWebhook( StzWebhookQ().CallingBack("https://boutique.example/pispi").OnEvents(["PAIEMENT_RECU"]) )
 
-oHub.AdvanceSeconds(25)                              # the customer scanned and accepted; the hub makes it final
-aQ2 = oPay.RequestedPayment("BOUTIQUE-2026-001")
-? aQ2[:statut]                                       #--> IRREVOCABLE
+eRecu = oHub.SimulateIncomingPayment("fatou", 18500, "BOUTIQUE-2026-001")   # the customer scanned and paid
+aRecus = oPay.ReceivedPayments([])
+? len(aRecus)                                        #--> 1
+? aRecus[1][:statut]                                 #--> IRREVOCABLE
+? aRecus[1][:motif]                                  #--> BOUTIQUE-2026-001
 ? oHub.Balance()                                     #--> 50018500
 ```
 
 `IRREVOCABLE` is the hub's word for *the money is yours and cannot be taken back by the payer*.
-The balance rose by 18 500, and the hub called the platform:
+The twin made the customer's payment final at once, as a real hub does for a payment received;
+the balance rose by 18 500, and the hub called the platform:
 
 ```ring
 aEv = oPay.ReceiveWebhook(oHub.LastCallbackBody(), oHub.LastCallbackSignature())
@@ -115,6 +113,10 @@ aEv = oPay.ReceiveWebhook(oHub.LastCallbackBody(), oHub.LastCallbackSignature())
 aEvents = aEv[:events]
 ? aEvents[1][:evCode]                                #--> PAIEMENT_RECU
 ```
+
+Pending is a state, not an error: a customer who has scanned and not yet confirmed has paid
+nothing, and the platform must not treat the code as refused. The webhook is what says that
+the money arrived.
 
 A webhook is a door that anybody who knows the address can knock on, so what the platform
 does with a call it did not verify is the point of the page. A call whose signature is wrong
@@ -282,7 +284,7 @@ a thing a person must watch happen, and until one has, it is *unperceived*.
 
 ## What the platform now has
 
-- a customer's payment that is **asked for once**, whatever the network does to the request,
+- a code at the till in the BCEAO's own format, **built and read back with its checksum checked**,
 - an event that is **verified before it is believed**, and noted when it is not,
 - a payment out that **cannot leave without a plan a human committed**, under the rule the
   platform wrote, with the record of who signed it,
