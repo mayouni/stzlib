@@ -2,6 +2,27 @@
 #  stzGraphPlanner - Enhanced Version
 #============================================#
 
+# Plans the cheapest route through a graph under named plans, criteria and profiles, then explains, compares and filters the plans.
+#
+# A planner takes a copy of a stzGraph when it is built. Each plan has a start and a goal (a node,
+# or a function that tests nodes), criteria to minimise or maximise over the edge properties (or a
+# profile: fastest, safest, cheapest, shortest, balanced, efficient) and, once executed, a result:
+# the actions, their total cost and the route. The search runs in the engine as a uniform-cost
+# search, so the route is the cheapest for non-negative costs. Every execution is also kept in a
+# history. The comparison, ranking, filtering and history calls work on the executed plans, and
+# stzGraphPlanner has a very large set of alternative spellings for the same calls.
+#
+#   receiver   g1 = new stzGraph("g1"); g1.AddNodeXTT("a", "A", [ :x = 0 ]); g1.AddNodeXTT("b", "B",
+#              [ :x = 1 ]); g1.AddNodeXTT("c", "C", [ :x = 2 ]); g1.AddEdgeXTT("a", "b", "r", [
+#              :distance = 5, :cost = 1 ]); g1.AddEdgeXTT("b", "c", "r", [ :distance = 5, :cost = 9
+#              ]); g1.AddEdgeXTT("a", "c", "r", [ :distance = 20, :cost = 2 ]); o1 = new
+#              stzGraphPlanner(g1); o1.AddPlan("short"); o1.Walk("a", "c"); o1.Minimize("distance");
+#              o1.Execute(); o1.AddPlan("cheap"); o1.Walk("a", "c"); o1.Minimize("cost");
+#              o1.Execute()
+#   example    ? @@( o1.Route() )
+#              #--> [ "a", "c" ]
+#   see        stzGraph, stzPlanComparison, stzMultiPlanComparison, stzPlanFilter,
+#              stzHistoricalComparison
 class stzGraphPlanner from stzObject
 	@oGraph
 	@aPlans  
@@ -10,6 +31,14 @@ class stzGraphPlanner from stzObject
 
 	@aHistory  # Historical plan executions
 
+	# Builds a planner over a graph, taking a copy of it at that moment, with no plan yet and the six named profiles ready.
+	#
+	#   poGraph    The stzGraph to plan over
+	#   returns    nothing; the planner is built
+	#   note       anything but a stzGraph raises an error
+	#   warning    a node or an edge added to the graph afterwards is not seen by the planner:
+	#              Execute then raises, for example, Node 'c' does not exist
+	#   see        AddPlan, Profile
 	def init(poGraph)
 		if NOT @IsStzGraph(poGraph)
 			stzraise("Parameter must be a stzGraph object!")
@@ -52,6 +81,16 @@ class stzGraphPlanner from stzObject
 			]
 		]
 
+	# Returns the criteria of a named profile: fastest, safest, cheapest, shortest, balanced or efficient; [ ] for any other name.
+	#
+	#   _cProfile_   The profile name, as text without a leading colon
+	#   returns      a list of hash lists [ :property, :direction, :weight ]; [ ] when unknown
+	#   note         the criteria are fastest: time .7 and distance .3; safest: danger .8 and risk
+	#                .2; cheapest: cost .8 and distance .2; shortest: distance 1; balanced: time .4,
+	#                cost .3, distance .3; efficient: energy .6 and time .4
+	#   warning      a name written with a colon such as :fastest finds nothing here, though Using
+	#                accepts it
+	#   see          Using, AddPlan
 	def Profile(_cProfile_)
 		_cProfile_ = StzLower(_cProfile_)
 		if HasKey(@aProfiles, _cProfile_)
@@ -63,6 +102,15 @@ class stzGraphPlanner from stzObject
 	#  PLAN MANAGEMENT      #
 	#-----------------------#
 	
+	# Creates an empty plan under a lowercase name and makes it the current plan.
+	#
+	#   pcPlanName   The plan name, as text
+	#   returns      nothing; the planner changes
+	#   note         a plan holds a start, a goal, criteria, constraints and, after Execute, a
+	#                result; a non-text name raises an error
+	#   warning      a name already used is added a second time, and the first plan of that name is
+	#                the one every later call finds
+	#   see          SetCurrentPlan, Walk, Using
 	def AddPlan(pcPlanName)
 		if CheckParams()
 			if NOT isString(pcPlanName)
@@ -75,6 +123,13 @@ class stzGraphPlanner from stzObject
 
 		This.SetCurrentPlan(pcPlanName)
 
+	# Returns the raw data of a plan: start, goal, goal function, criteria, constraints, result, explored nodes and decision points.
+	#
+	#   pcPlanName   The plan name, as text
+	#   returns      a list of 8 slots
+	#   note         the slots are in that order; the result slot is empty text until Execute
+	#   warning      an unknown name raises error R2, an index out of range
+	#   see          AddPlan, Explain
 	def Plan(pcPlanName)
 		if CheckParams()
 			if NOT isString(pcPlanName)
@@ -85,6 +140,13 @@ class stzGraphPlanner from stzObject
 		pcName = StzLower(pcPlanName)
 		return @aPlans[pcPlanName]
 
+	# Makes a plan the current one, the one every call without a plan name works on.
+	#
+	#   pcPlanName   The plan name, as text
+	#   returns      nothing; the planner changes
+	#   note         WorkOnPlan is the same call
+	#   warning      an unknown name raises Inexistant plan
+	#   see          CurrentPlan, AddPlan
 	def SetCurrentPlan(pcPlanName)
 		if CheckParams()
 			if NOT isString(pcPlanName)
@@ -100,12 +162,27 @@ class stzGraphPlanner from stzObject
 
 		@cCurrentPlan = pcPlanName
 
+		# Makes a plan the current one; another spelling of the current-plan call.
+		#
+		#   pcPlanName   The plan name, as text
+		#   returns      nothing; the planner changes
+		#   see          SetCurrentPlan
 		def WorkOnPlan(pcPlanName)
 			This.SetCurrentPlan(pcPlanName)
 
+	# Returns the name of the current plan, in lowercase; the last plan added or chosen.
+	#
+	#   returns    text
+	#   see        SetCurrentPlan, AddPlan
 	def CurrentPlan()
 		return @cCurrentPlan
 
+	# Deletes a plan; refused for the only plan, for the current plan and for an unknown name.
+	#
+	#   pcPlanName   The plan name, as text
+	#   returns      nothing; the planner changes
+	#   warning      each refusal raises an error, so make another plan current first
+	#   see          SetCurrentPlan, AddPlan
 	def RemovePlan(pcPlanName)
 		if CheckParams()
 			if NOT isString(pcPlanName)
@@ -144,12 +221,36 @@ class stzGraphPlanner from stzObject
 	#  CONFIGURING A PLAN  #
 	#----------------------#
 
+	# Sets the start and the goal of the current plan; the goal may be a node id or a function that tests a node.
+	#
+	#   pcFrom     The id of the node to start from
+	#   pcTo       The id of the node to reach, or a function that takes a node and says TRUE at a
+	#              goal
+	#   returns    nothing; the planner changes
+	#   note       a goal function goes to ToReachF
+	#   warning    the ids are not checked until Execute; with the pairs :From = and :To = the
+	#              values are taken from the pairs
+	#   see        WalkIn, From, To, Execute
 	def Walk(pcFrom, pcTo)
 		This.WalkXT(This.CurrentPlan(), pcFrom, pcTo)
 
+		# Sets the start and the goal of the current plan; another spelling of the walk call.
+		#
+		#   pcFrom     The id of the node to start from
+		#   pcTo       The id of the node to reach, or a function that takes a node and says TRUE at
+		#              a goal
+		#   returns    nothing; the planner changes
+		#   see        Walk
 		def WalkFrom(pcFrom, pcTo)
 			This.WalkXT(This.CurrentPlan(), pcFrom, pcTo)
 
+		# Sets the start and the goal of the current plan; another spelling of the walk call.
+		#
+		#   pcFrom     The id of the node to start from
+		#   pcTo       The id of the node to reach, or a function that takes a node and says TRUE at
+		#              a goal
+		#   returns    nothing; the planner changes
+		#   see        Walk
 		def WalkFromNode(pcFrom, pcTo)
 			This.WalkXT(This.CurrentPlan(), pcFrom, pcTo)
 
@@ -176,15 +277,44 @@ class stzGraphPlanner from stzObject
 		@aPlans[_nPos_][2][1] = pcFrom
 		@aPlans[_nPos_][2][2] = pcTo
 
+		# Sets the start and the goal of a named plan; an unknown plan name raises an error.
+		#
+		#   pcPlanName   The plan name, as text
+		#   pcFrom       The id of the node to start from
+		#   pcTo         The id of the node to reach, or a function that takes a node and says TRUE
+		#                at a goal
+		#   returns      nothing; the planner changes
+		#   warning      the ids are not checked until Execute
+		#   see          Walk, From, To
 		def WalkIn(pcPlanName, pcFrom, pcTo)
 			This.WalkXT(pcPlanName, pcFrom, pcTo)
 
+		# Sets the start and the goal of a named plan; another spelling of the walk-in call.
+		#
+		#   pcPlanName   The plan name, as text
+		#   pcFrom       The id of the node to start from
+		#   pcTo         The id of the node to reach, or a function that takes a node and says TRUE
+		#                at a goal
+		#   returns      nothing; the planner changes
+		#   see          WalkIn
 		def WalkInPlan(pcPlanName, pcFrom, pcTo)
 			This.WalkXT(pcPlanName, pcFrom, pcTo)
 
+	# Sets the start node of the current plan.
+	#
+	#   pcFrom     The id of the node to start from
+	#   returns    nothing; the planner changes
+	#   warning    the id is not checked until Execute, which raises Invalid start node for an
+	#              unknown one
+	#   see        To, Walk
 	def From(pcFrom)
 		This.FromXT(This.CurrentPlan(), pcFrom)
 
+		# Sets the start node of the current plan; another spelling of the start call.
+		#
+		#   pcFrom     The id of the node to start from
+		#   returns    nothing; the planner changes
+		#   see        From
 		def FromNode(pcFrom)
 			This.From(pcFrom)
 
@@ -198,9 +328,22 @@ class stzGraphPlanner from stzObject
 		def FromNodeXT(pcPlanName, pcFrom)
 			This.FromXT(pcPlanName, pcFrom)
 
+	# Sets the goal of the current plan: a node id, or a function that tests nodes.
+	#
+	#   pcTo       The id of the node to reach, or a function that takes a node and says TRUE at a
+	#              goal
+	#   returns    nothing; the planner changes
+	#   warning    a goal node wins over a goal function when both are set
+	#   see        From, Walk, ToReachF
 	def To(pcTo)
 		This.ToXT(This.CurrentPlan(), pcTo)
 
+		# Sets the goal of the current plan; another spelling of the goal call.
+		#
+		#   pcTo       The id of the node to reach, or a function that takes a node and says TRUE at
+		#              a goal
+		#   returns    nothing; the planner changes
+		#   see        To
 		def ToNode(pcTo)
 			This.To(pcTo)
 
@@ -222,15 +365,43 @@ class stzGraphPlanner from stzObject
 	def ToF(pGoalFunc)
 		This.ToFXT(This.CurrentPlan(), pGoalFunc)
 
+		# Sets a goal function on the current plan: the search stops at the first node it accepts, cheapest first.
+		#
+		#   pGoalFunc   A function that takes a node record and answers TRUE when the goal is
+		#               reached
+		#   returns     nothing; the planner changes
+		#   note        the goal function receives the node as a hash list [ :id, :label,
+		#               :properties ]
+		#   warning     anything but a function raises an error; if no node is accepted the plan
+		#               ends with an empty route and a cost of 0
+		#   see         To, ReachF, Execute
 		def ToReachF(pGoalFunc)
 			This.ToF(pGoalFunc)
 
+		# Sets a goal function on the current plan; another spelling of the goal-function call.
+		#
+		#   pGoalFunc   A function that takes a node record and answers TRUE when the goal is
+		#               reached
+		#   returns     nothing; the planner changes
+		#   see         ToReachF
 		def ReachF(pGoalFunc)
 			This.ToF(pGoalFunc)
 
+		# Sets a goal function on the current plan; another spelling of the goal-function call.
+		#
+		#   pGoalFunc   A function that takes a node record and answers TRUE when the goal is
+		#               reached
+		#   returns     nothing; the planner changes
+		#   see         ToReachF
 		def UntilReachF(pGoalFunc)
 			This.ToF(pGoalFunc)
 
+		# Sets a goal function on the current plan; another spelling of the goal-function call.
+		#
+		#   pGoalFunc   A function that takes a node record and answers TRUE when the goal is
+		#               reached
+		#   returns     nothing; the planner changes
+		#   see         ToReachF
 		def UntilYouReachF(pGoalFunc)
 			This.ToF(pGoalFunc)
 
@@ -262,23 +433,71 @@ class stzGraphPlanner from stzObject
 		def ToXTF(pcPlanName, pGoalFunc)
 			This.ToFXT(pcPlanName, pGoalFunc)
 
+		# Sets a goal function on a named plan, so the search for it stops at the first node the function accepts.
+		#
+		#   pcPlanName   The plan name, as text
+		#   pGoalFunc    A function that takes a node record and answers TRUE when the goal is
+		#                reached
+		#   returns      nothing; the planner changes
+		#   warning      an unknown plan name raises Plan not found
+		#   see          ToReachF, Execute
 		def ToReachXTF(pcPlanName, pGoalFunc)
 			This.ToFXT(pcPlanName, pGoalFunc)
 
+		# Sets a goal function on a named plan, so the search for it stops at the first node the function accepts.
+		#
+		#   pcPlanName   The plan name, as text
+		#   pGoalFunc    A function that takes a node record and answers TRUE when the goal is
+		#                reached
+		#   returns      nothing; the planner changes
+		#   warning      an unknown plan name raises Plan not found
+		#   see          ToReachF, Execute
 		def ReachXTF(pcPlanName, pGoalFunc)
 			This.ToFXT(pcPlanName, pGoalFunc)
 
+		# Sets a goal function on a named plan, so the search for it stops at the first node the function accepts.
+		#
+		#   pcPlanName   The plan name, as text
+		#   pGoalFunc    A function that takes a node record and answers TRUE when the goal is
+		#                reached
+		#   returns      nothing; the planner changes
+		#   warning      an unknown plan name raises Plan not found
+		#   see          ToReachF, Execute
 		def UntilReachXTF(pcPlanName, pGoalFunc)
 			This.ToFXT(pcPlanName, pGoalFunc)
 
+		# Sets a goal function on a named plan, so the search for it stops at the first node the function accepts.
+		#
+		#   pcPlanName   The plan name, as text
+		#   pGoalFunc    A function that takes a node record and answers TRUE when the goal is
+		#                reached
+		#   returns      nothing; the planner changes
+		#   warning      an unknown plan name raises Plan not found
+		#   see          ToReachF, Execute
 		def UntilYouReachXTF(pcPlanName, pGoalFunc)
 			This.ToFXT(pcPlanName, pGoalFunc)
 
-	#--
-
+	# Gives the current plan the criteria of a named profile, or a criteria list of your own, replacing the earlier ones.
+	#
+	#   pProfile   A profile name such as :fastest, :safest, :cheapest, :shortest, :balanced or
+	#              :efficient, or a list of criteria hash lists
+	#   returns    nothing; the planner changes
+	#   note       a profile's criteria use edge properties: every edge must carry them or Execute
+	#              raises
+	#   warning    an unknown profile name raises Unknown profile; a criterion written by hand
+	#              without :weight is searched with weight 1 but shown with an empty weight by
+	#              CostBreakdown
+	#   see        Profile, Minimize, Execute
+	#@ aka  --
 	def Using(pProfile)
 		This.UsingXT(pProfile, This.CurrentPlan())
 
+		# Gives the current plan the criteria of a named profile; another spelling of the profile call.
+		#
+		#   pProfile   A profile name such as :fastest, :safest, :cheapest, :shortest, :balanced or
+		#              :efficient, or a list of criteria hash lists
+		#   returns    nothing; the planner changes
+		#   see        Using
 		def UsingProfile(pProfile)
 			This.UsingXT(pProfile, This.CurrentPlan())
 
@@ -314,29 +533,70 @@ class stzGraphPlanner from stzObject
 		def UsingProfileXT(pProfile, pcPlanName)
 			This.UsingXT(pProfile, pcPlanName)
 
-	#--
-
+	# Adds a criterion that minimises an edge property to the current plan, with weight 1, after the criteria it already has.
+	#
+	#   pcProperty   The edge property to optimise, as text such as distance, time or cost
+	#   returns      nothing; the planner changes
+	#   warning      criteria add up: a plan given Using(:fastest) and Minimize("cost") weighs time,
+	#                distance and cost; every edge must carry the property or Execute raises
+	#   see          Maximize, Using, Execute
+	#@ aka  --
 	def Minimize(pcProperty)
 		This.MinimizeXT(pcProperty, This.CurrentPlan())
 
+		# Adds a minimising criterion to the current plan; another spelling of the minimise call.
+		#
+		#   pcProperty   The edge property to optimise, as text such as distance, time or cost
+		#   returns      nothing; the planner changes
+		#   see          Minimize
 		def Minimise(pcProperty)
 			This.MinimizeXT(pcProperty, This.CurrentPlan())
 
+		# Adds a minimising criterion to the current plan; another spelling of the minimise call.
+		#
+		#   pcProperty   The edge property to optimise, as text such as distance, time or cost
+		#   returns      nothing; the planner changes
+		#   see          Minimize
 		def Minimising(pcProperty)
 			This.MinimizeXT(pcProperty, This.CurrentPlan())
 
+		# Adds a minimising criterion to the current plan; another spelling of the minimise call.
+		#
+		#   pcProperty   The edge property to optimise, as text such as distance, time or cost
+		#   returns      nothing; the planner changes
+		#   see          Minimize
 		def Minimizing(pcProperty)
 			This.MinimizeXT(pcProperty, This.CurrentPlan())
 
+		# Adds a minimising criterion to the current plan; another spelling of the minimise call.
+		#
+		#   pcProperty   The edge property to optimise, as text such as distance, time or cost
+		#   returns      nothing; the planner changes
+		#   see          Minimize
 		def MinimizeFor(pcProperty)
 			This.MinimizeXT(pcProperty, This.CurrentPlan())
 
+		# Adds a minimising criterion to the current plan; another spelling of the minimise call.
+		#
+		#   pcProperty   The edge property to optimise, as text such as distance, time or cost
+		#   returns      nothing; the planner changes
+		#   see          Minimize
 		def MinimiseFor(pcProperty)
 			This.MinimizeXT(pcProperty, This.CurrentPlan())
 
+		# Adds a minimising criterion to the current plan; another spelling of the minimise call.
+		#
+		#   pcProperty   The edge property to optimise, as text such as distance, time or cost
+		#   returns      nothing; the planner changes
+		#   see          Minimize
 		def MinimisingFor(pcProperty)
 			This.MinimizeXT(pcProperty, This.CurrentPlan())
 
+		# Adds a minimising criterion to the current plan; another spelling of the minimise call.
+		#
+		#   pcProperty   The edge property to optimise, as text such as distance, time or cost
+		#   returns      nothing; the planner changes
+		#   see          Minimize
 		def MinimizingFor(pcProperty)
 			This.MinimizeXT(pcProperty, This.CurrentPlan())
 
@@ -357,6 +617,14 @@ class stzGraphPlanner from stzObject
 		def MinimisingXT(pcProperty, pcPlanName)
 			This.MinimizeIn(pcPlanName, pcProperty)
 
+	# Adds a criterion that minimises an edge property to a named plan, with weight 1, after its existing criteria.
+	#
+	#   pcPlanName   The plan name, as text
+	#   pcProperty   The edge property to optimise, as text such as distance, time or cost
+	#   returns      nothing; the planner changes
+	#   warning      an unknown plan name raises Plan not found; every edge must carry the property
+	#                or Execute raises
+	#   see          Minimize, MaximizeIn
 	def MinimizeIn(pcPlanName, pcProperty)
 		if CheckParams()
 			if isList(pcPlanName) and IsPlanOrInPlanNamedParamList(pcPlanName)
@@ -373,48 +641,133 @@ class stzGraphPlanner from stzObject
 		ok
 		@aPlans[_nPos_][2][4] + [:property = pcProperty, :direction = "minimize", :weight = 1]
 
+		# Adds a minimising criterion to a named plan; another spelling of the minimise-in call.
+		#
+		#   pcPlanName   The plan name, as text
+		#   pcProperty   The edge property to optimise, as text such as distance, time or cost
+		#   returns      nothing; the planner changes
+		#   see          MinimizeIn
 		def MinimiseIn(pcPlanName, pcProperty)
 			This.MinimizeIn(pcPlanName, pcProperty)
 
+		# Adds a minimising criterion to a named plan; another spelling of the minimise-in call.
+		#
+		#   pcPlanName   The plan name, as text
+		#   pcProperty   The edge property to optimise, as text such as distance, time or cost
+		#   returns      nothing; the planner changes
+		#   see          MinimizeIn
 		def MinimizingIn(pcPlanName, pcProperty)
 			This.MinimizeIn(pcPlanName, pcProperty)
 
+		# Adds a minimising criterion to a named plan; another spelling of the minimise-in call.
+		#
+		#   pcPlanName   The plan name, as text
+		#   pcProperty   The edge property to optimise, as text such as distance, time or cost
+		#   returns      nothing; the planner changes
+		#   see          MinimizeIn
 		def MinimisingIn(pcPlanName, pcProperty)
 			This.MinimizeIn(pcPlanName, pcProperty)
 
+		# Adds a minimising criterion to a named plan; another spelling of the minimise-in call.
+		#
+		#   pcPlanName   The plan name, as text
+		#   pcProperty   The edge property to optimise, as text such as distance, time or cost
+		#   returns      nothing; the planner changes
+		#   see          MinimizeIn
 		def MinimizeInPlan(pcPlanName, pcProperty)
 			This.MinimizeIn(pcPlanName, pcProperty)
 
+		# Adds a minimising criterion to a named plan; another spelling of the minimise-in call.
+		#
+		#   pcPlanName   The plan name, as text
+		#   pcProperty   The edge property to optimise, as text such as distance, time or cost
+		#   returns      nothing; the planner changes
+		#   see          MinimizeIn
 		def MinimiseInPlan(pcPlanName, pcProperty)
 			This.MinimizeIn(pcPlanName, pcProperty)
 
+		# Adds a minimising criterion to a named plan; another spelling of the minimise-in call.
+		#
+		#   pcPlanName   The plan name, as text
+		#   pcProperty   The edge property to optimise, as text such as distance, time or cost
+		#   returns      nothing; the planner changes
+		#   see          MinimizeIn
 		def MinimizingInPlan(pcPlanName, pcProperty)
 			This.MinimizeIn(pcPlanName, pcProperty)
 
+		# Adds a minimising criterion to a named plan; another spelling of the minimise-in call.
+		#
+		#   pcPlanName   The plan name, as text
+		#   pcProperty   The edge property to optimise, as text such as distance, time or cost
+		#   returns      nothing; the planner changes
+		#   see          MinimizeIn
 		def MinimisingInPlan(pcPlanName, pcProperty)
 			This.MinimizeIn(pcPlanName, pcProperty)
 
+	# Adds a criterion that maximises an edge property to the current plan, with weight 1, after the criteria it already has.
+	#
+	#   pcProperty   The edge property to optimise, as text such as distance, time or cost
+	#   returns      nothing; the planner changes
+	#   warning      a maximised property counts as a negative cost, so the route cost may be
+	#                negative and the search, which assumes non-negative costs, is not sure to find
+	#                the best route; every edge must carry the property or Execute raises
+	#   see          Minimize, MaximizeIn, Execute
 	def Maximize(pcProperty)
 		This.MaximizeXT(pcProperty, This.CurrentPlan())
 
+		# Adds a maximising criterion to the current plan; another spelling of the maximise call.
+		#
+		#   pcProperty   The edge property to optimise, as text such as distance, time or cost
+		#   returns      nothing; the planner changes
+		#   see          Maximize
 		def Maximise(pcProperty)
 			This.MaximizeXT(pcProperty, This.CurrentPlan())
 
+		# Adds a maximising criterion to the current plan; another spelling of the maximise call.
+		#
+		#   pcProperty   The edge property to optimise, as text such as distance, time or cost
+		#   returns      nothing; the planner changes
+		#   see          Maximize
 		def Maximizing(pcProperty)
 			This.MaximizeXT(pcProperty, This.CurrentPlan())
 
+		# Adds a maximising criterion to the current plan; another spelling of the maximise call.
+		#
+		#   pcProperty   The edge property to optimise, as text such as distance, time or cost
+		#   returns      nothing; the planner changes
+		#   see          Maximize
 		def Maximising(pcProperty)
 			This.MaximizeXT(pcProperty, This.CurrentPlan())
 
+		# Adds a maximising criterion to the current plan; another spelling of the maximise call.
+		#
+		#   pcProperty   The edge property to optimise, as text such as distance, time or cost
+		#   returns      nothing; the planner changes
+		#   see          Maximize
 		def MaximizeFor(pcProperty)
 			This.MaximizeXT(pcProperty, This.CurrentPlan())
 
+		# Adds a maximising criterion to the current plan; another spelling of the maximise call.
+		#
+		#   pcProperty   The edge property to optimise, as text such as distance, time or cost
+		#   returns      nothing; the planner changes
+		#   see          Maximize
 		def MaximiseFor(pcProperty)
 			This.MaximizeXT(pcProperty, This.CurrentPlan())
 
+		# Adds a maximising criterion to the current plan; another spelling of the maximise call.
+		#
+		#   pcProperty   The edge property to optimise, as text such as distance, time or cost
+		#   returns      nothing; the planner changes
+		#   see          Maximize
 		def MaximizingFor(pcProperty)
 			This.MaximizeXT(pcProperty, This.CurrentPlan())
 
+		# Adds a maximising criterion to the current plan; another spelling of the maximise call.
+		#
+		#   pcProperty   The edge property to optimise, as text such as distance, time or cost
+		#   returns      nothing; the planner changes
+		#   see          Maximize
 		def MaximisingFor(pcProperty)
 			This.MaximizeXT(pcProperty, This.CurrentPlan())
 
@@ -435,6 +788,13 @@ class stzGraphPlanner from stzObject
 		def MaximisingXT(pcProperty, pcPlanName)
 			This.MaximizeIn(pcPlanName, pcProperty)
 
+	# Adds a criterion that maximises an edge property to a named plan, with weight 1, after its existing criteria.
+	#
+	#   pcPlanName   The plan name, as text
+	#   pcProperty   The edge property to optimise, as text such as distance, time or cost
+	#   returns      nothing; the planner changes
+	#   warning      an unknown plan name raises Plan not found; the cost may be negative
+	#   see          Maximize, MinimizeIn
 	def MaximizeIn(pcPlanName, pcProperty)
 		if CheckParams()
 			if isList(pcPlanName) and IsPlanOrInPlanNamedParamList(pcPlanName)
@@ -451,38 +811,101 @@ class stzGraphPlanner from stzObject
 		ok
 		@aPlans[_nPos_][2][4] + [:property = pcProperty, :direction = "maximize", :weight = 1]
 
+		# Adds a maximising criterion to a named plan; another spelling of the maximise-in call.
+		#
+		#   pcPlanName   The plan name, as text
+		#   pcProperty   The edge property to optimise, as text such as distance, time or cost
+		#   returns      nothing; the planner changes
+		#   see          MaximizeIn
 		def MaximiseIn(pcPlanName, pcProperty)
 			This.MaximizeIn(pcPlanName, pcProperty)
 
+		# Adds a maximising criterion to a named plan; another spelling of the maximise-in call.
+		#
+		#   pcPlanName   The plan name, as text
+		#   pcProperty   The edge property to optimise, as text such as distance, time or cost
+		#   returns      nothing; the planner changes
+		#   see          MaximizeIn
 		def MaximizingIn(pcPlanName, pcProperty)
 			This.MaximizeIn(pcPlanName, pcProperty)
 
+		# Adds a maximising criterion to a named plan; another spelling of the maximise-in call.
+		#
+		#   pcPlanName   The plan name, as text
+		#   pcProperty   The edge property to optimise, as text such as distance, time or cost
+		#   returns      nothing; the planner changes
+		#   see          MaximizeIn
 		def MaximisingIn(pcPlanName, pcProperty)
 			This.MaximizeIn(pcPlanName, pcProperty)
 
+		# Adds a maximising criterion to a named plan; another spelling of the maximise-in call.
+		#
+		#   pcPlanName   The plan name, as text
+		#   pcProperty   The edge property to optimise, as text such as distance, time or cost
+		#   returns      nothing; the planner changes
+		#   see          MaximizeIn
 		def MaximizeInPlan(pcPlanName, pcProperty)
 			This.MaximizeIn(pcPlanName, pcProperty)
 
+		# Adds a maximising criterion to a named plan; another spelling of the maximise-in call.
+		#
+		#   pcPlanName   The plan name, as text
+		#   pcProperty   The edge property to optimise, as text such as distance, time or cost
+		#   returns      nothing; the planner changes
+		#   see          MaximizeIn
 		def MaximiseInPlan(pcPlanName, pcProperty)
 			This.MaximizeIn(pcPlanName, pcProperty)
 
+		# Adds a maximising criterion to a named plan; another spelling of the maximise-in call.
+		#
+		#   pcPlanName   The plan name, as text
+		#   pcProperty   The edge property to optimise, as text such as distance, time or cost
+		#   returns      nothing; the planner changes
+		#   see          MaximizeIn
 		def MaximizingInPlan(pcPlanName, pcProperty)
 			This.MaximizeIn(pcPlanName, pcProperty)
 
+		# Adds a maximising criterion to a named plan; another spelling of the maximise-in call.
+		#
+		#   pcPlanName   The plan name, as text
+		#   pcProperty   The edge property to optimise, as text such as distance, time or cost
+		#   returns      nothing; the planner changes
+		#   see          MaximizeIn
 		def MaximisingInPlan(pcPlanName, pcProperty)
 			This.MaximizeIn(pcPlanName, pcProperty)
 
-	#--
-
+	# Searches the graph for the cheapest route of the current plan, stores the result and adds the run to the history.
+	#
+	#   returns    nothing; the planner changes
+	#   note       running a plan again repeats the search and adds another history entry; Run,
+	#              ExecuteCurrentPlan and RunCurrentPlan are the same call
+	#   warning    a node id the graph lacks, or an edge without a property the criteria name,
+	#              raises an error whose text shows the unfilled words ' + cProperty + '; a goal
+	#              that cannot be reached ends the plan with an empty route and a cost of 0, and
+	#              still counts as executed
+	#   see        ExecutePlan, Route, Cost, History
+	#@ aka  --
 	def Execute()
 		This.ExecuteXT(This.CurrentPlan())
 
+		# Searches the cheapest route of the current plan; another spelling of the execute call.
+		#
+		#   returns    nothing; the planner changes
+		#   see        Execute
 		def Run()
 			This.Execute()
 
+		# Searches the cheapest route of the current plan; another spelling of the execute call.
+		#
+		#   returns    nothing; the planner changes
+		#   see        Execute
 		def ExecuteCurrentPlan()
 			This.Execute()
 
+		# Searches the cheapest route of the current plan; another spelling of the execute call.
+		#
+		#   returns    nothing; the planner changes
+		#   see        Execute
 		def RunCurrentPlan()
 			This.Execute()
 
@@ -525,12 +948,27 @@ class stzGraphPlanner from stzObject
 		# Store in history
 		This._AddToHistory(pcPlanName, _aResult_, _aOptimize_)
 		
+		# Searches the graph for the cheapest route of a named plan, stores the result and adds the run to the history.
+		#
+		#   pcPlanName   The plan name, as text
+		#   returns      nothing; the planner changes
+		#   note         an unknown plan name raises Plan not found
+		#   warning      a node id the graph lacks, or an edge without a property the criteria name,
+		#                raises an error whose text shows the unfilled words ' + cProperty + '; a
+		#                goal that cannot be reached ends the plan with an empty route and a cost of
+		#                0, and still counts as executed
+		#   see          Execute, Route, Cost
 		def ExecutePlan(pcPlanName)
 			This.ExecuteXT(pcPlanName)
 
 		def RunXT(pcPlanName)
 			This.ExecuteXT(pcPlanName)
 
+		# Searches the cheapest route of a named plan; another spelling of the execute-plan call.
+		#
+		#   pcPlanName   The plan name, as text
+		#   returns      nothing; the planner changes
+		#   see          ExecutePlan
 		def RunPlan(pcPlanName)
 			This.ExecuteXT(pcPlanName)
 
@@ -538,12 +976,26 @@ class stzGraphPlanner from stzObject
 	#  PLAN ACCESSORS       #
 	#-----------------------#
 	
+	# Returns the total cost of the current plan's route, the sum of its weighted step costs.
+	#
+	#   returns    a number
+	#   warning    raises Plan has not been executed before Execute; the cost is 0 when no route was
+	#              found
+	#   see        CostOf, Route, CostBreakdown
 	def Cost()
 		return This.CostXT(This.CurrentPlan())
 
+		# Returns the total cost of the current plan's route; another spelling of the cost call.
+		#
+		#   returns    a number
+		#   see        Cost
 		def CostOfCurrentPlan()
 			return This.CostXT(This.CurrentPlan())
 
+		# Returns the total cost of the current plan's route; another spelling of the cost call.
+		#
+		#   returns    a number
+		#   see        Cost
 		def CostInCurrentPlan()
 			return This.CostXT(This.CurrentPlan())
 
@@ -551,6 +1003,13 @@ class stzGraphPlanner from stzObject
 		_aResult_ = This._GetResult(pcPlanName)
 		return _aResult_[2]
 
+		# Returns the total cost of a named plan's route.
+		#
+		#   pcPlanName   The plan name, as text
+		#   returns      a number
+		#   warning      raises Plan has not been executed before Execute; the pair form accepts :Of
+		#                and :OfPlan only, another key such as :Plan raises R21
+		#   see          Cost, Route
 		def CostOf(pcPlanName)
 			if CheckParams()
 				if isList(pcPlanName) and IsOfOrOfPlanNamedParamList(pcPlanName)
@@ -568,23 +1027,47 @@ class stzGraphPlanner from stzObject
 		def CostInPlan(pcPlanName)
 			return This.CostXT(pcPlanName)
 
+	# Returns the route of the current plan: the node ids from the start to the goal, in order.
+	#
+	#   returns    a list of node ids, in lowercase; [ ] when no route
+	#   warning    raises Plan has not been executed before Execute
+	#   see        RouteOf, Actions
 	def Route()
 		return This.RouteXT(This.CurrentPlan())
 
+		# Returns the route of the current plan as node ids; another spelling of the route call.
+		#
+		#   returns    a list of node ids
+		#   see        Route
 		def RouteOfCurrentPlan()
 			return This.RouteXT(This.CurrentPlan())
 
+		# Returns the route of the current plan as node ids; another spelling of the route call.
+		#
+		#   returns    a list of node ids
+		#   see        Route
 		def RouteInCurrentPlan()
 			return This.RouteXT(This.CurrentPlan())
 
-		#--
-
+		# Returns the route of the current plan as node ids; another spelling of the route call.
+		#
+		#   returns    a list of node ids
+		#   see        Route
+		#@ aka  --
 		def States()
 			return This.RouteXT(This.CurrentPlan())
 
+		# Returns the route of the current plan as node ids; another spelling of the route call.
+		#
+		#   returns    a list of node ids
+		#   see        Route
 		def StatesOfCurrentPlan()
 			return This.RouteXT(This.CurrentPlan())
 
+		# Returns the route of the current plan as node ids; another spelling of the route call.
+		#
+		#   returns    a list of node ids
+		#   see        Route
 		def StatesInCurrentPlan()
 			return This.RouteXT(This.CurrentPlan())
 
@@ -592,6 +1075,12 @@ class stzGraphPlanner from stzObject
 		_aResult_ = This._GetResult(pcPlanName)
 		return _aResult_[3]
 
+		# Returns the route of a named plan: the node ids from the start to the goal, in order.
+		#
+		#   pcPlanName   The plan name, as text
+		#   returns      a list of node ids, in lowercase; [ ] when no route
+		#   warning      raises Plan has not been executed before Execute
+		#   see          Route, ActionsOf
 		def RouteOf(pcPlanName)
 			if CheckParams()
 				if isList(pcPlanName) and IsOfOrOfPlanOrInOrInPlanNamedParamList(pcPlanName)
@@ -627,12 +1116,25 @@ class stzGraphPlanner from stzObject
 			return This.RouteXT(pcPlanName)
 
 
+	# Returns the steps of the current plan's route, each with its start, end and weighted cost.
+	#
+	#   returns    a list of hash lists [ :from, :to, :cost ]
+	#   warning    raises Plan has not been executed before Execute
+	#   see        ActionsOf, Route, CostBreakdown
 	def Actions()
 		return This.ActionsXT(This.CurrentPlan())
 
+		# Returns the steps of the current plan's route; another spelling of the actions call.
+		#
+		#   returns    a list of hash lists [ :from, :to, :cost ]
+		#   see        Actions
 		def ActionsOfCurrentPlan()
 			return This.ActionsXT(This.CurrentPlan())
 
+		# Returns the steps of the current plan's route; another spelling of the actions call.
+		#
+		#   returns    a list of hash lists [ :from, :to, :cost ]
+		#   see        Actions
 		def ActionsInCurrentPlan()
 			return This.ActionsXT(This.CurrentPlan())
 
@@ -643,6 +1145,12 @@ class stzGraphPlanner from stzObject
 		def ActionsIn(pcPlanName)
 			return This.ActionsXT(pcPlanName)
 
+		# Returns the steps of a named plan's route, each with its start, end and weighted cost.
+		#
+		#   pcPlanName   The plan name, as text
+		#   returns      a list of hash lists [ :from, :to, :cost ]
+		#   warning      raises Plan has not been executed before Execute
+		#   see          Actions, RouteOf
 		def ActionsOf(pcPlanName)
 			if CheckParams()
 				if isList(pcPlanName) and IsOfOrOfPlanOrInOrInPlanNamedParamList(pcPlanName)
@@ -654,9 +1162,19 @@ class stzGraphPlanner from stzObject
 		def ActionsOfPlan(pcPlanName)
 			return This.ActionsXT(pcPlanName)
 
+	# Returns a summary of the current plan: its name, steps, total cost, route and the number of steps.
+	#
+	#   returns    a hash list [ :plan, :actions, :total_cost, :route, :steps ]
+	#   warning    raises Plan has not been executed before Execute; steps counts edges, where the
+	#              comparison reports count route nodes
+	#   see        Why, CostBreakdown, Show
 	def Explain()
 		return This.ExplainXT(This.CurrentPlan())
 
+		# Returns a summary of the current plan; another spelling of the explain call.
+		#
+		#   returns    a hash list [ :plan, :actions, :total_cost, :route, :steps ]
+		#   see        Explain
 		def ExplainCurrentPlan()
 			return This.ExplainXT(This.CurrentPlan())
 
@@ -677,6 +1195,14 @@ class stzGraphPlanner from stzObject
 	#  EXPLANATION METHODS  #
 	#-----------------------#
 
+	# Returns, for each step of the current plan, how each criterion's value and weight add to the step's cost.
+	#
+	#   returns    a list of hash lists [ :step, :from, :to, :criteria, :total ]
+	#   note       each criteria entry holds property, value, weight, direction and contribution;
+	#              ExplainCostBreakdown is the same call
+	#   warning    raises Plan has not been executed before Execute; a criterion without a weight
+	#              shows an empty weight and a contribution of 0
+	#   see        Explain, Cost
 	def CostBreakdown()
 		return This.CostBreakdownXT(This.CurrentPlan())
 
@@ -741,6 +1267,13 @@ class stzGraphPlanner from stzObject
 		def ExplainCostBreakdownXT(pcPlanName)
 			return This.CostBreakdownXT(pcPlanName)
 
+	# Returns why the current plan went as it did: its cost, how many nodes the search explored and what it optimised.
+	#
+	#   cAspect    Any value
+	#   returns    a hash list [ :plan, :total_cost, :nodes_explored, :optimized_for, :route ]
+	#   note       ExplainWhy is the same call
+	#   warning    raises error R2 before Execute; the aspect argument has no effect
+	#   see        Explain, Efficiency
 	def Why(cAspect)
 		return This.WhyXT(cAspect, This.CurrentPlan())
 
@@ -775,6 +1308,13 @@ class stzGraphPlanner from stzObject
 		def ExplainWhyXT(cAspect, pcPlanName)
 			return This.WhyXT(cAspect, pcPlanName)
 
+	# Returns the decision points met while searching: each node with several neighbours, with its first neighbour and the option count.
+	#
+	#   returns    a hash list [ :plan, :decision_points ]
+	#   note       ExplainAlternatives is the same call
+	#   warning    chosen is the first neighbour listed, not the one the route took; [ ] decision
+	#              points before Execute
+	#   see        Why, Efficiency
 	def Alternatives()
 		return This.AlternativesXT(This.CurrentPlan())
 
@@ -794,6 +1334,14 @@ class stzGraphPlanner from stzObject
 		def ExplainAlternativesXT(pcPlanName)
 			return This.ExplainAlternativesXT(pcPlanName)
 
+	# Returns how hard the search worked: nodes explored against route length, with an assessment of the effort.
+	#
+	#   returns    a hash list [ :plan, :nodes_explored, :path_length, :ratio, :assessment ]
+	#   note       the ratio is below 1.5 very efficient, below 2.5 efficient, below 4 moderate;
+	#              ExplainEfficiency is the same call
+	#   warning    raises error R2 before Execute and R1 divide by zero when the route is empty, for
+	#              example when the goal was not reached
+	#   see        Why, Alternatives
 	def Efficiency()
 		return This.ExplainEfficiencyXT(This.CurrentPlan())
 
@@ -836,6 +1384,15 @@ class stzGraphPlanner from stzObject
 	#  COMPARISON METHODS   #
 	#-----------------------#
 
+	# Compares the current plan with another: routes, where they diverge, both costs and which is cheaper.
+	#
+	#   pcOtherPlan   The name of the plan to compare with the current one
+	#   returns       a hash list [ :plan1, :plan2, :same_path, :route1, :route2, :diverge_at_step,
+	#                 :cost1, :cost2, :cheaper ]
+	#   note          CompareWith is the same call; CompareToQ gives the comparison object instead
+	#   warning       both plans must have been executed or the call raises; a plan that found no
+	#                 route has cost 0 and wins as the cheaper
+	#   see           Difference, Tradeoffs, WhichIsCheaper
 	def CompareTo(pcOtherPlan)
 		return This.CompareToQ(pcOtherPlan).Explain()
 
@@ -863,6 +1420,12 @@ class stzGraphPlanner from stzObject
 			def CompareWithXTQ(pcPlan1, pcPlan2)
 				return This.CompareToXTQ(pcPlan1, pcPlan2)
 
+	# Compares the current plan with another; the same answer as the comparison call.
+	#
+	#   pcOtherPlan   The name of the plan to compare with the current one
+	#   returns       a hash list [ :plan1, :plan2, :same_path, :route1, :route2, :diverge_at_step,
+	#                 :cost1, :cost2, :cheaper ]
+	#   see           CompareTo
 	def Difference(pcOtherPlan)
 		return This.DifferenceXT(This.CurrentPlan(), pcOtherPlan)
 
@@ -888,59 +1451,168 @@ class stzGraphPlanner from stzObject
 		def ExplainDifferenceWithXT(pcPlan1, pcPlan2)
 			return This.DifferenceXT(pcPlan1, pcPlan2)
 
+	# Compares the current plan with another by cost and by route length, with a recommendation.
+	#
+	#   pcOtherPlan   The name of the plan to compare with the current one
+	#   returns       a hash list [ :plan1, :plan2, :cost_winner, :cost_savings, :length_winner,
+	#                 :length_difference, :recommendation ]
+	#   warning       both plans must have been executed; ties give the winner tie; the length is
+	#                 counted in route nodes
+	#   see           CompareTo, WhichIsCheaper
 	def Tradeoffs(pcOtherPlan)
 		return This.TradeoffsXT(This.CurrentPlan(), pcOtherPlan)
 
+		# Compares the current plan with another by cost and route length; another spelling of the trade-off call.
+		#
+		#   pcOtherPlan   The name of the plan to compare with the current one
+		#   returns       a hash list [ :plan1, :plan2, :cost_winner, :cost_savings, :length_winner,
+		#                 :length_difference, :recommendation ]
+		#   see           Tradeoffs
 		def TradeoffsOf(pcOtherPlan)
 			return This.TradeoffsXT(This.CurrentPlan(), pcOtherPlan)
 
+		# Compares the current plan with another by cost and route length; another spelling of the trade-off call.
+		#
+		#   pcOtherPlan   The name of the plan to compare with the current one
+		#   returns       a hash list [ :plan1, :plan2, :cost_winner, :cost_savings, :length_winner,
+		#                 :length_difference, :recommendation ]
+		#   see           Tradeoffs
 		def TradeoffsAgainst(pcOtherPlan)
 			return This.TradeoffsXT(This.CurrentPlan(), pcOtherPlan)
 
+		# Compares the current plan with another by cost and route length; another spelling of the trade-off call.
+		#
+		#   pcOtherPlan   The name of the plan to compare with the current one
+		#   returns       a hash list [ :plan1, :plan2, :cost_winner, :cost_savings, :length_winner,
+		#                 :length_difference, :recommendation ]
+		#   see           Tradeoffs
 		def ExplainTradeoffs(pcOtherPlan)
 			return This.TradeoffsXT(This.CurrentPlan(), pcOtherPlan)
 
+		# Compares the current plan with another by cost and route length; another spelling of the trade-off call.
+		#
+		#   pcOtherPlan   The name of the plan to compare with the current one
+		#   returns       a hash list [ :plan1, :plan2, :cost_winner, :cost_savings, :length_winner,
+		#                 :length_difference, :recommendation ]
+		#   see           Tradeoffs
 		def ExplainTradeoffsOf(pcOtherPlan)
 			return This.TradeoffsXT(This.CurrentPlan(), pcOtherPlan)
 
+		# Compares the current plan with another by cost and route length; another spelling of the trade-off call.
+		#
+		#   pcOtherPlan   The name of the plan to compare with the current one
+		#   returns       a hash list [ :plan1, :plan2, :cost_winner, :cost_savings, :length_winner,
+		#                 :length_difference, :recommendation ]
+		#   see           Tradeoffs
 		def ExplainTradeoffsAgainst(pcOtherPlan)
 			return This.TradeoffsXT(This.CurrentPlan(), pcOtherPlan)
 
-		#--
-
+		# Compares the current plan with another by cost and route length; another spelling of the trade-off call.
+		#
+		#   pcOtherPlan   The name of the plan to compare with the current one
+		#   returns       a hash list [ :plan1, :plan2, :cost_winner, :cost_savings, :length_winner,
+		#                 :length_difference, :recommendation ]
+		#   see           Tradeoffs
+		#@ aka  --
 		def Compromises(pcOtherPlan)
 			return This.TradeoffsXT(This.CurrentPlan(), pcOtherPlan)
 
+		# Compares the current plan with another by cost and route length; another spelling of the trade-off call.
+		#
+		#   pcOtherPlan   The name of the plan to compare with the current one
+		#   returns       a hash list [ :plan1, :plan2, :cost_winner, :cost_savings, :length_winner,
+		#                 :length_difference, :recommendation ]
+		#   see           Tradeoffs
 		def CompromisesWith(pcOtherPlan)
 			return This.TradeoffsXT(This.CurrentPlan(), pcOtherPlan)
 
+		# Compares the current plan with another by cost and route length; another spelling of the trade-off call.
+		#
+		#   pcOtherPlan   The name of the plan to compare with the current one
+		#   returns       a hash list [ :plan1, :plan2, :cost_winner, :cost_savings, :length_winner,
+		#                 :length_difference, :recommendation ]
+		#   see           Tradeoffs
 		def CompromisesAgainst(pcOtherPlan)
 			return This.TradeoffsXT(This.CurrentPlan(), pcOtherPlan)
 
+		# Compares the current plan with another by cost and route length; another spelling of the trade-off call.
+		#
+		#   pcOtherPlan   The name of the plan to compare with the current one
+		#   returns       a hash list [ :plan1, :plan2, :cost_winner, :cost_savings, :length_winner,
+		#                 :length_difference, :recommendation ]
+		#   see           Tradeoffs
 		def Compromizes(pcOtherPlan)
 			return This.TradeoffsXT(This.CurrentPlan(), pcOtherPlan)
 
+		# Compares the current plan with another by cost and route length; another spelling of the trade-off call.
+		#
+		#   pcOtherPlan   The name of the plan to compare with the current one
+		#   returns       a hash list [ :plan1, :plan2, :cost_winner, :cost_savings, :length_winner,
+		#                 :length_difference, :recommendation ]
+		#   see           Tradeoffs
 		def CompromizesWith(pcOtherPlan)
 			return This.TradeoffsXT(This.CurrentPlan(), pcOtherPlan)
 
+		# Compares the current plan with another by cost and route length; another spelling of the trade-off call.
+		#
+		#   pcOtherPlan   The name of the plan to compare with the current one
+		#   returns       a hash list [ :plan1, :plan2, :cost_winner, :cost_savings, :length_winner,
+		#                 :length_difference, :recommendation ]
+		#   see           Tradeoffs
 		def CompromizesAgainst(pcOtherPlan)
 			return This.TradeoffsXT(This.CurrentPlan(), pcOtherPlan)
 
+		# Compares the current plan with another by cost and route length; another spelling of the trade-off call.
+		#
+		#   pcOtherPlan   The name of the plan to compare with the current one
+		#   returns       a hash list [ :plan1, :plan2, :cost_winner, :cost_savings, :length_winner,
+		#                 :length_difference, :recommendation ]
+		#   see           Tradeoffs
 		def ExplainCompromises(pcOtherPlan)
 			return This.TradeoffsXT(This.CurrentPlan(), pcOtherPlan)
 
+		# Compares the current plan with another by cost and route length; another spelling of the trade-off call.
+		#
+		#   pcOtherPlan   The name of the plan to compare with the current one
+		#   returns       a hash list [ :plan1, :plan2, :cost_winner, :cost_savings, :length_winner,
+		#                 :length_difference, :recommendation ]
+		#   see           Tradeoffs
 		def ExplainCompromisesWith(pcOtherPlan)
 			return This.TradeoffsXT(This.CurrentPlan(), pcOtherPlan)
 
+		# Compares the current plan with another by cost and route length; another spelling of the trade-off call.
+		#
+		#   pcOtherPlan   The name of the plan to compare with the current one
+		#   returns       a hash list [ :plan1, :plan2, :cost_winner, :cost_savings, :length_winner,
+		#                 :length_difference, :recommendation ]
+		#   see           Tradeoffs
 		def ExplainCompromisesAgainst(pcOtherPlan)
 			return This.TradeoffsXT(This.CurrentPlan(), pcOtherPlan)
 
+		# Compares the current plan with another by cost and route length; another spelling of the trade-off call.
+		#
+		#   pcOtherPlan   The name of the plan to compare with the current one
+		#   returns       a hash list [ :plan1, :plan2, :cost_winner, :cost_savings, :length_winner,
+		#                 :length_difference, :recommendation ]
+		#   see           Tradeoffs
 		def ExplainCompromizes(pcOtherPlan)
 			return This.TradeoffsXT(This.CurrentPlan(), pcOtherPlan)
 
+		# Compares the current plan with another by cost and route length; another spelling of the trade-off call.
+		#
+		#   pcOtherPlan   The name of the plan to compare with the current one
+		#   returns       a hash list [ :plan1, :plan2, :cost_winner, :cost_savings, :length_winner,
+		#                 :length_difference, :recommendation ]
+		#   see           Tradeoffs
 		def ExplainCompromizesWith(pcOtherPlan)
 			return This.TradeoffsXT(This.CurrentPlan(), pcOtherPlan)
 
+		# Compares the current plan with another by cost and route length; another spelling of the trade-off call.
+		#
+		#   pcOtherPlan   The name of the plan to compare with the current one
+		#   returns       a hash list [ :plan1, :plan2, :cost_winner, :cost_savings, :length_winner,
+		#                 :length_difference, :recommendation ]
+		#   see           Tradeoffs
 		def ExplainCompromizesAgainst(pcOtherPlan)
 			return This.TradeoffsXT(This.CurrentPlan(), pcOtherPlan)
 
@@ -1001,6 +1673,12 @@ class stzGraphPlanner from stzObject
 		def ExplainCompromizesAgainstXT(pcPlan1, pcPlan2)
 			return This.TradeoffsXT(pcPlan1, pcPlan2)
 
+	# Returns the cheaper of the current plan and another: a plan name, or both names in a list on a tie.
+	#
+	#   pcOtherPlan   The name of the plan to compare with the current one
+	#   returns       a plan name, or a list of two names
+	#   warning       both plans must have been executed
+	#   see           CostSaving, CompareTo
 	def WhichIsCheaper(pcOtherPlan)
 		return This.WhichIsCheaperXT(This.CurrentPlan(), pcOtherPlan)
 
@@ -1008,6 +1686,12 @@ class stzGraphPlanner from stzObject
 		_oComp_ = This.CompareToXTQ(pcPlan1, pcPlan2)
 		return _oComp_.WhichIsCheaper()
 
+	# Returns how much cheaper the cheaper of the current plan and another is, as a positive number.
+	#
+	#   pcOtherPlan   The name of the plan to compare with the current one
+	#   returns       a number, 0 on a tie
+	#   warning       both plans must have been executed
+	#   see           WhichIsCheaper, Tradeoffs
 	def CostSaving(pcOtherPlan)
 		return This.CostSavingXT(This.CurrentPlan(), pcOtherPlan)
 
@@ -1019,6 +1703,16 @@ class stzGraphPlanner from stzObject
 	#  MULTI-PLAN COMPARISON          #
 	#---------------------------------#
 
+	# Compares several executed plans: their costs, route lengths and routes, and the best plan by cost and by route length.
+	#
+	#   _acPlanNames_   The plan names, as a list of text
+	#   returns         a hash list [ :total_plans, :plans, :best_by_cost, :best_by_steps ]
+	#   note            CompareAll and CompareMultiple are the same call; the Q forms give the
+	#                   comparison object
+	#   warning         a plan that does not exist or was not executed is left out without a word,
+	#                   while total_plans still counts it; raises when no plan is left; a list of
+	#                   lists or a non-list raises
+	#   see             RankPlansBy, CompareTo
 	def CompareMany(_acPlanNames_)
 		return This.CompareManyQ(_acPlanNames_).CompareAll()
 
@@ -1057,6 +1751,13 @@ class stzGraphPlanner from stzObject
 			def CompareMultipleQ(_acPlanNames_)
 				return This.CompareManyQ(_acPlanNames_)
 
+	# Ranks every executed plan by cost or by route length, cheapest first.
+	#
+	#   _cCriterion_   cost, or steps or length for the number of route nodes
+	#   returns        a list of [ plan name, value ] pairs, smallest first
+	#   warning        any other word gives every plan the value 0, in the order the plans were
+	#                  made; [ ] when no plan was executed
+	#   see            CompareMany, BestHistoricalPlan
 	def RankPlansBy(_cCriterion_)
 		return This.RankPlansByXT(_cCriterion_, :all)
 
@@ -1088,15 +1789,36 @@ class stzGraphPlanner from stzObject
 	#  HISTORICAL COMPARISON          #
 	#---------------------------------#
 
+	# Returns every execution recorded so far: the plan name, its result, its criteria and a date and time stamp.
+	#
+	#   returns    a list of [ name, result, criteria, stamp ]
+	#   warning    every Execute adds an entry, including a repeat run of the same plan
+	#   see        HistoryCount, ClearHistory
 	def History()
 		return @aHistory
 
+	# Returns how many executions are recorded in the history.
+	#
+	#   returns    a number
+	#   see        History, ClearHistory
 	def HistoryCount()
 		return len(@aHistory)
 
+		# Returns how many executions are recorded; another spelling of the history-count call.
+		#
+		#   returns    a number
+		#   see        HistoryCount
 		def HistorySize()
 			return len(@aHistory)
 
+	# Compares the current plan's cost and route length with the history's average and best plan, in one summary.
+	#
+	#   returns    a hash list [ :current_plan, :cost, :steps, :historical_average_cost,
+	#              :historical_average_steps, :observation, :best_historical_plan ]
+	#   note       the observation reads better, worse or equal, with the percentage
+	#   warning    raises error R13 when the history is empty, since the comparison object it needs
+	#              is replaced by a message text; the average includes the current plan's own run
+	#   see        HistoricalAverage, BestHistoricalPlan
 	def CompareWithHistory()
 		return This.CompareWithHistoryXT(This.CurrentPlan())
 
@@ -1115,6 +1837,12 @@ class stzGraphPlanner from stzObject
 	
 			return new stzHistoricalComparison(This, pcPlanName, _aCurrentResult_, @aHistory)
 	
+	# Returns the mean cost, or the mean route length in nodes, over every recorded execution; 0 for an empty history.
+	#
+	#   _cCriterion_   cost, or steps or length for the number of route nodes
+	#   returns        a number
+	#   warning        any other word gives 0
+	#   see            BestHistoricalPlan, History
 	def HistoricalAverage(_cCriterion_)
 		if len(@aHistory) = 0
 			return 0
@@ -1147,6 +1875,12 @@ class stzGraphPlanner from stzObject
 		def HistoAverage()
 			return This.HistoricalAverage()
 
+	# Returns the name of the recorded execution with the smallest cost or route length; empty text for an empty history.
+	#
+	#   _cCriterion_   cost, or steps or length for the number of route nodes
+	#   returns        text
+	#   warning        any other word counts every run as 0 and answers the first recorded plan
+	#   see            WorstHistoricalPlan, HistoricalAverage
 	def BestHistoricalPlan(_cCriterion_)
 		if len(@aHistory) = 0
 			return ""
@@ -1180,6 +1914,12 @@ class stzGraphPlanner from stzObject
 		def BestHistoPlan(_cCriterion_)
 			return This.BestHistoricalPlan(_cCriterion_)
 
+	# Returns the name of the recorded execution with the largest cost or route length; empty text for an empty history.
+	#
+	#   _cCriterion_   cost, or steps or length for the number of route nodes
+	#   returns        text
+	#   warning        any other word counts every run as 0 and answers the first recorded plan
+	#   see            BestHistoricalPlan, HistoricalAverage
 	def WorstHistoricalPlan(_cCriterion_)
 		if len(@aHistory) = 0
 			return ""
@@ -1213,6 +1953,10 @@ class stzGraphPlanner from stzObject
 		def WortsHistoPlan(_cCriterion_)
 			return This.WorstHistoricalPlan(_cCriterion_)
 
+	# Empties the history of executions, leaving the plans and their results as they are.
+	#
+	#   returns    nothing; the planner changes
+	#   see        History, HistoryCount
 	def ClearHistory()
 		@aHistory = []
 
@@ -1220,6 +1964,13 @@ class stzGraphPlanner from stzObject
 	#  CONSTRAINT-BASED FILTERING     #
 	#---------------------------------#
 
+	# Returns the names of the plans that meet every constraint: maxcost, mincost, avoid, requires or maxsteps.
+	#
+	#   paConstraints   A list of pairs such as [ :maxCost = 30, :avoid = "c" ]
+	#   returns         a list of plan names
+	#   warning         a plan that was not executed never matches; a key it does not know is
+	#                   ignored; maxsteps counts route nodes; FilterPlansQ gives the filter object
+	#   see             PlansWithin, PlansRequiring, FilterPlansQ
 	def FilterPlans(paConstraints)
 		return This.FilterPlansQ(paConstraints).Plans()
 
@@ -1249,6 +2000,13 @@ class stzGraphPlanner from stzObject
 	
 			return new stzPlanFilter(This, _acFiltered_, paConstraints)
 	
+	# Returns the plans whose cost is within a percentage above the cost of a base plan, the base included.
+	#
+	#   nPercentage   The allowed excess over the base cost, as a number such as 10 for 10 percent
+	#   _cBasePlan_   The name of the base plan, or a pair such as :Of = "cheap"
+	#   returns       a list of plan names
+	#   warning       the base plan must have been executed; PlansWithinQ gives the filter object
+	#   see           FilterPlans
 	def PlansWithin(nPercentage, _cBasePlan_)
 		return This.PlansWithinQ(nPercentage, _cBasePlan_).Plans()
 
@@ -1265,18 +2023,37 @@ class stzGraphPlanner from stzObject
 	
 			return This.FilterPlansQ([ :maxCost = _nMaxCost_ ])
 
+	# Returns the plans whose route does not pass through a node, case ignored.
+	#
+	#   cNode      The id of the node to avoid
+	#   returns    a list of plan names
+	#   warning    the name is misspelled and kept as is; PlansThatAvoid raises R14 because it calls
+	#              the correctly spelled name, which does not exist
+	#   see        PlansRequiring, FilterPlans
 	def PlansAvoinding(cNode)
 		return This.PlansAvoidingQ(cNode).Plans()
 
 		def PlansThatAvoid(cNode)
 			return This.PlansAvoiding(cNode)
 
+		# Returns the filter object holding the plans whose route does not pass through a node.
+		#
+		#   cNode      The id of the node to avoid
+		#   returns    a stzPlanFilter
+		#   warning    PlansThatAvoidQ is the same call
+		#   see        PlansAvoinding, FilterPlansQ
 		def PlansAvoidingQ(cNode)
 			return This.FilterPlansQ([ :avoid = cNode ])
 	
 			def PlansThatAvoidQ(cNode)
 				return This.PlansAvoidingQ(cNode)
 
+	# Returns the plans whose route passes through a node, case ignored.
+	#
+	#   cNode      The id of the node the route must pass through
+	#   returns    a list of plan names
+	#   warning    PlansThatRequire is the same call; PlansRequiringQ gives the filter object
+	#   see        PlansAvoinding, FilterPlans
 	def PlansRequiring(cNode)
 		return This.PlansRequiringQ(cNode).Plans()
 
@@ -1293,9 +2070,19 @@ class stzGraphPlanner from stzObject
 	#  DISPLAY METHODS      #
 	#-----------------------#
 
+	# Prints the current plan: its cost, step count, each step with its cost and the explanation text.
+	#
+	#   returns    nothing; text is printed
+	#   warning    an unexecuted or unknown plan prints a not found or not executed line instead of
+	#              raising
+	#   see        ShowPlan, Explain
 	def Show()
 		This.ShowXT(This.CurrentPlan())
 
+		# Prints the current plan; another spelling of the show call.
+		#
+		#   returns    nothing; text is printed
+		#   see        Show
 		def ShowCurrentPlan()
 			This.ShowXT(This.CurrentPlan())
 
@@ -1322,6 +2109,13 @@ class stzGraphPlanner from stzObject
 			? "Plan '" + pcPlanName + "' not found or not executed."
 		done
 	
+		# Prints a named plan: its cost, step count, each step with its cost and the explanation text.
+		#
+		#   pcPlanName   The plan name, as text
+		#   returns      nothing; text is printed
+		#   warning      an unexecuted or unknown plan prints a not found or not executed line
+		#                instead of raising
+		#   see          Show, Explain
 		def ShowPlan(pcPlanName)
 			This.ShowXT(pcPlanName)
 
@@ -1710,6 +2504,21 @@ class stzGraphPlanner from stzObject
 #  stzPlanComparison Helper Class      #
 #======================================#
 
+# Compares two executed plans: their routes, costs and lengths, which is cheaper and what each gains.
+#
+# It is built by stzGraphPlanner.CompareToQ and is the object behind CompareTo, Tradeoffs,
+# WhichIsCheaper and CostSaving. The route length is counted in nodes.
+#
+#   receiver   g1 = new stzGraph("g1"); g1.AddNodeXTT("a", "A", [ :x = 0 ]); g1.AddNodeXTT("b", "B",
+#              [ :x = 1 ]); g1.AddNodeXTT("c", "C", [ :x = 2 ]); g1.AddEdgeXTT("a", "b", "r", [
+#              :distance = 5, :cost = 1 ]); g1.AddEdgeXTT("b", "c", "r", [ :distance = 5, :cost = 9
+#              ]); g1.AddEdgeXTT("a", "c", "r", [ :distance = 20, :cost = 2 ]); o1 = new
+#              stzGraphPlanner(g1); o1.AddPlan("short"); o1.Walk("a", "c"); o1.Minimize("distance");
+#              o1.Execute(); o1.AddPlan("cheap"); o1.Walk("a", "c"); o1.Minimize("cost");
+#              o1.Execute(); o2 = o1.CompareToQ("short")
+#   example    ? o2.WhichIsCheaper()
+#              #--> cheap
+#   see        stzGraphPlanner, stzMultiPlanComparison
 class stzPlanComparison from stzObject
 	@oPlanner
 	@cPlan1
@@ -1717,6 +2526,16 @@ class stzPlanComparison from stzObject
 	@aResult1
 	@aResult2
 
+	# Builds a comparison of two executed plans from their names and their results, which the planner supplies.
+	#
+	#   poPlanner   The stzGraphPlanner the plans belong to
+	#   pcPlan1     The name of the first plan
+	#   pcPlan2     The name of the second plan
+	#   paResult1   The result list of the first plan
+	#   paResult2   The result list of the second plan
+	#   returns     nothing; the comparison is built
+	#   warning     usually reached through stzGraphPlanner.CompareToQ, which fills these in
+	#   see         Explain, Tradeoffs
 	def init(poPlanner, pcPlan1, pcPlan2, paResult1, paResult2)
 		@oPlanner = poPlanner
 		@cPlan1 = pcPlan1
@@ -1724,6 +2543,12 @@ class stzPlanComparison from stzObject
 		@aResult1 = paResult1
 		@aResult2 = paResult2
 
+	# Returns both routes, where they first differ, both costs and which plan is cheaper.
+	#
+	#   returns    a hash list [ :plan1, :plan2, :same_path, :route1, :route2, :diverge_at_step,
+	#              :cost1, :cost2, :cheaper ]
+	#   warning    diverge_at_step is 0 when the routes are the same; cheaper is equal on a tie
+	#   see        Tradeoffs, WhichIsCheaper
 	def Explain()
 		_aStates1_ = @aResult1[3]
 		_aStates2_ = @aResult2[3]
@@ -1762,6 +2587,13 @@ class stzPlanComparison from stzObject
 			:cheaper = _cCheaper_
 		]
 	
+	# Compares the two plans by cost and by route length, and recommends one for cost.
+	#
+	#   returns    a hash list [ :plan1, :plan2, :cost_winner, :cost_savings, :length_winner,
+	#              :length_difference, :recommendation ]
+	#   warning    a tie gives the winner tie; the length is counted in route nodes; Compromises and
+	#              Compromizes are the same call
+	#   see        Explain, WhichIsCheaper
 	def Tradeoffs()
 		_nCost1_ = @aResult1[2]
 		_nCost2_ = @aResult2[2]
@@ -1815,6 +2647,11 @@ class stzPlanComparison from stzObject
 		def Compromizes()
 			return This.Tradeoffs()
 
+	# Returns the name of the cheaper plan, or both names in a list when the costs are equal.
+	#
+	#   returns    a plan name, or a list of two names
+	#   warning    Cheaper, WhichIsCheaperPlan and CheaperPlan are the same call
+	#   see        CostSaving, Explain
 	def WhichIsCheaper()
 		if @aResult1[2] < @aResult2[2]
 			return @cPlan1
@@ -1833,6 +2670,11 @@ class stzPlanComparison from stzObject
 		def CheaperPlan()
 			return This.WhichIsCheaper()
 
+	# Returns how much cheaper the cheaper plan is: the absolute difference of the two costs.
+	#
+	#   returns    a number, 0 on a tie
+	#   warning    HowMutchCheaper is the same call
+	#   see        WhichIsCheaper, Tradeoffs
 	def CostSaving()
 		_nDiff_ = abs(@aResult1[2] - @aResult2[2])
 		return _nDiff_
@@ -1840,12 +2682,25 @@ class stzPlanComparison from stzObject
 		def HowMutchCheaper()
 			return This.CostSaving()
 
+	# Returns the absolute difference between the two routes' lengths, counted in nodes.
+	#
+	#   returns    a number
+	#   warning    PathLenDiff and PathLengthDiff are the same call
+	#   see        Tradeoffs
 	def PathLengthDifference()
 		return abs(len(@aResult1[3]) - len(@aResult2[3]))
 
+		# Returns the absolute difference between the two routes' lengths; another spelling of the length-difference call.
+		#
+		#   returns    a number
+		#   see        PathLengthDifference
 		def PathLenDiff()
 			return abs(len(@aResult1[3]) - len(@aResult2[3]))
 
+		# Returns the absolute difference between the two routes' lengths; another spelling of the length-difference call.
+		#
+		#   returns    a number
+		#   see        PathLengthDifference
 		def PathLengthDiff()
 			return abs(len(@aResult1[3]) - len(@aResult2[3]))
 
@@ -1853,16 +2708,45 @@ class stzPlanComparison from stzObject
 #  stzMultiPlanComparison Class        #
 #======================================#
 
+# Compares several executed plans: ranks them by cost or route length and names the best and the worst.
+#
+# It is built by stzGraphPlanner.CompareManyQ. A plan that was not found or not executed is left out
+# of the ranking.
+#
+#   receiver   g1 = new stzGraph("g1"); g1.AddNodeXTT("a", "A", [ :x = 0 ]); g1.AddNodeXTT("b", "B",
+#              [ :x = 1 ]); g1.AddNodeXTT("c", "C", [ :x = 2 ]); g1.AddEdgeXTT("a", "b", "r", [
+#              :distance = 5, :cost = 1 ]); g1.AddEdgeXTT("b", "c", "r", [ :distance = 5, :cost = 9
+#              ]); g1.AddEdgeXTT("a", "c", "r", [ :distance = 20, :cost = 2 ]); o1 = new
+#              stzGraphPlanner(g1); o1.AddPlan("short"); o1.Walk("a", "c"); o1.Minimize("distance");
+#              o1.Execute(); o1.AddPlan("cheap"); o1.Walk("a", "c"); o1.Minimize("cost");
+#              o1.Execute(); o2 = o1.CompareManyQ([ "short", "cheap" ])
+#   example    ? o2.BestBy("cost")
+#              #--> cheap
+#   see        stzGraphPlanner, stzPlanComparison
 class stzMultiPlanComparison from stzObject
 	@oPlanner
 	@acPlanNames
 	@aResults
 
+	# Builds a comparison of several executed plans from their names and their [ name, result ] pairs, which the planner supplies.
+	#
+	#   poPlanner      The stzGraphPlanner the plans belong to
+	#   pacPlanNames   The names of the plans asked for, as a list
+	#   paResults      The [ plan name, result ] pairs of the plans that were found and executed
+	#   returns        nothing; the comparison is built
+	#   warning        usually reached through stzGraphPlanner.CompareManyQ
+	#   see            RankBy, CompareAll
 	def init(poPlanner, pacPlanNames, paResults)
 		@oPlanner = poPlanner
 		@acPlanNames = pacPlanNames
 		@aResults = paResults
 
+	# Ranks the plans by cost or by route length, smallest first.
+	#
+	#   _cCriterion_   cost, or steps or length for the number of route nodes
+	#   returns        a list of [ plan name, value ] pairs
+	#   warning        any other word gives every plan the value 0
+	#   see            BestBy, RankingTable
 	def RankBy(_cCriterion_)
 		_cCriterion_ = StzLower(_cCriterion_)
 		_aRanking_ = []
@@ -1896,6 +2780,11 @@ class stzMultiPlanComparison from stzObject
 	
 		return _aRanking_
 
+	# Returns a table of the plans ranked by cost, with a header row and the rank, plan, cost and steps of each.
+	#
+	#   returns    a list of rows, the first being the header
+	#   warning    steps counts route nodes
+	#   see        ShowRankingTable, RankBy
 	def RankingTable()
 	
 		_aTable_ = []
@@ -1928,9 +2817,19 @@ class stzMultiPlanComparison from stzObject
 		
 		return _aTable_
 
+	# Prints the ranking table as a boxed table.
+	#
+	#   returns    nothing; a table is printed
+	#   see        RankingTable
 	def ShowRankingTable()
 		StzTableQ(This.RankingTable()).Show()
 	
+	# Returns the name of the plan with the smallest value of a criterion; raises an error when no plan was compared.
+	#
+	#   _cCriterion_   cost, or steps or length for the number of route nodes
+	#   returns        text
+	#   warning        with a tie the plan listed first wins
+	#   see            WorstBy, RankBy
 	def BestBy(_cCriterion_)
 		_aRanking_ = This.RankBy(_cCriterion_)
 		if len(_aRanking_) > 0
@@ -1938,6 +2837,12 @@ class stzMultiPlanComparison from stzObject
 		ok
 		stzraise("No ranks returned by this criterion : " + _cCriterion_ + "!")
 	
+	# Returns the name of the plan with the largest value of a criterion; raises an error when no plan was compared.
+	#
+	#   _cCriterion_   cost, or steps or length for the number of route nodes
+	#   returns        text
+	#   warning        with a tie the plan listed last is the worst
+	#   see            BestBy, RankBy
 	def WorstBy(_cCriterion_)
 		_aRanking_ = This.RankBy(_cCriterion_)
 		_nLen_ = len(_aRanking_)
@@ -1946,6 +2851,12 @@ class stzMultiPlanComparison from stzObject
 		ok
 		stzraise("No ranks returned by this criterion : " + _cCriterion_ + "!")
 
+	# Returns every plan's cost, route length and route, with the best plan by cost and by length.
+	#
+	#   returns    a hash list [ :total_plans, :plans, :best_by_cost, :best_by_steps ]
+	#   warning    total_plans counts the names asked for, even those left out for not being
+	#              executed; raises when no plan was compared
+	#   see        RankBy, BestBy
 	def CompareAll()
 		_aAllPlans_ = []
 		
@@ -1973,18 +2884,49 @@ class stzMultiPlanComparison from stzObject
 #  stzHistoricalComparison Class       #
 #======================================#
 
+# Compares an executed plan with the planner's history of executions: its gain over the average cost and the best past plan.
+#
+# It is built by stzGraphPlanner.CompareWithHistoryQ. The history includes the compared plan's own
+# run.
+#
+#   receiver   g1 = new stzGraph("g1"); g1.AddNodeXTT("a", "A", [ :x = 0 ]); g1.AddNodeXTT("b", "B",
+#              [ :x = 1 ]); g1.AddNodeXTT("c", "C", [ :x = 2 ]); g1.AddEdgeXTT("a", "b", "r", [
+#              :distance = 5, :cost = 1 ]); g1.AddEdgeXTT("b", "c", "r", [ :distance = 5, :cost = 9
+#              ]); g1.AddEdgeXTT("a", "c", "r", [ :distance = 20, :cost = 2 ]); o1 = new
+#              stzGraphPlanner(g1); o1.AddPlan("short"); o1.Walk("a", "c"); o1.Minimize("distance");
+#              o1.Execute(); o1.AddPlan("cheap"); o1.Walk("a", "c"); o1.Minimize("cost");
+#              o1.Execute(); o2 = o1.CompareWithHistoryXTQ("short")
+#   example    ? o2.IsImprovement()
+#              #--> 0
+#   see        stzGraphPlanner
 class stzHistoricalComparison from stzObject
 	@oPlanner
 	@cCurrentPlan
 	@aCurrentResult
 	@aHistory
 
+	# Builds a comparison of a plan's result with the planner's history of executions, which the planner supplies.
+	#
+	#   poPlanner         The stzGraphPlanner whose history is used
+	#   pcCurrentPlan     The name of the plan compared
+	#   paCurrentResult   The result list of that plan
+	#   paHistory         The history entries of the planner
+	#   returns           nothing; the comparison is built
+	#   warning           usually reached through stzGraphPlanner.CompareWithHistoryQ
+	#   see               Explain, IsImprovement
 	def init(poPlanner, pcCurrentPlan, paCurrentResult, paHistory)
 		@oPlanner = poPlanner
 		@cCurrentPlan = pcCurrentPlan
 		@aCurrentResult = paCurrentResult
 		@aHistory = paHistory
 
+	# Returns the plan's cost and steps next to the history's averages, an observation in percent and the best past plan.
+	#
+	#   returns    a hash list [ :current_plan, :cost, :steps, :historical_average_cost,
+	#              :historical_average_steps, :observation, :best_historical_plan ]
+	#   warning    the history includes the plan's own run, so the average is never fully
+	#              independent of it
+	#   see        IsImprovement, ImprovementPercentage
 	def Explain()
 		_nAvgCost_ = @oPlanner.HistoricalAverage("cost")
 		_nAvgSteps_ = @oPlanner.HistoricalAverage("steps")
@@ -2014,10 +2956,19 @@ class stzHistoricalComparison from stzObject
 			:best_historical_plan = @oPlanner.BestHistoricalPlan("cost")
 		]
 
+	# TRUE if the plan's cost is below the historical average cost.
+	#
+	#   returns    TRUE or FALSE (1 or 0)
+	#   see        Improvement, Explain
 	def IsImprovement()
 		_nAvgCost_ = @oPlanner.HistoricalAverage("cost")
 		return @aCurrentResult[2] < _nAvgCost_
 
+	# Returns the plan's gain over the historical average cost as a ratio: positive when cheaper, negative when dearer.
+	#
+	#   returns    a number
+	#   warning    0 when the average is 0; ImprovementRatio is the same call
+	#   see        ImprovementPercentage, IsImprovement
 	def Improvement()
 		_nAvgCost_ = @oPlanner.HistoricalAverage("cost")
 		if _nAvgCost_ = 0
@@ -2028,6 +2979,11 @@ class stzHistoricalComparison from stzObject
 		def ImprovementRatio()
 			return This.Improvement()
 
+	# Returns the plan's gain over the historical average cost in percent: positive when cheaper, negative when dearer.
+	#
+	#   returns    a number
+	#   warning    0 when the average is 0; Improvement100 is the same call
+	#   see        Improvement
 	def ImprovementPercentage()
 		_nAvgCost_ = @oPlanner.HistoricalAverage("cost")
 		if _nAvgCost_ = 0
@@ -2042,34 +2998,88 @@ class stzHistoricalComparison from stzObject
 #  stzPlanFilter Class                 #
 #======================================#
 
+# Holds the plans that met a set of constraints, and lists, counts, ranks and prints them.
+#
+# It is built by stzGraphPlanner.FilterPlansQ, PlansWithinQ, PlansAvoidingQ and PlansRequiringQ. The
+# constraints are maxcost, mincost, avoid, requires and maxsteps.
+#
+#   receiver   g1 = new stzGraph("g1"); g1.AddNodeXTT("a", "A", [ :x = 0 ]); g1.AddNodeXTT("b", "B",
+#              [ :x = 1 ]); g1.AddNodeXTT("c", "C", [ :x = 2 ]); g1.AddEdgeXTT("a", "b", "r", [
+#              :distance = 5, :cost = 1 ]); g1.AddEdgeXTT("b", "c", "r", [ :distance = 5, :cost = 9
+#              ]); g1.AddEdgeXTT("a", "c", "r", [ :distance = 20, :cost = 2 ]); o1 = new
+#              stzGraphPlanner(g1); o1.AddPlan("short"); o1.Walk("a", "c"); o1.Minimize("distance");
+#              o1.Execute(); o1.AddPlan("cheap"); o1.Walk("a", "c"); o1.Minimize("cost");
+#              o1.Execute(); o2 = o1.FilterPlansQ([ :maxCost = 6 ])
+#   example    ? @@( o2.Plans() )
+#              #--> [ "cheap" ]
+#   see        stzGraphPlanner, stzMultiPlanComparison
 class stzPlanFilter from stzObject
 	@oPlanner
 	@acFilteredPlans
 	@aConstraints
 
+	# Builds a filter result from the names of the plans that met the constraints and the constraints themselves.
+	#
+	#   poPlanner       The stzGraphPlanner the plans belong to
+	#   pacFiltered     The names of the plans that matched, as a list
+	#   paConstraints   The constraints that were applied
+	#   returns         nothing; the filter is built
+	#   warning         usually reached through stzGraphPlanner.FilterPlansQ
+	#   see             Plans, Count
 	def init(poPlanner, pacFiltered, paConstraints)
 		@oPlanner = poPlanner
 		@acFilteredPlans = pacFiltered
 		@aConstraints = paConstraints
 
+	# Returns the names of the plans that met the constraints.
+	#
+	#   returns    a list of plan names
+	#   warning    FilteredPlans is the same call
+	#   see        Count
 	def Plans()
 		return @acFilteredPlans
 
+		# Returns the names of the plans that met the constraints; another spelling of the plans call.
+		#
+		#   returns    a list of plan names
+		#   see        Plans
 		def FilteredPlans()
 			return @acFilteredPlans
 
+	# Returns how many plans met the constraints.
+	#
+	#   returns    a number
+	#   warning    NumberOfPlans, NumberOfFilteredPlans, HowManyPlans and HowManyFilteredPlans are
+	#              the same call
+	#   see        Plans
 	def Count()
 		return len(@acFilteredPlans)
 
+		# Returns how many plans met the constraints; another spelling of the count call.
+		#
+		#   returns    a number
+		#   see        Count
 		def NumberOfPlans()
 			return len(@acFilteredPlans)
 
+		# Returns how many plans met the constraints; another spelling of the count call.
+		#
+		#   returns    a number
+		#   see        Count
 		def NumberOfFilteredPlans()
 			return len(@acFilteredPlans)
 
+		# Returns how many plans met the constraints; another spelling of the count call.
+		#
+		#   returns    a number
+		#   see        Count
 		def HowManyPlans()
 			return len(@acFilteredPlans)
 
+		# Returns how many plans met the constraints; another spelling of the count call.
+		#
+		#   returns    a number
+		#   see        Count
 		def HowManyFilteredPlans()
 			return len(@acFilteredPlans)
 
@@ -2103,10 +3113,21 @@ class stzPlanFilter from stzObject
 		def FilteredPlansXT()
 			return This.PlansXT()
 
+	# Prints the constraints applied and, for each matching plan, its cost, steps and route, as a nested listing.
+	#
+	#   returns    nothing; text is printed
+	#   warning    the constraints key is spelled constrains_applied in the data
+	#   see        Plans
 	def Show()
 		? @@NL( This.PlansXT() )
 
 
+	# Returns the matching plan with the smallest value of a criterion; empty text when none matched.
+	#
+	#   _cCriterion_   cost, or steps or length for the number of route nodes
+	#   returns        text
+	#   warning        any other word counts every plan as 0
+	#   see            RankingTable
 	def BestBy(_cCriterion_)
 		if len(@acFilteredPlans) = 0
 			return ""
@@ -2115,6 +3136,11 @@ class stzPlanFilter from stzObject
 		_oMultiComp_ = @oPlanner.CompareMultipleQ(@acFilteredPlans)
 		return _oMultiComp_.BestBy(_cCriterion_)
 
+	# Returns the matching plans as a ranking table with a header; prints a message and returns nothing when none matched.
+	#
+	#   returns    a list of rows, or nothing
+	#   warning    with no match it prints No plans match the filters
+	#   see        ShowRankingTable, BestBy
 	def RankingTable()
 		if len(@acFilteredPlans) = 0
 			? "No plans match the filters."
@@ -2124,5 +3150,11 @@ class stzPlanFilter from stzObject
 		_oMultiComp_ = @oPlanner.CompareManyQ(@acFilteredPlans)
 		return _oMultiComp_.RankingTable()
 
+	# Prints the ranking table of the matching plans as a boxed table.
+	#
+	#   returns    nothing; a table is printed
+	#   warning    with no matching plan it prints the no-match message, then raises "paTable must
+	#              be a list"
+	#   see        RankingTable
 	def ShowRankingTable()
 		StzTableQ(This.RankingTable()).Show()

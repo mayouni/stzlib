@@ -1,0 +1,12 @@
+init | Builds a filter result from the names of the plans that met the constraints and the constraints themselves. | nothing; the filter is built | poPlanner=The stzGraphPlanner the plans belong to; pacFiltered=The names of the plans that matched, as a list; paConstraints=The constraints that were applied | Plans, Count | usually reached through stzGraphPlanner.FilterPlansQ
+Plans | Returns the names of the plans that met the constraints. | a list of plan names | | Count | FilteredPlans is the same call
+FilteredPlans | Returns the names of the plans that met the constraints; another spelling of the plans call. | a list of plan names | | Plans
+Count | Returns how many plans met the constraints. | a number | | Plans | NumberOfPlans, NumberOfFilteredPlans, HowManyPlans and HowManyFilteredPlans are the same call
+NumberOfPlans | Returns how many plans met the constraints; another spelling of the count call. | a number | | Count
+NumberOfFilteredPlans | Returns how many plans met the constraints; another spelling of the count call. | a number | | Count
+HowManyPlans | Returns how many plans met the constraints; another spelling of the count call. | a number | | Count
+HowManyFilteredPlans | Returns how many plans met the constraints; another spelling of the count call. | a number | | Count
+Show | Prints the constraints applied and, for each matching plan, its cost, steps and route, as a nested listing. | nothing; text is printed | | Plans | the constraints key is spelled constrains_applied in the data
+BestBy | Returns the matching plan with the smallest value of a criterion; empty text when none matched. | text | _cCriterion_=cost, or steps or length for the number of route nodes; case is ignored | RankingTable | any other word counts every plan as 0
+RankingTable | Returns the matching plans as a ranking table with a header; prints a message and returns nothing when none matched. | a list of rows, or nothing | | ShowRankingTable, BestBy | with no match it prints No plans match the filters
+ShowRankingTable | Prints the ranking table of the matching plans as a boxed table. | nothing; a table is printed | | RankingTable | with no matching plan it prints the no-match message, then raises "paTable must be a list"

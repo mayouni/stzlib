@@ -1,0 +1,14 @@
+{
+ "brief": "Holds a number of positions, 1 to N, and answers where a string or a list would be cut, as sections [ first, last ] and never as parts.",
+ "detail": "A splitter knows only a size. It never sees the items: every Split method returns a list of sections that a stzString or a stzList then hands to its own Sections method to get the parts. The family has three axes. The cut can fall AT a position or section (the cut-out positions are left out), BEFORE it (the position starts a new section) or AFTER it (the position ends a section); each exists for one position, for several positions, for one section and for several sections, plus SplitToNParts and SplitToPartsOfNItems for even cuts. The IB forms (inclusive bounds, such as SplitAtSectionIB) grow the sections by one part width so the cut positions are kept. Known gaps today, each carried as a warning on its method: SplitAround with a flat pair raises R19, SplitAroundSection raises R14, SplitAroundPosition raises R21 for the last position, SplitAtSections reads its first and last cuts before sorting, and the named forms of SplitAt (:ToNParts, :ToPartsOfNItems) raise R14.",
+ "receiver": "o1 = new stzSplitter(10)",
+ "example": [
+  "? @@( o1.SplitAtSection(3, 5) )",
+  "#--> [ [ 1, 2 ], [ 6, 10 ] ]"
+ ],
+ "see": [
+  "stzString",
+  "stzList",
+  "stzListOfNumbers"
+ ]
+}

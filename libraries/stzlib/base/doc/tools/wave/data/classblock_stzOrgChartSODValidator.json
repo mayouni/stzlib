@@ -1,0 +1,13 @@
+{
+ "brief": "Checks an org chart for one segregation-of-duties rule: operations must not report directly to treasury.",
+ "detail": "It takes a snapshot of the chart when it is built. stzOrgChart.ValidateSegregationOfDuties builds one for you.",
+ "receiver": "oc = new stzOrgChart(\"TechCo\"); oc.AddExecutiveXT(\"ceo\", \"CEO\"); oc.AddManagerXT(\"vp\", \"VP Sales\"); oc.ReportsTo(\"vp\", \"ceo\"); oc.AddPersonXT(\"p1\", \"Alice\"); oc.AssignPerson(\"p1\", \"ceo\"); o1 = new stzOrgChartSODValidator(oc)",
+ "example": [
+  "? o1.Validate()[:status]",
+  "#--> pass"
+ ],
+ "see": [
+  "stzOrgChart",
+  "stzOrgChartBCEAOValidator"
+ ]
+}

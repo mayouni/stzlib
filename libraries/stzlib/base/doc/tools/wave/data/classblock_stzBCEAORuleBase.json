@@ -1,0 +1,13 @@
+{
+ "brief": "Holds the BCEAO compliance rules for an org chart, ready to pass to CheckCompliance.",
+ "detail": "Holds the four universal org rules and no rule of its own yet: only the name tells it from the other regimes.",
+ "receiver": "o1 = new stzBCEAORuleBase()",
+ "example": [
+  "? o1.NumberOfRules()",
+  "#--> 4"
+ ],
+ "see": [
+  "stzRuleBase",
+  "stzOrgChart"
+ ]
+}
