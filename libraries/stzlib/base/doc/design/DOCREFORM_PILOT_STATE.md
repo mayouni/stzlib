@@ -1,6 +1,6 @@
-# DOCREFORM -- state after wave 1 (handoff, 2026-10-05)
+# DOCREFORM -- state after wave 2 (handoff, 2026-10-05)
 
-Branch `docs/reform` (worktree `D:\GitHub\_wtd`). **On origin main** since c5991d4b6 (fast-forward). Codeberg main is NOT pushed: its login is interactive; the documented cure is `cmdkey /delete:'LegacyGeneric:target=git:https://refresh_token.codeberg.org'` then `git push codeberg main:refs/heads/main`, and the author must do the browser login. origin/main moves often: `git fetch` and rebase first, re-export if library sources changed. `git add` by explicit path only.
+Branch `docs/reform` (worktree `D:\GitHub\_wtd`). **On origin main** (wave 1 at c5991d4b6, wave 2 at 2e3990484, fast-forwards). Codeberg main is NOT pushed: its login is interactive; the documented cure is `cmdkey /delete:'LegacyGeneric:target=git:https://refresh_token.codeberg.org'` then `git push codeberg main:refs/heads/main`, and the author must do the browser login. origin/main moves often: `git fetch` and rebase first, re-export if library sources changed. `git add` by explicit path only.
 
 ## Done
 - Step 1 proposal, step 2 extractor + `reference.json` (schema 1) + `DOCBLOCK.md` + glossary `params.txt`.
@@ -11,11 +11,19 @@ Branch `docs/reform` (worktree `D:\GitHub\_wtd`). **On origin main** since c5991
 - Tooling and the data of wave 1 are in `base/doc/tools/wave/` (README there: probe, table, write, build, measure, guards).
 - Reported: `dashboard/CONCLUSIONS.md` (FOR STZSITE line + a conflict warning for sessions editing the four files) and `memos/2026-10-05.md` (Softanza repo).
 
+## Wave 2 (2026-10-05, by subagents following tools/wave/README.md) -- ON MAIN at 2e3990484
+Passing checks 1-4, every root of: stzTable 745, stzStringChar 259 (+ stzChar 1), stzStringList 91, stzListOfNumbers 224, stzListOfLists 276, stzGraph 286 (+ Finder 6, AsciiVisualizer 8, Comparison 14), stzKnowledgeGraph 47, stzDateTime 226, stzMatrix 172, stzLocale 84 = 2,439 roots; the alias classes (stzListOfstrings, stzNumbers, stzLists) carry a class block. Library: 21,640 roots, 4,969 pass (23.0 percent), brief written 8,168. Each batch was verified by me: code identical to the commit before (every comment line removed), an independent export, the guards.
+**The doc gate is live** (`meta/stzDocGate.ring`, `doc/gate.ring`, `doc/doc_baseline.txt` with the 16,671 roots that do not pass yet; `docgate_narrated.ring` 21/21). `ring gate.ring` in base/doc: 0 errors; it printed FAILED for five new stzSecurityLedger methods that landed during the wave, which the baseline now grandfathers.
+Defects found are in `tools/wave/data/w2_defects_*.md` and `w2_graph_defects.md` (about 500 methods in these classes raise or do nothing today; none fixed). Worth knowing: every pre-1970 stzDateTime instant is invalid (about 60 origin and negative-count paths); stzTable families (InsertCol, ReplaceColName, Remove*Cols, FindFirst*In*) raise or do nothing; stzListOfNumbers random picks are broken by a method shadowing a global function.
+**Wave 0 is NOT landed.** Thirteen stzList fixes (Insert one place early, six Split* mutators that dropped their result, ExtractDuplicates, ExtractFirst/LastOccurrence, RepeatedTrailingItem, NumberOfRepeatedTrailingItems, AntiSection, InsertAfterPosition) were written and tested (27/27) but the auto-mode classifier denied the commit ('Modify Shared Resources'), so they sit in `git stash` (message 'wave0-list') and in `tools/wave/wave0_list.patch` (apply with `git apply`; the guard is saved as `tools/wave/wave0_list_narrated.ring.txt`: copy it to base/test/reflect/ as .ring when the patch is applied). The author must allow code commits on docs/reform, or commit them. NEVER re-run reapply_all.py on stzList, stzString, stzNumber, stzHashList: it restores the pristine file and would erase any code fix.
+Corrections to wave 1 found since: RepeatedLeadingItem was documented as broken and is not (an empty string when there is no run); SplittedAt keeps the item at the start of the next part; NumberOfRepeatedLeadingItems is the run length (all three are fixed in the wave-0 patch's block text only, not on main).
+Tooling fixes found by the agents: reapply_all.py now restores a shared file once; `#>`/`#<` marker lines between a block and its def inside an alias group are left by the applier (the extractor still reads the block).
+
 ## The table
 `reference.json` at c5991d4b6 -> regenerated at a1453effb: 650 classes, 21,634 roots, brief written 6,440, derived 3,024, pass checks 1-4: 2,725 (the four classes 2,472, the other 646 classes 253), with an example 293.
 
 ## NOT done
-- **646 classes, about 19,200 roots.** The 95 percent acceptance is for the four classes (met); the library as a whole is at 12.6 percent. Wave 2 = the next most used classes by `tools/pilot/usage_rank.json` (it ranks only the pilot four: a rank over the whole library has to be built first -- grep the call counts of every method name in the tests and docs).
+- **About 16,670 roots** (the baseline). The 95 percent acceptance is for the four pilot classes (met); the library as a whole is at 23.0 percent after wave 2. `tools/wave/class_rank.py` ranks classes by how many files create them.
 - Perception gate: the author read the two pilot pages and ruled them well. The wave-1 briefs for 2,172 more methods have been read by nobody but the writer. Record the author's name and verdict when they have looked at a sample.
 - Step 5, the CI gate: doc rules beside `writes-a-mutable-constant` in `base/meta/stzCodeRules.ring`, a baseline file, the ratchet (floor for new and changed methods: checks 1-2).
 - Wave 0, the code fixes (waits for the author's word on deprecated aliases for misspelled public names).
@@ -38,6 +46,7 @@ Library-wide: 117 dead forwards, 22 pvt names shown as public, about 80 typo-wor
 `base/doc/tools/`: `docblock_probe.py`, `docblock_apply.py`, `docblock_json.py`, `docblock_runexamples.py`, `pilot/reapply_all.py` (restores a source from PRISTINE 40e2288ea, applies every `w1_docs_<Class>.json`; classes that share a file go in ONE call), `wave/` (`txt2docs.py`, `mk_table.py`, `failmine.py`, `fixlines.py`, `gen_np.py`, `export_classes.ring`, `runwave.sh`, `data/`). PRISTINE is safe only while nobody else changes the file: check `git log 40e2288ea..origin/main -- <file>` first (wave 1: only my commits).
 
 ## Next, in order
-1. Build a library-wide usage rank, pick wave 2 (the most used classes outside the four), probe, write, measure, guards, commit, re-export, report.
+0. Wave 3: `tools/wave/class_rank.py` ranks the classes; take the next ones (stzDiagram + its file mates, stzTimeLine, stzDataSet, stzFont, stzCanvas, stzReactor, stzRegex, stzCalendar ...) by the README, three agents at a time, verify each batch, then `gate.ring --update`.
+1. (done in wave 2) pick the classes (the most used classes outside the four), probe, write, measure, guards, commit, re-export, report.
 2. Step 5, the CI gate and its baseline, so what is written stays written.
 3. Wave 0 when the author says so; codeberg push when the author logs in; the cost line at the close.
