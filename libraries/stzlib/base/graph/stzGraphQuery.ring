@@ -38,6 +38,20 @@ $aDefaultQueryDefinition = [
 func StzGraphQueryQ(oGraph)
 	return new stzGraphQuery(oGraph)
 
+# Builds a MATCH, WHERE, SELECT query over a stzGraph with a chain of calls, runs it and returns the matching rows.
+#
+# A query is a definition, a hash list of 11 parts that the Match, Where, Select, OrderBy, Create,
+# Set and Delete calls fill in; nothing touches the graph until Select, Execute, ToGraphQ or ToViewQ
+# runs it. Rows are lists of [ field, value ] pairs, or of [ alias, node ] pairs for a bare alias.
+# Queries that create, set or delete change the source graph on every run. For plain filters on
+# nodes or edges, stzGraphFinder is lighter.
+#
+#   receiver   g1 = new stzGraph("g1"); g1.AddNodeXTT("a", "Person", [ :name = "Ann", :age = 30 ]);
+#              g1.AddNodeXTT("b", "Person", [ :name = "Bob", :age = 25 ]); o1 = new
+#              stzGraphQuery(g1)
+#   example    ? @@( o1.MatchQ([ :node = "n", :labeled = "Person" ]).WhereQ([ :age, ">", 26 ]).Select("n.name") )
+#              #--> [ [ [ "n.name", "Ann" ] ] ]
+#   see        stzGraph, stzGraphFinder
 class stzGraphQuery from stzObject
 	@oGraph
 	
@@ -60,6 +74,11 @@ class stzGraphQuery from stzObject
 	@bExecuted = 0
 	@aBindings = []
 
+	# Builds a query over a graph and keeps a reference to it; anything but a stzGraph raises an error.
+	#
+	#   oGraph     The stzGraph the query runs against
+	#   returns    nothing; the query is built
+	#   see        GraphQ, Graph
 	def init(oGraph)
 		if NOT @IsStzGraph(oGraph)
 			stzraise("Parameter must be a stzGraph object!")
@@ -70,7 +89,11 @@ class stzGraphQuery from stzObject
 	def GraphQ()
 		return @oGraph
 
-	# ... and its NAME, for a reader who only wants to know which graph.
+	# Returns the name of the graph the query runs against.
+	#
+	#   returns    text
+	#   see        GraphQ
+	#@ aka  ... and its NAME, for a reader who only wants to know which graph.
 	def Graph()
 		return @oGraph.Name()
 
@@ -78,6 +101,11 @@ class stzGraphQuery from stzObject
 	#  DEFINITION MANAGEMENT    #
 	#---------------------------#
 	
+	# Returns the query definition: a hash list of the 11 parts, from match to distinct, built so far.
+	#
+	#   returns    a hash list of 11 pairs
+	#   note       Definition, AST, QueryDefinition and Structure return the same list
+	#   see        SetDefinition, ResetDefinition
 	def Query()
 		return @aDefinition
 
@@ -93,6 +121,15 @@ class stzGraphQuery from stzObject
 		def Structure()
 			return This.Query()
 
+	# Replaces the whole query definition with a list given by hand, and forgets any earlier result.
+	#
+	#   aNewDef    A definition in the shape Query returns
+	#   returns    nothing; the query changes
+	#   note       anything but a list raises an error; LoadDefinition and ImportDefinition are the
+	#              same call
+	#   warning    the list is stored as given, with no check of its keys; a definition that lacks
+	#              one of the 11 keys fails when the query runs
+	#   see        Query, ResetDefinition
 	def SetDefinition(aNewDef)
 		# Validate structure
 		if NOT isList(aNewDef)
@@ -106,18 +143,39 @@ class stzGraphQuery from stzObject
 		# Accept new definition
 		@aDefinition = aNewDef
 
+		# Replaces the whole query definition with a list given by hand; another spelling of the replacing call.
+		#
+		#   aNewDef    A definition in the shape Query returns
+		#   returns    nothing; the query changes
+		#   note       anything but a list raises an error
+		#   see        SetDefinition, Query
 		def LoadDefinition(aNewDef)
 			This.SetDefinition(aNewDef)
 
+		# Replaces the whole query definition with a list given by hand; another spelling of the replacing call.
+		#
+		#   aNewDef    A definition in the shape Query returns
+		#   returns    nothing; the query changes
+		#   note       anything but a list raises an error
+		#   see        SetDefinition, Query
 		def ImportDefinition(aNewDef)
 			This.SetDefinition(aNewDef)
 
+	# Empties the query definition and the earlier result, so the same object can take a new query.
+	#
+	#   returns    nothing; the query changes
+	#   note       ClearDefinition is the same call
+	#   see        SetDefinition, Query
 	def ResetDefinition()
 		@aDefinition = $aDefaultQueryDefinition
 		@bExecuted = 0
 		@aResult = []
 		@aBindings = []
 
+		# Empties the query definition and the earlier result; another spelling of the reset call.
+		#
+		#   returns    nothing; the query changes
+		#   see        ResetDefinition, Query
 		def ClearDefinition()
 			This.ResetDefinition()
 
@@ -125,6 +183,15 @@ class stzGraphQuery from stzObject
 	#  RULE TRIGGER METHODS #
 	#-----------------------#
 	
+	# Queues a derivation rule to run on the matched elements when the query executes; the rule name is folded to uppercase.
+	#
+	#   pcRuleName   The name of a derivation rule registered on the graph
+	#   returns      nothing; the query changes
+	#   note         after the run the rule's new edges are in the graph, not in the result; see
+	#                ThenApplyRuleQ to chain
+	#   warning      the rule is looked up only at execution: an unknown name or a rule that is not
+	#                a derivation raises an error then
+	#   see          DeriveUsing, EnforceRule
 	def ThenApplyRule(pcRuleName)
 		@aDefinition["rule_triggers"] + [
 			:type = :apply,
@@ -136,6 +203,13 @@ class stzGraphQuery from stzObject
 			This.ThenApplyRule(pcRuleName)
 			return This
 	
+	# Queues a constraint rule to be checked against every match when the query executes; the rule name is folded to uppercase.
+	#
+	#   pcRuleName   The name of a constraint rule registered on the graph
+	#   returns      nothing; the query changes
+	#   warning      the rule is looked up only at execution: an unknown name raises an error then,
+	#                and so does a match that breaks the rule
+	#   see          ThenApplyRule, ValidateWith
 	def EnforceRule(pcRuleName)
 		@aDefinition["rule_triggers"] + [
 			:type = :enforce,
@@ -147,6 +221,15 @@ class stzGraphQuery from stzObject
 			This.EnforceRule(pcRuleName)
 			return This
 	
+	# Queues a validation of the matched subgraph against rule groups; a single text raises error R21 when the query runs today.
+	#
+	#   paValidators   Rule group names such as :DAG, :Reachability or :Completeness, as a list
+	#   returns        nothing; the query changes
+	#   note           pass a list, ValidateWith([ :DAG ])
+	#   warning        known defect: a single text is wrapped with paValidators = [ paValidators ],
+	#                  which stores [ [ [ ] ] ] and the run then raises R21; a list of names works,
+	#                  and a failing group raises Validation failed
+	#   see            EnforceRule, DeriveUsing
 	def ValidateWith(paValidators)
 		if isString(paValidators)
 			paValidators = [paValidators]
@@ -162,6 +245,14 @@ class stzGraphQuery from stzObject
 			This.ValidateWith(paValidators)
 			return This
 
+	# Queues a derivation rule to run on the matched elements when the query executes; the rule name is folded to uppercase.
+	#
+	#   pcRuleName   The name of a derivation rule registered on the graph
+	#   returns      nothing; the query changes
+	#   note         an unknown name raises an error at execution
+	#   warning      the rule runs on the nodes of the matches, and the edges it derives are added
+	#                to the graph, so a second execution can derive them again if they are missing
+	#   see          ThenApplyRule, EnforceRule
 	def DeriveUsing(pcRuleName)
 		@aDefinition["rule_triggers"] + [
 			:type = :derive,
@@ -177,6 +268,15 @@ class stzGraphQuery from stzObject
 	#  MATCH PATTERNS  #
 	#------------------#
 		
+	# Adds a node pattern to the query: every node, or those with a given alias, label, properties or condition.
+	#
+	#   paParams   :nodes for every node, or a list such as [ :node = "n", :labeled = "Person",
+	#              :props = [ ... ], :where = [ ... ] ]
+	#   returns    nothing; the query changes
+	#   note       several Match calls make a join: the rows are the compatible combinations
+	#   warning    the alias defaults to node; a list starting with :nodes takes :labeled, :props
+	#              and :where as pairs after it
+	#   see        MatchEdge, Where, Select
 	def Match(paParams)
 		# Simple atom - match all nodes
 		if paParams = :nodes or paParams = :node
@@ -243,6 +343,15 @@ class stzGraphQuery from stzObject
 			This.Match(paParams)
 			return This
 
+	# Adds an edge pattern to the query, binding its two end nodes to the aliases given by from and to.
+	#
+	#   paParams   A list of pairs [ :from = "a", :to = "b", :labeled = "KNOWS", :props = [ ... ],
+	#              :where = [ ... ] ]
+	#   returns    nothing; the query changes
+	#   note       reuse the alias of an earlier Match to join an edge to a node pattern
+	#   warning    the aliases default to from_node and to_node; a pair that is not a list is
+	#              ignored
+	#   see        Match, Where
 	def MatchEdge(paParams)
 		# Build internal hashlist
 		_aInternal_ = [ 
@@ -281,6 +390,16 @@ class stzGraphQuery from stzObject
 			This.MatchEdge(paParams)
 			return This
 
+	# Adds a filter to the last pattern, or to the whole query before any pattern; a function gets each binding and answers TRUE or FALSE.
+	#
+	#   paCondition   A list [ field, operator, value ], joined with :and or :or for a compound
+	#                 filter, or a function that takes a binding
+	#   returns       nothing; the query changes
+	#   note          only the last pattern keeps a filter: a second Where replaces the first one on
+	#                 that pattern
+	#   warning       operators are =, !=, <, >, <=, >=, :contains, :startswith, :endswith, :in and
+	#                 :not_in; a field without a dot is read from the pattern's alias
+	#   see           Match, MatchEdge
 	def Where(paCondition)
 		if @IsFunction(paCondition)
 			# Add to last pattern if exists, otherwise global
@@ -418,6 +537,17 @@ class stzGraphQuery from stzObject
 		def SelectAndRun(paFields)
 			return This.SelectXT(paFields)
 
+	# Adds fields to the projection, runs the query at once, and returns the rows; "*" selects every alias.
+	#
+	#   paFields   A field as text such as "n.name", "*" for every alias, [ "n.city", :as = "town" ]
+	#              for a renamed field, or a list of fields
+	#   returns    a list of rows, each a list of [ field, value ] pairs, or of [ alias, node ]
+	#              pairs for "*"
+	#   note       the :as renaming is accepted as [ "n.city", [ :as, "town" ] ]
+	#   warning    calling it twice adds the fields of both calls and runs the query each time, so a
+	#              Create, Set or Delete part takes effect again; the rows hold the value of each
+	#              field, a node record for a bare alias
+	#   see        SelectXT, Result, Distinct
 	def Select(paFields)
 	    # Handle "*" for all matched variables
 	    if paFields = "*"
@@ -494,6 +624,11 @@ class stzGraphQuery from stzObject
 			This.Select(paFields)
 			return This
 
+	# Asks that duplicate rows be dropped from the result of the query.
+	#
+	#   returns    nothing; the query changes
+	#   note       takes effect when the query runs, so call it before Select
+	#   see        Select, Result
 	def Distinct()
 		@aDefinition["distinct"] = 1
 	
@@ -501,6 +636,17 @@ class stzGraphQuery from stzObject
 			This.Distinct()
 			return This
 
+	# Leaves the rows in match order for ascending and reverses them for descending today, instead of sorting by a field.
+	#
+	#   pcField       The field to sort by, such as "n.age"
+	#   pcDirection   asc, desc, ascending, descending, inascending or indescending, as text
+	#   returns       nothing; the query changes
+	#   note          a direction word it does not know means asc
+	#   warning       known defect: the sort call @SortOn returns the sorted list and the method
+	#                 drops it, so nothing is sorted; asc keeps the match order and desc reverses
+	#                 it; only the first OrderBy is read; both arguments are required, with one Ring
+	#                 raises R19
+	#   see           Skip, Limit, Select
 	def OrderBy(pcField, pcDirection)
 		if NOT isString(pcDirection)
 			pcDirection = "asc"
@@ -524,6 +670,12 @@ class stzGraphQuery from stzObject
 			This.OrderBy(pcField, pcDirection)
 			return This
 
+	# Keeps at most this many rows of the result; 0 means no limit.
+	#
+	#   pnLimit    The greatest number of rows to keep
+	#   returns    nothing; the query changes
+	#   warning    applied after the skip
+	#   see        Skip, OrderBy
 	def Limit(pnLimit)
 		@aDefinition["limit"] = pnLimit
 	
@@ -531,6 +683,12 @@ class stzGraphQuery from stzObject
 			This.Limit(pnLimit)
 			return This
 
+	# Drops this many rows from the start of the result, after the sort.
+	#
+	#   pnSkip     The number of rows to drop
+	#   returns    nothing; the query changes
+	#   warning    with Limit it pages through the rows
+	#   see        Limit, OrderBy
 	def Skip(pnSkip)
 		@aDefinition["skip"] = pnSkip
 	
@@ -538,6 +696,14 @@ class stzGraphQuery from stzObject
 			This.Skip(pnSkip)
 			return This
 
+	# Queues the change of a property on every matched node, applied when the query runs; the new value may be given as [ :to = value ].
+	#
+	#   pcProperty   The target as alias.property, such as "n.age"
+	#   paValue      The new value, or a pair list holding it under :to
+	#   returns      nothing; the query changes
+	#   note         the graph itself changes when the query runs, not when Set is called
+	#   warning      a property written without an alias dot changes nothing, silently
+	#   see          Match, Execute
 	def Set(pcProperty, paValue)
 		pValue = paValue
 		
@@ -551,6 +717,15 @@ class stzGraphQuery from stzObject
 			This.Set(pcProperty, paValue)
 			return This
 
+	# Queues the creation of a node or of an edge between two matched aliases, applied when the query runs.
+	#
+	#   paParams   [ :node, :labeled = "Thing", :props = [ ... ] ] for a node, or [ :edge, :from =
+	#              "a", :to = "b", :labeled = "KNOWS" ] for an edge
+	#   returns    nothing; the query changes
+	#   note       a created node gets the id node_
+	#   warning    anything but a list is ignored; the graph changes when the query runs, and each
+	#              run creates again
+	#   see        Match, Execute
 	def Create(paParams)
 		if NOT isList(paParams)
 			return
@@ -612,6 +787,12 @@ class stzGraphQuery from stzObject
 			This.Create(paParams)
 			return This
 
+	# Queues the removal from the graph of the nodes bound to the given aliases, applied when the query runs.
+	#
+	#   paTargets   An alias as text, or a list of aliases
+	#   returns     nothing; the query changes
+	#   warning     the graph changes when the query runs; its edges go with the nodes
+	#   see         Match, Execute
 	def Delete(paTargets)
 		if isString(paTargets)
 			@aDefinition["delete_targets"] + paTargets
@@ -631,6 +812,12 @@ class stzGraphQuery from stzObject
 	#  QUERY EXECUTION  #
 	#-------------------#
 	
+	# Runs the query against the graph and keeps the rows in Result.
+	#
+	#   returns    1 always, even when nothing matched
+	#   note       a query with Create, Set or Delete changes the graph on every run
+	#   warning    Run, Exec, Executed and Runned are the same call
+	#   see        Result, Select
 	def Execute()
 		@bExecuted = This._Execute()
 		return @bExecuted
@@ -693,6 +880,10 @@ class stzGraphQuery from stzObject
 		@aResult = _aBindings_
 		return 1
 
+	# Returns the rows of the last run, [ ] before any run.
+	#
+	#   returns    a list of rows
+	#   see        Execute, Select
 	def Result()
 		return @aResult
 
@@ -858,6 +1049,13 @@ class stzGraphQuery from stzObject
 	#  GRAPH PROJECTION  #
 	#--------------------#
 	
+	# Returns a new graph of the matched nodes and the edges joining them; the query runs first if it has not been executed.
+	#
+	#   returns    a new stzGraph
+	#   note       the new graph is named query_result_ and shares nothing with the source; a call
+	#              after Select runs the query again, since only Execute marks it executed
+	#   warning    ToStzGraph is the same call
+	#   see        ToViewQ, Execute
 	def ToGraphQ()
 		if NOT @bExecuted
 			This._Execute()
@@ -1644,6 +1842,11 @@ def _EdgeHasProperty(_aEdge_, _cKey_, pValue)
 #  EXPLANATION OF THE QUERY EXECUTION PLAN  #
 #-------------------------------------------#
 
+# Returns the execution plan as a list of steps, each with the step kind and a sentence describing it.
+#
+#   returns    a list of hash lists [ :step, :description ]
+#   note       the description is held in a list of one text
+#   see        ToOpenCypher, Query
 def Explain()
 	_aExplanation_ = []
 	
@@ -1902,6 +2105,11 @@ def _FormatValue(pValue)
 #  OPENCYPHER IMPORT/EXPORT  #
 #----------------------------#
 
+# Returns the query written as openCypher text: MATCH, WHERE, RETURN, ORDER BY, SKIP, LIMIT, CREATE, SET and DELETE lines.
+#
+#   returns    text, one clause per line
+#   note       the query is not run
+#   see        Explain, Query
 def ToOpenCypher()
 	_cCypher_ = ""
 	

@@ -1,0 +1,14 @@
+{
+ "brief": "Holds a JSON document as a Ring list, as an object of keys or an array of items, and records its mistakes instead of raising them.",
+ "detail": "Built from a JSON text or from a Ring list. An object is read and changed by key (HasKey, Value, SetValue, RemoveKey, TakeKey) and an array by position (At, Add, Insert, RemoveAt, TakeAt ...). A call that does not fit the kind of JSON held, or an index outside the array, leaves the object unchanged and records a message in LastError. Writing an array that holds anything back to text fails today (ToString, Copy, Show, Print): see their warnings.",
+ "receiver": "o1 = new stzJson('{\"name\": \"John\", \"age\": 30}')",
+ "example": [
+  "? o1.Value(\"name\")",
+  "#--> John",
+  "? o1.ToString()",
+  "#--> {\"name\":\"John\",\"age\":30}"
+ ],
+ "see": [
+  "stzHashList"
+ ]
+}

@@ -1,0 +1,16 @@
+{
+ "brief": "Authenticates the users of an app: keeps salted password hashes, opens and ends sessions, and resolves a login into roles and an actor.",
+ "detail": "It holds a credential store (user name to a salted Argon2id hash, never the plaintext) and issues opaque 64-character session tokens. Around the password it offers a second factor (TOTP with recovery codes), passwordless doors (magic link, emailed code, passkey), external sign-in (OpenID Connect, SAML), a brute-force lockout, an administrative lock, password reset by mail, and roles that turn a live session into the stzSystemActor that governance reasons about. The store is in memory unless SetStore is given a database store. Every flow has an At form that takes the moment as epoch seconds, which makes expiry and lockout testable; the plain forms read the clock. Failures answer an empty text, 0 or [ ] instead of raising, except for a missing mail port, relying party, provider or client, which raise.",
+ "receiver": "o1 = new stzAuth(); o1.Register(\"alice\", \"demo-pass-one\")",
+ "example": [
+  "? o1.Authenticate(\"alice\", \"demo-pass-one\")",
+  "#--> 1",
+  "? o1.Authenticate(\"alice\", \"wrong\")",
+  "#--> 0"
+ ],
+ "see": [
+  "stzSecret",
+  "stzTotp",
+  "stzSystemActor"
+ ]
+}

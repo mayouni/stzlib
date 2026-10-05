@@ -704,6 +704,29 @@ class stzPaymentsPort from stzObject
 		ok
 		return _aR_[2]
 
+	# A replay READS what the hub holds under the platform's own identifier. The hub answering 404
+	# means the first attempt never arrived, so the answer is [] and the caller sends it for real;
+	# any other failure is raised.
+	def _Replay(pcPath)
+		_aR_ = @oBackend.Request("GET", pcPath, [], [])
+		if _aR_[1] = 404
+			return []
+		ok
+		if _aR_[1] >= 400
+			$aPayLastProblem = _aR_[2]
+			StzRaise("stzPaymentsProblem " + _aR_[1] + " " + _StzPiGet(_aR_[2], "title", "") + ": " +
+				_StzPiGet(_aR_[2], "detail", ""))
+		ok
+		return _aR_[2]
+
+	# A TRANSPORT failure after the request was sent: the hub may have processed it and the platform
+	# cannot know. Remember the identifier, so the next attempt READS before it sends, and raise.
+	def _Lost(pcKind, pcKey, pcError)
+		if StzFindFirst("stzPispiHttpAdapter transport", pcError) > 0
+			This._Remember(pcKind, pcKey, "")
+		ok
+		StzRaise(pcError)
+
 	def _Journal(pcKind, pcKey)
 		for _i_ = 1 to ring_len($aPayJournal)
 			if $aPayJournal[_i_][1] = @nId and $aPayJournal[_i_][2] = pcKind and $aPayJournal[_i_][3] = pcKey
@@ -765,12 +788,18 @@ class stzPaymentsPort from stzObject
 		_aBody_ = poOrder.AsBody()
 		_j_ = This._Journal("pay", _cTx_)
 		if _j_ > 0
-			_a_ = This._Call("GET", "/paiements-envoyes/" + _cTx_, [], [])
-			_a_ + [ "replayed", 1 ]
-			return _a_
+			_aRep_ = This._Replay("/paiements-envoyes/" + _cTx_)
+			if ring_len(_aRep_) > 0
+				_aRep_ + [ "replayed", 1 ]
+				return _aRep_
+			ok
 		ok
 		_nRow_ = This._Gate("pay", _cTx_, poOrder.Amount(), 1)
-		_a_ = This._Call("POST", "/paiements-envoyes", [], _aBody_)
+		try
+			_a_ = This._Call("POST", "/paiements-envoyes", [], _aBody_)
+		catch
+			This._Lost("pay", _cTx_, cCatchError)
+		done
 		if NOT ( _StzPiGet(_a_, "statut", "") = "REJETE" and _StzPiGet(_a_, "statutRaison", "") = "DU03" )
 			This._Remember("pay", _cTx_, _StzPiGet(_a_, "end2endId", ""))
 			This._Release(_nRow_)
@@ -834,11 +863,17 @@ class stzPaymentsPort from stzObject
 		_cTx_ = poRequest.TxId()
 		_aBody_ = poRequest.AsBody()
 		if This._Journal("rtp", _cTx_) > 0
-			_a_ = This._Call("GET", "/demandes-paiements/" + _cTx_, [], [])
-			_a_ + [ "replayed", 1 ]
-			return _a_
+			_aRep_ = This._Replay("/demandes-paiements/" + _cTx_)
+			if ring_len(_aRep_) > 0
+				_aRep_ + [ "replayed", 1 ]
+				return _aRep_
+			ok
 		ok
-		_a_ = This._Call("POST", "/demandes-paiements", [], _aBody_)
+		try
+			_a_ = This._Call("POST", "/demandes-paiements", [], _aBody_)
+		catch
+			This._Lost("rtp", _cTx_, cCatchError)
+		done
 		if NOT ( _StzPiGet(_a_, "statut", "") = "REJETE" and _StzPiGet(_a_, "statutRaison", "") = "DU03" )
 			This._Remember("rtp", _cTx_, _StzPiGet(_a_, "end2endId", ""))
 		ok
@@ -880,12 +915,18 @@ class stzPaymentsPort from stzObject
 		_cId_ = poBatch.InstructionId()
 		_aBody_ = poBatch.AsBody()
 		if This._Journal("bulk", _cId_) > 0
-			_a_ = This.Bulk(_cId_)
-			_a_ + [ "replayed", 1 ]
-			return _a_
+			_aRep_ = This._Replay("/paiements-groupes/" + _cId_)
+			if ring_len(_aRep_) > 0
+				_aRep_ + [ "replayed", 1 ]
+				return _aRep_
+			ok
 		ok
 		_nRow_ = This._Gate("bulk", _cId_, poBatch.TotalAmount(), 1)
-		This._Call("POST", "/paiements-groupes", [], _aBody_)
+		try
+			This._Call("POST", "/paiements-groupes", [], _aBody_)
+		catch
+			This._Lost("bulk", _cId_, cCatchError)
+		done
 		This._Remember("bulk", _cId_, "")
 		This._Release(_nRow_)
 		_a_ = This.Bulk(_cId_)
