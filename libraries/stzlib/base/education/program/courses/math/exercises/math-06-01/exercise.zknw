@@ -1,0 +1,7 @@
+knowledge "math-06-01"
+
+facts
+    math-06-01 | is-a | exercise
+    math-06-01 | in-chapter | geometry-declared-and-solved
+    math-06-01 | trains | cr-02
+    math-06-01 | needs-step | asks

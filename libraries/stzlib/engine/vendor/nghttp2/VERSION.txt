@@ -1,0 +1,14 @@
+nghttp2 1.69.0
+
+Version from lib/includes/nghttp2/nghttp2ver.h -- a GENERATED header that
+nghttp2's own .gitignore excluded, so a clean checkout could not build the
+engine until it was committed (2026-09-29).
+
+--- SBOM record (read by engine/tools/sbom.py; keep the keys) ---
+Component:        nghttp2
+Version:          1.69.0
+Source:           https://github.com/nghttp2/nghttp2/releases/tag/v1.69.0
+Licence:          MIT
+Purl:             pkg:github/nghttp2/nghttp2@v1.69.0
+Archive-SHA-256:  not recorded -- the upstream archive was not fetched when this record was written (2026-09-29)
+Tree-Digest:      d1a655cc0b2056e55a44c74233447980bf7ab6501a9dc6ccf6df644782219fd5

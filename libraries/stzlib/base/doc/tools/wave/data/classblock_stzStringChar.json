@@ -1,0 +1,15 @@
+{
+ "brief": "Holds one Unicode char and answers questions about it: its codepoint, name, script, case, bidi class and category.",
+ "detail": "Reach for it when a single char deserves more than a one-char stzString. It wraps a stzString and answers from the engine's Unicode data. It is built from a one-char text, a codepoint number, a hex form such as U+0061 or a Unicode char name. A method not defined here falls through to stzString, so a char also answers text questions.",
+ "receiver": "o1 = new stzStringChar(\"a\")",
+ "example": [
+  "? o1.Unicode()",
+  "#--> 97",
+  "? o1.Script()",
+  "#--> latin"
+ ],
+ "see": [
+  "stzChar",
+  "stzString"
+ ]
+}

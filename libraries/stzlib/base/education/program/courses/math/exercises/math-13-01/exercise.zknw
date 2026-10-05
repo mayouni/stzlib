@@ -1,0 +1,7 @@
+knowledge "math-13-01"
+
+facts
+    math-13-01 | is-a | exercise
+    math-13-01 | in-chapter | tukeys-first-look
+    math-13-01 | trains | se-02
+    math-13-01 | needs-step | asks

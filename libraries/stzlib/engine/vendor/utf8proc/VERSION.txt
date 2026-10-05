@@ -1,0 +1,12 @@
+utf8proc 2.11.3
+
+Version from UTF8PROC_VERSION_MAJOR/MINOR/PATCH.
+
+--- SBOM record (read by engine/tools/sbom.py; keep the keys) ---
+Component:        utf8proc
+Version:          2.11.3
+Source:           https://github.com/JuliaStrings/utf8proc/releases/tag/v2.11.3
+Licence:          MIT AND Unicode-DFS-2016
+Purl:             pkg:github/JuliaStrings/utf8proc@v2.11.3
+Archive-SHA-256:  not recorded -- the upstream archive was not fetched when this record was written (2026-09-29)
+Tree-Digest:      b479269d534f5d43587a5c93ddb86e4fd524ac51c452212ab97dc54ce1bc8fdf

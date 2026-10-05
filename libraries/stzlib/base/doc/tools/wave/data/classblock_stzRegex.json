@@ -1,0 +1,15 @@
+{
+ "brief": "Holds a regular expression compiled by the PCRE2 engine and answers whether, where and how a text matches it, including partial and recursive matches.",
+ "detail": "Build it with a pattern, then call a match method with a text: the text and the outcome of the last call are kept in the object, and the readers (Matches, FindMatches, CaptureGroups, NamedGroups, CaptureByName, the partial and recursive readers) work on that last call. Match asks whether the pattern covers the whole text; MatchFirst and MatchAt search inside it. MatchAsYouType and the partial family serve form validation while a person is still typing, and MatchRecursive handles nested brackets through (?R). A pattern that does not compile does not raise: IsValid answers FALSE and every match call answers FALSE. Known gaps today, each carried as a warning on its method: FindMatches and FindCapture skip a character after each match, PartialMatchLength is one too small, RecursiveDepth counts matches rather than nesting, LastError and PatternErrorOffset are stubs, Explain raises for a pattern the library does not know by name, and MatchWordsIn stacks word boundaries on the pattern each time it is called.",
+ "receiver": "o1 = new stzRegex(\"\\d+\")",
+ "example": [
+  "o1.MatchFirst(\"a1b22c333\")",
+  "? @@( o1.Matches() )",
+  "#--> [ \"1\", \"22\", \"333\" ]"
+ ],
+ "see": [
+  "stzMatrex",
+  "stzTablex",
+  "stzString"
+ ]
+}

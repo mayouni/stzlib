@@ -54,7 +54,10 @@ fn runShellCommand(command: []const u8) !RunResult {
         &[_][]const u8{ shell.name, f, command }
     else
         &[_][]const u8{ shell.name, command };
+    return runArgv(argv);
+}
 
+fn runArgv(argv: []const []const u8) !RunResult {
     var child = std.process.Child.init(argv, gpa);
     child.stdout_behavior = .Pipe;
     child.stderr_behavior = .Pipe;
@@ -119,6 +122,49 @@ pub fn stz_system_run2(
     const command = cmd[0..cmd_len];
     const result = runShellCommand(command) catch return;
 
+    exit_code.* = result.exit_code;
+    if (result.stdout.len > 0) {
+        out_ptr.* = result.stdout.ptr;
+        out_len.* = result.stdout.len;
+    }
+    if (result.stderr.len > 0) {
+        err_ptr.* = result.stderr.ptr;
+        err_len.* = result.stderr.len;
+    }
+}
+
+// Run a program from an ARGUMENT LIST -- no shell in between.
+//
+// Every entry point above hands ONE string to cmd.exe /c or /bin/sh -c, so
+// any data spliced into that string is parsed as shell syntax: a filename
+// holding `$(...)`, a backquote, a double quote (POSIX) or a `%VAR%`
+// (cmd.exe) runs or rewrites a command. Here each argument reaches the
+// program as itself. `packed_args` is the arguments joined by NUL (a NUL
+// cannot occur inside an argument), program first. Same outputs and
+// ownership as stz_system_run2.
+pub fn stz_system_run_argv(
+    packed_args: [*c]const u8,
+    packed_len: usize,
+    out_ptr: *[*c]u8,
+    out_len: *usize,
+    err_ptr: *[*c]u8,
+    err_len: *usize,
+    exit_code: *c_int,
+) callconv(.c) void {
+    out_ptr.* = null;
+    out_len.* = 0;
+    err_ptr.* = null;
+    err_len.* = 0;
+    exit_code.* = -1;
+    if (packed_args == null or packed_len == 0) return;
+
+    var argv = std.ArrayList([]const u8){};
+    defer argv.deinit(gpa);
+    var it = std.mem.splitScalar(u8, packed_args[0..packed_len], 0);
+    while (it.next()) |arg| argv.append(gpa, arg) catch return;
+    if (argv.items.len == 0 or argv.items[0].len == 0) return;
+
+    const result = runArgv(argv.items) catch return;
     exit_code.* = result.exit_code;
     if (result.stdout.len > 0) {
         out_ptr.* = result.stdout.ptr;
@@ -438,6 +484,59 @@ pub fn stz_system_is_macos() callconv(.c) c_int {
 }
 
 // ─── Tests ───
+
+// ── Open a file or folder in its default application (threat-model R11) ──
+//
+// The planes that "open the result in a viewer" built a shell string:
+// system('start "" "' + path + '"'). A path is DATA, and a string a shell
+// parses is code: a `"` in it ends the quoting and the rest runs. Here no
+// shell sees the path. Windows: ShellExecuteW, the API the shell's own
+// "start" ends in, given the path as one UTF-16 argument. macOS / Linux:
+// `open` / `xdg-open` spawned with the path as ONE argv element. The caller
+// (StzOpenInDefaultApp) has already refused anything that is not an
+// existing file or folder. Returns 0 on success, or
+//   -1 bad path  -2 out of memory  -3 the launch failed
+// The POSIX branch is comptime-gated: it compiles only for those targets.
+extern "shell32" fn ShellExecuteW(
+    hwnd: ?*anyopaque,
+    op: ?[*:0]const u16,
+    file: [*:0]const u16,
+    params: ?[*:0]const u16,
+    dir: ?[*:0]const u16,
+    show: c_int,
+) callconv(.winapi) isize;
+
+pub fn stz_system_open_default(path: [*c]const u8, path_len: usize) callconv(.c) c_int {
+    if (path == null or path_len == 0) return -1;
+    const p = path[0..path_len];
+    if (mem.indexOfScalar(u8, p, 0) != null) return -1;
+    if (builtin.os.tag == .windows) {
+        const wpath = std.unicode.utf8ToUtf16LeAllocZ(gpa, p) catch return -2;
+        defer gpa.free(wpath);
+        const op = std.unicode.utf8ToUtf16LeStringLiteral("open");
+        const r = ShellExecuteW(null, op, wpath.ptr, null, null, 1); // SW_SHOWNORMAL
+        return if (r > 32) 0 else -3;
+    } else {
+        const opener: []const u8 = if (builtin.os.tag == .macos) "open" else "xdg-open";
+        // a path that begins with '-' would be read as an option: make it ./-x
+        const arg = if (p[0] == '-') std.fmt.allocPrint(gpa, "./{s}", .{p}) catch return -2 else p;
+        defer if (p[0] == '-') gpa.free(arg);
+        var child = std.process.Child.init(&.{ opener, arg }, gpa);
+        child.stdin_behavior = .Ignore;
+        child.stdout_behavior = .Ignore;
+        child.stderr_behavior = .Ignore;
+        const term = child.spawnAndWait() catch return -3;
+        return switch (term) {
+            .Exited => |code| if (code == 0) 0 else -3,
+            else => -3,
+        };
+    }
+}
+
+test "open-default refuses an empty path or one with a NUL" {
+    try std.testing.expectEqual(@as(c_int, -1), stz_system_open_default("", 0));
+    try std.testing.expectEqual(@as(c_int, -1), stz_system_open_default("a\x00b", 3));
+}
 
 test "platform detection" {
     const w = stz_system_is_windows();

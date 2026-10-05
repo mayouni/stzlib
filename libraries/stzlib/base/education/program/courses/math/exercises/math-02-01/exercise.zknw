@@ -1,0 +1,7 @@
+knowledge "math-02-01"
+
+facts
+    math-02-01 | is-a | exercise
+    math-02-01 | in-chapter | the-fraction
+    math-02-01 | trains | pa-02
+    math-02-01 | needs-step | asks

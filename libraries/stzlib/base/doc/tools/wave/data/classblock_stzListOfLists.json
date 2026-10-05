@@ -1,0 +1,7 @@
+{
+ "brief": "Holds a non-empty list of lists and answers questions about its rows and columns, sizes, padding, sorting and column edits.",
+ "detail": "A stzListOfLists wraps a Ring list whose every item is a list, the lists being allowed to differ in size. Reach for it to treat the lists as rows of a table without the weight of stzTable: take a column (NthColumn), pad the short rows (Extend, AdjustWith), cut them (Shrink, ShrinkTo), sort the rows on a column (SortOn), find an item inside the rows (FindManyInLists) or edit a column (InsertCol, ReplaceCol). Active forms change the lists in place, passive forms (the ones ending in ed) return a changed copy as a plain list of lists. Item searches are case-sensitive. A number of methods carry a warning today: several families (the Entry methods, RemoveCols, Classify, the repeating forms of Extend) raise an error because the code behind them calls something that does not exist.",
+ "receiver": "o1 = new stzListOfLists([ [ 1, 2, 3 ], [ 4, 5 ], [ 6 ] ])",
+ "example": ["? @@( o1.Cols() )", "#--> [ [ 1, 4, 6 ], [ 2, 5 ], [ 3 ] ]"],
+ "see": ["stzList", "stzTable", "stzList2D"]
+}

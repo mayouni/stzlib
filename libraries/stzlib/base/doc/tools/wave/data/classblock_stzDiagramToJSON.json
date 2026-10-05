@@ -1,0 +1,13 @@
+{
+ "brief": "Converts a stzDiagram to JSON text once, at construction, from the diagram's hash list, and offers that text and a file writer.",
+ "detail": "The JSON holds the id, nodes, edges, properties, theme, layout, clusters, annotations and templates. The text passes the engine's JSON validator.",
+ "receiver": "o1 = new stzDiagram(\"flow\"); o1.AddNodeXTT(\"start\", \"Order Received\", [ :type = \"start\" ]); o1.AddNodeXT(\"validate\", \"Validate\"); o1.AddNodeXTT(\"done\", \"Done\", [ :type = \"endpoint\" ]); o1.AddEdgeXT(\"start\", \"validate\", \"next\"); o1.AddEdge(\"validate\", \"done\"); o2 = new stzDiagramToJSON(o1)",
+ "example": [
+  "? StzJsonIsValid(o2.Json())",
+  "#--> TRUE"
+ ],
+ "see": [
+  "stzDiagram",
+  "stzDiagramToDot"
+ ]
+}

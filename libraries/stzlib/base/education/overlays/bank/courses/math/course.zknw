@@ -1,0 +1,7 @@
+knowledge "bank-math-course"
+
+# The bank's overlay attaches its own money exercise to the course's money
+# chapter; the core course is never edited (OVERLAY_GUIDE, step 5).
+
+facts
+    money-to-the-centime | has-exercise | bank-math-01

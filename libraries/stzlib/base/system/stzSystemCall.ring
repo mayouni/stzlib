@@ -26,6 +26,22 @@ ShellBuiltInCommands = [
 # GLOBAL FUNCTIONS
 #==================
 
+# Open a file or folder in the application the system associates with it --
+# the safe form of system('start "" "' + path + '"'), which hands the path to
+# a shell: a `"` in it ends the quoting and the rest is RUN (threat-model R11).
+# Here no shell sees the path (ShellExecuteW on Windows; `open` / `xdg-open`
+# with the path as one argument elsewhere), and anything that is not an
+# EXISTING file or folder is refused before anything is launched.
+# Returns 1 when the viewer was launched, 0 when the launch failed.
+func StzOpenInDefaultApp(pcPath)
+	if NOT isString(pcPath) or ring_trim(pcPath) = ""
+		stzraise("StzOpenInDefaultApp: a path is required.")
+	ok
+	if NOT ( fexists(pcPath) or direxists(pcPath) )
+		stzraise("StzOpenInDefaultApp: '" + pcPath + "' is not an existing file or folder -- nothing is launched.")
+	ok
+	return StzEngineSystemOpenDefault(pcPath) = 0
+
 func StzSystemCallQ(pcProgram)
 	return new stzSystemCall(pcProgram)
 
@@ -109,6 +125,11 @@ class stzSystemCall from stzObject
 	@bExecuted = 0
 	@bRunSilentMode = 0
 
+	# 1 when the arguments came as a LIST to a program that is not itself a
+	# shell: the call then runs through StzEngineSystemRunArgv, and no shell
+	# ever parses an argument. See SetArgs().
+	@bArgvMode = 0
+
 	# Return type control for Sys() commands
 	@cReturnType = "string"  # "string", "number", or "list"
 
@@ -184,8 +205,11 @@ class stzSystemCall from stzObject
 			stzraise("No program specified!")
 		ok
 
-		# Use shell if command contains shell operators
-		This.UseShellIfNeeded()
+		# Use shell if command contains shell operators -- never for a
+		# program given its arguments as a list (see SetArgs)
+		if NOT @bArgvMode
+			This.UseShellIfNeeded()
+		ok
 
 		# Handle silent mode
 		if @bRunSilentMode
@@ -208,7 +232,11 @@ class stzSystemCall from stzObject
 			# was wrong (0) whenever the command failed but printed something,
 			# and stderr was thrown away. All three are fixed by reading the
 			# one run's real results.
-			_aRun_ = StzEngineSystemRunXT(_cFullCmd_)
+			if @bArgvMode
+				_aRun_ = StzEngineSystemRunArgv(This._PackedArgv())
+			else
+				_aRun_ = StzEngineSystemRunXT(_cFullCmd_)
+			ok
 			@cOutput = _aRun_[1]
 			@nExitCode = _aRun_[2]
 
@@ -419,6 +447,17 @@ class stzSystemCall from stzObject
 		ok
 		@acArgs = pacArgs
 
+		# Arguments given as a LIST reach the program one by one, with no
+		# shell between -- unless the program is itself a shell. They used
+		# to be joined into one string for cmd.exe /c, quoted only when they
+		# held a space, so an argument holding &, a double quote, %VAR% or
+		# $(...) was parsed as shell syntax.
+		if This._IsShellProgram()
+			@bArgvMode = 0
+		else
+			@bArgvMode = 1
+		ok
+
 		def WithArgs(pacArgs)
 			This.SetArgs(pacArgs)
 
@@ -555,10 +594,38 @@ class stzSystemCall from stzObject
 	#-----------------------#
 
 	def RunEngineSilent()
+		if @bArgvMode
+			_aRun_ = StzEngineSystemRunArgv(This._PackedArgv())
+			@nExitCode = _aRun_[2]
+			@bExecuted = 1
+			return
+		ok
 		_cFullCmd_ = _BuildCommandLine()
 		# Engine exec: no console, no output capture, just exit code
 		@nExitCode = StzEngineSystemExec(_cFullCmd_)
 		@bExecuted = 1
+
+	# Program + arguments joined by char(0), the form the engine's argv
+	# runner takes. A NUL cannot occur inside an argument.
+	def _PackedArgv()
+		_cPacked_ = @cProgram
+		_nLen_ = len(@acArgs)
+		for i = 1 to _nLen_
+			_cPacked_ += char(0) + @acArgs[i]
+		next
+		return _cPacked_
+
+	# 1 when the program IS a shell -- its arguments are shell syntax on
+	# purpose (cmd.exe /c ..., sh -c ...), so they keep the shell path.
+	def _IsShellProgram()
+		_cP_ = StzLower(StzReplace(@cProgram, char(92), "/"))
+		_acParts_ = split(_cP_, "/")
+		if len(_acParts_) > 0  _cP_ = _acParts_[len(_acParts_)]  ok
+		if find([ "cmd", "cmd.exe", "sh", "bash", "zsh", "dash",
+			  "powershell", "powershell.exe", "pwsh", "pwsh.exe" ], _cP_) > 0
+			return 1
+		ok
+		return 0
 
 	def RunSilently()
 		@bRunSilentMode = 1
@@ -706,6 +773,7 @@ class stzSystemCall from stzObject
 
 	def Reset()
 		@acArgs = []
+		@bArgvMode = 0
 		@cOutput = ""
 		@cError = ""
 		@nExitCode = -1

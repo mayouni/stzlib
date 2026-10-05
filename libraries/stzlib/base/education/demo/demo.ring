@@ -205,6 +205,8 @@ func DemoScene6()
 		"    does: ring:DemoStudentTidy" + char(10) + "    verify: fact folder was tidied" + char(10) +
 		"    posture: trusted" + char(10))
 	? "  Amina wrote an agent that 'tidies' the course: it deletes every file in it."
+	# the platform (code, not the student's file) allows the function the file names
+	StzAllowAgentFunction("DemoStudentTidy", "trusted")
 	_oD_ = StzAgentDeclarationFromFileQ(_cPia_)
 	_oAg_ = _oD_.ToAgent()
 	_oAg_.GiveWorkbench()

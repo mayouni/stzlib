@@ -1,0 +1,1027 @@
+# MATH_NARRATED -- the gate of the mathematics plane (base/math/).
+#
+# ONE PROCESS, MANY ASSERTIONS. Iterate on the probes beside this file;
+# run this once per task, before the commit, in the background. Every
+# section prints its wall time as the next banner arrives, so a section
+# over budget can be named. A scoped run is not offered: the gate is small
+# enough to run whole, and when it is not, it will print what it skipped.
+#
+# What it proves, and the law each proof serves (base/math/CHARTER.md):
+#
+#   1. y = f(x) is DECLARED, COMPUTED, then SOLVED (law 4): the samples
+#      agree with an independent computation, the zeros are the multiples
+#      of pi, the extrema satisfy tan x = x, and every note is near its
+#      mark by arithmetic re-derived from the solved shapes.
+#   2. the parametric and polar forms compute what they declare.
+#   3. a pole breaks the curve; a window bounds it; the sign change across
+#      a pole is NOT a zero -- the negative sibling of section 1.
+#   4. a wrong declaration is refused by name, at the line that made it.
+#   5. the one gate judges a figure: six lawful pictures, zero findings;
+#      the witness, exactly the three it plants.
+#   6. the SVG is the same bytes: an expectation GENERATED from the bytes
+#      and committed; a different declaration gives different bytes.
+#   7. a figure is an entry object that answers for itself (law 1).
+#
+# Run from this directory:  ring math_narrated.ring
+
+load "../../stzBase.ring"
+load "math_scenes.ring"
+
+nOk = 0
+nBad = 0
+nSecClock = 0
+acSkipped = []
+? "=============================================================="
+? " MATH GATE -- the mathematics plane, M1a: the :Function figure"
+? "=============================================================="
+
+PI = 3.14159265358979
+
+#---------------------------------------------------------------------------
+
+sec("-- 1. y = f(x) IS DECLARED, COMPUTED, THEN SOLVED ---------------------")
+
+oF1 = StzMathFigScene01()
+oF1.Layout()
+chkeq("the declaration asked for 400 samples and 400 were computed", oF1.SampleCount(), 400)
+chkeq("the cardinal sine is one unbroken piece", oF1.PieceCount(), 1)
+chkeq("drawn as seven runs of at most 64 controls, sharing endpoints", oF1.RunCount(), 7)
+chk("and the picture is lawful", oF1.IsSolved())
+
+# TWO READINGS OF ONE TRUTH. The samples were computed on the engine's
+# tape; here every one is read back from the pixels through the window
+# and compared with Ring's own sin(x)/x -- a different computation over
+# the same numbers, which is what a self-check needs to mean anything.
+aW = oF1.Window()
+oS1 = oF1.Substance()
+nX0 = oS1.DataOf("fr", "x0")  nY0 = oS1.DataOf("fr", "y0")
+nX1 = oS1.DataOf("fr", "x1")  nY1 = oS1.DataOf("fr", "y1")
+nWorst = 0
+nSeen = 0
+acRuns = oS1.ObjectsOfType("Curve")
+for iR = 1 to len(acRuns)
+	nN = oS1.DataOf(acRuns[iR], "n")
+	for v = 1 to nN
+		nPx = oS1.DataOf(acRuns[iR], "x" + v)
+		nPy = oS1.DataOf(acRuns[iR], "y" + v)
+		x = aW[1] + (nPx - nX0) * (aW[2] - aW[1]) / (nX1 - nX0)
+		y = aW[4] - (nPy - nY0) * (aW[4] - aW[3]) / (nY1 - nY0)
+		nD = fabs(y - sin(x) / x)
+		if nD > nWorst  nWorst = nD  ok
+		nSeen++
+	next
+next
+chkeq("the runs carry every sample once, plus the six shared endpoints", nSeen, 406)
+chk("every sample read back from the pixels is Ring's own sin(x)/x to 1e-9  [worst " + nWorst + "]",
+    nWorst < 0.000000001)
+
+# THE ZEROS ARE THE MULTIPLES OF PI -- known independently of any search
+aZ = oF1.Zeros()
+chkeq("six zeros were found on [-12, 12]", len(aZ), 6)
+bZ = TRUE
+for i = 1 to len(aZ)
+	nK = floor(fabs(aZ[i][1]) / PI + 0.5)
+	if fabs(fabs(aZ[i][1]) - nK * PI) > 0.00000001 or nK < 1 or nK > 3  bZ = FALSE  ok
+next
+chk("and every one is k * pi for k in 1..3, to 1e-8", bZ)
+bZv = TRUE
+for i = 1 to len(aZ)
+	if fabs(aZ[i][2]) > 0.000000001  bZv = FALSE  ok
+next
+chk("and the value at every zero is under 1e-9", bZv)
+
+# THE EXTREMA SATISFY tan x = x: the derivative of sin(x)/x vanishes
+# exactly where x cos x = sin x, a mechanism the search never used
+aE = oF1.Extrema()
+chkeq("seven extrema were found -- the peak at 0 and three on each side", len(aE), 7)
+bE = TRUE
+for i = 1 to len(aE)
+	x = aE[i][1]
+	if fabs(x * cos(x) - sin(x)) > 0.000001  bE = FALSE  ok
+next
+chk("and every one satisfies x cos x = sin x to 1e-6", bE)
+bPeak = FALSE
+for i = 1 to len(aE)
+	if fabs(aE[i][1]) < 0.000001 and fabs(aE[i][2] - 1) < 0.000001  bPeak = TRUE  ok
+next
+chk("the peak is at (0, 1)", bPeak)
+
+# THE SOLVED HALF: every note is within its leash of its mark, and off
+# both axes, by plain arithmetic over the solved shapes
+oD1 = oF1.Diagram()
+chkeq("nine notes were solved -- two unknowns each, an offset from their own mark", oD1.NumberOfUnknowns(), 18)
+chkeq("of thirteen marks; the cap named nine and the frame says four were left", oS1.DataOf("fr", "marksleft"), 4)
+bNear = TRUE  bOffAx = TRUE
+aAx = oD1.ShapeOf("ax.icon")
+aAy = oD1.ShapeOf("ay.icon")
+aDefs = oS1.Definitions()
+nNotes = 0
+for i = 1 to len(aDefs)
+	if aDefs[i][2] != "Note"  loop  ok
+	nNotes++
+	aT = oD1.ShapeOf(aDefs[i][1] + ".text")
+	aM = oD1.ShapeOf(aDefs[i][3][1] + ".icon")
+	nD = sqrt(pow(aT[:cx] - aM[:cx], 2) + pow(aT[:cy] - aM[:cy], 2))
+	if nD > 40 + aT[:w] / 2 + 0.5  bNear = FALSE  ok
+	# a text box straddling an axis line covers it
+	if fabs(aT[:cy] - aAx[:y1]) < aT[:h] / 2 and aT[:cx] - aT[:w] / 2 < aAx[:x2] and aT[:cx] + aT[:w] / 2 > aAx[:x1]
+		bOffAx = FALSE
+	ok
+	if fabs(aT[:cx] - aAy[:x1]) < aT[:w] / 2 and aT[:cy] - aT[:h] / 2 < aAy[:y1] and aT[:cy] + aT[:h] / 2 > aAy[:y2]
+		bOffAx = FALSE
+	ok
+next
+chkeq("nine notes are defined over their marks", nNotes, 9)
+chk("every note stands within 40 px plus half its width of its mark", bNear)
+chk("and no note's box covers either axis", bOffAx)
+
+# THE DOCUMENT CHANNEL: the curve's runs and the marks are named elements
+cSvg1 = oF1.ToSVG()
+chk('the first run is <g id="c1"> to a consumer', len(StzFindCS('id="c1" class="spline', cSvg1, TRUE)) = 1)
+chk("and the seventh run is there too", len(StzFindCS('id="c7" class="spline', cSvg1, TRUE)) = 1)
+chk("NEGATIVE: there is no eighth run", len(StzFindCS('id="c8"', cSvg1, TRUE)) = 0)
+chk("a mark is a named circle", len(StzFindCS('id="m1" class="circle', cSvg1, TRUE)) = 1)
+
+#---------------------------------------------------------------------------
+
+sec("-- 2. PARAMETRIC AND POLAR FORMS COMPUTE WHAT THEY DECLARE -------------")
+
+oF3 = StzMathFigScene03()
+oF3.Layout()
+chk("the Lissajous figure is lawful", oF3.IsSolved())
+# x = cos t, y = sin 2t satisfies y^2 = 4 x^2 (1 - x^2) -- an identity the
+# builder never used, checked on every sample read back from the pixels
+aW = oF3.Window()
+oS3 = oF3.Substance()
+nX0 = oS3.DataOf("fr", "x0")  nY0 = oS3.DataOf("fr", "y0")
+nX1 = oS3.DataOf("fr", "x1")  nY1 = oS3.DataOf("fr", "y1")
+nWorst = 0
+acRuns = oS3.ObjectsOfType("Curve")
+for iR = 1 to len(acRuns)
+	nN = oS3.DataOf(acRuns[iR], "n")
+	for v = 1 to nN
+		x = aW[1] + (oS3.DataOf(acRuns[iR], "x" + v) - nX0) * (aW[2] - aW[1]) / (nX1 - nX0)
+		y = aW[4] - (oS3.DataOf(acRuns[iR], "y" + v) - nY0) * (aW[4] - aW[3]) / (nY1 - nY0)
+		nD = fabs(y * y - 4 * x * x * (1 - x * x))
+		if nD > nWorst  nWorst = nD  ok
+	next
+next
+chk("every sample satisfies y^2 = 4x^2(1 - x^2) to 1e-9  [worst " + nWorst + "]", nWorst < 0.000000001)
+aM3 = oF3.Marks()
+chkeq("two points were named by their parameter", len(aM3), 2)
+chk("t = 0 is (1, 0)", fabs(aM3[1][2] - 1) < 0.000001 and fabs(aM3[1][3]) < 0.000001)
+chk("t = pi/2 is (0, 0) to the precision of the declared 1.5708", fabs(aM3[2][2]) < 0.0001 and fabs(aM3[2][3]) < 0.0001)
+chk("the window holds the whole figure with air: x in [-1.16, 1.16], y symmetric and wider than the figure",
+    fabs(aW[1] + 1.16) < 0.01 and fabs(aW[2] - 1.16) < 0.01 and aW[3] < -1.05 and aW[4] > 1.05 and fabs(aW[3] + aW[4]) < 0.000001)
+
+oF4 = StzMathFigScene04()
+oF4.Layout()
+chk("the rose is lawful, with nothing to solve", oF4.IsSolved() and oF4.Diagram().NumberOfUnknowns() = 0)
+# r = cos 3t: every sample satisfies x^2 + y^2 = cos^2(3 atan2(y, x)),
+# whichever sign r took -- the square erases the half-turn
+aW = oF4.Window()
+oS4 = oF4.Substance()
+nX0 = oS4.DataOf("fr", "x0")  nY0 = oS4.DataOf("fr", "y0")
+nX1 = oS4.DataOf("fr", "x1")  nY1 = oS4.DataOf("fr", "y1")
+nWorst = 0
+acRuns = oS4.ObjectsOfType("Curve")
+for iR = 1 to len(acRuns)
+	nN = oS4.DataOf(acRuns[iR], "n")
+	for v = 1 to nN
+		x = aW[1] + (oS4.DataOf(acRuns[iR], "x" + v) - nX0) * (aW[2] - aW[1]) / (nX1 - nX0)
+		y = aW[4] - (oS4.DataOf(acRuns[iR], "y" + v) - nY0) * (aW[4] - aW[3]) / (nY1 - nY0)
+		if x * x + y * y < 0.000000000001  loop  ok
+		nD = fabs(x * x + y * y - pow(cos(3 * atan2(y, x)), 2))
+		if nD > nWorst  nWorst = nD  ok
+	next
+next
+chk("every sample of the rose satisfies r^2 = cos^2(3t) to 1e-9  [worst " + nWorst + "]", nWorst < 0.000000001)
+
+#---------------------------------------------------------------------------
+
+sec("-- 3. A POLE BREAKS THE CURVE; A WINDOW BOUNDS IT; A POLE IS NOT A ZERO -")
+
+oF5 = StzMathFigScene05()
+oF5.Layout()
+chkeq("y = 1/x on [-2, 2] is two pieces", oF5.PieceCount(), 2)
+chk("and lawful", oF5.IsSolved())
+oS5 = oF5.Substance()
+aW = oF5.Window()
+chk("the window is the author's: y in [-6, 6]", aW[3] = -6 and aW[4] = 6)
+chkeq("the figure says it was clipped to the window", oS5.DataOf("fr", "clipped"), 1)
+# no run crosses the pole: every run lies wholly left or wholly right of 0
+bSide = TRUE
+nX0 = oS5.DataOf("fr", "x0")  nX1 = oS5.DataOf("fr", "x1")
+acRuns = oS5.ObjectsOfType("Curve")
+for iR = 1 to len(acRuns)
+	nN = oS5.DataOf(acRuns[iR], "n")
+	xa = aW[1] + (oS5.DataOf(acRuns[iR], "x1") - nX0) * (aW[2] - aW[1]) / (nX1 - nX0)
+	xb = aW[1] + (oS5.DataOf(acRuns[iR], "x" + nN) - nX0) * (aW[2] - aW[1]) / (nX1 - nX0)
+	if (xa < 0) != (xb < 0)  bSide = FALSE  ok
+next
+chk("no run of the curve crosses the pole at 0", bSide)
+chkeq("NEGATIVE: the cardinal sine, which is finite everywhere, is one piece", oF1.PieceCount(), 1)
+
+oF6 = StzMathFigScene06()
+oF6.Layout()
+chkeq("y = tan x on [-4.5, 4.5] is three pieces", oF6.PieceCount(), 3)
+chk("and lawful", oF6.IsSolved())
+aZ6 = oF6.Zeros()
+chkeq("only its three TRUE zeros are marked", len(aZ6), 3)
+bNoPole = TRUE
+for i = 1 to len(aZ6)
+	if fabs(fabs(aZ6[i][1]) - PI / 2) < 0.01  bNoPole = FALSE  ok
+next
+chk("NEGATIVE: the sign change across the pole at pi/2 is NOT a zero", bNoPole)
+bTrue = TRUE
+for i = 1 to len(aZ6)
+	if fabs(sin(aZ6[i][1])) > 0.00000001  bTrue = FALSE  ok
+next
+chk("and each marked zero has sin x = 0 to 1e-8", bTrue)
+
+oF2 = StzMathFigScene02()
+oF2.Layout()
+chk("the cubic with its tangent is lawful", oF2.IsSolved())
+oS2 = oF2.Substance()
+chk("the tangent's slope at 1.2 is 3x^2 - 1 = 3.32, from the tape", fabs(oS2.DataOf("tg", "slope") - 3.32) < 0.000001)
+aTg = oF2.ShapeOf("tg.icon")
+chk("and the tangent stays inside the frame -- it was clipped, not refused",
+    aTg[:x2] <= oS2.DataOf("fr", "x1") + 0.01 and aTg[:x1] >= oS2.DataOf("fr", "x0") - 0.01)
+aZ2 = oF2.Zeros()
+chkeq("the cubic's three zeros are found", len(aZ2), 3)
+bCubic = TRUE
+for i = 1 to len(aZ2)
+	x = aZ2[i][1]
+	if fabs(x) > 0.00000001 and fabs(fabs(x) - 1) > 0.00000001  bCubic = FALSE  ok
+next
+chk("and they are -1, 0 and 1 to 1e-8", bCubic)
+aE2 = oF2.Extrema()
+bSq3 = TRUE
+for i = 1 to len(aE2)
+	if fabs(fabs(aE2[i][1]) - 1 / sqrt(3)) > 0.00000001  bSq3 = FALSE  ok
+next
+chk("its two extrema are at +-1/sqrt(3) to 1e-8", len(aE2) = 2 and bSq3)
+
+#---------------------------------------------------------------------------
+
+sec("-- 4. A WRONG DECLARATION IS REFUSED BY NAME ---------------------------")
+
+chk("no expression is refused", _MgRefuses([ :on = [ 0, 1 ] ], "say what to draw"))
+chk("a range running backwards is refused", _MgRefuses([ :f = "x", :on = [ 1, 0 ] ], "runs backwards"))
+chk("too few samples are refused", _MgRefuses([ :f = "x", :on = [ 0, 1 ], :samples = 3 ], "8 to 4000"))
+chk("a key the figure lacks is refused with the list", _MgRefuses([ :f = "x", :on = [ 0, 1 ], :colour = "red" ], "is not a key"))
+chk("a mark that is not :zeros, :extrema or a number is refused", _MgRefuses([ :f = "x", :on = [ 0, 1 ], :mark = [ :poles ] ], "is not a mark"))
+chk("a tangent off the range is refused", _MgRefuses([ :f = "x", :on = [ 0, 1 ], :tangent = 5 ], "not on the range"))
+chk("a function finite nowhere on its range is refused", _MgRefuses([ :f = "sqrt(x)", :on = [ -3, -1 ] ], "finite nowhere"))
+chk("an expression the tape cannot read is refused with the reason", _MgRefuses([ :f = "sin(x", :on = [ 0, 1 ] ], "Can't read"))
+chk(":zeros on a polar curve is refused -- zeros belong to y = f(x)", _MgRefuses([ :r = "cos(t)", :t = [ 0, 3 ], :mark = [ :zeros ] ], "marks of y = f(x)"))
+chk("a figure kind this plane lacks is refused with the kinds", _MgRefusesKind(:Histogram, "not a figure kind"))
+chk("NEGATIVE: the lawful forms of all of these are accepted", NOT _MgRefuses([ :f = "sin(x)", :on = [ 0, 6 ], :samples = 64, :mark = [ :zeros, 1 ], :tangent = 1, :label = "ok" ], ""))
+
+#---------------------------------------------------------------------------
+
+sec("-- 5. THE ONE GATE JUDGES A FIGURE ------------------------------------")
+
+aGp = []
+aGp + [ "function/sinc", oF1.Diagram() ]
+aGp + [ "function/cubic", oF2.Diagram() ]
+aGp + [ "function/lissajous", oF3.Diagram() ]
+aGp + [ "function/rose", oF4.Diagram() ]
+aGp + [ "function/hyperbola", oF5.Diagram() ]
+aGp + [ "function/tan", oF6.Diagram() ]
+oGRep = StzCheckPictures(aGp)
+chkeq("six lawful figures, judged by the one gate, raise no finding", oGRep.NumberOfFindings(), 0)
+
+oW = StzMathFigWitness()
+aWm = StzMathFigWitnessMarks(oW)
+oWRep = StzCheckPictures([ [ "function/witness", oW.Diagram() ] ])
+acRules = []
+aWf = oWRep.Findings()
+for i = 1 to len(aWf)
+	acRules + ("" + aWf[i][:rule])
+next
+chk("the witness's zero between same-sign samples is found by zero_brackets_a_sign_change",
+    _MgHas(acRules, "zero_brackets_a_sign_change"))
+chk("its extremum with no turn is found by extremum_brackets_a_turn",
+    _MgHas(acRules, "extremum_brackets_a_turn"))
+chk("its note out of reach is found by note_reads_near_its_mark",
+    _MgHas(acRules, "note_reads_near_its_mark"))
+chk("and each finding names the mark by its place", _MgMessageHas(aWf, "x = "))
+chk("NEGATIVE: the untouched marks raise nothing -- exactly one finding per rule planted",
+    _MgCount(acRules, "zero_brackets_a_sign_change") = 1 and _MgCount(acRules, "extremum_brackets_a_turn") = 1 and
+    _MgCount(acRules, "note_reads_near_its_mark") = 1)
+
+#---------------------------------------------------------------------------
+
+sec("-- 6. THE SVG IS THE SAME BYTES ----------------------------------------")
+
+# THE EXPECTATION IS GENERATED FROM THE BYTES, NOT TYPED (the discipline
+# plot.zig set for the text renderers): the first run writes it and FAILS
+# by name, so a missing expectation is never a green; every later run
+# compares byte for byte. A different declaration must give different
+# bytes, or the comparison proves nothing.
+cExpect = "expect/fig_01.svg"
+if NOT fexists(cExpect)
+	write(cExpect, cSvg1)
+	chk("EXPECTATION GENERATED at " + cExpect + " -- commit it and run again", FALSE)
+else
+	cWant = read(cExpect)
+	chk("the cardinal sine's SVG is byte for byte the committed expectation  [" + len(cSvg1) + " bytes]",
+	    cSvg1 = cWant)
+	if cSvg1 != cWant
+		write("expect/fig_01.got.svg", cSvg1)
+		? "        (the bytes this run produced are in expect/fig_01.got.svg)"
+	ok
+ok
+oF1b = StzMathFigScene01()
+chk("a second build of the same declaration gives the same bytes", oF1b.ToSVG() = cSvg1)
+oF1c = StzMathFigureQ(:Function, [ :f = "sin(x) / x", :on = [ -12, 12 ], :mark = [ :zeros ], :label = "y = sin(x) / x" ])
+chk("NEGATIVE: a different declaration gives different bytes", oF1c.ToSVG() != cSvg1)
+
+#---------------------------------------------------------------------------
+
+sec("-- 7. A FIGURE IS AN ENTRY OBJECT THAT ANSWERS FOR ITSELF -------------")
+
+chkeq("it knows its kind", oF1.Kind(), "function")
+chk("its Why says what was computed and what was solved",
+    StzFindFirst("400 samples", oF1.Why()) > 0 and StzFindFirst("satisfied", oF1.Why()) > 0)
+chk("its picture is an stzMathDiagram", StzLower(classname(oF1.Diagram())) = "stzmathdiagram")
+chkeq("a datum is a fact: the frame carries 400 samples", oF1.Fact(:datum, [ "fr", "samples" ])[:value], 400)
+chk("its vector rendition is SVG", oF1.Rendition()[:mime] = "image/svg+xml")
+chk("its layout time is a number the caller can budget against", isNumber(oF1.LayoutMs()) and oF1.LayoutMs() > 0)
+chk("the house font was found on this machine", isObject(StzMathFigureFont()))
+
+#---------------------------------------------------------------------------
+
+sec("-- 8. A NUMBER LINE: EVERY POINT AT ITS VALUE, EVERY JUMP ADDS UP ------")
+
+oN8 = StzMathFigScene08()
+oN8.Layout()
+chk("the number line is lawful", oN8.IsSolved())
+oSN = oN8.Substance()
+chkeq("six points stand on it -- four declared, and the jump's two ends", oSN.DataOf("ax", "points"), 6)
+# every point's dot is where the line maps its value -- re-derived from
+# the axis's own ends with plain arithmetic
+nA = oSN.DataOf("ax", "a")  nB = oSN.DataOf("ax", "b")
+nPx0 = oSN.DataOf("ax", "px0")  nPx1 = oSN.DataOf("ax", "px1")
+bAt = TRUE
+acP = oSN.ObjectsOfType("Point")
+for i = 1 to len(acP)
+	aD = oN8.ShapeOf(acP[i] + ".icon")
+	nWant = nPx0 + (oSN.DataOf(acP[i], "v") - nA) * (nPx1 - nPx0) / (nB - nA)
+	if fabs(aD[:cx] - nWant) > 0.000001  bAt = FALSE  ok
+next
+chk("every dot stands where the line maps its value, to 1e-6", bAt)
+chk("the points are numbered left to right: p1 is -2, p6 is 7.5",
+    oSN.DataOf("p1", "v") = -2 and oSN.DataOf("p6", "v") = 7.5)
+chk("the jump from 2 to 5 prints '+ 3'", oSN.LabelOf("j1") = "+ 3")
+chk("and its landing dot is at 5", oSN.DataOf("p5", "v") = 5 or oSN.DataOf("p4", "v") = 5)
+chk("a named point reads 'half = 0.5'", oSN.LabelOf("n2") = "half = 0.5")
+nNotesN = 0
+for i = 1 to len(oSN.Definitions())
+	if oSN.Definitions()[i][2] = "Note"  nNotesN++  ok
+next
+chkeq("only the two points off the ticks are noted -- a point on a tick is named by the tick", nNotesN, 2)
+bNearN = TRUE
+aDefs = oSN.Definitions()
+for i = 1 to len(aDefs)
+	if aDefs[i][2] != "Note"  loop  ok
+	aT = oN8.ShapeOf(aDefs[i][1] + ".text")
+	aP = oN8.ShapeOf(aDefs[i][3][1] + ".icon")
+	if sqrt(pow(aT[:cx] - aP[:cx], 2) + pow(aT[:cy] - aP[:cy], 2)) > StzNumberLineFigureLeash() + aT[:w] / 2 + 0.5  bNearN = FALSE  ok
+next
+chk("every note stands within its leash of its point, by arithmetic", bNearN)
+oN9 = StzMathFigScene09()
+oN9.Layout()
+chk("9 - 5 is lawful", oN9.IsSolved())
+chk("and its jump prints '- 5' and reads backwards", oN9.Substance().LabelOf("j1") = "- 5" and oN9.Substance().Holds("Backward", [ "j1" ]))
+chkeq("with a step of 1 there are thirteen ticks on [0, 12]", oN9.Substance().DataOf("ax", "ticks"), 13)
+chk("a point off the line is refused", _MgRefusesKindSpec(:NumberLine, [ :on = [ 0, 5 ], :points = [ 9 ] ], "is not on the line"))
+chk("a jump to itself is refused", _MgRefusesKindSpec(:NumberLine, [ :on = [ 0, 5 ], :jumps = [ [ 2, 2 ] ] ], "to itself"))
+chk("a number placed twice is refused", _MgRefusesKindSpec(:NumberLine, [ :on = [ 0, 5 ], :points = [ 2, 2 ] ], "placed twice"))
+chk("NEGATIVE: the lawful forms are accepted", NOT _MgRefusesKindSpec(:NumberLine, [ :on = [ 0, 5 ], :points = [ 2, [ 4, "four" ] ], :jumps = [ [ 1, 3 ] ] ], ""))
+oNW = StzMathFigNumberLineWitness()
+oNWRep = StzCheckPictures([ [ "numberline/witness", oNW.Diagram() ] ])
+acNr = []
+aNf = oNWRep.Findings()
+for i = 1 to len(aNf)  acNr + ("" + aNf[i][:rule])  next
+chk("the witness's jump printing + 4 that lands 3 away is found", _MgHas(acNr, "jump_lands_where_it_says"))
+chk("its point drawn past its neighbour is found", _MgHas(acNr, "points_keep_their_order"))
+oN8Rep = StzCheckPictures([ [ "numberline/08", oN8.Diagram() ], [ "numberline/09", oN9.Diagram() ] ])
+chkeq("NEGATIVE: the two lawful lines raise no finding", oN8Rep.NumberOfFindings(), 0)
+
+#---------------------------------------------------------------------------
+
+sec("-- 9. A FRACTION: THE PICTURE AGREES WITH A COUNT ----------------------")
+
+oF10 = StzMathFigScene10()
+oF10.Layout()
+chk("three of four is lawful, with nothing to lay out", oF10.IsSolved() and oF10.Diagram().NumberOfUnknowns() = 0)
+cSvg10 = oF10.ToSVG()
+# THE CHILD'S PROOF: count the shaded parts -- they are the elements named s1_1, s1_2, s1_3
+chkeq("the picture has exactly three shaded parts, counted by their ids", len(StzFindCS('id="s1_', cSvg10, TRUE)), 3)
+chkeq("and one unshaded", len(StzFindCS('id="u1_', cSvg10, TRUE)), 1)
+oS10 = oF10.Substance()
+aW1 = oF10.ShapeOf("w1.box")
+nSum = 0
+acParts = oS10.ObjectsOfType("Part")
+for i = 1 to len(acParts)
+	aP = oF10.ShapeOf(acParts[i] + ".icon")
+	nSum += aP[:w]
+next
+chk("the four parts add up to the bar's width, by the solved shapes", fabs(nSum - aW1[:w]) < 0.001)
+chk("its name reads 3/4", oS10.LabelOf("nm1") = "3/4")
+
+oF11 = StzMathFigScene11()
+oF11.Layout()
+chk("four fractions compared are lawful", oF11.IsSolved())
+oS11 = oF11.Substance()
+# 2/4 and 1/2 END at the same pixel -- the picture's own proof of equality
+aS3 = oF11.ShapeOf("s3_2.icon")
+aS4 = oF11.ShapeOf("s4_1.icon")
+chk("2/4 and 1/2 end at the same pixel, to 1e-9", fabs((aS3[:cx] + aS3[:w] / 2) - (aS4[:cx] + aS4[:w] / 2)) < 0.000000001)
+aS1 = oF11.ShapeOf("s1_3.icon")
+chk("NEGATIVE: 3/4 ends elsewhere", fabs((aS1[:cx] + aS1[:w] / 2) - (aS4[:cx] + aS4[:w] / 2)) > 10)
+chk("the verdicts are cross-multiplied: 3/4 > 2/3, 2/3 > 2/4, 2/4 = 1/2",
+    oS11.LabelOf("v1") = ">" and oS11.LabelOf("v2") = ">" and oS11.LabelOf("v3") = "=")
+
+oF12 = StzMathFigScene12()
+oF12.Layout()
+chk("three of eight and one of four as discs are lawful", oF12.IsSolved())
+cSvg12 = oF12.ToSVG()
+chkeq("the first disc has three shaded wedges", len(StzFindCS('id="s1_', cSvg12, TRUE)), 3)
+chkeq("and the second one", len(StzFindCS('id="s2_', cSvg12, TRUE)), 1)
+oS12 = oF12.Substance()
+nTurn = 0
+acParts = oS12.ObjectsOfType("Part")
+for i = 1 to len(acParts)
+	if oS12.DataOf(acParts[i], "whole") = 1  nTurn += oS12.DataOf(acParts[i], "angle")  ok
+next
+chk("the eight wedges turn exactly once round", fabs(nTurn - 2 * PI) < 0.000000001)
+chk("the verdict says 3/8 > 1/4", oS12.LabelOf("v1") = ">")
+
+chk("a denominator of zero is refused", _MgRefusesKindSpec(:Fraction, [ :of = [ 1, 0 ] ], "no parts"))
+chk("an improper fraction is refused, and told why", _MgRefusesKindSpec(:Fraction, [ :of = [ 5, 4 ] ], "more than one whole"))
+chk("a fraction of halves of numbers is refused", _MgRefusesKindSpec(:Fraction, [ :of = [ 1.5, 4 ] ], "whole numbers"))
+chk("too many parts to count are refused", _MgRefusesKindSpec(:Fraction, [ :of = [ 1, 100 ] ], "cannot be counted"))
+chk("NEGATIVE: 0/4 and 4/4 are accepted -- nothing and everything are fractions",
+    NOT _MgRefusesKindSpec(:Fraction, [ :of = [ 0, 4 ] ], "") and NOT _MgRefusesKindSpec(:Fraction, [ :of = [ 4, 4 ] ], ""))
+oFW = StzMathFigFractionWitness()
+oFWRep = StzCheckPictures([ [ "fraction/witness", oFW.Diagram() ] ])
+acFr = []
+aFf = oFWRep.Findings()
+for i = 1 to len(aFf)  acFr + ("" + aFf[i][:rule])  next
+chk("the witness's numerator of two over three shaded parts is found", _MgHas(acFr, "shaded_is_the_numerator"))
+chk("its denominator of five over four cut parts is found", _MgHas(acFr, "parts_are_the_denominator"))
+oFRep = StzCheckPictures([ [ "fraction/10", oF10.Diagram() ], [ "fraction/11", oF11.Diagram() ], [ "fraction/12", oF12.Diagram() ] ])
+chkeq("NEGATIVE: the three lawful fraction pictures raise no finding", oFRep.NumberOfFindings(), 0)
+
+#---------------------------------------------------------------------------
+
+sec("-- 10. THE ENTRY OBJECT KNOWS ITS KINDS --------------------------------")
+
+chkeq("the kinds are function, numberline, fraction, matrix, complexplane, boxplot, surface and, since M4, stemplot, residualplot and codedtable", len(StzMathFigureKinds()), 10)
+chk("a number line's Why says what it holds", StzFindFirst("6 point(s)", oN8.Why()) > 0 and StzFindFirst("1 jump(s)", oN8.Why()) > 0)
+chk("a fraction's Why says what is shaded", StzFindFirst("3 of 4 shaded", oF10.Why()) > 0)
+bRef = FALSE
+try
+	oN8.SampleCount()
+catch
+	bRef = TRUE
+done
+chk("a :Function reader on a number line is refused by name", bRef)
+
+#---------------------------------------------------------------------------
+
+sec("-- 11. A MATRIX: A PRODUCT IS A PICTURE OF HOW EVERY CELL IS MADE -----")
+
+oM2 = StzMathFigureQ(:Matrix, [ :product = [ [ [ 1, 2 ], [ 3, 4 ] ], [ [ 5, 6 ], [ 7, 8 ] ] ] ])
+oM2.Layout()
+chk("a 2 x 2 product is lawful, with nothing to lay out", oM2.IsSolved() and oM2.Diagram().NumberOfUnknowns() = 0)
+oSM = oM2.Substance()
+# the product typed by hand, not computed: [ 19 22 ; 43 50 ]
+chk("the product's cells are 19, 22, 43, 50 -- typed here, computed there",
+    oSM.DataOf("c1_1", "v") = 19 and oSM.DataOf("c1_2", "v") = 22 and oSM.DataOf("c2_1", "v") = 43 and oSM.DataOf("c2_2", "v") = 50)
+chk("and every cell's text is its value", oSM.LabelOf("c2_1") = "43")
+oM15 = StzMathFigScene15()
+oM15.Layout()
+chk("scene 30's product is lawful", oM15.IsSolved())
+oS15 = oM15.Substance()
+chkeq("three grids hold 12 + 12 + 9 cells", oS15.DataOf("fig", "cells"), 33)
+nLit = 0
+acC = oS15.ObjectsOfType("Cell")
+for i = 1 to len(acC)
+	if oS15.Holds("Lit", [ acC[i] ])  nLit++  ok
+next
+chkeq("row 2 of A, column 2 of B and their cell are lit: 4 + 4 + 1", nLit, 9)
+chk("the lit cell of the product is 2*0 + 8*2 + 1*3 + 8*2 = 35", oS15.DataOf("c2_2", "v") = 35 and oS15.Holds("Lit", [ "c2_2" ]))
+cSvg15 = oM15.ToSVG()
+chk("a cell is a named element to a consumer", len(StzFindCS('id="c2_2" class="rect', cSvg15, TRUE)) = 1)
+oM16 = StzMathFigScene16()
+oM16.Layout()
+oS16 = oM16.Substance()
+chk("the heat form puts the least value at 0 on the ramp and the greatest at 1",
+    oS16.DataOf("a1_3", "t") = 0 and oS16.DataOf("a1_1", "t") = 1 and fabs(oS16.DataOf("a1_2", "t") - 0.25) < 0.000001)
+chk("a product of mismatched sizes is refused with the numbers",
+    _MgRefusesKindSpec(:Matrix, [ :product = [ [ [ 1, 2, 3 ] ], [ [ 1, 2 ] ] ] ], "needs them equal"))
+chk("a ragged matrix is refused", _MgRefusesKindSpec(:Matrix, [ :of = [ [ 1, 2 ], [ 3 ] ] ], "rectangular"))
+chk("a cell to show that the product lacks is refused", _MgRefusesKindSpec(:Matrix, [ :product = [ [ [ 1 ] ], [ [ 2 ] ] ], :show = [ 2, 1 ] ], "no cell"))
+chk("NEGATIVE: the lawful forms are accepted", NOT _MgRefusesKindSpec(:Matrix, [ :of = [ [ 1 ] ], :as = :heat ], ""))
+oMW = StzMathFigMatrixWitness()
+oMWRep = StzCheckPictures([ [ "matrix/witness", oMW.Diagram() ] ])
+acMr = []
+aMf = oMWRep.Findings()
+for i = 1 to len(aMf)  acMr + ("" + aMf[i][:rule])  next
+chk("the witness's cell of 999 is found by product_cell_is_the_dot_product", _MgHas(acMr, "product_cell_is_the_dot_product"))
+chk("its five rows of B are found by dimensions_agree", _MgHas(acMr, "dimensions_agree"))
+chk("and by grid_holds_its_cells, since B holds twelve cells and says fifteen", _MgHas(acMr, "grid_holds_its_cells"))
+chkeq("NEGATIVE: exactly one cell is wrong", _MgCount(acMr, "product_cell_is_the_dot_product"), 1)
+oMRep = StzCheckPictures([ [ "matrix/2x2", oM2.Diagram() ], [ "matrix/15", oM15.Diagram() ], [ "matrix/16", oM16.Diagram() ] ])
+chkeq("NEGATIVE: the three lawful matrix pictures raise no finding", oMRep.NumberOfFindings(), 0)
+
+#---------------------------------------------------------------------------
+
+sec("-- 12. THE COMPLEX PLANE: A ROOT IS CHECKED WHERE IT IS DRAWN ----------")
+
+oC17 = StzMathFigScene17()
+oC17.Layout()
+chk("the cube roots of one are lawful", oC17.IsSolved())
+oS17 = oC17.Substance()
+chkeq("three roots were drawn", oS17.DataOf("fr", "points"), 3)
+# the roots, known independently: 1, and -1/2 +- i sqrt(3)/2
+bR = TRUE
+nHalf3 = sqrt(3) / 2
+acP = oS17.ObjectsOfType("Point")
+bOne = FALSE  bUp = FALSE  bDown = FALSE
+for i = 1 to len(acP)
+	re = oS17.DataOf(acP[i], "re")  im = oS17.DataOf(acP[i], "im")
+	if fabs(re - 1) < 0.000000001 and fabs(im) < 0.000000001  bOne = TRUE  ok
+	if fabs(re + 0.5) < 0.000000001 and fabs(im - nHalf3) < 0.000000001  bUp = TRUE  ok
+	if fabs(re + 0.5) < 0.000000001 and fabs(im + nHalf3) < 0.000000001  bDown = TRUE  ok
+	# and every one is on the unit circle
+	if fabs(re * re + im * im - 1) > 0.000000001  bR = FALSE  ok
+next
+chk("they are 1 and -1/2 +- i sqrt(3)/2, to 1e-9", bOne and bUp and bDown)
+chk("and every one lies on the unit circle", bR)
+# THE CHECK OF THE ENGINE: Horner in Ring at each root, on the coefficients
+bH = TRUE
+for i = 1 to len(acP)
+	if _CpHorner(oS17, oS17.DataOf(acP[i], "re"), oS17.DataOf(acP[i], "im")) > 0.000000001  bH = FALSE  ok
+next
+chk("z^3 - 1 is under 1e-9 in modulus at each, by Horner's rule in Ring", bH)
+chk("the unit circle is drawn as a named element", len(StzFindCS('id="unit"', oC17.ToSVG(), TRUE)) = 1)
+chk("the notes read as complex numbers: '-0.5 + 0.866i'", _MgLabelExists(oS17, "-0.5 + 0.866i"))
+oC18 = StzMathFigScene18()
+oC18.Layout()
+chk("z = 3 + 2i with its conjugate is lawful", oC18.IsSolved())
+oS18 = oC18.Substance()
+chk("the ray reads |z| = 3.606 -- sqrt(13) to three places", oS18.LabelOf("ray") = "|z| = 3.606")
+chk("the arc reads arg z = 33.7 deg", oS18.LabelOf("arc") = "arg z = 33.7 deg")
+chk("the modulus datum is sqrt(13) to 1e-12", fabs(oS18.DataOf("ray", "mod") - sqrt(13)) < 0.000000000001)
+chk("a degree-zero polynomial is refused", _MgRefusesKindSpec(:ComplexPlane, [ :roots = [ 5 ] ], "no root"))
+chk("a leading zero is refused", _MgRefusesKindSpec(:ComplexPlane, [ :roots = [ 0, 1, 2 ] ], "leading coefficient"))
+chk("a point to show that is not drawn is refused", _MgRefusesKindSpec(:ComplexPlane, [ :points = [ [ 1, 1 ] ], :show = [ 2, 2 ] ], "not one of"))
+chk("NEGATIVE: the lawful forms are accepted", NOT _MgRefusesKindSpec(:ComplexPlane, [ :points = [ [ 1, 1, "w" ] ], :roots = [ 1, 0, 1 ], :unit = TRUE, :show = [ 1, 1 ] ], ""))
+oCW = StzMathFigComplexWitness()
+oCWRep = StzCheckPictures([ [ "complex/witness", oCW.Diagram() ] ])
+acCr = []
+aCf = oCWRep.Findings()
+for i = 1 to len(aCf)  acCr + ("" + aCf[i][:rule])  next
+chk("the moved root is found by root_is_a_root", _MgHas(acCr, "root_is_a_root"))
+chk("and by conjugates_pair, twice -- it lost its mirror and its mirror lost it", _MgCount(acCr, "conjugates_pair") = 2)
+chkeq("NEGATIVE: exactly one point is no root", _MgCount(acCr, "root_is_a_root"), 1)
+oCRep = StzCheckPictures([ [ "complex/17", oC17.Diagram() ], [ "complex/18", oC18.Diagram() ] ])
+chkeq("NEGATIVE: the two lawful planes raise no finding", oCRep.NumberOfFindings(), 0)
+
+#---------------------------------------------------------------------------
+
+sec("-- 13. A BOX PLOT: THE FIVE NUMBERS IT DRAWS ARE THE FIVE IT SAYS ------")
+
+oB21 = StzMathFigScene21()
+oB21.Layout()
+chk("eight values with one alone are lawful", oB21.IsSolved())
+oSB = oB21.Substance()
+# the five numbers, by an independent reading: the engine's percentiles
+# through stzDataSet directly, and the fences by hand
+oDs = new stzDataSet([ 2, 4, 4, 5, 7, 9, 12, 25 ])
+chk("the box's quartiles are the data set's own", oSB.DataOf("b1", "q1") = oDs.Q1() and oSB.DataOf("b1", "med") = oDs.Q2() and oSB.DataOf("b1", "q3") = oDs.Q3())
+nIqr = oDs.Q3() - oDs.Q1()
+chk("the upper fence is Q3 + 1.5 IQR", fabs(oSB.DataOf("b1", "fhi") - (oDs.Q3() + 1.5 * nIqr)) < 0.000000001)
+chkeq("25 is the one value beyond it, drawn alone", oSB.DataOf("fr", "outliers"), 1)
+chk("and the high whisker stops at the last value inside the fence", oSB.DataOf("b1", "whi") <= oSB.DataOf("b1", "fhi") and oSB.DataOf("b1", "whi") < 25)
+chkeq("three numbers are written above the box", oB21.Diagram().NumberOfUnknowns(), 6)
+# the drawn box is the numbers: the rect from Q1 to Q3, the median line at the median
+aBox = oB21.ShapeOf("b1.icon")
+aMed = oB21.ShapeOf("b1.med")
+nX0 = oSB.DataOf("fr", "x0")  nX1 = oSB.DataOf("fr", "x1")
+nVmin = oSB.DataOf("fr", "vmin")  nVmax = oSB.DataOf("fr", "vmax")
+nQ1px = nX0 + (oDs.Q1() - nVmin) * (nX1 - nX0) / (nVmax - nVmin)
+chk("the rect's left edge stands at Q1 on the axis, re-derived", fabs((aBox[:cx] - aBox[:w] / 2) - nQ1px) < 0.000001)
+chk("the median line stands at the median", fabs(aMed[:x1] - (nX0 + (oDs.Q2() - nVmin) * (nX1 - nX0) / (nVmax - nVmin))) < 0.000001)
+# THE TEXT RENDITION (TK3): read back, the columns are the numbers
+cTxt = oB21.Text()
+chk("the text rendition names the five numbers", StzFindFirst("Q1 " + _FfNum(oDs.Q1(), 4), cTxt) > 0 and StzFindFirst("med " + _FfNum(oDs.Q2(), 4), cTxt) > 0)
+chk("and draws the box, the median and the outlier in characters", StzFindFirst("[", cTxt) > 0 and StzFindFirst("|", cTxt) > 0 and StzFindFirst("o", StzStringSection(cTxt, StzFindFirst("[", cTxt), len(cTxt))) > 0)
+oB22 = StzMathFigScene22()
+oB22.Layout()
+chk("three groups on one axis are lawful", oB22.IsSolved())
+chk("their names are written", oB22.Substance().LabelOf("b2") = "noon")
+chk("a group of three values is refused", _MgRefusesKindSpec(:BoxPlot, [ :of = [ 1, 2, 3 ] ], "at least four"))
+chk("a seventh group is refused", _MgRefusesKindSpec(:BoxPlot, [ :groups = [ [ "a", [1,2,3,4] ], [ "b", [1,2,3,4] ], [ "c", [1,2,3,4] ], [ "d", [1,2,3,4] ], [ "e", [1,2,3,4] ], [ "f", [1,2,3,4] ], [ "g", [1,2,3,4] ] ] ], "at most"))
+chk("NEGATIVE: the lawful forms are accepted", NOT _MgRefusesKindSpec(:BoxPlot, [ :of = [ 5, 1, 4, 2 ], :numbers = FALSE ], ""))
+oBW = StzMathFigBoxPlotWitness()
+oBWRep = StzCheckPictures([ [ "boxplot/witness", oBW.Diagram() ] ])
+acBr = []
+aBf = oBWRep.Findings()
+for i = 1 to len(aBf)  acBr + ("" + aBf[i][:rule])  next
+chk("the witness's median past Q3 is found by box_keeps_its_order", _MgHas(acBr, "box_keeps_its_order"))
+chk("its outlier inside the fences is found by outliers_lie_beyond_the_fences", _MgHas(acBr, "outliers_lie_beyond_the_fences"))
+oBRep = StzCheckPictures([ [ "boxplot/21", oB21.Diagram() ], [ "boxplot/22", oB22.Diagram() ] ])
+chkeq("NEGATIVE: the two lawful box plots raise no finding", oBRep.NumberOfFindings(), 0)
+
+#---------------------------------------------------------------------------
+
+sec("-- 14. A SURFACE: z = f(x, y) PROJECTED BY THE ENGINE, DRAWN AS WIRE ---")
+
+oS23 = StzMathFigScene23()
+oS23.Layout()
+chk("the saddle is lawful, with nothing to lay out", oS23.IsSolved() and oS23.Diagram().NumberOfUnknowns() = 0)
+oSS = oS23.Substance()
+chkeq("a 20 x 20 grid is 40 lines", oSS.DataOf("fr", "lines"), 40)
+# twenty samples never land on y = 0, so the top is 1 - (1/19)^2 -- the
+# nearest sample to the ridge, computed here, not read there
+nTop = 1 - pow(1 / 19, 2)
+chk("z spans +-(1 - (1/19)^2), the ridge's nearest samples, to 1e-9", fabs(oSS.DataOf("fr", "zmin") + nTop) < 0.000000001 and fabs(oSS.DataOf("fr", "zmax") - nTop) < 0.000000001)
+# the saddle's corners, known: (-1,-1) -> 0, (1,-1) -> 0, (-1, 1) -> 0, and the centre 0
+chk("the centre sample is 0 -- the saddle point", fabs(oSS.DataOf("fr", "z10_10")) < 0.02)
+chk("the corner (x = -1, y = 1) is 1 - 1 = 0", fabs(oSS.DataOf("fr", "z1_20")) < 0.000000001)
+# the projection is the engine's: a row's points are in canvas range
+aR1 = oS23.ShapeOf("r1.icon")
+chkeq("a row is a spline of twenty controls", aR1[:n], 20)
+bIn = TRUE
+for i = 1 to len(aR1[:controls]) step 2
+	if aR1[:controls][i] < 0 or aR1[:controls][i] > StzSurfaceFigureWidth() or aR1[:controls][i+1] < 0 or aR1[:controls][i+1] > StzSurfaceFigureHeight()  bIn = FALSE  ok
+next
+chk("and every control lands on the paper", bIn)
+# the same point projected twice agrees: a row's j-th point IS the column's i-th
+aC1 = oS23.ShapeOf("c1.icon")
+chk("row 1's first point is column 1's first point, to 1e-9", fabs(aR1[:controls][1] - aC1[:controls][1]) < 0.000000001 and fabs(aR1[:controls][2] - aC1[:controls][2]) < 0.000000001)
+chk("the lines are named elements", len(StzFindCS('id="r1" class="spline', oS23.ToSVG(), TRUE)) = 1)
+oS24 = StzMathFigScene24()
+oS24.Layout()
+chk("a 24 x 24 ripple is lawful", oS24.IsSolved())
+chk("a surface with a pole is refused with the place", _MgRefusesKindSpec(:Surface, [ :f = "1 / (x * y)", :x = [ -1, 1 ], :y = [ -1, 1 ], :samples = 9 ], "not finite"))
+chk("an elevation on the plane is refused", _MgRefusesKindSpec(:Surface, [ :f = "x", :x = [ 0, 1 ], :y = [ 0, 1 ], :view = [ 0, 0 ] ], "elevation"))
+chk("too many samples are refused", _MgRefusesKindSpec(:Surface, [ :f = "x", :x = [ 0, 1 ], :y = [ 0, 1 ], :samples = 100 ], "8 to 48"))
+chk("NEGATIVE: the lawful form is accepted", NOT _MgRefusesKindSpec(:Surface, [ :f = "x * y", :x = [ 0, 1 ], :y = [ 0, 1 ], :samples = 8 ], ""))
+oSW = StzMathFigSurfaceWitness()
+oSWRep = StzCheckPictures([ [ "surface/witness", oSW.Diagram() ] ])
+acSr = []
+aSf = oSWRep.Findings()
+for i = 1 to len(aSf)  acSr + ("" + aSf[i][:rule])  next
+chk("the witness's tampered corner is found by sample_is_the_function", _MgHas(acSr, "sample_is_the_function"))
+oSRep = StzCheckPictures([ [ "surface/23", oS23.Diagram() ], [ "surface/24", oS24.Diagram() ] ])
+chkeq("NEGATIVE: the two lawful surfaces raise no finding", oSRep.NumberOfFindings(), 0)
+
+#---------------------------------------------------------------------------
+
+sec("-- 15. NOTATION: FRACTIONS, ROOTS, LIMITS AND MATRICES AS STACKED RUNS -")
+
+oNf = StzMathFigureFont()
+# THE READER IS HELD TO ITS BYTES: twenty-six labels, runs and refusals,
+# against the expectation the probe generated from the bytes
+cNow = StzMathNotationProbeText(oNf)
+cNow = StzReplace(cNow, char(13), "")
+cExp = StzReplace(read("expect/notation.txt"), char(13), "")
+chk("the reader answers the committed bytes for all twenty-six labels", ring_trim(cNow) = ring_trim(cExp))
+if ring_trim(cNow) != ring_trim(cExp)
+	write("expect/notation.got.txt", cNow)
+	? "        (this run's bytes are in expect/notation.got.txt)"
+ok
+# a fraction: numerator above the bar above the denominator, the bar at
+# least as wide as either
+aFr = StzNotationRuns("$\frac{a+b}{2}$", 20, oNf)[1]
+chkeq("a fraction is three runs: numerator, bar, denominator", len(aFr), 3)
+chk("stacked in that order: the numerator's baseline above the bar's above the denominator's", aFr[1][3] < aFr[2][3] and aFr[2][3] < aFr[3][3])
+nWn = oNf.WidthOf(aFr[1][1], aFr[1][4])
+nWb = oNf.WidthOf(aFr[2][1], aFr[2][4])
+chk("and the bar spans the numerator", nWb >= nWn)
+chk("the fraction's box is taller than a plain label's, above and below", StzNotationRuns("$\frac{1}{2}$", 20, oNf)[3] > StzNotationRuns("$x$", 20, oNf)[3] and StzNotationRuns("$\frac{1}{2}$", 20, oNf)[4] > StzNotationRuns("$x$", 20, oNf)[4])
+# a root: the sign, a bar over the argument, the argument
+aRt = StzNotationRuns("$\sqrt{x^2 + 1}$", 20, oNf)[1]
+chk("a root begins with the radical sign", aRt[1][1] = StzNotationSymbol("sqrt"))
+chk("and its bar lies above the argument's baseline", aRt[2][3] < aRt[3][3] and StzFindFirst("—", aRt[2][1] + "─") > 0)
+# limits centred on the sign
+aSm = StzNotationRuns("$\sum_{i=1}^{n} x_i$", 20, oNf)[1]
+nSignMid = aSm[1][2] + oNf.WidthOf(aSm[1][1], aSm[1][4]) / 2
+nLoMid = aSm[2][2] + oNf.WidthOf(aSm[2][1], aSm[2][4]) / 2
+nHiMid = aSm[3][2] + oNf.WidthOf(aSm[3][1], aSm[3][4]) / 2
+chk("a sum's lower limit is centred under the sign, to half a pixel", fabs(nLoMid - nSignMid) < 0.5 and aSm[2][3] > 0)
+chk("and its upper limit is centred over it", fabs(nHiMid - nSignMid) < 0.5 and aSm[3][3] < 0)
+chk("NEGATIVE: a script on a letter still sits to its right, not over it", StzNotationRuns("$x^2$", 20, oNf)[1][2][2] > 0)
+# a matrix: columns aligned, rows apart, brackets scaled to the height
+aMx = StzNotationRuns("$\matrix{1, 2; 3, 4}$", 20, oNf)[1]
+chkeq("a 2 x 2 matrix is six runs: two brackets and four cells", len(aMx), 6)
+chk("the cells of a column share one x", fabs(aMx[2][2] - aMx[3][2]) < 0.000001 and fabs(aMx[4][2] - aMx[5][2]) < 0.000001)
+chk("the rows stand apart, one above and one below the axis", aMx[2][3] < 0 and aMx[3][3] > 0)
+chk("and the brackets are drawn larger than the type", aMx[1][4] > 20 and aMx[6][4] > 20)
+chk("\frac with one argument is refused by name", _MgNotationRefuses("$\frac{1}$", "denominator"))
+chk("a ragged matrix is refused", _MgNotationRefuses("$\matrix{1, 2; 3}$", "rectangular"))
+chk("an empty cell is refused", _MgNotationRefuses("$\matrix{1, ; 3, 4}$", "empty"))
+chk("a seven-column matrix is refused -- that is a picture, not a label", _MgNotationRefuses("$\matrix{1,2,3,4,5,6,7}$", "picture"))
+chk("an unknown command is still refused, and the refusal now names the structures", _MgNotationRefuses("$\levitate$", "frac"))
+chk("NEGATIVE: \sqrt with no brace is still the bare sign", len(StzNotationRuns("$\sqrt$", 20, oNf)[1]) = 1)
+# and the notation draws: three scenes, lawful
+oN27 = StzMathFigScene27()
+oN27.Layout()
+chk("fractions as the names of points on a line are lawful", oN27.IsSolved())
+oN28 = StzMathFigScene28()
+oN28.Layout()
+chk("a title with a fraction and a sum is lawful", oN28.IsSolved())
+oN29 = StzMathFigScene29()
+oN29.Layout()
+chk("a matrix in a title is lawful", oN29.IsSolved())
+oNRep = StzCheckPictures([ [ "notation/27", oN27.Diagram() ], [ "notation/28", oN28.Diagram() ], [ "notation/29", oN29.Diagram() ] ])
+chkeq("NEGATIVE: the three raise no finding", oNRep.NumberOfFindings(), 0)
+
+#---------------------------------------------------------------------------
+
+sec("-- 16. A BOX PLOT NAMES ITS HINGE CONVENTION (M4 / TK3) -------------------")
+
+# THE HINGE CONVENTION, NAMED ON THE PICTURE (Tukey plan 2.2): the same eight
+# values under percentile quartiles (stzDataSet's, the M1 default) and under
+# Tukey's fourths (eda.zig's); the five numbers differ where the conventions
+# do, the fences follow, and Why() and Text() say which was used.
+aEight = [ 2, 4, 4, 5, 7, 9, 12, 25 ]
+oP = StzMathFigureQ(:BoxPlot, [ :of = aEight ])
+oT = StzMathFigureQ(:BoxPlot, [ :of = aEight, :convention = :Fourths ])
+chk("the default is unchanged from M1: percentile quartiles, Q3 = 9.75  [" + oP.Fact(:datum, [ "b1", "q3" ])[:value] + "]", oP.Fact(:datum, [ "b1", "q3" ])[:value] = 9.75)
+chk("under Tukey's fourths the upper hinge is 10.5 and the fourth-spread 6.5  [" + oT.Fact(:datum, [ "b1", "q3" ])[:value] + ", " + oT.Fact(:datum, [ "b1", "iqr" ])[:value] + "]", oT.Fact(:datum, [ "b1", "q3" ])[:value] = 10.5 and oT.Fact(:datum, [ "b1", "iqr" ])[:value] = 6.5)
+chk("the median is 6 under both", oP.Fact(:datum, [ "b1", "med" ])[:value] = 6 and oT.Fact(:datum, [ "b1", "med" ])[:value] = 6)
+chk("the upper fence follows the convention: 18.375 against 20.25", fabs(oP.Fact(:datum, [ "b1", "fhi" ])[:value] - 18.375) < 0.000000001 and fabs(oT.Fact(:datum, [ "b1", "fhi" ])[:value] - 20.25) < 0.000000001)
+chk("the whisker stops at 12 under both, the last value inside either fence", oP.Fact(:datum, [ "b1", "whi" ])[:value] = 12 and oT.Fact(:datum, [ "b1", "whi" ])[:value] = 12)
+chk("25 is the one outlier under both", oP.Fact(:datum, [ "b1", "outliers" ])[:value] = 1 and oT.Fact(:datum, [ "b1", "outliers" ])[:value] = 1)
+chk("Why() names the convention: " + oT.Why(), StzFindFirst("under Tukey's fourths", oT.Why()) > 0 and StzFindFirst("under percentile quartiles", oP.Why()) > 0)
+chk("...and so does the text rendition, on its last line", StzFindFirst("hinges: Tukey's fourths", oT.Text()) > 0 and StzFindFirst("hinges: percentile quartiles", oP.Text()) > 0)
+chk("both pictures keep the box plot's own rules  [" + len(oP.Violations()) + ", " + len(oT.Violations()) + "]", len(oP.Violations()) = 0 and len(oT.Violations()) = 0)
+chk("a convention that is neither is refused by name", _MgRefusesKindSpec(:BoxPlot, [ :of = aEight, :convention = :Median ], "Percentile"))
+chk("the summary face agrees with the figure under fourths", StzTukeySummaryQ(aEight).Fourths()[2] = oT.Fact(:datum, [ "b1", "q3" ])[:value])
+
+sec("-- 17. A STEM-AND-LEAF KEEPS EVERY DIGIT, AND ITS ROWS ARE JUDGED (M4 / TK3)")
+
+aSeventeen = [ 112, 125, 131, 134, 138, 142, 145, 147, 150, 151, 153, 158, 162, 166, 171, 184, 197 ]
+oS = StzMathFigureQ(:StemPlot, [ :of = aSeventeen ])
+chk("seventeen values at leaf unit 1 give nine rows, stems 11 to 19: " + oS.Why(), StzFindFirst("17 value(s), leaf unit 1, 9 row(s)", oS.Why()) > 0)
+cText = oS.Text()
+chk("the text rendition keeps every digit: row 15 reads '15 | 0 1 3 8'", StzFindFirst("15 | 0 1 3 8", cText) > 0)
+chk("...and the legend says what a row means: '11 | 2 means 112'", StzFindFirst("11 | 2 means 112", cText) > 0)
+chk("the leaf unit was chosen from the range, 85, as 1", oS.Fact(:datum, [ "fr", "unit" ])[:value] = 1)
+chk("the rows carry the seventeen values, counted row by row", _MgStemLeafTotal(oS) = 17)
+chk("the picture keeps its three rules  [" + len(oS.Violations()) + "]", len(oS.Violations()) = 0)
+oS2 = StzMathFigureQ(:StemPlot, [ :of = [ 2, 4, 4, 5, 7, 9, 12, 25, 31, 33, 38, 41 ], :lines = 2 ])
+chk("two rows a stem: ten rows for stems 0 to 4, three of them empty and shown: " + oS2.Why(), StzFindFirst("10 row(s) (two per stem), 3 empty", oS2.Why()) > 0)
+cT2 = oS2.Text()
+chk("the * row holds leaves 0-4 and the . row 5-9: '0* | 2 4 4' then '0. | 5 7 9'", StzFindFirst("0* | 2 4 4", cT2) > 0 and StzFindFirst("0. | 5 7 9", cT2) > 0)
+chk("a larger unit gives fewer rows: unit 10 on the seventeen values puts them all on stem 1, one row", StzFindFirst("leaf unit 10, 1 row(s)", StzMathFigureQ(:StemPlot, [ :of = aSeventeen, :unit = 10 ]).Why()) > 0)
+# THE WITNESS: a row's count tampered -- two rules convict it, by name
+oW = StzMathFigureQ(:StemPlot, [ :of = [ 2, 4, 4, 5, 7, 9, 12, 25 ] ])
+oW.Layout()
+oW.SetDatum("s1", "k", 9)
+aF = StzCheckPictures([ [ "witness", oW.Diagram() ] ]).Findings()
+chk("a tampered row count is convicted by 'leaves_count_the_values' (the rows carry 11 for 8)", _MgHasRule(aF, "leaves_count_the_values"))
+chk("...and by 'leaves_are_sorted' (the row prints 6 and counts 9)", _MgHasRule(aF, "leaves_are_sorted"))
+chk("NEGATIVE: the untampered picture has no finding", len(StzMathFigureQ(:StemPlot, [ :of = [ 2, 4, 4, 5, 7, 9, 12, 25 ] ]).Violations()) = 0)
+chk("a negative value is refused by name", _MgRefusesKindSpec(:StemPlot, [ :of = [ -1, 2 ] ], "negative"))
+chk("a unit that is not a power of ten is refused", _MgRefusesKindSpec(:StemPlot, [ :of = [ 1, 2 ] , :unit = 3 ], "power of ten"))
+chk("more than forty rows is refused, with the unit to give", _MgRefusesKindSpec(:StemPlot, [ :of = [ 1, 2000 ], :unit = 1 ], "rows"))
+chk("the letter-value ladder prints as a table, from the summary face", StzFindFirst("M      5        5        5        5        0", StzTukeySummaryQ([ 1, 2, 3, 4, 5, 6, 7, 8, 9 ]).LetterValueTable(3)) > 0)
+
+sec("-- 18. RESIDUAL VERSUS FIT: EVERY CELL A POINT AT ITS TWO NUMBERS, THE BANDS AT THE SCALE (M4 / TK3)")
+
+# R's ?medpolish deaths table: common 8, rows 6 -1 0 2 -8, columns 0 -1 0,
+# residuals 0 2 0 / 0 -2 0 / 0 -5 2 / 5 0 0 / 0 3 0 -- their fourth-spread 1
+aDeaths = [ [ 14, 15, 14 ], [ 7, 4, 7 ], [ 8, 2, 10 ], [ 15, 9, 10 ], [ 0, 2, 0 ] ]
+aNames = [ [ "1-24", "25-74", "75-199", "200++", "NA" ], [ "1973", "1974", "1975" ] ]
+oRp = StzMathFigureQ(:ResidualPlot, [ :of = aDeaths, :names = aNames ])
+chk("fifteen cells, common 8, scale 1: " + oRp.Why(), StzFindFirst("5 x 3 cells: common 8, residual fourth-spread 1", oRp.Why()) > 0)
+chk("the scale is the residuals' fourth-spread, 1, and there are fifteen points", oRp.Fact(:datum, [ "fr", "scale" ])[:value] = 1 and oRp.Fact(:datum, [ "fr", "points" ])[:value] = 15)
+chk("cell (3, 2) is the point p8: fit 7 = 8 + 0 - 1, residual -5", oRp.Fact(:datum, [ "p8", "fit" ])[:value] = 7 and oRp.Fact(:datum, [ "p8", "res" ])[:value] = -5)
+oFit = StzTukeyFitQ(aDeaths)
+oFit.Polish()
+chk("...and the fit face says the same residual for the same cell", oFit.Residual(3, 2) = oRp.Fact(:datum, [ "p8", "res" ])[:value])
+chk("the residuals' hinges are 0 and 1, so the outside fences are -1.5 and 2.5 and the far-out fences -3 and 4", oRp.Fact(:datum, [ "fr", "flo" ])[:value] = 0 and oRp.Fact(:datum, [ "fr", "fhi" ])[:value] = 1 and oRp.Fact(:datum, [ "b2", "v" ])[:value] = -1.5 and oRp.Fact(:datum, [ "b4", "v" ])[:value] = 4)
+chk("four cells lie beyond the outside fences (-5, -2, 3, 5) and two of those are far out (-5, 5): Tukey's fence rule, the tier's one meaning of far out", oRp.Fact(:datum, [ "fr", "outside" ])[:value] = 4 and oRp.Fact(:datum, [ "fr", "farout" ])[:value] = 2)
+oSb = oRp.Diagram().Substance()
+chk("the far-out cells are named on the picture: '75-199, 1974' and '200++, 1973'", _MgLabelExists(oSb, "75-199, 1974") and _MgLabelExists(oSb, "200++, 1973"))
+chk("...and 'NA, 1974', residual 3, is outside but NOT far out (3 < 4), so it is coloured, not named", NOT _MgLabelExists(oSb, "NA, 1974") and NOT _MgLabelExists(oSb, "1-24, 1973"))
+chk("the upper far-out fence is drawn at 4 residual units above the zero line, in picture units", fabs(oRp.Fact(:datum, [ "b4", "y" ])[:value] - (oRp.Fact(:datum, [ "fr", "zy" ])[:value] - 4 * oRp.Fact(:datum, [ "fr", "ky" ])[:value])) < 0.000001)
+# COINCIDENT CELLS: 1973 and 1975 have the same column effect, 0, so a row
+# with equal residuals there puts two cells on one spot -- three times here.
+# The second is a RING around the first, never a dot over a dot.
+chk("three cells sit on another cell's spot and are ringed: p3 on p1, p6 on p4, p15 on p13", oRp.Fact(:datum, [ "fr", "stacked" ])[:value] = 3 and oRp.Fact(:datum, [ "p3", "k" ])[:value] = 1 and oRp.Fact(:datum, [ "p1", "k" ])[:value] = 0)
+chk("NEGATIVE: under the whole check -- the generic dot rule included -- the picture has no finding", len(StzCheckPictures([ [ "deaths", oRp.Diagram() ] ]).Findings()) = 0)
+chk("the picture keeps its own two rules  [" + len(oRp.Violations()) + "]", len(oRp.Violations()) = 0)
+# THE WITNESSES, one per rule and one per clause
+oW = StzMathFigureQ(:ResidualPlot, [ :of = aDeaths, :names = aNames ])
+oW.Layout()
+oW.SetDatum("p8", "fit", 99)
+chk("a tampered fit is convicted by 'point_is_its_cell', naming the cell and the sum it should be", _MgMessageHas(StzCheckPictures([ [ "w", oW.Diagram() ] ]).Findings(), "cell (3, 2) carries fit 99 where common + row + column is 7"))
+oW2 = StzMathFigureQ(:ResidualPlot, [ :of = aDeaths, :names = aNames ])
+oW2.Layout()
+oW2.SetDatum("p3", "k", 0)
+chk("a ring drawn as a dot over its twin is convicted by the same rule ('shares its spot with 1 earlier cell')", _MgMessageHas(StzCheckPictures([ [ "w", oW2.Diagram() ] ]).Findings(), "shares its spot with 1 earlier cell(s) and is drawn as ring 0"))
+oW3 = StzMathFigureQ(:ResidualPlot, [ :of = aDeaths, :names = aNames ])
+oW3.Layout()
+oW3.SetDatum("fr", "scale", 2)
+chk("a tampered scale is convicted by 'bands_are_the_scale', recomputed from the points", _MgMessageHas(StzCheckPictures([ [ "w", oW3.Diagram() ] ]).Findings(), "the picture says the scale is 2 and the points' fourth-spread is 1"))
+oW4 = StzMathFigureQ(:ResidualPlot, [ :of = aDeaths, :names = aNames ])
+oW4.Layout()
+oW4.SetDatum("b1", "y", 5)
+aF4 = StzCheckPictures([ [ "w", oW4.Diagram() ] ]).Findings()
+chk("a fence moved off its place is convicted by the same rule, in pixels", _MgHasRule(aF4, "bands_are_the_scale") and _MgMessageHas(aF4, "the fence at -3 fourth-spread(s) from the hinge is drawn"))
+oW5 = StzMathFigureQ(:ResidualPlot, [ :of = aDeaths, :names = aNames ])
+oW5.Layout()
+oW5.SetDatum("fr", "fhi", 2)
+chk("a tampered hinge is convicted too: 'the picture says the hinges are 0 and 2 and the points' are 0 and 1'", _MgMessageHas(StzCheckPictures([ [ "w", oW5.Diagram() ] ]).Findings(), "the picture says the hinges are 0 and 2 and the points' are 0 and 1"))
+chk("a ragged table is refused by name", _MgRefusesKindSpec(:ResidualPlot, [ :of = [ [ 1, 2 ], [ 3 ] ] ], "rectangular"))
+chk("names of the wrong count are refused, with the counts", _MgRefusesKindSpec(:ResidualPlot, [ :of = [ [ 1, 2 ], [ 3, 4 ] ], :names = [ [ "a" ], [ "b", "c" ] ] ], "with 2 and 2 names"))
+chk("a one-row table is refused: a two-way fit needs two rows and two columns", _MgRefusesKindSpec(:ResidualPlot, [ :of = [ [ 1, 2, 3 ] ] ], "at least two rows"))
+chk("a key that is not of a residual plot is refused with the keys", _MgRefusesKindSpec(:ResidualPlot, [ :of = aDeaths, :unit = 1 ], "not a key of a residual plot"))
+
+sec("-- 19. THE CODED TABLE: A GLYPH PER BAND OF RESIDUAL OVER SCALE, AND THE LEGEND OR IT IS A LIE (M4 / TK3)")
+
+oCt = StzMathFigureQ(:CodedTable, [ :of = aDeaths, :names = aNames ])
+chk("the same fit, banded: " + oCt.Why(), StzFindFirst("9 at the fit, 0 mild, 0 notable, 3 outside, 3 far out", oCt.Why()) > 0)
+oSc = oCt.Diagram().Substance()
+chk("cell (3, 2), residual -5 over scale 1, is far out: '*'", oSc.LabelOf("z3_2") = "*" and oSc.DataOf("z3_2", "band") = 4)
+chk("cell (1, 2), residual +2, is outside and signed: '^'; cell (2, 2), -2, is 'v'", oSc.LabelOf("z1_2") = "^" and oSc.LabelOf("z2_2") = "v")
+chk("cell (1, 1), residual 0, is at the fit: '.'", oSc.LabelOf("z1_1") = "." and oSc.DataOf("z1_1", "band") = 0)
+cCt = oCt.Text()
+chk("the text rendition prints the column names in full and a row of glyphs", StzFindFirst("1973 1974 1975", cCt) > 0 and StzFindFirst("*    ^", cCt) > 0)
+chk("...and the legend, with the scale, the common value and the hinge convention", StzFindFirst("scale 1 = the residuals' fourth-spread; common 8; hinges: Tukey's fourths", cCt) > 0)
+chk("...and the five bands, ending with far out", StzFindFirst("*  >= 3    far out", cCt) > 0 and StzFindFirst("v ^  < 3     outside, signed", cCt) > 0)
+# THE BANDS ARE FIXED; ONLY THE GLYPH SET SWAPS
+chk("the band edges: 0.49 is at the fit, 0.5 mild, 1 notable, 2 outside, 3 far out", StzCodedBand(0.49, 1) = 0 and StzCodedBand(0.5, 1) = 1 and StzCodedBand(1, 1) = 2 and StzCodedBand(2, 1) = 3 and StzCodedBand(3, 1) = 4)
+chk("...and a zero scale puts everything at the fit rather than dividing by it", StzCodedBand(5, 0) = 0)
+oSy = StzMathFigureQ(:CodedTable, [ :of = aDeaths, :names = aNames, :glyphs = :Symbols ])
+oSs = oSy.Diagram().Substance()
+chk("under :Symbols the far-out cell shows the diamond and keeps band 4 -- the meaning never moved", oSs.LabelOf("z3_2") = StzCodedGlyph("symbols", 4, 0) and oSs.LabelOf("z3_2") != "*" and oSs.DataOf("z3_2", "band") = 4)
+# A BOW: a multiplicative table fitted additively puts its largest residuals
+# in the corner where both effects are largest (scene 35)
+oBow = StzMathFigScene35()
+chk("a multiplicative 6 x 5 table fitted additively: " + oBow.Why(), StzFindFirst("1 outside, 2 far out", oBow.Why()) > 0)
+oSw = oBow.Diagram().Substance()
+chk("...and the two far-out cells are the last row's last two: (6, 4) and (6, 5)", oSw.LabelOf("z6_4") = "*" and oSw.LabelOf("z6_5") = "*")
+chk("NEGATIVE: the untampered table has no finding under the whole check", len(StzCheckPictures([ [ "coded", oCt.Diagram() ] ]).Findings()) = 0 and len(oCt.Violations()) = 0)
+oV = StzMathFigureQ(:CodedTable, [ :of = aDeaths, :names = aNames ])
+oV.Layout()
+oV.SetDatum("z3_2", "res", 0)
+chk("a residual tampered under a far-out glyph is convicted by 'glyph_is_its_band', naming both glyphs", _MgMessageHas(StzCheckPictures([ [ "w", oV.Diagram() ] ]).Findings(), "shows '*' for a residual of 0, which is at the fit and should show '.'"))
+oV2 = StzMathFigureQ(:CodedTable, [ :of = aDeaths, :names = aNames ])
+oV2.Layout()
+oV2.SetDatum("fr", "legend", 3)
+chk("a legend cut short is convicted by 'legend_is_printed'", _MgMessageHas(StzCheckPictures([ [ "w", oV2.Diagram() ] ]).Findings(), "the legend has 3 line(s); the scale and five bands need six"))
+oV3 = StzMathFigureQ(:CodedTable, [ :of = aDeaths, :names = aNames ])
+oV3.Layout()
+oV3.SetDatum("fr", "rows", 6)
+chk("a table claiming a sixth row is convicted by 'cells_tile_the_table' (15 cells for 18)", _MgMessageHas(StzCheckPictures([ [ "w", oV3.Diagram() ] ]).Findings(), "15 cell(s) for a table of 18"))
+chk("a glyph set that is neither :Ascii nor :Symbols is refused, and told why", _MgRefusesKindSpec(:CodedTable, [ :of = aDeaths, :glyphs = :Emoji ], "only the glyph set does"))
+aTall = []
+for i = 1 to 21  aTall + [ i, i * 2 ]  next
+chk("more than twenty rows is refused by count", _MgRefusesKindSpec(:CodedTable, [ :of = aTall ], "at most 20 rows"))
+chk("a cell that is not a number is refused with its place", _MgRefusesKindSpec(:CodedTable, [ :of = [ [ 1, "x" ], [ 3, 4 ] ] ], "cell (1, 2) is not a number"))
+# THE THEME REACHES THE FIGURE'S OWN PICTURE. Diagram() hands back a COPY,
+# so a theme set on it stayed on the copy: 32 catalogue pictures rendered
+# "dark" before 2026-09-26 were the light bytes twice. SetTheme goes through.
+cLightSvg = oCt.ToSVG()
+oCt.SetTheme("dark")
+cDarkSvg = oCt.ToSVG()
+chk("a figure rendered under the dark theme, through SetTheme, is not the light rendition  [" + len(cLightSvg) + " and " + len(cDarkSvg) + " bytes]", cLightSvg != cDarkSvg and len(cDarkSvg) > 0)
+oCt2 = StzMathFigureQ(:CodedTable, [ :of = aDeaths, :names = aNames ])
+oCt2.Layout()
+oDc = oCt2.Diagram()
+oDc.SetPictureTheme("dark")
+chk("NEGATIVE: the same theme set on Diagram()'s copy leaves the figure's own rendition light", oCt2.ToSVG() = cLightSvg)
+
+#---------------------------------------------------------------------------
+
+if nSecClock > 0
+	? "        [section took " + ((clock() - nSecClock) / clockspersecond()) + "s]"
+ok
+? "=============================================================="
+? " " + nOk + " ok, " + nBad + " failed"
+if len(acSkipped) > 0
+	? " skipped: " + @@(acSkipped)
+else
+	? " skipped: none -- every section of this gate ran"
+ok
+? "=============================================================="
+
+#---------------------------------------------------------------------------
+
+func sec cTitle
+	if nSecClock > 0
+		? "        [section took " + ((clock() - nSecClock) / clockspersecond()) + "s]"
+	ok
+	nSecClock = clock()
+	? cTitle
+
+func chk cWhat, bCond
+	if bCond
+		? "   ok   " + cWhat
+		nOk++
+	else
+		? "  FAIL  " + cWhat
+		nBad++
+	ok
+
+func chkeq cWhat, xGot, xWant
+	chk(cWhat + "  [got " + xGot + ", want " + xWant + "]", xGot = xWant)
+
+# does the declaration raise, with the words expected in the reason?
+func _MgRefuses aSpec, cWords
+	_b_ = FALSE
+	_c_ = ""
+	try
+		_o_ = StzMathFigureQ(:Function, aSpec)
+	catch
+		_b_ = TRUE
+		_c_ = cCatchError
+	done
+	if NOT _b_  return FALSE  ok
+	if cWords = ""  return TRUE  ok
+	return StzFindFirst(cWords, _c_) > 0
+
+func _MgNotationRefuses cLabel, cWords
+	_b_ = FALSE
+	_c_ = ""
+	try
+		_a_ = StzNotationRuns(cLabel, 20, StzMathFigureFont())
+	catch
+		_b_ = TRUE
+		_c_ = cCatchError
+	done
+	if NOT _b_  return FALSE  ok
+	return StzFindFirst(cWords, _c_) > 0
+
+func _MgLabelExists oS, cLabel
+	_aD_ = oS.Definitions()
+	for _i_ = 1 to len(_aD_)
+		if oS.LabelOf(_aD_[_i_][1]) = cLabel  return TRUE  ok
+	next
+	return FALSE
+
+func _MgRefusesKindSpec cKind, aSpec, cWords
+	_b_ = FALSE
+	_c_ = ""
+	try
+		_o_ = StzMathFigureQ(cKind, aSpec)
+	catch
+		_b_ = TRUE
+		_c_ = cCatchError
+	done
+	if NOT _b_  return FALSE  ok
+	if cWords = ""  return TRUE  ok
+	return StzFindFirst(cWords, _c_) > 0
+
+func _MgRefusesKind cKind, cWords
+	_b_ = FALSE
+	_c_ = ""
+	try
+		_o_ = StzMathFigureQ(cKind, [ :f = "x", :on = [ 0, 1 ] ])
+	catch
+		_b_ = TRUE
+		_c_ = cCatchError
+	done
+	if NOT _b_  return FALSE  ok
+	return StzFindFirst(cWords, _c_) > 0
+
+func _MgHas acList, cItem
+	return _MgCount(acList, cItem) > 0
+
+func _MgCount acList, cItem
+	_n_ = 0
+	for _i_ = 1 to len(acList)
+		if acList[_i_] = cItem  _n_++  ok
+	next
+	return _n_
+
+func _MgMessageHas aFindings, cWords
+	for _i_ = 1 to len(aFindings)
+		if StzFindFirst(cWords, "" + aFindings[_i_][:message]) > 0  return TRUE  ok
+	next
+	return FALSE
+
+func _MgStemLeafTotal oF
+	_oS_ = oF.Diagram().Substance()
+	_n_ = 0
+	for _r_ = 1 to _oS_.DataOf("fr", "rows")
+		_n_ += _oS_.DataOf("s" + _r_, "k")
+	next
+	return _n_
+
+func _MgHasRule aFindings, cRule
+	for _i_ = 1 to len(aFindings)
+		if aFindings[_i_][:rule] = cRule  return TRUE  ok
+	next
+	return FALSE

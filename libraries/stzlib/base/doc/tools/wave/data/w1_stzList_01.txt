@@ -1,0 +1,130 @@
+NRandomItems | Returns n items picked at random from the list. | a list of n items | _n_=how many items | RandomItem, Shuffled
+Objects | Returns the items that are objects. | a list of the object items | | Strings, Lists, Numbers
+Move | Moves the item at one position to another position, in place. | nothing; the list changes | _n1_=the position to take the item from; _n2_=the position to put it at | SwapItems
+ReplaceItemAtPositionsByMany | Replaces the given item, where it stands at the given positions, by the new items, in place. | nothing; the list changes | pItem=the item that must stand at each position | ReplaceItemAtPositions
+SpacesRemoved | Returns a copy where every text item has its spaces removed; the list is unchanged. | a list of items
+StringifyAndReplace | Turns every item into text, then replaces a text by another inside each, in place. | nothing; the list changes | pSubStr=the text to replace; pWith=the text that takes its place | Stringify
+AntiSections | Returns the items that lie outside the given sections. | a list of lists, one per stretch between the sections | | FindAntiSections, Sections
+FirstItem | Returns the item at position 1. | the item | | LastItem, NthItem
+IntersectWith | Returns the items present in both lists. | a list of items | | CommonItemsWith, UnionWith, DiffWith
+IsMadeOfSome | TRUE if every item of the list is one of the given values. | TRUE or FALSE | | IsMadeOf
+LastItem | Returns the item at the last position. | the item | | FirstItem, NthItem
+RemoveTheseBounds | Removes the two given bounds from the ends of the list, in place, when both are there. | nothing; the list changes | | TheseBoundsRemoved
+ContainsAllOfThese | TRUE if every one of the given items occurs in the list. | TRUE or FALSE | | ContainsEach, ContainsThese
+IsContiguous | TRUE if the items are numbers in ascending order that follow each other, such as [ 3, 4, 5 ]. | TRUE or FALSE
+Paths | Returns the index path of every item of a nested list, depth first. | a list of index paths, each a list of positions | | DeepList
+ToListInAStringInShortForm | Returns the list written as text in its short form. | a string | | ToListInAString
+Classes | Returns the distinct items, each standing as a class of the list. | a list of items | | Classify, Klass
+SplittedToPartsOfNItems | Returns the list cut into parts of n items each; the list is unchanged. | a list of lists | _n_=the number of items in each part | SplittedToNParts, Chunks
+DifferentItemsWith | Returns the items found in only one of the two lists. | a list of items | | DiffWith, CommonItemsWith
+IsAString | Answers FALSE: the content of a stzList is a list, not a string. | FALSE
+IsListOfStrings | TRUE if the list is not empty and every item is a string. | TRUE or FALSE | | IsListOfNumbers
+SplitAfterPositions | Splits the list into parts after each of the given positions, in place. | nothing; the list becomes the list of parts | | SplitAtPositions
+AllItemsAreEither | TRUE if every item meets one of two descriptions, each a predicate such as :Even and a type such as :Number. | TRUE or FALSE | p1=the first predicate, or a list of predicates; p2=[ :Or, second predicate ], or the second description; p3=the type the items must have, such as :Number
+CheckW | TRUE if every item meets the W condition. | TRUE or FALSE | | FindW, FindAllItemsW
+FindAllItemsW | Returns the positions of the items that meet the W condition. | a list of positions | | FindW, CheckW
+FindNextNth | Returns the position of the nth occurrence of the item after a given position; 0 when there is none. | a number | _n_=which occurrence, counted from the starting position | FindPreviousNth, FindNthNext
+HasSameSortingOrderAs | TRUE if both lists are sorted the same way, ascending or descending. | TRUE or FALSE | | SortingOrder
+IsListOfNumbers | TRUE if the list is not empty and every item is a number. | TRUE or FALSE | | IsListOfStrings
+Randomize | Shuffles the items into a random order, in place. | nothing; the list changes | | Shuffled
+SplitW | Splits the list at the items that meet the W condition, in place; the items that match are dropped. | nothing; the list becomes the list of parts | | SplittedW
+SwapItems | Swaps the items at two positions, in place. | the list itself | p1=the first position; p2=the second position | Move
+Update | Replaces the whole content by the given list, in place. | nothing; the list changes | | UpdateWith
+ItemsAtPositions | Returns the items that stand at the given places, in the order given. | a list of items | | NthItem
+TheseBoundsRemoved | Returns a copy without the two given bounds at its ends; the list is unchanged. | a list of items | | RemoveTheseBounds
+TheseItemsZ | Returns each given item with the positions where it occurs, empty lists included. | a list of [ item, positions ] pairs | | FindTheseItems
+TrimLeft | Removes the empty items (0, an empty string, an empty list) from the start, in place; the last item is always kept. | nothing; the list changes | | TrimRight, Trim
+TrimRight | Removes the empty items (0, an empty string, an empty list) from the end, in place; the first item is always kept. | nothing; the list changes | | TrimLeft, Trim
+DiffWith | Returns the items of the list that the other list does not hold. | a list of items | | DifferentItemsWith, DifferenceWith
+HasSameContentAs | TRUE if both lists hold the same items, in any order. | TRUE or FALSE | | IsEqualTo
+InsertBeforePositions | Inserts the item before each of the given positions, in place. | nothing; the list changes | panPositions=the positions to insert before | InsertAfterPositions, InsertBefore
+Merged | Returns a copy flattened by one level; the list is unchanged. | a list of items | | Merge, Flattened
+RemoveFirst | Removes the first occurrence of the item, in place. | nothing; the list changes | | RemoveNth, RemoveLast
+RemoveRange | Removes a run of items from a position, in place; a negative count runs backwards. | nothing; the list changes | _nStart_=the position of the first item to remove; nRange=how many items to remove | RemoveSection
+SplitToNParts | Leaves the list unchanged today instead of splitting it into n parts. | nothing today | _n_=the number of parts | SplittedToNParts | known defect: the call computes the parts on a copy and drops them; SplittedToNParts returns them
+IsListOf | TRUE if every item is of the given kind, such as :Numbers or :Strings. | TRUE or FALSE | pType=the kind, as a symbol or a text | IsListOfNumbers, IsListOfStrings
+VariancePopulation | Returns the population variance of the numbers in the list. | a number | | VarianceSample
+CommonItemsWith | Returns the items that both lists hold. | a list of items | | IntersectWith, DiffWith
+FindPreviousNth | Returns the position of the nth occurrence of the item before a given position; 0 when there is none. | a number | _n_=which occurrence, counted backwards from the starting position | FindNextNth
+IsQuietEqualTo | TRUE if the two lists are equal when letter case and tiny numeric differences are ignored. | TRUE or FALSE | | IsEqualTo
+init | Builds the stzList from a Ring list. | the new stzList
+AllItemsAreOfType | TRUE if every item is of the given type, such as "number". | TRUE or FALSE | | IsListOf
+Chunks | Returns the list cut into parts of n items each, the last part taking what remains. | a list of lists | _n_=the number of items in each part | SplittedToPartsOfNItems
+FindEmptyStrings | Returns the positions of the items that are empty strings. | a list of positions | | ContainsEmptyStrings
+FindNthNext | Returns the position of the nth occurrence of the item after a given position; 0 when there is none. | a number | _n_=which occurrence, counted from the starting position | FindNextNth
+Pairs | Returns the items that are themselves pairs, lists of two items. | a list of pairs | | FindPairs
+SplittedToNParts | Returns the list divided into n parts of near-equal size; the list is unchanged. | a list of lists | _n_=the number of parts | SplittedToPartsOfNItems
+AntiFind | Returns the positions of the items that differ from the given item. | a list of positions | | FindItem
+ContainsEach | TRUE if every one of the given items occurs in the list. | TRUE or FALSE | | ContainsAllOfThese
+ContainsNo | TRUE if the item does not occur in the list. | TRUE or FALSE | | Contains
+FindAntiSections | Returns the sections that lie outside the given sections, as [ start, end ] pairs. | a list of [ start, end ] pairs | | AntiSections
+Strings | Returns the items that are strings. | a list of strings | | Objects, Lists, OnlyStrings
+ClassName | Returns the class name in lowercase, "stzlist". | a string
+FirstNItems | Returns the first n items, or the whole list when n is larger. | a list of items | _n_=how many items | LastNItems
+Insert | Inserts the item before a position, in place, but one place too early today. | nothing; the list changes | pWhere=the position, or [ :Before, n ] or [ :After, n ] | InsertBefore, InsertAfter | known defect: Insert(item, n) puts the item at position n-1, and raises an error for n = 1 or past the end; InsertBefore(n, item) puts it at n
+OnlyNumbers | Returns the items that are numbers. | a list of numbers | | Numbers, OnlyStrings
+AntiFindAsSections | Returns the stretches of items that differ from the given item, as [ start, end ] pairs. | a list of [ start, end ] pairs | | AntiFind
+DeepRemove | Removes every occurrence of the item at any depth of a nested list, in place. | nothing; the list changes | | RemoveAll
+DifferenceWith | Returns the items found in only one of the two lists. | a list of items | | DiffWith, DifferentItemsWith
+ExtractSection | Removes the items from one position to another, and returns them. | a list of the removed items | _n1_=the position of the first item; _n2_=the position of the last item | RemoveSection, Section
+FindItem | Returns the positions of every occurrence of the item. | a list of positions | | FindFirst, FindLast
+Flatten | Flattens a nested list to a single level, in place. | nothing; the list changes | | Flattened, Merge
+IsHashList | TRUE if every item is a [ key, value ] pair. | TRUE or FALSE | | Pairs
+Klass | Returns the positions of the items that belong to the given class. | a list of positions | pcClass=the class, as an item of the list | Classes, Classify
+LastNItems | Returns the last n items, or the whole list when n is larger. | a list of items | _n_=how many items | FirstNItems
+Pop | Removes the last item and returns it. | the removed item | | RemoveLastItem
+RandomizeSection | Shuffles the items between two positions, in place. | nothing; the list changes | _n1_=the position of the first item; _n2_=the position of the last item | Randomize
+RemoveEmptyStrings | Removes the items that are empty strings, in place. | nothing; the list changes | | ContainsEmptyStrings
+RemoveFirstItem | Removes the first item, in place. | nothing; the list changes | | RemoveLastItem, Pop
+ReplaceFirst | Replaces the first occurrence of the item by a new item, in place. | nothing; the list changes | | ReplaceLast, ReplaceNth
+SortDown | Sorts the items from the greatest to the least, in place. | nothing; the list changes | | SortInDescending, SortUp
+SplitCS | Leaves the list unchanged today instead of splitting it at an item or position. | nothing today | pItemOrPos=the item or the position to split at | SplittedAtPosition | known defect: the call computes the parts on a copy and drops them; use the Splitted forms
+StringifyLowercaseAndReplace | Turns every item into lowercase text, then replaces a text by another inside each, in place. | nothing; the list changes | pWith=the text that takes its place | StringifyAndReplace
+UniqueItems | Returns each distinct item once, in order of first appearance. | a list of items | | Classes
+VizFindAll | Returns the list written as text. | a string | | ToListInAString
+WalkBetween | Returns the positions from one position to another, as a walk. | a list of positions | _n1_=the position to start from; _n2_=the position to stop at | Walk
+VarianceSample | Returns the sample variance of the numbers in the list. | a number | | VariancePopulation
+NumberOfStrings | Returns how many items are strings. | a number | | NumberOfLists, Strings
+UpdateWith | Replaces the whole content by the given list, in place. | nothing; the list changes | | Update
+Shuffled | Returns a copy with the items in random order; the list is unchanged. | a list of items | | Randomize
+SplitAtPosition | Leaves the list unchanged today instead of splitting it at a position. | nothing today | _n_=the position to split at | SplittedAtPosition | known defect: the call computes the parts on a copy and drops them; SplittedAtPosition returns them
+DeepContains | TRUE if the item occurs at any depth of a nested list. | TRUE or FALSE | | Contains, DeepFind
+FindNextNthOccurrence | Returns the position of the nth occurrence of the item after a given position; 0 when there is none. | a number | _n_=which occurrence, counted from the starting position | FindNextNth
+FindNumbers | Returns the positions of the items that are numbers. | a list of positions | | OnlyNumbers
+FirstHalf | Returns the first floor(n/2) items. | a list of items | | SecondHalf
+IsSorted | TRUE if the items are sorted, ascending or descending. | TRUE or FALSE | | SortingOrder
+SecondHalf | Returns the items from position floor(n/2)+1 on; the longer half when the count is odd. | a list of items | | FirstHalf
+SplitAtPositions | Splits the list at the given positions, in place; the items at those positions are dropped. | nothing; the list becomes the list of parts | | SplitAfterPositions
+rndRemoveItems | Removes randomly chosen items, in place. | the list itself | | RemoveItems
+ContainsThese | TRUE if every one of the given items occurs in the list. | TRUE or FALSE | | ContainsAllOfThese
+FindInSections | Returns the positions of the item inside any of the given sections. | a list of positions | | FindItem
+Lists | Returns the items that are lists. | a list of lists | | Strings, Objects
+Merge | Flattens the list by one level, in place. | nothing; the list changes | | Merged, Flatten
+NextNthOccurrence | Returns the position of the nth occurrence of the item after a given position; 0 when there is none. | a number | _n_=which occurrence, counted from the starting position | FindNextNth
+NumberOfLists | Returns how many items are lists. | a number | | NumberOfStrings
+SortBy | Sorts the items by a key expression, in place. | nothing; the list changes | | SortInAscending
+SplitAround | Returns the parts of the list that lie around each occurrence of the item. | a list of lists | | SplitAtPosition
+SplitToPartsOfNItems | Splits the list into parts of n items each, in place. | nothing; the list becomes the list of parts | _n_=the number of items in each part | SplittedToPartsOfNItems
+AllItemsExcept | Returns every item except those equal to the given one. | a list of items | p=the item to leave out | RemoveAll
+ContainsBoth | TRUE if both of the given items occur in the list. | TRUE or FALSE | p1=the first item; p2=the second item | ContainsEach
+ContainsEmptyStrings | TRUE if some item is an empty string. | TRUE or FALSE | | FindEmptyStrings
+CountEmptyStrings | Returns how many items are empty strings. | a number | | FindEmptyStrings
+ExtractFirst | Removes the first occurrence of the item and returns it. | the removed item | | RemoveFirst
+FindAllOccurrences | Returns the positions of every occurrence of the item. | a list of positions | | FindItem
+FindNextOccurrences | Returns the positions of every occurrence of the item after a given position. | a list of positions | | FindNextNth
+FindNonDuplicatedItems | Returns the positions of the items that occur only once. | a list of positions | | FindDuplicates
+FindStzLists | Returns the positions of the items that are stzList objects. | a list of positions | | FindStzNumbers
+FindStzNumbers | Returns the positions of the items that are stzNumber objects. | a list of positions | | FindStzLists
+FindStzStrings | Returns the positions of the items that are stzString objects. | a list of positions | | FindStzLists
+HasSameTypeAs | TRUE if the other value is a list too. | TRUE or FALSE | p=the value to compare with | IsList
+InsertAfterPositions | Inserts the item after each of the given positions, in place. | nothing; the list changes | panPositions=the positions to insert after | InsertBeforePositions
+IntersectionWith | Returns the items present in both lists. | a list of items | | IntersectWith, CommonItemsWith
+IsMadeOfNumbers | TRUE if the list is not empty and every item is a number. | TRUE or FALSE | | IsListOfNumbers
+NextNItems | Returns the n items that follow a given position. | a list of items | _n_=how many items | NextNthOccurrence
+OnlyStrings | Returns the items that are strings. | a list of strings | | Strings, OnlyNumbers
+RandomizeNumbers | Shuffles the number items among their own places, in place. | nothing; the list changes | | Randomize
+RemoveItemsAtPositions | Removes the items at the given positions, in place. | nothing; the list changes | | RemoveNthItem
+RemoveNth | Removes the nth occurrence of the item, in place. | nothing; the list changes | _n_=which occurrence | RemoveFirst
+ReplaceEmptyStrings | Replaces every empty string by a new item, in place. | nothing; the list changes | | RemoveEmptyStrings
+ReplaceLast | Replaces the last occurrence of the item by a new item, in place. | nothing; the list changes | | ReplaceFirst
+ReplaceOccurrencesByMany | Replaces the items at the given positions by the new items, one by one, in place. | nothing; the list changes | | ReplaceItemAtPositionsByMany

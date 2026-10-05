@@ -1,0 +1,14 @@
+{
+ "brief": "Holds a 2D picture described once, as shapes and text, and gives it back as vector SVG or as pixels drawn on the graphics device.",
+ "detail": "The Add methods remember the shape instead of posting it, so Fill, Stroke, Color and SetFont can still reach the last shape added; the shape is posted when the next one arrives or an output is asked for. Fill and Stroke called before any shape set the default for every shape added after. The plain form of a method acts and answers nothing, and its Q twin answers the canvas so calls can be chained; only the pick, identity and region setters answer the canvas without the Q. Text needs a font from SetFont. ToSVG needs no device and is the floor of the tier ladder; ToPNG and ToPixels go through the GPU and answer an empty string when none is available. Coordinates are pixels from the top-left corner, sizes run from 1 to 16384, and the SVG output draws circles, rounded rectangles, ellipses and strokes as polygons and polylines.",
+ "receiver": "o1 = new stzCanvas(100, 80); o1.AddRect(10, 10, 30, 20); o1.Fill(\"red\")",
+ "example": [
+  "? o1.ShapeCount()",
+  "#--> 1"
+ ],
+ "see": [
+  "stzFont",
+  "stzDiagram",
+  "stzObject"
+ ]
+}

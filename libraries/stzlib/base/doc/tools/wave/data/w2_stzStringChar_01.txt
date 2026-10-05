@@ -1,0 +1,132 @@
+init | Builds the char object from a one-char text, a codepoint number, a hex form such as U+0061 or 0x61, or a Unicode char name. | nothing; builds the object | pChar=the char: one-char text, codepoint number, U+XXXX or 0xXX hex text, Unicode char name, or a stzString object | Update, Unicode | | an empty text, a text of several chars that is neither a hex form nor a name, and a bare hex such as 61 all raise "Can not create char object!"
+Content | Returns the char held, as a one-char string. | a string | | String, Unicode | |
+String | Returns the held char wrapped in a stzString object, not as plain text. | a stzString object | | Content |
+Unicode | Returns the Unicode codepoint of the char, such as 97 for a. | a number | | UnicodeAsString, HexUnicode |
+UnicodeAsString | Returns the codepoint of the char written as decimal text, such as "97". | a string | | Unicode, HexUnicode |
+HexUnicode | Returns the codepoint as U+ followed by four hex digits, such as U+0061. | a string | | Unicode | known defect: only four hex digits are kept, so a char above U+FFFF comes out wrong: U+1F600 reads U+F600 |
+IsEmpty | Answers FALSE every time, because a char object cannot be built empty. | FALSE | | |
+Copy | Returns a new stzStringChar object holding the same char, so changing the copy leaves the original alone. | a stzStringChar object | | Content |
+IsAString | Answers TRUE every time: a char object counts as a string. | TRUE | | |
+Number | Returns the number a digit char stands for, such as 7 for 7, 3 for the Arabic-Indic three, 1 for a circled one. | a number; an empty string for a char with no decimal value | | IsDigit, IsANumber | | a letter, a Roman numeral and a symbol all answer an empty string
+Update | Replaces the held char with the given text, in place; a codepoint number empties the object today. | nothing; the char changes | pChar=the new char, as text | UpdateWith, Updated | known defect: Update(98) leaves an empty string and Unicode 0, because the number is never converted; Update("ab") stores both chars, so only a one-char text works as meant | written Update("z") or Update(:With = "z")
+UpdateWith | Replaces the held char with the given one, in place, exactly as the plain form does. | nothing; the char changes | pChar=the new char, as text | Update | known defect: shares the defect of the plain form, so a codepoint number empties the object |
+UpdateBy | Replaces the held char with the given one, in place, exactly as the plain form does. | nothing; the char changes | pChar=the new char, as text | Update | known defect: shares the defect of the plain form, so a codepoint number empties the object |
+UpdateUsing | Replaces the held char with the given one, in place, exactly as the plain form does. | nothing; the char changes | pChar=the new char, as text | Update | known defect: shares the defect of the plain form, so a codepoint number empties the object |
+Updated | Returns the argument as it came, without converting it or checking it is a char; the object is unchanged. | the argument itself | pChar=the value to hand back | Update | |
+CanRetrieveName | Answers TRUE when the Unicode database holds a name for the char, and raises when it does not. | TRUE; it never answers FALSE | | Name | known defect: for an unnamed code such as U+0378 it raises "Can't proceed!" instead of answering FALSE, because it asks for the name and the name request raises |
+Name | Returns the official Unicode name, such as LATIN SMALL LETTER A, and raises when the database has none. | a string | | NameIs, CanRetrieveName | | a control char answers <control>; the first char of a range answers a range label such as <Private Use, First>; an unassigned code such as U+0378 raises
+NameIs | TRUE if the char carries the given Unicode name; the comparison ignores case. | TRUE or FALSE | | Name | | NameIs("latin small letter a") is TRUE for a
+AsciiCode | Returns the ASCII code of the char, 0 to 127; for a char above 127 it raises R3 instead of a clear message. | a number | | Unicode | known defect: the failure branch calls stzCharError, which is defined nowhere, so a non-ASCII char raises R3 "Calling Function without definition" |
+Orientation | Returns "ltr" or "rtl", the writing direction of the char as the string layer judges it. | a string | | UnicodeDirection, IsRightToLeft | | judged by script block: a char of the Arabic range, even the shaddah or U+FEFF, answers rtl where UnicodeDirection says nonspacingmark or boundaryneutral
+UnicodeDirection | Returns the name of the char's Unicode bidi class, such as lefttoright, europeannumber or whitespace. | a string | | UnicodeDirectionNumber, Orientation | | other names seen: righttoleft, righttoleftarabic, arabicnumber, otherneutrals, nonspacingmark
+UnicodeDirectionNumber | Returns the bidi class as a number written as text, in Qt numbering: 0 left-to-right, 1 right-to-left, 2 European number, 9 whitespace. | a string holding a number | | UnicodeDirection | | the other values: 3 separator, 4 terminator, 5 Arabic number, 6 common separator, 7 paragraph, 8 section, 10 neutral, 13 Arabic letter, 17 nonspacing mark, 18 boundary neutral
+IsVowel | TRUE if the char is one of the ASCII vowels a, e, i, o, u in either case; an accented vowel answers FALSE. | TRUE or FALSE | | IsLetter |
+IsLeftToRight | TRUE if the bidi class is left-to-right, or a left-to-right embedding, override or isolate mark. | TRUE or FALSE | | IsRightToLeft, UnicodeDirection | | a digit answers FALSE: its class is European number
+IsRightToLeft | TRUE if the bidi class is right-to-left, as for Hebrew and Arabic letters, or the char is an RLE, RLO or RLI mark. | TRUE or FALSE | | IsLeftToRight, UnicodeDirection |
+IsArabicFraction | TRUE if the char is in the library's list of fraction chars, such as the vulgar half U+00BD or U+2153. | TRUE or FALSE | | |
+IsEuropeanNumberSeparator | TRUE if the bidi class is European number separator, as for the plus sign and the hyphen-minus. | TRUE or FALSE | | IsEuropeanNumberTerminator, UnicodeDirection |
+IsEuropeanNumberTerminator | TRUE if the bidi class is European number terminator, as for the dollar and percent signs. | TRUE or FALSE | | IsEuropeanNumberSeparator, UnicodeDirection |
+IsIndianDigit | TRUE if the char is one of the library's Indian digits: the Arabic-Indic digits U+0660 to 0669 and most Persian ones. | TRUE or FALSE | | IsIndianNumber, IsDigit | | Devanagari digits answer FALSE, and so do the Persian U+06F4 to 06F7
+IsCommonNumberSeparator | TRUE if the bidi class is common number separator, as for the comma, the full stop and the fraction slash. | TRUE or FALSE | | UnicodeDirection |
+IsParagraphSeparator | TRUE if the bidi class is paragraph separator, as for the newline and U+2029. | TRUE or FALSE | | IsLineSeparator, UnicodeDirection |
+IsSectionSeparator | TRUE if the bidi class is segment separator, which is the tab char. | TRUE or FALSE | | IsParagraphSeparator, UnicodeDirection |
+IsWhitespace | TRUE if the bidi class is whitespace, as for the plain space and U+2028; a tab, a newline and a no-break space answer FALSE. | TRUE or FALSE | | IsSpace, UnicodeDirection |
+IsOrientationNeutral | TRUE if the bidi class is other neutral, as for parentheses, or if the char is a digit. | TRUE or FALSE | | UnicodeDirection | | the digit clause makes 7 answer TRUE although its class is European number
+IsLeftToRightEmbedding | TRUE if the char is the left-to-right embedding mark, U+202A. | TRUE or FALSE | | IsLeftToRightOverride, IsPopDirectionalFormat |
+IsLeftToRightOverride | TRUE if the char is the left-to-right override mark, U+202D. | TRUE or FALSE | | IsLeftToRightEmbedding, IsPopDirectionalFormat |
+IsLeftToRightIsolate | Returns an empty string today instead of TRUE for the left-to-right isolate mark, U+2066. | an empty string | | IsLeftToRight | known defect: the body is only a comment ("Reserved for future implementation"), so the answer is always empty |
+IsRightToLeftIsolate | Returns an empty string today instead of TRUE for the right-to-left isolate mark, U+2067. | an empty string | | IsRightToLeft | known defect: the body is only a comment ("Reserved for future implementation"), so the answer is always empty |
+IsRightToLeftArabic | TRUE if the bidi class is right-to-left Arabic, as for Arabic letters and Arabic presentation forms. | TRUE or FALSE | | IsRightToLeft, UnicodeDirection |
+IsRightToLeftEmbedding | TRUE if the char is the right-to-left embedding mark, U+202B. | TRUE or FALSE | | IsRightToLeftOverride, IsPopDirectionalFormat |
+IsRightToLeftOverride | TRUE if the char is the right-to-left override mark, U+202E. | TRUE or FALSE | | IsRightToLeftEmbedding, IsPopDirectionalFormat |
+IsPopDirectionalFormat | TRUE if the char is the pop directional formatting mark, U+202C, which ends an embedding or override. | TRUE or FALSE | | IsLeftToRightEmbedding, IsRightToLeftEmbedding |
+IsNonSpacingMark | TRUE if the bidi class is nonspacing mark, as for combining accents and the Arabic shaddah. | TRUE or FALSE | | IsMark, UnicodeDirection |
+IsBoundaryNeutral | TRUE if the bidi class is boundary neutral, as for control chars, the soft hyphen and U+FEFF. | TRUE or FALSE | | UnicodeDirection |
+UnicodeCategoryNumber | Returns the Unicode general-category code of the char, from the engine: 1 Lu, 2 Ll, 5 Lo, 9 Nd, 18 Po, 23 Zs, 26 Cc. | a number | | UnicodeCategory |
+UnicodeCategory | Returns the name of the Unicode general category, such as letter_lowercase, number_decimaldigit or punctuation_dash. | a string | | UnicodeCategoryNumber |
+TypeUnicodeQ | Returns the category name wrapped in a stzString object, so that calls can chain. | a stzString object | | UnicodeCategory |
+IsArabicShaddah | TRUE if the char is U+0651, the Arabic shaddah. | TRUE or FALSE | | IsLetter |
+IsLetter | TRUE if the engine counts the char as a letter, or if it is the Arabic shaddah, which the library treats as a letter. | TRUE or FALSE | | IsNotLetter, IsLetterOrNumber |
+IsNotLetter | TRUE if the char is not a letter, so for digits, spaces, punctuation and accents; the shaddah answers FALSE. | TRUE or FALSE | | IsLetter |
+IsLetterOrSpaceOrChar | TRUE if the char is a letter, a Unicode space, or equal to the given char. | TRUE or FALSE | c=the extra char that also qualifies | IsLetterOrSpace, IsLetterOrSpaceOrThisChar |
+IsTheLetter | TRUE if the char equals the given char once both are uppercased, so the test ignores case. | TRUE or FALSE | c=the char to compare with | IsLetter | | any char works, not only letters
+IsLetterOrNumber | TRUE if the char is a letter or a digit char, in any script, or a circled digit. | TRUE or FALSE | | IsLetter, IsANumber | | a Roman numeral answers FALSE
+IsLetterOrSpace | TRUE if the char is a letter or a Unicode space, a newline included. | TRUE or FALSE | | IsLetter, IsSpace |
+IsLetterOrSpaceOrThisChar | TRUE if the char is a letter, a Unicode space, or equal to the given char. | TRUE or FALSE | | IsLetterOrSpace, IsLetterOrSpaceOrChar |
+IsEuropean | Raises error R14 today instead of TRUE for a European number, separator or terminator. | TRUE or FALSE once repaired | | IsEuropeanNumberSeparator, IsEuropeanNumberTerminator | known defect: the body calls IsEuropeanNumber, which is defined nowhere |
+IsSpace | TRUE if the engine counts the char as a space: the plain space, a tab, a newline or the no-break space. | TRUE or FALSE | | IsWhitespace, IsSeparator | | U+2028 and U+2029 answer FALSE
+IsUnicodeNumber | Answers TRUE for Arabic, Hebrew or CJK letters and FALSE for 7 today, instead of TRUE for number chars. | TRUE or FALSE | | IsANumber, IsDigit | known defect: it tests category codes 3, 4 and 5, which are title-case, modifier and other letters in the engine's numbering, where digits are 9 to 11; Roman, Mandarin and Indian numerals are caught by their own tests |
+IsNotNumber | TRUE if the char is neither a decimal digit nor a circled digit. | TRUE or FALSE | | IsANumber | | a Roman numeral answers TRUE
+IsDigit | TRUE if the engine counts the char as a decimal digit, in any script: 7, the Arabic-Indic three, the Devanagari one. | TRUE or FALSE | | IsANumber, Number | | a circled digit answers FALSE
+IsArabicNumber | Answers FALSE for 0 to 9 and raises R41 for a non-ASCII digit today, instead of TRUE for an Arabic digit. | TRUE or FALSE | | IsDigit, IsIndianNumber | known defect: it searches a list of digit texts for a number, so a plain digit is never found, and it adds 0 to the content, which raises R41 "Invalid numeric string" for an Arabic-Indic, Devanagari or circled digit |
+IsANumber | TRUE if the char is a decimal digit in any script or a circled digit. | TRUE or FALSE | | IsDigit, IsCircledDigit |
+IsIndianNumber | TRUE if the char is in the library's list of Indian digits, the Arabic-Indic and most Persian digits. | TRUE or FALSE | | IsIndianDigit |
+IsRomanNumber | TRUE if the char is a Roman numeral char, such as U+2160 or U+2171, from the library's list. | TRUE or FALSE | | IsMandarinNumber |
+IsMandarinNumber | TRUE if the char is a Mandarin numeral from the library's list: 〇, 一 to 十, 百, 千 or 万. | TRUE or FALSE | | IsRomanNumber |
+IsAscii | TRUE if the codepoint is below 128, control chars included. | TRUE or FALSE | | IsAsciiLetter, AsciiCode |
+IsAsciiLetter | TRUE if the char is an unaccented ASCII letter, A to Z or a to z. | TRUE or FALSE | | IsAscii, IsLetter |
+IsPunctuation | TRUE if the engine counts the char as punctuation, such as ( ) - or !. | TRUE or FALSE | | IsSymbol, IsGeneralPunctuation | | the dollar sign and the infinity sign are symbols and answer FALSE
+IsGeneralPunctuation | TRUE if the char lies in the Unicode General Punctuation block, U+2000 to U+206F. | TRUE or FALSE | | IsSupplementalPunctuation, IsPunctuation | | the comma and the exclamation mark are not in this block
+IsSupplementalPunctuation | TRUE if the char lies in the library's Supplemental Punctuation range, U+2DF6 to U+2E7F. | TRUE or FALSE | | IsGeneralPunctuation |
+IsSymbol | TRUE if the engine counts the char as a symbol, such as $, the infinity sign or an emoji. | TRUE or FALSE | | IsPunctuation |
+IsNonChar | TRUE if the codepoint is a Unicode noncharacter: U+FDD0 to U+FDEF, or a codepoint ending in FFFE or FFFF. | TRUE or FALSE | | |
+IsMark | TRUE if the engine counts the char as a combining mark, such as an accent or the Arabic shaddah. | TRUE or FALSE | | IsNonSpacingMark |
+IsSeparator | TRUE if the engine counts the char as a space: the plain space, a tab, a newline or the no-break space. | TRUE or FALSE | | IsSpace, IsWordSeparator |
+IsOneOfThese | TRUE if the char appears in the given list of chars. | TRUE or FALSE | pacChars=the list of chars to look in | IsTheLetter |
+IsWordSeparator | TRUE if the char is in the library's word separators: space . , ; : ! ? the Arabic comma and question mark, the apostrophes and the em dash. | TRUE or FALSE | | IsSentenceSeparator |
+IsSentenceSeparator | TRUE if the char is in the library's sentence separators: the full stop, ! , ? and the Arabic question mark. | TRUE or FALSE | | IsWordSeparator |
+IsLineSeparator | TRUE if the char is the newline, char 10, and nothing else; U+2028 answers FALSE. | TRUE or FALSE | | IsParagraphSeparator |
+IsWordNonLetterChar | TRUE if the char is in the library's non-letter word chars: _ - * / \ + and the digits 0 to 9. | TRUE or FALSE | | IsWordSeparator |
+IsMirrored | TRUE if the char is a bracket pair member the library can mirror, such as ( ) < > [ ] { } or the guillemets. | TRUE or FALSE | | UnicodeOfMirrored |
+UnicodeOfMirrored | Returns the codepoint of the char's mirror partner, 41 for ( and 62 for <, or the char's own codepoint if it has none. | a number | | IsMirrored, Mirrored |
+Mirrored | Raises error R3 today instead of returning the mirror partner of the char. | a string once repaired | | UnicodeOfMirrored | known defect: the body calls CharFromUnicode, which is defined nowhere |
+IsLatin | TRUE if the engine's Unicode data puts the char in the Latin script, an accented letter included. | TRUE or FALSE | | IsLatinLetter, IsLatinScript |
+IsLatinLetter | TRUE if the char is a letter of the Latin script, accented letters included. | TRUE or FALSE | | IsLatin, IsAsciiLetter |
+IsBasicLatin | Raises error R24 today instead of testing for the Basic Latin block, U+0000 to U+007F. | TRUE or FALSE once repaired | | IsLatin1Supplement | known defect: the body reads _anBasicLatinUnicodes, but the data file defines _anLatinBasicUnicodes |
+IsLatin1Supplement | TRUE if the char lies in the Latin-1 Supplement block, U+0080 to U+00FF. | TRUE or FALSE | | IsLatinExtendedA |
+IsLatinExtendedA | TRUE if the char lies in the Latin Extended-A block, U+0100 to U+017F. | TRUE or FALSE | | IsLatinExtendedB |
+IsLatinExtendedB | TRUE if the char lies in the Latin Extended-B block, U+0180 to U+024F. | TRUE or FALSE | | IsLatinExtendedA |
+IsLatinExtendedAdditional | TRUE if the char lies in the Latin Extended Additional block, U+1E00 to U+1EFF. | TRUE or FALSE | | IsLatinExtendedA |
+IsLatinExtendedC | TRUE if the char lies in the Latin Extended-C block, U+2C60 to U+2C7F. | TRUE or FALSE | | IsLatinExtendedA |
+IsLatinExtendedD | TRUE if the char lies in the Latin Extended-D block, U+A720 to U+A7FF. | TRUE or FALSE | | IsLatinExtendedA |
+IsLatinExtendedE | TRUE if the char lies in the Latin Extended-E block, U+AB30 to U+AB6F. | TRUE or FALSE | | IsLatinExtendedA |
+IsArabic | TRUE if the engine counts the char as Arabic, by block, so the shaddah, Arabic-Indic digits and U+FEFF answer TRUE. | TRUE or FALSE | | IsArabicLetter, IsArabicScript | | the script test IsArabicScript differs: it answers FALSE for the shaddah, which is in the Inherited script
+IsArabicLetter | TRUE if the char is a letter and the engine counts it as Arabic. | TRUE or FALSE | | IsArabic |
+IsBasicArabic | Raises error R24 today instead of testing for the basic Arabic block. | TRUE or FALSE once repaired | | IsArabicSupplement | known defect: the body reads _anBasicArabicUnicodes, which the data file does not define |
+IsArabicSupplement | TRUE if the char lies in the Arabic Supplement block, U+0750 to U+077F. | TRUE or FALSE | | IsArabicExtendedA |
+IsArabicExtendedA | TRUE if the char lies in the Arabic Extended-A block, U+08A0 to U+08FF. | TRUE or FALSE | | IsArabicSupplement |
+IsArabicExtended | TRUE if the char lies in the Arabic Extended-A block, U+08A0 to U+08FF, as the lettered form does. | TRUE or FALSE | | IsArabicExtendedA |
+IsArabicPresentationForm | TRUE if the char lies in the Arabic Presentation Forms blocks, U+FB50 to U+FDFF or U+FE70 to U+FEFF. | TRUE or FALSE | | IsArabicPresentationFormA, IsArabicPresentationFormB |
+IsArabicPresentationFormA | TRUE if the char lies in the Arabic Presentation Forms-A block, U+FB50 to U+FDFF. | TRUE or FALSE | | IsArabicPresentationFormB |
+IsArabicPresentationFormB | TRUE if the char lies in the Arabic Presentation Forms-B block, U+FE70 to U+FEFF. | TRUE or FALSE | | IsArabicPresentationFormA |
+IsArabicMathAlphabeticSymbol | TRUE if the char lies in the Arabic Mathematical Alphabetic Symbols block, U+1EE00 to U+1EEFF. | TRUE or FALSE | | IsArabic |
+IsQuranicSign | TRUE if the char is one of the 24 Quranic annotation signs, U+06D6 to U+06ED. | TRUE or FALSE | | IsArabic |
+IsTurnedNumber | TRUE if the char is a turned digit, U+218A or U+218B. | TRUE or FALSE | | IsDigit |
+IsCircled | TRUE if the char is a circled digit or a circled Latin letter from the library's list. | TRUE or FALSE | | IsCircledDigit, IsCircledLatinLetter |
+IsCircledNumber | TRUE if the char is a circled digit, U+2460 to U+2468, or the circled zero U+24EA. | TRUE or FALSE | | IsCircledDigit |
+IsCircledDigit | TRUE if the char is a circled digit, U+2460 to U+2468, or the circled zero U+24EA. | TRUE or FALSE | | IsCircledNumber, IsANumber |
+IsCircledLatinLetter | TRUE if the char is a circled Latin letter, capital or small, U+24B6 to U+24E9. | TRUE or FALSE | | IsCircled |
+IsCircledLatinSmallLetter | Raises error R24 today instead of testing for a circled small Latin letter. | TRUE or FALSE once repaired | | IsCircledLatinLetter | known defect: the body reads _aCircledLatinSmallLetterUnicodes directly, a variable that is not defined |
+IsCircledLatinCapitalLetter | Raises error R24 today instead of testing for a circled capital Latin letter. | TRUE or FALSE once repaired | | IsCircledLatinLetter | known defect: the body reads _aCircledLatinCapitalLetterUnicodes directly, a variable that is not defined |
+IsOtherCircledChar | Raises error R3 today instead of testing for a circled char outside the digits and Latin letters. | TRUE or FALSE once repaired | | IsCircled | known defect: the body calls OtherCircledCharUnicodes, which is defined nowhere |
+IsPrintable | Answers FALSE for digits, hyphens and Roman numerals and TRUE for control chars today, as it tests the wrong category codes. | TRUE or FALSE | | IsNonPrintable, IsVisible | known defect: it rejects category codes 9 to 13 (digits, Roman numerals, connector and dash punctuation) where it meant the control, format and surrogate codes 26 to 29 |
+IsNonPrintable | Answers TRUE for digits, hyphens and Roman numerals and FALSE for control chars today, the reverse of printable. | TRUE or FALSE | | IsPrintable | known defect: it is the negation of the printable test, which tests the wrong category codes |
+IsInvisible | TRUE if the char is in the library's invisible list: tab, the no-break space, the spaces and marks of U+2000 to U+200F and a few more. | TRUE or FALSE | | IsVisible, IsPrintable | | the plain space and the newline answer FALSE
+IsVisible | TRUE if the char is not in the library's invisible list, so the plain space and the newline count as visible. | TRUE or FALSE | | IsInvisible |
+IsLocaleSeparator | Returns 1 for a hyphen, 2 for an underscore and 0 for any other char; it is a position in the list, not TRUE. | a number | | | | the pair - and _ separates the parts of a locale code such as en-US or en_US
+IntroducedInUnicodeVersion | Returns a rough Unicode version taken from the char's block, "0.9" for nearly every char and "3.2" for emoji. | a string | | | known defect: the version list is an approximation, marked #TODO in the data file ("Put correct values"); emoji were added in Unicode 6 |
+IsLower | TRUE if the engine counts the char as a lowercase letter. | TRUE or FALSE | | IsUppercase, Lowercase |
+Lowercase | Returns the lowercase form of the char; a char with no case comes back unchanged. | a string | | Uppercase, IsLower |
+IsUppercase | TRUE if the engine counts the char as an uppercase letter; a Roman numeral such as U+2161 counts. | TRUE or FALSE | | IsLower, Uppercase |
+Uppercase | Returns the uppercase form of the char; a char with no case comes back unchanged. | a string | | Lowercase, IsUppercase |
+CharCase | Returns :lowercase or :uppercase, and an empty string for a char with no case. | a string | | IsLower, IsUppercase |
+DefaultLanguage | Returns the main language of the char's script, such as english, arabic or hebrew, and undefined for chars shared by scripts. | a string | | Script | known defect: raises "Can not create char object!" for a char of the Inherited or Unknown script, such as a combining accent, an unassigned code or a private-use char | greek answers ancient_greek and Devanagari answers bhojpuri
+Script | Returns the lowercase name of the char's Unicode script, such as latin, arabic, common or inherited. | a string | | ScriptIs, DefaultLanguage | | a digit, a space or a punctuation mark answers common; a combining accent answers inherited; when a char belongs to several scripts the first is given
+UnicodeScript | Returns the lowercase name of the char's Unicode script, as the short form does. | a string | | Script |
+ScriptIs | TRUE if the char's script is the named one; the name is compared in its case-folded form. | TRUE or FALSE | pcScript=the script name, as text, such as "latin" | Script, IsLetterInScript | | raises when the argument is not a string
+IsLetterInScript | TRUE if the char is a letter of the named script; a digit or a mark of that script answers FALSE. | TRUE or FALSE | pcScript=the script name, as text, such as "latin" | ScriptIs, IsLetter | | raises when the argument is not a string
+IsUnknownScript | TRUE if the char's script is unknown, as for an unassigned code or a private-use char. | TRUE or FALSE | | ScriptIs, IsCommonScript |
+IsInheritedScript | TRUE if the char takes the script of the char before it, as combining accents and the Arabic shaddah do. | TRUE or FALSE | | ScriptIs, IsCommonScript |
+IsCommonScript | TRUE if the char is shared by many scripts, as digits, spaces and punctuation are. | TRUE or FALSE | | ScriptIs, IsInheritedScript |
+UpTo | Returns the chars from this one up to the given char, both included, in codepoint order; an empty list if it is not above. | a list of chars | pcChar=the char to stop at, included | DownTo | | the same char on both sides answers an empty list, not a list of one
+DownTo | Returns the chars from this one down to the given char, both included, in falling codepoint order; an empty list if it is not below. | a list of chars | pcChar=the char to stop at, included | UpTo | | the same char on both sides answers an empty list, not a list of one

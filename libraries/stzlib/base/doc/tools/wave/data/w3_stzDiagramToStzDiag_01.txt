@@ -1,0 +1,8 @@
+init | Builds the converter and writes the .stzdiag text of a diagram at once; anything but a stzDiagram raises an error. | nothing; the text is generated | poDiagram=The stzDiagram to convert | stzdiag, WriteToFile |  | the text is a snapshot: later changes to the diagram are not seen
+stzdiag | Returns the text in the native format generated at construction: properties, nodes, edges with labels, clusters. | text |  | Content, WriteToFile
+stzdiagCode | Returns the generated .stzdiag text; another spelling of the text getter. | text |  | stzdiag
+Content | Returns the generated .stzdiag text; another spelling of the text getter. | text |  | stzdiag
+WriteToFile | Writes the generated text to a file, replacing it. | 1 | pFilename=The path of the file to write, as text | stzdiag | raises error R35 when the file cannot be opened
+EscapeString | Wraps a text in double quotes, putting a backslash before every double quote inside it. | text, with surrounding quotes | pStr=The text to quote | NodeListToString, DataToString
+NodeListToString | Joins a list of texts with a comma and a space. | text; an empty text for an empty list | _aNodes_=A list of texts, such as node ids | EscapeString, DataToString
+DataToString | Writes a hash list as { key: value, ... }, quoting text values; a value that is not a hash list gives the text null. | text | _aData_=A hash list whose values are texts or numbers | EscapeString | a value that is itself a list raises a bad parameter type error | gives {name: "x", n: 5} for [ :name = "x", :n = 5 ]

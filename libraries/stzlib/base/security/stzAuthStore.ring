@@ -47,6 +47,7 @@ class stzAuthMemoryStore from stzObject
 	@aChallenges = []  # [ [ handle, kind, email, codehash, expiresAt ], ... ]
 	@aPasskeys   = []  # [ [ credId, user, kty, k1, k2, signCount ], ... ]
 	@aRoles      = []  # [ [ user, role ], ... ] -- the authz grants
+	@aLocks      = []  # [ [ user, reason, lockedAtSecs ], ... ] -- administrative locks
 
 	def init()
 		@aUsers      = []
@@ -55,6 +56,38 @@ class stzAuthMemoryStore from stzObject
 		@aChallenges = []
 		@aPasskeys   = []
 		@aRoles      = []
+		@aLocks      = []
+
+	  #-- administrative locks (containment) -------------------------------
+	#
+	# A lock is an ACT, not a counter: it stays until someone unlocks it,
+	# unlike the failure lockout stzAuth keeps in memory and lets expire.
+
+	def PutLock(pcUser, pcReason, pnAt)
+		This.DeleteLock(pcUser)
+		@aLocks + [ "" + pcUser, "" + pcReason, pnAt ]
+
+	def DeleteLock(pcUser)
+		_u_ = "" + pcUser
+		_aNew_ = []
+		_n_ = len(@aLocks)
+		for _i_ = 1 to _n_
+			if @aLocks[_i_][1] != _u_
+				_aNew_ + @aLocks[_i_]
+			ok
+		next
+		@aLocks = _aNew_
+
+	# [ :reason, :at ] or [] when the user is not locked.
+	def LockOf(pcUser)
+		_u_ = "" + pcUser
+		_n_ = len(@aLocks)
+		for _i_ = 1 to _n_
+			if @aLocks[_i_][1] = _u_
+				return [ :reason = @aLocks[_i_][2], :at = @aLocks[_i_][3] ]
+			ok
+		next
+		return []
 
 	  #-- users -----------------------------------------------------------
 
@@ -434,29 +467,35 @@ class stzAuthDbStore from stzObject
 		          "usr TEXT, kty TEXT, k1 TEXT, k2 TEXT, signcount INTEGER)")
 		@oDb.Exec("CREATE TABLE IF NOT EXISTS authroles (usr TEXT, role TEXT, " +
 		          "PRIMARY KEY (usr, role))")
+		@oDb.Exec("CREATE TABLE IF NOT EXISTS authlocks (usr TEXT PRIMARY KEY, reason TEXT, lockedat INTEGER)")
 
 	def DatabaseQ()
 		return @oDb
 
 	  #-- users -----------------------------------------------------------
+	#
+	# Every statement below BINDS its values (stzDatabase.ExecWith/RowsWith):
+	# a value is never spliced into the SQL text, so none needs escaping and
+	# none can change what a statement says. They used to be ~49 strings
+	# built by concatenation through a hand-written quote-doubler, _Esc().
 
 	def PutUser(pcUser, pcHash)
-		@oDb.Exec("INSERT OR REPLACE INTO authusers (usr, hash) VALUES ('" +
-		          This._Esc(pcUser) + "', '" + This._Esc(pcHash) + "')")
+		@oDb.ExecWith("INSERT OR REPLACE INTO authusers (usr, hash) VALUES (?, ?)",
+		              [ "" + pcUser, "" + pcHash ])
 
 	def UserHash(pcUser)
-		_r_ = @oDb.Rows("SELECT hash FROM authusers WHERE usr = '" + This._Esc(pcUser) + "'")
+		_r_ = @oDb.RowsWith("SELECT hash FROM authusers WHERE usr = ?", [ "" + pcUser ])
 		if len(_r_) = 0
 			return ""
 		ok
 		return "" + _r_[1][1]
 
 	def HasUser(pcUser)
-		return ring_number(@oDb.Value("SELECT COUNT(*) FROM authusers WHERE usr = '" +
-		       This._Esc(pcUser) + "'")) > 0
+		return ring_number(@oDb.ValueWith("SELECT COUNT(*) FROM authusers WHERE usr = ?",
+		       [ "" + pcUser ])) > 0
 
 	def DeleteUser(pcUser)
-		@oDb.Exec("DELETE FROM authusers WHERE usr = '" + This._Esc(pcUser) + "'")
+		@oDb.ExecWith("DELETE FROM authusers WHERE usr = ?", [ "" + pcUser ])
 
 	def CountUsers()
 		return ring_number(@oDb.Value("SELECT COUNT(*) FROM authusers"))
@@ -464,29 +503,29 @@ class stzAuthDbStore from stzObject
 	  #-- sessions --------------------------------------------------------
 
 	def PutSession(pcToken, paRec)
-		@oDb.Exec("INSERT OR REPLACE INTO authsessions (token, usr, expires, created, ip, ua, lastseen) VALUES ('" +
-		          This._Esc(pcToken) + "', '" + This._Esc(paRec[:user]) + "', " +
-		          ring_number(paRec[:expires]) + ", " + ring_number(paRec[:created]) + ", '" +
-		          This._Esc(paRec[:ip]) + "', '" + This._Esc(paRec[:ua]) + "', " +
-		          ring_number(paRec[:lastseen]) + ")")
+		@oDb.ExecWith("INSERT OR REPLACE INTO authsessions (token, usr, expires, created, ip, ua, lastseen) " +
+		              "VALUES (?, ?, ?, ?, ?, ?, ?)",
+		              [ "" + pcToken, "" + paRec[:user], ring_number(paRec[:expires]),
+		                ring_number(paRec[:created]), "" + paRec[:ip], "" + paRec[:ua],
+		                ring_number(paRec[:lastseen]) ])
 
 	def Session(pcToken)
-		_r_ = @oDb.Rows("SELECT usr, expires, created, ip, ua, lastseen FROM authsessions WHERE token = '" +
-		                This._Esc(pcToken) + "'")
+		_r_ = @oDb.RowsWith("SELECT usr, expires, created, ip, ua, lastseen FROM authsessions WHERE token = ?",
+		                    [ "" + pcToken ])
 		if len(_r_) = 0
 			return []
 		ok
 		return This._Rec("" + pcToken, _r_[1])
 
 	def TouchSession(pcToken, pnLastSeen)
-		@oDb.Exec("UPDATE authsessions SET lastseen = " + ring_number(pnLastSeen) +
-		          " WHERE token = '" + This._Esc(pcToken) + "'")
+		@oDb.ExecWith("UPDATE authsessions SET lastseen = ? WHERE token = ?",
+		              [ ring_number(pnLastSeen), "" + pcToken ])
 
 	def DeleteSession(pcToken)
-		@oDb.Exec("DELETE FROM authsessions WHERE token = '" + This._Esc(pcToken) + "'")
+		@oDb.ExecWith("DELETE FROM authsessions WHERE token = ?", [ "" + pcToken ])
 
 	def DeleteUserSessions(pcUser)
-		@oDb.Exec("DELETE FROM authsessions WHERE usr = '" + This._Esc(pcUser) + "'")
+		@oDb.ExecWith("DELETE FROM authsessions WHERE usr = ?", [ "" + pcUser ])
 
 	def CountSessions()
 		return ring_number(@oDb.Value("SELECT COUNT(*) FROM authsessions"))
@@ -495,22 +534,21 @@ class stzAuthDbStore from stzObject
 		return This._RowsToRecs(@oDb.Rows("SELECT token, usr, expires, created, ip, ua, lastseen FROM authsessions"))
 
 	def SessionsOf(pcUser)
-		return This._RowsToRecs(@oDb.Rows("SELECT token, usr, expires, created, ip, ua, lastseen FROM authsessions WHERE usr = '" +
-		       This._Esc(pcUser) + "'"))
+		return This._RowsToRecs(@oDb.RowsWith("SELECT token, usr, expires, created, ip, ua, lastseen " +
+		       "FROM authsessions WHERE usr = ?", [ "" + pcUser ]))
 
 	  #-- two-factor (TOTP) ----------------------------------------------
 	#
-	# Recovery-code hashes are stored newline-joined in one TEXT column -- a hash
-	# is "salt:hash" (hex only), so a newline can never occur inside one.
+	# Recovery-code hashes are stored comma-joined in one TEXT column -- a hash
+	# is "salt:hash" (hex only), so a comma can never occur inside one.
 
 	def PutTotp(pcUser, pcSecret, pnConfirmed, paHashes)
-		@oDb.Exec("INSERT OR REPLACE INTO auth2fa (usr, secret, confirmed, recovery) VALUES ('" +
-		          This._Esc(pcUser) + "', '" + This._Esc(pcSecret) + "', " +
-		          ring_number(pnConfirmed) + ", '" + This._Esc(This._JoinHashes(paHashes)) + "')")
+		@oDb.ExecWith("INSERT OR REPLACE INTO auth2fa (usr, secret, confirmed, recovery) VALUES (?, ?, ?, ?)",
+		              [ "" + pcUser, "" + pcSecret, ring_number(pnConfirmed),
+		                This._JoinHashes(paHashes) ])
 
 	def Totp(pcUser)
-		_r_ = @oDb.Rows("SELECT secret, confirmed, recovery FROM auth2fa WHERE usr = '" +
-		                This._Esc(pcUser) + "'")
+		_r_ = @oDb.RowsWith("SELECT secret, confirmed, recovery FROM auth2fa WHERE usr = ?", [ "" + pcUser ])
 		if len(_r_) = 0
 			return []
 		ok
@@ -518,26 +556,27 @@ class stzAuthDbStore from stzObject
 		         :recovery = This._SplitHashes("" + _r_[1][3]) ]
 
 	def SetTotpConfirmed(pcUser, pnConfirmed)
-		@oDb.Exec("UPDATE auth2fa SET confirmed = " + ring_number(pnConfirmed) +
-		          " WHERE usr = '" + This._Esc(pcUser) + "'")
+		@oDb.ExecWith("UPDATE auth2fa SET confirmed = ? WHERE usr = ?",
+		              [ ring_number(pnConfirmed), "" + pcUser ])
 
 	def SetTotpRecovery(pcUser, paHashes)
-		@oDb.Exec("UPDATE auth2fa SET recovery = '" + This._Esc(This._JoinHashes(paHashes)) +
-		          "' WHERE usr = '" + This._Esc(pcUser) + "'")
+		@oDb.ExecWith("UPDATE auth2fa SET recovery = ? WHERE usr = ?",
+		              [ This._JoinHashes(paHashes), "" + pcUser ])
 
 	def DeleteTotp(pcUser)
-		@oDb.Exec("DELETE FROM auth2fa WHERE usr = '" + This._Esc(pcUser) + "'")
+		@oDb.ExecWith("DELETE FROM auth2fa WHERE usr = ?", [ "" + pcUser ])
 
 	  #-- passwordless challenges (magic-link / email-OTP) ----------------
 
 	def PutChallenge(pcHandle, pcKind, pcEmail, pcCodeHash, pnExpires)
-		@oDb.Exec("INSERT OR REPLACE INTO authchallenges (handle, kind, email, codehash, expires) VALUES ('" +
-		          This._Esc(pcHandle) + "', '" + This._Esc(pcKind) + "', '" + This._Esc(pcEmail) + "', '" +
-		          This._Esc(pcCodeHash) + "', " + ring_number(pnExpires) + ")")
+		@oDb.ExecWith("INSERT OR REPLACE INTO authchallenges (handle, kind, email, codehash, expires) " +
+		              "VALUES (?, ?, ?, ?, ?)",
+		              [ "" + pcHandle, "" + pcKind, "" + pcEmail, "" + pcCodeHash,
+		                ring_number(pnExpires) ])
 
 	def Challenge(pcHandle)
-		_r_ = @oDb.Rows("SELECT kind, email, codehash, expires FROM authchallenges WHERE handle = '" +
-		                This._Esc(pcHandle) + "'")
+		_r_ = @oDb.RowsWith("SELECT kind, email, codehash, expires FROM authchallenges WHERE handle = ?",
+		                    [ "" + pcHandle ])
 		if len(_r_) = 0
 			return []
 		ok
@@ -545,18 +584,19 @@ class stzAuthDbStore from stzObject
 		         :codehash = "" + _r_[1][3], :expires = ring_number(_r_[1][4]) ]
 
 	def DeleteChallenge(pcHandle)
-		@oDb.Exec("DELETE FROM authchallenges WHERE handle = '" + This._Esc(pcHandle) + "'")
+		@oDb.ExecWith("DELETE FROM authchallenges WHERE handle = ?", [ "" + pcHandle ])
 
 	  #-- passkeys (WebAuthn credentials) ---------------------------------
 
 	def PutPasskey(pcCredId, pcUser, pcKty, pcK1, pcK2, pnCount)
-		@oDb.Exec("INSERT OR REPLACE INTO authpasskeys (credid, usr, kty, k1, k2, signcount) VALUES ('" +
-		          This._Esc(pcCredId) + "', '" + This._Esc(pcUser) + "', '" + This._Esc(pcKty) +
-		          "', '" + This._Esc(pcK1) + "', '" + This._Esc(pcK2) + "', " + ring_number(pnCount) + ")")
+		@oDb.ExecWith("INSERT OR REPLACE INTO authpasskeys (credid, usr, kty, k1, k2, signcount) " +
+		              "VALUES (?, ?, ?, ?, ?, ?)",
+		              [ "" + pcCredId, "" + pcUser, "" + pcKty, "" + pcK1, "" + pcK2,
+		                ring_number(pnCount) ])
 
 	def Passkey(pcCredId)
-		_r_ = @oDb.Rows("SELECT usr, kty, k1, k2, signcount FROM authpasskeys WHERE credid = '" +
-		                This._Esc(pcCredId) + "'")
+		_r_ = @oDb.RowsWith("SELECT usr, kty, k1, k2, signcount FROM authpasskeys WHERE credid = ?",
+		                    [ "" + pcCredId ])
 		if len(_r_) = 0
 			return []
 		ok
@@ -564,8 +604,8 @@ class stzAuthDbStore from stzObject
 		         :key1 = "" + _r_[1][3], :key2 = "" + _r_[1][4], :signCount = ring_number(_r_[1][5]) ]
 
 	def PasskeysOf(pcUser)
-		_rows_ = @oDb.Rows("SELECT credid, usr, kty, k1, k2, signcount FROM authpasskeys WHERE usr = '" +
-		         This._Esc(pcUser) + "'")
+		_rows_ = @oDb.RowsWith("SELECT credid, usr, kty, k1, k2, signcount FROM authpasskeys WHERE usr = ?",
+		                       [ "" + pcUser ])
 		_out_ = []
 		_n_ = len(_rows_)
 		for _i_ = 1 to _n_
@@ -576,31 +616,46 @@ class stzAuthDbStore from stzObject
 		return _out_
 
 	def SetPasskeyCounter(pcCredId, pnCount)
-		@oDb.Exec("UPDATE authpasskeys SET signcount = " + ring_number(pnCount) +
-		          " WHERE credid = '" + This._Esc(pcCredId) + "'")
+		@oDb.ExecWith("UPDATE authpasskeys SET signcount = ? WHERE credid = ?",
+		              [ ring_number(pnCount), "" + pcCredId ])
 
 	def DeletePasskey(pcCredId)
-		@oDb.Exec("DELETE FROM authpasskeys WHERE credid = '" + This._Esc(pcCredId) + "'")
+		@oDb.ExecWith("DELETE FROM authpasskeys WHERE credid = ?", [ "" + pcCredId ])
 
 	def DeleteUserPasskeys(pcUser)
-		@oDb.Exec("DELETE FROM authpasskeys WHERE usr = '" + This._Esc(pcUser) + "'")
+		@oDb.ExecWith("DELETE FROM authpasskeys WHERE usr = ?", [ "" + pcUser ])
+
+	  #-- administrative locks (containment) -------------------------------
+
+	def PutLock(pcUser, pcReason, pnAt)
+		@oDb.ExecWith("INSERT OR REPLACE INTO authlocks (usr, reason, lockedat) VALUES (?, ?, ?)",
+		              [ "" + pcUser, "" + pcReason, ring_number("" + pnAt) ])
+
+	def DeleteLock(pcUser)
+		@oDb.ExecWith("DELETE FROM authlocks WHERE usr = ?", [ "" + pcUser ])
+
+	def LockOf(pcUser)
+		_r_ = @oDb.RowsWith("SELECT reason, lockedat FROM authlocks WHERE usr = ?", [ "" + pcUser ])
+		if len(_r_) = 0
+			return []
+		ok
+		return [ :reason = "" + _r_[1][1], :at = ring_number(_r_[1][2]) ]
 
 	  #-- authz roles (the authn->authz bridge) ---------------------------
 
 	def GrantRole(pcUser, pcRole)
-		@oDb.Exec("INSERT OR IGNORE INTO authroles (usr, role) VALUES ('" +
-		          This._Esc(pcUser) + "', '" + This._Esc(pcRole) + "')")
+		@oDb.ExecWith("INSERT OR IGNORE INTO authroles (usr, role) VALUES (?, ?)",
+		              [ "" + pcUser, "" + pcRole ])
 
 	def RevokeRole(pcUser, pcRole)
-		@oDb.Exec("DELETE FROM authroles WHERE usr = '" + This._Esc(pcUser) +
-		          "' AND role = '" + This._Esc(pcRole) + "'")
+		@oDb.ExecWith("DELETE FROM authroles WHERE usr = ? AND role = ?", [ "" + pcUser, "" + pcRole ])
 
 	def HasRole(pcUser, pcRole)
-		return ring_number(@oDb.Value("SELECT COUNT(*) FROM authroles WHERE usr = '" +
-		       This._Esc(pcUser) + "' AND role = '" + This._Esc(pcRole) + "'")) > 0
+		return ring_number(@oDb.ValueWith("SELECT COUNT(*) FROM authroles WHERE usr = ? AND role = ?",
+		       [ "" + pcUser, "" + pcRole ])) > 0
 
 	def RolesOf(pcUser)
-		_r_ = @oDb.Rows("SELECT role FROM authroles WHERE usr = '" + This._Esc(pcUser) + "'")
+		_r_ = @oDb.RowsWith("SELECT role FROM authroles WHERE usr = ?", [ "" + pcUser ])
 		_out_ = []
 		_n_ = len(_r_)
 		for _i_ = 1 to _n_
@@ -609,7 +664,7 @@ class stzAuthDbStore from stzObject
 		return _out_
 
 	def DeleteUserRoles(pcUser)
-		@oDb.Exec("DELETE FROM authroles WHERE usr = '" + This._Esc(pcUser) + "'")
+		@oDb.ExecWith("DELETE FROM authroles WHERE usr = ?", [ "" + pcUser ])
 
 	  #-- internals -------------------------------------------------------
 
@@ -630,14 +685,10 @@ class stzAuthDbStore from stzObject
 		next
 		return _out_
 
-	# SQL-escape: single quotes doubled. Usernames are user input; hashes/tokens
-	# are our own controlled values, but escaped anyway for one safe path.
-	def _Esc(pcVal)
-		return StzReplace("" + pcVal, "'", "''")
-
 	# recovery-hash list <-> one comma-joined column. A hash is "salt:hash" (hex
-	# only), so a comma can never occur inside one. Comma -- NOT newline/tab, which
-	# stzDatabase.Rows uses as its row/column delimiters and would corrupt the read.
+	# only), so a comma can never occur inside one. (The comma was chosen when
+	# stzDatabase.Rows split on tab/newline; rows now arrive as lists, but a
+	# stored column keeps its format.)
 	def _JoinHashes(paHashes)
 		_out_ = ""
 		_n_ = len(paHashes)

@@ -103,6 +103,8 @@ class stzAgentHost from stzObject
 	@aDeclared   = []        # [ name, coverage, revClass, priority ]
 	@cLoopWhy    = ""        # the engine's last refusal, verbatim
 	@oFolder     = ""        # the agents/ folder, when one was mounted
+	@aQuarantine = []        # [ name, reason, atMs ] -- containment's :QuarantinePart
+	@aBudgets    = []        # [ name, maxActs, windowMs, windowStart, acts ] -- R7
 
 	def init()
 		@oReactor = new stzReactor()
@@ -529,6 +531,7 @@ class stzAgentHost from stzObject
 			            This._ReasonWord(stzengineagentloopcurrentreason()) +
 			            " " + @aAgents[_nIdx_][6] ]
 			_nActed_ += _nA_
+			This._Account(@aAgents[_nIdx_][1], _nA_, _nNow_)
 		end
 		return _nActed_
 
@@ -586,6 +589,9 @@ class stzAgentHost from stzObject
 					@aTrace + [ _nNow_, @aAgents[_i_][1], _nE_,
 					            "event " + @aAgents[_i_][6] ]
 					_nActed_ += _nE_
+					This._Account(@aAgents[_i_][1], _nE_, _nNow_)
+					# a runaway quarantined mid-catch-up stops HERE
+					if NOT @aAgents[_i_][4]  exit  ok
 				end
 			else
 				# TIMER-DRIVEN: tick once when the interval has elapsed.
@@ -598,6 +604,7 @@ class stzAgentHost from stzObject
 				@aTrace + [ _nNow_, @aAgents[_i_][1], _nA_,
 				            "tick " + @aAgents[_i_][6] ]
 				_nActed_ += _nA_
+				This._Account(@aAgents[_i_][1], _nA_, _nNow_)
 			ok
 		next
 		return _nActed_
@@ -653,12 +660,133 @@ class stzAgentHost from stzObject
 		if _n_ = 0
 			stzraise("stzAgentHost.Resume: not supervising '" + pcName + "'.")
 		ok
+		if This.IsQuarantined(pcName)
+			stzraise("stzAgentHost.Resume: '" + pcName + "' is QUARANTINED (" +
+				This.QuarantineOf(pcName)[:reason] + ") -- Release it, as an effectful actor, first.")
+		ok
 		@aAgents[_n_][4] = 1
 		@aAgents[_n_][5] = StzEngineTimeNowMs()
 		if @bEngineLoop = 1 and @aAgents[_n_][11] >= 0
 			stzengineagentlooppause(@aAgents[_n_][11], 0)
 		ok
 		return This
+
+	#-- THE ACTION BUDGET (threat-model R7, OWASP ASI08) ----------------
+	#
+	# One agent acting in a loop floods everything downstream of it -- the
+	# cascading failure. A budget caps the ACTIONS (skill firings: what
+	# causes effects) an agent may take in a sliding window. An agent that
+	# exceeds it is QUARANTINED, not merely slowed: a runaway is a
+	# containment event, it stays stopped until an effectful actor releases
+	# it, and the reason says how far over it went. Both pumps account.
+
+	def SetActionBudget(pcName, pnMaxActs, pnWindowMs)
+		if This._IndexOf(pcName) = 0
+			stzraise("stzAgentHost.SetActionBudget: not supervising '" + pcName + "'.")
+		ok
+		if pnMaxActs < 1 or pnWindowMs < 1
+			stzraise("stzAgentHost.SetActionBudget: a budget is at least 1 act in at least 1 ms.")
+		ok
+		_c_ = StzLower("" + pcName)
+		_i_ = This._BudgetIndex(_c_)
+		if _i_ > 0
+			@aBudgets[_i_] = [ _c_, pnMaxActs, pnWindowMs, StzEngineTimeNowMs(), 0 ]
+		else
+			@aBudgets + [ _c_, pnMaxActs, pnWindowMs, StzEngineTimeNowMs(), 0 ]
+		ok
+		return This
+
+	# [ :max, :windowMs, :acts ] -- the acts counted in the current window
+	def ActionBudgetOf(pcName)
+		_i_ = This._BudgetIndex(StzLower("" + pcName))
+		if _i_ = 0  return []  ok
+		return [ :max = @aBudgets[_i_][2], :windowMs = @aBudgets[_i_][3], :acts = @aBudgets[_i_][5] ]
+
+	def _BudgetIndex(pcName)
+		_n_ = len(@aBudgets)
+		for _i_ = 1 to _n_
+			if @aBudgets[_i_][1] = pcName  return _i_  ok
+		next
+		return 0
+
+	def _Account(pcName, pnActs, pnNow)
+		if len(@aBudgets) = 0 or pnActs <= 0  return  ok
+		_i_ = This._BudgetIndex(StzLower("" + pcName))
+		if _i_ = 0  return  ok
+		if pnNow - @aBudgets[_i_][4] >= @aBudgets[_i_][3]
+			@aBudgets[_i_][4] = pnNow       # a new window
+			@aBudgets[_i_][5] = 0
+		ok
+		@aBudgets[_i_][5] = @aBudgets[_i_][5] + pnActs
+		if @aBudgets[_i_][5] > @aBudgets[_i_][2]
+			_cWhy_ = "exceeded its action budget: " + @aBudgets[_i_][5] + " acts in " +
+				@aBudgets[_i_][3] + " ms, allowed " + @aBudgets[_i_][2]
+			StzNoteRefusal("agent.budget.exceeded", "" + pcName, "agent:" + pcName, _cWhy_)
+			This.Quarantine(pcName, _cWhy_)
+		ok
+
+	#-- QUARANTINE (containment's :QuarantinePart) ----------------------
+	#
+	# Between a pause and a retirement: the agent stops being run, with the
+	# REASON kept, and it stays stopped -- Resume() refuses while it is
+	# quarantined. Only Release(), by an effectful, non-sandboxed actor, lifts
+	# it. A Cancel is an operator's pause; a quarantine is a containment act.
+
+	def Quarantine(pcName, pcReason)
+		if This._IndexOf(pcName) = 0
+			stzraise("stzAgentHost.Quarantine: not supervising '" + pcName + "'.")
+		ok
+		This.Cancel(pcName)
+		This._DropQuarantine(pcName)
+		@aQuarantine + [ StzLower("" + pcName), "" + pcReason, StzEngineTimeNowMs() ]
+		StzNoteRefusal("agent.quarantined", "" + pcName, "agent:" + pcName, "" + pcReason)
+		@cWhy = "quarantined '" + pcName + "': " + pcReason
+		return This
+
+	def IsQuarantined(pcName)
+		return len(This.QuarantineOf(pcName)) > 0
+
+	# [ :reason, :at ] or [] when the agent is not quarantined
+	def QuarantineOf(pcName)
+		_c_ = StzLower("" + pcName)
+		_n_ = len(@aQuarantine)
+		for _i_ = 1 to _n_
+			if @aQuarantine[_i_][1] = _c_
+				return [ :reason = @aQuarantine[_i_][2], :at = @aQuarantine[_i_][3] ]
+			ok
+		next
+		return []
+
+	def Release(pcName, poActor)
+		if NOT (isObject(poActor) and poActor.IsEffectful() and poActor.Posture() != "sandboxed")
+			_cWho_ = "(anonymous)"
+			if isObject(poActor)  _cWho_ = "" + poActor.Name()  ok
+			StzNoteRefusal("capability.refused", _cWho_, "agent:" + pcName,
+				"releasing a quarantined agent is an effect -- the actor may not")
+			stzraise("Refused: only an effectful, non-sandboxed actor may release '" + pcName + "' from quarantine.")
+		ok
+		This._DropQuarantine(pcName)
+		# a released agent starts a FRESH budget window -- the count that
+		# tripped it must not trip it again on its first act
+		_iB_ = This._BudgetIndex(StzLower("" + pcName))
+		if _iB_ > 0
+			@aBudgets[_iB_][4] = StzEngineTimeNowMs()
+			@aBudgets[_iB_][5] = 0
+		ok
+		This.Resume(pcName)
+		StzNoteGrant("agent.released", "" + poActor.Name(), "agent:" + pcName)
+		return This
+
+	def _DropQuarantine(pcName)
+		_c_ = StzLower("" + pcName)
+		_aNew_ = []
+		_n_ = len(@aQuarantine)
+		for _i_ = 1 to _n_
+			if @aQuarantine[_i_][1] != _c_
+				_aNew_ + @aQuarantine[_i_]
+			ok
+		next
+		@aQuarantine = _aNew_
 
 	# DECOMMISSION (R4b): retirement is EARNED. When a governance is
 	# wired, the agent may retire ONLY once every declared obligation is

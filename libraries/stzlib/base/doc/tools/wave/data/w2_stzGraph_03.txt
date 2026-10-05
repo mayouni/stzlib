@@ -1,0 +1,60 @@
+ToCanvas | Returns a stzCanvas drawing of the graph, with node sizes and colours computed from the graph's own shape. | a stzCanvas | | GraphCanvas, Show | | options: :Layout = :Hierarchical or :Force; :SizeBy and :ColorBy = :Impact, :Depth, :Degree, :InDegree or :OutDegree; ToCanvasQ is the chaining form
+GraphCanvas | Returns the stzGraphCanvas behind the drawing, for its metrics and node positions rather than only the picture. | a stzGraphCanvas | | ToCanvas | | takes the same options as ToCanvas
+PathExists | TRUE if the second node can be reached from the first by following edges; a node reaches itself. | TRUE or FALSE | | ReachableFrom, EdgeExists, ShortestPath
+FirstNode | Returns the first node added, as a hash list [ :id, :label, :properties ]; raises an error on a graph with no node. | a hash list | | FirstNodeId, LastNode
+FirstNodeId | Returns the id of the first node added; raises an error on a graph with no node. | text | | FirstNode
+LastNode | Returns the last node added, as a hash list; raises an error on a graph with no node. | a hash list | | LastNodeId, FirstNode
+LastNodeId | Returns the id of the last node added; raises an error on a graph with no node. | text | | LastNode
+NthNode | Returns the node at a position, counted from 1 in the order added; a position of 0 or past the end raises error R2. | a hash list | | NodePosition, FirstNode
+NodePosition | Returns the position of a node in the node list, counted from 1; 0 when the node does not exist. | a number | | NthNode, NodeExists
+FindNode | Returns every simple path from the first node to the given node, as lists of ids; a path of more than 10 edges is not found. | a list of paths | | Path, Paths, PathExists
+PathsTo | Returns every simple path from the first node to the given node; another spelling of the path search. | a list of paths | | FindNode
+Paths | Returns every simple path between every ordered pair of distinct nodes, as lists of ids; the answer grows fast with the graph. | a list of paths | | Path, PathsWhereF | the search gives up beyond 10 edges, so longer paths are missing | enumerating all simple paths is exponential, so use it on small graphs
+Path | Returns the first path found from one node to another, following the edges in the order added; it is not always the shortest. | a list of node ids; [ ] when none is found | | ShortestPath, PathExists, FindNode | a path of more than 10 edges is not found, even when PathExists says the node is reachable
+Neighbors | Returns the ids of the nodes that a node points to, in the order its edges were added. | a list of text; [ ] for a node without out-edges | | Incoming, ReachableFrom
+Incoming | Returns the ids of the nodes that point to a node, in the order their edges were added. | a list of text; [ ] when nothing points to it | | Neighbors, InDegree | the id is not folded to lowercase, so "C" finds nothing for a node stored as "c"
+HasCyclicDependencies | TRUE if the graph holds a directed cycle, a self-loop included. | TRUE or FALSE | | CyclicNodes, TopologicalSort, IsConnected
+ReachableFrom | Returns the ids of the other nodes you can reach by following edges from a node; the start node is never listed. | a list of text, in node order; [ ] when the node is unknown | | PathExists, ImpactOf, Neighbors
+BottleneckNodes | Returns the ids of the nodes whose in-degree plus out-degree is above the average over all nodes. | a list of text | | NodeCriticality, MostCriticalNodes | raises error R1 (divide by zero) on a graph without nodes, which also stops Show, AsciiArt and Explain on an empty graph
+NodeDensity | Returns the share of possible directed edges that exist: edges divided by n times n-1; 0 for fewer than two nodes. | a number between 0 and 1 | | NodeDensity100, UndirectedNodeDensity, DensityCategory
+NodeDensity100 | Returns the directed density as a percentage, from 0 to 100. | a number | | NodeDensity
+UndirectedNodeDensity | Returns edges divided by the number of node pairs, n times n-1 over 2, as if edges had no direction. | a number; above 1 when edges run both ways | | NodeDensity
+UndirectedNodeDensity100 | Returns the undirected density as a percentage. | a number | | UndirectedNodeDensity
+IsSparse | TRUE if the directed density is below 0.5. | TRUE or FALSE | | IsDense, DensityCategory
+IsDense | TRUE if the directed density is 0.5 or more. | TRUE or FALSE | | IsSparse, DensityCategory
+DensityCategory | Returns a word for the density: "empty" at 0, then "very sparse" below 0.25, "sparse" below 0.5, "dense" below 0.75, else "very dense". | text | | NodeDensity, IsSparse
+LongestPath | Returns the largest number of nodes reachable from any one node, which is not the hop count of the longest path. | a number | | ImpactOf, ShortestPathLength, Diameter | known defect: the name promises a path length, but the body counts reachable nodes, so a node that reaches two branches of two nodes each answers 4, though no path is longer than 2 hops
+CyclicNodes | Returns an empty list today instead of the ids of the nodes that lie on a cycle. | [ ] today, even for a graph with a cycle | | HasCyclicDependencies, ReachableFrom | known defect: it looks for the node among the nodes it reaches, but ReachableFrom never lists the start node, so the test is never true; use HasCyclicDependencies for the graph
+ParallelizableBranches | Returns pairs [ a, b ] of out-neighbours of one node whose onward reach shares no node, so the two branches could run in parallel. | a list of pairs of ids; [ ] when every pair overlaps | | ReachableFrom, DependencyFreeNodes
+DependencyFreeNodes | Returns the ids of the nodes that nothing points to, the ones that depend on no other. | a list of text | | Incoming, ImpactOf
+ImpactOf | Returns how many nodes a node can reach, the nodes that fail with it; 0 for an unknown node. | a number | | FailureScope, ReachableFrom
+FailureScope | Returns the ids of the nodes that depend on a node, those it reaches; [ ] for an unknown node. | a list of text | | ImpactOf, ReachableFrom
+NodeCriticality | Returns one hash list [ :id, :criticality ] per node, the criticality being its in-degree plus out-degree. | a list of hash lists | | MostCriticalNodes, BottleneckNodes
+MostCriticalNodes | Returns the ids of the nodes with the highest in-plus-out degree, the most critical first. | a list of text, at most the count asked for | | NodeCriticality, BottleneckNodes | | an empty count means 5
+FindQ | Returns a stzGraphFinder on the nodes or the edges, to chain Where, Having, WithProperty and WithTag, then Run. | a stzGraphFinder | | NodesWhere, EdgesWhere, QueryQ
+NodesByType | Returns the ids of the nodes whose :type property equals the given text. | a list of ids | | NodesByProperty, NodesWhere
+NodesWhere | Returns the ids of the nodes whose property meets a comparison, such as priority > 5; label and id can be tested too. | a list of ids | | NodesByProperty, FindQ | | NodesW is the short spelling
+NodesByProperty | Returns the ids of the nodes whose property equals the value. | a list of ids | | NodesWhere, NodesByType
+EdgesWhere | Returns the [ from, to ] pairs of the edges whose property or label meets a comparison, such as weight > 2. | a list of [ from, to ] pairs | | EdgesByProperty, FindQ | | EdgesW is the short spelling
+EdgesByProperty | Returns the [ from, to ] pairs of the edges whose property or label equals the value. | a list of [ from, to ] pairs | | EdgesWhere
+PathsWhereF | Returns the paths of Paths for which a function answers TRUE. | a list of paths | pFunc=a function that takes one path, a list of ids, and returns TRUE or FALSE | Paths | | the function is called once per path of the whole graph
+QueryQ | Returns a stzGraphQuery on this graph, for queries the finder cannot express. | a stzGraphQuery | | FindQ
+ShortestPath | Returns the path with the fewest edges from one node to another, as ids; [ ] when there is none or an id is unknown. | a list of node ids | | Path, ShortestPathLength, WeightedShortestPath | | the same node twice answers a path of that one node
+BFS | Returns the node ids in breadth-first visit order from a node, the start first; [ ] when the node is unknown. | a list of text | | DFS, ReachableFrom
+DFS | Returns the node ids in depth-first visit order from a node, the start first; [ ] when the node is unknown. | a list of text | | BFS, ReachableFrom
+IsBipartite | TRUE if the nodes can be split into two groups so that every edge joins the two, reading edges without direction. | TRUE or FALSE; TRUE for an empty graph | | IsConnected, Communities
+StronglyConnectedComponents | Returns the groups of nodes that all reach one another, as lists of ids; a node on no cycle forms a group of its own. | a list of lists of text | | NumberOfStronglyConnectedComponents, CyclicNodes
+NumberOfStronglyConnectedComponents | Returns how many groups of mutually reachable nodes the graph has. | a number | | StronglyConnectedComponents
+MSTWeight | Returns the total weight of a minimum spanning tree over the undirected graph, using the :weight property, 1 by default. | a number; -1 when the graph has no edge or is not connected | | MSTEdges
+MSTEdges | Returns the edges of a minimum spanning tree as [ from, to, weight ] triples; a graph in several pieces gives a forest. | a list of triples; [ ] when there is no edge | | MSTWeight | | the pair order is the engine's and may be the reverse of the edge's direction
+ArticulationPoints | Returns the ids of the nodes whose removal would split the graph, reading edges without direction. | a list of text | | Bridges, ConnectedComponents
+Bridges | Returns the edges whose removal would split the graph, as [ u, v ] pairs, reading edges without direction. | a list of pairs of ids | | ArticulationPoints
+WeightedShortestPath | Returns the cheapest path from one node to another by the :weight of the edges, 1 when an edge has none, as ids. | a list of node ids; [ ] when none or unknown | | ShortestPath, WeightedShortestPathLength, AStarPath
+WeightedShortestPathLength | Returns the total weight of the cheapest path from one node to another, by the :weight of the edges. | a number; -1 when unreachable or unknown | | WeightedShortestPath, SetEdgeWeight
+ShortestPathLength | Returns the number of edges on the shortest path from one node to another. | a number; 0 when there is no path, which cannot be told from the same node | | ShortestPath, Diameter
+ConnectedComponents | Returns the groups of nodes found by walking out-edges from each node not seen yet, as lists of ids, in node order. | a list of lists of text | | NumberOfConnectedComponents, IsConnected, StronglyConnectedComponents | edges are followed in their direction only, so b to a and c to a give three groups, although IsConnected, which ignores direction, answers TRUE
+TopologicalSort | Returns the node ids ordered so that every node comes before the nodes it points to; [ ] when the graph has a cycle. | a list of text | | HasCyclicDependencies, DependencyFreeNodes
+InDegree | Returns how many edges arrive at a node; the id is matched in lowercase, and an unknown node gives 0. | a number | | OutDegree, Incoming
+OutDegree | Returns how many edges leave a node; the id is matched in lowercase, and an unknown node gives 0. | a number | | InDegree, Neighbors
+NumberOfConnectedComponents | Returns how many groups ConnectedComponents finds, counted by the engine, following edge direction. | a number | | ConnectedComponents, IsConnected
+IsConnected | TRUE if every node can be reached from the first when edges are read without direction; one node or none is connected. | TRUE or FALSE | | ConnectedComponents, PathExists

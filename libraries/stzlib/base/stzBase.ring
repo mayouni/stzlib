@@ -128,6 +128,30 @@ ok
     # the other door: sound -> text. Closed grammar only -- VC3 measured why.
     load "sound/stzListener.ring"
     load "sound/stzEarcons.ring"
+    # MU1: one note of any of twenty instruments, as a stzSound
+    load "sound/stzSoundInstrument.ring"
+    load "sound/stzSoundScore.ring"
+    load "sound/stzSoundScheduler.ring"
+    load "common/stzPattern.ring"
+    load "sound/stzSoundPattern.ring"
+    load "sound/stzSoundLive.ring"
+    load "sound/stzSoundUniverse.ring"
+    load "sound/universes/western.ring"
+    load "sound/universes/maqam.ring"
+    load "sound/universes/flamenco.ring"
+    load "sound/universes/westafrican.ring"
+    load "sound/universes/tunisian.ring"
+    load "sound/universes/niger.ring"
+    load "sound/universes/raga.ring"
+    load "sound/universes/gamelan.ring"
+    load "sound/stzSoundFormantVoice.ring"
+    load "sound/stzSoundRetunedVoice.ring"
+    load "sound/stzSoundTranscriber.ring"
+    load "sound/stzSoundNotation.ring"
+    load "sound/stzSoundNotationReader.ring"
+    load "sound/stzSoundStaff.ring"
+    load "sound/stzSoundLadder.ring"
+    load "sound/stzMusic.ring"
     load "sound/stzMicrophone.ring"
 
     # the material graph: a material AS a graph, emitting the material
@@ -183,6 +207,9 @@ ok
     # (stzCodeRules), governance checks + signable predicate sets.
     load "meta/stzSelfDoc.ring"
     load "meta/stzLibDoc.ring"
+    load "meta/stzDocRecord.ring"
+    load "meta/stzDocExport.ring"
+    load "meta/stzDocGate.ring"
     load "meta/stzCodeGraph.ring"
     load "meta/stzRingCodeGraph.ring"
     load "meta/stzPyCodeGraph.ring"
@@ -485,6 +512,9 @@ load "geo/stzGeoProcess.ring"
     load "service/stzServiceRule.ring"  # the constraint rules (delivery x registry)
     load "service/stzBlobPort.ring"     # the OBJECT-STORE port (local-real: a directory)
     load "service/stzLlmPort.ring"      # the generative port (replay/scripted/local)
+    load "service/stzAmount.ring"       # money that knows its currency (ISO 4217 exponent)
+    load "service/stzCardPaymentsAdapter.ring" # the CARD gateway adapter and its sandbox
+    load "service/stzPiSpiSandbox.ring" # the Softanza twin of the PI-SPI hub (API Business v1.5.0)
     load "service/stzPaymentsPort.ring" # the payments port (deterministic gateway)
     load "service/stzHttpPort.ring"   # the generic HTTP port (scripted + replay)
     load "service/stzDataPort.ring"   # the DATABASE port (local-real: sqlite)
@@ -503,6 +533,7 @@ load "geo/stzGeoProcess.ring"
     load "security/stzCryptoFuncs.ring"
     load "security/stzSecret.ring"
     load "security/stzVaultResolver.ring"
+    load "security/stzVaultHttpResolver.ring"
     load "security/stzSecretStore.ring"
     load "security/stzAuthStore.ring"   # the persistence seam stzAuth defaults to
     load "security/stzTotp.ring"        # RFC 6238 second factor (used by stzAuth 2FA)
@@ -534,6 +565,8 @@ load "geo/stzGeoProcess.ring"
     # structure at ONE INSTANT; an incident is a story. Verdicts are
     # findings in the unified shape, so they join the ONE CI gate.
     load "security/stzDetection.ring"
+    load "service/stzPaymentsSecrets.ring" # the five payments secrets, their expiry watch and their detections
+    load "service/stzPayouts.ring"  # money out is a plan a human commits: plan, policy, desk
     # I4: the sentinel -- detections on a cadence, edge-triggered (a
     # standing attack is one story, not one per second), event-bus
     # fanout, hostable on any stzAgentHost, and a case snapshot
@@ -917,6 +950,28 @@ load "geo/stzGeoProcess.ring"
     load "education/stzCohort.ring"
     load "education/stzTutor.ring"
     load "education/stzEduReader.ring"
+
+    # math/ -- THE MATHEMATICS PLANE (plane stzlib-math, base/math/CHARTER.md):
+    # a figure is DECLARED, COMPUTED by the engine, then SOLVED by the math
+    # diagram system -- one domain file per figure kind, loaded after
+    # graph/stzMathDiagram.ring, and one entry object, stzMathFigure
+    load "math/stzMathNotation.ring"
+    load "math/stzFunctionFigure.ring"
+    load "math/stzNumberLineFigure.ring"
+    load "math/stzFractionFigure.ring"
+    load "math/stzMatrixFigure.ring"
+    load "math/stzComplexPlaneFigure.ring"
+    load "math/stzBoxPlotFigure.ring"
+    load "math/stzSurfaceFigure.ring"
+    load "math/stzStemPlotFigure.ring"
+    load "math/stzResidualPlotFigure.ring"
+    load "math/stzCodedTableFigure.ring"
+    load "math/stzMathFigure.ring"
+    load "math/stzMathMotion.ring"
+    load "math/stzMathStories.ring"
+    load "math/stzMathClaim.ring"
+    load "math/stzTukey.ring"
+    load "math/stzTukeyStory.ring"
 
     # refine/ -- REFINEMENT PROGRAMMING (R6): stzPolyCode comes home --
     # code carries typed refinement points; a change is a typed proposal

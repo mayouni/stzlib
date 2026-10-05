@@ -26,6 +26,9 @@ load "../../stzBase.ring"
 # at _ReadRingAgent, and it is a measurement rather than a preference.
 load "agents/watcher.ring"
 
+# code, not the agent file, decides which ring: functions an agent may call (R2)
+StzAllowAgentFunction("StockIsCritical", "trusted")
+
 nPass = 0
 nFail = 0
 

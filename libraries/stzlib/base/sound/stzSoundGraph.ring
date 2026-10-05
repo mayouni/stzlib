@@ -212,6 +212,19 @@ class stzSoundGraph
 		@nLast = StzEngineSoundGraphAddSource(@nG, _id_, 1)
 		@nOut = @nLast
 
+	# MU2: a node whose output is the notes placed on it, each at the frame
+	# asked -- inside a block, not at its top. It has no input. Returns the
+	# node (1-based), which StzEngineSoundGraphTimelinePlace takes.
+	def AddTimeline()
+		if @nG = 0  return 0 ok
+		@nLast = StzEngineSoundGraphAddTimeline(@nG)
+		if @nLast = 0
+			@cLastError = StzEngineSoundGraphLastError()
+			return 0
+		ok
+		@nOut = @nLast
+		return @nLast
+
 	def AddLoopingSoundQ(poSound)
 		This.AddLoopingSound(poSound)
 		return This

@@ -1,0 +1,12 @@
+PCRE2 10.47
+
+Version from PCRE2_MAJOR/PCRE2_MINOR (release date 2025-10-21).
+
+--- SBOM record (read by engine/tools/sbom.py; keep the keys) ---
+Component:        PCRE2
+Version:          10.47
+Source:           https://github.com/PCRE2Project/pcre2/releases/tag/pcre2-10.47
+Licence:          BSD-3-Clause WITH PCRE2-exception
+Purl:             pkg:github/PCRE2Project/pcre2@pcre2-10.47
+Archive-SHA-256:  not recorded -- the upstream archive was not fetched when this record was written (2026-09-29)
+Tree-Digest:      59e00662267a70e6c292d4c88284e5a7f3e945a413fb01b65ffdfe9bb67c65c1

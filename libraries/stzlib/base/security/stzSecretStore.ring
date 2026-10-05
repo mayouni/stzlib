@@ -28,6 +28,91 @@
 func StzSecretStoreQ(pcName)
 	return new stzSecretStore(pcName)
 
+# Rebuild a store from a file written by SaveSealedTo. The key is itself a
+# secret, revealed through the same governed door as any other: poActor must
+# be effectful and not sandboxed. A wrong key or an altered file RAISES --
+# and the refusal is recorded -- it never yields a half-read store.
+func StzSecretStoreFromSealedFile(pcPath, poKeySecret, poActor)
+	return StzSecretStoreFromSealedFileVia(pcPath, poKeySecret, "", poActor)
+
+# As above, with the KEY fetched through a vault resolver (R4): a key
+# secret sourced FromVault(...) is revealed via poResolver.
+func StzSecretStoreFromSealedFileVia(pcPath, poKeySecret, poResolver, poActor)
+	_cRaw_ = read("" + pcPath)
+	_acL_ = StzSplit(_cRaw_, char(10))
+	if len(_acL_) < 3 or ring_trim(_acL_[1]) != "stzsecrets v1"
+		stzraise("Not a sealed secret store: " + pcPath)
+	ok
+	_cName_ = StzMidToEnd(ring_trim(_acL_[2]), 7)       # after "store="
+	_cKey_ = poKeySecret.RevealVia(poResolver, poActor)
+	try
+		_cPlain_ = StzOpen(_cKey_, ring_trim(_acL_[3]), "stzsecrets:" + _cName_)
+	catch
+		StzNoteRefusal("secret.reveal.refused", "" + poActor.Name(), "store:" + _cName_,
+			"the sealed store did not open -- wrong key, or the file was altered")
+		stzraise("The sealed store '" + _cName_ + "' did not open: wrong key, or the file was altered.")
+	done
+	_o_ = new stzSecretStore(_cName_)
+	_acRec_ = StzSplit(_cPlain_, char(10))
+	_n_ = len(_acRec_)
+	for _i_ = 1 to _n_
+		if ring_trim(_acRec_[_i_]) = ""  loop  ok
+		_a_ = StzSplit(_acRec_[_i_], char(9))
+		_o_.Register(_StzSecretFromRecord(_a_))
+	next
+	return _o_
+
+# [ kind, name, source, locator-or-value(hex), expiry ] -> a stzSecret of that kind
+#
+# A kind of the form "<family>-<part>" belongs to whoever defines the function
+# StzSecretFromKind_<family>(name, part): the payments plane defines
+# StzSecretFromKind_pispi, so "pispi-mtls-cert" is built as a stzPispiSecret.
+# The store names no family itself. A family whose function is not loaded is
+# read as a plain secret that keeps its kind, never refused: a sealed file
+# written by a build with payments loaded stays readable without it.
+func _StzSecretFromRecord(paRec)
+	_cKind_ = paRec[1]
+	if _cKind_ = "apikey"
+		_s_ = new stzApiKey(paRec[2])
+	but _cKind_ = "password"
+		_s_ = new stzPassword(paRec[2])
+	but _cKind_ = "deploykey"
+		_s_ = new stzDeployKey(paRec[2])
+	but _cKind_ = "token"
+		_s_ = new stzToken(paRec[2])
+		if len(paRec) >= 5 and ring_number(paRec[5]) > 0  _s_.SetExpiry(ring_number(paRec[5]))  ok
+	but _StzSecretKindFactory(_cKind_) != ""
+		_cF_ = _StzSecretKindFactory(_cKind_)
+		_s_ = call _cF_(paRec[2], StzMidToEnd(_cKind_, StzFindFirst("-", _cKind_) + 1))
+		if len(paRec) >= 5 and ring_number(paRec[5]) > 0 and isMethod(_s_, "setexpiry")
+			_s_.SetExpiry(ring_number(paRec[5]))
+		ok
+	else
+		_s_ = new stzSecret(paRec[2])
+		_s_.SetKind(_cKind_)
+	ok
+	_cSrc_ = paRec[3]
+	_cVal_ = StzEngineCryptoHexDecode(paRec[4])
+	if _cSrc_ = "literal"
+		_s_.FromLiteral(_cVal_)
+	but _cSrc_ = "env"
+		_s_.FromEnv(_cVal_)
+	but _cSrc_ = "file"
+		_s_.FromFile(_cVal_)
+	but _cSrc_ = "vault"
+		_s_.FromVault(_cVal_)
+	ok
+	return _s_
+
+
+
+# The factory function for a kind's family, or "" when there is none loaded.
+func _StzSecretKindFactory(pcKind)
+	_n_ = StzFindFirst("-", pcKind)
+	if _n_ < 2  return ""  ok
+	_cF_ = "stzsecretfromkind_" + StzLower(StzLeft(pcKind, _n_ - 1))
+	if ring_find(functions(), _cF_) = 0  return ""  ok
+	return _cF_
 
   #=================#
  #  STZSECRETSTORE #
@@ -68,6 +153,48 @@ class stzSecretStore from stzObject
 
 	def RotateQ(poNewSecret)
 		return This.Register(poNewSecret)
+
+	# ROTATE IN PLACE, to a fresh random value -- containment's :RotateSecret.
+	# Only a secret whose value THIS store holds (a :literal) can be
+	# regenerated here: a key it issues, a token it signs with. A secret that
+	# lives in an environment variable, a file or a vault is not this store's
+	# to change -- that REFUSES loudly, naming where to rotate it, rather than
+	# pretending. Creating a credential is an effect, so poActor passes the
+	# same gate as a reveal. The new value is 32 random bytes as 64 hex
+	# characters; kind and name are kept (a token's expiry is cleared -- a new
+	# value is a new credential). Returns This.
+	def RotateToFresh(pcName, poActor)
+		_s_ = This.Secret(pcName)
+		if NOT isObject(_s_)
+			stzraise("stzSecretStore '" + @cName + "': no secret '" + pcName + "' to rotate.")
+		ok
+		if NOT (isObject(poActor) and poActor.IsEffectful() and poActor.Posture() != "sandboxed")
+			StzNoteRefusal("secret.reveal.refused", "" + poActor.Name(), "secret:" + _s_.Name(),
+				"rotating a secret is an effect -- the actor may not")
+			stzraise("Refused: only an effectful, non-sandboxed actor may rotate secret '" + _s_.Name() + "'.")
+		ok
+		if _s_.SourceKind() != "literal"
+			stzraise("Secret '" + _s_.Name() + "' lives in its " + _s_.SourceKind() + " source (" +
+				_s_.SourceLocator() + ") -- rotate it THERE; this store does not own its value.")
+		ok
+		_cKind_ = _s_.Kind()
+		if _cKind_ = "apikey"
+			_n_ = new stzApiKey(_s_.Name())
+		but _cKind_ = "password"
+			_n_ = new stzPassword(_s_.Name())
+		but _cKind_ = "deploykey"
+			_n_ = new stzDeployKey(_s_.Name())
+		but _cKind_ = "token"
+			_n_ = new stzToken(_s_.Name())
+		else
+			_n_ = new stzSecret(_s_.Name())
+			_n_.SetKind(_cKind_)
+		ok
+		_n_.FromLiteral(StzEngineCryptoRandomHex(32))
+		This.Register(_n_)
+		This._Audit(poActor, _s_.Name(), "rotated")
+		StzNoteGrant("secret.rotated", "" + poActor.Name(), "secret:" + _s_.Name())
+		return This
 
 	# revoke (remove) a secret by name.
 	def Revoke(pcName)
@@ -156,6 +283,47 @@ class stzSecretStore from stzObject
 	  #-- the audit trail (governance made visible) -----------------------
 
 	# [ [ seq, actor, secret, outcome ], ... ] -- who read (or was refused) what.
+	  #-- sealed at rest (R3) ----------------------------------------------
+	#
+	# Write the whole store to pcPath as ONE authenticated-encryption blob
+	# (XChaCha20-Poly1305), keyed by poKeySecret -- itself a stzSecret, whose
+	# 64-hex value comes from wherever secrets come from (an environment
+	# variable, a file, a vault). Literal values are sealed; env / file /
+	# vault secrets are saved as their POINTER only -- the plaintext never
+	# leaves its source. The store's name is bound as the aad, so one store's
+	# file cannot be passed off as another's. Sealing reads every literal
+	# value, so poActor passes the same gate as a reveal.
+	def SaveSealedTo(pcPath, poKeySecret, poActor)
+		return This.SaveSealedToVia(pcPath, poKeySecret, "", poActor)
+
+	# As SaveSealedTo, with the KEY fetched through a vault resolver (R4).
+	def SaveSealedToVia(pcPath, poKeySecret, poResolver, poActor)
+		if NOT (isObject(poActor) and poActor.IsEffectful() and poActor.Posture() != "sandboxed")
+			StzNoteRefusal("secret.reveal.refused", "" + poActor.Name(), "store:" + @cName,
+				"sealing a store reads its secrets -- the actor may not")
+			stzraise("Refused: sealing store '" + @cName + "' reads its secrets; only an effectful, non-sandboxed actor may.")
+		ok
+		_cKey_ = poKeySecret.RevealVia(poResolver, poActor)
+		_cBody_ = ""
+		_n_ = len(@aSecrets)
+		for _i_ = 1 to _n_
+			_s_ = @aSecrets[_i_][2]
+			_cSrc_ = _s_.SourceKind()
+			if _cSrc_ = "literal"
+				_cVal_ = _s_.Reveal(poActor)
+			else
+				_cVal_ = _s_.SourceLocator()
+			ok
+			_nExp_ = 0
+			if isMethod(_s_, "ExpiresAt")  _nExp_ = _s_.ExpiresAt()  ok
+			# values travel hex-encoded: a tab or a newline inside a value is data
+			_cBody_ += _s_.Kind() + char(9) + _s_.Name() + char(9) + _cSrc_ + char(9) +
+				StzEngineCryptoHexEncode(_cVal_) + char(9) + _nExp_ + char(10)
+		next
+		_cBlob_ = StzSeal(_cKey_, _cBody_, "stzsecrets:" + @cName)
+		write("" + pcPath, "stzsecrets v1" + char(10) + "store=" + @cName + char(10) + _cBlob_ + char(10))
+		return This
+
 	def AccessLog()
 		return @aLog
 

@@ -1,0 +1,205 @@
+#=====================================================================#
+#  STZMATHSTORIES -- the plane's told figures: a picture built from    #
+#  library code, a motion of declared states over it, facts bound       #
+#=====================================================================#
+/*
+	A STORY is a picture and the states it is told through. The first is
+	Euclid I.47 in Byrne's colours: three points, a triangle, a right
+	angle at A, and a style under which every square and rectangle is an
+	EXPRESSION over the three points -- so the picture cannot come apart
+	when a point is dragged, and the equality a^2 + b^2 = c^2 is never
+	asserted anywhere. It is read back out of the solved coordinates as
+	a fact, in every state, and the gate holds it to zero.
+
+	    oM = StzPythagorasMotionQ(StzMathFigureFont())
+	    oM.PlayStates(oWindow, 2500)                # the window
+	    oS = oM.ExportTo("folio", "pythagoras")     # the frames and the narration
+
+	The domain and the style are the graph plane's (StzGeometryDomain,
+	StzByrneStyle); the substance and the states are this plane's.
+*/
+
+# Byrne's I.47 from library code: three points, a triangle, a right angle
+func StzPythagorasPictureQ(poFont)
+	_oS_ = new stzMathSubstance(StzGeometryDomain())
+	_oS_.DeclareAll("Point", [ "A", "B", "C" ])
+	_oS_.Define("ABC", "Triangle", [ "A", "B", "C" ])
+	_oS_.Define("BAC", "InteriorAngle", [ "B", "A", "C" ])
+	_oS_.Assert("Right", [ "BAC" ])
+	_oS_.AutoLabelAll()
+	_oS_.Label("ABC", "")
+	_oS_.Label("BAC", "")
+	_o_ = new stzMathDiagram(StzGeometryDomain(), _oS_, StzByrneStyle())
+	_o_.SetFont(poFont, 24)
+	_o_.SetVariation("byrne")
+	_o_.Layout()
+	return _o_
+
+# the expression facts of I.47, over the picture's own coordinates
+func StzPythagorasGapExpr()
+	return "dist(A.icon, B.icon)^2 + dist(A.icon, C.icon)^2 - dist(B.icon, C.icon)^2"
+
+# the story: four states, A dragged three times, the equality read at each
+func StzPythagorasMotionQ(poFont)
+	_oM_ = StzMathMotionOverQ(StzPythagorasPictureQ(poFont))
+	_cA2_ = "dist(A.icon, B.icon)^2"
+	_cB2_ = "dist(A.icon, C.icon)^2"
+	_cC2_ = "dist(B.icon, C.icon)^2"
+
+	_oM_.State("A right triangle ABC with its right angle at A ({angle} degrees), and a square " +
+		"on each side. The square on the hypotenuse BC measures {c2} px^2; the squares on " +
+		"AB and AC measure {a2} and {b2}. Their sum is {sum} px^2.", [])
+	_oM_.StateFact("angle", :angle, [ "B.icon", "A.icon", "C.icon" ])
+	_oM_.StateFact("c2", :expr, [ _cC2_, "px^2" ])
+	_oM_.StateFact("a2", :expr, [ _cA2_, "px^2" ])
+	_oM_.StateFact("b2", :expr, [ _cB2_, "px^2" ])
+	_oM_.StateFact("sum", :expr, [ _cA2_ + " + " + _cB2_, "px^2" ])
+
+	_oM_.State("Drag A up and to the right. The squares follow, the angle at A stays " +
+		"{angle} degrees, and the two smaller squares still make the larger one: " +
+		"a^2 + b^2 - c^2 = {gap} px^2.", [ [ :DragBy, "A.icon", 60, -30 ] ])
+	_oM_.StateFact("angle", :angle, [ "B.icon", "A.icon", "C.icon" ])
+	_oM_.StateFact("gap", :expr, [ StzPythagorasGapExpr(), "px^2" ])
+
+	_oM_.State("Drag A down and to the left, past where it began. The hypotenuse square is " +
+		"now {c2} px^2 and the sum of the other two is {sum} px^2: the difference is " +
+		"{gap} px^2.", [ [ :DragBy, "A.icon", -110, 20 ] ])
+	_oM_.StateFact("c2", :expr, [ _cC2_, "px^2" ])
+	_oM_.StateFact("sum", :expr, [ _cA2_ + " + " + _cB2_, "px^2" ])
+	_oM_.StateFact("gap", :expr, [ StzPythagorasGapExpr(), "px^2" ])
+
+	_oM_.State("Bring A back. Nothing in the picture asserts the equality: every square is " +
+		"derived from the three points, and a^2 + b^2 - c^2 = {gap} px^2 is what the " +
+		"coordinates read back. That is Euclid I.47, a consequence of the construction.",
+		[ [ :DragBy, "A.icon", 50, 10 ] ])
+	_oM_.StateFact("gap", :expr, [ StzPythagorasGapExpr(), "px^2" ])
+	return _oM_
+
+#-- the chaos game --------------------------------------------------------
+
+# THE CHAOS GAME, from library code: three corners, a starting point, and a
+# rule -- pick a corner at random, go halfway to it, put a dot. Nothing is
+# solved: every dot is data, held by the dot domain and drawn as it is. The
+# picture that appears is Sierpinski's triangle, and its two signatures are
+# checked, never assumed, by StzChaosGameCounts.
+func StzChaosGameCorners()
+	return [ [ 320, 40 ], [ 40, 560 ], [ 600, 560 ] ]
+
+func StzChaosGamePictureQ(poFont, pnDots, pnSeed)
+	_o_ = new stzMathDiagram(StzDotDomain(), StzChaosGameSubstance(pnDots, pnSeed), StzDotStyle())
+	_o_.SetFont(poFont, 12)
+	_o_.SetVariation("chaos")
+	_o_.Layout()
+	return _o_
+
+func StzChaosGameSubstance(pnDots, pnSeed)
+	if NOT isNumber(pnDots) or pnDots < 1 or pnDots > 20000
+		stzraise("StzChaosGameSubstance: between 1 and 20,000 dots.")
+	ok
+	_aV_ = StzChaosGameCorners()
+	SeedRandom(pnSeed)
+	_aX_ = []  _aY_ = []
+	_x_ = 320  _y_ = 300
+	for _i_ = 1 to pnDots
+		_k_ = floor(StzRandom01() * 3) + 1
+		if _k_ > 3  _k_ = 3  ok
+		_x_ = (_x_ + _aV_[_k_][1]) / 2
+		_y_ = (_y_ + _aV_[_k_][2]) / 2
+		_aX_ + _x_  _aY_ + _y_
+	next
+	_o_ = new stzMathSubstance(StzDotDomain())
+	_o_.DeclareMany("Dot", "d", pnDots)
+	_o_.SetDataFrom("d", "x", _aX_)
+	_o_.SetDataFrom("d", "y", _aY_)
+	return _o_
+
+# [ inside the outer triangle, inside the central hole ] over the first
+# pnDots dots of a chaos-game picture -- two facts read off the dots by an
+# independent point-in-triangle test, so the fractal's signature (all in,
+# none in the hole) is measured, not a property any dot was given
+func StzChaosGameCounts(poPicture, pnDots)
+	_aV_ = StzChaosGameCorners()
+	_aT_ = [ _aV_[1][1], _aV_[1][2], _aV_[2][1], _aV_[2][2], _aV_[3][1], _aV_[3][2] ]
+	_aH_ = [ (_aV_[1][1] + _aV_[2][1]) / 2, (_aV_[1][2] + _aV_[2][2]) / 2,
+	         (_aV_[1][1] + _aV_[3][1]) / 2, (_aV_[1][2] + _aV_[3][2]) / 2,
+	         (_aV_[2][1] + _aV_[3][1]) / 2, (_aV_[2][2] + _aV_[3][2]) / 2 ]
+	_nIn_ = 0  _nHole_ = 0
+	for _i_ = 1 to pnDots
+		_x_ = poPicture.ValueOf("d" + _i_ + ".icon.cx")
+		_y_ = poPicture.ValueOf("d" + _i_ + ".icon.cy")
+		if _CgIn(_x_, _y_, _aT_, 0)  _nIn_++  ok
+		if _CgIn(_x_, _y_, _aH_, 0.5)  _nHole_++  ok
+	next
+	return [ _nIn_, _nHole_ ]
+
+# inside a triangle: the three cross products of one sign; pnMargin > 0
+# asks for STRICTLY inside, so a dot on the hole's edge is not in the hole
+func _CgIn(px, py, paT, pnMargin)
+	_s_ = []
+	for _i_ = 1 to 3
+		_j_ = (_i_ % 3) + 1
+		_c_ = (paT[2*_j_-1] - paT[2*_i_-1]) * (py - paT[2*_i_]) - (paT[2*_j_] - paT[2*_i_]) * (px - paT[2*_i_-1])
+		_s_ + _c_
+	next
+	return (_s_[1] >= pnMargin and _s_[2] >= pnMargin and _s_[3] >= pnMargin) or
+	       (_s_[1] <= -pnMargin and _s_[2] <= -pnMargin and _s_[3] <= -pnMargin)
+
+#-- Thales --------------------------------------------------------------------
+
+# THALES' THEOREM, from library code, and the lesson Byrne's figure taught:
+# the substance says three things -- B and C are on the circle, BC runs
+# through its centre, A is on the circle -- and never that the angle at A
+# is right. Wherever the solver puts A, the angle at A reads 90 degrees:
+# the theorem is a CONSEQUENCE the picture is never asked to satisfy, and
+# StzThalesAngle reads it back off the solved coordinates.
+func StzThalesPictureQ(poFont)
+	_oS_ = new stzMathSubstance(StzGeometryDomain())
+	_oS_.Declare("Circle", "K")
+	_oS_.DeclareAll("Point", [ "B", "C", "A" ])
+	_oS_.Define("BC", "Segment", [ "B", "C" ])
+	_oS_.Define("AB", "Segment", [ "A", "B" ])
+	_oS_.Define("AC", "Segment", [ "A", "C" ])
+	_oS_.Define("ABC", "Triangle", [ "A", "B", "C" ])
+	_oS_.Define("BAC", "InteriorAngle", [ "B", "A", "C" ])
+	_oS_.Assert("OnCircle", [ "B", "K" ])
+	_oS_.Assert("OnCircle", [ "C", "K" ])
+	_oS_.Assert("OnCircle", [ "A", "K" ])
+	_oS_.Assert("Diameter", [ "BC", "K" ])
+	_oS_.AutoLabelAll()
+	_oS_.Label("K", "")
+	_oS_.Label("BC", "")
+	_oS_.Label("AB", "")
+	_oS_.Label("AC", "")
+	_oS_.Label("ABC", "")
+	_oS_.Label("BAC", "")
+	_o_ = new stzMathDiagram(StzGeometryDomain(), _oS_, StzThalesStyle())
+	_o_.SetFont(poFont, 24)
+	_o_.SetVariation("thales")
+	_o_.Layout()
+	return _o_
+
+# the angle at A of a Thales picture, in degrees, read off the coordinates
+func StzThalesAngle(poPicture)
+	return poPicture.Fact(:angle, [ "B.icon", "A.icon", "C.icon" ])[:value]
+
+#-- chapter 15's statements, as claims (M6) -----------------------------------------
+# "An identity is not a self-check" states five things a machine can check
+# twice: on the numeric floor here, and in Lean through the door. Each carries
+# the tactic Mathlib wants where norm_num alone would not do; those tactics
+# were written from Mathlib's names (Real.sq_sqrt, Real.lt_sqrt, Real.sqrt_lt')
+# and NOT run through Lean on this machine -- see M6 RESULTS.
+func StzSelfCheckLessonClaims()
+	_o_ = StzMathClaimSetQ("an-identity-is-not-a-self-check")
+	_o_.Add(StzMathClaimQ([ :kind = :Identity, :lhs = "3^2 + 4^2", :rhs = "5^2", :over = :Natural,
+	                        :label = "three four five" ]))
+	_o_.Add(StzMathClaimQ([ :kind = :Inequality, :relation = "!=", :lhs = "3^2 + 4^2 + 1", :rhs = "5^2", :over = :Natural,
+	                        :label = "the wrong formula is not an identity" ]))
+	_o_.Add(StzMathClaimQ([ :kind = :Identity, :lhs = "sqrt(3)^2", :rhs = "3", :over = :Real,
+	                        :label = "the root squared", :tactic = "rw [Real.sq_sqrt (by norm_num)]" ]))
+	_o_.Add(StzMathClaimQ([ :kind = :Inequality, :relation = "<", :lhs = "1.7", :rhs = "sqrt(3)", :over = :Real,
+	                        :label = "the zero lies above 1.7", :tactic = "rw [Real.lt_sqrt (by norm_num)]; norm_num" ]))
+	_o_.Add(StzMathClaimQ([ :kind = :Inequality, :relation = "<", :lhs = "sqrt(3)", :rhs = "1.8", :over = :Real,
+	                        :label = "the zero lies below 1.8", :tactic = "rw [Real.sqrt_lt' (by norm_num)]; norm_num" ]))
+	_o_.Add(StzMathClaimQ([ :kind = :Inequality, :relation = "!=", :lhs = "1.5^2", :rhs = "3", :over = :Real,
+	                        :label = "one and a half is not the root" ]))
+	return _o_

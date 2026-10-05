@@ -34,3 +34,12 @@ VERIFICATION STATUS, stated rather than implied:
 The file is VERSION.txt, not VERSION: a vendor-root file named VERSION on
 a C include path resolves C++'s #include <version> on case-insensitive
 filesystems, which broke the build once already (see vendor/stb).
+
+--- SBOM record (read by engine/tools/sbom.py; keep the keys) ---
+Component:        GLFW
+Version:          3.4
+Source:           https://github.com/glfw/glfw/releases/tag/3.4
+Licence:          Zlib
+Purl:             pkg:github/glfw/glfw@3.4
+Archive-SHA-256:  b5ec004b2712fd08e8861dc271428f048775200a2df719ccf575143ba749a3e9
+Tree-Digest:      89ead2dda240ab3c923303a03323d9d0d48e8eed465d532aadc3f37440dabb7c

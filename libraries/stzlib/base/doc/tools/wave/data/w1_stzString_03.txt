@@ -1,0 +1,263 @@
+IsAtCharsNamedParam | TRUE if the content is the pair [ :AtChars, value ]; a string never is, so it answers FALSE. | FALSE | | IsNamedParam
+IsIsBoundedByNamedParam | TRUE if the content is the pair [ :IsBoundedBy, value ]; a string never is, so it answers FALSE. | FALSE | | IsNamedParam
+IsStepNamedParam | TRUE if the content is the pair [ :Step, value ]; a string never is, so it answers FALSE. | FALSE | | IsNamedParam
+TrailingCharIs | Answers FALSE today for a string that ends with the given char, such as "banana" and "a". | FALSE today | | HasThisTrailingChar | known defect: the call answers FALSE where the last char equals the argument; HasThisTrailingChar answers correctly
+TrimChar | Removes the given char from both ends, in place. | nothing; the string changes | | TrimLeftChar, TrimRightChar
+UniqueNumbers | Returns the distinct numbers found in the text, as text. | a list of strings | | ExtractNumbers
+UniqueWords | Returns the distinct words of the text. | a list of strings | | Words
+Unspacify | Trims the string, then collapses each run of spaces to one, in place. | nothing; the string changes | | Simplify
+UppercasedInLocale | Returns the string in uppercase for the given locale, plain uppercase when it has no rule. | a string | | LowercasedInLocale
+UrlEncode | Percent-encodes the string for a URL, in place. | nothing; the string changes | | UrlEncoded
+VizFindBoxedRounded | Returns the string as rounded boxed char cells with the occurrences of the substring marked. | a string | | VizFindBoxed
+WalkBackwardW | Returns the positions where the condition holds, walking backwards from the end until the stop condition. | a list of positions | pNamedUntil=:UntilBefore = expression, and the starting position | WalkForwardW
+WalkForwardW | Returns the positions where the condition holds, walking forwards until the stop condition. | a list of positions | pNamedUntil=:UntilBefore = expression, and the starting position | WalkBackwardW
+YieldCharsW | Returns each char through the yielder, for the chars that meet the condition. | a list of values | pNamedWhere=:Where = condition | YieldW
+AlignXT | Pads the string in place to a width with a char on the side given, :Left, :Right or :Center. | nothing; the string changes | cDirection=the side to pad: :Left, :Right or :Center | AlignedXT
+AllCharsAreEven | TRUE if every char is an even digit. | TRUE or FALSE | | AllCharsAreOdd
+AllCharsAreOdd | TRUE if every char is an odd digit. | TRUE or FALSE | | AllCharsAreEven
+AllCharsArePositive | TRUE if every char is a nonzero digit. | TRUE or FALSE | | AllCharsAreEven
+ApplyTitlecase | Capitalizes every word, in place. | nothing; the string changes | | Titlecased
+AutoLemmatized | Returns the text with each word replaced by its lemma, the language detected. | a string | | Lemmatized
+AutoStemmed | Returns the text with each word reduced to its stem, the language detected. | a string | | Stemmed
+AverageCharsPerSentence | Returns the mean number of chars in a sentence. | a number | | AverageWordsPerSentence
+AverageOfNumbers | Returns the mean of the numbers found in the text. | a number | | SumOfNumbers
+AverageWordsPerSentence | Returns the mean number of words in a sentence. | a number | | AverageCharsPerSentence
+BoundWith | Puts the given text on both sides of the string, in place. | nothing; the string changes | p1=the text to put on both sides | AddBounds
+BoundsBetween | Returns the positions of the bound pair found between the two given bounds. | a list of positions | | FindBetween
+BoundsOfFirstOccurrence | Returns the chars just before and just after the first occurrence of the substring. | a pair [ before, after ] | | BoundsOf
+BoundsOfXT3 | Returns, for each occurrence of the substring, the chars before and after it, with sizes given. | a list of pairs | nBefore=how many chars before; nAfter=how many chars after | BoundsOf
+BoxRound | Surrounds the content with a rounded-corner box, in place. | nothing; the string changes | | BoxedRound
+BoxRoundEachChar | Puts each char in its own rounded box cell, in place. | nothing; the string changes | | BoxEachChar
+BoxifyRound | Surrounds the content with a rounded-corner box, in place. | nothing; the string changes | | BoxRound
+CapitalCase | Puts the first char in uppercase and the rest in lowercase, in place. | nothing; the string changes | | CapitalCased
+CapitalisedInLocale | Returns the string capitalized for the given locale. | a string | | CapitalizedInLocale
+Capitalize | Capitalizes the first letter, in place. | nothing; the string changes | | Capitalized
+CapitalizedInLocale | Returns the string capitalized for the given locale. | a string | | CapitalisedInLocale
+CaseFolded | Returns the string folded to its caseless form for comparison. | a string | | Lowercased
+CenterAlignXT | Pads the string in place to a width with a char, centering the text. | nothing; the string changes | | CenterAligned
+CharIsControlAt | TRUE if the char at position n is a control char. | TRUE or FALSE | n=the position | IsControl
+CharIsMarkAt | TRUE if the char at position n is a combining mark. | TRUE or FALSE | n=the position | ContainsDiacritics
+CharsAndTheirCounts | Returns each distinct char with how many times it occurs. | a list of [ char, count ] pairs | | Histogram
+CharsInverted | Returns the chars with their case swapped, as a list; the string is unchanged. | a list of chars | | InvertCharsCase
+ComesAfterPosition | TRUE if the chain's substring comes after the position. | TRUE or FALSE | n=the position | ComesBeforePosition
+ComesAfterSubString | TRUE if the chain's substring comes after the given one. | TRUE or FALSE | | ComesBeforeSubString
+ComesBeforePosition | TRUE if the chain's substring comes before the position. | TRUE or FALSE | n=the position | ComesAfterPosition
+ComesBetweenPositions | TRUE if the chain's substring lies between the two positions. | TRUE or FALSE | _n1_=the first position; _n2_=the second position | ComesBeforePosition
+CommonSuffixWith | Returns the longest suffix that both strings share. | a string | | CommonPrefixWith
+ContainsAllOfChars | TRUE if every one of the given chars occurs in the string. | TRUE or FALSE | | ContainsAnyOfChars
+ContainsAnyOfChars | TRUE if at least one of the given chars occurs in the string. | TRUE or FALSE | | ContainsAllOfChars
+ContainsArabic | TRUE if the text holds Arabic script. | TRUE or FALSE | | ContainsLatin
+ContainsAtLeastN | TRUE if the substring occurs n times or more. | TRUE or FALSE | n=the number of occurrences | ContainsExactlyN
+ContainsDuplicatedSubStrings | TRUE if some substring occurs more than once. | TRUE or FALSE | | DuplicatedSubStrings
+ContainsEachOfThese | TRUE if every one of the given substrings occurs. | TRUE or FALSE | | ContainsEach
+ContainsExactlyN | TRUE if the substring occurs exactly n times. | TRUE or FALSE | n=the number of occurrences | ContainsAtLeastN
+ContainsInvisibleChars | TRUE if the string holds invisible chars. | TRUE or FALSE | | InvisibleChars
+ContainsLatin | TRUE if the text holds Latin script. | TRUE or FALSE | | ContainsArabic
+ContainsMoreThanN | TRUE if the substring occurs more than n times. | TRUE or FALSE | n=the number of occurrences | ContainsAtLeastN
+ContainsOneOccurrence | TRUE if the substring occurs exactly once. | TRUE or FALSE | | ContainsExactlyN
+ContainsOnlyChars | TRUE if every char of the string is among the given chars. | TRUE or FALSE | | ContainsAnyOfChars
+ContainsOnlyDigits | TRUE if every char is a digit. | TRUE or FALSE | | IsMadeOfNumbers
+ContainsOnlyLettersAndNumbers | TRUE if every char is a letter or a digit. | TRUE or FALSE | | ContainsOnlyLetters
+ContainsOnlyNumbers | TRUE if every char is a digit. | TRUE or FALSE | | ContainsOnlyDigits
+ContainsSubStringsBoundedBy | TRUE if some substring lies between the given bounds. | TRUE or FALSE | | FindBoundedBy
+ContentWords | Returns the words that carry meaning, the stopwords left out. | a list of strings | | WithoutStopwords
+CountOverlapping | Returns how many times the substring occurs, overlapping occurrences counted. | a number | | CountSubStrings
+CountSubStrings | Returns how many times the substring occurs, without overlap. | a number | | CountOverlapping
+DotsRemoved | Returns the string without the dots of letters such as i and j, or the Arabic dots; the string is unchanged. | a string | | DiacriticsRemoved
+DupSecutiveSubStringsRemoved | Returns a copy without the substrings that repeat right after themselves; the string is unchanged. | a string | | RemoveDupSecutiveSubStrings
+DuplicatedSubStrings | Returns the distinct substrings that occur more than once. | a list of strings | | ContainsDuplicatedSubStrings
+EachCharBoxedDashed | Returns each char in its own dashed box cell, as a string. | a string | | EachCharBoxed
+EndsWithOneOfThese | TRUE if the string ends with one of the given substrings. | TRUE or FALSE | | EndsWithAny
+EscapeForRegex | Escapes the chars that a regular expression treats as special, in place. | nothing; the string changes | | EscapedForRegex
+ExtendToPositionWith | Pads the string with a char up to position n, in place. | nothing; the string changes | n=the position to reach; pcChar=the char used to pad | ExtendToWith
+ExtractDates | Returns the dates found in the text, in ISO or slashed form. | a list of strings | | ExtractTimes
+ExtractHashtags | Returns the #hashtags found in the text. | a list of strings | | ExtractMentions
+ExtractMentions | Returns the @mentions found in the text. | a list of strings | | ExtractHashtags
+ExtractPattern | Returns the matches of the regular expression. | a list of strings | | FindAllRegex
+ExtractPhoneNumbers | Returns the phone numbers found in the text. | a list of strings | | ExtractEmails
+ExtractPrices | Returns the prices found in the text, a currency symbol and a number. | a list of strings | | ExtractNumbers
+ExtractTimes | Returns the times of day found in the text. | a list of strings | | ExtractDates
+FindBoundedSubStrings | Returns the [ start, end ] sections of the bounded substrings; one substring or an [ open, close ] pair. | a list of [ start, end ] pairs | pcSubOrOpen=the substring, or the opening bound | FindBoundedBy
+FindDuplicatesAsSections | Returns every [ start, end ] section of a substring that repeats. | a list of [ start, end ] pairs | | DuplicatedSubStrings
+FindLeadingChars | Returns the positions of the run of identical chars at the start. | a list of positions | | FindTrailingChars
+FindSubStringsBetween | Returns the positions of the substrings lying between the two given bounds. | a list of positions | | FindBetween
+First3Chars | Returns the first three chars, as a list. | a list of three chars | | Last3Chars
+First3CharsAsString | Returns the first three chars, as a string. | a string | | First3Chars
+FirstNItemsQRT | Returns the first n chars in the return type asked. | the first n chars, in the type asked | n=how many chars; pcType=the return type, such as :String | FirstNChars
+FirstNumberComingAfter | Returns the first number that follows the given text, as text. | a string | | NthNumberComingAfter
+FirstSentence | Returns the first sentence of the text. | a string | | LastSentence
+FromUrl | Sets the content from a URL; no network is used in this version, so it answers an empty string. | nothing; the string changes | pcUrl=the URL to read | Update
+HasLeadingAndTrailingChars | TRUE if the string both starts and ends with a run of repeated chars. | TRUE or FALSE | | HasLeadingChars
+HasLeadingSubStringOf | TRUE if the string starts with the given substring. | TRUE or FALSE | | BeginsWith
+HasSameNumberOfCharsAs | TRUE if both strings hold the same number of chars. | TRUE or FALSE | pVal=the other string, or a number of chars | HasMoreChars
+HasSynonyms | TRUE if the word has synonyms. | TRUE or FALSE | | Synonyms
+HasThisLeadingChar | TRUE if the first char equals the given one. | TRUE or FALSE | | HasThisTrailingChar
+HasThisTrailingChar | TRUE if the last char equals the given one. | TRUE or FALSE | | HasThisLeadingChar
+HasTrailingSubStringOf | TRUE if the string ends with the given substring. | TRUE or FALSE | | EndsWith
+HasVowels | TRUE if the string holds at least one vowel. | TRUE or FALSE | | Vowels
+HtmlDecode | Turns HTML entities back into chars, in place. | nothing; the string changes | | HtmlDecoded
+HtmlEncode | Writes the HTML special chars as entities, in place. | nothing; the string changes | | HtmlEncoded
+InContext | Returns the occurrences of the word with the words around them. | a list of strings | | InContextWithWindow
+Initials | Returns the first letter of each word. | a string | | FirstWord
+InsertAfterLast | Inserts the text after the last occurrence of the substring, in place. | nothing; the string changes | pcInsert=the text to insert | InsertAfterFirst
+InsertAfterNth | Inserts the text after the nth occurrence of the substring, in place. | nothing; the string changes | n=which occurrence; pcInsert=the text to insert | InsertBeforeNth
+InsertAfterPosition | Inserts the text after position n, in place. | nothing; the string changes | n=the position to insert after | InsertBeforePosition
+InsertBeforeFirst | Inserts the text before the first occurrence of the substring, in place. | nothing; the string changes | pcInsert=the text to insert | InsertBeforeLast
+InsertBeforeNth | Inserts the text before the nth occurrence of the substring, in place. | nothing; the string changes | n=which occurrence; pcInsert=the text to insert | InsertAfterNth
+InsertBeforePosition | Inserts the text before position n, in place. | nothing; the string changes | n=the position to insert before | InsertAfterPosition
+Interpolated | Returns the string with its placeholders filled from the given bindings. | a string | paBindings=the values to put in the placeholders | Surrounded
+InvertCharsCase | Swaps the case of every char, in place. | nothing; the string changes | | CharsInverted
+IsCountryAbbreviation | TRUE if the string is a country abbreviation, by the locale data. | TRUE or FALSE | | IsCountryName
+IsCountryIdentifier | TRUE if the string identifies a country by number, code or name. | TRUE or FALSE | | IsCountryName
+IsCountryName | TRUE if the string names a country, by the locale data. | TRUE or FALSE | | IsCountryAbbreviation
+IsCountryNumber | TRUE if the string is a numeric country code, by the locale data. | TRUE or FALSE | | IsCountryName
+IsCountryPhoneCode | TRUE if the string is a country phone code. | TRUE or FALSE | | IsCountryName
+IsCurrencyName | TRUE if the string names a currency, by the locale data. | TRUE or FALSE | | IsCurrencySymbol
+IsCurrencySymbol | Answers FALSE today: the currency symbol check is a stub that waits for the locale data. | FALSE | | IsCurrencyName
+IsHybridScript | TRUE if the text mixes scripts. | TRUE or FALSE | | IsInheritedScript
+IsHybridcase | TRUE if the text mixes uppercase and lowercase letters. | TRUE or FALSE | | StringCase
+IsInheritedScript | TRUE if the text takes its script from the chars around it. | TRUE or FALSE | | IsCommonScript
+IsIsogram | TRUE if no letter occurs twice. | TRUE or FALSE | | HasDuplicatedChars
+IsLanguageIdentifier | TRUE if the string is a language name, abbreviation or number. | TRUE or FALSE | | IsLanguageName
+IsLanguageName | TRUE if the string names a language, by the locale data. | TRUE or FALSE | | IsLanguageAbbreviation
+IsLanguageNameOrAbbreviation | TRUE if the string is a language name or abbreviation. | TRUE or FALSE | | IsLanguageName
+IsMadeOfChar | TRUE if every char of the string is the given char. | TRUE or FALSE | c=the char | IsMadeOfLetters
+IsNested | TRUE if bounded regions sit inside other bounded regions. | TRUE or FALSE | | IsNestedUsing
+IsPalindromeWords | TRUE if the sequence of words reads the same backwards. | TRUE or FALSE | | IsPalindrome
+IsReversedCopyOf | TRUE if the string is the other string read backwards. | TRUE or FALSE | pcOtherStr=the other string | IsReverseOf
+IsScriptIdentifier | TRUE if the string identifies a script by number, code or abbreviation. | TRUE or FALSE | | IsScriptName
+IsScriptOfText | TRUE if the chars of the string belong to the named writing system. | TRUE or FALSE | pcScript=the script name | ScriptIs
+IsStopword | TRUE if the word is a stopword, too common to carry meaning. | TRUE or FALSE | | WithoutStopwords
+IsUrlLike | TRUE if the string has the shape of a URL. | TRUE or FALSE | | ExtractURLs
+JaroWinklerSimilarityWith | Returns the Jaro-Winkler similarity with the other string, scaled to 1000 for identical strings. | a number from 0 to 1000 | | JaroSimilarityWith
+LanguageAbbreviationFor | Returns the ISO 639-1 code of the language name, such as "en" for english. | a string | pcLanguage=the language name | LongLanguageAbbreviationFor
+Last2Chars | Returns the last two chars, as a list. | a list of two chars | | First2Chars
+Last2CharsAsString | Returns the last two chars, as a string. | a string | | Last2Chars
+LastNItemsQRT | Returns the last n chars in the return type asked. | the last n chars, in the type asked | n=how many chars; pcType=the return type, such as :String | LastNChars
+LastSentence | Returns the last sentence of the text. | a string | | FirstSentence
+LastZ | Returns the last char with its position. | a list [ position, position ] | | LastChar
+LeadingCharIs | Answers FALSE today for a string that starts with the given char, such as "banana" and "b". | FALSE today | | HasThisLeadingChar | known defect: the call answers FALSE where the first char equals the argument; HasThisLeadingChar answers correctly
+LeadingSubStringRemove | Removes the leading repeated run, in place. | nothing; the string changes | | RemoveLeadingChars
+LeftAlignXT | Pads the string in place to a width with a char, keeping the text on the left. | nothing; the string changes | | LeftAligned
+LemmatizedInLanguage | Returns the text with each word replaced by its lemma, in the given language. | a string | pcLang=the language | Lemmatized
+LemmatizedWords | Returns the lemma of each word. | a list of strings | | Lemmatized
+LemmatizedWordsInLanguage | Returns the lemma of each word, in the given language. | a list of strings | pcLang=the language | LemmatizedWords
+Locations | Returns the places named in the text. | a list of strings | | PersonNames
+LongLanguageAbbreviationFor | Returns the three-letter ISO 639-2 or 639-3 code of the language name. | a string | pcLanguage=the language name | LanguageAbbreviationFor
+LongestSentenceInWords | Returns the word count of the longest sentence. | a number | | ShortestSentenceInWords
+ManyReplaced | Returns a copy with each of the given substrings replaced by the new text; the string is unchanged. | a string | pacSubStrings=the substrings to replace | Replaced
+Markers | Returns the numbered markers, #1, #2 and so on, found in the text. | a list of strings | | Marquer
+MarquersPositionsSortedInDescending | Returns the marker positions in descending order. | a list of positions | | MarquersPositionsSortedInAscending
+MostFrequentChar | Returns the char that occurs most often. | a string | | MostFrequentChars
+MostFrequentChars | Returns the n most frequent chars with their counts. | a list of [ char, count ] pairs | n=how many chars | MostFrequentChar
+MostFrequentNGrams | Returns the most frequent runs of n chars. | a list | n=the run length; nTop=how many to return | NGramsAndTheirCounts
+MostFrequentWords | Returns the n most frequent words with their counts, the most frequent first. | a list of [ word, count ] pairs | n=how many words | MostFrequentWord
+MostSignificantCollocations | Returns the word pairs whose co-occurrence is most significant. | a list | nTop=how many to return | Collocations
+MultiReplace | Replaces each substring by its counterpart at the same index, in place. | nothing; the string changes | paOlds=the substrings to replace; paNews=the texts that take their place | MultiReplaced
+MultiReplaced | Returns a copy with each substring replaced by its counterpart at the same index; the string is unchanged. | a string | paOlds=the substrings to replace; paNews=the texts that take their place | MultiReplace
+NFirstChars | Returns the first n chars of the string. | a string | n=how many chars | FirstNChars
+NGramsAndTheirCounts | Returns each run of n chars with how many times it occurs. | a list of [ run, count ] pairs | n=the run length | MostFrequentNGrams
+NLeftChars | Returns the n leftmost chars, following the text direction. | a string | n=how many chars | NRightChars
+NLeftCharsAsSubString | Returns the n leftmost chars, following the text direction. | a string | n=how many chars | NLeftChars
+NegativeScore | Returns the share of negative words in the text. | a number | | PositiveScore
+NegativeSentences | Returns the sentences with a negative sentiment. | a list of strings | | PositiveSentences
+NeutralScore | Returns the share of neutral words in the text. | a number | | PositiveScore
+Next3Chars | Returns the three chars after a position, as a list. | a list of three chars | p1=the position | Next3CharsAsString
+NormalizeNFC | Normalizes the content to Unicode form NFC, in place. | nothing; the string changes | | NormalizedNFC
+NormalizeNFD | Normalizes the content to Unicode form NFD, in place. | nothing; the string changes | | NormalizedNFD
+NormalizeNFKC | Normalizes the content to Unicode form NFKC, in place. | nothing; the string changes | | NormalizedNFKC
+NormalizeNFKD | Normalizes the content to Unicode form NFKD, in place. | nothing; the string changes | | NormalizedNFKD
+NormalizedNFC | Returns the content in Unicode form NFC; the string is unchanged. | a string | | NormalizeNFC
+NormalizedNFD | Returns the content in Unicode form NFD; the string is unchanged. | a string | | NormalizeNFD
+NormalizedNFKC | Returns the content in Unicode form NFKC; the string is unchanged. | a string | | NormalizeNFKC
+NormalizedNFKD | Returns the content in Unicode form NFKD; the string is unchanged. | a string | | NormalizeNFKD
+NthChar1 | Returns the char at position n, with a lenient first-is-1 reading. | a string | n=the position | NthChar
+NthParagraph | Returns the paragraph at position n of the text. | a string | n=the paragraph number | Paragraphs
+NthStzS | Returns the start position of the nth occurrence of the substring, optionally from a given position. | a number | n=which occurrence; pcSub=the substring; pStartingAt=the position to start from | NthStz
+NumberAfter | Returns the number that follows the given text, as text. | a string | | NumberComingAfter
+NumberOfConsecutiveSubStringsOf | Returns how many times the substring repeats in a row. | a number | | NumberOfConsecutiveSubStrings
+NumberOfLeadingNumberDigits | Returns how many digits the number at the start has. | a number | | NumberOfTrailingNumberDigits
+NumberOfNonEmptyLines | Returns how many lines are not empty. | a number | | NumberOfEmptyLines
+NumberOfParagraphs | Returns how many paragraphs the text holds. | a number | | Paragraphs
+NumberOfTrailingNumberDigits | Returns how many digits the number at the end has. | a number | | NumberOfLeadingNumberDigits
+NumberValue | Returns the numeric value of the content. | a number | | RepresentsNumber
+OnlyControls | Keeps only the control chars, in place. | nothing; the string changes | | OnlyMarks
+OnlyLatinLetters | Returns the Latin letters of the string, joined into one string. | a string | | Letters
+OnlyMarks | Keeps only the combining marks, in place. | nothing; the string changes | | OnlyControls
+Organizations | Returns the organization names found in the text. | a list of strings | | PersonNames
+PadLeft | Pads the string on the left to a width with a char, in place. | nothing; the string changes | | PaddedLeft
+PadRight | Pads the string on the right to a width with a char, in place. | nothing; the string changes | | PaddedRight
+PositionBefore | Returns the position just before the first occurrence of the substring. | a number | | PositionAfter
+PositiveScore | Returns the share of positive words in the text. | a number | | NegativeScore
+PreviousOccurrence | Returns the position of the last occurrence that lies entirely before a given position. | a number | _nFrom_=the position to count back from | NextOccurrence
+Pronouns | Returns the pronouns found in the text. | a list of strings | | Nouns
+ProperNouns | Returns the proper nouns found in the text. | a list of strings | | Nouns
+RPartition | Returns the string cut around its last occurrence of the substring: [ before, match, after ]. | a list of three strings | | Partition
+RandomPositionAfter | Returns a position picked at random, after the given one. | a number | _nFrom_=the position to stay after | RandomPosition
+ReadabilityExplained | Returns the reading grade of the text with the figures behind it. | a list | | ReadabilityGrade
+ReadingEase | Returns the Flesch reading-ease score of the text. | a number | | ReadabilityGrade
+RemoveAnyLeadingChar | Removes the first char, in place. | nothing; the string changes | | RemoveLeadingChar
+RemoveAtPosition | Removes the char at position n, in place. | nothing; the string changes | n=the position | RemoveCharAt
+RemoveBlankLines | Raises error R14 today instead of removing the blank lines. | nothing today | | RemoveEmptyLines | known defect: the call raises error R14 today, because it calls a method that is not defined; RemoveEmptyLines works
+RemoveBoundingChars | Removes the first and the last chars, in place. | nothing; the string changes | | RemoveBounds
+RemoveCharFromRight | Removes the trailing chars equal to the given one, in place. | nothing; the string changes | | RemoveCharFromLeft
+RemoveDiacritics | Removes the accents and other combining marks, in place. | nothing; the string changes | | DiacriticsRemoved
+RemoveDupChars | Removes the repeated chars, keeping the first of each, in place. | nothing; the string changes | | RemoveDuplicatedChars
+RemoveSpacesQ_alias | Removes every space, in place, and returns the string for chaining. | the string itself | | RemoveSpaces
+RemoveThisBound | Removes the given char from both ends, in place. | nothing; the string changes | pcBound=the char that bounds the string | RemoveBounds
+RemoveThisRepeatedTrailingChar | Removes the run of the given char from the end, in place. | nothing; the string changes | c=the char to remove | RemoveThisTrailingChar
+RemoveThisTrailingRepeatedChar | Removes the run of the given char from the end, in place. | nothing; the string changes | c=the char to remove | RemoveThisTrailingChar
+RepeatedTrailingChar | Returns the char that repeats at the end; empty when there is no run. | a string | | RepeatedLeadingChar
+ReplaceCharAtSimple | Replaces the char at position n by a new one, in place. | nothing; the string changes | n=the position; pcNew=the new char | ReplaceCharAt
+ReplaceManyPairs | Replaces each old text by the new one at the same index, in place. | nothing; the string changes | paOld=the texts to replace; paNew=the texts that take their place | ReplaceManyWithMany
+ReplaceMarkers | Replaces the markers #1, #2 and so on, in order, by the given texts, in place. | nothing; the string changes | | ReplaceMarquers
+ReplaceSections | Replaces each given section by the new text, in place. | nothing; the string changes | | ReplaceBetween
+ReplaceSubStringsWithMarkers | Turns the listed substrings into their numbered markers, #1, #2 and so on, in place. | nothing; the string changes | | ReplaceSubStringsWithMarquers
+ReverseWords | Reverses the order of the words, in place. | nothing; the string changes | | SortWords
+RightAlignXT | Pads the string in place to a width with a char, keeping the text on the right. | nothing; the string changes | | RightAligned
+SentencesThatAre | Returns the sentences with the given polarity, such as positive. | a list of strings | pcPolarity=the polarity | PositiveSentences
+ShortestSentenceInWords | Returns the word count of the shortest sentence. | a number | | LongestSentenceInWords
+ShowEntities | Prints the named entities found in the text. | nothing; the entities are printed | | PersonNames
+ShowSentiment | Prints the mood of the text with its figures. | nothing; the figures are printed | | Sentiment
+ShowTagged | Prints each word with its part-of-speech tag. | nothing; the words are printed | | TaggedWords
+SizeInBytesPerChar | Returns each char with the number of UTF-8 bytes it takes. | a list of [ char, bytes ] pairs | | NumberOfBytesPerChar
+SortLines | Sorts the lines, in place. | nothing; the string changes | | SortWords
+SortMarkersInAscending | Sorts the numbered markers in ascending order, in place. | nothing; the string changes | | SortMarquersInAscending
+SortMarkersInDescending | Sorts the numbered markers in descending order, in place. | nothing; the string changes | | SortMarquersInDescending
+SortWords | Sorts the words alphabetically, in place. | nothing; the string changes | | ReverseWords
+SpacifyUsing | Puts the separator between the chars, in place. | nothing; the string changes | | SpacifyCharsUsing
+SplitAfterCharsW | Returns the string cut after each char that meets the condition. | a list of strings | | SplitBeforeCharsW
+SplitAroundCSNamed | Returns the parts of the string around the substring, with a case rule. | a list of strings | pNamed=:CaseSensitive = 1 or 0 | SplitAround
+SplitAroundCS_named | Raises error R14 today instead of splitting around the substring with a case rule. | nothing today | pCaseSensitive=1 to compare with case, 0 to ignore case | SplitAroundCSNamed | known defect: the call raises error R14 today, because it calls a method that is not defined
+SplitToPartsOfNCharsXTOpt | Raises error R19 today instead of splitting the string into parts of n chars with options. | nothing today | n=the number of chars in each part; pNamed=the options, such as keeping the remainder | SplitToPartsOfNChars | known defect: the call raises error R19 today when given the one argument it documents
+StartsWithEither | TRUE if the string starts with one of the two given substrings. | TRUE or FALSE | pcFirst=the first substring; pSecond=the second substring | StartsWithAny
+StemmedInLanguage | Returns the text with each word reduced to its stem, in the given language. | a string | pcLang=the language | Stemmed
+StemmedWords | Returns the stem of each word. | a list of strings | | Stemmed
+StemmedWordsInLanguage | Returns the stem of each word, in the given language. | a list of strings | pcLang=the language | StemmedWords
+StyleProfile | Returns style figures of the text, such as average word length and words per sentence. | a list of [ name, value ] pairs | | Profile
+SubStringComesBetweenSubStrings | TRUE if the substring occurs between the two given substrings. | TRUE or FALSE | pNamedSub=the first bound; pNamedAnd=the second bound | SubStringComesBetween
+SubStringQ | Opens a narrative chain about the substring, such as ComesBefore or ComesAfter. | a stzString for chaining | | SubStringComesBefore
+SubtractN | Subtracts n from every number inside the string, in place. | nothing; the string changes | n=the number to subtract | AddN
+SupportedLemmaLanguages | Returns the languages that the lemmatizer supports. | a list of language names | | Lemmatized
+ThisLeadingCharRemoved | Returns a copy without the run of the given char at the start; the string is unchanged. | a string | c=the char to remove | ThisTrailingCharRemoved
+TitlecasedInLocale | Returns the string titlecased for the given locale, plain titlecase when it has no rule. | a string | | Titlecased
+ToListInStringNF | Returns the chars written as a list in normal form, as text. | a string | | ToListInString
+ToSlug | Returns the text as a URL slug, lowercase with hyphens. | a string | | UrlEncoded
+TrailingCharsRemoved | Returns a copy without the run of identical chars at the end; the string is unchanged. | a string | | RemoveTrailingChars
+TrailingSubStringZZOf | Returns the [ start, end ] section of the trailing run of the substring. | a pair [ start, end ] | | TrailingChars
+TrimLeftChar | Removes the given char from the start, in place. | nothing; the string changes | | TrimRightChar
+TrimRightChar | Removes the given char from the end, in place. | nothing; the string changes | | TrimLeftChar
+UndoStack | Returns the earlier contents that Undo can restore. | a list of strings | | Undo
+UnicodeDataAsStringEmpty | Stands in for UnicodeDataAsString while a script runs, and does nothing. | nothing | | CharName
+UnicodeOfChar | Returns the code point of the given char. | a number | c=the char | CharsAndUnicodes
+UniqueLines | Returns the distinct lines of the text. | a list of strings | | UniqueWords
+UrlDecode | Turns percent-encoded chars back, in place. | nothing; the string changes | | UrlDecoded
+VizFindBoxedDashed | Returns the string as dashed boxed char cells with the occurrences of the substring marked. | a string | | VizFindBoxed
+VizFindManyXT2 | Returns the string with the occurrences of each given substring marked. | a string | pacSub=the substrings to mark; pNamed=the options | VizFindBoxed
+WithoutStopwords | Returns the text without its stopwords. | a string | | ContentWords
+WordFrequency | Returns how many times the word occurs. | a number | | WordsAndTheirCounts
+WordsAndTheirCounts | Returns each distinct word with how many times it occurs, in order of first appearance. | a list of [ word, count ] pairs | | MostFrequentWords
+WordsThatAre | Returns the words with the given part-of-speech tag. | a list of strings | pcPenn=the Penn tag | TaggedWords
+operator | Applies an operator to the string and a value; [] reads the char at a position and + appends. | the result of the operator | pOp=the operator, as text; pValue=the right-hand value | Update
+
+TrimmedRight | Returns a copy without the trailing spaces; the string is unchanged. | a string | | TrimRight

@@ -150,6 +150,25 @@ func StzRegexReplace(cInput, cPattern, cReplacement)
  #  STZREGEX CLASS  #
 #==================#
 
+# Holds a regular expression compiled by the PCRE2 engine and answers whether, where and how a text matches it, including partial and recursive matches.
+#
+# Build it with a pattern, then call a match method with a text: the text and the outcome of the
+# last call are kept in the object, and the readers (Matches, FindMatches, CaptureGroups,
+# NamedGroups, CaptureByName, the partial and recursive readers) work on that last call. Match asks
+# whether the pattern covers the whole text; MatchFirst and MatchAt search inside it. MatchAsYouType
+# and the partial family serve form validation while a person is still typing, and MatchRecursive
+# handles nested brackets through (?R). A pattern that does not compile does not raise: IsValid
+# answers FALSE and every match call answers FALSE. Known gaps today, each carried as a warning on
+# its method: FindMatches and FindCapture skip a character after each match, PartialMatchLength is
+# one too small, RecursiveDepth counts matches rather than nesting, LastError and PatternErrorOffset
+# are stubs, Explain raises for a pattern the library does not know by name, and MatchWordsIn stacks
+# word boundaries on the pattern each time it is called.
+#
+#   receiver   o1 = new stzRegex("\d+")
+#   example    o1.MatchFirst("a1b22c333")
+#              ? @@( o1.Matches() )
+#              #--> [ "1", "22", "333" ]
+#   see        stzMatrex, stzTablex, stzString
 class stzRegex from stzObject
 
 	@pRegexHandle = ""
@@ -171,6 +190,12 @@ class stzRegex from stzObject
 	 #  INIT AND PATTERN SEETING  #
 	#----------------------------#
 
+	# Builds a regex object from a pattern and compiles it; an empty or non-text pattern raises an error, one that fails to compile does not.
+	#
+	#   returns    nothing; the object is built
+	#   note       an invalid pattern builds anyway: IsValid answers FALSE and every match call
+	#              answers FALSE
+	#   see        SetPattern, IsValid
 	def init(pcPattern)
 		if CheckParams()
 			if NOT isString(pcPattern)
@@ -184,6 +209,14 @@ class stzRegex from stzObject
 
 		This.SetPattern(pcPattern)
 
+	# Replaces the pattern and compiles it again; the match type goes back to the entire-content default.
+	#
+	#   returns    nothing; the object changes
+	#   note       a pattern holding a line break turns on the multi-line flag
+	#   warning    an empty pattern is accepted and one that fails to compile is accepted silently
+	#              (IsValid answers FALSE); the stored text and match kind of the last match are
+	#              kept
+	#   see        Pattern, IsValid, init
 	def SetPattern(pcPattern)
 		if CheckParams()
 			if NOT isString(pcPattern)
@@ -209,21 +242,41 @@ class stzRegex from stzObject
 	 #  GENERAL METHODS  #
 	#-------------------#
 
+	# Returns the text given to the last match call, or an empty text before any call.
+	#
+	#   returns    text
+	#   see        Pattern, Match, MatchFirst
 	def String()
 		return @cStr
 
+	# Returns the pattern text this object was built with or last given, as written.
+	#
+	#   returns    text
+	#   see        SetPattern, String
 	def Pattern()
 		return @cPattern
 
 		def Content()
 			return This.Pattern()
 
+	# Returns a new regex object with the same pattern; the last text, match type and options are not carried over.
+	#
+	#   returns    a stzRegex
+	#   see        Pattern
 	def Copy()
 		return new stzRegex(This.Pattern())
 
+	# Returns the match type used by the last match call, as lowercase text; "matchentirecontent" before any call.
+	#
+	#   returns    text such as "matchfirstoccurrenceifnotgopartial"
+	#   see        MatchOptions, MatchTypeXT, MatchXT
 	def MatchType()
 		return @cMatchType
 
+	# Returns the options used by the last match call, as a list of lowercase texts; [ ] when there were none.
+	#
+	#   returns    a list of text
+	#   see        MatchType, MatchXT
 	def MatchOptions()
 		return @acMatchOptions
 
@@ -381,6 +434,10 @@ class stzRegex from stzObject
 	 #  Matching Methods  #
 	#--------------------#
 
+	# TRUE if the last match call found a complete match; it is FALSE after a partial match and after SetPattern.
+	#
+	#   returns    TRUE or FALSE (1 or 0)
+	#   see        LastMatchKind, HasPartialMatch
 	def HasMatch()
 		if @pRegexHandle = ""
 			return 0
@@ -394,17 +451,21 @@ class stzRegex from stzObject
 	def HasPartialMatch()
 		return @nLastMatchKind = 2
 
-	# The kind of the last match: 0 none, 1 complete, 2 partial.
+	# Returns the kind of the last match call as a number: 0 for none, 1 for a complete match, 2 for a partial one.
+	#
+	#   returns    0, 1 or 2
+	#   note       stays at its last value when SetPattern is called afterwards
+	#   see        HasMatch, HasPartialMatch
+	#@ aka  The kind of the last match: 0 none, 1 complete, 2 partial.
 	def LastMatchKind()
 		return @nLastMatchKind
 
-	#-- Softanza scope-based pattern matching methods
-
-	# The scope methods SEARCH within a scope -- the scope sets the
-	# boundaries (what "." spans, where ^ and $ bind), the match type stays
-	# the unanchored search. MatchWord("pre[a-z]+") finds "preset" inside a
-	# longer sentence; that is the whole point of a word scope.
-
+	# Searches the text for the pattern, with ^ and $ binding at each line and . crossing line breaks; TRUE if it occurs.
+	#
+	#   returns    TRUE or FALSE (1 or 0)
+	#   note       it runs the same search as the segment forms; a partial match counts as FALSE
+	#   see        MatchFirstLineIn, MatchSegmentsIn, MatchFirst
+	#@ aka  -- Softanza scope-based pattern matching methods
 	def MatchLinesIn(pcStr)
 		_nKind_ = This.MatchXT(pcStr, 1, :MatchFirstOccurrenceIfNotGoPartial, [ :MultiLine, :DotMatchesAll ])
 		return _nKind_ = 1
@@ -412,6 +473,10 @@ class stzRegex from stzObject
 		def MatchLine(pcStr)
 			return This.MatchLinesIn(pcStr)
 
+	# Searches the text for the pattern, with ^ and $ binding at each line and . stopping at line breaks; TRUE if it occurs.
+	#
+	#   returns    TRUE or FALSE (1 or 0)
+	#   see        MatchLinesIn, MatchFirst
 	def MatchFirstLineIn(pcStr)
 		_nKind_ = This.MatchXT(pcStr, 1, :MatchFirstOccurrenceIfNotGoPartial, [ :MultiLine ])
 		return _nKind_ = 1
@@ -419,6 +484,13 @@ class stzRegex from stzObject
 		def MatchFirstLine(pcStr)
 			return This.MatchFirstLineIn(pcStr)
 
+	# Searches the text for the pattern as a whole word, by wrapping the pattern in word boundaries; TRUE if it occurs.
+	#
+	#   returns    TRUE or FALSE (1 or 0)
+	#   note       call SetPattern again to get the original back
+	#   warning    the pattern is replaced for good by its word-bounded form, and each further call
+	#              adds another pair of boundaries: "pre" becomes \bpre\b, then \b\bpre\b\b
+	#   see        MatchFirstWordIn, MatchFirst
 	def MatchWordsIn(pcStr)
 		_cWordPattern_ = "\b" + This.Pattern() + "\b"
 		This.SetPattern(_cWordPattern_)
@@ -428,6 +500,13 @@ class stzRegex from stzObject
 		def MatchWord(pcStr)
 			return This.MatchWordsIn(pcStr)
 
+	# Searches the text for the pattern as a whole word, by wrapping the pattern in word boundaries; TRUE if it occurs.
+	#
+	#   returns    TRUE or FALSE (1 or 0)
+	#   note       call SetPattern again to get the original back
+	#   warning    the pattern is replaced for good by its word-bounded form, and each further call
+	#              adds another pair of boundaries
+	#   see        MatchWordsIn, MatchFirst
 	def MatchFirstWordIn(pcStr)
 		_cWordPattern_ = "\b" + This.Pattern() + "\b"
 		This.SetPattern(_cWordPattern_)
@@ -437,6 +516,10 @@ class stzRegex from stzObject
 		def MatchFirstWord(pcStr)
 			return This.MatchFirstWordIn(pcStr)
 
+	# Searches the text for the pattern, with . crossing line breaks and ^ and $ binding at each line; TRUE if it occurs.
+	#
+	#   returns    TRUE or FALSE (1 or 0)
+	#   see        MatchFirstSegmentIn, MatchLinesIn, MatchFirst
 	def MatchSegmentsIn(pcStr)
 		_nKind_ = This.MatchXT(pcStr, 1, :MatchFirstOccurrenceIfNotGoPartial, [ :DotMatchesAll, :MultiLine ])
 		return _nKind_ = 1
@@ -444,6 +527,10 @@ class stzRegex from stzObject
 		def MatchSegment(pcStr)
 			return This.MatchSegmentsIn(pcStr)
 
+	# Searches the text for the pattern, with . crossing line breaks and ^ and $ binding at each line; TRUE if it occurs.
+	#
+	#   returns    TRUE or FALSE (1 or 0)
+	#   see        MatchSegmentsIn, MatchLinesIn, MatchFirst
 	def MatchFirstSegmentIn(pcStr)
 		_nKind_ = This.MatchXT(pcStr, 1, :MatchFirstOccurrenceIfNotGoPartial, [ :DotMatchesAll, :MultiLine ])
 		return _nKind_ = 1
@@ -451,15 +538,13 @@ class stzRegex from stzObject
 		def MatchFirstSegment(pcStr)
 			return This.MatchFirstSegmentIn(pcStr)
 
-	# Match() ANCHORS: it asks whether the pattern matches the string
-	# ENTIRELY, not whether it occurs somewhere inside it. rx("[0-9]+") does
-	# not match "abc123" -- "abc123" is not a run of digits. Use MatchFirst()
-	# for "does this occur anywhere", Matches() for every occurrence.
+	# TRUE if the pattern matches the whole text from the first character to the last; a text that merely contains a match gives FALSE.
 	#
-	# This is what :MatchEntireContent has always said it does, and what the
-	# naming redesign settled on: match the complete pattern against the
-	# complete content.
-
+	#   returns    TRUE or FALSE (1 or 0)
+	#   note       . crosses line breaks; to search inside the text use MatchFirst; MatchString and
+	#              IsMatched are the same call
+	#   see        MatchFirst, IsCompleteMatch, Matches
+	#@ aka  Match() ANCHORS: it asks whether the pattern matches the string ENTIRELY, not whether it occurs somewhere inside it. rx("[0-9]+") does not match "abc123" -- "abc123" is not a run of digits. Use MatchFirst() for "does this occur anywhere", Matches() for every occurrence.
 	def Match(pcStr)
 
 		_nKind_ = This.MatchXT(pcStr, 1, :MatchEntireContent, [ :DotMatchesAll ])
@@ -515,10 +600,13 @@ class stzRegex from stzObject
 
 		return _abResult_
 
-	# The SEARCH counterpart of Match(): is there a first occurrence of the
-	# pattern anywhere in the string? rx("[0-9]+").MatchFirst("abc123") is
-	# TRUE where .Match("abc123") is FALSE.
-
+	# TRUE if the pattern occurs anywhere in the text, found by an unanchored search.
+	#
+	#   returns    TRUE or FALSE (1 or 0)
+	#   note       the match is kept, so Matches, FindMatches and the capture readers then work on
+	#              this text
+	#   see        Match, MatchAt, Matches
+	#@ aka  The SEARCH counterpart of Match(): is there a first occurrence of the pattern anywhere in the string? rx("[0-9]+").MatchFirst("abc123") is TRUE where .Match("abc123") is FALSE.
 	def MatchFirst(pcStr)
 		_nKind_ = This.MatchXT(pcStr, 1, :MatchFirstOccurrenceIfNotGoPartial, [ :DotMatchesAll ])
 		return _nKind_ = 1
@@ -531,12 +619,15 @@ class stzRegex from stzObject
 		def Occurs(pcStr)
 			return This.MatchFirst(pcStr)
 
+	# Searches the text for the pattern from a given position onward and keeps the match; TRUE if one is found.
+	#
+	#   nPos       the position to start from, 1 is the first character
+	#   returns    TRUE or FALSE (1 or 0)
+	#   note       this is a search from the position, not a test that the match starts exactly
+	#              there
+	#   see        MatchFirst, Match
 		#>
-
-	# Searches for the next occurrence FROM nPos (1-based), which is what
-	# Matches() needs to walk a string. Not "must match starting exactly at
-	# nPos" -- that is MatchXT(s, nPos, :MatchEntireContent, ...).
-
+	#@ aka  Searches for the next occurrence FROM nPos (1-based), which is what Matches() needs to walk a string. Not "must match starting exactly at nPos" -- that is MatchXT(s, nPos, :MatchEntireContent, ...).
 	def MatchAt(pcStr, nPos)
 		if CheckParams()
 			if NOT isString(pcStr)
@@ -550,8 +641,13 @@ class stzRegex from stzObject
 	_nKind_ = This.MatchXT(pcStr, nPos, :MatchFirstOccurrenceIfNotGoPartial, [])
 	return _nKind_ = 1
 
-	#-- Getting all the matching values in a given string
-
+	# Returns every non-overlapping match of the pattern in the last text given to a match call, as a list of text.
+	#
+	#   returns    a list of text; [ ] when nothing matches or no text was given yet
+	#   note       it searches the stored text again, so call a match method first to give it a
+	#              text; a match of zero length stops the walk
+	#   see        MatchFirst, NumberOfMatches, FindMatches
+	#@ aka  -- Getting all the matching values in a given string
 	def Matches()
 
 		_acResults_ = []
@@ -605,8 +701,11 @@ class stzRegex from stzObject
 		def Harvest()
 			return This.Matches()
 
+	# Returns how many matches the pattern has in the last text given to a match call.
+	#
+	#   returns    a number; 0 when there is none
+	#   see        Matches, FindMatches
 		#>
-
 	def NumberOfMatches()
 		return len(AllMatches())
 
@@ -625,6 +724,10 @@ class stzRegex from stzObject
 		def CountMatchingValues()
 			return This.NumberOfMatches()
 
+	# Returns the length, in characters, of the last match found.
+	#
+	#   returns    a number; 0 when there is no match
+	#   see        Matches, FindMatches
 	def NumberOfChars()
 		if @pRegexHandle = "" return 0 ok
 		_nStart_ = StzEngineRegexCaptureStart(@pRegexHandle, 1)
@@ -635,6 +738,14 @@ class stzRegex from stzObject
 		def CapturedLength()
 			return This.NumberOfChars()
 
+	# Returns the start position of each match of the pattern in the last text given to a match call.
+	#
+	#   returns    a list of numbers; [ ] when there is none
+	#   note       positions start at 1
+	#   warning    known defect: it continues from one character past the end of each match, so a
+	#              match that starts right after the previous one is skipped: \d on 1234 answers [
+	#              1, 3 ] while Matches finds four
+	#   see        Matches, MatchFirst
 	def FindMatches()
 		_anResults_ = []
 		_nPos_ = 1
@@ -833,13 +944,31 @@ class stzRegex from stzObject
 	 #  Group Capture-related methods #
 	#--------------------------------#
 
+	# TRUE if the last match call left captures; the whole match counts as capture 0, so it is TRUE after any successful match.
+	#
+	#   returns    TRUE or FALSE (1 or 0)
+	#   note       CaptureGroups raises an error when this is FALSE
+	#   warning    known defect: a pattern without any parentheses also answers TRUE after a match,
+	#              and a pattern with groups answers FALSE until a match succeeded
+	#   see        CaptureCount, CaptureGroups
 	def HasGroups()
 		return This.CaptureCount() > 0
 
+	# TRUE if the pattern holds named groups, written (?<name>...) or (?P<name>...); no match is needed to tell.
+	#
+	#   returns    TRUE or FALSE (1 or 0)
+	#   see        CaptureNames, NamedGroups
 	def HasNames()
 		if @pRegexHandle = "" return 0 ok
 		return StzEngineRegexNamedGroupCount(@pRegexHandle) > 0
 
+	# Returns the texts captured by the last match: the whole match first, then each group in order, leaving out empty groups.
+	#
+	#   returns    a list of text
+	#   note       an optional group that matched nothing is dropped, so the position of a text in
+	#              the list is not its group number
+	#   warning    raises an error when no match has been made yet or the last match failed
+	#   see        CapturedGroups, CaptureCount, NamedGroups
 	def CaptureGroups()
 
 		if NOT This.HasGroups()
@@ -879,8 +1008,12 @@ class stzRegex from stzObject
 		def CaptureMatchingSubStrings()
 			return This.CaptureGroups()
 
+	# TRUE if the pattern matches somewhere in the last text given to a match call.
+	#
+	#   returns    TRUE or FALSE (1 or 0)
+	#   note       it searches the stored text again
+	#   see        Matches, HasMatch
 		#>
-
 	def HasValues()
 		return len(This.MatchedValues()) > 0
 
@@ -890,6 +1023,11 @@ class stzRegex from stzObject
 		def HasMatchedValues()
 			return This.HasValues()
 
+	# Returns the names of the named groups, in the order they appear in the pattern; [ ] when the pattern has none.
+	#
+	#   returns    a list of text
+	#   note       no match is needed; both (?<name>...) and (?P<name>...) are read
+	#   see        NamedGroups, HasNames, CaptureByName
 	def CaptureNames()
 		if @pRegexHandle = "" return [] ok
 
@@ -982,6 +1120,11 @@ class stzRegex from stzObject
 		def CaptureGroupNames()
 			return This.CaptureNames()
 
+	# Returns the captures of the last match as [ number, text ] pairs, where 1 is the whole match, leaving out empty groups.
+	#
+	#   returns    a list of pairs; the number is given as text
+	#   warning    raises an error when no match has been made yet or the last match failed
+	#   see        CaptureGroups, CaptureCount
 	def CapturedGroups()
 		if NOT This.HasGroups()
 			StzRaise("No capture groups found in pattern. Use groups like (xyz) to capture values.")
@@ -1001,6 +1144,11 @@ class stzRegex from stzObject
 		def Groups()
 			return This.CapturedGroups()
 
+	# Returns the text that a named group captured in the last match; an empty text for an unknown name or a group that captured nothing.
+	#
+	#   pcName     the name of the group, matched with the same case as in the pattern
+	#   returns    text
+	#   see        NamedGroups, CaptureNames
 	def CaptureByName(pcName)
 		if @pRegexHandle = "" return "" ok
 		return StzEngineRegexCaptureByName(@pRegexHandle, pcName)
@@ -1011,6 +1159,10 @@ class stzRegex from stzObject
 		def GroupByName(pcName)
 			return This.CaptureByName(pcName)
 
+	# Returns [ name, text ] pairs for the named groups, in pattern order; the text is empty until a match has been made.
+	#
+	#   returns    a list of pairs; [ ] when the pattern has no named group
+	#   see        CaptureNames, CaptureByName
 	def NamedGroups()
 		if NOT This.HasNames() return [] ok
 
@@ -1037,6 +1189,13 @@ class stzRegex from stzObject
 		def CaptureGroupsXT()
 			return This.NamedGroups()
 
+	# Returns the start position of each match of the pattern in the last text given to a match call.
+	#
+	#   returns    a list of numbers; [ ] when there is none
+	#   note       it reports where the whole matches start, not where each group starts
+	#   warning    known defect: it walks the matches like FindMatches, so a match that starts right
+	#              after the previous one is skipped
+	#   see        FindMatches, CaptureGroups
 	def FindCapture()
 		_aPosZZ_ = This.FindMatchesZZ()
 		_nLen_ = len(_aPosZZ_)
@@ -1191,19 +1350,40 @@ class stzRegex from stzObject
 	 #  Pattern information and validation  #
 	#--------------------------------------#
 
+ 	# Returns the number of captures of the last match, the whole match included: 1 for a pattern without groups, 3 for two groups.
+ 	#
+ 	#   returns    a number; 0 before any match or after a failed one
+ 	#   see        HasGroups, CaptureGroups
  	def CaptureCount()
 		if @pRegexHandle = "" return 0 ok
 		return StzEngineRegexCaptureCount(@pRegexHandle)
 
+	# TRUE if the pattern compiled; a pattern with an unbalanced parenthesis answers FALSE.
+	#
+	#   returns    TRUE or FALSE (1 or 0)
+	#   see        LastError, SetPattern
 	def IsValid()
 		return @pRegexHandle != ""
 
 		def IsValidPattern()
 			return THis.IsValid()
 
+	# Returns an empty text today instead of the compile error of the pattern.
+	#
+	#   returns    an empty text, always
+	#   note       test IsValid to learn that a pattern is bad
+	#   warning    known defect: the body is a stub that returns "", so an invalid pattern gives no
+	#              message
+	#   see        IsValid, PatternErrorOffset
 	def LastError()
 		return ""
 
+	# Returns -1 today instead of the position of the compile error in the pattern.
+	#
+	#   returns    -1, always
+	#   warning    known defect: the body is a stub that returns -1, even for a pattern that does
+	#              not compile
+	#   see        IsValid, LastError
 	def PatternErrorOffset()
 		return -1
 
@@ -1211,8 +1391,13 @@ class stzRegex from stzObject
 	 #  Partial Match   #
 	#-----------------#
 
-	# TRUE only when pcStr is a strict PREFIX of something that would match
-	# entirely -- on the way there, not there yet.
+	# TRUE if the text is the beginning of something the pattern would match entirely, but is not all of it yet.
+	#
+	#   returns    TRUE or FALSE (1 or 0)
+	#   note       a text that already matches entirely gives FALSE; the pattern should be anchored
+	#              for a strict prefix test
+	#   see        IsCompleteMatch, MatchAsYouType, PartialMatchInfo
+	#@ aka  TRUE only when pcStr is a strict PREFIX of something that would match entirely -- on the way there, not there yet.
 	def IsPartialMatch(pcStr)
 		if @pRegexHandle = "" return 0 ok
 		_nKind_ = This.MatchXT(pcStr, 1, :MatchEntireContentIfNotGoPartial, [])
@@ -1227,6 +1412,11 @@ class stzRegex from stzObject
 		def MatchPartial(pcStr)
 			return This.IsPartialMatch(pcStr)
 
+	# TRUE if the pattern matches the whole text; a prefix of a possible match gives FALSE.
+	#
+	#   returns    TRUE or FALSE (1 or 0)
+	#   note       unlike Match, . does not cross line breaks here
+	#   see        IsPartialMatch, Match
 	def IsCompleteMatch(pcStr)
 		_nKind_ = This.MatchXT(pcStr, 1, :MatchEntireContent, [])
 		return _nKind_ = 1
@@ -1234,14 +1424,12 @@ class stzRegex from stzObject
 		def IsComplete(pcStr)
 			return This.IsCompleteMatch(pcStr)
 
-	# Accepts what is already valid AND what could still become valid --
-	# which is what form validation needs while the user is still typing.
-	# Against "^\d{3}-\d{2}-\d{4}$": "123" TRUE (partial), "123-45-6789"
-	# TRUE (complete), "abc" FALSE (cannot get there from here).
+	# TRUE if the text already matches entirely, or could still match once more characters are typed.
 	#
-	# This is the method the two partial match types exist for. Until the
-	# types were wired up it just called an entire-content match, so it
-	# rejected every incomplete input -- the exact case it is named after.
+	#   returns    TRUE or FALSE (1 or 0)
+	#   note       an empty text is FALSE
+	#   see        IsPartialMatch, IsCompleteMatch, MatchInProgress
+	#@ aka  Accepts what is already valid AND what could still become valid -- which is what form validation needs while the user is still typing. Against "^\d{3}-\d{2}-\d{4}$": "123" TRUE (partial), "123-45-6789" TRUE (complete), "abc" FALSE (cannot get there from here).
 	def MatchAsYouType(pcStr)
 		_nKind_ = This.MatchXT(pcStr, 1, :MatchEntireContentIfNotGoPartial, [])
 		return _nKind_ > 0
@@ -1249,8 +1437,11 @@ class stzRegex from stzObject
 		def ValidateAsTyped(pcStr)
 			return This.MatchAsYouType(pcStr)
 
-	# The search counterpart: is a match either present, or still possible
-	# if more text arrives? Used for progressive/incremental search.
+	# TRUE if the pattern occurs in the text, or could still occur once more text arrives; the search form of the as-you-type test.
+	#
+	#   returns    TRUE or FALSE (1 or 0)
+	#   see        MatchAsYouType, MatchFirst
+	#@ aka  The search counterpart: is a match either present, or still possible if more text arrives? Used for progressive/incremental search.
 	def MatchInProgress(pcStr)
 		_nKind_ = This.MatchXT(pcStr, 1, :MatchFirstOccurrenceIfNotGoPartial, [])
 		return _nKind_ > 0
@@ -1258,6 +1449,12 @@ class stzRegex from stzObject
 		def SearchInProgress(pcStr)
 			return This.MatchInProgress(pcStr)
 
+	# Returns the kind of match the text gives (complete, partial or none), the text matched and its section.
+	#
+	#   returns    a hash list [ :matchType, :matched, :section ]; section is [ start, end ] with
+	#              both ends inclusive, [ ] for none
+	#   note       the keys come back in lowercase
+	#   see        IsPartialMatch, PartialMatchStart, PartialMatchLength
 	def PartialMatchInfo(pcStr)
 
 		if @pRegexHandle = ""
@@ -1302,6 +1499,13 @@ class stzRegex from stzObject
 		def MatchPartialInfo(pcStr)
 			return This.PartialMatchInfo(pcStr)
 
+	# Returns the position where a partial or complete match starts in the text; raises an error when there is no match at all.
+	#
+	#   returns    a number
+	#   note       PartialMatchStart answers 0 for no match, without raising
+	#   warning    known defect: for a text that does not match it reads the first element of an
+	#              empty section and raises error R2
+	#   see        PartialMatchStart, PartialMatchInfo
 	def FindPartialMatch(pcStr)
 		return This.PartialMAtchInfo(pcStr)[3][2][1]
 
@@ -1309,6 +1513,10 @@ class stzRegex from stzObject
 			return This.FindPartialMatch(pcStr)
 
 
+	# Returns the position where a partial or complete match starts in the text.
+	#
+	#   returns    a number; 0 when there is no match
+	#   see        FindPartialMatch, PartialMatchLength
 	def PartialMatchStart(pcStr)
 		_aInfo_ = This.PartialMatchInfo(pcStr)
 		if _aInfo_[1][2] = "none" return 0 ok
@@ -1317,6 +1525,13 @@ class stzRegex from stzObject
 	def FindPartialMatchZZ(pcStr)
 		return This.PartialMatchInfo(pcStr)[3][2]
 
+	# Returns the length of the partial or complete match today minus one: the partial match 123- gives 3.
+	#
+	#   returns    a number, one below the true length; 0 when there is no match
+	#   note       the true length is the second section value minus the first, plus 1
+	#   warning    known defect: it subtracts an inclusive start from an inclusive end without
+	#              adding one, so 12 matched by \d{3} gives 1 and a complete 123 gives 2
+	#   see        PartialMatchStart, PartialMatchInfo
 	def PartialMatchLength(pcStr)
 		_aInfo_ = This.PartialMatchInfo(pcStr)
 		if _aInfo_[1][2] = "none" return 0 ok
@@ -1339,6 +1554,10 @@ class stzRegex from stzObject
 	 #  Recursive (Nested) Match  #
 	#----------------------------#
 
+	# TRUE if the whole text matches a recursive pattern, such as one using (?R) for nested brackets; the verdict is kept for the readers.
+	#
+	#   returns    TRUE or FALSE (1 or 0)
+	#   see        IsRecursiveMatch, RecursiveSubStrings, MatchManyRecursive
 	def MatchRecursive(pcStr)
 		_bResult_ = This.MatchXT(pcStr, 1, :MatchEntireContent, [ :RecursiveMatch ])
 		@bRecursiveMatch = _bResult_
@@ -1355,12 +1574,24 @@ class stzRegex from stzObject
 		def NestedMatch(pcStr)
 			return This.MatchRecursive(pcStr)
 
+	# TRUE if the last call of the recursive match succeeded; a later call of another match method does not reset it.
+	#
+	#   returns    TRUE or FALSE (1 or 0)
+	#   see        MatchRecursive, RecursiveMatchInfo
 	def IsRecursiveMatch()
 		return @bRecursiveMatch
 
 		def IsNestedMatch()
 			return This.IsRecursiveMatch()
 
+	# Returns the nested matches found in the text of the last recursive match, with their count and sections.
+	#
+	#   returns    a hash list [ :IsRecursive, :depth, :matches ], where matches are [ text, [
+	#              start, end ] ] with end one past the match; IsRecursive 0, depth 0 and [ ] unless
+	#              the last recursive match succeeded
+	#   note       the keys come back in lowercase; depth is the number of distinct nested matches,
+	#              which is not the nesting depth
+	#   see        RecursiveSubStrings, RecursiveDepth
 	def RecursiveMatchInfo()
 		if NOT This.IsRecursiveMatch()
 			return [ :IsRecursive = 0, :depth = 0, :matches = [] ]
@@ -1405,6 +1636,12 @@ class stzRegex from stzObject
 		def NestedMatchInfo(pcStr)
 			return This.RecursiveMatchInfo(pcStr)
 
+	# TRUE if every text of the list matches the recursive pattern, stopping at the first one that does not.
+	#
+	#   pacStr     the list of texts to test, each a text
+	#   returns    TRUE or FALSE (1 or 0)
+	#   warning    raises an error for a non-list, an empty list or a list holding a non-text
+	#   see        MatchRecursive, MatchManyRecursiveXT
 	def MatchManyRecursive(pacStr)
 		if NOT ( isList(pacStr) and IsListOfStrings(pacStr) )
 			StzRaise("Incorrect param type! pacStr must be a list of strings.")
@@ -1464,8 +1701,12 @@ class stzRegex from stzObject
 		def NestedMatchesZZ()
 			return This.RecursiveSubStringsZZ()
 
+	# Returns the distinct nested matches of the last recursive match, outermost first, as a list of text.
+	#
+	#   returns    a list of text; [ ] unless the last recursive match succeeded
+	#   note       for ((a)(b)) it answers the whole text, then (a), then (b)
+	#   see        RecursiveMatchInfo, FindRecursiveSubStrings, RecursiveDepth
 		#>
-
 	def RecursiveSubStrings()
 		_aTemp_ = This.RecursiveMatchInfo()[3][2]
 		_nLen_ = len(_aTemp_)
@@ -1569,8 +1810,11 @@ class stzRegex from stzObject
 		def FindNestedZZ()
 			return This.FindRecursiveSubStringsZZ()
 
+	# Returns the start positions of the nested matches of the last recursive match, outermost first.
+	#
+	#   returns    a list of numbers; [ ] unless the last recursive match succeeded
+	#   see        RecursiveSubStrings, RecursiveMatchInfo
 		#>
-
 	def FindRecursiveSubStrings()
 		_aTemp_ = This.RecursiveMatchInfo()[3][2]
 		_nLen_ = len(_aTemp_)
@@ -1634,11 +1878,23 @@ class stzRegex from stzObject
 		def FindNestedZ()
 			return This.FindRecursiveSubStrings()
 
+	# Returns the number of distinct nested matches found by the last recursive match, which is the nesting depth only for a single chain.
+	#
+	#   returns    a number; 0 unless the last recursive match succeeded
+	#   note       the answer is right only when each bracket holds at most one other
+	#   warning    known defect: it counts matches, so ((x)(y)(z)) answers 4 although the nesting is
+	#              2 deep, while (((x))) answers 3
+	#   see        RecursiveMatchInfo, NestedDepth
 		#>
-
 	def RecursiveDepth()
 		return This.RecursiveMatchInfo()[2][2]
 
+		# Returns the number of distinct nested matches found by the last recursive match; the same count as the recursive depth.
+		#
+		#   returns    a number; 0 unless the last recursive match succeeded
+		#   warning    known defect: it counts matches, so ((x)(y)(z)) answers 4 although the
+		#              nesting is 2 deep
+		#   see        RecursiveDepth
 		def NestedDepth()
 			return This.RecursiveMatchInfo()[2][2]
 
@@ -1672,6 +1928,13 @@ class stzRegex from stzObject
 	 #  Explanation methods  #
 	#-----------------------#
 
+	# Returns a one-line explanation of the pattern when the library knows it by name; any other pattern raises an error.
+	#
+	#   returns    text
+	#   note       patterns of the named catalogue, such as ^([^\d]*)(\d+)$, are explained
+	#   warning    known defect: for a pattern outside the library's named list it builds
+	#              stzRegexAnalyzer, a class that does not exist, and raises error R11
+	#   see        ExplainXT, Pattern
 	def Explain()
 		_cResult_ = ""
 		_cName_ = RegexPatternName(This.Pattern())

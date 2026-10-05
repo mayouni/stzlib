@@ -1,0 +1,7 @@
+{
+ "brief": "Holds a rectangle of numbers and edits it in place, searches it, and answers linear-algebra questions such as determinant, inverse, rank and eigenvalues.",
+ "detail": "A stzMatrix is a list of rows of numbers, all of the same length, or a zero matrix built from a [ rows, columns ] pair. Positions are [ row, column ] and start at 1. Methods that add, multiply, replace or transpose change the matrix itself and answer nothing; methods that ask a question (Sum, Rank, Determinant, Inverse, SVD, the matrix functions such as MatrixExp) answer a plain Ring list or number and leave the matrix alone, and their Q forms wrap the answer in a stzMatrix. The heavy numeric work runs in the Softanza engine. Power raises every element to a power, while MatrixPower and GeneralPower raise the matrix itself. Several decompositions refuse what has no real answer (a singular matrix has no logarithm, a defective one no full set of eigenvectors) with an error rather than a wrong number. Known gaps today, each carried as a warning on its method: Section reads its corners as [ column, row ] and FindElementsInSection returns [ column, row ] pairs, so ReplaceSection changes the wrong cells on a non-square rectangle; MultiplyByInRow scales a column; Add given a matrix adds it and then raises; Diagonal1 answers nothing.",
+ "receiver": "o1 = new stzMatrix([ [ 1, 2, 3 ], [ 4, 5, 6 ] ])",
+ "example": ["? @@( o1.Size() )", "#--> [ 2, 3 ]"],
+ "see": ["stzListOfLists", "stzListOfNumbers", "stzNumBuffer", "stzComplex"]
+}

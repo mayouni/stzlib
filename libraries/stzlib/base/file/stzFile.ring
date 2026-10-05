@@ -2451,37 +2451,27 @@ class stzFileManager from stzObject
 
     # PERMISSION OPERATIONS
 
+    # The three permission setters go to the OS through the engine. They
+    # used to build `attrib +R "<name>"` / `chmod a-w "<name>"` and hand it
+    # to a shell, so a filename holding $(...) ran it, and cmd.exe expanded
+    # a %VAR% inside the quotes before attrib ever saw the name.
+
     def MakeReadOnly()
-        if isWindows()
-            system("attrib +R " + '"' + @cFileName + '"')
-        else
-            system("chmod a-w " + '"' + @cFileName + '"')
-        ok
-        return 1
+        return StzEngineFileSetReadOnly(@cFileName, 1)
 
         def MakeReadOnlyQ()
             This.MakeReadOnly()
             return This
 
     def MakeWritable()
-        if isWindows()
-            system("attrib -R " + '"' + @cFileName + '"')
-        else
-            system("chmod u+w " + '"' + @cFileName + '"')
-        ok
-        return 1
+        return StzEngineFileSetReadOnly(@cFileName, 0)
 
         def MakeWritableQ()
             This.MakeWritable()
             return This
 
     def MakeExecutable()
-        if isWindows()
-            return 1
-        else
-            system("chmod u+x " + '"' + @cFileName + '"')
-        ok
-        return 1
+        return StzEngineFileSetExecutable(@cFileName)
 
         def MakeExecutableQ()
             This.MakeExecutable()

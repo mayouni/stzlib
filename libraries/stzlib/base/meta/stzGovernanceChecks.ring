@@ -19,7 +19,8 @@
 
 func StzGovernanceInvariantNames()
 	return [ "no-llm-effectful", "effects-guarded",
-	         "open-text-contained", "effects-traced" ]
+	         "open-text-contained", "effects-traced",
+	         "external-data-contained" ]
 
 func StzCheckAgentGraph(poGraph)
 	_aF_ = []
@@ -39,6 +40,11 @@ func StzCheckAgentGraph(poGraph)
 		_aF_ + _aF2_[_i_]
 	next
 	_aF2_ = StzCheckEffectsTraced(poGraph)
+	_n_ = len(_aF2_)
+	for _i_ = 1 to _n_
+		_aF_ + _aF2_[_i_]
+	next
+	_aF2_ = StzCheckExternalDataContained(poGraph)
 	_n_ = len(_aF2_)
 	for _i_ = 1 to _n_
 		_aF_ + _aF2_[_i_]
@@ -134,6 +140,50 @@ func StzCheckOpenTextContained(poGraph)
 		ok
 	next
 	return _aF_
+
+# INVARIANT 5 -- external data never REACHES an effect except through a
+# guardian or a validated checkpoint: for every node TAINTED external_data
+# (whatever its kind), every path to an effect must contain one. The
+# taint was assigned to every input node and read by nothing; this is
+# the rule that reads it. It asks the taint, not the kind, so a tool or
+# a feed declared external_data is held to it as an input is.
+func StzCheckExternalDataContained(poGraph)
+	_aF_ = []
+	_acIds_ = poGraph.NodesIds()
+	_n_ = len(_acIds_)
+	for _i_ = 1 to _n_
+		if StzLower("" + poGraph.NodeProperty(_acIds_[_i_], "taint")) = "external_data"
+			for _j_ = 1 to _n_
+				if StzLower("" + poGraph.NodeProperty(_acIds_[_j_], "kind")) = "effect"
+					_acPaths_ = poGraph.PathsXT(_acIds_[_i_], _acIds_[_j_])
+					_nP_ = len(_acPaths_)
+					for _p_ = 1 to _nP_
+						if NOT StzPathHasGuardOrValidation(poGraph, _acPaths_[_p_])
+							_aF_ + [ :invariant = "external-data-contained",
+								:node = _acIds_[_i_], :severity = :error,
+								:message = "external data '" + _acIds_[_i_] +
+								"' reaches effect '" + _acIds_[_j_] +
+								"' with no guardian or validated checkpoint on the path" ]
+							exit
+						ok
+					next
+				ok
+			next
+		ok
+	next
+	return _aF_
+
+# 1 when some node strictly inside the path is a guardian, or is tainted
+# 'validated' (a human checkpoint).
+func StzPathHasGuardOrValidation(poGraph, paPath)
+	_nN_ = len(paPath)
+	for _k_ = 2 to _nN_ - 1
+		if StzLower("" + poGraph.NodeProperty(paPath[_k_], "kind")) = "guardian" or
+		   StzLower("" + poGraph.NodeProperty(paPath[_k_], "taint")) = "validated"
+			return 1
+		ok
+	next
+	return 0
 
 # INVARIANT 4 -- every effect leaves a WITNESS: an edge from the effect
 # to a trace_sink node (the audit chain, 5.7 G5).

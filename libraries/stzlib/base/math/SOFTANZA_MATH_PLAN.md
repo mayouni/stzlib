@@ -1,0 +1,1307 @@
+# SOFTANZA MATH PLAN -- the map, the contracts, the phases
+
+Plane `stzlib-math`, folder `libraries/stzlib/base/math/`, task
+`COMPASS-MATH-PLANE-01`. Companion to `CHARTER.md`, which carries the vision,
+the vocabulary, the laws and the decisions asked of the author.
+
+**Status: DRAFT, M0.** Read against `origin/main` a94ba2920 on 2026-09-25.
+Every `path:line` below was read on that commit; where a fact was inferred
+rather than read, the sentence says so. Paths are relative to
+`libraries/stzlib/` unless they start with a drive letter.
+
+---
+
+## 1. The map of what exists
+
+The compass rated twenty lanes from `main` at 04cff1c34
+(https://claude.ai/artifact/M5Chh8QA65Q8b8e1hQZ8uq). This section is the
+plane's own reading, thirty-one commits later, of the entry objects it will
+consume. It is longer than the compass because a consumer needs the method
+names and the caps, not the ratings.
+
+### 1.1 Numbers
+
+| what | where | facts a consumer relies on |
+|---|---|---|
+| big integers | `engine/src/number.zig:17, 36-293` | `big.int.Managed`; `stz_bigint_*`; factorial at `:331` |
+| scaled decimals | `base/number/stzNumber.ring` | strings, arithmetic on scaled integers through the engine (foundation `:895-902`) |
+| rationals | `stzNumber.ring:2127, 2192` | `"p/q"` strings, reduced by `stz_bigint_gcd`; `Same()` cross-multiplies big integers (`:4755`) |
+| complex | `engine/src/complex.zig`, `base/number/stzComplex.ring:26` | f64 `re`/`im`; `RealPart, ImaginaryPart, Modulus, Argument, Conjugate, Plus, Minus, Times, DividedBy, Equals`; **the Ring face has no `Sqrt` or `Exp`, though `complex.zig:99, 108` have them**; log and inverse trig deliberately absent pending a branch-cut policy (`stzComplex.ring:21-24`, foundation `:1581-1583`) |
+| regimes | `stzNumber.ring:173, 182, 191` | `StzMoneyQ` (money, 2 places), `StzExactQ` (raises rather than rounds, `:4631-4636`), `StzMeasuredQ(v, places)`; plain numbers are `:machine`; money and measured round half-even always (`:4618-4627`); the receiver's regime governs the result (`:169`) |
+| exactness | `:4734, 4743, 4746, 4701` | `IsExact`, `WhyNotExact` ("" when exact; the reason strings at `:8421-8434`), `Why`, `Representation` -> `:rational`, `:decimal`, `:bigInteger`, `:integer` |
+| observation | `:4712` | `:bigInteger` means more than 15 digits, so a 16-digit value below 2^53 is reported `:bigInteger`; the lesson "a number that explains itself" must show the ladder as it is |
+
+### 1.2 Dense algebra (f64 only, checked)
+
+`base/number/stzMatrix.ring:186` (4,659 lines) over `engine/src/linalg.zig`
+(59 tests) and `eigen_general.zig` (77 tests). `SolveFor :980`,
+`Determinant :2327`, `LeastSquaresFor :2412`, `CholeskyFactor :3822`,
+`PseudoInverse :3729`, `EigenValues :3864`, `ComplexEigenValues :3924`,
+`EigenVectors :4023`, `SVD :4158`, `Rank :4254`, `ConditionNumber :4120`,
+`SchurQ/SchurT :3331/3337`, `LUInverse :3424`, `QRInverse :3473`,
+`CholeskyInverse :3524`, `Inverse :4294`, `MatrixExp :3291`,
+`MatrixLog :3227`, `MatrixSquareRoot :3625`, `MatrixPower :3596`, and the
+trig, hyperbolic and inverse families `:2548-3185`.
+
+Two facts that shape M1 and M5:
+
+- **No rational or big-integer path exists** in `stzMatrix.ring`,
+  `linalg.zig`, `eigen_general.zig`, `matrix.zig` or `sparse.zig` (grep for
+  `rational`, `BigInt`: the one hit is a Pade "rational approximation",
+  `eigen_general.zig:2374`). The Julia question is real.
+- **There is no public LU-factor or QR-factor accessor**, only `LUInverse`
+  and `QRInverse`. A lesson that shows `A = LU` as two pictures needs the
+  factors. Routed as `MATH-FACTORS-01`.
+
+### 1.3 Calculus and optimisation
+
+| what | where | facts |
+|---|---|---|
+| autodiff | `engine/src/autodiff.zig:38-59`, `base/number/stzMathFunction.ring:34, 85` | reverse-mode tape; 16 ops (add sub mul div neg pow exp log sqrt sin cos tan tanh abs min max); **`MAX_VARS = 256`**; `ValueAt, GradientAt, ValueAndGradientAt, DerivativeAt` |
+| L-BFGS | `base/number/stzObjective.ring:33`, `engine/src/lbfgs.zig` | `MinimizeFrom, MaximizeFrom, SetMaxIterations, SetGradientTolerance` |
+| polynomials | `base/number/stzPolynomial.ring:59, 215` | roots by companion-matrix eigenvalues (2.0e-15 against `numpy.roots`); **the header at `:49` promises `RootMultiplicity()`, which is not defined** |
+| LP / MIP | `base/optim/stzOptimModel.ring:60`, `engine/src/optim.zig` | `Vars, Maximize, Minimize, SubjectTo, SolveWith, Solution, Why, AST`; `:highs` refused (`:30-35`); `.zopt` through `stzOptimFile.ring:55` (no sample `.zopt` file exists in the tree); `stzOptimSentence.ring:48`; NSGA-II in `stzMultiObjectiveSolver.ring:9, 139` |
+| the stats-side solver | `base/stats/stzLinearSolver.ring:475-478, 813` | **still raises "Branch-and-bound needs the simplex relaxation, which is not implemented yet" and keeps a placeholder tableau**, while the engine's `optim.zig` has both; routed |
+| quadrature, RK4 | `engine/src/geo_furniture.zig:341-414`, `base/geo/stzGeoMap.ring:2785` | RK4 exists for streamlines only; Gauss-Legendre for geodesy only; no general ODE solver, no interpolation family |
+
+### 1.4 Statistics
+
+`base/stats/stzHypothesis.ring:116-226`: eight tests, **global functions,
+not a class** (`StzTTestOneSample`, two-sample Welch and pooled, paired,
+chi-square goodness of fit and independence, one-way ANOVA, correlation).
+Every one returns an effect size -- Cohen's d, Cohen's w, Cramer's V, eta
+squared or r (`engine/src/hypothesis.zig:45-327`); a test that did not run
+reports `p = 1` (`:71`). Special functions from incomplete gamma and beta
+(`special.zig`). `stzDataSet.BoxPlotStats` (`base/stats/stzDataSet.ring:2423`)
+computes the five numbers and the 1.5x fences (`stats.zig:498-523`); **its
+comment names an `stzBoxPlot` class that does not exist**. No bootstrap, no
+Bayesian inference beyond the naive Bayes classifier, no non-parametric
+tests. The Tukey tier: `base/stats/SOFTANZA_TUKEY_PLAN.md` (807 lines,
+2026-08-16), TK0-TK6, no code, no `eda.zig`, no `base/test/tukey/`.
+
+`base/number/stzRandom.ring` is **not a class**: uniform, weighted, shuffle,
+Gaussian (`:4776`), exponential (`:1100`), `SeedRandom :1183`; **no Poisson
+or binomial draw** outside the geo point processes
+(`engine/src/geo_process.zig:138-197`).
+
+### 1.5 Discrete mathematics
+
+`engine/src/numtheory.zig:6-237`, **i64 only**: gcd, lcm, is_prime,
+next_prime, prev_prime, nth_prime, factorize, factor_at, fibonacci,
+is_fibonacci, mod_pow, mod_inv, divisor_count, divisor_sum, is_perfect,
+euler_totient. `base/graph/stzGraph.ring:68` over `graph.zig`: BFS, DFS,
+Dijkstra, A*, diameter, radius, topological sort, components, SCC,
+bipartite, Kruskal MST, articulation points, bridges, core numbers,
+betweenness, closeness, PageRank, clustering, Louvain (`graph.zig:1637`),
+max flow, min cut, min-cost flow. Not found: Bellman-Ford, Floyd-Warshall,
+isomorphism, colouring, cliques, Euler and Hamilton paths, a permutations
+generator (`Combinations` exists, `stzListFunc.ring:7637`), truth tables,
+SAT.
+
+### 1.6 Signals
+
+`base/number/stzFourier.ring:41` over `engine/src/fft.zig`: radix-2 and
+Bluestein, `Transform, InverseTransform, Magnitudes, Phases, PowerSpectrum,
+DominantFrequency, ConvolvedWith`. The GPU FFT is **convolution only**,
+`stzGpu.ConvolveReal` (`base/gpu/stzGpu.ring:628`, `gpu_fft.zig`, f32). The
+brief's "an FFT on the CPU and the GPU" is true of convolution and not of the
+transform face.
+
+### 1.7 Geometry made visible (the shape to reuse)
+
+`base/geo/stzGeoProjection.ring`: `DistortionAt :290` returns
+`[:h,:k,:a,:b,:areal,:angular,:crossing]`; `HoldsItsClaim :329` is measured,
+never declared; `IndicatrixAt :351`; `DrawTissotOn(oCanvas, ...) :736` over
+`geo_distortion.zig`. `base/geo/stzGeoMap.ring:387`:
+`DrawStreamlinesOn :2792`, `DrawStreamDensityOnXT :3070`, RK4 in
+`geo_furniture.zig:353, 414`. **The shape**: a numeric object answers facts,
+and a `Draw...On(poCanvas, ...)` method paints into a canvas the caller owns;
+a field crosses as a grid because the engine takes no callback. The figures
+of M1 keep that shape and add the declaration in front of it.
+
+### 1.8 Seen: the diagram system, the canvas, the window, the storyboard
+
+**`base/graph/stzMathDiagram.ring`** (9,165 lines): `stzMathDomain :2888`,
+`stzMathSubstance :3099`, `stzMathStyle :3591`, `stzMathDiagram :3819`, the
+constructor `init(domain, substance, style) :3896`. Eleven domains in the
+file (settheory `:152`, linearalgebra `:213`, geometry `:299` with Euclidean,
+spherical, hyperbolic, Thales and Byrne styles, conic `:716`, table `:1937`
+with icon-label, quaternion and **heat-map** styles, dots `:2020`, path
+`:2048`, graph `:2116`, words `:2371`, order `:2466`, category `:2530`) and
+seven in sibling files loaded after it (`stzBase.ring:362-379`: chemistry,
+gantt, timeline, fishbone, floorplan, seating, choropleth) -- eighteen
+math-plane domains. **The domain list is not closed**: no sentence in
+`SOFTANZA_GRAPH_PLANE_PLAN.md` closes it; "closed" in its status table
+(`:43-194`) means *has a guard section*, and DN24 is "the last domain of the
+list" (`:4027`) as a matter of chronology. What binds a new domain: "a
+domain is a NOTATION PROFILE over the single foundation. It is never a second
+renderer" (`:1203-1204`); per-domain layout engines refused (`:1272`);
+"3D stays outside" (`:2908-2909`); DN9 refuses "animation or timeline"
+(`:4667`).
+
+The solver (`:26-32`, `_Solve :7748`, `_SolveStage :8866-8957`): objective
+plus `lambda * sum max(0, g)^2`, L-BFGS through `StzEngineGradCompile` and
+`StzEngineMinimize(p, x, 400, 1e-6)`, lambda raised tenfold up to seven
+rounds, feasible at 0.01 px. Layout functions (`:2866-2869`): contains,
+disjoint, notCrossing, overlapping, touching, lessThan, greaterThan, equal,
+inRange, sameCenter, near, minimal, maximal, notTooClose, above, below,
+leftwards, rightwards. Shape kinds (`:3675-3679`): circle, rect, text, line,
+curve, poly, mark, spline, ellipse. Row verbs: shape, delete, unknown,
+field, override, ensure, encourage, layer. "Solve it before you copy it"
+(`SOFTANZA_GRAPH_PLANE_PLAN.md:4207`; enforced at `:1705-1711`).
+
+Notation (DN10): `StzNotationSymbol :1263-1289`, **72 names**, closed by
+name; `_NtMath :1347` handles `^` and `_` to three levels; `_NtFontHas :1446`
+refuses a glyph the font lacks (Segoe UI lacks seven, `PLAN:2867-2869`);
+a `frac` command is refused by name. A symbol is a Unicode character drawn
+as a text run (`:5505-5514`).
+
+Live figure (DN8g): `DragTo :3967`, `Pin/Unpin :3990/4015`, `Relayout :3949`
+(warm path, one start, lambda 1e5), `SetSubstanceData :4786` (cold
+recompile), gesture verbs `:4102-4132`. Measured: Byrne dragged 60 px
+re-solves in **27 ms** warm, **296 ms** on the first warm solve, 382 ms cold
+(`PLAN:2741-2772`).
+
+Rendering: `ToCanvas :4412` into a `stzCanvas`, `ToSVG :4427` (no GPU
+needed), `ToPNG :4505` (needs a device), `Rendition() :4441` -> `:vector`,
+`RenditionKinds :4445` = vector, image, graph, **text**.
+
+**`base/graphics/stzCanvas.ring`** (778 lines): rect, gradient rect, circle,
+round rect, ellipse, line, polyline, polygon, image, mesh, text
+(`AddText :279`, vertical `:294`, justified with kashida `:315`), fill,
+stroke, pick tags, `SetSvgIdent :419`. **No arc, bezier or dash primitive**
+(bridge list `ring_bridge_gpu.zig:1951-2102`); curves are sampled to
+polylines as `_CatmullRom` does (`stzMathDiagram.ring:4344`). Display list,
+tessellation and SVG emission are Zig (`gpu_scene.zig`); PNG is a wgpu
+render and readback; **no CPU rasterizer exists** (`SOFTANZA_GRAPHICS_PLAN.md:2522`,
+"the vector tier is the floor" `:2537`); without a device `ToPNG` answers
+`""` and counts the refusal (`:480-483`). Text is shaped by SheenBidi then
+HarfBuzz then stb_truetype on the CPU (`gpu_text.zig:1-20`), so Arabic shapes
+without a GPU; in SVG, text is outlines (`PLAN:2904`). Colour is a meaning,
+never RGB (`SOFTANZA_COLOR_SYSTEM.md:178-182`), through one choke point
+`StzColorToNumber` (`:22-24`).
+
+**`base/graphics/stzPlotCanvas.ring`** (509 lines): seven pixel kinds (VBar,
+HBar, Histogram, MultiBar, Line, Scatter, Treemap; dispatcher `:54`, switch
+`:151-173`), **raw hex colours** (`:64-73, 258`), header stale at `:28`.
+`engine/src/plot.zig`: six **text** renderers (bar `:198`, hbar `:493`,
+histogram `:830`, mbar `:1082`, scatter `:1333`, surface `:1839`), byte-parity
+between the Zig text renderer and the Ring text renderer it was ported from
+(`base/test/stats/plot_engine_parity_narrated.ring`; expected strings
+"GENERATED FROM THOSE BYTES, NOT TYPED", `plot.zig:1586`). **`renderSurface`
+is a treemap** (`plot.zig:1825-1826`; `stzSurfacePlot.ring:85-88`). There is
+no `y = f(x)` plotter, no parametric or polar plot, no number line, no
+fraction picture, no complex-plane plot, no drawn box plot, no slider and no
+animation of a diagram anywhere in the tree (grep, 2026-09-25).
+
+**`base/graphics/stzWindow.ring`**: the loop `IsOpen :173 / Poll :236 /
+DeltaTime :253 / Draw :332 / EachFrame :505`; Ring owns the loop and the
+engine never calls into Ring (`PLAN:1338`; `stzPanel.ring:289-293`, events
+drained never dispatched). Windows shipped, Linux and macOS unproven
+(`PLAN:3595-3600`). **No screenshot API on the window**; a frame is captured
+by rendering the same display list offscreen -- `stzCanvas.ToPixels :541`,
+`stzScene.ToPixels :372` -- "the same renderer pointed at different targets"
+(`PLAN:3533`; witness `showcase_window.ring:170-173`). `stzScene` (3-D):
+camera, light, meshes (cube, sphere, torus, plane, obj, custom), instancing,
+`Project :282`; **no vector tier**, `Show()` raises without a GPU (`:382-383`).
+
+**`base/graph/stzStoryboard.ring`** (489 lines): `Frame`, `FrameOf`, `Bind`,
+`BindFact`, `Act(verb, args) :171` with verbs `DragTo`, `SetData`,
+`SetTheme`, `_CloseOpen :204` writes `<name>_NN.png` and judges the frame
+with `StzCheckPictures`, `ToNarration :403` emits the `.narration` v0 grammar
+(sample `base/test/graphics/folio/one-wedge.narration`). **Two facts M2
+must not inherit**: `_CloseOpen` ignores `ToPNG`'s return, so on a machine
+without a GPU no file is written and the name is still recorded; and
+`_SbFilesDiffer` (`gg_adversarial.ring:22677-22683`) compares file names, not
+bytes. No GIF, APNG or video export exists (GIF decode only,
+`ring_bridge_gpu.zig:830`).
+
+### 1.9 Learned: the education program
+
+`base/education/` (E0-E8 shipped on `main`; `CHARTER.md`, nine laws at
+`:39-47`; eleven gates under `base/test/education/`). A program is a folder
+with `program.zknw`; a course is `program/courses/<slug>/course.zknw`, found
+**by folder** (`stzProgram.ring:440-447`); three courses exist
+(`elementary-introduction` with 15 chapters x 4 languages,
+`zindara-missions`, `governed-agents`). Chapters are
+`chapters/NN-<id>.<lang>.md` (`:592-594`), a missing language raises
+(`:598-603`); a chapter is `# Title`, a byline, fenced `ring` cells with
+`#-->` promises (`stzEducation.ring:154-166`), `{{exercise:<id>}}` lines,
+`## Recap`; a stored output fence is refused (`stzChapter.ring:71-73`). An
+exercise is `exercises/<id>/` with `exercise.zknw`, `promise.ring`,
+`wrong/`, `right/`, `task.<lang>.md`; `ProveItself` runs every wrong answer
+(each must fail) and every right one (`stzExercise.ring:188-226`); the
+matcher rules are at `stzEducation.ring:22-28`; four editions must make the
+same promises cell for cell (`course_narrated.ring:67-81`). The tutor
+(`stzTutor.ring:15-18`): rule 1 blanks the right answers' method names and
+promised values (`:439-466`), rule 2 is position (`ChapterOn`,
+`stzLearner.ring:118-130`), the gap question is `StzGoalQ().RequireOne` over
+`needs-step` facts then `AskInXT("tutor")` (`:390-413`); **no LLM hook
+exists** (`:42`), and an exercise without `needs-step` facts gets only the
+"look-output" reply. Overlays (`stzOverlay.ring`): an overlay adds to a
+course and never creates one (`overlay-course :236-239`); `overlay-no-fork
+:249, 280`; a bank overlay attaches `bank-01` to chapter 7; **there is no
+school overlay** -- school is a core world (`program/worlds/school.zknw`).
+The reader (`stzEduReader.ring:110-169`) renders headings, paragraphs,
+lists, quotes and code; **it has no image support**; RTL is `dir="rtl"` on
+the article with `<pre dir="ltr">` and `<bdi>` around non-ASCII literals
+(`:39-69, 145, 311-316`). The demo (`demo/demo.ring:78`) copies `program/`
+and **refuses any file that is not `.md .zknw .ring .pia .txt .csv .zgov`**,
+so no picture file may live under `program/`. Exercise ids are global
+(`stzLearner.ring:48-49`); `spine_narrated.ring:31` asserts exactly 25
+skills and `worlds_narrated.ring:28` exactly three worlds. The Hausa natural
+pack speaks about strings only (`stzEducation.ring:357`) and has no number
+vocabulary (inferred from the pack).
+
+### 1.10 Proofs: the guards and the oracle
+
+46 guards `base/test/number/numeric_*_narrated.ring` (autodiff, backprop,
+calculable, complex, counting_idiom, decomposition, definitions,
+eigenvectors, eigen, embedding, exactness, fft, handle_table, hypothesis,
+knn_selection, least_squares, logistic, matrix_truth, no_loss, one_distance,
+optimizer, pca, polynomial, pseudoinverse, rationals, reference_oracle,
+regime, residency, robustness, rounding, similarity, simplex, sparse,
+special_functions, summation, svd_general, svd, text_mining, tier_door,
+tie_rule, trustworthiness, tsne_gpu, umap_gpu, umap_resident,
+variance_authority, vector_index). The oracle discipline lives in
+`base/test/number/`, not in the foundation document (0 hits for "oracle"
+there): `numeric_reference_oracle_narrated.ring` (corpus hilbert4/5/6,
+vander4, nearsing2, tridiag5, spd3, rot3 at `:17-22`; "TOLERANCES ARE
+DERIVED, NOT INVENTED" `:27-36`), `_gen_numpy_reference.py` (`EPS`
+`:21`, `cond` `:128`, exact solve with `Fraction` `:24-46`, least-squares
+bound `100 * kappa * eps` `:246-251`), `_numpy_reference.ring`,
+`_numpy_fft_reference.ring`. Engine tests: 2,045 stated
+(`SOFTANZA_COMPUTE_MODEL.md:153`); 2,425 static `test` blocks under
+`engine/src` (a count, not a run).
+
+The math-diagram gate: `gg_adversarial.ring` sections 79-104 (`:12657-14490`),
+`sec()` prints the previous section's wall time (`:17303-17311`); the one
+render gate is section 91, `StzCheckPictures` over 88 pictures asserting
+exactly 37 planted findings under 80 s (`:13524-13654`). **No byte-parity
+guard exists for math diagrams**; the 52 `math_NN.png` and 52 `dark_NN.png`
+in `base/test/graphics/` are committed pictures a person looks at.
+
+### 1.11 Absent, verified by grep on 2026-09-25
+
+ODE solver (RK4 in geo only), bootstrap, Bayesian inference, convex hull,
+Delaunay, Voronoi, truth tables, SAT, a permutations generator, complex log
+(deliberately), non-parametric tests, Poisson and binomial draws, a
+`y = f(x)` figure, parametric and polar figures, a number line, a fraction
+picture, a complex-plane figure, a `z = f(x, y)` surface, a drawn box plot,
+a slider, an animation of a diagram, a frame-sequence export, a mathematics
+course, a mathematics vision document, `base/math/`.
+
+## 2. Repairs routed (findings, never fixes)
+
+Each row: what was observed, what was checked against what was inferred, and
+the owner Central routes it to. Filed in `mailbox/stzlib-math.md` as
+`MATH-FINDING-NN` with this table as the reference.
+
+| id | where | observed | checked / inferred | owner |
+|---|---|---|---|---|
+| F01 | `base/doc/design/SOFTANZA_INTELLIGENCE_ARCHITECTURE.md:925, 933-935, 939-943` | section 5.3 still says stzMatrix is 2.4k lines, simplex is a stub, "no Ax=b solve, no LU/QR/Cholesky/SVD/eigen", "no random DISTRIBUTIONS"; also `:1027-1031, 1043-1044`; its own re-audit marks the stub row closed at `:478` | checked by reading | the document's owner, via Central |
+| F02 | `base/number/stzNumber.ring:4696-4698` | the comment says `:rational` and `:complex` are not built; `:4701-4705` returns `:rational`, pinned by `numeric_rationals_narrated.ring:34` | checked | number |
+| F03 | `base/doc/design/stzextertool-design-article.md:165` | roots of `3x^2 + 2x - 8` given as 1 and -8/3; the roots are 4/3 and -2 (3*(16/9) + 8/3 - 8 = 0; 12 - 4 - 8 = 0) | checked by arithmetic | the document's owner |
+| F04 | `SOFTANZA_NUMERIC_FOUNDATION.md:4, 83, 939, 1118 vs 1396, 1566, 3152` | the foundation contradicts itself: "ALL PHASES 0-7 COMPLETE" beside "Phases 5-7 are design"; P4 "STARTED" beside "PHASE 4 IS COMPLETE"; `:rational` "not built"; FFT "not built" while `fft.zig` and `stzFourier` exist; "No GPU" while GPU guards exist; `numtheory.zig` credited with factorial and digit predicates it lacks | checked | number |
+| F05 | `base/number/stzPolynomial.ring:49` | the header promises `RootMultiplicity()`; no such method is defined | checked | number |
+| F06 | `base/number/stzComplex.ring` | no `Sqrt` or `Exp` on the face while `complex.zig:99, 108` implement them | checked | number |
+| F07 | `base/stats/stzHypothesis.ring:116-226`, `base/number/stzRandom.ring` | the eight tests and the random module are naked globals; LAW 1 asks for an instantiable entry object with a global form as sugar | checked; whether this is a defect or a ruled exception is for the owner | stats, number |
+| F08 | `base/stats/stzLinearSolver.ring:475-478, 813` | raises "Branch-and-bound needs the simplex relaxation, which is not implemented yet"; `BuildSimplexTableau` is a placeholder; the engine's `optim.zig` has both | checked | stats |
+| F09 | `base/stats/stzDataSet.ring:2423` | the comment names `stzBoxPlot`, which does not exist | checked | stats |
+| F10 | `base/graphics/stzPlotCanvas.ring:28, 64-73, 258` | header lists four of seven kinds; colours are raw hex against the colour system's rule that colour is a meaning | checked | graphics |
+| F11 | `base/graph/stzMathDiagram.ring:93-98` | header says "Three domains ship"; eighteen do | checked | graphics |
+| F12 | `base/graph/stzStoryboard.ring:204-243` | `_CloseOpen` ignores `ToPNG`'s return: on a machine with no GPU the frame name is recorded and no file exists; `_SbFilesDiffer` compares names only | checked by reading, not run | graphics |
+| F13 | `base/education/stzEduReader.ring:110-169` | the reader has no image or SVG support; a picture-first course cannot show a figure in the page | checked | education (request `MATH-READER-FIGURE-01`) |
+| F14 | `base/education/stzTutor.ring:390-413` | the gap question knows string verbs (contains, find, remove); a mathematics exercise without `needs-step` facts gets "look-output"; this plane will declare `needs-step` on every exercise and asks for a number vocabulary in `GapIn` | checked | education |
+| F15 | `base/test/education/spine_narrated.ring:31`, `worlds_narrated.ring:28` | exact counts of skills and worlds; a mathematics course that trains its own skills turns the spine red unless the program grows | checked | education (request `MATH-SKILLS-01`) |
+| F16 | `base/education/demo/demo.ring:78` | the demo's extension whitelist refuses `.zfig`; a figure declaration file inside `program/` would print NOT PROVED | checked | education (request `MATH-ZFIG-DEMO-01`, or figures stay inline in cells) |
+| F17 | `base/natural/stzNatural.ring:84-110`, `stzEducation.ring:357` | the Hausa pack has no number or mathematics vocabulary | pack read; absence inferred | natural (`MATH-HAUSA-NUMBER-01`) |
+| F18 | `base/graphics/stzCanvas.ring`, bridge `:1951-2102` | no arc or bezier primitive; every curve is a sampled polyline; acceptable for M1, named so a later request for an arc has its precedent | checked | graphics, information only |
+| F19 | `engine/SOFTANZA_COMPUTE_MODEL.md:153` | "2045 engine tests" against 2,425 static `test` blocks; a stated count that is neither a run nor the static count | counted, not run | engine, information only |
+
+## 3. Contracts consumed
+
+What this plane relies on, where it is written, and what would break this
+plane if it moved. Every row is a request Central can route when it changes.
+
+| contract | where | this plane relies on |
+|---|---|---|
+| domain extension protocol | `stzMathDiagram.ring:123, 2903-3071, 3126-3567`; `stzBase.ring:362-379` | a new figure kind = domain + style + builder + rule set in its own file, loaded after the core; no new shape kind or layout function without a routed request |
+| solver caps and budgets | `autodiff.zig:38` (256 vars); `_SolveStage` 7 rounds, 400 L-BFGS steps; warm 27 ms / first warm 296 ms; drag budget 100 ms (`GRAPH_PLANE_PLAN:2755`) | the computed/solved split of law 4 |
+| solve before copy | `GRAPH_PLANE_PLAN:4207`; `stzMathDiagram.ring:1705-1711` | a motion stores solved states, never unsolved pictures |
+| canvas | `stzCanvas.ring:131-419, 476-548` | SVG without a device; PNG and pixels with one; curves sampled; text shaped on the CPU |
+| colour | `SOFTANZA_COLOR_SYSTEM.md:22-24, 178-182` | every colour is a role name through `StzColorToNumber` |
+| window loop | `stzWindow.ring:173-515`; `PLAN:1338` | Ring owns the loop; state changes are made by Ring inside the loop body; no callback from the engine |
+| capture | `stzCanvas.ToPixels :541`, `stzScene.ToPixels :372`, `PLAN:3533` | a frame is the same display list rendered offscreen |
+| storyboard and narration | `stzStoryboard.ring:171, 204, 403`; `.narration` v0 | a motion exports through `Act` and `ToNarration`; the frame-reality guard is this plane's |
+| number tower | `stzNumber.ring:173-191, 4595-4755` | regimes, `IsExact`, `WhyNotExact`, `Representation`, `Same` |
+| oracle | `base/test/number/_gen_numpy_reference.py`, `_numpy_reference.ring`, `numeric_reference_oracle_narrated.ring` | a claim at L2 is judged the way these judge: derived tolerance, exact rationals for the truth |
+| course loader and formats | `stzProgram.ring:440-447, 564-603, 678-683`; `stzExercise.ring:188-226`; `stzEducation.ring:22-28, 154-166` | course by folder; chapter and exercise shapes; matcher rules; same promises cell for cell |
+| overlay court | `stzOverlay.ring:108-302` | an overlay adds to `courses/math/` and never creates it; every world in an overlay needs an `is-a` and two `requested` facts |
+| demo whitelist | `demo.ring:78` | nothing but `.md .zknw .ring .pia .txt .csv .zgov` under `program/` |
+| tutor | `stzTutor.ring:15-18, 390-413` | `needs-step` facts on every exercise |
+| memo, cost, PX | `D:\GitHub\softanza\protocol\STYLE.md`, `COST.md`, `PX.md` | stamps read from the clock; one cost line; probe first, gate once |
+
+## 4. The phases
+
+Each phase names its deliverable, its done-when, the guards that prove it,
+what is routed and what is not claimed. Nothing in M1 or later starts before
+the author ratifies M0.
+
+### M0 -- Charter
+
+**Deliverable**: `CHARTER.md`, this plan, the registration in
+`mailbox/stzlib-math.md`, the findings of section 2 filed, the memo to the
+author with the eight decisions. **Done when** the author ratifies the
+charter. Nothing else is claimed.
+
+### M1 -- The visual doors
+
+**Deliverable**: seven figure kinds, each a domain in its own file under
+`base/math/`, each with a catalogue scene under `base/test/math/`, a guard
+section, a negative sibling, and a picture looked at:
+
+| kind | computed half | solved half | rendition |
+|---|---|---|---|
+| `:Function` (explicit, `:Parametric`, `:Polar`) | samples of `f` from `stzMathFunction`, zeros and extrema from its derivative | axis labels, marks, the tangent, the label placed off the curve | vector and image |
+| `:Surface` `z = f(x, y)` | a mesh grid | -- | vector as a projected wireframe through `stzScene.Project` on the canvas; image as a real `stzScene` mesh on a GPU |
+| `:ComplexPlane` | points, the unit circle, a root set (`stzPolynomial.ComplexRoots`) | labels, the argument arc's label | vector and image |
+| `:BoxPlot` | `BoxPlotStats` from `stzDataSet` | group labels, outlier labels | vector, image and **text** (the Tukey plan's TK3 asks for a text reading) |
+| `:NumberLine` | ticks from a step ladder (the timeline domain's `_TlStepFor` is the precedent, `stzTimelineDiagram.ring:363`) | point labels, the arrow of an addition | vector and image |
+| `:Fraction` | the parts | the parts tile the whole, the shaded ones contiguous | vector and image |
+| `:Matrix` | cells (the heat-map style, `stzMathDiagram.ring:1995`, and the grid of scene 30 are the precedent) | dimension heads, the `x` and `=` glyphs, factor panels once `MATH-FACTORS-01` lands | vector and image |
+
+**Notation**: a specification for fractions, roots, sums and matrices in
+`$...$` -- runs with stacked boxes, not TeX -- sent to graphics or built
+here per decision 6.
+
+**Done when**: each kind has a catalogue scene, its guard asserts the solved
+geometry by arithmetic re-derived from `ShapeOf` (the way `gg_adversarial
+:12699` does), its SVG is compared byte for byte against an expectation
+**generated from the bytes** (the `plot.zig:1586` discipline; the PNG path
+is looked at on the author's machine and never asserted, because `ToPNG`
+needs a device), and a wrong declaration is refused by name. **Not claimed**:
+a CPU rasterizer; PNG parity; anything on Linux or macOS.
+
+#### M1a RESULTS -- the `:Function` figure, 2026-09-26
+
+**Shipped**: `base/math/stzFunctionFigure.ring` (the domain, the builder,
+the style, three rules registered into the one gate), `base/math/stzMathFigure.ring`
+(the entry object, `StzMathFigureQ(kind, spec)`), the load block in
+`stzBase.ring`, and `base/test/math/` (scenes, catalogue, gate, two probes,
+the byte expectation, fourteen pictures light and dark). `:Function` takes
+the explicit, parametric and polar forms; zeros, extrema and given points
+are found on the tape and refined by bisection; a pole breaks the curve
+and a window bounds it; nine notes are solved as offsets from their marks.
+Gate `math_narrated.ring`: 73 assertions in 7 sections, about 22 s on a
+quiet machine (2.4 / 1.7 / 2.9 / 0.1 / 9.1 / 6.5 / 0.1 s per section; 94 s
+under load the same hour, which is why the per-section times are the
+measurement and the wall time is not). Catalogue: 7 scenes, looked at.
+
+**Found while building, and what each changed:**
+
+- A spline shape holds at most 64 controls (`stzMathDiagram._MintShape`),
+  so a 400-sample piece is seven runs sharing endpoints. Routed
+  `MATH-POLYLINE-01` to graphics: a data-only polyline kind.
+- From a random start the solver ran 35 penalty rounds and stuck on
+  twelve notes with sixteen chords each. A note declared as an OFFSET from
+  its own mark, started on the mark's free side (below a minimum, above
+  anything else), solves in two rounds. Where a label starts is where its
+  placement is decided; the rules were never the problem.
+- A note's centre derived from offsets is not a "free centre", so
+  `DragTo` and `Pin` refuse it; the figure moves a note through its
+  offsets (`MoveNoteTo`), writing the diagram's own slots. Routed
+  `MATH-DRAGFIELD-01` to graphics: a drag by unknown path.
+- Ring hands back a COPY when a method returns an object: a witness that
+  tampered `oF.Substance()` found nothing. Every mutation goes through the
+  figure's own methods, and the plan says so where it matters.
+- `StzFind(needle, list)` answers a list of positions, not a number,
+  against the sentence in stzlib's `CLAUDE.md`. Routed as a documentation
+  finding; the figure uses a plain loop.
+- The sign change across tan's pole is not a zero: a root is accepted only
+  where the value is small relative to its bracket; the same law on the
+  slope for an extremum.
+- The generic `name_off_ink` rule (0.5 px) placed the tick numbers: at the
+  frame edges, where the curve never goes, with the axes starting at the
+  frame edges too.
+
+**Not claimed**: notation growth (M1's last step); the render on Linux or
+macOS; PNG parity (the SVG is the byte expectation, a PNG needs a device);
+a solve under 100 ms (the cold solve of nine notes is 2.4 s, M2's concern).
+
+#### M1b RESULTS -- the `:NumberLine` and `:Fraction` figures, 2026-09-26
+
+**Shipped**: `base/math/stzNumberLineFigure.ring` and `stzFractionFigure.ring`,
+the child's trio's two figures (the chaos game is scene 34 of the diagram
+catalogue already). `StzMathFigureQ(:NumberLine, [ :on = [ -5, 10 ],
+:points = [ 3, -2, 7.5, [ 0.5, "half" ] ], :jumps = [ [ 2, 5 ] ] ])` places
+every number where the line maps it, draws a jump as an arc printing its
+difference and landing with an arrowhead, and solves the notes of the
+points that are off the ticks -- a point on a tick is named by the tick.
+`StzMathFigureQ(:Fraction, [ :of = [ 3, 4 ] ])` shades three of four equal
+parts of a bar, names the shaded ones `s1_1..s1_3` so a child and a gate
+can COUNT them by their ids; `:compare` stacks bars of one width so that
+2/4 and 1/2 end at the same pixel, and prints the verdicts by
+cross-multiplication on integers; `:as = :disc` draws wedges as polygons
+with the rim's full 23 points. Six rules joined the one gate. Gate
+`math_narrated.ring`: 118 assertions in 10 sections, about 19 s quiet
+(2.3 / 1.8 / 3.1 / 0.1 / 6.1 / 3.5 / 0.1 / 1.1 / 1.2 / 0.0 s). Catalogue:
+14 scenes, two of them witnesses, looked at.
+
+**Found while building:**
+
+- A number plus a string is a Ring trap: `_nN_ + "/" + _nD_` reads the
+  slash as a number and raises "Invalid numeric string"; every label
+  built from numbers starts with `"" +`.
+- A `+` on a Ring list appends IN PLACE, so a property list grown from a
+  shared base must be copied by assignment first, or two rules share one
+  list.
+- A polygon holds 3 to 24 vertices; a wedge with the rim's share of 22
+  points fell a pixel short of the circle and the whole's stroke showed
+  through as a dotted ring -- the render found it, no number did.
+- A note on a tick repeated the tick's number beneath it ("2 2"); the
+  render found that too.
+- A fraction picture has no choice to make, and says so: "nothing to lay
+  out" -- the gantt's and the timeline's honesty, kept.
+
+**Not claimed**: an improper fraction (refused with the reason until a
+later slice draws two wholes); a stacked-fraction notation ("3/4" is
+text until M1's last step); a jump that stacks over another jump.
+
+#### M1c RESULTS -- the `:Matrix` and `:ComplexPlane` figures, 2026-09-26
+
+**Shipped**: `base/math/stzMatrixFigure.ring` and `stzComplexPlaneFigure.ring`.
+`StzMathFigureQ(:Matrix, [ :product = [ A, B ], :show = [ 2, 2 ] ])` draws
+A . B = C with row 2 of A, column 2 of B and the cell they make lit --
+the one thing worth seeing in a product; `:as = :heat` colours every cell
+on one ramp across the figure, so a band shows before a number is read.
+`StzMathFigureQ(:ComplexPlane, [ :roots = [ 1, 0, 0, -1 ], :unit = TRUE ])`
+draws the engine's roots (Francis QR on the companion matrix) as hollow
+points on the unit circle and CHECKS THEM by Horner's rule in Ring -- the
+picture checks the engine, not itself; `:show = [ 3, 2 ]` draws a number's
+ray with |z| and its argument arc. Notes are solved as offsets away from
+the real axis. Six rules joined the one gate; two witnesses convicted.
+Gate `math_narrated.ring`: 155 assertions in 12 sections (about 25 s quiet
+by the earlier sections' figures; the M1c sections measured 6.7 and 6.3 s
+under load and are not yet measured quiet). Catalogue: 20 scenes, looked at.
+
+**Found while building:** one scale for both axes matters -- a unit
+circle drawn with the frame's two scales is an ellipse, so the complex
+plane takes the smaller of the two and widens its horizontal extent; a
+matrix picture and a product have no choice to make and say "nothing to
+lay out"; the "Re" name ran 2.56 px past the canvas margin, an on-canvas
+violation the solver reported although the name is a placed shape --
+margins are part of the layout.
+
+**Not claimed**: exact products over the tower (M3's teaching path);
+the branch cut of complex log (not in the library, M5); a polynomial of
+degree over twelve.
+
+#### M1d RESULTS -- the `:BoxPlot` and `:Surface` figures, 2026-09-26; seven of seven kinds ship
+
+**Shipped**: `base/math/stzBoxPlotFigure.ring` and `stzSurfaceFigure.ring`.
+`StzMathFigureQ(:BoxPlot, [ :of = [ 2, 4, 4, 5, 7, 9, 12, 25 ] ])` draws the
+five numbers `stzDataSet` computes (engine percentiles, the same 1.5 IQR
+fences as `stats.zig`), solves the three numbers written above the box
+apart from one another, draws every value beyond a fence alone, and
+carries a TEXT rendition (`oF.Text()`, the Tukey plan's TK3): the five
+numbers in a header and the box in characters on a sixty-column scale,
+which reads wrong the moment a witness is wrong. `:groups` stacks up to six
+boxes on one axis. `StzMathFigureQ(:Surface, [ :f = "x^2 - y^2", :x = [ -1, 1 ],
+:y = [ -1, 1 ] ])` samples z on the engine's tape, PROJECTS every point
+through the engine's own camera matrices (the four `Mat4` bridges
+`stzScene.Project` uses, which need no device), and draws rows and columns
+as polylines coloured by their height on one ramp inside the cube that
+frames the space -- a true surface on the vector tier, where the plot
+engine's "surface" is a treemap. Five rules joined the one gate; two
+witnesses convicted. Gate `math_narrated.ring`: 189 assertions in 14
+sections, 27.5 s quiet (2.3 / 1.7 / 3.0 / 0.1 / 6.0 / 3.8 / 0.1 / 1.2 / 1.3 /
+0.0 / 1.3 / 1.2 / 0.6 / 5.2 s; 160 s the same hour under load). Catalogue:
+26 scenes, looked at.
+
+**Found while building:** a note left free of its side slid under the
+box onto the value axis -- a note's offset is held above by rule now; the
+names under a cube must go under the NEAR edges, which depend on where
+the eye is (under the far edge they project inside the cube, behind the
+wire), and the projection box must leave room below the cube for them;
+twenty samples never land on y = 0, so a saddle's top is 1 - (1/19)^2 and a
+gate that expected 1 was wrong; the 32 x 32 surface takes 4.6 s to build,
+almost all of it the diagram compiling 4,096 property expressions for 64
+splines -- the data-only polyline kind of `MATH-POLYLINE-01` would remove
+it, and the catalogue keeps 24 x 24 meanwhile.
+
+**M1 stands at seven of seven figure kinds.** What remains of M1 is
+notation: the `$...$` table grown toward fractions, roots, sums and
+matrices, moved to `base/math/stzMathNotation.ring` per decision 6.
+
+#### M1 NOTATION RESULTS -- the reader moved and grown, 2026-09-26; M1 CLOSED
+
+**The cut** (decision 6): `stzMathDiagram.ring:1230-1473` moved whole to
+`base/math/stzMathNotation.ring` in one commit, a pointer left in place,
+the run-list contract `[ cText, nDx, nDy, nSize ]` untouched. Proven three
+ways before the commit: a sixteen-label probe answered the same bytes;
+the DN10 section of `gg_adversarial` (extracted as a standalone probe with
+its helpers closed transitively) answered 20 ok on the stashed pre-cut
+tree and on the cut one; `math_narrated.ring` stayed 189/189.
+
+**The growth**, as stacked runs within that contract, still not TeX -- a
+closed set of four structures with a fixed number of braced arguments,
+no macro, no environment, refused by name past that:
+
+- `\frac{a}{b}`: numerator and denominator at 0.85 of the size on either
+  side of a bar at the axis, the bar a run of box-drawing horizontals or
+  em dashes (a font with neither refuses), the whole as wide as the wider.
+- `\sqrt{x}`: the radical sign, the argument, a bar over it; `\sqrt` alone
+  is still the bare sign.
+- `\sum`, `\prod`, `\int` with `_{lo}` and `^{hi}` in either order: the
+  limits centred under and over the sign at 0.6 of the size; a script on
+  any other symbol still sits to its right.
+- `\matrix{a, b; c, d}`: cells parted by commas, rows by semicolons,
+  columns as wide as their widest cell, rows a line apart centred on the
+  axis, between brackets scaled to the height; six a side at most.
+
+Twenty-six labels are the reader's byte expectation
+(`base/test/math/expect/notation.txt`, generated from the bytes by
+`probe_notation.ring`, compared by gate section 15); three scenes draw
+the notation (27: fractions and a root as the names of points on a
+line; 28: a title with a fraction and a sum with its limits; 29: a
+matrix in a title) and were looked at. Every figure now measures its
+title's box through the reader and grows its top margin to hold it -- a
+stacked title ran 9 px off the canvas at the fixed margin, which moved
+the function figure's SVG expectation by 254 bytes (the title's place),
+regenerated and committed with this slice.
+
+**Found while building:** a backslash in a Ring string is literal and
+one is one, so a generator that doubles them for another language's
+escaping hands the reader two -- section 15 crashed on exactly that
+until its backslashes were reduced to one; six zero notes alone on the sinc stuck
+within 2 px of lawful (a solver fragility of the fixed start, noted for
+M2's re-solve work; scene 28 marks the extrema instead).
+
+**M1 IS CLOSED**: seven figure kinds and the notation, all on main.
+
+### M2 -- Motion
+
+**Deliverable**: `stzMathMotion`: `Param(name, from, to)` re-solves a figure
+on change through `SetSubstanceData` (cold) or `Relayout` (warm) as the
+change requires; `State(caption, changes)` declares a sequence; `Play(oW)`
+runs in the window loop the way `stzDiagram.RunIn` does
+(`stzDiagram.ring:10732`), rebuilding only when the model changed;
+`ExportTo` writes a storyboard through `Act` and a `.narration` through
+`ToNarration`. **Done when**: Pythagoras as declared states (Byrne's I.47
+squares moving into place) and `y = a * sin(b x)` under two parameters run
+in the window, the computed half at frame rate and the solved half within
+100 ms, both numbers printed by the guard; and `motion_narrated.ring` proves
+the exported frames equal the live ones by comparing `ToPixels` of the live
+state against the exported state re-rendered, refusing by name when the
+machine has no device. **Routed**: F12. **Not claimed**: 60 fps for the
+solved half (decision 8); GIF or video.
+
+#### M2a RESULTS -- a parameter is a slider, 2026-09-26
+
+**Shipped**: `base/math/stzMathMotion.ring`. `StzMathMotionQ(:Function,
+[ :f = "{a} * sin({b} * x)", :on = [ -6.3, 6.3 ], :curve = :live ])` with
+`Param("a", 0.5, 3, 1)` and `Param("b", 0.5, 3, 1)`: `Set` moves a
+parameter, the COMPUTED half follows on the next frame (the family
+compiled once on the tape with x and the parameters as variables,
+re-sampled into an overlay canvas the window draws over the settled
+picture), the SOLVED half follows on `Settle` (the figure rebuilt and
+re-solved where the parameters last stood). `Play(oWindow)` is the loop:
+left and right on the first parameter, up and down on the second, a
+settle when the keys are released, Escape closes; `Frame()` is the same
+composition offscreen. The function figure took `:curve = :live` (it
+computes everything and draws all but the curve) and `:livesamples`.
+Gate `motion_narrated.ring`: 24 assertions in 3 sections, ~6 s.
+
+**The two numbers decision 8 asked for, measured**: the computed half
+is 6.9 ms median over sixty frames of 240 samples (7.0 mean, 8.3 worst)
+against the 16.7 ms frame, and the gate asserts the median and the
+STRUCTURE by count -- sixty flushes, 240 tape calls a frame, zero
+settles during the drag -- because a count is immune to this machine's
+ambient load and a clock is not; the solved half settles in 446 ms
+(mean of three) against the graph plane's 100 ms drag budget, which is
+OWED as a number and printed by the gate on every run, never claimed.
+
+**Found while building, by a breakdown of one frame (medians of sixty):**
+240 tape calls 5.8 ms, that is 24 us per crossing into the engine for
+one `ValueAt`; the pixel map in Ring 1.8 ms; the overlay's clear,
+polyline and flush 3 to 4 ms; and `StzColorToNumber(:Primary)` 0.77 ms
+PER CALL, which the motion was paying every frame against the colour
+system's own law (resolve at load, never per frame) -- cached at settle
+now, and the frame fell from 15.5 ms to 6.9. Routed `MATH-TAPE-BATCH-01`
+to the number plane: a batch `ValueAt` over many points in one crossing
+would take the 240 calls to one; the samples were cut from 400 to 240
+meanwhile (3.3 px a segment).
+
+**Not claimed**: the window loop under a gate (a gate cannot open a
+window on the author's screen; `base/test/math/play_motion.ring` is the
+demo to run by hand); the 100 ms settle; a mouse slider (the GUI plane's
+widget, when it exists -- keys move the parameters here).
+
+#### M2b RESULTS -- declared states, the storyboard, the frame-reality guard, 2026-09-26
+
+**Shipped**: the second subject and the second kind of motion, in
+`base/math/stzMathMotion.ring`. `StzMathMotionOverQ(oDiagram)` takes any
+solved `stzMathDiagram`; `State(caption, acts)` declares a state as a
+caption and the acts that reach it from the state before -- `[:DragTo,
+path, x, y]`, `[:DragBy, path, dx, dy]`, `[:SetData, obj, key, v]`,
+`[:SetTheme, name]` on a picture, `[:Set, param, v]` on a `:Function`
+motion -- every act checked at declaration (a verb that is not an act, a
+drag of a derived shape, a Set on a picture, a DragTo on a figure, all
+refused by name); `StateFact(hole, kind, args)` binds a fact the caption
+must show as `{hole}`. `Apply(n)` is the live pass on the motion's own
+picture; `PlayStates(oW, dwellMs)` holds each state on the window (Right
+or Space advance, Escape closes); `ExportTo(folio, name)` drives an
+`stzStoryboard` with the SAME acts through its `Act`, binds the facts,
+writes `name_NN.png` per state and `name.narration` beside them, and
+leaves the motion where it found it (the storyboard works on its own copy;
+a `:Function` motion's parameters are put back). The story itself is
+library code in `base/math/stzMathStories.ring`: `StzPythagorasPictureQ`
+builds Byrne's I.47 from `StzGeometryDomain` + `StzByrneStyle` and a
+three-point substance; `StzPythagorasMotionQ` tells it in four states, A
+dragged three times, the facts `a2`, `b2`, `c2`, `sum`, `gap` and the angle
+bound in the captions. Demo: `base/test/math/play_states.ring`. The
+exported frames and narrations are committed under `base/test/math/folio/`.
+
+**The frame-reality guard, as the done-when asked**: `motion_narrated.ring`
+sections 4 to 6 (33 new assertions, 57 in all) build a SECOND picture and
+walk it by hand through the declared acts with the diagram's own `DragTo`,
+and every exported frame is byte-for-byte that picture's `ToPNG` -- four
+of four for Pythagoras, three of three for the sine family settled by hand
+at each parameter -- with the negative that consecutive frames differ, so
+the equality is not vacuous; and what `PlayStates` shows, the motion's own
+`Apply`, is the exported frame, four of four. The comparison is PNG bytes
+on both sides rather than `ToPixels`: the encoder is deterministic (proven
+by drawing one state twice) and the same encoder on both sides is the same
+pixels. Without a device `ExportTo` refuses by name and the gate prints
+what it skipped.
+
+**Every claim carries its check (law 3), read from the coordinates**:
+nothing in Byrne's picture asserts a^2 + b^2 = c^2 -- every square is an
+expression over the three points -- so the gate reads the expression
+`dist(A,B)^2 + dist(A,C)^2 - dist(B,C)^2` back from the solved picture in
+every state (worst 0.0008 px^2 over four states) and the angle at A (worst
+0 degrees off 90), and the NEGATIVE, a triangle whose right angle is
+declared at B, reads 83,924 px^2 for the same expression: the zero is
+measured, not an identity. For the sine family, the extremum nearest the
+origin -- found by the engine's own search -- sits at height a in every
+frame, checked against the number the state set.
+
+**The numbers**: a state's drag on Byrne is a WARM re-solve, 27 ms in a
+quiet process and 42 ms under this machine's ambient load -- inside the
+graph plane's 100 ms drag budget, which is the budget the done-when names
+for the solved half. The export costs about 1 s a frame under load (a
+solve, a PNG and a `StzCheckPictures` judgement per frame). The
+`:Function` motion's settle stays OWED (446 ms quiet, 710 ms under load):
+it rebuilds and solves cold, and the warm path needs `MATH-DRAGFIELD-01`.
+
+**Found**: `Right()` declared at B under the Byrne style leaves the angle
+at B reading 34.77 degrees, silently -- the style derives its figure with
+the right angle at the first point of the triangle and the assertion is
+not enforced against it. Routed `MATH-BYRNE-RIGHT-01` to graphics; the
+gate uses the picture as its negative and says so.
+
+**Not claimed**: the rearrangement proof (the two smaller squares
+translating INTO the hypotenuse square) -- under the Byrne style every
+square is derived from the three points, so the motion is the vertex's and
+the squares follow; the rearrangement is another picture, a candidate for
+the course (M3). GIF or video. The 100 ms settle for a rebuilt figure.
+
+**M2 done-when, read against this**: the sine family under two parameters
+runs in the window (M2a); Pythagoras runs in the window as declared states
+(`play_states.ring`); the computed half is at frame rate and the solved
+half is within 100 ms for a state's drag and NOT for a figure's settle,
+both printed by the guard; the exported frames are proven equal to the
+live ones. M2 is CLOSED with one number owed, named above.
+
+### M3 -- The mathematics course
+
+**Deliverable**: `program/courses/math/` -- `course.zknw`, fifteen chapters
+in en/fr/ar/ha, every numeric claim a `#-->` promise, every figure a
+declaration in a cell (no picture file under `program/`), one exercise per
+chapter proved by wrong and right answers, `needs-step` facts on every
+exercise, ids prefixed `math-`; the bank overlay attaches money exercises
+(`overlays/bank/courses/math/course.zknw`); the school world is used through
+`uses-world`. Chapter spine, by level:
+
+| level | chapters |
+|---|---|
+| L0 | the number line; the fraction; the chaos game |
+| L1 | a function is a picture; a family under a parameter; geometry declared and solved (Thales, Byrne) |
+| L2 | a number that says why it is not exact; matrices as pictures; statistics as a language of thought; probability by the quantifier continuum |
+| L3 | money that must not lose a centime; an optimisation model (`.zopt`); Tukey's first look (after M4) |
+| L2-L3 | the derivative that checks the formula; an identity is not a self-check |
+
+**Done when**: `course_math_narrated.ring` is green in all four languages
+with the same promises cell for cell, `tutor_math_narrated.ring` asks the gap
+question on every chapter and refuses the answer, and a decision maker's
+15-minute demo runs offline from a clean folder (the education demo's
+mechanism, `DemoProved`, counting "N proved, 0 not proved"). **Routed**:
+F13, F14, F15, F16, F17. **Not claimed**: native review of fr/ar/ha; a cell
+in the browser (ringscript); a figure shown in the reader before F13 lands
+(until then the page shows the figure's `Why()` and the guard shows the
+picture).
+
+After M3, Central is asked to rate `base/math/` as a card on the Atlas by
+what its guards prove.
+
+#### M3a RESULTS -- the course spine and level L0, 2026-09-26
+
+**Shipped**: `base/education/program/courses/math/` -- `course.zknw` (three
+chapters shipped), `curriculum.zknw` (fifteen planned, every one training a
+skill of the program and a `requires` chain with no cycle), and level L0 in
+four languages: `01-the-number-line`, `02-the-fraction`, `03-the-chaos-game`,
+each `.en/.fr/.ar/.ha.md`, with one exercise each (`math-01-01`,
+`math-02-01`, `math-03-01`: task in four languages, `promise.ring`, two right
+and two or three wrong answers, `needs-step` on every one). Every figure is
+a declaration in a cell (`StzMathFigureQ(:NumberLine, ...)`, `:Fraction`,
+and the chaos game as library code -- `StzChaosGamePictureQ`,
+`StzChaosGameSubstance`, `StzChaosGameCounts` in `stzMathStories.ring`);
+every numeric claim is a `#-->` promise written FROM A RUN; the school world
+is used through `uses-world`. The course is registered in the program's
+manifest by one line (announced in CONCLUSIONS before it landed).
+
+**Gates**: `base/test/math/course_math_narrated.ring` -- the education
+plane's course contract held to this course (text in four languages, every
+cell run in a fresh process with every promise kept, no stored output, the
+same promises cell for cell across editions, a recap, every exercise
+proving itself), plus two of this plane's own: no file under the course
+folder but `.md`, `.zknw`, `.ring`; and every cell but a world cell carries
+a promise. 53 assertions, 27 s, scoped by chapter id and printing what it
+skipped. `tutor_math_narrated.ring` -- on every chapter a learner who handed
+in a wrong answer and asks what is missing gets the gap question of the
+exercise's first declared step, never the fallback; asked for the answer in
+en/fr/ar/ha the tutor refuses and its words carry none a right answer
+calls; a chapter ahead is named and not explained, with the negative that
+the same tutor without the course cannot know. 29 assertions, 10 s.
+`demo_math.ring` -- the fifteen-minute demo offline from a clean folder,
+the education demo's mechanism: 11 proved, 0 not proved (one folder and it
+runs; the chapter in four languages; the reader page storing no output; the
+tutor asking and refusing; the figures drawn by the guard because the page
+cannot show them yet).
+
+**Found, and said**: the tutor's gap question is the STRING vocabulary's --
+on the fraction exercise it asks "does your list contain what you are
+looking for, and how many times?" -- because `GapIn` knows asks / finds /
+applies and reads them off the words contains / find / remove in the code.
+Every math exercise declares `needs-step | asks` (the honest fit: each asks
+a count of the picture) and a wrong answer that names `NumberOfShapes`
+satisfies "asks" by the word alone. `MATH-TUTOR-NUMBERS-01` (F14) stands,
+now with a quoted sentence as evidence. The reader shows no figure (F13):
+the page carries the figure's own sentence and the guard draws the PNG.
+
+**Not claimed**: chapters 4 to 15 (twelve of fifteen are planned and
+unwritten, and the gate prints both numbers, never summed as shipped);
+native review of fr/ar/ha (every translated page carries the banner); the
+bank overlay's money exercises (with L3); a figure in the reader page.
+
+**Next**: M3b, level L1 -- a function is a picture; a family under a
+parameter; geometry declared and solved (Thales, Byrne) -- the same shape:
+English chapter run first, promises from the run, then the three editions,
+then the exercise proved by its own wrong and right answers.
+
+#### M3b RESULTS -- level L1, 2026-09-26
+
+**Shipped**: chapters 4 to 6 in four languages with one self-proving
+exercise each -- `04-a-function-is-a-picture` (the `:Function` figure: a
+zero found by the figure and checked by arithmetic to a millionth, the
+window read back, a circle and a rose as parametric and polar forms, a
+tangent as a given mark, a pole drawn as two pieces), `05-a-family-under-a-
+parameter` (`stzMathMotion`: Param, Settle, Set, the live samples checked
+against Ring's own sine, the extrema found again after a settle, two
+declared states with a bound fact, Apply), `06-geometry-declared-and-solved`
+(Euclid I.47 and Thales from library code, the right angle and the equality
+read off the coordinates, a vertex dragged through a declared state in each
+picture and the theorem read again; `Substance().Holds("Right", ...)`
+answers 0 for Thales -- the theorem was never asserted). Thales joined the
+stories file as library code: `StzThalesPictureQ`, `StzThalesAngle`. Six of
+fifteen chapters ship; `course.zknw` says six and `curriculum.zknw` fifteen.
+
+**Gates, rerun over six chapters**: `course_math_narrated.ring` 104/104 in
+69 s (8 to 15 s a chapter, four editions each, printed); `tutor_math_
+narrated.ring` 44/44 in 22 s; `demo_math.ring` 11 proved, 0 not proved.
+Every promise of the three new chapters was written from a run
+(`probe_chapter.ring`) and all three ran green on their first pass through
+the education runner.
+
+**Found**: dragging A of Thales' picture keeps the angle at 90 by moving
+the CIRCLE: A lands where the drag says, and the solver shrinks and shifts
+the circle (radius 209 to 198 to 183 px over two drags) so A, B and C stay
+on it with BC through the centre -- lawful, and worth a sentence in the
+chapter, which says "the solver keeps A on the circle" and checks it.
+
+**Not claimed**: chapters 7 to 15; the reader's figure (F13); a number
+vocabulary in the tutor (F14); native review of fr/ar/ha.
+
+**Next**: M3c, level L2 -- a number that says why it is not exact;
+matrices as pictures; statistics as a language of thought; probability by
+the quantifier continuum.
+
+#### M3c RESULTS -- level L2, 2026-09-26
+
+**Shipped**: chapters 7 to 10 in four languages with one self-proving
+exercise each -- `07-a-number-that-says-why` (the exactness register:
+Ring's float says 0.1 + 0.2 is not 0.3 and prints 0.30; the exact number
+adds the same tenths to 0.3 and says `decimal`; 1/3 stops at six places
+and says "the division does not terminate in 6 decimal place(s)"; "1/3"
+stays rational and 1/3 + 2/3 is the same as 1; the big integer keeps
+9007199254740993 + 1 where the float lands on 9007199254740992),
+`08-matrices-as-pictures` (the `:Matrix` figure: a cell by its name, a
+product as three grids with the lit cell read off the figure and computed
+by hand, a dimension refusal, the heat ramp), `09-statistics-as-a-language`
+(`stzDataSet` words and the `:BoxPlot` figure saying the same numbers, the
+text rendition, the fence rule applied by hand, two groups, the standard
+deviation), `10-probability-by-the-continuum` (the quantifier continuum's
+order held on ten numbers, a seeded coin thrown a thousand times reading
+504, sixty seeded rolls counted by face, the proportion placed on a number
+line and ten rolls shaded as a fraction). Ten of fifteen chapters ship.
+
+**Gates, rerun over ten chapters**: `course_math_narrated.ring` 172 of 172 in 122 s;
+`tutor_math_narrated.ring` 64 of 64 in 38 s; `demo_math.ring` 11 proved, 0 not proved. Every
+promise of the four new chapters was written from a run.
+
+**Found**: the design page of the numeric foundation says the float path
+`StzNum(0.1).Plus(0.2)` answers inexact; the shipped number normalises a
+float through Ring's own rendering and answers exact 0.30 -- so the
+chapter shows the machine's own equals sign failing instead, which is the
+honest cell (`0.1 + 0.2 = 0.3` prints 0), and never claims the float path.
+`SquareRoot()` on "2" left the content at 2 while marking it inexact ("'sqrt'
+has no exact decimal result in general"); the chapter does not use it.
+Both are noted, not routed: the numeric plane's design page is not this
+plane's to correct, and the cells say what runs.
+
+**Found, in the runner**: a wrong answer that prints the single item of a
+promised one-item list (`30` for `[ 30 ]`) is ACCEPTED, because the
+matcher reads a list printed one item per line; the exercise's wrong
+answer was changed to print a count instead. A promise of a one-item
+list is weaker than it reads; worth a line in the education plane's
+contract (not routed: their matcher's rule is documented and deliberate).
+
+**Not claimed**: chapters 11 to 15; the bank overlay's money exercises;
+native review of fr/ar/ha.
+
+**Next**: M3d, level L3 -- money that must not lose a centime (with the
+bank overlay), an optimisation model (`.zopt`); Tukey's first look waits
+for M4 and stays planned-unwritten; then M3e, the derivative that checks
+the formula and the identity that is not a self-check.
+
+#### M3d RESULTS -- level L3 without Tukey, 2026-09-26
+
+**Shipped**: chapters 11 and 12 in four languages with one self-proving
+exercise each -- `11-money-to-the-centime` (the money regime: a thousand
+dimes on the machine print 100.00 and fail `= 100`, as money they are
+100.00 and `Same(100)`; 100.10 shared three ways is 33.37 with "the
+division does not terminate in 8 decimal place(s)"; three shares make
+100.11 and `Same("100.10")` is 0; the last share takes the remainder,
+33.36; halves round to the even neighbour, 2.675 to 2.68 and 2.665 to
+2.66; a 19.25 per cent tax to 19.27; the exact regime refuses 1/3 by
+name), `12-an-optimisation-model` (the design's own example solved at 130
+with x = 30, y = 20; the engine names itself; violations empty and the
+plan checked by hand; the sentence surface reaching the SAME AST
+signature; a production plan of 60 chairs and 26 tables with one branch;
+an infeasible model; the HiGHS tier and an ambiguous sentence refused by
+name). Twelve of fifteen ship; chapter 13, Tukey's first look, stays
+planned and unwritten until M4, and the gate prints it as such.
+
+**The bank overlay attaches its money exercise**: `base/education/
+overlays/bank/courses/math/course.zknw` adds `bank-math-01` (a 0.75 per
+cent fee on 120 000 francs, 900.00 as money) to chapter 11 through the
+merged course facts, with tasks in the four core languages as the
+overlay court requires; the court answers `[ ]`, the chapter's exercises
+read `math-11-01` alone without the overlay and both with it. The core
+course was not edited to attach it.
+
+**Gates, rerun over twelve chapters**: `course_math_narrated.ring`
+206 of 206 in 113 s; `tutor_math_narrated.ring` 74 of 74 in 42 s; `demo_math.ring` 11 proved, 0 not proved;
+the education plane's `institution_narrated.ring`, which passes the
+bank overlay through the court, 37 of 39 -- the two failures (the overlay's exercise appearing on the chapter's French page, for the bank AND the university overlay) predate this work: they fail identically with the bank's math files moved aside, and are routed to education as MATH-FINDING-EDU-INST-01.
+
+**Found**: `PercentOf(15)` on the money 100.10 answers 15.01 where the
+half-even rule on 15.015 would give 15.02; the chapter uses `MultiplyBy`
+and never `PercentOf`. `StzModelToZopt` is not callable as a global in
+this build although `stzOptimFile.ring` is loaded; the chapter uses the
+object and sentence surfaces and names `.zopt` in prose only (a `.zopt`
+file under `program/` would also fail the demo's whitelist, F16).
+
+**Not claimed**: chapter 13 (after M4); chapters 14 and 15 (M3e); native
+review of fr/ar/ha.
+
+**Next**: M3e -- the derivative that checks the formula and the identity
+that is not a self-check; then M4 Tukey and chapter 13.
+
+#### M3e RESULTS -- the two closing chapters, 2026-09-26
+
+**Shipped**: chapters 14 and 15 in four languages with one self-proving
+exercise each -- `14-the-derivative-that-checks` (a function compiled on
+the tape; its derivative at 2 read off the tape as 10; the textbook
+formula 3x^2 - 2 checked against it and a slipped 3x^2 - 1 caught at 11;
+a centred finite difference as a third witness to a millionth; a
+gradient of two variables [3, 8]; the slope of sine at zero against
+Ring's cosine; the marks of chapter 4 confirmed by slopes, 0 at the
+extremum and 2.83 at the zero), `15-an-identity-is-not-a-self-check`
+(a check that cannot fail, and the same check passing a wrong formula;
+Byrne's picture measured against a formula it never heard of; the
+function figure's zero of x^2 - 3 against Ring's square root; the
+negative the positive needs, 1.5 refused; the tape as a third route;
+two counts of the school's requests). Fourteen of fifteen ship; chapter
+13, Tukey's first look, stays planned and unwritten until M4, and the
+course gate prints it by name on every run.
+
+**Gates, rerun over fourteen chapters**: `course_math_narrated.ring`
+240 of 240 in 132 s; `tutor_math_narrated.ring` 84 of 84 in 53 s, after the retitle; `demo_math.ring` 11 proved, 0 not proved.
+
+**Found, in the runner, again**: a wrong answer whose printed lines
+coincide with the right ones is accepted (exercise 14's "checks the
+formula against itself" printed 3 and 1 exactly as the right answers
+do); a wrong answer must differ in what it PRINTS, never only in how it
+got there, so it was replaced by a slipped formula that prints 4 and 0.
+The lesson is the chapter's own: a check that cannot fail is not a check.
+
+**M3 done-when, read against this**: `course_math_narrated.ring` is
+green in all four languages with the same promises cell for cell (206
+of 206 over twelve chapters at M3d, 240 of 240 in 132 s now); `tutor_math_narrated
+.ring` asks the gap question on every chapter and refuses the answer in
+four languages; the decision maker's demo runs offline from a clean
+folder by the education demo's own mechanism, 11 proved and 0 not. What
+remains of M3 is chapter 13, which waits for M4 by the plan's own
+order, and the native review of fr/ar/ha, never claimed.
+
+**Next**: M4, Tukey, built -- then chapter 13 and the course's fifteenth.
+
+### M4 -- Tukey, built
+
+**Deliverable**: TK0-TK6 as `SOFTANZA_TUKEY_PLAN.md` wrote them, with every
+picture a figure of M1 (box plot from M1; stem-and-leaf as a text-rendition
+figure; letter values; residual-versus-fit; the coded two-way table; the
+re-expression ladder as a table, per the plan `:407`). **Done when**:
+`Data = Fit + Residual` holds on the plan's own examples -- R's `medpolish`
+example to 1e-9 (`:622-647`), Tukey's three-group line published example,
+a synthetic multiplicative table whose ladder power is near 0 with slope
+near 1 (`:663-676`); no p-value, interval or forecast anywhere in the tier
+(`:313-314`); the pictures are looked at. **Routed or ruled**: decision 7
+(who owns `eda.zig`). **Not claimed**: TK6's panel before the GUI's G5.
+
+#### M4a RESULTS -- TK0 and TK1, the resistant core, 2026-09-26
+
+**Shipped**: `engine/src/eda.zig` (the Tukey tier's numerics in the
+`stz_stats` DLL, owned by this plane under decision 7), nine bridge calls,
+and `base/math/stzTukey.ring` with four faces: `stzTukeySummary`,
+`stzTukeyFit` (two-way median polish), `stzTukeyOneWay`, `stzTukeyLine`.
+Gate `base/test/math/tukey_narrated.ring` 52 of 52. Full results, with the
+three kill criteria scored, in `base/stats/SOFTANZA_TUKEY_PLAN.md` under
+`TK0 RESULTS` and `TK1 RESULTS`.
+
+**The three kill criteria**: R's `medpolish` example reproduced to 1e-9
+(met; R absent here, the transcription confirmed by an independent NumPy
+route); the two hinge conventions differ by up to 0.21 fourth-spreads, so
+both ship and every display names its own (the plan's simplification did
+not apply); the 1000 x 1000 polish runs in 46 ms single-threaded after
+quickselect, nine times over the 5 ms bar the plan predicted it would
+clear -- the prediction was wrong, and the acceleration question is closed
+by judgement at 46 ms, with the number recorded so the ruling can be argued.
+
+**Not shipped, and why**: the smoother family and the N-way polish wait
+for R's outputs (`MATH-R-ORACLE-01`, routed to the author); TK2
+re-expression, TK3 displays (as figures of M1), TK4 verdicts, TK5 the
+story, and chapter 13 follow.
+
+**Next**: M4b -- TK2, re-expression measured: spread-versus-level,
+comparison values, the ladder in one crossing, the recommendation as a
+verdict with its slope; the synthetic multiplicative and additive tables
+as the oracles, the additive one the negative that matters more.
+
+#### M4b RESULTS -- TK2, re-expression measured, 2026-09-26
+
+**Shipped**: the ladder, the two diagnostic slopes and the recommendation
+in `eda.zig`, four bridge calls, `stzTukeyReexpression` and
+`StzTukeySpreadLevel` in `base/math/stzTukey.ring`; gate section 6b,
+63 of 63 in all. The recommendation threshold was MEASURED on forty
+synthetic tables before any face used it (additive max 0.19,
+multiplicative min 0.88, threshold 0.5, fired on additive 0 of 20) and
+the negative -- an additive table gets no recommendation and no finding --
+is the assertion the plan calls the one that matters more. Details in
+`SOFTANZA_TUKEY_PLAN.md` under `TK2 RESULTS`.
+
+**Next**: M4c -- TK3, the displays as figures of M1: the box plot figure
+taking `:convention` and printing it, stem-and-leaf as a text-rendition
+figure, letter values as a table, residual-versus-fit, the coded two-way
+table with its legend, the ladder as a table; every picture looked at.
+
+#### M4c RESULTS, first half -- TK3: the box plot's convention, the stem-and-leaf, two tables, 2026-09-26
+
+**Shipped**: `:BoxPlot` takes `:convention` (default unchanged, `:Fourths`
+from `eda.zig`, named in `Why()` and `Text()`); a new figure kind
+`:StemPlot` (`base/math/stzStemPlotFigure.ring`) with three rules of its
+own and a text rendition; `LetterValueTable` and `LadderTable` on the
+Tukey faces; catalogue scenes 30-32, looked at; gate sections 16-17,
+240 of 240 in all. Details in `SOFTANZA_TUKEY_PLAN.md`, `TK3 RESULTS, first
+half`. Routed: `MATH-BOXPLOT-DELEGATE-01` (the stats plane's
+`BoxPlotStats` still computes its fences in Ring).
+
+**Next**: M4c, second half -- residual-versus-fit and the coded two-way
+table with its legend, as figure kinds; then TK4's verdicts into
+`stzRuleReport`, TK5's story, and chapter 13.
+
+#### M4c RESULTS, second half -- TK3 complete: residual versus fit, the coded table, and the dark catalogue that was light, 2026-09-26
+
+**Shipped**: two figure kinds, `:ResidualPlot` (`base/math/
+stzResidualPlotFigure.ring`; every cell a point at (fit, residual), bands at
+the residual fourth-spread, far-out cells named, coincident cells drawn as
+rings so none is hidden; rules `point_is_its_cell`, `bands_are_the_scale`)
+and `:CodedTable` (`base/math/stzCodedTableFigure.ring`; a glyph per fixed
+band of residual over scale, ASCII or symbols, the legend printed with the
+scale; rules `glyph_is_its_band`, `legend_is_printed`,
+`cells_tile_the_table`; `Text()`). Ten kinds now. Scenes 33-35; gate
+sections 18-19, 280 of 280.
+
+**Found and fixed**: `stzMathFigure.Diagram()` returns a copy, so the
+catalogue's dark theme never reached a figure and all 32 `dark_NN.png`
+since M1 were the light bytes. `SetTheme` on the figure, the catalogue
+re-rendered, both directions pinned in the gate. Details in
+`SOFTANZA_TUKEY_PLAN.md`, `TK3 RESULTS, second half`.
+
+**Next**: M4d -- TK4's verdicts into `stzRuleReport` with `IsSound()` in
+both directions, TK5's `stzTukeyStory` on `stzNarration`, and chapter 13
+`tukeys-first-look`; TK6 stays gated on GUI G5.
+
+#### M4d RESULTS -- TK4 verdicts, TK5 story, chapter 13; M4 CLOSED, 2026-09-26
+
+**Shipped**: `Diagnostics(subject)` on every Tukey face in the house rule
+shape, `StzTukeyReportQ(subject, [ faces ])` over `stzRuleReport`,
+`Shape()` with skewness and tail weight whose thresholds were MEASURED
+first (`probe_tk4.ring`; 0.25, 1.2, 0.5; the single mid-summary did not
+separate the classes and the table says so); one meaning of "far out"
+across the tier (Tukey's fences; the residual plot now draws them, the
+deaths table has two far-out cells, not three); `stzTukeyStory` on
+`stzTranscript` with the honesty law checked on itself and no LLM face
+(the plan's kill criterion, exercised); chapter 13 `tukeys-first-look` in
+four languages, 9 cells and 23 promises kept in each, with exercise
+`math-13-01`; the M4 done-when's three examples hold (R's medpolish to
+1e-9 since TK0; the three-group line since TK1; the synthetic multiplicative
+table's ladder since TK2), no p-value, interval or forecast anywhere, every
+picture looked at.
+
+**Gates**: `tukey_narrated.ring` 95 of 95 (9 sections); `math_narrated.ring`
+282 of 282; `course_math_narrated.ring tukeys-first-look` 19 of 19; the
+tutor gate 89 of 89; the full course gate over the other 14 chapters was
+NOT rerun (nothing they read changed), by name.
+
+**Not built**: TK6 (gated on GUI G5); the smoother family and the N-way
+polish (`MATH-R-ORACLE-01` still open); the shape verdict below 100 values
+(unjudged by name); the spread-versus-level picture.
+
+**Next**: M5 -- the routed requests, filed with their oracle and picture
+columns; then M6, a bridge to Lean.
+
+#### M4 addendum -- the smoothers, once R was found at D:\R, 2026-09-26
+
+`MATH-R-ORACLE-01` closed: R 4.5.1 was on the machine, and its transcript
+(`base/test/math/oracle/r_smooth.txt`) is the oracle. The 3-family ships in
+`eda.zig` with `stzTukeySmoother` over it, 592 of 592 cases equal to R
+exactly after one transcription miss that was R's own inversion of
+`do.ends` for the 3RS kinds; Hanning and 4253H ship with copied ends and
+per-window checks. Gate 115 of 115. Details: `SOFTANZA_TUKEY_PLAN.md`,
+`TK1 RESULTS, second half`. The N-way polish stays out, by name.
+
+**The change point, the same day**: `stzTukeySmoother.ChangePoint()` and
+its `level_shift` warning, threshold 1.8 measured first on seeded series
+(`probe_changepoint.ring`); fires on 0 of 80 null series and 39 of 40
+five-sigma steps; gate section 11, 124 of 124. Details in the Tukey plan's
+`TK4 addendum`.
+
+**TK6's memory half, killed by its own criterion**: a memory of which
+re-expression worked ties the ladder on 19 of 20 held-out tables and loses
+on the twentieth, and the whole ladder (one engine crossing, 0.15 ms on a
+lesson-sized table) costs less than the one polish the memory would save.
+Measured in `probe_tk6_memory.ring`; recorded in the Tukey plan's `TK6
+RESULTS, the memory half`. The panel half stays gated on GUI G5. M4 has no
+leftover now.
+
+### M5 -- Deepen the core (routed)
+
+Requests, each with the oracle and the picture that would prove it, to the
+owning plane through Central:
+
+| request | oracle | picture |
+|---|---|---|
+| RK45 with error control | the harmonic oscillator's energy, and a stiff test problem against a published table | the phase portrait, a `:Function` figure |
+| forward-mode AD | agreement with the reverse tape to 8 decimals on the existing 16 ops | the tangent under a slider |
+| bootstrap | a normal sample whose bootstrap interval covers at the nominal rate over 1,000 draws | the resampling histogram |
+| a first Bayesian door (conjugate beta-binomial) | the closed-form posterior | the prior-to-posterior motion |
+| convex hull and Delaunay | Euler's formula and the empty-circle property on random points | the triangulation, a `:Points` figure |
+| permutations, truth tables, a small SAT | counts against the closed forms; the pigeonhole instance unsatisfiable | the truth table as a `:Matrix` figure |
+| Poisson and binomial in `stzRandom` | mean and variance over 1e6 draws within derived bands; the chi-square test already in the tree | the histogram against the mass function |
+| the branch-cut policy for complex log and inverse trig | `exp(log z) = z` on both sides of the cut with the negative sibling that crosses it | the complex plane with the cut drawn |
+| `MATH-FACTORS-01`: LU and QR factor accessors | `A = LU`, `A = QR`, residual against `kappa * eps` | the factor panels of a `:Matrix` figure |
+| the Julia question: LU and Cholesky over the exact tower | `Fraction` solve already in `_gen_numpy_reference.py:24-46`; a 4x4 rational system solved with zero residual | every pivot shown as a fraction |
+
+**Done when**: every request is filed with its two columns and the owning
+plane has accepted or declined through Central. Nothing here is built by
+this plane.
+
+#### M5 RESULTS -- filed, 2026-09-26
+
+**Filed**: one ROUTE block in `D:\GitHub\softanza\mailbox\stzlib-math.md`
+with the ten rows above, their oracle and picture columns unchanged, the
+owner named by the folder that holds the code, and the chapter each would
+serve. The IDs, so the plan and the mailbox name the same rows:
+
+| ID | request | owner |
+|---|---|---|
+| `MATH-RK45-01` | RK45 with error control | number |
+| `MATH-FORWARD-AD-01` | forward-mode AD | number |
+| `MATH-BOOTSTRAP-01` | bootstrap | stats |
+| `MATH-BAYES-DOOR-01` | conjugate beta-binomial | stats |
+| `MATH-HULL-DELAUNAY-01` | convex hull and Delaunay | geo |
+| `MATH-COMBINATORICS-01` | permutations, truth tables, a small SAT | intelligence |
+| `MATH-DISCRETE-RANDOM-01` | Poisson and binomial in `stzRandom` | number |
+| `MATH-BRANCH-CUT-01` | the branch-cut policy in `stzComplex` | number |
+| `MATH-FACTORS-01` | LU and QR factor accessors (standing since 2026-09-25) | number |
+| `MATH-EXACT-LU-01` | LU and Cholesky over the exact tower | number |
+
+**Open**: the owners' accept-or-decline, through Central. A decline with a
+reason closes a row here; an acceptance turns the picture column into a
+figure kind or a chapter section this plane then builds. Nothing was built
+in M5, by design.
+
+### M6 -- A bridge to formal proof
+
+**Deliverable**: `stzMathClaim.ToLean()` emits a Lean 4 statement against
+Mathlib for the identities a lesson states (an algebraic identity, an
+inequality, a divisibility fact); a checker runs Lean when it is installed
+and carries the verdict back as a guard; the zero-setup floor is the
+numeric guard, per law 9. **Done when**: one chapter's identities are
+machine-checked, the guard fails when a statement is made false, and a
+machine without Lean reports the door closed by name and stays green on the
+floor. **Ruled**: decision 5.
+
+#### M6 RESULTS -- the floor and the door, 2026-09-26; the checked half waits on Lean
+
+**Shipped**: `stzMathClaim` (`base/math/stzMathClaim.ring`) -- a statement
+with a kind (identity, inequality, divisibility), two sides, a domain
+(natural, integer, rational, real) and named variables, declared as keys or
+as one string (`"7 | 343"`); `stzMathClaimSet`, one lesson's statements;
+`StzSelfCheckLessonClaims()`, chapter 15's six, in `stzMathStories.ring`.
+
+**The floor, law 9**: both sides are compiled by the engine
+(`stzMathFunction`) and evaluated at sampled points -- one for a closed
+statement, sixteen per variable otherwise, integers where the domain is
+integers, a point where a side has no value skipped and not counted. A false
+statement fails HERE with a counterexample that names the point and the
+two sides: the wrong formula gives 26 against 25; the freshman's dream
+gives 16 against 10 at a = 1, b = 3. A set's false claims are `claim_false`
+errors in the house rule shape, and `IsSound()` is the guard.
+
+**The door, decision 5**: `ToLean()` emits `theorem <name> (vars : type) :
+((lhs : type) rel rhs) := by <tactic>` -- the subset spelled Mathlib's way
+(`Real.sqrt`, `Real.pi`, `Real.exp 1`, `∣`, `≠`, `≤`), the tactic by kind
+(`norm_num` closed, `ring` for an identity in variables, `nlinarith` for an
+inequality in variables) or the author's own. `StzLeanDoor()` looks for
+`lean` on PATH or in `STZ_LEAN` and a Lake project in `STZ_LEAN_PROJECT`, and
+answers closed BY NAME when either is missing; `StzLeanCheck()` writes the
+file into the project and runs `lake env lean` when both are present, and
+`StzLeanParseOutput()` reads the answer -- an empty exit-0 run is a proof,
+an error line, a non-zero exit or a `sorry` warning is not. A closed door
+answers `proved = ""`, never 0 or 1: the door's state is not a verdict.
+
+**Chapter 15's identities**: six claims, all true on the floor, emitted to
+`base/test/math/lean/an-identity-is-not-a-self-check.lean` (committed; the
+gate checks the emission equals the file byte for byte). The tactics for
+the three claims that mention `Real.sqrt` (`Real.sq_sqrt`, `Real.lt_sqrt`,
+`Real.sqrt_lt'`) were written from Mathlib's names and NOT run through Lean
+on this machine.
+
+**Done-when, clause by clause, 2026-09-27**: all three met. "The guard
+fails when a statement is made false" -- on the floor (26 against 25) AND
+through the door: the wrong formula sent to Lean comes back with Lean's own
+`error: unsolved goals` line, proved 0. "A machine without Lean reports the
+door closed by name and stays green on the floor" -- met on 2026-09-26,
+when this machine was that machine, and the gate's section 4 keeps both
+branches. "One chapter's identities are machine-checked" -- met: Lean
+accepted `an-identity-is-not-a-self-check.lean` with no output, all six
+theorems, the three sqrt tactics written from Mathlib's names included.
+
+**How the door was opened** (the author asked for it to be done on his
+behalf): elan 4.2.4 from the Lean project's release (2 MB), installed under
+`C:\Lean\elan` so no toolchain lives in a path with spaces; the toolchain
+Mathlib pins, `leanprover/lean4:v4.35.0-rc3` (3.5 GB); a Lake project
+`C:\Lean\stz_lean` made with `lake new stz_lean math` on Mathlib revision
+`c55e6e78`; Mathlib's cache by `lake exe cache get`, 8,943 files, of which
+seven modules arrived without their `.ir` and were refetched by name with
+`cache get!`; `ELAN_HOME`, `STZ_LEAN_PROJECT` and the `bin` folder on the
+user's PATH. Nothing was built from source. One `lake env lean` on a file
+that imports Mathlib takes 25 s on this machine when the compiled files
+are warm in the disk cache and about 100 s when they are cold, so the gate
+takes one to five minutes with the door open and under a second with it
+closed.
+
+**A seam paid for on the way**: the door first ran `cmd /c "cd ... &&
+lake env lean ..."` as one quoted argument and cmd's quote rules ate it;
+it now writes a two-line batch runner beside the claims and hands it the
+file, through `stzSystemCall`'s `cmd.exe` branch, which appends arguments
+bare. Paths under the project carry no spaces by construction. A second
+seam the same hour: `stzSystemCall` kills its child after 30 s by default,
+and the first cold Mathlib import took 99 s -- the demo reported "not
+proved" with `lean exited with 143` (SIGTERM) while the gate, running warm,
+had passed. The door now waits ten minutes (`StzLeanTimeoutMs`). A verdict
+that depends on how warm the disk cache is was a defect, and the exit code
+named it.
+
+**Gate**: `claim_narrated.ring` 48 of 48 with the door open (64 s), 46 of 46
+with it closed (under a second); `demo_math.ring` walks the door too.
+
+**Gate, on 2026-09-26 with the door closed**: `base/test/math/claim_narrated.ring`,
+47 of 47, five sections, under three seconds.
+
+**The demo bar, closed**: `demo_math.ring` gained scene 6 (the deaths
+table fitted by medians, the report naming the two cells the fit does not
+describe, the story proving it computes nothing, the residual plot drawn)
+and scene 7 (a false identity failing on the floor with 26 against 25, a
+true one emitted as a Mathlib theorem, the Lean door reporting itself by
+name over chapter 15's six claims): 17 proved, 0 not proved, up from 11.
+Every row of the demo bar above now has a proving line in the demo, the
+frontier row on its floor.
+
+## 5. The demo bar, mapped
+
+| the 15-minute demo shows | what proves it | lands in |
+|---|---|---|
+| a number that explains itself: `(9007199254740992 + 1)` in f64 and in the tower, and `WhyNotExact()` | `stzMathClaim.In(:f64)` and `.In(:exact)` with `Why()` | M1 (claim) and M3 (chapter) |
+| declare a figure, watch it solve; edit a sentence, drag a point in Byrne's Euclid | a `:Function` figure re-solved on an edited declaration; `DragTo` on scene 37 | M1, M2 |
+| move a slider, see a family: `y = a * sin(b x)`, offline | `stzMathMotion.Param` in the window; two numbers printed | M2 |
+| a proof that plays: Pythagoras as declared states, exported, frames real | `State` sequence; `motion_narrated.ring` pixel comparison | M2 |
+| nothing is faked: a wrong answer fails by running, a right one passes | `ProveItself` on every exercise; a planted wrong claim in the demo | M3 |
+| in their language: the same lesson in French, Arabic right-to-left, Hausa | the course gate over four editions; the reader's RTL | M3 |
+| on their world: the bank's money; the school's own problems | the bank overlay's money exercises; the school world | M3 |
+| proven at the frontier: one identity checked in Lean, its verdict a green guard | `ToLean` and the verdict guard | M6 |
+
+## 6. What not to do
+
+- No CAS, no equation solver over symbols, no TeX engine.
+- No GMP, MPFR, FFTW or BLAS; the decisions are written and measured.
+- No symbol-first course; the visual-first law is the point.
+- No pre-baked frame, plot or answer; no picture file under `program/`.
+- No model answering a mathematical exercise for the learner.
+- No fix in a consumed module; every one is a routed finding.
+- No claim called proven without a guard; no gate counted as run that was
+  not; no wall time quoted without the section it came from.
+
+## 7. The numbers this plan rests on
+
+| number | what | where |
+|---|---|---|
+| 256 | tape variables the solver can hold | `autodiff.zig:38` |
+| 27 ms / 296 ms / 382 ms | warm re-solve / first warm / cold, Byrne dragged 60 px | `SOFTANZA_GRAPH_PLANE_PLAN.md:2741-2772` |
+| 100 ms | the drag budget the graph plane set | `:2755` |
+| 16.7 ms | one frame at 60 fps | arithmetic |
+| 0.08-0.6 ms | the window tier's frame cost | `SOFTANZA_GRAPHICS_PLAN.md:2618` |
+| 29.1 ms | a 1080p still, 95% zlib | `:2606-2618` |
+| 72 | notation names | `stzMathDiagram.ring:1263-1289` |
+| 18 | math-plane domains | `stzMathDiagram.ring`, `stzBase.ring:362-379` |
+| 52 + 52 | catalogue pictures, light and dark | `base/test/graphics/` |
+| 88 / 37 / 80 s | pictures, planted findings and bound of the one render gate | `gg_adversarial.ring:13524-13654` |
+| 46 / ~1,805 | numeric guards and their assertions | `base/test/number/`; the assertion count is the compass's, not re-counted |
+| 2,045 / 2,425 | engine tests stated / static blocks | `SOFTANZA_COMPUTE_MODEL.md:153`; grep |
+| 15 x 4 | chapters and languages of the first course | `program/courses/elementary-introduction/chapters/` |
+| 30 s, missed by 1-9 s | the education gate budget and the cold-start tax | CONCLUSIONS 2026-09-23 |
+| 31 | commits the stzlib tree's local `main` is behind `origin/main` | `git rev-list 04cff1c34..a94ba2920` |

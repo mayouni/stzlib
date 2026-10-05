@@ -1,0 +1,221 @@
+#---------------------------------------------------------------------------#
+#  STZMUSIC -- the first line makes a sound (plan section 4, "dead simple")  #
+#---------------------------------------------------------------------------#
+#
+#     StzMusicQ().Play("c e g c5")                  # four notes, a piano
+#     StzMusicQ().Tempo(90).With(:Oud).Play("d e f g a")
+#     StzMusicQ().With(:Kora).ToSound("a c5 e g").SaveAs("kora.wav")
+#
+# IT OWNS NO MECHANISM. Every verb here is one line over stzSoundScore (the data),
+# stzSoundScoreRenderer (the instruments) and stzSoundScheduler (the timing). The plan
+# (section 5) says so of this piece, and it is the reason the class is short:
+# "fun" that owns machinery is machinery nobody can test on its own.
+#
+# THE PHASE GATE. Plan section 7: the one-line test in section 4 "runs at the
+# close of every phase from MU1 on". It could not run at MU1's close -- there
+# was no StzMusicQ -- and MU1's STATUS did not say so. MU2's guard runs it,
+# and the STATUS records both.
+#
+# WHAT IT IS NOT, YET: the Loop / Every / In verbs of section 4 -- live loops
+# are the pattern language (MU3) and a universe is declared data (MU4). The
+# note string is a list of names, one beat each; its grammar grows in MU3.
+
+func StzMusicQ()
+	return new stzMusic
+
+class stzMusic
+
+	@nTempo = 120
+	@cInstrument = "piano"
+	@nSwing = 0.5
+	@cLastError = ""
+	@nRefusals = 0
+	@oLast = NULL           # the score the last Play or ToSound made
+	@oLive = NULL           # MU3: the live session, made on first use
+	@oUniverse = NULL       # MU4: the universe In() chose
+
+	def Tempo(pnBpm)
+		if NOT isNumber(pnBpm) or pnBpm < 20 or pnBpm > 400
+			@nRefusals++
+			@cLastError = "Tempo: beats per minute, 20 to 400"
+			return This
+		ok
+		@nTempo = pnBpm
+		return This
+
+	def With(pInstrument)
+		_c_ = lower("" + pInstrument)
+		if StzEngineSoundInstrumentIndex(_c_) = 0
+			@nRefusals++
+			@cLastError = "With: no instrument named '" + pInstrument + "'"
+			return This
+		ok
+		@cInstrument = _c_
+		return This
+
+	def Swing(pnRatio)
+		@nSwing = pnRatio
+		return This
+
+	# Plays, and returns when the last note has sounded.
+	def Play(pcNotes)
+		_oS_ = This.ScoreOf(pcNotes)
+		if _oS_.NumberOfEvents() = 0  return This ok
+		_oS_.Play()
+		if _oS_.LastError() != ""  @cLastError = _oS_.LastError() ok
+		return This
+
+	def ToSound(pcNotes)
+		return This.ScoreOf(pcNotes).ToSound()
+
+	# The score a note string makes here -- so what Play would do can be
+	# looked at, changed, and played later.
+	def ScoreOf(pcNotes)
+		_oS_ = StzSoundScoreOfQ(pcNotes)
+		_oS_.On(@cInstrument)
+		_oS_.Tempo(@nTempo)
+		if @nSwing != 0.5  _oS_.Swing(@nSwing) ok
+		if _oS_.Refusals() > 0
+			@nRefusals += _oS_.Refusals()
+			@cLastError = _oS_.LastError()
+		ok
+		@oLast = _oS_
+		return _oS_
+
+	def LastScore()
+		return @oLast
+
+	#-- MU4: a universe ------------------------------------------------------
+	#
+	#     StzMusicQ().In(:Maqam, :Hijaz, :D).PlayPhrase("1 2 3 4 5 4 3 2")
+	#     StzMusicQ().In(:Raga, :Yaman, "").PhraseToSound("1 2 3 4 5 4 3 2", 2)
+	#
+	# The plan's section-4 line, with one change it states: the phrase is in
+	# DEGREES, so the same line means something in every universe. A tonic
+	# given as a bare letter (:D) takes octave 4; "" keeps the mode's own.
+
+	def In(pUniverse, pMode, pTonic)
+		_o_ = StzSoundUniverseQ(pUniverse)
+		if NOT _o_.IsUsable()
+			@nRefusals++
+			@cLastError = _o_.LastError()
+			return This
+		ok
+		if "" + pMode != ""  _o_.Mode(pMode) ok
+		_t_ = "" + pTonic
+		if _t_ != ""
+			if len(_t_) <= 2 and NOT isdigit(right(_t_, 1))  _t_ += "4" ok
+			_o_.Tonic(_t_)
+		ok
+		if _o_.Refusals() > 0
+			@nRefusals += _o_.Refusals()
+			@cLastError = _o_.LastError()
+			return This
+		ok
+		@oUniverse = _o_
+		return This
+
+	def Universe()
+		return @oUniverse
+
+	def PhraseToSound(pcDegrees, pnCycles)
+		if NOT isObject(@oUniverse)
+			@nRefusals++
+			@cLastError = "PhraseToSound: choose a universe first -- In(:Maqam, :Rast, :C)"
+			return NULL
+		ok
+		_oS_ = @oUniverse.PerformQ(pcDegrees, pnCycles)
+		if @oUniverse.LastError() != ""  @cLastError = @oUniverse.LastError() ok
+		return _oS_.ToSound()
+
+	# Plays two cycles and returns when they have sounded.
+	def PlayPhrase(pcDegrees)
+		if NOT isObject(@oUniverse)
+			@nRefusals++
+			@cLastError = "PlayPhrase: choose a universe first -- In(:Maqam, :Rast, :C)"
+			return This
+		ok
+		@oUniverse.PerformQ(pcDegrees, 2).Play()
+		return This
+
+	#-- MU5: singing ---------------------------------------------------------
+	#
+	#     StzMusicQ().Sing("la la la", "c4 e4 g4")
+	#
+	# Whichever voice the author has called SINGING (StzSoundSingingVerdict):
+	# today that is SAPI's own voice retuned by PSOLA, opened 2026-09-27. The
+	# voice is made on the FIRST Sing, and may be made before or after the
+	# audio device is opened: until 2026-09-30 it had to come first, or SAPI
+	# found no voices (STZLIB-VOICE-COMODE-01, fixed in the engine's voice.zig).
+
+	def Sing(pcLyrics, pcNotes)
+		_oR_ = StzSoundRetunedVoiceQ()
+		_o_ = _oR_.Sing(pcLyrics, pcNotes)
+		if NOT isObject(_o_)
+			@nRefusals++
+			@cLastError = _oR_.LastError()
+		ok
+		return _o_
+
+	#-- MU3: live loops ------------------------------------------------------
+	#
+	#     oM = StzMusicQ().Tempo(96)
+	#     oM.LiveLoop(:iqa, "dum ~ tak ~ dum dum tak ~")   # the rhythm names itself
+	#     oM.LiveLoopOn(:drone, "d2", :Oud)
+	#     oM.WaitCycles(4)
+	#     oM.Every(4, :iqa, :Rev)                          # lands on a boundary
+	#     oM.WaitCycles(4)
+	#     oM.StopLive()
+	#
+	# All of it is stzSoundLive's; this is the one-line front over it.
+
+	def LiveLoop(pName, pcPattern)
+		This._EnsureLive()
+		return @oLive.LiveLoop(pName, pcPattern)
+
+	def LiveLoopOn(pName, pcPattern, pInstrument)
+		This._EnsureLive()
+		return @oLive.LiveLoopOn(pName, pcPattern, pInstrument)
+
+	def Every(pnN, pName, pXform)
+		This._EnsureLive()
+		return @oLive.Every(pnN, pName, pXform)
+
+	def Silence(pName)
+		This._EnsureLive()
+		return @oLive.Silence(pName)
+
+	def Hush()
+		This._EnsureLive()
+		return @oLive.Hush()
+
+	def WaitCycles(pnCycles)
+		This._EnsureLive()
+		@oLive.WaitCycles(pnCycles)
+		return This
+
+	def StopLive()
+		if isObject(@oLive)
+			@oLive.Release()
+			@oLive = NULL
+		ok
+		return This
+
+	# The live session, for reading its logs. Every verb above calls the
+	# ATTRIBUTE directly rather than This.Live().Verb(): Ring copies an object
+	# on assignment, and acting on a returned copy would change nothing.
+	def Live()
+		This._EnsureLive()
+		return @oLive
+
+	def _EnsureLive()
+		if NOT isObject(@oLive)
+			@oLive = StzSoundLiveQ(@nTempo)
+			@oLive.SetDefaultInstrument(@cInstrument)
+		ok
+
+	def LastError()
+		return @cLastError
+
+	def Refusals()
+		return @nRefusals

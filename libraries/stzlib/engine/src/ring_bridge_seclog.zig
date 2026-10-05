@@ -1,3 +1,4 @@
+const std = @import("std");
 const seclog = @import("seclog.zig");
 const R = @import("ring_api.zig");
 
@@ -35,6 +36,28 @@ fn ring_SecLogAppend(p: *anyopaque) callconv(.c) void {
     rn(p, 0);
 }
 
+// StzEngineSecLogAttach(h, cPath) -> entries verified (>= 0) or negative
+fn ring_SecLogAttach(p: *anyopaque) callconv(.c) void {
+    var buf: [1024]u8 = undefined;
+    const path = std.fmt.bufPrintZ(&buf, "{s}", .{gs(p, 2)[0..@intCast(gss(p, 2))]}) catch {
+        rn(p, -1_000_000_001);
+        return;
+    };
+    rn(p, seclog.seclog_attach(getLog(p, 1), path.ptr));
+}
+
+fn ring_SecLogVerifyDurable(p: *anyopaque) callconv(.c) void {
+    rn(p, seclog.seclog_verify_durable(getLog(p, 1)));
+}
+
+fn ring_SecLogIsDurable(p: *anyopaque) callconv(.c) void {
+    rn(p, seclog.seclog_is_durable(getLog(p, 1)));
+}
+
+fn ring_SecLogDurableErrors(p: *anyopaque) callconv(.c) void {
+    rn(p, seclog.seclog_durable_errors(getLog(p, 1)));
+}
+
 fn ring_SecLogCount(p: *anyopaque) callconv(.c) void {
     rn(p, seclog.seclog_count(getLog(p, 1)));
 }
@@ -68,6 +91,38 @@ fn ring_SecLogWallAt(p: *anyopaque) callconv(.c) void {
 
 fn ring_SecLogSeverityAt(p: *anyopaque) callconv(.c) void {
     rn(p, seclog.seclog_severity_at(getLog(p, 1), gn(p, 2)));
+}
+
+// StzEngineSecLogSetRefusalBudget(h, nMax, nWindowMs) -- nMax 0 = off
+fn ring_SecLogSetRefusalBudget(p: *anyopaque) callconv(.c) void {
+    seclog.seclog_set_refusal_budget(getLog(p, 1), gn(p, 2), gn(p, 3));
+    rn(p, 0);
+}
+
+fn ring_SecLogBudgetMax(p: *anyopaque) callconv(.c) void {
+    rn(p, seclog.seclog_budget_max(getLog(p, 1)));
+}
+
+fn ring_SecLogBudgetWindow(p: *anyopaque) callconv(.c) void {
+    rn(p, seclog.seclog_budget_window(getLog(p, 1)));
+}
+
+fn ring_SecLogSuppressed(p: *anyopaque) callconv(.c) void {
+    rn(p, seclog.seclog_suppressed(getLog(p, 1)));
+}
+
+// StzEngineSecLogFlushBudget(h, nWallMs)
+fn ring_SecLogFlushBudget(p: *anyopaque) callconv(.c) void {
+    seclog.seclog_flush_budget(getLog(p, 1), gn(p, 2));
+    rn(p, 0);
+}
+
+// StzEngineSecLogVerifyAnchor(h, nSeq, cDigestHex) -> 0 holds, -1 not durable,
+// -2 unreadable, -3 truncated, -4 diverged, >0 the chain breaks at that entry
+fn ring_SecLogVerifyAnchor(p: *anyopaque) callconv(.c) void {
+    const d: [*]const u8 = @ptrCast(gs(p, 3));
+    const dl: usize = @intCast(gss(p, 3));
+    rn(p, seclog.seclog_verify_anchor(getLog(p, 1), gn(p, 2), d, dl));
 }
 
 fn ring_SecLogVerify(p: *anyopaque) callconv(.c) void {
@@ -121,6 +176,10 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineseclogcurrent", .func = &ring_SecLogCurrent },
     .{ .name = "stzengineseclogcurrentappend", .func = &ring_SecLogCurrentAppend },
     .{ .name = "stzengineseclogcreate", .func = &ring_SecLogCreate },
+    .{ .name = "stzengineseclogattach", .func = &ring_SecLogAttach },
+    .{ .name = "stzengineseclogverifydurable", .func = &ring_SecLogVerifyDurable },
+    .{ .name = "stzengineseclogisdurable", .func = &ring_SecLogIsDurable },
+    .{ .name = "stzengineseclogdurableerrors", .func = &ring_SecLogDurableErrors },
     .{ .name = "stzengineseclogappend", .func = &ring_SecLogAppend },
     .{ .name = "stzengineseclogcount", .func = &ring_SecLogCount },
     .{ .name = "stzengineseclogsize", .func = &ring_SecLogSize },
@@ -131,6 +190,12 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineseclogwallat", .func = &ring_SecLogWallAt },
     .{ .name = "stzengineseclogseverityat", .func = &ring_SecLogSeverityAt },
     .{ .name = "stzengineseclogverify", .func = &ring_SecLogVerify },
+    .{ .name = "stzengineseclogverifyanchor", .func = &ring_SecLogVerifyAnchor },
+    .{ .name = "stzengineseclogsetrefusalbudget", .func = &ring_SecLogSetRefusalBudget },
+    .{ .name = "stzengineseclogbudgetmax", .func = &ring_SecLogBudgetMax },
+    .{ .name = "stzengineseclogbudgetwindow", .func = &ring_SecLogBudgetWindow },
+    .{ .name = "stzengineseclogsuppressed", .func = &ring_SecLogSuppressed },
+    .{ .name = "stzengineseclogflushbudget", .func = &ring_SecLogFlushBudget },
     .{ .name = "stzengineseclogreset", .func = &ring_SecLogReset },
     .{ .name = "stzengineseclogdestroy", .func = &ring_SecLogDestroy },
 };

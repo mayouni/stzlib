@@ -1,0 +1,12 @@
+{
+ "brief": "Is the short name of stzReactiveSystem, so every method and every form is the same.",
+ "detail": "Use whichever name reads better at the call site; the class adds nothing of its own.",
+ "receiver": "o1 = new stzReactive()",
+ "example": [
+  "? isObject( o1.ReactorQ() )",
+  "#--> 1"
+ ],
+ "see": [
+  "stzReactiveSystem"
+ ]
+}
