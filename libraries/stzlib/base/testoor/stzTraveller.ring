@@ -437,8 +437,15 @@ func _TravIsWordChar(pcCh)
 # "this line prints the word ERROR"; 26 files use the convention
 func _TravIsErrorPromise(pcRaw)
 	_lt_ = lower(trim("" + pcRaw))
-	if substr(_lt_, "error") != 1  return 0  ok
-	_c_ = substr(_lt_, 6, len(_lt_) - 5)
+	# ERROR: / ERRORS! / ERR: -- four files write the short form (char/20
+	# among them), found comparing with promises.py, which reads only ERROR
+	if substr(_lt_, "error") = 1
+		_c_ = substr(_lt_, 6, len(_lt_) - 5)
+	but substr(_lt_, "err") = 1
+		_c_ = substr(_lt_, 4, len(_lt_) - 3)
+	else
+		return 0
+	ok
 	if substr(_c_, "s") = 1  _c_ = substr(_c_, 2, len(_c_) - 1)  ok
 	_c_ = trim(_c_)
 	if substr(_c_, ":") = 1 or substr(_c_, "!") = 1  return 1  ok
@@ -560,6 +567,34 @@ func _TravListItems(pcInner)
 func _TravPromiseAt(pcRaw, pacNorm, pnFrom)
 	_nL_ = len(pacNorm)
 	_cRaw_ = "" + pcRaw
+	# a promise of several lines: its first line is found as any promise is,
+	# then each following line must be the next non-blank output line
+	# (canonical-equal, or contained when long enough)
+	if substr(_cRaw_, char(10)) > 0
+		_acW_ = str2list(_cRaw_)
+		_acWant_ = []
+		_nW_ = len(_acW_)
+		for _k_ = 1 to _nW_
+			if trim(_acW_[_k_]) != ""  _acWant_ + _acW_[_k_]  ok
+		next
+		_nW_ = len(_acWant_)
+		if _nW_ = 0  return 0  ok
+		_nFirst_ = _TravPromiseAt(_acWant_[1], pacNorm, pnFrom)
+		if _nFirst_ = 0 or _nW_ = 1  return _nFirst_  ok
+		_nAt_ = _nFirst_
+		for _k_ = 2 to _nW_
+			_nAt_++
+			while _nAt_ <= _nL_ and pacNorm[_nAt_] = ""  _nAt_++  end
+			if _nAt_ > _nL_  return 0  ok
+			_cCand_ = _TravNorm(_acWant_[_k_])
+			_cCC_ = _TravCanon(_cCand_)
+			_cCL_ = _TravCanon(pacNorm[_nAt_])
+			if _cCC_ = _cCL_  loop  ok
+			if len(_cCC_) >= 5 and substr(_cCL_, _cCC_) > 0  loop  ok
+			return 0
+		next
+		return _nAt_
+	ok
 	if _TravIsErrorPromise(_cRaw_)
 		_cMsg_ = _TravErrorMessage(_cRaw_)
 		if _cMsg_ = ""  return 0  ok

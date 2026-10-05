@@ -122,6 +122,39 @@ planted both ways (the lie it must catch and the truth it must not accuse), plus
 one real plot example. The Python harness and the Ring port were run on numbrex,
 char, locale and file; the comparison is in the TR2 memo.
 
+### RESUME POINT -- written 2026-10-05 when the author stopped the session
+
+**Where the work is.** Worktree `D:\GitHub\_wtt`, branch `testoor/tr0`, which IS main
+(every rung is pushed to main on both remotes). The engine there is built from the
+same tree; a fresh checkout must `zig build -j2` in `libraries/stzlib/engine`
+(system.zig changed in TR1). The three guards under `base/test/testoor/` are the
+gate: reader 74, runner 80, promises 46 assertions, all green on the last commit.
+
+**What TR2's comparison found, and what was fixed on it** (promises.py vs
+`ring testoor.ring --topic X --json`, outputs kept under `D:\GitHub\_wtt\.central\
+testoor-cmp-2026-10-05\`, ignored by git):
+
+| topic | Python read / kept / diverged | Ring read / kept / diverged | verdict |
+|---|---|---|---|
+| file | 2 / 8 / 1 | 2 / 8 / 1 | agree exactly |
+| numbrex | 40 / 113 / 0 | 42 / 118 / 0 | agree; Ring reads 5 next-line promises more |
+| locale | 56 / 186 / 27 | 79 / 212 / 37 | agree on every promise Python read; Ring's 10 more are next-line promises Python never read, all genuine divergences but locale/19 (prose, fixed) |
+| char | 65 / 245 / 0 | 114 / 325 / 30 | agree on every promise Python read; Ring's 30 are next-line: multi-line blocks (fixed, see below), `ERR:` (fixed), and files whose promise bytes are double-encoded (01_name, 06_smile, 09_turned_numbers, 115/118 bytes) -- a finding for the owners of those files, not a rule |
+
+Three fixes followed the comparison and are in the last commit: the reader gathers
+a multi-line promise block (933 blocks in 641 files) and the traveller matches it
+line by line; `#--> ERR:` is read like `ERROR:`; the `?` line's own trailing note
+makes a next-line promise prose. **Not yet re-measured after the fixes: locale and
+char** (the author stopped the session at the start of that re-run). Python counts
+"raised part-way" only where a promise IT read was unreached (char: 11 files), so
+Ring's 28 "broke" files on char are the truer figure: each carries an `Error (R..)`
+(methods without definition: sizeinchars, reverted, stzcharerror ...).
+
+**Next move:** re-run `ring testoor.ring --topic locale --json` and `--topic char
+--json` from `base/testoor` (6 and 11 minutes, one at a time, foreground), compare
+with `cmp_promises.py` (a copy sits beside the outputs), file the TR2 memo in
+`softanza/memos/`, then TR3.
+
 ### TR3 -- Routes and the map -- PLANNED
 
 `Route()` on tours; route coverage from the plan rules (`StzCheckPlanCoverage`,
