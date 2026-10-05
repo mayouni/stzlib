@@ -468,6 +468,16 @@ func StzAssociativeListQ(paList)
 
 class stzAssociativeList from stzHashList
 
+# Holds a list of [ key, value ] pairs and finds, reads and groups them by key or by value.
+#
+# A hash list is the Ring list [ :name = "Ali", :age = 30 ] made into an object: keys are looked up
+# without regard to case, values can be of any type and repeat, and the pairs keep their order.
+# Reach for it when you read the pairs by position or by value as often as by key.
+#
+#   receiver   o1 = new stzHashList([ :one = "a", :two = "b", :three = "a", :four = 4 ])
+#   example    ? @@( o1.FindValue("a") )
+#              #--> [ 1, 3 ]
+#   see        stzList, stzTable
 class stzHashList from stzList # Also called stzAssociativeList
 	@aContent = []
 	@pEngineMap = ""
@@ -575,7 +585,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #     GET     #
 	#-------------#
 
-	# The raw hash list: the [key, value] pairs.
+	# Returns the pairs as they are held, a list of [ key, value ] pairs.
+	#
+	#   returns    a list of [ key, value ] pairs, in order
+	#   see        Keys, Values
+	#   example    ? @@( o1.Content() )
+	#              #--> [ [ "one", "a" ], [ "two", "b" ], [ "three", "a" ], [ "four", 4 ] ]
 	def Content()
 		return @aContent
 
@@ -583,7 +598,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def HashList()
 		return This.Content()
 
-	# How many [key, value] pairs the hash list holds.
+	# Returns how many [ key, value ] pairs the hash list holds.
+	#
+	#   returns    a number
+	#   example    ? o1.NumberOfPairs()
+	#              #--> 4
 	def NumberOfPairs()
 		# Engine fast path: stz_hashmap_len is O(1) cached vs Ring len() on a hashlist array
 		This._EnsureEngineMap()
@@ -649,7 +668,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 			off
 
 
-	# The keys of the hash list, as a list.
+	# Returns the keys of the hash list, in order.
+	#
+	#   returns    a list of the keys, which are held in lower case
+	#   see        Values, HasKey
+	#   example    ? @@( o1.Keys() )
+	#              #--> [ "one", "two", "three", "four" ]
 	def Keys()
 		_aHkContent_ = This.Content()
 		_nHkLen_ = len(_aHkContent_)
@@ -743,9 +767,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 			def KeysForThisValueQRT(pValue, pcReturnType)
 				return This.KeysForValueQ(pValue, pcReturnType)
 
+	# Returns the values of the hash list, in order.
+	#
+	#   returns    a list of the values
+	#   see        Keys, Numbers
+	#   example    ? @@( o1.Values() )
+	#              #--> [ "a", "b", "a", 4 ]
 		#>
-
-	# The values of the hash list, as a list.
 	def Values()
 
 		_aVlContent_ = This.Content()
@@ -852,7 +880,16 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def KeyAtPosition(_n_)
 			return This.Key(_n_)
 	
-	# The value of the nth pair.
+	# Returns the value of the pair at position n.
+	#
+	#   _n_        a position from 1 to the number of pairs, or :First or :Last
+	#   returns    the value of that pair, of any type
+	#   warning    a position outside the hash list raises an error
+	#   see        Values, FindNthOccurrenceOfValue
+	#   example    ? o1.NthValue(2)
+	#              #--> b
+	#              ? o1.NthValue(:Last)
+	#              #--> 4
 	def NthValue(_n_)
 
 		if checkParams()
@@ -1463,6 +1500,16 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.AddPair(paNewPair)
 			return This
 
+		# Adds a pair at the end of the hash list, in place.
+		#
+		#   paNewPair   the pair to add, as [ key, value ]
+		#   returns     nothing; the hash list changes. AddQ returns the object for chaining
+		#   see         InsertBefore
+		#   example     o1.Add([ "five", "e" ])
+		#               ? o1.NumberOfPairs()
+		#               #--> 5
+		#               ? o1.NthValue(5)
+		#               #--> e
 		def Add(paNewPair)
 			This.AddPair(paNewPair)
 
@@ -1497,7 +1544,14 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #     INSERTING    #
 	#------------------#
 
-	# Insert the given pair BEFORE position n (mutating).
+	# Inserts a pair before position n, in place.
+	#
+	#   _n_        the position to insert before, from 2 to the number of pairs
+	#   paPair     the pair to insert, as [ key, value ]
+	#   returns    nothing; the hash list changes
+	#   warning    known defect: the call raises an error today, because it reads a property named
+	#              HashList that the object does not have; Add appends a pair and works
+	#   see        Add
 	def InsertBefore(_n_, paPair)
 		if _n_ > 1 and _n_ <= This.NumberOfPairs()
 			insert( This.HashList, _n_-1, paPair)
@@ -1802,7 +1856,17 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def FindThisKey(pcKey)
 			return This.FindKey(pcKey)
 
-	# TRUE if the hash list holds the given key.
+	# TRUE if the hash list holds the given key, whatever its case.
+	#
+	#   pcKey      the key to look for, as text
+	#   returns    TRUE or FALSE
+	#   see        Keys
+	#   example    ? o1.HasKey("two")
+	#              #--> TRUE
+	#              ? o1.HasKey("TWO")
+	#              #--> TRUE
+	#              ? o1.HasKey("six")
+	#              #--> FALSE
 	def HasKey(pcKey)
 
 		if isString(pcKey)
@@ -1983,11 +2047,17 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def FindCS(pValue, pCaseSensitive)
 			return This.FindValueCS(pValue, pCaseSensitive)
 
+	# Returns the positions of the pairs that hold the given value, ignoring case.
+	#
+	#   pValue     the value to look for
+	#   returns    a list of numbers; [ ] when no pair holds the value
+	#   note       FindValueCS takes a case-sensitivity flag
+	#   see        FindFirstOccurrenceOfValue, FindNthOccurrenceOfValue, HasKey
+	#   example    ? @@( o1.FindValue("a") )
+	#              #--> [ 1, 3 ]
+	#              ? @@( o1.FindValue("z") )
+	#              #--> [ ]
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	# The positions of the pairs holding the given value.
 	def FindValue(pValue)
 		return This.FindValueCS(pValue, 1)
 
@@ -2100,11 +2170,17 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def FindNthCS(_n_, pValue, pCaseSensitive)
 			return This.FindNthOccurrenceOfValueCS(_n_, pValue, pCaseSensitive)
 
+	# Returns the position of the pair that holds the given value for the nth time, ignoring case.
+	#
+	#   _n_        which occurrence, counting from 1
+	#   pValue     the value to look for
+	#   returns    a number, the position of that pair
+	#   warning    when there are fewer than n occurrences the call raises an error (index out of
+	#              range) instead of answering 0
+	#   see        FindValue, FindFirstOccurrenceOfValue
+	#   example    ? o1.FindNthOccurrenceOfValue(2, "a")
+	#              #--> 3
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	# The position of the nth pair holding the given value.
 	def FindNthOccurrenceOfValue(_n_, pValue)
 		return This.FindNthOccurrenceOfValueCS(_n_, pValue, 1)
 
@@ -2122,6 +2198,15 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #   FINDING THE FIRST OCCURRENCE OF A VALUE   #TODO // Add case sensitivity
 	#---------------------------------------------#
 
+	# Returns the position of the first pair that holds the given value.
+	#
+	#   pValue     the value to look for
+	#   returns    a number, the position of the first pair holding the value
+	#   warning    when no pair holds the value the call raises an error (index out of range)
+	#              instead of answering 0
+	#   see        FindValue, FindLastOccurrenceOfValue, FindNthOccurrenceOfValue
+	#   example    ? o1.FindFirstOccurrenceOfValue("a")
+	#              #--> 1
 	def FindFirstOccurrenceOfValue(pValue)
 		return This.FindNthValue(1, pValue)
 
@@ -2152,6 +2237,14 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #   FINDING THE LAST OCCURRENCE OF A VALUE   #TODO // Add case sensitivity
 	#--------------------------------------------#
 
+	# Returns the position of the last pair that holds the given value.
+	#
+	#   pValue     the value to look for
+	#   returns    a number, the position of the last pair holding the value
+	#   warning    known defect: it asks for the nth occurrence with n = the number of pairs, so it
+	#              raises an error (index out of range) unless every pair holds the value; FindValue
+	#              gives the positions to take the last of
+	#   see        FindValue, FindFirstOccurrenceOfValue
 	def FindLastOccurrenceOfValue(pValue)
 		return This.FindNthOccurrenceOfValue(This.NumberOfValues(), pValue)
 
@@ -2469,6 +2562,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		return _anFnResult_
 
+	# Returns the values that are numbers, in order.
+	#
+	#   returns    a list of numbers
+	#   see        Values
+	#   example    ? @@( o1.Numbers() )
+	#              #--> [ 4 ]
 	def Numbers()
 		_aNsContent_ = This.Content()
 		_nNsLen_ = len(_aNsContent_)
@@ -2923,8 +3022,15 @@ class stzHashList from stzList # Also called stzAssociativeList
 	  #-----------------------------------------------------------------------#
 	 #   WHEN THE VALUE IS A LIST, FINDING THE GIVEN ITEM INSIDE THAT TLIST  #
 	#=======================================================================#
+	# Returns, for every list value that holds the given item, its position and the item's positions inside it.
+	#
+	#   pItem      the item to look for inside the list values
+	#   returns    a list of [ position of the pair, list of positions of the item ] pairs
+	#   see        Items, NumberOfItems
+	#   example    o1 = new stzHashList([ :one = :NONE, :two = [ :is, :will, :can ], :three = [ :can, :will ] ])
+	#              ? @@( o1.FindItem(:can) )
+	#              #--> [ [ 2, [ 3 ] ], [ 3, [ 1 ] ] ]
 	#TODO // Add case sensitivity
-
 	def FindItem(pItem)
 		/* EXAMPLE
 
@@ -3124,8 +3230,14 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def TheseItemsInListsZ(paItems)
 			return This.TheseItemsZ(paItems)
 
+	# Returns the items of all the list values, merged, each item once.
+	#
+	#   returns    a list of the distinct items
+	#   see        NumberOfItems, FindItem
+	#   example    o1 = new stzHashList([ :one = :NONE, :two = [ :is, :will, :can ], :three = [ :can, :will ] ])
+	#              ? @@( o1.Items() )
+	#              #--> [ "is", "will", "can" ]
 		#<
-
 	def Items()
 
 		_aItmResult_ = U( This.ValuesQ().OnlyListsQ().Merged() )
@@ -3165,6 +3277,15 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		return _aItmzResult_
 
+	# Returns how many different items the list values hold, counting each item once.
+	#
+	#   returns    a number
+	#   note       only the values that are lists are looked into; the items of two lists that share
+	#              one are counted once
+	#   see        Items, FindItem
+	#   example    o1 = new stzHashList([ :one = :NONE, :two = [ :is, :will, :can ], :three = [ :can, :will ] ])
+	#              ? o1.NumberOfItems()
+	#              #--> 3
 	def NumberOfItems()
 		return len(This.Items())
 
@@ -3372,6 +3493,15 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #  LISTIFYING (ALL THE VALUES IN) THE HASHLIST  #
 	#-----------------------------------------------#
 
+	# Returns a new hash list with the same pairs, so the copy can change without touching this one.
+	#
+	#   returns    a new stzHashList
+	#   example    o2 = o1.Copy()
+	#              o2.Add([ "five", "e" ])
+	#              ? o1.NumberOfPairs()
+	#              #--> 4
+	#              ? o2.NumberOfPairs()
+	#              #--> 5
 	def Copy()
 		_oCpCopy_ = new stzHashList(This.content())
 		return _oCpCopy_
@@ -3404,7 +3534,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #     CLASSIFYING VALUES    #
 	#===========================#
 
-	# Group the pairs into classes by value.
+	# Groups the keys by the value they hold, one [ class, keys ] pair per distinct value.
+	#
+	#   returns    a list of [ value as text, list of keys ] pairs, in order of first appearance
+	#   warning    known defect: the call raises error R14 today, because it uses IsStrictlyEqualTo,
+	#              which no class defines; Classes and NumberOfClasses work
+	#   see        Classes, NumberOfClasses
 	def Classify()
 
 		_aCfResult_ = []
@@ -3444,6 +3579,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #  GETTING THE NAMES OF KLASSES EXISTING IN THE HASHLIST  #
 	#---------------------------------------------------------#
 
+	# Returns the distinct values of the hash list, each as text.
+	#
+	#   returns    a list of text, in order of first appearance
+	#   see        Classify, NumberOfClasses
+	#   example    ? @@( o1.Classes() )
+	#              #--> [ "a", "b", "4" ]
 	def Classes()
 		_acCsResult_ = []
 		_aCsUnique_ = This.UniqueValues()
@@ -3564,6 +3705,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #  GETTING NUMBER OF KLASSES (OR CATEGORIES) IN THE HASHLIST  #
 	#-------------------------------------------------------------#
 
+	# Returns how many different values the hash list holds.
+	#
+	#   returns    a number
+	#   see        Classes, Classify
+	#   example    ? o1.NumberOfClasses()
+	#              #--> 3
 	def NumberOfClasses()
 		return len( This.CLasses() )
 
@@ -4811,7 +4958,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #     SHOW     #
 	#==============#
 
-	# Print the hash list as a boxed table.
+	# Prints the hash list as a boxed table, one row per pair.
+	#
+	#   returns    nothing; the table is printed
+	#   see        Content
 	def Show()
 		This.ToStzTable().Show()
 
@@ -4834,7 +4984,11 @@ this: lefttoright
 	 #   MISC.   #
 	#-----------#
 
-	# The Softanza type symbol: :stzHashList.
+	# Returns the Softanza type symbol of the object, always :stzHashList.
+	#
+	#   returns    the symbol :stzHashList, which prints as stzhashlist
+	#   example    ? o1.StzType()
+	#              #--> stzhashlist
 	def StzType()
 		return :stzHashList
 
@@ -4842,7 +4996,12 @@ this: lefttoright
 	def IsHashList() # required by stzChainOfTruth
 		return 1
 
-	# The hash list as runnable Ring code, as a string.
+	# Returns the hash list as Ring code that rebuilds it.
+	#
+	#   returns    a string
+	#   note       every value is written as text, so the number 4 comes out as "4"
+	#   example    ? o1.ToCode()
+	#              #--> [ :one = "a", :two = "b", :three = "a", :four = "4" ]
 	def ToCode()
 		_aTcPairs_ = This.Content()
 		_nTcLen_ = len(_aTcPairs_)
