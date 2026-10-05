@@ -155,7 +155,13 @@ func ring_log(n)
 	return log(n)
 
 func ring_tanhh(n)
-	return tanhh(n)
+	return tanh(n)
+
+func ring_tanh(n)
+	return tanh(n)
+
+func ring_atan(n)
+	return atan(n)
 
 func ring_cosh(n)
 	return cosh(n)
@@ -163,8 +169,8 @@ func ring_cosh(n)
 func ring_sinh(n)
 	return sinh(n)
 
-func ring_atan2(n)
-	return atan2(n)
+func ring_atan2(y, x)
+	return atan2(y, x)
 
 func ring_acos(n)
 	return acos(n)
