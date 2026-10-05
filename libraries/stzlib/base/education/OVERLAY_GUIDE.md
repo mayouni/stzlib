@@ -98,6 +98,24 @@ facts
 That is all. The exercise appears on the chapter's page after the core exercises, in every language, and
 the checker judges it the same way: by running the learner's program against your promise.
 
+**A tutor that knows your subject (optional).** When a learner asks "what is missing?", the tutor names
+the first step of your exercise their code does not show yet, as a question. Out of the box it knows only
+the three steps of chapter 1 (`asks`, `finds`, `applies`), in the words of lists and duplicates. For any
+other subject, say what your steps are and how to recognise them, in your exercise's own folder:
+
+```
+exercise.zknw       your-id | needs-step | reduces         the steps, in the order to ask them
+                    your-id | needs-step | compares
+                    reduces | seen-by    | gcd             a word in the learner's code that shows the step
+                    compares | seen-by   | greater
+gaps.en.md          reduces: Did you reduce the fraction first? Which common divisor did you look for?
+                    compares: Once both are in lowest terms, which is greater?
+gaps.fr.md ...      one file per language, one `step: question` line per step
+```
+
+A step with no `seen-by` is never seen, so it is always asked. A step with no question in the learner's
+language is a RED answer, never the same question in another language.
+
 ## 5. Your rules (optional)
 
 `governance/<name>.zgov` is a regime your learners' agents live under. The simplest is written by Softanza:

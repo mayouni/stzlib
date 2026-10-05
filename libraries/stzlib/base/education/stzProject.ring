@@ -104,7 +104,8 @@ class stzProject from stzObject
 		if NOT fexists(_cF_)
 			StzRaise("Project '" + @cId + "' has no brief in '" + pcLang + "'.")
 		ok
-		return read(_cF_)
+		# the same text from an LF tree and from a CRLF checkout (autocrlf)
+		return StzReplace(read(_cF_), char(13), "")
 
 	def HasBriefIn(pcLang)
 		return fexists(@cFolder + "/brief." + pcLang + ".md")

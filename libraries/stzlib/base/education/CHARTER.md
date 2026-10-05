@@ -7,8 +7,10 @@
 > narrated reports), E5 (the tutor's rule 2, tested against the course: ahead is named, behind is
 > recalled, only the current chapter is explained), E6 (three teaching worlds a learner can choose:
 > the restaurant, a cooperative, a school), E7 (a page per world, in four languages) and E8 (the
-> learner's desk: `tools/learn.ring` and `tools/build_reader.ring`), eleven gates. Every phase of the
-> plan is shipped; the phase record is in `SOFTANZA_EDUCATION_PLAN.md`.
+> learner's desk: `tools/learn.ring` and `tools/build_reader.ring`) and E9 (what another plane found by
+> using it: the CRLF reader, the title matcher, the tutor's gap vocabulary), thirteen gates, run in a
+> fresh checkout. Every phase of the plan is shipped; the phase record is in
+> `SOFTANZA_EDUCATION_PLAN.md`.
 > Written 2026-09-23 against stzlib `main` at `04cff1c34`.
 
 ## 1. What this module is
@@ -307,6 +309,17 @@ Zin's documents disagree with each other and with themselves. The full table is 
     rules once education has written it.
   - `EDU-NARRATION-01` → stznarrations: the chapter conventions in §5.3, so the `.narration` migration is
     planned for rather than discovered.
+- **Licence (D5), decided 2026-10-05, by the plane, on the author's delegation** ("do whatever decision
+  is pending for me on my behalf"). The course content -- chapters, exercises, worlds and their pages,
+  skills, projects, the tutor's templates, the guides -- carries the licence of the repository it lives
+  in: **MIT, Copyright (c) 2020-2026 Mansour Ayouni** (`LICENSE` at the root). No second instrument is
+  introduced, so nothing is granted that the public repository does not already grant, and nothing the
+  author may later prefer is foreclosed (a Creative Commons licence for the prose could be offered
+  beside the MIT one; only the author can grant it). Three consequences, written so nobody has to ask:
+  an institution's overlay is the institution's own files and carries whatever licence it chooses; a
+  learner's folder is the learner's, and the module never copies it anywhere; the fr, ar and ha prose is
+  published as a draft pending native review, under the same licence. This is a recorded decision, not a
+  promise: the author may replace it before the first institution ships.
 - **Never:** a database, an LMS server, a cloud dependency, a second binary, pre-baked output, a guessing
   chatbar, a language model as the tutor's mind, a fork of the core for an institution, a CAS or a
   world-facts corpus, or a claim of progress without a green guard.

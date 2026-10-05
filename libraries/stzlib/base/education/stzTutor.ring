@@ -94,6 +94,60 @@ func _EduIsWordEdge(pcChar)
 	return StzFindFirst(pcChar, [ ",", ".", "?", "!", ";", ":", "(", ")", "[", "]", "'", '"', "«", "»",
 		"،", "؟", "؛", "-", "/", char(10), char(13), char(9) ]) > 0
 
+# WHICH CHAPTER A QUESTION IS ABOUT, BY TITLE WORDS ALONE. A word may
+# reach a chapter only if it DISTINGUISHES that chapter: it is a content
+# word of this title and of no other title of the course, and each word
+# counts once however often its title repeats it. Two such words are
+# needed, or the only one when the title has only one. So "the", "that"
+# and "a" -- which many titles share, and one title may repeat -- cannot
+# claim a question ("Give me the answer"); found by stzlib-math, whose
+# chapter "The derivative that checks the formula" did exactly that
+# (MATH-FINDING-EDU-TUTOR-01). No stop-word list is needed: a common word
+# is common because several titles use it.
+# Returns the 1-based index of the best chapter, or 0.
+func _EduChapterByTitle(pacTitles, pacQuestionWords)
+	_nT_ = len(pacTitles)
+	_aDistinct_ = []
+	for _i_ = 1 to _nT_
+		_acW_ = _EduContentWords(pacTitles[_i_])
+		_acD_ = []
+		_nW_ = len(_acW_)
+		for _j_ = 1 to _nW_
+			if StzFindFirst(_acW_[_j_], _acD_) = 0
+				_acD_ + _acW_[_j_]
+			ok
+		next
+		_aDistinct_ + [ _acD_ ]
+	next
+	_nBest_ = 0
+	_nIdx_ = 0
+	for _i_ = 1 to _nT_
+		_nDist_ = 0
+		_nHit_ = 0
+		_nW_ = len(_aDistinct_[_i_][1])
+		for _j_ = 1 to _nW_
+			_w_ = _aDistinct_[_i_][1][_j_]
+			_bShared_ = 0
+			for _k_ = 1 to _nT_
+				if _k_ != _i_ and StzFindFirst(_w_, _aDistinct_[_k_][1]) > 0
+					_bShared_ = 1
+					exit
+				ok
+			next
+			if NOT _bShared_
+				_nDist_++
+				if StzFindFirst(_w_, pacQuestionWords) > 0
+					_nHit_++
+				ok
+			ok
+		next
+		if (_nHit_ >= 2 or (_nDist_ = 1 and _nHit_ = 1)) and _nHit_ > _nBest_
+			_nBest_ = _nHit_
+			_nIdx_ = _i_
+		ok
+	next
+	return _nIdx_
+
 # The words of a title that carry it: three codepoints or more.
 func _EduContentWords(pcTitle)
 	_acW_ = _EduWordsOf(pcTitle)
@@ -315,23 +369,15 @@ class stzTutor from stzObject
 		next
 		_acCh_ = @oCourse.ChapterIds()
 		_nL_ = len(_acCh_)
-		_cBest_ = ""
-		_nBest_ = 0
+		_acTitles_ = []
 		for _i_ = 1 to _nL_
-			_acT_ = _EduContentWords(@oCourse.TitleOf(_acCh_[_i_], @cLang))
-			_nT_ = len(_acT_)
-			_nHit_ = 0
-			for _j_ = 1 to _nT_
-				if StzFindFirst(_acT_[_j_], _acW_) > 0
-					_nHit_++
-				ok
-			next
-			if (_nHit_ >= 2 or (_nT_ = 1 and _nHit_ = 1)) and _nHit_ > _nBest_
-				_nBest_ = _nHit_
-				_cBest_ = _acCh_[_i_]
-			ok
+			_acTitles_ + @oCourse.TitleOf(_acCh_[_i_], @cLang)
 		next
-		return _cBest_
+		_nIdx_ = _EduChapterByTitle(_acTitles_, _acW_)
+		if _nIdx_ = 0
+			return ""
+		ok
+		return _acCh_[_nIdx_]
 
 	def Ask(pcQuestion)
 		_oL_ = new stzLearner(@cLearnerFolder)
@@ -384,25 +430,30 @@ class stzTutor from stzObject
 		if @cLastGap = ""
 			return This._Filter(_cHead_ + _EduSay(@cLang, "look-output", ""))
 		ok
-		return This._Filter(_cHead_ + _EduSay(@cLang, "gap-" + @cLastGap, ""))
+		return This._Filter(_cHead_ + @oExercise.GapText(@cLastGap, @cLang))
 
 	# The first missing step, named by the wise-coding conversation.
 	def GapIn(pcCode)
 		_oKB_ = new stzKnowledgeGraph("attempt")
 		_c_ = StzLower(pcCode)
-		if StzFindFirst("contains", _c_) > 0 or StzFindFirst("numberof", _c_) > 0 or StzFindFirst("count", _c_) > 0
-			_oKB_.KnowRelation("attempt", "asks", "yes")
-		ok
-		if StzFindFirst("find", _c_) > 0
-			_oKB_.KnowRelation("attempt", "finds", "yes")
-		ok
-		if StzFindFirst("remove", _c_) > 0 or StzFindFirst("replace", _c_) > 0
-			_oKB_.KnowRelation("attempt", "applies", "yes")
-		ok
 		_oGoal_ = StzGoalQ()
 		_acNeeds_ = @oExercise.NeededSteps()
 		_nL_ = len(_acNeeds_)
 		for _i_ = 1 to _nL_
+			# a step the learner's code shows becomes a fact of the attempt;
+			# the words that show it are the EXERCISE'S (StepWords)
+			_acW_ = @oExercise.StepWords(_acNeeds_[_i_])
+			_nW_ = len(_acW_)
+			for _w_ = 1 to _nW_
+				if StzFindFirst(StzLower(_acW_[_w_]), _c_) > 0
+					# one object per step: stzGraph keeps ONE edge per node pair, so
+					# two seen steps with the same object ("yes") raised -- latent
+					# since E1a, found by tutor_gaps_narrated (a learner whose code
+					# shows two steps)
+					_oKB_.KnowRelation("attempt", _acNeeds_[_i_], "seen-" + _acNeeds_[_i_])
+					exit
+				ok
+			next
 			_oGoal_.RequireOne("attempt", _acNeeds_[_i_])
 		next
 		_oKB_.AddConversationQ("tutor").SetGoal(_oGoal_)
