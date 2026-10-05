@@ -220,8 +220,85 @@ class stzListClassifier from stzObject
 	 #   ITEMS APPEARING EXACTLY N TIMES                    #
 	#======================================================#
 
+	# The distinct items with how often each occurs, as [ item, count ] pairs in order of
+	# first appearance. Frequencies keys every item as text ("3" for 3), so each key is
+	# traced back to the first item of the list that produced it, and that item keeps its type.
+	def _ItemsWithCounts()
+		_aIwcFreqs_ = This.Frequencies()
+		_nIwcFreqs_ = len(_aIwcFreqs_)
+		_aIwcContent_ = @oList.Content()
+		_nIwcLen_ = len(_aIwcContent_)
+
+		# a list of text only: the keys ARE the items
+		_bIwcText_ = 1
+		for _iIwc_ = 1 to _nIwcLen_
+			if NOT isString(_aIwcContent_[_iIwc_])
+				_bIwcText_ = 0
+				exit
+			ok
+		next
+		if _bIwcText_
+			return _aIwcFreqs_
+		ok
+
+		_aIwcKeys_ = []
+		_aIwcItems_ = []
+		_aIwcDone_ = []
+		for _iIwc_ = 1 to _nIwcFreqs_
+			_aIwcKeys_ + _aIwcFreqs_[_iIwc_][1]
+			_aIwcItems_ + _aIwcFreqs_[_iIwc_][1]
+			_aIwcDone_ + 0
+		next
+		_nIwcLeft_ = _nIwcFreqs_
+
+		for _iIwc_ = 1 to _nIwcLen_
+			if _nIwcLeft_ = 0
+				exit
+			ok
+			_vIwcItem_ = _aIwcContent_[_iIwc_]
+			if isString(_vIwcItem_)
+				_cIwcKey_ = _vIwcItem_
+			but isNumber(_vIwcItem_)
+				_cIwcKey_ = string(_vIwcItem_)
+			else
+				_cIwcKey_ = @@(_vIwcItem_)
+			ok
+			_nIwcAt_ = find(_aIwcKeys_, _cIwcKey_)
+			if _nIwcAt_ = 0 and isString(_vIwcItem_)
+				_nIwcAt_ = find(_aIwcKeys_, lower(_vIwcItem_))
+			ok
+			if _nIwcAt_ = 0 and isNumber(_vIwcItem_)
+				# the engine writes 2.5 where Ring's string() gives "2.50": drop the trailing zeros
+				_nIwcCut_ = len(_cIwcKey_)
+				if StzFind(".", _cIwcKey_) = 0
+					_nIwcCut_ = 0
+				ok
+				while _nIwcCut_ > 1 and _cIwcKey_[_nIwcCut_] = "0"
+					_nIwcCut_ = _nIwcCut_ - 1
+				end
+				if _nIwcCut_ > 0 and _cIwcKey_[_nIwcCut_] = "."
+					_nIwcCut_ = _nIwcCut_ - 1
+				ok
+				if _nIwcCut_ > 0
+					_cIwcShort_ = left(_cIwcKey_, _nIwcCut_)
+					_nIwcAt_ = find(_aIwcKeys_, _cIwcShort_)
+				ok
+			ok
+			if _nIwcAt_ > 0 and _aIwcDone_[_nIwcAt_] = 0
+				_aIwcItems_[_nIwcAt_] = _vIwcItem_
+				_aIwcDone_[_nIwcAt_] = 1
+				_nIwcLeft_ = _nIwcLeft_ - 1
+			ok
+		next
+
+		_aIwcResult_ = []
+		for _iIwc_ = 1 to _nIwcFreqs_
+			@AddItem(_aIwcResult_, [ _aIwcItems_[_iIwc_], _aIwcFreqs_[_iIwc_][2] ])
+		next
+		return _aIwcResult_
+
 	def ItemsAppearingNTimes(n)
-		_aIntFreqs_ = This.Frequencies()
+		_aIntFreqs_ = This._ItemsWithCounts()
 		_nIntLen_ = len(_aIntFreqs_)
 		_aIntResult_ = []
 		for _iInt_ = 1 to _nIntLen_
@@ -239,7 +316,7 @@ class stzListClassifier from stzObject
 	#======================================================#
 
 	def ItemsAppearingMoreThanNTimes(n)
-		_aImtFreqs_ = This.Frequencies()
+		_aImtFreqs_ = This._ItemsWithCounts()
 		_nImtLen_ = len(_aImtFreqs_)
 		_aImtResult_ = []
 		for _iImt_ = 1 to _nImtLen_
@@ -250,7 +327,7 @@ class stzListClassifier from stzObject
 		return _aImtResult_
 
 	def ItemsAppearingLessThanNTimes(n)
-		_aIltFreqs_ = This.Frequencies()
+		_aIltFreqs_ = This._ItemsWithCounts()
 		_nIltLen_ = len(_aIltFreqs_)
 		_aIltResult_ = []
 		for _iIlt_ = 1 to _nIltLen_

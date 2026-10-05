@@ -180,6 +180,25 @@ class stzListLeadTrail from stzObject
 	def RepeatedTrailingItems()
 		return This.RepeatedTrailingItemsCS(1)
 
+	# The item repeated at the end of the list.
+	def RepeatedTrailingItemCS(pCaseSensitive)
+		_aTrail_ = This.RepeatedTrailingItemsCS(pCaseSensitive)
+		if len(_aTrail_) > 0
+			return _aTrail_[1]
+		else
+			return ""
+		ok
+
+	def RepeatedTrailingItem()
+		return This.RepeatedTrailingItemCS(1)
+
+	# How long the repeated run at the end of the list is.
+	def NumberOfRepeatedTrailingItemsCS(pCaseSensitive)
+		return len(This.RepeatedTrailingItemsCS(pCaseSensitive))
+
+	def NumberOfRepeatedTrailingItems()
+		return This.NumberOfRepeatedTrailingItemsCS(1)
+
 	def RemoveRepeatedLeadingItemsCS(pCaseSensitive)
 		_pLtRm = @oList._EngineListFromContent()
 		if _pLtRm != ""
