@@ -567,6 +567,8 @@ load "geo/stzGeoProcess.ring"
     load "security/stzDetection.ring"
     load "service/stzPaymentsSecrets.ring" # the five payments secrets, their expiry watch and their detections
     load "service/stzPayouts.ring"  # money out is a plan a human commits: plan, policy, desk
+    load "service/stzPispiHttpAdapter.ring"  # the live adapter: the same contract over HTTP, for any participant
+    load "service/stzPiSpiHttpFront.ring"    # the twin of the hub served over HTTP, with OAuth, API key and scopes
     # I4: the sentinel -- detections on a cadence, edge-triggered (a
     # standing attack is one story, not one per second), event-bus
     # fanout, hostable on any stzAgentHost, and a case snapshot
