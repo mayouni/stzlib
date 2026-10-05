@@ -54,6 +54,22 @@ func StzGraphicsDevice()
 	StzEngineGpuInit($cStzGpuRuntime)
 	return StzEngineGpuIsAvailable() = 1
 
+# Holds a 2D picture described once, as shapes and text, and gives it back as vector SVG or as pixels drawn on the graphics device.
+#
+# The Add methods remember the shape instead of posting it, so Fill, Stroke, Color and SetFont can
+# still reach the last shape added; the shape is posted when the next one arrives or an output is
+# asked for. Fill and Stroke called before any shape set the default for every shape added after.
+# The plain form of a method acts and answers nothing, and its Q twin answers the canvas so calls
+# can be chained; only the pick, identity and region setters answer the canvas without the Q. Text
+# needs a font from SetFont. ToSVG needs no device and is the floor of the tier ladder; ToPNG and
+# ToPixels go through the GPU and answer an empty string when none is available. Coordinates are
+# pixels from the top-left corner, sizes run from 1 to 16384, and the SVG output draws circles,
+# rounded rectangles, ellipses and strokes as polygons and polylines.
+#
+#   receiver   o1 = new stzCanvas(100, 80); o1.AddRect(10, 10, 30, 20); o1.Fill("red")
+#   example    ? o1.ShapeCount()
+#              #--> 1
+#   see        stzFont, stzDiagram, stzObject
 class stzCanvas from stzObject
 
 	@nId = 0
@@ -67,6 +83,13 @@ class stzCanvas from stzObject
 	@nFontSize = 16
 	@aPending = []
 
+	# Builds an empty canvas of a width and a height in pixels; raises an error for a non-number or a size outside 1 to 16384.
+	#
+	#   pnW        The width of the canvas, in pixels
+	#   pnH        The height of the canvas, in pixels
+	#   returns    nothing; the canvas is built
+	#   note       the background is white until SetBackground says otherwise
+	#   see        Width, Height, Resize
 	def init(pnW, pnH)
 		if NOT (isNumber(pnW) and isNumber(pnH))
 			StzRaise("stzCanvas: give a width and a height in pixels.")
@@ -80,28 +103,57 @@ class stzCanvas from stzObject
 		@nH = pnH
 		@nFill = StzColorToNumber(:White)
 
-	#-- identity ------------------------------------------------------------
-
+	# Returns the engine's number for the scene behind the canvas, 0 once it has been released.
+	#
+	#   returns    a number
+	#   see        Free
+	#@ aka  -- identity ------------------------------------------------------------
 	def Id_()
 		return @nId
 
+	# Returns how many pixels wide the canvas is, as last set by the constructor or Resize.
+	#
+	#   returns    a number
+	#   see        Height, Resize
 	def Width()
 		return @nW
 
+	# Returns how many pixels tall the canvas is, as last set by the constructor or Resize.
+	#
+	#   returns    a number
+	#   see        Width, Resize
 	def Height()
 		return @nH
 
+	# Returns how many shapes the canvas holds, after posting the pending one; the background does not count.
+	#
+	#   returns    a number
+	#   see        Stats, Flush
 	def ShapeCount()
 		This._Flush()
 		return StzEngineGpuSceneCommandCount(@nId)
 
-	# [ shapes, shapeVertices, textVertices, drawSegments, builds ]
+	# Returns the engine's counters for the canvas, after posting the pending shape.
+	#
+	#   returns    a list of ten numbers, the first five being [ shapes, shapeVertices,
+	#              textVertices, drawSegments, builds ]
+	#   note       the source comment names five counters; five more follow, which the source does
+	#              not describe
+	#   see        ShapeCount
+	#@ aka  [ shapes, shapeVertices, textVertices, drawSegments, builds ]
 	def Stats()
 		This._Flush()
 		return StzEngineGpuSceneStats(@nId)
 
-	#-- canvas-wide state ---------------------------------------------------
-
+	# Paints the whole canvas with one colour, under every shape; it stays after Clear.
+	#
+	#   pColor     The background colour: a name such as "red", a #rrggbb code or another colour
+	#              expression
+	#   returns    nothing; the canvas changes
+	#   note       the SVG output starts with a full-size rectangle of that colour, and has none
+	#              while the white default is untouched
+	#   see        SetBackgroundQ, Clear
+	#@ aka  -- canvas-wide state ---------------------------------------------------
 	def SetBackground(pColor)
 		StzEngineGpuSceneClear(@nId, StzColorToNumber(pColor))
 
@@ -109,6 +161,13 @@ class stzCanvas from stzObject
 		This.SetBackground(pColor)
 		return This
 
+	# Chooses the font and size for the text added next; a text still pending takes them at once.
+	#
+	#   poFont     The stzFont to draw with, which raises an error when it is not an object
+	#   pnSize     The font size, in pixels
+	#   returns    nothing; the canvas changes
+	#   note       the size stays at 16 until set
+	#   see        AddText, SetFontQ
 	def SetFont(poFont, pnSize)
 		if NOT isObject(poFont)
 			StzRaise("stzCanvas.SetFont: give an stzFont object.")
@@ -126,8 +185,17 @@ class stzCanvas from stzObject
 		return This
 
 
-	#-- adding shapes -------------------------------------------------------
-
+	# Adds a rectangle given by its top-left corner and size; Fill, Stroke and Color then reach it until the next shape is added.
+	#
+	#   pnX        The x position of the left edge, in pixels
+	#   pnY        The y position of the top edge, in pixels
+	#   pnW        The width, in pixels
+	#   pnH        The height, in pixels
+	#   returns    nothing; the shape is pending
+	#   note       it is white unless a fill was set earlier; it is posted when the next shape is
+	#              added or output is asked for
+	#   see        AddRectQ, Fill, Stroke
+	#@ aka  -- adding shapes -------------------------------------------------------
 	def AddRect(pnX, pnY, pnW, pnH)
 		This._Flush()
 		@aPending = [ :rect, pnX, pnY, pnW, pnH, @nFill, @nStroke, @nStrokeW, @bFillNamed ]
@@ -136,8 +204,20 @@ class stzCanvas from stzObject
 		This.AddRect(pnX, pnY, pnW, pnH)
 		return This
 
-	# A rectangle whose fill runs from one colour to another; bVertical
-	# picks the axis.
+	# Adds a rectangle whose fill runs from one colour to another; it is posted at once, so Fill and Stroke do not reach it.
+	#
+	#   pnX          The x position of the left edge, in pixels
+	#   pnY          The y position of the top edge, in pixels
+	#   pnW          The width, in pixels
+	#   pnH          The height, in pixels
+	#   pFrom        The colour at the start of the gradient
+	#   pTo          The colour at the end of the gradient
+	#   pbVertical   1 for a gradient running top to bottom, 0 for left to right
+	#   returns      nothing; the shape is posted
+	#   note         the SVG output holds a linear gradient definition and a rectangle filled with
+	#                it
+	#   see          AddRect
+	#@ aka  A rectangle whose fill runs from one colour to another; bVertical picks the axis.
 	def AddGradientRect(pnX, pnY, pnW, pnH, pFrom, pTo, pbVertical)
 		This._Flush()
 		StzEngineGpuSceneRectGradient(@nId, pnX, pnY, pnW, pnH,
@@ -147,6 +227,14 @@ class stzCanvas from stzObject
 		This.AddGradientRect(pnX, pnY, pnW, pnH, pFrom, pTo, pbVertical)
 		return This
 
+	# Adds a circle given by its centre and radius; Fill and Stroke then reach it until the next shape is added.
+	#
+	#   pnCX       The x position of the centre, in pixels
+	#   pnCY       The y position of the centre, in pixels
+	#   pnR        The radius, in pixels
+	#   returns    nothing; the shape is pending
+	#   note       the SVG output draws a stroke as a separate polyline, not as a stroke attribute
+	#   see        AddCircleQ, AddEllipse
 	def AddCircle(pnCX, pnCY, pnR)
 		This._Flush()
 		@aPending = [ :circle, pnCX, pnCY, pnR, 0, @nFill, @nStroke, @nStrokeW, @bFillNamed ]
@@ -155,8 +243,17 @@ class stzCanvas from stzObject
 		This.AddCircle(pnCX, pnCY, pnR)
 		return This
 
-	# A ROUNDED rectangle -- the visual signature of every diagram graphviz
-	# draws with style=rounded, which is what an org chart looks like.
+	# Adds a rectangle with rounded corners; Fill and Stroke then reach it until the next shape is added.
+	#
+	#   pnX        The x position of the left edge, in pixels
+	#   pnY        The y position of the top edge, in pixels
+	#   pnW        The width, in pixels
+	#   pnH        The height, in pixels
+	#   pnR        The radius of the corners, in pixels
+	#   returns    nothing; the shape is pending
+	#   note       the SVG output holds it as a polygon of points
+	#   see        AddRect
+	#@ aka  A ROUNDED rectangle -- the visual signature of every diagram graphviz draws with style=rounded, which is what an org chart looks like.
 	def AddRoundRect(pnX, pnY, pnW, pnH, pnR)
 		This._Flush()
 		@aPending = [ :roundrect, pnX, pnY, pnW, pnH, @nFill, @nStroke,
@@ -166,11 +263,16 @@ class stzCanvas from stzObject
 		This.AddRoundRect(pnX, pnY, pnW, pnH, pnR)
 		return This
 
-	# The primitive the DIAGRAM layer was missing. Of graphviz's 24 node
-	# shapes, twenty are a circle, a rect or a polygon -- all already here --
-	# and the remaining four (ellipse, egg, cylinder, doublecircle) all need
-	# this one. Tessellated engine-side, on the same segment bound as the
-	# circle, so a stroked ellipse traces exactly the filled one.
+	# Adds an ellipse given by its centre and its two radii; Fill and Stroke then reach it until the next shape is added.
+	#
+	#   pnCX       The x position of the centre, in pixels
+	#   pnCY       The y position of the centre, in pixels
+	#   pnRX       The horizontal radius, in pixels
+	#   pnRY       The vertical radius, in pixels
+	#   returns    nothing; the shape is pending
+	#   note       the SVG output holds it as a polygon of points
+	#   see        AddCircle
+	#@ aka  The primitive the DIAGRAM layer was missing. Of graphviz's 24 node shapes, twenty are a circle, a rect or a polygon -- all already here -- and the remaining four (ellipse, egg, cylinder, doublecircle) all need this one. Tessellated engine-side, on the same segment bound as the circle, so a stroked ellipse traces exactly the filled one.
 	def AddEllipse(pnCX, pnCY, pnRX, pnRY)
 		This._Flush()
 		@aPending = [ :ellipse, pnCX, pnCY, pnRX, pnRY, @nFill, @nStroke, @nStrokeW, @bFillNamed ]
@@ -179,21 +281,20 @@ class stzCanvas from stzObject
 		This.AddEllipse(pnCX, pnCY, pnRX, pnRY)
 		return This
 
-	# A FIELD OF SAMPLES, drawn in ONE operation.
+	# Draws a field of RGBA samples stretched over a box in one operation; raises an error when the buffer is not width x height x 4 bytes.
 	#
-	# Owed to the sound plane since SN5, with the cost measured there: a
-	# spectrogram had to be drawn as one rectangle per cell -- 1,574 rects,
-	# 88 ms and ~104 KB of SVG for a single 760x260 picture -- because the
-	# canvas had no way to say "here is a field of values, draw it".
-	#
-	# paRgba is iw*ih*4 bytes, row-major, and it is COPIED: a stored slice
-	# of the caller's buffer is a use-after-free the moment they free it.
-	# The engine uploads it once and keeps the texture, so a still image
-	# redrawn every frame does not re-upload.
-	#
-	# Both tiers carry it: the GPU draws a textured quad, and ToSVG() embeds
-	# a base64 PNG -- so a picture with a spectrogram in it is still one
-	# self-contained file that needs no device.
+	#   pnX        The x position of the left edge of the box, in pixels
+	#   pnY        The y position of the top edge of the box, in pixels
+	#   pnW        The width of the box, in pixels
+	#   pnH        The height of the box, in pixels
+	#   pnImgW     The number of sample columns in the buffer
+	#   pnImgH     The number of sample rows in the buffer
+	#   pcRgba     The samples as bytes, 4 per sample (red, green, blue, alpha), row by row
+	#   returns    nothing; the shape is posted
+	#   note       the buffer is copied; the SVG output embeds it as a base64 PNG, so the file needs
+	#              no device
+	#   see        AddImageQ, AddImageXT
+	#@ aka  A FIELD OF SAMPLES, drawn in ONE operation.
 	def AddImage(pnX, pnY, pnW, pnH, pnImgW, pnImgH, pcRgba)
 		This._Flush()
 		_n_ = StzEngineGpuSceneImage(@nId, pnX, pnY, pnW, pnH,
@@ -220,22 +321,16 @@ class stzCanvas from stzObject
 				"area and the buffer is " + pnImgW + "x" + pnImgH + "x4.")
 		ok
 
-	# ALREADY-TESSELLATED triangles, with a colour PER VERTEX.
+	# Adds ready-made triangles with a colour for each vertex; raises an error when the lists do not describe at least one whole triangle.
 	#
-	# Every other Add* here names a SHAPE and lets the engine work out the
-	# triangles. This one is the opposite door, and it exists because a UI
-	# toolkit arrives having already tessellated: RmlUi's render interface
-	# hands out vertices and indices, and turning those back into
-	# rectangles to hand them forward again would be a lie about what was
-	# drawn.
-	#
-	# paVerts is flat -- x, y, r, g, b, a per vertex, pixel space, channels
-	# 0..255. paIndices is 0-based triangle indices into it. Both tiers
-	# carry it: the GPU draws the triangles through the ordinary shape
-	# pipeline (no new shader, no extra draw call), and ToSVG() emits one
-	# <polygon> per triangle -- exact for flat-coloured UI geometry, an
-	# approximation for a gradient mesh, where the GPU interpolates and
-	# SVG cannot.
+	#   paVerts     A flat list of numbers, six per vertex: x, y, red, green, blue, alpha, with
+	#               channels from 0 to 255
+	#   paIndices   A flat list of 0-based vertex numbers, three per triangle
+	#   returns     nothing; the shape is posted
+	#   note        the SVG output draws one polygon per triangle, filled with a single colour, so a
+	#               gradient mesh is only approximated there
+	#   see         AddMeshQ, AddPolygon
+	#@ aka  ALREADY-TESSELLATED triangles, with a colour PER VERTEX.
 	def AddMesh(paVerts, paIndices)
 		This._Flush()
 		_n_ = StzEngineGpuSceneMesh(@nId, paVerts, paIndices)
@@ -250,6 +345,15 @@ class stzCanvas from stzObject
 		This.AddMesh(paVerts, paIndices)
 		return This
 
+	# Adds a straight line between two points; Fill or Stroke then sets its colour, and Stroke its width.
+	#
+	#   pnX1       The x position of the start, in pixels
+	#   pnY1       The y position of the start, in pixels
+	#   pnX2       The x position of the end, in pixels
+	#   pnY2       The y position of the end, in pixels
+	#   returns    nothing; the shape is pending
+	#   note       the line is 1 pixel wide and in the fill colour unless a stroke was given
+	#   see        AddLineQ, AddPolyline
 	def AddLine(pnX1, pnY1, pnX2, pnY2)
 		This._Flush()
 		@aPending = [ :line, pnX1, pnY1, pnX2, pnY2, @nFill, @nStroke, @nStrokeW, @bFillNamed ]
@@ -258,7 +362,13 @@ class stzCanvas from stzObject
 		This.AddLine(pnX1, pnY1, pnX2, pnY2)
 		return This
 
-	# paPoints is flat: [ x1,y1, x2,y2, ... ]
+	# Adds an open line through a list of points; Fill or Stroke then sets its colour, and Stroke its width.
+	#
+	#   paPoints   A flat list of coordinates, [ x1, y1, x2, y2, ... ], in pixels
+	#   returns    nothing; the shape is pending
+	#   note       the line is 1 pixel wide and in the fill colour unless a stroke was given
+	#   see        AddPolygon, AddLine
+	#@ aka  paPoints is flat: [ x1,y1, x2,y2, ... ]
 	def AddPolyline(paPoints)
 		This._Flush()
 		@aPending = [ :polyline, paPoints, 0, 0, 0, @nFill, @nStroke, @nStrokeW, @bFillNamed ]
@@ -267,6 +377,12 @@ class stzCanvas from stzObject
 		This.AddPolyline(paPoints)
 		return This
 
+	# Adds a closed filled shape through a list of points; Fill and Stroke then reach it until the next shape is added.
+	#
+	#   paPoints   A flat list of coordinates, [ x1, y1, x2, y2, ... ], in pixels
+	#   returns    nothing; the shape is pending
+	#   note       a stroke closes the outline back to the first point
+	#   see        AddPolyline, AddMesh
 	def AddPolygon(paPoints)
 		This._Flush()
 		@aPending = [ :polygon, paPoints, 0, 0, 0, @nFill, @nStroke, @nStrokeW, @bFillNamed ]
@@ -275,22 +391,30 @@ class stzCanvas from stzObject
 		This.AddPolygon(paPoints)
 		return This
 
-	# (pnX, pnY) is the BASELINE origin -- where the text sits, not its box.
+	# Adds a text whose baseline starts at a point, drawn with the font set earlier; Fill or Color then colours it.
+	#
+	#   pcText     The text to draw
+	#   pnX        The x position where the text starts, in pixels
+	#   pnY        The y position of the baseline, not of the top of the text, in pixels
+	#   returns    nothing; the text is pending
+	#   note       the SVG output holds the glyphs as an outline path
+	#   warning    the error for a canvas with no font is raised when the text is posted, by the
+	#              next shape or output call, not by this call
+	#   see        SetFont, AddTextQ, AddVerticalText
+	#@ aka  (pnX, pnY) is the BASELINE origin -- where the text sits, not its box.
 	def AddText(pcText, pnX, pnY)
 		This._Flush()
 		@aPending = [ :text, pcText, pnX, pnY, @nFill, @oFont, @nFontSize, 0 ]
 
-	# ...AND DOWN A COLUMN (GR2d). Vertical is the writing mode of Japanese
-	# and Chinese, not a rotated line: the shaper picks the font's vertical
-	# metrics and its vertical FORMS, so a comma sits in the corner a
-	# vertical reader expects and a bracket takes its upright shape. The
-	# same call serves both tiers.
+	# Adds a text written down a column, the writing mode of Japanese and Chinese, using the font's vertical forms.
 	#
-	#     oC.AddVerticalText("日本語の縦書き", 40, 40)
-	#
-	# A Latin word inside a column stands upright here, one letter under
-	# the next, where a reader would expect it lying on its side. That is
-	# named as a limit in SOFTANZA_GRAPHICS_PLAN.md rather than implied.
+	#   pcText     The text to draw
+	#   pnX        The x position of the column, in pixels
+	#   pnY        The y position where the column starts, in pixels
+	#   returns    nothing; the text is pending
+	#   note       a Latin word in a column stands upright, one letter under the next
+	#   see        AddText, SetFont
+	#@ aka  ...AND DOWN A COLUMN (GR2d). Vertical is the writing mode of Japanese and Chinese, not a rotated line: the shaper picks the font's vertical metrics and its vertical FORMS, so a comma sits in the corner a vertical reader expects and a bracket takes its upright shape. The same call serves both tiers.
 	def AddVerticalText(pcText, pnX, pnY)
 		This._Flush()
 		@aPending = [ :text, pcText, pnX, pnY, @nFill, @oFont, @nFontSize, 1 ]
@@ -299,19 +423,17 @@ class stzCanvas from stzObject
 			This.AddVerticalText(pcText, pnX, pnY)
 			return This
 
-	# A LINE THAT FILLS A WIDTH, and in Arabic that is not a line with wider
-	# spaces in it. Latin justifies BETWEEN the words; Arabic justifies
-	# INSIDE them, by elongating the stroke that joins two letters -- the
-	# kashida. A column of Arabic stretched on its spaces alone has rivers
-	# of white running down it and reads as a page set by somebody who did
-	# not know the script.
+	# Adds a line stretched to fill a width: Arabic is lengthened inside its words by kashida, other scripts between the words.
 	#
-	#     oC.SetFontQ(oArabic, 28).AddJustifiedText(cLine, 40, 60, 420)
-	#
-	# The engine elongates first and shares whatever is left over the
-	# spaces, so the line lands on the width exactly. A width no greater
-	# than the text's own leaves the text alone: this stretches, and it
-	# never compresses.
+	#   pcText     The text to draw
+	#   pnX        The x position where the line starts, in pixels
+	#   pnY        The y position of the baseline, in pixels
+	#   pnWidth    The width the line must fill, in pixels
+	#   returns    nothing; the text is pending
+	#   note       a width no greater than the text's own leaves the text alone, because it never
+	#              compresses
+	#   see        AddText, SetFont
+	#@ aka  A LINE THAT FILLS A WIDTH, and in Arabic that is not a line with wider spaces in it. Latin justifies BETWEEN the words; Arabic justifies INSIDE them, by elongating the stroke that joins two letters -- the kashida. A column of Arabic stretched on its spaces alone has rivers of white running down it and reads as a page set by somebody who did not know the script.
 	def AddJustifiedText(pcText, pnX, pnY, pnWidth)
 		This._Flush()
 		@aPending = [ :text, pcText, pnX, pnY, @nFill, @oFont, @nFontSize, 0, pnWidth ]
@@ -324,14 +446,14 @@ class stzCanvas from stzObject
 		This.AddText(pcText, pnX, pnY)
 		return This
 
-	#-- styling the last shape added ---------------------------------------
-
-	# With a shape pending, Fill colours THAT shape. With none, it sets the
-	# canvas's fill for everything added afterwards.
+	# Paints the pending shape with a colour; with none pending it sets the colour of every shape added afterwards.
 	#
-	# Either way it NAMES the fill, and that flag is what lets a stroke-only
-	# shape exist: see _Flush. A shape whose fill was never named and which
-	# WAS given a stroke is an outline, not a white blob.
+	#   pColor     The fill colour: a name such as "red", a #rrggbb code or another colour
+	#              expression
+	#   returns    nothing; the canvas changes
+	#   note       a shape given a stroke and no named fill is drawn as an outline only
+	#   see        Color, Stroke, FillQ
+	#@ aka  -- styling the last shape added ---------------------------------------
 	def Fill(pColor)
 		_n_ = StzColorToNumber(pColor)
 		if len(@aPending) = 0
@@ -350,7 +472,12 @@ class stzCanvas from stzObject
 		This.Fill(pColor)
 		return This
 
-	# Text reads better as Color(); same act.
+	# Colours the pending shape or text; the same act as the fill call, named for text.
+	#
+	#   pColor     The colour: a name such as "red", a #rrggbb code or another colour expression
+	#   returns    nothing; the canvas changes
+	#   see        Fill, ColorQ
+	#@ aka  Text reads better as Color(); same act.
 	def Color(pColor)
 		This.Fill(pColor)
 
@@ -358,8 +485,15 @@ class stzCanvas from stzObject
 		This.Fill(pColor)
 		return This
 
-	# An outline in its own colour and width. On a filled shape it is drawn
-	# ON TOP of the fill, so the two agree on the silhouette.
+	# Gives the pending shape an outline of a colour and a width, drawn over the fill; with none pending it sets the outline of later shapes.
+	#
+	#   pColor     The outline colour: a name such as "red", a #rrggbb code or another colour
+	#              expression
+	#   pnWidth    The outline width, in pixels
+	#   returns    nothing; the canvas changes
+	#   note       a text has no outline, so the call does nothing for it
+	#   see        Fill, StrokeQ
+	#@ aka  An outline in its own colour and width. On a filled shape it is drawn ON TOP of the fill, so the two agree on the silhouette.
 	def Stroke(pColor, pnWidth)
 		_n_ = StzColorToNumber(pColor)
 		if len(@aPending) = 0
@@ -377,45 +511,29 @@ class stzCanvas from stzObject
 		This.Stroke(pColor, pnWidth)
 		return This
 
-	#-- output: the two tiers of ONE model ---------------------------------
-
-	# WHAT THE NEXT SHAPES BELONG TO. The display list knows shapes and
-	# not identities, so a click over it can answer "a rounded
-	# rectangle" and never "Web A". A face that is about to draw a node
-	# says so here, and Pick() answers in those terms.
+	# Sets the tag that the shapes added next carry, so a click can be traced back to what was drawn; 0 means no identity.
 	#
-	# A tag rather than a shape index, because a node is several
-	# commands -- a fill, a stroke, a label -- and every one of them is
-	# the same node to a reader pointing at it. Zero is "no identity",
-	# which is what backgrounds and decorations keep.
+	#   pnTag      A number naming what the next shapes are
+	#   returns    the canvas, so calls can be chained
+	#   note       one tag spans a fill, a stroke and a label, which are one thing to a reader
+	#   see        Pick, PickXT, SetSvgIdent
+	#@ aka  -- output: the two tiers of ONE model ---------------------------------
 	def SetPickTag(pnTag)
 		This._Flush()
 		StzEngineGpuSceneSetPickTag(@nId, pnTag)
 		return This
 
-	# WHAT THE NEXT SHAPES ARE CALLED, to a reader of the FILE.
+	# Gives the shapes added next one element id and classes, for a reader of the SVG file; both texts empty clears them.
 	#
-	# SetPickTag answers a POINTER -- what is under this pixel. This
-	# answers a DOCUMENT: what is this element named, and what kind of
-	# thing is it, to a consumer reading the SVG rather than clicking it.
-	# A tag cannot serve the second question, because a tag is a number
-	# chosen at draw time and a consumer contract needs a name that
-	# survives being written to a file and read back somewhere else.
-	#
-	# BPMN's L18/L19 is the contract that asked for it: every drawn
-	# element carries a stable identifier and a set of classes, and a
-	# consumer binds to those and may rely on nothing else.
-	#
-	# Everything added afterwards is ONE element -- emitted as a single
-	# <g id="..." class="..."> around all of it, because a node is a
-	# fill and a stroke and a label and those are one thing to whoever
-	# reads the document. Both empty clears the identity, which is what
-	# backgrounds and decorations keep.
-	#
-	# REFUSES a name that is not an XML name rather than escaping it. A
-	# name that arrives as `a b"c` and leaves as `a b&quot;c` is one the
-	# consumer cannot write down or select on -- the mangling would be
-	# discovered by them and the refusal is discovered here.
+	#   pcName      The element's id, which must be an XML name: a letter or underscore, then
+	#               letters, digits, underscore, hyphen or dot
+	#   pcClasses   The element's classes, as names separated by spaces
+	#   returns     the canvas, so calls can be chained
+	#   note        the next shapes come out of ToSVG wrapped in one group carrying that id and
+	#               those classes; a name that is not an XML name raises an error instead of being
+	#               escaped
+	#   see         ClearSvgIdent, SetPickTag, ToSVG
+	#@ aka  WHAT THE NEXT SHAPES ARE CALLED, to a reader of the FILE.
 	def SetSvgIdent(pcName, pcClasses)
 		This._Flush()
 		_cN_ = pcName
@@ -435,13 +553,21 @@ class stzCanvas from stzObject
 		ok
 		return This
 
-	# Back to no identity -- the next shapes belong to no element.
+	# Ends the current named element, so the shapes added next belong to none.
+	#
+	#   returns    the canvas, so calls can be chained
+	#   see        SetSvgIdent
+	#@ aka  Back to no identity -- the next shapes belong to no element.
 	def ClearSvgIdent()
 		return This.SetSvgIdent("", "")
 
-	# The tag of the TOPMOST tagged shape under a point, or 0 for bare
-	# paper. Read straight from the retained display list: the data is
-	# already engine-side, so a click costs one crossing and no copy.
+	# Returns the tag of the topmost tagged shape under a point, looking up to 3 pixels around it, or 0 for bare paper.
+	#
+	#   pnX        The x position of the point, in pixels
+	#   pnY        The y position of the point, in pixels
+	#   returns    a number
+	#   see        PickXT, SetPickTag
+	#@ aka  The tag of the TOPMOST tagged shape under a point, or 0 for bare paper. Read straight from the retained display list: the data is already engine-side, so a click costs one crossing and no copy.
 	def Pick(pnX, pnY)
 		return This.PickXT(pnX, pnY, 3)
 
@@ -451,69 +577,59 @@ class stzCanvas from stzObject
 		This._Flush()
 		return StzEngineGpuScenePick(@nId, pnX, pnY, pnTol)
 
-	# RENDER-REGION: draw one rectangle of this canvas, into an image of
-	# that size. Every output method below then answers the REGION --
-	# ToPNG writes a page-sized PNG, ToPixels reads page-sized bytes.
+	# Selects one rectangle of the canvas to render into an image of that size, so a picture larger than its medium can be drawn tile by tile.
 	#
-	# It exists because a picture larger than its medium has no whole to
-	# cut up: a GPU texture stops at 8192 and print never had a whole at
-	# all. Moving the projection renders each tile from the SAME retained
-	# scene -- same geometry, same text, a different window onto it --
-	# where cropping would need the impossible image to exist first.
-	#
-	# Panning a viewer over a huge diagram is the same call with a
-	# different origin, which is why this is one feature and not two.
+	#   pnX        The x position of the region's left edge, in pixels
+	#   pnY        The y position of the region's top edge, in pixels
+	#   pnW        The width of the region, in pixels
+	#   pnH        The height of the region, in pixels
+	#   returns    the canvas, so calls can be chained
+	#   note       the pixel outputs answer the region; the SVG output still draws the whole canvas
+	#   see        ClearRegion, ToPNG, ToPixels
+	#@ aka  RENDER-REGION: draw one rectangle of this canvas, into an image of that size. Every output method below then answers the REGION -- ToPNG writes a page-sized PNG, ToPixels reads page-sized bytes.
 	def SetRegion(pnX, pnY, pnW, pnH)
 		StzEngineGpuSceneSetView(@nId, pnX, pnY, pnW, pnH)
 		return This
 
-	# Back to the whole picture.
+	# Goes back to rendering the whole picture.
+	#
+	#   returns    the canvas, so calls can be chained
+	#   see        SetRegion
+	#@ aka  Back to the whole picture.
 	def ClearRegion()
 		StzEngineGpuSceneSetView(@nId, 0, 0, 0, 0)
 		return This
 
-	# Vector. Needs NO device -- always available, everywhere.
+	# Returns the picture as SVG text, the vector tier, which needs no graphics device.
+	#
+	#   returns    text, a complete SVG document
+	#   see        ToPNG, Content
+	#@ aka  Vector. Needs NO device -- always available, everywhere.
 	def ToSVG()
 		This._Flush()
 		return StzEngineGpuSceneToSvg(@nId)
 
-	# Pixels, through the GPU. Returns the PNG bytes; pass a path to also
-	# write the file. Answers "" when there is no device, and the refusal
-	# is COUNTED engine-side -- so a caller can fall back to ToSVG()
-	# knowing why.
-	# THE COMPRESSION LEVEL IS A MEASURED DEFAULT, NOT A CONSTANT.
+	# Renders the picture on the graphics device and returns the PNG bytes; a path also writes the file.
 	#
-	# This passed 1 -- deflate's fastest and weakest setting, taken as
-	# the GR0 default and never revisited. Measured on this library's own
-	# silhouette, five runs each, same pixels every time:
-	#
-	#     level 1   52598 bytes   10.8 ms
-	#     level 4   45032 bytes   15.6 ms      -14.4% for +4.8 ms
-	#     level 9   43162 bytes   55.5 ms      -17.9% for +44.7 ms
-	#
-	# Four is the knee and the rest is a bad trade: five through seven
-	# buy 1.3% for another 2.4 ms, and nine spends 5.1x the time of one
-	# to beat four by 4%. So four is the default and the dial is exposed,
-	# because a caller writing one file for a page and a caller writing
-	# nine hundred for a test suite are not answering the same question.
+	#   pcPath     Where to write the PNG file too
+	#   returns    the PNG bytes as a string; "" when no device is available
+	#   note       the compression level is 4, the measured knee; ToPNGXT takes the level, 1 to 9
+	#   see        ToPNGHiRes, ToSVG, CanDrawPixels
+	#@ aka  Pixels, through the GPU. Returns the PNG bytes; pass a path to also write the file. Answers "" when there is no device, and the refusal is COUNTED engine-side -- so a caller can fall back to ToSVG() knowing why. THE COMPRESSION LEVEL IS A MEASURED DEFAULT, NOT A CONSTANT.
 	def ToPNG(pcPath)
 		return This.ToPNGXT(pcPath, 4)
 
 	def ToPNGXT(pcPath, pnLevel)
 		return This._ToPNGSS(pcPath, pnLevel, 1)
 
-	# THE SAME PICTURE, SUPERSAMPLED -- rendered at pnScale times the size
-	# each way and box-averaged down, which is what turns a professional
-	# figure crisp.
+	# Renders the picture at twice the size and averages it back down, which makes thin diagonal lines even; returns the PNG bytes.
 	#
-	# 4x MSAA antialiases a shape's edges and still beads a thin near-axis
-	# line light and dark along its length: its four samples are fixed, so a
-	# half-pixel diagonal catches them unevenly. Rendering at 2x gives
-	# sixteen effective samples where the line is and the bead fills in. It
-	# is not the default -- a test that compares rendered bytes wants the
-	# plain render, and a nine-hundred-file suite does not want to pay 4x
-	# the fill -- so a FIGURE meant to be shown asks for it and a check does
-	# not. Two is the knee; three and four are for print.
+	#   pcPath     Where to write the PNG file too
+	#   returns    the PNG bytes as a string; "" when no device is available
+	#   note       the image has the canvas's own size; ToPNGHiResXT takes the level and the scale,
+	#              1 to 4
+	#   see        ToPNG, ToPixelsHiRes
+	#@ aka  THE SAME PICTURE, SUPERSAMPLED -- rendered at pnScale times the size each way and box-averaged down, which is what turns a professional figure crisp.
 	def ToPNGHiRes(pcPath)
 		return This._ToPNGSS(pcPath, 4, 2)
 
@@ -536,15 +652,22 @@ class stzCanvas from stzObject
 		ok
 		return _c_
 
-	# Raw RGBA8 bytes of the GPU tier, for a caller that wants the pixels
-	# themselves (comparisons, compositing, tests).
+	# Renders the picture on the graphics device and returns the raw pixels, 4 bytes (red, green, blue, alpha) for each.
+	#
+	#   returns    a string of width x height x 4 bytes; of the region's size when a region is set
+	#   see        ToPNG, SetRegion, CanDrawPixels
+	#@ aka  Raw RGBA8 bytes of the GPU tier, for a caller that wants the pixels themselves (comparisons, compositing, tests).
 	def ToPixels()
 		This._Flush()
 		StzGraphicsDevice()
 		return StzEngineGpuSceneToPixels(@nId)
 
-	# ...and the supersampled pixels, box-averaged down: what ToPNGHiRes
-	# writes, for a caller that wants the bytes rather than a file.
+	# Returns the pixels of a supersampled render, averaged down to the canvas's own size, the data behind the hi-res PNG.
+	#
+	#   pnScale    The supersampling factor, 2 by default and for a non-number
+	#   returns    a string of width x height x 4 bytes
+	#   see        ToPixels, ToPNGHiRes
+	#@ aka  ...and the supersampled pixels, box-averaged down: what ToPNGHiRes writes, for a caller that wants the bytes rather than a file.
 	def ToPixelsHiRes(pnScale)
 		_s_ = pnScale
 		if NOT isNumber(_s_)  _s_ = 2  ok
@@ -552,6 +675,10 @@ class stzCanvas from stzObject
 		StzGraphicsDevice()
 		return StzEngineGpuSceneToPixelsSS(@nId, _s_)
 
+	# TRUE if a graphics device is available for the pixel outputs; it is probed once per process.
+	#
+	#   returns    TRUE or FALSE
+	#   see        ToPNG, ToSVG
 	def CanDrawPixels()
 		return StzGraphicsDevice()
 
@@ -559,17 +686,13 @@ class stzCanvas from stzObject
 	def Content()
 		return This.ToSVG()
 
-	# Post the pending shape by hand. Only a caller driving its own frame
-	# loop needs this (stzWindow.Draw does it); every Add* and every output
-	# method already calls it.
+	# Posts the pending shape to the engine, which closes the group of shapes that Fill, Stroke and SetFont may still change.
 	#
-	# AND A CALLER CLOSING A GROUP OF SHAPES, which is the second reason and
-	# was found the hard way. SetFont, Fill and Stroke are deliberately
-	# RETROACTIVE on a pending shape -- that is what makes
-	# AddTextQ(..).Fill(..) work -- so the LAST shape of a group stays open
-	# until something else is added. A label engine drew ninety-six names
-	# and then wrote a caption at another size, and the caption resized the
-	# ninety-sixth name. Flush() is how a group is closed on purpose.
+	#   returns    nothing
+	#   note       every Add call and every output call already flushes; call it to stop a later
+	#              caption from restyling the last shape of a group
+	#   see        FlushQ, ShapeCount
+	#@ aka  Post the pending shape by hand. Only a caller driving its own frame loop needs this (stzWindow.Draw does it); every Add* and every output method already calls it.
 	def Flush()
 		This._Flush()
 
@@ -577,14 +700,14 @@ class stzCanvas from stzObject
 		This._Flush()
 		return This
 
-	# Empty the display list, keeping the background and the GPU buffers.
-	# What an ANIMATED canvas calls at the top of each frame -- without it
-	# the list grows by a frame's worth of shapes forever.
-	# Change the canvas's extents. The engine scene and this face are
-	# resized by the SAME call, so Width()/Height() cannot drift from what
-	# is actually being drawn -- which they did, silently, the first time a
-	# window retargeted a canvas: the face kept answering its construction
-	# size while the scene had moved on.
+	# Changes the canvas to a new width and height; raises an error for a non-number or a size below 1, and refuses a size the engine cannot hold.
+	#
+	#   pnW        The new width, in pixels
+	#   pnH        The new height, in pixels
+	#   returns    TRUE if the engine resized; FALSE if it refused, as for 99999, leaving the size
+	#              as it was
+	#   see        ResizeQ, Width, Height
+	#@ aka  Empty the display list, keeping the background and the GPU buffers. What an ANIMATED canvas calls at the top of each frame -- without it the list grows by a frame's worth of shapes forever. Change the canvas's extents. The engine scene and this face are resized by the SAME call, so Width()/Height() cannot drift from what is actually being drawn -- which they did, silently, the first time a window 
 	def Resize(pnW, pnH)
 		if NOT (isNumber(pnW) and isNumber(pnH))
 			StzRaise("stzCanvas.Resize: give a width and a height in pixels.")
@@ -603,6 +726,12 @@ class stzCanvas from stzObject
 		This.Resize(pnW, pnH)
 		return This
 
+	# Empties the display list and drops the pending shape, keeping the background and the fill and stroke settings.
+	#
+	#   returns    nothing
+	#   note       meant for the top of each frame of an animation, so the list does not grow
+	#              forever
+	#   see        ClearQ, SetBackground
 	def Clear()
 		@aPending = []
 		StzEngineGpuSceneReset(@nId)
@@ -611,13 +740,12 @@ class stzCanvas from stzObject
 		This.Clear()
 		return This
 
-	# Put the picture in front of a person. A real WINDOW when this machine
-	# has one (GR5) -- Escape or the X button closes it, and the picture
-	# never touches the disk. Otherwise the old path: write a PNG (or an
-	# SVG with no device) and ask the OS to open it, which is what a
-	# headless box or a machine without stz_window.dll still deserves.
-	# Returns the frame count when it opened a window, the file path when
-	# it fell back -- so a caller can always tell which happened.
+	# Puts the picture in front of a person: in a window when there is one, else by writing a PNG or SVG file and asking the OS to open it.
+	#
+	#   returns    the frame count when a window opened; the file path when it fell back
+	#   note       not run here, as it opens a window or an external viewer; read from the body
+	#   see        ToPNG, ToSVG
+	#@ aka  Put the picture in front of a person. A real WINDOW when this machine has one (GR5) -- Escape or the X button closes it, and the picture never touches the disk. Otherwise the old path: write a PNG (or an SVG with no device) and ask the OS to open it, which is what a headless box or a machine without stz_window.dll still deserves. Returns the frame count when it opened a window, the file path when 
 	def Show()
 		This._Flush()
 		if StzWindowingAvailable() and StzGraphicsDevice()
@@ -645,6 +773,10 @@ class stzCanvas from stzObject
 		ok
 		return _cPath_
 
+	# Releases the engine scene behind the canvas and sets its id to 0.
+	#
+	#   returns    nothing
+	#   see        Id_
 	def Free()
 		if @nId > 0
 			StzEngineGpuSceneFree(@nId)

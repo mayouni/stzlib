@@ -1,0 +1,12 @@
+{
+ "brief": "Reads the .stzstyl style format, the text that ExportToStyl writes, into a hash list of its name, theme, layout and sections.",
+ "detail": "A style has a header line, theme and layout lines, and the sections colors, fonts, edges, nodes, focus and custom, each holding indented key: value lines. Every section is parsed into a list of [ key, value ] pairs. Only a single-digit value becomes a number.",
+ "receiver": "o1 = new stzStylParser()",
+ "example": [
+  "? o1.Parse(\"theme: dark\")[:theme]",
+  "#--> dark"
+ ],
+ "see": [
+  "stzDiagram"
+ ]
+}

@@ -1,0 +1,6 @@
+init | Builds the converter and serialises the diagram's hash list to JSON at once; anything but a stzDiagram raises an error. | nothing; the JSON is generated | poDiagram=The stzDiagram to convert | Json, WriteToFile |  | the text is a snapshot: later changes to the diagram are not seen
+Json | Returns the text generated at construction, which the engine's own validator accepts as well-formed. | text, valid JSON |  | JsonCode, Code, Content
+JsonCode | Returns the generated JSON text; another spelling of the text getter. | text |  | Json
+Code | Returns the generated JSON text; another spelling of the text getter. | text |  | Json
+Content | Returns the generated JSON text; another spelling of the text getter. | text |  | Json
+WriteToFile | Writes the JSON text to a file, replacing it. | 1 | pFilename=The path of the file to write, as text | Json

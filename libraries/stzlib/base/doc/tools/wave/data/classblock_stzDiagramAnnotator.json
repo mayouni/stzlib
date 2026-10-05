@@ -1,0 +1,12 @@
+{
+ "brief": "Holds extra data about nodes of a diagram, of one kind such as risk or cost, for attaching with AddAnnotation.",
+ "detail": "An annotator has a type and a table from node id to a hash list of data. AnnotationsByType finds annotators by their type, matching case.",
+ "receiver": "o1 = new stzDiagramAnnotator(\"risk\"); o1.Annotate(\"start\", [ :level = \"high\" ])",
+ "example": [
+  "? @@( o1.NodeData(\"start\") )",
+  "#--> [ [ \"level\", \"high\" ] ]"
+ ],
+ "see": [
+  "stzDiagram"
+ ]
+}

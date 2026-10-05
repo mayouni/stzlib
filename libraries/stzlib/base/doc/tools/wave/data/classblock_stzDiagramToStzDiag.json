@@ -1,0 +1,13 @@
+{
+ "brief": "Converts a stzDiagram to its native .stzdiag text once, at construction, and offers that text and a file writer.",
+ "detail": "The text lists the diagram's properties, its nodes with label, type and colour, its edges with their labels and its clusters. stzDiagram.ImportDiag reads it back. The helpers EscapeString, NodeListToString and DataToString are small formatters; DataToString raises for a value that is a list.",
+ "receiver": "o1 = new stzDiagram(\"flow\"); o1.AddNodeXTT(\"start\", \"Order Received\", [ :type = \"start\" ]); o1.AddNodeXT(\"validate\", \"Validate\"); o1.AddNodeXTT(\"done\", \"Done\", [ :type = \"endpoint\" ]); o1.AddEdgeXT(\"start\", \"validate\", \"next\"); o1.AddEdge(\"validate\", \"done\"); o2 = new stzDiagramToStzDiag(o1)",
+ "example": [
+  "? StzLeft(o2.stzdiag(), 14)",
+  "#--> diagram \"flow\""
+ ],
+ "see": [
+  "stzDiagram",
+  "stzDiagramToDot"
+ ]
+}

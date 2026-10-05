@@ -1,0 +1,18 @@
+{
+ "brief": "Holds a flow diagram of typed, coloured nodes and labelled edges, and draws it as SVG or PNG with no graphviz, or exports it as DOT, Mermaid, JSON or the native .stzdiag text.",
+ "detail": "A stzDiagram is a stzGraph with a look: a theme, a layout direction, edge routing, pen and arrow settings, 24 node shapes (AddCircle, AddBox, AddDiamond and so on, each a node with a type and a label equal to its id), clusters drawn as boxes behind their nodes, annotators, and visual rules over node and edge properties. The inherited stzGraph methods (AddNodeXTT, Connect, AddEdgeXT, NodeProperty, Edges) build the content. ToCanvas lays the diagram out and draws it natively; ToSVG, ToPNG and ToPages are the outputs, and after ToCanvas the Render methods report where everything was drawn and PickAt answers what lies under a pixel. On top of that picture sits a headless editor: OnPress, OnMove, OnRelease and OnCancel feed a pointer into a state machine, Edit runs commands that Undo and Redo take back, and Pin fixes a node in the layout. Ids are folded to lowercase. Known defects, each carried as a warning: PenWidth, NodesWith, propertiesLegend and SaveToStzDiagInFolder raise; Explain raises once a visual rule is registered; ComputeMetrics divides by zero for a diagram with no path of two nodes; ToSVG and ToPNG leave the last picture freed, so picking fails after them; ImportDiag into a diagram that holds the first node adds duplicates; the pen-width setters are named the wrong way round. Display and View need graphviz and a viewer and Step and RunIn need a window; none of the three was run.",
+ "receiver": "o1 = new stzDiagram(\"flow\"); o1.AddNodeXTT(\"start\", \"Order Received\", [ :type = \"start\" ]); o1.AddNodeXT(\"validate\", \"Validate\"); o1.AddNodeXTT(\"done\", \"Done\", [ :type = \"endpoint\" ]); o1.AddEdgeXT(\"start\", \"validate\", \"next\"); o1.AddEdge(\"validate\", \"done\")",
+ "example": [
+  "? @@( o1.Edges()[1][:label] )",
+  "#--> \"next\""
+ ],
+ "see": [
+  "stzGraph",
+  "stzCanvas",
+  "stzOrgChart",
+  "stzDiagramToDot",
+  "stzDiagramToMermaid",
+  "stzDiagramToJSON",
+  "stzDiagramToStzDiag"
+ ]
+}

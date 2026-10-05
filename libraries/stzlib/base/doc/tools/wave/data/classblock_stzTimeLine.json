@@ -1,0 +1,15 @@
+{
+ "brief": "Holds a stretch of time with labelled points and labelled spans on it, and answers what is at a date, what overlaps, where the gaps are, and draws it in text.",
+ "detail": "A timeline runs from a start to an end, both dates or dates with a time, and everything on it is kept as text such as \"2024-02-14 10:00:00\". A point is a single labelled moment; a span is a labelled stretch with a start and an end. Both must lie inside the timeline, and neither may touch the blocked points and blocked spans that reserve parts of it. Labels may repeat. Point labels are stored in capitals and are matched in any case, but a span label keeps the case it was given, and FindSpan, HasSpan, RemoveSpan and RenameSpanLabel compare in capitals, so a span added as \"Alpha\" cannot be found through them while Span, SpanStart, SpanEnd and SpanDuration, which compare exactly, can. Many alternative spellings exist (moment, instant, period). Durations are whole seconds. ToString draws the timeline with box characters and a table of dates. Known defects, each carried as a warning: HasMoment and its spellings recurse until the stack overflows; WhatsAt for a time of day matches nearly every span; Gaps and UncoveredPeriods are wrong when one span contains others, and UncoveredPeriods answers nothing for a timeline without spans; Distance works only for point labels.",
+ "receiver": "o1 = new stzTimeLine(\"2024-01-01\", \"2024-12-31\"); o1.AddPoint(\"launch\", \"2024-02-14 10:00:00\"); o1.AddSpan(\"ALPHA\", \"2024-03-01\", \"2024-04-30\")",
+ "example": [
+  "? @@( o1.FindPoint(\"launch\") )",
+  "#--> [ \"2024-02-14 10:00:00\" ]"
+ ],
+ "see": [
+  "stzDateTime",
+  "stzDuration",
+  "stzCalendar",
+  "stzListOfTimeLines"
+ ]
+}

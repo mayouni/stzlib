@@ -23,6 +23,27 @@ func IsStzTimeLine(p)
 	def @IsStzTimeLine(p)
 		return IsStzTimeLine(p)
 
+# Holds a stretch of time with labelled points and labelled spans on it, and answers what is at a date, what overlaps, where the gaps are, and draws it in text.
+#
+# A timeline runs from a start to an end, both dates or dates with a time, and everything on it is
+# kept as text such as "2024-02-14 10:00:00". A point is a single labelled moment; a span is a
+# labelled stretch with a start and an end. Both must lie inside the timeline, and neither may touch
+# the blocked points and blocked spans that reserve parts of it. Labels may repeat. Point labels are
+# stored in capitals and are matched in any case, but a span label keeps the case it was given, and
+# FindSpan, HasSpan, RemoveSpan and RenameSpanLabel compare in capitals, so a span added as "Alpha"
+# cannot be found through them while Span, SpanStart, SpanEnd and SpanDuration, which compare
+# exactly, can. Many alternative spellings exist (moment, instant, period). Durations are whole
+# seconds. ToString draws the timeline with box characters and a table of dates. Known defects, each
+# carried as a warning: HasMoment and its spellings recurse until the stack overflows; WhatsAt for a
+# time of day matches nearly every span; Gaps and UncoveredPeriods are wrong when one span contains
+# others, and UncoveredPeriods answers nothing for a timeline without spans; Distance works only for
+# point labels.
+#
+#   receiver   o1 = new stzTimeLine("2024-01-01", "2024-12-31"); o1.AddPoint("launch", "2024-02-14
+#              10:00:00"); o1.AddSpan("ALPHA", "2024-03-01", "2024-04-30")
+#   example    ? @@( o1.FindPoint("launch") )
+#              #--> [ "2024-02-14 10:00:00" ]
+#   see        stzDateTime, stzDuration, stzCalendar, stzListOfTimeLines
 class stzTimeLine from stzObject
 	@cStart = ""
 	@cEnd = ""
@@ -61,6 +82,15 @@ class stzTimeLine from stzObject
 	@aBlockedSpans = []    # [[name, string_datetime_start, string_datetime_end], ...]
 	@aBlockedPoints = []
 
+	# Builds a timeline between a start and an end, each a date or a date and time, empty of points and spans; a bad date raises an error.
+	#
+	#   pStart     The start of the timeline, as text such as "2024-01-01" or "2024-01-01 08:30:00",
+	#              or as :Start = text
+	#   pEnd       The end of the timeline, as text, or as :End = text
+	#   returns    nothing; the timeline is built
+	#   note       an end before the start is accepted without complaint and gives a negative
+	#              Duration
+	#   see        Start, End_, SetStart
 	def init(pStart, pEnd)
 
 		if CheckParams()
@@ -88,6 +118,10 @@ class stzTimeLine from stzObject
 		@cEnd = StzDateTimeQ(pEnd).ToString()
 
 
+	# Returns the whole timeline as a hash list of its start, end, points and spans.
+	#
+	#   returns    a hash list [ :start, :end, :points, :spans ]
+	#   see        Points, Spans, Summary
 	def Content()
 		_aResult_ = [
 			:Start = @cStart,
@@ -99,8 +133,11 @@ class stzTimeLine from stzObject
 
 		return _aResult_
 
-	# Boundary Management
-	
+	# Returns where the timeline begins, as text in the form "YYYY-MM-DD HH:MM:SS".
+	#
+	#   returns    text
+	#   see        End_, SetStart, Duration
+	#@ aka  Boundary Management
 	def Start()
 		return @cStart
 		
@@ -116,9 +153,18 @@ class stzTimeLine from stzObject
 			def StartDateQ()
 				return This.StartQ()
 
+	# Returns where the timeline finishes, as text in the form "YYYY-MM-DD HH:MM:SS".
+	#
+	#   returns    text
+	#   note       the trailing underscore avoids the host language's end keyword
+	#   see        Start, SetEnd, Duration
 	def End_()
 		return @cEnd
 		
+		# Returns the end of the timeline as a stzDateTime object, so date methods can be chained.
+		#
+		#   returns    a stzDateTime
+		#   see        End_, Start
 		def EndQ()
 			if @cEnd != ""
 				return new stzDateTime(@cEnd)
@@ -134,6 +180,14 @@ class stzTimeLine from stzObject
 		def Endd()
 			return This.End_()
 
+	# Moves the start of the timeline; a bad date raises an error and leaves the old start.
+	#
+	#   p          The new start, as text such as "2024-01-01" or "2024-01-01 08:30:00"
+	#   returns    nothing; the timeline changes
+	#   note       a date alone becomes midnight; SetStartQ answers the timeline for chaining
+	#   warning    the points and spans already added are not checked against the new start, so some
+	#              may end up outside the timeline
+	#   see        Start, SetEnd
 	def SetStart(p)
 		@cStart = This._normalizeDateTime(p)
 	
@@ -141,6 +195,15 @@ class stzTimeLine from stzObject
 			This.SetStart(p)
 			return This
 	
+	# Moves the end of the timeline; a bad date raises an error and leaves the old end.
+	#
+	#   p          The new end, as text such as "2024-12-31" or "2024-12-31 18:00:00"
+	#   returns    nothing; the timeline changes
+	#   note       a date alone becomes midnight, unlike the constructor, which gives 23:59:59;
+	#              SetEndQ answers the timeline for chaining
+	#   warning    the points and spans already added are not checked against the new end, so some
+	#              may end up outside the timeline
+	#   see        End_, SetStart
 	def SetEnd(p)
 		@cEnd = This._normalizeDateTime(p)
 	
@@ -148,6 +211,11 @@ class stzTimeLine from stzObject
 			This.SetEnd(p)
 			return This
 				
+	# Returns the length of the timeline, from its start to its end, as a whole number of seconds.
+	#
+	#   returns    a number of seconds; negative when the end is before the start
+	#   note       31622399 for the year 2024; DurationQ answers a stzDuration
+	#   see        Start, End_, Summary
 	def Duration()
 		return This.StartQ().DurationTo(@cEnd, :InSeconds)
 
@@ -157,8 +225,16 @@ class stzTimeLine from stzObject
 			ok
 			return ""
 
-	# Point Management (single moments in time)
-	
+	# Adds a labelled point at a date and time inside the timeline; the label is stored in capitals and the same label may be added again.
+	#
+	#   pcLabel     The label of the point, as text, stored in capitals
+	#   pDateTime   The date and time of the point, as text
+	#   returns     nothing; the timeline changes
+	#   note        raises an error when the label is not text, the date is invalid or has no date
+	#               part, the point lies outside the timeline (bounds included), or it falls on a
+	#               blocked point or span
+	#   see         AddPoints, FindPoint, RemovePoint
+	#@ aka  Point Management (single moments in time)
 	def AddPoint(pcLabel, pDateTime)
 	
 		if NOT isString(pcLabel)
@@ -186,38 +262,75 @@ class stzTimeLine from stzObject
 			This.AddPoint(pcLabel, pDateTime)
 			return This
 		
+		# Adds a labelled point at a date and time; another spelling of the point-adding call.
+		#
+		#   pcLabel     The label of the point, as text, stored in capitals
+		#   pDateTime   The date and time of the point, as text
+		#   returns     nothing; the timeline changes
+		#   see         AddPoint
 		def AddTimePoint(pcLabel, pDateTime)
 			This.AddPoint(pcLabel, pDateTime)
 			
 			def AddTimePointQ(pcLabel, pDateTime)
 				return This.AddPointQ(pcLabel, pDateTime)
 	
+		# Adds a labelled point at a date and time; another spelling of the point-adding call.
+		#
+		#   pcLabel     The label of the point, as text, stored in capitals
+		#   pDateTime   The date and time of the point, as text
+		#   returns     nothing; the timeline changes
+		#   see         AddPoint
 		def AddMoment(pcLabel, pDateTime)
 			This.AddPoint(pcLabel, pDateTime)
 	
 			def AddMomentQ(pcLabel, pDateTime)
 				return This.AddPointQ(pcLabel, pDateTime)
 
+		# Adds a labelled point at a date and time; another spelling of the point-adding call.
+		#
+		#   pcLabel     The label of the point, as text, stored in capitals
+		#   pDateTime   The date and time of the point, as text
+		#   returns     nothing; the timeline changes
+		#   see         AddPoint
 		def AddInstant(pcLabel, pDateTime)
 			This.AddPoint(pcLabel, pDateTime)
 	
 			def AddInstantQ(pcLabel, pDateTime)
 				return This.AddPointQ(pcLabel, pDateTime)
 
+	# Adds several points in one call, each given as [ label, date and time ]; the first to raise stops the call, keeping earlier ones.
+	#
+	#   paPoints   The points to add, each a list [ label, date and time ]
+	#   returns    nothing; the timeline changes
+	#   see        AddPoint, AddSpans
 	def AddPoints(paPoints)
 		_nLen_ = len(paPoints)
 		for i = 1 to _nLen_
 			This.AddPoint(paPoints[i][1], paPoints[i][2])
 		next
 
+		# Adds several labelled points in one call; another spelling of the multi-point call.
+		#
+		#   paPoints   The points to add, each a list [ label, date and time ]
+		#   returns    nothing; the timeline changes
+		#   see        AddPoints
 		def AddMoments(paPoints)
 			This.AddPoints(paPoints)
 
+		# Adds several labelled points in one call; another spelling of the multi-point call.
+		#
+		#   paPoints   The points to add, each a list [ label, date and time ]
+		#   returns    nothing; the timeline changes
+		#   see        AddPoints
 		def AddInstants(paPoints)
 			This.AddPoints(paPoints)
 
-	# Find the occurences of a given moment (by label)
-	# on the timeline (returns its relative datetimes)
+	# Returns the date and time of every point carrying a label; the label is matched in capitals, so any case works.
+	#
+	#   pcLabel    The label to look for, as text
+	#   returns    a list of text, one per point, in the order added; [ ] when none
+	#   see        Point, HasPoint, PointNames
+	#@ aka  Find the occurences of a given moment (by label) on the timeline (returns its relative datetimes)
 	def FindPoint(pcLabel)
 
 		if NOT isString(pcLabel)
@@ -273,8 +386,12 @@ class stzTimeLine from stzObject
 		def FindInstantXT(pcLabel)
 			return THis.FindPointXT(pcLabel)
 
-	#--
-
+	# Returns every point as [ label, date and time ], in the order added, with the label in capitals.
+	#
+	#   returns    a list of [ label, date and time ] pairs
+	#   note       PointsQ answers the date and time as stzDateTime objects
+	#   see        Spans, SortedPoints, PointNames
+	#@ aka  --
 	def Points()
 		return @aPoints
 		
@@ -304,6 +421,10 @@ class stzTimeLine from stzObject
 			def InstantsQ()
 				return This.PointsQ()
 
+	# Returns the labels of the points, each label once, in the order first added.
+	#
+	#   returns    a list of text
+	#   see        Points, SpanNames, CountPoints
 	def PointNames()
 		# Return unique names only
 		_acResult_ = []
@@ -357,6 +478,10 @@ class stzTimeLine from stzObject
 		def InstantNamesXT()
 			return This.PointNamesXT()
 
+	# Returns the labels of the spans, each label once, in the order first added, with the case it was given.
+	#
+	#   returns    a list of text
+	#   see        Spans, PointNames, CountSpans
 	def SpanNames()
 		# Return unique names only
 		_acResult_ = []
@@ -407,8 +532,14 @@ class stzTimeLine from stzObject
 	    def PeriodNamesXT()
 	        return This.SpanNamesXT()
 
-	# Getting a point datetime
-
+	# Returns the date and time of the first event with a label, in any case; given a date or a time instead, it returns what is there.
+	#
+	#   pcLabelOrDateTime   A point label, as text, or a date, or a time such as "10:30:00"
+	#   returns             text; for a date or time argument a list of [ label, "point" or "span" ]
+	#                       pairs; raises an error when no label matches
+	#   note                PointQ answers a stzDateTime object
+	#   see                 FindPoint, WhatsAt, HasPoint
+	#@ aka  Getting a point datetime
 	def Point(pcLabelOrDateTime)
 
 		if NOT isString(pcLabelOrDateTime)
@@ -450,8 +581,13 @@ class stzTimeLine from stzObject
 			def InstantQ(pcLabelOrDateTime)
 				return This.PointQ(pcLabelOrDateTime)
 
-	# Checking if a point exists
-
+	# TRUE if at least one point carries the label, matched in any case.
+	#
+	#   pcLabelOrDateTime   The point label to look for, as text
+	#   returns             TRUE or FALSE
+	#   note                a date and time given instead of a label answers FALSE
+	#   see                 FindPoint, HasSpan
+	#@ aka  Checking if a point exists
 	def HasPoint(pcLabelOrDateTime)
 		if len(This.FindPoint(pcLabelOrDateTime)) > 0
 			return 1
@@ -459,6 +595,15 @@ class stzTimeLine from stzObject
 			return 0
 		ok
 		
+		# Raises a stack overflow today instead of telling whether a point carries the label.
+		#
+		#   pcLabelOrDateTime   The point label to look for, as text
+		#   returns             nothing today; the call never returns an answer
+		#   note                HasPoint is the working call
+		#   warning             known defect: the method calls itself, so it recurses until the
+		#                       interpreter stops; its spelling siblings HasInstant, ContainsMoment
+		#                       and ContainsInstant call it and fail the same way
+		#   see                 HasPoint
 		def HasMoment(pcLabelOrDateTime)
 			return This.HasMoment(pcLabelOrDateTime)
 
@@ -473,9 +618,16 @@ class stzTimeLine from stzObject
 		def ContainsInstant(pcLabelOrDateTime)
 			return This.HasMoment(pcLabelOrDateTime)
 
-	# Removing points
+	# Removes the first point carrying a label, matched in any case; the other points with that label stay.
+	#
+	#   pcLabelOrDateTime   The label of the point to remove, as text
+	#   returns             nothing; the timeline changes
+	#   note                to remove every point of a label call it once per point
+	#   warning             a date and time given instead of a label removes nothing, and a missing
+	#                       label raises nothing
+	#   see                 AddPoint, FindPoint
 	#TODO // Add Removing all the items with a given label
-
+	#@ aka  Removing points
 	def RemovePoint(pcLabelOrDateTime)
 		_aPos_ = This.FindPointXT(pcLabelOrDateTime)
 		if len(_aPos_) > 0
@@ -486,26 +638,52 @@ class stzTimeLine from stzObject
 			This.RemovePoint(pcLabelOrDateTime)
 			return This
 		
+		# Removes the first point carrying a label; another spelling of the point-removing call.
+		#
+		#   pcLabelOrDateTime   The label of the point to remove, as text
+		#   returns             nothing; the timeline changes
+		#   see                 RemovePoint
 		def RemoveMoment(pcLabelOrDateTime)
 			This.RemovePoint(pcLabelOrDateTime)
 
 			def RemoveMomentQ(pcLabelOrDateTime)
 				return This.RemovePointQ(pcLabelOrDateTime)
 
-		#--
-		
+		# Removes the first point carrying a label; another spelling of the point-removing call, with a typo in its name.
+		#
+		#   pcLabelOrDateTime   The label of the point to remove, as text
+		#   returns             nothing; the timeline changes
+		#   note                the name reads RemoveMInstant, not RemoveInstant; the Q form is
+		#                       spelled RemoveInstantQ
+		#   see                 RemovePoint
+		#@ aka  --
 		def RemoveMInstant(pcLabelOrDateTime)
 			This.RemovePoint(pcLabelOrDateTime)
 
 			def RemoveInstantQ(pcLabelOrDateTime)
 				return This.RemovePointQ(pcLabelOrDateTime)
 
-	# Renaming labels
-
+	# Gives a new name to every point and every span carrying a label.
+	#
+	#   pcLabel      The label to change, as text
+	#   pcNewLabel   The new label, as text
+	#   returns      nothing; the timeline changes
+	#   note         the new label is stored in capitals
+	#   warning      a span stored with a lowercase letter in its label is not found, because the
+	#                label is compared in capitals
+	#   see          RenamePointLabel, RenameSpanLabel
+	#@ aka  Renaming labels
 	def RenameLabel(pcLabel, pcNewLabel)
 		This.RenamePointLabel(pcLabel, pcNewLabel)
 		This.RenameSpanLabel(pcLabel, pcNewLabel)
 
+	# Gives a new name to every point carrying a label, matched in any case; the new label is stored in capitals.
+	#
+	#   pcLabel      The label to change, as text
+	#   pcNewLabel   The new label, as text
+	#   returns      nothing; the timeline changes
+	#   note         a label that matches nothing changes nothing and raises nothing
+	#   see          RenameLabel, RenameSpanLabel
 	def RenamePointLabel(pcLabel, pcNewLabel)
 	
 		if CheckParams()
@@ -532,13 +710,35 @@ class stzTimeLine from stzObject
 			ok
 		next
 	
+		# Gives a new name to every point carrying a label; another spelling of the point-renaming call.
+		#
+		#   pcLabel      The label to change, as text
+		#   pcNewLabel   The new label, as text
+		#   returns      nothing; the timeline changes
+		#   see          RenamePointLabel
 		def RenameMomentLabel(pcLabel, pcNewLabel)
 			This.RenamePointLabel(pcLabel, pcNewLabel)
 
+		# Gives a new name to every point carrying a label; another spelling of the point-renaming call.
+		#
+		#   pcLabel      The label to change, as text
+		#   pcNewLabel   The new label, as text
+		#   returns      nothing; the timeline changes
+		#   see          RenamePointLabel
 		def RenameInstantLabel(pcLabel, pcNewLabel)
 			This.RenamePointLabel(pcLabel, pcNewLabel)
 
 
+	# Gives a new name to every span carrying a label, found only if it was added in capitals; the new label is stored in capitals.
+	#
+	#   pcLabel      The label to change, as text
+	#   pcNewLabel   The new label, as text
+	#   returns      nothing; the timeline changes
+	#   note         a label that matches nothing changes nothing and raises nothing
+	#   warning      a span whose label has a lowercase letter, such as one added as "Alpha", is
+	#                never found, because the old label is turned to capitals before the comparison
+	#                and spans keep the case they were given
+	#   see          RenameLabel, RenamePointLabel
 	def RenameSpanLabel(pcLabel, pcNewLabel)
 	
 		if CheckParams()
@@ -565,8 +765,11 @@ class stzTimeLine from stzObject
 			ok
 		next
 
-	# How many points
-
+	# Returns how many points the timeline holds, counting a repeated label each time.
+	#
+	#   returns    a number
+	#   see        CountSpans, PointNames
+	#@ aka  How many points
 	def CountPoints()
 		return len(@aPoints)
 		
@@ -598,17 +801,37 @@ class stzTimeLine from stzObject
 		def HowManyInstants()
 			return This.CountPoints()
 
-	# Span Management (time periods with start and end)
-
+	# Adds several spans in one call, each given as [ label, start, end ]; the first to raise stops the call, keeping earlier ones.
+	#
+	#   paSpans    The spans to add, each a list [ label, start, end ]
+	#   returns    nothing; the timeline changes
+	#   see        AddSpan, AddPoints
+	#@ aka  Span Management (time periods with start and end)
 	def AddSpans(paSpans)
 		_nLen_ = len(paSpans)
 		for i = 1 to _nLen_
 			This.AddSpan(paSpans[i][1], paSpans[i][2], paSpans[i][3])
 		next
 
+		# Adds several labelled spans in one call; another spelling of the multi-span call.
+		#
+		#   paSpans    The spans to add, each a list [ label, start, end ]
+		#   returns    nothing; the timeline changes
+		#   see        AddSpans
 		def AddPeriods(paSpans)
 			This.AddSpans(paSpans)
 
+	# Adds a labelled span between two dates inside the timeline; the label keeps the case it is given and the same label may be added again.
+	#
+	#   pcLabel    The label of the span, as text, stored as given
+	#   pStart     The start of the span, as text
+	#   pEnd       The end of the span, as text
+	#   returns    nothing; the timeline changes
+	#   note       unlike points, a span label is not turned to capitals, which matters to FindSpan,
+	#              HasSpan and RemoveSpan
+	#   warning    raises an error when the label is not text, the end is not after the start, the
+	#              span leaves the timeline, or it overlaps a blocked span or point
+	#   see        AddSpans, Span, RemoveSpan
 	def AddSpan(pcLabel, pStart, pEnd)
 	
 		if NOT isString(pcLabel)
@@ -643,6 +866,13 @@ class stzTimeLine from stzObject
 			This.AddSpan(pcLabel, pStart, pEnd)
 			return This
 		
+		# Adds a labelled span between two dates; another spelling of the span-adding call.
+		#
+		#   pcLabel    The label of the span, as text, stored as given
+		#   pStart     The start of the span, as text
+		#   pEnd       The end of the span, as text
+		#   returns    nothing; the timeline changes
+		#   see        AddSpan
 		def AddPeriod(pcLabel, pStart, pEnd)
 			This.AddSpan(pcLabel, pStart, pEnd)
 	
@@ -650,8 +880,16 @@ class stzTimeLine from stzObject
 				return This.AddSpanQ(pcLabel, pStart, pEnd)
 	
 
-	# Find the occurences of a given Period (by label)
-	# on the timeline (returns its relative datetimes)
+	# Returns the start and end of every span carrying a label, found only if the span's label was added in capitals.
+	#
+	#   pcLabel    The label to look for, as text
+	#   returns    a list of [ start, end ] pairs; [ ] when none
+	#   note       works for spans added with a capital-letter label, in any case of the query
+	#   warning    a span stored with a lowercase letter, such as "Alpha", is never found, because
+	#              the label is turned to capitals before the comparison but spans keep the case
+	#              they were given
+	#   see        Span, HasSpan, SpanNames
+	#@ aka  Find the occurences of a given Period (by label) on the timeline (returns its relative datetimes)
 	def FindSpan(pcLabel)
 
 		if NOT isString(pcLabel)
@@ -699,6 +937,11 @@ class stzTimeLine from stzObject
 			return This.FindSpanXT(pcSpan)
 
 	
+	# Returns every span as [ label, start, end ], in the order added.
+	#
+	#   returns    a list of [ label, start, end ] lists
+	#   note       SpansQ answers the dates as stzDateTime objects
+	#   see        Points, SortedSpans, SpanNames
 	def Spans()
 		return @aSpans
 
@@ -720,6 +963,13 @@ class stzTimeLine from stzObject
 		def PeriodsQ()
 			return This.SpansQ()
 			
+	# Returns the start and end of the first period with exactly this label, case included; raises an error when there is none.
+	#
+	#   pcLabel    The label of the span, as text, in exactly the case it was added with
+	#   returns    a list [ start, end ]
+	#   note       unlike FindSpan, no case folding is done, so Span("Alpha") finds a span added as
+	#              "Alpha" and Span("ALPHA") does not
+	#   see        FindSpan, SpanStart, SpanEnd
 	def Span(pcLabel)
 
 		if NOT isString(pcLabel)
@@ -738,27 +988,62 @@ class stzTimeLine from stzObject
 		def Period(_cLabel_)
 			return This.Span(_cLabel_)
 
+	# Returns the start of the first span with exactly this label; raises an error when there is none.
+	#
+	#   pcLabel    The label of the span, as text, in exactly the case it was added with
+	#   returns    text, the start of the span
+	#   note       SpanStartQ answers a stzDateTime
+	#   see        Span, SpanEnd
 	def SpanStart(pcLabel)
 		return This.Span(pcLabel)[1]
 
 		def SpanStartQ(pcLabel)
 			return StzDateTimeQ(This.SpanStart(pcLabel))
 
+	# Returns the end of the first span with exactly this label; raises an error when there is none.
+	#
+	#   pcLabel    The label of the span, as text, in exactly the case it was added with
+	#   returns    text, the end of the span
+	#   note       SpanEndQ answers a stzDateTime
+	#   see        Span, SpanStart
 	def SpanEnd(pcLabel)
 		return This.Span(pcLabel)[2]
 
 		def SpanEndQ(pcLabel)
 			return StzDateTimeQ(This.SpanEnd(pcLabel))
 
+	# Returns the length of the first span with exactly this label, in seconds; raises an error when there is none.
+	#
+	#   pcLabel    The label of the span, as text, in exactly the case it was added with
+	#   returns    a number of seconds
+	#   note       SpanDurationQ answers a stzDuration
+	#   see        Span, Duration
 	def SpanDuration(pcLabel)
 		return This.SpanStartQ(pcLabel).DurationTo(This.SpanEnd(pcLabel), :InSeconds)
 
 		def SpanDurationQ(pcLabel)
 			return new stzDuration(This.SpanDuration(pcLabel))
 
+	# TRUE if a span carries the label; only a span whose label was added in capitals is found, and the query may be in any case.
+	#
+	#   pcLabel    The span label to look for, as text
+	#   returns    TRUE or FALSE
+	#   note       for spans added in capitals the query may be in any case
+	#   warning    a span stored as "Alpha" is reported absent, because the query is turned to
+	#              capitals and the stored label is not
+	#   see        FindSpan, HasPoint
 	def HasSpan(pcLabel)
 		return len( This.FindSpan(pcLabel) ) > 0
 		
+	# Removes the first span carrying a label, found only if its label was added in capitals; other spans with that label stay.
+	#
+	#   pcLabel    The label of the span to remove, as text
+	#   returns    nothing; the timeline changes
+	#   note       a label that matches nothing raises nothing
+	#   warning    a span stored with a lowercase letter, such as "alpha2", is not removed, because
+	#              the label is turned to capitals before the comparison and spans keep the case
+	#              they were given
+	#   see        AddSpan, FindSpan
 	def RemoveSpan(pcLabel)
 		if NOT isString(pcLabel)
 			StzRaise("Incorrect param type! pcLabel must be a string.")
@@ -784,6 +1069,10 @@ class stzTimeLine from stzObject
 			This.RemoveSpan(pcLabel)
 			return This
 		
+	# Returns how many spans the timeline holds, counting a repeated label each time.
+	#
+	#   returns    a number
+	#   see        CountPoints, SpanNames
 	def CountSpans()
 		return len(@aSpans)
 		
@@ -802,8 +1091,18 @@ class stzTimeLine from stzObject
 		def HowManyPeriods()
 			return This.CountSpans()
 
-	# Temporal Queries
-
+	# Returns the points and the spans found at a date and time, at a date, or at a time of day, as [ label, "point" or "span" ] pairs.
+	#
+	#   pDateTime   A date and time for an exact match, a date alone for any time of that day, or a
+	#               time such as "10:30:00" for any day
+	#   returns     a list of [ label, "point" or "span" ] pairs; [ ] when nothing is there
+	#   note        a date and time matches a point to the second and a span from its start to its
+	#               end, bounds included
+	#   warning     for a time of day the spans test is "at or after the start time, or at or before
+	#               the end time", which holds for nearly every span: 12:00:00 and 23:30:00 both
+	#               match a span running 09:00 to 17:00
+	#   see         PointsBetween, SpansOverlapping, Point
+	#@ aka  Temporal Queries
 	def WhatsAt(pDateTime)
 
 		if isString(pDateTime)
@@ -967,8 +1266,15 @@ class stzTimeLine from stzObject
 
 		def MomentsAt(pDateTime)
 			return This.WhatsAt(pDateTime)
+	# Returns the labels of the points lying between two dates, bounds included, in the order added.
+	#
+	#   pStart     The start of the range, as text
+	#   pEnd       The end of the range, as text, or :And = text
+	#   returns    a list of text; [ ] when none
+	#   note       a date alone is midnight, so a range from one date to the same date holds no
+	#              point later in the day; empty text raises an error
+	#   see        SpansBetween, WhatsAt
 		#>
-
 	def PointsBetween(pStart, pEnd)
 
 		if CheckParams()
@@ -1027,6 +1333,14 @@ class stzTimeLine from stzObject
 			return This.PointsBetween(pStart, pEnd)
 
 
+	# Returns the labels of the spans that touch a range of two dates, wholly inside it or only overlapping it, in the order added.
+	#
+	#   pStart     The start of the range, as text
+	#   pEnd       The end of the range, as text
+	#   returns    a list of text; [ ] when none
+	#   note       a span ending exactly at the start of the range, or starting exactly at its end,
+	#              is included
+	#   see        PointsBetween, SpansOverlapping
 	def SpansBetween(pStart, pEnd)
 
 		if isString(pStart)
@@ -1065,6 +1379,11 @@ class stzTimeLine from stzObject
 		def PeriodsBetween(pStart, pEnd)
 			return This.SpansBetween(pStart, pEnd)
 
+	# Returns the labels of the spans that contain a date and time, bounds included.
+	#
+	#   pDateTime   The date and time to test, as text
+	#   returns     a list of text; [ ] when none
+	#   see         SpansBetween, WhatsAt, HasOverlaps
 	def SpansOverlapping(pDateTime)
 
 		if isString(pDateTime)
@@ -1104,8 +1423,11 @@ class stzTimeLine from stzObject
 			return This.SpansOverlapping(pDateTime)
 
 
-	# Overlap Detection
-	
+	# TRUE if any two spans overlap by more than a single instant; spans that only touch do not count.
+	#
+	#   returns    TRUE or FALSE
+	#   see        OverlappingSpans, Gaps
+	#@ aka  Overlap Detection
 	def HasOverlaps()
 
 		_nLen_ = len(@aSpans)
@@ -1126,6 +1448,10 @@ class stzTimeLine from stzObject
 
 		return 0
 		
+	# Returns each overlapping pair of spans with the length of the overlap, in seconds.
+	#
+	#   returns    a list of [ first label, second label, seconds ] lists; [ ] when none
+	#   see        HasOverlaps, Gaps
 	def OverlappingSpans()
 
 		_aResult_ = []
@@ -1171,8 +1497,17 @@ class stzTimeLine from stzObject
 		def OverlappingPeriods()
 			return THis.OverlappingSpans()
 
-	# Gap Analysis
-	
+	# Returns the empty stretches between one span and the next, taken in start order.
+	#
+	#   returns    a list of hash lists [ :after, :before, :duration ], the duration in seconds; [ ]
+	#              when there is none
+	#   note       for spans that do not nest the answer is right; the timeline's own start and end
+	#              are ignored here
+	#   warning    a span that contains later ones is not taken into account: with one long span and
+	#              two short spans inside it, the stretch between the shorts is reported although
+	#              the long span covers it
+	#   see        UncoveredPeriods, OverlappingSpans
+	#@ aka  Gap Analysis
 	def Gaps()
 		if len(@aSpans) = 0
 			return []
@@ -1199,6 +1534,15 @@ class stzTimeLine from stzObject
 	
 		return _aGaps_
 		
+	# Returns the stretches of the timeline that no span covers, including before the first span and after the last.
+	#
+	#   returns    a list of hash lists [ :start, :end, :duration ], the duration in seconds; [ ]
+	#              when there is no span
+	#   note       for spans that do not nest the answer is right
+	#   warning    a timeline with no span at all answers [ ], although all of it is uncovered; a
+	#              span that contains later ones is not taken into account, so the stretch between
+	#              the shorts is reported although the long span covers it
+	#   see        Gaps, ToStringUncovered
 	def UncoveredPeriods()
 		if len(@aSpans) = 0
 			return []
@@ -1295,6 +1639,16 @@ class stzTimeLine from stzObject
 			def TimeBetweenQ(_cLabel1_, _cLabel2_)
 				return This.DurationXTQ(_cLabel1_, _cLabel2_)
 
+		# Returns the time from one point to another in seconds, negative when the second comes first; both are given by label.
+		#
+		#   _cLabel1_   The label of the first point, as text, or :From = text
+		#   _cLabel2_   The label of the second point, as text, or :To = text
+		#   returns     a number of seconds
+		#   note        a label that appears twice stands for its first point
+		#   warning     raises an error for a span label; two date-and-time strings give 0 and a
+		#               label with a date gives a meaningless number, because a date is looked up by
+		#               what is at it, not read as a date
+		#   see         DurationXT, Duration
 		def Distance(_cLabel1_, _cLabel2_)
 			# Accept either positional (start, end) or named-param
 			# (:From = "start", :To = "end") forms.
@@ -1314,10 +1668,12 @@ class stzTimeLine from stzObject
 	
 			def IntervalBetweenQ(_cLabel1_, _cLabel2_)
 				return This.DurationXTQ(_cLabel1_, _cLabel2_)
+	# Returns the spans as [ label, start, end ], in order of start.
+	#
+	#   returns    a list of [ label, start, end ] lists
+	#   see        Spans, SortedPoints
 		#>
-
-	# Utility Methods
-	
+	#@ aka  Utility Methods
 	def SortedSpans()
 		# Simple bubble sort by start time
 		_aSorted_ = @aSpans
@@ -1340,6 +1696,10 @@ class stzTimeLine from stzObject
 		def SortedPeriods()
 			return This.SortedSpans()
 		
+	# Returns the points as [ label, date and time ], in chronological order.
+	#
+	#   returns    a list of [ label, date and time ] pairs
+	#   see        Points, SortedSpans
 	def SortedPoints()
 		# Simple bubble sort by time
 		_aSorted_ = @aPoints
@@ -1365,8 +1725,11 @@ class stzTimeLine from stzObject
 		def SortedInstants()
 			return This.SortedPoints()
 
-	# Output Methods
-	
+	# Returns a report as [ key, value ] pairs: boundaries, duration, counts, then the sorted points and spans with durations in words.
+	#
+	#   returns    a list of [ key, value ] pairs
+	#   see        Stats, Content
+	#@ aka  Output Methods
 	def Summary()
 
 		_aResult_ = []
@@ -1413,10 +1776,18 @@ class stzTimeLine from stzObject
 		
 		return _aResult_
 		
+	# Removes every point and every span, keeping the boundaries and the blocked points and spans.
+	#
+	#   returns    nothing; the timeline changes
+	#   see        Copy, RemovePoint, RemoveSpan
 	def Clear()
 		@aPoints = []
 		@aSpans = []
 		
+	# Returns an independent timeline with the same boundaries, points and spans; blocked points and spans are not copied.
+	#
+	#   returns    a stzTimeLine
+	#   see        Clear, Content
 	def Copy()
 		_oCopy_ = new stzTimeLine(
 			:Start = This.Start(),
@@ -1435,11 +1806,20 @@ class stzTimeLine from stzObject
 	 #  Visual Display System for stzTimeLine  #
 	#-----------------------------------------#
 	
-	# Configuration
-	
+	# Sets the width of the drawn timeline in characters, never below 30.
+	#
+	#   n          The width, in characters
+	#   returns    nothing; the setting changes
+	#   see        VizWidth, SetVizHeight, ToString
+	#@ aka  Configuration
 	def SetVizWidth(n)
 		@nVizWidth = max([@nVizMinWidth, n])
 		
+	# Sets the number of text rows given to the drawn timeline, never below 3; the layout may use more.
+	#
+	#   n          The number of rows
+	#   returns    nothing; the setting changes
+	#   see        VizHeight, SetVizWidth
 	def SetVizHeight(n)
 		# max() AGAINST ITSELF was a ratchet: the height could only ever go UP,
 		# so SetVizHeight(20) then SetVizHeight(5) left 20 and the smaller value
@@ -1448,9 +1828,17 @@ class stzTimeLine from stzObject
 		# class already applies when a height arrives through ToStringXT.
 		@nVizHeight = max([@nVizMinHeight, n])
 		
+	# Returns the width of the drawn timeline in characters; 52 until changed.
+	#
+	#   returns    a number
+	#   see        SetVizWidth, VizHeight
 	def VizWidth()
 		return @nVizWidth
 		
+	# Returns the number of rows set for the drawn timeline; 5 until changed.
+	#
+	#   returns    a number
+	#   see        SetVizHeight, VizWidth
 	def VizHeight()
 		return @nVizHeight
 	
@@ -1460,9 +1848,18 @@ class stzTimeLine from stzObject
 	def ShowXT(paOptions)
 		? This.ToStringXT(paOptions)
 
+	# Prints the drawn timeline and its table of points and span boundaries.
+	#
+	#   returns    nothing; the text is printed
+	#   see        ToString, ShowShort
 	def Show()
 		? This.ToString()
 		
+	# Returns the timeline drawn in text, an axis with its points and spans numbered, followed by a table of every date with its label.
+	#
+	#   returns    text
+	#   note       the drawing uses box characters, so it needs a console that shows UTF-8
+	#   see        Show, ToStringShort, Stats
 	def ToString()
 		return This.ToStringXT([])
 		
@@ -1540,12 +1937,24 @@ class stzTimeLine from stzObject
 
 		return _cViz_ + nl + nl + _cTable_
 	
+	# Returns a small table of figures about the timeline: counts, duration, coverage, longest span, gaps and overlaps.
+	#
+	#   returns    a list of rows [ metric, value ], the first row being the header
+	#   see        Summary, Gaps
 	def Stats()
 		return _buildStatisticalTable()
 	
+	# Prints the drawn timeline without its table.
+	#
+	#   returns    nothing; the text is printed
+	#   see        ToStringShort, Show
 	def ShowShort()
 		? This.ToStringShort()
 	
+	# Returns the drawn timeline in text without the table of dates.
+	#
+	#   returns    text
+	#   see        ShowShort, ToString
 	def ToStringShort()
 	
 	    # Collect timepoints
@@ -1571,8 +1980,13 @@ class stzTimeLine from stzObject
 	    return _vizCanvasToString()
 
 
-	# Highlight Visualization Methods
-	
+	# Returns the drawn timeline with the points of a label marked by a solid block instead of a dot.
+	#
+	#   _cLabel_   The point label to highlight, in capitals as stored
+	#   returns    text
+	#   note       the label is compared as stored, so a lowercase label marks nothing
+	#   see        VizFindSpans, ToString
+	#@ aka  Highlight Visualization Methods
 	def VizFindMoments(_cLabel_)
 		@cHighlight = _cLabel_
 		_cResult_ = This.ToString()
@@ -1588,6 +2002,13 @@ class stzTimeLine from stzObject
 		def VizFindPoints(_cLabel_)
 			return This.VizFindMoments(_cLabel_)
 			
+	# Returns the drawn timeline with the start and end of a span marked by a solid block.
+	#
+	#   _cLabel_   The span label to highlight, exactly as the span was added
+	#   returns    text
+	#   note       the label is compared as stored, so a span added as "Alpha" is found by "Alpha"
+	#              only
+	#   see        VizFindMoments, ToString
 	def VizFindSpans(_cLabel_)
 		@cHighlight = _cLabel_
 		_cResult_ = This.ToString()
@@ -1604,11 +2025,21 @@ class stzTimeLine from stzObject
 			return This.VizFindSpans(_cLabel_)
 
 
-	# Hihlighting the uncovered spans in the timeline
-
+	# Prints the drawn timeline with the stretches that no span covers filled in with slashes.
+	#
+	#   returns    nothing; the text is printed
+	#   see        ToStringUncovered, UncoveredPeriods
+	#@ aka  Hihlighting the uncovered spans in the timeline
 	def ShowUncovered()
 	    ? This.ToStringUncovered()
 	
+	# Returns the drawn timeline with the uncovered stretches marked by slashes, or a sentence saying it is fully covered.
+	#
+	#   returns    text
+	#   note       the sentence is "Timeline is fully covered by spans"
+	#   warning    an empty timeline, with no span, answers that it is fully covered although
+	#              nothing covers it
+	#   see        ShowUncovered, UncoveredPeriods
 	def ToStringUncovered()
 	    
 	    # Get uncovered periods
@@ -1648,6 +2079,13 @@ class stzTimeLine from stzObject
 	#  MANAGING BLOCKED POINTS AND SPANS  #
 	#-------------------------------------#
 
+	# Marks a date and time as blocked, so that no point or span can be added over it; a date outside the timeline raises an error.
+	#
+	#   pDateTime   The date and time to block, as text
+	#   returns     nothing; the timeline changes
+	#   note        a point already blocked is ignored without complaint; points and spans added
+	#               before are not checked
+	#   see         AddBlockedPoints, IsPointBlocked, AddBlockedSpan
 	def AddBlockedPoint(pDateTime)
 		_cPoint_ = This._normalizeDateTime(pDateTime)
 		_oPoint_ = new stzDateTime(_cPoint_)
@@ -1666,12 +2104,22 @@ class stzTimeLine from stzObject
 			This.AddBlockedPoint(pDateTime)
 			return This
 	
+	# Marks several dates and times as blocked, one after the other; the first one that raises stops the call.
+	#
+	#   paDateTimes   The dates and times to block, each as text
+	#   returns       nothing; the timeline changes
+	#   see           AddBlockedPoint
 	def AddBlockedPoints(paDateTimes)
 		_nLen_ = len(paDateTimes)
 		for i = 1 to _nLen_
 			This.AddBlockedPoint(paDateTimes[i])
 		next
 
+	# Lifts the block on a date and time; one that was not blocked changes nothing.
+	#
+	#   pDateTime   The date and time to unblock, as text
+	#   returns     nothing; the timeline changes
+	#   see         AddBlockedPoint, BlockedPoints
 	def RemoveBlockedPoint(pDateTime)
 		_cPoint_ = This._normalizeDateTime(pDateTime)
 		_nPos_ = StzFindFirst(_cPoint_, @aBlockedPoints)
@@ -1683,6 +2131,11 @@ class stzTimeLine from stzObject
 			This.RemoveBlockedPoint(pDateTime)
 			return This
 
+	# Returns the blocked dates and times, as text, in the order they were blocked.
+	#
+	#   returns    a list of text
+	#   note       BlockedPointsQ answers stzDateTime objects
+	#   see        AddBlockedPoint, BlockedSpans
 	def BlockedPoints()
 		return @aBlockedPoints
 
@@ -1694,6 +2147,11 @@ class stzTimeLine from stzObject
 		next
 		return _aResult_
 
+	# TRUE if a date and time was blocked as a point; spans that block it do not count, and the match is exact to the second.
+	#
+	#   pDateTime   The date and time to test, as text
+	#   returns     TRUE or FALSE
+	#   see         IsBlocked, AddBlockedPoint
 	def IsPointBlocked(pDateTime)
 		if isString(pDateTime)
 			_cDateTime_ = pDateTime
@@ -1713,6 +2171,11 @@ class stzTimeLine from stzObject
 	
 		return 0
 
+	# TRUE if a date and time is a blocked point or inside a blocked span, edges included; a list of two dates tests that stretch.
+	#
+	#   pDateTime   A date and time as text, or a list [ start, end ]
+	#   returns     TRUE or FALSE
+	#   see         IsPointBlocked, IsSectionBlocked
 	def IsBlocked(pDateTime)
 		if isList(pDateTime) and len(pDateTime) = 2
 			return This.IsSectionBlocked(pDateTime[1], pDateTime[2])
@@ -1742,6 +2205,12 @@ class stzTimeLine from stzObject
 	
 		return 0
 
+	# TRUE if the stretch between two dates overlaps a blocked span or holds a blocked point; merely touching a blocked span does not count.
+	#
+	#   pStart     The start of the stretch, as text
+	#   pEnd       The end of the stretch, as text
+	#   returns    TRUE or FALSE
+	#   see        IsBlocked, AddBlockedSpan
 	def IsSectionBlocked(pStart, pEnd)
 		if isString(pStart)
 			_cStart_ = pStart
@@ -1781,8 +2250,17 @@ class stzTimeLine from stzObject
 		def IsBlockedSection(pStart, pEnd)
 			return This.IsSectionBlocked(pStart, pEnd)
 	
+	# Marks a stretch of the timeline as blocked, so that no point or span can be added over it; the label is stored in capitals.
+	#
+	#   pcLabel    The label of the blocked span, as text, stored in capitals
+	#   pStart     The start of the blocked span, as text
+	#   pEnd       The end of the blocked span, as text
+	#   returns    nothing; the timeline changes
+	#   note       points and spans added before are not checked against it
+	#   warning    raises an error when the label is not text, the end is not after the start or the
+	#              stretch leaves the timeline
+	#   see        RemoveBlockedSpan, BlockedSpans, IsBlocked
 	#---
-	
 	def AddBlockedSpan(pcLabel, pStart, pEnd)
 		if NOT isString(pcLabel)
 			StzRaise("Incorrect param type! pcLabel must be a string.")
@@ -1810,6 +2288,11 @@ class stzTimeLine from stzObject
 			This.AddBlockedSpan(pcLabel, pStart, pEnd)
 			return This
 	
+	# Lifts the block of the first blocked span with a label, matched in any case; a missing label changes nothing.
+	#
+	#   pcLabel    The label of the blocked span, as text
+	#   returns    nothing; the timeline changes
+	#   see        AddBlockedSpan, BlockedSpans
 	def RemoveBlockedSpan(pcLabel)
 		if NOT isString(pcLabel)
 			StzRaise("Incorrect param type! pcLabel must be a string.")
@@ -1834,6 +2317,10 @@ class stzTimeLine from stzObject
 			This.RemoveBlockedSpan(pcLabel)
 			return This
 	
+	# Returns the blocked spans as [ label, start, end ], the label in capitals, in the order they were added.
+	#
+	#   returns    a list of [ label, start, end ] lists
+	#   see        AddBlockedSpan, BlockedPoints
 	def BlockedSpans()
 		return @aBlockedSpans
 	

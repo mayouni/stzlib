@@ -1,0 +1,12 @@
+{
+ "brief": "Resolves colour names and answers colour questions for diagrams: the text colour that reads on a background, RGB values, grey, and palette lookups.",
+ "detail": "It holds no state. A colour is a name, a semantic name such as success, a name with a shade mark such as blue+, or a #rrggbb code. Unknown names resolve to white in ColorToRGB and to an empty text in ResolveWithPalette. stzDiagram forwards its colour helpers to it.",
+ "receiver": "o1 = new stzColorResolver()",
+ "example": [
+  "? o1.ContrastingTextColor(\"#101010\")",
+  "#--> white"
+ ],
+ "see": [
+  "stzDiagram"
+ ]
+}
