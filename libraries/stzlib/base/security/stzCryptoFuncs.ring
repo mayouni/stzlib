@@ -13,6 +13,24 @@
 #   * StzVerifySecretXT(...)  -> same, n rounds
 #   * StzRandomToken(nBytes)  -> nBytes of CSPRNG, as hex
 #
+#   PASSWORDS are a different thing, and get a different hash (R3, 2026-09-29):
+#   * StzHashPassword(pw)          -> "$argon2id$v=19$m=19456,t=2,p=1$..." (Argon2id)
+#   * StzVerifyPassword(pw, st)    -> accepts Argon2id AND the older PBKDF2 "salt:hash"
+#   * StzPasswordNeedsRehash(st)   -> 1 for a PBKDF2 hash (upgrade it on the next login)
+#
+#   WHY TWO. A human password is LOW-entropy: an offline attacker guesses it,
+#   and only a MEMORY-hard hash makes each guess cost them real hardware.
+#   StzHashSecret is for HIGH-entropy values -- random recovery codes, client
+#   secrets, short-lived one-time codes -- where memory-hardness buys nothing,
+#   and whose "salt:hash" form is comma-free ON PURPOSE: recovery-code hashes
+#   are stored comma-joined in one column. An Argon2id string holds commas.
+#
+#   DATA AT REST (XChaCha20-Poly1305, authenticated):
+#   * StzNewSealKey()              -> a fresh 32-byte key, as 64 hex characters
+#   * StzSeal(key, plain, aad)     -> a hex blob: secret AND tamper-evident
+#   * StzOpen(key, blob, aad)      -> the plaintext; RAISES on a wrong key, an
+#                                     altered blob or a different aad
+#
 # All delegate to the Zig engine (StzEngineCryptoPbkdf2 / RandomHex / ConstEqual),
 # so the cryptography is the engine's, uniform across every consumer. Loaded early
 # in the security block (before stzSecret / stzAuth, which use these at runtime).
@@ -29,6 +47,10 @@ func StzVerifySecret(pcSecret, pcStored)
 	return StzVerifySecretXT(pcSecret, pcStored, 100000)
 
 func StzVerifySecretXT(pcSecret, pcStored, nRounds)
+	# a password hash handed to the older verifier still verifies
+	if StzLeft("" + pcStored, 10) = "$argon2id$"
+		return StzEngineCryptoArgon2idVerify("" + pcStored, "" + pcSecret) = 1
+	ok
 	_nSep_ = StzFindFirst(":", pcStored)
 	if _nSep_ = 0
 		return 0
@@ -40,6 +62,42 @@ func StzVerifySecretXT(pcSecret, pcStored, nRounds)
 
 func StzRandomToken(nBytes)
 	return StzEngineCryptoRandomHex(nBytes)
+
+# ---- passwords: Argon2id ---------------------------------------------
+
+func StzHashPassword(pcPassword)
+	_c_ = StzEngineCryptoArgon2idHash("" + pcPassword)
+	if _c_ = ""
+		stzraise("StzHashPassword: the engine could not hash the password.")
+	ok
+	return _c_
+
+func StzVerifyPassword(pcPassword, pcStored)
+	_s_ = "" + pcStored
+	if StzLeft(_s_, 10) = "$argon2id$"
+		return StzEngineCryptoArgon2idVerify(_s_, "" + pcPassword) = 1
+	ok
+	# a hash stored before 2026-09-29: PBKDF2 "salt:hash", still accepted
+	return StzVerifySecret(pcPassword, _s_)
+
+func StzPasswordNeedsRehash(pcStored)
+	if StzLeft("" + pcStored, 10) = "$argon2id$"
+		return 0
+	ok
+	return 1
+
+# ---- data at rest: XChaCha20-Poly1305 --------------------------------
+
+func StzNewSealKey()
+	return StzEngineCryptoRandomHex(32)
+
+# pcAad is bound to the blob without being hidden: open it under another
+# aad and it is refused. Use it to say WHAT the blob is ("store:billing").
+func StzSeal(pcKeyHex, pcPlain, pcAad)
+	return StzEngineCryptoSeal("" + pcKeyHex, "" + pcPlain, "" + pcAad)
+
+func StzOpen(pcKeyHex, pcBlobHex, pcAad)
+	return StzEngineCryptoOpen("" + pcKeyHex, "" + pcBlobHex, "" + pcAad)
 
 # ---- X.509 certificates -------------------------------------------------
 #

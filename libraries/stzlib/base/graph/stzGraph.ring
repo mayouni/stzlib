@@ -65,6 +65,24 @@ func IsStzGraph(pObj)
 	func @IsStzGraphObject(pObj)
 		return IsStzGraph(pObj)
 
+# Holds a directed graph of named nodes and labelled edges, and answers questions about its paths, metrics, rules and changes.
+#
+# A node has an id (folded to lowercase, no space), a label and properties; an edge runs from one
+# node to another with a label and properties. The graph is simple: a second edge between the same
+# ordered pair is refused. Paths, components and the centrality metrics run in the engine, on a copy
+# that is rebuilt after most changes (a few removal methods do not refresh it, see their warnings).
+# Rules come in two forms: the three typed stores filled by UseRulesFrom, and attached stzGraphRule
+# objects judged by CheckRules. The graph reads and writes .stzgraf, .stzrulz and .stzsim files and
+# writes DOT, JSON, YAML and GraphML; reading GraphML back is broken today. Many methods fold an id
+# to lowercase and some do not (the removals, Incoming, SetNodeProperty), so ids are safest given in
+# lowercase. The file also holds stzGraphFinder, stzGraphAsciiVisualizer and stzGraphComparison,
+# which the graph builds for you. A number of methods carry a warning today.
+#
+#   receiver   o1 = new stzGraph("g1"); o1.AddNodeXT("a", "Alpha"); o1.AddNodeXT("b", "Beta");
+#              o1.AddNodeXT("c", "Gamma"); o1.Connect("a", "b"); o1.Connect("b", "c")
+#   example    ? @@( o1.ShortestPath("a", "c") )
+#              #--> [ "a", "b", "c" ]
+#   see        stzGraphFinder, stzGraphComparison, stzKnowledgeGraph, stzGraphRule
 class stzGraph from stzObject
 
 	@cId = ""
@@ -126,6 +144,12 @@ class stzGraph from stzObject
 	# explanation printed a garbled run instead of an arrow.
 	@cArrowRight = char(226) + char(134) + char(146)   # U+2192
 
+	# Builds an empty graph with the given id, folded to lowercase; an id holding a space or a line break raises an error.
+	#
+	#   pcName     the graph id, as text, without spaces or line breaks
+	#   returns    nothing; the object is built
+	#   note       the graph starts as type "structural", with no node and no edge
+	#   see        Id, SetGraphType
 	def init(pcName)
 		if CheckParams()
 			if NOT isString(pcName)
@@ -160,6 +184,11 @@ class stzGraph from stzObject
 	def HasEngine()
 		return This._EnsureEngine()
 
+	# Returns the handle of the engine graph that backs the fast algorithms, building it first when it is missing or out of date.
+	#
+	#   returns    the engine handle
+	#   note       the handle is rebuilt after most changes, so ask again instead of keeping it
+	#   see        Neighbors, PathExists
 	def EngineHandle()
 		This._EnsureEngine()
 		return @pEngineGraph
@@ -221,6 +250,10 @@ class stzGraph from stzObject
 		@bEngineStale = 0
 		return 1
 
+	# Returns an independent graph holding the same nodes and edges; adding or removing nodes in it never reaches the original.
+	#
+	#   returns    a stzGraph
+	#   see        Id
 	def Copy()
 		_oCopy_ = This
 		_oCopy_._DetachEngineCaches()
@@ -262,39 +295,87 @@ class stzGraph from stzObject
 		@pEngineGraph = ""
 		@bEngineStale = 1
 
+	# Returns the id the graph was given, in lowercase.
+	#
+	#   returns    text
+	#   see        Name, SetGraphType
 	def Id()
 		return @cId
 
+		# Returns the graph id, the same text as the id accessor.
+		#
+		#   returns    text
+		#   see        Id
 		def Name()
 			return @cId
 
+	# Returns the graph type: "structural" until SetGraphType says otherwise.
+	#
+	#   returns    text
+	#   see        SetGraphType, CyclesAllowed
 	def GraphType()
 		return @cGraphType
 
+	# Sets the graph type, folded to lowercase; any text is accepted, but only structural, flow and semantic change the checks.
+	#
+	#   returns    nothing; the graph changes
+	#   see        GraphType, CyclesAllowed, ShouldAutoDerive
 	def SetGraphType(pcType)
 		@cGraphType = StzLower(pcType)
 
+	# TRUE if the receiver is a graph, which a stzGraph always is.
+	#
+	#   returns    TRUE
+	#   see        IsStzGraph
 	def IsGraph()
 		return 1
 
+		# TRUE if the receiver is a graph, spelled with an article; always TRUE for a stzGraph.
+		#
+		#   returns    TRUE
+		#   see        IsGraph
 		def IsAGraph()
 			return 1
 
+		# TRUE if the receiver is a stzGraph, which it always is; the test tells graphs from other objects.
+		#
+		#   returns    TRUE
+		#   see        IsGraph
 		def IsStzGraph()
 			return 1
 	
+		# TRUE if the receiver is a stzGraph, spelled with an article; always TRUE here.
+		#
+		#   returns    TRUE
+		#   see        IsStzGraph
 		def IsAStzGraph()
 			return 1
 	
+		# TRUE if the receiver is a stzGraph object; always TRUE for a graph.
+		#
+		#   returns    TRUE
+		#   see        IsStzGraph
 		def IsStzGraphObject()
 			return 1
 	
+		# TRUE if the receiver is a stzGraph object, spelled with an article; always TRUE here.
+		#
+		#   returns    TRUE
+		#   see        IsStzGraphObject
 		def IsAStzGraphObject()
 			return 1
 	
+		# TRUE if the receiver is a graph object; always TRUE for a stzGraph.
+		#
+		#   returns    TRUE
+		#   see        IsGraph
 		def IsGraphObject()
 			return 1
 	
+		# TRUE if the receiver is a graph object, spelled with an article; always TRUE here.
+		#
+		#   returns    TRUE
+		#   see        IsGraphObject
 		def IsAGraphObject()
 			return 1
 
@@ -302,6 +383,14 @@ class stzGraph from stzObject
 	#  NODE OPERATIONS  #
 	#-------------------#
 
+	# Adds a node labelled with its own id at the end of the node list; an id already in use is added again without complaint.
+	#
+	#   pcNodeId   the node id, folded to lowercase
+	#   returns    nothing; the graph changes
+	#   note       for a label or properties call AddNodeXT or AddNodeXTT
+	#   warning    the id is not checked against the existing nodes, so a second node with the same
+	#              id is appended
+	#   see        AddNodes, NodeExists
 	def AddNode(pcNodeId)
 		This.AddNodeXTT(pcNodeId, pcNodeId, [])
 
@@ -352,6 +441,11 @@ class stzGraph from stzObject
 			This._InvalidateEngine()
 		ok
 
+	# Returns the node with that id as a hash list [ :id, :label, :properties ]; the id is matched in lowercase.
+	#
+	#   pcNodeId   The node id, as text.
+	#   returns    a hash list; raises an error when the node does not exist
+	#   see        NodeLabel, NodeProperties
 	def Node(pcNodeId)
 
 		if NOT _IsWellFormedId(pcNodeId)
@@ -377,6 +471,11 @@ class stzGraph from stzObject
 		ok
 		return []
 
+	# TRUE if a node has that id; the id is matched in lowercase.
+	#
+	#   pcNodeId   The node id, as text.
+	#   returns    TRUE or FALSE
+	#   see        EdgeExists, NodePosition
 	def NodeExists(pcNodeId)
 
 		if NOT _IsWellFormedId(pcNodeId)
@@ -430,19 +529,42 @@ class stzGraph from stzObject
 		def HasNode(pcNodeId)
 			return This.NodeExists(pcNodeId)
 
+	# Replaces the whole node list by the given one, without any check; the edges are left as they are.
+	#
+	#   paNodes    the nodes, each a hash list [ :id, :label, :properties ]
+	#   returns    nothing; the graph changes
+	#   warning    the engine copy used by Neighbors, ReachableFrom and the metrics is not
+	#              refreshed, and the edges are not checked against the new nodes
+	#   see        SetEdges, AddNodes
 	def SetNodes(paNodes)
 		@aNodes = paNodes
 		# Length alone cannot detect a same-length swap, so say so outright.
 		@bNodeIdxStale = 1
 	
+	# Replaces the whole edge list by the given one, without any check; the nodes are left as they are.
+	#
+	#   paEdges    The edges, each a hash list [ :from, :to, :label, :properties ].
+	#   returns    nothing; the graph changes
+	#   note       EdgeExists, Edges and Path read the new list at once
+	#   warning    the engine copy used by Neighbors, ReachableFrom and the metrics is not
+	#              refreshed, so they keep answering from the old edges
+	#   see        SetNodes
 	def SetEdges(paEdges)
 		@aEdges = paEdges
 		# Length alone cannot detect a same-length swap.
 		@bEdgeIdxStale = 1
 
+	# Returns every node as a hash list [ :id, :label, :properties ], in the order they were added.
+	#
+	#   returns    a list of hash lists
+	#   see        NodesIds, Edges
 	def Nodes()
 		return @aNodes
 
+	# Returns the ids of all nodes, in the order they were added.
+	#
+	#   returns    a list of text
+	#   see        Nodes
 	def NodesIds()
 		_nLen_ = len(@aNodes)
 		_acResult_ = []
@@ -456,23 +578,47 @@ class stzGraph from stzObject
 		def NodesNames()
 			return This.NodesIds()
 
+	# Returns how many nodes the graph holds.
+	#
+	#   returns    a number
+	#   see        EdgesCount, NodeCount
 	def NodesCount()
 		return len(@aNodes)
 
+		# Returns the number of nodes held; the same answer as the plural spelling.
+		#
+		#   returns    a number
+		#   see        NodesCount
 		def NodeCount()
 			return len(@aNodes)
 
+		# Returns the count of nodes, phrased as a question.
+		#
+		#   returns    a number
+		#   see        NodesCount
 		def HowManyNodes()
 			return len(@aNodes)
 
+		# Returns the count of nodes, in the singular form of the question.
+		#
+		#   returns    a number
+		#   see        HowManyNodes
 		def HowManyNode()
 			return len(@aNodes)
 
+		# Returns the node total, 0 for an empty graph.
+		#
+		#   returns    a number
+		#   see        NodesCount
 		def NumberOfNodes()
 			return len(@aNodes)
 
-	#--
-
+	# Adds one node per id, each labelled with its own id, in the order given.
+	#
+	#   pacNodes   The node ids to add, as a list of text.
+	#   returns    nothing; the graph changes
+	#   see        AddNode
+	#@ aka  --
 	def AddNodes(pacNodes)
 		_nLen_ = len(pacNodes)
 		for i = 1 to _nLen_
@@ -483,6 +629,15 @@ class stzGraph from stzObject
 	#  INSERT NODE BEFORE  #
 	#----------------------#
 	
+	# Adds a node on every route into an existing node: the edges that arrived there now arrive at the new node, which points to the existing one.
+	#
+	#   pcTargetId   The id of the existing node to insert next to.
+	#   pcNewId      The id of the new node, as text.
+	#   returns      nothing; the graph changes
+	#   note         call InsertNodeBeforeXT or InsertNodeBeforeXTT for a label or properties
+	#   warning      the existing id must be given in lowercase, and the re-routed edges lose their
+	#                labels and properties
+	#   see          InsertNodeAfter, Connect
 	def InsertNodeBefore(pcTargetId, pcNewId)
 		This.InsertNodeBeforeXTT(pcTargetId, pcNewId, pcNewId, [])
 
@@ -511,6 +666,15 @@ class stzGraph from stzObject
 	#  INSERT NODE AFTER  #
 	#---------------------#
 	
+	# Adds a node on every route out of an existing node: the edges that left there now leave the new node, which the existing one points to.
+	#
+	#   pcTargetId   The id of the existing node to insert next to.
+	#   pcNewId      The id of the new node, as text.
+	#   returns      nothing; the graph changes
+	#   note         call InsertNodeAfterXT or InsertNodeAfterXTT for a label or properties
+	#   warning      the existing id must be given in lowercase, and the re-routed edges lose their
+	#                labels and properties
+	#   see          InsertNodeBefore, Connect
 	def InsertNodeAfter(pcTargetId, pcNewId)
 		This.InsertNodeAfterXTT(pcTargetId, pcNewId, pcNewId, [])
 
@@ -539,6 +703,15 @@ class stzGraph from stzObject
 	#  INSERT MULTIPLE NODES  #
 	#-------------------------#
 	
+	# Raises error R20 today instead of inserting a chain of nodes in front of an existing node.
+	#
+	#   pcTargetId   The id of the existing node to insert next to.
+	#   paNodes      the nodes to insert, each a pair [ id, label ]
+	#   returns      nothing today
+	#   note         call InsertNodeBefore once per node instead
+	#   warning      known defect: it calls InsertNodeBefore with three arguments, but that method
+	#                takes two, so even a valid list of pairs raises R20
+	#   see          InsertNodeBefore
 	def InsertNodesBefore(pcTargetId, paNodes)
 		_nLen_ = len(paNodes)
 		for i = 1 to _nLen_
@@ -546,6 +719,15 @@ class stzGraph from stzObject
 			pcTargetId = paNodes[i][1]
 		end
 	
+	# Raises error R20 today instead of inserting a chain of nodes behind an existing node.
+	#
+	#   pcTargetId   The id of the existing node to insert next to.
+	#   paNodes      the nodes to insert, each a pair [ id, label ]
+	#   returns      nothing today
+	#   note         call InsertNodeAfter once per node instead
+	#   warning      known defect: it calls InsertNodeAfter with three arguments, but that method
+	#                takes two, so even a valid list of pairs raises R20
+	#   see          InsertNodeAfter
 	def InsertNodesAfter(pcTargetId, paNodes)
 		_nLen_ = len(paNodes)
 		_cLastId_ = pcTargetId
@@ -558,6 +740,10 @@ class stzGraph from stzObject
 	#  NODE REMOVAL #
 	#---------------#
 	
+	# Removes every node and every edge, and forgets which rules were applied; the id, type and rules stay.
+	#
+	#   returns    nothing; the graph is emptied
+	#   see        Clear, RemoveEdges
 	def RemoveNodes()
 		@aNodes = []
 		@aEdges = []
@@ -565,18 +751,38 @@ class stzGraph from stzObject
 		@aAffectedEdges = []
 		This._InvalidateEngine()
 
+		# Empties the graph of nodes and edges; another spelling of the clearing call.
+		#
+		#   returns    nothing; the graph is emptied
+		#   see        RemoveNodes
 		def RemoveAllNodes()
 			This.RemoveNodes()
 	
+		# Empties the graph of all its nodes and edges, keeping its id, type and rules.
+		#
+		#   returns    nothing; the graph is emptied
+		#   see        RemoveNodes
 		def Clear()
 			This.RemoveNodes()
 	
+	# Removes each listed node together with its edges.
+	#
+	#   pacNodeIds   The node ids, as a list of text.
+	#   returns      nothing; the graph changes
+	#   see          RemoveThisNode
 	def RemoveTheseNodes(pacNodeIds)
 		_nLen_ = len(pacNodeIds)
 		for i = 1 to _nLen_
 			This.RemoveThisNode(pacNodeIds[i])
 		end
 	
+	# Removes a node and every edge that starts or ends at it; an id that matches no node is ignored.
+	#
+	#   pcNodeId   the node id, exactly as stored (lowercase)
+	#   returns    nothing; the graph changes
+	#   warning    the id is not folded to lowercase, so "A" removes nothing from a node stored as
+	#              "a", and no error says so
+	#   see        RemoveTheseNodes, RemoveEdgesConnectedTo
 	def RemoveThisNode(pcNodeId)
 
 		if NOT _IsWellFormedId(pcNodeId)
@@ -595,9 +801,23 @@ class stzGraph from stzObject
 		This.RemoveEdgesConnectedTo(pcNodeId)
 		This._InvalidateEngine()
 
+		# Removes a node and its edges; another spelling of the removal call.
+		#
+		#   pcNodeId   the node id, exactly as stored (lowercase)
+		#   returns    nothing; the graph changes
+		#   warning    the id is not folded to lowercase, so "A" removes nothing from a node stored
+		#              as "a"
+		#   see        RemoveThisNode
 		def RemoveNode(pcNodeId)
 			This.RemoveThisNode(pcNodeId)
 	
+	# Removes the node named by the last id of a path, together with its edges.
+	#
+	#   pacPath    A path as a list of node ids; the last id names the node.
+	#   returns    nothing; the graph changes
+	#   note       an empty path does nothing
+	#   warning    the id is used as written, so a path ending in "B" does not remove node "b"
+	#   see        RemoveNodesAt, RemoveThisNode
 	def RemoveNodeAt(pacPath)
 		_nLen_ = len(pacPath)
 		if _nLen_ = 0
@@ -607,9 +827,21 @@ class stzGraph from stzObject
 		_cNodeId_ = pacPath[_nLen_]
 		This.RemoveThisNode(_cNodeId_)
 	
+		# Removes the node at the end of a path, with its edges; another spelling of the path removal.
+		#
+		#   pacPath    A path as a list of node ids; the last id names the node.
+		#   returns    nothing; the graph changes
+		#   warning    the id is used as written, so a path ending in "B" does not remove node "b"
+		#   see        RemoveNodeAt
 		def RemoveNodeAtPath(pacPath)
 			This.RemoveNodeAt(pacPath)
 	
+	# Removes the node named by the last id of each path, with its edges; the ids are folded to lowercase first.
+	#
+	#   paPaths    A list of paths, each a list of node ids; the last id of each path names the
+	#              node.
+	#   returns    nothing; the graph changes
+	#   see        RemoveNodeAt
 	def RemoveNodesAt(paPaths)
 		_acToRemove_ = []
 		_nLenPaths_ = len(paPaths)
@@ -627,6 +859,12 @@ class stzGraph from stzObject
 		
 		This.RemoveTheseNodes(_acToRemove_)
 	
+		# Removes the node at the end of each path, with its edges; another spelling of the multi-path removal.
+		#
+		#   paPaths    A list of paths, each a list of node ids; the last id of each path names the
+		#              node.
+		#   returns    nothing; the graph changes
+		#   see        RemoveNodesAt
 		def RemoveNodesAtPaths(paPaths)
 			This.RemoveNodesAt(paPaths)
 	
@@ -634,17 +872,35 @@ class stzGraph from stzObject
 	#  EDGE REMOVAL  #
 	#----------------#
 	
+	# Removes every edge and keeps the nodes.
+	#
+	#   returns    nothing; the graph changes
+	#   see        RemoveNodes, RemoveThisEdge
 	def RemoveEdges()
 		@aEdges = []
 		@aAffectedEdges = []
 		This._InvalidateEngine()
 
+		# Removes all the edges and keeps the nodes; another spelling of the edge clearing.
+		#
+		#   returns    nothing; the graph changes
+		#   see        RemoveEdges
 		def RemoveAllEdges()
 			This.RemoveEdges()
 	
+		# Clears the edges and keeps the nodes.
+		#
+		#   returns    nothing; the graph changes
+		#   see        RemoveEdges
 		def ClearEdges()
 			This.RemoveEdges()
 	
+	# Removes the edge from one node to another; the ids are folded to lowercase, and a missing edge is ignored.
+	#
+	#   pcFromNodeId   The id of the node the edge starts from.
+	#   pcToNodeId     The id of the node the edge ends at.
+	#   returns        nothing; the graph changes
+	#   see            RemoveEdgesBetween, RemoveEdgeByLabel, Disconnect
 	def RemoveThisEdge(pcFromNodeId, pcToNodeId)
 		if CheckParams()
 			if isList(pcFromNodeId)
@@ -679,12 +935,32 @@ class stzGraph from stzObject
 		@aEdges = _acNew_
 		This._InvalidateEngine()
 
+		# Removes the edge from one node to another; another spelling of the edge removal.
+		#
+		#   pcFromNodeId   The id of the node the edge starts from.
+		#   pcToNodeId     The id of the node the edge ends at.
+		#   returns        nothing; the graph changes
+		#   see            RemoveThisEdge
 		def RemoveEdge(pcFromNodeId, pcToNodeId)
 			This.RemoveThisEdge(pcFromNodeId, pcToNodeId)
 
+		# Cuts the link from one node to another, the counterpart of Connect.
+		#
+		#   pcFromNodeId   The id of the node the edge starts from.
+		#   pcToNodeId     The id of the node the edge ends at.
+		#   returns        nothing; the graph changes
+		#   see            Connect, RemoveThisEdge
 		def Disconnect(pcFromNodeId, pcToNodeId)
 			This.RemoveThisEdge(pcFromNodeId, pcToNodeId)
 
+	# Removes every edge that starts or ends at a node, and keeps the node itself.
+	#
+	#   pcNodeId   The node id, as text.
+	#   returns    nothing; the graph changes
+	#   warning    the id is not folded to lowercase, and the engine copy is not refreshed, so
+	#              Neighbors and ReachableFrom keep answering from the old edges until another
+	#              change
+	#   see        RemoveThisNode
 	def RemoveEdgesConnectedTo(pcNodeId)
 
 		if NOT _IsWellFormedId(pcNodeId)
@@ -707,35 +983,72 @@ class stzGraph from stzObject
 	#  ENABLING OR DISABLING CHECKS  #
 	#--------------------------------#
 
-	 # Control flags
+	 # Turns constraint checking on, so that every edge added is first tested against the constraint rules.
+	 #
+	 #   returns    nothing; the setting changes
+	 #   see        DisableConstraints, ConstraintsEnabled, WithoutConstraints
+	 #@ aka  Control flags
 	 def EnableConstraints()
 	        @bEnforceConstraints = 1
 
+		# Turns constraint checking on; another spelling of the switch-on call.
+		#
+		#   returns    nothing; the setting changes
+		#   see        EnableConstraints
 		def EnforceConstraints()
 			@bEnforceConstraints = 1
 
+	 # Turns constraint checking off, so edges are added without testing the constraint rules.
+	 #
+	 #   returns    nothing; the setting changes
+	 #   see        EnableConstraints, WithoutConstraints
 	 def DisableConstraints()
 	        @bEnforceConstraints = 0
 
+	# TRUE if constraint rules are tested when an edge is added; they are by default.
+	#
+	#   returns    TRUE or FALSE (1 or 0)
+	#   see        EnableConstraints
 	def ConstraintsEnabled()
 		return @bEnforceConstraints
 
-	#--
-
+	 # Turns automatic derivation on, so that the derivation rules run after every edge added.
+	 #
+	 #   returns    nothing; the setting changes
+	 #   see        DisableAutoDerive, ApplyDerivationRules
+	 #@ aka  --
 	 def EnableAutoDerive()
 	        @bAutoDerive = 1
 
+		# Turns automatic derivation on; another spelling of the switch-on call.
+		#
+		#   returns    nothing; the setting changes
+		#   see        EnableAutoDerive
 		def EnforceAutoDerive()
 			@bAutoDerive = 1
 
+	 # Turns automatic derivation off, the default, so derivation rules run only when asked.
+	 #
+	 #   returns    nothing; the setting changes
+	 #   see        EnableAutoDerive
 	 def DisableAutoDerive()
 	        @bAutoDerive = 0
 
+	# TRUE if derivation rules run after every edge added; they do not by default.
+	#
+	#   returns    TRUE or FALSE (1 or 0)
+	#   see        EnableAutoDerive
 	def AutoDeriveEnabled()
 		return @bAutoDerive
 
-	# Temporarily bypass rules
-
+	# Calls a function with the graph as its only argument while constraint checking is off, then restores the earlier setting.
+	#
+	#   pFunc      a function that takes the graph, as an anonymous function or a function name
+	#   returns    nothing
+	#   warning    if the function raises an error the checking stays off, because the earlier
+	#              setting is restored only after the call returns
+	#   see        BypassingConstraints, DisableConstraints
+	#@ aka  Temporarily bypass rules
 	def WithoutConstraints(pFunc)
 		if NOT @IsFunction(pFunc)
 			stzraise("Parameter must be a function!")
@@ -754,6 +1067,12 @@ class stzGraph from stzObject
 		@bEnforceConstraints = _bOldState_
 
 	
+		# Runs a function on the graph with constraint checking off; another spelling of the temporary bypass.
+		#
+		#   pFunc      a function that takes the graph, as an anonymous function or a function name
+		#   returns    nothing
+		#   warning    if the function raises an error the checking stays off
+		#   see        WithoutConstraints
 		def BypassingConstraints(pFunc)
 			This.WithoutConstraints(pFunc)
 	    
@@ -761,7 +1080,13 @@ class stzGraph from stzObject
 	#  PRE-FLIGHT METHODS  #
 	#----------------------#
 
-	 # Pre-flight checks (non-mutating)
+	# TRUE if an edge could be added from one node to the other: both exist, no edge is there yet and no constraint rule objects.
+	#
+	#   pcFrom     The id of the node the edge starts from.
+	#   pcTo       The id of the node the edge ends at.
+	#   returns    TRUE or FALSE
+	#   see        WhyCannotAddEdge, AddEdge
+	#@ aka  Pre-flight checks (non-mutating)
 	def CanAddEdge(pcFrom, pcTo, pcLabel)
 		if CheckParams()
 			if isList(pcFrom) and IsFromOrFromNodeNamedParamList(pcFrom)
@@ -793,6 +1118,12 @@ class stzGraph from stzObject
 	
 		return _aCheck_[1]
 	        
+	# Returns a sentence saying that the edge can be added, or why not: a missing node, an existing edge or the rules it breaks.
+	#
+	#   pcFromNodeId   The id of the node the edge starts from.
+	#   pcToNodeId     The id of the node the edge ends at.
+	#   returns        text; "Edge can be added" when nothing stands in the way
+	#   see            CanAddEdge
 	def WhyCannotAddEdge(pcFromNodeId, pcToNodeId, pcLabel)
 		if CheckParams()
 			if isList(pcFromNodeId) and IsFromOrFromNodeNamedParamList(pcFromNodeId)
@@ -852,9 +1183,24 @@ class stzGraph from stzObject
 	#  EDGE OPERATIONS  #
 	#-------------------#
 
+	# Adds an unlabelled edge from one node to another; raises an error when a node is missing, the edge exists or a constraint rule blocks it.
+	#
+	#   pcFromNodeId   The id of the node the edge starts from.
+	#   pcToNodeId     The id of the node the edge ends at.
+	#   returns        nothing; the graph changes
+	#   note           stzGraph is a simple graph, so a second edge between the same pair is
+	#                  refused; for a label or properties call AddEdgeXT or AddEdgeXTT
+	#   see            Connect, ConnectIfAbsent, EdgeExists
 	def AddEdge(pcFromNodeId, pcToNodeId)
 		This.AddEdgeXTT(pcFromNodeId, pcToNodeId, "", [])
 
+		# Adds an unlabelled edge from one node to another; a list as the target adds one edge to each node of the list.
+		#
+		#   pcFromNodeId   The id of the node the edge starts from.
+		#   pcToNodeId     The id of the node the edge ends at.
+		#   returns        nothing; the graph changes
+		#   note           a duplicate edge, a missing node or a blocking rule raises an error
+		#   see            AddEdge, ConnectIfAbsent
 		def Connect(pcFromNodeId, pcToNodeId)
 			if CheckParams()
 
@@ -871,20 +1217,13 @@ class stzGraph from stzObject
 
 			This.AddEdgeXTT(pcFromNodeId, pcToNodeId, "", [])
 
-	# CONNECT UNLESS THE EDGE IS ALREADY THERE. Returns TRUE if it added the
-	# edge, FALSE if it was already present.
+	# Adds the edge unless it already exists, and says which happened; a missing node or a blocking rule still raises an error.
 	#
-	# stzGraph is a SIMPLE graph: AddEdge raises "Edge already exists" on a
-	# second arrow between the same pair, and that is deliberate -- a workflow
-	# or a knowledge graph that wants two distinct relations between the same
-	# two nodes needs a different model, not a silently doubled edge.
-	#
-	# But "connect these two if they aren't connected yet" is an ordinary
-	# thing to want, and it forced every caller to write the EdgeExists()
-	# guard by hand -- or to wrap the call in a try/catch that also swallows
-	# the two failures that DO matter here. So the duplicate case, and only
-	# the duplicate case, is answered instead of raised: a missing node still
-	# raises, and a constraint violation still raises.
+	#   pcFromNodeId   The id of the node the edge starts from.
+	#   pcToNodeId     The id of the node the edge ends at.
+	#   returns        1 when the edge was added, 0 when it was already there
+	#   see            Connect, EdgeExists
+	#@ aka  CONNECT UNLESS THE EDGE IS ALREADY THERE. Returns TRUE if it added the edge, FALSE if it was already present.
 	def ConnectIfAbsent(pcFromNodeId, pcToNodeId)
 		if This.EdgeExists(pcFromNodeId, pcToNodeId)
 			return 0
@@ -898,6 +1237,12 @@ class stzGraph from stzObject
 		def ConnectIfNotConnected(pcFromNodeId, pcToNodeId)
 			return This.ConnectIfAbsent(pcFromNodeId, pcToNodeId)
 
+	# Chains the nodes in the given order, with one edge from each to the next; fewer than two ids raises an error.
+	#
+	#   paNodes    the node ids, in the order they are chained
+	#   returns    nothing; the graph changes
+	#   note       for labels between the nodes call ConnectSequenceXT
+	#   see        ConnectInSequence, Connect
 	def ConnectSequence(paNodes)
 		if NOT isList(paNodes)
 			StzRaise("Incorrect param! paNodes must be a list.")
@@ -912,6 +1257,11 @@ class stzGraph from stzObject
 			This.Connect(paNodes[i], paNodes[i + 1])
 		end
 	
+		# Chains the nodes in the given order; another spelling of the chaining call.
+		#
+		#   paNodes    the node ids, in the order they are chained
+		#   returns    nothing; the graph changes
+		#   see        ConnectSequence
 		def ConnectInSequence(paNodes)
 			This.ConnectSequence(paNodes)
 	
@@ -949,12 +1299,24 @@ class stzGraph from stzObject
 		def ConnectManyXT(paNodesAndLabels)
 			This.ConnectSequenceXT(paNodesAndLabels)
 
+	# Adds one edge from a node to each of the listed nodes, in order.
+	#
+	#   pcFromNodeId    The id of the node the edge starts from.
+	#   pacToNodesIds   The ids of the nodes the edges end at, as a list of text.
+	#   returns         nothing; the graph changes
+	#   see             ConnectToMany, Connect
 	def AddEdges(pcFromNodeId, pacToNodesIds)
 		_nLen_ = len(pacToNodesIds)
 		for i = 1 to _nLen_
 			This.AddEdgeXTT(pcFromNodeId, pacToNodesIds[i], "", [])
 		next
 
+		# Links one node to each of several others; another spelling of the multi-edge call.
+		#
+		#   pcFromNodeId    The id of the node the edge starts from.
+		#   pacToNodesIds   The ids of the nodes the edges end at, as a list of text.
+		#   returns         nothing; the graph changes
+		#   see             AddEdges
 		def ConnectToMany(pcFromNodeId, pacToNodesIds)
 			This.AddEdges(pcFromNodeId, pacToNodesIds)
 
@@ -1108,9 +1470,26 @@ class stzGraph from stzObject
 			This.AddEdgeXTT(pcFromNodeId, paToNodesIdsAndLabelsAndProps[i])
 		next
 
+		# Raises error R19 today instead of adding edges to several nodes, each with its own label and properties.
+		#
+		#   pcFromNodeId                    The id of the node the edge starts from.
+		#   paToNodesIdsAndLabelsAndProps   The target nodes, each with its label and properties.
+		#   returns                         nothing today
+		#   note                            AddEdges adds the unlabelled version; AddEdgeXTT adds
+		#                                   one edge with a label and properties
+		#   warning                         known defect: it calls AddEdgeXTT with two arguments
+		#                                   where four are needed, so any non-empty list raises R19,
+		#                                   and an empty list does nothing
+		#   see                             AddEdges
 		def ConnectEdgesXTT(pcFromNodeId, paToNodesIdsAndLabelsAndProps)
 			This.AddEdgesXTT(pcFromNodeId, paToNodesIdsAndLabelsAndProps)
 
+	# Returns the edge from one node to another as a hash list [ :from, :to, :label, :properties ]; raises "Inexistant edge!" when there is none.
+	#
+	#   pcFromNodeId   The id of the node the edge starts from.
+	#   pcToNodeId     The id of the node the edge ends at.
+	#   returns        a hash list
+	#   see            EdgeExists, EdgesBetween
 	def Edge(pcFromNodeId, pcToNodeId)
 		if CheckParams()
 			if isList(pcFromNodeId)
@@ -1144,6 +1523,12 @@ class stzGraph from stzObject
 		end
 		stzraise("Inexistant edge!")
 
+	# TRUE if there is an edge from the first node to the second, in that direction; the ids are matched in lowercase.
+	#
+	#   pcFromNodeId   The id of the node the edge starts from.
+	#   pcToNodeId     The id of the node the edge ends at.
+	#   returns        TRUE or FALSE
+	#   see            Edge, PathExists, NodeExists
 	def EdgeExists(pcFromNodeId, pcToNodeId)
 		if CheckParams()
 			if isList(pcFromNodeId)
@@ -1221,24 +1606,54 @@ class stzGraph from stzObject
 		@nEdgeIdxCount = _nEiLen_
 		@bEdgeIdxStale = 0
 
+	# Returns every edge as a hash list [ :from, :to, :label, :properties ], in the order they were added.
+	#
+	#   returns    a list of hash lists
+	#   see        Nodes, EdgesBetween
 	def Edges()
 		return @aEdges
 
+	# Returns how many edges the graph holds.
+	#
+	#   returns    a number
+	#   see        NodesCount, EdgeCount
 	def EdgesCount()
 		return len(@aEdges)
 
+		# Returns the number of edges held; the same answer as the plural spelling.
+		#
+		#   returns    a number
+		#   see        EdgesCount
 		def EdgeCount()
 			return len(@aEdges)
 
+		# Returns the count of edges, phrased as a question.
+		#
+		#   returns    a number
+		#   see        EdgesCount
 		def HowManyEdges()
 			return len(@aEdges)
 
+		# Returns the count of edges, in the singular form of the question.
+		#
+		#   returns    a number
+		#   see        HowManyEdges
 		def HowManyEdge()
 			return len(@aEdges)
 
+		# Returns the edge total, 0 when there is none.
+		#
+		#   returns    a number
+		#   see        EdgesCount
 		def NumberOfEdges()
 			return len(@aEdges)
 
+	# Returns how many edges run from the first node to the second, which is 0 or 1 in a simple graph.
+	#
+	#   pcFromNodeId   The id of the node the edge starts from.
+	#   pcToNodeId     The id of the node the edge ends at.
+	#   returns        a number
+	#   see            EdgesBetween, EdgeExists
 	def EdgeCountBetween(pcFromNodeId, pcToNodeId)
 
 		if CheckParams()
@@ -1271,6 +1686,12 @@ class stzGraph from stzObject
 		def EdgesBetweenCount(pcFrom, pcTo)
 			return This.EdgeCountBetween(pcFrom, pcTo)
 	
+	# Returns the edges from one node to another as [ from, label, to ] triples; [ ] when there is none.
+	#
+	#   pcFromNodeId   The id of the node the edge starts from.
+	#   pcToNodeId     The id of the node the edge ends at.
+	#   returns        a list of triples
+	#   see            Edge, EdgeCountBetween
 	def EdgesBetween(pcFromNodeId, pcToNodeId)
 		if CheckParams()
 			if isList(pcFromNodeId) and IsFromNamedParamList(pcFromNodeId)
@@ -1302,6 +1723,14 @@ class stzGraph from stzObject
 		def AllEdgesBetween(pcFromNodeId, pcToNodeId)
 			return This.EdgesBetween(pcFromNodeId, pcToNodeId)
 
+	# Removes the first edge from one node to another that carries the label; the ids and the label are matched in lowercase.
+	#
+	#   pcFromNodeId   The id of the node the edge starts from.
+	#   pcToNodeId     The id of the node the edge ends at.
+	#   returns        nothing; the graph changes
+	#   warning        the engine copy is not refreshed, so Neighbors and ReachableFrom keep
+	#                  answering from the old edges until another change
+	#   see            RemoveThisEdge
 	def RemoveEdgeByLabel(pcFromNodeId, pcToNodeId, pcLabel)
 		if CheckParams()
 			if isList(pcFromNodeId) and IsFromNamedParamList(pcFromNodeId)
@@ -1339,12 +1768,36 @@ class stzGraph from stzObject
 		
 		@aEdges = _acNew_
 	
+		# Removes the edge with that label between two nodes; another spelling of the label-based removal.
+		#
+		#   pcFromNodeId   The id of the node the edge starts from.
+		#   pcToNodeId     The id of the node the edge ends at.
+		#   returns        nothing; the graph changes
+		#   warning        the engine copy is not refreshed, so Neighbors and ReachableFrom keep
+		#                  answering from the old edges until another change
+		#   see            RemoveEdgeByLabel
 		def RemoveEdgeWithLabel(pcFromNodeId, pcToNodeId, pcLabel)
 			This.RemoveEdgeByLabel(pcFromNodeId, pcToNodeId, pcLabel)
 	
+		# Cuts the link with that label between two nodes, the counterpart of connecting with a label.
+		#
+		#   pcFromNodeId   The id of the node the edge starts from.
+		#   pcToNodeId     The id of the node the edge ends at.
+		#   returns        nothing; the graph changes
+		#   warning        the engine copy is not refreshed, so Neighbors and ReachableFrom keep
+		#                  answering from the old edges until another change
+		#   see            RemoveEdgeByLabel
 		def DisconnectByLabel(pcFromNodeId, pcToNodeId, pcLabel)
 			This.RemoveEdgeByLabel(pcFromNodeId, pcToNodeId, pcLabel)
 	
+	# Removes every edge from one node to another; the ids are matched in lowercase.
+	#
+	#   pcFromNodeId   The id of the node the edge starts from.
+	#   pcToNodeId     The id of the node the edge ends at.
+	#   returns        nothing; the graph changes
+	#   warning        the engine copy is not refreshed, so Neighbors and ReachableFrom keep
+	#                  answering from the old edges until another change
+	#   see            RemoveThisEdge, RemoveEdgeByLabel
 	def RemoveAllEdgesBetween(pcFromNodeId, pcToNodeId)
 		if CheckParams()
 			if isList(pcFromNodeId) and IsFromNamedParamList(pcFromNodeId)
@@ -1375,9 +1828,25 @@ class stzGraph from stzObject
 		
 		@aEdges = _acNew_
 	
+		# Removes the edges from one node to another; another spelling of the multi-edge removal.
+		#
+		#   pcFromNodeId   The id of the node the edge starts from.
+		#   pcToNodeId     The id of the node the edge ends at.
+		#   returns        nothing; the graph changes
+		#   warning        the engine copy is not refreshed, so Neighbors and ReachableFrom keep
+		#                  answering from the old edges until another change
+		#   see            RemoveAllEdgesBetween
 		def RemoveEdgesBetween(pcFromNodeId, pcToNodeId)
 			This.RemoveAllEdgesBetween(pcFromNodeId, pcToNodeId)
 	
+		# Cuts every link from one node to another; another spelling of the multi-edge removal.
+		#
+		#   pcFromNodeId   The id of the node the edge starts from.
+		#   pcToNodeId     The id of the node the edge ends at.
+		#   returns        nothing; the graph changes
+		#   warning        the engine copy is not refreshed, so Neighbors and ReachableFrom keep
+		#                  answering from the old edges until another change
+		#   see            RemoveAllEdgesBetween
 		def DisconnectAll(pcFromNodeId, pcToNodeId)
 			This.RemoveAllEdgesBetween(pcFromNodeId, pcToNodeId)
 
@@ -1391,6 +1860,12 @@ class stzGraph from stzObject
 			call pFunc(@aNodes[i])
 		end
 
+		# Calls a function once for each node, handing it the node's hash list so it can change the node in place.
+		#
+		#   pFunc      a function that takes one node hash list, as an anonymous function or a
+		#              function name
+		#   returns    nothing; the nodes change
+		#   see        UpdateEdges, SetNodeProperty
 		def UpdateNodes(pFunc)
 			This.UpdateNodesF(pFunc)
 	
@@ -1400,6 +1875,12 @@ class stzGraph from stzObject
 			call pFunc(@aEdges[i])
 		end
 
+		# Calls a function once for each edge, handing it the edge's hash list so it can change the edge in place.
+		#
+		#   pFunc      a function that takes one edge hash list, as an anonymous function or a
+		#              function name
+		#   returns    nothing; the edges change
+		#   see        UpdateNodes, SetEdgeProperty
 		def UpdateEdges(pFunc)
 			This.UpdateEdgesF(pFunc)
 
@@ -1407,6 +1888,11 @@ class stzGraph from stzObject
 	#  COPY OPERATIONS  #
 	#-------------------#
 	
+	# Returns a copy of a node as a hash list [ :id, :label, :properties ], leaving the graph unchanged.
+	#
+	#   pcNodeId   The node id, as text.
+	#   returns    a hash list; raises an error when the node does not exist
+	#   see        DuplicateNode, Node
 	def CopyNode(pcNodeId)
 		_aNode_ = This.Node(pcNodeId)
 		_aCopy_ = [
@@ -1425,14 +1911,32 @@ class stzGraph from stzObject
 		
 		return _aCopy_
 	
+	# Adds a second node with the label and properties of an existing node, under a new id; no edge is copied.
+	#
+	#   pcNodeId   The node id, as text.
+	#   pcNewId    The id of the new node, as text.
+	#   returns    nothing; the graph changes
+	#   see        DuplicateNodeWithEdges, CopyNode
 	def DuplicateNode(pcNodeId, pcNewId)
 		_aCopy_ = This.CopyNode(pcNodeId)
 		_aCopy_["id"] = pcNewId
 		This.AddNodeXTT(_aCopy_["id"], _aCopy_["label"], _aCopy_["properties"])
 	
+		# Adds a second node like an existing one under a new id; another spelling of the duplication call.
+		#
+		#   pcNodeId   The node id, as text.
+		#   pcNewId    The id of the new node, as text.
+		#   returns    nothing; the graph changes
+		#   see        DuplicateNode
 		def CloneNode(pcNodeId, pcNewId)
 			This.DuplicateNode(pcNodeId, pcNewId)
 	
+	# Adds a node like an existing one under a new id, and copies the edges that leave the existing node; the edges that arrive are not copied.
+	#
+	#   pcNodeId   The node id, as text.
+	#   pcNewId    The id of the new node, as text.
+	#   returns    nothing; the graph changes
+	#   see        DuplicateNode
 	def DuplicateNodeWithEdges(pcNodeId, pcNewId)
 		This.DuplicateNode(pcNodeId, pcNewId)
 		
@@ -1448,6 +1952,15 @@ class stzGraph from stzObject
 	#  MERGE OPERATIONS  #
 	#--------------------#
 	
+	# Replaces the listed nodes by one new node, to which their outside in-edges and out-edges are re-pointed; the new edges carry no label.
+	#
+	#   pacNodeIds   The node ids, as a list of text.
+	#   pcNewId      The id of the new node, as text.
+	#   pcNewLabel   The label of the new node.
+	#   returns      nothing; the graph changes
+	#   warning      fewer than two ids does nothing, and the new node has no properties, only the
+	#                label given
+	#   see          CombineNodes, SplitNode
 	def MergeNodes(pacNodeIds, pcNewId, pcNewLabel)
 		This.MergeNodesXT(pacNodeIds, pcNewId, pcNewLabel, [])
 	
@@ -1502,9 +2015,25 @@ class stzGraph from stzObject
 			This.Connect(pcNewId, _aOutgoing_[i])
 		end
 	
+		# Fuses the listed nodes into one new node; another spelling of the merge.
+		#
+		#   pacNodeIds   The node ids, as a list of text.
+		#   pcNewId      The id of the new node, as text.
+		#   pcNewLabel   The label of the new node.
+		#   returns      nothing; the graph changes
+		#   warning      fewer than two ids does nothing, and the new edges carry no label
+		#   see          MergeNodes
 		def CombineNodes(pacNodeIds, pcNewId, pcNewLabel)
 			This.MergeNodes(pacNodeIds, pcNewId, pcNewLabel)
 
+	# Replaces a node by two new nodes labelled with the old label plus (1) and (2), each linked to all the former neighbours.
+	#
+	#   pcNodeId   The node id, as text.
+	#   pcNewId1   The id of the first new node.
+	#   pcNewId2   The id of the second new node.
+	#   returns    nothing; the graph changes
+	#   warning    the new edges carry no label and the new nodes carry no properties
+	#   see        MergeNodes
 	def SplitNode(pcNodeId, pcNewId1, pcNewId2)
 		_aNode_ = This.Node(pcNodeId)
 		
@@ -1532,6 +2061,10 @@ class stzGraph from stzObject
 	#  MANAGING NODE PROPERTIES  #
 	#----------------------------#
 
+	# Returns the distinct property names found on the nodes, in order of first appearance; [ ] when there are none.
+	#
+	#   returns    a list of text
+	#   see        NodeProperties
 	def Properties()
 		if NOT isList(@aNodes) or len(@aNodes) = 0
 			return []
@@ -1600,13 +2133,14 @@ class stzGraph from stzObject
 		def PropsAndTheirValues()
 			return This.PropertiesXT()
 
-	# The label a node SHOWS, as opposed to the id it is known by.
+	# Changes the label of a node; line breaks in the label become underscores, spaces stay; raises an error when the node is absent.
 	#
-	# A node could only ever be labelled at birth, via AddNodeXT(id, label);
-	# there was no way to say it afterwards, and no way to ask. So a format
-	# that reads a node first and learns its label a line later (.stzsim's
-	# `add node X` / `label: "..."`) had nowhere to put it.
-
+	#   pcNodeId   The node id, as text.
+	#   returns    nothing; the graph changes
+	#   warning    the id is not folded to lowercase, so "A" raises "does not exist" for a node
+	#              stored as "a"
+	#   see        NodeLabel, SetNodeProperty
+	#@ aka  The label a node SHOWS, as opposed to the id it is known by.
 	def SetNodeLabel(pcNodeId, pcLabel)
 
 		if NOT _IsWellFormedId(pcNodeId)
@@ -1630,6 +2164,13 @@ class stzGraph from stzObject
 
 		stzraise("Node '" + pcNodeId + "' does not exist.")
 
+	# Returns the label of a node; raises an error when the node does not exist.
+	#
+	#   pcNodeId   The node id, as text.
+	#   returns    text
+	#   warning    the id is not folded to lowercase, so "A" raises "does not exist" for a node
+	#              stored as "a"
+	#   see        SetNodeLabel, Node
 	def NodeLabel(pcNodeId)
 		_nLen_ = len(@aNodes)
 		for i = 1 to _nLen_
@@ -1640,6 +2181,14 @@ class stzGraph from stzObject
 
 		stzraise("Node '" + pcNodeId + "' does not exist.")
 
+	# Sets one property of a node, creating it when absent.
+	#
+	#   pcNodeId    The node id, as text.
+	#   cProperty   The property name, as text.
+	#   returns     nothing; the node changes
+	#   warning     the id is not folded to lowercase and an id that matches no node is ignored
+	#               silently, so "A" or an unknown id sets nothing and raises nothing
+	#   see         NodeProperty, SetNodeProperties
 	def SetNodeProperty(pcNodeId, cProperty, pValue)
 
 		if NOT _IsWellFormedId(pcNodeId)
@@ -1659,15 +2208,41 @@ class stzGraph from stzObject
 			ok
 		end
 	
+		# Sets one property of a node; a short spelling of the property setter.
+		#
+		#   pcNodeId    The node id, as text.
+		#   cProperty   The property name, as text.
+		#   returns     nothing; the node changes
+		#   warning     the id is not folded to lowercase and an unknown id is ignored silently
+		#   see         SetNodeProperty
 		def SetNodeProp(pcNodeId, cProperty, pValue)
 			This.SetNodeProperty(pcNodeId, cProperty, pValue)
 
+		# Sets one property of a node, replacing its value when it exists; another spelling of the setter.
+		#
+		#   pcNodeId   The node id, as text.
+		#   returns    nothing; the node changes
+		#   warning    the id is not folded to lowercase and an unknown id is ignored silently
+		#   see        SetNodeProperty
 		def UpdateNodeProperty(pcNodeId, pcKey, pValue)
 			This.SetNodeProperty(pcNodeId, pcKey, pValue)
 		
+		# Sets one property of a node, replacing its value; the short spelling of the update.
+		#
+		#   pcNodeId   The node id, as text.
+		#   returns    nothing; the node changes
+		#   warning    the id is not folded to lowercase and an unknown id is ignored silently
+		#   see        SetNodeProperty
 		def UpdateNodeProp(pcNodeId, pcKey, pValue)
 			This.SetNodeProperty(pcNodeId, pcKey, pValue)
 
+	# Sets several properties of a node from a hash list; a value that is not a hash list raises an error.
+	#
+	#   pcNodeId      The node id, as text.
+	#   aProperties   The properties, as a hash list [ :name = value, ... ].
+	#   returns       nothing; the node changes
+	#   warning       the id is not folded to lowercase and an unknown id is ignored silently
+	#   see           SetNodeProperty, NodeProperties
 	def SetNodeProperties(pcNodeId, aProperties)
 
 		if NOT _IsWellFormedId(pcNodeId)
@@ -1683,9 +2258,21 @@ class stzGraph from stzObject
 			This.SetNodeProperty(pcNodeId, aProperties[i][1], aProperties[i][2])
 		end
 	
+		# Sets several properties of a node from a hash list; the short spelling of the multi-property setter.
+		#
+		#   pcNodeId      The node id, as text.
+		#   aProperties   The properties, as a hash list [ :name = value, ... ].
+		#   returns       nothing; the node changes
+		#   warning       the id is not folded to lowercase and an unknown id is ignored silently
+		#   see           SetNodeProperties
 		def SetNodeProps(pcNodeId, aProperties)
 			This.SetNodeProperties(pcNodeId, aProperties)
 
+	# Returns the names of the properties a node carries, in order; [ ] when it has none.
+	#
+	#   pcNodeId   The node id, as text.
+	#   returns    a list of text
+	#   see        NodeProperty, Properties
 	def NodeProperties(pcNodeId)
 		_aNode_ = This.Node(pcNodeId)
 
@@ -1713,6 +2300,12 @@ class stzGraph from stzObject
 		def NodePropsAndTheirValues(pcNodeId)
 			return This.NodePropertiesXT(pcNodeId)
 
+	# Returns the value of one property of a node; empty text when the node has no such property.
+	#
+	#   pcNodeId    The node id, as text.
+	#   cProperty   The property name, as text.
+	#   returns     the value, or empty text
+	#   see         NodeProperties, SetNodeProperty
 	def NodeProperty(pcNodeId, cProperty)
 		_aNode_ = This.Node(pcNodeId)
 	
@@ -1723,6 +2316,12 @@ class stzGraph from stzObject
 		def NodeProp(pcNodeId, cProperty)
 			return This.NodeProperty(pcNodeId, cProperty)
 
+	# Removes all the properties of one node.
+	#
+	#   pcNodeId   The node id, as text.
+	#   returns    nothing; the node changes
+	#   warning    the id is not folded to lowercase and an unknown id is ignored silently
+	#   see        RemoveAllProperties
 	def RemoveNodeProperties(pcNodeId)
 
 		if NOT _IsWellFormedId(pcNodeId)
@@ -1737,15 +2336,37 @@ class stzGraph from stzObject
 			ok
 		end
 	
+		# Clears the properties of one node; another spelling of the removal.
+		#
+		#   pcNodeId   The node id, as text.
+		#   returns    nothing; the node changes
+		#   warning    the id is not folded to lowercase and an unknown id is ignored silently
+		#   see        RemoveNodeProperties
 		def ClearNodeProperties(pcNodeId)
 			This.RemoveNodeProperties(pcNodeId)
 	
+		# Removes all the properties of one node; the short spelling.
+		#
+		#   pcNodeId   The node id, as text.
+		#   returns    nothing; the node changes
+		#   warning    the id is not folded to lowercase and an unknown id is ignored silently
+		#   see        RemoveNodeProperties
 		def RemoveNodeProps(pcNodeId)
 			This.RemoveNodeProperties(pcNodeId)
 	
+		# Clears the properties of one node; the short spelling of the clearing.
+		#
+		#   pcNodeId   The node id, as text.
+		#   returns    nothing; the node changes
+		#   warning    the id is not folded to lowercase and an unknown id is ignored silently
+		#   see        RemoveNodeProperties
 		def ClearNodeProps(pcNodeId)
 			This.RemoveNodeProperties(pcNodeId)
 
+	# Removes the properties of every node and every edge, leaving ids, labels and links.
+	#
+	#   returns    nothing; the graph changes
+	#   see        RemoveNodeProperties
 	def RemoveAllProperties()
 		_nLen_ = len(@aNodes)
 		for i = 1 to _nLen_
@@ -1757,9 +2378,22 @@ class stzGraph from stzObject
 			@aEdges[i]["properties"] = []
 		end
 	
+		# Clears the properties of all nodes and edges; another spelling of the global removal.
+		#
+		#   returns    nothing; the graph changes
+		#   see        RemoveAllProperties
 		def ClearAllProperties()
 			This.RemoveAllProperties()
 
+	# Sets one property of an existing edge; an edge that does not exist is ignored silently.
+	#
+	#   pFromNodeId   The id of the node the edge starts from.
+	#   pToNodeId     The id of the node the edge ends at.
+	#   cProperty     The property name, as text.
+	#   returns       nothing; the edge changes
+	#   warning       the ids are not folded to lowercase, so "A" and "B" set nothing on an edge
+	#                 stored as a to b, and no error says so
+	#   see           EdgeProperty, SetEdgeProperties
 	def SetEdgeProperty(pFromNodeId, pToNodeId, cProperty, pValue)
 		if CheckParams()
 			if isList(pFromNodeId)
@@ -1798,12 +2432,35 @@ class stzGraph from stzObject
 		def SetEdgeProp(pFromNodeId, pToNodeId, cProperty, pValue)
 			return This.SetEdgeProperty(pFromNodeId, pToNodeId, cProperty, pValue)
 
+		# Sets one property of an existing edge, replacing its value; another spelling of the setter.
+		#
+		#   pcFrom     The id of the node the edge starts from.
+		#   pcTo       The id of the node the edge ends at.
+		#   returns    nothing; the edge changes
+		#   warning    the ids are not folded to lowercase and a missing edge is ignored silently
+		#   see        SetEdgeProperty
 		def UpdateEdgeProperty(pcFrom, pcTo, pcKey, pValue)
 			This.SetEdgeProperty(pcFrom, pcTo, pcKey, pValue)
 		
+		# Sets one property of an existing edge; the short spelling of the update.
+		#
+		#   pcFrom     The id of the node the edge starts from.
+		#   pcTo       The id of the node the edge ends at.
+		#   returns    nothing; the edge changes
+		#   warning    the ids are not folded to lowercase and a missing edge is ignored silently
+		#   see        SetEdgeProperty
 		def UpdateEdgeProp(pcFrom, pcTo, pcKey, pValue)
 			This.SetEdgeProperty(pcFrom, pcTo, pcKey, pValue)
 
+	# Returns the value of one property of an edge; raises an error when the edge or the property is missing.
+	#
+	#   pFromNodeId   The id of the node the edge starts from.
+	#   pToNodeId     The id of the node the edge ends at.
+	#   cProperty     The property name, as text.
+	#   returns       the value
+	#   warning       the error text for a missing property shows the unexpanded words ' + cProperty
+	#                 + ' instead of the name
+	#   see           SetEdgeProperty, EdgeProperties
 	def EdgeProperty(pFromNodeId, pToNodeId, cProperty)
 		_aEdge_ = This.Edge(pFromNodeId, pToNodeId)
 		
@@ -1816,6 +2473,14 @@ class stzGraph from stzObject
 		def EdgeProp(pFromNodeId, pToNodeId, cProperty)
 			return This.EdgeProperty(pFromNodeId, pToNodeId, cProperty)
 
+	# Sets several properties of an existing edge from a hash list; a value that is not a hash list raises an error.
+	#
+	#   pcFromNodeId   The id of the node the edge starts from.
+	#   pcToNodeId     The id of the node the edge ends at.
+	#   aProperties    The properties, as a hash list [ :name = value, ... ].
+	#   returns        nothing; the edge changes
+	#   warning        the ids are not folded to lowercase and a missing edge is ignored silently
+	#   see            SetEdgeProperty, EdgeProperties
 	def SetEdgeProperties(pcFromNodeId, pcToNodeId, aProperties)
 		if CheckParams()
 			if isList(pcFromNodeId)
@@ -1860,9 +2525,24 @@ class stzGraph from stzObject
 			ok
 		end
 	
+		# Sets several properties of an existing edge; the short spelling of the multi-property setter.
+		#
+		#   pcFromNodeId   The id of the node the edge starts from.
+		#   pcToNodeId     The id of the node the edge ends at.
+		#   aProperties    The properties, as a hash list [ :name = value, ... ].
+		#   returns        nothing; the edge changes
+		#   warning        the ids are not folded to lowercase and a missing edge is ignored
+		#                  silently
+		#   see            SetEdgeProperties
 		def SetEdgeProps(pcFromNodeId, pcToNodeId, aProperties)
 			This.SetEdgeProperties(pcFromNodeId, pcToNodeId, aProperties)
 
+	# Returns the names of the properties an edge carries; raises "Inexistant edge!" when there is no such edge.
+	#
+	#   pcFromNodeId   The id of the node the edge starts from.
+	#   pcToNodeId     The id of the node the edge ends at.
+	#   returns        a list of text
+	#   see            EdgeProperty, SetEdgeProperty
 	def EdgeProperties(pcFromNodeId, pcToNodeId)
 		_aEdge_ = This.Edge(pcFromNodeId, pcToNodeId)
 		if HasKey(_aEdge_, "properties")
@@ -1887,10 +2567,15 @@ class stzGraph from stzObject
 	#  TRAVERSAL & PATHFINDING  #
 	#---------------------------#
 
-	# The doorway to the graphics plane: a graph hands back a CANVAS whose
-	# node sizes and colours are computed from the graph's own shape.
-	#   oG.ToCanvasQ([ :Layout = :Hierarchical, :SizeBy = :Impact ])
-	# It answers an stzCanvas, so ToSVG() and ToPNG() come with it.
+	# Returns a stzCanvas drawing of the graph, with node sizes and colours computed from the graph's own shape.
+	#
+	#   paOptions   The canvas options as a hash list, such as [ :Layout = :Hierarchical, :SizeBy =
+	#               :Impact ].
+	#   returns     a stzCanvas
+	#   note        options: :Layout = :Hierarchical or :Force; :SizeBy and :ColorBy = :Impact,
+	#               :Depth, :Degree, :InDegree or :OutDegree; ToCanvasQ is the chaining form
+	#   see         GraphCanvas, Show
+	#@ aka  The doorway to the graphics plane: a graph hands back a CANVAS whose node sizes and colours are computed from the graph's own shape. oG.ToCanvasQ([ :Layout = :Hierarchical, :SizeBy = :Impact ]) It answers an stzCanvas, so ToSVG() and ToPNG() come with it.
 	def ToCanvas(paOptions)
 		_o_ = new stzGraphCanvas(This, paOptions)
 		return _o_.ToCanvas()
@@ -1898,11 +2583,23 @@ class stzGraph from stzObject
 	def ToCanvasQ(paOptions)
 		return This.ToCanvas(paOptions)
 
-	# The face itself, when a caller wants the metrics or the positions
-	# rather than only the drawing.
+	# Returns the stzGraphCanvas behind the drawing, for its metrics and node positions rather than only the picture.
+	#
+	#   paOptions   The canvas options as a hash list, such as [ :Layout = :Hierarchical, :SizeBy =
+	#               :Impact ].
+	#   returns     a stzGraphCanvas
+	#   note        takes the same options as ToCanvas
+	#   see         ToCanvas
+	#@ aka  The face itself, when a caller wants the metrics or the positions rather than only the drawing.
 	def GraphCanvas(paOptions)
 		return new stzGraphCanvas(This, paOptions)
 
+	# TRUE if the second node can be reached from the first by following edges; a node reaches itself.
+	#
+	#   pcFromNodeId   The id of the node the edge starts from.
+	#   pcToNodeId     The id of the node the edge ends at.
+	#   returns        TRUE or FALSE
+	#   see            ReachableFrom, EdgeExists, ShortestPath
 	def PathExists(pcFromNodeId, pcToNodeId)
 
 		if NOT _IsWellFormedId(pcFromNodeId)
@@ -1947,17 +2644,28 @@ class stzGraph from stzObject
 
 		return 0
 
+	# Returns the first node added, as a hash list [ :id, :label, :properties ]; raises an error on a graph with no node.
+	#
+	#   returns    a hash list
+	#   see        FirstNodeId, LastNode
 	#---
-
 	def FirstNode()
 		if len(@aNodes) = 0
 			stzraise("Can't obtain a first node. The graphs contains no nodes at all!")
 		ok
 		return @aNodes[1]
 
+	# Returns the id of the first node added; raises an error on a graph with no node.
+	#
+	#   returns    text
+	#   see        FirstNode
 	def FirstNodeId()
 		return This.FirstNode()[:id]
 
+	# Returns the last node added, as a hash list; raises an error on a graph with no node.
+	#
+	#   returns    a hash list
+	#   see        LastNodeId, FirstNode
 	def LastNode()
 		_nLen_ = len(@aNodes)
 		if _nLen_ = 0
@@ -1965,9 +2673,18 @@ class stzGraph from stzObject
 		ok
 		return @aNodes[_nLen_]
 
+	# Returns the id of the last node added; raises an error on a graph with no node.
+	#
+	#   returns    text
+	#   see        LastNode
 	def LastNodeId()
 		return This.LastNode()[:id]
 
+	# Returns the node at a position, counted from 1 in the order added; a position of 0 or past the end raises error R2.
+	#
+	#   n          The position of the node; 1 is the first.
+	#   returns    a hash list
+	#   see        NodePosition, FirstNode
 	def NthNode(n)
 		if not isNumber(n)
 			stzraise("Incorrect param type! n must be a number.")
@@ -1981,6 +2698,11 @@ class stzGraph from stzObject
 		def NodeAtPosition(n)
 			return This.NthNode(n)
 
+	# Returns the position of a node in the node list, counted from 1; 0 when the node does not exist.
+	#
+	#   pcNodeId   The node id, as text.
+	#   returns    a number
+	#   see        NthNode, NodeExists
 	def NodePosition(pcNodeId)
 		# The index already maps id -> POSITION, which is exactly this
 		# question. Missed when NodeExists was indexed: this one kept
@@ -1997,11 +2719,20 @@ class stzGraph from stzObject
 
 		return StzFindFirst(_cNpId_, This.NodesIds())
 
-	#--
-
+	# Returns every simple path from the first node to the given node, as lists of ids; a path of more than 10 edges is not found.
+	#
+	#   pcNodeId   The node id, as text.
+	#   returns    a list of paths
+	#   see        Path, Paths, PathExists
+	#@ aka  --
 	def FindNode(pcNodeId)
 		return This.PathsXT(This.FirstNodeId(), pcNodeId)
 
+		# Returns every simple path from the first node to the given node; another spelling of the path search.
+		#
+		#   pcNodeId   The node id, as text.
+		#   returns    a list of paths
+		#   see        FindNode
 		def PathsTo(pcNodeId)
 			if CheCkParams()
 				if isList(pcNodeId) and IsNodeNamedParamList(pcNodeId)
@@ -2014,8 +2745,13 @@ class stzGraph from stzObject
 		def PathsToNode(pcNodeId)
 			return This.FindNode(pcNodeId)
 
-	#--
-
+	# Returns every simple path between every ordered pair of distinct nodes, as lists of ids; the answer grows fast with the graph.
+	#
+	#   returns    a list of paths
+	#   note       enumerating all simple paths is exponential, so use it on small graphs
+	#   warning    the search gives up beyond 10 edges, so longer paths are missing
+	#   see        Path, PathsWhereF
+	#@ aka  --
 	def Paths()
 
 		# All simple paths between every ORDERED pair of nodes
@@ -2067,6 +2803,14 @@ class stzGraph from stzObject
 		def PathsBetweenXT(pcFromNodeId, pcToNodeId)
 			return This.PathsXT(pcFromNodeId, pcToNodeId)
 
+	# Returns the first path found from one node to another, following the edges in the order added; it is not always the shortest.
+	#
+	#   pcFromNodeId   The id of the node the edge starts from.
+	#   pcToNodeId     The id of the node the edge ends at.
+	#   returns        a list of node ids; [ ] when none is found
+	#   warning        a path of more than 10 edges is not found, even when PathExists says the node
+	#                  is reachable
+	#   see            ShortestPath, PathExists, FindNode
 	def Path(pcFromNodeId, pcToNodeId)
 		_acPaths_ = This.PathsXT(pcFromNodeId, pcToNodeId)
 		if len(_acPaths_) > 0
@@ -2124,6 +2868,11 @@ class stzGraph from stzObject
 			ok
 		end
 
+	# Returns the ids of the nodes that a node points to, in the order its edges were added.
+	#
+	#   pcNodeId   The node id, as text.
+	#   returns    a list of text; [ ] for a node without out-edges
+	#   see        Incoming, ReachableFrom
 	def Neighbors(pcNodeId)
 
 		if CheckParams()
@@ -2161,6 +2910,12 @@ class stzGraph from stzObject
 		def NeighborsOf(pcNodeId)
 			return This.Neighbors(pcNodeId)
 
+	# Returns the ids of the nodes that point to a node, in the order their edges were added.
+	#
+	#   pcNodeId   The node id, as text.
+	#   returns    a list of text; [ ] when nothing points to it
+	#   warning    the id is not folded to lowercase, so "C" finds nothing for a node stored as "c"
+	#   see        Neighbors, InDegree
 	def Incoming(pcNodeId)
 		if CheckParams()
 			if isList(pcNodeId) and IsToNamedParamList(pcNodeId)
@@ -2189,6 +2944,10 @@ class stzGraph from stzObject
 	#  CYCLE DETECTION  #
 	#-------------------#
 
+	# TRUE if the graph holds a directed cycle, a self-loop included.
+	#
+	#   returns    TRUE or FALSE
+	#   see        CyclicNodes, TopologicalSort, IsConnected
 	def HasCyclicDependencies()
 
 		if This._EnsureEngine()
@@ -2270,25 +3029,19 @@ class stzGraph from stzObject
 	#  REACHABILITY & CONNECTIVITY  #
 	#-------------------------------#
 
-	# THE OTHER NODES YOU CAN GET TO FROM pcNodeId, FOLLOWING OUT-EDGES.
+	# Returns the ids of the other nodes you can reach by following edges from a node; the start node is never listed.
 	#
-	# THE START NODE IS NEVER IN THE RESULT -- not even when a cycle genuinely
-	# returns to it. ReachableFrom("a") on a<->b is ["b"], and on a self-loop
-	# a->a it is []. That is the definition, deliberately: the answer is "what
-	# else does this reach", and callers across the library read it that way.
-	#
-	# So DO NOT use this to ask "is this node on a cycle?" -- the obvious
-	# reading of an empty-or-absent result is wrong. HasCyclicDependencies()
-	# answers that for the graph; for one node, ask whether pcNodeId appears
-	# in ReachableFrom() of any of its own neighbours.
-	#
-	# Both implementations below now agree on that definition AND on the order
-	# of the result (node-insertion order). They did not: the engine excluded
-	# the start node while the pure-Ring fallback INCLUDED it and returned
-	# BFS-discovery order, so the same call answered ["b"] or ["a","b"]
-	# depending on whether the graph DLL happened to be loaded (measured
-	# 2026-08-07). The engine is the shipped path, so it defines the contract.
+	#   pcNodeId   The node id, as text.
+	#   returns    a list of text, in node order; [ ] when the node is unknown
+	#   see        PathExists, ImpactOf, Neighbors
+	#@ aka  THE OTHER NODES YOU CAN GET TO FROM pcNodeId, FOLLOWING OUT-EDGES.
 	def ReachableFrom(pcNodeId)
+		# Both implementations below now agree on that definition AND on the order
+		# of the result (node-insertion order). They did not: the engine excluded
+		# the start node while the pure-Ring fallback INCLUDED it and returned
+		# BFS-discovery order, so the same call answered ["b"] or ["a","b"]
+		# depending on whether the graph DLL happened to be loaded (measured
+		# 2026-08-07). The engine is the shipped path, so it defines the contract.
 		if NOT This.NodeExists(pcNodeId)
 			return []
 		ok
@@ -2342,6 +3095,12 @@ class stzGraph from stzObject
 	#  ANALYSIS METRICS  #
 	#--------------------#
 
+	# Returns the ids of the nodes whose in-degree plus out-degree is above the average over all nodes.
+	#
+	#   returns    a list of text
+	#   warning    raises error R1 (divide by zero) on a graph without nodes, which also stops Show,
+	#              AsciiArt and Explain on an empty graph
+	#   see        NodeCriticality, MostCriticalNodes
 	def BottleneckNodes()
 		_acBottlenecks_ = []
 		_nTotalDegree_ = 0
@@ -2370,8 +3129,11 @@ class stzGraph from stzObject
 		
 		return _acBottlenecks_
 
+	# Returns the share of possible directed edges that exist: edges divided by n times n-1; 0 for fewer than two nodes.
+	#
+	#   returns    a number between 0 and 1
+	#   see        NodeDensity100, UndirectedNodeDensity, DensityCategory
 	#---
-
 	def NodeDensity()
 		_nNodes_ = len(@aNodes)
 		_nEdges_ = len(@aEdges)
@@ -2406,6 +3168,10 @@ class stzGraph from stzObject
 		def DirectedDensity01()
 			return This.NodeDensity()
 
+	# Returns the directed density as a percentage, from 0 to 100.
+	#
+	#   returns    a number
+	#   see        NodeDensity
 	def NodeDensity100()
 		return This.NodeDensity() * 100
 
@@ -2438,8 +3204,11 @@ class stzGraph from stzObject
 		def DirectedDensity100()
 			return This.NodeDensity100()
 
+	# Returns edges divided by the number of node pairs, n times n-1 over 2, as if edges had no direction.
+	#
+	#   returns    a number; above 1 when edges run both ways
+	#   see        NodeDensity
 	#---
-
 	def UndirectedNodeDensity()
 		_nNodes_ = len(@aNodes)
 		_nEdges_ = len(@aEdges)
@@ -2460,6 +3229,10 @@ class stzGraph from stzObject
 		def UndirectedDensity01()
 			return This.UndirectedNodeDensity()
 
+	# Returns the undirected density as a percentage.
+	#
+	#   returns    a number
+	#   see        UndirectedNodeDensity
 	def UndirectedNodeDensity100()
 		return This.UndirectedNodeDensity() * 100
 
@@ -2475,14 +3248,25 @@ class stzGraph from stzObject
 		def UndirectedDensity100()
 			return This.UndirectedNodeDensity100()
 
-	#--
-
+	# TRUE if the directed density is below 0.5.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsDense, DensityCategory
+	#@ aka  --
 	def IsSparse()
 		return This.Density() < 0.5
 	
+	# TRUE if the directed density is 0.5 or more.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsSparse, DensityCategory
 	def IsDense()
 		return This.Density() >= 0.5
 	
+	# Returns a word for the density: "empty" at 0, then "very sparse" below 0.25, "sparse" below 0.5, "dense" below 0.75, else "very dense".
+	#
+	#   returns    text
+	#   see        NodeDensity, IsSparse
 	def DensityCategory()
 		_nDensity_ = This.Density()
 		
@@ -2501,6 +3285,13 @@ class stzGraph from stzObject
 		def DensityLevel()
 			return This.DensityCategory()
 
+	# Returns the largest number of nodes reachable from any one node, which is not the hop count of the longest path.
+	#
+	#   returns    a number
+	#   warning    known defect: the name promises a path length, but the body counts reachable
+	#              nodes, so a node that reaches two branches of two nodes each answers 4, though no
+	#              path is longer than 2 hops
+	#   see        ImpactOf, ShortestPathLength, Diameter
 	def LongestPath()
 		_nMax_ = 0
 
@@ -2519,6 +3310,13 @@ class stzGraph from stzObject
 
 		return _nMax_
 
+	# Returns an empty list today instead of the ids of the nodes that lie on a cycle.
+	#
+	#   returns    [ ] today, even for a graph with a cycle
+	#   warning    known defect: it looks for the node among the nodes it reaches, but ReachableFrom
+	#              never lists the start node, so the test is never true; use HasCyclicDependencies
+	#              for the graph
+	#   see        HasCyclicDependencies, ReachableFrom
 	def CyclicNodes()
 		_acCyclicNodes_ = []
 		
@@ -2554,6 +3352,10 @@ class stzGraph from stzObject
 	#  1. INDEPENDENCE AND PARALLELIZATION  #
 	#---------------------------------------#
 
+	# Returns pairs [ a, b ] of out-neighbours of one node whose onward reach shares no node, so the two branches could run in parallel.
+	#
+	#   returns    a list of pairs of ids; [ ] when every pair overlaps
+	#   see        ReachableFrom, DependencyFreeNodes
 	def ParallelizableBranches()
 		_acBranches_ = []
 		_nLen_ = len(@aNodes)
@@ -2612,6 +3414,10 @@ class stzGraph from stzObject
 		def ParaBranches()
 			return This.ParallelizableBranches()
 
+	# Returns the ids of the nodes that nothing points to, the ones that depend on no other.
+	#
+	#   returns    a list of text
+	#   see        Incoming, ImpactOf
 	def DependencyFreeNodes()
 		_acDependencyFree_ = []
 		_nLen_ = len(@aNodes)
@@ -2632,6 +3438,11 @@ class stzGraph from stzObject
 	#  2. CRITICALITY AND IMPACT  #
 	#-----------------------------#
 
+	# Returns how many nodes a node can reach, the nodes that fail with it; 0 for an unknown node.
+	#
+	#   pcNodeId   The node id, as text.
+	#   returns    a number
+	#   see        FailureScope, ReachableFrom
 	def ImpactOf(pcNodeId)
 		if NOT This.NodeExists(pcNodeId)
 			return 0
@@ -2644,6 +3455,11 @@ class stzGraph from stzObject
 		# negative, which is what made it findable.
 		return len(This.ReachableFrom(pcNodeId))
 
+	# Returns the ids of the nodes that depend on a node, those it reaches; [ ] for an unknown node.
+	#
+	#   pcNodeId   The node id, as text.
+	#   returns    a list of text
+	#   see        ImpactOf, ReachableFrom
 	def FailureScope(pcNodeId)
 		if NOT This.NodeExists(pcNodeId)
 			return []
@@ -2662,6 +3478,10 @@ class stzGraph from stzObject
 	
 		return _acScope_
 
+	# Returns one hash list [ :id, :criticality ] per node, the criticality being its in-degree plus out-degree.
+	#
+	#   returns    a list of hash lists
+	#   see        MostCriticalNodes, BottleneckNodes
 	def NodeCriticality()
 		_acCriticality_ = []
 		_nLen_ = len(@aNodes)
@@ -2681,6 +3501,12 @@ class stzGraph from stzObject
 		
 		return _acCriticality_
 
+	# Returns the ids of the nodes with the highest in-plus-out degree, the most critical first.
+	#
+	#   pnCount    How many nodes to return; 5 when empty.
+	#   returns    a list of text, at most the count asked for
+	#   note       an empty count means 5
+	#   see        NodeCriticality, BottleneckNodes
 	def MostCriticalNodes(pnCount)
 		if isNULL(pnCount)
 			pnCount = 5
@@ -2716,31 +3542,66 @@ class stzGraph from stzObject
 	#  RICH QUERYING - BASED ON stzGraphFinder CLASS  #
 	#-------------------------------------------------#
 
-	# Opens a rich query on the graph. The finder is an OBJECT, so it
-	# carries the Q -- there is no data-shaped twin of a query builder.
+	# Returns a stzGraphFinder on the nodes or the edges, to chain Where, Having, WithProperty and WithTag, then Run.
+	#
+	#   pcWhat     What to search: "nodes" or "edges".
+	#   returns    a stzGraphFinder
+	#   see        NodesWhere, EdgesWhere, QueryQ
+	#@ aka  Opens a rich query on the graph. The finder is an OBJECT, so it carries the Q -- there is no data-shaped twin of a query builder.
 	def FindQ(pcWhat)
 		return new stzGraphFinder(This, pcWhat)
 
+	# Returns the ids of the nodes whose :type property equals the given text.
+	#
+	#   returns    a list of ids
+	#   see        NodesByProperty, NodesWhere
 	def NodesByType(pcType)
 		return This.FindQ("nodes").Where("type", "=", pcType).Run()
 
-	#--
-
+	# Returns the ids of the nodes whose property meets a comparison, such as priority > 5; label and id can be tested too.
+	#
+	#   pcProp     The property to test, as text; label, id and the node's own properties are
+	#              accepted.
+	#   pcOp       The comparison, such as "=", ">", "<", "contains" or "between".
+	#   returns    a list of ids
+	#   note       NodesW is the short spelling
+	#   see        NodesByProperty, FindQ
+	#@ aka  --
 	def NodesWhere(pcProp, pcOp, pVal)
 		return This.FindQ("nodes").Where(pcProp, pcOp, pVal).Run()
 
 		def NodesW(pcProp, pcOp, pVal)
 			return This.NodesWhere(pcProp, pcOp, pVal)
 
+	# Returns the ids of the nodes whose property equals the value.
+	#
+	#   pcProp     The property to test, as text; label, id and the node's own properties are
+	#              accepted.
+	#   returns    a list of ids
+	#   see        NodesWhere, NodesByType
 	def NodesByProperty(pcProp, pVal)
 		return This.FindQ("nodes").Where(pcProp, "=", pVal).Run()
 
+	# Returns the [ from, to ] pairs of the edges whose property or label meets a comparison, such as weight > 2.
+	#
+	#   pcProp     The property to test, as text; label, id and the node's own properties are
+	#              accepted.
+	#   pcOp       The comparison, such as "=", ">", "<", "contains" or "between".
+	#   returns    a list of [ from, to ] pairs
+	#   note       EdgesW is the short spelling
+	#   see        EdgesByProperty, FindQ
 	def EdgesWhere(pcProp, pcOp, pVal)
 		return This.FindQ("edges").Where(pcProp, pcOp, pVal).Run()
 
 		def EdgesW(pcProp, pcOp, pVal)
 			return This.EdgesWhere(pcProp, pcOp, pVal)
 
+	# Returns the [ from, to ] pairs of the edges whose property or label equals the value.
+	#
+	#   pcProp     The property to test, as text; label, id and the node's own properties are
+	#              accepted.
+	#   returns    a list of [ from, to ] pairs
+	#   see        EdgesWhere
 	def EdgesByProperty(pcProp, pVal)
 		return This.FindQ("edges").Where(pcProp, "=", pVal).Run()
 
@@ -2789,6 +3650,12 @@ class stzGraph from stzObject
 			return This.EdgesWhereF(pFunc)
 
 
+	# Returns the paths of Paths for which a function answers TRUE.
+	#
+	#   pFunc      a function that takes one path, a list of ids, and returns TRUE or FALSE
+	#   returns    a list of paths
+	#   note       the function is called once per path of the whole graph
+	#   see        Paths
 	def PathsWhereF(pFunc)
 
 		if NOT @IsFunction(pFunc)
@@ -2815,6 +3682,10 @@ class stzGraph from stzObject
 	#  ADVANCED QURYIES - BASED ON stzGraphQuery class  #
 	#---------------------------------------------------#
 
+	# Returns a stzGraphQuery on this graph, for queries the finder cannot express.
+	#
+	#   returns    a stzGraphQuery
+	#   see        FindQ
 	def QueryQ()
 		return new stzGraphQuery(This)
 
@@ -2822,6 +3693,13 @@ class stzGraph from stzObject
 	#  GRAPH ALGORITHMS  #
 	#--------------------#
 
+	# Returns the path with the fewest edges from one node to another, as ids; [ ] when there is none or an id is unknown.
+	#
+	#   pcFromNodeId   The id of the node the edge starts from.
+	#   pcToNodeId     The id of the node the edge ends at.
+	#   returns        a list of node ids
+	#   note           the same node twice answers a path of that one node
+	#   see            Path, ShortestPathLength, WeightedShortestPath
 	def ShortestPath(pcFromNodeId, pcToNodeId)
 		if CheckParams()
 			if isList(pcFromNodeId) and IsFromNamedParamList(pcFromNodeId)
@@ -2917,7 +3795,12 @@ class stzGraph from stzObject
 	
 		return []
 
-	# Breadth-first visit order from a node (engine-backed).
+	# Returns the node ids in breadth-first visit order from a node, the start first; [ ] when the node is unknown.
+	#
+	#   pcNodeId   The node id, as text.
+	#   returns    a list of text
+	#   see        DFS, ReachableFrom
+	#@ aka  Breadth-first visit order from a node (engine-backed).
 	def BFS(pcNodeId)
 		if isList(pcNodeId) and IsFromNamedParamList(pcNodeId)
 			pcNodeId = pcNodeId[2]
@@ -2933,7 +3816,12 @@ class stzGraph from stzObject
 		def BreadthFirst(pcNodeId)
 			return This.BFS(pcNodeId)
 
-	# Depth-first visit order from a node (engine-backed).
+	# Returns the node ids in depth-first visit order from a node, the start first; [ ] when the node is unknown.
+	#
+	#   pcNodeId   The node id, as text.
+	#   returns    a list of text
+	#   see        BFS, ReachableFrom
+	#@ aka  Depth-first visit order from a node (engine-backed).
 	def DFS(pcNodeId)
 		if isList(pcNodeId) and IsFromNamedParamList(pcNodeId)
 			pcNodeId = pcNodeId[2]
@@ -2949,16 +3837,22 @@ class stzGraph from stzObject
 		def DepthFirst(pcNodeId)
 			return This.DFS(pcNodeId)
 
-	# TRUE if the graph is 2-colourable (bipartite). Engine-backed.
+	# TRUE if the nodes can be split into two groups so that every edge joins the two, reading edges without direction.
+	#
+	#   returns    TRUE or FALSE; TRUE for an empty graph
+	#   see        IsConnected, Communities
+	#@ aka  TRUE if the graph is 2-colourable (bipartite). Engine-backed.
 	def IsBipartite()
 		if This._EnsureEngine()
 			return StzEngineGraphIsBipartite(@pEngineGraph) = 1
 		ok
 		return 0
 
-	# Strongly connected components (directed) as a list of node-id groups.
-	# Two nodes share a group iff each is reachable from the other. Engine
-	# (Kosaraju). Returns [] if the engine is unavailable.
+	# Returns the groups of nodes that all reach one another, as lists of ids; a node on no cycle forms a group of its own.
+	#
+	#   returns    a list of lists of text
+	#   see        NumberOfStronglyConnectedComponents, CyclicNodes
+	#@ aka  Strongly connected components (directed) as a list of node-id groups. Two nodes share a group iff each is reachable from the other. Engine (Kosaraju). Returns [] if the engine is unavailable.
 	def StronglyConnectedComponents()
 		if This._EnsureEngine()
 			# The engine bridge builds the grouped list (list of node-id
@@ -2970,7 +3864,11 @@ class stzGraph from stzObject
 		def SCC()
 			return This.StronglyConnectedComponents()
 
-	# Number of strongly connected components. Engine-backed.
+	# Returns how many groups of mutually reachable nodes the graph has.
+	#
+	#   returns    a number
+	#   see        StronglyConnectedComponents
+	#@ aka  Number of strongly connected components. Engine-backed.
 	def NumberOfStronglyConnectedComponents()
 		if This._EnsureEngine()
 			return StzEngineGraphNumberOfSCC(@pEngineGraph)
@@ -2980,8 +3878,11 @@ class stzGraph from stzObject
 		def NumberOfSCC()
 			return This.NumberOfStronglyConnectedComponents()
 
-	# Total weight of a minimum spanning tree over the undirected version
-	# of the graph (-1 if empty or not connected). Engine (Kruskal).
+	# Returns the total weight of a minimum spanning tree over the undirected graph, using the :weight property, 1 by default.
+	#
+	#   returns    a number; -1 when the graph has no edge or is not connected
+	#   see        MSTEdges
+	#@ aka  Total weight of a minimum spanning tree over the undirected version of the graph (-1 if empty or not connected). Engine (Kruskal).
 	def MSTWeight()
 		if This._EnsureEngine()
 			return StzEngineGraphMSTWeight(@pEngineGraph)
@@ -2991,8 +3892,12 @@ class stzGraph from stzObject
 		def MinimumSpanningTreeWeight()
 			return This.MSTWeight()
 
-	# Minimum spanning tree as a list of [fromNode, toNode, weight] edges.
-	# Engine (Kruskal); built Zig-side. [] if not connected/empty.
+	# Returns the edges of a minimum spanning tree as [ from, to, weight ] triples; a graph in several pieces gives a forest.
+	#
+	#   returns    a list of triples; [ ] when there is no edge
+	#   note       the pair order is the engine's and may be the reverse of the edge's direction
+	#   see        MSTWeight
+	#@ aka  Minimum spanning tree as a list of [fromNode, toNode, weight] edges. Engine (Kruskal); built Zig-side. [] if not connected/empty.
 	def MSTEdges()
 		if This._EnsureEngine()
 			return StzEngineGraphMSTEdges(@pEngineGraph)
@@ -3002,8 +3907,11 @@ class stzGraph from stzObject
 		def MinimumSpanningTreeEdges()
 			return This.MSTEdges()
 
-	# Articulation points (cut vertices) -- nodes whose removal disconnects
-	# the (undirected) graph. Engine (Tarjan low-link). List of node ids.
+	# Returns the ids of the nodes whose removal would split the graph, reading edges without direction.
+	#
+	#   returns    a list of text
+	#   see        Bridges, ConnectedComponents
+	#@ aka  Articulation points (cut vertices) -- nodes whose removal disconnects the (undirected) graph. Engine (Tarjan low-link). List of node ids.
 	def ArticulationPoints()
 		if This._EnsureEngine()
 			return StzEngineGraphArticulationPoints(@pEngineGraph)
@@ -3013,8 +3921,11 @@ class stzGraph from stzObject
 		def CutVertices()
 			return This.ArticulationPoints()
 
-	# Bridges (cut edges) -- edges whose removal disconnects the (undirected)
-	# graph. Engine (Tarjan low-link). List of [u, v] node-id pairs.
+	# Returns the edges whose removal would split the graph, as [ u, v ] pairs, reading edges without direction.
+	#
+	#   returns    a list of pairs of ids
+	#   see        ArticulationPoints
+	#@ aka  Bridges (cut edges) -- edges whose removal disconnects the (undirected) graph. Engine (Tarjan low-link). List of [u, v] node-id pairs.
 	def Bridges()
 		if This._EnsureEngine()
 			return StzEngineGraphBridges(@pEngineGraph)
@@ -3024,8 +3935,13 @@ class stzGraph from stzObject
 		def CutEdges()
 			return This.Bridges()
 
-	# Weighted shortest path (Dijkstra over edge :weight properties,
-	# default 1.0). Returns the node-id path; [] if unreachable.
+	# Returns the cheapest path from one node to another by the :weight of the edges, 1 when an edge has none, as ids.
+	#
+	#   pcFromNodeId   The id of the node the edge starts from.
+	#   pcToNodeId     The id of the node the edge ends at.
+	#   returns        a list of node ids; [ ] when none or unknown
+	#   see            ShortestPath, WeightedShortestPathLength, AStarPath
+	#@ aka  Weighted shortest path (Dijkstra over edge :weight properties, default 1.0). Returns the node-id path; [] if unreachable.
 	def WeightedShortestPath(pcFromNodeId, pcToNodeId)
 		if isList(pcFromNodeId) and IsFromNamedParamList(pcFromNodeId)
 			pcFromNodeId = pcFromNodeId[2]
@@ -3044,7 +3960,13 @@ class stzGraph from stzObject
 		def DijkstraPath(pcFromNodeId, pcToNodeId)
 			return This.WeightedShortestPath(pcFromNodeId, pcToNodeId)
 
-	# Total weight of the minimum-weight path (-1 if unreachable).
+	# Returns the total weight of the cheapest path from one node to another, by the :weight of the edges.
+	#
+	#   pcFromNodeId   The id of the node the edge starts from.
+	#   pcToNodeId     The id of the node the edge ends at.
+	#   returns        a number; -1 when unreachable or unknown
+	#   see            WeightedShortestPath, SetEdgeWeight
+	#@ aka  Total weight of the minimum-weight path (-1 if unreachable).
 	def WeightedShortestPathLength(pcFromNodeId, pcToNodeId)
 		if isList(pcFromNodeId) and IsFromNamedParamList(pcFromNodeId)
 			pcFromNodeId = pcFromNodeId[2]
@@ -3063,6 +3985,12 @@ class stzGraph from stzObject
 		def DijkstraDistance(pcFromNodeId, pcToNodeId)
 			return This.WeightedShortestPathLength(pcFromNodeId, pcToNodeId)
 
+	# Returns the number of edges on the shortest path from one node to another.
+	#
+	#   pcFromNodeId   The id of the node the edge starts from.
+	#   pcToNodeId     The id of the node the edge ends at.
+	#   returns        a number; 0 when there is no path, which cannot be told from the same node
+	#   see            ShortestPath, Diameter
 	def ShortestPathLength(pcFromNodeId, pcToNodeId)
 
 		if CheckParams()
@@ -3088,6 +4016,12 @@ class stzGraph from stzObject
 		ok
 		return len(_acPath_) - 1
 
+	# Returns the groups of nodes found by walking out-edges from each node not seen yet, as lists of ids, in node order.
+	#
+	#   returns    a list of lists of text
+	#   warning    edges are followed in their direction only, so b to a and c to a give three
+	#              groups, although IsConnected, which ignores direction, answers TRUE
+	#   see        NumberOfConnectedComponents, IsConnected, StronglyConnectedComponents
 	def ConnectedComponents()
 		# Iterative flood fill with a hash-set of visited nodes.
 		#
@@ -3183,6 +4117,10 @@ class stzGraph from stzObject
 	#  ENGINE-BACKED GRAPH METHODS    #
 	#---------------------------------#
 
+	# Returns the node ids ordered so that every node comes before the nodes it points to; [ ] when the graph has a cycle.
+	#
+	#   returns    a list of text
+	#   see        HasCyclicDependencies, DependencyFreeNodes
 	def TopologicalSort()
 		if This._EnsureEngine()
 			_cEngResult_ = StzEngineGraphTopologicalSort(@pEngineGraph)
@@ -3190,24 +4128,42 @@ class stzGraph from stzObject
 		ok
 		return []
 
+	# Returns how many edges arrive at a node; the id is matched in lowercase, and an unknown node gives 0.
+	#
+	#   pcNodeId   The node id, as text.
+	#   returns    a number
+	#   see        OutDegree, Incoming
 	def InDegree(pcNodeId)
 		if This._EnsureEngine()
 			return StzEngineGraphInDegree(@pEngineGraph, StzLower(pcNodeId))
 		ok
 		return len(This.Incoming(pcNodeId))
 
+	# Returns how many edges leave a node; the id is matched in lowercase, and an unknown node gives 0.
+	#
+	#   pcNodeId   The node id, as text.
+	#   returns    a number
+	#   see        InDegree, Neighbors
 	def OutDegree(pcNodeId)
 		if This._EnsureEngine()
 			return StzEngineGraphOutDegree(@pEngineGraph, StzLower(pcNodeId))
 		ok
 		return len(This.Neighbors(pcNodeId))
 
+	# Returns how many groups ConnectedComponents finds, counted by the engine, following edge direction.
+	#
+	#   returns    a number
+	#   see        ConnectedComponents, IsConnected
 	def NumberOfConnectedComponents()
 		if This._EnsureEngine()
 			return StzEngineGraphConnectedComponents(@pEngineGraph)
 		ok
 		return len(This.ConnectedComponents())
 
+	# TRUE if every node can be reached from the first when edges are read without direction; one node or none is connected.
+	#
+	#   returns    TRUE or FALSE
+	#   see        ConnectedComponents, PathExists
 	def IsConnected()
 		if len(@aNodes) <= 1
 			return 1
@@ -3247,10 +4203,12 @@ class stzGraph from stzObject
 		
 		return len(_acVisited_) = len(@aNodes)
 
-	# (ArticulationPoints is now engine-backed -- see the def above.)
-
-	# Betweenness centrality (Brandes, unweighted) -- computed entirely in the
-	# Zig engine. Returns the value for pcNodeId (0 if absent).
+	# Returns how often a node lies on the shortest paths between other node pairs, computed by the engine; 0 for an unknown node.
+	#
+	#   pcNodeId   The node id, as text.
+	#   returns    a number
+	#   see        BetweennessCentralityAll, ClosenessCentrality
+	#@ aka  (ArticulationPoints is now engine-backed -- see the def above.)
 	def BetweennessCentrality(pcNodeId)
 		if NOT This.NodeExists(pcNodeId)
 			return 0
@@ -3263,15 +4221,23 @@ class stzGraph from stzObject
 		ok
 		return 0
 
-	# Betweenness for every node as a list of [ id, value ] pairs.
+	# Returns the betweenness of every node as [ id, value ] pairs, in node order.
+	#
+	#   returns    a list of [ id, value ] pairs
+	#   see        BetweennessCentrality
+	#@ aka  Betweenness for every node as a list of [ id, value ] pairs.
 	def BetweennessCentralityAll()
 		if This._EnsureEngine()
 			return StzEngineGraphBetweennessAll(@pEngineGraph)
 		ok
 		return []
 
-	# Closeness centrality (engine-backed): reachable / sum(distances).
-	# Returns the value for pcNodeId (0 if absent or isolated).
+	# Returns how close a node is to the nodes it reaches: reachable count over the sum of distances; 0 when unknown or isolated.
+	#
+	#   pcNodeId   The node id, as text.
+	#   returns    a number
+	#   see        ClosenessCentralityAll, BetweennessCentrality
+	#@ aka  Closeness centrality (engine-backed): reachable / sum(distances). Returns the value for pcNodeId (0 if absent or isolated).
 	def ClosenessCentrality(pcNodeId)
 		if NOT This.NodeExists(pcNodeId)
 			return 0
@@ -3284,15 +4250,23 @@ class stzGraph from stzObject
 		ok
 		return 0
 
-	# Closeness for every node as a list of [ id, value ] pairs.
+	# Returns the closeness of every node as [ id, value ] pairs, in node order.
+	#
+	#   returns    a list of [ id, value ] pairs
+	#   see        ClosenessCentrality
+	#@ aka  Closeness for every node as a list of [ id, value ] pairs.
 	def ClosenessCentralityAll()
 		if This._EnsureEngine()
 			return StzEngineGraphClosenessAll(@pEngineGraph)
 		ok
 		return []
 
-	# k-core: core number of pcNodeId -- the largest k for which the node
-	# survives in the k-core of the undirected view. Engine (Batagelj-Zaversnik).
+	# Returns the core number of a node: the largest k for which it stays in the k-core of the undirected view; 0 for an unknown node.
+	#
+	#   pcNodeId   The node id, as text.
+	#   returns    a number
+	#   see        CoreNumbers
+	#@ aka  k-core: core number of pcNodeId -- the largest k for which the node survives in the k-core of the undirected view. Engine (Batagelj-Zaversnik).
 	def CoreNumber(pcNodeId)
 		if NOT This.NodeExists(pcNodeId)
 			return 0
@@ -3305,7 +4279,11 @@ class stzGraph from stzObject
 		def KCoreNumber(pcNodeId)
 			return This.CoreNumber(pcNodeId)
 
-	# Core number for every node as a list of [ id, value ] pairs.
+	# Returns the core number of every node as [ id, value ] pairs, in node order.
+	#
+	#   returns    a list of [ id, value ] pairs
+	#   see        CoreNumber
+	#@ aka  Core number for every node as a list of [ id, value ] pairs.
 	def CoreNumbers()
 		if This._EnsureEngine()
 			return StzEngineGraphCoreNumbersAll(@pEngineGraph)
@@ -3315,7 +4293,12 @@ class stzGraph from stzObject
 		def CoreNumbersAll()
 			return This.CoreNumbers()
 
-	# PageRank (power iteration, damping 0.85) of pcNodeId. Engine-backed.
+	# Returns the PageRank score of a node, by power iteration with damping 0.85; 0 for an unknown node.
+	#
+	#   pcNodeId   The node id, as text.
+	#   returns    a number
+	#   see        PageRankAll
+	#@ aka  PageRank (power iteration, damping 0.85) of pcNodeId. Engine-backed.
 	def PageRank(pcNodeId)
 		if NOT This.NodeExists(pcNodeId)
 			return 0
@@ -3325,17 +4308,25 @@ class stzGraph from stzObject
 		ok
 		return 0
 
-	# PageRank for every node as a list of [ id, value ] pairs.
+	# Returns the PageRank score of every node as [ id, value ] pairs, in node order.
+	#
+	#   returns    a list of [ id, value ] pairs
+	#   see        PageRank
+	#@ aka  PageRank for every node as a list of [ id, value ] pairs.
 	def PageRankAll()
 		if This._EnsureEngine()
 			return StzEngineGraphPageRankAll(@pEngineGraph)
 		ok
 		return []
 
-	# A* shortest path (engine-backed). Uses edge weights plus a coordinate
-	# heuristic when nodes carry :x and :y properties (Euclidean by default);
-	# with no coordinates it degrades gracefully to a Dijkstra-equivalent.
-	# Returns the path as a list of node ids ([] if none).
+	# Returns the cheapest path from a start to a goal by A*, using the :weight of edges and the :x and :y of nodes as the heuristic when present.
+	#
+	#   pcStart    The id of the node the search starts from.
+	#   pcGoal     The id of the goal node, where the search ends.
+	#   returns    a list of node ids; [ ] when none or unknown
+	#   note       without coordinates it behaves like the weighted shortest path
+	#   see        AStarPathManhattan, AStarPathWeighted, WeightedShortestPath
+	#@ aka  A* shortest path (engine-backed). Uses edge weights plus a coordinate heuristic when nodes carry :x and :y properties (Euclidean by default); with no coordinates it degrades gracefully to a Dijkstra-equivalent. Returns the path as a list of node ids ([] if none).
 	def AStarPath(pcStart, pcGoal)
 		return This._AStarMode(pcStart, pcGoal, 1)
 
@@ -3345,14 +4336,25 @@ class stzGraph from stzObject
 		def AStarShortestPath(pcStart, pcGoal)
 			return This.AStarPath(pcStart, pcGoal)
 
-	# A* with the Manhattan (taxicab) heuristic.
+	# Returns the cheapest path from a start to a goal by A* with the Manhattan heuristic over the :x and :y of nodes.
+	#
+	#   pcStart    The id of the node the search starts from.
+	#   pcGoal     The id of the goal node, where the search ends.
+	#   returns    a list of node ids; [ ] when none or unknown
+	#   see        AStarPath
+	#@ aka  A* with the Manhattan (taxicab) heuristic.
 	def AStarPathManhattan(pcStart, pcGoal)
 		return This._AStarMode(pcStart, pcGoal, 2)
 
-	# A* with an auto-scaled ADMISSIBLE coordinate heuristic -- use when edge
-	# weights are not unit geometric distance (the heuristic is scaled by the
-	# minimum edge cost-per-distance ratio so the path stays optimal). nMode
-	# 1 = Euclidean coords, 2 = Manhattan.
+	# Returns the cheapest path by A* with a heuristic scaled to the edge weights, so the path stays optimal when weights are not distances.
+	#
+	#   pcStart    The id of the node the search starts from.
+	#   pcGoal     The id of the goal node, where the search ends.
+	#   nMode      The heuristic: 1 for Euclidean distance between the :x and :y coordinates, 2 for
+	#              Manhattan.
+	#   returns    a list of node ids; [ ] when none or unknown
+	#   see        AStarPath, AStarPlan
+	#@ aka  A* with an auto-scaled ADMISSIBLE coordinate heuristic -- use when edge weights are not unit geometric distance (the heuristic is scaled by the minimum edge cost-per-distance ratio so the path stays optimal). nMode 1 = Euclidean coords, 2 = Manhattan.
 	def AStarPathWeighted(pcStart, pcGoal, nMode)
 		if NOT (This.NodeExists(pcStart) and This.NodeExists(pcGoal))
 			return []
@@ -3371,18 +4373,33 @@ class stzGraph from stzObject
 		ok
 		return []
 
-	# Override the (engine) weight of a directed edge. Used by stzGraphPlanner
-	# to push per-optimisation transition costs before an engine A* search.
-	# Returns 1 on success, 0 if the edge is unknown.
+	# Overrides the weight of an edge in the engine copy only, the stored :weight property staying as it is.
+	#
+	#   pcFrom     The id of the node the edge starts from.
+	#   pcTo       The id of the node the edge ends at.
+	#   nWeight    The new weight, as a number.
+	#   returns    1 when the edge is known, 0 when it is not
+	#   warning    the override is lost when the engine copy is rebuilt, which most graph changes
+	#              cause, and the ids are matched in lowercase
+	#   see        WeightedShortestPath, SetEdgeProperty
+	#@ aka  Override the (engine) weight of a directed edge. Used by stzGraphPlanner to push per-optimisation transition costs before an engine A* search. Returns 1 on success, 0 if the edge is unknown.
 	def SetEdgeWeight(pcFrom, pcTo, nWeight)
 		if This._EnsureEngine()
 			return StzEngineGraphSetEdgeWeight(@pEngineGraph, StzLower(pcFrom), StzLower(pcTo), nWeight)
 		ok
 		return 0
 
-	# Engine A* for planners: one search returns [ routeList, exploredList ]
-	# (the explored/closed order powers explainability metrics). nMode 0 is
-	# Dijkstra/UCS -- optimal for any non-negative edge cost.
+	# Returns the route and the explored nodes of one A* search as [ route, explored ], mode 0 being plain Dijkstra.
+	#
+	#   pcStart    The id of the node the search starts from.
+	#   pcGoal     The id of the goal node, where the search ends.
+	#   nMode      The heuristic: 1 for Euclidean distance between the :x and :y coordinates, 2 for
+	#              Manhattan.
+	#   returns    a list of two lists of ids; [ [ ], [ ] ] when a node is unknown
+	#   note       when the goal cannot be reached the route is [ ] and the explored list still
+	#              shows the nodes visited
+	#   see        AStarPath
+	#@ aka  Engine A* for planners: one search returns [ routeList, exploredList ] (the explored/closed order powers explainability metrics). nMode 0 is Dijkstra/UCS -- optimal for any non-negative edge cost.
 	def AStarPlan(pcStart, pcGoal, nMode)
 		if NOT (This.NodeExists(pcStart) and This.NodeExists(pcGoal))
 			return [ [], [] ]
@@ -3392,22 +4409,34 @@ class stzGraph from stzObject
 		ok
 		return [ [], [] ]
 
-	# Diameter = longest shortest path over all reachable pairs (engine,
-	# all-pairs BFS). Replaces the old O(V^2 * BFS) pure-Ring double loop.
+	# Returns the longest of all the shortest paths between reachable pairs, counted in edges.
+	#
+	#   returns    a number; 0 for a graph without edges
+	#   see        Radius, Eccentricity, AveragePathLength
+	#@ aka  Diameter = longest shortest path over all reachable pairs (engine, all-pairs BFS). Replaces the old O(V^2 * BFS) pure-Ring double loop.
 	def Diameter()
 		if This._EnsureEngine()
 			return StzEngineGraphDiameter(@pEngineGraph)
 		ok
 		return 0
 
-	# Radius = smallest eccentricity among nodes that reach others.
+	# Returns the smallest eccentricity among the nodes that reach others.
+	#
+	#   returns    a number
+	#   see        Diameter, Eccentricity
+	#@ aka  Radius = smallest eccentricity among nodes that reach others.
 	def Radius()
 		if This._EnsureEngine()
 			return StzEngineGraphRadius(@pEngineGraph)
 		ok
 		return 0
 
-	# Eccentricity of a node = its longest shortest path to any reachable node.
+	# Returns the length in edges of the longest shortest path from a node to any node it reaches; 0 for an unknown node.
+	#
+	#   pcNodeId   The node id, as text.
+	#   returns    a number
+	#   see        Eccentricities, Diameter
+	#@ aka  Eccentricity of a node = its longest shortest path to any reachable node.
 	def Eccentricity(pcNodeId)
 		if NOT This.NodeExists(pcNodeId)
 			return 0
@@ -3417,22 +4446,35 @@ class stzGraph from stzObject
 		ok
 		return 0
 
-	# Eccentricity for every node as a list of [ id, value ] pairs.
+	# Returns the eccentricity of every node as [ id, value ] pairs, in node order.
+	#
+	#   returns    a list of [ id, value ] pairs
+	#   see        Eccentricity
+	#@ aka  Eccentricity for every node as a list of [ id, value ] pairs.
 	def Eccentricities()
 		if This._EnsureEngine()
 			return StzEngineGraphEccentricitiesAll(@pEngineGraph)
 		ok
 		return []
 
-	# Mean shortest-path length over all reachable pairs (engine, all-pairs BFS).
+	# Returns the mean length of the shortest paths over all reachable pairs of nodes.
+	#
+	#   returns    a number
+	#   see        Diameter
+	#@ aka  Mean shortest-path length over all reachable pairs (engine, all-pairs BFS).
 	def AveragePathLength()
 		if This._EnsureEngine()
 			return StzEngineGraphAveragePathLength(@pEngineGraph)
 		ok
 		return 0
 
-	# Maximum flow from pcSource to pcSink (Edmonds-Karp, engine). Edge :weight
-	# is the capacity (default 1). Returns the flow value.
+	# Returns the maximum flow from a source to a sink, taking the :weight of each edge as its capacity, 1 by default.
+	#
+	#   pcSource   The id of the node the flow starts from.
+	#   pcSink     The id of the node the flow ends at.
+	#   returns    a number; 0 when a node is unknown or no flow can pass
+	#   see        MinCut, MinCostMaxFlow
+	#@ aka  Maximum flow from pcSource to pcSink (Edmonds-Karp, engine). Edge :weight is the capacity (default 1). Returns the flow value.
 	def MaxFlow(pcSource, pcSink)
 		if NOT (This.NodeExists(pcSource) and This.NodeExists(pcSink))
 			return 0
@@ -3445,8 +4487,13 @@ class stzGraph from stzObject
 		def MaximumFlow(pcSource, pcSink)
 			return This.MaxFlow(pcSource, pcSink)
 
-	# Minimum cut between pcSource and pcSink: the saturated edges crossing the
-	# cut, as a list of [from, to] id pairs (max-flow / min-cut). Engine.
+	# Returns the saturated edges that separate the sink from the source, as [ from, to ] pairs, by max-flow and min-cut.
+	#
+	#   pcSource   The id of the node the flow starts from.
+	#   pcSink     The id of the node the flow ends at.
+	#   returns    a list of pairs of ids; [ ] when a node is unknown
+	#   see        MaxFlow
+	#@ aka  Minimum cut between pcSource and pcSink: the saturated edges crossing the cut, as a list of [from, to] id pairs (max-flow / min-cut). Engine.
 	def MinCut(pcSource, pcSink)
 		if NOT (This.NodeExists(pcSource) and This.NodeExists(pcSink))
 			return []
@@ -3459,8 +4506,11 @@ class stzGraph from stzObject
 		def MinimumCut(pcSource, pcSink)
 			return This.MinCut(pcSource, pcSink)
 
-	# Community detection (label propagation, engine, undirected view).
-	# Returns a list of communities, each a list of node ids.
+	# Returns the communities found by label propagation on the undirected view, as lists of node ids.
+	#
+	#   returns    a list of lists of text
+	#   see        NumberOfCommunities, ConnectedComponents
+	#@ aka  Community detection (label propagation, engine, undirected view). Returns a list of communities, each a list of node ids.
 	def Communities()
 		if This._EnsureEngine()
 			return StzEngineGraphCommunities(@pEngineGraph)
@@ -3470,15 +4520,23 @@ class stzGraph from stzObject
 		def DetectCommunities()
 			return This.Communities()
 
+	# Returns how many communities label propagation finds.
+	#
+	#   returns    a number
+	#   see        Communities
 	def NumberOfCommunities()
 		if This._EnsureEngine()
 			return StzEngineGraphNumberOfCommunities(@pEngineGraph)
 		ok
 		return 0
 
-	# Min-cost max-flow from pcSource to pcSink. Edge :weight is capacity,
-	# edge :cost is per-unit cost. Returns [ flowValue, totalCost ]. Engine
-	# (successive shortest paths).
+	# Returns the maximum flow from a source to a sink and its cost, :weight being the capacity and :cost the price per unit.
+	#
+	#   pcSource   The id of the node the flow starts from.
+	#   pcSink     The id of the node the flow ends at.
+	#   returns    a pair [ flow, cost ]; [ 0, 0 ] when a node is unknown
+	#   see        MaxFlow
+	#@ aka  Min-cost max-flow from pcSource to pcSink. Edge :weight is capacity, edge :cost is per-unit cost. Returns [ flowValue, totalCost ]. Engine (successive shortest paths).
 	def MinCostMaxFlow(pcSource, pcSink)
 		if NOT (This.NodeExists(pcSource) and This.NodeExists(pcSink))
 			return [ 0, 0 ]
@@ -3491,9 +4549,12 @@ class stzGraph from stzObject
 		def MinCostFlow(pcSource, pcSink)
 			return This.MinCostMaxFlow(pcSource, pcSink)
 
-	# Local clustering coefficient (engine, undirected view): edges among a
-	# node's neighbours / possible such edges. Replaces the old O(k^2)
-	# pure-Ring EdgeExists double loop.
+	# Returns the share of the possible links among a node's neighbours that exist, on the undirected view; 0 for an unknown node.
+	#
+	#   pcNodeId   The node id, as text.
+	#   returns    a number between 0 and 1
+	#   see        ClusteringCoefficients
+	#@ aka  Local clustering coefficient (engine, undirected view): edges among a node's neighbours / possible such edges. Replaces the old O(k^2) pure-Ring EdgeExists double loop.
 	def ClusteringCoefficient(pcNodeId)
 		if NOT This.NodeExists(pcNodeId)
 			return 0
@@ -3509,13 +4570,24 @@ class stzGraph from stzObject
 		def ClusteringCoeff(pcNodeId)
 			return This.ClusteringCoefficient(pcNodeId)
 
-	# Local clustering coefficient for every node as [ id, value ] pairs.
+	# Returns the clustering coefficient of every node as [ id, value ] pairs, in node order.
+	#
+	#   returns    a list of [ id, value ] pairs
+	#   see        ClusteringCoefficient
+	#@ aka  Local clustering coefficient for every node as [ id, value ] pairs.
 	def ClusteringCoefficients()
 		if This._EnsureEngine()
 			return StzEngineGraphClusteringAll(@pEngineGraph)
 		ok
 		return []
 
+	# Returns the sum of the :weight of the edges along a path; a step with no edge in the graph is skipped.
+	#
+	#   pacPath    A path as a list of node ids; the last id names the node.
+	#   returns    a number
+	#   warning    an edge on the path that has no :weight property raises an error, because the
+	#              weight is read with EdgeProperty
+	#   see        WeightedShortestPathLength, EdgeProperty
 	def PathWeight(pacPath)
 		_nTotal_ = 0
 		_nLen_ = len(pacPath)
@@ -3538,6 +4610,10 @@ class stzGraph from stzObject
 	#  EXPORT AND INTEROPERABILITY  #
 	#-------------------------------#
 
+	# Returns the graph as one hash list [ :id, :nodes, :edges, :properties ], for conversion or inspection.
+	#
+	#   returns    a hash list
+	#   see        ExportToJSON, Nodes, Edges
 	def ToHashlist()
 		return [
 			:id = @cId,
@@ -3546,6 +4622,11 @@ class stzGraph from stzObject
 			:properties = This.Properties()
 		]
 
+	# Returns the graph as Graphviz DOT text, one box per node and one arrow per edge with its label.
+	#
+	#   returns    text
+	#   note       ToDot is another spelling and ExportToDotQ chains a stzDotCode
+	#   see        Display, ToCanvas
 	def ExportToDOT()
 		_cDOT_ = "digraph " + This.Id() + " {" + nl
 		_cDOT_ += "  rankdir=TD;" + nl
@@ -3607,6 +4688,12 @@ class stzGraph from stzObject
 			def ToDotQ()
 				return This.ExportToDotQ()
 
+	# Returns the graph as JSON text holding its id, nodes, edges and a metrics block with counts, density, longest path and cycles.
+	#
+	#   returns    text
+	#   note       the metrics block uses the density and the longest path of this class, so it
+	#              inherits their limits
+	#   see        ExportToYAML, ToHashlist
 	def ExportToJSON()
 		_acNodes_ = []
 		_acEdges_ = []
@@ -3687,6 +4774,12 @@ class stzGraph from stzObject
 		def ToJson()
 			return This.ExportToJson()
 
+	# Returns the graph as YAML text with its nodes, edges and the names of the node properties.
+	#
+	#   returns    text
+	#   note       node property values and edge properties are not written, only the node property
+	#              names
+	#   see        ExportToJSON
 	def ExportToYAML()
 		_cYAML_ = "graph: " + This.Id() + nl
 		_cYAML_ += "nodes:" + nl
@@ -3743,6 +4836,11 @@ class stzGraph from stzObject
 	#  GRAPHML FORMAT  #
 	#------------------#
 
+	# Returns the graph as GraphML text, with node labels, edge labels and properties written as data keys.
+	#
+	#   returns    text
+	#   note       LoadFromGraphML cannot read this text back today
+	#   see        SaveToGraphML, ExportToDOT
 	def ExportToGraphML()
 		_cXML_ = '<?xml version="1.0" encoding="UTF-8"?>' + char(10)
 		_cXML_ += '<graphml xmlns="http://graphml.graphdrawing.org/xmlns"' + char(10)
@@ -3825,13 +4923,30 @@ class stzGraph from stzObject
 		def AsGraphML()
 			return This.ExportToGraphML()
 	
+	# Writes the graph to a file as GraphML text, replacing any file there.
+	#
+	#   returns    nothing; a file is written
+	#   see        ExportToGraphML, LoadFromGraphML
 	def SaveToGraphML(pcPath)
 		_cContent_ = This.ExportToGraphML()
 		write(pcPath, _cContent_)
 	
+		# Writes the graph to a GraphML file; another spelling of the save.
+		#
+		#   returns    nothing; a file is written
+		#   see        SaveToGraphML
 		def SaveAsGraphML(pcPath)
 			This.SaveToGraphML(pcPath)
 	
+	# Raises error "Incorrect Id" today instead of reading a GraphML file into the graph, and leaves odd nodes behind.
+	#
+	#   returns    nothing useful today
+	#   note       LoadFromStzGraf reads back a graph written by SaveToStzGraf, within the limits of
+	#              its own warning
+	#   warning    known defect: the parser cuts the text at fixed positions instead of the
+	#              positions it finds, so even a file written by SaveToGraphML yields garbled ids
+	#              such as "sion=" and raises; the graph is left with those nodes
+	#   see        ExportToGraphML, LoadFromStzGraf
 	def LoadFromGraphML(pcPath)
 		if NOT fexists(pcPath)
 			stzraise("File not found: " + pcPath)
@@ -3840,12 +4955,30 @@ class stzGraph from stzObject
 		_cContent_ = read(pcPath)
 		This._ParseGraphML(_cContent_)
 	
+		# Raises error "Incorrect Id" today instead of reading a GraphML file into the graph.
+		#
+		#   returns    nothing useful today
+		#   warning    known defect: it only calls LoadFromGraphML, whose parser fails on every file
+		#              written by SaveToGraphML and leaves garbled nodes behind
+		#   see        LoadFromGraphML
 		def LoadGraphML(pcPath)
 			This.LoadFromGraphML(pcPath)
 	
+		# Raises error "Incorrect Id" today instead of importing a GraphML file into the graph.
+		#
+		#   returns    nothing useful today
+		#   warning    known defect: it only calls LoadFromGraphML, whose parser fails on every file
+		#              written by SaveToGraphML and leaves garbled nodes behind
+		#   see        LoadFromGraphML
 		def ImportFromGraphML(pcPath)
 			This.LoadFromGraphML(pcPath)
 	
+		# Raises error "Incorrect Id" today instead of importing a GraphML file into the graph.
+		#
+		#   returns    nothing useful today
+		#   warning    known defect: it only calls LoadFromGraphML, whose parser fails on every file
+		#              written by SaveToGraphML and leaves garbled nodes behind
+		#   see        LoadFromGraphML
 		def ImportGraphML(pcPath)
 			This.LoadFromGraphML(pcPath)
 	
@@ -4050,41 +5183,62 @@ class stzGraph from stzObject
 	#  VISUALISING IN ASCII  #
 	#------------------------#
 
+	# Prints the graph as boxes and arrows in the console, vertically, with the bottleneck nodes marked by exclamation marks.
+	#
+	#   returns    nothing; text is printed
+	#   note       raises error R1 on a graph without nodes
+	#   see        AsciiArt, ShowHorizontal, BottleneckNodes
 	def Show()
 		_oViz_ = new stzGraphAsciiVisualizer(This)
 		_oViz_.Show()
 
+		# Prints the graph as boxes and arrows; a misspelled alternative form of the display call.
+		#
+		#   returns    nothing; text is printed
+		#   see        Show
 		def Shwo()
 			This.Show()
 
-	# The same picture as DATA, for a file, a report, or a test.
-	# Show() prints it; these hand it back.
+	# Returns the vertical picture of the graph as text instead of printing it, the same drawing the display call prints.
+	#
+	#   returns    text; each line ends with a line break
+	#   warning    raises error R1 on a graph without nodes
+	#   see        Show, AsciiArtHorizontal
+	#@ aka  The same picture as DATA, for a file, a report, or a test. Show() prints it; these hand it back.
 	def AsciiArt()
 		_oViz_ = new stzGraphAsciiVisualizer(This)
 		return _oViz_.AsciiArt()
 
+	# Returns the horizontal picture of the graph as text: boxes in a row joined by labelled arrows.
+	#
+	#   returns    text
+	#   warning    raises error R1 on a graph without nodes
+	#   see        ShowHorizontal, AsciiArt
 	def AsciiArtHorizontal()
 		_oViz_ = new stzGraphAsciiVisualizer(This)
 		return _oViz_.AsciiArtHorizontal()
 
-	# DISPLAY, not View -- the same correction as stzDiagram's, and for the
-	# same reason: `View` is a NOUN in this module (stzGraphView,
-	# ToView(), IsView()) meaning a filtered projection of the graph.
-	# Using it as a verb for "open a window" made one word mean two things
-	# in one namespace. Both older spellings are kept as alternative forms,
-	# since stzOrgChart and stzWorkflow call View() internally.
-	#-- A VALUE THAT SAYS WHAT IT IS (DN9g) ---------------------------------
-
-	# A GRAPH HANDS OVER ITS NODES AND EDGES AND LETS THE CONSUMER LAY THEM
-	# OUT, which is exactly what the display contract's first consumer
-	# asked a graph to do. Note that Display(), just below, does something
-	# else entirely: it opens an external viewer and returns nothing.
+	# Returns the graph as a rendition value of kind graph, holding its DOT text, for a consumer to lay out.
+	#
+	#   returns    a rendition hash list [ :kind, :mime, :content, :locator, :title ]
+	#   see        RenditionAs, RenditionKinds
+	#@ aka  DISPLAY, not View -- the same correction as stzDiagram's, and for the same reason: `View` is a NOUN in this module (stzGraphView, ToView(), IsView()) meaning a filtered projection of the graph. Using it as a verb for "open a window" made one word mean two things in one namespace. Both older spellings are kept as alternative forms, since stzOrgChart and stzWorkflow call View() internally. -- A VALU
 	def Rendition()
 		return This.RenditionAs(:graph)
 
+	# Returns the kinds of rendition a graph can give: graph and text.
+	#
+	#   returns    a list of text
+	#   see        RenditionAs
 	def RenditionKinds()
 		return [ :graph, :text ]
 
+	# Returns the graph as a rendition of the given kind: graph holds the DOT text, text holds a one-line count of nodes and edges.
+	#
+	#   pcKind     The kind of rendition: "graph" or "text".
+	#   returns    a rendition hash list
+	#   warning    any other kind raises an error
+	#   see        Rendition, RenditionKinds
 	def RenditionAs(pcKind)
 		_k_ = StzLower(ring_trim("" + pcKind))
 		if _k_ = "graph"
@@ -4098,32 +5252,62 @@ class stzGraph from stzObject
 		stzraise("stzGraph.RenditionAs: '" + _k_ + "' is not a way a graph shows " +
 			"itself -- graph or text.")
 
+	# Writes the graph as DOT code and opens it in the external Graphviz viewer; it returns nothing.
+	#
+	#   returns    nothing; a viewer is started
+	#   note       not checked here: it starts an external Graphviz viewer
+	#   see        Show, ExportToDOT
 	def Display()
 		_oDot_ = new stzDotCode()
 		_oDot_.SetCode(This.Dot())
 		_oDot_.RunAndView()
 
+		# Opens the graph in the external Graphviz viewer; an alternative form of the display call.
+		#
+		#   returns    nothing; a viewer is started
+		#   note       not checked here: it starts an external Graphviz viewer
+		#   see        Display
 		#< @FunctionAlternativeForm
-
 		def View()
 			This.Display()
 
+		# Opens the graph in the external Graphviz viewer; a misspelled alternative form of the display call.
+		#
+		#   returns    nothing; a viewer is started
+		#   note       not checked here: it starts an external Graphviz viewer
+		#   see        Display
 		def Veiw()
 			This.Display()
 
+	# Prints the graph in the console as a row of boxes joined by labelled arrows.
+	#
+	#   returns    nothing; text is printed
+	#   note       raises error R1 on a graph without nodes
+	#   see        ShowH, AsciiArtHorizontal
 		#>
-
 	def ShowHorizontal()
 		_oViz_ = new stzGraphAsciiVisualizer(This)
 		_oViz_.ShowHorizontal()
 
+		# Prints the graph as a row of boxes; the short spelling of the horizontal display.
+		#
+		#   returns    nothing; text is printed
+		#   see        ShowHorizontal
 		def ShowH()
 			This.ShowHorizontal()
 
+	# Prints the graph as a column of boxes joined by arrows, the default layout of the display.
+	#
+	#   returns    nothing; text is printed
+	#   see        Show, ShowV
 	def ShowVertical()
 		_oViz_ = new stzGraphAsciiVisualizer(This)
 		_oViz_.ShowVertical()
 
+		# Prints the graph as a column of boxes; the short spelling of the vertical display.
+		#
+		#   returns    nothing; text is printed
+		#   see        ShowVertical
 		def ShowV()
 			This.ShowVertical()
 
@@ -4131,8 +5315,16 @@ class stzGraph from stzObject
 	#  EXPLAINING THE GRAPH  #
 	#------------------------#
 
-	# Telling the story of the graph
-
+	# Returns a hash list of short sentences about the graph in five sections: general, bottlenecks, cycles, metrics and rules.
+	#
+	#   returns    a hash list [ :general, :bottlenecks, :cycles, :metrics, :rules ] of lists of
+	#              text
+	#   note       the longest-path line inherits the limits of LongestPath
+	#   warning    the density line prints the 0-to-1 ratio followed by a percent sign, so 0.20
+	#              reads as 0.20%; raises error R1 on an empty graph and R5 on a graph with nodes
+	#              but no edge
+	#   see        ExplainPath, BottleneckNodes, NodeDensity
+	#@ aka  Telling the story of the graph
 	def Explain()
 		_aExplanation_ = [
 			:general = [],
@@ -4243,8 +5435,14 @@ class stzGraph from stzObject
 		
 		return _aExplanation_
 
-	# Telling the story of a particular path
-
+	# Returns one sentence per edge of the first path found between two nodes, with the edge label as the reason; [ ] when there is no path.
+	#
+	#   pcFrom     The id of the node the edge starts from.
+	#   pcTo       The id of the node the edge ends at.
+	#   returns    a list of text
+	#   note       a path of more than 10 edges is not found, as for Path
+	#   see        Path, Explain
+	#@ aka  Telling the story of a particular path
 	def ExplainPath(pcFrom, pcTo)
 	    _acPath_ = This.Path(pcFrom, pcTo)
 	    _aStory_ = []
@@ -4264,6 +5462,12 @@ class stzGraph from stzObject
 	#  RULE MANAGEMENT  #
 	#-------------------#
 	
+	# Loads the rules of a registered group into the graph, each into its constraint, derivation or validation store; known names are skipped.
+	#
+	#   pcRuleGroup   the group name, such as dag or semantic
+	#   returns       nothing; the graph changes
+	#   note          an unknown group name does nothing and raises nothing
+	#   see           AddRule, ActiveRules, ApplyDerivationRules
 	def UseRulesFrom(pcRuleGroup)
 		if HasKey($aGraphRules, pcRuleGroup)
 			_aRules_ = $aGraphRules[pcRuleGroup]
@@ -4321,6 +5525,10 @@ class stzGraph from stzObject
 		_cT_ = StzLower("" + pcType)
 		return _cT_ = "constraint" or _cT_ = "derivation" or _cT_ = "validation"
 
+	# Runs the derivation rules once and adds the edges they give; it returns nothing, where ApplyDerivationRulesXT returns what happened.
+	#
+	#   returns    nothing; edges may be added
+	#   see        ApplyDerivationRulesXT, EnableAutoDerive, UseRulesFrom
 	def ApplyDerivationRules()
 		This.ApplyDerivationRulesXT()
 
@@ -4358,6 +5566,13 @@ class stzGraph from stzObject
 	
 		return _aResult_
 
+	# Tests an edge about to be added against every constraint rule and returns whether it is allowed with the violations found.
+	#
+	#   paOperationParams   The operation to test, as a hash list [ :from = id, :to = id, :label =
+	#                       text ].
+	#   returns             a pair [ allowed, violations ]: allowed is TRUE or FALSE, violations a
+	#                       list of hash lists [ :rule, :message, :severity, :params ]
+	#   see                 CanAddEdge, WhyCannotAddEdge
 	def CheckConstraintRules(paOperationParams)  # Was: CheckConstraints
 		_aViolations_ = []
 		_nLen_ = len(@aConstraintRules)  # Changed
@@ -4385,6 +5600,10 @@ class stzGraph from stzObject
 		_bSuccess_ = (len(_aViolations_) = 0)
 		return [_bSuccess_, _aViolations_]
 
+	# Returns the names of the rules that have added edges to the graph, each listed once.
+	#
+	#   returns    a list of text
+	#   see        RulesSummary, ApplyDerivationRules
 	def RulesApplied()
 		_acResult_ = []
 		
@@ -4447,7 +5666,14 @@ class stzGraph from stzObject
 		ok
 		return @oOwnRuleSet
 
-	# Attach one rule. Plain does the act; the Q form chains (Q convention).
+	# Attaches one stzGraphRule object to the graph, so that CheckRules judges it; the Q form returns the graph.
+	#
+	#   poRule     The stzGraphRule to attach.
+	#   returns    nothing; the graph changes
+	#   note       these attached rule objects are kept apart from the three stores that
+	#              UseRulesFrom fills
+	#   see        UseRuleSet, CheckRules, AttachedRules
+	#@ aka  Attach one rule. Plain does the act; the Q form chains (Q convention).
 	def AddRule(poRule)
 		This._OwnRuleSet().AddRule(poRule)
 
@@ -4455,7 +5681,13 @@ class stzGraph from stzObject
 			This.AddRule(poRule)
 			return This
 
-	# Attach every rule of a set (e.g. a domain rule set) to this graph.
+	# Attaches every rule of a stzGraphRuleSet to the graph.
+	#
+	#   poRuleSet   The stzGraphRuleSet whose rules are attached.
+	#   returns     nothing; the graph changes
+	#   note        raises error R13 when the argument is not an object
+	#   see         AddRule, CheckRules
+	#@ aka  Attach every rule of a set (e.g. a domain rule set) to this graph.
 	def UseRuleSet(poRuleSet)
 		_aR_ = poRuleSet.Rules()
 		_n_ = len(_aR_)
@@ -4467,46 +5699,74 @@ class stzGraph from stzObject
 			This.UseRuleSet(poRuleSet)
 			return This
 
-	# The graph checks ITSELF against its attached rules. Returns unified
-	# findings [ :rule, :subject, :where, :severity, :message ].
+	# Makes the graph check itself against its attached rule objects and returns the findings.
+	#
+	#   returns    a list of hash lists [ :rule, :subject, :where, :severity, :message ]; [ ] when
+	#              nothing is attached or found
+	#   see        AddRule, RulesAreSound, RulesReport
+	#@ aka  The graph checks ITSELF against its attached rules. Returns unified findings [ :rule, :subject, :where, :severity, :message ].
 	def CheckRules()
 		if @oOwnRuleSet = ""
 			return []
 		ok
 		return @oOwnRuleSet.Check(This)
 
-	# SOUND IS NO ERROR, not no finding -- StzFindingsAreSound is the house's
-	# one answer, and this line counted findings until 2026-09-11. A code
-	# graph carrying only warning-severity findings (thirteen of stzCodeRules'
-	# rules are warnings) read as not sound, which is the opposite of what
-	# setting a rule to warning means.
+	# TRUE if the attached rules find no error; warnings alone do not make the graph unsound.
+	#
+	#   returns    TRUE or FALSE
+	#   see        CheckRules, RulesReport
+	#@ aka  SOUND IS NO ERROR, not no finding -- StzFindingsAreSound is the house's one answer, and this line counted findings until 2026-09-11. A code graph carrying only warning-severity findings (thirteen of stzCodeRules' rules are warnings) read as not sound, which is the opposite of what setting a rule to warning means.
 	def RulesAreSound()
 		return StzFindingsAreSound(This.CheckRules())
 
+	# Returns the rule objects attached to the graph.
+	#
+	#   returns    a list of stzGraphRule objects
+	#   see        AddRule, AttachedRuleNamed, NumberOfAttachedRules
 	def AttachedRules()
 		return This._OwnRuleSet().Rules()
 
+	# Returns how many rule objects are attached to the graph.
+	#
+	#   returns    a number
+	#   see        AttachedRules
 	def NumberOfAttachedRules()
 		if @oOwnRuleSet = ""
 			return 0
 		ok
 		return @oOwnRuleSet.NumberOfRules()
 
+	# Returns the attached rule object that has the given name.
+	#
+	#   pcName     the rule name, as text
+	#   returns    a stzGraphRule object; empty text when none matches
+	#   see        AttachedRules
 	def AttachedRuleNamed(pcName)
 		return This._OwnRuleSet().RuleNamed(pcName)
 
-	# Print the graph's own rule findings, grouped and gated -- via stzRuleReport
-	# (the graph collects itself into it, then shows it).
+	# Prints the findings of the attached rules, grouped by domain with a verdict, and returns the graph.
+	#
+	#   returns    the graph itself
+	#   see        CheckRules, RulesAreSound
+	#@ aka  Print the graph's own rule findings, grouped and gated -- via stzRuleReport (the graph collects itself into it, then shows it).
 	def RulesReport()
 		_oRep_ = new stzRuleReport("" + @cId)
 		_oRep_.Ingest(This.CheckRules())
 		_oRep_.Report()
 		return This
 
+	# Detaches every attached rule object and returns the graph.
+	#
+	#   returns    the graph itself
+	#   see        AddRule, AttachedRules
 	def ClearAttachedRules()
 		@oOwnRuleSet = ""
 		return This
 
+	# Returns every rule held in the three stores, constraint then derivation then validation, as hash lists.
+	#
+	#   returns    a list of hash lists [ :name, :type, :function, :params, :message, :severity ]
+	#   see        NumberOfRules, RulesSummary, ActiveRules
 	def Rules()
 		_aAll_ = []
 
@@ -4527,9 +5787,17 @@ class stzGraph from stzObject
 
 		return _aAll_
 
+	# Returns how many rules the three stores hold; the attached rule objects are not counted.
+	#
+	#   returns    a number
+	#   see        Rules, NumberOfAttachedRules
 	def NumberOfRules()
 		return len(This.Rules())
 
+	# Returns the rule names by store, as a hash list [ :constraint, :derivation, :validation, :applied ] of lists of text.
+	#
+	#   returns    a hash list
+	#   see        Rules, ActiveRules, RulesApplied
 	def RulesSummary()
 		_aSummary_ = [
 			:Constraint = [],
@@ -4596,6 +5864,10 @@ class stzGraph from stzObject
 		ok
 
 
+	    # Empties the constraint, derivation and validation stores and forgets which rules were applied.
+	    #
+	    #   returns    nothing; the graph changes
+	    #   see        ClearConstraintRules, RemoveRule
 	    def ClearRules()
 	        @aConstraintRules = []
 	        @aDerivationRules = []
@@ -4603,17 +5875,37 @@ class stzGraph from stzObject
 	        @aAffectedNodes = []
 	        @aAffectedEdges = []
 	    
-	    # Clear specific type
+	    # Empties the constraint store only, so edges are no longer tested against it.
+	    #
+	    #   returns    nothing; the graph changes
+	    #   see        ClearRules
+	    #@ aka  Clear specific type
 	    def ClearConstraintRules()
 	        @aConstraintRules = []
 	        
+	    # Empties the derivation store only.
+	    #
+	    #   returns    nothing; the graph changes
+	    #   see        ClearRules
 	    def ClearDerivationRules()
 	        @aDerivationRules = []
 	        
+	    # Empties the validation store only.
+	    #
+	    #   returns    nothing; the graph changes
+	    #   see        ClearRules
 	    def ClearValidationRules()
 	        @aValidationRules = []
 	    
-	    # Remove specific rule
+	    # Removes the rule with that name from all three stores; the name is folded to upper case before the match.
+	    #
+	    #   _cRuleName_   The name of the rule to remove, as text; case is ignored.
+	    #   returns       nothing; the graph changes
+	    #   warning       rule names registered through a group are stored in upper case, and a name
+	    #                 loaded from a file keeps its own case, so a lowercase file rule is not
+	    #                 found
+	    #   see           HasRule, ClearRules
+	    #@ aka  Remove specific rule
 	    def RemoveRule(_cRuleName_)
 		_cRuleName_ = UPPER(_cRuleName_)
 	        # Search all three lists
@@ -4633,7 +5925,15 @@ class stzGraph from stzObject
 	        next
 	        return _aNew_
 	    
-	    # Check if rule loaded
+	# TRUE if a constraint rule has that name; the name is folded to upper case first.
+	#
+	#   pcRuleName   The rule name, as text.
+	#   returns      TRUE or FALSE
+	#   warning      known defect: derivation and validation rules are never found, because their
+	#                names are lowered before the comparison with an upper-case name, so a rule that
+	#                is loaded can still answer FALSE
+	#   see          RemoveRule, ActiveRules
+	#@ aka  Check if rule loaded
 	def HasRule(pcRuleName)
 		if NOT isString(pcRuleName)
 			stzraise("Rule name must be a string!")
@@ -4670,7 +5970,11 @@ class stzGraph from stzObject
 		def ContainsRule(pcRuleName)
 			return This.HasRule(pcRuleName)
 	    
-	    # List active rules
+	    # Returns the loaded rules as [ type, name ] pairs, constraints first, then derivations, then validations.
+	    #
+	    #   returns    a list of pairs of text
+	    #   see        Rules, HasRule
+	    #@ aka  List active rules
 	    def ActiveRules()
 	        _acAll_ = []
 	        _nConstraintRules1Len_ = len(@aConstraintRules)
@@ -4694,9 +5998,20 @@ class stzGraph from stzObject
 	#  VALIDATION  #
 	#--------------#
 
+	# Returns the names of the rule groups that Validate runs by default: dag, reachability, completeness and bottleneck.
+	#
+	#   returns    a list of text
+	#   see        Validate
 	def Validators()
 		return @acValidators
 
+	# Loads and runs the default rule groups and returns an overall verdict with one result per group.
+	#
+	#   returns    a hash list [ :status, :validatorsrun, :validatorsfailed, :totalissues, :results,
+	#              :affectednodes ]
+	#   note       the rules of each group are added to the graph's validation store as a side
+	#              effect
+	#   see        ValidateDAG, ValidateReachability, ValidateCompleteness, Validators
 	def Validate()
 		return This.ValidateXT(@acValidators)
 
@@ -4707,12 +6022,27 @@ class stzGraph from stzObject
 			return This._ValidateMultiple(paValidators)
 		ok
 
+	# Runs the dag rule group and returns its verdict: pass when the graph has no cycle.
+	#
+	#   returns    a hash list [ :status, :rulegroup, :domain, :issuecount, :issues, :affectednodes
+	#              ]
+	#   see        Validate, HasCyclicDependencies
 	def ValidateDAG()
 		return This.ValidateXT(:DAG)
 
+	# Runs the reachability rule group and returns its verdict: pass when the graph is connected.
+	#
+	#   returns    a hash list [ :status, :rulegroup, :domain, :issuecount, :issues, :affectednodes
+	#              ]
+	#   see        Validate, IsConnected
 	def ValidateReachability()
 		return This.ValidateXT(:Reachability)
 
+	# Runs the completeness rule group and returns its verdict: pass when the graph is connected and has no orphan node.
+	#
+	#   returns    a hash list [ :status, :rulegroup, :domain, :issuecount, :issues, :affectednodes
+	#              ]
+	#   see        Validate, DependencyFreeNodes
 	def ValidateCompleteness()
 		return This.ValidateXT(:Completeness)
 
@@ -4881,6 +6211,14 @@ class stzGraph from stzObject
 		end
 		return _acAll_
 	
+	# Returns the record of the last validation that passed; before any pass it answers that none has run.
+	#
+	#   returns    a hash list [ :status, :rules_applied, :violations, :violation_count, :passed ]
+	#              or [ :status, :message ]
+	#   warning    known defect: a failed validation is never recorded, so after a failure the
+	#              summary still shows the older pass, or none has run, and its violations list is
+	#              always empty
+	#   see        Validate, Anomalies
 	def ValidationSummary()
 		if len(@aLastValidationResult) = 0
 			return [:status = "not_run", :message = "No validation run yet"]
@@ -4910,6 +6248,12 @@ class stzGraph from stzObject
 		def LastValidation()
 			return This.ValidationSummary()
 
+	# Returns the violations of the last recorded validation, which is always an empty list today.
+	#
+	#   returns    a list; empty text before any validation passed
+	#   warning    known defect: only passing validations are recorded, so this can never list a
+	#              violation; read the issues of Validate instead
+	#   see        ValidationSummary, Validate
 	def Anomalies()
 		return This.ValidationSummary()[:violations]
 
@@ -4923,6 +6267,14 @@ class stzGraph from stzObject
 	#  GRAPH COMPARISON  #
 	#====================#
 
+	# Compares this graph with another and returns what changed: summary, nodes, edges, metrics, topology, impact and an explanation.
+	#
+	#   oOtherGraph   The stzGraph to compare with.
+	#   returns       a hash list [ :summary, :nodes, :edges, :metrics, :topology, :impact,
+	#                 :explanation ]; raises an error when the argument is not a stzGraph
+	#   note          edges are compared by their from and to ids, and a changed label shows under
+	#                 modified
+	#   see           CompareWithManyQR, ExportToStzSim
 	def CompareWith(oOtherGraph)
 		if NOT @IsStzGraph(oOtherGraph)
 			stzraise("Parameter must be a stzGraph object!")
@@ -5014,6 +6366,14 @@ class stzGraph from stzObject
 		def CompareWithManyQ(paoGraphs)
 			return new stzList(This.CompareWithMany(paoGraphs))
 
+		# Compares this graph with several others and returns the result as the kind asked for.
+		#
+		#   paoGraphs      The graphs to compare with: [ g1, g2 ] or named, [ [ "name", g1 ], ... ].
+		#   pcReturnType   The kind of answer wanted: :stzGraphComparison, :stzHashList or
+		#                  :stzListOfLists.
+		#   returns        a stzGraphComparison, a stzHashList or a stzListOfLists; any other kind
+		#                  raises an error
+		#   see            CompareWith, stzGraphComparison
 		def CompareWithManyQR(paoGraphs, pcReturnType)
 			switch pcReturnType
 			on :stzGraphComparison
@@ -5629,6 +6989,13 @@ class stzGraph from stzObject
 	#  SERIALIZATION - FILE FORMAT SUPPORT  #
 	#=======================================#
 	
+	# Loads the graph from a file, choosing the reader by the extension: graf, rulz or graphml; any other raises an error.
+	#
+	#   returns    nothing; the graph changes
+	#   warning    the extension is read as the second dot-separated piece of the path, so a path
+	#              such as ./g.graf or one with an extra dot raises "Unsupported file format"; the
+	#              graphml reader fails today
+	#   see        SaveTo, LoadFromStzGraf, LoadFromStzRulz
 	def LoadFrom(pcPath)
 		_cExtension_ = @split(pcPath, ".")[2]
 
@@ -5646,6 +7013,12 @@ class stzGraph from stzObject
 			stzraise("Unsupported file format.")
 		off
 
+	# Saves the graph to a file, choosing the writer by the extension: graf, rulz or graphml; any other raises an error.
+	#
+	#   returns    nothing; a file is written
+	#   warning    the extension is read as the second dot-separated piece of the path, so a path
+	#              such as ./g.graf or one with an extra dot raises "Unsupported file format"
+	#   see        LoadFrom, SaveToStzGraf
 	def SaveTo(pcPath)
 		_cExtension_ = @split(pcPath, ".")[2]
 
@@ -5667,6 +7040,11 @@ class stzGraph from stzObject
 	#  .stzgraf FORMAT #
 	#------------------#
 	
+	# Returns the graph as .stzgraf text: its id and type, the nodes with their labels, the edges with their labels and the node properties.
+	#
+	#   returns    text
+	#   note       edge properties are not written
+	#   see        SaveToStzGraf, LoadFromStzGraf
 	def ExportToStzGraf()
 		_cOutput_ = 'graph "' + @cId + '"' + char(10)
 		_cOutput_ += '    type: ' + @cGraphType + char(10) + char(10)
@@ -5730,13 +7108,28 @@ class stzGraph from stzObject
 		def AsStzGraf()
 			return This.ExportToStzGraf()
 	
+	# Writes the graph to a .stzgraf file, replacing any file there.
+	#
+	#   returns    nothing; a file is written
+	#   see        ExportToStzGraf, LoadFromStzGraf
 	def SaveToStzGraf(pcPath)
 		_cContent_ = This.ExportToStzGraf()
 		write(pcPath, _cContent_)
 	
+		# Writes the graph to a .stzgraf file; another spelling of the save.
+		#
+		#   returns    nothing; a file is written
+		#   see        SaveToStzGraf
 		def SaveAsStzGraf(pcPath)
 			This.SaveToStzGraf(pcPath)
 	
+	# Replaces the graph's nodes and edges by those of a .stzgraf file; raises an error when the file is missing.
+	#
+	#   returns    nothing; the graph changes
+	#   warning    a node property whose line contains type: overwrites the graph type, so a graph
+	#              saved as structural reads back as task when a node has that property; edge
+	#              properties are not restored
+	#   see        SaveToStzGraf, LoadFrom
 	def LoadFromStzGraf(pcPath)
 		if NOT fexists(pcPath)
 			stzraise("File not found: " + pcPath)
@@ -5745,6 +7138,12 @@ class stzGraph from stzObject
 		_cContent_ = read(pcPath)
 		This._ParseStzGraf(_cContent_)
 	
+		# Replaces the graph by the content of a .stzgraf file; another spelling of the load.
+		#
+		#   returns    nothing; the graph changes
+		#   warning    a node property whose line contains type: overwrites the graph type; edge
+		#              properties are not restored
+		#   see        LoadFromStzGraf
 		def LoadStzGraf(pcPath)
 			This.LoadFromStzGraf(pcPath)
 	
@@ -5885,6 +7284,10 @@ class stzGraph from stzObject
 	#  .stzrulz FORMAT #
 	#------------------#
 	
+	# Returns the graph's rules as .stzrulz text: a rule set header, then each rule with type, severity, function name, parameters and message.
+	#
+	#   returns    text
+	#   see        SaveToStzRulz, LoadFromStzRulz
 	def ExportToStzRulz()
 		_cOutput_ = 'ruleset "' + @cId + ' Rules"' + char(10)
 		_cOutput_ += '    ruleGroup: ' + @cGraphType + char(10)
@@ -5927,13 +7330,26 @@ class stzGraph from stzObject
 		def AsStzRulz()
 			return This.ExportToStzRulz()
 	
+	# Writes the graph's rules to a .stzrulz file, replacing any file there.
+	#
+	#   returns    nothing; a file is written
+	#   see        ExportToStzRulz, LoadFromStzRulz
 	def SaveToStzRulz(pcPath)
 		_cContent_ = This.ExportToStzRulz()
 		write(pcPath, _cContent_)
 	
+		# Writes the graph's rules to a .stzrulz file; another spelling of the save.
+		#
+		#   returns    nothing; a file is written
+		#   see        SaveToStzRulz
 		def SaveAsStzRulz(pcPath)
 			This.SaveToStzRulz(pcPath)
 	
+	# Adds the rules declared in a .stzrulz file to the graph; a rule of an unknown type raises an error.
+	#
+	#   returns    nothing; the graph changes
+	#   note       a rule that names a custom function needs LoadRuleFunctionsFrom first
+	#   see        SaveToStzRulz, LoadRuleFunctionsFrom
 	def LoadFromStzRulz(pcPath)
 		if NOT fexists(pcPath)
 			stzraise("File not found: " + pcPath)
@@ -5942,6 +7358,10 @@ class stzGraph from stzObject
 		_cContent_ = read(pcPath)
 		This._ParseStzRulz(_cContent_)
 	
+		# Adds the rules declared in a .stzrulz file to the graph; another spelling of the load.
+		#
+		#   returns    nothing; the graph changes
+		#   see        LoadFromStzRulz
 		def LoadStzRulz(pcPath)
 			This.LoadFromStzRulz(pcPath)
 	
@@ -6042,6 +7462,11 @@ class stzGraph from stzObject
 	#  .stzrulf FORMAT #
 	#------------------#
 	
+	# Loads a .stzrulf file of custom rule functions into the program, once per path; a missing file or a path with a quote raises an error.
+	#
+	#   returns    nothing; functions are defined
+	#   note       put the group registrations above the func definitions in the file
+	#   see        LoadFromStzRulz, UseRulesFrom
 	def LoadRuleFunctionsFrom(pcPath)
 		# A .stzrulf file is pure Ring code: it defines custom rule
 		# functions and registers them into a rule group, which
@@ -6083,6 +7508,10 @@ class stzGraph from stzObject
 
 		eval("load '" + pcPath + "'")
 
+		# Loads a .stzrulf file of custom rule functions; another spelling of the function load.
+		#
+		#   returns    nothing; functions are defined
+		#   see        LoadRuleFunctionsFrom
 		def LoadStzRulf(pcPath)
 			This.LoadRuleFunctionsFrom(pcPath)
 	
@@ -6172,6 +7601,11 @@ class stzGraph from stzObject
 	#  .stzsim FORMAT  #
 	#------------------#
 	
+	# Returns a .stzsim simulation: the node and edge changes that turn the baseline graph into this one, with a few metrics.
+	#
+	#   oBaselineGraph   The baseline stzGraph that the changes are measured from.
+	#   returns          text
+	#   see              ApplySimulation, SaveToStzSim, CompareWith
 	def ExportToStzSim(oBaselineGraph)
 		_cOutput_ = 'simulation "' + @cId + ' Comparison"' + char(10)
 		_cOutput_ += '    description: "Changes from baseline"' + char(10)
@@ -6242,13 +7676,30 @@ class stzGraph from stzObject
 		def AsStzSim(oBaselineGraph)
 			return This.ExportToStzSim(oBaselineGraph)
 	
+	# Writes the simulation of changes from a baseline graph to a .stzsim file, replacing any file there.
+	#
+	#   oBaselineGraph   The baseline stzGraph that the changes are measured from.
+	#   returns          nothing; a file is written
+	#   see              ExportToStzSim, ApplySimulation
 	def SaveToStzSim(pcPath, oBaselineGraph)
 		_cContent_ = This.ExportToStzSim(oBaselineGraph)
 		write(pcPath, _cContent_)
 	
+		# Writes the simulation of changes from a baseline graph to a .stzsim file; another spelling of the save.
+		#
+		#   oBaselineGraph   The baseline stzGraph that the changes are measured from.
+		#   returns          nothing; a file is written
+		#   see              SaveToStzSim
 		def SaveAsStzSim(pcPath, oBaselineGraph)
 			This.SaveToStzSim(pcPath, oBaselineGraph)
 	
+	# Applies the changes of a .stzsim text to the graph: add or remove nodes and edges, and set the labels of added nodes.
+	#
+	#   cSimContent   The text of a .stzsim simulation, as ExportToStzSim writes it.
+	#   returns       nothing; the graph changes
+	#   note          a node or edge that is already there is left alone, and the metrics section is
+	#                 ignored
+	#   see           ExportToStzSim, ApplyStzSim
 	def ApplySimulation(cSimContent)
 		# Parse and apply changes from .stzsim format
 		_acLines_ = split(cSimContent, char(10))
@@ -6336,6 +7787,11 @@ class stzGraph from stzObject
 			ok
 		next
 	
+		# Applies the changes of a .stzsim text to the graph; another spelling of the simulation.
+		#
+		#   cSimContent   The text of a .stzsim simulation, as ExportToStzSim writes it.
+		#   returns       nothing; the graph changes
+		#   see           ApplySimulation
 		def ApplyStzSim(cSimContent)
 			This.ApplySimulation(cSimContent)
 	
@@ -6426,23 +7882,37 @@ class stzGraph from stzObject
 	#  MISC.  #
 	#=========#
 
-	#NOTE// I added those methods after including the GraphType attribute
-	# So we can use it in a practical way to enforce the beahvir
-	# of some features depending on the graph type (see examples at
-	# the end of stzGraphTest.ring file)
-
+	# TRUE if the graph type is flow or semantic, the types in which cycles are acceptable.
+	#
+	#   returns    TRUE or FALSE
+	#   see        ValidateByType, GraphType
+	#@ aka  NOTE// I added those methods after including the GraphType attribute So we can use it in a practical way to enforce the beahvir of some features depending on the graph type (see examples at the end of stzGraphTest.ring file)
 	def CyclesAllowed()
 	    return @cGraphType = "flow" or @cGraphType = "semantic"
 	
+	# TRUE if the graph type is semantic, the type that derives edges by itself.
+	#
+	#   returns    TRUE or FALSE
+	#   see        EnableAutoDerive, GraphType
 	def ShouldAutoDerive()
 	    return @cGraphType = "semantic"
 	
+	# Checks the graph against its type: a structural graph with a cycle is refused.
+	#
+	#   returns    a pair [ allowed, message ]: [ 1, "" ] when fine
+	#   see        CyclesAllowed, HasCyclicDependencies
 	def ValidateByType()
 	    if @cGraphType = "structural" and This.HasCyclicDependencies()
 	        return [0, "Cycles not allowed in structural graphs"]
 	    ok
 	    return [1, ""]
 
+	# Registers the transitivity rule in the semantic group and loads that group into the graph.
+	#
+	#   returns    nothing; the graph changes
+	#   note       the semantic group's other rules, such as the connectivity validation, come with
+	#              it
+	#   see        UseRulesFrom, ApplyDerivationRules
 	def UseDefaultDerivations()
 	    # Register transitivity rule for semantic graphs
 	    RegisterRule("semantic", "auto_transitivity", [
@@ -6515,6 +7985,19 @@ class stzGraph from stzObject
 
 		return 1
 
+# Filters the nodes or the edges of a graph by key, comparison and property, then answers the ids that match.
+#
+# Built by stzGraph.FindQ and chained: each filter call adds a condition and returns the finder, and
+# Run answers the elements that pass every condition, node ids for a node search and [ from, to ]
+# pairs for an edge search. A key is looked up on the element first (id, label, from, to) and then
+# among its properties, and dots reach nested values. For queries it cannot express, use
+# stzGraphQuery.
+#
+#   receiver   g1 = new stzGraph("g1"); g1.AddNodeXTT("a", "Alpha", [ :priority = 10 ]);
+#              g1.AddNodeXTT("b", "Beta", [ :priority = 5 ]); o1 = g1.FindQ("nodes")
+#   example    ? @@( o1.Where("priority", ">", 7).Run() )
+#              #--> [ "a" ]
+#   see        stzGraph, stzGraphQuery
 class stzGraphFinder from stzObject
 	# Basic Finder of Nodes ane Edges
 	# Used by the FindQ() method in stzGraph
@@ -6524,11 +8007,29 @@ class stzGraphFinder from stzObject
 	@cTarget
 	@aFilters = []
 	
+	# Builds a finder over the nodes or the edges of a graph, with no filter yet; any target other than nodes or edges finds nothing.
+	#
+	#   _oGraph_    the stzGraph to search
+	#   _cTarget_   what to search, "nodes" or "edges", case ignored
+	#   returns     nothing; the object is built
+	#   note        stzGraph.FindQ builds one for you
+	#   see         Run
 	def init(_oGraph_, _cTarget_)
 		@oGraph = _oGraph_
 		@cTarget = StzLower(_cTarget_)
 		@aFilters = []
 	
+	# Adds a filter that keeps the elements whose key meets a comparison with the value, and returns the finder so calls chain.
+	#
+	#   pcKey        the key to test: id, label, from, to or a property name, with dots for nested
+	#                values
+	#   pCondition   the comparison: "=", ">", "<", "contains", "between" or the :equals,
+	#                :greaterthan, :lessthan, :insection forms
+	#   pValue       the value to compare with, or a pair [ low, high ] for between
+	#   returns      the finder itself
+	#   note         filters accumulate, and an element must pass all of them; an unknown comparison
+	#                matches nothing
+	#   see          Having, WithProperty, Run
 	def Where(pcKey, pCondition, pValue)
 		@aFilters + [:where, pcKey, pCondition, pValue]
 		return This
@@ -6536,6 +8037,13 @@ class stzGraphFinder from stzObject
 		def WhereQ(pcKey, pCondition, pValue)
 			return This.Where(pcKey, pCondition, pValue)
 
+	# Adds a filter that keeps the elements whose key equals the value, and returns the finder so calls chain.
+	#
+	#   pcKey      the key to test, such as a property name
+	#   pValue     the value it must equal
+	#   returns    the finder itself
+	#   note       a key that the element does not have fails the filter
+	#   see        Where, WithProperty, Run
 	def Having(pcKey, pValue)
 		@aFilters + [:where, pcKey, :equals, pValue]
 		return This
@@ -6543,6 +8051,11 @@ class stzGraphFinder from stzObject
 		def HavingQ(pcKey, pValue)
 			return This.Having(pcKey, pValue)
 
+	# Adds a filter that keeps the elements that carry the given property, and returns the finder so calls chain.
+	#
+	#   pcKey      the property name that must be present
+	#   returns    the finder itself
+	#   see        Having, Where, Run
 	def WithProperty(pcKey)
 		@aFilters + [:hasprop, pcKey]
 		return This
@@ -6550,6 +8063,12 @@ class stzGraphFinder from stzObject
 		def WithPropertyQ(pcKey)
 			return This.WithProperty(pcKey)
 
+	# Adds a filter that keeps the elements whose :tags property lists the tag, and returns the finder so calls chain.
+	#
+	#   pcTag      The tag to look for among the :tags property.
+	#   returns    the finder itself
+	#   note       the tags must be a list stored in a property called tags
+	#   see        WithProperty, Where, Run
 	def WithTag(pcTag)
 		@aFilters + [:tag, pcTag]
 		return This
@@ -6557,6 +8076,12 @@ class stzGraphFinder from stzObject
 		def WithTagQ(pcTag)
 			return This.WithTag(pcTag)
 
+	# Applies the filters and returns the matches: node ids for a node search, [ from, to ] pairs for an edge search.
+	#
+	#   returns    a list of ids or of [ from, to ] pairs
+	#   note       the filters stay in the finder, so a filter added after one Run narrows the next
+	#              Run
+	#   see        Where, Having
 	def Run()
 		if @cTarget = "nodes"
 			return This._QueryNodes()
@@ -6734,6 +8259,19 @@ class stzGraphFinder from stzObject
 		return 0
 
 
+# Draws a graph in the console as boxed labels joined by arrows, vertically or horizontally, or hands the drawing back as text.
+#
+# Built by stzGraph.Show and AsciiArt, or on its own over a graph. The vertical drawing starts a
+# tree at every node that nothing points to and writes a CYCLE marker where a path comes back; the
+# horizontal drawing follows the first out-edge of each node. Nodes whose degree is above the
+# average are wrapped in exclamation marks. The Show forms print and the AsciiArt forms return the
+# same text. A graph with no node raises error R1.
+#
+#   receiver   g1 = new stzGraph("g1"); g1.AddNodeXT("a", "Alpha"); g1.AddNodeXT("b", "Beta");
+#              g1.Connect("a", "b"); o1 = new stzGraphAsciiVisualizer(g1)
+#   example    ? o1.AsciiArtHorizontal() != ""
+#              #--> 1
+#   see        stzGraph
 class stzGraphAsciiVisualizer from stzObject
 	@oGraph
 
@@ -6762,6 +8300,12 @@ class stzGraphAsciiVisualizer from stzObject
 	@bCapture = 0
 	@cBuffer = ""
 
+	# Builds a drawing helper bound to a graph; nothing is drawn until one of the show or art calls.
+	#
+	#   poGraph    The stzGraph to draw.
+	#   returns    nothing; the object is built
+	#   note       stzGraph.Show builds one for you
+	#   see        stzGraph.Show, AsciiArt
 	def init(poGraph)
 		@oGraph = poGraph
 
@@ -6773,11 +8317,23 @@ class stzGraphAsciiVisualizer from stzObject
 			? pcLine
 		ok
 
-	# The art as DATA -- the vertical picture, as a string.
+	# Returns the vertical drawing as text instead of printing it: boxed labels joined by arrows, one tree per node nothing points to.
+	#
+	#   returns    text; each line ends with a line break
+	#   note       nodes above the average degree wear exclamation marks, and a graph with no node
+	#              raises error R1
+	#   see        Show, AsciiArtHorizontal
+	#@ aka  The art as DATA -- the vertical picture, as a string.
 	def AsciiArt()
 		return This._Captured(:vertical)
 
-	# ... and the horizontal one.
+	# Returns the horizontal drawing as text: boxes in a row joined by arrows that carry the edge labels.
+	#
+	#   returns    text
+	#   note       only the first out-edge of each node is followed, and a graph with no node raises
+	#              error R1
+	#   see        ShowHorizontal, AsciiArt
+	#@ aka  ... and the horizontal one.
 	def AsciiArtHorizontal()
 		return This._Captured(:horizontal)
 
@@ -6794,20 +8350,42 @@ class stzGraphAsciiVisualizer from stzObject
 		@bCapture = 0
 		return @cBuffer
 	
+	# Prints the vertical drawing: boxed labels joined by arrows and edge labels, a CYCLE marker where a path comes back.
+	#
+	#   returns    nothing; text is printed
+	#   note       the bottleneck nodes are wrapped in exclamation marks, and a graph with no node
+	#              raises error R1
+	#   see        AsciiArt, ShowHorizontal
 	def Show()
 		_acDisplayNodes_ = This._PrepareDisplayNodes()
 		This._ShowVerticalWithNodes(_acDisplayNodes_)
 	
+	# Prints the vertical drawing; the explicit spelling of the default display.
+	#
+	#   returns    nothing; text is printed
+	#   see        Show
 	def ShowVertical()
 		This.Show()
 	
+		# Prints the vertical drawing; the short spelling of the vertical display.
+		#
+		#   returns    nothing; text is printed
+		#   see        ShowVertical
 		def ShowV()
 			This.Show()
 	
+	# Prints the horizontal drawing: a row of boxes joined by arrows that carry the edge labels.
+	#
+	#   returns    nothing; text is printed
+	#   see        AsciiArtHorizontal, Show
 	def ShowHorizontal()
 		_acDisplayNodes_ = This._PrepareDisplayNodes()
 		This._ShowHorizontalWithNodes(_acDisplayNodes_)
 	
+		# Prints the horizontal drawing; the short spelling of the horizontal display.
+		#
+		#   returns    nothing; text is printed
+		#   see        ShowHorizontal
 		def ShowH()
 			This.ShowHorizontal()
 	
@@ -7029,6 +8607,19 @@ class stzGraphAsciiVisualizer from stzObject
 			ok
 		ok
 
+# Compares a baseline graph with several variations and ranks them by what changed: nodes, edges, density, cycles and bottlenecks.
+#
+# Built by stzGraph.CompareWithManyQR(..., :stzGraphComparison) or directly. It runs the comparison
+# once when built and answers from the stored rows: Summary for a text report, MostImpactful and
+# LeastImpactful, ByMetric to sort, Recommend for a suggestion, ToStzTable for a table. The cycle
+# questions (WithCycles, WithoutCycles) and the acyclic bonus of Recommend do not work today; see
+# their warnings.
+#
+#   receiver   g1 = new stzGraph("g1"); g1.AddNode("a"); g1.AddNode("b"); g1.Connect("a", "b"); o1 =
+#              new stzGraphComparison(g1, [ g1 ])
+#   example    ? o1.LeastImpactful()
+#              #--> V1
+#   see        stzGraph, stzTable
 class stzGraphComparison from stzObject
 	@oBaselineGraph
 	@aGraphs = []
@@ -7037,6 +8628,13 @@ class stzGraphComparison from stzObject
 	@cBullet = char(226) + char(128) + char(162)   # U+2022
 
 	
+	# Compares a baseline graph with each variation at once and keeps the results; variations are named V1, V2 and so on unless given as pairs.
+	#
+	#   oBaseline   the baseline stzGraph
+	#   paoGraphs   the variations: [ g1, g2 ] or named [ [ "name", g1 ], ... ]
+	#   returns     nothing; the object is built
+	#   note        the comparison runs when the object is built
+	#   see         stzGraph.CompareWithManyQR, Data
 	def init(oBaseline, paoGraphs)
 		@oBaselineGraph = oBaseline
 		
@@ -7058,6 +8656,10 @@ class stzGraphComparison from stzObject
 	def _BuildComparisons()
 		@aComparisonData = @oBaselineGraph.CompareWithMany(@aGraphs)
 	
+	# Returns the comparison as a stzTable with one column per variation and one row per metric, such as NodesAdded and HasCycles.
+	#
+	#   returns    a stzTable
+	#   see        Show, Data
 	def ToStzTable()
 		_aTableData_ = @oBaselineGraph._ToStzTableData(@aComparisonData)
 		return new stzTable(_aTableData_)
@@ -7068,21 +8670,48 @@ class stzGraphComparison from stzObject
 		def AsTable()
 			return This.ToStzTable()
 	
+	# Prints the comparison table, one column per variation, in the console.
+	#
+	#   returns    nothing; a table is printed
+	#   see        ToStzTable, Display
 	def Show()
 		_oTable_ = This.ToStzTable()
 		_oTable_.Show()
 	
+		# Prints the comparison table; another spelling of the display call.
+		#
+		#   returns    nothing; a table is printed
+		#   see        Show
 		def Display()
 			This.Show()
 	
+	# Returns the whole comparison as a hash list holding the rows, the baseline id and the count of variations.
+	#
+	#   returns    a hash list [ :comparisons, :baseline, :count ]
+	#   see        Comparisons, Summary
 	def Data()
 		return @aComparisonData
 	
+		# Returns nothing today instead of the comparison data.
+		#
+		#   returns    nothing today
+		#   warning    known defect: the body is empty, so the call answers empty text; Data returns
+		#              the comparison
+		#   see        Data
 		def Content()
 
+	# Returns one hash list per variation with its name and its counts of nodes and edges added and removed.
+	#
+	#   returns    a list of hash lists [ :name, :nodesadded, :nodesremoved, :edgesadded,
+	#              :edgesremoved, :densitychange, :hascycles, :bottleneckchange, :explanation ]
+	#   see        Data, Summary
 	def Comparisons()
 		return @aComparisonData[:comparisons]
 	
+	# Returns a text report naming the baseline and the count of variations, with one bulleted line per variation explaining its change.
+	#
+	#   returns    text, one line per variation
+	#   see        Comparisons, Recommend
 	def Summary()
 		_cResult_ = ""
 		_cResult_ += "Baseline: " + @aComparisonData[:baseline] + char(10)
@@ -7098,6 +8727,10 @@ class stzGraphComparison from stzObject
 		
 		return _cResult_
 	
+	# Returns the name of the variation with the most node and edge changes, added plus removed; empty when none changed anything.
+	#
+	#   returns    text; empty when every variation is unchanged
+	#   see        LeastImpactful, ByMetric
 	def MostImpactful()
 		# Returns variation with most total changes
 		_aComps_ = @aComparisonData[:comparisons]
@@ -7118,6 +8751,10 @@ class stzGraphComparison from stzObject
 		
 		return _cMaxName_
 	
+	# Returns the name of the variation with the fewest node and edge changes, the first one on a tie.
+	#
+	#   returns    text
+	#   see        MostImpactful, ByMetric
 	def LeastImpactful()
 		# Returns variation with fewest total changes
 		_aComps_ = @aComparisonData[:comparisons]
@@ -7138,6 +8775,12 @@ class stzGraphComparison from stzObject
 		
 		return _cMinName_
 	
+	# Returns an empty list today instead of the names of the variations that contain a cycle.
+	#
+	#   returns    [ ] today, even when a variation has a cycle
+	#   warning    known defect: the rows hold the text TRUE or FALSE in the cycle field, and the
+	#              body tests it against the number 1
+	#   see        WithoutCycles, Recommend
 	def WithCycles()
 		# Returns names of variations that introduce cycles
 		_aComps_ = @aComparisonData[:comparisons]
@@ -7152,6 +8795,12 @@ class stzGraphComparison from stzObject
 		
 		return _acResult_
 	
+	# Returns an empty list today instead of the names of the variations that stay acyclic.
+	#
+	#   returns    [ ] today, even when a variation is acyclic
+	#   warning    known defect: the rows hold the text TRUE or FALSE in the cycle field, and the
+	#              body tests it against the number 0
+	#   see        WithCycles, Recommend
 	def WithoutCycles()
 		# Returns names of variations that remain acyclic
 		_aComps_ = @aComparisonData[:comparisons]
@@ -7166,6 +8815,12 @@ class stzGraphComparison from stzObject
 		
 		return _acResult_
 	
+	# Returns the variation names from the highest to the lowest value of one column, such as :nodesAdded; an unknown column raises an error.
+	#
+	#   cMetric    The metric to sort by, such as :nodesAdded, :edgesAdded or :hasCycles.
+	#   returns    a list of text
+	#   note       on a text column such as the density change the order is the text order
+	#   see        Comparisons, MostImpactful
 	def ByMetric(cMetric)
 		# Sort variations by specified metric
 		# Supported: :nodesAdded, :edgesAdded, etc.
@@ -7195,6 +8850,13 @@ class stzGraphComparison from stzObject
 		
 		return _acResult_
 	
+	# Scores each variation and returns the best with a reason; the score rewards fewer bottlenecks, denser links and added nodes over removed.
+	#
+	#   returns    a hash list [ :recommended, :reason ]
+	#   warning    the acyclic bonus of 10 points is never awarded because the cycle field holds
+	#              text, so a variation with a cycle can win, and the reason text is the same for
+	#              every answer
+	#   see        WithoutCycles, MostImpactful
 	def Recommend()
 		# Simple recommendation logic
 		_aComps_ = @aComparisonData[:comparisons]

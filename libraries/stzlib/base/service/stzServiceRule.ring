@@ -31,6 +31,8 @@ falls out of one hop:
     solution cannot ship, not merely which service is fake.
   production-part-uses-ephemeral (ERROR) -- the same part depends on a store that
     is real until the next restart (the in-memory case).
+  production-part-uses-conformance (ERROR) -- the same, for the genuine protocol over
+    virtual money (the BCEAO's payments sandbox): not a mail-sink fake, and not shippable.
   part-uses-undeclared-service (WARN) -- a part declares a need the registry has
     never heard of, so nothing will resolve it at run time. The registry cannot
     see this: the dependency exists only in the delivery model.
@@ -210,6 +212,21 @@ class stzServiceRuleSet from stzGraphRuleSet
 			       "', which is real only until the next restart")
 		})
 		This.AddRule(_oR2_)
+
+		# 4. virtual money: the genuine protocol, nothing real behind it (payments PY3)
+		_oR4_ = new stzServiceRule("production-part-uses-conformance")
+		_oR4_.SetSeverityQ("error")
+		_oR4_.SetMessageQ("a part destined for production must not depend on a conformance sandbox")
+		_oR4_.SetOrderQ(15)
+		_oR4_.SetReadsQ([ "node.kind", "node.destination", "graph.edges" ])
+		_oR4_.GovernsQ(func oGraph { return _StzServiceProductionParts(oGraph) })
+		_oR4_.ExcludesQ(func oGraph { return _StzServiceNonProductionParts(oGraph) })
+		_oR4_.UseCheckerQ(func oGraph {
+			return _StzServicePartsDependingOn(oGraph, "posture", "conformance",
+			       "is destined for production but depends on '",
+			       "', which is the genuine protocol over VIRTUAL money -- bind the live adapter first")
+		})
+		This.AddRule(_oR4_)
 
 		# 3. a part needs something the registry never heard of -- invisible to the
 		#    registry, because the dependency exists only in the delivery model.

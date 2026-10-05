@@ -1,0 +1,7 @@
+{
+ "brief": "Holds one date and time, to the millisecond, and adds to it, compares it, measures distances from it and writes it in many formats.",
+ "detail": "A stzDateTime is made of seven numbers (year, month, day, hour, minute, second, millisecond) that read as one instant with no time zone: ToUTC and ToLocalTime change nothing. Build it from a text (2026-03-15 14:30:00, 15/03/2026 2:30 PM, an ISO text with a T), from a number of seconds since 1970, from a hash of parts, or from an empty text for the current clock. The Add and Subtract methods move the object itself and answer the new text; the Q forms answer the object so calls chain. Compare with IsBefore, IsAfter, IsEqualTo and IsBetween; measure with the DurationTo family (against another datetime) and the DurationSince family (against a named origin such as :UnixEpoch or :YearOne). The To... methods write it as text: ToIso for storage, ToStandard and ToAmerican for display, ToHuman and ToRelative in words. Known gaps today, each carried as a warning on its method: instants before 1970 and every origin but :UnixEpoch give an invalid date, the Verbose family and ToLongDate print the letter d instead of the day, ParseNaturalEpoch counts plural units twice, and three Milliseconds methods raise.",
+ "receiver": "o1 = new stzDateTime(\"2026-03-15 14:30:00\")",
+ "example": ["? o1.AddDays(3)", "#--> 2026-03-18 14:30:00"],
+ "see": ["stzDate", "stzTime", "stzDuration", "stzCalendar"]
+}

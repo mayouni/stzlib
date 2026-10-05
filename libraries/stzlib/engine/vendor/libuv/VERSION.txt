@@ -1,0 +1,12 @@
+libuv 1.52.1
+
+Version from include/uv/version.h.
+
+--- SBOM record (read by engine/tools/sbom.py; keep the keys) ---
+Component:        libuv
+Version:          1.52.1
+Source:           https://github.com/libuv/libuv/releases/tag/v1.52.1
+Licence:          MIT
+Purl:             pkg:github/libuv/libuv@v1.52.1
+Archive-SHA-256:  not recorded -- the upstream archive was not fetched when this record was written (2026-09-29)
+Tree-Digest:      d0e0b05489304e9640a140d0137f658941deedaecd8a99c7d6bd85dafa19152a

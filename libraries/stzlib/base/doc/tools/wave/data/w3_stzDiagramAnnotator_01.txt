@@ -1,0 +1,6 @@
+init | Builds an annotator for one kind of information, such as risk or cost, to be attached to a diagram. | nothing; the annotator is built | pcType=The kind of annotation, as text; AnnotationsByType matches it in the same case | Type, Annotate
+Type | Returns the kind of annotation this annotator carries, as it was given. | text |  | init, ToHashlist
+Annotate | Records the data of one node, replacing what was recorded for it before; the data is a hash list or :With = a hash list. | nothing; the annotator changes | pNodeId=The id of the node, as text; the key is case-folded; _aData_=The data, as a hash list such as [ :level = "high" ], or [ :With = hashlist ] | NodeData, NodesData
+NodeData | Returns the data recorded for a node; nothing when none was recorded. | the hash list given to Annotate; an empty text when the node has none | pNodeId=The id of the node, as text; case is ignored | Annotate, NodesData
+NodesData | Returns the data of every annotated node, as [ node id, data ] pairs in the order recorded. | a list of [ node id, hash list ] pairs |  | NodeData, ToHashlist
+ToHashlist | Returns the annotator as a hash list of its type and node data. | a hash list [ :type, :nodedata ] |  | Type, NodesData

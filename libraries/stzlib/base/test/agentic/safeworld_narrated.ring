@@ -29,6 +29,9 @@
 
 load "../../stzBase.ring"
 
+# code, not the agent file, decides which ring: functions an agent may call (R2)
+StzAllowAgentFunction("SafeworldScribble", "trusted")
+
 nPass = 0
 nFail = 0
 

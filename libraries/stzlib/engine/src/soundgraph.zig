@@ -169,6 +169,7 @@ pub const KIND_PAN: u32 = 4;
 pub const KIND_FILTER: u32 = 5;
 pub const KIND_DELAY: u32 = 6;
 pub const KIND_ENVELOPE: u32 = 7;
+pub const KIND_TIMELINE: u32 = 8;
 
 pub const WAVE_SINE = dsp.WAVE_SINE;
 pub const WAVE_SQUARE = dsp.WAVE_SQUARE;
@@ -197,6 +198,12 @@ const Node = struct {
     buffer_id: i64 = 0,
     pos: usize = 0,
     loop: bool = false,
+    // MU1: a source played at a RATE -- how one recording becomes an instrument
+    // at any pitch. -1 means never set, and then the source takes the original
+    // integer path unchanged, so every guard written before MU1 stays
+    // bit-identical. `pos_f` is the fractional read position; -1 = seed from pos.
+    rate_target: f64 = -1,
+    pos_f: f64 = -1,
 
     // GAIN / PAN
     gain: f64 = 1.0,
@@ -225,6 +232,20 @@ const Node = struct {
     gain_step: f32 = 0,
     gain_seen: f32 = 1.0, // the target this node has already planned a step for
 
+    // MU0 CONTROL: pitch per note. The same three-field discipline as the gain
+    // above -- a target another thread writes, a value the render owns, a step
+    // planned ONCE when a new target is first seen -- because a frequency that
+    // jumps between two samples is a phase discontinuity, and a phase
+    // discontinuity is a click exactly as an amplitude step is. `n.hz` stays
+    // what the node was DECLARED with; `freq_now` is what renders. Both are
+    // lazily seeded from `hz` on the first block (a sentinel of -1 means
+    // "never set"), so adding a node needs no change to know about ramps.
+    freq_target: f64 = -1,
+    freq_now: f64 = -1,
+    freq_ramp_frames: u32 = 0,
+    freq_step: f64 = 0,
+    freq_seen: f64 = -1,
+
     // SN6 CONTROL: "start this voice again, from the top". Written by the Ring
     // thread, consumed by the render, atomically -- the same discipline as
     // gain_target above, and for the same reason: the producer thread is
@@ -235,6 +256,11 @@ const Node = struct {
     // a block, before any node has produced a sample, so a retriggered voice
     // starts at the first frame of the next block rather than part way in.
     trigger_req: u32 = 0,
+
+    // MU2 TIMELINE: notes placed at exact frames. Heap-allocated when the node
+    // is added (before Prepare, like everything the render will touch), so the
+    // node table stays small and the slots never move.
+    tl: ?*Timeline = null,
 
     // FILTER (RBJ biquad, per channel state)
     f_kind: u32 = 0,
@@ -361,6 +387,7 @@ pub fn graphFree(id: i64) i32 {
     const g = &graphs.items[s];
     for (g.nodes.items) |*n| {
         if (n.line.len > 0) alloc.free(n.line);
+        if (n.tl) |t| alloc.destroy(t);
     }
     g.nodes.deinit(alloc);
     if (g.bus.len > 0) alloc.free(g.bus);
@@ -487,6 +514,389 @@ pub fn currentGain(id: i64, node: i64) f64 {
     const g = &graphs.items[s];
     if (!validInput(g, node)) return -1;
     return @atomicLoad(f32, &g.nodes.items[@intCast(node)].gain_now, .monotonic);
+}
+
+/// MU0: pitch per note. Built as setGain is built -- an atomic target, a ramp
+/// length released before it, a step the render plans once -- because the
+/// music plan's first engine change had to be the one the whole plane already
+/// knows how to guard. A ramp of 0 is a jump, and a jump is a click; it is
+/// offered so a guard has its negative sibling, exactly as with the gain.
+pub fn setFrequency(id: i64, node: i64, hz: f64, ramp_ms: f64) i32 {
+    const s = slotOf(id) orelse return STALE;
+    const g = &graphs.items[s];
+    if (!validInput(g, node)) {
+        refuse("setFrequency: that node does not exist");
+        return BAD_ARG;
+    }
+    const n = &g.nodes.items[@intCast(node)];
+    if (n.kind != KIND_OSC) {
+        refuse("setFrequency: that node is not an oscillator");
+        return BAD_ARG;
+    }
+    if (hz <= 0 or hz >= @as(f64, @floatFromInt(g.rate)) / 2.0) {
+        refuse("setFrequency: a frequency must be positive and below Nyquist");
+        return BAD_ARG;
+    }
+    const frames: u32 = if (ramp_ms <= 0) 0 else @intFromFloat(ramp_ms * @as(f64, @floatFromInt(g.rate)) / 1000.0);
+    @atomicStore(u32, &n.freq_ramp_frames, frames, .monotonic);
+    @atomicStore(f64, &n.freq_target, hz, .release);
+    return OK;
+}
+
+/// The frequency the render is applying right now -- mid-ramp, somewhere
+/// between the old value and the target. -1 for a node that is not an
+/// oscillator or has not rendered yet, and a guard reads it to prove the ramp
+/// both MOVES and ARRIVES.
+pub fn currentFrequency(id: i64, node: i64) f64 {
+    const s = slotOf(id) orelse return -1;
+    const g = &graphs.items[s];
+    if (!validInput(g, node)) return -1;
+    const n = &g.nodes.items[@intCast(node)];
+    if (n.kind != KIND_OSC) return -1;
+    return @atomicLoad(f64, &n.freq_now, .monotonic);
+}
+
+/// MU1: play a source at a RATE -- 2 is an octave up, 0.5 an octave down --
+/// by linear interpolation between frames. A rate of exactly 1 returns the
+/// source to its original integer path. The change is immediate: a rate jump
+/// is a kink in the slope, not an amplitude step, and a pitch BEND with a ramp
+/// is a later phase's.
+pub fn setRate(id: i64, node: i64, ratio: f64) i32 {
+    const s = slotOf(id) orelse return STALE;
+    const g = &graphs.items[s];
+    if (!validInput(g, node)) {
+        refuse("setRate: that node does not exist");
+        return BAD_ARG;
+    }
+    const n = &g.nodes.items[@intCast(node)];
+    if (n.kind != KIND_SOURCE) {
+        refuse("setRate: that node is not a source");
+        return BAD_ARG;
+    }
+    if (!(ratio >= 0.0625 and ratio <= 16.0)) {
+        refuse("setRate: a rate must be between 1/16 and 16");
+        return BAD_ARG;
+    }
+    @atomicStore(f64, &n.rate_target, ratio, .release);
+    return OK;
+}
+
+fn renderSourceAtRate(g: *Graph, n: *Node, ratio: f64, src_ch: usize, src_frames: usize, nch: usize, blk: usize) void {
+    if (n.pos_f < 0) n.pos_f = @floatFromInt(n.pos);
+    const last: f64 = if (src_frames >= 2) @floatFromInt(src_frames - 1) else 0;
+    var ch: usize = 0;
+    while (ch < nch) : (ch += 1) {
+        const dst = chanSlice(g, n, ch);
+        const use_ch = if (src_ch == 0) 0 else @min(ch, src_ch - 1);
+        var p = n.pos_f;
+        for (dst) |*o| {
+            if (src_frames < 2 or p >= last) {
+                if (n.loop and src_frames >= 2) {
+                    p = @mod(p, last);
+                } else {
+                    o.* = 0;
+                    p += ratio;
+                    continue;
+                }
+            }
+            const k0: usize = @intFromFloat(@floor(p));
+            const fr = p - @floor(p);
+            const a = snd.getSample(n.buffer_id, k0, @intCast(use_ch));
+            const b = snd.getSample(n.buffer_id, k0 + 1, @intCast(use_ch));
+            o.* = @floatCast(a + (b - a) * fr);
+            p += ratio;
+        }
+    }
+    var p2 = n.pos_f + ratio * @as(f64, @floatFromInt(blk));
+    if (n.loop and src_frames >= 2) p2 = @mod(p2, last);
+    n.pos_f = p2;
+    n.pos = @intFromFloat(@min(@floor(p2), @as(f64, @floatFromInt(src_frames))));
+}
+
+// ── MU2: THE TIMELINE -- a note placed at a frame, not at a block ────────────
+//
+// MU0 spike 2 measured the plane's only way to start a sound in the future:
+// ask, and the render honours the request at the top of its next block. Worst
+// 9.48 ms late, mean 4.81, against MU2's kill criterion of 1 ms. A trigger at
+// a block boundary cannot meet that bar however early it is asked, so the
+// question MU0 left to the ear ("is 10.7 ms audible as swing?") is answered by
+// the phase's own number before any ear is needed.
+//
+// The plan (section 3, Gap 2) said the fix is a trigger with a frame offset
+// INSIDE a block, applied to any node. That is a change to every node kind's
+// render loop -- each would have to split its block at an arbitrary frame.
+// A note does not need it. A note is a buffer the instrument already rendered
+// (MU1), and placing a buffer at frame F of a block is an offset into the
+// block, nothing else. So the timeline is ONE new node kind that mixes placed
+// buffers into its output at the frame asked, and every other node is
+// untouched. What it does NOT give: a setFrequency or a gain change at a frame
+// inside a block. Recorded in the STATUS, not discovered later.
+//
+// THE THREADING is the plane's existing discipline, one slot at a time. A slot
+// is FREE (0) or ARMED (1). Only the caller's thread moves FREE -> ARMED, after
+// writing every field, with a release store; only the render moves ARMED ->
+// FREE, when the note has played out. So each slot has exactly one writer at a
+// time and no lock is needed on either side -- the trigger flag's reasoning,
+// widened to a table.
+//
+// LATENESS IS COUNTED, NEVER HIDDEN. The render sees a slot at the top of a
+// block. If its frame has already been rendered, the caller asked too late:
+// the note plays from the top of this block (shifted, not truncated), and the
+// shift is added to the counters. A scheduler that is not ahead of the
+// deadline shows up there as a number.
+
+const TL_SLOTS = 512;
+
+pub const TL_PLACED = 0; // notes accepted
+pub const TL_LATE = 1; // notes whose frame had already been rendered
+pub const TL_LATE_MAX = 2; // the worst lateness, in frames
+pub const TL_REFUSED = 3; // placements refused: no free slot
+pub const TL_RETIRED = 4; // notes that played out
+pub const TL_ARMED = 5; // slots holding a note right now (read from the table)
+pub const TL_CANCELLED = 6; // MU3: notes withdrawn before they sounded
+pub const TL_CANCEL_TOO_LATE = 7; // MU3: withdrawals refused -- the note was already sounding
+
+const TlSlot = struct {
+    state: u32 = 0,
+    frame: u64 = 0, // the frame ASKED for: written by the placer, never changed while armed
+    start: u64 = 0, // the frame it actually starts: render-owned, set when first seen
+    tag: u32 = 0, // MU3: whose note this is (a live loop), so its future can be withdrawn
+    cancel: u32 = 0, // MU3: "withdraw this if it has not started" -- placer writes, render honours
+    data: [*]const f32 = undefined,
+    frames: usize = 0,
+    channels: u32 = 1,
+    gain: f32 = 1,
+    seq: u64 = 0, // placement order: the tie-break when two notes share a frame
+    seen: bool = false, // render-owned once armed
+};
+
+const Timeline = struct {
+    slots: [TL_SLOTS]TlSlot = @splat(.{}),
+    clock: u64 = 0, // frames rendered; written by the render, read by anyone
+    ctr: [8]u64 = @splat(0), // index TL_ARMED is unused: that one is read from the table
+};
+
+fn timelineClear(t: *Timeline) void {
+    for (&t.slots) |*sl| @atomicStore(u32, &sl.state, 0, .release);
+    @atomicStore(u64, &t.clock, 0, .release);
+}
+
+fn timelineOf(id: i64, node: i64) ?*Timeline {
+    const s = slotOf(id) orelse return null;
+    const g = &graphs.items[s];
+    if (!validInput(g, node)) return null;
+    const n = &g.nodes.items[@intCast(node)];
+    if (n.kind != KIND_TIMELINE) return null;
+    return n.tl;
+}
+
+/// A node whose output is the notes placed on it. It has no input.
+pub fn addTimeline(id: i64) i64 {
+    const s = slotOf(id) orelse return -1;
+    const g = &graphs.items[s];
+    if (g.prepared) {
+        refuse("cannot add nodes after Prepare -- build the graph, then prepare it");
+        return -1;
+    }
+    const t = alloc.create(Timeline) catch {
+        setErr("out of memory allocating a timeline");
+        return -1;
+    };
+    t.* = .{};
+    const idx = addNode(g, .{ .kind = KIND_TIMELINE, .tl = t });
+    if (idx < 0) alloc.destroy(t);
+    return idx;
+}
+
+/// Place a buffer on a timeline, to start at timeline frame `frame` (0-based,
+/// counted from the timeline's first rendered frame), scaled by `gain`. Safe
+/// from any ONE thread while the graph renders on another. The buffer must be
+/// at the graph's rate, mono or of the graph's channel count, and must NOT be
+/// freed until the timeline has retired it (TL_ARMED reaches 0) or the stream
+/// is stopped -- the render reads its samples directly.
+pub fn timelinePlace(id: i64, node: i64, buffer_id: i64, frame: f64, gain: f64) i32 {
+    return timelinePlaceTagged(id, node, buffer_id, frame, gain, 0);
+}
+
+/// MU3: the same, with a TAG naming whose note it is -- a live loop -- so that
+/// timelineCancel can withdraw that loop's future without touching another's.
+pub fn timelinePlaceTagged(id: i64, node: i64, buffer_id: i64, frame: f64, gain: f64, tag: u32) i32 {
+    const s = slotOf(id) orelse return STALE;
+    const g = &graphs.items[s];
+    const t = timelineOf(id, node) orelse {
+        refuse("timelinePlace: that node is not a timeline");
+        return BAD_ARG;
+    };
+    const v = snd.rawView(buffer_id) orelse {
+        refuse("timelinePlace: the buffer is stale, unknown or empty");
+        return BAD_ARG;
+    };
+    if (v.rate != g.rate) {
+        refuse("timelinePlace: the note's sample rate is not the graph's -- a different pitch, silently");
+        return BAD_ARG;
+    }
+    if (v.channels != 1 and v.channels != g.channels) {
+        refuse("timelinePlace: the note is neither mono nor of the graph's channel count");
+        return BAD_ARG;
+    }
+    if (!(frame >= 0)) {
+        refuse("timelinePlace: a frame is 0 or later");
+        return BAD_ARG;
+    }
+    for (&t.slots) |*sl| {
+        if (@atomicLoad(u32, &sl.state, .acquire) != 0) continue;
+        sl.frame = @intFromFloat(@round(frame));
+        sl.data = v.data;
+        sl.frames = v.frames;
+        sl.channels = v.channels;
+        sl.gain = @floatCast(gain);
+        sl.seen = false;
+        sl.tag = tag;
+        @atomicStore(u32, &sl.cancel, 0, .monotonic);
+        sl.seq = @atomicRmw(u64, &t.ctr[TL_PLACED], .Add, 1, .monotonic);
+        @atomicStore(u32, &sl.state, 1, .release);
+        return OK;
+    }
+    _ = @atomicRmw(u64, &t.ctr[TL_REFUSED], .Add, 1, .monotonic);
+    refuse("timelinePlace: all 512 slots hold a note -- place fewer at once, or wait for some to play out");
+    return BAD_ARG;
+}
+
+/// The frames this timeline has rendered: the render clock a scheduler must
+/// stay ahead of. The producer runs up to a ring ahead of what is audible, so
+/// this is NOT what the listener hears -- that is the stream's frames read.
+pub fn timelineNow(id: i64, node: i64) f64 {
+    const t = timelineOf(id, node) orelse return -1;
+    return @floatFromInt(@atomicLoad(u64, &t.clock, .acquire));
+}
+
+/// MU3: withdraw every note tagged `tag` that was asked to start at `from_frame`
+/// or later. Safe while the graph renders: this only raises a flag, and the
+/// render honours it at the top of its next block IF the note has not started
+/// sounding by then (TL_CANCELLED), or refuses it (TL_CANCEL_TOO_LATE) and lets
+/// the note play out. Returns how many notes were flagged, or -1.
+pub fn timelineCancel(id: i64, node: i64, tag: u32, from_frame: f64) f64 {
+    const t = timelineOf(id, node) orelse {
+        refuse("timelineCancel: that node is not a timeline");
+        return -1;
+    };
+    if (!(from_frame >= 0)) {
+        refuse("timelineCancel: a frame is 0 or later");
+        return -1;
+    }
+    const from: u64 = @intFromFloat(@round(from_frame));
+    var k: f64 = 0;
+    for (&t.slots) |*sl| {
+        if (@atomicLoad(u32, &sl.state, .acquire) != 1) continue;
+        if (sl.tag != tag or sl.frame < from) continue;
+        @atomicStore(u32, &sl.cancel, 1, .release);
+        k += 1;
+    }
+    return k;
+}
+
+pub fn timelineCounter(id: i64, node: i64, which: u32) f64 {
+    const t = timelineOf(id, node) orelse return -1;
+    if (which == TL_ARMED) {
+        var k: f64 = 0;
+        for (&t.slots) |*sl| {
+            if (@atomicLoad(u32, &sl.state, .acquire) != 0) k += 1;
+        }
+        return k;
+    }
+    if (which >= t.ctr.len) return -1;
+    return @floatFromInt(@atomicLoad(u64, &t.ctr[which], .monotonic));
+}
+
+// Start order: the frame, then -- for notes that start on the same frame -- the
+// TAG, then the order they were placed in. The tag is MU3's: a redefined live
+// loop is posted again, later, so by placement order alone its notes would sum
+// AFTER another loop's notes on a shared frame one cycle and BEFORE them the
+// next, and f32 addition would make the two renders differ in the last bit.
+// By tag the order is the loops' own order, whenever each was posted.
+fn tlBefore(x: *const TlSlot, y: *const TlSlot) bool {
+    if (x.start != y.start) return x.start < y.start;
+    if (x.tag != y.tag) return x.tag < y.tag;
+    return x.seq < y.seq;
+}
+
+fn renderTimeline(g: *Graph, n: *Node) void {
+    const t = n.tl orelse return;
+    const nch: usize = g.channels;
+    const blk: u64 = g.block;
+    var ch: usize = 0;
+    while (ch < nch) : (ch += 1) @memset(chanSlice(g, n, ch), 0);
+
+    const clock = t.clock;
+
+    // Pass 1: which notes sound in this block (and which arrived late).
+    var act: [TL_SLOTS]u16 = undefined;
+    var na: usize = 0;
+    for (&t.slots, 0..) |*sl, si| {
+        if (@atomicLoad(u32, &sl.state, .acquire) != 1) continue;
+        // MU3: a withdrawal is honoured only if the note has not started. A
+        // note already sounding plays out -- cutting it would be a click, and
+        // it would be a change landing MID-BAR, which is MU3's kill
+        // criterion. So it is refused, and counted where a guard can see it.
+        if (@atomicLoad(u32, &sl.cancel, .acquire) == 1) {
+            const sounding = sl.seen and sl.start < clock;
+            if (!sounding) {
+                _ = @atomicRmw(u64, &t.ctr[TL_CANCELLED], .Add, 1, .monotonic);
+                @atomicStore(u32, &sl.state, 0, .release);
+                continue;
+            }
+            _ = @atomicRmw(u64, &t.ctr[TL_CANCEL_TOO_LATE], .Add, 1, .monotonic);
+            @atomicStore(u32, &sl.cancel, 0, .monotonic);
+        }
+        if (!sl.seen) {
+            sl.seen = true;
+            sl.start = sl.frame;
+            if (sl.frame < clock) {
+                const late = clock - sl.frame;
+                _ = @atomicRmw(u64, &t.ctr[TL_LATE], .Add, 1, .monotonic);
+                _ = @atomicRmw(u64, &t.ctr[TL_LATE_MAX], .Max, late, .monotonic);
+                sl.start = clock; // shifted to the top of this block, never cut
+            }
+        }
+        if (sl.start >= clock + blk) continue; // not yet
+        act[na] = @intCast(si);
+        na += 1;
+    }
+
+    // Pass 2: mix them IN START ORDER -- (frame, then the order they were
+    // placed in). The first cut mixed in SLOT order, and which slot a note
+    // gets depends on which notes had already retired when it was placed --
+    // that is, on thread timing. f32 addition is not associative, so two live
+    // renders of the same overlapping score differed in the last bit, and by
+    // a different amount each run (30 and then 60 billionths, measured by the
+    // MU2 guard). In start order the sum is the one the offline render
+    // (mixInto, in the plan's order) computes, so live and offline are the
+    // SAME, bit for bit, however the threads interleave.
+    var a: usize = 1;
+    while (a < na) : (a += 1) {
+        const k = act[a];
+        var b = a;
+        while (b > 0 and tlBefore(&t.slots[k], &t.slots[act[b - 1]])) : (b -= 1) act[b] = act[b - 1];
+        act[b] = k;
+    }
+    for (act[0..na]) |si| {
+        const sl = &t.slots[si];
+        const off: usize = @intCast(if (sl.start > clock) sl.start - clock else 0);
+        const from: usize = @intCast(clock + off - sl.start);
+        const count = @min(g.block - off, sl.frames - from);
+        ch = 0;
+        while (ch < nch) : (ch += 1) {
+            const dst = chanSlice(g, n, ch)[off..][0..count];
+            const sc: usize = if (sl.channels == 1) 0 else ch;
+            const stride: usize = sl.channels;
+            for (dst, 0..) |*o, i| o.* += sl.gain * sl.data[(from + i) * stride + sc];
+        }
+        if (from + count >= sl.frames) {
+            _ = @atomicRmw(u64, &t.ctr[TL_RETIRED], .Add, 1, .monotonic);
+            @atomicStore(u32, &sl.state, 0, .release);
+        }
+    }
+    @atomicStore(u64, &t.clock, clock + blk, .release);
 }
 
 pub fn addMix(id: i64) i64 {
@@ -691,6 +1101,7 @@ pub fn rewind(id: i64) i32 {
     for (g.nodes.items) |*n| {
         n.phase = 0;
         n.pos = 0;
+        n.pos_f = -1;
         n.env_pos = 0;
         n.line_pos = 0;
         n.x1 = @splat(0);
@@ -698,6 +1109,7 @@ pub fn rewind(id: i64) i32 {
         n.y1 = @splat(0);
         n.y2 = @splat(0);
         if (n.line.len > 0) @memset(n.line, 0);
+        if (n.tl) |t| timelineClear(t);
     }
     return OK;
 }
@@ -754,6 +1166,7 @@ fn resetSubtree(g: *Graph, idx: usize, depth: u32) void {
     const n = &g.nodes.items[idx];
     n.phase = 0;
     n.pos = 0;
+    n.pos_f = -1;
     n.env_pos = 0;
     n.line_pos = 0;
     n.x1 = @splat(0);
@@ -761,6 +1174,7 @@ fn resetSubtree(g: *Graph, idx: usize, depth: u32) void {
     n.y1 = @splat(0);
     n.y2 = @splat(0);
     if (n.line.len > 0) @memset(n.line, 0);
+    if (n.tl) |t| timelineClear(t);
     var k: usize = 0;
     while (k < n.n_inputs) : (k += 1) {
         resetSubtree(g, n.inputs[k], depth + 1);
@@ -788,15 +1202,40 @@ pub fn renderBlock(id: i64) i32 {
         const n = &g.nodes.items[i];
         switch (n.kind) {
             KIND_OSC => {
-                const inc = n.hz / @as(f64, @floatFromInt(g.rate));
+                const ratef = @as(f64, @floatFromInt(g.rate));
+                // ACQUIRE, pairing with the release in setFrequency
+                const t_raw = @atomicLoad(f64, &n.freq_target, .acquire);
+                const ramp = @atomicLoad(u32, &n.freq_ramp_frames, .monotonic);
+                if (n.freq_now < 0) n.freq_now = n.hz; // first block: seed from the declaration
+                const target: f64 = if (t_raw < 0) n.freq_now else t_raw;
+                if (target != n.freq_seen) {
+                    n.freq_seen = target;
+                    if (ramp == 0) {
+                        n.freq_now = target;
+                        n.freq_step = 0;
+                    } else {
+                        n.freq_step = (target - n.freq_now) / @as(f64, @floatFromInt(ramp));
+                    }
+                }
+                var fq = n.freq_now;
+                const step = n.freq_step;
                 var ph = n.phase;
                 const dst = chanSlice(g, n, 0);
                 for (dst) |*o| {
+                    // the increment follows the CURRENT frequency, sample by
+                    // sample, so the phase stays continuous through a ramp
+                    const inc = fq / ratef;
                     o.* = @floatCast(n.amp * waveAtBl(n.waveform, ph, inc));
                     ph += inc;
                     if (ph >= 1.0) ph -= 1.0;
+                    if (fq != target) {
+                        fq += step;
+                        if ((step > 0 and fq > target) or (step < 0 and fq < target)) fq = target;
+                    }
                 }
                 n.phase = ph;
+                n.freq_now = fq;
+                @atomicStore(f64, &n.freq_now, fq, .monotonic);
                 // an oscillator is mono; every other channel carries the same
                 var ch: usize = 1;
                 while (ch < nch) : (ch += 1) @memcpy(chanSlice(g, n, ch), dst);
@@ -804,6 +1243,17 @@ pub fn renderBlock(id: i64) i32 {
             KIND_SOURCE => {
                 const src_ch: usize = @intFromFloat(@max(0, snd.channelCount(n.buffer_id)));
                 const src_frames: usize = @intFromFloat(@max(0, snd.frameCount(n.buffer_id)));
+                // ACQUIRE, pairing with the release in setRate
+                const ratio = @atomicLoad(f64, &n.rate_target, .acquire);
+                if (ratio > 0 and ratio != 1.0) {
+                    renderSourceAtRate(g, n, ratio, src_ch, src_frames, nch, blk);
+                    continue;
+                }
+                // back at rate 1 after a fractional stretch: resume at the frame
+                if (n.pos_f >= 0) {
+                    n.pos = @intFromFloat(@floor(n.pos_f));
+                    n.pos_f = -1;
+                }
                 var ch: usize = 0;
                 while (ch < nch) : (ch += 1) {
                     const dst = chanSlice(g, n, ch);
@@ -986,6 +1436,7 @@ pub fn renderBlock(id: i64) i32 {
                     if (ch + 1 == nch) n.env_pos = p;
                 }
             },
+            KIND_TIMELINE => renderTimeline(g, n),
             else => {},
         }
     }
@@ -1764,6 +2215,75 @@ test "the stream table REFUSES past its cap rather than reallocating" {
     try testing.expectEqual(@as(i64, 0), streamStart(gid, 256));
 }
 
+test "MU0: a frequency ramp MOVES, ARRIVES, and keeps the phase continuous" {
+    const gid = graphNew(1, 48000, 64);
+    defer _ = graphFree(gid);
+    const osc = addOsc(gid, WAVE_SINE, 440, 0.5);
+    _ = setOutput(gid, osc);
+    try testing.expectEqual(OK, prepare(gid));
+    // before any render the reader says -1: nothing has been seeded yet
+    try testing.expectEqual(@as(f64, -1), currentFrequency(gid, osc));
+    try testing.expectEqual(OK, renderBlock(gid));
+    try testing.expectApproxEqAbs(@as(f64, 440), currentFrequency(gid, osc), 1e-9);
+    // a 10 ms ramp is 480 frames; after one 64-frame block it has LEFT 440
+    // and NOT reached 880
+    try testing.expectEqual(OK, setFrequency(gid, osc, 880, 10));
+    try testing.expectEqual(OK, renderBlock(gid));
+    const mid = currentFrequency(gid, osc);
+    try testing.expect(mid > 441 and mid < 879);
+    // and after enough blocks it ARRIVES exactly
+    var i: usize = 0;
+    while (i < 10) : (i += 1) try testing.expectEqual(OK, renderBlock(gid));
+    try testing.expectApproxEqAbs(@as(f64, 880), currentFrequency(gid, osc), 1e-9);
+    // refusals: not an oscillator, and above Nyquist
+    const gn = addGain(gid, osc, 1.0);
+    try testing.expectEqual(BAD_ARG, setFrequency(gid, gn, 440, 0));
+    try testing.expectEqual(BAD_ARG, setFrequency(gid, osc, 30000, 0));
+}
+
+test "MU1: mixInto ADDS at an offset, refuses a rate mismatch, and stops at the end" {
+    const d = snd.newSilent(100, 1, 48000);
+    defer _ = snd.free(d);
+    const s = snd.newSilent(10, 1, 48000);
+    defer _ = snd.free(s);
+    var i: usize = 0;
+    while (i < 10) : (i += 1) _ = snd.setSample(s, i, 0, 0.25);
+    try testing.expectEqual(@as(f64, 10), snd.mixInto(d, s, 20, 1.0));
+    try testing.expectEqual(@as(f64, 10), snd.mixInto(d, s, 25, 2.0)); // overlaps: ADDS
+    try testing.expectApproxEqAbs(@as(f64, 0), snd.getSample(d, 19, 0), 1e-9);
+    try testing.expectApproxEqAbs(@as(f64, 0.25), snd.getSample(d, 20, 0), 1e-6);
+    try testing.expectApproxEqAbs(@as(f64, 0.75), snd.getSample(d, 27, 0), 1e-6);
+    try testing.expectEqual(@as(f64, 5), snd.mixInto(d, s, 95, 1.0)); // five fit
+    const r = snd.newSilent(10, 1, 44100);
+    defer _ = snd.free(r);
+    try testing.expectEqual(@as(f64, -1), snd.mixInto(d, r, 0, 1.0));
+}
+
+test "MU1: a source at rate 2 sounds an octave up; rate 1 is the old path" {
+    const buf = snd.newSilent(48000, 1, 48000);
+    defer _ = snd.free(buf);
+    var i: usize = 0;
+    while (i < 48000) : (i += 1) _ = snd.setSample(buf, i, 0, @sin(2.0 * std.math.pi * 100.0 * @as(f64, @floatFromInt(i)) / 48000.0));
+    const gid = graphNew(1, 48000, 64);
+    defer _ = graphFree(gid);
+    const src = addSource(gid, buf, false);
+    _ = setOutput(gid, src);
+    try testing.expectEqual(OK, prepare(gid));
+    try testing.expectEqual(OK, setRate(gid, src, 2.0));
+    const out = renderToBuffer(gid, 9600); // 0.2 s
+    defer _ = snd.free(out);
+    var zc: usize = 0;
+    i = 1;
+    while (i < 9600) : (i += 1) {
+        if (snd.getSample(out, i - 1, 0) < 0 and snd.getSample(out, i, 0) >= 0) zc += 1;
+    }
+    // 100 Hz at twice the rate is 200 Hz: forty rising crossings in 0.2 s
+    try testing.expect(zc >= 39 and zc <= 41);
+    // refusals
+    try testing.expectEqual(BAD_ARG, setRate(gid, src, 0));
+    try testing.expectEqual(BAD_ARG, setRate(gid, src, 100));
+}
+
 test "draining faster than the producer UNDERRUNS, and the counter proves it" {
     const gid = graphNew(1, 48000, 64);
     defer _ = graphFree(gid);
@@ -1998,4 +2518,259 @@ test "and they DISAGREE when the graph differs -- the negative sibling" {
     }
     // if this were also 0, the comparison above would be measuring nothing
     try testing.expect(worst > 1e-4);
+}
+
+// ---------------------------------------------------------------- MU2 tests
+
+fn tlTestNote(frames: usize) i64 {
+    // 1.0 on the first frame, then a decay: an onset a threshold cannot misread
+    const b = snd.newSilent(frames, 1, 48000);
+    var f: usize = 0;
+    while (f < frames) : (f += 1) {
+        _ = snd.setSample(b, f, 0, std.math.pow(f64, 0.999, @floatFromInt(f)));
+    }
+    return b;
+}
+
+test "MU2: a note placed at a frame starts AT that frame, inside a block and across its edge" {
+    const gid = graphNew(1, 48000, 64);
+    defer _ = graphFree(gid);
+    const tl = addTimeline(gid);
+    try testing.expect(tl >= 0);
+    _ = setOutput(gid, tl);
+    try testing.expectEqual(OK, prepare(gid));
+
+    const b = snd.newSilent(5, 1, 48000);
+    defer _ = snd.free(b);
+    for (0..5) |i| _ = snd.setSample(b, i, 0, 0.1 * @as(f64, @floatFromInt(i + 1)));
+
+    try testing.expectEqual(OK, timelinePlace(gid, tl, b, 0, 1.0)); // the very first frame
+    try testing.expectEqual(OK, timelinePlace(gid, tl, b, 100, 1.0)); // offset 36 of block 1
+    try testing.expectEqual(OK, timelinePlace(gid, tl, b, 126, 2.0)); // straddles 127|128
+
+    const out = renderToBuffer(gid, 256);
+    defer _ = snd.free(out);
+    var expect: [256]f64 = @splat(0);
+    for (0..5) |i| {
+        const v = 0.1 * @as(f64, @floatFromInt(i + 1));
+        expect[i] += v;
+        expect[100 + i] += v;
+        expect[126 + i] += 2.0 * v;
+    }
+    for (0..256) |f| try testing.expectApproxEqAbs(expect[f], snd.getSample(out, f, 0), 1e-6);
+    try testing.expectEqual(@as(f64, 3), timelineCounter(gid, tl, TL_PLACED));
+    try testing.expectEqual(@as(f64, 3), timelineCounter(gid, tl, TL_RETIRED));
+    try testing.expectEqual(@as(f64, 0), timelineCounter(gid, tl, TL_ARMED));
+    try testing.expectEqual(@as(f64, 0), timelineCounter(gid, tl, TL_LATE));
+    try testing.expectEqual(@as(f64, 256), timelineNow(gid, tl));
+}
+
+test "MU2: a note asked for too late is SHIFTED to the next block and COUNTED" {
+    const gid = graphNew(1, 48000, 64);
+    defer _ = graphFree(gid);
+    const tl = addTimeline(gid);
+    _ = setOutput(gid, tl);
+    _ = prepare(gid);
+    const b = tlTestNote(8);
+    defer _ = snd.free(b);
+
+    _ = renderBlock(gid);
+    _ = renderBlock(gid); // the clock is at 128
+    try testing.expectEqual(OK, timelinePlace(gid, tl, b, 10, 1.0)); // 118 frames in the past
+    _ = renderBlock(gid);
+    const g = &graphs.items[slotOf(gid).?];
+    // it plays from the top of the block -- all of it, not its tail
+    try testing.expectApproxEqAbs(@as(f64, 1.0), chanSlice(g, &g.nodes.items[@intCast(tl)], 0)[0], 1e-6);
+    try testing.expectEqual(@as(f64, 1), timelineCounter(gid, tl, TL_LATE));
+    try testing.expectEqual(@as(f64, 118), timelineCounter(gid, tl, TL_LATE_MAX));
+}
+
+test "MU2: the timeline refuses what would sound wrong, and a full table is a counted refusal" {
+    const gid = graphNew(2, 48000, 64);
+    defer _ = graphFree(gid);
+    const osc = addOsc(gid, WAVE_SINE, 440, 1.0);
+    const tl = addTimeline(gid);
+    _ = setOutput(gid, tl);
+    _ = prepare(gid);
+    const b = tlTestNote(8);
+    defer _ = snd.free(b);
+    const b44 = snd.newSilent(8, 1, 44100);
+    defer _ = snd.free(b44);
+    const b3 = snd.newSilent(8, 3, 48000);
+    defer _ = snd.free(b3);
+    const dead = snd.newSilent(8, 1, 48000);
+    _ = snd.free(dead);
+
+    try testing.expectEqual(BAD_ARG, timelinePlace(gid, osc, b, 0, 1)); // not a timeline
+    try testing.expectEqual(BAD_ARG, timelinePlace(gid, tl, b44, 0, 1)); // another rate
+    try testing.expectEqual(BAD_ARG, timelinePlace(gid, tl, b3, 0, 1)); // 3 channels into 2
+    try testing.expectEqual(BAD_ARG, timelinePlace(gid, tl, dead, 0, 1)); // freed
+    try testing.expectEqual(BAD_ARG, timelinePlace(gid, tl, b, -1, 1)); // before the start
+    try testing.expectEqual(@as(f64, 0), timelineCounter(gid, tl, TL_PLACED));
+
+    var k: usize = 0;
+    while (k < TL_SLOTS) : (k += 1) try testing.expectEqual(OK, timelinePlace(gid, tl, b, 100000, 1));
+    try testing.expectEqual(BAD_ARG, timelinePlace(gid, tl, b, 100000, 1));
+    try testing.expectEqual(@as(f64, 1), timelineCounter(gid, tl, TL_REFUSED));
+    try testing.expectEqual(@as(f64, TL_SLOTS), timelineCounter(gid, tl, TL_ARMED));
+    // rewind is "from the top, nothing scheduled"
+    try testing.expectEqual(OK, rewind(gid));
+    try testing.expectEqual(@as(f64, 0), timelineCounter(gid, tl, TL_ARMED));
+    try testing.expectEqual(@as(f64, 0), timelineNow(gid, tl));
+}
+
+// THE KILL CRITERION, at the engine. Two hundred notes at 180 BPM, placed from
+// THIS thread while the producer thread renders them into a ring, and read
+// back out of the ring. The consumer drains as fast as the ring fills, so the
+// producer runs at full CPU speed -- far faster than a device would ask --
+// which is the hard case for a scheduler that has to stay ahead of it.
+const TlRun = struct { late: f64, late_max_ms: f64, worst_ms: f64, found: usize };
+
+fn tlStreamRun(lookahead: u64) !TlRun {
+    const rate: u32 = 48000;
+    const blk: usize = 512;
+    const gid = graphNew(1, rate, blk);
+    defer _ = graphFree(gid);
+    const tl = addTimeline(gid);
+    _ = setOutput(gid, tl);
+    _ = prepare(gid);
+    const note = tlTestNote(2000);
+    defer _ = snd.free(note);
+
+    const n_notes: usize = 200;
+    const spacing: u64 = 16000; // one beat at 180 BPM, 48 kHz
+    const first: u64 = 4800 + 37; // off the block grid on purpose
+    const total: usize = @intCast(first + spacing * n_notes + 4000);
+
+    // PRIME BEFORE START. The first cut placed nothing until the stream was
+    // running, and the first note came out LATE: the producer fills the whole
+    // ring (16384 frames, 341 ms) the instant it starts, before this thread
+    // has placed anything. A scheduler posts its first window, then starts.
+    var next: usize = 0;
+    while (next < n_notes and first + spacing * next < lookahead) : (next += 1) {
+        try testing.expectEqual(OK, timelinePlace(gid, tl, note, @floatFromInt(first + spacing * next), 1.0));
+    }
+    const sid = streamStart(gid, 16384);
+    try testing.expect(sid != 0);
+    const ring = streams.items[streamSlotOf(sid).?].ring.?;
+    const cap = try alloc.alloc(f32, total);
+    defer alloc.free(cap);
+    var got: usize = 0;
+    while (got < total) {
+        const now: u64 = @intFromFloat(timelineNow(gid, tl));
+        while (next < n_notes and first + spacing * next < now + lookahead) : (next += 1) {
+            try testing.expectEqual(OK, timelinePlace(gid, tl, note, @floatFromInt(first + spacing * next), 1.0));
+        }
+        const want = @min(total - got, 4096);
+        if (ring.readable() < want) {
+            std.Thread.sleep(200 * std.time.ns_per_us);
+            continue;
+        }
+        got += ring.popInterleaved(cap[got..].ptr, want);
+    }
+    const late = timelineCounter(gid, tl, TL_LATE);
+    const late_max_ms = timelineCounter(gid, tl, TL_LATE_MAX) * 1000.0 / @as(f64, @floatFromInt(rate));
+    _ = streamStop(sid);
+
+    var worst: f64 = 0;
+    var found: usize = 0;
+    for (0..n_notes) |k| {
+        const at: usize = @intCast(first + spacing * k);
+        var f = at - 1000;
+        while (f < at + 8000 and @abs(cap[f]) < 0.5) : (f += 1) {}
+        if (f < at + 8000) found += 1;
+        const off = @abs(@as(f64, @floatFromInt(f)) - @as(f64, @floatFromInt(at)));
+        worst = @max(worst, off * 1000.0 / @as(f64, @floatFromInt(rate)));
+    }
+    return .{ .late = late, .late_max_ms = late_max_ms, .worst_ms = worst, .found = found };
+}
+
+test "MU2 KILL CRITERION: 200 notes at 180 BPM through a live ring, worst onset error under 1 ms" {
+    const r = try tlStreamRun(16384 + 24000);
+    std.debug.print("\n  MU2 ahead: late {d}, worst onset error {d:.4} ms, found {d}/200\n", .{ r.late, r.worst_ms, r.found });
+    try testing.expectEqual(@as(usize, 200), r.found);
+    try testing.expectEqual(@as(f64, 0), r.late);
+    try testing.expect(r.worst_ms < 1.0);
+}
+
+test "MU2: and a scheduler that is NOT ahead is caught -- the negative sibling" {
+    // a lookahead of one block while the producer runs a ring ahead: notes land late
+    const r = try tlStreamRun(512);
+    // (its onset search stops 8000 frames out, so a note later than that is
+    // "not found" -- the engine's own late counter is the number to read)
+    std.debug.print("\n  MU2 behind: {d} of 200 late, the worst by {d:.2} ms\n", .{ r.late, r.late_max_ms });
+    try testing.expect(r.late > 0);
+    try testing.expect(r.late_max_ms > 1.0);
+}
+
+test "MU2: notes are mixed in START order, not slot order -- live equals offline to the bit" {
+    // Three notes meet at output frame 5 with 1.0, -1.0 and 1e-8. In f32,
+    // (1 - 1) + 1e-8 = 1e-8 but (1e-8 + 1) - 1 = 0: the order of the sum is
+    // audible to a bit-exact comparison. Start order is A, C, B. They are
+    // PLACED B, A, C, so slot order is B, A, C -- the order the first cut
+    // summed in, and the one that depended on thread timing.
+    const gid = graphNew(1, 48000, 64);
+    defer _ = graphFree(gid);
+    const tl = addTimeline(gid);
+    _ = setOutput(gid, tl);
+    _ = prepare(gid);
+    const a = snd.newSilent(8, 1, 48000);
+    defer _ = snd.free(a);
+    const c = snd.newSilent(8, 1, 48000);
+    defer _ = snd.free(c);
+    const b = snd.newSilent(8, 1, 48000);
+    defer _ = snd.free(b);
+    _ = snd.setSample(a, 5, 0, 1.0); // A at frame 0 -> output 5
+    _ = snd.setSample(c, 3, 0, -1.0); // C at frame 2 -> output 5
+    _ = snd.setSample(b, 1, 0, 1e-8); // B at frame 4 -> output 5
+
+    try testing.expectEqual(OK, timelinePlace(gid, tl, b, 4, 1.0));
+    try testing.expectEqual(OK, timelinePlace(gid, tl, a, 0, 1.0));
+    try testing.expectEqual(OK, timelinePlace(gid, tl, c, 2, 1.0));
+    const live = renderToBuffer(gid, 64);
+    defer _ = snd.free(live);
+
+    // the offline render: mixInto, in start order
+    const off = snd.newSilent(64, 1, 48000);
+    defer _ = snd.free(off);
+    _ = snd.mixInto(off, a, 0, 1.0);
+    _ = snd.mixInto(off, c, 2, 1.0);
+    _ = snd.mixInto(off, b, 4, 1.0);
+
+    const want: f32 = (@as(f32, 1.0) + @as(f32, -1.0)) + @as(f32, 1e-8);
+    try testing.expect(want != 0); // the order DOES matter for these values
+    try testing.expectEqual(@as(f64, want), snd.getSample(off, 5, 0));
+    try testing.expectEqual(snd.getSample(off, 5, 0), snd.getSample(live, 5, 0));
+}
+
+test "MU3: a loop's future is withdrawn by tag; another loop's is not; a sounding note plays out" {
+    const gid = graphNew(1, 48000, 64);
+    defer _ = graphFree(gid);
+    const tl = addTimeline(gid);
+    _ = setOutput(gid, tl);
+    _ = prepare(gid);
+    const b = tlTestNote(100);
+    defer _ = snd.free(b);
+
+    try testing.expectEqual(OK, timelinePlaceTagged(gid, tl, b, 10, 1, 1)); // loop 1, sounds first
+    try testing.expectEqual(OK, timelinePlaceTagged(gid, tl, b, 200, 1, 1)); // loop 1, future
+    try testing.expectEqual(OK, timelinePlaceTagged(gid, tl, b, 300, 1, 1)); // loop 1, future
+    try testing.expectEqual(OK, timelinePlaceTagged(gid, tl, b, 200, 1, 2)); // loop 2, future
+    _ = renderBlock(gid); // clock 0 -> 64: the note at 10 is now sounding
+
+    // withdraw loop 1 from frame 0: the sounding one refuses, the two future ones go
+    try testing.expectEqual(@as(f64, 3), timelineCancel(gid, tl, 1, 0));
+    const out = renderToBuffer(gid, 512);
+    defer _ = snd.free(out);
+    try testing.expectEqual(@as(f64, 2), timelineCounter(gid, tl, TL_CANCELLED));
+    try testing.expectEqual(@as(f64, 1), timelineCounter(gid, tl, TL_CANCEL_TOO_LATE));
+    // the sounding note played out: its sample at frame 10+64 is in the second
+    // render at offset 10 (the first block went to renderBlock above)
+    try testing.expect(snd.getSample(out, 10, 0) > 0.5);
+    // at 200 only loop 2's note sounds -- one note, not two
+    try testing.expectApproxEqAbs(@as(f64, 1.0), snd.getSample(out, 200 - 64, 0), 1e-6);
+    // at 300 nothing: loop 1's third note was withdrawn
+    try testing.expectEqual(@as(f64, 0), snd.getSample(out, 300 - 64, 0));
+    // a withdrawal names a timeline, and a frame that exists
+    try testing.expectEqual(@as(f64, -1), timelineCancel(gid, tl, 1, -5));
 }

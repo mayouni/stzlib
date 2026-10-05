@@ -39,6 +39,28 @@ func IsTable(paTable)
  ///   CLASS   ///
 /////////////////
 
+# Holds a table of named columns and numbered rows, and answers questions about its cells, rows and columns.
+#
+# Reach for it when data has columns that deserve a name and rows that deserve a position. The
+# content is stored column by column, as [ name, list of cells ] pairs, so a column is reached by
+# its name (case does not matter) or by its position, and a row only by its position. A table is
+# built from rows whose first line holds the column names, from rows alone (the columns are then
+# called col1, col2 ...), from a hash list of name = cells pairs, or from a [ columns, rows ] size
+# pair. Mutators change the table in place and return nothing; the CQ forms and the Sorted and
+# Filled families give a result without touching it. The class inherits stzList, so a method not
+# defined here falls through to the list. Many names are alternative spellings of one method, and a
+# good share of the class is unfinished: about 200 methods raise an error or do nothing today, and
+# each of them says so in its brief and its warning.
+#
+#   receiver   o1 = new stzTable([ [ :ID, :EMPLOYEE, :SALARY ], [ "001", "Salem", 12499.20 ], [
+#              "002", "Henri", 10890.10 ], [ "003", "Sonia", 12740.30 ] ])
+#   example    ? @@( o1.ColumnsNames() )
+#              #--> [ "id", "employee", "salary" ]
+#              ? o1.NumberOfRows()
+#              #--> 3
+#              ? @@( o1.Row(2) )
+#              #--> [ "002", "Henri", 10890.10 ]
+#   see        stzList, stzHashList
 Class stzTable from stzList
 	@aContent = []
 
@@ -70,8 +92,14 @@ Class stzTable from stzList
 	@bTransposedWithHeaders = 0 # tracks when headers were preserved during transpose
 	@aOriginalColNames = [] # stores the original column names internally
 
-	# Build the table from rows (the first row may carry the column
-	# names).
+	# Builds the table from rows with a header row, rows alone, a hash list of columns, or a [ columns, rows ] size pair.
+	#
+	#   paTable    the content, in one of the four shapes
+	#   returns    nothing; the table is built
+	#   note       Rows alone get the column names col1, col2 ...; a size pair gives empty cells
+	#              named COL1, COL2 ...
+	#   warning    Rows of unequal sizes with no header, or any other shape, raise an error
+	#@ aka  Build the table from rows (the first row may carry the column names).
 	def init(paTable)
 
 		# Initialize Softanza visual identity border characters
@@ -305,15 +333,26 @@ Class stzTable from stzList
 			This.AddHistoricValue(This.Content())
 		ok
 
-	# The lowercase class name: "stztable".
+	# Returns the class name, in lowercase.
+	#
+	#   returns    the text "stztable"
+	#@ aka  The lowercase class name: "stztable".
 	def ClassName()
 		return "stztable"
 
-		# Same as ClassName.
+		# Returns the class name, in lowercase.
+		#
+		#   returns    the text "stztable"
+		#   see        ClassName
+		#@ aka  Same as ClassName.
 		def KlassName()
 			return "stztable"
 
-	# The raw table rows.
+	# Returns the table as a list of [ column name, cells ] pairs, one pair per column.
+	#
+	#   returns    a list of [ name, list of cells ] pairs
+	#   see        Rows, Cols
+	#@ aka  The raw table rows.
 	def Content()
 		_aContent_ = @aContent # A deep copy to avoid reference propagation
 		return _aContent_
@@ -326,12 +365,19 @@ Class stzTable from stzList
 			def TableQ()
 				return new stzList( This.Table() )
 
-		# The raw table rows (same as Content).
+		# Returns the table as a list of [ column name, cells ] pairs, one pair per column.
+		#
+		#   returns    a list of [ name, list of cells ] pairs
+		#   see        Content
+		#@ aka  The raw table rows (same as Content).
 		def Value()
 			return Content()
 
 
-	# A new stzTable with the same rows.
+	# Returns a new table holding the same columns and cells; the original is unchanged.
+	#
+	#   returns    a new stzTable
+	#@ aka  A new stzTable with the same rows.
 	def Copy()
 
 		_aCopy_ = []
@@ -343,7 +389,11 @@ Class stzTable from stzList
 		_oCopy_ = new stzTable(_aCopy_)
 		return _oCopy_
 
-	# TRUE if the table has no data.
+	# TRUE if the table has no column, or if every cell is an empty string.
+	#
+	#   returns    TRUE or FALSE
+	#   note       A table of one column and one empty cell counts as empty.
+	#@ aka  TRUE if the table has no data.
 	def IsEmpty()
 		_nLen_ = len(@aContent)
 		if _nLen_ = 0
@@ -364,6 +414,11 @@ Class stzTable from stzList
 	 #   CHECHKING IF THE TABLE HAS GIVEN COLUMN(S)   #
 	#================================================#
 
+	# TRUE if a column has that name, ignoring case.
+	#
+	#   returns    TRUE or FALSE
+	#   warning    Raises an error when pcName is not text
+	#   see        HasColumnsNames
 	def HasColumName(pcName)
 
 		if NOT isString(pcName)
@@ -397,8 +452,12 @@ Class stzTable from stzList
 		def ContainsColName(pcName)
 			return This.HasColumName(pcName)
 
+	# TRUE if every given name is the name of a column, ignoring case.
+	#
+	#   pacNames   the list of column names to look for
+	#   returns    TRUE or FALSE
+	#   see        HasColumName
 		#>
-
 	def HasColumnsNames(pacNames)
 		_nLen_ = len(pacNames)
 		_bResult_ = 1
@@ -436,6 +495,10 @@ Class stzTable from stzList
 	 #   GETTING NUMBER OF COULMNS   #
 	#-------------------------------#
 
+	# Returns how many columns the table has.
+	#
+	#   returns    a number
+	#   see        NumberOfRows
 	def NumberOfColumns()
 		_nResult_ = len( This.Table() )
 		return _nResult_
@@ -450,6 +513,10 @@ Class stzTable from stzList
 	 #   GETTING THE LIST OF COULMNS   #
 	#---------------------------------#
 
+	# Returns the column names, in column order.
+	#
+	#   returns    a list of text
+	#   see        NumberOfColumns
 	def ColumnsNames()
 		_aResult_ = []
 		_nLen_ = len(@aContent)
@@ -535,21 +602,12 @@ Class stzTable from stzList
 			def ColNamesQRT(pcReturnType)
 				return This.ColumnsNamesQRT(pcReturnType)
 
+		# Returns the sorted positions of the columns that were added as calculated columns.
+		#
+		#   returns    a list of numbers; [ ] when there are none
+		#   see        CalculatedCols
 		# --- Aggregation layer, exposed on the base -----------------------
-		# stzTable is the class users instantiate; the aggregation methods are
-		# defined on the stzTableAggregator SUBCLASS, so a bare stzTable would
-		# miss them. We expose them here (same forwarder pattern as Show ->
-		# stzTableDisplay). The heavy compute -- calc columns, column aggregates
-		# -- delegates to a throwaway aggregator built from this table's content,
-		# while the calc-col STATE (@anCalculatedCols) lives on, and is read from,
-		# THIS object so it persists across calls. The query methods read that
-		# state directly via Col/ColName, which also sidesteps two latent bugs in
-		# the aggregator's own versions: a `new X().Method()` R13 in its
-		# FindCalculatedCols, and a CalculatedCols that calls TheseCols (defined
-		# on the sibling stzTableSubset, unreachable from the aggregator). The
-		# real fix is the table-hierarchy refactor noted near the forwarders
-		# below; this keeps the public surface working meanwhile.
-
+		#@ aka  stzTable is the class users instantiate; the aggregation methods are defined on the stzTableAggregator SUBCLASS, so a bare stzTable would miss them. We expose them here (same forwarder pattern as Show -> stzTableDisplay). The heavy compute -- calc columns, column aggregates -- delegates to a throwaway aggregator built from this table's content, while the calc-col STATE (@anCalculatedCols) lives on
 		def FindCalculatedCols()
 			_oCc_ = new stzList(@anCalculatedCols)
 			return _oCc_.Sorted()
@@ -557,6 +615,10 @@ Class stzTable from stzList
 			def FindCalculatedColumns()
 				return This.FindCalculatedCols()
 
+		# Returns the cells of every calculated column, one list per column.
+		#
+		#   returns    a list of lists of cells; [ ] when there are none
+		#   see        FindCalculatedCols
 		def CalculatedCols()
 			_anPos_ = This.FindCalculatedCols()
 			_aResult_ = []
@@ -569,6 +631,10 @@ Class stzTable from stzList
 			def CalculatedColumns()
 				return This.CalculatedCols()
 
+		# Returns the names of the calculated columns, in column order.
+		#
+		#   returns    a list of text; [ ] when there are none
+		#   see        CalculatedCols
 		def CalculatedColNames()
 			_anPos_ = This.FindCalculatedCols()
 			_acResult_ = []
@@ -587,6 +653,10 @@ Class stzTable from stzList
 			def CalculatedColumnsNams()
 				return This.CalculatedColNames()
 
+		# Returns the sorted positions of the rows that were added as calculated rows.
+		#
+		#   returns    a list of numbers; [ ] when there are none
+		#   see        CalculatedRows
 		def FindCalculatedRows()
 			_oCr_ = new stzList(@anCalculatedRows)
 			return _oCr_.Sorted()
@@ -594,6 +664,10 @@ Class stzTable from stzList
 			def FindCalculatedRowsPositions()
 				return This.FindCalculatedRows()
 
+		# Returns the cells of every calculated row, one list per row.
+		#
+		#   returns    a list of lists of cells; [ ] when there are none
+		#   see        FindCalculatedRows
 		def CalculatedRows()
 			_anPos_ = This.FindCalculatedRows()
 			_aResult_ = []
@@ -636,6 +710,11 @@ Class stzTable from stzList
 	 #  CHECKING IF THE PROVIDED STRING IS A COLUMN NAME  #
 	#====================================================#
 
+	# TRUE if a column bears this name, ignoring case.
+	#
+	#   returns    TRUE or FALSE
+	#   warning    Raises an error when pcName is not text
+	#   see        IsColNumber
 	def IsColName(pcName)
 
 		if NOT isString(pcName)
@@ -674,6 +753,12 @@ Class stzTable from stzList
 	 #  CHECKING IF THE PROVIDED NUMBER IS A COLUMN NUMBER  #
 	#------------------------------------------------------#
 
+	# TRUE if the number lies between 1 and the number of columns.
+	#
+	#   _n_        the position to test
+	#   returns    TRUE or FALSE
+	#   warning    Raises an error when the argument is not a number
+	#   see        IsColName
 	def IsColNumber(_n_)
 		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n must be a number.")
@@ -698,6 +783,10 @@ Class stzTable from stzList
 	 #  CHECKING IF THE PROVIDED VALUE IS A COLUMN NUMBER OR NAME  #
 	#-------------------------------------------------------------#
 
+	# TRUE if the argument is the name of a column or a valid column position.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsColName, IsColNumber
 	def IsColNameOrNumber(pCol)
 
 		if ( isString(pCol) and This.IsColName(pCol) ) or
@@ -767,6 +856,13 @@ Class stzTable from stzList
 	 #  CHECKING IF THE PROVIDED VALUES ARE COLUMN NUMBERS OR NAMES  #
 	#---------------------------------------------------------------#
 
+	# TRUE if every item of the list is the name or the position of a column.
+	#
+	#   returns    TRUE or FALSE
+	#   warning    Raises R14 today when the list mixes numbers and names, because
+	#              IsListOfNumbersAndStrings is defined nowhere; a list of numbers only, or of names
+	#              only, works
+	#   see        IsColNameOrNumber
 	def AreColNamesOrNumbers(paCols)
 		_oTemp_ = Q(paCols)
 
@@ -841,6 +937,10 @@ Class stzTable from stzList
 	 #  INFRASTRUCTURE METHODS (needed by all submodules)          #
 	#============================================================#
 
+	# Returns the position of a column given by name or by number; 0 when there is no such column.
+	#
+	#   returns    a number
+	#   see        FindColByName
 	def FindCol(pCol)
 		if isNumber(pCol)
 			if pCol >= 1 and pCol <= len(@aContent)
@@ -857,6 +957,11 @@ Class stzTable from stzList
 		def FindColumn(pCol)
 			return This.FindCol(pCol)
 
+	# Returns the position of the column with this name, ignoring case; 0 when there is none.
+	#
+	#   pcColName   the column name to look for
+	#   returns     a number
+	#   see         FindCol
 	def FindColByName(pcColName)
 		pcColName = StzLower(pcColName)
 		_nLen_ = len(@aContent)
@@ -870,18 +975,31 @@ Class stzTable from stzList
 		def FindColumnByName(pcColName)
 			return This.FindColByName(pcColName)
 
+	# Returns the position of a column: a number passes through unchecked, a name is looked up and gives 0 when absent.
+	#
+	#   returns    a number
+	#   see        FindCol
 	def ColToColNumber(pCol)
 		if isNumber(pCol)
 			return pCol
 		ok
 		return This.FindCol(pCol)
 
+	# Returns how many rows the table has, read from its first column; 0 when there is no column.
+	#
+	#   returns    a number
+	#   see        NumberOfColumns
 	def NumberOfRows()
 		if len(@aContent) = 0
 			return 0
 		ok
 		return len(@aContent[1][2])
 
+	# Returns the cells of one column, top to bottom.
+	#
+	#   returns    a list of cells
+	#   warning    Raises the error Column not found! for an unknown column
+	#   see        Row, Cell
 	def Col(pCol)
 		_n_ = This.FindCol(pCol)
 		if _n_ = 0
@@ -898,6 +1016,12 @@ Class stzTable from stzList
 			def ColumnQ(pCol)
 				return This.ColQ(pCol)
 
+	# Returns the cells of one row, left to right, one per column.
+	#
+	#   pnRow      the row position, 1 for the first
+	#   returns    a list of cells
+	#   warning    Raises R2 when the row is past the last one
+	#   see        Col, Rows
 	def Row(pnRow)
 		_aResult_ = []
 		_nCols_ = len(@aContent)
@@ -906,6 +1030,12 @@ Class stzTable from stzList
 		next
 		return _aResult_
 
+	# Returns the content of one cell, given its column and its row.
+	#
+	#   pnRow      the row position, 1 for the first
+	#   returns    the cell value
+	#   warning    Raises Column not found! for an unknown column and R2 for a row past the last one
+	#   see        Col, Row
 	def Cell(pCol, pnRow)
 		_n_ = This.FindCol(pCol)
 		if _n_ = 0
@@ -913,21 +1043,47 @@ Class stzTable from stzList
 		ok
 		return @aContent[_n_][2][pnRow]
 
+	# Returns the number of columns times the number of rows.
+	#
+	#   returns    a number
+	#   see        NumberOfColumns, NumberOfRows
 	def NumberOfCells()
 		return This.NumberOfColumns() * This.NumberOfRows()
 
+	# Returns the name of the nth column.
+	#
+	#   _n_        the position of the column
+	#   returns    the column name, as text
+	#   warning    Raises R2 when n is 0 or past the last column
+	#   see        FirstColName, LastColName
 	def NthColName(_n_)
 		return @aContent[_n_][1]
 
+	# Returns the name of the first column.
+	#
+	#   returns    the column name, as text
+	#   see        NthColName, LastColName
 	def FirstColName()
 		return This.NthColName(1)
 
+	# Returns the name of the last column.
+	#
+	#   returns    the column name, as text
+	#   see        NthColName, FirstColName
 	def LastColName()
 		return This.NthColName(This.NumberOfColumns())
 
+	# Returns the cells of the last row, one per column.
+	#
+	#   returns    a list of cells
+	#   see        Row
 	def LastRow()
 		return This.Row(This.NumberOfRows())
 
+	# Returns every row, top to bottom, each as a list of cells.
+	#
+	#   returns    a list of rows
+	#   see        Row, Content
 	def Rows()
 		_aResult_ = []
 		_nRows_ = This.NumberOfRows()
@@ -936,6 +1092,14 @@ Class stzTable from stzList
 		next
 		return _aResult_
 
+	# Puts the given values in a row, one per column, in place.
+	#
+	#   pnRow      the row position
+	#   paNewRow   the new cells, one per column
+	#   returns    nothing; the table changes
+	#   warning    A list shorter than the number of columns raises R5 and a row past the last one
+	#              raises R2
+	#   see        ReplaceCell
 	def ReplaceRow(pnRow, paNewRow)
 		_nCols_ = len(@aContent)
 		for _i_ = 1 to _nCols_
@@ -943,6 +1107,12 @@ Class stzTable from stzList
 		next
 		This._InvalidateEngine()
 
+	# Puts a value in one cell, in place.
+	#
+	#   pnRow      the row position, 1 for the first
+	#   returns    nothing; the table changes
+	#   warning    Raises Column not found! for an unknown column
+	#   see        ReplaceCol
 	def ReplaceCell(pCol, pnRow, pValue)
 		_n_ = This.FindCol(pCol)
 		if _n_ = 0
@@ -951,6 +1121,13 @@ Class stzTable from stzList
 		@aContent[_n_][2][pnRow] = pValue
 		This._InvalidateEngine()
 
+	# Puts a whole new list of cells in a column, in place.
+	#
+	#   paNewData   the new cells of the column
+	#   returns     nothing; the table changes
+	#   warning     The length is not checked: a list of another length leaves the columns of
+	#               unequal size
+	#   see         ReplaceCell
 	def ReplaceCol(pCol, paNewData)
 		_n_ = This.FindCol(pCol)
 		if _n_ = 0
@@ -963,6 +1140,14 @@ Class stzTable from stzList
 	 #  TABLE SECTION (overrides stzList.Section for [col,row])   #
 	#============================================================#
 
+	# Returns columns n1 to n2 as [ name, cells ] pairs, or the cells of the block between two [ column, row ] corners, row by row.
+	#
+	#   p1         the first position, :First, or a [ column, row ] corner
+	#   p2         the last position, :Last, or the opposite corner
+	#   returns    a list
+	#   warning    Swapped numbers are put in order; a number out of range raises Indexes out of
+	#              range!
+	#   see        Cell, Col
 	def Section(p1, p2)
 		if isList(p1) and isList(p2)
 			# Rectangular section [col1,row1] to [col2,row2].
@@ -1057,7 +1242,10 @@ Class stzTable from stzList
 			@pEngine = ""
 		ok
 
-	# The engine handle of the table's backing store.
+	# Returns the handle of the engine-side copy of the table, rebuilding it first when it is stale.
+	#
+	#   returns    a number
+	#@ aka  The engine handle of the table's backing store.
 	def EngineHandle()
 		This._EnsureEngine()
 		return @pEngine
@@ -1066,6 +1254,12 @@ Class stzTable from stzList
 	 #  STRUCTURAL OPERATIONS (from submodule) #
 	#=========================================#
 
+	# Removes the nth column, in place; removing the only column leaves one empty column.
+	#
+	#   _n_        the position of the column to remove
+	#   returns    nothing; the table changes
+	#   warning    Raises Bad parameters value, error in range! when n is past the last column
+	#   see        RemoveColumn
 	def RemoveNthCol(_n_)
 		if This.NumberOfCols() = 1
 			@aContent = [ [ :COL1, [ "" ] ] ]
@@ -1073,9 +1267,21 @@ Class stzTable from stzList
 		ok
 		ring_remove(@aContent, _n_)
 
+		# Removes the nth column, in place; removing the only column leaves one empty column.
+		#
+		#   _n_        the position of the column to remove
+		#   returns    nothing; the table changes
+		#   see        RemoveNthCol
 		def RemoveColAt(_n_)
 			This.RemoveNthCol(_n_)
 
+	# Removes one column, given by name or position, in place; removing the only column leaves one empty column.
+	#
+	#   pColNameOrNumber   the column to remove, by name or position
+	#   returns            nothing; the table changes
+	#   warning            Raises Column not found! for an unknown name, and a bad-range error for a
+	#                      position past the last column
+	#   see                RemoveNthCol
 	def RemoveColumn(pColNameOrNumber)
 		_nRcCol_ = This.ColToColNumber(pColNameOrNumber)
 		if _nRcCol_ = 0
@@ -1083,6 +1289,11 @@ Class stzTable from stzList
 		ok
 		This.RemoveNthCol(_nRcCol_)
 
+		# Removes one column, given by name or position, in place; removing the only column leaves one empty column.
+		#
+		#   pColNameOrNumber   the column to remove, by name or position
+		#   returns            nothing; the table changes
+		#   see                RemoveColumn
 		def RemoveCol(pColNameOrNumber)
 			This.RemoveColumn(pColNameOrNumber)
 
@@ -1090,9 +1301,11 @@ Class stzTable from stzList
 	 #  CASTING TO PIVOT TABLE (from submodule)       #
 	#================================================#
 
-	#NOTE // stzPivotTable belongs to the MAX layer of StzLib
-	# For the following method to work, you must load "stzMax.ring"
-
+	# Returns a stzPivotTable built on this table, for pivot-style summaries.
+	#
+	#   returns    a stzPivotTable
+	#   note       Needs the max layer of the library to be loaded
+	#@ aka  NOTE // stzPivotTable belongs to the MAX layer of StzLib For the following method to work, you must load "stzMax.ring"
 	def ToStzPivotTable()
 		return new stzPivotTable(This)
 
@@ -1100,6 +1313,13 @@ Class stzTable from stzList
 	 #  DISPLAY OPERATIONS (from submodule)    #
 	#=========================================#
 
+	# Appends a column at the right end, in place; the cells are padded with empty text or cut to the number of rows.
+	#
+	#   pacColNameAndData   the new column as [ name, list of cells ]
+	#   returns             nothing; the table changes
+	#   warning             Raises an error when the name already exists or the pair is not [ text,
+	#                       list ]; a pair written with :name = list is refused too
+	#   see                 AddColumns
 	def AddColumn(pacColNameAndData)
 		if NOT ( isList(pacColNameAndData) and
 			 len(pacColNameAndData) = 2 and
@@ -1124,10 +1344,21 @@ Class stzTable from stzList
 		@aContent + pacColNameAndData
 		This._InvalidateEngine()
 
+		# Appends a column at the right end, in place; the cells are padded with empty text or cut to the number of rows.
+		#
+		#   pacColNameAndData   the new column as [ name, list of cells ]
+		#   returns             nothing; the table changes
+		#   see                 AddColumn
 		def AddCol(pacColNameAndData)
 			This.AddColumn(pacColNameAndData)
 
-	# Word-order alias used by narrative tests.
+	# Returns the name of the nth column.
+	#
+	#   _n_        the position of the column
+	#   returns    the column name, as text
+	#   warning    Raises Column index out of range. for 0 or a position past the last column
+	#   see        NthColName
+	#@ aka  Word-order alias used by narrative tests.
 	def ColName(_n_)
 		if _n_ < 1 or _n_ > len(@aContent)
 			StzRaise("Column index out of range.")
@@ -1150,12 +1381,24 @@ Class stzTable from stzList
 		next
 		return _aResultLocal_
 
+		# Looks for a row equal to the given cells and answers its positions.
+		#
+		#   paRow      the cells of the row to look for
+		#   returns    a list of positions
+		#   note       Use Rows with a loop, or FindInCol, until the comparison is fixed
+		#   warning    Answers [ ] today even for a row that exists, because rows are compared with
+		#              = , which never holds between two lists
 		def FindRow(paRow)
 			return This.FindRowCS(paRow, 1)
 
-	# FindInCol(pCol, pValueOrSubvalue) -- look up positions in a
-	# single column where the cell equals pValue or contains pSubValue.
-	# Accepts bare value or :Value = / :SubValue = named-param forms.
+	# Returns the row positions where the column holds the given value, case-sensitively; [ ] when the column does not exist.
+	#
+	#   pValueOrNamed   the value to look for, or [ :Value, v ]
+	#   returns         a list of row positions
+	#   warning         The [ :SubValue, text ] form finds nothing today: the comparison passes its
+	#                   two texts to StzFindFirst in the wrong order
+	#   see             ContainsCell, NumberOfOccurrenceInCol
+	#@ aka  FindInCol(pCol, pValueOrSubvalue) -- look up positions in a single column where the cell equals pValue or contains pSubValue. Accepts bare value or :Value = / :SubValue = named-param forms.
 	def FindInCol(pCol, pValueOrNamed)
 		return This.FindInColCS(pCol, pValueOrNamed, 1)
 
@@ -1210,16 +1453,26 @@ Class stzTable from stzList
 		next
 		return _aRes_
 
-	# ContainsCell(pCol, pValue) -- TRUE if any cell in column pCol
-	# equals pValue.
+	# TRUE if the column holds a cell equal to the value, case-sensitively.
+	#
+	#   returns    TRUE or FALSE
+	#   warning    Answers FALSE, not an error, for a column that does not exist
+	#   see        FindInCol
+	#@ aka  ContainsCell(pCol, pValue) -- TRUE if any cell in column pCol equals pValue.
 	def ContainsCell(pCol, pValue)
 		return len(This.FindInCol(pCol, pValue)) > 0
 
 		def ContainsCellInCol(pCol, pValue)
 			return This.ContainsCell(pCol, pValue)
 
-	# NumberOfOccurrenceInCol -- count cells in column pCol matching
-	# pValueOrNamed. Accepts bare value / :Value / :OfValue / :OfSubValue.
+	# Returns how many cells of the column equal the value, case-sensitively.
+	#
+	#   pValueOrNamed   the value to count, or [ :Value, v ]
+	#   returns         a number
+	#   warning         The [ :OfSubValue, text ] form counts cells equal to the text, not cells
+	#                   containing it
+	#   see             FindInCol
+	#@ aka  NumberOfOccurrenceInCol -- count cells in column pCol matching pValueOrNamed. Accepts bare value / :Value / :OfValue / :OfSubValue.
 	def NumberOfOccurrenceInCol(pCol, pValueOrNamed)
 		return len(This.FindInCol(pCol, _NormalizeColLookupKey(pValueOrNamed)))
 
@@ -1229,8 +1482,15 @@ Class stzTable from stzList
 		def NumberOfOccurrenceInColumn(pCol, pValueOrNamed)
 			return This.NumberOfOccurrenceInCol(pCol, pValueOrNamed)
 
-	# NumberOfOccurrenceInRow(nRow, pValue) -- count cells in row nRow
-	# matching pValue. Walks each column at row index nRow.
+	# Returns how many cells of the row equal the value.
+	#
+	#   nRow       the row position
+	#   pValue     the value to count, or [ :Value, v ]
+	#   returns    a number
+	#   warning    Raises R2 for a row past the last one; the [ :OfSubValue, text ] form counts
+	#              nothing today, because StzFindFirst gets its two texts in the wrong order
+	#   see        NumberOfOccurrenceInCol
+	#@ aka  NumberOfOccurrenceInRow(nRow, pValue) -- count cells in row nRow matching pValue. Walks each column at row index nRow.
 	def NumberOfOccurrenceInRow(nRow, pValue)
 		_pVal_ = _NormalizeColLookupKey(pValue)
 		_bSub_ = 0
@@ -1255,8 +1515,16 @@ Class stzTable from stzList
 		def NumberOfOccurrencesInRow(nRow, pValue)
 			return This.NumberOfOccurrenceInRow(nRow, pValue)
 
-	# NumberOfOccurrenceInCell(nCol, nRow, pValue) -- check just the
-	# single cell at [nCol, nRow]. Returns 0 or 1 (1 if it matches).
+	# Returns 1 when the cell at the given column and row equals the value, otherwise 0.
+	#
+	#   nCol       the column position, as a number
+	#   nRow       the row position
+	#   pValue     the value to compare with
+	#   returns    0 or 1
+	#   warning    The column must be given by position; the [ :OfSubValue, text ] form answers 0
+	#              today, because StzFindFirst gets its two texts in the wrong order
+	#   see        NumberOfOccurrenceInRow
+	#@ aka  NumberOfOccurrenceInCell(nCol, nRow, pValue) -- check just the single cell at [nCol, nRow]. Returns 0 or 1 (1 if it matches).
 	def NumberOfOccurrenceInCell(nCol, nRow, pValue)
 		_pVal_ = _NormalizeColLookupKey(pValue)
 		_bSub_ = 0
@@ -1274,8 +1542,12 @@ Class stzTable from stzList
 		if _cell_ = _pVal_ return 1 ok
 		return 0
 
-	# NumberOfOccurrenceInCols(acCols, pValue) -- sum across the
-	# listed columns.
+	# Returns the sum, over the given columns, of the cells equal to the value.
+	#
+	#   acCols     the columns to look in, by name or position
+	#   returns    a number
+	#   see        NumberOfOccurrenceInCol
+	#@ aka  NumberOfOccurrenceInCols(acCols, pValue) -- sum across the listed columns.
 	def NumberOfOccurrenceInCols(acCols, pValue)
 		_nTot_ = 0
 		_nLen_ = len(acCols)
@@ -1315,7 +1587,11 @@ Class stzTable from stzList
 	def ShowXT(pOpts)
 		This.Show()
 
-	# Fill(pValue) -- replace every cell in the table with pValue.
+	# Sets every cell of the table to the same value, in place.
+	#
+	#   returns    nothing; the table changes
+	#   see        FillSections
+	#@ aka  Fill(pValue) -- replace every cell in the table with pValue.
 	def Fill(pValue)
 		_nCols_ = This.NumberOfCols()
 		for _i_ = 1 to _nCols_
@@ -1330,9 +1606,14 @@ Class stzTable from stzList
 			This.Fill(pValue)
 			return This
 
-	# FillSections(aSections, :With = value) -- replace cells in the
-	# given [colIdx, rowIdx] section pairs. Accepts the :With named
-	# param or a bare value as 2nd arg.
+	# Sets the listed cells to a value, in place; positions outside the table are skipped without an error.
+	#
+	#   aSections   the cells to fill, each as [ column position, row position ]
+	#   pWith       the value to put, or [ :With, value ]
+	#   returns     nothing; the table changes
+	#   warning     Despite its name it takes single cells, not rectangular sections
+	#   see         Fill
+	#@ aka  FillSections(aSections, :With = value) -- replace cells in the given [colIdx, rowIdx] section pairs. Accepts the :With named param or a bare value as 2nd arg.
 	def FillSections(aSections, pWith)
 		if isList(pWith) and len(pWith) = 2 and isString(pWith[1]) and
 		   lower(pWith[1]) = "with"
@@ -1351,8 +1632,12 @@ Class stzTable from stzList
 		next
 		This._InvalidateEngine()
 
-	# RemoveCols(acColsOrNumbers) -- remove every column whose name
-	# or 1-based number is listed.
+	# Removes every listed column, given by name or position, in place; unknown columns are ignored.
+	#
+	#   acCols     the columns to remove, by name or position
+	#   returns    nothing; the table changes
+	#   see        RemoveColumn
+	#@ aka  RemoveCols(acColsOrNumbers) -- remove every column whose name or 1-based number is listed.
 	def RemoveCols(acCols)
 		_nLen_ = len(acCols)
 		# Remove in two passes: resolve to indices first (since removal
@@ -1380,6 +1665,11 @@ Class stzTable from stzList
 		next
 		This._InvalidateEngine()
 
+		# Removes every listed column, given by name or position, in place; unknown columns are ignored.
+		#
+		#   acCols     the columns to remove, by name or position
+		#   returns    nothing; the table changes
+		#   see        RemoveCols
 		def RemoveColumns(acCols)
 			This.RemoveCols(acCols)
 
@@ -1427,9 +1717,23 @@ func _NormalizeColLookupKey(pVal)
 
 		return _aResult_
 
+		# Raises error R24 today instead of returning a cell with its [ column, row ] position.
+		#
+		#   pRow       the row position
+		#   returns    nothing; it raises
+		#   warning    Raises R24 (uninitialized variable pnrow) because the body passes pnRow while
+		#              the parameter is named pRow; CellZ works
+		#   see        CellZ
 		def CellAndPosition(pCol, pRow)
 			return This.CellZ(pCol, pnRow)
 
+		# Raises error R24 today instead of returning a cell with its [ column, row ] position.
+		#
+		#   pRow       the row position
+		#   returns    nothing; it raises
+		#   warning    Raises R24 (uninitialized variable pnrow) because the body passes pnRow while
+		#              the parameter is named pRow; CellZ works
+		#   see        CellZ
 		def CellAndItsPosition(pCol, pRow)
 			return This.CellZ(pCol, pnRow)
 
@@ -1476,6 +1780,12 @@ func _NormalizeColLookupKey(pVal)
 	 #  GETIING GIVEN CELLS VALUES BY THEIR POSITIONS (COLUMN, ROW) IN THE TABLE  #
 	#----------------------------------------------------------------------------#
 
+	# Returns the cells at the given [ column, row ] positions, in the order given.
+	#
+	#   paCellsPos   the positions, each as [ column, row ]
+	#   returns      a list of cells
+	#   warning      Raises R2 for a row past the last one
+	#   see          Cell, CellsAsPositions
 	def TheseCells(paCellsPos)
 		/*
 		_o1_ = new stzTable([
@@ -1567,6 +1877,12 @@ func _NormalizeColLookupKey(pVal)
 	 #  GETIING THE LIST OF ALL CELLS  #
 	#---------------------------------#
 
+	# Raises error R41 today instead of returning every cell, row by row.
+	#
+	#   returns    nothing; it raises
+	#   warning    Raises R41 (invalid numeric string) because it calls Section with :FirstCol and
+	#              :LastRow corners, which Section does not read; Rows gives the cells row by row
+	#   see        CellsAsPositions, Rows
 	def Cells()
 
 		_aResult_ = This.Section( [ :FirstCol, :FirstRow ], [ :LastCol, :LastRow ] )
@@ -1620,6 +1936,10 @@ func _NormalizeColLookupKey(pVal)
 	 #  GETIING THE LIST OF ALL CELLS AND THEIR POSITIONS  #
 	#-----------------------------------------------------#
 
+	# Returns every cell with its [ column, row ] position, row by row.
+	#
+	#   returns    a list of [ cell, [ column, row ] ] pairs
+	#   see        PositionsAndCells
 	def CellsAndTheirPositions()
 
 		_aResult_ = []
@@ -1655,8 +1975,11 @@ func _NormalizeColLookupKey(pVal)
 		def AllCellsZ()
 			return This.CellsAndTheirPositions()
 
+	# Returns every [ column, row ] position with its cell, row by row.
+	#
+	#   returns    a list of [ [ column, row ], cell ] pairs
+	#   see        CellsAndTheirPositions
 		#>
-
 	def PositionsAndCells()
 
 		_aResult_ = []
@@ -1671,6 +1994,10 @@ func _NormalizeColLookupKey(pVal)
 
 		return _aResult_
 
+	# Returns the [ column, row ] position of every cell, row by row.
+	#
+	#   returns    a list of [ column, row ] pairs
+	#   see        CellsAndTheirPositions
 	def CellsAsPositions()
 
 		_aResult_ = []
@@ -1712,6 +2039,13 @@ func _NormalizeColLookupKey(pVal)
 		def TheseCellsXT(paCells)
 			return This.TheseCellsZ(paCells)
 
+	# Raises error today instead of pairing each given position with its cell.
+	#
+	#   paCells    the positions, each as [ column, row ]
+	#   returns    nothing; it raises
+	#   warning    Raises Column not found! or R2 because the body reads paCells[1] and paCells[2]
+	#              instead of the item of the loop
+	#   see        TheseCells
 	def PositionsAndTheseCells(paCells)
 		_aResult_ = []
 		_nCells_ = len(paCells)
@@ -1727,6 +2061,10 @@ func _NormalizeColLookupKey(pVal)
 	 #  GETIING THE LIST OF ALL CELLS BY TRANSFORMING IT TO A HASHLIST  #
 	#------------------------------------------------------------------#
 
+	# Returns every cell keyed by the text of its [ column, row ] position, row by row.
+	#
+	#   returns    a list of [ "[ 1, 1 ]", cell ] pairs
+	#   see        CellsAndTheirPositions
 	def CellsToHashList()
 		_aResult_ = This.TheseCellsToHashList( This.CellsAsPositions() )
 		return _aResult_
@@ -1761,8 +2099,12 @@ func _NormalizeColLookupKey(pVal)
 			def CellsAsHashListQRT(pcReturnType)
 				return This.CellsToHashListQRT(pcReturnType)
 
+	# Returns the cells at the given positions, each keyed by the text of its [ column, row ] position.
+	#
+	#   paCellsPos   the positions, each as [ column, row ]
+	#   returns      a list of [ "[ 1, 1 ]", cell ] pairs
+	#   see          TheseCells
 		#>
-
 	def TheseCellsToHashList(paCellsPos)
 		#TODO // check if paCells are really cells and belong to the table!
 
@@ -1923,8 +2265,16 @@ func _NormalizeColLookupKey(pVal)
 			def CellsInSectionAndItsPositionQRT( panCellPos1, panCellPos2, pcReturnType )
 				return This.SectionZQRT( panCellPos1, panCellPos2, pcReturnType )
 
+	# Returns the positions between two [ column, row ] corners, read column by column.
+	#
+	#   panCellPos1   the first corner, [ column, row ] or :FirstCell
+	#   panCellPos2   the last corner, [ column, row ] or :LastCell
+	#   returns       a list of [ column, row ] pairs
+	#   warning       The first column is read from its row down, the other columns from the first
+	#                 corner row down, the last column from row 1 to its row; this is not the block
+	#                 Section returns
+	#   see           Section
 		#>
-
 	def SectionAsPositions( panCellPos1, panCellPos2 )
 		if CheckingParams()
 			if isList(panCellPos1) and Q(panCellPos1).IsFromNamedParam()
@@ -2100,6 +2450,12 @@ func _NormalizeColLookupKey(pVal)
 	 #   COLUMN SECTIONS (SOME CELLS OF A GIVEN COLUMN)  #
 	#===================================================#
 
+	# Returns the cells of one column between two row positions.
+	#
+	#   _n1_       the first row of the section
+	#   _n2_       the last row of the section
+	#   returns    a list of cells
+	#   see        ColSectionAsPositions, RowSection
 	def ColSection(pCol, _n1_, _n2_)
 
 		_aCellsPos_ =  This.ColSectionAsPositions(pCol, _n1_, _n2_)
@@ -2110,6 +2466,12 @@ func _NormalizeColLookupKey(pVal)
 		def ColumnSection(pCol, _n1_, _n2_)
 			return This.ColSection(pCol, _n1_, _n2_)
 
+	# Returns the [ column, row ] positions of one column between two row positions.
+	#
+	#   _n1_       the first row of the section
+	#   _n2_       the last row of the section
+	#   returns    a list of [ column, row ] pairs
+	#   see        ColSection
 	def ColSectionAsPositions(pCol, _n1_, _n2_)
 		if CheckingParams()
 			if isList(_n1_)
@@ -2200,6 +2562,13 @@ func _NormalizeColLookupKey(pVal)
 	 #  GETTING CELLES IN A COL SECTION ALONG WITH THEIR POSITIONS  #
 	#--------------------------------------------------------------#
 
+	# Returns the cells of one column between two row positions, each with its [ column, row ] position.
+	#
+	#   _nCol_     the column position
+	#   _n1_       the first row of the section
+	#   _n2_       the last row of the section
+	#   returns    a list of [ cell, [ column, row ] ] pairs
+	#   see        ColSection
 	def CellsInColSectionZ(_nCol_, _n1_, _n2_)
 		_anCellsPos_ = This.FindCellsInColSection(_nCol_, _n1_, _n2_)
 		_aCells_ = This.CellsAtPositions(_anCellsPos_)
@@ -2211,6 +2580,13 @@ func _NormalizeColLookupKey(pVal)
 	 #   HORIZONTAL SECTIONS (SOME CELLS OF A GIVEN ROW)  #
 	#====================================================#
 
+	# Returns the cells of one row between two column positions.
+	#
+	#   _nRow_     the row position
+	#   _n1_       the first column of the section
+	#   _n2_       the last column of the section
+	#   returns    a list of cells
+	#   see        RowSectionAsPositions, ColSection
 	def RowSection(_nRow_, _n1_, _n2_)
 		_aCellsPos_ =  This.RowSectionAsPositions(_nRow_, _n1_, _n2_)
 		_aResult_ = This.CellsAtPositions(_aCellsPos_)
@@ -2222,8 +2598,14 @@ func _NormalizeColLookupKey(pVal)
 		def CellsInRowSection(_nRow_, _n1_, _n2_)
 			return This.RowSection(_nRow_, _n1_, _n2_)
 
+	# Returns the [ column, row ] positions of one row between two column positions.
+	#
+	#   _nRow_     the row position
+	#   _n1_       the first column of the section
+	#   _n2_       the last column of the section
+	#   returns    a list of [ column, row ] pairs
+	#   see        RowSection
 		#>
-
 	def RowSectionAsPositions(_nRow_, _n1_, _n2_)
 		if CheckingParams()
 
@@ -2315,6 +2697,13 @@ func _NormalizeColLookupKey(pVal)
 	 #   CONVERTING A SECTION OF CELLS TO A HASHLIST   #
 	#=================================================#
 
+	# Returns the cells between two corners, each keyed by the text of its [ column, row ] position.
+	#
+	#   panCellPos1   the first corner, [ column, row ]
+	#   panCell2      the last corner, [ column, row ]
+	#   returns       a list of [ "[ 1, 1 ]", cell ] pairs
+	#   warning       Follows the column-by-column order of SectionAsPositions
+	#   see           SectionAsPositions
 	def SectionToHashList(panCellPos1, panCell2)
 		_aResult_ = TheseCellsToHashList( This.SectionAsPositions(panCellPos1, panCell2) )
 		return _aResult_
@@ -2349,9 +2738,23 @@ func _NormalizeColLookupKey(pVal)
 
 	// TODO
 
+	# Raises error today instead of returning a range of the table.
+	#
+	#   _n1_       the first position
+	#   _n2_       the last position
+	#   returns    nothing; it raises
+	#   warning    Always raises Feature not implemented yet!
+	#   see        Section
 	def SectionToRange(_n1_, _n2_) // TODO
 		StzRaise("Feature not implemented yet!")
 
+	# Raises error today instead of returning a block of the table between two bounds.
+	#
+	#   paPair     a pair of positions
+	#   paRange    the range to read
+	#   returns    nothing; it raises
+	#   warning    Always raises Feature not implemented yet!
+	#   see        Section
 	def Range(paPair, paRange) // TODO
 		StzRaise("Feature not implemented yet!")
 
@@ -2431,6 +2834,11 @@ func _NormalizeColLookupKey(pVal)
 	 #  GETTING THE LIST OF CELLS IN THE PROVIDED COLUMNS  #
 	#-----------------------------------------------------#
 
+	# Raises error R14 today instead of returning the cells of the given columns.
+	#
+	#   returns    nothing; it raises
+	#   warning    Raises R14 because IsListOfNumbersOrStrings is defined nowhere
+	#   see        ColsAsPositions
 	def CellsInCols(paCols)
 
 		if NOT ( isList(paCols) and
@@ -2596,6 +3004,10 @@ func _NormalizeColLookupKey(pVal)
 	 #   GETTING FIRST COLUMN DATA (THE LIST OF ITS CELLS)  #
 	#------------------------------------------------------#
 
+	# Returns the cells of the first column, top to bottom.
+	#
+	#   returns    a list of cells
+	#   see        LastCol, Col
 	def FirstCol()
 		return This.NthCol(1)
 
@@ -2630,6 +3042,10 @@ func _NormalizeColLookupKey(pVal)
 	 #   GETTING LAST COLUMN DATA (THE LIST OF ITS CELLS)  #
 	#-----------------------------------------------------#
 
+	# Returns the cells of the last column, top to bottom.
+	#
+	#   returns    a list of cells
+	#   see        FirstCol, Col
 	def LastCol()
 		return This.NthCol(This.NumberOfCols())
 
@@ -2666,6 +3082,11 @@ func _NormalizeColLookupKey(pVal)
 	 #  GETTING CELLS AND THEIR POSITIONS IN A GIVEN COLUMN   #
 	#--------------------------------------------------------#
 
+	# Returns the cells of one column, each with its [ column, row ] position.
+	#
+	#   p          the column, by name or position
+	#   returns    a list of [ cell, [ column, row ] ] pairs
+	#   see        ColAsPositions
 	def CellsAndPositionsInCol(p)
 		_aResult_ = This.ColQ(p).AssociatedWith( This.CellsInColAsPositions(p) )
 
@@ -2728,6 +3149,11 @@ func _NormalizeColLookupKey(pVal)
 	 #   GETTING THE POSITIONS OF THE CELLS OF A GIVEN COLUMN   #
 	#----------------------------------------------------------#
 
+	# Returns the [ column, row ] position of every cell of one column.
+	#
+	#   returns    a list of [ column, row ] pairs
+	#   warning    Raises an error for a column that does not exist
+	#   see        RowAsPositions
 	def ColAsPositions(pCol)
 		if NOT This.IsCol(pCol)
 			StzRaise("Incorrect param value! " + @@(pCol) + " is not a valid column identifier.")
@@ -2827,6 +3253,10 @@ func _NormalizeColLookupKey(pVal)
 	 #   GETTING THE POSITIONS OF THE CELLS OF MANY COLUMNS   #
 	#--------------------------------------------------------#
 
+	# Returns the [ column, row ] positions of every cell of the given columns, column by column.
+	#
+	#   returns    a list of [ column, row ] pairs
+	#   see        ColAsPositions
 	def ColsAsPositions(paCols)
 		_nLen_ = len(paCols)
 		_anColNumbers_ = This.TheseColsAsNumbers(paCols)
@@ -3005,6 +3435,11 @@ func _NormalizeColLookupKey(pVal)
 	 #  GETTING THE CELLS OF MANY ROWS  #
 	#----------------------------------#
 
+	# Returns the cells of the given rows, row by row, as one flat list.
+	#
+	#   panRows    the row positions
+	#   returns    a list of cells
+	#   see        RowsAsPositions
 	def CellsInRows(panRows)
 		if NOT ( isList(panRows) and @IsListOfNumbers(panRows) )
 			StzRaise("Incorrect param type! panRows must be a list of numbers.")
@@ -3017,6 +3452,10 @@ func _NormalizeColLookupKey(pVal)
 	 #   GETTING FIRST ROW   #
 	#-----------------------#
 
+	# Returns the cells of the first row, left to right.
+	#
+	#   returns    a list of cells
+	#   see        LastRow, Row
 	def FirstRow()
 		return This.NthRow(1)
 
@@ -3030,6 +3469,10 @@ func _NormalizeColLookupKey(pVal)
 	def LastRowXT()
 		return This.NthRowXT(This.NumberOfRows())
 
+		# Returns how many rows the table has.
+		#
+		#   returns    a number
+		#   see        NumberOfRows
 		def Size()
 			return NumberOfRows()
 
@@ -3137,9 +3580,21 @@ func _NormalizeColLookupKey(pVal)
 			def CellsInRowZQRT(_n_, pcReturnType)
 				return This.RowZQRT(_n_, pcReturnType)
 
+		# Raises error R24 today instead of returning the cells of row n with their positions.
+		#
+		#   _n_        the row position
+		#   returns    nothing; it raises
+		#   warning    Raises R24 (uninitialized variable p) because the body passes p, not n; RowZ
+		#              works
+		#   see        RowZ
 		def CellsInRowNAndTheirPositions(_n_)
 			return This.RowZ(p)
 
+			# Returns the cells of row n, each with its [ column, row ] position, wrapped in a stzList.
+			#
+			#   _n_        the row position
+			#   returns    a stzList of [ cell, [ column, row ] ] pairs
+			#   see        RowZ
 			def CellsInRowNAndTheirsPositionsQ(_n_)
 				return This.CellsInRowNAndTheirsPositionsQRT(_n_, :stzList)
 
@@ -3155,6 +3610,13 @@ func _NormalizeColLookupKey(pVal)
 			def CellsAndPositionsInRowNQRT(_n_, pcReturnType)
 				return This.RowZQRT(_n_, pcReturnType)
 
+		# Raises error R24 today instead of returning the cells of row n with their positions.
+		#
+		#   _n_        the row position
+		#   returns    nothing; it raises
+		#   warning    Raises R24 (uninitialized variable p) because the body passes p, not n; RowZ
+		#              works
+		#   see        RowZ
 		def CellsAndPositionsInNthRow(_n_)
 			return This.RowZ(p)
 
@@ -3164,6 +3626,13 @@ func _NormalizeColLookupKey(pVal)
 			def CellsAndPositionsInNthRowQRT(_n_, pcReturnType)
 				return This.RowZQRT(_n_, pcReturnType)
 
+		# Raises error R24 today instead of returning the cells of row n with their positions.
+		#
+		#   _n_        the row position
+		#   returns    nothing; it raises
+		#   warning    Raises R24 (uninitialized variable p) because the body passes p, not n; RowZ
+		#              works
+		#   see        RowZ
 		def CellsInNthRowAndTheirPositions(_n_)
 			return This.RowZ(p)
 
@@ -3185,6 +3654,12 @@ func _NormalizeColLookupKey(pVal)
 		def NthRowZ(_n_)
 			return This.RowZ(_n_)
 
+			# Returns the cells of row n, each with its [ column, row ] position, wrapped in a stzList.
+			#
+			#   _n_        the row position
+			#   returns    a stzList of [ cell, [ column, row ] ] pairs
+			#   warning    The name misspells NthRowZQ
+			#   see        RowZ
 			def NtRowZQ(_n_)
 				return This.NthRowZQRT(_n_, :stzList)
 
@@ -3197,6 +3672,13 @@ func _NormalizeColLookupKey(pVal)
 	 #   GETTING THE POSITIONS OF THE CELLS OF A GIVEN ROW   #
 	#-------------------------------------------------------#
 
+	# Returns the [ column, row ] position of every cell of one row.
+	#
+	#   pnRow      the row position, :First or :Last
+	#   returns    a list of [ column, row ] pairs
+	#   warning    The row is not checked against the table: a row past the last one still answers
+	#              positions
+	#   see        ColAsPositions
 	def RowAsPositions(pnRow)
 		if CheckingParams()
 
@@ -3284,6 +3766,11 @@ func _NormalizeColLookupKey(pVal)
 	 #   GETTING THE POSITIONS OF THE CELLS OF MANY ROWS  #
 	#----------------------------------------------------#
 
+	# Returns the [ column, row ] positions of every cell of the given rows, row by row.
+	#
+	#   panRows    the row positions
+	#   returns    a list of [ column, row ] pairs
+	#   see        RowAsPositions
 	def RowsAsPositions(panRows)
 		_nNumberOfCols_ = This.NumberOfCols()
 		_nLenRows_ = len(panRows)
@@ -3355,8 +3842,14 @@ func _NormalizeColLookupKey(pVal)
 		def RowsToCellsAsPositions(panRows)
 			return This.RowsAsPositions(panRows)
 
+	# Appends several columns at the right end, in place; the cells are padded or cut like AddColumn.
+	#
+	#   pacColNamesAndData   the columns, each as [ name, list of cells ]
+	#   returns              nothing; the table changes
+	#   warning              A name that already exists raises an error after the earlier columns
+	#                        were added
+	#   see                  AddColumn
 		#>
-
 	def AddColumns(pacColNamesAndData)
 		_nLen_ = len(pacColNamesAndData)
 
@@ -3364,6 +3857,11 @@ func _NormalizeColLookupKey(pVal)
 			This.AddColumn(pacColNamesAndData[i])
 		next
 
+		# Appends several columns at the right end, in place; the cells are padded or cut like AddColumn.
+		#
+		#   pacColNamesAndData   the columns, each as [ name, list of cells ]
+		#   returns              nothing; the table changes
+		#   see                  AddColumns
 		def AddCols(pacColNamesAndData)
 			This.AddColumns(pacColNamesAndData)
 
@@ -3371,6 +3869,12 @@ func _NormalizeColLookupKey(pVal)
 	 #  ADDING ROWS  #
 	#===============#
 
+	# Appends one row at the bottom, in place.
+	#
+	#   paRow      the cells of the new row, one per column
+	#   returns    nothing; the table changes
+	#   warning    Raises an error when the number of cells differs from the number of columns
+	#   see        AddRows
 	def AddRow(paRow)
 		/*
 		_o1_ = new stzTable([
@@ -3402,6 +3906,12 @@ func _NormalizeColLookupKey(pVal)
 
 		This.UpdateWith(_aContent_)
 
+	# Appends several rows at the bottom, in place.
+	#
+	#   paRows     the new rows, each a list with one cell per column
+	#   returns    nothing; the table changes
+	#   warning    Stops at the first row of the wrong size, leaving the earlier rows added
+	#   see        AddRow
 	def AddRows(paRows)
 		if NOT isList(paRows)
 			StzRaise("Incorrect param type! paRows must be a list.")
@@ -3416,17 +3926,37 @@ func _NormalizeColLookupKey(pVal)
 	 #  EXTANDING THE TABLE  # // TODO
 	#=======================#
 
+	# Raises error today instead of growing the table to a given size.
+	#
+	#   _nCol_     the number of columns to reach
+	#   _nRow_     the number of rows to reach
+	#   returns    nothing; it raises
+	#   warning    Always raises Unsupported feature in this release!
 	def Extend(_nCol_, _nRow_)
 
 		/* ... */
 		StzRaise("Unsupported feature in this release!")
 
+		# Does nothing today instead of growing the table to a given size.
+		#
+		#   _nCol_     the number of columns to reach
+		#   _nRow_     the number of rows to reach
+		#   returns    nothing; the table is unchanged
+		#   warning    Its body is empty
+		#   see        Extend
 		def ExtendTo(_nCol_, _nRow_)
 
 	  #======================#
 	 #  UPDATING THE TABLE  #
 	#======================#
 
+	# Replaces the whole content by a hash list of equally long columns, in place.
+	#
+	#   paNewTable   the new content as name = cells pairs, optionally behind :With, :By or :Using
+	#   returns      nothing; the table changes
+	#   warning      Raises an error when the columns are not [ text, list ] pairs of one size with
+	#                distinct names
+	#   see          UpdateWith
 	def Update(paNewTable)
 		if CheckingParams() = 1
 			if isList(paNewTable) and StzIsWithOrByOrUsingNamedParamList(paNewTable)
@@ -3498,30 +4028,51 @@ func _NormalizeColLookupKey(pVal)
 			This.Update(paNewTable)
 			return This
 
+		# Replaces the whole content by a hash list of equally long columns, in place.
+		#
+		#   paNewTable   the new content as name = cells pairs, optionally behind :With, :By or
+		#                :Using
+		#   returns      nothing; the table changes
+		#   see          Update
 		#>
-
 		#< @FunctionAlternativeForms
-
 		def UpdateWith(paNewTable)
 			This.Update(paNewTable)
 
 			def UpdateWithQ(paNewTable)
 				return This.UpdateQ(paNewTable)
 
+		# Replaces the whole content by a hash list of equally long columns, in place.
+		#
+		#   paNewTable   the new content as name = cells pairs, optionally behind :With, :By or
+		#                :Using
+		#   returns      nothing; the table changes
+		#   see          Update
 		def UpdateBy(paNewTable)
 			This.Update(paNewTable)
 
 			def UpdateByQ(paNewTable)
 				return This.UpdateQ(paNewTable)
 
+		# Replaces the whole content by a hash list of equally long columns, in place.
+		#
+		#   paNewTable   the new content as name = cells pairs, optionally behind :With, :By or
+		#                :Using
+		#   returns      nothing; the table changes
+		#   see          Update
 		def UpdateUsing(paNewTable)
 			This.Update(paNewTable)
 
 			def UpdateUsingQ(paNewTable)
 				return This.UpdateQ(paNewTable)
 
+	# Returns its argument unchanged and leaves the table alone, instead of returning an updated copy.
+	#
+	#   paNewTable   the value handed back
+	#   returns      the argument itself
+	#   warning      Does not apply the new content: its body is only a return of the argument
+	#   see          Update
 		#>
-
 	def Updated(paNewTable)
 		return paNewTable
 
@@ -3542,6 +4093,12 @@ func _NormalizeColLookupKey(pVal)
 	 #  RENAMING COLUMNS  #
 	#====================#
 
+	# Gives a column a new name, in place; the column is given by name or position.
+	#
+	#   pcNewName   the new name of the column, as text
+	#   returns     nothing; the table changes
+	#   warning     The method name is misspelt; there is no RenameCol, so RenameCols fails
+	#   see         RenameNthCol
 	def RenanmeCol(pCol, pcNewName)
 
 		if NOT isString(pcNewName)
@@ -3566,6 +4123,12 @@ func _NormalizeColLookupKey(pVal)
 
 		This.RenameColN(pCol, pcNewName)
 
+	# Raises error R14 today instead of renaming several columns from [ old name, new name ] pairs.
+	#
+	#   paColsAndTheirNewNames   the columns to rename, as old name = new name pairs
+	#   returns                  nothing; it raises
+	#   warning                  Raises R14 because it calls RenameCol, which is defined nowhere
+	#   see                      RenanmeCol
 	def RenameCols(paColsAndTheirNewNames)
 
 		if NOT (isList(paColsAndTheirNewNames) and @IsHashList(paColsAndTheirNewNames))
@@ -3578,6 +4141,13 @@ func _NormalizeColLookupKey(pVal)
 			This.RenameCol(paColsAndTheirNewNames[i][1], paColsAndTheirNewNames[i][2])
 		next
 
+	# Gives the nth column a new name, in place.
+	#
+	#   _n_         the position of the column
+	#   pcNewName   the new name as text, or [ :With, name ]
+	#   returns     nothing; the table changes
+	#   warning     Raises R2 for a position outside the table; :Last is not understood
+	#   see         RenameFirstCol
 	def RenameNthCol(_n_, pcNewName)
 		if isList(pcNewName) and Q(pcNewName).IsWithOrByNamedParam()
 			pcNewName = pcNewName[2]
@@ -3589,9 +4159,23 @@ func _NormalizeColLookupKey(pVal)
 
 		@aContent[_n_][1] = pcNewName
 
+		# Gives the nth column a new name, in place.
+		#
+		#   _n_         the position of the column
+		#   pcNewName   the new name as text, or [ :With, name ]
+		#   returns     nothing; the table changes
+		#   see         RenameNthCol
 		def RenameColN(_n_, pcNewName)
 			This.RenameNthCol(_n_, pcNewName)
 
+	# Raises error R24 today instead of renaming several columns by position.
+	#
+	#   panColsNumbers   the positions of the columns to rename
+	#   returns          nothing; it raises
+	#   warning          Raises R24 (uninitialized variable pacolsnumbers) because the check reads
+	#                    another name than the parameter; it would also call RenameColN without a
+	#                    new name
+	#   see              RenameNthCol
 	def RemnameNthCols(panColsNumbers)
 		if NOT (isList(paColsNumbers) and @IsListOfNumbers(paColsNumbers) )
 			StzRaise("Incorrect param type! panColsNumbers must be a list of numbers.")
@@ -3603,9 +4187,21 @@ func _NormalizeColLookupKey(pVal)
 			This.RenameColN(panColsNumbers[i])
 		next
 
+	# Gives the first column a new name, in place.
+	#
+	#   pcNewName   the new name, as text
+	#   returns     nothing; the table changes
+	#   see         RenameNthCol
 	def RenameFirstCol(pcNewName)
 		This.RenameNthCol(1, pcNewName)
 
+	# Raises error R2 today instead of renaming the last column.
+	#
+	#   pcNewName   the new name, as text
+	#   returns     nothing; it raises
+	#   warning     Raises R2 because it passes :Last, which RenameNthCol does not understand;
+	#               RenameNthCol with the real position works
+	#   see         RenameNthCol
 	def RenameLastCol(pcNewName)
 		This.RenameNthCol(:Last, pcNewName)
 
@@ -3613,12 +4209,29 @@ func _NormalizeColLookupKey(pVal)
 	 #  REMOVING A COLUMN  #
 	#=====================#
 
+		# Removes the nth column, in place; removing the only column leaves one empty column.
+		#
+		#   _n_        the position of the column to remove
+		#   returns    nothing; the table changes
+		#   see        RemoveNthCol
 		def RemoveNthColumn(_n_)
 			This.RemoveNthCol(_n_)
 
+		# Removes the nth column, in place; removing the only column leaves one empty column.
+		#
+		#   _n_        the position of the column to remove
+		#   returns    nothing; the table changes
+		#   see        RemoveNthCol
 		def RemoveColumnAt(_n_)
 			This.RemoveNthCol(_n_)
 
+	# Raises error R24 today instead of removing the columns at the given positions.
+	#
+	#   panColNumbers   the positions of the columns to remove
+	#   returns         nothing; it raises
+	#   warning         Raises R24 because the body sorts an undefined name (TpacColNamesOrNumbers);
+	#                   RemoveCols with the positions works
+	#   see             RemoveCols
 	def RemoveColumnsAt(panColNumbers)
 		if CheckingParams()
 			if NOT ( isList(panColNumbers) and @IsListOfNumbers(panColNumbers) )
@@ -3639,54 +4252,156 @@ func _NormalizeColLookupKey(pVal)
 
 
 
+		# Raises error R24 today instead of removing the columns at the given positions.
+		#
+		#   panColNumbers   the positions of the columns to remove
+		#   returns         nothing; it raises
+		#   warning         Raises R24 because RemoveColumnsAt sorts an undefined name; RemoveCols
+		#                   with the positions works
+		#   see             RemoveCols
 		def RemoveColsAt(panColNumbers)
 			This.RemoveColumnsAt(panColNumbers)
 
+		# Raises error R24 today instead of removing the columns at the given positions.
+		#
+		#   panColNumbers   the positions of the columns to remove
+		#   returns         nothing; it raises
+		#   warning         Raises R24 because RemoveColumnsAt sorts an undefined name; RemoveCols
+		#                   with the positions works
+		#   see             RemoveCols
 		def RemoveNthCols(panColNumbers)
 			This.RemoveColumnsAt(panColNumbers)
 
+		# Raises error R24 today instead of removing the columns at the given positions.
+		#
+		#   panColNumbers   the positions of the columns to remove
+		#   returns         nothing; it raises
+		#   warning         Raises R24 because RemoveColumnsAt sorts an undefined name; RemoveCols
+		#                   with the positions works
+		#   see             RemoveCols
 		def RemoveNthColumns(panColNumbers)
 			This.RemoveColumnsAt(panColNumbers)
 
+	# Raises error R24 today instead of keeping only the columns at the given positions.
+	#
+	#   panColNumbers   the positions of the columns to keep
+	#   returns         nothing; it raises
+	#   warning         Raises R24 because the body passes paColNumbers, which is not the parameter
+	#                   name
+	#   see             FindColsExcept
 	def RemoveAllColsExceptAt(panColNumbers)
 		This.RemoveAllColsExcept(paColNumbers)
 
+		# Raises error R24 today instead of keeping only the columns at the given positions.
+		#
+		#   panColNumbers   the positions of the columns to keep
+		#   returns         nothing; it raises
+		#   warning         Raises R24 through RemoveAllColsExceptAt, which passes a name that is
+		#                   not its parameter
+		#   see             RemoveAllColsExceptAt
 		#< @FunctionAlternativeForms
-
 		def RemoveColsExceptPositions(panColNumbers)
 			This.RemoveAllColsExceptAt(panColNumbers)
 
+		# Raises error R24 today instead of keeping only the columns at the given positions.
+		#
+		#   panColNumbers   the positions of the columns to keep
+		#   returns         nothing; it raises
+		#   warning         Raises R24 through RemoveAllColsExceptAt, which passes a name that is
+		#                   not its parameter
+		#   see             RemoveAllColsExceptAt
 		def RemoveColumnsExceptPositions(panColNumbers)
 			This.RemoveAllColsExceptAt(panColNumbers)
 
+		# Raises error R24 today instead of keeping only the columns at the given positions.
+		#
+		#   panColNumbers   the positions of the columns to keep
+		#   returns         nothing; it raises
+		#   warning         Raises R24 through RemoveAllColsExceptAt, which passes a name that is
+		#                   not its parameter
+		#   see             RemoveAllColsExceptAt
 		def RemoveAllColsExceptPositions(panColNumbers)
 			This.RemoveAllColsExceptAt(panColNumbers)
 
+		# Raises error R24 today instead of keeping only the columns at the given positions.
+		#
+		#   panColNumbers   the positions of the columns to keep
+		#   returns         nothing; it raises
+		#   warning         Raises R24 through RemoveAllColsExceptAt, which passes a name that is
+		#                   not its parameter
+		#   see             RemoveAllColsExceptAt
 		def RemoveAllColumnsExceptPositions(panColNumbers)
 			This.RemoveAllColsExceptAt(panColNumbers)
 
-		#--
-
+		# Raises error R24 today instead of keeping only the columns at the given positions.
+		#
+		#   panColNumbers   the positions of the columns to keep
+		#   returns         nothing; it raises
+		#   warning         Raises R24 through RemoveAllColsExceptAt, which passes a name that is
+		#                   not its parameter
+		#   see             RemoveAllColsExceptAt
+		#@ aka  --
 		def RemoveColsExceptAt(panColNumbers)
 			This.RemoveAllColsExceptAt(panColNumbers)
 
+		# Raises error R24 today instead of keeping only the columns at the given positions.
+		#
+		#   panColNumbers   the positions of the columns to keep
+		#   returns         nothing; it raises
+		#   warning         Raises R24 through RemoveAllColsExceptAt, which passes a name that is
+		#                   not its parameter
+		#   see             RemoveAllColsExceptAt
 		def RemoveAllColsOtherThanPositions(panColNumbers)
 			This.RemoveAllColsExceptAt(panColNumbers)
 
+		# Raises error R24 today instead of keeping only the columns at the given positions.
+		#
+		#   panColNumbers   the positions of the columns to keep
+		#   returns         nothing; it raises
+		#   warning         Raises R24 through RemoveAllColsExceptAt, which passes a name that is
+		#                   not its parameter
+		#   see             RemoveAllColsExceptAt
 		def RemoveColsOtherThanPositions(panColNumbers)
 			This.RemoveAllColsExceptAt(panColNumbers)
 
-		#--
-
+		# Raises error R24 today instead of keeping only the columns at the given positions.
+		#
+		#   panColNumbers   the positions of the columns to keep
+		#   returns         nothing; it raises
+		#   warning         Raises R24 through RemoveAllColsExceptAt, which passes a name that is
+		#                   not its parameter
+		#   see             RemoveAllColsExceptAt
+		#@ aka  --
 		def RemoveAllColumnsExceptAt(panColNumbers)
 			This.RemoveAllColsExceptAt(panColNumbers)
 
+		# Raises error R24 today instead of keeping only the columns at the given positions.
+		#
+		#   panColNumbers   the positions of the columns to keep
+		#   returns         nothing; it raises
+		#   warning         Raises R24 through RemoveAllColsExceptAt, which passes a name that is
+		#                   not its parameter
+		#   see             RemoveAllColsExceptAt
 		def RemoveColumnsExceptAt(panColNumbers)
 			This.RemoveAllColsExceptAt(panColNumbers)
 
+		# Raises error R24 today instead of keeping only the columns at the given positions.
+		#
+		#   panColNumbers   the positions of the columns to keep
+		#   returns         nothing; it raises
+		#   warning         Raises R24 through RemoveAllColsExceptAt, which passes a name that is
+		#                   not its parameter
+		#   see             RemoveAllColsExceptAt
 		def RemoveAllColumnsOtherThanPositions(panColNumbers)
 			This.RemoveAllColsExceptAt(panColNumbers)
 
+		# Raises error R24 today instead of keeping only the columns at the given positions.
+		#
+		#   panColNumbers   the positions of the columns to keep
+		#   returns         nothing; it raises
+		#   warning         Raises R24 through RemoveAllColsExceptAt, which passes a name that is
+		#                   not its parameter
+		#   see             RemoveAllColsExceptAt
 		def RemoveColumnsOtherThanPositions(panColNumbers)
 			This.RemoveAllColsExceptAt(panColNumbers)
 
@@ -3707,9 +4422,21 @@ func _NormalizeColLookupKey(pVal)
 		def RemoveColsExcept(panRow)
 			This.RemoveAllColsExcept(panRow)
 
+		# Raises error R14 today instead of keeping only the given columns.
+		#
+		#   panRow     the columns to keep, by name or position
+		#   returns    nothing; it raises
+		#   warning    Raises R14 because IsListOfNumbersOrStrings is defined nowhere
+		#   see        FindColsExcept
 		def RemoveAllColsOtherThan(panRow)
 			This.RemoveAllColsExcept(panRow)
 
+		# Raises error R14 today instead of keeping only the given columns.
+		#
+		#   panRow     the columns to keep, by name or position
+		#   returns    nothing; it raises
+		#   warning    Raises R14 because IsListOfNumbersOrStrings is defined nowhere
+		#   see        FindColsExcept
 		def RemoveColsOtherThan(panRow)
 			This.RemoveAllColsExcept(panRow)
 
@@ -3721,9 +4448,21 @@ func _NormalizeColLookupKey(pVal)
 		def RemoveColumnsExcept(panRow)
 			This.RemoveAllColsExcept(panRow)
 
+		# Raises error R14 today instead of keeping only the given columns.
+		#
+		#   panRow     the columns to keep, by name or position
+		#   returns    nothing; it raises
+		#   warning    Raises R14 because IsListOfNumbersOrStrings is defined nowhere
+		#   see        FindColsExcept
 		def RemoveAllColumnsOtherThan(panRow)
 			This.RemoveAllColsExcept(panRow)
 
+		# Raises error R14 today instead of keeping only the given columns.
+		#
+		#   panRow     the columns to keep, by name or position
+		#   returns    nothing; it raises
+		#   warning    Raises R14 because IsListOfNumbersOrStrings is defined nowhere
+		#   see        FindColsExcept
 		def RemoveColumnsOtherThan(panRow)
 			This.RemoveAllColsExcept(panRow)
 
@@ -3733,12 +4472,24 @@ func _NormalizeColLookupKey(pVal)
 	 #  REMOVING ALL THE COLUMNS AND ALL THE ROWS  #
 	#=============================================#
 
+	# Empties the table, in place, leaving one column named col1 with one empty cell.
+	#
+	#   returns    nothing; the table changes
+	#   see        Erase
 	def RemoveAll()
 		This.UpdateWith([ :COL1 = [ "" ] ])
 
+		# Empties the table, in place, leaving one column named col1 with one empty cell.
+		#
+		#   returns    nothing; the table changes
+		#   see        RemoveAll
 		def RemoveAllCols()
 			This.RemoveAll()
 
+		# Empties the table, in place, leaving one column named col1 with one empty cell.
+		#
+		#   returns    nothing; the table changes
+		#   see        RemoveAll
 		def RemoveAllColumns()
 			This.RemoveAll()
 
@@ -3746,6 +4497,13 @@ func _NormalizeColLookupKey(pVal)
 	 #  REMOVING A GIVEN ROW  #
 	#========================#
 
+	# Removes one row, given by position, in place; a row given as its cells needs FindRow, which finds nothing.
+	#
+	#   pRowOrRowNumber   the row to remove, as its position
+	#   returns           nothing; the table changes
+	#   warning           A position outside the table raises a bad-range error; a row given as a
+	#                     list of cells raises R2 today because FindRow answers [ ]
+	#   see               RemoveNthRow
 	def RemoveRow(pRowOrRowNumber)
 		if CheckingParams()
 			if NOT ( isNumber(pRowOrRowNumber) or isList(pRowOrRowNumber) )
@@ -3761,6 +4519,12 @@ func _NormalizeColLookupKey(pVal)
 			This.RemoveNthRow(_n_)
 		ok
 
+	# Removes the nth row from every column, in place.
+	#
+	#   _n_        the position of the row to remove
+	#   returns    nothing; the table changes
+	#   warning    Raises a bad-range error for 0 or a position past the last row
+	#   see        RemoveRows
 	def RemoveNthRow(_n_)
 		if CheckingParams()
 			if NOT isNumber(_n_)
@@ -3778,12 +4542,27 @@ func _NormalizeColLookupKey(pVal)
 		This.UpdateWith(_aContent_)
 
 
+		# Removes the nth row from every column, in place.
+		#
+		#   _n_        the position of the row to remove
+		#   returns    nothing; the table changes
+		#   see        RemoveNthRow
 		def RemoveRowAt(_n_)
 			This.RemoveNthRow(_n_)
 
+		# Removes the nth row from every column, in place.
+		#
+		#   _n_        the position of the row to remove
+		#   returns    nothing; the table changes
+		#   see        RemoveNthRow
 		def RemoveRowNumber(_n_)
 			This.RemoveNthRow(_n_)
 
+		# Removes the nth row from every column, in place.
+		#
+		#   _n_        the position of the row to remove
+		#   returns    nothing; the table changes
+		#   see        RemoveNthRow
 		def RemoveRowN(_n_)
 			This.RemoveNthRow(_n_)
 
@@ -3791,6 +4570,13 @@ func _NormalizeColLookupKey(pVal)
 	 #  REMOVING THE GIVEN ROWS  #
 	#---------------------------#
 
+	# Raises error R13 today instead of removing the rows at the given positions.
+	#
+	#   panRows    the positions of the rows to remove
+	#   returns    nothing; it raises
+	#   warning    Raises R13 because the body sorts the positions through U(), which does not give
+	#              an object; RemoveNthRow works one row at a time
+	#   see        RemoveNthRow
 	def RemoveNthRows(panRows)
 
 		if CheckingParams()
@@ -3813,9 +4599,23 @@ func _NormalizeColLookupKey(pVal)
 		This.UpdateWith(_aContent_)
 
 
+		# Raises error R13 today instead of removing the rows at the given positions.
+		#
+		#   panRows    the positions of the rows to remove
+		#   returns    nothing; it raises
+		#   warning    Raises R13 because the body sorts the positions through U(), which does not
+		#              give an object; RemoveNthRow works one row at a time
+		#   see        RemoveNthRow
 		def RemoveRowsAt(panRows)
 			This.RemoveNthRows(panRows)
 
+	# Raises error R13 today instead of removing the given rows, listed by position or as lists of cells.
+	#
+	#   pRowsOrRowsNumbers   the positions of the rows to remove, or the rows themselves
+	#   returns              nothing; it raises
+	#   warning              Positions raise R13 through RemoveNthRows; rows raise R14 because
+	#                        FindTheseRows is defined nowhere
+	#   see                  RemoveNthRow
 	def RemoveRows(pRowsOrRowsNumbers)
 		if CheckingParams()
 			if NOT isList(pRowsOrRowsNumbers)
@@ -3839,6 +4639,12 @@ func _NormalizeColLookupKey(pVal)
 	 #  REMOVING ALL THE ROWS EXCEPT THOSE PROVIDED  #
 	#-----------------------------------------------#
 
+	# Raises error R13 today instead of keeping only the rows at the given positions.
+	#
+	#   panRows    the positions of the rows to keep
+	#   returns    nothing; it raises
+	#   warning    Raises R13 through RemoveRows, which relies on RemoveNthRows
+	#   see        FindRowsExceptAt
 	def RemoveAllRowsExceptAt(panRows)
 		if CheckingParams()
 			if NOT ( isList(panRows) and @IsListOfNumbers(panRows) )
@@ -3849,19 +4655,42 @@ func _NormalizeColLookupKey(pVal)
 		_anPos_ = This.FindRowsExceptAt(panRows)
 		This.RemoveRows(_anPos_)
 
+		# Raises error R13 today instead of keeping only the rows at the given positions.
+		#
+		#   panRow     the positions of the rows to keep
+		#   returns    nothing; it raises
+		#   warning    Raises R13 through RemoveRows, which relies on RemoveNthRows
+		#   see        FindRowsExceptAt
 		#< @FunctionAlternativeForms
-
 		def RemoveRowsExceptAt(panRow)
 			This.RemoveAllRowsExceptAt(panRow)
 
+		# Raises error R13 today instead of keeping only the rows at the given positions.
+		#
+		#   panRow     the positions of the rows to keep
+		#   returns    nothing; it raises
+		#   warning    Raises R13 through RemoveRows, which relies on RemoveNthRows
+		#   see        FindRowsExceptAt
 		def RemoveAllRowsOtherThanPositions(panRow)
 			This.RemoveAllRowsExceptAt(panRow)
 
+		# Raises error R13 today instead of keeping only the rows at the given positions.
+		#
+		#   panRow     the positions of the rows to keep
+		#   returns    nothing; it raises
+		#   warning    Raises R13 through RemoveRows, which relies on RemoveNthRows
+		#   see        FindRowsExceptAt
 		def RemoveRowsOtherThanPositions(panRow)
 			This.RemoveAllRowsExceptAt(panRow)
 
+	# Raises error R13 today instead of keeping only the given rows.
+	#
+	#   pRowsOrRowsNumbers   the rows to keep, as positions or as lists of cells
+	#   returns              nothing; it raises
+	#   warning              Positions are passed to RemoveRowsAt, which would remove the rows to
+	#                        keep and raises R13; rows rely on FindRowsExceptThese
+	#   see                  FindRowsExceptAt
 		#>
-
 	def RemoveAllRowsExcept(pRowsOrRowsNumbers)
 
 		if CheckingParams()
@@ -3889,9 +4718,23 @@ func _NormalizeColLookupKey(pVal)
 		def RemoveRowsExcept(pRowsOrRowsNumbers)
 			This.RemoveAllRowsExcept(pRowsOrRowsNumbers)
 
+		# Raises error R13 today instead of keeping only the given rows.
+		#
+		#   pRowsOrRowsNumbers   the rows to keep, as positions or as lists of cells
+		#   returns              nothing; it raises
+		#   warning              Positions are passed to RemoveRowsAt, which would remove the rows
+		#                        to keep and raises R13; rows rely on FindRowsExceptThese
+		#   see                  FindRowsExceptAt
 		def RemoveAllRowsOtherThan(pRowsOrRowsNumbers)
 			This.RemoveAllRowsExcept(pRowsOrRowsNumbers)
 
+		# Raises error R13 today instead of keeping only the given rows.
+		#
+		#   pRowsOrRowsNumbers   the rows to keep, as positions or as lists of cells
+		#   returns              nothing; it raises
+		#   warning              Positions are passed to RemoveRowsAt, which would remove the rows
+		#                        to keep and raises R13; rows rely on FindRowsExceptThese
+		#   see                  FindRowsExceptAt
 		def RemoveRowsOtherThan(pRowsOrRowsNumbers)
 			This.RemoveAllRowsExcept(pRowsOrRowsNumbers)
 
@@ -3901,6 +4744,10 @@ func _NormalizeColLookupKey(pVal)
 	 #  ERASING THE TABLE  #
 	#=====================#
 
+	# Sets every cell to an empty string, in place; the columns and rows stay.
+	#
+	#   returns    nothing; the table changes
+	#   see        RemoveAll
 	def Erase()
 		#NOTE
 		# Only data in cells is erased, columns and
@@ -3920,6 +4767,10 @@ func _NormalizeColLookupKey(pVal)
 		This.UpdateWith(_aContent_)
 
 
+		# Sets every cell to an empty string, in place; the columns and rows stay.
+		#
+		#   returns    nothing; the table changes
+		#   see        RemoveAll
 		def EraseTable()
 			This.Erase()
 
@@ -3927,13 +4778,28 @@ func _NormalizeColLookupKey(pVal)
 	 #  ERASING COLUMNS  #
 	#-------------------#
 
+	# Sets every cell of one column to an empty string, in place.
+	#
+	#   pColNameOrNumber   the column to empty, by name or position
+	#   returns            nothing; the table changes
+	#   see                EraseColumns
 	def EraseColumn(pColNameOrNumber)
 		_aCellsPos_ = This.ColAsPositions(pColNameOrNumber)
 		This.EraseCells(_aCellsPos_)
 
+		# Sets every cell of one column to an empty string, in place.
+		#
+		#   pColNameOrNumber   the column to empty, by name or position
+		#   returns            nothing; the table changes
+		#   see                EraseColumns
 		def EraseCol(pColNameOrNumber)
 			This.EraseColumn(pColNameOrNumber)
 
+	# Sets every cell of the given columns to an empty string, in place.
+	#
+	#   pcColNamesOrNumbers   the columns to empty, by name or position
+	#   returns               nothing; the table changes
+	#   see                   EraseColumn
 	def EraseColumns(pcColNamesOrNumbers)
 		_nCols_ = This.TheseColsToColsNumbers(pcColNamesOrNumbers)
 
@@ -3943,6 +4809,11 @@ func _NormalizeColLookupKey(pVal)
 			This.EraseCol(_n_)
 		next
 
+		# Sets every cell of the given columns to an empty string, in place.
+		#
+		#   pcColNamesOrNumbers   the columns to empty, by name or position
+		#   returns               nothing; the table changes
+		#   see                   EraseColumn
 		def EraseCols(pcColNamesOrNumbers)
 			This.EraseColumns(pcColNamesOrNumbers)
 
@@ -3950,10 +4821,20 @@ func _NormalizeColLookupKey(pVal)
 	 #  ERASING ROWS  #
 	#----------------#
 
+	# Sets every cell of one row to an empty string, in place.
+	#
+	#   _n_        the position of the row to empty
+	#   returns    nothing; the table changes
+	#   see        EraseRows
 	def EraseRow(_n_)
 		_aCellsPos_ = This.RowAsPositions(_n_)
 		This.EraseCells(_aCellsPos_)
 
+	# Sets every cell of the given rows to an empty string, in place.
+	#
+	#   panRows    the positions of the rows to empty
+	#   returns    nothing; the table changes
+	#   see        EraseRow
 	def EraseRows(panRows)
 		if NOT ( isList(panRows) and @IsListOfNumbers(panRows) )
 			StzRaise("Incorrect param type! panRows must be a list of numbers!")
@@ -3969,6 +4850,11 @@ func _NormalizeColLookupKey(pVal)
 	 #  ERASING CELLS  #
 	#-----------------#
 
+	# Sets one cell to an empty string, in place.
+	#
+	#   pnRow      the row position, 1 for the first
+	#   returns    nothing; the table changes
+	#   see        EraseCells
 	def EraseCell(pCol, pnRow)
 		if isNumber(pCol)
 			pCol = This.ColName(pCol)
@@ -3986,9 +4872,21 @@ func _NormalizeColLookupKey(pVal)
 		This.UpdateWith(_aContent_)
 
 
+		# Sets one cell to an empty string, in place.
+		#
+		#   pnRow      the row position, 1 for the first
+		#   returns    nothing; the table changes
+		#   see        EraseCells
 		def EraseCellAtPosition(pCol, pnRow)
 			This.EraseCell(pCol, pnRow)
 
+	# Sets the cells at the given [ column, row ] positions to an empty string, in place.
+	#
+	#   paCellsPos   the positions, each as [ column number, row number ]
+	#   returns      nothing; the table changes
+	#   warning      Raises an error unless every item is a pair of numbers; the column must be
+	#                given by number
+	#   see          EraseCell
 	def EraseCells(paCellsPos)
 		if NOT ( isList(paCellsPos) and @IsListOfPairsOfNumbers(paCellsPos) )
 			StzRaise("Incorrect param type! paCellsPos must be a list of pairs of numbers.")
@@ -4006,6 +4904,13 @@ func _NormalizeColLookupKey(pVal)
 		This.UpdateWith(_aContent_)
 
 
+		# Sets the cells at the given [ column, row ] positions to an empty string, in place.
+		#
+		#   paCellsPos   the positions, each as [ column number, row number ]
+		#   returns      nothing; the table changes
+		#   warning      Raises an error unless every item is a pair of numbers; the column must be
+		#                given by number
+		#   see          EraseCell
 		def EraseCellsAtPositions(paCellsPos)
 			This.EraseCells(paCellsPos)
 
@@ -4013,6 +4918,14 @@ func _NormalizeColLookupKey(pVal)
 	 #  ERASING A SECTION OF CELLS  #
 	#------------------------------#
 
+	# Raises error R19 today instead of emptying the cells between two corners.
+	#
+	#   paCellPos1   the first corner, [ column, row ]
+	#   paCellPos2   the last corner, [ column, row ]
+	#   returns      nothing; it raises
+	#   warning      Raises R19 because it calls SectionAsPositions without the corners; EraseCells
+	#                with a list of positions works
+	#   see          EraseCells
 	def EraseSection(paCellPos1, paCellPos2)
 		_aCellsPso_ = This.SectionAsPositions()
 		This.EraseCells(_aCellsPos_)
@@ -4021,6 +4934,15 @@ func _NormalizeColLookupKey(pVal)
 	 #  INSERTING A COLUMN  #
 	#======================#
 
+	# Does nothing today instead of inserting a new column before or after a given position.
+	#
+	#   _n_         the position of the column
+	#   paColData   the new column as [ name, list of cells ]
+	#   returns     nothing; the table is unchanged
+	#   warning     Does nothing today: the body appends the column to the stored content but then
+	#               restores the content copied before, so the table is unchanged; AddColumn appends
+	#               a column
+	#   see         AddColumn
 	def InsertCol(_n_, paColData)
 		if CheckingParams()
 			if isList(_n_) and IsOneOfTheseNamedParamsList(_n_,[
@@ -4074,56 +4996,153 @@ func _NormalizeColLookupKey(pVal)
 		This.UpdateWith(_aContent_)
 
 
+		# Does nothing today instead of inserting a new column before or after a given position.
+		#
+		#   _n_         the position of the column
+		#   paRowData   the new column as [ name, list of cells ]
+		#   returns     nothing; the table is unchanged
+		#   warning     Does nothing today: the body appends the column to the stored content but
+		#               then restores the content copied before, so the table is unchanged
+		#   see         AddColumn
 		#< @FunctionAlternativeForms
-
 		def InsertColBefore(_n_, paRowData)
 			This.InsertCol(_n_, paRowData)
 
+		# Does nothing today instead of inserting a new column before or after a given position.
+		#
+		#   _n_         the position of the column
+		#   paRowData   the new column as [ name, list of cells ]
+		#   returns     nothing; the table is unchanged
+		#   warning     Does nothing today: the body appends the column to the stored content but
+		#               then restores the content copied before, so the table is unchanged
+		#   see         AddColumn
 		def InsertColBeforePosition(_n_, paRowData)
 			This.InsertCol(_n_, paRowData)
 
-		#--
-
+		# Does nothing today instead of inserting a new column before or after a given position.
+		#
+		#   _n_         the position of the column
+		#   paRowData   the new column as [ name, list of cells ]
+		#   returns     nothing; the table is unchanged
+		#   warning     Does nothing today: the body appends the column to the stored content but
+		#               then restores the content copied before, so the table is unchanged
+		#   see         AddColumn
+		#@ aka  --
 		def insertColAt(_n_, paRowData)
 			This.InsertCol(_n_, paRowData)
 
+		# Does nothing today instead of inserting a new column before or after a given position.
+		#
+		#   _n_         the position of the column
+		#   paRowData   the new column as [ name, list of cells ]
+		#   returns     nothing; the table is unchanged
+		#   warning     Does nothing today: the body appends the column to the stored content but
+		#               then restores the content copied before, so the table is unchanged
+		#   see         AddColumn
 		def InsertColAtPosition(_n_, paRowData)
 			This.InsertCol(_n_, paRowData)
 
-		#==
-
+		# Does nothing today instead of inserting a new column before or after a given position.
+		#
+		#   _n_         the position of the column
+		#   paRowData   the new column as [ name, list of cells ]
+		#   returns     nothing; the table is unchanged
+		#   warning     Does nothing today: the body appends the column to the stored content but
+		#               then restores the content copied before, so the table is unchanged
+		#   see         AddColumn
+		#@ aka  ==
 		def InsertColumn(_n_, paRowData)
 			This.InsertCol(_n_, paRowData)
 
+		# Does nothing today instead of inserting a new column before or after a given position.
+		#
+		#   _n_         the position of the column
+		#   paRowData   the new column as [ name, list of cells ]
+		#   returns     nothing; the table is unchanged
+		#   warning     Does nothing today: the body appends the column to the stored content but
+		#               then restores the content copied before, so the table is unchanged
+		#   see         AddColumn
 		def InsertColumnBefore(_n_, paRowData)
 			This.InsertCol(_n_, paRowData)
 
+		# Does nothing today instead of inserting a new column before or after a given position.
+		#
+		#   _n_         the position of the column
+		#   paRowData   the new column as [ name, list of cells ]
+		#   returns     nothing; the table is unchanged
+		#   warning     Does nothing today: the body appends the column to the stored content but
+		#               then restores the content copied before, so the table is unchanged
+		#   see         AddColumn
 		def InsertColumnBeforePosition(_n_, paRowData)
 			This.InsertCol(_n_, paRowData)
 
-		#--
-
+		# Does nothing today instead of inserting a new column before or after a given position.
+		#
+		#   _n_         the position of the column
+		#   paRowData   the new column as [ name, list of cells ]
+		#   returns     nothing; the table is unchanged
+		#   warning     Does nothing today: the body appends the column to the stored content but
+		#               then restores the content copied before, so the table is unchanged
+		#   see         AddColumn
+		#@ aka  --
 		def insertColumnAt(_n_, paRowData)
 			This.InsertCol(_n_, paRowData)
 
+		# Does nothing today instead of inserting a new column before or after a given position.
+		#
+		#   _n_         the position of the column
+		#   paRowData   the new column as [ name, list of cells ]
+		#   returns     nothing; the table is unchanged
+		#   warning     Does nothing today: the body appends the column to the stored content but
+		#               then restores the content copied before, so the table is unchanged
+		#   see         AddColumn
 		def InsertColumnAtPosition(_n_, paRowData)
 			This.InsertCol(_n_, paRowData)
 
+	# Does nothing today instead of inserting a new column before or after a given position.
+	#
+	#   _n_         the position of the column
+	#   paRowData   the new column as [ name, list of cells ]
+	#   returns     nothing; the table is unchanged
+	#   warning     Does nothing today: the body appends the column to the stored content but then
+	#               restores the content copied before, so the table is unchanged
+	#   see         AddColumn
 		#>
-
 	def InsertColAfter(_n_, paRowData)
 		This.InsertColAt(_n_+1, paRowData)
 
+		# Does nothing today instead of inserting a new column before or after a given position.
+		#
+		#   _n_         the position of the column
+		#   paRowData   the new column as [ name, list of cells ]
+		#   returns     nothing; the table is unchanged
+		#   warning     Does nothing today: the body appends the column to the stored content but
+		#               then restores the content copied before, so the table is unchanged
+		#   see         AddColumn
 		#< @FunctionAlternativeForm
-
 		def InsertColAfterPosition(_n_, paRowData)
 			This.InsertColAfter(_n_, paRowData)
 
-		#--
-
+		# Does nothing today instead of inserting a new column before or after a given position.
+		#
+		#   _n_         the position of the column
+		#   paRowData   the new column as [ name, list of cells ]
+		#   returns     nothing; the table is unchanged
+		#   warning     Does nothing today: the body appends the column to the stored content but
+		#               then restores the content copied before, so the table is unchanged
+		#   see         AddColumn
+		#@ aka  --
 		def InsertColumnAfter(_n_, paRowData)
 			This.InsertColAfter(_n_, paRowData)
 
+		# Does nothing today instead of inserting a new column before or after a given position.
+		#
+		#   _n_         the position of the column
+		#   paRowData   the new column as [ name, list of cells ]
+		#   returns     nothing; the table is unchanged
+		#   warning     Does nothing today: the body appends the column to the stored content but
+		#               then restores the content copied before, so the table is unchanged
+		#   see         AddColumn
 		def InsertColumnAfterPosition(_n_, paRowData)
 			This.InsertColAfter(_n_, paRowData)
 
@@ -4133,6 +5152,14 @@ func _NormalizeColLookupKey(pVal)
 	 #  INSERTING A ROW  #
 	#===================#
 
+	# Inserts a row so that it becomes row n, in place; a short row is padded with empty strings.
+	#
+	#   _n_         the position the new row takes, 1 for the top, up to the number of rows plus one
+	#   paRowData   the cells of the new row, one per column
+	#   returns     nothing; the table changes
+	#   warning     Raises R2 past the number of rows plus one, and an error for 0; extra cells are
+	#               ignored; n can also be [ :At, n ]
+	#   see         AddRow
 	def InsertRow(_n_, paRowData)
 		if CheckingParams()
 			if isList(_n_) and IsOneOfTheseNamedParamsList(_n_,[
@@ -4183,29 +5210,65 @@ func _NormalizeColLookupKey(pVal)
 
 
 
+		# Inserts a row so that it becomes row n, in place; a short row is padded with empty strings.
+		#
+		#   _n_         the position the new row takes, 1 for the top, up to the number of rows plus
+		#               one
+		#   paRowData   the cells of the new row, one per column
+		#   returns     nothing; the table changes
+		#   see         InsertRow
 		#< @FunctionAlternativeForms
-
 		def InsertRowBefore(_n_, paRowData)
 			This.InsertRow(_n_, paRowData)
 
+		# Inserts a row so that it becomes row n, in place; a short row is padded with empty strings.
+		#
+		#   _n_         the position the new row takes, 1 for the top, up to the number of rows plus
+		#               one
+		#   paRowData   the cells of the new row, one per column
+		#   returns     nothing; the table changes
+		#   see         InsertRow
 		def InsertRowBeforePosition(_n_, paRowData)
 			This.InsertRow(_n_, paRowData)
 
-		#--
-
+		# Inserts a row so that it becomes row n, in place; a short row is padded with empty strings.
+		#
+		#   _n_         the position the new row takes, 1 for the top, up to the number of rows plus
+		#               one
+		#   paRowData   the cells of the new row, one per column
+		#   returns     nothing; the table changes
+		#   see         InsertRow
+		#@ aka  --
 		def insertRowAt(_n_, paRowData)
 			This.InsertRow(_n_, paRowData)
 
+		# Inserts a row so that it becomes row n, in place; a short row is padded with empty strings.
+		#
+		#   _n_         the position the new row takes, 1 for the top, up to the number of rows plus
+		#               one
+		#   paRowData   the cells of the new row, one per column
+		#   returns     nothing; the table changes
+		#   see         InsertRow
 		def InsertRowAtPosition(_n_, paRowData)
 			This.InsertRow(_n_, paRowData)
 
+	# Inserts a row just after row n, in place, so that it becomes row n+1.
+	#
+	#   _n_         the position of the row to insert after
+	#   paRowData   the cells of the new row, one per column
+	#   returns     nothing; the table changes
+	#   see         InsertRow
 		#>
-
 	def InsertRowAfter(_n_, paRowData)
 		This.InsertRowAt(_n_+1, paRowData)
 
+		# Inserts a row just after row n, in place, so that it becomes row n+1.
+		#
+		#   _n_         the position of the row to insert after
+		#   paRowData   the cells of the new row, one per column
+		#   returns     nothing; the table changes
+		#   see         InsertRow
 		#< @FunctionAlternativeForm
-
 		def InsertRowAfterPosition(_n_, paRowData)
 			This.InsertRowAfter(_n_, paRowData)
 
@@ -4215,6 +5278,14 @@ func _NormalizeColLookupKey(pVal)
 	 #  INSERTING A ROW IN MANY POSITIONS  #
 	#-------------------------------------#
 
+	# Raises error R13 today instead of inserting one row at each of several positions.
+	#
+	#   panPos     the positions where the row is inserted
+	#   paRow      the cells of the new row, one per column
+	#   returns    nothing; it raises
+	#   warning    Raises R13 because the body sorts the positions through U(), which does not give
+	#              an object
+	#   see        InsertRow
 	def InsertRowAtPositions(panPos, paRow)
 		if CheckingParams()
 			if NOT ( isList(panPos) and @isListOfNumbers(panPos) )
@@ -4229,12 +5300,32 @@ func _NormalizeColLookupKey(pVal)
 			This.InsertRowAtPosition(panPos[i], paRow)
 		next
 
+		# Raises error R13 today instead of inserting one row at each of several positions.
+		#
+		#   panPos     the positions where the row is inserted
+		#   paRow      the cells of the new row, one per column
+		#   returns    nothing; it raises
+		#   warning    Raises R13 through InsertRowAtPositions, which sorts the positions through
+		#              U(), which does not give an object
+		#   see        InsertRow
 		def InsertRows(panPos, paRow)
 			This.InsertRowAtPositions(panPos, paRow)
 
+		# Raises error R13 today instead of inserting one row at each of several positions.
+		#
+		#   panPos     the positions where the row is inserted
+		#   paRow      the cells of the new row, one per column
+		#   returns    nothing; it raises
+		#   warning    Raises R13 through InsertRowAtPositions, which sorts the positions through
+		#              U(), which does not give an object
+		#   see        InsertRow
 		def InsertRowsAt(panPos, paRow)
 			InsertRowAtPositions(panPos, paRow)
 
+	# Returns the cells of every column, one list per column, in column order.
+	#
+	#   returns    a list of lists of cells
+	#   see        Rows, TheseColumns
 	def Cols()
 		return This.TheseCols( 1 : This.NumberOfCols() )
 
@@ -4294,6 +5385,13 @@ func _NormalizeColLookupKey(pVal)
 	 #  GETTING THE LIST OF COLUMNS AS DEFINED BY THEIR NAMES OR NUMBERS  #
 	#--------------------------------------------------------------------#
 
+	# Returns the cells of the given columns, in the order given, one list per column.
+	#
+	#   pacColNamesOrNumbers   the columns to read, all names or all positions
+	#   returns                a list of lists of cells
+	#   warning                Raises an error when names and positions are mixed, or when a column
+	#                          does not exist
+	#   see                    Cols, Col
 	def TheseColumns(pacColNamesOrNumbers)
 		if NOT 	( isList(pacColNamesOrNumbers) and
 			  ( @IsListOfNumbers(pacColNamesOrNumbers) or
@@ -4485,6 +5583,13 @@ func _NormalizeColLookupKey(pVal)
 	 #  GETTING THE NAMES OF THE PROVIDED COLUMNS AS DEFINED BY THEIR NUMBERS  #
 	#-------------------------------------------------------------------------#
 
+	# Raises an error today instead of returning the names of the columns at the given positions.
+	#
+	#   panColNumbers   the positions of the columns
+	#   returns         nothing; it raises
+	#   warning         Raises Can't create the stzList object! because the body calls Sorted()
+	#                   straight on a new stzList; ColNumbersToNames works
+	#   see             ColNumbersToNames
 	def TheseColNames(panColNumbers)
 		if NOT ( isList(panColNumbers) and @IsListOfNumbers(panColNumbers) )
 			StzRaise("Incorrect param type! pacColNumbers muts be a list of numbers.")
@@ -4533,6 +5638,12 @@ func _NormalizeColLookupKey(pVal)
 	 #  GETTING THE NAMES OF COLUMNS AS DEFINED BY THEIR GIVEN NUMBERS  #
 	#------------------------------------------------------------------#
 
+	# Returns the names of the columns at the given positions, in the order given.
+	#
+	#   panColNumbers   the positions of the columns
+	#   returns         a list of column names
+	#   warning         Raises R2 for a position outside the table
+	#   see             ColumnsNames
 	def ColNumbersToNames(panColNumbers)
 		if NOT ( isList(panColNumbers) and Q(panColNumbers).IsLIstOfNumbers() )
 			StzRaise("Incorrect param type! panColNumbers must be a list of numbers.")
@@ -4551,6 +5662,13 @@ func _NormalizeColLookupKey(pVal)
 	 #  GETTING THE NUMBERS OF COLUMNS AS DEFINED BY THEIR GIVEN NAMES  #
 	#------------------------------------------------------------------#
 
+	# Returns the position of each given column name, in the order given; 0 for an unknown name.
+	#
+	#   pacColNames   the column names to look up
+	#   returns       a list of numbers
+	#   warning       The name has a stray c; its forwards (ColumnsNamesToNumbers and the like) call
+	#                 ColNamesToNumbers, which is defined nowhere, and raise R14
+	#   see           FindColsByName
 	def cColNamesToNumbers(pacColNames)
 		if NOT ( isList(pacColNames) and @IsListOfStrings(pacColNames) )
 			StzRaise("Incorrect param type! pacColNames must be a list of strings.")
@@ -4583,6 +5701,12 @@ func _NormalizeColLookupKey(pVal)
 	 #  RETURNING THE SUBTABLE DEFINED BY THE GIVEN COLUMNS NAMES  #
 	#=============================================================#
 
+	# Returns the named columns as [ name, cells ] pairs, in the order given, with lowercase names.
+	#
+	#   pacColNames   the column names to keep
+	#   returns       a list of [ name, cells ] pairs
+	#   warning       Answers nothing (an empty string) when one of the names is not a column
+	#   see           TheseColumns
 	def SubTable(pacColNames)
 		if NOT ( isList(pacColNames) and @IsListOfStrings(pacColNames) )
 			StzRaise("Incorrect param type! pacColNames must be a list of string.")
@@ -4642,6 +5766,12 @@ func _NormalizeColLookupKey(pVal)
 	 #  GETTING THE LIST OF ROWS AS DEFINED BY THEIR NUMBERS  #
 	#========================================================#
 
+	# Returns the rows at the given positions, in the order given, each as a list of cells.
+	#
+	#   panRowsNumbers   the row positions to read
+	#   returns          a list of rows
+	#   warning          Raises R2 for a position past the last row
+	#   see              Rows, Row
 	def TheseRows(panRowsNumbers)
 		if NOT 	( isList(panRowsNumbers) and @IsListOfNumbers(panRowsNumbers) )
 
@@ -4745,6 +5875,14 @@ func _NormalizeColLookupKey(pVal)
 	 #   MOVING A ROW FROM A POSITION TO AN OTHER   #
 	#==============================================#
 
+	# Exchanges the rows at the two positions, in place; the rows between them do not shift.
+	#
+	#   pnFrom     the position of the first row, :First or :Last
+	#   pnTo       the position of the second row, :First or :Last
+	#   returns    nothing; the table changes
+	#   warning    Despite its name it swaps two rows rather than moving one: moving row 1 to 4
+	#              leaves row 4 in first place
+	#   see        SwapRows
 	def MoveRow(pnFrom, pnTo)
 
 		# Checking the params correctness
@@ -4802,6 +5940,13 @@ func _NormalizeColLookupKey(pVal)
 	 #   SWAPPING TWO ROWS   #
 	#-----------------------#
 
+	# Exchanges the rows at the two positions, in place.
+	#
+	#   pnRow1     the position of the first row
+	#   pnRow2     the position of the second row
+	#   returns    nothing; the table changes
+	#   warning    Raises R2 for a position past the last row
+	#   see        MoveRow
 	def SwapRows(pnRow1, pnRow2)
 
 		if isList(pnRow1) and
@@ -4841,6 +5986,14 @@ func _NormalizeColLookupKey(pVal)
 	 #   MOVING A COLUMN FROM A POSITION TO AN OTHER   #
 	#-------------------------------------------------#
 
+	# Exchanges the columns at the two positions, in place; the columns between them do not shift.
+	#
+	#   pnFrom     the position of the first column
+	#   pnTo       the position of the second column
+	#   returns    nothing; the table changes
+	#   warning    Despite its name it swaps two columns rather than moving one; a column given by
+	#              name raises R24 because the body misspells pnFrom
+	#   see        SwapCol
 	def MoveCol(pnFrom, pnTo)
 
 		# Checking the params correctness
@@ -4911,8 +6064,14 @@ func _NormalizeColLookupKey(pVal)
 		This.UpdateWith(_aContent_)
 
 
+		# Exchanges the columns at the two positions, in place; the columns between them do not shift.
+		#
+		#   pnFrom     the position of the first column
+		#   pnTo       the position of the second column
+		#   returns    nothing; the table changes
+		#   warning    Swaps two columns rather than moving one
+		#   see        MoveCol
 		#< @FunctionAlternativeForm
-
 		def MoveColumn(pnFrom, pnTo)
 			This.MoveCol(pnFrom, pnTo)
 
@@ -4922,6 +6081,13 @@ func _NormalizeColLookupKey(pVal)
 	 #   SWAPPING TWO COLUMNS   #
 	#--------------------------#
 
+	# Exchanges the names of two columns, in place; the cells stay where they are.
+	#
+	#   pCol1      the position of the first column
+	#   pCol2      the position of the second column
+	#   returns    nothing; the table changes
+	#   warning    Works with positions only; column names raise R41
+	#   see        SwapCol
 	def SwapcColNames(pCol1, pCol2)
 
 		_bCol1IsValid_ = ( isNumber(pCol1) and
@@ -4946,16 +6112,36 @@ func _NormalizeColLookupKey(pVal)
 		This.UpdateWith(_aContent_)
 
 
+		# Exchanges the names of two columns, in place; the cells stay where they are.
+		#
+		#   pcCol1     the position of the first column
+		#   pcCol2     the position of the second column
+		#   returns    nothing; the table changes
+		#   warning    Works with positions only; column names raise R41
+		#   see        SwapCol
 		#< @FunctionAlternativeForm
-
 		def SwapColumnNames(pcCol1, pcCol2)
 			This.SwapcColNames(pcCol1, pcCol2)
 
+		# Exchanges the names of two columns, in place; the cells stay where they are.
+		#
+		#   pcCol1     the position of the first column
+		#   pcCol2     the position of the second column
+		#   returns    nothing; the table changes
+		#   warning    Works with positions only; column names raise R41
+		#   see        SwapCol
 		def SwapColumnsNames(pcCol1, pcCol2)
 			This.SwapcColNames(pcCol1, pcCol2)
 
+	# Exchanges two columns, names and cells, in place.
+	#
+	#   pCol1      the position of the first column
+	#   pCol2      the position of the second column
+	#   returns    nothing; the table changes
+	#   warning    Works with positions only; column names raise R41, and a name mixed with a
+	#              position raises an error
+	#   see        MoveCol
 		#>
-
 	def SwapCol(pCol1, pCol2)
 		if isList(pCol1) and
 			( Q(pCol1).IsAndNamedParam() or
@@ -5013,17 +6199,48 @@ func _NormalizeColLookupKey(pVal)
 			This.SwapcColNames(pCol1, pCol2)
 		ok
 
+		# Exchanges two columns, names and cells, in place.
+		#
+		#   pCol1      the position of the first column
+		#   pCol2      the position of the second column
+		#   returns    nothing; the table changes
+		#   warning    Works with positions only; column names raise R41, and a name mixed with a
+		#              position raises an error
+		#   see        MoveCol
 		def SwapColums(pCol1, pCol2)
 			This.SwapCol(pCol1, pCol2)
 
+		# Exchanges two columns, names and cells, in place.
+		#
+		#   pCol1      the position of the first column
+		#   pCol2      the position of the second column
+		#   returns    nothing; the table changes
+		#   warning    Works with positions only; column names raise R41, and a name mixed with a
+		#              position raises an error
+		#   see        MoveCol
 		#< @FunctionAlternativeForm
-
 		def SwapColum(pCol1, pCol2)
 			This.SwapCol(pCol1, pCol2)
 
+		# Exchanges two columns, names and cells, in place.
+		#
+		#   pcCol1     the position of the first column
+		#   pcCol2     the position of the second column
+		#   returns    nothing; the table changes
+		#   warning    Works with positions only; column names raise R41, and a name mixed with a
+		#              position raises an error
+		#   see        MoveCol
 		def SwapCols(pcCol1, pcCol2)
 			This.SwapCol(pcCol1, pcCol2)
 
+		# Exchanges two columns, names and cells, in place.
+		#
+		#   pcCol1     the position of the first column
+		#   pcCol2     the position of the second column
+		#   returns    nothing; the table changes
+		#   warning    Works with positions only; column names raise R41, and a name mixed with a
+		#              position raises an error
+		#   see        MoveCol
 		def SwapColumns(pcCol1, pcCol2)
 			This.SwapCol(pcCol1, pcCol2)
 
@@ -5033,6 +6250,14 @@ func _NormalizeColLookupKey(pVal)
 	 #   REPLACING A COLUMN NAME   #
 	#=============================#
 
+	# Leaves the table unchanged today instead of giving a column a new name.
+	#
+	#   _n_            the position of the column
+	#   pcNewColName   the new name, as text, or [ :With, name ]
+	#   returns        nothing; the table is unchanged
+	#   warning        Does nothing because the body renames the stored content and then restores
+	#                  the content copied before; a name that already exists still raises an error
+	#   see            RenameNthCol
 	def ReplaceNthColName(_n_, pcNewColName)
 		if NOT isNumber(_n_)
 			StzRaise("Incorrect param type! n must be a number.")
@@ -5040,6 +6265,13 @@ func _NormalizeColLookupKey(pVal)
 
 		This.ReplaceColName(_n_, pcNewColName)
 
+	# Leaves the table unchanged today instead of giving a column a new name.
+	#
+	#   pcNewColName   the new name, as text, or [ :With, name ]
+	#   returns        nothing; the table is unchanged
+	#   warning        Does nothing because the body renames the stored content and then restores
+	#                  the content copied before; a name that already exists still raises an error
+	#   see            RenameNthCol
 	def ReplaceColName(pCol, pcNewColName)
 		if isList(pcNewColName) and Q(pcNewColName).IsWithOrByNamedParam()
 			pcNewColName = pcNewColName[2]
@@ -5059,13 +6291,25 @@ func _NormalizeColLookupKey(pVal)
 		This.UpdateWith(_aContent_)
 
 
+		# Leaves the table unchanged today instead of giving a column a new name.
+		#
+		#   pcNewColName   the new name, as text, or [ :With, name ]
+		#   returns        nothing; the table is unchanged
+		#   warning        Does nothing because the body renames the stored content and then
+		#                  restores the content copied before; a name that already exists still
+		#                  raises an error
+		#   see            RenameNthCol
 		#< @FunctionAlternativeForm
-
 		def ReplaceColumnName(pCol, pcNewColName)
 			This.ReplaceColName(pCol, pcNewColName)
 
+	# TRUE if every name in the list is the name of a column, ignoring case.
+	#
+	#   pacColNames   the column names to test
+	#   returns       TRUE or FALSE
+	#   warning       Raises an error when an item is not text
+	#   see           HasColumnsNames
 		#>
-
 	def AreColNames(pacColNames)
 		if NOT ( isList(pacColNames) and @IsListOfStrings(pacColNames) )
 			StzRaise("Incorrect param type! pacColNames must be a list of strings.")
@@ -5083,16 +6327,31 @@ func _NormalizeColLookupKey(pVal)
 
 		return _bResult_
 
+		# TRUE if every name in the list is the name of a column, ignoring case.
+		#
+		#   pacColNames   the column names to test
+		#   returns       TRUE or FALSE
+		#   warning       Raises an error when an item is not text
+		#   see           HasColumnsNames
 		#< @FunctionAlternativeForm
-
 		def AreColumnNames(pacColNames)
 			This.AreColNames(pacColNames)
 
+		# TRUE if every name in the list is the name of a column, ignoring case.
+		#
+		#   pacColNames   the column names to test
+		#   returns       TRUE or FALSE
+		#   warning       Raises an error when an item is not text
+		#   see           HasColumnsNames
 		def AreColumnsNames(pacColNames)
 			This.AreColNames(pacColNames)
 
+	# Returns the positions of the named columns, in the order given; unknown names are skipped.
+	#
+	#   pacColNames   the column names to look for
+	#   returns       a list of column positions
+	#   see           FindCol
 		#>
-
 	def FindColsByName(pacColNames)
 
 		if CheckingParams()
@@ -5182,8 +6441,12 @@ func _NormalizeColLookupKey(pVal)
 		def FindColumnByValueCS(paColData, pCaseSensitive)
 			return This.FindColByValueCS(paColData, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Returns the positions of the columns whose cells equal the given list, case-sensitively.
+	#
+	#   paColData   the cells to look for, top to bottom
+	#   returns     a list of column positions; [ ] when none matches
+	#   see         FindColsByValue
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindColByValue(paColData)
 		return This.FindColByValueCS(paColData, 1)
 
@@ -5245,10 +6508,15 @@ func _NormalizeColLookupKey(pVal)
 		def FindManyColumnsByValuesCS(paManyColData, pCaseSensitive)
 			return This.FindColsByValueCS(paManyColData, pCaseSensitive)
 
+	# Raises an error today instead of returning the positions of the columns equal to any of the given cell lists.
+	#
+	#   paManyColData   the cell lists to look for, each a list of cells
+	#   returns         nothing; it raises
+	#   warning         Raises Can't create the stzList object! for a valid list of cell lists;
+	#                   FindColByValue works one list at a time
+	#   see             FindColByValue
 		#>
-
-	#-- WTIHOUT CASESENSITIVITY
-
+	#@ aka  -- WTIHOUT CASESENSITIVITY
 	def FindColsByValue(paManyColData)
 		return This.FindColsByValueCS(paManyColData, 1)
 
@@ -5283,6 +6551,13 @@ func _NormalizeColLookupKey(pVal)
 	 #  FINING COLUMNS BY NAME EXPET THOSE PROVIDED  #
 	#===============================================#
 
+	# Returns the positions of the columns that are not in the given list; only a list of lists is accepted today.
+	#
+	#   panColNumbers   the positions to leave out, wrapped in a list of lists
+	#   returns         a list of column positions
+	#   warning         The check tests for a list of lists instead of a list of numbers: a plain
+	#                   list of positions raises, and [ [ 1 ] ] leaves out nothing
+	#   see             FindColsExcept
 	def FindColsExceptAt(panColNumbers)
 		if CheckingParams()
 			if NOT ( isList(panColNumbers) and @IsListOfLists(panColNumbers) )
@@ -5434,8 +6709,13 @@ func _NormalizeColLookupKey(pVal)
 		def FindNthOccurrenceOfRowCS(paRow, pCaseSensitive)
 			return This.FindNthRowCS(paRow, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Raises error R19 today instead of returning the position of the nth occurrence of a row.
+	#
+	#   paRow      the cells of the row to look for
+	#   returns    nothing; it raises
+	#   warning    Raises R19 because it passes too few arguments to FindNthRowCS
+	#   see        FindRows
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindNthRow(paRow)
 		return This.FindNthRowCS(paRow, 1)
 
@@ -5453,8 +6733,12 @@ func _NormalizeColLookupKey(pVal)
 		def FindManyRowsCS(paRows, pCaseSensitive)
 			return This.FindRowsCS(paRows, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Returns the positions of the rows equal to any of the given rows, case-sensitively.
+	#
+	#   paRows     the rows to look for, each a list of cells
+	#   returns    a list of row positions
+	#   see        FindRowsExceptThese
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindRows(paRows)
 		return This.FindRowsCS(paRows, 1)
 
@@ -5527,8 +6811,12 @@ func _NormalizeColLookupKey(pVal)
 		def FindRowsOtherThanTheseCS(paRows, pCaseSensitive)
 			return This.FindRowsExceptTheseCS(paRows, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Returns the positions of the rows that equal none of the given rows.
+	#
+	#   paRows     the rows to leave out, each a list of cells
+	#   returns    a list of row positions
+	#   see        FindRows
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindRowsExceptThese(paRows)
 		return This.FindRowsExceptTheseCS(paRows, 1)
 
@@ -5571,8 +6859,13 @@ func _NormalizeColLookupKey(pVal)
 			return This.FindRowsExceptAtCS(panRowNumbers, pCaseSensitive)
 
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Returns the positions of the rows whose position is not in the given list.
+	#
+	#   panRowNumbers   the row positions to leave out
+	#   returns         a list of row positions
+	#   warning         Positions past the last row are ignored
+	#   see             FindRowsExceptThese
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindRowsExceptAt(panRowNumbers)
 		return This.FindRowsExceptAtCS(panRowNumbers, 1)
 
@@ -5644,10 +6937,18 @@ func _NormalizeColLookupKey(pVal)
 
 		def PositionsCS(pCellValueOrSubValue, pCaseSensitive)
 			return This.FindAllCS(pCellValueOrSubValue, pCaseSensitive)
+	# Returns the positions of the cells equal to a text, case-sensitively; [ :SubValue, text ] finds the cells that contain it.
+	#
+	#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside the
+	#                          cells
+	#   returns                a list of [ column, row ] positions; with :SubValue, [ [ column, row
+	#                          ], [ places in the cell ] ] items
+	#   warning                Raises an error for a number, because the list-of-lists helper it
+	#                          uses passes StzFindAll its arguments in the wrong order; text values
+	#                          work
+	#   see                    FindCell, FindSubValue
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindAll(pCellValueOrSubValue)
 		return This.FindAllCS(pCellValueOrSubValue, 1)
 
@@ -5699,8 +7000,13 @@ func _NormalizeColLookupKey(pVal)
 		def OccurrencesOfValueCS(pCellValue, pCaseSensitive)
 			return This.FindCellCS(pCellValue, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Returns the positions of the cells equal to a text, case-sensitively.
+	#
+	#   returns    a list of [ column, row ] positions; [ ] when none
+	#   warning    Raises an error for a number, because the list-of-lists helper it uses passes
+	#              StzFindAll its arguments in the wrong order; text values work
+	#   see        FindAll
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindCell(pValue)
 		return This.FindCellCS(pValue, 1)
 
@@ -5761,8 +7067,13 @@ func _NormalizeColLookupKey(pVal)
 		def FindManyValuesCS(paValues, pCaseSensitive)
 			return This.FindCellsCS(paValues, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Returns the positions of the cells equal to any of the given values, case-sensitively.
+	#
+	#   paValues   the values to look for
+	#   returns    a list of [ column, row ] positions
+	#   warning    Raises an error when a value is a number
+	#   see        FindCell
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindCells(paValues)
 		return This.FindCellsCS(paValues, 1)
 
@@ -5836,10 +7147,12 @@ func _NormalizeColLookupKey(pVal)
 		def PositionsOfSubValueCS(pSubValue, pCaseSensitive)
 			return This.FindSubValueCS(pSubValue, pCaseSensitive)
 
+	# Returns the cells that contain a text, each as [ [ column, row ], [ places of the text in the cell ] ].
+	#
+	#   returns    a list of [ [ column, row ], list of places ] items
+	#   see        FindAll, FindFirstSubValue
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindSubValue(pSubValue)
 		return This.FindSubValueCS(pSubValue, 1)
 
@@ -5857,8 +7170,13 @@ func _NormalizeColLookupKey(pVal)
 	def FindSubValuesCS(paSubValues, pCaseSensitive) #TODO
 		StzRaise("TODO!")
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Raises error today instead of finding the cells that contain any of several texts.
+	#
+	#   paSubValues   the texts to look for
+	#   returns       nothing; it raises
+	#   warning       Always raises TODO!
+	#   see           FindSubValue
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindSubValues(paSubValues)
 		return This.FindSubValuesCS(paSubValues, 1)
 
@@ -5908,10 +7226,18 @@ func _NormalizeColLookupKey(pVal)
 		def FindNthOccurrenceCS(_n_, pCellValueOrSubValue, pCaseSensitive)
 			return This.FindNthCS(_n_, pCellValueOrSubValue, pCaseSensitive)		
 
+	# Returns the [ column, row ] position of the nth cell equal to a text; [ ] when there are fewer.
+	#
+	#   _n_                    the position, or how many, as a number
+	#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside the
+	#                          cells
+	#   returns                a [ column, row ] pair, or [ ]
+	#   warning                The [ :SubValue, text ] form raises R14, because
+	#                          IsOfOfTheseNamedParams is defined nowhere; a number raises like
+	#                          FindCell
+	#   see                    FindFirst, FindLast
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindNth(_n_, pCellValueOrSubValue)
 		return This.FindNthCS(_n_, pCellValueOrSubValue, 1)
 	
@@ -5961,10 +7287,15 @@ func _NormalizeColLookupKey(pVal)
 		def FindNthOccurrenceOfValueCS(_n_, pCellValue, pCaseSensitive)
 			return This.FindNthCellCS(_n_, pCellValue, pCaseSensitive)
 
+	# Returns the [ column, row ] position of the nth cell equal to a value; [ ] when there are fewer, and :Last stands for the last one.
+	#
+	#   _n_        the position, or how many, as a number
+	#   returns    a [ column, row ] pair, or [ ]
+	#   warning    Raises an error for a number, because the list-of-lists helper it uses passes
+	#              StzFindAll its arguments in the wrong order; text values work
+	#   see        FindNth
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindNthCell(_n_, pValue)
 		return This.FindNthCellCS(_n_, pValue, 1)
 
@@ -6026,11 +7357,24 @@ func _NormalizeColLookupKey(pVal)
 		def FindNthOccurrenceOfSubValueCS(_n_, pSubValue, pCaseSensitive)
 			return This.FindNthSubValueCS(_n_, pSubValue, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Returns the nth cell that contains a text, as [ [ column, row ], place of the text in the cell ]; [ ] when there are fewer.
+	#
+	#   _n_        the position, or how many, as a number
+	#   returns    a [ [ column, row ], place ] pair, or [ ]
+	#   see        FindSubValue
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindNthSubValue(_n_, pSubValue)
 		return This.FindNthSubValueCS(_n_, pSubValue, 1)
 
+		# Raises error R24 today instead of finding the nth cell that contains a text.
+		#
+		#   _n_              the position, or how many, as a number
+		#   pSubValueValue   the text to look for inside the cells
+		#   returns          nothing; it raises
+		#   warning          Raises R24 (uninitialized variable psubvalue) because the body passes
+		#                    pSubValue while the parameter is named pSubValueValue; FindNthSubValue
+		#                    works
+		#   see              FindNthSubValue
 		def FindNthOccurrenceOfSubValue(_n_, pSubValueValue)
 			return This.FindNthSubValue(_n_, pSubValue)
 
@@ -6067,10 +7411,17 @@ func _NormalizeColLookupKey(pVal)
 		def FindFirstOccurrenceCS(pCellValueOrSubValue, pCaseSensitive)
 			return This.FindFirstCS(pCellValueOrSubValue, pCaseSensitive)		
 
+	# Returns the [ column, row ] position of the first cell equal to a text, or of the first cell containing it with [ :SubValue, text ].
+	#
+	#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside the
+	#                          cells
+	#   returns                a [ column, row ] pair, or [ ]
+	#   warning                Raises an error for a number, because the list-of-lists helper it
+	#                          uses passes StzFindAll its arguments in the wrong order; text values
+	#                          work
+	#   see                    FindLast, FindNth
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindFirst(pCellValueOrSubValue)
 		return This.FindFirstCS(pCellValueOrSubValue, 1)
 	
@@ -6081,9 +7432,17 @@ func _NormalizeColLookupKey(pVal)
 	 #   FIRST CELL AND LAST CELL POSITIONS   #
 	#----------------------------------------#
 
+	# Returns the position of the first cell, always [ 1, 1 ].
+	#
+	#   returns    the pair [ 1, 1 ]
+	#   see        LastCellPosition
 	def FirstCellPosition()
 		return [1, 1]
 
+	# Returns the position of the last cell, as [ number of columns, number of rows ].
+	#
+	#   returns    a [ column, row ] pair
+	#   see        FirstCellPosition
 	def LastCellPosition()
 		return [ This.NumberOfCol(), This.NumberOfRows() ]
 
@@ -6103,8 +7462,13 @@ func _NormalizeColLookupKey(pVal)
 		def FindFirstOccurrenceOfValueCS(pCellValue, pCaseSensitive)
 			return This.FindFirstCellCS(pCellValue, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Returns the [ column, row ] position of the first cell equal to a value; [ ] when there is none.
+	#
+	#   returns    a [ column, row ] pair, or [ ]
+	#   warning    Raises an error for a number, because the list-of-lists helper it uses passes
+	#              StzFindAll its arguments in the wrong order; text values work
+	#   see        FindFirst
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindFirstCell(pValue)
 		return This.FindFirstCellCS(pValue, 1)
 
@@ -6127,11 +7491,21 @@ func _NormalizeColLookupKey(pVal)
 		def FindFirstOccurrenceOfSubValueCS(pSubValue, pCaseSensitive)
 			return This.FindFirstSubValueCS(pSubValue, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Returns the first cell that contains a text, as [ [ column, row ], place of the text in the cell ].
+	#
+	#   returns    a [ [ column, row ], place ] pair, or [ ]
+	#   see        FindSubValue
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindFirstSubValue(pSubValue)
 		return This.FindFirstSubValueCS(pSubValue, 1)
 
+		# Raises error R24 today instead of finding the first cell that contains a text.
+		#
+		#   pSubValueValue   the text to look for inside the cells
+		#   returns          nothing; it raises
+		#   warning          Raises R24 because the body passes pSubValue while the parameter is
+		#                    named pSubValueValue; FindFirstSubValue works
+		#   see              FindFirstSubValue
 		def FindFirstOccurrenceOfSubValue(pSubValueValue)
 			return This.FindFirstSubValue(pSubValue)
 
@@ -6168,10 +7542,14 @@ func _NormalizeColLookupKey(pVal)
 		def FindLastOccurrenceCS(pCellValueOrSubValue, pCaseSensitive)
 			return This.FindLastCS(pCellValueOrSubValue, pCaseSensitive)		
 
+	# Returns the [ column, row ] position of the last cell equal to a text, or of the last cell containing it with [ :SubValue, text ].
+	#
+	#   returns    a [ column, row ] pair, or [ ]
+	#   warning    Raises an error for a number, because the list-of-lists helper it uses passes
+	#              StzFindAll its arguments in the wrong order; text values work
+	#   see        FindFirst
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindLast(pCellValue)
 		return This.FindLastCS(pCellValue, 1)
 	
@@ -6194,8 +7572,13 @@ func _NormalizeColLookupKey(pVal)
 		def FindLastOccurrenceOfValueCS(pCellValue, pCaseSensitive)
 			return This.FindLastCellCS(pCellValue, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Returns the [ column, row ] position of the last cell equal to a value; [ ] when there is none.
+	#
+	#   returns    a [ column, row ] pair, or [ ]
+	#   warning    Raises an error for a number, because the list-of-lists helper it uses passes
+	#              StzFindAll its arguments in the wrong order; text values work
+	#   see        FindLast
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindLastCell(pValue)
 		return This.FindLastCellCS(pValue, 1)
 
@@ -6218,11 +7601,21 @@ func _NormalizeColLookupKey(pVal)
 		def FindLastOccurrenceOfSubValueCS(pSubValue, pCaseSensitive)
 			return This.FindLastSubValueCS(pSubValue, pCaseSensitive)
 
-		#-- WITHOUT CASESENSITIVITY
-
+		# Returns the last cell that contains a text, as [ [ column, row ], place of the text in the cell ].
+		#
+		#   returns    a [ [ column, row ], place ] pair, or [ ]
+		#   see        FindSubValue
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def FindLastSubValue(pSubValue)
 			return This.FindLastSubValueCS(pSubValue, 1)
 
+			# Raises error R24 today instead of finding the last cell that contains a text.
+			#
+			#   pSubValueValue   the text to look for inside the cells
+			#   returns          nothing; it raises
+			#   warning          Raises R24 because the body passes pSubValue while the parameter is
+			#                    named pSubValueValue; FindLastSubValue works
+			#   see              FindLastSubValue
 			def FindLastOccurrenceOfSubValue(pSubValueValue)
 				return This.FindLastSubValue(pSubValue)
 
@@ -6272,10 +7665,15 @@ func _NormalizeColLookupKey(pVal)
 		def HowManyOccurrencesCS(pValue, pCaseSensitive)
 			return This.NumberOfOccurrenceCS(pValue, pCaseSensitive)
 
+	# Returns how many cells equal a text, case-sensitively; [ :OfCell, v ] and [ :OfSubValue, text ] choose what is counted.
+	#
+	#   pValue     the text to count, or [ :OfCell, v ] or [ :OfSubValue, text ]
+	#   returns    a number
+	#   warning    Raises an error for a number, because the list-of-lists helper it uses passes
+	#              StzFindAll its arguments in the wrong order; text values work
+	#   see        NumberOfOccurrenceOfCell, NumberOfOccurrenceOfSubValue
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def NumberOfOccurrence(pValue)
 		return This.NumberOfOccurrenceCS(pValue, 1)
 
@@ -6365,10 +7763,14 @@ func _NormalizeColLookupKey(pVal)
 		def HowManyOccurrencesOfValueCS(pValue, pCaseSensitive)
 			return This.NumberOfOccurrenceOfCellCS(pValue, pCaseSensitive)
 
+	# Returns how many cells equal a value, case-sensitively.
+	#
+	#   returns    a number
+	#   warning    Raises an error for a number, because the list-of-lists helper it uses passes
+	#              StzFindAll its arguments in the wrong order; text values work
+	#   see        NumberOfOccurrence
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def NumberOfOccurrenceOfCell(pCellValue)
 		return This.NumberOfOccurrenceOfCellCS(pCellValue, 1)
 
@@ -6482,10 +7884,12 @@ func _NormalizeColLookupKey(pVal)
 		def HowManySubValuesCS(pSubValue, pCaseSensitive)
 			return This.NumberOfOccurrenceOfSubValueCS(pSubValue, pCaseSensitive)
 
+	# Returns how many cells contain a text, case-sensitively.
+	#
+	#   returns    a number
+	#   see        NumberOfOccurrence
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def NumberOfOccurrenceOfSubValue(pSubValue)
 		return This.NumberOfOccurrenceOfSubValueCS(pSubValue, 1)
 
@@ -6635,8 +8039,16 @@ func _NormalizeColLookupKey(pVal)
 
 		return This.ContainsCellCS(pCellValueOrSubValue, pCaseSensitive)
 
-		#-- WITHOUT CASESENSITIVITY
-	
+		# TRUE if some cell equals the text; a text found only inside a longer cell does not count.
+		#
+		#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside
+		#                          the cells
+		#   returns                TRUE or FALSE
+		#   warning                Raises an error for a number, because the list-of-lists helper it
+		#                          uses passes StzFindAll its arguments in the wrong order; text
+		#                          values work
+		#   see                    ContainsSubValue
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def Contains(pCellValueOrSubValue)
 			return This.ContainsCS(pCellValueOrSubValue, 1)
 
@@ -6670,8 +8082,15 @@ func _NormalizeColLookupKey(pVal)
 
 		return _bResult_
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# TRUE if the table has a row equal to the given cells, case-sensitively.
+	#
+	#   paRow      the cells of a row, one per column
+	#   returns    TRUE or FALSE
+	#   warning    Answers FALSE for an existing row unless the table has as many rows as columns,
+	#              because the length test compares the row with NumberOfRows instead of
+	#              NumberOfCols
+	#   see        ContainsRows
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def ContainsRow(paRow)
 		return This.ContainsRowCS(paRow, 1)
 
@@ -6712,8 +8131,14 @@ func _NormalizeColLookupKey(pVal)
 		def ContainsTheseRowsCS(paRows, pCaseSensitive)
 			return This.ContainsRowsCS(paRows, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# TRUE if the table has every one of the given rows, case-sensitively.
+	#
+	#   paRows     the rows to look for, each a list of cells
+	#   returns    TRUE or FALSE
+	#   warning    Inherits the ContainsRow fault: FALSE for existing rows unless the table has as
+	#              many rows as columns
+	#   see        ContainsRow
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def ContainsRows(paRows)
 		return This.ContainsRowsCS(paRows, 1)
 
@@ -6752,8 +8177,13 @@ func _NormalizeColLookupKey(pVal)
 		def ContainsColumnCS(paCol, pCaseSensitive)
 			return This.ContainsColCS(paCol, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# TRUE if the table has a column of that name holding exactly those cells, case-sensitively.
+	#
+	#   paCol      the column, as [ name, list of cells ]
+	#   returns    TRUE or FALSE
+	#   warning    Answers FALSE for a list of cells given without the column name
+	#   see        ContainsCols
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def ContainsCol(paCol)
 		return This.ContainsColCS(paCol, 1)
 
@@ -6803,17 +8233,35 @@ func _NormalizeColLookupKey(pVal)
 		def ContainsTheseColumnsCS(paCols, pCaseSensitive)
 			return This.ContainsColsCS(paCols, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# TRUE if the table has every one of the given columns, each as [ name, cells ].
+	#
+	#   paCols     the columns to look for, each as [ name, list of cells ]
+	#   returns    TRUE or FALSE
+	#   see        ContainsCol
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def ContainsCols(paCols)
 		return This.ContainsColsCS(paCols, 1)
 
 		def containsTheseCols(paCols)
 			return This.ContainsCols(paCols)
 
+		# Raises error R24 today instead of testing that the table has the given columns.
+		#
+		#   paCols     the columns to look for, each as [ name, list of cells ]
+		#   returns    nothing; it raises
+		#   warning    Raises R24 (uninitialized variable pacol) because the body passes paCol while
+		#              the parameter is named paCols; ContainsCols works
+		#   see        ContainsCols
 		def ContainsColumns(paCols)
 			return This.ContainsCols(paCol)
 
+		# Raises error R24 today instead of testing that the table has the given columns.
+		#
+		#   paCols     the columns to look for, each as [ name, list of cells ]
+		#   returns    nothing; it raises
+		#   warning    Raises R24 (uninitialized variable pacol) because the body passes paCol while
+		#              the parameter is named paCols; ContainsCols works
+		#   see        ContainsCols
 		def ContainsTheseColumns(paCols)
 			return This.ContainsCols(paCol)
 
@@ -6829,8 +8277,11 @@ func _NormalizeColLookupKey(pVal)
 			return 0
 		ok
 
-		#-- WITHOUT CASESENSITIVITY
-
+	# TRUE if some cell contains the text, case-sensitively.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Contains
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def ContainsSubValue(pSubValue)
 		return This.ContainsSubValueCS(pSubValue, 1)
 
@@ -6879,8 +8330,17 @@ func _NormalizeColLookupKey(pVal)
 			return _anResult_
 		ok
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Returns the places where a text occurs inside one cell, as character positions; [ ] when it does not.
+	#
+	#   pCellCol               the column of the cell, by name or position
+	#   pCellRow               the row position of the cell
+	#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside the
+	#                          cells
+	#   returns                a list of numbers
+	#   warning                The [ :Value, v ] form answers the number 1 when the cell equals v,
+	#                          not a list
+	#   see                    FindSubValueInCell
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindInCell(pCellCol, pCellRow, pCellValueOrSubValue)
 		return This.FindInCellCS(pCellCol, pCellRow, pCellValueOrSubValue, 1)
 
@@ -6891,8 +8351,13 @@ func _NormalizeColLookupKey(pVal)
 	def FindValueInCellCS(pCellCol, pCellRow, pValue, pCaseSensitive)
 		return This.FindInCellCS(pCellCol, pCellRow, :Value = pValue, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Returns 1 when the cell equals the value, otherwise 0.
+	#
+	#   pCellCol   the column of the cell, by name or position
+	#   pCellRow   the row position of the cell
+	#   returns    1 or 0
+	#   see        FindInCell
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindValueInCell(pCellCol, pCellRow, pValue)
 		return This.FindValueInCellCS(pCellCol, pCellRow, pValue, 1)
 
@@ -6903,8 +8368,13 @@ func _NormalizeColLookupKey(pVal)
 	def FindSubValueInCellCS(pCellCol, pCellRow, pSubValue, pCaseSensitive)
 		return This.FindInCellCS(pCellCol, pCellRow, :SubValue = pSubValue, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Returns the places where a text occurs inside one cell, as character positions.
+	#
+	#   pCellCol   the column of the cell, by name or position
+	#   pCellRow   the row position of the cell
+	#   returns    a list of numbers; [ ] when absent
+	#   see        FindInCell
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindSubValueInCell(pCellCol, pCellRow, pSubValue)
 		return This.FindSubValueInCellCS(pCellCol, pCellRow, pSubValue, 1)
 
@@ -7000,10 +8470,17 @@ func _NormalizeColLookupKey(pVal)
 		def FindInCellsCS(paCells, pCellValueOrSubValue, pCaseSensitive)
 			return This.FindAllInCellsCS(paCells, pCellValueOrSubValue, pCaseSensitive)
 
+	# Returns, for the given cells, the cells that contain a text with the places inside each, or the cells equal to a value with [ :Value, v ].
+	#
+	#   paCells                the cells to look in, each as a [ column, row ] position
+	#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside the
+	#                          cells
+	#   returns                a list of [ [ column, row ], places ] items, or of [ column, row ]
+	#                          positions
+	#   warning                Raises an error unless paCells is a list of pairs
+	#   see                    FindSubValueInCells
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindAllInCells(paCells, pCellValueOrSubValue)
 
 		return This.FindAllInCellsCS(paCells, pCellValueOrSubValue, 1)
@@ -7016,6 +8493,13 @@ func _NormalizeColLookupKey(pVal)
 		def FindOccurrencesInCells(paCells, pCellValueOrSubValue)
 			return This.FindAllInCells(paCells, pCellValueOrSubValue)
 	
+		# Raises error R24 today instead of finding a text inside the given cells.
+		#
+		#   pCellValueOrSubValue   the text to look for
+		#   returns                nothing; it raises
+		#   warning                Raises R24 (uninitialized variable pacells) because the method
+		#                          takes no list of cells; FindAllInCells works
+		#   see                    FindAllInCells
 		def OccurrencesInCells(pCellValueOrSubValue)
 			return This.FindAllInCells(paCells, pCellValueOrSubValue)
 		
@@ -7073,14 +8557,26 @@ func _NormalizeColLookupKey(pVal)
 		def PositionsOfValueInCellsCS(paCells, pCellValue, pCaseSensitive)
 			return This.FindValueInCellsCS(ppaCells, _cellValue_, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Raises an error today instead of finding the given cells that equal a value.
+	#
+	#   returns    nothing; it raises
+	#   warning    Declares one parameter but forwards to a form that needs the cells and the value:
+	#              any call raises R19 or R20
+	#   see        FindNthValueInCells
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindValueInCells(pValue)
 		return This.FindValueInCellsCS(pValue, 1)
 			
 		def OccurrencesOfValueInCells(paCells, pCellValue)
 			return This.FindValueInCells(paCells, pCellValue)
 
+		# Raises error R24 today instead of finding the given cells that equal a value.
+		#
+		#   paCells    the cells to look in, each as a [ column, row ] position
+		#   returns    nothing; it raises
+		#   warning    Raises R24 (uninitialized variable ppacells) because the body passes a
+		#              misspelt name
+		#   see        FindFirstInCells
 		def PositionsOfValueInCells(paCells, pCellValue)
 			return This.FindValueInCells(ppaCells, _cellValue_)
 	
@@ -7133,10 +8629,13 @@ func _NormalizeColLookupKey(pVal)
 		def PositionsOfSubValueInCellsCS(paCells, pSubValue, pCaseSensitive)
 			return This.FindSubValueInCellsCS(paCells, pSubValue, pCaseSensitive)
 
+	# Returns the given cells that contain a text, each as [ [ column, row ], [ places in the cell ] ].
+	#
+	#   paCells    the cells to look in, each as a [ column, row ] position
+	#   returns    a list of [ [ column, row ], places ] items
+	#   see        FindSubValueInCell
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindSubValueInCells(paCells, pSubValue)
 		return This.FindSubValueInCellsCS(paCells, pSubValue, 1)
 
@@ -7178,10 +8677,16 @@ func _NormalizeColLookupKey(pVal)
 		def FindNthOccurrenceInCellsCS(_n_, paCells, pCellValueOrSubValue, pCaseSensitive)
 			return This.FindNthInCellsCS(_n_, paCells, pCellValueOrSubValue, pCaseSensitive)		
 
+	# Returns the nth, among the given cells, whose value equals a text; with [ :SubValue, text ] the nth that contains it.
+	#
+	#   _n_                    the position, or how many, as a number
+	#   paCells                the cells to look in, each as a [ column, row ] position
+	#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside the
+	#                          cells
+	#   returns                a [ column, row ] pair, or [ ]
+	#   see                    FindFirstInCells, FindLastInCells
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindNthInCells(_n_, paCells, pCellValueOrSubValue)
 		return This.FindNthInCellsCS(_n_, paCells, pCellValueOrSubValue, 1)
 	
@@ -7222,11 +8727,27 @@ func _NormalizeColLookupKey(pVal)
 		def FindNthOccurrenceOfValueInCellCS(_n_, paCells, pCellValue, pCaseSensitive)
 			return This.FindNthValueInCellCS(_n_, paCells, pCellValue, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Returns the [ column, row ] position of the nth cell of the whole table equal to a value, ignoring the given cells.
+	#
+	#   _n_        the position, or how many, as a number
+	#   paCells    the cells to look in, each as a [ column, row ] position
+	#   returns    a [ column, row ] pair, or [ ]
+	#   warning    Looks in the whole table, not in paCells: the body forwards to FindNthCellCS
+	#              without the cells
+	#   see        FindNthInCells
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindNthValueInCells(_n_, paCells, pValue)
 		return This.FindNthCellCS(_n_, pValue, 1)
 
+		# Raises error R24 today instead of finding the nth given cell that equals a value.
+		#
+		#   _n_          the position, or how many, as a number
+		#   paCells      the cells to look in, each as a [ column, row ] position
+		#   pCellValue   the value to look for
+		#   returns      nothing; it raises
+		#   warning      Raises R24 (uninitialized variable pvalue) because the body passes pValue
+		#                while the parameter is named pCellValue
+		#   see          FindNthInCells
 		def FindNthOccurrenceOfValueInCells(_n_, paCells, pCellValue)
 			return This.FindNthValueInCells(_n_, paCells, pValue)
 	
@@ -7276,11 +8797,25 @@ func _NormalizeColLookupKey(pVal)
 		def FindNthOccurrenceOfSubValueInCellsCS(_n_, paCells, pSubValue, pCaseSensitive)
 			return This.FindNthSubValueInCellsCS(_n_, paCells, pSubValue, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Returns the nth given cell that contains a text, as [ [ column, row ], place of the text ].
+	#
+	#   _n_        the position, or how many, as a number
+	#   paCells    the cells to look in, each as a [ column, row ] position
+	#   returns    a [ [ column, row ], place ] pair, or [ ]
+	#   see        FindSubValueInCells
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindNthSubValueInCells(_n_, paCells, pSubValue)
 		return This.FindNthSubValueInCellsCS(_n_, paCells, pSubValue, 1)
 
+		# Raises error R24 today instead of finding the nth given cell that contains a text.
+		#
+		#   _n_              the position, or how many, as a number
+		#   paCells          the cells to look in, each as a [ column, row ] position
+		#   pSubValueValue   the text to look for inside the cells
+		#   returns          nothing; it raises
+		#   warning          Raises R24 because the body passes pSubValue while the parameter is
+		#                    named pSubValueValue
+		#   see              FindNthSubValueInCells
 		def FindNthOccurrenceOfSubValueInCells(_n_, paCells, pSubValueValue)
 			return This.FindNthSubValueInCells(_n_, paCells, pSubValue)
 
@@ -7312,10 +8847,15 @@ func _NormalizeColLookupKey(pVal)
 		def FindFirstOccurrenceInCellsCS(paCells, pCellValueOrSubValue, pCaseSensitive)
 			return This.FFindFirstInCellsCS(paCells, pCellValueOrSubValue, pCaseSensitive)	
 
+	# Returns the first, among the given cells, whose value equals a text; with [ :SubValue, text ] the first that contains it.
+	#
+	#   paCells                the cells to look in, each as a [ column, row ] position
+	#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside the
+	#                          cells
+	#   returns                a [ column, row ] pair, or [ ]
+	#   see                    FindLastInCells
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindFirstInCells(paCells, pCellValueOrSubValue)
 		return This.FindFirstInCellsCS(paCells, pCellValueOrSubValue, 1)
 	
@@ -7332,11 +8872,25 @@ func _NormalizeColLookupKey(pVal)
 		def FindFirstOccurrenceOfValueInCellsCS(paCells, pCellValue, pCaseSensitive)
 			return This.FindFirstValueInCellsCS(paCells, pCellValue, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Raises error R14 today instead of finding the first given cell that equals a value.
+	#
+	#   paCells    the cells to look in, each as a [ column, row ] position
+	#   returns    nothing; it raises
+	#   warning    Raises R14 because FindFirstValueInCellCS is defined nowhere; FindFirstInCells
+	#              works
+	#   see        FindFirstInCells
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindFirstValueInCells(paCells, pValue)
 		return This.FindFirstValueInCellCS(paCells, pValue, 1)
 
+		# Raises error R24 today instead of finding the first given cell that equals a value.
+		#
+		#   paCells      the cells to look in, each as a [ column, row ] position
+		#   pCellValue   the value to look for
+		#   returns      nothing; it raises
+		#   warning      Raises R24 because the body passes pValue while the parameter is named
+		#                pCellValue
+		#   see          FindFirstInCells
 		def FindFirstOccurrenceOfValueInCells(paCells, pCellValue)
 			return This.FindFirstValueInCells(paCells, pValue)
 
@@ -7350,11 +8904,23 @@ func _NormalizeColLookupKey(pVal)
 		def FindFirstOccurrenceOfSubValueInCellsCS(paCells, pSubValue, pCaseSensitive)
 			return This.FindFirstSubValueInCellsCS(paCells, pSubValue, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Returns the first given cell that contains a text, as [ [ column, row ], place of the text ].
+	#
+	#   paCells    the cells to look in, each as a [ column, row ] position
+	#   returns    a [ [ column, row ], place ] pair, or [ ]
+	#   see        FindSubValueInCells
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindFirstSubValueInCells(paCells, pSubValue)
 		return This.FindFirstSubValueInCellsCS(paCells, pSubValue, 1)
 
+		# Raises error R24 today instead of finding the first given cell that contains a text.
+		#
+		#   paCells          the cells to look in, each as a [ column, row ] position
+		#   pSubValueValue   the text to look for inside the cells
+		#   returns          nothing; it raises
+		#   warning          Raises R24 because the body passes pSubValue while the parameter is
+		#                    named pSubValueValue
+		#   see              FindFirstSubValueInCells
 		def FindFirstOccurrenceOfSubValueInCells(paCells, pSubValueValue)
 			return This.FindFirstSubValueInCells(paCells, pSubValue)
 
@@ -7386,10 +8952,15 @@ func _NormalizeColLookupKey(pVal)
 		def FindLastOccurrenceInCellsCS(paCells, pCellValueOrSubValue, pCaseSensitive)
 			return This.FFindLastnCellsCS(paCells, pCellValueOrSubValue, pCaseSensitive)	
 
+	# Returns the last, among the given cells, whose value equals a text; with [ :SubValue, text ] the last that contains it.
+	#
+	#   paCells                the cells to look in, each as a [ column, row ] position
+	#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside the
+	#                          cells
+	#   returns                a [ column, row ] pair, or [ ]
+	#   see                    FindFirstInCells
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindLastInCells(paCells, pCellValueOrSubValue)
 		return This.FindLastInCellsCS(paCells, pCellValueOrSubValue, 1)
 	
@@ -7406,11 +8977,25 @@ func _NormalizeColLookupKey(pVal)
 		def FindLastOccurrenceOfValueInCellsCS(paCells, pCellValue, pCaseSensitive)
 			return This.FindLastValueInCellsCS(paCells, pCellValue, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Raises error R14 today instead of finding the last given cell that equals a value.
+	#
+	#   paCells    the cells to look in, each as a [ column, row ] position
+	#   returns    nothing; it raises
+	#   warning    Raises R14 because FindLastValueInCellCS is defined nowhere; FindLastInCells
+	#              works
+	#   see        FindLastInCells
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindLastValueInCells(paCells, pValue)
 		return This.FindLastValueInCellCS(paCells, pValue, 1)
 
+		# Raises error R24 today instead of finding the last given cell that equals a value.
+		#
+		#   paCells      the cells to look in, each as a [ column, row ] position
+		#   pCellValue   the value to look for
+		#   returns      nothing; it raises
+		#   warning      Raises R24 because the body passes pValue while the parameter is named
+		#                pCellValue
+		#   see          FindLastInCells
 		def FindLastOccurrenceOfValueInCells(paCells, pCellValue)
 			return This.FindLastValueInCells(paCells, pValue)
 
@@ -7424,11 +9009,23 @@ func _NormalizeColLookupKey(pVal)
 		def FindLastOccurrenceOfSubValueInCellsCS(paCells, pSubValue, pCaseSensitive)
 			return This.FindLastSubValueInCellsCS(paCells, pSubValue, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Returns the last given cell that contains a text, as [ [ column, row ], place of the text ].
+	#
+	#   paCells    the cells to look in, each as a [ column, row ] position
+	#   returns    a [ [ column, row ], place ] pair, or [ ]
+	#   see        FindSubValueInCells
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindLastSubValueInCells(paCells, pSubValue)
 		return This.FindLastSubValueInCellsCS(paCells, pSubValue, 1)
 
+		# Raises error R24 today instead of finding the last given cell that contains a text.
+		#
+		#   paCells          the cells to look in, each as a [ column, row ] position
+		#   pSubValueValue   the text to look for inside the cells
+		#   returns          nothing; it raises
+		#   warning          Raises R24 because the body passes pSubValue while the parameter is
+		#                    named pSubValueValue; the name misspells Last
+		#   see              FindLastSubValueInCells
 		def FindLasttOccurrenceOfSubValueInCells(paCells, pSubValueValue)
 			return This.FindLastSubValueInCells(paCells, pSubValue)
 
@@ -7464,10 +9061,15 @@ func _NormalizeColLookupKey(pVal)
 		def CountInCellsCS(paCells, pCellValueOrSubValue, pCaseSensitive)
 			return This.NumberOfOccurrencesInCellsCS(paCells, pCellValueOrSubValue, pCaseSensitive)
 
+	# Returns how many of the given cells equal a value.
+	#
+	#   paCells                the cells to look in, each as a [ column, row ] position
+	#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside the
+	#                          cells
+	#   returns                a number
+	#   see                    CellsContain
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-	
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def NumberOfOccurrencesInCells(paCells, pCellValueOrSubValue)
 		return NumberOfOccurrencesInCellsCS(paCells, pCellValueOrSubValue, 1)
 	
@@ -7505,10 +9107,14 @@ func _NormalizeColLookupKey(pVal)
 		def NumberOfOccurrenceInCellsOfValueCS(paCells, pCellValue, pCaseSensitive)
 			return This.NumberOfOccurrencesOfValueInCellsCS(paCells, pCellValue, pCaseSensitive)
 
+	# Returns how many of the given cells equal a value.
+	#
+	#   paCells      the cells to look in, each as a [ column, row ] position
+	#   pCellValue   the value to count
+	#   returns      a number
+	#   see          NumberOfOccurrencesInCells
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def NumberOfOccurrencesOfValueInCells(paCells, pCellValue)
 		return This.NumberOfOccurrencesOfValueInCellsCS(paCells, pCellValue, 1)
 
@@ -7561,10 +9167,15 @@ func _NormalizeColLookupKey(pVal)
 		def NumberOfOccurrenceInCellsOfSubValueCS(paCells, pSubValue, pCaseSensitive)
 			return This.NumberOfOccurrencesOfSubValueInCellsCS(paCells, pSubValue, pCaseSensitive)
 
+	# Returns 0 today instead of the number of given cells that contain a text.
+	#
+	#   paCells    the cells to look in, each as a [ column, row ] position
+	#   returns    a number, 0 today
+	#   warning    Counts cells equal to the text, not cells containing it, so a text found inside a
+	#              longer cell is missed
+	#   see        NumberOfOccurrencesInCells
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def NumberOfOccurrencesOfSubValueInCells(paCells, pSubValue)
 		return This.NumberOfOccurrencesOfValueInCellsCS(paCells, pSubValue, 1)
 
@@ -7613,8 +9224,14 @@ func _NormalizeColLookupKey(pVal)
 		def ContainsInCellsCS(paCells, pCellValueOrSubValue, pCaseSensitive)
 			return This.CellsContainCS(paCells, pCellValueOrSubValue, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# TRUE if at least one of the given cells equals the value; with [ :SubValue, text ] if one contains it.
+	#
+	#   paCells                the cells to look in, each as a [ column, row ] position
+	#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside the
+	#                          cells
+	#   returns                TRUE or FALSE
+	#   see                    CellsContainValue, CellsContainSubValue
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def CellsContain(paCells, pCellValueOrSubValue)
 		return This.CellsContainCS(paCells, pCellValueOrSubValue, 1)
 
@@ -7635,8 +9252,12 @@ func _NormalizeColLookupKey(pVal)
 		def ContainsValueInCellsCS(paCells, pValue, pCaseSensitive)
 			return This.CellsContainValueCS(paCells, pValue, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# TRUE if at least one of the given cells equals the value.
+	#
+	#   paCells    the cells to look in, each as a [ column, row ] position
+	#   returns    TRUE or FALSE
+	#   see        CellsContain
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def CellsContainValue(paCells, pValue)
 		return This.CellsContainValueCS(paCells, pValue, 1)
 
@@ -7658,8 +9279,12 @@ func _NormalizeColLookupKey(pVal)
 		def ContainsSubValueInCellsCS(paCells, pSubValue, pCaseSensitive)
 			return This.CellsContainSubValueCS(paCells, pSubValue, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# TRUE if at least one of the given cells contains the text.
+	#
+	#   paCells    the cells to look in, each as a [ column, row ] position
+	#   returns    TRUE or FALSE
+	#   see        CellsContain
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def CellsContainSubValue(paCells, pSubValue)
 		return This.CellsContainSubValueCS(paCells, pSubValue, 1)
 
@@ -7693,10 +9318,16 @@ func _NormalizeColLookupKey(pVal)
 		def FindNthOccurrenceOfSubValueInCellCS(_n_, pCellCol, pCellRow, pSubValue, pCaseSensitive)
 			return This.FindNthInCellCS(_n_, pCellCol, pCellRow, pSubValue, pCaseSensitive)
 
+	# Returns the place of the nth occurrence of a text inside one cell, as a character position.
+	#
+	#   _n_        the position, or how many, as a number
+	#   pCellCol   the column of the cell, by name or position
+	#   pCellRow   the row position of the cell
+	#   returns    a number
+	#   warning    Raises R2 when the cell holds fewer than n occurrences
+	#   see        FindFirstInCell, FindInCell
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindNthInCell(_n_, pCellCol, pCellRow, pSubValue)
 		return This.FindNthInCellCS(_n_, pCellCol, pCellRow, pSubValue, 1)
 	
@@ -7731,10 +9362,16 @@ func _NormalizeColLookupKey(pVal)
 		def FindFirstOccurrenceOfSubValueInCellCS( pCellCol, pCellRow, pSubValue, pCaseSensitive)
 			return This.FindFirstInCellCS(pCellCol, pCellRow, pSubValue, pCaseSensitive)
 
+	# Returns the place of the first occurrence of a text inside one cell, as a character position.
+	#
+	#   pCellCol    the column of the cell, by name or position
+	#   pCellRow    the row position of the cell
+	#   pSubValue   the text to look for inside the cell
+	#   returns     a number
+	#   warning     Raises R2 when the text is absent from the cell
+	#   see         FindInCell
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindFirstInCell(pCellCol, pCellRow, pSubValue)
 		return This.FindFirstInCellCS(pCellCol, pCellRow, pSubValue, 1)
 	
@@ -7769,10 +9406,17 @@ func _NormalizeColLookupKey(pVal)
 		def FindLastOccurrenceOfSubValueInCellCS( pCellCol, pCellRow, pSubValue, pCaseSensitive)
 			return This.FindLastInCellCS(pCellCol, pCellRow, pSubValue, pCaseSensitive)
 
+	# Raises error today instead of returning the place of the last occurrence of a text inside one cell.
+	#
+	#   pCellCol    the column of the cell, by name or position
+	#   pCellRow    the row position of the cell
+	#   pSubValue   the text to look for inside the cell
+	#   returns     nothing; it raises
+	#   warning     Raises Incorrect param type! n must be a number. because it passes :Last, which
+	#               the nth-occurrence finder does not read
+	#   see         FindNthInCell
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindLastInCell(pCellCol, pCellRow, pSubValue)
 		return This.FindLastInCellCS(pCellCol, pCellRow, pSubValue, 1)
 	
@@ -7821,10 +9465,17 @@ func _NormalizeColLookupKey(pVal)
 		def CountInCellCS(pCellCol, pCellRow, pCellValueOrSubValue, pCaseSensitive)
 			return This.NumberOfOccurrencesInCellCS(pCellCol, pCellRow, pCellValueOrSubValue, pCaseSensitive)
 
+	# Raises an error today instead of counting how many times a text occurs inside one cell.
+	#
+	#   pCellCol               the column of the cell, by name or position
+	#   pCellRow               the row position of the cell
+	#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside the
+	#                          cells
+	#   returns                nothing; it raises
+	#   warning                Raises Bad parameter type! for every argument tried
+	#   see                    NumberOfOccurrenceInCell
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-	
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def NumberOfOccurrencesInCell(pCellCol, pCellRow, pCellValueOrSubValue)
 		return NumberOfOccurrencesInCellCS(pCellCol, pCellRow, pCellValueOrSubValue, 1)
 	
@@ -7859,10 +9510,15 @@ func _NormalizeColLookupKey(pVal)
 		def NumberOfOccurrenceInCellOfValueCS(pCellCol, pCellRow, pCellValue, pCaseSensitive)
 			return This.NumberOfOccurrencesOfValueInCellCS(pCellCol, pCellRow, pCellValue, pCaseSensitive)
 
+	# Raises an error today instead of counting how many times a value occurs inside one cell.
+	#
+	#   pCellCol   the column of the cell, by name or position
+	#   pCellRow   the row position of the cell
+	#   returns    nothing; it raises
+	#   warning    Raises Bad parameter type! for every argument tried
+	#   see        NumberOfOccurrenceInCell
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def NumberOfOccurrencesOfValueInCell(pCellCol, pCellRow, pCellValue)
 		return This.NumberOfOccurrencesOfValueInCellCS(pCellCol, pCellRow, pCellValue, 1)
 
@@ -7907,10 +9563,15 @@ func _NormalizeColLookupKey(pVal)
 		def NumberOfOccurrenceInCellOfSubValueCS(pCellCol, pCellRow, pSubValue, pCaseSensitive)
 			return This.NumberOfOccurrencesOfSubValueInCellCS(pCellCol, pCellRow, pSubValue, pCaseSensitive)
 
+	# Raises an error today instead of counting how many times a text occurs inside one cell.
+	#
+	#   pCellCol   the column of the cell, by name or position
+	#   pCellRow   the row position of the cell
+	#   returns    nothing; it raises
+	#   warning    Raises Bad parameter type! for every argument tried
+	#   see        NumberOfOccurrenceInCell
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def NumberOfOccurrencesOfSubValueInCell(pCellCol, pCellRow, pSubValue)
 		return This.NumberOfOccurrencesOfValueInCellCS(pCellCol, pCellRow, pSubValue, 1)
 
@@ -7971,8 +9632,17 @@ func _NormalizeColLookupKey(pVal)
 		def ContainsInCellCS( pCellCol, pCellRow, pCellValueOrSubValue, pCaseSensitive)
 			return This.CellContainsCS( pCellCol, pCellRow, pCellValueOrSubValue, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Returns an empty string for a text present in the cell and raises R2 for an absent one, instead of TRUE or FALSE.
+	#
+	#   pCellCol               the column of the cell, by name or position
+	#   pCellRow               the row position of the cell
+	#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside the
+	#                          cells
+	#   returns                nothing; an empty string
+	#   warning                Gives back an empty string when the text is found and raises R2 when
+	#                          it is not; CellContainsSubValue is the closer working form
+	#   see                    CellContainsSubValue
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def CellContains(pCellCol, pCellRow, pCellValueOrSubValue)
 		return This.CellContainsCS(pCellCol, pCellRow, pCellValueOrSubValue, 1)
 
@@ -7983,6 +9653,13 @@ func _NormalizeColLookupKey(pVal)
 	 #  CHECKING IF THE GIVEN CELL CONTAINS A GIVEN CELL VALUE  #
 	#----------------------------------------------------------#
 
+	# Raises error R14 today instead of testing whether one cell equals a value, with a case flag.
+	#
+	#   pCellCol   the column of the cell, by name or position
+	#   pCellRow   the row position of the cell
+	#   returns    nothing; it raises
+	#   warning    Raises R14 because FindFirstValueInCellCS is defined nowhere
+	#   see        CellContainsSubValue
 	def CellContainsValueCS( pCellCol, pCellRow, pValue, pCaseSensitive)
 		if len( This.FindFirstValueInCellCS(pCellCol, pCellRow, pValue, pCaseSensitive) ) > 0
 			return 1
@@ -7993,8 +9670,14 @@ func _NormalizeColLookupKey(pVal)
 		def ContainsValueInCellCS(pCellCol, pCellRow, pValue, pCaseSensitive)
 			return This.CellContainValueCS(pCellCol, pCellRow, pValue, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Raises error R14 today instead of testing whether one cell equals a value.
+	#
+	#   pCellCol   the column of the cell, by name or position
+	#   pCellRow   the row position of the cell
+	#   returns    nothing; it raises
+	#   warning    Raises R14 because CellContainValueCS is defined nowhere
+	#   see        CellContainsSubValue
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def CellContainValue(pCellCol, pCellRow, pValue)
 		return This.CellContainValueCS(pCellCol, pCellRow, pValue, 1)
 
@@ -8017,11 +9700,26 @@ func _NormalizeColLookupKey(pVal)
 		def ContainsSubValueInCellCS(pCellCol, pCellRow, pSubValue, pCaseSensitive)
 			return This.CellContainsSubValueCS(pCellCol, pCellRow, pSubValue, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# TRUE if one cell contains the text; raises R2 instead of answering FALSE when it does not.
+	#
+	#   pCellCol   the column of the cell, by name or position
+	#   pCellRow   the row position of the cell
+	#   returns    TRUE, or an R2 error
+	#   warning    Never answers FALSE: the finder it relies on raises R2 when the text is absent
+	#              from the cell
+	#   see        ContainsSubValueInCell
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def CellContainsSubValue(pCellCol, pCellRow, pSubValue)
 		return This.CellContainsSubValueCS(pCellCol, pCellRow, pSubValue, 1)
 
+		# TRUE if one cell contains the text; raises R2 instead of answering FALSE when it does not.
+		#
+		#   pCellCol   the column of the cell, by name or position
+		#   pCellRow   the row position of the cell
+		#   returns    TRUE, or an R2 error
+		#   warning    Never answers FALSE: the finder it relies on raises R2 when the text is
+		#              absent from the cell
+		#   see        CellContainsSubValue
 		def ContainsSubValueInCell(pCellCol, pCellRow, pSubValue)
 			return This.CellContainsSubValue(pCellCol, pCellRow, pSubValue)
 
@@ -8071,24 +9769,45 @@ func _NormalizeColLookupKey(pVal)
 		return This.FindValueInCellsCS(_aCellsPos_, pCellValueOrSubValue, pCaseSensitive)
 
 
-		#-- WITHOUT CASESENSITIVITY
-
+		# Returns the positions of the cells in one row that equal a value, or that contain a text with [ :SubValue, text ].
+		#
+		#   pRow                   the row position, 1 for the first
+		#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside
+		#                          the cells
+		#   returns                a list of [ column, row ] positions; with :SubValue, [ [ column,
+		#                          row ], places ] items
+		#   warning                Raises R2 for a row past the last one; a text found only inside a
+		#                          longer cell is missed without :SubValue
+		#   see                    FindFirstInRow, FindNthInRow
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def FindInRow(pRow, pCellValueOrSubValue)
 			return This.FindInRowCS(pRow, pCellValueOrSubValue, 1)
 
 	def FindValueInRowCS(pRow, pCellValue, pCaseSensitive)
 		return This.FindValueInCellsCS( This.RowAsPositions(pRow), pCellValue, pCaseSensitive)
 
-		#-- WITHOUT CASESENSITIVITY
-
+		# Raises error R24 today instead of finding the cells in one row that equal a value.
+		#
+		#   pRow       the row position, 1 for the first
+		#   returns    nothing; it raises
+		#   warning    Raises R24 (uninitialized variable psubvalue) because the body passes
+		#              pSubValue, which is not its parameter; FindInRow works
+		#   see        FindInRow
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def FindValueInRow(pRow, pCellValue)
 			return This.FindValueInRowCS(pRow, pSubValue, 1)
 
 	def FindSubValueInRowCS(pRow, pSubValue, pCaseSensitive)
 		return This.FindSubValueInCellsCS( This.RowAsPositions(pRow), pSubValue, pCaseSensitive)
 
-		#-- WITHOUT CASESENSITIVITY
-
+		# Returns the positions of the cells in one row that equal the text, not the cells that contain it.
+		#
+		#   pRow       the row position, 1 for the first
+		#   returns    a list of [ column, row ] positions
+		#   warning    Forwards to the whole-value finder, so a text found only inside a longer cell
+		#              answers [ ]
+		#   see        FindInRow
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def FindSubValueInRow(pRow, pSubValue)
 			return This.FindValueInRowCS(pRow, pSubValue, 1)
 
@@ -8110,8 +9829,15 @@ func _NormalizeColLookupKey(pVal)
 		def FindNthOccurrenceInRowCS(_n_, pRow, pCellValueOrSubValue, pCaseSensitive)
 			return This.FindNthInRowCS(_n_, pRow, pCellValueOrSubValue, pCaseSensitive)
 
-		#-- WITHOUT CASESENSITIVITY
-
+		# Returns the [ column, row ] position of the nth cell in one row that equals a value; [ ] when there are fewer.
+		#
+		#   _n_                    the position, or how many, as a number
+		#   pRow                   the row position, 1 for the first
+		#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside
+		#                          the cells
+		#   returns                a [ column, row ] pair, or [ ]
+		#   see                    FindFirstInRow, FindLastInRow
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def FindNthInRow(_n_, pRow, pCellValueOrSubValue)
 			return This.FindNthInRowCS(_n_, pRow, pCellValueOrSubValue, 1)
 		
@@ -8121,8 +9847,15 @@ func _NormalizeColLookupKey(pVal)
 	def FindNthValueInRowCS(_n_, pRow, pCellValue, pCaseSensitive)
 		return This.FindNthValueInCellsCS(_n_, This.RowAsPositions(), pCellValue, pCaseSensitive)
 
-		#-- WITHOUT CASESENSITIVITY
-
+		# Raises error R19 today instead of finding the nth cell in one row that equals a value.
+		#
+		#   _n_        the position, or how many, as a number
+		#   pRow       the row position, 1 for the first
+		#   returns    nothing; it raises
+		#   warning    Raises R19 because the body calls RowAsPositions() or SectionAsPositions()
+		#              without its arguments
+		#   see        FindNthInRow
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def FindNthValueInRow(_n_, pRow, pCellValue)
 			return This.FindNthValueInRowCS(_n_, pRow, pCellValue, 1)
 
@@ -8135,8 +9868,15 @@ func _NormalizeColLookupKey(pVal)
 		def FindNthOccurrenceOfSubValueInRowCS(_n_, pRow, pSubValue, pCaseSensitive)
 			return This.FindNthSubValueInRowCS(_n_, pRow, pSubValue, pCaseSensitive)
 
-		#-- WITHOUT CASESENSITIVITY
-
+		# Raises error R19 today instead of finding the nth cell in one row that contains a text.
+		#
+		#   _n_        the position, or how many, as a number
+		#   pRow       the row position, 1 for the first
+		#   returns    nothing; it raises
+		#   warning    Raises R19 because the body calls RowAsPositions() or SectionAsPositions()
+		#              without its arguments
+		#   see        FindNthInRow
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def FindNthSubValueInRow(_n_, pRow, pSubValue)
 			return This.FindNthSubValueInRowCS(_n_, pRow, pSubValue, 1)
 
@@ -8153,8 +9893,14 @@ func _NormalizeColLookupKey(pVal)
 		def FindFirstOccurrenceInRowCS(pRow, pCellValueOrSubValue, pCaseSensitive)
 			return This.FindFirstInRowCS(pRow, pCellValueOrSubValue, pCaseSensitive)
 
-		#-- WITHOUT CASESENSITIVITY
-
+		# Returns the [ column, row ] position of the first cell in one row that equals a value; [ ] when there is none.
+		#
+		#   pRow                   the row position, 1 for the first
+		#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside
+		#                          the cells
+		#   returns                a [ column, row ] pair, or [ ]
+		#   see                    FindLastInRow
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def FindFirstInRow(pRow, pCellValueOrSubValue)
 			return This.FindFirstInRowCS(pRow, pCellValueOrSubValue, 1)
 		
@@ -8167,8 +9913,13 @@ func _NormalizeColLookupKey(pVal)
 		def FindFirstOccurrenceOfValueInRowCs(pRow, pCellValue, pCaseSensitive)
 			return This.FindFirstValueInRowCS(pRow, pCellValue, pCaseSensitive)
 
-		#-- WITHOUT CASESENSITIVITY
-
+		# Raises error R4 today instead of finding the first cell in one row that equals a value.
+		#
+		#   pRow       the row position, 1 for the first
+		#   returns    nothing; it raises
+		#   warning    Raises R4 (stack overflow) because the CS form calls itself without end
+		#   see        FindFirstInRow
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def FindFirstValueInRow(pRow, pCellValue)
 			return This.FindFirstValueInRowCS(pRow, pCellValue, 1)
 
@@ -8181,8 +9932,13 @@ func _NormalizeColLookupKey(pVal)
 		def FindFirstOccurrenceOfSubValueInRowCS(pRow, pSubValue, pCaseSensitive)
 			return This.FindFirstSubValueInRowCS(pRow, pSubValue, pCaseSensitive)
 
-		#-- WITHOUT CASESENSITIVITY
-
+		# Raises error R4 today instead of finding the first cell in one row that contains a text.
+		#
+		#   pRow       the row position, 1 for the first
+		#   returns    nothing; it raises
+		#   warning    Raises R4 (stack overflow) because the CS form calls itself without end
+		#   see        FindFirstInRow
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def FindFirstSubValueInRow(pRow, pSubValue)
 			return This.FindFirstSubValueInRowCS(pRow, pSubValue, 1)
 
@@ -8199,8 +9955,14 @@ func _NormalizeColLookupKey(pVal)
 		def FindLastOccurrenceInRowCS(pRow, pCellValueOrSubValue, pCaseSensitive)
 			return This.FindLastInRowCS(pRow, pCellValueOrSubValue, pCaseSensitive)
 
-		#-- WITHOUT CASESENSITIVITY
-
+		# Returns the [ column, row ] position of the last cell in one row that equals a value; [ ] when there is none.
+		#
+		#   pRow                   the row position, 1 for the first
+		#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside
+		#                          the cells
+		#   returns                a [ column, row ] pair, or [ ]
+		#   see                    FindFirstInRow
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def FindLastInRow(pRow, pCellValueOrSubValue)
 			return This.FindLastInRowCS(pRow, pCellValueOrSubValue, 1)
 		
@@ -8213,8 +9975,13 @@ func _NormalizeColLookupKey(pVal)
 		def FindLastOccurrenceOfValueInRowCs(pRow, pCellValue, pCaseSensitive)
 			return This.FindLastValueInRowCS(pRow, pCellValue, pCaseSensitive)
 
-		#-- WITHOUT CASESENSITIVITY
-
+		# Raises error R4 today instead of finding the last cell in one row that equals a value.
+		#
+		#   pRow       the row position, 1 for the first
+		#   returns    nothing; it raises
+		#   warning    Raises R4 (stack overflow) because the CS form calls itself without end
+		#   see        FindLastInRow
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def FindLastValueInRow(pRow, pCellValue)
 			return This.FindLastValueInRowCS(pRow, pCellValue, 1)
 
@@ -8227,8 +9994,13 @@ func _NormalizeColLookupKey(pVal)
 		def FindLastOccurrenceOfSubValueInRowCS(pRow, pSubValue, pCaseSensitive)
 			return This.FindLastSubValueInRowCS(pRow, pSubValue, pCaseSensitive)
 
-		#-- WITHOUT CASESENSITIVITY
-
+		# Raises error R4 today instead of finding the last cell in one row that contains a text.
+		#
+		#   pRow       the row position, 1 for the first
+		#   returns    nothing; it raises
+		#   warning    Raises R4 (stack overflow) because the CS form calls itself without end
+		#   see        FindLastInRow
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def FindLastSubValueInRow(pRow, pSubValue)
 			return This.FindLastSubValueInRowCS(pRow, pSubValue, 1)
 
@@ -8306,10 +10078,14 @@ func _NormalizeColLookupKey(pVal)
 		def CountValueInRowCS(pRow, pValue, pCaseSensitive)
 			return This.NumberOfOccurrenceOfCellInRowCS(pRow, pValue, pCaseSensitive)
 
+		# Raises error R14 today instead of counting the cells in one row that equal a value.
+		#
+		#   pRow       the row position, 1 for the first
+		#   returns    nothing; it raises
+		#   warning    Raises R14 because the CS helper it calls is defined nowhere
+		#   see        NumberOfOccurrenceInRow
 		#>
-
-		#-- WITHOUT CASESENSITIVITY
-
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def NumberOfOccurrenceOfCellInRow(pRow, pCellValue)
 			return This.NumberOfOccurrenceOfCellInRowCS(pRow, pCellValue, 1)
 
@@ -8333,14 +10109,26 @@ func _NormalizeColLookupKey(pVal)
 		def CountCellsInRow(pRow, pValue)
 			return This.NumberOfOccurrenceOfCellInRow(pRow, pValue)
 
-		#--
-
+		# Raises error R24 today instead of counting the cells in one row that equal a value.
+		#
+		#   pRow       the row position, 1 for the first
+		#   returns    nothing; it raises
+		#   warning    Raises R24 (uninitialized variable pcasesensitive) because the body passes a
+		#              flag it does not have
+		#   see        NumberOfOccurrenceInRow
+		#@ aka  --
 		def NumberOfOccurrenceOfValueInRow(pRow, pValue)
 			return This.NumberOfOccurrenceOfCellInRow(pRow, pValue, pCaseSensitive)
 
 		def NumberOfOccurrencesOfValueInRow(pRow, pValue)
 			return This.NumberOfOccurrenceOfCellInRow(pRow, pValue)
 
+		# Raises error R14 today instead of counting the cells of a row that equal a value.
+		#
+		#   pRow       the row position, 1 for the first
+		#   returns    nothing; it raises
+		#   warning    Raises R14 because NumberOfOccurrenceOfCellInRowInRow is defined nowhere
+		#   see        NumberOfOccurrenceInRow
 		def CountOfValueInRowInRow(pRow, pValue)
 			return This.NumberOfOccurrenceOfCellInRowInRow(pRow, pRow, pValue)
 
@@ -8360,10 +10148,13 @@ func _NormalizeColLookupKey(pVal)
 		def CountOfSubValueInRowCS(pRow, pSubValue, pCaseSensitive)
 			return This.NumberOfOccurrenceOfSubValueInRowCS(pRow, pSubValue, pCaseSensitive)
 
+		# Returns how many cells in one row contain a text.
+		#
+		#   pRow       the row position, 1 for the first
+		#   returns    a number
+		#   see        NumberOfOccurrenceInRow
 		#>
-
-		#-- WITHOUT CASESENSITIVITY
-
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def NumberOfOccurrenceOfSubValueInRow(pRow, pSubValue)
 			return This.NumberOfOccurrenceOfSubValueInRowCS(pRow, pSubValue, 1)
 
@@ -8403,10 +10194,15 @@ func _NormalizeColLookupKey(pVal)
 		def RowContainsCS(pRow, pCellValueOrSubValue, pCaseSensitive)
 			return This.ContainsInRowCS(pRow, pCellValueOrSubValue, pCaseSensitive)
 
+		# TRUE if some cell in one row equals the value.
+		#
+		#   pRow                   the row position, 1 for the first
+		#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside
+		#                          the cells
+		#   returns                TRUE or FALSE
+		#   see                    ContainsSubValueInRow
 		#>
-
-		#-- WITHOUT CASESENSITIVITY
-	
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def ContainsInRow(pRow, pCellValueOrSubValue)
 			return This.ContainsInRowCS(pRow, pCellValueOrSubValue, 1)
 
@@ -8432,10 +10228,13 @@ func _NormalizeColLookupKey(pVal)
 		def RowContainsValueCS(pRow, pCellValue, pCaseSensitive)
 			return This.ContainsCellInRowCS(pRow, pCellValue, pCaseSensitive)
 
+		# TRUE if some cell in one row equals the value.
+		#
+		#   pRow       the row position, 1 for the first
+		#   returns    TRUE or FALSE
+		#   see        ContainsInRow
 		#>
-
-		#-- WITHOUT CASESENSITIVITY
-
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def ContainsCellInRow(pRow, pCellValue)
 			return This.ContainsCellInRowCS(pRow, pCellValue, 1)
 
@@ -8456,11 +10255,20 @@ func _NormalizeColLookupKey(pVal)
 		def RowContainsSubValueCS(pRow, pSubValue, pCaseSensitive)
 			return This.ContainsSubValueInRowCS(pRow, pSubValue, pCaseSensitive)
 
-		#-- WITHOUT CASESENSITIVITY
-
+		# TRUE if some cell in one row contains the text.
+		#
+		#   pRow       the row position, 1 for the first
+		#   returns    TRUE or FALSE
+		#   see        ContainsInRow
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def ContainsSubValueInRow(pRow, pSubValue)
 			return This.ContainsSubValueInRowCS(pRow, pSubValue, 1)
 
+			# TRUE if some cell of the row contains the text.
+			#
+			#   pRow       the row position, 1 for the first
+			#   returns    TRUE or FALSE
+			#   see        ContainsSubValueInRow
 			def RowContainsSubValue(pRow, pSubValue)
 				return This.ContainsSubValueInRow(pRow, pSubValue)
 
@@ -8511,8 +10319,16 @@ func _NormalizeColLookupKey(pVal)
 
 		return This.FindValueInCellsCS(_aCellsPositions_, pCellValueOrSubValue, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Returns the positions of the cells in the given rows that equal a value, or that contain a text with [ :SubValue, text ].
+	#
+	#   panRows                the row positions
+	#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside the
+	#                          cells
+	#   returns                a list of [ column, row ] positions; with :SubValue, [ [ column, row
+	#                          ], places ] items
+	#   warning                A text found only inside a longer cell is missed without :SubValue
+	#   see                    FindFirstInRows, FindNthInRows
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindInRows(panRows, pCellValueOrSubValue)
 		return This.FindInRowsCS(panRows, pCellValueOrSubValue, 1)
 
@@ -8523,8 +10339,14 @@ func _NormalizeColLookupKey(pVal)
 	def FindValueInRowsCS(panRows, pCellValue, pCaseSensitive)
 		return This.FindValueInCellsCS(This.RowsAsPositions(panRows), pCellValue, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Raises error R24 today instead of finding the cells in the given rows that equal a value.
+	#
+	#   panRows    the row positions
+	#   returns    nothing; it raises
+	#   warning    Raises R24 (uninitialized variable psubvalue) because the body passes pSubValue,
+	#              which is not its parameter; FindInRows works
+	#   see        FindInRows
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindValueInRows(panRows, pCellValue)
 		return This.FindValueInRowsCS(panRows, pSubValue, 1)
 
@@ -8535,8 +10357,14 @@ func _NormalizeColLookupKey(pVal)
 	def FindSubValueInRowsCS(panRows, pSubValue, pCaseSensitive)
 		return This.FindSubValueInCellsCS(This.RowsAsPositions(panRows), pSubValue, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Returns the positions of the cells in the given rows that equal the text, not the cells that contain it.
+	#
+	#   panRows    the row positions
+	#   returns    a list of [ column, row ] positions
+	#   warning    Forwards to the whole-value finder, so a text found only inside a longer cell
+	#              answers [ ]
+	#   see        FindInRows
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindSubValueInRows(panRows, pSubValue)
 		return This.FindValueInRowsCS(panRows, pSubValue, 1)
 
@@ -8558,10 +10386,18 @@ func _NormalizeColLookupKey(pVal)
 		def FindNthOccurrenceInRowsCS(_n_, panRows, pCellValueOrSubValue, pCaseSensitive)
 			return This.FindNthInRowsCS(_n_, panRows, pCellValueOrSubValue, pCaseSensitive)
 
+	# Raises error R14 today instead of finding the nth cell in the given rows that equals a value.
+	#
+	#   _n_                    the position, or how many, as a number
+	#   panRows                the row positions
+	#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside the
+	#                          cells
+	#   returns                nothing; it raises
+	#   warning                Raises R14 because RowsToNames is defined nowhere; FindNthValueInRows
+	#                          works
+	#   see                    FindNthValueInRows
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindNthInRows(_n_, panRows, pCellValueOrSubValue)
 		return This.FindNthInRowsCS(_n_, panRows, pCellValueOrSubValue, 1)
 		
@@ -8591,11 +10427,14 @@ func _NormalizeColLookupKey(pVal)
 		def FindNthOccurrenceOfValueInRowsCs(_n_, panRows, pCellValue, pCaseSensitive)
 			return This.FindNthValueInRowsCS(_n_, panRows, pCellValue, pCaseSensitive)
 
+	# Returns the nth cell in the given rows that equals a value, as a position; [ ] when there are fewer.
+	#
+	#   _n_        the position, or how many, as a number
+	#   panRows    the row positions
+	#   returns    a [ column, row ] pair, or [ ]
+	#   see        FindNthInRows
 		#>
-
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindNthValueInRows(_n_, panRows, pCellValue)
 		return This.FindNthValueInRowsCS(_n_, panRows, pCellValue, 1)
 
@@ -8625,10 +10464,14 @@ func _NormalizeColLookupKey(pVal)
 		def FindNthOccurrenceOfSubValueInRowsCS(_n_, panRows, pSubValue, pCaseSensitive)
 			return This.FindNthSubValueInRowsCS(_n_, panRows, pSubValue, pCaseSensitive)
 
+	# Returns the nth cell in the given rows that contains a text, as a position with the place of the text; [ ] when there are fewer.
+	#
+	#   _n_        the position, or how many, as a number
+	#   panRows    the row positions
+	#   returns    a [ [ column, row ], place of the text ] pair, or [ ]
+	#   see        FindNthInRows
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindNthSubValueInRows(_n_, panRows, pSubValue)
 		return This.FindNthSubValueInRowsCS(_n_, panRows, pSubValue, 1)
 
@@ -8651,10 +10494,16 @@ func _NormalizeColLookupKey(pVal)
 		def FindFirstOccurrenceInRowsCS(panRows, pCellValueOrSubValue, pCaseSensitive)
 			return This.FindFirstInRowsCS(panRows, pCellValueOrSubValue, pCaseSensitive)
 
+	# Raises error R14 today instead of finding the first cell in the given rows that equals a value.
+	#
+	#   panRows                the row positions
+	#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside the
+	#                          cells
+	#   returns                nothing; it raises
+	#   warning                Raises R14 because RowsToNames is defined nowhere
+	#   see                    FindFirstValueInRows
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindFirstInRows(panRows, pCellValueOrSubValue)
 		return This.FindFirstInRowsCS(panRows, pCellValueOrSubValue, 1)
 		
@@ -8677,10 +10526,14 @@ func _NormalizeColLookupKey(pVal)
 		def FindFirstOccurrenceOfValueInRowsCs(panRows, pCellValue, pCaseSensitive)
 			return This.FindFirstValueInRowsCS(panRows, pCellValue, pCaseSensitive)
 
+	# Raises error R4 today instead of finding the first cell in the given rows that equals a value.
+	#
+	#   panRows    the row positions
+	#   returns    nothing; it raises
+	#   warning    Raises R4 (stack overflow) because the CS form calls itself without end
+	#   see        FindFirstInRows
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindFirstValueInRows(panRows, pCellValue)
 		return This.FindFirstValueInRowsCS(panRows, pCellValue, 1)
 
@@ -8703,10 +10556,14 @@ func _NormalizeColLookupKey(pVal)
 		def FindFirstOccurrenceOfSubValueInRowsCS(panRows, pSubValue, pCaseSensitive)
 			return This.FindFirstSubValueInRowsCS(panRows, pSubValue, pCaseSensitive)
 
+	# Raises error R4 today instead of finding the first cell in the given rows that contains a text.
+	#
+	#   panRows    the row positions
+	#   returns    nothing; it raises
+	#   warning    Raises R4 (stack overflow) because the CS form calls itself without end
+	#   see        FindFirstInRows
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindFirstSubValueInRows(panRows, pSubValue)
 		return This.FindFirstSubValueInRowsCS(panRows, pSubValue, 1)
 
@@ -8729,10 +10586,17 @@ func _NormalizeColLookupKey(pVal)
 		def FindLastOccurrenceInRowsCS(panRows, pCellValueOrSubValue, pCaseSensitive)
 			return This.FindLastInRowsCS(panRows, pCellValueOrSubValue, pCaseSensitive)
 
+	# Raises error R24 today instead of finding the last cell in the given rows that equals a value.
+	#
+	#   panRows                the row positions
+	#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside the
+	#                          cells
+	#   returns                nothing; it raises
+	#   warning                Raises R24 (uninitialized variable prow) because the body passes a
+	#                          name that is not its parameter
+	#   see                    FindFirstInRows
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindLastInRows(panRows, pCellValueOrSubValue)
 		return This.FindLastInRowsCS(panRows, pCellValueOrSubValue, 1)
 		
@@ -8755,10 +10619,14 @@ func _NormalizeColLookupKey(pVal)
 		def FindLastOccurrenceOfValueInRowsCS(panRows, pCellValue, pCaseSensitive)
 			return This.FindLastValueInRowsCS(panRows, pCellValue, pCaseSensitive)
 
+	# Raises error R4 today instead of finding the last cell in the given rows that equals a value.
+	#
+	#   panRows    the row positions
+	#   returns    nothing; it raises
+	#   warning    Raises R4 (stack overflow) because the CS form calls itself without end
+	#   see        FindLastInRows
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindLastValueInRows(panRows, pCellValue)
 		return This.FindLastValueInRowsCS(panRows, pCellValue, 1)
 
@@ -8781,10 +10649,14 @@ func _NormalizeColLookupKey(pVal)
 		def FindLastOccurrenceOfSubValueInRowsCS(panRows, pSubValue, pCaseSensitive)
 			return This.FindLastSubValueInRowsCS(panRows, pSubValue, pCaseSensitive)
 
+	# Raises error R4 today instead of finding the last cell in the given rows that contains a text.
+	#
+	#   panRows    the row positions
+	#   returns    nothing; it raises
+	#   warning    Raises R4 (stack overflow) because the CS form calls itself without end
+	#   see        FindLastInRows
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindLastSubValueInRows(panRows, pSubValue)
 		return This.FindLastSubValueInRowsCS(panRows, pSubValue, 1)
 
@@ -8810,10 +10682,14 @@ func _NormalizeColLookupKey(pVal)
 		def CountInRowsCS(panRows, pValueOrSubValue, pCaseSensitive)
 			return This.NumberOfOccurrenceInRowsCS(panRows, pValueOrSubValue, pCaseSensitive)
 
+	# Returns how many cells in the given rows equal a value, case-sensitively.
+	#
+	#   panRows            the row positions
+	#   pValueOrSubValue   the value to look for, or [ :OfSubValue, text ]
+	#   returns            a number
+	#   see                NumberOfOccurrenceOfSubValueInRows
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def NumberOfOccurrenceInRows(panRows, pValueOrSubValue)
 		return This.NumberOfOccurrenceInRowsCS(panRows, pValueOrSubValue, 1)
 
@@ -8853,10 +10729,14 @@ func _NormalizeColLookupKey(pVal)
 		def CountValueInRowsCS(panRows, pCellValue, pCaseSensitive)
 			return This.NumberOfOccurrenceOfCellInRowsCS(panRows, pCellValue, pCaseSensitive)
 
+	# Raises error R14 today instead of counting the cells in the given rows that equal a value.
+	#
+	#   panRows    the row positions
+	#   returns    nothing; it raises
+	#   warning    Raises R14 because the CS helper it calls is defined nowhere
+	#   see        NumberOfOccurrenceInRows
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def NumberOfOccurrenceOfCellInRows(panRows, pCellValue)
 		return This.NumberOfOccurrenceOfCellInRowsCS(panRows, pCellValue, 1)
 
@@ -8897,10 +10777,13 @@ func _NormalizeColLookupKey(pVal)
 		def CountOfSubValueInRowsCS(panRows, pSubValue, pCaseSensitive)
 			return This.NumberOfOccurrenceOfSubValueInRowsCS(panRows, pSubValue, pCaseSensitive)
 
+	# Returns how many cells in the given rows contain a text.
+	#
+	#   panRows    the row positions
+	#   returns    a number
+	#   see        NumberOfOccurrenceInRows
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def NumberOfOccurrenceOfSubValueInRows(panRows, pSubValue)
 		return This.NumberOfOccurrenceOfSubValueInRowsCS(panRows, pSubValue, 1)
 
@@ -8947,10 +10830,15 @@ func _NormalizeColLookupKey(pVal)
 		def RowsContainCS(panRows, pCellValueOrSubValue, pCaseSensitive)
 			return This.ContainsInRowsCS(panRows, pCellValueOrSubValue, pCaseSensitive)
 
+	# TRUE if some cell in the given rows equals the value.
+	#
+	#   panRows                the row positions
+	#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside the
+	#                          cells
+	#   returns                TRUE or FALSE
+	#   see                    ContainsSubValueInRows
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-	
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def ContainsInRows(panRows, pCellValueOrSubValue)
 		return This.ContainsInRowsCS(panRows, pCellValueOrSubValue, 1)
 
@@ -8984,10 +10872,13 @@ func _NormalizeColLookupKey(pVal)
 		def RowsContainValueCS(panRows, pCellValue, pCaseSensitive)
 			return This.ContainsCellInRowsCS(panRows, pCellValue, pCaseSensitive)
 
+	# TRUE if some cell in the given rows equals the value.
+	#
+	#   panRows    the row positions
+	#   returns    TRUE or FALSE
+	#   see        ContainsInRows
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def ContainsCellInRows(panRows, pCellValue)
 		return This.ContainsCellInRowsCS(panRows, pCellValue, 1)
 
@@ -9021,15 +10912,22 @@ func _NormalizeColLookupKey(pVal)
 		def RowsContainSubValueCS(panRows, pSubValue, pCaseSensitive)
 			return This.ContainsSubValueInRowsCS(panRows, pSubValue, pCaseSensitive)
 
+	# TRUE if some cell in the given rows contains the text.
+	#
+	#   panRows    the row positions
+	#   returns    TRUE or FALSE
+	#   see        ContainsInRows
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def ContainsSubValueInRows(panRows, pSubValue)
 		return This.ContainsSubValueInRowsCS(panRows, pSubValue, 1)
 
+		# TRUE if some cell of the given rows contains the text.
+		#
+		#   panRows    the row positions
+		#   returns    TRUE or FALSE
+		#   see        ContainsSubValueInRows
 		#< @FunctionAlternativeForm
-		
 		def RowsContainSubValue(panRows, pSubValue)
 			return This.ContainsSubValueInRows(panRows, pSubValue)
 		
@@ -9054,8 +10952,13 @@ func _NormalizeColLookupKey(pVal)
 		def FindValueInColumnCS(pCol, pCellValue, pCaseSensitive)
 			return This.FindValueInColCS(pCol, pCellValue, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Raises error R24 today instead of finding the cells in one column that equal a value.
+	#
+	#   returns    nothing; it raises
+	#   warning    Raises R24 (uninitialized variable psubvalue) because the body passes pSubValue,
+	#              which is not its parameter; FindInCol works
+	#   see        FindInCol
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindValueInCol(pCol, pCellValue)
 		return This.FindValueInColCS(pCol, pSubValue, 1)
 
@@ -9072,8 +10975,13 @@ func _NormalizeColLookupKey(pVal)
 		def FindSubValueInColumnCS(pCol, pSubValue, pCaseSensitive)
 			return This.FindSubValueInColCS(pCol, pSubValue, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Returns the positions of the cells in one column that equal the text, not the cells that contain it.
+	#
+	#   returns    a list of [ column, row ] positions
+	#   warning    Forwards to the whole-value finder, so a text found only inside a longer cell
+	#              answers [ ]
+	#   see        FindInCol
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindSubValueInCol(pCol, pSubValue)
 		return This.FindValueInColCS(pCol, pSubValue, 1)
 
@@ -9104,10 +11012,15 @@ func _NormalizeColLookupKey(pVal)
 		def FindNthOccurrenceInColumCS(_n_, pCol, pCellValueOrSubValue, pCaseSensitive)
 			return This.FindNthInColCS(_n_, pCol, pCellValueOrSubValue, pCaseSensitive)
 
+	# Returns the [ column, row ] position of the nth cell in one column that equals a value; [ ] when there are fewer.
+	#
+	#   _n_                    the position, or how many, as a number
+	#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside the
+	#                          cells
+	#   returns                a [ column, row ] pair, or [ ]
+	#   see                    FindFirstInCol, FindLastInCol
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindNthInCol(_n_, pCol, pCellValueOrSubValue)
 		return This.FindNthInColCS(_n_, pCol, pCellValueOrSubValue, 1)
 		
@@ -9151,11 +11064,13 @@ func _NormalizeColLookupKey(pVal)
 		def FindNthOccurrenceOfValueInColumnCS(_n_, pCol, pCellValue, pCaseSensitive)
 			return This.FindNthValueInColCS(_n_, pCol, pCellValue, pCaseSensitive)
 
+	# Returns the nth cell in one column that equals a value, as a position; [ ] when there are fewer.
+	#
+	#   _n_        the position, or how many, as a number
+	#   returns    a [ column, row ] pair, or [ ]
+	#   see        FindNthInCol
 		#>
-
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindNthValueInCol(_n_, pCol, pCellValue)
 		return This.FindNthValueInColCS(_n_, pCol, pCellValue, 1)
 
@@ -9197,10 +11112,13 @@ func _NormalizeColLookupKey(pVal)
 		def FindNthOccurrenceOfSubValueInColumnCS(_n_, pCol, pSubValue, pCaseSensitive)
 			return This.FindNthSubValueInColCS(_n_, pCol, pSubValue, pCaseSensitive)
 
+	# Returns the nth cell in one column that contains a text, as a position with the place of the text; [ ] when there are fewer.
+	#
+	#   _n_        the position, or how many, as a number
+	#   returns    a [ [ column, row ], place of the text ] pair, or [ ]
+	#   see        FindNthInCol
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindNthSubValueInCol(_n_, pCol, pSubValue)
 		return This.FindNthSubValueInColCS(_n_, pCol, pSubValue, 1)
 
@@ -9235,10 +11153,14 @@ func _NormalizeColLookupKey(pVal)
 		def FindFirstOccurrenceInColumnCS(pCol, pCellValueOrSubValue, pCaseSensitive)
 			return This.FindFirstInColCS(pCol, pCellValueOrSubValue, pCaseSensitive)
 
+	# Returns the [ column, row ] position of the first cell in one column that equals a value; [ ] when there is none.
+	#
+	#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside the
+	#                          cells
+	#   returns                a [ column, row ] pair, or [ ]
+	#   see                    FindLastInCol
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindFirstInCol(pCol, pCellValueOrSubValue)
 		return This.FindFirstInColCS(pCol, pCellValueOrSubValue, 1)
 		
@@ -9273,10 +11195,13 @@ func _NormalizeColLookupKey(pVal)
 		def FindFirstOccurrenceOfValueInColumnCs(pCol, pCellValue, pCaseSensitive)
 			return This.FindFirstValueInColCS(pCol, pCellValue, pCaseSensitive)
 
+	# Raises error R4 today instead of finding the first cell in one column that equals a value.
+	#
+	#   returns    nothing; it raises
+	#   warning    Raises R4 (stack overflow) because the CS form calls itself without end
+	#   see        FindFirstInCol
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindFirstValueInCol(pCol, pCellValue)
 		return This.FindFirstValueInColCS(pCol, pCellValue, 1)
 
@@ -9305,10 +11230,13 @@ func _NormalizeColLookupKey(pVal)
 		def FindFirstOccurrenceOfSubValueInColCS(pCol, pSubValue, pCaseSensitive)
 			return This.FindFirstSubValueInColCS(pCol, pSubValue, pCaseSensitive)
 
+	# Raises error R4 today instead of finding the first cell in one column that contains a text.
+	#
+	#   returns    nothing; it raises
+	#   warning    Raises R4 (stack overflow) because the CS form calls itself without end
+	#   see        FindFirstInCol
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindFirstSubValueInCol(pCol, pSubValue)
 		return This.FindFirstSubValueInColCS(pCol, pSubValue, 1)
 
@@ -9343,10 +11271,14 @@ func _NormalizeColLookupKey(pVal)
 		def FindLastOccurrenceInColumnCS(pCol, pCellValueOrSubValue, pCaseSensitive)
 			return This.FindLastInColCS(pCol, pCellValueOrSubValue, pCaseSensitive)
 
+	# Returns the [ column, row ] position of the last cell in one column that equals a value; [ ] when there is none.
+	#
+	#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside the
+	#                          cells
+	#   returns                a [ column, row ] pair, or [ ]
+	#   see                    FindFirstInCol
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindLastInCol(pCol, pCellValueOrSubValue)
 		return This.FindLastInColCS(pCol, pCellValueOrSubValue, 1)
 		
@@ -9381,10 +11313,13 @@ func _NormalizeColLookupKey(pVal)
 		def FindLastOccurrenceOfValueInColumnCs(pCol, pCellValue, pCaseSensitive)
 			return This.FindLastValueInColCS(pCol, pCellValue, pCaseSensitive)
 
+	# Raises error R4 today instead of finding the last cell in one column that equals a value.
+	#
+	#   returns    nothing; it raises
+	#   warning    Raises R4 (stack overflow) because the CS form calls itself without end
+	#   see        FindLastInCol
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindLastValueInCol(pCol, pCellValue)
 		return This.FindLastValueInColCS(pCol, pCellValue, 1)
 
@@ -9419,10 +11354,13 @@ func _NormalizeColLookupKey(pVal)
 		def FindLastOccurrenceOfSubValueInColumnCS(pCol, pSubValue, pCaseSensitive)
 			return This.FindLastSubValueInColCS(pCol, pSubValue, pCaseSensitive)
 
+	# Raises error R4 today instead of finding the last cell in one column that contains a text.
+	#
+	#   returns    nothing; it raises
+	#   warning    Raises R4 (stack overflow) because the CS form calls itself without end
+	#   see        FindLastInCol
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindLastSubValueInCol(pCol, pSubValue)
 		return This.FindLastSubValueInColCS(pCol, pSubValue, 1)
 
@@ -9636,10 +11574,13 @@ func _NormalizeColLookupKey(pVal)
 		def HowManyOccurrencesOfValueInColumnCS(pCol, pValue, pCaseSensitive)
 			return This.NumberOfOccurrenceOfCellInColCS(pCol, pValue, pCaseSensitive)
 
+	# Raises error R14 today instead of counting the cells in one column that equal a value.
+	#
+	#   returns    nothing; it raises
+	#   warning    Raises R14 because the CS helper it calls is defined nowhere
+	#   see        NumberOfOccurrenceInCol
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def NumberOfOccurrenceOfCellInCol(pCol, pCellValue)
 		return This.NumberOfOccurrenceOfCellInColCS(pCol, pCellValue, 1)
 
@@ -9814,10 +11755,12 @@ func _NormalizeColLookupKey(pVal)
 		def HowManyOccurrencesOfSubValueInColumnCS(pCol, pSubValue, pCaseSensitive)
 			return This.NumberOfOccurrenceOfSubValueInColCS(pCol, pSubValue, pCaseSensitive)
 
+	# Returns how many cells in one column contain a text.
+	#
+	#   returns    a number
+	#   see        NumberOfOccurrenceInCol
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def NumberOfOccurrenceOfSubValueInCol(pCol, pSubValue)
 		return This.NumberOfOccurrenceOfSubValueInColCS(pCol, pSubValue, 1)
 
@@ -9940,10 +11883,15 @@ func _NormalizeColLookupKey(pVal)
 		def ColumnContainsCS(pCol, pCellValueOrSubValue, pCaseSensitive)
 			return This.ContainsInColCS(pCol, pCellValueOrSubValue, pCaseSensitive)
 
+	# TRUE if some cell in one column equals the value.
+	#
+	#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside the
+	#                          cells
+	#   returns                TRUE or FALSE
+	#   warning                Takes the column as a number: a column name raises an error
+	#   see                    ContainsSubValueInCol
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-	
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def ContainsInCol(pCol, pCellValueOrSubValue)
 		return This.ContainsInColCS(pCol, pCellValueOrSubValue, 1)
 
@@ -10057,10 +12005,12 @@ func _NormalizeColLookupKey(pVal)
 		def ColumnContainsSubValueCS(pCol, pSubValue, pCaseSensitive)
 			return This.ContainsSubValueInColCS(pCol, pSubValue, pCaseSensitive)
 
+	# TRUE if some cell in one column contains the text.
+	#
+	#   returns    TRUE or FALSE
+	#   see        ContainsInCol
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def ContainsSubValueInCol(pCol, pSubValue)
 		return This.ContainsSubValueInColCS(pCol, pSubValue, 1)
 
@@ -10072,6 +12022,10 @@ func _NormalizeColLookupKey(pVal)
 		def ColContainsSubValue(pCol, pSubValue)
 			return This.ContainsSubValueInCol(pCol, pSubValue)
 	
+		# TRUE if some cell of the column contains the text.
+		#
+		#   returns    TRUE or FALSE
+		#   see        ContainsSubValueInCol
 		def ColumnContainsSubValue(pCol, pSubValue)
 			return This.ContainsSubValueInCol(pCol, pSubValue)
 	
@@ -10126,8 +12080,15 @@ func _NormalizeColLookupKey(pVal)
 
 		return This.FindValueInCellsCS(_aCellsPositions_, pCellValueOrSubValue, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Returns the positions of the cells in the given columns that equal a value, or that contain a text with [ :SubValue, text ].
+	#
+	#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside the
+	#                          cells
+	#   returns                a list of [ column, row ] positions; with :SubValue, [ [ column, row
+	#                          ], places ] items
+	#   warning                A text found only inside a longer cell is missed without :SubValue
+	#   see                    FindFirstInCols, FindNthInCols
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindInCols(paCols, pCellValueOrSubValue)
 		return This.FindInColsCS(paCols, pCellValueOrSubValue, 1)
 
@@ -10144,8 +12105,13 @@ func _NormalizeColLookupKey(pVal)
 		def FindValueInColumnsCS(paCols, pCellValue, pCaseSensitive)
 			return This.FindValueInColsCS(paCols, pCellValue, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Raises error R24 today instead of finding the cells in the given columns that equal a value.
+	#
+	#   returns    nothing; it raises
+	#   warning    Raises R24 (uninitialized variable psubvalue) because the body passes pSubValue,
+	#              which is not its parameter; FindInCols works
+	#   see        FindInCols
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindValueInCols(paCols, pCellValue)
 		return This.FindValueInColsCS(paCols, pSubValue, 1)
 
@@ -10162,8 +12128,13 @@ func _NormalizeColLookupKey(pVal)
 		def FindSubValueInColumnsCS(paCols, pSubValue, pCaseSensitive)
 			return This.FindSubValueInColsCS(paCols, pSubValue, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Returns the positions of the cells in the given columns that equal the text, not the cells that contain it.
+	#
+	#   returns    a list of [ column, row ] positions
+	#   warning    Forwards to the whole-value finder, so a text found only inside a longer cell
+	#              answers [ ]
+	#   see        FindInCols
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindSubValueInCols(paCols, pSubValue)
 		return This.FindValueInColsCS(paCols, pSubValue, 1)
 
@@ -10194,10 +12165,17 @@ func _NormalizeColLookupKey(pVal)
 		def FindNthOccurrenceInColumsCS(_n_, paCols, pCellValueOrSubValue, pCaseSensitive)
 			return This.FindNthInColsCS(_n_, paCols, pCellValueOrSubValue, pCaseSensitive)
 
+	# Raises error R14 today instead of finding the nth cell in the given columns that equals a value.
+	#
+	#   _n_                    the position, or how many, as a number
+	#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside the
+	#                          cells
+	#   returns                nothing; it raises
+	#   warning                Raises R14 because ColsToNames is defined nowhere; FindNthValueInCols
+	#                          works
+	#   see                    FindNthValueInCols
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindNthInCols(_n_, paCols, pCellValueOrSubValue)
 		return This.FindNthInColsCS(_n_, paCols, pCellValueOrSubValue, 1)
 		
@@ -10241,11 +12219,13 @@ func _NormalizeColLookupKey(pVal)
 		def FindNthOccurrenceOfValueInColumnsCS(_n_, paCols, pCellValue, pCaseSensitive)
 			return This.FindNthValueInColsCS(_n_, paCols, pCellValue, pCaseSensitive)
 
+	# Returns the nth cell in the given columns that equals a value, as a position; [ ] when there are fewer.
+	#
+	#   _n_        the position, or how many, as a number
+	#   returns    a [ column, row ] pair, or [ ]
+	#   see        FindNthInCols
 		#>
-
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindNthValueInCols(_n_, paCols, pCellValue)
 		return This.FindNthValueInColsCS(_n_, paCols, pCellValue, 1)
 
@@ -10287,10 +12267,13 @@ func _NormalizeColLookupKey(pVal)
 		def FindNthOccurrenceOfSubValueInColumnsCS(_n_, paCols, pSubValue, pCaseSensitive)
 			return This.FindNthSubValueInColsCS(_n_, paCols, pSubValue, pCaseSensitive)
 
+	# Returns the nth cell in the given columns that contains a text, as a position with the place of the text; [ ] when there are fewer.
+	#
+	#   _n_        the position, or how many, as a number
+	#   returns    a [ [ column, row ], place of the text ] pair, or [ ]
+	#   see        FindNthInCols
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindNthSubValueInCols(_n_, paCols, pSubValue)
 		return This.FindNthSubValueInColsCS(_n_, paCols, pSubValue, 1)
 
@@ -10325,10 +12308,15 @@ func _NormalizeColLookupKey(pVal)
 		def FindFirstOccurrenceInColumnsCS(paCols, pCellValueOrSubValue, pCaseSensitive)
 			return This.FindFirstInColsCS(paCols, pCellValueOrSubValue, pCaseSensitive)
 
+	# Raises error R14 today instead of finding the first cell in the given columns that equals a value.
+	#
+	#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside the
+	#                          cells
+	#   returns                nothing; it raises
+	#   warning                Raises R14 because ColsToNames is defined nowhere
+	#   see                    FindFirstValueInCols
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindFirstInCols(paCols, pCellValueOrSubValue)
 		return This.FindFirstInColsCS(paCols, pCellValueOrSubValue, 1)
 		
@@ -10363,10 +12351,13 @@ func _NormalizeColLookupKey(pVal)
 		def FindFirstOccurrenceOfValueInColumnsCs(paCols, pCellValue, pCaseSensitive)
 			return This.FindFirstValueInColsCS(paCols, pCellValue, pCaseSensitive)
 
+	# Raises error R4 today instead of finding the first cell in the given columns that equals a value.
+	#
+	#   returns    nothing; it raises
+	#   warning    Raises R4 (stack overflow) because the CS form calls itself without end
+	#   see        FindFirstInCols
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindFirstValueInCols(paCols, pCellValue)
 		return This.FindFirstValueInColsCS(paCols, pCellValue, 1)
 
@@ -10395,10 +12386,13 @@ func _NormalizeColLookupKey(pVal)
 		def FindFirstOccurrenceOfSubValueInColsCS(paCols, pSubValue, pCaseSensitive)
 			return This.FindFirstSubValueInColsCS(paCols, pSubValue, pCaseSensitive)
 
+	# Raises error R4 today instead of finding the first cell in the given columns that contains a text.
+	#
+	#   returns    nothing; it raises
+	#   warning    Raises R4 (stack overflow) because the CS form calls itself without end
+	#   see        FindFirstInCols
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindFirstSubValueInCols(paCols, pSubValue)
 		return This.FindFirstSubValueInColsCS(paCols, pSubValue, 1)
 
@@ -10433,10 +12427,16 @@ func _NormalizeColLookupKey(pVal)
 		def FindLastOccurrenceInColumnsCS(paCols, pCellValueOrSubValue, pCaseSensitive)
 			return This.FindLastInColsCS(paCols, pCellValueOrSubValue, pCaseSensitive)
 
+	# Raises error R24 today instead of finding the last cell in the given columns that equals a value.
+	#
+	#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside the
+	#                          cells
+	#   returns                nothing; it raises
+	#   warning                Raises R24 (uninitialized variable pcol) because the body passes a
+	#                          name that is not its parameter
+	#   see                    FindFirstInCols
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindLastInCols(paCols, pCellValueOrSubValue)
 		return This.FindLastInColsCS(paCols, pCellValueOrSubValue, 1)
 		
@@ -10471,10 +12471,13 @@ func _NormalizeColLookupKey(pVal)
 		def FindLastOccurrenceOfValueInColumnsCS(paCols, pCellValue, pCaseSensitive)
 			return This.FindLastValueInColsCS(paCols, pCellValue, pCaseSensitive)
 
+	# Raises error R4 today instead of finding the last cell in the given columns that equals a value.
+	#
+	#   returns    nothing; it raises
+	#   warning    Raises R4 (stack overflow) because the CS form calls itself without end
+	#   see        FindLastInCols
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindLastValueInCols(paCols, pCellValue)
 		return This.FindLastValueInColsCS(paCols, pCellValue, 1)
 
@@ -10509,10 +12512,13 @@ func _NormalizeColLookupKey(pVal)
 		def FindLastOccurrenceOfSubValueInColumnsCS(paCols, pSubValue, pCaseSensitive)
 			return This.FindLastSubValueInColsCS(paCols, pSubValue, pCaseSensitive)
 
+	# Raises error R4 today instead of finding the last cell in the given columns that contains a text.
+	#
+	#   returns    nothing; it raises
+	#   warning    Raises R4 (stack overflow) because the CS form calls itself without end
+	#   see        FindLastInCols
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindLastSubValueInCols(paCols, pSubValue)
 		return This.FindLastSubValueInColsCS(paCols, pSubValue, 1)
 
@@ -10719,10 +12725,13 @@ func _NormalizeColLookupKey(pVal)
 		def HowManyOccurrencesOfValueInColumnsCS(paCols, pValue, pCaseSensitive)
 			return This.NumberOfOccurrenceOfCellInColsCS(paCols, pValue, pCaseSensitive)
 
+	# Raises error R14 today instead of counting the cells in the given columns that equal a value.
+	#
+	#   returns    nothing; it raises
+	#   warning    Raises R14 because the CS helper it calls is defined nowhere
+	#   see        NumberOfOccurrenceInCols
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def NumberOfOccurrenceOfCellInCols(paCols, pCellValue)
 		return This.NumberOfOccurrenceOfCellInColsCS(paCols, pCellValue, 1)
 
@@ -10897,10 +12906,12 @@ func _NormalizeColLookupKey(pVal)
 		def HowManyOccurrencesOfSubValueInColumnsCS(paCols, pSubValue, pCaseSensitive)
 			return This.NumberOfOccurrenceOfSubValueInColsCS(paCols, pSubValue, pCaseSensitive)
 
+	# Returns how many cells in the given columns contain a text.
+	#
+	#   returns    a number
+	#   see        NumberOfOccurrenceInCols
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def NumberOfOccurrenceOfSubValueInCols(paCols, pSubValue)
 		return This.NumberOfOccurrenceOfSubValueInColsCS(paCols, pSubValue, 1)
 
@@ -10995,10 +13006,14 @@ func _NormalizeColLookupKey(pVal)
 		def ColumnsContainCS(paCols, pCellValueOrSubValue, pCaseSensitive)
 			return This.ContainsInColsCS(paCols, pCellValueOrSubValue, pCaseSensitive)
 
+	# TRUE if some cell in the given columns equals the value.
+	#
+	#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside the
+	#                          cells
+	#   returns                TRUE or FALSE
+	#   see                    ContainsSubValueInCols
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-	
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def ContainsInCols(paCols, pCellValueOrSubValue)
 		return This.ContainsInColsCS(paCols, pCellValueOrSubValue, 1)
 
@@ -11056,10 +13071,12 @@ func _NormalizeColLookupKey(pVal)
 		def ColumnsContainsValueCS(paCols, pCellValue, pCaseSensitive)
 			return This.ContainsCellInColsCS(paCols, pCellValue, pCaseSensitive)
 
+	# TRUE if some cell in the given columns equals the value.
+	#
+	#   returns    TRUE or FALSE
+	#   see        ContainsInCols
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def ContainsCellInCols(paCols, pCellValue)
 		return This.ContainsCellInColsCS(paCols, pCellValue, 1)
 
@@ -11117,10 +13134,12 @@ func _NormalizeColLookupKey(pVal)
 		def ColumnsContainSubValueCS(paCols, pSubValue, pCaseSensitive)
 			return This.ContainsSubValueInColsCS(paCols, pSubValue, pCaseSensitive)
 
+	# TRUE if some cell in the given columns contains the text.
+	#
+	#   returns    TRUE or FALSE
+	#   see        ContainsInCols
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def ContainsSubValueInCols(paCols, pSubValue)
 		return This.ContainsSubValueInColsCS(paCols, pSubValue, 1)
 
@@ -11132,6 +13151,10 @@ func _NormalizeColLookupKey(pVal)
 		def ColsContainSubValue(paCols, pSubValue)
 			return This.ContainsSubValueInCols(paCols, pSubValue)
 	
+		# TRUE if some cell of the given columns contains the text.
+		#
+		#   returns    TRUE or FALSE
+		#   see        ContainsSubValueInCols
 		def ColumnsContainSubValue(paCols, pSubValue)
 			return This.ContainsSubValueInCols(paCols, pSubValue)
 	
@@ -11180,24 +13203,49 @@ func _NormalizeColLookupKey(pVal)
 
 		return This.FindValueInSectionCS(paSection1, paSection2, pCellValueOrSubValue, pCaseSensitive)
 
-		#-- WITHOUT CASESENSITIVITY
-
+		# Returns the positions of the cells between two [ column, row ] corners that equal a value, or that contain a text with [ :SubValue, text ].
+		#
+		#   paSection1             the first corner of the section, as [ column, row ]
+		#   paSection2             the opposite corner of the section, as [ column, row ]
+		#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside
+		#                          the cells
+		#   returns                a list of [ column, row ] positions; with :SubValue, [ [ column,
+		#                          row ], places ] items
+		#   warning                A text found only inside a longer cell is missed without
+		#                          :SubValue; a section is read column by column, so reversed
+		#                          corners give [ ]
+		#   see                    FindFirstInSection, FindNthInSection
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def FindInSection(paSection1, paSection2, pCellValueOrSubValue)
 			return This.FindInSectionCS(paSection1, paSection2, pCellValueOrSubValue, 1)
 
 	def FindValueInSectionCS(paSection1, paSection2, pCellValue, pCaseSensitive)
 		return This.FindValueInCellsCS( This.SectionAsPositions(paSection1, paSection2), pCellValue, pCaseSensitive)
 
-		#-- WITHOUT CASESENSITIVITY
-
+		# Raises error R24 today instead of finding the cells between two [ column, row ] corners that equal a value.
+		#
+		#   paSection1   the first corner of the section, as [ column, row ]
+		#   paSection2   the opposite corner of the section, as [ column, row ]
+		#   returns      nothing; it raises
+		#   warning      Raises R24 (uninitialized variable psubvalue) because the body passes
+		#                pSubValue, which is not its parameter; FindInSection works
+		#   see          FindInSection
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def FindValueInSection(paSection1, paSection2, pCellValue)
 			return This.FindValueInSectionCS(paSection1, paSection2, pSubValue, 1)
 
 	def FindSubValueInSectionCS(paSection1, paSection2, pSubValue, pCaseSensitive)
 		return This.FindSubValueInCellsCS( This.SectionAsPositions(paSection1, paSection2), pSubValue, pCaseSensitive)
 
-		#-- WITHOUT CASESENSITIVITY
-
+		# Returns the positions of the cells between two [ column, row ] corners that equal the text, not the cells that contain it.
+		#
+		#   paSection1   the first corner of the section, as [ column, row ]
+		#   paSection2   the opposite corner of the section, as [ column, row ]
+		#   returns      a list of [ column, row ] positions
+		#   warning      Forwards to the whole-value finder, so a text found only inside a longer
+		#                cell answers [ ]
+		#   see          FindInSection
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def FindSubValueInSection(paSection1, paSection2, pSubValue)
 			return This.FindValueInSectionCS(paSection1, paSection2, pSubValue, 1)
 
@@ -11215,8 +13263,16 @@ func _NormalizeColLookupKey(pVal)
 		def FindNthOccurrenceInSectionCS(_n_, paSection1, paSection2, pCellValueOrSubValue, pCaseSensitive)
 			return This.FindNthInSectionCS(_n_, paSection1, paSection2, pCellValueOrSubValue, pCaseSensitive)
 
-		#-- WITHOUT CASESENSITIVITY
-
+		# Returns the [ column, row ] position of the nth cell between two [ column, row ] corners that equals a value; [ ] when there are fewer.
+		#
+		#   _n_                    the position, or how many, as a number
+		#   paSection1             the first corner of the section, as [ column, row ]
+		#   paSection2             the opposite corner of the section, as [ column, row ]
+		#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside
+		#                          the cells
+		#   returns                a [ column, row ] pair, or [ ]
+		#   see                    FindFirstInSection, FindLastInSection
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def FindNthInSection(_n_, paSection1, paSection2, pCellValueOrSubValue)
 			return This.FindNthInSectionCS(_n_, paSection1, paSection2, pCellValueOrSubValue, 1)
 		
@@ -11226,8 +13282,16 @@ func _NormalizeColLookupKey(pVal)
 	def FindNthValueInSectionCS(_n_, paSection1, paSection2, pCellValue, pCaseSensitive)
 		return This.FindNthValueInCellsCS(_n_, This.SectionAsPositions(), pCellValue, pCaseSensitive)
 
-		#-- WITHOUT CASESENSITIVITY
-
+		# Raises error R19 today instead of finding the nth cell between two [ column, row ] corners that equals a value.
+		#
+		#   _n_          the position, or how many, as a number
+		#   paSection1   the first corner of the section, as [ column, row ]
+		#   paSection2   the opposite corner of the section, as [ column, row ]
+		#   returns      nothing; it raises
+		#   warning      Raises R19 because the body calls RowAsPositions() or SectionAsPositions()
+		#                without its arguments
+		#   see          FindNthInSection
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def FindNthValueInSection(_n_, paSection1, paSection2, pCellValue)
 			return This.FindNthValueInSectionCS(_n_, paSection1, paSection2, pCellValue, 1)
 
@@ -11240,8 +13304,16 @@ func _NormalizeColLookupKey(pVal)
 		def FindNthOccurrenceOfSubValueInSectionCS(_n_, paSection1, paSection2, pSubValue, pCaseSensitive)
 			return This.FindNthSubValueInSectionCS(_n_, paSection1, paSection2, pSubValue, pCaseSensitive)
 
-		#-- WITHOUT CASESENSITIVITY
-
+		# Raises error R19 today instead of finding the nth cell between two [ column, row ] corners that contains a text.
+		#
+		#   _n_          the position, or how many, as a number
+		#   paSection1   the first corner of the section, as [ column, row ]
+		#   paSection2   the opposite corner of the section, as [ column, row ]
+		#   returns      nothing; it raises
+		#   warning      Raises R19 because the body calls RowAsPositions() or SectionAsPositions()
+		#                without its arguments
+		#   see          FindNthInSection
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def FindNthSubValueInSection(_n_, paSection1, paSection2, pSubValue)
 			return This.FindNthSubValueInSectionCS(_n_, paSection1, paSection2, pSubValue, 1)
 
@@ -11258,8 +13330,15 @@ func _NormalizeColLookupKey(pVal)
 		def FindFirstOccurrenceInSectionCS(paSection1, paSection2, pCellValueOrSubValue, pCaseSensitive)
 			return This.FindFirstInSectionCS(paSection1, paSection2, pCellValueOrSubValue, pCaseSensitive)
 
-		#-- WITHOUT CASESENSITIVITY
-
+		# Returns the [ column, row ] position of the first cell between two [ column, row ] corners that equals a value; [ ] when there is none.
+		#
+		#   paSection1             the first corner of the section, as [ column, row ]
+		#   paSection2             the opposite corner of the section, as [ column, row ]
+		#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside
+		#                          the cells
+		#   returns                a [ column, row ] pair, or [ ]
+		#   see                    FindLastInSection
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def FindFirstInSection(paSection1, paSection2, pCellValueOrSubValue)
 			return This.FindFirstInSectionCS(paSection1, paSection2, pCellValueOrSubValue, 1)
 		
@@ -11272,8 +13351,14 @@ func _NormalizeColLookupKey(pVal)
 		def FindFirstOccurrenceOfValueInSectionCs(paSection1, paSection2, pCellValue, pCaseSensitive)
 			return This.FindFirstValueInSectionCS(paSection1, paSection2, pCellValue, pCaseSensitive)
 
-		#-- WITHOUT CASESENSITIVITY
-
+		# Raises error R4 today instead of finding the first cell between two [ column, row ] corners that equals a value.
+		#
+		#   paSection1   the first corner of the section, as [ column, row ]
+		#   paSection2   the opposite corner of the section, as [ column, row ]
+		#   returns      nothing; it raises
+		#   warning      Raises R4 (stack overflow) because the CS form calls itself without end
+		#   see          FindFirstInSection
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def FindFirstValueInSection(paSection1, paSection2, pCellValue)
 			return This.FindFirstValueInSectionCS(paSection1, paSection2, pCellValue, 1)
 
@@ -11286,8 +13371,14 @@ func _NormalizeColLookupKey(pVal)
 		def FindFirstOccurrenceOfSubValueInSectionCS(paSection1, paSection2, pSubValue, pCaseSensitive)
 			return This.FindFirstSubValueInSectionCS(paSection1, paSection2, pSubValue, pCaseSensitive)
 
-		#-- WITHOUT CASESENSITIVITY
-
+		# Raises error R4 today instead of finding the first cell between two [ column, row ] corners that contains a text.
+		#
+		#   paSection1   the first corner of the section, as [ column, row ]
+		#   paSection2   the opposite corner of the section, as [ column, row ]
+		#   returns      nothing; it raises
+		#   warning      Raises R4 (stack overflow) because the CS form calls itself without end
+		#   see          FindFirstInSection
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def FindFirstSubValueInSection(paSection1, paSection2, pSubValue)
 			return This.FindFirstSubValueInSectionCS(paSection1, paSection2, pSubValue, 1)
 
@@ -11304,8 +13395,15 @@ func _NormalizeColLookupKey(pVal)
 		def FindLastOccurrenceInSectionCS(paSection1, paSection2, pCellValueOrSubValue, pCaseSensitive)
 			return This.FindLastInSectionCS(paSection1, paSection2, pCellValueOrSubValue, pCaseSensitive)
 
-		#-- WITHOUT CASESENSITIVITY
-
+		# Returns the [ column, row ] position of the last cell between two [ column, row ] corners that equals a value; [ ] when there is none.
+		#
+		#   paSection1             the first corner of the section, as [ column, row ]
+		#   paSection2             the opposite corner of the section, as [ column, row ]
+		#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside
+		#                          the cells
+		#   returns                a [ column, row ] pair, or [ ]
+		#   see                    FindFirstInSection
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def FindLastInSection(paSection1, paSection2, pCellValueOrSubValue)
 			return This.FindLastInSectionCS(paSection1, paSection2, pCellValueOrSubValue, 1)
 		
@@ -11318,8 +13416,14 @@ func _NormalizeColLookupKey(pVal)
 		def FindLastOccurrenceOfValueInSectionCs(paSection1, paSection2, pCellValue, pCaseSensitive)
 			return This.FindLastValueInSectionCS(paSection1, paSection2, pCellValue, pCaseSensitive)
 
-		#-- WITHOUT CASESENSITIVITY
-
+		# Raises error R4 today instead of finding the last cell between two [ column, row ] corners that equals a value.
+		#
+		#   paSection1   the first corner of the section, as [ column, row ]
+		#   paSection2   the opposite corner of the section, as [ column, row ]
+		#   returns      nothing; it raises
+		#   warning      Raises R4 (stack overflow) because the CS form calls itself without end
+		#   see          FindLastInSection
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def FindLastValueInSection(paSection1, paSection2, pCellValue)
 			return This.FindLastValueInSectionCS(paSection1, paSection2, pCellValue, 1)
 
@@ -11332,8 +13436,14 @@ func _NormalizeColLookupKey(pVal)
 		def FindLastOccurrenceOfSubValueInSectionCS(paSection1, paSection2, pSubValue, pCaseSensitive)
 			return This.FindLastSubValueInSectionCS(paSection1, paSection2, pSubValue, pCaseSensitive)
 
-		#-- WITHOUT CASESENSITIVITY
-
+		# Raises error R4 today instead of finding the last cell between two [ column, row ] corners that contains a text.
+		#
+		#   paSection1   the first corner of the section, as [ column, row ]
+		#   paSection2   the opposite corner of the section, as [ column, row ]
+		#   returns      nothing; it raises
+		#   warning      Raises R4 (stack overflow) because the CS form calls itself without end
+		#   see          FindLastInSection
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def FindLastSubValueInSection(paSection1, paSection2, pSubValue)
 			return This.FindLastSubValueInSectionCS(paSection1, paSection2, pSubValue, 1)
 
@@ -11371,10 +13481,14 @@ func _NormalizeColLookupKey(pVal)
 		def HowManyOccurrencesInSectionCS(paSection1, paSection2, pValue, pCaseSensitive)
 			return This.NumberOfOccurrenceInSectionCS(paSection1, paSection2, pValue, pCaseSensitive)
 
+		# Returns how many cells between two [ column, row ] corners equal a value, case-sensitively.
+		#
+		#   paSection1   the first corner of the section, as [ column, row ]
+		#   paSection2   the opposite corner of the section, as [ column, row ]
+		#   returns      a number
+		#   see          NumberOfOccurrenceOfSubValueInSection
 		#>
-
-		#-- WITHOUT CASESENSITIVITY
-
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def NumberOfOccurrenceInSection(paSection1, paSection2, pValue)
 			return This.NumberOfOccurrenceInSectionCS(paSection1, paSection2, pValue, 1)
 
@@ -11457,10 +13571,15 @@ func _NormalizeColLookupKey(pVal)
 		def HowManyOccurrencesOfValueInSectionCS(paSection1, paSection2, pValue, pCaseSensitive)
 			return This.NumberOfOccurrenceOfCellInSectionCS(paSection1, paSection2, pValue, pCaseSensitive)
 
+		# Raises error R14 today instead of counting the cells between two [ column, row ] corners that equal a value.
+		#
+		#   paSection1   the first corner of the section, as [ column, row ]
+		#   paSection2   the opposite corner of the section, as [ column, row ]
+		#   returns      nothing; it raises
+		#   warning      Raises R14 because the CS helper it calls is defined nowhere
+		#   see          NumberOfOccurrenceInSection
 		#>
-
-		#-- WITHOUT CASESENSITIVITY
-
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def NumberOfOccurrenceOfCellInSection(paSection1, paSection2, pCellValue)
 			return This.NumberOfOccurrenceOfCellInSectionCS(paSection1, paSection2, pCellValue, 1)
 
@@ -11484,14 +13603,29 @@ func _NormalizeColLookupKey(pVal)
 		def CountCellsInSection(paSection1, paSection2, pValue)
 			return This.NumberOfOccurrenceOfCellInSection(paSection1, paSection2, pValue)
 
-		#--
-
+		# Raises error R24 today instead of counting the cells between two [ column, row ] corners that equal a value.
+		#
+		#   paSection1   the first corner of the section, as [ column, row ]
+		#   paSection2   the opposite corner of the section, as [ column, row ]
+		#   returns      nothing; it raises
+		#   warning      Raises R24 (uninitialized variable pcasesensitive) because the body passes
+		#                a flag it does not have
+		#   see          NumberOfOccurrenceInSection
+		#@ aka  --
 		def NumberOfOccurrenceOfValueInSection(paSection1, paSection2, pValue)
 			return This.NumberOfOccurrenceOfCellInSection(paSection1, paSection2, pValue, pCaseSensitive)
 
 		def NumberOfOccurrencesOfValueInSection(paSection1, paSection2, pValue)
 			return This.NumberOfOccurrenceOfCellInSection(paSection1, paSection2, pValue)
 
+		# Raises error R14 today instead of counting the cells of a section that equal a value.
+		#
+		#   paSection1   the first corner of the section, as [ column, row ]
+		#   paSection2   the opposite corner of the section, as [ column, row ]
+		#   returns      nothing; it raises
+		#   warning      Raises R14 because NumberOfOccurrenceOfCellInSectionInSection is defined
+		#                nowhere
+		#   see          NumberOfOccurrenceInSection
 		def CountOfValueInSectionInSection(paSection1, paSection2, pValue)
 			return This.NumberOfOccurrenceOfCellInSectionInSection(paSection1, paSection2, paSection1, paSection2, pValue)
 
@@ -11543,10 +13677,14 @@ func _NormalizeColLookupKey(pVal)
 		def HowManyOccurrencesOfSubValueInSectionCS(paSection1, paSection2, pSubValue, pCaseSensitive)
 			return This.NumberOfOccurrenceOfSubValueInSectionCS(paSection1, paSection2, pSubValue, pCaseSensitive)
 
+		# Returns how many cells between two [ column, row ] corners contain a text.
+		#
+		#   paSection1   the first corner of the section, as [ column, row ]
+		#   paSection2   the opposite corner of the section, as [ column, row ]
+		#   returns      a number
+		#   see          NumberOfOccurrenceInSection
 		#>
-
-		#-- WITHOUT CASESENSITIVITY
-
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def NumberOfOccurrenceOfSubValueInSection(paSection1, paSection2, pSubValue)
 			return This.NumberOfOccurrenceOfSubValueInSectionCS(paSection1, paSection2, pSubValue, 1)
 
@@ -11592,10 +13730,16 @@ func _NormalizeColLookupKey(pVal)
 		def SectionContainsCS(paSection1, paSection2, pCellValueOrSubValue, pCaseSensitive)
 			return This.ContainsInSectionCS(paSection1, paSection2, pCellValueOrSubValue, pCaseSensitive)
 
+		# TRUE if some cell between two [ column, row ] corners equals the value.
+		#
+		#   paSection1             the first corner of the section, as [ column, row ]
+		#   paSection2             the opposite corner of the section, as [ column, row ]
+		#   pCellValueOrSubValue   the cell value to look for, or [ :SubValue, text ] to look inside
+		#                          the cells
+		#   returns                TRUE or FALSE
+		#   see                    ContainsSubValueInSection
 		#>
-
-		#-- WITHOUT CASESENSITIVITY
-	
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def ContainsInSection(paSection1, paSection2, pCellValueOrSubValue)
 			return This.ContainsInSectionCS(paSection1, paSection2, pCellValueOrSubValue, 1)
 
@@ -11621,10 +13765,14 @@ func _NormalizeColLookupKey(pVal)
 		def SectionContainsValueCS(paSection1, paSection2, pCellValue, pCaseSensitive)
 			return This.ContainsCellInSectionCS(paSection1, paSection2, pCellValue, pCaseSensitive)
 
+		# TRUE if some cell between two [ column, row ] corners equals the value.
+		#
+		#   paSection1   the first corner of the section, as [ column, row ]
+		#   paSection2   the opposite corner of the section, as [ column, row ]
+		#   returns      TRUE or FALSE
+		#   see          ContainsInSection
 		#>
-
-		#-- WITHOUT CASESENSITIVITY
-
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def ContainsCellInSection(paSection1, paSection2, pCellValue)
 			return This.ContainsCellInSectionCS(paSection1, paSection2, pCellValue, 1)
 
@@ -11645,8 +13793,13 @@ func _NormalizeColLookupKey(pVal)
 		def SectionContainsSubValueCS(paSection1, paSection2, pSubValue, pCaseSensitive)
 			return This.ContainsSubValueInSectionCS(paSection1, paSection2, pSubValue, pCaseSensitive)
 
-		#-- WITHOUT CASESENSITIVITY
-
+		# TRUE if some cell between two [ column, row ] corners contains the text.
+		#
+		#   paSection1   the first corner of the section, as [ column, row ]
+		#   paSection2   the opposite corner of the section, as [ column, row ]
+		#   returns      TRUE or FALSE
+		#   see          ContainsInSection
+		#@ aka  -- WITHOUT CASESENSITIVITY
 		def ContainsSubValueInSection(paSection1, paSection2, pSubValue)
 			return This.ContainsSubValueInSectionCS(paSection1, paSection2, pSubValue, 1)
 
@@ -11654,6 +13807,10 @@ func _NormalizeColLookupKey(pVal)
 				return This.ContainsSubValueInSection(paSection1, paSection2, pSubValue)
 
 
+	# Sorts the rows in place, in ascending order of the first column.
+	#
+	#   returns    nothing; the table changes
+	#   see        SortOn, SortDown
 	def Sort()
 		This.SortOn(1)
 
@@ -11663,16 +13820,22 @@ func _NormalizeColLookupKey(pVal)
 			This.Sort()
 			return This
 
+		# Sorts the rows in place, in ascending order of the first column.
+		#
+		#   returns    nothing; the table changes
+		#   see        SortOn, SortDown
 		#>
-
 		#< @FunctionAlternativeForms
-
 		def SortUp()
 			This.Sort()
 
 			def SortUpQ()
 				return This.SortQ()
 
+		# Sorts the rows in place, in ascending order of the first column.
+		#
+		#   returns    nothing; the table changes
+		#   see        SortOn, SortDown
 		def SortInAscending()
 			This.Sort()
 
@@ -11685,6 +13848,10 @@ func _NormalizeColLookupKey(pVal)
 	 #  SORTING THE TABLE IN DESCENDING  #
 	#-----------------------------------#
 
+	# Sorts the rows in place, in descending order of the first column.
+	#
+	#   returns    nothing; the table changes
+	#   see        SortDownOn, Sort
 	def SortDown()
 		This.SortDownOn(1)
 
@@ -11694,18 +13861,23 @@ func _NormalizeColLookupKey(pVal)
 			This.SortDown()
 			return This
 
+		# Sorts the rows in place, in descending order of the first column.
+		#
+		#   returns    nothing; the table changes
+		#   see        SortDownOn, Sort
 		#>
-
 		#< @FunctionAlternativeForm
-
 		def SortInDescending()
 			This.SortDown()
 
 			def SortInDescendingQ()
 				return This.SortDownQ()
 
+	# Returns the table content sorted in descending order of the first column; the table itself is unchanged.
+	#
+	#   returns    a list of [ name, cells ] pairs, the sorted table
+	#   see        SortDown, SortedOn
 		#>
-
 	def SortedDown()
 		_aResult_ = This.Copy().SortDownQ().Content()
 		return _aResult_
@@ -11717,9 +13889,13 @@ func _NormalizeColLookupKey(pVal)
 	 #  SORTING THE TABLE ON A GIVEN COLUMN IN ASCENDiNG  #
 	#====================================================#
 
+	# Sorts the rows in place, in ascending order of one column.
+	#
+	#   pCol       the column to sort on, by name or position
+	#   returns    nothing; the table changes
+	#   see        SortDownOn, SortedOn
 	#TODO
-	# Check performance on large tables
-
+	#@ aka  Check performance on large tables
 	def SortOn(pCol)
 		_nCol_ = This.ColToColNumber(pCol)
 
@@ -11733,60 +13909,102 @@ func _NormalizeColLookupKey(pVal)
 			This.SortOn(pCol)
 			return This
 
+		# Sorts the rows in place, in ascending order of one column.
+		#
+		#   pCol       the column to sort on, by name or position
+		#   returns    nothing; the table changes
+		#   see        SortDownOn, SortedOn
 		#>
-
 		#< @FunctionAlternativeForms
-
 		def SortUpOn(pCol)
 			This.SortOn(pCol)
 
 			def SortUpOnQ(pCol)
 				return This.SortOnQ(pCol)
 
+		# Sorts the rows in place, in ascending order of one column.
+		#
+		#   pCol       the column to sort on, by name or position
+		#   returns    nothing; the table changes
+		#   see        SortDownOn, SortedOn
 		def SortOnInAscending(pCol)
 			This.SortOn(pCol)
 
 			def SortOnInAscendingQ(pCol)
 				return This.SortOnQ(pCol)
 
+		# Sorts the rows in place, in ascending order of one column.
+		#
+		#   pCol       the column to sort on, by name or position
+		#   returns    nothing; the table changes
+		#   see        SortDownOn, SortedOn
 		def SortOnCol(pCol)
 			This.SortOn(pCol)
 
 			def SortOnColQ(pCol)
 				return This.SortOnQ(pCol)
 
+		# Sorts the rows in place, in ascending order of one column.
+		#
+		#   pCol       the column to sort on, by name or position
+		#   returns    nothing; the table changes
+		#   see        SortDownOn, SortedOn
 		def SortColUpOn(pCol)
 			This.SortOn(pCol)
 
 			def SortColUpOnQ(pCol)
 				return This.SortOnQ(pCol)
 
+		# Sorts the rows in place, in ascending order of one column.
+		#
+		#   pCol       the column to sort on, by name or position
+		#   returns    nothing; the table changes
+		#   see        SortDownOn, SortedOn
 		def SortInAscendingOnCol(pCol)
 			This.SortOn(pCol)
 
 			def SortInAscendingOnColQ(pCol)
 				return This.SortOnQ(pCol)
 
+		# Sorts the rows in place, in ascending order of one column.
+		#
+		#   pCol       the column to sort on, by name or position
+		#   returns    nothing; the table changes
+		#   see        SortDownOn, SortedOn
 		def SortOnColumn(pCol)
 			This.SortOn(pCol)
 
 			def SortOnColumnQ(pCol)
 				return This.SortOnQ(pCol)
 
+		# Sorts the rows in place, in ascending order of one column.
+		#
+		#   pCol       the column to sort on, by name or position
+		#   returns    nothing; the table changes
+		#   see        SortDownOn, SortedOn
 		def SortUpOnColumn(pCol)
 			This.SortOn(pCol)
 
 			def SortUpOnColumnQ(pCol)
 				return This.SortOnQ(pCol)
 
+		# Sorts the rows in place, in ascending order of one column.
+		#
+		#   pCol       the column to sort on, by name or position
+		#   returns    nothing; the table changes
+		#   see        SortDownOn, SortedOn
 		def SortInAscendingOnColumn(pCol)
 			This.SortOn(pCol)
 
 			def SortInAscendingOnColumnQ(pCol)
 				return This.SortOnQ(pCol)
 
+	# Returns the table content sorted in ascending order of one column; the table itself is unchanged.
+	#
+	#   pCol       the column to sort on, by name or position
+	#   returns    a list of [ name, cells ] pairs, the sorted table
+	#   see        SortOn
 		#>
-
 	def SortedOn(pCol)
 		_aResult_ = This.Copy().SortOnQ(pCol).Content()
 		return _aResult_
@@ -11823,6 +14041,11 @@ func _NormalizeColLookupKey(pVal)
 	 #  SORTING THE TABLE ON A GIVEN COLUMN IN DESCENDiNG  #
 	#=====================================================#
 
+	# Sorts the rows in place, in descending order of one column.
+	#
+	#   pCol       the column to sort on, by name or position
+	#   returns    nothing; the table changes
+	#   see        SortOn
 	def SortDownOn(pCol)
 		_nCol_ = This.ColToColNumber(pCol)
 
@@ -11837,42 +14060,74 @@ func _NormalizeColLookupKey(pVal)
 			This.SortDownOn(pCol)
 			return This
 
+		# Reorders the columns instead of sorting the rows today, by handing the call to the inherited list sort.
+		#
+		#   pCol       the column to sort on
+		#   returns    nothing; the columns are reordered
+		#   warning    Hands the call to SortOnDown, which is not a table method: the inherited list
+		#              method sorts the [ name, cells ] column pairs on their nth item and leaves
+		#              the rows alone, and a column name raises an error; SortDownOn works
+		#   see        SortDownOn
 		#>
-
 		#< @FunctionAlternativeForms
-
 		def SortInDescendingOn(pCol)
 			This.SortOnDown(pCol)
 
 			def SortInDescendingOnQ(pCol)
 				return This.SortDownOnQ(pCol)
 
+		# Sorts the rows in place, in descending order of one column.
+		#
+		#   pCol       the column to sort on, by name or position
+		#   returns    nothing; the table changes
+		#   see        SortOn
 		def SortColDownOn(pCol)
 			This.SortDownOn(pCol)
 
 			def SortColDownOnQ(pCol)
 				return This.SortDownOnQ(pCol)
 
+		# Sorts the rows in place, in descending order of one column.
+		#
+		#   pCol       the column to sort on, by name or position
+		#   returns    nothing; the table changes
+		#   see        SortOn
 		def SortInDescendingOnCol(pCol)
 			This.SortDownOn(pCol)
 
 			def SortInDescendingOnColQ(pCol)
 				return This.SortDownOnQ(pCol)
 
+		# Sorts the rows in place, in descending order of one column.
+		#
+		#   pCol       the column to sort on, by name or position
+		#   returns    nothing; the table changes
+		#   see        SortOn
 		def SortDownOnColumn(pCol)
 			This.SortDownOn(pCol)
 
 			def SortDownOnColumnQ(pCol)
 				return This.SortDownOnQ(pCol)
 
+		# Sorts the rows in place, in descending order of one column.
+		#
+		#   pCol       the column to sort on, by name or position
+		#   returns    nothing; the table changes
+		#   see        SortOn
 		def SortInDescendingOnColumn(pCol)
 			This.SortDownOn(pCol)
 
 			def SortInDescendingOnColumnQ(pCol)
 				return This.SortDownOnQ(pCol)
 
+	# Raises error R19 today instead of returning the content sorted in descending order of one column.
+	#
+	#   pCol       the column to sort on
+	#   returns    nothing; it raises
+	#   warning    Raises R19 because the body calls SortDownOnQ without the column; SortedOn works
+	#              for ascending order
+	#   see        SortDownOn
 		#>
-
 	def SortedDownOn(pCol)
 		_aResult_ = This.Copy().SortDownOnQ().Content()
 		return _aResult_
@@ -11900,6 +14155,11 @@ func _NormalizeColLookupKey(pVal)
 	 #  SORTING THE TABLE BY A GIVEN EXPRESSION IN ASCENDING  #
 	#========================================================#
 
+	# Sorts the rows in place, in ascending order of an expression applied to the first column.
+	#
+	#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+	#   returns    nothing; the table changes
+	#   see        SortOnBy, SortDownBy
 	def SortBy(pcExpr)
 
 		This.SortOnBy(1, pcExpr)
@@ -11910,24 +14170,36 @@ func _NormalizeColLookupKey(pVal)
 			This.SortBy(pcExpr)
 			return This
 
+		# Sorts the rows in place, in ascending order of an expression applied to the first column.
+		#
+		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+		#   returns    nothing; the table changes
+		#   see        SortOnBy, SortDownBy
 		#>
-
 		#< @FunctionAlternativeForms
-
 		def SortUpBy(pcExpr)
 			This.SortBy(pcExpr)
 
 			def SortUpByQ(pcExpr)
 				return This.SortByQ(pcExpr)
 
+		# Sorts the rows in place, in ascending order of an expression applied to the first column.
+		#
+		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+		#   returns    nothing; the table changes
+		#   see        SortOnBy, SortDownBy
 		def SortInAscendingBy(pcExpr)
 			This.SortBy(pcExpr)
 
 			def SortInAscendingByQ(pcExpr)
 				return This.SortByQ(pcExpr)
 
+	# Returns the table content sorted in ascending order of an expression on the first column; the table is unchanged.
+	#
+	#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+	#   returns    a list of [ name, cells ] pairs, the sorted table
+	#   see        SortBy
 		#>
-
 	def SortedBy(pcExpr)
 		_aResult_ = This.Copy().SortByQ(pcExpr).Content()
 		return _aResult_
@@ -11946,6 +14218,11 @@ func _NormalizeColLookupKey(pVal)
 	 #  SORTING THE TABLE BY A GIVEN EXPRESSION IN DESCENDING  #
 	#---------------------------------------------------------#
 
+	# Sorts the rows in place, in descending order of an expression applied to the first column.
+	#
+	#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+	#   returns    nothing; the table changes
+	#   see        SortDownOnBy, SortBy
 	def SortDownBy(pcExpr)
 		This.SortDownOnBy(1, pcExpr)
 
@@ -11955,18 +14232,25 @@ func _NormalizeColLookupKey(pVal)
 			This.SortDownBy(pcExpr)
 			return This
 
+		# Sorts the rows in place, in descending order of an expression applied to the first column.
+		#
+		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+		#   returns    nothing; the table changes
+		#   see        SortDownOnBy, SortBy
 		#>
-
 		#< @FunctionAlternativeForm
-
 		def SortInDescendingBy(pcExpr)
 			This.SortDownBy(pcExpr)
 
 			def SortInDescendingByQ(pcExpr)
 				return This.SortDownByQ(pcExpr)
 
+	# Returns the table content sorted in descending order of an expression on the first column; the table is unchanged.
+	#
+	#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+	#   returns    a list of [ name, cells ] pairs, the sorted table
+	#   see        SortDownBy
 		#>
-
 	def SortedDownBy(pcExpr)
 		_aResult_ = This.Copy().SortDownByQ(pcExpr).Content()
 		return _aResult_
@@ -11982,6 +14266,13 @@ func _NormalizeColLookupKey(pVal)
 	 #  SORTING THE TABLE ON A GIVEN COLUMN BY A GIVEN EXPRESSION IN ASCENDiNG  #
 	#==========================================================================#
 
+	# Sorts the rows in place, in ascending order of an expression applied to one column.
+	#
+	#   pCol       the column to sort on, by name or position
+	#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+	#   returns    nothing; the table changes
+	#   note       The expression may also write @cell for @item
+	#   see        SortDownOnBy, SortedOnBy
 	def SortOnBy(pCol, pcExpr)
 
 		_nCol_ = This.ColToColNumber(pCol)
@@ -12003,60 +14294,111 @@ func _NormalizeColLookupKey(pVal)
 			This.SortOnBy(pCol, pcExpr)
 			return This
 
+		# Sorts the rows in place, in ascending order of an expression applied to one column.
+		#
+		#   pCol       the column to sort on, by name or position
+		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+		#   returns    nothing; the table changes
+		#   see        SortDownOnBy, SortedOnBy
 		#>
-
 		#< @FunctionAlternativeForms
-
 		def SortOnByUp(pCol, pcExpr)
 			This.SortOnBy(pCol, pcExpr)
 
 			def SortOnByUpQ(pCol, pcExpr)
 				return This.SortOnByQ(pCol, pcExpr)
 
+		# Sorts the rows in place, in ascending order of an expression applied to one column.
+		#
+		#   pCol       the column to sort on, by name or position
+		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+		#   returns    nothing; the table changes
+		#   see        SortDownOnBy, SortedOnBy
 		def SortInAscendingOnBy(pCol, pcExpr)
 			This.SortOnBy(pCol, pcExpr)
 
 			def SortInAscendingOnByQ(pCol, pcExpr)
 				return This.SortOnByQ(pCol, pcExpr)
 
+		# Sorts the rows in place, in ascending order of an expression applied to one column.
+		#
+		#   pCol       the column to sort on, by name or position
+		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+		#   returns    nothing; the table changes
+		#   see        SortDownOnBy, SortedOnBy
 		def SortOnColBy(pCol, pcExpr)
 			This.SortOnBy(pCol, pcExpr)
 
 			def SortOnColByQ(pCol, pcExpr)
 				return This.SortOnByQ(pCol, pcExpr)
 
+		# Sorts the rows in place, in ascending order of an expression applied to one column.
+		#
+		#   pCol       the column to sort on, by name or position
+		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+		#   returns    nothing; the table changes
+		#   see        SortDownOnBy, SortedOnBy
 		def SortUpOnColBy(pCol, pcExpr)
 			This.SortOnBy(pCol, pcExpr)
 
 			def SortUpOnColByQ(pCol, pcExpr)
 				return This.SortOnByQ(pCol, pcExpr)
 
+		# Sorts the rows in place, in ascending order of an expression applied to one column.
+		#
+		#   pCol       the column to sort on, by name or position
+		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+		#   returns    nothing; the table changes
+		#   see        SortDownOnBy, SortedOnBy
 		def SortInAscendingOnColBy(pCol, pcExpr)
 			This.SortOnBy(pCol, pcExpr)
 
 			def SortInAscendingOnColByQ(pCol, pcExp)
 				return This.SortOnByQ(pCol, pcExpr)
 
+		# Sorts the rows in place, in ascending order of an expression applied to one column.
+		#
+		#   pCol       the column to sort on, by name or position
+		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+		#   returns    nothing; the table changes
+		#   see        SortDownOnBy, SortedOnBy
 		def SortOnColumnBy(pCol, pcExpr)
 			This.SortOnBy(pCol, pcExpr)
 
 			def SortOnColumnByQ(pCol, pcExpr)
 				return This.SortOnByQ(pCol, pcExpr)
 
+		# Sorts the rows in place, in ascending order of an expression applied to one column.
+		#
+		#   pCol       the column to sort on, by name or position
+		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+		#   returns    nothing; the table changes
+		#   see        SortDownOnBy, SortedOnBy
 		def SortUpOnColumnBy(pCol, pcExpr)
 			This.SortOnBy(pCol, pcExpr)
 
 			def SortUpOnColumnByQ(pCol, pcExpr)
 				return This.SortOnByQ(pCol, pcExpr)
 
+		# Sorts the rows in place, in ascending order of an expression applied to one column.
+		#
+		#   pCol       the column to sort on, by name or position
+		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+		#   returns    nothing; the table changes
+		#   see        SortDownOnBy, SortedOnBy
 		def SortInAscendingOnColumnBy(pCol, pcExpr)
 			This.SortOnBy(pCol, pcExpr)
 
 			def SortInAscendingOnColumnByQ(pCol, pcExp)
 				return This.SortOnByQ(pCol, pcExpr)
 
+	# Returns the table content sorted in ascending order of an expression on one column; the table is unchanged.
+	#
+	#   pCol       the column to sort on, by name or position
+	#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+	#   returns    a list of [ name, cells ] pairs, the sorted table
+	#   see        SortOnBy
 		#>
-
 	def SortedOnBy(pCol, pcExpr)
 		_aResult_ = This.Copy().SortOnByQ(pCol, pcExpr).Content()
 		return _aResult_
@@ -12093,6 +14435,12 @@ func _NormalizeColLookupKey(pVal)
 	 #  SORTING THE TABLE ON A GIVEN COLUMN BY A GIVEN EXPRESSION IN DESCENDiNG  #
 	#===========================================================================#
 
+	# Sorts the rows in place, in descending order of an expression applied to one column.
+	#
+	#   pCol       the column to sort on, by name or position
+	#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+	#   returns    nothing; the table changes
+	#   see        SortOnBy
 	def SortDownOnBy(pCol, pcExpr)
 
 		_nCol_ = This.ColToColNumber(pCol)
@@ -12114,42 +14462,79 @@ func _NormalizeColLookupKey(pVal)
 			This.SortDownOnBy(pCol, pcExpr)
 			return This
 
+		# Raises error R24 today instead of sorting the rows in descending order of an expression on a column.
+		#
+		#   pCol       the column to sort on
+		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+		#   returns    nothing; it raises
+		#   warning    Raises R24 (uninitialized variable _ncol_) because the body passes a name
+		#              that is not its parameter; SortDownOnBy works
+		#   see        SortDownOnBy
 		#>
-
 		#< @FunctionAlternativeForms
-
 		def SortInDescendingOnBy(pCol, pcExpr)
 			This.SortDownOnBy(_nCol_, pcExpr)
 
 			def SortInDescendingOnByQ(pCol, pcExpr)
 				return This.SortDownOnByQ(pCol, pcExpr)
 
+		# Raises error R24 today instead of sorting the rows in descending order of an expression on a column.
+		#
+		#   _nCol_     the column to sort on
+		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+		#   returns    nothing; it raises
+		#   warning    Raises R24 (uninitialized variable pcol) because the parameter is named
+		#              _nCol_ while the body passes pCol; SortDownOnBy works
+		#   see        SortDownOnBy
 		def SortDownOnColBy(_nCol_, pcExpr)
 			This.SortDownOnBy(pCol, pcExpr)
 
 			def SortDownOnColByQ(_nCol_, pcExpr)
 				return This.SortDownOnByQ(pCol, pcExpr)
 
+		# Sorts the rows in place, in descending order of an expression applied to one column.
+		#
+		#   pCol       the column to sort on, by name or position
+		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+		#   returns    nothing; the table changes
+		#   see        SortOnBy
 		def SortInDescendingOnColBy(pCol, pcExpr)
 			This.SortDownOnBy(pCol, pcExpr)
 
 			def SortInDescendingOnColByQ(pCol, pcExpr)
 				return This.SortDownOnByQ(pCol, pcExpr)
 
+		# Sorts the rows in place, in descending order of an expression applied to one column.
+		#
+		#   pCol       the column to sort on, by name or position
+		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+		#   returns    nothing; the table changes
+		#   see        SortOnBy
 		def SortDownOnColumnBy(pCol, pcExpr)
 			This.SortDownOnBy(pCol, pcExpr)
 
 			def SortedDownOnColumnByQ(pCol, pcExpr)
 				return This.SortDownOnByQ(pCol, pcExpr)
 
+		# Sorts the rows in place, in descending order of an expression applied to one column.
+		#
+		#   pCol       the column to sort on, by name or position
+		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+		#   returns    nothing; the table changes
+		#   see        SortOnBy
 		def SortInDescendingOnColumnBy(pCol, pcExpr)
 			This.SortDownOnBy(pCol, pcExpr)
 
 			def SortInDescendingOnColumnByQ(pCol, pcExpr)
 				return This.SortDownOnByQ(pCol, pcExpr)
 
+	# Returns the table content sorted in descending order of an expression on one column; the table is unchanged.
+	#
+	#   pCol       the column to sort on, by name or position
+	#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+	#   returns    a list of [ name, cells ] pairs, the sorted table
+	#   see        SortDownOnBy
 		#>
-
 	def SortedDownOnBy(pCol, pcExpr)
 		_aResult_ = This.Copy().SortDownOnByQ(pCol, pcExpr).Content()
 		return _aResult_
@@ -12159,6 +14544,14 @@ func _NormalizeColLookupKey(pVal)
 		def SortedInDescendingOnBy(pCol, pcExpr)
 			return This.SortedDownOnBy(pCol, pcExpr)
 
+		# Raises error R24 today instead of returning the content sorted in descending order of an expression on a column.
+		#
+		#   _nCol_     the column to sort on
+		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+		#   returns    nothing; it raises
+		#   warning    Raises R24 (uninitialized variable pcol) because the parameter is named
+		#              _nCol_ while the body passes pCol; SortedDownOnBy works
+		#   see        SortedDownOnBy
 		def SortedDownOnColBy(_nCol_, pcExpr)
 			return This.SortedDownOnBy(pCol, pcExpr)
 
@@ -12177,21 +14570,46 @@ func _NormalizeColLookupKey(pVal)
 	#  CHECKING IF THE TABLE IS SORTED  #
 	#-----------------------------------#
 
+	# TRUE if the rows are already in ascending order of the first column.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsSortedOn
 	def IsSorted()
 		return This.IsSortedOn(1)
 
+	# TRUE if the rows are already in ascending order of the first column.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsSortedUpOn
 	def IsSortedUp()
 		return This.IsSortedUpOn(1)
 
+		# TRUE if the rows are already in ascending order of the first column.
+		#
+		#   returns    TRUE or FALSE
+		#   see        IsSortedUpOn
 		def IsSortedInAscending()
 			return This.IsSortedUpOn(1)
 
+	# TRUE if the rows are already in descending order of the first column.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsSortedDownOn
 	def IsSortedDown()
 		return This.IsSortedDownOn(1)
 
+		# TRUE if the rows are already in descending order of the first column.
+		#
+		#   returns    TRUE or FALSE
+		#   see        IsSortedDownOn
 		def IsSortedInDescending()
 			return This.IsSortedDownOn(1)
 
+	# TRUE if the rows are already in ascending order of one column, comparing the table with its sorted copy.
+	#
+	#   pCol       the column to test, by name or position
+	#   returns    TRUE or FALSE
+	#   see        IsSortedDownOn
 	def IsSortedOn(pCol)
 		_oCopy_ = This.Copy()
 		_oCopy_.SortOn(pCol)
@@ -12214,6 +14632,11 @@ func _NormalizeColLookupKey(pVal)
 		def IsSortedOnColumn(pCol)
 			return This.IsSortedOn(pCol)
 
+	# TRUE if the rows are already in ascending order of one column, comparing the table with its sorted copy.
+	#
+	#   pCol       the column to test, by name or position
+	#   returns    TRUE or FALSE
+	#   see        IsSortedOn
 	def IsSortedUpOn(pCol)
 		_oCopy_ = This.Copy()
 		_oCopy_.SortUpOn(pCol)
@@ -12254,6 +14677,11 @@ func _NormalizeColLookupKey(pVal)
 		def IsSortedInAscendingColumn(pCol)
 			return THis.IsSortedUpOn(pCol)
 
+	# TRUE if the rows are already in descending order of one column, comparing the table with its sorted copy.
+	#
+	#   pCol       the column to test, by name or position
+	#   returns    TRUE or FALSE
+	#   see        IsSortedOn
 	def IsSortedDownOn(pCol)
 		_oCopy_ = This.Copy()
 		_oCopy_.SortDownOn(pCol)
@@ -12291,23 +14719,56 @@ func _NormalizeColLookupKey(pVal)
 		def IsSortedInDescendingOnColumn(pCol)
 			return THis.IsSortedDownOn(pCol)
 
-	#--
-
+	# Raises error R14 today instead of testing the order given by an expression on the first column.
+	#
+	#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+	#   returns    nothing; it raises
+	#   warning    Raises R14 because the body calls IsSotedOnBy, a misspelling; IsSortedOnBy works
+	#   see        IsSortedOnBy
+	#@ aka  --
 	def IsSortedBy(pcExpr)
 		return This.IsSotedOnBy(1, pcExpr)
 
+	# Raises error R20 today instead of testing the ascending order given by an expression on the first column.
+	#
+	#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+	#   returns    nothing; it raises
+	#   warning    Raises R20 because it passes the expression as an extra argument to IsSortedUpOn
+	#   see        IsSortedOnBy
 	def IsSortedUpBy(pcExpr)
 		return This.IsSortedUpOn(1, pcExpr)
 
+		# Raises error R20 today instead of testing the ascending order given by an expression on the first column.
+		#
+		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+		#   returns    nothing; it raises
+		#   warning    Raises R20 because it passes an extra argument to IsSortedUpBy
+		#   see        IsSortedOnBy
 		def IsSortedInAscendingBy(pcExpr)
 			return This.IsSortedUpBy(1, pcExpr)
 
+	# TRUE if the rows are already in descending order of an expression on the first column.
+	#
+	#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+	#   returns    TRUE or FALSE
+	#   see        IsSortedDownOnBy
 	def IsSortedDownBy(pcExpr)
 		return This.IsSortedDownOnBy(1, pcExpr)
 
+		# TRUE if the rows are already in descending order of an expression on the first column.
+		#
+		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+		#   returns    TRUE or FALSE
+		#   see        IsSortedDownOnBy
 		def IsSortedInDescendingBy(pcExpr)
 			return This.IsSortedDownOnBy(1, pcExpr)
 
+	# TRUE if the rows are already in ascending order of an expression on one column.
+	#
+	#   pCol       the column to test, by name or position
+	#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+	#   returns    TRUE or FALSE
+	#   see        IsSortedDownOnBy
 	def IsSortedOnBy(pCol, pcExpr)
 		_oCopy_ = This.Copy()
 		_oCopy_.SortOnBy(pCol, pcExpr)
@@ -12330,17 +14791,42 @@ func _NormalizeColLookupKey(pVal)
 		def IsSortedOnColumnBy(pCol, pcExpr)
 			return This.IsSortedOnBy(pCol, pcExpr)
 
-		#--
-
+		# TRUE if the rows are already in ascending order of an expression on one column, the expression coming first.
+		#
+		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+		#   pCol       the column to test, by name or position
+		#   returns    TRUE or FALSE
+		#   see        IsSortedOnBy
+		#@ aka  --
 		def IsSortedByOn(pcExpr, pCol)
 			return This.IsSortedOnBy(pCol, pcExpr)
 
+		# TRUE if the rows are already in ascending order of an expression on one column, the expression coming first.
+		#
+		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+		#   pCol       the column to test, by name or position
+		#   returns    TRUE or FALSE
+		#   see        IsSortedOnBy
 		def IsSortedByOnCol(pcExpr, pCol)
 			return This.IsSortedOnBy(pCol, pcExpr)
 
+		# TRUE if the rows are already in ascending order of an expression on one column, the expression coming first.
+		#
+		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+		#   pCol       the column to test, by name or position
+		#   returns    TRUE or FALSE
+		#   see        IsSortedOnBy
 		def IsSortedByOnColumn(pcExpr, pCol)
 			return This.IsSortedOnBy(pCol, pcExpr)
 
+	# Raises error R14 today instead of testing the ascending order given by an expression on one column.
+	#
+	#   pCol       the column to test
+	#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+	#   returns    nothing; it raises
+	#   warning    Raises R14 because the body relies on SortUpOnBy, which is defined nowhere;
+	#              IsSortedOnBy works
+	#   see        IsSortedOnBy
 	def IsSortedUpOnBy(pCol, pcExpr)
 		_oCopy_ = This.Copy()
 		_oCopy_.SortUpOnBy(pCol, pcExpr)
@@ -12363,14 +14849,37 @@ func _NormalizeColLookupKey(pVal)
 		def IsSortedUpOnColumnBy(pCol, pcExpr)
 			return This.IsSortedUpOnBy(pCol, pcExpr)
 
-		#--
-
+		# Raises error R14 today instead of testing the ascending order given by an expression on one column.
+		#
+		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+		#   pCol       the column to test
+		#   returns    nothing; it raises
+		#   warning    Raises R14 because the body relies on SortUpOnBy, which is defined nowhere;
+		#              IsSortedOnBy works
+		#   see        IsSortedOnBy
+		#@ aka  --
 		def IsSorteUpByOn(pcExpr, pCol)
 			return This.IsSortedUpOnBy(pCol, pcExpr)
 
+		# Raises error R14 today instead of testing the ascending order given by an expression on one column.
+		#
+		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+		#   pCol       the column to test
+		#   returns    nothing; it raises
+		#   warning    Raises R14 because the body relies on SortUpOnBy, which is defined nowhere;
+		#              IsSortedOnBy works
+		#   see        IsSortedOnBy
 		def IsSortedUpByOnCol(pcExpr, pCol)
 			return This.IsSortedUpOnBy(pCol, pcExpr)
 
+		# Raises error R14 today instead of testing the ascending order given by an expression on one column.
+		#
+		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+		#   pCol       the column to test
+		#   returns    nothing; it raises
+		#   warning    Raises R14 because the body relies on SortUpOnBy, which is defined nowhere;
+		#              IsSortedOnBy works
+		#   see        IsSortedOnBy
 		def IsSortedUpByOnColumn(pcExpr, pCol)
 			return This.IsSortedUpOnBy(pCol, pcExpr)
 
@@ -12382,17 +14891,46 @@ func _NormalizeColLookupKey(pVal)
 		def IsSortedInAscendingOnColumnBy(pCol, pcExpr)
 			return This.IsSortedUpOnBy(pCol, pcExpr)
 
-		#--
-
+		# Raises error R14 today instead of testing the ascending order given by an expression on one column.
+		#
+		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+		#   pCol       the column to test
+		#   returns    nothing; it raises
+		#   warning    Raises R14 because the body relies on SortUpOnBy, which is defined nowhere;
+		#              IsSortedOnBy works
+		#   see        IsSortedOnBy
+		#@ aka  --
 		def IsSorteInAscendingByOn(pcExpr, pCol)
 			return This.IsSortedUpOnBy(pCol, pcExpr)
 
+		# Raises error R14 today instead of testing the ascending order given by an expression on one column.
+		#
+		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+		#   pCol       the column to test
+		#   returns    nothing; it raises
+		#   warning    Raises R14 because the body relies on SortUpOnBy, which is defined nowhere;
+		#              IsSortedOnBy works
+		#   see        IsSortedOnBy
 		def IsSortedInAscendingByOnCol(pcExpr, pCol)
 			return This.IsSortedUpOnBy(pCol, pcExpr)
 
+		# Raises error R14 today instead of testing the ascending order given by an expression on one column.
+		#
+		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+		#   pCol       the column to test
+		#   returns    nothing; it raises
+		#   warning    Raises R14 because the body relies on SortUpOnBy, which is defined nowhere;
+		#              IsSortedOnBy works
+		#   see        IsSortedOnBy
 		def IsSortedInAscendingByOnColumn(pcExpr, pCol)
 			return This.IsSortedUpOnBy(pCol, pcExpr)
 
+	# TRUE if the rows are already in descending order of an expression on one column.
+	#
+	#   pCol       the column to test, by name or position
+	#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+	#   returns    TRUE or FALSE
+	#   see        IsSortedOnBy
 	def IsSortedDownOnBy(pCol, pcExpr)
 		_oCopy_ = This.Copy()
 		_oCopy_.SortDownOnBy(pCol, pcExpr)
@@ -12416,14 +14954,31 @@ func _NormalizeColLookupKey(pVal)
 		def IsSortedDownOnColumnBy(pCol, pcExpr)
 			return This.IsSortedDownOnBy(pCol, pcExpr)
 
-		#--
-
+		# TRUE if the rows are already in descending order of an expression on one column.
+		#
+		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+		#   pCol       the column to test, by name or position
+		#   returns    TRUE or FALSE
+		#   see        IsSortedOnBy
+		#@ aka  --
 		def IsSortedDownByOn(pcExpr, pCol)
 			return This.IsSortedDownOnBy(pCol, pcExpr)
 
+		# TRUE if the rows are already in descending order of an expression on one column.
+		#
+		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+		#   pCol       the column to test, by name or position
+		#   returns    TRUE or FALSE
+		#   see        IsSortedOnBy
 		def IsSortedDownByOnCol(pcExpr, pCol)
 			return This.IsSortedDownOnBy(pCol, pcExpr)
 
+		# TRUE if the rows are already in descending order of an expression on one column.
+		#
+		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+		#   pCol       the column to test, by name or position
+		#   returns    TRUE or FALSE
+		#   see        IsSortedOnBy
 		def IsSortedDownByOnColumn(pcExpr, pCol)
 			return This.IsSortedDownOnBy(pCol, pcExpr)
 
@@ -12435,20 +14990,55 @@ func _NormalizeColLookupKey(pVal)
 		def IsSortedInDescendingOnColumnBy(pCol, pcExpr)
 			return This.IsSortedDownOnBy(pCol, pcExpr)
 
-		#--
-
+		# TRUE if the rows are already in descending order of an expression on one column.
+		#
+		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+		#   pCol       the column to test, by name or position
+		#   returns    TRUE or FALSE
+		#   see        IsSortedOnBy
+		#@ aka  --
 		def IsSortedInDescendingByOn(pcExpr, pCol)
 			return This.IsSortedDownOnBy(pCol, pcExpr)
 
+		# TRUE if the rows are already in descending order of an expression on one column.
+		#
+		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+		#   pCol       the column to test, by name or position
+		#   returns    TRUE or FALSE
+		#   see        IsSortedOnBy
 		def IsSortedInDescendingByOnCol(pcExpr, pCol)
 			return This.IsSortedDownOnBy(pCol, pcExpr)
 
+		# TRUE if the rows are already in descending order of an expression on one column.
+		#
+		#   pcExpr     the expression to sort by, as text, with @item standing for a cell
+		#   pCol       the column to test, by name or position
+		#   returns    TRUE or FALSE
+		#   see        IsSortedOnBy
 		def IsSortedInDescendingByOnColumn(pcExpr, pCol)
 			return This.IsSortedDownOnBy(pCol, pcExpr)
 
+		# Puts a value in one cell, given by its column and row, in place.
+		#
+		#   pCol            the column of the cell, by name or position
+		#   pnRow           the row position, 1 for the first
+		#   pNewCellValue   the new value of the cell
+		#   returns         nothing; the table changes
+		#   warning         Raises R2 for a row past the last one and Column not found! for an
+		#                   unknown column
+		#   see             ReplaceCell, ReplaceCells
 		def ReplaceCellByPosition(pCol, pnRow, pNewCellValue)
 			This.ReplaceCell(pCol, pnRow, pNewCellValue)
 
+		# Puts a value in one cell, given by its column and row, in place.
+		#
+		#   pCol            the column of the cell, by name or position
+		#   pnRow           the row position, 1 for the first
+		#   pNewCellValue   the new value of the cell
+		#   returns         nothing; the table changes
+		#   warning         Raises R2 for a row past the last one and Column not found! for an
+		#                   unknown column
+		#   see             ReplaceCell, ReplaceCells
 		def ReplaceByPositionCell(pCol, pnRow, pNewCellValue)
 			This.ReplaceCell(pCol, pnRow, pNewCellValue)
 
@@ -12458,6 +15048,14 @@ func _NormalizeColLookupKey(pVal)
 	 #  REPLACING MANY CELLS, DEFINED BY THEIR POSITIONS, BY THE PROVIDED VALUE  #
 	#---------------------------------------------------------------------------#
 
+	# Puts the same value in every listed cell, in place.
+	#
+	#   paCellsPos       the cells to change, each as [ column, row ]
+	#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+	#   returns          nothing; the table changes
+	#   warning          Raises Column not found! for a position whose column does not exist and R2
+	#                    for a row past the last one
+	#   see              ReplaceCellsByMany, ReplaceCell
 	def ReplaceCells(paCellsPos, paNewCellValue)
 
 		if ChekParams() #NOTE this is a misspelled form (c in Check is lacking)
@@ -12474,18 +15072,27 @@ func _NormalizeColLookupKey(pVal)
 			This.ReplaceCell(paCellsPos[i][1], paCellsPos[i][2], paNewCellValue)
 		next
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		#< @FunctionAlternatives
-
 		def ReplaceTheseCells(paCellsPos, paNewCellValue)
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
 		def ReplaceMany(paCellsPos, paNewCellValue)
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
-		#--
-
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		#TODO // Add the fellowing semantics to all simular functions in the library
-
+		#@ aka  --
 		def ReplaceEachOne(paCellsPos, paNewCellValue)
 			if isList(paCellsPos) and IsOneOfTheseNamedParamsList(paCellsPos,[ :Of, :OfThese, :OfTheseCells ])
 				paCellsPos = paCellsPos[2]
@@ -12493,6 +15100,12 @@ func _NormalizeColLookupKey(pVal)
 
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceEachCell(paCellsPos, paNewCellValue)
 			if isList(paCellsPos) and IsOneOfTheseNamedParamsList(paCellsPos,[ :Of, :OfThese, :OfTheseCells ])
 				paCellsPos = paCellsPos[2]
@@ -12500,14 +15113,31 @@ func _NormalizeColLookupKey(pVal)
 
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceEachOfTheseCells(paCellsPos, paNewCellValue)
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceEachCellOfThese(paCellsPos, paNewCellValue)
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
-		#--
-
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
+		#@ aka  --
 		def ReplaceEveryOne(paCellsPos, paNewCellValue)
 			if isList(paCellsPos) and IsOneOfTheseNamedParamsList(paCellsPos,[ :Of, :OfThese, :OfTheseCells ])
 				paCellsPos = paCellsPos[2]
@@ -12515,6 +15145,12 @@ func _NormalizeColLookupKey(pVal)
 
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceEveryCell(paCellsPos, paNewCellValue)
 			if isList(paCellsPos) and IsOneOfTheseNamedParamsList(paCellsPos,[ :Of, :OfThese, :OfTheseCells ])
 				paCellsPos = paCellsPos[2]
@@ -12522,149 +15158,423 @@ func _NormalizeColLookupKey(pVal)
 
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceEveryOneOfTheseCells(paCellsPos, paNewCellValue)
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceEveryCellOfThese(paCellsPos, paNewCellValue)
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
-		#== Adding ...ByPosition(s) to all alternatives
-
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
+		#@ aka  == Adding ...ByPosition(s) to all alternatives
 		def ReplaceCellsByPosition(paCellsPos, paNewCellValue)
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceCellsByPositions(paCellsPos, paNewCellValue)
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceTheseCellsByPosition(paCellsPos, paNewCellValue)
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceTheseCellsByPositions(paCellsPos, paNewCellValue)
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceManyByPosition(paCellsPos, paNewCellValue)
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceManyByPositions(paCellsPos, paNewCellValue)
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceEachOneByPosition(paCellsPos, paNewCellValue)
 			This.ReplaceEachOne(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceEachOneByPositions(paCellsPos, paNewCellValue)
 			This.ReplaceEachOne(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceEachCellByPosition(paCellsPos, paNewCellValue)
 			This.ReplaceEachCell(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceEachCellByPositions(paCellsPos, paNewCellValue)
 			This.ReplaceEachCell(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceEachOfTheseCellsByPosition(paCellsPos, paNewCellValue)
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceEachOfTheseCellsByPositions(paCellsPos, paNewCellValue)
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceEachCellOfTheseByPosition(paCellsPos, paNewCellValue)
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceEachCellOfTheseByPositions(paCellsPos, paNewCellValue)
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceEveryOneByPosition(paCellsPos, paNewCellValue)
 			This.ReplaceEveryOne(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceEveryOneByPositions(paCellsPos, paNewCellValue)
 			This.ReplaceEveryOne(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceEveryCellByPosition(paCellsPos, paNewCellValue)
 			This.ReplaceEveryCell(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceEveryCellByPositions(paCellsPos, paNewCellValue)
 			This.ReplaceEveryCell(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceEveryOneOfTheseCellsByPosition(paCellsPos, paNewCellValue)
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceEveryOneOfTheseCellsByPositions(paCellsPos, paNewCellValue)
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceEveryCellOfTheseByPosition(paCellsPos, paNewCellValue)
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceEveryCellOfTheseByPositions(paCellsPos, paNewCellValue)
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
-		#--
-
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
+		#@ aka  --
 		def ReplaceByPositionCells(paCellsPos, paNewCellValue)
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceByPositionsCells(paCellsPos, paNewCellValue)
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceByPositionTheseCells(paCellsPos, paNewCellValue)
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceByPositionsTheseCells(paCellsPos, paNewCellValue)
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceByPositionMany(paCellsPos, paNewCellValue)
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceByPositionsMany(paCellsPos, paNewCellValue)
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceByPositionEachOne(paCellsPos, paNewCellValue)
 			This.ReplaceEachOne(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceByPositionsEachOne(paCellsPos, paNewCellValue)
 			This.ReplaceEachOne(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceByPositionEachCell(paCellsPos, paNewCellValue)
 			This.ReplaceEachCell(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceByPositionsEachCell(paCellsPos, paNewCellValue)
 			This.ReplaceEachCell(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceByPositionEachOfTheseCells(paCellsPos, paNewCellValue)
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceByPositionsEachOfTheseCells(paCellsPos, paNewCellValue)
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceByPositionEachCellOfThese(paCellsPos, paNewCellValue)
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceByPositionsEachCellOfThese(paCellsPos, paNewCellValue)
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceByPositionEveryOne(paCellsPos, paNewCellValue)
 			This.ReplaceEveryOne(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceByPositionsEveryOne(paCellsPos, paNewCellValue)
 			This.ReplaceEveryOne(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceByPositionEveryCell(paCellsPos, paNewCellValue)
 			This.ReplaceEveryCell(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceByPositionsEveryCell(paCellsPos, paNewCellValue)
 			This.ReplaceEveryCell(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceByPositionEveryOneOfTheseCells(paCellsPos, paNewCellValue)
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceByPositionsEveryOneOfTheseCells(paCellsPos, paNewCellValue)
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceByPositionEveryCellOfThese(paCellsPos, paNewCellValue)
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
+		# Puts the same value in every listed cell, in place.
+		#
+		#   paCellsPos       the cells to change, each as [ column, row ]
+		#   paNewCellValue   the value put in every listed cell, or [ :With, value ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceCells, ReplaceCellsByMany
 		def ReplaceByPositionsEveryCellOfThese(paCellsPos, paNewCellValue)
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
@@ -12674,6 +15584,12 @@ func _NormalizeColLookupKey(pVal)
 	 #  REPLACING MANY CELLS, DEFINED BY THEIR POSITIONS, BY MANY PROVIDED VALUES  #
 	#-----------------------------------------------------------------------------#
 
+	# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+	#
+	#   paCellsPos    the cells to change, each as [ column, row ]
+	#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+	#   returns       nothing; the table changes
+	#   see           ReplaceCellsByMany, ReplaceCells
 	def ReplaceCellsByMany(paCellsPos, paNewValues)
 
 		if CheckingParams()
@@ -12697,16 +15613,32 @@ func _NormalizeColLookupKey(pVal)
 			This.ReplaceCell(paCellsPos[i][1], paCellsPos[i][2], paNewValues[i])
 		next
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		#< @FunctionAlternativeForms
-
 		def ReplaceTheseCellsByMany(paCellsPos, paNewValues)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceManyByMany(paCellsPos, paNewValues)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
-		#--
-
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
+		#@ aka  --
 		def ReplaceEachOneByMany(paCellsPos, paNewValues)
 			if isList(paCellsPos) and IsOneOfTheseNamedParamsList(paCellsPos,[ :Of, :OfThese, :OfTheseCells ])
 				paCellsPos = paCellsPos[2]
@@ -12714,6 +15646,12 @@ func _NormalizeColLookupKey(pVal)
 
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceEachCellByMany(paCellsPos, paNewValues)
 			if isList(paCellsPos) and IsOneOfTheseNamedParamsList(paCellsPos,[ :Of, :OfThese, :OfTheseCells ])
 				paCellsPos = paCellsPos[2]
@@ -12721,14 +15659,31 @@ func _NormalizeColLookupKey(pVal)
 
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceEachOfTheseCellsByMany(paCellsPos, paNewValues)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceEachCellOfTheseByMany(paCellsPos, paNewValues)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
-		#--
-
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
+		#@ aka  --
 		def ReplaceEveryOneByMany(paCellsPos, paNewValues)
 			if isList(paCellsPos) and IsOneOfTheseNamedParamsList(paCellsPos,[ :Of, :OfThese, :OfTheseCells ])
 				paCellsPos = paCellsPos[2]
@@ -12736,6 +15691,12 @@ func _NormalizeColLookupKey(pVal)
 
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceEveryCellByMany(paCellsPos, paNewValues)
 			if isList(paCellsPos) and IsOneOfTheseNamedParamsList(paCellsPos,[ :Of, :OfThese, :OfTheseCells ])
 				paCellsPos = paCellsPos[2]
@@ -12743,149 +15704,429 @@ func _NormalizeColLookupKey(pVal)
 
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceEveryOneOfTheseCellsByMany(paCellsPos, paNewValues)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceEveryCellOfTheseByMany(paCellsPos, paNewValues)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
-		#== Adding ...ByPosition(s) to all alternatives
-
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
+		#@ aka  == Adding ...ByPosition(s) to all alternatives
 		def ReplaceCellsByPositionByMany(paCellsPos, paNewValues)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceCellsByPositionsByMany(paCellsPos, paNewValues)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceTheseCellsByPositionByMany(paCellsPos, paNewValues)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceTheseCellsByPositionsByMany(paCellsPos, paNewValues)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceManyByPositionByMany(paCellsPos, paNewValues)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceManyByPositionsByMany(paCellsPos, paNewValues)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceEachOneByPositionByMany(paCellsPos, paNewValues)
 			This.ReplaceEachOneByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceEachOneByPositionsByMany(paCellsPos, paNewValues)
 			This.ReplaceEachOneByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceEachCellByPositionByMany(paCellsPos, paNewValues)
 			This.ReplaceEachCellByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceEachCellByPositionsByMany(paCellsPos, paNewValues)
 			This.ReplaceEachCellByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceEachOfTheseCellsByPositionByMany(paCellsPos, paNewValues)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceEachOfTheseCellsByPositionsByMany(paCellsPos, paNewValues)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceEachCellOfTheseByPositionByMany(paCellsPos, paNewValues)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
+		# Puts the whole list of values in each listed cell, in place, instead of one value per cell.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   warning       Forwards to ReplaceCells, which treats the list of values as one value:
+		#                 every listed cell receives the whole list; ReplaceCellsByMany pairs them
+		#                 one by one
+		#   see           ReplaceCellsByMany
 		def ReplaceEachCellOfTheseByPositionsByMany(paCellsPos, paNewValues)
 			This.ReplaceCells(paCellsPos, paNewValues)
 
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceEveryOneByPositionByMany(paCellsPos, paNewValues)
 			This.ReplaceEveryOneByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceEveryOneByPositionsByMany(paCellsPos, paNewValues)
 			This.ReplaceEveryOneByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceEveryCellByPositionByMany(paCellsPos, paNewValues)
 			This.ReplaceEveryCellByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceEveryCellByPositionsByMany(paCellsPos, paNewValues)
 			This.ReplaceEveryCellByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceEveryOneOfTheseCellsByPositionByMany(paCellsPos, paNewValues)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceEveryOneOfTheseCellsByPositionsByMany(paCellsPos, paNewValues)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceEveryCellOfTheseByPositionByMany(paCellsPos, paNewValues)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceEveryCellOfTheseByPositionsByMany(paCellsPos, paNewValues)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
-		#--
-
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
+		#@ aka  --
 		def ReplaceByPositionCellsByMany(paCellsPos, paNewValues)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceByPositionsCellsByMany(paCellsPos, paNewValues)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceByPositionTheseCellsByMany(paCellsPos, paNewValues)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceByPositionsTheseCellsByMany(paCellsPos, paNewValues)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceByPositionManyByMany(paCellsPos, paNewValues)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceByPositionsManyByMany(paCellsPos, paNewValues)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceByPositionEachOneByMany(paCellsPos, paNewValues)
 			This.ReplaceEachOneByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceByPositionsEachOneByMany(paCellsPos, paNewValues)
 			This.ReplaceEachOneByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceByPositionEachCellByMany(paCellsPos, paNewValues)
 			This.ReplaceEachCellByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceByPositionsEachCellByMany(paCellsPos, paNewValues)
 			This.ReplaceEachCellByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceByPositionEachOfTheseCellsByMany(paCellsPos, paNewValues)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceByPositionsEachOfTheseCellsByMany(paCellsPos, paNewValues)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceByPositionEachCellOfTheseByMany(paCellsPos, paNewValues)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
+		# Puts the whole list of values in each listed cell, in place, instead of one value per cell.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   warning       Forwards to ReplaceCells, which treats the list of values as one value:
+		#                 every listed cell receives the whole list; ReplaceCellsByMany pairs them
+		#                 one by one
+		#   see           ReplaceCellsByMany
 		def ReplaceByPositionsEachCellOfTheseByMany(paCellsPos, paNewValues)
 			This.ReplaceCells(paCellsPos, paNewValues)
 
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceByPositionEveryOneByMany(paCellsPos, paNewValues)
 			This.ReplaceEveryOneByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceByPositionsEveryOneByMany(paCellsPos, paNewValues)
 			This.ReplaceEveryOneByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceByPositionEveryCellByMany(paCellsPos, paNewValues)
 			This.ReplaceEveryCellByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceByPositionsEveryCellByMany(paCellsPos, paNewValues)
 			This.ReplaceEveryCellByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceByPositionEveryOneOfTheseCellsByMany(paCellsPos, paNewValues)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceByPositionsEveryOneOfTheseCellsByMany(paCellsPos, paNewValues)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceByPositionEveryCellOfTheseByMany(paCellsPos, paNewValues)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceByPositionsEveryCellOfTheseByMany(paCellsPos, paNewValues)
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
@@ -13053,24 +16294,48 @@ func _NormalizeColLookupKey(pVal)
 		def ReplaceByPositionTheseCellsByManyXT(paCellsPos, paNewValues)
 			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplacePositionsTheseCellsByManyXT(paCellsPos, paNewValues)
 			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
 
 		def ReplaceByPositionManyByManyXT(paCellsPos, paNewValues)
 			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplacePositionsManyByManyXT(paCellsPos, paNewValues)
 			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
 
 		def ReplaceByPositionEachOneByManyXT(paCellsPos, paNewValues)
 			This.ReplaceEachOneByManyXT(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplacePositionsEachOneByManyXT(paCellsPos, paNewValues)
 			This.ReplaceEachOneByManyXT(paCellsPos, paNewValues)
 
 		def ReplaceByPositionEachCellManyXT(paCellsPos, paNewValues)
 			This.ReplaceEachCellByManyXT(paCellsPos, paNewValues)
 
+		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
+		#
+		#   paCellsPos    the cells to change, each as [ column, row ]
+		#   paNewValues   the values to put, one per listed cell, or [ :With, list ]
+		#   returns       nothing; the table changes
+		#   see           ReplaceCellsByMany, ReplaceCells
 		def ReplaceByPositionsEachCellByPositionsByManyXT(paCellsPos, paNewValues)
 			This.ReplaceEachCellByManyXT(paCellsPos, paNewValues)
 
@@ -13133,23 +16398,45 @@ func _NormalizeColLookupKey(pVal)
 		def ReplaceByValueOccurrencesOfCellByCS(pCellValue, pNewCell, pCaseSensitive)
 			This.ReplaceCellByValueCS(pCellValue, pNewCellValue, pCaseSensitive)
 
+	# Replaces every cell equal to a value by another value, in place, case-sensitively.
+	#
+	#   pNewCellValue   the value that takes the place
+	#   returns         nothing; the table changes
+	#   warning         Raises an error for a number as the value to find, because FindCell does
+	#   see             ReplaceCell, FindCell
 		#>
-
-	#-- WITHOUT CASESENSITIIVTY
-
+	#@ aka  -- WITHOUT CASESENSITIIVTY
 	def ReplaceCellByValue(pCellValue, pNewCellValue)
 		This.ReplaceCellByValueCS(pCellValue, pNewCellValue, 1)
 
+		# Raises error R24 today instead of replacing every cell equal to a value by another value.
+		#
+		#   pNewCell   the value that takes the place
+		#   returns    nothing; it raises
+		#   warning    Raises R24 (uninitialized variable pnewcellvalue) because the body passes a
+		#              name that is not its parameter; ReplaceCellByValue works
+		#   see        ReplaceCellByValue
 		#< @FunctionAlternativeForms
-
 		def ReplaceOccurrencesOfCellByValue(pCellValue, pNewCell)
 			This.ReplaceCellByValue(pCellValue, pNewCellValue)
 
-		#--
-
+		# Replaces every cell equal to a value by another value, in place, case-sensitively.
+		#
+		#   pNewCellValue   the value that takes the place
+		#   returns         nothing; the table changes
+		#   warning         Raises an error for a number as the value to find, because FindCell does
+		#   see             ReplaceCell, FindCell
+		#@ aka  --
 		def ReplaceByValueCell(pCellValue, pNewCellValue)
 			This.ReplaceCellByValue(pCellValue, pNewCellValue)
 
+		# Raises error R24 today instead of replacing every cell equal to a value by another value.
+		#
+		#   pNewCell   the value that takes the place
+		#   returns    nothing; it raises
+		#   warning    Raises R24 (uninitialized variable pnewcellvalue) because the body passes a
+		#              name that is not its parameter; ReplaceCellByValue works
+		#   see        ReplaceCellByValue
 		def ReplaceByValueOccurrencesOfCellBy(pCellValue, pNewCell)
 			This.ReplaceCellByValue(pCellValue, pNewCellValue)
 
@@ -13176,23 +16463,47 @@ func _NormalizeColLookupKey(pVal)
 		def ReplaceByValueCellsCS(paCellsValues, pNewCellValue, pCaseSensitive)
 			This.ReplaceManyCellsByValueCS(paCellsValues, pNewCellValue, pCaseSensitive)
 
+	# Raises error today instead of replacing the cells equal to any of several values by one value.
+	#
+	#   paCellsValues   the cell values to replace
+	#   pNewCellValue   the value that takes the place
+	#   returns         nothing; it raises
+	#   warning         Always raises Function not yet implemented!
+	#   see             ReplaceCellByValue
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def ReplaceManyCellsByValue(paCellsValues, pNewCellValue)
 		This.ReplaceManyCellsByValueCS(paCellsValues, pNewCellValue, 1)
 
+		# Raises error today instead of replacing the cells equal to any of several values by one value.
+		#
+		#   paCellsValues   the cell values to replace
+		#   pNewCellValue   the value that takes the place
+		#   returns         nothing; it raises
+		#   warning         Always raises Function not yet implemented!
+		#   see             ReplaceCellByValue
 		#< @FunctionAlternativeForms
-
 		def ReplaceCellsByValue(paCellsValues, pNewCellValue)
 			This.ReplaceManyCellsByValue(paCellsValues, pNewCellValue)
 
-		#--
-
+		# Raises error today instead of replacing the cells equal to any of several values by one value.
+		#
+		#   paCellsValues   the cell values to replace
+		#   pNewCellValue   the value that takes the place
+		#   returns         nothing; it raises
+		#   warning         Always raises Function not yet implemented!
+		#   see             ReplaceCellByValue
+		#@ aka  --
 		def ReplaceByValueManyCells(paCellsValues, pNewCellValue)
 			This.ReplaceManyCellsByValue(paCellsValues, pNewCellValue)
 
+		# Raises error today instead of replacing the cells equal to any of several values by one value.
+		#
+		#   paCellsValues   the cell values to replace
+		#   pNewCellValue   the value that takes the place
+		#   returns         nothing; it raises
+		#   warning         Always raises Function not yet implemented!
+		#   see             ReplaceCellByValue
 		def ReplaceByValueCells(paCellsValues, pNewCellValue)
 			This.ReplaceManyCellsByValue(paCellsValues, pNewCellValue)
 
@@ -13219,21 +16530,46 @@ func _NormalizeColLookupKey(pVal)
 		def ReplaceByValueCellsByManyCS(paCellsValues, pNewCellValue, pCaseSensitive)
 			This.ReplaceManyCellsByValueByManyCS(paCellsValues, pNewCellValue, pCaseSensitive)
 
+	# Raises error today instead of replacing several cell values by several new values.
+	#
+	#   paCellsValues   the cell values to replace
+	#   pNewCellValue   the new values
+	#   returns         nothing; it raises
+	#   warning         Always raises Function not yet implemented!
+	#   see             ReplaceCellByValue
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def ReplaceManyCellsByValueByMany(paCellsValues, pNewCellValue)
 		This.ReplaceManyCellsByValueByManyCS(paCellsValues, pNewCellValue, 1)
 
+		# Raises error today instead of replacing several cell values by several new values.
+		#
+		#   paCellsValues   the cell values to replace
+		#   pNewCellValue   the new values
+		#   returns         nothing; it raises
+		#   warning         Always raises Function not yet implemented!
+		#   see             ReplaceCellByValue
 		#< @FunctionAlternativeForms
-
 		def ReplaceCellsByValueByMany(paCellsValues, pNewCellValue)
 			This.ReplaceManyCellsByValueByMany(paCellsValues, pNewCellValue)
 
+		# Raises error today instead of replacing several cell values by several new values.
+		#
+		#   paCellsValues   the cell values to replace
+		#   pNewCellValue   the new values
+		#   returns         nothing; it raises
+		#   warning         Always raises Function not yet implemented!
+		#   see             ReplaceCellByValue
 		def ReplaceByValueManyCellsByMany(paCellsValues, pNewCellValue)
 			This.ReplaceManyCellsByValueByMany(paCellsValues, pNewCellValue)
 
+		# Raises error today instead of replacing several cell values by several new values.
+		#
+		#   paCellsValues   the cell values to replace
+		#   pNewCellValue   the new values
+		#   returns         nothing; it raises
+		#   warning         Always raises Function not yet implemented!
+		#   see             ReplaceCellByValue
 		def ReplaceByValueCellsByMany(paCellsValues, pNewCellValue)
 			This.ReplaceManyCellsByValueByMany(paCellsValues, pNewCellValue)
 
@@ -13284,9 +16620,24 @@ func _NormalizeColLookupKey(pVal)
 	 #  REPLACING A COLUMN BY AN OTHER PROVIDED AS A LIST OF ROWS  #
 	#=============================================================#
 
+		# Puts a whole new list of cells in a column, in place.
+		#
+		#   paCol      the new cells of the column
+		#   returns    nothing; the table changes
+		#   warning    The length of the list is not checked: another length leaves the columns of
+		#              unequal size
+		#   see        ReplaceCol
 		def ReplaceColumn(pCol, paCol)
 			This.ReplaceCol(pCol, paCol)
 
+	# Puts a whole new list of cells in the nth column, in place.
+	#
+	#   _n_        the position, or how many, as a number
+	#   paCol      the new cells of the column, or [ :With, cells ]
+	#   returns    nothing; the table changes
+	#   warning    The length of the list is not checked; a pair [ name, cells ] is read as plain
+	#              cells and does not rename the column
+	#   see        ReplaceCol
 	def ReplaceNthCol(_n_, paCol)
 		if CheckingParams()
 			if NOT isNumber(_n_)
@@ -13336,28 +16687,82 @@ func _NormalizeColLookupKey(pVal)
 		_aContent_[_n_][2] = _aCol_
 		This.UpdateWith(_aContent_)
 
+		# Puts a whole new list of cells in the nth column, in place.
+		#
+		#   _n_        the position, or how many, as a number
+		#   paCol      the new cells of the column, or [ :With, cells ]
+		#   returns    nothing; the table changes
+		#   warning    The length of the list is not checked; a pair [ name, cells ] is read as
+		#              plain cells and does not rename the column
+		#   see        ReplaceCol
 		#< @FunctionAlternativeForms
-
 		def ReplaceNthColumn(_n_, paCol)
 			This.ReplaceNthCol(_n_, paCol)
 
+		# Puts a whole new list of cells in the nth column, in place.
+		#
+		#   _n_        the position, or how many, as a number
+		#   paCol      the new cells of the column, or [ :With, cells ]
+		#   returns    nothing; the table changes
+		#   warning    The length of the list is not checked; a pair [ name, cells ] is read as
+		#              plain cells and does not rename the column
+		#   see        ReplaceCol
 		def ReplaceColN(_n_, paCol)
 			This.ReplaceNthCol(_n_, paCol)
 
+		# Puts a whole new list of cells in the nth column, in place.
+		#
+		#   _n_        the position, or how many, as a number
+		#   paCol      the new cells of the column, or [ :With, cells ]
+		#   returns    nothing; the table changes
+		#   warning    The length of the list is not checked; a pair [ name, cells ] is read as
+		#              plain cells and does not rename the column
+		#   see        ReplaceCol
 		def ReplaceColumnN(_n_, paCol)
 			This.ReplaceNthCol(_n_, paCol)
 
-		#--
-
+		# Puts a whole new list of cells in the nth column, in place.
+		#
+		#   _n_        the position, or how many, as a number
+		#   paCol      the new cells of the column, or [ :With, cells ]
+		#   returns    nothing; the table changes
+		#   warning    The length of the list is not checked; a pair [ name, cells ] is read as
+		#              plain cells and does not rename the column
+		#   see        ReplaceCol
+		#@ aka  --
 		def ReplaceColAt(_n_, paCol)
 			This.ReplaceNthCol(_n_, paCol)
 
+		# Puts a whole new list of cells in the nth column, in place.
+		#
+		#   _n_        the position, or how many, as a number
+		#   paCol      the new cells of the column, or [ :With, cells ]
+		#   returns    nothing; the table changes
+		#   warning    The length of the list is not checked; a pair [ name, cells ] is read as
+		#              plain cells and does not rename the column
+		#   see        ReplaceCol
 		def ReplaceColAtPosition(_n_, paCol)
 			This.ReplaceNthCol(_n_, paCol)
 
+		# Puts a whole new list of cells in the nth column, in place.
+		#
+		#   _n_        the position, or how many, as a number
+		#   paCol      the new cells of the column, or [ :With, cells ]
+		#   returns    nothing; the table changes
+		#   warning    The length of the list is not checked; a pair [ name, cells ] is read as
+		#              plain cells and does not rename the column
+		#   see        ReplaceCol
 		def ReplaceColumnAt(_n_, paCol)
 			This.ReplaceNthCol(_n_, paCol)
 
+		# Puts a whole new list of cells in the nth column, in place.
+		#
+		#   _n_        the position, or how many, as a number
+		#   paCol      the new cells of the column, or [ :With, cells ]
+		#   returns    nothing; the table changes
+		#   warning    The length of the list is not checked; a pair [ name, cells ] is read as
+		#              plain cells and does not rename the column
+		#   see        ReplaceCol
 		def ReplaceColumnAtPosition(_n_, paCol)
 			This.ReplaceNthCol(_n_, paCol)
 
@@ -13448,6 +16853,12 @@ func _NormalizeColLookupKey(pVal)
 	 #  REPLACING COLUMNS AT GIVEN POSITIONS BY A GIVEN COLUMN (PROVIDED AS A LIST OF CELLS)  #
 	#----------------------------------------------------------------------------------------#
 
+	# Puts the same list of cells in each of the columns at the given positions, in place.
+	#
+	#   panPos     the positions of the columns to change
+	#   paCol      the new cells put in every listed column
+	#   returns    nothing; the table changes
+	#   see        ReplaceNthCol
 	def ReplaceColsAt(panPos, paCol)
 		if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
 			StzRaise("Incorrect param type! panPos must be a list of numbers.")
@@ -13460,20 +16871,49 @@ func _NormalizeColLookupKey(pVal)
 			This.ReplaceColAt(_anPosU_[i], paCol)
 		next
 
+		# Puts the same list of cells in each of the columns at the given positions, in place.
+		#
+		#   panPos     the positions of the columns to change
+		#   paCol      the new cells put in every listed column
+		#   returns    nothing; the table changes
+		#   see        ReplaceNthCol
 		#< @FunctionAlternativeForms
-
 		def ReplaceColsAtPositions(panPos, paCol)
 			This.ReplaceColsAt(panPos, paCol)
 
+		# Puts the same list of cells in each of the columns at the given positions, in place.
+		#
+		#   panPos     the positions of the columns to change
+		#   paCol      the new cells put in every listed column
+		#   returns    nothing; the table changes
+		#   see        ReplaceNthCol
 		def ReplacesNthCols(panPos, paCol)
 			This.ReplaceColsAt(panPos, paCol)
 
+		# Puts the same list of cells in each of the columns at the given positions, in place.
+		#
+		#   panPos     the positions of the columns to change
+		#   paCol      the new cells put in every listed column
+		#   returns    nothing; the table changes
+		#   see        ReplaceNthCol
 		def ReplaceColumnsAt(panPos, paCol)
 			This.ReplaceColsAt(panPos, paCol)
 
+		# Puts the same list of cells in each of the columns at the given positions, in place.
+		#
+		#   panPos     the positions of the columns to change
+		#   paCol      the new cells put in every listed column
+		#   returns    nothing; the table changes
+		#   see        ReplaceNthCol
 		def ReplaceColumnsAtPositions(panPos, paCol)
 			This.ReplaceColsAt(panPos, paCol)
 
+		# Puts the same list of cells in each of the columns at the given positions, in place.
+		#
+		#   panPos     the positions of the columns to change
+		#   paCol      the new cells put in every listed column
+		#   returns    nothing; the table changes
+		#   see        ReplaceNthCol
 		def ReplacesNthColumns(panPos, paCol)
 			This.ReplaceColsAt(panPos, paCol)
 
@@ -13518,6 +16958,11 @@ func _NormalizeColLookupKey(pVal)
 	 #  REPLACING THE GIVEN COLUMNS WITH A GIVEN NEW COLUMN (PROVIDED AS A LIST OF CELLS)  #
 	#-------------------------------------------------------------------------------------#
 
+	# Puts the same list of cells in each of the given columns, in place.
+	#
+	#   paNewCol   the new cells put in every listed column, or [ :With, cells ]
+	#   returns    nothing; the table changes
+	#   see        ReplaceColsAt
 	def ReplaceTheseCols(paCols, paNewCol)
 		if IsOneOfTheseNamedParamsList(paNewCol,[ :With, :By, :Using ])
 			paNewCol = paNewCol[2]
@@ -13526,6 +16971,11 @@ func _NormalizeColLookupKey(pVal)
 		_anPos_ = This.ColsToColNumbers(paCols)
 		This.ReplaceColsAtPositions(_anPos_, paNewCol)
 
+		# Puts the same list of cells in each of the given columns, in place.
+		#
+		#   paNewCol   the new cells put in every listed column, or [ :With, cells ]
+		#   returns    nothing; the table changes
+		#   see        ReplaceColsAt
 		def ReplaceTheseColumns(paCols, paNewCol)
 			This.ReplaceTheseCols(paCols, paNewCol)
 
@@ -13549,18 +16999,39 @@ func _NormalizeColLookupKey(pVal)
 	 #  REPLACING A COLUMN BY AN OTHER PROVIDED AS A COLUMN NAME AND A LIST OF ROWS  #
 	#===============================================================================#
 
+	# Replaces the cells of a column, in place, but leaves its name unchanged today.
+	#
+	#   pcColName   the new column name, as text
+	#   paColData   the new cells of the column
+	#   returns     nothing; the table changes
+	#   warning     The new name is dropped because the renaming it relies on, ReplaceNthColName,
+	#               changes nothing; the new cells are applied
+	#   see         ReplaceNthColNamedAndData
 	def ReplaceColNameAndData(pCol, pcColName, paColData)
 		_nCol_ = This.ColToColNumber(pCol)
 		This.ReplaceNthColName(_nCol_, pcColName)
 		This.ReplaceNthCol(_nCol_, paColData)
 
+		# Replaces the cells of a column, in place, but leaves its name unchanged today.
+		#
+		#   pcColName   the new column name, as text
+		#   paColData   the new cells of the column
+		#   returns     nothing; the table changes
+		#   warning     The new name is dropped because the renaming it relies on,
+		#               ReplaceNthColName, changes nothing; the new cells are applied
+		#   see         ReplaceNthColNamedAndData
 		#< @FunctionAlternativeForm
-
 		def ReplaceColumnNamedAndData(pCol, pcColName, paColData)
 			This.ReplaceColNameAndData(pCol, pcColName, paColData)
 
+	# Gives the nth column a new name and new cells, in place.
+	#
+	#   _n_         the position, or how many, as a number
+	#   pcColName   the new column name, as text, or [ :With, name ]
+	#   paColData   the new cells of the column
+	#   returns     nothing; the table changes
+	#   see         ReplaceNthCol
 		#>
-
 	def ReplaceNthColNamedAndData(_n_, pcColName, paColData)
 		if CheckingParams()
 			if NOT isNumber(_n_)
@@ -13597,14 +17068,34 @@ func _NormalizeColLookupKey(pVal)
 		This.UpdateWith(_aContent_)
 
 
+		# Gives the nth column a new name and new cells, in place.
+		#
+		#   _n_         the position, or how many, as a number
+		#   pcColName   the new column name, as text, or [ :With, name ]
+		#   paColData   the new cells of the column
+		#   returns     nothing; the table changes
+		#   see         ReplaceNthCol
 		#< @FunctionAlternativeForms
-
 		def ReplaceNthColumnNamedAndData(_n_, pcColName, paColData)
 			This.ReplaceNthColNamedAndData(_n_, pcColName, paColData)
 
+		# Gives the nth column a new name and new cells, in place.
+		#
+		#   _n_         the position, or how many, as a number
+		#   pcColName   the new column name, as text, or [ :With, name ]
+		#   paColData   the new cells of the column
+		#   returns     nothing; the table changes
+		#   see         ReplaceNthCol
 		def ReplaceColNNamedAndData(_n_, pcColName, paColData)
 			This.ReplaceNthColNamedAndData(_n_, pcColName, paColData)
 
+		# Gives the nth column a new name and new cells, in place.
+		#
+		#   _n_         the position, or how many, as a number
+		#   pcColName   the new column name, as text, or [ :With, name ]
+		#   paColData   the new cells of the column
+		#   returns     nothing; the table changes
+		#   see         ReplaceNthCol
 		def ReplaceColumnNNamedAndData(_n_, pcColName, paColData)
 			This.ReplaceNthColNamedAndData(_n_, pcColName, paColData)
 
@@ -13649,6 +17140,11 @@ func _NormalizeColLookupKey(pVal)
 	 #  REPLACING ALL THE CELLS OF A COLUMN BY THE SAME PROVIDED VALUE  #
 	#==================================================================#
 
+	# Sets every cell of one column to the same value, in place.
+	#
+	#   pCell      the value put in every cell, or [ :With, value ]
+	#   returns    nothing; the table changes
+	#   see        ReplaceCellsInRow, ReplaceCol
 	def ReplaceCellsInCol(pCol, pCell)
 		if CheckingParams()
 			if isList(pCell) and Q(pCell).IsWithOrByOrUsingNamedParam()
@@ -13667,14 +17163,25 @@ func _NormalizeColLookupKey(pVal)
 		This.UpdateWith(_aContent_)
 
 
+		# Sets every cell of one column to the same value, in place.
+		#
+		#   pCell      the value put in every cell, or [ :With, value ]
+		#   returns    nothing; the table changes
+		#   see        ReplaceCellsInRow, ReplaceCol
 		def ReplaceCellsInColumn(pCol, pCell)
 			This.ReplaceCellsInCol(pCol, pCell)
 
 	  #------------------------------------------------------------------------------------------------#
 	 #  REPLACING ALL THE COLUMNS IN THE TABLE WITH A GIVEN NEW COLUMN (PROVIDED AS A LIST OF CELLS)  #
 	#------------------------------------------------------------------------------------------------#
+	# Puts the same list of cells in every column, in place.
+	#
+	#   paNewCol   the new cells put in every column, or [ :With, cells ]
+	#   returns    nothing; the table changes
+	#   warning    Every column becomes a copy of the list, so the data is lost; a list of [ name,
+	#              cells ] pairs is put in each cell as it stands
+	#   see        ReplaceTheseCols
 	#TODO // check for performance
-
 	def ReplaceAllCols(paNewCol)
 		if CheckingParams()
 
@@ -13694,14 +17201,34 @@ func _NormalizeColLookupKey(pVal)
 			This.ReplaceCol(i, paNewCol)
 		next
 
+		# Puts the same list of cells in every column, in place.
+		#
+		#   paNewCol   the new cells put in every column, or [ :With, cells ]
+		#   returns    nothing; the table changes
+		#   warning    Every column becomes a copy of the list, so the data is lost; a list of [
+		#              name, cells ] pairs is put in each cell as it stands
+		#   see        ReplaceTheseCols
 		#< @FunctionAlternativeForms
-
 		def ReplaceAllColumns(paNewCol)
 			This.ReplaceAllCols(paNewCol)
 
+		# Puts the same list of cells in every column, in place.
+		#
+		#   paNewCols   the new cells put in every column, or [ :With, cells ]
+		#   returns     nothing; the table changes
+		#   warning     Every column becomes a copy of the list, so the data is lost; a list of [
+		#               name, cells ] pairs is put in each cell as it stands
+		#   see         ReplaceTheseCols
 		def ReplaceCols(paNewCols)
 			This.ReplaceAllCols(paNewCols)
 
+		# Puts the same list of cells in every column, in place.
+		#
+		#   paNewCol   the new cells put in every column, or [ :With, cells ]
+		#   returns    nothing; the table changes
+		#   warning    Every column becomes a copy of the list, so the data is lost; a list of [
+		#              name, cells ] pairs is put in each cell as it stands
+		#   see        ReplaceTheseCols
 		def ReplaceColumns(paNewCol)
 			This.ReplaceAllCols(paNewCol)
 
@@ -13748,11 +17275,23 @@ func _NormalizeColLookupKey(pVal)
 	 #  REPLACING ALL THE COLUMNS IN THE TABLE WITH THE GIVEN COLUMNS (PROVIDED AS LISTS OF CELLS)  #
 	#----------------------------------------------------------------------------------------------#
 
+	# Raises error today instead of replacing several columns by several new column lists.
+	#
+	#   paNewCols   the new cell lists, one per column
+	#   returns     nothing; it raises
+	#   warning     Always raises Unsupported feature in this release!
+	#   see         ReplaceTheseCols
 	def ReplaceAllColsByMany(paCols, paNewCols)
 		/* ... */
 
 		StzRaise("Unsupported feature in this release!")
 
+		# Raises error today instead of replacing several columns by several new column lists.
+		#
+		#   paNewCols   the new cell lists, one per column
+		#   returns     nothing; it raises
+		#   warning     Always raises Unsupported feature in this release!
+		#   see         ReplaceTheseCols
 		def ReplaceAllColumsByMany(paCols, paNewCols)
 			This.ReplaceAllColsByMany(paCols, paNewCols)
 
@@ -13763,6 +17302,12 @@ func _NormalizeColLookupKey(pVal)
 	 #  REPLACING THE GIVEN COLUMNS WITH THE GIVEN COLUMNS (PROVIDED AS LISTS OF CELLS)  #
 	#-----------------------------------------------------------------------------------#
 
+	# Raises error today instead of replacing several columns by several new column lists.
+	#
+	#   paNewCols   the new cell lists, one per column
+	#   returns     nothing; it raises
+	#   warning     Always raises Unsupported feature in this release!
+	#   see         ReplaceTheseCols
 	def ReplaceTheseColsByMany(paCols, paNewCols)
 		if IsOneOfTheseNamedParamsList(paNewCols,[ :With, :By, :Using ])
 			paNewCols = paNewCols[2]
@@ -13772,14 +17317,31 @@ func _NormalizeColLookupKey(pVal)
 
 		StzRaise("Unsupported feature in this release!")
 
+		# Raises error today instead of replacing several columns by several new column lists.
+		#
+		#   paNewCols   the new cell lists, one per column
+		#   returns     nothing; it raises
+		#   warning     Always raises Unsupported feature in this release!
+		#   see         ReplaceTheseCols
 		#< @FunctionAlternativeForms
-
 		def ReplaceTheseColumnsByMany(paCols, paNewCols)
 			This.ReplaceTheseColsByMany(paCols, paNewCols)
 
+		# Raises error today instead of replacing several columns by several new column lists.
+		#
+		#   paNewCols   the new cell lists, one per column
+		#   returns     nothing; it raises
+		#   warning     Always raises Unsupported feature in this release!
+		#   see         ReplaceTheseCols
 		def ReplaceColsByMany(paCols, paNewCols)
 			This.ReplaceTheseColsByMany(paCols, paNewCols)
 
+		# Raises error today instead of replacing several columns by several new column lists.
+		#
+		#   paNewCols   the new cell lists, one per column
+		#   returns     nothing; it raises
+		#   warning     Always raises Unsupported feature in this release!
+		#   see         ReplaceTheseCols
 		def ReplaceColumnsByMany(paCols, paNewCols)
 			This.ReplaceTheseColsByMany(paCols, paNewCols)
 
@@ -13792,6 +17354,12 @@ func _NormalizeColLookupKey(pVal)
 	 #  REPLACING THE CELLS OF THE GIVEN ROW BY THE PRIVIDED CELL VALUE  #
 	#===================================================================#
 
+	# Sets every cell of one row to the same value, in place.
+	#
+	#   pnRow      the row position, 1 for the first
+	#   pCell      the value put in every cell of the row
+	#   returns    nothing; the table changes
+	#   see        ReplaceCellsInCol, ReplaceRow
 	def ReplaceCellsInRow(pnRow, pCell)
 		_aNewRow_ = []
 		_nLen_ = This.NumberOfCols()
@@ -13806,15 +17374,47 @@ func _NormalizeColLookupKey(pVal)
 	 #  REPLACING A ROW (DEFINED BY ITS NUMBER) BY AN OTHER ONE (PROVIDED AS A LIST OF CELLS)  #
 	#-----------------------------------------------------------------------------------------#
 
+		# Puts the given cells in the nth row, one per column, in place.
+		#
+		#   pnRow      the row position, 1 for the first
+		#   paNewRow   the new cells of the row, one per column
+		#   returns    nothing; the table changes
+		#   warning    A list shorter than the number of columns raises R2, and a row past the last
+		#              one raises R2
+		#   see        ReplaceRow
 		def ReplaceNthRow(pnRow, paNewRow)
 			This.ReplaceRow(pnRow, paNewRow)
 
+		# Puts the given cells in the nth row, one per column, in place.
+		#
+		#   pnRow      the row position, 1 for the first
+		#   paNewRow   the new cells of the row, one per column
+		#   returns    nothing; the table changes
+		#   warning    A list shorter than the number of columns raises R2, and a row past the last
+		#              one raises R2
+		#   see        ReplaceRow
 		def ReplaceRowN(pnRow, paNewRow)
 			This.ReplaceRow(pnRow, paNewRow)
 
+		# Puts the given cells in the nth row, one per column, in place.
+		#
+		#   pnRow      the row position, 1 for the first
+		#   paNewRow   the new cells of the row, one per column
+		#   returns    nothing; the table changes
+		#   warning    A list shorter than the number of columns raises R2, and a row past the last
+		#              one raises R2
+		#   see        ReplaceRow
 		def ReplaceRowAt(pnRow, paNewRow)
 			This.ReplaceRow(pnRow, paNewRow)
 
+		# Puts the given cells in the nth row, one per column, in place.
+		#
+		#   pnRow      the row position, 1 for the first
+		#   paNewRow   the new cells of the row, one per column
+		#   returns    nothing; the table changes
+		#   warning    A list shorter than the number of columns raises R2, and a row past the last
+		#              one raises R2
+		#   see        ReplaceRow
 		def ReplaceRowAtPosition(pnRow, paNewRow)
 			This.ReplaceRow(pnRow, paNewRow)
 
@@ -13866,6 +17466,12 @@ func _NormalizeColLookupKey(pVal)
 	 #  REPLACING ALL ROWS IN THE TABLE BY A GIVEN ROW (PROVIDED AS A LIST OF CELLS)  #
 	#--------------------------------------------------------------------------------#
 
+	# Makes every row a copy of the given cells, in place.
+	#
+	#   paNewRow   the cells every row receives, one per column, or [ :With, cells ]
+	#   returns    nothing; the table changes
+	#   warning    The data of all rows is lost
+	#   see        ReplaceTheseRows
 	def ReplaceAllRows(paNewRow)
 		if CheckingParams()
 			if isList(paNewRow) and
@@ -13890,14 +17496,31 @@ func _NormalizeColLookupKey(pVal)
 
 		This.UpdateWith(_aContent_)
 
+		# Makes every row a copy of the given cells, in place.
+		#
+		#   paNewRow   the cells every row receives, one per column, or [ :With, cells ]
+		#   returns    nothing; the table changes
+		#   warning    The data of all rows is lost
+		#   see        ReplaceTheseRows
 		#< @FunctionAlternativeForms
-
 		def ReplaceRows(paNewRow)
 			This.ReplaceAllRows(paNewRow)
 
+		# Makes every row a copy of the given cells, in place.
+		#
+		#   paNewRow   the cells every row receives, one per column, or [ :With, cells ]
+		#   returns    nothing; the table changes
+		#   warning    The data of all rows is lost
+		#   see        ReplaceTheseRows
 		def ReplaceRowsWith(paNewRow)
 			This.ReplaceAllRows(paNewRow)
 
+		# Makes every row a copy of the given cells, in place.
+		#
+		#   paNewRow   the cells every row receives, one per column, or [ :With, cells ]
+		#   returns    nothing; the table changes
+		#   warning    The data of all rows is lost
+		#   see        ReplaceTheseRows
 		def ReplaceRowsBy(paNewRow)
 			This.ReplaceAllRows(paNewRow)
 
@@ -13931,6 +17554,12 @@ func _NormalizeColLookupKey(pVal)
 	 #  REPLACING ROWS AT GIVEN POSITIONS BY A GIVEN ROW (PROVIDED AS A LIST OF CELLS)  #
 	#----------------------------------------------------------------------------------#
 
+	# Puts the same cells in each of the rows at the given positions, in place.
+	#
+	#   panPos     the positions of the rows to change
+	#   paRow      the cells every listed row receives, one per column
+	#   returns    nothing; the table changes
+	#   see        ReplaceNthRow
 	def ReplaceRowsAt(panPos, paRow)
 		if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
 			StzRaise("Incorrect param type! panPos must be a list of numbers.")
@@ -13943,20 +17572,49 @@ func _NormalizeColLookupKey(pVal)
 			This.ReplaceRowAt(_anPosU_[i], paRow)
 		next
 
+		# Puts the same cells in each of the rows at the given positions, in place.
+		#
+		#   panPos     the positions of the rows to change
+		#   paRow      the cells every listed row receives, one per column
+		#   returns    nothing; the table changes
+		#   see        ReplaceNthRow
 		#< @FunctionAlternativeForms
-
 		def ReplaceRowsAtPositions(panPos, paRow)
 			This.ReplaceRowsAt(panPos, paRow)
 
+		# Puts the same cells in each of the rows at the given positions, in place.
+		#
+		#   panPos     the positions of the rows to change
+		#   paRow      the cells every listed row receives, one per column
+		#   returns    nothing; the table changes
+		#   see        ReplaceNthRow
 		def ReplacesNthRows(panPos, paRow)
 			This.ReplaceRowsAt(panPos, paRow)
 
+		# Puts the same cells in each of the rows at the given positions, in place.
+		#
+		#   panPos     the positions of the rows to change
+		#   paRow      the cells every listed row receives, one per column
+		#   returns    nothing; the table changes
+		#   see        ReplaceNthRow
 		def ReplaceRowumnsAt(panPos, paRow)
 			This.ReplaceRowsAt(panPos, paRow)
 
+		# Puts the same cells in each of the rows at the given positions, in place.
+		#
+		#   panPos     the positions of the rows to change
+		#   paRow      the cells every listed row receives, one per column
+		#   returns    nothing; the table changes
+		#   see        ReplaceNthRow
 		def ReplaceRowumnsAtPositions(panPos, paRow)
 			This.ReplaceRowsAt(panPos, paRow)
 
+		# Puts the same cells in each of the rows at the given positions, in place.
+		#
+		#   panPos     the positions of the rows to change
+		#   paRow      the cells every listed row receives, one per column
+		#   returns    nothing; the table changes
+		#   see        ReplaceNthRow
 		def ReplacesNthRowumns(panPos, paRow)
 			This.ReplaceRowsAt(panPos, paRow)
 
@@ -14001,6 +17659,12 @@ func _NormalizeColLookupKey(pVal)
 	 #  REPLACING THE GIVEN ROWS WITH A GIVEN NEW ROW (PROVIDED AS A LIST OF CELLS)  #
 	#-------------------------------------------------------------------------------#
 
+	# Puts the same cells in each of the given rows, in place.
+	#
+	#   panRowsNumbers   the positions of the rows to change
+	#   paNewRow         the cells every listed row receives, one per column, or [ :With, cells ]
+	#   returns          nothing; the table changes
+	#   see              ReplaceRowsAt
 	def ReplaceTheseRows(panRowsNumbers, paNewRow)
 		if IsOneOfTheseNamedParamsList(paNewRow,[ :With, :By, :Using ])
 			paNewRow = paNewRow[2]
@@ -14008,6 +17672,13 @@ func _NormalizeColLookupKey(pVal)
 
 		This.ReplaceRowsAtPositions(panRowsNumbers, paNewRow)
 
+		# Puts the same cells in each of the given rows, in place.
+		#
+		#   panRowsNumbers   the positions of the rows to change
+		#   paNewRow         the cells every listed row receives, one per column, or [ :With, cells
+		#                    ]
+		#   returns          nothing; the table changes
+		#   see              ReplaceRowsAt
 		def ReplaceTheseRowumns(panRowsNumbers, paNewRow)
 			This.ReplaceTheseRows(panRowsNumbers, paNewRow)
 
@@ -14029,6 +17700,14 @@ func _NormalizeColLookupKey(pVal)
 	 #  REPLACING THE CELLS IN THE GIVEN ROWS BY THE PTOVIDED VALUE  #
 	#===============================================================#
 
+	# Raises error R24 today instead of setting every cell of the given rows to one value.
+	#
+	#   paRows     the positions of the rows to change
+	#   pCell      the value put in every cell
+	#   returns    nothing; it raises
+	#   warning    Raises R24 (uninitialized variable panewrows) because the body checks a name that
+	#              is not its parameter
+	#   see        ReplaceCellsInRow
 	def ReplaceCellsInTheseRows(paRows, pCell)
 		if IsOneOfTheseNamedParamsList(paNewrows,[ :With, :By, :Using ])
 			paNewrows = paNewrows[2]
@@ -14038,9 +17717,23 @@ func _NormalizeColLookupKey(pVal)
 		This.ReplaceCells(_aCells_, pCell)
 
 
+		# Puts the same cells in each of the given rows, in place; the second argument must be a list of cells, not one value.
+		#
+		#   paRows     the positions of the rows to change
+		#   pCell      the cells every listed row receives, one per column
+		#   returns    nothing; the table changes
+		#   warning    Despite the name pCell, a single value raises R5; only a list of cells works
+		#   see        ReplaceTheseRows
 		def ReplaceTheseRowsWith(paRows, pCell)
 			This.ReplaceTheseRows(paRows, pCell)
 
+		# Puts the same cells in each of the given rows, in place; the second argument must be a list of cells, not one value.
+		#
+		#   paRows     the positions of the rows to change
+		#   pCell      the cells every listed row receives, one per column
+		#   returns    nothing; the table changes
+		#   warning    Despite the name pCell, a single value raises R5; only a list of cells works
+		#   see        ReplaceTheseRows
 		def ReplaceTheseRowsBy(paRows, pCell)
 			This.ReplaceTheseRows(paRows, pCell)
 
@@ -14075,32 +17768,76 @@ func _NormalizeColLookupKey(pVal)
 		def ReplaceEveryOccurrenceCS(pCellValue, pNewCellValue, pCaseSensitive)
 			This.ReplaceCellCS(pCellValue, pNewCellValue, pCaseSensitive)
 
+	# Replaces every cell equal to a value by another value, in place, case-sensitively.
+	#
+	#   pNewCellValue   the value that takes the place
+	#   returns         nothing; the table changes
+	#   warning         Raises an error for a number as the value to find, because FindCell does
+	#   see             ReplaceCell, FindCell
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def ReplaceAll(pCellValue, pNewCellValue)
 		This.ReplaceAllCS(pCellValue, pNewCellValue, 1)
 
+		# Raises error R19 today instead of replacing every cell equal to a value by another value.
+		#
+		#   pNewCellValue   the value that takes the place
+		#   returns         nothing; it raises
+		#   warning         Raises R19 because it forwards to ReplaceCell with two arguments where
+		#                   ReplaceCell needs a column, a row and a value; ReplaceAll works
+		#   see             ReplaceAll
 		#< @FunctionAlternatives
-
 		def ReplaceAllOccurrencesOfCell(pCellValue, pNewCellValue)
 			This.ReplaceCell(pCellValue, pNewCellValue)
 
+		# Raises error R19 today instead of replacing every cell equal to a value by another value.
+		#
+		#   pNewCellValue   the value that takes the place
+		#   returns         nothing; it raises
+		#   warning         Raises R19 because it forwards to ReplaceCell with two arguments where
+		#                   ReplaceCell needs a column, a row and a value; ReplaceAll works
+		#   see             ReplaceAll
 		def ReplaceEachOccurrenceOfCell(pCellValue, pNewCellValue)
 			This.ReplaceCell(pCellValue, pNewCellValue)
 
+		# Raises error R19 today instead of replacing every cell equal to a value by another value.
+		#
+		#   pNewCellValue   the value that takes the place
+		#   returns         nothing; it raises
+		#   warning         Raises R19 because it forwards to ReplaceCell with two arguments where
+		#                   ReplaceCell needs a column, a row and a value; ReplaceAll works
+		#   see             ReplaceAll
 		def ReplaceEveryOccurrenceOfCell(pCellValue, pNewCellValue)
 			This.ReplaceCell(pCellValue, pNewCellValue)
 
-		#--
-
+		# Raises error R19 today instead of replacing every cell equal to a value by another value.
+		#
+		#   pNewCellValue   the value that takes the place
+		#   returns         nothing; it raises
+		#   warning         Raises R19 because it forwards to ReplaceCell with two arguments where
+		#                   ReplaceCell needs a column, a row and a value; ReplaceAll works
+		#   see             ReplaceAll
+		#@ aka  --
 		def ReplaceAllOccurrences(pCellValue, pNewCellValue)
 			This.ReplaceCell(pCellValue, pNewCellValue)
 
+		# Raises error R19 today instead of replacing every cell equal to a value by another value.
+		#
+		#   pNewCellValue   the value that takes the place
+		#   returns         nothing; it raises
+		#   warning         Raises R19 because it forwards to ReplaceCell with two arguments where
+		#                   ReplaceCell needs a column, a row and a value; ReplaceAll works
+		#   see             ReplaceAll
 		def ReplaceEachOccurrence(pCellValue, pNewCellValue)
 			This.ReplaceCell(pCellValue, pNewCellValue)
 
+		# Raises error R19 today instead of replacing every cell equal to a value by another value.
+		#
+		#   pNewCellValue   the value that takes the place
+		#   returns         nothing; it raises
+		#   warning         Raises R19 because it forwards to ReplaceCell with two arguments where
+		#                   ReplaceCell needs a column, a row and a value; ReplaceAll works
+		#   see             ReplaceAll
 		def ReplaceEveryOccurrence(pCellValue, pNewCellValue)
 			This.ReplaceCell(pCellValue, pNewCellValue)
 
@@ -14114,8 +17851,15 @@ func _NormalizeColLookupKey(pVal)
 		_aCellPos_ = This.FindNthCS(_n_, pValue, pCaseSensitive)
 		This.ReplaceCell(_aCellPos_, pNewCellValue)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Raises error R19 today instead of replacing the nth, first or last cell equal to a value.
+	#
+	#   _n_             the position, or how many, as a number
+	#   pNewCellValue   the value that takes the place
+	#   returns         nothing; it raises
+	#   warning         Raises R19 because the CS form calls ReplaceCell with a position pair where
+	#                   ReplaceCell needs a column, a row and a value
+	#   see             ReplaceAll
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def ReplaceNth(_n_, pValue, pNewCellValue)
 		This.ReplaceNthCS(_n_, pValue, pNewCellValue, 1)
 
@@ -14126,8 +17870,14 @@ func _NormalizeColLookupKey(pVal)
 	def ReplaceFirstCS(pValue, pNewCellValue, pCaseSensitive)
 		This.ReplaceNthCS(1, pValue, pNewCellValue, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Raises error R19 today instead of replacing the nth, first or last cell equal to a value.
+	#
+	#   pNewCellValue   the value that takes the place
+	#   returns         nothing; it raises
+	#   warning         Raises R19 because the CS form calls ReplaceCell with a position pair where
+	#                   ReplaceCell needs a column, a row and a value
+	#   see             ReplaceAll
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def ReplaceFirst(pValue, pNewCellValue)
 		This.ReplaceFirstCS(pValue, pNewCellValue, 1)
 
@@ -14138,8 +17888,14 @@ func _NormalizeColLookupKey(pVal)
 	def ReplaceLastCS(pValue, pNewCellValue, pCaseSensitive)
 		This.ReplaceNthCS(:Last, pValue, pNewCellValue, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Raises error R19 today instead of replacing the nth, first or last cell equal to a value.
+	#
+	#   pNewCellValue   the value that takes the place
+	#   returns         nothing; it raises
+	#   warning         Raises R19 because the CS form calls ReplaceCell with a position pair where
+	#                   ReplaceCell needs a column, a row and a value
+	#   see             ReplaceAll
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def ReplaceLast(pValue, pNewCellValue)
 		This.ReplaceLastCS(pValue, pNewCellValue, 1)
 
@@ -14151,6 +17907,15 @@ func _NormalizeColLookupKey(pVal)
 		/* ... */
 		stzraise("Function not yet implemented!")
 
+	# Raises error today instead of replacing a text found inside cells.
+	#
+	#   pnCol          the column position
+	#   pnRow          the row position, 1 for the first
+	#   pSubValue      the text to replace
+	#   pNewSubValue   the text that takes the place
+	#   returns        nothing; it raises
+	#   warning        Always raises Function not yet implemented!
+	#   see            ReplaceAll
 	def ReplaceInCell(pnCol, pnRow, pSubValue, pNewSubValue)
 		This.ReplaceInCellCS(pnCol, pnRow, pSubValue, pNewSubValue, 1)
 
@@ -14160,6 +17925,14 @@ func _NormalizeColLookupKey(pVal)
 		/* ... */
 		stzraise("Function not yet implemented!")
 
+	# Raises error today instead of replacing a text found inside cells.
+	#
+	#   paCellsPos     the cell positions, each as [ column, row ]
+	#   pSubValue      the text to replace
+	#   pNewSubValue   the text that takes the place
+	#   returns        nothing; it raises
+	#   warning        Always raises Function not yet implemented!
+	#   see            ReplaceAll
 	def ReplaceInCells(paCellsPos, pSubValue, pNewSubValue)
 		This.ReplaceInCellsCS(paCellsPos, pSubValue, pNewSubValue, 1)
 
@@ -14169,6 +17942,14 @@ func _NormalizeColLookupKey(pVal)
 		/* ... */
 		stzraise("Function not yet implemented!")
 
+	# Raises error today instead of replacing a text found inside cells.
+	#
+	#   paCellsPos     the cell positions, each as [ column, row ]
+	#   pSubValues     the texts to replace
+	#   pNewSubValue   the text that takes the place
+	#   returns        nothing; it raises
+	#   warning        Always raises Function not yet implemented!
+	#   see            ReplaceAll
 	def ReplaceInCellsByMany(paCellsPos, pSubValues, pNewSubValue)
 		This.ReplaceInCellsByManyCS(paCellsPos, pSubValues, pNewSubValue, 1)
 
@@ -14180,6 +17961,15 @@ func _NormalizeColLookupKey(pVal)
 		/* ... */
 		stzraise("Function not yet implemented!")
 
+	# Raises error today instead of replacing a text found inside cells.
+	#
+	#   paCellPos1     the first corner, as [ column, row ]
+	#   paCellPos2     the opposite corner, as [ column, row ]
+	#   pSubValue      the text to replace
+	#   pNewSubValue   the text that takes the place
+	#   returns        nothing; it raises
+	#   warning        Always raises Function not yet implemented!
+	#   see            ReplaceAll
 	def ReplaceInSection(paCellPos1, paCellPos2,  pSubValue, pNewSubValue)
 		This.ReplaceInSectionCS(paCellPos1, paCellPos2,  pSubValue, pNewSubValue, 1)
 
@@ -14189,13 +17979,27 @@ func _NormalizeColLookupKey(pVal)
 		/* ... */
 		stzraise("Function not yet implemented!")
 
+	# Raises error R24 today instead of replacing several texts found inside a section.
+	#
+	#   paCellPos1     the first corner, as [ column, row ]
+	#   paCellPos2     the opposite corner, as [ column, row ]
+	#   pSubValues     the texts to replace
+	#   pNewSubValue   the text that takes the place
+	#   returns        nothing; it raises
+	#   warning        Raises R24 (uninitialized variable casesensitive) because the body passes a
+	#                  flag it does not have
+	#   see            ReplaceInSection
 	def ReplaceInSectionByMany(paCellPos1, paCellPos2,  pSubValues, pNewSubValue)
 		This.ReplaceInSectionByManyCS(paCellPos1, paCellPos2,  pSubValues, pNewSubValue, ;CaseSensitive = 1)
 
-	# Add ReplaceInSectionByManyXT() : if all replaced restart at the 1st one
-
-	#--
-
+	# Raises error today instead of replacing a text found inside cells.
+	#
+	#   aSections   the sections to work on
+	#   pSubValue   the text to replace
+	#   returns     nothing; it raises
+	#   warning     Always raises Function not yet implemented!
+	#   see         ReplaceAll
+	#@ aka  Add ReplaceInSectionByManyXT() : if all replaced restart at the 1st one
 	def ReplaceInSectionsCS(aSections, pSubValue, pCaseSensitive)
 		/* ... */
 		stzraise("Function not yet implemented!")
@@ -14203,8 +18007,14 @@ func _NormalizeColLookupKey(pVal)
 	ReplaceInSections(aSections, pSubValue)
 		This.ReplaceInSectionsCS(aSections, pSubValue, 1)
 
-	#--
-
+	# Raises error today instead of replacing a text found inside cells.
+	#
+	#   aSections     the sections to work on
+	#   paSubValues   the texts to replace
+	#   returns       nothing; it raises
+	#   warning       Always raises Function not yet implemented!
+	#   see           ReplaceAll
+	#@ aka  --
 	def ReplaceInSectionsByManyCS(aSections, paSubValues, pCaseSensitive)
 		/* ... */
 		stzraise("Function not yet implemented!")
@@ -14212,11 +18022,20 @@ func _NormalizeColLookupKey(pVal)
 	ReplaceInSectionsByMany(aSections, paSubValues)
 		This.ReplaceInSectionsByManyCS(aSections, paSubValues, 1)
 
-	#-- Add ReplaceInSectionsByManyXT() : if all replaced restrat at 1st one
-
+		# Crashes the Ring process today instead of returning a filled copy of the table.
+		#
+		#   returns    nothing; the process stops
+		#   warning    Copy().FillQ(...) stops the whole Ring process without an error message in
+		#              the check run; Filled works
+		#   see        Filled
+		#@ aka  -- Add ReplaceInSectionsByManyXT() : if all replaced restrat at 1st one
 		def FillCQ(pValue) #TODO // Add this to all functions
 			return This.Copy().FillQ(pValue)
 
+	# Returns the table content with every cell set to one value; the table itself is unchanged.
+	#
+	#   returns    a list of [ name, cells ] pairs
+	#   see        Fill
 	def Filled(pValue)
 		_aResult_ = This.Copy().FillQ(pValue).Content()
 		return _aResult_
@@ -14225,9 +18044,19 @@ func _NormalizeColLookupKey(pVal)
 	 #  MISC. : SOME USEFUL UTILITIES  #
 	#=================================#
 
+	# Returns the table content as a stzHashList of column name and cells.
+	#
+	#   returns    a stzHashList
+	#   see        Content
 	def ToStzHashList()
 		return new stzHashList( This.Table() )
 
+	# Returns the name of a column given by position or name; accepts [ :Col, x ] and similar named forms.
+	#
+	#   p          the column, by name or position
+	#   returns    the column name, as text
+	#   warning    Raises Column index out of range. for a position past the last column
+	#   see        ColToColNumber
 	def ColToColName(p)
 		if isList(p) and
 		   IsOneOfTheseNamedParamsList(p,[
@@ -14273,6 +18102,12 @@ func _NormalizeColLookupKey(pVal)
 		def ColumnAsName(p)
 			return This.ColToColName(p)
 
+	# Returns the names of the given columns, written as positions or as names.
+	#
+	#   returns    a list of column names
+	#   warning    Raises R14 when positions and names are mixed in one list, because
+	#              IsListOfNumbersAndStrings is defined nowhere
+	#   see        TheseColsToColNumbers
 	def TheseColsToColNames(paCols)
 		if NOT ( isList(paCols) and ( @IsListOfNumbers(paCols) or
 				@IsListOfStrings(paCols) or
@@ -14362,8 +18197,13 @@ func _NormalizeColLookupKey(pVal)
 		def ColumnAsNumber(p)
 			return This.ColToColNumber(p)
 
+	# Returns the positions of the given columns, written as positions or as names.
+	#
+	#   returns    a list of numbers
+	#   warning    Raises R14 when positions and names are mixed in one list, because
+	#              IsListOfNumbersAndStrings is defined nowhere
+	#   see        TheseColsToColNames
 		#>
-
 	def TheseColsToColNumbers(paCols)
 		if NOT ( isList(paCols) and ( @IsListOfNumbers(paCols) or
 				@IsListOfStrings(paCols) or
@@ -14427,8 +18267,14 @@ func _NormalizeColLookupKey(pVal)
 		def ColumnsToColumnsNumbers(paCols)
 			return This.TheseColsToColNumbers(paCols)
 
+	# Returns a row position as a number: a number passes through unchecked, :First gives 1 and :Last the last row.
+	#
+	#   pRow       the row position, :First or :Last
+	#   returns    a number
+	#   warning    A row given as its cells raises an error, so no row is ever looked up by its
+	#              content
+	#   see        Row
 		#>
-
 	def RowToRowNumber(pRow)
 		if isList(pRow) and IsOneOfTheseNamedParamsList(pRow,[ :Row, :Rows, :InRow, :InRows, :OfRow, :OfRows ])
 			pRow = pRow[2]
@@ -14454,6 +18300,13 @@ func _NormalizeColLookupKey(pVal)
 		def RowAsNumber(pRow)
 			return This.RowToRowNumber(pRow)
 
+	# Raises an error today instead of returning the positions of the given rows.
+	#
+	#   paRows     the rows to look up, each a list of cells
+	#   returns    nothing; it raises
+	#   warning    Raises Incorrect param type! pRow must be a number. because each row is handed to
+	#              RowToRowNumber, which refuses a list
+	#   see        FindRows
 	def TheseRowsToRowsNumbers(paRows)
 		if NOT ( isList(paRows) and @IsListOfLists(paRows) )
 			StzRaise("Incorrect param type! paRows must be a list of lists.")
@@ -14488,6 +18341,13 @@ func _NormalizeColLookupKey(pVal)
 	 #  USED BY SQL EXTERNAL CODE  #
 	#=============================#
 
+	# Returns the cell-reading code of a column in a formula, or the text itself when it names no column; a list raises today.
+	#
+	#   pacColNames   a column name as text, for a formula
+	#   returns       text
+	#   warning       A column name gives the code text ( This.Cell(n, j) ); a list raises R14
+	#                 because IsHasHListOrListOfStrings is defined nowhere
+	#   see           AddCalculatedCol
 	def @(pacColNames)
 		/*
 		@([
@@ -14544,6 +18404,15 @@ func _NormalizeColLookupKey(pVal)
 	 #  ADDING A CALCULATED COLUMN  #
 	#==============================#
 
+	# Inserts a column, in place, whose cells are the formula evaluated on each row; the column takes the given position.
+	#
+	#   _n_         the position the new column takes
+	#   pcColName   the name of the new column, as text
+	#   pcFormula   the formula, as text, where @(:COLNAME) stands for the cell of that column in
+	#               the row
+	#   returns     nothing; the table changes
+	#   warning     Raises an error when the name already exists or the formula is empty
+	#   see         AddCalculatedCol
 	def InsertCalculatedCol(_n_, pcColName, pcFormula)
 		if CheckingParams()
 			if NOT @BothAreStrings(pcColName, pcFormula)
@@ -14643,24 +18512,64 @@ func _NormalizeColLookupKey(pVal)
 		This.UpdateWith(_aContent_)
 		@anCalculatedCols + _n_
 
+		# Inserts a column, in place, whose cells are the formula evaluated on each row; the column takes the given position.
+		#
+		#   _n_         the position the new column takes
+		#   pcColName   the name of the new column, as text
+		#   pcFormula   the formula, as text, where @(:COLNAME) stands for the cell of that column
+		#               in the row
+		#   returns     nothing; the table changes
+		#   warning     Raises an error when the name already exists or the formula is empty
+		#   see         AddCalculatedCol
 		#< @FunctionAlternativeForms
-
 		def InsertCalculatedColAt(_n_, pcColName, pcFormula)
 			This.InsertCalculatedCol(_n_, pcColName, pcFormula)
 
+		# Inserts a column, in place, whose cells are the formula evaluated on each row; the column takes the given position.
+		#
+		#   _n_         the position the new column takes
+		#   pcColName   the name of the new column, as text
+		#   pcFormula   the formula, as text, where @(:COLNAME) stands for the cell of that column
+		#               in the row
+		#   returns     nothing; the table changes
+		#   warning     Raises an error when the name already exists or the formula is empty
+		#   see         AddCalculatedCol
 		def InsertCalculatedColumn(_n_, pcColName, pcFormula)
 			This.InsertCalculatedCol(_n_, pcColName, pcFormula)
 
+		# Inserts a column, in place, whose cells are the formula evaluated on each row; the column takes the given position.
+		#
+		#   _n_         the position the new column takes
+		#   pcColName   the name of the new column, as text
+		#   pcFormula   the formula, as text, where @(:COLNAME) stands for the cell of that column
+		#               in the row
+		#   returns     nothing; the table changes
+		#   warning     Raises an error when the name already exists or the formula is empty
+		#   see         AddCalculatedCol
 		def InsertCalculatedColumnAt(_n_, pcColName, pcFormula)
 			This.InsertCalculatedCol(_n_, pcColName, pcFormula)
 
+	# Appends a column, in place, whose cells are the formula evaluated on each row.
+	#
+	#   pcColName   the name of the new column, as text
+	#   pcFormula   the formula, as text, where @(:COLNAME) stands for the cell of that column in
+	#               the row
+	#   returns     nothing; the table changes
+	#   warning     Raises an error when the name already exists or the formula is empty
+	#   see         InsertCalculatedCol
 		#>
-
 	def AddCalculatedCol(pcColName, pcFormula)
 		This.InsertCalculatedCol(This.NumberOfCols()+1, pcColName, pcFormula)
 
+		# Appends a column, in place, whose cells are the formula evaluated on each row.
+		#
+		#   pcColName   the name of the new column, as text
+		#   pcFormula   the formula, as text, where @(:COLNAME) stands for the cell of that column
+		#               in the row
+		#   returns     nothing; the table changes
+		#   warning     Raises an error when the name already exists or the formula is empty
+		#   see         InsertCalculatedCol
 		#< @FunctionAlternativeForm
-
 		def AddCalculatedColumn(pcColName, pcFormula)
 			This.AddCalculatedCol(pcColName, pcFormula)
 
@@ -14670,6 +18579,12 @@ func _NormalizeColLookupKey(pVal)
 	 #  GETTING THE POSITIONS OF CALCULATED COLUMNS  #
 	#-----------------------------------------------#
 
+	# Inserts a row, in place, whose cells are the formulas evaluated one per column; the row takes the given position.
+	#
+	#   _n_           the position the new row takes
+	#   pacFormulas   the formulas as text, one per column
+	#   returns       nothing; the table changes
+	#   see           AddCalculatedRow
 	def InsertCalculatedRow(_n_, pacFormulas)
 		if CheckingParams()
 			if NOT ( isList(pacFormulas) and @IsListOfStrings(pacFormulas) )
@@ -14719,6 +18634,11 @@ func _NormalizeColLookupKey(pVal)
 		This.InsertRow(_n_, _aRowData_)
 		@anCalculatedRows + _n_
 
+	# Appends a row, in place, whose cells are the formulas evaluated one per column.
+	#
+	#   pacFormulas   the formulas as text, one per column
+	#   returns       nothing; the table changes
+	#   see           InsertCalculatedRow
 	def AddCalculatedRow(pacFormulas)
 		This.InsertCalculatedRow( This.NumberOfRows() + 1, pacFormulas)
 
@@ -14726,6 +18646,14 @@ func _NormalizeColLookupKey(pVal)
 	 #  GETTING THE POSITIONS OF CALCULATED ROWS  #
 	#--------------------------------------------#
 
+	# Returns the result when it adds the cells of a block between two corners; 0 when a cell is not a number.
+	#
+	#   paCell1    the first corner of the block, as [ column, row ]
+	#   paCell2    the opposite corner of the block, as [ column, row ]
+	#   returns    a number
+	#   warning    Answers 0 for a block holding any text cell, and for plain column numbers instead
+	#              of [ column, row ] corners
+	#   see        SumCol
 	def SUM(paCell1, paCell2)
 		_aCells_ = This.CellsInSection(paCell1, paCell2)
 
@@ -14743,6 +18671,14 @@ func _NormalizeColLookupKey(pVal)
 
 		return _nResult_
 
+	# Returns the result when it multiplies the cells of a block between two corners; 0 when a cell is not a number.
+	#
+	#   paCell1    the first corner of the block, as [ column, row ]
+	#   paCell2    the opposite corner of the block, as [ column, row ]
+	#   returns    a number
+	#   warning    Answers 0 for a block holding any text cell, and for plain column numbers instead
+	#              of [ column, row ] corners
+	#   see        SumCol
 	def PRODUCT(paCell1, paCell2)
 		_aCells_ = This.CellsInSection(paCell1, paCell2)
 
@@ -14760,6 +18696,14 @@ func _NormalizeColLookupKey(pVal)
 
 		return _nResult_
 
+	# Returns the result when it averages the cells of a block between two corners; 0 when a cell is not a number.
+	#
+	#   paCell1    the first corner of the block, as [ column, row ]
+	#   paCell2    the opposite corner of the block, as [ column, row ]
+	#   returns    a number
+	#   warning    Answers 0 for a block holding any text cell, and for plain column numbers instead
+	#              of [ column, row ] corners
+	#   see        SumCol
 	def AVERAGE(paCell1, paCell2)
 		_aCells_ = This.CellsInSection(paCell1, paCell2)
 
@@ -14778,13 +18722,34 @@ func _NormalizeColLookupKey(pVal)
 		_nResult_ = _nSum_ / _nLen_
 		return _nResult_
 
+		# Returns the average of the cells of a block between two corners; 0 when a cell is not a number.
+		#
+		#   paCell1    the first corner of the block, as [ column, row ]
+		#   paCell2    the opposite corner of the block, as [ column, row ]
+		#   returns    a number
+		#   warning    Answers 0 for a block holding any text cell
+		#   see        AVERAGE
 		def MEAN(paCell1, paCell2)
 			return AVERAGE(paCell1, paCell2)
 
+	# Returns how many cells lie in a block between two corners.
+	#
+	#   paCell1    the first corner of the block, as [ column, row ]
+	#   paCell2    the opposite corner of the block, as [ column, row ]
+	#   returns    a number
+	#   see        SUM
 	def KOUNT(paCell1, paCell2)
 		_nResult_ = len( This.CellsInSection(paCell1, paCell2) )
 		return _nResult_
 
+	# Returns the result when it takes the largest of the cells of a block between two corners; 0 when a cell is not a number.
+	#
+	#   paCell1    the first corner of the block, as [ column, row ]
+	#   paCell2    the opposite corner of the block, as [ column, row ]
+	#   returns    a number
+	#   warning    Answers 0 for a block holding any text cell, and for plain column numbers instead
+	#              of [ column, row ] corners
+	#   see        SumCol
 	def MAX(paCell1, paCell2)
 		_aCells_ = This.CellsInSection(paCell1, paCell2)
 
@@ -14796,6 +18761,14 @@ func _NormalizeColLookupKey(pVal)
 
 		return _nResult_
 
+	# Returns the result when it takes the smallest of the cells of a block between two corners; 0 when a cell is not a number.
+	#
+	#   paCell1    the first corner of the block, as [ column, row ]
+	#   paCell2    the opposite corner of the block, as [ column, row ]
+	#   returns    a number
+	#   warning    Answers 0 for a block holding any text cell, and for plain column numbers instead
+	#              of [ column, row ] corners
+	#   see        SumCol
 	def MIN(paCell1, paCell2)
 		_aCells_ = This.CellsInSection(paCell1, paCell2)
 
@@ -14811,6 +18784,11 @@ func _NormalizeColLookupKey(pVal)
 	 #  ENGINE-BACKED COLUMN AGGREGATION (whole-column, fast)    #
 	#==========================================================#
 
+	# Returns the sum of the numeric cells of a column, computed by the engine.
+	#
+	#   returns    a number
+	#   warning    A column of text, even numeric text such as 001, sums to 0
+	#   see        AvgCol, SUM
 	def SumCol(pCol)
 		_nCol_ = This.ColToColNumber(pCol)
 		This._EnsureEngine()
@@ -14819,6 +18797,10 @@ func _NormalizeColLookupKey(pVal)
 		def SumColumn(pCol)
 			return This.SumCol(pCol)
 
+	# Returns the average of the cells of a column, computed by the engine.
+	#
+	#   returns    a number
+	#   see        SumCol, MedianCol
 	def AvgCol(pCol)
 		_nCol_ = This.ColToColNumber(pCol)
 		This._EnsureEngine()
@@ -14839,6 +18821,10 @@ func _NormalizeColLookupKey(pVal)
 		def MeanColumn(pCol)
 			return This.AvgCol(pCol)
 
+	# Returns the smallest cell of a column, computed by the engine.
+	#
+	#   returns    a number
+	#   see        MaxCol
 	def MinCol(pCol)
 		_nCol_ = This.ColToColNumber(pCol)
 		This._EnsureEngine()
@@ -14847,6 +18833,10 @@ func _NormalizeColLookupKey(pVal)
 		def MinColumn(pCol)
 			return This.MinCol(pCol)
 
+	# Returns the largest cell of a column, computed by the engine.
+	#
+	#   returns    a number
+	#   see        MinCol
 	def MaxCol(pCol)
 		_nCol_ = This.ColToColNumber(pCol)
 		This._EnsureEngine()
@@ -14855,6 +18845,10 @@ func _NormalizeColLookupKey(pVal)
 		def MaxColumn(pCol)
 			return This.MaxCol(pCol)
 
+	# Returns the product of the cells of a column, computed by the engine.
+	#
+	#   returns    a number
+	#   see        SumCol
 	def ProductCol(pCol)
 		_nCol_ = This.ColToColNumber(pCol)
 		This._EnsureEngine()
@@ -14863,6 +18857,10 @@ func _NormalizeColLookupKey(pVal)
 		def ProductColumn(pCol)
 			return This.ProductCol(pCol)
 
+	# Returns how many cells of a column are not empty.
+	#
+	#   returns    a number
+	#   see        NumberOfRows
 	def CountNonNullInCol(pCol)
 		_nCol_ = This.ColToColNumber(pCol)
 		This._EnsureEngine()
@@ -14916,8 +18914,12 @@ func _NormalizeColLookupKey(pVal)
 		ok
 		return _aD_
 
-	# A column counts as numeric when it has at least one value and every
-	# non-null value is a number (or a numeric string).
+	# TRUE if the column holds at least one value and every non-empty value is a number or numeric text.
+	#
+	#   returns    TRUE or FALSE
+	#   warning    Raises Column not found! for an unknown column
+	#   see        NumericColumnNames
+	#@ aka  A column counts as numeric when it has at least one value and every non-null value is a number (or a numeric string).
 	def IsNumericCol(pCol)
 		_aRaw_ = This.Col(pCol)
 		_nNum_ = 0
@@ -14937,18 +18939,30 @@ func _NormalizeColLookupKey(pVal)
 		def IsNumericColumn(pCol)
 			return This.IsNumericCol(pCol)
 
+	# Returns the median of the numeric cells of a column.
+	#
+	#   returns    a number
+	#   see        DescribeCol
 	def MedianCol(pCol)
 		return This._DescribeFlat(pCol)[3]
 
 		def MedianColumn(pCol)
 			return This.MedianCol(pCol)
 
+	# Returns the sample standard deviation of the numeric cells of a column.
+	#
+	#   returns    a number
+	#   see        VarianceCol, DescribeCol
 	def StdDevCol(pCol)
 		return This._DescribeFlat(pCol)[4]
 
 		def StdDevColumn(pCol)
 			return This.StdDevCol(pCol)
 
+	# Returns the variance of the numeric cells of a column, the square of its standard deviation.
+	#
+	#   returns    a number
+	#   see        StdDevCol
 	def VarianceCol(pCol)
 		_nS_ = This._DescribeFlat(pCol)[4]
 		return _nS_ * _nS_
@@ -14956,21 +18970,32 @@ func _NormalizeColLookupKey(pVal)
 		def VarianceColumn(pCol)
 			return This.VarianceCol(pCol)
 
+	# Returns the first quartile of the numeric cells of a column.
+	#
+	#   returns    a number
+	#   see        Q3Col, DescribeCol
 	def Q1Col(pCol)
 		return This._DescribeFlat(pCol)[7]
 
 		def Q1Column(pCol)
 			return This.Q1Col(pCol)
 
+	# Returns the third quartile of the numeric cells of a column.
+	#
+	#   returns    a number
+	#   see        Q1Col, DescribeCol
 	def Q3Col(pCol)
 		return This._DescribeFlat(pCol)[8]
 
 		def Q3Column(pCol)
 			return This.Q3Col(pCol)
 
-	# A percentile other than the quartiles still goes through stzDataSet, which is
-	# the sample authority and already engine-backed -- a table-shaped operation is
-	# not needed for a single number from a single column.
+	# Returns the given percentile of the numeric cells of a column, interpolating between cells.
+	#
+	#   pnP        the percentile, from 0 to 100
+	#   returns    a number
+	#   see        MedianCol
+	#@ aka  A percentile other than the quartiles still goes through stzDataSet, which is the sample authority and already engine-backed -- a table-shaped operation is not needed for a single number from a single column.
 	def PercentileCol(pCol, pnP)
 		_oDS_ = new stzDataSet(This._NumericColOf(pCol))
 		return _oDS_.Percentile(pnP)
@@ -14978,7 +19003,12 @@ func _NormalizeColLookupKey(pVal)
 		def PercentileColumn(pCol, pnP)
 			return This.PercentileCol(pCol, pnP)
 
-	# A full per-column summary as DATA -- the eight numbers, in the engine's order.
+	# Returns eight statistics of a column: count, mean, median, stddev, min, max, q1 and q3.
+	#
+	#   returns    a list of eight [ name, value ] pairs
+	#   warning    Raises an error for a column with no numeric cell
+	#   see        Describe
+	#@ aka  A full per-column summary as DATA -- the eight numbers, in the engine's order.
 	def DescribeCol(pCol)
 		_aD_ = This._DescribeFlat(pCol)
 		return [
@@ -14995,7 +19025,11 @@ func _NormalizeColLookupKey(pVal)
 		def DescribeColumn(pCol)
 			return This.DescribeCol(pCol)
 
-	# The names of the numeric columns, in table order.
+	# Returns the names of the numeric columns, in column order.
+	#
+	#   returns    a list of column names
+	#   see        IsNumericCol
+	#@ aka  The names of the numeric columns, in table order.
 	def NumericColumnNames()
 		_aOut_ = []
 		_aNames_ = This.ColumnNames()
@@ -15007,10 +19041,11 @@ func _NormalizeColLookupKey(pVal)
 		next
 		return _aOut_
 
-	# Describe every NUMERIC column, as [ [colName, DescribeCol(colName)], ... ].
+	# Returns the eight statistics of every numeric column, as [ column name, [ [ name, value ], ... ] ] items.
 	#
-	# ONE crossing for the whole table: the columns go over together and come back
-	# described, rather than a crossing per column.
+	#   returns    a list of [ name, statistics ] pairs; [ ] when no column is numeric
+	#   see        DescribeCol
+	#@ aka  Describe every NUMERIC column, as [ [colName, DescribeCol(colName)], ... ].
 	def Describe()
 		_aNames_ = This.NumericColumnNames()
 		_nC_ = len(_aNames_)
@@ -15075,8 +19110,14 @@ func _NormalizeColLookupKey(pVal)
 		next
 		return new stzTable(_aCols_)
 
-	# Pearson correlation between two columns -- read off the engine's matrix, so
-	# a pair and a whole matrix cannot disagree.
+	# Returns the Pearson correlation between two columns, from the engine; 0 when fewer than two rows.
+	#
+	#   pColA      the first column, by name or position
+	#   pColB      the second column, by name or position
+	#   returns    a number between -1 and 1
+	#   warning    A column with no numeric cell answers 0
+	#   see        CorrelationMatrix
+	#@ aka  Pearson correlation between two columns -- read off the engine's matrix, so a pair and a whole matrix cannot disagree.
 	def CorrelationBetween(pColA, pColB)
 		_aA_ = This._NumericColOf(pColA)
 		_aB_ = This._NumericColOf(pColB)
@@ -15101,12 +19142,11 @@ func _NormalizeColLookupKey(pVal)
 		def CorrBetween(pColA, pColB)
 			return This.CorrelationBetween(pColA, pColB)
 
-	# The pairwise correlation matrix over the numeric columns, as DATA:
-	# [ [:columns, aNames], [:matrix, aMatrix] ].
+	# Returns the correlation matrix of the numeric columns as [ [ :columns, names ], [ :matrix, rows ] ].
 	#
-	# The diagonal is EXACTLY 1 and the matrix is EXACTLY symmetric -- the engine
-	# writes both rather than computing all n^2 cells and hoping they come out that
-	# way.
+	#   returns    a list of two pairs
+	#   see        CorrelationBetween
+	#@ aka  The pairwise correlation matrix over the numeric columns, as DATA: [ [:columns, aNames], [:matrix, aMatrix] ].
 	def CorrelationMatrix()
 		_aNames_ = This.NumericColumnNames()
 		_nC_ = len(_aNames_)
@@ -15145,12 +19185,16 @@ func _NormalizeColLookupKey(pVal)
 		def CorrMatrix()
 			return This.CorrelationMatrix()
 
-	# Least-squares regression of one column ON another, read at the call site:
-	# RegressionOf(:pay, :On, :age). Returns [ [:slope,..], [:intercept,..],
-	# [:r_squared,..] ].
+	# Returns the least-squares line of one column on another as slope, intercept and r_squared pairs.
 	#
-	# One engine call. r-squared comes back as the squared correlation, computed
-	# where the correlation is -- not derived a second way here.
+	#   pColY      the column to explain, by name or position
+	#   pOn        the word :On, which makes the call read as RegressionOf(y, :On, x)
+	#   pColX      the column that explains, by name or position
+	#   returns    a list of three [ name, value ] pairs
+	#   warning    Raises an error when pOn is not :On, or when fewer than two points or no spread
+	#              in x leave no line
+	#   see        CorrelationBetween
+	#@ aka  Least-squares regression of one column ON another, read at the call site: RegressionOf(:pay, :On, :age). Returns [ [:slope,..], [:intercept,..], [:r_squared,..] ].
 	def RegressionOf(pColY, pOn, pColX)
 		if pOn != :On and pOn != :on
 			StzRaise("RegressionOf: read it as RegressionOf(yCol, :On, xCol).")
@@ -15168,9 +19212,14 @@ func _NormalizeColLookupKey(pVal)
 	 #  CASTING THE TABLE INTO A STZTABLE OBJECT  #
 	#============================================#
 
-	#NOTE // stzPivotTable belongs to the MAX layer of StzLib
-	# For the fellowing method to work, you must load "stzmax.ring"
-
+    # Keeps only the rows whose cells match every column = value pair, in place; a list of values matches any of them.
+    #
+    #   paColValues   the filter, as column name = value or column name = list of values pairs
+    #   returns       nothing; the table changes
+    #   warning       Raises an error for an unknown column; a filter matching nothing leaves empty
+    #                 columns
+    #   see           FilterW
+    #@ aka  NOTE // stzPivotTable belongs to the MAX layer of StzLib For the fellowing method to work, you must load "stzmax.ring"
     def Filter(paColValues)
 
         # Validate input is a hash list
@@ -15274,14 +19323,22 @@ func _NormalizeColLookupKey(pVal)
         This.Filter(paColValues)
         return This
 
+	# Returns a filtered copy of the table, keeping the rows that match every column = value pair; the table is unchanged.
+	#
+	#   paColValues   the filter, as column name = value or column name = list of values pairs
+	#   returns       a new stzTable
+	#   see           Filter
 	def FilterCQ(paColValues)
 			_oCopy_ = This.Copy()
 			_oCopy_.Filter(paColValues)
 			return _oCopy_
+	# Keeps only the rows whose cells match every column = value pair, in place; a list of values matches any of them.
+	#
+	#   paColValues   the filter, as column name = value or column name = list of values pairs
+	#   returns       nothing; the table changes
+	#   see           Filter
 	#>
-
 	#< @FunctionAlternativeForm
-
 	def FilterBy(paColValues)
 		This.Filter(paColValues)
 
@@ -15371,6 +19428,10 @@ func _NormalizeColLookupKey(pVal)
 			This.FilterW(pcCondition)
 			return This
 
+		# Returns a filtered copy keeping the rows that satisfy a condition written with @(:COLNAME); the table is unchanged.
+		#
+		#   returns    a new stzTable
+		#   see        FilterWXTCQ
 		def FilterWCQ(pcCondition)
 			_oCopy_ = This.Copy()
 			_oCopy_.FilterW(pcCondition)
@@ -15486,6 +19547,10 @@ func _NormalizeColLookupKey(pVal)
 			This.FilterWXT(pcCondition)
 			return This
 
+		# Returns a filtered copy keeping the rows that satisfy a condition that names several columns; the table is unchanged.
+		#
+		#   returns    a new stzTable
+		#   see        FilterWCQ
 		def FilterWXTCQ(pcCondition)
 			_oCopy_ = This.Copy()
 			_oCopy_.FilterWXT(pcCondition)
@@ -15510,6 +19575,13 @@ func _NormalizeColLookupKey(pVal)
 	 #  Aggregating (Grouping) table data based on specified columns and methods  #
 	#============================================================================#
 
+	# Replaces the table, in place, by one row of aggregates named function(column), such as sum(age).
+	#
+	#   paAggregations   the aggregations as column name = function pairs
+	#   returns          nothing; the table changes
+	#   warning          Raises an error for an unknown column or for a function outside the list,
+	#                    such as Median
+	#   see              GroupByAndAggregate
 	def Aggregate(paAggregations)
 		# Validate input is a hash list
 		if NOT (isList(paAggregations) and @IsHashList(paAggregations))
@@ -15629,10 +19701,13 @@ func _NormalizeColLookupKey(pVal)
 		def AggregateQ(paAggregations)
 			This.Aggregate(paAggregations)
 			return This
+		# Replaces the table, in place, by one row of aggregates named function(column), such as sum(age).
+		#
+		#   paAggregations   the aggregations as column name = function pairs
+		#   returns          nothing; the table changes
+		#   see              Aggregate
 		#>
-
 		#< @FunctionAlternativeForm
-
 		def AggregateBy(paAggregations)
 			This.Aggregate(paAggregations)
 
@@ -15645,6 +19720,12 @@ func _NormalizeColLookupKey(pVal)
 	 #  GROUPING DATA (ROWS) BY A GIVEN VALUE (COL)  #
 	#===============================================#
 
+	# Reorders the rows in place so that rows with the same values in the given columns sit together, in order of first appearance.
+	#
+	#   returns    nothing; the table changes
+	#   warning    A single column name given as text is read as a list-valued column and empties
+	#              the table when its cells are not lists
+	#   see        GroupByAndAggregate
 	def GroupBy(paCols)
 
 		if NOT isList(paCols)
@@ -15740,6 +19821,10 @@ func _NormalizeColLookupKey(pVal)
 			This.GroupBy(paCols)
 			return This
 
+		# Returns a copy of the table with its rows grouped by the given columns; the table is unchanged.
+		#
+		#   returns    a new stzTable
+		#   see        GroupBy
 		def GroupByCQ(paCols)
 				_oCopy_ = This.Copy()
 				_oCopy_.GroupBy(paCols)
@@ -16001,10 +20086,14 @@ func _NormalizeColLookupKey(pVal)
 			This.GroupByXT(paCols, paAggregations)
 			return This
 
+		# Replaces the table, in place, by one row per group of the given columns, with the aggregates of the other columns.
+		#
+		#   paAggregations   the aggregations as [ column name, function ] pairs
+		#   returns          nothing; the table changes
+		#   warning          Raises an error for an unknown column or function
+		#   see              Aggregate, GroupBy
 		#>
-
 		#< @FunctionAlternativeForm
-
 		def GroupByAndAggregate(paCols, paAggregations)
 			This.GroupByXT(paCols, paAggregations)
 
@@ -16017,6 +20106,12 @@ func _NormalizeColLookupKey(pVal)
 	 #  GROUPING DATA BY A COLUMN CONTAINING LIST  #
 	#---------------------------------------------#
 
+	# Reshapes the table, in place, to one row per item of a list-valued column, the item coming first in each row.
+	#
+	#   paCols     the list-valued column, by name
+	#   returns    nothing; the table changes
+	#   warning    A row whose cell is not a list is dropped; an unknown column raises an error
+	#   see        GroupBy
 	def GroupByListItems(paCols) #TODO // check why there is a dependance with "HOBBY"!
 		if NOT isList(paCols)
 			_aTemp_ = [] + paCols
@@ -16140,14 +20235,31 @@ func _NormalizeColLookupKey(pVal)
 	def ToString()
 		return This._displayFullTable()
 
+	# Prints the table as a boxed grid on the console.
+	#
+	#   returns    nothing; the grid is printed
+	#   see        Display
 	def Show()
 		? This._displayFullTable()
 
+	# Prints the rows that match the criteria as a boxed grid, and leaves only those rows in the table.
+	#
+	#   paFilterCriteria   the filter, as column name = value pairs
+	#   returns            nothing; the grid is printed
+	#   warning            Also filters the table in place, so the other rows are gone afterwards
+	#   see                Display
 	def ShowFilter(paFilterCriteria)
 		? _displayFilteredTable(paFilterCriteria)
 
-    # New display method to show table contents
-
+    # Returns the table as a boxed grid text; with criteria it returns only the matching rows and filters the table in place.
+    #
+    #   paFilterCriteria   the filter as column name = value pairs, or an empty text for the whole
+    #                      table
+    #   returns            text, the grid
+    #   warning            With criteria the table itself is filtered, so the other rows are gone
+    #                      afterwards
+    #   see                Show
+    #@ aka  New display method to show table contents
     def Display(paFilterCriteria)
 
         # If no filter criteria provided, display full table
@@ -16314,7 +20426,18 @@ func _NormalizeColLookupKey(pVal)
 	 #  DISPLAYING THE TABLE - EXTENDED FORM  #
 	#----------------------------------------#
 
-	# Master method orchestrating the submethods
+	# Reads display options such as RowNumber, SubTotal and GrandTotal but returns nothing, so it has no effect.
+	#
+	#   pParams         the options, as a hash list, a list of pairs or a list of words
+	#   _bRowNumber_    the row-number flag, 1 or 0
+	#   _bSubTotal_     the sub-total flag, 1 or 0
+	#   _bGrandTotal_   the grand-total flag, 1 or 0
+	#   bCleanDesign    the clean-design flag, 1 or 0
+	#   returns         nothing
+	#   warning         Works on local copies of the flags and returns nothing, so the caller never
+	#                   sees the result
+	#   see             Display
+	#@ aka  Master method orchestrating the submethods
 	def processParameters(pParams, _bRowNumber_, _bSubTotal_, _bGrandTotal_, bCleanDesign)
 		if pParams = ""
 			# Use defaults
@@ -16370,7 +20493,17 @@ func _NormalizeColLookupKey(pVal)
 		_bSubTotal_ = @if(IsBoolean(_bSubTotal_), _bSubTotal_, 0)
 		_bGrandTotal_ = @if(IsBoolean(_bGrandTotal_), _bGrandTotal_, 0)
 
-	# Submethod to calculate column widths
+	# Returns the display width of each column, from its name and its widest cell, plus 2 for padding.
+	#
+	#   _acColNames_    the column names
+	#   _aContent_      the table content, as [ name, cells ] pairs
+	#   _bRowNumber_    the row-number flag, 1 or 0
+	#   _bGrandTotal_   the grand-total flag, 1 or 0
+	#   returns         a list of numbers
+	#   warning         The first column is at least 17 wide, because of the longest sample label of
+	#                   the grid
+	#   see             Display
+	#@ aka  Submethod to calculate column widths
 	def calculateColumnWidths(_acColNames_, _aContent_, _bRowNumber_, _bGrandTotal_)
 		_aColWidths_ = []
 		_nCols_ = len(_acColNames_)
@@ -16411,7 +20544,16 @@ func _NormalizeColLookupKey(pVal)
 
 		return _aColWidths_
 
-	# Submethod to adjust column widths and names for row numbers
+	# Adds a row-number column to the widths and names it receives, but returns nothing, so it has no effect.
+	#
+	#   _bRowNumber_   the row-number flag, 1 or 0
+	#   _aColWidths_   the column widths
+	#   _acColNames_   the column names
+	#   returns        nothing
+	#   warning        Changes local copies only and returns nothing, so the caller never sees the
+	#                  result
+	#   see            calculateColumnWidths
+	#@ aka  Submethod to adjust column widths and names for row numbers
 	def adjustForRowNumbers(_bRowNumber_, _aColWidths_, _acColNames_)
 
 		if _bRowNumber_
@@ -16420,7 +20562,17 @@ func _NormalizeColLookupKey(pVal)
 			_acColNames_ = ring_insert(_acColNames_, 1, "#")
 		ok
 
-	# Submethod to build the output string
+	# Returns the boxed grid text for the given names, content and widths, with an optional grand total.
+	#
+	#   _acColNames_    the column names
+	#   _aContent_      the table content, as [ name, cells ] pairs
+	#   _aColWidths_    the column widths
+	#   _bRowNumber_    the row-number flag, 1 or 0
+	#   _bSubTotal_     the sub-total flag, 1 or 0
+	#   _bGrandTotal_   the grand-total flag, 1 or 0
+	#   returns         text, the grid
+	#   see             Display
+	#@ aka  Submethod to build the output string
 	def buildOutput(_acColNames_, _aContent_, _aColWidths_, _bRowNumber_, _bSubTotal_, _bGrandTotal_)
 		_cOutput_ = ""
 		_nCols_ = len(_acColNames_)
@@ -16478,7 +20630,17 @@ func _NormalizeColLookupKey(pVal)
 
 		return _cOutput_
 
-	# Submethod to build data rows with subtotals
+	# Returns the text of the data rows of the grid, with optional sub-total rows.
+	#
+	#   _aContent_      the table content, as [ name, cells ] pairs
+	#   _aColWidths_    the column widths
+	#   _bRowNumber_    the row-number flag, 1 or 0
+	#   _bSubTotal_     the sub-total flag, 1 or 0
+	#   _bGrandTotal_   the grand-total flag, 1 or 0
+	#   _nCols_         the number of columns shown
+	#   returns         text, the grid rows
+	#   see             buildOutput
+	#@ aka  Submethod to build data rows with subtotals
 	def buildDataRows(_aContent_, _aColWidths_, _bRowNumber_, _bSubTotal_, _bGrandTotal_, _nCols_)
 		_cOutput_ = ""
 		_nRows_ = This.NumberOfRows()
@@ -16563,7 +20725,17 @@ func _NormalizeColLookupKey(pVal)
 
 		return _cOutput_
 
-	# Submethod to build subtotal row
+	# Returns the text of a sub-total line of the grid for one group.
+	#
+	#   _aColWidths_      the column widths
+	#   _nCols_           the number of columns shown
+	#   _bRowNumber_      the row-number flag, 1 or 0
+	#   _nGroupCol_       the position of the grouping column
+	#   _cCurrentGroup_   the name of the group
+	#   _aGroupTotals_    the totals of each group, keyed by group name
+	#   returns           text, the sub-total lines
+	#   see               buildDataRows
+	#@ aka  Submethod to build subtotal row
 	def buildSubTotalRow(_aColWidths_, _nCols_, _bRowNumber_, _nGroupCol_, _cCurrentGroup_, _aGroupTotals_)
 		_cOutput_ = ""
 		_cLine_ = @aBorder[:Vertical]
@@ -16598,7 +20770,16 @@ func _NormalizeColLookupKey(pVal)
 
 		return _cOutput_
 
-	# Submethod to build grand total
+	# Raises error R24 today instead of returning the grand-total line of the grid.
+	#
+	#   _aColWidths_   the column widths
+	#   _bRowNumber_   the row-number flag, 1 or 0
+	#   _nCols_        the number of columns shown
+	#   returns        nothing; it raises
+	#   warning        Raises R24 because the body reads the grand totals, which are local to
+	#                  buildDataRows
+	#   see            buildOutput
+	#@ aka  Submethod to build grand total
 	def buildGrandTotal(_aColWidths_, _bRowNumber_, _nCols_)
 		_cOutput_ = ""
 		_cLine_ = @aBorder[:TeeRight]
@@ -16637,6 +20818,11 @@ func _NormalizeColLookupKey(pVal)
 	#---------------------------------#
 
 
+	# Turns rows into columns, in place: each old row becomes a column named COL1, COL2 and so on; the old column names are dropped.
+	#
+	#   returns    nothing; the table changes
+	#   warning    TransposeBack cannot restore the names after this form
+	#   see        TransposeXT, TransposeBack
 	def Transpose()
 
 	    # Get dimensions directly from @aContent
@@ -16681,18 +20867,43 @@ func _NormalizeColLookupKey(pVal)
 			return This
 
 
+		# Turns rows into columns, in place: each old row becomes a column named COL1, COL2 and so on; the old column names are dropped.
+		#
+		#   returns    nothing; the table changes
+		#   warning    TransposeBack cannot restore the names after this form
+		#   see        TransposeXT, TransposeBack
 		def Turn()
 			This.Transpose()
 
+		# Turns rows into columns, in place: each old row becomes a column named COL1, COL2 and so on; the old column names are dropped.
+		#
+		#   returns    nothing; the table changes
+		#   warning    TransposeBack cannot restore the names after this form
+		#   see        TransposeXT, TransposeBack
 		def SwapColsAndRows()
 			This.Transpose()
 
+		# Turns rows into columns, in place: each old row becomes a column named COL1, COL2 and so on; the old column names are dropped.
+		#
+		#   returns    nothing; the table changes
+		#   warning    TransposeBack cannot restore the names after this form
+		#   see        TransposeXT, TransposeBack
 		def SwapRowsAndCols()
 			This.Transpose()
 
+		# Turns rows into columns, in place: each old row becomes a column named COL1, COL2 and so on; the old column names are dropped.
+		#
+		#   returns    nothing; the table changes
+		#   warning    TransposeBack cannot restore the names after this form
+		#   see        TransposeXT, TransposeBack
 		def SwitchColsAndRows()
 			This.Transpose()
 
+		# Turns rows into columns, in place: each old row becomes a column named COL1, COL2 and so on; the old column names are dropped.
+		#
+		#   returns    nothing; the table changes
+		#   warning    TransposeBack cannot restore the names after this form
+		#   see        TransposeXT, TransposeBack
 		def SwithRowsAndCols()
 			This.Transpose()
 
@@ -16744,9 +20955,21 @@ func _NormalizeColLookupKey(pVal)
 	    @anCalculatedCols = []
 	    @anCalculatedRows = []
 
+		# Raises error R14 today instead of transposing the table while keeping the column names as a first column.
+		#
+		#   returns    nothing; it raises
+		#   warning    Raises R14 because the body calls TansposeXT, a misspelling; TransposeXT
+		#              works
+		#   see        TransposeXT
 		def TransposeWithColNames()
 			This.TansposeXT()
 
+	# Restores the table turned by TransposeXT, with its column names and rows.
+	#
+	#   returns    nothing; the table changes
+	#   warning    Raises an error when nothing was transposed, and after a plain Transpose it
+	#              leaves columns with no cells
+	#   see        TransposeXT, CanTransposeBack
 	def TransposeBack()
 	    # Only works if table was transposed with headers
 	    if len(@aOriginalColNames) = 0
@@ -16783,6 +21006,10 @@ func _NormalizeColLookupKey(pVal)
 	    @anCalculatedCols = []
 	    @anCalculatedRows = []
 
+	# TRUE if the table was turned with TransposeXT and can be restored.
+	#
+	#   returns    TRUE or FALSE
+	#   see        TransposeBack
 	def CanTransposeBack()
 	    return (@bTransposedWithHeaders and @aOriginalColNames != [])
 
@@ -16791,6 +21018,12 @@ func _NormalizeColLookupKey(pVal)
 	 #  UTILITY FUNCTIONS  #
 	#---------------------#
 
+	# Returns the text padded with spaces on the right up to a width; a longer text is returned as it is.
+	#
+	#   _cText_    the text or value to pad
+	#   nWidth     the width to reach, in characters
+	#   returns    text
+	#   see        PadLeft, CenterText
 	def PadRight(_cText_, nWidth)
 		if NOT (isNumber(_cText_) or isString(_cText_))
 			_cText_ = @@(_cText_)
@@ -16805,6 +21038,14 @@ func _NormalizeColLookupKey(pVal)
 			return _cStr_
 		ok
 
+	# Returns the text padded with spaces on the left up to a width; a longer text is returned as it is.
+	#
+	#   _cText_    the text or value to pad
+	#   nWidth     the width to reach, in characters
+	#   returns    text
+	#   warning    A list as the text raises R21, because the body stores its written form in the
+	#              wrong variable
+	#   see        PadRight, CenterText
 	def PadLeft(_cText_, nWidth)
 		if NOT (isNumber(_cText_) or isString(_cText_))
 			_text_ = @@(_cText_)
@@ -16819,6 +21060,12 @@ func _NormalizeColLookupKey(pVal)
 			return _cStr_
 		ok
 
+	# Returns the text centred in a width with spaces, the extra space going to the right.
+	#
+	#   _cText_    the text or value to centre
+	#   nWidth     the width to reach, in characters
+	#   returns    text
+	#   see        PadRight, PadLeft
 	def CenterText(_cText_, nWidth)
 		if NOT (isNumber(_cText_) or isString(_cText_))
 			_cText_ = Q(_cText_).Stringified()
@@ -16836,6 +21083,12 @@ func _NormalizeColLookupKey(pVal)
 
 		return RepeatChar(" ", _nPadLeft_) + _cStr_ + RepeatChar(" ", _nPadRight_)
 
+	# Returns a text made of a character repeated a number of times.
+	#
+	#   nCount     how many times to repeat the character
+	#   cChar      the character to repeat
+	#   returns    text
+	#   see        PadRight
 	def StrFill(nCount, cChar)
 
 		# Create string of repeated character
@@ -16849,17 +21102,32 @@ func _NormalizeColLookupKey(pVal)
 	 #  IMPORTING TABLE CONTENT FROM AN EXTERNAL STRING (CSV, JSON OR HTML)  #
 	#========================================================================#
 
+	# Returns the table as CSV text, a header line of column names then one line per row, separated by semicolons.
+	#
+	#   returns    text, the CSV
+	#   see        FromCSV
 	def ToCSV()
 		return ListToCSV(This.Content())
 
 	def ToCSVXT(pcSep)
 		return ListToCSVXT(This.Content(), pcSep)
 
+	# Replaces the table, in place, by the content of CSV text whose first line holds the column names and fields are separated by semicolons.
+	#
+	#   pcCSV      the CSV text
+	#   returns    nothing; the table changes
+	#   warning    Raises an error when the text is not CSV; commas do not split fields, so the
+	#              whole line becomes one column
+	#   see        ToCSV
 	#---
-
 	def FromCSV(pcCSV)
 		This.UpdateWith(CSVToList(pcCSV))
 
+		# Replaces the table, in place, by the content of CSV text whose first line holds the column names and fields are separated by semicolons.
+		#
+		#   pcCSV      the CSV text
+		#   returns    nothing; the table changes
+		#   see        FromCSV
 		def FromCSVString(pcCSV)
 			This.FromCSV(pcCSV)
 
@@ -16869,14 +21137,23 @@ func _NormalizeColLookupKey(pVal)
 		def FromCSVStringXT(pcCSV, pcSep)
 			This.FromCSVXT(pcCSV, pcSep)
 
-	#--
-
+	# Returns the table as compact JSON, an object of column names with their lists of cells.
+	#
+	#   returns    text, the JSON
+	#   see        FromJson
+	#@ aka  --
 	def ToJSON() # Compact Json (without NL and TAB indendtaion)
 		return ListToJson(This.Content())
 
 	def ToJsonXT() # Json with NL and TAB-indentation
 		return ListToJsonXT(This.Content())
 
+	# Replaces the table, in place, by JSON text that is an object of column names with lists of cells.
+	#
+	#   pcJsonStr   the JSON text
+	#   returns     nothing; the table changes
+	#   warning     Raises an error when the text is not JSON or is not an object of columns
+	#   see         ToJSON
 	def FromJson(pcJsonStr) #TODO Test it
 		if NOT isString(pcJsonStr)
 			StzRaise("Incorrect param type! pcJsonStr must be a string.")
@@ -16893,8 +21170,12 @@ func _NormalizeColLookupKey(pVal)
 
 		This.UpdateWith(_aData_)
 
+	# Raises error R24 today instead of returning the table as an HTML table.
+	#
+	#   returns    nothing; it raises
+	#   warning    Raises R24 because ToHtmlXT reads a variable named data that is never set
+	#   see        ToCSV
 	#---
-
 	def ToHtml()
 		return @Simplify(This.ToHtmlXT())
 
@@ -16964,6 +21245,12 @@ func _NormalizeColLookupKey(pVal)
 			return This.ToHtmlXT()
 
 
+	# Raises error R14 today instead of replacing the table by the content of an HTML table.
+	#
+	#   pcHtmlTable   the HTML text of a table
+	#   returns       nothing; it raises
+	#   warning       Raises R14 because HtmlToTable is defined nowhere
+	#   see           FromCSV
 	def FromHtml(pcHtmlTable)
 
 		if NOT isString(pcHtmlTable)

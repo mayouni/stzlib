@@ -257,6 +257,34 @@ else
 	Skip("driving a transport needs an output device")
 ok
 
+# ---------------------------------------------------------------------------
+? ""
+? "-- Scene 6b: DriveWith -- a stzReactiveSystem's timer ticks it, no RunToEnd --"
+# Scene 6 above never called DriveWith, and DriveWith failed on its first tick
+# (a captured local; 0.02 given where RunEvery counts milliseconds) -- found by
+# MU3, fixed 2026-09-30 (STZLIB-TRANSPORT-DRIVEWITH-01).
+
+if bDev
+	oG7 = MakeToneGraph(659)
+	oT7 = new stzSoundTransport(oG7)
+	nTicks7 = 0
+	oT7.OnTick(func { nTicks7++ })
+	oRx7 = new stzReactiveSystem()
+	oT7.PlayForQ(0.8).DriveWith(oRx7)
+	oRx7.RunAfter(1600, func { oRx7.Stop() })
+	oRx7.Start()
+	? "   the reactive loop ticked it " + nTicks7 + " times; it stopped at " + oT7.PositionInSeconds() + "s"
+	Chk("the reactive loop's timer ticked the transport -- it failed on its first tick before", nTicks7 > 10)
+	Chk("and those ticks stopped it at the length asked for, with nothing else looping",
+	    oT7.IsStopped() and oT7.PositionInSeconds() > 0.7 and oT7.PositionInSeconds() < 1.1)
+	Chk("a stopped transport leaves the driven list: no pointer outlives what it points to",
+	    len($aStzSoundTransportDriven) = 0)
+	oT7.Release()
+	oG7.Release()
+else
+	Skip("DriveWith needs an output device")
+ok
+
 oT.Release()
 oT2.Release()
 oG.Release()

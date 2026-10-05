@@ -468,6 +468,16 @@ func StzAssociativeListQ(paList)
 
 class stzAssociativeList from stzHashList
 
+# Holds a list of [ key, value ] pairs and finds, reads and groups them by key or by value.
+#
+# A hash list is the Ring list [ :name = "Ali", :age = 30 ] made into an object: keys are looked up
+# without regard to case, values can be of any type and repeat, and the pairs keep their order.
+# Reach for it when you read the pairs by position or by value as often as by key.
+#
+#   receiver   o1 = new stzHashList([ :one = "a", :two = "b", :three = "a", :four = 4 ])
+#   example    ? @@( o1.FindValue("a") )
+#              #--> [ 1, 3 ]
+#   see        stzList, stzTable
 class stzHashList from stzList # Also called stzAssociativeList
 	@aContent = []
 	@pEngineMap = ""
@@ -476,8 +486,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #     INIT     #
 	#--------------#
 
-	# Build the hash list from [key, value] pairs (a list of pairs
-	# is auto-normalized).
+	# Builds the hash list from [ key, value ] pairs; a plain list of pairs is normalised.
+	#
+	#   p          the pairs, as a list
+	#   returns    the new stzHashList
+	#@ aka  Build the hash list from [key, value] pairs (a list of pairs is auto-normalized).
 	def init(p)
 
 		# Auto-normalize: a list of pairs is also accepted as a
@@ -575,7 +588,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #     GET     #
 	#-------------#
 
-	# The raw hash list: the [key, value] pairs.
+	# Returns the pairs as they are held, a list of [ key, value ] pairs.
+	#
+	#   returns    a list of [ key, value ] pairs, in order
+	#   see        Keys, Values
+	#   example    ? @@( o1.Content() )
+	#              #--> [ [ "one", "a" ], [ "two", "b" ], [ "three", "a" ], [ "four", 4 ] ]
+	#@ aka  The raw hash list: the [key, value] pairs.
 	def Content()
 		return @aContent
 
@@ -583,7 +602,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def HashList()
 		return This.Content()
 
-	# How many [key, value] pairs the hash list holds.
+	# Returns how many [ key, value ] pairs the hash list holds.
+	#
+	#   returns    a number
+	#   example    ? o1.NumberOfPairs()
+	#              #--> 4
+	#@ aka  How many [key, value] pairs the hash list holds.
 	def NumberOfPairs()
 		# Engine fast path: stz_hashmap_len is O(1) cached vs Ring len() on a hashlist array
 		This._EnsureEngineMap()
@@ -619,7 +643,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def HowManyValue()
 			return This.NumberOfPairs()
 
-	# The [key, value] pairs (same as Content).
+	# Returns the [ key, value ] pairs, as Content does.
+	#
+	#   returns    a list of [ key, value ] pairs
+	#   see        Content, Keys, Values
+	#@ aka  The [key, value] pairs (same as Content).
 	def Pairs()
 		return Content()
 
@@ -649,7 +677,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 			off
 
 
-	# The keys of the hash list, as a list.
+	# Returns the keys of the hash list, in order.
+	#
+	#   returns    a list of the keys, which are held in lower case
+	#   see        Values, HasKey
+	#   example    ? @@( o1.Keys() )
+	#              #--> [ "one", "two", "three", "four" ]
+	#@ aka  The keys of the hash list, as a list.
 	def Keys()
 		_aHkContent_ = This.Content()
 		_nHkLen_ = len(_aHkContent_)
@@ -687,7 +721,14 @@ class stzHashList from stzList # Also called stzAssociativeList
 				StzRaise("Unsupported return type!")
 			off
 
-	# The keys whose value equals the given value.
+	# Raises error R14 today instead of returning the keys of every pair that holds the given value.
+	#
+	#   pValue     the value to look for
+	#   returns    nothing today
+	#   warning    known defect: on text values the call raises error R14 today; on list values it
+	#              answers an empty list. Use KeysByValue
+	#   see        KeysByValue
+	#@ aka  The keys whose value equals the given value.
 	def KeysForValue(pValue)
 		_aKfvContent_ = This.Content()
 		_nKfvLen_ = len(_aKfvContent_)
@@ -743,9 +784,14 @@ class stzHashList from stzList # Also called stzAssociativeList
 			def KeysForThisValueQRT(pValue, pcReturnType)
 				return This.KeysForValueQ(pValue, pcReturnType)
 
+	# Returns the values of the hash list, in order.
+	#
+	#   returns    a list of the values
+	#   see        Keys, Numbers
+	#   example    ? @@( o1.Values() )
+	#              #--> [ "a", "b", "a", 4 ]
 		#>
-
-	# The values of the hash list, as a list.
+	#@ aka  The values of the hash list, as a list.
 	def Values()
 
 		_aVlContent_ = This.Content()
@@ -786,7 +832,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 				StzRaise("Unsupported return type!")
 			off
 
-	# TRUE if every value is a list and all have the same size.
+	# TRUE if every value is a list and all the lists have the same size.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Lists
+	#@ aka  TRUE if every value is a list and all have the same size.
 	def ValuesAreListsOfSameSize()
 
 		_aValsContent_ = This.Content()
@@ -808,7 +858,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		return _bValsResult_
 
-	# The pairs INVERTED: [value, key] for each pair.
+	# Returns the pairs turned round: [ value, key ] for each pair.
+	#
+	#   returns    a list of [ value, key ] pairs
+	#   see        Pairs
+	#@ aka  The pairs INVERTED: [value, key] for each pair.
 	def ValuesAndKeys()
 		_aVakValues_ = This.Values()
 		_nVakLen_ = len(_aVakValues_)
@@ -821,7 +875,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		return _aVakResult_
 
-	# The key of the nth pair.
+	# Returns the key of the pair at position n.
+	#
+	#   _n_        the position, from 1
+	#   returns    a string
+	#   see        NthPair, NthValue
+	#@ aka  The key of the nth pair.
 	def NthKey(_n_)
 		if isString(_n_)
 			if _n_ = :First or _n_ = :FirstKey
@@ -852,7 +911,17 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def KeyAtPosition(_n_)
 			return This.Key(_n_)
 	
-	# The value of the nth pair.
+	# Returns the value of the pair at position n.
+	#
+	#   _n_        a position from 1 to the number of pairs, or :First or :Last
+	#   returns    the value of that pair, of any type
+	#   warning    a position outside the hash list raises an error
+	#   see        Values, FindNthOccurrenceOfValue
+	#   example    ? o1.NthValue(2)
+	#              #--> b
+	#              ? o1.NthValue(:Last)
+	#              #--> 4
+	#@ aka  The value of the nth pair.
 	def NthValue(_n_)
 
 		if checkParams()
@@ -891,21 +960,34 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def ValueAtPosition(_n_)
 			return This.Value(_n_)
 
-	# The value of the first pair.
+	# Returns the value of the first pair.
+	#
+	#   returns    the value
+	#   see        LastValue, NthValue
+	#@ aka  The value of the first pair.
 	def FirstValue()
 		return This.NthValue(1)
 
 		def FirstValueQ()
 			return This.NthValueQ(1)
 	
-	# The value of the last pair.
+	# Returns the value of the last pair.
+	#
+	#   returns    the value
+	#   see        FirstValue, NthValue
+	#@ aka  The value of the last pair.
 	def LastValue()
 		return This.NthValue(This.NumberOfValues())
 
 		def LastValueQ()
 			return Q( This.LastValue() )
 	
-	# The nth [key, value] pair.
+	# Returns the [ key, value ] pair at position n.
+	#
+	#   _n_        the position, from 1
+	#   returns    a pair [ key, value ]
+	#   see        NthKey, NthValue
+	#@ aka  The nth [key, value] pair.
 	def NthPair(_n_)
 		if isString(_n_)
 			if _n_ = :First or _n_ = :FirstPair
@@ -960,9 +1042,14 @@ class stzHashList from stzList # Also called stzAssociativeList
 			def PairQRT(_n_, pcReturnType)
 				return This.NthPairQRT(_n_, pcReturnType)
 	
+	# Raises an error today instead of returning the first [ key, value ] pair.
+	#
+	#   returns    nothing today
+	#   warning    known defect: the call raises error R24 today, because it reads _n_, which it
+	#              never sets; NthPair works
+	#   see        NthPair
 		#>
-	
-	# The first [key, value] pair.
+	#@ aka  The first [key, value] pair.
 	def FirstPair()
 		return This.NthPair(_n_)
 
@@ -974,14 +1061,26 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def FristPair()
 			return This.FirstPair()
 
-	# The last [key, value] pair.
+	# Raises an error today instead of returning the last [ key, value ] pair.
+	#
+	#   returns    nothing today
+	#   warning    known defect: the call raises error R24 today, because it reads _n_, which it
+	#              never sets; NthPair works
+	#   see        NthPair
+	#@ aka  The last [key, value] pair.
 	def LastPair()
 		return This.LastPair(_n_)
 
 		def LastPairQ()
 			return This.NthPairQ(This.NumberOfPairs())
 
-	# The key part of the given [key, value] pair.
+	# Raises an error today instead of returning the key part of a [ key, value ] pair.
+	#
+	#   paPair     the pair, [ key, value ]
+	#   returns    nothing today
+	#   warning    known defect: the call raises a parameter-type error today even for a real pair
+	#   see        NthKey
+	#@ aka  The key part of the given [key, value] pair.
 	def KeyInPair(paPair)
 		if isList(paPair) and @IsPairAndKeyIsString(paPair) and
 		   This.ContainsPair(paPair)
@@ -1000,7 +1099,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 			def KeyInThisPairQ(paPair)
 				return This.KeyInPairQ(paPair)
 
-	# The value part of the given [key, value] pair.
+	# Raises an error today instead of returning the value part of a [ key, value ] pair.
+	#
+	#   paPair     the pair, [ key, value ]
+	#   returns    nothing today
+	#   warning    known defect: the call raises a parameter-type error today even for a real pair
+	#   see        NthValue
+	#@ aka  The value part of the given [key, value] pair.
 	def ValueInPair(paPair)
 		if isList(paPair) and @IsPairAndKeyIsString(paPair) and
 	           This.ContainsPair(paPair)
@@ -1018,22 +1123,44 @@ class stzHashList from stzList # Also called stzAssociativeList
 			def ValueInThisPairQ(paPair)
 				return This.ValueInPairQ(paPair)
 
-	# The key of the nth pair.
+	# Returns the key of the pair at position n, as NthKey does.
+	#
+	#   _n_        the position, from 1
+	#   returns    a string
+	#   see        NthKey
+	#@ aka  The key of the nth pair.
 	def KeyInNthPair(_n_)
 		return This.NthPair(_n_)[1]
 
 		def KeyInNthPairQ(_n_)
 			return new stzString( This.KeyInNthPair(_n_) )
 	
-	# The value of the nth pair.
+	# Returns the value of the pair at position n, as NthValue does.
+	#
+	#   _n_        the position, from 1
+	#   returns    the value
+	#   see        NthValue
+	#@ aka  The value of the nth pair.
 	def ValueInInNthPair(_n_)
 		return This.NthPair(_n_)[2]
 
-	# The value of the nth pair, wrapped as a Q object.
+	# Raises an error today instead of returning the value of the nth pair as a Q object.
+	#
+	#   _n_        the position, from 1
+	#   returns    nothing today
+	#   warning    known defect: the call raises error R14 today, because it calls a method that is
+	#              not defined
+	#   see        NthValue
+	#@ aka  The value of the nth pair, wrapped as a Q object.
 	def ValueInNthPairQ(_n_)
 		return Q( This.ValueInNthPair(_n_) )
 
-	# The value stored under the given key.
+	# Returns the value stored under the given key, whatever the key's case.
+	#
+	#   pcKey      the key, as text
+	#   returns    the value
+	#   see        KeyByValue, HasKey
+	#@ aka  The value stored under the given key.
 	def ValueByKey(pcKey)
 		# Resolve through the ENGINE map, which compares keys byte for byte.
 		#
@@ -1074,7 +1201,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		return @aContent[ _cVbkKey_ ]
 
-	# The value under the given key, as an integer (engine map).
+	# Returns the value stored under the given key, as an integer.
+	#
+	#   pcKey      the key, as text
+	#   returns    a number
+	#   see        ValueByKey, ValueFloatByKey
+	#@ aka  The value under the given key, as an integer (engine map).
 	def ValueIntByKey(pcKey)
 		This._EnsureEngineMap()
 		if @pEngineMap != ""
@@ -1082,7 +1214,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 		ok
 		return 0 + This.ValueByKey(pcKey)
 
-	# The value under the given key, as a float (engine map).
+	# Returns the value stored under the given key, as a decimal number.
+	#
+	#   pcKey      the key, as text
+	#   returns    a number
+	#   see        ValueByKey, ValueIntByKey
+	#@ aka  The value under the given key, as a float (engine map).
 	def ValueFloatByKey(pcKey)
 		This._EnsureEngineMap()
 		if @pEngineMap != ""
@@ -1090,7 +1227,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 		ok
 		return 0.0 + This.ValueByKey(pcKey)
 
-	# The value under the given key, as a string (engine map).
+	# Returns the value stored under the given key, as a string.
+	#
+	#   pcKey      the key, as text
+	#   returns    a string
+	#   see        ValueByKey
+	#@ aka  The value under the given key, as a string (engine map).
 	def ValueStringByKey(pcKey)
 		This._EnsureEngineMap()
 		if @pEngineMap != ""
@@ -1130,9 +1272,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def ValueInThisKey(pcKey)
 			return This.ValueByKey(pcKey)
 
+	# Returns how many pairs hold the given value.
+	#
+	#   pValue     the value to count
+	#   returns    a number
+	#   see        FindValue
 		#>
-
-	# How many pairs hold the given value.
+	#@ aka  How many pairs hold the given value.
 	def NumberOfOccurrenceOfValue(pValue)
 		return len(This.FindValue(pValue))
 
@@ -1173,9 +1319,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def HowManyOccurrencesOfThisValue(pValue)
 			return This.NumberOfOccurrenceOfValue(pValue)
 
+	# Returns the distinct values of the hash list, in order of first appearance.
+	#
+	#   returns    a list of values
+	#   see        Values, Classes
 		#>
-
-	# The distinct values of the hash list.
+	#@ aka  The distinct values of the hash list.
 	def UniqueValues()
 		_aUvResult_ = This.ValuesQ().DuplicatesRemoved()
 		return _aUvResult_
@@ -1186,7 +1335,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def ValuesWithoutDuplication()
 			return This.UniqueValues()
 
-	# The values of the pairs at the given positions.
+	# Returns the values of the pairs at the given positions.
+	#
+	#   anPos      the positions
+	#   returns    a list of values
+	#   see        KeysAtPositions
+	#@ aka  The values of the pairs at the given positions.
 	def ValuesAtPositions(anPos)
 		_aVapResult_ = This.ValuesQ().ItemsAtPositions(anPos)
 		return _aVapResult_
@@ -1198,8 +1352,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #   UPDATING THE HASHLIST   #
 	#---------------------------#
 
-	# Replace the whole content with the given hash list (mutating;
-	# the single update point).
+	# Replaces the whole content by the given hash list, in place.
+	#
+	#   paNewHashList   the new pairs, as a hash list
+	#   returns         nothing; the hash list changes
+	#   warning         a value that is not a hash list raises an error
+	#   see             Updated, UpdateWith
+	#@ aka  Replace the whole content with the given hash list (mutating; the single update point).
 	def Update(paNewHashList)
 		if CheckingParams() = 1
 			if isList(paNewHashList) and Q(paNewHashList).IsWithOrByOrUsingNamedParam()
@@ -1219,33 +1378,50 @@ class stzHashList from stzList # Also called stzAssociativeList
 		ok
 	
 
+		# Replaces the whole content by the given hash list, in place, as Update does.
+		#
+		#   paNewHashList   the new pairs, as a hash list
+		#   returns         nothing; the hash list changes
+		#   see             Update
 		#< @FunctionAlternativeForms
-
-		# Same as Update: replace the whole content (mutating).
+		#@ aka  Same as Update: replace the whole content (mutating).
 		def UpdateWith(paNewHashList)
 			This.Update(paNewHashList)
 
 			def UpdateWithQ(paNewHashList)
 				return This.UpdateQ(paNewHashList)
 	
-		# Same as Update: replace the whole content (mutating).
+		# Replaces the whole content by the given hash list, in place, as Update does.
+		#
+		#   paNewHashList   the new pairs, as a hash list
+		#   returns         nothing; the hash list changes
+		#   see             Update
+		#@ aka  Same as Update: replace the whole content (mutating).
 		def UpdateBy(paNewHashList)
 			This.Update(paNewHashList)
 
 			def UpdateByQ(paNewHashList)
 				return This.UpdateQ(paNewHashList)
 
-		# Same as Update: replace the whole content (mutating).
+		# Replaces the whole content by the given hash list, in place, as Update does.
+		#
+		#   paNewHashList   the new pairs, as a hash list
+		#   returns         nothing; the hash list changes
+		#   see             Update
+		#@ aka  Same as Update: replace the whole content (mutating).
 		def UpdateUsing(paNewHashList)
 			This.Update(paNewHashList)
 
 			def UpdateUsingQ(paNewHashList)
 				return This.UpdateQ(paNewHashList)
 
+	# Returns the hash list the object would become with Update; the hash list is unchanged.
+	#
+	#   paNewHashList   the new pairs, as a hash list
+	#   returns         a hash list, as [ [ key, value ], ... ]
+	#   see             Update
 		#>
-
-	# The value the hash list would be updated to (passive twin of
-	# Update).
+	#@ aka  The value the hash list would be updated to (passive twin of Update).
 	def Updated(paNewHashList)
 		return paNewHashList
 
@@ -1260,12 +1436,15 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def UpdatedUsing(paNewHashList)
 			return This.Updated(paNewHashList)
 
+	# Replaces the pair at position n by a new [ key, value ] pair, in place.
+	#
+	#   _n_         the position, from 1
+	#   paNewPair   the new pair
+	#   returns     nothing; the hash list changes
+	#   see         UpdatePair
 		#>
-
 	#---
-
-	# Replace the nth pair with the given [key, value] pair
-	# (mutating).
+	#@ aka  Replace the nth pair with the given [key, value] pair (mutating).
 	def UpdateNthPair(_n_, paNewPair)
 
 		if _n_ = :First
@@ -1282,7 +1461,14 @@ class stzHashList from stzList # Also called stzAssociativeList
 			StzRaise("Key must be a string!")
 		ok
 	
-	# Replace the given pair with the new one (mutating).
+	# Replaces the given pair by a new one, in place.
+	#
+	#   paPair      the pair to replace, [ key, value ]
+	#   paNewPair   the new pair
+	#   returns     nothing; the hash list changes
+	#   warning     a pair that is not in the hash list raises an error
+	#   see         UpdateNthPair
+	#@ aka  Replace the given pair with the new one (mutating).
 	def UpdatePair(paPair, paNewPair)
 		if isList(paPair) and @IsPairAndKeyIsString(paNewPair) and
 		   This.ContainsPair(paPair)
@@ -1294,7 +1480,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 			StzRaise("Key must be a string!")
 		ok
 
-	# Replace the KEY of the nth pair (mutating).
+	# Replaces the key of the pair at position n, in place.
+	#
+	#   _n_        the position, from 1
+	#   pcValue    the new key
+	#   returns    nothing; the hash list changes
+	#   see        ReplaceNthKey
+	#@ aka  Replace the KEY of the nth pair (mutating).
 	def UpdateNthKey(_n_, pcValue)
 		if isList(_n_) and isNumber(pcValue)
 			_unkTemp_ = _n_
@@ -1314,7 +1506,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 		_aUnkContent_[_n_][1] = pcValue
 		This.UpdateWith(_aUnkContent_)
 
-	# Rename the given key (mutating).
+	# Renames the given key, in place.
+	#
+	#   pcKey      the key to rename
+	#   pcNewKey   the new key
+	#   returns    nothing; the hash list changes
+	#   see        ReplaceKey
+	#@ aka  Rename the given key (mutating).
 	def UpdateKey(pcKey, pcNewKey)
 		if isString(pcKey) and This.ContainsKey(pcKey)
 			_aUkContent_ = This.Content()
@@ -1323,7 +1521,14 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.UpdateWith(_aUkContent_)
 		ok
 
-	# Replace the keys with the given ones, in order (mutating).
+	# Raises an error today instead of replacing the keys by the given ones, in order.
+	#
+	#   paKeys     the new keys, one per pair
+	#   returns    nothing today
+	#   warning    known defect: the call raises error R14 today, because it calls
+	#              ItemsAreAllStrings, which is not defined
+	#   see        ReplaceNthKey
+	#@ aka  Replace the keys with the given ones, in order (mutating).
 	def UpdateKeys(paKeys)
 		_oUksList_ = new stzList(paKeys)
 		if _oUksList_.ItemsAreAllStrings()
@@ -1332,7 +1537,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 			next _iUks_
 		ok
 
-	# Replace the VALUE of the nth pair (mutating).
+	# Replaces the value of the pair at position n, in place.
+	#
+	#   _n_        the position, from 1
+	#   pValue     the new value
+	#   returns    nothing; the hash list changes
+	#   see        ReplaceNthValue
+	#@ aka  Replace the VALUE of the nth pair (mutating).
 	def UpdateNthValue(_n_, pValue)
 
 		if _n_ = :First
@@ -1359,19 +1570,34 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.AddHistoricValue(This.Content())
 		ok
 
-		# Replace the nth occurrence of the value with the new one
-		# (mutating).
+		# Raises an error today instead of replacing the nth occurrence of a value.
+		#
+		#   pValue     the value to replace
+		#   returns    nothing today
+		#   warning    known defect: the call raises error R19 today (the definition takes one
+		#              parameter and the body needs more)
+		#@ aka  Replace the nth occurrence of the value with the new one (mutating).
 		def UpdateNthOccurrenceOfValue(pValue)
 			This.UpdateNthValue( This.FindNthOccurrenceOfValue(pValue) )
 
-	# Replace the values with the given ones, in order (mutating).
+	# Replaces the values by the given ones, in order, in place.
+	#
+	#   paValues   the new values, one per pair
+	#   returns    nothing; the hash list changes
+	#   see        UpdateValue
+	#@ aka  Replace the values with the given ones, in order (mutating).
 	def UpdateValues(paValues)
 		for _iUvs_ = 1 to @Min([ len(paValues), This.NumberOfPairs() ])
 			This.UpdateNthValue(_iUvs_, paValues[_iUvs_])
 		next
 
-	# Replace every occurrence of the given value with the new one
-	# (mutating).
+	# Replaces every occurrence of the given value by a new one, in place.
+	#
+	#   pValue      the value to replace
+	#   pNewValue   the new value
+	#   returns     nothing; the hash list changes
+	#   see         ReplaceValue
+	#@ aka  Replace every occurrence of the given value with the new one (mutating).
 	def UpdateValue(pValue, pNewValue)
 		_anUvPos_ = This.FindValue(pValue)
 		_nUvLen_ = len(_anUvPos_)
@@ -1380,20 +1606,46 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.UpdateNthValue(_anUvPos_[_iUv_], pNewValue)
 		next
 	
-	# Replace only the FIRST occurrence of the value (mutating).
+	# Raises an error today instead of replacing the first occurrence of a value.
+	#
+	#   pValue      the value to replace
+	#   pNewValue   the new value
+	#   returns     nothing today
+	#   warning     known defect: the call raises error R20 today (its definition and its call
+	#               disagree on the parameters)
+	#@ aka  Replace only the FIRST occurrence of the value (mutating).
 	def UpdateFirstOccurrenceOfValue(pValue, pNewValue)
 		This.UpdateNthOccurrenceOfValue(1, pValue, pNewValue)
 
+		# Raises an error today instead of replacing the first occurrence of a value.
+		#
+		#   pValue      the value to replace
+		#   pNewValue   the new value
+		#   returns     nothing today
+		#   warning     known defect: the call raises error R20 today (its definition and its call
+		#               disagree on the parameters)
 		def UpdateFirstValue(pValue, pNewValue)
 			This.UpdateFirstOccurrenceOfValue(pValue, pNewValue)
 		
-	# Replace only the LAST occurrence of the value (mutating).
+	# Raises an error today instead of replacing the last occurrence of a value.
+	#
+	#   pValue      the value to replace
+	#   pNewValue   the new value
+	#   returns     nothing today
+	#   warning     known defect: the call raises error R20 today (its definition and its call
+	#               disagree on the parameters)
+	#@ aka  Replace only the LAST occurrence of the value (mutating).
 	def UpdateLastValue(pValue, pNewValue)
 		_nUlvN_ = NumberOfOccurrenceOfValue(pValue)
 		This.UpdateNthValue(_nUlvN_, pValue, pNewValue)
 
-	# Replace every pair with the given [key, value] pair
-	# (mutating).
+	# Replaces every pair by the given [ key, value ] pair, in place.
+	#
+	#   paPair     the pair to put everywhere
+	#   returns    nothing; the hash list changes
+	#   warning    known defect: the call raises a parameter-type error today
+	#   see        Update
+	#@ aka  Replace every pair with the given [key, value] pair (mutating).
 	def UpdateAllPairsWith(paPair)
 		if CheckingParams()
 			if not isList(paPair)
@@ -1418,6 +1670,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #  REVERSING KEYS AND VALUES  #
 	#-----------------------------#
 
+	# Raises a parameter-type error today instead of swapping keys and values, in place.
+	#
+	#   returns    nothing today
+	#   warning    known defect: the call raises a parameter-type error today for every hash list;
+	#              ValuesAndKeys returns the pairs turned round
+	#   see        ValuesAndKeys
 	def ReverseKeysAndValues()
 
 		_aRkvKeys_ = This.Keys()
@@ -1441,7 +1699,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #     ADDING PAIRS    #
 	#---------------------#
 
-	# Add the given [key, value] pair at the end (mutating).
+	# Adds a [ key, value ] pair at the end, in place.
+	#
+	#   paNewPair   the pair, [ key, value ]
+	#   returns     nothing; the hash list changes
+	#   see         AddPairs, Add
+	#@ aka  Add the given [key, value] pair at the end (mutating).
 	def AddPair(paNewPair)
 
 		if isList(paNewPair) and @IsPair(paNewPair) and isString(paNewPair[1])
@@ -1463,6 +1726,16 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.AddPair(paNewPair)
 			return This
 
+		# Adds a pair at the end of the hash list, in place.
+		#
+		#   paNewPair   the pair to add, as [ key, value ]
+		#   returns     nothing; the hash list changes. AddQ returns the object for chaining
+		#   see         InsertBefore
+		#   example     o1.Add([ "five", "e" ])
+		#               ? o1.NumberOfPairs()
+		#               #--> 5
+		#               ? o1.NthValue(5)
+		#               #--> e
 		def Add(paNewPair)
 			This.AddPair(paNewPair)
 
@@ -1470,7 +1743,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 				return This.AddPairQ(paNewPair)
 
 
-	# Add each of the given pairs at the end (mutating).
+	# Adds several [ key, value ] pairs at the end, in place.
+	#
+	#   paListOfPairs   the pairs, as a list of [ key, value ]
+	#   returns         nothing; the hash list changes
+	#   see             AddPair
+	#@ aka  Add each of the given pairs at the end (mutating).
 	def AddPairs(paListOfPairs)
 		_nApsLen_ = len(paListOfPairs)
 		for _iAps_ = 1 to _nApsLen_
@@ -1481,6 +1759,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.AddPairs(paListOfPairs)
 			return This
 
+		# Adds several [ key, value ] pairs at the end, in place, as AddPairs does.
+		#
+		#   paListOfPairs   the pairs, as a list of [ key, value ]
+		#   returns         nothing; the hash list changes
+		#   see             AddPairs
 		def AddManyPairs(paListOfPairs)
 			This.AddPairs(paListOfPairs)
 
@@ -1497,7 +1780,15 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #     INSERTING    #
 	#------------------#
 
-	# Insert the given pair BEFORE position n (mutating).
+	# Inserts a pair before position n, in place.
+	#
+	#   _n_        the position to insert before, from 2 to the number of pairs
+	#   paPair     the pair to insert, as [ key, value ]
+	#   returns    nothing; the hash list changes
+	#   warning    known defect: the call raises an error today, because it reads a property named
+	#              HashList that the object does not have; Add appends a pair and works
+	#   see        Add
+	#@ aka  Insert the given pair BEFORE position n (mutating).
 	def InsertBefore(_n_, paPair)
 		if _n_ > 1 and _n_ <= This.NumberOfPairs()
 			insert( This.HashList, _n_-1, paPair)
@@ -1508,7 +1799,15 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.InsertBefore(_n_, paPair)
 			return This
 
-	# Insert the given pair AFTER position n (mutating).
+	# Raises an error today instead of inserting a pair after position n.
+	#
+	#   _n_        the position to insert after
+	#   paPair     the pair to insert, [ key, value ]
+	#   returns    nothing today
+	#   warning    known defect: the call raises an error today, because it reads a property named
+	#              HashList that the object does not have; Add appends a pair and works
+	#   see        Add
+	#@ aka  Insert the given pair AFTER position n (mutating).
 	def InsertAfter(_n_, paPair)
 		insert( This.HashList, _n_, paPair)
 		This._InvalidateEngineMap()
@@ -1521,7 +1820,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #     REMOVING     #
 	#------------------#
 
-	# Remove the nth pair (mutating).
+	# Removes the pair at position n, in place.
+	#
+	#   _n_        the position, from 1
+	#   returns    nothing; the hash list changes
+	#   see        RemovePairByKey
+	#@ aka  Remove the nth pair (mutating).
 	def RemoveNthPair(_n_)
 
 		#NOTE // As a general guideline, and after introducing the
@@ -1551,7 +1855,14 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.RemovePair(_n_)
 			return This
 
-	# Remove the given [key, value] pair (mutating).
+	# Raises an error today instead of removing the given [ key, value ] pair.
+	#
+	#   paPair     the pair, [ key, value ]
+	#   returns    nothing today
+	#   warning    known defect: the call raises error R14 today, because it calls a RemoveQ method
+	#              that is not defined
+	#   see        RemoveNthPair
+	#@ aka  Remove the given [key, value] pair (mutating).
 	def RemovePair(paPair)
 		_oRpList_ = new stzList( This.HashList() )
 		_aRpResult_ = _oRpList_.RemoveQ(paPair).Content()
@@ -1561,7 +1872,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.RemovePair(paPair)
 			return This
 		
-	# Remove the pair holding the given key (mutating).
+	# Removes the pair that holds the given key, in place.
+	#
+	#   pcKey      the key, as text
+	#   returns    nothing; the hash list changes
+	#   see        RemoveByKey
+	#@ aka  Remove the pair holding the given key (mutating).
 	def RemovePairByKey(pcKey)
 		_nRpbkN_ = This.FindKey(pcKey)
 		if _nRpbkN_ > 0
@@ -1573,6 +1889,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.RemovePairByKey(pcKey)
 			return This
 
+		# Removes the pair that holds the given key, in place.
+		#
+		#   pcKey      the key, as text
+		#   returns    nothing; the hash list changes
+		#   see        RemovePairByKey
 		def RemoveByKey(pcKey)
 			This.RemovePairByKey(pcKey)
 	
@@ -1580,7 +1901,14 @@ class stzHashList from stzList # Also called stzAssociativeList
 				This.RemoveByKey(pcKey)
 				return This
 
-	# Remove the pairs holding any of the given keys (mutating).
+	# Raises an error today instead of removing the pairs that hold any of the given keys.
+	#
+	#   pacKeys    the keys, as a list of text
+	#   returns    nothing today
+	#   warning    known defect: the call raises error R3 today, because it calls @IsListOfStrings,
+	#              which is not defined
+	#   see        RemovePairByKey
+	#@ aka  Remove the pairs holding any of the given keys (mutating).
 	def RemovePairsByKeys(pacKeys)
 		if CheckingParams()
 			if NOT (isList(pacKeys) and @IsListOStrings(pacKeys))
@@ -1594,7 +1922,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.RemovePairByKey(pacKeys[_iRpbks_])
 		next
 
-	# Remove every pair holding the given value (mutating).
+	# Removes every pair that holds the given value, in place.
+	#
+	#   pValue     the value to remove
+	#   returns    nothing; the hash list changes
+	#   see        RemovePairsByValues
+	#@ aka  Remove every pair holding the given value (mutating).
 	def RemovePairsByValue(pValue)
 		_anRpbvPos_ = This.FindValue(pValue)
 
@@ -1605,7 +1938,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.RemovePairsByValue(pValue)
 			return This
 
-	# Remove every pair holding any of the given values (mutating).
+	# Removes every pair that holds any of the given values, in place.
+	#
+	#   paValues   the values to remove
+	#   returns    nothing; the hash list changes
+	#   see        RemovePairsByValue
+	#@ aka  Remove every pair holding any of the given values (mutating).
 	def RemovePairsByValues(paValues)
 		if CheckingParams()
 			if NOT isList(paValues)
@@ -1623,7 +1961,14 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #  REPLACING KEYS  #
 	#==================#
 
-	# Same as UpdateKey: rename the given key (mutating).
+	# Renames the given key, in place.
+	#
+	#   pcKey      the key to rename
+	#   pcNewKey   the new key
+	#   returns    nothing; the hash list changes
+	#   warning    a key that is absent raises an index error
+	#   see        UpdateKey
+	#@ aka  Same as UpdateKey: rename the given key (mutating).
 	def ReplaceKey(pcKey, pcNewKey)
 		_nRkN_ = This.FindKey(pcKey)
 		This.ReplaceNthKey(_nRkN_, pcNewKey)
@@ -1632,7 +1977,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.ReplaceKey(pcKey, pcNewKey)
 			return this
 
-	# Replace the key of the nth pair (mutating).
+	# Replaces the key of the pair at position n, in place.
+	#
+	#   _n_        the position, from 1
+	#   pcNewKey   the new key
+	#   returns    nothing; the hash list changes
+	#   see        ReplaceFirstKey
+	#@ aka  Replace the key of the nth pair (mutating).
 	def ReplaceNthKey(_n_, pcNewKey)
 		if CheckingParam()
 			if isList(pcNewKey) and Q(pcNewKey).IsWithOrByNamedParam()
@@ -1647,7 +1998,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.ReplaceNthKey(_n_, pcNewKey)
 			return This
 
-	# Replace the key of the first pair (mutating).
+	# Replaces the key of the first pair, in place.
+	#
+	#   pcNewKey   the new key
+	#   returns    nothing; the hash list changes
+	#   see        ReplaceLastKey, ReplaceNthKey
+	#@ aka  Replace the key of the first pair (mutating).
 	def ReplaceFirstKey(pcNewKey)
 		This.ReplaceNthKey(1, pcNewKey)
 
@@ -1655,7 +2011,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.ReplaceFirstKey(pcNewKey)
 			return This
 
-	# Replace the key of the last pair (mutating).
+	# Replaces the key of the last pair, in place.
+	#
+	#   pcNewKey   the new key
+	#   returns    nothing; the hash list changes
+	#   see        ReplaceFirstKey
+	#@ aka  Replace the key of the last pair (mutating).
 	def ReplaceLastKey(pcNewKey)
 		This.ReplaceNthKey(This.NumberOfKeys(), pcNewKey)
 
@@ -1667,7 +2028,15 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #  REPLACING VALUES  #
 	#====================#
 
-	# Replace the first occurrence of the given value (mutating).
+	# Raises an error today instead of replacing the first occurrence of the given value.
+	#
+	#   pValue      the value to replace
+	#   pNewValue   the new value
+	#   returns     nothing today
+	#   warning     known defect: the call raises an error today (it expects a position where the
+	#               value should be); UpdateValue replaces a value
+	#   see         UpdateValue
+	#@ aka  Replace the first occurrence of the given value (mutating).
 	def ReplaceValue(pValue, pNewValue)
 		_nRvN_ = This.FindValue(pValue)
 		This.ReplaceNthValue(_nRvN_, pNewValue)
@@ -1676,7 +2045,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.ReplaceValue(pValue, pNewValue)
 			return this
 
-	# Replace the value of the nth pair (mutating).
+	# Replaces the value of the pair at position n, in place.
+	#
+	#   _n_         the position, from 1
+	#   pNewValue   the new value
+	#   returns     nothing; the hash list changes
+	#   see         ReplaceFirstValue
+	#@ aka  Replace the value of the nth pair (mutating).
 	def ReplaceNthValue(_n_, pNewValue)
 
 		if CheckingParam()
@@ -1698,9 +2073,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 		This.NthPair(_n_)[2] = pNewValue
 		This._InvalidateEngineMap()
 
-		#NOTE // Normally Set... does not belong to Softanza semantics,
-		# we use Replace instead. Here I use to cope with AI-generated
-		# code which tend to be alligned with the Set keyword
+		# Replaces the value of the pair at position n, in place; ReplaceNthValue is the Softanza spelling.
+		#
+		#   _n_         the position, from 1
+		#   pNewValue   the new value
+		#   returns     nothing; the hash list changes
+		#   see         ReplaceNthValue
+		#@ aka  NOTE // Normally Set... does not belong to Softanza semantics, we use Replace instead. Here I use to cope with AI-generated code which tend to be alligned with the Set keyword
 		def SetValueAt(_n_, pNewValue)
 			This.ReplaceNthValue(_n_, pNewValue)
 
@@ -1712,7 +2091,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.ReplaceNthValueQ(_n_, pNewValue)
 
 
-	# Replace the value of the first pair (mutating).
+	# Replaces the value of the first pair, in place.
+	#
+	#   pNewValue   the new value
+	#   returns     nothing; the hash list changes
+	#   see         ReplaceLastValue, ReplaceNthValue
+	#@ aka  Replace the value of the first pair (mutating).
 	def ReplaceFirstValue(pNewValue)
 		This.ReplaceNthValue(1, pNewValue)
 
@@ -1720,7 +2104,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.ReplaceFirstValue(pNewValue)
 			return This
 
-	# Replace the value of the last pair (mutating).
+	# Replaces the value of the last pair, in place.
+	#
+	#   pNewValue   the new value
+	#   returns     nothing; the hash list changes
+	#   see         ReplaceFirstValue
+	#@ aka  Replace the value of the last pair (mutating).
 	def ReplaceLastValue(pNewValue)
 		This.ReplaceNthValue(This.NumberOfValues(), pNewValue)
 
@@ -1732,7 +2121,14 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #  REPLACING VALUES  #
 	#--------------------#
 
-	# Replace the value stored under the given key (mutating).
+	# Replaces the value stored under the given key, in place.
+	#
+	#   pcKey       the key, as text
+	#   pNewValue   the new value
+	#   returns     nothing; the hash list changes
+	#   warning     a key that is absent raises an index error
+	#   see         ReplaceByKey
+	#@ aka  Replace the value stored under the given key (mutating).
 	def ReplaceValueByKey(pcKey, pNewValue)
 		_nRvkN_ = This.FindKey(pcKey)
 		This.HashList()[_nRvkN_][2] = pNewValue
@@ -1742,6 +2138,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.ReplaceValueByKey(pcKey, pNewValue)
 			return This
 
+		# Replaces the value stored under the given key, in place.
+		#
+		#   pcKey       the key, as text
+		#   pNewValue   the new value
+		#   returns     nothing; the hash list changes
+		#   warning     a key that is absent raises an index error
+		#   see         ReplaceValueByKey
 		def ReplaceByKey(pcKey, pNewValue)
 			This.ReplaceValueByKey(pcKey, pNewValue)
 
@@ -1753,7 +2156,15 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #  REPLACING PAIRS  #
 	#===================#
 
-	# Replace the given pair with the new one (mutating).
+	# Raises an error today instead of replacing the given pair by a new one.
+	#
+	#   paPair      the pair to replace
+	#   paNewPair   the new pair
+	#   returns     nothing today
+	#   warning     known defect: the call raises error R14 today, because it calls ReplaceNthPair,
+	#               which is not defined
+	#   see         UpdateNthPair
+	#@ aka  Replace the given pair with the new one (mutating).
 	def ReplacePair(paPair, paNewPair)
 		_nRpN_ = This.FindPair(paPair)
 		This.ReplaceNthPair(_nRpN_, paNewPair)
@@ -1762,7 +2173,15 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.ReplacePair(paPair, paNewPair)
 			return This
 
-	# Replace the whole pair holding the given key (mutating).
+	# Raises an error today instead of replacing the pair that holds the given key.
+	#
+	#   pcKey       the key
+	#   paNewPair   the new pair
+	#   returns     nothing today
+	#   warning     known defect: the call raises error R14 today, because it calls ReplaceNthPair,
+	#               which is not defined
+	#   see         UpdateNthPair
+	#@ aka  Replace the whole pair holding the given key (mutating).
 	def ReplacePairByKey(pcKey, paNewPair)
 		_nRpbkN_ = This.FindKey(pcKey)
 		This.ReplaceNthPair(_nRpbkN_, paNewPair)
@@ -1771,7 +2190,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.ReplacePairByKey(pcKey, paNewPair)
 			return This
 
-	# Conditional pair replacement (reserved: not yet implemented).
+	# Raises an error today instead of replacing the pairs that meet a condition.
+	#
+	#   pcCondition   the condition, as text
+	#   returns       nothing today
+	#   warning       the feature is reserved and not implemented in this release
+	#@ aka  Conditional pair replacement (reserved: not yet implemented).
 	def ReplacePairsW(pcCondition) // TODO
 		/* ... */
 		StzRaise("Inexistant feature in this release!")
@@ -1780,7 +2204,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #     FINDING KEYS    #
 	#---------------------#
 
-	# The positions of the given keys.
+	# Returns the positions of the given keys.
+	#
+	#   pacKeys    the keys, as a list of text
+	#   returns    a list of numbers
+	#   see        FindKey
+	#@ aka  The positions of the given keys.
 	def FindKeys(pacKeys)
 		_aFksResult_ = This.KeysQ().FindMany(pacKeys)
 		return _aFksResult_
@@ -1788,7 +2217,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def FindTheseKeys(pacKeys)
 			return This.FindKeys(pacKeys)
 
-	# The position of the given key (0 if none).
+	# Returns the position of the given key.
+	#
+	#   pcKey      the key, as text
+	#   returns    a number; 0 when the key is absent
+	#   see        FindKeys, HasKey
+	#@ aka  The position of the given key (0 if none).
 	def FindKey(pcKey)
 
 		if isString(pcKey)
@@ -1802,7 +2236,18 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def FindThisKey(pcKey)
 			return This.FindKey(pcKey)
 
-	# TRUE if the hash list holds the given key.
+	# TRUE if the hash list holds the given key, whatever its case.
+	#
+	#   pcKey      the key to look for, as text
+	#   returns    TRUE or FALSE
+	#   see        Keys
+	#   example    ? o1.HasKey("two")
+	#              #--> TRUE
+	#              ? o1.HasKey("TWO")
+	#              #--> TRUE
+	#              ? o1.HasKey("six")
+	#              #--> FALSE
+	#@ aka  TRUE if the hash list holds the given key.
 	def HasKey(pcKey)
 
 		if isString(pcKey)
@@ -1828,7 +2273,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def ContainsKey(pcKey)
 			return This.HasKey(pcKey)
 		
-	# TRUE if the hash list holds ALL the given keys.
+	# TRUE if the hash list holds every one of the given keys.
+	#
+	#   pacKeys    the keys, as a list of text
+	#   returns    TRUE or FALSE
+	#   see        HasKey
+	#@ aka  TRUE if the hash list holds ALL the given keys.
 	def HasKeys(pacKeys)
 
 		_oKeys_ = new stzList(pacKeys)
@@ -1847,7 +2297,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #  FINDING PAIRS  #
 	#-----------------#
 
-	# The position of the given [key, value] pair (0 if none).
+	# Returns the position of the given [ key, value ] pair.
+	#
+	#   paPair     the pair, [ key, value ]
+	#   returns    a number; 0 when the pair is absent
+	#   see        ContainsPair
+	#@ aka  The position of the given [key, value] pair (0 if none).
 	def FindPair(paPair)
 		if NOT isList(paPair)
 			StzRaise("Incorrect param type! paPair must be a list.")
@@ -1874,7 +2329,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 		return _nFpResult_
 
 
-	# TRUE if the hash list holds the given pair.
+	# TRUE if the hash list holds the given [ key, value ] pair.
+	#
+	#   paPair     the pair, [ key, value ]
+	#   returns    TRUE or FALSE
+	#   see        FindPair
+	#@ aka  TRUE if the hash list holds the given pair.
 	def ContainsPair(paPair)
 
 		if FindPair(paPair) > 0
@@ -1906,11 +2366,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def ThisValueExistsCS(pValue, pCaseSensitive)
 			return This.ContainsValueCS(pValue, pCaseSensitive)
 
+	# TRUE if some pair holds the given value, ignoring case.
+	#
+	#   pValue     the value to look for
+	#   returns    TRUE or FALSE
+	#   see        ContainsValues, FindValue
 		#>
-
-	#-- WITHOUT CASESENSITIVE
-
-	# TRUE if some pair holds the given value.
+	#@ aka  -- WITHOUT CASESENSITIVE
 	def ContainsValue(pValue)
 		return This.ContainsValueCS(pValue, 1)
 
@@ -1946,16 +2408,24 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def TheseValueExistCS(paValues, pCaseSensitive)
 			return This.ContainsValuesCS(paValues, pCaseSensitive)
 
+	# TRUE if every one of the given values occurs, ignoring case.
+	#
+	#   paValues   the values to look for
+	#   returns    TRUE or FALSE
+	#   see        ContainsValue
 		#>
-
-	#-- WITHOUT CASESENSITIVE
-
-	# TRUE if the given values all occur.
+	#@ aka  -- WITHOUT CASESENSITIVE
 	def ContainsValues(paValues)
 		return This.ContainsValuesCS(paValues, 1)
 
+		# Raises an error today instead of telling whether every given value occurs.
+		#
+		#   paValues   the values to look for
+		#   returns    nothing today
+		#   warning    known defect: the call raises error R24 today, because it reads pValue, which
+		#              it never sets; ContainsValues works
+		#   see        ContainsValues
 		#< @FunctionAlternativeForms
-
 		def ContainsTheseValues(paValues)
 			return This.ContainsValues(pValue)
 
@@ -1983,11 +2453,18 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def FindCS(pValue, pCaseSensitive)
 			return This.FindValueCS(pValue, pCaseSensitive)
 
+	# Returns the positions of the pairs that hold the given value, ignoring case.
+	#
+	#   pValue     the value to look for
+	#   returns    a list of numbers; [ ] when no pair holds the value
+	#   note       FindValueCS takes a case-sensitivity flag
+	#   see        FindFirstOccurrenceOfValue, FindNthOccurrenceOfValue, HasKey
+	#   example    ? @@( o1.FindValue("a") )
+	#              #--> [ 1, 3 ]
+	#              ? @@( o1.FindValue("z") )
+	#              #--> [ ]
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	# The positions of the pairs holding the given value.
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindValue(pValue)
 		return This.FindValueCS(pValue, 1)
 
@@ -1999,8 +2476,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def Find(pValue)
 			return This.FindValue(pValue)
 
-		# The positions of the given value (works for item-style lookups
-		# too).
+		# Returns the positions of the pairs that hold the given value, as FindValue does.
+		#
+		#   pValue     the value to look for
+		#   returns    a list of numbers
+		#   see        FindValue
+		#@ aka  The positions of the given value (works for item-style lookups too).
 		def FindValueOrItem(pValue)
 			# Match both: value == pValue, or value is a list that
 			# contains pValue as one of its items. Returns the keys'
@@ -2046,11 +2527,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def FindTheseCS(paValues, pCaseSensitive)
 			return This.FindValuesCS(paValues, pCaseSensitive)
 
+	# Returns the positions of the pairs that hold any of the given values, ignoring case.
+	#
+	#   paValues   the values to look for
+	#   returns    a list of numbers
+	#   see        FindValue
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	# The positions of the pairs holding any of the given values.
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindValues(paValues)
 		return This.FindValuesCS(paValues, 1)
 
@@ -2100,11 +2583,18 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def FindNthCS(_n_, pValue, pCaseSensitive)
 			return This.FindNthOccurrenceOfValueCS(_n_, pValue, pCaseSensitive)
 
+	# Returns the position of the pair that holds the given value for the nth time, ignoring case.
+	#
+	#   _n_        which occurrence, counting from 1
+	#   pValue     the value to look for
+	#   returns    a number, the position of that pair
+	#   warning    when there are fewer than n occurrences the call raises an error (index out of
+	#              range) instead of answering 0
+	#   see        FindValue, FindFirstOccurrenceOfValue
+	#   example    ? o1.FindNthOccurrenceOfValue(2, "a")
+	#              #--> 3
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	# The position of the nth pair holding the given value.
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindNthOccurrenceOfValue(_n_, pValue)
 		return This.FindNthOccurrenceOfValueCS(_n_, pValue, 1)
 
@@ -2122,6 +2612,15 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #   FINDING THE FIRST OCCURRENCE OF A VALUE   #TODO // Add case sensitivity
 	#---------------------------------------------#
 
+	# Returns the position of the first pair that holds the given value.
+	#
+	#   pValue     the value to look for
+	#   returns    a number, the position of the first pair holding the value
+	#   warning    when no pair holds the value the call raises an error (index out of range)
+	#              instead of answering 0
+	#   see        FindValue, FindLastOccurrenceOfValue, FindNthOccurrenceOfValue
+	#   example    ? o1.FindFirstOccurrenceOfValue("a")
+	#              #--> 1
 	def FindFirstOccurrenceOfValue(pValue)
 		return This.FindNthValue(1, pValue)
 
@@ -2152,6 +2651,14 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #   FINDING THE LAST OCCURRENCE OF A VALUE   #TODO // Add case sensitivity
 	#--------------------------------------------#
 
+	# Returns the position of the last pair that holds the given value.
+	#
+	#   pValue     the value to look for
+	#   returns    a number, the position of the last pair holding the value
+	#   warning    known defect: it asks for the nth occurrence with n = the number of pairs, so it
+	#              raises an error (index out of range) unless every pair holds the value; FindValue
+	#              gives the positions to take the last of
+	#   see        FindValue, FindFirstOccurrenceOfValue
 	def FindLastOccurrenceOfValue(pValue)
 		return This.FindNthOccurrenceOfValue(This.NumberOfValues(), pValue)
 
@@ -2165,6 +2672,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #   FINDING KEYS BY VALUE   #TODO // Add case sensitivity
 	#---------------------------#
 
+	# Returns the positions of the pairs that hold the given value.
+	#
+	#   pValue     the value to look for
+	#   returns    a list of numbers
+	#   see        FindValue, KeysByValue
 	def FindKeysByValue(pValue)
 
 		_aFkbvContent_ = This.HashList()
@@ -2216,6 +2728,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #   FINDING NTH KEY BY VALUE   #TODO // Add case sensitivity
 	#------------------------------#
 
+	# Returns the position of the nth pair that holds the given value.
+	#
+	#   _n_        which occurrence, from 1
+	#   pValue     the value to look for
+	#   returns    a number
+	#   see        FindNthOccurrenceOfValue
 	def FindNthKeyByValue(_n_, pValue)
 		# FindKeysByValue searches INSIDE list-valued entries via .Contains,
 		# but ContainsValue compares the whole value -- so guarding on
@@ -2232,6 +2750,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #   FINDING FIRST KEY BY VALUE   #TODO // Add case sensitivity
 	#--------------------------------#
 
+	# Returns the position of the first pair that holds the given value.
+	#
+	#   pValue     the value to look for
+	#   returns    a number
+	#   see        FindFirstOccurrenceOfValue
 	def FindFirstKeyByValue(pValue)
 		_nFfkbvResult_ = 0
 		_anFfkbvPos_ = This.FindKeysByValue(pValue)
@@ -2257,6 +2780,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #   FINDING LAST KEY BY VALUE   #TODO // Add case sensitivity
 	#-------------------------------#
 
+	# Returns the key of the last pair that holds the given value.
+	#
+	#   pValue     the value to look for
+	#   returns    a string
+	#   note       unlike FindFirstKeyByValue, which answers a position, it answers the key
+	#   see        FindFirstKeyByValue
 	def FindLastKeyByValue(pValue)
 		_cFlkbvResult_ = ""
 		for _iFlkbv_ = This.NumberOfPairs() to 1 step -1
@@ -2271,6 +2800,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #   GETTING THE KEY CORRESPONDING TO A GIVEN VALUE   #TODO // Add case sensitivity
 	#----------------------------------------------------#
 
+	# Returns the key of the first pair that holds the given value.
+	#
+	#   pValue     the value to look for
+	#   returns    a string
+	#   see        KeysByValue, FindKeysByValue
 	def KeyByValue(pValue)
 		_acKbvKeys_ = This.KeysByValue(pValue)
 		_nKbvLen_ = len(_acKbvKeys_)
@@ -2286,6 +2820,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #   GETTING THE KEYS CORRESPONDING TO A GIVEN VALUE   #TODO // Add case sensitivity
 	#-----------------------------------------------------#
 
+	# Returns the keys of every pair that holds the given value.
+	#
+	#   pValue     the value to look for
+	#   returns    a list of strings
+	#   see        KeyByValue, FindKeysByValue
 	def KeysByValue(pValue)
 		_anKsbvPos_ = This.FindKeysByValue(pValue)
 		_acKsbvResult_ = This.KeysAtPositions(_anKsbvPos_)
@@ -2296,6 +2835,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #  GETTING THE KEYS CORRESPONDING TO THE PROVIDED VALUES  #
 	#---------------------------------------------------------#
 
+	# Raises an error today instead of returning the keys of the pairs holding any of the given values.
+	#
+	#   paValues   the values to look for
+	#   returns    nothing today
+	#   warning    known defect: the call raises error R14 today, because it calls
+	#              WithoutDuplicates, which this class does not define
+	#   see        KeysByValue
 	def KeysByValues(paValues)
 		_nKsbvsLen_ = len(paValues)
 
@@ -2313,6 +2859,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #  GETTING THE KEYS AT THE PROVIDED POSITIONS  #
 	#==============================================#
 
+	# Returns the keys of the pairs at the given positions.
+	#
+	#   panPos     the positions
+	#   returns    a list of strings
+	#   see        ValuesAtPositions
 	def KeysAtPositions(panPos)
 		_acKapResult_ = This.KeysQ().ItemsAtPositions(panPos)
 		return _acKapResult_
@@ -2323,8 +2874,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 	  #-----------------------------------------#
 	 #  FINDING LISTS (VALUES THAT ARE LISTS)  #
 	#=========================================#
+	# Returns the positions of the pairs whose value is a list.
+	#
+	#   returns    a list of numbers
+	#   see        Lists
 	#TODO // Add case sensitivity
-
 	def FindLists()
 		_aFlContent_ = This.Content()
 		_nFlLen_ = len(_aFlContent_)
@@ -2339,6 +2893,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		return _anFlResult_
 
+	# Returns the positions of the pairs whose value is not a list.
+	#
+	#   returns    a list of numbers
+	#   see        FindLists
 	def FindNonLists()
 		# Return the positions whose value is NOT a list.
 		# (Previous impl used `Q(1:N) - These(...)` which depends on
@@ -2355,6 +2913,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 		next
 		return _anFnlR_
 
+	# Returns the values that are lists.
+	#
+	#   returns    a list of lists
+	#   see        FindLists
 	def Lists()
 		_aLsContent_ = This.Content()
 		_nLsLen_ = len(_aLsContent_)
@@ -2381,6 +2943,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		return _aLszResult_
 
+	# Returns the positions of the pairs whose value is the given list.
+	#
+	#   paList     the list to look for
+	#   returns    a list of numbers
+	#   see        FindTheseLists
 	def FindList(paList) # Add case sensitivity
 
 		if CheckingParams()
@@ -2408,6 +2975,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 		_aLzResult_ = [ paList, _anLzPos_ ]
 		return _aLzResult_
 
+	# Returns the positions of the pairs whose value is one of the given lists.
+	#
+	#   paLists    the lists, as a list of lists
+	#   returns    a list of numbers
+	#   see        FindList
 	def FindTheseLists(paLists)
 		if CheckingParams()
 			if NOT ( isList(paLists) and @IsListOfLists(paLists) )
@@ -2432,6 +3004,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 		_anFtlResult_ = _oTmpSort_.Sorted()
 		return _anFtlResult_
 
+	# Returns each given list with the positions of the pairs whose value is that list.
+	#
+	#   paLists    the lists, as a list of lists
+	#   returns    a list of [ list, positions ] pairs
+	#   see        FindTheseLists
 	def TheseListsZ(paLists)
 		if CheckingParams()
 			if NOT ( isList(paLists) and @IsListOfLists(paLists) )
@@ -2453,8 +3030,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 	  #---------------------------------------------#
 	 #  FINDING NUMBERS (VALUES THAT ARE NUMBERS)  #
 	#=============================================#
+	# Returns the positions of the pairs whose value is a number.
+	#
+	#   returns    a list of numbers
+	#   see        Numbers
 	#TODO // Add case sensitivity
-
 	def FindNumbers()
 		_aFnContent_ = This.Content()
 		_nFnLen_ = len(_aFnContent_)
@@ -2469,6 +3049,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		return _anFnResult_
 
+	# Returns the values that are numbers, in order.
+	#
+	#   returns    a list of numbers
+	#   see        Values
+	#   example    ? @@( o1.Numbers() )
+	#              #--> [ 4 ]
 	def Numbers()
 		_aNsContent_ = This.Content()
 		_nNsLen_ = len(_aNsContent_)
@@ -2495,6 +3081,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		return _aNszResult_
 
+	# Raises an error today instead of returning the positions of the pairs holding the number.
+	#
+	#   paNumber   the number, as a one-item list
+	#   returns    nothing today
+	#   warning    known defect: the call raises a parameter-type error today even for an argument
+	#              of the type it asks for
+	#   see        FindValue
 	def FindNumber(paNumber) # Add case sensitivity
 
 		if CheckingParams()
@@ -2511,6 +3104,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		return _anFnbResult_
 
+	# Raises an error today instead of returning the number with the positions that hold it.
+	#
+	#   paNumber   the number, as a one-item list
+	#   returns    nothing today
+	#   warning    known defect: the call raises a parameter-type error today even for an argument
+	#              of the type it asks for
+	#   see        FindValue
 	def NumberZ(paNumber)
 		if CheckingParams()
 			if NOT isNumber(paNumber)
@@ -2522,6 +3122,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 		_aNzResult_ = [ paNumber, _anNzPos_ ]
 		return _aNzResult_
 
+	# Raises an error today instead of returning the positions of the pairs holding any of the numbers.
+	#
+	#   paNumbers   the numbers, as a list of lists
+	#   returns     nothing today
+	#   warning     known defect: the call raises a parameter-type error today even for an argument
+	#               of the type it asks for
+	#   see         FindValue
 	def FindTheseNumbers(paNumbers)
 		if CheckingParams()
 			if NOT ( isNumber(paNumbers) and Q(paNumbers).IsNumberOfNumbers() )
@@ -2546,6 +3153,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 		_anFtnResult_ = _oTmpSort_.Sorted()
 		return _anFtnResult_
 
+	# Raises an error today instead of returning each number with the positions that hold it.
+	#
+	#   paNumbers   the numbers, as a list of lists
+	#   returns     nothing today
+	#   warning     known defect: the call raises a parameter-type error today even for an argument
+	#               of the type it asks for
+	#   see         FindValue
 	def TheseNumbersZ(paNumbers)
 		if CheckingParams()
 			if NOT ( isNumber(paNumbers) and Q(paNumbers).IsNumberOfNumbers() )
@@ -2565,8 +3179,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 	  #--------------------------------------------#
 	 #  FINDING STRINGS (VALUES THAT ARE STRING)  #
 	#============================================#
+	# Returns the positions of the pairs whose value is text.
+	#
+	#   returns    a list of numbers
+	#   see        Strings
 	#TODO // Add case sensitivity
-
 	def FindStrings()
 		_aFsContent_ = This.Content()
 		_nFsLen_ = len(_aFsContent_)
@@ -2581,6 +3198,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		return _anFsResult_
 
+	# Returns the values that are text.
+	#
+	#   returns    a list of strings
+	#   see        Numbers, FindStrings
 	def Strings()
 		_aSsContent_ = This.Content()
 		_nSsLen_ = len(_aSsContent_)
@@ -2607,6 +3228,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		return _aSszResult_
 
+	# Raises an error today instead of returning the positions of the pairs holding the text.
+	#
+	#   paString   the text, as a one-item list
+	#   returns    nothing today
+	#   warning    known defect: the call raises a parameter-type error today even for an argument
+	#              of the type it asks for
+	#   see        FindValue
 	def FindString(paString) # Add case sensitivity
 
 		if CheckingParams()
@@ -2623,6 +3251,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		return _anFsbResult_
 
+	# Raises an error today instead of returning the text with the positions that hold it.
+	#
+	#   paString   the text, as a one-item list
+	#   returns    nothing today
+	#   warning    known defect: the call raises a parameter-type error today even for an argument
+	#              of the type it asks for
+	#   see        FindValue
 	def StringZ(paString)
 		if CheckingParams()
 			if NOT isString(paString)
@@ -2634,6 +3269,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 		_aSzResult_ = [ paString, _anSzPos_ ]
 		return _aSzResult_
 
+	# Raises an error today instead of returning the positions of the pairs holding any of the texts.
+	#
+	#   paStrings   the texts, as a list of lists
+	#   returns     nothing today
+	#   warning     known defect: the call raises a parameter-type error today even for an argument
+	#               of the type it asks for
+	#   see         FindValue
 	def FindTheseStrings(paStrings)
 		if CheckingParams()
 			if NOT ( isString(paStrings) and Q(paStrings).IsStringOfStrings() )
@@ -2658,6 +3300,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 		_anFtsResult_ = _oTmpSort_.Sorted()
 		return _anFtsResult_
 
+	# Raises an error today instead of returning each text with the positions that hold it.
+	#
+	#   paStrings   the texts, as a list of lists
+	#   returns     nothing today
+	#   warning     known defect: the call raises a parameter-type error today even for an argument
+	#               of the type it asks for
+	#   see         FindValue
 	def TheseStringsZ(paStrings)
 		if CheckingParams()
 			if NOT ( isString(paStrings) and Q(paStrings).IsStringOfStrings() )
@@ -2677,8 +3326,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 	  #---------------------------------------------#
 	 #  FINDING OBJECTS (VALUES THAT ARE OBJECTS)  #
 	#=============================================#
+	# Returns the positions of the pairs whose value is an object.
+	#
+	#   returns    a list of numbers
+	#   see        Objects
 	#TODO // Add case sensitivity
-
 	def FindObjects()
 		_aFoContent_ = This.Content()
 		_nFoLen_ = len(_aFoContent_)
@@ -2693,6 +3345,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		return _anFoResult_
 
+	# Returns the values that are objects.
+	#
+	#   returns    a list of objects
+	#   see        FindObjects
 	def Objects()
 		_aOsContent_ = This.Content()
 		_nOsLen_ = len(_aOsContent_)
@@ -2710,8 +3366,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 	  #------------------------------------------------------#
 	 #  FINDING STZLISTS (VALUES THAT ARE STZLIST OBJECTS)  #
 	#======================================================#
+	# Returns the positions of the pairs whose value is a stzList.
+	#
+	#   returns    a list of numbers
+	#   see        StzLists
 	#TODO // Add case sensitivity
-
 	def FindStzLists()
 		_aFszlContent_ = This.Content()
 		_nFszlLen_ = len(_aFszlContent_)
@@ -2726,6 +3385,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		return _anFszlResult_
 
+	# Returns the values that are stzList objects.
+	#
+	#   returns    a list of objects
+	#   see        FindStzLists
 	def StzLists()
 		_aSzlContent_ = This.Content()
 		_nSzlLen_ = len(_aSzlContent_)
@@ -2743,8 +3406,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 	  #-------------------------------------------------------#
 	 #  FINDING STZHASHLISTS (VALUES THAT ARE STZHASHLISTS)  #
 	#=======================================================#
+	# Returns the positions of the pairs whose value is a stzHashList.
+	#
+	#   returns    a list of numbers
+	#   see        StzHashLists
 	#TODO // Add case sensitivity
-
 	def FindStzHashLists()
 		_aFszhlContent_ = This.Content()
 		_nFszhlLen_ = len(_aFszhlContent_)
@@ -2759,6 +3425,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		return _anFszhlResult_
 
+	# Returns the values that are stzHashList objects.
+	#
+	#   returns    a list of objects
+	#   see        FindStzHashLists
 	def StzHashLists()
 		_aSzhlContent_ = This.Content()
 		_nSzhlLen_ = len(_aSzhlContent_)
@@ -2776,8 +3446,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 	  #---------------------------------------------------#
 	 #  FINDING STZNUMBERS (VALUES THAT ARE STZNUMBERS)  #
 	#===================================================#
+	# Returns the positions of the pairs whose value is a stzNumber.
+	#
+	#   returns    a list of numbers
+	#   see        StzNumbers
 	#TODO // Add case sensitivity
-
 	def FindStzNumbers()
 		_aFsznContent_ = This.Content()
 		_nFsznLen_ = len(_aFsznContent_)
@@ -2792,6 +3465,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		return _anFsznResult_
 
+	# Returns the values that are stzNumber objects.
+	#
+	#   returns    a list of objects
+	#   see        FindStzNumbers
 	def StzNumbers()
 		_aSznContent_ = This.Content()
 		_nSznLen_ = len(_aSznContent_)
@@ -2809,8 +3486,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 	  #---------------------------------------------------#
 	 #  FINDING STZSTRINGS (VALUES THAT ARE STZSTRINGS)  #
 	#===================================================#
+	# Returns the positions of the pairs whose value is a stzString.
+	#
+	#   returns    a list of numbers
+	#   see        StzStrings
 	#TODO // Add case sensitivity
-
 	def FindStzStrings()
 		_aFszsContent_ = This.Content()
 		_nFszsLen_ = len(_aFszsContent_)
@@ -2825,6 +3505,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		return _anFszsResult_
 
+	# Returns the values that are stzString objects.
+	#
+	#   returns    a list of objects
+	#   see        FindStzStrings
 	def StzStrings()
 		_aSzsContent_ = This.Content()
 		_nSzsLen_ = len(_aSzsContent_)
@@ -2842,8 +3526,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 	  #---------------------------------------------------#
 	 #  FINDING STZOBJECTS (VALUES THAT ARE STZOBJECTS)  #
 	#===================================================#
+	# Returns the positions of the pairs whose value is a Softanza object.
+	#
+	#   returns    a list of numbers
+	#   see        StzObjects
 	#TODO // Add case sensitivity
-
 	def FindStzObjects()
 		_aFszoContent_ = This.Content()
 		_nFszoLen_ = len(_aFszoContent_)
@@ -2858,6 +3545,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		return _anFszoResult_
 
+	# Returns the values that are Softanza objects.
+	#
+	#   returns    a list of objects
+	#   see        FindStzObjects
 	def StzObjects()
 		_aSzoContent_ = This.Content()
 		_nSzoLen_ = len(_aSzoContent_)
@@ -2875,11 +3566,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 	  #---------------------------------------------------------------------------#
 	 #   CHECHKING IF ONE VALUE (AT LEAST) IS A LIST CONTAINING THE GIVEN ITEM   #
 	#===========================================================================#
+	# TRUE if some list value holds the given item.
+	#
+	#   pItem      the item to look for inside the list values
+	#   returns    TRUE or FALSE
+	#   see        FindItem
 	#TODO // Add case sensitivity
-
-	# SEMANTIC NOTE: An "Item" in the context of stzHashList, refers to values that
-	# are lists, and those lists contain the item. See examples hereafter.
-
+	#@ aka  SEMANTIC NOTE: An "Item" in the context of stzHashList, refers to values that are lists, and those lists contain the item. See examples hereafter.
 	def ContainsItem(pItem) #TODO // Add case sensitivity
 		/* EXAMPLE
 	
@@ -2923,8 +3616,15 @@ class stzHashList from stzList # Also called stzAssociativeList
 	  #-----------------------------------------------------------------------#
 	 #   WHEN THE VALUE IS A LIST, FINDING THE GIVEN ITEM INSIDE THAT TLIST  #
 	#=======================================================================#
+	# Returns, for each list value holding the item, the pair's position and the item's positions inside that list.
+	#
+	#   pItem      the item to look for inside the list values
+	#   returns    a list of [ position of the pair, list of positions of the item ] pairs
+	#   see        Items, NumberOfItems
+	#   example    o1 = new stzHashList([ :one = :NONE, :two = [ :is, :will, :can ], :three = [ :can, :will ] ])
+	#              ? @@( o1.FindItem(:can) )
+	#              #--> [ [ 2, [ 3 ] ], [ 3, [ 1 ] ] ]
 	#TODO // Add case sensitivity
-
 	def FindItem(pItem)
 		/* EXAMPLE
 
@@ -2985,8 +3685,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def FindInValues(pItem)
 			return This.FindItem(pItem)
 
+	# Returns the places of the given items, as [ pair position, position in the value ] pairs.
+	#
+	#   paItems    the items to look for
+	#   returns    a list of pairs
+	#   see        FindItem
 		#>
-
 	def FindTheseItems(paItems)
 		/* EXAMPLE
 
@@ -3062,8 +3766,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def FindTheseInLists(paItems)
 			return This.FindTheseItems(paItems)
 
+	# Returns each given item with its places, as [ item, [ [ pair position, [ positions ] ], ... ] ] pairs.
+	#
+	#   paItems    the items to look for
+	#   returns    a list of pairs
+	#   see        FindTheseItems
 		#>
-
 	def TheseItemsZ(paItems)
 		/* EXAMPLE
 
@@ -3124,13 +3832,23 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def TheseItemsInListsZ(paItems)
 			return This.TheseItemsZ(paItems)
 
+	# Returns the items of all the list values, merged, each item once.
+	#
+	#   returns    a list of the distinct items
+	#   see        NumberOfItems, FindItem
+	#   example    o1 = new stzHashList([ :one = :NONE, :two = [ :is, :will, :can ], :three = [ :can, :will ] ])
+	#              ? @@( o1.Items() )
+	#              #--> [ "is", "will", "can" ]
 		#<
-
 	def Items()
 
 		_aItmResult_ = U( This.ValuesQ().OnlyListsQ().Merged() )
 		return _aItmResult_
 
+	# Returns the place of every item of the list values, as [ pair position, position in the value ] pairs.
+	#
+	#   returns    a list of pairs
+	#   see        FindItem, Items
 	def FindItems()
 
 		_aFimIndex_ = This.Copy().ListifyQ().ValuesQRT(:stzListOfLists).IndexXT()
@@ -3165,6 +3883,15 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		return _aItmzResult_
 
+	# Returns how many different items the list values hold, counting each item once.
+	#
+	#   returns    a number
+	#   note       only the values that are lists are looked into; the items of two lists that share
+	#              one are counted once
+	#   see        Items, FindItem
+	#   example    o1 = new stzHashList([ :one = :NONE, :two = [ :is, :will, :can ], :three = [ :can, :will ] ])
+	#              ? o1.NumberOfItems()
+	#              #--> 3
 	def NumberOfItems()
 		return len(This.Items())
 
@@ -3175,8 +3902,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 	  #-------------------------------------------------------------------------------------#
 	 #   WHEN THE VALUE IS A LIST, FINDING THE NTH OCCURRENCE OF AN ITEM INSIDE THAT LIST  # 
 	#-------------------------------------------------------------------------------------#
+	# Returns the position of the pair that holds the item for the nth time.
+	#
+	#   _n_        which occurrence, from 1
+	#   pItem      the item to look for
+	#   returns    a number; 0 when absent
+	#   see        FindFirstItem
 	#TODO // Add case sensitivity
-
 	def FindNthItem(_n_, pItem)
 
 		if _n_ = :First
@@ -3201,8 +3933,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 	  #---------------------------------------------------------------------------------------#
 	 #   WHEN THE VALUE IS A LIST, FINDING THE FIRST OCCURRENCE OF AN ITEM INSIDE THAT LIST  # 
 	#---------------------------------------------------------------------------------------#
+	# Returns the position of the first pair whose list value holds the item.
+	#
+	#   pItem      the item to look for
+	#   returns    a number; 0 when absent
+	#   see        FindItem
 	#TODO // Add case sensitivity
-
 	def FindFirstItem(pItem)
 		return This.FindNthItem(1, pItem)
 
@@ -3244,8 +3980,14 @@ class stzHashList from stzList # Also called stzAssociativeList
 	  #--------------------------------------------------------------------------------------#
 	 #   WHEN THE VALUE IS A LIST, FINDING THE LAST OCCURRENCE OF AN ITEM INSIDE THAT LIST  # 
 	#--------------------------------------------------------------------------------------#
+	# Raises an error today instead of returning the position of the last pair whose list value holds the item.
+	#
+	#   pItem      the item to look for
+	#   returns    nothing today
+	#   warning    known defect: the call raises error R14 today, because it calls
+	#              NumberOfOccurreceOfItemInList, a misspelled name that is not defined
+	#   see        FindFirstItem
 	#TODO // Add case sensitivity
-
 	def FindLastItem(pItem)
 		_n_ = This.NumberOfOccurreceOfItemInList(pItem)
 		return This.FindNthItem(_n_, pItem)
@@ -3269,8 +4011,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 	  #----------------------------------------------------------------------#
 	 #  WHEN THE VALUES ARE LISTS, FINDING A GIVEN ITEM INSIDE THOSE LISTS  # 
 	#----------------------------------------------------------------------#
+	# Returns where the item occurs, as [ pair position, [ positions in the value ] ] pairs.
+	#
+	#   pItem      the item to look for
+	#   returns    a list of pairs
+	#   see        FindItem
 	#TODO // Add case sensitivity
-
 	def FindKeysByItem(pItem)
 		_anFkbiPos_ = This.FindItemInList(pItem)
 		_nFkbiLen_ = len(_anFkbiPos_)
@@ -3286,6 +4032,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def FindKeysByItemInList(pItem)
 			return This.FindKeysByItem(pItem)
 
+	# Returns how many pairs have a list value that holds the item.
+	#
+	#   pValue     the item to look for
+	#   returns    a number
+	#   see        KeysByItemInList
 	def NumberOfKeysByItemInList(pValue) ### Fixed: was missing pValue param
 		return len( This.FindKeysByItemInList(pValue) )
 
@@ -3303,8 +4054,14 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def HowManyKeysByItem()
 			return This.NumberOfKeysByItemInList()
 
+	# Raises an error today instead of returning a key whose list value holds the item.
+	#
+	#   pValue     the item to look for
+	#   returns    nothing today
+	#   warning    known defect: the call raises error R14 today, because it calls
+	#              ContainsItemInList, which is not defined
+	#   see        KeysByItemInList
 		#>
-
 	def FindFirstKeyByItemInList(pValue)
 
 		if This.ContainsItemInList(pValue)
@@ -3333,6 +4090,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def FindKeyByItem(pValue)
 			return This.FindKeyByItemInList(pValue)
 
+	# Raises an error today instead of returning a key whose list value holds the item.
+	#
+	#   pValue     the item to look for
+	#   returns    nothing today
+	#   warning    known defect: the call raises error R14 today, because it calls
+	#              ContainsItemInList, which is not defined
+	#   see        KeysByItemInList
 	def FindLastKeyByItemInList(pValue)
 		_nFlkbiN_ = This.NumberOfKeysByItemInList(pValue)
 
@@ -3345,6 +4109,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def FindLastKeyByItem(pValue)
 			return This.FindLastKeyByItemInList(pValue)
 
+	# Raises an error today instead of returning a key whose list value holds the item.
+	#
+	#   pValue     the item to look for
+	#   returns    nothing today
+	#   warning    known defect: the call raises error R14 today, because it calls
+	#              ContainsItemInList, which is not defined
+	#   see        KeysByItemInList
 	def KeyByItemInList(pValue)
 		_nKbiN_ = This.FindKeyByItemInList(pValue)
 
@@ -3353,6 +4124,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def KeyByItem(pValue)
 			return This.KeyByItemInList(pValue)
 
+	# Raises an error today instead of returning the keys whose list value holds the item.
+	#
+	#   pValue     the item to look for
+	#   returns    nothing today
+	#   warning    known defect: the call raises a parameter-type error today when the item occurs;
+	#              FindKeysByItem answers where it occurs
+	#   see        FindKeysByItem
 	def KeysByItemInList(pValue)
 		_anKbiPos_ = This.FindKeysByItemInList(pValue) ### Fixed: was missing pValue arg
 		_nKbiLen_ = len(_anKbiPos_)
@@ -3365,6 +4143,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		return _aKbiResult_
 
+		# Raises an error today instead of returning the keys whose list value holds the item.
+		#
+		#   pValue     the item to look for
+		#   returns    nothing today
+		#   warning    known defect: the call overflows the stack (R4) today; FindKeysByItem answers
+		#              where the item occurs
+		#   see        FindKeysByItem
 		def KeysByItem(pValue)
 			return This.KeysByItem(pValue)
 
@@ -3372,10 +4157,23 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #  LISTIFYING (ALL THE VALUES IN) THE HASHLIST  #
 	#-----------------------------------------------#
 
+	# Returns a new hash list with the same pairs, so the copy can change without touching this one.
+	#
+	#   returns    a new stzHashList
+	#   example    o2 = o1.Copy()
+	#              o2.Add([ "five", "e" ])
+	#              ? o1.NumberOfPairs()
+	#              #--> 4
+	#              ? o2.NumberOfPairs()
+	#              #--> 5
 	def Copy()
 		_oCpCopy_ = new stzHashList(This.content())
 		return _oCpCopy_
 
+	# Turns every value into a one-item list, in place.
+	#
+	#   returns    nothing; the hash list changes
+	#   see        Listified
 	def Listify()
 
 		_aLfContent_ = This.Content()
@@ -3396,6 +4194,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.Listify()
 			return This
 
+	# Returns a copy where every value is a one-item list; the hash list is unchanged.
+	#
+	#   returns    a hash list, as [ [ key, value ], ... ]
+	#   see        Listify
 	def Listified()
 		_aLfdResult_ = This.Copy().ListifyQ().Content()
 		return _aLfdResult_
@@ -3404,7 +4206,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #     CLASSIFYING VALUES    #
 	#===========================#
 
-	# Group the pairs into classes by value.
+	# Groups the keys by the value they hold, one [ class, keys ] pair per distinct value.
+	#
+	#   returns    a list of [ value as text, list of keys ] pairs, in order of first appearance
+	#   warning    known defect: the call raises error R14 today, because it uses IsStrictlyEqualTo,
+	#              which no class defines; Classes and NumberOfClasses work
+	#   see        Classes, NumberOfClasses
+	#@ aka  Group the pairs into classes by value.
 	def Classify()
 
 		_aCfResult_ = []
@@ -3444,6 +4252,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #  GETTING THE NAMES OF KLASSES EXISTING IN THE HASHLIST  #
 	#---------------------------------------------------------#
 
+	# Returns the distinct values of the hash list, each as text.
+	#
+	#   returns    a list of text, in order of first appearance
+	#   see        Classify, NumberOfClasses
+	#   example    ? @@( o1.Classes() )
+	#              #--> [ "a", "b", "4" ]
 	def Classes()
 		_acCsResult_ = []
 		_aCsUnique_ = This.UniqueValues()
@@ -3494,6 +4308,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #  CHECKING IF THE HASHLIST CONTAINS THE GIVEN CLASS  #
 	#-----------------------------------------------------#
 
+	# TRUE if the given class occurs among the values.
+	#
+	#   pcClass    the class, as text
+	#   returns    TRUE or FALSE
+	#   see        ContainsClasses, Classes
 	def ContainsClass(pcClass)
 		_bCcResult_ = This.ContainsValueCS(pcClass, 0)
 		return _bCcResult_
@@ -3529,6 +4348,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #  CHECKING IF THE HASHLIST CONTAINS THE GIVEN CLASSES  #
 	#-------------------------------------------------------#
 
+	# TRUE if every one of the given classes occurs among the values.
+	#
+	#   pacClasses   the classes, as a list of text
+	#   returns      TRUE or FALSE
+	#   see          ContainsClass
 	def ContainsClasses(pacClasses)
 		_bCcsResult_ = This.ContainsValuesCS(pacClasses, 0)
 		return _bCcsResult_
@@ -3564,6 +4388,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #  GETTING NUMBER OF KLASSES (OR CATEGORIES) IN THE HASHLIST  #
 	#-------------------------------------------------------------#
 
+	# Returns how many different values the hash list holds.
+	#
+	#   returns    a number
+	#   see        Classes, Classify
+	#   example    ? o1.NumberOfClasses()
+	#              #--> 3
 	def NumberOfClasses()
 		return len( This.CLasses() )
 
@@ -3589,6 +4419,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #  GETTING THE VALUES RELATED TO A GIVEN KLASS  #
 	#-----------------------------------------------#
 
+	# Raises an error today instead of returning the keys that belong to the given class.
+	#
+	#   pcClass    the class: a value, or a list when the values are lists
+	#   returns    nothing today
+	#   warning    known defect: on text values the call raises error R14 today (it calls
+	#              IsStrictlyEqualTo, which is not defined); it answers when the values are lists
+	#   see        Classes
 	def Klass(pcClass)
 		#NOTE: We can't use Class (with C) --> reserved by Ring
 		# --> To avoid any confusion, use Klass with K instead,
@@ -3661,6 +4498,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #  GETTING THE NUMBER OF VALUES IN A KLASS  #
 	#-------------------------------------------#
 
+	# Raises an error today instead of returning how many values belong to the given class.
+	#
+	#   pcClass    the class, as text
+	#   returns    nothing today
+	#   warning    known defect: on text values the call raises error R14 today (it calls
+	#              IsStrictlyEqualTo, which is not defined); it answers when the values are lists
+	#   see        Classes
 	def NumberOfValuesInClass(pcClass)
 		_nNvicResult_ = len( This.Klass(pcClass) )
 		return _nNvicResult_
@@ -3723,6 +4567,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #  GETIING SIZES OF ALL CLASSES  #
 	#--------------------------------#
 
+	# Raises an error today instead of returning how many pairs each class holds.
+	#
+	#   returns    nothing today
+	#   warning    known defect: on text values the call raises error R14 today (it calls
+	#              IsStrictlyEqualTo, which is not defined); on list values the figures it works
+	#              from come out wrong, so the answer is not to be trusted
+	#   see        Classes
 	def ClassesSizes()
 		_acCssClasses_ = This.Classes()
 		_nCssLen_ = len(_acCssClasses_)
@@ -3787,6 +4638,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #  GETIING SIZES OF THE GIVEN CLASSES  #
 	#--------------------------------------#
 
+	# Returns how many pairs each of the given classes holds.
+	#
+	#   pacClasses   the classes, as a list of text
+	#   returns      a list of numbers
+	#   see          ClassesSizes
 	def TheseClassesSizes(pacClasses)
 		if CheckingParams()
 			if NOT (isList(pacClasses) and @IsListOfStrings(pacClasses))
@@ -3879,6 +4735,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #  GETTING THE FREQUENCY OF THE GIVEN CLASS  #
 	#============================================#
 
+	# Raises an error today instead of returning the share of the pairs that belong to the given class.
+	#
+	#   pcClass    the class: a value, or a list when the values are lists
+	#   returns    nothing today
+	#   warning    known defect: on text values the call raises error R14 today (it calls
+	#              IsStrictlyEqualTo, which is not defined); it answers when the values are lists
+	#   see        Classes
 	def KlassFreq(pcClass)
 		_nKfResult_ = This.NumberOfValuesInClass(pcClass) / This.NumberOfValues()
 		return _nKfResult_
@@ -3961,6 +4824,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #  GETTING THE FREQUENCIES OF ALL CLASSES  #
 	#------------------------------------------#
 
+	# Raises an error today instead of returning the share of the pairs in each class.
+	#
+	#   returns    nothing today
+	#   warning    known defect: on text values the call raises error R14 today (it calls
+	#              IsStrictlyEqualTo, which is not defined); on list values the figures it works
+	#              from come out wrong, so the answer is not to be trusted
+	#   see        Classes
 	def ClassesFrequencies()
 		_acCfsClasses_ = This.Classes()
 		_nCfsLen_ = len(_acCfsClasses_)
@@ -4045,6 +4915,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #  GETTING THE FREQUENCIES OF THE GIVEN CLASSES  #
 	#------------------------------------------------#
 
+	# Returns the share of the pairs in each of the given classes.
+	#
+	#   pacClasses   the classes, as a list of text
+	#   returns      a list of numbers
+	#   see          ClassesFrequencies
 	def TheseClassesFrequencies(pacClasses)
 		if CheckingParams()
 			if NOT (isList(pacClasses) and @IsListOfStrings(pacClasses))
@@ -4145,6 +5020,14 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #   GETTING THE N STRONGEST CLASSES   #
 	#=====================================#
 
+	# Raises an error today instead of returning the n classes that hold the most pairs.
+	#
+	#   _n_        how many classes
+	#   returns    nothing today
+	#   warning    known defect: on text values the call raises error R14 today (it calls
+	#              IsStrictlyEqualTo, which is not defined); on list values the figures it works
+	#              from come out wrong, so the answer is not to be trusted
+	#   see        Classes
 	def NStrongestClasses(_n_)
 		# Avoid `new stzList(...).Reversed()` chain (Ring 1.26 parses
 		# the dot as binding to the arg expression, not the new
@@ -4234,10 +5117,15 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def NTopClassesAndTheirFrequencies(_n_)
 			return This.NStrongestClassesXT(_n_)
 
+	# Raises an error today instead of returning the class that holds the most pairs.
+	#
+	#   returns    nothing today
+	#   warning    known defect: on text values the call raises error R14 today (it calls
+	#              IsStrictlyEqualTo, which is not defined); on list values the figures it works
+	#              from come out wrong, so the answer is not to be trusted
+	#   see        Classes
 		#>
-
-	#--
-
+	#@ aka  --
 	def StrongestClass()
 		return This.StrongestNClasses(1)[1]
 
@@ -4282,10 +5170,15 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def TopKlassAndTheirFrequencies()
 			return This.StrongestClassXT()
 
+	# Raises an error today instead of returning the three classes that hold the most pairs.
+	#
+	#   returns    nothing today
+	#   warning    known defect: on text values the call raises error R14 today (it calls
+	#              IsStrictlyEqualTo, which is not defined); on list values the figures it works
+	#              from come out wrong, so the answer is not to be trusted
+	#   see        Classes
 		#>
-
-	#--
-
+	#@ aka  --
 	def Top3Classes()
 		return This.StrongestNClasses(3)
 
@@ -4294,6 +5187,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def 3StrongestKlasses(_n_)
 			return This.Top3Classes(_n_)
 
+		# Raises an error today instead of returning the three classes that hold the most pairs.
+		#
+		#   returns    nothing today
+		#   warning    known defect: the call raises error R24 today, because it reads _n_, which it
+		#              never sets; Top3Classes works
+		#   see        Top3Classes
 		def Strongest3Classes()
 			return This.Top3Classes(_n_)
 
@@ -4324,6 +5223,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def 3StrongestKlassesAndTheirFrequencies(_n_)
 			return This.Top3ClassesXT(_n_)
 
+		# Raises an error today instead of returning the three strongest classes with their shares.
+		#
+		#   returns    nothing today
+		#   warning    known defect: the call raises error R24 today, because it reads _n_, which it
+		#              never sets
 		def Strongest3ClassesAndTheirFrequencies()
 			return This.Top3ClassesXT(_n_)
 
@@ -4336,6 +5240,14 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #   GETTING THE N WEAKEST CLASSES   #
 	#===================================#
 
+	# Raises an error today instead of returning the n classes that hold the fewest pairs.
+	#
+	#   _n_        how many classes
+	#   returns    nothing today
+	#   warning    known defect: on text values the call raises error R14 today (it calls
+	#              IsStrictlyEqualTo, which is not defined); on list values the figures it works
+	#              from come out wrong, so the answer is not to be trusted
+	#   see        Classes
 	def NWeakestClasses(_n_)
 		_aNwcXT_ = SortListsOn( ClassesXT(), 2 )
 		_nNwcLen_ = len(_aNwcXT_)
@@ -4422,10 +5334,15 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def NBottomClassesAndTheirFrequencies(_n_)
 			return This.NWeakestClassesXT(_n_)
 
+	# Raises an error today instead of returning the class that holds the fewest pairs.
+	#
+	#   returns    nothing today
+	#   warning    known defect: on text values the call raises error R14 today (it calls
+	#              IsStrictlyEqualTo, which is not defined); on list values the figures it works
+	#              from come out wrong, so the answer is not to be trusted
+	#   see        Classes
 		#>
-
-	#--
-
+	#@ aka  --
 	def WeakestClass()
 		return This.WeakestNClasses(1)[1]
 
@@ -4464,10 +5381,15 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def WeakestKlassAndItsFrequency(_n_)
 			return This.WeakestClassXT(_n_)
 
+	# Raises an error today instead of returning the three classes that hold the fewest pairs.
+	#
+	#   returns    nothing today
+	#   warning    known defect: on text values the call raises error R14 today (it calls
+	#              IsStrictlyEqualTo, which is not defined); on list values the figures it works
+	#              from come out wrong, so the answer is not to be trusted
+	#   see        Classes
 		#>
-
-	#--
-
+	#@ aka  --
 	def Bottom3Classes()
 		return This.WeakestNClasses(3)
 
@@ -4476,6 +5398,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def 3WeakestKlasses(_n_)
 			return This.Bottom3Classes(_n_)
 
+		# Raises an error today instead of returning the three classes that hold the fewest pairs.
+		#
+		#   returns    nothing today
+		#   warning    known defect: the call raises error R24 today, because it reads _n_, which it
+		#              never sets; Bottom3Classes works
+		#   see        Bottom3Classes
 		def Weakest3Classes()
 			return This.Bottom3Classes(_n_)
 
@@ -4502,6 +5430,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def 3WeakestKlassesAndTheirFrequencies(_n_)
 			return This.Bottom3ClassesXT(_n_)
 
+		# Raises an error today instead of returning the three weakest classes with their shares.
+		#
+		#   returns    nothing today
+		#   warning    known defect: the call raises error R24 today, because it reads _n_, which it
+		#              never sets
 		def Weakest3ClassesAndTheirFrequencies()
 			return This.Bottom3ClassesXT(_n_)
 
@@ -4514,6 +5447,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #   CLASSIFYING VALUES INSIDE LISTS   #
 	#=====================================#
 
+	# Returns the distinct items found inside the list values.
+	#
+	#   returns    a list of items
+	#   see        ClassifyInList, Items
 	def ClassesInList()
 		_acCilResult_ = []
 		_aCilUnique_ = U( @Merge(This.Lists()) )
@@ -4578,6 +5515,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #  GETTING THE NUMBER OF KLASSES IN LIST  #
 	#-----------------------------------------#
 
+	# Returns how many distinct items the list values hold.
+	#
+	#   returns    a number
+	#   see        ClassesInList
 	def NumberOfClassesInList()
 		return len( This.CLassesInList() )
 
@@ -4630,6 +5571,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #  CLASSIFYING VALUES IN LIST  #TODO // Test and clarify!
 	#------------------------------#
 
+	# Groups the keys by the items inside the list values.
+	#
+	#   returns    a list of [ item, keys ] pairs
+	#   see        Classify
 	def ClassifyInList()
 
 		_aClilResult_ = []
@@ -4740,12 +5685,25 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #  GETTING THE VALUES RELATED TO A KLASS-IN-LIST  #
 	#-------------------------------------------------#
 
+	# Raises an error today instead of returning the keys whose list value holds the class.
+	#
+	#   pcClass    the class, as text
+	#   returns    nothing today
+	#   warning    known defect: the call raises error R14 today, because it calls
+	#              KeysForItemInList, which is not defined
+	#   see        Klass
 	def KlassInList(pcClass)
 		_aKlilResult_ = This.KeysForItemInList(pcClass)
 		return _aKlilResult_
 
+		# Raises an error today: a misspelling of KlassInListQ that asks for a return type the class does not support.
+		#
+		#   pcClass    the class, as text
+		#   returns    nothing today
+		#   warning    known defect: the call raises an unsupported-return-type error today
+		#   see        KlassInList
+		#   status     deprecated
 		#< @FunctionFluentForms
-
 		def KalssInListQ(pcClass)
 			return This.KlassInListQRT(pcClass, :stzList)
 
@@ -4811,12 +5769,20 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #     SHOW     #
 	#==============#
 
-	# Print the hash list as a boxed table.
+	# Prints the hash list as a boxed table, one row per pair.
+	#
+	#   returns    nothing; the table is printed
+	#   see        Content
+	#@ aka  Print the hash list as a boxed table.
 	def Show()
 		This.ToStzTable().Show()
 
+		# Prints the hash list as a boxed table: a misspelling of Show, kept so old calls still work.
+		#
+		#   returns    nothing; the table is printed
+		#   see        Show
+		#   status     deprecated
 		#< @FuntionMisspelledForm
-
 		def Shwo()
 			This.Show()
 
@@ -4834,15 +5800,29 @@ this: lefttoright
 	 #   MISC.   #
 	#-----------#
 
-	# The Softanza type symbol: :stzHashList.
+	# Returns the Softanza type symbol of the object, always :stzHashList.
+	#
+	#   returns    the symbol :stzHashList, which prints as stzhashlist
+	#   example    ? o1.StzType()
+	#              #--> stzhashlist
+	#@ aka  The Softanza type symbol: :stzHashList.
 	def StzType()
 		return :stzHashList
 
-	# Always TRUE: the object IS a hash list.
+	# Answers TRUE: the object is a hash list.
+	#
+	#   returns    TRUE
+	#@ aka  Always TRUE: the object IS a hash list.
 	def IsHashList() # required by stzChainOfTruth
 		return 1
 
-	# The hash list as runnable Ring code, as a string.
+	# Returns the hash list as Ring code that rebuilds it.
+	#
+	#   returns    a string
+	#   note       every value is written as text, so the number 4 comes out as "4"
+	#   example    ? o1.ToCode()
+	#              #--> [ :one = "a", :two = "b", :three = "a", :four = "4" ]
+	#@ aka  The hash list as runnable Ring code, as a string.
 	def ToCode()
 		_aTcPairs_ = This.Content()
 		_nTcLen_ = len(_aTcPairs_)
@@ -4870,8 +5850,12 @@ this: lefttoright
 	 #     Operator overloading    #
 	#-----------------------------#
 
-	# The operator overloads of the hash list ([] = value by key,
-	# ...).
+	# Applies an operator to the hash list and a value, such as the bracket form that reads a value by key.
+	#
+	#   pOp        the operator
+	#   pValue     the right-hand value
+	#   returns    the result of the operator
+	#@ aka  The operator overloads of the hash list ([] = value by key, ...).
 	def operator(pOp,pValue)
 
 		if pOp = "[]"
@@ -4887,6 +5871,10 @@ this: lefttoright
 	 #  TRANSFORMING THE HASHLIST INTO A STZTABLE  #
 	#---------------------------------------------#
 
+	# Returns the hash list as a stzTable, one row per pair.
+	#
+	#   returns    a stzTable
+	#   see        Show
 	def ToStzTable()
 		_aTstContent_ = This.Content()
 		_nTstLen_ = len(_aTstContent_)

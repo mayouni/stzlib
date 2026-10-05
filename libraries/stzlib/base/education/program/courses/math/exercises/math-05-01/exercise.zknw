@@ -1,0 +1,7 @@
+knowledge "math-05-01"
+
+facts
+    math-05-01 | is-a | exercise
+    math-05-01 | in-chapter | a-family-under-a-parameter
+    math-05-01 | trains | fo-04
+    math-05-01 | needs-step | asks

@@ -1,0 +1,7 @@
+knowledge "math-04-01"
+
+facts
+    math-04-01 | is-a | exercise
+    math-04-01 | in-chapter | a-function-is-a-picture
+    math-04-01 | trains | se-02
+    math-04-01 | needs-step | asks

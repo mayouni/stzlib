@@ -1053,6 +1053,26 @@ func StzCompareDatasets(paData1, paData2)
 #  THE CLASS  #
 #-------------#
 
+# Holds a list of numbers or categories and answers descriptive, distribution, relation and quality questions about it, with rules that turn the figures into written insights.
+#
+# The data type is detected when the set is built (numeric, categorical, mixed or empty) and missing
+# markers such as NA are dropped. Numeric statistics answer 0 for data that is not numeric, and the
+# count-based ones need two to four values. The methods fall in groups: the descriptive ones (Mean,
+# Median, Mode, spread, quartiles, Percentile), frequency and diversity for categories, shape and
+# outliers (Skew, Kurtosis, Outliers, ZScores, TrendAnalysis), relation to a second data set given
+# as an argument (CorrelationWith, RegressionCoefficients, ChiSquareWith, MutualInformation),
+# scaling (Normalize, Standardize, RobustScale), and the insight layer: domain rules
+# (AddInsightRule, InsightsOfDomain), plans (MakePlan, ExecutePlan) and Summary. The tables of rules
+# and plan templates are global, shared by every data set of the process, and ExecutePlan and
+# AdaptiveAnalysis print as they work. Known gaps today, each carried as a warning on its method:
+# Percentile makes the engine panic for a percent below 0 or far above 100, WMean overflows the
+# stack, NonParametricCorrelation and PlanSummary raise errors, and MutualInformation misreads
+# values that contain an underscore.
+#
+#   receiver   o1 = new stzDataSet([ 2, 4, 4, 4, 5, 5, 7, 9 ])
+#   example    ? o1.Mean()
+#              #--> 5
+#   see        stzList, stzListOfNumbers, stzTable
 class stzDataSet from stzObject
 
     @anData = []
@@ -1067,12 +1087,23 @@ class stzDataSet from stzObject
     @nMinSampleSize = 3  # Minimum for advanced statistics
     @pEngineStats = ""
 
+    # Returns the name of the class, in lowercase.
+    #
+    #   returns    text, "stzdataset"
+    #   see        Data, DataType
     def ClassName()
         return "stzdataset"
 
         def StzClassName()
             return This.ClassName()
 
+    # Builds a data set from a list, dropping missing markers such as NA or an empty text and detecting the data type; a non-list raises an error.
+    #
+    #   paData     the list of values, numbers or text or both
+    #   returns    nothing; the object is built
+    #   note       the type is numeric, categorical, mixed or empty, and most statistics answer 0
+    #              unless it is numeric
+    #   see        Data, DataType, Count
     def init(paData)
         if CheckParams()
             if NOT isList(paData)
@@ -1149,6 +1180,10 @@ class stzDataSet from stzObject
     #  PILLAR 1: COMPARISON - Descriptive Statistics  #
     #=================================================#
 
+    # Returns the arithmetic mean of the values, or 0 when the data is not entirely numeric.
+    #
+    #   returns    a number; 0 for non-numeric or empty data
+    #   see        Median, Mode, TrimmedMean, WeightedMean
     def Mean()
         if @cDataType != "numeric" or len(@anData) = 0
             return 0
@@ -1170,6 +1205,10 @@ class stzDataSet from stzObject
 			return This.Mean()
 
 
+    # Returns the middle value of the sorted data, or the average of the two middle ones when the count is even.
+    #
+    #   returns    a number; 0 for non-numeric or empty data
+    #   see        Mean, Q2, Mode
     def Median()
         if @cDataType != "numeric" or len(@anData) = 0
             return 0
@@ -1186,6 +1225,11 @@ class stzDataSet from stzObject
         ok
 
 
+	# Returns the most frequent value, as text; the first value to reach the top count wins a tie.
+	#
+	#   returns    text, a number kept as text such as "4"; "" for empty data
+	#   note       it also works on categorical data
+	#   see        ModeCount, FrequencyTable
 	def Mode()
 	    if len(@anData) = 0
 	        return ""
@@ -1238,6 +1282,11 @@ class stzDataSet from stzObject
 	    def MostFrequentValue()
 		return This.Mode()
 
+    # Returns the sample standard deviation, dividing by n minus 1.
+    #
+    #   returns    a number; 0 for non-numeric data or fewer than two values
+    #   note       StdDev is another name
+    #   see        StandardDeviationPopulation, Variance, ZScores
     def StandardDeviation()
         if @cDataType != "numeric" or len(@anData) <= 1
             return 0
@@ -1257,6 +1306,10 @@ class stzDataSet from stzObject
 		def StdDev()
 			return This.StandardDeviation()
 
+		# Returns the sample standard deviation, dividing by n minus 1, the library default named outright.
+		#
+		#   returns    a number; 0 for non-numeric data or fewer than two values
+		#   see        StandardDeviation, StandardDeviationPopulation
 		def StandardDeviationSample()
 			if @cDataType != "numeric" or len(@anData) <= 1
 				return 0
@@ -1266,6 +1319,10 @@ class stzDataSet from stzObject
 			ok
 			return This.StandardDeviation()
 
+		# Returns the population standard deviation, dividing by n, as the square root of the population variance.
+		#
+		#   returns    a number; 0 for non-numeric or empty data
+		#   see        StandardDeviationSample, VariancePopulation
 		def StandardDeviationPopulation()
 			return sqrt( This.VariancePopulation() )
 
@@ -1276,6 +1333,10 @@ class stzDataSet from stzObject
 				return This.StandardDeviationPopulation()
 
 
+	# Returns the sample variance, dividing by n minus 1.
+	#
+	#   returns    a number; 0 for non-numeric data or fewer than two values
+	#   see        VarianceSample, VariancePopulation, StandardDeviation
 	def Variance()
 	    if @cDataType != "numeric" or len(@anData) <= 1
 	        return 0
@@ -1298,9 +1359,11 @@ class stzDataSet from stzObject
 		def V()
 			return This.Variance()
 
-		# The convention, NAMED. Variance() is the SAMPLE variance (N-1) -- the
-		# library default, matching stzList, R's var() and pandas' .var(). Ask by
-		# name and a reader never has to know the default.
+		# Returns the sample variance, dividing by n minus 1, the library default named outright.
+		#
+		#   returns    a number; 0 for non-numeric data or fewer than two values
+		#   see        Variance, VariancePopulation
+		#@ aka  The convention, NAMED. Variance() is the SAMPLE variance (N-1) -- the library default, matching stzList, R's var() and pandas' .var(). Ask by name and a reader never has to know the default.
 		def VarianceSample()
 			if @cDataType != "numeric" or len(@anData) <= 1
 				return 0
@@ -1310,6 +1373,10 @@ class stzDataSet from stzObject
 			ok
 			return This.Variance()
 
+		# Returns the population variance, dividing by n.
+		#
+		#   returns    a number; 0 for non-numeric or empty data
+		#   see        VarianceSample, StandardDeviationPopulation
 		def VariancePopulation()
 			if @cDataType != "numeric" or len(@anData) = 0
 				return 0
@@ -1327,6 +1394,10 @@ class stzDataSet from stzObject
 			return _nSsP_ / _nLnP_
 
 
+    # Returns the largest value minus the smallest.
+    #
+    #   returns    a number; 0 for non-numeric or empty data
+    #   see        Min, Max, IQR
     def Range()
         if @cDataType != "numeric" or len(@anData) = 0
             return 0
@@ -1336,6 +1407,10 @@ class stzDataSet from stzObject
         ok
         return This.Max() - This.Min()
 
+    # Returns the smallest value.
+    #
+    #   returns    a number; "" for non-numeric or empty data
+    #   see        Max, Range
     def Min()
         if @cDataType != "numeric" or len(@anData) = 0
             return ""
@@ -1345,6 +1420,10 @@ class stzDataSet from stzObject
         ok
         return @min(@anData)
 
+    # Returns the largest value.
+    #
+    #   returns    a number; "" for non-numeric or empty data
+    #   see        Min, Range
     def Max()
         if @cDataType != "numeric" or len(@anData) = 0
             return ""
@@ -1354,6 +1433,10 @@ class stzDataSet from stzObject
         ok
         return @max(@anData)
 
+    # Returns the total of the values.
+    #
+    #   returns    a number; 0 for non-numeric data
+    #   see        Mean, Count
     def Sum()
         if @cDataType != "numeric"
             return 0
@@ -1369,10 +1452,18 @@ class stzDataSet from stzObject
         return _nSum_
 
 
+    # Returns how many values the data set holds, after the missing ones were dropped.
+    #
+    #   returns    a number
+    #   see        Sum, UniqueCount
     def Count()
         return len(@anData)
 
 
+    # Returns the geometric mean, the nth root of the product of the values.
+    #
+    #   returns    a number; 0 for non-numeric or empty data, or when any value is 0 or negative
+    #   see        HarmonicMean, Mean
     def GeometricMean()
         if @cDataType != "numeric" or len(@anData) = 0
             return 0
@@ -1415,9 +1506,11 @@ class stzDataSet from stzObject
 		def GAvrg()
 			return This.GeometricMean()
 
+    # Returns the harmonic mean, the count divided by the sum of the inverses.
+    #
+    #   returns    a number; 0 for non-numeric or empty data, or when any value is 0
+    #   see        GeometricMean, Mean
 		#>
-
-
     def HarmonicMean()
         if @cDataType != "numeric" or len(@anData) = 0
             return 0
@@ -1458,9 +1551,11 @@ class stzDataSet from stzObject
 		def HAvrg()
 			return This.HarmonicMean()
 
+    # Returns the sample standard deviation as a percentage of the absolute mean.
+    #
+    #   returns    a number in percent; 0 for non-numeric data or a mean of 0
+    #   see        StandardDeviation, Mean
 		#>
-
-
     def CoefficientOfVariation()
         if @cDataType != "numeric" or This.Mean() = 0
             return 0
@@ -1480,8 +1575,15 @@ class stzDataSet from stzObject
 			return This.CoefficientOfVariation()
 
 
+    # Compares this data set with another and returns sentences on mean, variability and correlation, or on diversity for categories.
+    #
+    #   _oOtherStats_   the stzDataSet to compare with
+    #   returns         a list of text; the text "Cannot compare with empty dataset" when either is
+    #                   empty
+    #   note            the correlation sentence appears only for equal lengths and a correlation
+    #                   above 0.7 in size
+    #   see             Compare, SimilarityScore, CorrelationWith
 	#---
-
     def CompareWith(_oOtherStats_)
         # Comprehensive comparison with another dataset
         if _oOtherStats_.Count() = 0 or This.Count() = 0
@@ -1535,6 +1637,11 @@ class stzDataSet from stzObject
 		def CompareTo(_oOtherStats_)
 			return This.CompareWith(_oOtherStats_)
 
+		# Compares this data set with another, given alone or as [ "with", other ]; the same answer as the comparing call.
+		#
+		#   _oOtherStats_   the stzDataSet to compare with, or [ "with", dataset ]
+		#   returns         a list of text
+		#   see             CompareWith
 		def Compare(_oOtherStats_)
 			if isList(_oOtherStats_) and IsWithOrToNamedParamList(_oOtherStats_)
 				_oOtherStats_ = _oOtherStats_[2]
@@ -1543,6 +1650,12 @@ class stzDataSet from stzObject
 			return This.CompareWith(_oOtherStats_)
 
 
+    # Returns how alike two data sets are from 0 to 1: by mean and spread for numbers, by shared values for categories.
+    #
+    #   _oOtherStats_   the stzDataSet to compare with
+    #   returns         a number from 0 to 1; 0 when the types differ or one is empty
+    #   note            a non-object raises error R13
+    #   see             CompareWith, SimScoreWith
     def SimilarityScore(_oOtherStats_)
         # Calculate similarity score between datasets (0-1 scale)
         if _oOtherStats_.Count() = 0 or This.Count() = 0
@@ -1584,37 +1697,37 @@ class stzDataSet from stzObject
 		def SimScore(_oOtherStats_)
 			return This.SimilarityScore(_oOtherStats_)
 
+		# Returns how alike two data sets are from 0 to 1; another spelling of the similarity score.
+		#
+		#   _oOtherStats_   the stzDataSet to compare with
+		#   returns         a number from 0 to 1
+		#   see             SimilarityScore
 		def SimScoreWith(_oOtherStats_)
 			return SimilarityScore(_oOtherStats_)
 
+    # Returns the Student t confidence interval for the mean, as [ low, high ].
+    #
+    #   _nConfidence_   the level in percent, above 0 and below 100
+    #   returns         a list of two numbers; [ 0, 0 ] with fewer than two numbers
+    #   note            a level of 100 raises an error; the XT form adds the critical value and the
+    #                   degrees of freedom
+    #   see             ConfidenceIntervalXT, Mean, StandardDeviation
 	#---
-
-    # A confidence interval for the MEAN, by the NORMAL (z) approximation.
-    #
-    # HONEST NAMING, 2026-07-25. This was labelled "t-distribution approximation"
-    # and used hardcoded z values, which are two different things. For n=5 at 95%
-    # it produced a margin of 1.39 where the correct t-based margin is 1.96 -- the
-    # interval was 41% too narrow, and the error grows as the sample SHRINKS, i.e.
-    # exactly when you reach for a confidence interval. It also silently returned
-    # the 95% interval for any level it did not recognise.
-    #
-    # It still uses z, because a t quantile needs the inverse incomplete beta
-    # function and the engine has no special functions yet (see
-    # SOFTANZA_NUMERIC_FOUNDATION.md -- that is phase 4, and this method becomes
-    # correct for small n when it lands). What changed is that it no longer
-    # MISREPRESENTS itself:
-    #   * the supported levels are a published table, and an unsupported level
-    #     RAISES instead of quietly answering a different question;
-    #   * ConfidenceIntervalXT() reports the method, the critical value, and a
-    #     plain warning when n is small enough for the z approximation to
-    #     understate the interval.
-    #
-    # A z interval is sound for large samples (n >= 30 by the usual rule of
-    # thumb), which is the case most callers are in.
+    #@ aka  A confidence interval for the MEAN, by the NORMAL (z) approximation.
     def ConfidenceInterval(_nConfidence_)
+    	# HONEST NAMING, 2026-07-25. This was labelled "t-distribution approximation"
+    	# and used hardcoded z values, which are two different things. For n=5 at 95%
+    	# it produced a margin of 1.39 where the correct t-based margin is 1.96 -- the
+    	# interval was 41% too narrow, and the error grows as the sample SHRINKS, i.e.
+    	# exactly when you reach for a confidence interval. It also silently returned
+    	# the 95% interval for any level it did not recognise.
         _aXT_ = This.ConfidenceIntervalXT(_nConfidence_)
         return [ _aXT_[:low], _aXT_[:high] ]
 
+		# Returns the 95 percent Student t confidence interval for the mean, as [ low, high ].
+		#
+		#   returns    a list of two numbers; [ 0, 0 ] with fewer than two numbers
+		#   see        ConfidenceInterval
 		def ConfInt()
 			return This.ConfidenceInterval(95)
 
@@ -1651,8 +1764,13 @@ class stzDataSet from stzObject
 			         :n = _nLen_, :df = _nDF_, :note = "" ]
 
 
+	# Returns the mean of the values, each counted as often as its weight says.
+	#
+	#   aWeights   a list of weights, one per value
+	#   returns    a number; 0 for non-numeric data or when the weights add up to 0
+	#   warning    raises an error when the number of weights differs from the number of values
+	#   see        Mean, WMean
 	#---
-
 	def WeightedMean(aWeights)
 	    if @cDataType != "numeric" or len(@anData) = 0
 	        return 0
@@ -1686,10 +1804,23 @@ class stzDataSet from stzObject
 	    This._SetCache(_cKey_, _nResult_)
 	    return _nResult_
 
+		# Raises error R4 today instead of returning the weighted mean.
+		#
+		#   aWeights   a list of weights, one per value
+		#   returns    nothing today
+		#   note       WeightedMean does the work
+		#   warning    known defect: it calls itself, so the stack overflows on every call
+		#   see        WeightedMean
 		def WMean(aWeights)
 			return This.WMean(aWeights)
 
 
+	# Returns the mean after dropping a share of the smallest and of the largest values.
+	#
+	#   nTrimPercent   the percentage cut from each end, from 0 up to but below 50
+	#   returns        a number; 0 for non-numeric or empty data
+	#   warning        a value outside that range raises an error
+	#   see            Mean, Median
 	def TrimmedMean(nTrimPercent)
 	    if @cDataType != "numeric" or len(@anData) = 0
 	        return 0
@@ -1734,6 +1865,11 @@ class stzDataSet from stzObject
 			return This.TrimmedMean(nTrimPercent)
 
 
+	# Returns the percentage of values below a value, counting half of those equal to it.
+	#
+	#   nValue     the value to place in the data
+	#   returns    a number from 0 to 100; 0 for non-numeric or empty data
+	#   see        Percentile
 	def PercentileRank(nValue)
 	    if @cDataType != "numeric" or len(@anData) = 0
 	        return 0
@@ -1762,6 +1898,10 @@ class stzDataSet from stzObject
     #  PILLAR 2: COMPOSITION - Frequency & Categorical Analysis  #
     #============================================================#
 
+	# Returns how often each value occurs, as [ value, count ] pairs where the value is kept as text.
+	#
+	#   returns    a list of pairs
+	#   see        RelativeFrequency, PercentageFrequency, UniqueValues
 	def FrequencyTable()
 	    _cKey_ = "freq_table"
 	    _cached_ = This._GetCached(_cKey_)
@@ -1806,6 +1946,10 @@ class stzDataSet from stzObject
 			return This.FrequencyTable()
 
 
+	# Returns the share of each value, from 0 to 1, as [ value, share ] pairs.
+	#
+	#   returns    a list of pairs
+	#   see        FrequencyTable, PercentageFrequency
 	def RelativeFrequency()
 	    _aFreqTable_ = This.FrequencyTable()
 	
@@ -1825,6 +1969,10 @@ class stzDataSet from stzObject
 		    return This.RelativeFrequency()
 	
 
+    # Returns the share of each value, in percent, as [ value, percent ] pairs.
+    #
+    #   returns    a list of pairs
+    #   see        RelativeFrequency, FrequencyTable
     def PercentageFrequency()
 
         _aRelFreq_ = This.RelativeFrequency()
@@ -1843,13 +1991,25 @@ class stzDataSet from stzObject
 			return This.PercentageFrequency()
 
 
+    # Returns how many distinct values the data holds.
+    #
+    #   returns    a number
+    #   see        UniqueValues, Diversity
     def UniqueCount()
         return len(This.UniqueValues())
 
+		# Returns how many distinct values the data holds; another spelling of the count.
+		#
+		#   returns    a number
+		#   see        UniqueCount
 		def UCount()
 			return len(This.UniqueValues())
 
 
+    # Returns the distinct values, in the order they first appear.
+    #
+    #   returns    a list
+    #   see        UniqueCount, FrequencyTable
     def UniqueValues()
         _cKey_ = "unique_values"
         _cached_ = This._GetCached(_cKey_)
@@ -1878,6 +2038,10 @@ class stzDataSet from stzObject
 			return This.UniqueValues()
 
 
+    # Returns the distinct values divided by all values, from 0 up to 1.
+    #
+    #   returns    a number; 0 for empty data
+    #   see        UniqueCount, EntropyIndex
     def Diversity()
         # Unique values / Total values
         _nTotal_ = This.Count()
@@ -1890,6 +2054,10 @@ class stzDataSet from stzObject
 			return This.Diversity()
 
 
+    # Returns the Shannon entropy of the value frequencies, in bits.
+    #
+    #   returns    a number; 0 for empty data
+    #   see        Diversity, FrequencyTable
     def EntropyIndex()
         # Shannon entropy for diversity measurement
         if len(@anData) = 0
@@ -1915,8 +2083,14 @@ class stzDataSet from stzObject
 			return This.EntropyIndex()
 
 
+	# Counts how often each value of this set meets each value of another set of the same length.
+	#
+	#   oOtherDataSet   the stzDataSet to cross with
+	#   returns         a list [ the distinct values of the other set, a list of [ value, counts ]
+	#                   rows ]
+	#   warning         a non-object or a set of another length raises an error
+	#   see             ChiSquareWith, MutualInformation
 	#---
-
 	def ContingencyTable(oOtherDataSet)
 	    if NOT isObject(oOtherDataSet)
 	        StzRaise("ContingencyTable requires another stzDataSet object")
@@ -1961,6 +2135,10 @@ class stzDataSet from stzObject
 			return This.ContingencyTable()
 
 
+	# Returns how many times the most frequent value occurs.
+	#
+	#   returns    a number; 0 for empty data
+	#   see        Mode, FrequencyTable
 	def ModeCount()
 	    if len(@anData) = 0
 	        return 0
@@ -1995,17 +2173,15 @@ class stzDataSet from stzObject
     #  PILLAR 3: DISTRIBUTION - Shape & Spread Analysis  #
     #====================================================#
 
-	#NOTE
-
-	# Linear interpolation : Standard in most statistical
-	# software (R, Python, Excel). More accurate for continuous
-	# distributions and provides smoother results.
-
-	# Nearest-rank: Simpler, always returns actual data values.
-	# Preferred in some educational contexts and when you need
-	# exact data points.
-
-
+	# Returns the value at a percentile of the sorted data, interpolating linearly between neighbours.
+	#
+	#   nPercent   the percentile, from 0 to 100
+	#   returns    a number; 0 for non-numeric or empty data
+	#   note       PercentileXT takes the same percent and clamps it
+	#   warning    known defect: a percent below 0, or far above 100, makes the engine panic and
+	#              ends the Ring process; -1 and 150 did, 110 and 101 did not
+	#   see        PercentileXT, Q1, Q3, PercentileRank
+	#@ aka  NOTE
 	def Percentile(nPercent)
 		if This._EngineAvailable()
 			return StzEngineStatsPercentile(@pEngineStats, nPercent)
@@ -2062,6 +2238,10 @@ class stzDataSet from stzObject
 	    ok
 
 
+	# Returns the first quartile, the 25th percentile.
+	#
+	#   returns    a number; 0 for non-numeric or empty data
+	#   see        Q2, Q3, IQR, Quartiles
 	def Q1()
 		if This._EngineAvailable()
 			return StzEngineStatsQ1(@pEngineStats)
@@ -2071,6 +2251,10 @@ class stzDataSet from stzObject
 		def Q1XT(_cMethod_)
 		    return This.PercentileXT(25, _cMethod_)
 	
+	# Returns the second quartile, which is the median.
+	#
+	#   returns    a number; 0 for non-numeric or empty data
+	#   see        Median, Q1, Q3
 	def Q2()
 		if This._EngineAvailable()
 			return StzEngineStatsQ2(@pEngineStats)
@@ -2081,6 +2265,10 @@ class stzDataSet from stzObject
 		    # Median is typically the same regardless of method
 		    return This.Median()
 	
+	# Returns the third quartile, the 75th percentile.
+	#
+	#   returns    a number; 0 for non-numeric or empty data
+	#   see        Q1, Q2, IQR
 	def Q3()
 		if This._EngineAvailable()
 			return StzEngineStatsQ3(@pEngineStats)
@@ -2090,6 +2278,10 @@ class stzDataSet from stzObject
 		def Q3XT(_cMethod_)
 		    return This.PercentileXT(75, _cMethod_)
 	
+	# Returns the interquartile range, the third quartile minus the first.
+	#
+	#   returns    a number; 0 for non-numeric or empty data
+	#   see        Q1, Q3, Outliers
 	def IQR()
 		if This._EngineAvailable()
 			return StzEngineStatsIQR(@pEngineStats)
@@ -2100,6 +2292,10 @@ class stzDataSet from stzObject
 		    return This.Q3XT(_cMethod_) - This.Q1XT(_cMethod_)
 	
 
+	# Returns the three quartiles as [ Q1, Q2, Q3 ].
+	#
+	#   returns    a list of three numbers
+	#   see        Q1, Q2, Q3
 	def Quartiles()
 		return [This.Q1(), This.Q2(), This.Q3()]
 
@@ -2107,8 +2303,11 @@ class stzDataSet from stzObject
 	    return [This.Q1XT(_cMethod_), This.Q2XT(_cMethod_), This.Q3XT(_cMethod_)]
 
 
+    # Returns the sample-adjusted skewness: positive when the long tail is on the right.
+    #
+    #   returns    a number; 0 for non-numeric data, fewer than three values or no spread
+    #   see        Kurtosis, NormalityTest
 	#---
-
     def Skew()
         if @cDataType != "numeric" or len(@anData) < @nMinSampleSize
             return 0
@@ -2144,10 +2343,18 @@ class stzDataSet from stzObject
         This._SetCache(_cKey_, _nSkew_)
         return _nSkew_
 
+		# Returns the sample-adjusted skewness; another spelling of the skewness call.
+		#
+		#   returns    a number; 0 for non-numeric data, fewer than three values or no spread
+		#   see        Skew
 		def Skewness()
 			return Skew()
 
 
+    # Returns the excess kurtosis, which is 0 for a normal distribution.
+    #
+    #   returns    a number; 0 for non-numeric data, fewer than four values or no spread
+    #   see        Skew, NormalityTest
     def Kurtosis()
         if @cDataType != "numeric" or len(@anData) < 4
             return 0
@@ -2186,16 +2393,28 @@ class stzDataSet from stzObject
         This._SetCache(_cKey_, _nResult_)
         return _nResult_
 
+		# Returns the excess kurtosis; another spelling of the kurtosis call.
+		#
+		#   returns    a number; 0 for non-numeric data, fewer than four values or no spread
+		#   see        Kurtosis
 		def Kurtos()
 			return Kurtosis()
 
 
+	# TRUE if some value lies beyond 1.5 interquartile ranges from the quartiles.
+	#
+	#   returns    TRUE or FALSE (1 or 0)
+	#   see        Outliers, IsOutlier
 	def ContainsOutliers()
 		if This._EngineAvailable()
 			return StzEngineStatsContainsOutliers(@pEngineStats)
 		ok
 		return len(This.Outliers()) > 0
 
+    # Returns the values that lie beyond 1.5 interquartile ranges below the first or above the third quartile.
+    #
+    #   returns    a list; [ ] for non-numeric data or when there is none
+    #   see        ContainsOutliers, IsOutlier, IQR
     def Outliers()
         if @cDataType != "numeric"
             return []
@@ -2226,11 +2445,22 @@ class stzDataSet from stzObject
         This._SetCache(_cKey_, _aOutliers_)
         return _aOutliers_
 
+    # TRUE if the value is one of the outliers of the data.
+    #
+    #   nValue     the value to look for among the outliers
+    #   returns    TRUE or FALSE (1 or 0)
+    #   note       a value that is not in the data is never an outlier
+    #   see        Outliers, ContainsOutliers
     def IsOutlier(nValue)
         _aOutliers_ = This.Outliers()
         return StzFindFirst(nValue, _aOutliers_) > 0
 
 
+    # Returns the number of sample standard deviations each value lies from the mean, in the order of the data.
+    #
+    #   returns    a list of numbers; the data itself when there is no spread; [ ] for non-numeric
+    #              data
+    #   see        Standardize, Outliers
     def ZScores()
         if @cDataType != "numeric"
             return []
@@ -2253,6 +2483,12 @@ class stzDataSet from stzObject
         return _aZScores_
 
 
+    # Returns the means of each run of consecutive values of a given length, sliding one place at a time.
+    #
+    #   _nWindow_   the number of values in each run
+    #   returns     a list of numbers; the data itself when it is shorter than the window or not
+    #               numeric
+    #   see         TrendAnalysis, Mean
     def MovingAverage(_nWindow_)
         if _nWindow_ = 0
             _nWindow_ = 3
@@ -2289,8 +2525,14 @@ class stzDataSet from stzObject
 			return This.MovingAverage()
 
 
+	# Returns the trend segments of the data as [ direction, length ] pairs, the direction being up, down or stable.
+	#
+	#   returns    a list of pairs; [ [ insufficient_data, count ] ] for fewer than two values or
+	#              non-numeric data
+	#   note       the lengths add up to the number of values; a change smaller than the tolerance
+	#              counts as stable
+	#   see        MovingAverage, SuggestPlan
 	#--- TREND ANALYSIS SECTION (PART OF PILLAR 3 - DITRIBUTION)
-
 	def TrendAnalysis()
 	    # Granular trend analysis detecting segments and inflection points
 	    if @cDataType != "numeric" or len(@anData) < 2
@@ -2397,8 +2639,11 @@ class stzDataSet from stzObject
 	    ok
 
 
+	# Returns the nine deciles, the 10th to the 90th percentile in steps of 10.
+	#
+	#   returns    a list of nine numbers; [ ] for non-numeric or empty data
+	#   see        Percentile, Quartiles
 	#---
-
 	def Deciles()
 	    if @cDataType != "numeric" or len(@anData) = 0
 	        return []
@@ -2420,6 +2665,11 @@ class stzDataSet from stzObject
 	    return _aDeciles_
 	
 
+	# Returns the figures of a box plot: min, q1, median, q3, max, the two whiskers and the iqr.
+	#
+	#   returns    a list of [ name, value ] pairs; [ ] for non-numeric or empty data
+	#   note       a whisker is the most extreme value inside the 1.5 IQR fences
+	#   see        Quartiles, Outliers
 	def BoxPlotStats() # Prepare data series for stzBoxPlot
 
 	    if @cDataType != "numeric" or len(@anData) = 0
@@ -2479,6 +2729,12 @@ class stzDataSet from stzObject
 			return This.BoxPlotStats()
 
 
+	# Returns a heuristic normality check built from skewness and kurtosis: both below 1 in size means normal.
+	#
+	#   returns    a list of [ name, value ] pairs: test, skewness, kurtosis, p_value, is_normal
+	#   note       this is not a formal test: the p value is an exponential of the combined
+	#              deviation; fewer than four values give test insufficient_data
+	#   see        Skew, Kurtosis
 	def NormalityTest()
 	    # Simplified normality test based on skewness and kurtosis
 	    if @cDataType != "numeric" or len(@anData) < 4
@@ -2535,6 +2791,12 @@ class stzDataSet from stzObject
     #  PILLAR 4: RELATION - Correlation & Association Analysis  #
     #===========================================================#
 
+    # Returns the Pearson correlation with another data set of the same length, from -1 to 1.
+    #
+    #   _oOtherStats_   the stzDataSet to correlate with
+    #   returns         a number; 0 for non-numeric data, different lengths, fewer than two values
+    #                   or no spread
+    #   see             CovarianceWith, RankCorrelationWith, RegressionCoefficients
     def CorrelationWith(_oOtherStats_)
         if @cDataType != "numeric" or _oOtherStats_.DataType() != "numeric"
             return 0
@@ -2580,6 +2842,11 @@ class stzDataSet from stzObject
 			return This.CorrelationWith(_oOtherStats_)
 
 
+    # Returns the sample covariance with another data set of the same length.
+    #
+    #   _oOtherStats_   the stzDataSet to relate to
+    #   returns         a number; 0 for non-numeric data, different lengths or fewer than two values
+    #   see             CorrelationWith
     def CovarianceWith(_oOtherStats_)
         if @cDataType != "numeric" or _oOtherStats_.DataType() != "numeric"
             return 0
@@ -2611,6 +2878,11 @@ class stzDataSet from stzObject
 		def CVWith(_oOtherStats_)
 			return This.CovarianceWith(_oOtherStats_)
 
+    # Returns the Spearman rank correlation with another data set of the same length, from -1 to 1.
+    #
+    #   _oOtherStats_   the stzDataSet to correlate with
+    #   returns         a number; 0 for non-numeric data, different lengths or fewer than two values
+    #   see             CorrelationWith
     def RankCorrelationWith(_oOtherStats_)
         if @cDataType != "numeric" or _oOtherStats_.DataType() != "numeric"
             return 0
@@ -2638,6 +2910,13 @@ class stzDataSet from stzObject
 		def RankCorelWith(_oOtherStats_)
 			return This.RankCorrelationWith(_oOtherStats_)
 
+		# Raises error R24 today instead of returning a rank correlation.
+		#
+		#   returns    nothing today
+		#   note       RankCorrelationWith takes the other data set as an argument
+		#   warning    known defect: the body reads a variable named _oOtherStats_ that this method
+		#              does not receive
+		#   see        RankCorrelationWith
 		def NonParametricCorrelation()
 			return This.RankCorrelationWith(_oOtherStats_)
 
@@ -2668,6 +2947,13 @@ class stzDataSet from stzObject
         
         return _aRanks_
 
+	# Returns the chi-square statistic of independence between two categorical data sets of the same length.
+	#
+	#   _oOtherStats_   the categorical stzDataSet to test against
+	#   returns         a number, the statistic without a p value; 0 for numeric data or different
+	#                   lengths
+	#   note            identical categories give a positive value and independent ones give 0
+	#   see             ContingencyTable, MutualInformation
 	def ChiSquareWith(_oOtherStats_)
 	    # Chi-square test for independence (categorical data)
 	    if @cDataType != "categorical" or _oOtherStats_.DataType() != "categorical"
@@ -2763,8 +3049,13 @@ class stzDataSet from stzObject
 		def CategoricalAssociationWith(_oOtherStats_)
 			return This.ChiSquareWith(_oOtherStats_)
 
+	# Fits a least-squares line with this data as x and another data set as y, and returns its slope, intercept and r squared.
+	#
+	#   oOtherDataSet   the stzDataSet of the y values
+	#   returns         a list of [ name, value ] pairs: slope, intercept, r_squared; zeros for non-
+	#                   numeric data or different lengths
+	#   see             CorrelationWith
 	#---
-
 	def RegressionCoefficients(oOtherDataSet)
 	    if @cDataType != "numeric" or oOtherDataSet.DataType() != "numeric"
 	        return [[:slope, 0], [:intercept, 0], [:r_squared, 0]]
@@ -2803,6 +3094,13 @@ class stzDataSet from stzObject
 			return This.RegressionCoefficients(oOtherDataSet)
 
 
+	# Returns the correlation of this data with a second one after the effect of a third is removed.
+	#
+	#   oDataSetY   the stzDataSet to correlate with
+	#   oDataSetZ   the stzDataSet whose effect is held fixed
+	#   returns     a number; 0 for non-numeric data or a degenerate case
+	#   note        all three sets should have the same length
+	#   see         CorrelationWith
 	def PartialCorrelation(oDataSetY, oDataSetZ)
 	    # Partial correlation between X and Y controlling for Z
 	    if @cDataType != "numeric" or oDataSetY.DataType() != "numeric" or oDataSetZ.DataType() != "numeric"
@@ -2831,6 +3129,14 @@ class stzDataSet from stzObject
 			return This.PartialCorrelation(oDataSetY, oDataSetZ)
 
 
+	# Returns the mutual information, in bits, between this data and another data set of the same length.
+	#
+	#   oOtherDataSet   the stzDataSet to relate to
+	#   returns         a number; 0 for different lengths or empty data
+	#   warning         known defect: the pairs are joined with an underscore and split again, so a
+	#                   value containing an underscore gives a wrong result: "a_b" and "c_d" against
+	#                   x and y give 0 where ab and cd give 1
+	#   see             ContingencyTable, ChiSquareWith
 	def MutualInformation(oOtherDataSet)
 	    # Simplified mutual information for categorical data
 	    _aData1_ = @anData
@@ -2926,6 +3232,10 @@ class stzDataSet from stzObject
     #  DATA PROCESSING    #
     #=====================#
 
+    # Returns the values rescaled to the range 0 to 1 by the minimum and maximum.
+    #
+    #   returns    a list of numbers; the data itself when it is not numeric or all values are equal
+    #   see        Standardize, RobustScale
     def Normalize()
         # Min-Max normalization (0-1 scale)
         if @cDataType != "numeric"
@@ -2951,6 +3261,10 @@ class stzDataSet from stzObject
         return _aNormalized_
 
 
+    # Returns the values as z-scores: the mean removed and divided by the sample standard deviation.
+    #
+    #   returns    a list of numbers; the data itself when it is not numeric or has no spread
+    #   see        Normalize, ZScores
     def Standardize()
         # Z-score standardization
         if @cDataType != "numeric"
@@ -2978,6 +3292,10 @@ class stzDataSet from stzObject
 			return This.Standardize()
 
 
+    # Returns the values with the median removed and divided by the interquartile range, which outliers hardly move.
+    #
+    #   returns    a list of numbers; the data itself when it is not numeric or the iqr is 0
+    #   see        Normalize, Standardize
     def RobustScale()
         # Scale using median and IQR (robust to outliers)
         if @cDataType != "numeric"
@@ -3009,6 +3327,10 @@ class stzDataSet from stzObject
     #  DATA QUALITY AND GUIDANCE  #
     #=============================#
 
+    # Returns a list of messages about the data quality: empty, many outliers, no variance, or that it looks good.
+    #
+    #   returns    a list of text
+    #   see        Outliers, Summary
     def ValidateData()
         # Validate data integrity and quality
         _acIssues_ = []
@@ -3114,6 +3436,11 @@ class stzDataSet from stzObject
         
         return _acResults_
 
+    # Returns the insights of one domain, such as Finance, whose rule conditions hold for this data, with the values filled in.
+    #
+    #   _cDomain_   the domain name, as text
+    #   returns     a list of text; [ ] for an unknown domain
+    #   see         AddInsightRule, PrioritizedInsights, Rules
     def InsightsOfDomain(_cDomain_)
         _acResults_ = []
         
@@ -3136,6 +3463,10 @@ class stzDataSet from stzObject
     #  RECOMMENDATIONS SYSTEM       #
     #===============================#
 
+    # Returns the analysis recommendations whose conditions hold for this data, as sentences with the values filled in.
+    #
+    #   returns    a list of text
+    #   see        InsightsOfDomain, SuggestPlan
     def RecommendAnalysis()
         _nLen_ = len($aRecommendations)
         _aResults_ = []
@@ -3163,6 +3494,10 @@ class stzDataSet from stzObject
     #  DYNAMIC REPORTING SYSTEM  #
     #============================#
 
+    # Returns a text report: the data, its type and count, and the insights that apply.
+    #
+    #   returns    text with box-drawn titles
+    #   see        ValidateData, RecommendAnalysis
     def Summary()
         return This._GenerateReport($aSummaryTemplate)
 
@@ -3351,15 +3686,38 @@ class stzDataSet from stzObject
     #  RULE MANAGEMENT METHODS      #
     #===============================#
 
+    # Adds a rule to a domain: a condition and a text template, where {Method()} is replaced by its value.
+    #
+    #   _cDomain_    the domain name, as text
+    #   cCondition   a condition written in the library's syntax, such as Mean() > 1
+    #   _cInsight_   the text, which may hold {Method()} calls
+    #   returns      nothing; the rule table changes
+    #   note         the rule table is shared by every data set of the process
+    #   see          AddRule, AddWeightedRule, InsightsOfDomain
     def AddInsightRule(_cDomain_, cCondition, _cInsight_)
         if NOT HasKey($aDomainInsightRules, _cDomain_)
             $aDomainInsightRules[_cDomain_] = []
         ok
         $aDomainInsightRules[_cDomain_] + [:condition = cCondition, :template = _cInsight_]
 
+    # Adds a rule to a domain; another spelling of the rule-adding call.
+    #
+    #   _cDomain_    the domain name, as text
+    #   cCondition   a condition written in the library's syntax
+    #   _cInsight_   the text, which may hold {Method()} calls
+    #   returns      nothing; the rule table changes
+    #   see          AddInsightRule
     def AddRule(_cDomain_, cCondition, _cInsight_)
         This.AddInsightRule(_cDomain_, cCondition, _cInsight_)
 
+    # Adds a rule to a domain with a weight, which PrioritizedInsights sorts by.
+    #
+    #   _cDomain_    the domain name, as text
+    #   cCondition   a condition written in the library's syntax
+    #   _cInsight_   the text, which may hold {Method()} calls
+    #   _nWeight_    the weight, 1 when empty
+    #   returns      nothing; the rule table changes
+    #   see          PrioritizedInsights, AddInsightRule
     def AddWeightedRule(_cDomain_, cCondition, _cInsight_, _nWeight_)
         if _nWeight_ = "" _nWeight_ = 1 ok
         if NOT HasKey($aDomainInsightRules, _cDomain_)
@@ -3367,6 +3725,12 @@ class stzDataSet from stzObject
         ok
         $aDomainInsightRules[_cDomain_] + [:condition = cCondition, :template = _cInsight_, :weight = _nWeight_]
 
+    # Returns the insights of a domain that hold for this data, as [ text, weight ] pairs, the heaviest first.
+    #
+    #   _cDomain_   the domain name, as text
+    #   returns     a list of pairs; [ ] for an unknown domain
+    #   note        a rule without a weight counts as 1
+    #   see         AddWeightedRule, InsightsOfDomain
     def PrioritizedInsights(_cDomain_)
         _aResults_ = []
         
@@ -3398,8 +3762,15 @@ class stzDataSet from stzObject
     #  Plan (Workflow) GENERATION SYSTEM   #
     #======================================#
     
-	# Generating the plan
-
+    # Builds a plan from a template name or a goal word, keeping the steps whose conditions hold for this data.
+    #
+    #   cNameOrGoalOrTemplate   a plan name such as eda, normality, correlation, outliers, trends or
+    #                           quality, or a goal such as anomalies
+    #   returns                 a list of [ name, value ] pairs: template, name, title, description,
+    #                           steps, total_steps
+    #   warning                 an unknown name raises an error
+    #   see                     ExecutePlan, AddPlan, SuggestPlan
+    #@ aka  Generating the plan
     def MakePlan(cNameOrGoalOrTemplate)
         /*
         Generate a statistical Plan based on user goal or template name
@@ -3438,6 +3809,12 @@ class stzDataSet from stzObject
 			return This.MakePlan(cNameOrGoalOrTemplate)
 
 
+	# Runs several plans one after the other on this data, printing each plan and the result of each step.
+	#
+	#   acPlans    a list of plan names, as text
+	#   returns    nothing; it prints
+	#   warning    a text instead of a list raises an error
+	#   see        ExecutePlan, MakePlan
 	def ExecutePlans(acPlans)
 		if CheckParams()
 			if NOT ( isList(acPlans) and IsListOfStrings(acPlans) )
@@ -3457,22 +3834,54 @@ class stzDataSet from stzObject
 			? ""
 		next
 
+		# Runs several plans one after the other, printing each; another spelling of the chained call.
+		#
+		#   acPlans    a list of plan names, as text
+		#   returns    nothing; it prints
+		#   see        ExecutePlans
 		def RunPlans(acPlans)
 			This.ExecutePlans(acPlans)
 
+		# Runs several plans one after the other, printing each; another spelling of the chained call.
+		#
+		#   acPlans    a list of plan names, as text
+		#   returns    nothing; it prints
+		#   see        ExecutePlans
 		def PerformPlans(acPlans)
 			This.ExecutePlans(acPlans)
 
+		# Runs several plans one after the other, printing each; another spelling of the chained call.
+		#
+		#   acPlans    a list of plan names, as text
+		#   returns    nothing; it prints
+		#   see        ExecutePlans
 		def ChainPlans(acPlans)
 			This.ExecutePlans(acPlans)
 
 
+	# Runs a plan on this data, printing its title, goal and the result of each step.
+	#
+	#   cNameOrGoalOrTemplate   a plan name or goal, such as eda or anomalies
+	#   returns                 nothing; it prints
+	#   note                    ExecutePlanXT returns the results as well; a step that raises is
+	#                           reported and skipped
+	#   see                     ExecutePlanXT, MakePlan, ExecutePlans
 	def ExecutePlan(cNameOrGoalOrTemplate)
 		This.ExecutePlanXT(cNameOrGoalOrTemplate, 1)
 
+		# Runs a plan on this data, printing its steps; another spelling of the run call.
+		#
+		#   cNameOrGoalOrTemplate   a plan name or goal
+		#   returns                 nothing; it prints
+		#   see                     ExecutePlan
 		def RunPlan(cNameOrGoalOrTemplate)
 			This.ExecutePlan(cNameOrGoalOrTemplate)
 
+		# Runs a plan on this data, printing its steps; another spelling of the run call.
+		#
+		#   cNameOrGoalOrTemplate   a plan name or goal
+		#   returns                 nothing; it prints
+		#   see                     ExecutePlan
 		def PerformPlan(cNameOrGoalOrTemplate)
 			This.ExecutePlan(cNameOrGoalOrTemplate)
 
@@ -3559,6 +3968,14 @@ class stzDataSet from stzObject
 		This.ExecutePlan(cNameOrGoalOrTemplate, bVerbose)
 
 
+    # Raises error R5 today instead of returning a text preview of a plan's steps without running it.
+    #
+    #   cNameOrGoalOrTemplate   a plan name or goal
+    #   returns                 nothing today
+    #   note                    MakePlan returns the same plan as data
+    #   warning                 known defect: the body reads the title from a variable named oPlan,
+    #                           which does not exist, instead of from the plan it built
+    #   see                     MakePlan, ExecutePlan
     def PlanSummary(cNameOrGoalOrTemplate)
         /*
         Get a preview of Plan steps without execution
@@ -3598,6 +4015,16 @@ class stzDataSet from stzObject
         return _cSummary_
     
     
+    # Registers a custom plan template under a name, so that MakePlan and ExecutePlan accept it.
+    #
+    #   cName          the plan name, as text
+    #   _cTitle_       the plan title
+    #   cDescription   what the plan is for
+    #   aSteps         a list of steps, each a list of [ function, name ] [ description, text ] and
+    #                  optionally [ required, 1 ], [ condition, text ] or [ args, list ] pairs
+    #   returns        the key "custom_" followed by the lowercase name
+    #   note           the template table is shared by every data set of the process
+    #   see            MakePlan, ExecutePlan
     def AddPlan(cName, _cTitle_, cDescription, aSteps)
         /*
         Create a custom Plan template
@@ -3619,6 +4046,10 @@ class stzDataSet from stzObject
         return _cKey_
     
 
+	# Returns the plan that fits the data best: outliers, quality, trends, normality, or eda when nothing stands out.
+	#
+	#   returns    a plan name, as text
+	#   see        MakePlan, ExecutePlan, ContainsOutliers
 	def SuggestPlan()
 	    _cDataType_ = This.DataType()
 	    _nCount_ = This.Count()
@@ -3670,6 +4101,12 @@ class stzDataSet from stzObject
 	    return :EDA
 	
 
+	# Runs the eda plan, then the outliers, normality, quality and trends plans that the data calls for, printing each.
+	#
+	#   returns    nothing; it prints
+	#   note       normality needs at least 20 values, quality a variation above 40 percent, trends
+	#              at least 5 values with a pattern
+	#   see        ExecutePlan, SuggestPlan
 	def AdaptiveAnalysis()
 	    # Multi-stage intelligent analysis workflow
 	    
@@ -3993,11 +4430,20 @@ class stzDataSet from stzObject
 	    # Add new cache entry
 	    @aCache + [_cKey_, value]
 	
+	# Empties the cache of computed values and forgets the sorted copy of the data.
+	#
+	#   returns    nothing; the cache is emptied
+	#   see        Cache, NumberOfCachedValues
 	def ClearCache()
 	    @aCache = []
         @bSorted = 0
         @anSortedData = []
 
+	# Returns the cache of computed values, as [ key, value ] pairs.
+	#
+	#   returns    a list of pairs; [ ] before anything was cached
+	#   note       only some methods cache, such as the mode and the frequency table
+	#   see        CacheIsEmpty, NumberOfCachedValues, ClearCache
 	def Cache()
 	    return @aCache
 
@@ -4009,13 +4455,21 @@ class stzDataSet from stzObject
 	def CacheKeys()
 	    return This._CacheKeys()
 
+	# Returns how many values the cache holds.
+	#
+	#   returns    a number
+	#   see        Cache, CacheIsEmpty
 	def NumberOfCachedValues()
 	    return len(@aCache)
 
 		def CacheSize()
 			return This.NumberOfCachedValues()
 
-	# TRUE when nothing has been computed yet.
+	# TRUE if nothing has been cached yet or the cache was cleared.
+	#
+	#   returns    TRUE or FALSE (1 or 0)
+	#   see        Cache, ClearCache
+	#@ aka  TRUE when nothing has been computed yet.
 	def CacheIsEmpty()
 	    return len(@aCache) = 0
 
@@ -4023,12 +4477,24 @@ class stzDataSet from stzObject
     #  UTILITY AND ACCESSOR METHODS  #
     #================================#
 
+    # Returns the values of the data set, after the missing ones were dropped.
+    #
+    #   returns    a list
+    #   see        Values, SortedData, Content
     def Data()
         return @anData
 
+    # Returns the data type found: numeric, categorical, mixed or empty.
+    #
+    #   returns    text
+    #   see        Data, Count
     def DataType()
         return @cDataType
 
+    # Returns the values in ascending order when they are numeric, or in their own order otherwise.
+    #
+    #   returns    a list
+    #   see        Data
     def SortedData()
         if @cDataType = "numeric"
             This._SortIfNeeded()
@@ -4037,6 +4503,10 @@ class stzDataSet from stzObject
         return @anData
 
 
+    # Returns the main statistics as [ name, value ] pairs: those of numbers when numeric, the diversity and frequencies when not.
+    #
+    #   returns    a list of [ name, value ] pairs
+    #   see        Summary, Data
     def Export()
         # Export statistical results as structured data
         _oExport_ = new stzHashList([])
@@ -4071,15 +4541,32 @@ class stzDataSet from stzObject
         return _aExport_
 
 
+	# Returns the values of the data set; another spelling of the data accessor.
+	#
+	#   returns    a list
+	#   see        Data
 	def Values()
 		return @anData
 
+		# Returns the values of the data set; another spelling of the data accessor.
+		#
+		#   returns    a list
+		#   see        Data
 		def Content()
 			return @anData
 
+	# Returns a new data set built from the same values, with an empty cache.
+	#
+	#   returns    a stzDataSet
+	#   see        Data
 	def Copy()
 		return new stzDataSet(This.Content())
 
+	# Returns the table of domain insight rules, as [ domain, rules ] pairs.
+	#
+	#   returns    a list of pairs
+	#   note       the table is global, so every data set shares it
+	#   see        AddInsightRule, InsightsOfDomain
 	def Rules()
 		return $aDomainInsightRules
 

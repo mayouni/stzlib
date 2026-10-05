@@ -84,6 +84,24 @@ func StzOpenSecurityLedger(pnCapacity)
 	StzEngineSecLogSetCurrent(_oLed_.Handle())
 	return _oLed_
 
+# The process ledger, made DURABLE (HaroBase rung 2): every event the
+# seams record is also written, in chain order, to pcPath -- an
+# insert-only SQLite table whose stored chain is verified from genesis
+# before recording resumes. Raises when the stored history is broken:
+# a process must not add to evidence it cannot vouch for.
+func StzOpenDurableSecurityLedger(pnCapacity, pcPath)
+	if StzSecurityLedgerIsOpen()
+		stzraise("A process ledger is already open -- close it before opening a durable one.")
+	ok
+	_oLed_ = new stzSecurityLedger(pnCapacity)
+	_aV_ = _oLed_.PersistTo(pcPath)
+	if NOT _aV_[:ok]
+		_oLed_.Destroy()
+		stzraise(_aV_[:why])
+	ok
+	StzEngineSecLogSetCurrent(_oLed_.Handle())
+	return _oLed_
+
 func StzSecurityLedgerIsOpen()
 	return StzEngineSecLogHasCurrent() = 1
 
@@ -115,6 +133,30 @@ func StzRecordSecurityEvent(poEvent)
 # The one-liners a seam actually writes. Each returns before building
 # anything when no ledger is open -- that is the zero-cost-when-off
 # property, and it is why a seam can call these unconditionally.
+# An anchor, from Anchor()'s list or its line, as [ :count, :head ]; [] if
+# it is not one.
+func StzLedgerAnchorParse(pAnchor)
+	if isList(pAnchor)
+		_nC_ = 0  _cH_ = ""
+		for _i_ = 1 to len(pAnchor)
+			if isList(pAnchor[_i_]) and len(pAnchor[_i_]) = 2
+				if pAnchor[_i_][1] = "count"  _nC_ = pAnchor[_i_][2]  ok
+				if pAnchor[_i_][1] = "head"   _cH_ = "" + pAnchor[_i_][2]  ok
+			ok
+		next
+		if NOT isNumber(_nC_) or _nC_ < 1 or len(_cH_) != 64  return []  ok
+		return [ :count = _nC_, :head = _cH_ ]
+	ok
+	if NOT isString(pAnchor)  return []  ok
+	_p_ = StzSplit(ring_trim(pAnchor), ":")
+	if len(_p_) != 4  return []  ok
+	if _p_[1] != "stzledger-anchor" or _p_[2] != "v1"  return []  ok
+	if len(_p_[3]) = 0 or len(_p_[4]) != 64  return []  ok
+	for _i_ = 1 to len(_p_[3])
+		if ascii(_p_[3][_i_]) < 48 or ascii(_p_[3][_i_]) > 57  return []  ok
+	next
+	return [ :count = 0 + _p_[3], :head = _p_[4] ]
+
 func StzNoteRefusal(pcKind, pcActor, pcSubject, pcReason)
 	if StzEngineSecLogHasCurrent() != 1
 		return
@@ -349,8 +391,13 @@ class stzSecurityLedger from stzObject
 	# the digest is under the caller's control.
 	def Record(poEvent)
 		This._Ensure()
+		_nErr_ = StzEngineSecLogDurableErrors(pHandle)
 		StzEngineSecLogAppend(pHandle, poEvent.CanonicalString(),
 			poEvent.AtWall(), This._SevCode(poEvent.Severity()))
+		# evidence that did not reach the disk is not quietly accepted
+		if StzEngineSecLogDurableErrors(pHandle) > _nErr_
+			stzraise("The durable security log refused a write -- the event is in memory only.")
+		ok
 		return This
 
 	# Append a canonical line directly -- the acquisition path (I8),
@@ -361,6 +408,57 @@ class stzSecurityLedger from stzObject
 		StzEngineSecLogAppend(pHandle, pcCanonical, pnWallMs, pnSeverityCode)
 		return This
 
+	  #-- the durable log (HaroBase rung 2) ----------------------------
+
+	# Make this ledger DURABLE: from now on every Record() is also written,
+	# in the same engine lock and so in chain order, to an insert-only
+	# SQLite table at pcPath (UPDATE and DELETE are refused by triggers).
+	# An existing file is replayed FROM GENESIS and verified entry by
+	# entry first; the ring then shows the newest window, Count() the whole
+	# history, and the chain resumes from the stored head. Bounded memory
+	# stops meaning forgetting: the window evicts, the file does not.
+	#
+	# Call it BEFORE recording. Returns [ :ok, :verified, :brokenAt, :why ];
+	# a broken stored history is REFUSED (:ok = 0) and nothing is attached.
+	def PersistTo(pcPath)
+		This._Ensure()
+		_n_ = StzEngineSecLogAttach(pHandle, "" + pcPath)
+		if _n_ >= 0
+			return [ :ok = 1, :verified = _n_, :brokenAt = 0,
+				:why = "durable at " + pcPath + ": " + _n_ + " stored entr(ies) verified from genesis" ]
+		ok
+		if _n_ = -1000000003
+			return [ :ok = 0, :verified = 0, :brokenAt = 0, :why = "this ledger is already durable" ]
+		but _n_ = -1000000004
+			return [ :ok = 0, :verified = 0, :brokenAt = 0,
+				:why = "this ledger already holds events -- make it durable before recording" ]
+		but _n_ <= -1000000001
+			return [ :ok = 0, :verified = 0, :brokenAt = 0, :why = "cannot open or read the log at " + pcPath ]
+		ok
+		return [ :ok = 0, :verified = 0, :brokenAt = -_n_,
+			:why = "the stored log breaks at entry " + (-_n_) +
+				" (edited, or missing) -- refused, nothing attached" ]
+
+	def IsDurable()
+		This._Ensure()
+		return StzEngineSecLogIsDurable(pHandle) = 1
+
+	# Verify the WHOLE stored history from genesis -- where Verify() can
+	# only speak for the retained window. [ :intact, :brokenAt, :message ]
+	def VerifyDurable()
+		This._Ensure()
+		_n_ = StzEngineSecLogVerifyDurable(pHandle)
+		if _n_ = 0
+			return [ :intact = 1, :brokenAt = 0,
+				:message = "the stored chain is intact over " + This.Count() + " entr(ies), from genesis" ]
+		but _n_ = -1
+			return [ :intact = 0, :brokenAt = 0, :message = "this ledger is not durable" ]
+		but _n_ = -2
+			return [ :intact = 0, :brokenAt = 0, :message = "the stored log cannot be read" ]
+		ok
+		return [ :intact = 0, :brokenAt = _n_,
+			:message = "the stored chain breaks at entry " + _n_ + " -- that row was altered or removed" ]
+
 	# Events ever recorded (keeps counting past capacity).
 	def Count()
 		This._Ensure()
@@ -370,6 +468,76 @@ class stzSecurityLedger from stzObject
 	def Size()
 		This._Ensure()
 		return StzEngineSecLogSize(pHandle)
+
+	  #-- the anchor (threat-model R5) ----------------------------------
+
+	# A hash chain shows an EDIT, never a CUT: delete the last rows of the
+	# durable file and what remains still verifies from genesis -- and anyone
+	# holding the file can rebuild a whole new chain, since the chain has no
+	# key. An ANCHOR is the count and head digest at one moment. Send its
+	# line OFF THE MACHINE -- to an operator, another host, a ticket, a
+	# transparency log; where it goes is the deployment's choice -- and any
+	# later VerifyAgainstAnchor() says whether the stored history still
+	# reaches it. [ :count, :head, :atWall, :line ]
+	def Anchor()
+		This._Ensure()
+		_n_ = This.Count()
+		_h_ = This.Digest()
+		return [ :count = _n_, :head = _h_, :atWall = StzEngineTimeNowMs(),
+			:line = "stzledger-anchor:v1:" + _n_ + ":" + _h_ ]
+
+	# Check the durable history against an anchor -- the list Anchor()
+	# returned, or its :line. [ :holds, :state, :why ], where :state is one of
+	# holds, truncated, diverged, broken, not-durable, unreadable, malformed.
+	def VerifyAgainstAnchor(pAnchor)
+		This._Ensure()
+		_a_ = StzLedgerAnchorParse(pAnchor)
+		if len(_a_) = 0
+			return [ :holds = 0, :state = "malformed", :why = "not an anchor: expected stzledger-anchor:v1:<count>:<digest>" ]
+		ok
+		_r_ = StzEngineSecLogVerifyAnchor(pHandle, _a_[:count], _a_[:head])
+		if _r_ = 0
+			return [ :holds = 1, :state = "holds",
+				:why = "the stored history reaches entry " + _a_[:count] + " with the anchored digest, intact from genesis" ]
+		but _r_ = -1
+			return [ :holds = 0, :state = "not-durable", :why = "this ledger is not durable -- an anchor checks the stored file" ]
+		but _r_ = -2
+			return [ :holds = 0, :state = "unreadable", :why = "the stored log cannot be read" ]
+		but _r_ = -3
+			return [ :holds = 0, :state = "truncated",
+				:why = "the stored history ends before entry " + _a_[:count] + ": its tail was cut" ]
+		but _r_ = -4
+			return [ :holds = 0, :state = "diverged",
+				:why = "entry " + _a_[:count] + " exists with another digest: the history was rewritten" ]
+		ok
+		return [ :holds = 0, :state = "broken",
+			:why = "the stored chain breaks at entry " + _r_ + " -- that row was altered or removed" ]
+
+	  #-- the refusal budget (SECURITY-LEDGERFLOOD-01) -----------------
+
+	# A refused kind writes at most pnMax lines per pnWindowMs; past it the
+	# engine counts them, writes one marker, and closes the window with one
+	# summary line carrying the count. 64 per minute by default. pnMax = 0
+	# turns it off. Grants are never budgeted.
+	def SetRefusalBudget(pnMax, pnWindowMs)
+		This._Ensure()
+		StzEngineSecLogSetRefusalBudget(pHandle, pnMax, pnWindowMs)
+		return This
+
+	def RefusalBudget()
+		This._Ensure()
+		return [ :max = StzEngineSecLogBudgetMax(pHandle), :windowMs = StzEngineSecLogBudgetWindow(pHandle) ]
+
+	# Refusals counted rather than written, ever.
+	def Suppressed()
+		This._Ensure()
+		return StzEngineSecLogSuppressed(pHandle)
+
+	# Close every open budget window now, writing each count into the chain.
+	def FlushRefusalCounts()
+		This._Ensure()
+		StzEngineSecLogFlushBudget(pHandle, StzEngineTimeNowMs())
+		return This
 
 	  #-- reading -----------------------------------------------------
 
@@ -663,6 +831,9 @@ class stzSecurityLedger from stzObject
 
 	def Reset()
 		This._Ensure()
+		if This.IsDurable()
+			stzraise("A durable ledger cannot be reset: its chain continues on disk.")
+		ok
 		StzEngineSecLogReset(pHandle)
 		return This
 

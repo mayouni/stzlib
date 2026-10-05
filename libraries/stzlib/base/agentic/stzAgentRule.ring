@@ -266,3 +266,37 @@ class stzAgentRuleSet from stzGraphRuleSet
 			return _aOut_
 		})
 		This.AddRule(_oR5_)
+
+		# 6. external-data-contained -- data TAINTED external_data reaches an
+		#    effect only through a guardian or a validated checkpoint
+		#    (reproducing StzCheckExternalDataContained). Unlike rule 5 it asks
+		#    the TAINT, not the kind, so any node declared external_data is held
+		#    to it; and a validated checkpoint counts as containment.
+		_oR6_ = new stzAgentRule("external-data-contained")
+		_oR6_.SetSeverityQ("error")
+		_oR6_.SetMessageQ("external data reaches an effect only through a guardian or a validated checkpoint")
+		_oR6_.UseCheckerQ(func oGraph {
+			_aOut_ = []
+			_aIds_ = oGraph.NodesIds()
+			_n_ = len(_aIds_)
+			for _i_ = 1 to _n_
+				if StzLower("" + oGraph.NodeProperty(_aIds_[_i_], "taint")) = "external_data"
+					for _j_ = 1 to _n_
+						if StzLower("" + oGraph.NodeProperty(_aIds_[_j_], "kind")) = "effect"
+							_acPaths_ = oGraph.PathsXT(_aIds_[_i_], _aIds_[_j_])
+							_nP_ = len(_acPaths_)
+							for _p_ = 1 to _nP_
+								if NOT StzPathHasGuardOrValidation(oGraph, _acPaths_[_p_])
+									_aOut_ + [ :where = _aIds_[_i_],
+										:message = "external data '" + _aIds_[_i_] + "' reaches effect '" +
+										_aIds_[_j_] + "' with no guardian or validated checkpoint on the path" ]
+									exit
+								ok
+							next
+						ok
+					next
+				ok
+			next
+			return _aOut_
+		})
+		This.AddRule(_oR6_)

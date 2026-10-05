@@ -1,0 +1,276 @@
+RandomSection | Returns a random [ start, end ] pair of positions within the list. | a pair [ start, end ] | | RandomPosition
+Ranges | Returns the run of items of each given range, one list per range. | a list with one entry per range | paRanges=the ranges, each [ start, end ] | AntiRanges, Sections
+RemoveAnyItemFromEnd | Removes the given item from the end of the list, in place. | nothing; the list changes | | RemoveAnyItemFromStart
+RemoveAnyItemFromStart | Removes the given item from the start of the list, in place. | nothing; the list changes | | RemoveAnyItemFromEnd
+RemoveBounds | Removes the two given bounds from the ends of the list, in place. | nothing; the list changes | paBounds=the pair of bounds, [ first, last ] | BoundsRemoved
+RemoveDupSecutiveItems | Removes the items that repeat the one before them, in place. | nothing; the list changes | | DupSecutiveItems
+RemoveItemsAtThesePositions | Removes the items at the given positions, in place. | nothing; the list changes | | RemoveItemsAtPositions
+RemoveItemsOtherThan | Removes every item that is not among the given ones, in place. | nothing; the list changes | | RemoveTheseItems
+RemoveNonDuplicates | Removes the items that occur only once, in place. | nothing; the list changes | | NonDuplicatedItems
+RemoveNumbers | Removes the items that are numbers, in place. | nothing; the list changes | | RemoveNonNumbers
+RemoveOccurrences | Removes the given occurrences of the item, counted from 1, in place. | nothing; the list changes | panOcc=the ranks of the occurrences to remove | RemoveNth
+Repeat | Turns the content into n copies of the whole list, nested, in place. | nothing; the list changes | _n_=how many copies | ExtendToWithItemsRepeated
+RepeatedTrailingItems | Returns the run of items equal to the last one. | a list of items | | TrailingItems
+ReplaceAnyItemAt | Replaces the item at position n by a new item, in place. | nothing; the list changes | _n_=the position | ReplaceItemAtPosition
+ReplaceAnyItemAtPositions | Replaces the items at the given positions by a new item, in place. | nothing; the list changes | | ReplaceAtPositions
+ReplaceAnyItemsAtPositionsByMany | Replaces the items at the given positions by the new items, one by one, in place. | nothing; the list changes | | ReplaceOccurrencesByMany
+ReplaceAtByManyXT | Replaces the items at the given positions by the new items, one by one, in place. | nothing; the list changes | | ReplaceOccurrencesByMany
+ReplaceItemByManyXT | Replaces the occurrences of the item by the new items, one by one, in place. | nothing; the list changes | | ReplaceOccurrencesByMany
+ReplaceItemsAtPositionsByMany | Replaces the items at the given positions by the new items, one by one, in place. | nothing; the list changes | _anPos_=the positions to replace; paNewList=the new items, one per position | ReplaceOccurrencesByMany
+ReplaceLeadingAndTrailingItems | Replaces the run of leading items and the run of trailing items by a new item, in place. | nothing; the list changes | p1=the new item | ReplaceLeadingItems
+ReplaceLeadingItems | Replaces the run of leading items equal to the first by a new item, in place. | nothing; the list changes | p1=the new item | ReplaceTrailingItems
+ReplaceNth | Replaces the nth occurrence of the item by a new item, in place. | nothing; the list changes | _n_=which occurrence | ReplaceFirst
+ReplaceNthOccurrence | Replaces the nth occurrence of the item by a new item, in place. | nothing; the list changes | _n_=which occurrence | ReplaceNth
+ReplacePreviousNthOccurrence | Replaces the nth occurrence of the item before a given position by a new item, in place. | nothing; the list changes | _n_=which occurrence, counted backwards | ReplaceNextNthOccurrence
+ReplaceSectionByMany | Replaces the items from one position to another by the new items, in place. | nothing; the list changes | _n1_=the position of the first item; _n2_=the position of the last item | ReplaceSection
+ReplaceThisAt | Replaces the given item by a new item at position n, in place, when the item stands there. | nothing; the list changes | _n_=the position | ReplaceThisItemAt
+ReplaceThisItemAtPositions | Replaces the given item by a new item at each of the given positions where it stands, in place. | nothing; the list changes | | ReplaceItemsAtPositions
+RotateLeft | Moves the items n places to the left, in place, the first ones coming round to the end. | nothing; the list changes | _n_=how many places to rotate | RotatedLeft
+RotateRight | Moves the items n places to the right, in place, the last ones coming round to the start. | nothing; the list changes | _n_=how many places to rotate | RotatedRight
+ShowShortN | Prints the abbreviated form of the list, with n items at each end. | nothing; the form is printed | _n_=how many items to show at each end | Show
+SortedBy | Returns a copy sorted by the key expression; the list is unchanged. | a list of items | | SortBy
+SortedOnDown | Returns a copy sorted from the greatest to the least; the list is unchanged. | a list of items | _n_=the key position, ignored for a flat list | SortOnDown
+SplitToPartsOf | Splits the list into parts of n items each, in place. | nothing; the list becomes the list of parts | _n_=the number of items in each part | SplittedToPartsOfNItems
+SplittedAfterPositions | Returns the list cut after each of the given positions; the list is unchanged. | a list of lists | | SplitAfterPositions
+SplittedBeforePositions | Returns the list cut before each of the given positions; the list is unchanged. | a list of lists | | SplittedAfterPositions
+StddevSample | Returns the sample standard deviation of the numbers in the list. | a number | | StddevPopulation
+StringsSplitted | Returns each string item split at the separator, as a list of lists. | a list of lists | pNamedUsing=the separator, or :Using = separator | SplittedAt
+SubStrinks | Returns the string items contained in another string item of the list. | a list of strings | | SubStrongs
+Tail | Returns the last n items. | a list of items | _n_=how many items | Head
+Take | Removes the first n items and returns them. | a list of the removed items | _n_=how many items | TakeLast
+TakeLast | Removes the last n items and returns them. | a list of the removed items | _n_=how many items | Take
+ToListInAString | Returns the list written as text in its computable form, such as "[ 1, 2 ]". | a string | | ToListInAStringInShortForm
+ToListOfStzStrings | Returns each item as a stzString; every item must be a string. | a list of stzString objects | | ToStzListOfStrings
+TrailingItems | Returns the run of items equal to the last one. | a list of items | | LeadingItems
+TrimItemFromLeft | Removes the run of the given item from the start of the list, in place. | nothing; the list changes | | TrimItemFromRight
+TrimItemFromRight | Removes the run of the given item from the end of the list, in place. | nothing; the list changes | | TrimItemFromLeft
+TrimmedToSize | Returns the first n items; the list is unchanged. | a list of items | _n_=how many items to keep | TrimToSize
+Triplets | Returns the sliding triplets of consecutive items, such as [ [ 1, 2, 3 ], [ 2, 3, 4 ] ]. | a list of three-item lists | | Pairify
+TypesAndTheirSections | Returns each item type with the [ start, end ] runs where it occurs. | a list of [ type, sections ] pairs | | UniqueTypes
+VizDeepFind | Returns the list written as text for display, with the occurrences of the item marked at any depth. | a string | | VizFindAll
+WalkEveryNth | Returns the positions n, 2n, 3n and so on. | a list of positions | _n_=the step | WalkNForward
+WalkNBackward | Returns the positions walked backwards from the last, n at a time. | a list of positions | _n_=the step | WalkNForward
+WalkUntilItem | Returns the positions walked from the first up to and including the first occurrence of the item. | a list of positions | | WalkUntil
+YieldWhileWalking | Returns the yielder applied to each item that the named walker visits. | a list of values | pcYielder=the expression that makes each value; pWalker=the name of the walker | Walk
+ZerosRemoved | Returns a copy without the numeric zeros; the list is unchanged. | a list of items | | RemoveZeros
+ZipWith | Returns the items paired with those of the other list, up to the shorter one. | a list of [ item, other item ] pairs | | ZippedWith
+AddItems | Appends each of the given items at the end, in place. | nothing; the list changes | | AddItem
+AddToEach | Adds n to every number item, in place. | nothing; the list changes | _n_=the number to add | AddedToEach
+AddedItemsComparedToCS | Returns the items of the other list that the list does not hold. | a list of items | | RemovedItemsComparedToCS
+AllAreEqual | TRUE if only one distinct value occurs among the items. | TRUE or FALSE | | AllItemsAreEqual
+AntiRanges | Returns the runs of items that lie outside the given ranges. | a list of lists | paRanges=the ranges, each [ start, end ] | Ranges
+AntiSection | Raises error R19 today instead of returning the items outside one section. | nothing today | _n1_=the position of the first item; _n2_=the position of the last item | FindAntiSection | known defect: the call raises error R19 today, because it passes too few arguments to the code behind it
+AsDeepList | Returns the list as a stzDeepList. | a stzDeepList | | DeepList
+AssociatedWith | Returns the items paired with those of the other list; a missing partner becomes an empty string. | a list of [ item, other item ] pairs | | AssociateWith
+CentralItem | Returns the item at the central position. | the item | | CentralPosition
+CentralPosition | Returns the position at the middle of the list; for an even count, the upper of the two middle positions. | a number | | CentralItem
+ClampTo | Brings every number between a minimum and a maximum, in place. | nothing; the list changes | nMin=the lowest value allowed; _nMax_=the highest value allowed | ClampedTo
+Classified | Returns each distinct item with the positions where it occurs. | a list of [ item, positions ] pairs | | Classify
+ClassifyBy | Groups the positions of the items by the value the expression gives for each. | a list of [ value, positions ] pairs | | Classify
+ContainsDuplicatedItem | TRUE if the item occurs more than once. | TRUE or FALSE | | FindDuplicatedItem
+ContainsNoItemOfThese | TRUE if none of the given items occurs in the list. | TRUE or FALSE | | ContainsSome
+ContainsNoNumbers | TRUE if no item is a number. | TRUE or FALSE | | ContainsNoStrings
+ContainsNoStrings | TRUE if no item is a string. | TRUE or FALSE | | ContainsNoNumbers
+ContainsNoneOfThese | TRUE if none of the given items occurs in the list. | TRUE or FALSE | | ContainsSome
+ContainsObjects | TRUE if at least one item is an object. | TRUE or FALSE | | ContainsNoObjects
+ContainsSome | TRUE if at least one of the given items occurs in the list. | TRUE or FALSE | | ContainsNoneOfThese
+CountUniqueItemsWF | Returns how many distinct items the named function gives. | a number | pFunc=the name of a function applied to each item | NumberOfUniqueItemsW
+DeepContainsThese | TRUE if every one of the given items occurs at any depth of a nested list. | TRUE or FALSE | | DeepContains
+DeepRemoved | Returns a copy with the item removed at any depth; the list is unchanged. | a list of items | | DeepRemove
+DeeplyReplace | Replaces the item by a new one at any depth of a nested list, in place. | nothing; the list changes | pOld=the item to replace; pNew=the item that takes its place | DeepRemove
+DupSecutiveItemZ | Returns the given item with the positions where it repeats the one before it. | a list [ item, positions ] | pItem=the item to look for | DupSecutiveItems
+DuplicateItemsZ | Returns each duplicated item with the positions of its repeats. | a list of [ item, positions ] pairs | | DuplicatesZ
+EachItemContains | TRUE if every item contains the given item. | TRUE or FALSE | | EachContains
+ExtendToByRepeatingItems | Extends the list up to position n by repeating its own items, in place. | nothing; the list changes | _n_=the position to reach | ExtendToWithItemsRepeated
+ExtendToPositionWith | Extends the list up to position n by adding the given item, in place. | nothing; the list changes | _n_=the position to reach; pWith=the item used to fill | ExtendToWith
+ExtendToPositionWithItemsIn | Extends the list up to position n by adding the given items in turn, in place. | nothing; the list changes | _n_=the position to reach; paItems=the items used to fill, in turn | ExtendToWithItemsIn
+ExtendToPositionWithItemsRepeated | Extends the list up to position n by repeating its own items, in place. | nothing; the list changes | _n_=the position to reach | ExtendToWithItemsRepeated
+ExtractDuplicates | Removes the repeats of duplicated items, in place, but answers an empty list instead of the removed items. | an empty list today | | RemoveDuplicatedItems | known defect: the repeats are removed from the list but the call returns [ ] instead of them
+ExtractFirstOccurrence | Raises error R14 today instead of removing the first occurrence of the item and returning it. | nothing today | | ExtractFirst | known defect: the call raises error R14 today, because it calls FirstOccurrenceCS, which is not defined; ExtractFirst works
+ExtractLastOccurrence | Raises error R14 today instead of removing the last occurrence of the item and returning it. | nothing today | | ExtractLast | known defect: the call raises error R14 today, because it calls LastOccurrenceCS, which is not defined; ExtractLast works
+ExtractLists | Removes the list items and returns them. | a list of lists | | ExtractNumbers
+ExtractNthOccurrence | Removes the nth occurrence of the item and returns it. | the removed item | _n_=which occurrence | ExtractFirst
+FindAntiSection | Returns the sections outside one section, as [ start, end ] pairs. | a list of [ start, end ] pairs | _n1_=the position of the first item; _n2_=the position of the last item | FindAntiSections
+FindDuplicatedItem | Returns the positions of every occurrence of an item that occurs more than once. | a list of positions | | FindDuplicationsOf
+FindDuplicatesOfItem | Returns the positions of the repeats of the item, leaving out its first occurrence. | a list of positions | | FindDuplicationsOf
+FindFirstDuplicatedItems | Returns the position of the first occurrence of each duplicated item. | a list of positions | | FindDupOrigins
+FindGivenOccurrences | Returns the positions of the given occurrences of the item, counted from 1. | a list of positions | panOccurrences=the ranks of the occurrences wanted | FindNOccurrences
+FindLastOccurrenceCS | Returns the position of the last occurrence of the item. | a number | | FindFirstOccurrence
+FindNOccurrences | Returns the positions of the first n occurrences of the item. | a list of positions | _n_=how many occurrences | FindGivenOccurrences
+FindNextNthOccurrencesCS | Returns the positions of the given ranks of next occurrences of the item after a given position. | a list of positions | panList=the ranks of the occurrences wanted | FindNextNth
+FindNonNumbers | Returns the positions of the items that are not numbers. | a list of positions | | FindNumbers
+FindNonStzObjects | Returns the positions of the items that are not Softanza objects. | a list of positions | | FindStzObjects
+FindNthLargest | Returns the positions of the nth largest value. | a list of positions | _n_=the rank, 1 for the largest | NthLargest
+FindObjectsAsSections | Returns each run of consecutive object items as a [ start, end ] pair. | a list of [ start, end ] pairs | | FindNumbersAsSections
+FindPreviousNthOccurrences | Returns the positions of the given ranks of previous occurrences of the item before a given position. | a list of positions | panN=the ranks of the occurrences wanted | FindPreviousNth
+FindQObjects | Returns the positions of the items that are Q objects. | a list of positions | | FindStzObjects
+FirstAndLastItems | Returns the first and the last items as a pair. | a pair [ first, last ] | | LastAndFirstItems
+HasCentralItem | TRUE if the count of items is odd, so that one item stands in the middle. | TRUE or FALSE | | CentralItem
+HasRepeatedTrailingItems | TRUE if the last item is repeated right before itself. | TRUE or FALSE | | RepeatedTrailingItems
+HasSameSizeAs | TRUE if both lists hold the same number of items. | TRUE or FALSE | | HasSameNumberOfItemsAs
+HasSameWidthAs | TRUE if both lists hold the same number of items. | TRUE or FALSE | | HasSameSizeAs
+Histogram | Returns each distinct item with how many times it occurs. | a list of [ item, count ] pairs | | Frequencies
+InsertAfterPosition | Inserts the item after position n, in place. | nothing; the list changes | _n_=the position to insert after | InsertBeforePosition
+InsertBeforePosition | Inserts the item before position n, in place. | nothing; the list changes | _n_=the position to insert before | InsertAfterPosition
+IsInLowercase | TRUE if every text item is in lowercase. | TRUE or FALSE | | IsNotInLowercase
+IsListOfHashLists | TRUE if every item is a hash list. | TRUE or FALSE | | IsHashList
+IsListOfLists | TRUE if every item is a list; an empty list counts as TRUE. | TRUE or FALSE | | IsListOfStrings
+IsListOfListsOfNumbers | TRUE if every item is a list and every item of those lists is a number. | TRUE or FALSE | | IsListOfNumbers
+IsListOfListsOfSameSize | TRUE if every item is a list and all those lists have the same size. | TRUE or FALSE | | IsListOfLists
+IsListOfPairs | TRUE if every item is a pair; an empty list counts as TRUE. | TRUE or FALSE | | IsPair
+IsListOfPairsOfNumbers | TRUE if every item is a pair of numbers. | TRUE or FALSE | | IsListOfPairs
+IsListOfPairsOfStrings | TRUE if every item is a pair of strings. | TRUE or FALSE | | IsListOfPairs
+IsMadeOfNumbersOrStrings | TRUE if every item is a number or a string. | TRUE or FALSE | | IsMadeOfSome
+IsMadeOfOneOrMoreOf | TRUE if every item of the list is one of the given items. | TRUE or FALSE | | IsMadeOfSome
+IsMadeOfOneOrMoreOfThese | TRUE if every item of the list is one of the given items. | TRUE or FALSE | | IsMadeOfSome
+IsMadeOfStrings | TRUE if the list is not empty and every item is a string. | TRUE or FALSE | | IsListOfStrings
+IsNotEmpty | TRUE if the list holds at least one item. | TRUE or FALSE | | IsEmpty
+IsNotHashList | TRUE if some item is not a [ key, value ] pair. | TRUE or FALSE | | IsHashList
+IsPairOfNumbers | TRUE if the list holds exactly two items and both are numbers. | TRUE or FALSE | | IsPairOfStrings
+IsPairOfStrings | TRUE if the list holds exactly two items and both are strings. | TRUE or FALSE | | IsPairOfNumbers
+IsSet | TRUE if no item occurs twice, so that the list is a set. | TRUE or FALSE | | ContainsNoDuplicates
+ItemAdded | Returns a copy with the item appended; the list is unchanged. | a list of items | | AddItem
+ItemIsDuplicatedNTimes | TRUE if the item repeats exactly n times after its first occurrence. | TRUE or FALSE | _n_=how many repeats | NumberOfDuplicatesOfItem
+ItemsAppearingLessThanNTimes | Returns the distinct items that occur fewer than n times; today each comes back as text. | a list of strings | _n_=the number of occurrences | ItemsAppearingNTimes | known defect: numbers come back as text, such as "3" for 3
+ItemsBetween | Returns the items from one position to another, both included. | a list of items | _n1_=the position of the first item; _n2_=the position of the last item | Section
+ItemsBetweenPositions | Returns the items from one position to another, both included. | a list of items | _n1_=the position of the first item; _n2_=the position of the last item | Section
+ItemsOccurringMoreThanNTimes | Returns the distinct items that occur more than n times. | a list of items | _n_=the number of occurrences | ItemsAppearingNTimes
+ItemsThatArePairs | Returns the items that are pairs, lists of two items. | a list of pairs | | Pairs
+KeepFirst | Keeps only the first n items, in place. | nothing; the list changes | _n_=how many items to keep | Shrink
+LastAndFirstItems | Returns the last and the first items as a pair. | a pair [ last, first ] | | FirstAndLastItems
+ListsAtAnyLevel | Returns every sublist at any depth of nesting. | a list of lists | | DeepLists
+ManyAdded | Returns a copy with each of the given items appended; the list is unchanged. | a list of items | | AddItems
+ManyDeepRemoved | Returns a copy with each of the given items removed at any depth; the list is unchanged. | a list of items | | DeepRemoved
+ModifiedItemsComparedToCSXT | Returns the [ old, new ] pairs of items that changed against the other list, matched by overlap. | a list of [ old, new ] pairs | | AddedItemsComparedToCS
+MoveItemToEnd | Moves the first occurrence of the item to the end, in place. | nothing; the list changes | | MoveItemToStart
+MoveItemToStart | Moves the first occurrence of the item to the start, in place. | nothing; the list changes | | MoveItemToEnd
+MoveToEnd | Moves the item at position n to the end, in place. | nothing; the list changes | _n_=the position of the item | MoveToStart
+MoveToStart | Moves the item at position n to the start, in place. | nothing; the list changes | _n_=the position of the item | MoveToEnd
+NBoundsOf | Returns, for each occurrence of the item, the items found on its two sides, up to n of them. | a list | pUpTo=how many items to take on each side | BoundsOf
+NListify | Turns every item into the first of a list of n items, padded with empty strings, in place. | nothing; the list changes | _n_=the size of each new list | NListified
+NextNItemsAfter | Returns the n items that follow the first occurrence of the anchor item. | a list of items | pcAnchor=the item to count from; _n_=how many items | NextNItems
+NextNthOccurrencesRemoved | Returns a copy without the given ranks of next occurrences of the item after a position; the list is unchanged. | a list of items | panN=the ranks of the occurrences to remove | RemoveNextNthOccurrences
+NextNthOccurrencesReplaced | Returns a copy with the given ranks of next occurrences of the item after a position replaced; the list is unchanged. | a list of items | panList=the ranks of the occurrences to replace | ReplaceNextNthOccurrences
+NonDuplicatedItemsAndTheirPositions | Returns each item that occurs once with its position. | a list of [ item, position ] pairs | | NonDuplicatedItems
+NullsStripped | Returns a copy without the empty items; the list is unchanged. | a list of items | | StripNulls
+NumberOfDuplicatesOfItem | Returns how many repeats of the item occur beyond its first occurrence. | a number | | FindDuplicatesOfItem
+NumberOfItemsB | TRUE if the count of items equals the last value the library remembers, the B form of a count test. | TRUE or FALSE | | NumberOfItems
+NumberOfItemsCSB | TRUE if the count of items equals the last value the library remembers, the B form of a count test. | TRUE or FALSE | pCaseSensitive=1 to compare with case, 0 to ignore it | NumberOfItems
+NumberOfLargest | Returns how many times the largest value occurs. | a number | | FindLargest
+NumberOfNonStzObjects | Returns how many items are not Softanza objects. | a number | | NumberOfStzObjects
+NumberOfOccurrenceOfItems | Returns each distinct item with how many times it occurs. | a list of [ item, count ] pairs | | Frequencies
+NumberOfOccurrencesOfLargestItem | Returns how many times the largest value occurs. | a number | | NumberOfLargest
+NumberOfQObjects | Returns how many items are Q objects. | a number | | FindQObjects
+NumberOfRepeatedTrailingItems | Raises error R14 today instead of returning how many items before the last equal it. | nothing today | | NumberOfRepeatedLeadingItems | known defect: the call raises error R14 today, because it calls a method that is not defined
+NumberOfStzObjects | Returns how many items are Softanza objects. | a number | | NumberOfNonStzObjects
+NumberOfUniqueItemsW | Returns how many distinct items meet the W condition. | a number | pCondition=the W condition | NumberOfUniqueNamedObjects
+NumberOfUnnamedObjects | Returns how many items are objects without a name. | a number | | NumberOfNamedObjects
+NumberOfWalkedItems | Returns how many items the given walker visited. | a number | pBy=the name of the walker | WalkedItems
+Objectified | Returns each item wrapped as a Q object; the list is unchanged. | a list of objects | | Objectify
+Objectify | Wraps each item in a Q object, in place, so that object methods can be called on it. | nothing; the list changes | | Objectified
+ObjectsAndTheirPositions | Returns each object item with its position. | a list of [ object, position ] pairs | | FindObject
+ObjectsAndTheirVarNames | Returns each named object item with its variable name. | a list of [ object, name ] pairs | | ObjectsVarNames
+OnlyChars | Returns the items that are single characters. | a list of characters | | OnlyStrings
+PerformOn | Runs the action on the items at the given positions. | nothing; the items may change | panPos=the positions to act on; pcAction=the expression to run for each item | PerformAtW
+PerformOnEachItemAndItsPosition | Runs the action on every item and its position, in place. | nothing; the items may change | | PerformOn
+PopFirst | Removes the first item and returns it. | the removed item | | Pop
+PrependWith | Puts the items of the other list in front of the list, in place. | nothing; the list changes | | PrependedWith
+PreviousNthOccurrencesRemoved | Returns a copy without the given ranks of previous occurrences of the item before a position; the list is unchanged. | a list of items | panN=the ranks of the occurrences to remove | RemovePreviousNthOccurrences
+PreviousNthOccurrencesReplaced | Returns a copy with the given ranks of previous occurrences of the item before a position replaced; the list is unchanged. | a list of items | panList=the ranks of the occurrences to replace | ReplacePreviousNthOccurrences
+RandomItemExceptPosition | Returns an item picked at random, leaving out the item at the given position. | the item | _n_=the position to leave out | RandomItem
+RandomPositionExceptPositions | Returns a position picked at random, outside the given positions. | a number | | RandomPosition
+RandomPositionGreaterThan | Returns a position picked at random, after position n. | a number | _n_=the position to stay after | RandomPositionLessThan
+RandomPositionLessThan | Returns a position picked at random, before position n. | a number | _n_=the position to stay before | RandomPositionGreaterThan
+RandomiseNumbers | Shuffles the number items among their own places, in place. | nothing; the list changes | | RandomizeNumbers
+RandomiseStrings | Shuffles the string items among their own places, in place. | nothing; the list changes | | RandomizeStrings
+RangesAndAntiRanges | Raises error R14 today instead of returning the ranges and the runs outside them. | nothing today | paRanges=the ranges, each [ start, end ] | Ranges | known defect: the call raises error R14 today, because it calls SectionsAndAntiSections, which is not defined
+Ranked | Returns the rank of each item in sorted order, equal items sharing the lowest rank. | a list of numbers | | SortedBy
+RemoveAllExceptNonNumbers | Removes every number, keeping the items that are not numbers, in place. | nothing; the list changes | | RemoveNonNumbers
+RemoveAllExceptNumbers | Removes every item that is not a number, in place. | nothing; the list changes | | RemoveNonNumbers
+RemoveAllItems | Empties the list, in place. | nothing; the list changes | | RemoveFirstItem
+RemoveDuplicatesOrigins | Removes the first occurrence of each duplicated item, in place. | nothing; the list changes | | RemoveDupOrigins
+RemoveItemCS | Removes the first occurrence of the item, with the case rule given, in place. | nothing; the list changes | | RemoveFirst
+RemoveNextNthOccurrence | Removes the nth occurrence of the item after a given position, in place. | nothing; the list changes | _n_=which occurrence, counted from the starting position | RemovePreviousNthOccurrence
+RemoveNextNthOccurrences | Removes the given ranks of occurrences of the item after a position, in place. | nothing; the list changes | panN=the ranks of the occurrences to remove | RemoveNextNthOccurrence
+RemoveNonNumbers | Removes every item that is not a number, in place. | nothing; the list changes | | RemoveNumbers
+RemoveOnlyNonNumbers | Removes every item that is not a number, in place. | nothing; the list changes | | RemoveNonNumbers
+RemoveOnlyNumbers | Removes every item that is a number, in place. | nothing; the list changes | | RemoveNumbers
+RemovePreviousNthOccurrence | Removes the nth occurrence of the item before a given position, in place. | nothing; the list changes | _n_=which occurrence, counted backwards | RemoveNextNthOccurrence
+RemovePreviousNthOccurrences | Removes the given ranks of occurrences of the item before a position, in place. | nothing; the list changes | panN=the ranks of the occurrences to remove | RemovePreviousNthOccurrence
+RemoveTheseItems | Removes every occurrence of each of the given items, in place. | nothing; the list changes | | RemoveItemsOtherThan
+RemovedItemsComparedToCS | Returns the items of the list that the other list does not hold. | a list of items | | AddedItemsComparedToCS
+RepeatedLeadingItem | Leaves nothing today instead of returning the item that repeats at the start. | nothing today | | RepeatedLeadingItems | known defect: the call returns an empty string whatever the list holds; RepeatedLeadingItems returns the run
+RepeatedTrailingItem | Raises error R14 today instead of returning the item that repeats at the end. | nothing today | | RepeatedTrailingItems | known defect: the call raises error R14 today, because it calls a method that is not defined
+ReplaceAllItems | Replaces every item by one new item, in place; :With = item is accepted. | nothing; the list changes | pNewItem=the item that every position receives | ReplaceAtPositions
+ReplaceAnyAt | Replaces the item at a position by a new item, in place. | nothing; the list changes | pPos=the position | ReplaceAnyItemAt
+ReplaceAtPositions | Replaces the items at the given positions by a new item, in place. | nothing; the list changes | | ReplaceItemsAtPositions
+ReplaceItemAtPosition | Replaces the item at position n by a new item, in place. | nothing; the list changes | _n_=the position | ReplaceAnyItemAt
+ReplaceItemsW | Replaces the items that meet the W condition by the new value, in place. | nothing; the list changes | pWhere=the W condition; pBy=the value that takes their place | FindW
+ReplaceNextNthOccurrences | Replaces the given ranks of occurrences of the item after a position by a new item, in place. | nothing; the list changes | panList=the ranks of the occurrences to replace | ReplaceNextNthOccurrence
+ReplaceNthNextOccurrenceST | Replaces the nth occurrence of the item after a given position by a new item, in place. | nothing; the list changes | _n_=which occurrence, counted from the starting position | ReplaceNextNthOccurrence
+ReplacePreviousNthOccurrences | Replaces the given ranks of occurrences of the item before a position by a new item, in place. | nothing; the list changes | panList=the ranks of the occurrences to replace | ReplacePreviousNthOccurrence
+ReplaceRepeatedLeadingItem | Replaces the run of repeated leading items by a new item, in place. | nothing; the list changes | | ReplaceLeadingItems
+ReplaceTrailingItems | Replaces the run of trailing items equal to the last by a new item, in place. | nothing; the list changes | p1=the new item | ReplaceLeadingItems
+SectionRandomized | Returns a copy with the items between two positions shuffled; the list is unchanged. | a list of items | _n1_=the position of the first item; _n2_=the position of the last item | RandomizeSection
+SetItemAt | Replaces the item at position n by a new item, in place. | nothing; the list changes | _n_=the position | ReplaceItemAtPosition
+ShuffleNumbers | Shuffles the number items among their own places, in place. | nothing; the list changes | | RandomizeNumbers
+ShuffleStrings | Shuffles the string items among their own places, in place. | nothing; the list changes | | RandomizeStrings
+SortAscending | Sorts the items from the least to the greatest, in place. | nothing; the list changes | | SortUp
+SortByDescending | Sorts the items by the key expression, from the greatest to the least, in place. | nothing; the list changes | | SortBy
+SplitAfterPosition | Leaves the list unchanged today instead of splitting it after a position. | nothing today | _n_=the position to split after | SplittedAfterPosition | known defect: the call computes the parts on a copy and drops them; SplittedAfterPosition returns them
+SplitAsSectionsXT | Raises error R14 today instead of returning the sections of the parts. | nothing today | p=the item or the options to split with | SplittedAt | known defect: the call raises error R14 today, because it calls a method that is not defined
+SplitAtPacer | Leaves the list unchanged today instead of splitting it every few items. | nothing today | nPace=how many items in each part; _nStart_=the position to start from | SplittedAtPacer | known defect: the call computes the parts on a copy and drops them; SplittedAtPacer returns them
+SplitBeforePosition | Leaves the list unchanged today instead of splitting it before a position. | nothing today | _n_=the position to split before | SplittedBeforePosition | known defect: the call computes the parts on a copy and drops them; SplittedBeforePosition returns them
+SplitXT | Raises error R14 today instead of splitting the list with the given options. | nothing today | p=the item or the options to split with | SplittedAt | known defect: the call raises error R14 today, because it calls a method that is not defined
+SplittedAsSectionsXT | Raises error R14 today instead of returning the sections of the parts. | nothing today | p=the item or the options to split with | SplittedAt | known defect: the call raises error R14 today, because it calls a method that is not defined
+SplittedAt | Returns the parts of the list cut at each occurrence of the item, the item itself not kept. | a list of lists | | SplitAtPositions
+SplittedAtPacer | Returns the list cut into parts of a fixed number of items, from a position; the list is unchanged. | a list of lists | nPace=how many items in each part; _nStart_=the position to start from | SplitAtPacer
+SplittedAtPositions | Returns the list cut at the given positions; the list is unchanged. | a list of lists | | SplitAtPositions
+SplittedW | Returns the list cut at the items that meet the W condition; the list is unchanged. | a list of lists | | SplitW
+SplittedXT | Raises error R14 today instead of returning the parts split with the given options. | nothing today | p=the item or the options to split with | SplittedAt | known defect: the call raises error R14 today, because it calls a method that is not defined
+Squeeze | Squeezes the list, in place, through its trimmer. | nothing; the list changes | | Squeezed
+Squeezed | Returns the list squeezed through its trimmer; the list is unchanged. | a list of items | | Squeeze
+StringifyAndLower | Turns every item into lowercase text, in place. | nothing; the list changes | | StringifyAndUpper
+StringifyAndUpper | Turns every item into uppercase text, in place. | nothing; the list changes | | StringifyAndLower
+StringifyLowercase | Turns every item into lowercase text, in place. | nothing; the list changes | | StringifyUppercase
+StringifyUppercase | Turns every item into uppercase text, in place. | nothing; the list changes | | StringifyLowercase
+StringifyUppercaseAndReplace | Turns every item into uppercase text, then replaces a text by another inside each, in place. | nothing; the list changes | pWith=the text that takes its place | StringifyLowercaseAndReplace
+StripNulls | Removes the empty items, in place. | nothing; the list changes | | NullsStripped
+SwapFirstAndLast | Swaps the first and the last items, in place. | nothing; the list changes | | SwapItems
+TheseObjectsZ | Returns each of the named objects with its position. | a list of [ name, positions ] pairs | pacNames=the names of the objects to look for | FindNamedObjects
+TrimToSize | Cuts the list down to its first n items, in place. | nothing; the list changes | _n_=how many items to keep | TrimmedToSize
+TrimmedRight | Returns a copy without the empty items at its end; the list is unchanged. | a list of items | | TrimRight
+TruncateTo | Cuts the list down to its first n items, in place. | nothing; the list changes | _n_=how many items to keep | TrimToSize
+Unzip | Returns the first items and the second items of the pairs as two lists; the list is unchanged. | a list of two lists | | Unzipped
+Unzipped | Returns the first items and the second items of the pairs as two lists. | a list of two lists | | Unzip
+UpdateAt | Replaces the item at position n by a new item, in place. | nothing; the list changes | _n_=the position | ReplaceItemAtPosition
+UpdateBy | Replaces the whole content by the given list, in place. | nothing; the list changes | | Update
+Updated | Returns the given list, the content the list would take with Update; the list is unchanged. | a list of items | | Update
+VizDeepFindAll | Returns the list written as text for display, with every occurrence of the item marked at any depth. | a string | | VizFindAll
+VizFindAllOccurrences | Returns the list written as text for display, with every occurrence of the item marked. | a string | | VizFindAll
+WalkAccumulating | Returns the running result of the expression over the items. | a list of values | | Walk
+WalkBackAndForth | Returns the positions walked from the last to the first and back to the last. | a list of positions | | WalkForthAndBack
+WalkForthAndBack | Returns the positions walked from the first to the last and back to the first. | a list of positions | | WalkBackAndForth
+WalkFromTo | Returns the positions from one position to another, both included. | a list of positions | nFrom=the position to start from; nTo=the position to stop at | WalkBetween
+WalkNItemsBackwardNItemsForward | Returns the positions walked n items backwards, then n items forwards. | a list of positions | pnBackward=how many items back; pnForward=how many items forward | WalkNItemsForwardNItemsBackward
+WalkNItemsBackwardXT | Returns the positions walked n at a time backwards, in the form the second argument asks for. | a list of positions | _n_=the step; pReturn=what to return, positions or items | WalkNBackward
+WalkNItemsForwardNItemsBackward | Returns the positions walked n items forwards, then n items backwards. | a list of positions | pnForward=how many items forward; pnBackward=how many items back | WalkNItemsBackwardNItemsForward
+WalkNItemsForwardXT | Returns the positions walked n at a time forwards, in the form the second argument asks for. | a list of positions | _n_=the step; pReturn=what to return, positions or items | WalkNForward
+WalkNItemsFromEndNItemsFromStart | Returns the positions walked from the end and from the start, the given number of items each way. | a list of positions | pnFromEnd=how many items from the end; pnFromStart=how many items from the start | WalkNItemsFromStartNItemsFromEnd
+WalkNItemsFromStartNItemsFromEnd | Returns the positions walked from the start and from the end, the given number of items each way. | a list of positions | nFromStart=how many items from the start; nFromEnd=how many items from the end | WalkNItemsFromEndNItemsFromStart
+WalkNProgressiveItemsBackward | Returns the positions walked backwards with a growing step. | a list of positions | _n_=the first step | WalkNProgressiveItemsForward
+WalkNProgressiveItemsForward | Returns the positions walked forwards with a growing step. | a list of positions | _n_=the first step | WalkNProgressiveItemsBackward
+WalkSkipping | Returns the positions walked forwards, skipping n items between each. | a list of positions | _n_=how many items to skip | WalkEveryNth
+WalkW | Returns the positions of the items that meet the W condition. | a list of positions | | WalkWhen
+WalkWhen | Returns the positions walked from the first item that meets the condition to the end. | a list of positions | | WalkWhile
+WalkWhere | Returns the positions of the items that meet the W condition. | a list of positions | | WalkW
+WalkWhile | Returns the positions walked from the first while the items meet the condition. | a list of positions | | WalkWhen
+WalkZigZag | Returns the positions walked forwards by step, then backwards over those skipped. | a list of positions | _nStep_=the step | WalkBackAndForth
+WalkedItems | Returns the items that the given walker visited. | a list of items | pBy=the name of the walker | WalkedPositions
+WalkedLastItem | Returns the item at the last position the given walker reached. | the item | pBy=the name of the walker | WalkedLastPosition
+WalkedLastPosition | Returns the last position the given walker reached. | a number | pBy=the name of the walker | WalkedLastItem
+WalkedPositions | Returns the positions that the given walker visited. | a list of positions | pBy=the name of the walker | WalkedItems
+Walkers | Returns the named walkers attached to the list. | a list of walkers | | AddWalker
+YieldOn | Returns the yielder applied to the items at the given positions. | a list of values | panPos=the positions to look at; pcYielder=the expression that makes each value | YieldAtW
+YieldPairs | Returns the yielder applied to each item. | a list of values | pcYielder=the expression that makes each value | YieldAtW
+operator | Applies a Ring operator to the list and a value; + appends the value. | the result of the operator | pOp=the operator, as text; pValue=the right-hand value

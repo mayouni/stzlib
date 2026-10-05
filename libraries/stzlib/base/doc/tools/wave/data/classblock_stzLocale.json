@@ -1,0 +1,7 @@
+{
+ "brief": "Holds a locale such as fr-FR and answers its country, language, script, currency, week days, time patterns and number symbols.",
+ "detail": "A stzLocale is a locale code kept as text with an underscore (fr_FR). Build it from a code, a language name, a country name, a hash of parts, :System or :Default; the library's own tables then answer the facts: CountryName, LanguageName, CurrencyInfo, the first day of the week (monday for fr-FR, sunday for en-US, saturday for ar-EG), time patterns, DecimalPoint and GroupSeparator. The week methods come in three faces, English, native (the locale's own language) and the abbreviation and one-letter symbol of each, all counted from the locale's first day. A locale the tables do not know answers empty text. Known gaps today, each carried as a warning on its method: the case conversions change only the ASCII letters and ignore the locale; the title-case and capital-case methods and the ToTimeAs methods raise; the fold-case methods answer nothing; the script of most locales comes out as common; and day names exist only for ten languages, the others answer English.",
+ "receiver": "o1 = new stzLocale(\"fr-FR\")",
+ "example": ["? o1.CountryName()", "#--> france"],
+ "see": ["stzCountry", "stzLanguage", "stzScript", "stzTime"]
+}

@@ -1,0 +1,12 @@
+tree-sitter (runtime + python and javascript grammars) runtime ABI 15, versions unknown
+
+runtime/ declares TREE_SITTER_LANGUAGE_VERSION 15. The runtime release and
+the two grammar versions were not recorded when vendored.
+
+--- SBOM record (read by engine/tools/sbom.py; keep the keys) ---
+Component:        tree-sitter (runtime + python and javascript grammars)
+Version:          runtime ABI 15, versions unknown
+Source:           https://github.com/tree-sitter/tree-sitter
+Licence:          MIT
+Archive-SHA-256:  not recorded -- the upstream archive was not fetched when this record was written (2026-09-29)
+Tree-Digest:      3e1ab77b4e1ac744fe5b5e2e956ffca8af080f4d0d442c3598a62cdcab754ff9

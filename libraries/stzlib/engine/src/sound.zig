@@ -36,6 +36,7 @@ const std = @import("std");
 const builtin = @import("builtin");
 // the seam both tiers render from -- see sounddsp.zig's header
 const dsp = @import("sounddsp.zig");
+const ins = @import("soundinstr.zig");
 
 const c = @cImport({
     @cDefine("MA_NO_DEVICE_IO", "1");
@@ -128,6 +129,18 @@ const Buf = struct {
 
 var bufs: std.ArrayList(Buf) = .{};
 
+/// THE TABLE NEVER MOVES (STZLIB-SNDTABLE-RACE-01, found by MU2, fixed
+/// 2026-09-30). Source nodes read a buffer through this table from the audio
+/// thread (getSample -> bufs.items[s]) while Ring, on its own thread, may add a
+/// buffer. An ArrayList that grows REALLOCATES: the audio thread could read
+/// the old array after it was freed. So the whole capacity is reserved once,
+/// on the first buffer, and the table refuses to grow past it -- its address
+/// is fixed for the life of the process. Freed slots are reused, so this bounds
+/// the buffers alive AT ONCE, not the buffers ever made. 65536 slots cost about
+/// 2.6 MB. (The timeline sidesteps the table with a raw view per note; source
+/// nodes, older than the timeline, never did.)
+pub const MAX_BUFFERS: usize = 65536;
+
 fn makeId(slot: usize, gen: u32) i64 {
     return (@as(i64, gen) << 32) | @as(i64, @intCast(slot + 1));
 }
@@ -158,11 +171,21 @@ fn adopt(data: []f32, frames: usize, channels: u32, rate: u32) i64 {
             return makeId(i, b.gen);
         }
     }
-    bufs.append(alloc, .{ .data = data, .frames = frames, .channels = channels, .rate = rate, .gen = 1, .live = true }) catch {
+    if (bufs.capacity == 0) {
+        bufs.ensureTotalCapacityPrecise(alloc, MAX_BUFFERS) catch {
+            alloc.free(data);
+            setErr("out of memory reserving the sample-buffer table");
+            return 0;
+        };
+    }
+    if (bufs.items.len >= MAX_BUFFERS) {
         alloc.free(data);
-        setErr("out of memory growing the sample-buffer table");
+        setErr("the sample-buffer table is full: 65536 buffers are alive at once -- release some");
         return 0;
-    };
+    }
+    // never append(): with the capacity reserved this cannot reallocate, and
+    // appendAssumeCapacity says so in the code rather than hoping
+    bufs.appendAssumeCapacity(.{ .data = data, .frames = frames, .channels = channels, .rate = rate, .gen = 1, .live = true });
     bump(CTR_BUFFERS_LIVE, 1);
     bump(CTR_BUFFERS_CREATED, 1);
     return makeId(bufs.items.len - 1, 1);
@@ -341,6 +364,136 @@ pub fn earconFrames(value: u32, rate: u32) f64 {
     return @floatFromInt(dsp.motifFrames(value, rate));
 }
 
+/// MU0 spike 3: a plucked string as an ordinary buffer. The arithmetic is the
+/// seam's, as the earcon's is; this is only the allocation.
+pub fn pluckOf(hz: f64, rate: u32, seconds: f64, decay: f64) i64 {
+    const need = dsp.pluckFrames(rate, seconds);
+    if (need == 0) {
+        bump(CTR_REFUSALS, 1);
+        setErr("pluckOf: seconds must be positive");
+        return 0;
+    }
+    const data = alloc.alloc(f32, need) catch {
+        setErr("out of memory allocating a pluck");
+        return 0;
+    };
+    @memset(data, 0);
+    if (dsp.renderPluck(hz, rate, seconds, decay, data) == 0) {
+        alloc.free(data);
+        bump(CTR_REFUSALS, 1);
+        setErr("pluckOf: that pitch has no period that fits (too low, or not positive)");
+        return 0;
+    }
+    return adopt(data, need, 1, rate);
+}
+
+/// MU1: one note of an instrument, as an ordinary buffer. The arithmetic is the
+/// seam's (soundinstr.zig); this is the allocation, and the scratch the
+/// instrument uses to listen to itself while it tunes.
+pub fn noteOf(inst: u32, hz: f64, hz_end: f64, hold: f64, vel: f64, variant: u32, rate: u32) i64 {
+    const need = ins.noteFrames(inst, rate, hold);
+    if (need == 0) {
+        bump(CTR_REFUSALS, 1);
+        setErr(ins.reasonText(if (inst >= ins.count()) ins.R_UNKNOWN else ins.R_ARGS));
+        return 0;
+    }
+    const data = alloc.alloc(f32, need) catch {
+        setErr("out of memory allocating a note");
+        return 0;
+    };
+    const scr = alloc.alloc(f32, ins.scratchFrames(rate)) catch {
+        alloc.free(data);
+        setErr("out of memory allocating a note's tuning scratch");
+        return 0;
+    };
+    defer alloc.free(scr);
+    if (ins.renderNote(inst, hz, hz_end, hold, vel, variant, rate, data, scr) == 0) {
+        alloc.free(data);
+        bump(CTR_REFUSALS, 1);
+        setErr(ins.reasonText(ins.last_reason));
+        return 0;
+    }
+    return adopt(data, need, 1, rate);
+}
+
+/// MU5: one sung vowel (0..4 = a e i o u) as an ordinary buffer -- the formant
+/// voice in the seam. Refused, with the reason in lastError, out of range, for
+/// a vowel that is not one, or for arguments that are not.
+pub fn vowelOf(vowel: u32, hz: f64, hz_end: f64, hold: f64, vel: f64, breath: f64, vibrato: f64, rate: u32) i64 {
+    const need = ins.vowelFrames(rate, hold);
+    if (need == 0) {
+        bump(CTR_REFUSALS, 1);
+        setErr(ins.reasonText(ins.R_ARGS));
+        return 0;
+    }
+    const data = alloc.alloc(f32, need) catch {
+        setErr("out of memory allocating a vowel");
+        return 0;
+    };
+    @memset(data, 0);
+    if (ins.renderVowel(vowel, hz, hz_end, hold, vel, breath, vibrato, rate, data) == 0) {
+        alloc.free(data);
+        bump(CTR_REFUSALS, 1);
+        setErr(ins.reasonText(ins.last_reason));
+        return 0;
+    }
+    return adopt(data, need, 1, rate);
+}
+
+/// MU5 (a'): a SPOKEN syllable (a mono buffer -- SAPI's) retuned by PSOLA onto
+/// `hz`, held `hold` seconds, +-`vibrato` cents. A new buffer at the source's
+/// rate, or 0 with the reason in lastError.
+pub fn retuneOf(src: i64, hz: f64, hold: f64, vibrato: f64) i64 {
+    const s = slotOf(src) orelse return 0;
+    const b = bufs.items[s];
+    if (b.channels != 1) {
+        bump(CTR_REFUSALS, 1);
+        setErr("retuneOf: the syllable must be mono -- ToMono first");
+        return 0;
+    }
+    const total: usize = @intFromFloat((hold + 0.05) * @as(f64, @floatFromInt(b.rate)) + 1);
+    const data = alloc.alloc(f32, total) catch {
+        setErr("out of memory allocating a retuned note");
+        return 0;
+    };
+    const marks = alloc.alloc(usize, b.frames / 16 + 64) catch {
+        alloc.free(data);
+        setErr("out of memory allocating pitch marks");
+        return 0;
+    };
+    defer alloc.free(marks);
+    const got = ins.retune(b.data[0..b.frames], b.rate, hz, hold, vibrato, marks, data);
+    if (got == 0) {
+        alloc.free(data);
+        bump(CTR_REFUSALS, 1);
+        setErr(if (ins.last_reason == ins.R_SILENT) "retuneOf: no voiced syllable found to retune" else ins.reasonText(ins.last_reason));
+        return 0;
+    }
+    return adopt(data, total, 1, b.rate);
+}
+
+/// MU7: the pitch of a mono buffer at `from` with NO guess -- anywhere in
+/// fmin..fmax -- over a window of `win` frames. 0 when there is none; how
+/// periodic the window was is left in ins.last_clarity (0..1).
+pub fn pitchOf(id: i64, from: usize, win: usize, fmin: f64, fmax: f64) f64 {
+    const s = slotOf(id) orelse return 0;
+    const b = bufs.items[s];
+    if (b.channels != 1) return 0;
+    return ins.detectPitch(b.data[0..b.frames], b.rate, from, win, fmin, fmax);
+}
+
+/// The pitch of a mono buffer from `from`, by the harmonic instrument (a
+/// normalised period search, octave-guarded) or, with `spectral`, by the
+/// spectral one -- for drums and bars, whose partials are not harmonic.
+/// 0 when the buffer is stale, not mono, too short, or has no such pitch.
+pub fn measurePitchOf(id: i64, from: usize, hz_guess: f64, spectral: bool) f64 {
+    const s = slotOf(id) orelse return 0;
+    const b = bufs.items[s];
+    if (b.channels != 1) return 0;
+    if (spectral) return ins.peakHz(b.data[0..b.frames], b.rate, from, 16384, hz_guess, 0.06);
+    return ins.measureHz(b.data[0..b.frames], b.rate, from, hz_guess);
+}
+
 // ---------------------------------------------------------------- accessors
 
 pub fn frameCount(id: i64) f64 {
@@ -368,6 +521,59 @@ pub fn duration(id: i64) f64 {
 /// One sample. Frame and channel are 0-BASED here: this is the engine side, and
 /// the house law is that engine bridges are 0-based while Ring faces are
 /// 1-based and translate at the face.
+/// MU1: ADD `src` into `dst` from frame `at`, scaled by `gain` -- the offline
+/// mix a demo needs to lay notes on a timeline, and the primitive MU2's
+/// scheduler will render scores with. Rates must match (refused otherwise: a
+/// note mixed at the wrong rate is a different pitch, silently). Channels
+/// match, or a mono source is added to every channel. Frames past the end of
+/// `dst` are not written. Returns the frames mixed, or -1 when refused.
+pub fn mixInto(dst: i64, src: i64, at: usize, gain: f64) f64 {
+    const sd = slotOf(dst) orelse return -1;
+    const ss = slotOf(src) orelse return -1;
+    const d = bufs.items[sd];
+    const s = bufs.items[ss];
+    if (d.rate != s.rate) {
+        bump(CTR_REFUSALS, 1);
+        setErr("mixInto: the two sounds have different sample rates -- resample first");
+        return -1;
+    }
+    if (s.channels != d.channels and s.channels != 1) {
+        bump(CTR_REFUSALS, 1);
+        setErr("mixInto: channel counts differ and the source is not mono");
+        return -1;
+    }
+    if (at >= d.frames) return 0;
+    const n = @min(s.frames, d.frames - at);
+    const g: f32 = @floatCast(gain);
+    var f: usize = 0;
+    while (f < n) : (f += 1) {
+        var ch: usize = 0;
+        while (ch < d.channels) : (ch += 1) {
+            const sv = if (s.channels == 1) s.data[f] else s.data[f * s.channels + ch];
+            d.data[(at + f) * d.channels + ch] += g * sv;
+        }
+    }
+    return @floatFromInt(n);
+}
+
+/// MU2: a buffer's samples as raw memory, resolved ONCE on the caller's thread.
+///
+/// The timeline node plays notes on the producer thread, and the producer must
+/// not read the buffer TABLE: the Ring thread keeps rendering notes while a
+/// score plays, `adopt` appends to the table, and an append that grows it
+/// reallocates the table under a reader. The samples themselves are a separate
+/// allocation that never moves -- so the timeline takes this view when a note
+/// is placed and never looks the id up again. The price is a contract: the
+/// buffer must not be freed while a timeline still holds it.
+pub const RawView = struct { data: [*]const f32, frames: usize, channels: u32, rate: u32 };
+
+pub fn rawView(id: i64) ?RawView {
+    const s = slotOf(id) orelse return null;
+    const b = bufs.items[s];
+    if (b.frames == 0) return null;
+    return .{ .data = b.data.ptr, .frames = b.frames, .channels = b.channels, .rate = b.rate };
+}
+
 pub fn getSample(id: i64, frame: usize, ch: u32) f64 {
     const s = slotOf(id) orelse return 0;
     const b = bufs.items[s];
@@ -784,6 +990,20 @@ pub fn toChannels(id: i64, n: u32) i64 {
 //         vendor/miniaudio/stz_miniaudio_dec_impl.c -lc
 
 const testing = std.testing;
+
+test "the sample-buffer table never moves: a thousand buffers later it is where it was" {
+    const first = newSilent(4, 1, 48000);
+    defer _ = free(first);
+    const where = bufs.items.ptr;
+    var ids: [1000]i64 = undefined;
+    for (&ids) |*id| id.* = newSilent(4, 1, 48000);
+    defer for (ids) |id| {
+        _ = free(id);
+    };
+    // an ArrayList that grows reallocates; this one reserved its whole capacity
+    try testing.expectEqual(where, bufs.items.ptr);
+    try testing.expectEqual(MAX_BUFFERS, bufs.capacity);
+}
 
 test "a freed handle is STALE, not reused -- and the detection is counted" {
     countersReset();

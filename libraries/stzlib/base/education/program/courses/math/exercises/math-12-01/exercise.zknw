@@ -1,0 +1,7 @@
+knowledge "math-12-01"
+
+facts
+    math-12-01 | is-a | exercise
+    math-12-01 | in-chapter | an-optimisation-model
+    math-12-01 | trains | fo-04
+    math-12-01 | needs-step | asks

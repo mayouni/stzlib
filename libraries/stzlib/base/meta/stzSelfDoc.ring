@@ -133,6 +133,32 @@ class stzSelfDoc from stzObject
 		if _StzHasRichFormTag(_aPn_[2])
 			_cOut_ += nl + "  reads as: " + _StzNameGloss(@aMethods[_ix_][1])
 		ok
+		# What the author WROTE in the method's doc block, field by field (never
+		# invented here): parameters, returns, notes, see-also, example.
+		_aRec_ = This._RecordFor(_ix_)
+		if len(_aRec_) > 0
+			_aPr_ = _aRec_[:params]
+			_nPr_ = len(_aPr_)
+			for _iP_ = 1 to _nPr_
+				_cRole_ = _StzDocWrittenRole(_aRec_, _aPr_[_iP_])
+				if _cRole_ != ""
+					_cOut_ += nl + "  " + _aPr_[_iP_] + " -- " + _cRole_
+				ok
+			next
+			if _aRec_[:returns] != ""
+				_cOut_ += nl + "  returns: " + _aRec_[:returns]
+			ok
+			_nNt_ = len(_aRec_[:notes])
+			for _iN_ = 1 to _nNt_
+				_cOut_ += nl + "  note: " + _aRec_[:notes][_iN_]
+			next
+			if _aRec_[:see] != ""
+				_cOut_ += nl + "  see: " + _aRec_[:see]
+			ok
+			if _aRec_[:example] != ""
+				_cOut_ += nl + "  example: " + StzReplace(_aRec_[:example], char(10), nl + "           ")
+			ok
+		ok
 		# A provably-running example from the tests: prefer a real "code #--> output"
 		# snippet; else name the scenario that exercises it.
 		_aEg_ = _StzExampleFor(lower(@aMethods[_ix_][1]))
@@ -144,6 +170,13 @@ class stzSelfDoc from stzObject
 			ok
 		ok
 		return _cOut_
+
+	# RecordOf(name) -- what the author wrote in the method's doc block (a hashlist:
+	# :brief :params :returns :notes :see :example :since :status), [ ] if none.
+	def RecordOf(pcName)
+		_ix_ = This._IndexOf(pcName)
+		if _ix_ = 0 return [] ok
+		return This._RecordFor(_ix_)
 
 	def Show()
 		? "stzSelfDoc [ " + @cName + " : " + len(@aMethods) + " methods ]"
@@ -296,6 +329,15 @@ class stzSelfDoc from stzObject
 		return This.BestMethodFor(pcIntent)
 
 	#-- private -------------------------------------------------
+	# the written doc record of method number ix, read from this object's own
+	# source when the method is its own and the object was opened by path
+	def _RecordFor(pnIx)
+		_cSrc_ = ""
+		if StzLower(@aMethods[pnIx][4]) = StzLower(@cName)
+			_cSrc_ = @cSource
+		ok
+		return StzDocRecordOfIn(@aMethods[pnIx][4], @aMethods[pnIx][1], _cSrc_)
+
 	def _IndexOf(pcName)
 		if NOT isString(pcName) return 0 ok
 		_cL_ = lower(pcName)

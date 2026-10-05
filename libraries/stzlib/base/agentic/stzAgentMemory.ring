@@ -12,16 +12,45 @@
 class stzAgentMemory from stzObject
 
 	@oKG = ""
+	@cAgent = ""
 
 	def init(pcAgentName)
+		@cAgent = "" + pcAgentName
 		@oKG = new stzKnowledgeGraph("mem-" + pcAgentName)
 
 	def GraphQ()
 		return @oKG
 
+	# A learned fact carries its PROVENANCE: which agent learned it
+	# (:source = "agent:<name>") and when (:learnedat, epoch ms). It used to
+	# carry nothing, so a memory read back could not say where a belief came
+	# from. No :confidence is invented -- nobody stated one; LearnXT takes
+	# the caller's own.
 	def Learn(pcS, pcP, pcO)
-		@oKG.AddFact(StzLower("" + pcS), StzLower("" + pcP), StzLower("" + pcO))
+		return This.LearnXT(pcS, pcP, pcO, [])
+
+	# Learn with the caller's provenance (e.g. [ :source = "sensor-3",
+	# :confidence = 0.8 ]); :source defaults to this agent, :learnedat to now.
+	def LearnXT(pcS, pcP, pcO, paMeta)
+		_aMeta_ = []
+		if isList(paMeta)
+			_n_ = len(paMeta)
+			for _i_ = 1 to _n_
+				_aMeta_ + paMeta[_i_]
+			next
+		ok
+		if NOT HasKey(_aMeta_, :source)
+			_aMeta_ + [ "source", "agent:" + @cAgent ]
+		ok
+		if NOT HasKey(_aMeta_, :learnedat)
+			_aMeta_ + [ "learnedat", StzEngineTimeNowMs() ]
+		ok
+		@oKG.AddFactXT(StzLower("" + pcS), StzLower("" + pcP), StzLower("" + pcO), _aMeta_)
 		return This
+
+	# Where a fact came from -- the provenance recorded when it was learned.
+	def ProvenanceOf(pcS, pcP, pcO)
+		return @oKG.MetaOfFact(pcS, pcP, pcO)
 
 	def Fact(pcS, pcP, pcO)
 		_cS_ = StzLower("" + pcS)
@@ -62,3 +91,8 @@ class stzAgentMemory from stzObject
 
 	def Save(pcFile)
 		return @oKG.WriteToKnowFile(pcFile)
+
+	# Read a saved memory back, provenance included. Returns the merge
+	# report [ :merged, :refused ]. (Not "Load": a Ring keyword.)
+	def Restore(pcFile)
+		return @oKG.ImportKnow("" + pcFile)

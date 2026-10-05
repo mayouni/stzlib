@@ -1,0 +1,14 @@
+{
+ "brief": "Tests whether a matrix of numbers fits a pattern written in a small regex-like language, such as {size(3x3) & property(symmetric)}.",
+ "detail": "A pattern is text in braces made of terms: size, shape, element, property, row, col, diagonal, pattern, determinant and sum, written like size(3x3) or element(0..10). Terms are joined by & (all must hold), | (one must hold) and -> (a sequence, all must hold), @! negates a term, and parentheses group. Match tests one matrix and, on success, records its size, properties and matrix as the matched parts; MatchingMatrices, CountMatchingMatrices and the other list methods test a whole list. SimilarityScore, MostSimilarMatrix and CommonProperties compare matrices. Known gaps today, each carried as a warning on its method: the terms row, col, pattern, determinant and sum accept every matrix and diagonal every square one, size(<n), size(>n) and sizes with m or n in place of a number accept every matrix, quantifiers are parsed but never applied, MatchesNone answers the opposite of its name, Not_ negates only the first term, Andd and the JSON methods raise errors, and CommonProperties never reports square.",
+ "receiver": "o1 = new stzMatrex(\"{size(2x2) & property(symmetric)}\")",
+ "example": [
+  "? o1.Match([ [1,2], [2,1] ])",
+  "#--> 1"
+ ],
+ "see": [
+  "stzMatrix",
+  "stzRegex",
+  "stzTablex"
+ ]
+}

@@ -261,10 +261,10 @@ class stzPassword from stzSecret
 		@cName = "" + pcName
 		@cKind = "password"
 
-	# a salted, one-way hash (salt:hash) of the resolved password -- safe to
+	# a salted, one-way Argon2id hash of the resolved password -- safe to
 	# store. Governed (resolving the password needs an effectful actor).
 	def HashedBy(poActor)
-		return StzHashSecret(This.Reveal(poActor))
+		return StzHashPassword(This.Reveal(poActor))
 
 	# verify a candidate against this password (governed).
 	def Matches(pcCandidate, poActor)

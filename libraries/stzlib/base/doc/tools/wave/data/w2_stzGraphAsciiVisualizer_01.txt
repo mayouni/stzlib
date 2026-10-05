@@ -1,0 +1,8 @@
+init | Builds a drawing helper bound to a graph; nothing is drawn until one of the show or art calls. | nothing; the object is built | | stzGraph.Show, AsciiArt | | stzGraph.Show builds one for you
+AsciiArt | Returns the vertical drawing as text instead of printing it: boxed labels joined by arrows, one tree per node nothing points to. | text; each line ends with a line break | | Show, AsciiArtHorizontal | | nodes above the average degree wear exclamation marks, and a graph with no node raises error R1
+AsciiArtHorizontal | Returns the horizontal drawing as text: boxes in a row joined by arrows that carry the edge labels. | text | | ShowHorizontal, AsciiArt | | only the first out-edge of each node is followed, and a graph with no node raises error R1
+Show | Prints the vertical drawing: boxed labels joined by arrows and edge labels, a CYCLE marker where a path comes back. | nothing; text is printed | | AsciiArt, ShowHorizontal | | the bottleneck nodes are wrapped in exclamation marks, and a graph with no node raises error R1
+ShowVertical | Prints the vertical drawing; the explicit spelling of the default display. | nothing; text is printed | | Show
+ShowV | Prints the vertical drawing; the short spelling of the vertical display. | nothing; text is printed | | ShowVertical
+ShowHorizontal | Prints the horizontal drawing: a row of boxes joined by arrows that carry the edge labels. | nothing; text is printed | | AsciiArtHorizontal, Show
+ShowH | Prints the horizontal drawing; the short spelling of the horizontal display. | nothing; text is printed | | ShowHorizontal

@@ -1,0 +1,13 @@
+{
+ "brief": "Gives stzStringList its other name: the class that holds a list of strings.",
+ "detail": "An empty subclass: every method is stzStringList's, and new stzListOfStrings([ ... ]) builds the same kind of object as new stzStringList([ ... ]).",
+ "receiver": "o1 = new stzListOfStrings([ \"ab\", \"cd\", \"ab\" ])",
+ "example": [
+  "? o1.NumberOfStrings()",
+  "#--> 3"
+ ],
+ "see": [
+  "stzStringList",
+  "stzList"
+ ]
+}

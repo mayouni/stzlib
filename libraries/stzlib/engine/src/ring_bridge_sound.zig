@@ -78,6 +78,128 @@ fn ring_EarconFrames(p: *anyopaque) callconv(.c) void {
     rn(p, snd.earconFrames(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2))));
 }
 
+// MU0 spike 3: PluckOf(hz, rate, seconds, decay) -> buffer id
+fn ring_PluckOf(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(snd.pluckOf(gn(p, 1), @intFromFloat(gn(p, 2)), gn(p, 3), gn(p, 4))));
+}
+
+// MU1: the instruments. Indices are 1-based on the Ring side, translated here.
+const ins = @import("soundinstr.zig");
+
+fn instIdx(p: *anyopaque, n: c_int) u32 {
+    const v = gn(p, n);
+    if (v < 1) return std.math.maxInt(u32);
+    return @intFromFloat(v - 1);
+}
+
+fn retStr(p: *anyopaque, sl: []const u8) void {
+    R.ring_vm_api_retstring2(p, sl.ptr, @intCast(sl.len));
+}
+
+fn ring_InstrumentCount(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(ins.count()));
+}
+
+fn ring_InstrumentName(p: *anyopaque) callconv(.c) void {
+    const i = instIdx(p, 1);
+    retStr(p, if (i < ins.count()) ins.SPECS[i].name else "");
+}
+
+fn ring_InstrumentHonestName(p: *anyopaque) callconv(.c) void {
+    const i = instIdx(p, 1);
+    retStr(p, if (i < ins.count()) ins.SPECS[i].honest else "");
+}
+
+fn ring_InstrumentEngine(p: *anyopaque) callconv(.c) void {
+    const i = instIdx(p, 1);
+    rn(p, if (i < ins.count()) @floatFromInt(ins.SPECS[i].engine) else -1);
+}
+
+fn ring_InstrumentPitchClass(p: *anyopaque) callconv(.c) void {
+    const i = instIdx(p, 1);
+    rn(p, if (i < ins.count()) @floatFromInt(ins.SPECS[i].pitch) else -1);
+}
+
+fn ring_InstrumentLow(p: *anyopaque) callconv(.c) void {
+    const i = instIdx(p, 1);
+    rn(p, if (i < ins.count()) ins.SPECS[i].lo else -1);
+}
+
+fn ring_InstrumentHigh(p: *anyopaque) callconv(.c) void {
+    const i = instIdx(p, 1);
+    rn(p, if (i < ins.count()) ins.SPECS[i].hi else -1);
+}
+
+fn ring_InstrumentIndex(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(ins.indexOf(getStr(p, 1)) + 1)); // 0 = no such instrument
+}
+
+// NoteOf(inst, hz, hzEnd, hold, velocity, variant, rate) -> buffer id or 0
+fn ring_NoteOf(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(snd.noteOf(instIdx(p, 1), gn(p, 2), gn(p, 3), gn(p, 4), gn(p, 5), @intFromFloat(gn(p, 6)), @intFromFloat(gn(p, 7)))));
+}
+
+// MU5: VowelOf(vowel1, hz, hzEnd, hold, velocity, breath, vibratoCents, rate)
+// -> buffer id or 0; the vowel is 1-based (1..5 = a e i o u), translated here.
+fn ring_VowelOf(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(snd.vowelOf(instIdx(p, 1), gn(p, 2), gn(p, 3), gn(p, 4), gn(p, 5), gn(p, 6), gn(p, 7), @intFromFloat(gn(p, 8)))));
+}
+
+// VowelFormant(vowel1, hz, which) -> F1 (which = 1) or F2 (which = 2) in Hz
+fn ring_VowelFormant(p: *anyopaque) callconv(.c) void {
+    const f = ins.vowelFormants(instIdx(p, 1), gn(p, 2));
+    const w = gn(p, 3);
+    rn(p, if (w == 1) f[0] else if (w == 2) f[1] else 0);
+}
+
+// MU5 (a'): Retune(buffer, hz, hold, vibratoCents) -> buffer or 0; and what the
+// last retune found: RetuneMarks() periods, RetuneFromHz() the syllable's pitch
+fn ring_Retune(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(snd.retuneOf(id(p, 1), gn(p, 2), gn(p, 3), gn(p, 4))));
+}
+
+fn ring_RetuneMarks(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(ins.last_retune_marks));
+}
+
+fn ring_RetuneFromHz(p: *anyopaque) callconv(.c) void {
+    rn(p, ins.last_retune_from_hz);
+}
+
+// MU7: PitchOf(buffer, fromFrame1, window, fmin, fmax) -> Hz or 0, with no
+// guess; PitchClarity() -> how periodic that window was (0..1)
+fn ring_PitchOf(p: *anyopaque) callconv(.c) void {
+    const f1 = gn(p, 2);
+    const f0: usize = if (f1 < 1) 0 else @intFromFloat(f1 - 1);
+    rn(p, snd.pitchOf(id(p, 1), f0, @intFromFloat(gn(p, 3)), gn(p, 4), gn(p, 5)));
+}
+
+fn ring_PitchClarity(p: *anyopaque) callconv(.c) void {
+    rn(p, ins.last_clarity);
+}
+
+fn ring_NoteRawCents(p: *anyopaque) callconv(.c) void {
+    rn(p, ins.last_raw_cents);
+}
+
+fn ring_NoteTuningCents(p: *anyopaque) callconv(.c) void {
+    rn(p, ins.last_tuning_cents);
+}
+
+// MixInto(dst, src, atFrame1, gain) -> frames mixed, or -1
+fn ring_MixInto(p: *anyopaque) callconv(.c) void {
+    const at1 = gn(p, 3);
+    const at0: usize = if (at1 < 1) 0 else @intFromFloat(at1 - 1);
+    rn(p, snd.mixInto(id(p, 1), id(p, 2), at0, gn(p, 4)));
+}
+
+// MeasurePitch(buffer, fromFrame1, hzGuess, spectral) -> Hz or 0
+fn ring_MeasurePitch(p: *anyopaque) callconv(.c) void {
+    const from1 = gn(p, 2);
+    const from0: usize = if (from1 < 1) 0 else @intFromFloat(from1 - 1);
+    rn(p, snd.measurePitchOf(id(p, 1), from0, gn(p, 3), gn(p, 4) != 0));
+}
+
 fn ring_NewSilent(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(snd.newSilent(
         @intFromFloat(gn(p, 1)),
@@ -353,6 +475,62 @@ fn ring_GraphCurrentGain(p: *anyopaque) callconv(.c) void {
     rn(p, gph.currentGain(id(p, 1), nodeIn(p, 2)));
 }
 
+// MU0: SetFrequency(graph, node, hz, rampMs) / CurrentFrequency(graph, node)
+fn ring_GraphSetFrequency(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gph.setFrequency(id(p, 1), nodeIn(p, 2), gn(p, 3), gn(p, 4))));
+}
+
+// MU1: SetRate(graph, node, ratio) -- a source played at a rate
+fn ring_GraphSetRate(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gph.setRate(id(p, 1), nodeIn(p, 2), gn(p, 3))));
+}
+
+fn ring_GraphCurrentFrequency(p: *anyopaque) callconv(.c) void {
+    rn(p, gph.currentFrequency(id(p, 1), nodeIn(p, 2)));
+}
+
+// MU2: the timeline. AddTimeline(graph) -> node; Place(graph, node, buffer,
+// frame1, gain) -- frame1 is 1-BASED here, frame 1 being the timeline's first
+// rendered frame, and translated once; Now(graph, node) is a COUNT of frames
+// rendered, so it needs no translation; Counter(graph, node, which) takes the
+// engine's 0-based counter index, as StzEngineSoundCounter does.
+fn ring_GraphAddTimeline(p: *anyopaque) callconv(.c) void {
+    retNode(p, gph.addTimeline(id(p, 1)));
+}
+
+fn ring_GraphTimelinePlace(p: *anyopaque) callconv(.c) void {
+    const f1 = gn(p, 4);
+    const f0: f64 = if (f1 < 1) -1 else f1 - 1; // 0 or less -> refused by the engine
+    rn(p, @floatFromInt(gph.timelinePlace(id(p, 1), nodeIn(p, 2), id(p, 3), f0, gn(p, 5))));
+}
+
+// MU3: PlaceTagged(graph, node, buffer, frame1, gain, tag) -- a tag names a live
+// loop; Cancel(graph, node, tag, frame1) withdraws that loop's notes asked for
+// frame1 or later that have not started. Frames 1-based, as Place's are.
+fn ring_GraphTimelinePlaceTagged(p: *anyopaque) callconv(.c) void {
+    const f1 = gn(p, 4);
+    const f0: f64 = if (f1 < 1) -1 else f1 - 1;
+    const tg = gn(p, 6);
+    const tag: u32 = if (tg < 0) 0 else @intFromFloat(tg);
+    rn(p, @floatFromInt(gph.timelinePlaceTagged(id(p, 1), nodeIn(p, 2), id(p, 3), f0, gn(p, 5), tag)));
+}
+
+fn ring_GraphTimelineCancel(p: *anyopaque) callconv(.c) void {
+    const tg = gn(p, 3);
+    const tag: u32 = if (tg < 0) 0 else @intFromFloat(tg);
+    const f1 = gn(p, 4);
+    const f0: f64 = if (f1 < 1) -1 else f1 - 1;
+    rn(p, gph.timelineCancel(id(p, 1), nodeIn(p, 2), tag, f0));
+}
+
+fn ring_GraphTimelineNow(p: *anyopaque) callconv(.c) void {
+    rn(p, gph.timelineNow(id(p, 1), nodeIn(p, 2)));
+}
+
+fn ring_GraphTimelineCounter(p: *anyopaque) callconv(.c) void {
+    rn(p, gph.timelineCounter(id(p, 1), nodeIn(p, 2), @intFromFloat(@max(0, gn(p, 3)))));
+}
+
 // ---------------------------------------------------------------- recorder (SN4)
 
 fn ring_RecorderNew(p: *anyopaque) callconv(.c) void {
@@ -503,6 +681,20 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginesoundnewsilent", .func = &ring_NewSilent },
     .{ .name = "stzenginesoundearconof", .func = &ring_EarconOf },
     .{ .name = "stzenginesoundearconframes", .func = &ring_EarconFrames },
+    .{ .name = "stzenginesoundpluckof", .func = &ring_PluckOf },
+    .{ .name = "stzenginesoundinstrumentcount", .func = &ring_InstrumentCount },
+    .{ .name = "stzenginesoundinstrumentname", .func = &ring_InstrumentName },
+    .{ .name = "stzenginesoundinstrumenthonestname", .func = &ring_InstrumentHonestName },
+    .{ .name = "stzenginesoundinstrumentengine", .func = &ring_InstrumentEngine },
+    .{ .name = "stzenginesoundinstrumentpitchclass", .func = &ring_InstrumentPitchClass },
+    .{ .name = "stzenginesoundinstrumentlow", .func = &ring_InstrumentLow },
+    .{ .name = "stzenginesoundinstrumenthigh", .func = &ring_InstrumentHigh },
+    .{ .name = "stzenginesoundinstrumentindex", .func = &ring_InstrumentIndex },
+    .{ .name = "stzenginesoundnoteof", .func = &ring_NoteOf },
+    .{ .name = "stzenginesoundnoterawcents", .func = &ring_NoteRawCents },
+    .{ .name = "stzenginesoundnotetuningcents", .func = &ring_NoteTuningCents },
+    .{ .name = "stzenginesoundmeasurepitch", .func = &ring_MeasurePitch },
+    .{ .name = "stzenginesoundmixinto", .func = &ring_MixInto },
     .{ .name = "stzenginesoundfree", .func = &ring_Free },
     .{ .name = "stzenginesoundframes", .func = &ring_Frames },
     .{ .name = "stzenginesoundchannels", .func = &ring_Channels },
@@ -560,6 +752,22 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginesoundstreamcounter", .func = &ring_StreamCounter },
     .{ .name = "stzenginesoundgraphsetgain", .func = &ring_GraphSetGain },
     .{ .name = "stzenginesoundgraphcurrentgain", .func = &ring_GraphCurrentGain },
+    .{ .name = "stzenginesoundgraphsetfrequency", .func = &ring_GraphSetFrequency },
+    .{ .name = "stzenginesoundgraphcurrentfrequency", .func = &ring_GraphCurrentFrequency },
+    .{ .name = "stzenginesoundgraphsetrate", .func = &ring_GraphSetRate },
+    .{ .name = "stzenginesoundvowelof", .func = &ring_VowelOf },
+    .{ .name = "stzenginesoundretune", .func = &ring_Retune },
+    .{ .name = "stzenginesoundpitchof", .func = &ring_PitchOf },
+    .{ .name = "stzenginesoundpitchclarity", .func = &ring_PitchClarity },
+    .{ .name = "stzenginesoundretunemarks", .func = &ring_RetuneMarks },
+    .{ .name = "stzenginesoundretunefromhz", .func = &ring_RetuneFromHz },
+    .{ .name = "stzenginesoundvowelformant", .func = &ring_VowelFormant },
+    .{ .name = "stzenginesoundgraphaddtimeline", .func = &ring_GraphAddTimeline },
+    .{ .name = "stzenginesoundgraphtimelineplace", .func = &ring_GraphTimelinePlace },
+    .{ .name = "stzenginesoundgraphtimelinenow", .func = &ring_GraphTimelineNow },
+    .{ .name = "stzenginesoundgraphtimelineplacetagged", .func = &ring_GraphTimelinePlaceTagged },
+    .{ .name = "stzenginesoundgraphtimelinecancel", .func = &ring_GraphTimelineCancel },
+    .{ .name = "stzenginesoundgraphtimelinecounter", .func = &ring_GraphTimelineCounter },
 
     // the recorder (SN4)
     .{ .name = "stzenginesoundrecordernew", .func = &ring_RecorderNew },

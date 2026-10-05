@@ -11,8 +11,9 @@
 # It holds a credential store (username -> a salted password HASH, never the
 # plaintext) and issues opaque SESSION tokens:
 #
-#   * passwords are hashed with PBKDF2 (StzHashSecret) and verified in
-#     constant time (StzVerifySecret) -- the same engine crypto stzSecret and
+#   * passwords are hashed with Argon2id (StzHashPassword) and verified by the
+#     engine (StzVerifyPassword); a PBKDF2 hash stored before 2026-09-29 is still
+#     accepted and upgraded on the next successful login -- the same engine crypto stzSecret and
 #     stzPlatform use;
 #   * a session is a random 256-bit hex token (StzEngineCryptoRandomHex),
 #     mapped back to its user until Logout.
@@ -56,6 +57,8 @@ class stzAuth from stzObject
 	@oMailPort = ""          # any object with Send(to, subject, body); NULL = unbound
 	@cMagicLinkBaseUrl = ""    # the app URL a magic link points at ("" = a softanza:// uri)
 	@nPasswordlessTTL = 900    # how long a magic link / OTP is valid (seconds, 15 min)
+	@nResetTTL = 1800          # how long a password-reset link is valid (seconds, 30 min)
+	@nMinPasswordLen = 8       # a reset refuses a shorter new password
 
 	# brute-force lockout (in-memory, per submitted username). Not durable across
 	# restarts by design -- rate-limit state, not identity data; a shared/durable
@@ -72,7 +75,7 @@ class stzAuth from stzObject
 
 	def init()
 		@oStore = new stzAuthMemoryStore()   # durable store injected via SetStore
-		@cDummyHash = StzHashSecret("softanza-timing-equalizer")
+		@cDummyHash = StzHashPassword("softanza-timing-equalizer")
 		@aFailures = []
 		This._DefineBuiltinRoles()
 
@@ -187,7 +190,7 @@ class stzAuth from stzObject
 		if @oStore.HasUser(_u_)
 			StzRaise("stzAuth.Register: user '" + _u_ + "' already exists.")
 		ok
-		@oStore.PutUser(_u_, StzHashSecret("" + pcPassword))
+		@oStore.PutUser(_u_, StzHashPassword("" + pcPassword))
 		return This
 
 	# register an account with NO usable password -- reachable only through a
@@ -201,7 +204,7 @@ class stzAuth from stzObject
 		if @oStore.HasUser(_u_)
 			StzRaise("stzAuth.RegisterPasswordless: user '" + _u_ + "' already exists.")
 		ok
-		@oStore.PutUser(_u_, StzHashSecret(StzEngineCryptoRandomHex(32)))
+		@oStore.PutUser(_u_, StzHashPassword(StzEngineCryptoRandomHex(32)))
 		return This
 
 	def IsRegistered(pcUser)
@@ -214,10 +217,10 @@ class stzAuth from stzObject
 	def ChangePassword(pcUser, pcOld, pcNew)
 		_u_ = ring_trim("" + pcUser)
 		_h_ = @oStore.UserHash(_u_)
-		if _h_ = "" or NOT StzVerifySecret("" + pcOld, _h_)
+		if _h_ = "" or NOT StzVerifyPassword("" + pcOld, _h_)
 			return 0
 		ok
-		@oStore.PutUser(_u_, StzHashSecret("" + pcNew))
+		@oStore.PutUser(_u_, StzHashPassword("" + pcNew))
 		return 1
 
 	# remove a user (and end any of their sessions).
@@ -238,13 +241,25 @@ class stzAuth from stzObject
 	# TIMING-SAFE: an unknown user is verified against a DUMMY hash so it costs
 	# the same PBKDF2 work as a wrong password. Otherwise a fast "no such user"
 	# vs a slow "wrong password" is a username-enumeration oracle.
+	#
+	# MIGRATION: a hash stored before Argon2id (PBKDF2 "salt:hash") is still
+	# accepted, and on a SUCCESSFUL check it is replaced by an Argon2id hash of
+	# the password just proven -- the only moment the plaintext is in hand. So
+	# old accounts upgrade themselves, one login at a time, with no reset.
 	def Authenticate(pcUser, pcPassword)
-		_h_ = @oStore.UserHash(ring_trim("" + pcUser))
+		_u_ = ring_trim("" + pcUser)
+		_h_ = @oStore.UserHash(_u_)
 		if _h_ = ""
-			StzVerifySecret("" + pcPassword, @cDummyHash)   # equalize timing
+			StzVerifyPassword("" + pcPassword, @cDummyHash)   # equalize timing
 			return 0
 		ok
-		return StzVerifySecret("" + pcPassword, _h_)
+		if NOT StzVerifyPassword("" + pcPassword, _h_)
+			return 0
+		ok
+		if StzPasswordNeedsRehash(_h_)
+			@oStore.PutUser(_u_, StzHashPassword("" + pcPassword))
+		ok
+		return 1
 
 	# authenticate AND, on success, open a session -> returns an opaque token
 	# ("" on failure OR lockout -- indistinguishable, so it leaks nothing).
@@ -346,6 +361,11 @@ class stzAuth from stzObject
 			return ""
 		ok
 		if @nIdleTTL > 0 and (pnNowSecs - _s_[:lastseen]) >= @nIdleTTL
+			return ""
+		ok
+		# a locked account's sessions stop working at once, before (and
+		# whether or not) anyone revokes them
+		if len(@oStore.LockOf("" + _s_[:user])) > 0
 			return ""
 		ok
 		if @nIdleTTL > 0
@@ -659,6 +679,96 @@ class stzAuth from stzObject
 			return ""
 		ok
 		return This._PasswordlessSession(_ch_[:email], pnNow, "" + pcIp, "" + pcUserAgent)
+
+	  #-- password reset (threat-model R8) ---------------------------------
+	#
+	# The recovery path is where accounts are taken over, so it holds the
+	# same line as every other door:
+	#   - ENUMERATION-SAFE: the request answers the same whether or not the
+	#     email has an account; a link is minted and mailed only for a real one;
+	#   - the token is 256 random bits, stored ONLY as its sha256, ONE-TIME and
+	#     short-lived (30 min); a newer request cancels the older link;
+	#   - a reset stores an Argon2id hash and ENDS EVERY SESSION -- an attacker
+	#     holding one is signed out with the rest;
+	#   - it does NOT sign anybody in: the next login still asks for the second
+	#     factor when 2FA is on;
+	#   - it cannot undo CONTAINMENT: an account a responder or an operator
+	#     locked (LockAccount) is refused; a lockout from failed attempts, which
+	#     is what a forgotten password produces, is cleared.
+
+	def SetPasswordResetTTL(pnSeconds)
+		@nResetTTL = pnSeconds
+		return This
+
+	def RequestPasswordReset(pcEmail)
+		return This.RequestPasswordResetAt(pcEmail, This._NowSecs())
+
+	def RequestPasswordResetAt(pcEmail, pnNow)
+		if NOT This.HasMailPort()
+			StzRaise("stzAuth.RequestPasswordReset: no mail port bound -- call SetMailPort.")
+		ok
+		_u_ = ring_trim("" + pcEmail)
+		if @oStore.HasUser(_u_)
+			# one live link per user: the pointer challenge names the current
+			# handle, so a new request can retire the previous one
+			_ptr_ = @oStore.Challenge("pwreset:" + _u_)
+			if len(_ptr_) > 0
+				@oStore.DeleteChallenge("" + _ptr_[:codehash])
+			ok
+			_tok_ = StzEngineCryptoRandomHex(32)
+			_handle_ = StzEngineCryptoSha256(_tok_)
+			@oStore.PutChallenge(_handle_, "pwreset", _u_, "", pnNow + @nResetTTL)
+			@oStore.PutChallenge("pwreset:" + _u_, "pwresetptr", _u_, _handle_, pnNow + @nResetTTL)
+			@oMailPort.Send(_u_, "Reset your password",
+			    "To choose a new password, open: " + This._ResetUrl(_tok_) + char(10) +
+			    "This link works once and expires in " + floor(@nResetTTL / 60) + " minutes." + char(10) +
+			    "If you did not ask for this, ignore this message: nothing has changed.")
+		ok
+		return 1
+
+	# Redeem a reset link. 1 when the password was changed, 0 otherwise --
+	# unknown, used, expired, a new password too short, or a locked account.
+	def ResetPassword(pcToken, pcNewPassword)
+		return This.ResetPasswordAt(pcToken, pcNewPassword, This._NowSecs())
+
+	def ResetPasswordAt(pcToken, pcNewPassword, pnNow)
+		_handle_ = StzEngineCryptoSha256(ring_trim("" + pcToken))
+		_ch_ = @oStore.Challenge(_handle_)
+		if (len(_ch_) = 0) or (_ch_[:kind] != "pwreset")
+			return 0
+		ok
+		@oStore.DeleteChallenge(_handle_)               # one-time, whatever the outcome
+		_u_ = "" + _ch_[:email]
+		@oStore.DeleteChallenge("pwreset:" + _u_)
+		if (_ch_[:expires] > 0) and (pnNow >= _ch_[:expires])
+			return 0
+		ok
+		if NOT @oStore.HasUser(_u_)
+			return 0
+		ok
+		if len(@oStore.LockOf(_u_)) > 0
+			StzNoteRefusal("auth.password.reset", _u_, "user:" + _u_,
+				"refused: the account is locked by containment -- a reset cannot reopen it")
+			return 0
+		ok
+		if len("" + pcNewPassword) < @nMinPasswordLen
+			return 0
+		ok
+		@oStore.PutUser(_u_, StzHashPassword("" + pcNewPassword))
+		This.RevokeAllSessions(_u_)
+		This._ClearFailures(_u_)
+		StzNoteGrant("auth.password.reset", _u_, "user:" + _u_)
+		return 1
+
+	def _ResetUrl(pcToken)
+		if @cMagicLinkBaseUrl = ""
+			return "softanza://reset?reset=" + pcToken
+		ok
+		_sep_ = "?"
+		if StzFindFirst("?", @cMagicLinkBaseUrl) > 0
+			_sep_ = "&"
+		ok
+		return @cMagicLinkBaseUrl + _sep_ + "reset=" + pcToken
 
 	  #-- passwordless: email OTP -----------------------------------------
 	#
@@ -1173,11 +1283,43 @@ class stzAuth from stzObject
 		return This.IsLockedOutAt(ring_trim("" + pcUser), This._NowSecs())
 
 	def IsLockedOutAt(pcUser, pnNow)
+		# an administrative lock (LockAccount) closes every login path
+		if len(@oStore.LockOf("" + pcUser)) > 0
+			return 1
+		ok
 		_i_ = This._FailureIndex("" + pcUser)
 		if _i_ = 0
 			return 0
 		ok
 		return @aFailures[_i_][2] >= @nMaxAttempts and pnNow < @aFailures[_i_][3]
+
+	  #-- the administrative lock (containment's :LockAccount) -------------
+	#
+	# The failure lockout above is a COUNTER: it engages after N bad
+	# passwords and expires by itself. A LOCK is an ACT: a responder or an
+	# operator closes the account until someone opens it again. It refuses
+	# every login path (they all ask IsLockedOutAt) AND every existing
+	# session -- UserOfSession answers "" for a locked user -- and it is
+	# kept in the store, so it survives a restart with a durable store.
+
+	def LockAccount(pcUser, pcReason)
+		_u_ = ring_trim("" + pcUser)
+		@oStore.PutLock(_u_, "" + pcReason, This._NowSecs())
+		StzNoteRefusal("auth.account.locked", _u_, "user:" + _u_, "" + pcReason)
+		return This
+
+	def UnlockAccount(pcUser)
+		_u_ = ring_trim("" + pcUser)
+		@oStore.DeleteLock(_u_)
+		StzNoteGrant("auth.account.unlocked", _u_, "user:" + _u_)
+		return This
+
+	def IsAccountLocked(pcUser)
+		return len(@oStore.LockOf(ring_trim("" + pcUser))) > 0
+
+	# [ :reason, :at ] or [] -- why and since when the account is locked.
+	def AccountLock(pcUser)
+		return @oStore.LockOf(ring_trim("" + pcUser))
 
 	def FailedAttempts(pcUser)
 		_i_ = This._FailureIndex(ring_trim("" + pcUser))

@@ -1,0 +1,13 @@
+{
+ "brief": "Holds a loaded TTF or OTF typeface and measures text with it: widths, glyph positions, caret rectangles, and which glyphs a fallback chain had to borrow.",
+ "detail": "The font is bytes you loaded, shaped by the engine's own pipeline (bidirectional analysis, HarfBuzz, stb_truetype), so a width can be trusted for layout in any script, Arabic included. Sizes are in pixels. A text that one font cannot draw comes out as hollow boxes, one per character; AddFallback puts other fonts behind it and CoverageOf counts what was borrowed and what is still missing. The caret and hit-test queries (RectsOfRange, CaretRectAt, IndexAtPoint) count bytes, not characters. The object holds one number, the engine's id for the face, so copies of the object share the same loaded font; after Free every measurement answers 0 or an empty list (and DrawsEveryGlyphOf answers TRUE, which is misleading). A stzCanvas draws text with a font set by SetFont.",
+ "receiver": "o1 = new stzFont(\"C:/Windows/Fonts/segoeui.ttf\")",
+ "example": [
+  "? o1.WidthOf(\"abc\", 24)",
+  "#--> 37.42"
+ ],
+ "see": [
+  "stzCanvas",
+  "stzObject"
+ ]
+}

@@ -1,0 +1,1798 @@
+//! soundinstr.zig -- MU1 of SOFTANZA_MUSIC_PLAN.md: the instruments, as arithmetic.
+//!
+//! ── WHY A SEPARATE SEAM FILE ────────────────────────────────────────────────
+//!
+//! Like sounddsp.zig this imports `std` and NOTHING ELSE: no allocator, no handle
+//! table, no device. Every render writes into a slice the caller owns. That is
+//! what lets the native DLL and the browser's wasm compile the SAME instruments
+//! -- one author of what an oud sounds like, never two that happen to agree
+//! (SS5's lesson, paid for once and not again).
+//!
+//! ── FIVE ENGINES, AND WHY THESE FIVE ────────────────────────────────────────
+//!
+//!   PLUCK     Karplus-Strong with an ALLPASS fractional delay. MU0 measured the
+//!             integer-period line at up to 8 cents off at A4; the allpass carries
+//!             the fraction the integer line could not.
+//!   BOW       a string waveguide excited by stick-slip friction (the imzad).
+//!   WIND      ONE bore, FOUR mouths: single reed (mezwed), double reed (zokra),
+//!             lip (kakaki), air jet (flute, sarewa). Niger corrected the plan's
+//!             shape before this was written: four excitations, not four engines.
+//!   FM        two operators; bells, keys, brass, bars.
+//!   MEMBRANE  a modal circular membrane struck at centre or rim, with an optional
+//!             snare buzz (bendir) and a pitch that may move while it sounds
+//!             (kalangu -- Gap 1 applied to a drum).
+//!
+//! The waveguides follow Perry Cook's STK models (Clarinet, Saxofony, Brass,
+//! Flute, Bowed) -- published, studied for thirty years, and the right thing to
+//! borrow rather than reinvent.
+//!
+//! ── THE INSTRUMENTS TUNE THEMSELVES, BY LISTENING ──────────────────────────
+//!
+//! A waveguide's pitch is NOT its delay length: the loop filter, the reed's
+//! nonlinearity and the interpolation each add their own delay, and STK's fudge
+//! constants ("- 3.0", "- 2.0") are the record of a thirty-year argument with
+//! that fact. So every pitched waveguide here does what a musician does: it plays
+//! a probe note, MEASURES the pitch it actually made, and corrects. Offline, it
+//! costs two short extra renders and removes the argument. The raw error and the
+//! correction applied are both reported, so a guard can say how far off the
+//! model was before it listened to itself.
+
+const std = @import("std");
+
+const PI: f64 = std.math.pi;
+
+// ── engines, mouths, pitch classes ──────────────────────────────────────────
+
+pub const ENGINE_PLUCK: u32 = 0;
+pub const ENGINE_BOW: u32 = 1;
+pub const ENGINE_WIND: u32 = 2;
+pub const ENGINE_FM: u32 = 3;
+pub const ENGINE_MEMBRANE: u32 = 4;
+
+pub const MOUTH_SINGLE_REED: u32 = 0;
+pub const MOUTH_DOUBLE_REED: u32 = 1;
+pub const MOUTH_LIP: u32 = 2;
+pub const MOUTH_JET: u32 = 3;
+
+pub const PITCH_HARMONIC: u32 = 0; // held to 2 cents: the plan's bar
+pub const PITCH_INHARMONIC: u32 = 1; // a pitch the ear infers from modes or a bar
+pub const PITCH_NONE: u32 = 2; // hats, snares, frame-drum buzz
+
+pub const Spec = struct {
+    name: []const u8,
+    /// The name this instrument ships under if the author's ear says the real
+    /// name is a lie -- MU1's kill criterion, written into the table so the
+    /// fallback is decided BEFORE anyone listens, not negotiated after.
+    honest: []const u8,
+    engine: u32,
+    pitch: u32 = PITCH_HARMONIC,
+    tail: f64 = 0.25, // seconds rendered after the hold
+    lo: f64 = 40,
+    hi: f64 = 2000,
+    // pluck
+    decay: f64 = 0.996, // loss per pass round the loop
+    bright: f64 = 1.0, // 1 = a white-noise pluck; lower = finger or plectrum
+    hammer: bool = false,
+    body: f64 = 0, // a body or gourd resonance in Hz; 0 = none
+    // wind and bow
+    mouth: u32 = 0,
+    noise: f64 = 0.2,
+    vibrato: f64 = 0.0,
+    pair_cents: f64 = 0, // a second, detuned voice: the mezwed's twin chanters
+    // fm
+    ratio: f64 = 1,
+    index: f64 = 1,
+    index_decay: f64 = 0,
+    amp_decay: f64 = 0,
+    attack: f64 = 0.002,
+    sustained: bool = false,
+    tine: f64 = 0,
+    // membrane
+    kind: u32 = 0, // 0 hand drum, 1 frame drum with snares, 2 drum kit
+    tau: f64 = 0.3,
+};
+
+/// THE TWENTY, in the plan's order. The first twelve are the plan's general
+/// set; then the four Tunisian; then the four Nigerien, each chosen to prove an
+/// excitation rather than lengthen the list.
+pub const SPECS = [_]Spec{
+    .{ .name = "piano", .honest = "hammeredstring", .engine = ENGINE_PLUCK, .hammer = true, .decay = 0.998, .bright = 0.55, .tail = 0.4, .lo = 55, .hi = 2000 },
+    .{ .name = "guitar", .honest = "pluckedstring", .engine = ENGINE_PLUCK, .decay = 0.996, .bright = 0.8, .body = 110, .lo = 80, .hi = 1200 },
+    .{ .name = "harp", .honest = "ringingstring", .engine = ENGINE_PLUCK, .decay = 0.999, .bright = 0.6, .tail = 0.8, .lo = 55, .hi = 2000 },
+    .{ .name = "bell", .honest = "fmbell", .engine = ENGINE_FM, .pitch = PITCH_INHARMONIC, .ratio = 1.4, .index = 6, .index_decay = 1.5, .amp_decay = 0.9, .tail = 2.5, .lo = 100, .hi = 2000 },
+    .{ .name = "epiano", .honest = "fmkeys", .engine = ENGINE_FM, .ratio = 1.0, .index = 1.8, .index_decay = 5, .amp_decay = 1.2, .tine = 0.12, .tail = 0.6, .lo = 40, .hi = 2000 },
+    .{ .name = "brass", .honest = "fmbrass", .engine = ENGINE_FM, .ratio = 1.0, .index = 3.5, .attack = 0.06, .sustained = true, .tail = 0.2, .lo = 60, .hi = 1000 },
+    .{ .name = "flute", .honest = "jetpipe", .engine = ENGINE_WIND, .mouth = MOUTH_JET, .noise = 0.15, .vibrato = 0.05, .tail = 0.15, .lo = 250, .hi = 2000 },
+    .{ .name = "oud", .honest = "darkpluck", .engine = ENGINE_PLUCK, .decay = 0.994, .bright = 0.45, .body = 150, .lo = 70, .hi = 700 },
+    .{ .name = "koto", .honest = "brightpluck", .engine = ENGINE_PLUCK, .decay = 0.997, .bright = 0.95, .lo = 100, .hi = 1200 },
+    .{ .name = "kora", .honest = "gourdpluck", .engine = ENGINE_PLUCK, .decay = 0.998, .bright = 0.7, .body = 200, .tail = 0.6, .lo = 80, .hi = 1000 },
+    .{ .name = "metallophone", .honest = "fmbar", .engine = ENGINE_FM, .pitch = PITCH_INHARMONIC, .ratio = 2.76, .index = 1.2, .index_decay = 3, .amp_decay = 1.1, .tail = 1.5, .lo = 150, .hi = 1500 },
+    .{ .name = "drumkit", .honest = "synthkit", .engine = ENGINE_MEMBRANE, .pitch = PITCH_NONE, .kind = 2, .tail = 0, .lo = 40, .hi = 400 },
+    .{ .name = "mezwed", .honest = "twinreedpipe", .engine = ENGINE_WIND, .mouth = MOUTH_SINGLE_REED, .noise = 0.08, .vibrato = 0, .pair_cents = 12, .tail = 0.15, .lo = 200, .hi = 900 },
+    .{ .name = "zokra", .honest = "shawm", .engine = ENGINE_WIND, .mouth = MOUTH_DOUBLE_REED, .noise = 0.1, .vibrato = 0, .tail = 0.15, .lo = 200, .hi = 1200 },
+    .{ .name = "darbouka", .honest = "gobletdrum", .engine = ENGINE_MEMBRANE, .pitch = PITCH_INHARMONIC, .kind = 0, .tau = 0.3, .tail = 0, .lo = 80, .hi = 400 },
+    .{ .name = "bendir", .honest = "snaredframe", .engine = ENGINE_MEMBRANE, .pitch = PITCH_NONE, .kind = 1, .tau = 0.45, .tail = 0, .lo = 50, .hi = 250 },
+    .{ .name = "kakaki", .honest = "liptrumpet", .engine = ENGINE_WIND, .mouth = MOUTH_LIP, .noise = 0, .tail = 0.15, .lo = 60, .hi = 400 },
+    .{ .name = "sarewa", .honest = "breathyflute", .engine = ENGINE_WIND, .mouth = MOUTH_JET, .noise = 0.35, .vibrato = 0.02, .tail = 0.15, .lo = 250, .hi = 1500 },
+    .{ .name = "imzad", .honest = "bowedstring", .engine = ENGINE_BOW, .vibrato = 0.004, .tail = 0.25, .lo = 150, .hi = 1000 },
+    .{ .name = "kalangu", .honest = "talkingdrum", .engine = ENGINE_MEMBRANE, .pitch = PITCH_INHARMONIC, .kind = 0, .tau = 0.5, .tail = 0, .lo = 70, .hi = 400 },
+};
+
+pub fn count() u32 {
+    return SPECS.len;
+}
+
+/// Case-insensitive lookup; -1 when there is no such instrument.
+pub fn indexOf(name: []const u8) i32 {
+    for (SPECS, 0..) |s, i| {
+        if (std.ascii.eqlIgnoreCase(s.name, name)) return @intCast(i);
+    }
+    return -1;
+}
+
+// ── refusal reasons, readable after a render returns 0 ─────────────────────
+
+pub const R_OK: u32 = 0;
+pub const R_UNKNOWN: u32 = 1;
+pub const R_RANGE: u32 = 2;
+pub const R_GLIDE: u32 = 3;
+pub const R_ARGS: u32 = 4;
+pub const R_VARIANT: u32 = 5;
+pub const R_BUFFER: u32 = 6;
+pub const R_SILENT: u32 = 7;
+
+pub var last_reason: u32 = R_OK;
+/// How far the UNTUNED model was from the pitch asked for, in cents.
+pub var last_raw_cents: f64 = 0;
+/// The correction the self-tuning applied, in cents. 0 for engines tuned by
+/// construction (FM, membrane), which never needed to listen to themselves.
+pub var last_tuning_cents: f64 = 0;
+
+pub fn reasonText(r: u32) []const u8 {
+    return switch (r) {
+        R_UNKNOWN => "no instrument with that index",
+        R_RANGE => "that pitch is outside this instrument's range",
+        R_GLIDE => "this instrument cannot glide: a pluck and an FM voice hold one pitch",
+        R_ARGS => "hold must be 0..60 s and velocity 0..1",
+        R_VARIANT => "that stroke is not one this instrument has",
+        R_BUFFER => "the buffer is smaller than the note",
+        R_SILENT => "the model did not sound -- a waveguide that fails to oscillate is refused, not returned as silence",
+        else => "",
+    };
+}
+
+// ── sizes ───────────────────────────────────────────────────────────────────
+
+pub fn noteFrames(inst: u32, rate: u32, hold: f64) usize {
+    if (inst >= SPECS.len or !(hold > 0)) return 0;
+    return @intFromFloat((hold + SPECS[inst].tail) * @as(f64, @floatFromInt(rate)));
+}
+
+/// The scratch a self-tuning render needs for its probe notes: 1.2 s, because
+/// an instrument that WANDERS -- vibrato, or a breathy jet whose pitch moves
+/// +-8 cents about its centre for the whole note -- has its centre in no short
+/// span. 0.6 s was the first cut; the sarewa could not be centred in it.
+pub fn scratchFrames(rate: u32) usize {
+    return @intFromFloat(1.2 * @as(f64, @floatFromInt(rate)));
+}
+
+/// Does this instrument's pitch move on purpose? Then it is measured as an
+/// average of many readings, never as one.
+pub fn wanders(s: Spec) bool {
+    return s.vibrato > 0.001 or s.noise >= 0.3;
+}
+
+pub const READ_FROM_S: f64 = 0.25;
+pub const READ_COUNT: usize = 16;
+pub const READ_STEP: usize = 2400; // 50 ms at 48 kHz: sixteen span 0.25 .. 1.0 s
+
+// ── the finer pitch instrument ──────────────────────────────────────────────
+//
+// MU0 owed this. An integer-lag autocorrelation at 218 frames is 7.9 cents wide,
+// so it could not see the error it sat beside. This is McLeod's NORMALISED
+// square difference (robust to a decaying note, which a plain autocorrelation is
+// not), searched only between 0.8 and 1.25 of the expected period -- so an octave
+// error is impossible by construction -- and the peak is refined by a parabola
+// through its neighbours, which resolves a fraction of a sample.
+//
+// A peak landing ON the window's edge means the true period is outside it, and
+// that is reported as a failed measurement (0) rather than as the edge value.
+//
+// AND THE OCTAVE, which the first cut claimed was "impossible by construction"
+// and was not. A 440 Hz sine asked about near 220 Hz repeats perfectly every
+// 220 Hz period -- two of its own -- so the search found a flawless peak and
+// reported 220. A negative test caught it. It mattered beyond the tool: a
+// self-tuning instrument that jumped an octave UP would have measured itself as
+// correct and reported success. So the peak is checked at half and a third of its
+// lag; if the signal repeats there as well, the true period is shorter and the
+// measurement is refused.
+
+pub const MEASURE_WINDOW: usize = 4096;
+const MAX_LAGS: usize = 4096;
+
+pub fn measureHz(x: []const f32, rate: u32, from: usize, hz_guess: f64) f64 {
+    if (!(hz_guess > 0)) return 0;
+    const ratef: f64 = @floatFromInt(rate);
+    const period = ratef / hz_guess;
+    const lo: usize = @intFromFloat(@floor(period * 0.8));
+    const hi: usize = @intFromFloat(@ceil(period * 1.25));
+    if (lo < 2 or hi - lo + 1 > MAX_LAGS) return 0;
+    if (from + MEASURE_WINDOW + hi + 2 > x.len) return 0;
+    var nsdf: [MAX_LAGS]f64 = undefined;
+    var l: usize = lo;
+    while (l <= hi) : (l += 1) {
+        var acf: f64 = 0;
+        var m: f64 = 0;
+        var i: usize = from;
+        while (i < from + MEASURE_WINDOW) : (i += 1) {
+            const a: f64 = x[i];
+            const b: f64 = x[i + l];
+            acf += a * b;
+            m += a * a + b * b;
+        }
+        nsdf[l - lo] = if (m > 0) 2.0 * acf / m else 0;
+    }
+    var best: usize = 0;
+    var k: usize = 1;
+    while (k <= hi - lo) : (k += 1) {
+        if (nsdf[k] > nsdf[best]) best = k;
+    }
+    if (best == 0 or best == hi - lo) return 0; // on the edge: not a measurement
+    if (nsdf[best] < 0.3) return 0; // no periodicity worth the name
+    const lag = lo + best;
+    for ([_]usize{ 2, 3 }) |div| {
+        const sub = lag / div;
+        if (sub < 2) continue;
+        var acf: f64 = 0;
+        var m: f64 = 0;
+        var i: usize = from;
+        while (i < from + MEASURE_WINDOW) : (i += 1) {
+            const xa: f64 = x[i];
+            const xb: f64 = x[i + sub];
+            acf += xa * xb;
+            m += xa * xa + xb * xb;
+        }
+        const ns = if (m > 0) 2.0 * acf / m else 0;
+        if (ns > 0.9 * nsdf[best]) return 0; // it repeats sooner: not this pitch
+    }
+    const a = nsdf[best - 1];
+    const b = nsdf[best];
+    const c = nsdf[best + 1];
+    const den = a - 2.0 * b + c;
+    const delta = if (den != 0) 0.5 * (a - c) / den else 0;
+    return ratef / (@as(f64, @floatFromInt(lo + best)) + delta);
+}
+
+/// The FIRST reading, before anything is known: lags from half to twice the
+/// expected period, and McLeod's rule -- the first peak within 0.9 of the
+/// highest, not the highest -- which is what keeps a wide search off the octave
+/// below. Needed because a raw waveguide can start further off than the narrow
+/// search's +-25%: the untuned kakaki sounds at 0.79x its target at 72 Hz and
+/// 1.14x at 320, so the narrow search found nothing at the bottom of its range.
+pub fn measureHzWide(x: []const f32, rate: u32, from: usize, hz_guess: f64) f64 {
+    if (!(hz_guess > 0)) return 0;
+    const ratef: f64 = @floatFromInt(rate);
+    const period = ratef / hz_guess;
+    const lo: usize = @intFromFloat(@floor(period * 0.5));
+    const hi: usize = @intFromFloat(@ceil(period * 2.0));
+    if (lo < 2 or hi - lo + 1 > MAX_LAGS) return 0;
+    if (from + MEASURE_WINDOW + hi + 2 > x.len) return 0;
+    var nsdf: [MAX_LAGS]f64 = undefined;
+    var l: usize = lo;
+    while (l <= hi) : (l += 1) {
+        var acf: f64 = 0;
+        var m: f64 = 0;
+        var i: usize = from;
+        while (i < from + MEASURE_WINDOW) : (i += 1) {
+            const a: f64 = x[i];
+            const b: f64 = x[i + l];
+            acf += a * b;
+            m += a * a + b * b;
+        }
+        nsdf[l - lo] = if (m > 0) 2.0 * acf / m else 0;
+    }
+    const n = hi - lo + 1;
+    var top: f64 = 0;
+    for (nsdf[0..n]) |v| top = @max(top, v);
+    if (top < 0.3) return 0;
+    var k: usize = 1;
+    while (k + 1 < n) : (k += 1) {
+        if (nsdf[k] >= nsdf[k - 1] and nsdf[k] >= nsdf[k + 1] and nsdf[k] >= 0.9 * top) break;
+    }
+    if (k + 1 >= n) return 0;
+    const a = nsdf[k - 1];
+    const b = nsdf[k];
+    const c = nsdf[k + 1];
+    const den = a - 2.0 * b + c;
+    const delta = if (den != 0) 0.5 * (a - c) / den else 0;
+    return ratef / (@as(f64, @floatFromInt(lo + k)) + delta);
+}
+
+/// The tuner's reading: wide on the first pass, narrow and octave-guarded after;
+/// and for a note with vibrato, the AVERAGE of eight readings across a cycle,
+/// because a pitch that moves on purpose has its centre in no single window.
+pub fn readPitch(x: []const f32, rate: u32, from: usize, hz: f64, averaged: bool, wide: bool) f64 {
+    if (!averaged) return if (wide) measureHzWide(x, rate, from, hz) else measureHz(x, rate, from, hz);
+    var acc: f64 = 0;
+    var got: f64 = 0;
+    for (0..READ_COUNT) |k| {
+        const at = from + k * READ_STEP;
+        const v = if (wide) measureHzWide(x, rate, at, hz) else measureHz(x, rate, at, hz);
+        if (v > 0) {
+            acc += std.math.log2(v / hz);
+            got += 1;
+        }
+    }
+    if (got < READ_COUNT * 3 / 4) return 0; // mostly unreadable: not a measurement
+    return hz * std.math.pow(f64, 2.0, acc / got);
+}
+
+// ── the spectral instrument, for sounds that are not harmonic ──────────────
+//
+// A period estimator is the WRONG instrument for a drum. A membrane's modes are
+// at Bessel-zero ratios -- 1, 1.594, 2.136 -- not at multiples, and inharmonic
+// partials pull a period estimate off the fundamental: the kalangu read 18.7
+// cents sharp by it while its fundamental mode was exact by construction. This
+// evaluates the spectrum directly, at a fine grid of frequencies within +-span of
+// the guess, under a Hann window, and refines the peak with a parabola through
+// the LOG magnitudes (the right shape for a Hann main lobe). It answers "where is
+// the mode", which is a question about the arithmetic; what the ear calls the
+// drum's pitch is a separate question, and it is the listener's.
+
+pub fn peakHz(x: []const f32, rate: u32, from: usize, window: usize, hz_guess: f64, span: f64) f64 {
+    if (!(hz_guess > 0) or window < 256 or from + window > x.len) return 0;
+    const ratef: f64 = @floatFromInt(rate);
+    const steps: usize = 240;
+    var mag: [241]f64 = undefined;
+    var k: usize = 0;
+    while (k <= steps) : (k += 1) {
+        const f = hz_guess * (1.0 - span + 2.0 * span * @as(f64, @floatFromInt(k)) / @as(f64, @floatFromInt(steps)));
+        const w = 2.0 * PI * f / ratef;
+        var re: f64 = 0;
+        var im: f64 = 0;
+        var cr: f64 = 1;
+        var ci: f64 = 0;
+        const rr = @cos(w);
+        const ri = -@sin(w);
+        var i: usize = 0;
+        while (i < window) : (i += 1) {
+            const hann = 0.5 - 0.5 * @cos(2.0 * PI * @as(f64, @floatFromInt(i)) / @as(f64, @floatFromInt(window - 1)));
+            const v: f64 = hann * @as(f64, x[from + i]);
+            re += v * cr;
+            im += v * ci;
+            const nr = cr * rr - ci * ri;
+            ci = cr * ri + ci * rr;
+            cr = nr;
+        }
+        mag[k] = @log(@sqrt(re * re + im * im) + 1e-30);
+    }
+    var best: usize = 0;
+    k = 1;
+    while (k <= steps) : (k += 1) {
+        if (mag[k] > mag[best]) best = k;
+    }
+    if (best == 0 or best == steps) return 0; // the peak is outside the span
+    const a = mag[best - 1];
+    const b = mag[best];
+    const c = mag[best + 1];
+    const den = a - 2.0 * b + c;
+    const delta = if (den != 0) 0.5 * (a - c) / den else 0;
+    const kk = @as(f64, @floatFromInt(best)) + delta;
+    return hz_guess * (1.0 - span + 2.0 * span * kk / @as(f64, @floatFromInt(steps)));
+}
+
+// ── shared parts ────────────────────────────────────────────────────────────
+
+const Lcg = struct {
+    s: u32 = 0x2545F491,
+    fn next(self: *Lcg) f32 {
+        self.s = self.s *% 1664525 +% 1013904223;
+        return (@as(f32, @floatFromInt(self.s >> 8)) / 8388608.0) - 1.0;
+    }
+};
+
+const MAXD: usize = 4096; // a power of two: the wrap is a mask
+
+/// A delay line with a fractional, linearly interpolated read. `tick` writes
+/// the input and returns the sample `d` samples behind it; `last` is the
+/// previous return value -- STK's DelayL, which the models below are written
+/// against.
+const Delay = struct {
+    buf: [MAXD]f32 = @splat(0),
+    w: usize = 0,
+    last: f32 = 0,
+    fn tick(self: *Delay, in: f64, d: f64) f32 {
+        self.buf[self.w] = @floatCast(in);
+        const dd = @max(1.0, @min(d, @as(f64, @floatFromInt(MAXD - 2))));
+        const di: usize = @intFromFloat(@floor(dd));
+        const fr: f32 = @floatCast(dd - @floor(dd));
+        const a = self.buf[(self.w + MAXD - di) & (MAXD - 1)];
+        const b = self.buf[(self.w + MAXD - di - 1) & (MAXD - 1)];
+        const o = a + (b - a) * fr;
+        self.w = (self.w + 1) & (MAXD - 1);
+        self.last = o;
+        return o;
+    }
+};
+
+/// A glide in LOG frequency, so equal times cover equal musical intervals.
+fn hzAt(hz0: f64, hz1: f64, t: f64, hold: f64) f64 {
+    if (hz1 == hz0 or !(hold > 0)) return hz0;
+    const u = @min(1.0, @max(0.0, t / hold));
+    return hz0 * @exp(u * @log(hz1 / hz0));
+}
+
+/// A two-pole body or gourd resonance, mixed back into the signal.
+fn bodyResonance(out: []f32, fhz: f64, rate: u32, mix: f64) void {
+    const w = 2.0 * PI * fhz / @as(f64, @floatFromInt(rate));
+    const r = 0.985;
+    const a1 = -2.0 * r * @cos(w);
+    const a2 = r * r;
+    const b0 = (1.0 - r * r) * 0.5;
+    var y1: f64 = 0;
+    var y2: f64 = 0;
+    for (out) |*o| {
+        const x: f64 = o.*;
+        const y = b0 * x - a1 * y1 - a2 * y2;
+        y2 = y1;
+        y1 = y;
+        o.* = @floatCast(x + mix * y);
+    }
+}
+
+// ── PLUCK: Karplus-Strong with an allpass fractional delay ──────────────────
+//
+// The loop is N whole samples, plus half a sample for the two-point average
+// (MU0's finding), plus d for a first-order allpass, chosen so N + 0.5 + d is
+// the period exactly with d in [0.5, 1.5) -- the allpass's best-behaved range.
+
+fn rawPluck(s: Spec, hz: f64, hold_f: usize, vel: f64, rate: u32, out: []f32) bool {
+    const ratef: f64 = @floatFromInt(rate);
+    const P = ratef / hz;
+    const nf = @floor(P - 1.0);
+    if (nf < 2 or nf >= @as(f64, @floatFromInt(MAXD))) return false;
+    const N: usize = @intFromFloat(nf);
+    const d = P - 0.5 - nf;
+    const C: f64 = (1.0 - d) / (1.0 + d);
+
+    var line: [MAXD]f32 = undefined;
+    var rng = Lcg{};
+    var lp: f32 = 0;
+    const br: f32 = @floatCast(std.math.clamp(s.bright * (0.6 + 0.4 * vel), 0.05, 1.0));
+    var i: usize = 0;
+    while (i < N) : (i += 1) {
+        var x = rng.next();
+        if (s.hammer) {
+            // a felt hammer: a smooth bump struck at a seventh of the string
+            const pos = @as(f64, @floatFromInt(i)) / @as(f64, @floatFromInt(N));
+            const w = 0.12;
+            const cpos = 1.0 / 7.0;
+            var bump: f64 = 0;
+            if (@abs(pos - cpos) < w) bump = 0.5 * (1.0 + @cos(PI * (pos - cpos) / w));
+            x = @floatCast(bump * 1.6 + 0.15 * @as(f64, x));
+        }
+        lp += br * (x - lp);
+        line[i] = lp;
+    }
+    // remove the excitation's mean, or the string rings about an offset
+    var mean: f32 = 0;
+    i = 0;
+    while (i < N) : (i += 1) mean += line[i];
+    mean /= @floatFromInt(N);
+    i = 0;
+    while (i < N) : (i += 1) line[i] -= mean;
+
+    var p: usize = 0;
+    var prev: f32 = 0;
+    var apx: f64 = 0;
+    var apy: f64 = 0;
+    const dh: f32 = @floatCast(s.decay);
+    for (out, 0..) |*o, f| {
+        const cur = line[p];
+        const avg = 0.5 * (cur + prev);
+        prev = cur;
+        // after the hold the string is DAMPED -- a finger or palm on it --
+        // rather than cut, which would be a click
+        const dmp: f32 = if (f < hold_f) dh else 0.93;
+        const x: f64 = dmp * avg;
+        const y = C * x + apx - C * apy;
+        apx = x;
+        apy = y;
+        line[p] = @floatCast(y);
+        p += 1;
+        if (p == N) p = 0;
+        o.* = cur;
+    }
+    if (s.body > 0) bodyResonance(out, s.body, rate, 0.6);
+    return true;
+}
+
+// ── BOW: STK's Bowed, a string excited by stick-slip friction ───────────────
+
+/// STK's default bow pressure (slope 3) plays an OCTAVE UP from about 600 Hz:
+/// measured 1205 Hz asked 600, 1611 asked 800 -- the string breaking to its
+/// second harmonic, which is real bowed-string physics and which the octave
+/// guard caught and refused. Scanned slope {1,2,3,4} x bow position
+/// {0.06,0.127,0.2} x {400,600,800} Hz: slope 2 (bow pressure 0.75 in STK's
+/// terms) holds the fundamental at all three with STK's own bow position.
+const BOW_SLOPE: f64 = 2.0;
+
+fn bowTable(v: f64) f64 {
+    const s = (v + 0.001) * BOW_SLOPE;
+    const o = 1.0 / std.math.pow(f64, @abs(s) + 0.75, 4.0);
+    return std.math.clamp(o, 0.01, 0.98);
+}
+
+fn rawBow(s: Spec, hz0: f64, hz1: f64, hold: f64, vel: f64, rate: u32, out: []f32) bool {
+    const ratef: f64 = @floatFromInt(rate);
+    const hold_f: usize = @intFromFloat(hold * ratef);
+    var neck = Delay{};
+    var bridge = Delay{};
+    const beta = 0.127236;
+    const sp = 0.75 - 0.2 * 22050.0 / ratef;
+    var sfy: f64 = 0;
+    const maxv = 0.03 + 0.2 * vel;
+    const atk = vel * 0.001;
+    const rel = 1.0 / (0.01 * ratef);
+    var env: f64 = 0;
+    for (out, 0..) |*o, f| {
+        const t = @as(f64, @floatFromInt(f)) / ratef;
+        var hz = hzAt(hz0, hz1, t, hold);
+        if (s.vibrato > 0) hz *= 1.0 + s.vibrato * @sin(2.0 * PI * 5.5 * t);
+        var base = ratef / hz - 4.0;
+        if (base < 0.3) base = 0.3;
+        if (f < hold_f) env = @min(1.0, env + atk) else env = @max(0.0, env - rel);
+        const bowv = maxv * env;
+        sfy = 0.95 * (1.0 - sp) * @as(f64, bridge.last) + sp * sfy;
+        const br = -sfy;
+        const nr: f64 = -@as(f64, neck.last);
+        const sv = br + nr;
+        const dv = bowv - sv;
+        const nv = dv * bowTable(dv);
+        _ = neck.tick(br + nv, base * (1.0 - beta));
+        _ = bridge.tick(nr + nv, base * beta);
+        o.* = bridge.last;
+    }
+    return true;
+}
+
+// ── WIND: one bore, four mouths ─────────────────────────────────────────────
+
+fn reedTable(pd: f64, offset: f64, slope: f64) f64 {
+    return std.math.clamp(offset + slope * pd, -1.0, 1.0);
+}
+
+fn jetTable(x: f64) f64 {
+    return std.math.clamp(x * (x * x - 1.0), -1.0, 1.0);
+}
+
+/// A single reed on a cylinder (STK Clarinet): odd harmonics dominate, because a
+/// cylinder closed at the reed end supports only odd ones. Adds into `out`.
+fn addSingleReed(s: Spec, hz0: f64, hz1: f64, detune: f64, hold: f64, vel: f64, rate: u32, out: []f32) void {
+    const ratef: f64 = @floatFromInt(rate);
+    const hold_f: usize = @intFromFloat(hold * ratef);
+    var dl = Delay{};
+    var fx1: f64 = 0;
+    var rng = Lcg{ .s = @as(u32, @intFromFloat(@mod(detune * 1000.0, 65536.0))) +% 7 };
+    const target = 0.55 + 0.3 * vel;
+    const up = vel * 0.005;
+    const down = vel * 0.01;
+    var env: f64 = 0;
+    for (out, 0..) |*o, f| {
+        const t = @as(f64, @floatFromInt(f)) / ratef;
+        const hz = hzAt(hz0, hz1, t, hold) * detune;
+        if (f < hold_f) env = @min(target, env + up) else env = @max(0.0, env - down);
+        var breath = env;
+        breath += breath * s.noise * @as(f64, rng.next());
+        breath += breath * s.vibrato * @sin(2.0 * PI * 5.735 * t);
+        const x: f64 = dl.last;
+        const filt = 0.5 * x + 0.5 * fx1;
+        fx1 = x;
+        const pd = -0.95 * filt - breath;
+        const d = ratef / hz * 0.5 - 0.5 - 1.0;
+        o.* += dl.tick(breath + pd * reedTable(pd, 0.7, -0.3), d);
+    }
+}
+
+/// A double reed on a cone (STK Saxofony): the cone supports ALL harmonics,
+/// which is the audible difference between a zokra and a mezwed.
+fn rawDoubleReed(s: Spec, hz0: f64, hz1: f64, hold: f64, vel: f64, rate: u32, out: []f32) void {
+    const ratef: f64 = @floatFromInt(rate);
+    const hold_f: usize = @intFromFloat(hold * ratef);
+    var d0 = Delay{};
+    var d1 = Delay{};
+    var fx1: f64 = 0;
+    var rng = Lcg{};
+    const target = 0.55 + 0.3 * vel;
+    const up = vel * 0.005;
+    const down = vel * 0.01;
+    var env: f64 = 0;
+    const pos = 0.2;
+    for (out, 0..) |*o, f| {
+        const t = @as(f64, @floatFromInt(f)) / ratef;
+        const hz = hzAt(hz0, hz1, t, hold);
+        if (f < hold_f) env = @min(target, env + up) else env = @max(0.0, env - down);
+        var breath = env;
+        breath += breath * s.noise * @as(f64, rng.next());
+        breath += breath * s.vibrato * @sin(2.0 * PI * 5.735 * t);
+        const dtot = ratef / hz - 0.5 - 1.0;
+        const x: f64 = d0.last;
+        const filt = 0.5 * x + 0.5 * fx1;
+        fx1 = x;
+        const temp = -0.95 * filt;
+        const outv = temp - @as(f64, d1.last);
+        const pd = breath - outv;
+        _ = d1.tick(temp, pos * dtot);
+        _ = d0.tick(breath - pd * reedTable(pd, 0.7, 0.3) - temp, (1.0 - pos) * dtot);
+        o.* = @floatCast(outv);
+    }
+}
+
+/// Lips as the reed, after STK's Brass: a resonant lip filter tuned to the note,
+/// and a tube two periods long so the lips drive its second mode.
+///
+/// TWO CHANGES FROM STK, BOTH MEASURED. Written as STK has it, the lip filter
+/// passed a steady pressure at ~40x gain: the lips snapped fully open, the loop
+/// reached a fixed point, and the model went SILENT after 100 ms -- exact zero,
+/// not a decay. Made a band-pass (zeros at DC and Nyquist) it could never START:
+/// the area is lip^2, and a square has zero small-signal gain at zero. So the lips
+/// now have a REST OPENING they oscillate about -- which is what real lips have --
+/// and the band-pass moves them. Rest 0.7, input gain 16: scanned over rest
+/// {0.3,0.5,0.7} x gain {2,4,8,16} x {100,200,300} Hz, and the one point where
+/// every test pitch sustained.
+const LIP_REST: f64 = 0.7;
+const LIP_GAIN: f64 = 16.0;
+
+fn rawLip(s: Spec, hz0: f64, hz1: f64, hold: f64, vel: f64, rate: u32, out: []f32, tube_c: f64) void {
+    _ = s;
+    const ratef: f64 = @floatFromInt(rate);
+    const hold_f: usize = @intFromFloat(hold * ratef);
+    var dl = Delay{};
+    var x1: f64 = 0;
+    var x2: f64 = 0;
+    var y1: f64 = 0;
+    var y2: f64 = 0;
+    var dcx: f64 = 0;
+    var dcy: f64 = 0;
+    const atk = vel * 0.001;
+    const rel = 1.0 / (0.01 * ratef);
+    var env: f64 = 0;
+    const r = 0.997;
+    for (out, 0..) |*o, f| {
+        const t = @as(f64, @floatFromInt(f)) / ratef;
+        const hz = hzAt(hz0, hz1, t, hold);
+        if (f < hold_f) env = @min(1.0, env + atk) else env = @max(0.0, env - rel);
+        const breath = vel * env;
+        const mouth = 0.3 * breath;
+        const bore = 0.85 * @as(f64, dl.last);
+        // the lip resonance, re-tuned every sample so a glide moves the lips too.
+        // THE LIPS STAY AT THE ASKED PITCH; only the TUBE carries the tuner's
+        // correction. Tuning both together made the kakaki CRACK -- the tuner
+        // converged on its probe and the note then sounded a fourth up (99 Hz
+        // asked 72), the lips having chosen another tube mode. The lips choose
+        // the mode, so they must not be the thing the tuner moves.
+        const w = 2.0 * PI * (hz / tube_c) / ratef;
+        const a1 = -2.0 * r * @cos(w);
+        const a2 = r * r;
+        const xin = LIP_GAIN * (mouth - bore);
+        const b0 = 0.5 - 0.5 * a2;
+        const lip = b0 * xin - b0 * x2 - a1 * y1 - a2 * y2;
+        x2 = x1;
+        x1 = xin;
+        y2 = y1;
+        y1 = lip;
+        const opening = LIP_REST + lip;
+        var dp = opening * opening;
+        if (dp > 1.0) dp = 1.0;
+        const o1 = dp * mouth + (1.0 - dp) * bore;
+        const dc = o1 - dcx + 0.99 * dcy;
+        dcx = o1;
+        dcy = dc;
+        _ = dl.tick(dc, ratef / hz * 2.0 + 3.0);
+        o.* = dl.last;
+    }
+}
+
+/// An air jet across an edge (STK Flute): no reed at all -- the jet's delay and
+/// its cubic deflection are the whole nonlinearity.
+fn rawJet(s: Spec, hz0: f64, hz1: f64, hold: f64, vel: f64, rate: u32, out: []f32) void {
+    const ratef: f64 = @floatFromInt(rate);
+    const hold_f: usize = @intFromFloat(hold * ratef);
+    var bore = Delay{};
+    var jet = Delay{};
+    var rng = Lcg{};
+    const p = 0.7 - 0.1 * 22050.0 / ratef;
+    var fy: f64 = 0;
+    var dcx: f64 = 0;
+    var dcy: f64 = 0;
+    const maxp = (1.1 + 0.2 * vel) / 0.8;
+    const atk = vel * 0.02;
+    const rel = 1.0 / (0.01 * ratef);
+    var env: f64 = 0;
+    for (out, 0..) |*o, f| {
+        const t = @as(f64, @floatFromInt(f)) / ratef;
+        const hz = hzAt(hz0, hz1, t, hold);
+        const feff = hz * 0.66666;
+        const w = 2.0 * PI * feff / ratef;
+        const pdel = std.math.atan2(p * @sin(w), 1.0 - p * @cos(w)) / w;
+        const bd = ratef / feff - pdel - 1.0;
+        if (f < hold_f) env = @min(0.8, env + atk) else env = @max(0.0, env - rel);
+        var breath = maxp * env;
+        breath += breath * (s.noise * @as(f64, rng.next()) + s.vibrato * @sin(2.0 * PI * 5.925 * t));
+        fy = (1.0 - p) * @as(f64, bore.last) + p * fy;
+        var temp = -fy;
+        const dc = temp - dcx + 0.99 * dcy;
+        dcx = temp;
+        dcy = dc;
+        temp = dc;
+        var pd = breath - 0.5 * temp;
+        pd = jet.tick(pd, bd * 0.32);
+        pd = jetTable(pd) + 0.5 * temp;
+        o.* = @floatCast(0.3 * @as(f64, bore.tick(pd, bd)));
+    }
+}
+
+fn rawWind(s: Spec, hz0: f64, hz1: f64, hold: f64, vel: f64, rate: u32, out: []f32, tube_c: f64) void {
+    switch (s.mouth) {
+        MOUTH_SINGLE_REED => {
+            @memset(out, 0);
+            addSingleReed(s, hz0, hz1, 1.0, hold, vel, rate, out);
+            if (s.pair_cents != 0) {
+                addSingleReed(s, hz0, hz1, std.math.pow(f64, 2.0, s.pair_cents / 1200.0), hold, vel, rate, out);
+            }
+        },
+        MOUTH_DOUBLE_REED => rawDoubleReed(s, hz0, hz1, hold, vel, rate, out),
+        MOUTH_LIP => rawLip(s, hz0, hz1, hold, vel, rate, out, tube_c),
+        else => rawJet(s, hz0, hz1, hold, vel, rate, out),
+    }
+}
+
+// ── FM: two operators ───────────────────────────────────────────────────────
+
+fn rawFm(s: Spec, hz: f64, hold: f64, rate: u32, out: []f32) void {
+    const ratef: f64 = @floatFromInt(rate);
+    const hold_f: usize = @intFromFloat(hold * ratef);
+    var pc: f64 = 0;
+    var pm: f64 = 0;
+    var pt: f64 = 0;
+    for (out, 0..) |*o, f| {
+        const t = @as(f64, @floatFromInt(f)) / ratef;
+        var env: f64 = 0;
+        if (s.sustained) {
+            if (t < s.attack) {
+                env = t / s.attack;
+            } else if (f < hold_f) {
+                env = 1.0;
+            } else {
+                env = @max(0.0, 1.0 - @as(f64, @floatFromInt(f - hold_f)) / (0.15 * ratef));
+            }
+        } else {
+            env = if (t < s.attack) t / s.attack else @exp(-s.amp_decay * (t - s.attack));
+        }
+        const idx = if (s.sustained) s.index * env else s.index * @exp(-s.index_decay * t);
+        var y = env * @sin(2.0 * PI * pc + idx * @sin(2.0 * PI * pm));
+        if (s.tine > 0) {
+            const te = @exp(-30.0 * t);
+            y += s.tine * te * @sin(2.0 * PI * pc + 0.8 * te * @sin(2.0 * PI * pt));
+        }
+        pc += hz / ratef;
+        pm += hz * s.ratio / ratef;
+        pt += hz * 14.0 / ratef;
+        pc -= @floor(pc);
+        pm -= @floor(pm);
+        pt -= @floor(pt);
+        o.* = @floatCast(y);
+    }
+}
+
+// ── MEMBRANE: a circular membrane, struck ───────────────────────────────────
+//
+// The mode ratios are the zeros of the Bessel functions -- the (m,n) modes of an
+// ideal circular membrane, which is why a drum is NOT harmonic. Where it is
+// struck decides which modes speak: the centre excites the symmetric modes (dum),
+// the rim the ones with nodal diameters (tak), the weaker rim fewer still (ka).
+
+const MODE_R = [8]f64{ 1.0, 1.594, 2.136, 2.296, 2.653, 2.918, 3.156, 3.501 };
+const W_DUM = [8]f64{ 1.0, 0.25, 0.1, 0.35, 0.05, 0.1, 0.03, 0.05 };
+const W_TAK = [8]f64{ 0.15, 0.7, 0.8, 0.3, 0.7, 0.5, 0.5, 0.4 };
+const W_KA = [8]f64{ 0.1, 0.4, 0.5, 0.2, 0.45, 0.35, 0.3, 0.25 };
+
+fn rawMembrane(s: Spec, hz0: f64, hz1: f64, hold: f64, variant: u32, rate: u32, out: []f32) void {
+    const ratef: f64 = @floatFromInt(rate);
+    if (s.kind == 2) return rawKit(hz0, variant, rate, out);
+    const wts = switch (variant) {
+        1 => W_TAK,
+        2 => W_KA,
+        else => W_DUM,
+    };
+    const tau0 = s.tau * (switch (variant) {
+        1 => @as(f64, 0.35),
+        2 => @as(f64, 0.25),
+        else => @as(f64, 1.0),
+    });
+    const vamp: f64 = if (variant == 2) 0.6 else 1.0;
+    const click: f64 = if (variant == 0) 0.1 else 0.3;
+    var amp: [8]f64 = undefined;
+    var mult: [8]f64 = undefined;
+    var ph: [8]f64 = @splat(0);
+    for (0..8) |k| {
+        amp[k] = wts[k];
+        const tk = tau0 / std.math.pow(f64, MODE_R[k], 0.8);
+        mult[k] = @exp(-1.0 / (tk * ratef));
+    }
+    var rng = Lcg{};
+    var n1: f64 = 0;
+    // the bendir's snares: noise, gated by how hard the head is moving, through
+    // a resonance near 2.5 kHz
+    const bw = 2.0 * PI * 2500.0 / ratef;
+    const br = 0.95;
+    const ba1 = -2.0 * br * @cos(bw);
+    const ba2 = br * br;
+    var by1: f64 = 0;
+    var by2: f64 = 0;
+    const env_mult = @exp(-1.0 / (tau0 * ratef));
+    var env0: f64 = 1.0;
+    for (out, 0..) |*o, f| {
+        const t = @as(f64, @floatFromInt(f)) / ratef;
+        const f0 = hzAt(hz0, hz1, t, hold);
+        var y: f64 = 0;
+        for (0..8) |k| {
+            y += amp[k] * @sin(2.0 * PI * ph[k]);
+            amp[k] *= mult[k];
+            ph[k] += f0 * MODE_R[k] / ratef;
+            ph[k] -= @floor(ph[k]);
+        }
+        const nz: f64 = rng.next();
+        if (t < 0.004) {
+            y += click * (nz - n1) * (1.0 - t / 0.004);
+        }
+        if (s.kind == 1 and t > 0.003) {
+            const bx = nz * env0 * 0.35;
+            const by = (1.0 - br) * bx - ba1 * by1 - ba2 * by2;
+            by2 = by1;
+            by1 = by;
+            y += by * 6.0;
+        }
+        n1 = nz;
+        env0 *= env_mult;
+        o.* = @floatCast(y * vamp);
+    }
+}
+
+/// A synthesised kit: kick (a membrane whose pitch drops as it is struck),
+/// snare (a rim-struck membrane plus wires), hi-hat (noise, highpassed twice),
+/// and -- MU13 -- two CYMBALS: crash (3) and ride (4). A cymbal is metal, not a
+/// membrane: six square partials at inharmonic ratios (the ones drum machines
+/// have used since the 1980s, because a plate's modes are that crowded and that
+/// unrelated), highpassed twice, over highpassed noise. The crash washes and
+/// rings long; the ride has less wash, a shorter body and a BELL -- a sine ping
+/// two octaves over the metal -- which is what a ride's stick-on-bow sounds like.
+/// MU14: three TOMS (5 high, 6 mid, 7 floor) -- membranes again, tuned a fourth
+/// and a fifth apart under the high one, each struck so its pitch drops a little
+/// as the head settles, the floor tom ringing longest; and the OPEN HI-HAT (8),
+/// the closed one's noise left to wash for a third of a second.
+const CYMBAL_R = [_]f64{ 1.0, 1.4831, 1.9318, 2.5460, 2.6302, 3.8970 };
+const TOM_F = [_]f64{ 1.75, 1.3, 0.85 };
+const TOM_TAU = [_]f64{ 0.35, 0.45, 0.6 };
+
+fn rawKit(hz: f64, variant: u32, rate: u32, out: []f32) void {
+    const ratef: f64 = @floatFromInt(rate);
+    var rng = Lcg{};
+    var ph0: f64 = 0;
+    var ph1: f64 = 0;
+    var n1: f64 = 0;
+    var h1: f64 = 0;
+    var hp1: f64 = 0;
+    var mph = [_]f64{0} ** 6;
+    var m1: f64 = 0;
+    var mh1: f64 = 0;
+    const base = 3.2 * hz;
+    for (out, 0..) |*o, f| {
+        const t = @as(f64, @floatFromInt(f)) / ratef;
+        const nz: f64 = rng.next();
+        var y: f64 = 0;
+        switch (variant) {
+            0 => {
+                const fk = hz * (1.0 + 1.5 * @exp(-t / 0.03));
+                y = @sin(2.0 * PI * ph0) * @exp(-t / 0.25) + 0.2 * @sin(2.0 * PI * ph1) * @exp(-t / 0.12);
+                ph0 += fk / ratef;
+                ph1 += fk * MODE_R[1] / ratef;
+                if (t < 0.003) y += 0.4 * (nz - n1);
+            },
+            1 => {
+                for (0..8) |k| {
+                    _ = k;
+                }
+                y = 0.6 * (@sin(2.0 * PI * ph0) * 0.3 + @sin(2.0 * PI * ph1) * 0.6) * @exp(-t / 0.12);
+                ph0 += hz / ratef;
+                ph1 += hz * MODE_R[2] / ratef;
+                y += 0.8 * (nz - n1) * @exp(-t / 0.15);
+            },
+            3, 4 => {
+                var m: f64 = 0;
+                for (&mph, 0..) |*q, k| {
+                    m += if (@sin(2.0 * PI * q.*) >= 0) 1.0 / 6.0 else -1.0 / 6.0;
+                    q.* += base * CYMBAL_R[k] / ratef;
+                    q.* -= @floor(q.*);
+                }
+                const mh = m - m1;
+                const mh2 = mh - mh1;
+                m1 = m;
+                mh1 = mh;
+                const hp = nz - n1;
+                const hp2 = hp - hp1;
+                hp1 = hp;
+                if (variant == 3) {
+                    y = (0.55 * mh2 + 0.45 * hp2) * @exp(-t / 1.1) * 0.6;
+                } else {
+                    y = 0.45 * mh2 * @exp(-t / 0.9) + 0.2 * hp2 * @exp(-t / 0.35) +
+                        0.3 * @sin(2.0 * PI * ph0) * @exp(-t / 0.3);
+                    ph0 += 4.0 * base / ratef;
+                }
+            },
+            5, 6, 7 => {
+                const k: usize = variant - 5;
+                const f0 = hz * TOM_F[k];
+                const fk = f0 * (1.0 + 0.3 * @exp(-t / 0.04));
+                y = @sin(2.0 * PI * ph0) * @exp(-t / TOM_TAU[k]) +
+                    0.35 * @sin(2.0 * PI * ph1) * @exp(-t / (TOM_TAU[k] * 0.6));
+                ph0 += fk / ratef;
+                ph1 += fk * MODE_R[1] / ratef;
+                if (t < 0.002) y += 0.3 * (nz - n1);
+            },
+            8 => {
+                const hp = nz - n1;
+                const hp2 = hp - hp1;
+                hp1 = hp;
+                y = (0.7 * hp2 + 0.3 * hp) * @exp(-t / 0.35) * 0.5;
+            },
+            else => {
+                const hp = nz - n1;
+                const hp2 = hp - hp1;
+                hp1 = hp;
+                y = hp2 * @exp(-t / 0.05) * 0.5;
+            },
+        }
+        ph0 -= @floor(ph0);
+        ph1 -= @floor(ph1);
+        n1 = nz;
+        h1 = y;
+        o.* = @floatCast(y);
+    }
+}
+
+// ── dispatch, finishing, and the self-tuning render ─────────────────────────
+
+fn raw(s: Spec, hz0: f64, hz1: f64, hold: f64, vel: f64, variant: u32, rate: u32, out: []f32, tube_c: f64) bool {
+    const hold_f: usize = @intFromFloat(hold * @as(f64, @floatFromInt(rate)));
+    switch (s.engine) {
+        ENGINE_PLUCK => return rawPluck(s, hz0, hold_f, vel, rate, out),
+        ENGINE_BOW => return rawBow(s, hz0, hz1, hold, vel, rate, out),
+        ENGINE_WIND => {
+            rawWind(s, hz0, hz1, hold, vel, rate, out, tube_c);
+            return true;
+        },
+        ENGINE_FM => {
+            rawFm(s, hz0, hold, rate, out);
+            return true;
+        },
+        else => {
+            rawMembrane(s, hz0, hz1, hold, variant, rate, out);
+            return true;
+        },
+    }
+}
+
+/// DC out, silence and NaN refused, the last 5 ms faded so the end is not a
+/// click, then peak-normalised to 0.7 x velocity. A NOTE is normalised; the mix
+/// in which notes meet is a later phase's, and loudness between instruments is
+/// not claimed here.
+fn finish(out: []f32, vel: f64, rate: u32) bool {
+    var x1: f32 = 0;
+    var y1: f32 = 0;
+    for (out) |*o| {
+        const x = o.*;
+        const y = x - x1 + 0.999 * y1;
+        x1 = x;
+        y1 = y;
+        o.* = y;
+    }
+    var peak: f32 = 0;
+    for (out) |o| {
+        if (!std.math.isFinite(o)) return false;
+        peak = @max(peak, @abs(o));
+    }
+    if (peak < 1e-5) return false;
+    const fade = @min(out.len, rate * 5 / 1000);
+    var i: usize = 0;
+    while (i < fade) : (i += 1) {
+        const k = out.len - fade + i;
+        out[k] *= @as(f32, @floatFromInt(fade - i)) / @as(f32, @floatFromInt(fade));
+    }
+    const g: f32 = @floatCast(0.7 * vel / @as(f64, peak));
+    for (out) |*o| o.* *= g;
+    return true;
+}
+
+pub fn renderNote(inst: u32, hz: f64, hz_end: f64, hold: f64, vel: f64, variant: u32, rate: u32, out: []f32, scratch: []f32) usize {
+    last_reason = R_OK;
+    last_raw_cents = 0;
+    last_tuning_cents = 0;
+    if (inst >= SPECS.len) {
+        last_reason = R_UNKNOWN;
+        return 0;
+    }
+    const s = SPECS[inst];
+    if (!(hold > 0 and hold <= 60) or !(vel > 0 and vel <= 1) or rate < 8000) {
+        last_reason = R_ARGS;
+        return 0;
+    }
+    const end = if (hz_end > 0) hz_end else hz;
+    if (!(hz >= s.lo and hz <= s.hi and end >= s.lo and end <= s.hi)) {
+        last_reason = R_RANGE;
+        return 0;
+    }
+    if (end != hz and (s.engine == ENGINE_PLUCK or s.engine == ENGINE_FM)) {
+        last_reason = R_GLIDE;
+        return 0;
+    }
+    // a hand drum has three strokes; the kit nine (MU13 crash, ride; MU14 three toms, open hi-hat)
+    const most: u32 = if (s.engine == ENGINE_MEMBRANE and s.kind == 2) 8 else 2;
+    if ((s.engine == ENGINE_MEMBRANE and variant > most) or (s.engine != ENGINE_MEMBRANE and variant != 0)) {
+        last_reason = R_VARIANT;
+        return 0;
+    }
+    const need = noteFrames(inst, rate, hold);
+    if (need == 0 or out.len < need) {
+        last_reason = R_BUFFER;
+        return 0;
+    }
+
+    var c: f64 = 1.0;
+    const listens = s.engine == ENGINE_PLUCK or s.engine == ENGINE_BOW or s.engine == ENGINE_WIND;
+    if (listens) {
+        const pf = scratchFrames(rate);
+        if (scratch.len < pf) {
+            last_reason = R_BUFFER;
+            return 0;
+        }
+        const probe = scratch[0..pf];
+        const from: usize = @intFromFloat(READ_FROM_S * @as(f64, @floatFromInt(rate)));
+        // THE PROBE IS PLAYED AS THE NOTE WILL BE -- vibrato and all -- and read
+        // as an average across a vibrato cycle. The first cut tuned a
+        // vibrato-FREE probe on the theory that the centre is what matters; a
+        // jet's pitch rides on its breath, so the flute tuned still and then
+        // played 2.9 cents flat with its breath vibrato on. Tune what is played.
+        const averaged = wanders(s);
+        // ONLY A PROBED CORRECTION IS EVER USED. The first cut applied its last
+        // correction without hearing it -- computed, never probed -- and that is
+        // the step at which the kakaki cracked. Every pass now probes the value
+        // it is judging, and the note is rendered with the best one HEARD.
+        //
+        // AND IT STEPS BY WHAT IT MEASURED, NOT BY WHAT IT ASSUMED. The first
+        // tuner corrected in proportion -- 10% more tube for a note 10% flat --
+        // which is true of a string and false of a lip: with the lips held at the
+        // asked pitch, stretching the tube moves the note only PART of the way,
+        // so each pass under-corrected and the kakaki ran out of passes 8.5 cents
+        // off at 320 Hz. From the second pass on, the step is a secant: how far
+        // the pitch actually moved per cent of correction, last time.
+        var best_c: f64 = 1.0;
+        var best_err: f64 = std.math.inf(f64);
+        var lc: f64 = 0; // the correction, in cents
+        var prev_lc: f64 = 0;
+        var prev_err: f64 = 0;
+        var have_prev = false;
+        var it: usize = 0;
+        while (it < 8) : (it += 1) {
+            c = std.math.pow(f64, 2.0, lc / 1200.0);
+            @memset(probe, 0);
+            // held to 1.15 s so every reading lands in the HOLD: sixteen readings
+            // from 0.25 s end near 1.09 s, and a 1.0 s probe put its last ones in
+            // the release -- a different sound from the note being tuned
+            if (!raw(s, hz * c, hz * c, 1.15, vel, 0, rate, probe, c)) break;
+            const m = readPitch(probe, rate, from, hz, averaged, it == 0);
+            if (m <= 0) break;
+            const err = 1200.0 * std.math.log2(m / hz);
+            if (it == 0) last_raw_cents = err;
+            if (@abs(err) < @abs(best_err)) {
+                best_err = err;
+                best_c = c;
+            }
+            if (@abs(err) < 0.05) break;
+            var next = lc - err;
+            if (have_prev and err != prev_err and lc != prev_lc) {
+                const slope = (err - prev_err) / (lc - prev_lc);
+                if (slope > 0.05 and slope < 20) next = lc - err / slope;
+            }
+            next = std.math.clamp(next, lc - 400.0, lc + 400.0);
+            prev_lc = lc;
+            prev_err = err;
+            have_prev = true;
+            lc = next;
+        }
+        c = best_c;
+        last_tuning_cents = 1200.0 * std.math.log2(c);
+    }
+
+    const o = out[0..need];
+    @memset(o, 0);
+    if (!raw(s, hz * c, end * c, hold, vel, variant, rate, o, c) or !finish(o, vel, rate)) {
+        last_reason = R_SILENT;
+        return 0;
+    }
+    return need;
+}
+
+// ── MU5: THE FORMANT VOICE -- five vowels, a pitch, a breath ────────────────
+//
+// The plan's MU5 (b): a source and a filter, the oldest model of a singing
+// voice there is. The SOURCE is a Rosenberg glottal pulse -- the airflow
+// through the vocal folds opening smoothly and closing faster -- differentiated
+// (the lips radiate the flow's derivative), with a slow vibrato and a breath of
+// noise that sounds only while the folds are open. The FILTER is five formant
+// resonators in parallel, from the Csound manual's formant table (tenor below
+// 330 Hz, soprano above): the vocal tract's resonances, which are what make an
+// "a" an "a" whatever the pitch.
+//
+// It is NOT one of MU1's twenty instruments, on purpose: those are a record
+// with its own guard, and a voice is judged by a different bar -- whether the
+// author hears SINGING -- which no number here can clear.
+//
+// THE PITCH IS EXACT BY CONSTRUCTION: a phase accumulator, no loop to tune, and
+// a vibrato symmetric in log frequency, so its centre is the note asked.
+
+pub const VOWEL_COUNT: u32 = 5; // a e i o u
+
+const Formant5 = struct { f: [5]f64, db: [5]f64, bw: [5]f64 };
+
+// Csound manual, "Formant values" (MiscFormants): tenor and soprano, a e i o u.
+const TENOR = [5]Formant5{
+    .{ .f = .{ 650, 1080, 2650, 2900, 3250 }, .db = .{ 0, -6, -7, -8, -22 }, .bw = .{ 80, 90, 120, 130, 140 } },
+    .{ .f = .{ 400, 1700, 2600, 3200, 3580 }, .db = .{ 0, -14, -12, -14, -20 }, .bw = .{ 70, 80, 100, 120, 120 } },
+    .{ .f = .{ 290, 1870, 2800, 3250, 3540 }, .db = .{ 0, -15, -18, -20, -30 }, .bw = .{ 40, 90, 100, 120, 120 } },
+    .{ .f = .{ 400, 800, 2600, 2800, 3000 }, .db = .{ 0, -10, -12, -12, -26 }, .bw = .{ 70, 80, 100, 130, 135 } },
+    .{ .f = .{ 350, 600, 2700, 2900, 3300 }, .db = .{ 0, -20, -17, -14, -26 }, .bw = .{ 40, 60, 100, 120, 120 } },
+};
+const SOPRANO = [5]Formant5{
+    .{ .f = .{ 800, 1150, 2900, 3900, 4950 }, .db = .{ 0, -6, -32, -20, -50 }, .bw = .{ 80, 90, 120, 130, 140 } },
+    .{ .f = .{ 350, 2000, 2800, 3600, 4950 }, .db = .{ 0, -20, -15, -40, -56 }, .bw = .{ 60, 100, 120, 150, 200 } },
+    .{ .f = .{ 270, 2140, 2950, 3900, 4950 }, .db = .{ 0, -12, -26, -26, -44 }, .bw = .{ 60, 90, 100, 120, 120 } },
+    .{ .f = .{ 450, 800, 2830, 3800, 4950 }, .db = .{ 0, -11, -22, -22, -50 }, .bw = .{ 40, 80, 100, 120, 120 } },
+    .{ .f = .{ 325, 700, 2700, 3800, 4950 }, .db = .{ 0, -16, -35, -40, -60 }, .bw = .{ 50, 60, 170, 180, 200 } },
+};
+
+pub const VOICE_LO: f64 = 80;
+pub const VOICE_HI: f64 = 1100;
+pub const VOICE_TAIL: f64 = 0.15;
+pub const VOICE_SPLIT: f64 = 330; // below: the tenor table; at or above: the soprano
+
+/// The first two formants of a vowel at a pitch -- what a guard holds the
+/// rendered spectrum against. [F1, F2] in Hz; zeros for a bad vowel.
+pub fn vowelFormants(vowel: u32, hz: f64) [2]f64 {
+    if (vowel >= VOWEL_COUNT) return .{ 0, 0 };
+    const t = if (hz < VOICE_SPLIT) TENOR[vowel] else SOPRANO[vowel];
+    return .{ t.f[0], t.f[1] };
+}
+
+pub fn vowelFrames(rate: u32, hold: f64) usize {
+    if (!(hold > 0 and hold <= 60)) return 0;
+    return @intFromFloat((hold + VOICE_TAIL) * @as(f64, @floatFromInt(rate)));
+}
+
+/// One sung vowel from hz0 to hz1 (a glide when they differ) over `hold`
+/// seconds, `breath` in [0, 1], a vibrato of +-`vibrato_cents`. Returns the frames written, or 0 (reason in
+/// last_reason).
+pub fn renderVowel(vowel: u32, hz0: f64, hz1_in: f64, hold: f64, vel: f64, breath: f64, vibrato_cents: f64, rate: u32, out: []f32) usize {
+    last_reason = R_OK;
+    const hz1 = if (hz1_in > 0) hz1_in else hz0;
+    if (vowel >= VOWEL_COUNT) {
+        last_reason = R_VARIANT;
+        return 0;
+    }
+    if (!(hz0 >= VOICE_LO and hz0 <= VOICE_HI and hz1 >= VOICE_LO and hz1 <= VOICE_HI)) {
+        last_reason = R_RANGE;
+        return 0;
+    }
+    if (!(vel > 0 and vel <= 1) or !(breath >= 0 and breath <= 1) or !(vibrato_cents >= 0 and vibrato_cents <= 100) or rate < 8000) {
+        last_reason = R_ARGS;
+        return 0;
+    }
+    const need = vowelFrames(rate, hold);
+    if (need == 0 or out.len < need) {
+        last_reason = R_BUFFER;
+        return 0;
+    }
+    const ratef: f64 = @floatFromInt(rate);
+    const tab = if (@sqrt(hz0 * hz1) < VOICE_SPLIT) TENOR[vowel] else SOPRANO[vowel];
+
+    // five resonators, each normalised to unit gain at its centre, then
+    // weighted by the table's level
+    var a1: [5]f64 = undefined;
+    var a2: [5]f64 = undefined;
+    var b0: [5]f64 = undefined;
+    var y1: [5]f64 = @splat(0);
+    var y2: [5]f64 = @splat(0);
+    for (0..5) |k| {
+        const r = @exp(-PI * tab.bw[k] / ratef);
+        const th = 2.0 * PI * tab.f[k] / ratef;
+        a1[k] = -2.0 * r * @cos(th);
+        a2[k] = r * r;
+        b0[k] = (1.0 - r) * @sqrt(1.0 - 2.0 * r * @cos(2.0 * th) + r * r) * std.math.pow(f64, 10.0, tab.db[k] / 20.0);
+    }
+
+    const OPEN: f64 = 0.40; // the folds opening, as a fraction of the period
+    const CLOSE: f64 = 0.16; // closing -- faster, which is what gives the pulse its edge
+    const VIB_HZ: f64 = 5.5;
+    // the vibrato's depth is the caller's (a singer's is some +-25 cents), reached
+    // by 0.35 s: a singer's vibrato arrives, it does not start
+    const VIB_CENTS: f64 = vibrato_cents;
+    const ATTACK: f64 = 0.06;
+    var rng = Lcg{};
+    var ph: f64 = 0;
+    var g_prev: f64 = 0;
+    const hold_f: f64 = hold * ratef;
+    for (out[0..need], 0..) |*o, n| {
+        const t = @as(f64, @floatFromInt(n)) / ratef;
+        const depth = VIB_CENTS * @min(1.0, t / 0.35);
+        const f = hzAt(hz0, hz1, t, hold) * std.math.pow(f64, 2.0, depth * @sin(2.0 * PI * VIB_HZ * t) / 1200.0);
+        ph += f / ratef;
+        if (ph >= 1.0) ph -= 1.0;
+        const g: f64 = if (ph < OPEN)
+            0.5 * (1.0 - @cos(PI * ph / OPEN))
+        else if (ph < OPEN + CLOSE)
+            @cos(PI * (ph - OPEN) / (2.0 * CLOSE))
+        else
+            0;
+        var x = g - g_prev; // the lips radiate the DERIVATIVE of the flow
+        g_prev = g;
+        x += breath * 0.02 * g * @as(f64, rng.next()); // aspiration, only while open
+        var s: f64 = 0;
+        for (0..5) |k| {
+            const y = b0[k] * x - a1[k] * y1[k] - a2[k] * y2[k];
+            y2[k] = y1[k];
+            y1[k] = y;
+            s += y;
+        }
+        // attack, hold, then a release over the tail
+        const nf: f64 = @floatFromInt(n);
+        var env: f64 = 1.0;
+        if (t < ATTACK) env = 0.5 * (1.0 - @cos(PI * t / ATTACK));
+        if (nf > hold_f) env = @max(0.0, 1.0 - (nf - hold_f) / (VOICE_TAIL * ratef));
+        o.* = @floatCast(s * env);
+    }
+    if (!finish(out[0..need], vel, rate)) {
+        last_reason = R_SILENT;
+        return 0;
+    }
+    return need;
+}
+
+// ── MU7: a pitch reader that does not need to be told the answer ────────────
+//
+// Every pitch reader above is handed a GUESS and searches near it -- right for
+// a tuner, which knows what it asked for; useless for transcription, which
+// does not. This one searches the whole range asked (fmin .. fmax) with
+// McLeod's normalised square difference, takes the FIRST peak within 0.9 of
+// the highest (the rule that keeps it off the octave below), and refines it
+// with a parabola. It also reports how periodic the window was -- `clarity`,
+// the peak's height, 0..1 -- which is what a transcription calls confidence.
+
+pub var last_clarity: f64 = 0;
+
+pub fn detectPitch(x: []const f32, rate: u32, from: usize, win: usize, fmin: f64, fmax: f64) f64 {
+    last_clarity = 0;
+    if (!(fmin > 0 and fmax > fmin)) return 0;
+    const ratef: f64 = @floatFromInt(rate);
+    const lo: usize = @intFromFloat(@max(2.0, @floor(ratef / fmax)));
+    const hi: usize = @intFromFloat(@ceil(ratef / fmin));
+    if (hi - lo + 1 > MAX_LAGS or from + win + hi + 2 > x.len) return 0;
+    var nsdf: [MAX_LAGS]f64 = undefined;
+    var l: usize = lo;
+    while (l <= hi) : (l += 1) nsdf[l - lo] = nsdfAt(x, from, l, win);
+    const n = hi - lo + 1;
+    var top: f64 = 0;
+    for (nsdf[0..n]) |v| top = @max(top, v);
+    if (top < 0.3) return 0;
+    var k: usize = 1;
+    while (k + 1 < n) : (k += 1) {
+        if (nsdf[k] >= nsdf[k - 1] and nsdf[k] >= nsdf[k + 1] and nsdf[k] >= 0.9 * top) break;
+    }
+    if (k + 1 >= n) return 0;
+    const a = nsdf[k - 1];
+    const b = nsdf[k];
+    const c = nsdf[k + 1];
+    const den = a - 2.0 * b + c;
+    const d = if (den != 0) 0.5 * (a - c) / den else 0;
+    last_clarity = b;
+    return ratef / (@as(f64, @floatFromInt(lo + k)) + d);
+}
+
+// ── MU5 (a'): A SPEAKING VOICE, RETUNED -- PSOLA ────────────────────────────
+//
+// The author heard SAPI and said it is "very close from real human voice".
+// It failed MU5's (a) only because it cannot HOLD a note: asked for +6
+// semitones it moves 2.5, and within one syllable its pitch slides 300-500
+// cents -- speech intonation. So (a') keeps the voice and takes the pitch
+// away from it: Pitch-Synchronous Overlap-Add.
+//
+//   1. find where the syllable is VOICED, and its period there;
+//   2. mark each glottal period (a pitch mark on each cycle's largest peak),
+//      tracking the period as it moves;
+//   3. build the output by laying one two-period, Hann-windowed GRAIN per
+//      output period, spaced by the TARGET period -- each grain taken from the
+//      analysis mark nearest the same relative moment.
+//
+// The grain carries the vocal tract's resonances (the formants, which make it
+// sound like THAT voice saying THAT vowel); the spacing carries the pitch. So
+// the timbre stays human and the pitch becomes the engine's, held exactly --
+// and a note can be longer than the syllable, because grains may repeat.
+//
+// The unvoiced start of a syllable (an "s", a "t") is copied through as it
+// is: it has no pitch to correct. Large shifts sound processed; how large is
+// the author's ear, and the guard measures how far it was asked to go.
+
+pub const RETUNE_MIN_MARKS: usize = 4;
+
+/// The normalised square difference of `x` at `at` for lag `lag` over `win`.
+fn nsdfAt(x: []const f32, at: usize, lag: usize, win: usize) f64 {
+    if (at + win + lag >= x.len) return 0;
+    var acf: f64 = 0;
+    var m: f64 = 0;
+    var i: usize = at;
+    while (i < at + win) : (i += 1) {
+        const a: f64 = x[i];
+        const b: f64 = x[i + lag];
+        acf += a * b;
+        m += a * a + b * b;
+    }
+    return if (m > 0) 2.0 * acf / m else 0;
+}
+
+/// The local period near `at`, searched between 0.7 and 1.4 of `guess`, over
+/// a window of two guesses -- short enough to follow speech. 0 = unvoiced here.
+fn localPeriod(x: []const f32, at: usize, guess: f64) f64 {
+    const lo: usize = @intFromFloat(@max(2.0, @floor(guess * 0.7)));
+    const hi: usize = @intFromFloat(@ceil(guess * 1.4));
+    const win: usize = @intFromFloat(@ceil(guess * 2.0));
+    if (at + win + hi + 2 >= x.len) return 0;
+    var best: f64 = -1;
+    var bl: usize = 0;
+    var l: usize = lo;
+    while (l <= hi) : (l += 1) {
+        const v = nsdfAt(x, at, l, win);
+        if (v > best) {
+            best = v;
+            bl = l;
+        }
+    }
+    if (best < 0.6 or bl == lo or bl == hi) return 0;
+    const a = nsdfAt(x, at, bl - 1, win);
+    const c = nsdfAt(x, at, bl + 1, win);
+    const den = a - 2.0 * best + c;
+    const d = if (den != 0) 0.5 * (a - c) / den else 0;
+    return @as(f64, @floatFromInt(bl)) + d;
+}
+
+pub var last_retune_marks: usize = 0; // how many periods the last retune found
+pub var last_retune_from_hz: f64 = 0; // the syllable's own pitch, at its voiced middle
+
+/// Retune a spoken syllable `x` (mono, at `rate`) onto `target_hz`, held for
+/// `hold` seconds, with a vibrato of +-`vib_cents`. `marks` is scratch for the
+/// pitch marks (x.len / 16 is ample). Returns the frames written to `out`
+/// (hold + 0.05 s), or 0 with the reason in last_reason.
+pub fn retune(x: []const f32, rate: u32, target_hz: f64, hold: f64, vib_cents: f64, marks: []usize, out: []f32) usize {
+    last_reason = R_OK;
+    last_retune_marks = 0;
+    last_retune_from_hz = 0;
+    const ratef: f64 = @floatFromInt(rate);
+    if (!(target_hz >= 60 and target_hz <= 1000) or !(hold > 0.05 and hold <= 30) or !(vib_cents >= 0 and vib_cents <= 100)) {
+        last_reason = R_ARGS;
+        return 0;
+    }
+    const total: usize = @intFromFloat((hold + 0.05) * ratef);
+    if (out.len < total or x.len < 4096) {
+        last_reason = R_BUFFER;
+        return 0;
+    }
+    // 1. the sound's extent, and its pitch where it is loudest
+    var peak: f32 = 0;
+    var pk_at: usize = 0;
+    for (x, 0..) |v, i| {
+        if (@abs(v) > peak) {
+            peak = @abs(v);
+            pk_at = i;
+        }
+    }
+    if (peak < 1e-4) {
+        last_reason = R_SILENT;
+        return 0;
+    }
+    var onset: usize = 0;
+    while (onset < x.len and @abs(x[onset]) < 0.02 * peak) onset += 1;
+    const mid = if (pk_at > MEASURE_WINDOW / 2) pk_at - MEASURE_WINDOW / 2 else 0;
+    const f_mid = measureHzWide(x, rate, mid, 170);
+    if (!(f_mid > 0)) {
+        last_reason = R_SILENT; // no voiced part found: nothing to retune
+        return 0;
+    }
+    last_retune_from_hz = f_mid;
+    var guess = ratef / f_mid;
+    // where voicing starts: walk forward from the onset until periodic
+    var vstart: usize = onset;
+    while (vstart + 3 * @as(usize, @intFromFloat(guess)) < x.len and localPeriod(x, vstart, guess) == 0) {
+        vstart += @intFromFloat(guess / 2.0);
+    }
+    // 2. pitch marks: each cycle's largest positive peak, tracked
+    const p0: usize = @intFromFloat(guess);
+    var m: usize = vstart;
+    {
+        var i = vstart;
+        while (i < vstart + p0 and i < x.len) : (i += 1) {
+            if (x[i] > x[m]) m = i;
+        }
+    }
+    var nm: usize = 0;
+    while (nm < marks.len) {
+        marks[nm] = m;
+        nm += 1;
+        const p = localPeriod(x, m, guess);
+        if (p == 0) break; // the voice has stopped
+        guess = p;
+        const lo: usize = m + @as(usize, @intFromFloat(p * 0.85));
+        const hi: usize = m + @as(usize, @intFromFloat(p * 1.15));
+        if (hi >= x.len) break;
+        var nx = lo;
+        var i = lo;
+        while (i <= hi) : (i += 1) {
+            if (x[i] > x[nx]) nx = i;
+        }
+        m = nx;
+    }
+    last_retune_marks = nm;
+    if (nm < RETUNE_MIN_MARKS) {
+        last_reason = R_SILENT;
+        return 0;
+    }
+    const vend = marks[nm - 1];
+    // 3. the output: the unvoiced start as it was, then grains at the target period
+    @memset(out[0..total], 0);
+    const prefix: usize = @min(vstart - onset, total / 4);
+    for (0..prefix) |i| out[i] = x[onset + i];
+    const vlen_in: f64 = @floatFromInt(vend - marks[0]);
+    const vlen_out: f64 = @as(f64, @floatFromInt(total)) - @as(f64, @floatFromInt(prefix)) - 0.05 * ratef;
+    var s: f64 = @floatFromInt(prefix);
+    var k: usize = 0;
+    while (s < @as(f64, @floatFromInt(total)) - 0.05 * ratef) {
+        const u = (s - @as(f64, @floatFromInt(prefix))) / vlen_out;
+        const ta = @as(f64, @floatFromInt(marks[0])) + u * vlen_in;
+        while (k + 1 < nm and @as(f64, @floatFromInt(marks[k + 1])) <= ta) k += 1;
+        if (k + 1 < nm and ta - @as(f64, @floatFromInt(marks[k])) > @as(f64, @floatFromInt(marks[k + 1])) - ta) k += 1;
+        const mk = marks[k];
+        const left: usize = if (k > 0) mk - marks[k - 1] else (if (k + 1 < nm) marks[k + 1] - mk else p0);
+        const right: usize = if (k + 1 < nm) marks[k + 1] - mk else left;
+        const si: usize = @intFromFloat(@round(s));
+        var j: usize = 0;
+        while (j < left + right) : (j += 1) {
+            const src = mk + j;
+            if (src < left or src - left >= x.len) continue;
+            const dst = si + j;
+            if (dst < left or dst - left >= total) continue;
+            // an asymmetric Hann: up over the left period, down over the right
+            const w: f64 = if (j < left)
+                0.5 - 0.5 * @cos(PI * @as(f64, @floatFromInt(j)) / @as(f64, @floatFromInt(left)))
+            else
+                0.5 + 0.5 * @cos(PI * @as(f64, @floatFromInt(j - left)) / @as(f64, @floatFromInt(right)));
+            out[dst - left] += @floatCast(w * x[src - left]);
+        }
+        const t = s / ratef;
+        const depth = vib_cents * @min(1.0, t / 0.35);
+        const f = target_hz * std.math.pow(f64, 2.0, depth * @sin(2.0 * PI * 5.5 * t) / 1200.0);
+        s += ratef / f;
+    }
+    // the last 40 ms fade, so the note ends rather than stops
+    const fade: usize = @intFromFloat(0.04 * ratef);
+    const endv: usize = @intFromFloat(@as(f64, @floatFromInt(total)) - 0.05 * ratef);
+    var q: usize = 0;
+    while (q < fade and endv > q) : (q += 1) {
+        out[endv - q - 1] *= @floatCast(@as(f64, @floatFromInt(q)) / @as(f64, @floatFromInt(fade)));
+    }
+    for (out[endv..total]) |*o| o.* = 0;
+    if (!finish(out[0..total], 0.8, rate)) {
+        last_reason = R_SILENT;
+        return 0;
+    }
+    return total;
+}
+
+// ── tests ───────────────────────────────────────────────────────────────────
+
+const testing = std.testing;
+
+test "the pitch instrument reads a pure sine to a hundredth of a cent" {
+    var buf: [16384]f32 = undefined;
+    const hz = 293.6648;
+    for (&buf, 0..) |*b, i| b.* = @floatCast(0.5 * @sin(2.0 * PI * hz * @as(f64, @floatFromInt(i)) / 48000.0));
+    const m = measureHz(&buf, 48000, 1000, hz);
+    try testing.expect(@abs(1200.0 * std.math.log2(m / hz)) < 0.01);
+}
+
+test "and a DECAYING sine, which is what a plucked string is" {
+    var buf: [16384]f32 = undefined;
+    const hz = 220.0;
+    for (&buf, 0..) |*b, i| {
+        const t = @as(f64, @floatFromInt(i)) / 48000.0;
+        b.* = @floatCast(0.8 * @exp(-t * 3.0) * @sin(2.0 * PI * hz * t));
+    }
+    const m = measureHz(&buf, 48000, 1000, hz);
+    try testing.expect(@abs(1200.0 * std.math.log2(m / hz)) < 0.05);
+}
+
+test "the pitch instrument REFUSES rather than report an edge" {
+    var buf: [16384]f32 = @splat(0);
+    try testing.expectEqual(@as(f64, 0), measureHz(&buf, 48000, 1000, 220)); // silence
+    for (&buf, 0..) |*b, i| b.* = @floatCast(@sin(2.0 * PI * 440.0 * @as(f64, @floatFromInt(i)) / 48000.0));
+    try testing.expectEqual(@as(f64, 0), measureHz(&buf, 48000, 1000, 220)); // an octave away
+}
+
+test "DIAGNOSTIC: every instrument renders, and its pitch is where it was asked" {
+    const al = testing.allocator;
+    const out = try al.alloc(f32, 48000 * 4);
+    defer al.free(out);
+    const scr = try al.alloc(f32, scratchFrames(48000));
+    defer al.free(scr);
+    std.debug.print("\n  {s:<14} {s:>8} {s:>9} {s:>9} {s:>7}\n", .{ "instrument", "hz", "raw c", "tuned c", "peak" });
+    for (SPECS, 0..) |s, i| {
+        const hz: f64 = switch (s.engine) {
+            ENGINE_MEMBRANE => if (s.kind == 2) 55 else 150,
+            else => @max(s.lo * 1.5, @min(330.0, s.hi * 0.5)),
+        };
+        const n = renderNote(@intCast(i), hz, hz, 1.2, 0.8, 0, 48000, out, scr);
+        var peak: f32 = 0;
+        for (out[0..n]) |x| peak = @max(peak, @abs(x));
+        var m: f64 = 0;
+        if (n > 0 and s.pitch != PITCH_NONE) {
+            if (s.pitch == PITCH_INHARMONIC) {
+                m = peakHz(out[0..n], 48000, 480, 16384, hz, 0.06);
+            } else {
+                m = readPitch(out[0..n], 48000, 12000, hz, wanders(s), false);
+            }
+        }
+        const tc = if (m > 0) 1200.0 * std.math.log2(m / hz) else 999;
+        std.debug.print("  {s:<14} {d:>8.2} {d:>9.2} {d:>9.3} {d:>7.3}  {s}\n", .{ s.name, hz, last_raw_cents, tc, peak, if (n == 0) reasonText(last_reason) else "" });
+    }
+}
+
+test "every pitched instrument, low, middle and high, is within 2 cents" {
+    const al = testing.allocator;
+    const out = try al.alloc(f32, 48000 * 4);
+    defer al.free(out);
+    const scr = try al.alloc(f32, scratchFrames(48000));
+    defer al.free(scr);
+    std.debug.print("\n  {s:<13} {s:>24}   {s:>26}\n", .{ "instrument", "hz lo / mid / hi", "cents lo / mid / hi" });
+    var bad: usize = 0;
+    for (SPECS, 0..) |s, i| {
+        if (s.pitch == PITCH_NONE) continue;
+        const lo = s.lo * 1.2;
+        const hi = s.hi * 0.8;
+        const hzs = [3]f64{ lo, @sqrt(lo * hi), hi };
+        var cs: [3]f64 = undefined;
+        for (hzs, 0..) |hz, j| {
+            const n = renderNote(@intCast(i), hz, hz, 1.2, 0.8, 0, 48000, out, scr);
+            var m: f64 = 0;
+            if (n > 0) {
+                if (s.pitch == PITCH_INHARMONIC) {
+                    m = peakHz(out[0..n], 48000, 480, 16384, hz, 0.06);
+                } else {
+                    m = readPitch(out[0..n], 48000, 12000, hz, wanders(s), false);
+                }
+            }
+            cs[j] = if (m > 0) 1200.0 * std.math.log2(m / hz) else 999;
+            if (n == 0) cs[j] = -999;
+        }
+        std.debug.print("  {s:<13} {d:>7.1} {d:>7.1} {d:>7.1}   {d:>8.3} {d:>8.3} {d:>8.3}\n", .{ s.name, hzs[0], hzs[1], hzs[2], cs[0], cs[1], cs[2] });
+        for (cs) |c| {
+            if (!(@abs(c) <= 2.0)) bad += 1;
+        }
+    }
+    try testing.expectEqual(@as(usize, 0), bad);
+}
+
+test "MU5: a sung vowel is on its pitch -- held, and centred under its vibrato" {
+    const rate: u32 = 48000;
+    var buf: [120000]f32 = undefined;
+    const vowels = [_]u32{ 0, 1, 2, 3, 4 };
+    const pitches = [_]f64{ 147, 220, 440, 660 };
+    // WITH NO VIBRATO the pitch instrument has one pitch to read: this is the
+    // claim "exact by construction", held to the plan's 2 cents
+    var worst: f64 = 0;
+    for (vowels) |v| {
+        for (pitches) |hz| {
+            @memset(&buf, 0);
+            const n = renderVowel(v, hz, hz, 2.0, 0.8, 0.2, 0, rate, &buf);
+            try testing.expect(n > 0);
+            const r = measureHz(buf[0..n], rate, 24000, hz);
+            try testing.expect(r > 0);
+            worst = @max(worst, @abs(1200.0 * @log2(r / hz)));
+        }
+    }
+    std.debug.print("\n  MU5 formant voice, no vibrato: worst over 5 vowels x 4 pitches {d:.3} cents\n", .{worst});
+    try testing.expect(worst < 2.0);
+
+    // WITH a singer's vibrato the centre is still the note -- read 32 times,
+    // EVENLY across four whole vibrato cycles. The first version read 16 times
+    // 50 ms apart, which samples a 5.5 Hz vibrato unevenly and reported up to
+    // 8 cents of bias the voice does not have.
+    var worst_v: f64 = 0;
+    for ([_]u32{ 0, 4 }) |v| {
+        for ([_]f64{ 220, 440 }) |hz| {
+            @memset(&buf, 0);
+            const n = renderVowel(v, hz, hz, 2.0, 0.8, 0.2, 25, rate, &buf);
+            const per: f64 = 48000.0 / 5.5; // one vibrato cycle, in frames
+            var acc: f64 = 0;
+            var k: usize = 0;
+            while (k < 32) : (k += 1) {
+                const at: usize = @intFromFloat(24000.0 + per * 4.0 * @as(f64, @floatFromInt(k)) / 32.0);
+                const r = measureHz(buf[0..n], rate, at, hz);
+                try testing.expect(r > 0);
+                acc += 1200.0 * @log2(r / hz);
+            }
+            worst_v = @max(worst_v, @abs(acc / 32.0));
+        }
+    }
+    std.debug.print("  MU5 formant voice, 25-cent vibrato: worst centre {d:.3} cents\n", .{worst_v});
+    try testing.expect(worst_v < 2.0);
+
+    try testing.expectEqual(@as(usize, 0), renderVowel(5, 220, 220, 1.0, 0.8, 0.2, 25, rate, &buf));
+    try testing.expectEqual(R_VARIANT, last_reason);
+    try testing.expectEqual(@as(usize, 0), renderVowel(0, 50, 50, 1.0, 0.8, 0.2, 25, rate, &buf));
+    try testing.expectEqual(R_RANGE, last_reason);
+}
+
+test "MU5 (a'): a syllable whose pitch FALLS is retuned to hold one note -- and silence is refused" {
+    const rate: u32 = 22050;
+    const ratef: f64 = 22050;
+    var x: [26460]f32 = @splat(0); // 1.2 s: 0.1 s of silence, then a 'vowel'
+    // an impulse per glottal period, the pitch falling 180 -> 140 Hz as speech
+    // does, through two resonances (a formant-like 'a')
+    var ph: f64 = 0;
+    var y1a: f64 = 0;
+    var y2a: f64 = 0;
+    var y1b: f64 = 0;
+    var y2b: f64 = 0;
+    const ra = @exp(-PI * 100.0 / ratef);
+    const rb = @exp(-PI * 120.0 / ratef);
+    const ta = 2.0 * PI * 700.0 / ratef;
+    const tb = 2.0 * PI * 1200.0 / ratef;
+    var n: usize = 2205;
+    while (n < x.len) : (n += 1) {
+        const t = @as(f64, @floatFromInt(n - 2205)) / ratef;
+        const f = 180.0 * std.math.pow(f64, 140.0 / 180.0, t / 1.1);
+        ph += f / ratef;
+        var e: f64 = 0;
+        if (ph >= 1.0) {
+            ph -= 1.0;
+            e = 1.0;
+        }
+        const ya = e - (-2.0 * ra * @cos(ta)) * y1a - ra * ra * y2a;
+        y2a = y1a;
+        y1a = ya;
+        const yb = e - (-2.0 * rb * @cos(tb)) * y1b - rb * rb * y2b;
+        y2b = y1b;
+        y1b = yb;
+        x[n] = @floatCast(0.02 * ya + 0.01 * yb);
+    }
+    var marks: [4096]usize = undefined;
+    var out: [30000]f32 = undefined;
+    const got = retune(&x, rate, 220, 1.2, 0, &marks, &out);
+    try testing.expect(got > 0);
+    std.debug.print("\n  MU5 (a'): {d} marks, source pitch {d:.1} Hz", .{ last_retune_marks, last_retune_from_hz });
+    var worst: f64 = 0;
+    for ([_]f64{ 0.25, 0.55, 0.85 }) |at| {
+        const r = measureHz(out[0..got], rate, @intFromFloat(at * ratef), 220);
+        try testing.expect(r > 0);
+        worst = @max(worst, @abs(1200.0 * @log2(r / 220.0)));
+    }
+    std.debug.print(", retuned to 220 Hz: worst {d:.3} cents at 0.25 / 0.55 / 0.85 s\n", .{worst});
+    try testing.expect(worst < 2.0);
+    // the NEGATIVE: silence has nothing to retune
+    const zero: [8000]f32 = @splat(0);
+    try testing.expectEqual(@as(usize, 0), retune(&zero, rate, 220, 1.0, 0, &marks, &out));
+}
+
+test "MU7: the unguided pitch reader finds the note with no guess -- and noise has no pitch" {
+    const rate: u32 = 48000;
+    var buf: [60000]f32 = undefined;
+    var scr: [57600]f32 = undefined;
+    var worst: f64 = 0;
+    var clar: f64 = 1;
+    for ([_]f64{ 110, 196, 330, 523.25, 880 }) |hz| {
+        @memset(&buf, 0);
+        const n = renderNote(1, hz, hz, 1.0, 0.8, 0, rate, &buf, &scr); // guitar
+        try testing.expect(n > 0);
+        const r = detectPitch(buf[0..n], rate, 4800, 2048, 50, 2000);
+        try testing.expect(r > 0);
+        worst = @max(worst, @abs(1200.0 * @log2(r / hz)));
+        clar = @min(clar, last_clarity);
+    }
+    std.debug.print("\n  MU7 unguided pitch: guitar 110..880 Hz, worst {d:.3} cents, lowest clarity {d:.3}\n", .{ worst, clar });
+    try testing.expect(worst < 2.0);
+    try testing.expect(clar > 0.8);
+    // the NEGATIVE: white noise is not a note
+    var rng = Lcg{};
+    for (&buf) |*v| v.* = rng.next() * 0.5;
+    const rn = detectPitch(&buf, rate, 4800, 2048, 50, 2000);
+    std.debug.print("  MU7 unguided pitch on noise: {d:.1} Hz, clarity {d:.3}\n", .{ rn, last_clarity });
+    try testing.expect(rn == 0 or last_clarity < 0.5);
+}
+
+test "MU13: the kit's cymbals ring as metal -- the crash long, the ride with a bell -- and a hand drum has none" {
+    const al = testing.allocator;
+    const out = try al.alloc(f32, 48000 * 4);
+    defer al.free(out);
+    const scr = try al.alloc(f32, scratchFrames(48000));
+    defer al.free(scr);
+    var kit: u32 = 0;
+    var drb: u32 = 0;
+    for (SPECS, 0..) |sp, i| {
+        if (std.mem.eql(u8, sp.name, "drumkit")) kit = @intCast(i);
+        if (std.mem.eql(u8, sp.name, "darbouka")) drb = @intCast(i);
+    }
+    // energy late (0.6 to 1.0 s) over energy early (0 to 0.1 s), per stroke
+    var late = [_]f64{0} ** 5;
+    for (0..5) |v| {
+        const n = renderNote(kit, 126, 126, 1.5, 0.8, @intCast(v), 48000, out, scr);
+        try testing.expect(n > 48000);
+        var e0: f64 = 0;
+        var e1: f64 = 0;
+        for (out[0..4800]) |x| e0 += x * x;
+        for (out[28800..48000]) |x| e1 += x * x;
+        late[v] = e1 / (e0 + 1e-12);
+    }
+    std.debug.print("\n  MU13 late/early energy: kick {d:.4} snare {d:.4} hihat {d:.6} crash {d:.4} ride {d:.4}\n", .{ late[0], late[1], late[2], late[3], late[4] });
+    // the hihat is gone by 0.6 s; the crash is still ringing
+    try testing.expect(late[2] < 0.001);
+    try testing.expect(late[3] > 0.05);
+    try testing.expect(late[4] > late[2] * 10);
+    // a darbouka has dum, tak and ka -- no cymbal
+    try testing.expectEqual(@as(usize, 0), renderNote(drb, 150, 150, 1.0, 0.8, 3, 48000, out, scr));
+    try testing.expectEqual(R_VARIANT, last_reason);
+}
+
+test "MU14: three toms, high over mid over floor, and an open hi-hat that washes where the closed one is gone" {
+    const al = testing.allocator;
+    const out = try al.alloc(f32, 48000 * 4);
+    defer al.free(out);
+    const scr = try al.alloc(f32, scratchFrames(48000));
+    defer al.free(scr);
+    var kit: u32 = 0;
+    for (SPECS, 0..) |sp, i| {
+        if (std.mem.eql(u8, sp.name, "drumkit")) kit = @intCast(i);
+    }
+    // a tom's pitch: zero crossings over 0.05 to 0.25 s, as cycles a second
+    var hzs = [_]f64{0} ** 3;
+    for (0..3) |k| {
+        const n = renderNote(kit, 126, 126, 1.0, 0.8, @intCast(5 + k), 48000, out, scr);
+        try testing.expect(n >= 48000);
+        var zc: f64 = 0;
+        for (2400..12000) |f| {
+            if ((out[f - 1] < 0) != (out[f] < 0)) zc += 1;
+        }
+        hzs[k] = zc / 2.0 / 0.2;
+    }
+    // the open hi-hat against the closed: energy 0.2 to 0.4 s over the first 0.05 s
+    var late = [_]f64{0} ** 2;
+    for ([_]u32{ 2, 8 }, 0..) |v, j| {
+        _ = renderNote(kit, 126, 126, 1.0, 0.8, v, 48000, out, scr);
+        var e0: f64 = 0;
+        var e1: f64 = 0;
+        for (out[0..2400]) |x| e0 += x * x;
+        for (out[9600..19200]) |x| e1 += x * x;
+        late[j] = e1 / (e0 + 1e-12);
+    }
+    std.debug.print("\n  MU14 toms: high {d:.1} Hz, mid {d:.1} Hz, floor {d:.1} Hz; late/early: closed hi-hat {d:.6}, open {d:.4}\n", .{ hzs[0], hzs[1], hzs[2], late[0], late[1] });
+    try testing.expect(hzs[0] > hzs[1] and hzs[1] > hzs[2]);
+    try testing.expect(late[1] > 0.05 and late[0] < 0.001);
+    // the kit has nine strokes and no tenth
+    try testing.expectEqual(@as(usize, 0), renderNote(kit, 126, 126, 1.0, 0.8, 9, 48000, out, scr));
+    try testing.expectEqual(R_VARIANT, last_reason);
+}

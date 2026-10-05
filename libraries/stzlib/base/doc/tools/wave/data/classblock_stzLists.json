@@ -1,0 +1,7 @@
+{
+ "brief": "Is another name for stzListOfLists, so every method and every form is the same.",
+ "detail": "Use whichever name reads better at the call site; the class adds nothing of its own.",
+ "receiver": "o1 = new stzLists([ [ 1, 2, 3 ], [ 4, 5 ], [ 6 ] ])",
+ "example": ["? @@( o1.Cols() )", "#--> [ [ 1, 4, 6 ], [ 2, 5 ], [ 3 ] ]"],
+ "see": ["stzListOfLists"]
+}

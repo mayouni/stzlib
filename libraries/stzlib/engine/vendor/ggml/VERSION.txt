@@ -1,0 +1,13 @@
+ggml unknown (built as 0.0.0-stz)
+
+Upstream commit not recorded when vendored; GGML_VERSION/GGML_COMMIT are
+defined as 0.0.0-stz at build time. Pruned to CPU-only and PATCHED -- the
+patch set is in NOTICE beside this file.
+
+--- SBOM record (read by engine/tools/sbom.py; keep the keys) ---
+Component:        ggml
+Version:          unknown (built as 0.0.0-stz)
+Source:           https://github.com/ggml-org/ggml
+Licence:          MIT
+Archive-SHA-256:  not recorded -- the upstream archive was not fetched when this record was written (2026-09-29)
+Tree-Digest:      a288e4362e0176d1155720ab3df7efb4db2ce714d7c8d13a2fa9cb8139431fc1

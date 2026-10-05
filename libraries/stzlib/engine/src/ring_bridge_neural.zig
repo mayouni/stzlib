@@ -3,6 +3,7 @@ const neural = @import("neural.zig");
 const embed = @import("neural_embed.zig");
 const gen = @import("neural_gen.zig");
 const gex = @import("gguf_export.zig");
+const model_digest = @import("model_digest.zig");
 const ngpu = @import("neural_gpu.zig");
 const nbb = @import("neural_backbone.zig");
 const gops = @import("gpu_ops.zig"); // this DLL's own variant table (per-DLL device law)
@@ -101,6 +102,22 @@ fn ring_NeuralVersion(p: *anyopaque) callconv(.c) void {
 // --- Model loading + inspection (GGUF) ---
 fn ring_NeuralModelLoad(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(embed.neural_model_load(gs(p, 1))));
+}
+
+/// StzEngineNeuralModelLoadStatus() -> why the last load was refused:
+/// 0 ok, -1 unreadable, -2 digest mismatch, -3 no recorded digest.
+fn ring_NeuralModelLoadStatus(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(embed.neural_model_load_status()));
+}
+
+/// StzEngineModelDigest(cPath) -> the file's SHA-256 (64 hex), "" if unreadable.
+fn ring_ModelDigest(p: *anyopaque) callconv(.c) void {
+    R.ring_vm_api_retstring(p, model_digest.stz_model_digest(gs(p, 1)));
+}
+
+/// StzEngineModelExpect(cPath, cHex) -> 1, or 0 when cHex is not 64 hex chars.
+fn ring_ModelExpect(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(model_digest.stz_model_expect(gs(p, 1), gs(p, 2), @intCast(R.ring_vm_api_getstringsize(p, 2)))));
 }
 
 fn ring_NeuralModelFree(p: *anyopaque) callconv(.c) void {
@@ -549,6 +566,9 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralcomputesmoke", .func = &ring_NeuralComputeSmoke },
     .{ .name = "stzengineneuralversion", .func = &ring_NeuralVersion },
     .{ .name = "stzengineneuralmodelload", .func = &ring_NeuralModelLoad },
+    .{ .name = "stzengineneuralmodelloadstatus", .func = &ring_NeuralModelLoadStatus },
+    .{ .name = "stzenginemodeldigest", .func = &ring_ModelDigest },
+    .{ .name = "stzenginemodelexpect", .func = &ring_ModelExpect },
     .{ .name = "stzengineneuralmodelfree", .func = &ring_NeuralModelFree },
     .{ .name = "stzengineneuralmodelloaded", .func = &ring_NeuralModelLoaded },
     .{ .name = "stzengineneuralmodelarch", .func = &ring_NeuralModelArch },

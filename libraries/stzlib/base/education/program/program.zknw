@@ -5,6 +5,7 @@ facts
     softanza-education | has-course | elementary-introduction
     softanza-education | has-course | zindara-missions
     softanza-education | has-course | governed-agents
+    softanza-education | has-course | math
     softanza-education | speaks | en
     softanza-education | speaks | fr
     softanza-education | speaks | ar

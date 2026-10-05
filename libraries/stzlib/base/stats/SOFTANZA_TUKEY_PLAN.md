@@ -805,3 +805,505 @@ the tutorial is **regenerated from run guards**, and the regenerated file
 replaces the tutorial in the documentation set.
 
 Nothing in those files is a specification. This document is.
+
+---
+
+## TK0 RESULTS -- convention and spike, 2026-09-26 (plane stzlib-math, M4)
+
+Ownership first: the math plane's charter (decision 7, ruled 2026-09-26) has
+this plane own the Tukey tier end to end -- `eda.zig` as a math-plane engine
+file inside the `stz_stats` DLL domain, its pictures as figures of the math
+plane -- so the RESULTS of TK0-TK6 are written here by stzlib-math and the
+analysis faces live in `base/math/`.
+
+**The spike is `engine/src/eda.zig` with its tests** (`zig test -j2
+-OReleaseFast src/eda.zig`, 8 tests): fourths, letter values, fences under
+a named convention, MAD, biweight midvariance, trimean, the two-way median
+polish, the resistant line, quickselect medians. It is product code kept,
+not thrown away, because every line of it is pinned below.
+
+**Kill criterion 1 (R's medpolish to 1e-9): MET.** R's own documented
+example (`deaths`, `?medpolish`) is reproduced to 1e-9: overall 8, rows
+6 -1 0 2 -8, columns 0 -1 0, the residual table, and Data = Fit + Residual
+cell by cell. R is not installed on this machine; the transcription of R's
+output was reproduced by an INDEPENDENT NumPy implementation of the same
+algorithm (`scratchpad/tk0/medpolish_np.py`, 2 sweeps, converged), and
+the two agree -- two routes to the oracle rather than one memory of it.
+The stopping rule is R's (sum of |residuals| changing by less than eps
+times itself, eps 0.01, at most 10 sweeps) and the even-count median is R's.
+
+**Kill criterion 2 (conventions within 0.1 fourth-spread): NOT MET, so
+both paths ship.** On a seeded sweep of sizes 4..200 the fourths and the
+percentile quartiles differ by up to 0.2087 fourth-spreads (at n = 4), and
+on the library's own box-plot sample `[2,4,4,5,7,9,12,25]` by 0.1154
+(fourths 4 and 10.5, percentile 4 and 9.75). Both conventions are defined
+once in `eda.zig`'s header in the `stats.zig:204` idiom; every Tukey display
+prints which it used; `stzDataSet` keeps percentile quartiles unchanged.
+
+**Kill criterion 3 (1000x1000 polish under 5 ms): NOT MET, and the
+prediction was wrong.** Single-threaded, release build, 3 sweeps to
+convergence on an additive table with noise:
+
+| size | with sorted medians | with quickselect medians |
+|---|---|---|
+| 10x10 | 0.01 ms | 0.02 ms |
+| 100x100 | 1.12 ms | 0.98 ms |
+| 1000x1000 | 171.65 ms | 46.13 ms |
+| 4000x4000 | 4069 ms | 1199 ms |
+
+The plan predicted "it will close" at under 5 ms; it stands at 46 ms after
+the linear-time selection the estimate assumed, nine times over the bar.
+The bar was set from the multicore tier's `compensatedSum` gate, a kernel
+that touches each element once; a polish touches each element twice per
+sweep and selects a median per line, and the estimate never priced that.
+**Ruling: the acceleration question is CLOSED anyway, by judgement rather
+than by the bar** -- 46 ms for a million cells and 1.2 s for sixteen
+million is exploration speed, the multicore tier admits kernels only on a
+measured 1.5x, and nothing in TK1-TK6 needs a table that large in a frame.
+The number is recorded so the ruling can be argued with.
+
+**Also fixed in passing, as the plan foresaw for TK1**: nothing yet --
+`stz_stats_moving_average`'s uncompensated sum (`stats.zig:602`) is noted
+and left for TK1's smoother work, which waits for an R oracle (below).
+
+**What TK1 will not ship without an oracle**: the smoother family (3, 3R,
+SS, H, 4253H, twicing). R's `smooth()` is the plan's oracle and R is not on
+this machine; NumPy has no smoothers. Under TK1's own kill criterion they
+wait; a request for R outputs on a fixed input goes to the author with the
+TK1 memo. The resistant line's published example (Tukey's three-group line)
+is not at hand either: it is pinned by construction (an exact line
+recovered to 1e-9, one point dragged to 1e6 leaving the slope at 3) and by
+the NumPy route, and that is said here rather than dressed as the book.
+
+---
+
+## TK1 RESULTS -- the resistant core, 2026-09-26 (plane stzlib-math, M4)
+
+**Shipped in the engine** (`engine/src/eda.zig`, in the `stz_stats` DLL
+beside `stats.zig`): `hingeDepth`, `fourths`, `fourthSpread`,
+`percentileQuartiles`, `fences(mult, convention)`, `letterValues`,
+`trimean`, `mad`, `biweightMidvariance(c)`, `medianPolish2D` (R's
+`medpolish` exactly, quickselect medians), `resistantLine` (Tukey's
+three-group line with residual passes), `selectKth` / `medianSelect`.
+Nine bridge calls in `ring_bridge_stats.zig` (`stzenginetukey*`), each
+building a fresh Ring list of whole items -- no fixed buffer, so nothing
+truncates (the graph plane's list-return lesson).
+
+**Shipped as faces** (`base/math/stzTukey.ring`, loaded by `stzBase`):
+`stzTukeySummary` (fourths, percentile quartiles, hinges under the
+convention in force, fourth-spread, fences at any multiplier, `Outside()`
+and `FarOut()`, the letter-value ladder with its letters, trimean, MAD,
+biweight; `Why()` names the convention), `stzTukeyFit` (two-way: `Polish`,
+`Common`, `Effects(:Row|:Col)`, `Residuals`, `Fitted`, `Check` = the
+largest |data - (fit + residual)|, `ResidualScale`, `Sweeps`,
+`IsConverged`; R's eps and cap as defaults, settable), `stzTukeyOneWay`
+(group medians, the common as their median, effects and residuals, the
+same `Check`), `stzTukeyLine` (`Fit(passes)`, `Slope`, `Intercept`,
+`Residuals`). 1-based and named at the face, 0-based and numeric at the
+seam, said in the file.
+
+**The gate** `base/test/math/tukey_narrated.ring`, 52 of 52, in eight
+sections: fourths against quartiles at every n mod 4 by hand and the
+convention printed; the ladder on nine values; the fences under both
+conventions with stzDataSet agreeing on its own; R's `medpolish` example
+to 1e-9 with Data = Fit + Residual over every cell, one cell dragged to
+1e9 moving the resistant effects by 2 (within the data's fourth-spread of
+9) while the mean-based effects move by 266,666,666; the one-way fit; the
+resistant line recovering an exact line and holding its slope at 3 when
+the last point goes to 1e6 while least squares answers 66,668; MAD staying
+at 2 and the biweight within a factor of two under a value at 1e9 while
+the standard deviation answers 333,333,332; and the cost printed (a
+100 x 100 polish through the seam in about 8 ms against 1 ms in the
+engine alone -- the list crossing is the tax).
+
+**Two claims the gate corrected in this author, both worth the plan's
+own words**: the resistance bar is one fourth-spread OF THE DATA, not of
+the residuals (a residual scale of 1 would have failed a fit that moved
+by exactly the wild row's median shift); and a negative sibling that drags
+the point at the centre of x cannot fail, because that point has no
+leverage on any slope -- the wild point must sit at an end.
+
+**Waiting for an oracle (TK1's own kill criterion)**: the smoother family
+(3, 3R, SS, H, 4253H, twicing) and the N-way polish. R is not on this
+machine; the request for R's `smooth()` outputs on a fixed input is routed
+to the author as `MATH-R-ORACLE-01`, and the gate prints the family as
+skipped by name on every run. The uncompensated sum in
+`stz_stats_moving_average` (`stats.zig:602`) waits with them, since the
+smoother work is what touches that neighbourhood.
+
+**Build note for a fresh worktree**: `stz_http` and `stz_reactor` do not
+build without `vendor/nghttp2/lib/includes/nghttp2/nghttp2ver.h`, a
+generated file git ignores; copied from `_wtv`. `stz_stats` built without
+it, which is why TK1 could land.
+
+---
+
+## TK1 RESULTS, second half -- the smoothers against R 4.5.1, 2026-09-26 (plane stzlib-math; MATH-R-ORACLE-01 closed)
+
+**The oracle arrived.** R was at `D:\R\R-4.5.1` all along; the author said
+so when asked why the block was still open. `base/test/math/oracle/r_smooth.R`
+runs `stats::smooth` on R's own `?smooth` example, a ramp with a wild 100, the
+`presidents` series (NAs as 0, n = 120) and forty seeded integer series of 7
+to 30 values with ties and plateaus -- six kinds, both end rules, twicing --
+and its transcript `r_smooth.txt` (651 lines, R's version string on the first)
+is the gate's oracle. Nothing in it was computed by this library.
+
+**Shipped**: the 3-family in `eda.zig` -- `3`, `3R`, `S`, `3RSS`, `3RS3R`,
+`3RSR`, the end rules copy and Tukey, R's `do.ends`, twicing as R's
+`twiceit` -- transcribed from `src/library/stats/src/smooth.c` line for
+line, R's quirks included (`sm_split3` ASSIGNS its change flag; `3RSR`
+subtracts the smooth from the input between rounds); four bridge calls;
+`stzTukeySmoother` in `base/math/stzTukey.ring` (`Smooth(kind)`, the six
+named forms, `Twice`, `Rough`, `SetEndRule`, `SetSplitEnds`, `Hanning`,
+`Smooth4253H`, `Smooth4253HTwice`, `WindowMedians`, `Why`).
+
+**Against R, exactly**: 72 of 72 on the three fixed series and 520 of 520
+on the sweep (`tukey_narrated.ring` section 10, 115 of 115 in all). The
+first run gave 60 of 72 and 491 of 520, every miss a 3RS kind under the copy
+end rule, and the cause was in R's own R code, not its C: `smooth.R` says
+`if (startsWith(kind, "3RS") && !do.ends) iend <- -iend` and `Rsm` reads
+the ends-splitting switch as `iend < 0` -- so for the 3RS kinds R splits the
+ends when `do.ends` is FALSE and leaves them when it is TRUE, while `S`
+takes `do.ends` as written. Reproduced, and named in `eda.zig`, because the
+oracle is what R does, not what its argument is called. Under the Tukey
+end rule the inversion never showed on 296 cases; the copy rule exposed it
+on 41. A transcription checked against one end rule would have shipped it.
+
+**What R does not verify, said by name**: R's `smooth` covers only the
+3-family. Hanning and 4253H are this plane's, with the ends COPIED at every
+stage; their windows are checked against R per window (`median()` on every
+window of 4 and 2, `runmed` interiors of 3 and 5, `filter(c(.25,.5,.25))`
+interior), and their end treatment is this plane's, not Velleman and
+Hoaglin's, whose worked series is not at hand. Two mechanism checks stand
+in: 4253H keeps a straight line exactly, and a spike of 100 on a line of
+slope 2 leaks through the even-span medians by 1.38 (an even median
+averages its two middle values; the plan's "removes the spike" was a
+guess and the measurement replaced it), where 3RS3R answers with the
+neighbour, 25 for 23, and Hanning alone leaves 50. Below four values R
+reads memory it never set (the Tukey end rule at n = 3 uses y[2] before it
+exists), so the face refuses n < 4 rather than imitate it.
+
+**Not built**: the N-way polish (no oracle in R -- `medpolish` is 2-D -- and
+no published table at hand); change-point detection over the rough (the
+plan demotes it to a verdict with a stated threshold, and no threshold has
+been measured). `tukey_narrated.ring` prints "skipped: none" now: every
+gate it owns runs.
+
+## TK2 RESULTS -- re-expression, measured, 2026-09-26 (plane stzlib-math, M4)
+
+**Shipped in the engine** (`eda.zig`): `leastSquares`, `spreadLevel`
+(log fourth-spread on log median through the resistant line, the two-point
+slope for two groups, least squares when the outer groups share an x;
+never a guess on a non-positive value), `comparisonValues` (c_ij = row_i
+col_j / common), `nonAdditivitySlope` (residuals on comparison values,
+least squares, power = 1 - slope), `evaluateLadder` (every rung -1, -0.5,
+0, 0.5, 1, 2 applied, polished with R's rule, scored by the slope and the
+residuals' fourth-spread, all in one call; a rung a value cannot take is
+returned as not ok rather than skipped silently), `recommend` and the
+constant `RECOMMEND_THRESHOLD = 0.5`. Four bridge calls
+(`stzenginetukeyspreadlevel`, `stzenginetukeyladder`,
+`stzenginetukeynonadditivity`, `stzenginetukeythreshold`).
+
+**Shipped as faces**: `stzTukeyReexpression` (`Ladder()` in one crossing,
+`Rung(power)`, `NonAdditivity()`, `Recommend()` as a verdict carrying its
+slope and the threshold it was judged by, `Diagnostics(subject)` in the
+house rule shape for `stzRuleReport`, `Why()`), `StzTukeySpreadLevel(groups)`.
+
+**The threshold, measured before it was used (the kill criterion)**: over
+twenty additive 6 x 5 tables with seeded noise the |slope| at power 1
+never exceeded 0.1944; over twenty multiplicative ones (the exponential of
+an additive table) it never fell below 0.8781. The constant sits at 0.5,
+between them with margin on both sides, and the recommender fired on 0 of
+the 20 additive tables. So it ships as a recommendation, not as a slope
+only. Both distributions are printed by `zig test` on every run.
+
+**The gate** (`tukey_narrated.ring`, section 6b, 63 of 63 in all): the
+multiplicative table's slope at power 1 near 1 and the log recommended
+with its evidence; the additive table given NO recommendation and no
+finding -- the negative that matters more; spread versus level built from
+a known power (spread doubling with the level: slope 1, power 0; constant
+spread: slope 0, power 1; a zero spread: not ok).
+
+**Not shipped**: nothing of TK2's list. The spread-versus-level slope
+runs the resistant line over as few as three groups, which is thin; the
+plan's own words are "measured, never eyeballed" and the number is
+reported with its evidence either way.
+
+---
+
+## TK3 RESULTS, first half -- the box plot's convention, the stem-and-leaf, two tables, 2026-09-26 (plane stzlib-math, M4)
+
+Every Tukey picture is a figure of M1 (the math plane's charter, decision
+7), so TK3's displays are figure KINDS of `StzMathFigureQ`, judged by their
+own rules, with a text rendition where the display is text by nature.
+
+**The box plot names its hinge convention.** `:BoxPlot` gained
+`:convention = :Percentile | :Fourths`. The default stays percentile
+quartiles -- what the figure shipped with in M1 and what `stzDataSet`
+uses, so the M1 gate and the data set keep agreeing -- and `:Fourths`
+takes the hinges, the fourth-spread, the fences and the outliers from
+`eda.zig`. `Why()` says "under Tukey's fourths" or "under percentile
+quartiles"; `Text()` ends with the hinges' convention and the fence rule.
+On the library's eight values the upper hinge reads 10.5 against 9.75 and
+the upper fence 20.25 against 18.375, while the median, the whisker at 12
+and the one outlier are the same under both. `stzDataSet.BoxPlotStats()`
+is NOT delegated to the engine here: that file is the stats plane's, so
+the delegation is routed as `MATH-BOXPLOT-DELEGATE-01` rather than made.
+
+**The stem-and-leaf** (`base/math/stzStemPlotFigure.ring`, kind
+`:StemPlot`, keys `:of`, `:unit`, `:lines`, `:label`): stems as rows,
+leaves sorted on each row, the leaf unit chosen from the range as the
+power of ten giving 5 to 20 stems or given as a power of ten, one or two
+rows a stem (Tukey's * and .), empty stems shown, a legend saying what a
+row means in the data's own units. Nothing is solved. Three rules judge
+the picture -- `leaves_count_the_values`, `leaves_are_sorted`,
+`stems_are_consecutive` -- and the gate's witness, a row whose count is
+tampered, is convicted by two of them by name. Negative values are
+refused by name (Tukey's -0 stem is not printed in this slice) and so is a
+unit that is not a power of ten or a display of more than forty rows.
+`Text()` prints the rows and the legend.
+
+**Two tables**: `stzTukeySummary.LetterValueTable(levels)` (letter, depth,
+lower, mid, upper, spread, with Tukey's depth rule under it) and
+`stzTukeyReexpression.LadderTable()` (power, its name, slope, residual
+scale, the recommended rung starred, the evidence under it).
+
+**Looked at**: catalogue scenes 30-32 (`fig_30..32.png`, light and dark)
+were opened and read before this section was written -- the fourths box
+plot with its numbers, the seventeen-value stem-and-leaf, the two-rows-a-
+stem display with its empty rows.
+
+**Gate**: `math_narrated.ring` sections 16 and 17, 240 of 240 in all.
+
+**Still to come in TK3**: residual-versus-fit and the coded two-way table
+with its legend (the second half).
+
+## TK3 RESULTS, second half -- residual versus fit, the coded table, and a defect the checksum found, 2026-09-26 (plane stzlib-math, M4)
+
+**Residual versus fit** (`base/math/stzResidualPlotFigure.ring`, kind
+`:ResidualPlot`, keys `:of`, `:names`, `:label`): one polish through
+`eda.zig`, then every cell as a point whose x is its FITTED value (common
++ row effect + column effect) and whose y is its residual; the zero line;
+bands at plus and minus one and two residual fourth-spreads; a cell two
+or more spreads out is coloured, three or more is coloured and NAMED on
+the picture ("75-199, 1974"). Nothing is solved -- every point sits where
+its two numbers put it. Two rules judge it. `point_is_its_cell` recomputes
+each point's fit from the effects the picture carries, recomputes its
+pixel place from the frame's scale, and checks the ring index (below).
+`bands_are_the_scale` recomputes the fourth-spread FROM THE POINTS and
+checks each band's multiple against it. The gate's witnesses: a tampered
+fit, a ring drawn as a dot, a tampered scale, a band moved off its
+multiple -- each convicted by name, and each message says the number it
+should have been.
+
+**Coincident cells are rings, never a dot over a dot.** R's deaths table
+has column effects 0, -1, 0, so a row whose 1973 and 1975 residuals agree
+puts two cells on ONE spot -- three times in fifteen cells. The generic
+`dot_above_figure` rule of M1 convicted the first draft for exactly that:
+the later dot hid the earlier one. The k-th cell on a spot is now an
+UNFILLED ring of radius 6.5 + 4k around the first, so every cell stays
+visible at its own numbers, and a shape without a fill is not a region
+for the dot rule. Integer tables coincide often; this is the case, not an
+edge.
+
+**The coded table** (`base/math/stzCodedTableFigure.ring`, kind
+`:CodedTable`, keys `:of`, `:names`, `:glyphs`, `:label`): the plan's 2.5
+bands, fixed -- |r| / scale below 0.5 at the fit, below 1 mild, below 2
+notable, below 3 outside, 3 and above far out -- with the ASCII glyphs
+`.`, `-`/`+`, `<`/`>`, `v`/`^`, `*` by default and the plan's dot,
+circles, triangles and diamond under `:Symbols`. Glyph SETS swap; the
+meaning of a band never does, and the gate pins that the far-out cell
+keeps band 4 under either set. The legend is printed on the picture and in
+`Text()` with the scale, the common value and the hinge convention, or
+the table is a lie -- `legend_is_printed` says so when it is cut short.
+`glyph_is_its_band` recomputes every cell's band and sign; `cells_tile_the_
+table` counts. On the deaths table: 9 at the fit, 3 outside, 3 far out.
+On a multiplicative 6 x 5 table fitted additively (scene 35) the bow shows
+as a band pattern with the two far-out cells in the last row's corner --
+the picture that says "re-express" before the ladder is run.
+
+**A defect the checksum found, not the eye.** The catalogue rendered every
+scene twice, "light and dark", since M1 -- and every `dark_NN.png` was
+byte-identical to its `fig_NN.png`, all 32 of them, because
+`stzMathFigure.Diagram()` hands back a COPY (Ring copies an object a method
+returns) and the catalogue set the theme on the copy. The first-half
+results above say the dark pictures "were opened and read"; they were,
+and they were light, and the reader did not notice because nothing was
+compared. Fixed by `stzMathFigure.SetTheme(theme)` on the figure's own
+picture, pinned in the gate both ways (through `SetTheme` the SVG changes;
+through `Diagram()` it does not), the catalogue re-rendered: 35 dark
+pictures now differ from their light twins and the 32 light ones are
+byte-unchanged.
+
+**Looked at**: `fig_33..35.png` and `dark_33..35.png`, this time with the
+checksums beside the eye.
+
+**Gate**: `math_narrated.ring` sections 18 and 19, 280 of 280 in all; the
+probe that grew them is `base/test/math/probe_tk3.ring`.
+
+**TK3 is complete**: box plot (two conventions), stem-and-leaf, residual
+versus fit, coded table, two printed tables. Not built: the spread-versus-
+level and comparison-value diagnostic PICTURES (their numbers are in
+`stzTukeyReexpression` and print as `LadderTable`); back-to-back stems; the
+notched box. Each is a kind or a key away and none is owed by the plan's
+done-when.
+
+## TK4 RESULTS -- the verdicts, with their thresholds measured first, 2026-09-26 (plane stzlib-math, M4d)
+
+**One meaning of "far out".** Before the verdicts, the residual plot of
+TK3 coloured a cell by |residual| / scale (2 and 3), while the summary used
+Tukey's fences (hinge -+ 1.5 and 3 fourth-spreads). Two instruments, two
+counts: the deaths table had three "far out" cells under one and two under
+the other (residual 3 lies inside the upper far-out fence 1 + 3 = 4). The
+tier now has ONE rule, Tukey's fences on the batch in hand -- the summary,
+the box plot, the residual plot (which draws the four fences) and the
+fit's verdict all use it -- and the coded table keeps the plan's fixed
+bands of 2.5 as a DISPLAY, named as such in its legend. The gates were
+recounted: four cells outside, two far out, two named on the picture.
+
+**The verdicts**, every one in the house shape and every message naming
+the measurement and the threshold it crossed:
+
+| face | rule | severity | fires when |
+|---|---|---|---|
+| `stzTukeySummary` | `far_out` | error | a value lies beyond hinge -+ 3 fourth-spreads; the message says how many spreads past the hinge |
+| `stzTukeySummary` | `skewed` | warning | the mean drift of the F, E and D mid-summaries from the median, over the fourth-spread, exceeds 0.25 in magnitude |
+| `stzTukeySummary` | `heavy_tailed` | warning | the sixteenth-spread over the fourth-spread, against the Gaussian's 2.2745, exceeds 1.2 |
+| `stzTukeyFit` | `far_out` | error | a cell's residual lies beyond the residual batch's far-out fences; on a batch whose fourth-spread is 0, any residual at all |
+| `stzTukeyFit` | `not_converged` | warning | the polish stopped at its cap |
+| `stzTukeyOneWay` | `spread_tracks_level` | warning | the slope of log spread on log level exceeds 0.5 in magnitude; the message names the power to try |
+| `stzTukeyReexpression` | `non_additive` | warning | TK2's recommendation fires |
+
+`StzTukeyReportQ(subject, [ faces ])` builds the one `stzRuleReport` over
+any faces answering `Diagnostics(subject)`; `IsSound()` is false on an
+error and true on warnings alone. A shape verdict is not made under 100
+values: it was not measured there, and `Shape()` says "unjudged" by name.
+
+**The thresholds were measured before any face used them**
+(`base/test/math/probe_tk4.ring`, seeded Park-Miller batches, 20 per class
+and size, the numbers also in `stzTukey.ring` above the thresholds):
+
+| statistic | null classes, max over 60 or 40 batches | positive classes, min | threshold | fires |
+|---|---|---|---|---|
+| skew, single F-level mid-summary (Tukey's first idea) | symmetric up to 0.2562 at n = 50 | skewed down to -0.0855 | none possible | the classes OVERLAP at n = 50 and 200 |
+| skew, mean drift of F, E, D mids | 0.2313 / 0.2058 / 0.1408 at n = 100 / 200 / 400 (normal, uniform, t2) | exponential 0.2366 / 0.2439 / 0.2510; lognormal 0.2894 / 0.3863 / 0.4245 | 0.25 | 0 of 180 symmetric; 40 of 40 lognormal; 40 of 40 exponential at n >= 200, fewer at 100 |
+| tail, E-spread over F-spread | normal up to 1.1127 at n = 200 | t2 down to 0.9977 | none clean | overlaps |
+| tail, D-spread over F-spread | 1.1595 / 1.1871 / 1.1290 (normal, uniform) | Cauchy 1.1690 / 1.4613 / 1.6215; t2 1.0992 / 1.1057 / 1.1796 | 1.2 | 0 of 120 light-tailed; 40 of 40 Cauchy at n >= 200; t2 only partly (17, 18, 20 of 20 clear the null maximum) |
+| spread versus level, five groups of 30 | constant spread: |slope| up to 0.3397 | proportional spread: 0.6689 and up | 0.5 | 0 of 20 constant, 20 of 20 proportional |
+
+The evidence of skew is the DRIFT across letters, as Tukey read the
+ladder; the single mid-summary he started from does not separate an
+exponential from a normal batch at these sizes. Both facts are in the
+table so the thresholds can be argued rather than believed.
+
+**Both directions, in the gate** (`tukey_narrated.ring` section 8): an
+exactly additive table is sound with no finding; the same table with one
+cell at +1000 is unsound with one error at that cell -- and because every
+other residual is exactly 0, the fences collapse onto the hinge and the
+message says so; repaired, it is sound again. The additive table with
+seeded noise of section 6b carries ONE far-out error (cell (6, 3), residual
+-0.0871, 3.92 spreads past a hinge on a spread of 0.02): the rule reads
+the batch it is given, and the plan's example was less clean than the plan
+assumed. A multiplicative table fitted additively is unsound twice over --
+one corner past the far-out fence and the re-expression's warning. Eight
+marks with a 40 give one error at value #8, 4.54 spreads past the hinge;
+with 25 in its place, no finding. Lognormal leans right, normal leans
+neither and is not heavy, Cauchy is heavy, fifty values are unjudged.
+
+### TK4 addendum -- the change point, a verdict with a measured threshold, 2026-09-26
+
+Row 9 of the disposition demoted change-point detection to "a verdict with
+a stated threshold, not a claim". The threshold was measured before the
+verdict existed (`base/test/math/probe_changepoint.ring`, seeded series of
+40 and 100 values, 20 per class). The statistic that separates the classes:
+the largest contrast between the medians of the ten values before a cut and
+the ten after it, over the fourth-spread of the consecutive differences --
+a scale blind to a level and to a trend, and resistant to the one large
+difference a step makes. The first statistic tried, the largest step of the
+3RS3R smooth over the rough's fourth-spread, did NOT separate anything (a
+level with noise up to 4.3, a five-sigma step down to 1.97): a median smooth
+of noise is a staircase, and its steps are as large as a real one.
+
+| class, n = 40 / 100 | contrast, min .. max | fires at 1.8 | located within two of the cut |
+|---|---|---|---|
+| a level with noise | 0.16 .. 1.13 / 0.43 .. 0.90 | 0 / 0 of 20 | -- |
+| a trend of 0.1 sigma per point | 0.63 .. 1.50 / 0.96 .. 1.61 | 0 / 0 of 20 | -- |
+| a step of 2 sigma | 0.64 .. 2.26 / 0.78 .. 1.93 | 1 / 1 of 20 | 13 / 16 of 20 |
+| a step of 3 sigma | 1.20 .. 3.70 / 1.13 .. 2.49 | 5 / 7 of 20 | 17 / 17 of 20 |
+| a step of 5 sigma | 1.62 .. 4.86 / 2.16 .. 3.38 | 19 / 20 of 20 | 15 / 19 of 20 |
+
+`stzTukeySmoother.ChangePoint()` answers the contrast, its index, the scale,
+the threshold and whether it fires; `Diagnostics(subject)` turns a firing
+into a `level_shift` warning at that index, naming the contrast and the
+threshold; under 40 values the verdict is not made, by name, and a flat
+series with one jump says its differences have no spread to scale by. The
+gate (`tukey_narrated.ring` section 11, 124 of 124 in all) fires on 20 of 20
+five-sigma steps at n = 100 with its own seeds, locates 17 within two, and
+fires on 0 of 40 null series. A three-sigma step is found only sometimes,
+and the table says so; a trend steeper than 0.1 sigma per point was not
+measured and the verdict does not claim it.
+
+## TK6 RESULTS, the memory half -- the kill criterion fired; the memory does not ship, 2026-09-26
+
+The clause: `stzAgentMemory` recording which re-expressions worked on which
+data shapes ships only if, on held-out tables, its suggestion beats the
+fixed policy "evaluate the whole ladder and take the best slope". Run as an
+experiment before any product code (`base/test/math/probe_tk6_memory.ring`):
+forty training tables and twenty held-out, each a 6 x 5 additive table with
+seeded noise undone by a known power of the ladder; the memory keyed on the
+one-number shape the fixed policy reads first (the non-additivity slope at
+power 1) and suggested the power of the nearest remembered shape.
+
+| measure | memory | fixed ladder |
+|---|---|---|
+| suggests the ladder's own best power | 19 of 20 | -- (it is the ladder) |
+| recovers the generating power | 17 of 20 | 17 of 20 |
+| regret in |slope| against the ladder's best | mean 0.026, worst 0.52 | 0 |
+| cost on 6 x 5 | one polish through the face, 2.33 ms | the whole ladder, one engine crossing, 0.15 ms |
+| cost on 60 x 50 | 2.34 ms | 2.08 ms |
+| cost on 200 x 100 | 16.5 ms | 12.1 ms |
+
+**Why it does not ship.** On quality the memory can only tie the ladder,
+because the ladder evaluates every rung on the table in hand and the memory
+guesses one from tables it saw before; it tied on 19 of 20 and lost 0.52 of
+slope on the twentieth. On cost it saves nothing: the ladder runs its six
+rungs in one engine crossing and costs LESS than the single polish the
+memory would replace, at every size tried -- the face's single polish pays
+the seam once, and the ladder pays it once too. The plan wrote "it may well
+[lose], because the ladder is cheap"; measured, the ladder is cheaper than
+the memory's one step. TK6's memory half is closed with this table; its
+panel half stays gated on GUI G5.
+
+## TK5 RESULTS -- the story, under the honesty law, 2026-09-26 (plane stzlib-math, M4d)
+
+`stzTukeyStory` (`base/math/stzTukeyStory.ring`) tells a fit and its
+report in four paragraphs -- the fit, the extreme effects, the findings
+retold verbatim, the verdict -- and PERFORMS NO ARITHMETIC: every number
+in the prose is read from the fit's accessors or from a finding's message.
+The honesty law of 2.6 is checked on the story itself: `Numerals()` are the
+numeral tokens of `Text()`, `SourceNumerals()` the tokens the fit and the
+findings carry (formatted the one way the prose formats them), and
+`Unsourced()` is the difference -- empty, or the story's `Why()` says
+which numeral no source carries. On the deaths table: 4 paragraphs, 37
+numerals, every one sourced. The story is told on `stzTranscript` (the
+class `stzNarration` became at DN9a, so the plan's "on stzNarration"
+resolves there): the paragraphs as system lines, the verdict as a verdict
+line at certainty 1, because nothing was guessed.
+
+**The LLM face does not ship.** The plan's kill criterion says the LLM
+path does not ship if templated prose reads well enough in the author's
+judgement; this plane's judgement is that it does, and the honesty guard
+the plan wrote for the LLM face (identical numerals with the face on and
+off) is met trivially by a deterministic story that is the same text told
+twice, which the gate asserts. If the author rules otherwise, the seam is
+one method: a phrasing pass over `Paragraphs()` whose output must pass
+`Unsourced()` empty.
+
+**Found on the way, paid for once**: `_ac_` and `_aC_` are ONE variable
+in Ring (case-insensitive), so a loop bounded by the column effects and
+appending to an accumulator of the other spelling appended to its own
+bound -- a hang inside a method call that took six probes to bisect. The
+trap is in the repository's memory; two locals are never told apart by
+case alone.
+
+**Gate**: `tukey_narrated.ring` sections 8 and 9, 95 of 95 in all.

@@ -263,13 +263,41 @@ func AreContiguous(paListOfLists)
  #  CLASS  #
 #=========#
 
+# Is another name for stzListOfLists, so every method and every form is the same.
+#
+# Use whichever name reads better at the call site; the class adds nothing of its own.
+#
+#   receiver   o1 = new stzLists([ [ 1, 2, 3 ], [ 4, 5 ], [ 6 ] ])
+#   example    ? @@( o1.Cols() )
+#              #--> [ [ 1, 4, 6 ], [ 2, 5 ], [ 3 ] ]
+#   see        stzListOfLists
 class stzLists from stzListOfLists
 
+# Holds a non-empty list of lists and answers questions about its rows and columns, sizes, padding, sorting and column edits.
+#
+# A stzListOfLists wraps a Ring list whose every item is a list, the lists being allowed to differ
+# in size. Reach for it to treat the lists as rows of a table without the weight of stzTable: take a
+# column (NthColumn), pad the short rows (Extend, AdjustWith), cut them (Shrink, ShrinkTo), sort the
+# rows on a column (SortOn), find an item inside the rows (FindManyInLists) or edit a column
+# (InsertCol, ReplaceCol). Active forms change the lists in place, passive forms (the ones ending in
+# ed) return a changed copy as a plain list of lists. Item searches are case-sensitive. A number of
+# methods carry a warning today: several families (the Entry methods, RemoveCols, Classify, the
+# repeating forms of Extend) raise an error because the code behind them calls something that does
+# not exist.
+#
+#   receiver   o1 = new stzListOfLists([ [ 1, 2, 3 ], [ 4, 5 ], [ 6 ] ])
+#   example    ? @@( o1.Cols() )
+#              #--> [ [ 1, 4, 6 ], [ 2, 5 ], [ 3 ] ]
+#   see        stzList, stzTable, stzList2D
 class stzListOfLists from stzList
 
 	@aContent = []
 
-	# Build the list-of-lists from the given Ring list.
+	# Builds the object from a non-empty list whose every item is itself a list; anything else raises an error.
+	#
+	#   returns    nothing; the object is built
+	#   note       an empty list, or a list holding a non-list, is refused
+	#@ aka  Build the list-of-lists from the given Ring list.
 	def init(paList)
 
 		if CheckingParams()
@@ -307,15 +335,27 @@ class stzListOfLists from stzList
 	 #   GENERAL   #
 	#-------------#
 
-	# The raw list of lists.
+	# Returns the lists as a plain Ring list of lists.
+	#
+	#   returns    a list of lists
+	#   see        Value, ListOfLists
+	#@ aka  The raw list of lists.
 	def Content()
 		return @aContent
 
-		# The raw list of lists (same as Content).
+		# Returns the held lists as a plain Ring list of lists, the same answer as the content.
+		#
+		#   returns    a list of lists
+		#   see        Content
+		#@ aka  The raw list of lists (same as Content).
 		def Value()
 			return Content()
 
-	# A new stzListOfLists with the same sublists.
+	# Returns a new stzListOfLists holding the same lists; changing it leaves the original alone.
+	#
+	#   returns    a stzListOfLists
+	#   see        ToStzList
+	#@ aka  A new stzListOfLists with the same sublists.
 	def Copy()
 		return new stzListOflists(This.Content())
 
@@ -323,7 +363,11 @@ class stzListOfLists from stzList
 	def ListOfLists()
 		return This.Content()
 
-	# How many sublists the list holds.
+	# Returns how many lists the object holds.
+	#
+	#   returns    a number
+	#   see        Sizes
+	#@ aka  How many sublists the list holds.
 	def NumberOfLists()
 		return len(@aContent)
 
@@ -331,6 +375,12 @@ class stzListOfLists from stzList
 	 #   UPDATING THE LIST OF LISTS  #
 	#-------------------------------#
 
+	# Replaces all the lists by a new list of lists, in place.
+	#
+	#   paList     the new list of lists, or :With = list
+	#   returns    nothing; the content changes
+	#   note       raises an error when the argument is not a list of lists
+	#   see        Updated
 	def Update(paList)
 		if CheckingParams() = 1
 			if isList(paList) and Q(paList).IsWithOrByOrUsingNamedParam()
@@ -348,19 +398,42 @@ class stzListOfLists from stzList
 			This.AddHistoricValue(This.Content())  # From the parent stzObject
 		ok
 
+		# Replaces all the lists by a new list of lists, in place.
+		#
+		#   paList     the new list of lists, or :With = list
+		#   returns    nothing; the content changes
+		#   note       raises an error when the argument is not a list of lists
+		#   see        Update
 		#< @FunctionAlternativeForms
-
 		def UpdateWith(paList)
 			This.Update(paList)
 	
+		# Replaces all the lists by a new list of lists, in place.
+		#
+		#   paList     the new list of lists, or :By = list
+		#   returns    nothing; the content changes
+		#   note       raises an error when the argument is not a list of lists
+		#   see        Update
 		def UpdateBy(paList)
 			This.Update(paList)
 
+		# Replaces all the lists by a new list of lists, in place.
+		#
+		#   paList     the new list of lists, or :Using = list
+		#   returns    nothing; the content changes
+		#   note       raises an error when the argument is not a list of lists
+		#   see        Update
 		def UpdateUsing(paList)
 			This.Update(paList)
 
+	# Returns the given list as it is, without checking it; the object is unchanged.
+	#
+	#   paList     the list to hand back
+	#   returns    the list that was given
+	#   note       the body only returns its argument: nothing is validated and the object keeps its
+	#              lists
+	#   see        Update
 		#>
-
 	def Updated(paList)
 		return paList
 
@@ -381,7 +454,13 @@ class stzListOfLists from stzList
 	 #   ADDING LISTS  #
 	#-----------------#
 
-	# Add the given list at the end (mutating).
+	# Appends one list after the last list, in place.
+	#
+	#   paList     the list to append
+	#   returns    nothing; the content changes
+	#   note       the result must still be a list of lists, so a non-list raises an error
+	#   see        AddManyLists
+	#@ aka  Add the given list at the end (mutating).
 	def AddList(paList)
 		_aAlContent_ = This.Content()
 		This.UpdateWith(_aAlContent_ + paList)
@@ -403,6 +482,12 @@ class stzListOfLists from stzList
 
 		This.UpdateWith(_aAmContent_)
 
+		# Appends each of the given lists after the last list, in place.
+		#
+		#   paListOfLists   the lists to append
+		#   returns         nothing; the content changes
+		#   note            raises an error when the argument is not a list of lists
+		#   see             AddList
 		def AddManyLists(paListOfLists)
 			This.AddMany(paListOfLists)
 
@@ -410,7 +495,13 @@ class stzListOfLists from stzList
 	 #   NTH LIST    #
 	#---------------#
 
-	# The sublist at position n.
+	# Returns the list at a position; :First and :Last are accepted for the ends.
+	#
+	#   _n_        the position, 1 for the first list
+	#   returns    a list
+	#   note       raises an error for position 0, a negative position or a position past the end
+	#   see        FirstList, LastList
+	#@ aka  The sublist at position n.
 	def NthList(_n_)
 		if CheckingParams()
 
@@ -438,10 +529,15 @@ class stzListOfLists from stzList
 		def NthListQ(_n_)
 			return new stzList( This.NthList(_n_) )
 
+		# Raises error R19 today instead of returning the list at a position.
+		#
+		#   _n_        the position of the list
+		#   returns    nothing today
+		#   warning    known defect: it calls NthList without passing the position, so the call
+		#              raises error R19; ListAtPosition works
+		#   see        NthList
 		#>
-
 		#< @FunctionAlternativeForms
-
 		def ListAt(_n_)
 			return This.NthList()
 
@@ -454,13 +550,20 @@ class stzListOfLists from stzList
 			def ListAtPositionQ(_n_)
 				return This.NthListQ(_n_)
 
+	# Returns the list that comes first among the lists, as a plain list.
+	#
+	#   returns    a list
+	#   see        LastList, NthList
 		#>
-
-	# The first sublist.
+	#@ aka  The first sublist.
 	def FirstList()
 		return This.NthList(1)
 
-	# The last sublist.
+	# Returns the list that comes last among the lists, as a plain list.
+	#
+	#   returns    a list
+	#   see        FirstList, NthList
+	#@ aka  The last sublist.
 	def LastList()
 		return This.NthList( This.NumberOfLists() )
 
@@ -498,12 +601,16 @@ class stzListOfLists from stzList
 		def FindInsideCS(pItem, pCaseSensitive)
 			return This.FindInListsCS(pItem, pCaseSensitive)
 
+	# Returns [ list, position ] pairs for every occurrence of a text item inside the lists; the match is case-sensitive.
+	#
+	#   pItem      the text item to look for
+	#   returns    a list of [ list position, position in the list ] pairs
+	#   note       [ ] when the item is absent
+	#   warning    known defect: a number item, or a list that holds numbers, makes the engine
+	#              search raise an error
+	#   see        FindManyInLists, ContainsItem
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	# Where the item occurs INSIDE the sublists: [sublist, position]
-	# pairs.
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindInLists(pItem)
 		return This.FindInListsCS(pItem, 1)
 	
@@ -552,16 +659,24 @@ class stzListOfLists from stzList
 
 		def FindItemsInListsCS(paItems, pCaseSensitive)
 
+	# Returns [ list, position ] pairs for every occurrence of any of the given items inside the lists.
+	#
+	#   paItems    the items to look for
+	#   returns    a list of [ list position, position in the list ] pairs
+	#   see        FindInLists
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	# Where each of the given items occurs inside the sublists.
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindManyInLists(paItems)
 		return This.FindManyInListsCS(paItems, 1)
 	
+		# Raises error R24 today instead of returning where several items occur inside the lists.
+		#
+		#   paItems    the items to look for
+		#   returns    nothing today
+		#   warning    known defect: the body passes a variable called pItem, which is never set, so
+		#              the call raises error R24
+		#   see        FindManyInLists
 		#< @FunctionAlternativeForms
-
 		def FindItemsInLists(paItems)
 			return This.FindManyInLists(pItem)
 
@@ -571,9 +686,24 @@ class stzListOfLists from stzList
 	 #  FINDING A SUBLIST INSIDE THE LISTS  #
 	#======================================#
 
+	# Raises an error on purpose today: the search for a sublist inside the lists is not written yet.
+	#
+	#   paSubList        the sublist to look for
+	#   pCaseSensitive   1 to compare with case, 0 to ignore it
+	#   returns          nothing today
+	#   warning          known defect: the body only raises "Function non implemented yet!";
+	#                    FindSubList does the job
+	#   see              FindSubList
 	def FindSubListInListsCS(paSubList, pCaseSensitive) #TODO
 		StzRaise("Function non implemented yet!")
 
+	# Raises error R14 today instead of returning where a sublist occurs in the lists.
+	#
+	#   paSubList   the sublist to look for
+	#   returns     nothing today
+	#   warning     known defect: it calls FindSubListInListCS, which is defined nowhere;
+	#               FindSubList does the job
+	#   see         FindSubList
 	def FindSubListInList(paSubList)
 		return This.FindSubListInListCS(paSubList, pCaseSensitive)
 
@@ -581,7 +711,15 @@ class stzListOfLists from stzList
 	 #   POSITIONS WHERE    #
 	#======================#
 
-	# The positions of the sublists satisfying the W condition.
+	# Raises error R24 today instead of returning the positions of the lists that meet a condition.
+	#
+	#   pcCondition   a condition on @list, the current list
+	#   returns       nothing today
+	#   warning       known defect: the body collects into a variable named _aResult_ while the
+	#                 evaluated code writes to aResult, which is never set, so the call raises error
+	#                 R24
+	#   see           FindSmallestLists
+	#@ aka  The positions of the sublists satisfying the W condition.
 	def PositionsW(pcCondition)
 
 		_cPwCondition_ = StringSimplified(_StzStripBraces(pcCondition))
@@ -720,6 +858,10 @@ class stzListOfLists from stzList
 	 #   GETTING THE SIZES OF THE INNER LISTS   #
 	#==========================================#
 
+	# Returns the number of items of each list, in order.
+	#
+	#   returns    a list of numbers
+	#   see        NumberOfLists, SizeOfList
 	def Sizes()
 
 		_aSzContent_ = This.ListOfLists()
@@ -758,6 +900,10 @@ class stzListOfLists from stzList
 	 #  CHECKING IF LISTS HAVE SAME NUMBER OF ITEMS  #
 	#-----------------------------------------------#
 
+	# TRUE if every list holds as many items as the first one.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Sizes
 	def ListsHaveSameNumberOfItems()
 
 		_aLhsContent_ = This.Content()
@@ -852,7 +998,11 @@ class stzListOfLists from stzList
 	 #   SMALLEST LISTS   #
 	#--------------------#
 
-	# The positions of the shortest sublists.
+	# Returns the positions of every list that has the fewest items.
+	#
+	#   returns    a list of positions
+	#   see        SmallestLists, FindBiggestLists
+	#@ aka  The positions of the shortest sublists.
 	def FindSmallestLists()
 
 		_aFslContent_ = This.Content()
@@ -886,7 +1036,11 @@ class stzListOfLists from stzList
 		def MinListsPositions()
 			return This.FindSmallestLists()
 
-	# The shortest sublists.
+	# Returns every list that has the fewest items.
+	#
+	#   returns    a list of lists
+	#   see        FindSmallestLists, SmallestList
+	#@ aka  The shortest sublists.
 	def SmallestLists()
 		_aSlResult_ = This.ItemsAtPositions( This.FindSmallestLists() )
 		return _aSlResult_
@@ -902,7 +1056,11 @@ class stzListOfLists from stzList
 	 #   BIGGEST LISTS   #
 	#-------------------#
 
-	# The positions of the longest sublists.
+	# Returns the positions of every list that has the most items.
+	#
+	#   returns    a list of positions
+	#   see        BiggestLists, FindSmallestLists
+	#@ aka  The positions of the longest sublists.
 	def FindBiggestLists()
 
 		_aFblContent_ = This.Content()
@@ -958,11 +1116,13 @@ class stzListOfLists from stzList
 		def LargestListsPositions()
 			return This.FindBiggestLists()
 
+	# Returns every list that has the most items.
+	#
+	#   returns    a list of lists
+	#   see        FindBiggestLists, LargestList
 		#>
-
 	#TODO
-	# add* "big", "great", and "large" as alternatives all over the library
-
+	#@ aka  add* "big", "great", and "large" as alternatives all over the library
 	def BiggestLists()
 		_anBlPos_ = This.FindBiggestLists()
 		_aBlResult_ = This.ItemsAtPositions(_anBlPos_)
@@ -1004,6 +1164,11 @@ class stzListOfLists from stzList
 	 #   LISTS OF SIZE N   #
 	#---------------------#
 
+	# Returns the positions of the lists that hold exactly n items.
+	#
+	#   _n_        the number of items wanted
+	#   returns    a list of positions
+	#   see        ListsOfSizeN
 	def FindListsOfSizeN(_n_)
 
 		_aFlsContent_ = This.Content()
@@ -1030,8 +1195,12 @@ class stzListOfLists from stzList
 		def PositionsOfListsOfSize(_n_)
 			return This.FindListsOfSizeN(_n_)
 
+	# Returns the lists that hold exactly n items.
+	#
+	#   _n_        the number of items wanted
+	#   returns    a list of lists
+	#   see        FindListsOfSizeN
 		#>
-
 	def ListsOfSizeN(_n_)
 
 		_anLsnPos_ = This.FindListsOfSizeN(_n_)
@@ -1049,6 +1218,10 @@ class stzListOfLists from stzList
 	 #  FINDING THE MISSING POSITIONS IN THE LIST OF LISTS  #
 	#======================================================#
 
+	# Returns the [ list, position ] places that a shorter list lacks compared with the longest list.
+	#
+	#   returns    a list of [ list position, item position ] pairs
+	#   see        NumberOfMissingItems, ExtraItems
 	func FindMissingItems()
 		_nFmiMin_ = This.MinSize()
 		_nFmiMax_ = This.MaxSize()
@@ -1085,6 +1258,10 @@ class stzListOfLists from stzList
 	 #  GETTING THE NUMBER OF MISSING POSISITONS IN THE LIST OF LISTS  #
 	#-----------------------------------------------------------------#
 
+	# Returns how many items the shorter lists lack in total compared with the longest list.
+	#
+	#   returns    a number
+	#   see        FindMissingItems
 	def NumberOfMissingItems()
 
 		_nNmiMin_ = This.MinSize()
@@ -1123,6 +1300,13 @@ class stzListOfLists from stzList
 	 #   ITEMS AT POSITION N    #
 	#==========================#
 
+	# Returns the item at position n of every list that has one.
+	#
+	#   _n_        the position inside each list
+	#   returns    a list of items
+	#   note       lists shorter than n are skipped, so the answer can be shorter than the object;
+	#              position 0 raises an error
+	#   see        NthColumn
 	def ItemsAtPositionN(_n_)
 		_aIapnResult_ = []
 
@@ -1143,6 +1327,13 @@ class stzListOfLists from stzList
 		def ItemsAtPositionNQ(_n_)
 			return This.ItemsAtPositionNQRT(_n_, :stzList)
 
+		# Returns the items at position n of the lists, as an object of the requested type.
+		#
+		#   _n_            the position inside each list
+		#   pcReturnType   the type wanted, :stzList, :stzListOfLists or :stzListOfPairs
+		#   returns        a stzList, stzListOfLists or stzListOfPairs
+		#   note           any other type raises "Unsupported return type!"
+		#   see            ItemsAtPositionN
 		def ItemsAtPositionsNQRT(_n_, pcReturnType)
 			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
@@ -1221,6 +1412,10 @@ class stzListOfLists from stzList
 	 #  SMALLEST LIST  #
 	#=================#
 
+	# Returns the position of the first list that has the fewest items.
+	#
+	#   returns    a position
+	#   see        SmallestList, FindLargestList
 	def FindSmallestList()
 		_nFslLen_ = This.NumberOfLists()
 		if _nFslLen_ = 0
@@ -1247,8 +1442,11 @@ class stzListOfLists from stzList
 		def FindMinList()
 			return This.FindSmallestList()
 
+	# Returns the first list that has the fewest items.
+	#
+	#   returns    a list
+	#   see        FindSmallestList, SmallestLists
 		#>
-
 	def SmallestList()
 		#NOTE
 		# Returns the smallest list
@@ -1304,6 +1502,10 @@ class stzListOfLists from stzList
 	 #  SIZE OF SMALLEST LIST  #
 	#-------------------------#
 
+	# Returns how many items the shortest list holds.
+	#
+	#   returns    a number
+	#   see        SizeOfLargestList
 	def SizeOfSmallestList()
 		_nSosResult_ = len( This.SmallestList() )
 		return _nSosResult_
@@ -1325,6 +1527,10 @@ class stzListOfLists from stzList
 	 #  LARGEST LIST  #
 	#----------------#
 
+	# Returns the position of the first list that has the most items.
+	#
+	#   returns    a position
+	#   see        LargestList, FindSmallestList
 	def FindLargestList()
 		_nFllLen_ = This.NumberOfLists()
 		if _nFllLen_ = 0
@@ -1351,8 +1557,11 @@ class stzListOfLists from stzList
 		def FindMaxList()
 			return This.FindLargestList()
 
+	# Returns the first list that has the most items.
+	#
+	#   returns    a list
+	#   see        FindLargestList, BiggestLists
 		#>
-
 	def LargestList()
 
 		_nLgLen_ = This.NumberOfLists()
@@ -1430,6 +1639,10 @@ class stzListOfLists from stzList
 	 #  SIZE OF LARGEST LIST  #
 	#------------------------#
 
+	# Returns how many items the longest list holds.
+	#
+	#   returns    a number
+	#   see        SizeOfSmallestList
 	def SizeOfLargestList()
 		_nSolResult_ = len( This.LargestList() )
 		return _nSolResult_
@@ -1469,6 +1682,12 @@ class stzListOfLists from stzList
 	 #  SIZE OF NTH LIST   #
 	#---------------------#
 
+	# Returns how many items the list at a position holds.
+	#
+	#   _n_        the position of the list
+	#   returns    a number
+	#   note       raises an error for a position that does not exist
+	#   see        Sizes
 	def SizeOfList(_n_)
 		_nSolnResult_ = len( This.NthList(_n_) )
 		return _nSolnResult_
@@ -1486,6 +1705,10 @@ class stzListOfLists from stzList
 	 #  EXTENDING (EACH LIST IN) THE LIST OF LISTS  #
 	#==============================================#
 
+	# Pads every shorter list with empty text up to the size of the longest list, in place.
+	#
+	#   returns    nothing; the content changes
+	#   see        Extended, ExtendWith
 	def Extend()
 		This.ExtendTo( This.SizeOfLargestList() )
 
@@ -1495,56 +1718,84 @@ class stzListOfLists from stzList
 			This.Extend()
 			return This
 
+		# Pads every shorter list with empty text up to the size of the longest list, in place.
+		#
+		#   returns    nothing; the content changes
+		#   see        Extend
 		#>
-
 		#< @FunctionAlternativeForm
-
 		def ExtendEachList()
 			This.Extend()
 
 			def ExtendEachListQ()
 				return This.ExtendQ()
 
+		# Pads every shorter list with empty text up to the size of the longest list, in place.
+		#
+		#   returns    nothing; the content changes
+		#   see        Extend
 		def Expand()
 			This.Extend()
 
 			def ExpandQ()
 				return This.ExtendQ()
 
+		# Pads every shorter list with empty text up to the size of the longest list, in place.
+		#
+		#   returns    nothing; the content changes
+		#   see        Extend
 		def ExpandEachList()
 			This.Extend()
 
 			def ExpandEachListQ()
 				return This.ExtendQ()
 
+		# Pads every shorter list with empty text up to the size of the longest list, in place.
+		#
+		#   returns    nothing; the content changes
+		#   see        Extend
 		def Stretch()
 			This.Extend()
 
 			def StretchQ()
 				return This.ExtendQ()
 
+		# Pads every shorter list with empty text up to the size of the longest list, in place.
+		#
+		#   returns    nothing; the content changes
+		#   see        Extend
 		def StretchEachList()
 			This.Extend()
 
 			def StretchEachListQ()
 				return This.ExtendQ()
 
-		#--
-
+		# Pads every shorter list with empty text up to the size of the longest list, in place.
+		#
+		#   returns    nothing; the content changes
+		#   see        Extend, AdjustTo
+		#@ aka  --
 		def Adjust()
 			This.Extend()
 
 			def AdjustQ()
 				return This.ExtendQ()
 
+		# Pads every shorter list with empty text up to the size of the longest list, in place.
+		#
+		#   returns    nothing; the content changes
+		#   see        Extend
 		def Justify()
 			This.Extend()
 
 			def JustifyQ()
 				return This.ExtendQ()
 
+	# Returns a copy where every shorter list is padded with empty text to the size of the longest; the object is unchanged.
+	#
+	#   returns    a list of lists
+	#   see        Extend
 		#>
-
 	def Extended()
 		_aExtdResult_ = This.Copy().ExtendQ().Content()
 		return _aExtdResult_
@@ -1599,12 +1850,22 @@ class stzListOfLists from stzList
 			def ExtendEachListXTQ(pItem)
 				return This.ExtendXTQ(pItem)
 
+		# Pads every shorter list with the given item up to the size of the longest list, in place.
+		#
+		#   pItem      the item to pad with
+		#   returns    nothing; the content changes
+		#   see        Extend, ExtendTo
 		def ExtendWith(pItem)
 			This.ExtendXT(pItem)
 
 			def ExtendWithQ(pItem)
 				return This.ExtendXTQ(pItem)
 
+		# Pads every shorter list with the given item up to the size of the longest list, in place.
+		#
+		#   pItem      the item to pad with
+		#   returns    nothing; the content changes
+		#   see        ExtendWith
 		def ExtendEachListWith(pItem)
 			This.ExtendWith(pItem)
 
@@ -1625,38 +1886,68 @@ class stzListOfLists from stzList
 			def StretchEachListXTQ(pItem)
 				return This.ExtendXTQ(pItem)
 
+		# Pads every shorter list with the given item up to the size of the longest list, in place.
+		#
+		#   pItem      the item to pad with
+		#   returns    nothing; the content changes
+		#   see        ExtendWith
 		def StretchWith(pItem)
 			This.ExtendXT(pItem)
 
 			def StretchWithQ(pItem)
 				return This.ExtendXTQ(pItem)
 
+		# Pads every shorter list with the given item up to the size of the longest list, in place.
+		#
+		#   pItem      the item to pad with
+		#   returns    nothing; the content changes
+		#   see        ExtendWith
 		def StretchEachListWith(pItem)
 			This.ExtendWith(pItem)
 
 			def StretchEachListWithQ(pItem)
 				return This.ExtendWithQ(pItem)
 
-		#--
-
+		# Pads every shorter list with the given item up to the size of the longest list, in place.
+		#
+		#   pItem      the item to pad with
+		#   returns    nothing; the content changes
+		#   see        ExtendWith
+		#@ aka  --
 		def CompleteXT(pItem)
 			This.ExtendXT(pItem)
 
 			def CompleteXTQ(pItem)
 				return This.ExtendXTQ(pItem)
 
+		# Pads every shorter list with the given item up to the size of the longest list, in place.
+		#
+		#   pItem      the item to pad with
+		#   returns    nothing; the content changes
+		#   see        ExtendWith
 		def CompleteEachListXT(pItem)
 			This.ExtendXT(pItem)
 
 			def CompleteEachListXTQ(pItem)
 				return This.ExtendXTQ(pItem)
 
+		# Pads every shorter list with the given item up to the size of the longest list, in place.
+		#
+		#   pItem      the item to pad with
+		#   returns    nothing; the content changes
+		#   see        ExtendWith
 		def CompleteWith(pItem)
 			This.ExtendXT(pItem)
 
 			def CompleteWithQ(pItem)
 				return This.ExtendXTQ(pItem)
 
+		# Pads every shorter list with the given item up to the size of the longest list, in place.
+		#
+		#   pItem      the item to pad with
+		#   returns    nothing; the content changes
+		#   note       a misspelling of CompleteEachListWith, kept as an alias
+		#   see        ExtendWith
 		def ComplteEachListWith(pItem)
 			This.ExtendXT(pItem)
 
@@ -1671,18 +1962,35 @@ class stzListOfLists from stzList
 			def JustifyXTQ(pItem)
 				return This.ExtendXTQ(pItem)
 
+		# Pads every shorter list with the given item up to the size of the longest list, in place.
+		#
+		#   pItem      the item to pad with
+		#   returns    nothing; the content changes
+		#   see        ExtendWith
 		def JustifyEachListXT(pItem)
 			This.ExtendXT(pItem)
 
 			def JustifyEachListXTQ(pItem)
 				return This.ExtendXTQ(pItem)
 
+		# Pads every shorter list with the given item up to the size of the longest list, in place.
+		#
+		#   pItem      the item to pad with
+		#   returns    nothing; the content changes
+		#   see        ExtendWith
 		def JustifyWith(pItem)
 			This.ExtendXT(pItem)
 
 			def JustifyWithQ(pItem)
 				return This.ExtendXTQ(pItem)
 
+		# Raises error R24 or R20 today instead of padding every shorter list with a given item.
+		#
+		#   returns    nothing today
+		#   warning    known defect: the def line declares no parameter yet the body reads pItem, so
+		#              a call without an argument raises error R24 and a call with one raises error
+		#              R20; JustifyWith works
+		#   see        JustifyWith
 		def JustifyEachListWith()
 			This.ExtendXT(pItem)
 
@@ -1746,6 +2054,12 @@ class stzListOfLists from stzList
 	 #  EXTENDING (EACH LIST IN) THE LIST OF LISTS TO A GIVEN POSITION WITH A NULL VALUE  #
 	#------------------------------------------------------------------------------------#
 
+	# Pads every list shorter than n with empty text up to n items, in place.
+	#
+	#   _n_        the size to reach
+	#   returns    nothing; the content changes
+	#   note       lists already n items long, or longer, are left as they are
+	#   see        ExtendedTo, ExtendWith
 	def ExtendTo(_n_)
 		This.ExtendToXT(_n_, "")
 
@@ -1756,10 +2070,13 @@ class stzListOfLists from stzList
 			This.ExtendTo(_n_)
 			return This
 
+		# Pads every list shorter than n with empty text up to n items, in place.
+		#
+		#   _n_        the size to reach
+		#   returns    nothing; the content changes
+		#   see        ExtendTo
 		#>
-
 		#< @FunctionAlternativeForm
-
 		def ExtendToPosition(_n_)
 			if NOT isNumber(_n_)
 				StzRaise("Incorrect param type! n must be a number.")
@@ -1770,27 +2087,44 @@ class stzListOfLists from stzList
 			def ExtendToPositionQ(_n_)
 				return This.ExtendToQ(_n_)
 
-		#==
-
+		# Pads every list shorter than n with empty text up to n items, in place.
+		#
+		#   _n_        the size to reach
+		#   returns    nothing; the content changes
+		#   see        ExtendTo
+		#@ aka  ==
 		def StretchTo(_n_)
 			This.ExtendTo(_n_)
 
 			def StretchToQ(_n_)
 				return This.ExtendToQ(_n_)
 
+		# Pads every list shorter than n with empty text up to n items, in place.
+		#
+		#   _n_        the size to reach
+		#   returns    nothing; the content changes
+		#   see        ExtendTo
 		def StretchToPosition(_n_)
 			This.ExtendToPosition(_n_)
 
 			def StretchToPositionQ(_n_)
 				return This.ExtendToPositionQ(_n_)
 
+	# Returns a copy where every list shorter than n is padded with empty text to n items; the object is unchanged.
+	#
+	#   _n_        the size to reach
+	#   returns    a list of lists
+	#   see        ExtendTo
 		#>
-
-
 	def ExtendedTo(_n_)
 		_aExtdtResult_ = This.Copy().ExtendToQ(_n_).Content()
 		return _aExtdtResult_
 
+		# Returns a copy where every list shorter than n is padded with empty text to n items; the object is unchanged.
+		#
+		#   _n_        the size to reach
+		#   returns    a list of lists
+		#   see        ExtendTo
 		def ExtendedToPosition(_n_)
 			if NOT isNumber(_n_)
 				StzRaise("Incorrect param type! n must be a number.")
@@ -1905,8 +2239,14 @@ class stzListOfLists from stzList
 	 #  EXTENDING THE LIST OF LISTS TO A GIVEN POSITION BY REPEATING THE ITEMS OF EACH LIST  #
 	#---------------------------------------------------------------------------------------#
 
+	# Raises error R14 today instead of padding each list to n items by repeating its own items.
+	#
+	#   _n_        the size to reach
+	#   returns    nothing today
+	#   warning    known defect: it asks a plain list for ExtendedToByRepeatingItems, a method that
+	#              list does not have, so the call raises error R14
+	#   see        ExtendTo
 	#TODO // Add Stretch and Expand alternatives to all remaining methods
-
 	def ExtendToByRepeatingItems(_n_)
 		_aEtbrContent_ = This.Content()
 		_nEtbrLen_ = len(_aEtbrContent_)
@@ -1925,24 +2265,41 @@ class stzListOfLists from stzList
 			This.ExtendToByRepeatingItems(_n_)
 			return This
 
+		# Raises error R14 today instead of padding each list to n items by repeating its own items.
+		#
+		#   _n_        the size to reach
+		#   returns    nothing today
+		#   warning    known defect: it asks a plain list for ExtendedToByRepeatingItems, a method
+		#              that list does not have, so the call raises error R14
+		#   see        ExtendTo
 		#>
-
 		#< @FunctionAlternativeForm
-
 		def ExtendToWithItemsRepeated(_n_)
 			This.ExtendedToByRepeatingItems(_n_)
 
 			def ExtendToWithItemsRepeatedQ(_n_)
 				return This.ExtendToByRepeatingItemsQ(_n_)
 
+	# Raises error R14 today instead of returning a copy padded to n items by repeating each list's own items.
+	#
+	#   _n_        the size to reach
+	#   returns    nothing today
+	#   warning    known defect: it asks a plain list for ExtendedToByRepeatingItems, a method that
+	#              list does not have, so the call raises error R14
+	#   see        ExtendedTo
 		#>
-
 	def ExtendedToByRepeatingItems(_n_)
 		_aEdbrResult_ = This.Copy().ExtendToByRepeatingItemsQ(_n_).Content()
 		return _aEdbrResult_
 
+		# Raises error R14 today instead of returning a copy padded to n items by repeating each list's own items.
+		#
+		#   _n_        the size to reach
+		#   returns    nothing today
+		#   warning    known defect: it asks a plain list for ExtendedToByRepeatingItems, a method
+		#              that list does not have, so the call raises error R14
+		#   see        ExtendedTo
 		#< @FunctionAlternativeForm
-
 		def ExtendedToWithItemsRepeated(_n_)
 			This.ExtendedToByRepeatingItems(_n_)
 
@@ -1950,12 +2307,13 @@ class stzListOfLists from stzList
 		def ExtendedToByRepeating(_n_)
 			return This.ExtendedToByRepeatingItems(_n_)
 
+	# Returns, for each list, the positions of its items that lie beyond the length of the first list.
+	#
+	#   returns    a list of [ list position, positions ] pairs
+	#   note       the first list always gets an empty set of positions
+	#   see        ExtraItems, FindMissingItems
 		#>
-
-	# FindExtraItems / ExtraItems: relative to row 1's length, return
-	# the positions (FindExtraItems) or values (ExtraItems) of each
-	# row's items that lie BEYOND row 1's length. Row 1 itself gets
-	# an empty section.
+	#@ aka  FindExtraItems / ExtraItems: relative to row 1's length, return the positions (FindExtraItems) or values (ExtraItems) of each row's items that lie BEYOND row 1's length. Row 1 itself gets an empty section.
 	def FindExtraItems()
 		_aData_ = This.Content()
 		_nRows_ = len(_aData_)
@@ -1974,6 +2332,11 @@ class stzListOfLists from stzList
 		next
 		return _aRes_
 
+	# Returns, for each list, the items that lie beyond the length of the first list.
+	#
+	#   returns    a list of lists of items
+	#   note       the first list always gets an empty list
+	#   see        FindExtraItems
 	def ExtraItems()
 		_aData_ = This.Content()
 		_nRows_ = len(_aData_)
@@ -2005,6 +2368,12 @@ class stzListOfLists from stzList
 	 #  EXTENDING THE LIST OF LISTS TO THE SIZE OF LARGER LIST  #
 	#----------------------------------------------------------#
 
+	# Raises error R14 today instead of padding every list to the longest size by repeating its own items.
+	#
+	#   returns    nothing today
+	#   warning    known defect: it ends in ExtendedToByRepeatingItems, a method a plain list does
+	#              not have, so the call raises error R14
+	#   see        Extend
 	def ExtendByRepeatingItems()
 		This.ExtendToByRepeatingItems( This.SizeOfLargestList() )
 
@@ -2014,24 +2383,39 @@ class stzListOfLists from stzList
 			This.ExtendByRepeatingItems()
 			return This
 
+		# Raises error R14 today instead of padding every list to the longest size by repeating its own items.
+		#
+		#   returns    nothing today
+		#   warning    known defect: it ends in ExtendedToByRepeatingItems, a method a plain list
+		#              does not have, so the call raises error R14
+		#   see        Extend
 		#>
-
 		#< @FunctionAlternativeForms
-
 		def ExtendWithItemsRepeated()
 			This.ExtendByRepeatingItems()
 
 			def ExtendWithItemsRepeatedQ()
 				return This.ExtendByRepeatingItemsQ()
 
+		# Raises error R14 today instead of padding every list to the longest size by repeating its own items.
+		#
+		#   returns    nothing today
+		#   warning    known defect: it ends in ExtendedToByRepeatingItems, a method a plain list
+		#              does not have, so the call raises error R14
+		#   see        Extend
 		def ExtendByItemsRepeated()
 			This.ExtendByRepeatingItems()
 
 			def ExtendByItemsRepeatedQ()
 				return This.ExtendByRepeatingItemsQ()
 
+	# Raises error R14 today instead of returning a copy padded to the longest size by repeating each list's own items.
+	#
+	#   returns    nothing today
+	#   warning    known defect: it ends in ExtendedToByRepeatingItems, a method a plain list does
+	#              not have, so the call raises error R14
+	#   see        Extended
 		#>
-
 	def ExtendedByRepeatingItems()
 		_aExbrResult_ = This.Copy().ExtendByRepeatingItemsQ().Content()
 		return _aExbrResult_
@@ -2050,6 +2434,14 @@ class stzListOfLists from stzList
 	 #  EXTENDIND THE LIST OF LISTS TO A GIVEN POSITION USING THE GIVEN ITEMS  #
 	#-------------------------------------------------------------------------#
 
+	# Raises error R14 today instead of padding each list to n items with the given items in turn.
+	#
+	#   _n_        the size to reach
+	#   paItems    the items to pad with
+	#   returns    nothing today
+	#   warning    known defect: it asks a plain list for ExtendedToWithItemsIn, a method that list
+	#              does not have, so the call raises error R14
+	#   see        ExtendToWith
 	def ExtendToWithItemsIn(_n_, paItems)
 		_aEtwiContent_ = This.Content()
 		_nEtwiLen_ = len(_aEtwiContent_)
@@ -2067,12 +2459,28 @@ class stzListOfLists from stzList
 			This.ExtendToWithItemsIn(_n_, paItems)
 			return This
 
+		# Raises error R14 today instead of padding each list to n items with the given items in turn.
+		#
+		#   _n_        the size to reach
+		#   paItems    the items to pad with
+		#   returns    nothing today
+		#   warning    known defect: it asks a plain list for ExtendedToWithItemsIn, a method that
+		#              list does not have, so the call raises error R14
+		#   see        ExtendTo
 		def ExtendToUsingItemsIn(_n_, paItems)
 			This.ExtendToWithItemsIn(_n_, paItems)
 
 			def ExtendToUsingItemsInQ(_n_, paItems)
 				return This.ExtendToWithItemsInQ(_n_, paItems)
 
+	# Raises error R14 today instead of returning a copy padded to n items with the given items in turn.
+	#
+	#   _n_        the size to reach
+	#   paItems    the items to pad with
+	#   returns    nothing today
+	#   warning    known defect: it asks a plain list for ExtendedToWithItemsIn, a method that list
+	#              does not have, so the call raises error R14
+	#   see        ExtendedTo
 	def ExtendedToWithItemsIn(_n_, paItems)
 		_aEtwiResult2_ = This.Copy().ExtendToWithItemsInQ(_n_, paItems).Content()
 		return _aEtwiResult2_
@@ -2084,6 +2492,13 @@ class stzListOfLists from stzList
 	 #  EXTENDIND THE LIST OF LISTS USING THE GIVEN ITEMS  #
 	#-----------------------------------------------------#
 
+	# Raises error R14 today instead of padding every list to the longest size with the given items in turn.
+	#
+	#   paItems    the items to pad with
+	#   returns    nothing today
+	#   warning    known defect: it ends in ExtendedToWithItemsIn, a method a plain list does not
+	#              have, so the call raises error R14
+	#   see        ExtendWith
 	def ExtendWithItemsIn(paItems)
 		This.ExtendToWithItemsIn( This.SizeOfLargestList(), paItems)
 
@@ -2091,12 +2506,26 @@ class stzListOfLists from stzList
 			This.ExtendWithItemsIn(paItems)
 			return This
 
+		# Raises error R14 today instead of padding every list to the longest size with the given items in turn.
+		#
+		#   paItems    the items to pad with
+		#   returns    nothing today
+		#   warning    known defect: it ends in ExtendedToWithItemsIn, a method a plain list does
+		#              not have, so the call raises error R14
+		#   see        ExtendWith
 		def ExtendUsingItemsIn(paItems)
 			This.ExtendWithItemsIn(paItems)
 
 			def ExtendUsingItemsInQ(paItems)
 				return This.ExtendWithItemsInQ(paItems)
 
+	# Raises error R14 today instead of returning a copy padded to the longest size with the given items in turn.
+	#
+	#   paItems    the items to pad with
+	#   returns    nothing today
+	#   warning    known defect: it ends in ExtendedToWithItemsIn, a method a plain list does not
+	#              have, so the call raises error R14
+	#   see        Extended
 	def ExtendedWithItemsIn(paItems)
 		_aEwiResult_ = This.Copy().ExtendWithItemsInQ(paItems).Content()
 		return _aEwiResult_
@@ -2108,6 +2537,10 @@ class stzListOfLists from stzList
 	 #  SHRINKING THE LIST OF LISTS   #
 	#================================#
 
+	# Cuts every list down to the size of the shortest list, in place.
+	#
+	#   returns    nothing; the content changes
+	#   see        Shrinked, ShrinkTo
 	def Shrink()
 		This.ShrinkTo( This.SizeOfSmallestList() )
 
@@ -2115,49 +2548,110 @@ class stzListOfLists from stzList
 			This.Shrink()
 			return This
 
+		# Cuts every list down to the size of the shortest list, in place.
+		#
+		#   returns    nothing; the content changes
+		#   see        Shrink
 		#< @FunctionAlternativeForms
-
 		def AdjustToSmallest()
 			This.Shrink()
 
+		# Cuts every list down to the size of the shortest list, in place.
+		#
+		#   returns    nothing; the content changes
+		#   see        Shrink
 		def AdjustToSmallestSize()
 			This.Shrink()
 
+		# Cuts every list down to the size of the shortest list, in place.
+		#
+		#   returns    nothing; the content changes
+		#   see        Shrink
 		def AdjustToSmallestList()
 			This.Shrink()
 
+		# Cuts every list down to the size of the shortest list, in place.
+		#
+		#   returns    nothing; the content changes
+		#   see        Shrink
 		def AdjustToMin()
 			This.Shrink()
 
+		# Cuts every list down to the size of the shortest list, in place.
+		#
+		#   returns    nothing; the content changes
+		#   see        Shrink
 		def AdjustToMinSize()
 			This.Shrink()
 
+		# Cuts every list down to the size of the shortest list, in place.
+		#
+		#   returns    nothing; the content changes
+		#   see        Shrink
 		def AdjustToMinList()
 			This.Shrink()
 
+	# Returns a copy with every list cut to the size of the shortest; the object is unchanged.
+	#
+	#   returns    a list of lists
+	#   see        Shrink
 		#>
-
 	def Shrinked()
 		_aSkResult_ = This.Copy().ShrinkQ().Content()
 		return _aSkResult_
 
+		# Returns nothing today instead of a copy with every list cut to the size of the shortest.
+		#
+		#   returns    nothing today
+		#   warning    known defect: the body calls Shrinked but has no return, so the answer is
+		#              lost; Shrinked works
+		#   see        Shrinked
 		#< @FunctionAlternativeForms
-
 		def AdjustedToSmallest()
 			This.Shrinked()
 
+		# Returns nothing today instead of a copy with every list cut to the size of the shortest.
+		#
+		#   returns    nothing today
+		#   warning    known defect: the body calls Shrinked but has no return, so the answer is
+		#              lost; Shrinked works
+		#   see        Shrinked
 		def AdjustedToSmallestSize()
 			This.Shrinked()
 
+		# Returns nothing today instead of a copy with every list cut to the size of the shortest.
+		#
+		#   returns    nothing today
+		#   warning    known defect: the body calls Shrinked but has no return, so the answer is
+		#              lost; Shrinked works
+		#   see        Shrinked
 		def AdjustedToSmallestList()
 			This.Shrinked()
 
+		# Returns nothing today instead of a copy with every list cut to the size of the shortest.
+		#
+		#   returns    nothing today
+		#   warning    known defect: the body calls Shrinked but has no return, so the answer is
+		#              lost; Shrinked works
+		#   see        Shrinked
 		def AdjustedToMin()
 			This.Shrinked()
 
+		# Returns nothing today instead of a copy with every list cut to the size of the shortest.
+		#
+		#   returns    nothing today
+		#   warning    known defect: the body calls Shrinked but has no return, so the answer is
+		#              lost; Shrinked works
+		#   see        Shrinked
 		def AdjustedToMinSize()
 			This.Shrinked()
 
+		# Returns nothing today instead of a copy with every list cut to the size of the shortest.
+		#
+		#   returns    nothing today
+		#   warning    known defect: the body calls Shrinked but has no return, so the answer is
+		#              lost; Shrinked works
+		#   see        Shrinked
 		def AdjustedToMinList()
 			This.Shrinked()
 
@@ -2168,6 +2662,12 @@ class stzListOfLists from stzList
 	#------------------------------------------------------------------#
 
 
+	# Cuts every list longer than n down to its first n items, in place.
+	#
+	#   _n_        the size to cut to
+	#   returns    nothing; the content changes
+	#   note       shorter lists are left as they are
+	#   see        ShrinkedTo, Shrink
 	def ShrinkTo(_n_)
 		#TODO // Review implementation for performance and history tracing
 
@@ -2191,17 +2691,30 @@ class stzListOfLists from stzList
 			This.ShrinkTo(_n_) ### Fixed: was misspelled "ShrinkTp"
 			return This
 
+		# Cuts every list longer than n down to its first n items, in place.
+		#
+		#   _n_        the size to cut to
+		#   returns    nothing; the content changes
+		#   see        ShrinkTo
 		#< @FunctionAlternativeForm
-
 		def ShrinkToPosition(_n_)
 			This.ShrinkTo(_n_)
 
+	# Returns a copy with every list cut to its first n items; the object is unchanged.
+	#
+	#   _n_        the size to cut to
+	#   returns    a list of lists
+	#   see        ShrinkTo
 		#>
-
 	def ShrinkedTo(_n_)
 		_aSkdtResult_ = This.Copy().ShrinkToQ(_n_).Content()
 		return _aSkdtResult_
 
+		# Returns a copy with every list cut to its first n items; the object is unchanged.
+		#
+		#   _n_        the size to cut to
+		#   returns    a list of lists
+		#   see        ShrinkTo
 		def ShrinkedToPosition(_n_)
 			if NOT isNumber(_n_)
 				StzRaise("Incorrect param type! n must be a number.")
@@ -2213,6 +2726,14 @@ class stzListOfLists from stzList
 	 #  SHRINKING (EACH LIST IN) THE LIST OF LISTS TO A GIVEN POSITION USING A GIVEN VALUE  #
 	#--------------------------------------------------------------------------------------#
 
+	# Cuts every list longer than n down to its first n items, in place, and never uses the given item.
+	#
+	#   _n_        the size to cut to
+	#   pItem      an item that is not used today
+	#   returns    nothing; the content changes
+	#   warning    known defect: the padding loop never runs, and when n is greater than the longest
+	#              list every list is dropped and the content becomes empty
+	#   see        ShrinkTo
 	def ShrinkToWith(_n_, pItem)
 
 		if CheckingParams()
@@ -2273,10 +2794,16 @@ class stzListOfLists from stzList
 			This.ShrinkToWith(_n_, pItem)
 			return This
 
+		# Cuts every list longer than n down to its first n items, in place, and never uses the given item.
+		#
+		#   _n_        the size to cut to
+		#   pItem      an item that is not used today
+		#   returns    nothing; the content changes
+		#   warning    known defect: the padding loop never runs, and when n is greater than the
+		#              longest list every list is dropped and the content becomes empty
+		#   see        ShrinkTo
 		#>
-
 		#< @FunctionAlternativeForms
-
 		def ShrinkToUsing(_n_, pItem)
 			This.ShrinkToWith(_n_, pItem)
 
@@ -2289,17 +2816,39 @@ class stzListOfLists from stzList
 			def ShrinkXTQ(_n_, pItem)
 				return This.ShrinkToWithQ(_n_, pItem)
 
+	# Returns a copy with every list cut to its first n items; the given item is never used.
+	#
+	#   _n_        the size to cut to
+	#   pWith      an item that is not used today
+	#   returns    a list of lists
+	#   warning    known defect: when n is greater than the longest list every list is dropped and
+	#              the answer is empty
+	#   see        ShrinkedTo
 		#>
-
 	def ShrinkedToWith(_n_, pWith)
 		_aSktwResult_ = This.Copy().ShrinkToWithQ(_n_, pWith).Content()
 		return _aSktwResult_
 
+		# Returns a copy with every list cut to its first n items; the given item is never used.
+		#
+		#   _n_        the size to cut to
+		#   pUsing     an item that is not used today
+		#   returns    a list of lists
+		#   warning    known defect: when n is greater than the longest list every list is dropped
+		#              and the answer is empty
+		#   see        ShrinkedTo
 		#< @FunctionAlternativeForms
-
 		def ShrinkedToUsing(_n_, pUsing)
 			return This.ShrinkedToWith(_n_, pUsing) ### Fixed: was passing undefined pWith
 
+		# Returns a copy with every list cut to its first n items; the given item is never used.
+		#
+		#   _n_        the size to cut to
+		#   pBy        an item that is not used today
+		#   returns    a list of lists
+		#   warning    known defect: when n is greater than the longest list every list is dropped
+		#              and the answer is empty
+		#   see        ShrinkedTo
 		def ShrinkedToBy(_n_, pBy)
 			return This.ShrinkedToWith(_n_, pBy) ### Fixed: was passing undefined pWith
 
@@ -2309,6 +2858,11 @@ class stzListOfLists from stzList
 	 #  ADJUSTING THE LIST OF LISTS TO A GIVEN NUMBER OF ITEMS USING A GIVEN ITEM  #
 	#-----------------------------------------------------------------------------#
 
+	# Pads every shorter list with the given item up to the size of the longest list, in place.
+	#
+	#   pItem      the item to pad with
+	#   returns    nothing; the content changes
+	#   see        AdjustedWith, Extend
 	def AdjustWith(pItem)
 
 		if CheckingParams()
@@ -2364,12 +2918,22 @@ class stzListOfLists from stzList
 			This.AdjustWith(pItem)
 			return This
 
+		# Pads every shorter list with the given item up to the size of the longest list, in place.
+		#
+		#   pItem      the item to pad with
+		#   returns    nothing; the content changes
+		#   see        AdjustWith
 		def AdjustUsing(pItem)
 			This.AdjustWith(pItem)
 
 			def AdjustUsingQ(pItem)
 				return This.AdjustWithQ(pItem)
 
+	# Returns a copy with every shorter list padded with the given item to the size of the longest; the object is unchanged.
+	#
+	#   pItem      the item to pad with
+	#   returns    a list of lists
+	#   see        AdjustWith
 	def AdjustedWith(pItem)
 		_aAdwdResult_ = This.Copy().AdjustWithQ(pItem).Content()
 		return _aAdwdResult_
@@ -2377,8 +2941,12 @@ class stzListOfLists from stzList
 		def AdjustedUsing(pItem)
 			return This.AdjustedWith(pItem)
 
+	# Pads every list shorter than n with empty text, and cuts every longer list, so each holds exactly n items, in place.
+	#
+	#   _n_        the size every list gets
+	#   returns    nothing; the content changes
+	#   see        AdjustedTo, AdjustToWith
 	#---
-
 	def AdjustTo(_n_)
 		This.AdjustXT(_n_, "")
 
@@ -2386,12 +2954,22 @@ class stzListOfLists from stzList
 			This.AdjustTo(_n_)
 			return This
 
+		# Pads every list shorter than n with empty text, and cuts every longer list, so each holds exactly n items, in place.
+		#
+		#   _n_        the size every list gets
+		#   returns    nothing; the content changes
+		#   see        AdjustTo
 		def AdjustToPosition(_n_)
 			This.AdjustTo(_n_)
 
 			def AdjustToPositionQ(_n_)
 				return This.AdjustToQ(_n_)
 
+	# Returns a copy where every list holds exactly n items, padded with empty text or cut; the object is unchanged.
+	#
+	#   _n_        the size every list gets
+	#   returns    a list of lists
+	#   see        AdjustTo
 	def AdjustedTo(_n_)
 		_aAdtResult_ = This.Copy().AdjustToQ(_n_).Content() ### Fixed: .Conten() typo
 		return _aAdtResult_
@@ -2473,6 +3051,12 @@ class stzListOfLists from stzList
 			def AdjustToXTQ(_n_, pItem)
 				return This.AdjustXTQ(_n_, pItem)
 
+		# Pads every list shorter than n with the given item, and cuts every longer list, so each holds exactly n items, in place.
+		#
+		#   _n_        the size every list gets
+		#   pItem      the item to pad with
+		#   returns    nothing; the content changes
+		#   see        AdjustTo
 		def AdjustToWith(_n_, pItem)
 			This.AdjustXT(_n_, pItem)
 
@@ -2494,6 +3078,11 @@ class stzListOfLists from stzList
 	 #   ASSOCIATING THE LISTS ITEM BY ITEM   #
 	#========================================#
 
+	# Replaces the lists by their columns: the first items together, then the second items, and so on; gaps become empty text.
+	#
+	#   returns    nothing; the content changes
+	#   note       raises an error for a single list
+	#   see        Associated, Pairify
 	def Associate()
 		This.Update( @Association(This.Content()) )
 
@@ -2501,6 +3090,11 @@ class stzListOfLists from stzList
 			This.Associate()
 			return This
 
+	# Returns the columns of the lists as lists, gaps filled with empty text; the object is unchanged.
+	#
+	#   returns    a list of lists
+	#   note       raises an error for a single list
+	#   see        Associate
 	def Associated()
 		_aAsResult_ = This.Copy().AssociateQ().Content()
 		return _aAsResult_
@@ -2509,6 +3103,11 @@ class stzListOfLists from stzList
 	 #  PAIRIFYING THE TWO LISTS  #
 	#----------------------------#
 
+	# Replaces exactly two lists by [ item, item ] pairs taken position by position, in place.
+	#
+	#   returns    nothing; the content changes
+	#   note       raises an error unless the object holds exactly two lists of the same size
+	#   see        Pairified, Associate
 	def Pairify()
 		This.UpdateWith( @Pairify(This.Content()) )
 
@@ -2516,6 +3115,11 @@ class stzListOfLists from stzList
 			This.Pairify() ### Fixed: was "Parify" typo
 			return This
 
+	# Returns the pairs [ item of the first list, item of the second list ]; the object is unchanged.
+	#
+	#   returns    a list of pairs
+	#   note       raises an error unless the object holds exactly two lists of the same size
+	#   see        Pairify, Associated
 	def Pairified()
 		_aPaResult_ = This.Copy().PairifyQ().Content()
 		return _aPaResult_
@@ -2524,9 +3128,11 @@ class stzListOfLists from stzList
 	 #   REVERSING THE ITEMS OF THE LIST   #
 	#-------------------------------------#
 
-	# To avoid confusion, it's better to use the alternative forms
-	# ReverseItems() and ItemsReversed()
-
+	# Reverses the order of the lists, in place; the items inside each list keep their order.
+	#
+	#   returns    nothing; the content changes
+	#   see        ReversedLists, ReverseItemsInLists
+	#@ aka  To avoid confusion, it's better to use the alternative forms ReverseItems() and ItemsReversed()
 	def ReverseLists()
 
 		_oRvlTemp_ = new stzList(This.ListOfLists())
@@ -2534,6 +3140,10 @@ class stzListOfLists from stzList
 
 		This.Update( _aRvlResult_ )
 
+		# Reverses the order of the lists, in place; the items inside each list keep their order.
+		#
+		#   returns    nothing; the content changes
+		#   see        ReverseLists
 		def ReverseItems()
 			This.ReverseLists()
 
@@ -2542,12 +3152,20 @@ class stzListOfLists from stzList
 			This.ReverseLists()
 			return This
 
+		# Reverses the order of the lists, in place; the items inside each list keep their order.
+		#
+		#   returns    nothing; the content changes
+		#   see        ReverseLists
 		def Reverse()
 			This.ReverseLists()
 
 			def ReverseQ()
 				return This.ReverseListsQ()
 
+	# Returns the lists in reverse order; the object is unchanged.
+	#
+	#   returns    a list of lists
+	#   see        ReverseLists
 	def ReversedLists()
 		_aRvldResult_ = This.Copy().ReverseListsQ().Content()
 		return _aRvldResult_
@@ -2569,6 +3187,10 @@ class stzListOfLists from stzList
 	 #   REVERSING ITEMS INSIDE THE LISTS   #
 	#--------------------------------------#
 
+	# Reverses the items inside each list, in place; the lists keep their order.
+	#
+	#   returns    nothing; the content changes
+	#   see        ItemsInListsReversed, ReverseLists
 	def ReverseItemsInLists()
 		_aRiilLists_ = This.ListOfLists()
 		_nRiilLen_ = len(_aRiilLists_)
@@ -2585,6 +3207,10 @@ class stzListOfLists from stzList
 			This.ReverseItemsInLists()
 			return This
 
+		# Reverses the items inside each list, in place; the lists keep their order.
+		#
+		#   returns    nothing; the content changes
+		#   see        ReverseItemsInLists
 		def ReverseListsContent()
 			This.ReverseItemsInLists()
 
@@ -2592,6 +3218,10 @@ class stzListOfLists from stzList
 				This.ReverseListsContent()
 				return This
 
+	# Returns a copy with the items inside each list reversed; the object is unchanged.
+	#
+	#   returns    a list of lists
+	#   see        ReverseItemsInLists
 	def ItemsInListsReversed()
 		_aIilrResult_ = This.Copy().ReverseItemsInListsQ().Content()
 		return _aIilrResult_
@@ -2674,8 +3304,13 @@ class stzListOfLists from stzList
 	def IndexedCS(pCaseSensitive)
 		return This.IndexCS(pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Returns [ item, [ list positions ] ] pairs: each distinct item with the positions of the lists that hold it.
+	#
+	#   returns    a list of [ item, positions ] pairs
+	#   note       the match is case-sensitive; an item found twice in one list gives that list
+	#              position twice
+	#   see        FindInLists, FindManyInLists
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def Index()
 		return This.IndexCS(1)
 
@@ -2781,15 +3416,37 @@ class stzListOfLists from stzList
 	 #   ENTRY    #
 	#------------#
 
+	# Raises error R14 today instead of returning the index entry of an item by position.
+	#
+	#   pEntry     the item whose entry is wanted
+	#   returns    nothing today
+	#   warning    known defect: it calls IndexOn, which is defined nowhere, so the call raises
+	#              error R14
+	#   see        Index
 	def EntryByPosition(pEntry)
 		return This.Entry(pEntry, :ByPosition)
 
+	# Raises error R14 today instead of returning the index entry of an item by its number of occurrences.
+	#
+	#   pEntry     the item whose entry is wanted
+	#   returns    nothing today
+	#   warning    known defect: it calls IndexOn, which is defined nowhere, so the call raises
+	#              error R14
+	#   see        Index
 	def EntryByNumberOfOccurrence(pEntry)
 		return This.Entry(pEntry, :ByNumberOfOccurrence)
 
 		def EntryByNumberOfOccurrences(pEntry)
 			return This.EntryByNumberOfOccurrence(pEntry)
 
+	# Raises error R14 today instead of returning the index entry of an item, by position or by number of occurrences.
+	#
+	#   pEntry     the item whose entry is wanted
+	#   pcBy       :ByPosition or :ByNumberOfOccurrence
+	#   returns    nothing today
+	#   warning    known defect: it calls IndexOn, which is defined nowhere, so the call raises
+	#              error R14 for either mode; any other pcBy returns empty text
+	#   see        Index
 	def Entry(pEntry,pcBy)
 		if pcBy = :ByPosition
 			return This.IndexOn(:Position)[pEntry]
@@ -2802,27 +3459,70 @@ class stzListOfLists from stzList
 	 #   OCCURRENCE OF AN ENTRY IN THE INDEX   #
 	#-----------------------------------------#
 
+	# Raises error R14 today instead of returning how many times an item occurs.
+	#
+	#   pEntry     the item to count
+	#   returns    nothing today
+	#   warning    known defect: it calls IndexOn, which is defined nowhere, so the call raises
+	#              error R14
+	#   see        Index
 	def NumberOfOccurrenceOfEntry(pEntry)
 		return len(This.IndexOn(:Position)[pEntry]) ### Fixed: was bare o1
 
 		def NumberOfOccurrencesOfEntry(pEntry)
 			return This.NumberOfOccurrenceOfEntry(pEntry)
 
+		# Raises error R14 today instead of returning how many times an item occurs.
+		#
+		#   pEntry     the item to count
+		#   returns    nothing today
+		#   warning    known defect: it calls IndexOn, which is defined nowhere, so the call raises
+		#              error R14
+		#   see        Index
 		def HowManyEntry(pEntry)
 			return len(This.IndexOn(:Position)[pEntry]) ### Fixed: was bare o1 + missing pEntry param
 
+		# Raises error R14 today instead of returning how many times an item occurs.
+		#
+		#   pEntry     the item to count
+		#   returns    nothing today
+		#   warning    known defect: it calls IndexOn, which is defined nowhere, so the call raises
+		#              error R14
+		#   see        Index
 		def HowManyEntries(pEntry)
 			return len(This.IndexOn(:Position)[pEntry]) ### Fixed: was bare o1 + missing pEntry param
 
+	# Raises error R14 today instead of returning where an item occurs for the nth time.
+	#
+	#   _n_        which occurrence
+	#   pEntry     the item to look for
+	#   returns    nothing today
+	#   warning    known defect: it calls IndexOn, which is defined nowhere, so the call raises
+	#              error R14
+	#   see        Index
 	def NthOccurrenceOfEntry(_n_, pEntry)
 		return This.IndexOn(:Position)[pEntry][_n_] ### Fixed: was bare o1
 
 		def NthOccurrencesOfEntry(_n_, pEntry)
 			return This.NthOccurrenceOfEntry(_n_, pEntry)
 
+	# Raises error R14 today instead of returning where an item first occurs.
+	#
+	#   pEntry     the item to look for
+	#   returns    nothing today
+	#   warning    known defect: it calls IndexOn, which is defined nowhere, so the call raises
+	#              error R14
+	#   see        Index
 	def FirstOccurrenceOfEntry(pEntry)
 		return This.NthOccurrenceOfEntry(1, pEntry) ### Fixed: was bare call
 
+	# Raises error R14 today instead of returning where an item last occurs.
+	#
+	#   pEntry     the item to look for
+	#   returns    nothing today
+	#   warning    known defect: it calls IndexOn, which is defined nowhere, so the call raises
+	#              error R14
+	#   see        Index
 	def LastOccurrenceOfEntry(pEntry)
 		return This.NthOccurrenceOfEntry(This.NumberOfOccurrenceOfEntry(pEntry), pEntry) ### Fixed: was bare call
 
@@ -2845,8 +3545,12 @@ class stzListOfLists from stzList
 
 		return _bCicResult_
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# TRUE if the item occurs inside at least one of the lists; the match is case-sensitive.
+	#
+	#   pItem      the item to look for
+	#   returns    TRUE or FALSE
+	#   see        ListsContainingItem, EachListContains
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def ContainsItem(pItem)
 		return This.ContainsItemCS(pItem, 1) ### Fixed: was passing symbol :CaseSensitive instead of 1
 
@@ -2867,8 +3571,12 @@ class stzListOfLists from stzList
 		next
 		return _aLciResult_
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Returns the lists that hold the item; the match is case-sensitive.
+	#
+	#   pItem      the item to look for
+	#   returns    a list of lists
+	#   see        ContainsItem
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def ListsContainingItem(pItem)
 		return This.ListsContainingItemCS(pItem, 1)
 
@@ -2907,10 +3615,13 @@ class stzListOfLists from stzList
 		def AllListsContainCS(pItem, pCaseSensitive)
 			return This.EachListContainsCS(pItem, pCaseSensitive)
 
+	# TRUE if the item occurs inside every list; the match is case-sensitive.
+	#
+	#   pItem      the item to look for
+	#   returns    TRUE or FALSE
+	#   see        ContainsItem
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def EachListContains(pItem)
 		return This.EachListContainsCS(pItem, 1)
 
@@ -2937,12 +3648,22 @@ class stzListOfLists from stzList
 	 #  GETTING A MERGED COPY OF THE LIST OF LISTS  #
 	#==============================================#
 
+	# Raises an error on purpose: the lists cannot be merged in place, use the passive form instead.
+	#
+	#   returns    nothing today
+	#   warning    known defect: the body only raises "Can't merge the list of lists! ... use
+	#              Merged()"
+	#   see        Merged
 	def Merge()
 		StzRaise("Can't merge the list of lists! Instead you can return a merged copy of it using Merged()")
 
 		def MergeQ()
 			StzRaise("Can't merge the list of lists! Instead you can return a merged copy of it using Merged()")
 
+	# Returns the items of all the lists joined into one flat list; the object is unchanged.
+	#
+	#   returns    a list of items
+	#   see        Flattened, Merge
 	def Merged()
 		_aMgResult_ = @Merge(@aContent)
 		return _aMgResult_
@@ -2951,12 +3672,22 @@ class stzListOfLists from stzList
 	 #  GETTING A FLATTENED COPY OF THE LIST  #
 	#----------------------------------------#
 
+	# Raises an error on purpose: the lists cannot be flattened in place, use the passive form instead.
+	#
+	#   returns    nothing today
+	#   warning    known defect: the body only raises "Can't flatten the list of lists! ... use
+	#              Flattened()"
+	#   see        Flattened
 	def Flatten()
 		StzRaise("Can't flatten the list of lists! Instead you can return a flattend copy of it using Flattened()")
 
 		def FlattenQ()
 			StzRaise("Can't flatten the list of lists! Instead you can return a flattend copy of it using Flattened()")
 
+	# Returns the items of all the lists joined into one flat list; the object is unchanged.
+	#
+	#   returns    a list of items
+	#   see        Merged, Flatten
 	def Flattened()
 		return This.ToStzList().Flattened()
 
@@ -2967,6 +3698,11 @@ class stzListOfLists from stzList
 	 #  CHECKING IF THE SIZE OF EACH ITEM EQUALS A GIVEN NUMBER  #
 	#===========================================================#
 
+	# TRUE if every list holds exactly n items.
+	#
+	#   _n_        the number of items each list should hold
+	#   returns    TRUE or FALSE
+	#   see        Sizes, ListsHaveSameNumberOfItems
 	def SizeOfEach@Is(_n_)
 		_aSeContent_ = This.Content()
 		_nSeLen_ = len(_aSeContent_)
@@ -2982,97 +3718,245 @@ class stzListOfLists from stzList
 
 		return _bSeResult_
 
+		# TRUE if every list holds exactly n items.
+		#
+		#   _n_        the number of items each list should hold
+		#   returns    TRUE or FALSE
+		#   see        Sizes, ListsHaveSameNumberOfItems
 		#< @FunctionalternativeForms
-
 		def TheSizeOfEach@Is(_n_)
 			return This.SizeOfEach@Is(_n_)
 
+		# TRUE if every list holds exactly n items.
+		#
+		#   _n_        the number of items each list should hold
+		#   returns    TRUE or FALSE
+		#   see        Sizes, ListsHaveSameNumberOfItems
 		def TheSizeInEach@Is(_n_)
 			return This.SizeOfEach@Is(_n_)
 
+		# TRUE if every list holds exactly n items.
+		#
+		#   _n_        the number of items each list should hold
+		#   returns    TRUE or FALSE
+		#   see        Sizes, ListsHaveSameNumberOfItems
 		def TheSizeOfEach@IsEqualTo(_n_)
 			return This.SizeOfEach@Is(_n_)
 
+		# TRUE if every list holds exactly n items.
+		#
+		#   _n_        the number of items each list should hold
+		#   returns    TRUE or FALSE
+		#   see        Sizes, ListsHaveSameNumberOfItems
 		def TheSizeInEach@IsEqualTo(_n_)
 			return This.SizeOfEach@Is(_n_)
 
+		# TRUE if every list holds exactly n items.
+		#
+		#   _n_        the number of items each list should hold
+		#   returns    TRUE or FALSE
+		#   see        Sizes, ListsHaveSameNumberOfItems
 		def SizeOfEachListEquals(_n_)
 			return This.SizeOfEach@Is(_n_)
 
+		# TRUE if every list holds exactly n items.
+		#
+		#   _n_        the number of items each list should hold
+		#   returns    TRUE or FALSE
+		#   see        Sizes, ListsHaveSameNumberOfItems
 		def SizeInEachListEquals(_n_)
 			return This.SizeOfEach@Is(_n_)
 
+		# TRUE if every list holds exactly n items.
+		#
+		#   _n_        the number of items each list should hold
+		#   returns    TRUE or FALSE
+		#   see        Sizes, ListsHaveSameNumberOfItems
 		def SizeOfEach@IsEqualTo(_n_)
 			return This.SizeOfEach@Is(_n_)
 
+		# TRUE if every list holds exactly n items.
+		#
+		#   _n_        the number of items each list should hold
+		#   returns    TRUE or FALSE
+		#   see        Sizes, ListsHaveSameNumberOfItems
 		def SizeInEach@IsEqualTo(_n_)
 			return This.SizeOfEach@Is(_n_)
 
+		# TRUE if every list holds exactly n items.
+		#
+		#   _n_        the number of items each list should hold
+		#   returns    TRUE or FALSE
+		#   see        Sizes, ListsHaveSameNumberOfItems
 		def TheSizeOfEachListEquals(_n_)
 			return This.SizeOfEach@Is(_n_)
 
+		# TRUE if every list holds exactly n items.
+		#
+		#   _n_        the number of items each list should hold
+		#   returns    TRUE or FALSE
+		#   see        Sizes, ListsHaveSameNumberOfItems
 		def TheSizeInEachListEquals(_n_)
 			return This.SizeOfEach@Is(_n_)
 
+		# TRUE if every list holds exactly n items.
+		#
+		#   _n_        the number of items each list should hold
+		#   returns    TRUE or FALSE
+		#   see        Sizes, ListsHaveSameNumberOfItems
 		def EachListHasTheSize(_n_)
 			return This.SizeOfEach@Is(_n_)
 
+		# TRUE if every list holds exactly n items.
+		#
+		#   _n_        the number of items each list should hold
+		#   returns    TRUE or FALSE
+		#   see        Sizes, ListsHaveSameNumberOfItems
 		def EachListHasSize(_n_)
 			return This.SizeOfEach@Is(_n_)
 
+		# TRUE if every list holds exactly n items.
+		#
+		#   _n_        the number of items each list should hold
+		#   returns    TRUE or FALSE
+		#   see        Sizes, ListsHaveSameNumberOfItems
 		def EachListHasItsSizeEqualTo(_n_)
 			return This.SizeOfEach@Is(_n_)
 
+		# TRUE if every list holds exactly n items.
+		#
+		#   _n_        the number of items each list should hold
+		#   returns    TRUE or FALSE
+		#   see        Sizes, ListsHaveSameNumberOfItems
 		def EachListHasThisSize(_n_)
 			return This.SizeOfEach@Is(_n_)
 
+		# TRUE if every list holds exactly n items.
+		#
+		#   _n_        the number of items each list should hold
+		#   returns    TRUE or FALSE
+		#   see        Sizes, ListsHaveSameNumberOfItems
 		def EachListHasThisSameSize(_n_)
 			return This.SizeOfEach@Is(_n_)
 
-		#--
-
+		# TRUE if every list holds exactly n items.
+		#
+		#   _n_        the number of items each list should hold
+		#   returns    TRUE or FALSE
+		#   see        Sizes, ListsHaveSameNumberOfItems
+		#@ aka  --
 		def TheNumberOfItemsOfEach@Is(_n_)
 			return This.SizeOfEach@Is(_n_)
 
+		# TRUE if every list holds exactly n items.
+		#
+		#   _n_        the number of items each list should hold
+		#   returns    TRUE or FALSE
+		#   see        Sizes, ListsHaveSameNumberOfItems
 		def TheNumberOfItemsInEach@Is(_n_)
 			return This.SizeOfEach@Is(_n_)
 
+		# TRUE if every list holds exactly n items.
+		#
+		#   _n_        the number of items each list should hold
+		#   returns    TRUE or FALSE
+		#   see        Sizes, ListsHaveSameNumberOfItems
 		def TheNumberOfItemsOfEach@IsEqualTo(_n_)
 			return This.SizeOfEach@Is(_n_)
 
+		# TRUE if every list holds exactly n items.
+		#
+		#   _n_        the number of items each list should hold
+		#   returns    TRUE or FALSE
+		#   see        Sizes, ListsHaveSameNumberOfItems
 		def TheNumberOfItemsInEach@IsEqualTo(_n_)
 			return This.SizeOfEach@Is(_n_)
 
+		# TRUE if every list holds exactly n items.
+		#
+		#   _n_        the number of items each list should hold
+		#   returns    TRUE or FALSE
+		#   see        Sizes, ListsHaveSameNumberOfItems
 		def NumberOfItemsOfEachListEquals(_n_)
 			return This.SizeOfEach@Is(_n_)
 
+		# TRUE if every list holds exactly n items.
+		#
+		#   _n_        the number of items each list should hold
+		#   returns    TRUE or FALSE
+		#   see        Sizes, ListsHaveSameNumberOfItems
 		def NumberOfItemsInEachListEquals(_n_)
 			return This.SizeOfEach@Is(_n_)
 
+		# TRUE if every list holds exactly n items.
+		#
+		#   _n_        the number of items each list should hold
+		#   returns    TRUE or FALSE
+		#   see        Sizes, ListsHaveSameNumberOfItems
 		def NumberOfItemsOfEach@IsEqualTo(_n_)
 			return This.SizeOfEach@Is(_n_)
 
+		# TRUE if every list holds exactly n items.
+		#
+		#   _n_        the number of items each list should hold
+		#   returns    TRUE or FALSE
+		#   see        Sizes, ListsHaveSameNumberOfItems
 		def NumberOfItemsInEach@IsEqualTo(_n_)
 			return This.SizeOfEach@Is(_n_)
 
+		# TRUE if every list holds exactly n items.
+		#
+		#   _n_        the number of items each list should hold
+		#   returns    TRUE or FALSE
+		#   see        Sizes, ListsHaveSameNumberOfItems
 		def TheNumberOfItemsOfEachListEquals(_n_)
 			return This.SizeOfEach@Is(_n_)
 
+		# TRUE if every list holds exactly n items.
+		#
+		#   _n_        the number of items each list should hold
+		#   returns    TRUE or FALSE
+		#   see        Sizes, ListsHaveSameNumberOfItems
 		def TheNumberOfCharsInEachStringEquals(_n_)
 			return This.SizeOfEach@Is(_n_)
 
+		# TRUE if every list holds exactly n items.
+		#
+		#   _n_        the number of items each list should hold
+		#   returns    TRUE or FALSE
+		#   see        Sizes, ListsHaveSameNumberOfItems
 		def EachListHasTheNumberOfItems(_n_)
 			return This.SizeOfEach@Is(_n_)
 
+		# TRUE if every list holds exactly n items.
+		#
+		#   _n_        the number of items each list should hold
+		#   returns    TRUE or FALSE
+		#   see        Sizes, ListsHaveSameNumberOfItems
 		def EachListHasNumberOfItems(_n_)
 			return This.SizeOfEach@Is(_n_)
 
+		# TRUE if every list holds exactly n items.
+		#
+		#   _n_        the number of items each list should hold
+		#   returns    TRUE or FALSE
+		#   see        Sizes, ListsHaveSameNumberOfItems
 		def EachListHasItsNumberOfItemsEqualTo(_n_)
 			return This.SizeOfEach@Is(_n_)
 
+		# TRUE if every list holds exactly n items.
+		#
+		#   _n_        the number of items each list should hold
+		#   returns    TRUE or FALSE
+		#   see        Sizes, ListsHaveSameNumberOfItems
 		def EachListItemHasThisNumberOfItems(_n_)
 			return This.SizeOfEach@Is(_n_)
 
+		# TRUE if every list holds exactly n items.
+		#
+		#   _n_        the number of items each list should hold
+		#   returns    TRUE or FALSE
+		#   see        Sizes, ListsHaveSameNumberOfItems
 		def EachListItemHasThisSameNumberOfItems(_n_)
 			return This.SizeOfEach@Is(_n_)
 
@@ -3110,8 +3994,11 @@ class stzListOfLists from stzList
 		def IsMadeOfTheSameListCS(pCaseSensitive)
 			return This.AllListsAreEqualCS(pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# TRUE if every list holds the same items in the same order as the first one; the match is case-sensitive.
+	#
+	#   returns    TRUE or FALSE
+	#   see        CommonItems, ListsHaveSameNumberOfItems
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def AllListsAreEqual()
 		return This.AllListsAreEqualCS(1)
 
@@ -3176,8 +4063,12 @@ class stzListOfLists from stzList
 		def IntersectionCS(pCaseSensitive)
 			return This.CommonItemsCS(pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Returns the items that occur in every list; the match is case-sensitive.
+	#
+	#   returns    a list of items
+	#   note       [ ] when no item is shared
+	#   see        AllListsAreEqual, ContainsItem
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def CommonItems()
 		return This.CommonItemsCS(1)
 
@@ -3188,6 +4079,11 @@ class stzListOfLists from stzList
 	 #  GETTING THE NTH COLOUMN IN THE LIST OF LISTS  #
 	#================================================#
 
+	# Returns the columns: the first items of the lists, then the second items, and so on, without padding the short lists.
+	#
+	#   returns    a list of lists
+	#   note       a list too short for a column is skipped in it
+	#   see        NthColumn, Associated
 	def Cols()
 		_nClLen_ = This.NumberOfCols()
 		_aClResult_ = []
@@ -3201,6 +4097,10 @@ class stzListOfLists from stzList
 		def Columns()
 			return This.Cols()
 
+	# Returns how many columns there are, which is the size of the longest list.
+	#
+	#   returns    a number
+	#   see        Cols, SizeOfLargestList
 	def NumberOfColumns()
 		_nNocResult_ = This.MaxSize()
 		return _nNocResult_
@@ -3279,8 +4179,14 @@ class stzListOfLists from stzList
 			def ColXTQ(_n_)
 				return This.NthColumnXTQ(_n_)
 
+	# Returns the items at position n of the lists that have one, in list order.
+	#
+	#   _n_        the column position, 1 for the first
+	#   returns    a list of items
+	#   note       [ ] for a column that does not exist; short lists are skipped, so the answer can
+	#              be shorter than the object
+	#   see        Cols, ItemsAtPositionN
 		#>
-
 	def NthColumn(_n_)
 		if CheckingParams()
 			if NOT isNumber(_n_)
@@ -3340,8 +4246,11 @@ class stzListOfLists from stzList
 			def ColQ(_n_)
 				return This.NthColumnQ(_n_)
 
+	# Returns the first item of every list.
+	#
+	#   returns    a list of items
+	#   see        LastColumn, NthColumn
 		#>
-
 	def FirstColumn()
 		return This.NthColumn(1)
 
@@ -3360,14 +4269,21 @@ class stzListOfLists from stzList
 			def FirstColQ()
 				return This.FirstColumnQ()
 
+		# Returns the first item of every list.
+		#
+		#   returns    a list of items
+		#   see        FirstColumn
 		def FirstItems()
 			return This.NthColumn(1)
 
 			def FirstItemsQ()
 				return This.NthColumnQ(1)
 
+	# Returns the items at the last column position, which only the longest lists have.
+	#
+	#   returns    a list of items
+	#   see        FirstColumn, NumberOfColumns
 		#>
-
 	def LastColumn()
 		return This.NthColumn(This.NumberOfColumns())
 
@@ -3398,6 +4314,13 @@ class stzListOfLists from stzList
 	 #  ADDING A COLUMN AT THE END OF THE LIST  #
 	#==========================================#
 
+	# Appends the given values as a new last column, one value to the end of each list in turn, in place.
+	#
+	#   paList     the values, the first going to the first list
+	#   returns    nothing; the content changes
+	#   note       an empty paList does nothing; with fewer values than lists the remaining lists
+	#              are left unchanged
+	#   see        InsertCol, ReplaceCol
 	def AddCol(paList)
 		/* EXAMPLE
 
@@ -3491,6 +4414,12 @@ class stzListOfLists from stzList
 	 #  SORTING NTH LIST IN  ASCENDING  #
 	#==================================#
 
+	# Sorts the items inside the list at position n, in ascending order, in place.
+	#
+	#   _n_        the position of the list to sort
+	#   returns    nothing; the content changes
+	#   note       the other lists are not touched
+	#   see        NthListSorted, SortLists
 	def SortNthList(_n_)
 		_aSnContent_ = This.Content()
 		_aSnSorted_ = @SortList(_aSnContent_[_n_])
@@ -3503,18 +4432,33 @@ class stzListOfLists from stzList
 			This.SortNthList(_n_)
 			return This
 
+		# Sorts the items inside the list at position n, in ascending order, in place.
+		#
+		#   _n_        the position of the list to sort
+		#   returns    nothing; the content changes
+		#   see        SortNthList
 		def SortupNthList(_n_)
 			This.SortNthList(_n_)
 
 			def SortupNthListQ(_n_)
 				return This.SortNthListQ(_n_)
 
+		# Sorts the items inside the list at position n, in ascending order, in place.
+		#
+		#   _n_        the position of the list to sort
+		#   returns    nothing; the content changes
+		#   see        SortNthList
 		def SortUpNthListInAscending(_n_)
 			This.SortNthList(_n_)
 
 			def SortUpNthListInAscendingQ(_n_)
 				return This.SortNthListQ(_n_)
 
+	# Returns a copy of the lists in which the list at position n is sorted ascending; the object is unchanged.
+	#
+	#   _n_        the position of the list to sort
+	#   returns    a list of lists
+	#   see        SortNthList
 	def NthListSorted(_n_)
 		_aNlsResult_ = This.Copy().SortNthListQ(_n_).Content() ### Fixed: was bad method name + missing arg + no return
 		return _aNlsResult_
@@ -3529,6 +4473,13 @@ class stzListOfLists from stzList
 	 #  SORTING NTH LIST IN DESCENDING  #
 	#----------------------------------#
 
+	# Raises error R13 today instead of sorting the list at position n in descending order, in place.
+	#
+	#   _n_        the position of the list to sort
+	#   returns    nothing today
+	#   warning    known defect: the body chains .Reversed() directly onto new stzList(...), which
+	#              Ring answers with error R13
+	#   see        SortNthList
 	def SortDownNthList(_n_)
 		_aSdnContent_ = This.Content()
 		_aSdnSorted_ = new stzList(@SortList(_aSdnContent_[_n_])).Reversed()
@@ -3541,12 +4492,24 @@ class stzListOfLists from stzList
 			This.SortDownNthList(_n_)
 			return This
 
+		# Raises error R13 today instead of sorting the list at position n in descending order, in place.
+		#
+		#   _n_        the position of the list to sort
+		#   returns    nothing today
+		#   warning    known defect: it calls SortDownNthList, which raises error R13
+		#   see        SortNthList
 		def SortNthListInDescending(_n_)
 			This.SortDownNthList(_n_)
 
 			def SortNthListInDescendingQ(_n_)
 				return This.SortNthListQ(_n_)
 
+	# Raises error R13 today instead of returning a copy with the list at position n sorted descending.
+	#
+	#   _n_        the position of the list to sort
+	#   returns    nothing today
+	#   warning    known defect: it calls SortDownNthList, which raises error R13
+	#   see        NthListSorted
 	def NthListSortedDown(_n_)
 		_aNlsdResult_ = This.Copy().SortDownNthListQ(_n_).Content()
 		return _aNlsdResult_
@@ -3558,6 +4521,10 @@ class stzListOfLists from stzList
 	 #  CHECKING IF THE LIST OF LISTS IS SORTED IN ASCENDING ON THE NTH COLUMN  #
 	#--------------------------------------------------------------------------#
 
+	# TRUE if the first items of the lists are in ascending order.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsSortedInAscendingOn, IsSortedInDescending
 	def IsSortedInAscending()
 		return This.IsSortedInAscendingOn(1)
 
@@ -3567,6 +4534,11 @@ class stzListOfLists from stzList
 		def IsSorted()
 			return This.IsSortedInAscending()
 
+	# TRUE if the items at position n of the lists are in ascending order.
+	#
+	#   _n_        the column position to test
+	#   returns    TRUE or FALSE
+	#   see        IsSortedInAscending
 	def IsSortedInAscendingOn(_n_)
 		_bIsaoResult_ = This.ColQ(_n_).IsSortedInAscending()
 		return _bIsaoResult_
@@ -3581,16 +4553,30 @@ class stzListOfLists from stzList
 	 #  CHECKING IF THE LIST OF LISTS IS SORTED IN DESCENDING ON THE NTH COLUMN  #
 	#---------------------------------------------------------------------------#
 
+	# TRUE if the first items of the lists are in descending order.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsSortedInDescendingOn, IsSortedInAscending
 	def IsSortedInDescending()
 		return This.IsSortedInDescendingOn(1)
 
 		def IsSortedDown()
 			return This.IsSortedInDescending()
 
+	# TRUE if the items at position n of the lists are in descending order.
+	#
+	#   _n_        the column position to test
+	#   returns    TRUE or FALSE
+	#   see        IsSortedInDescending
 	def IsSortedInDescendingOn(_n_)
 		_bIsdoResult_ = This.ColQ(_n_).IsSortedInDescending()
 		return _bIsdoResult_
 
+		# TRUE if the items at position n of the lists are in descending order.
+		#
+		#   _n_        the column position to test
+		#   returns    TRUE or FALSE
+		#   see        IsSortedInDescendingOn
 		def IsSortedDownOn(_n_)
 			return This.IsSortedInDescendingOn(_n_) ### Fixed: was IsSortedInDescendingDown (nonexistent)
 
@@ -3598,6 +4584,10 @@ class stzListOfLists from stzList
 	 #  SORTING THE LISTS IN ASCENDING  #
 	#==================================#
 
+	# Sorts the lists ascending by their first item, in place.
+	#
+	#   returns    nothing; the content changes
+	#   see        Sorted, SortOn
 	def Sort()
 		This.SortOn(1)
 
@@ -3607,26 +4597,34 @@ class stzListOfLists from stzList
 			This.Sort()
 			return This
 
+		# Sorts the lists ascending by their first item, in place.
+		#
+		#   returns    nothing; the content changes
+		#   see        Sort
 		#>
-
 		#< @FunctionAlternativeForms
-
 		def SortInAscending()
 			This.Sort()
 
 			def SortInAscendingQ()
 				return This.SortQ()
 
-		#--
-
+		# Sorts the lists ascending by their first item, in place.
+		#
+		#   returns    nothing; the content changes
+		#   see        Sort
+		#@ aka  --
 		def SortUp()
 			This.Sort()
 
 			def SortUpQ()
 				return This.SortQ()
 
+	# Returns the lists sorted ascending by their first item; the object is unchanged.
+	#
+	#   returns    a list of lists
+	#   see        Sort
 		#>
-
 	def Sorted()
 		_aSdResult_ = This.Copy().SortQ().Content()
 		return _aSdResult_
@@ -3641,6 +4639,10 @@ class stzListOfLists from stzList
 	 #  SORTING THE LISTS IN DESCENDING  #
 	#-----------------------------------#
 
+	# Sorts the lists descending by their first item, in place.
+	#
+	#   returns    nothing; the content changes
+	#   see        SortedDown, Sort
 	def SortDown()
 		This.SortOnDown(1)
 
@@ -3650,18 +4652,23 @@ class stzListOfLists from stzList
 			This.SortDown()
 			return This
 
+		# Sorts the lists descending by their first item, in place.
+		#
+		#   returns    nothing; the content changes
+		#   see        SortDown
 		#>
-
 		#< @FunctionAlternativeForm
-
 		def SortInDescending()
 			This.SortDown()
 
 			def SortInDescendingQ()
 				return This.SortDownQ()
 
+	# Returns the lists sorted descending by their first item; the object is unchanged.
+	#
+	#   returns    a list of lists
+	#   see        SortDown
 		#>
-
 	def SortedDown()
 		_aSdwResult_ = This.Copy().SortDownQ().Content()
 		return _aSdwResult_
@@ -3673,6 +4680,11 @@ class stzListOfLists from stzList
 	 #  SORTING THE LIST OF LISTS ON A GIVEN COLUMN  #
 	#===============================================#
 
+	# Sorts the lists ascending by the item at position n, in place.
+	#
+	#   _n_        the column position to sort on
+	#   returns    nothing; the content changes
+	#   see        SortedOn, SortDownOn
 	def SortOn(_n_)
 
 		_aSoResult_ = @SortListsOn(This.Content(), _n_)
@@ -3685,10 +4697,13 @@ class stzListOfLists from stzList
 			This.SortOn(_n_)
 			return This
 
+		# Sorts the lists ascending by the item at position n, in place.
+		#
+		#   _n_        the column position to sort on
+		#   returns    nothing; the content changes
+		#   see        SortOn
 		#>
-
 		#< @FunctionAlternativeForms
-
 		def SortOnUp(_n_)
 			This.SortOn(_n_)
 
@@ -3696,16 +4711,24 @@ class stzListOfLists from stzList
 				This.SortOn(_n_)
 				return This
 
+		# Sorts the lists ascending by the item at position n, in place.
+		#
+		#   _n_        the column position to sort on
+		#   returns    nothing; the content changes
+		#   see        SortOn
 		def SortInAscendingOn(_n_)
 			This.SortOn(_n_)
 
 			def SortInAscendingOnQ(_n_)
 				return This.SortOnQ(_n_)
 
+	# Sorts the lists descending by the item at position n, in place.
+	#
+	#   _n_        the column position to sort on
+	#   returns    nothing; the content changes
+	#   see        SortDownOn
 		#>
-
-	# SortOnDown / SortDescendingOn -- alias used by external
-	# narratives. Wraps SortDownOn which lives below.
+	#@ aka  SortOnDown / SortDescendingOn -- alias used by external narratives. Wraps SortDownOn which lives below.
 	def SortOnDown(_n_)
 		This.SortDownOn(_n_)
 
@@ -3713,6 +4736,11 @@ class stzListOfLists from stzList
 			This.SortDownOn(_n_)
 			return This
 
+	# Returns the lists sorted ascending by the item at position n; the object is unchanged.
+	#
+	#   _n_        the column position to sort on
+	#   returns    a list of lists
+	#   see        SortOn
 	def SortedOn(_n_)
 		_aSdoResult_ = This.Copy().SortOnQ(_n_).Content()
 
@@ -3728,6 +4756,11 @@ class stzListOfLists from stzList
 	 #  SORTING THE LIST OF LISTS IN DESCENDING ON A GIVEN COLUMN  #
 	#-------------------------------------------------------------#
 
+	# Sorts the lists descending by the item at position n, in place.
+	#
+	#   _n_        the column position to sort on
+	#   returns    nothing; the content changes
+	#   see        SortedDownOn, SortOn
 	def SortDownOn(_n_)
 		# Ring chaining `new stzList(x).Method()` parses ambiguously --
 		# evaluate the construction first, then call the method.
@@ -3741,18 +4774,25 @@ class stzListOfLists from stzList
 			This.SortDownOn(_n_)
 			return This
 
+		# Sorts the lists descending by the item at position n, in place.
+		#
+		#   _n_        the column position to sort on
+		#   returns    nothing; the content changes
+		#   see        SortDownOn
 		#>
-
 		#< @FunctionAlternativeForms
-
 		def SortInDescendingOn(_n_)
 			This.SortDownOn(_n_) ### Fixed: was This.SortDown(n) -- missing On
 
 			def SortInDescendingOnQ(_n_)
 				return This.SortDownOnQ(_n_)
 
+	# Returns the lists sorted descending by the item at position n; the object is unchanged.
+	#
+	#   _n_        the column position to sort on
+	#   returns    a list of lists
+	#   see        SortDownOn
 		#>
-
 	def SortedDownOn(_n_)
 		_aSddoResult_ = This.Copy().SortDownOnQ(_n_).Content()
 
@@ -3772,9 +4812,12 @@ class stzListOfLists from stzList
 	  #---------------------------------------------------------------#
 	 #  SORTING THE LISTS BY AN EVALUATED EXPRESSION - IN ASCENDING  #
 	#===============================================================#
- 	#note
-	# Bu default the sorting is made by evaluating the first column
-
+	# Sorts the lists in place by an expression evaluated on their first item, smallest first.
+	#
+	#   pcExpr     an expression on @item, the first item of each list
+	#   returns    nothing; the content changes
+	#   see        SortedBy, SortOnBy
+	#@ aka  note Bu default the sorting is made by evaluating the first column
 	def SortBy(pcExpr)
 		This.SortOnBy(1, pcExpr)
 
@@ -3784,24 +4827,36 @@ class stzListOfLists from stzList
 			This.SortBy(pcExpr)
 			return This
 
+		# Sorts the lists in place by an expression evaluated on their first item, smallest first.
+		#
+		#   pcExpr     an expression on @item, the first item of each list
+		#   returns    nothing; the content changes
+		#   see        SortBy
 		#>
-
 		#< @FunctionAlternativeForms
-
 		def SortInAscendingBy(pcExpr)
 			This.SortBy(pcExpr)
 
 			def SortInAscendingByQ(pcExpr)
 				return This.SortByQ(pcExpr)
 
+		# Sorts the lists in place by an expression evaluated on their first item, smallest first.
+		#
+		#   pcExpr     an expression on @item, the first item of each list
+		#   returns    nothing; the content changes
+		#   see        SortBy
 		def SortUpBy(pcExpr)
 			This.SortBy(pcExpr)
 
 			def SortUpByQ(pcExpr)
 				return This.SortByQ(pcExpr)
 
+	# Returns the lists sorted by an expression evaluated on their first item, smallest first; the object is unchanged.
+	#
+	#   pcExpr     an expression on @item, the first item of each list
+	#   returns    a list of lists
+	#   see        SortBy
 		#>
-
 	def SortedBy(pcExpr)
 		_aSbResult_ = This.Copy().SortByQ(pcExpr).Content()
 		return _aSbResult_
@@ -3816,6 +4871,11 @@ class stzListOfLists from stzList
 	 #  SORTING THE LISTS BY AN EXPRESSION - IN DESCENDING  #
 	#------------------------------------------------------#
  
+	# Sorts the lists in place by an expression evaluated on their first item, largest first.
+	#
+	#   pcExpr     an expression on @item, the first item of each list
+	#   returns    nothing; the content changes
+	#   see        SortBy
 	def SortInDescendingBy(pcExpr)
 		This.SortInAscendingBy(pcExpr)
 		This.Reverse()
@@ -3824,12 +4884,22 @@ class stzListOfLists from stzList
 			This.SortInDescendingBy(pcExpr)
 			return This
 
+		# Sorts the lists in place by an expression evaluated on their first item, largest first.
+		#
+		#   pcExpr     an expression on @item, the first item of each list
+		#   returns    nothing; the content changes
+		#   see        SortInDescendingBy
 		def SortDownBy(pcExpr)
 			This.SortInDescendingBy(pcExpr)
 
 			def SortDownByQ(pcExpr)
 				return This.SortInDescendingByQ(pcExpr)
 
+	# Returns the lists sorted by an expression evaluated on their first item, largest first; the object is unchanged.
+	#
+	#   pcExpr     an expression on @item, the first item of each list
+	#   returns    a list of lists
+	#   see        SortedBy
 	def SortedInDescendingBy(pcExpr)
 		_aSidbResult_ = This.Copy().SortInDescendingByQ(pcExpr).Content()
 		return _aSidbResult_
@@ -3845,6 +4915,12 @@ class stzListOfLists from stzList
 	#--> returns a hashlist with the evaluated expression
 		StzRaise("Non implemented yet!")
 
+	# Sorts the lists in place by an expression evaluated on the item at position n, smallest first.
+	#
+	#   nCol       the column position to evaluate on
+	#   pcExpr     an expression on @item, the item at that position
+	#   returns    nothing; the content changes
+	#   see        SortedOnBy, SortBy
 	def SortOnBy(nCol, pcExpr)
 
 		_aSobContent_ = This.Content()
@@ -3870,24 +4946,39 @@ class stzListOfLists from stzList
 			This.SortOnBy(nCol, pcExpr) ### Fixed: was bare `ncol` lowercase (works in Ring case-insensitive but unsafe)
 			return This
 
+		# Sorts the lists in place by an expression evaluated on the item at position n, smallest first.
+		#
+		#   nCol       the column position to evaluate on
+		#   pcExpr     an expression on @item, the item at that position
+		#   returns    nothing; the content changes
+		#   see        SortOnBy
 		#>
-
 		#< @FunctionAlternativeForms
-
 		def SortInAscendingOnBy(nCol, pcExpr)
 			This.SortOnBy(nCol, pcExpr)
 
 			def SortInAscendingOnByQ(nCol, pcExpr)
 				return This.SortOnByQ(nCol, pcExpr)
 
+		# Sorts the lists in place by an expression evaluated on the item at position n, smallest first.
+		#
+		#   nCol       the column position to evaluate on
+		#   pcExpr     an expression on @item, the item at that position
+		#   returns    nothing; the content changes
+		#   see        SortOnBy
 		def SortUpOnBy(nCol, pcExpr)
 			This.SortOnBy(nCol, pcExpr)
 
 			def SortOnByUQ(nCol, pcExpr)
 				return This.SortOnByQ(nCol, pcExpr)
 
+	# Returns the lists sorted by an expression evaluated on the item at position n, smallest first; the object is unchanged.
+	#
+	#   nCol       the column position to evaluate on
+	#   pcExpr     an expression on @item, the item at that position
+	#   returns    a list of lists
+	#   see        SortOnBy
 		#>
-
 	def SortedOnBy(nCol, pcExpr)
 		_aSobdResult_ = This.Copy().SortOnByQ(nCol, pcExpr).Content()
 		return _aSobdResult_
@@ -3895,6 +4986,12 @@ class stzListOfLists from stzList
 		def SortedInAscendingOnBy(nCol, pcExpr)
 			return This.SortedOnBy(nCol, pcExpr)
 
+		# Returns the lists sorted by an expression evaluated on the item at position n, smallest first; the object is unchanged.
+		#
+		#   nCol       the column position to evaluate on
+		#   pcExpr     an expression on @item, the item at that position
+		#   returns    a list of lists
+		#   see        SortedOnBy
 		def SortedUpOnBy(nCol, pcExpr)
 			return This.SortedOnBy(nCol, pcExpr) ### Fixed: was SortedByOn (nonexistent)
 
@@ -3902,6 +4999,12 @@ class stzListOfLists from stzList
 	 #  SORTING THE LISTS BY AN EXPRESSION EVALUATED AGAINST A GIVEN COLUMN - IN DESCENDING  #
 	#---------------------------------------------------------------------------------------#
 
+	# Sorts the lists in place by an expression evaluated on the item at position n, largest first.
+	#
+	#   nCol       the column position to evaluate on
+	#   pcExpr     an expression on @item, the item at that position
+	#   returns    nothing; the content changes
+	#   see        SortOnBy
 	def SortInDescendingOnBy(nCol, pcExpr)
 		This.SortInAscendingOnBy(nCol, pcExpr)
 		This.Reverse()
@@ -3910,12 +5013,24 @@ class stzListOfLists from stzList
 			This.SortInDescendingOnBy(nCol, pcExpr)
 			return This
 
+		# Sorts the lists in place by an expression evaluated on the item at position n, largest first.
+		#
+		#   nCol       the column position to evaluate on
+		#   pcExpr     an expression on @item, the item at that position
+		#   returns    nothing; the content changes
+		#   see        SortInDescendingOnBy
 		def SortDownOnBy(nCol, pcExpr)
 			This.SortInDescendingOnBy(nCol, pcExpr)
 
 			def SortDownOnByQ(nCol, pcExpr)
 				return This.SortInDescendingOnByQ(nCol, pcExpr)
 
+	# Returns the lists sorted by an expression evaluated on the item at position n, largest first; the object is unchanged.
+	#
+	#   nCol       the column position to evaluate on
+	#   pcExpr     an expression on @item, the item at that position
+	#   returns    a list of lists
+	#   see        SortedOnBy
 	def SortedInDescendingOnBy(nCol, pcExpr)
 		_aSidobResult_ = This.Copy().SortInDescendingOnByQ(nCol, pcExpr).Content()
 		return _aSidobResult_
@@ -3927,6 +5042,12 @@ class stzListOfLists from stzList
 	 #  REMOVING DUPLICATES INSIDE THE NTH LIST  #
 	#===========================================#
 
+	# Removes the repeated items inside the list at position n, in place.
+	#
+	#   _n_        the position of the list to clean
+	#   returns    nothing; the content changes
+	#   note       the other lists are not touched
+	#   see        RemoveDuplicatesInLists, DuplicatesInNthListRemoved
 	def RemoveDuplicatesInNthList(_n_)
 		_aRdnContent_ = This.Content()
 		_aRdnContent_[_n_] = @WithoutDuplicates(_aRdnContent_[_n_])
@@ -3937,6 +5058,11 @@ class stzListOfLists from stzList
 			This.RemoveDuplicatesInNthList(_n_)
 			return This ### Fixed: was bare `return` -- fluent form returned NULL
 
+	# Returns a copy in which the list at position n has no repeated items; the object is unchanged.
+	#
+	#   _n_        the position of the list to clean
+	#   returns    a list of lists
+	#   see        RemoveDuplicatesInNthList
 	def DuplicatesInNthListRemoved(_n_)
 		_aDnrResult_ = This.Copy().RemoveDuplicatesInNthListQ(_n_).Content()
 		return _aDnrResult_
@@ -3954,6 +5080,10 @@ class stzListOfLists from stzList
 	 #  REMOVING DUPLICATES INSIDE ALL THE LISTS  #
 	#--------------------------------------------#
 
+	# Removes the repeated items inside every list, in place.
+	#
+	#   returns    nothing; the content changes
+	#   see        RemoveDuplicatesInNthList, DuplicatesInListsRemoved
 	def RemoveDuplicatesInLists()
 		_aRdlContent_ = This.Content()
 		_nRdlLen_ = len(_aRdlContent_)
@@ -3969,6 +5099,10 @@ class stzListOfLists from stzList
 			This.RemoveDuplicatesInLists()
 			return This
 
+	# Returns a copy in which no list has repeated items; the object is unchanged.
+	#
+	#   returns    a list of lists
+	#   see        RemoveDuplicatesInLists
 	def DuplicatesInListsRemoved()
 		_aDlrResult_ = This.Copy().RemoveDuplicatesInListsQ().Content() ### Fixed: was missing .Copy() so it mutated self
 		return _aDlrResult_
@@ -3990,10 +5124,13 @@ class stzListOfLists from stzList
 	 #  CLASSIFYING THE LIST OF LISTS  #
 	#=================================#
 
-	#NOTE
-	# Classification is performed on the first column by default
-	# ~> to make it on another column, use ClassifyOn(nCol)
-
+	# Raises error R14 today instead of grouping the other items under the distinct first items.
+	#
+	#   returns    nothing today
+	#   warning    known defect: the body asks the first column for StringifyNamedObjectsQ, which
+	#              does not exist, so the call raises error R14
+	#   see        ClassifyOn
+	#@ aka  NOTE Classification is performed on the first column by default ~> to make it on another column, use ClassifyOn(nCol)
 	def Classify()
 		_acClContent_ = This.FirstColQ().StringifyNamedObjectsQ().Lowercased()
 
@@ -4088,6 +5225,13 @@ class stzListOfLists from stzList
 	 #  CLASSIFYING THE LIST BASED ON THE NTH COLUMN  #
 	#------------------------------------------------#
 
+	# Raises error R14 today instead of grouping the items under the distinct items of one column.
+	#
+	#   pnColNumber   the column position that gives the classes
+	#   returns       nothing today
+	#   warning       known defect: it moves the column first and then calls Classify, which raises
+	#                 error R14
+	#   see           Classify
 	def ClassifyOn(pnColNumber)
 		_oCloCopy_ = This.Copy().MoveColQ(pnColNumber, 1)
 		_aCloResult_ = _oCloCopy_.Classify()
@@ -4141,6 +5285,12 @@ class stzListOfLists from stzList
 	 #  CLASSIFYING THE LIST OF LISTS USING A GIVEN EXPRESSION  #
 	#----------------------------------------------------------#
 
+	# Raises error R14 today instead of grouping the lists by the value of an expression on the first item.
+	#
+	#   pcExpr     an expression on @item, the first item of each list
+	#   returns    nothing today
+	#   warning    known defect: the call ends in Classify, which raises error R14
+	#   see        Classify
 	def ClassifyBy(pcExpr)
 		return This.ClassifyOnBy(1, pcExpr)
 
@@ -4174,6 +5324,13 @@ class stzListOfLists from stzList
 	 #  CLASSIFYING THE LIST OF LISTS ON A GIVEN COLUMN USING A GIVEN EXPRESSION  #
 	#----------------------------------------------------------------------------#
 
+	# Raises error R14 today instead of grouping the lists by the value of an expression on one column.
+	#
+	#   nCol       the column position to evaluate on
+	#   pcExpr     an expression on @item, the item at that position
+	#   returns    nothing today
+	#   warning    known defect: the call ends in Classify, which raises error R14
+	#   see        Classify
 	def ClassifyOnBy(nCol, pcExpr)
 
 		if CheckingParams()
@@ -4213,6 +5370,14 @@ class stzListOfLists from stzList
 	 #  MOVING A COLUMN FROM A POSITION TO AN OTHER  #
 	#===============================================#
 
+	# Moves the column at position n1 to position n2 in every list that has both, in place.
+	#
+	#   _n1_       the column to move
+	#   _n2_       the position it moves to
+	#   returns    nothing; the content changes
+	#   note       positions outside the columns, or equal, change nothing; lists too short for
+	#              either are skipped
+	#   see        ColMoved, SwapCols
 	def MoveCol(_n1_, _n2_)
 
 		if CheckingParams()
@@ -4258,24 +5423,39 @@ class stzListOfLists from stzList
 			This.MoveCol(_n1_, _n2_)
 			return This
 
+		# Moves the column at position n1 to position n2 in every list that has both, in place.
+		#
+		#   _n1_       the column to move
+		#   _n2_       the position it moves to
+		#   returns    nothing; the content changes
+		#   see        MoveCol
 		#>
-
 		#< @FunctionAlternativeForm
-
 		def MoveColumn(_n1_, _n2_)
 			This.MoveCol(_n1_, _n2_)
 
 			def MoveColumnQ(_n1_, _n2_)
 				return This.MoveColQ(_n1_, _n2_)
 
+		# Moves the column at position n1 to position n2 in every list that has both, in place.
+		#
+		#   _n1_       the column to move
+		#   _n2_       the position it moves to
+		#   returns    nothing; the content changes
+		#   see        MoveCol
 		def MoveNthItems(_n1_, _n2_)
 			This.MoveCol(_n1_, _n2_)
 
 			def MoveNthItemsQ(_n1_, _n2_)
 				return This.MoveColQ(_n1_, _n2_)
 
+	# Returns a copy with the column at position n1 moved to position n2; the object is unchanged.
+	#
+	#   _n1_       the column to move
+	#   _n2_       the position it moves to
+	#   returns    a list of lists
+	#   see        MoveCol
 		#>
-
 	def ColMoved(_n1_, _n2_)
 		_aCmResult_ = This.Copy().MoveColQ(_n1_, _n2_).Content()
 		return _aCmResult_
@@ -4290,6 +5470,14 @@ class stzListOfLists from stzList
 	 #  SWAPPING TWO COLUMNS IN THE LIST OF LISTS  #
 	#=============================================#
 
+	# Exchanges the columns at positions n1 and n2 in every list that has both, in place.
+	#
+	#   _n1_       the first column
+	#   _n2_       the second column
+	#   returns    nothing; the content changes
+	#   note       positions outside the columns, or equal, change nothing; lists too short for
+	#              either are skipped
+	#   see        ColsSwapped, MoveCol
 	def SwapCols(_n1_, _n2_)
 		if CheckingParams()
 
@@ -4352,26 +5540,40 @@ class stzListOfLists from stzList
 			This.SwapCols(_n1_, _n2_)
 			return This
 
+		# Exchanges the columns at positions n1 and n2 in every list that has both, in place.
+		#
+		#   _n1_       the first column
+		#   _n2_       the second column
+		#   returns    nothing; the content changes
+		#   see        SwapCols
 		#>
-
 		#< @FunctionAlternativeForms
-
 		def SwapColumns(_n1_, _n2_)
 			This.SwapCols(_n1_, _n2_)
 
 			def SwapColumnsQ(_n1_, _n2_)
 				return This.SwapColsQ(_n1_, _n2_)
 
-		#--
-
+		# Exchanges the columns at positions n1 and n2 in every list that has both, in place.
+		#
+		#   _n1_       the first column
+		#   _n2_       the second column
+		#   returns    nothing; the content changes
+		#   see        SwapCols
+		#@ aka  --
 		def SwapNthItems(_n1_, _n2_)
 			This.SwapCols(_n1_, _n2_)
 
 			def SwapNthItemsQ(_n1_, _n2_)
 				return This.SwapColsQ(_n1_, _n2_)
 
+	# Returns a copy with the columns at positions n1 and n2 exchanged; the object is unchanged.
+	#
+	#   _n1_       the first column
+	#   _n2_       the second column
+	#   returns    a list of lists
+	#   see        SwapCols
 		#>
-
 	def ColsSwapped(_n1_, _n2_)
 		_aCsResult_ = This.Copy().SwapColsQ(_n1_, _n2_).Content() ### Fixed: was calling non-fluent SwapCols (returns NULL)
 		return _aCsResult_
@@ -4386,6 +5588,14 @@ class stzListOfLists from stzList
 	 #  INSERTING A COLUMN IN THE LIST OF LISTS  #
 	#===========================================#
 
+	# Inserts a new column before position n, one value per list, in place.
+	#
+	#   _n_         the position the new column takes
+	#   paColData   the values, the first going to the first list
+	#   returns     nothing; the content changes
+	#   note        n must be an existing column, so nothing is appended after the last one; lists
+	#               too short for n are skipped; missing values become empty text
+	#   see         RemoveCol, AddCol
 	def InsertCol(_n_, paColData)
 		if CheckingParams()
 
@@ -4439,10 +5649,14 @@ class stzListOfLists from stzList
 			This.InsertCol(_n_, paColData)
 			return This
 
+		# Inserts a new column before position n, one value per list, in place.
+		#
+		#   _n_         the position the new column takes
+		#   paColData   the values, the first going to the first list
+		#   returns     nothing; the content changes
+		#   see         InsertCol
 		#>
-
 		#< @FunctionAlternativeForms
-
 		def InsertItems(_n_, paColData)
 			This.InsertCol(_n_, paColData)
 
@@ -4455,6 +5669,13 @@ class stzListOfLists from stzList
 	 #  REMOVING A COLUMN FROM FROM THE LIST OF LISTS  #
 	#=================================================#
 	
+	# Removes the item at position n from every list that has one, in place; nothing happens when n exceeds the NUMBER OF LISTS.
+	#
+	#   _n_        the column position to remove
+	#   returns    nothing; the content changes
+	#   warning    known defect: the early check compares n with the number of lists instead of the
+	#              number of columns, so with 2 lists of 3 items RemoveCol(3) does nothing
+	#   see        ColRemoved, RemoveCols
 	def RemoveCol(_n_)
 		if CheckingParams()
 			if isList(_n_) and Q(_n_).IsAtOrAtPositionNamedParam()
@@ -4493,36 +5714,68 @@ class stzListOfLists from stzList
 			This.RemoveCol(_n_)
 			return This
 
+		# Removes the item at position n from every list that has one, in place; nothing happens when n exceeds the NUMBER OF LISTS.
+		#
+		#   _n_        the column position to remove
+		#   returns    nothing; the content changes
+		#   warning    known defect: the early check compares n with the number of lists instead of
+		#              the number of columns
+		#   see        RemoveCol
 		#>
-
 		#< @FunctionAlternativeForms
-
 		def RemoveNthCol(_n_)
 			This.RemoveCol(_n_)
 
 			def RemoveNthColQ(_n_)
 				return This.RemoveColQ(_n_)
 
+		# Removes the item at position n from every list that has one, in place; nothing happens when n exceeds the NUMBER OF LISTS.
+		#
+		#   _n_        the column position to remove
+		#   returns    nothing; the content changes
+		#   warning    known defect: the early check compares n with the number of lists instead of
+		#              the number of columns
+		#   see        RemoveCol
 		def RemoveColumn(_n_)
 			This.RemoveCol(_n_)
 
 			def RemoveColumnQ(_n_)
 				return This.RemoveColQ(_n_)
 
+		# Removes the item at position n from every list that has one, in place; nothing happens when n exceeds the NUMBER OF LISTS.
+		#
+		#   _n_        the column position to remove
+		#   returns    nothing; the content changes
+		#   warning    known defect: the early check compares n with the number of lists instead of
+		#              the number of columns
+		#   see        RemoveCol
 		def RemoveNthColumn(_n_)
 			This.RemoveCol(_n_)
 
 			def RemoveNthColumnQ(_n_)
 				return This.RemoveColQ(_n_)
 
+		# Removes the item at position n from every list that has one, in place; nothing happens when n exceeds the NUMBER OF LISTS.
+		#
+		#   _n_        the column position to remove
+		#   returns    nothing; the content changes
+		#   warning    known defect: the early check compares n with the number of lists instead of
+		#              the number of columns
+		#   see        RemoveCol
 		def RemoveNthItems(_n_)
 			This.RemoveCol(_n_)
 
 			def RemoveNthItemsQ(_n_)
 				return This.RemoveColQ(_n_)
 
+	# Returns a copy without the column at position n; the object is unchanged, but the same early check applies.
+	#
+	#   _n_        the column position to remove
+	#   returns    a list of lists
+	#   warning    known defect: it calls RemoveCol, so n greater than the number of lists removes
+	#              nothing
+	#   see        RemoveCol
 		#>
-
 	def ColRemoved(_n_)
 		_aCrResult_ = This.Copy().RemoveColQ(_n_).Content()
 		return _aCrResult_
@@ -4547,6 +5800,13 @@ class stzListOfLists from stzList
 	 #  REMOVING MANY COLUMNS FROM THE LIST OF LISTS  #
 	#------------------------------------------------#
 
+	# Raises error R14 today instead of removing several columns at once, in place.
+	#
+	#   _anColNumbers_   the column positions to remove
+	#   returns          nothing today
+	#   warning          known defect: the argument check calls IsAtOrAtPositionsNamedParams, which
+	#                    is defined nowhere, so the call raises error R14
+	#   see              RemoveCol
 	def RemoveCols(_anColNumbers_)
 		if CheckingParams()
 			if isList(_anColNumbers_) and Q(_anColNumbers_).IsAtOrAtPositionsNamedParams()
@@ -4585,22 +5845,52 @@ class stzListOfLists from stzList
 			This.RemoveCols(_anColNumbers_)
 			return This
 
+		# Raises error R14 today instead of removing several columns at once, in place.
+		#
+		#   _anColNumbers_   the column positions to remove
+		#   returns          nothing today
+		#   warning          known defect: it calls RemoveCols, which raises error R14
+		#   see              RemoveCol
 		#>
-
 		#< @FunctionAlternativeForms
-
 		def RemoveTheseCols(_anColNumbers_)
 			This.RemoveCols(_anColNumbers_)
 
+			# Raises error R14 today instead of removing several columns and returning the object.
+			#
+			#   _anColNumbers_   the column positions to remove
+			#   returns          nothing today
+			#   note             a misspelling of RemoveTheseColsQ, kept as an alias
+			#   warning          known defect: it calls RemoveColsQ, which raises error R14
+			#   see              RemoveCol
 			def RemoveTheseColqQ(_anColNumbers_)
 				return This.RemoveColsQ(_anColNumbers_) ### Fixed: was passing bare `n` (undefined)
 
+		# Raises error R14 today instead of removing several columns at once, in place.
+		#
+		#   _anColNumbers_   the column positions to remove
+		#   returns          nothing today
+		#   warning          known defect: it calls RemoveCols, which raises error R14
+		#   see              RemoveCol
 		def RemoveManyCols(_anColNumbers_)
 			This.RemoveCols(_anColNumbers_)
 
+			# Raises error R14 today instead of removing several columns and returning the object.
+			#
+			#   _anColNumbers_   the column positions to remove
+			#   returns          nothing today
+			#   note             a misspelling of RemoveManyColsQ, kept as an alias
+			#   warning          known defect: it calls RemoveColsQ, which raises error R14
+			#   see              RemoveCol
 			def RemoveManyColqQ(_anColNumbers_)
 				return This.RemoveColsQ(_anColNumbers_) ### Fixed: was bare `n` (undefined)
 
+		# Raises error R14 today instead of removing several columns at once, in place.
+		#
+		#   _anColNumbers_   the column positions to remove
+		#   returns          nothing today
+		#   warning          known defect: it calls RemoveCols, which raises error R14
+		#   see              RemoveCol
 		def RemoveColumns(_anColNumbers_)
 			This.RemoveCols(_anColNumbers_)
 
@@ -4608,20 +5898,37 @@ class stzListOfLists from stzList
 				This.RemoveColumns(_anColNumbers_)
 				return This
 
+		# Raises error R14 today instead of removing several columns at once, in place.
+		#
+		#   _anColNumbers_   the column positions to remove
+		#   returns          nothing today
+		#   warning          known defect: it calls RemoveCols, which raises error R14
+		#   see              RemoveCol
 		def RemoveTheseColumns(_anColNumbers_)
 			This.RemoveTheseCols(_anColNumbers_)
 
 			def RemoveTheseColumnsQ(_anColNumbers_)
 				return This.RemoveColsQ(_anColNumbers_) ### Fixed: was RemoveCoslQ (typo)
 
+		# Raises error R14 today instead of removing several columns at once, in place.
+		#
+		#   _anColNumbers_   the column positions to remove
+		#   returns          nothing today
+		#   warning          known defect: it calls RemoveCols, which raises error R14
+		#   see              RemoveCol
 		def RemoveManyColumns(_anColNumbers_)
 			This.RemoveTheseCols(_anColNumbers_)
 
 			def RemoveManyColumnsQ(_anColNumbers_)
 				return This.RemoveColsQ(_anColNumbers_) ### Fixed: was RemoveCoslQ (typo)
 	
+	# Raises error R14 today instead of returning a copy without several columns.
+	#
+	#   _anColNumbers_   the column positions to remove
+	#   returns          nothing today
+	#   warning          known defect: it calls RemoveCols, which raises error R14
+	#   see              ColRemoved
 		#>
-
 	def ColsRemoved(_anColNumbers_)
 		_aCrdResult_ = This.Copy().RemoveColsQ(_anColNumbers_).Content()
 		return _aCrdResult_
@@ -4649,6 +5956,14 @@ class stzListOfLists from stzList
 	 #  REPLACING A COLUMN IN THE LIST OF LISTS  #
 	#===========================================#
 
+	# Replaces the item at position n of every list that has one by the given values, one per list, in place.
+	#
+	#   _n_         the column position to replace
+	#   paColData   the new values, the first going to the first list
+	#   returns     nothing; the content changes
+	#   note        n must be an existing column; missing values become empty text; lists too short
+	#               for n are skipped
+	#   see         InsertCol, ReplaceCols
 	def ReplaceCol(_n_, paColData)
 
 		if CheckingParams()
@@ -4706,10 +6021,14 @@ class stzListOfLists from stzList
 			This.ReplaceCol(_n_, paColData)
 			return This
 
+		# Replaces the item at position n of every list that has one by the given values, one per list, in place.
+		#
+		#   _n_         the column position to replace
+		#   paColData   the new values, the first going to the first list
+		#   returns     nothing; the content changes
+		#   see         ReplaceCol
 		#>
-
 		#< @FunctionAlternativeForms
-
 		def ReplaceItems(_n_, paColData)
 			This.ReplaceCol(_n_, paColData)
 
@@ -4722,6 +6041,12 @@ class stzListOfLists from stzList
 	 #  REPLACING MANY COLUMNS IN THE LIST OF LISTS  #
 	#-----------------------------------------------#
 
+	# Replaces several columns by the same values, one per list, in place.
+	#
+	#   panColNumbers   the column positions to replace
+	#   paColData       the values every one of those columns receives
+	#   returns         nothing; the content changes
+	#   see             ReplaceCol
 	def ReplaceCols(panColNumbers, paColData)
 
 		if CheckingParams()
@@ -4740,9 +6065,17 @@ class stzListOfLists from stzList
 	 #  TRANSFORMING THE LIST OF LISTS TO OTHER FORMS   #
 	#==================================================#
 		
+	# Returns the type name of the object, in lowercase.
+	#
+	#   returns    text, "stzlistoflists"
+	#   see        ToStzList
 	def stzType()
 		return :stzListOfLists
 
+	# Returns each list wrapped in a stzList.
+	#
+	#   returns    a list of stzList objects
+	#   see        ToStzList
 	def ToListOfStzLists()
 
 		_aoTlsResult_ = []
@@ -4754,6 +6087,10 @@ class stzListOfLists from stzList
 
 		return _aoTlsResult_
 
+	# Returns each list written as text, in a plain list.
+	#
+	#   returns    a list of strings
+	#   see        ToListOfStrings
 	def ToListsInString()
 		_acTlisResult_ = []
 		_aTlisLists_ = This.ListOfLists()
@@ -4780,6 +6117,12 @@ class stzListOfLists from stzList
 			def ToListInNormalFormQ()
 				return new stzString( This.ToListInNormalForm() )
 
+	# Raises error R21 today instead of returning the lists written as one short text.
+	#
+	#   returns    nothing today
+	#   warning    known defect: it concatenates the written lists with an operator that does not
+	#              accept them, so the call raises error R21
+	#   see        ToListsInString
 	def ToListInStringInShortForm()
 		_cTlissList_ = @@(This.Content())
 		_oTlissStr_ = new stzString(_cTlissList_)
@@ -4801,12 +6144,20 @@ class stzListOfLists from stzList
 			def ToListInStringSFQ()
 				return new stzString( This.ToListInStringSF() )
 
+	# Returns the lists as a stzList whose items are the lists.
+	#
+	#   returns    a stzList
+	#   see        ToListOfStzLists, Copy
 	def ToStzList()
 		return new stzList( This.Content() )
 
 	def ToStzListQ()
 		return new stzList( This.Content() )
 
+	# Returns each list written as text, in a plain list.
+	#
+	#   returns    a list of strings
+	#   see        ToListsInString
 	def ToListOfStrings() #TODO // Do we need it? compare with stzList.Stringified()
 		_aTosResult_ = []
 		_aTosLists_ = This.ListOfLists()
@@ -4819,6 +6170,10 @@ class stzListOfLists from stzList
 		return _aTosResult_
 
 
+	# TRUE if every list holds exactly two items.
+	#
+	#   returns    TRUE or FALSE
+	#   see        ToStzListOfpairs
 	def IsListOfPairs()
 		_aIlpContent_ = This.Content()
 		_nIlpLen_ = len(_aIlpContent_)
@@ -4834,6 +6189,11 @@ class stzListOfLists from stzList
 
 		return _bIlpResult_
 
+	# Returns the lists as a stzListOfPairs; raises an error unless every list is a pair.
+	#
+	#   returns    a stzListOfPairs
+	#   note       raises an error when some list does not hold exactly two items
+	#   see        IsListOfPairs
 	def ToStzListOfpairs()
 		if This.IsListOfPairs()
 			return new stzListOfPairs(This.Content())
@@ -4841,6 +6201,12 @@ class stzListOfLists from stzList
 			StzRaise("Can't transform the list of lists into a list of pairs! Lists are not all pairs.")
 		ok
 
+	# Raises error R11 today instead of returning the lists as a list of pairs of numbers.
+	#
+	#   returns    nothing today
+	#   warning    known defect: the class stzListOfPairsOfNumbers is defined nowhere, so the call
+	#              raises error R11
+	#   see        ToStzListOfpairs
 	def ToStzListOfpairsOfNumbers()
 		if This.IsListOfPairsOfNumbers()
 			return new stzListOfPairsOfNumbers(This.Content())
@@ -4852,6 +6218,12 @@ class stzListOfLists from stzList
 	 #  GETTING THE SPEEDUP OF THE NUMBERS  #
 	#======================================#
 
+	# Raises error R21 today instead of dividing the first number by the second.
+	#
+	#   returns    nothing today
+	#   warning    known defect: the body treats the first two lists as numbers and divides them,
+	#              which raises error R21
+	#   see        GainFactor
 	def SpeedUp()
 		_anSuNumbers_ = This.Content()
 
@@ -4869,6 +6241,12 @@ class stzListOfLists from stzList
 	 #  GETTING THE GAIN FACTOR FROM NUMBER TO NUMBER  #
 	#-------------------------------------------------#
 
+	# Raises error R21 today instead of dividing the second number by the first.
+	#
+	#   returns    nothing today
+	#   warning    known defect: the body treats the first two lists as numbers and divides them,
+	#              which raises error R21
+	#   see        SpeedUp
 	def GainFactor()
 		_anGfNumbers_ = This.Content()
 
@@ -4886,6 +6264,12 @@ class stzListOfLists from stzList
 	 #  CHECKING IF THE LISTS ARE CONTIGUOUS  #
 	#========================================#
 
+	# TRUE if every list of more than two items is made of consecutive numbers, or of consecutive chars.
+	#
+	#   returns    TRUE or FALSE
+	#   note       lists of one or two items are not checked; a list mixing text and numbers raises
+	#              an error
+	#   see        IsListOfPairs
 	func AreContiguous()
 
 		_bAcResult_ = 1
@@ -4930,8 +6314,13 @@ class stzListOfLists from stzList
 		def AreConsecutive()
 			return This.AreContiguous()
 	
-		#--
-	
+		# TRUE if every list of more than two items is made of consecutive numbers, or of consecutive chars.
+		#
+		#   paList     ignored
+		#   returns    TRUE or FALSE
+		#   note       the argument is not used
+		#   see        AreContiguous
+		#@ aka  --
 		def @AreContiguous(paList)
 			return This.AreContiguous()
 	
@@ -4977,8 +6366,13 @@ class stzListOfLists from stzList
 		def FindContiguousItemsCS(paItems, pCaseSensitive)
 			return This.FindSubListCS(paItems, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Returns [ list position, [ start positions ] ] pairs for each list that holds the given items in a row.
+	#
+	#   paItems    the items to look for, at least two
+	#   returns    a list of [ list position, start positions ] pairs
+	#   note       the match is case-sensitive; fewer than two items raises an error
+	#   see        FindInLists
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindSubList(paItems)
 		return This.FindSubListCS(paItems, 1)
 
@@ -4989,6 +6383,10 @@ class stzListOfLists from stzList
 	 #  SORINT THE LISTS  #
 	#====================#
 
+	# Sorts the items inside every list, ascending, in place.
+	#
+	#   returns    nothing; the content changes
+	#   see        ListsSorted, SortNthList
 	def SortLists()
 		_aSltContent_ = This.Content()
 		_nSltLen_ = len(_aSltContent_)
@@ -5001,10 +6399,18 @@ class stzListOfLists from stzList
 
 		This.UpdateWith(_aSltResult_)
 
+		# Sorts the items inside every list, ascending, in place, and returns the object for chaining.
+		#
+		#   returns    the object itself
+		#   see        SortLists
 		def SortListQ()
 			This.SortLists()
 			return This
 
+	# Returns a copy with the items inside every list sorted ascending; the object is unchanged.
+	#
+	#   returns    a list of lists
+	#   see        SortLists
 	def ListsSorted()
 		_aLsResult_ = This.Copy().SortListQ().Content()
 		return _aLsResult_

@@ -1,0 +1,136 @@
+CountInSections | Returns how many times the item occurs inside the given sections. | a number | | FindInSections
+DeepList | Returns the list as a stzDeepList, for path-based work on nested items. | a stzDeepList | | Paths
+EachItemExistsIn | TRUE if every item of the list occurs in the other list. | TRUE or FALSE | | IsContainedIn
+ExistsIn | TRUE if every item of the list occurs in the given list. | TRUE or FALSE | p=the list to look in | IsContainedIn
+FilledWith | Replaces the content by the given list, and returns the new content. | a list of items | pItems=the list that becomes the content, or an item to append | Update
+FindDupOrigins | Returns the positions of the first occurrence of each item that is duplicated. | a list of positions | | RemoveDupOrigins
+FindNthPreviousOccurrence | Returns the position of the nth occurrence of the item before a given position; 0 when there is none. | a number | _n_=which occurrence, counted backwards; _nStart_=the position to count back from | FindPreviousNth
+FindThisDupSecutiveItem | Returns the positions where the given item repeats the one before it. | a list of positions | | FindDupSecutiveItems
+FirstHalfAndPosition | Returns the first half with the position where it starts. | a pair [ half, position ] | | FirstHalf
+FirstHalfAndSection | Returns the first half with its section, as [ start, end ]. | a pair [ half, [ start, end ] ] | | FirstHalf
+HalvesAndPositions | Returns each half with the position where it starts. | a list of two [ half, position ] pairs | | Halves
+HalvesAndSections | Returns each half with its section, as [ start, end ]. | a list of two [ half, [ start, end ] ] pairs | | Halves
+HasSameContent | TRUE if both lists hold the same items, in any order, counting repeats. | TRUE or FALSE | | HasSameContentAs
+IsListOfChars | TRUE if every item is a single character. | TRUE or FALSE | | IsListOfStrings
+IsLocaleList | TRUE if the list holds one locale name, such as "default" or "system". | TRUE or FALSE | | AreLanguageAbbreviations
+IsMultilingualString | TRUE if the list is a hash list whose values are all strings, one per language. | TRUE or FALSE | | IsHashList
+ItemsAreEmptyLists | TRUE if every item is an empty list. | TRUE or FALSE | | IsListOfEmptyLists
+KlassSF | Returns the positions of the items that belong to the class given in short form. | a list of positions | pcShortForm=the class, in short form such as "1:5" | Klass
+NthLargest | Returns the nth largest distinct value. | the value | _n_=the rank, 1 for the largest | NthSmallest
+NumberOfDuplicatesOfString | Returns how many repeats of the string occur beyond its first occurrence. | a number | pItem=the string to count | FindDuplicatesOfString
+NumberOfObjects | Returns how many items are objects. | a number | | Objects
+ObjectsVarNames | Returns the variable names of the items that are named objects. | a list of names | | FindNamedObjects
+PerformAtW | Applies the action to the items at the given positions that meet the condition. | nothing; the items may change | panPos=the positions to look at; pcCondition=the W condition; pcAction=the expression to run for each item | YieldAtW
+RemoveDupOrigins | Removes the first occurrence of each duplicated item, in place. | nothing; the list changes | | FindDupOrigins
+RemoveDupSecutiveItem | Removes the repeats of the given item that follow it directly, in place. | nothing; the list changes | | RemoveDuplicatedItems
+RemoveDuplicatedItems | Removes the later repeats of every item, keeping the first occurrence, in place. | nothing; the list changes | | UniqueItems
+ReplaceTheseItemsAtPositions | Replaces, at the given positions, the items that are among the given ones by the new item, in place. | nothing; the list changes | | ReplaceItemsAtPositions
+SecondHalfAndPosition | Returns the second half with the position where it starts. | a pair [ half, position ] | | SecondHalf
+SecondHalfAndSection | Returns the second half with its section, as [ start, end ]. | a pair [ half, [ start, end ] ] | | SecondHalf
+SectionsBetween | Returns the runs of items that lie between the two given items. | a list of lists | pItem1=the item that opens a run; pItem2=the item that closes a run | Sections
+StringIsDuplicatedNTimes | TRUE if the string repeats exactly n times after its first occurrence. | TRUE or FALSE | _n_=how many repeats; pItem=the string to count | FindDuplicatedString
+TheseCharsZ | Returns each given character with all the positions where it occurs. | a list of [ character, positions ] pairs | pacChars=the characters to look for | TheseItemsZ
+TrimItem | Removes the runs of the given item from both ends of the list, in place. | nothing; the list changes | | TrimLeft
+TrimmedLeft | Returns a copy without the empty items at its start; the list is unchanged. | a list of items | | TrimLeft
+AddItem | Appends the item at the end, in place. | nothing; the list changes | | AddItems
+AddWalker | Registers a named walker over the list. | nothing; the walker is stored | p1=the name of the walker; p2=where it starts; p3=where it stops; p4=its step | Walk
+AddedToEach | Returns a copy where n is added to every number item; the list is unchanged. | a list of items | _n_=the number to add | MultipliedByEach
+AllItemsAreEqualTo | TRUE if every item equals the given value. | TRUE or FALSE | | AllItemsAreEqual
+AreBoundsOf | TRUE if the list holds the bounds of the given item inside the other list. | TRUE or FALSE | pItem=the item to test; pIn=the pair, or the list of pairs, of bounds | IsBoundedBy
+AreContainedIn | TRUE if every item of the list occurs in the other list. | TRUE or FALSE | | IsContainedIn
+AreLanguageAbbreviations | TRUE if every item is a language abbreviation, such as "en". | TRUE or FALSE | | IsLocaleList
+AssociateWith | Returns the items paired with those of the other list; a missing partner becomes an empty string. | a list of [ item, other item ] pairs | | ZippedWith
+BothAreLists | TRUE if the list is a pair whose two items are lists. | TRUE or FALSE | | BothAreStrings
+BothAreObjects | TRUE if the list is a pair whose two items are objects. | TRUE or FALSE | | BothAreLists
+BothAreStrings | TRUE if the list is a pair whose two items are strings. | TRUE or FALSE | | BothAreLists
+ClampedTo | Returns a copy where every number is kept between a minimum and a maximum; the list is unchanged. | a list of items | nMin=the lowest value allowed; _nMax_=the highest value allowed | ClampTo
+ClassesSF | Returns the classes of a list of number lists, each written in short form as "min:max". | a list of classes | | ClassifySF
+ClassifySF | Returns the classification of the items, with each class written in short form. | a list of [ class, items ] pairs | | ClassesSF
+ContainsAll | TRUE if every one of the given items occurs in the list. | TRUE or FALSE | | ContainsAllOfThese
+ContainsDuplicatedString | TRUE if the string occurs more than once. | TRUE or FALSE | pItem=the string to look for | FindDuplicatedString
+ContainsOneOrMoreLists | TRUE if at least one item is a list. | TRUE or FALSE | | ContainsNoObjects
+ContainsPairs | TRUE if at least one item is a pair, a list of two items. | TRUE or FALSE | | FindPairs
+ContainsSingles | TRUE if at least one item is a list of one item. | TRUE or FALSE | | FindSingles
+DeepContainsBoth | TRUE if both items occur at any depth of a nested list. | TRUE or FALSE | pItem1=the first item; pItem2=the second item | DeepContains
+DeepContainsNOfThese | TRUE if at least n of the given items occur at any depth of a nested list. | TRUE or FALSE | _n_=how many of them must occur | DeepContains
+DeepContainsOneOfThese | TRUE if at least one of the given items occurs at any depth of a nested list. | TRUE or FALSE | | DeepContains
+DeepLists | Returns every list item at any depth, parents before their children. | a list of lists | | Paths
+DupSecutiveItemCSZ | Returns the run of the given item that repeats directly, with its positions. | a list [ item, positions ] | pItem=the item to look for | DupSecutiveItems
+EachContainsThese | TRUE if every item contains all the given items. | TRUE or FALSE | | EachContains
+ExistIn | TRUE if every item of the list occurs in the other list. | TRUE or FALSE | | ExistsIn
+ExtendToWithItemsIn | Extends the list up to position n by adding the given items in turn, in place. | nothing; the list changes | _n_=the position to reach; paItems=the items used to fill, in turn | ExtendToWith
+ExtendToWithItemsRepeated | Extends the list up to position n by repeating its own items, in place. | nothing; the list changes | _n_=the position to reach | ExtendToWith
+ExtractAt | Removes the item at position n and returns it. | the removed item | _n_=the position to remove | ExtractNth
+ExtractNth | Removes the item at position n and returns it. | the removed item | _n_=the position to remove | ExtractAt
+FindAllExceptFirst | Returns the positions of every occurrence of the item but the first. | a list of positions | | FindAllExceptLast
+FindAllExceptLast | Returns the positions of every occurrence of the item but the last. | a list of positions | | FindAllExceptFirst
+FindDuplicatedString | Returns the positions of every occurrence of a string that occurs more than once. | a list of positions | pItem=the string to look for | FindDuplicatesOfString
+FindDuplicationsOf | Returns the positions of the repeats of the item, leaving out its first occurrence. | a list of positions | | FindDuplicationsOfItem
+FindDuplicationsOfItem | Returns the positions of the repeats of the item, leaving out its first occurrence. | a list of positions | | FindDuplicationsOf
+FindFirstDuplicates | Returns the position of the first occurrence of each duplicated item. | a list of positions | | FindDupOrigins
+FindFirstList | Returns the position of the first item that is a list; 0 when there is none. | a number | | FirstList
+FindFirstNext | Returns the position of the first occurrence of the item after a given position. | a number; 0 when none | | FindNextOccurrence
+FindFirstOccurrenceOfEachDuplicatedItem | Returns the position of the first occurrence of each duplicated item. | a list of positions | | FindDupOrigins
+FindFirstPrevious | Returns the position of the first occurrence of the item before a given position, scanning backwards. | a number; 0 when none | | FindPreviousOccurrence
+FindListsAsSections | Returns each run of consecutive list items as a [ start, end ] pair. | a list of [ start, end ] pairs | | FindNumbersAsSections
+FindNextNthItem | Returns the position n places after a given position. | a number | _n_=how many places to move forward | FindPreviousNthItem
+FindNextNthOccurrencesST | Returns the positions of the nth next occurrence of the item, for each of the given ranks. | a list of positions | panN=the ranks of the occurrences wanted | FindNextNth
+FindNextOccurrence | Returns the position of the next occurrence of the item after a given position; 0 when there is none. | a number | | FindPreviousOccurrence
+FindNthSmallest | Returns the positions of the nth smallest value. | a list of positions | _n_=the rank, 1 for the smallest | NthSmallest
+FindPairs | Returns the positions of the items that are pairs, lists of two items. | a list of positions | | Pairs
+FindPreviousNthItem | Returns the position n places back from a given position, that position included in the count. | a number | _n_=how many places to move back | FindNextNthItem
+FindPreviousOccurrence | Returns the position of the nearest occurrence of the item before a given position; 0 when there is none. | a number | | FindNextOccurrence
+FindPreviousOccurrences | Returns the positions of every occurrence of the item before a given position. | a list of positions | | FindPreviousOccurrence
+FindSingles | Returns the positions of the items that are lists of one item. | a list of positions | | Singles
+FindSpaces | Returns the positions of the items that are a single space. | a list of positions | | FindEmptyStrings
+FindStringsAsSections | Returns each run of consecutive string or list items as a [ start, end ] pair. | a list of [ start, end ] pairs | | FindNumbersAsSections
+FirstList | Returns the first item that is a list. | the list | | FindFirstList
+HasLeadingItems | TRUE if the first two items are equal. | TRUE or FALSE | | LeadingItems
+HasRepeatedLeadingItems | TRUE if the first item is repeated right after itself. | TRUE or FALSE | | RepeatedLeadingItems
+HasSameNumberOfItemsAs | TRUE if both lists hold the same number of items. | TRUE or FALSE | | HasMoreNumberOfItems
+HasTrailingItems | TRUE if the last two items are equal. | TRUE or FALSE | | LeadingItems
+Head | Returns the first n items. | a list of items | _n_=how many items | NFirstItems
+HexUnicodes | Returns the hexadecimal code points of every character of every string item. | a list of lists of code points, such as "U+0061" | | StzUnicodes
+InsertAfterManyPositions | Inserts the item after each of the given positions, in place. | nothing; the list changes | | InsertAfterPositions
+InsertBeforeManyPositions | Inserts the item before each of the given positions, in place. | nothing; the list changes | | InsertBeforePositions
+InterleaveWith | Interleaves the items of the other list with its own, in place. | nothing; the list changes | | InterleavedWith
+InterleavedWith | Returns the items of both lists interleaved, one from each in turn; the list is unchanged. | a list of items | | InterleaveWith
+IsAList | Answers TRUE: the content of a stzList is a list. | TRUE | | IsAString
+IsContainedIn | TRUE if every item of the list occurs in the given list. | TRUE or FALSE | p=the list to look in | AreContainedIn
+IsListOfEmptyLists | TRUE if every item is an empty list. | TRUE or FALSE | | ItemsAreEmptyLists
+IsListOfNumbersAndPairsOfNumbers | TRUE if every item is a number or a pair of numbers. | TRUE or FALSE | | IsListOfNumbers
+IsMadeOfSomeOfThese | TRUE if every item of the list is one of the given items. | TRUE or FALSE | | IsMadeOfSome
+IsPair | TRUE if the list holds exactly two items. | TRUE or FALSE | | IsSingle
+IsSingle | TRUE if the list holds exactly one item. | TRUE or FALSE | | IsPair
+ItemsAndTheirNumberOfOccurrence | Returns each distinct item with how many times it occurs. | a list of [ item, count ] pairs | | Frequencies
+ItemsAndTheirTypes | Returns each item with its type name, in order. | a list of [ item, type ] pairs | | UniqueTypes
+ItemsCount | Returns each distinct item with its count, in order of first appearance, comparing by type as well as by value. | a list of [ item, count ] pairs | | Frequencies
+ItemsHaveSameType | TRUE if every item has the same type. | TRUE or FALSE | | UniqueTypes
+ItemsHaveXT | TRUE if every item meets the W condition. | TRUE or FALSE | | CheckW
+ItemsOccurringExactlyNTimes | Returns the distinct items that occur exactly n times. | a list of items | _n_=the number of occurrences | ItemsAppearingNTimes
+ItemsOccurringLessThanNTimes | Returns the distinct items that occur fewer than n times. | a list of items | _n_=the number of occurrences | ItemsOccurringNTimes
+ItemsOccurringNTimesOrLess | Returns the distinct items that occur n times or fewer. | a list of items | _n_=the number of occurrences | ItemsOccurringNTimes
+ItemsWhere | Returns the items that meet the expression, where @item stands for each. | a list of items | | FindW
+LeadingItems | Returns the run of items equal to the first one. | a list of items | | RepeatedLeadingItems
+MergeWith | Appends the items of the other list to the list, in place. | nothing; the list changes | | MergedWith
+MergedWith | Returns the items of the list followed by those of the other; the list is unchanged. | a list of items | | MergeWith
+NFirstItems | Returns the first n items, or the whole list when n is larger. | a list of items | _n_=how many items | FirstNItems
+NListified | Returns each item as the first of a list of n items, padded with empty strings; the list is unchanged. | a list of lists | _n_=the size of each new list | Pairified
+NextNthItem | Returns the nth item after a given position. | the item | _n_=how many places to move forward | PreviousNthItem
+NonNumbers | Returns the items that are not numbers. | a list of items | | OnlyNumbers
+NthNextOccurrence | Returns the position of the nth occurrence of the item after a given position; 0 when there is none. | a number | _n_=which occurrence, counted from the starting position | FindNextNth
+NumberOfDuplicatedItems | Returns how many distinct items occur more than once. | a number | | NumberOfNonDuplicatedItems
+NumberOfDuplicatedStrings | Returns how many distinct strings occur more than once. | a number | | NumberOfDuplicatedItems
+NumberOfLeadingItems | Returns how many items equal the first one, from the start. | a number | | LeadingItems
+NumberOfLetters | Returns how many items are a single ASCII letter. | a number | | Letters
+NumberOfNamedObjects | Returns how many items are objects with a name. | a number | | FindNamedObjects
+NumberOfOccurrencesOfSmallestItem | Returns how many times the smallest value occurs. | a number | | FindSmallest
+NumberOfRepeatedLeadingItems | Returns how many items follow the first one and equal it. | a number | | RepeatedLeadingItems
+NumberOfSmallest | Returns how many times the smallest value occurs. | a number | | FindSmallest
+NumberOfTrailingItems | Returns how many items equal the last one, from the end. | a number | | HasTrailingItems
+NumberOfUniqueNamedObjects | Returns how many distinct named objects the list holds. | a number | | NumberOfNamedObjects
+OnlyLists | Returns the items that are lists. | a list of lists | | Lists
+Pairify | Returns the sliding pairs of consecutive items, such as [ [ 1, 2 ], [ 2, 3 ] ]. | a list of two-item lists | | Pairified
+PartitionW | Splits the items into those that meet the W condition and those that do not. | a list of two lists | | FindW
+PrependedWith | Returns the items of the other list followed by those of the list; the list is unchanged. | a list of items | | MergedWith
+PreviousNthItem | Returns the nth item before a given position. | the item | _n_=how many places to move back | NextNthItem

@@ -1,0 +1,17 @@
+{
+ "brief": "Holds a table of named columns and numbered rows, and answers questions about its cells, rows and columns.",
+ "detail": "Reach for it when data has columns that deserve a name and rows that deserve a position. The content is stored column by column, as [ name, list of cells ] pairs, so a column is reached by its name (case does not matter) or by its position, and a row only by its position. A table is built from rows whose first line holds the column names, from rows alone (the columns are then called col1, col2 ...), from a hash list of name = cells pairs, or from a [ columns, rows ] size pair. Mutators change the table in place and return nothing; the CQ forms and the Sorted and Filled families give a result without touching it. The class inherits stzList, so a method not defined here falls through to the list. Many names are alternative spellings of one method, and a good share of the class is unfinished: about 200 methods raise an error or do nothing today, and each of them says so in its brief and its warning.",
+ "receiver": "o1 = new stzTable([ [ :ID, :EMPLOYEE, :SALARY ], [ \"001\", \"Salem\", 12499.20 ], [ \"002\", \"Henri\", 10890.10 ], [ \"003\", \"Sonia\", 12740.30 ] ])",
+ "example": [
+  "? @@( o1.ColumnsNames() )",
+  "#--> [ \"id\", \"employee\", \"salary\" ]",
+  "? o1.NumberOfRows()",
+  "#--> 3",
+  "? @@( o1.Row(2) )",
+  "#--> [ \"002\", \"Henri\", 10890.10 ]"
+ ],
+ "see": [
+  "stzList",
+  "stzHashList"
+ ]
+}

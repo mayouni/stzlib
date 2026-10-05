@@ -16,6 +16,7 @@
 // derive state from the code.
 
 const std = @import("std");
+const digest = @import("model_digest.zig");
 const c = @cImport({
     @cInclude("ggml.h");
     @cInclude("ggml-cpu.h");
@@ -43,11 +44,26 @@ var g_arch_len: usize = 0;
 
 // Load a GGUF model: metadata + WEIGHTS (no_alloc=false makes gguf read the
 // tensor blob into the created ggml_context and wire tensor->data). 1 on success.
+//
+// The file's SHA-256 must match a RECORDED digest before the GGUF parser
+// sees a byte (model_digest.zig); the reason for a refusal is kept for
+// neural_model_load_status.
+var g_load_status: c_int = 0;
+
+pub export fn neural_model_load_status() callconv(.c) c_int {
+    return g_load_status;
+}
+
 pub export fn neural_model_load(path: [*c]const u8) callconv(.c) c_int {
     neural_model_free();
+    g_load_status = digest.verify(path);
+    if (g_load_status != digest.OK) return 0;
     var mctx: ?*c.ggml_context = null;
     const params = c.gguf_init_params{ .no_alloc = false, .ctx = &mctx };
-    const ctx = c.gguf_init_from_file(path, params) orelse return 0;
+    const ctx = c.gguf_init_from_file(path, params) orelse {
+        g_load_status = digest.ERR_UNREADABLE;
+        return 0;
+    };
     g_gguf = ctx;
     g_ctx = mctx;
     g_arch_len = 0;

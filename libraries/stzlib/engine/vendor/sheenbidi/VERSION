@@ -14,3 +14,12 @@ Role in the text pipeline: SheenBidi REORDERS (paragraph -> visual runs
 with levels), HarfBuzz SHAPES each run, stb_truetype RASTERS the glyph
 ids. Runner-up recorded in the plan: a pure-Zig UAX#9 verified against
 Unicode's BidiTest.txt, if this vendoring ever disappoints.
+
+--- SBOM record (read by engine/tools/sbom.py; keep the keys) ---
+Component:        SheenBidi
+Version:          3.0.0
+Source:           https://github.com/Tehreer/SheenBidi/releases/tag/v3.0.0
+Licence:          Apache-2.0
+Purl:             pkg:github/Tehreer/SheenBidi@v3.0.0
+Archive-SHA-256:  86c56014034739ba39a24c23eb00323b0bf6f737354f665786015fca842af786
+Tree-Digest:      f12e181466c7d884c5aad511a8a5de3fe9a3926865cd689facf0282268cbfede

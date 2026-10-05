@@ -114,6 +114,80 @@
 */
 
 #---------------------------------------------------------------------#
+#  WHICH RING FUNCTIONS AN AGENT FILE MAY NAME (threat-model R2)       #
+#---------------------------------------------------------------------#
+#
+# A `ring:` clause used to be checked for EXISTENCE only: any function
+# loaded in the process could be named -- a shell runner, a file
+# remover, the model-trust act -- and pia 2's posture was the FILE's own
+# claim about itself. But an agent file is DATA: it may come from a
+# folder, from a colleague, or from a language model composing agents.
+# Code, not the file, now decides:
+#
+#     StzAllowAgentFunction("StockIsCritical", "sandboxed")
+#
+# names a function agent files MAY call, and the MOST trusted posture it
+# may run under (trusted > external > sandboxed). At load, a clause
+# naming a function code never allowed is refused, and so is a file
+# claiming a posture more trusted than code allowed. The library allows
+# its own roster functions below; everything else is the application's.
+
+$aStzAgentFnAllow = []	# [ nameLower, maxPosture ]
+
+func StzAllowAgentFunction(pcName, pcMaxPosture)
+	_cN_ = StzLower(ring_trim("" + pcName))
+	_cP_ = StzLower(ring_trim("" + pcMaxPosture))
+	if StzAgentPostureRank(_cP_) = 0
+		stzraise("StzAllowAgentFunction: a posture is trusted, external or sandboxed -- got '" + _cP_ + "'.")
+	ok
+	StzDisallowAgentFunction(_cN_)
+	$aStzAgentFnAllow + [ _cN_, _cP_ ]
+
+func StzDisallowAgentFunction(pcName)
+	_cN_ = StzLower(ring_trim("" + pcName))
+	_aNew_ = []
+	_n_ = len($aStzAgentFnAllow)
+	for _i_ = 1 to _n_
+		if $aStzAgentFnAllow[_i_][1] != _cN_
+			_aNew_ + $aStzAgentFnAllow[_i_]
+		ok
+	next
+	$aStzAgentFnAllow = _aNew_
+
+# The most trusted posture code allows for this function, or "" when an
+# agent file may not name it at all.
+func StzAgentFunctionAllowance(pcName)
+	_cN_ = StzLower(ring_trim("" + pcName))
+	_n_ = len($aStzAgentFnAllow)
+	for _i_ = 1 to _n_
+		if $aStzAgentFnAllow[_i_][1] = _cN_
+			return $aStzAgentFnAllow[_i_][2]
+		ok
+	next
+	_aB_ = StzBuiltinAgentFunctions()
+	_n_ = len(_aB_)
+	for _i_ = 1 to _n_
+		if _aB_[_i_][1] = _cN_
+			return _aB_[_i_][2]
+		ok
+	next
+	return ""
+
+# the library's own agent functions: the estate roster (stzAgentRoster.ring)
+func StzBuiltinAgentFunctions()
+	return [ [ "boardsampleheartbeats", "trusted" ], [ "boardfinddeadruns", "trusted" ],
+		 [ "boardannounceowndeath", "trusted" ], [ "rollrelocatemonths", "trusted" ],
+		 [ "rollwritepointer", "trusted" ], [ "rollreportnothingmoved", "trusted" ] ]
+
+# sandboxed 1 < external 2 < trusted 3; 0 for anything else
+func StzAgentPostureRank(pcPosture)
+	_c_ = StzLower(ring_trim("" + pcPosture))
+	if _c_ = "sandboxed"  return 1  ok
+	if _c_ = "external"   return 2  ok
+	if _c_ = "trusted"    return 3  ok
+	return 0
+
+#---------------------------------------------------------------------#
 #  THE CLOSED VOCABULARY                                               #
 #---------------------------------------------------------------------#
 
@@ -698,6 +772,20 @@ class stzAgentDeclaration from stzObject
 					"a posture on a skill with no ring: clause governs " +
 					"nothing -- the declared verbs carry their own terms.")
 			ok
+			# the file's posture may not be more trusted than CODE allowed
+			if _cPosture_ != ""
+				_nF_ = len(_acRingFns_)
+				for _iF_ = 1 to _nF_
+					_cMax_ = StzAgentFunctionAllowance(_acRingFns_[_iF_])
+					if _cMax_ != "" and StzAgentPostureRank(_cPosture_) > StzAgentPostureRank(_cMax_)
+						@aFindings + _StzPiaFinding("pia-posture-exceeds-allowance",
+							_cWhere_ + ".posture",
+							"the file runs '" + _acRingFns_[_iF_] + "' as '" + _cPosture_ +
+							"', and the application allows it at most '" + _cMax_ +
+							"' -- a file cannot grant its own code more trust than code did.")
+					ok
+				next
+			ok
 			if _bDoesRing_ = 1 and _cPosture_ != ""
 				_cRef_ = StzPostureReversibilityRefusal(_cPosture_, @cRev)
 				if _cRef_ != ""
@@ -751,6 +839,15 @@ class stzAgentDeclaration from stzObject
 					"points at nothing is refused at LOAD rather than at the " +
 					"first tick -- load the file that defines it before the " +
 					"folder, or write the clause in the declared vocabulary.")
+				return [ :verb = "", :args = [] ]
+			ok
+			if StzAgentFunctionAllowance(_cFn_) = ""
+				@aFindings + _StzPiaFinding("pia-function-not-allowed", pcWhere,
+					"this clause names the Ring function '" + _cFn_ + "', which the " +
+					"application has not allowed agent files to call. An agent file is " +
+					"data; code decides what it may run -- add " +
+					"StzAllowAgentFunction(" + char(34) + _cFn_ + char(34) + ", " + char(34) +
+					"sandboxed" + char(34) + ") (or external / trusted) where the function is defined.")
 				return [ :verb = "", :args = [] ]
 			ok
 			return [ :verb = "ring", :args = [ _cFn_ ] ]

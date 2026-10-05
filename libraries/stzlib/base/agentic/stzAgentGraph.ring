@@ -20,6 +20,14 @@ class stzAgentGraph from stzObject
 
 	@cName = ""
 	@oG = ""
+	# THE SEALED RECORD (threat-model R1, 2026-09-29). GraphQ() hands out the
+	# raw graph, so any property on it can be set around the governed doors.
+	# The properties a GATE decides on are therefore ALSO recorded here, by the
+	# governed doors only, out of GraphQ()'s reach: the gates read THIS record,
+	# and Tampering() reports every node whose graph property no longer matches
+	# it. A raw edit can still change the picture; it can no longer change a
+	# decision, and it can no longer go unseen.
+	@aSealed = []	# [ id, kind, [ capabilities ] ]
 
 	def init(pcName)
 		@cName = "" + pcName
@@ -104,6 +112,81 @@ class stzAgentGraph from stzObject
 		@oG.SetNodeProperty(_cId_, "kind", pcKind)
 		@oG.SetNodeProperty(_cId_, "capabilities", pacCaps)
 		@oG.SetNodeProperty(_cId_, "taint", pcTaint)
+		This._Seal(_cId_, pcKind, pacCaps)
+
+	def _Seal(pcId, pcKind, pacCaps)
+		_aCaps_ = []
+		if isList(pacCaps)
+			_n_ = len(pacCaps)
+			for _i_ = 1 to _n_
+				_aCaps_ + StzLower("" + pacCaps[_i_])
+			next
+		ok
+		_i_ = This._SealIndex(pcId)
+		if _i_ > 0
+			@aSealed[_i_][2] = StzLower("" + pcKind)
+			@aSealed[_i_][3] = _aCaps_
+		else
+			@aSealed + [ pcId, StzLower("" + pcKind), _aCaps_ ]
+		ok
+
+	def _SealIndex(pcId)
+		_n_ = len(@aSealed)
+		for _i_ = 1 to _n_
+			if @aSealed[_i_][1] = pcId  return _i_  ok
+		next
+		return 0
+
+	# the kind the governed door recorded ("" when the node never passed one)
+	def _SealedKind(pcId)
+		_i_ = This._SealIndex(pcId)
+		if _i_ = 0  return ""  ok
+		return @aSealed[_i_][2]
+
+	# Nodes whose graph properties no longer match the sealed record: a kind
+	# changed, or a capability present that no governed door granted.
+	# [ [ node, what, recorded, found ], ... ]
+	def Tampering()
+		_aOut_ = []
+		_n_ = len(@aSealed)
+		for _i_ = 1 to _n_
+			_cId_ = @aSealed[_i_][1]
+			if NOT @oG.NodeExists(_cId_)
+				_aOut_ + [ _cId_, "node", "present", "removed" ]
+				loop
+			ok
+			_cKind_ = StzLower("" + @oG.NodeProperty(_cId_, "kind"))
+			if _cKind_ != @aSealed[_i_][2]
+				_aOut_ + [ _cId_, "kind", @aSealed[_i_][2], _cKind_ ]
+			ok
+			_aCaps_ = @oG.NodeProperty(_cId_, "capabilities")
+			if isList(_aCaps_)
+				_nC_ = len(_aCaps_)
+				for _j_ = 1 to _nC_
+					if ring_find(@aSealed[_i_][3], StzLower("" + _aCaps_[_j_])) = 0
+						_aOut_ + [ _cId_, "capability", "(not granted)", StzLower("" + _aCaps_[_j_]) ]
+					ok
+				next
+			ok
+		next
+		return _aOut_
+
+	def _TamperFindings(pcShape)
+		_aT_ = This.Tampering()
+		_aOut_ = []
+		_n_ = len(_aT_)
+		for _i_ = 1 to _n_
+			_cMsg_ = "'" + _aT_[_i_][1] + "': " + _aT_[_i_][2] + " is '" + _aT_[_i_][4] +
+				"' but the governed door recorded '" + _aT_[_i_][3] + "' -- set around the gate"
+			if pcShape = "rule"
+				_aOut_ + [ :rule = "governed-property-tampered", :subject = _aT_[_i_][1],
+					:where = _aT_[_i_][1], :severity = :error, :message = _cMsg_ ]
+			else
+				_aOut_ + [ :invariant = "governed-property-tampered", :node = _aT_[_i_][1],
+					:severity = :error, :message = _cMsg_ ]
+			ok
+		next
+		return _aOut_
 
 	#-- edges (the meaning is the label) -------------------------------------
 
@@ -151,7 +234,8 @@ class stzAgentGraph from stzObject
 		if NOT @oG.NodeExists(_cA_)
 			return 0
 		ok
-		if StzLower("" + @oG.NodeProperty(_cA_, "kind")) = "llm_actor" and
+		# the SEALED kind decides: a raw kind flip must not open the gate
+		if This._SealedKind(_cA_) = "llm_actor" and
 		   StzLower(ring_trim("" + pcCap)) = "effectful"
 			return 0
 		ok
@@ -166,7 +250,7 @@ class stzAgentGraph from stzObject
 		if NOT @oG.NodeExists(_cA_)
 			stzraise("stzAgentGraph.Grant: no actor '" + pcActor + "' in the composition.")
 		ok
-		if StzLower("" + @oG.NodeProperty(_cA_, "kind")) = "llm_actor" and _cCap_ = "effectful"
+		if This._SealedKind(_cA_) = "llm_actor" and _cCap_ = "effectful"
 			stzraise("REFUSED: granting 'effectful' to llm actor '" + _cA_ +
 			         "' -- an LLM proposes, only a pi-gate commits (no-llm-effectful, " +
 			         "enforced at CONSTRUCTION, not merely audited).")
@@ -179,12 +263,20 @@ class stzAgentGraph from stzObject
 			_aCaps_ + _cCap_
 			@oG.SetNodeProperty(_cA_, "capabilities", _aCaps_)
 		ok
+		_iS_ = This._SealIndex(_cA_)
+		if _iS_ > 0 and ring_find(@aSealed[_iS_][3], _cCap_) = 0
+			@aSealed[_iS_][3] + _cCap_
+		ok
 		return This
 
 	#-- the proof (the three gates + four invariants, via meta/) --------------
 
 	def Violations()
-		return StzCheckAgentGraph(@oG)
+		_aF_ = StzCheckAgentGraph(@oG)
+		_aT_ = This._TamperFindings("invariant")
+		_n_ = len(_aT_)
+		for _i_ = 1 to _n_  _aF_ + _aT_[_i_]  next
+		return _aF_
 
 	# The uniform graph-owned verb: this graph checks ITSELF against its
 	# guardrails, in the unified finding shape (so an stzRuleReport can Collect
@@ -202,10 +294,14 @@ class stzAgentGraph from stzObject
 		return StzAgentRuleSetQ()
 
 	def ViolationsViaRules()
-		return StzAgentRuleSetQ().Check(@oG)
+		_aF_ = StzAgentRuleSetQ().Check(@oG)
+		_aT_ = This._TamperFindings("rule")
+		_n_ = len(_aT_)
+		for _i_ = 1 to _n_  _aF_ + _aT_[_i_]  next
+		return _aF_
 
 	def IsSound()
-		return StzAgentGraphIsSound(@oG)
+		return StzAgentGraphIsSound(@oG) and len(This.Tampering()) = 0
 
 	# a readable verdict for the composition
 	def Explain()

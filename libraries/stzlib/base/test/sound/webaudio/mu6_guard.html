@@ -1,0 +1,178 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>MU6 guard — the same notes, the same patterns, sample-exact</title>
+<style>
+  :root { --ok: #0a6; --fail: #c30; --ink: #222; --mute: #666; --bg: #fff; }
+  @media (prefers-color-scheme: dark) { :root { --ok: #3c9; --fail: #f66; --ink: #ddd; --mute: #999; --bg: #151515; } }
+  body { font: 13px/1.55 ui-monospace, Consolas, monospace; margin: 1.5rem; max-width: 66rem; color: var(--ink); background: var(--bg); }
+  h2 { font-size: .95rem; margin: 1.4rem 0 .3rem; border-bottom: 1px solid #8884; }
+  .ok { color: var(--ok); } .fail { color: var(--fail); font-weight: 700; }
+  .note { color: var(--mute); margin: .15rem 0 .4rem 2.2rem; }
+  #sum { font-size: 1.1rem; font-weight: 700; margin-top: 1.4rem; }
+</style>
+<h1>MU6 guard — the browser half</h1>
+<p>The native half is <code>sound_mu6_narrated.ring</code>, which WRITES the
+fixtures this page reads: <code>mu6_notes_expect.json</code> (the twenty
+instruments, native), <code>mu6_patterns_expect.json</code> (the mini-notation,
+Ring's). Neither side can be edited into agreement.</p>
+<div id="out"></div>
+<div id="sum"></div>
+<script src="stz-music.js"></script>
+<script>
+let pass = 0, fail = 0;
+const out = document.getElementById('out');
+const h = t => out.insertAdjacentHTML('beforeend', '<h2>' + t + '</h2>');
+const note = t => out.insertAdjacentHTML('beforeend', '<div class="note">' + t + '</div>');
+function chk(label, cond) {
+  if (cond) { pass++; out.insertAdjacentHTML('beforeend', '<div class="ok">[ok]&nbsp;&nbsp; ' + label + '</div>'); }
+  else { fail++; out.insertAdjacentHTML('beforeend', '<div class="fail">[FAIL] ' + label + '</div>'); }
+}
+(async function () {
+  try {
+    const M = await StzMusic.create({ wasmUrl: 'stz.wasm' });
+    const notes = await fetch('mu6_notes_expect.json').then(r => r.json());
+    const pats = await fetch('mu6_patterns_expect.json').then(r => r.json());
+
+    h('1. The twenty instruments, rendered by wasm, against the native engine');
+    let exact = 0, worst = 0, framesOk = 0, rows = [];
+    for (const n of notes.notes) {
+      const s = M.renderNote(n.name, n.hz, n.hold, n.velocity, 0);
+      if (s.length === n.frames) framesOk++;
+      let same = true;
+      for (const [i, v] of n.samples) {
+        const d = Math.abs(s[i] - v);
+        worst = Math.max(worst, d);
+        if (d > 5e-13) same = false;   // the fixture carries 12 decimals: this is identity to 12 places
+      }
+      let sum = 0;
+      for (let f = 0; f < s.length; f += 97) sum += s[f];
+      const dsum = Math.abs(sum - n.sum97);
+      worst = Math.max(worst, dsum / Math.max(1, s.length / 97));
+      if (same && dsum < 1e-6) exact++; else rows.push(n.name + ' (max sample diff ' + worst.toExponential(2) + ')');
+    }
+    note('frames equal for ' + framesOk + ' of 20; identical to 12 decimal places at every compared sample for ' + exact + ' of 20' +
+         (rows.length ? '; differing: ' + rows.join(', ') : ''));
+    chk('every instrument renders the SAME number of frames in the browser as natively', framesOk === 20);
+    chk('and the SAME samples: all twenty identical to 12 decimal places where compared (6 samples + a 97-step sum each)', exact === 20);
+
+    // MU14: the kit's nine strokes -- cymbals (MU13), toms and open hi-hat (MU14) --
+    // through the REBUILT stz.wasm, against the native engine's own renders
+    h("1b. The kit's nine strokes, through the rebuilt stz.wasm, against the native engine");
+    let sOk = 0, sRows = [];
+    const strokes = notes.strokes || [];
+    for (const k of strokes) {
+      const s = M.renderNote('drumkit', k.hz, k.hold, 0.8, k.variant);
+      let same = s.length === k.frames;
+      for (const [i, v] of k.samples) if (Math.abs(s[i] - v) > 5e-13) same = false;
+      let sum = 0;
+      for (let f = 0; f < s.length; f += 97) sum += s[f];
+      if (same && Math.abs(sum - k.sum97) < 1e-6) sOk++; else sRows.push(k.stroke);
+    }
+    note(sOk + ' of ' + strokes.length + ' strokes identical to 12 decimal places (' + strokes.map(k => k.stroke).join(', ') + ')' +
+         (sRows.length ? '; differing: ' + sRows.join(', ') : ''));
+    chk('all nine strokes of the kit -- crash, ride, three toms, the open hi-hat among them -- are the native ones, sample for sample',
+        strokes.length === 9 && sOk === 9);
+    chk('and the browser rings a cymbal and an open hi-hat past their written length exactly as Ring does',
+        StzMusic.strokeHold('crash', 0.5) === 2 && StzMusic.strokeHold('ride', 0.5) === 1.2 &&
+        StzMusic.strokeHold('openhat', 0.25) === 0.6 && StzMusic.strokeHold('hihat', 0.5) === 0.5);
+
+    h('2. The pattern language, ported, against Ring');
+    let pOk = 0, pBad = [];
+    for (const p of pats.patterns) {
+      const P = new StzMusic.Pattern(p.text);
+      let good = (P.isValid() ? 1 : 0) === Number(p.valid);
+      for (let c = 0; c < 4 && good; c++) {
+        const got = P.cycleEvents(c), want = p.cycles[c];
+        if (got.length !== want.length) { good = false; break; }
+        for (let k = 0; k < got.length; k++) {
+          const g = got[k], w = want[k];
+          const hz = g[2] === 'note' ? StzMusic.noteToHz(g[3]) : 0;
+          if (Math.abs(g[0] - w[0]) > 1e-9 || Math.abs(g[1] - w[1]) > 1e-9 || g[2] !== w[2] || g[3] !== w[3] ||
+              Math.abs(hz - w[4]) > 1e-6) { good = false; break; }
+        }
+      }
+      if (good) pOk++; else pBad.push(p.text);
+    }
+    note(pOk + ' of ' + pats.patterns.length + ' patterns give Ring\'s events for cycles 0-3' + (pBad.length ? ' -- differ: ' + pBad.join(' | ') : ''));
+    chk('the JavaScript port reads every pattern exactly as the Ring classes do (onsets, lengths, names, Hz, and the deterministic ?)',
+        pOk === pats.patterns.length);
+
+    h('3. Scheduling: a loop rendered offline, every onset on its frame');
+    const OFF = new OfflineAudioContext(1, 48000 * 4, 48000);
+    const L = M.live(120, OFF);
+    // THE FIRST VERSION OF THIS SCENE FAILED, AND IT WAS THE READING (MU2's
+    // lesson, met again): with 'bd hh sn hh' each stroke rings until the next
+    // begins, so a threshold found every onset at the edge of its search window
+    // and reported 400 frames. Two instruments now, neither of which can be
+    // fooled that way: onsets of an ISOLATED pattern, read by a threshold; and
+    // the whole render of the dense one, held sample by sample against the same
+    // notes placed by hand where the formula says they go.
+    async function renderLoop(text) {
+      const OFF = new OfflineAudioContext(1, 48000 * 4, 48000);
+      const L = M.live(120, OFF);
+      L.loop('beat', text, 'drumkit');
+      L.lookahead = 10;          // offline, the clock does not run: post everything now
+      L.t0 = 0;
+      L._post();
+      return (await OFF.startRendering()).getChannelData(0);
+    }
+    function first(a, thr) { for (let i = 0; i < a.length; i++) if (Math.abs(a[i]) > thr) return i; return -1; }
+    const cs = 2 * 48000, thr = 0.01;
+    // (a) isolated strokes: each begins in silence
+    const xa = await renderLoop('bd ~ sn ~');
+    let worstF = 0, found = 0;
+    const evA = new StzMusic.Pattern('bd ~ sn ~').cycleEvents(0);
+    for (let c = 0; c < 2; c++) {
+      for (const e of evA) {
+        const at = Math.round((c + e[0]) * cs);
+        const own = first(M.renderNote('drumkit', M.strokeHz('drumkit'), e[1] * 2, 0.8, StzMusic.STROKE_VARIANT[e[3]]), thr / 0.6);
+        const want = at + own;
+        let got = -1;
+        for (let i = Math.max(0, want - 400); i < want + 4000; i++) if (Math.abs(xa[i]) > thr) { got = i; break; }
+        if (got >= 0) { found++; worstF = Math.max(worstF, Math.abs(got - want)); }
+      }
+    }
+    note('\'bd ~ sn ~\', 4 isolated strokes over two cycles at 120 BPM: ' + found + ' found, worst onset error ' + worstF + ' frames');
+    chk('every isolated stroke starts on its frame (WebAudio\'s own clock, offline)', found === 4 && worstF <= 1);
+    // (b) the dense loop: the whole render against a hand-placed mix
+    const xb = await renderLoop('bd hh sn hh');
+    const want = new Float64Array(xb.length);
+    const evB = new StzMusic.Pattern('bd hh sn hh').cycleEvents(0);
+    for (let c = 0; c < 2; c++) {
+      for (const e of evB) {
+        const at = Math.round((c + e[0]) * cs);
+        const s = M.renderNote('drumkit', M.strokeHz('drumkit'), e[1] * 2, 0.8, StzMusic.STROKE_VARIANT[e[3]]);
+        for (let i = 0; i < s.length && at + i < want.length; i++) want[at + i] += Math.fround(0.6) * s[i];
+      }
+    }
+    let dmax = 0;
+    for (let i = 0; i < xb.length; i++) dmax = Math.max(dmax, Math.abs(xb[i] - want[i]));
+    // and the same mix one frame late, to show the comparison can see a frame
+    let dshift = 0;
+    for (let i = 1; i < xb.length; i++) dshift = Math.max(dshift, Math.abs(xb[i] - want[i - 1]));
+    note('\'bd hh sn hh\', the whole 4 s render against the notes placed by hand: worst sample difference ' +
+         dmax.toExponential(2) + '; the same mix shifted ONE frame differs by ' + dshift.toExponential(2));
+    chk('the dense loop IS the hand-placed mix, to float32 rounding (under 1e-6)', dmax < 1e-6);
+    chk('and the comparison can see one frame: shifted by one, it differs by more than 1e-3', dshift > 1e-3);
+
+    h('4. A note read back in the browser, by the engine\'s own pitch instrument');
+    const a4 = M.renderNote('piano', 440, 1.0, 0.8, 0);
+    const got = M.measureHz(a4, 12000, 440);
+    const cents = 1200 * Math.log2(got / 440);
+    note('piano A4 rendered by wasm: ' + got.toFixed(4) + ' Hz = ' + cents.toFixed(3) + ' cents');
+    chk('the wasm piano is in tune within MU1\'s 2 cents', Math.abs(cents) < 2);
+
+    h('5. The latency the browser REPORTS (key to sound)');
+    const lat = M.latency();
+    const ms = (lat.base + lat.output) * 1000;
+    note('baseLatency ' + (lat.base * 1000).toFixed(1) + ' ms + outputLatency ' + (lat.output * 1000).toFixed(1) +
+         ' ms = ' + ms.toFixed(1) + ' ms at ' + lat.rate + ' Hz -- against the native path\'s ~419 ms (a 341 ms ring + the device)');
+    note('outputLatency is 0 until audio has run -- open music.html and play to see the real figure');
+    chk('the browser reports its base latency, and it is under the native ring by an order of magnitude', lat.base > 0 && lat.base * 1000 < 34.1);
+  } catch (err) {
+    chk('the guard ran without an exception: ' + err, false);
+  }
+  document.getElementById('sum').textContent = pass + ' passed, ' + fail + ' failed';
+  window.MU6_GUARD = { pass, fail };
+})();
+</script>

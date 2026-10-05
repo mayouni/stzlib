@@ -1,0 +1,91 @@
+init | Builds the string list from a Ring list whose items are all strings, and raises for anything else. | nothing; builds the object | paList=the list of strings to hold | Update, Content | | a non-list raises "Can't create stzStringList!", and so does one item that is not a string
+Content | Returns the strings held, as a plain Ring list. | a list of strings | | Copy, ToStzList | |
+Copy | Returns a new stzStringList holding the same strings, so changing the copy leaves the original alone. | a stzStringList object | | Content | |
+NumberOfStrings | Returns how many strings the list holds. | a number | | | |
+NthString | Returns the string at position n; it raises R2 when n is 0 or past the end. | a string | n=the position, 1 is the first | FirstString, LastString | |
+FirstString | Returns the first string of the list; it raises R2 on an empty list. | a string | | LastString, NthString | |
+LastString | Returns the last string of the list; it raises R2 on an empty list. | a string | | FirstString, NthString | |
+Add | Appends the string at the end of the list, in place; it raises for a value that is not a string. | nothing; the list changes | pcStr=the string to append | Prepend | |
+Prepend | Puts the string at the start of the list, in place; it raises for a value that is not a string. | nothing; the list changes | pcStr=the string to put first | Add | |
+RemoveAt | Removes the string at position n, in place; it raises "error in range" when n is out of range. | nothing; the list changes | n=the position of the string to remove | RemoveStringAtPosition | | RemoveStringAtPosition does the same but ignores a bad position silently
+ReplaceAt | Replaces the string at position n with the new one, in place; it raises R2 when n is 0 or past the end. | nothing; the list changes | n=the position of the string to replace; pcNewStr=the string that takes its place | ReplaceString | |
+Update | Replaces the whole content with a new list of strings, in place; it raises unless every item is a string. | nothing; the list changes | paNewList=the new strings, all of them text | Content | |
+Concat | Returns all the strings joined end to end, with nothing between them, as one string. | a string | | ConcatUsing, Concatenate | |
+ConcatUsing | Returns all the strings joined as one string, with the separator between each two. | a string | pcSep=the text put between the strings | Concat | | an empty list answers an empty string
+Contains | TRUE if one string of the list equals the given string as a whole, case-sensitive. | TRUE or FALSE | pcStr=the string to look for, matched against whole items | ContainsCS, ContainsSubString | | Contains("") is FALSE unless an item is empty
+ContainsSubString | TRUE if the text occurs inside at least one string of the list, case-sensitive. | TRUE or FALSE | | Contains, ContainsSubstringInEachString | |
+Find | Returns the positions of every string equal to the given one, case-sensitive. | a list of numbers; an empty list when none match | pcStr=the string to look for, matched against whole items | FindCS, FindFirst, FindLast | |
+FindFirst | Returns the position of the first string equal to the given one, or 0 when none is. | a number | pcStr=the string to look for, matched against whole items | FindLast, Find | |
+FindLast | Returns the position of the last string equal to the given one, or 0 when none is. | a number | pcStr=the string to look for, matched against whole items | FindFirst, Find | |
+FindString | Returns the positions of every string equal to the given one, as the plain form does. | a list of numbers; an empty list when none match | pcStr=the string to look for, matched against whole items | Find | |
+FindNthOccurrence | Returns the position of the nth string equal to the given one, or 0 when fewer than n are. | a number | n=which occurrence, 1 is the first; pcStr=the string to look for | Find, FindFirst | |
+NumberOfOccurrence | Returns how many strings of the list equal the given one as a whole, case-sensitive. | a number | pcStr=the string to count, matched against whole items | NumberOfOccurrenceOfSubString | |
+NumberOfOccurrences | Returns how many strings of the list equal the given one as a whole, case-sensitive. | a number | pcStr=the string to count, matched against whole items | NumberOfOccurrenceOfSubString | |
+NumberOfOccurrenceOfSubString | Returns how many times the text occurs inside the strings, summed over all of them. | a number | | NumberOfOccurrence | | Hello, world, hello, World hold four o's
+DuplicatedStrings | Returns each string that appears more than once, named once, in the order of its first appearance. | a list of strings | | UniqueItems, Unique | | the CS form with the flag 0 answers the folded lowercase spelling, not the original
+RemoveAll | Removes every string equal to the given one, in place, case-sensitive. | nothing; the list changes | pcStr=the string to remove, matched against whole items | RemoveFirst, RemoveMany | |
+RemoveFirst | Removes only the first string equal to the given one, in place, case-sensitive. | nothing; the list changes | pcStr=the string to remove, matched against whole items | RemoveAll | |
+RemoveFirstString | Removes the first string, whatever it is, in place; an empty list stays empty. | nothing; the list changes | | RemoveLastString | |
+RemoveLastString | Removes the last string, whatever it is, in place; an empty list stays empty. | nothing; the list changes | | RemoveFirstString | |
+RemoveNthOccurrence | Removes the nth string equal to the given one, in place; nothing happens when fewer than n are. | nothing; the list changes | n=which occurrence, 1 is the first; pcStr=the string to remove | RemoveFirst | |
+RemoveStringAtPosition | Removes the string at position n, in place; a position out of range is ignored silently. | nothing; the list changes | n=the position of the string to remove | RemoveAt | |
+RemoveNthString | Removes the string at position n, in place; a position out of range is ignored silently. | nothing; the list changes | n=the position of the string to remove | RemoveAt | |
+RemoveStringsAtThesePositions | Removes the strings at all the given positions in one go, in place; positions out of range are ignored. | nothing; the list changes | panPositions=the positions of the strings to remove, read against the original list | RemoveAt | | the positions may come in any order
+RemoveMany | Removes every string equal to any string of the given list, in place, case-sensitive. | nothing; the list changes | pacStrings=the strings to remove | RemoveAll | |
+RemoveEmptyStrings | Removes the strings that are empty, in place; a string of spaces is not empty and stays. | nothing; the list changes | | RemoveSpaces | |
+ReplaceString | Turns every string equal to the old one into the new one, in place; only whole strings match. | nothing; the list changes | | ReplaceAt, ReplaceManyOneByOne | | to change a part of each string, use stzString methods on the items
+ReplaceManyOneByOne | Replaces the old strings by the new ones pairwise, the first by the first, in place; unequal lengths change nothing. | nothing; the list changes | pacOld=the strings to replace; pacNew=the strings that replace them, one for each old one, or :With = list | ReplaceString | |
+Move | Takes the string at one position and puts it at another, the others closing up; a bad position changes nothing. | nothing; the list changes | pFrom=the position to take the string from, or :StringAtPosition = n; pTo=the position to put it at, or :ToPosition = n | Swap | | on a b c d, Move(1, 3) gives b c a d
+Swap | Exchanges the strings at two positions, in place, every other string staying where it was; a bad position changes nothing. | nothing; the list changes | pFirst=the first position, or :BetweenString = n; pSecond=the second position, or :AndString = n | Move | |
+FindAll | Returns the positions of every string equal to the given one, as the plain form does. | a list of numbers; an empty list when none match | pcStr=the string to look for, matched against whole items | Find | |
+WordsSortingOrders | Returns one verdict per string, ascending, descending or unsorted, for the order of that string's own words. | a list of strings | | WordsOfEachStringAreSortedInAscending | | a string of fewer than two words is ascending
+NumberOfStringsWhereWordsAreSortedInAscending | Returns how many strings have their own words in ascending order, a one-word string included. | a number | | WordsSortingOrders | |
+NumberOfStringsWhereWordsAreSortedInDescending | Returns how many strings have their own words in descending order; a one-word string counts as ascending instead. | a number | | WordsSortingOrders | |
+NumberOfStringsWhereWordsAreUnsorted | Returns how many strings have their own words in neither ascending nor descending order. | a number | | WordsSortingOrders | |
+IsUppercase | TRUE if every string is uppercase; an empty list answers FALSE. | TRUE or FALSE | | IsLowercase | |
+IsLowercase | TRUE if every string is lowercase, a string with no letters counting as lowercase; an empty list answers FALSE. | TRUE or FALSE | | IsUppercase | |
+ContainsSubstringInEachString | TRUE if the text occurs inside every string of the list, case-sensitive; an empty list answers FALSE. | TRUE or FALSE | | ContainsSubString | |
+WordsOfEachStringAreSortedInAscending | TRUE if the words inside each string are in ascending order, read per string; an empty list answers FALSE. | TRUE or FALSE | | WordsSortingOrders, SortInAscending | | a one-word string is in order both ways
+WordsOfEachStringAreSortedInDescending | TRUE if the words inside each string are in descending order, read per string; an empty list answers FALSE. | TRUE or FALSE | | WordsSortingOrders, SortInDescending | | a one-word string is in order both ways
+SortInAscending | Sorts the strings in ascending order, in place, case-sensitive: capitals come before lowercase letters. | nothing; the list changes | | SortedInAscending, SortInDescending | |
+SortUp | Sorts the strings in ascending order, in place, as the plain form does. | nothing; the list changes | | SortInAscending | |
+SortedInAscending | Returns the strings in ascending order as a plain list, case-sensitive; the list itself is unchanged. | a list of strings | | SortInAscending | |
+Sorted | Returns the strings in ascending order as a plain list, case-sensitive; the list itself is unchanged. | a list of strings | | SortedInAscending | |
+WithoutSpaces | Returns the strings with every space char removed from each, as a plain list; the list is unchanged. | a list of strings | | RemoveSpaces, SpacesRemoved | | only the space char goes; a tab stays
+SortInDescending | Sorts the strings in descending order, in place, case-sensitive: lowercase letters come before capitals. | nothing; the list changes | | SortedInDescending, SortInAscending | |
+SortDown | Sorts the strings in descending order, in place, as the plain form does. | nothing; the list changes | | SortInDescending | |
+SortedInDescending | Returns the strings in descending order as a plain list, case-sensitive; the list itself is unchanged. | a list of strings | | SortInDescending | |
+SortBy | Sorts the strings in place by a numeric key computed from each one, such as its length; a text key raises. | nothing; the list changes | pcExpr=a Ring expression that gives a number, with @string standing for the current string | SortInAscending | known defect: @item is not defined here and raises R24, and a key that is text raises R41 because keys are compared with a greater-than, so only numeric keys such as len(@string) work | the sort is stable
+Reverse | Reverses the order of the strings, in place. | nothing; the list changes | | Reversed | |
+Reversed | Returns the strings in reverse order as a plain list; the list itself is unchanged. | a list of strings | | Reverse | |
+Unique | Removes repeated strings, in place, keeping the first of each in its place; case-sensitive. | nothing; the list changes | | UniqueItems, RemoveDuplicates | |
+RemoveDuplicates | Removes repeated strings, in place, keeping the first of each in its place; case-sensitive. | nothing; the list changes | | Unique | |
+UniqueItems | Returns the strings without repeats as a plain list, the first of each kept in place; the list is unchanged. | a list of strings | | Unique | |
+Filter | Returns the strings that contain the text, case-sensitive, as a plain list; the list is unchanged. | a list of strings | | FilterCS, ThatContain | |
+FilterByStartsWith | Returns the strings that begin with the prefix, case-sensitive, as a plain list; the list is unchanged. | a list of strings | pcPrefix=the text the strings must begin with | FilterByEndsWith | |
+FilterByEndsWith | Returns the strings that end with the suffix, case-sensitive, as a plain list; the list is unchanged. | a list of strings | | FilterByStartsWith | |
+ToUpper | Turns every string to uppercase, in place. | nothing; the list changes | | Uppercased, ToLower | |
+Uppercased | Returns the strings in uppercase as a plain list; the list itself is unchanged. | a list of strings | | ToUpper | |
+ToLower | Turns every string to lowercase, in place. | nothing; the list changes | | Lowercased, ToUpper | |
+Lowercased | Returns the strings in lowercase as a plain list; the list itself is unchanged. | a list of strings | | ToLower | |
+MostSimilarTo | Returns the string closest to the target by the engine's Jaro-Winkler score, the first on a tie; an empty list answers an empty string. | a string | pcTarget=the text to compare each string with | SimilarTo | |
+SimilarTo | Returns the strings whose Jaro-Winkler score against the target is at least the threshold, on the engine's 0 to 1000 scale. | a list of strings | pcTarget=the text to compare each string with; nThreshold=the lowest score kept, from 0 to 1000 | MostSimilarTo | | a threshold of 800 keeps banana for the target banan; a fraction such as 0.8 keeps most strings
+ToString | Returns the strings joined with newlines as one string. | a string | | Concat, ConcatUsing | |
+ToListOfStzStrings | Returns each string wrapped in a stzString object, as a list of objects. | a list of stzString objects | | ToStzList | |
+ToStzList | Returns the strings as a stzList object. | a stzList object | | Content, ToListOfStzStrings | |
+Split | Splits each string on the separator and returns the parts of each, a list of lists; the list is unchanged. | a list of lists of strings | _cSep_=the separator text, or :Using = text | stzString | | the separator itself is dropped
+Trim | Trims the leading and trailing spaces of every string, in place. | nothing; the list changes | | Trimmed | |
+Trimmed | Returns the strings trimmed of leading and trailing spaces, as a plain list; the list is unchanged. | a list of strings | | Trim | |
+Matches | TRUE if every string matches the pattern as a whole, so "a." matches ab and "a" does not; an empty list is TRUE. | TRUE or FALSE | pcRegexPatt=the regular expression, matched against each whole string | StringsW | known defect: the old comment says it returns the strings that match, but it answers one verdict for the whole list |
+IsStzStringList | Answers TRUE every time: the object is a stzStringList. | TRUE | | stzType | |
+stzType | Returns the type name of the object as a lowercase string, stzstringlist. | a string | | IsStzStringList | |
+Concatenate | Returns all the strings joined end to end, with nothing between them, as one string. | a string | | Concat | |
+SpacesRemoved | Returns the strings with their spaces removed as a plain list; the list is unchanged. | a list of strings | | RemoveSpaces, WithoutSpaces | |
+RemoveSpaces | Removes the spaces inside every string, in place. | nothing; the list changes | | SpacesRemoved | |
+SubStrongs | Returns the strings that contain another, different string of the list, one entry per such string. | a list of strings | | SubStrinks | | in sea, seashell, shell, ocean, only seashell contains another item
+SubStrinks | Returns the strings that sit inside another, different string of the list, repeats included. | a list of strings | | SubStrongs | | in sea, seashell, shell, ocean, sea the answer is sea, shell, sea
+StringsW | Returns the strings for which the condition is true; an error inside the condition counts as false. | a list of strings | pcExpr=a Ring condition, with @string or @item for the current string and @i for its position | Yield, Filter | | StringsW("len(@string) = 2") keeps the two-char strings
+Yield | Returns the condition's verdict for every string, 1 or 0, so it lines up with the list position by position. | a list of 1 and 0 | pcExpr=a Ring condition, with @string or @item for the current string and @i for its position | StringsW | |
+ThatContain | Returns the strings that contain the text, case-sensitive, as a plain list; a non-string argument answers an empty list. | a list of strings | | Filter | |
+Longest | Returns the string with the most words, the first on a tie; an empty list answers an empty string. | a string | | Shortest | | it counts words, not chars
+Shortest | Returns the string with the fewest words, the first on a tie; an empty list answers an empty string. | a string | | Longest | | it counts words, not chars

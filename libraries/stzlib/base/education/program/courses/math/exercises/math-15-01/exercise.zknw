@@ -1,0 +1,7 @@
+knowledge "math-15-01"
+
+facts
+    math-15-01 | is-a | exercise
+    math-15-01 | in-chapter | an-identity-is-not-a-self-check
+    math-15-01 | trains | cr-02
+    math-15-01 | needs-step | asks
