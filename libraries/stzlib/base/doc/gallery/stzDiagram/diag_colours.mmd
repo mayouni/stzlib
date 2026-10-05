@@ -1,0 +1,16 @@
+graph TD
+    s(["Start"])
+    p1["Process"]
+    w{{"Warning?"}}
+    d["Danger"]
+    i["Store"]
+    n["Neutral"]
+    e(["End"])
+
+    s --> p1
+    p1 --> w
+    w -->|Yes| d
+    w -->|No| i
+    d --> n
+    i --> n
+    n --> e

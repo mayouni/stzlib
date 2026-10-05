@@ -1,0 +1,29 @@
+digraph "colours" {
+    graph [rankdir=LR, bgcolor=white, fontname="helvetica", fontsize=12, splines=spline, nodesep=0.60, ranksep=0.80, ordering=out, tooltip=" "]
+    labelloc="t";
+    label="
+SEMANTIC COLOURS
+
+";
+    fontsize=16;
+
+    node [fontname="helvetica", fontsize=12]
+    edge [fontname="helvetica", fontsize=12, color="#D1D1D1", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
+
+    s [label="Start", shape=ellipse, style="solid,filled", fillcolor="#008000", penwidth=1, fontcolor="white", tooltip=" "]
+    p1 [label="Process", shape=box, style="rounded,solid,filled", fillcolor="#E0E0FF", penwidth=1, fontcolor="black", tooltip=" "]
+    w [label="Warning?", shape=diamond, style="solid,filled", fillcolor="#FFA500", penwidth=1, fontcolor="black", tooltip=" "]
+    d [label="Danger", shape=box, style="rounded,solid,filled", fillcolor="#FF0000", penwidth=1, fontcolor="white", tooltip=" "]
+    i [label="Store", shape=cylinder, style="solid,filled", fillcolor="#0000FF", penwidth=1, fontcolor="white", tooltip=" "]
+    n [label="Neutral", shape=box, style="rounded,solid,filled", fillcolor="#D1D1D1", penwidth=1, fontcolor="black", tooltip=" "]
+    e [label="End", shape=doublecircle, style="solid,filled", fillcolor="#008000", penwidth=1, fontcolor="white", tooltip=" "]
+
+    s -> p1
+    p1 -> w
+    w -> d [label="Yes"]
+    w -> i [label="No"]
+    d -> n
+    i -> n
+    n -> e
+
+}

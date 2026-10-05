@@ -1,0 +1,37 @@
+# made o1.ring ; run: cd libraries/stzlib/base/test/reflect && ring <this file>  (picture: org_vacant_dot.png)
+load "../../../stzlib.ring"
+# chdir("<an output folder>") here, after the load, so the picture lands there (the engine DLL path breaks if Ring starts elsewhere: run from base/test/reflect)
+oF = new stzFont("C:/Windows/Fonts/segoeui.ttf")
+
+oOrg = _Org()
+cP = oOrg.ToPNG("org_tree.png", [ :Font = oF, :Title = "TechCo organisation" ])
+? "tree png: " + len(cP)
+? "svg: " + len(oOrg.ToSVG([ :Font = oF ]))
+
+# focus on vacant positions, drawn by the diagram tier and by graphviz
+oV = _Org()
+oV.ApplyFocusTo(oV.VacantPositions())
+? "vacant: " + @@( oV.VacantPositions() )
+write("org_vacant.dot", oV.Dot())
+oV.ToPNGXT("org_vacant_native.png", [ :Font = oF, :NodeWidth = 120, :NodeHeight = 44, :FontSize = 13, :Width = 800, :Height = 500 ])
+
+func _Org()
+	o = new stzOrgChart("TechCo")
+	o.AddExecutiveXT(:@ceo, "CEO")
+	o.AddManagerXT(:@cto, "CTO")
+	o.AddManagerXT(:@cfo, "CFO")
+	o.AddStaffXT(:@dev1, "Developer")
+	o.AddStaffXT(:@dev2, "Developer")
+	o.AddStaffXT(:@acct, "Accountant")
+	o.ReportsTo(:@cto, :@ceo)
+	o.ReportsTo(:@cfo, :@ceo)
+	o.ReportsTo(:@dev1, :@cto)
+	o.ReportsTo(:@dev2, :@cto)
+	o.ReportsTo(:@acct, :@cfo)
+	o.AddPersonXT(:@alice, "Alice")
+	o.AddPersonXT(:@bob, "Bob")
+	o.AddPersonXT(:@carol, "Carol")
+	o.AssignPerson(:@alice, :@ceo)
+	o.AssignPerson(:@bob, :@cto)
+	o.AssignPerson(:@carol, :@dev1)
+	return o

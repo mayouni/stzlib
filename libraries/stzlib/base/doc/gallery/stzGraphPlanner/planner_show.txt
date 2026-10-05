@@ -1,0 +1,40 @@
+== short ==
+Plan: short
+  Total Cost: 14
+  Steps: 3
+
+Actions:
+  a -> b
+    Cost: 5
+  b -> c
+    Cost: 5
+  c -> d
+    Cost: 4
+
+Explanation:
+Step 1: a -> b (cost: 5)
+Step 2: b -> c (cost: 5)
+Step 3: c -> d (cost: 4)
+== cheap ==
+Plan: cheap
+  Total Cost: 5
+  Steps: 2
+
+Actions:
+  a -> c
+    Cost: 2
+  c -> d
+    Cost: 3
+
+Explanation:
+Step 1: a -> c (cost: 2)
+Step 2: c -> d (cost: 3)
+== cost breakdown (cheap) ==
+[ [ [ "step", 1 ], [ "from", "a" ], [ "to", "c" ], [ "criteria", [ [ [ "property", "cost" ], [ "value", 2 ], [ "weight", 1 ], [ "direction", "minimize" ], [ "contribution", 2 ] ] ] ], [ [ "total", 2 ] ] ], [ [ "step", 2 ], [ "from", "c" ], [ "to", "d" ], [ "criteria", [ [ [ "property", "cost" ], [ "value", 3 ], [ "weight", 1 ], [ "direction", "minimize" ], [ "contribution", 3 ] ] ] ], [ [ "total", 3 ] ] ] ]
+== ranking ==
+╭──────┬───────┬──────┬───────╮
+│ Rank │ Plan  │ Cost │ Steps │
+├──────┼───────┼──────┼───────┤
+│    1 │ cheap │    5 │     3 │
+│    2 │ short │   14 │     4 │
+╰──────┴───────┴──────┴───────╯

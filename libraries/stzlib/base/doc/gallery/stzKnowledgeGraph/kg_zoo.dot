@@ -1,0 +1,17 @@
+digraph zoo {
+  rankdir=TD;
+  node [shape=box];
+
+  dog [label="Dog"];
+  animal [label="Animal"];
+  cat [label="Cat"];
+  meat [label="Meat"];
+  fish [label="Fish"];
+  zoo [label="Zoo"];
+
+  dog -> animal [label="is-a"];
+  cat -> animal [label="is-a"];
+  dog -> meat [label="eats"];
+  cat -> fish [label="eats"];
+  animal -> zoo [label="lives-in"];
+}

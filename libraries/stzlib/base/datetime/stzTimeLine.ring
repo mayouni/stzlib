@@ -1859,6 +1859,7 @@ class stzTimeLine from stzObject
 	#
 	#   returns    text
 	#   note       the drawing uses box characters, so it needs a console that shows UTF-8
+	#   warning    seen in the gallery: the span bars are wrong: the label is repeated and cut, a span starts and ends a few columns off, and only some spans get the start mark; the date table below is correct
 	#   see        Show, ToStringShort, Stats
 	def ToString()
 		return This.ToStringXT([])
@@ -1947,6 +1948,7 @@ class stzTimeLine from stzObject
 	# Prints the drawn timeline without its table.
 	#
 	#   returns    nothing; the text is printed
+	#   warning    seen in the gallery: the span bars are wrong (labels repeated and cut, starts and ends a few columns off); the date table is correct
 	#   see        ToStringShort, Show
 	def ShowShort()
 		? This.ToStringShort()

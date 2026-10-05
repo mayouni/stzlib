@@ -995,6 +995,7 @@ class stzKnowledgeGraph from stzGraph
 	#   returns    nothing today
 	#   warning    known defect: it calls ApplyInference, which is defined nowhere, so the call
 	#              always raises R14; stzGraph.Explain is shadowed by this version
+	#              seen in the gallery: drawn through GraphCanvas a knowledge graph shows no predicate on its edges and no arrowheads; Dot() with graphviz draws each fact as an edge labelled with its predicate
 	#   see        Facts, Ontology
 	def Explain()
 		_aExplanation_ = [

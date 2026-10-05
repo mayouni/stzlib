@@ -2994,6 +2994,7 @@ def CompareWith(_oOtherCal_)
 	#   note       the same text as ToString
 	#   warning    prints No calendar data to display above the table for a range or one-day
 	#              calendar, and raises Not yet implemented! for a year or quarter calendar
+	#              seen in the gallery: the summary counts disagree with ShowTable: October 2024 with a Wednesday holiday says working 23 and weekend 7 where ShowTable shows 22 working days and 8 weekend days; the legend says [D] for a holiday but the grid prints the date
 	#   see        ToString, ShowShort
 	def Show()
 		? This.ToString()
@@ -3317,6 +3318,7 @@ def CompareWith(_oOtherCal_)
 	#   note       five shaded blocks mean a full working week
 	#   warning    prints Heat map available only for monthly views for any other calendar; holidays
 	#              after the first day are seen here, since the grid builds its own dates
+	#              seen in the gallery: the heat-map weeks are 7-day blocks counted from the 1st, not the Monday-to-Sunday weeks of the grid, so their counts differ from the grid rows
 	#   see        ToString, DetailedTable
 	def ShowHeatMap()
 		? This._drawHeatMap()

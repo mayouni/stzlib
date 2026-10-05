@@ -367,6 +367,7 @@ class stzCanvas from stzObject
 	#   paPoints   A flat list of coordinates, [ x1, y1, x2, y2, ... ], in pixels
 	#   returns    nothing; the shape is pending
 	#   note       the line is 1 pixel wide and in the fill colour unless a stroke was given
+	#   warning    seen in the gallery: a nested list of points [ [ x, y ], ... ] draws nothing and raises nothing; use a flat list
 	#   see        AddPolygon, AddLine
 	#@ aka  paPoints is flat: [ x1,y1, x2,y2, ... ]
 	def AddPolyline(paPoints)
@@ -382,6 +383,7 @@ class stzCanvas from stzObject
 	#   paPoints   A flat list of coordinates, [ x1, y1, x2, y2, ... ], in pixels
 	#   returns    nothing; the shape is pending
 	#   note       a stroke closes the outline back to the first point
+	#   warning    seen in the gallery: a nested list of points draws nothing and raises nothing; use a flat list
 	#   see        AddPolyline, AddMesh
 	def AddPolygon(paPoints)
 		This._Flush()

@@ -2075,6 +2075,7 @@ class stzGraphPlanner from stzObject
 	#   returns    nothing; text is printed
 	#   warning    an unexecuted or unknown plan prints a not found or not executed line instead of
 	#              raising
+	#              seen in the gallery: Steps counts edges in the summary (2 for a to c to d) while the ranking table counts route nodes (3)
 	#   see        ShowPlan, Explain
 	def Show()
 		This.ShowXT(This.CurrentPlan())
