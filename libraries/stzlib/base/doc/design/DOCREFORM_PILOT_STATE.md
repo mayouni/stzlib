@@ -1,33 +1,48 @@
-# DOCREFORM -- state at the end of the session of 2026-10-05 (handoff)
+# DOCREFORM -- state after the pilot session of 2026-10-05 (handoff)
 
-Branch `docs/reform` (worktree `D:\GitHub\_wtd`), pushed to origin as `docs/reform-step2`. NOT on main: the push to main was refused by the auto-mode classifier and waits for the author.
+Branch `docs/reform` (worktree `D:\GitHub\_wtd`), pushed to origin as `docs/reform-step2`. NOT on main: the push to main was refused by the auto-mode classifier and waits for the author. origin/main moves often (payments, security): rebase first, re-export if library sources changed.
 
 ## Done
-- Step 1: proposal (`design/DOCREFORM_PROPOSAL.md`), rulings recorded in section 6.
-- Step 2: extractor (`meta/stzDocRecord.ring`, `meta/stzDocExport.ring`), `reference.json` (schema 1), guard `test/reflect/docrecord_narrated.ring` (63), author guide `DOCBLOCK.md`, `params.txt`, `typo-reviewed.txt`. Export ~46 s in one process. FOR STZSITE line filed in CONCLUSIONS.
-- Step 3 (pilot, in progress): the 300 most used methods of stzString (132), stzList (115), stzNumber (30), stzHashList (23) carry a doc block in the SOURCE, comments only (checked: code identical before and after). Every example was RUN (tools below) and READ by the session; the author has NOT read them yet. 292 of the 300 pass checks 1-4 as measured; 8 fail the form check and are listed below.
+- Step 1: proposal (`DOCREFORM_PROPOSAL.md`), the five rulings in its section 6.
+- Step 2: extractor (`meta/stzDocRecord.ring`, `meta/stzDocExport.ring`), `reference.json` (schema 1), author guide `base/doc/DOCBLOCK.md`, glossary `params.txt` (76 names), `typo-reviewed.txt`. Export 50 s in one process.
+- Step 3, the pilot, in the SOURCE (comments only, code checked identical): the 300 most used methods of stzString (132), stzList (115), stzNumber (30), stzHashList (23) carry a doc block, and each of the four classes a class block with a sample receiver. **All 300 pass checks 1-4; 293 carry an example that was run and read** (the other 7 are methods with a known defect, documented as such, no example).
+- Pages for the author to read, rendered from the record: `base/doc/pilot/stzString.html` (class) and `stzString.Find.html` (method); one-page bundle published as an artifact (private): https://claude.ai/artifact/NDfgKTxAx7gEaB49pFYHu3
+- Guards: docrecord_narrated 66/66, selfdoc_narrated 20/20, ask_probe_narrated 51/0.
 
-## Tools (base/doc/tools/)
-`docblock_json.py` (docs_X.py -> json), `docblock_runexamples.py` (runs each example in a fresh receiver, captures real output, adds `#-->`), `docblock_apply.py` (writes blocks, refuses if code changes). The pilot data is in `tools/pilot/docs_<class>.py` (+ `usage_rank.json`, the use ranking). Re-run order for a class: json, runexamples, READ `show.py`, apply on a PRISTINE source (`git checkout` the file first: apply is not meant to be repeated over its own output).
+## The table (pilot classes, 2,472 root methods, `reference.json` at the head of the branch)
+| | roots | brief written | derived | none | pass checks 1-4 | with an example |
+|---|---|---|---|---|---|---|
+| the 300 most used | 300 | 300 | 0 | 0 | 300 | 293 |
+| the other 2,172 | 2,172 | 1,200 | 223 | 749 | 128 | 0 |
+| stzString | 1,093 | 761 | 66 | 266 | 179 | 131 |
+| stzList | 864 | 377 | 128 | 359 | 142 | 113 |
+| stzNumber | 334 | 265 | 26 | 43 | 83 | 30 |
+| stzHashList | 181 | 97 | 3 | 81 | 24 | 19 |
+No section title is used as a description anywhere. Library: 650 classes, 21,638 roots, brief written 5,468, pass 681.
 
-## To do next (in this order)
-1. Fix the 8 briefs that fail the form check (in `tools/pilot/docs_*.py`, then re-apply on a clean checkout): FindItem and BoundsOf and IsExact (over 140 characters), IsANumber and IsLetter of stzNumber (open with "Always": reword "Answers TRUE/FALSE ..."), SplitBefore and SplitAfter of stzList and RemoveDuplicates of stzString (open with "Is meant to": reword "Splits ..., but a known defect makes it do nothing today").
-2. Widen `params.txt` for the common undescribed parameter names of the four classes (n, _n_, pcSub, pacBounds, pStartingAt, _n1_, _n2_, pcOther, pcNew, pcOpen, pcClose, _aSections_, pWith, ...): 1,088 parameters across 220 names; only names with ONE meaning everywhere.
-3. Extend the derived `returns` only with rules that hold on every method of the family (NumberOf*, HowMany* give a number); verify by running.
-4. Re-export `reference.json` (`cd base/doc; ring export_reference.ring <commit> <date>`), measure the table of the four classes, run the three guards (docrecord, selfdoc, ask_probe), commit by explicit path.
-5. Render ONE class page and ONE method page (HTML the author can open without rebuilding: e.g. stzString and Find) from `reference.json`; record WHO read them and what they said (the perception gate): none yet.
-6. Append the FOR STZSITE line (wave 0 of the pilot), write the memo, append the cost line to `.central/cost.jsonl` of the shared tree at the close of the whole task.
-7. STOP for the author's verdict before any further migration.
+## NOT done, and why (read before promising the acceptance)
+- The acceptance asks 95 percent pass for the four classes. Only the 300 are written by hand (as the brief of the task says); the other 2,172 pass at 6 percent. A derived brief restates the name by construction (check 2), so derivation alone cannot lift them: they need written briefs, parameters and returns, which is the wave work. Failures among the rest: form 1,775 (voice, period, length), restates 1,164, returns 1,178, params 580.
+- Nobody but the session has read the pages or the examples: the perception gate is OPEN. Record the author's name and verdict here when it comes.
+- Step 3 memo and the FOR STZSITE line of the pilot are not filed; the cost line is written at the close of the whole task.
 
-## Findings from running the examples (wave 0 candidates; code, not comments; none fixed)
-stzHashList: Classify raises R14 (calls IsStrictlyEqualTo, defined nowhere); InsertBefore raises (reads a property HashList that does not exist); FindLastOccurrenceOfValue raises unless every pair holds the value; FindFirst/FindNth...OfValue raise instead of answering 0 when absent; ToCode writes numbers as text.
+## Decisions made on the way (change them only with a reason)
+- A third-person brief broke two Ask assertions (Removes vs remove, lowercase vs lower case). Fix: the applier keeps the OLD description as an `#@ aka` line (retrieval has always read those), the harvest folds the base form of the brief's opening verb into retrieval, the detail paragraph is NOT folded in (old maintainer talk made an unrelated method win an Ask). Folding two-word spellings was tried and made Ask worse.
+- Six stzString briefs say "lower case", "upper case", "surrounding" in the words a person asks with.
+
+## Tools (base/doc/tools/): re-run order for a class
+`docblock_json.py` (docs_X.py -> json), `docblock_runexamples.py` (fresh receiver per example, real output), READ the output (`pilot/show.py`), `docblock_apply.py` on a PRISTINE source (`git show 40e2288ea:<path> > <path>` first: apply is not idempotent over its own output). Pilot data: `tools/pilot/docs_<class>.py`, `usage_rank.json` (use ranking of every pilot method). Pages: `render_pilot.py`, bundle: `tools/pilot/bundle_pages.py`.
+
+## Next, in order
+1. The author reads the two pages and the blocks in the source and rules (the pilot gate). No further migration before that.
+2. Wave 1 on the four classes: written briefs for the remaining roots, starting with the 749 that have none, then the 1,200 legacy ones (voice, period, length), the params glossary, returns. Report the table after each wave.
+3. Wave 0 (code): the defects below, with deprecated aliases for misspelled public names.
+4. Gate in CI (step 5 of the task): doc rules beside `writes-a-mutable-constant` in `stzCodeRules.ring`, baseline file, the ratchet.
+5. Land on main (the author), then the FOR STZSITE line and the cost line.
+
+## Findings from running the examples (code, not comments; none fixed)
+stzHashList: Classify raises R14 (IsStrictlyEqualTo defined nowhere); InsertBefore raises (property HashList does not exist); FindLastOccurrenceOfValue raises unless every pair holds the value; FindFirst/FindNth...OfValue raise instead of answering 0 when absent; ToCode writes numbers as text.
 stzList: SplitBefore and SplitAfter change nothing and return nothing (they split a copy).
-stzString: RemoveDuplicates raises R14 (UpdateWith undefined); RemoveAt(n) with one argument raises; FindFirst answers -1 when absent, FindNext and FindLast answer 0, FindNth -1 (three conventions).
-stzNumber: Contains(2) with a number answers FALSE (the digit must be text); StringValue rewrites the held content as a side effect of a getter; Inverse returns the inverse and does not change the number (its old comment said it did); RemoveSpaces cannot change a valid number.
-Old briefs that were wrong and are replaced: stzNumber.IsBetween said bounds included (they are excluded), stzList.UnionWith said mutating (it returns), stzList.IsEqualTo said set-based without saying multiplicities count.
+stzString: RemoveDuplicates raises R14 (UpdateWith undefined); RemoveAt(n) with one argument raises; absent answers: FindFirst -1, FindNext 0, FindLast 0, FindNth -1 (four conventions).
+stzNumber: Contains(2) with a number answers FALSE (the digit must be text); StringValue rewrites the held content as a side effect of a getter; Inverse returns and does not change the number; RemoveSpaces cannot change a valid number.
+Old briefs that were wrong and are replaced: stzNumber.IsBetween said bounds included (excluded), stzList.UnionWith said mutating (it returns), stzList.IsEqualTo did not say multiplicities count.
 Library-wide: 117 dead forwards, 22 pvt names shown as public, about 80 typo-word candidates (`StzDocFindings`); the old harvest ended a class at its first func (6,000 methods of stzTable and stzObject were missing).
-
-## Other open items
-- Push of docs/reform to main: needs the author (merge docs/reform-step2, or allow the push). origin/main moves often (payments commits): rebase first, re-export if library sources changed.
-- Codeberg not pushed.
-- Memo for step 3 not yet written; CONCLUSIONS has the step 2 FOR STZSITE line only.
