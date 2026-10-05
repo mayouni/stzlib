@@ -218,6 +218,12 @@ ok
     load "meta/stzGovernanceChecks.ring"
     load "meta/stzPredicateSet.ring"
 
+    # testoor/ -- the testing framework that fits the tests the library
+    # already has (TR0, base/testoor/SOFTANZA_TESTOOR_PLAN.md): a test file
+    # read as a TOUR, never edited. Loads after meta/ because TR3 joins the
+    # court (stzCodeRules, stzCodeGraph) and reads nothing above it.
+    load "testoor/stzTour.ring"
+
     load "string/stzWordStream.ring"
 
     # Modular subclasses
