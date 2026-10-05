@@ -1,0 +1,14 @@
+{
+ "brief": "Holds a list of numbers or categories and answers descriptive, distribution, relation and quality questions about it, with rules that turn the figures into written insights.",
+ "detail": "The data type is detected when the set is built (numeric, categorical, mixed or empty) and missing markers such as NA are dropped. Numeric statistics answer 0 for data that is not numeric, and the count-based ones need two to four values. The methods fall in groups: the descriptive ones (Mean, Median, Mode, spread, quartiles, Percentile), frequency and diversity for categories, shape and outliers (Skew, Kurtosis, Outliers, ZScores, TrendAnalysis), relation to a second data set given as an argument (CorrelationWith, RegressionCoefficients, ChiSquareWith, MutualInformation), scaling (Normalize, Standardize, RobustScale), and the insight layer: domain rules (AddInsightRule, InsightsOfDomain), plans (MakePlan, ExecutePlan) and Summary. The tables of rules and plan templates are global, shared by every data set of the process, and ExecutePlan and AdaptiveAnalysis print as they work. Known gaps today, each carried as a warning on its method: Percentile makes the engine panic for a percent below 0 or far above 100, WMean overflows the stack, NonParametricCorrelation and PlanSummary raise errors, and MutualInformation misreads values that contain an underscore.",
+ "receiver": "o1 = new stzDataSet([ 2, 4, 4, 4, 5, 5, 7, 9 ])",
+ "example": [
+  "? o1.Mean()",
+  "#--> 5"
+ ],
+ "see": [
+  "stzList",
+  "stzListOfNumbers",
+  "stzTable"
+ ]
+}

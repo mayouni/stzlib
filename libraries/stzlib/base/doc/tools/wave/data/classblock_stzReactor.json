@@ -1,0 +1,14 @@
+{
+ "brief": "Runs timers, TCP and HTTP clients, child programs and servers on a libuv event loop that lives on a thread of its own, and hands the results to Ring by polling.",
+ "detail": "Ring stays synchronous: you submit work and get a job id back at once, then Poll, Await or JobState that id, and no callback ever crosses into Ring. The calls come in families: Submit, Await, Poll and a LastStatus reader for timers, TCP, spawned programs and HTTP, plus one-call forms (TcpRequest, Spawn, HttpGet, HttpPost). A listener (Listen, ListenHttp, ListenStzm and the TLS forms) queues events that ServerPoll or ServerAwait drain as [ :accept, nConn, \"\" ], [ :data, nConn, cBytes ] or [ :closed, nConn, \"\" ]; ServerWrite and ServerCloseConn answer on a connection, and the Connect calls dial out and give a channel that is used the same way. A job id is spent once it is drained. The last-status readers (TcpLastStatus, SpawnLastStatus, HttpLastStatus, TlsClientStatus) hold one value for the whole process. The loop starts at the first call and Destroy stops it. Known gap today: Spawn and SubmitSpawn raise error R21 when given a plain text instead of a list.",
+ "receiver": "o1 = new stzReactor()",
+ "example": [
+  "? o1.AwaitTimer( o1.SubmitTimer(20), 2000 )",
+  "#--> 0"
+ ],
+ "see": [
+  "stzReactiveSystem",
+  "stzReactorPool",
+  "stzAppServer"
+ ]
+}

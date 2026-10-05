@@ -1,0 +1,14 @@
+{
+ "brief": "Tests whether a stzTable fits a pattern written in a small regex-like language, such as {cols(3) & unique(name)}; the pattern parser is broken today.",
+ "detail": "A pattern is text in braces made of terms: cols, rows, col, row, cell, colname, hascol, property, contains, sorted, unique, duplicates, grouped, filtered, aggregated, transposed, calculated, coltype, colpattern, sumcol, avgcol, mincol, maxcol, nulls, completeness, numeric, alphabetic and format, written like cols(3) or sumcol(sales:>50000). Terms are joined by & (all must hold), a vertical bar (one must hold) and -> (a sequence), @! negates a term, @cs: makes it case-sensitive, and results are cached per pattern and table content. Known gaps today, each carried as a warning on its method: the parser reads text with a count-based call where an end position is meant, so most patterns parse into wrong tokens and Match answered FALSE or raised for every pattern tried; And_, Or_ and Not_ end their pattern with a stray brace; the Check methods are sound when handed a correct token, except CheckRow, CheckCell, CheckColPattern, CheckAlphabetic, CheckFormat and MatchesFormat, which raise, and CountMatchedParts and HowManyMatchedParts raise too.",
+ "receiver": "o1 = new stzTablex(\"{cols(3)}\")",
+ "example": [
+  "? o1.Pattern()",
+  "#--> \"{cols(3)}\""
+ ],
+ "see": [
+  "stzTable",
+  "stzMatrex",
+  "stzRegex"
+ ]
+}
