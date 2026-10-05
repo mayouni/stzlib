@@ -205,21 +205,44 @@ func _TourRead(pcPath)
 			_cClaim_ = _TourFirstString(_t_)
 			if _cClaim_ = "" and _i_ < _nL_  _cClaim_ = _TourFirstString(trim(_acL_[_i_ + 1]))  ok
 			_aC_ = [ :line = _i_, :kind = "sees", :claim = _cClaim_, :want = "" ]
+		but substr(_lt_, "shows(") = 1 or substr(_lt_, "same(") = 1
+			# _expect.ring: a picture or a value compared exactly, raising on
+			# the first mismatch (TR2)
+			_aC_ = [ :line = _i_, :kind = "picture", :claim = _t_, :want = "" ]
 		but substr(_lt_, "?") = 1 and substr(_lt_, "#-->") > 0
 			_nAt_ = substr(_t_, "#-->")
-			_aC_ = [ :line = _i_, :kind = "promise",
-			         :claim = trim(substr(_t_, 2, _nAt_ - 2)),
-			         :want = trim(substr(_t_, _nAt_ + 4, len(_t_) - _nAt_ - 3)) ]
+			_cWant_ = trim(substr(_t_, _nAt_ + 4, len(_t_) - _nAt_ - 3))
+			# A TRAILING #--> FOLLOWED BY A STANDALONE ONE IS A LABEL, not a
+			# value (promises.py): "? @@(x)  #--> Leads to a list" then
+			# "#--> [ 1, 2, 3 ]" -- the second line is the promise
+			_bLabel_ = 0
+			if _i_ < _nL_ and substr(trim(_acL_[_i_ + 1]), "#-->") = 1  _bLabel_ = 1  ok
+			if _cWant_ != "" and NOT _bLabel_
+				_aC_ = [ :line = _i_, :kind = _TourPromiseKind(_cWant_),
+				         :claim = trim(substr(_t_, 2, _nAt_ - 2)), :want = _cWant_ ]
+			ok
 		but substr(_lt_, "?") = 1
 			_j_ = _i_ + 1
 			while _j_ <= _nL_ and trim(_acL_[_j_]) = ""  _j_++  end
 			if _j_ <= _nL_ and substr(trim(_acL_[_j_]), "#-->") = 1
 				_cW_ = trim(_acL_[_j_])
-				_aC_ = [ :line = _i_, :kind = "promise",
-				         :claim = trim(substr(_t_, 2, len(_t_) - 1)),
-				         :want = trim(substr(_cW_, 5, len(_cW_) - 4)) ]
+				_cWant_ = trim(substr(_cW_, 5, len(_cW_) - 4))
+				if _cWant_ != ""
+					_aC_ = [ :line = _i_, :kind = _TourPromiseKind(_cWant_),
+					         :claim = trim(substr(_t_, 2, len(_t_) - 1)), :want = _cWant_ ]
+				ok
 			but _TourIsVerdictLine(_lt_)
 				_aC_ = [ :line = _i_, :kind = "marker", :claim = _TourMarkerText(_TourFirstString(_t_)), :want = "" ]
+			ok
+		ok
+		# a standalone #--> whose ? sits two or more lines up, or that follows a
+		# label: the value line itself, when no claim took it yet
+		if len(_aC_) = 0 and substr(_lt_, "#-->") = 1 and _i_ > 1
+			_cWant_ = trim(substr(_t_, 5, len(_t_) - 4))
+			_cPrev_ = trim(_acL_[_i_ - 1])
+			if _cWant_ != "" and substr(_cPrev_, "#-->") > 0 and substr(_cPrev_, "?") = 1
+				_aC_ = [ :line = _i_, :kind = _TourPromiseKind(_cWant_),
+				         :claim = trim(substr(_cPrev_, 2, substr(_cPrev_, "#-->") - 2)), :want = _cWant_ ]
 			ok
 		ok
 		if len(_aC_) = 0  loop  ok
@@ -378,6 +401,21 @@ func _TourFirstString(pcLine)
 		ok
 	next
 	return substr(pcLine, _nOpen_ + 1, _n_ - _nOpen_)
+
+# A promise that argues with itself is PROSE, not an expectation (promises.py):
+#   #--> "C" but should be "sm_AS"      #--> NULL! (see why)
+# Someone reconciled it by hand and wrote the verdict in words; several
+# record defects since fixed, so reading them as promises would accuse the
+# library of the bug it no longer has. Reported as prose, never judged.
+func _TourPromiseKind(pcWant)
+	_lw_ = lower("" + pcWant)
+	_acP_ = [ "but should", "should be", "should return", "see why", "currently",
+	          "instead of", "expected ", "archive", "deferred", "todo", "typo" ]
+	_n_ = len(_acP_)
+	for _k_ = 1 to _n_
+		if substr(_lw_, _acP_[_k_]) > 0  return "prose"  ok
+	next
+	return "promise"
 
 # a hand-printed verdict, reduced to the claim it names, so the traveller's
 # reading of the same line matches it: "  [OK] one is one" -> "one is one",
