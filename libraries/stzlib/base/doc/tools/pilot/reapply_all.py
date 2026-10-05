@@ -33,11 +33,25 @@ def file_of(cls):
     sys.exit("unknown class " + cls)
 
 
+def pristine_blob(cls, rel, data):
+    """The undocumented source to start from. The four pilot files: commit PRISTINE. Any other file:
+    a snapshot kept in <data dir>/pristine/, taken from HEAD the first time (valid only while the file
+    holds no DOCREFORM block yet -- true for a class no wave has touched), so a re-run starts from the
+    same text and never applies over its own output."""
+    if cls in FILES:
+        return subprocess.run(["git", "show", "%s:%s" % (PRISTINE, rel)], cwd=REPO, capture_output=True).stdout
+    snap = data / "pristine" / rel.replace("/", "__")
+    if not snap.exists():
+        snap.parent.mkdir(parents=True, exist_ok=True)
+        snap.write_bytes(subprocess.run(["git", "show", "HEAD:" + rel], cwd=REPO, capture_output=True).stdout)
+    return snap.read_bytes()
+
+
 def main():
     data = pathlib.Path(sys.argv[1])
     for cls in sys.argv[2:]:
         rel = "libraries/stzlib/base/" + file_of(cls)
-        blob = subprocess.run(["git", "show", "%s:%s" % (PRISTINE, rel)], cwd=REPO, capture_output=True).stdout
+        blob = pristine_blob(cls, rel, data)
         (pathlib.Path(REPO) / rel).write_bytes(blob)
         for docs, exs in (("docs_%s.json" % cls, "examples_%s.json" % cls), ("w1_docs_%s.json" % cls, None)):
             d = data / docs
