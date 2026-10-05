@@ -104,6 +104,17 @@ func StzPaymentsDetectionSet()
 	_d5_.Explaining("a webhook arrived with no signature -- a probe of the callback URL")
 	_oS_.Add(_d5_)
 
+	_d6_ = new stzDetection("unplanned-payout")
+	_d6_.WhenKind("payout.unplanned").OnAnyOccurrence()
+	_d6_.Explaining("money out reached the port with no committed plan, or for an amount the plan did not authorise")
+	_oS_.Add(_d6_)
+
+	_d7_ = new stzDetection("payout-refused")
+	_d7_.WhenKind("payout.refused").OnAnyOccurrence()
+	_d7_.AsWarning()
+	_d7_.Explaining("a payout plan was refused -- by the policy, by the actor, or because the rehearsal was altered")
+	_oS_.Add(_d7_)
+
 	return _oS_
 
 

@@ -566,6 +566,7 @@ load "geo/stzGeoProcess.ring"
     # findings in the unified shape, so they join the ONE CI gate.
     load "security/stzDetection.ring"
     load "service/stzPaymentsSecrets.ring" # the five payments secrets, their expiry watch and their detections
+    load "service/stzPayouts.ring"  # money out is a plan a human commits: plan, policy, desk
     # I4: the sentinel -- detections on a cadence, edge-triggered (a
     # standing attack is one story, not one per second), event-bus
     # fanout, hostable on any stzAgentHost, and a case snapshot

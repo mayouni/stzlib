@@ -54,7 +54,7 @@ An object declares which it is: IsSandbox() -> :sandbox, else IsLocalReal() ->
 :local, else :live. No opinion means :live, because defaulting to :sandbox would
 excuse the very thing the production check exists to catch.
 
-SEVEN INVARIANTS (severities as elsewhere: ERROR blocks, WARN advises):
+EIGHT INVARIANTS (severities as elsewhere: ERROR blocks, WARN advises):
   * sandbox-in-production  (ERROR) -- a fake bound in a production phase. This is
     the plane's whole reason to exist: "flip it to real before shipping" must be
     ENFORCED, not remembered.
@@ -70,6 +70,9 @@ SEVEN INVARIANTS (severities as elsewhere: ERROR blocks, WARN advises):
     secret at all, i.e. holding its key some other way.
   * conformance-in-production (ERROR) -- virtual money bound in a production phase, the
     same mistake as a fake in production and caught by the same gate.
+  * ungoverned-payouts-in-production (ERROR) -- a payments port that was told to skip the plan
+    (AllowUngovernedPayouts()) bound in a production phase. A port is governed by default and
+    turning that off is what a test of the twin does; shipping it is the mistake.
   * live-without-certificate (ERROR) -- a live adapter that needs an mTLS client
     certificate (it says so: RequiresCertificate() and CertificateSecretName(), or the
     binding names it) whose certificate is not in the store, has no value, or has
@@ -402,6 +405,11 @@ class stzServiceRegistry from stzObject
 		for _i_ = 1 to _n_
 			_aF_ + _a1_[_i_]
 		next
+		_a1_ = This._CheckUngovernedPayouts()
+		_n_ = len(_a1_)
+		for _i_ = 1 to _n_
+			_aF_ + _a1_[_i_]
+		next
 		_a1_ = This._CheckLiveCredentials(poStore)
 		_n_ = len(_a1_)
 		for _i_ = 1 to _n_
@@ -644,6 +652,31 @@ class stzServiceRegistry from stzObject
 				         :where = @cName + "/" + $aStzServiceRegistries[This._Slot()][3][_i_][1],
 				         :message = "a LOCAL source that vanishes on restart (in-memory) " +
 				                    "is bound in a production phase" ]
+			ok
+		next
+		return _aF_
+
+	# A port that skips the plan, asked of the object, in a production phase.
+	def _CheckUngovernedPayouts()
+		_aF_ = []
+		if NOT This.IsProduction()
+			return _aF_
+		ok
+		_n_ = len($aStzServiceRegistries[This._Slot()][3])
+		for _i_ = 1 to _n_
+			_bFree_ = 0
+			try
+				if $aStzServiceRegistries[This._Slot()][3][_i_][2].AllowsUngovernedPayouts()
+					_bFree_ = 1
+				ok
+			catch
+				# says nothing about payouts
+			done
+			if _bFree_
+				_aF_ + [ :invariant = "ungoverned-payouts-in-production", :severity = :error,
+				         :where = @cName + "/" + $aStzServiceRegistries[This._Slot()][3][_i_][1],
+				         :message = "a payments port that skips the payout plan is bound in a production phase -- " +
+				                    "money out must be a plan a human commits" ]
 			ok
 		next
 		return _aF_

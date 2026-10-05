@@ -105,6 +105,7 @@ load "../../stzBase.ring"
 
 oHub = StzPiSpiSandboxQ()                            # the twin; IsSandbox() is 1
 oPay = StzPaymentsPortQ(oHub)
+oPay.AllowUngovernedPayouts()                        # these examples drive the twin directly; section 7 is the governed path
 
 oOrder = StzPaymentOrderQ()
 oOrder.WithTxId("DIKO-2026-000417")                  # the platform's id, unique
@@ -430,7 +431,9 @@ Two invariants joined the registry's five (PY3), each a guard that failed before
   `live-without-secret` already refuses a missing API key. A certificate that carries no expiry is
   accepted: the store cannot say it lapsed.
 
-`live-without-secret` was widened to the conformance posture, and to a descriptor that is in the
+A third, new in PY4: **ungoverned-payouts-in-production** (ERROR), a port that was told to skip the
+payout plan (`AllowUngovernedPayouts()`) bound in a production phase. `live-without-secret` was
+widened to the conformance posture, and to a descriptor that is in the
 store but has no value: a name is not a credential. A graph rule joins them,
 `production-part-uses-conformance` in `stzServiceRule`, so "which PART of my solution depends on
 virtual money?" is answered while the phase is still development.
@@ -443,19 +446,20 @@ oStore.Register(oClient)
 
 oReg = StzServiceRegistryQ("diko")
 oReg.Declare(:payments)
-oReg.Bind(:payments, oPay)                           # a port over the twin
+oGoverned = StzPaymentsPortQ(oHub)                   # governed, as every port is by default
+oReg.Bind(:payments, oGoverned)                      # a port over the twin
 ? oReg.PostureOf(:payments)                          #--> sandbox
 oReg.SetPhase(:production)
 ? oReg.IsSoundVia(oStore)                            #--> 0
 aS = oReg.FindingsVia(oStore)
 ? aS[1][:invariant]                                  #--> sandbox-in-production
 
-oReg.BindConformance(:payments, oPay, "pispi-bia-client")   # the BCEAO's sandbox: real protocol, virtual money
+oReg.BindConformance(:payments, oGoverned, "pispi-bia-client")   # the BCEAO's sandbox: real protocol, virtual money
 ? oReg.PostureOf(:payments)                          #--> conformance
 aC = oReg.FindingsVia(oStore)
 ? aC[1][:invariant]                                  #--> conformance-in-production
 
-oReg.BindLiveWithCertificate(:payments, oPay, "pispi-bia-client", "pispi-bia-mtls-cert")
+oReg.BindLiveWithCertificate(:payments, oGoverned, "pispi-bia-client", "pispi-bia-mtls-cert")
 ? oReg.PostureOf(:payments)                          #--> live
 ? oReg.IsSoundVia(oStore)                            #--> 0
 aL = oReg.FindingsVia(oStore)
@@ -475,52 +479,109 @@ live adapter is PY5.)
 
 ## 7. Money out is governed
 
-A payout -- single or bulk -- is never a direct call. It is a **plan**:
-rehearsed in the agent workbench (`stzAgentWorkbench` over
-`stzVirtualFileSystem`), exported as an `stzUpdatePlan`, and committed by a
-**committing actor** (an `stzSystemActor` whose capability kinds gate the
-crossing, with an optional `stzGovernance` adding the trust posture and the
-decision lineage). The proposer may be an agent or a person; the committer
-is deterministic and boring on purpose.
+Receiving money needs no decision; sending it does. A payout is never a method call. It is a
+**plan**, and a plan has a life:
 
-The first policy is DIKO's: **above 100,000 FCFA, four visas.** It is a rule
-judged by `stzRuleReport`, in the house shape
-`[ :rule, :subject, :where, :severity, :message ]`, never a constant inside
-the port.
+| step | who | what happens |
+|---|---|---|
+| proposed | anyone, an agent included | the plan is REHEARSED into a workbench (`stzAgentWorkbench` over `stzVirtualFileSystem`): a twin of the disk that holds the plan as a document and changes nothing real |
+| judged | a policy | **data, read from the rehearsed document**, never a constant in the port; the verdict is in the house shape `[ rule, subject, where, severity, message ]` and joins `stzRuleReport`, the one CI gate |
+| committed | an actor that may change reality | across a scope, into a REAL file: the durable journal of what was authorised, visas and all. An LLM can propose and cannot do this |
+| released | the port | told exactly which payouts to allow and for how much; it refuses every other |
 
-```ring PY4
+**DIKO's rule, four visas above 100 000 FCFA, is the first policy**: `StzDikoPayoutPolicyQ()`.
+It says ABOVE: exactly 100 000 needs none. A visa is a role and a name, and **the policy counts
+people**: the same person signing twice, in any case, is one visa. A plan's weight is the SUM of what
+it pays, so a payroll cannot be split into small lines inside one plan to slip under; splitting it
+across several plans is a different policy (a rule over a period). Another platform writes another
+policy (`StzPayoutPolicyQ("shop").RequireVisasAbove(500000, 2)`, `ProposerCannotVisa()`) and the port
+does not change: the port's source holds no threshold and does not speak of visas, and a guard reads the
+file to prove it.
+
+**What is money out.** `Pay`, `PayInBulk`, `ReturnFunds`, and the *accepting* answers to a request to
+pay (it pays) and to a cancellation (it returns funds). Each is refused by the PORT, before any request
+exists and so before the hub hears of it, unless a committed plan authorised that exact payout:
+
+- `payout-without-plan`: no plan authorised it. The ledger hears `payout.unplanned`, an error.
+- `payout-amount-differs`: the plan authorised another amount. For a return or an acceptance the port
+  asks the hub what it holds, so a plan cannot name an amount the hub does not.
+- `payout-already-released`: an authorisation is for ONE payout, and a new plan is needed to send again.
+
+Asking for money, declining to pay, cancelling a bulk, and moving money between the platform's own
+accounts are not money out and need no plan. An authorisation belongs to the port that holds it.
+
+**A committing actor** is the actor the library already knows: `effectful` and not `sandboxed`
+(`HumanActor`, `PIActor`), the test the registry's `MayGoLive` applies. The capability lattice is closed
+(effectful, sensing, compute, inference), so there is no `commit_payout` capability to grant; the gate is
+the one every commit in the library passes, and an `LLMActor` fails it.
+
+**What is judged is what would be committed.** The policy reads the rehearsed DOCUMENT, and the commit
+refuses (`rehearsal-differs`) when that document is not what the plan now serialises to: visas added
+after the rehearsal, or a document edited in the workbench by someone who was not a visa-giver, cannot
+reach the port. **One plan, one workbench**, because a commit crosses everything its workbench rehearsed.
+
+A refused commit never raises: it answers `[ committed, reason, detail, results, file ]` with a reason
+of `policy`, `rehearsal-differs`, `actor`, `crossing`, `already-committed` or `unknown-plan`, writes a
+journal row and a `payout.refused` event. A commit writes the file, a journal row and a
+`payout.committed` event, and releases each item; an item the port refuses is that item's result and the
+others still go, because each is a separate movement of money.
+
+**The port is governed by default.** Turning it off, `AllowUngovernedPayouts()`, is a loud, named act, is
+what a test of the twin does, and is refused in a production phase by the registry
+(`ungoverned-payouts-in-production`).
+
+```ring
+cDir = CurrentDir() + "/_charter_payouts"
+StzDirDeleteAll(cDir)
+StzDirCreatePath(cDir)
+
+oTreasury = StzPaymentsPortQ(oHub)                   # governed: the default
+oDesk = StzPayoutDeskQ(oTreasury, StzDikoPayoutPolicyQ(), cDir)
+
+oSalary = StzPaymentOrderQ()
+oSalary.WithTxId("SAL-2026-10-1")
+oSalary.FromAlias(oHub.BusinessAlias())
+oSalary.ToAlias(oHub.Alias("fatou"))
+oSalary.WithAmount( StzAmountQ("350000", "XOF") )
+oSalary.WithoutConfirmation()
+
+try
+	oTreasury.Pay(oSalary)                           # no plan: the port refuses before the hub hears of it
+catch
+	? "refused"                                      #--> refused
+done
+
 oPlan = StzPayoutPlanQ()
-	.Paying(oBatch)                                # the bulk of section 2e
-	.Visa("comptable",  "A. Issoufou")
-	.Visa("DAF",        "M. Garba")
-	.Visa("DG",         "H. Maïga")
-	# one visa short of four for 350 000 FCFA
+oPlan.WithId("SAL-2026-10")
+oPlan.ProposedBy("treasury-agent")
+oPlan.Paying(oSalary)
+oPlan.Visa("comptable", "A. Issoufou")
+oPlan.Visa("DAF", "M. Garba")
+oPlan.Visa("DG", "H. Maiga")
 
-oReport = StzRuleReportQ("payouts").Judge(oPlan)
-? oReport.HasErrors()        #--> TRUE: "payout-over-100000-needs-four-visas"
+nBench = StzOpenAgentWorkbench()
+oDesk.Rehearse(oPlan, nBench)                        # into the twin of the disk: nothing real moves
+oReport = oDesk.Judge(nBench, "SAL-2026-10")
+? oReport.IsSound()                                  #--> 0
+aErr = oReport.Errors()
+? aErr[1][:rule]                                     #--> payout-over-100000-needs-4-visas
 
 oPlan.Visa("CA", "S. Abdou")
-? StzRuleReportQ("payouts").Judge(oPlan).HasErrors()   #--> FALSE
+oDesk.Rehearse(oPlan, nBench)
+oReport = oDesk.Judge(nBench, "SAL-2026-10")
+? oReport.IsSound()                                  #--> 1
 
-oActor = StzSystemActorQ("tresorerie").WithCapability(:commit_payout)
-oPlan.CommitBy(oActor)                           # the only path that reaches oPay.PayInBulk()
+aLlm = oDesk.Commit(nBench, "SAL-2026-10", LLMActor("assistant"))
+? aLlm[:reason]                                      #--> actor
+
+aOk = oDesk.Commit(nBench, "SAL-2026-10", HumanActor("tresorier"))
+? aOk[:committed]                                    #--> 1
+aRes = aOk[:results]
+? aRes[1][:statut]                                   #--> ENVOYE
+? StzFileExists(cDir + "/SAL-2026-10.plan.json")     #--> 1
+StzCloseAgentWorkbench(nBench)
+StzDirDeleteAll(cDir)
 ```
-
-Three things the port itself enforces, each a guard that fails before (PY4):
-
-- `Pay` and `PayInBulk` refuse an order that does not arrive through a
-  committed plan (`payout-without-plan`), whatever the caller's posture.
-- A plan judged with errors cannot be committed (`stzUpdatePlan` already
-  takes rejections; the rule report is the rejection source here).
-- Every commit writes a **payout journal** entry the security ledger reads:
-  who proposed, who visaed, who committed, which `txId`s, which amounts,
-  which hub answer. The journal is append-only and engine-chained like the
-  ledger it feeds.
-
-Money IN needs no plan: a received payment, an accepted request to pay, a
-received return are events the platform records, not decisions it makes.
-Answering a cancellation with `TRUE` is money out (it starts a return) and
-goes through a plan.
 
 ---
 
@@ -738,6 +799,13 @@ the portal's own guide pages. The reference (`openapi.yml` v1.5.0) wins.
 18. **A retry that reformats is not a replay of the BODY and is one of the EVENT.** A hub that
     re-signs the same event in a re-serialised envelope defeats a body-level replay cache, so the
     port also remembers events (`end2endId`, `evCode`, `evDate`).
+19. **There is no `commit_payout` capability to grant.** The actor lattice is closed (effectful, sensing,
+    compute, inference) and the launch prompt's sketch assumed otherwise. A committing actor is the one
+    every commit in the library already means: effectful and not sandboxed.
+20. **A commit crosses everything its workbench rehearsed**, so the desk takes one plan per workbench.
+21. **The security event catalog gained three kinds** (`payout.committed`, `payout.refused`,
+    `payout.unplanned`), additively, with `StzSecurityInvariantNames()` gaining
+    `ungoverned-payouts-in-production`. Reported to the security desk with the PY3 kinds.
 
 ---
 

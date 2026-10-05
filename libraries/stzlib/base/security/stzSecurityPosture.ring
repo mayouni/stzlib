@@ -41,7 +41,7 @@ func StzSecurityInvariantNames()
 	return [ "no-sandboxed-effectful", "inline-key", "no-central-store", "refused-accesses",
 	         "sandbox-in-production", "ephemeral-in-production", "live-without-secret",
 	         "unbound-service", "inline-credential", "conformance-in-production",
-	         "live-without-certificate" ]
+	         "live-without-certificate", "ungoverned-payouts-in-production" ]
 
 # CI-style top-level entry points (parity with StzCheckAgentGraph):
 func StzCheckSecurityPosture(poPosture)
