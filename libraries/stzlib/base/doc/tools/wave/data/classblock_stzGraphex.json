@@ -1,0 +1,14 @@
+{
+ "brief": "Matches a graph pattern written as text, such as {@Node(a) -> @Edge(x) -> @Node(b)}, against a stzGraph and answers TRUE or FALSE.",
+ "detail": "The pattern is compiled into a small graph of tokens (@Node, @Edge, @Cycle, @Path, with an optional label, a {property constraint}, a quantifier, an alternation in parentheses, a @! negation and a @cs: case mark). A match flattens the target graph into label paths and looks for the pattern labels in order along one path, then checks the property constraints on the target nodes. Labels match without regard to case by default, results are cached per target graph, and the quantifiers are parsed but not yet used by the match.",
+ "receiver": "g1 = new stzGraph(\"g1\"); g1.AddNodeXT(\"n1\", \"Start\"); g1.AddNodeXT(\"n2\", \"Done\"); g1.ConnectXT(\"n1\", \"n2\", \"flows\"); o1 = new stzGraphex(\"{@Node(start) -> @Edge(flows) -> @Node(done)}\", g1)",
+ "example": [
+  "? o1.Match(g1)",
+  "#--> 1"
+ ],
+ "see": [
+  "stzGraph",
+  "stzGraphQuery",
+  "stzRegex"
+ ]
+}

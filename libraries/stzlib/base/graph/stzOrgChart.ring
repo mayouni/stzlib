@@ -88,6 +88,21 @@ func StzOrgChartNotation()
 	func OrgChartNotation()
 		return StzOrgChartNotation()
 
+# Models an organisation as positions, people and departments, draws its reporting lines, and checks them against governance rules.
+#
+# An org chart is a diagram whose nodes are positions and whose edges run from supervisor to
+# subordinate. Positions have a level (executive, management, staff), people are assigned to them,
+# and the chart answers vacancy, span-of-control and succession questions, validates itself (BCEAO,
+# segregation of duties, span, vacancy, succession), writes reports, highlights subsets with the
+# View calls and saves to the .stzorg text format. Records are hash lists with lowercase keys.
+# Several calls hold known defects, listed in their warnings: the succession check and the level
+# colours read a key that is never written, and a few View calls raise.
+#
+#   receiver   o1 = new stzOrgChart("TechCo"); o1.AddExecutiveXT("ceo", "CEO");
+#              o1.AddManagerXT("vp", "VP Sales"); o1.ReportsTo("vp", "ceo")
+#   example    ? @@( o1.DirectReports("ceo") )
+#              #--> [ "vp" ]
+#   see        stzDiagram, stzGraph, stzOrgChartReporter, stzOrgChartSimulation
 class stzOrgChart from stzDiagram
 
 	@aPositions = []
@@ -101,6 +116,14 @@ class stzOrgChart from stzDiagram
 	# engine; for now this is just a recorded list.
 	@aRuleBases = []
 
+	# Builds an empty org chart named by its title, kept in lowercase as the id, under the org chart layout preset and notation.
+	#
+	#   pcTitle    The chart name, as text without spaces or line breaks
+	#   returns    nothing; the chart is built
+	#   note       the notation forbids a self-report, a second supervisor and a reporting cycle
+	#              when the chart is validated
+	#   warning    a title with a space or a line break raises an error
+	#   see        AddPosition, SetValidators
 	def init(pcTitle)
 		super.init(pcTitle)
 		super.SetGraphType("structural")
@@ -117,6 +140,11 @@ class stzOrgChart from stzDiagram
 	#  POSITION MANAGEMENT     #
 	#==========================#
 
+	# Adds a position whose title is its id, with no level, as a record and as a white box node; a repeated id is not refused.
+	#
+	#   returns    nothing; the chart changes
+	#   warning    adding an id twice leaves two records and two nodes under it
+	#   see        AddExecutivePosition, AddManagementPosition, AddStaffPosition
 	def AddPosition(pcId)
 		This.AddPositionXTT(pcId, pcId, [])
 
@@ -155,11 +183,18 @@ class stzOrgChart from stzDiagram
 	    ok
 
 
+	# Adds a position of level executive whose title is its id; its node stays white until someone is assigned.
+	#
+	#   returns    nothing; the chart changes
+	#   see        AddPosition, AddManagementPosition
 	#---
-
 	def AddExecutivePosition(pcId)
 		This.AddExecutivePositionXT(pcId, pcId)
 
+		# Adds a position of level executive whose title is its id; another spelling of the executive-position call.
+		#
+		#   returns    nothing; the chart changes
+		#   see        AddExecutivePosition
 		def AddExecutive(pcId)
 			This.AddExecutivePositionXT(pcId, pcId)
 
@@ -170,9 +205,17 @@ class stzOrgChart from stzDiagram
 		def AddExecutiveXT(pcId, pcTitle)
 			This.AddPositionXTT(pcId, pcTitle, [:level = "executive"])
 
+	# Adds a position of level management whose title is its id.
+	#
+	#   returns    nothing; the chart changes
+	#   see        AddPosition, AddStaffPosition
 	def AddManagementPosition(pcId)
 		This.AddManagementPositionXT(pcId, pcId)
 
+		# Adds a position of level management whose title is its id; another spelling of the management-position call.
+		#
+		#   returns    nothing; the chart changes
+		#   see        AddManagementPosition
 		def AddManager(pcId)
 			This.AddManagementPositionXT(pcId, pcId)
 
@@ -183,10 +226,18 @@ class stzOrgChart from stzDiagram
 		def AddManagerXT(pcId, pcTitle)
 			This.AddPositionXTT(pcId, pcTitle, [:level = "management"])
 
+	# Adds a position of level staff whose title is its id.
+	#
+	#   returns    nothing; the chart changes
+	#   see        AddPosition, AddManagementPosition
 	def AddStaffPosition(pcId)
 		# Typo: pcIde -> pcId. Method was unreachable -- R24 every call.
 		This.AddStaffPositionXT(pcId, pcId)
 
+		# Adds a position of level staff whose title is its id; another spelling of the staff-position call.
+		#
+		#   returns    nothing; the chart changes
+		#   see        AddStaffPosition
 		def AddStaff(pcId)
 			# Same typo as parent. R24 every call.
 			This.AddStaffPositionXT(pcId, pcId)
@@ -219,8 +270,17 @@ class stzOrgChart from stzDiagram
 	    def AddStaffXTT(pcId, pcTitle, paProp)
 		This.AddStaffPositionXTT(pcId, pcTitle, paProp)
 
+	# Makes one position report to another: records the supervisor and draws an edge from supervisor to subordinate.
+	#
+	#   pcSubordinate   The id of the position that reports
+	#   pcSupervisor    The id of the position reported to
+	#   returns         nothing; the chart changes
+	#   warning         a missing id raises "Cannot add edge: one or both nodes do not exist!"; a
+	#                   second supervisor adds a second edge and the record keeps the last one, and
+	#                   reporting to itself is accepted; the same pair twice raises, since the graph
+	#                   is simple
+	#   see             ChangeReportingLine, DirectReports
 	#---
-
 	def ReportsTo(pcSubordinate, pcSupervisor)
 	    _nPosCount_ = len(@aPositions)
 	    for i = 1 to _nPosCount_
@@ -233,14 +293,33 @@ class stzOrgChart from stzDiagram
 	    # Use standard connection - let Graphviz handle layout
 	    This.Connect(pcSupervisor, pcSubordinate)
 
+	    # Makes one position report to another; another spelling of the reporting call.
+	    #
+	    #   pcSubordinate   The id of the position that reports
+	    #   pcSupervisor    The id of the position reported to
+	    #   returns         nothing; the chart changes
+	    #   see             ReportsTo
 	    def RelatesTo(pcSubordinate, pcSupervisor)
 		This.ReportsTo(pcSubordinate, pcSupervisor)
 
+	    # Makes one position report to another; another spelling of the reporting call.
+	    #
+	    #   pcSubordinate   The id of the position that reports
+	    #   pcSupervisor    The id of the position reported to
+	    #   returns         nothing; the chart changes
+	    #   see             ReportsTo
 	    def SubordinateOf(pcSubordinate, pcSupervisor)
 		This.ReportsTo(pcSubordinate, pcSupervisor)
 
+	# Sets the department of a position, in its record and as a node property; an unknown position id is ignored.
+	#
+	#   pcPositionId   The id of the position
+	#   pcDepartment   The department name, as text such as risk or audit
+	#   returns        nothing; the chart changes
+	#   warning        the department name is what the BCEAO and segregation validators and
+	#                  ColorByDepartment read
+	#   see            ColorByDepartment, ValidateBCEAOGovernance
 	#---
-
 	def SetPositionDepartment(pcPositionId, pcDepartment)
 		_nPosCount_ = len(@aPositions)
 		for i = 1 to _nPosCount_
@@ -251,8 +330,13 @@ class stzOrgChart from stzDiagram
 		end
 		This.SetNodeProperty(pcPositionId, "department", pcDepartment)
 
+	# Returns the record of a position as a hash list with id, title, level and any assignment, supervisor or department; [ ] when unknown.
+	#
+	#   returns    a hash list, or [ ]
+	#   warning    the keys are lowercase, such as reportsto and isvacant, and a position never
+	#              assigned has no incumbent key
+	#   see        Positions, Person
 	#---
-
 	def Position(pcId)
 		_nPosCount_ = len(@aPositions)
 		for i = 1 to _nPosCount_
@@ -262,58 +346,26 @@ class stzOrgChart from stzDiagram
 		end
 		return []
 
-	# THERE IS NO Node() ALIAS HERE, AND THAT IS THE FIX.
+	# Returns the records of every position, in the order they were added.
 	#
-	# Position() returns the org record -- [ :id, :title, ...attributes ]
-	# with the attributes FLAT. stzGraph.Node() returns the graph record,
-	# which keeps them nested under "properties". Aliasing one to the
-	# other made an org chart answer Node() with a shape that has no
-	# "properties" key at all.
-	#
-	# stzGraph.NodeProperty() reads through Node(), so on an org chart it
-	# returned empty for every property ever set -- including properties
-	# the chart had stored correctly two lines earlier. Two stores, one
-	# name, and the reader and the writer disagreeing about which one
-	# they meant.
-	#
-	# WHAT IT COST, and it is why this is a defect rather than a tidy-up:
-	# three of the five org rules read node properties, so all three could
-	# only ever return "no findings" on a chart built through the org
-	# chart's own API --
-	#
-	#     no-self-report        reads reportsTo
-	#     no-orphan-position    reads level, to spare executives
-	#     separation-of-duties  reads roles
-	#
-	# -- and the last of those describes itself as a SOX exemplar. It has
-	# been reporting every organisation compliant since it was written.
-	#
-	# Found 2026-08-29 by the scope governance on its first run over this
-	# domain, and not by any of the 22 assertions the org suite already
-	# passed: every one of them checks what the rules SAY, and a rule that
-	# governs nothing says nothing. The count of governed subjects is what
-	# made it visible -- no-self-report governs 0 positions in a chart of
-	# four, which no verdict-shaped test can express.
-
+	#   returns    a list of hash lists
+	#   see        Position, VacantPositions
+	#@ aka  THERE IS NO Node() ALIAS HERE, AND THAT IS THE FIX.
 	def Positions()
+		# Found 2026-08-29 by the scope governance on its first run over this
+		# domain, and not by any of the 22 assertions the org suite already
+		# passed: every one of them checks what the rules SAY, and a rule that
+		# governs nothing says nothing. The count of governed subjects is what
+		# made it visible -- no-self-report governs 0 positions in a chart of
+		# four, which no verdict-shaped test can express.
 		return @aPositions
 
-	#-- the PIXEL tiers (GR6b, SOFTANZA_GRAPHICS_PLAN.md) -----------------
+	# Returns every position as an [ id, title, supervisor id ] triple, the supervisor being empty text for a root.
 	#
-	# An org chart is a TREE, and a tree does not need graph layout. These
-	# lay it out and draw it here -- so a chart needs no external dot.exe
-	# at all, and gains a PNG tier that rasterizing dot's SVG could never
-	# have given us (this plane has no SVG parser). ToDot() is untouched:
-	# a real graph, with cycles and dotted-line reporting, still belongs to
-	# the tool that does graph layout for a living.
-	#
-	#     oOrg.ToPNG("org.png", [ :Font = oFont, :Title = "Who reports to whom" ])
-	#     oOrg.ToSVG([ :Font = oFont ])          # no GPU needed
-	#
-	# Options ride through to stzTreeCanvas: :Font :Title :NodeWidth
-	# :NodeHeight :HGap :VGap :Background :NodeColor :NodeBorder
-	# :LineColor :TextColor :FontSize :Width :Height
-
+	#   returns    a list of triples
+	#   warning    this is the input the SVG and PNG pictures are drawn from
+	#   see        ToSVG, ToPNG
+	#@ aka  -- the PIXEL tiers (GR6b, SOFTANZA_GRAPHICS_PLAN.md) -----------------
 	def ToTreeNodes()
 		_a_ = []
 		_nL_ = len(@aPositions)
@@ -336,6 +388,13 @@ class stzOrgChart from stzDiagram
 	def ToCanvasQ(paOptions)
 		return StzTreeCanvasQ(This.ToTreeNodes(), paOptions)
 
+	# Returns the chart drawn as an SVG tree, with no graphviz or display device needed.
+	#
+	#   paOptions   Drawing options as a hash list, such as :Title, :Font, :NodeWidth, :NodeHeight,
+	#               :HGap, :VGap or :Background
+	#   returns     text, an svg document
+	#   warning     a :Title adds a title band above the tree
+	#   see         ToPNG, ToTreeNodes
 	def ToSVG(paOptions)
 		# the canvas is TRANSIENT: its engine scene (a target texture on the GPU
 		# tier, vertex buffers, the command list) is freed once the answer is taken --
@@ -345,6 +404,14 @@ class stzOrgChart from stzDiagram
 		_oCv_.Free()
 		return _cOut_
 
+	# Draws the chart as a tree to a PNG file and returns the PNG bytes as text.
+	#
+	#   pcPath      The file to write, as text
+	#   paOptions   Drawing options as for ToSVG
+	#   returns     the PNG content, as a string of bytes
+	#   warning     the file is written where the path says; a relative path means the current
+	#               folder
+	#   see         ToSVG
 	def ToPNG(pcPath, paOptions)
 		# the canvas is TRANSIENT: its engine scene (a target texture on the GPU
 		# tier, vertex buffers, the command list) is freed once the answer is taken --
@@ -354,15 +421,13 @@ class stzOrgChart from stzDiagram
 		_oCv_.Free()
 		return _cOut_
 
-	  #-- the RULE-GRAPH projection (graph-rules plan, phase 2b) ------------
+	# Returns a fresh stzGraph projecting the chart: one node per position and one supervises edge from supervisor to subordinate.
 	#
-	# An stzOrgChart is a POSITIONS model. AsRuleGraph projects it into a clean
-	# colored stzGraph -- one node per position (kind=position, carrying level /
-	# department / title / roles), one "supervises" edge supervisor->subordinate
-	# -- so the compliance rule bases (stzSOXRuleBase, ...) can run graph rules
-	# over it (separation-of-duties, no-orphan-position, no-cyclic-reporting). A
-	# FRESH graph, built from @aPositions, not the diagram's layout graph.
-
+	#   returns    a new stzGraph
+	#   warning    each node carries kind, title and, when set, level, department, roles and
+	#              reportsTo as properties; the chart itself is not touched
+	#   see        CheckCompliance, GovernanceFindings
+	#@ aka  -- the RULE-GRAPH projection (graph-rules plan, phase 2b) ------------
 	def AsRuleGraph()
 		_oG_ = new stzGraph("orgchart-rules")
 		_nP_ = len(@aPositions)
@@ -391,16 +456,33 @@ class stzOrgChart from stzDiagram
 		next
 		return _oG_
 
-	# Run a compliance rule base over this org chart's projection. Returns unified
-	# findings [ :rule, :subject, :where, :severity, :message ].
+	# Runs a compliance rule base over the chart's graph projection and returns its findings.
+	#
+	#   poRuleBase   A rule base object such as stzSOXRuleBase
+	#   returns      a list of hash lists [ :rule, :subject, :where, :severity, :message ]; [ ] when
+	#                none
+	#   warning      only stzSOXRuleBase adds a rule beyond the four every base carries: a position
+	#                holding both approver and executor in its roles
+	#   see          AsRuleGraph, GovernanceFindings
+	#@ aka  Run a compliance rule base over this org chart's projection. Returns unified findings [ :rule, :subject, :where, :severity, :message ].
 	def CheckCompliance(poRuleBase)
 		return poRuleBase.Check(This.AsRuleGraph())
 
-	# The universal org-integrity rules (no-self-report / no-cyclic-reporting /
-	# no-orphan-position / span-of-control), regime-agnostic.
+	# Returns the findings of the four universal rules: self-report, reporting cycle, orphan position and excessive span of control.
+	#
+	#   returns    a list of hash lists [ :rule, :subject, :where, :severity, :message ]; [ ] when
+	#              sound
+	#   warning    a position without a supervisor is a warning unless it is an executive; a self-
+	#              report is an error; the span limit is 8 direct reports
+	#   see        GovernanceIsSound, CheckCompliance
+	#@ aka  The universal org-integrity rules (no-self-report / no-cyclic-reporting / no-orphan-position / span-of-control), regime-agnostic.
 	def GovernanceFindings()
 		return StzOrgRuleSetQ().Check(This.AsRuleGraph())
 
+	# TRUE if the universal org rules find nothing of error severity; warnings do not count.
+	#
+	#   returns    TRUE or FALSE (1 or 0)
+	#   see        GovernanceFindings
 	def GovernanceIsSound()
 		return StzOrgRuleSetQ().IsSound(This.AsRuleGraph())
 
@@ -412,6 +494,10 @@ class stzOrgChart from stzDiagram
 	def RulesAreSound()
 		return This.GovernanceIsSound()
 
+	# Returns the ids of the positions that have no incumbent, which includes every position never assigned.
+	#
+	#   returns    a list of ids
+	#   see        NonVacantPositions, VacancyRate
 	def VacantPositions()
 		_acVacant_ = []
 		_nPosCount_ = len(@aPositions)
@@ -436,6 +522,10 @@ class stzOrgChart from stzDiagram
 		def VacantNodes()
 			return This.VacantPositions()
 
+	# Returns the ids of the positions that have an incumbent.
+	#
+	#   returns    a list of ids
+	#   see        VacantPositions
 	def NonVacantPositions()
 		_acNonVacant_ = []
 		_nPosCount_ = len(@aPositions)
@@ -464,6 +554,11 @@ class stzOrgChart from stzDiagram
 	#  PEOPLE MANAGEMENT       #
 	#==========================#
 
+	# Adds a person whose name is the id, not yet in any position; a repeated id is not refused.
+	#
+	#   returns    nothing; the chart changes
+	#   warning    adding an id twice leaves two records
+	#   see        AssignPerson, Person
 	def AddPerson(pcId)
 		This.AddPersonXTT(pcId, pcId, [])
 
@@ -479,8 +574,16 @@ class stzOrgChart from stzDiagram
 		]
 		@aPeople + _aPerson_
 
+	# Puts a person in a position: the position takes the person as incumbent and stops being vacant, and the person records the position.
+	#
+	#   pcPersonId     The id of the person
+	#   pcPositionId   The id of the position, or a pair such as :ToPosition = "ceo"
+	#   returns        nothing; the chart changes
+	#   warning        an unknown position or person id is not refused, it leaves the other record
+	#                  pointing at nothing; the node colour is set to white, since the level colour
+	#                  is never found
+	#   see            ReassignPerson, VacantPositions
 	#---
-
 	def AssignPerson(pcPersonId, pcPositionId)
 
 		if CheckParams()
@@ -530,9 +633,21 @@ class stzOrgChart from stzDiagram
 
 		This.SetNodeProperty(pcPositionId, "color", _cLevelColor_)
 
+		# Puts a person in a position; another spelling of the assignment call.
+		#
+		#   pcPersonId     The id of the person
+		#   pcPositionId   The id of the position, or a pair such as :ToNode = "ceo"
+		#   returns        nothing; the chart changes
+		#   see            AssignPerson
 		def Assign(pcPersonId, pcPositionId)
 			This.AssignPerson(pcPersonId, pcPositionId)
 
+	# Returns the record of a person as a hash list of id, name, position and data; [ ] when unknown.
+	#
+	#   pcPersonId   The id of the person
+	#   returns      a hash list, or [ ]
+	#   warning      PersonData is the same call
+	#   see          People, AssignPerson
 	def Person(pcPersonId)
 		_nPplCount_ = len(@aPeople)
 		for i = 1 to _nPplCount_
@@ -545,9 +660,17 @@ class stzOrgChart from stzDiagram
 		def PersonData(pcPersonId)
 			return This.Person(pcPersonId)
 
+	# Returns the records of every person, in the order they were added.
+	#
+	#   returns    a list of hash lists
+	#   see        Person
 	def People()
 		return @aPeople
 
+		# Returns the records of every person, in the order they were added; another spelling of the people call.
+		#
+		#   returns    a list of hash lists
+		#   see        People
 		def Persons()
 			return @aPeople
 
@@ -555,6 +678,12 @@ class stzOrgChart from stzDiagram
 	#  DEPARTMENT MANAGEMENT   #
 	#==========================#
 
+	# Adds a department record whose name is its id and which holds no position; no cluster is drawn for it.
+	#
+	#   returns    nothing; the chart changes
+	#   warning    to draw a cluster of positions give the positions when adding it, through
+	#              AddDepartmentXTT
+	#   see        Departments, SetPositionDepartment
 	def AddDepartment(pcId)
 		This.AddDepartmentXTT(pcId, pcId, [])
 
@@ -574,6 +703,10 @@ class stzOrgChart from stzDiagram
 			This.AddClusterXTT(pcId, pcName, paPositions, @cClusterColor)
 		ok
 
+	# Returns the record of a department as a hash list of id, name, positions and head; [ ] when unknown.
+	#
+	#   returns    a hash list, or [ ]
+	#   see        Departments
 	def Department(pcId)
 		_nDeptCount_ = len(@aDepartments)
 		for i = 1 to _nDeptCount_
@@ -583,6 +716,10 @@ class stzOrgChart from stzDiagram
 		end
 		return []
 
+	# Returns the records of every department, in the order they were added.
+	#
+	#   returns    a list of hash lists
+	#   see        Department
 	def Departments()
 		return @aDepartments
 
@@ -590,15 +727,38 @@ class stzOrgChart from stzDiagram
 	#  COMPLIANCE & GOVERNANCE  #
 	#===========================#
 
+	# Returns the names of the validators Validate runs.
+	#
+	#   returns    a list of texts
+	#   see        SetValidators, DefaultValidators
 	def Validators()
 		return @acValidators
 
+	# Returns the validator names a new chart starts with: bceao, sod, soc, vacancy and succession.
+	#
+	#   returns    a list of texts
+	#   see        Validators, SetValidators
 	def DefaultValidators()
 		return $acOrgChartDefaultValidators
 
+	# Chooses which validators Validate runs; the list is kept as given.
+	#
+	#   pacValidators   The validator names, as a list of text such as bceao, sod, soc, vacancy,
+	#                   succession, nonvacancy or banking
+	#   returns         nothing; the chart changes
+	#   warning         a single text instead of a list makes Validate answer with that validator's
+	#                   own verdict instead of the combined one
+	#   see             Validators, Validate
 	def SetValidators(pacValidators)
 		@acValidators = pacValidators
 
+	# Runs every chosen validator and returns a combined verdict with each validator's own result and the positions concerned.
+	#
+	#   returns    a hash list [ :status, :validatorsRun, :validatorsFailed, :totalIssues, :results,
+	#              :affectedNodes ]
+	#   warning    status is pass or fail; a validator name that is not known gives a result of
+	#              status error that does not count as a failure, so a list of unknown names passes
+	#   see        IsValid, SetValidators
 	def Validate()
 		return This.ValidateXT(@acValidators)
 
@@ -637,6 +797,10 @@ class stzOrgChart from stzDiagram
 			]
 		ok
 
+	# TRUE if Validate finds every chosen validator passing.
+	#
+	#   returns    TRUE or FALSE (1 or 0)
+	#   see        Validate
 	def IsValid()
 		_aResult_ = This.Validate()
 		return _aResult_[:status] = "pass"
@@ -690,10 +854,21 @@ class stzOrgChart from stzDiagram
 		        ]
 		off
 
+	# Checks three BCEAO rules: a board position, audit reporting to a board department and a risk department; returns the verdict.
+	#
+	#   returns    a hash list [ :status, :domain, :issueCount, :issues ]
+	#   warning    the board is found by the word board in a title, and audit and risk by the
+	#              department names audit, board and risk
+	#   see        Validate, ValidateSegregationOfDuties
 	def ValidateBCEAOGovernance()
 		_oValidator_ = new stzOrgChartBCEAOValidator(This)
 		return _oValidator_.Validate()
 
+	# Fails when a position has more than 9 direct reports; returns the verdict and one issue per such position.
+	#
+	#   returns    a hash list [ :status, :domain, :issues ]
+	#   warning    this verdict has no issueCount and no affectedNodes keys
+	#   see        AverageSpanOfControl, DirectReportsCount
 	def ValidateSpanOfControl()
 		_aIssues_ = []
 		_nPosCount_ = len(@aPositions)
@@ -712,10 +887,20 @@ class stzOrgChart from stzDiagram
 			:issues = _aIssues_
 		]
 
+	# Fails when a position of the operations department reports directly to a position of the treasury department.
+	#
+	#   returns    a hash list [ :status, :domain, :issueCount, :issues ]
+	#   warning    only a direct supervisor is checked, though the message says through
+	#   see        Validate, ValidateBCEAOGovernance
 	def ValidateSegregationOfDuties()
 		_oValidator_ = new stzOrgChartSODValidator(This)
 		return _oValidator_.Validate()
 
+	# Fails when any position is vacant; returns the verdict with the vacant ids as the affected nodes.
+	#
+	#   returns    a hash list [ :status, :domain, :issueCount, :issues, :affectedNodes ]
+	#   warning    the issue text is a count such as Vacant positions: 3
+	#   see        VacantPositions, ValidateNonVacancy
 	def ValidateVacancy()
 		_acVacant_ = This.VacantPositions()
 		
@@ -727,6 +912,11 @@ class stzOrgChart from stzDiagram
 			:affectedNodes = _acVacant_
 		]
 	
+	# Fails when any position is filled, the reverse of the vacancy check; the filled ids are the affected nodes.
+	#
+	#   returns    a hash list [ :status, :domain, :issueCount, :issues, :affectedNodes ]
+	#   warning    the issue text still says Vacant positions
+	#   see        ValidateVacancy, NonVacantPositions
 	def ValidateNonVacancy()
 		_acVacant_ = This.NonVacantPositions()
 		
@@ -738,6 +928,12 @@ class stzOrgChart from stzDiagram
 			:affectedNodes = _acVacant_
 		]
 
+	# Fails for every filled position without a successor, one issue each; the positions are the affected nodes.
+	#
+	#   returns    a hash list [ :status, :domain, :issueCount, :issues, :affectedNodes ]
+	#   warning    known defect: a successor is looked for under a key that is never written, so
+	#              every filled position fails
+	#   see        SuccessionRisk
 	def ValidateSuccession()
 		_acRisk_ = This.SuccessionRisk()
 		_aIssues_ = []
@@ -754,6 +950,10 @@ class stzOrgChart from stzDiagram
 			:affectedNodes = _acRisk_
 		]
 	
+	# Passes every time with no issue: a placeholder for banking rules not written yet.
+	#
+	#   returns    a hash list [ :status, :domain, :issueCount, :issues, :affectedNodes ]
+	#   see        Validate
 	def ValidateBanking()
 		return [
 			:status = "pass",
@@ -766,12 +966,25 @@ class stzOrgChart from stzDiagram
 	def ValidateCompliance()
 		return This.ValidateBCEAOGovernance()
 
+	# Returns how many positions report straight to a position.
+	#
+	#   pcPositionId   The id of the supervisor position
+	#   returns        a number
+	#   warning        DirectReportsN is the same call
+	#   see            DirectReports
 	def DirectReportsCount(pcPositionId)
 		return len(This.DirectReports(pcPositionId))
 
 		def DirectReportsN(pcPositionId)
 			return This.DirectReportsCount(pcPositionId)
 
+	# Returns the ids of the positions that report straight to a position; [ ] when there are none or the id is unknown.
+	#
+	#   pcPositionId   The id of the supervisor position
+	#   returns        a list of ids
+	#   warning        a root position record gains an empty reportsto key as a side effect of the
+	#                  lookup
+	#   see            DirectReportsCount, ReportsTo
 	def DirectReports(pcPositionId)
 		_acReports_ = []
 		_nPosCount_ = len(@aPositions)
@@ -786,6 +999,10 @@ class stzOrgChart from stzDiagram
 	#  ORGANIZATIONAL METRICS  #
 	#==========================#
 
+	# Returns the mean number of direct reports over the positions that have at least one; 0 when nobody reports.
+	#
+	#   returns    a number
+	#   see        ValidateSpanOfControl, DirectReportsCount
 	def AverageSpanOfControl()
 		_nTotal_ = 0
 		_nManagers_ = 0
@@ -803,10 +1020,20 @@ class stzOrgChart from stzDiagram
 		ok
 		return _nTotal_ / _nManagers_
 
+	# Returns the vacant positions as a percentage of all positions.
+	#
+	#   returns    a number from 0 to 100
+	#   warning    raises error R1 on a chart with no position, a division by zero
+	#   see        VacantPositions, Explain
 	def VacancyRate()	
 		_nResult_ = ( len(This.Vacant()) / len(This.Positions()) ) * 100
 		return _nResult_
 
+	# Returns the position ids grouped by level, under the keys executive, management and staff.
+	#
+	#   returns    a hash list of three lists of ids
+	#   warning    a position of any other level, or with none, is left out
+	#   see        NumberOfPositionsByLevel
 	def PositionsByLevel()
 		_aResult_ = [
 			:executive = [],
@@ -826,6 +1053,12 @@ class stzOrgChart from stzDiagram
 		end
 		return _aResult_
 
+	# Returns how many positions each level holds, under the keys executive, management and staff.
+	#
+	#   returns    a hash list of three numbers
+	#   warning    PositionsCountByLevel and PositionsByLevelN are the same call; a position of
+	#              another level is not counted
+	#   see        PositionsByLevel
 	def NumberOfPositionsByLevel()
 		_aResult_ = [
 			:executive = 0,
@@ -851,6 +1084,12 @@ class stzOrgChart from stzDiagram
 		def PositionsByLevelN()
 			return This.NumberOfPositionsByLevel()
 
+	# Returns the ids of the filled positions that have no successor; today that is every filled position.
+	#
+	#   returns    a list of ids
+	#   warning    known defect: the successor is looked for under an attributes key that is never
+	#              written, so a successor set with SetNodeProperty is not seen
+	#   see        ValidateSuccession, ViewAtRisk
 	def SuccessionRisk()
 	    _acRisk_ = []
 	    _nPosCount_ = len(@aPositions)
@@ -881,6 +1120,11 @@ class stzOrgChart from stzDiagram
 	#  REPORTING & ANALYTICS   #
 	#==========================#
 
+	# Returns the five standard reports in a list: summary, vacancy, succession, compliance and span of control.
+	#
+	#   returns    a list of five hash lists
+	#   warning    Report is the same call; the other reports are each one call below
+	#   see        GenerateReportXT, GenerateSummaryReport
 	def GenerateReport()
 		# Reports generated --> [ "summary", "vacancy", "succession", "compliance", "spanofcontrol" ]
 
@@ -899,75 +1143,178 @@ class stzOrgChart from stzDiagram
 		def ReportXT(pcType)
 			return This.GenerateReportXT(pcType)
 
+	# Returns the summary report: totals, vacancy rate, average span and the position ids by level.
+	#
+	#   returns    a hash list [ :title, :date, :metrics ]
+	#   warning    metrics holds totalPositions, filledPositions, vacancyRate, avgSpan and levels
+	#   see        GenerateReport, VacancyRate
 	def GenerateSummaryReport()
 		return This.GenerateReportXT("summary")
 
+		# Returns the summary report; another spelling of the summary-report call.
+		#
+		#   returns    a hash list [ :title, :date, :metrics ]
+		#   see        GenerateSummaryReport
 		def GenerateSummary()
 			return This.GenerateReportXT("summary")
 
+		# Returns the summary report; another spelling of the summary-report call.
+		#
+		#   returns    a hash list [ :title, :date, :metrics ]
+		#   see        GenerateSummaryReport
 		def Summary()
 			return This.GenerateReportXT("summary")
 
+		# Returns the summary report; another spelling of the summary-report call.
+		#
+		#   returns    a hash list [ :title, :date, :metrics ]
+		#   see        GenerateSummaryReport
 		def SummaryReport()
 			return This.GenerateReportXT("summary")
 
+	# Returns the vacancy report: how many positions are vacant, the rate, and the title and department of each.
+	#
+	#   returns    a hash list [ :title, :vacancyCount, :vacancyRate, :details ]
+	#   warning    known defect: the level of each detail is always staff, since it is read from a
+	#              key that is never written
+	#   see        GenerateReport, VacantPositions
 	def GenerateVacancyReport()
 		return This.GenerateReportXT("Vacancy")
 
+		# Returns the vacancy report; another spelling of the vacancy-report call.
+		#
+		#   returns    a hash list [ :title, :vacancyCount, :vacancyRate, :details ]
+		#   see        GenerateVacancyReport
 		def GenerateVacancy()
 			return This.GenerateReportXT("vacancy")
 
+		# Returns the vacancy report; another spelling of the vacancy-report call.
+		#
+		#   returns    a hash list [ :title, :vacancyCount, :vacancyRate, :details ]
+		#   see        GenerateVacancyReport
 		def Vacancy()
 			return This.GenerateReportXT("vacancy")
 
+		# Returns the vacancy report; another spelling of the vacancy-report call.
+		#
+		#   returns    a hash list [ :title, :vacancyCount, :vacancyRate, :details ]
+		#   see        GenerateVacancyReport
 		def VacancyReport()
 			return This.GenerateReportXT("vacancy")
 
+	# Returns the succession report: each filled position without a successor, with its title, incumbent's name and a high risk level.
+	#
+	#   returns    a hash list [ :title, :date, :highRiskCount, :details ]
+	#   warning    every filled position is listed today, because no successor is ever found
+	#   see        GenerateReport, SuccessionRisk
 	def GenerateSuccessionReport()
 		return This.GenerateReportXT("succession")
 
+		# Returns the succession report; another spelling of the succession-report call.
+		#
+		#   returns    a hash list [ :title, :date, :highRiskCount, :details ]
+		#   see        GenerateSuccessionReport
 		def GenerateSuccession()
 			return This.GenerateReportXT("succession")
 
+		# Returns the succession report; another spelling of the succession-report call.
+		#
+		#   returns    a hash list [ :title, :date, :highRiskCount, :details ]
+		#   see        GenerateSuccessionReport
 		def Succession()
 			return This.GenerateReportXT("succession")
 
+		# Returns the succession report; another spelling of the succession-report call.
+		#
+		#   returns    a hash list [ :title, :date, :highRiskCount, :details ]
+		#   see        GenerateSuccessionReport
 		def SuccessionReport()
 			return This.GenerateReportXT("succession")
 
+	# Returns the compliance report: the BCEAO, span-of-control and segregation verdicts and whether the chart is compliant overall.
+	#
+	#   returns    a hash list [ :title, :date, :checks, :overallStatus, :failedChecks ]
+	#   warning    overallStatus is compliant or non-compliant
+	#   see        GenerateReport, Validate
 	def GenerateComplianceReport()
 		return This.GenerateReportXT("compliance")
 
+		# Returns the compliance report; another spelling of the compliance-report call.
+		#
+		#   returns    a hash list [ :title, :date, :checks, :overallStatus, :failedChecks ]
+		#   see        GenerateComplianceReport
 		def GenerateCompliance()
 			return This.GenerateReportXT("compliance")
 
+		# Returns the compliance report; another spelling of the compliance-report call.
+		#
+		#   returns    a hash list [ :title, :date, :checks, :overallStatus, :failedChecks ]
+		#   see        GenerateComplianceReport
 		def Compliance()
 			return This.GenerateReportXT("compliance")
 
+		# Returns the compliance report; another spelling of the compliance-report call.
+		#
+		#   returns    a hash list [ :title, :date, :checks, :overallStatus, :failedChecks ]
+		#   see        GenerateComplianceReport
 		def ComplianceReport()
 			return This.GenerateReportXT("compliance")
 
+	# Returns the span report: each supervisor with its direct report count and a status of underutilized, optimal or excessive.
+	#
+	#   returns    a hash list [ :title, :date, :details ]
+	#   warning    fewer than 3 reports is underutilized and more than 9 excessive; a position with
+	#              no report is not listed
+	#   see        GenerateReport, AverageSpanOfControl
 	def GenerateSpanOfControlReport()
 		return This.GenerateReportXT("spanofcontrol")
 
+		# Returns the span-of-control report; another spelling of the span-report call.
+		#
+		#   returns    a hash list [ :title, :date, :details ]
+		#   see        GenerateSpanOfControlReport
 		def GenerateSpanOfControl()
 			return This.GenerateReportXT("spanofcontrol")
 
+		# Returns the span-of-control report; another spelling of the span-report call.
+		#
+		#   returns    a hash list [ :title, :date, :details ]
+		#   see        GenerateSpanOfControlReport
 		def SpanOfControl()
 			return This.GenerateReportXT("spanofcontrol")
 
+		# Returns the span-of-control report; another spelling of the span-report call.
+		#
+		#   returns    a hash list [ :title, :date, :details ]
+		#   see        GenerateSpanOfControlReport
 		def GenerateSOCReport()
 			return This.GenerateReportXT("spanofcontrol")
 
+		# Returns the span-of-control report; another spelling of the span-report call.
+		#
+		#   returns    a hash list [ :title, :date, :details ]
+		#   see        GenerateSpanOfControlReport
 		def GenerateSOC()
 			return This.GenerateReportXT("spanofcontrol")
 
+		# Returns the span-of-control report; another spelling of the span-report call.
+		#
+		#   returns    a hash list [ :title, :date, :details ]
+		#   see        GenerateSpanOfControlReport
 		def SOC()
 			return This.GenerateReportXT("spanofcontrol")
 
+		# Returns the span-of-control report; another spelling of the span-report call.
+		#
+		#   returns    a hash list [ :title, :date, :details ]
+		#   see        GenerateSpanOfControlReport
 		def SpanOfControlReport()
 			return This.GenerateReportXT("spanofcontrol")
 
+		# Returns the span-of-control report; another spelling of the span-report call.
+		#
+		#   returns    a hash list [ :title, :date, :details ]
+		#   see        GenerateSpanOfControlReport
 		def SOCReport()
 			return This.GenerateReportXT("spanofcontrol")
 
@@ -975,6 +1322,14 @@ class stzOrgChart from stzDiagram
 	#  ORGANIZATIONAL CHANGES  #
 	#==========================#
 
+	# Moves a person to another position: the old position becomes vacant and the new one takes the person as incumbent.
+	#
+	#   pcPersonId        The id of the person
+	#   pcNewPositionId   The id of the new position, or a pair such as :ToPosition = "vp2"
+	#   returns           nothing; the chart changes
+	#   warning           an unknown new position still vacates the old one and leaves the person
+	#                     pointing at nothing
+	#   see               AssignPerson, VacantPositions
 	def ReassignPerson(pcPersonId, pcNewPositionId)
 
 		if CheckParams()
@@ -1002,9 +1357,22 @@ class stzOrgChart from stzDiagram
 		
 		This.AssignPerson(pcPersonId, pcNewPositionId)
 
+		# Moves a person to another position; another spelling of the reassignment call.
+		#
+		#   pcPersonId        The id of the person
+		#   pcNewPositionId   The id of the new position, or a pair such as :ToPosition = "vp2"
+		#   returns           nothing; the chart changes
+		#   see               ReassignPerson
 		def Reassign(pcPersonId, pcNewPositionId)
 			This.ReassignPerson(pcPersonId, pcNewPositionId)
 
+	# Removes a position and its node with the edges at it; its incumbent is left without a position; an unknown id is ignored.
+	#
+	#   pcPositionId   The id of the position to remove
+	#   returns        nothing; the chart changes
+	#   warning        positions that reported to it keep its id as their supervisor and are not
+	#                  reconnected
+	#   see            ChangeReportingLine, ReassignPerson
 	def RemovePosition(pcPositionId)
 		_nPosCount_ = len(@aPositions)
 		_nIndex_ = 0
@@ -1031,6 +1399,14 @@ class stzOrgChart from stzDiagram
 			This.RemoveNode(pcPositionId)
 		ok
 
+	# Moves a position under a new supervisor: removes the edge from its old supervisor, if any, and adds one from the new.
+	#
+	#   pcSubordinate     The id of the position that reports
+	#   pcNewSupervisor   The id of the new supervisor
+	#   returns           nothing; the chart changes
+	#   warning           no check is made for a cycle: making the top position report to its own
+	#                     subordinate is accepted
+	#   see               ReportsTo
 	def ChangeReportingLine(pcSubordinate, pcNewSupervisor)
 		_nPosCount_ = len(@aPositions)
 		for i = 1 to _nPosCount_
@@ -1050,12 +1426,28 @@ class stzOrgChart from stzDiagram
 	#  MANAGING VISUAL FOCUS  #
 	#-------------------------#
 	
+	# Sets the colour that the View calls give to the positions they highlight, resolved to a #rrggbb code.
+	#
+	#   pColor     A colour, such as :red, "red" or "#C94DC9"
+	#   returns    nothing; the chart changes
+	#   warning    #C94DC9 is the default
+	#   see        FocusColor, ApplyFocusTo
 	def SetFocusColor(pColor)
 	    @cFocusColor = ResolveColor(pColor)
 	
+	# Returns the highlight colour as a #rrggbb code; #C94DC9 until set.
+	#
+	#   returns    text
+	#   see        SetFocusColor, ApplyFocusTo
 	def FocusColor()
 	    return @cFocusColor
 	
+	# Paints every position node white, which is meant to restore the level colours.
+	#
+	#   returns    nothing; the chart changes
+	#   warning    known defect: the level colour is read from a key that is never written, so every
+	#              node ends white
+	#   see        ApplyFocusTo, ColorByDepartment
 	def ResetAllNodeColors()
 	    _aNodes_ = This.Nodes()
 	    _nLen_ = len(_aNodes_)
@@ -1079,6 +1471,12 @@ class stzOrgChart from stzDiagram
 	        This.SetNodeProperty(_cNodeId_, "color", _cOriginalColor_)
 	    end
 	
+	# Paints every node white, then paints the listed positions with the focus colour.
+	#
+	#   acNodeIds   The ids of the positions to highlight, as a list
+	#   returns     nothing; the chart changes
+	#   warning     an id that is not a node is ignored
+	#   see         SetFocusColor, ResetAllNodeColors
 	def ApplyFocusTo(acNodeIds)
 	    # Reset all first
 	    This.ResetAllNodeColors()
@@ -1093,11 +1491,23 @@ class stzOrgChart from stzDiagram
 	#  VISUALIZATION  #
 	#=================#
 
+	# Sets the fill colour of department clusters added from now on, resolved to a #rrggbb code; existing clusters keep theirs.
+	#
+	#   pcColor    A colour, such as :red or "#FF0000"
+	#   returns    nothing; the chart changes
+	#   warning    call it before adding departments with their positions
+	#   see        AddDepartment, ColorByDepartment
 	def SetDepartmentColor(pcColor)
 		super.SetClusterColor(ResolveColor(pcColor))
 
-	#--
-	
+	# Highlights the positions named in the affectedNodes of a validation result and displays the chart.
+	#
+	#   aValidationResult   A verdict hash list, such as Validate or ValidateVacancy returns
+	#   returns             nothing; the chart is displayed
+	#   warning             a result without affectedNodes highlights nothing; the display needs
+	#                       graphviz and a viewer, so it was not run here
+	#   see                 ViewXT, Validate
+	#@ aka  --
 	def ViewValidation(aValidationResult)
 	    # Extract affected nodes and apply focus
 	    if HasKey(aValidationResult, :affectedNodes)
@@ -1110,9 +1520,13 @@ class stzOrgChart from stzDiagram
 	    _aResult_ = This.ValidateXT(pcValidator)
 	    This.ViewValidation(_aResult_)
 
-	#--
-
-
+	# Highlights the vacant positions with the focus colour and displays the chart, under the subtitle Vacant Positions when a title is set.
+	#
+	#   returns    nothing; the chart is displayed
+	#   warning    the display needs graphviz and a viewer, so it was not run here; the colouring
+	#              was checked with the display call replaced
+	#   see        ViewNonVacant, VacantPositions
+	#@ aka  --
 	def ViewVacant()
 
 	    If This.Title() != ""
@@ -1123,9 +1537,18 @@ class stzOrgChart from stzDiagram
 	    This.ApplyFocusTo(_acVacant_)
 	    This.View()
 	
+	    # Highlights the vacant positions and displays the chart; another spelling of the vacant view.
+	    #
+	    #   returns    nothing; the chart is displayed
+	    #   see        ViewVacant
 	    def ViewVacancies()
 	        This.ViewVacant()
 
+	# Highlights the filled positions with the focus colour and displays the chart, under the subtitle Non-Vacant Positions when a title is set.
+	#
+	#   returns    nothing; the chart is displayed
+	#   warning    the display needs graphviz and a viewer, so it was not run here
+	#   see        ViewVacant, NonVacantPositions
 	def ViewNonVacant()
 
 	    If This.Title() != ""
@@ -1136,20 +1559,35 @@ class stzOrgChart from stzDiagram
 	    This.ApplyFocusTo(_acVacant_)
 	    This.View()
 
+	    # Highlights the filled positions and displays the chart; another spelling of the filled view.
+	    #
+	    #   returns    nothing; the chart is displayed
+	    #   see        ViewNonVacant
 	    def ViewPopulated()
 		This.ViewNonVacant()
 
+	    # Highlights the filled positions and displays the chart; another spelling of the filled view.
+	    #
+	    #   returns    nothing; the chart is displayed
+	    #   see        ViewNonVacant
 	    def ViewPeople()
 	        This.ViewNonVacant()
 	
+	    # Highlights the filled positions and displays the chart; another spelling of the filled view.
+	    #
+	    #   returns    nothing; the chart is displayed
+	    #   see        ViewNonVacant
 	    def ViewWithPeople()
 	        This.ViewNonVacant()
 
-	#--
-
+	# Highlights the positions whose node property performance is 75 or more, and displays the chart.
+	#
+	#   returns    nothing; the chart is displayed
+	#   warning    performance is a number you set with SetNodeProperty; a node without it is not
+	#              highlighted; the display needs graphviz and a viewer, so it was not run here
+	#   see        ViewNonPerformant, ViewMediumPerformers
 	#TODO// Add Performant() or PerformantPositions(),
-	# and NonPerformant() or NonPerformantPositions()
-
+	#@ aka  --
 	def ViewPerformant()
 
 	    If This.Title() != ""
@@ -1173,9 +1611,18 @@ class stzOrgChart from stzDiagram
 	    This.ApplyFocusTo(_acHigh_)
 	    This.View()
 	
+	    # Highlights the high performers and displays the chart; another spelling of the performant view.
+	    #
+	    #   returns    nothing; the chart is displayed
+	    #   see        ViewPerformant
 	    def ViewHighPerformers()
 	        This.ViewPerformant()
 	
+	# Highlights the positions whose node property performance is below 50, and displays the chart.
+	#
+	#   returns    nothing; the chart is displayed
+	#   warning    a node without a performance property is not highlighted
+	#   see        ViewPerformant, ViewMediumPerformers
 	def ViewNonPerformant()
 
 	    If This.Title() != ""
@@ -1199,11 +1646,19 @@ class stzOrgChart from stzDiagram
 	    This.ApplyFocusTo(_acLow_)
 	    This.View()
 	
+	    # Highlights the low performers and displays the chart; another spelling of the non-performant view.
+	    #
+	    #   returns    nothing; the chart is displayed
+	    #   see        ViewNonPerformant
 	    def ViewLowPerformers()
 	        This.ViewNonPerformant()
 	
+	# Highlights the positions whose node property performance is from 50 up to 75, and displays the chart.
+	#
+	#   returns    nothing; the chart is displayed
+	#   warning    a node without a performance property is not highlighted
+	#   see        ViewPerformant, ViewNonPerformant
 	#TODO // Add MediumPerformers()
-
 	def ViewMediumPerformers()
 
 	    If This.Title() != ""
@@ -1227,11 +1682,15 @@ class stzOrgChart from stzDiagram
 	    This.ApplyFocusTo(_acMedium_)
 	    This.View()
 
-	#--
-
+	# Validates by the named norm and highlights the positions not named in its issues, or all of them on a pass; then displays the chart.
+	#
+	#   pcNorm     The validator name, as text such as vacancy, bceao or sod
+	#   returns    nothing; the chart is displayed
+	#   warning    positions are recognised in the issue texts as words that are node ids; when no
+	#              issue names one, nothing is highlighted
+	#   see        ViewNonCompliant, ValidateXT
 	#TODO // Add Compliant() or CompliantPositions() and
-	# NonCompliant() or NonCompliantPositions()
-
+	#@ aka  --
 	def ViewCompliant(pcNorm)
 
 	    If This.Title() != ""
@@ -1290,6 +1749,13 @@ class stzOrgChart from stzDiagram
 	    def ViewCompliantXT(pcNorm)
 		This.ViewCompliant(pcNorm)
 
+	# Raises error R20 today instead of highlighting the positions named in a failing norm's issues and displaying the chart.
+	#
+	#   pcNorm     The validator name, as text such as vacancy, bceao or sod
+	#   returns    nothing today
+	#   warning    known defect: it calls Validate with an argument that Validate does not take, so
+	#              every call raises R20
+	#   see        ViewCompliant
 	def ViewNonCompliant(pcNorm)
 
 	    If This.Title() != ""
@@ -1353,8 +1819,13 @@ class stzOrgChart from stzDiagram
 	    
 	    return _acNodes_
 
-	#--
-	
+	# Highlights the filled positions without a successor and displays the chart, under the subtitle At risk positions when a title is set.
+	#
+	#   returns    nothing; the chart is displayed
+	#   warning    today that is every filled position; the display needs graphviz and a viewer, so
+	#              it was not run here
+	#   see        SuccessionRisk, ViewNotAtRisk
+	#@ aka  --
 	def ViewAtRisk()
 
 	    If This.Title() != ""
@@ -1365,9 +1836,19 @@ class stzOrgChart from stzDiagram
 	    This.ApplyFocusTo(_acRisk_)
 	    This.View()
 	
+	    # Highlights the positions at succession risk and displays the chart; another spelling of the at-risk view.
+	    #
+	    #   returns    nothing; the chart is displayed
+	    #   see        ViewAtRisk
 	    def ViewSuccessionRisk()
 	        This.ViewAtRisk()
 	
+	# Raises error R24 today instead of highlighting the positions that have a successor and displaying the chart.
+	#
+	#   returns    nothing today
+	#   warning    known defect: it reads an attribute @bShowTitle that no class defines, so every
+	#              call raises R24
+	#   see        ViewAtRisk, SuccessionRisk
 	def ViewNotAtRisk()
 
 	    If @bShowTitle = 1
@@ -1389,8 +1870,14 @@ class stzOrgChart from stzDiagram
 	    This.ApplyFocusTo(_acAll_)
 	    This.View()
 
-	#--
-
+	# Highlights the positions of one department and displays the chart; raises error R24 when the chart has a title.
+	#
+	#   pcDepartmentId   The department name of the positions, as set by SetPositionDepartment
+	#   returns          nothing; the chart is displayed
+	#   warning          known defect: the subtitle line, written when a title is set, reads an
+	#                    undefined variable ppcdepartmentid; without a title it works
+	#   see              ViewAllDepartments, SetPositionDepartment
+	#@ aka  --
 	def ViewDepartment(pcDepartmentId)
 
 	    If This.Title() != ""
@@ -1409,13 +1896,25 @@ class stzOrgChart from stzDiagram
 	    This.ApplyFocusTo(_acDeptNodes_)
 	    This.View()
 	
+	# Paints positions by their department colour and displays the chart.
+	#
+	#   returns    nothing; the chart is displayed
+	#   warning    only departments named in the colour table are painted
+	#   see        ColorByDepartment, ViewDepartment
 	def ViewAllDepartments()
 	    This.ResetAllNodeColors()
 	    This.ColorByDepartment()
 	    This.View()
 
-	#--
-
+	# Highlights the positions on the path between two positions and displays the chart; with a title set it also adds a stray node.
+	#
+	#   pcFromId   The id of the position the path starts at
+	#   pcToId     The id of the position the path ends at
+	#   returns    nothing; the chart is displayed
+	#   warning    known defect: with a title set, the subtitle line indexes the node list by id and
+	#              adds a node with an empty id; without a title it works
+	#   see        ViewReportingPath, HilightPath
+	#@ aka  --
 	def ViewPath(pcFromId, pcToId)
 
 	    If This.Title() != ""
@@ -1426,17 +1925,42 @@ class stzOrgChart from stzDiagram
 	    This.ApplyFocusTo(_acPath_)
 	    This.View()
 	
+	    # Highlights the path between two positions and displays the chart; another spelling of the path view.
+	    #
+	    #   pcFromId   The id of the position the path starts at
+	    #   pcToId     The id of the position the path ends at
+	    #   returns    nothing; the chart is displayed
+	    #   see        ViewPath
 	    def ViewReportingPath(pcFromId, pcToId)
 	        This.ViewPath(pcFromId, pcToId)
 
+	    # Highlights the path between two positions and displays the chart; another spelling of the path view.
+	    #
+	    #   pcFromId   The id of the position the path starts at
+	    #   pcToId     The id of the position the path ends at
+	    #   returns    nothing; the chart is displayed
+	    #   see        ViewPath
 	    def HilightPath(pcFromId, pcToId)
 		This.ViewPath(pcFromId, pcToId)
 
+	    # Highlights the path between two positions and displays the chart; another spelling of the path view.
+	    #
+	    #   pcFromId   The id of the position the path starts at
+	    #   pcToId     The id of the position the path ends at
+	    #   returns    nothing; the chart is displayed
+	    #   see        ViewPath
 	    def FocusOnPath(pcFromId, pcToId)
 		This.ViewPath(pcFromId, pcToId)
 
-	#--
-
+	# Highlights the nodes whose property has a given value, any value when the value is empty text, and displays the chart.
+	#
+	#   pcKey      The property name to look for, as text
+	#   pValue     The value to match, or "" to match any node that has the property
+	#   returns    nothing; the chart is displayed
+	#   warning    the property is read from the node, so level, department and any property set
+	#              with SetNodeProperty can be used
+	#   see        ViewNodesWithTag, SetNodeProperty
+	#@ aka  --
 	def ViewNodesWithProperty(pcKey, pValue)
 
 	    If This.Title() != ""
@@ -1459,9 +1983,21 @@ class stzOrgChart from stzDiagram
 	    This.ApplyFocusTo(_acMatching_)
 	    This.View()
 	
+	# Does nothing today instead of highlighting the nodes that hold several properties: the body is a TODO.
+	#
+	#   pacProps   The property names to look for, as a list
+	#   returns    nothing today
+	#   warning    known defect: the method is an empty stub
+	#   see        ViewNodesWithProperty
 	def ViewNodeWithProperties(pacProps)
+	# Highlights the nodes whose tags property holds a tag and displays the chart.
+	#
+	#   pcTag      The tag to look for, as text
+	#   returns    nothing; the chart is displayed
+	#   warning    tags is a list set with SetNodeProperty(id, "tags", [ ... ]); a node without tags
+	#              is not highlighted
+	#   see        ViewNodesWithTags, SetNodeProperty
 		#TODO
-
 	def ViewNodesWithTag(pcTag)
 
 	    If This.Title() != ""
@@ -1484,11 +2020,22 @@ class stzOrgChart from stzDiagram
 	    This.ApplyFocusTo(_acMatching_)
 	    This.View()
 
+	# Does nothing today instead of highlighting the nodes that hold several tags: the body is a TODO.
+	#
+	#   pacTags    The tags to look for, as a list
+	#   returns    nothing today
+	#   warning    known defect: the method is an empty stub
+	#   see        ViewNodesWithTag
 	def ViewNodesWithTags(pacTags)
+	# Paints each position with the colour of its department when the department is in the colour table, such as risk or audit.
+	#
+	#   returns    nothing; the chart changes
+	#   warning    the table names board, executive, management, staff, operations, treasury, risk,
+	#              audit, hr, it, sales and engineering; a position with no department gains an
+	#              empty department key
+	#   see        ViewAllDepartments, SetPositionDepartment
 		#TODO
-
-	#--
-
+	#@ aka  --
 	def ColorByDepartment()
 
 	    _nPosCount_ = len(@aPositions)
@@ -1504,6 +2051,11 @@ class stzOrgChart from stzDiagram
 	#  ORGANIZATIONAL EXPLAIN  #
 	#==========================#
 
+	# Returns a hash list explaining the chart: structure, hierarchy, staffing, compliance findings, risks and efficiency remarks.
+	#
+	#   returns    a hash list of texts and lists of texts
+	#   warning    raises error R1 on a chart with no position, a division by zero
+	#   see        GenerateReport, Validate
 	def Explain()
 		_aExplanation_ = [
 			:type = "Organization Chart",
@@ -1607,6 +2159,11 @@ class stzOrgChart from stzDiagram
 	#  EXPORT TO .STZORG FORMAT  #
 	#============================#
 
+	# Returns the chart in the .stzorg text format: positions, people, assignments and departments.
+	#
+	#   returns    text, several lines
+	#   warning    the chart's id, in lowercase, is written as the name
+	#   see        WriteToStzOrgFile, ImportStzOrg
 	def ToStzOrg()
 		_cResult_ = 'orgchart "' +
 			  This.Id() + '"' + char(10) + char(10)
@@ -1661,6 +2218,12 @@ class stzOrgChart from stzDiagram
 		return _cResult_
 	
 
+	# Writes the chart to a file in the .stzorg format, adding .stzorg to the name when it is missing.
+	#
+	#   pcFileName   The file to write, as text, with or without the .stzorg ending
+	#   returns      1
+	#   warning      an existing file is overwritten
+	#   see          ToStzOrg, WriteStzOrg
 	def WriteToStzOrgFile(pcFileName)
 		if StzRight(pcFileName, 7) != ".stzorg"
 			pcFileName += ".stzorg"
@@ -1669,14 +2232,24 @@ class stzOrgChart from stzDiagram
 		write(pcfileName, This.ToStzOrg())
 		return 1
 	
+	# Writes the chart to a file in the .stzorg format, using the file name exactly as given.
+	#
+	#   pcFileName   The file to write, as text
+	#   returns      1
+	#   warning      an existing file is overwritten and no ending is added
+	#   see          ToStzOrg, WriteToStzOrgFile
 	def WriteStzOrg(pcFileName)
 		write(pcfileName, This.ToStzOrg())
 			return 1
 
-	#=====================================================
-	#  IMPORT FROM .STZORG FORMAT
-	#=====================================================
-	
+	# Reads .stzorg text and adds its positions, people, assignments and departments to the chart; the name line is ignored.
+	#
+	#   cString    The .stzorg text, as ToStzOrg writes it
+	#   returns    nothing; the chart changes
+	#   warning    the content is added to what the chart already holds; the positions listed for a
+	#              department come back wrapped in double quotes
+	#   see        ImportFromStzOrgFile, ToStzOrg
+	#@ aka  ===================================================== IMPORT FROM .STZORG FORMAT =====================================================
 	def ImportStzOrg(cString)
 		_acLines_ = @split(cString, char(10))
 		_cCurrentSection_ = ""
@@ -1893,42 +2466,93 @@ class stzOrgChart from stzDiagram
 			This.AddDepartmentXTT(_cCurrentId_, _aCurrent_[:name], _aCurrent_[:positions])
 		ok
 
+	# Reads a .stzorg file and adds its content to the chart; a missing file raises error R35.
+	#
+	#   pcFileName   The path of the .stzorg file, as text
+	#   returns      nothing; the chart changes
+	#   see          ImportStzOrg, WriteToStzOrgFile
 	def ImportFromStzOrgFile(pcFileName)
 		_cContent_ = read(pcFileName)
 		This.ImportStzOrg(_cContent_)
 	
+		# Reads a .stzorg file into the chart; another spelling of the file import.
+		#
+		#   pcFileName   The path of the .stzorg file, as text
+		#   returns      nothing; the chart changes
+		#   see          ImportFromStzOrgFile
 		def LoadStzOrg(pcFileName)
 			This.ImportFromStzOrgFile(pcFileName)
 
+		# Reads a .stzorg file into the chart; another spelling of the file import.
+		#
+		#   pcFileName   The path of the .stzorg file, as text
+		#   returns      nothing; the chart changes
+		#   see          ImportFromStzOrgFile
 		def LoadOrg(pcFileName)
 			This.ImportFromStzOrgFile(pcFileName)
 
+		# Reads a .stzorg file into the chart; another spelling of the file import.
+		#
+		#   pcFileName   The path of the .stzorg file, as text
+		#   returns      nothing; the chart changes
+		#   see          ImportFromStzOrgFile
 		def ImportOrg(pcFileName)
 			This.ImportFromStzOrgFile(pcFileName)
 
+		# Reads a .stzorg file into the chart; another spelling of the file import.
+		#
+		#   pcFileName   The path of the .stzorg file, as text
+		#   returns      nothing; the chart changes
+		#   see          ImportFromStzOrgFile
 		def LoadOrgChart(pcFileName)
 			This.ImportFromStzOrgFile(pcFileName)
 
+		# Reads a .stzorg file into the chart; another spelling of the file import.
+		#
+		#   pcFileName   The path of the .stzorg file, as text
+		#   returns      nothing; the chart changes
+		#   see          ImportFromStzOrgFile
 		def LoadStzOrgFile(pcFileName)
 			This.ImportFromStzOrgFile(pcFileName)
 
+		# Reads a .stzorg file into the chart; another spelling of the file import.
+		#
+		#   pcFileName   The path of the .stzorg file, as text
+		#   returns      nothing; the chart changes
+		#   see          ImportFromStzOrgFile
 		def Load_(pcFileName)
 			This.ImportFromStzOrgFile(pcFileName)
 
+		# Reads a .stzorg file into the chart; another spelling of the file import.
+		#
+		#   pcFileName   The path of the .stzorg file, as text
+		#   returns      nothing; the chart changes
+		#   see          ImportFromStzOrgFile
 		def LoadFile(pcFileName)
 			This.ImportFromStzOrgFile(pcFileName)
 
+		# Reads a .stzorg file into the chart; another spelling of the file import.
+		#
+		#   pcFileName   The path of the .stzorg file, as text
+		#   returns      nothing; the chart changes
+		#   see          ImportFromStzOrgFile
 		def LoadFrom(pcFileName)
 			This.ImportFromStzOrgFile(pcFileName)
 
-		# LoadRuleBase: stub for the future rule-base validation
-		# system. Accepts a file path, a class instance, or a
-		# pre-built profile name (string). For now it just records
-		# the source -- the actual rule-evaluation engine will land
-		# with the dedicated stzRuleBase class.
+		# Records a rule-base source in the chart's list; nothing evaluates it yet, as the rule-base system is a stub.
+		#
+		#   pSource    A rule-base file path, profile name or rule-base object
+		#   returns    nothing; the chart changes
+		#   warning    to run a rule base use CheckCompliance
+		#   see        RuleBases, CheckCompliance
+		#@ aka  LoadRuleBase: stub for the future rule-base validation system. Accepts a file path, a class instance, or a pre-built profile name (string). For now it just records the source -- the actual rule-evaluation engine will land with the dedicated stzRuleBase class.
 		def LoadRuleBase(pSource)
 			@aRuleBases + pSource
 
+		# Returns the rule-base sources recorded by LoadRuleBase, in order.
+		#
+		#   returns    a list
+		#   see        LoadRuleBase
 		def RuleBases()
 			return @aRuleBases
 
@@ -1937,20 +2561,24 @@ class stzOrgChart from stzDiagram
 # placeholders -- a real rule-evaluation engine will replace them
 # without changing the public Load + Validate surface.
 
-# stzRuleBase IS-A stzGraphRuleSet (graph-rules plan, phase 2): a compliance
-# rule base is a named set of graph rules, exactly like the workflow BPM/SLA
-# bases. This unifies the type -- the SOX/GDPR/... subclasses below inherit
-# AddRule / Check / IsSound and are ready to carry real rules.
+# Holds a named set of org-chart compliance rules, starting with the four universal ones, ready to check a chart.
 #
-# DEFERRED (phase 2b), stated honestly: unlike a workflow (which IS a graph),
-# an stzOrgChart is a POSITIONS model (a list of positions + reportsTo), so
-# running graph rules over it needs a GRAPH PROJECTION of that model first
-# (positions -> nodes, reportsTo -> edges, roles -> node properties). That
-# projection, and the faithful per-regime rule CONTENT (separation-of-duties,
-# span-of-control, ...), are their own step -- they are domain-specification
-# work, not something to fabricate here. The mechanism is real now; the rules
-# and the projection come next.
+# It is a stzGraphRuleSet in the orgchart domain: self-report, reporting cycle, orphan position and
+# span of control. The regime classes below it (SOX, GDPR, PCI-DSS, HIPAA, ISO 27001, Basel III,
+# BCEAO) differ by name today, and only SOX adds a rule of its own. Pass one to
+# stzOrgChart.CheckCompliance.
+#
+#   receiver   o1 = new stzRuleBase("Mine")
+#   example    ? o1.NumberOfRules()
+#              #--> 4
+#   see        stzOrgChart, stzGraphRuleSet
 class stzRuleBase from stzGraphRuleSet
+	# Builds a compliance rule base named for a regime, in the orgchart domain, with the four universal org rules; a non-text name gives "".
+	#
+	#   pcName     The rule base name, as text
+	#   returns    nothing; the rule base is built
+	#   warning    the rules are self-report, reporting cycle, orphan position and span of control
+	#   see        CheckCompliance, AddRule
 	def init(pcName)
 		if isString(pcName)
 			super.init(pcName)
@@ -1963,33 +2591,130 @@ class stzRuleBase from stzGraphRuleSet
 		# rules are added by the subclasses (see stzSOXRuleBase).
 		_StzAddUniversalOrgRules(This)
 
+# Holds the SOX compliance rules for an org chart, ready to pass to CheckCompliance.
+#
+# Holds the four universal org rules plus a separation-of-duties rule that flags a position holding
+# both approver and executor roles.
+#
+#   receiver   o1 = new stzSOXRuleBase()
+#   example    ? o1.NumberOfRules()
+#              #--> 5
+#   see        stzRuleBase, stzOrgChart
 class stzSOXRuleBase from stzRuleBase
+	# Builds the SOX rule base: the four universal org rules under the name SOX; it adds the separation-of-duties rule, so it holds five rules.
+	#
+	#   returns    nothing; the rule base is built
+	#   see        CheckCompliance, AddRule
 	def init()
 		super.init("SOX")
 		# SOX exemplar: separation-of-duties (illustrative -- see stzOrgRule.ring)
 		StzAddSODRule(This)
 
+# Holds the GDPR compliance rules for an org chart, ready to pass to CheckCompliance.
+#
+# Holds the four universal org rules and no rule of its own yet: only the name tells it from the
+# other regimes.
+#
+#   receiver   o1 = new stzGDPRRuleBase()
+#   example    ? o1.NumberOfRules()
+#              #--> 4
+#   see        stzRuleBase, stzOrgChart
 class stzGDPRRuleBase from stzRuleBase
+	# Builds the GDPR rule base: the four universal org rules under the name GDPR; it adds no rule of its own.
+	#
+	#   returns    nothing; the rule base is built
+	#   warning    only the name tells the regimes apart today
+	#   see        CheckCompliance, AddRule
 	def init()
 		super.init("GDPR")
 
+# Holds the PCI-DSS compliance rules for an org chart, ready to pass to CheckCompliance.
+#
+# Holds the four universal org rules and no rule of its own yet: only the name tells it from the
+# other regimes.
+#
+#   receiver   o1 = new stzPCIDSSRuleBase()
+#   example    ? o1.NumberOfRules()
+#              #--> 4
+#   see        stzRuleBase, stzOrgChart
 class stzPCIDSSRuleBase from stzRuleBase
+	# Builds the PCI-DSS rule base: the four universal org rules under the name PCI-DSS; it adds no rule of its own.
+	#
+	#   returns    nothing; the rule base is built
+	#   warning    only the name tells the regimes apart today
+	#   see        CheckCompliance, AddRule
 	def init()
 		super.init("PCI-DSS")
 
+# Holds the HIPAA compliance rules for an org chart, ready to pass to CheckCompliance.
+#
+# Holds the four universal org rules and no rule of its own yet: only the name tells it from the
+# other regimes.
+#
+#   receiver   o1 = new stzHIPAARuleBase()
+#   example    ? o1.NumberOfRules()
+#              #--> 4
+#   see        stzRuleBase, stzOrgChart
 class stzHIPAARuleBase from stzRuleBase
+	# Builds the HIPAA rule base: the four universal org rules under the name HIPAA; it adds no rule of its own.
+	#
+	#   returns    nothing; the rule base is built
+	#   warning    only the name tells the regimes apart today
+	#   see        CheckCompliance, AddRule
 	def init()
 		super.init("HIPAA")
 
+# Holds the ISO 27001 compliance rules for an org chart, ready to pass to CheckCompliance.
+#
+# Holds the four universal org rules and no rule of its own yet: only the name tells it from the
+# other regimes.
+#
+#   receiver   o1 = new stzISO27001RuleBase()
+#   example    ? o1.NumberOfRules()
+#              #--> 4
+#   see        stzRuleBase, stzOrgChart
 class stzISO27001RuleBase from stzRuleBase
+	# Builds the ISO 27001 rule base: the four universal org rules under the name ISO 27001; it adds no rule of its own.
+	#
+	#   returns    nothing; the rule base is built
+	#   warning    only the name tells the regimes apart today
+	#   see        CheckCompliance, AddRule
 	def init()
 		super.init("ISO 27001")
 
+# Holds the Basel III compliance rules for an org chart, ready to pass to CheckCompliance.
+#
+# Holds the four universal org rules and no rule of its own yet: only the name tells it from the
+# other regimes.
+#
+#   receiver   o1 = new stzBaselIIIRuleBase()
+#   example    ? o1.NumberOfRules()
+#              #--> 4
+#   see        stzRuleBase, stzOrgChart
 class stzBaselIIIRuleBase from stzRuleBase
+	# Builds the Basel III rule base: the four universal org rules under the name Basel III; it adds no rule of its own.
+	#
+	#   returns    nothing; the rule base is built
+	#   warning    only the name tells the regimes apart today
+	#   see        CheckCompliance, AddRule
 	def init()
 		super.init("Basel III")
 
+# Holds the BCEAO compliance rules for an org chart, ready to pass to CheckCompliance.
+#
+# Holds the four universal org rules and no rule of its own yet: only the name tells it from the
+# other regimes.
+#
+#   receiver   o1 = new stzBCEAORuleBase()
+#   example    ? o1.NumberOfRules()
+#              #--> 4
+#   see        stzRuleBase, stzOrgChart
 class stzBCEAORuleBase from stzRuleBase
+	# Builds the BCEAO rule base: the four universal org rules under the name BCEAO; it adds no rule of its own.
+	#
+	#   returns    nothing; the rule base is built
+	#   warning    only the name tells the regimes apart today
+	#   see        CheckCompliance, AddRule
 	def init()
 		super.init("BCEAO")
 
@@ -2000,13 +2725,36 @@ class stzBCEAORuleBase from stzRuleBase
 #  stzOrgChartBCEAOValidator
 #=====================================================
 
+# Checks an org chart against three BCEAO governance rules: a board, audit under the board, and a risk function.
+#
+# It takes a snapshot of the chart when it is built. stzOrgChart.ValidateBCEAOGovernance builds one
+# for you.
+#
+#   receiver   oc = new stzOrgChart("TechCo"); oc.AddExecutiveXT("ceo", "CEO");
+#              oc.AddManagerXT("vp", "VP Sales"); oc.ReportsTo("vp", "ceo"); oc.AddPersonXT("p1",
+#              "Alice"); oc.AssignPerson("p1", "ceo"); o1 = new stzOrgChartBCEAOValidator(oc)
+#   example    ? o1.Validate()[:status]
+#              #--> fail
+#   see        stzOrgChart, stzOrgChartSODValidator
 class stzOrgChartBCEAOValidator from stzObject
 
 	@oOrgChart
 
+	# Builds a BCEAO governance validator over an org chart, taking a snapshot of it at that moment.
+	#
+	#   poOrgChart   The stzOrgChart to validate
+	#   returns      nothing; the validator is built
+	#   warning      a position added to the chart afterwards is not seen: build the validator last
+	#   see          Validate
 	def init(poOrgChart)
 		@oOrgChart = poOrgChart
 
+	# Checks three BCEAO rules: a board position, audit under a board department and a risk department; returns the verdict.
+	#
+	#   returns    a hash list [ :status, :domain, :issueCount, :issues ]
+	#   warning    codes BCEAO-001 to BCEAO-003; the board is found by the word board in a position
+	#              title, and audit and risk by the department names audit, board and risk
+	#   see        init
 	def Validate()
 		_aIssues_ = []
 		
@@ -2081,13 +2829,36 @@ class stzOrgChartBCEAOValidator from stzObject
 #  stzOrgChartSODValidator
 #=====================================================
 
+# Checks an org chart for one segregation-of-duties rule: operations must not report directly to treasury.
+#
+# It takes a snapshot of the chart when it is built. stzOrgChart.ValidateSegregationOfDuties builds
+# one for you.
+#
+#   receiver   oc = new stzOrgChart("TechCo"); oc.AddExecutiveXT("ceo", "CEO");
+#              oc.AddManagerXT("vp", "VP Sales"); oc.ReportsTo("vp", "ceo"); oc.AddPersonXT("p1",
+#              "Alice"); oc.AssignPerson("p1", "ceo"); o1 = new stzOrgChartSODValidator(oc)
+#   example    ? o1.Validate()[:status]
+#              #--> pass
+#   see        stzOrgChart, stzOrgChartBCEAOValidator
 class stzOrgChartSODValidator from stzObject
 
 	@oOrgChart
 
+	# Builds a segregation-of-duties validator over an org chart, taking a snapshot of it at that moment.
+	#
+	#   poOrgChart   The stzOrgChart to validate
+	#   returns      nothing; the validator is built
+	#   warning      a position added to the chart afterwards is not seen: build the validator last
+	#   see          Validate
 	def init(poOrgChart)
 		@oOrgChart = poOrgChart
 
+	# Fails when a position of the operations department reports directly to a position of the treasury department.
+	#
+	#   returns    a hash list [ :status, :domain, :issueCount, :issues ]
+	#   warning    one rule, code SOD-001; only a direct supervisor is checked, though the message
+	#              says through
+	#   see        init
 	def Validate()
 		_aIssues_ = []
 		
@@ -2129,13 +2900,37 @@ class stzOrgChartSODValidator from stzObject
 #  stzOrgChartReporter
 #=====================================================
 
+# Builds the five standard reports of an org chart: summary, vacancy, succession, compliance and span of control.
+#
+# It takes a snapshot of the chart when it is built, so a position added later is not reported. Each
+# report is a hash list with a title and its figures; stzOrgChart.GenerateReport and its aliases
+# build a fresh reporter on every call, which is the usual way to reach it.
+#
+#   receiver   oc = new stzOrgChart("TechCo"); oc.AddExecutiveXT("ceo", "CEO");
+#              oc.AddManagerXT("vp", "VP Sales"); oc.ReportsTo("vp", "ceo"); oc.AddPersonXT("p1",
+#              "Alice"); oc.AssignPerson("p1", "ceo"); o1 = new stzOrgChartReporter(oc)
+#   example    ? o1.VacancyReport()[:vacancycount]
+#              #--> 1
+#   see        stzOrgChart
 class stzOrgChartReporter from stzObject
 
 	@oOrgChart
 
+	# Builds a reporter over an org chart, taking a snapshot of it at that moment for every later report.
+	#
+	#   poOrgChart   The stzOrgChart to report on
+	#   returns      nothing; the reporter is built
+	#   warning      a position added to the chart afterwards is not in the reports: build the
+	#                reporter last
+	#   see          Generate, SummaryReport
 	def init(poOrgChart)
 		@oOrgChart = poOrgChart
 
+	# Returns the five standard reports in a list: summary, vacancy, succession, compliance and span of control.
+	#
+	#   returns    a list of five hash lists
+	#   see        SummaryReport, VacancyReport, SuccessionReport, ComplianceReport,
+	#              SpanOfControlReport
 	def Generate()
 		_aResult_ = []
 
@@ -2175,6 +2970,11 @@ class stzOrgChartReporter from stzObject
 		off
 
 
+	# Returns the summary report: totals, vacancy rate, average span and the position ids by level.
+	#
+	#   returns    a hash list [ :title, :date, :metrics ]
+	#   warning    metrics holds totalPositions, filledPositions, vacancyRate, avgSpan and levels
+	#   see        Generate, VacancyReport
 	def SummaryReport()
 		return [
 			:title = "Organizational Summary",
@@ -2191,6 +2991,12 @@ class stzOrgChartReporter from stzObject
 		def Summary()
 			return This.SummaryReport()
 
+	# Returns the vacancy report: how many positions are vacant, the rate, and the title and department of each.
+	#
+	#   returns    a hash list [ :title, :vacancyCount, :vacancyRate, :details ]
+	#   warning    known defect: the level of each detail is always staff, since it is read from a
+	#              key that is never written
+	#   see        Generate, SummaryReport
 	def VacancyReport()
 		_acVacant_ = @oOrgChart.VacantPositions()
 		_aDetails_ = []
@@ -2242,6 +3048,12 @@ class stzOrgChartReporter from stzObject
 		def Vacancy()
 			return This.VacancyReport()
 
+	# Returns the succession report: each filled position without a successor, with its title and the incumbent's name.
+	#
+	#   returns    a hash list [ :title, :date, :highRiskCount, :details ]
+	#   warning    every filled position is listed today, because no successor is ever found; each
+	#              is marked with risk level high
+	#   see        Generate, ComplianceReport
 	def SuccessionReport()
 		_acRisk_ = @oOrgChart.SuccessionRisk()
 		_aDetails_ = []
@@ -2295,6 +3107,11 @@ class stzOrgChartReporter from stzObject
 		def Succession()
 			return This.SuccessionReport()
 
+	# Returns the compliance report: the BCEAO, span-of-control and segregation verdicts and the overall status.
+	#
+	#   returns    a hash list [ :title, :date, :checks, :overallStatus, :failedChecks ]
+	#   warning    overallStatus is compliant or non-compliant
+	#   see        Generate, SpanOfControlReport
 	def ComplianceReport()
 		_aReport_ = [
 			:title = "Compliance Status Report",
@@ -2322,6 +3139,12 @@ class stzOrgChartReporter from stzObject
 		def Compliance()
 			return This.ComplianceReport()
 
+	# Returns the span report: each supervisor with its direct report count and a status of underutilized, optimal or excessive.
+	#
+	#   returns    a hash list [ :title, :date, :details ]
+	#   warning    fewer than 3 reports is underutilized and more than 9 excessive; a position with
+	#              no report is not listed
+	#   see        Generate, ComplianceReport
 	def SpanOfControlReport()
 		_aReport_ = [
 			:title = "Span of Control Analysis",
@@ -2373,6 +3196,18 @@ class stzOrgChartReporter from stzObject
 #  stzOrgChartSimulation
 #=====================================================
 
+# Tries changes on a copy of an org chart and reports the average span and vacancy rate before and after.
+#
+# The copy holds the records of the original (positions, people, departments) but no graph nodes, so
+# a change_reporting change raises today. The original chart is never touched.
+#
+#   receiver   oc = new stzOrgChart("TechCo"); oc.AddExecutiveXT("ceo", "CEO");
+#              oc.AddManagerXT("vp", "VP Sales"); oc.ReportsTo("vp", "ceo"); oc.AddPersonXT("p1",
+#              "Alice"); oc.AssignPerson("p1", "ceo"); o1 = new stzOrgChartSimulation(oc)
+#   example    o1.ApplyChanges([ [ :type = "add_position", :id = "n1", :title = "New" ] ])
+#              ? o1.Results()[:after][:vacancyrate]
+#              #--> 66.67
+#   see        stzOrgChart
 class stzOrgChartSimulation from stzObject
 
 	@oOriginalChart
@@ -2380,6 +3215,13 @@ class stzOrgChartSimulation from stzObject
 	@aChanges = []
 	@aResults = []
 
+	# Builds a what-if simulation over an org chart by copying its positions, people and departments into a second chart.
+	#
+	#   poOrgChart   The stzOrgChart to simulate changes on
+	#   returns      nothing; the simulation is built
+	#   warning      the copy is named after the original with _sim added and holds no graph nodes,
+	#                so only the records are copied
+	#   see          ApplyChanges, SimulatedChartQ
 	def init(poOrgChart)
 		@oOriginalChart = poOrgChart
 		@oSimulatedChart = This._CloneChart(poOrgChart)
@@ -2391,6 +3233,16 @@ class stzOrgChartSimulation from stzObject
 		_oClone_.@aDepartments = poChart.@aDepartments
 		return _oClone_
 
+	# Applies a list of changes to the copy, never to the original, then records the before and after spans and vacancy rates.
+	#
+	#   paChanges   A list of hash lists, each with :type, one of reassign (:person, :newPosition),
+	#               remove_position (:position), add_position (:id, :title) or change_reporting
+	#               (:subordinate, :supervisor)
+	#   returns     nothing; the results are stored
+	#   warning     known defect: a change_reporting change raises "Cannot add edge: one or both
+	#               nodes do not exist!", since the copy has no nodes; an unknown :type is skipped
+	#               without a word
+	#   see         Results, SimulatedChartQ
 	def ApplyChanges(paChanges)
 		@aChanges = paChanges
 		
@@ -2425,9 +3277,18 @@ class stzOrgChartSimulation from stzObject
 			:changes = @aChanges
 		]
 
+	# Returns the before and after average span of control and vacancy rate, and the changes applied; [ ] before ApplyChanges.
+	#
+	#   returns    a hash list [ :before, :after, :changes ], or [ ]
+	#   see        ApplyChanges
 	def Results()
 		return @aResults
 
-	# The what-if chart produced by the simulation -- an OBJECT, hence Q.
+	# Returns the what-if chart the changes were applied to; the original chart is not touched.
+	#
+	#   returns    a stzOrgChart
+	#   warning    the copy has records but no graph nodes
+	#   see        ApplyChanges, Results
+	#@ aka  The what-if chart produced by the simulation -- an OBJECT, hence Q.
 	def SimulatedChartQ()
 		return @oSimulatedChart

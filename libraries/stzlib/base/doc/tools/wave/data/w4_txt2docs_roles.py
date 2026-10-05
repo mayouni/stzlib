@@ -15,9 +15,15 @@ for a in sys.argv[2:]:
     files += sorted(glob.glob(a))
 ref = json.load(open(os.environ.get("DOCWAVE_REF", "reference.json"), encoding="utf-8"))
 roots = {m["name"] for c in ref["classes"] if c["name"] == cls for m in c["methods"]}
-pnames = {m["name"]: [p["name"] for p in m["parameters"]] for c in ref["classes"] if c["name"] == cls for m in c["methods"]}
-ROLES = json.load(open(os.environ["ROLES_JSON"], encoding="utf-8")) if os.environ.get("ROLES_JSON") else {}
-GL = {l.split("	")[0] for l in open(os.environ["DOCWAVE_BASE"] + "/doc/params.txt", encoding="utf-8") if "	" in l and not l.startswith("#")}
+mparams = {m["name"]: [p["name"] for p in m["parameters"]] for c in ref["classes"] if c["name"] == cls for m in c["methods"]}
+gl = set()
+for l in open(os.environ["DOCWAVE_BASE"].rstrip("/") + "/doc/params.txt", encoding="utf-8"):
+    if l.startswith("#") or "	" not in l: continue
+    gl.add(l.split("	", 1)[0].lower())
+roles = {}
+rf = S + "roles_%s.json" % cls
+if os.path.exists(rf):
+    roles = json.load(open(rf, encoding="utf-8"))
 entries, seen = [], set()
 for f in files:
     for ln, raw in enumerate(open(f, encoding="utf-8"), 1):
@@ -35,20 +41,21 @@ for f in files:
         seen.add(name)
         e = {"name": name, "brief": brief}
         if ret: e["returns"] = ret
-        d = {}
-        for pn in pnames.get(name, []):
-            if pn in ROLES and pn not in GL:
-                d[pn] = ROLES[pn]
         if par:
-            d = dict(d)
+            d = {}
             for kv in par.split(";"):
                 if "=" in kv:
                     k, v = kv.split("=", 1)
                     d[k.strip()] = v.strip()
-        if d: e["params"] = d
+            if d: e["params"] = d
         if see: e["see"] = [x.strip() for x in see.split(",") if x.strip()]
         if warn: e["warning"] = [warn]
         if note: e["note"] = [note]
+        d = e.setdefault("params", {})
+        for pn in mparams[name]:
+            if pn.lower() not in gl and pn not in d and pn in roles:
+                d[pn] = roles[pn]
+        if not d: e.pop("params")
         entries.append(e)
 doc = {"class": cls, "entries": entries}
 cbf = S + "classblock_%s.json" % cls

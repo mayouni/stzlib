@@ -1,0 +1,12 @@
+{
+ "brief": "Compares an executed plan with the planner's history of executions: its gain over the average cost and the best past plan.",
+ "detail": "It is built by stzGraphPlanner.CompareWithHistoryQ. The history includes the compared plan's own run.",
+ "receiver": "g1 = new stzGraph(\"g1\"); g1.AddNodeXTT(\"a\", \"A\", [ :x = 0 ]); g1.AddNodeXTT(\"b\", \"B\", [ :x = 1 ]); g1.AddNodeXTT(\"c\", \"C\", [ :x = 2 ]); g1.AddEdgeXTT(\"a\", \"b\", \"r\", [ :distance = 5, :cost = 1 ]); g1.AddEdgeXTT(\"b\", \"c\", \"r\", [ :distance = 5, :cost = 9 ]); g1.AddEdgeXTT(\"a\", \"c\", \"r\", [ :distance = 20, :cost = 2 ]); o1 = new stzGraphPlanner(g1); o1.AddPlan(\"short\"); o1.Walk(\"a\", \"c\"); o1.Minimize(\"distance\"); o1.Execute(); o1.AddPlan(\"cheap\"); o1.Walk(\"a\", \"c\"); o1.Minimize(\"cost\"); o1.Execute(); o2 = o1.CompareWithHistoryXTQ(\"short\")",
+ "example": [
+  "? o2.IsImprovement()",
+  "#--> 0"
+ ],
+ "see": [
+  "stzGraphPlanner"
+ ]
+}

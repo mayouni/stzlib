@@ -1,0 +1,12 @@
+{
+ "brief": "Builds the five standard reports of an org chart: summary, vacancy, succession, compliance and span of control.",
+ "detail": "It takes a snapshot of the chart when it is built, so a position added later is not reported. Each report is a hash list with a title and its figures; stzOrgChart.GenerateReport and its aliases build a fresh reporter on every call, which is the usual way to reach it.",
+ "receiver": "oc = new stzOrgChart(\"TechCo\"); oc.AddExecutiveXT(\"ceo\", \"CEO\"); oc.AddManagerXT(\"vp\", \"VP Sales\"); oc.ReportsTo(\"vp\", \"ceo\"); oc.AddPersonXT(\"p1\", \"Alice\"); oc.AssignPerson(\"p1\", \"ceo\"); o1 = new stzOrgChartReporter(oc)",
+ "example": [
+  "? o1.VacancyReport()[:vacancycount]",
+  "#--> 1"
+ ],
+ "see": [
+  "stzOrgChart"
+ ]
+}

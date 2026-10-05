@@ -1,0 +1,16 @@
+{
+ "brief": "Plans the cheapest route through a graph under named plans, criteria and profiles, then explains, compares and filters the plans.",
+ "detail": "A planner takes a copy of a stzGraph when it is built. Each plan has a start and a goal (a node, or a function that tests nodes), criteria to minimise or maximise over the edge properties (or a profile: fastest, safest, cheapest, shortest, balanced, efficient) and, once executed, a result: the actions, their total cost and the route. The search runs in the engine as a uniform-cost search, so the route is the cheapest for non-negative costs. Every execution is also kept in a history. The comparison, ranking, filtering and history calls work on the executed plans, and stzGraphPlanner has a very large set of alternative spellings for the same calls.",
+ "receiver": "g1 = new stzGraph(\"g1\"); g1.AddNodeXTT(\"a\", \"A\", [ :x = 0 ]); g1.AddNodeXTT(\"b\", \"B\", [ :x = 1 ]); g1.AddNodeXTT(\"c\", \"C\", [ :x = 2 ]); g1.AddEdgeXTT(\"a\", \"b\", \"r\", [ :distance = 5, :cost = 1 ]); g1.AddEdgeXTT(\"b\", \"c\", \"r\", [ :distance = 5, :cost = 9 ]); g1.AddEdgeXTT(\"a\", \"c\", \"r\", [ :distance = 20, :cost = 2 ]); o1 = new stzGraphPlanner(g1); o1.AddPlan(\"short\"); o1.Walk(\"a\", \"c\"); o1.Minimize(\"distance\"); o1.Execute(); o1.AddPlan(\"cheap\"); o1.Walk(\"a\", \"c\"); o1.Minimize(\"cost\"); o1.Execute()",
+ "example": [
+  "? @@( o1.Route() )",
+  "#--> [ \"a\", \"c\" ]"
+ ],
+ "see": [
+  "stzGraph",
+  "stzPlanComparison",
+  "stzMultiPlanComparison",
+  "stzPlanFilter",
+  "stzHistoricalComparison"
+ ]
+}
