@@ -859,9 +859,6 @@ Class stzTable from stzList
 	# TRUE if every item of the list is the name or the position of a column.
 	#
 	#   returns    TRUE or FALSE
-	#   warning    Raises R14 today when the list mixes numbers and names, because
-	#              IsListOfNumbersAndStrings is defined nowhere; a list of numbers only, or of names
-	#              only, works
 	#   see        IsColNameOrNumber
 	def AreColNamesOrNumbers(paCols)
 		_oTemp_ = Q(paCols)
@@ -869,7 +866,7 @@ Class stzTable from stzList
 		if NOT ( isList(paCols) and
 			( _oTemp_.IsListOfNumbers() or
 			  _oTemp_.IsListOfStrings() or
-			  _oTemp_.IsListOfNumbersAndStrings() ) )
+			  IsListOfNumbersAndStrings(paCols) ) )
 
 			StzRaise("Incorrect param type! paCols must be of list of numbers or strings.")
 		ok
@@ -1263,9 +1260,11 @@ Class stzTable from stzList
 	def RemoveNthCol(_n_)
 		if This.NumberOfCols() = 1
 			@aContent = [ [ :COL1, [ "" ] ] ]
+			This._InvalidateEngine()
 			return
 		ok
 		ring_remove(@aContent, _n_)
+		This._InvalidateEngine()
 
 		# Removes the nth column, in place; removing the only column leaves one empty column.
 		#
@@ -1717,25 +1716,21 @@ func _NormalizeColLookupKey(pVal)
 
 		return _aResult_
 
-		# Raises error R24 today instead of returning a cell with its [ column, row ] position.
+		# Returns a cell together with its [ column, row ] position.
 		#
 		#   pRow       the row position
-		#   returns    nothing; it raises
-		#   warning    Raises R24 (uninitialized variable pnrow) because the body passes pnRow while
-		#              the parameter is named pRow; CellZ works
+		#   returns    a list [ cell, [ column, row ] ]
 		#   see        CellZ
 		def CellAndPosition(pCol, pRow)
-			return This.CellZ(pCol, pnRow)
+			return This.CellZ(pCol, pRow)
 
-		# Raises error R24 today instead of returning a cell with its [ column, row ] position.
+		# Returns a cell together with its [ column, row ] position.
 		#
 		#   pRow       the row position
-		#   returns    nothing; it raises
-		#   warning    Raises R24 (uninitialized variable pnrow) because the body passes pnRow while
-		#              the parameter is named pRow; CellZ works
+		#   returns    a list [ cell, [ column, row ] ]
 		#   see        CellZ
 		def CellAndItsPosition(pCol, pRow)
-			return This.CellZ(pCol, pnRow)
+			return This.CellZ(pCol, pRow)
 
 	  #-----------------------------#
 	 #  CELL FUNTCTION - EXTENDED  #
@@ -1877,15 +1872,13 @@ func _NormalizeColLookupKey(pVal)
 	 #  GETIING THE LIST OF ALL CELLS  #
 	#---------------------------------#
 
-	# Raises error R41 today instead of returning every cell, row by row.
+	# Returns every cell of the table as one flat list, row by row.
 	#
-	#   returns    nothing; it raises
-	#   warning    Raises R41 (invalid numeric string) because it calls Section with :FirstCol and
-	#              :LastRow corners, which Section does not read; Rows gives the cells row by row
+	#   returns    a list of cells
 	#   see        CellsAsPositions, Rows
 	def Cells()
 
-		_aResult_ = This.Section( [ :FirstCol, :FirstRow ], [ :LastCol, :LastRow ] )
+		_aResult_ = This.Section( [ 1, 1 ], [ This.NumberOfCols(), This.NumberOfRows() ] )
 		return _aResult_
 
 		#< @FunctionFluentForm
@@ -2039,12 +2032,10 @@ func _NormalizeColLookupKey(pVal)
 		def TheseCellsXT(paCells)
 			return This.TheseCellsZ(paCells)
 
-	# Raises error today instead of pairing each given position with its cell.
+	# Pairs each given [ column, row ] position with the cell found there.
 	#
 	#   paCells    the positions, each as [ column, row ]
-	#   returns    nothing; it raises
-	#   warning    Raises Column not found! or R2 because the body reads paCells[1] and paCells[2]
-	#              instead of the item of the loop
+	#   returns    a list of [ position, cell ] pairs
 	#   see        TheseCells
 	def PositionsAndTheseCells(paCells)
 		_aResult_ = []
@@ -2052,7 +2043,7 @@ func _NormalizeColLookupKey(pVal)
 
 		for i = 1 to _nCells_
 			_aCell_ = paCells[i]
-			_aResult_ + [ _aCell_, This.Cell(paCells[1], paCells[2]) ]
+			_aResult_ + [ _aCell_, This.Cell(_aCell_[1], _aCell_[2]) ]
 		next
 
 		return _aResult_
@@ -2834,15 +2825,14 @@ func _NormalizeColLookupKey(pVal)
 	 #  GETTING THE LIST OF CELLS IN THE PROVIDED COLUMNS  #
 	#-----------------------------------------------------#
 
-	# Raises error R14 today instead of returning the cells of the given columns.
+	# Returns the cells of the given columns, column after column.
 	#
-	#   returns    nothing; it raises
-	#   warning    Raises R14 because IsListOfNumbersOrStrings is defined nowhere
+	#   returns    a list of cells
 	#   see        ColsAsPositions
 	def CellsInCols(paCols)
 
 		if NOT ( isList(paCols) and
-			Q(paCols).IsListOfNumbersOrStrings() and
+			IsListOfNumbersOrStrings(paCols) and
 			This.AreColumnsIdentifiers(paCols))
 
 			StzRaise("Incorrect param type! paCols must be a list of string containing existing columns names.")
@@ -3580,15 +3570,13 @@ func _NormalizeColLookupKey(pVal)
 			def CellsInRowZQRT(_n_, pcReturnType)
 				return This.RowZQRT(_n_, pcReturnType)
 
-		# Raises error R24 today instead of returning the cells of row n with their positions.
+		# Returns the cells of one row, each paired with its [ column, row ] position.
 		#
 		#   _n_        the row position
-		#   returns    nothing; it raises
-		#   warning    Raises R24 (uninitialized variable p) because the body passes p, not n; RowZ
-		#              works
+		#   returns    a list of [ cell, [ column, row ] ] pairs
 		#   see        RowZ
 		def CellsInRowNAndTheirPositions(_n_)
-			return This.RowZ(p)
+			return This.RowZ(_n_)
 
 			# Returns the cells of row n, each with its [ column, row ] position, wrapped in a stzList.
 			#
@@ -3610,15 +3598,13 @@ func _NormalizeColLookupKey(pVal)
 			def CellsAndPositionsInRowNQRT(_n_, pcReturnType)
 				return This.RowZQRT(_n_, pcReturnType)
 
-		# Raises error R24 today instead of returning the cells of row n with their positions.
+		# Returns the cells of one row, each paired with its [ column, row ] position.
 		#
 		#   _n_        the row position
-		#   returns    nothing; it raises
-		#   warning    Raises R24 (uninitialized variable p) because the body passes p, not n; RowZ
-		#              works
+		#   returns    a list of [ cell, [ column, row ] ] pairs
 		#   see        RowZ
 		def CellsAndPositionsInNthRow(_n_)
-			return This.RowZ(p)
+			return This.RowZ(_n_)
 
 			def CellsAndPositionsInNthRowQ(_n_)
 				return This.CellsAndPositionsInNthRowQRT(_n_, :stzList)
@@ -3626,15 +3612,13 @@ func _NormalizeColLookupKey(pVal)
 			def CellsAndPositionsInNthRowQRT(_n_, pcReturnType)
 				return This.RowZQRT(_n_, pcReturnType)
 
-		# Raises error R24 today instead of returning the cells of row n with their positions.
+		# Returns the cells of one row, each paired with its [ column, row ] position.
 		#
 		#   _n_        the row position
-		#   returns    nothing; it raises
-		#   warning    Raises R24 (uninitialized variable p) because the body passes p, not n; RowZ
-		#              works
+		#   returns    a list of [ cell, [ column, row ] ] pairs
 		#   see        RowZ
 		def CellsInNthRowAndTheirPositions(_n_)
-			return This.RowZ(p)
+			return This.RowZ(_n_)
 
 			def CellsInNthRowAndTheirPositionsQ(_n_)
 				return This.CellsInNthRowAndTheirPositionsQRT(_n_, :stzList)
@@ -4093,13 +4077,12 @@ func _NormalizeColLookupKey(pVal)
 	 #  RENAMING COLUMNS  #
 	#====================#
 
-	# Gives a column a new name, in place; the column is given by name or position.
+	# Gives a column a new name, in place; the column is given by name or position, or as :First or :Last.
 	#
 	#   pcNewName   the new name of the column, as text
 	#   returns     nothing; the table changes
-	#   warning     The method name is misspelt; there is no RenameCol, so RenameCols fails
 	#   see         RenameNthCol
-	def RenanmeCol(pCol, pcNewName)
+	def RenameCol(pCol, pcNewName)
 
 		if NOT isString(pcNewName)
 			StzRaise("Incorrect param type! pcNewName must be a string.")
@@ -4107,14 +4090,15 @@ func _NormalizeColLookupKey(pVal)
 
 		if isString(pCol)
 
-			if StzFindFirst(pCol, [ :First, :FirstCol, :FirstColumn ]) > 0
+			# A real column name wins over the keywords
+			if This.HasColName(pCol)
+				pCol = This.ColToColNumber(pCol)
+
+			but StzFindFirst(lower(pCol), [ :first, :firstcol, :firstcolumn ]) > 0
 				pCol = 1
 
-			but StzFindFirst(pCol, [ :First, :FirstCol, :FirstColumn ]) > 0
+			but StzFindFirst(lower(pCol), [ :last, :lastcol, :lastcolumn ]) > 0
 				pCol = This.NumberOfCols()
-
-			but This.HasColName(pCol)
-				pCol = This.ColToColNumber(pCol)
 
 			else
 				StzRaise("Incorrect value! Allowed values :FirstCol, :LastCol, or use a number instead.")
@@ -4123,11 +4107,18 @@ func _NormalizeColLookupKey(pVal)
 
 		This.RenameColN(pCol, pcNewName)
 
-	# Raises error R14 today instead of renaming several columns from [ old name, new name ] pairs.
+		# Gives a column a new name, in place; the column is given by name or position.
+		#
+		#   pcNewName   the new name of the column, as text
+		#   returns     nothing; the table changes
+		#   see         RenameCol
+		def RenanmeCol(pCol, pcNewName)
+			This.RenameCol(pCol, pcNewName)
+
+	# Renames several columns from old name = new name pairs, in place.
 	#
 	#   paColsAndTheirNewNames   the columns to rename, as old name = new name pairs
-	#   returns                  nothing; it raises
-	#   warning                  Raises R14 because it calls RenameCol, which is defined nowhere
+	#   returns                  nothing; the table changes
 	#   see                      RenanmeCol
 	def RenameCols(paColsAndTheirNewNames)
 
@@ -4141,12 +4132,11 @@ func _NormalizeColLookupKey(pVal)
 			This.RenameCol(paColsAndTheirNewNames[i][1], paColsAndTheirNewNames[i][2])
 		next
 
-	# Gives the nth column a new name, in place.
+	# Gives the nth column a new name, in place; :First and :Last are accepted.
 	#
 	#   _n_         the position of the column
 	#   pcNewName   the new name as text, or [ :With, name ]
 	#   returns     nothing; the table changes
-	#   warning     Raises R2 for a position outside the table; :Last is not understood
 	#   see         RenameFirstCol
 	def RenameNthCol(_n_, pcNewName)
 		if isList(pcNewName) and Q(pcNewName).IsWithOrByNamedParam()
@@ -4157,7 +4147,20 @@ func _NormalizeColLookupKey(pVal)
 			StzRaise("Incorrect param type! pcNewName must be a string.")
 		ok
 
+		if isString(_n_)
+			if lower(_n_) = "last" or lower(_n_) = "lastcol"
+				_n_ = This.NumberOfCols()
+			but lower(_n_) = "first" or lower(_n_) = "firstcol"
+				_n_ = 1
+			ok
+		ok
+
+		if NOT ( isNumber(_n_) and _n_ >= 1 and _n_ <= This.NumberOfCols() )
+			StzRaise("Column index out of range.")
+		ok
+
 		@aContent[_n_][1] = pcNewName
+		This._InvalidateEngine()
 
 		# Gives the nth column a new name, in place.
 		#
@@ -4168,24 +4171,35 @@ func _NormalizeColLookupKey(pVal)
 		def RenameColN(_n_, pcNewName)
 			This.RenameNthCol(_n_, pcNewName)
 
-	# Raises error R24 today instead of renaming several columns by position.
+	# Gives several columns a new name each, in place, from their positions and the names in the same order.
 	#
 	#   panColsNumbers   the positions of the columns to rename
-	#   returns          nothing; it raises
-	#   warning          Raises R24 (uninitialized variable pacolsnumbers) because the check reads
-	#                    another name than the parameter; it would also call RenameColN without a
-	#                    new name
+	#   pacNewNames      the new names, in the same order as the positions
+	#   returns          nothing; the table changes
 	#   see              RenameNthCol
-	def RemnameNthCols(panColsNumbers)
-		if NOT (isList(paColsNumbers) and @IsListOfNumbers(paColsNumbers) )
+	def RenameNthCols(panColsNumbers, pacNewNames)
+		if NOT (isList(panColsNumbers) and @IsListOfNumbers(panColsNumbers) )
 			StzRaise("Incorrect param type! panColsNumbers must be a list of numbers.")
+		ok
+
+		if NOT (isList(pacNewNames) and @IsListOfStrings(pacNewNames) and len(pacNewNames) = len(panColsNumbers))
+			StzRaise("Incorrect param type! pacNewNames must be a list of strings, one per position.")
 		ok
 
 		_nLen_ = len(panColsNumbers)
 
 		for i = 1 to _nLen_
-			This.RenameColN(panColsNumbers[i])
+			This.RenameColN(panColsNumbers[i], pacNewNames[i])
 		next
+
+		# Renames several columns by position; the older spelling of RenameNthCols.
+		#
+		#   panColsNumbers   the positions of the columns to rename
+		#   pacNewNames      the new names, in the same order as the positions
+		#   returns          nothing; the table changes
+		#   see              RenameNthCols
+		def RemnameNthCols(panColsNumbers, pacNewNames)
+			This.RenameNthCols(panColsNumbers, pacNewNames)
 
 	# Gives the first column a new name, in place.
 	#
@@ -4195,15 +4209,13 @@ func _NormalizeColLookupKey(pVal)
 	def RenameFirstCol(pcNewName)
 		This.RenameNthCol(1, pcNewName)
 
-	# Raises error R2 today instead of renaming the last column.
+	# Gives the last column a new name, in place.
 	#
 	#   pcNewName   the new name, as text
-	#   returns     nothing; it raises
-	#   warning     Raises R2 because it passes :Last, which RenameNthCol does not understand;
-	#               RenameNthCol with the real position works
+	#   returns     nothing; the table changes
 	#   see         RenameNthCol
 	def RenameLastCol(pcNewName)
-		This.RenameNthCol(:Last, pcNewName)
+		This.RenameNthCol(This.NumberOfCols(), pcNewName)
 
 	  #=====================#
 	 #  REMOVING A COLUMN  #
@@ -4225,12 +4237,10 @@ func _NormalizeColLookupKey(pVal)
 		def RemoveColumnAt(_n_)
 			This.RemoveNthCol(_n_)
 
-	# Raises error R24 today instead of removing the columns at the given positions.
+	# Removes the columns at the given positions, in place; a position past the last column is ignored.
 	#
 	#   panColNumbers   the positions of the columns to remove
-	#   returns         nothing; it raises
-	#   warning         Raises R24 because the body sorts an undefined name (TpacColNamesOrNumbers);
-	#                   RemoveCols with the positions works
+	#   returns         nothing; the table changes
 	#   see             RemoveCols
 	def RemoveColumnsAt(panColNumbers)
 		if CheckingParams()
@@ -4239,168 +4249,139 @@ func _NormalizeColLookupKey(pVal)
 			ok
 		ok
 
-		_anColNumbers_ = new stzList( U(TpacColNamesOrNumbers) ).Sorted()
+		_anColNumbers_ = ring_sort( U(panColNumbers) )
 		_nLen_ = len(_anColNumbers_)
+		_nCols_ = This.NumberOfCols()
 
-		_aContent_ = @aContent
-
+		# From the last position down, so that a removal never shifts a position still to come;
+		# a position past the last column is ignored, like an unknown name in RemoveCols.
 		for i = _nLen_ to 1 step -1
-			ring_remove(_aContent_, _anColNumbers_[i])
+			if _anColNumbers_[i] >= 1 and _anColNumbers_[i] <= _nCols_
+				This.RemoveNthCol(_anColNumbers_[i])
+			ok
 		next
 
-		This.UpdateWith(_aContent_)
 
 
-
-		# Raises error R24 today instead of removing the columns at the given positions.
+		# Removes the columns at the given positions, in place; a position past the last column is ignored.
 		#
 		#   panColNumbers   the positions of the columns to remove
-		#   returns         nothing; it raises
-		#   warning         Raises R24 because RemoveColumnsAt sorts an undefined name; RemoveCols
-		#                   with the positions works
+		#   returns         nothing; the table changes
 		#   see             RemoveCols
 		def RemoveColsAt(panColNumbers)
 			This.RemoveColumnsAt(panColNumbers)
 
-		# Raises error R24 today instead of removing the columns at the given positions.
+		# Removes the columns at the given positions, in place; a position past the last column is ignored.
 		#
 		#   panColNumbers   the positions of the columns to remove
-		#   returns         nothing; it raises
-		#   warning         Raises R24 because RemoveColumnsAt sorts an undefined name; RemoveCols
-		#                   with the positions works
+		#   returns         nothing; the table changes
 		#   see             RemoveCols
 		def RemoveNthCols(panColNumbers)
 			This.RemoveColumnsAt(panColNumbers)
 
-		# Raises error R24 today instead of removing the columns at the given positions.
+		# Removes the columns at the given positions, in place; a position past the last column is ignored.
 		#
 		#   panColNumbers   the positions of the columns to remove
-		#   returns         nothing; it raises
-		#   warning         Raises R24 because RemoveColumnsAt sorts an undefined name; RemoveCols
-		#                   with the positions works
+		#   returns         nothing; the table changes
 		#   see             RemoveCols
 		def RemoveNthColumns(panColNumbers)
 			This.RemoveColumnsAt(panColNumbers)
 
-	# Raises error R24 today instead of keeping only the columns at the given positions.
+	# Keeps only the columns at the given positions, in place.
 	#
 	#   panColNumbers   the positions of the columns to keep
-	#   returns         nothing; it raises
-	#   warning         Raises R24 because the body passes paColNumbers, which is not the parameter
-	#                   name
+	#   returns         nothing; the table changes
 	#   see             FindColsExcept
 	def RemoveAllColsExceptAt(panColNumbers)
-		This.RemoveAllColsExcept(paColNumbers)
+		This.RemoveAllColsExcept(panColNumbers)
 
-		# Raises error R24 today instead of keeping only the columns at the given positions.
+		# Keeps only the columns at the given positions, in place.
 		#
 		#   panColNumbers   the positions of the columns to keep
-		#   returns         nothing; it raises
-		#   warning         Raises R24 through RemoveAllColsExceptAt, which passes a name that is
-		#                   not its parameter
+		#   returns         nothing; the table changes
 		#   see             RemoveAllColsExceptAt
 		#< @FunctionAlternativeForms
 		def RemoveColsExceptPositions(panColNumbers)
 			This.RemoveAllColsExceptAt(panColNumbers)
 
-		# Raises error R24 today instead of keeping only the columns at the given positions.
+		# Keeps only the columns at the given positions, in place.
 		#
 		#   panColNumbers   the positions of the columns to keep
-		#   returns         nothing; it raises
-		#   warning         Raises R24 through RemoveAllColsExceptAt, which passes a name that is
-		#                   not its parameter
+		#   returns         nothing; the table changes
 		#   see             RemoveAllColsExceptAt
 		def RemoveColumnsExceptPositions(panColNumbers)
 			This.RemoveAllColsExceptAt(panColNumbers)
 
-		# Raises error R24 today instead of keeping only the columns at the given positions.
+		# Keeps only the columns at the given positions, in place.
 		#
 		#   panColNumbers   the positions of the columns to keep
-		#   returns         nothing; it raises
-		#   warning         Raises R24 through RemoveAllColsExceptAt, which passes a name that is
-		#                   not its parameter
+		#   returns         nothing; the table changes
 		#   see             RemoveAllColsExceptAt
 		def RemoveAllColsExceptPositions(panColNumbers)
 			This.RemoveAllColsExceptAt(panColNumbers)
 
-		# Raises error R24 today instead of keeping only the columns at the given positions.
+		# Keeps only the columns at the given positions, in place.
 		#
 		#   panColNumbers   the positions of the columns to keep
-		#   returns         nothing; it raises
-		#   warning         Raises R24 through RemoveAllColsExceptAt, which passes a name that is
-		#                   not its parameter
+		#   returns         nothing; the table changes
 		#   see             RemoveAllColsExceptAt
 		def RemoveAllColumnsExceptPositions(panColNumbers)
 			This.RemoveAllColsExceptAt(panColNumbers)
 
-		# Raises error R24 today instead of keeping only the columns at the given positions.
+		# Keeps only the columns at the given positions, in place.
 		#
 		#   panColNumbers   the positions of the columns to keep
-		#   returns         nothing; it raises
-		#   warning         Raises R24 through RemoveAllColsExceptAt, which passes a name that is
-		#                   not its parameter
+		#   returns         nothing; the table changes
 		#   see             RemoveAllColsExceptAt
 		#@ aka  --
 		def RemoveColsExceptAt(panColNumbers)
 			This.RemoveAllColsExceptAt(panColNumbers)
 
-		# Raises error R24 today instead of keeping only the columns at the given positions.
+		# Keeps only the columns at the given positions, in place.
 		#
 		#   panColNumbers   the positions of the columns to keep
-		#   returns         nothing; it raises
-		#   warning         Raises R24 through RemoveAllColsExceptAt, which passes a name that is
-		#                   not its parameter
+		#   returns         nothing; the table changes
 		#   see             RemoveAllColsExceptAt
 		def RemoveAllColsOtherThanPositions(panColNumbers)
 			This.RemoveAllColsExceptAt(panColNumbers)
 
-		# Raises error R24 today instead of keeping only the columns at the given positions.
+		# Keeps only the columns at the given positions, in place.
 		#
 		#   panColNumbers   the positions of the columns to keep
-		#   returns         nothing; it raises
-		#   warning         Raises R24 through RemoveAllColsExceptAt, which passes a name that is
-		#                   not its parameter
+		#   returns         nothing; the table changes
 		#   see             RemoveAllColsExceptAt
 		def RemoveColsOtherThanPositions(panColNumbers)
 			This.RemoveAllColsExceptAt(panColNumbers)
 
-		# Raises error R24 today instead of keeping only the columns at the given positions.
+		# Keeps only the columns at the given positions, in place.
 		#
 		#   panColNumbers   the positions of the columns to keep
-		#   returns         nothing; it raises
-		#   warning         Raises R24 through RemoveAllColsExceptAt, which passes a name that is
-		#                   not its parameter
+		#   returns         nothing; the table changes
 		#   see             RemoveAllColsExceptAt
 		#@ aka  --
 		def RemoveAllColumnsExceptAt(panColNumbers)
 			This.RemoveAllColsExceptAt(panColNumbers)
 
-		# Raises error R24 today instead of keeping only the columns at the given positions.
+		# Keeps only the columns at the given positions, in place.
 		#
 		#   panColNumbers   the positions of the columns to keep
-		#   returns         nothing; it raises
-		#   warning         Raises R24 through RemoveAllColsExceptAt, which passes a name that is
-		#                   not its parameter
+		#   returns         nothing; the table changes
 		#   see             RemoveAllColsExceptAt
 		def RemoveColumnsExceptAt(panColNumbers)
 			This.RemoveAllColsExceptAt(panColNumbers)
 
-		# Raises error R24 today instead of keeping only the columns at the given positions.
+		# Keeps only the columns at the given positions, in place.
 		#
 		#   panColNumbers   the positions of the columns to keep
-		#   returns         nothing; it raises
-		#   warning         Raises R24 through RemoveAllColsExceptAt, which passes a name that is
-		#                   not its parameter
+		#   returns         nothing; the table changes
 		#   see             RemoveAllColsExceptAt
 		def RemoveAllColumnsOtherThanPositions(panColNumbers)
 			This.RemoveAllColsExceptAt(panColNumbers)
 
-		# Raises error R24 today instead of keeping only the columns at the given positions.
+		# Keeps only the columns at the given positions, in place.
 		#
 		#   panColNumbers   the positions of the columns to keep
-		#   returns         nothing; it raises
-		#   warning         Raises R24 through RemoveAllColsExceptAt, which passes a name that is
-		#                   not its parameter
+		#   returns         nothing; the table changes
 		#   see             RemoveAllColsExceptAt
 		def RemoveColumnsOtherThanPositions(panColNumbers)
 			This.RemoveAllColsExceptAt(panColNumbers)
@@ -4409,7 +4390,7 @@ func _NormalizeColLookupKey(pVal)
 
 	def RemoveAllColsExcept(paCols)
 		if CheckingParams()
-			if NOT ( isList(paCols) and Q(paCols).IsListOfNumbersOrStrings() )
+			if NOT ( isList(paCols) and IsListOfNumbersOrStrings(paCols) )
 				StzRaise("Incorrect param type! panRows must be a list of numbers or strings.")
 			ok
 		ok
@@ -4422,20 +4403,18 @@ func _NormalizeColLookupKey(pVal)
 		def RemoveColsExcept(panRow)
 			This.RemoveAllColsExcept(panRow)
 
-		# Raises error R14 today instead of keeping only the given columns.
+		# Keeps only the given columns, written as names or positions, in place.
 		#
 		#   panRow     the columns to keep, by name or position
-		#   returns    nothing; it raises
-		#   warning    Raises R14 because IsListOfNumbersOrStrings is defined nowhere
+		#   returns    nothing; the table changes
 		#   see        FindColsExcept
 		def RemoveAllColsOtherThan(panRow)
 			This.RemoveAllColsExcept(panRow)
 
-		# Raises error R14 today instead of keeping only the given columns.
+		# Keeps only the given columns, written as names or positions, in place.
 		#
 		#   panRow     the columns to keep, by name or position
-		#   returns    nothing; it raises
-		#   warning    Raises R14 because IsListOfNumbersOrStrings is defined nowhere
+		#   returns    nothing; the table changes
 		#   see        FindColsExcept
 		def RemoveColsOtherThan(panRow)
 			This.RemoveAllColsExcept(panRow)
@@ -4448,20 +4427,18 @@ func _NormalizeColLookupKey(pVal)
 		def RemoveColumnsExcept(panRow)
 			This.RemoveAllColsExcept(panRow)
 
-		# Raises error R14 today instead of keeping only the given columns.
+		# Keeps only the given columns, written as names or positions, in place.
 		#
 		#   panRow     the columns to keep, by name or position
-		#   returns    nothing; it raises
-		#   warning    Raises R14 because IsListOfNumbersOrStrings is defined nowhere
+		#   returns    nothing; the table changes
 		#   see        FindColsExcept
 		def RemoveAllColumnsOtherThan(panRow)
 			This.RemoveAllColsExcept(panRow)
 
-		# Raises error R14 today instead of keeping only the given columns.
+		# Keeps only the given columns, written as names or positions, in place.
 		#
 		#   panRow     the columns to keep, by name or position
-		#   returns    nothing; it raises
-		#   warning    Raises R14 because IsListOfNumbersOrStrings is defined nowhere
+		#   returns    nothing; the table changes
 		#   see        FindColsExcept
 		def RemoveColumnsOtherThan(panRow)
 			This.RemoveAllColsExcept(panRow)
@@ -5583,12 +5560,10 @@ func _NormalizeColLookupKey(pVal)
 	 #  GETTING THE NAMES OF THE PROVIDED COLUMNS AS DEFINED BY THEIR NUMBERS  #
 	#-------------------------------------------------------------------------#
 
-	# Raises an error today instead of returning the names of the columns at the given positions.
+	# Returns the names of the columns at the given positions, in ascending order of position.
 	#
 	#   panColNumbers   the positions of the columns
-	#   returns         nothing; it raises
-	#   warning         Raises Can't create the stzList object! because the body calls Sorted()
-	#                   straight on a new stzList; ColNumbersToNames works
+	#   returns         a list of column names
 	#   see             ColNumbersToNames
 	def TheseColNames(panColNumbers)
 		if NOT ( isList(panColNumbers) and @IsListOfNumbers(panColNumbers) )
@@ -5609,7 +5584,7 @@ func _NormalizeColLookupKey(pVal)
 			StzRaise("Incorrect param type! numbers in panColNumbers must all be between 1 and " + _nCols_ + ".")
 		ok
 
-		panColNumbers  = new stzList(panColNumbers).Sorted()
+		panColNumbers  = ring_sort(panColNumbers)
 		_nLenColNumbers_ = len(panColNumbers)
 
 		pacColNames    = This.ColNames()
@@ -5666,10 +5641,8 @@ func _NormalizeColLookupKey(pVal)
 	#
 	#   pacColNames   the column names to look up
 	#   returns       a list of numbers
-	#   warning       The name has a stray c; its forwards (ColumnsNamesToNumbers and the like) call
-	#                 ColNamesToNumbers, which is defined nowhere, and raise R14
 	#   see           FindColsByName
-	def cColNamesToNumbers(pacColNames)
+	def ColNamesToNumbers(pacColNames)
 		if NOT ( isList(pacColNames) and @IsListOfStrings(pacColNames) )
 			StzRaise("Incorrect param type! pacColNames must be a list of strings.")
 		ok
@@ -5685,6 +5658,9 @@ func _NormalizeColLookupKey(pVal)
 		return _anResult_
 
 		#< @FunctionAlternativeForms
+
+		def cColNamesToNumbers(pacColNames)
+			return This.ColNamesToNumbers(pacColNames)
 
 		def ColsNamesToNumbers(pacColNames)
 			return This.ColNamesToNumbers(pacColNames)
@@ -6480,7 +6456,7 @@ func _NormalizeColLookupKey(pVal)
 			next
 		next
 
-		_anResult_ = new stzList(_anResult_).Sorted()
+		_anResult_ = ring_sort(_anResult_)
 		return _anResult_
 
 		#< @FunctionAlternativeForms
@@ -6516,7 +6492,7 @@ func _NormalizeColLookupKey(pVal)
 	#                   FindColByValue works one list at a time
 	#   see             FindColByValue
 		#>
-	#@ aka  -- WTIHOUT CASESENSITIVITY
+	# Returns the positions of the columns equal to any of the given cell lists.
 	def FindColsByValue(paManyColData)
 		return This.FindColsByValueCS(paManyColData, 1)
 
@@ -6551,17 +6527,15 @@ func _NormalizeColLookupKey(pVal)
 	 #  FINING COLUMNS BY NAME EXPET THOSE PROVIDED  #
 	#===============================================#
 
-	# Returns the positions of the columns that are not in the given list; only a list of lists is accepted today.
+	# Returns the positions of the columns that are not at the given positions.
 	#
 	#   panColNumbers   the positions to leave out, wrapped in a list of lists
 	#   returns         a list of column positions
-	#   warning         The check tests for a list of lists instead of a list of numbers: a plain
-	#                   list of positions raises, and [ [ 1 ] ] leaves out nothing
 	#   see             FindColsExcept
 	def FindColsExceptAt(panColNumbers)
 		if CheckingParams()
-			if NOT ( isList(panColNumbers) and @IsListOfLists(panColNumbers) )
-				StzRaise("Incorrect param type! apnColNumbers must be a list of numbers.")
+			if NOT ( isList(panColNumbers) and @IsListOfNumbers(panColNumbers) )
+				StzRaise("Incorrect param type! panColNumbers must be a list of numbers.")
 			ok
 		ok
 
@@ -6594,14 +6568,25 @@ func _NormalizeColLookupKey(pVal)
 				StzRaise("Incorrect param type! paColNumbersOrColNames must be a list.")
 			ok
 
-			if NOT ( @IsListOfNumbers(paColNumbersOrColNames) or
-				 @IsListOfStrings(paColNumbersOrColNames) )
-				StzRaise("Incorrect param type! paColNumbersOrColNames must be a list of numbers or a list of strings.")
+			if NOT IsListOfNumbersOrStrings(paColNumbersOrColNames)
+				StzRaise("Incorrect param type! paColNumbersOrColNames must be a list of numbers or names.")
 			ok
 		ok
 
-		_anResult_ = Q(1:This.NumberOfCols()) - These( This.FindCols(paColNumbersOrColNames) )
-		// #TODO Make a more performant solution!
+		# Each item is a position or a name; FindCol answers the position either way (0 when absent).
+		_anLeftOut_ = []
+		_nLeft_ = len(paColNumbersOrColNames)
+		for i = 1 to _nLeft_
+			_anLeftOut_ + This.FindCol(paColNumbersOrColNames[i])
+		next
+
+		_anResult_ = []
+		_nCols_ = This.NumberOfCols()
+		for i = 1 to _nCols_
+			if StzFindFirst(i, _anLeftOut_) = 0
+				_anResult_ + i
+			ok
+		next
 
 		return _anResult_
 
@@ -8245,25 +8230,21 @@ func _NormalizeColLookupKey(pVal)
 		def containsTheseCols(paCols)
 			return This.ContainsCols(paCols)
 
-		# Raises error R24 today instead of testing that the table has the given columns.
+		# TRUE if the table has every one of the given columns, each as [ name, cells ].
 		#
 		#   paCols     the columns to look for, each as [ name, list of cells ]
-		#   returns    nothing; it raises
-		#   warning    Raises R24 (uninitialized variable pacol) because the body passes paCol while
-		#              the parameter is named paCols; ContainsCols works
+		#   returns    TRUE or FALSE
 		#   see        ContainsCols
 		def ContainsColumns(paCols)
-			return This.ContainsCols(paCol)
+			return This.ContainsCols(paCols)
 
-		# Raises error R24 today instead of testing that the table has the given columns.
+		# TRUE if the table has every one of the given columns, each as [ name, cells ].
 		#
 		#   paCols     the columns to look for, each as [ name, list of cells ]
-		#   returns    nothing; it raises
-		#   warning    Raises R24 (uninitialized variable pacol) because the body passes paCol while
-		#              the parameter is named paCols; ContainsCols works
+		#   returns    TRUE or FALSE
 		#   see        ContainsCols
 		def ContainsTheseColumns(paCols)
-			return This.ContainsCols(paCol)
+			return This.ContainsCols(paCols)
 
 	  #----------------------------------------------------------------------#
 	 #  CHECKING IF THE TABLE CONTAINS CELLS THAT INCLUDE A GIVEN SUBVALUE  #
@@ -18105,13 +18086,11 @@ func _NormalizeColLookupKey(pVal)
 	# Returns the names of the given columns, written as positions or as names.
 	#
 	#   returns    a list of column names
-	#   warning    Raises R14 when positions and names are mixed in one list, because
-	#              IsListOfNumbersAndStrings is defined nowhere
 	#   see        TheseColsToColNumbers
 	def TheseColsToColNames(paCols)
 		if NOT ( isList(paCols) and ( @IsListOfNumbers(paCols) or
 				@IsListOfStrings(paCols) or
-				Q(paCols).IsListOfNumbersAndStrings() ) )
+				IsListOfNumbersAndStrings(paCols) ) )
 
 			StzRaise("Incorrect param type! paCols must be a list of numbers or strings or numbers/strings.")
 		ok
@@ -18200,14 +18179,12 @@ func _NormalizeColLookupKey(pVal)
 	# Returns the positions of the given columns, written as positions or as names.
 	#
 	#   returns    a list of numbers
-	#   warning    Raises R14 when positions and names are mixed in one list, because
-	#              IsListOfNumbersAndStrings is defined nowhere
 	#   see        TheseColsToColNames
 		#>
 	def TheseColsToColNumbers(paCols)
 		if NOT ( isList(paCols) and ( @IsListOfNumbers(paCols) or
 				@IsListOfStrings(paCols) or
-				Q(paCols).IsListOfNumbersAndStrings() ) )
+				IsListOfNumbersAndStrings(paCols) ) )
 
 			StzRaise("Incorrect param type! paCols must be a list of numbers or strings or numbers/strings.")
 		ok
