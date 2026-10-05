@@ -1,0 +1,14 @@
+{
+ "brief": "Holds a folder as a position you can walk, and lists, finds, searches, edits, creates, copies and deletes the files and folders under it.",
+ "detail": "A stzFolder is built on a path, created when it is missing, and keeps a current position, a home to return to (GoHome) and a history (GoBack). Listings are of the position, in lowercase: Files and Folders give the direct children as /name and /name/, DeepFiles and DeepFolders walk the whole tree. Find, Search and Modify come in three reaches: this folder (FindFiles, SearchInFiles, ModifyInRoot), one named child folder, and the Deep forms below. Ring has one process folder, and relative paths that reach the disk directly (a few of the In and Deep methods, IsInside, IsFolderEmpty) are read from it and not from the position, so pass absolute paths to those. Many file methods finish by moving the position to the file's folder; that step calls GetDirectoryPath, which exists nowhere, so with batch mode off (the default) they end in error R14, after the work for the create, remove, copy and move methods and before it for the others. Call SetBatchMode(1) first. The delete methods are real: DeleteFolder, DeleteAll, Erase, DeepRemoveAll and DeepErase remove what they name, and GoUp can lift the position above the home, so point an object at a folder you can afford to lose. Known gaps today, each carried as a warning on its method: FindFolders and CountFolder never match a plain name, Find and DeepFind nest the folders list inside the files list, DeepContainsOneOf... answer for all the names, FilesIn and FoldersIn raise for any non-empty child, SearchInFolder reports the wrong file, the Deep modifiers and DeepDeleteFile and DeepDeleteFolder do nothing, and FileOverwrite, FileSafeOverwrite, FileErase, FileSafeErase and FileBackup raise errors.",
+ "receiver": "o1 = new stzFolder(currentDir())",
+ "example": [
+  "? o1.IsReadable()",
+  "#--> 1"
+ ],
+ "see": [
+  "stzFile",
+  "stzString",
+  "stzObject"
+ ]
+}

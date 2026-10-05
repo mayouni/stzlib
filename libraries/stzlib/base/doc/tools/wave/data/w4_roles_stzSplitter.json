@@ -1,0 +1,6 @@
+{
+ "p": "The cut: a position, a list of positions, a section or a list of sections.",
+ "n": "A position, or a count, as a number.",
+ "_n1_": "The first position of the section.",
+ "_n2_": "The last position of the section."
+}

@@ -54,6 +54,29 @@ clobbered at `new stzAppResponse(...)`, then R12 on the attribute).
 func StzAppServerQ()
 	return new stzAppServer()
 
+# Hosts routes, a REST floor over a database, raw device streams and supervised agents on one resident event loop, served on a localhost-first HTTP listener.
+#
+# The server is a persistent host rather than a per-request library: Start binds a listener on a
+# reactor (an engine thread), and the serve loop (ServeOne, RunFor or Run) drains framed requests,
+# runs the matching handler and writes the answer back; no callback ever crosses into the Ring VM.
+# One host serves four shapes. WEB: Get_, Post, Put_ and Delete add routes whose handlers receive a
+# request and a response. MBaaS: Expose and ExposeWithKey turn a stzDatabase table into list, count
+# and read, create, update, delete routes. IoT: ListenRaw opens a raw TCP listener whose handler
+# answers with RawWrite. AGENTS: HostAgents attaches an agent host that shares the loop and ticks
+# between serve slices, with a read-only view at GET /agents. /health is always answered and
+# /metrics appears once Observe attaches a perf monitor. Bind to 127.0.0.1 unless the server must be
+# reached from outside, and then call RequireSignedRequests; MountAuth and MountOidcProvider serve a
+# login router and an identity provider from the same listener. Known gaps today, each carried as a
+# warning on its method: Use and Static store their arguments but never act, and Stop leaves Port
+# and Uptime unreset.
+#
+#   receiver   o1 = new stzAppServer()
+#   example    o1.Get_("/greet", func oReq, oResp { oResp.Text("hello") })
+#              o1.Start(0, "127.0.0.1")
+#              ? o1.IsRunning()
+#              #--> 1
+#              o1.Stop()
+#   see        stzReactor, stzAppBackend, stzAppRequest, stzAppResponse
 class stzAppServer from stzObject
 
 	# Core infrastructure
@@ -104,6 +127,11 @@ class stzAppServer from stzObject
 	@cOpPrefix = "/oidc"
 	@bOpMounted = 0
 
+	# Builds a stopped server with an empty route table; nothing listens until a start method is called.
+	#
+	#   returns    nothing; the server is built
+	#   note       Routes, mounts and observation can all be set up before Start
+	#   see        Start, Get_
 	def init()
 		# paren-less: stzAppRouter has no own init(), and the inherited
 		# stzObject.init(pObject) wants an argument
@@ -113,8 +141,15 @@ class stzAppServer from stzObject
 	 #  SERVER LIFECYCLE  #
 	#--------------------#
 
-	# Bind the HTTP listener. nPortNum 0 = ephemeral (see Port()).
-	# Raises on bind failure -- no silent half-started server.
+	# Binds an HTTP listener to a host and port, port 0 meaning any free one; raises an error if it cannot bind or already runs.
+	#
+	#   nPortNum    the port to listen on, 0 for any free port
+	#   cHostAddr   the address to bind, "" for 127.0.0.1
+	#   returns     1 (TRUE)
+	#   note        Bind to 127.0.0.1 unless the server is meant to be reached from other machines,
+	#               and then require signed requests
+	#   see         Port, Stop, StartTls
+	#@ aka  Bind the HTTP listener. nPortNum 0 = ephemeral (see Port()). Raises on bind failure -- no silent half-started server.
 	def Start(nPortNum, cHostAddr)
 		if @bRunning
 			stzraise("stzAppServer is already running on port " + @nBoundPort)
@@ -135,12 +170,19 @@ class stzAppServer from stzObject
 		@nStartMs = StzEngineTimeNowMs()
 		return 1
 
-	# Serve over TLS: the reactor terminates TLS per connection (server cert
-	# cCertPath + key cKeyPath) BELOW the router, so every handler runs on
-	# the DECRYPTED request and responses are encrypted transparently -- the
-	# routing/handler code is byte-for-byte identical to plain Start(). A
-	# non-empty cCaPath enables client-cert checks; bRequireClient = TRUE
-	# demands a valid client cert (mutual TLS). Same bind semantics as Start.
+	# Binds an HTTPS listener that decrypts each connection before routing; raises an error when a certificate, key or CA file cannot be used.
+	#
+	#   nPortNum         the port to listen on, 0 for any free port
+	#   cHostAddr        the address to bind, "" for 127.0.0.1
+	#   cCertPath        the server certificate file
+	#   cKeyPath         the private key file
+	#   cCaPath          the CA file that checks client certificates, "" for none
+	#   bRequireClient   1 to demand a valid client certificate (mutual TLS)
+	#   returns          1 (TRUE)
+	#   note             The failing path was run with missing files (error -13); the success path
+	#                    was read from the body, as no certificate was available
+	#   see              StartHttps, SetSecureCookies
+	#@ aka  Serve over TLS: the reactor terminates TLS per connection (server cert cCertPath + key cKeyPath) BELOW the router, so every handler runs on the DECRYPTED request and responses are encrypted transparently -- the routing/handler code is byte-for-byte identical to plain Start(). A non-empty cCaPath enables client-cert checks; bRequireClient = TRUE demands a valid client cert (mutual TLS). Same bind s
 	def StartTls(nPortNum, cHostAddr, cCertPath, cKeyPath, cCaPath, bRequireClient)
 		if @bRunning
 			stzraise("stzAppServer is already running on port " + @nBoundPort)
@@ -161,10 +203,25 @@ class stzAppServer from stzObject
 		@nStartMs = StzEngineTimeNowMs()
 		return 1
 
-	# One-way HTTPS convenience (server cert only, no client cert).
+	# Binds a one-way HTTPS listener, with a server certificate and key but no client certificate check.
+	#
+	#   nPortNum    the port to listen on, 0 for any free port
+	#   cHostAddr   the address to bind, "" for 127.0.0.1
+	#   cCertPath   the server certificate file
+	#   cKeyPath    the private key file
+	#   returns     1 (TRUE)
+	#   note        Same as StartTls with an empty CA and no client check
+	#   see         StartTls
+	#@ aka  One-way HTTPS convenience (server cert only, no client cert).
 	def StartHttps(nPortNum, cHostAddr, cCertPath, cKeyPath)
 		return This.StartTls(nPortNum, cHostAddr, cCertPath, cKeyPath, "", 0)
 
+	# Closes the HTTP and raw listeners and destroys the reactor; does nothing when the server is not running.
+	#
+	#   returns    the server, so calls can be chained
+	#   note       Routes and mounts are kept for the next Start, but Port and Uptime are not reset
+	#              (see their notes)
+	#   see        Start, IsRunning
 	def Stop()
 		if NOT @bRunning
 			return This
@@ -181,25 +238,53 @@ class stzAppServer from stzObject
 		@bRunning = 0
 		return This
 
+	# TRUE if a listener is bound, from a successful start until the next stop.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Start, Stop
 	def IsRunning()
 		return @bRunning
 
+	# Returns the port the HTTP listener is bound to, the real one when 0 was asked for.
+	#
+	#   returns    a number; 0 before the first start
+	#   note       The value is kept after Stop, so it names the last port used rather than a live
+	#              one
+	#   see        Start, Host
 	def Port()
 		return @nBoundPort
 
+	# Returns the address given to the last start.
+	#
+	#   returns    text; "127.0.0.1" before the first start
+	#   see        Port, Start
 	def Host()
 		return @cHost
 
+	# Returns the seconds since the last start, as a number with decimals.
+	#
+	#   returns    a number of seconds; 0 before the first start
+	#   note       It keeps growing after Stop, because the start time is not cleared
+	#   see        RequestCount
 	def Uptime()
 		if @nStartMs = 0
 			return 0
 		ok
 		return (StzEngineTimeNowMs() - @nStartMs) / 1000
 
+	# Returns how many HTTP requests the server has handled, including malformed ones answered with 400.
+	#
+	#   returns    a number
+	#   note       The counter is never reset, not even by Stop
+	#   see        Uptime, IsObserved
 	def RequestCount()
 		return @nRequestCount
 
-	# The underlying reactor as a chainable stz object (Q-convention).
+	# Returns the stzReactor that runs the listeners, to read or drive it directly.
+	#
+	#   returns    an stzReactor; an empty string when the server is not running
+	#   see        Start, Stop
+	#@ aka  The underlying reactor as a chainable stz object (Q-convention).
 	def ReactorQ()
 		return @oReactor
 
@@ -207,9 +292,14 @@ class stzAppServer from stzObject
 	 #  THE SERVE LOOP #
 	#-----------------#
 
-	# Drain events until ONE data event (an HTTP request or a raw chunk)
-	# has been handled, or nTimeoutMs elapses. Returns TRUE if work was
-	# done. Accept/closed events are drained silently along the way.
+	# Waits for one request, HTTP or raw, answers it, and returns; gives up after the timeout.
+	#
+	#   nTimeoutMs   the longest wait, in milliseconds
+	#   returns      TRUE if a request was handled, FALSE on timeout
+	#   note         Accept and close events are drained along the way and do not count as work
+	#   warning      Raises an error when the server is not running
+	#   see          RunFor, Run
+	#@ aka  Drain events until ONE data event (an HTTP request or a raw chunk) has been handled, or nTimeoutMs elapses. Returns TRUE if work was done. Accept/closed events are drained silently along the way.
 	def ServeOne(nTimeoutMs)
 		if NOT @bRunning
 			stzraise("stzAppServer.ServeOne() called on a stopped server -- Start() first.")
@@ -255,13 +345,14 @@ class stzAppServer from stzObject
 			ok
 		end
 
-	# Serve every event that arrives within nMs (a bounded Run()).
+	# Serves every request that arrives within a number of milliseconds, ticking hosted agents between slices.
 	#
-	# With agents hosted, the serve slice is BOUNDED: ServeOne(nLeft) would
-	# otherwise park on the socket for the whole remaining time whenever no
-	# request arrives, and the agents -- which live on this same loop -- would
-	# never tick. So we serve for at most @nAgentSliceMs, then tick whatever is
-	# due, and repeat. Requests and perceive-decide-act interleave on ONE loop.
+	#   nMs        how long to serve, in milliseconds
+	#   returns    the server
+	#   note       With agents hosted, each wait on the socket is cut to AgentSlice ms so the agents
+	#              keep ticking on an idle socket
+	#   see        ServeOne, Run, SetAgentSlice
+	#@ aka  Serve every event that arrives within nMs (a bounded Run()).
 	def RunFor(nMs)
 		_nDeadline_ = StzEngineTimeNowMs() + nMs
 		while StzEngineTimeNowMs() < _nDeadline_
@@ -282,8 +373,13 @@ class stzAppServer from stzObject
 		end
 		return This
 
-	# Serve forever (until the process is killed or Stop() is called
-	# from a handler). The documented blocking entry point.
+	# Serves requests until Stop is called from a handler or the process is killed, ticking hosted agents between slices.
+	#
+	#   returns    the server, once the server is stopped
+	#   note       Not run here because it blocks: described from its body, a loop of ServeOne(1000)
+	#              while the server is running
+	#   see        RunFor, ServeOne
+	#@ aka  Serve forever (until the process is killed or Stop() is called from a handler). The documented blocking entry point.
 	def Run()
 		while @bRunning
 			if @oAgentHost = ""
@@ -299,30 +395,56 @@ class stzAppServer from stzObject
 	 #  ROUTING INTERFACE  #
 	#---------------------#
 
+	# Adds a GET route; its handler is called as fHandler(oReq, oResp) with the request and the response.
+	#
+	#   cPath      the route path, with :name segments for parameters and a trailing * for the rest
+	#   fHandler   the function called with the request and the response
+	#   returns    the server, so calls can be chained
+	#   note       A request whose path matches only a route of another method answers 404
+	#   see        Post, Put_, Delete
 	def Get_(cPath, fHandler)
 		@oRouter.AddRoute("GET", cPath, fHandler)
 		return This
 
+	# Adds a POST route; a handler is called as fHandler(oReq, oResp).
+	#
+	#   cPath      the route path, with :name segments for parameters and a trailing * for the rest
+	#   fHandler   the function called with the request and the response
+	#   returns    the server, so calls can be chained
+	#   see        Get_, Put_, Delete
 	def Post(cPath, fHandler)
 		@oRouter.AddRoute("POST", cPath, fHandler)
 		return This
 
+	# Adds a PUT route; a handler is called as fHandler(oReq, oResp).
+	#
+	#   cPath      the route path, with :name segments for parameters and a trailing * for the rest
+	#   fHandler   the function called with the request and the response
+	#   returns    the server, so calls can be chained
+	#   see        Get_, Post, Delete
 	def Put_(cPath, fHandler)
 		@oRouter.AddRoute("PUT", cPath, fHandler)
 		return This
 
+	# Adds a DELETE route; a handler is called as fHandler(oReq, oResp).
+	#
+	#   cPath      the route path, with :name segments for parameters and a trailing * for the rest
+	#   fHandler   the function called with the request and the response
+	#   returns    the server, so calls can be chained
+	#   see        Get_, Post, Put_
 	def Delete(cPath, fHandler)
 		@oRouter.AddRoute("DELETE", cPath, fHandler)
 		return This
 
-	# Observe this server with a perf monitor (perf P3). From this call
-	# on, every request records its response time R into the timer
-	# 'http.request.ms', its arrival into the counter 'http.requests'
-	# (throughput X = its measured rate), and 5xx outcomes into
-	# 'http.errors'; GET /metrics serves the monitor's Prometheus
-	# exposition, and /health widens with the process senses. The
-	# monitor's watched senses (memory/cpu) are ticked by the serve
-	# loop at the monitor's own cadence -- a served app samples itself.
+	# Records every request into a perf monitor, adds a /metrics page and puts response percentiles and the request rate into /health.
+	#
+	#   poMonitor   the stzPerfMonitor that receives the timer http.request.ms and the counters
+	#               http.requests and http.errors
+	#   returns     the server, so calls can be chained
+	#   note        The server keeps a copy of the monitor, but its metrics live in the engine, so
+	#               the caller's monitor reads the same counts
+	#   see         ObserveRoutes, IsObserved
+	#@ aka  Observe this server with a perf monitor (perf P3). From this call on, every request records its response time R into the timer 'http.request.ms', its arrival into the counter 'http.requests' (throughput X = its measured rate), and 5xx outcomes into 'http.errors'; GET /metrics serves the monitor's Prometheus exposition, and /health widens with the process senses. The monitor's watched senses (memor
 	def Observe(poMonitor)
 		if NOT poMonitor.HasMetric("http.request.ms")
 			poMonitor.NewTimer("http.request.ms")
@@ -336,15 +458,19 @@ class stzAppServer from stzObject
 		@oPerfMon = poMonitor
 		return This
 
+	# TRUE if a perf monitor was attached.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Observe, ObserveRoutes
 	def IsObserved()
 		return @oPerfMon != ""
 
-	# Per-route observation (perf P8): Observe() PLUS a timer FAMILY
-	# 'http.route.ms' labeled [method, route, class] -- one child per
-	# route the traffic actually exercises, each with its own
-	# percentiles ('class' is the status class: 2xx/4xx/5xx).
-	# Cardinality rides the family's bound: unruly path spaces land in
-	# the overflow child instead of exploding the registry.
+	# Does what the observation above does and also times each route, in a family labeled by method, route and status class.
+	#
+	#   poMonitor   the stzPerfMonitor that receives the metrics, including the family http.route.ms
+	#   returns     the server, so calls can be chained
+	#   see         Observe
+	#@ aka  Per-route observation (perf P8): Observe() PLUS a timer FAMILY 'http.route.ms' labeled [method, route, class] -- one child per route the traffic actually exercises, each with its own percentiles ('class' is the status class: 2xx/4xx/5xx). Cardinality rides the family's bound: unruly path spaces land in the overflow child instead of exploding the registry.
 	def ObserveRoutes(poMonitor)
 		This.Observe(poMonitor)
 		if NOT poMonitor.HasMetric("http.route.ms")
@@ -354,10 +480,27 @@ class stzAppServer from stzObject
 		@oRouteFam = poMonitor.MetricQ("http.route.ms")
 		return This
 
+	# Leaves every request unchanged today instead of running the middleware before the routes under a path.
+	#
+	#   cPath         the path the middleware should cover
+	#   fMiddleware   the function meant to run before the routes
+	#   returns       the server, so calls can be chained
+	#   note          Add a route or check inside the handler until the router uses the list
+	#   warning       The middleware is stored in the router but nothing ever reads the list, so it
+	#                 never runs (checked with paths /a, / and *)
+	#   see           Static
 	def Use(cPath, fMiddleware)
 		@oRouter.AddMiddleware(cPath, fMiddleware)
 		return This
 
+	# Leaves a folder unserved today instead of serving its files under a path; a request for a file in it answers 404.
+	#
+	#   cPath        the URL path meant to map to the folder
+	#   cDirectory   the folder of files to serve
+	#   returns      the server, so calls can be chained
+	#   warning      The static routes are stored in the router but nothing ever reads the list
+	#                (checked with paths /files and /)
+	#   see          Use
 	def Static(cPath, cDirectory)
 		@oRouter.AddStaticRoute(cPath, cDirectory)
 		return This
@@ -366,20 +509,30 @@ class stzAppServer from stzObject
 	 #  MBaaS: REST OVER stzDatabase  #
 	#--------------------------------#
 
-	# Expose a table of an open stzDatabase as a REST resource -- the FULL
-	# CRUD floor, keyed by the "id" column (override with ExposeWithKey):
-	#   GET    /api/<table>         -> {"rows":[[...],...]}   (list)
-	#   GET    /api/<table>/count   -> {"count":N}
-	#   GET    /api/<table>/<id>    -> {"row":[...]} or 404   (read one)
-	#   POST   /api/<table>         -> body "col=val&.." inserts; 201
-	#   PUT    /api/<table>/<id>    -> body "col=val&.." updates; {"updated":N}
-	#   DELETE /api/<table>/<id>    -> {"deleted":N}
-	# Values + the id are SQL-escaped (injection-safe).
+	# Serves a table of an open stzDatabase as a REST resource under /api/ followed by the table name, keyed by an id column.
+	#
+	#   oDb        the open stzDatabase that holds the table
+	#   cTable     the table to expose
+	#   returns    the server, so calls can be chained
+	#   note       GET lists rows, GET .../count counts, GET/PUT/DELETE .../<id> read, update,
+	#              delete one row, POST inserts from a form body; values are SQL-escaped, and a
+	#              route you added yourself wins over the same path
+	#   warning    A table with no id column answers 500 (no such column: id) on the routes that
+	#              address one row
+	#   see        ExposeWithKey, Get_
+	#@ aka  Expose a table of an open stzDatabase as a REST resource -- the FULL CRUD floor, keyed by the "id" column (override with ExposeWithKey): GET /api/<table> -> {"rows":[[...],...]} (list) GET /api/<table>/count -> {"count":N} GET /api/<table>/<id> -> {"row":[...]} or 404 (read one) POST /api/<table> -> body "col=val&.." inserts; 201 PUT /api/<table>/<id> -> body "col=val&.." updates; {"updated":N} DE
 	def Expose(oDb, cTable)
 		@aResources + [ cTable, oDb, "id" ]
 		return This
 
-	# Same, but with a custom primary-key column (e.g. "uuid", "rowid").
+	# Does the same as the id-keyed exposure but finds single rows through another key column.
+	#
+	#   oDb        the open stzDatabase that holds the table
+	#   cTable     the table to expose
+	#   cKeyCol    the column that names one row, such as uuid
+	#   returns    the server, so calls can be chained
+	#   see        Expose
+	#@ aka  Same, but with a custom primary-key column (e.g. "uuid", "rowid").
 	def ExposeWithKey(oDb, cTable, cKeyCol)
 		@aResources + [ cTable, oDb, "" + cKeyCol ]
 		return This
@@ -388,28 +541,16 @@ class stzAppServer from stzObject
 	 #  REQUEST AUTHENTICATION (off-loopback listeners) #
 	#------------------------------------------------#
 
-	# Require every request to carry a valid HMAC signature. On the loopback a
-	# server can reasonably trust its callers; the moment it binds a real
-	# interface it cannot, and an unauthenticated MBaaS floor would accept a
-	# POST from anyone who can route to the port. This is the same rule the rest
-	# of the library applies -- expression is free, admission is governed --
-	# enforced at the transport edge.
+	# Refuses with 401 every request that lacks a valid HMAC signature, /health included; raises an error for a skew under 1 ms.
 	#
-	# The envelope travels as query parameters (_kid/_ts/_nonce/_sig), because
-	# the curl-backed client submits a method, a URL and a body -- it has no
-	# custom-header channel. A MAC is not a secret, so carrying it in the URL is
-	# sound (the same shape as a presigned URL); the SECRET never leaves either
-	# side. stzRequestSigner supplies freshness (clock-skew window both ways),
-	# replay rejection (a nonce is accepted once) and constant-time comparison.
-	#
-	# EVERY request must be signed, /health included. An exemption is a hole to
-	# get wrong later, and a liveness probe that reports uptime and a request
-	# count is not nothing. A client that holds the key can sign its probe.
-	#
-	# NOTE (Ring aliasing): the stored signer is this server's COPY, so the
-	# replay-nonce ledger it maintains is the SERVER's. That is correct here --
-	# signer and verifier are different roles, and in the real topology they are
-	# different processes sharing only the secret.
+	#   poSigner      the stzRequestSigner that holds the shared secrets
+	#   pnMaxSkewMs   the clock-skew window in milliseconds, at least 1
+	#   returns       nothing; the server is changed in place
+	#   note          The signature travels in the query parameters _kid, _ts, _nonce and _sig; a
+	#                 replayed nonce and a wrong signature are refused too. The server keeps a copy
+	#                 of the signer, so its replay ledger is the server's own
+	#   see           RequiresSignedRequests, AuthWhy
+	#@ aka  Require every request to carry a valid HMAC signature. On the loopback a server can reasonably trust its callers; the moment it binds a real interface it cannot, and an unauthenticated MBaaS floor would accept a POST from anyone who can route to the port. This is the same rule the rest of the library applies -- expression is free, admission is governed -- enforced at the transport edge.
 	def RequireSignedRequests(poSigner, pnMaxSkewMs)
 		This.RequireSignedRequestsQ(poSigner, pnMaxSkewMs)
 
@@ -421,6 +562,10 @@ class stzAppServer from stzObject
 		@nMaxSkewMs = pnMaxSkewMs
 		return This
 
+	# TRUE if requests must be signed.
+	#
+	#   returns    TRUE or FALSE
+	#   see        RequireSignedRequests
 	def RequiresSignedRequests()
 		return @oSigner != ""
 
@@ -428,34 +573,28 @@ class stzAppServer from stzObject
 	 #  USER AUTHENTICATION ROUTER (stzAuth)  #
 	#--------------------------------------#
 
-	# Mount stzAuth as HTTP endpoints (auth plan phase 6) -- the whole surface the
-	# earlier phases built, reachable by a browser or a client:
+	# Serves an stzAuth as HTTP endpoints under /auth: login, 2FA, logout, session, magic link and one-time code.
 	#
-	#   POST <prefix>/login          user=&password=[&code=]  -> session cookie
-	#   POST <prefix>/2fa/verify     user=&password=&code=    -> session cookie
-	#   POST <prefix>/logout                                  -> cookie cleared
-	#   GET  <prefix>/session                                 -> who + capabilities
-	#   POST <prefix>/magic-link     email=                   -> 202 (always)
-	#   GET  <prefix>/magic-link/redeem?token=                -> session cookie
-	#   POST <prefix>/otp            email=                   -> 202 (always)
-	#   POST <prefix>/otp/verify     email=&code=             -> session cookie
-	#
-	# The session token travels as an HttpOnly + SameSite=Strict cookie (script
-	# cannot read it, and a cross-site form cannot ride it), plus a readable CSRF
-	# cookie that a cookie-authenticated POST must echo in X-CSRF-Token.
-	#
-	# RING COPY SEMANTICS (read this): `=` and list insertion both COPY an object,
-	# so the server holds ITS OWN stzAuth. Configure and register BEFORE mounting.
-	# For a view shared with the caller (and durability), give the stzAuth a
-	# stzAuthDbStore: its sqlite is an engine handle, so the server's copy reads and
-	# writes the SAME database -- a login through HTTP is then visible to the
-	# caller's object, and vice versa.
+	#   poAuth     the stzAuth object to serve
+	#   returns    nothing; the server is changed in place
+	#   note       The session token travels in an HttpOnly, SameSite=Strict cookie with a CSRF
+	#              cookie beside it. The server keeps its own copy of the stzAuth, so register users
+	#              before mounting or give it a database store
+	#   warning    An argument that is not an object raises an error
+	#   see        MountAuthAt, AuthPrefix, SetSecureCookies
+	#@ aka  Mount stzAuth as HTTP endpoints (auth plan phase 6) -- the whole surface the earlier phases built, reachable by a browser or a client:
 	def MountAuth(poAuth)
 		This.MountAuthAtQ(poAuth, "/auth")
 
 	def MountAuthQ(poAuth)
 		return This.MountAuthAtQ(poAuth, "/auth")
 
+	# Serves an stzAuth under a chosen path prefix instead of /auth; a missing leading slash is added and an empty prefix means /auth.
+	#
+	#   poAuth     the stzAuth object to serve
+	#   pcPrefix   the path prefix for the endpoints
+	#   returns    nothing; the server is changed in place
+	#   see        MountAuth, AuthPrefix
 	def MountAuthAt(poAuth, pcPrefix)
 		This.MountAuthAtQ(poAuth, pcPrefix)
 
@@ -473,14 +612,26 @@ class stzAppServer from stzObject
 		@bAuthMounted = 1
 		return This
 
+	# TRUE if an stzAuth has been mounted.
+	#
+	#   returns    TRUE or FALSE
+	#   see        MountAuth
 	def AuthIsMounted()
 		return @bAuthMounted
 
+	# Returns the path prefix of the auth endpoints.
+	#
+	#   returns    text; /auth until another prefix is mounted
+	#   see        MountAuthAt
 	def AuthPrefix()
 		return @cAuthPrefix
 
-	# Add Secure to the auth cookies -- TRUE whenever the listener is TLS, so the
-	# session cookie never travels in clear text.
+	# Adds the Secure attribute to the auth cookies, which a listener behind TLS should always do.
+	#
+	#   pbOn       1 to add Secure, 0 to leave it out
+	#   returns    nothing; the server is changed in place
+	#   see        SecureCookies, MountAuth
+	#@ aka  Add Secure to the auth cookies -- TRUE whenever the listener is TLS, so the session cookie never travels in clear text.
 	def SetSecureCookies(pbOn)
 		This.SetSecureCookiesQ(pbOn)
 
@@ -488,6 +639,10 @@ class stzAppServer from stzObject
 		@bSecureCookies = pbOn
 		return This
 
+	# TRUE if the auth cookies carry the Secure attribute.
+	#
+	#   returns    TRUE or FALSE
+	#   see        SetSecureCookies
 	def SecureCookies()
 		return @bSecureCookies
 
@@ -495,24 +650,28 @@ class stzAppServer from stzObject
 	 #  OIDC PROVIDER (this server as an IdP)     #
 	#-------------------------------------------#
 
-	# Publish an stzOidcProvider over HTTP, so other applications can "sign in
-	# with" THIS server:
+	# Publishes an stzOidcProvider so other apps can sign in with this server: discovery, keys, authorize and token endpoints under /oidc.
 	#
-	#   GET  /.well-known/openid-configuration   (always at the standard path)
-	#   GET  <prefix>/jwks                       the public signing keys
-	#   GET  <prefix>/authorize                  -> 302 to the app with a code
-	#   POST <prefix>/token                      code + secret + PKCE -> tokens
-	#
-	# /authorize needs a signed-in user, and takes it from the SESSION COOKIE the
-	# mounted auth router issues -- so this server's own login becomes the login
-	# for every app that trusts it. With no session it answers 401 (the app in
-	# front redirects to its login page and comes back).
+	#   poProvider   the stzOidcProvider to publish
+	#   returns      nothing; the server is changed in place
+	#   note         Discovery always sits at /.well-known/openid-configuration. The authorize step
+	#                needs a signed-in user, taken from the session cookie of the mounted auth
+	#                router, and answers 401 without one
+	#   warning      An argument that is not an object raises an error
+	#   see          MountOidcProviderAt, MountAuth
+	#@ aka  Publish an stzOidcProvider over HTTP, so other applications can "sign in with" THIS server:
 	def MountOidcProvider(poProvider)
 		This.MountOidcProviderAtQ(poProvider, "/oidc")
 
 	def MountOidcProviderQ(poProvider)
 		return This.MountOidcProviderAtQ(poProvider, "/oidc")
 
+	# Publishes the provider under a chosen path prefix instead of /oidc; a missing leading slash is added.
+	#
+	#   poProvider   the stzOidcProvider to publish
+	#   pcPrefix     the path prefix for the endpoints
+	#   returns      nothing; the server is changed in place
+	#   see          MountOidcProvider, OidcProviderPrefix
 	def MountOidcProviderAt(poProvider, pcPrefix)
 		This.MountOidcProviderAtQ(poProvider, pcPrefix)
 
@@ -528,13 +687,27 @@ class stzAppServer from stzObject
 		@bOpMounted = 1
 		return This
 
+	# TRUE if an identity provider has been mounted.
+	#
+	#   returns    TRUE or FALSE
+	#   see        MountOidcProvider
 	def OidcProviderIsMounted()
 		return @bOpMounted
 
+	# Returns the path prefix of the identity-provider endpoints.
+	#
+	#   returns    text; /oidc until another prefix is mounted
+	#   see        MountOidcProviderAt
 	def OidcProviderPrefix()
 		return @cOpPrefix
 
-	# Why the last request was refused ("" when none was).
+	# Returns why the signing gate refused the last request, or an empty string when it let it through.
+	#
+	#   returns    text
+	#   note       Only the signature check sets it: a failed login through the auth router leaves
+	#              it unchanged
+	#   see        RequireSignedRequests
+	#@ aka  Why the last request was refused ("" when none was).
 	def AuthWhy()
 		return @cAuthWhy
 
@@ -602,17 +775,13 @@ class stzAppServer from stzObject
 	 #  AGENTS: the agent host IS the same host   #
 	#-------------------------------------------#
 
-	# Host agents on THIS server's loop. The agent host shares the server's
-	# reactor rather than owning one, so a hosted agent's perceive-decide-act
-	# cycle and the HTTP listener are the same libuv loop -- which is what
-	# "the agent host is the same host" was always meant to mean.
+	# Attaches an agent host that shares this server's event loop; raises an error when the server is not running.
 	#
-	# WHY EVERYTHING GOES THROUGH THE SERVER. Ring copies objects on `=`, so
-	# the host stored here is the server's own copy: a caller who kept the
-	# original would watch a snapshot that never ticks. That is why the
-	# supervision and read methods below DELEGATE instead of handing the host
-	# out -- the same cure stzAgentHost itself applies to its agents, and
-	# stzSuperApp to its governance. Reach the live host only through these.
+	#   returns    the server, so calls can be chained
+	#   note       A second call replaces the host and forgets its agents. The agents tick inside
+	#              RunFor, Run and ServeOne loops, and GET /agents shows them read-only
+	#   see        SuperviseAgent, AdoptAgentHost, RunFor
+	#@ aka  Host agents on THIS server's loop. The agent host shares the server's reactor rather than owning one, so a hosted agent's perceive-decide-act cycle and the HTTP listener are the same libuv loop -- which is what "the agent host is the same host" was always meant to mean.
 	def HostAgents()
 		if NOT @bRunning
 			stzraise("stzAppServer.HostAgents() needs a running server -- Start() first (the agents share ITS loop).")
@@ -622,9 +791,14 @@ class stzAppServer from stzObject
 		@oAgentHost = _oH_
 		return This
 
-	# Adopt a host configured elsewhere (e.g. one carrying a decommission
-	# governance declared up front). It is REPARENTED onto this server's loop,
-	# and the caller's reference goes stale by the rule above.
+	# Moves an agent host built elsewhere onto this server's loop, replacing the current host; raises an error when the server is not running.
+	#
+	#   poHost     the stzAgentHost to adopt
+	#   returns    the server, so calls can be chained
+	#   note       The server keeps its own copy, so the caller's reference goes stale; an empty
+	#              host leaves NumberOfAgents at 0
+	#   see        HostAgents
+	#@ aka  Adopt a host configured elsewhere (e.g. one carrying a decommission governance declared up front). It is REPARENTED onto this server's loop, and the caller's reference goes stale by the rule above.
 	def AdoptAgentHost(poHost)
 		if NOT @bRunning
 			stzraise("stzAppServer.AdoptAgentHost() needs a running server -- Start() first.")
@@ -633,11 +807,20 @@ class stzAppServer from stzObject
 		@oAgentHost = poHost
 		return This
 
+	# TRUE if an agent host is attached.
+	#
+	#   returns    TRUE or FALSE
+	#   see        HostAgents
 	def IsHostingAgents()
 		return @oAgentHost != ""
 
-	# How long a single serve slice may park on the socket before due agents
-	# are ticked. Smaller = crisper agent timing, more loop turns.
+	# Sets the longest wait on the socket before due agents are ticked; raises an error for under 1 ms.
+	#
+	#   pnMs       the slice, in milliseconds
+	#   returns    nothing; the server is changed in place
+	#   note       Smaller slices give crisper agent timing and more loop turns
+	#   see        AgentSlice, RunFor
+	#@ aka  How long a single serve slice may park on the socket before due agents are ticked. Smaller = crisper agent timing, more loop turns.
 	def SetAgentSlice(pnMs)
 		This.SetAgentSliceQ(pnMs)
 
@@ -648,27 +831,50 @@ class stzAppServer from stzObject
 		@nAgentSliceMs = pnMs
 		return This
 
+	# Returns the longest wait on the socket, in milliseconds, before due agents are ticked.
+	#
+	#   returns    a number; 20 by default
+	#   see        SetAgentSlice
 	def AgentSlice()
 		return @nAgentSliceMs
 
-	#-- supervision, delegated to the live host -------------------------
-
+	# Starts ticking an agent every given number of milliseconds while the server serves; raises an error before HostAgents.
+	#
+	#   poAgent    the agent to supervise
+	#   pnTickMs   the time between ticks, in milliseconds
+	#   returns    the server, so calls can be chained
+	#   see        SuperviseAgentOnEvent, HostAgents, PauseAgent
+	#@ aka  -- supervision, delegated to the live host -------------------------
 	def SuperviseAgent(poAgent, pnTickMs)
 		This._RequireAgentHost("SuperviseAgent")
 		@oAgentHost.Supervise(poAgent, pnTickMs)
 		return This
 
+	# Starts ticking an agent each time an event reaches a bus channel; raises an error before HostAgents.
+	#
+	#   poAgent     the agent to supervise
+	#   pcChannel   the name of the event channel that triggers a tick
+	#   returns     the server, so calls can be chained
+	#   see         SuperviseAgent
 	def SuperviseAgentOnEvent(poAgent, pcChannel)
 		This._RequireAgentHost("SuperviseAgentOnEvent")
 		@oAgentHost.SuperviseOnEvent(poAgent, pcChannel)
 		return This
 
+	# Returns how many agents are supervised.
+	#
+	#   returns    a number; 0 when no host is attached
+	#   see        AgentNames, HostAgents
 	def NumberOfAgents()
 		if @oAgentHost = ""
 			return 0
 		ok
 		return @oAgentHost.NumberOfAgents()
 
+	# Returns the names of the supervised agents, in the order they were added.
+	#
+	#   returns    a list of text; empty with no host
+	#   see        NumberOfAgents
 	def AgentNames()
 		_out_ = []
 		if @oAgentHost = ""
@@ -680,59 +886,103 @@ class stzAppServer from stzObject
 		next
 		return _out_
 
+	# Returns how many times an agent has ticked.
+	#
+	#   returns    a number; 0 for an unknown agent or with no host
+	#   see        AgentTrace, AgentIsActive
 	def AgentTicks(pcName)
 		if @oAgentHost = ""
 			return 0
 		ok
 		return @oAgentHost.TicksOf(pcName)
 
+	# TRUE if the agent is supervised and not paused or retired.
+	#
+	#   returns    TRUE or FALSE; FALSE for an unknown agent
+	#   see        PauseAgent, AgentIsRetired
 	def AgentIsActive(pcName)
 		if @oAgentHost = ""
 			return 0
 		ok
 		return @oAgentHost.IsActive(pcName)
 
+	# TRUE if the agent was retired.
+	#
+	#   returns    TRUE or FALSE; FALSE for an unknown agent
+	#   see        RetireAgent, AgentIsActive
 	def AgentIsRetired(pcName)
 		if @oAgentHost = ""
 			return 0
 		ok
 		return @oAgentHost.IsRetired(pcName)
 
+	# Returns one entry per agent tick, [ time in ms, agent name, acted flag, text ].
+	#
+	#   returns    a list of lists; empty with no host
+	#   note       GET /agents/trace serves the same entries as JSON
+	#   see        AgentTicks
 	def AgentTrace()
 		if @oAgentHost = ""
 			return []
 		ok
 		return @oAgentHost.Trace()
 
-	#-- control. IN-PROCESS ONLY, deliberately (see _ServeAgents) -------
-
+	# Stops an agent from ticking; its tick count stays; raises an error before HostAgents.
+	#
+	#   returns    the server, so calls can be chained
+	#   see        ResumeAgent, AgentIsActive
+	#@ aka  -- control. IN-PROCESS ONLY, deliberately (see _ServeAgents) -------
 	def PauseAgent(pcName)
 		This._RequireAgentHost("PauseAgent")
 		@oAgentHost.Cancel(pcName)
 		return This
 
+	# Lets a paused agent tick again; raises an error before HostAgents.
+	#
+	#   returns    the server, so calls can be chained
+	#   see        PauseAgent
 	def ResumeAgent(pcName)
 		This._RequireAgentHost("ResumeAgent")
 		@oAgentHost.Resume(pcName)
 		return This
 
-	# Governed teardown: refused until the agent's declared obligations are
-	# fulfilled (R4b). Returns FALSE with AgentWhy() explaining the refusal.
+	# Retires an agent when all the obligations declared for it are fulfilled, and refuses otherwise.
+	#
+	#   returns    TRUE if retired, FALSE if refused
+	#   note       A retired agent stops ticking and AgentIsRetired answers TRUE
+	#   warning    Raises an error before HostAgents
+	#   see        DeclareAgentDecommission, FulfillAgentObligation, AgentWhy
+	#@ aka  Governed teardown: refused until the agent's declared obligations are fulfilled (R4b). Returns FALSE with AgentWhy() explaining the refusal.
 	def RetireAgent(pcName)
 		This._RequireAgentHost("RetireAgent")
 		return @oAgentHost.Retire(pcName)
 
+	# Returns the verdict of the last retirement attempt, such as why it was refused.
+	#
+	#   returns    text; empty when none was tried
+	#   note       For example: refused: obligations pending -- handover
+	#   see        RetireAgent
 	def AgentWhy()
 		if @oAgentHost = ""
 			return ""
 		ok
 		return @oAgentHost.Why()
 
+	# Declares the obligations an agent must fulfil before it may be retired; raises an error before HostAgents.
+	#
+	#   pacObligations   the list of obligation names
+	#   returns          the server, so calls can be chained
+	#   see              RetireAgent, FulfillAgentObligation
 	def DeclareAgentDecommission(pcName, pacObligations)
 		This._RequireAgentHost("DeclareAgentDecommission")
 		@oAgentHost.DeclareDecommission(pcName, pacObligations)
 		return This
 
+	# Marks one declared decommission obligation of an agent as done; raises an error before HostAgents.
+	#
+	#   pcObligation   the name of the obligation that is now fulfilled
+	#   returns        the server, so calls can be chained
+	#   see            DeclareAgentDecommission, RetireAgent
 	def FulfillAgentObligation(pcName, pcObligation)
 		This._RequireAgentHost("FulfillAgentObligation")
 		@oAgentHost.FulfillObligation(pcName, pcObligation)
@@ -748,10 +998,17 @@ class stzAppServer from stzObject
 	 #  IoT: RAW STREAM LISTENER  #
 	#----------------------------#
 
-	# A raw TCP listener (no HTTP framing): fHandler is called as
-	#   call fHandler(oServer, nSid, nConn, cBytes)
-	# for every chunk a device sends; reply with RawWrite(). Requires a
-	# running server (the listener joins the same reactor).
+	# Opens a raw TCP listener, with no HTTP framing, on the server's host; each chunk received calls fHandler(oServer, nSid, nConn, cBytes).
+	#
+	#   nPortNum   the port to listen on, 0 for any free port
+	#   fHandler   the function called with the server, the listener id, the connection id and the
+	#              bytes
+	#   returns    the listener id, a number
+	#   note       Raw chunks are served by the same ServeOne, RunFor and Run loops; reply from the
+	#              handler with RawWrite
+	#   warning    Raises an error when the server is not running or the port is taken
+	#   see        RawPort, RawWrite, ServeOne
+	#@ aka  A raw TCP listener (no HTTP framing): fHandler is called as call fHandler(oServer, nSid, nConn, cBytes) for every chunk a device sends; reply with RawWrite(). Requires a running server (the listener joins the same reactor).
 	def ListenRaw(nPortNum, fHandler)
 		if NOT @bRunning
 			stzraise("ListenRaw() needs a running server -- Start() first.")
@@ -764,9 +1021,25 @@ class stzAppServer from stzObject
 		@aRawListeners + [ _nSid_, @oReactor.ServerPort(_nSid_), fHandler ]
 		return _nSid_
 
+	# Returns the port a raw listener is bound to.
+	#
+	#   nSid       the listener id that ListenRaw returned
+	#   returns    a number; -2 for an unknown listener id
+	#   warning    Raises error R13 when the server is not running
+	#   see        ListenRaw
 	def RawPort(nSid)
 		return @oReactor.ServerPort(nSid)
 
+	# Writes bytes to a raw connection and can close it after the write.
+	#
+	#   nSid          the listener id
+	#   nConn         the connection id the handler received
+	#   cData         the bytes to send
+	#   bCloseAfter   1 to close the connection after sending
+	#   returns       a number from the engine, 0 in the cases tried, so it is not a delivery flag
+	#   note          A write to a connection id that does not exist also answers 0 and sends
+	#                 nothing
+	#   see           ListenRaw
 	def RawWrite(nSid, nConn, cData, bCloseAfter)
 		return @oReactor.ServerWrite(nSid, nConn, cData, bCloseAfter)
 
@@ -1519,8 +1792,14 @@ class stzAppServer from stzObject
 	 #  UTILITIES   #
 	#--------------#
 
-	# Parse one complete HTTP/1.1 request (the engine frames it: full
-	# headers + Content-Length body, CRLF line endings).
+	# Parses the text of one HTTP/1.1 request into an stzAppRequest; raises an error if the header-ending blank line or request line is missing.
+	#
+	#   cRawRequest   the whole request, headers and body, with CRLF line ends
+	#   returns       an stzAppRequest
+	#   note          The method and protocol are put in uppercase, header values are trimmed, and
+	#                 the body is everything after the first blank line
+	#   see           Start
+	#@ aka  Parse one complete HTTP/1.1 request (the engine frames it: full headers + Content-Length body, CRLF line endings).
 	def ParseHttpRequest(cRawRequest)
 		_cCRLF_ = char(13) + char(10)
 		# split, don't slice: a multibyte BODY made StzMidToEnd compute its

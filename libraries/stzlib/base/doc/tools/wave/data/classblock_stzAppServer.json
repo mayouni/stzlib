@@ -1,0 +1,18 @@
+{
+ "brief": "Hosts routes, a REST floor over a database, raw device streams and supervised agents on one resident event loop, served on a localhost-first HTTP listener.",
+ "detail": "The server is a persistent host rather than a per-request library: Start binds a listener on a reactor (an engine thread), and the serve loop (ServeOne, RunFor or Run) drains framed requests, runs the matching handler and writes the answer back; no callback ever crosses into the Ring VM. One host serves four shapes. WEB: Get_, Post, Put_ and Delete add routes whose handlers receive a request and a response. MBaaS: Expose and ExposeWithKey turn a stzDatabase table into list, count and read, create, update, delete routes. IoT: ListenRaw opens a raw TCP listener whose handler answers with RawWrite. AGENTS: HostAgents attaches an agent host that shares the loop and ticks between serve slices, with a read-only view at GET /agents. /health is always answered and /metrics appears once Observe attaches a perf monitor. Bind to 127.0.0.1 unless the server must be reached from outside, and then call RequireSignedRequests; MountAuth and MountOidcProvider serve a login router and an identity provider from the same listener. Known gaps today, each carried as a warning on its method: Use and Static store their arguments but never act, and Stop leaves Port and Uptime unreset.",
+ "receiver": "o1 = new stzAppServer()",
+ "example": [
+  "o1.Get_(\"/greet\", func oReq, oResp { oResp.Text(\"hello\") })",
+  "o1.Start(0, \"127.0.0.1\")",
+  "? o1.IsRunning()",
+  "#--> 1",
+  "o1.Stop()"
+ ],
+ "see": [
+  "stzReactor",
+  "stzAppBackend",
+  "stzAppRequest",
+  "stzAppResponse"
+ ]
+}
