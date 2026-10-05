@@ -591,6 +591,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#   see        Keys, Values
 	#   example    ? @@( o1.Content() )
 	#              #--> [ [ "one", "a" ], [ "two", "b" ], [ "three", "a" ], [ "four", 4 ] ]
+	#@ aka  The raw hash list: the [key, value] pairs.
 	def Content()
 		return @aContent
 
@@ -603,6 +604,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#   returns    a number
 	#   example    ? o1.NumberOfPairs()
 	#              #--> 4
+	#@ aka  How many [key, value] pairs the hash list holds.
 	def NumberOfPairs()
 		# Engine fast path: stz_hashmap_len is O(1) cached vs Ring len() on a hashlist array
 		This._EnsureEngineMap()
@@ -674,6 +676,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#   see        Values, HasKey
 	#   example    ? @@( o1.Keys() )
 	#              #--> [ "one", "two", "three", "four" ]
+	#@ aka  The keys of the hash list, as a list.
 	def Keys()
 		_aHkContent_ = This.Content()
 		_nHkLen_ = len(_aHkContent_)
@@ -774,6 +777,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#   example    ? @@( o1.Values() )
 	#              #--> [ "a", "b", "a", 4 ]
 		#>
+	#@ aka  The values of the hash list, as a list.
 	def Values()
 
 		_aVlContent_ = This.Content()
@@ -890,6 +894,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#              #--> b
 	#              ? o1.NthValue(:Last)
 	#              #--> 4
+	#@ aka  The value of the nth pair.
 	def NthValue(_n_)
 
 		if checkParams()
@@ -1552,6 +1557,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#   warning    known defect: the call raises an error today, because it reads a property named
 	#              HashList that the object does not have; Add appends a pair and works
 	#   see        Add
+	#@ aka  Insert the given pair BEFORE position n (mutating).
 	def InsertBefore(_n_, paPair)
 		if _n_ > 1 and _n_ <= This.NumberOfPairs()
 			insert( This.HashList, _n_-1, paPair)
@@ -1867,6 +1873,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#              #--> TRUE
 	#              ? o1.HasKey("six")
 	#              #--> FALSE
+	#@ aka  TRUE if the hash list holds the given key.
 	def HasKey(pcKey)
 
 		if isString(pcKey)
@@ -2058,6 +2065,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#              ? @@( o1.FindValue("z") )
 	#              #--> [ ]
 		#>
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindValue(pValue)
 		return This.FindValueCS(pValue, 1)
 
@@ -2181,6 +2189,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#   example    ? o1.FindNthOccurrenceOfValue(2, "a")
 	#              #--> 3
 		#>
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindNthOccurrenceOfValue(_n_, pValue)
 		return This.FindNthOccurrenceOfValueCS(_n_, pValue, 1)
 
@@ -3540,6 +3549,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#   warning    known defect: the call raises error R14 today, because it uses IsStrictlyEqualTo,
 	#              which no class defines; Classes and NumberOfClasses work
 	#   see        Classes, NumberOfClasses
+	#@ aka  Group the pairs into classes by value.
 	def Classify()
 
 		_aCfResult_ = []
@@ -4962,6 +4972,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#
 	#   returns    nothing; the table is printed
 	#   see        Content
+	#@ aka  Print the hash list as a boxed table.
 	def Show()
 		This.ToStzTable().Show()
 
@@ -4989,6 +5000,7 @@ this: lefttoright
 	#   returns    the symbol :stzHashList, which prints as stzhashlist
 	#   example    ? o1.StzType()
 	#              #--> stzhashlist
+	#@ aka  The Softanza type symbol: :stzHashList.
 	def StzType()
 		return :stzHashList
 
@@ -5002,6 +5014,7 @@ this: lefttoright
 	#   note       every value is written as text, so the number 4 comes out as "4"
 	#   example    ? o1.ToCode()
 	#              #--> [ :one = "a", :two = "b", :three = "a", :four = "4" ]
+	#@ aka  The hash list as runnable Ring code, as a string.
 	def ToCode()
 		_aTcPairs_ = This.Content()
 		_nTcLen_ = len(_aTcPairs_)

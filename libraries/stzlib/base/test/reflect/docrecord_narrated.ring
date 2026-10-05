@@ -82,8 +82,12 @@ Scenario("The harvest the library already had still answers the same way")
 	next
 	Then("a method's description is its BRIEF, not the design paragraph under it",
 		aH[nF][2], "Returns the positions of every occurrence of pcSubStr, as a list of numbers.")
-	Then("the detail and the notes stay in the retrieval-only field",
-		StzFindFirst("Case-sensitive by default", aH[nF][3]) > 0, TRUE)
+	Then("the detail paragraph is not the description",
+		StzFindFirst("Case-sensitive by default", aH[nF][2]), 0)
+	Then("the base form of the brief's opening verb is folded into the retrieval-only field (Returns -> return)",
+		StzFindFirst("return", aH[nF][3]) > 0, TRUE)
+	Then("the detail paragraph is NOT folded in (old maintainer talk once made an unrelated method win an Ask)",
+		StzFindFirst("Case-sensitive by default", aH[nF][3]), 0)
 	Then("a legacy one-line comment is still the description", aH[nC][2], "a legacy one-line comment")
 	Then("a section title is NEVER a description", aH[nD][2], "")
 	Then("but it is still kept for retrieval", StzFindFirst("internals", aH[nD][3]) > 0, TRUE)

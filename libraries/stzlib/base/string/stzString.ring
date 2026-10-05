@@ -356,6 +356,7 @@ class stzString from stzObject
 	#   see        Content
 	#   example    o1.Show()
 	#              #--> banana
+	#@ aka  Show -- print the content to stdout (terminated by NL). Convenience alias used by narrative tests of the form `o.Show()` instead of `? o.Content()`.
 	def Show()
 		? This.Content()
 
@@ -440,6 +441,7 @@ class stzString from stzObject
 	#   example    o1 = new stzString("**ab**")
 	#              ? @@( o1.BoundsOf("ab") )
 	#              #--> [ "**", "**" ]
+	#@ aka  BoundsOf(pcSub): the FLAT bound runs (left then right, per occurrence) of the occurrences bounded on BOTH sides -- per the original SubStringBoundsCS (Sections of the bound sections).
 	def BoundsOf(pcSub)
 		_aPairs_ = This._BoundsOfPairs(pcSub)
 		_aRes_ = []
@@ -588,6 +590,7 @@ class stzString from stzObject
 	#              ? o1.NumberOfChars()
 	#              #--> 5
 	#@ aka  length, string length, length of the string, size, how long, count characters, number of letters
+	#@ aka  The length of the string in characters (Unicode codepoints).
 	def NumberOfChars()
 		# ENGINE-DIRECT + CACHED: ask the resident engine string for its
 		# codepoint count (StzEngineStringCount -> cached cpCount()). The old
@@ -667,6 +670,7 @@ class stzString from stzObject
 	#              #--> TRUE
 	#@ aka  empty, blank, is empty, no characters, nothing, void
 	#@ aka  blank, empty, has nothing, no characters, is it empty
+	#@ aka  Whether the string has no characters.
 	def IsEmpty()
 		return This.Content() = ""
 
@@ -798,6 +802,7 @@ class stzString from stzObject
 	#   example    ? o1.FirstChar()
 	#              #--> b
 	#@ aka  first character, initial, leading character, opening char
+	#@ aka  The first char of the string (codepoint-aware).
 	def FirstChar()
 		return This.NthChar(1)
 
@@ -828,6 +833,7 @@ class stzString from stzObject
 	#   see        Unicodes, NumberOfChars
 	#   example    ? @@( o1.Chars() )
 	#              #--> [ "b", "a", "n", "a", "n", "a" ]
+	#@ aka  The chars of the string, as a list (codepoint-aware).
 	def Chars()
 		# Engine returns a ready list of 1-codepoint strings (built Zig-side).
 		# The old NUL-delimited-buffer + _SplitNullDelimited round-trip dropped
@@ -866,6 +872,7 @@ class stzString from stzObject
 	#              ? o1.Section(:From = "F", :To = "A")
 	#              #--> FTANZA
 	#@ aka  substring, slice, part, portion, extract, characters between two positions
+	#@ aka  The substring from position n1 to n2 (inclusive, codepoint-aware).
 	def Section(_n1_, _n2_)
 		_nLen_ = This.NumberOfChars()
 		# Narrative aliases: Section(:From = pcA, :To = pcB). A string
@@ -1152,6 +1159,7 @@ class stzString from stzObject
 	#   example       o1.ReplaceSection(2, 4, "-")
 	#                 ? o1.Content()
 	#                 #--> b-na
+	#@ aka  -- Replace the chars at positions n1..n2 (inclusive) with pcNewSubStr. Ported from the legacy monolithic archive (~line 84916), kept minimal: pure numeric positions only. Symbolic forms (:First/:Last) are not yet supported.
 	def ReplaceSection(_n1_, _n2_, pcNewSubStr)
 		if NOT (isNumber(_n1_) and isNumber(_n2_))
 			StzRaise("ReplaceSection: n1 and n2 must be numbers")
@@ -1198,6 +1206,7 @@ class stzString from stzObject
 	#   see           Section, FindAsSections
 	#   example       ? @@( o1.Sections([ [ 1, 2 ], [ 4, 6 ] ]) )
 	#                 #--> [ "ba", "ana" ]
+	#@ aka  The substrings at the given [start, end] sections, as a list.
 	def Sections(_aSections_)
 		# Accept :Of = pcSub / :OfSubString = pcSub named-param: returns
 		# every occurrence's [n1, n2] section.
@@ -1319,6 +1328,7 @@ class stzString from stzObject
 	#   see        FindAsSections, Sections
 	#   example    ? @@( o1.FindAntiSections("an") )
 	#              #--> [ "b", "a" ]
+	#@ aka  The substrings between the occurrences of pcSubStr, as a list.
 	def FindAntiSections(pcSubStr)
 		return This.Sections( This.FindAntiSectionsZZ(pcSubStr) )
 
@@ -1346,6 +1356,7 @@ class stzString from stzObject
 	#   see        Section
 	#   example    ? o1.Range(2, 3)
 	#              #--> ana
+	#@ aka  The substring starting at nStart and spanning nRange chars (lenient).
 	def Range(_nStart_, _nRange_)
 		return This._SectionLenient(_nStart_, _nStart_ + _nRange_ - 1)
 
@@ -1422,6 +1433,7 @@ class stzString from stzObject
 	#              #--> FALSE
 	#@ aka  contain, contains, includes, has, contain a word, is present, occurs in
 	#@ aka  includes, has, holds, is there, present in, does it have
+	#@ aka  Whether the string contains the given substring.
 	def Contains(pcSubStr)
 		return StzEngineStringContainsCS(@pEngine, pcSubStr, 1)
 
@@ -1504,6 +1516,7 @@ class stzString from stzObject
 	#              #--> 2
 	#              ? o1.FindFirst("z")
 	#              #--> -1
+	#@ aka  The first occurrence of the substring: the position(s).
 	def FindFirst(pcSubStr)
 		return StzEngineStringFindFirstCS(@pEngine, pcSubStr, 1)
 
@@ -1985,6 +1998,7 @@ class stzString from stzObject
 	#   example    o1.Extend("!")
 	#              ? o1.Content()
 	#              #--> banana!
+	#@ aka  Extend / ExtendXT: append content / pad to length / pad to position. Port from archive line 3596 (the DSL variant) plus the simpler positional cases.
 	def Extend(pWith)
 		if isString(pWith)
 			This.Update( This.Content() + pWith )
@@ -2509,6 +2523,7 @@ class stzString from stzObject
 	#              #--> 4
 	#              ? o1.FindLast("z")
 	#              #--> 0
+	#@ aka  The last occurrence of the substring: the position(s).
 	def FindLast(pcSubStr)
 		return This.FindLastCS(pcSubStr, 1)
 
@@ -2531,6 +2546,7 @@ class stzString from stzObject
 	#              #--> FALSE
 	#@ aka  starts with, begins with, prefix, leading, has prefix
 	#@ aka  begins with, prefix, at the start, opens with
+	#@ aka  Whether the string starts with the given prefix.
 	def StartsWith(pcSubStr)
 		return StzEngineStringStartsWith(@pEngine, pcSubStr)
 
@@ -2549,6 +2565,7 @@ class stzString from stzObject
 	#              #--> FALSE
 	#@ aka  ends with, finishes with, suffix, trailing, has suffix
 	#@ aka  finishes with, suffix, at the end, closes with
+	#@ aka  Whether the string ends with the given suffix.
 	def EndsWith(pcSubStr)
 		return StzEngineStringEndsWith(@pEngine, pcSubStr)
 
@@ -2596,13 +2613,14 @@ class stzString from stzObject
 	 #     CASE CHANGE                            #
 	#============================================#
 
-	# Puts the text in uppercase, in place.
+	# Puts the text in upper case, in place.
 	#
 	#   returns    nothing; the text changes. UppercaseQ returns the object for chaining
 	#   see        Uppercased, Lowercase
 	#   example    o1.Uppercase()
 	#              ? o1.Content()
 	#              #--> BANANA
+	#@ aka  Change the string to UPPER CASE in place (mutating). For a copy, use Uppercased.
 	def Uppercase()
 		This.Update(StzUpper(This.Content()))
 
@@ -2612,7 +2630,7 @@ class stzString from stzObject
 			_StzHistoAdd(This.Content())
 			return This
 
-	# Returns a copy of the text in uppercase; the text is unchanged.
+	# Returns a copy of the text in upper case; the text is unchanged.
 	#
 	#   returns    a string
 	#   note       it follows Unicode rules: the German sharp s becomes SS
@@ -2625,6 +2643,7 @@ class stzString from stzObject
 	#              ? o1.Uppercased()
 	#              #--> STRASSE
 	#@ aka  upper case, capitals, all caps, in capitals
+	#@ aka  An UPPER CASE (all capitals) copy of the string; the original is unchanged.
 	def Uppercased()
 		# FULLY ENGINE-DIRECT: str_to_upper does the ASCII fast path AND full
 		# Unicode SpecialCasing (ß->SS, ﬄ->FFL, İ handling, ...) engine-side --
@@ -2634,7 +2653,7 @@ class stzString from stzObject
 		StzEngineStringFree(_pUc_)
 		return _cUc_
 
-	# Puts the text in lowercase, in place.
+	# Puts the text in lower case, in place.
 	#
 	#   returns    nothing; the text changes. LowercaseQ returns the object for chaining
 	#   see        Lowercased, Uppercase
@@ -2642,6 +2661,7 @@ class stzString from stzObject
 	#              o1.Lowercase()
 	#              ? o1.Content()
 	#              #--> banana split
+	#@ aka  Change the string to lower case in place (mutating). For a copy, use Lowercased.
 	def Lowercase()
 		This.Update(StzLower(This.Content()))
 
@@ -2661,7 +2681,7 @@ class stzString from stzObject
 			_StzHistoAdd(This.Content())
 			return This
 
-	# Returns a copy of the text in lowercase; the text is unchanged.
+	# Returns a copy of the text in lower case; the text is unchanged.
 	#
 	#   returns    a string
 	#   see        Lowercase, Uppercased
@@ -2669,6 +2689,7 @@ class stzString from stzObject
 	#              ? o1.Lowercased()
 	#              #--> banana split
 	#@ aka  lower case, small letters, in lowercase
+	#@ aka  A lower case copy of the string; the original is unchanged.
 	def Lowercased()
 		# ENGINE-DIRECT: lowercase the resident @pEngine in place (ASCII fast
 		# path inside). No Content() round-trip + re-marshal. Behavior-
@@ -2717,6 +2738,7 @@ class stzString from stzObject
 	#   example    o1.Reverse()
 	#              ? o1.Content()
 	#              #--> ananab
+	#@ aka  Reverse the order of the characters in the string, in place (mutating). For a copy that leaves the original unchanged, use Reversed.
 	def Reverse()
 		_pRvResult_ = StzEngineStringReverse(@pEngine)
 		if _pRvResult_ != ""
@@ -2735,6 +2757,7 @@ class stzString from stzObject
 	#   example    ? o1.Reversed()
 	#              #--> ananab
 	#@ aka  backwards, in reverse order, mirrored, flipped
+	#@ aka  A copy of the string with the characters in reverse order; original unchanged.
 	def Reversed()
 		_pRvdResult_ = StzEngineStringReverse(@pEngine)
 		if _pRvdResult_ != ""
@@ -2786,6 +2809,7 @@ class stzString from stzObject
 	#                 #--> bXYXYa
 	#@ aka  replace, substitute, swap text, find and replace, change all, rename
 	#@ aka  substitute, swap, change, find and replace, put instead
+	#@ aka  Replace every occurrence of a substring with another.
 	def Replace(pcSubStr, pcNewSubStr)
 		# Polymorphic shorthands when the 2nd arg is a :By / :With / :ByMany
 		# named param -- otherwise a plain case-sensitive replace:
@@ -2834,6 +2858,7 @@ class stzString from stzObject
 		#   example       o1.ReplaceAll("an", "AN")
 		#                 ? o1.Content()
 		#                 #--> bANANa
+		#@ aka  Same as Replace: replace every occurrence of pcSubStr (mutating).
 		def ReplaceAll(pcSubStr, pcNewSubStr)
 			This.Replace(pcSubStr, pcNewSubStr)
 
@@ -2880,6 +2905,7 @@ class stzString from stzObject
 	#              ? o1.Content()
 	#              #--> ba
 	#@ aka  delete, erase, take out, strip, drop
+	#@ aka  Remove every occurrence of pcSubStr from the string (mutating). For a copy, use Removed.
 	def Remove(pcSubStr)
 		This.Replace(pcSubStr, "")
 
@@ -2896,6 +2922,7 @@ class stzString from stzObject
 		#              ? o1.Content()
 		#              #--> ba
 		#@ aka  delete, strip, erase, get rid of, take out, drop
+		#@ aka  Same as Remove: remove every occurrence of pcSubStr (mutating).
 		def RemoveAll(pcSubStr)
 			This.Remove(pcSubStr)
 
@@ -3627,6 +3654,7 @@ class stzString from stzObject
 	#   example    o1.ReplaceAt(2, "an", "XY")
 	#              ? o1.Content()
 	#              #--> bXYana
+	#@ aka  ReplaceAt(n, pcOld, pcNew) -- replace pcOld at position n with pcNew ReplaceAt(anPos, pcOld, :By = pcNew) -- list-of-positions form Ring's strict arity means the single-char form lives at ReplaceCharAt(n, pcNewChar) (positional or named-param). Three-arg signature -- callers using the 2-arg form should use ReplaceCharAt.
 	def ReplaceAt(n, pcOld, pcNew)
 		# :By / :With normalisation on pcNew.
 		if isList(pcNew) and len(pcNew) = 2 and isString(pcNew[1]) and
@@ -3902,6 +3930,7 @@ class stzString from stzObject
 		#   example    o1 = new stzString("x #1 y #2")
 		#              ? @@( o1.Marquers() )
 		#              #--> [ "#1", "#2" ]
+		#@ aka  Marquers() returns the "#N" STRINGS (the numeric-only view stays in Markers(), which the sorting checks use).
 		def Marquers()
 			_aMq_ = This.MarquersAndSections()
 			_aMqR_ = []
@@ -4137,6 +4166,7 @@ class stzString from stzObject
 	#   example    o1.Spacify()
 	#              ? o1.Content()
 	#              #--> b a n a n a
+	#@ aka  Spacify: shorter spelling -- same as SpacifyChars.
 	def Spacify()
 		This.SpacifyCharsUsing(" ")
 
@@ -4413,6 +4443,7 @@ class stzString from stzObject
 	#              ? o1.Content()
 	#              #--> >banana
 	#@ aka  put before, prepend at, inject ahead of
+	#@ aka  Insert pcSubStr BEFORE position n -- or before the given anchor substring (mutating).
 	def InsertBefore(n, pcSubStr)
 		# Named-param form: (:Position = N, :SubString = pcSub).
 		if isList(n) and len(n) = 2 and isString(n[1])
@@ -4749,6 +4780,7 @@ class stzString from stzObject
 	#   example    o1 = new stzString("the quick fox")
 	#              ? @@( o1.Words() )
 	#              #--> [ "the", "quick", "fox" ]
+	#@ aka  The words of the string, as a list (whitespace-split by design).
 	def Words()
 		# Bulk native-list bridge (O(n)); the _SplitNullDelimited byte-walk was
 		# O(n^2) at large token counts.
@@ -4771,6 +4803,7 @@ class stzString from stzObject
 	#              ? o1.NumberOfWords()
 	#              #--> 3
 	#@ aka  word count, how many words, count the words
+	#@ aka  How many words the string holds.
 	def NumberOfWords()
 		return StzEngineStringCountWords(@pEngine)
 
@@ -4923,6 +4956,7 @@ class stzString from stzObject
 	#              ? @@( o1.NamedEntities() )
 	#              #--> [ [ "Paris", "LOCATION" ], [ "Bob", "PERSON" ] ]
 	# --- Named-entity recognition ---
+	#@ aka  The named entities found in the string (via the text layer).
 	def NamedEntities()
 		return This.TextQ().NamedEntities()
 
@@ -5168,6 +5202,7 @@ class stzString from stzObject
 	#              #--> [ "the", "quick", "fox" ]
 	#@ aka  split, separate, tokenize, break apart, delimiter, explode, cut into parts
 	#@ aka  separate, tokenize, break apart, cut into parts, explode, divide on
+	#@ aka  Split the string into a list of parts around a separator.
 	def Split(pcSep)
 		# Named-param dispatch: :Using / :By / :With unwrap to the plain
 		# separator; :At / :Before / :After (+ Position(s) / Section(s)
@@ -5349,7 +5384,7 @@ class stzString from stzObject
 	 #     TRIMMED                                #
 	#============================================#
 
-	# Returns a copy of the text without the whitespace at both ends; the text is unchanged.
+	# Returns a copy of the text without the spaces and other whitespace surrounding it; the text is unchanged.
 	#
 	#   returns    a string
 	#   see        Trim
@@ -5357,6 +5392,7 @@ class stzString from stzObject
 	#              ? "[" + o1.Trimmed() + "]"
 	#              #--> [hi]
 	#@ aka  without surrounding spaces, whitespace stripped, without padding, cleaned
+	#@ aka  A copy without leading and trailing whitespace; the original is unchanged.
 	def Trimmed()
 		_pTmResult_ = StzEngineStringTrim(@pEngine)
 		if _pTmResult_ != 0
@@ -5398,6 +5434,7 @@ class stzString from stzObject
 	#              ? @@( o1.Lines() )
 	#              #--> [ "a", "b" ]
 	#@ aka  split into lines, rows of text, line by line
+	#@ aka  The lines of the string, as a list.
 	def Lines()
 		_nLnCount_ = StzEngineStringLinesSplitCount(@pEngine)
 		_aLnResult_ = []
@@ -5423,6 +5460,7 @@ class stzString from stzObject
 	#   example    o1 = new stzString("a" + nl + "b")
 	#              ? o1.NumberOfLines()
 	#              #--> 2
+	#@ aka  How many lines the string holds.
 	def NumberOfLines()
 		return StzEngineStringCountLines(@pEngine)
 
@@ -5621,6 +5659,7 @@ class stzString from stzObject
 	#   example    o1.RemoveSection(2, 4)
 	#              ? o1.Content()
 	#              #--> bna
+	#@ aka  Remove the chars at positions n1..n2 (mutating).
 	def RemoveSection(_n1_, _n2_)
 		_nLen_ = This.NumberOfChars()
 		_n1_ = This._ResolveSymPos(_n1_, _nLen_)
@@ -5641,6 +5680,7 @@ class stzString from stzObject
 	#   example       o1.RemoveSections([ [ 1, 2 ], [ 5, 6 ] ])
 	#                 ? o1.Content()
 	#                 #--> na
+	#@ aka  Remove the chars of each given [start, end] section (mutating).
 	def RemoveSections(_aSections_)
 		if len(_aSections_) = 0
 			return
@@ -5690,6 +5730,7 @@ class stzString from stzObject
 	#   example          o1.ReplaceSectionsByMany([ [ 1, 1 ], [ 4, 4 ] ], [ "B", "A" ])
 	#                    ? o1.Content()
 	#                    #--> BanAna
+	#@ aka  ReplaceSectionsByMany(aSections, paReplacements): replace each [n1, n2] section in aSections with the corresponding replacement from paReplacements. Walks sections in reverse so earlier positions stay valid as later ones shift.
 	def ReplaceSectionsByMany(_aSections_, paReplacements)
 		if NOT isList(paReplacements)
 			StzRaise("Incorrect param type! pacSubStr must be a list.")
@@ -5904,7 +5945,7 @@ class stzString from stzObject
 		if _nLen_ = 0 or _cTxt_[_nLen_] != pcChar return ok
 		This.ReplaceTrailingChars(pWith)
 
-	# Removes the whitespace at both ends of the text, in place.
+	# Removes the spaces and other whitespace surrounding the text, at both ends, in place.
 	#
 	#   returns    nothing; the text changes. TrimQ returns the object for chaining
 	#   see        Trimmed, RemoveSpaces
@@ -5912,6 +5953,7 @@ class stzString from stzObject
 	#              o1.Trim()
 	#              ? "[" + o1.Content() + "]"
 	#              #--> [hi]
+	#@ aka  Remove leading and trailing whitespace in place (mutating). For a copy, use Trimmed.
 	def Trim()
 		_pH_ = This.Engine()
 		_pR_ = StzEngineStringTrim(_pH_)
@@ -6224,6 +6266,7 @@ class stzString from stzObject
 	#              #--> ┌────────┐
 	#              #--> │ banana │
 	#              #--> └────────┘
+	#@ aka  A boxed copy of the string; the original is unchanged.
 	def Boxed()
 		_oBxCopy_ = This.Copy()
 		_oBxCopy_.Box()
@@ -6487,6 +6530,7 @@ class stzString from stzObject
 	#              o1 = new stzString("ab")
 	#              ? @@( o1.Unicode() )
 	#              #--> [ 97, 98 ]
+	#@ aka  The codepoint of a single-char string -- or the codepoints list for a longer one.
 	def Unicode()
 		# A single char gives its codepoint NUMBER; a longer string
 		# gives the codepoint LIST (Q("ê" decomposed) -> [101, 770]).
@@ -6515,6 +6559,7 @@ class stzString from stzObject
 	#   see        Unicode, Chars
 	#   example    ? @@( o1.Unicodes() )
 	#              #--> [ 98, 97, 110, 97, 110, 97 ]
+	#@ aka  The codepoint of each char, as a list.
 	def Unicodes()
 		_aUcChars_ = This.Chars()
 		_aUcResult_ = []
@@ -6565,6 +6610,7 @@ class stzString from stzObject
 	#              #--> banana
 	#@ aka  repeat, duplicate, times, concatenate copies, tile
 	#@ aka  duplicate, repeat n times, multiply the string, echo
+	#@ aka  The string repeated n times.
 	def Repeated(n)
 		if CheckParams()
 			if isList(n) and len(n) = 2 and
@@ -6638,6 +6684,7 @@ class stzString from stzObject
 	#              #--> TRUE
 	#              ? o1.IsEqualTo("Banana")
 	#              #--> FALSE
+	#@ aka  TRUE if the content equals the given string (case-sensitive).
 	def IsEqualTo(pcStr)
 		return This.Content() = pcStr
 
@@ -6657,6 +6704,7 @@ class stzString from stzObject
 		#              #--> TRUE
 		#              ? o1.IsStrictlyEqualTo(12)
 		#              #--> FALSE
+		#@ aka  -- Strict equality: same content AND same Ring type (string). When the other side is a list/number, returns 0. Used by stzHashList.KeysForValue to compare values polymorphically.
 		def IsStrictlyEqualTo(pOther)
 			if NOT isString(pOther)
 				return 0
@@ -6726,6 +6774,7 @@ class stzString from stzObject
 	#   example    o1 = new stzString("----Ring")
 	#              ? o1.LeadingCharsAsString()
 	#              #--> ----
+	#@ aka  LeadingChars() / TrailingChars() -- return the leading (or trailing) RUN of identical chars as a single string. e.g. "----Ring" -> "----". Used by narrative leading-char analysis. LeadingChars() returns the leading run as a LIST of chars (e.g. ["-","-","-"]); LeadingCharsAsString() returns the run "---".
 	def LeadingCharsAsString()
 		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ = 0 return "" ok
@@ -6964,6 +7013,7 @@ class stzString from stzObject
 	#   see        SizeInBytes, NumberOfChars
 	#   example    ? o1.NumberOfBytes()
 	#              #--> 6
+	#@ aka  The size of the string in bytes (UTF-8).
 	def NumberOfBytes()
 		return len(This.Content())
 
@@ -7016,6 +7066,7 @@ class stzString from stzObject
 	#              #--> 6
 	#              ? o1.NumberOfChars()
 	#              #--> 5
+	#@ aka  The size of the string in bytes (UTF-8).
 	def SizeInBytes()
 		return len(This.Content())
 
@@ -7923,6 +7974,7 @@ class stzString from stzObject
 	#   see        NumberOfDuplicates, ContainsDuplicates, FindDuplicates
 	#   example    ? @@( o1.Duplicates() )
 	#              #--> [ "a", "an", "n", "na" ]
+	#@ aka  Duplicates(): every duplicated SUBSTRING (not just chars), deduped, in (i,j) scan order -- matches the original DuplicatesCS. e.g. "RINGORIALAND" -> [ "R","I","A","N", ...multi-char dups... ]. (For a string with no repeated multi-char run, this coincides with the duplicated chars.)
 	def Duplicates()
 		return This.DuplicatesCS(1)
 
@@ -8395,6 +8447,7 @@ class stzString from stzObject
 	#              o1 = new stzString("12")
 	#              ? o1.IsListInString()
 	#              #--> FALSE
+	#@ aka  TRUE if the string holds a list literal (normal or computable form).
 	def IsListInString()
 		# A list lives in the string either in normal form ([...]) or
 		# in short-form range syntax (1:3, "a":"d").
@@ -8425,6 +8478,7 @@ class stzString from stzObject
 	#   example    o1 = new stzString("[1,2,3]")
 	#              ? @@( o1.ToList() )
 	#              #--> [ 1, 2, 3 ]
+	#@ aka  ToList: if the string represents a Ring list literal ("[1,2,3]"), eval it into the actual list. Otherwise returns the chars. Used by stzSmallFuncs.StzN to count list-in-string elements.
 	def ToList()
 		# Range strings expand FIRST (codepoint-safe): Ring's native
 		# ':' under eval is byte-based and returns the left operand for
@@ -8621,6 +8675,7 @@ class stzString from stzObject
 	#              o1 = new stzString("FF")
 	#              ? o1.RepresentsHexNumber()
 	#              #--> FALSE
+	#@ aka  TRUE if the string is a hexadecimal number literal.
 	def RepresentsHexNumber()
 		_aRn_ = This._NumLiteralInfo()
 		return _aRn_[4] and _aRn_[1] = "hex"
@@ -8968,6 +9023,7 @@ class stzString from stzObject
 	#   example    o1 = new stzString("abc")
 	#              ? @@( o1.SubStrings() )
 	#              #--> [ "a", "ab", "abc", "b", "bc", "c" ]
+	#@ aka  ENGINE-BACKED (StzEngineStringSubStrings): all substrings in (i,j) order, no dedup. Retires the O(n^2) Ring double-loop.
 	def SubStrings()
 		return This._DrainStrList( StzEngineStringSubStrings(@pEngine) )
 
@@ -8977,6 +9033,7 @@ class stzString from stzObject
 	#   see        SubStrings
 	#   example    ? o1.NumberOfSubStrings()
 	#              #--> 21
+	#@ aka  How many substrings the string yields.
 	def NumberOfSubStrings()
 		_n_ = This._EngineCount(This.Content())
 		return (_n_ * (_n_ + 1)) / 2
@@ -9224,6 +9281,7 @@ class stzString from stzObject
 		#   example     o1 = new stzString("<<a>> and <<b>>")
 		#               ? @@( o1.FindAnyBoundedByAsSections([ "<<", ">>" ]) )
 		#               #--> [ [ 3, 3 ], [ 13, 13 ] ]
+		#@ aka  The [start, end] sections of the substrings bounded by any of the given bounds.
 		def FindAnyBoundedByAsSections(pacBounds)
 			# Single-string form -> use as both open and close.
 			if isString(pacBounds)
@@ -9242,6 +9300,7 @@ class stzString from stzObject
 	#   example     o1 = new stzString("<<a>> and <<b>>")
 	#               ? @@( o1.FindAnyBoundedBy([ "<<", ">>" ]) )
 	#               #--> [ 3, 13 ]
+	#@ aka  FindAnyBoundedBy(pacBounds): single-arg form. Accepts a list [open, close] or a single string used for both ends.
 	def FindAnyBoundedBy(pacBounds)
 		# The START position of each bounded region's CONTENT (not the substrings
 		# -- that is BoundedBy; not the spans -- that is ...AsSections / ...ZZ).
@@ -9829,6 +9888,7 @@ class stzString from stzObject
 	#   see        Count
 	#   example    ? o1.HowMany("an")
 	#              #--> 2
+	#@ aka  HowMany family: count occurrences of pcSub in the content.
 	def HowMany(pcSub)
 		return StzEngineStringCountOfCS(@pEngine, pcSub, 1)
 
@@ -9982,6 +10042,7 @@ class stzString from stzObject
 	#   example     o1 = new stzString("<<a>> and <<b>>")
 	#               ? @@( o1.FindSubStringsBoundedBy([ "<<", ">>" ]) )
 	#               #--> [ 3, 13 ]
+	#@ aka  FindSubStringsBoundedBy(pacBounds): return the starting positions of each substring that sits between the open / close bounds. The bounds list may use the [open, :And = close] DSL shape or a plain [open, close] / single string for both ends.
 	def FindSubStringsBoundedBy(pacBounds)
 		_aOpen_ = pacBounds
 		_aClose_ = ""
@@ -10020,6 +10081,7 @@ class stzString from stzObject
 	#   example     o1 = new stzString("<<a>> and <<b>>")
 	#               ? @@( o1.FindSubStringBoundedBy("a", [ "<<", ">>" ]) )
 	#               #--> [ 3 ]
+	#@ aka  FindSubStringBoundedBy(pcWhat, pacBounds): return positions (only inside bounded sections) where pcWhat appears.
 	def FindSubStringBoundedBy(pcWhat, pacBounds)
 		_aOpen_ = pacBounds
 		_aClose_ = ""
@@ -10789,6 +10851,7 @@ class stzString from stzObject
 	#   see           SplitAt, SplitBeforePositions
 	#   example       ? @@( o1.SplitAtSections([ [ 2, 3 ] ]) )
 	#                 #--> [ "b", "ana" ]
+	#@ aka  SplitAtSections(aSections): the pieces of content sliced by the listed [n1, n2] sections. Each section becomes one piece. SplitAtSections(aSections): split AT the sections -- return the COMPLEMENT parts between them (the original monolith routes the complement computation through stzSplitter).
 	def SplitAtSections(_aSections_)
 		if NOT isList(_aSections_) return [] ok
 		_cTxt_ = This.Content()
@@ -10964,6 +11027,7 @@ class stzString from stzObject
 	#   example    o1.RemoveAt(2, "an")
 	#              ? o1.Content()
 	#              #--> bana
+	#@ aka  RemoveAt -- two shapes: RemoveAt(n) -- remove single char at position n RemoveAt(n, pcSub) -- remove pcSub at position n
 	def RemoveAt(n, pcSub)
 		# List-of-positions form: remove pcSub at each of the listed
 		# codepoint positions. Process from high to low so earlier
@@ -11389,6 +11453,7 @@ class stzString from stzObject
 	#   example    o1 = new stzString("**ab**")
 	#              ? @@( o1.Bounds() )
 	#              #--> [ "**", "**" ]
+	#@ aka  Bounds(pcOpen, pcClose): the [open, close] positions of the first bounded match. Two-arg form. Bounds(): auto-detect leading and trailing non-letter runs - e.g. "<<Ring>>" -> [ "<<", ">>" ], "---Ring___" -> [ "---", "___" ]. Falls back to [ firstchar, lastchar ] for fully alphanumeric input. Bounds(): auto-detect the leading/trailing bound. Each side is the maximal run of the SAME edge char (when 
 	def Bounds()
 		_aChars_ = This.Chars()
 		_nLen_ = len(_aChars_)
@@ -11526,6 +11591,7 @@ class stzString from stzObject
 	#              #--> 2
 	#              ? o1.FindPrevious("an", 2)
 	#              #--> 0
+	#@ aka  FindPrevious(pcSub, nFrom): mirror of NextOccurrence -- highest position strictly before nFrom.
 	def FindPrevious(pcSub, _nFrom_)
 		if isList(_nFrom_) and len(_nFrom_) = 2 and isString(_nFrom_[1]) and
 		   lower(_nFrom_[1]) = "startingat"
@@ -12107,6 +12173,7 @@ class stzString from stzObject
 	#              #--> 2
 	#              ? o1.FindNthPrevious(2, "an", 5)
 	#              #--> 0
+	#@ aka  FindNthPrevious / FindNthNext on stzString.
 	def FindNthPrevious(n, pcSub, _nFrom_)
 		if isList(_nFrom_) and len(_nFrom_) = 2 and isString(_nFrom_[1]) and
 		   lower(_nFrom_[1]) = "startingat"
@@ -12174,6 +12241,7 @@ class stzString from stzObject
 	#   example    ? o1.VizFind("an")
 	#              #--> banana
 	#              #--> -^-^--
+	#@ aka  VizFind / VizFindCSXT / VizFindXT -- visualization (returns a rendered string showing match positions). Provisional: just return the content with matched chars highlighted via ASCII.
 	def VizFind(pcSub)
 		_cTxt_ = This.Content()
 		_nLen_ = This._EngineCount(_cTxt_)
@@ -13080,6 +13148,7 @@ class stzString from stzObject
 	#   returns    a list of one-character strings
 	#   example    ? @@( o1.CommonItems(:With = "band") )
 	#              #--> [ "b", "a", "n" ]
+	#@ aka  CommonItems(:With = pcOther): same idea as CommonSubStrings but at the CHAR level (intersection of char sets).
 	def CommonItems(pNamed)
 		_pOther_ = pNamed
 		if isList(pNamed) and len(pNamed) = 2 and isString(pNamed[1]) and
@@ -13591,6 +13660,7 @@ class stzString from stzObject
 	#              o1 = new stzString("a")
 	#              ? o1.IsNotLetter()
 	#              #--> FALSE
+	#@ aka  IsNotLetter() -- TRUE if This is NOT a single letter char. (IsLetter already exists above; just add the negation.)
 	def IsNotLetter()
 		return NOT This.IsLetter()
 
@@ -13761,6 +13831,7 @@ class stzString from stzObject
 	#              #--> TRUE
 	#              ? o1.Check("@char = 'a'")
 	#              #--> FALSE
+	#@ aka  Check([pcExpr]) -- evaluate pcExpr per char (@char in scope) and return TRUE if it holds for every char. 0-arg form is the existence-check stub used by re-include narratives.
 	def Check(pcExpr)
 		if NOT isString(pcExpr) or pcExpr = "" return 1 ok
 		_aChars_ = This.Chars()
@@ -14118,6 +14189,7 @@ class stzString from stzObject
 	#   example    o1.Swap(1, 6)
 	#              ? o1.Content()
 	#              #--> aananb
+	#@ aka  Swap(n1, n2): swap chars at positions n1 and n2. Also accepts Swap(:Positions = n1, :And = n2) and Swap(pcA, :And = pcB) to swap two substrings.
 	def Swap(_n1_, _n2_)
 		if isList(_n1_) and len(_n1_) = 2 and isString(_n1_[1]) and
 		   (lower(_n1_[1]) = "positions" or lower(_n1_[1]) = "position") and
@@ -14217,6 +14289,7 @@ class stzString from stzObject
 	#   see        Find
 	#   example    ? @@( o1.Positions("an") )
 	#              #--> [ 2, 4 ]
+	#@ aka  Positions(pcSub): all positions of pcSub (alias of AllPositionsOf; accepts the :Of / :OfSubString named spelling).
 	def Positions(pcSub)
 		if isList(pcSub) and len(pcSub) = 2 and isString(pcSub[1]) and
 		   ring_find([ "of", "ofsubstring", "ofstring" ], lower(pcSub[1])) > 0
@@ -14759,6 +14832,7 @@ class stzString from stzObject
 	#   see        Find
 	#   example    ? @@( o1.NFirstOccurrences(1, :Of = "an") )
 	#              #--> [ 2 ]
+	#@ aka  NFirstOccurrences(n, :Of = pcSub): the first n positions of pcSub.
 	def NFirstOccurrences(n, pNamedOf)
 		_cSub_ = ""
 		if isList(pNamedOf) and len(pNamedOf) = 2 and isString(pNamedOf[1]) and
@@ -15016,6 +15090,7 @@ class stzString from stzObject
 	#              o1 = new stzString("abc")
 	#              ? o1.IsSortedInAscending()
 	#              #--> TRUE
+	#@ aka  TRUE if the chars are in ascending order.
 	def IsSortedInAscending()
 		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ < 2 return 1 ok
@@ -15036,6 +15111,7 @@ class stzString from stzObject
 	#              o1 = new stzString("cba")
 	#              ? o1.IsSortedInDescending()
 	#              #--> TRUE
+	#@ aka  TRUE if the chars are in descending order.
 	def IsSortedInDescending()
 		_nLen_ = This._EngineCount(This.Content())
 		if _nLen_ < 2 return 1 ok
@@ -15197,6 +15273,7 @@ class stzString from stzObject
 	#              o1 = new stzString("A")
 	#              ? o1.CharCase()
 	#              #--> uppercase
+	#@ aka  The case of the single-char string (codepoint-aware).
 	def CharCase()
 		# Codepoint-aware (Ring's upper/lower are byte-based and fail
 		# on multibyte chars like the German sharp s).
@@ -16390,6 +16467,7 @@ class stzString from stzObject
 	#   example    o1 = new stzString("soft__ware")
 	#              ? o1.@("__").@RemoveItQ().AndThenQ().UppercaseQ().TheString()
 	#              #--> SOFTWARE
+	#@ aka  @(pcSub): narrative-set the subject substring; returns self.
 	def @(pcSub)
 		if isString(pcSub) This._SetNarrativeSub(pcSub) ok
 		return This
@@ -16422,6 +16500,7 @@ class stzString from stzObject
 	#   returns    the object itself
 	#   example    ? o1.AndQ().Content()
 	#              #--> banana
+	#@ aka  Narrative glue: returns the object unchanged, chainable.
 	def AndQ()
 		return This
 
@@ -17307,6 +17386,7 @@ class stzString from stzObject
 	#   see        SortInAscending, SortedInDescending
 	#   example    ? o1.SortedInAscending()
 	#              #--> aaabnn
+	#@ aka  An ascending-sorted copy of the chars; the original is unchanged.
 	def SortedInAscending()
 		_oList_ = new stzList(This.Chars())
 		_aSorted_ = _oList_.Sorted()
@@ -17323,6 +17403,7 @@ class stzString from stzObject
 	#   see        SortInDescending, SortedInAscending
 	#   example    ? o1.SortedInDescending()
 	#              #--> nnbaaa
+	#@ aka  A descending-sorted copy of the chars; the original is unchanged.
 	def SortedInDescending()
 		_oList_ = new stzList(This.Chars())
 		_aSorted_ = _oList_.SortedInDescending()
@@ -17346,6 +17427,7 @@ class stzString from stzObject
 	#              o1 = new stzString("abc")
 	#              ? o1.SortingOrder()
 	#              #--> ascending
+	#@ aka  The sorting order of the chars (:Ascending, :Descending, ...).
 	def SortingOrder()
 		if This.IsSortedInAscending() return :Ascending ok
 		if This.IsSortedInDescending() return :Descending ok
@@ -17358,6 +17440,7 @@ class stzString from stzObject
 	#   example    o1.Sort()
 	#              ? o1.Content()
 	#              #--> aaabnn
+	#@ aka  Sort the CHARS of the string in ascending order in place (mutating). For a copy, use Sorted.
 	def Sort()
 		This.Update( This.SortedInAscending() )
 
@@ -17372,6 +17455,7 @@ class stzString from stzObject
 	#   example    o1.SortInAscending()
 	#              ? o1.Content()
 	#              #--> aaabnn
+	#@ aka  Sort the chars in ascending order in place (mutating).
 	def SortInAscending()
 		This.Update( This.SortedInAscending() )
 
@@ -17386,6 +17470,7 @@ class stzString from stzObject
 	#   example    o1.SortInDescending()
 	#              ? o1.Content()
 	#              #--> nnbaaa
+	#@ aka  Sort the chars of the string in descending order in place (mutating).
 	def SortInDescending()
 		This.Update( This.SortedInDescending() )
 
@@ -17671,6 +17756,7 @@ class stzString from stzObject
 	#   example    o1 = new stzString("ab12cd")
 	#              ? @@( o1.PartsUsing("@char = '1' or @char = '2'") )
 	#              #--> [ "ab", "12", "cd" ]
+	#@ aka  The parts of the string partitioned by the given expression's value.
 	def PartsUsing(pcExpr)
 		_aPw_ = This._PartsUsingWalk(pcExpr)
 		return This.Sections(_aPw_[1])
@@ -17921,6 +18007,7 @@ class stzString from stzObject
 	#   example    o1 = new stzString("ab12cd")
 	#              ? @@( o1.PartsAndPartitionersUsingXT("@char = '1' or @char = '2'") )
 	#              #--> [ [ "ab", 0 ], [ "12", 1 ], [ "cd", 0 ] ]
+	#@ aka  Each part zipped with its partitioner value (the expression's result for it).
 	def PartsAndPartitionersUsingXT(pcExpr)
 		# Each part zipped with its partitioner (the expression's
 		# value over that part): [ [part, value], ... ].
@@ -18012,6 +18099,7 @@ class stzString from stzObject
 	#              o1.MultiplyBy([ "b", "c" ])
 	#              ? o1.Content()
 	#              #--> abac
+	#@ aka  MultiplyBy(n): repeat content n times. MultiplyBy(list): distribute -- "a" x ["b","c"] -> "ab" + "ac".
 	def MultiplyBy(n)
 		if isList(n)
 			This.Update( This._OpDistribute(n) )
@@ -18495,6 +18583,7 @@ class stzString from stzObject
 	#   example    o1 = new stzString("12.5")
 	#              ? o1.NumericValue()
 	#              #--> 12.50
+	#@ aka  NumericValue(): content as a number.
 	def NumericValue()
 		return 0 + This.Content()
 
@@ -19377,6 +19466,7 @@ class stzString from stzObject
 	#   example    o1 = new stzString("the quick fox")
 	#              ? @@( o1.SplitBeforePositions([ 5, 11 ]) )
 	#              #--> [ "the ", "quick ", "fox" ]
+	#@ aka  SplitBefore positions / char- or substring-predicate variants.
 	def SplitBeforePositions(anPos)
 		# Split the content into pieces that BEGIN at each position
 		# in anPos (so position p starts a new piece).
@@ -19727,6 +19817,7 @@ class stzString from stzObject
 	#              o1.RemoveSpaces()
 	#              ? o1.Content()
 	#              #--> thequickfox
+	#@ aka  Remove all the spaces (mutating).
 	def RemoveSpaces()
 		This.Remove(" ")
 
@@ -19962,6 +20053,7 @@ class stzString from stzObject
 	#   example    o1.AddXT("X", :After = "ba")
 	#              ? o1.Content()
 	#              #--> baXnana
+	#@ aka  AddXT: extended Add dispatching on a named-param DSL. Supported shapes:
 	def AddXT(p1, p2)
 		# Form 0: pcWhat + :After / :Before / :To / :AfterEach / :BeforeEach
 		# anchored single insertion (or per-occurrence) form.
@@ -20542,6 +20634,7 @@ class stzString from stzObject
 	#   see        Duplicates, NumberOfDuplicates
 	#   example    ? @@( o1.FindDuplicates() )
 	#              #--> [ 4, 5, 6 ]
+	#@ aka  FindDuplicates -- positions of duplicated chars in the content. A char is "duplicated" if it appears more than once anywhere. Returns the 2nd+ occurrence positions (so the FIRST occurrence is not reported, matching stzList.FindDuplicates semantics).
 	def FindDuplicates()
 		_nLen_ = This._EngineCount(This.Content())
 		_aRes_ = []
@@ -21790,6 +21883,7 @@ class stzString from stzObject
 	#   returns    the symbol :stzString, which prints as stzstring
 	#   example    ? o1.StzType()
 	#              #--> stzstring
+	#@ aka  -- Each Softanza class overrides StzType() to report its own type -- (the base stzObject returns :stzObject). Restored for stzString.
 	def StzType()
 		return :stzString
 

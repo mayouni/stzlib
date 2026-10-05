@@ -2883,6 +2883,7 @@ class stzNumber from stzObject
 	#              o1 = new stzNumber("007.50")
 	#              ? @@( o1.Content() )
 	#              #--> "007.50"
+	#@ aka  The number as it is held: a STRING (use NumericValue for the number).
 	def Content()
 		return @cContent
 
@@ -2909,6 +2910,7 @@ class stzNumber from stzObject
 	#              #--> 12
 	#              ? o2.Content()
 	#              #--> 13
+	#@ aka  A new stzNumber with the same content.
 	def Copy()
 		_oCopy_ = new stzNumber( This.Content() )
 		return _oCopy_
@@ -2974,6 +2976,7 @@ class stzNumber from stzObject
 	#   see        Content, StringValue
 	#   example    ? o1.NumericValue() + 1
 	#              #--> 13
+	#@ aka  The number as a Ring number.
 	def NumericValue()
 		# a fraction has to be divided out before it can be an f64 -- and the
 		# result is an APPROXIMATION of an exact value, which is the whole reason
@@ -3005,6 +3008,7 @@ class stzNumber from stzObject
 	#              #--> 3.14
 	#              ? o1.Content()
 	#              #--> 3.14
+	#@ aka  The number as a string (rendered with its round).
 	def StringValue()
 
 		# Memorizing the current round (to reset it before leaving)
@@ -3234,6 +3238,7 @@ class stzNumber from stzObject
 	#   example    o1 = new stzNumber(65)
 	#              ? @@( o1.Unicodes() )
 	#              #--> [ 54, 53 ]
+	#@ aka  The codepoints of the number's WRITTEN FORM, digit by digit: 65 -> [ 54, 53 ], the codepoints of '6' and '5'. A different question from Unicode() above, despite the singular/plural names -- that one reads the number AS a codepoint.
 	def Unicodes()
 		# Chars(), not ToChars(): StringValueQ() hands back an stzString,
 		# and ToChars() lives on stzStringUnicodeList -- so this raised
@@ -3541,6 +3546,7 @@ class stzNumber from stzObject
 	#              #--> TRUE
 	#              ? o1.IsBoundedBy(13, 20)
 	#              #--> FALSE
+	#@ aka  TRUE if the number lies between n1 and n2.
 	def IsBoundedBy(_n1_, _n2_)
 		if CheckingParams()
 			if NOT ( @IsStringOrNumber(_n1_) and @IsStringOrNumber(_n2_) )
@@ -3823,6 +3829,7 @@ class stzNumber from stzObject
 	#              o1 = new stzNumber(-12)
 	#              ? @@( o1.Sign() )
 	#              #--> "-"
+	#@ aka  The sign of the number: "+", "-" or "" for zero.
 	def Sign()
 
 		_oStr_ = new stzString(This.Content())
@@ -4231,6 +4238,7 @@ class stzNumber from stzObject
 	#              ? o1.IsBetweenIB(12, 20)
 	#              #--> TRUE
 		#>
+	#@ aka  TRUE if the number lies between the two given numbers (bounds included).
 	def IsBetween(pNumber1, pNumber2)
 
 		if CheckingParams()
@@ -4859,6 +4867,7 @@ class stzNumber from stzObject
 	#              ? o1.IsExact()
 	#              #--> FALSE
 	#@ aka  is it exact, was anything lost, is this precise
+	#@ aka  -- EXACTNESS (numeric foundation phase 1) --------------------------
 	def IsExact()
 		return @cExactness = :exact
 
@@ -4878,6 +4887,7 @@ class stzNumber from stzObject
 	#              ? @@( o1.WhyNotExact() )
 	#              #--> "the division does not terminate in 6 decimal place(s)"
 	#@ aka  why not exact, what was lost, explain the precision
+	#@ aka  Empty when the value is exact; otherwise a plain sentence saying what was lost and where.
 	def WhyNotExact()
 		return @cInexactReason
 
@@ -5156,6 +5166,7 @@ class stzNumber from stzObject
 	#                  ? o1.Content()
 	#                  #--> 20
 	#@ aka  plus, sum, increase, increment
+	#@ aka  Add the given number to this one (mutating). For a copy, use Added.
 	def Add(pOtherNumber)
 		_StzHistoOpen(This.NumericValue())
 		This.Update( pvtCalculate("+", pOtherNumber ) )
@@ -6068,6 +6079,7 @@ class stzNumber from stzObject
 	#              #--> 0.25
 	#              ? o1.Content()
 	#              #--> 4
+	#@ aka  INVERSE
 	def Inverse()
 		return This.pvtCalculate( "inverse", "" )
 
@@ -6438,6 +6450,7 @@ class stzNumber from stzObject
 	#              #--> TRUE
 	#              ? o1.IsDividableBy(5)
 	#              #--> FALSE
+	#@ aka  DIVIDABILITY
 	def IsDividableBy(n)
 		if CheckingParams()
 			if NOT @IsNumberOrString(n)
@@ -6548,6 +6561,7 @@ class stzNumber from stzObject
 		#>
 		#< @FunctionAlternativeForm
 		#@ aka  hexadecimal, hex, base 16
+		#@ aka  The number in hexadecimal form.
 		def ToHex()
 			return ToHexForm()
 
@@ -6610,6 +6624,7 @@ class stzNumber from stzObject
 	#   see        ToHex, ToOctalForm
 	#   example    ? o1.ToBinaryForm()
 	#              #--> 0b1100
+	#@ aka  Converting decimal to binary form
 	def ToBinaryForm()
 		_oConversion_ = new stzDecimalToBinary(This.Content())
 		return _oConversion_.ToBinaryForm()
@@ -6692,6 +6707,7 @@ class stzNumber from stzObject
 	#   example    o1 = new stzNumber(8)
 	#              ? o1.ToOctalForm()
 	#              #--> 0o10
+	#@ aka  The number in octal form (with prefix).
 	def ToOctalForm()
 		return OctalNumberPrefix() + This.ToOctalFormWithoutPrefix()
 
@@ -7105,6 +7121,7 @@ class stzNumber from stzObject
 	#              #--> TRUE
 	#              ? o1.Contains("5")
 	#              #--> FALSE
+	#@ aka  TRUE if the number contains the given digit.
 	def Contains(pcDigit)
 		return StzFindFirst(pcDigit, This.Content()) > 0
 
@@ -8221,6 +8238,7 @@ class stzNumber from stzObject
 	#   returns    the symbol :stzNumber, which prints as stznumber
 	#   example    ? o1.stzType()
 	#              #--> stznumber
+	#@ aka  The Softanza type symbol: :stzNumber.
 	def stzType()
 		return :stzNumber
 
@@ -8275,6 +8293,7 @@ class stzNumber from stzObject
 	#   example    ? o1.IsANumber()
 	#              #--> TRUE
 	#--- NUMBER
+	#@ aka  Always TRUE: the object holds a number.
 	def IsANumber()
 		return 1
 
@@ -8337,6 +8356,7 @@ class stzNumber from stzObject
 	#   example    ? o1.IsLetter()
 	#              #--> FALSE
 	#--- STRING
+	#@ aka  Always FALSE: a number is not a letter.
 	def IsLetter()
 		return 0
 	
