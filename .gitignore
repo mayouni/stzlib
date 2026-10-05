@@ -60,3 +60,7 @@ libraries/stzlib/base/test/graphics/atlas/*
 
 # education: scratch programs a cut run can leave behind (StzEduRunProgram)
 libraries/stzlib/base/test/education/_edu_run_*.ring
+
+# Central's coordination files: local to each checkout, never published (CENTRAL-PUBLICREPO-01)
+.central/
+WHATS-NEXT.md
