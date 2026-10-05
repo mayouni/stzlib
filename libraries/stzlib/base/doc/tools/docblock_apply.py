@@ -166,6 +166,14 @@ def main():
         why = re.compile(r"20\d\d-\d\d-\d\d|R\d\d|_Stz|because|used to|bug|quirk|never|so this|raised", re.I)
         keepers = [para for para in paras[1:] if why.search(" ".join(para))]
         notes = [ln for para in keepers for ln in para + [""]][:-1] if keepers else []
+        # The old description fed the retrieval (Ask finds a method by the words it was
+        # described with: "lower case", "capitals"). The new brief is written for a reader,
+        # so the old words are kept where retrieval has always read them: an #@ aka line.
+        legacy = " ".join(x.lstrip("#").strip() for x in paras[0]) if paras else ""
+        legacy = re.sub(r"\s+", " ", legacy).strip()[:400]
+        akas = [ln for ln in keep if ln.lstrip().startswith("#@")]
+        if legacy and legacy.lower() != e["brief"].lower():
+            keep = keep + [ind + "#@ aka  " + legacy]
         L[top:at] = block + keep
         # a comment under the def line that says the opposite of the new block
         # (the old brief repeated inside the body): the entry names it to drop it

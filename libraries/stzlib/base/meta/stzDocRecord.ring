@@ -275,14 +275,19 @@ func _StzDocCleanBrief(pcText)
 # What a parsed run adds to a method's RETRIEVAL text (never to its description):
 # the detail paragraph, the parameter roles, the returns, the notes, the see-also.
 func _StzDocRetrievalExtra(paRun)
-	_c_ = paRun[2]
-	_aF_ = paRun[3]
-	_n_ = len(_aF_)
-	for _i_ = 1 to _n_
-		if _aF_[_i_][1] != "example" and _aF_[_i_][3] != ""
-			_c_ += " " + _aF_[_i_][3]
-		ok
-	next
+	# The detail paragraph is NOT folded in either: old multi-paragraph comments carry
+	# maintainer talk ("we make them stubs so the R3 misses resolve") whose words made an
+	# unrelated method win 'make it lower case'. The old harvest dropped everything before a
+	# lone # by accident; dropping it on purpose keeps Ask where it was.
+	_c_ = ""
+	# A brief is written in the third person (Removes ...), a question in the
+	# imperative (remove ...): the lexical retrieval matches whole words, so the
+	# base form of the opening verb is folded in here -- retrieval only, never shown.
+	# (Folding the two-word spelling of a compound, lowercase -> lower case, was tried and
+	# made Ask worse: it lifts every method that mentions the word.)
+	# The fields (returns, notes, see, parameters) are NOT folded in: they are read by
+	# a person, and their words dilute the score of the method they describe.
+	_c_ += " " + _StzDocImperative(paRun[1])
 	return ring_trim(_c_)
 
 # --- reading a source file -----------------------------------------------
@@ -764,3 +769,25 @@ func _StzDocWrittenRole(paRec, pcParam)
 		ok
 	next
 	return ""
+
+# "Removes the whitespace ..." -> "remove": the base form of the first word of a brief
+func _StzDocImperative(pcBrief)
+	_aW_ = _StzWords(pcBrief)
+	if len(_aW_) = 0
+		return ""
+	ok
+	_w_ = lower(_aW_[1])
+	while len(_w_) > 1 and ring_find([ ",", ";", ":", "." ], right(_w_, 1)) > 0
+		_w_ = left(_w_, len(_w_) - 1)
+	end
+	_n_ = len(_w_)
+	if _n_ < 4 or right(_w_, 1) != "s" or right(_w_, 2) = "ss"
+		return ""
+	ok
+	if right(_w_, 3) = "ies"
+		return left(_w_, _n_ - 3) + "y"
+	ok
+	if right(_w_, 4) = "sses" or right(_w_, 4) = "shes" or right(_w_, 4) = "ches" or right(_w_, 3) = "xes"
+		return left(_w_, _n_ - 2)
+	ok
+	return left(_w_, _n_ - 1)
