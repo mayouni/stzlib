@@ -456,6 +456,29 @@ that reads a picture:
 This is a library-wide trap, not a test one: any code walking a big
 buffer byte by byte with `substr` pays the same tax.
 
+## Testoor: the runner, and the plane's FAST PATH (TR1, 2026-10-05)
+
+`base/testoor/` reads every test file as a TOUR (`Tour(path)`, never edited) and
+runs tours from ONE runner: from `base/testoor/`, `ring testoor.ring --topic uuid`
+(`--json` for a pipe, `--file F`, `--all` for the whole corpus). Exit 0 / 1 / 2 is the
+RUNNER's, never Ring's; a stop is kept, diverged, unreached, unjudged or
+unperceived; `pf()` is the state finished-timed, never a failure. Plan and law:
+`base/testoor/SOFTANZA_TESTOOR_PLAN.md`.
+
+**FAST PATH: `cd base/test/testoor && ring testoor_reader_narrated.ring` is 5 to 15 s
+for 74 assertions, including the read of every narrated file in the corpus.** The
+runner guard beside it is 69 s for 80, and 41 of those are nine uuid children each
+loading the library: **a child Ring costs 4 to 5 s before its first line**, so a
+topic of N tours costs 4N seconds whatever the tours do (measured 2026-10-05; the
+tours' own stops took under a millisecond). That tax is the reason `--topic` exists
+and `--all` is a gate, not an iteration.
+
+Two things measured on the way, so nobody re-measures them: Ring resolves `load`
+against the CURRENT DIRECTORY, not the file -- a runner must start each tour from
+its own folder; and a per-line `ringvm_settrace` hook costs 11.5 us per event and
+the library load alone does not finish under it in three minutes, so line tracing
+is never the default instrument.
+
 ## Background tasks: prefer direct grep over `run_in_background`
 
 For ring-test sweeps that take >5 minutes, **don't** use
