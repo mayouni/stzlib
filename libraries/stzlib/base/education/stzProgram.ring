@@ -258,17 +258,23 @@ class stzProgram from stzObject
 	def HasWorld()
 		return @cWorld != ""
 
-	#-- review state: which translated units a native speaker has read
-
-	# English is the source edition and is not reviewed here: only the
-	# translations are drafts until someone who speaks them says otherwise.
+	# Returns the language the course is written in, the one that is never reviewed as a translation.
+	#
+	# English is the source edition: only the translations are drafts until a native speaker has signed them off.
+	#
+	#   returns    "en"
+	#   see        ReviewUnits, ReviewCoverage
 	def SourceLanguage()
 		return "en"
 
-	# Every unit a native reviewer can sign off, in a language: each
-	# chapter (with its exercises) of each course that has an edition in
-	# it, each world page, the skills, and the tutor's texts. A unit is
-	# named `chapter:<course>.<id>`, `world:<name>`, `skills` or `tutor`.
+	# Returns the names of every unit a native reviewer can sign off in a language, in course order.
+	#
+	# A unit is a chapter with its exercises (chapter:<course>.<id>), a world page (world:<name>), the skills
+	# (skills) or the tutor's texts (tutor). The source language has none.
+	#
+	#   pcLang     the language code, such as "fr", "ar" or "ha"
+	#   returns    a list of text; [ ] for the source language
+	#   see        ReviewCoverage, ReviewersOf, UnknownReviews
 	def ReviewUnits(pcLang)
 		_acRes_ = []
 		if StzLower(pcLang) = This.SourceLanguage()
@@ -297,9 +303,14 @@ class stzProgram from stzObject
 		_acRes_ + "tutor"
 		return _acRes_
 
-	# The facts `<reviewer> | reviewed | <unit>` of a language, from the
-	# core's reviews/<lang>.zknw AND the overlay's (merged, so an
-	# institution that reviews its own pages never hides the core's).
+	# Returns the recorded sign-offs of a language, as [ reviewer, "reviewed", unit ] facts.
+	#
+	# They are read from reviews/<lang>.zknw in the core and in the overlay, merged, so an institution that
+	# reviews its own pages never hides who signed a core page off.
+	#
+	#   pcLang     the language code
+	#   returns    a list of three-word facts; [ ] when no file exists
+	#   see        ReviewersOf
 	def ReviewFacts(pcLang)
 		_aRes_ = []
 		_cRel_ = "reviews/" + StzLower(pcLang) + ".zknw"
@@ -321,7 +332,12 @@ class stzProgram from stzObject
 		next
 		return _aRes_
 
-	# Who has reviewed a unit, in a language ([] when nobody has).
+	# Returns the names of the people who have signed a unit off in a language.
+	#
+	#   pcLang     the language code
+	#   pcUnit     the unit name, such as chapter:elementary-introduction.find-then-apply, compared without regard to case
+	#   returns    a list of text; [ ] when nobody has signed it
+	#   see        IsReviewed, ReviewUnits
 	def ReviewersOf(pcLang, pcUnit)
 		_acRes_ = []
 		_aF_ = This.ReviewFacts(pcLang)
@@ -334,10 +350,20 @@ class stzProgram from stzObject
 		next
 		return _acRes_
 
+	# TRUE if at least one person has signed a unit off in a language.
+	#
+	#   pcLang     the language code
+	#   pcUnit     the unit name, as ReviewUnits names it
+	#   returns    TRUE or FALSE
+	#   see        ReviewersOf
 	def IsReviewed(pcLang, pcUnit)
 		return len(This.ReviewersOf(pcLang, pcUnit)) > 0
 
-	# [ units reviewed, units in all ] for a language.
+	# Returns how many units of a language a native speaker has signed off, and how many it has in all.
+	#
+	#   pcLang     the language code
+	#   returns    a list of two numbers, [ reviewed, total ]
+	#   see        ReviewUnits
 	def ReviewCoverage(pcLang)
 		_acU_ = This.ReviewUnits(pcLang)
 		_nU_ = len(_acU_)
@@ -349,8 +375,11 @@ class stzProgram from stzObject
 		next
 		return [ _n_, _nU_ ]
 
-	# Review facts that name no unit of the language: a typo would
-	# otherwise count for nothing, silently.
+	# Returns the units a sign-off names that are not units of the language, so a typo is reported, not ignored.
+	#
+	#   pcLang     the language code
+	#   returns    a list of text; [ ] when every sign-off names a real unit
+	#   see        ReviewFacts, ReviewUnits
 	def UnknownReviews(pcLang)
 		_acRes_ = []
 		_acU_ = This.ReviewUnits(pcLang)
