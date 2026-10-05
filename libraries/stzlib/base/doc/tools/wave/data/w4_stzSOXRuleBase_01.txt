@@ -1,0 +1,1 @@
+init | Builds the SOX rule base: the four universal org rules under the name SOX; it adds the separation-of-duties rule, so it holds five rules. | nothing; the rule base is built | | CheckCompliance, AddRule

@@ -20,6 +20,30 @@
 
 # StzText() / StzTextQ() globals live in string/stzStringFunc.ring.
 
+# Holds a text as meaning rather than characters and answers natural-language questions about it: stems, tags, entities, tone, keywords, summaries, readability.
+#
+# A stzString is raw characters; a stzText carries meaning. It builds on stzStringText, which
+# already gives Words, Sentences, the counts and the content, and adds the meaning layer, all
+# computed by the engine: Snowball stemming in 25 languages and lemmatization in three, WordNet
+# synonyms and hypernyms, VADER sentiment, Penn Treebank part-of-speech tags with chunking and a
+# nested parse tree, rule-based named entities, stopwords and Flesch readability, RAKE key phrases,
+# TextRank keywords and summaries, and language detection. Two groups upgrade themselves when a
+# model is loaded for the process: the semantic group (Embedding, SemanticSimilarityWith, Classify,
+# MostSimilarSentenceTo, NamedEntities) uses embeddings and a transformer NER head, and the
+# generative pair (SummarizedAbstractively, AnswerAbout) asks a language model. With no model loaded
+# they fall back to word overlap or answer an empty value, so a call never needs a model to run,
+# with one exception noted on SummarizedAbstractively. The word-list methods work on one word or one
+# sentence at a time and are only as good as the rule-based tagger. Known gaps today, each carried
+# as a warning on its method: SummarizedAbstractively raises error R19 without a model,
+# NamedEntities merges a capitalized word after a full stop into the previous entity, and
+# EntityTypeOf and ClassifiedAs pick the first candidate on a tie.
+#
+#   receiver   o1 = new stzText("The food was terrible. I love this wonderful place.")
+#   example    ? o1.Sentiment()
+#              #--> "positive"
+#              ? @@( o1.Nouns() )
+#              #--> [ "food", "place" ]
+#   see        stzString, stzStringText, stzListOfTexts
 class stzText from stzStringText
 
 	# Inherits @oString + the STRUCTURAL text layer from stzStringText:
@@ -29,8 +53,13 @@ class stzText from stzStringText
 	  #==========================================================#
 	 #   STEMMING (Snowball, 25 languages)                      #
 	#==========================================================#
-	# Reduce inflected words to their stem ("running"->"run"). Stemmed() defaults
-	# to English; *InLanguage(cLang) selects one of the 25 Snowball languages.
+	# Returns the text with every word cut to its Snowball stem in a given language; an unknown language gives English stems.
+	#
+	#   returns    text, such as "run dog were jump happili over better fenc."
+	#   note       A stem need not be a real word, and punctuation stays; an argument that is not
+	#              text gives English stems
+	#   see        Stemmed, StemmedWordsInLanguage, SupportedStemmerLanguages
+	#@ aka  Reduce inflected words to their stem ("running"->"run"). Stemmed() defaults to English; *InLanguage(cLang) selects one of the 25 Snowball languages.
 	def StemmedInLanguage(pcLang)
 		if NOT isString(pcLang) pcLang = "english" ok
 		_pStem_ = StzEngineStringStemmed(This.Engine(), pcLang)
@@ -38,23 +67,43 @@ class stzText from stzStringText
 		StzEngineStringFree(_pStem_)
 		return _cStem_
 
-	# The text with every word reduced to its root/stem ("running" -> "run").
+	# Returns the text with every word cut to its English stem, so running becomes run.
+	#
+	#   returns    text, such as "run dog were jump happili over better fenc."
+	#   note       Stem is the same method; stems like happili are not words, which is what
+	#              separates this from the dictionary form
+	#   see        StemmedInLanguage, StemmedWords, Lemmatized
+	#@ aka  The text with every word reduced to its root/stem ("running" -> "run").
 	def Stemmed()
 		return This.StemmedInLanguage("english")
 
 		def Stem()
 			return This.Stemmed()
 
+	# Returns the stem of each word, as a list, in a given language; an unknown language gives English stems.
+	#
+	#   returns    a list of text, one stem per word
+	#   note       A text that is not in the language gets stems that are barely changed
+	#   see        StemmedWords, StemmedInLanguage
 	def StemmedWordsInLanguage(pcLang)
 		if NOT isString(pcLang) pcLang = "english" ok
 		return StzEngineStringStemWordsList(This.Engine(), pcLang)
 
+	# Returns the English stem of each word, as a list.
+	#
+	#   returns    a list of text, one stem per word
+	#   note       WordsStemmed is the same method
+	#   see        StemmedWordsInLanguage, Stemmed
 	def StemmedWords()
 		return This.StemmedWordsInLanguage("english")
 
 		def WordsStemmed()
 			return This.StemmedWords()
 
+	# Returns the names of the 25 languages that have a Snowball stemmer.
+	#
+	#   returns    a list of 25 text values, english first
+	#   see        StemmedInLanguage
 	def SupportedStemmerLanguages()
 		return [ "english", "arabic", "basque", "catalan", "danish",
 			"dutch", "finnish", "french", "german", "greek", "hindi",
@@ -62,13 +111,24 @@ class stzText from stzStringText
 			"nepali", "norwegian", "portuguese", "romanian", "russian",
 			"spanish", "swedish", "tamil", "turkish" ]
 
+	# Returns the names of the languages that have a dictionary-form reducer: english, french and arabic.
+	#
+	#   returns    a list of 3 text values
+	#   see        LemmatizedInLanguage
 	def SupportedLemmaLanguages()
 		return [ "english", "french", "arabic" ]
 
 	  #==========================================================#
 	 #   WORDNET (synonyms + hypernyms)                         #
 	#==========================================================#
-	# Words with the same or a similar meaning (synonyms, from WordNet).
+	# Returns the WordNet words of the same meaning, all senses mixed, for a text that is one word; [ ] for a phrase or an unknown word.
+	#
+	#   returns    a list of text
+	#   note       The text is looked up as a whole, so only a single word answers; for dog the list
+	#              holds hound, frankfurter and andiron together, because every sense counts.
+	#              SynonymsQ and SynonymsQQ give the list as an object
+	#   see        Hypernyms, IsSynonymOf, HasSynonyms
+	#@ aka  Words with the same or a similar meaning (synonyms, from WordNet).
 	def Synonyms()
 		return StzEngineStringSynonymsList(This.Engine())
 
@@ -80,7 +140,13 @@ class stzText from stzStringText
 		def SynonymsQQ()
 			return new stzListOfStrings(This.Synonyms())
 
-	# More general "is-a" parent words for the term (dog -> animal), from WordNet.
+	# Returns the broader WordNet terms, all senses mixed, for a text that is one word; [ ] for an unknown word or one without a parent.
+	#
+	#   returns    a list of text
+	#   note       For dog the list holds canine and domestic animal but also fellow and villain,
+	#              because every sense counts
+	#   see        Synonyms
+	#@ aka  More general "is-a" parent words for the term (dog -> animal), from WordNet.
 	def Hypernyms()
 		return StzEngineStringHypernymsList(This.Engine())
 
@@ -90,17 +156,32 @@ class stzText from stzStringText
 		def HypernymsQQ()
 			return new stzListOfStrings(This.Hypernyms())
 
+	# TRUE if WordNet lists the other word as meaning the same as the text, ignoring case; a word is never its own synonym.
+	#
+	#   returns    TRUE or FALSE; FALSE when the argument is not text
+	#   note       The text must be a single word, as with the lookup itself
+	#   see        Synonyms, HasSynonyms
 	def IsSynonymOf(pcOther)
 		if NOT isString(pcOther) return 0 ok
 		return StzEngineStringAreSynonyms(This.Engine(), pcOther) = 1
 
+	# TRUE if WordNet knows at least one word of the same meaning.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Synonyms, IsSynonymOf
 	def HasSynonyms()
 		return len(This.Synonyms()) > 0
 
 	  #==========================================================#
 	 #   LEMMATIZATION (dictionary form)                        #
 	#==========================================================#
-	# The text lemmatized in the given language.
+	# Returns the text with every word reduced to its dictionary form in english, french or arabic; another language gives English.
+	#
+	#   returns    text, such as "le cheval manger un pommer rouge" for French "les chevaux
+	#              mangeaient des pommes rouges"
+	#   note       An argument that is not text gives English
+	#   see        Lemmatized, AutoLemmatized, SupportedLemmaLanguages
+	#@ aka  The text lemmatized in the given language.
 	def LemmatizedInLanguage(pcLang)
 		if NOT isString(pcLang) pcLang = "english" ok
 		_pLem_ = StzEngineStringLemmatized(This.Engine(), pcLang)
@@ -108,22 +189,36 @@ class stzText from stzStringText
 		StzEngineStringFree(_pLem_)
 		return _cLem_
 
-	# The text with every word reduced to its dictionary base form / lemma
-	# ("better" -> "good", "ran" -> "run"). Smarter than stemming.
+	# Returns the text with every word reduced to its English dictionary form, so were becomes be and fences becomes fence.
+	#
+	#   returns    text, such as "run dog be jump happily over well fence."
+	#   note       Lemma is the same method; unlike stemming the result is made of real words, but
+	#              better can come out as well
+	#   see        LemmatizedInLanguage, Stemmed, AutoLemmatized
 	#@ aka  base form, dictionary form, root word, canonical form, normalize words
 	#@ see  Stemmed, AutoLemmatized
+	#@ aka  The text with every word reduced to its dictionary base form / lemma ("better" -> "good", "ran" -> "run"). Smarter than stemming.
 	def Lemmatized()
 		return This.LemmatizedInLanguage("english")
 
 		def Lemma()
 			return This.Lemmatized()
 
-	# The lemma of each word, in the given language.
+	# Returns the dictionary form of each word, as a list, in english, french or arabic; another language gives English.
+	#
+	#   returns    a list of text, one form per word
+	#   see        LemmatizedWords, LemmatizedInLanguage
+	#@ aka  The lemma of each word, in the given language.
 	def LemmatizedWordsInLanguage(pcLang)
 		if NOT isString(pcLang) pcLang = "english" ok
 		return StzEngineStringLemmatizeWordsList(This.Engine(), pcLang)
 
-	# The lemma of each word (English).
+	# Returns the English dictionary form of each word, as a list.
+	#
+	#   returns    a list of text, one form per word
+	#   note       WordsLemmatized is the same method
+	#   see        LemmatizedWordsInLanguage, Lemmatized
+	#@ aka  The lemma of each word (English).
 	def LemmatizedWords()
 		return This.LemmatizedWordsInLanguage("english")
 
@@ -133,18 +228,28 @@ class stzText from stzStringText
 	  #==========================================================#
 	 #   SENTIMENT (VADER)                                      #
 	#==========================================================#
-	# The overall sentiment score (compound polarity) in [-1, 1]: negative to positive.
+	# Returns the VADER compound score of the whole text, from -1 for the most negative to +1 for the most positive; 0 for an empty text.
+	#
+	#   returns    a number between -1 and 1
+	#   note       SentimentCompound is the same method; The food was terrible. scores -0.48
+	#   see        Sentiment, PositiveScore, NegativeScore
+	#@ aka  The overall sentiment score (compound polarity) in [-1, 1]: negative to positive.
 	def SentimentScore()
 		return StzEngineStringSentiment(This.Engine(), 0)
 
 		def SentimentCompound()
 			return This.SentimentScore()
 
-	# The overall tone/mood of the text as "positive", "negative", or "neutral".
+	# Returns the tone of the text as "positive" at a score of 0.05 or more, "negative" at -0.05 or less, and "neutral" in between.
+	#
+	#   returns    text: positive, negative or neutral
+	#   note       The table is made of wood. is neutral
+	#   see        SentimentScore, SentimentExplained
 	#@ aka  mood, emotion, feeling, attitude, opinion, how positive or negative
 	#@ out  string: "positive" | "negative" | "neutral"
 	#@ eg   Q("The food was terrible.").Text().Sentiment()   #--> "negative"
 	#@ see  SentimentScore, IsPositive, IsNegative
+	#@ aka  The overall tone/mood of the text as "positive", "negative", or "neutral".
 	def Sentiment()
 		_nScore_ = This.SentimentScore()
 		if _nScore_ >= 0.05
@@ -155,15 +260,30 @@ class stzText from stzStringText
 			return "neutral"
 		ok
 
-	# The positive sentiment score of the text (VADER).
+	# Returns the share of the text that VADER counts as positive, between 0 and 1.
+	#
+	#   returns    a number between 0 and 1
+	#   note       The three shares add up to about 1
+	#   see        NegativeScore, NeutralScore, SentimentScore
+	#@ aka  The positive sentiment score of the text (VADER).
 	def PositiveScore()
 		return StzEngineStringSentiment(This.Engine(), 1)
 
-	# The negative sentiment score of the text (VADER).
+	# Returns the share of the text that VADER counts as negative, between 0 and 1.
+	#
+	#   returns    a number between 0 and 1
+	#   note       The three shares add up to about 1
+	#   see        PositiveScore, NeutralScore, SentimentScore
+	#@ aka  The negative sentiment score of the text (VADER).
 	def NegativeScore()
 		return StzEngineStringSentiment(This.Engine(), 2)
 
-	# The neutral sentiment score of the text (VADER).
+	# Returns the share of the text that VADER counts as neither positive nor negative, between 0 and 1.
+	#
+	#   returns    a number between 0 and 1
+	#   note       The three shares add up to about 1
+	#   see        PositiveScore, NegativeScore, SentimentScore
+	#@ aka  The neutral sentiment score of the text (VADER).
 	def NeutralScore()
 		return StzEngineStringSentiment(This.Engine(), 3)
 
@@ -190,7 +310,14 @@ class stzText from stzStringText
 			": negative in tone"
 		return _bIn_
 
-	# The sentiment verdict as a human-readable sentence.
+	# Returns the verdict with its evidence: the overall label and score, then the positive and the negative words with their VADER weights.
+	#
+	#   returns    a list of three entries: [ "overall", label, score ], [ "positive_words", [ [
+	#              word, weight ] ... ] ] and [ "negative_words", [ [ word, weight ] ... ] ]
+	#   note       It is a list, not a sentence; for The food was terrible. the negative words are [
+	#              [ "terrible", -2.1 ] ]
+	#   see        Sentiment, SentimentScore
+	#@ aka  The sentiment verdict as a human-readable sentence.
 	def SentimentExplained()
 		_nSeScore_ = This.SentimentScore()
 		_cSeLabel_ = This.Sentiment()
@@ -218,13 +345,25 @@ class stzText from stzStringText
 	  #==========================================================#
 	 #   PART-OF-SPEECH TAGGING (Penn Treebank)                 #
 	#==========================================================#
-	# The part-of-speech tag (noun, verb, adjective...) for each word.
+	# Returns the Penn Treebank part-of-speech tag of each word, in word order.
+	#
+	#   returns    a list of text, such as "DT", "JJ", "NN", "VBZ"
+	#   note       PartOfSpeechTags is the same method; the tagger is rule-based and can be wrong,
+	#              for example brown fox comes out as JJ NN NN
+	#   see        TaggedWords, WordsThatAre
+	#@ aka  The part-of-speech tag (noun, verb, adjective...) for each word.
 	def POSTags()
 		return StzEngineStringPosTagsList(This.Engine())
 
 		def PartOfSpeechTags()
 			return This.POSTags()
 
+	# Returns each word paired with its part-of-speech tag, in word order.
+	#
+	#   returns    a list of [ word, tag ] pairs
+	#   note       WordsWithPOS is the same method; the first pair of Running dogs is [ "Running",
+	#              "VBG" ]
+	#   see        POSTags, Chunks
 	def TaggedWords()
 		_aTwWords_ = This.Words()
 		_aTwTags_  = This.POSTags()
@@ -239,15 +378,15 @@ class stzText from stzStringText
 		def WordsWithPOS()
 			return This.TaggedWords()
 
-	# POS-PATTERN CHUNKING (R3, the NLTK offensive): PATTERNS OVER TAGS.
-	#   ? Q("The quick brown fox...").TextQ().Chunks("DT? JJ* NN+")
-	#   #--> [ "The quick brown fox", "the lazy dog" ]
-	# Grammar: Penn tags separated by spaces, each with an optional
-	# quantifier -- ? (0/1), * (0+), + (1+), none (exactly 1). A tag
-	# matches by PREFIX (NN covers NN/NNS/NNP/NNPS). Covers NLTK's
-	# RegexpParser chunking with a cleaner grammar. The executor is a
-	# deterministic greedy scanner over the tag stream (like NLTK's);
-	# a Listex-native executor can swap in behind this same surface.
+	# Returns the runs of words whose tags fit a pattern of Penn tags, scanning left to right and taking the longest run.
+	#
+	#   pcTagPattern   Penn tags separated by spaces, each with an optional quantifier ? * or +,
+	#                  matched by prefix and without regard to case
+	#   returns        a list of text, one per run; [ ] for an empty pattern
+	#   note           The tag NN also covers NNS and NNP; DT? JJ* NN+ finds The quick brown fox and
+	#                  the lazy dog
+	#   see            NounPhrases, ParseTree, TaggedWords
+	#@ aka  POS-PATTERN CHUNKING (R3, the NLTK offensive): PATTERNS OVER TAGS. ? Q("The quick brown fox...").TextQ().Chunks("DT? JJ* NN+") #--> [ "The quick brown fox", "the lazy dog" ] Grammar: Penn tags separated by spaces, each with an optional quantifier -- ? (0/1), * (0+), + (1+), none (exactly 1). A tag matches by PREFIX (NN covers NN/NNS/NNP/NNPS). Covers NLTK's RegexpParser chunking with a cleaner gra
 	def Chunks(pcTagPattern)
 		_aUnits_ = This._ChunkUnits(pcTagPattern)
 		_nU_ = len(_aUnits_)
@@ -319,10 +458,25 @@ class stzText from stzStringText
 	def ParseTreeQ()
 		return This.ParseTreeWithQ(This._DefaultGrammar())
 
+	# Returns the nested phrase structure of the text as a bracket string, built with a default grammar of NP, PP and VP phrases.
+	#
+	#   returns    text, such as "(S (NP The/DT quick/JJ brown/NN fox/NN) (VP jumps/VBZ (PP over/IN
+	#              (NP the/DT lazy/JJ dog/NN))))"
+	#   note       Words that fit no phrase hang directly under S; ParseTreeQ gives the navigable
+	#              stzParseTree object
+	#   see        ParseTreeWithQ, Chunks, NounPhrases
 	def ParseTree()
 		return This.ParseTreeQ().ToBracket()
 
-	# custom cascade: paGrammar = [ [ label, "TAG-pattern" ], ... ]
+	# Returns a stzParseTree built by applying your own cascade of phrase rules, in order, over the tagged words.
+	#
+	#   paGrammar   a list of [ label, tag pattern ] rules, where a later rule may use an earlier
+	#               label as a tag
+	#   returns     a stzParseTree; its ToBracket method gives the bracket string
+	#   note        An empty grammar gives a flat tree with every word under S
+	#   warning     A grammar that is not a list raises error R5
+	#   see         ParseTree, Chunks
+	#@ aka  custom cascade: paGrammar = [ [ label, "TAG-pattern" ], ... ]
 	def ParseTreeWithQ(paGrammar)
 		_aTW_ = This.TaggedWords()
 		_aNodes_ = []
@@ -341,7 +495,12 @@ class stzText from stzStringText
 		next
 		return _oRoot_
 
-	# the flagship sugar: DT? JJ* NN+ -- the classic noun-phrase shape
+	# Returns the noun phrases of the text: an optional determiner, adjectives, then one or more nouns.
+	#
+	#   returns    a list of text, such as "A big red car" and "the old station"
+	#   note       It is Chunks with the pattern DT? JJ* NN+
+	#   see        Chunks, ParseTree
+	#@ aka  the flagship sugar: DT? JJ* NN+ -- the classic noun-phrase shape
 	def NounPhrases()
 		return This.Chunks("DT? JJ* NN+")
 
@@ -443,13 +602,19 @@ class stzText from stzStringText
 	  #==========================================================#
 	 #   NAMED-ENTITY RECOGNITION                               #
 	#==========================================================#
-	# NamedEntities() -- [[entity, type], ...]. Upgrades to TRANSFORMER NER (a BERT
-	# token-classification head) when a NER-head GGUF is loaded (StzUseNeuralModel
-	# with e.g. bert-base-NER); otherwise the rule-based engine NER. Both emit the
-	# same PERSON/ORGANIZATION/LOCATION type vocabulary, so PersonNames()/
-	# Organizations()/Locations() and EntitiesOfType() work either way.
+	# Returns the people, companies and places found in the text as [ entity, type ] pairs, using a neural NER model if loaded, else rules.
+	#
+	#   returns    a list of [ entity, type ] pairs with types such as PERSON, ORGANIZATION,
+	#              LOCATION and ENTITY; [ ] when there is none
+	#   note       Entities is the same method; Barack Obama visited Microsoft in Paris. gives [
+	#              "Barack Obama", "PERSON" ] and [ "Microsoft", "ORGANIZATION" ]
+	#   warning    The rule-based recognizer joins a capitalized word that follows a full stop to
+	#              the entity before it, so Paris. Angela Merkel comes out as one ENTITY (seen on
+	#              three texts)
+	#   see        EntitiesOfType, NeuralEntities, RegisterNamedEntities
 	#@ aka  who and what is mentioned, people places organizations, proper names
 	#@ see  PersonNames, Organizations, Locations, EntitiesOfType
+	#@ aka  NamedEntities() -- [[entity, type], ...]. Upgrades to TRANSFORMER NER (a BERT token-classification head) when a NER-head GGUF is loaded (StzUseNeuralModel with e.g. bert-base-NER); otherwise the rule-based engine NER. Both emit the same PERSON/ORGANIZATION/LOCATION type vocabulary, so PersonNames()/ Organizations()/Locations() and EntitiesOfType() work either way.
 	def NamedEntities()
 		if StzHasNeuralNerModel()
 			return This.NeuralEntities()
@@ -465,8 +630,12 @@ class stzText from stzStringText
 		next
 		return _aNeOut_
 
-		# NeuralEntities() -- the transformer-NER result explicitly: [[entity,
-		# type], ...] via the loaded NER-head model; [] if none is loaded (DATA).
+		# Returns the [ entity, type ] pairs from the loaded transformer NER model, and an empty list when none is loaded.
+		#
+		#   returns    a list of [ entity, type ] pairs; [ ] without a model
+		#   note       Run without a model here, so only the empty answer was seen
+		#   see        NamedEntities
+		#@ aka  NeuralEntities() -- the transformer-NER result explicitly: [[entity, type], ...] via the loaded NER-head model; [] if none is loaded (DATA).
 		def NeuralEntities()
 			if StzEngineNeuralModelHasNer() != 1 return [] ok
 			_nNueN_ = StzEngineNeuralNer(This.Content())
@@ -479,9 +648,13 @@ class stzText from stzStringText
 		def Entities()
 			return This.NamedEntities()
 
-	# Register this text's named entities into the shared world
-	# ($oWorldEntities) -- EXPLICIT by design: NER over arbitrary text must
-	# never pollute the world silently. Returns how many were NEW.
+	# Adds the named entities to the shared world store of the process, marked with the source ner, and tells how many were new.
+	#
+	#   returns    a number; 5 the first time for two sentences with five entities, 0 when repeated
+	#   note       It changes the shared world store, not the text; EntitiesToWorld is the same
+	#              method
+	#   see        NamedEntities
+	#@ aka  Register this text's named entities into the shared world ($oWorldEntities) -- EXPLICIT by design: NER over arbitrary text must never pollute the world silently. Returns how many were NEW.
 	def RegisterNamedEntities()
 		_aRne_ = This.NamedEntities()
 		_nRne_ = len(_aRne_)
@@ -495,7 +668,12 @@ class stzText from stzStringText
 		def EntitiesToWorld()
 			return This.RegisterNamedEntities()
 
-	# The named entities of one type (e.g. "PERSON") mentioned in the text.
+	# Returns the entity names of one type, in text order; the type must be written exactly.
+	#
+	#   returns    a list of text; [ ] for a type that is absent or written in another case
+	#   note       EntitiesOfType("PERSON") finds Barack Obama while "person" finds nothing
+	#   see        NamedEntities, PersonNames
+	#@ aka  The named entities of one type (e.g. "PERSON") mentioned in the text.
 	def EntitiesOfType(pcType)
 		_aEtAll_ = This.NamedEntities()
 		_aEtOut_ = []
@@ -507,35 +685,56 @@ class stzText from stzStringText
 		next
 		return _aEtOut_
 
-	# The people (person names) mentioned in the text.
+	# Returns the entity names typed PERSON.
+	#
+	#   returns    a list of text
+	#   see        EntitiesOfType, Organizations, Locations
+	#@ aka  The people (person names) mentioned in the text.
 	def PersonNames()
 		return This.EntitiesOfType("PERSON")
 
-	# The organizations and companies mentioned in the text.
+	# Returns the entity names typed ORGANIZATION.
+	#
+	#   returns    a list of text
+	#   see        EntitiesOfType, PersonNames, Locations
+	#@ aka  The organizations and companies mentioned in the text.
 	def Organizations()
 		return This.EntitiesOfType("ORGANIZATION")
 
-	# The places and locations mentioned in the text.
+	# Returns the entity names typed LOCATION.
+	#
+	#   returns    a list of text
+	#   see        EntitiesOfType, PersonNames, Organizations
+	#@ aka  The places and locations mentioned in the text.
 	def Locations()
 		return This.EntitiesOfType("LOCATION")
 
+	# Returns the candidate type whose meaning is closest to an entity name; an empty string when an argument has the wrong type.
+	#
+	#   pcEntity   the entity name to type
+	#   paTypes    the list of candidate type names, each text
+	#   returns    text, one of the candidate types
+	#   note       A loaded neural model ranks the candidates by meaning, which was not available
+	#              here
+	#   warning    Without a neural model a short name scores 0 against every candidate, so the
+	#              first candidate always wins (Microsoft gets city when city is listed first)
+	#   see        EntitiesTypedAs, Classify
 	# --- Embedding-based entity typing (neural upgrade) --------------------
-	# The rule-based NER above detects + coarsely types spans. These re-TYPE an
-	# entity against ARBITRARY, user-defined types BY MEANING (zero-shot, via the
-	# neural model when loaded; lexical fallback otherwise) -- so the type set
-	# adapts to any domain, and "Paris" the city vs the person is disambiguated by
-	# meaning. (A real token-classification NER-head GGUF, once available, plugs
-	# onto the per-token engine substrate -- neural_embed_tokens -- underneath.)
-
-	# EntityTypeOf(entity, types) -- the candidate type whose MEANING best matches
-	# the entity mention (DATA, a string).
+	#@ aka  The rule-based NER above detects + coarsely types spans. These re-TYPE an entity against ARBITRARY, user-defined types BY MEANING (zero-shot, via the neural model when loaded; lexical fallback otherwise) -- so the type set adapts to any domain, and "Paris" the city vs the person is disambiguated by meaning. (A real token-classification NER-head GGUF, once available, plugs onto the per-token engine
 	def EntityTypeOf(pcEntity, paTypes)
 		if NOT (isString(pcEntity) and isList(paTypes)) return "" ok
 		_oEtoT_ = new stzText(pcEntity)
 		return _oEtoT_.ClassifiedAs(paTypes)
 
-	# EntitiesTypedAs(types) -- every detected entity re-typed against `types` by
-	# meaning: [[entity, best_type], ...] (DATA).
+	# Returns each named entity with the best candidate type for it, as [ entity, type ] pairs; [ ] when the types are not a list.
+	#
+	#   paTypes    the list of candidate type names, each text
+	#   returns    a list of [ entity, type ] pairs
+	#   note       Needs a loaded neural model to choose by meaning
+	#   warning    Without a neural model every entity gets the first candidate (all five entities
+	#              of one text came out as city)
+	#   see        EntityTypeOf, NamedEntities
+	#@ aka  EntitiesTypedAs(types) -- every detected entity re-typed against `types` by meaning: [[entity, best_type], ...] (DATA).
 	def EntitiesTypedAs(paTypes)
 		if NOT isList(paTypes) return [] ok
 		_aEtaAll_ = This.NamedEntities()
@@ -557,14 +756,23 @@ class stzText from stzStringText
 	  #==========================================================#
 	 #   STOPWORDS + READABILITY                                #
 	#==========================================================#
-	# The meaningful content words, with common stopwords (the, a, of...) removed.
+	# Returns the words that are not stopwords, in order, keeping their case.
+	#
+	#   returns    a list of text
+	#   note       Keywords is the same method; The food was terrible. gives [ "food", "terrible" ]
+	#   see        WithoutStopwords, IsStopword
+	#@ aka  The meaningful content words, with common stopwords (the, a, of...) removed.
 	def ContentWords()
 		return StzEngineStringContentWordsList(This.Engine())
 
 		def Keywords()
 			return This.ContentWords()
 
-	# The text with the stopwords removed.
+	# Returns the content words joined by single spaces, with the stopwords and the punctuation dropped.
+	#
+	#   returns    text, such as "food terrible"
+	#   see        ContentWords, IsStopword
+	#@ aka  The text with the stopwords removed.
 	def WithoutStopwords()
 		_pWs_ = StzEngineStringWithoutStopwords(This.Engine())
 		_cWs_ = StzEngineStringData(_pWs_)
@@ -575,21 +783,36 @@ class stzText from stzStringText
 	def IsStopword()
 		return StzEngineStringIsStopword(This.Engine()) = 1
 
-	# How easy the text is to read as a Flesch reading-ease score (higher = easier).
+	# Returns the Flesch reading-ease score, higher meaning easier to read; 0 for an empty text.
+	#
+	#   returns    a number, such as 75.88 for The food was terrible.
+	#   note       FleschReadingEase is the same method
+	#   see        ReadabilityGrade, ReadabilityExplained
+	#@ aka  How easy the text is to read as a Flesch reading-ease score (higher = easier).
 	def ReadingEase()
 		return StzEngineStringReadability(This.Engine(), 0)
 
 		def FleschReadingEase()
 			return This.ReadingEase()
 
-	# The US school grade level needed to read the text (Flesch-Kincaid grade).
+	# Returns the US school grade needed to read the text, by the Flesch-Kincaid formula; 0 for an empty text.
+	#
+	#   returns    a number, such as 3.67 for The food was terrible.
+	#   note       FleschKincaidGrade is the same method
+	#   see        ReadingEase, ReadabilityExplained
+	#@ aka  The US school grade level needed to read the text (Flesch-Kincaid grade).
 	def ReadabilityGrade()
 		return StzEngineStringReadability(This.Engine(), 1)
 
 		def FleschKincaidGrade()
 			return This.ReadabilityGrade()
 
-	# The readability verdict as a human-readable sentence.
+	# Returns the readability measures as [ name, value ] pairs: words, sentences, words_per_sentence, reading_ease and grade_level.
+	#
+	#   returns    a list of five [ name, value ] pairs
+	#   note       It is a list of numbers, not a sentence; an empty text gives zeros
+	#   see        ReadingEase, ReadabilityGrade
+	#@ aka  The readability verdict as a human-readable sentence.
 	def ReadabilityExplained()
 		_nReWords_ = This.NumberOfWords()
 		_nReSent_  = This.NumberOfSentences()
@@ -618,9 +841,15 @@ class stzText from stzStringText
 		next
 		return _aKpOut_
 
-	# The n most important multi-word key phrases (main topics/themes) in the text.
+	# Returns the n best multi-word key phrases by the RAKE method, best first; n of 0 or less gives all of them.
+	#
+	#   n          how many phrases to return, 0 or less for all
+	#   returns    a list of text
+	#   note       KeyPhrasesXT adds the score; the sample text gives quick brown fox jumps first
+	#   see        TopKeyPhrase, RankedKeywords
 	#@ aka  main topics, themes, subjects, what it is about, important phrases, main ideas, key ideas, key points, the gist
 	#@ see  RankedKeywords, TopKeyPhrase
+	#@ aka  The n most important multi-word key phrases (main topics/themes) in the text.
 	def KeyPhrases(n)
 		_aKpL_ = This.KeyPhrasesXT(n)
 		_aKpJust_ = []
@@ -638,7 +867,11 @@ class stzText from stzStringText
 		def KeyPhrasesQQ(n)
 			return new stzListOfTexts(This.KeyPhrases(n))
 
-	# The single best key phrase of the text.
+	# Returns the best key phrase of the text, or an empty string when there is none.
+	#
+	#   returns    text
+	#   see        KeyPhrases
+	#@ aka  The single best key phrase of the text.
 	def TopKeyPhrase()
 		_aTkp_ = This.KeyPhrases(1)
 		if len(_aTkp_) = 0 return "" ok
@@ -659,7 +892,13 @@ class stzText from stzStringText
 		next
 		return _aKwOut_
 
-	# The n most important single keywords, ranked by importance (TextRank).
+	# Returns the n most important single words by the TextRank method, best first; n of 0 or less gives all of them.
+	#
+	#   n          how many words to return, 0 or less for all
+	#   returns    a list of text
+	#   note       RankedKeywordsXT adds the score
+	#   see        KeyPhrases
+	#@ aka  The n most important single keywords, ranked by importance (TextRank).
 	def RankedKeywords(n)
 		_aKwL_ = This.RankedKeywordsXT(n)
 		_aKwJust_ = []
@@ -677,6 +916,12 @@ class stzText from stzStringText
 		def RankedKeywordsQQ(n)
 			return new stzListOfStrings(This.RankedKeywords(n))
 
+	# Returns the n most important sentences by TextRank, or by embedding similarity with a model; n of 0 or less gives every sentence.
+	#
+	#   n          how many sentences to keep
+	#   returns    a list of text, one per sentence
+	#   note       With a loaded model the answer keeps the original order of the text
+	#   see        SummarizedIn, KeyPhrases
 	def SummarySentences(n)
 		# When a neural model is loaded, rank sentences by EMBEDDING similarity
 		# (TextRank over a cosine graph) -- semantically stronger than the engine's
@@ -781,10 +1026,15 @@ class stzText from stzStringText
 		next
 		return _aTnChosen_
 
-	# A short summary of the text in n sentences (extractive: the most important
-	# sentences, joined). Summary(n) is the alias.
+	# Returns the n most important sentences joined by single spaces, as a short extractive summary.
+	#
+	#   n          how many sentences to keep
+	#   returns    text
+	#   note       Summary is the same method; n of 0 or less gives the whole text
+	#   see        SummarySentences, SummarizedAbstractively
 	#@ aka  summarize, summarise, shorten, condense, brief, briefly, tldr, gist, key points
 	#@ see  SummarySentences, KeyPhrases
+	#@ aka  A short summary of the text in n sentences (extractive: the most important sentences, joined). Summary(n) is the alias.
 	def SummarizedIn(n)
 		_oSmz_ = new stzListOfStrings(This.SummarySentences(n))
 		return _oSmz_.JoinedUsing(" ")
@@ -795,7 +1045,13 @@ class stzText from stzStringText
 	  #==========================================================#
 	 #   POS-AWARE WORD FILTERS                                 #
 	#==========================================================#
-	# The words carrying the given Penn part-of-speech tag.
+	# Returns the words whose Penn tag starts with the given tag, in text order.
+	#
+	#   pcPenn     a Penn tag or the start of one, such as NN or VB
+	#   returns    a list of text; [ ] when the argument is not text
+	#   note       The match is by prefix, so NN gives NNS and NNP words too
+	#   see        POSTags, TaggedWords
+	#@ aka  The words carrying the given Penn part-of-speech tag.
 	def WordsThatAre(pcPenn)
 		if NOT isString(pcPenn) return [] ok
 		_aWtWords_ = This.Words()
@@ -813,36 +1069,64 @@ class stzText from stzStringText
 		def WordsThatAreQ(pcPenn)
 			return new stzList(This.WordsThatAre(pcPenn))
 
-	# The nouns (naming words: people, things, ideas) in the text.
+	# Returns the words whose tag starts with NN: the naming words, proper names included.
+	#
+	#   returns    a list of text
+	#   note       Tagger mistakes carry over, so brown can appear among them
+	#   see        ProperNouns, WordsThatAre
+	#@ aka  The nouns (naming words: people, things, ideas) in the text.
 	def Nouns()
 		return This.WordsThatAre("NN")
 
 		def NounsQ()
 			return new stzList(This.Nouns())
 
-	# The proper nouns (capitalized names) in the text.
+	# Returns the words tagged NNP, the capitalized names, one word each.
+	#
+	#   returns    a list of text
+	#   note       Barack Obama gives Barack and Obama as two words
+	#   see        Nouns, NamedEntities
+	#@ aka  The proper nouns (capitalized names) in the text.
 	def ProperNouns()
 		return This.WordsThatAre("NNP")
 
-	# The verbs (action words) in the text.
+	# Returns the action words, those whose tag starts with VB, in all their forms.
+	#
+	#   returns    a list of text
+	#   note       Modal words such as can are tagged MD and are not included
+	#   see        WordsThatAre, POSTags
+	#@ aka  The verbs (action words) in the text.
 	def Verbs()
 		return This.WordsThatAre("VB")
 
 		def VerbsQ()
 			return new stzList(This.Verbs())
 
-	# The adjectives (describing words) in the text.
+	# Returns the describing words, those whose tag starts with JJ.
+	#
+	#   returns    a list of text
+	#   note       The tag JJ also covers JJR and JJS
+	#   see        WordsThatAre, Adverbs
+	#@ aka  The adjectives (describing words) in the text.
 	def Adjectives()
 		return This.WordsThatAre("JJ")
 
 		def AdjectivesQ()
 			return new stzList(This.Adjectives())
 
-	# The adverbs (how/when/where modifiers) in the text.
+	# Returns the words tagged RB, the ones that tell how, when or where.
+	#
+	#   returns    a list of text
+	#   see        WordsThatAre, Adjectives
+	#@ aka  The adverbs (how/when/where modifiers) in the text.
 	def Adverbs()
 		return This.WordsThatAre("RB")
 
-	# The pronouns (he, she, it, they...) in the text.
+	# Returns the words whose tag starts with PRP, such as I and it.
+	#
+	#   returns    a list of text
+	#   see        WordsThatAre
+	#@ aka  The pronouns (he, she, it, they...) in the text.
 	def Pronouns()
 		return This.WordsThatAre("PRP")
 
@@ -864,6 +1148,13 @@ class stzText from stzStringText
 	def WordsQQ()
 		return new stzListOfStrings(This.Words())
 
+	# Returns the sentences whose tone equals the one asked for, in text order.
+	#
+	#   pcPolarity   positive or negative or neutral, written in any case
+	#   returns      a list of text; [ ] when the argument is not text
+	#   note         Each sentence is judged alone, so The quick brown fox jumps over the lazy dog.
+	#                comes out negative because of lazy
+	#   see          PositiveSentences, NegativeSentences, Sentiment
 	def SentencesThatAre(pcPolarity)
 		if NOT isString(pcPolarity) return [] ok
 		_cStWant_ = StzLower(pcPolarity)
@@ -878,9 +1169,17 @@ class stzText from stzStringText
 		next
 		return _aStOut_
 
+	# Returns the sentences whose tone is positive, in text order.
+	#
+	#   returns    a list of text
+	#   see        SentencesThatAre, MostPositiveSentence
 	def PositiveSentences()
 		return This.SentencesThatAre("positive")
 
+	# Returns the sentences whose tone is negative, in text order.
+	#
+	#   returns    a list of text
+	#   see        SentencesThatAre, MostNegativeSentence
 	def NegativeSentences()
 		return This.SentencesThatAre("negative")
 
@@ -901,12 +1200,26 @@ class stzText from stzStringText
 		next
 		return _cBsBest_
 
+	# Returns the sentence with the highest sentiment score, the first one on a tie; an empty string for an empty text.
+	#
+	#   returns    text
+	#   see        PositiveSentences, MostNegativeSentence
 	def MostPositiveSentence()
 		return This._BestSentenceBy(1)
 
+	# Returns the sentence with the lowest sentiment score, the first one on a tie; an empty string for an empty text.
+	#
+	#   returns    text
+	#   see        NegativeSentences, MostPositiveSentence
 	def MostNegativeSentence()
 		return This._BestSentenceBy(-1)
 
+	# Returns the sentence closest to a query, by embeddings with a neural model or by word overlap without; the first when none overlap.
+	#
+	#   pcQuery    the text to compare every sentence with
+	#   returns    text; an empty string for an empty text or a query that is not text
+	#   note       MostSemanticallySimilarSentenceTo is the same method
+	#   see        SemanticSimilarityWith, SummarySentences
 	def MostSimilarSentenceTo(pcQuery)
 		if NOT isString(pcQuery) return "" ok
 		_aMsAll_ = This.Sentences()
@@ -947,20 +1260,24 @@ class stzText from stzStringText
 	  #==========================================================#
 	 #   SEMANTIC LAYER (neural embeddings)                     #
 	#==========================================================#
-	# Upgrades text similarity from lexical bag-of-words to true MEANING via a
-	# runtime neural model (load one process-wide with StzNeuralModelQ(path)).
-	# With no model loaded these degrade gracefully to the lexical path, so code
-	# keeps working and auto-improves once a model is present.
-
-	# TRUE if a runtime embedding model is loaded and ready.
+	# TRUE if a neural embedding model is loaded for the whole process, which turns the lexical comparisons into comparisons of meaning.
+	#
+	#   returns    TRUE or FALSE; FALSE here, where none was loaded
+	#   note       IsSemanticModelReady is the same method
+	#   see        Embedding, SemanticSimilarityWith
+	#@ aka  Upgrades text similarity from lexical bag-of-words to true MEANING via a runtime neural model (load one process-wide with StzNeuralModelQ(path)). With no model loaded these degrade gracefully to the lexical path, so code keeps working and auto-improves once a model is present.
 	def HasSemanticModel()
 		return StzHasNeuralModel()
 
 		def IsSemanticModelReady()
 			return This.HasSemanticModel()
 
-	# Embedding() -- this text's sentence-embedding vector (list of floats) via
-	# the loaded model; [] if none is loaded (DATA, per Softanza's Q rule).
+	# Returns the sentence-embedding vector of the text from the loaded model, as a list of numbers.
+	#
+	#   returns    a list of numbers; [ ] when no model is loaded
+	#   note       EmbeddingVector is the same method
+	#   see        HasSemanticModel, SemanticSimilarityWith
+	#@ aka  Embedding() -- this text's sentence-embedding vector (list of floats) via the loaded model; [] if none is loaded (DATA, per Softanza's Q rule).
 	def Embedding()
 		if NOT This.HasSemanticModel() return [] ok
 		return _StzEmbedInto(This.Content())
@@ -971,8 +1288,13 @@ class stzText from stzStringText
 	def EmbeddingQ()
 		return new stzList(This.Embedding())
 
-	# SemanticSimilarityWith(other) -- cosine of the two texts' embeddings in
-	# [-1, 1]; falls back to lexical cosine when no model is loaded (DATA).
+	# Returns the cosine similarity of this text and another, from the embeddings when a model is loaded and from shared words otherwise.
+	#
+	#   returns    a number from -1 to 1; 0 when the argument is not text
+	#   note       Without a model it only sees shared words: the same sentence gives 1 and
+	#              unrelated words give 0; SemanticSimilarityTo is the same method
+	#   see        IsSemanticallySimilarTo, ComparedTo
+	#@ aka  SemanticSimilarityWith(other) -- cosine of the two texts' embeddings in [-1, 1]; falls back to lexical cosine when no model is loaded (DATA).
 	def SemanticSimilarityWith(pcOther)
 		if NOT isString(pcOther) return 0 ok
 		return StzSemanticSimilarity(This.Content(), pcOther)
@@ -980,11 +1302,17 @@ class stzText from stzStringText
 		def SemanticSimilarityTo(pcOther)
 			return This.SemanticSimilarityWith(pcOther)
 
-	# IsSemanticallySimilarTo(other, threshold) -- TRUE if the meaning-similarity
-	# meets the threshold (default 0.5).
+	# Raises error R19 today when no generative model is loaded, instead of falling back to the extractive summary.
+	#
+	#   returns    a one-sentence text from a loaded generative model; nothing without one, as error
+	#              R19 is raised
+	#   note       With a model it asks the model for one short sentence; that path was read from
+	#              the body and not run
+	#   warning    Raises error R19 without a generative model (checked on three texts): the
+	#              fallback calls Summary without its sentence count
+	#   see        SummarizedIn, AnswerAbout
 	# --- ABSTRACTIVE ops (generative decoder; falls back to extractive) ---
-	# GENERATE a fresh summary of the text (not sentence extraction). When
-	# no generative model is loaded, degrades to the extractive Summary.
+	#@ aka  IsSemanticallySimilarTo(other, threshold) -- TRUE if the meaning-similarity meets the threshold (default 0.5). GENERATE a fresh summary of the text (not sentence extraction). When no generative model is loaded, degrades to the extractive Summary.
 	def SummarizedAbstractively()
 		if StzHasGenerativeModel() = 0
 			return This.Summary()
@@ -996,8 +1324,13 @@ class stzText from stzStringText
 		def SummarizedAbstractivelyQ()
 			return new stzString(This.SummarizedAbstractively())
 
-	# ANSWER a question ABOUT the text (grounded generation): the text is
-	# the context, the question is asked over it. "" when no model / no text.
+	# Asks the loaded generative model a question with the text as its context and returns the short answer.
+	#
+	#   pcQuestion   the question to ask about the text
+	#   returns      text; an empty string when no model is loaded or the question is not text
+	#   note         Run without a model here, so only the empty answer was seen
+	#   see          SummarizedAbstractively, Classify
+	#@ aka  ANSWER a question ABOUT the text (grounded generation): the text is the context, the question is asked over it. "" when no model / no text.
 	def AnswerAbout(pcQuestion)
 		if StzHasGenerativeModel() = 0 return "" ok
 		if NOT isString(pcQuestion) return "" ok
@@ -1008,6 +1341,13 @@ class stzText from stzStringText
 		def AnswerAboutQ(pcQuestion)
 			return new stzString(This.AnswerAbout(pcQuestion))
 
+	# TRUE if the similarity of the two texts reaches a threshold.
+	#
+	#   pnThreshold   the lowest similarity that counts, 0.5 when it is not a number
+	#   returns       TRUE or FALSE
+	#   note          The verdict also leaves its confidence and a reason in the evidence globals of
+	#                 the process
+	#   see           SemanticSimilarityWith
 	def IsSemanticallySimilarTo(pcOther, pnThreshold)
 		if NOT isNumber(pnThreshold) pnThreshold = 0.5 ok
 		_nIssScore_ = This.SemanticSimilarityWith(pcOther)
@@ -1038,12 +1378,14 @@ class stzText from stzStringText
 	  #==========================================================#
 	 #   ZERO-SHOT CLASSIFICATION                               #
 	#==========================================================#
-	# Classify this text against ARBITRARY candidate labels with no training:
-	# rank each label by how closely its MEANING matches the text (embedding
-	# cosine when a model is loaded, else lexical). Pass richer label strings
-	# (e.g. "about sports") for sharper separation.
-
-	# Classify(labels) -- ranked [label, score] pairs, most similar first (DATA).
+	# Returns the candidate labels with a similarity score, best first, with no training; labels that are not text are skipped.
+	#
+	#   paLabels   the list of candidate labels, each text
+	#   returns    a list of [ label, score ] pairs; [ ] when the labels are not a list
+	#   note       The score is embedding similarity with a model and word overlap without one;
+	#              richer labels such as about sports separate better
+	#   see        ClassifiedAs, ClassificationConfidence
+	#@ aka  Classify this text against ARBITRARY candidate labels with no training: rank each label by how closely its MEANING matches the text (embedding cosine when a model is loaded, else lexical). Pass richer label strings (e.g. "about sports") for sharper separation.
 	def Classify(paLabels)
 		if NOT isList(paLabels) return [] ok
 		_cClText_ = This.Content()
@@ -1067,7 +1409,13 @@ class stzText from stzStringText
 		def ClassifyQQ(paLabels)
 			return new stzListOfPairs(This.Classify(paLabels))
 
-	# ClassifiedAs(labels) -- the single best-matching label (DATA, a string).
+	# Returns the best-matching candidate label, an empty string when there is none.
+	#
+	#   paLabels   the list of candidate labels, each text
+	#   returns    text
+	#   warning    On a tie, which is common without a neural model, the first label wins
+	#   see        Classify, ClassificationConfidence
+	#@ aka  ClassifiedAs(labels) -- the single best-matching label (DATA, a string).
 	def ClassifiedAs(paLabels)
 		_aCaR_ = This.Classify(paLabels)
 		if len(_aCaR_) = 0 return "" ok
@@ -1079,7 +1427,12 @@ class stzText from stzStringText
 		def ClassifiedAsQ(paLabels)
 			return new stzString(This.ClassifiedAs(paLabels))
 
-	# The score (similarity) the winning label got, in [-1, 1] (DATA).
+	# Returns the score of the winning label, between -1 and 1, or 0 when there is none.
+	#
+	#   paLabels   the list of candidate labels, each text
+	#   returns    a number
+	#   see        Classify, ClassifiedAs
+	#@ aka  The score (similarity) the winning label got, in [-1, 1] (DATA).
 	def ClassificationConfidence(paLabels)
 		_aCcR_ = This.Classify(paLabels)
 		if len(_aCcR_) = 0 return 0 ok
@@ -1108,8 +1461,14 @@ class stzText from stzStringText
 	  #==========================================================#
 	 #   LANGUAGE DETECTION                                     #
 	#==========================================================#
-	# Detect which natural language the text is written in.
+	# Returns the name of the tongue the text is written in, in lowercase, or unknown when it cannot tell.
+	#
+	#   returns    text, such as english, french or arabic; unknown for an empty text, and also for
+	#              a text the detector cannot decide on (two sentences full of names gave unknown)
+	#   note       DetectedLanguage is the same method
+	#   see        AutoStemmed, AutoLemmatized
 	#@ aka  what language, which tongue, detect language, idiom, locale
+	#@ aka  Detect which natural language the text is written in.
 	def Language()
 		_pLg_ = StzEngineStringDetectLanguage(This.Engine())
 		_cLg_ = StzEngineStringData(_pLg_)
@@ -1119,13 +1478,23 @@ class stzText from stzStringText
 		def DetectedLanguage()
 			return This.Language()
 
-	# The text lemmatized in its own detected language.
+	# Returns the text reduced to dictionary forms in its own detected tongue, English when that is unknown.
+	#
+	#   returns    text
+	#   note       A French text comes out as le cheval manger un pommer rouge
+	#   see        Language, LemmatizedInLanguage
+	#@ aka  The text lemmatized in its own detected language.
 	def AutoLemmatized()
 		_cAlLg_ = This.Language()
 		if _cAlLg_ = "unknown" _cAlLg_ = "english" ok
 		return This.LemmatizedInLanguage(_cAlLg_)
 
-	# The text stemmed in its own detected language.
+	# Returns the text cut to stems in its own detected tongue, English when that is unknown.
+	#
+	#   returns    text
+	#   note       A French text comes out as le cheval mang de pomm roug
+	#   see        Language, StemmedInLanguage
+	#@ aka  The text stemmed in its own detected language.
 	def AutoStemmed()
 		_cAsLg_ = This.Language()
 		if _cAsLg_ = "unknown" _cAsLg_ = "english" ok
@@ -1134,8 +1503,12 @@ class stzText from stzStringText
 	  #==========================================================#
 	 #   PROFILE + STYLOMETRY                                   #
 	#==========================================================#
-	# A content profile of the text (keywords, entities,
-	# sentiment...).
+	# Returns a content profile as eight [ name, value ] pairs, from the tongue and the word count to the top keywords and the entities.
+	#
+	#   returns    a list of eight [ name, value ] pairs
+	#   note       top_keywords holds the five most frequent words once the stopwords are dropped
+	#   see        StyleProfile, NamedEntities
+	#@ aka  A content profile of the text (keywords, entities, sentiment...).
 	def Profile()
 		_oPfNoStop_ = new stzString(This.WithoutStopwords())
 		_aPfTop_ = _oPfNoStop_.MostFrequentWords(5)
@@ -1155,7 +1528,12 @@ class stzText from stzStringText
 			[ "entities", This.NamedEntities() ]
 		]
 
-	# Vocabulary richness: the ratio of unique words to total words (type-token ratio).
+	# Returns the ratio of different words to all words, between 0 and 1; 0 for an empty text.
+	#
+	#   returns    a number
+	#   note       TypeTokenRatio is the same method; the the the the gives 0.25
+	#   see        StyleProfile
+	#@ aka  Vocabulary richness: the ratio of unique words to total words (type-token ratio).
 	def LexicalDiversity()
 		_nLdTotal_ = This.NumberOfWords()
 		if _nLdTotal_ = 0 return 0 ok
@@ -1166,7 +1544,11 @@ class stzText from stzStringText
 		def TypeTokenRatio()
 			return This.LexicalDiversity()
 
-	# A style profile of the text (word lengths, variety...).
+	# Returns a style profile as [ name, value ] pairs: avg_word_length, avg_words_per_sentence and lexical_diversity.
+	#
+	#   returns    a list of three [ name, value ] pairs
+	#   see        Profile, LexicalDiversity
+	#@ aka  A style profile of the text (word lengths, variety...).
 	def StyleProfile()
 		_aSpWords_ = This.Words()
 		_nSpWords_ = len(_aSpWords_)
@@ -1185,8 +1567,14 @@ class stzText from stzStringText
 	  #==========================================================#
 	 #   CONCORDANCE + COMPARISON                               #
 	#==========================================================#
-	# The occurrences of the word with n words of context around
-	# each.
+	# Returns one line for each occurrence of a word, ignoring case: the word with up to a number of words on each side.
+	#
+	#   nWindow    how many words to take on each side of the word
+	#   returns    a list of text; [ ] when the word is absent or not text
+	#   note       A window of 0 gives the word alone
+	#   warning    A window that is not a number raises error R41
+	#   see        InContext
+	#@ aka  The occurrences of the word with n words of context around each.
 	def InContextWithWindow(pcWord, nWindow)
 		if NOT isString(pcWord) return [] ok
 		_aIcWords_ = This.Words()
@@ -1209,16 +1597,25 @@ class stzText from stzStringText
 		next
 		return _aIcOut_
 
-	# Every occurrence of a word shown with its surrounding context (a concordance /
-	# keyword-in-context view).
+	# Returns every occurrence of a word with 5 words of context on each side, as in a concordance.
+	#
+	#   returns    a list of text, one line per occurrence
+	#   note       Concordance is the same method
+	#   see        InContextWithWindow
+	#@ aka  Every occurrence of a word shown with its surrounding context (a concordance / keyword-in-context view).
 	def InContext(pcWord)
 		return This.InContextWithWindow(pcWord, 5)
 
 		def Concordance(pcWord)
 			return This.InContext(pcWord)
 
-	# Compare this text with another: their similarity, sentiment difference,
-	# readability difference, and shared keywords.
+	# Returns how this text and another compare, as pairs: similarity, sentiment_delta, grade_delta and shared_keywords.
+	#
+	#   returns    a list of four [ name, value ] pairs; [ ] when the argument is not text
+	#   note       The two deltas are this text minus the other one; shared_keywords lists the
+	#              content words both texts hold
+	#   see        SemanticSimilarityWith, SentimentScore
+	#@ aka  Compare this text with another: their similarity, sentiment difference, readability difference, and shared keywords.
 	def ComparedTo(pcOther)
 		if NOT isString(pcOther) return [] ok
 		_oCmOther_ = new stzText(pcOther)
@@ -1249,7 +1646,12 @@ class stzText from stzStringText
 	  #==========================================================#
 	 #   ANNOTATED DISPLAY                                      #
 	#==========================================================#
-	# Print each word with its part-of-speech tag.
+	# Prints the words with their tags as word/TAG on one line, then hands the text object back.
+	#
+	#   returns    the text object, so calls can be chained
+	#   note       The printed line looks like The/DT food/NN was/VBD terrible/JJ
+	#   see        TaggedWords, ShowEntities
+	#@ aka  Print each word with its part-of-speech tag.
 	def ShowTagged()
 		_aShTw_ = This.TaggedWords()
 		_cShOut_ = ""
@@ -1261,7 +1663,13 @@ class stzText from stzStringText
 		? _cShOut_
 		return This
 
-	# Print the named entities found in the text.
+	# Prints the text with every named entity wrapped as [entity:TYPE], then hands the text object back.
+	#
+	#   returns    the text object, so calls can be chained
+	#   note       The wrapping is a plain replace, so an entity inside a longer word is wrapped
+	#              there too
+	#   see        NamedEntities, ShowTagged
+	#@ aka  Print the named entities found in the text.
 	def ShowEntities()
 		_aSeeNe_ = This.NamedEntities()
 		_cSeeOut_ = This.Content()
@@ -1274,7 +1682,12 @@ class stzText from stzStringText
 		? _cSeeOut_
 		return This
 
-	# Print the sentiment of each sentence.
+	# Prints one line per sentence, as (tone score) followed by the sentence, then hands the text object back.
+	#
+	#   returns    the text object, so calls can be chained
+	#   note       The first line looks like (negative -0.53) The food was terrible!
+	#   see        Sentiment, ShowTagged
+	#@ aka  Print the sentiment of each sentence.
 	def ShowSentiment()
 		_aSsSt_ = This.Sentences()
 		_nSsN_ = len(_aSsSt_)

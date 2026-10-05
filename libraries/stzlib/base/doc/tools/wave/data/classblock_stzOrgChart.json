@@ -1,0 +1,15 @@
+{
+ "brief": "Models an organisation as positions, people and departments, draws its reporting lines, and checks them against governance rules.",
+ "detail": "An org chart is a diagram whose nodes are positions and whose edges run from supervisor to subordinate. Positions have a level (executive, management, staff), people are assigned to them, and the chart answers vacancy, span-of-control and succession questions, validates itself (BCEAO, segregation of duties, span, vacancy, succession), writes reports, highlights subsets with the View calls and saves to the .stzorg text format. Records are hash lists with lowercase keys. Several calls hold known defects, listed in their warnings: the succession check and the level colours read a key that is never written, and a few View calls raise.",
+ "receiver": "o1 = new stzOrgChart(\"TechCo\"); o1.AddExecutiveXT(\"ceo\", \"CEO\"); o1.AddManagerXT(\"vp\", \"VP Sales\"); o1.ReportsTo(\"vp\", \"ceo\")",
+ "example": [
+  "? @@( o1.DirectReports(\"ceo\") )",
+  "#--> [ \"vp\" ]"
+ ],
+ "see": [
+  "stzDiagram",
+  "stzGraph",
+  "stzOrgChartReporter",
+  "stzOrgChartSimulation"
+ ]
+}

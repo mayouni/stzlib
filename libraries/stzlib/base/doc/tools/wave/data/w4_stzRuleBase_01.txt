@@ -1,0 +1,1 @@
+init | Builds a compliance rule base named for a regime, in the orgchart domain, with the four universal org rules; a non-text name gives "". | nothing; the rule base is built | pcName=The rule base name, as text | CheckCompliance, AddRule | the rules are self-report, reporting cycle, orphan position and span of control

@@ -1,0 +1,13 @@
+{
+ "brief": "Holds a named set of org-chart compliance rules, starting with the four universal ones, ready to check a chart.",
+ "detail": "It is a stzGraphRuleSet in the orgchart domain: self-report, reporting cycle, orphan position and span of control. The regime classes below it (SOX, GDPR, PCI-DSS, HIPAA, ISO 27001, Basel III, BCEAO) differ by name today, and only SOX adds a rule of its own. Pass one to stzOrgChart.CheckCompliance.",
+ "receiver": "o1 = new stzRuleBase(\"Mine\")",
+ "example": [
+  "? o1.NumberOfRules()",
+  "#--> 4"
+ ],
+ "see": [
+  "stzOrgChart",
+  "stzGraphRuleSet"
+ ]
+}

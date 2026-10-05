@@ -1,0 +1,13 @@
+{
+ "brief": "Tries changes on a copy of an org chart and reports the average span and vacancy rate before and after.",
+ "detail": "The copy holds the records of the original (positions, people, departments) but no graph nodes, so a change_reporting change raises today. The original chart is never touched.",
+ "receiver": "oc = new stzOrgChart(\"TechCo\"); oc.AddExecutiveXT(\"ceo\", \"CEO\"); oc.AddManagerXT(\"vp\", \"VP Sales\"); oc.ReportsTo(\"vp\", \"ceo\"); oc.AddPersonXT(\"p1\", \"Alice\"); oc.AssignPerson(\"p1\", \"ceo\"); o1 = new stzOrgChartSimulation(oc)",
+ "example": [
+  "o1.ApplyChanges([ [ :type = \"add_position\", :id = \"n1\", :title = \"New\" ] ])",
+  "? o1.Results()[:after][:vacancyrate]",
+  "#--> 66.67"
+ ],
+ "see": [
+  "stzOrgChart"
+ ]
+}

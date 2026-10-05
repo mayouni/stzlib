@@ -1,5 +1,18 @@
-# stzGraphex with Alternation Support, 1-Indexing, Robust Parsing, and Optimized Loops
-# Fixed: Alternation parsing now strips outer parentheses correctly
+# Matches a graph pattern written as text, such as {@Node(a) -> @Edge(x) -> @Node(b)}, against a stzGraph and answers TRUE or FALSE.
+#
+# The pattern is compiled into a small graph of tokens (@Node, @Edge, @Cycle, @Path, with an
+# optional label, a {property constraint}, a quantifier, an alternation in parentheses, a @!
+# negation and a @cs: case mark). A match flattens the target graph into label paths and looks for
+# the pattern labels in order along one path, then checks the property constraints on the target
+# nodes. Labels match without regard to case by default, results are cached per target graph, and
+# the quantifiers are parsed but not yet used by the match.
+#
+#   receiver   g1 = new stzGraph("g1"); g1.AddNodeXT("n1", "Start"); g1.AddNodeXT("n2", "Done");
+#              g1.ConnectXT("n1", "n2", "flows"); o1 = new stzGraphex("{@Node(start) -> @Edge(flows)
+#              -> @Node(done)}", g1)
+#   example    ? o1.Match(g1)
+#              #--> 1
+#   see        stzGraph, stzGraphQuery, stzRegex
 class stzGraphex from stzGraph
 	@cPattern		# Pattern string, e.g., "{@Node(start) -> (@Edge(flows)|@Edge(completes)) -> @Node(end)}"
 	@bDebugMode = 0
@@ -19,6 +32,13 @@ class stzGraphex from stzGraph
 	# Enhanced alternation pattern to handle nested parentheses better
 	@cAlternationPattern = '^\((.*)\)$'
 
+	# Compiles a graph pattern into a pattern graph and keeps the target graph; a non-text pattern or a non-graph raises an error.
+	#
+	#   _cPattern_     The pattern, as text, such as "{@Node(a) -> @Edge(x) -> @Node(b)}"
+	#   oTargetGraph   The stzGraph the pattern is matched against
+	#   returns        nothing; the matcher is built
+	#   note           Match takes the graph again, so the target given here is only the default
+	#   see            Match, NormalizePattern
 	def init(_cPattern_, oTargetGraph)
 		super.init("PatternGraph")
 		
@@ -36,6 +56,11 @@ class stzGraphex from stzGraph
 		done
 
 
+	# Returns the pattern trimmed and wrapped in braces when it is not already.
+	#
+	#   _cPattern_   The pattern, as text
+	#   returns      text
+	#   see          init, ParsePattern
 	def NormalizePattern(_cPattern_)
 		_cPattern_ = trim(_cPattern_)
 		
@@ -45,7 +70,15 @@ class stzGraphex from stzGraph
 		
 		return _cPattern_
 
-	# Build the pattern as a graph: Nodes = tokens, Edges = sequences or alternates
+	# Parses a pattern and adds one node per token to the pattern graph, joined by sequences edges; an alternation fans out to every branch.
+	#
+	#   _cPattern_   The braced pattern, as text
+	#   returns      nothing; the pattern graph changes
+	#   note         init calls it once; a second call grafts the new tokens onto the first pattern
+	#   warning      the nodes are added to the graph already held, not in place of it, and their
+	#                ids restart at :p1
+	#   see          ParsePattern, ListifyPatternGraph
+	#@ aka  Build the pattern as a graph: Nodes = tokens, Edges = sequences or alternates
 	def BuildPatternGraph(_cPattern_)
 
 		
@@ -139,8 +172,15 @@ class stzGraphex from stzGraph
 		next
 		
 
-	# FIXED: Alternation parsing now correctly strips outer parentheses
-	# before processing alternation groups
+	# Splits a braced pattern at -> into token lists, one per part, with an alternation in parentheses becoming a single alternation token.
+	#
+	#   _cPattern_   The pattern, as text, with its outer braces
+	#   returns      a list of tokens, each a hash list
+	#   note         each token holds type, label, min, max, setvalues, unique, negated and cs
+	#   warning      the first and last characters are removed without a check, so a pattern without
+	#                braces loses its first and last letters
+	#   see          ParseSingleToken, BuildPatternGraph
+	#@ aka  FIXED: Alternation parsing now correctly strips outer parentheses before processing alternation groups
 	def ParsePattern(_cPattern_)
 		
 		_oPattern_ = new stzString(_cPattern_)
@@ -222,6 +262,14 @@ class stzGraphex from stzGraph
 		return _aTokens_
 
 
+	# Parses one token such as @Node(a)+ into a hash list of its type, label, quantifier, set values and flags; [ ] if unreadable.
+	#
+	#   _cTokenStr_   One token, as text: @Node, @Edge, @Cycle or @Path, with an optional (label),
+	#                 {set}, quantifier and @! or @cs: prefix
+	#   returns       a hash list, or [ ]
+	#   warning       the quantifier gives min and max (+ is 1 to 999999, * is 0 to 999999, ? is 0
+	#                 to 1) but matching never reads them
+	#   see           ParsePattern, BuildPatternGraph
 	def ParseSingleToken(_cTokenStr_)
 		_cTokenStr_ = @trim(_cTokenStr_)
 		
@@ -383,6 +431,13 @@ class stzGraphex from stzGraph
 		ok
 
 
+	# Returns every path of a graph as a list of alternating node and edge labels, with isolated nodes and @Cycle paths added.
+	#
+	#   oGraph     The stzGraph to turn into label paths
+	#   returns    a list of label lists
+	#   warning    paths run between every pair of distinct reachable nodes, so a chain of three
+	#              nodes gives three branches
+	#   see        Match, ListifyPatternGraph
 	def ListifyGraph(oGraph)
 		_aBranches_ = []
 		_acNodes_ = oGraph.Nodes()
@@ -520,6 +575,18 @@ class stzGraphex from stzGraph
 
 		return _aBranches_
 
+	# Tells whether the pattern occurs in a graph: its labels in order along one path, no negated label on it, and the property constraints met.
+	#
+	#   oTargetGraph   The stzGraph to look in
+	#   returns        TRUE or FALSE (1 or 0)
+	#   note           labels match without regard to case unless the token starts with @cs:; a
+	#                  negated label only rules out the path that holds it, so another path may
+	#                  still match
+	#   warning        the result is cached under a signature made of the node and edge counts and
+	#                  the node ids, so a second graph with the same ids but other labels answers
+	#                  from the cache: call ClearCache between graphs; labelless tokens (a bare
+	#                  @Node or @Edge, @Cycle, @Path) match anything and quantifiers are not read
+	#   see            ListifyGraph, CacheStats
 	def Match(oTargetGraph)
 		@oTargetGraph = oTargetGraph
 
@@ -567,28 +634,57 @@ class stzGraphex from stzGraph
 		next
 		return _cSig_
 
-	# Cache statistics: number of distinct cached graph signatures + hits.
+	# Returns how many target graphs are cached and how many matches were answered from the cache.
+	#
+	#   returns    a hash list [ :entries, :hits ]
+	#   see        CacheInfo, ClearCache
+	#@ aka  Cache statistics: number of distinct cached graph signatures + hits.
 	def CacheStats()
 		return [ :entries = len(@aMatchCache), :hits = @nCacheHits ]
 
+		# Returns the number of target graphs held in the match cache.
+		#
+		#   returns    a number
+		#   see        CacheStats
 		def CacheEntries()
 			return len(@aMatchCache)
 
+		# Empties the match cache and sets its hit count back to 0.
+		#
+		#   returns    nothing; the cache changes
+		#   see        CacheStats, SetCacheSize
 		def ClearCache()
 			@aMatchCache = []
 			@nCacheHits = 0
 
-		# Bound the match cache; 0 or negative disables eviction.
+		# Sets how many results the match cache keeps, the oldest dropped first; a value that is not a number is ignored.
+		#
+		#   nSize      The most results to keep
+		#   returns    the matcher itself, so calls can be chained
+		#   warning    with 0 or a negative number the cache is no longer trimmed and so has no
+		#              bound
+		#   see        CacheInfo, ClearCache
+		#@ aka  Bound the match cache; 0 or negative disables eviction.
 		def SetCacheSize(nSize)
 			if isNumber(nSize)
 				@nMaxCacheSize = nSize
 			ok
 			return self
 
+		# Returns the cache state: entry count, size limit and hit count.
+		#
+		#   returns    a hash list [ :entries, :maxsize, :hits ]
+		#   see        CacheStats, SetCacheSize
 		def CacheInfo()
 			return [ :entries = len(@aMatchCache), :maxsize = @nMaxCacheSize, :hits = @nCacheHits ]
 
-	# Special listification for pattern graph that handles alternations
+	# Returns the pattern graph as label paths from each root to each end, one path per branch of an alternation.
+	#
+	#   returns    a list of label lists
+	#   warning    the labels read node(Start) or edge(flows), with the token type and its label in
+	#              parentheses
+	#   see        TraversePatternNode, ListifyGraph
+	#@ aka  Special listification for pattern graph that handles alternations
 	def ListifyPatternGraph()
 		_aBranches_ = []
 		_acNodes_ = This.Nodes()
@@ -624,6 +720,17 @@ class stzGraphex from stzGraph
 		
 		return _aBranches_
 	
+	# Walks the pattern graph depth-first from a node and appends each complete label path to the list given as third argument.
+	#
+	#   _cNodeId_      The id of the pattern node to start from, such as :p1
+	#   aCurrentPath   The labels already on the path, as a list
+	#   _aBranches_    The list that receives each finished path
+	#   acVisited      Ids already visited, kept for the call and not read
+	#   returns        nothing; the branches list is filled
+	#   note           give [ ] for aCurrentPath and acVisited
+	#   warning        an id that is not a pattern node raises error Node does not exist, because
+	#                  the check after the lookup never runs
+	#   see            ListifyPatternGraph
 	def TraversePatternNode(_cNodeId_, aCurrentPath, _aBranches_, acVisited)
 		_aNode_ = This.Node(_cNodeId_)
 		
@@ -705,6 +812,15 @@ class stzGraphex from stzGraph
 			ok
 		ok
 
+	# Tells whether any pattern branch has its labels in order inside any target branch, with none of its negated labels there.
+	#
+	#   _aPatternBranches_   Pattern label paths, such as node(a) and edge(x) entries
+	#   _aTargetBranches_    Target label paths, as ListifyGraph gives them
+	#   returns              TRUE or FALSE (1 or 0)
+	#   warning              the case flags are read from the pattern graph held by the object, so
+	#                        branches that did not come from it are all matched without regard to
+	#                        case
+	#   see                  Match, IsSubsequence
 	def MatchBranches(_aPatternBranches_, _aTargetBranches_)
 		_nLenPatternBranches_ = len(_aPatternBranches_)
 		
@@ -1001,6 +1117,13 @@ class stzGraphex from stzGraph
 
 		return 0
 
+	# TRUE if every pattern label appears in the target in the same order, not necessarily next to each other; labels are compared with case.
+	#
+	#   _aPattern_   The labels to find, as a list
+	#   aTarget      The labels to look in, as a list
+	#   returns      TRUE or FALSE (1 or 0)
+	#   warning      an empty pattern is TRUE
+	#   see          IsSubsequence, MatchBranches
 	def IsSubsequenceSimple(_aPattern_, aTarget)
 		_nPatternLen_ = len(_aPattern_)
 		_nTargetLen_ = len(aTarget)
@@ -1026,6 +1149,15 @@ class stzGraphex from stzGraph
 
 		return 0
 	
+	# TRUE if the pattern labels appear in order in the target; a flag per label marks it negated, and then only the next target item is checked.
+	#
+	#   _aPattern_          The labels to find, as a list
+	#   aTarget             The labels to look in, as a list
+	#   aPatternNegations   One flag per pattern label, 1 for a negated label and 0 otherwise
+	#   returns             TRUE or FALSE (1 or 0)
+	#   warning             a negated label that occurs later in the target is not noticed, since
+	#                       the negation uses up the next target item and the scan goes on
+	#   see                 IsSubsequenceSimple, MatchBranches
 	def IsSubsequence(_aPattern_, aTarget, aPatternNegations)
 		_nPatternLen_ = len(_aPattern_)
 		_nTargetLen_ = len(aTarget)
@@ -1061,7 +1193,13 @@ class stzGraphex from stzGraph
 		return _nPatternIdx_ > _nPatternLen_
 
 
-	# Enhanced: Better handling of token conversion to stzListex patterns
+	# Turns branch labels such as node(a) into their bare labels, with the text any for a label that has no parentheses or is not text.
+	#
+	#   _aBranch_   A list of labels such as node(a) and edge(x)
+	#   returns     a list of texts
+	#   warning     the unmatched parenthesis case "bar(" also gives any
+	#   see         ListifyPatternGraph
+	#@ aka  Enhanced: Better handling of token conversion to stzListex patterns
 	def TokensToListexPattern(_aBranch_)
 		_aPattern_ = []
 		_nLenBranch_ = len(_aBranch_)
@@ -1090,21 +1228,52 @@ class stzGraphex from stzGraph
 		
 		return _aPattern_
 
+	# Prints the pattern graph as boxes and arrows, one box per token joined by sequences arrows; a negated token is shown between ! marks.
+	#
+	#   returns    nothing; text is printed
+	#   see        ListifyPatternGraph, Match
 	def ShowPatternGraph()
 		This.Show()
 
+	# Sets the debug flag on; it changes nothing visible today, since no code reads the flag to print.
+	#
+	#   returns    nothing; the flag changes
+	#   note       EnableDebug is the same call
+	#   warning    the debug branches of the matcher are empty, so debug mode prints nothing
+	#   see        DisableDebugMode, SetDebugMode
 	def EnableDebugMode()
 		@bDebugMode = 1
 
+		# Sets the debug flag on; it changes nothing visible today, since no code reads the flag to print.
+		#
+		#   returns    nothing; the flag changes
+		#   warning    the debug branches of the matcher are empty, so debug mode prints nothing
+		#   see        EnableDebugMode, DisableDebug
 		def EnableDebug()
 			@bDebugMode = 1
 
+	# Sets the debug flag off, which is its state at the start.
+	#
+	#   returns    nothing; the flag changes
+	#   note       DisableDebug is the same call
+	#   see        EnableDebugMode, SetDebugMode
 	def DisableDebugMode()
 		@bDebugMode = 0
 
+		# Sets the debug flag off; another spelling of the switch-off call.
+		#
+		#   returns    nothing; the flag changes
+		#   see        DisableDebugMode, EnableDebug
 		def DisableDebug()
 			@bDebugMode = 0
 
+	# Sets the debug flag on for a true value and off for any other; it changes nothing visible today.
+	#
+	#   pOnOff     1 or TRUE for on, 0 or FALSE for off
+	#   returns    nothing; the flag changes
+	#   note       SetDebug is the same call
+	#   warning    the debug branches of the matcher are empty, so debug mode prints nothing
+	#   see        EnableDebugMode, DisableDebugMode
 	def SetDebugMode(pOnOff)
 		if IsTrue(pOnOff)
 			@bDebugMode = 1
@@ -1112,5 +1281,10 @@ class stzGraphex from stzGraph
 			@bDebugMode = 0
 		ok
 
+		# Sets the debug flag on for a true value and off for any other; another spelling of the mode call.
+		#
+		#   pOnOff     1 or TRUE for on, 0 or FALSE for off
+		#   returns    nothing; the flag changes
+		#   see        SetDebugMode
 		def SetDebug(pOnOff)
 			This.SetDebugMode(pOnOff)

@@ -1,0 +1,15 @@
+{
+ "brief": "Tracks a position on a grid of columns and rows, moves it in six directions, and finds routes around obstacles.",
+ "detail": "A grid holds no data of its own. It keeps a current position counted from 1 at the top left, a direction, a set of obstacles and a stored path, and draws them as text. Positions are always [ column, row ], the column first. Reach for it to walk a board, a maze or a map: move by steps, ask for the cell above, below or beside, list the neighbours, test whether two cells connect, split the grid into regions, or ask for a route. Moves that would leave the grid or land on an obstacle change nothing, without an error, while the Node and NthNode readers raise an error outside the grid. Several methods are broken today: ShortestPath answers its end cell first, ManhattanPath and ZigZagPath raise when an obstacle is on the way, and Maze, MoveToNthNode, MoveToPreviousNthNode, MoveNRight and its family, ShowAdjacent and AreObstacles raise; see their warnings.",
+ "receiver": "o1 = new stzGrid([ 5, 4 ])",
+ "example": [
+  "? @@( o1.NodeRight() )",
+  "#--> [ 2, 1 ]",
+  "? o1.DistanceTo(4, 3)",
+  "#--> 5"
+ ],
+ "see": [
+  "stzGraph",
+  "stzMatrix"
+ ]
+}

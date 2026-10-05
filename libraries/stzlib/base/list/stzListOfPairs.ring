@@ -91,11 +91,44 @@ func ListThatHasLessNumberOfItems(paList1, paList2)
 func StzPairsQ(paList)
 	return new stzPairs(paList)
 
+# Is another name of stzListOfPairs: a list of pairs [ first, second ], with every method of it.
+#
+# The class adds nothing: it is built, ordered and queried exactly as a stzListOfPairs, and Copy
+# answers a stzListOfPairs.
+#
+#   receiver   o1 = new stzPairs([ [ "a", 1 ], [ "b", 2 ] ])
+#   example    ? o1.NumberOfPairs()
+#              #--> 2
+#   see        stzListOfPairs
 class stzPairs from stzListOfPairs
 
+# Holds a list whose every item is a pair [ first, second ], and answers questions about the first items, the second items and the order of the pairs.
+#
+# Reach for it when the data is naturally two-column: sections [ start, end ], key and value, name
+# and score. It orders the pairs by the first or the second item (Sort, SortOn), exchanges the items
+# of every pair (SwapItems), lists the first and the second items apart and checks their types. Most
+# mutators change the object in place and return nothing; the Sorted, Swapped and Stringified forms
+# return a copy. Some methods are broken today: the key-expression sorts (SortBy and its forms),
+# ReplacePair, AreAnagrams, ExpandedIfPairsOfNumbers and ToStzSetOfSections; see their warnings. The
+# Reverse and Inverse families exchange the two items of each pair, they do not reverse the order of
+# the pairs.
+#
+#   receiver   o1 = new stzListOfPairs([ [ "b", 2 ], [ "a", 9 ], [ "c", 5 ] ])
+#   example    ? @@( o1.FirstItems() )
+#              #--> [ "b", "a", "c" ]
+#              ? @@( o1.SortedOn(2) )
+#              #--> [ [ "b", 2 ], [ "c", 5 ], [ "a", 9 ] ]
+#   see        stzListOfLists, stzHashList, stzPairs
 class stzListOfPairs from stzListOfLists
 	@aContent = []
 
+	# Builds the object from a list whose every item is a list of exactly two items; anything else raises an error.
+	#
+	#   paLists    the list of pairs, each [ first, second ]
+	#   returns    nothing; the object is built
+	#   note       an empty list is accepted; a list holding a non-pair, a list of one or three
+	#              items, or a text, is refused
+	#   see        Content, Copy
 	def init(paLists)
 		if CheckingParams()
 			if NOT ( isList(paLists) and @IsListOfPairs(paLists) )
@@ -106,18 +139,38 @@ class stzListOfPairs from stzListOfLists
 		@aContent = paLists
 
 
+	# Returns the pairs as a plain Ring list of two-item lists.
+	#
+	#   returns    a list of pairs
+	#   note       the same list is shared, not copied
+	#   see        Value, ToStzList
 	def Content()
 		return @aContent
 
+		# Returns the pairs as a plain Ring list, the same answer as the content.
+		#
+		#   returns    a list of pairs
+		#   see        Content
 		def Value()
 			return Content()
 
+	# Returns a new stzListOfPairs holding the same pairs, so changing it leaves this list alone.
+	#
+	#   returns    a stzListOfPairs
+	#   note       a copy of a stzPairs is a stzListOfPairs
+	#   see        Content, ToStzList
 	def Copy()
 		return new stzListOfPairs( This.Content() )
 
 	def ListOfPairs()
 		return This.Content()
 
+	# Replaces all the pairs by a new list of pairs, in place; raises an error when the argument is not a list of pairs.
+	#
+	#   paListOfPairs   the new list of pairs, each [ first, second ]
+	#   returns         nothing; the content changes
+	#   note            the old content is lost; the number of pairs may change
+	#   see             Content, UpdatePairWith
 	def UpdateWith(paListOfPairs)
 		if isList(paListOfPairs) and @IsListOfPairs(paListOfPairs)
 			@aContent = paListOfPairs
@@ -126,6 +179,16 @@ class stzListOfPairs from stzListOfLists
 			StzRaise("Can't update the stzListOfPairs object! The value you provided is not a list of pairs.")
 		ok
 
+	# Replaces the first or the second pair by the new pair, in place; any other position raises an error.
+	#
+	#   n           the position of the pair to replace, 1 or 2 only
+	#   paNewPair   the new pair, as [ first, second ]
+	#   returns     nothing; the content changes
+	#   note        a new pair of three items is refused
+	#   warning     Raises an error today for n above 2 ("n must be a number equal to 1 or 2")
+	#               although the list may hold more pairs: the position is checked against 1 and 2
+	#               instead of against the number of pairs
+	#   see         UpdateFirstPairWith, UpdateSecondPairWith, UpdateWith
 	def UpdatePairWith(n, paNewPair)
 		if CheckingParams()
 			if NOT (isNumber(n) and ( n = 1 or n = 2 ) )
@@ -142,46 +205,123 @@ class stzListOfPairs from stzListOfLists
 		This.UpdateWith(_aContent_)
 
 
+		# Replaces the first or the second pair by the new pair, in place; any other position raises an error.
+		#
+		#   n           the position of the pair to replace, 1 or 2 only
+		#   paNewPair   the new pair, as [ first, second ]
+		#   returns     nothing; the content changes
+		#   warning     Raises an error today for n above 2, because it forwards to a position check
+		#               that only knows 1 and 2
+		#   see         UpdatePairWith
 		#< @FunctionAlternativeForms
-
 		def UpdateNthPairWith(n, paNewPair)
 			This.UpdatePairWith(n, paNewPair)
 
+		# Replaces the first or the second pair by the new pair, in place; any other position raises an error.
+		#
+		#   n           the position of the pair to replace, 1 or 2 only
+		#   paNewPair   the new pair, as [ first, second ]
+		#   returns     nothing; the content changes
+		#   warning     Raises an error today for n above 2, because it forwards to a position check
+		#               that only knows 1 and 2
+		#   see         UpdatePairWith
 		def UpdatePairN(n, paNewPair)
 			This.UpdatePairWith(n, paNewPair)
 
+		# Replaces the first or the second pair by the new pair, in place; any other position raises an error.
+		#
+		#   n           the position of the pair to replace, 1 or 2 only
+		#   paNewPair   the new pair, as [ first, second ]
+		#   returns     nothing; the content changes
+		#   warning     Raises an error today for n above 2, because it forwards to a position check
+		#               that only knows 1 and 2
+		#   see         UpdatePairWith
 		def UpdatePair(n, paNewPair)
 			This.UpdatePairWith(n, paNewPair)
 
+		# Replaces the first or the second pair by the new pair, in place; any other position raises an error.
+		#
+		#   n           the position of the pair to replace, 1 or 2 only
+		#   paNewPair   the new pair, as [ first, second ]
+		#   returns     nothing; the content changes
+		#   warning     Raises an error today for n above 2, because it forwards to a position check
+		#               that only knows 1 and 2
+		#   see         UpdatePairWith
 		def UpdateNthPair(n, paNewPair)
 			This.UpdatePairWith(n, paNewPair)
 
+	# Replaces the first pair by the new pair, in place.
+	#
+	#   paNewPair   the new pair, as [ first, second ]
+	#   returns     nothing; the content changes
+	#   note        a new pair that does not hold exactly two items is refused
+	#   see         UpdatePairWith, UpdateSecondPairWith
 		#>
-
 	def UpdateFirstPairWith(paNewPair)
 		This.UpdatePairWith(1, paNewPair)
 
+		# Replaces the first pair by the new pair, in place.
+		#
+		#   paNewPair   the new pair, as [ first, second ]
+		#   returns     nothing; the content changes
+		#   see         UpdateFirstPairWith
 		def UpdatePair1With(paNewPair)
 			This.UpdateFirstPairWith(paNewPair)
 
+		# Replaces the first pair by the new pair, in place.
+		#
+		#   paNewPair   the new pair, as [ first, second ]
+		#   returns     nothing; the content changes
+		#   see         UpdateFirstPairWith
 		def UpdateFirstPair(paNewPair)
 			UpdateFirstPairWith(paNewPair)
 
+		# Replaces the first pair by the new pair, in place.
+		#
+		#   paNewPair   the new pair, as [ first, second ]
+		#   returns     nothing; the content changes
+		#   see         UpdateFirstPairWith
 		def UpdatePair1(paNewPair)
 			This.UpdateFirstPairWith(paNewPair)
 
+	# Replaces the second pair by the new pair, in place.
+	#
+	#   paNewPair   the new pair, as [ first, second ]
+	#   returns     nothing; the content changes
+	#   note        a list of one pair raises Ring's index-out-of-range error (R2), as there is no
+	#               second pair
+	#   see         UpdatePairWith, UpdateFirstPairWith
 	def UpdateSecondPairWith(paNewPair)
 		This.UpdatePairWith(2, paNewPair)
 
+		# Replaces the second pair by the new pair, in place.
+		#
+		#   paNewPair   the new pair, as [ first, second ]
+		#   returns     nothing; the content changes
+		#   see         UpdateSecondPairWith
 		def UpdatePair2With(paNewPair)
 			This.UpdateSecondPairWith(paNewPair)
 
+		# Replaces the second pair by the new pair, in place.
+		#
+		#   paNewPair   the new pair, as [ first, second ]
+		#   returns     nothing; the content changes
+		#   see         UpdateSecondPairWith
 		def UpdateSecondPair(paNewPair)
 			UpdateSecondPairWith(paNewPair)
 
+		# Replaces the second pair by the new pair, in place.
+		#
+		#   paNewPair   the new pair, as [ first, second ]
+		#   returns     nothing; the content changes
+		#   see         UpdateSecondPairWith
 		def UpdatePair2(paNewPair)
 			This.UpdateSecondPairWith(paNewPair)
 
+	# Returns the pairs wrapped in a stzList, to reach the list methods.
+	#
+	#   returns    a stzList
+	#   see        Content, ToStzHashList
 	def ToStzList()
 		return new stzList( This.Content() )
 
@@ -189,6 +329,10 @@ class stzListOfPairs from stzListOfLists
 	 #  GETTING THE NUMBER OF PAIRS  #
 	#-------------------------------#
 
+	# Returns how many pairs the list holds.
+	#
+	#   returns    a number
+	#   see        FirstItems
 	def NumberOfPairs()
 		_nResult_ = len(@aContent)
 		return _nResult_
@@ -197,6 +341,12 @@ class stzListOfPairs from stzListOfLists
 	 #  GETTING THE NTH PAIR  #
 	#------------------------#
 
+	# Returns the pair at position n, as a list of two items.
+	#
+	#   n          the position of the pair, from 1
+	#   returns    a list of two items
+	#   note       a position outside the list raises Ring's index-out-of-range error (R2)
+	#   see        FirstItems, SecondItems
 	def PairAt(n)
 		return Content()[n]
 
@@ -237,10 +387,19 @@ class stzListOfPairs from stzListOfLists
 	 #  FINDING POSITIONS OF A VALUE IN THE LIST OF FIRST/SECOND ITEMS  #
 	#------------------------------------------------------------------#
 
+	# Returns the positions of the pairs whose first item equals the value.
+	#
+	#   returns    a list of numbers; [ ] when no first item matches
+	#   note       text is compared with case: "A" does not find "a"
+	#   see        FindInSecondItems, FirstItems
 	def FindInFirstItems(pValue)
 		_anResult_ = This.FirstItemsQ().Find(pValue)
 		return _anResult_
 
+	# Returns the positions of the pairs whose second item equals the value.
+	#
+	#   returns    a list of numbers; [ ] when no second item matches
+	#   see        FindInFirstItems, SecondItems
 	def FindInSecondItems(pValue)
 		_anResult_ = This.SecondItemsQ().Find(pValue)
 		return _anResult_
@@ -249,6 +408,10 @@ class stzListOfPairs from stzListOfLists
 	 #  CHECKING IF PAIRS ARE MADE OF EQUAL ITEMS  #
 	#---------------------------------------------#
 
+	# TRUE if the two items of every pair are equal, as in [ 1, 1 ] and [ "x", "x" ].
+	#
+	#   returns    TRUE or FALSE
+	#   see        FirstItems, SecondItems
 	def PairsAreMadeOfEqualItems()
 		# Inverted-logic bug: was setting bResult = 0 when items ARE
 		# equal; should be when items are NOT equal. Returned the
@@ -270,6 +433,11 @@ class stzListOfPairs from stzListOfLists
 	 #  FIRST ITEMS OF EACH PAIR  #
 	#============================#
 
+	# Returns the first item of every pair, in order.
+	#
+	#   returns    a list of the first items
+	#   note       FirstItemsU gives the same list without duplicates
+	#   see        SecondItems, FindInFirstItems
 	def FirstItems()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -391,6 +559,11 @@ class stzListOfPairs from stzListOfLists
 	 #  SECOND ITEMS OF EACH PAIR  #
 	#=============================#
 
+	# Returns the second item of every pair, in order.
+	#
+	#   returns    a list of the second items
+	#   note       LastItems gives the same answer; SecondItemsU removes the duplicates
+	#   see        FirstItems, FindInSecondItems
 	def SecondItems()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -531,6 +704,16 @@ class stzListOfPairs from stzListOfLists
 	 #  REPLACING A PAIR  #
 	#====================#
 
+	# Raises error R20 today instead of replacing the pair at position n by the new pair.
+	#
+	#   n           the position of the pair to replace
+	#   paNewPair   the new pair, as [ first, second ]
+	#   returns     nothing today; the call raises
+	#   note        UpdatePairWith does the job for positions 1 and 2
+	#   warning     Raises R20 today on every call: the check IsPair(paNewPair) inside the class
+	#               reaches the IsPair method inherited from stzList, which takes no argument,
+	#               instead of the global IsPair function
+	#   see         UpdatePairWith
 	def ReplacePair(n, paNewPair)
 		if isList(paNewPair) and IsPair(paNewPair)
 			This.UpdateNthPairWith(n, paNewPair)
@@ -540,6 +723,14 @@ class stzListOfPairs from stzListOfLists
 			This.ReplacePair(n, paNewPair)
 			return This
 
+	# Raises error R20 today instead of returning a copy of the pairs with the pair at position n replaced.
+	#
+	#   n           the position of the pair to replace
+	#   paNewPair   the new pair, as [ first, second ]
+	#   returns     nothing today; the call raises
+	#   warning     Raises R20 today on every call, because it goes through ReplacePair, whose
+	#               IsPair check reaches the IsPair method inherited from stzList
+	#   see         ReplacePair, UpdatePairWith
 	def PairReplaced(n, paNewPair)
 		_aResult_ = This.Copy().ReplacePairQ(n, paNewPair).Content()
 		return _aResult_
@@ -548,6 +739,10 @@ class stzListOfPairs from stzListOfLists
 	 #  SORTING PAIRS IN ASCENDING  #
 	#==============================#
 
+	# Turns both items of every pair into text, in place: [ "b", 2 ] becomes [ "b", "2" ].
+	#
+	#   returns    nothing; the content changes
+	#   see        ItemsStringified, FirstItems
 	def StringifyItems()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -564,6 +759,10 @@ class stzListOfPairs from stzListOfLists
 			This.StringifyItems()
 			return This
 
+	# Returns a copy of the pairs with both items turned into text; the list is unchanged.
+	#
+	#   returns    a list of pairs
+	#   see        StringifyItems
 	def ItemsStringified()
 		_aResult_ = This.Copy().StringifyItemsQ().Content()
 		return _aResult_
@@ -573,6 +772,11 @@ class stzListOfPairs from stzListOfLists
 	#==========================================#
 
 
+	# Orders the pairs by their first item, ascending, in place.
+	#
+	#   returns    nothing; the content changes
+	#   note       numbers are ordered by value, so 9 comes before 10
+	#   see        Sorted, SortOn, SortDown
 	def Sort()
 		This.SortOn(1)
 
@@ -580,18 +784,30 @@ class stzListOfPairs from stzListOfLists
 			This.Sort()
 			return This
 
+		# Orders the pairs by their first item, ascending, in place.
+		#
+		#   returns    nothing; the content changes
+		#   see        Sort, SortDown
 		def SortUp()
 			This.Sort()
 
 			def SortUpQ()
 				return This.SortQ()
 
+		# Orders the pairs by their first item, ascending, in place.
+		#
+		#   returns    nothing; the content changes
+		#   see        Sort, SortDown
 		def SortInAscending()
 			This.Sort()
 
 			def SortInAscendingQ()
 				return This.SortQ()
 
+	# Returns a copy of the pairs ordered by their first item, ascending; the list is unchanged.
+	#
+	#   returns    a list of pairs
+	#   see        Sort, SortedDown, SortedOn
 	def Sorted()
 		_aResult_ = This.Copy().SortQ().Content()
 		return _aResult_
@@ -606,6 +822,10 @@ class stzListOfPairs from stzListOfLists
 	 #  SORTING THE LIST OF PAIRS IN DESCENDING  #
 	#-------------------------------------------#
 
+	# Orders the pairs by their first item, descending, in place.
+	#
+	#   returns    nothing; the content changes
+	#   see        SortedDown, Sort, SortOnDown
 	def SortDown()
 		This.SortOnDown(1)
 
@@ -613,12 +833,23 @@ class stzListOfPairs from stzListOfLists
 			This.SortDown()
 			return This
 
+		# Orders the pairs by their first item, descending, in place.
+		#
+		#   returns    nothing; the content changes
+		#   see        SortDown, Sort
 		def SortInDescending()
 			This.SortDown()
 
 			def SortInDescendingQ()
 				return This.SortDownQ()
 
+	# Returns a copy of the pairs ordered by their first item, descending; the list is unchanged.
+	#
+	#   returns    a list of pairs
+	#   note       SortedDown itself is correct
+	#   warning    The alias SortedInDescending answers the ASCENDING order today, because its body
+	#              calls Sorted instead of SortedDown
+	#   see        SortDown, Sorted
 	def SortedDown()
 		_aResult_ = This.Copy().SortDownQ().Content()
 		return _aResult_
@@ -630,6 +861,12 @@ class stzListOfPairs from stzListOfLists
 	 #  SORTING THE PAIRS ON NTH (FIRST OR SECOND) COLUMN IN ASCENDING  #
 	#==================================================================#
 
+	# Orders the pairs by item n of each pair, ascending, in place.
+	#
+	#   n          which item to order by: 1 for the first item, 2 for the second
+	#   returns    nothing; the content changes
+	#   note       SortOnQ chains
+	#   see        SortedOn, Sort, SortOnInDescending
 	def SortOn(n)
 		_aResult_ = @SortOn(This.Content(), n)
 		This.UpdateWith(_aResult_)
@@ -640,38 +877,59 @@ class stzListOfPairs from stzListOfLists
 			This.SortOn(n)
 			return This
 
+		# Orders the pairs by item n of each pair, ascending, in place.
+		#
+		#   n          which item to order by: 1 for the first item, 2 for the second
+		#   returns    nothing; the content changes
+		#   see        SortOn
 		#>
-
 		#< @FunctionAlternativeForms
-
 		def SortOnInAscending(n)
 			This.SortOn(n)
 
 			def SortOnInAscendingQ(n)
 				return This.SortOnQ(n)
 
+		# Orders the pairs by item n of each pair, ascending, in place.
+		#
+		#   n          which item to order by: 1 for the first item, 2 for the second
+		#   returns    nothing; the content changes
+		#   see        SortOn
 		def SortOnUp(n)
 			This.SortOn(n)
 
 			def SortOnUpQ(n)
 				return This.SortOnQ(n)
 
-		#--
-
+		# Orders the pairs by item n of each pair, ascending, in place.
+		#
+		#   n          which item to order by: 1 for the first item, 2 for the second
+		#   returns    nothing; the content changes
+		#   see        SortOn
+		#@ aka  --
 		def SortInAscendingOn(n)
 			This.SortOn(n)
 
 			def SortInAscendingOnQ(n)
 				return This.SortOnQ(n)
 
+		# Orders the pairs by item n of each pair, ascending, in place.
+		#
+		#   n          which item to order by: 1 for the first item, 2 for the second
+		#   returns    nothing; the content changes
+		#   see        SortOn
 		def SortUpOn(n)
 			This.SortOn(n)
 
 			def SortUpOnQ(n)
 				return This.SortOnQ(n)
 
+	# Returns a copy of the pairs ordered by item n of each pair, ascending; the list is unchanged.
+	#
+	#   n          which item to order by: 1 for the first item, 2 for the second
+	#   returns    a list of pairs
+	#   see        SortOn, Sorted, SortedOnInDescending
 		#>
-
 	def SortedOn(n)
 		_aResult_ = This.Copy().SortOnQ(n).Content()
 		return _aResult_
@@ -698,6 +956,11 @@ class stzListOfPairs from stzListOfLists
 	 #  SORTING THE PAIRS DOWN ON NTH (FIRST OR SECOND) ITEMS  #
 	#=========================================================#
 
+	# Orders the pairs by item n of each pair, descending, in place.
+	#
+	#   n          which item to order by: 1 for the first item, 2 for the second
+	#   returns    nothing; the content changes
+	#   see        SortOn, SortedOnInDescending
 	def SortOnInDescending(n)
 		# Split the chain -- Ring's parser raises R13 on
 		# `new stzList(...).Reversed()` (method-call directly off a
@@ -714,30 +977,47 @@ class stzListOfPairs from stzListOfLists
 			This.SortOnInDescending(n)
 			return This
 
+		# Orders the pairs by item n of each pair, descending, in place.
+		#
+		#   n          which item to order by: 1 for the first item, 2 for the second
+		#   returns    nothing; the content changes
+		#   see        SortOnInDescending
 		#>
-
 		#< @FunctionAlternativeForms
-
 		def SortInDescendingOn(n)
 			This.SortOnInDescending(n)
 
 			def SortInDescendingOnQ(n)
 				return This.SortOnInDescendingQ(n)
 
+		# Orders the pairs by item n of each pair, descending, in place.
+		#
+		#   n          which item to order by: 1 for the first item, 2 for the second
+		#   returns    nothing; the content changes
+		#   see        SortOnInDescending
 		def SortOnDown(n)
 			This.SortOnInDescending(n)
 
 			def SortOnDownQ(n)
 				return This.SortOnInDescendingQ(n)
 
+		# Orders the pairs by item n of each pair, descending, in place.
+		#
+		#   n          which item to order by: 1 for the first item, 2 for the second
+		#   returns    nothing; the content changes
+		#   see        SortOnInDescending
 		def SortDownOn(n)
 			This.SortOnInDescending(n)
 
 			def SortDownOnQ(n)
 				return This.SortOnInDescendingQ(n)
 
+	# Returns a copy of the pairs ordered by item n of each pair, descending; the list is unchanged.
+	#
+	#   n          which item to order by: 1 for the first item, 2 for the second
+	#   returns    a list of pairs
+	#   see        SortOnInDescending, SortedOn
 		#>
-
 	def SortedOnInDescending(n)
 		_aResult_ = This.Copy().SortOnInDescendingQ(n).Content()
 		return _aResult_
@@ -759,6 +1039,16 @@ class stzListOfPairs from stzListOfLists
 	 #  SORTING THE PAIRS BY AN EVALUATED EXPRESSION - IN ASCENDING  #
 	#===============================================================#
  
+	# Leaves the order of the pairs unchanged today instead of ordering them by the key expression, ascending.
+	#
+	#   pcExpr     the key expression, as text
+	#   returns    nothing; the content stays as it was
+	#   note       an expression without @pair raises an error; use SortOn to order by the first or
+	#              the second item
+	#   warning    Leaves the order unchanged today for every key expression tried (@pair[2],
+	#              len(@pair[1]), @pair): the key sort it forwards to, stzList.SortBy, orders text
+	#              items by an expression but does not evaluate one on a list item
+	#   see        SortOn, SortedBy
 	def SortBy(pcExpr)
 
 		if NOT (isString(pcExpr) and Q(pcExpr).ContainsCS("@pair", 0))
@@ -776,24 +1066,43 @@ class stzListOfPairs from stzListOfLists
 			This.SortBy(pcExpr)
 			return This
 
+		# Leaves the order of the pairs unchanged today instead of ordering them by the key expression, ascending.
+		#
+		#   pcExpr     the key expression, as text
+		#   returns    nothing; the content stays as it was
+		#   warning    Leaves the order unchanged today, because it forwards to SortBy, which does
+		#              not order a list of lists by an expression
+		#   see        SortBy, SortOnInAscending
 		#>
-
 		#< @FunctionAlternativeForms
-
 		def SortByInAscending(pcExpr)
 			This.SortBy(pcExpr)
 
 			def SortByInAscendingQ(pcExpr)
 				return This.SortByQ(pcExpr)
 
+		# Leaves the order of the pairs unchanged today instead of ordering them by the key expression, ascending.
+		#
+		#   pcExpr     the key expression, as text
+		#   returns    nothing; the content stays as it was
+		#   warning    Leaves the order unchanged today, because it forwards to SortBy, which does
+		#              not order a list of lists by an expression
+		#   see        SortBy, SortOnUp
 		def SortByUp(pcExpr)
 			This.SortBy(pcExpr)
 
 			def SortByUpQ(pcExpr)
 				return This.SortByQ(pcExpr)
 
+	# Returns the pairs in their present order today instead of a copy ordered by the key expression, ascending.
+	#
+	#   pcExpr     the key expression, as text
+	#   returns    a list of pairs, in the order they already had
+	#   note       SortedOn orders the pairs by their first or second item
+	#   warning    Does not order today, whatever the expression: it sorts a copy through SortBy,
+	#              which leaves a list of lists in place
+	#   see        SortBy, SortedOn
 		#>
-
 	def SortedBy(pcExpr)
 		_aResult_ = This.Copy().SortByQ(pcExpr).Content()
 		return _aResult_
@@ -808,6 +1117,14 @@ class stzListOfPairs from stzListOfLists
 	 #  SORTING THE PAIRS BY AN EXPRESSION - IN DESCENDING  #
 	#------------------------------------------------------#
  
+	# Swaps the two items of every pair, in place, today instead of ordering the pairs by the key expression, descending.
+	#
+	#   pcExpr     the key expression, as text
+	#   returns    nothing; the content changes, wrongly
+	#   warning    Swaps the items of each pair today: after the ascending sort, which changes
+	#              nothing, it calls Reverse, and Reverse of this class is SwapItems, not a reversal
+	#              of the order of the pairs
+	#   see        SortBy, SortOnInDescending
 	def SortByInDescending(pcExpr)
 		This.SortByInAscending(pcExpr)
 		This.Reverse()
@@ -816,12 +1133,27 @@ class stzListOfPairs from stzListOfLists
 			This.SortByInDescending(pcExpr)
 			return This
 
+		# Swaps the two items of every pair, in place, today instead of ordering the pairs by the key expression, descending.
+		#
+		#   pcExpr     the key expression, as text
+		#   returns    nothing; the content changes, wrongly
+		#   warning    Swaps the items of each pair today, because it forwards to
+		#              SortByInDescending, which ends with SwapItems
+		#   see        SortByInDescending, SortOnDown
 		def SortByDown(pcExpr)
 			This.SortByInDescending(pcExpr)
 
 			def SortByDownQ(pcExpr)
 				return This.SortByInDescendingQ(pcExpr)
 
+	# Returns a copy of the pairs with the two items of every pair swapped, today instead of ordered by the key expression, descending.
+	#
+	#   pcExpr     the key expression, as text
+	#   returns    a list of pairs with each pair turned round
+	#   note       the list itself is unchanged
+	#   warning    Swaps the items of each pair today, because it goes through SortByInDescending,
+	#              which ends with SwapItems
+	#   see        SortByInDescending, SortedOnInDescending
 	def SortedByInDescending(pcExpr)
 		_aResult_ = This.Copy().SortByInDescendingQ(pcExpr).Content()
 		return _aResult_
@@ -833,6 +1165,12 @@ class stzListOfPairs from stzListOfLists
 	 #  RETURNING AN EXPANDED LIST OF NUMBERS OUT OF THE LIST OF PAIRS  #
 	#==================================================================#
 
+	# Raises error R14 today instead of returning the number lists that the pairs of numbers expand to.
+	#
+	#   returns    nothing today; the call raises
+	#   warning    Raises R14 today on every call: it calls ExpandedIfPairOfNumbers, a method that
+	#              exists nowhere in the loaded library
+	#   see        ToStzListOfSections, IsListOfSections
 	def ExpandedIfPairsOfNumbers()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -874,6 +1212,11 @@ class stzListOfPairs from stzListOfLists
 	 #   SWAPPING THE ITEMS IN THE PAIRS OF THE LIST   #
 	#-------------------------------------------------#
 
+	# Exchanges the two items of every pair, in place: [ "a", 1 ] becomes [ 1, "a" ].
+	#
+	#   returns    nothing; the content changes
+	#   note       the order of the pairs is kept; SwapItemsQ chains
+	#   see        ItemsSwapped, SortOn
 	def SwapItems()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -891,64 +1234,100 @@ class stzListOfPairs from stzListOfLists
 			This.SwapItems()
 			return This
 
+		# Exchanges the two items of every pair, in place: [ "a", 1 ] becomes [ 1, "a" ].
+		#
+		#   returns    nothing; the content changes
+		#   see        SwapItems
 		#>
-
 		#< @FunctionAlternativeForms
-
 		def ReverseItems()
 			This.SwapItems()
 
 			def ReverseItemsQ()
 				return This.SwapItemsQ()
 
+		# Exchanges the two items of every pair, in place: [ "a", 1 ] becomes [ 1, "a" ].
+		#
+		#   returns    nothing; the content changes
+		#   see        SwapItems
 		def InverseItems()
 			This.SwapItems()
 
 			def InverseItemsQ()
 				return This.SwapItemsQ()
 
-		#--
-
+		# Exchanges the two items of every pair, in place: [ "a", 1 ] becomes [ 1, "a" ].
+		#
+		#   returns    nothing; the content changes
+		#   note       it does not swap the pairs with one another
+		#   see        SwapItems
+		#@ aka  --
 		def SwapPairs()
 			This.SwapItems()
 
 			def SwapPairsQ()
 				return This.SwapItemsQ()
 
+		# Exchanges the two items of every pair, in place: [ "a", 1 ] becomes [ 1, "a" ].
+		#
+		#   returns    nothing; the content changes
+		#   note       it does not reverse the order of the pairs
+		#   see        SwapItems
 		def ReversePairs()
 			This.SwapItems()
 
 			def ReversePairsQ()
 				return This.SwapItemsQ()
 
+		# Exchanges the two items of every pair, in place: [ "a", 1 ] becomes [ 1, "a" ].
+		#
+		#   returns    nothing; the content changes
+		#   note       it does not reverse the order of the pairs
+		#   see        SwapItems
 		def InversePairs()
 			This.SwapItems()
 
 			def InversePairsQ()
 				return This.SwapItemsQ()
 
-		#--
-
+		# Exchanges the two items of every pair, in place: [ "a", 1 ] becomes [ 1, "a" ].
+		#
+		#   returns    nothing; the content changes
+		#   note       unlike stzList.Reverse it does not reverse the order of the pairs
+		#   see        SwapItems
+		#@ aka  --
 		def Reverse()
 			This.SwapItems()
 
 			def ReverseQ()
 				return This.SwapItemsQ()
 
+		# Exchanges the two items of every pair, in place: [ "a", 1 ] becomes [ 1, "a" ].
+		#
+		#   returns    nothing; the content changes
+		#   see        SwapItems
 		def Inverse()
 			This.SwapItems()
 
 			def InverseQ()
 				return This.SwapItemsQ()
 
+		# Exchanges the two items of every pair, in place: [ "a", 1 ] becomes [ 1, "a" ].
+		#
+		#   returns    nothing; the content changes
+		#   see        SwapItems
 		def Swap()
 			This.SwapItems()
 
 			def SwapQ()
 				return This.SwapItemsQ()
 
+	# Returns a copy of the pairs with the two items of every pair exchanged; the list is unchanged.
+	#
+	#   returns    a list of pairs
+	#   note       Swapped, Reversed, Inversed, PairsSwapped give the same answer
+	#   see        SwapItems
 		#>
-
 	def ItemsSwapped()
 		_aResult_ = This.Copy().SwapItemsQ().Content()
 		return _aResult_
@@ -988,8 +1367,14 @@ class stzListOfPairs from stzListOfLists
 	  #---------------------------------------------------------------#
 	 #   CHECKING IF THE PAIRS ARE SECTIONS AND IF THEY ARE SORTED   #
 	#---------------------------------------------------------------#
-	#--> Each pair is made of numbers
-
+	# Answers TRUE for any list of pairs today, instead of TRUE only when every pair is made of two numbers.
+	#
+	#   returns    TRUE or FALSE
+	#   note       a list of pairs of text, [ [ "a", "b" ] ], passes
+	#   warning    Answers TRUE whatever the pairs hold, text included: the loop records a failing
+	#              pair in a variable that is never read, so the result stays at its start value
+	#   see        IsSortedListOfSections, ToStzListOfSections
+	#@ aka  --> Each pair is made of numbers
 	def IsListOfSections()
 
 		_aContent_ = This.Content()
@@ -1006,6 +1391,11 @@ class stzListOfPairs from stzListOfLists
 
 		return _bResult_
 
+	# TRUE if the pairs, read as sections, are sorted in ascending order or in descending order.
+	#
+	#   returns    TRUE or FALSE
+	#   note       it is only as exact as IsListOfSections, which accepts any pairs
+	#   see        IsListOfSectionsSortedInAscending, IsListOfSectionsSortedInDescending
 	def IsSortedListOfSections()
 
 		if This.IsListOfSectionsSortedInAscending() or
@@ -1017,6 +1407,12 @@ class stzListOfPairs from stzListOfLists
 			return 0
 		ok
 
+	# TRUE if the numbers of all the pairs, read in order, are in ascending order, as in [ 1, 3 ], [ 5, 8 ].
+	#
+	#   returns    TRUE or FALSE
+	#   note       [ [ 5, 8 ], [ 1, 3 ] ] and overlapping sections such as [ [ 1, 5 ], [ 3, 4 ] ]
+	#              give FALSE; text pairs may pass because IsListOfSections accepts them
+	#   see        IsListOfSectionsSortedInDescending, IsSortedListOfSections
 	def IsListOfSectionsSortedInAscending()
 
 		_bResult_ = 0
@@ -1030,6 +1426,11 @@ class stzListOfPairs from stzListOfLists
 
 		return _bResult_
 
+	# TRUE if the pairs, with their two items swapped, run in descending order, as in [ 9, 12 ], [ 4, 7 ], [ 1, 3 ].
+	#
+	#   returns    TRUE or FALSE
+	#   note       [ [ 5, 8 ], [ 1, 3 ] ] gives TRUE
+	#   see        IsListOfSectionsSortedInAscending, IsSortedListOfSections
 	def IsListOfSectionsSortedInDescending()
 
 		_bResult_ = 0
@@ -1048,6 +1449,12 @@ class stzListOfPairs from stzListOfLists
 	 #   CHECHKING IF AN ITEM EXISTS IN ANY PAIR   #
 	#---------------------------------------------#
 
+	# TRUE if the item is the first or the second item of at least one pair.
+	#
+	#   returns    TRUE or FALSE
+	#   note       the aliases ContainsInAllPairs and ContainsThisInAllPairs answer the same as this
+	#              method, so they say TRUE when only one pair holds the item
+	#   see        FirstItems, SecondItems
 	def ContainsInAnyPair(pItem)
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -1099,6 +1506,12 @@ class stzListOfPairs from stzListOfLists
 			return 0
 		ok
 
+	# Raises error R14 today instead of telling whether the two items are anagrams of each other.
+	#
+	#   returns    nothing today; the call raises
+	#   warning    Raises R14 today on every call: it reads FirstValue and SecondValue, which this
+	#              class does not define
+	#   see        FirstItems
 	def AreAnagrams()
 		return This.AreAnagramsCS(1)
 
@@ -1106,6 +1519,10 @@ class stzListOfPairs from stzListOfLists
 	 #  CHECKING IF THE FIRST ITEMS ARE ALL NUMBERS  #
 	#===============================================#
 
+	# TRUE if the first item of every pair is a number.
+	#
+	#   returns    TRUE or FALSE
+	#   see        SecondItemsAreNumbers, FirstItemsAreStrings
 	def FirstItemsAreNumbers()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -1134,6 +1551,10 @@ class stzListOfPairs from stzListOfLists
 	 #  CHECKING IF THE FIRST ITEMS ARE ALL STRINGS  #
 	#-----------------------------------------------#
 
+	# TRUE if the first item of every pair is a text.
+	#
+	#   returns    TRUE or FALSE
+	#   see        SecondItemsAreStrings, FirstItemsAreChars
 	def FirstItemsAreStrings()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -1162,6 +1583,11 @@ class stzListOfPairs from stzListOfLists
 	 #  CHECKING IF THE FIRST ITEMS ARE ALL CHARS  #
 	#---------------------------------------------#
 
+	# TRUE if the first item of every pair is a single character.
+	#
+	#   returns    TRUE or FALSE
+	#   note       a one-digit number counts as a character; "ab" does not
+	#   see        SecondItemsAreChars, FirstItemsAreStrings
 	def FirstItemsAreChars()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -1190,6 +1616,10 @@ class stzListOfPairs from stzListOfLists
 	 #  CHECKING IF THE FIRST ITEMS ARE ALL LISTS  #
 	#---------------------------------------------#
 
+	# TRUE if the first item of every pair is a list.
+	#
+	#   returns    TRUE or FALSE
+	#   see        SecondItemsAreLists, FirstItemsAreObjects
 	def FirstItemsAreLists()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -1218,6 +1648,10 @@ class stzListOfPairs from stzListOfLists
 	 #  CHECKING IF THE FIRST ITEMS ARE ALL OBJECTS  #
 	#-----------------------------------------------#
 
+	# TRUE if the first item of every pair is an object of any class.
+	#
+	#   returns    TRUE or FALSE
+	#   see        SecondItemsAreObjects, FirstItemsAreStzObjects
 	def FirstItemsAreObjects()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -1246,6 +1680,10 @@ class stzListOfPairs from stzListOfLists
 	 #  CHECKING IF THE FIRST ITEMS ARE ALL STZOBJECTS  #
 	#--------------------------------------------------#
 
+	# TRUE if the first item of every pair is an object of the library, such as a stzString.
+	#
+	#   returns    TRUE or FALSE
+	#   see        SecondItemsAreStzObjects, FirstItemsAreObjects
 	def FirstItemsAreStzObjects()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -1274,6 +1712,10 @@ class stzListOfPairs from stzListOfLists
 	 #  CHECKING IF THE FIRST ITEMS ARE ALL STZCHARS  #
 	#------------------------------------------------#
 
+	# TRUE if the first item of every pair is a stzChar.
+	#
+	#   returns    TRUE or FALSE
+	#   see        SecondItemsAreStzChars, FirstItemsAreStzStrings
 	def FirstItemsAreStzChars()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -1302,6 +1744,10 @@ class stzListOfPairs from stzListOfLists
 	 #  CHECKING IF THE FIRST ITEMS ARE ALL STZSTRINGS  #
 	#--------------------------------------------------#
 
+	# TRUE if the first item of every pair is a stzString.
+	#
+	#   returns    TRUE or FALSE
+	#   see        SecondItemsAreStzStrings, FirstItemsAreStzChars
 	def FirstItemsAreStzStrings()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -1330,6 +1776,10 @@ class stzListOfPairs from stzListOfLists
 	 #  CHECKING IF THE FIRST ITEMS ARE ALL STZNUMBERS  #
 	#--------------------------------------------------#
 
+	# TRUE if the first item of every pair is a stzNumber.
+	#
+	#   returns    TRUE or FALSE
+	#   see        SecondItemsAreStzNumbers, FirstItemsAreStzObjects
 	def FirstItemsAreStzNumbers()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -1358,6 +1808,10 @@ class stzListOfPairs from stzListOfLists
 	 #  CHECKING IF THE FIRST ITEMS ARE ALL STZLISTS  #
 	#------------------------------------------------#
 
+	# TRUE if the first item of every pair is a stzList.
+	#
+	#   returns    TRUE or FALSE
+	#   see        SecondItemsAreStzLists, FirstItemsAreStzHashLists
 	def FirstItemsAreStzLists()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -1386,6 +1840,10 @@ class stzListOfPairs from stzListOfLists
 	 #  CHECKING IF THE FIRST ITEMS ARE ALL STZHASHLISTS  #
 	#----------------------------------------------------#
 
+	# TRUE if the first item of every pair is a stzHashList.
+	#
+	#   returns    TRUE or FALSE
+	#   see        SecondItemsAreStzHashLists, FirstItemsAreStzLists
 	def FirstItemsAreStzHashLists()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -1414,6 +1872,10 @@ class stzListOfPairs from stzListOfLists
 	 #  CHECKING IF THE SECOND ITEMS ARE ALL NUMBERS  #
 	#================================================#
 
+	# TRUE if the second item of every pair is a number.
+	#
+	#   returns    TRUE or FALSE
+	#   see        FirstItemsAreNumbers, SecondItemsAreStrings
 	def SecondItemsAreNumbers()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -1442,6 +1904,10 @@ class stzListOfPairs from stzListOfLists
 	 #  CHECKING IF THE SECOND ITEMS ARE ALL STRINGS  #
 	#------------------------------------------------#
 
+	# TRUE if the second item of every pair is a text.
+	#
+	#   returns    TRUE or FALSE
+	#   see        FirstItemsAreStrings, SecondItemsAreChars
 	def SecondItemsAreStrings()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -1470,6 +1936,11 @@ class stzListOfPairs from stzListOfLists
 	 #  CHECKING IF THE SECOND ITEMS ARE ALL CHARS  #
 	#----------------------------------------------#
 
+	# TRUE if the second item of every pair is a single character.
+	#
+	#   returns    TRUE or FALSE
+	#   note       a one-digit number counts as a character; 12 does not
+	#   see        FirstItemsAreChars, SecondItemsAreStrings
 	def SecondItemsAreChars()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -1498,6 +1969,10 @@ class stzListOfPairs from stzListOfLists
 	 #  CHECKING IF THE SECOND ITEMS ARE ALL LISTS  #
 	#----------------------------------------------#
 
+	# TRUE if the second item of every pair is a list.
+	#
+	#   returns    TRUE or FALSE
+	#   see        FirstItemsAreLists, SecondItemsAreObjects
 	def SecondItemsAreLists()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -1526,6 +2001,10 @@ class stzListOfPairs from stzListOfLists
 	 #  CHECKING IF THE SECOND ITEMS ARE ALL OBJECTS  #
 	#------------------------------------------------#
 
+	# TRUE if the second item of every pair is an object of any class.
+	#
+	#   returns    TRUE or FALSE
+	#   see        FirstItemsAreObjects, SecondItemsAreStzObjects
 	def SecondItemsAreObjects()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -1554,6 +2033,10 @@ class stzListOfPairs from stzListOfLists
 	 #  CHECKING IF THE SECOND ITEMS ARE ALL STZOBJECTS  #
 	#---------------------------------------------------#
 
+	# TRUE if the second item of every pair is an object of the library, such as a stzNumber.
+	#
+	#   returns    TRUE or FALSE
+	#   see        FirstItemsAreStzObjects, SecondItemsAreObjects
 	def SecondItemsAreStzObjects()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -1582,6 +2065,10 @@ class stzListOfPairs from stzListOfLists
 	 #  CHECKING IF THE SECOND ITEMS ARE ALL STZCHARS  #
 	#-------------------------------------------------#
 
+	# TRUE if the second item of every pair is a stzChar.
+	#
+	#   returns    TRUE or FALSE
+	#   see        FirstItemsAreStzChars, SecondItemsAreStzStrings
 	def SecondItemsAreStzChars()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -1610,6 +2097,10 @@ class stzListOfPairs from stzListOfLists
 	 #  CHECKING IF THE SECOND ITEMS ARE ALL STZSTRINGS  #
 	#---------------------------------------------------#
 
+	# TRUE if the second item of every pair is a stzString.
+	#
+	#   returns    TRUE or FALSE
+	#   see        FirstItemsAreStzStrings, SecondItemsAreStzChars
 	def SecondItemsAreStzStrings()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -1638,6 +2129,10 @@ class stzListOfPairs from stzListOfLists
 	 #  CHECKING IF THE SECOND ITEMS ARE ALL STZNUMBERS  #
 	#---------------------------------------------------#
 
+	# TRUE if the second item of every pair is a stzNumber.
+	#
+	#   returns    TRUE or FALSE
+	#   see        FirstItemsAreStzNumbers, SecondItemsAreStzObjects
 	def SecondItemsAreStzNumbers()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -1666,6 +2161,10 @@ class stzListOfPairs from stzListOfLists
 	 #  CHECKING IF THE SECOND ITEMS ARE ALL STZLISTS  #
 	#-------------------------------------------------#
 
+	# TRUE if the second item of every pair is a stzList.
+	#
+	#   returns    TRUE or FALSE
+	#   see        FirstItemsAreStzLists, SecondItemsAreStzHashLists
 	def SecondItemsAreStzLists()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -1694,6 +2193,10 @@ class stzListOfPairs from stzListOfLists
 	 #  CHECKING IF THE SECOND ITEMS ARE ALL STZHASHLISTS  #
 	#-----------------------------------------------------#
 
+	# TRUE if the second item of every pair is a stzHashList.
+	#
+	#   returns    TRUE or FALSE
+	#   see        FirstItemsAreStzHashLists, SecondItemsAreStzLists
 	def SecondItemsAreStzHashLists()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -1722,6 +2225,12 @@ class stzListOfPairs from stzListOfLists
 	 #  TRANSFORMING THE LIST OF PAIRS INTO A STZHASHLIST  #
 	#=====================================================#
 
+	# Returns a stzHashList whose keys are the first items and whose values are the second items, each wrapped in a one-item list.
+	#
+	#   returns    a stzHashList; [ "a", 1 ] becomes [ "a", [ 1 ] ]
+	#   note       raises an error when a first item is not a text, or when two pairs share a first
+	#              item
+	#   see        ToStzList, FirstItemsAreStrings
 	def ToStzHashList()
 		if NOT This.FirstItemsAreAllStrings()
 			StzRais("Can't transform the list of pairs into a stzHashList! First items of the pairs must all be strings.")
@@ -1740,8 +2249,21 @@ class stzListOfPairs from stzListOfLists
 		return _oResult_
 
 
+	# Returns the pairs as a stzListOfSections, each pair read as [ start, end ].
+	#
+	#   returns    a stzListOfSections
+	#   note       raises an error when the pairs are not pairs of numbers
+	#   see        ToStzSetOfSections, IsListOfSections
 	def ToStzListOfSections()
 		return new stzListOfSections(This.Content())
 
+	# Raises an error today instead of returning the pairs as a stzSetOfSections.
+	#
+	#   returns    nothing today; the call raises
+	#   note       ToStzListOfSections accepts the same pairs
+	#   warning    Raises "You must provide a list of sections" today for valid sections such as [ [
+	#              1, 3 ], [ 5, 8 ] ]: the stzSetOfSections constructor refuses what
+	#              stzListOfSections accepts
+	#   see        ToStzListOfSections
 	def ToStzSetOfSections()
 		return new stzSetOfSections(This.Content())
