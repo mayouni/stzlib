@@ -5,29 +5,22 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 706 methods in 41 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 350 methods in 36 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| table/stzTable.ring | stzTable | 191 |
-| list/stzListOfLists.ring | stzListOfLists | 69 |
-| number/stzListOfNumbers.ring | stzListOfNumbers | 65 |
+| table/stzTable.ring | stzTable | 66 |
 | list/stzHashList.ring | stzHashList | 56 |
-| file/stzFolder.ring | stzFolder | 34 |
 | list/stzGrid.ring | stzGrid | 26 |
 | datetime/stzCalendar.ring | stzCalendar | 25 |
 | string/stzStringChar.ring | stzStringChar | 23 |
-| list/stzList.ring | stzList | 22 |
-| number/stzNumber.ring | stzNumber | 20 |
 | geo/stzGeoMap.ring | stzGeoMap | 18 |
 | i18n/stzLocale.ring | stzLocale | 17 |
 | regex/stzMatrex.ring | stzMatrex | 17 |
-| datetime/stzDateTime.ring | stzDateTime | 15 |
 | graph/stzGraph.ring | stzGraph | 12 |
 | list/stzListOfPairs.ring | stzListOfPairs | 11 |
 | graph/stzOrgChart.ring | stzOrgChart | 10 |
 | regex/stzRegex.ring | stzRegex | 10 |
-| string/stzString.ring | stzString | 9 |
 | reactive/stzReactive.ring | stzReactiveSystem | 7 |
 | geo/stzGeoField.ring | stzGeoField | 5 |
 | geo/stzGeoSamples.ring | stzGeoSamples | 5 |
@@ -42,6 +35,7 @@ and each was checked with a second call on different data. **None is fixed yet.*
 | graph/stzKnowledgeGraph.ring | stzKnowledgeGraph | 2 |
 | math/stzMathFigure.ring | stzMathFigure | 2 |
 | number/stzMatrix.ring | stzMatrix | 2 |
+| number/stzNumber.ring | stzNumber | 2 |
 | reactive/stzReactor.ring | stzReactor | 2 |
 | string/stzStringList.ring | stzStringList | 2 |
 | common/stzSplitter.ring | stzSplitter | 1 |
@@ -50,6 +44,7 @@ and each was checked with a second call on different data. **None is fixed yet.*
 | graph/stzOrgChart.ring | stzOrgChartReporter | 1 |
 | graph/stzOrgChart.ring | stzOrgChartSimulation | 1 |
 | linguistic/stzText.ring | stzText | 1 |
+| string/stzString.ring | stzString | 1 |
 
 ## stzAppServer -- appserver/stzAppServer.ring (2)
 
@@ -62,95 +57,40 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 ## stzCalendar -- datetime/stzCalendar.ring (25)
 
-- `AvailableHours` (line 1088): Raises Not yet implemented! today instead of returning the list of available hour slots of the calendar. -- the body is a stub that raises Not yet implemented!; the form that works is AvailableHoursN
-- `AvailableHoursBetween` (line 1141): Raises Not yet implemented! today instead of returning the available hour slots between two dates. -- the body is a stub that raises Not yet implemented!; the form that works is AvailableHoursBetweenN
-- `HasAvailableHoursBetween` (line 1210): Raises Not yet implemented! today instead of telling whether the range holds available hours. -- calls AvailableHoursBetween, which is a stub
-- `AvailableHoursOn` (line 1220): Raises Not yet implemented! today instead of returning the available hour slots of one day. -- the body is a stub that raises Not yet implemented!; the form that works is AvailableHoursOnN
-- `ContainsAvailableHoursOn` (line 1274): Raises Not yet implemented! today instead of telling whether a day has available hours. -- calls AvailableHoursOn, which is a stub
-- `HasAvailableHoursOn` (line 1284): Raises Not yet implemented! today instead of telling whether a day has available hours. -- calls AvailableHoursOn, which is a stub
-- `AvailableDaysBetween` (line 1368): Raises Not yet implemented! today instead of returning the available days between two dates. -- the body is a stub that raises through raise()
-- `AvailableDaysBetweenN` (line 1378): Raises error R14 today instead of counting the available days between two dates. -- calls AvailabelDaysBetween, a misspelling of a method that is itself a stub
-- `ContainsAvailableDaysBetween` (line 1394): Raises error R14 today instead of telling whether the range holds available days. -- calls AvailableDaysBetweenN, which raises R14
-- `HasAvailableDaysBetween` (line 1404): Raises error R14 today instead of telling whether the range holds available days. -- calls AvailableDaysBetweenN, which raises R14
-- `AvailableWeeks` (line 1413): Raises Not yet implemented! today instead of returning the available weeks as pairs of dates. -- the body is a stub that raises Not yet implemented!
-- `NextDay` (line 1719): Raises Not yet implemented! today instead of answering the day after the calendar's current day. -- the body is a stub that raises Not yet implemented!; the calendar keeps no current day
-- `GoToNextDay` (line 1729): Raises Not yet implemented! today instead of moving the calendar to the next day. -- the body is a stub that raises Not yet implemented!
-- `PreviousDay` (line 1743): Raises Not yet implemented! today instead of answering the day before the calendar's current day. -- the body is a stub that raises Not yet implemented!; the calendar keeps no current day
-- `GoToPreviousDay` (line 1751): Raises Not yet implemented! today instead of moving the calendar to the previous day. -- the body is a stub that raises Not yet implemented!
-- `GoToNext` (line 1808): Raises error R14 today instead of moving the calendar to the next month. -- calls GoNextMonth, which exists nowhere
-- `GoTo` (line 1925): Raises Not yet implemented! today instead of moving the calendar to a given date. -- the body is a stub that raises Not yet implemented!
-- `CurrentDay` (line 1957): Returns the day of the month of today, read from the clock and not from the calendar.
-- `CurrentMonth` (line 1966): Returns the English name of today's month, read from the clock and not from the calendar.
-- `CurrentMonthN` (line 1980): Returns the number of today's month, read from the clock and not from the calendar.
-- `CurrentYear` (line 1989): Returns today's year, read from the clock and not from the calendar.
-- `HasWeekends` (line 2112): Answers nothing today instead of telling whether the calendar has weekend days. -- the method has no body
-- `WeekendsBetween` (line 2121): Raises Not yet implemented! today instead of returning the weekend days between two dates. -- the body is a stub that raises Not yet implemented!
-- `WeekendsBetweenN` (line 2131): Raises Not yet implemented! today instead of counting the weekend days between two dates. -- calls WeekendsBetween, which is a stub
-- `ConflictsWithSpan` (line 2578): Raises error R24 today instead of listing the days where a named span meets a holiday or a day off. -- tests an undefined variable oTimeLine instead of the attached timeline, so it raises Using uninitialized variable: otimeline for any label
+- `AvailableHours` (line 1086): Raises Not yet implemented! today instead of returning the list of available hour slots of the calendar. -- the body is a stub that raises Not yet implemented!; the form that works is AvailableHoursN
+- `AvailableHoursBetween` (line 1139): Raises Not yet implemented! today instead of returning the available hour slots between two dates. -- the body is a stub that raises Not yet implemented!; the form that works is AvailableHoursBetweenN
+- `HasAvailableHoursBetween` (line 1222): Raises Not yet implemented! today instead of telling whether the range holds available hours. -- calls AvailableHoursBetween, which is a stub
+- `AvailableHoursOn` (line 1232): Raises Not yet implemented! today instead of returning the available hour slots of one day. -- the body is a stub that raises Not yet implemented!; the form that works is AvailableHoursOnN
+- `ContainsAvailableHoursOn` (line 1320): Raises Not yet implemented! today instead of telling whether a day has available hours. -- calls AvailableHoursOn, which is a stub
+- `HasAvailableHoursOn` (line 1330): Raises Not yet implemented! today instead of telling whether a day has available hours. -- calls AvailableHoursOn, which is a stub
+- `AvailableDaysBetween` (line 1414): Raises Not yet implemented! today instead of returning the available days between two dates. -- the body is a stub that raises through raise()
+- `AvailableDaysBetweenN` (line 1434): Raises error R14 today instead of counting the available days between two dates. -- calls AvailabelDaysBetween, a misspelling of a method that is itself a stub
+- `ContainsAvailableDaysBetween` (line 1450): Raises error R14 today instead of telling whether the range holds available days. -- calls AvailableDaysBetweenN, which raises R14
+- `HasAvailableDaysBetween` (line 1460): Raises error R14 today instead of telling whether the range holds available days. -- calls AvailableDaysBetweenN, which raises R14
+- `AvailableWeeks` (line 1469): Raises Not yet implemented! today instead of returning the available weeks as pairs of dates. -- the body is a stub that raises Not yet implemented!
+- `NextDay` (line 1803): Raises Not yet implemented! today instead of answering the day after the calendar's current day. -- the body is a stub that raises Not yet implemented!; the calendar keeps no current day
+- `GoToNextDay` (line 1813): Raises Not yet implemented! today instead of moving the calendar to the next day. -- the body is a stub that raises Not yet implemented!
+- `PreviousDay` (line 1827): Raises Not yet implemented! today instead of answering the day before the calendar's current day. -- the body is a stub that raises Not yet implemented!; the calendar keeps no current day
+- `GoToPreviousDay` (line 1835): Raises Not yet implemented! today instead of moving the calendar to the previous day. -- the body is a stub that raises Not yet implemented!
+- `GoToNext` (line 1894): Raises error R14 today instead of moving the calendar to the next month. -- calls GoNextMonth, which exists nowhere
+- `GoTo` (line 2011): Raises Not yet implemented! today instead of moving the calendar to a given date. -- the body is a stub that raises Not yet implemented!
+- `CurrentDay` (line 2052): Returns the day of the month of today, read from the clock and not from the calendar.
+- `CurrentMonth` (line 2061): Returns the English name of today's month, read from the clock and not from the calendar.
+- `CurrentMonthN` (line 2075): Returns the number of today's month, read from the clock and not from the calendar.
+- `CurrentYear` (line 2084): Returns today's year, read from the clock and not from the calendar.
+- `HasWeekends` (line 2207): Answers nothing today instead of telling whether the calendar has weekend days. -- the method has no body
+- `WeekendsBetween` (line 2217): Raises Not yet implemented! today instead of returning the weekend days between two dates. -- the body is a stub that raises Not yet implemented!
+- `WeekendsBetweenN` (line 2237): Raises Not yet implemented! today instead of counting the weekend days between two dates. -- calls WeekendsBetween, which is a stub
+- `ConflictsWithSpan` (line 2684): Raises error R24 today instead of listing the days where a named span meets a holiday or a day off. -- tests an undefined variable oTimeLine instead of the attached timeline, so it raises Using uninitialized variable: otimeline for any label
 
 ## stzDate -- datetime/stzDate.ring (2)
 
-- `ToHuman` (line 1910): Returns today, tomorrow or yesterday for those days, a count of days for the next or last 7, else a long date. -- the future form starts with a capital (In 3 days) and the past form does not (3 days ago)
-- `ToRelative` (line 1944): Returns today, tomorrow or yesterday, a count of days or weeks within a month of today, else the date as dd/MM/yyyy.
-
-## stzDateTime -- datetime/stzDateTime.ring (15)
-
-- `ToVerbose` (line 2471): Returns the weekday, month name, year and a 12-hour time, with the day number printed as the letter d today. -- the day of the month comes out as the letter d (Sunday, March d, 2026 02:30:00 PM) because the single d of the pattern is never replaced; ToLong prints the day correctly
-- `ToVerbose12h` (line 2482): Returns the weekday, month name, year and a 12-hour time, with the day number printed as the letter d today. -- the day of the month comes out as the letter d (Sunday, March d, 2026 02:30:00 PM) because the single d of the pattern is never replaced; ToLong prints the day correctly
-- `ToVerboseAP` (line 2493): Returns the weekday, month name, year and a 12-hour time, with the day number printed as the letter d today. -- the day of the month comes out as the letter d (Sunday, March d, 2026 02:30:00 PM) because the single d of the pattern is never replaced; ToLong prints the day correctly
-- `ToVerboseAmPm` (line 2504): Returns the weekday, month name, year and a 12-hour time, with the day number printed as the letter d today. -- the day of the month comes out as the letter d (Sunday, March d, 2026 02:30:00 PM) because the single d of the pattern is never replaced; ToLong prints the day correctly
-- `ToVerboseWithAP` (line 2515): Returns the weekday, month name, year and a 12-hour time, with the day number printed as the letter d today. -- the day of the month comes out as the letter d (Sunday, March d, 2026 02:30:00 PM) because the single d of the pattern is never replaced; ToLong prints the day correctly
-- `ToVerboseWithAmPm` (line 2526): Returns the weekday, month name, year and a 12-hour time, with the day number printed as the letter d today. -- the day of the month comes out as the letter d (Sunday, March d, 2026 02:30:00 PM) because the single d of the pattern is never replaced; ToLong prints the day correctly
-- `ToVerbose24h` (line 2537): Returns the weekday, month name, year and a 24-hour time, with the day number printed as the letter d today. -- the day of the month comes out as the letter d (Sunday, March d, 2026 02:30:00 PM) because the single d of the pattern is never replaced; ToLong prints the day correctly
-- `ToVerboseWithoutAP` (line 2548): Returns the weekday, month name, year and a 24-hour time, with the day number printed as the letter d today. -- the day of the month comes out as the letter d (Sunday, March d, 2026 02:30:00 PM) because the single d of the pattern is never replaced; ToLong prints the day correctly
-- `ToVerboseWithoutAmPm` (line 2559): Returns the weekday, month name, year and a 24-hour time, with the day number printed as the letter d today. -- the day of the month comes out as the letter d (Sunday, March d, 2026 02:30:00 PM) because the single d of the pattern is never replaced; ToLong prints the day correctly
-- `ToLong24h` (line 2652): Returns the weekday, month name, year and a 24-hour time with seconds, with the day number printed as the letter d today. -- the day of the month comes out as the letter d because the single d of the pattern is never replaced; ToLong prints the day correctly
-- `ToLongDate` (line 2662): Returns the weekday, month name and year without a time, with the day number printed as the letter d today. -- the day of the month comes out as the letter d because the single d of the pattern is never replaced
-- `DurationInDecadesTo` (line 3530): Raises error R24 today instead of returning the decades from the datetime to a target datetime. -- raises R24 today instead of answering the decades: the parameter is named cTo but the body reads pcUnit, which does not exist there; DecadesTo works
-- `MillisecondsFrom` (line 3670): Raises error R24 today instead of returning the milliseconds elapsed from a named origin up to the datetime. -- raises R24 today: the parameter is named cFrom but the body reads pOrigin, which does not exist there; DurationInMillisecondsFrom works
-- `DurationInMillisecondsSince` (line 3681): Raises error R24 today instead of returning the milliseconds elapsed from a named origin up to the datetime. -- raises R24 today: the parameter is named cFrom but the body reads pOrigin, which does not exist there; DurationInMillisecondsFrom works
-- `MillisecondsSince` (line 3692): Raises error R24 today instead of returning the milliseconds elapsed from a named origin up to the datetime. -- raises R24 today: the parameter is named cFrom but the body reads pOrigin, which does not exist there; DurationInMillisecondsFrom works
+- `ToHuman` (line 1867): Returns today, tomorrow or yesterday for those days, a count of days for the next or last 7, else a long date. -- the future form starts with a capital (In 3 days) and the past form does not (3 days ago)
+- `ToRelative` (line 1901): Returns today, tomorrow or yesterday, a count of days or weeks within a month of today, else the date as dd/MM/yyyy.
 
 ## stzTimeLine -- datetime/stzTimeLine.ring (1)
 
 - `HasMoment` (line 607): Raises a stack overflow today instead of telling whether a point carries the label. -- the method calls itself, so it recurses until the interpreter stops; its spelling siblings HasInstant, ContainsMoment and ContainsInstant call it and fail the same way
-
-## stzFolder -- file/stzFolder.ring (34)
-
-- `IsPath` (line 682): Raises error R19 today instead of telling whether a path names a file or a folder here. -- Raises error R19 today because it calls IsFilePath and IsFolderPath without passing the path
-- `IsDeepPath` (line 760): Returns nothing today instead of the verdict of the deep-path test. -- The body calls the test without a return, so the answer is lost
-- `ExistingPathsAmong` (line 1287): Raises error R24 today instead of returning the paths of a list that are held here. -- Raises error R24 (uninitialized variable _cpath_) because it appends a variable it never sets, instead of the current item
-- `MissingPathsAmong` (line 1319): Raises error R24 today instead of returning the paths of a list that are not held here. -- Raises error R24 (uninitialized variable _cpath_) because it appends a variable it never sets, instead of the current item
-- `CountFolder` (line 1614): Returns 0 today for any folder name instead of 1 for a folder held here. -- Always answers 0, because the exact-name search compares sub1 with the listing form /sub1/ and never matches; only a pattern with * can match
-- `FilesIn` (line 1722): Raises an error today instead of returning the files of a child folder, unless that child is empty. -- Raises "Incorrect param type! cPath must be non-empty a string." for a child folder that holds anything, because it tests each [ name, kind ] pair as a path; "Incorrect path!" for a path that is not a direct child
-- `FoldersIn` (line 1758): Raises an error today instead of returning the folders of a child folder, unless that child is empty. -- Raises "Incorrect param type! cPath must be non-empty a string." for a child folder that holds anything, because it tests each [ name, kind ] pair as a path; "Incorrect path!" for a path that is not a direct child
-- `DeepCountFileIn` (line 2002): Raises error R14 today instead of counting the files of that name below a given folder. -- Raises error R14 because it calls FindFileIn, which exists nowhere
-- `DeepCountTheseFiles` (line 2012): Raises error R24 today instead of counting how many of the named files are in the tree below. -- Raises error R24 because it reads a variable _cPath_ it never sets
-- `DeepCountTheseFilesIn` (line 2022): Raises error R14 today instead of counting how many of the named files are in a given folder. -- Raises error R14 because it calls SearchTheseFilesIn, which exists nowhere
-- `DeepCountFolderIn` (line 2112): Raises error R14 today instead of counting the folders of that name below a given folder. -- Raises error R14 because it calls FindFolderIn, which exists nowhere
-- `DeepCountTheseFoldersIn` (line 2133): Raises error R14 today instead of counting how many of the named folders are in a given folder. -- Raises error R14 because it calls SearchTheseFoldersIn, which exists nowhere
-- `RelativePathFromHome` (line 2669): Returns "." at home; away from home it raises error R14 today instead of returning the path from home. -- Raises error R14 away from home because it calls GetRelativePath, which exists nowhere
-- `DistanceFromHome` (line 2683): Returns 0 at home; away from home it raises error R14 today instead of counting the folder levels from home. -- Raises error R14 away from home because it calls GetRelativePath, which exists nowhere
-- `DeepDeleteFile` (line 3042): Raises an error today instead of deleting the files of that name anywhere below. -- Always raises Can't navigate outside the folder!, because it tests the bare name against the process folder, so nothing is deleted (checked with a present and an absent name)
-- `DeepDeleteFolder` (line 3087): Does nothing today and answers 1 instead of deleting the folders of that name anywhere below. -- Deletes nothing: the folders found are relative paths and the existence test on them fails, so the loop skips every one (checked on a deep and on a top folder)
-- `FileOverwrite` (line 3390): Raises error R13 today after replacing the content of a file; the text is written first. -- Raises error R13 (Object is required) after writing in batch mode, and error R14 before writing in the default mode, so the call never returns normally
-- `FileErase` (line 3462): Raises error R11 today instead of erasing a file; the file stays. -- Raises error R11 (class stzfileeraser not found) and erases nothing, so use FileRemove
-- `FileSafeErase` (line 3530): Raises error R11 today instead of erasing a file safely; the file stays. -- Raises error R11 (class not found) and erases nothing, so use FileRemove
-- `FileBackup` (line 3649): Raises error R20 today instead of copying a file to a .bak file beside it; no backup is made. -- Raises error R20 because it calls the global backup function with two arguments where it takes one
-- `FileSafeOverwrite` (line 3697): Raises error R11 today instead of replacing a file safely; the content is left as it was. -- Raises error R11 (class not found) and writes nothing
-- `FindFolders` (line 4094): Returns the folders held directly here that match a pattern with *; a plain folder name matches nothing today. -- A plain name such as sub1, or /sub1/, answers [ ] because it is compared with the listing form /sub1/ after losing its slashes; only a * pattern can match
-- `DeepSearchInFolder` (line 4729): Returns [ ] today instead of the lines that hold a text in the files of the folders of that name below. -- Always answers [ ] (checked on sub1 and deep1 with texts the files hold), because it tests whether the folder path is a file and reads the folder instead of each file
-- `DeepSearchInFolders` (line 4784): Returns [ ] today instead of the lines that hold a text in the files of the listed folders below. -- Always answers [ ] because DeepSearchInFolder does
-- `GetFoldersContainingFileMatches` (line 4854): Raises error R24 today instead of listing the folder names on the way to files that match a pattern. -- Raises error R24 (uninitialized variable _aallpaths_) because it passes a variable it never set
-- `DeepModifyInFile` (line 5075): Does nothing today and answers 0 instead of replacing a text in the files of that name below. -- Changes nothing: it hands the relative paths of DeepFindFile to the existence test, which fails for each (checked on f.txt and d.txt, with texts they hold)
-- `DeepModifyInFiles` (line 5110): Does nothing today and answers 0 instead of replacing a text in the files of the listed names below. -- Changes nothing because DeepModifyInFile changes nothing
-- `DeepModifyInFolder` (line 5135): Does nothing today and answers 0 instead of replacing a text in the files of the folders of that name below. -- Changes nothing: it reads a folder variable it never sets, so no file is found
-- `DeepModifyInFolders` (line 5184): Does nothing today and answers 0 instead of replacing a text in the files of the listed folders below. -- Changes nothing because DeepModifyInFolder changes nothing
-- `DeepModifyInRoot` (line 5208): Does nothing today and answers 0 instead of replacing a text in every file of the tree below. -- Changes nothing: the folders from DeepFolders are relative entries that the directory reader cannot open
-- `VizDeepFindFiles` (line 5336): Raises error R24 today instead of drawing the whole tree with the matching files marked. -- Raises error R24 because GetFoldersContainingFileMatches does
-- `ExpandThis` (line 5470): Raises error R24 today instead of marking one folder to be drawn open. -- Raises error R24 because it passes a variable cfolders that it never sets, instead of its own argument
-- `GetPhysicalOrder` (line 6083): Raises error R24 today instead of listing a folder's entries as name and type records in disk order. -- Raises error R24 because a file entry reads a variable _aEntry_ that is never set
-- `FormatStatsForFolder` (line 6297): Raises error R14 today instead of writing the statistics pattern for a child folder. -- Raises error R14 because it calls CountFilesIn, which exists nowhere
 
 ## stzGeoFeatures -- geo/stzGeoFeatures.ring (2)
 
@@ -375,103 +315,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 - `KlassInList` (line 5695): Raises an error today instead of returning the keys whose list value holds the class. -- the call raises error R14 today, because it calls KeysForItemInList, which is not defined
 - `KalssInListQ` (line 5707): Raises an error today: a misspelling of KlassInListQ that asks for a return type the class does not support. -- the call raises an unsupported-return-type error today
 
-## stzList -- list/stzList.ring (22)
-
-- `SplitXT` (line 8765): Raises error R14 today instead of splitting the list with the given options. -- the call raises error R14 today, because it calls a method that is not defined
-- `SplittedXT` (line 8777): Raises error R14 today instead of returning the parts split with the given options. -- the call raises error R14 today, because it calls a method that is not defined
-- `SplitAsSectionsXT` (line 8789): Raises error R14 today instead of returning the sections of the parts. -- the call raises error R14 today, because it calls a method that is not defined
-- `SplittedAsSectionsXT` (line 8801): Raises error R14 today instead of returning the sections of the parts. -- the call raises error R14 today, because it calls a method that is not defined
-- `SplitCS` (line 8813): Leaves the list unchanged today instead of splitting it at an item or position. -- the call computes the parts on a copy and drops them; use the Splitted forms
-- `SplitAtPosition` (line 8873): Leaves the list unchanged today instead of splitting it at a position. -- the call computes the parts on a copy and drops them; SplittedAtPosition returns them
-- `SplitBeforePosition` (line 8933): Leaves the list unchanged today instead of splitting it before a position. -- the call computes the parts on a copy and drops them; SplittedBeforePosition returns them
-- `SplitBefore` (line 8959): Splits the list before each occurrence of the item, but a known defect makes the call do nothing today. -- the call changes nothing and returns nothing, because it splits a copy of the list; SplitAt and SplitBeforePositions work
-- `SplitAfterPosition` (line 8970): Leaves the list unchanged today instead of splitting it after a position. -- the call computes the parts on a copy and drops them; SplittedAfterPosition returns them
-- `SplitAfter` (line 8996): Splits the list after each occurrence of the item, but a known defect makes the call do nothing today. -- the call changes nothing and returns nothing, because it splits a copy of the list; SplitAt and SplitBeforePositions work
-- `SplitToNParts` (line 9008): Leaves the list unchanged today instead of splitting it into n parts. -- the call computes the parts on a copy and drops them; SplittedToNParts returns them
-- `SplitAtPacer` (line 9065): Leaves the list unchanged today instead of splitting it every few items. -- the call computes the parts on a copy and drops them; SplittedAtPacer returns them
-- `RepeatedLeadingItem` (line 9134): Leaves nothing today instead of returning the item that repeats at the start. -- the call returns an empty string whatever the list holds; RepeatedLeadingItems returns the run
-- `RepeatedTrailingItem` (line 9181): Raises error R14 today instead of returning the item that repeats at the end. -- the call raises error R14 today, because it calls a method that is not defined
-- `NumberOfRepeatedTrailingItems` (line 9195): Raises error R14 today instead of returning how many items before the last equal it. -- the call raises error R14 today, because it calls a method that is not defined
-- `ExtractFirstOccurrence` (line 9335): Raises error R14 today instead of removing the first occurrence of the item and returning it. -- the call raises error R14 today, because it calls FirstOccurrenceCS, which is not defined; ExtractFirst works
-- `ExtractLastOccurrence` (line 9351): Raises error R14 today instead of removing the last occurrence of the item and returning it. -- the call raises error R14 today, because it calls LastOccurrenceCS, which is not defined; ExtractLast works
-- `ExtractDuplicates` (line 9367): Removes the repeats of duplicated items, in place, but answers an empty list instead of the removed items. -- the repeats are removed from the list but the call returns [ ] instead of them
-- `AntiSection` (line 10455): Raises error R19 today instead of returning the items outside one section. -- the call raises error R19 today, because it passes too few arguments to the code behind it
-- `RangesAndAntiRanges` (line 10605): Raises error R14 today instead of returning the ranges and the runs outside them. -- the call raises error R14 today, because it calls SectionsAndAntiSections, which is not defined
-- `ItemsAppearingLessThanNTimes` (line 10783): Returns the distinct items that occur fewer than n times; today each comes back as text. -- numbers come back as text, such as "3" for 3
-- `Insert` (line 11365): Inserts the item before a position, in place, but one place too early today. -- Insert(item, n) puts the item at position n-1, and raises an error for n = 1 or past the end; InsertBefore(n, item) puts it at n
-
-## stzListOfLists -- list/stzListOfLists.ring (69)
-
-- `ListAt` (line 541): Raises error R19 today instead of returning the list at a position. -- it calls NthList without passing the position, so the call raises error R19; ListAtPosition works
-- `FindInLists` (line 614): Returns [ list, position ] pairs for every occurrence of a text item inside the lists; the match is case-sensitive. -- a number item, or a list that holds numbers, makes the engine search raise an error
-- `FindItemsInLists` (line 680): Raises error R24 today instead of returning where several items occur inside the lists. -- the body passes a variable called pItem, which is never set, so the call raises error R24
-- `FindSubListInListsCS` (line 697): Raises an error on purpose today: the search for a sublist inside the lists is not written yet. -- the body only raises "Function non implemented yet!"; FindSubList does the job
-- `FindSubListInList` (line 707): Raises error R14 today instead of returning where a sublist occurs in the lists. -- it calls FindSubListInListCS, which is defined nowhere; FindSubList does the job
-- `PositionsW` (line 723): Raises error R24 today instead of returning the positions of the lists that meet a condition. -- the body collects into a variable named _aResult_ while the evaluated code writes to aResult, which is never set, so the call raises error R24
-- `JustifyEachListWith` (line 1994): Raises error R24 or R20 today instead of padding every shorter list with a given item. -- the def line declares no parameter yet the body reads pItem, so a call without an argument raises error R24 and a call with one raises error R20; JustifyWith works
-- `ExtendToByRepeatingItems` (line 2250): Raises error R14 today instead of padding each list to n items by repeating its own items. -- it asks a plain list for ExtendedToByRepeatingItems, a method that list does not have, so the call raises error R14
-- `ExtendToWithItemsRepeated` (line 2277): Raises error R14 today instead of padding each list to n items by repeating its own items. -- it asks a plain list for ExtendedToByRepeatingItems, a method that list does not have, so the call raises error R14
-- `ExtendedToByRepeatingItems` (line 2291): Raises error R14 today instead of returning a copy padded to n items by repeating each list's own items. -- it asks a plain list for ExtendedToByRepeatingItems, a method that list does not have, so the call raises error R14
-- `ExtendedToWithItemsRepeated` (line 2303): Raises error R14 today instead of returning a copy padded to n items by repeating each list's own items. -- it asks a plain list for ExtendedToByRepeatingItems, a method that list does not have, so the call raises error R14
-- `ExtendByRepeatingItems` (line 2377): Raises error R14 today instead of padding every list to the longest size by repeating its own items. -- it ends in ExtendedToByRepeatingItems, a method a plain list does not have, so the call raises error R14
-- `ExtendWithItemsRepeated` (line 2394): Raises error R14 today instead of padding every list to the longest size by repeating its own items. -- it ends in ExtendedToByRepeatingItems, a method a plain list does not have, so the call raises error R14
-- `ExtendByItemsRepeated` (line 2406): Raises error R14 today instead of padding every list to the longest size by repeating its own items. -- it ends in ExtendedToByRepeatingItems, a method a plain list does not have, so the call raises error R14
-- `ExtendedByRepeatingItems` (line 2419): Raises error R14 today instead of returning a copy padded to the longest size by repeating each list's own items. -- it ends in ExtendedToByRepeatingItems, a method a plain list does not have, so the call raises error R14
-- `ExtendToWithItemsIn` (line 2445): Raises error R14 today instead of padding each list to n items with the given items in turn. -- it asks a plain list for ExtendedToWithItemsIn, a method that list does not have, so the call raises error R14
-- `ExtendToUsingItemsIn` (line 2470): Raises error R14 today instead of padding each list to n items with the given items in turn. -- it asks a plain list for ExtendedToWithItemsIn, a method that list does not have, so the call raises error R14
-- `ExtendedToWithItemsIn` (line 2484): Raises error R14 today instead of returning a copy padded to n items with the given items in turn. -- it asks a plain list for ExtendedToWithItemsIn, a method that list does not have, so the call raises error R14
-- `ExtendWithItemsIn` (line 2502): Raises error R14 today instead of padding every list to the longest size with the given items in turn. -- it ends in ExtendedToWithItemsIn, a method a plain list does not have, so the call raises error R14
-- `ExtendUsingItemsIn` (line 2516): Raises error R14 today instead of padding every list to the longest size with the given items in turn. -- it ends in ExtendedToWithItemsIn, a method a plain list does not have, so the call raises error R14
-- `ExtendedWithItemsIn` (line 2529): Raises error R14 today instead of returning a copy padded to the longest size with the given items in turn. -- it ends in ExtendedToWithItemsIn, a method a plain list does not have, so the call raises error R14
-- `AdjustedToSmallest` (line 2610): Returns nothing today instead of a copy with every list cut to the size of the shortest. -- the body calls Shrinked but has no return, so the answer is lost; Shrinked works
-- `AdjustedToSmallestSize` (line 2619): Returns nothing today instead of a copy with every list cut to the size of the shortest. -- the body calls Shrinked but has no return, so the answer is lost; Shrinked works
-- `AdjustedToSmallestList` (line 2628): Returns nothing today instead of a copy with every list cut to the size of the shortest. -- the body calls Shrinked but has no return, so the answer is lost; Shrinked works
-- `AdjustedToMin` (line 2637): Returns nothing today instead of a copy with every list cut to the size of the shortest. -- the body calls Shrinked but has no return, so the answer is lost; Shrinked works
-- `AdjustedToMinSize` (line 2646): Returns nothing today instead of a copy with every list cut to the size of the shortest. -- the body calls Shrinked but has no return, so the answer is lost; Shrinked works
-- `AdjustedToMinList` (line 2655): Returns nothing today instead of a copy with every list cut to the size of the shortest. -- the body calls Shrinked but has no return, so the answer is lost; Shrinked works
-- `ShrinkToWith` (line 2737): Cuts every list longer than n down to its first n items, in place, and never uses the given item. -- the padding loop never runs, and when n is greater than the longest list every list is dropped and the content becomes empty
-- `ShrinkToUsing` (line 2807): Cuts every list longer than n down to its first n items, in place, and never uses the given item. -- the padding loop never runs, and when n is greater than the longest list every list is dropped and the content becomes empty
-- `ShrinkedToWith` (line 2828): Returns a copy with every list cut to its first n items; the given item is never used. -- when n is greater than the longest list every list is dropped and the answer is empty
-- `ShrinkedToUsing` (line 2841): Returns a copy with every list cut to its first n items; the given item is never used. -- when n is greater than the longest list every list is dropped and the answer is empty
-- `ShrinkedToBy` (line 2852): Returns a copy with every list cut to its first n items; the given item is never used. -- when n is greater than the longest list every list is dropped and the answer is empty
-- `EntryByPosition` (line 3426): Raises error R14 today instead of returning the index entry of an item by position. -- it calls IndexOn, which is defined nowhere, so the call raises error R14
-- `EntryByNumberOfOccurrence` (line 3436): Raises error R14 today instead of returning the index entry of an item by its number of occurrences. -- it calls IndexOn, which is defined nowhere, so the call raises error R14
-- `Entry` (line 3450): Raises error R14 today instead of returning the index entry of an item, by position or by number of occurrences. -- it calls IndexOn, which is defined nowhere, so the call raises error R14 for either mode; any other pcBy returns empty text
-- `NumberOfOccurrenceOfEntry` (line 3469): Raises error R14 today instead of returning how many times an item occurs. -- it calls IndexOn, which is defined nowhere, so the call raises error R14
-- `HowManyEntry` (line 3482): Raises error R14 today instead of returning how many times an item occurs. -- it calls IndexOn, which is defined nowhere, so the call raises error R14
-- `HowManyEntries` (line 3492): Raises error R14 today instead of returning how many times an item occurs. -- it calls IndexOn, which is defined nowhere, so the call raises error R14
-- `NthOccurrenceOfEntry` (line 3503): Raises error R14 today instead of returning where an item occurs for the nth time. -- it calls IndexOn, which is defined nowhere, so the call raises error R14
-- `FirstOccurrenceOfEntry` (line 3516): Raises error R14 today instead of returning where an item first occurs. -- it calls IndexOn, which is defined nowhere, so the call raises error R14
-- `LastOccurrenceOfEntry` (line 3526): Raises error R14 today instead of returning where an item last occurs. -- it calls IndexOn, which is defined nowhere, so the call raises error R14
-- `Merge` (line 3657): Raises an error on purpose: the lists cannot be merged in place, use the passive form instead. -- the body only raises "Can't merge the list of lists! ... use Merged()"
-- `Flatten` (line 3681): Raises an error on purpose: the lists cannot be flattened in place, use the passive form instead. -- the body only raises "Can't flatten the list of lists! ... use Flattened()"
-- `SortDownNthList` (line 4483): Raises error R13 today instead of sorting the list at position n in descending order, in place. -- the body chains .Reversed() directly onto new stzList(...), which Ring answers with error R13
-- `SortNthListInDescending` (line 4501): Raises error R13 today instead of sorting the list at position n in descending order, in place. -- it calls SortDownNthList, which raises error R13
-- `NthListSortedDown` (line 4513): Raises error R13 today instead of returning a copy with the list at position n sorted descending. -- it calls SortDownNthList, which raises error R13
-- `Classify` (line 5134): Raises error R14 today instead of grouping the other items under the distinct first items. -- the body asks the first column for StringifyNamedObjectsQ, which does not exist, so the call raises error R14
-- `ClassifyOn` (line 5235): Raises error R14 today instead of grouping the items under the distinct items of one column. -- it moves the column first and then calls Classify, which raises error R14
-- `ClassifyBy` (line 5294): Raises error R14 today instead of grouping the lists by the value of an expression on the first item. -- the call ends in Classify, which raises error R14
-- `ClassifyOnBy` (line 5334): Raises error R14 today instead of grouping the lists by the value of an expression on one column. -- the call ends in Classify, which raises error R14
-- `RemoveCol` (line 5679): Removes the item at position n from every list that has one, in place; nothing happens when n exceeds the NUMBER OF LISTS. -- the early check compares n with the number of lists instead of the number of columns, so with 2 lists of 3 items RemoveCol(3) does nothing
-- `RemoveNthCol` (line 5726): Removes the item at position n from every list that has one, in place; nothing happens when n exceeds the NUMBER OF LISTS. -- the early check compares n with the number of lists instead of the number of columns
-- `RemoveColumn` (line 5739): Removes the item at position n from every list that has one, in place; nothing happens when n exceeds the NUMBER OF LISTS. -- the early check compares n with the number of lists instead of the number of columns
-- `RemoveNthColumn` (line 5752): Removes the item at position n from every list that has one, in place; nothing happens when n exceeds the NUMBER OF LISTS. -- the early check compares n with the number of lists instead of the number of columns
-- `RemoveNthItems` (line 5765): Removes the item at position n from every list that has one, in place; nothing happens when n exceeds the NUMBER OF LISTS. -- the early check compares n with the number of lists instead of the number of columns
-- `ColRemoved` (line 5779): Returns a copy without the column at position n; the object is unchanged, but the same early check applies. -- it calls RemoveCol, so n greater than the number of lists removes nothing
-- `RemoveCols` (line 5810): Raises error R14 today instead of removing several columns at once, in place. -- the argument check calls IsAtOrAtPositionsNamedParams, which is defined nowhere, so the call raises error R14
-- `RemoveTheseCols` (line 5856): Raises error R14 today instead of removing several columns at once, in place. -- it calls RemoveCols, which raises error R14
-- `RemoveTheseColqQ` (line 5866): Raises error R14 today instead of removing several columns and returning the object. -- it calls RemoveColsQ, which raises error R14
-- `RemoveManyCols` (line 5875): Raises error R14 today instead of removing several columns at once, in place. -- it calls RemoveCols, which raises error R14
-- `RemoveManyColqQ` (line 5885): Raises error R14 today instead of removing several columns and returning the object. -- it calls RemoveColsQ, which raises error R14
-- `RemoveColumns` (line 5894): Raises error R14 today instead of removing several columns at once, in place. -- it calls RemoveCols, which raises error R14
-- `RemoveTheseColumns` (line 5907): Raises error R14 today instead of removing several columns at once, in place. -- it calls RemoveCols, which raises error R14
-- `RemoveManyColumns` (line 5919): Raises error R14 today instead of removing several columns at once, in place. -- it calls RemoveCols, which raises error R14
-- `ColsRemoved` (line 5932): Raises error R14 today instead of returning a copy without several columns. -- it calls RemoveCols, which raises error R14
-- `ToListInStringInShortForm` (line 6126): Raises error R21 today instead of returning the lists written as one short text. -- it concatenates the written lists with an operator that does not accept them, so the call raises error R21
-- `ToStzListOfpairsOfNumbers` (line 6210): Raises error R11 today instead of returning the lists as a list of pairs of numbers. -- the class stzListOfPairsOfNumbers is defined nowhere, so the call raises error R11
-- `SpeedUp` (line 6227): Raises error R21 today instead of dividing the first number by the second. -- the body treats the first two lists as numbers and divides them, which raises error R21
-- `GainFactor` (line 6250): Raises error R21 today instead of dividing the second number by the first. -- the body treats the first two lists as numbers and divides them, which raises error R21
-
 ## stzListOfPairs -- list/stzListOfPairs.ring (11)
 
 - `ReplacePair` (line 717): Raises error R20 today instead of replacing the pair at position n by the new pair. -- Raises R20 today on every call: the check IsPair(paNewPair) inside the class reaches the IsPair method inherited from stzList, which takes no argument, instead of the global IsPair function
@@ -491,101 +334,15 @@ and each was checked with a second call on different data. **None is fixed yet.*
 - `Pin` (line 384): Raises an error today instead of holding a shape where it is during later solves: no shape of any figure kind has a free position to hold. -- the diagram refuses it because the rules fix every shape (checked on 35 sample figures of all ten kinds); an unknown path raises too
 - `DragTo` (line 407): Raises an error today instead of moving a shape to a position and re-solving around it: no shape has a free centre to move. -- refused for every shape of 9 figures tried across the kinds; use MoveNoteTo to move a note
 
-## stzListOfNumbers -- number/stzListOfNumbers.ring (65)
-
-- `Bottom3AndTheirPositions` (line 2279): Returns [ number, position ] pairs for the 3 smallest distinct numbers, right only in an ascending list. -- the numbers and the positions come from two separately ordered lists and are paired index by index, so a pair names the number's own position only when the list is already ascending and has no repeats
-- `Bottom3NumbersAndTheirPositions` (line 2289): Returns [ number, position ] pairs for the three smallest distinct numbers, right only in an ascending list. -- the numbers and the positions come from two separately ordered lists and are paired index by index, so a pair names the number's own position only when the list is already ascending and has no repeats
-- `Bottom5AndTheirPositions` (line 2299): Returns [ number, position ] pairs for the 5 smallest distinct numbers, right only in an ascending list. -- the numbers and the positions come from two separately ordered lists and are paired index by index, so a pair names the number's own position only when the list is already ascending and has no repeats
-- `Bottom5NumbersAndTheirPositions` (line 2309): Returns [ number, position ] pairs for the five smallest distinct numbers, right only in an ascending list. -- the numbers and the positions come from two separately ordered lists and are paired index by index, so a pair names the number's own position only when the list is already ascending and has no repeats
-- `Bottom7AndTheirPositions` (line 2319): Returns [ number, position ] pairs for the 7 smallest distinct numbers, right only in an ascending list. -- the numbers and the positions come from two separately ordered lists and are paired index by index, so a pair names the number's own position only when the list is already ascending and has no repeats
-- `Bottom7NumbersAndTheirPositions` (line 2329): Returns [ number, position ] pairs for the seven smallest distinct numbers, right only in an ascending list. -- the numbers and the positions come from two separately ordered lists and are paired index by index, so a pair names the number's own position only when the list is already ascending and has no repeats
-- `Bottom10AndTheirPositions` (line 2339): Returns [ number, position ] pairs for the 10 smallest distinct numbers, right only in an ascending list. -- the numbers and the positions come from two separately ordered lists and are paired index by index, so a pair names the number's own position only when the list is already ascending and has no repeats
-- `Bottom10NumbersAndTheirPositions` (line 2349): Returns [ number, position ] pairs for the ten smallest distinct numbers, right only in an ascending list. -- the numbers and the positions come from two separately ordered lists and are paired index by index, so a pair names the number's own position only when the list is already ascending and has no repeats
-- `Top3AndTheirPositions` (line 2850): Returns [ number, position ] pairs for the 3 largest distinct numbers, right only in an ascending list. -- the numbers and the positions come from two separately ordered lists and are paired index by index, so a pair names the number's own position only when the list is already ascending and has no repeats
-- `Top3NumbersAndTheirPositions` (line 2860): Returns [ number, position ] pairs for the three largest distinct numbers, right only in an ascending list. -- the numbers and the positions come from two separately ordered lists and are paired index by index, so a pair names the number's own position only when the list is already ascending and has no repeats
-- `Top5AndTheirPositions` (line 2870): Returns [ number, position ] pairs for the 5 largest distinct numbers, right only in an ascending list. -- the numbers and the positions come from two separately ordered lists and are paired index by index, so a pair names the number's own position only when the list is already ascending and has no repeats
-- `Top5NumbersAndTheirPositions` (line 2880): Returns [ number, position ] pairs for the five largest distinct numbers, right only in an ascending list. -- the numbers and the positions come from two separately ordered lists and are paired index by index, so a pair names the number's own position only when the list is already ascending and has no repeats
-- `Top7AndTheirPositions` (line 2890): Returns [ number, position ] pairs for the 7 largest distinct numbers, right only in an ascending list. -- the numbers and the positions come from two separately ordered lists and are paired index by index, so a pair names the number's own position only when the list is already ascending and has no repeats
-- `Top7NumbersAndTheirPositions` (line 2900): Returns [ number, position ] pairs for the seven largest distinct numbers, right only in an ascending list. -- the numbers and the positions come from two separately ordered lists and are paired index by index, so a pair names the number's own position only when the list is already ascending and has no repeats
-- `Top10AndTheirPositions` (line 2910): Returns [ number, position ] pairs for the 10 largest distinct numbers, right only in an ascending list. -- the numbers and the positions come from two separately ordered lists and are paired index by index, so a pair names the number's own position only when the list is already ascending and has no repeats
-- `Top10NumbersAndTheirPositions` (line 2920): Returns [ number, position ] pairs for the ten largest distinct numbers, right only in an ascending list. -- the numbers and the positions come from two separately ordered lists and are paired index by index, so a pair names the number's own position only when the list is already ascending and has no repeats
-- `Closest` (line 3326): Raises error R19 today instead of returning the number closest to n. -- it calls Nearest without passing n, so the call raises error R19; ClosestTo works
-- `Neighbors` (line 3479): Returns the distinct numbers just below and just above n; one number when n sits at an end. -- for an absent n that is greater than the COUNT of numbers, it answers only the largest number instead of the pair around n (n = 8 in [ 4, 7, 10, 3, 6, 9 ] answers [ 10 ])
-- `Nighbors` (line 3625): Returns the distinct numbers just below and just above n; one number when n sits at an end. -- for an absent n that is greater than the COUNT of numbers, it answers only the largest number instead of the pair around n
-- `NearestNighbors` (line 3636): Returns the distinct numbers just below and just above n; one number when n sits at an end. -- for an absent n that is greater than the COUNT of numbers, it answers only the largest number instead of the pair around n
-- `NighborsOf` (line 3647): Returns the distinct numbers just below and just above n; one number when n sits at an end. -- for an absent n that is greater than the COUNT of numbers, it answers only the largest number instead of the pair around n
-- `NearestNighborsOf` (line 3658): Returns the distinct numbers just below and just above n; one number when n sits at an end. -- for an absent n that is greater than the COUNT of numbers, it answers only the largest number instead of the pair around n
-- `NighborsTo` (line 3669): Returns the distinct numbers just below and just above n; one number when n sits at an end. -- for an absent n that is greater than the COUNT of numbers, it answers only the largest number instead of the pair around n
-- `NearestNighborsTo` (line 3680): Returns the distinct numbers just below and just above n; one number when n sits at an end. -- for an absent n that is greater than the COUNT of numbers, it answers only the largest number instead of the pair around n
-- `Walker` (line 4042): Raises error R11 today instead of returning a walker that reproduces the list. -- the class stzWalker is not defined anywhere, so the call raises error R11
-- `Absolute` (line 4205): Raises error R24 today instead of replacing every negative number by its absolute value. -- a stray * after This.Content() joins the next line to it, so the local list and its length are never set
-- `Absoluted` (line 4224): Raises error R24 today instead of returning a copy with every number made positive. -- it calls Absolute, which raises error R24
-- `Negate` (line 4236): Leaves the list unchanged today instead of turning every positive number negative. -- it edits a local copy of the numbers and never stores it back
-- `Negated` (line 4255): Returns the numbers unchanged today instead of a copy with every positive number made negative. -- it copies the list and calls Negate, which changes nothing
-- `MeanByCoefficient` (line 4355): Raises error R11 today instead of returning the mean weighted by the given coefficients. -- it builds objects of a class that does not exist (steListOfNumbers)
-- `ContainsADividableNumberBy` (line 4386): TRUE if the product of all the numbers is divisible by n, which is not the same as one number being divisible. -- it tests the product of the numbers, not each number, and raises an error when that product is negative
-- `DividableNumbersBy` (line 4405): Returns the even numbers whatever n is, instead of the numbers divisible by n. -- the body tests number % 2 and never reads n
-- `Cumulate` (line 4534): Turns the numbers into running sums, in place, but the second number is never added to the first. -- the loop starts at the third number, so [ 1, 2, 3, 4, 5 ] becomes [ 1, 2, 5, 9, 14 ] instead of [ 1, 3, 6, 10, 15 ]
-- `Cumulated` (line 4573): Raises error R24 today instead of returning the running sums of the numbers. -- it calls the chaining form of Cumulate, which reads a return-type variable that is never set
-- `OnlyUnicodes` (line 4586): Raises error R3 today instead of returning the numbers that are Unicode code points. -- it calls IsUnicodeNumber, which is defined nowhere
-- `MultiplyEachWithW` (line 5400): Multiplies by n the numbers whose position meets the condition and drops the others, in place. -- the numbers that fail the condition are removed from the list, and a condition that does not mention @i is refused
-- `EachMultipliedWithW` (line 5476): Raises error R19 today instead of returning a copy multiplied by n where the condition holds. -- it takes no condition and calls the chaining form of MultiplyEachWithW with one argument, so the call raises error R19
-- `DivideEachWithW` (line 5499): Divides by n the numbers whose position meets the condition and drops the others, in place. -- the numbers that fail the condition are removed from the list, and a condition that does not mention @i is refused
-- `EachDividedWithW` (line 5518): Raises error R19 today instead of returning a copy divided by n where the condition holds. -- it takes no condition and calls the chaining form of DivideEachWithW with one argument, so the call raises error R19
-- `ARandomNumber` (line 5900): Returns a number taken at random from the list, but only when one of its numbers lies strictly between 1 and its size. -- the body calls ARandomNumberBetween, which resolves to this class's own method, so a number from the list is used as a position; with no number strictly between 1 and the size it raises "No valid numbers found in the list!"
-- `ANumber` (line 5913): Returns a number taken at random from the list, but only when one of its numbers lies strictly between 1 and its size. -- same as ARandomNumber; the picked list number is used as a position, and the call raises when no number lies strictly between 1 and the size
-- `AnyRandomNumber` (line 5923): Returns a number taken at random from the list, but only when one of its numbers lies strictly between 1 and its size. -- same as ARandomNumber; the picked list number is used as a position, and the call raises when no number lies strictly between 1 and the size
-- `AnyNumber` (line 5933): Returns a number taken at random from the list, but only when one of its numbers lies strictly between 1 and its size. -- same as ARandomNumber; the picked list number is used as a position, and the call raises when no number lies strictly between 1 and the size
-- `ANumberLessThan` (line 5957): Returns a random number among those below n, but only when one of them lies strictly between 1 and their count. -- it draws with ARandomNumber from the numbers below n, so it raises "No valid numbers found in the list!" when none of them lies strictly between 1 and their count
-- `ANumberGreaterThan` (line 6056): Raises error R14 today instead of returning a random number above n. -- it calls NumbersGreaterThanQRT, which is defined nowhere
-- `AnyNumberBeforeOrAfter` (line 6177): Picks a number before or after n at random, then reads that number as a position, so the answer is often wrong or an error. -- AnyNumberBefore and AnyNumberAfter already return numbers and the result is passed to Item() as a position; it also raises when n is absent
-- `AnyNumberAfter` (line 6561): Returns a number from the positions after the place n holds counted from the END of the list, which is not the place after n. -- it looks n up in the reversed list and uses that position on the original list, so 200 in [ 100, 200, 300, 400, 500 ] always answers 500
-- `AnyNumberAfterPosition` (line 6654): Returns a number from a position meant to come after the given one, but computed so that it can come before it. -- the position is chosen between n-1 and 2n-3 instead of after n, so n = 2 always answers the first number
-- `AnyNumberNotBetweenPositions` (line 7266): Raises error R3 today instead of returning a number from outside the given positions. -- it calls AnyNumberNotIn, which is defined nowhere
-- `AnyNumberOutsidePosition` (line 7417): Raises error R24 today instead of returning a number from any position but the given one. -- it builds the list of positions into one variable and reads another (_anPos_), which is never set
-- `NRandomNumbers` (line 7580): Returns n numbers drawn at random, repeats allowed, from those strictly between 1 and the list size. -- it draws with ARandomNumberBetween(1, size), which resolves to this class's own method, so it picks list numbers lying between 1 and the size instead of any item of the list; it raises when none lies there
-- `NNumbersOtherThan` (line 7681): Raises error R19 today instead of returning n random numbers other than a given number. -- it calls NRandomNumbersIn with too few arguments and looks up n, the count, instead of the number to leave out
-- `NNumbersLessThan` (line 7757): Raises error R14 today instead of returning n random numbers below a given number. -- it asks NumbersLessThanQ for NRandomNumbers, which the object it gets back does not have
-- `NNumbersGreaterThan` (line 7810): Raises error R14 today instead of returning n random numbers above a given number. -- it calls NumbersGreaterThanQ, which is defined nowhere
-- `NItemsOutsidePositionZ` (line 8143): Raises error R4 today instead of returning n items from outside a position, with their positions. -- the method calls itself with the same argument, so it recurses until the stack overflows
-- `SomeNumbersOtherThan` (line 8198): Returns some numbers picked at random from those other than n; the second parameter is not used. -- only the first parameter is read
-- `SomeNumbersLessThan` (line 8235): Raises error R3 today instead of returning some random numbers below a given number. -- it calls StzListOfNumbers(), which is not a function (StzListOfNumbersQ is)
-- `SomeNumbersGreaterThan` (line 8261): Raises error R3 today instead of returning some random numbers above a given number. -- it calls StzListOfNumbers(), which is not a function (StzListOfNumbersQ is)
-- `SomeNumbersBetween` (line 8305): Raises error R3 today instead of returning some random numbers between two limits. -- it calls StzListOfNumbers(), which is not a function (StzListOfNumbersQ is)
-- `SomeNumbersNotBetween` (line 8331): Raises error R3 today instead of returning some random numbers outside two limits. -- it calls StzListOfNumbers(), which is not a function (StzListOfNumbersQ is)
-- `AreGreaterThen` (line 9172): TRUE if every number is at least n, the limit itself counting as greater. -- the test is number >= n, not strictly greater
-- `AreSmallerThen` (line 9203): TRUE if every number is at most n, the limit itself counting as smaller. -- the test is number <= n, not strictly smaller
-- `SortByInDescending` (line 9732): Raises error R13 today instead of sorting the numbers by an expression, largest first, in place. -- the body chains .Reversed() directly onto new stzList(...), which Ring answers with error R13
-- `SortByDown` (line 9746): Raises error R13 today instead of sorting the numbers by an expression, largest first, in place. -- it calls SortByInDescending, which raises error R13
-- `SortedByInDescending` (line 9758): Raises error R13 today instead of returning the numbers sorted by an expression, largest first. -- it calls SortByInDescending, which raises error R13
-
 ## stzMatrix -- number/stzMatrix.ring (2)
 
 - `Diagonal1` (line 2961): Returns nothing today instead of the main diagonal, because its body is empty. -- the method exists but has no body, so it answers an empty value for every matrix; Diagonal gives the main diagonal
 - `EigenVectors` (line 4433): Returns the unit eigenvectors as the columns of a matrix, in the same order as the eigenvalues. -- raises an error unless the matrix is square, for a defective matrix, and when an eigenvector is complex
 
-## stzNumber -- number/stzNumber.ring (20)
+## stzNumber -- number/stzNumber.ring (2)
 
-- `isWeiferich` (line 3883): Answers an empty string today instead of telling whether the number is a Wieferich prime. -- the call answers an empty string today
-- `IsQuietEqualTo` (line 4546): Raises an error today instead of telling whether two numbers differ by less than the quiet ratio. -- the call raises error R13 today, because it subtracts a plain number with an operator that needs an object
-- `RoundUp` (line 5439): Raises an error today instead of returning the number rounded up. -- the call raises error R24 today (a variable used before it is set)
-- `RoundDown` (line 5448): Raises an error today instead of returning the number rounded down. -- the call raises error R24 today (a variable used before it is set)
-- `Incremented` (line 5946): Answers an empty string today instead of the number plus 1; the number is unchanged. -- it answers an empty string; NextNumber answers the number plus 1
-- `Decremented` (line 5968): Answers an empty string today instead of the number minus 1; the number is unchanged. -- it answers an empty string; PreviousNumber answers the number minus 1
-- `ArcTangent` (line 6309): Raises an error today instead of returning the arc tangent of the number. -- the call raises error R24 today (a variable used before it is set)
-- `ArcTangent2` (line 6320): Raises an error today instead of returning the two-argument arc tangent. -- the call raises an error about its parameter count today
-- `HyperbolicTangent` (line 6352): Raises an error today instead of returning the hyperbolic tangent of the number. -- the call raises error R3 today (it calls tanhh, which is not defined)
-- `Derivative` (line 6485): Raises an error today instead of returning the derivative of a function at the number. -- the call raises error R24 today (a variable used before it is set)
-- `ToBytes` (line 7369): Raises a parameter-type error today instead of returning the number as bytes. -- the call raises a parameter-type error today
-- `RemoveLeadingSpaces` (line 8340): Raises an error today instead of removing the spaces before the number. -- the call raises error R14 today, because it calls a stzString method that does not exist
-- `LeadingSpacesRemoved` (line 8352): Raises an error today instead of returning the number without its leading spaces. -- the call raises error R14 today, because it calls a stzString method that does not exist
-- `RemoveTrailingSpaces` (line 8361): Raises an error today instead of removing the spaces after the number. -- the call raises error R14 today, because it calls a stzString method that does not exist
-- `TrailingSpacesRemoved` (line 8373): Raises an error today instead of returning the number without its trailing spaces. -- the call raises error R14 today, because it calls a stzString method that does not exist
-- `ZerosRemoved` (line 8423): Raises an error today instead of returning the number without the zeros at its ends. -- the call raises error R14 today, because it calls a method that does not exist
-- `SetDefaultFormat` (line 8907): Raises an unsupported-feature error today instead of setting the default number format. -- the call raises an unsupported-feature error today
-- `ApplyLocale` (line 8916): Raises an unsupported-feature error today instead of applying a locale to the number. -- the call raises an unsupported-feature error today
-- `Stringify` (line 9360): Answers an empty string today instead of the number as text, because its body is empty. -- the body is empty, so the call answers nothing; StringValue answers the number as a string
-- `DeepStringifiy` (line 9372): Answers an empty string today instead of the number as text, because its body is empty. -- the body is empty today; StringValue answers the number as a string
+- `SetDefaultFormat` (line 8937): Raises an unsupported-feature error today instead of setting the default number format. -- the call raises an unsupported-feature error today
+- `ApplyLocale` (line 8946): Raises an unsupported-feature error today instead of applying a locale to the number. -- the call raises an unsupported-feature error today
 
 ## stzReactiveSystem -- reactive/stzReactive.ring (7)
 
@@ -643,17 +400,9 @@ and each was checked with a second call on different data. **None is fixed yet.*
 - `MutualInformation` (line 3140): Returns the mutual information, in bits, between this data and another data set of the same length. -- the pairs are joined with an underscore and split again, so a value containing an underscore gives a wrong result: "a_b" and "c_d" against x and y give 0 where ab and cd give 1
 - `PlanSummary` (line 3979): Raises error R5 today instead of returning a text preview of a plan's steps without running it. -- the body reads the title from a variable named oPlan, which does not exist, instead of from the plan it built
 
-## stzString -- string/stzString.ring (9)
+## stzString -- string/stzString.ring (1)
 
 - `IsCurrencySymbol` (line 9373): Answers FALSE today: the currency symbol check is a stub that waits for the locale data.
-- `SplitAroundCS_named` (line 14858): Raises error R14 today instead of splitting around the substring with a case rule. -- the call raises error R14 today, because it calls a method that is not defined
-- `SplitToPartsOfNCharsXTOpt` (line 15469): Raises error R19 today instead of splitting the string into parts of n chars with options. -- the call raises error R19 today when given the one argument it documents
-- `Move` (line 16132): Moves the char at one position to another, in place, but lands one place early today. -- Move(1, 3) on "banana" gives "abnana", the char landing at position 2 and not 3
-- `IsIncludedIn` (line 16777): TRUE if the other string occurs inside this one; the two sides are read the other way round today. -- IsIncludedIn("bananas") on "banana" answers FALSE, and IsIncludedIn("an") answers TRUE, so it tests whether the argument is inside the string
-- `TrailingCharIs` (line 17734): Answers FALSE today for a string that ends with the given char, such as "banana" and "a". -- the call answers FALSE where the last char equals the argument; HasThisTrailingChar answers correctly
-- `LeadingCharIs` (line 17745): Answers FALSE today for a string that starts with the given char, such as "banana" and "b". -- the call answers FALSE where the first char equals the argument; HasThisLeadingChar answers correctly
-- `RemoveDuplicates` (line 23599): Removes the repeated characters of the text, in place, but a known defect makes the call raise an error today. -- the call raises error R14 today, because it calls UpdateWith, which this class does not define
-- `RemoveBlankLines` (line 25425): Raises error R14 today instead of removing the blank lines. -- the call raises error R14 today, because it calls a method that is not defined; RemoveEmptyLines works
 
 ## stzStringChar -- string/stzStringChar.ring (23)
 
@@ -686,196 +435,71 @@ and each was checked with a second call on different data. **None is fixed yet.*
 - `SortBy` (line 1311): Sorts the strings in place by a numeric key computed from each one, such as its length; a text key raises. -- @item is not defined here and raises R24, and a key that is text raises R41 because keys are compared with a greater-than, so only numeric keys such as len(@string) work
 - `Matches` (line 1760): TRUE if every string matches the pattern as a whole, so "a." matches ab and "a" does not; an empty list is TRUE. -- the old comment says it returns the strings that match, but it answers one verdict for the whole list
 
-## stzTable -- table/stzTable.ring (191)
+## stzTable -- table/stzTable.ring (66)
 
-- `CellAndPosition` (line 1727): Raises error R24 today instead of returning a cell with its [ column, row ] position. -- Raises R24 (uninitialized variable pnrow) because the body passes pnRow while the parameter is named pRow; CellZ works
-- `CellAndItsPosition` (line 1737): Raises error R24 today instead of returning a cell with its [ column, row ] position. -- Raises R24 (uninitialized variable pnrow) because the body passes pnRow while the parameter is named pRow; CellZ works
-- `Cells` (line 1886): Raises error R41 today instead of returning every cell, row by row. -- Raises R41 (invalid numeric string) because it calls Section with :FirstCol and :LastRow corners, which Section does not read; Rows gives the cells row by row
-- `PositionsAndTheseCells` (line 2049): Raises error today instead of pairing each given position with its cell. -- Raises Column not found! or R2 because the body reads paCells[1] and paCells[2] instead of the item of the loop
-- `SectionToRange` (line 2748): Raises error today instead of returning a range of the table. -- Always raises Feature not implemented yet!
-- `Range` (line 2758): Raises error today instead of returning a block of the table between two bounds. -- Always raises Feature not implemented yet!
-- `CellsInCols` (line 2842): Raises error R14 today instead of returning the cells of the given columns. -- Raises R14 because IsListOfNumbersOrStrings is defined nowhere
-- `CellsInRowNAndTheirPositions` (line 3590): Raises error R24 today instead of returning the cells of row n with their positions. -- Raises R24 (uninitialized variable p) because the body passes p, not n; RowZ works
-- `CellsAndPositionsInNthRow` (line 3620): Raises error R24 today instead of returning the cells of row n with their positions. -- Raises R24 (uninitialized variable p) because the body passes p, not n; RowZ works
-- `CellsInNthRowAndTheirPositions` (line 3636): Raises error R24 today instead of returning the cells of row n with their positions. -- Raises R24 (uninitialized variable p) because the body passes p, not n; RowZ works
-- `Extend` (line 3935): Raises error today instead of growing the table to a given size. -- Always raises Unsupported feature in this release!
-- `ExtendTo` (line 3947): Does nothing today instead of growing the table to a given size. -- Its body is empty
-- `RenameCols` (line 4132): Raises error R14 today instead of renaming several columns from [ old name, new name ] pairs. -- Raises R14 because it calls RenameCol, which is defined nowhere
-- `RemnameNthCols` (line 4179): Raises error R24 today instead of renaming several columns by position. -- Raises R24 (uninitialized variable pacolsnumbers) because the check reads another name than the parameter; it would also call RenameColN without a new name
-- `RenameLastCol` (line 4205): Raises error R2 today instead of renaming the last column. -- Raises R2 because it passes :Last, which RenameNthCol does not understand; RenameNthCol with the real position works
-- `RemoveColumnsAt` (line 4235): Raises error R24 today instead of removing the columns at the given positions. -- Raises R24 because the body sorts an undefined name (TpacColNamesOrNumbers); RemoveCols with the positions works
-- `RemoveColsAt` (line 4262): Raises error R24 today instead of removing the columns at the given positions. -- Raises R24 because RemoveColumnsAt sorts an undefined name; RemoveCols with the positions works
-- `RemoveNthCols` (line 4272): Raises error R24 today instead of removing the columns at the given positions. -- Raises R24 because RemoveColumnsAt sorts an undefined name; RemoveCols with the positions works
-- `RemoveNthColumns` (line 4282): Raises error R24 today instead of removing the columns at the given positions. -- Raises R24 because RemoveColumnsAt sorts an undefined name; RemoveCols with the positions works
-- `RemoveAllColsExceptAt` (line 4292): Raises error R24 today instead of keeping only the columns at the given positions. -- Raises R24 because the body passes paColNumbers, which is not the parameter name
-- `RemoveColsExceptPositions` (line 4303): Raises error R24 today instead of keeping only the columns at the given positions. -- Raises R24 through RemoveAllColsExceptAt, which passes a name that is not its parameter
-- `RemoveColumnsExceptPositions` (line 4313): Raises error R24 today instead of keeping only the columns at the given positions. -- Raises R24 through RemoveAllColsExceptAt, which passes a name that is not its parameter
-- `RemoveAllColsExceptPositions` (line 4323): Raises error R24 today instead of keeping only the columns at the given positions. -- Raises R24 through RemoveAllColsExceptAt, which passes a name that is not its parameter
-- `RemoveAllColumnsExceptPositions` (line 4333): Raises error R24 today instead of keeping only the columns at the given positions. -- Raises R24 through RemoveAllColsExceptAt, which passes a name that is not its parameter
-- `RemoveColsExceptAt` (line 4344): Raises error R24 today instead of keeping only the columns at the given positions. -- Raises R24 through RemoveAllColsExceptAt, which passes a name that is not its parameter
-- `RemoveAllColsOtherThanPositions` (line 4354): Raises error R24 today instead of keeping only the columns at the given positions. -- Raises R24 through RemoveAllColsExceptAt, which passes a name that is not its parameter
-- `RemoveColsOtherThanPositions` (line 4364): Raises error R24 today instead of keeping only the columns at the given positions. -- Raises R24 through RemoveAllColsExceptAt, which passes a name that is not its parameter
-- `RemoveAllColumnsExceptAt` (line 4375): Raises error R24 today instead of keeping only the columns at the given positions. -- Raises R24 through RemoveAllColsExceptAt, which passes a name that is not its parameter
-- `RemoveColumnsExceptAt` (line 4385): Raises error R24 today instead of keeping only the columns at the given positions. -- Raises R24 through RemoveAllColsExceptAt, which passes a name that is not its parameter
-- `RemoveAllColumnsOtherThanPositions` (line 4395): Raises error R24 today instead of keeping only the columns at the given positions. -- Raises R24 through RemoveAllColsExceptAt, which passes a name that is not its parameter
-- `RemoveColumnsOtherThanPositions` (line 4405): Raises error R24 today instead of keeping only the columns at the given positions. -- Raises R24 through RemoveAllColsExceptAt, which passes a name that is not its parameter
-- `RemoveAllColsOtherThan` (line 4431): Raises error R14 today instead of keeping only the given columns. -- Raises R14 because IsListOfNumbersOrStrings is defined nowhere
-- `RemoveColsOtherThan` (line 4440): Raises error R14 today instead of keeping only the given columns. -- Raises R14 because IsListOfNumbersOrStrings is defined nowhere
-- `RemoveAllColumnsOtherThan` (line 4457): Raises error R14 today instead of keeping only the given columns. -- Raises R14 because IsListOfNumbersOrStrings is defined nowhere
-- `RemoveColumnsOtherThan` (line 4466): Raises error R14 today instead of keeping only the given columns. -- Raises R14 because IsListOfNumbersOrStrings is defined nowhere
-- `RemoveNthRows` (line 4580): Raises error R13 today instead of removing the rows at the given positions. -- Raises R13 because the body sorts the positions through U(), which does not give an object; RemoveNthRow works one row at a time
-- `RemoveRowsAt` (line 4609): Raises error R13 today instead of removing the rows at the given positions. -- Raises R13 because the body sorts the positions through U(), which does not give an object; RemoveNthRow works one row at a time
-- `RemoveRows` (line 4619): Raises error R13 today instead of removing the given rows, listed by position or as lists of cells. -- Positions raise R13 through RemoveNthRows; rows raise R14 because FindTheseRows is defined nowhere
-- `RemoveAllRowsExceptAt` (line 4648): Raises error R13 today instead of keeping only the rows at the given positions. -- Raises R13 through RemoveRows, which relies on RemoveNthRows
-- `RemoveRowsExceptAt` (line 4665): Raises error R13 today instead of keeping only the rows at the given positions. -- Raises R13 through RemoveRows, which relies on RemoveNthRows
-- `RemoveAllRowsOtherThanPositions` (line 4674): Raises error R13 today instead of keeping only the rows at the given positions. -- Raises R13 through RemoveRows, which relies on RemoveNthRows
-- `RemoveRowsOtherThanPositions` (line 4683): Raises error R13 today instead of keeping only the rows at the given positions. -- Raises R13 through RemoveRows, which relies on RemoveNthRows
-- `RemoveAllRowsExcept` (line 4694): Raises error R13 today instead of keeping only the given rows. -- Positions are passed to RemoveRowsAt, which would remove the rows to keep and raises R13; rows rely on FindRowsExceptThese
-- `RemoveAllRowsOtherThan` (line 4728): Raises error R13 today instead of keeping only the given rows. -- Positions are passed to RemoveRowsAt, which would remove the rows to keep and raises R13; rows rely on FindRowsExceptThese
-- `RemoveRowsOtherThan` (line 4738): Raises error R13 today instead of keeping only the given rows. -- Positions are passed to RemoveRowsAt, which would remove the rows to keep and raises R13; rows rely on FindRowsExceptThese
-- `EraseSection` (line 4929): Raises error R19 today instead of emptying the cells between two corners. -- Raises R19 because it calls SectionAsPositions without the corners; EraseCells with a list of positions works
-- `InsertCol` (line 4946): Does nothing today instead of inserting a new column before or after a given position. -- Does nothing today: the body appends the column to the stored content but then restores the content copied before, so the table is unchanged; AddColumn appends a column
-- `InsertColBefore` (line 5008): Does nothing today instead of inserting a new column before or after a given position. -- Does nothing today: the body appends the column to the stored content but then restores the content copied before, so the table is unchanged
-- `InsertColBeforePosition` (line 5019): Does nothing today instead of inserting a new column before or after a given position. -- Does nothing today: the body appends the column to the stored content but then restores the content copied before, so the table is unchanged
-- `insertColAt` (line 5031): Does nothing today instead of inserting a new column before or after a given position. -- Does nothing today: the body appends the column to the stored content but then restores the content copied before, so the table is unchanged
-- `InsertColAtPosition` (line 5042): Does nothing today instead of inserting a new column before or after a given position. -- Does nothing today: the body appends the column to the stored content but then restores the content copied before, so the table is unchanged
-- `InsertColumn` (line 5054): Does nothing today instead of inserting a new column before or after a given position. -- Does nothing today: the body appends the column to the stored content but then restores the content copied before, so the table is unchanged
-- `InsertColumnBefore` (line 5065): Does nothing today instead of inserting a new column before or after a given position. -- Does nothing today: the body appends the column to the stored content but then restores the content copied before, so the table is unchanged
-- `InsertColumnBeforePosition` (line 5076): Does nothing today instead of inserting a new column before or after a given position. -- Does nothing today: the body appends the column to the stored content but then restores the content copied before, so the table is unchanged
-- `insertColumnAt` (line 5088): Does nothing today instead of inserting a new column before or after a given position. -- Does nothing today: the body appends the column to the stored content but then restores the content copied before, so the table is unchanged
-- `InsertColumnAtPosition` (line 5099): Does nothing today instead of inserting a new column before or after a given position. -- Does nothing today: the body appends the column to the stored content but then restores the content copied before, so the table is unchanged
-- `InsertColAfter` (line 5111): Does nothing today instead of inserting a new column before or after a given position. -- Does nothing today: the body appends the column to the stored content but then restores the content copied before, so the table is unchanged
-- `InsertColAfterPosition` (line 5123): Does nothing today instead of inserting a new column before or after a given position. -- Does nothing today: the body appends the column to the stored content but then restores the content copied before, so the table is unchanged
-- `InsertColumnAfter` (line 5135): Does nothing today instead of inserting a new column before or after a given position. -- Does nothing today: the body appends the column to the stored content but then restores the content copied before, so the table is unchanged
-- `InsertColumnAfterPosition` (line 5146): Does nothing today instead of inserting a new column before or after a given position. -- Does nothing today: the body appends the column to the stored content but then restores the content copied before, so the table is unchanged
-- `InsertRowAtPositions` (line 5289): Raises error R13 today instead of inserting one row at each of several positions. -- Raises R13 because the body sorts the positions through U(), which does not give an object
-- `InsertRows` (line 5311): Raises error R13 today instead of inserting one row at each of several positions. -- Raises R13 through InsertRowAtPositions, which sorts the positions through U(), which does not give an object
-- `InsertRowsAt` (line 5322): Raises error R13 today instead of inserting one row at each of several positions. -- Raises R13 through InsertRowAtPositions, which sorts the positions through U(), which does not give an object
-- `TheseColNames` (line 5593): Raises an error today instead of returning the names of the columns at the given positions. -- Raises Can't create the stzList object! because the body calls Sorted() straight on a new stzList; ColNumbersToNames works
-- `ReplaceNthColName` (line 6261): Leaves the table unchanged today instead of giving a column a new name. -- Does nothing because the body renames the stored content and then restores the content copied before; a name that already exists still raises an error
-- `ReplaceColName` (line 6275): Leaves the table unchanged today instead of giving a column a new name. -- Does nothing because the body renames the stored content and then restores the content copied before; a name that already exists still raises an error
-- `ReplaceColumnName` (line 6303): Leaves the table unchanged today instead of giving a column a new name. -- Does nothing because the body renames the stored content and then restores the content copied before; a name that already exists still raises an error
-- `FindColsByValue` (line 6520): Raises an error today instead of returning the positions of the columns equal to any of the given cell lists. -- Raises Can't create the stzList object! for a valid list of cell lists; FindColByValue works one list at a time
-- `FindColsExceptAt` (line 6561): Returns the positions of the columns that are not in the given list; only a list of lists is accepted today. -- The check tests for a list of lists instead of a list of numbers: a plain list of positions raises, and [ [ 1 ] ] leaves out nothing
-- `FindNthRow` (line 6719): Raises error R19 today instead of returning the position of the nth occurrence of a row. -- Raises R19 because it passes too few arguments to FindNthRowCS
-- `FindSubValues` (line 7180): Raises error today instead of finding the cells that contain any of several texts. -- Always raises TODO!
-- `FindNthOccurrenceOfSubValue` (line 7378): Raises error R24 today instead of finding the nth cell that contains a text. -- Raises R24 (uninitialized variable psubvalue) because the body passes pSubValue while the parameter is named pSubValueValue; FindNthSubValue works
-- `FindFirstOccurrenceOfSubValue` (line 7509): Raises error R24 today instead of finding the first cell that contains a text. -- Raises R24 because the body passes pSubValue while the parameter is named pSubValueValue; FindFirstSubValue works
-- `FindLastOccurrenceOfSubValue` (line 7619): Raises error R24 today instead of finding the last cell that contains a text. -- Raises R24 because the body passes pSubValue while the parameter is named pSubValueValue; FindLastSubValue works
-- `ContainsColumns` (line 8255): Raises error R24 today instead of testing that the table has the given columns. -- Raises R24 (uninitialized variable pacol) because the body passes paCol while the parameter is named paCols; ContainsCols works
-- `ContainsTheseColumns` (line 8265): Raises error R24 today instead of testing that the table has the given columns. -- Raises R24 (uninitialized variable pacol) because the body passes paCol while the parameter is named paCols; ContainsCols works
-- `OccurrencesInCells` (line 8503): Raises error R24 today instead of finding a text inside the given cells. -- Raises R24 (uninitialized variable pacells) because the method takes no list of cells; FindAllInCells works
-- `FindValueInCells` (line 8567): Raises an error today instead of finding the given cells that equal a value. -- Declares one parameter but forwards to a form that needs the cells and the value: any call raises R19 or R20
-- `PositionsOfValueInCells` (line 8580): Raises error R24 today instead of finding the given cells that equal a value. -- Raises R24 (uninitialized variable ppacells) because the body passes a misspelt name
-- `FindNthOccurrenceOfValueInCells` (line 8751): Raises error R24 today instead of finding the nth given cell that equals a value. -- Raises R24 (uninitialized variable pvalue) because the body passes pValue while the parameter is named pCellValue
-- `FindNthOccurrenceOfSubValueInCells` (line 8819): Raises error R24 today instead of finding the nth given cell that contains a text. -- Raises R24 because the body passes pSubValue while the parameter is named pSubValueValue
-- `FindFirstValueInCells` (line 8883): Raises error R14 today instead of finding the first given cell that equals a value. -- Raises R14 because FindFirstValueInCellCS is defined nowhere; FindFirstInCells works
-- `FindFirstOccurrenceOfValueInCells` (line 8894): Raises error R24 today instead of finding the first given cell that equals a value. -- Raises R24 because the body passes pValue while the parameter is named pCellValue
-- `FindFirstOccurrenceOfSubValueInCells` (line 8924): Raises error R24 today instead of finding the first given cell that contains a text. -- Raises R24 because the body passes pSubValue while the parameter is named pSubValueValue
-- `FindLastValueInCells` (line 8988): Raises error R14 today instead of finding the last given cell that equals a value. -- Raises R14 because FindLastValueInCellCS is defined nowhere; FindLastInCells works
-- `FindLastOccurrenceOfValueInCells` (line 8999): Raises error R24 today instead of finding the last given cell that equals a value. -- Raises R24 because the body passes pValue while the parameter is named pCellValue
-- `FindLasttOccurrenceOfSubValueInCells` (line 9029): Raises error R24 today instead of finding the last given cell that contains a text. -- Raises R24 because the body passes pSubValue while the parameter is named pSubValueValue; the name misspells Last
-- `NumberOfOccurrencesOfSubValueInCells` (line 9179): Returns 0 today instead of the number of given cells that contain a text. -- Counts cells equal to the text, not cells containing it, so a text found inside a longer cell is missed
-- `FindLastInCell` (line 9420): Raises error today instead of returning the place of the last occurrence of a text inside one cell. -- Raises Incorrect param type! n must be a number. because it passes :Last, which the nth-occurrence finder does not read
-- `NumberOfOccurrencesInCell` (line 9479): Raises an error today instead of counting how many times a text occurs inside one cell. -- Raises Bad parameter type! for every argument tried
-- `NumberOfOccurrencesOfValueInCell` (line 9522): Raises an error today instead of counting how many times a value occurs inside one cell. -- Raises Bad parameter type! for every argument tried
-- `NumberOfOccurrencesOfSubValueInCell` (line 9575): Raises an error today instead of counting how many times a text occurs inside one cell. -- Raises Bad parameter type! for every argument tried
-- `CellContainsValueCS` (line 9663): Raises error R14 today instead of testing whether one cell equals a value, with a case flag. -- Raises R14 because FindFirstValueInCellCS is defined nowhere
-- `CellContainValue` (line 9681): Raises error R14 today instead of testing whether one cell equals a value. -- Raises R14 because CellContainValueCS is defined nowhere
-- `FindValueInRow` (line 9797): Raises error R24 today instead of finding the cells in one row that equal a value. -- Raises R24 (uninitialized variable psubvalue) because the body passes pSubValue, which is not its parameter; FindInRow works
-- `FindNthValueInRow` (line 9859): Raises error R19 today instead of finding the nth cell in one row that equals a value. -- Raises R19 because the body calls RowAsPositions() or SectionAsPositions() without its arguments
-- `FindNthSubValueInRow` (line 9880): Raises error R19 today instead of finding the nth cell in one row that contains a text. -- Raises R19 because the body calls RowAsPositions() or SectionAsPositions() without its arguments
-- `FindFirstValueInRow` (line 9923): Raises error R4 today instead of finding the first cell in one row that equals a value. -- Raises R4 (stack overflow) because the CS form calls itself without end
-- `FindFirstSubValueInRow` (line 9942): Raises error R4 today instead of finding the first cell in one row that contains a text. -- Raises R4 (stack overflow) because the CS form calls itself without end
-- `FindLastValueInRow` (line 9985): Raises error R4 today instead of finding the last cell in one row that equals a value. -- Raises R4 (stack overflow) because the CS form calls itself without end
-- `FindLastSubValueInRow` (line 10004): Raises error R4 today instead of finding the last cell in one row that contains a text. -- Raises R4 (stack overflow) because the CS form calls itself without end
-- `NumberOfOccurrenceOfCellInRow` (line 10089): Raises error R14 today instead of counting the cells in one row that equal a value. -- Raises R14 because the CS helper it calls is defined nowhere
-- `NumberOfOccurrenceOfValueInRow` (line 10120): Raises error R24 today instead of counting the cells in one row that equal a value. -- Raises R24 (uninitialized variable pcasesensitive) because the body passes a flag it does not have
-- `CountOfValueInRowInRow` (line 10132): Raises error R14 today instead of counting the cells of a row that equal a value. -- Raises R14 because NumberOfOccurrenceOfCellInRowInRow is defined nowhere
-- `FindValueInRows` (line 10350): Raises error R24 today instead of finding the cells in the given rows that equal a value. -- Raises R24 (uninitialized variable psubvalue) because the body passes pSubValue, which is not its parameter; FindInRows works
-- `FindNthInRows` (line 10401): Raises error R14 today instead of finding the nth cell in the given rows that equals a value. -- Raises R14 because RowsToNames is defined nowhere; FindNthValueInRows works
-- `FindFirstInRows` (line 10507): Raises error R14 today instead of finding the first cell in the given rows that equals a value. -- Raises R14 because RowsToNames is defined nowhere
-- `FindFirstValueInRows` (line 10537): Raises error R4 today instead of finding the first cell in the given rows that equals a value. -- Raises R4 (stack overflow) because the CS form calls itself without end
-- `FindFirstSubValueInRows` (line 10567): Raises error R4 today instead of finding the first cell in the given rows that contains a text. -- Raises R4 (stack overflow) because the CS form calls itself without end
-- `FindLastInRows` (line 10600): Raises error R24 today instead of finding the last cell in the given rows that equals a value. -- Raises R24 (uninitialized variable prow) because the body passes a name that is not its parameter
-- `FindLastValueInRows` (line 10630): Raises error R4 today instead of finding the last cell in the given rows that equals a value. -- Raises R4 (stack overflow) because the CS form calls itself without end
-- `FindLastSubValueInRows` (line 10660): Raises error R4 today instead of finding the last cell in the given rows that contains a text. -- Raises R4 (stack overflow) because the CS form calls itself without end
-- `NumberOfOccurrenceOfCellInRows` (line 10740): Raises error R14 today instead of counting the cells in the given rows that equal a value. -- Raises R14 because the CS helper it calls is defined nowhere
-- `FindValueInCol` (line 10962): Raises error R24 today instead of finding the cells in one column that equal a value. -- Raises R24 (uninitialized variable psubvalue) because the body passes pSubValue, which is not its parameter; FindInCol works
-- `FindFirstValueInCol` (line 11205): Raises error R4 today instead of finding the first cell in one column that equals a value. -- Raises R4 (stack overflow) because the CS form calls itself without end
-- `FindFirstSubValueInCol` (line 11240): Raises error R4 today instead of finding the first cell in one column that contains a text. -- Raises R4 (stack overflow) because the CS form calls itself without end
-- `FindLastValueInCol` (line 11323): Raises error R4 today instead of finding the last cell in one column that equals a value. -- Raises R4 (stack overflow) because the CS form calls itself without end
-- `FindLastSubValueInCol` (line 11364): Raises error R4 today instead of finding the last cell in one column that contains a text. -- Raises R4 (stack overflow) because the CS form calls itself without end
-- `NumberOfOccurrenceOfCellInCol` (line 11584): Raises error R14 today instead of counting the cells in one column that equal a value. -- Raises R14 because the CS helper it calls is defined nowhere
-- `FindValueInCols` (line 12115): Raises error R24 today instead of finding the cells in the given columns that equal a value. -- Raises R24 (uninitialized variable psubvalue) because the body passes pSubValue, which is not its parameter; FindInCols works
-- `FindNthInCols` (line 12179): Raises error R14 today instead of finding the nth cell in the given columns that equals a value. -- Raises R14 because ColsToNames is defined nowhere; FindNthValueInCols works
-- `FindFirstInCols` (line 12320): Raises error R14 today instead of finding the first cell in the given columns that equals a value. -- Raises R14 because ColsToNames is defined nowhere
-- `FindFirstValueInCols` (line 12361): Raises error R4 today instead of finding the first cell in the given columns that equals a value. -- Raises R4 (stack overflow) because the CS form calls itself without end
-- `FindFirstSubValueInCols` (line 12396): Raises error R4 today instead of finding the first cell in the given columns that contains a text. -- Raises R4 (stack overflow) because the CS form calls itself without end
-- `FindLastInCols` (line 12440): Raises error R24 today instead of finding the last cell in the given columns that equals a value. -- Raises R24 (uninitialized variable pcol) because the body passes a name that is not its parameter
-- `FindLastValueInCols` (line 12481): Raises error R4 today instead of finding the last cell in the given columns that equals a value. -- Raises R4 (stack overflow) because the CS form calls itself without end
-- `FindLastSubValueInCols` (line 12522): Raises error R4 today instead of finding the last cell in the given columns that contains a text. -- Raises R4 (stack overflow) because the CS form calls itself without end
-- `NumberOfOccurrenceOfCellInCols` (line 12735): Raises error R14 today instead of counting the cells in the given columns that equal a value. -- Raises R14 because the CS helper it calls is defined nowhere
-- `FindValueInSection` (line 13234): Raises error R24 today instead of finding the cells between two [ column, row ] corners that equal a value. -- Raises R24 (uninitialized variable psubvalue) because the body passes pSubValue, which is not its parameter; FindInSection works
-- `FindNthValueInSection` (line 13295): Raises error R19 today instead of finding the nth cell between two [ column, row ] corners that equals a value. -- Raises R19 because the body calls RowAsPositions() or SectionAsPositions() without its arguments
-- `FindNthSubValueInSection` (line 13317): Raises error R19 today instead of finding the nth cell between two [ column, row ] corners that contains a text. -- Raises R19 because the body calls RowAsPositions() or SectionAsPositions() without its arguments
-- `FindFirstValueInSection` (line 13362): Raises error R4 today instead of finding the first cell between two [ column, row ] corners that equals a value. -- Raises R4 (stack overflow) because the CS form calls itself without end
-- `FindFirstSubValueInSection` (line 13382): Raises error R4 today instead of finding the first cell between two [ column, row ] corners that contains a text. -- Raises R4 (stack overflow) because the CS form calls itself without end
-- `FindLastValueInSection` (line 13427): Raises error R4 today instead of finding the last cell between two [ column, row ] corners that equals a value. -- Raises R4 (stack overflow) because the CS form calls itself without end
-- `FindLastSubValueInSection` (line 13447): Raises error R4 today instead of finding the last cell between two [ column, row ] corners that contains a text. -- Raises R4 (stack overflow) because the CS form calls itself without end
-- `NumberOfOccurrenceOfCellInSection` (line 13583): Raises error R14 today instead of counting the cells between two [ column, row ] corners that equal a value. -- Raises R14 because the CS helper it calls is defined nowhere
-- `NumberOfOccurrenceOfValueInSection` (line 13615): Raises error R24 today instead of counting the cells between two [ column, row ] corners that equal a value. -- Raises R24 (uninitialized variable pcasesensitive) because the body passes a flag it does not have
-- `CountOfValueInSectionInSection` (line 13629): Raises error R14 today instead of counting the cells of a section that equal a value. -- Raises R14 because NumberOfOccurrenceOfCellInSectionInSection is defined nowhere
-- `SortedDownOn` (line 14131): Raises error R19 today instead of returning the content sorted in descending order of one column. -- Raises R19 because the body calls SortDownOnQ without the column; SortedOn works for ascending order
-- `SortInDescendingOnBy` (line 14475): Raises error R24 today instead of sorting the rows in descending order of an expression on a column. -- Raises R24 (uninitialized variable _ncol_) because the body passes a name that is not its parameter; SortDownOnBy works
-- `SortDownOnColBy` (line 14489): Raises error R24 today instead of sorting the rows in descending order of an expression on a column. -- Raises R24 (uninitialized variable pcol) because the parameter is named _nCol_ while the body passes pCol; SortDownOnBy works
-- `SortedDownOnColBy` (line 14555): Raises error R24 today instead of returning the content sorted in descending order of an expression on a column. -- Raises R24 (uninitialized variable pcol) because the parameter is named _nCol_ while the body passes pCol; SortedDownOnBy works
-- `IsSortedBy` (line 14729): Raises error R14 today instead of testing the order given by an expression on the first column. -- Raises R14 because the body calls IsSotedOnBy, a misspelling; IsSortedOnBy works
-- `IsSortedUpBy` (line 14738): Raises error R20 today instead of testing the ascending order given by an expression on the first column. -- Raises R20 because it passes the expression as an extra argument to IsSortedUpOn
-- `IsSortedInAscendingBy` (line 14747): Raises error R20 today instead of testing the ascending order given by an expression on the first column. -- Raises R20 because it passes an extra argument to IsSortedUpBy
-- `IsSortedUpOnBy` (line 14830): Raises error R14 today instead of testing the ascending order given by an expression on one column. -- Raises R14 because the body relies on SortUpOnBy, which is defined nowhere; IsSortedOnBy works
-- `IsSorteUpByOn` (line 14861): Raises error R14 today instead of testing the ascending order given by an expression on one column. -- Raises R14 because the body relies on SortUpOnBy, which is defined nowhere; IsSortedOnBy works
-- `IsSortedUpByOnCol` (line 14872): Raises error R14 today instead of testing the ascending order given by an expression on one column. -- Raises R14 because the body relies on SortUpOnBy, which is defined nowhere; IsSortedOnBy works
-- `IsSortedUpByOnColumn` (line 14883): Raises error R14 today instead of testing the ascending order given by an expression on one column. -- Raises R14 because the body relies on SortUpOnBy, which is defined nowhere; IsSortedOnBy works
-- `IsSorteInAscendingByOn` (line 14903): Raises error R14 today instead of testing the ascending order given by an expression on one column. -- Raises R14 because the body relies on SortUpOnBy, which is defined nowhere; IsSortedOnBy works
-- `IsSortedInAscendingByOnCol` (line 14914): Raises error R14 today instead of testing the ascending order given by an expression on one column. -- Raises R14 because the body relies on SortUpOnBy, which is defined nowhere; IsSortedOnBy works
-- `IsSortedInAscendingByOnColumn` (line 14925): Raises error R14 today instead of testing the ascending order given by an expression on one column. -- Raises R14 because the body relies on SortUpOnBy, which is defined nowhere; IsSortedOnBy works
-- `ReplaceOccurrencesOfCellByValue` (line 16420): Raises error R24 today instead of replacing every cell equal to a value by another value. -- Raises R24 (uninitialized variable pnewcellvalue) because the body passes a name that is not its parameter; ReplaceCellByValue works
-- `ReplaceByValueOccurrencesOfCellBy` (line 16440): Raises error R24 today instead of replacing every cell equal to a value by another value. -- Raises R24 (uninitialized variable pnewcellvalue) because the body passes a name that is not its parameter; ReplaceCellByValue works
-- `ReplaceManyCellsByValue` (line 16475): Raises error today instead of replacing the cells equal to any of several values by one value. -- Always raises Function not yet implemented!
-- `ReplaceCellsByValue` (line 16486): Raises error today instead of replacing the cells equal to any of several values by one value. -- Always raises Function not yet implemented!
-- `ReplaceByValueManyCells` (line 16497): Raises error today instead of replacing the cells equal to any of several values by one value. -- Always raises Function not yet implemented!
-- `ReplaceByValueCells` (line 16507): Raises error today instead of replacing the cells equal to any of several values by one value. -- Always raises Function not yet implemented!
-- `ReplaceManyCellsByValueByMany` (line 16542): Raises error today instead of replacing several cell values by several new values. -- Always raises Function not yet implemented!
-- `ReplaceCellsByValueByMany` (line 16553): Raises error today instead of replacing several cell values by several new values. -- Always raises Function not yet implemented!
-- `ReplaceByValueManyCellsByMany` (line 16563): Raises error today instead of replacing several cell values by several new values. -- Always raises Function not yet implemented!
-- `ReplaceByValueCellsByMany` (line 16573): Raises error today instead of replacing several cell values by several new values. -- Always raises Function not yet implemented!
-- `ReplaceAllColsByMany` (line 17284): Raises error today instead of replacing several columns by several new column lists. -- Always raises Unsupported feature in this release!
-- `ReplaceAllColumsByMany` (line 17295): Raises error today instead of replacing several columns by several new column lists. -- Always raises Unsupported feature in this release!
-- `ReplaceTheseColsByMany` (line 17311): Raises error today instead of replacing several columns by several new column lists. -- Always raises Unsupported feature in this release!
-- `ReplaceTheseColumnsByMany` (line 17327): Raises error today instead of replacing several columns by several new column lists. -- Always raises Unsupported feature in this release!
-- `ReplaceColsByMany` (line 17336): Raises error today instead of replacing several columns by several new column lists. -- Always raises Unsupported feature in this release!
-- `ReplaceColumnsByMany` (line 17345): Raises error today instead of replacing several columns by several new column lists. -- Always raises Unsupported feature in this release!
-- `ReplaceCellsInTheseRows` (line 17711): Raises error R24 today instead of setting every cell of the given rows to one value. -- Raises R24 (uninitialized variable panewrows) because the body checks a name that is not its parameter
-- `ReplaceAllOccurrencesOfCell` (line 17790): Raises error R19 today instead of replacing every cell equal to a value by another value. -- Raises R19 because it forwards to ReplaceCell with two arguments where ReplaceCell needs a column, a row and a value; ReplaceAll works
-- `ReplaceEachOccurrenceOfCell` (line 17800): Raises error R19 today instead of replacing every cell equal to a value by another value. -- Raises R19 because it forwards to ReplaceCell with two arguments where ReplaceCell needs a column, a row and a value; ReplaceAll works
-- `ReplaceEveryOccurrenceOfCell` (line 17810): Raises error R19 today instead of replacing every cell equal to a value by another value. -- Raises R19 because it forwards to ReplaceCell with two arguments where ReplaceCell needs a column, a row and a value; ReplaceAll works
-- `ReplaceAllOccurrences` (line 17821): Raises error R19 today instead of replacing every cell equal to a value by another value. -- Raises R19 because it forwards to ReplaceCell with two arguments where ReplaceCell needs a column, a row and a value; ReplaceAll works
-- `ReplaceEachOccurrence` (line 17831): Raises error R19 today instead of replacing every cell equal to a value by another value. -- Raises R19 because it forwards to ReplaceCell with two arguments where ReplaceCell needs a column, a row and a value; ReplaceAll works
-- `ReplaceEveryOccurrence` (line 17841): Raises error R19 today instead of replacing every cell equal to a value by another value. -- Raises R19 because it forwards to ReplaceCell with two arguments where ReplaceCell needs a column, a row and a value; ReplaceAll works
-- `ReplaceNth` (line 17863): Raises error R19 today instead of replacing the nth, first or last cell equal to a value. -- Raises R19 because the CS form calls ReplaceCell with a position pair where ReplaceCell needs a column, a row and a value
-- `ReplaceFirst` (line 17881): Raises error R19 today instead of replacing the nth, first or last cell equal to a value. -- Raises R19 because the CS form calls ReplaceCell with a position pair where ReplaceCell needs a column, a row and a value
-- `ReplaceLast` (line 17899): Raises error R19 today instead of replacing the nth, first or last cell equal to a value. -- Raises R19 because the CS form calls ReplaceCell with a position pair where ReplaceCell needs a column, a row and a value
-- `ReplaceInCell` (line 17919): Raises error today instead of replacing a text found inside cells. -- Always raises Function not yet implemented!
-- `ReplaceInCells` (line 17936): Raises error today instead of replacing a text found inside cells. -- Always raises Function not yet implemented!
-- `ReplaceInCellsByMany` (line 17953): Raises error today instead of replacing a text found inside cells. -- Always raises Function not yet implemented!
-- `ReplaceInSection` (line 17973): Raises error today instead of replacing a text found inside cells. -- Always raises Function not yet implemented!
-- `ReplaceInSectionByMany` (line 17992): Raises error R24 today instead of replacing several texts found inside a section. -- Raises R24 (uninitialized variable casesensitive) because the body passes a flag it does not have
-- `ReplaceInSectionsCS` (line 18003): Raises error today instead of replacing a text found inside cells. -- Always raises Function not yet implemented!
-- `ReplaceInSectionsByManyCS` (line 18018): Raises error today instead of replacing a text found inside cells. -- Always raises Function not yet implemented!
-- `TheseRowsToRowsNumbers` (line 18310): Raises an error today instead of returning the positions of the given rows. -- Raises Incorrect param type! pRow must be a number. because each row is handed to RowToRowNumber, which refuses a list
-- `@` (line 18351): Returns the cell-reading code of a column in a formula, or the text itself when it names no column; a list raises today. -- A column name gives the code text ( This.Cell(n, j) ); a list raises R14 because IsHasHListOrListOfStrings is defined nowhere
-- `buildGrandTotal` (line 20783): Raises error R24 today instead of returning the grand-total line of the grid. -- Raises R24 because the body reads the grand totals, which are local to buildDataRows
-- `TransposeWithColNames` (line 20964): Raises error R14 today instead of transposing the table while keeping the column names as a first column. -- Raises R14 because the body calls TansposeXT, a misspelling; TransposeXT works
-- `ToHtml` (line 21179): Raises error R24 today instead of returning the table as an HTML table. -- Raises R24 because ToHtmlXT reads a variable named data that is never set
-- `FromHtml` (line 21254): Raises error R14 today instead of replacing the table by the content of an HTML table. -- Raises R14 because HtmlToTable is defined nowhere
+- `SectionToRange` (line 2742): Raises error today instead of returning a range of the table. -- Always raises Feature not implemented yet!
+- `Range` (line 2752): Raises error today instead of returning a block of the table between two bounds. -- Always raises Feature not implemented yet!
+- `FindColsByValue` (line 6507): Raises an error today instead of returning the positions of the columns equal to any of the given cell lists. -- Raises Can't create the stzList object! for a valid list of cell lists; FindColByValue works one list at a time
+- `NumberOfOccurrencesOfSubValueInCells` (line 9215): Returns 0 today instead of the number of given cells that contain a text. -- Counts cells equal to the text, not cells containing it, so a text found inside a longer cell is missed
+- `FindLastInCell` (line 9467): Raises error today instead of returning the place of the last occurrence of a text inside one cell. -- Raises Incorrect param type! n must be a number. because it passes :Last, which the nth-occurrence finder does not read
+- `NumberOfOccurrencesInCell` (line 9526): Raises an error today instead of counting how many times a text occurs inside one cell. -- Raises Bad parameter type! for every argument tried
+- `NumberOfOccurrencesOfValueInCell` (line 9572): Raises an error today instead of counting how many times a value occurs inside one cell. -- Raises Bad parameter type! for every argument tried
+- `NumberOfOccurrencesOfSubValueInCell` (line 9625): Raises an error today instead of counting how many times a text occurs inside one cell. -- Raises Bad parameter type! for every argument tried
+- `NumberOfOccurrenceOfCellInRow` (line 10126): Raises error R14 today instead of counting the cells in one row that equal a value. -- Raises R14 because the CS helper it calls is defined nowhere
+- `FindNthInRows` (line 10432): Raises error R14 today instead of finding the nth cell in the given rows that equals a value. -- Raises R14 because RowsToNames is defined nowhere; FindNthValueInRows works
+- `FindFirstInRows` (line 10531): Raises error R14 today instead of finding the first cell in the given rows that equals a value. -- Raises R14 because RowsToNames is defined nowhere
+- `FindFirstValueInRows` (line 10561): Raises error R4 today instead of finding the first cell in the given rows that equals a value. -- Raises R4 (stack overflow) because the CS form calls itself without end
+- `FindFirstSubValueInRows` (line 10591): Raises error R4 today instead of finding the first cell in the given rows that contains a text. -- Raises R4 (stack overflow) because the CS form calls itself without end
+- `FindLastInRows` (line 10624): Raises error R24 today instead of finding the last cell in the given rows that equals a value. -- Raises R24 (uninitialized variable prow) because the body passes a name that is not its parameter
+- `FindLastValueInRows` (line 10654): Raises error R4 today instead of finding the last cell in the given rows that equals a value. -- Raises R4 (stack overflow) because the CS form calls itself without end
+- `FindLastSubValueInRows` (line 10684): Raises error R4 today instead of finding the last cell in the given rows that contains a text. -- Raises R4 (stack overflow) because the CS form calls itself without end
+- `NumberOfOccurrenceOfCellInRows` (line 10764): Raises error R14 today instead of counting the cells in the given rows that equal a value. -- Raises R14 because the CS helper it calls is defined nowhere
+- `FindFirstValueInCol` (line 11220): Raises error R4 today instead of finding the first cell in one column that equals a value. -- Raises R4 (stack overflow) because the CS form calls itself without end
+- `FindFirstSubValueInCol` (line 11255): Raises error R4 today instead of finding the first cell in one column that contains a text. -- Raises R4 (stack overflow) because the CS form calls itself without end
+- `FindLastValueInCol` (line 11338): Raises error R4 today instead of finding the last cell in one column that equals a value. -- Raises R4 (stack overflow) because the CS form calls itself without end
+- `FindLastSubValueInCol` (line 11379): Raises error R4 today instead of finding the last cell in one column that contains a text. -- Raises R4 (stack overflow) because the CS form calls itself without end
+- `NumberOfOccurrenceOfCellInCol` (line 11599): Raises error R14 today instead of counting the cells in one column that equal a value. -- Raises R14 because the CS helper it calls is defined nowhere
+- `FindNthInCols` (line 12191): Raises error R14 today instead of finding the nth cell in the given columns that equals a value. -- Raises R14 because ColsToNames is defined nowhere; FindNthValueInCols works
+- `FindFirstInCols` (line 12325): Raises error R14 today instead of finding the first cell in the given columns that equals a value. -- Raises R14 because ColsToNames is defined nowhere
+- `FindFirstValueInCols` (line 12366): Raises error R4 today instead of finding the first cell in the given columns that equals a value. -- Raises R4 (stack overflow) because the CS form calls itself without end
+- `FindFirstSubValueInCols` (line 12401): Raises error R4 today instead of finding the first cell in the given columns that contains a text. -- Raises R4 (stack overflow) because the CS form calls itself without end
+- `FindLastInCols` (line 12445): Raises error R24 today instead of finding the last cell in the given columns that equals a value. -- Raises R24 (uninitialized variable pcol) because the body passes a name that is not its parameter
+- `FindLastValueInCols` (line 12486): Raises error R4 today instead of finding the last cell in the given columns that equals a value. -- Raises R4 (stack overflow) because the CS form calls itself without end
+- `FindLastSubValueInCols` (line 12527): Raises error R4 today instead of finding the last cell in the given columns that contains a text. -- Raises R4 (stack overflow) because the CS form calls itself without end
+- `NumberOfOccurrenceOfCellInCols` (line 12740): Raises error R14 today instead of counting the cells in the given columns that equal a value. -- Raises R14 because the CS helper it calls is defined nowhere
+- `NumberOfOccurrenceOfCellInSection` (line 13578): Raises error R14 today instead of counting the cells between two [ column, row ] corners that equal a value. -- Raises R14 because the CS helper it calls is defined nowhere
+- `ReplaceOccurrencesOfCellByValue` (line 16389): Raises error R24 today instead of replacing every cell equal to a value by another value. -- Raises R24 (uninitialized variable pnewcellvalue) because the body passes a name that is not its parameter; ReplaceCellByValue works
+- `ReplaceManyCellsByValue` (line 16457): Raises error today instead of replacing the cells equal to any of several values by one value. -- Always raises Function not yet implemented!
+- `ReplaceCellsByValue` (line 16468): Raises error today instead of replacing the cells equal to any of several values by one value. -- Always raises Function not yet implemented!
+- `ReplaceByValueManyCells` (line 16479): Raises error today instead of replacing the cells equal to any of several values by one value. -- Always raises Function not yet implemented!
+- `ReplaceByValueCells` (line 16489): Raises error today instead of replacing the cells equal to any of several values by one value. -- Always raises Function not yet implemented!
+- `ReplaceManyCellsByValueByMany` (line 16545): Raises error today instead of replacing several cell values by several new values. -- Always raises Function not yet implemented!
+- `ReplaceCellsByValueByMany` (line 16556): Raises error today instead of replacing several cell values by several new values. -- Always raises Function not yet implemented!
+- `ReplaceByValueManyCellsByMany` (line 16566): Raises error today instead of replacing several cell values by several new values. -- Always raises Function not yet implemented!
+- `ReplaceByValueCellsByMany` (line 16576): Raises error today instead of replacing several cell values by several new values. -- Always raises Function not yet implemented!
+- `ReplaceAllColsByMany` (line 17294): Raises error today instead of replacing several columns by several new column lists. -- Always raises Unsupported feature in this release!
+- `ReplaceAllColumsByMany` (line 17303): Raises error today instead of replacing several columns by several new column lists. -- Always raises Unsupported feature in this release!
+- `ReplaceTheseColsByMany` (line 17319): Raises error today instead of replacing several columns by several new column lists. -- Always raises Unsupported feature in this release!
+- `ReplaceTheseColumnsByMany` (line 17349): Raises error today instead of replacing several columns by several new column lists. -- Always raises Unsupported feature in this release!
+- `ReplaceColsByMany` (line 17358): Raises error today instead of replacing several columns by several new column lists. -- Always raises Unsupported feature in this release!
+- `ReplaceColumnsByMany` (line 17367): Raises error today instead of replacing several columns by several new column lists. -- Always raises Unsupported feature in this release!
+- `ReplaceCellsInTheseRows` (line 17733): Raises error R24 today instead of setting every cell of the given rows to one value. -- Raises R24 (uninitialized variable panewrows) because the body checks a name that is not its parameter
+- `ReplaceAllOccurrencesOfCell` (line 17812): Raises error R19 today instead of replacing every cell equal to a value by another value. -- Raises R19 because it forwards to ReplaceCell with two arguments where ReplaceCell needs a column, a row and a value; ReplaceAll works
+- `ReplaceEachOccurrenceOfCell` (line 17822): Raises error R19 today instead of replacing every cell equal to a value by another value. -- Raises R19 because it forwards to ReplaceCell with two arguments where ReplaceCell needs a column, a row and a value; ReplaceAll works
+- `ReplaceEveryOccurrenceOfCell` (line 17832): Raises error R19 today instead of replacing every cell equal to a value by another value. -- Raises R19 because it forwards to ReplaceCell with two arguments where ReplaceCell needs a column, a row and a value; ReplaceAll works
+- `ReplaceAllOccurrences` (line 17843): Raises error R19 today instead of replacing every cell equal to a value by another value. -- Raises R19 because it forwards to ReplaceCell with two arguments where ReplaceCell needs a column, a row and a value; ReplaceAll works
+- `ReplaceEachOccurrence` (line 17853): Raises error R19 today instead of replacing every cell equal to a value by another value. -- Raises R19 because it forwards to ReplaceCell with two arguments where ReplaceCell needs a column, a row and a value; ReplaceAll works
+- `ReplaceEveryOccurrence` (line 17863): Raises error R19 today instead of replacing every cell equal to a value by another value. -- Raises R19 because it forwards to ReplaceCell with two arguments where ReplaceCell needs a column, a row and a value; ReplaceAll works
+- `ReplaceNth` (line 17889): Raises error R19 today instead of replacing the nth, first or last cell equal to a value. -- Raises R19 because the CS form calls ReplaceCell with a position pair where ReplaceCell needs a column, a row and a value
+- `ReplaceFirst` (line 17907): Raises error R19 today instead of replacing the nth, first or last cell equal to a value. -- Raises R19 because the CS form calls ReplaceCell with a position pair where ReplaceCell needs a column, a row and a value
+- `ReplaceLast` (line 17925): Raises error R19 today instead of replacing the nth, first or last cell equal to a value. -- Raises R19 because the CS form calls ReplaceCell with a position pair where ReplaceCell needs a column, a row and a value
+- `ReplaceInCell` (line 17953): Raises error today instead of replacing a text found inside cells. -- Always raises Function not yet implemented!
+- `ReplaceInCells` (line 17976): Raises error today instead of replacing a text found inside cells. -- Always raises Function not yet implemented!
+- `ReplaceInCellsByMany` (line 17999): Raises error today instead of replacing a text found inside cells. -- Always raises Function not yet implemented!
+- `ReplaceInSection` (line 18018): Raises error today instead of replacing a text found inside cells. -- Always raises Function not yet implemented!
+- `ReplaceInSectionByMany` (line 18036): Raises error R24 today instead of replacing several texts found inside a section. -- Raises R24 (uninitialized variable casesensitive) because the body passes a flag it does not have
+- `@` (line 18420): Returns the cell-reading code of a column in a formula, or the text itself when it names no column; a list raises today. -- A column name gives the code text ( This.Cell(n, j) ); a list raises R14 because IsHasHListOrListOfStrings is defined nowhere
+- `buildGrandTotal` (line 20852): Raises error R24 today instead of returning the grand-total line of the grid. -- Raises R24 because the body reads the grand totals, which are local to buildDataRows
+- `TransposeWithColNames` (line 21033): Raises error R14 today instead of transposing the table while keeping the column names as a first column. -- Raises R14 because the body calls TansposeXT, a misspelling; TransposeXT works
+- `ToHtml` (line 21248): Raises error R24 today instead of returning the table as an HTML table. -- Raises R24 because ToHtmlXT reads a variable named data that is never set
+- `FromHtml` (line 21323): Raises error R14 today instead of replacing the table by the content of an HTML table. -- Raises R14 because HtmlToTable is defined nowhere

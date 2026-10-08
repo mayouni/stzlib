@@ -189,6 +189,10 @@ class stzListLeadTrail from stzObject
 			return ""
 		ok
 
+	# Returns the item whose repeated run closes the list, the case counting.
+	#
+	#   returns    an item; an empty text when the list ends with no repeated run
+	#   see        RepeatedTrailingItemCS, RepeatedLeadingItem, NumberOfRepeatedTrailingItems
 	def RepeatedTrailingItem()
 		return This.RepeatedTrailingItemCS(1)
 
@@ -196,6 +200,10 @@ class stzListLeadTrail from stzObject
 	def NumberOfRepeatedTrailingItemsCS(pCaseSensitive)
 		return len(This.RepeatedTrailingItemsCS(pCaseSensitive))
 
+	# Returns how long the repeated run that closes the list is, the case counting.
+	#
+	#   returns    a number, the length of the run RepeatedTrailingItems answers
+	#   see        NumberOfRepeatedTrailingItemsCS, NumberOfRepeatedLeadingItems
 	def NumberOfRepeatedTrailingItems()
 		return This.NumberOfRepeatedTrailingItemsCS(1)
 

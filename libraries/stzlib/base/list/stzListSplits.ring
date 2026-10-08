@@ -551,6 +551,10 @@ class stzListSplits from stzObject
 		return _anXsOut_
 
 	# Returns the parts the options cut the list into; the list is unchanged.
+	#
+	#   p          the split options, in the forms SplitXT takes
+	#   returns    a list of lists, one per part
+	#   see        SplitXT, SplittedAsSectionsXT
 	def SplittedXT(p)
 		_aXtPlan_ = This._XTResolve(p)
 		_cXtKind_ = _aXtPlan_[1]
@@ -575,6 +579,10 @@ class stzListSplits from stzObject
 			return This
 
 	# Returns the [ first, last ] position pair of each part the options give; the list is unchanged.
+	#
+	#   p          the split options, in the forms SplitXT takes
+	#   returns    a list of [ first, last ] pairs
+	#   see        SplittedXT, SplitAsSectionsXT
 	def SplittedAsSectionsXT(p)
 		_aSxPlan_ = This._XTResolve(p)
 		_cSxKind_ = _aSxPlan_[1]
