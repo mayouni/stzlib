@@ -1,0 +1,6 @@
+# Wave 8 -- stzWebhook. Name | brief | returns | params | see | warning | note
+init | Builds an empty webhook description, to be told where the hub should call back and for which events. | nothing; the object is built | | CallingBack, OnEvents
+CallingBack | Sets the address the hub will call when an event happens. | the webhook itself, so calls chain | pcUrl=the callback URL, which the twin requires to start with https:// | OnEvents, AsBody | | the twin refuses another scheme with a 400 problem naming callbackUrl
+OnEvents | Sets the events the hub should call back about. | the webhook itself, so calls chain | paEvents=a list of event codes, such as [ "PAIEMENT_RECU" ] | CallingBack, AsBody | | the twin refuses an unknown event with a 400 problem naming events; with no events set, none is sent
+ForAlias | Limits the webhook to one alias of the platform. | the webhook itself, so calls chain | pcAlias=the platform's PI-SPI alias, a UUID | CallingBack | | left unset, no alias is sent
+AsBody | Returns the webhook as the message body the hub expects, a list of pairs. | a list of [ key, value ] pairs: callbackUrl, then alias and events when set | | stzPaymentsPort | | it never raises, so an empty webhook gives an empty callbackUrl that the hub then refuses; stzPaymentsPort RegisterWebhook calls it for you

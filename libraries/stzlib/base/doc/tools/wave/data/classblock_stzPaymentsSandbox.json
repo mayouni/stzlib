@@ -1,0 +1,13 @@
+{
+ "brief": "Names the card-gateway double under its historical name, with no behaviour of its own beyond stzCardPaymentsAdapter.",
+ "detail": "The class was renamed when the card verbs were moved out of the payments port, and this name stays because the payments checks and the registry's examples use it. It adds nothing: every method is that of stzCardPaymentsAdapter. Build it with parentheses or with StzPaymentsSandboxQ(), because a paren-less new skips init and every object built that way shares one gateway.",
+ "receiver": "o1 = new stzPaymentsSandbox()",
+ "example": [
+  "o1.DeclineToken(\"tok_chargeback\")",
+  "? o1.Authorize(4200, \"tok_chargeback\")[:status]",
+  "#--> declined",
+  "? o1.NumberOfDeclines()",
+  "#--> 1"
+ ],
+ "see": ["stzCardPaymentsAdapter", "stzServiceRegistry"]
+}

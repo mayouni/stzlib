@@ -1,0 +1,17 @@
+{
+ "brief": "Holds the refusal a hub returned, as the RFC 7807 fields: a status, a title, a detail and the fields found wrong.",
+ "detail": "When a hub answers 400 or more, stzPaymentsPort raises an error and keeps the problem; StzLastPaymentsProblem hands it over. Read Status to decide what to do, Detail to log what the hub said, and InvalidParams to see which field of the message was refused. A payment that the payee's bank refuses is not a problem: it is a payment whose statut became REJETE.",
+ "receiver": "oHub = StzPiSpiSandboxQ(); oPay = StzPaymentsPortQ(oHub); oPay.AllowUngovernedPayouts(); try oPay.Pay(StzPaymentOrderQ().WithTxId(\"BIG-1\").FromAlias(oHub.BusinessAlias()).ToAlias(oHub.Alias(\"fatou\")).WithAmount(StzAmountQ(\"20000000\", \"XOF\")).WithoutConfirmation()) catch o1 = StzLastPaymentsProblem() done",
+ "example": [
+  "? o1.Status()",
+  "#--> 403",
+  "? o1.Detail()",
+  "#--> Plafond de paiement depasse",
+  "? o1.InvalidParams()[1][1][2]",
+  "#--> montant"
+ ],
+ "see": [
+  "stzPaymentsPort",
+  "StzLastPaymentsProblem"
+ ]
+}

@@ -1,0 +1,16 @@
+{
+ "brief": "Holds an amount of money as whole minor units and an ISO 4217 currency, so it can never be a bare number.",
+ "detail": "An amount cannot be built without a currency, and the library refuses what could not be paid exactly: a fraction finer than the currency's minor unit (50.5 in XOF, because a franc has no fraction), a fractional number, a currency it does not know, and arithmetic or ordering across two currencies. It is never rounded. Money is spelled as text, \"12.50\", never computed as a float. The exponent is ISO 4217's: 0 for XOF and XAF, 2 for EUR, 3 for TND. An amount is immutable: Plus, Minus, TimesInteger and Negated answer a new amount. Nothing is converted between currencies, and no rate exists.",
+ "receiver": "o1 = new stzAmount(\"150000\", \"XOF\")",
+ "example": [
+  "? o1.Display()",
+  "#--> 150 000 FCFA",
+  "? o1.MinorUnits()",
+  "#--> 150000",
+  "? StzAmountQ(\"12.50\", \"EUR\").MinorUnits()",
+  "#--> 1250",
+  "? o1.Plus(StzAmountQ(\"40000\", \"XOF\")).Display()",
+  "#--> 190 000 FCFA"
+ ],
+ "see": ["StzAmountQ", "stzPispiQr", "stzPaymentOrder"]
+}

@@ -1,0 +1,12 @@
+{
+ "brief": "Takes a payout plan from proposal to release: rehearse it, judge it, and let a person commit it, with a journal of every attempt.",
+ "detail": "Money out is a plan a human commits, and the desk is where that happens. Rehearse writes the plan into a workbench, a twin of the disk, so nothing real moves. Judge reads the rehearsed document and applies the policy. Commit checks the policy, that the rehearsed document is the plan that will be paid, and that the actor may change reality; a language-model actor and a sandboxed actor are refused. Only then does the plan cross into a real file, the durable record of what was authorised, visas included, and the port is told exactly which payouts to allow and for how much before each is released. A refusal never raises: it is a journal row and an event. One plan, one workbench. Everything here was run against the in-process twin, which moves no money.",
+ "receiver": "o1 = StzPayoutDeskQ(StzPaymentsPortQ(StzPiSpiSandboxQ()), StzDikoPayoutPolicyQ(), \"payouts\")",
+ "example": [
+  "? o1.PathOf(\"SUP-1\")",
+  "#--> payouts/SUP-1.plan.json",
+  "? len(o1.Journal())",
+  "#--> 0"
+ ],
+ "see": ["stzPayoutPlan", "stzPayoutPolicy", "stzPaymentsPort", "stzAgentWorkbench"]
+}

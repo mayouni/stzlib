@@ -371,10 +371,39 @@ func _StzPiFrontControl(poReq, poResp, pcVerb)
  #  THE FRONT      #
 #=================#
 
+# Serves the twin of the PI-SPI hub over HTTP, with a token endpoint, an API key and scopes, so a live adapter has a real server to talk to.
+#
+# UNPERCEIVED, the live adapter this front exists to test. stzPispiHttpAdapter is proven against
+# this twin over real HTTP, plain and with mutual TLS, and has NOT been run against the BCEAO's
+# sandbox: a green run against the front says the adapter and the twin agree, not that a
+# participant's hub agrees, and no payment made through the adapter has been watched landing in a
+# real dashboard. The front puts the twin's single Request() behind an application server and adds
+# what a participant puts in front of the contract: an OAuth2 client-credentials token endpoint, an
+# x-api-key, a scope for each operation, and optional mutual TLS. It moves no money, the twin holds
+# virtual francs. The token is not bound to the certificate it was taken under, which the real hub's
+# is, because the engine does not show the peer certificate to a handler. EnableControl adds /_twin/
+# routes for a test, with no credential asked. All its state is process-wide, so run one front per
+# process, and run it in a process of its own since RunFor blocks its caller.
+#
+#   receiver   o1 = new stzPiSpiHttpFront()
+#   example    ? o1.Hub().Balance()
+#              #--> 50000000
+#              ? o1.Hub().IsSandbox()
+#              #--> 1
+#   see        stzPispiHttpAdapter, stzPiSpiSandbox, stzAppServer
 class stzPiSpiHttpFront from stzObject
 
 	@oServer = ""
 
+	# Builds a front over a new twin hub, with an application server that routes every GET, POST, PUT and DELETE path to the contract handler.
+	#
+	#   returns    nothing; the object is built
+	#   note       it moves no money, the twin holds virtual francs
+	#   warning    the front keeps its settings and its tokens in process-wide tables, so a second
+	#              front in the same process shares the first one's credentials and counters and
+	#              only takes over the hub; run one front per process, which is read from the code
+	#              and not run
+	#   see        WithCredentials, Start, Hub
 	def init()
 		_oHub_ = new stzPiSpiSandbox()
 		$aPiFront["hub"] = _oHub_.Id()
@@ -384,48 +413,140 @@ class stzPiSpiHttpFront from stzObject
 		@oServer.Put_("/*", "StzPiFrontHandle")
 		@oServer.Delete("/*", "StzPiFrontHandle")
 
+	# Sets the OAuth client and the API key the front demands before it serves a call.
+	#
+	#   pcClientId       the client id the token endpoint accepts
+	#   pcClientSecret   the client secret it accepts
+	#   pcApiKey         the key every API call must send in x-api-key
+	#   returns          the front itself, so calls chain
+	#   note             the values are test values the caller generates, never a participant's
+	#                    credentials
+	#   warning          with no API key set every API call is refused with a 401 problem
+	#   see              WithScopePrefix, Start
 	def WithCredentials(pcClientId, pcClientSecret, pcApiKey)
 		$aPiFront["clientId"] = "" + pcClientId
 		$aPiFront["clientSecret"] = "" + pcClientSecret
 		$aPiFront["apiKey"] = "" + pcApiKey
 		return This
 
+	# Sets the text that every scope of a token must carry, which is piz/ in the BCEAO's sandbox.
+	#
+	#   pcPrefix   the text such as piz/, an empty text for none
+	#   returns    the front itself, so calls chain
+	#   warning    a call whose token lacks the prefixed scope its operation needs is refused with a
+	#              401 problem naming the scope
+	#   see        WithCredentials, WithBasePath
 	def WithScopePrefix(pcPrefix)
 		$aPiFront["prefix"] = "" + pcPrefix
 		return This
 
+	# Sets the path under which the contract is served, /piz/v1 unless changed.
+	#
+	#   pcBase     the path prefix such as /piz/v1
+	#   returns    the front itself, so calls chain
+	#   warning    any other path, apart from the token endpoint and the control routes, answers a
+	#              404 problem
+	#   see        WithScopePrefix, Start
 	def WithBasePath(pcBase)
 		$aPiFront["base"] = "" + pcBase
 		return This
 
+	# Sets how many seconds a token issued from now on stays valid, 3600 unless changed.
+	#
+	#   pnSeconds   the lifetime in seconds, which the token response reports as expires_in
+	#   returns     the front itself, so calls chain
+	#   warning     the adapter refreshes a token a minute before it lapses, so a lifetime under a
+	#               minute makes it fetch one for every call
+	#   see         WithCredentials, EnableControl
 	def WithTokenLifetime(pnSeconds)
 		$aPiFront["ttl"] = pnSeconds
 		return This
 
+	# Turns on the /_twin/ routes with which a test drives the twin behind the wire.
+	#
+	#   returns    the front itself, so calls chain
+	#   note       they advance the clock, settle what is pending, make a customer pay, ask or
+	#              cancel, change how a customer answers, read the queued webhooks and the counters;
+	#              a server that holds real money never enables them
+	#   warning    those routes ask for no credential at all, so anyone who can reach the port can
+	#              advance the clock, make the twin pay or ask, and revoke tokens, and loopback only
+	#              is a matter of the host given to Start and is not enforced here
+	#   see        Hub, Start
 	def EnableControl()
 		$aPiFront["control"] = 1
 		return This
 
-	# the twin behind it, for a caller in the same process
+	# Returns a face onto the twin the front serves, for a caller in the same process.
+	#
+	#   returns    an stzPiSpiSandbox on the same hub
+	#   warning    the face shares its state with the served twin, so a payment made through it is
+	#              seen over HTTP
+	#   see        stzPiSpiSandbox, Start
+	#@ aka  the twin behind it, for a caller in the same process
 	def Hub()
 		_oH_ = new stzPiSpiSandbox()
 		_oH_.AdoptHub($aPiFront["hub"])
 		return _oH_
 
+	# Binds the front to a port and an address and returns 1, without serving anything until RunFor is called.
+	#
+	#   pnPort     the port to listen on, 0 for any free one
+	#   pcHost     the address to bind, an empty text meaning 127.0.0.1
+	#   returns    1
+	#   note       UNPERCEIVED, for the live adapter this front is built to serve:
+	#              stzPispiHttpAdapter is proven against this twin over real HTTP and has NOT been
+	#              run against the BCEAO's sandbox, so a green run here says the adapter and the
+	#              twin agree, not that a participant's hub agrees
+	#   warning    raises an error when the port cannot be bound or the front already runs
+	#   see        Port, RunFor, Stop, StartTls
 	def Start(pnPort, pcHost)
 		return @oServer.Start(pnPort, pcHost)
 
-	# one-way or MUTUAL TLS: a non-empty CA turns on client-certificate checks, pbRequireClient demands one
+	# Binds the front to a port and an address behind TLS, with mutual TLS when a CA is given, and returns 1.
+	#
+	#   pnPort            the port to listen on, 0 for any free one
+	#   pcHost            the address to bind, an empty text meaning 127.0.0.1
+	#   pcCert            the server certificate PEM file
+	#   pcKey             the server private key PEM file
+	#   pcCa              the CA PEM file that checks client certificates, an empty text for none
+	#   pbRequireClient   TRUE to demand a client certificate, so that a client without one gets no
+	#                     response at all
+	#   returns           1
+	#   note              UNPERCEIVED: mutual TLS is proven only between the adapter and this twin
+	#                     with the engine's throwaway test certificates, never against the BCEAO's
+	#                     sandbox or a participant
+	#   warning           raises an error for a certificate, key or CA file that cannot be used,
+	#                     naming the code -13, -14 or -17; the token is not bound to the certificate
+	#                     it was fetched under, as the real hub's is, because the engine does not
+	#                     show the peer certificate to a handler
+	#   see               Start, Port, RunFor
+	#@ aka  one-way or MUTUAL TLS: a non-empty CA turns on client-certificate checks, pbRequireClient demands one
 	def StartTls(pnPort, pcHost, pcCert, pcKey, pcCa, pbRequireClient)
 		return @oServer.StartTls(pnPort, pcHost, pcCert, pcKey, pcCa, pbRequireClient)
 
+	# Returns the port the front listens on, the real one when 0 was asked for.
+	#
+	#   returns    a number, 0 before the first start
+	#   see        Start, StartTls
 	def Port()
 		return @oServer.Port()
 
+	# Serves requests for the given time and then returns, the call that makes the front answer.
+	#
+	#   pnMs       how long to serve, in milliseconds
+	#   returns    the front itself, so calls chain
+	#   warning    it blocks its caller, so an adapter running in the same process cannot be served:
+	#              run the front in a process of its own, as the library's live-adapter guard does
+	#   see        Start, Stop
 	def RunFor(pnMs)
 		@oServer.RunFor(pnMs)
 		return This
 
+	# Closes the listener and keeps the routes for a later start.
+	#
+	#   returns    the front itself, so calls chain
+	#   warning    a front that is not running is left as it is
+	#   see        Start, RunFor
 	def Stop()
 		@oServer.Stop()
 		return This

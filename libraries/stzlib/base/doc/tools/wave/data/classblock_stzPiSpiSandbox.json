@@ -1,0 +1,18 @@
+{
+ "brief": "Answers the PI-SPI hub contract in process as a twin, with virtual francs and a clock moved by hand, so a platform can be tested without a bank.",
+ "detail": "The twin implements the REST contract of the hub in one method, Request(method, path, query, body), which the payments port and the live adapter both speak. It enforces what the reference enforces, so code that pays twice, sends a field the schema refuses or exceeds the quota fails in a test: a txId replayed is answered REJETE with reason DU03, a payment is pending and becomes final 20 seconds later on the twin's own clock, and the hub's webhooks are signed. It declares itself a fake, so a registry refuses it in a production phase. It holds virtual francs and takes no fee, montantFrais is absent because the participant's fee is the participant's contract. It is a model of the contract, not the hub: the live adapter has not been run against the BCEAO's sandbox, so how closely the twin matches that hub is unperceived. The live adapter that talks to a real hub is UNPERCEIVED for the same reason. The state lives in process-wide tables, so a copy of the object is the same hub.",
+ "receiver": "o1 = new stzPiSpiSandbox()",
+ "example": [
+  "? o1.Balance()",
+  "#--> 50000000",
+  "o1.SimulateIncomingPayment(\"fatou\", 40000, \"facture 12\")",
+  "? o1.Balance()",
+  "#--> 50040000"
+ ],
+ "see": [
+  "stzPispiHttpAdapter",
+  "stzPiSpiHttpFront",
+  "stzServiceRegistry",
+  "stzPaymentsPort"
+ ]
+}

@@ -1,0 +1,19 @@
+{
+ "brief": "Holds the services a solution depends on and what serves each, so that a fake can be refused when the solution ships.",
+ "detail": "Application code asks the registry for a service by name, never for an implementation, and the phase decides what is in place: a sandbox that captures mail or a local database while programming, a hosted adapter at deploy. Because the whole outside surface is declared in one place it can be listed and judged: Findings names what is unbound, what is still a fake in a production phase, what is a local source that vanishes on restart, and what is live without its credential in the secret store, and IsSound says whether any of that is an error. Each binding carries a posture read off the object itself (sandbox, local, live or conformance), and an object that says nothing is taken as live so that production does not excuse it. The registry holds the NAME of a credential, never the credential. The payments binding comes second. The library ships one live adapter for a payment hub, stzPispiHttpAdapter, and it is UNPERCEIVED: it is proven against the twin served over real HTTP, plain and with mutual TLS, and has NOT been run against the BCEAO's sandbox. No payment made through it has been watched landing in a real dashboard, so a registry that judges it sound has judged the declared surface and not the service. BindLive, BindConformance and BindLiveWithCertificate carry the same status in their notes. The twin and the BCEAO's sandbox are refused in production (sandbox-in-production, conformance-in-production), and so is a payments port told to skip the payout plan. The payments guide, docs/payments-guide.md, is the desk's own account.",
+ "receiver": "o1 = new stzServiceRegistry(\"restolean\")",
+ "example": [
+  "o1.Declare(:mail)",
+  "o1.Bind(:mail, new stzMailSandbox())",
+  "? o1.PostureOf(:mail)",
+  "#--> sandbox",
+  "? o1.SetPhaseQ(:production).IsSound()",
+  "#--> 0"
+ ],
+ "see": [
+  "stzSecretStore",
+  "stzMailSandbox",
+  "stzPispiHttpAdapter",
+  "stzPiSpiSandbox"
+ ]
+}

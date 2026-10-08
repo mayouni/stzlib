@@ -1,0 +1,15 @@
+{
+ "brief": "Plays a card gateway in memory with the state machine a real one enforces, so double captures and over-refunds fail in a test.",
+ "detail": "Authorize gives an authorized or declined answer, Capture takes an authorized amount once, and Refund gives back only what was captured, never more. The rules are yours and deterministic: a ceiling under which everything is approved, a ceiling over which everything is declined, tokens that always decline, and one outage on demand. Every movement is recorded, so a test asserts on what happened to the money and not on a return value. Money is a positive whole number of minor units, 4200 for 42.00, never a float. This is the double only: the live side, a client of a real card processor, is not shipped, and the registry refuses a double in production. It is not the UEMOA payments port, whose verbs are pay, request to pay, return, cancellation and bulk: see stzPaymentsPort.",
+ "receiver": "o1 = new stzCardPaymentsAdapter()",
+ "example": [
+  "aA = o1.Authorize(4200, \"tok_visa\")",
+  "? aA[:status]",
+  "#--> authorized",
+  "o1.Capture(aA[:id])",
+  "o1.RefundAmount(aA[:id], 1000)",
+  "? o1.NetCaptured()",
+  "#--> 3200"
+ ],
+ "see": ["stzPaymentsSandbox", "stzPaymentsPort", "stzServiceRegistry"]
+}

@@ -1,0 +1,16 @@
+{
+ "brief": "Serves the twin of the PI-SPI hub over HTTP, with a token endpoint, an API key and scopes, so a live adapter has a real server to talk to.",
+ "detail": "UNPERCEIVED, the live adapter this front exists to test. stzPispiHttpAdapter is proven against this twin over real HTTP, plain and with mutual TLS, and has NOT been run against the BCEAO's sandbox: a green run against the front says the adapter and the twin agree, not that a participant's hub agrees, and no payment made through the adapter has been watched landing in a real dashboard. The front puts the twin's single Request() behind an application server and adds what a participant puts in front of the contract: an OAuth2 client-credentials token endpoint, an x-api-key, a scope for each operation, and optional mutual TLS. It moves no money, the twin holds virtual francs. The token is not bound to the certificate it was taken under, which the real hub's is, because the engine does not show the peer certificate to a handler. EnableControl adds /_twin/ routes for a test, with no credential asked. All its state is process-wide, so run one front per process, and run it in a process of its own since RunFor blocks its caller.",
+ "receiver": "o1 = new stzPiSpiHttpFront()",
+ "example": [
+  "? o1.Hub().Balance()",
+  "#--> 50000000",
+  "? o1.Hub().IsSandbox()",
+  "#--> 1"
+ ],
+ "see": [
+  "stzPispiHttpAdapter",
+  "stzPiSpiSandbox",
+  "stzAppServer"
+ ]
+}

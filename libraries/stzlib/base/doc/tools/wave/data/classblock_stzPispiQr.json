@@ -1,0 +1,17 @@
+{
+ "brief": "Builds the PI-SPI interoperable QR payload, the short text a camera reads, and refuses to build one that would print wrong.",
+ "detail": "The library builds the QR STRING and does not draw the picture, and no QR it made has been scanned by any wallet or bank app: the black and white matrix a phone's camera reads is a second step this library does not do, so hand the string to a QR-drawing component of your front end. The string follows the BCEAO's published merchant-presented format: the receiver's PI-SPI alias, the currency XOF, an optional whole-franc amount, a country of the union, a reference label of at most 25 characters and a checksum. A static code serves many payments and a dynamic code one sale. The builder refuses a bad alias, country, label or amount when the payload is asked for, and StzPispiQrParse reads a string back without raising and says what is wrong. It is a builder, not a payment: the payer's banking application makes an ordinary payment to the alias. The checksum matches an independent implementation, which proves the string is well formed and nothing about a scan.",
+ "receiver": "o1 = StzPispiQrQ()",
+ "example": [
+  "o1.WithAlias(\"9b1b3499-3e50-435b-b757-ac7a83d8aa96\").InCountry(\"NE\").AsDynamic()",
+  "o1.WithReference(\"APP-2026-000002\").WithAmount(StzAmountQ(\"18500\", \"XOF\"))",
+  "cQr = o1.Payload()",
+  "? StzPispiQrParse(cQr)[:valid]",
+  "#--> 1",
+  "? StzPispiQrParse(cQr)[:data][:amount]",
+  "#--> 18500",
+  "? StzPispiQrParse(\"0002010102126304BEEF\")[:valid]",
+  "#--> 0"
+ ],
+ "see": ["stzAmount", "stzPiSpiSandbox", "stzPaymentsPort"]
+}

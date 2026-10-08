@@ -1,0 +1,8 @@
+# Wave 8 -- stzPaymentsProblem. Name | brief | returns | params | see | warning | note
+init | Builds a problem from the body the hub returned with a refusal, a list of pairs in the RFC 7807 shape. | nothing; the object is built | paBody=the problem as a list of [ key, value ] pairs; anything that is not a list leaves it empty | StzLastPaymentsProblem | | an application rarely builds one: StzLastPaymentsProblem hands over the one the port just recorded
+Status | Returns the HTTP status the hub gave the refusal, such as 403 or 404. | a number; 0 when the problem is empty | | Title, Detail
+Title | Returns the short, general name of the refusal, such as Forbidden. | a text; an empty text when the hub gave none | | Detail, Status
+Detail | Returns the hub's sentence about this refusal, the one to log or show a developer, such as Plafond de paiement depasse. | a text; an empty text when the hub gave none | | Title, InvalidParams | | the twin writes it in French
+Type | Returns the problem's type address, which is about:blank when the hub gave none. | a text | | Title
+InvalidParams | Returns the fields the hub found wrong, each with the reason, for a refusal of a malformed message. | a list of records [ name, reason ]; an empty list when the hub named none | | Detail, Content
+Content | Returns the whole problem as a list of pairs, exactly as the hub returned it. | a list of [ key, value ] pairs; an empty list when the problem is empty | | Status, InvalidParams

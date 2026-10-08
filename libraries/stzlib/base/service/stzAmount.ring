@@ -71,12 +71,44 @@ func StzAmountQ(pValue, pcCurrency)
 	func StzAmount(pValue, pcCurrency)
 		return StzAmountQ(pValue, pcCurrency)
 
+# Holds an amount of money as whole minor units and an ISO 4217 currency, so it can never be a bare number.
+#
+# An amount cannot be built without a currency, and the library refuses what could not be paid
+# exactly: a fraction finer than the currency's minor unit (50.5 in XOF, because a franc has no
+# fraction), a fractional number, a currency it does not know, and arithmetic or ordering across two
+# currencies. It is never rounded. Money is spelled as text, "12.50", never computed as a float. The
+# exponent is ISO 4217's: 0 for XOF and XAF, 2 for EUR, 3 for TND. An amount is immutable: Plus,
+# Minus, TimesInteger and Negated answer a new amount. Nothing is converted between currencies, and
+# no rate exists.
+#
+#   receiver   o1 = new stzAmount("150000", "XOF")
+#   example    ? o1.Display()
+#              #--> 150 000 FCFA
+#              ? o1.MinorUnits()
+#              #--> 150000
+#              ? StzAmountQ("12.50", "EUR").MinorUnits()
+#              #--> 1250
+#              ? o1.Plus(StzAmountQ("40000", "XOF")).Display()
+#              #--> 190 000 FCFA
+#   see        StzAmountQ, stzPispiQr, stzPaymentOrder
 class stzAmount from stzObject
 
 	@cCur = ""
 	@nExp = 0
 	@nMinor = 0
 
+	# Builds an amount from a value and an ISO 4217 currency code, refusing any value that could not be paid exactly.
+	#
+	#   pValue       the amount as text such as "12.50", or as a whole number of major units
+	#   pcCurrency   an ISO 4217 code such as XOF or EUR, in any case
+	#   returns      nothing; the object is built
+	#   note         a whole number is read in major units, so 5 in EUR is 5.00; trailing zeros past
+	#                the exponent change nothing, so "5000.00" in XOF is 5000
+	#   warning      raises an error for a missing or unknown currency, for a fraction finer than
+	#                the currency's minor unit ("50.5" in XOF), for a fractional number (50.5), for
+	#                a value that is neither text nor a number, and beyond 2^53 - 1 minor units; an
+	#                amount is never rounded
+	#   see          Content, MinorUnits
 	def init(pValue, pcCurrency)
 		if NOT isString(pcCurrency) or StzTrim(pcCurrency) = ""
 			StzRaise("An amount needs a currency: an ISO 4217 code such as XOF or EUR.")
@@ -98,27 +130,56 @@ class stzAmount from stzObject
 				'value of another type.')
 		ok
 
-	  #-- what it is --------------------------------------------------
-
+	# Returns the ISO 4217 code of the amount, in capitals, whatever case it was built with.
+	#
+	#   returns    a text such as XOF
+	#   see        Exponent, MinorUnits
+	#@ aka  -- what it is --------------------------------------------------
 	def Currency()
 		return @cCur
 
+	# Returns the number of decimals of the currency's minor unit, as ISO 4217 gives it: 0 for XOF, 2 for EUR, 3 for TND.
+	#
+	#   returns    a number
+	#   note       the exponent is ISO 4217's, not the country table's: a franc CFA has none
+	#   see        MinorUnits, Currency
 	def Exponent()
 		return @nExp
 
+	# Returns the amount as a whole number of the currency's smallest unit: 150000 for 150 000 XOF, 1250 for 12.50 EUR.
+	#
+	#   returns    a number, negative for a negative amount
+	#   note       this is the figure a payment carries; keep the amount object and read it last
+	#   see        Content, Exponent
 	def MinorUnits()
 		return @nMinor
 
+	# TRUE if the amount is exactly zero.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsPositive, IsNegative
 	def IsZero()
 		return @nMinor = 0
 
+	# TRUE if the amount is strictly above zero; zero is not positive.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsZero, IsNegative
 	def IsPositive()
 		return @nMinor > 0
 
+	# TRUE if the amount is strictly below zero.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsZero, IsPositive
 	def IsNegative()
 		return @nMinor < 0
 
-	# The canonical decimal text: the currency's own number of places, signed.
+	# Returns the amount as plain decimal text with its currency's own number of places and its sign, with no grouping and no currency.
+	#
+	#   returns    a text such as 1250.50, or 150000 for XOF
+	#   see        Display, MinorUnits
+	#@ aka  The canonical decimal text: the currency's own number of places, signed.
 	def Content()
 		_cDig_ = ""+This._AbsMinor()
 		_cSign_ = ""
@@ -144,7 +205,11 @@ class stzAmount from stzObject
 		next
 		return _cSign_ + _cInt_ + "." + _cFrac_
 
-	# How a reader of the UEMOA reads it: grouped thousands, FCFA for both francs.
+	# Returns the amount as a reader of the UEMOA reads it: thousands grouped by spaces, then the currency, FCFA for both XOF and XAF.
+	#
+	#   returns    a text such as 150 000 FCFA or 1 250.50 EUR
+	#   see        Content, MinorUnits
+	#@ aka  How a reader of the UEMOA reads it: grouped thousands, FCFA for both francs.
 	def Display()
 		_cC_ = This.Content()
 		_cSign_ = ""
@@ -187,42 +252,97 @@ class stzAmount from stzObject
 		ok
 		return _cSign_ + _cGrouped_ + " " + _cName_
 
-	  #-- arithmetic inside one currency ----------------------------------
-
+	# Returns a new amount that is the sum of this one and another of the same currency.
+	#
+	#   poOther    the amount to add, in the same currency
+	#   returns    a new amount; neither operand changes
+	#   note       the symbol + between two amounts calls this
+	#   warning    raises an error for another currency, for something that is not an amount, and
+	#              for a result beyond 2^53 - 1 minor units; francs and euros are never added
+	#   see        Minus, TimesInteger
+	#@ aka  -- arithmetic inside one currency ----------------------------------
 	def Plus(poOther)
 		This._RequireSameCurrency(poOther, "add")
 		return This._Make(@nMinor + poOther.MinorUnits())
 
+	# Returns a new amount that is this one less another of the same currency, negative when the other is larger.
+	#
+	#   poOther    the amount to take away, in the same currency
+	#   returns    a new amount; neither operand changes
+	#   note       the symbol - between two amounts calls this
+	#   warning    raises an error for another currency, for something that is not an amount, and
+	#              for a result beyond 2^53 - 1 minor units
+	#   see        Plus, Negated
 	def Minus(poOther)
 		This._RequireSameCurrency(poOther, "subtract")
 		return This._Make(@nMinor - poOther.MinorUnits())
 
-	# A rate would need a rounding rule, and a payment has none to give, so the
-	# only multiplier is a whole number.
+	# Returns a new amount that is this one repeated a whole number of times, which may be zero or negative.
+	#
+	#   pn         the whole-number multiplier
+	#   returns    a new amount
+	#   note       a rate would need a rounding rule, and a payment has none to give
+	#   warning    raises an error for a fraction or for something that is not a number, and beyond
+	#              2^53 - 1 minor units; there is no rate and no rounding
+	#   see        Plus, Negated
+	#@ aka  A rate would need a rounding rule, and a payment has none to give, so the only multiplier is a whole number.
 	def TimesInteger(pn)
 		if NOT isNumber(pn) or pn != floor(pn)
 			StzRaise("TimesInteger needs a whole number: an amount is never multiplied by a fraction.")
 		ok
 		return This._Make(@nMinor * pn)
 
+	# Returns a new amount of the same size and the opposite sign.
+	#
+	#   returns    a new amount
+	#   see        Minus, IsNegative
 	def Negated()
 		return This._Make(0 - @nMinor)
 
+	# TRUE if the other value is an amount of the same currency and the same size; anything else answers FALSE without an error.
+	#
+	#   poOther    the value to compare, normally an amount
+	#   returns    TRUE or FALSE
+	#   note       150000 XOF and "150000.00" XOF are equal; 150000 XOF and 150000 EUR are not
+	#   see        IsGreaterThan, IsLessThan
 	def Equals(poOther)
 		if NOT isObject(poOther)
 			return 0
 		ok
 		return @cCur = poOther.Currency() and @nMinor = poOther.MinorUnits()
 
+	# TRUE if this amount is larger than another of the same currency.
+	#
+	#   poOther    the amount to compare with, in the same currency
+	#   returns    TRUE or FALSE
+	#   warning    raises an error for another currency or for something that is not an amount:
+	#              amounts of two currencies have no order
+	#   see        IsLessThan, Equals
 	def IsGreaterThan(poOther)
 		This._RequireSameCurrency(poOther, "compare")
 		return @nMinor > poOther.MinorUnits()
 
+	# TRUE if this amount is smaller than another of the same currency.
+	#
+	#   poOther    the amount to compare with, in the same currency
+	#   returns    TRUE or FALSE
+	#   warning    raises an error for another currency or for something that is not an amount:
+	#              amounts of two currencies have no order
+	#   see        IsGreaterThan, Equals
 	def IsLessThan(poOther)
 		This._RequireSameCurrency(poOther, "compare")
 		return @nMinor < poOther.MinorUnits()
 
-	# `oA + oB`, `oA - oB`. The `=` operator is deliberately not here.
+	# Answers the sum or the difference of two amounts of one currency when they are written with the symbol + or -.
+	#
+	#   pOp        the symbol, + or -
+	#   pValue     the other amount
+	#   returns    a new amount
+	#   note       a + b is Plus and a - b is Minus
+	#   warning    any other symbol raises an error naming TimesInteger for multiples; the symbol =
+	#              is deliberately not defined, so compare with Equals
+	#   see        Plus, Minus
+	#@ aka  `oA + oB`, `oA - oB`. The `=` operator is deliberately not here.
 	def operator(pOp, pValue)
 		if pOp = "+"
 			return This.Plus(pValue)
