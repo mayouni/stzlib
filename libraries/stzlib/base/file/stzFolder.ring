@@ -376,6 +376,103 @@ func _ParentPath(_cPath_)
 	ok
 	return _cPath_
 
+# Folds the . and .. segments of a path, so that a fence tested on text cannot
+# be walked round with sub1/../../x. A drive such as D: and a leading slash
+# are never popped. A .. that has nothing left to pop is dropped on an
+# absolute path and kept on a relative one.
+func _CollapseDots(_cPath_)
+	_cPath_ = _CleanPath(_cPath_)
+	_nLen_ = StzLen(_cPath_)
+	_bLeading_ = 0
+	if _nLen_ > 0 and _cPath_[1] = "/"
+		_bLeading_ = 1
+	ok
+	_acStack_ = []
+	_cSeg_ = ""
+	for i = 1 to _nLen_ + 1
+		if i > _nLen_ or _cPath_[i] = "/"
+			if _cSeg_ = ".."
+				_nStack_ = len(_acStack_)
+				_bDrive_ = (_nStack_ = 1 and StzLen(_acStack_[1]) = 2 and StzRight(_acStack_[1], 1) = ":")
+				if _nStack_ > 0 and _acStack_[_nStack_] != ".." and NOT _bDrive_
+					del(_acStack_, _nStack_)
+				but _nStack_ = 0 and NOT _bLeading_
+					_acStack_ + ".."
+				ok
+			but _cSeg_ != "" and _cSeg_ != "."
+				_acStack_ + _cSeg_
+			ok
+			_cSeg_ = ""
+		else
+			_cSeg_ += _cPath_[i]
+		ok
+	next
+	_cResult_ = ""
+	_nStack_ = len(_acStack_)
+	for i = 1 to _nStack_
+		if i > 1
+			_cResult_ += "/"
+		ok
+		_cResult_ += _acStack_[i]
+	next
+	if _bLeading_
+		_cResult_ = "/" + _cResult_
+	ok
+	return _cResult_
+
+# Returns the non-empty segments of a path, without its drive slash.
+func _PathSegments(_cPath_)
+	_cPath_ = _CleanPath(_cPath_)
+	_acSeg_ = []
+	_cSeg_ = ""
+	_nLen_ = StzLen(_cPath_)
+	for i = 1 to _nLen_ + 1
+		if i > _nLen_ or _cPath_[i] = "/"
+			if _cSeg_ != ""
+				_acSeg_ + _cSeg_
+			ok
+			_cSeg_ = ""
+		else
+			_cSeg_ += _cPath_[i]
+		ok
+	next
+	return _acSeg_
+
+# Says what an absolute path is on disk: "file", "folder" or "" (nothing there).
+# The last name is looked up in the listing of its parent, which is lowercased
+# whatever the file system, so the answer ignores case everywhere. A drive or
+# filesystem root is a folder.
+func _KindOfPath(_cAbs_)
+	_cAbs_ = _CleanPath(_cAbs_)
+	if _cAbs_ = ""
+		return ""
+	ok
+	if _IsRootPath(_cAbs_)
+		return "folder"
+	ok
+	_cParent_ = _ParentPath(_cAbs_)
+	if _cParent_ = _cAbs_
+		return ""
+	ok
+	if StzLen(_cParent_) = 2 and StzRight(_cParent_, 1) = ":"
+		_cParent_ += "/"
+	ok
+	if NOT StzEngineDirExists(_cParent_)
+		return ""
+	ok
+	_cName_ = StzLower(_DirName(_cAbs_))
+	_aList_ = @dir(_cParent_)
+	_nLen_ = len(_aList_)
+	for i = 1 to _nLen_
+		if _aList_[i][1] = _cName_
+			if _aList_[i][2] = 1
+				return "folder"
+			ok
+			return "file"
+		ok
+	next
+	return ""
+
 #-------------#
 #  THE CLASS  #
 #-------------#
@@ -386,20 +483,18 @@ func _ParentPath(_cPath_)
 # to return to (GoHome) and a history (GoBack). Listings are of the position, in lowercase: Files
 # and Folders give the direct children as /name and /name/, DeepFiles and DeepFolders walk the whole
 # tree. Find, Search and Modify come in three reaches: this folder (FindFiles, SearchInFiles,
-# ModifyInRoot), one named child folder, and the Deep forms below. Ring has one process folder, and
-# relative paths that reach the disk directly (a few of the In and Deep methods, IsInside,
-# IsFolderEmpty) are read from it and not from the position, so pass absolute paths to those. Many
-# file methods finish by moving the position to the file's folder; that step calls GetDirectoryPath,
-# which exists nowhere, so with batch mode off (the default) they end in error R14, after the work
-# for the create, remove, copy and move methods and before it for the others. Call SetBatchMode(1)
-# first. The delete methods are real: DeleteFolder, DeleteAll, Erase, DeepRemoveAll and DeepErase
-# remove what they name, and GoUp can lift the position above the home, so point an object at a
-# folder you can afford to lose. Known gaps today, each carried as a warning on its method:
-# FindFolders and CountFolder never match a plain name, Find and DeepFind nest the folders list
-# inside the files list, DeepContainsOneOf... answer for all the names, FilesIn and FoldersIn raise
-# for any non-empty child, SearchInFolder reports the wrong file, the Deep modifiers and
-# DeepDeleteFile and DeepDeleteFolder do nothing, and FileOverwrite, FileSafeOverwrite, FileErase,
-# FileSafeErase and FileBackup raise errors.
+# ModifyInRoot), one named child folder, and the Deep forms below. A path given to a method is
+# read from the current position, never from the process folder, so sub1/d.txt, /sub1/d.txt and the
+# absolute path name the same file; only the constructor, the In methods that take a folder path to
+# search (DeepCountFilesIn and the like) and the file functions outside the class read the process
+# folder. Whether a path is held here is decided on disk, at any depth below the position, and the .
+# and .. segments are folded first, so a path cannot step out of the position. Many file methods
+# finish by moving the position into the folder of the file when it is below the position;
+# SetBatchMode(1) turns that off. The delete methods are real: DeleteFolder, DeleteAll, Erase,
+# DeepRemoveAll, DeepErase, DeepDeleteFile and DeepDeleteFolder remove what they name, and GoUp can
+# lift the position above the home, so point an object at a folder you can afford to lose. GoTo does
+# not check that the folder exists, and CollapseFolders has no visible effect, each carried as a
+# warning on its method.
 #
 #   receiver   o1 = new stzFolder(currentDir())
 #   example    ? o1.IsReadable()
@@ -527,12 +622,13 @@ class stzFolder from stzObject
 		def PathSeperator()
 			return This.Separator()
 
-	# TRUE if an absolute path lies strictly below the current position, the position itself excluded, ignoring case.
+	# TRUE if a path lies strictly below the current position, the position itself excluded, ignoring case.
 	#
-	#   _cPath_    an absolute path
+	#   _cPath_    an absolute path, or a name or path relative to the current position
 	#   returns    TRUE or FALSE
-	#   note       The path need not exist; GoTo and the create methods use it as their fence. Given
-	#              the bare name sub1 it answers FALSE
+	#   note       The path need not exist; GoTo and the create methods use it as their fence. A
+	#              relative name such as sub1 is read from the current position, and the . and ..
+	#              segments are folded first, so sub1/../../x is outside
 	#   warning    Raises an error for an empty text
 	#   see        IsOutside, GoTo
 	def IsInside(_cPath_)
@@ -542,7 +638,7 @@ class stzFolder from stzObject
 	    ok
 	
 		_cMainPath_ = _CleanPath(@cCurrentPath)
-		_cAbsolutePath_ = _CleanPath(_AbsolutePath(_cPath_))
+		_cAbsolutePath_ = This._ResolveInHere(_cPath_)
 
 		if StzRight(_cMainPath_, 1) != "/"
 			_cMainPath_ += "/"
@@ -589,6 +685,28 @@ class stzFolder from stzObject
 			return This.IsOutside(_cPath_)
 	
 	
+	# Turns a path into the absolute, dot-free path it names HERE: a drive path
+	# or a path that already starts with this position is kept, and anything
+	# else, a bare name (sub1/d.txt) or the listing form (/sub1/), is joined to
+	# the current position. The process folder plays no part.
+	def _ResolveInHere(_cPath_)
+		_cPath_ = _CleanPath(_cPath_)
+		_cPos_ = _CleanPath(@cCurrentPath)
+		_bAbsolute_ = 0
+		if StzLen(_cPath_) >= 2 and isalpha(StzLeft(_cPath_, 1)) and StzMid(_cPath_, 2, 1) = ":"
+			_bAbsolute_ = 1
+		but StzLeft(_cPath_, 1) = "/"
+			_cPosLow_ = StzLower(_cPos_)
+			_cPathLow_ = StzLower(_cPath_)
+			if _cPathLow_ = _cPosLow_ or StzLeft(_cPathLow_, StzLen(_cPosLow_) + 1) = (_cPosLow_ + "/")
+				_bAbsolute_ = 1
+			ok
+		ok
+		if NOT _bAbsolute_
+			_cPath_ = _CleanPath(_cPos_ + "/" + _cPath_)
+		ok
+		return _CollapseDots(_cPath_)
+
 	# TRUE if cName (any slash form: "name", "/name", "/name/", or a full
 	# path) names a surface entry of aList. Listing entries are "/name" for
 	# files and "/name/" for folders, all lowercased; the query may be any
@@ -604,87 +722,89 @@ class stzFolder from stzObject
 		next
 		return 0
 
-	# TRUE if the last name of the path is one of the files held directly here, ignoring case.
+	# TRUE if a path names a file held here, at any depth below the current position, ignoring case.
 	#
-	#   _cPath_    a file name or a path whose last name is looked up
+	#   _cPath_    a file name, a sub-path such as sub1/d.txt, the listing form /a.txt, or an absolute path
 	#   returns    TRUE or FALSE
-	#   note       Only the last name is compared with the direct children: sub1/d.txt answers
-	#              FALSE, while /nowhere/a.txt answers TRUE
+	#   note       The path is read from the current position and looked up on disk, so a file two
+	#              levels down is found and a file that is not there is not, whatever its last name
 	#   warning    Raises an error for an empty text
 	#   see        Exists, IsFolder, ContainsFile
 	def IsFile(_cPath_)
-	    # Checks if cPath represents a valid existing file within the folder scope
-	
+
 	    if NOT ( isString(_cPath_) and _cPath_ != "" )
 	        raise("Incorrect param type! cPath must be non-empty a string.")
 	    ok
-	
-	    _cNormalizedPath_ = This.NormalizePathXT(_cPath_)
-	
-		if This._NameInListCI(_cPath_, This.Files())
-			return 1
-		else
-			return 0
-		ok
-	
+
+	    return This._IsKindHere(_cPath_, "file")
+
 	    def IsValidFile(_cPath_)
 	        return This.IsFile(_cPath_)
-	
+
 	    def IsExistingFile(_cPath_)
 	        return This.IsFile(_cPath_)
-	
-	# TRUE if the last name of the path is one of the folders held directly here, ignoring case and a trailing slash.
+
+	# TRUE if a path names a folder held here, at any depth below the current position, ignoring case.
 	#
-	#   _cPath_    a folder name or a path whose last name is looked up
+	#   _cPath_    a folder name, a sub-path such as sub1/deep1, the listing form /sub1/, or an absolute path
 	#   returns    TRUE or FALSE
-	#   note       Only the last name is compared with the direct children: sub1/deep1 answers
-	#              FALSE, while /nowhere/sub1 answers TRUE
+	#   note       The path is read from the current position and looked up on disk; a trailing
+	#              slash is ignored, and the position itself is not held here
 	#   warning    Raises an error for an empty text
 	#   see        Exists, IsFile, ContainsFolder
 	def IsFolder(_cPath_)
-	    # Checks if cPath represents a valid existing folder within the folder scope
-	
+
 	    if NOT ( isString(_cPath_) and _cPath_ != "" )
 	        raise("Incorrect param type! cPath must be non-empty a string.")
 	    ok
-	
-		_cPath_ = This.NormalizeFolderPath(_cPath_)
-	
-		if This._NameInListCI(_cPath_, This.Folders())
-			return 1
-		else
-			return 0
-		ok
-	
+
+	    return This._IsKindHere(_cPath_, "folder")
+
 	    def IsValidFolder(_cPath_)
 	        return This.IsFolder(_cPath_)
-	
+
 	    def IsExistingFolder(_cPath_)
 	        return This.IsFolder(_cPath_)
-	
+
 	    def IsDirectory(_cPath_)
 	        return This.IsFolder(_cPath_)
-	
+
 	    def IsValidDirectory(_cPath_)
 	        return This.IsFolder(_cPath_)
-	
+
 	    def IsExistingDirectory(_cPath_)
 	        return This.IsFolder(_cPath_)
-	
-	# Raises error R19 today instead of telling whether a path names a file or a folder here.
+
+	# Says whether a path, resolved here, is a file or a folder held below the position.
 	#
-	#   _cPath_    A path, as text.
-	#   returns    nothing; error R19 is raised
-	#   note       Exists answers the question
-	#   warning    Raises error R19 today because it calls IsFilePath and IsFolderPath without
-	#              passing the path
+	#   _cPath_    the path to look up
+	#   _cKind_    "file" or "folder"
+	#   returns    1 or 0
+	#   note       The one place that decides what held here means: inside the position and present on disk
+	def _IsKindHere(_cPath_, _cKind_)
+	    _cAbs_ = This._ResolveInHere(_cPath_)
+	    if NOT This.IsInside(_cAbs_)
+	        return 0
+	    ok
+	    if _KindOfPath(_cAbs_) = _cKind_
+	        return 1
+	    ok
+	    return 0
+
+	# TRUE if a path names a file or a folder held here, at any depth below the current position.
+	#
+	#   _cPath_    a path, as text
+	#   returns    TRUE or FALSE
+	#   note       Exists answers the same; the path is looked up on disk after a check that it holds
+	#              no control character
+	#   warning    Raises an error for an empty text or a path with a control character
 	#   see        Exists, IsFile, IsFolder
 	def IsPath(_cPath_)
-		return This.IsFilePath() or This.IsFolderPath()
-	
-	# TRUE if the last name of the path is a file held directly here, after a check that the path holds no control character.
+		return This.IsFilePath(_cPath_) or This.IsFolderPath(_cPath_)
+
+	# TRUE if a path names a file held here, after a check that the path holds no control character.
 	#
-	#   _cPath_    a file name or a path whose last name is looked up
+	#   _cPath_    a file name or a path below the current position
 	#   returns    TRUE or FALSE
 	#   note       Behaves like IsFile apart from the security check
 	#   warning    Raises an error for an empty text or a path with a control character
@@ -695,23 +815,17 @@ class stzFolder from stzObject
 				raise("Incorrect param type! cPath must be a non-empty string.")
 			ok
 		ok
-	
+
 		# Check for path injection attempts
-		if NOT IsSecurePath(_cPath_)
+		if NOT This.IsSecurePath(_cPath_)
 			raise("Insecure path with potential injection risks!")
 		ok
-		
-		_cPath_ = This.NormaliseFolderPath(_cPath_)
-	
-		if This._NameInListCI(_cPath_, This.Files())
-			return 1
-		else
-			return 0
-		ok
 
-	# TRUE if the last name of the path is a folder held directly here, after a check that the path holds no control character.
+		return This._IsKindHere(_cPath_, "file")
+
+	# TRUE if a path names a folder held here, after a check that the path holds no control character.
 	#
-	#   _cPath_    a folder name or a path whose last name is looked up
+	#   _cPath_    a folder name or a path below the current position
 	#   returns    TRUE or FALSE
 	#   note       Behaves like IsFolder apart from the security check
 	#   warning    Raises an error for an empty text or a path with a control character
@@ -722,26 +836,20 @@ class stzFolder from stzObject
 				raise("Incorrect param type! cPath must be a non-empty string.")
 			ok
 		ok
-	
-		_cPath_ = This.NormaliseFolderPath(_cPath_)
-	
+
 		# Check for path injection attempts
-		if NOT IsSecurePath(_cPath_)
+		if NOT This.IsSecurePath(_cPath_)
 			raise("Insecure path with potential injection risks!")
 		ok
-		
-		if This._NameInListCI(_cPath_, This.Folders())
-			return 1
-		else
-			return 0
-		ok
 
-	# TRUE if the path, once normalised, has at least two folder levels, judged from its shape and not from the disk.
+		return This._IsKindHere(_cPath_, "folder")
+
+	# TRUE if a path names a file or a folder at least two levels below the current position.
 	#
-	#   _cPath_    a path written with a leading slash, such as /sub1/d.txt
+	#   _cPath_    a path written as a name below the position, such as sub1/d.txt or /sub1/d.txt
 	#   returns    TRUE or FALSE
-	#   note       /sub1/d.txt and /nothing/zz.txt both answer TRUE and /a.txt answers FALSE;
-	#              written without the leading slash, sub1/d.txt answers FALSE
+	#   note       The path is looked up on disk: /sub1/d.txt answers TRUE when that file exists,
+	#              /a.txt answers FALSE because it is only one level down, and /nothing/zz.txt FALSE
 	#   see        IsDeepFile, IsDeepFolder, DeepExists
 	def IsDeep(_cPath_)
 		if This.IsDeepFile(_cPath_) or This.IsDeepFolder(_cPath_)
@@ -749,84 +857,104 @@ class stzFolder from stzObject
 		else
 			return 0
 		ok
-	
-		# Returns nothing today instead of the verdict of the deep-path test.
+
+		# Tells whether a path is at least two levels deep and exists, the same verdict as IsDeep.
 		#
-		#   _cPath_    a path written with a leading slash
-		#   returns    nothing; the verdict is dropped
-		#   note       IsDeep gives the verdict
-		#   warning    The body calls the test without a return, so the answer is lost
+		#   _cPath_    a path below the position
+		#   returns    TRUE or FALSE
 		#   see        IsDeep
 		def IsDeepPath(_cPath_)
-			IsDeep(_cPath_)
-	
-	# TRUE if the path normalises as a file and has at least two separators, which a file that really lies deeper does not.
+			return This.IsDeep(_cPath_)
+
+	# TRUE if a path names a file that exists at least two levels below the current position.
 	#
-	#   _cPath_    a path
+	#   _cPath_    a path below the position, such as /sub1/d.txt
 	#   returns    TRUE or FALSE
-	#   note       Only a path such as /zz/a.txt, ending in a name held here, can answer TRUE
-	#   warning    Answers FALSE for /sub1/d.txt although that file exists, because a name that is
-	#              not a file of this folder is normalised as a folder path
+	#   note       A file directly in the position, such as /a.txt, is one level down and answers FALSE
 	#   see        IsDeep, IsDeepFolder
 	def IsDeepFile(_cPath_)
-		_cPath_ = This.NormalizePath(_cPath_)
-		_cSep_ = This.Separator()
-	
-		if StzRight(_cPath_, 1) = _cSep_ # It's a folder not a file!
+		if NOT This._IsKindHere(_cPath_, "file")
 			return 0
 		ok
-	
-		if StringNumberOfOccurrence(_cPath_, _cSep_) > 1
+		if This._LevelsBelowHere(_cPath_) >= 2
 			return 1
-		else
-			return 0
 		ok
-	
+		return 0
+
 		def IsDeepFilePath(_cPath_)
 			return This.IsDeepFile(_cPath_)
-	
-	# TRUE if the normalised path ends with a separator and holds at least three of them, judged from its shape and not from the disk.
+
+	# TRUE if a path names a folder that exists at least two levels below the current position.
 	#
-	#   _cPath_    a path, with or without the trailing slash
+	#   _cPath_    a path below the position, with or without the trailing slash
 	#   returns    TRUE or FALSE
-	#   note       /sub1/deep1 and /zz/yy/ answer TRUE, /sub1/ answers FALSE; nothing is looked up
-	#              on disk
+	#   note       /sub1/deep1 answers TRUE when it exists and /sub1/ answers FALSE; a folder that is
+	#              not on disk answers FALSE
 	#   see        IsDeep, IsDeepFile
 	def IsDeepFolder(_cPath_)
-		_cPath_ = This.NormalizePath(_cPath_)
-		_cSep_ = This.Separator()
-	
-		if StzRight(_cPath_, 1) != _cSep_ # It's a file not a folder!
+		if NOT This._IsKindHere(_cPath_, "folder")
 			return 0
 		ok
-	
-		if StringNumberOfOccurrence(_cPath_, _cSep_) > 2
+		if This._LevelsBelowHere(_cPath_) >= 2
 			return 1
-		else
-			return 0
 		ok
-	
+		return 0
+
 		def IsDeepFolderPath(_cPath_)
 			return This.IsDeepFolder(_cPath_)
 
-	# TRUE if a folder holds no file and no folder; a folder that does not exist is created on the way and so answers TRUE.
+	# Counts the levels between the position and a path below it, a direct child being one level.
 	#
-	#   _cFolderPath_   an absolute path
+	#   _cPath_    a path below the position
+	#   returns    a number, 0 when the path is not below the position
+	def _LevelsBelowHere(_cPath_)
+		_cAbs_ = This._ResolveInHere(_cPath_)
+		if NOT This.IsInside(_cAbs_)
+			return 0
+		ok
+		_nStart_ = StzLen(_CleanPath(@cCurrentPath)) + 2
+		_cRel_ = StzMid(_cAbs_, _nStart_, StzLen(_cAbs_) - _nStart_ + 1)
+		if _cRel_ = ""
+			return 0
+		ok
+		_nLevels_ = 1
+		_nLen_ = StzLen(_cRel_)
+		for i = 1 to _nLen_
+			if _cRel_[i] = "/"
+				_nLevels_++
+			ok
+		next
+		return _nLevels_
+
+	# Tells whether a path, once made a folder path, is written with at least three separators, as /sub1/deep1/.
+	#
+	#   _cPath_    a path
+	#   returns    1 or 0
+	#   note       Pure shape, nothing is read from disk: the expand lists take names that may not exist yet
+	def _IsDeepFolderShape(_cPath_)
+		_cPath_ = This.NormalizeFolderPath(_cPath_)
+		if StringNumberOfOccurrence(_cPath_, This.Separator()) > 2
+			return 1
+		ok
+		return 0
+
+	# TRUE if a folder holds no file and no folder; a folder that is not there answers FALSE and is not created.
+	#
+	#   _cFolderPath_   a folder name or path below the position, or an absolute path
 	#   returns         TRUE or FALSE
-	#   note            The display methods use it for each subfolder name, so an expanded tree can
-	#                   leave empty folders in the process folder
-	#   warning         Creates the folder when it is missing, and a relative name creates it in the
-	#                   process folder, not in this one
+	#   note            A relative name is read from the current position, not from the process folder
 	#   see             IsEmpty, Count
 	#@ aka  --
 	def IsFolderEmpty(_cFolderPath_)
 
-		_cFolderName_ = This.NormalizeFolderPath(_cFolderPath_)
-		_oTempFolder_ = new stzFolder(_cFolderPath_)
-		_bHasFiles_ = _oTempFolder_.CountFiles() > 0
-		_bHasFolders_ = _oTempFolder_.CountFolders() > 0
-
-		return (not _bHasFiles_ and not _bHasFolders_)
+		_cAbs_ = This._ResolveInHere(_cFolderPath_)
+		if _KindOfPath(_cAbs_) != "folder"
+			return 0
+		ok
+		if len(@dir(_cAbs_)) = 0
+			return 1
+		ok
+		return 0
 
 		def IsEmptyFolder(_cFolderPath_)
 			return This.IsFolderEmpty(_cFolderPath_)
@@ -847,12 +975,13 @@ class stzFolder from stzObject
 		# Check if child path starts with parent path
 		return StzLeft(_cNormalizedChild_, StzLen(_cNormalizedParent_)) = _cNormalizedParent_
 	
-	# TRUE if the last name of the path is one of the files or folders held directly here, ignoring case.
+	# TRUE if a path names a file or a folder held here, at any depth below the current position, ignoring case.
 	#
-	#   _cPath_    a name, or a path whose last name is looked up
+	#   _cPath_    a name, a sub-path such as sub1/d.txt, or an absolute path
 	#   returns    TRUE or FALSE
-	#   note       PathExists, IsValidPath and ContainsPath are the same method; only the last name
-	#              is compared, so sub1/d.txt answers FALSE and /nowhere/a.txt answers TRUE
+	#   note       PathExists, IsValidPath and ContainsPath are the same method; the path is looked
+	#              up on disk from the current position, so sub1/d.txt answers TRUE when it exists
+	#              and /nowhere/a.txt answers FALSE
 	#   see        IsFile, IsFolder, DeepExists
 	#---
 	def Exists(_cPath_)
@@ -876,13 +1005,12 @@ class stzFolder from stzObject
 	    # Alias for IsFolder - checks if folder exists  
 	    return This.IsFolder(_cFolderName_)
 	
-	# TRUE if the path has at least two folder levels, judged from its shape and not from the disk.
+	# TRUE if a path names a file or a folder that exists at least two levels below the current position.
 	#
-	#   _cPath_    a path written with a leading slash
+	#   _cPath_    a path below the position, such as /sub1/d.txt
 	#   returns    TRUE or FALSE
-	#   note       Use DeepContainsFile or DeepContainsFolder to look in the tree
-	#   warning    Answers TRUE for /nothing/zz.txt, which does not exist, and FALSE for a real file
-	#              at /a.txt: it tests the shape of the path, not the disk
+	#   note       Use DeepContainsFile or DeepContainsFolder to look in the tree; /nothing/zz.txt
+	#              answers FALSE because it is not on disk
 	#   see        IsDeep, Exists
 	#@ aka  --
 	def DeepExists(_cPath_)
@@ -950,7 +1078,7 @@ class stzFolder from stzObject
 
 
 		def NormalisePathXT(_cPath_)
-			return This.NormalizeXT(_cPath_)
+			return This.NormalizePathXT(_cPath_)
 	
 	# Returns the path trimmed, with backslashes turned into slashes and no trailing slash, keeping its case.
 	#
@@ -985,14 +1113,12 @@ class stzFolder from stzObject
 			ok
 		ok
 	    
-	    _cBasePath_ = @cCurrentPath
-	    _cCleanName_ = _CleanPath(trim(_cName_))
-	    
-	    # If not absolute, make it relative to base path
-	    if NOT _IsAbsolutePath(_cCleanName_)
-	        _cCleanName_ = _CleanPath(_cBasePath_ + "/" + _cCleanName_)
-	    ok
-	    
+	    # A name that is not absolute, or that is only written with a leading
+	    # slash (the listing form /a.txt), is joined to the current position,
+	    # and the . and .. segments are folded so the fence tests cannot be
+	    # walked round.
+	    _cCleanName_ = This._ResolveInHere(trim(_cName_))
+
 	    # A FILE path must NOT end with a separator -- appending one here (the
 	    # old behaviour) produced ".../test.txt/", so @FileCreate/@FileDelete/
 	    # read/write/size/copy all operated on a malformed path and silently
@@ -1080,9 +1206,9 @@ class stzFolder from stzObject
 	#  DETAILED PATH ANALYSIS  #
 	#==========================#
 	
-	# Returns "file", "folder" or "none" for the last name of a path, among the files and folders held directly here.
+	# Returns "file", "folder" or "none" for a path, among the files and folders held here at any depth.
 	#
-	#   _cPath_    a name or a path whose last name is looked up
+	#   _cPath_    a name or a path below the current position
 	#   returns    text: file, folder or none
 	#   warning    Raises an error for a blank text
 	#   see        IsFile, IsFolder, PathInfo
@@ -1111,9 +1237,8 @@ class stzFolder from stzObject
 	#
 	#   _cPath_    a name or a path whose last name is looked up
 	#   returns    a list of [ key, value ] pairs
-	#   note       The keys are in lowercase
-	#   warning    Raises an error (Incorrect path!) when nothing here has that name, and
-	#              parent_folder is wrong for a folder: sub1 gives sub1
+	#   note       The keys are in lowercase; parent_folder is the folder that holds the path
+	#   warning    Raises an error (Incorrect path!) when nothing is held here at that path
 	#   see        PathType, ParentFolder
 	def PathInfo(_cPath_)
 	
@@ -1149,14 +1274,12 @@ class stzFolder from stzObject
 	    
 	    return _aInfo_
 	
-	# Returns the text of a path before its last separator, or this folder's own path for a file held here.
+	# Returns the absolute path of the folder that holds a file or a folder held here.
 	#
-	#   _cPath_    a name held directly here
-	#   returns    text
+	#   _cPath_    a name or a path below the current position
+	#   returns    text; the current position for a direct child, sub1 below it for sub1/d.txt
 	#   note       ParentDir is the same method; GetParentDirectory is the one that cuts a full path
-	#   warning    Answers the folder itself without its trailing slash when given a folder name
-	#              (sub1 gives sub1), and raises an error (Incorrect path!) for a path that is not a
-	#              direct child
+	#   warning    Raises an error (Incorrect path!) when nothing is held here at that path
 	#   see        PathInfo, GetParentDirectory
 	def ParentFolder(_cPath_)
 		if CheckParams()
@@ -1165,29 +1288,14 @@ class stzFolder from stzObject
 			ok
 		ok
 	
-	    _cNormalizedPath_ = This.NormalizePath(_cPath_)
-	
-		# Ensire the provided path exists in the folder
-	
-		if NOT This.Exists(_cNormalizedPath_)
+		# The path must be held here; the parent is read from its resolved form,
+		# so a folder name answers its parent and not itself.
+
+		if NOT This.Exists(_cPath_)
 			raise("Incorrect path!")
 		ok
-	
-	    # Find last separator
-	
-	    _nLastSep_ = 0
-	    for i = StzLen(_cNormalizedPath_) to 1 step -1
-	        if _cNormalizedPath_[i] = This.Separator()
-	            _nLastSep_ = i
-	            exit
-	        ok
-	    next
 
-	    if _nLastSep_ > 0
-	        return StzLeft(_cNormalizedPath_, _nLastSep_ - 1)
-	    else
-	        return @cCurrentPath
-	    ok
+		return _ParentPath(This._ResolveInHere(_cPath_))
 	
 
 	    def ParentDir()
@@ -1275,14 +1383,11 @@ class stzFolder from stzObject
 	    
 	    return 1
 	
-	# Raises error R24 today instead of returning the paths of a list that are held here.
+	# Returns the paths of a list that are held here, in the order given and as given.
 	#
 	#   acPaths    the list of paths to filter
-	#   returns    the list of paths that exist, but error R24 is raised as soon as one does; [ ]
-	#              when none does
-	#   note       Checked with two lists, each with one existing path
-	#   warning    Raises error R24 (uninitialized variable _cpath_) because it appends a variable
-	#              it never sets, instead of the current item
+	#   returns    a list of text; [ ] when none is held here
+	#   warning    Raises an error when the argument is not a list of text
 	#   see        MissingPathsAmong, AllExist
 	def ExistingPathsAmong(acPaths)
 	
@@ -1300,21 +1405,18 @@ class stzFolder from stzObject
 
 		for i = 1 to _nLen_
 	        if This.Exists(acPaths[i])
-	            _acResult_ + _cPath_
+	            _acResult_ + acPaths[i]
 	        ok
 	    next
 	    
 	    return _acResult_
 	
 	
-	# Raises error R24 today instead of returning the paths of a list that are not held here.
+	# Returns the paths of a list that are not held here, in the order given and as given.
 	#
 	#   acPaths    the list of paths to filter
-	#   returns    the list of paths that are missing, but error R24 is raised as soon as one is; [
-	#              ] when none is
-	#   note       Checked with two lists, each with one missing path
-	#   warning    Raises error R24 (uninitialized variable _cpath_) because it appends a variable
-	#              it never sets, instead of the current item
+	#   returns    a list of text; [ ] when all are held here
+	#   warning    Raises an error when the argument is not a list of text
 	#   see        ExistingPathsAmong, AllExist
 	def MissingPathsAmong(acPaths)
 	
@@ -1331,7 +1433,7 @@ class stzFolder from stzObject
 
 		for i = 1 to _nLen_
 	        if NOT This.Exists(acPaths[i])
-	            _acMissing_ + _cPath_
+	            _acMissing_ + acPaths[i]
 	        ok
 	    next
 	    
@@ -1603,13 +1705,11 @@ class stzFolder from stzObject
 		def CountDirs()
 			return This.CountFolders()
 
-	# Returns 0 today for any folder name instead of 1 for a folder held here.
+	# Returns how many folders held directly here match a name or a pattern with *, ignoring case.
 	#
-	#   _cFolderName_   the folder name to count
-	#   returns         a number, always 0 for a plain name
-	#   note            ContainsFolder answers the question
-	#   warning         Always answers 0, because the exact-name search compares sub1 with the
-	#                   listing form /sub1/ and never matches; only a pattern with * can match
+	#   _cFolderName_   the folder name to count, with or without slashes, or a pattern with *
+	#   returns         a number; 1 for a plain name that is held here
+	#   note            ContainsFolder answers the same question as TRUE or FALSE
 	#   see             CountFolders, ContainsFolder
 	def CountFolder(_cFolderName_)
 		return len(This.FindFolder(_cFolderName_))
@@ -1708,15 +1808,13 @@ class stzFolder from stzObject
 		def ContainsDirs()
 			return This.ContainsFolders()
 
-	# Raises an error today instead of returning the files of a child folder, unless that child is empty.
+	# Returns the files held directly in a folder of the tree below, as "/name" entries in lowercase.
 	#
-	#   _cPath_    a child folder, as an absolute path
-	#   returns    the list of files, but an error is raised for a folder with entries; [ ] for an
-	#              empty one
-	#   note       A relative name is read from the process folder and answers [ ]
-	#   warning    Raises "Incorrect param type! cPath must be non-empty a string." for a child
-	#              folder that holds anything, because it tests each [ name, kind ] pair as a path;
-	#              "Incorrect path!" for a path that is not a direct child
+	#   _cPath_    a folder held here, by name, sub-path or absolute path; the position itself is allowed
+	#   returns    a list of text, such as [ "/d.txt" ]; [ ] for an empty folder
+	#   note       A relative name is read from the current position, and the entries are in the
+	#              same form as Files gives
+	#   warning    Raises an error (Incorrect path!) when the folder is not held here
 	#   see        Files, FoldersIn
 	#@ aka  --
 	def FilesIn(_cPath_)
@@ -1727,33 +1825,32 @@ class stzFolder from stzObject
 			ok
 		ok
 
-		if NOT This.Exists(_cPath_)
+		_cAbs_ = This._ResolveInHere(_cPath_)
+		if NOT ( StzLower(_cAbs_) = StzLower(_CleanPath(@cCurrentPath)) or This.IsFolder(_cAbs_) )
 			StzRaise("Incorrect path!")
 		ok
 
-		_acList_ = @dir(_cPath_)
+		_acList_ = @dir(_cAbs_)
 		_nLen_ = len(_acList_)
 
 		_acResult_ = []
 
 		for i = 1 to _nLen_
-			if This.IsFile(_acList_[i])
-				_acResult_ + _acList_[i]
+			if _acList_[i][2] = 0
+				_acResult_ + (This.Separator() + _acList_[i][1])
 			ok
 		next
 
 		return _acResult_
 
 
-	# Raises an error today instead of returning the folders of a child folder, unless that child is empty.
+	# Returns the folders held directly in a folder of the tree below, as "/name/" entries in lowercase.
 	#
-	#   _cPath_    a child folder, as an absolute path
-	#   returns    the list of folders, but an error is raised for a folder with entries; [ ] for an
-	#              empty one
-	#   note       A relative name is read from the process folder and answers [ ]
-	#   warning    Raises "Incorrect param type! cPath must be non-empty a string." for a child
-	#              folder that holds anything, because it tests each [ name, kind ] pair as a path;
-	#              "Incorrect path!" for a path that is not a direct child
+	#   _cPath_    a folder held here, by name, sub-path or absolute path; the position itself is allowed
+	#   returns    a list of text, such as [ "/deep1/" ]; [ ] when it holds no folder
+	#   note       A relative name is read from the current position, and the entries are in the
+	#              same form as Folders gives
+	#   warning    Raises an error (Incorrect path!) when the folder is not held here
 	#   see        Folders, FilesIn
 	def FoldersIn(_cPath_)
 
@@ -1763,18 +1860,19 @@ class stzFolder from stzObject
 			ok
 		ok
 
-		if NOT This.Exists(_cPath_)
+		_cAbs_ = This._ResolveInHere(_cPath_)
+		if NOT ( StzLower(_cAbs_) = StzLower(_CleanPath(@cCurrentPath)) or This.IsFolder(_cAbs_) )
 			StzRaise("Incorrect path!")
 		ok
 
-		_acList_ = @dir(_cPath_)
+		_acList_ = @dir(_cAbs_)
 		_nLen_ = len(_acList_)
 
 		_acResult_ = []
 
 		for i = 1 to _nLen_
-			if This.IsFolder(_acList_[i])
-				_acResult_ + _acList_[i]
+			if _acList_[i][2] = 1
+				_acResult_ + (This.Separator() + _acList_[i][1] + This.Separator())
 			ok
 		next
 
@@ -1991,33 +2089,51 @@ class stzFolder from stzObject
 		def DeepCountFoldersAndFiles()
 			return This.DeepCount()
 
-	# Raises error R14 today instead of counting the files of that name below a given folder.
+	# Returns how many files of that name are in the tree below a given folder, ignoring case.
 	#
 	#   cFileName   the file name to count
-	#   _cPath_     the folder to search
-	#   returns     nothing; error R14 is raised
-	#   note        DeepCountFile counts over the whole tree
-	#   warning     Raises error R14 because it calls FindFileIn, which exists nowhere
+	#   _cPath_     the folder to search, as an absolute path
+	#   returns     a number
+	#   note        DeepCountFile counts over the whole tree below the position
 	#   see         DeepCountFile, DeepContainsFileIn
 	def DeepCountFileIn(cFileName, _cPath_)
-		return len(This.FindFileIn(cFileName, _cPath_))
+		return This._DeepCountNamedIn(cFileName, _cPath_, 0)
 
-	# Raises error R24 today instead of counting how many of the named files are in the tree below.
+	# Counts the entries of one kind, 0 for files and 1 for folders, that bear a name in the tree below a folder.
+	#
+	#   _cName_    the name, with or without slashes, in any case
+	#   _cPath_    the folder to search, as an absolute path
+	#   _nKind_    0 for files, 1 for folders
+	#   returns    a number
+	def _DeepCountNamedIn(_cName_, _cPath_, _nKind_)
+		_cLow_ = StzLower(_DirName(_CleanPath(_cName_)))
+		_nCount_ = 0
+		_aList_ = @dir(_cPath_)
+		_nLen_ = len(_aList_)
+		for i = 1 to _nLen_
+			if _aList_[i][2] = _nKind_ and _aList_[i][1] = _cLow_
+				_nCount_++
+			ok
+			if _aList_[i][2] = 1
+				_nCount_ += This._DeepCountNamedIn(_cName_, _cPath_ + This.Separator() + _aList_[i][1], _nKind_)
+			ok
+		next
+		return _nCount_
+
+	# Returns how many files of the tree below bear one of the listed names, ignoring case.
 	#
 	#   acFilesNames   the list of file names to count
-	#   returns        nothing; error R24 is raised
-	#   note           Call DeepCountFile once per name instead
-	#   warning        Raises error R24 because it reads a variable _cPath_ it never sets
+	#   returns        a number, the counts of the names added up
+	#   note           A file is counted once for the name it bears
 	#   see            DeepCountTheseFilesIn, DeepCountFile
 	def DeepCountTheseFiles(acFilesNames)
-		return len(This.DeepCountTheseFilesIn(acFilesNames, _cPath_))
+		return This.DeepCountTheseFilesIn(acFilesNames, This.Path())
 
-	# Raises error R14 today instead of counting how many of the named files are in a given folder.
+	# Returns how many files of the tree below a given folder bear one of the listed names, ignoring case.
 	#
 	#   acFilesNames   the list of file names to count
-	#   _cPath_        the folder to search
-	#   returns        nothing; error R14 is raised
-	#   warning        Raises error R14 because it calls SearchTheseFilesIn, which exists nowhere
+	#   _cPath_        the folder to search, as an absolute path
+	#   returns        a number, the counts of the names added up
 	#   see            DeepCountTheseFiles
 	def DeepCountTheseFilesIn(acFilesNames, _cPath_)
 		if CheckParams()
@@ -2030,7 +2146,12 @@ class stzFolder from stzObject
 			ok
 		ok
 
-		return len(This.SearchTheseFilesIn(acFilesNames, _cPath_))
+		_nCount_ = 0
+		_nLen_ = len(acFilesNames)
+		for i = 1 to _nLen_
+			_nCount_ += This.DeepCountFileIn(acFilesNames[i], _cPath_)
+		next
+		return _nCount_
 
 	# Returns how many files a given folder holds, at every depth; the folder must be an absolute path.
 	#
@@ -2101,13 +2222,12 @@ class stzFolder from stzObject
 		return _nCount_
 
 
-	# Raises error R14 today instead of counting the folders of that name below a given folder.
+	# Returns how many folders of that name are in the tree below a given folder, ignoring case.
 	#
 	#   _cFolderName_   the folder name to count
-	#   _cPath_         the folder to search
-	#   returns         nothing; error R14 is raised
-	#   note            DeepCountFolder counts over the whole tree
-	#   warning         Raises error R14 because it calls FindFolderIn, which exists nowhere
+	#   _cPath_         the folder to search, as an absolute path
+	#   returns         a number
+	#   note            DeepCountFolder counts over the whole tree below the position
 	#   see             DeepCountFolder
 	def DeepCountFolderIn(_cFolderName_, _cPath_)
 		if CheckParams()
@@ -2120,18 +2240,21 @@ class stzFolder from stzObject
 			ok
 		ok
 
-		return len(This.FindFolderIn(_cFolderName_, _cPath_))
+		return This._DeepCountNamedIn(_cFolderName_, _cPath_, 1)
 
-	# Raises error R14 today instead of counting how many of the named folders are in a given folder.
+	# Returns how many folders of the tree below a given folder bear one of the listed names, ignoring case.
 	#
 	#   acFoldersNames   the list of folder names to count
-	#   _cPath_          the folder to search
-	#   returns          nothing; error R14 is raised
-	#   warning          Raises error R14 because it calls SearchTheseFoldersIn, which exists
-	#                    nowhere
+	#   _cPath_          the folder to search, as an absolute path
+	#   returns          a number, the counts of the names added up
 	#   see              DeepCountFolder
 	def DeepCountTheseFoldersIn(acFoldersNames, _cPath_)
-		return len(This.SearchTheseFoldersIn(acFoldersNames, _cPath_))
+		_nCount_ = 0
+		_nLen_ = len(acFoldersNames)
+		for i = 1 to _nLen_
+			_nCount_ += This.DeepCountFolderIn(acFoldersNames[i], _cPath_)
+		next
+		return _nCount_
 
 	# Returns how many folders a given folder holds, at every depth; the folder must be an absolute path.
 	#
@@ -2162,13 +2285,11 @@ class stzFolder from stzObject
 		return _nCount_
 
 
-	# TRUE if a file or a folder of that name is anywhere in the tree below; only a lowercase name can match.
+	# TRUE if a file or a folder of that name is anywhere in the tree below, ignoring case.
 	#
-	#   _cName_    the name to look for, in lowercase
+	#   _cName_    the name to look for
 	#   returns    TRUE or FALSE
 	#   note       DeepContainsFileOrFolder and DeepContainsFolderOrFile are the same method
-	#   warning    Compares the name as given with the listing, which is in lowercase, so D.TXT
-	#              answers FALSE where d.txt answers TRUE
 	#   see        DeepContainsFile, DeepContainsFolder, Contains
 	def DeepContains(_cName_)
 
@@ -2184,14 +2305,12 @@ class stzFolder from stzObject
 		def DeepContainsFolderOrFile(_cName_)
 			return This.DeepContains(_cName_)
 
-	# TRUE if a file or a folder of that name is anywhere below a given folder; only a lowercase name can match.
+	# TRUE if a file or a folder of that name is anywhere below a given folder, ignoring case.
 	#
-	#   _cName_    the name to look for, in lowercase
+	#   _cName_    the name to look for
 	#   _cPath_    an absolute folder path to search
 	#   returns    TRUE or FALSE
 	#   note       DeepContainsFileOrFolderIn and DeepContainsFolderOrFileIn are the same method
-	#   warning    Compares the name as given with the lowercase listing, so a name with capitals
-	#              never matches
 	#   see        DeepContains
 	def DeepContainsIn(_cName_, _cPath_)
 
@@ -2207,24 +2326,20 @@ class stzFolder from stzObject
 		def DeepContainsFolderOrFileIn(_cName_, _cPath_)
 			return This.DeepContainsIn(_cName_, _cPath_)
 
-	# TRUE if a file of that name is anywhere in the tree below; only a lowercase name can match.
+	# TRUE if a file of that name is anywhere in the tree below, ignoring case.
 	#
-	#   cFileName   the file name to look for, in lowercase
+	#   cFileName   the file name to look for
 	#   returns     TRUE or FALSE
-	#   warning     Compares the name as given with the lowercase listing, so B.TXT answers FALSE
-	#               where b.txt answers TRUE
 	#   see         DeepContainsFileIn, ContainsFile
 	def DeepContainsFile(cFileName)
 		return This.DeepContainsFileIn(cFileName, This.Path())
 
-	# TRUE if a file of that name is anywhere below a given folder; only a lowercase name can match.
+	# TRUE if a file of that name is anywhere below a given folder, ignoring case.
 	#
-	#   cFileName   the file name to look for, in lowercase
+	#   cFileName   the file name to look for
 	#   _cPath_     an absolute folder path to search
 	#   returns     TRUE or FALSE
 	#   note        Raises an error for an empty name
-	#   warning     Compares the name as given with the lowercase listing, so a name with capitals
-	#               never matches
 	#   see         DeepContainsFile
 	def DeepContainsFileIn(cFileName, _cPath_)
 
@@ -2243,7 +2358,7 @@ class stzFolder from stzObject
 
 		for i = 1 to _nLen_
 
-			if _aList_[i][2] = 0 and _aList_[i][1] = cFileName
+			if _aList_[i][2] = 0 and _aList_[i][1] = StzLower(cFileName)
 				return 1
 
 			but _aList_[i][2] = 1 and _aList_[i][1] != "." and _aList_[i][1] != ".."
@@ -2258,18 +2373,18 @@ class stzFolder from stzObject
 
 		return 0
 
-	# TRUE if every file of the list is somewhere in the tree below; names are matched in lowercase.
+	# TRUE if every file of the list is somewhere in the tree below, ignoring case.
 	#
-	#   acFilesNames   the list of file names to look for, in lowercase
+	#   acFilesNames   the list of file names to look for
 	#   returns        TRUE or FALSE
 	#   warning        Raises an error when the argument is not a list of text
 	#   see            DeepContainsOneOfTheseFiles, DeepContainsFile
 	def DeepContainsTheseFiles(acFilesNames)
 		return This.DeepContainsTheseFilesIn(acFilesNames, This.Path())
 
-	# TRUE if every file of the list is somewhere below a given folder; names are matched in lowercase.
+	# TRUE if every file of the list is somewhere below a given folder, ignoring case.
 	#
-	#   acFilesNames   the list of file names to look for, in lowercase
+	#   acFilesNames   the list of file names to look for
 	#   _cPath_        an absolute folder path to search
 	#   returns        TRUE or FALSE
 	#   warning        Raises an error when the argument is not a list of text
@@ -2300,21 +2415,19 @@ class stzFolder from stzObject
 
 		return _bResult_
 
-	# Answers TRUE only when every file of the list is in the tree below, instead of when at least one is.
+	# TRUE if at least one file of the list is somewhere in the tree below, ignoring case.
 	#
-	#   acFilesNames   the list of file names to look for, in lowercase
-	#   returns        TRUE only if all the names are found
-	#   note           DeepContainsOneOfTheseFilesIn does what the name says
-	#   warning        Calls the test for all the names, not the test for any: f.txt with zz.txt
-	#                  answers FALSE although f.txt is there
+	#   acFilesNames   the list of file names to look for
+	#   returns        TRUE or FALSE
+	#   note           DeepContainsOneOfTheseFilesIn does the same below a given folder
 	#   see            DeepContainsTheseFiles, DeepContainsOneOfTheseFilesIn
 	def DeepContainsOneOfTheseFiles(acFilesNames)
-		return This.DeepContainsTheseFilesIn(acFilesNames, This.Path())
+		return This.DeepContainsOneOfTheseFilesIn(acFilesNames, This.Path())
 
 
-	# TRUE if at least one file of the list is somewhere below a given folder; names are matched in lowercase.
+	# TRUE if at least one file of the list is somewhere below a given folder, ignoring case.
 	#
-	#   acFilesNames   the list of file names to look for, in lowercase
+	#   acFilesNames   the list of file names to look for
 	#   _cPath_        an absolute folder path to search
 	#   returns        TRUE or FALSE
 	#   see            DeepContainsOneOfTheseFiles
@@ -2344,24 +2457,20 @@ class stzFolder from stzObject
 
 		return _bResult_
 
-	# TRUE if a folder of that name is anywhere in the tree below; only a lowercase name can match.
+	# TRUE if a folder of that name is anywhere in the tree below, ignoring case.
 	#
-	#   _cFolderName_   the folder name to look for, in lowercase
+	#   _cFolderName_   the folder name to look for
 	#   returns         TRUE or FALSE
-	#   warning         Compares the name as given with the lowercase listing, so SUB1 answers FALSE
-	#                   where sub1 answers TRUE
 	#   see             DeepContainsFolderIn, ContainsFolder
 	def DeepContainsFolder(_cFolderName_)
 		return This.DeepContainsFolderIn(_cFolderName_, This.Path())
 
 
-	# TRUE if a folder of that name is anywhere below a given folder; only a lowercase name can match.
+	# TRUE if a folder of that name is anywhere below a given folder, ignoring case.
 	#
-	#   _cFolderName_   the folder name to look for, in lowercase
+	#   _cFolderName_   the folder name to look for
 	#   _cPath_         an absolute folder path to search
 	#   returns         TRUE or FALSE
-	#   warning         Compares the name as given with the lowercase listing, so a name with
-	#                   capitals never matches
 	#   see             DeepContainsFolder
 	def DeepContainsFolderIn(_cFolderName_, _cPath_)
 
@@ -2380,7 +2489,7 @@ class stzFolder from stzObject
 
 		for i = 1 to _nLen_
 
-			if _aList_[i][2] = 1 and _aList_[i][1] = _cFolderName_
+			if _aList_[i][2] = 1 and _aList_[i][1] = StzLower(_cFolderName_)
 				return 1
 
 			but _aList_[i][2] = 1 and _aList_[i][1] != "." and _aList_[i][1] != ".."
@@ -2395,18 +2504,18 @@ class stzFolder from stzObject
 
 		return 0
 
-	# TRUE if every folder of the list is somewhere in the tree below; names are matched in lowercase.
+	# TRUE if every folder of the list is somewhere in the tree below, ignoring case.
 	#
-	#   acFoldersNames   the list of folder names to look for, in lowercase
+	#   acFoldersNames   the list of folder names to look for
 	#   returns          TRUE or FALSE
 	#   warning          Raises an error when the argument is not a list of text
 	#   see              DeepContainsOneOfTheseFolders, DeepContainsFolder
 	def DeepContainsTheseFolders(acFoldersNames)
 		return This.DeepContainsTheseFoldersIn(acFoldersNames, This.Path())
 
-	# TRUE if every folder of the list is somewhere below a given folder; names are matched in lowercase.
+	# TRUE if every folder of the list is somewhere below a given folder, ignoring case.
 	#
-	#   acFoldersNames   the list of folder names to look for, in lowercase
+	#   acFoldersNames   the list of folder names to look for
 	#   _cPath_          an absolute folder path to search
 	#   returns          TRUE or FALSE
 	#   warning          Raises an error when the argument is not a list of text
@@ -2437,20 +2546,18 @@ class stzFolder from stzObject
 
 		return _bResult_
 
-	# Answers TRUE only when every folder of the list is in the tree below, instead of when at least one is.
+	# TRUE if at least one folder of the list is somewhere in the tree below, ignoring case.
 	#
-	#   acFoldersNames   the list of folder names to look for, in lowercase
-	#   returns          TRUE only if all the names are found
-	#   note             DeepContainsOneOfTheseFoldersIn does what the name says
-	#   warning          Calls the test for all the names, not the test for any: sub2 with zz
-	#                    answers FALSE although sub2 is there
+	#   acFoldersNames   the list of folder names to look for
+	#   returns          TRUE or FALSE
+	#   note             DeepContainsOneOfTheseFoldersIn does the same below a given folder
 	#   see              DeepContainsTheseFolders, DeepContainsOneOfTheseFoldersIn
 	def DeepContainsOneOfTheseFolders(acFoldersNames)
-		return This.DeepContainsTheseFoldersIn(acFoldersNames, This.Path())
+		return This.DeepContainsOneOfTheseFoldersIn(acFoldersNames, This.Path())
 
-	# TRUE if at least one folder of the list is somewhere below a given folder; names are matched in lowercase.
+	# TRUE if at least one folder of the list is somewhere below a given folder, ignoring case.
 	#
-	#   acFoldersNames   the list of folder names to look for, in lowercase
+	#   acFoldersNames   the list of folder names to look for
 	#   _cPath_          an absolute folder path to search
 	#   returns          TRUE or FALSE
 	#   warning          Raises an error when the argument is not a list of text
@@ -2492,8 +2599,8 @@ class stzFolder from stzObject
 	#
 	#   b          1 to turn batch mode on, 0 to turn it off
 	#   returns    nothing; the object is changed in place
-	#   note       Turn it on before using the file methods: with it off, most of them end by
-	#              calling GetDirectoryPath, which exists nowhere, and raise error R14
+	#   note       With it off (the default) the file methods end by moving the position into the
+	#              folder of the file they touched, when that folder is below the position
 	#   warning    Raises an error for any value but 1 or 0
 	#   see        IsBatchMode, FileRead
 	def SetBatchMode(b)
@@ -2505,6 +2612,31 @@ class stzFolder from stzObject
 		ok
 
 		@bBacthMode = b
+
+	# Returns the absolute path of the folder that holds a path, read from the current position.
+	#
+	#   _cPath_    a file or folder name or path, relative to the position or absolute
+	#   returns    text, without a trailing slash
+	#   note       Pure text work; the path need not exist
+	#   see        ParentFolder, GetParentDirectory
+	def GetDirectoryPath(_cPath_)
+		return _ParentPath(This._ResolveInHere(_cPath_))
+
+	# Moves the position into a folder, but only when it is a folder below the position; otherwise stays where it is.
+	#
+	#   _cDir_     the folder to move into, as an absolute path
+	#   returns    1 when the position moved, 0 when it stayed
+	#   note       The file methods call it after their work is done, so it never raises
+	def _FollowTo(_cDir_)
+		_cDir_ = _CleanPath(_cDir_)
+		if StzLower(_cDir_) = StzLower(_CleanPath(@cCurrentPath))
+			return 0
+		ok
+		if This.IsInside(_cDir_) and StzEngineDirExists(_cDir_)
+			This.GoTo(_cDir_)
+			return 1
+		ok
+		return 0
 
 	# Returns the current position as text with a trailing slash, so a relative name can be joined to it directly.
 	#
@@ -2655,30 +2787,59 @@ class stzFolder from stzObject
 	#   note       IsAtRoot is the same method
 	#   see        GoHome, Root
 	def IsAtHome()
-		return @cCurrentPath = @cOriginalPath
+		if StzLower(_CleanPath(@cCurrentPath)) = StzLower(_CleanPath(@cOriginalPath))
+			return 1
+		ok
+		return 0
 
 		def IsAtRoot()
 			return This.IsAtHome()
 
-	# Returns "." at home; away from home it raises error R14 today instead of returning the path from home.
+	# Returns the path that leads from the home folder to the current position, "." at home.
 	#
-	#   returns    text, "." at home; error R14 anywhere else
-	#   warning    Raises error R14 away from home because it calls GetRelativePath, which exists
-	#              nowhere
+	#   returns    text, such as sub1/deep1; one .. per level when GoUp has left the home folder
 	#   see        DistanceFromHome, Path
 	def RelativePathFromHome()
 		if This.IsAtHome()
 			return "."
 		end
-		
-		# Calculate relative path from home to current
-		return This.GetRelativePath(@cOriginalPath, @cCurrentPath)
 
-	# Returns 0 at home; away from home it raises error R14 today instead of counting the folder levels from home.
+		_acHome_ = _PathSegments(@cOriginalPath)
+		_acCur_ = _PathSegments(@cCurrentPath)
+		_nHome_ = len(_acHome_)
+		_nCur_ = len(_acCur_)
+
+		_nCommon_ = 0
+		for i = 1 to min([_nHome_, _nCur_])
+			if StzLower(_acHome_[i]) = StzLower(_acCur_[i])
+				_nCommon_ = i
+			else
+				exit
+			ok
+		next
+
+		_cResult_ = ""
+		for i = 1 to _nHome_ - _nCommon_
+			if _cResult_ != ""
+				_cResult_ += This.Separator()
+			ok
+			_cResult_ += ".."
+		next
+		for i = _nCommon_ + 1 to _nCur_
+			if _cResult_ != ""
+				_cResult_ += This.Separator()
+			ok
+			_cResult_ += _acCur_[i]
+		next
+
+		if _cResult_ = ""
+			return "."
+		ok
+		return _cResult_
+
+	# Returns how many folder levels lie between the home folder and the current position, 0 at home.
 	#
-	#   returns    a number, 0 at home; error R14 anywhere else
-	#   warning    Raises error R14 away from home because it calls GetRelativePath, which exists
-	#              nowhere
+	#   returns    a number; a level above home counts as one, like a level below
 	#   see        RelativePathFromHome
 	def DistanceFromHome()
 		# Return number of directory levels from home
@@ -2687,13 +2848,11 @@ class stzFolder from stzObject
 			return 0
 		end
 		
-		return len(split(_cRelPath_, This.Separator()))
+		return len(_PathSegments(_cRelPath_))
 
-	# Returns pairs describing the position: home, current, relativefromhome, distancefromhome and history; away from home it raises error R14.
+	# Returns pairs describing the position: home, current, relativefromhome, distancefromhome and history.
 	#
-	#   returns    a list of [ key, value ] pairs at home; error R14 anywhere else
-	#   warning    Raises error R14 away from home because it calls GetRelativePath, which exists
-	#              nowhere
+	#   returns    a list of [ key, value ] pairs
 	#   see        RelativePathFromHome, PathHistory
 	def NavigationInfo()
 		return [
@@ -2846,14 +3005,13 @@ class stzFolder from stzObject
 			return This.CreatePath(pcPath)
 
 
-	# Deletes a folder with everything inside it; in the default mode it then raises error R14 instead of moving to the parent.
+	# Deletes a folder held here with everything inside it, then moves to its parent when that is below the position.
 	#
-	#   _cFolder_   the folder to delete, held directly here
-	#   returns     the engine's answer, 1 on success, when batch mode is on
+	#   _cFolder_   the folder to delete, by name, sub-path or absolute path below the position
+	#   returns     the engine's answer, 1 on success
 	#   note        FolderDelete, RemoveFolder and FolderRemove are the same method
-	#   warning     Raises error R14 after the deletion unless batch mode is on, because it calls
-	#               GetDirectoryPath, which exists nowhere; raises an error (Folder does not exist.)
-	#               for a name not held here
+	#   warning     Raises an error (Folder does not exist.) for a name not held here, and an error
+	#               (Can't navigate outside the folder!) for the position itself or a path above it
 	#   see         DeleteAll, DeepRemoveAll, SetBatchMode
 	def DeleteFolder(_cFolder_)
 
@@ -2874,7 +3032,7 @@ class stzFolder from stzObject
 	        raise("Can't navigate outside the folder!")
 	    ok
 	
-	    if not This.Exists(_cFolder_)
+	    if not This.IsFolder(_cFolder_)
 	        raise("Folder does not exist.")
 	    ok
 	
@@ -2884,7 +3042,7 @@ class stzFolder from stzObject
 	    # Then navigate to parent folder (intelligent navigation)
 	    if not this.IsBatchMode()
 	        _cParentDir_ = This.GetDirectoryPath(_cFolder_)
-	        This.GoTo(_cParentDir_)
+	        This._FollowTo(_cParentDir_)
 	    ok
 	
 	    return _bResult_
@@ -3030,14 +3188,35 @@ class stzFolder from stzObject
 	    # Stay in current folder - performed deep operation from here
 	    return _nDeleted_
 	
-	# Raises an error today instead of deleting the files of that name anywhere below.
+	# Returns the absolute paths of the files (kind 0) or folders (kind 1) of the tree below that bear a name, ignoring case.
 	#
-	#   cFileName   the file name to delete
-	#   returns     nothing; the error Can't navigate outside the folder! is raised
-	#   note        FileDeepDelete, DeepRemoveFile and FileDeepRemove call it
-	#   warning     Always raises Can't navigate outside the folder!, because it tests the bare name
-	#               against the process folder, so nothing is deleted (checked with a present and an
-	#               absent name)
+	#   _cName_    a name, with or without slashes
+	#   _nKind_    0 for files, 1 for folders
+	#   returns    a list of absolute paths; folders without a trailing slash
+	def _DeepPathsNamed(_cName_, _nKind_)
+		_cLow_ = StzLower(_DirName(_CleanPath(_cName_)))
+		_acAll_ = []
+		if _nKind_ = 0
+			_acAll_ = This.DeepFilesXT()
+		else
+			_acAll_ = This.DeepFoldersXT()
+		ok
+		_acFound_ = []
+		_nLen_ = len(_acAll_)
+		for i = 1 to _nLen_
+			if StzLower(_DirName(_CleanPath(_acAll_[i]))) = _cLow_
+				_acFound_ + _CleanPath(_acAll_[i])
+			ok
+		next
+		return _acFound_
+
+	# Deletes every file of that name anywhere in the tree below, ignoring case, and tells whether one was deleted.
+	#
+	#   cFileName   the file name to delete, with or without a leading slash
+	#   returns     TRUE when at least one file was deleted, FALSE when none bears that name
+	#   note        FileDeepDelete, DeepRemoveFile and FileDeepRemove call it; only files below the
+	#               current position are touched
+	#   warning     Raises an error when the argument is not a non-empty text
 	#   see         DeepErase, FileRemove
 	def DeepDeleteFile(cFileName)
 	    if CheckParams()
@@ -3046,11 +3225,9 @@ class stzFolder from stzObject
 	        ok
 	    end
 	
-	    if NOT This.IsInside(cFileName)
-	        raise("Can't navigate outside the folder!")
-	    ok
-	
-	    _acFilePaths_ = This.DeepFindFile(cFileName)
+	    # The candidates come from the listing of the tree below the position,
+	    # so each one is inside by construction; the bare name is only compared.
+	    _acFilePaths_ = This._DeepPathsNamed(cFileName, 0)
 		_nLen_ = len(_acFilePaths_)
 	    _nDeleted_ = 0
 	
@@ -3074,77 +3251,75 @@ class stzFolder from stzObject
 			return This.DeepDeleteFile(cFileName)
 
 
-	# Does nothing today and answers 1 instead of deleting the folders of that name anywhere below.
+	# Deletes every folder of that name anywhere in the tree below, with its contents, and answers 1 unless a deletion failed.
 	#
-	#   _cFolderName_   the folder name to delete
-	#   returns         1, whether or not a folder was found
-	#   note            DeepRemoveFolder is the same method; FolderDeepDelete and FolderDeepRemove
-	#                   call the file version by mistake
-	#   warning         Deletes nothing: the folders found are relative paths and the existence test
-	#                   on them fails, so the loop skips every one (checked on a deep and on a top
-	#                   folder)
+	#   _cFolderName_   the folder name to delete, with or without slashes, ignoring case
+	#   returns         1, also when no folder bears that name; 0 when a deletion failed
+	#   note            DeepRemoveFolder, FolderDeepDelete and FolderDeepRemove are the same method;
+	#                   only folders below the current position are touched
+	#   warning         Raises an error when the argument is not a non-empty text
 	#   see             DeleteFolder, DeepRemoveAll
 	def DeepDeleteFolder(_cFolderName_)
 
 		if CheckParams()
-			if NOT ( isString(_cFolderName_) and trim(_cFolderName_) != "" )  # Fixed: cFolderNAme typo
+			if NOT ( isString(_cFolderName_) and trim(_cFolderName_) != "" )
 				StzRaise("Incorrect param type! cFolderName must be a non-empty string.")
 			ok
 		ok
 
-	    _acFolderPaths_ = This.DeepFindFolder(_cFolderName_)
+		# Absolute paths from the listing of the tree below the position, the
+		# deepest first so that a folder is emptied before its parent goes.
+		_acFolderPaths_ = This._DeepPathsNamed(_cFolderName_, 1)
 		_nLen_ = len(_acFolderPaths_)
+		_anDepth_ = []
+		_nMaxDepth_ = 0
+		for i = 1 to _nLen_
+			_anDepth_ + len(_PathSegments(_acFolderPaths_[i]))
+			if _anDepth_[i] > _nMaxDepth_
+				_nMaxDepth_ = _anDepth_[i]
+			ok
+		next
 
-	    # Sort by depth (deepest first) using Ring's sort
-	    _aSortedPaths_ = []
-	    for i = 1 to _nLen_
-	        _nDepth_ = len(@split(_acFolderPaths_[i], This.Separator()))
-	        _aSortedPaths_ + [_nDepth_, _acFolderPaths_[i]]
-	    next
-
-	    # Sort by depth descending (deepest first)
-	    _aSortedPaths_ = @sorton(_aSortedPaths_, 1)
-	    _aSortedPaths_ = reverse(_aSortedPaths_)
-		_nLen_ = len(_aSortedPaths_)
-
-	    # Delete folders
 		_bResult_ = 1
 
-		for i = 1 to _nLen_
-	        _cFolderPath_ = _aSortedPaths_[i][2]
+		for d = _nMaxDepth_ to 1 step -1
+			for i = 1 to _nLen_
+				if _anDepth_[i] = d
+					_cFolderPath_ = _acFolderPaths_[i]
 
-	        if dirExists(_cFolderPath_)
-	            if NOT RemoveFolderRecursive(_cFolderPath_)
-	                _bResult_ = 0
-					exit
-	            ok
-	        ok
-	    next
-		
+					# a folder inside one already deleted is gone with it
+					if StzEngineDirExists(_cFolderPath_)
+						if NOT RemoveFolderRecursive(_cFolderPath_)
+							_bResult_ = 0
+						ok
+					ok
+				ok
+			next
+		next
+
 		# Stay in current folder - deep operation initiated from here
-	    return _bResult_
+		return _bResult_
 
 		def DeepRemoveFolder(_cFolderName_)
 			return This.DeepDeleteFolder(_cFolderName_)
 	
 		def FolderDeepDelete(_cFolderName_)
-			return This.DeepDeleteFile(_cFolderName_)
+			return This.DeepDeleteFolder(_cFolderName_)
 
 		def FolderDeepRemove(_cFolderName_)
-			return This.DeepRemoveFile(_cFolderName_)
+			return This.DeepRemoveFolder(_cFolderName_)
 
 	#===================#
 	#  File Operations  #
 	#===================#
 
-	# Returns the text of a file held directly here; in the default mode the file is read and then error R14 hides the text.
+	# Returns the text of a file held here, at any depth below the current position.
 	#
-	#   _cFile_    a file name held directly here, or its absolute path
-	#   returns    text; the empty text for a folder name
-	#   note       ReadFile is the same method; FileReadQ gives the reader object
-	#   warning    Raises error R14 unless batch mode is on, because it calls GetDirectoryPath,
-	#              which exists nowhere; raises an error for a file that is not held directly here,
-	#              a deeper one included
+	#   _cFile_    a file name, a sub-path such as sub1/d.txt, or an absolute path
+	#   returns    text
+	#   note       ReadFile is the same method; FileReadQ gives the reader object; with batch mode
+	#              off the position then moves into the folder of the file
+	#   warning    Raises an error for a path that is not a file held here, a folder name included
 	#   see        FileSize, FileInfo, SetBatchMode
 	def FileRead(_cFile_)
 
@@ -3165,7 +3340,7 @@ class stzFolder from stzObject
 	        raise("Can't navigate outside the folder!")
 	    ok
 	
-	    if not This.Exists(_cFile_)
+	    if not This.IsFile(_cFile_)
 	        raise("cFile does not exist in the folder.")
 	    ok
 	
@@ -3175,7 +3350,7 @@ class stzFolder from stzObject
 	    # Then navigate to its folder (intelligent navigation)
 	    if not this.IsBatchMode()
 	        _cFileDir_ = This.GetDirectoryPath(_cFile_)
-	        This.GoTo(_cFileDir_)
+	        This._FollowTo(_cFileDir_)
 	    ok
 	
 	    return _cResult_
@@ -3234,7 +3409,7 @@ class stzFolder from stzObject
 			# Navigate to file's folder (intelligent navigation)
 			if not this.IsBatchMode()
 				_cFileDir_ = This.GetDirectoryPath(_cFile_)
-				This.GoTo(_cFileDir_)
+				This._FollowTo(_cFileDir_)
 			ok
 
 			return @FileAppendQ(_cFile_)   # global -> appender object (append-or-create)
@@ -3242,13 +3417,14 @@ class stzFolder from stzObject
 			def AppendFileQ(_cFile_)
 				return This.FileAppendQ(_cFile_)
 
-	# Creates an empty file held directly here and answers 1; it raises an error when the name is taken.
+	# Creates an empty file below the current position and answers 1; it raises an error when the name is taken.
 	#
-	#   _cFile_    the file name to create
-	#   returns    1 (TRUE), also when nothing could be created
-	#   note       CreateFile is the same method
-	#   warning    Answers 1 without creating anything when its folder is missing (nodir/n.txt);
-	#              raises error R14 after creating unless batch mode is on
+	#   _cFile_    the file name or path to create, in a folder that exists
+	#   returns    1 (TRUE)
+	#   note       CreateFile is the same method; with batch mode off the position then moves into
+	#              the folder of the file
+	#   warning    Raises an error when the name is taken or when its folder does not exist
+	#              (nodir/n.txt); CreatePath makes the folder first
 	#   see        FilesCreate, FileRemove, SetBatchMode
 	#@ aka  --
 	def FileCreate(_cFile_) #TODO // Provide also the content FileCreate(cFile, cContent)
@@ -3275,13 +3451,17 @@ class stzFolder from stzObject
 	        raise("Can't create this file! cFile already exists in the folder.")
 	    ok
 	
+	    if NOT StzEngineDirExists(_ParentPath(_cFile_))
+	        raise("Can't create this file! Its folder does not exist.")
+	    ok
+
 	    # Create the file first
 	    _bResult_ = @FileCreate(_cFile_)
 	    
 	    # Then navigate to its folder (intelligent navigation)
 	    if not this.IsBatchMode()
 	        _cFileDir_ = This.GetDirectoryPath(_cFile_)
-	        This.GoTo(_cFileDir_)
+	        This._FollowTo(_cFileDir_)
 	    ok
 	
 	    return _bResult_
@@ -3314,13 +3494,17 @@ class stzFolder from stzObject
 		        raise("Can't create this file! cFile already exists in the folder.")
 		    ok
 		
+		    if NOT StzEngineDirExists(_ParentPath(_cFile_))
+		        raise("Can't create this file! Its folder does not exist.")
+		    ok
+
 		    # Create the file first
 		    _oResult_ = @FileCreateQ(_cFile_)
 		    
 		    # Then navigate to its folder (intelligent navigation)
 		    if not this.IsBatchMode()
 		        _cFileDir_ = This.GetDirectoryPath(_cFile_)
-		        This.GoTo(_cFileDir_)
+		        This._FollowTo(_cFileDir_)
 		    ok
 		
 		    return _oResult_
@@ -3329,15 +3513,12 @@ class stzFolder from stzObject
 				return This.FileCreateQ(_cFile_)
 
 	
-	# Creates the listed files but reports every one as failed today, with error R24 in place of its name.
+	# Creates the listed files and reports which were created and which failed, with the error of each.
 	#
 	#   acFileNames   the list of file names to create
-	#   returns       a list of two pairs, [ "created", [ ] ] and [ "failed", [ [ name, error ] ...
-	#                 ] ]
-	#   note          CreateFiles is the same method
-	#   warning       Always reports created as empty and every file as failed with R24
-	#                 (uninitialized variable cfilename), although the files are created; a name
-	#                 that already exists is reported with its own error
+	#   returns       a list of two pairs, [ "created", [ names ] ] and [ "failed", [ [ name, error ] ... ] ]
+	#   note          CreateFiles is the same method; a name that already exists, or whose folder is
+	#                 missing, is reported as failed with its own error
 	#   see           FileCreate
 	def FilesCreate(acFileNames) #TODO // [ [ cFileName1, cFileContent1 ], [ ]... ]
 
@@ -3354,10 +3535,11 @@ class stzFolder from stzObject
 
 		for i = 1 to _nLen_
 			try
+				_cDirOfThis_ = This.GetDirectoryPath(acFileNames[i])
 				This.CreateFile(acFileNames[i])
-				_acCreated_ + cFileName
+				_acCreated_ + acFileNames[i]
 				# Track last successful creation for intelligent navigation
-				_cLastSuccessfulDir_ = This.GetDirectoryPath(acFileNames[i])
+				_cLastSuccessfulDir_ = _cDirOfThis_
 			catch
 				_acFailed_ + [acFileNames[i], CatchError()]
 			end
@@ -3365,7 +3547,7 @@ class stzFolder from stzObject
 
 		# Navigate to last successful creation folder (intelligent navigation)
 		if not this.IsBatchMode() and _cLastSuccessfulDir_ != ""
-			This.GoTo(_cLastSuccessfulDir_)
+			This._FollowTo(_cLastSuccessfulDir_)
 		ok
 
 		return [
@@ -3378,14 +3560,13 @@ class stzFolder from stzObject
 			return This.FilesCreate(acFileNames)
 
 
-	# Raises error R13 today after replacing the content of a file; the text is written first.
+	# Replaces the whole content of a file held here by a text and answers 1.
 	#
-	#   _cFile_       an existing file held directly here
+	#   _cFile_       an existing file held here
 	#   cNewContent   the text that replaces the content
-	#   returns       nothing; error R13 is raised
+	#   returns       1 (TRUE)
 	#   note          OverwriteFile is the same method; FileOverwriteQ gives the overwriter object
-	#   warning       Raises error R13 (Object is required) after writing in batch mode, and error
-	#                 R14 before writing in the default mode, so the call never returns normally
+	#   warning       Raises an error when the file is not held here
 	#   see           FileModify, FileSafeOverwrite
 	def FileOverwrite(_cFile_, cNewContent)
 
@@ -3401,17 +3582,18 @@ class stzFolder from stzObject
 			raise("Can't navigate outside the folder!")
 		ok
 
-		if NOT This.Exists(_cFile_)
+		if NOT This.IsFile(_cFile_)
 			raise("Can't overwrite this file! cFile does not exist in the folder.")
 		ok
 
 		# Navigate to file's folder (intelligent navigation)
 		if not this.IsBatchMode()
 			_cFileDir_ = This.GetDirectoryPath(_cFile_)
-			This.GoTo(_cFileDir_)
+			This._FollowTo(_cFileDir_)
 		ok
 
-		return @FileOverwrite(_cFile_, cNewContent)
+		StzEngineFileWrite(_cFile_, cNewContent)
+		return 1
 
 	
 		def OverwriteFile(_cFile_, cNewContent)
@@ -3435,14 +3617,14 @@ class stzFolder from stzObject
 				raise("Can't navigate outside the folder!")
 			ok
 
-			if NOT This.Exists(_cFile_)
+			if NOT This.IsFile(_cFile_)
 				raise("Can't overwrite this file! cFile does not exist in the folder.")
 			ok
 
 			# Navigate to file's folder (intelligent navigation)
 			if not this.IsBatchMode()
 				_cFileDir_ = This.GetDirectoryPath(_cFile_)
-				This.GoTo(_cFileDir_)
+				This._FollowTo(_cFileDir_)
 			ok
 
 			return @FileOverwriteQ(_cFile_)
@@ -3451,13 +3633,12 @@ class stzFolder from stzObject
 				return This.FileOverwriteQ(_cFile_)
 	
 	
-	# Raises error R11 today instead of erasing a file; the file stays.
+	# Empties a file held here, keeping the file, and answers 1.
 	#
-	#   _cFile_    an existing file held directly here
-	#   returns    nothing; error R11 is raised
-	#   note       EraseFile is the same method
-	#   warning    Raises error R11 (class stzfileeraser not found) and erases nothing, so use
-	#              FileRemove
+	#   _cFile_    an existing file held here
+	#   returns    1 (TRUE)
+	#   note       EraseFile is the same method; FileRemove deletes the file itself
+	#   warning    Raises an error when the file is not held here
 	#   see        FileRemove, FileSafeErase
 	def FileErase(_cFile_)
 
@@ -3473,17 +3654,18 @@ class stzFolder from stzObject
 			raise("Can't navigate outside the folder!")
 		ok
 
-		if NOT This.Exists(_cFile_)
+		if NOT This.IsFile(_cFile_)
 			raise("Can't erase this file! cFile does not exist in the folder.")
 		ok
 
 		# Navigate to file's folder before erasing (intelligent navigation)
 		if not this.IsBatchMode()
 			_cFileDir_ = This.GetDirectoryPath(_cFile_)
-			This.GoTo(_cFileDir_)
+			This._FollowTo(_cFileDir_)
 		ok
 
-		return @FileErase(_cFile_)
+		StzEngineFileWrite(_cFile_, "")
+		return 1
 
 		def EraseFile(_cFile_)
 			return This.FileErase(_cFile_)
@@ -3503,29 +3685,30 @@ class stzFolder from stzObject
 				raise("Can't navigate outside the folder!")
 			ok
 	
-			if NOT This.Exists(_cFile_)
+			if NOT This.IsFile(_cFile_)
 				raise("Can't erase this file! cFile does not exist in the folder.")
 			ok
 
 			# Navigate to file's folder before erasing (intelligent navigation)
 			if not this.IsBatchMode()
 				_cFileDir_ = This.GetDirectoryPath(_cFile_)
-				This.GoTo(_cFileDir_)
+				This._FollowTo(_cFileDir_)
 			ok
 
-			return @FileEraseQ(_cFile_)  # Fixed: was This.cFile
+			# stzFileEaraser (the class carries that spelling) empties the file as it is built
+			return new stzFileEaraser(_cFile_)
 
 
 			def EraseFileQ(_cFile_)
 				return This.FileEraseQ(_cFile_)
 
 
-	# Raises error R11 today instead of erasing a file safely; the file stays.
+	# Copies a file held here to a .bak file beside it, then empties the file, and answers 1.
 	#
-	#   _cFile_    an existing file held directly here
-	#   returns    nothing; error R11 is raised
-	#   note       SafeEraseFile is the same method
-	#   warning    Raises error R11 (class not found) and erases nothing, so use FileRemove
+	#   _cFile_    an existing file held here
+	#   returns    1 (TRUE)
+	#   note       SafeEraseFile is the same method; an older .bak of the same file is replaced
+	#   warning    Raises an error when the file is not held here
 	#   see        FileRemove, FileErase
 	def FileSafeErase(_cFile_)
 
@@ -3541,17 +3724,19 @@ class stzFolder from stzObject
 			raise("Can't navigate outside the folder!")
 		ok
 
-		if NOT This.Exists(_cFile_)
+		if NOT This.IsFile(_cFile_)
 			raise("Can't safe-erase this file! cFile does not exist in the folder.")
 		ok
 
 		# Navigate to file's folder before safe-erasing (intelligent navigation)
 		if not this.IsBatchMode()
 			_cFileDir_ = This.GetDirectoryPath(_cFile_)
-			This.GoTo(_cFileDir_)
+			This._FollowTo(_cFileDir_)
 		ok
 
-		return @FileSafeErase(_cFile_)
+		StzEngineFileCopy(_cFile_, _cFile_ + ".bak")
+		StzEngineFileWrite(_cFile_, "")
+		return 1
 
 
 		def FileSafeEraseQ(_cFile_)
@@ -3568,17 +3753,18 @@ class stzFolder from stzObject
 				raise("Can't navigate outside the folder!")
 			ok
 	
-			if NOT This.Exists(_cFile_)
+			if NOT This.IsFile(_cFile_)
 				raise("Can't safe-erase this file! cFile does not exist in the folder.")
 			ok
 
 			# Navigate to file's folder before safe-erasing (intelligent navigation)
 			if not this.IsBatchMode()
 				_cFileDir_ = This.GetDirectoryPath(_cFile_)
-				This.GoTo(_cFileDir_)
+				This._FollowTo(_cFileDir_)
 			ok
 
-			return @FileSafeEraseQ(_cFile_)
+			StzEngineFileCopy(_cFile_, _cFile_ + ".bak")
+			return new stzFileEaraser(_cFile_)
 	
 		def SafeEraseFile(_cFile_)
 			return This.FileSafeErase(_cFile_)
@@ -3587,12 +3773,13 @@ class stzFolder from stzObject
 			return This.FileSafeEraseQ(_cFile_)
 
 
-	# Deletes a file held directly here and answers 1; it raises an error for a file that is not there.
+	# Deletes a file held here, at any depth below the current position, and answers 1.
 	#
-	#   _cFile_    a file name held directly here
+	#   _cFile_    a file name, a sub-path such as sub1/d.txt, or an absolute path
 	#   returns    1 (TRUE)
-	#   note       FileDelete, RemoveFile and DeleteFile are the same method
-	#   warning    Raises error R14 after deleting unless batch mode is on
+	#   note       FileDelete, RemoveFile and DeleteFile are the same method; with batch mode off
+	#              the position then moves into the folder the file was in
+	#   warning    Raises an error for a path that is not a file held here
 	#   see        FileErase, DeepErase, SetBatchMode
 	def FileRemove(_cFile_)
 
@@ -3613,7 +3800,7 @@ class stzFolder from stzObject
 	        raise("Can't navigate outside the folder!")
 	    ok
 	
-	    if not This.Exists(_cFile_)
+	    if not This.IsFile(_cFile_)
 	        raise("cFile does not exist in the folder.")
 	    ok
 	
@@ -3623,7 +3810,7 @@ class stzFolder from stzObject
 	    # Then navigate to file's containing folder (intelligent navigation)
 	    if not this.IsBatchMode()
 	        _cFileDir_ = This.GetDirectoryPath(_cFile_)
-	        This.GoTo(_cFileDir_)
+	        This._FollowTo(_cFileDir_)
 	    ok
 	
 	    return _bResult_
@@ -3638,13 +3825,12 @@ class stzFolder from stzObject
 			return This.FileRemove(_cFile_)
 
 
-	# Raises error R20 today instead of copying a file to a .bak file beside it; no backup is made.
+	# Copies a file held here to a .bak file beside it, replacing an older copy, and answers 1.
 	#
-	#   _cFile_    an existing file held directly here
-	#   returns    nothing; error R20 is raised
-	#   note       BackupFile is the same method; FileCopy can write the copy
-	#   warning    Raises error R20 because it calls the global backup function with two arguments
-	#              where it takes one
+	#   _cFile_    an existing file held here
+	#   returns    1 (TRUE)
+	#   note       BackupFile is the same method; FileCopy writes a copy under another name
+	#   warning    Raises an error when the file is not held here
 	#   see        FileCopy
 	def FileBackup(_cFile_)
 
@@ -3665,18 +3851,18 @@ class stzFolder from stzObject
 	        raise("Can't navigate outside the folder!")
 	    ok
 	
-	    if not This.Exists(_cFile_)
+	    if not This.IsFile(_cFile_)
 	        raise("cFile does not exist in the folder.")
 	    ok
 	
 	    # Create backup first
 	    _cBackupFile_ = _cFile_ + ".bak"
-	    _bResult_ = @FileBackup(_cFile_, _cBackupFile_)
+	    _bResult_ = StzEngineFileCopy(_cFile_, _cBackupFile_)
 	    
 	    # Then navigate to file's folder (intelligent navigation)
 	    if not this.IsBatchMode()
 	        _cFileDir_ = This.GetDirectoryPath(_cFile_)
-	        This.GoTo(_cFileDir_)
+	        This._FollowTo(_cFileDir_)
 	    ok
 	
 	    return _bResult_
@@ -3686,13 +3872,13 @@ class stzFolder from stzObject
 			return This.FileBackup(_cFile_)
 
 
-	# Raises error R11 today instead of replacing a file safely; the content is left as it was.
+	# Copies a file held here to a .bak file beside it, then replaces its content by a text, and answers 1.
 	#
-	#   _cFile_       an existing file held directly here
-	#   cNewContent   the text that should replace the content
-	#   returns       nothing; error R11 is raised
-	#   note          SafeOverwriteFile is the same method
-	#   warning       Raises error R11 (class not found) and writes nothing
+	#   _cFile_       an existing file held here
+	#   cNewContent   the text that replaces the content
+	#   returns       1 (TRUE)
+	#   note          SafeOverwriteFile is the same method; an older .bak of the same file is replaced
+	#   warning       Raises an error when the file is not held here
 	#   see           FileOverwrite, FileModify
 	def FileSafeOverwrite(_cFile_, cNewContent)
 
@@ -3708,30 +3894,32 @@ class stzFolder from stzObject
 			raise("Can't navigate outside the folder!")
 		ok
 
-		if NOT This.Exists(_cFile_)
+		if NOT This.IsFile(_cFile_)
 			raise("Can't safe-overwirte this file! cFile does not exist in the folder.")
 		ok
 
 		# Navigate to file's folder (intelligent navigation)
 		if not this.IsBatchMode()
 			_cFileDir_ = This.GetDirectoryPath(_cFile_)
-			This.GoTo(_cFileDir_)
+			This._FollowTo(_cFileDir_)
 		ok
 
-		return @FileSafeOverwrite(_cFile_, cNewContent)
+		StzEngineFileCopy(_cFile_, _cFile_ + ".bak")
+		StzEngineFileWrite(_cFile_, cNewContent)
+		return 1
 
 		def SafeOverwriteFile(_cFile_, cNewContent)
 			return This.FileSafeOverwrite(_cFile_, cNewContent)
 
 
-	# Replaces every occurrence of a text in a file held directly here, case-sensitively, and answers 1 even when none was found.
+	# Replaces every occurrence of a text in a file held here, case-sensitively, and answers 1 even when none was found.
 	#
-	#   _cFile_       an existing file held directly here
+	#   _cFile_       an existing file held here
 	#   cOldContent   the text to replace
 	#   cNewContent   the text to put in its place
 	#   returns       1 (TRUE)
 	#   note          ModifyFile is the same method
-	#   warning       Raises error R14 before changing anything unless batch mode is on
+	#   warning       Raises an error when the file is not held here
 	#   see           ModifyInFile, FileOverwrite
 	def FileModify(_cFile_, cOldContent, cNewContent)
 
@@ -3747,14 +3935,14 @@ class stzFolder from stzObject
 			raise("Can't navigate outside the folder!")
 		ok
 
-		if NOT This.Exists(_cFile_)
+		if NOT This.IsFile(_cFile_)
 			raise("Can't modify this file! cFile does not exist in the folder.")
 		ok
 
 		# Navigate to file's folder (intelligent navigation)
 		if not this.IsBatchMode()
 			_cFileDir_ = This.GetDirectoryPath(_cFile_)
-			This.GoTo(_cFileDir_)
+			This._FollowTo(_cFileDir_)
 		ok
 
 		return @FileModify(_cFile_, cOldContent, cNewContent)
@@ -3781,20 +3969,19 @@ class stzFolder from stzObject
 			if NOT This.IsInside(_cFile_)
 				raise("Can't navigate outside the folder!")
 			ok
-			if NOT This.Exists(_cFile_)
+			if NOT This.IsFile(_cFile_)
 				raise("Can't update this file! cFile does not exist in the folder.")
 			ok
 			return @FileUpdate(_cFile_)
 
-	# Copies a file held directly here to a new name, replacing a file that is already there, and answers 1.
+	# Copies a file held here to a new name, replacing a file that is already there, and answers 1.
 	#
 	#   _cSourceFile_   the file to copy
-	#   _cDestFile_     the name or path of the copy
+	#   _cDestFile_     the name or path of the copy, below the current position
 	#   returns         1 (TRUE); 0 when the destination folder is missing
 	#   note            CopyFile is the same method; an existing destination is overwritten without
 	#                   warning
-	#   warning         Raises error R14 after copying unless batch mode is on; raises an error when
-	#                   the source is not held here
+	#   warning         Raises an error when the source is not held here or the destination is outside
 	#   see             FileMove, FileBackup
 	def FileCopy(_cSourceFile_, _cDestFile_)
 	    if CheckParams()
@@ -3821,7 +4008,7 @@ class stzFolder from stzObject
 	        raise("Can't navigate outside the folder!")
 	    ok
 	
-	    if not This.Exists(_cSourceFile_)
+	    if not This.IsFile(_cSourceFile_)
 	        raise("Source file does not exist in the folder.")
 	    ok
 	
@@ -3831,7 +4018,7 @@ class stzFolder from stzObject
 	    # Then navigate to destination folder (intelligent navigation)
 	    if not this.IsBatchMode()
 	        _cDestDir_ = This.GetDirectoryPath(_cDestFile_)
-	        This.GoTo(_cDestDir_)
+	        This._FollowTo(_cDestDir_)
 	    ok
 	
 	    return _bResult_
@@ -3841,15 +4028,14 @@ class stzFolder from stzObject
 			return this.FileCopy(cSource, cDest)
 
 
-	# Moves a file held directly here to a new name or into another folder and answers 1.
+	# Moves a file held here to a new name or into another folder below the position and answers 1.
 	#
 	#   _cSourceFile_   the file to move
-	#   _cDestFile_     the new name or path
+	#   _cDestFile_     the new name or path, below the current position
 	#   returns         1 (TRUE); 0 when the destination folder is missing
-	#   note            MoveFile is the same method; a move into a subfolder worked, and a move into
-	#                   a missing folder answers 0 and moves nothing
-	#   warning         Raises error R14 after moving unless batch mode is on; raises an error when
-	#                   the source is not held here
+	#   note            MoveFile is the same method; a move into a missing folder answers 0 and
+	#                   moves nothing
+	#   warning         Raises an error when the source is not held here or the destination is outside
 	#   see             FileCopy, FileRemove
 	def FileMove(_cSourceFile_, _cDestFile_)
 	    if CheckParams()
@@ -3876,7 +4062,7 @@ class stzFolder from stzObject
 	        raise("Can't navigate outside the folder!")
 	    ok
 	
-	    if not This.Exists(_cSourceFile_)
+	    if not This.IsFile(_cSourceFile_)
 	        raise("Source file does not exist in the folder.")
 	    ok
 	
@@ -3886,7 +4072,7 @@ class stzFolder from stzObject
 	    # Then navigate to destination folder (intelligent navigation)
 	    if not this.IsBatchMode()
 	        _cDestDir_ = This.GetDirectoryPath(_cDestFile_)
-	        This.GoTo(_cDestDir_)
+	        This._FollowTo(_cDestDir_)
 	    ok
 	
 	    return _bResult_
@@ -3895,13 +4081,12 @@ class stzFolder from stzObject
 		def MoveFile(cSource, cDestination)
 			return this.FileMove(cSource, cDestination)
 
-	# Returns the size of a file held directly here, in bytes.
+	# Returns the size of a file held here, in bytes.
 	#
-	#   _cFile_    a file name held directly here
+	#   _cFile_    a file name, a sub-path, or an absolute path below the position
 	#   returns    a number
 	#   note       FileSizeInBytes is the same method; an empty file answers 0
-	#   warning    Raises error R14 unless batch mode is on; raises an error for a file that is not
-	#              held directly here
+	#   warning    Raises an error for a path that is not a file held here
 	#   see        FileInfo, FileRead
 	#@ aka  --
 	def FileSize(_cFile_)
@@ -3917,14 +4102,14 @@ class stzFolder from stzObject
 			raise("Can't navigate outside the folder!")
 		ok
 
-		if NOT This.Exists(_cFile_)
+		if NOT This.IsFile(_cFile_)
 			raise("Can't get size of this file! cFile does not exist in the folder.")  # Fixed: was "modify"
 		ok
 
 		# Navigate to file's folder (intelligent navigation)
 		if not this.IsBatchMode()
 			_cFileDir_ = This.GetDirectoryPath(_cFile_)
-			This.GoTo(_cFileDir_)
+			This._FollowTo(_cFileDir_)
 		ok
 
 		# No @FileSize global exists; the byte size is the length of the file
@@ -3936,14 +4121,12 @@ class stzFolder from stzObject
 		def FileSizeInBytes(_cFile_)
 			return this.FileSize(_cFile_)
 
-	# Returns pairs describing a file held directly here, such as its size, suffix and last modification time.
+	# Returns pairs describing a file held here, such as its size, suffix and last modification time.
 	#
-	#   _cFile_    a file name held directly here
+	#   _cFile_    a file name, a sub-path, or an absolute path below the position
 	#   returns    a list of [ key, value ] pairs, the keys in lowercase: name (without suffix),
 	#              size, suffix, path, exists, iswritable, isreadable and lastmodified
-	#   note       A folder name gives exists 0 and size -1
-	#   warning    Raises error R14 unless batch mode is on; raises an error for a file that is not
-	#              held directly here
+	#   warning    Raises an error for a path that is not a file held here
 	#   see        FileSize, PathInfo
 	def FileInfo(_cFile_)
 
@@ -3959,14 +4142,14 @@ class stzFolder from stzObject
 			raise("Can't navigate outside the folder!")
 		ok
 
-		if NOT This.Exists(_cFile_)
+		if NOT This.IsFile(_cFile_)
 			raise("Can't read this file! cFile does not exist in the folder.")
 		ok
 
 		# Navigate to file's folder (intelligent navigation)
 		if not this.IsBatchMode()
 			_cFileDir_ = This.GetDirectoryPath(_cFile_)
-			This.GoTo(_cFileDir_)
+			This._FollowTo(_cFileDir_)
 		ok
 
 		return @FileInfo(_cFile_)
@@ -3978,14 +4161,14 @@ class stzFolder from stzObject
 				raise("Can't navigate outside the folder!")
 			ok
 	
-			if NOT This.Exists(_cFile_)
+			if NOT This.IsFile(_cFile_)
 				raise("Can't read this file! cFile does not exist in the folder.")
 			ok
 
 			# Navigate to file's folder (intelligent navigation)
 			if not this.IsBatchMode()
 				_cFileDir_ = This.GetDirectoryPath(_cFile_)
-				This.GoTo(_cFileDir_)
+				This._FollowTo(_cFileDir_)
 			ok
 
 			return @FileInfoQ(_cFile_)
@@ -4004,14 +4187,14 @@ class stzFolder from stzObject
 			raise("Can't navigate outside the folder!")
 		ok
 
-		if NOT This.Exists(_cFile_)
+		if NOT This.IsFile(_cFile_)
 			raise("Can't read this file! cFile does not exist in the folder.")
 		ok
 
 		# Navigate to file's folder (intelligent navigation)
 		if not this.IsBatchMode()
 			_cFileDir_ = This.GetDirectoryPath(_cFile_)
-			This.GoTo(_cFileDir_)
+			This._FollowTo(_cFileDir_)
 		ok
 
 		return @FileInfoXT(_cFile_)
@@ -4082,14 +4265,12 @@ class stzFolder from stzObject
 		def FindThisFile(cFileName)
 			return This.FindFiles(cFileName)
 
-	# Returns the folders held directly here that match a pattern with *; a plain folder name matches nothing today.
+	# Returns the folders held directly here that match a name or a pattern with *, ignoring case.
 	#
-	#   _cPattern_   a pattern with * as a wildcard, such as sub*
+	#   _cPattern_   a folder name with or without slashes, or a pattern with * as a wildcard, such as sub*
 	#   returns      a list of "/name/" entries; [ ] when none match
 	#   note         FindFolder and FindThisFolder are the same method; raises an error for an empty
 	#                text
-	#   warning      A plain name such as sub1, or /sub1/, answers [ ] because it is compared with
-	#                the listing form /sub1/ after losing its slashes; only a * pattern can match
 	#   see          DeepFindFolders, Folders, FindFiles
 	def FindFolders(_cPattern_)
 
@@ -4118,7 +4299,7 @@ class stzFolder from stzObject
 		else
 
 			for i = 1 to _nLen_
-				if StzLower(_acFolders_[i]) = StzLower(_cPattern_)
+				if StzLower(_DirName(_CleanPath(_acFolders_[i]))) = StzLower(_DirName(_CleanPath(_cPattern_)))
 					_acResult_ + _acFolders_[i]
 				ok
 			next
@@ -4238,19 +4419,20 @@ class stzFolder from stzObject
 		return _acFound_
 
 
-	# Returns the matching files followed by one last item that is the list of matching folders, instead of one flat list.
+	# Returns the files and then the folders held directly here that match a name or a pattern with *, as one flat list.
 	#
 	#   _cPattern_   a name or a pattern with * as a wildcard
-	#   returns      a list: the file entries, then one nested list of the folder entries
-	#   note         Use FindFiles and FindFolders for flat answers
-	#   warning      The two lists are joined with the list-append operator, so the folders arrive
-	#                as one nested item (a.txt gives [ "/a.txt", [ ] ] and sub* gives [ [ "/sub1/",
-	#                "/sub2/" ] ])
+	#   returns      a list of text: the file entries "/name", then the folder entries "/name/"
+	#   note         FindFiles and FindFolders give the two halves apart
 	#   see          FindFiles, FindFolders, DeepFind
 	def Find(_cPattern_)
-		_acFiles_ = This.FindFiles(_cPattern_)
+		_acResult_ = This.FindFiles(_cPattern_)
 		_acFolders_ = This.FindFolders(_cPattern_)
-		return _acFiles_ + _acFolders_
+		_nLen_ = len(_acFolders_)
+		for i = 1 to _nLen_
+			_acResult_ + _acFolders_[i]
+		next
+		return _acResult_
 
 	# Returns the files of the whole tree below that match a name or a pattern with *, ignoring case.
 	#
@@ -4365,7 +4547,7 @@ class stzFolder from stzObject
 			_nLenR_ = len(_acFileResults_)
 
 			for j = 1 to _nLenR_
-				if StzFindFirst(_acFound_, _acFileResults_[j]) = 0
+				if StzFindFirst(_acFileResults_[j], _acFound_) = 0
 					_acFound_ + _acFileResults_[j]
 				ok
 			next
@@ -4392,7 +4574,7 @@ class stzFolder from stzObject
 			_nLenR_ = len(_acFolderResults_)
 
 			for j = 1 to _nLenR_
-				if StzFindFirst(_acFound_, _acFolderResults_[j]) = 0
+				if StzFindFirst(_acFolderResults_[j], _acFound_) = 0
 					_acFound_ + _acFolderResults_[j]
 				ok
 			next
@@ -4402,19 +4584,21 @@ class stzFolder from stzObject
 		return _acFound_
 
 
-	# Returns the matching files of the whole tree followed by one last item that is the list of matching folders, instead of one flat list.
+	# Returns the files and then the folders of the whole tree that match a name or a pattern with *, as one flat list.
 	#
 	#   _cPattern_   a name or a pattern with * as a wildcard
-	#   returns      a list: the file entries, then one nested list of the folder entries
-	#   note         DeepFindFileOrFolder and DeepFindThisFileOrFolder are the same method; use the
-	#                two finders for flat answers
-	#   warning      The two lists are joined with the list-append operator, so the folders arrive
-	#                as one nested item
+	#   returns      a list of text: the file entries "/folder/name", then the folder entries "/folder/name/"
+	#   note         DeepFindFileOrFolder and DeepFindThisFileOrFolder are the same method; the two
+	#                finders give the halves apart
 	#   see          DeepFindFiles, DeepFindFolders, Find
 	def DeepFind(_cPattern_)
-		_acFiles_ = This.DeepFindFiles(_cPattern_)
+		_acResult_ = This.DeepFindFiles(_cPattern_)
 		_acFolders_ = This.DeepFindFolders(_cPattern_)
-		return _acFiles_ + _acFolders_
+		_nLen_ = len(_acFolders_)
+		for i = 1 to _nLen_
+			_acResult_ + _acFolders_[i]
+		next
+		return _acResult_
 
 		def DeepFindFileOrFolder(_cPattern_)
 			return This.DeepFind(_cPattern_)
@@ -4425,6 +4609,26 @@ class stzFolder from stzObject
 	#=====================#
 	#  Search Operations  #
 	#=====================#
+
+	# Returns the numbers of the lines of a file, given by its absolute path, that hold a text, ignoring case.
+	#
+	#   _cFilePath_   the absolute path of a file
+	#   cContent      the text to look for
+	#   returns       a list of line numbers, 1 for the first; [ ] when nothing matches
+	def _LinesHolding(_cFilePath_, cContent)
+		_acLineNumbers_ = []
+		if NOT fexists(_cFilePath_)
+			return _acLineNumbers_
+		ok
+		_acLines_ = @split(read(_cFilePath_), char(10))
+		_nLines_ = len(_acLines_)
+		_cLow_ = StzLower(cContent)
+		for k = 1 to _nLines_
+			if StzFindFirst(_cLow_, StzLower(_acLines_[k])) > 0
+				_acLineNumbers_ + k
+			ok
+		next
+		return _acLineNumbers_
 
 	# Returns, for each file held directly here, the numbers of the lines that hold a text, ignoring case; files with no match are left out.
 	#
@@ -4496,13 +4700,12 @@ class stzFolder from stzObject
 
 		return _acResults_
 
-	# Reports the wrong file names today for the files of the folders held directly here, and misses some matches.
+	# Returns, for each file of the folders held directly here, the numbers of the lines that hold a text, ignoring case.
 	#
 	#   cContent   the text to look for
-	#   returns    a list of [ name, [ line numbers ] ] pairs, unreliable
-	#   note       Use DeepSearchInFiles, which is correct
-	#   warning    Inherits the fault of SearchInFolder: a folder whose files hold the text gave [
-	#              "deep1", [ 2 ] ], a name that is a subfolder
+	#   returns    a list of [ file name, [ line numbers ] ] pairs; files with no match are left out
+	#   note       The folders inside those folders are not entered; DeepSearchInFiles goes all the way down
+	#   warning    Raises an error when the argument is not text
 	#   see        SearchInFolder, DeepSearchInFiles
 	def SearchInFolders(cContent)
 		if NOT isString(cContent)
@@ -4510,15 +4713,13 @@ class stzFolder from stzObject
 		ok
 		return This.SearchInTheseFolders(This.Folders(), cContent)
 
-	# Reports the wrong file name and misses matches today when searching the files of a child folder for a text.
+	# Returns, for each file of a child folder, the numbers of the lines that hold a text, ignoring case.
 	#
 	#   _cFolder_   a child folder, as a name
 	#   cContent    the text to look for
-	#   returns     a list of [ name, [ line numbers ] ] pairs, unreliable
-	#   note        SearchInThisFolder is the same method; use DeepSearchInFiles instead
-	#   warning     The line loop reuses the file loop's counter, so the name comes from the wrong
-	#               index and later files are skipped: sub2 searched for alpha gave [ "s3.txt", [ 1
-	#               ] ] although s3.txt does not hold it, and zzz gave [ ] although s2.txt does
+	#   returns     a list of [ file name, [ line numbers ] ] pairs; files with no match are left out
+	#   note        SearchInThisFolder is the same method; the folders inside it are not entered
+	#   warning     Raises an error when an argument is not text
 	#   see         SearchInFile, DeepSearchInFiles
 	def SearchInFolder(_cFolder_, cContent)
 
@@ -4527,9 +4728,9 @@ class stzFolder from stzObject
 		ok
 
 		_acResults_ = []
-		_cFolderPath_ = @cCurrentPath + This.Separator() + _cFolder_
+		_cFolderPath_ = This._ResolveInHere(_cFolder_)
 
-		if isdir(_cFolderPath_)
+		if StzEngineDirExists(_cFolderPath_)
 
 			_aEntries_ = @dir(_cFolderPath_)
 			_nLen_ = len(_aEntries_)
@@ -4538,24 +4739,10 @@ class stzFolder from stzObject
 
 				if _aEntries_[i][2] = 0
 
-					_cFilePath_ = _cFolderPath_ + This.Separator() + _aEntries_[i][1]
+					_acLineNumbers_ = This._LinesHolding(_cFolderPath_ + This.Separator() + _aEntries_[i][1], cContent)
 
-					if fexists(_cFilePath_)
-
-						_cFileContent_ = read(_cFilePath_)
-						_acLines_ = @split(_cFileContent_, char(10))
-						_nLenL_ = len(_acLines_)
-						_acLineNumbers_ = []
-
-						for i = 1 to _nLenL_
-							if StzFindFirst(StzLower(cContent), StzLower(_acLines_[i])) > 0
-								_acLineNumbers_ + i
-							ok
-						next
-
-						if len(_acLineNumbers_) > 0
-							_acResults_ + [_aEntries_[i][1], _acLineNumbers_]
-						ok
+					if len(_acLineNumbers_) > 0
+						_acResults_ + [_aEntries_[i][1], _acLineNumbers_]
 					ok
 				ok
 			next
@@ -4565,12 +4752,12 @@ class stzFolder from stzObject
 		def SearchInThisFolder(_cFolder_, cContent)
 			return This.SearchInFolder(_cFolder_, cContent)
 
-	# Reports the wrong file names today for the files of the listed child folders, and misses some matches.
+	# Returns, for each file of the listed child folders, the numbers of the lines that hold a text, ignoring case.
 	#
 	#   _acFolders_   a list of child folder names
 	#   cContent      the text to look for
-	#   returns       a list of [ name, [ line numbers ] ] pairs, unreliable
-	#   warning       Inherits the fault of SearchInFolder, which it calls for each folder
+	#   returns       a list of [ file name, [ line numbers ] ] pairs; files with no match are left out
+	#   warning       Raises an error when the folders are not a list or the text is not text
 	#   see           SearchInFolder
 	def SearchInTheseFolders(_acFolders_, cContent)
 
@@ -4716,15 +4903,13 @@ class stzFolder from stzObject
 		return _acResults_
 
 
-	# Returns [ ] today instead of the lines that hold a text in the files of the folders of that name below.
+	# Returns the lines that hold a text in the files of every folder of that name found anywhere below, ignoring case.
 	#
-	#   _cFolder_   a folder name
+	#   _cFolder_   a folder name, with or without slashes
 	#   cContent    the text to look for
-	#   returns     a list that is always empty
-	#   note        Use DeepSearchInFiles
-	#   warning     Always answers [ ] (checked on sub1 and deep1 with texts the files hold),
-	#               because it tests whether the folder path is a file and reads the folder instead
-	#               of each file
+	#   returns     a list of [ absolute path, [ line numbers ] ] pairs, one per file with a match
+	#   note        Only the files directly in those folders are read; DeepSearchInFiles reads every file below
+	#   warning     Raises an error when an argument is not text
 	#   see         DeepSearchInFiles
 	def DeepSearchInFolder(_cFolder_, cContent)
 		if NOT isString(_cFolder_) or NOT isString(cContent)
@@ -4732,54 +4917,39 @@ class stzFolder from stzObject
 		ok
 
 		_acResults_ = []
-		_acFolderPaths_ = This.DeepFindFolders(_cFolder_)
+		_acFolderPaths_ = This._DeepPathsNamed(_cFolder_, 1)
 		_nLen_ = len(_acFolderPaths_)
 
 		for i = 1 to _nLen_
 
-			if isdir(_acFolderPaths_[i])
-				_aEntries_ = @dir(_acFolderPaths_[i])
-				_nLenE_ = len(_aEntries_)
+			_aEntries_ = @dir(_acFolderPaths_[i])
+			_nLenE_ = len(_aEntries_)
 
-				for j = 1 to _nLenE_
+			for j = 1 to _nLenE_
 
-					if _aEntries_[j][2] = 0
+				if _aEntries_[j][2] = 0
 
-						_cFilePath_ = _acFolderPaths_[i] + This.Separator() + _aEntries_[j][1]
+					_cFilePath_ = _acFolderPaths_[i] + This.Separator() + _aEntries_[j][1]
+					_acLineNumbers_ = This._LinesHolding(_cFilePath_, cContent)
 
-						if fexists(_acFolderPaths_[i])
-							_cFileContent_ = read(_acFolderPaths_[i])
-							_acLines_ = @split(_cFileContent_, char(10))
-							_nLenL_ = len(_acLines_)
-							_acLineNumbers_ = []
-
-							for i = 1 to _nLenL_
-								if StzFindFirst(StzLower(cContent), StzLower(_acLines_[i])) > 0
-									_acLineNumbers_ + i
-								ok
-							next
-
-							if len(_acLineNumbers_) > 0
-								_acResults_ + [_acFolderPaths_[i], _acLineNumbers_]
-							ok
-						ok
+					if len(_acLineNumbers_) > 0
+						_acResults_ + [_cFilePath_, _acLineNumbers_]
 					ok
+				ok
 
-				next
-			ok
+			next
 
 		next
 
 		return _acResults_
 
 
-	# Returns [ ] today instead of the lines that hold a text in the files of the listed folders below.
+	# Returns the lines that hold a text in the files of every folder bearing one of the listed names below, ignoring case.
 	#
 	#   _acFolders_   a list of folder names
 	#   cContent      the text to look for
-	#   returns       a list that is always empty
-	#   note          Use DeepSearchInFiles
-	#   warning       Always answers [ ] because DeepSearchInFolder does
+	#   returns       a list of [ absolute path, [ line numbers ] ] pairs, one per file with a match
+	#   warning       Raises an error when the folders are not a list or the text is not text
 	#   see           DeepSearchInFolder, DeepSearchInFiles
 	def DeepSearchInFolders(_acFolders_, cContent)
 		if NOT isList(_acFolders_) or NOT isString(cContent)
@@ -4842,18 +5012,16 @@ class stzFolder from stzObject
 		ok
 
 
-	# Raises error R24 today instead of listing the folder names on the way to files that match a pattern.
+	# Returns the names of the folders on the way from the current position to the files that match a pattern.
 	#
 	#   _cPath_      the folder to search, as an absolute path
 	#   _cPattern_   the file pattern
-	#   returns      the list of folder names, but error R24 is raised
-	#   note         VizDeepFindFiles fails for the same reason
-	#   warning      Raises error R24 (uninitialized variable _aallpaths_) because it passes a
-	#                variable it never set
+	#   returns      a list of folder names, each once, such as [ "sub1", "deep1" ]
+	#   note         VizDeepFindFiles opens exactly those folders in its drawing
 	#   see          CollectFoldersWithFileMatches, VizDeepFindFiles
 	def GetFoldersContainingFileMatches(_cPath_, _cPattern_)
 
-		_aAllPaths_ = This.CollectFoldersWithFileMatches(_cPath_, _cPattern_, _aAllPaths_)
+		_aAllPaths_ = This.CollectFoldersWithFileMatches(_cPath_, _cPattern_, [])
 		_nLen_ = len(_aAllPaths_)
 
 		_aFolderNames_ = []
@@ -4864,7 +5032,7 @@ class stzFolder from stzObject
 			_nLenP_ = len(_acPathParts_)
 
 			for j = 1 to _nLenP_
-				if StzFindFirst(_aFolderNames_, _acPathParts_[j]) = 0
+				if StzFindFirst(_acPathParts_[j], _aFolderNames_) = 0
 					_aFolderNames_ + _acPathParts_[j]
 				end
 			next
@@ -5062,15 +5230,14 @@ class stzFolder from stzObject
 		return _nModified_
 
 
-	# Does nothing today and answers 0 instead of replacing a text in the files of that name below.
+	# Replaces a text in every file of that name found anywhere below and returns how many files were rewritten.
 	#
-	#   _cFile_       the file name to change
+	#   _cFile_       the file name to change, ignoring case
 	#   cContent      the text to replace
 	#   cNewContent   the text to put in its place
-	#   returns       a number, always 0
-	#   note          Use ModifyInFile with a sub-path
-	#   warning       Changes nothing: it hands the relative paths of DeepFindFile to the existence
-	#                 test, which fails for each (checked on f.txt and d.txt, with texts they hold)
+	#   returns       a number, counting every file of that name, even those where nothing changed
+	#   note          ModifyInFile with a sub-path changes one file
+	#   warning       Raises an error when an argument is not text
 	#   see           ModifyInFile
 	def DeepModifyInFile(_cFile_, cContent, cNewContent)
 
@@ -5079,11 +5246,11 @@ class stzFolder from stzObject
 		ok
 
 		_nModified_ = 0
-		_acFilePaths_ = This.DeepFindFile(_cFile_)
+		_acFilePaths_ = This._DeepPathsNamed(_cFile_, 0)
 		_nLen_ = len(_acFilePaths_)
 
 		for i = 1 to _nLen_
-	
+
 			if fexists(_acFilePaths_[i])
 
 				_cFileContent_ = read(_acFilePaths_[i])
@@ -5099,13 +5266,13 @@ class stzFolder from stzObject
 		return _nModified_
 
 
-	# Does nothing today and answers 0 instead of replacing a text in the files of the listed names below.
+	# Replaces a text in every file bearing one of the listed names found anywhere below, and returns how many were rewritten.
 	#
 	#   _acFiles_     a list of file names
 	#   cContent      the text to replace
 	#   cNewContent   the text to put in its place
-	#   returns       a number, always 0
-	#   warning       Changes nothing because DeepModifyInFile changes nothing
+	#   returns       a number
+	#   warning       Raises an error when the files are not a list or a text argument is not text
 	#   see           DeepModifyInFile
 	def DeepModifyInFiles(_acFiles_, cContent, cNewContent)
 
@@ -5123,14 +5290,14 @@ class stzFolder from stzObject
 		return _nModified_
 
 
-	# Does nothing today and answers 0 instead of replacing a text in the files of the folders of that name below.
+	# Replaces a text in the files held directly in every folder of that name found anywhere below, and returns how many were rewritten.
 	#
-	#   _cFolder_     the folder name
+	#   _cFolder_     the folder name, ignoring case
 	#   cContent      the text to replace
 	#   cNewContent   the text to put in its place
-	#   returns       a number, always 0
-	#   note          Use ModifyInFolder
-	#   warning       Changes nothing: it reads a folder variable it never sets, so no file is found
+	#   returns       a number, counting every file, even those where nothing changed
+	#   note          ModifyInFolder does the same for one child folder; the folders inside are entered only if they bear the name too
+	#   warning       Raises an error when an argument is not text
 	#   see           ModifyInFolder
 	def DeepModifyInFolder(_cFolder_, cContent, cNewContent)
 
@@ -5139,13 +5306,14 @@ class stzFolder from stzObject
 		ok
 
 		_nModified_ = 0
-		_acFolderPaths_ = This.DeepFindFolder(_cFolder_)
+		_acFolderPaths_ = This._DeepPathsNamed(_cFolder_, 1)
 		_nLen_ = len(_acFolderPaths_)
 
 		for i = 1 to _nLen_
 
-			if isdir(_acFolderPaths_[i])
+			if StzEngineDirExists(_acFolderPaths_[i])
 
+				_cFolderPath_ = _acFolderPaths_[i]
 				_aEntries_ = @dir(_cFolderPath_)
 				_nLenE_ = len(_aEntries_)
 
@@ -5173,13 +5341,13 @@ class stzFolder from stzObject
 		return _nModified_
 
 
-	# Does nothing today and answers 0 instead of replacing a text in the files of the listed folders below.
+	# Replaces a text in the files held directly in every folder bearing one of the listed names below, and returns how many were rewritten.
 	#
 	#   _acFolders_   a list of folder names
 	#   cContent      the text to replace
 	#   cNewContent   the text to put in its place
-	#   returns       a number, always 0
-	#   warning       Changes nothing because DeepModifyInFolder changes nothing
+	#   returns       a number
+	#   warning       Raises an error when the folders are not a list or a text argument is not text
 	#   see           DeepModifyInFolder
 	def DeepModifyInFolders(_acFolders_, cContent, cNewContent)
 
@@ -5196,14 +5364,13 @@ class stzFolder from stzObject
 
 		return _nModified_
 
-	# Does nothing today and answers 0 instead of replacing a text in every file of the tree below.
+	# Replaces a text in every file of the whole tree below and returns how many files were rewritten.
 	#
 	#   cContent      the text to replace
 	#   cNewContent   the text to put in its place
-	#   returns       a number, always 0
-	#   note          Use ModifyInRoot for the top level
-	#   warning       Changes nothing: the folders from DeepFolders are relative entries that the
-	#                 directory reader cannot open
+	#   returns       a number, counting every file, even those where nothing changed
+	#   note          ModifyInRoot does the top level only
+	#   warning       Raises an error when an argument is not text
 	#   see           ModifyInRoot, DeepModifyInFile
 	def DeepModifyInRoot(cContent, cNewContent)
 
@@ -5212,30 +5379,22 @@ class stzFolder from stzObject
 		ok
 
 		_nModified_ = 0
-		_acAllDirs_ = This.DeepFolders()
-		_nLen_ = len(_acAllDirs_)
+		_acAllFiles_ = This.DeepFilesXT()
+		_nLen_ = len(_acAllFiles_)
 
 		for i = 1 to _nLen_
-			_aEntries_ = @dir(_acAllDirs_[i])
-			_nLenE_ = len(_aEntries_)
 
-			for j = 1 to _nLenE_
+			_cFilePath_ = _acAllFiles_[i]
 
-				if _aEntries_[j][2] = 0
+			if fexists(_cFilePath_)
 
-					_cFilePath_ = _acAllDirs_[i] + This.Separator() + _aEntries_[j][1]
+				_cFileContent_ = read(_cFilePath_)
+				_cModifiedContent_ = StzReplace(_cFileContent_, cContent, cNewContent)
 
-					if fexists(_cFilePath_)
+				write(_cFilePath_, _cModifiedContent_)
+				_nModified_++
 
-						_cFileContent_ = read(_cFilePath_)
-						_cModifiedContent_ = StzReplace(_cFileContent_, cContent, cNewContent)
-
-						write(_cFilePath_, _cModifiedContent_)
-						_nModified_++
-
-					ok
-				ok
-			next
+			ok
 
 		next
 
@@ -5326,12 +5485,11 @@ class stzFolder from stzObject
 		def VizDeepFindFilesAndFolders(_cPattern_)
 			return This.VizDeepSearch(_cPattern_)
 
-	# Raises error R24 today instead of drawing the whole tree with the matching files marked.
+	# Returns the whole tree drawn down to the display depth, with the matching files marked and only their folders opened.
 	#
 	#   _cPattern_   a pattern with * as a wildcard
-	#   returns      nothing; error R24 is raised
-	#   note         VizDeepSearch draws a similar tree
-	#   warning      Raises error R24 because GetFoldersContainingFileMatches does
+	#   returns      text, a tree whose first line gives the number of file matches
+	#   note         VizDeepSearch draws a similar tree with the folder matches as well
 	#   see          VizDeepSearch, GetFoldersContainingFileMatches
 	def VizDeepFindFiles(_cPattern_)
 		_nTotalMatches_ = This.CountFileMatchesRecursive(This.Path(), _cPattern_)
@@ -5372,8 +5530,6 @@ class stzFolder from stzObject
 	#   returns    text of several lines, the folder first
 	#   note       Needs a console that shows the icons; the default order lists the files first, in
 	#              ascending order
-	#   warning    The expand modes test every folder name relative to the process folder, so an
-	#              expanded tree can create empty folders there and may leave inner folders closed
 	#   see        Show, ToStringXT, SetDisplayOrder, DeepExpandAll
 	def ToString()
 		_cFolderName_ = This.Name()
@@ -5421,9 +5577,8 @@ class stzFolder from stzObject
 	# Marks every non-empty folder to be drawn open and clears the other expand and collapse choices.
 	#
 	#   returns    nothing; the object is changed in place
-	#   note       ExpandAll is the same method
-	#   warning    Folders are tested for emptiness through their bare name relative to the process
-	#              folder, so only the first level opens and stray empty folders can appear there
+	#   note       ExpandAll is the same method; the folders are tested for emptiness where they
+	#              are, so every level opens and nothing is created
 	#   see        DeepExpandAll, ExpandFolders, CollapseAll, ToString
 	def Expand()
 		@bExpand = 1
@@ -5436,8 +5591,6 @@ class stzFolder from stzObject
 		# Marks every non-empty folder to be drawn open and clears the other expand and collapse choices.
 		#
 		#   returns    nothing; the object is changed in place
-		#   warning    The same fault as Expand: folders are tested for emptiness through their bare
-		#              name relative to the process folder
 		#   see        Expand, DeepExpandAll
 		def ExpandAll()
 			This.Expand()
@@ -5459,16 +5612,13 @@ class stzFolder from stzObject
 		def ExpandThisFolder(_cFolder_)
 			This.ExpandFolders([_cFolder_])
 
-		# Raises error R24 today instead of marking one folder to be drawn open.
+		# Marks one folder to be drawn open.
 		#
 		#   _cFolder_   the folder name to open
-		#   returns     nothing; error R24 is raised
-		#   note        ExpandFolder does the job
-		#   warning     Raises error R24 because it passes a variable cfolders that it never sets,
-		#               instead of its own argument
+		#   returns     nothing; the object is changed in place
 		#   see         ExpandFolder
 		def ExpandThis(_cFolder_)
-			This.ExpandFolders([cFolders])
+			This.ExpandFolders([_cFolder_])
 
 	# Marks several folders to be drawn open and switches off the collapse-all choice.
 	#
@@ -5488,7 +5638,7 @@ class stzFolder from stzObject
 
 		for i = 1 to _nLen_
 			_cPath_ = This.NormalizeFolderPath(_acFolders_[i])
-			if This.IsDeepFolder(_cPath_)
+			if This._IsDeepFolderShape(_cPath_)
 				@acDeepExpandFolders + _cPath_
 			else
 				@acExpandFolders + _cPath_
@@ -5775,19 +5925,17 @@ class stzFolder from stzObject
 	#==========================#
 	#  Checking Path Security  #
 	#==========================#
-	# TRUE if the path holds no control character, those with codes 1 to 31.
+	# TRUE if the path holds no control character, those with codes 0 to 31.
 	#
 	#   _cPath_    the path to test
 	#   returns    TRUE or FALSE
-	#   note       HasNoPathInjection is the same method
-	#   warning    A path holding a null byte answers TRUE, because the first test returns 1 when it
-	#              finds one
+	#   note       HasNoPathInjection is the same method; a null byte makes it FALSE
 	#   see        IsFilePath, IsFolderPath
 	#TODO // Enhance this section
 	def IsSecurePath(_cPath_)
 		# Check for null bytes (path injection attempt)
 		if StzFindFirst(StzChar(0), _cPath_) > 0
-			return 1
+			return 0
 		ok
 
 		# Check for other control characters that could be used for injection
@@ -5848,17 +5996,18 @@ class stzFolder from stzObject
 
 	# Returns the folder names that lead from the current position down to a path.
 	#
-	#   _cPath_    an absolute path below the current position
-	#   returns    a list of text; [ ] when the path is not below the current position
+	#   _cPath_    an absolute path below the current position, written with / or 	#   returns    a list of text; [ ] when the path is not below the current position
 	#   note       A path two levels down, such as sub1/deep1 under the position, gives [ "sub1",
 	#              "deep1" ]
 	#   see        GetParentDirectory
 	def GetPathHierarchy(_cPath_)
 		_acParts_ = []
-		_cRelativePath_ = StzReplace(_cPath_, This.Path() + This.Separator(), "")
-		if _cRelativePath_ = _cPath_
+		_cClean_ = _CleanPath(_cPath_)
+		_cBase_ = _CleanPath(This.Path()) + This.Separator()
+		if StzLower(StzLeft(_cClean_, StzLen(_cBase_))) != StzLower(_cBase_)
 			return []
 		end
+		_cRelativePath_ = StzMid(_cClean_, StzLen(_cBase_) + 1, StzLen(_cClean_) - StzLen(_cBase_))
 		_acSegments_ = @split(_cRelativePath_, This.Separator())
 		_nLen_ = len(_acSegments_)
 
@@ -5870,19 +6019,17 @@ class stzFolder from stzObject
 
 		return _acParts_
 
-	# Searches the tree below a folder for files that match a pattern but returns nothing, because the list it fills is a copy.
+	# Returns the folders, a given one and those below it, that hold a file matching a pattern, added to a list passed in.
 	#
 	#   _cPath_               the folder to search, as an absolute path
 	#   _cPattern_            the file pattern
-	#   aFoldersWithMatches   the list meant to receive the folders
-	#   returns               nothing
-	#   note                  Not useful on its own today
-	#   warning               The list passed in is copied on the call, so the caller's list stays
-	#                         empty
+	#   aFoldersWithMatches   the list the folders are added to, [ ] to start
+	#   returns               a list of absolute folder paths; the list passed in is not changed
 	#   see                   GetFoldersContainingFileMatches
 	def CollectFoldersWithFileMatches(_cPath_, _cPattern_, aFoldersWithMatches)
 
 		_aList_ = @dir(_cPath_)
+		_aResult_ = aFoldersWithMatches
 		_bHasFileMatches_ = 0
 		_nLen_ = len(_aList_)
 
@@ -5896,33 +6043,28 @@ class stzFolder from stzObject
 		next
 
 		if _bHasFileMatches_
-			aFoldersWithMatches + _cPath_
+			_aResult_ + _cPath_
 		end
 
 		for i = 1 to _nLen_
 			if _aList_[i][2] = 1 and _aList_[i][1] != "." and _aList_[i][1] != ".."
-				This.CollectFoldersWithFileMatches(_cPath_ + This.Separator() + _aList_[i][1], _cPattern_, aFoldersWithMatches)
+				_aResult_ = This.CollectFoldersWithFileMatches(_cPath_ + This.Separator() + _aList_[i][1], _cPattern_, _aResult_)
 			end
 		next
 
+		return _aResult_
 
-		# Returns the part of a path after its first separator, which is the folder name only for a one-level relative path.
+
+		# Returns the last name of a path, the folder name for a folder path.
 		#
 		#   _cPath_    a path
-		#   returns    text; an empty text for the current position itself
-		#   note       Use Name on an object at the folder for the last segment
-		#   warning    Cuts at the first separator instead of the last: a/b/c gives b/c and an
-		#              absolute path loses only its drive
+		#   returns    text, such as c for a/b/c; an empty text for the current position itself
 		#   see        GetParentDirectory
 		def GetFolderNameFromPath(_cPath_)
-			if _cPath_ = This.Path()
+			if _CleanPath(_cPath_) = _CleanPath(This.Path())
 				return ""
 			end
-			_nPos_ = max([StzFindFirst(This.Separator(), _cPath_), StzFindFirst("\", _cPath_)])
-			if _nPos_ > 0
-				return StzRight(_cPath_, StzLen(_cPath_) - _nPos_)
-			end
-			return _cPath_
+			return _DirName(_CleanPath(_cPath_))
 
 
 	#================================#
@@ -6073,12 +6215,11 @@ class stzFolder from stzObject
 		return _aResult_
 
 
-	# Raises error R24 today instead of listing a folder's entries as name and type records in disk order.
+	# Returns a folder's entries as name and type records, in the order the listing gives them.
 	#
 	#   _cPath_    the folder to list
-	#   returns    nothing; error R24 is raised
+	#   returns    a list of [ [ "name", n ], [ "type", "file" or "folder" ] ] records
 	#   note       Private: calling it from outside the class raises error R26
-	#   warning    Raises error R24 because a file entry reads a variable _aEntry_ that is never set
 	#   see        SortItemsByDisplayOrder
 	def GetPhysicalOrder(_cPath_)
 
@@ -6090,7 +6231,7 @@ class stzFolder from stzObject
 		for i = 1 to _nLen_
 
 			if _aList_[i][2] = 0
-				_aResult_ + [:name = _aEntry_[1], :type = "file"]
+				_aResult_ + [:name = _aList_[i][1], :type = "file"]
 
 			but _aList_[i][2] = 1 and _aList_[i][1] != "." and _aList_[i][1] != ".."
 				_aResult_ + [:name = _aList_[i][1], :type = "folder"]
@@ -6286,13 +6427,12 @@ class stzFolder from stzObject
 		ok
 
 
-	# Raises error R14 today instead of writing the statistics pattern for a child folder.
+	# Returns the statistics pattern of a child folder with its keywords replaced by the counts.
 	#
 	#   _cFolderName_   a child folder name
 	#   _cPattern_      the statistics pattern
-	#   returns         nothing; error R14 is raised
+	#   returns         text, the pattern with @countfiles, @countfolders and the deep forms replaced
 	#   note            Private: calling it from outside the class raises error R26
-	#   warning         Raises error R14 because it calls CountFilesIn, which exists nowhere
 	#   see             FormatStats
 	def FormatStatsForFolder(_cFolderName_, _cPattern_)
 
@@ -6303,8 +6443,17 @@ class stzFolder from stzObject
 		
 		# Get actual counts for this folder
 
-		_nFiles_ = This.CountFilesIn(_cFolderPath_)
-		_nFolders_ = This.CountFoldersIn(_cFolderPath_)
+		_nFiles_ = 0
+		_nFolders_ = 0
+		_aKids_ = @dir(_cFolderPath_)
+		_nKids_ = len(_aKids_)
+		for i = 1 to _nKids_
+			if _aKids_[i][2] = 0
+				_nFiles_++
+			else
+				_nFolders_++
+			ok
+		next
 		_nDeepFiles_ = This.DeepCountFilesIn(_cFolderPath_)
 		_nDeepFolders_ = This.DeepCountFoldersIn(_cFolderPath_)
 		
@@ -6396,27 +6545,32 @@ class stzFolder from stzObject
 
 		return _nCount_
 
-	# TRUE if the expand settings say a folder name is drawn open, and 1 only for non-empty folders in the plain expand mode.
+	# TRUE if the expand settings say a folder is drawn open, and 1 only for non-empty folders in the plain expand mode.
 	#
 	#   _cFolderName_   a folder name
+	#   _cParentPath_   the absolute path of the folder that holds it, where its emptiness is read
 	#   returns         TRUE or FALSE
-	#   note            Private: calling it from outside the class raises error R26
-	#   warning         The emptiness test goes through the bare name relative to the process folder
-	#                   and creates it there
+	#   note            Private: calling it from outside the class raises error R26; nothing is created
 	#   see             ShouldDeepExpandFolder, Expand
-	def ShouldExpandFolder(_cFolderName_)
+	def ShouldExpandFolder(_cFolderName_, _cParentPath_)
 
 		if @bCollapseAll
 			return 0
 		end
 
 		_cFolderName_ = This.NormalizeFolderPath(_cFolderName_)
+		_cWhere_ = _CleanPath(_cParentPath_ + This.Separator() + _cFolderName_)
+
+		# a folder that is not on disk is never drawn open
+		if _KindOfPath(_cWhere_) != "folder"
+			return 0
+		end
 
 		# If DeepExpandAll is enabled, expand all non-empty folders
 
 		if @bDeepExpandAll
 
-			if This.IsFolderEmpty(_cFolderName_)
+			if This.IsFolderEmpty(_cWhere_)
 				return 0
 			else
 				return 1
@@ -6433,7 +6587,7 @@ class stzFolder from stzObject
 				end
 			next
 
-			if This.IsFolderEmpty(_cFolderName_)
+			if This.IsFolderEmpty(_cWhere_)
 				return 0
 			else
 				return 1
@@ -6595,7 +6749,7 @@ class stzFolder from stzObject
 	            end
 	            
 	            # Use ShouldExpandFolder for normal display, OR expand if has search matches
-	            _bShouldExpand_ = This.ShouldExpandFolder(_cItemName_) or _bSubfolderHasMatches_ or This.ShouldDeepExpandFolder(_cItemPath_)
+	            _bShouldExpand_ = This.ShouldExpandFolder(_cItemName_, _cPath_) or _bSubfolderHasMatches_ or This.ShouldDeepExpandFolder(_cItemPath_)
 	            
 	            _bHasFiles_ = _oSubFolder_.CountFiles() > 0
 	            _bHasFolders_ = _oSubFolder_.CountFolders() > 0
