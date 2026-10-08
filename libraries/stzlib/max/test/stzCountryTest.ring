@@ -1,4 +1,4 @@
-load "../stzmax.ring"
+load "../stzMax.ring"
 
 /*------------------- #TODO check correctness
 

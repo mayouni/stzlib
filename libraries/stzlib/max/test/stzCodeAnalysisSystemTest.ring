@@ -1,2 +1,2 @@
-load "../stzmax.ring"
+load "../stzMax.ring"
 

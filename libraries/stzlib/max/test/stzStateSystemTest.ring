@@ -5,7 +5,7 @@
 # Plan of record:
 #     libraries/stzlib/base/plugin/SOFTANZA_PLUGIN_PLAN.md   (PL0–PL5)
 
-load "../stzmax.ring"
+load "../stzMax.ring"
 
 #TODO Add tests for creating a stzRingState object
 
