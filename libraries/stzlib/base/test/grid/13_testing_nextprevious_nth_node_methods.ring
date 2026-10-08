@@ -28,7 +28,7 @@ o1.SetDirection(:Forward)
 
 # Get position 2 nodes behind in current direction (without moving)
 ? @@(o1.PreviousNthNode(2))
-#--> [ 3, 2 ]
+#--> [ 1, 2 ]
 
 # Move to next nth node in current direction
 o1.MoveToNextNthNode(2)
