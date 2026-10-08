@@ -155,3 +155,109 @@ func StzDocGateBaselineWrite(paFailing, pcBaselinePath, pbSeed)
 	fwrite(_fp_, _cOut_ + _cBody_)
 	fclose(_fp_)
 	return [ :kept = _nN_, :removed = len(_aOld_) - _nN_, :written = _nN_ ]
+
+# --- the extractor's findings in the gate: dead forwards as a ratchet, internals and typos as warnings ---
+#
+# StzDocFindings (meta/stzDocExport.ring) reports three kinds. The gate keeps them like the doc floor:
+#
+#   doc-dead-forward     ERROR    when the forwarding name is NOT in the forward baseline (a new dead forward);
+#                                 a listed one is debt, counted and written to findings.json, not printed
+#   doc-forward-stale    WARNING  a listed name no longer forwards to nothing: take it out with --update
+#   doc-internal-shown   WARNING  passed through (a pvt name shown as public)
+#   doc-typo-word        WARNING  passed through (a word one edit from a frequent one)
+#
+# The baseline is one class.method per line, lowercase, sorted, like doc_baseline.txt.
+
+# Pure: the extractor's findings and a sorted forward baseline in, the gate's findings out.
+func StzDocGateForwardJudge(paFindings, paFwdBaseline)
+	_aOut_ = []
+	_aDead_ = []
+	_nF_ = len(paFindings)
+	for _i_ = 1 to _nF_
+		_aF_ = paFindings[_i_]
+		if _aF_[:rule] = "doc-dead-forward"
+			_cKey_ = lower(_aF_[:subject])
+			_aDead_ + _cKey_
+			if _StzDocGateFind(paFwdBaseline, _cKey_) = 0
+				_aOut_ + [ :rule = "doc-dead-forward", :subject = _cKey_, :where = _aF_[:where], :severity = :error,
+				           :message = "a new dead forward: " + _aF_[:message] ]
+			ok
+		else
+			_aOut_ + [ :rule = _aF_[:rule], :subject = _aF_[:subject], :where = _aF_[:where], :severity = :warning,
+			           :message = _aF_[:message] ]
+		ok
+	next
+	_aDead_ = sort(_aDead_)
+	_nB_ = len(paFwdBaseline)
+	for _i_ = 1 to _nB_
+		if _StzDocGateFind(_aDead_, paFwdBaseline[_i_]) = 0
+			_aOut_ + [ :rule = "doc-forward-stale", :subject = paFwdBaseline[_i_], :where = paFwdBaseline[_i_],
+			           :severity = :warning,
+			           :message = "this name no longer forwards to nothing: remove it from the forward baseline (--update)" ]
+		ok
+	next
+	return _aOut_
+
+# Writes the forward baseline from the extractor's findings. pbSeed = 1, or no file yet: every dead forward;
+# otherwise only the listed names that are still dead (it never adds one). Returns [ :kept, :removed, :written ].
+func StzDocGateForwardBaselineWrite(paFindings, pcPath, pbSeed)
+	_aDead_ = []
+	_nF_ = len(paFindings)
+	for _i_ = 1 to _nF_
+		if paFindings[_i_][:rule] = "doc-dead-forward"
+			_aDead_ + lower(paFindings[_i_][:subject])
+		ok
+	next
+	_aDead_ = sort(_aDead_)
+	_aOld_ = StzDocGateBaseline(pcPath)
+	_aNew_ = []
+	if len(_aOld_) = 0 or pbSeed = 1
+		_aNew_ = _aDead_
+	else
+		_nO_ = len(_aOld_)
+		for _i_ = 1 to _nO_
+			if _StzDocGateFind(_aDead_, _aOld_[_i_]) > 0
+				_aNew_ + _aOld_[_i_]
+			ok
+		next
+	ok
+	_cBody_ = "# DOCREFORM forward baseline: public names that forward to a method no class of their chain defines." + char(10) +
+	          "# Each raises when called. It only shrinks: fix the forward (or remove the name), then gate.ring --update." + char(10)
+	_nN_ = len(_aNew_)
+	for _i_ = 1 to _nN_
+		_cBody_ += _aNew_[_i_] + char(10)
+	next
+	_fp_ = fopen(pcPath, "wb")
+	fwrite(_fp_, _cBody_)
+	fclose(_fp_)
+	return [ :kept = _nN_, :removed = len(_aOld_) - _nN_, :written = _nN_ ]
+
+# Writes the extractor's findings as JSON, sorted by rule then subject, so the file is a pure function of the sources.
+func StzDocFindingsWriteJson(paFindings, pcPath)
+	_acRows_ = []
+	_nF_ = len(paFindings)
+	for _i_ = 1 to _nF_
+		_aF_ = paFindings[_i_]
+		_acRows_ + ( _aF_[:rule] + char(9) + _aF_[:subject] + char(9) + _aF_[:where] + char(9) + _aF_[:severity] + char(9) + _aF_[:message] )
+	next
+	_acRows_ = sort(_acRows_)
+	_cOut_ = '{"schema": 1, "count": ' + _nF_ + ', "findings": ['
+	for _i_ = 1 to _nF_
+		_acP_ = StzSplit(_acRows_[_i_], char(9))
+		if _i_ > 1
+			_cOut_ += ","
+		ok
+		_cOut_ += char(10) + ' {"rule": "' + _StzDocGateJs(_acP_[1]) + '", "subject": "' + _StzDocGateJs(_acP_[2]) +
+		          '", "where": "' + _StzDocGateJs(_acP_[3]) + '", "severity": "' + _StzDocGateJs(_acP_[4]) +
+		          '", "message": "' + _StzDocGateJs(_acP_[5]) + '"}'
+	next
+	_cOut_ += char(10) + "]}" + char(10)
+	_fp_ = fopen(pcPath, "wb")
+	fwrite(_fp_, _cOut_)
+	fclose(_fp_)
+	return _nF_
+
+func _StzDocGateJs(pcText)
+	_c_ = StzReplace("" + pcText, char(92), char(92) + char(92))
+	_c_ = StzReplace(_c_, char(34), char(92) + char(34))
+	return _c_
