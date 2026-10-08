@@ -5,28 +5,25 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 350 methods in 36 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 227 methods in 31 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
 | table/stzTable.ring | stzTable | 66 |
-| list/stzHashList.ring | stzHashList | 56 |
-| list/stzGrid.ring | stzGrid | 26 |
 | datetime/stzCalendar.ring | stzCalendar | 25 |
-| string/stzStringChar.ring | stzStringChar | 23 |
 | geo/stzGeoMap.ring | stzGeoMap | 18 |
-| i18n/stzLocale.ring | stzLocale | 17 |
 | regex/stzMatrex.ring | stzMatrex | 17 |
 | graph/stzGraph.ring | stzGraph | 12 |
-| list/stzListOfPairs.ring | stzListOfPairs | 11 |
 | graph/stzOrgChart.ring | stzOrgChart | 10 |
 | regex/stzRegex.ring | stzRegex | 10 |
+| string/stzStringChar.ring | stzStringChar | 10 |
 | reactive/stzReactive.ring | stzReactiveSystem | 7 |
 | geo/stzGeoField.ring | stzGeoField | 5 |
 | geo/stzGeoSamples.ring | stzGeoSamples | 5 |
 | graph/stzDiagram.ring | stzDiagram | 5 |
-| stats/stzDataSet.ring | stzDataSet | 5 |
+| list/stzListOfPairs.ring | stzListOfPairs | 4 |
 | graph/stzGraph.ring | stzGraphComparison | 3 |
+| stats/stzDataSet.ring | stzDataSet | 3 |
 | appserver/stzAppServer.ring | stzAppServer | 2 |
 | datetime/stzDate.ring | stzDate | 2 |
 | geo/stzGeoFeatures.ring | stzGeoFeatures | 2 |
@@ -38,8 +35,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 | number/stzNumber.ring | stzNumber | 2 |
 | reactive/stzReactor.ring | stzReactor | 2 |
 | string/stzStringList.ring | stzStringList | 2 |
-| common/stzSplitter.ring | stzSplitter | 1 |
-| datetime/stzTimeLine.ring | stzTimeLine | 1 |
 | geo/stzGeoProjection.ring | stzGeoProjection | 1 |
 | graph/stzOrgChart.ring | stzOrgChartReporter | 1 |
 | graph/stzOrgChart.ring | stzOrgChartSimulation | 1 |
@@ -50,10 +45,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 - `Use` (line 492): Leaves every request unchanged today instead of running the middleware before the routes under a path. -- The middleware is stored in the router but nothing ever reads the list, so it never runs (checked with paths /a, / and *)
 - `Static` (line 504): Leaves a folder unserved today instead of serving its files under a path; a request for a file in it answers 404. -- The static routes are stored in the router but nothing ever reads the list (checked with paths /files and /)
-
-## stzSplitter -- common/stzSplitter.ring (1)
-
-- `SplitAroundSection` (line 1923): Raises error R14 today instead of returning the sections left around one section. -- Raises error R14 today because it calls AntiSectionZZ, which exists nowhere
 
 ## stzCalendar -- datetime/stzCalendar.ring (25)
 
@@ -87,10 +78,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 - `ToHuman` (line 1867): Returns today, tomorrow or yesterday for those days, a count of days for the next or last 7, else a long date. -- the future form starts with a capital (In 3 days) and the past form does not (3 days ago)
 - `ToRelative` (line 1901): Returns today, tomorrow or yesterday, a count of days or weeks within a month of today, else the date as dd/MM/yyyy.
-
-## stzTimeLine -- datetime/stzTimeLine.ring (1)
-
-- `HasMoment` (line 607): Raises a stack overflow today instead of telling whether a point carries the label. -- the method calls itself, so it recurses until the interpreter stops; its spelling siblings HasInstant, ContainsMoment and ContainsInstant call it and fail the same way
 
 ## stzGeoFeatures -- geo/stzGeoFeatures.ring (2)
 
@@ -203,131 +190,16 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 - `ApplyChanges` (line 3246): Applies a list of changes to the copy, never to the original, then records the before and after spans and vacancy rates. -- a change_reporting change raises "Cannot add edge: one or both nodes do not exist!", since the copy has no nodes; an unknown :type is skipped without a word
 
-## stzLocale -- i18n/stzLocale.ring (17)
-
-- `ScriptNumber` (line 1059): Returns the library's number for the locale's script, as text, but answers 0 (common) for most locales today. -- answers 0, the common script, for a locale written without a script, so fr-FR, en-US, ar-EG, ja-JP and ru-RU all give common instead of Latin, Arabic or Cyrillic; a script written in the code (ar_Arab_TN gives 1) or a locale built from a country name (France gives Latin) is honoured
-- `ScriptName` (line 1095): Returns the English name of the locale's script in lowercase, but answers common for most locales today. -- answers common for a locale written without a script, so fr-FR and ar-EG give common instead of latin and arabic; ar_Arab_TN gives arabic
-- `ScriptAbbreviation` (line 1108): Returns the four-letter script code, such as Latn or Arab, but answers Zyyy (common) for most locales today. -- answers Zyyy for a locale written without a script, so fr-FR gives Zyyy instead of Latn
-- `ToTimeAsString` (line 1335): Raises error R20 today instead of returning the time text written in a chosen format. -- raises R20 (extra number of parameters) on every call: the body calls the stzTime ToString method with an argument it does not take
-- `ToTimeAsLongString` (line 1358): Raises error R20 today instead of returning the time text in the long format. -- raises R20 because ToTimeAsString raises
-- `ToTimeAsShortString` (line 1367): Raises error R20 today instead of returning the time text in the short format. -- raises R20 because ToTimeAsString raises
-- `ToTimeAsNarrowString` (line 1376): Raises error R20 today instead of returning the time text in the narrow format. -- raises R20 because ToTimeAsString raises
-- `StringLowercased` (line 1760): Returns the text with its ASCII capital letters turned to lowercase; accented and non-Latin capitals are not changed today. -- the locale has no effect and only A to Z change, so É stays É and Turkish I gives i; a number as argument stops the Ring process without a message, and a list answers empty text
-- `StringUppercased` (line 1821): Returns the text with its ASCII small letters turned to capitals; accented and non-Latin letters are not changed today. -- the locale has no effect and only a to z change, so école gives éCOLE, straße gives STRAßE and Turkish i gives I; a number as argument stops the Ring process without a message
-- `StringTitlecased` (line 1881): Raises error R14 today instead of returning the text in title case. -- raises R14 on every call: for English it goes through StringCapitalcased, which calls the missing method CharAtPositionQ, and for other Latin-script languages it calls the missing method Char
-- `ToTitleCase` (line 1924): Raises error R14 today instead of returning the text in title case. -- raises R14 on every call, through StringTitlecased
-- `StringIsTitlecased` (line 1933): Raises error R14 today instead of telling whether the text is already in title case. -- raises R14 on every call, through StringTitlecased
-- `StringFoldcased` (line 1951): Returns nothing today, because its body is an unwritten TODO instead of case folding. -- the body is empty, so every call answers empty text; the ToFoldcase form answers the same
-- `CharFoldcased` (line 1963): Returns nothing today instead of the case-folded character, because StringFoldcased is not written. -- answers empty text for every character, because StringFoldcased does
-- `CharIsFoldcased` (line 1988): Returns FALSE today for any character, because StringFoldcased answers empty text. -- answers FALSE for every character, because StringFoldcased is not written
-- `StringCapitalcased` (line 2006): Raises error R14 today instead of returning the text with the first letter of every word capitalised. -- raises R14 on every call: the body calls the missing method CharAtPositionQ on a stzString
-- `StringIsCapitalised` (line 2056): Raises error R14 today instead of telling whether every word of the text starts with a capital. -- raises R14 on every call, through StringCapitalcased
-
 ## stzText -- linguistic/stzText.ring (1)
 
 - `SummarizedAbstractively` (line 1316): Raises error R19 today when no generative model is loaded, instead of falling back to the extractive summary. -- Raises error R19 without a generative model (checked on three texts): the fallback calls Summary without its sentence count
 
-## stzGrid -- list/stzGrid.ring (26)
+## stzListOfPairs -- list/stzListOfPairs.ring (4)
 
-- `MoveToNthNode` (line 540): Raises error R14 today instead of moving the current position n steps in the direction the grid faces. -- Raises R14 today for every direction: each branch calls a method that exists nowhere, such as MoveToNthNodeBackward, and the right branch has a doubled Move in its name
-- `MoveToNthPosition` (line 572): Raises error R14 today instead of moving the current position n steps in the direction the grid faces. -- Raises R14 today for every direction: each branch calls a method that exists nowhere, such as MoveToNthNodeBackward, and the right branch has a doubled Move in its name
-- `MoveToNthCell` (line 584): Raises error R14 today instead of moving the current position n steps in the direction the grid faces. -- Raises R14 today for every direction: each branch calls a method that exists nowhere, such as MoveToNthNodeBackward, and the right branch has a doubled Move in its name
-- `MoveToPreviousNthNode` (line 680): Raises error R19 today instead of moving the current position n steps against the direction the grid faces. -- Raises R19 today on every call: it hands MoveToNode the whole [ column, row ] list that PreviousNthNode returns, where MoveToNode wants the column and the row as two arguments
-- `MoveToNthPreviousNode` (line 692): Raises error R19 today instead of moving the current position n steps against the direction the grid faces. -- Raises R19 today on every call: it hands MoveToNode the whole [ column, row ] list that PreviousNthNode returns, where MoveToNode wants the column and the row as two arguments
-- `MoveToNthPrevious` (line 704): Raises error R19 today instead of moving the current position n steps against the direction the grid faces. -- Raises R19 today on every call: it hands MoveToNode the whole [ column, row ] list that PreviousNthNode returns, where MoveToNode wants the column and the row as two arguments
-- `MoveToPreviousNth` (line 716): Raises error R19 today instead of moving the current position n steps against the direction the grid faces. -- Raises R19 today on every call: it hands MoveToNode the whole [ column, row ] list that PreviousNthNode returns, where MoveToNode wants the column and the row as two arguments
-- `MoveToPreviousNthPosition` (line 729): Raises error R19 today instead of moving the current position n steps against the direction the grid faces. -- Raises R19 today on every call: it hands MoveToNode the whole [ column, row ] list that PreviousNthNode returns, where MoveToNode wants the column and the row as two arguments
-- `MoveToNthPreviousPosition` (line 741): Raises error R19 today instead of moving the current position n steps against the direction the grid faces. -- Raises R19 today on every call: it hands MoveToNode the whole [ column, row ] list that PreviousNthNode returns, where MoveToNode wants the column and the row as two arguments
-- `MoveToPreviousNthCell` (line 754): Raises error R19 today instead of moving the current position n steps against the direction the grid faces. -- Raises R19 today on every call: it hands MoveToNode the whole [ column, row ] list that PreviousNthNode returns, where MoveToNode wants the column and the row as two arguments
-- `MoveToNthPreviousCell` (line 766): Raises error R19 today instead of moving the current position n steps against the direction the grid faces. -- Raises R19 today on every call: it hands MoveToNode the whole [ column, row ] list that PreviousNthNode returns, where MoveToNode wants the column and the row as two arguments
-- `MoveNRight` (line 1119): Raises error R24 today instead of moving n cells right. -- Raises R24, Using uninitialized variable n, on every call: the method takes no argument but passes n on; MoveRightN takes the number of steps
-- `MoveNNodesRight` (line 1128): Raises error R24 today instead of moving n cells right. -- Raises R24, Using uninitialized variable n, on every call: the method takes no argument but passes n on; MoveRightN takes the number of steps
-- `MoveNCellsRight` (line 1147): Raises error R24 today instead of moving n cells right. -- Raises R24, Using uninitialized variable n, on every call: the method takes no argument but passes n on; MoveRightN takes the number of steps
-- `MoveNLeft` (line 1192): Raises error R24 today instead of moving n cells left. -- Raises R24, Using uninitialized variable n, on every call: the method takes no argument but passes n on; MoveLeftN takes the number of steps
-- `MoveNNodesLeft` (line 1201): Raises error R24 today instead of moving n cells left. -- Raises R24, Using uninitialized variable n, on every call: the method takes no argument but passes n on; MoveLeftN takes the number of steps
-- `MoveNCellsLeft` (line 1218): Raises error R24 today instead of moving n cells left. -- Raises R24, Using uninitialized variable n, on every call: the method takes no argument but passes n on; MoveLeftN takes the number of steps
-- `MoveNUp` (line 1263): Raises error R24 today instead of moving n cells up. -- Raises R24, Using uninitialized variable n, on every call: the method takes no argument but passes n on; MoveUpN takes the number of steps
-- `MoveNNodesUp` (line 1272): Raises error R24 today instead of moving n cells up. -- Raises R24, Using uninitialized variable n, on every call: the method takes no argument but passes n on; MoveUpN takes the number of steps
-- `MoveNCellsUp` (line 1289): Raises error R24 today instead of moving n cells up. -- Raises R24, Using uninitialized variable n, on every call: the method takes no argument but passes n on; MoveUpN takes the number of steps
-- `MoveNDown` (line 1334): Raises error R24 today instead of moving n cells down. -- Raises R24, Using uninitialized variable n, on every call: the method takes no argument but passes n on; MoveDownN takes the number of steps
-- `MoveNNodesDown` (line 1343): Raises error R24 today instead of moving n cells down. -- Raises R24, Using uninitialized variable n, on every call: the method takes no argument but passes n on; MoveDownN takes the number of steps
-- `MoveNCellsDown` (line 1360): Raises error R24 today instead of moving n cells down. -- Raises R24, Using uninitialized variable n, on every call: the method takes no argument but passes n on; MoveDownN takes the number of steps
-- `ShowAdjacent` (line 1466): Raises error R14 today instead of printing the grid with the neighbours marked. -- Raises R14 today: it calls PaintNeighbors, a method that exists nowhere
-- `AreObstacles` (line 1987): Raises error R20 today instead of telling whether every cell of a list is an obstacle. -- Raises R20 today on every call: the parameter check is called with an argument it does not take; behind it, the loop would test the whole list instead of each pair
-- `Maze` (line 3862): Raises error R19 today instead of building a random maze. -- Raises R19 today on every call: it calls RandomMaze without the density RandomMaze requires
-
-## stzHashList -- list/stzHashList.ring (56)
-
-- `KeysForValue` (line 732): Raises error R14 today instead of returning the keys of every pair that holds the given value. -- on text values the call raises error R14 today; on list values it answers an empty list. Use KeysByValue
-- `FirstPair` (line 1053): Raises an error today instead of returning the first [ key, value ] pair. -- the call raises error R24 today, because it reads _n_, which it never sets; NthPair works
-- `LastPair` (line 1071): Raises an error today instead of returning the last [ key, value ] pair. -- the call raises error R24 today, because it reads _n_, which it never sets; NthPair works
-- `KeyInPair` (line 1084): Raises an error today instead of returning the key part of a [ key, value ] pair. -- the call raises a parameter-type error today even for a real pair
-- `ValueInPair` (line 1109): Raises an error today instead of returning the value part of a [ key, value ] pair. -- the call raises a parameter-type error today even for a real pair
-- `ValueInNthPairQ` (line 1155): Raises an error today instead of returning the value of the nth pair as a Q object. -- the call raises error R14 today, because it calls a method that is not defined
-- `UpdateKeys` (line 1532): Raises an error today instead of replacing the keys by the given ones, in order. -- the call raises error R14 today, because it calls ItemsAreAllStrings, which is not defined
-- `UpdateNthOccurrenceOfValue` (line 1580): Raises an error today instead of replacing the nth occurrence of a value. -- the call raises error R19 today (the definition takes one parameter and the body needs more)
-- `UpdateFirstOccurrenceOfValue` (line 1617): Raises an error today instead of replacing the first occurrence of a value. -- the call raises error R20 today (its definition and its call disagree on the parameters)
-- `UpdateFirstValue` (line 1627): Raises an error today instead of replacing the first occurrence of a value. -- the call raises error R20 today (its definition and its call disagree on the parameters)
-- `UpdateLastValue` (line 1638): Raises an error today instead of replacing the last occurrence of a value. -- the call raises error R20 today (its definition and its call disagree on the parameters)
-- `UpdateAllPairsWith` (line 1649): Replaces every pair by the given [ key, value ] pair, in place. -- the call raises a parameter-type error today
-- `ReverseKeysAndValues` (line 1679): Raises a parameter-type error today instead of swapping keys and values, in place. -- the call raises a parameter-type error today for every hash list; ValuesAndKeys returns the pairs turned round
-- `InsertBefore` (line 1792): Inserts a pair before position n, in place. -- the call raises an error today, because it reads a property named HashList that the object does not have; Add appends a pair and works
-- `InsertAfter` (line 1811): Raises an error today instead of inserting a pair after position n. -- the call raises an error today, because it reads a property named HashList that the object does not have; Add appends a pair and works
-- `RemovePair` (line 1866): Raises an error today instead of removing the given [ key, value ] pair. -- the call raises error R14 today, because it calls a RemoveQ method that is not defined
-- `RemovePairsByKeys` (line 1912): Raises an error today instead of removing the pairs that hold any of the given keys. -- the call raises error R3 today, because it calls @IsListOfStrings, which is not defined
-- `ReplaceValue` (line 2040): Raises an error today instead of replacing the first occurrence of the given value. -- the call raises an error today (it expects a position where the value should be); UpdateValue replaces a value
-- `ReplacePair` (line 2168): Raises an error today instead of replacing the given pair by a new one. -- the call raises error R14 today, because it calls ReplaceNthPair, which is not defined
-- `ReplacePairByKey` (line 2185): Raises an error today instead of replacing the pair that holds the given key. -- the call raises error R14 today, because it calls ReplaceNthPair, which is not defined
-- `ReplacePairsW` (line 2199): Raises an error today instead of replacing the pairs that meet a condition. -- the feature is reserved and not implemented in this release
-- `ContainsTheseValues` (line 2429): Raises an error today instead of telling whether every given value occurs. -- the call raises error R24 today, because it reads pValue, which it never sets; ContainsValues works
-- `FindLastOccurrenceOfValue` (line 2662): Returns the position of the last pair that holds the given value. -- it asks for the nth occurrence with n = the number of pairs, so it raises an error (index out of range) unless every pair holds the value; FindValue gives the positions to take the last of
-- `KeysByValues` (line 2845): Raises an error today instead of returning the keys of the pairs holding any of the given values. -- the call raises error R14 today, because it calls WithoutDuplicates, which this class does not define
-- `FindNumber` (line 3091): Raises an error today instead of returning the positions of the pairs holding the number. -- the call raises a parameter-type error today even for an argument of the type it asks for
-- `NumberZ` (line 3114): Raises an error today instead of returning the number with the positions that hold it. -- the call raises a parameter-type error today even for an argument of the type it asks for
-- `FindTheseNumbers` (line 3132): Raises an error today instead of returning the positions of the pairs holding any of the numbers. -- the call raises a parameter-type error today even for an argument of the type it asks for
-- `TheseNumbersZ` (line 3163): Raises an error today instead of returning each number with the positions that hold it. -- the call raises a parameter-type error today even for an argument of the type it asks for
-- `FindString` (line 3238): Raises an error today instead of returning the positions of the pairs holding the text. -- the call raises a parameter-type error today even for an argument of the type it asks for
-- `StringZ` (line 3261): Raises an error today instead of returning the text with the positions that hold it. -- the call raises a parameter-type error today even for an argument of the type it asks for
-- `FindTheseStrings` (line 3279): Raises an error today instead of returning the positions of the pairs holding any of the texts. -- the call raises a parameter-type error today even for an argument of the type it asks for
-- `TheseStringsZ` (line 3310): Raises an error today instead of returning each text with the positions that hold it. -- the call raises a parameter-type error today even for an argument of the type it asks for
-- `FindLastItem` (line 3991): Raises an error today instead of returning the position of the last pair whose list value holds the item. -- the call raises error R14 today, because it calls NumberOfOccurreceOfItemInList, a misspelled name that is not defined
-- `FindFirstKeyByItemInList` (line 4065): Raises an error today instead of returning a key whose list value holds the item. -- the call raises error R14 today, because it calls ContainsItemInList, which is not defined
-- `FindLastKeyByItemInList` (line 4100): Raises an error today instead of returning a key whose list value holds the item. -- the call raises error R14 today, because it calls ContainsItemInList, which is not defined
-- `KeyByItemInList` (line 4119): Raises an error today instead of returning a key whose list value holds the item. -- the call raises error R14 today, because it calls ContainsItemInList, which is not defined
-- `KeysByItemInList` (line 4134): Raises an error today instead of returning the keys whose list value holds the item. -- the call raises a parameter-type error today when the item occurs; FindKeysByItem answers where it occurs
-- `KeysByItem` (line 4153): Raises an error today instead of returning the keys whose list value holds the item. -- the call overflows the stack (R4) today; FindKeysByItem answers where the item occurs
-- `Classify` (line 4216): Groups the keys by the value they hold, one [ class, keys ] pair per distinct value. -- the call raises error R14 today, because it uses IsStrictlyEqualTo, which no class defines; Classes and NumberOfClasses work
-- `Klass` (line 4429): Raises an error today instead of returning the keys that belong to the given class. -- on text values the call raises error R14 today (it calls IsStrictlyEqualTo, which is not defined); it answers when the values are lists
-- `NumberOfValuesInClass` (line 4508): Raises an error today instead of returning how many values belong to the given class. -- on text values the call raises error R14 today (it calls IsStrictlyEqualTo, which is not defined); it answers when the values are lists
-- `ClassesSizes` (line 4577): Raises an error today instead of returning how many pairs each class holds. -- on text values the call raises error R14 today (it calls IsStrictlyEqualTo, which is not defined); on list values the figures it works from come out wrong, so the answer is not to be trusted
-- `KlassFreq` (line 4745): Raises an error today instead of returning the share of the pairs that belong to the given class. -- on text values the call raises error R14 today (it calls IsStrictlyEqualTo, which is not defined); it answers when the values are lists
-- `ClassesFrequencies` (line 4834): Raises an error today instead of returning the share of the pairs in each class. -- on text values the call raises error R14 today (it calls IsStrictlyEqualTo, which is not defined); on list values the figures it works from come out wrong, so the answer is not to be trusted
-- `NStrongestClasses` (line 5031): Raises an error today instead of returning the n classes that hold the most pairs. -- on text values the call raises error R14 today (it calls IsStrictlyEqualTo, which is not defined); on list values the figures it works from come out wrong, so the answer is not to be trusted
-- `StrongestClass` (line 5129): Raises an error today instead of returning the class that holds the most pairs. -- on text values the call raises error R14 today (it calls IsStrictlyEqualTo, which is not defined); on list values the figures it works from come out wrong, so the answer is not to be trusted
-- `Top3Classes` (line 5182): Raises an error today instead of returning the three classes that hold the most pairs. -- on text values the call raises error R14 today (it calls IsStrictlyEqualTo, which is not defined); on list values the figures it works from come out wrong, so the answer is not to be trusted
-- `Strongest3Classes` (line 5196): Raises an error today instead of returning the three classes that hold the most pairs. -- the call raises error R24 today, because it reads _n_, which it never sets; Top3Classes works
-- `Strongest3ClassesAndTheirFrequencies` (line 5231): Raises an error today instead of returning the three strongest classes with their shares. -- the call raises error R24 today, because it reads _n_, which it never sets
-- `NWeakestClasses` (line 5251): Raises an error today instead of returning the n classes that hold the fewest pairs. -- on text values the call raises error R14 today (it calls IsStrictlyEqualTo, which is not defined); on list values the figures it works from come out wrong, so the answer is not to be trusted
-- `WeakestClass` (line 5346): Raises an error today instead of returning the class that holds the fewest pairs. -- on text values the call raises error R14 today (it calls IsStrictlyEqualTo, which is not defined); on list values the figures it works from come out wrong, so the answer is not to be trusted
-- `Bottom3Classes` (line 5393): Raises an error today instead of returning the three classes that hold the fewest pairs. -- on text values the call raises error R14 today (it calls IsStrictlyEqualTo, which is not defined); on list values the figures it works from come out wrong, so the answer is not to be trusted
-- `Weakest3Classes` (line 5407): Raises an error today instead of returning the three classes that hold the fewest pairs. -- the call raises error R24 today, because it reads _n_, which it never sets; Bottom3Classes works
-- `Weakest3ClassesAndTheirFrequencies` (line 5438): Raises an error today instead of returning the three weakest classes with their shares. -- the call raises error R24 today, because it reads _n_, which it never sets
-- `KlassInList` (line 5695): Raises an error today instead of returning the keys whose list value holds the class. -- the call raises error R14 today, because it calls KeysForItemInList, which is not defined
-- `KalssInListQ` (line 5707): Raises an error today: a misspelling of KlassInListQ that asks for a return type the class does not support. -- the call raises an unsupported-return-type error today
-
-## stzListOfPairs -- list/stzListOfPairs.ring (11)
-
-- `ReplacePair` (line 717): Raises error R20 today instead of replacing the pair at position n by the new pair. -- Raises R20 today on every call: the check IsPair(paNewPair) inside the class reaches the IsPair method inherited from stzList, which takes no argument, instead of the global IsPair function
-- `PairReplaced` (line 734): Raises error R20 today instead of returning a copy of the pairs with the pair at position n replaced. -- Raises R20 today on every call, because it goes through ReplacePair, whose IsPair check reaches the IsPair method inherited from stzList
-- `SortBy` (line 1052): Leaves the order of the pairs unchanged today instead of ordering them by the key expression, ascending. -- Leaves the order unchanged today for every key expression tried (@pair[2], len(@pair[1]), @pair): the key sort it forwards to, stzList.SortBy, orders text items by an expression but does not evaluate one on a list item
-- `SortByInAscending` (line 1078): Leaves the order of the pairs unchanged today instead of ordering them by the key expression, ascending. -- Leaves the order unchanged today, because it forwards to SortBy, which does not order a list of lists by an expression
-- `SortByUp` (line 1091): Leaves the order of the pairs unchanged today instead of ordering them by the key expression, ascending. -- Leaves the order unchanged today, because it forwards to SortBy, which does not order a list of lists by an expression
-- `SortedBy` (line 1106): Returns the pairs in their present order today instead of a copy ordered by the key expression, ascending. -- Does not order today, whatever the expression: it sorts a copy through SortBy, which leaves a list of lists in place
-- `SortedByInDescending` (line 1157): Returns a copy of the pairs with the two items of every pair swapped, today instead of ordered by the key expression, descending. -- Swaps the items of each pair today, because it goes through SortByInDescending, which ends with SwapItems
-- `ExpandedIfPairsOfNumbers` (line 1174): Raises error R14 today instead of returning the number lists that the pairs of numbers expand to. -- Raises R14 today on every call: it calls ExpandedIfPairOfNumbers, a method that exists nowhere in the loaded library
-- `IsListOfSections` (line 1378): Answers TRUE for any list of pairs today, instead of TRUE only when every pair is made of two numbers. -- Answers TRUE whatever the pairs hold, text included: the loop records a failing pair in a variable that is never read, so the result stays at its start value
-- `AreAnagrams` (line 1515): Raises error R14 today instead of telling whether the two items are anagrams of each other. -- Raises R14 today on every call: it reads FirstValue and SecondValue, which this class does not define
-- `ToStzSetOfSections` (line 2268): Raises an error today instead of returning the pairs as a stzSetOfSections. -- Raises "You must provide a list of sections" today for valid sections such as [ [ 1, 3 ], [ 5, 8 ] ]: the stzSetOfSections constructor refuses what stzListOfSections accepts
+- `ExpandedIfPairsOfNumbers` (line 1223): Raises error R14 today instead of returning the number lists that the pairs of numbers expand to. -- Raises R14 today on every call: it calls ExpandedIfPairOfNumbers, a method that exists nowhere in the loaded library
+- `IsListOfSections` (line 1427): Answers TRUE for any list of pairs today, instead of TRUE only when every pair is made of two numbers. -- Answers TRUE whatever the pairs hold, text included: the loop records a failing pair in a variable that is never read, so the result stays at its start value
+- `AreAnagrams` (line 1564): Raises error R14 today instead of telling whether the two items are anagrams of each other. -- Raises R14 today on every call: it reads FirstValue and SecondValue, which this class does not define
+- `ToStzSetOfSections` (line 2317): Raises an error today instead of returning the pairs as a stzSetOfSections. -- Raises "You must provide a list of sections" today for valid sections such as [ [ 1, 3 ], [ 5, 8 ] ]: the stzSetOfSections constructor refuses what stzListOfSections accepts
 
 ## stzMathFigure -- math/stzMathFigure.ring (2)
 
@@ -392,43 +264,28 @@ and each was checked with a second call on different data. **None is fixed yet.*
 - `NestedDepth` (line 1898): Returns the number of distinct nested matches found by the last recursive match; the same count as the recursive depth. -- it counts matches, so ((x)(y)(z)) answers 4 although the nesting is 2 deep
 - `Explain` (line 1938): Returns a one-line explanation of the pattern when the library knows it by name; any other pattern raises an error. -- for a pattern outside the library's named list it builds stzRegexAnalyzer, a class that does not exist, and raises error R11
 
-## stzDataSet -- stats/stzDataSet.ring (5)
+## stzDataSet -- stats/stzDataSet.ring (3)
 
-- `WMean` (line 1814): Raises error R4 today instead of returning the weighted mean. -- it calls itself, so the stack overflows on every call
-- `Percentile` (line 2185): Returns the value at a percentile of the sorted data, interpolating linearly between neighbours. -- a percent below 0, or far above 100, makes the engine panic and ends the Ring process; -1 and 150 did, 110 and 101 did not
-- `NonParametricCorrelation` (line 2920): Raises error R24 today instead of returning a rank correlation. -- the body reads a variable named _oOtherStats_ that this method does not receive
-- `MutualInformation` (line 3140): Returns the mutual information, in bits, between this data and another data set of the same length. -- the pairs are joined with an underscore and split again, so a value containing an underscore gives a wrong result: "a_b" and "c_d" against x and y give 0 where ab and cd give 1
-- `PlanSummary` (line 3979): Raises error R5 today instead of returning a text preview of a plan's steps without running it. -- the body reads the title from a variable named oPlan, which does not exist, instead of from the plan it built
+- `NonParametricCorrelation` (line 2924): Raises error R24 today instead of returning a rank correlation. -- the body reads a variable named _oOtherStats_ that this method does not receive
+- `MutualInformation` (line 3144): Returns the mutual information, in bits, between this data and another data set of the same length. -- the pairs are joined with an underscore and split again, so a value containing an underscore gives a wrong result: "a_b" and "c_d" against x and y give 0 where ab and cd give 1
+- `PlanSummary` (line 3983): Raises error R5 today instead of returning a text preview of a plan's steps without running it. -- the body reads the title from a variable named oPlan, which does not exist, instead of from the plan it built
 
 ## stzString -- string/stzString.ring (1)
 
 - `IsCurrencySymbol` (line 9373): Answers FALSE today: the currency symbol check is a stub that waits for the locale data.
 
-## stzStringChar -- string/stzStringChar.ring (23)
+## stzStringChar -- string/stzStringChar.ring (10)
 
-- `HexUnicode` (line 815): Returns the codepoint as U+ followed by four hex digits, such as U+0061. -- only four hex digits are kept, so a char above U+FFFF comes out wrong: U+1F600 reads U+F600
-- `Update` (line 883): Replaces the held char with the given text, in place; a codepoint number empties the object today. -- Update(98) leaves an empty string and Unicode 0, because the number is never converted; Update("ab") stores both chars, so only a one-char text works as meant
-- `UpdateWith` (line 913): Replaces the held char with the given one, in place, exactly as the plain form does. -- shares the defect of the plain form, so a codepoint number empties the object
-- `UpdateBy` (line 927): Replaces the held char with the given one, in place, exactly as the plain form does. -- shares the defect of the plain form, so a codepoint number empties the object
-- `UpdateUsing` (line 941): Replaces the held char with the given one, in place, exactly as the plain form does. -- shares the defect of the plain form, so a codepoint number empties the object
-- `CanRetrieveName` (line 976): Answers TRUE when the Unicode database holds a name for the char, and raises when it does not. -- for an unnamed code such as U+0378 it raises "Can't proceed!" instead of answering FALSE, because it asks for the name and the name request raises
-- `AsciiCode` (line 1027): Returns the ASCII code of the char, 0 to 127; for a char above 127 it raises R3 instead of a clear message. -- the failure branch calls stzCharError, which is defined nowhere, so a non-ASCII char raises R3 "Calling Function without definition"
-- `IsLeftToRightIsolate` (line 1231): Returns an empty string today instead of TRUE for the left-to-right isolate mark, U+2066. -- the body is only a comment ("Reserved for future implementation"), so the answer is always empty
-- `IsRightToLeftIsolate` (line 1239): Returns an empty string today instead of TRUE for the right-to-left isolate mark, U+2067. -- the body is only a comment ("Reserved for future implementation"), so the answer is always empty
-- `IsEuropean` (line 1452): Raises error R14 today instead of TRUE for a European number, separator or terminator. -- the body calls IsEuropeanNumber, which is defined nowhere
-- `IsUnicodeNumber` (line 1477): Answers TRUE for Arabic, Hebrew or CJK letters and FALSE for 7 today, instead of TRUE for number chars. -- it tests category codes 3, 4 and 5, which are title-case, modifier and other letters in the engine's numbering, where digits are 9 to 11; Roman, Mandarin and Indian numerals are caught by their own tests
-- `IsArabicNumber` (line 1522): Answers FALSE for 0 to 9 and raises R41 for a non-ASCII digit today, instead of TRUE for an Arabic digit. -- it searches a list of digit texts for a number, so a plain digit is never found, and it adds 0 to the content, which raises R41 "Invalid numeric string" for an Arabic-Indic, Devanagari or circled digit
-- `Mirrored` (line 1744): Raises error R3 today instead of returning the mirror partner of the char. -- the body calls CharFromUnicode, which is defined nowhere
-- `IsBasicLatin` (line 1777): Raises error R24 today instead of testing for the Basic Latin block, U+0000 to U+007F. -- the body reads _anBasicLatinUnicodes, but the data file defines _anLatinBasicUnicodes
-- `IsBasicArabic` (line 1866): Raises error R24 today instead of testing for the basic Arabic block. -- the body reads _anBasicArabicUnicodes, which the data file does not define
-- `IsCircledLatinSmallLetter` (line 1987): Raises error R24 today instead of testing for a circled small Latin letter. -- the body reads _aCircledLatinSmallLetterUnicodes directly, a variable that is not defined
-- `IsCircledLatinCapitalLetter` (line 1997): Raises error R24 today instead of testing for a circled capital Latin letter. -- the body reads _aCircledLatinCapitalLetterUnicodes directly, a variable that is not defined
-- `IsOtherCircledChar` (line 2006): Raises error R3 today instead of testing for a circled char outside the digits and Latin letters. -- the body calls OtherCircledCharUnicodes, which is defined nowhere
-- `IsPrintable` (line 2020): Answers FALSE for digits, hyphens and Roman numerals and TRUE for control chars today, as it tests the wrong category codes. -- it rejects category codes 9 to 13 (digits, Roman numerals, connector and dash punctuation) where it meant the control, format and surrogate codes 26 to 29
-- `IsNonPrintable` (line 2033): Answers TRUE for digits, hyphens and Roman numerals and FALSE for control chars today, the reverse of printable. -- it is the negation of the printable test, which tests the wrong category codes
-- `IntroducedInUnicodeVersion` (line 2077): Returns a rough Unicode version taken from the char's block, "0.9" for nearly every char and "3.2" for emoji. -- the version list is an approximation, marked #TODO in the data file ("Put correct values"); emoji were added in Unicode 6
-- `DefaultLanguage` (line 2165): Returns the main language of the char's script, such as english, arabic or hebrew, and undefined for chars shared by scripts. -- raises "Can not create char object!" for a char of the Inherited or Unknown script, such as a combining accent, an unassigned code or a private-use char
-- `TaiThamScript` (line 2867): Raises error R14 today instead of testing for the Tai Tham script. -- the body calls ScriptCode, which was retired; ScriptIs("taitham") is the working test
+- `CanRetrieveName` (line 967): Answers TRUE when the Unicode database holds a name for the char, and raises when it does not. -- for an unnamed code such as U+0378 it raises "Can't proceed!" instead of answering FALSE, because it asks for the name and the name request raises
+- `AsciiCode` (line 1018): Returns the ASCII code of the char, 0 to 127; for a char above 127 it raises R3 instead of a clear message. -- the failure branch calls stzCharError, which is defined nowhere, so a non-ASCII char raises R3 "Calling Function without definition"
+- `IsLeftToRightIsolate` (line 1222): Returns an empty string today instead of TRUE for the left-to-right isolate mark, U+2066. -- the body is only a comment ("Reserved for future implementation"), so the answer is always empty
+- `IsRightToLeftIsolate` (line 1230): Returns an empty string today instead of TRUE for the right-to-left isolate mark, U+2067. -- the body is only a comment ("Reserved for future implementation"), so the answer is always empty
+- `IsEuropean` (line 1443): Raises error R14 today instead of TRUE for a European number, separator or terminator. -- the body calls IsEuropeanNumber, which is defined nowhere
+- `Mirrored` (line 1735): Raises error R3 today instead of returning the mirror partner of the char. -- the body calls CharFromUnicode, which is defined nowhere
+- `IsOtherCircledChar` (line 1997): Raises error R3 today instead of testing for a circled char outside the digits and Latin letters. -- the body calls OtherCircledCharUnicodes, which is defined nowhere
+- `IntroducedInUnicodeVersion` (line 2067): Returns a rough Unicode version taken from the char's block, "0.9" for nearly every char and "3.2" for emoji. -- the version list is an approximation, marked #TODO in the data file ("Put correct values"); emoji were added in Unicode 6
+- `DefaultLanguage` (line 2155): Returns the main language of the char's script, such as english, arabic or hebrew, and undefined for chars shared by scripts. -- raises "Can not create char object!" for a char of the Inherited or Unknown script, such as a combining accent, an unassigned code or a private-use char
+- `TaiThamScript` (line 2857): Raises error R14 today instead of testing for the Tai Tham script. -- the body calls ScriptCode, which was retired; ScriptIs("taitham") is the working test
 
 ## stzStringList -- string/stzStringList.ring (2)
 
@@ -498,8 +355,8 @@ and each was checked with a second call on different data. **None is fixed yet.*
 - `ReplaceInCellsByMany` (line 17999): Raises error today instead of replacing a text found inside cells. -- Always raises Function not yet implemented!
 - `ReplaceInSection` (line 18018): Raises error today instead of replacing a text found inside cells. -- Always raises Function not yet implemented!
 - `ReplaceInSectionByMany` (line 18036): Raises error R24 today instead of replacing several texts found inside a section. -- Raises R24 (uninitialized variable casesensitive) because the body passes a flag it does not have
-- `@` (line 18420): Returns the cell-reading code of a column in a formula, or the text itself when it names no column; a list raises today. -- A column name gives the code text ( This.Cell(n, j) ); a list raises R14 because IsHasHListOrListOfStrings is defined nowhere
-- `buildGrandTotal` (line 20852): Raises error R24 today instead of returning the grand-total line of the grid. -- Raises R24 because the body reads the grand totals, which are local to buildDataRows
-- `TransposeWithColNames` (line 21033): Raises error R14 today instead of transposing the table while keeping the column names as a first column. -- Raises R14 because the body calls TansposeXT, a misspelling; TransposeXT works
-- `ToHtml` (line 21248): Raises error R24 today instead of returning the table as an HTML table. -- Raises R24 because ToHtmlXT reads a variable named data that is never set
-- `FromHtml` (line 21323): Raises error R14 today instead of replacing the table by the content of an HTML table. -- Raises R14 because HtmlToTable is defined nowhere
+- `@` (line 18422): Returns the cell-reading code of a column in a formula, or the text itself when it names no column; a list raises today. -- A column name gives the code text ( This.Cell(n, j) ); a list raises R14 because IsHasHListOrListOfStrings is defined nowhere
+- `buildGrandTotal` (line 20854): Raises error R24 today instead of returning the grand-total line of the grid. -- Raises R24 because the body reads the grand totals, which are local to buildDataRows
+- `TransposeWithColNames` (line 21035): Raises error R14 today instead of transposing the table while keeping the column names as a first column. -- Raises R14 because the body calls TansposeXT, a misspelling; TransposeXT works
+- `ToHtml` (line 21250): Raises error R24 today instead of returning the table as an HTML table. -- Raises R24 because ToHtmlXT reads a variable named data that is never set
+- `FromHtml` (line 21325): Raises error R14 today instead of replacing the table by the content of an HTML table. -- Raises R14 because HtmlToTable is defined nowhere
