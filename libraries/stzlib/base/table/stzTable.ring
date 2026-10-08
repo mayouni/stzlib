@@ -8612,11 +8612,12 @@ func _NormalizeColLookupKey(pVal)
 		def PositionsOfValueInCellsCS(paCells, pCellValue, pCaseSensitive)
 			return This.FindValueInCellsCS(paCells, pCellValue, pCaseSensitive)
 
-	# Returns the given cells that equal a value, as [ column, row ] positions.
+	# Returns the given cells that equal a value, as [ column, row ] positions; the case counts.
 	#
-	#   returns    a list of [ column, row ] positions
-	#   see        FindNthValueInCells
-	#@ aka  -- WITHOUT CASESENSITIVITY
+	#   paCells    the cells to search, as [ column, row ] positions
+	#   pValue     the value to look for
+	#   returns    a list of [ column, row ] positions; [ ] when no given cell equals the value
+	#   see        FindValueInCellsCS, FindNthValueInCells
 	def FindValueInCells(paCells, pValue)
 		return This.FindValueInCellsCS(paCells, pValue, 1)
 			
@@ -16379,6 +16380,12 @@ func _NormalizeColLookupKey(pVal)
 		#              name that is not its parameter; ReplaceCellByValue works
 		#   see        ReplaceCellByValue
 		#< @FunctionAlternativeForms
+		# Replaces every cell equal to a value by another value, in place; the case counts.
+		#
+		#   pCellValue      the value to look for
+		#   pNewCellValue   the value that takes its place
+		#   returns         nothing; the table changes
+		#   see             ReplaceCellByValue
 		def ReplaceOccurrencesOfCellByValue(pCellValue, pNewCellValue)
 			This.ReplaceCellByValue(pCellValue, pNewCellValue)
 
@@ -16392,13 +16399,12 @@ func _NormalizeColLookupKey(pVal)
 		def ReplaceByValueCell(pCellValue, pNewCellValue)
 			This.ReplaceCellByValue(pCellValue, pNewCellValue)
 
-		# Raises error R24 today instead of replacing every cell equal to a value by another value.
+		# Replaces every cell equal to a value by another value, in place; the case counts.
 		#
-		#   pNewCell   the value that takes the place
-		#   returns    nothing; it raises
-		#   warning    Raises R24 (uninitialized variable pnewcellvalue) because the body passes a
-		#              name that is not its parameter; ReplaceCellByValue works
-		#   see        ReplaceCellByValue
+		#   pCellValue      the value to look for
+		#   pNewCellValue   the value that takes its place
+		#   returns         nothing; the table changes
+		#   see             ReplaceCellByValue
 		def ReplaceByValueOccurrencesOfCellBy(pCellValue, pNewCellValue)
 			This.ReplaceCellByValue(pCellValue, pNewCellValue)
 
@@ -18048,17 +18054,24 @@ func _NormalizeColLookupKey(pVal)
 			This.ReplaceInSectionCS(aSections[_iRi_][1], aSections[_iRi_][2], pSubValue, pNewSubValue, pCaseSensitive)
 		next
 
+	# Replaces a text found inside the cells of several sections by another text, in place; the case counts.
+	#
+	#   aSections      a list of sections, each [ [ col1, row1 ], [ col2, row2 ] ]
+	#   pSubValue      the text to find inside the cells
+	#   pNewSubValue   the text that takes its place
+	#   returns        nothing; the table changes
+	#   see            ReplaceInSectionsCS, ReplaceInSection
 	def ReplaceInSections(aSections, pSubValue, pNewSubValue)
 		This.ReplaceInSectionsCS(aSections, pSubValue, pNewSubValue, 1)
 
-	# Raises error today instead of replacing a text found inside cells.
+	# Replaces each of several texts found inside the cells of several sections by one text, in place, with a case flag.
 	#
-	#   aSections     the sections to work on
-	#   paSubValues   the texts to replace
-	#   returns       nothing; it raises
-	#   warning       Always raises Function not yet implemented!
-	#   see           ReplaceAll
-	#@ aka  --
+	#   aSections        a list of sections, each [ [ col1, row1 ], [ col2, row2 ] ]
+	#   paSubValues      the texts to find inside the cells
+	#   pNewSubValue     the text that takes their place
+	#   pCaseSensitive   1 when the case counts, 0 when it is ignored
+	#   returns          nothing; the table changes
+	#   see              ReplaceInSectionsByMany, ReplaceInSectionByManyCS
 	def ReplaceInSectionsByManyCS(aSections, paSubValues, pNewSubValue, pCaseSensitive)
 		if NOT ( isList(aSections) and @IsListOfPairs(aSections) )
 			StzRaise("Incorrect param type! aSections must be a list of [ corner, corner ] pairs.")
@@ -18069,6 +18082,13 @@ func _NormalizeColLookupKey(pVal)
 			This.ReplaceInSectionByManyCS(aSections[_iRi_][1], aSections[_iRi_][2], paSubValues, pNewSubValue, pCaseSensitive)
 		next
 
+	# Replaces each of several texts found inside the cells of several sections by one text, in place; the case counts.
+	#
+	#   aSections      a list of sections, each [ [ col1, row1 ], [ col2, row2 ] ]
+	#   paSubValues    the texts to find inside the cells
+	#   pNewSubValue   the text that takes their place
+	#   returns        nothing; the table changes
+	#   see            ReplaceInSectionsByManyCS, ReplaceInSections
 	def ReplaceInSectionsByMany(aSections, paSubValues, pNewSubValue)
 		This.ReplaceInSectionsByManyCS(aSections, paSubValues, pNewSubValue, 1)
 

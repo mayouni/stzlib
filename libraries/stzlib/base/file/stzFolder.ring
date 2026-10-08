@@ -5994,11 +5994,11 @@ class stzFolder from stzObject
 			return This.Path()
 		ok
 
-	# Returns the folder names that lead from the current position down to a path.
+	# Returns the folder names from the current position down to a path below it, one per level.
 	#
-	#   _cPath_    an absolute path below the current position, written with / or 	#   returns    a list of text; [ ] when the path is not below the current position
-	#   note       A path two levels down, such as sub1/deep1 under the position, gives [ "sub1",
-	#              "deep1" ]
+	#   _cPath_    an absolute path below the current position, written with / or the platform separator
+	#   returns    a list of texts; [ ] when the path is not below the position
+	#   note       sub1/deep1 under the position gives [ "sub1", "deep1" ]
 	#   see        GetParentDirectory
 	def GetPathHierarchy(_cPath_)
 		_acParts_ = []

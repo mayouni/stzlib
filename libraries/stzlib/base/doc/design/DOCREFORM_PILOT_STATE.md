@@ -124,3 +124,14 @@ known-defect warning). The wave-0 stash 'wave0-list' is superseded by fix/lsn 0a
     python -c "import json,collections as C;r=json.load(open('reference.json',encoding='utf-8'));ms=[m for c in r['classes'] for m in c['methods']];n=len(ms);o=C.Counter(m.get('origin',{}).get('brief') or 'none' for m in ms);print(n,dict(o),'pass',sum(m['pass'] for m in ms),'example',sum(1 for m in ms if m.get('example')))"
 
 At f9665f4a3: 21,791 roots; written 10,696 (49.1%), derived 2,712 (12.4%), none 8,383 (38.5%); pass 8,169 (37.5%); example 293 (1.3%).
+
+## RESUMED 2026-10-08: the five fix branches are ON MAIN
+
+fix/tbl (6 commits), fix/lol (2), fix/dt (1), fix/fgcl (1), fix/lsn (3) were rebased, their 17 guards run by the parent on the
+merged tree (1,126 assertions, all green), fast-forwarded into docs/reform and pushed. The register fell from 706 defects in 41
+classes to 350 in 36; the ten new roots the fixes added were documented so the gate reads OK on the ratchet (no reseed).
+Remaining from the six tasks: stzHashList (the agent's in-flight edit is git stash "lsn: stzHashList in flight", 268 lines,
+no guard; register 56 rows), stzGrid / stzStringChar / stzLocale (not started), fix/eng (not started: Percentile panic,
+WMean and HasMoment recursion, month <= 0, StringLowercased(5), FillCQ, diagram probe memory). The rows left for stzTable (66)
+and stzCalendar (25) may include stale blocks of fixed methods: call the method before fixing. Worktrees _wtf_* can be removed
+(git worktree remove) once their branches are confirmed on main; stash wave0-list was dropped (its content is on main).
