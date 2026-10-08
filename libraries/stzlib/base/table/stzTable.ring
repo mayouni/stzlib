@@ -2739,8 +2739,8 @@ func _NormalizeColLookupKey(pVal)
 	#   returns    nothing; it raises
 	#   warning    Always raises Feature not implemented yet!
 	#   see        Section
-	def SectionToRange(_n1_, _n2_) // TODO
-		StzRaise("Feature not implemented yet!")
+	def SectionToRange(_n1_, _n2_)
+		return @SectionToRange(_n1_, _n2_)
 
 	# Raises error today instead of returning a block of the table between two bounds.
 	#
@@ -2749,8 +2749,17 @@ func _NormalizeColLookupKey(pVal)
 	#   returns    nothing; it raises
 	#   warning    Always raises Feature not implemented yet!
 	#   see        Section
-	def Range(paPair, paRange) // TODO
-		StzRaise("Feature not implemented yet!")
+	def Range(paPair, paRange)
+		if NOT ( isList(paPair) and len(paPair) = 2 and isNumber(paPair[1]) and isNumber(paPair[2]) and
+		         isList(paRange) and len(paRange) = 2 and isNumber(paRange[1]) and isNumber(paRange[2]) )
+			StzRaise("Incorrect param types! paPair and paRange must be pairs of numbers.")
+		ok
+
+		if paRange[1] < 1 or paRange[2] < 1
+			return []
+		ok
+
+		return This.Section(paPair, [ paPair[1] + paRange[1] - 1, paPair[2] + paRange[2] - 1 ])
 
 		def ColQRT(p, pcReturnType)
 			switch pcReturnType
@@ -15804,7 +15813,7 @@ func _NormalizeColLookupKey(pVal)
 		#                 one by one
 		#   see           ReplaceCellsByMany
 		def ReplaceEachCellOfTheseByPositionsByMany(paCellsPos, paNewValues)
-			This.ReplaceCells(paCellsPos, paNewValues)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
 
 		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
@@ -16008,7 +16017,7 @@ func _NormalizeColLookupKey(pVal)
 		#                 one by one
 		#   see           ReplaceCellsByMany
 		def ReplaceByPositionsEachCellOfTheseByMany(paCellsPos, paNewValues)
-			This.ReplaceCells(paCellsPos, paNewValues)
+			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
 
 		# Puts the values in the listed cells one by one, in place; surplus positions or values are ignored.
@@ -16210,7 +16219,7 @@ func _NormalizeColLookupKey(pVal)
 			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
 
 		def ReplaceEachCellOfTheseByPositionsByManyXT(paCellsPos, paNewValues)
-			This.ReplaceCells(paCellsPos, paNewValues)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
 
 		def ReplaceEveryOneByPositionByManyXT(paCellsPos, paNewValues)
 			This.ReplaceEveryOneByManyXT(paCellsPos, paNewValues)
@@ -16302,7 +16311,7 @@ func _NormalizeColLookupKey(pVal)
 			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
 
 		def ReplaceByPositionsEachCellOfTheseByManyXT(paCellsPos, paNewValues)
-			This.ReplaceCells(paCellsPos, paNewValues)
+			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
 
 		def ReplaceByPositionEveryOneByManyXT(paCellsPos, paNewValues)
 			This.ReplaceEveryOneByManyXT(paCellsPos, paNewValues)
@@ -16340,7 +16349,7 @@ func _NormalizeColLookupKey(pVal)
 
 		#< @FunctionAlternativeForms
 
-		def ReplaceOccurrencesOfCellByValueCS(pCellValue, pNewCell, pCaseSensitive)
+		def ReplaceOccurrencesOfCellByValueCS(pCellValue, pNewCellValue, pCaseSensitive)
 			This.ReplaceCellByValueCS(pCellValue, pNewCellValue, pCaseSensitive)
 
 		#--
@@ -16348,7 +16357,7 @@ func _NormalizeColLookupKey(pVal)
 		def ReplaceByValueCellCS(pCellValue, pNewCellValue, pCaseSensitive)
 			This.ReplaceCellByValueCS(pCellValue, pNewCellValue, pCaseSensitive)
 
-		def ReplaceByValueOccurrencesOfCellByCS(pCellValue, pNewCell, pCaseSensitive)
+		def ReplaceByValueOccurrencesOfCellByCS(pCellValue, pNewCellValue, pCaseSensitive)
 			This.ReplaceCellByValueCS(pCellValue, pNewCellValue, pCaseSensitive)
 
 	# Replaces every cell equal to a value by another value, in place, case-sensitively.
@@ -16370,7 +16379,7 @@ func _NormalizeColLookupKey(pVal)
 		#              name that is not its parameter; ReplaceCellByValue works
 		#   see        ReplaceCellByValue
 		#< @FunctionAlternativeForms
-		def ReplaceOccurrencesOfCellByValue(pCellValue, pNewCell)
+		def ReplaceOccurrencesOfCellByValue(pCellValue, pNewCellValue)
 			This.ReplaceCellByValue(pCellValue, pNewCellValue)
 
 		# Replaces every cell equal to a value by another value, in place, case-sensitively.
@@ -16390,7 +16399,7 @@ func _NormalizeColLookupKey(pVal)
 		#   warning    Raises R24 (uninitialized variable pnewcellvalue) because the body passes a
 		#              name that is not its parameter; ReplaceCellByValue works
 		#   see        ReplaceCellByValue
-		def ReplaceByValueOccurrencesOfCellBy(pCellValue, pNewCell)
+		def ReplaceByValueOccurrencesOfCellBy(pCellValue, pNewCellValue)
 			This.ReplaceCellByValue(pCellValue, pNewCellValue)
 
 		#>
@@ -16399,9 +16408,23 @@ func _NormalizeColLookupKey(pVal)
 	 #  REPLACING OCCURRENCES OF MANY CELLS, DEFINED BY VALUE, BY THE PROVIDED VALUE  #
 	#--------------------------------------------------------------------------------#
 
-	def ReplaceManyCellsByValueCS(paCellsValues, pNewCellValue, pCaseSensitive) #TODO
-		/* ... */
-		stzraise("Function not yet implemented!")
+	def ReplaceManyCellsByValueCS(paCellsValues, pNewCellValue, pCaseSensitive)
+		if NOT isList(paCellsValues)
+			StzRaise("Incorrect param type! paCellsValues must be a list.")
+		ok
+
+		# Every position is read before any cell changes, so a new value is never taken for an old one
+		_aPosRm_ = []
+		_nValuesRm_ = len(paCellsValues)
+		for _iRm_ = 1 to _nValuesRm_
+			_aFoundRm_ = This.FindCellCS(paCellsValues[_iRm_], pCaseSensitive)
+			_nFoundRm_ = len(_aFoundRm_)
+			for _jRm_ = 1 to _nFoundRm_
+				_aPosRm_ + _aFoundRm_[_jRm_]
+			next
+		next
+
+		This.ReplaceCells(_aPosRm_, pNewCellValue)
 
 		#< @FunctionAlternativeForms
 
@@ -16466,9 +16489,30 @@ func _NormalizeColLookupKey(pVal)
 	 #  REPLACING OCCURRENCES OF MANY CELLS, DEFINED BY VALUE, BY MANYS VALUES  #
 	#--------------------------------------------------------------------------#
 
-	def ReplaceManyCellsByValueByManyCS(paCellsValues, pNewCellValue, pCaseSensitive) #TODO
-		/* ... */
-		stzraise("Function not yet implemented!")
+	def ReplaceManyCellsByValueByManyCS(paCellsValues, paNewValues, pCaseSensitive)
+		if NOT ( isList(paCellsValues) and isList(paNewValues) )
+			StzRaise("Incorrect param types! paCellsValues and paNewValues must be both lists.")
+		ok
+
+		# Every position is read before any cell changes, so a new value is never taken for an old one;
+		# the values are paired one by one and the surplus of either list is ignored
+		_aPosRm_ = []
+		_aNewRm_ = []
+		_nPairsRm_ = len(paCellsValues)
+		if len(paNewValues) < _nPairsRm_
+			_nPairsRm_ = len(paNewValues)
+		ok
+
+		for _iRm_ = 1 to _nPairsRm_
+			_aFoundRm_ = This.FindCellCS(paCellsValues[_iRm_], pCaseSensitive)
+			_nFoundRm_ = len(_aFoundRm_)
+			for _jRm_ = 1 to _nFoundRm_
+				_aPosRm_ + _aFoundRm_[_jRm_]
+				_aNewRm_ + paNewValues[_iRm_]
+			next
+		next
+
+		This.ReplaceCellsByMany(_aPosRm_, _aNewRm_)
 
 		#< @FunctionAlternativeForms
 
@@ -16532,9 +16576,20 @@ func _NormalizeColLookupKey(pVal)
 	 #  REPLACING OCCURRENCES OF MANY CELLS, DEFINED BY VALUE, BY MANYS VALUES -- XT FORM  #
 	#-------------------------------------------------------------------------------------#
 
-	def ReplaceManyCellsByValueByManyCSXT(paCellsValues, pNewCellValue, pCaseSensitive) #TODO
-		/* ... */
-		stzraise("Function not yet implemented!")
+	def ReplaceManyCellsByValueByManyCSXT(paCellsValues, paNewValues, pCaseSensitive)
+		if NOT ( isList(paCellsValues) and isList(paNewValues) and len(paNewValues) > 0 )
+			StzRaise("Incorrect param types! paCellsValues and paNewValues must be lists, the second not empty.")
+		ok
+
+		# XT: when there are fewer new values than values to replace, the new values are used again from the first
+		_aCycled_ = []
+		_nValuesRx_ = len(paCellsValues)
+		_nNewRx_ = len(paNewValues)
+		for _iRx_ = 1 to _nValuesRx_
+			_aCycled_ + paNewValues[ ( (_iRx_ - 1) % _nNewRx_ ) + 1 ]
+		next
+
+		This.ReplaceManyCellsByValueByManyCS(paCellsValues, _aCycled_, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
 
@@ -17231,9 +17286,7 @@ func _NormalizeColLookupKey(pVal)
 	#   warning     Always raises Unsupported feature in this release!
 	#   see         ReplaceTheseCols
 	def ReplaceAllColsByMany(paCols, paNewCols)
-		/* ... */
-
-		StzRaise("Unsupported feature in this release!")
+		This.ReplaceTheseColsByMany(paCols, paNewCols)
 
 		# Raises error today instead of replacing several columns by several new column lists.
 		#
@@ -17262,9 +17315,23 @@ func _NormalizeColLookupKey(pVal)
 			paNewCols = paNewCols[2]
 		ok
 
-		/* ... */
+		if NOT ( isList(paCols) and isList(paNewCols) and @IsListOfLists(paNewCols) )
+			StzRaise("Incorrect param types! paCols must be a list and paNewCols a list of lists.")
+		ok
 
-		StzRaise("Unsupported feature in this release!")
+		# One new list of cells per column, in the order given; the surplus of either list is ignored
+		_nPairsRc_ = len(paCols)
+		if len(paNewCols) < _nPairsRc_
+			_nPairsRc_ = len(paNewCols)
+		ok
+
+		for _iRc_ = 1 to _nPairsRc_
+			_nColRc_ = This.FindCol(paCols[_iRc_])
+			if _nColRc_ = 0
+				StzRaise("Column not found!")
+			ok
+			This.ReplaceNthCol(_nColRc_, paNewCols[_iRc_])
+		next
 
 		# Raises error today instead of replacing several columns by several new column lists.
 		#
@@ -17658,8 +17725,8 @@ func _NormalizeColLookupKey(pVal)
 	#              is not its parameter
 	#   see        ReplaceCellsInRow
 	def ReplaceCellsInTheseRows(paRows, pCell)
-		if IsOneOfTheseNamedParamsList(paNewrows,[ :With, :By, :Using ])
-			paNewrows = paNewrows[2]
+		if isList(pCell) and IsOneOfTheseNamedParamsList(pCell,[ :With, :By, :Using ])
+			pCell = pCell[2]
 		ok
 
 		_aCells_ = This.CellsInTheseRowsAsPositions(paRows)
@@ -17698,24 +17765,24 @@ func _NormalizeColLookupKey(pVal)
 		#< @FunctionAlternatives
 
 		def ReplaceAllOccurrencesOfCellCS(pCellValue, pNewCellValue, pCaseSensitive)
-			This.ReplaceCellCS(pCellValue, pNewCellValue, pCaseSensitive)
+			This.ReplaceAllCS(pCellValue, pNewCellValue, pCaseSensitive)
 
 		def ReplaceEachOccurrenceOfCellCS(pCellValue, pNewCellValue, pCaseSensitive)
-			This.ReplaceCellCS(pCellValue, pNewCellValue, pCaseSensitive)
+			This.ReplaceAllCS(pCellValue, pNewCellValue, pCaseSensitive)
 
 		def ReplaceEveryOccurrenceOfCellCS(pCellValue, pNewCellValue, pCaseSensitive)
-			This.ReplaceCellCS(pCellValue, pNewCellValue, pCaseSensitive)
+			This.ReplaceAllCS(pCellValue, pNewCellValue, pCaseSensitive)
 
 		#--
 
 		def ReplaceAllOccurrencesCS(pCellValue, pNewCellValue, pCaseSensitive)
-			This.ReplaceCellCS(pCellValue, pNewCellValue, pCaseSensitive)
+			This.ReplaceAllCS(pCellValue, pNewCellValue, pCaseSensitive)
 
 		def ReplaceEachOccurrenceCS(pCellValue, pNewCellValue, pCaseSensitive)
-			This.ReplaceCellCS(pCellValue, pNewCellValue, pCaseSensitive)
+			This.ReplaceAllCS(pCellValue, pNewCellValue, pCaseSensitive)
 
 		def ReplaceEveryOccurrenceCS(pCellValue, pNewCellValue, pCaseSensitive)
-			This.ReplaceCellCS(pCellValue, pNewCellValue, pCaseSensitive)
+			This.ReplaceAllCS(pCellValue, pNewCellValue, pCaseSensitive)
 
 	# Replaces every cell equal to a value by another value, in place, case-sensitively.
 	#
@@ -17737,7 +17804,7 @@ func _NormalizeColLookupKey(pVal)
 		#   see             ReplaceAll
 		#< @FunctionAlternatives
 		def ReplaceAllOccurrencesOfCell(pCellValue, pNewCellValue)
-			This.ReplaceCell(pCellValue, pNewCellValue)
+			This.ReplaceAll(pCellValue, pNewCellValue)
 
 		# Raises error R19 today instead of replacing every cell equal to a value by another value.
 		#
@@ -17747,7 +17814,7 @@ func _NormalizeColLookupKey(pVal)
 		#                   ReplaceCell needs a column, a row and a value; ReplaceAll works
 		#   see             ReplaceAll
 		def ReplaceEachOccurrenceOfCell(pCellValue, pNewCellValue)
-			This.ReplaceCell(pCellValue, pNewCellValue)
+			This.ReplaceAll(pCellValue, pNewCellValue)
 
 		# Raises error R19 today instead of replacing every cell equal to a value by another value.
 		#
@@ -17757,7 +17824,7 @@ func _NormalizeColLookupKey(pVal)
 		#                   ReplaceCell needs a column, a row and a value; ReplaceAll works
 		#   see             ReplaceAll
 		def ReplaceEveryOccurrenceOfCell(pCellValue, pNewCellValue)
-			This.ReplaceCell(pCellValue, pNewCellValue)
+			This.ReplaceAll(pCellValue, pNewCellValue)
 
 		# Raises error R19 today instead of replacing every cell equal to a value by another value.
 		#
@@ -17768,7 +17835,7 @@ func _NormalizeColLookupKey(pVal)
 		#   see             ReplaceAll
 		#@ aka  --
 		def ReplaceAllOccurrences(pCellValue, pNewCellValue)
-			This.ReplaceCell(pCellValue, pNewCellValue)
+			This.ReplaceAll(pCellValue, pNewCellValue)
 
 		# Raises error R19 today instead of replacing every cell equal to a value by another value.
 		#
@@ -17778,7 +17845,7 @@ func _NormalizeColLookupKey(pVal)
 		#                   ReplaceCell needs a column, a row and a value; ReplaceAll works
 		#   see             ReplaceAll
 		def ReplaceEachOccurrence(pCellValue, pNewCellValue)
-			This.ReplaceCell(pCellValue, pNewCellValue)
+			This.ReplaceAll(pCellValue, pNewCellValue)
 
 		# Raises error R19 today instead of replacing every cell equal to a value by another value.
 		#
@@ -17788,7 +17855,7 @@ func _NormalizeColLookupKey(pVal)
 		#                   ReplaceCell needs a column, a row and a value; ReplaceAll works
 		#   see             ReplaceAll
 		def ReplaceEveryOccurrence(pCellValue, pNewCellValue)
-			This.ReplaceCell(pCellValue, pNewCellValue)
+			This.ReplaceAll(pCellValue, pNewCellValue)
 
 		#>
 
@@ -17798,7 +17865,11 @@ func _NormalizeColLookupKey(pVal)
 
 	def ReplaceNthCS(_n_, pValue, pNewCellValue, pCaseSensitive)
 		_aCellPos_ = This.FindNthCS(_n_, pValue, pCaseSensitive)
-		This.ReplaceCell(_aCellPos_, pNewCellValue)
+
+		# No such occurrence: nothing to replace
+		if len(_aCellPos_) = 2
+			This.ReplaceCell(_aCellPos_[1], _aCellPos_[2], pNewCellValue)
+		ok
 
 	# Raises error R19 today instead of replacing the nth, first or last cell equal to a value.
 	#
@@ -17852,9 +17923,17 @@ func _NormalizeColLookupKey(pVal)
 	 #  REPLACING SUBVALUES INSIDE CELLS  #
 	#====================================#
 
-	def ReplaceInCellCS(pnCol, pnRow, pSubValue, pNewSubValue, pCaseSensitive) // TODO
-		/* ... */
-		stzraise("Function not yet implemented!")
+	def ReplaceInCellCS(pnCol, pnRow, pSubValue, pNewSubValue, pCaseSensitive)
+		if NOT ( isString(pSubValue) and isString(pNewSubValue) )
+			StzRaise("Incorrect param types! pSubValue and pNewSubValue must be strings.")
+		ok
+
+		_cCellRi_ = This.Cell(pnCol, pnRow)
+
+		# Only a text cell holds text to replace; any other cell is left as it is
+		if isString(_cCellRi_)
+			This.ReplaceCell(pnCol, pnRow, StzReplaceCS(_cCellRi_, pSubValue, pNewSubValue, pCaseSensitive))
+		ok
 
 	# Raises error today instead of replacing a text found inside cells.
 	#
@@ -17870,9 +17949,15 @@ func _NormalizeColLookupKey(pVal)
 
 	#--
 
-	def ReplaceInCellsCS(paCellsPos, pSubValue, pNewSubValue, pCaseSensitive) // TODO
-		/* ... */
-		stzraise("Function not yet implemented!")
+	def ReplaceInCellsCS(paCellsPos, pSubValue, pNewSubValue, pCaseSensitive)
+		if NOT ( isList(paCellsPos) and @IsListOfPairs(paCellsPos) )
+			StzRaise("Incorrect param type! paCellsPos must be a list of [ column, row ] pairs.")
+		ok
+
+		_nCellsRi_ = len(paCellsPos)
+		for _iRi_ = 1 to _nCellsRi_
+			This.ReplaceInCellCS(paCellsPos[_iRi_][1], paCellsPos[_iRi_][2], pSubValue, pNewSubValue, pCaseSensitive)
+		next
 
 	# Raises error today instead of replacing a text found inside cells.
 	#
@@ -17887,9 +17972,15 @@ func _NormalizeColLookupKey(pVal)
 
 	#--
 
-	def ReplaceInCellsByManyCS(paCellsPos, pSubValues, pNewSubValue, pCaseSensitive) // TODO
-		/* ... */
-		stzraise("Function not yet implemented!")
+	def ReplaceInCellsByManyCS(paCellsPos, pSubValues, pNewSubValue, pCaseSensitive)
+		if NOT ( isList(pSubValues) and @IsListOfStrings(pSubValues) )
+			StzRaise("Incorrect param type! pSubValues must be a list of strings.")
+		ok
+
+		_nSubsRi_ = len(pSubValues)
+		for _iRi_ = 1 to _nSubsRi_
+			This.ReplaceInCellsCS(paCellsPos, pSubValues[_iRi_], pNewSubValue, pCaseSensitive)
+		next
 
 	# Raises error today instead of replacing a text found inside cells.
 	#
@@ -17906,9 +17997,8 @@ func _NormalizeColLookupKey(pVal)
 
 	#--
 
-	def ReplaceInSectionCS(paCellPos1, paCellPos2,  pSubValue, pNewSubValue, pCaseSensitive) // TODO
-		/* ... */
-		stzraise("Function not yet implemented!")
+	def ReplaceInSectionCS(paCellPos1, paCellPos2,  pSubValue, pNewSubValue, pCaseSensitive)
+		This.ReplaceInCellsCS(This.SectionAsPositions(paCellPos1, paCellPos2), pSubValue, pNewSubValue, pCaseSensitive)
 
 	# Raises error today instead of replacing a text found inside cells.
 	#
@@ -17924,9 +18014,8 @@ func _NormalizeColLookupKey(pVal)
 
 	#--
 
-	def ReplaceInSectionByManyCS(paCellPos1, paCellPos2,  pSubValues, pNewSubValue, pCaseSensitive) // TODO
-		/* ... */
-		stzraise("Function not yet implemented!")
+	def ReplaceInSectionByManyCS(paCellPos1, paCellPos2,  pSubValues, pNewSubValue, pCaseSensitive)
+		This.ReplaceInCellsByManyCS(This.SectionAsPositions(paCellPos1, paCellPos2), pSubValues, pNewSubValue, pCaseSensitive)
 
 	# Raises error R24 today instead of replacing several texts found inside a section.
 	#
@@ -17939,7 +18028,7 @@ func _NormalizeColLookupKey(pVal)
 	#                  flag it does not have
 	#   see            ReplaceInSection
 	def ReplaceInSectionByMany(paCellPos1, paCellPos2,  pSubValues, pNewSubValue)
-		This.ReplaceInSectionByManyCS(paCellPos1, paCellPos2,  pSubValues, pNewSubValue, ;CaseSensitive = 1)
+		This.ReplaceInSectionByManyCS(paCellPos1, paCellPos2,  pSubValues, pNewSubValue, 1)
 
 	# Raises error today instead of replacing a text found inside cells.
 	#
@@ -17949,12 +18038,18 @@ func _NormalizeColLookupKey(pVal)
 	#   warning     Always raises Function not yet implemented!
 	#   see         ReplaceAll
 	#@ aka  Add ReplaceInSectionByManyXT() : if all replaced restart at the 1st one
-	def ReplaceInSectionsCS(aSections, pSubValue, pCaseSensitive)
-		/* ... */
-		stzraise("Function not yet implemented!")
+	def ReplaceInSectionsCS(aSections, pSubValue, pNewSubValue, pCaseSensitive)
+		if NOT ( isList(aSections) and @IsListOfPairs(aSections) )
+			StzRaise("Incorrect param type! aSections must be a list of [ corner, corner ] pairs.")
+		ok
 
-	ReplaceInSections(aSections, pSubValue)
-		This.ReplaceInSectionsCS(aSections, pSubValue, 1)
+		_nSectionsRi_ = len(aSections)
+		for _iRi_ = 1 to _nSectionsRi_
+			This.ReplaceInSectionCS(aSections[_iRi_][1], aSections[_iRi_][2], pSubValue, pNewSubValue, pCaseSensitive)
+		next
+
+	def ReplaceInSections(aSections, pSubValue, pNewSubValue)
+		This.ReplaceInSectionsCS(aSections, pSubValue, pNewSubValue, 1)
 
 	# Raises error today instead of replacing a text found inside cells.
 	#
@@ -17964,12 +18059,18 @@ func _NormalizeColLookupKey(pVal)
 	#   warning       Always raises Function not yet implemented!
 	#   see           ReplaceAll
 	#@ aka  --
-	def ReplaceInSectionsByManyCS(aSections, paSubValues, pCaseSensitive)
-		/* ... */
-		stzraise("Function not yet implemented!")
+	def ReplaceInSectionsByManyCS(aSections, paSubValues, pNewSubValue, pCaseSensitive)
+		if NOT ( isList(aSections) and @IsListOfPairs(aSections) )
+			StzRaise("Incorrect param type! aSections must be a list of [ corner, corner ] pairs.")
+		ok
 
-	ReplaceInSectionsByMany(aSections, paSubValues)
-		This.ReplaceInSectionsByManyCS(aSections, paSubValues, 1)
+		_nSectionsRi_ = len(aSections)
+		for _iRi_ = 1 to _nSectionsRi_
+			This.ReplaceInSectionByManyCS(aSections[_iRi_][1], aSections[_iRi_][2], paSubValues, pNewSubValue, pCaseSensitive)
+		next
+
+	def ReplaceInSectionsByMany(aSections, paSubValues, pNewSubValue)
+		This.ReplaceInSectionsByManyCS(aSections, paSubValues, pNewSubValue, 1)
 
 		# Crashes the Ring process today instead of returning a filled copy of the table.
 		#
