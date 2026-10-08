@@ -1,0 +1,17 @@
+{
+ "brief": "Builds one self-contained HTML page for a course, which stores no output and says where each cell runs.",
+ "detail": "The page follows the chapters that were run and observed, one article per language edition, switched by the URL hash; it needs no build tool and loads nothing from the network. It never holds an output: each cell carries a fixed sentence saying so, and keeps the author's promise lines, which are an expectation and not a result. Each cell is labelled where it ran as the guard observed it, and the cells run on the desktop, not in the browser: running them in the browser waits on ringscript. A translation is marked a draft until a native speaker has signed the unit off: the fr, ar and ha editions are drafts, 0 of 35 units reviewed by a person in each language. No institution has adopted the system yet.",
+ "receiver": "oC = StzProgramQ(\"../../education/program\").CourseQ(\"elementary-introduction\"); o1 = new stzEduReader(oC)",
+ "example": [
+  "o1.AddChapter( oC.RunChapterInQ(\"find-then-apply\", [ \"en\" ])[1] )",
+  "? o1.NumberOfWorldPages()",
+  "#--> 0",
+  "? StzFindFirst(\"stores no output\", o1.Html()) > 0",
+  "#--> 1"
+ ],
+ "see": [
+  "stzCourse",
+  "stzChapter",
+  "stzProgram"
+ ]
+}

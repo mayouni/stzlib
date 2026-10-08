@@ -1,0 +1,20 @@
+{
+ "brief": "Describes an institution's adaptation of the core program, laid over it file by file, and judges it before it is used.",
+ "detail": "An overlay is a folder with overlay.zknw (its name, the program it extends, the languages it speaks, its brand, the worlds it replaces) and optional worlds, courses and governance folders. It adds and shadows; it never forks the core: it may replace a world and add chapters and exercises, but a file that would replace a core chapter or a core exercise is refused. Check is its court and returns findings in the house shape; the overlay is valid when none is an error.",
+ "receiver": "o1 = new stzOverlay(\"../../education/overlays/bank\")",
+ "example": [
+  "? o1.Name()",
+  "#--> bank",
+  "? @@( o1.Languages() )",
+  "#--> [ \"fr\", \"en\" ]",
+  "? o1.Brand()",
+  "#--> sahel-savings",
+  "? @@( o1.ReplacedWorlds() )",
+  "#--> [ \"workplace\" ]"
+ ],
+ "see": [
+  "stzProgram",
+  "stzCohort",
+  "stzRuleReport"
+ ]
+}

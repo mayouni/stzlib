@@ -73,6 +73,24 @@ func _EduFilesUnder(pcRoot, pcRel)
 	next
 	return _acRes_
 
+# Holds a level project: a brief, and a guard that judges a learner's folder by running it.
+#
+# A level is earned by a project that passes, never by a score. The project is a folder with a brief
+# in each language, guard.ring (the court, run in a fresh process with the library loaded, exactly
+# like an exercise's harness), promise.ring (the lines the guard must print for a pass) and wrong/
+# and right/ sample folders that must be refused and accepted. The guard runs on the desktop only.
+# The fr, ar and ha briefs are drafts, 0 of 35 units reviewed by a person.
+#
+#   receiver   o1 = new stzProject("../../education/program/projects/project-s0")
+#   example    ? o1.Id()
+#              #--> project-s0
+#              ? o1.HasGuard()
+#              #--> 1
+#              ? @@( o1.Promises() )
+#              #--> [ "cells five or more: yes", "every cell has a promise: yes", "every promise kept: yes", "stored output: no" ]
+#              ? o1.Check(o1.RightSamples()[1]).Passed()
+#              #--> 1
+#   see        stzLearner, stzProgram, stzExercise
 class stzProject from stzObject
 
 	@cFolder = ""
@@ -80,6 +98,14 @@ class stzProject from stzObject
 	@cGuard = ""
 	@acPromises = []
 
+	# Opens a level project's folder, reading its guard and the promises the guard must keep when they are there.
+	#
+	#   pcFolder   the project's folder: its last segment is the project's id
+	#   returns    nothing; the object is built
+	#   note       a project is a folder: brief.<lang>.md, guard.ring (the court, which reads the
+	#              learner's folder and prints its findings), promise.ring (the #--> lines to print
+	#              for a pass), and wrong/ and right/ sample folders
+	#   see        HasGuard, Check, ProveItself
 	def init(pcFolder)
 		@cFolder = _EduNoSlash(pcFolder)
 		@cId = _EduLastSegment(@cFolder)
@@ -90,15 +116,37 @@ class stzProject from stzObject
 			@acPromises = StzEduPromisesIn(read(@cFolder + "/promise.ring"))
 		ok
 
+	# Returns the project's identifier, which is the last segment of its folder's path.
+	#
+	#   returns    a text such as project-s0
+	#   see        Folder
 	def Id()
 		return @cId
 
+	# Returns the project's folder path, without a trailing slash.
+	#
+	#   returns    a text
+	#   see        Id, WrongSamples
 	def Folder()
 		return @cFolder
 
+	# TRUE if the project has a guard and at least one promise, so that a level can be earned by it.
+	#
+	#   returns    TRUE or FALSE
+	#   note       Check raises an error when it is FALSE
+	#   see        Check, Promises
 	def HasGuard()
 		return @cGuard != "" and len(@acPromises) > 0
 
+	# Returns what the project asks of the learner, from brief.<lang>.md, with line ends made LF.
+	#
+	#   pcLang     the language of the brief: en, fr, ar or ha
+	#   returns    a text, markdown
+	#   note       the fr, ar and ha briefs are drafts, not yet reviewed by a native speaker (0 of
+	#              35 units reviewed in each language), and carry a draft notice at their head
+	#   warning    raises an error naming the project and the language when that brief does not
+	#              exist
+	#   see        HasBriefIn
 	def Brief(pcLang)
 		_cF_ = @cFolder + "/brief." + pcLang + ".md"
 		if NOT fexists(_cF_)
@@ -107,13 +155,35 @@ class stzProject from stzObject
 		# the same text from an LF tree and from a CRLF checkout (autocrlf)
 		return StzReplace(read(_cF_), char(13), "")
 
+	# TRUE if the project has a brief file for the language.
+	#
+	#   pcLang     the language code, such as fr
+	#   returns    TRUE or FALSE
+	#   see        Brief
 	def HasBriefIn(pcLang)
 		return fexists(@cFolder + "/brief." + pcLang + ".md")
 
+	# Returns the lines the guard must print for a pass, read from the #--> lines of promise.ring.
+	#
+	#   returns    a list of text; [ ] when the project has no promise file
+	#   see        HasGuard, Check
 	def Promises()
 		return @acPromises
 
-	# Judges a learner's project folder by running the guard on it.
+	# Judges a learner's project folder by running the project's guard on it in a fresh process with Softanza loaded.
+	#
+	#   pcLearnerFolder   the learner's project folder to judge
+	#   returns           the stzExerciseCheck of the run: Passed(), Output() (what the guard
+	#                     printed) and Why() (a sentence for the learner)
+	#   note              the evidence it carries is the hash of every file in the folder, so a
+	#                     folder changed after a pass no longer counts; CheckMany(pacFolders) judges
+	#                     several folders in one run and returns the list of checks (it is not a
+	#                     root of its own in the record, ProveItself uses it)
+	#   warning           raises an error when the project has no guard; a folder that does not
+	#                     exist is not refused: the guard runs and prints its own missing line, so
+	#                     the check does not pass; the guard runs on the desktop only
+	#   see               ProveItself, HasGuard, stzLearner
+	#@ aka  Judges a learner's project folder by running the guard on it.
 	def Check(pcLearnerFolder)
 		return This.CheckMany([ pcLearnerFolder ])[1]
 
@@ -149,13 +219,29 @@ class stzProject from stzObject
 		next
 		return _acRes_
 
+	# Returns the paths of the learner folders under wrong/ that the guard must refuse, sorted by name.
+	#
+	#   returns    a list of text; [ ] when there is no wrong folder
+	#   see        RightSamples, ProveItself
 	def WrongSamples()
 		return This._Samples("wrong")
 
+	# Returns the paths of the learner folders under right/ that the guard must accept, sorted by name.
+	#
+	#   returns    a list of text; [ ] when there is no right folder
+	#   see        WrongSamples, ProveItself
 	def RightSamples()
 		return This._Samples("right")
 
-	# [ :wrong, :wrongrefused, :right, :rightaccepted, :failures, :checks ]
+	# Runs the guard on every wrong and right sample and reports whether it refused each wrong one and accepted each right one.
+	#
+	#   returns    a hash list [ :wrong, :wrongrefused, :right, :rightaccepted, :failures, :checks
+	#              ]: counts, then sentences naming each sample misjudged, then [ path, check ]
+	#              pairs
+	#   note       a project that accepts a wrong sample or refuses a right one is a red guard, and
+	#              failures says which
+	#   see        Check, WrongSamples, RightSamples
+	#@ aka  [ :wrong, :wrongrefused, :right, :rightaccepted, :failures, :checks ]
 	def ProveItself()
 		_acW_ = This.WrongSamples()
 		_acR_ = This.RightSamples()

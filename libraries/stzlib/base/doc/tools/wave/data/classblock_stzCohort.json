@@ -1,0 +1,20 @@
+{
+ "brief": "Holds a folder of learners following one course under one overlay, and writes their progress as a narration that checks itself.",
+ "detail": "A cohort is a folder with cohort.zknw, whose facts name the course it follows, the overlay it is under and its learners; each learner is a stzLearner folder inside it. Its report is generated from the learners' progress files, which only the checker writes, and every figure in it sits as a promise beside the cell that computes it, so running the report says whether it is still true. The cells run on the desktop only.",
+ "receiver": "StzEduRemoveTree(\"t_edu_doc/espa\"); StzEngineDirCreatePath(\"t_edu_doc/espa\"); write(\"t_edu_doc/espa/cohort.zknw\", 'knowledge \"espa\"' + char(10) + char(10) + \"facts\" + char(10) + \"    espa | follows | elementary-introduction\" + char(10) + \"    espa | under | bank\" + char(10)); o1 = new stzCohort(\"t_edu_doc/espa\")",
+ "example": [
+  "? o1.CourseSlug()",
+  "#--> elementary-introduction",
+  "o1.AddLearner(\"amina\")",
+  "? @@( o1.LearnerIds() )",
+  "#--> [ \"amina\" ]",
+  "oP = o1.ProgramQ(\"../../education/program\")",
+  "? len( o1.ExerciseIds(oP) )",
+  "#--> 24"
+ ],
+ "see": [
+  "stzLearner",
+  "stzOverlay",
+  "stzProgram"
+ ]
+}

@@ -1,0 +1,18 @@
+{
+ "brief": "Holds one skill of the program: a guiding question with three levels, its evidence, and its text in each language.",
+ "detail": "A skill is two kinds of file in one folder: <id>.zknw holds the structure (family, evidence for each level, study material, anchors) and <id>.<lang>.md holds the text (a title line, then question, foundation, practitioner and expert lines). The keys of the text file stay English in every language and only the words after them are translated. A skill with no text, or an empty field, in one of the program's languages is incomplete, and MissingIn says which language. Evidence is a claim about a guard, never proof: whether the exercise or project it names exists is checked elsewhere. The translations (fr, ar, ha) are drafts, 0 of 35 units reviewed by a person; the cells of the course run on the desktop only; no institution has adopted the system.",
+ "receiver": "o1 = new stzSkill(\"../../education/program/skills\", \"cr-01\")",
+ "example": [
+  "? o1.Family()",
+  "#--> craft",
+  "? o1.Title(\"en\")",
+  "#--> Write a narration whose every cell runs",
+  "? @@( o1.MissingIn([ \"en\", \"fr\", \"ar\", \"ha\", \"de\" ]) )",
+  "#--> [ \"de\" ]"
+ ],
+ "see": [
+  "StzSkillQ",
+  "stzProgram",
+  "stzCourse"
+ ]
+}

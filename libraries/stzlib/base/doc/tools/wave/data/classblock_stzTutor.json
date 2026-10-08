@@ -1,0 +1,19 @@
+{
+ "brief": "Asks a learner the question that points at the gap in their attempt, and never writes the answer, without any language model.",
+ "detail": "The tutor keeps three rules: it never writes the learner's code before the exercise is passed, never explains ahead of where the learner is, and never answers before the learner has tried. It keeps them by construction: every reply is built from templates that carry no code, and a last filter blanks any word a right answer calls (ForbiddenWords). What it does: it asks one open question, naming the first step of the exercise that the submitted program does not show, in English, French, Arabic or Hausa; with a course laid on, it names a chapter that is ahead of the learner and does not explain it, and recalls a chapter behind with that chapter's own recap. What it does not do: it does not run or understand the program (it matches words the exercise lists for each step), it does not confirm a solution (only the checker's run does), it answers no question about a method, and it uses no language model and no network. The fr, ar and ha wording is a draft: no native speaker has reviewed it (0 of 35 units reviewed in each language). The programs it reads were run on the desktop only, and no institution has adopted the system yet.",
+ "receiver": "oC = StzProgramQ(\"../../education/program\").CourseQ(\"elementary-introduction\"); StzEduRemoveTree(\"t_edu_doc/amina\"); o1 = new stzTutor(oC.ExerciseQ(\"ex-01-01\"), \"t_edu_doc/amina\", \"en\")",
+ "example": [
+  "? o1.Ask(\"Give me the answer\")",
+  "#--> I will not write the answer for you: that is the one thing a tutor must never do. Try first. Write your attempt and submit it; then I will tell you what is still missing, as a question.",
+  "o1.WithCourse(oC)",
+  "? o1.Ask(\"How do I use KnowRelation?\")",
+  "#--> That belongs to chapter 12, 'Teach a world'. You are on chapter 1, and the later chapter stands on what this one teaches, so I will not explain it yet. Which step of your current exercise is still open?",
+  "? o1.FilteredCount()",
+  "#--> 0"
+ ],
+ "see": [
+  "stzLearner",
+  "stzExercise",
+  "stzCourse"
+ ]
+}

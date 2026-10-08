@@ -1,0 +1,21 @@
+{
+ "brief": "Opens a learning program, a folder of courses, skills, levels and teaching worlds, and lets an institution lay its own overlay over it.",
+ "detail": "A learner or a teacher starts here: CourseQ takes a course by its slug, WithWorld chooses the world the chapters reason over, and the Review methods say how far each translation has been checked by a person. The program is a folder read through its .zknw manifests; every file is looked up in the overlay first and the core after, so an institution replaces a world or adds an exercise and never writes into the core. Set the overlay and the world BEFORE CourseQ: Ring copies the program into the course, so a later WithOverlay does not reach it. WithOverlay, WithoutOverlay and WithWorld change the program and have a Q twin that returns it for chaining. LIMITS, stated where you meet them: the translations (fr, ar, ha) are drafts, 0 of 35 units of each reviewed by a person when this was written, and only ReviewCoverage gives the live figure; the cells of the chapters run on the desktop only, not in a browser, and the Run methods start Ring processes whose executable path must not contain a space; no institution has adopted the system, and the two overlays shipped, bank and university, are references.",
+ "receiver": "o1 = new stzProgram(\"../../education/program\")",
+ "example": [
+  "? o1.Id()",
+  "#--> softanza-education",
+  "? @@( o1.Languages() )",
+  "#--> [ \"en\", \"fr\", \"ar\", \"ha\" ]",
+  "? @@( o1.LevelIds() )",
+  "#--> [ \"s0\", \"s1\", \"s2\", \"s3\", \"s4\" ]",
+  "? @@( o1.ChaptersForLevel(o1.CourseQ(\"elementary-introduction\"), \"s0\") )",
+  "#--> [ \"find-then-apply\", \"a-first-sentence\", \"read-the-name-as-a-sentence\", \"say-it-in-your-language\" ]"
+ ],
+ "see": [
+  "stzCourse",
+  "stzChapter",
+  "stzTutor",
+  "stzEduReader"
+ ]
+}

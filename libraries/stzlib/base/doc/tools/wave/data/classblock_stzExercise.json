@@ -1,0 +1,21 @@
+{
+ "brief": "Holds one exercise, a promise checked by running the learner's program, never by reading it or comparing strings.",
+ "detail": "An exercise is a folder: exercise.zknw holds its facts, task.<lang>.md the task in each language, promise.ring the #--> lines the program must print, wrong/ the answers that must fail and right/ the answers that must pass. Check runs the learner's program in a fresh process and returns a stzExerciseCheck, which says what happened in the learner's own terms and never shows the expected value. ProveItself runs every known answer through the checker: an exercise that accepts a wrong answer or refuses a right one is a red guard. A folder with a check.ring is a harness exercise, where the learner hands in a file that is not a program (a .pia declaration) and the library's own court judges it. What a learner sees is the Why() of the check, in en, fr, ar or ha. The translations (fr, ar, ha) are drafts, 0 of 35 units reviewed by a person; the checks run on the desktop only; no institution has adopted the system.",
+ "receiver": "o1 = new stzExercise(\"../../education/program/courses/elementary-introduction/exercises/ex-01-01\")",
+ "example": [
+  "? o1.Id()",
+  "#--> ex-01-01",
+  "? @@( o1.Promises() )",
+  "#--> [ '[ \"tea\", \"rice\", \"fish\" ]' ]",
+  "? @@( o1.NeededSteps() )",
+  "#--> [ \"finds\", \"applies\" ]",
+  "? o1.HasTaskIn(\"en\")",
+  "#--> 1"
+ ],
+ "see": [
+  "StzExerciseQ",
+  "stzExerciseCheck",
+  "stzChapter",
+  "stzTutor"
+ ]
+}

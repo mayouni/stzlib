@@ -1,0 +1,21 @@
+{
+ "brief": "Holds a chapter written as a narration whose every code cell runs, and judges it by running the cells against their promises.",
+ "detail": "A chapter is a markdown file: a title, sections, ring cells whose #--> lines are PROMISES, {{exercise:id}} references and a final recap. It stores no output: a fenced block of output, text or console is counted as a stored output so that a guard can refuse it. Run executes all the cells in one fresh process, each inside its own try/catch so that one failing cell does not hide the others, and records per cell what it printed, the error it raised and whether its promises were kept. ObserveWhere then runs the same cells without the library, in plain Ring, and marks each one browser or desktop from what happened. The translations (fr, ar, ha) are drafts, 0 of 35 units reviewed by a person; the cells run on the desktop only; no institution has adopted the system. The questions about a run (CellOutput, CellKept, AllCellsRan and the others) raise an index error until Run or AcceptRun has been called.",
+ "receiver": "o1 = new stzChapter(\"../../education/program/courses/elementary-introduction/chapters/01-find-then-apply.en.md\", \"en\")",
+ "example": [
+  "? o1.Title()",
+  "#--> Find, then apply",
+  "? o1.NumberOfCells()",
+  "#--> 8",
+  "? @@( o1.ExerciseIds() )",
+  "#--> [ \"ex-01-01\" ]",
+  "? @@( o1.CellPromises(5) )",
+  "#--> [ '[ \"tea\", \"rice\", \"fish\" ]' ]"
+ ],
+ "see": [
+  "StzChapterQ",
+  "stzExercise",
+  "stzCourse",
+  "stzTutor"
+ ]
+}

@@ -36,6 +36,16 @@ class stzSkill from stzObject
 	@aFacts = []
 	@aText = []     # [ [ lang, [ :title, :question, :foundation, :practitioner, :expert ] ] ]
 
+	# Builds a skill from the structure file and the per-language text files that share its id in one folder.
+	#
+	#   pcFolder   the folder that holds the skill files, with or without a trailing slash
+	#   pcId       the skill's id, such as cr-01, matched without regard to case
+	#   returns    nothing; the object is built
+	#   note       the text files are read once, here: a language file added later is not seen by
+	#              this object
+	#   warning    raises an error naming the id and the folder when the folder has no file
+	#              <id>.zknw
+	#   see        StzSkillQ, Languages
 	def init(pcFolder, pcId)
 		@cFolder = _EduNoSlash(pcFolder)
 		@cId = StzLower(pcId)
@@ -79,9 +89,17 @@ class stzSkill from stzObject
 		next
 		return _aT_
 
+	# Returns the skill's id in lower case, as it names its files.
+	#
+	#   returns    a text, such as cr-01
+	#   see        Family, Title
 	def Id()
 		return @cId
 
+	# Returns the family the skill belongs to, as declared in its structure file.
+	#
+	#   returns    a text such as craft; an empty text when no family is declared
+	#   see        Anchors, Study
 	def Family()
 		_ac_ = _EduObjects(@aFacts, @cId, "family")
 		if len(_ac_) = 0
@@ -89,13 +107,29 @@ class stzSkill from stzObject
 		ok
 		return _ac_[1]
 
+	# Returns the names of the study material that teaches the skill.
+	#
+	#   returns    a list of text; [ ] when none is declared
+	#   see        Anchors, Evidence
 	def Study()
 		return _EduObjects(@aFacts, @cId, "study")
 
+	# Returns the names of the workplace worlds that anchor the skill's examples.
+	#
+	#   returns    a list of text, such as school and cooperative; [ ] when none is declared
+	#   see        Family, Study
 	def Anchors()
 		return _EduObjects(@aFacts, @cId, "anchor")
 
-	# "foundation" | "practitioner" | "expert"
+	# Returns what the skill's structure file says proves one level: an exercise for foundation, a project for practitioner and expert.
+	#
+	#   pcLevel    foundation, practitioner or expert, matched without regard to case
+	#   returns    a text such as elementary-introduction/ex-15-01 or project-s3; an empty text for
+	#              an unknown level or a level with no evidence
+	#   warning    the evidence is a claim about a guard; this call does not check that the exercise
+	#              or project exists
+	#   see        Level, Study
+	#@ aka  "foundation" | "practitioner" | "expert"
 	def Evidence(pcLevel)
 		_ac_ = _EduObjects(@aFacts, @cId, StzLower(pcLevel) + "-evidence")
 		if len(_ac_) = 0
@@ -103,6 +137,11 @@ class stzSkill from stzObject
 		ok
 		return _ac_[1]
 
+	# Returns the language codes in which the skill has a text file.
+	#
+	#   returns    a list of text, in the order the folder lists the files, such as ar, en, fr, ha;
+	#              [ ] when the skill has no text file
+	#   see        MissingIn, IsCompleteIn
 	def Languages()
 		_ac_ = []
 		_nL_ = len(@aText)
@@ -120,17 +159,47 @@ class stzSkill from stzObject
 		next
 		StzRaise("Skill '" + @cId + "' has no text in '" + pcLang + "'.")
 
+	# Returns the skill's title in one language, without its CR-01 style id prefix.
+	#
+	#   pcLang     the language code, matched without regard to case
+	#   returns    a text
+	#   warning    raises an error naming the skill and the language when the skill has no text file
+	#              in that language
+	#   see        Question, Level, Languages
 	def Title(pcLang)
 		return This._Text(pcLang)[:title]
 
+	# Returns the guiding question of the skill in one language.
+	#
+	#   pcLang     the language code, matched without regard to case
+	#   returns    a text
+	#   warning    raises an error naming the skill and the language when the skill has no text file
+	#              in that language
+	#   see        Title, Level
 	def Question(pcLang)
 		return This._Text(pcLang)[:question]
 
+	# Returns what a learner can do at one level of the skill, in one language.
+	#
+	#   pcLang     the language code, matched without regard to case
+	#   pcLevel    foundation, practitioner or expert, matched without regard to case
+	#   returns    a text; an empty text when the level is unknown or the text file leaves it empty
+	#   warning    raises an error naming the skill and the language when the skill has no text file
+	#              in that language
+	#   see        Question, Evidence
 	def Level(pcLang, pcLevel)
 		return This._Text(pcLang)[StzLower(pcLevel)]
 
-	# The languages, among those asked, in which the text is missing or
-	# has an empty field -- [] means complete.
+	# Returns the languages, among those given, in which the skill has no text file or has a text with an empty field.
+	#
+	#   pacLangs   the language codes to test, in lower case
+	#   returns    a list of the codes given, in the order given; [ ] when the skill is complete in
+	#              all of them
+	#   warning    the codes are compared as written: "EN" is reported missing although en exists,
+	#              while Title and Level accept "EN"; the translated texts (fr, ar, ha) are drafts,
+	#              0 of 35 units reviewed by a person
+	#   see        IsCompleteIn, Languages
+	#@ aka  The languages, among those asked, in which the text is missing or has an empty field -- [] means complete.
 	def MissingIn(pacLangs)
 		_acRes_ = []
 		_nL_ = len(pacLangs)
@@ -153,5 +222,11 @@ class stzSkill from stzObject
 		next
 		return _acRes_
 
+	# TRUE if the skill has a text with a title, a question and all three levels in every language given.
+	#
+	#   pacLangs   the language codes to test, in lower case
+	#   returns    TRUE or FALSE; TRUE for an empty list
+	#   warning    same case rule as MissingIn: pass lower-case codes
+	#   see        MissingIn, Languages
 	def IsCompleteIn(pacLangs)
 		return len(This.MissingIn(pacLangs)) = 0
