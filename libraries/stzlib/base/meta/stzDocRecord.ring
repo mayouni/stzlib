@@ -419,7 +419,7 @@ func _StzDocFwdParse(pcTrim)
 func _StzDocNewMethod(pcName, pnLine)
 	return [ :name = pcName, :line = pnLine, :params = [], :section = "",
 	         :brief = "", :para = "", :fields = [], :aka = "", :legacy = 1,
-	         :adjacent = 1, :fwd = "", :fwdpure = 0, :hasreturn = 0 ]
+	         :adjacent = 1, :fwd = "", :fwdpure = 0, :hasreturn = 0, :fwdargs = [] ]
 
 # Scan lines [pnStart, pnEnd] of a class body into method records (public AND
 # private: the private names are needed to judge a forward). The doc run is the
@@ -575,6 +575,7 @@ func _StzDocFinishBody(paRec, pnCode, pcFirst, pbRet)
 		_aF_ = _StzDocFwdParse(pcFirst)
 		if len(_aF_) = 2 and lower(_aF_[1]) != lower(paRec[:name])
 			paRec[:fwd] = _aF_[1]
+			paRec[:fwdargs] = _aF_[2]
 			_aPar_ = paRec[:params]
 			_bPure_ = (len(_aF_[2]) = len(_aPar_))
 			if _bPure_
