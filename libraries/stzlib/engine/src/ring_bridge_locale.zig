@@ -19,16 +19,19 @@ fn ring_PmText(p: *anyopaque) callconv(.c) void {
     if (n > 0) rs2(p, &buf, @intCast(n)) else rs(p, "");
 }
 fn ring_ToUpper(p: *anyopaque) callconv(.c) void {
+    if (R.ring_vm_api_paracount(p) < 1 or R.ring_vm_api_isstring(p, 1) == 0) return R.ring_vm_error(p, "locale to upper: the argument must be a text");
     var buf: [4096]u8 = undefined;
     const n = loc.stz_locale_to_upper(gs(p, 1), @intCast(gss(p, 1)), &buf, 4096);
     if (n > 0) rs2(p, &buf, @intCast(n)) else rs(p, "");
 }
 fn ring_ToLower(p: *anyopaque) callconv(.c) void {
+    if (R.ring_vm_api_paracount(p) < 1 or R.ring_vm_api_isstring(p, 1) == 0) return R.ring_vm_error(p, "locale to lower: the argument must be a text");
     var buf: [4096]u8 = undefined;
     const n = loc.stz_locale_to_lower(gs(p, 1), @intCast(gss(p, 1)), &buf, 4096);
     if (n > 0) rs2(p, &buf, @intCast(n)) else rs(p, "");
 }
 fn ring_ToTitlecase(p: *anyopaque) callconv(.c) void {
+    if (R.ring_vm_api_paracount(p) < 1 or R.ring_vm_api_isstring(p, 1) == 0) return R.ring_vm_error(p, "locale to titlecase: the argument must be a text");
     var buf: [4096]u8 = undefined;
     const n = loc.stz_locale_to_titlecase(gs(p, 1), @intCast(gss(p, 1)), &buf, 4096);
     if (n > 0) rs2(p, &buf, @intCast(n)) else rs(p, "");

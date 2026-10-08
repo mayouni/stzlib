@@ -314,7 +314,10 @@ fn computePercentile(sorted: []const f64, p: f64) f64 {
     if (sorted.len == 0) return 0;
     if (sorted.len == 1) return sorted[0];
     const n_f: f64 = @floatFromInt(sorted.len);
-    const rank = p / 100.0 * (n_f - 1.0);
+    // A percent outside 0..100 (or NaN) used to index outside `sorted` or cast a negative
+    // float to usize -- a panic that ended the host process. Clamp it to the ends.
+    const pc: f64 = if (std.math.isNan(p)) 0 else @max(0.0, @min(100.0, p));
+    const rank = pc / 100.0 * (n_f - 1.0);
     const lo: usize = @intFromFloat(@floor(rank));
     const hi: usize = @min(lo + 1, sorted.len - 1);
     const frac = rank - @floor(rank);
