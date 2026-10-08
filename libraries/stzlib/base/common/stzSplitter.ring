@@ -412,31 +412,25 @@ class stzSplitter from stzListOfNumbers
 
 	# Returns the sections on each side of one position, which is itself left out.
 	#
-	#   n          the position to cut out
-	#   returns    a list of sections; [ [ 2, N ] ] for position 1 and [ [ 1, N-1 ] ] for position N
-	#   note       SplitAtPosition(4) on 10 positions gives [ [ 1, 3 ], [ 5, 10 ] ]
-	#   warning    A position outside 1..N, or N = 1, answers one flat pair [ 1, N ] instead of a
-	#              list of sections
+	#   n          the position to cut out, from 1 to N
+	#   returns    a list of sections; [ [ 2, N ] ] for position 1, [ [ 1, N-1 ] ] for position N
+	#              and [ ] when N is 1
+	#   note       SplitAtPosition(4) on 10 positions gives [ [ 1, 3 ], [ 5, 10 ] ]; a position
+	#              outside 1..N raises an error
 	#   see        SplitAtPositions, SplitBeforePosition, SplitAfterPosition
 	def SplitAtPosition(n)
 
-		if NOT isNumber(n)
-			StzRaise("Incorrect param type! n must be a number.")
-		ok
+		This._CheckPosition(n)
 
 		_nLen_ = @nNumberOfPositions
+		_aResult_ = []
 
-		if n > 1 and n < _nLen_
-			_aResult_ = [ [ 1, n-1], [n+1, _nLen_ ] ]
+		if n > 1
+			_aResult_ + [ 1, n-1 ]
+		ok
 
-		but n = 1 and _nLen_ > 1
-			_aResult_ = [ [ 2, _nLen_ ] ]
-
-		but n = _nLen_ and _nLen_ > 1 
-			_aResult_ = [ [ 1, _nLen_-1] ]
-
-		else
-			_aResult_ = [ 1 , _nLen_ ]
+		if n < _nLen_
+			_aResult_ + [ n+1, _nLen_ ]
 		ok
 
 		return _aResult_
@@ -462,51 +456,43 @@ class stzSplitter from stzListOfNumbers
 
 	# Returns the sections between several positions, which are themselves left out.
 	#
-	#   returns    a list of sections, each [ first, last ]
-	#   note       The positions may come in any order; [ 3, 6 ] on 10 positions gives [ [ 1, 2 ], [
-	#              4, 5 ], [ 7, 10 ] ]
-	#   warning    Raises error R2 for [ 1, 10 ] on 10 positions because a helper compares against a
-	#              literal 10; adjacent positions give an empty reversed section such as [ 4, 3 ];
-	#              an empty list raises an error
+	#   panPos     the positions to cut out, from 1 to N, in any order
+	#   returns    a list of sections, each [ first, last ]; [ [ 1, N ] ] for an empty list
+	#   note       [ 3, 6 ] on 10 positions gives [ [ 1, 2 ], [ 4, 5 ], [ 7, 10 ] ]; adjacent or
+	#              repeated positions make no empty section; a position outside 1..N raises an error
 	#   see        SplitAtPosition, SplitBeforePositions, SplitAfterPositions
 	def SplitAtPositions(panPos)
 
-		if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
+		if NOT ( isList(panPos) and ( ring_len(panPos) = 0 or @IsListOfNumbers(panPos) ) )
 			StzRaise("Incorrect param type! panPos must be a list of numbers.")
 		ok
 
-		_nLenPos_ = len(panPos)
-		if _nLenPos_ = 0
-			return This.Content()
-
-		but _nLenPos_ = 1
-			return This.SplitAtPosition(panPos[1])
-		ok
-
-		_oChain_ = new stzList(panPos)
-
-		panPos = _oChain_.Sorted()
-		_aPairs_ = This.GetPairsFromPositions(panPos)
-
-		_nFirstPos_ = panPos[1]
-		_nLastPos_ = panPos[_nLenPos_]
-
-		_nLenPairs_ = len(_aPairs_)
-
-		if _aPairs_[_nLenPairs_][2] = _nLastPos_
-			_aPairs_[_nLenPairs_][2]--
-		ok
-
-		if _aPairs_[1][1] = _nFirstPos_
-			_aPairs_[1][1]++
-		ok
-
-		for i = 1 to _nLenPairs_ - 1
-			_aPairs_[i][2]--
-			_aPairs_[i+1][1]++
+		_nLenPos_ = ring_len(panPos)
+		for i = 1 to _nLenPos_
+			This._CheckPosition(panPos[i])
 		next
 
-		return _aPairs_
+		_nLen_ = @nNumberOfPositions
+		_anPos_ = ring_sort(panPos)
+		_aResult_ = []
+		_nPrev_ = 0
+
+		# Each gap between two cut positions is a section; adjacent or
+		# repeated positions leave no gap, so no empty section is made
+		for i = 1 to _nLenPos_
+			if _anPos_[i] > _nPrev_ + 1
+				_aResult_ + [ _nPrev_ + 1, _anPos_[i] - 1 ]
+			ok
+			if _anPos_[i] > _nPrev_
+				_nPrev_ = _anPos_[i]
+			ok
+		next
+
+		if _nPrev_ < _nLen_
+			_aResult_ + [ _nPrev_ + 1, _nLen_ ]
+		ok
+
+		return _aResult_
 
 		#< @FunctionAlternativeForms
 
@@ -1781,14 +1767,13 @@ class stzSplitter from stzListOfNumbers
 	 #  SPLITTING AROUND POSITION(S) OR SECTION(s)  #
 	#===============================================#
 
-	# Returns the sections left around a position, a list of three or more positions, or a list of sections, which are left out.
+	# Returns the sections left around a position, a section given as a pair, several positions or several sections.
 	#
-	#   p          a position, a list of positions, or a list of sections
+	#   p          a position, a pair [ first, last ] taken as a section, a list of three or more
+	#              positions, or a list of sections
 	#   returns    a list of sections, each [ first, last ]
 	#   note       SplitAround([ 3, 6, 8 ]) on 10 positions gives [ [ 1, 2 ], [ 4, 5 ], [ 7, 7 ], [
-	#              9, 10 ] ]
-	#   warning    A list of exactly two numbers (one flat section) raises error R19, because it
-	#              calls SplitAroundSection with one argument
+	#              9, 10 ] ]; a position outside 1..N raises an error
 	#   see        SplitAroundPosition, SplitAroundPositions, SplitAroundSections
 	def SplitAround(p)
 		if isNumber(p)
@@ -1798,7 +1783,7 @@ class stzSplitter from stzListOfNumbers
 		if isList(p)
 			_oParam_ = Q(p)
 			if _oParam_.IsPairOfNumbers()
-				return This.SplitAroundSection(p)
+				return This.SplitAroundSection(p[1], p[2])
 
 			but _oParam_.IsListOfNumbers()
 				return This.SplitAroundPositions(p)
@@ -1828,49 +1813,12 @@ class stzSplitter from stzListOfNumbers
 
 	# Returns the sections on each side of one position, which is itself left out.
 	#
-	#   n          the position to leave out
+	#   n          the position to leave out, from 1 to N
 	#   returns    a list of sections; [ [ 1, 3 ], [ 5, 10 ] ] for position 4 on 10 positions
-	#   note       The answer for a position in the middle is the same as SplitAtPosition
-	#   warning    Raises error R21 when n is the last position; position 1 answers the plain
-	#              numbers 2 to N instead of [ [ 2, N ] ]; a position outside 1..N answers the plain
-	#              numbers 1 to N
+	#   note       the same answer as SplitAtPosition; a position outside 1..N raises an error
 	#   see        SplitAtPosition, SplitAroundPositions
 	def SplitAroundPosition(n)
-
-		# Checking the param
-
-		if CheckingParams()
-			if NOT isNumber(n)
-				StzRaise("Incorrect param type! n must be a number.")
-			ok
-		ok
-
-		# Doing the job
-
-		_nLen_ = This.Size()
-
-		# Managing extreme cases
-
-		if _nLen_ = 0 or (_nLen_ = 1 and n = 1)
-			return []
-
-		but NOT ( 1 <= n and n <= This.Size() )
-			return This.Content()
-
-		but n = 1 and _nLen_ > 1
-			return 2 : _nLen_
-
-		but n = _nLen_
-			return 1 : _nLen_-1
-		ok
-
-		# Managing the normal case
-
-		_aSection1_ = [1, (n-1) ]
-		_aSection2_ = [ (n+1), _nLen_ ]
-
-		_aResult_ = [ _aSection1_, _aSection2_ ]
-		return _aResult_
+		return This.SplitAtPosition(n)
 
 		def SplitsAroundPosition(n)
 			return This.SplitAroundPosition(n)
@@ -1889,13 +1837,13 @@ class stzSplitter from stzListOfNumbers
 
 	# Returns the sections left around several positions, which are left out.
 	#
+	#   panPos     the positions to leave out, from 1 to N, in any order
 	#   returns    a list of sections, each [ first, last ]
 	#   note       SplitAroundPositions([ 3, 6 ]) on 10 positions gives [ [ 1, 2 ], [ 4, 5 ], [ 7,
-	#              10 ] ]
+	#              10 ] ]; the same answer as SplitAtPositions; a position outside 1..N raises an error
 	#   see        SplitAtPositions, SplitAroundPosition
 	def SplitAroundPositions(panPos)
-		_aResult_ = This.AntiPositionsZZ(panPos)
-		return _aResult_
+		return This.SplitAtPositions(panPos)
 
 		def SplitsAroundPositions(panPos)
 			return This.SplitAroundPositions(panPos)
@@ -1912,16 +1860,33 @@ class stzSplitter from stzListOfNumbers
 	 #  SPLITTING AROUND A SECTION  #
 	#------------------------------#
 
-	# Raises error R14 today instead of returning the sections left around one section.
+	# Returns the sections left on each side of one section, which is left out.
 	#
-	#   _n1_       the first position of the section
-	#   _n2_       the last position of the section
-	#   returns    nothing; error R14 is raised
-	#   note       SplitAtSection answers the same question and works
-	#   warning    Raises error R14 today because it calls AntiSectionZZ, which exists nowhere
+	#   _n1_       the first position of the section, from 1 to N
+	#   _n2_       the last position of the section, from 1 to N
+	#   returns    a list of sections; [ [ 1, 1 ], [ 6, 10 ] ] for 2 to 5 on 10 positions
+	#   note       the two ends may come in either order; a position outside 1..N raises an error
 	#   see        SplitAroundSections, SplitAtSection
 	def SplitAroundSection(_n1_, _n2_)
-		_aResult_ = This.AntiSectionZZ(_n1_, _n2_)
+		This._CheckPosition(_n1_)
+		This._CheckPosition(_n2_)
+
+		if _n1_ > _n2_
+			_nTemp_ = _n1_
+			_n1_ = _n2_
+			_n2_ = _nTemp_
+		ok
+
+		_aResult_ = []
+
+		if _n1_ > 1
+			_aResult_ + [ 1, _n1_ - 1 ]
+		ok
+
+		if _n2_ < @nNumberOfPositions
+			_aResult_ + [ _n2_ + 1, @nNumberOfPositions ]
+		ok
+
 		return _aResult_
 
 		def SplitsAroundSection(_n1_, _n2_)
@@ -1941,20 +1906,35 @@ class stzSplitter from stzListOfNumbers
 
 	# Returns the sections left around several sections, which are left out, sorting them first.
 	#
-	#   returns    a list of sections, each [ first, last ]
-	#   note       [ [ 8, 9 ], [ 2, 3 ] ] on 12 positions gives [ [ 1, 1 ], [ 4, 7 ], [ 10, 12 ] ]
-	#   warning    Overlapping sections give wrong sections
-	#   see        FindAntiSectionsZZ_local, SplitAtSections
+	#   paSections   the sections to leave out, each [ first, last ] within 1..N
+	#   returns      a list of sections, each [ first, last ]
+	#   note         [ [ 8, 9 ], [ 2, 3 ] ] on 12 positions gives [ [ 1, 1 ], [ 4, 7 ], [ 10, 12 ] ];
+	#                overlapping sections are merged; a position outside 1..N raises an error
+	#   see          FindAntiSectionsZZ_local, SplitAtSections
 	def SplitAroundSections(paSections)
+		if NOT isList(paSections)
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
+		ok
+
+		_nLenSec_ = ring_len(paSections)
+		for i = 1 to _nLenSec_
+			if NOT ( isList(paSections[i]) and ring_len(paSections[i]) = 2 )
+				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
+			ok
+			This._CheckPosition(paSections[i][1])
+			This._CheckPosition(paSections[i][2])
+		next
+
 		_aResult_ = This.FindAntiSectionsZZ_local(paSections)
 		return _aResult_
 
 	# Returns the sections that no given section covers, after sorting the given ones by their first position.
 	#
-	#   returns    a list of sections; [ ] when the argument is not a list
-	#   note       [ ] as the argument gives the whole range [ [ 1, N ] ]
-	#   warning    Overlapping sections give wrong sections
-	#   see        SplitAroundSections
+	#   paSections   the sections, each [ first, last ]
+	#   returns      a list of sections; [ ] when the argument is not a list
+	#   note         [ ] as the argument gives the whole range [ [ 1, N ] ]; overlapping sections
+	#                are merged
+	#   see          SplitAroundSections
 	def FindAntiSectionsZZ_local(paSections)
 		if NOT isList(paSections) return [] ok
 		_aSorted_ = _ListCopy(paSections)
@@ -1976,7 +1956,10 @@ class stzSplitter from stzListOfNumbers
 				if _s_[1] > _nPrev_ + 1
 					_aRes_ + [ _nPrev_ + 1, _s_[1] - 1 ]
 				ok
-				_nPrev_ = _s_[2]
+				# max, so a section inside an earlier one does not move back
+				if _s_[2] > _nPrev_
+					_nPrev_ = _s_[2]
+				ok
 			ok
 		next
 		if _nTotal_ > _nPrev_
@@ -1998,6 +1981,21 @@ class stzSplitter from stzListOfNumbers
 	  #=======================================================#
 	 #   Utility functions used by the other methods above   #
 	#=======================================================#
+
+	# Raises a clear error when n is not a position of the splitter, 1 to N.
+	#
+	#   n          the position to check
+	#   returns    nothing; raises an error for a position outside 1..N or for a non-number
+	#   see        SplitAtPosition, SplitAroundSection
+	def _CheckPosition(n)
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! A position must be a number.")
+		ok
+
+		if n < 1 or n > @nNumberOfPositions
+			StzRaise("Out of range! The position " + n + " is outside 1.." +
+				 @nNumberOfPositions + ".")
+		ok
 
 	# Returns the consecutive pairs formed by the positions, with 1 and N added at the ends, for the splitting methods.
 	#
