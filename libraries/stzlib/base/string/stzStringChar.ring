@@ -2001,7 +2001,7 @@ class stzStringChar from stzString
 	 #   PRINTABLE / VISIBLE CHAR   #
 	#==============================#
 
-	# TRUE unless the char is a control, format, surrogate, private-use, unassigned, line or paragraph separator.
+	# TRUE if the char is not a control, format, surrogate, private-use, unassigned or line or paragraph separator.
 	#
 	#   returns    TRUE or FALSE
 	#   note       the plain space and the digits are printable
@@ -2016,7 +2016,7 @@ class stzStringChar from stzString
 		ok
 		return 1
 
-	# TRUE for a control, format, surrogate, private-use or unassigned char, or a line or paragraph separator.
+	# TRUE if the char is a control, format, surrogate, private-use or unassigned, or a line or paragraph separator.
 	#
 	#   returns    TRUE or FALSE
 	#   see        IsPrintable

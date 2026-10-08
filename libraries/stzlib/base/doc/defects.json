@@ -1,5 +1,5 @@
 {
- "count": 350,
+ "count": 227,
  "defects": [
   {
    "class": "stzAppServer",
@@ -16,14 +16,6 @@
    "line": 504,
    "symptom": "Leaves a folder unserved today instead of serving its files under a path; a request for a file in it answers 404.",
    "cause": "The static routes are stored in the router but nothing ever reads the list (checked with paths /files and /)"
-  },
-  {
-   "class": "stzSplitter",
-   "file": "common/stzSplitter.ring",
-   "method": "SplitAroundSection",
-   "line": 1923,
-   "symptom": "Raises error R14 today instead of returning the sections left around one section.",
-   "cause": "Raises error R14 today because it calls AntiSectionZZ, which exists nowhere"
   },
   {
    "class": "stzCalendar",
@@ -240,14 +232,6 @@
    "line": 1901,
    "symptom": "Returns today, tomorrow or yesterday, a count of days or weeks within a month of today, else the date as dd/MM/yyyy.",
    "cause": ""
-  },
-  {
-   "class": "stzTimeLine",
-   "file": "datetime/stzTimeLine.ring",
-   "method": "HasMoment",
-   "line": 607,
-   "symptom": "Raises a stack overflow today instead of telling whether a point carries the label.",
-   "cause": "known defect: the method calls itself, so it recurses until the interpreter stops; its spelling siblings HasInstant, ContainsMoment and ContainsInstant call it and fail the same way"
   },
   {
    "class": "stzGeoFeatures",
@@ -802,142 +786,6 @@
    "cause": "known defect: a change_reporting change raises \"Cannot add edge: one or both nodes do not exist!\", since the copy has no nodes; an unknown :type is skipped without a word"
   },
   {
-   "class": "stzLocale",
-   "file": "i18n/stzLocale.ring",
-   "method": "ScriptNumber",
-   "line": 1059,
-   "symptom": "Returns the library's number for the locale's script, as text, but answers 0 (common) for most locales today.",
-   "cause": "answers 0, the common script, for a locale written without a script, so fr-FR, en-US, ar-EG, ja-JP and ru-RU all give common instead of Latin, Arabic or Cyrillic; a script written in the code (ar_Arab_TN gives 1) or a locale built from a country name (France gives Latin) is honoured"
-  },
-  {
-   "class": "stzLocale",
-   "file": "i18n/stzLocale.ring",
-   "method": "ScriptName",
-   "line": 1095,
-   "symptom": "Returns the English name of the locale's script in lowercase, but answers common for most locales today.",
-   "cause": "answers common for a locale written without a script, so fr-FR and ar-EG give common instead of latin and arabic; ar_Arab_TN gives arabic"
-  },
-  {
-   "class": "stzLocale",
-   "file": "i18n/stzLocale.ring",
-   "method": "ScriptAbbreviation",
-   "line": 1108,
-   "symptom": "Returns the four-letter script code, such as Latn or Arab, but answers Zyyy (common) for most locales today.",
-   "cause": "answers Zyyy for a locale written without a script, so fr-FR gives Zyyy instead of Latn"
-  },
-  {
-   "class": "stzLocale",
-   "file": "i18n/stzLocale.ring",
-   "method": "ToTimeAsString",
-   "line": 1335,
-   "symptom": "Raises error R20 today instead of returning the time text written in a chosen format.",
-   "cause": "raises R20 (extra number of parameters) on every call: the body calls the stzTime ToString method with an argument it does not take"
-  },
-  {
-   "class": "stzLocale",
-   "file": "i18n/stzLocale.ring",
-   "method": "ToTimeAsLongString",
-   "line": 1358,
-   "symptom": "Raises error R20 today instead of returning the time text in the long format.",
-   "cause": "raises R20 because ToTimeAsString raises"
-  },
-  {
-   "class": "stzLocale",
-   "file": "i18n/stzLocale.ring",
-   "method": "ToTimeAsShortString",
-   "line": 1367,
-   "symptom": "Raises error R20 today instead of returning the time text in the short format.",
-   "cause": "raises R20 because ToTimeAsString raises"
-  },
-  {
-   "class": "stzLocale",
-   "file": "i18n/stzLocale.ring",
-   "method": "ToTimeAsNarrowString",
-   "line": 1376,
-   "symptom": "Raises error R20 today instead of returning the time text in the narrow format.",
-   "cause": "raises R20 because ToTimeAsString raises"
-  },
-  {
-   "class": "stzLocale",
-   "file": "i18n/stzLocale.ring",
-   "method": "StringLowercased",
-   "line": 1760,
-   "symptom": "Returns the text with its ASCII capital letters turned to lowercase; accented and non-Latin capitals are not changed today.",
-   "cause": "the locale has no effect and only A to Z change, so É stays É and Turkish I gives i; a number as argument stops the Ring process without a message, and a list answers empty text"
-  },
-  {
-   "class": "stzLocale",
-   "file": "i18n/stzLocale.ring",
-   "method": "StringUppercased",
-   "line": 1821,
-   "symptom": "Returns the text with its ASCII small letters turned to capitals; accented and non-Latin letters are not changed today.",
-   "cause": "the locale has no effect and only a to z change, so école gives éCOLE, straße gives STRAßE and Turkish i gives I; a number as argument stops the Ring process without a message"
-  },
-  {
-   "class": "stzLocale",
-   "file": "i18n/stzLocale.ring",
-   "method": "StringTitlecased",
-   "line": 1881,
-   "symptom": "Raises error R14 today instead of returning the text in title case.",
-   "cause": "raises R14 on every call: for English it goes through StringCapitalcased, which calls the missing method CharAtPositionQ, and for other Latin-script languages it calls the missing method Char"
-  },
-  {
-   "class": "stzLocale",
-   "file": "i18n/stzLocale.ring",
-   "method": "ToTitleCase",
-   "line": 1924,
-   "symptom": "Raises error R14 today instead of returning the text in title case.",
-   "cause": "raises R14 on every call, through StringTitlecased"
-  },
-  {
-   "class": "stzLocale",
-   "file": "i18n/stzLocale.ring",
-   "method": "StringIsTitlecased",
-   "line": 1933,
-   "symptom": "Raises error R14 today instead of telling whether the text is already in title case.",
-   "cause": "raises R14 on every call, through StringTitlecased"
-  },
-  {
-   "class": "stzLocale",
-   "file": "i18n/stzLocale.ring",
-   "method": "StringFoldcased",
-   "line": 1951,
-   "symptom": "Returns nothing today, because its body is an unwritten TODO instead of case folding.",
-   "cause": "the body is empty, so every call answers empty text; the ToFoldcase form answers the same"
-  },
-  {
-   "class": "stzLocale",
-   "file": "i18n/stzLocale.ring",
-   "method": "CharFoldcased",
-   "line": 1963,
-   "symptom": "Returns nothing today instead of the case-folded character, because StringFoldcased is not written.",
-   "cause": "answers empty text for every character, because StringFoldcased does"
-  },
-  {
-   "class": "stzLocale",
-   "file": "i18n/stzLocale.ring",
-   "method": "CharIsFoldcased",
-   "line": 1988,
-   "symptom": "Returns FALSE today for any character, because StringFoldcased answers empty text.",
-   "cause": "answers FALSE for every character, because StringFoldcased is not written"
-  },
-  {
-   "class": "stzLocale",
-   "file": "i18n/stzLocale.ring",
-   "method": "StringCapitalcased",
-   "line": 2006,
-   "symptom": "Raises error R14 today instead of returning the text with the first letter of every word capitalised.",
-   "cause": "raises R14 on every call: the body calls the missing method CharAtPositionQ on a stzString"
-  },
-  {
-   "class": "stzLocale",
-   "file": "i18n/stzLocale.ring",
-   "method": "StringIsCapitalised",
-   "line": 2056,
-   "symptom": "Raises error R14 today instead of telling whether every word of the text starts with a capital.",
-   "cause": "raises R14 on every call, through StringCapitalcased"
-  },
-  {
    "class": "stzText",
    "file": "linguistic/stzText.ring",
    "method": "SummarizedAbstractively",
@@ -946,722 +794,10 @@
    "cause": "Raises error R19 without a generative model (checked on three texts): the fallback calls Summary without its sentence count"
   },
   {
-   "class": "stzGrid",
-   "file": "list/stzGrid.ring",
-   "method": "MoveToNthNode",
-   "line": 540,
-   "symptom": "Raises error R14 today instead of moving the current position n steps in the direction the grid faces.",
-   "cause": "Raises R14 today for every direction: each branch calls a method that exists nowhere, such as MoveToNthNodeBackward, and the right branch has a doubled Move in its name"
-  },
-  {
-   "class": "stzGrid",
-   "file": "list/stzGrid.ring",
-   "method": "MoveToNthPosition",
-   "line": 572,
-   "symptom": "Raises error R14 today instead of moving the current position n steps in the direction the grid faces.",
-   "cause": "Raises R14 today for every direction: each branch calls a method that exists nowhere, such as MoveToNthNodeBackward, and the right branch has a doubled Move in its name"
-  },
-  {
-   "class": "stzGrid",
-   "file": "list/stzGrid.ring",
-   "method": "MoveToNthCell",
-   "line": 584,
-   "symptom": "Raises error R14 today instead of moving the current position n steps in the direction the grid faces.",
-   "cause": "Raises R14 today for every direction: each branch calls a method that exists nowhere, such as MoveToNthNodeBackward, and the right branch has a doubled Move in its name"
-  },
-  {
-   "class": "stzGrid",
-   "file": "list/stzGrid.ring",
-   "method": "MoveToPreviousNthNode",
-   "line": 680,
-   "symptom": "Raises error R19 today instead of moving the current position n steps against the direction the grid faces.",
-   "cause": "Raises R19 today on every call: it hands MoveToNode the whole [ column, row ] list that PreviousNthNode returns, where MoveToNode wants the column and the row as two arguments"
-  },
-  {
-   "class": "stzGrid",
-   "file": "list/stzGrid.ring",
-   "method": "MoveToNthPreviousNode",
-   "line": 692,
-   "symptom": "Raises error R19 today instead of moving the current position n steps against the direction the grid faces.",
-   "cause": "Raises R19 today on every call: it hands MoveToNode the whole [ column, row ] list that PreviousNthNode returns, where MoveToNode wants the column and the row as two arguments"
-  },
-  {
-   "class": "stzGrid",
-   "file": "list/stzGrid.ring",
-   "method": "MoveToNthPrevious",
-   "line": 704,
-   "symptom": "Raises error R19 today instead of moving the current position n steps against the direction the grid faces.",
-   "cause": "Raises R19 today on every call: it hands MoveToNode the whole [ column, row ] list that PreviousNthNode returns, where MoveToNode wants the column and the row as two arguments"
-  },
-  {
-   "class": "stzGrid",
-   "file": "list/stzGrid.ring",
-   "method": "MoveToPreviousNth",
-   "line": 716,
-   "symptom": "Raises error R19 today instead of moving the current position n steps against the direction the grid faces.",
-   "cause": "Raises R19 today on every call: it hands MoveToNode the whole [ column, row ] list that PreviousNthNode returns, where MoveToNode wants the column and the row as two arguments"
-  },
-  {
-   "class": "stzGrid",
-   "file": "list/stzGrid.ring",
-   "method": "MoveToPreviousNthPosition",
-   "line": 729,
-   "symptom": "Raises error R19 today instead of moving the current position n steps against the direction the grid faces.",
-   "cause": "Raises R19 today on every call: it hands MoveToNode the whole [ column, row ] list that PreviousNthNode returns, where MoveToNode wants the column and the row as two arguments"
-  },
-  {
-   "class": "stzGrid",
-   "file": "list/stzGrid.ring",
-   "method": "MoveToNthPreviousPosition",
-   "line": 741,
-   "symptom": "Raises error R19 today instead of moving the current position n steps against the direction the grid faces.",
-   "cause": "Raises R19 today on every call: it hands MoveToNode the whole [ column, row ] list that PreviousNthNode returns, where MoveToNode wants the column and the row as two arguments"
-  },
-  {
-   "class": "stzGrid",
-   "file": "list/stzGrid.ring",
-   "method": "MoveToPreviousNthCell",
-   "line": 754,
-   "symptom": "Raises error R19 today instead of moving the current position n steps against the direction the grid faces.",
-   "cause": "Raises R19 today on every call: it hands MoveToNode the whole [ column, row ] list that PreviousNthNode returns, where MoveToNode wants the column and the row as two arguments"
-  },
-  {
-   "class": "stzGrid",
-   "file": "list/stzGrid.ring",
-   "method": "MoveToNthPreviousCell",
-   "line": 766,
-   "symptom": "Raises error R19 today instead of moving the current position n steps against the direction the grid faces.",
-   "cause": "Raises R19 today on every call: it hands MoveToNode the whole [ column, row ] list that PreviousNthNode returns, where MoveToNode wants the column and the row as two arguments"
-  },
-  {
-   "class": "stzGrid",
-   "file": "list/stzGrid.ring",
-   "method": "MoveNRight",
-   "line": 1119,
-   "symptom": "Raises error R24 today instead of moving n cells right.",
-   "cause": "Raises R24, Using uninitialized variable n, on every call: the method takes no argument but passes n on; MoveRightN takes the number of steps"
-  },
-  {
-   "class": "stzGrid",
-   "file": "list/stzGrid.ring",
-   "method": "MoveNNodesRight",
-   "line": 1128,
-   "symptom": "Raises error R24 today instead of moving n cells right.",
-   "cause": "Raises R24, Using uninitialized variable n, on every call: the method takes no argument but passes n on; MoveRightN takes the number of steps"
-  },
-  {
-   "class": "stzGrid",
-   "file": "list/stzGrid.ring",
-   "method": "MoveNCellsRight",
-   "line": 1147,
-   "symptom": "Raises error R24 today instead of moving n cells right.",
-   "cause": "Raises R24, Using uninitialized variable n, on every call: the method takes no argument but passes n on; MoveRightN takes the number of steps"
-  },
-  {
-   "class": "stzGrid",
-   "file": "list/stzGrid.ring",
-   "method": "MoveNLeft",
-   "line": 1192,
-   "symptom": "Raises error R24 today instead of moving n cells left.",
-   "cause": "Raises R24, Using uninitialized variable n, on every call: the method takes no argument but passes n on; MoveLeftN takes the number of steps"
-  },
-  {
-   "class": "stzGrid",
-   "file": "list/stzGrid.ring",
-   "method": "MoveNNodesLeft",
-   "line": 1201,
-   "symptom": "Raises error R24 today instead of moving n cells left.",
-   "cause": "Raises R24, Using uninitialized variable n, on every call: the method takes no argument but passes n on; MoveLeftN takes the number of steps"
-  },
-  {
-   "class": "stzGrid",
-   "file": "list/stzGrid.ring",
-   "method": "MoveNCellsLeft",
-   "line": 1218,
-   "symptom": "Raises error R24 today instead of moving n cells left.",
-   "cause": "Raises R24, Using uninitialized variable n, on every call: the method takes no argument but passes n on; MoveLeftN takes the number of steps"
-  },
-  {
-   "class": "stzGrid",
-   "file": "list/stzGrid.ring",
-   "method": "MoveNUp",
-   "line": 1263,
-   "symptom": "Raises error R24 today instead of moving n cells up.",
-   "cause": "Raises R24, Using uninitialized variable n, on every call: the method takes no argument but passes n on; MoveUpN takes the number of steps"
-  },
-  {
-   "class": "stzGrid",
-   "file": "list/stzGrid.ring",
-   "method": "MoveNNodesUp",
-   "line": 1272,
-   "symptom": "Raises error R24 today instead of moving n cells up.",
-   "cause": "Raises R24, Using uninitialized variable n, on every call: the method takes no argument but passes n on; MoveUpN takes the number of steps"
-  },
-  {
-   "class": "stzGrid",
-   "file": "list/stzGrid.ring",
-   "method": "MoveNCellsUp",
-   "line": 1289,
-   "symptom": "Raises error R24 today instead of moving n cells up.",
-   "cause": "Raises R24, Using uninitialized variable n, on every call: the method takes no argument but passes n on; MoveUpN takes the number of steps"
-  },
-  {
-   "class": "stzGrid",
-   "file": "list/stzGrid.ring",
-   "method": "MoveNDown",
-   "line": 1334,
-   "symptom": "Raises error R24 today instead of moving n cells down.",
-   "cause": "Raises R24, Using uninitialized variable n, on every call: the method takes no argument but passes n on; MoveDownN takes the number of steps"
-  },
-  {
-   "class": "stzGrid",
-   "file": "list/stzGrid.ring",
-   "method": "MoveNNodesDown",
-   "line": 1343,
-   "symptom": "Raises error R24 today instead of moving n cells down.",
-   "cause": "Raises R24, Using uninitialized variable n, on every call: the method takes no argument but passes n on; MoveDownN takes the number of steps"
-  },
-  {
-   "class": "stzGrid",
-   "file": "list/stzGrid.ring",
-   "method": "MoveNCellsDown",
-   "line": 1360,
-   "symptom": "Raises error R24 today instead of moving n cells down.",
-   "cause": "Raises R24, Using uninitialized variable n, on every call: the method takes no argument but passes n on; MoveDownN takes the number of steps"
-  },
-  {
-   "class": "stzGrid",
-   "file": "list/stzGrid.ring",
-   "method": "ShowAdjacent",
-   "line": 1466,
-   "symptom": "Raises error R14 today instead of printing the grid with the neighbours marked.",
-   "cause": "Raises R14 today: it calls PaintNeighbors, a method that exists nowhere"
-  },
-  {
-   "class": "stzGrid",
-   "file": "list/stzGrid.ring",
-   "method": "AreObstacles",
-   "line": 1987,
-   "symptom": "Raises error R20 today instead of telling whether every cell of a list is an obstacle.",
-   "cause": "Raises R20 today on every call: the parameter check is called with an argument it does not take; behind it, the loop would test the whole list instead of each pair"
-  },
-  {
-   "class": "stzGrid",
-   "file": "list/stzGrid.ring",
-   "method": "Maze",
-   "line": 3862,
-   "symptom": "Raises error R19 today instead of building a random maze.",
-   "cause": "Raises R19 today on every call: it calls RandomMaze without the density RandomMaze requires"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "KeysForValue",
-   "line": 732,
-   "symptom": "Raises error R14 today instead of returning the keys of every pair that holds the given value.",
-   "cause": "known defect: on text values the call raises error R14 today; on list values it answers an empty list. Use KeysByValue"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "FirstPair",
-   "line": 1053,
-   "symptom": "Raises an error today instead of returning the first [ key, value ] pair.",
-   "cause": "known defect: the call raises error R24 today, because it reads _n_, which it never sets; NthPair works"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "LastPair",
-   "line": 1071,
-   "symptom": "Raises an error today instead of returning the last [ key, value ] pair.",
-   "cause": "known defect: the call raises error R24 today, because it reads _n_, which it never sets; NthPair works"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "KeyInPair",
-   "line": 1084,
-   "symptom": "Raises an error today instead of returning the key part of a [ key, value ] pair.",
-   "cause": "known defect: the call raises a parameter-type error today even for a real pair"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "ValueInPair",
-   "line": 1109,
-   "symptom": "Raises an error today instead of returning the value part of a [ key, value ] pair.",
-   "cause": "known defect: the call raises a parameter-type error today even for a real pair"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "ValueInNthPairQ",
-   "line": 1155,
-   "symptom": "Raises an error today instead of returning the value of the nth pair as a Q object.",
-   "cause": "known defect: the call raises error R14 today, because it calls a method that is not defined"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "UpdateKeys",
-   "line": 1532,
-   "symptom": "Raises an error today instead of replacing the keys by the given ones, in order.",
-   "cause": "known defect: the call raises error R14 today, because it calls ItemsAreAllStrings, which is not defined"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "UpdateNthOccurrenceOfValue",
-   "line": 1580,
-   "symptom": "Raises an error today instead of replacing the nth occurrence of a value.",
-   "cause": "known defect: the call raises error R19 today (the definition takes one parameter and the body needs more)"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "UpdateFirstOccurrenceOfValue",
-   "line": 1617,
-   "symptom": "Raises an error today instead of replacing the first occurrence of a value.",
-   "cause": "known defect: the call raises error R20 today (its definition and its call disagree on the parameters)"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "UpdateFirstValue",
-   "line": 1627,
-   "symptom": "Raises an error today instead of replacing the first occurrence of a value.",
-   "cause": "known defect: the call raises error R20 today (its definition and its call disagree on the parameters)"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "UpdateLastValue",
-   "line": 1638,
-   "symptom": "Raises an error today instead of replacing the last occurrence of a value.",
-   "cause": "known defect: the call raises error R20 today (its definition and its call disagree on the parameters)"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "UpdateAllPairsWith",
-   "line": 1649,
-   "symptom": "Replaces every pair by the given [ key, value ] pair, in place.",
-   "cause": "known defect: the call raises a parameter-type error today"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "ReverseKeysAndValues",
-   "line": 1679,
-   "symptom": "Raises a parameter-type error today instead of swapping keys and values, in place.",
-   "cause": "known defect: the call raises a parameter-type error today for every hash list; ValuesAndKeys returns the pairs turned round"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "InsertBefore",
-   "line": 1792,
-   "symptom": "Inserts a pair before position n, in place.",
-   "cause": "known defect: the call raises an error today, because it reads a property named HashList that the object does not have; Add appends a pair and works"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "InsertAfter",
-   "line": 1811,
-   "symptom": "Raises an error today instead of inserting a pair after position n.",
-   "cause": "known defect: the call raises an error today, because it reads a property named HashList that the object does not have; Add appends a pair and works"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "RemovePair",
-   "line": 1866,
-   "symptom": "Raises an error today instead of removing the given [ key, value ] pair.",
-   "cause": "known defect: the call raises error R14 today, because it calls a RemoveQ method that is not defined"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "RemovePairsByKeys",
-   "line": 1912,
-   "symptom": "Raises an error today instead of removing the pairs that hold any of the given keys.",
-   "cause": "known defect: the call raises error R3 today, because it calls @IsListOfStrings, which is not defined"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "ReplaceValue",
-   "line": 2040,
-   "symptom": "Raises an error today instead of replacing the first occurrence of the given value.",
-   "cause": "known defect: the call raises an error today (it expects a position where the value should be); UpdateValue replaces a value"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "ReplacePair",
-   "line": 2168,
-   "symptom": "Raises an error today instead of replacing the given pair by a new one.",
-   "cause": "known defect: the call raises error R14 today, because it calls ReplaceNthPair, which is not defined"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "ReplacePairByKey",
-   "line": 2185,
-   "symptom": "Raises an error today instead of replacing the pair that holds the given key.",
-   "cause": "known defect: the call raises error R14 today, because it calls ReplaceNthPair, which is not defined"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "ReplacePairsW",
-   "line": 2199,
-   "symptom": "Raises an error today instead of replacing the pairs that meet a condition.",
-   "cause": "the feature is reserved and not implemented in this release"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "ContainsTheseValues",
-   "line": 2429,
-   "symptom": "Raises an error today instead of telling whether every given value occurs.",
-   "cause": "known defect: the call raises error R24 today, because it reads pValue, which it never sets; ContainsValues works"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "FindLastOccurrenceOfValue",
-   "line": 2662,
-   "symptom": "Returns the position of the last pair that holds the given value.",
-   "cause": "known defect: it asks for the nth occurrence with n = the number of pairs, so it raises an error (index out of range) unless every pair holds the value; FindValue gives the positions to take the last of"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "KeysByValues",
-   "line": 2845,
-   "symptom": "Raises an error today instead of returning the keys of the pairs holding any of the given values.",
-   "cause": "known defect: the call raises error R14 today, because it calls WithoutDuplicates, which this class does not define"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "FindNumber",
-   "line": 3091,
-   "symptom": "Raises an error today instead of returning the positions of the pairs holding the number.",
-   "cause": "known defect: the call raises a parameter-type error today even for an argument of the type it asks for"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "NumberZ",
-   "line": 3114,
-   "symptom": "Raises an error today instead of returning the number with the positions that hold it.",
-   "cause": "known defect: the call raises a parameter-type error today even for an argument of the type it asks for"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "FindTheseNumbers",
-   "line": 3132,
-   "symptom": "Raises an error today instead of returning the positions of the pairs holding any of the numbers.",
-   "cause": "known defect: the call raises a parameter-type error today even for an argument of the type it asks for"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "TheseNumbersZ",
-   "line": 3163,
-   "symptom": "Raises an error today instead of returning each number with the positions that hold it.",
-   "cause": "known defect: the call raises a parameter-type error today even for an argument of the type it asks for"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "FindString",
-   "line": 3238,
-   "symptom": "Raises an error today instead of returning the positions of the pairs holding the text.",
-   "cause": "known defect: the call raises a parameter-type error today even for an argument of the type it asks for"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "StringZ",
-   "line": 3261,
-   "symptom": "Raises an error today instead of returning the text with the positions that hold it.",
-   "cause": "known defect: the call raises a parameter-type error today even for an argument of the type it asks for"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "FindTheseStrings",
-   "line": 3279,
-   "symptom": "Raises an error today instead of returning the positions of the pairs holding any of the texts.",
-   "cause": "known defect: the call raises a parameter-type error today even for an argument of the type it asks for"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "TheseStringsZ",
-   "line": 3310,
-   "symptom": "Raises an error today instead of returning each text with the positions that hold it.",
-   "cause": "known defect: the call raises a parameter-type error today even for an argument of the type it asks for"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "FindLastItem",
-   "line": 3991,
-   "symptom": "Raises an error today instead of returning the position of the last pair whose list value holds the item.",
-   "cause": "known defect: the call raises error R14 today, because it calls NumberOfOccurreceOfItemInList, a misspelled name that is not defined"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "FindFirstKeyByItemInList",
-   "line": 4065,
-   "symptom": "Raises an error today instead of returning a key whose list value holds the item.",
-   "cause": "known defect: the call raises error R14 today, because it calls ContainsItemInList, which is not defined"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "FindLastKeyByItemInList",
-   "line": 4100,
-   "symptom": "Raises an error today instead of returning a key whose list value holds the item.",
-   "cause": "known defect: the call raises error R14 today, because it calls ContainsItemInList, which is not defined"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "KeyByItemInList",
-   "line": 4119,
-   "symptom": "Raises an error today instead of returning a key whose list value holds the item.",
-   "cause": "known defect: the call raises error R14 today, because it calls ContainsItemInList, which is not defined"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "KeysByItemInList",
-   "line": 4134,
-   "symptom": "Raises an error today instead of returning the keys whose list value holds the item.",
-   "cause": "known defect: the call raises a parameter-type error today when the item occurs; FindKeysByItem answers where it occurs"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "KeysByItem",
-   "line": 4153,
-   "symptom": "Raises an error today instead of returning the keys whose list value holds the item.",
-   "cause": "known defect: the call overflows the stack (R4) today; FindKeysByItem answers where the item occurs"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "Classify",
-   "line": 4216,
-   "symptom": "Groups the keys by the value they hold, one [ class, keys ] pair per distinct value.",
-   "cause": "known defect: the call raises error R14 today, because it uses IsStrictlyEqualTo, which no class defines; Classes and NumberOfClasses work"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "Klass",
-   "line": 4429,
-   "symptom": "Raises an error today instead of returning the keys that belong to the given class.",
-   "cause": "known defect: on text values the call raises error R14 today (it calls IsStrictlyEqualTo, which is not defined); it answers when the values are lists"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "NumberOfValuesInClass",
-   "line": 4508,
-   "symptom": "Raises an error today instead of returning how many values belong to the given class.",
-   "cause": "known defect: on text values the call raises error R14 today (it calls IsStrictlyEqualTo, which is not defined); it answers when the values are lists"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "ClassesSizes",
-   "line": 4577,
-   "symptom": "Raises an error today instead of returning how many pairs each class holds.",
-   "cause": "known defect: on text values the call raises error R14 today (it calls IsStrictlyEqualTo, which is not defined); on list values the figures it works from come out wrong, so the answer is not to be trusted"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "KlassFreq",
-   "line": 4745,
-   "symptom": "Raises an error today instead of returning the share of the pairs that belong to the given class.",
-   "cause": "known defect: on text values the call raises error R14 today (it calls IsStrictlyEqualTo, which is not defined); it answers when the values are lists"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "ClassesFrequencies",
-   "line": 4834,
-   "symptom": "Raises an error today instead of returning the share of the pairs in each class.",
-   "cause": "known defect: on text values the call raises error R14 today (it calls IsStrictlyEqualTo, which is not defined); on list values the figures it works from come out wrong, so the answer is not to be trusted"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "NStrongestClasses",
-   "line": 5031,
-   "symptom": "Raises an error today instead of returning the n classes that hold the most pairs.",
-   "cause": "known defect: on text values the call raises error R14 today (it calls IsStrictlyEqualTo, which is not defined); on list values the figures it works from come out wrong, so the answer is not to be trusted"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "StrongestClass",
-   "line": 5129,
-   "symptom": "Raises an error today instead of returning the class that holds the most pairs.",
-   "cause": "known defect: on text values the call raises error R14 today (it calls IsStrictlyEqualTo, which is not defined); on list values the figures it works from come out wrong, so the answer is not to be trusted"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "Top3Classes",
-   "line": 5182,
-   "symptom": "Raises an error today instead of returning the three classes that hold the most pairs.",
-   "cause": "known defect: on text values the call raises error R14 today (it calls IsStrictlyEqualTo, which is not defined); on list values the figures it works from come out wrong, so the answer is not to be trusted"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "Strongest3Classes",
-   "line": 5196,
-   "symptom": "Raises an error today instead of returning the three classes that hold the most pairs.",
-   "cause": "known defect: the call raises error R24 today, because it reads _n_, which it never sets; Top3Classes works"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "Strongest3ClassesAndTheirFrequencies",
-   "line": 5231,
-   "symptom": "Raises an error today instead of returning the three strongest classes with their shares.",
-   "cause": "known defect: the call raises error R24 today, because it reads _n_, which it never sets"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "NWeakestClasses",
-   "line": 5251,
-   "symptom": "Raises an error today instead of returning the n classes that hold the fewest pairs.",
-   "cause": "known defect: on text values the call raises error R14 today (it calls IsStrictlyEqualTo, which is not defined); on list values the figures it works from come out wrong, so the answer is not to be trusted"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "WeakestClass",
-   "line": 5346,
-   "symptom": "Raises an error today instead of returning the class that holds the fewest pairs.",
-   "cause": "known defect: on text values the call raises error R14 today (it calls IsStrictlyEqualTo, which is not defined); on list values the figures it works from come out wrong, so the answer is not to be trusted"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "Bottom3Classes",
-   "line": 5393,
-   "symptom": "Raises an error today instead of returning the three classes that hold the fewest pairs.",
-   "cause": "known defect: on text values the call raises error R14 today (it calls IsStrictlyEqualTo, which is not defined); on list values the figures it works from come out wrong, so the answer is not to be trusted"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "Weakest3Classes",
-   "line": 5407,
-   "symptom": "Raises an error today instead of returning the three classes that hold the fewest pairs.",
-   "cause": "known defect: the call raises error R24 today, because it reads _n_, which it never sets; Bottom3Classes works"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "Weakest3ClassesAndTheirFrequencies",
-   "line": 5438,
-   "symptom": "Raises an error today instead of returning the three weakest classes with their shares.",
-   "cause": "known defect: the call raises error R24 today, because it reads _n_, which it never sets"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "KlassInList",
-   "line": 5695,
-   "symptom": "Raises an error today instead of returning the keys whose list value holds the class.",
-   "cause": "known defect: the call raises error R14 today, because it calls KeysForItemInList, which is not defined"
-  },
-  {
-   "class": "stzHashList",
-   "file": "list/stzHashList.ring",
-   "method": "KalssInListQ",
-   "line": 5707,
-   "symptom": "Raises an error today: a misspelling of KlassInListQ that asks for a return type the class does not support.",
-   "cause": "known defect: the call raises an unsupported-return-type error today"
-  },
-  {
-   "class": "stzListOfPairs",
-   "file": "list/stzListOfPairs.ring",
-   "method": "ReplacePair",
-   "line": 717,
-   "symptom": "Raises error R20 today instead of replacing the pair at position n by the new pair.",
-   "cause": "Raises R20 today on every call: the check IsPair(paNewPair) inside the class reaches the IsPair method inherited from stzList, which takes no argument, instead of the global IsPair function"
-  },
-  {
-   "class": "stzListOfPairs",
-   "file": "list/stzListOfPairs.ring",
-   "method": "PairReplaced",
-   "line": 734,
-   "symptom": "Raises error R20 today instead of returning a copy of the pairs with the pair at position n replaced.",
-   "cause": "Raises R20 today on every call, because it goes through ReplacePair, whose IsPair check reaches the IsPair method inherited from stzList"
-  },
-  {
-   "class": "stzListOfPairs",
-   "file": "list/stzListOfPairs.ring",
-   "method": "SortBy",
-   "line": 1052,
-   "symptom": "Leaves the order of the pairs unchanged today instead of ordering them by the key expression, ascending.",
-   "cause": "Leaves the order unchanged today for every key expression tried (@pair[2], len(@pair[1]), @pair): the key sort it forwards to, stzList.SortBy, orders text items by an expression but does not evaluate one on a list item"
-  },
-  {
-   "class": "stzListOfPairs",
-   "file": "list/stzListOfPairs.ring",
-   "method": "SortByInAscending",
-   "line": 1078,
-   "symptom": "Leaves the order of the pairs unchanged today instead of ordering them by the key expression, ascending.",
-   "cause": "Leaves the order unchanged today, because it forwards to SortBy, which does not order a list of lists by an expression"
-  },
-  {
-   "class": "stzListOfPairs",
-   "file": "list/stzListOfPairs.ring",
-   "method": "SortByUp",
-   "line": 1091,
-   "symptom": "Leaves the order of the pairs unchanged today instead of ordering them by the key expression, ascending.",
-   "cause": "Leaves the order unchanged today, because it forwards to SortBy, which does not order a list of lists by an expression"
-  },
-  {
-   "class": "stzListOfPairs",
-   "file": "list/stzListOfPairs.ring",
-   "method": "SortedBy",
-   "line": 1106,
-   "symptom": "Returns the pairs in their present order today instead of a copy ordered by the key expression, ascending.",
-   "cause": "Does not order today, whatever the expression: it sorts a copy through SortBy, which leaves a list of lists in place"
-  },
-  {
-   "class": "stzListOfPairs",
-   "file": "list/stzListOfPairs.ring",
-   "method": "SortedByInDescending",
-   "line": 1157,
-   "symptom": "Returns a copy of the pairs with the two items of every pair swapped, today instead of ordered by the key expression, descending.",
-   "cause": "Swaps the items of each pair today, because it goes through SortByInDescending, which ends with SwapItems"
-  },
-  {
    "class": "stzListOfPairs",
    "file": "list/stzListOfPairs.ring",
    "method": "ExpandedIfPairsOfNumbers",
-   "line": 1174,
+   "line": 1223,
    "symptom": "Raises error R14 today instead of returning the number lists that the pairs of numbers expand to.",
    "cause": "Raises R14 today on every call: it calls ExpandedIfPairOfNumbers, a method that exists nowhere in the loaded library"
   },
@@ -1669,7 +805,7 @@
    "class": "stzListOfPairs",
    "file": "list/stzListOfPairs.ring",
    "method": "IsListOfSections",
-   "line": 1378,
+   "line": 1427,
    "symptom": "Answers TRUE for any list of pairs today, instead of TRUE only when every pair is made of two numbers.",
    "cause": "Answers TRUE whatever the pairs hold, text included: the loop records a failing pair in a variable that is never read, so the result stays at its start value"
   },
@@ -1677,7 +813,7 @@
    "class": "stzListOfPairs",
    "file": "list/stzListOfPairs.ring",
    "method": "AreAnagrams",
-   "line": 1515,
+   "line": 1564,
    "symptom": "Raises error R14 today instead of telling whether the two items are anagrams of each other.",
    "cause": "Raises R14 today on every call: it reads FirstValue and SecondValue, which this class does not define"
   },
@@ -1685,7 +821,7 @@
    "class": "stzListOfPairs",
    "file": "list/stzListOfPairs.ring",
    "method": "ToStzSetOfSections",
-   "line": 2268,
+   "line": 2317,
    "symptom": "Raises an error today instead of returning the pairs as a stzSetOfSections.",
    "cause": "Raises \"You must provide a list of sections\" today for valid sections such as [ [ 1, 3 ], [ 5, 8 ] ]: the stzSetOfSections constructor refuses what stzListOfSections accepts"
   },
@@ -2028,24 +1164,8 @@
   {
    "class": "stzDataSet",
    "file": "stats/stzDataSet.ring",
-   "method": "WMean",
-   "line": 1814,
-   "symptom": "Raises error R4 today instead of returning the weighted mean.",
-   "cause": "known defect: it calls itself, so the stack overflows on every call"
-  },
-  {
-   "class": "stzDataSet",
-   "file": "stats/stzDataSet.ring",
-   "method": "Percentile",
-   "line": 2185,
-   "symptom": "Returns the value at a percentile of the sorted data, interpolating linearly between neighbours.",
-   "cause": "known defect: a percent below 0, or far above 100, makes the engine panic and ends the Ring process; -1 and 150 did, 110 and 101 did not"
-  },
-  {
-   "class": "stzDataSet",
-   "file": "stats/stzDataSet.ring",
    "method": "NonParametricCorrelation",
-   "line": 2920,
+   "line": 2924,
    "symptom": "Raises error R24 today instead of returning a rank correlation.",
    "cause": "known defect: the body reads a variable named _oOtherStats_ that this method does not receive"
   },
@@ -2053,7 +1173,7 @@
    "class": "stzDataSet",
    "file": "stats/stzDataSet.ring",
    "method": "MutualInformation",
-   "line": 3140,
+   "line": 3144,
    "symptom": "Returns the mutual information, in bits, between this data and another data set of the same length.",
    "cause": "known defect: the pairs are joined with an underscore and split again, so a value containing an underscore gives a wrong result: \"a_b\" and \"c_d\" against x and y give 0 where ab and cd give 1"
   },
@@ -2061,7 +1181,7 @@
    "class": "stzDataSet",
    "file": "stats/stzDataSet.ring",
    "method": "PlanSummary",
-   "line": 3979,
+   "line": 3983,
    "symptom": "Raises error R5 today instead of returning a text preview of a plan's steps without running it.",
    "cause": "known defect: the body reads the title from a variable named oPlan, which does not exist, instead of from the plan it built"
   },
@@ -2076,48 +1196,8 @@
   {
    "class": "stzStringChar",
    "file": "string/stzStringChar.ring",
-   "method": "HexUnicode",
-   "line": 815,
-   "symptom": "Returns the codepoint as U+ followed by four hex digits, such as U+0061.",
-   "cause": "known defect: only four hex digits are kept, so a char above U+FFFF comes out wrong: U+1F600 reads U+F600"
-  },
-  {
-   "class": "stzStringChar",
-   "file": "string/stzStringChar.ring",
-   "method": "Update",
-   "line": 883,
-   "symptom": "Replaces the held char with the given text, in place; a codepoint number empties the object today.",
-   "cause": "known defect: Update(98) leaves an empty string and Unicode 0, because the number is never converted; Update(\"ab\") stores both chars, so only a one-char text works as meant"
-  },
-  {
-   "class": "stzStringChar",
-   "file": "string/stzStringChar.ring",
-   "method": "UpdateWith",
-   "line": 913,
-   "symptom": "Replaces the held char with the given one, in place, exactly as the plain form does.",
-   "cause": "known defect: shares the defect of the plain form, so a codepoint number empties the object"
-  },
-  {
-   "class": "stzStringChar",
-   "file": "string/stzStringChar.ring",
-   "method": "UpdateBy",
-   "line": 927,
-   "symptom": "Replaces the held char with the given one, in place, exactly as the plain form does.",
-   "cause": "known defect: shares the defect of the plain form, so a codepoint number empties the object"
-  },
-  {
-   "class": "stzStringChar",
-   "file": "string/stzStringChar.ring",
-   "method": "UpdateUsing",
-   "line": 941,
-   "symptom": "Replaces the held char with the given one, in place, exactly as the plain form does.",
-   "cause": "known defect: shares the defect of the plain form, so a codepoint number empties the object"
-  },
-  {
-   "class": "stzStringChar",
-   "file": "string/stzStringChar.ring",
    "method": "CanRetrieveName",
-   "line": 976,
+   "line": 967,
    "symptom": "Answers TRUE when the Unicode database holds a name for the char, and raises when it does not.",
    "cause": "known defect: for an unnamed code such as U+0378 it raises \"Can't proceed!\" instead of answering FALSE, because it asks for the name and the name request raises"
   },
@@ -2125,7 +1205,7 @@
    "class": "stzStringChar",
    "file": "string/stzStringChar.ring",
    "method": "AsciiCode",
-   "line": 1027,
+   "line": 1018,
    "symptom": "Returns the ASCII code of the char, 0 to 127; for a char above 127 it raises R3 instead of a clear message.",
    "cause": "known defect: the failure branch calls stzCharError, which is defined nowhere, so a non-ASCII char raises R3 \"Calling Function without definition\""
   },
@@ -2133,7 +1213,7 @@
    "class": "stzStringChar",
    "file": "string/stzStringChar.ring",
    "method": "IsLeftToRightIsolate",
-   "line": 1231,
+   "line": 1222,
    "symptom": "Returns an empty string today instead of TRUE for the left-to-right isolate mark, U+2066.",
    "cause": "known defect: the body is only a comment (\"Reserved for future implementation\"), so the answer is always empty"
   },
@@ -2141,7 +1221,7 @@
    "class": "stzStringChar",
    "file": "string/stzStringChar.ring",
    "method": "IsRightToLeftIsolate",
-   "line": 1239,
+   "line": 1230,
    "symptom": "Returns an empty string today instead of TRUE for the right-to-left isolate mark, U+2067.",
    "cause": "known defect: the body is only a comment (\"Reserved for future implementation\"), so the answer is always empty"
   },
@@ -2149,95 +1229,31 @@
    "class": "stzStringChar",
    "file": "string/stzStringChar.ring",
    "method": "IsEuropean",
-   "line": 1452,
+   "line": 1443,
    "symptom": "Raises error R14 today instead of TRUE for a European number, separator or terminator.",
    "cause": "known defect: the body calls IsEuropeanNumber, which is defined nowhere"
   },
   {
    "class": "stzStringChar",
    "file": "string/stzStringChar.ring",
-   "method": "IsUnicodeNumber",
-   "line": 1477,
-   "symptom": "Answers TRUE for Arabic, Hebrew or CJK letters and FALSE for 7 today, instead of TRUE for number chars.",
-   "cause": "known defect: it tests category codes 3, 4 and 5, which are title-case, modifier and other letters in the engine's numbering, where digits are 9 to 11; Roman, Mandarin and Indian numerals are caught by their own tests"
-  },
-  {
-   "class": "stzStringChar",
-   "file": "string/stzStringChar.ring",
-   "method": "IsArabicNumber",
-   "line": 1522,
-   "symptom": "Answers FALSE for 0 to 9 and raises R41 for a non-ASCII digit today, instead of TRUE for an Arabic digit.",
-   "cause": "known defect: it searches a list of digit texts for a number, so a plain digit is never found, and it adds 0 to the content, which raises R41 \"Invalid numeric string\" for an Arabic-Indic, Devanagari or circled digit"
-  },
-  {
-   "class": "stzStringChar",
-   "file": "string/stzStringChar.ring",
    "method": "Mirrored",
-   "line": 1744,
+   "line": 1735,
    "symptom": "Raises error R3 today instead of returning the mirror partner of the char.",
    "cause": "known defect: the body calls CharFromUnicode, which is defined nowhere"
   },
   {
    "class": "stzStringChar",
    "file": "string/stzStringChar.ring",
-   "method": "IsBasicLatin",
-   "line": 1777,
-   "symptom": "Raises error R24 today instead of testing for the Basic Latin block, U+0000 to U+007F.",
-   "cause": "known defect: the body reads _anBasicLatinUnicodes, but the data file defines _anLatinBasicUnicodes"
-  },
-  {
-   "class": "stzStringChar",
-   "file": "string/stzStringChar.ring",
-   "method": "IsBasicArabic",
-   "line": 1866,
-   "symptom": "Raises error R24 today instead of testing for the basic Arabic block.",
-   "cause": "known defect: the body reads _anBasicArabicUnicodes, which the data file does not define"
-  },
-  {
-   "class": "stzStringChar",
-   "file": "string/stzStringChar.ring",
-   "method": "IsCircledLatinSmallLetter",
-   "line": 1987,
-   "symptom": "Raises error R24 today instead of testing for a circled small Latin letter.",
-   "cause": "known defect: the body reads _aCircledLatinSmallLetterUnicodes directly, a variable that is not defined"
-  },
-  {
-   "class": "stzStringChar",
-   "file": "string/stzStringChar.ring",
-   "method": "IsCircledLatinCapitalLetter",
-   "line": 1997,
-   "symptom": "Raises error R24 today instead of testing for a circled capital Latin letter.",
-   "cause": "known defect: the body reads _aCircledLatinCapitalLetterUnicodes directly, a variable that is not defined"
-  },
-  {
-   "class": "stzStringChar",
-   "file": "string/stzStringChar.ring",
    "method": "IsOtherCircledChar",
-   "line": 2006,
+   "line": 1997,
    "symptom": "Raises error R3 today instead of testing for a circled char outside the digits and Latin letters.",
    "cause": "known defect: the body calls OtherCircledCharUnicodes, which is defined nowhere"
   },
   {
    "class": "stzStringChar",
    "file": "string/stzStringChar.ring",
-   "method": "IsPrintable",
-   "line": 2020,
-   "symptom": "Answers FALSE for digits, hyphens and Roman numerals and TRUE for control chars today, as it tests the wrong category codes.",
-   "cause": "known defect: it rejects category codes 9 to 13 (digits, Roman numerals, connector and dash punctuation) where it meant the control, format and surrogate codes 26 to 29"
-  },
-  {
-   "class": "stzStringChar",
-   "file": "string/stzStringChar.ring",
-   "method": "IsNonPrintable",
-   "line": 2033,
-   "symptom": "Answers TRUE for digits, hyphens and Roman numerals and FALSE for control chars today, the reverse of printable.",
-   "cause": "known defect: it is the negation of the printable test, which tests the wrong category codes"
-  },
-  {
-   "class": "stzStringChar",
-   "file": "string/stzStringChar.ring",
    "method": "IntroducedInUnicodeVersion",
-   "line": 2077,
+   "line": 2067,
    "symptom": "Returns a rough Unicode version taken from the char's block, \"0.9\" for nearly every char and \"3.2\" for emoji.",
    "cause": "known defect: the version list is an approximation, marked #TODO in the data file (\"Put correct values\"); emoji were added in Unicode 6"
   },
@@ -2245,7 +1261,7 @@
    "class": "stzStringChar",
    "file": "string/stzStringChar.ring",
    "method": "DefaultLanguage",
-   "line": 2165,
+   "line": 2155,
    "symptom": "Returns the main language of the char's script, such as english, arabic or hebrew, and undefined for chars shared by scripts.",
    "cause": "known defect: raises \"Can not create char object!\" for a char of the Inherited or Unknown script, such as a combining accent, an unassigned code or a private-use char"
   },
@@ -2253,7 +1269,7 @@
    "class": "stzStringChar",
    "file": "string/stzStringChar.ring",
    "method": "TaiThamScript",
-   "line": 2867,
+   "line": 2857,
    "symptom": "Raises error R14 today instead of testing for the Tai Tham script.",
    "cause": "known defect: the body calls ScriptCode, which was retired; ScriptIs(\"taitham\") is the working test"
   },
@@ -2765,7 +1781,7 @@
    "class": "stzTable",
    "file": "table/stzTable.ring",
    "method": "@",
-   "line": 18420,
+   "line": 18422,
    "symptom": "Returns the cell-reading code of a column in a formula, or the text itself when it names no column; a list raises today.",
    "cause": "A column name gives the code text ( This.Cell(n, j) ); a list raises R14 because IsHasHListOrListOfStrings is defined nowhere"
   },
@@ -2773,7 +1789,7 @@
    "class": "stzTable",
    "file": "table/stzTable.ring",
    "method": "buildGrandTotal",
-   "line": 20852,
+   "line": 20854,
    "symptom": "Raises error R24 today instead of returning the grand-total line of the grid.",
    "cause": "Raises R24 because the body reads the grand totals, which are local to buildDataRows"
   },
@@ -2781,7 +1797,7 @@
    "class": "stzTable",
    "file": "table/stzTable.ring",
    "method": "TransposeWithColNames",
-   "line": 21033,
+   "line": 21035,
    "symptom": "Raises error R14 today instead of transposing the table while keeping the column names as a first column.",
    "cause": "Raises R14 because the body calls TansposeXT, a misspelling; TransposeXT works"
   },
@@ -2789,7 +1805,7 @@
    "class": "stzTable",
    "file": "table/stzTable.ring",
    "method": "ToHtml",
-   "line": 21248,
+   "line": 21250,
    "symptom": "Raises error R24 today instead of returning the table as an HTML table.",
    "cause": "Raises R24 because ToHtmlXT reads a variable named data that is never set"
   },
@@ -2797,7 +1813,7 @@
    "class": "stzTable",
    "file": "table/stzTable.ring",
    "method": "FromHtml",
-   "line": 21323,
+   "line": 21325,
    "symptom": "Raises error R14 today instead of replacing the table by the content of an HTML table.",
    "cause": "Raises R14 because HtmlToTable is defined nowhere"
   }
