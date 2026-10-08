@@ -806,22 +806,23 @@ class stzStringChar from stzString
 	def UnicodeAsString()
 		return "" + This.Unicode()
 
-	# Returns the codepoint as U+ followed by four hex digits, such as U+0061.
+	# Returns the codepoint as U+ followed by its hex digits, at least four: U+0061, U+1F600.
 	#
 	#   returns    a string
-	#   warning    known defect: only four hex digits are kept, so a char above U+FFFF comes out
-	#              wrong: U+1F600 reads U+F600
 	#   see        Unicode
 	def HexUnicode()
 		_nDecUnicode_ = This.Unicode()
 		_acHexDigits_ = "0123456789ABCDEF"
 		_cResult_ = ""
+		_nDigits_ = 0
 
-		for i = 1 to 4
-			_nDigit_ = 0+ Q(_nDecUnicode_ % 16).IntegerPart() + 1
+		# At least four digits, and as many more as the codepoint needs
+		while _nDecUnicode_ > 0 or _nDigits_ < 4
+			_nDigit_ = (_nDecUnicode_ % 16) + 1
 			_cResult_ = _acHexDigits_[_nDigit_] + _cResult_
-			_nDecUnicode_ = _nDecUnicode_ / 16
-		next
+			_nDecUnicode_ = floor(_nDecUnicode_ / 16)
+			_nDigits_++
+		end
 
 		return "U+" + _cResult_
 
@@ -870,14 +871,12 @@ class stzStringChar from stzString
 	 #   UPDATE    #
 	#=============#
 
-	# Replaces the held char with the given text, in place; a codepoint number empties the object today.
+	# Replaces the held char with the given one, in place.
 	#
-	#   pChar      the new char, as text
+	#   pChar      the new char: a one-char text, a codepoint number, a U+XXXX text or a char name
 	#   returns    nothing; the char changes
-	#   note       written Update("z") or Update(:With = "z")
-	#   warning    known defect: Update(98) leaves an empty string and Unicode 0, because the number
-	#              is never converted; Update("ab") stores both chars, so only a one-char text works
-	#              as meant
+	#   note       written Update("z") or Update(:With = "z"); a text of several chars raises an
+	#              error, as the constructor does
 	#   see        UpdateWith, Updated
 	#@ aka  Replace the char with the given one (mutating; the single update point).
 	def Update(pChar)
@@ -887,15 +886,13 @@ class stzStringChar from stzString
 			ok
 		ok
 
-		if isString(pChar)
-			@oString = new stzString(pChar)
-
-		but ring_Type(pChar) = "NUMBER"
-			_cBuf_ = space(4)
-			_nLen_ = StzEngineCharToUtf8(pChar, _cBuf_, 4)
-			@oString = new stzString(StzLeft(_cBuf_, _nLen_))
+		# The constructor knows every way of naming a char (one-char text,
+		# codepoint, U+XXXX, name) and refuses anything else, such as "ab"
+		if isString(pChar) or isNumber(pChar)
+			_oNewChar_ = new stzStringChar(pChar)
+			@oString = _oNewChar_.String()
 		else
-			StzRaise("Can't update the char!")
+			StzRaise("Can't update the char! pChar must be a char, as text or as a codepoint.")
 		ok
 
 		if KeepingHisto() = 1
@@ -904,10 +901,8 @@ class stzStringChar from stzString
 
 		# Replaces the held char with the given one, in place, exactly as the plain form does.
 		#
-		#   pChar      the new char, as text
+		#   pChar      the new char: a one-char text, a codepoint number, a U+XXXX text or a char name
 		#   returns    nothing; the char changes
-		#   warning    known defect: shares the defect of the plain form, so a codepoint number
-		#              empties the object
 		#   see        Update
 		#@ aka  Same as Update: replace the char (mutating).
 		def UpdateWith(pChar)
@@ -918,10 +913,8 @@ class stzStringChar from stzString
 
 		# Replaces the held char with the given one, in place, exactly as the plain form does.
 		#
-		#   pChar      the new char, as text
+		#   pChar      the new char: a one-char text, a codepoint number, a U+XXXX text or a char name
 		#   returns    nothing; the char changes
-		#   warning    known defect: shares the defect of the plain form, so a codepoint number
-		#              empties the object
 		#   see        Update
 		#@ aka  Same as Update: replace the char (mutating).
 		def UpdateBy(pChar)
@@ -932,10 +925,8 @@ class stzStringChar from stzString
 
 		# Replaces the held char with the given one, in place, exactly as the plain form does.
 		#
-		#   pChar      the new char, as text
+		#   pChar      the new char: a one-char text, a codepoint number, a U+XXXX text or a char name
 		#   returns    nothing; the char changes
-		#   warning    known defect: shares the defect of the plain form, so a codepoint number
-		#              empties the object
 		#   see        Update
 		#@ aka  Same as Update: replace the char (mutating).
 		def UpdateUsing(pChar)
@@ -1466,17 +1457,16 @@ class stzStringChar from stzString
 	def IsSpace()
 		return _CharIsSpace(This.Unicode())
 
-	# Answers TRUE for Arabic, Hebrew or CJK letters and FALSE for 7 today, instead of TRUE for number chars.
+	# TRUE if the char is in a Unicode number category (digit, letter number such as a Roman numeral, other number).
 	#
 	#   returns    TRUE or FALSE
-	#   warning    known defect: it tests category codes 3, 4 and 5, which are title-case, modifier
-	#              and other letters in the engine's numbering, where digits are 9 to 11; Roman,
-	#              Mandarin and Indian numerals are caught by their own tests
+	#   note       the library's Mandarin and Indian numerals also answer TRUE
 	#   see        IsANumber, IsDigit
 	#@ aka  TRUE if the char is a Unicode number char (category N).
 	def IsUnicodeNumber()
+		# 9, 10 and 11 are Nd, Nl and No in the engine's (utf8proc) numbering
 		_nCat_ = _CharCategoryNumber(This.Unicode())
-		if _nCat_ = 3 or _nCat_ = 4 or _nCat_ = 5 or
+		if _nCat_ = 9 or _nCat_ = 10 or _nCat_ = 11 or
 		   This.IsRomanNumber() or
 		   This.IsMandarinNumber() or
 		   This.IsIndianNumber()
@@ -1511,19 +1501,20 @@ class stzStringChar from stzString
 		def IsADigit()
 			return This.IsDigit()
 
-	# Answers FALSE for 0 to 9 and raises R41 for a non-ASCII digit today, instead of TRUE for an Arabic digit.
+	# TRUE if the char is one of the Arabic digits 0 to 9, U+0030 to U+0039.
 	#
 	#   returns    TRUE or FALSE
-	#   warning    known defect: it searches a list of digit texts for a number, so a plain digit is
-	#              never found, and it adds 0 to the content, which raises R41 "Invalid numeric
-	#              string" for an Arabic-Indic, Devanagari or circled digit
+	#   note       the Arabic-Indic digits answer FALSE here; IsIndianNumber covers them
 	#   see        IsDigit, IsIndianNumber
 	#@ aka  TRUE if the char is an Arabic digit.
 	def IsArabicNumber()
-		if NOT This.IsANumber()
-			return 0
+		# The Arabic digits are 0 to 9, U+0030 to U+0039; the Arabic-Indic
+		# digits are Indian numbers here (IsIndianNumber)
+		_nUni_ = This.Unicode()
+		if _nUni_ >= 48 and _nUni_ <= 57
+			return 1
 		ok
-		return ring_find( ArabicDigits(), 0+This.Content() ) > 0
+		return 0
 
 	# TRUE if the char is a decimal digit in any script or a circled digit.
 	#
@@ -1767,15 +1758,17 @@ class stzStringChar from stzString
 		_nCp_ = This.Unicode()
 		return StzEngineUnicodeIsLetter(_nCp_) AND StzEngineUnicodeIsLatin(_nCp_)
 
-	# Raises error R24 today instead of testing for the Basic Latin block, U+0000 to U+007F.
+	# TRUE if the char lies in the Basic Latin block, U+0000 to U+007F.
 	#
-	#   returns    TRUE or FALSE once repaired
-	#   warning    known defect: the body reads _anBasicLatinUnicodes, but the data file defines
-	#              _anLatinBasicUnicodes
+	#   returns    TRUE or FALSE
 	#   see        IsLatin1Supplement
 	#@ aka  TRUE if the char belongs to the Basic Latin Unicode range.
 	def IsBasicLatin()
-		return ring_find(_anBasicLatinUnicodes, This.Unicode()) > 0
+		_nUni_ = This.Unicode()
+		if _nUni_ >= 0 and _nUni_ <= 127
+			return 1
+		ok
+		return 0
 
 	# TRUE if the char lies in the Latin-1 Supplement block, U+0080 to U+00FF.
 	#
@@ -1856,15 +1849,17 @@ class stzStringChar from stzString
 		_nCp_ = This.Unicode()
 		return StzEngineUnicodeIsLetter(_nCp_) AND StzEngineUnicodeIsArabic(_nCp_)
 
-	# Raises error R24 today instead of testing for the basic Arabic block.
+	# TRUE if the char lies in the main Arabic block, U+0600 to U+06FF.
 	#
-	#   returns    TRUE or FALSE once repaired
-	#   warning    known defect: the body reads _anBasicArabicUnicodes, which the data file does not
-	#              define
+	#   returns    TRUE or FALSE
 	#   see        IsArabicSupplement
 	#@ aka  TRUE if the char belongs to the Basic Arabic Unicode range.
 	def IsBasicArabic()
-		return ring_find(_anBasicArabicUnicodes, This.Unicode()) > 0
+		_nUni_ = This.Unicode()
+		if _nUni_ >= 1536 and _nUni_ <= 1791
+			return 1
+		ok
+		return 0
 
 	# TRUE if the char lies in the Arabic Supplement block, U+0750 to U+077F.
 	#
@@ -1977,21 +1972,17 @@ class stzStringChar from stzString
 	def IsCircledLatinLetter()
 		return ring_find(CircledLatinLetterUnicodes(), This.Unicode()) > 0
 
-	# Raises error R24 today instead of testing for a circled small Latin letter.
+	# TRUE if the char is a circled small Latin letter, U+24D0 to U+24E9.
 	#
-	#   returns    TRUE or FALSE once repaired
-	#   warning    known defect: the body reads _aCircledLatinSmallLetterUnicodes directly, a
-	#              variable that is not defined
+	#   returns    TRUE or FALSE
 	#   see        IsCircledLatinLetter
 	#@ aka  TRUE if the char belongs to the Circled Latin Small Letter Unicode range.
 	def IsCircledLatinSmallLetter()
 		return ring_find(CircledLatinSmallLetterUnicodes(), This.Unicode()) > 0
 
-	# Raises error R24 today instead of testing for a circled capital Latin letter.
+	# TRUE if the char is a circled capital Latin letter, U+24B6 to U+24CF.
 	#
-	#   returns    TRUE or FALSE once repaired
-	#   warning    known defect: the body reads _aCircledLatinCapitalLetterUnicodes directly, a
-	#              variable that is not defined
+	#   returns    TRUE or FALSE
 	#   see        IsCircledLatinLetter
 	#@ aka  TRUE if the char belongs to the Circled Latin Capital Letter Unicode range.
 	def IsCircledLatinCapitalLetter()
@@ -2010,25 +2001,24 @@ class stzStringChar from stzString
 	 #   PRINTABLE / VISIBLE CHAR   #
 	#==============================#
 
-	# Answers FALSE for digits, hyphens and Roman numerals and TRUE for control chars today, as it tests the wrong category codes.
+	# TRUE unless the char is a control, format, surrogate, private-use, unassigned, line or paragraph separator.
 	#
 	#   returns    TRUE or FALSE
-	#   warning    known defect: it rejects category codes 9 to 13 (digits, Roman numerals,
-	#              connector and dash punctuation) where it meant the control, format and surrogate
-	#              codes 26 to 29
+	#   note       the plain space and the digits are printable
 	#   see        IsNonPrintable, IsVisible
 	def IsPrintable()
+		# Engine (utf8proc) numbering: 0 unassigned, 24 line and 25 paragraph
+		# separators, 26 control, 27 format, 28 surrogate, 29 private use
 		_nCat_ = _CharCategoryNumber(This.Unicode())
-		if _nCat_ = 9 or _nCat_ = 10 or _nCat_ = 11 or _nCat_ = 12 or _nCat_ = 13
+		if _nCat_ = 0 or _nCat_ = 24 or _nCat_ = 25 or
+		   ( _nCat_ >= 26 and _nCat_ <= 29 )
 			return 0
 		ok
 		return 1
 
-	# Answers TRUE for digits, hyphens and Roman numerals and FALSE for control chars today, the reverse of printable.
+	# TRUE for a control, format, surrogate, private-use or unassigned char, or a line or paragraph separator.
 	#
 	#   returns    TRUE or FALSE
-	#   warning    known defect: it is the negation of the printable test, which tests the wrong
-	#              category codes
 	#   see        IsPrintable
 	def IsNonPrintable()
 		return NOT This.IsPrintable()

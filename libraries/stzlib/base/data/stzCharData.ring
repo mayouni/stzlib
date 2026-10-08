@@ -1894,7 +1894,7 @@ _cMarquerChar = "#"
 		return _aResult_
 
 	func CircledLatinSmallLetterUnicodes()
-		return _aCircledLatinSmallLetterUnicodes
+		return _anLatinCircledSmallLetterUnicodes
 
 	func CircledLatinSmallLetters()
 		_aResult_ = []
@@ -1908,7 +1908,7 @@ _cMarquerChar = "#"
 		return _aResult_
 
 	func CircledLatinCapitalLetterUnicodes() #TODO // resolve the semantics lower/lowercase/small and upper/uppercase/capital
-		return _aCircledLatinCapitalLetterUnicodes
+		return _anLatinCircledCapitalLetterUnicodes
 
 	func CircledLatinCapitalLetters()
 		_aResult_ = []
