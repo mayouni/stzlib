@@ -132,6 +132,32 @@ func _PadLeft(_cStr_, nWidth, cPadChar)
     end
     return _cStr_
 
+# Turns the other-date argument of a comparison into a stzDate object without touching the argument.
+# Ring builds `x = new stzDate(x)` into x before init reads it, and shares a list argument with the
+# caller, so the text is read into a local and the argument is never assigned to.
+func _StzDateArg(_pDate_)
+    if isObject(_pDate_) and ring_classname(_pDate_) = "stzdate"
+        return _pDate_
+    ok
+
+    _cText_ = ""
+    if isString(_pDate_)
+        _cText_ = _pDate_
+    but isList(_pDate_) and len(_pDate_) = 3
+        if IsListOfNumbers(_pDate_)
+            _cText_ = "" + _pDate_[1] + "-" + _pDate_[2] + "-" + _pDate_[3]
+        but IsHashList(_pDate_) and HasKeys(_pDate_, [ :Year, :Month, :Day ])
+            _cText_ = "" + _pDate_[:Year] + "-" + _pDate_[:Month] + "-" + _pDate_[:Day]
+        ok
+    ok
+
+    if _cText_ = ""
+        StzRaise("Parameter must be a stzDate object or date string")
+    ok
+
+    _oDate_ = new stzDate(_cText_)
+    return _oDate_
+
 func _TodayYMD()
     # Honor the freezable wall-clock when set (see StzFreezeClock).
     # Engine path is bypassed in that mode so snapshot tests stay
@@ -879,7 +905,9 @@ def PreviousWeekday()
     _nCurrentDay_ = This.DayOfWeek()
     _oCopy_ = This.Copy()
 
-    if _nCurrentDay_ > 1
+    if _nCurrentDay_ = 7
+        _oCopy_.SubtractDays(2)
+    but _nCurrentDay_ > 1
         _oCopy_.SubtractDays(1)
     else
         _oCopy_.SubtractDays(3)
@@ -1351,29 +1379,10 @@ def LastWeekdayOfMonth()
     #                  caller); a number raises Parameter must be a stzDate object or date string
     #   see            WeeksTo, MonthsTo, IsBefore
     def DaysTo(_oOtherDate_)
-
-	if isList(_oOtherDate_) and len(_oOtherDate_) = 3
-		if IsListOfNumbers(_oOtherDate_)
-			_cOtherDate_ = '' + _oOtherDate_[1] + "-" + _oOtherDate_[2] + "-" + _oOtherDate_[3]
-			_oOtherDate_ = _cOtherDate_
-
-		but IsHashList(_oOtherDate_) and HasKeys(_oOtherDate_, [ :Year, :Month, :Day ])
-			_cOtherDate_ = '' + _oOtherDate_[:Year] + "-" + _oOtherDate_[:Month] + "-" + _oOtherDate_[:Day]
-			_oOtherDate_ = _cOtherDate_
-		ok
-	ok
-
-        if isString(_oOtherDate_)
-            _oTempDate_ = new stzDate(_oOtherDate_)
-	    _oOtherDate_ = _oTempDate_
-        ok
-
-        if not isObject(_oOtherDate_) or not ring_classname(_oOtherDate_) = "stzdate"
-            StzRaise("Parameter must be a stzDate object or date string")
-        ok
+        _oOther_ = _StzDateArg(_oOtherDate_)
 
         pHandle1 = StzEngineDateNew(@nYear, @nMonth, @nDay)
-        pHandle2 = StzEngineDateNew(_oOtherDate_.Year(), _oOtherDate_.MonthN(), _oOtherDate_.DayN())
+        pHandle2 = StzEngineDateNew(_oOther_.Year(), _oOther_.MonthN(), _oOther_.DayN())
         # Engine's stz_date_diff_days(a, b) returns a - b. The semantic
         # of DaysTo is "days from this to other", which is other - this
         # -- so call with args swapped.
@@ -1421,20 +1430,9 @@ def LastWeekdayOfMonth()
     #                  only a stzDate object works
     #   see            YearsTo, DaysTo
     def MonthsTo(_oOtherDate_)
-        if isList(_oOtherDate_) and len(_oOtherDate_) = 3
-	        if IsListOfNumbers(_oOtherDate_)
-	            _oOtherDate_ = new stzDate('' + _oOtherDate_[1] + "-" + _oOtherDate_[2] + "-" + _oOtherDate_[3])
-	        but IsHashList(_oOtherDate_) and HasKeys(_oOtherDate_, [ :Year, :Month, :Day ])
-	            _oOtherDate_ = new stzDate('' + _oOtherDate_[:Year] + "-" + _oOtherDate_[:Month] + "-" + _oOtherDate_[:Day])
-	        ok
-        ok
-
-        if isString(_oOtherDate_)
-            _oOtherDate_ = new stzDate(_oOtherDate_)
-        ok
-
-        _nYears_ = _oOtherDate_.Year() - This.Year()
-        _nMonths_ = _oOtherDate_.MonthN() - This.MonthN()
+        _oOther_ = _StzDateArg(_oOtherDate_)
+        _nYears_ = _oOther_.Year() - This.Year()
+        _nMonths_ = _oOther_.MonthN() - This.MonthN()
 
         return (_nYears_ * 12) + _nMonths_
 
@@ -1456,19 +1454,8 @@ def LastWeekdayOfMonth()
     #                  works
     #   see            MonthsTo, Age
     def YearsTo(_oOtherDate_)
-        if isList(_oOtherDate_) and len(_oOtherDate_) = 3
-	        if IsListOfNumbers(_oOtherDate_)
-	            _oOtherDate_ = new stzDate('' + _oOtherDate_[1] + "-" + _oOtherDate_[2] + "-" + _oOtherDate_[3])
-	        but IsHashList(_oOtherDate_) and HasKeys(_oOtherDate_, [ :Year, :Month, :Day ])
-	            _oOtherDate_ = new stzDate('' + _oOtherDate_[:Year] + "-" + _oOtherDate_[:Month] + "-" + _oOtherDate_[:Day])
-	        ok
-        ok
-
-        if isString(_oOtherDate_)
-            _oOtherDate_ = new stzDate(_oOtherDate_)
-        ok
-
-        return _oOtherDate_.Year() - This.Year()
+        _oOther_ = _StzDateArg(_oOtherDate_)
+        return _oOther_.Year() - This.Year()
 
 	def YearsToN(_oOtherDate_)
 		return This.YearsTo(_oOtherDate_)
@@ -1533,18 +1520,8 @@ def LastWeekdayOfMonth()
     #                  stzDate object works
     #   see            IsSameMonth, WeekNumber
     def IsSameWeek(_oOtherDate_)
-	    if isList(_oOtherDate_) and len(_oOtherDate_) = 3
-	        if IsListOfNumbers(_oOtherDate_)
-	            _oOtherDate_ = new stzDate('' + _oOtherDate_[1] + "-" + _oOtherDate_[2] + "-" + _oOtherDate_[3])
-	        but IsHashList(_oOtherDate_) and HasKeys(_oOtherDate_, [ :Year, :Month, :Day ])
-	            _oOtherDate_ = new stzDate('' + _oOtherDate_[:Year] + "-" + _oOtherDate_[:Month] + "-" + _oOtherDate_[:Day])
-	        ok
-	    ok
-
-        if isString(_oOtherDate_)
-            _oOtherDate_ = new stzDate(_oOtherDate_)
-        ok
-        return This.WeekNumber() = _oOtherDate_.WeekNumber() and This.YearN() = _oOtherDate_.YearN()
+        _oOther_ = _StzDateArg(_oOtherDate_)
+        return This.WeekNumber() = _oOther_.WeekNumber() and This.YearN() = _oOther_.YearN()
 
     # TRUE if both dates fall in the same month of the same year.
     #
@@ -1554,18 +1531,8 @@ def LastWeekdayOfMonth()
     #   warning        raises for a text, a list or a hash; only a stzDate object works
     #   see            IsSameYear, IsSameWeek
     def IsSameMonth(_oOtherDate_)
-	    if isList(_oOtherDate_) and len(_oOtherDate_) = 3
-	        if IsListOfNumbers(_oOtherDate_)
-	            _oOtherDate_ = new stzDate('' + _oOtherDate_[1] + "-" + _oOtherDate_[2] + "-" + _oOtherDate_[3])
-	        but IsHashList(_oOtherDate_) and HasKeys(_oOtherDate_, [ :Year, :Month, :Day ])
-	            _oOtherDate_ = new stzDate('' + _oOtherDate_[:Year] + "-" + _oOtherDate_[:Month] + "-" + _oOtherDate_[:Day])
-	        ok
-	    ok
-
-        if isString(_oOtherDate_)
-            _oOtherDate_ = new stzDate(_oOtherDate_)
-        ok
-        return This.MonthN() = _oOtherDate_.MonthN() and This.YearN() = _oOtherDate_.YearN()
+        _oOther_ = _StzDateArg(_oOtherDate_)
+        return This.MonthN() = _oOther_.MonthN() and This.YearN() = _oOther_.YearN()
 
     # TRUE if both dates fall in the same year.
     #
@@ -1574,18 +1541,8 @@ def LastWeekdayOfMonth()
     #   warning        raises for a text, a list or a hash; only a stzDate object works
     #   see            IsSameMonth
     def IsSameYear(_oOtherDate_)
-	    if isList(_oOtherDate_) and len(_oOtherDate_) = 3
-	        if IsListOfNumbers(_oOtherDate_)
-	            _oOtherDate_ = new stzDate('' + _oOtherDate_[1] + "-" + _oOtherDate_[2] + "-" + _oOtherDate_[3])
-	        but IsHashList(_oOtherDate_) and HasKeys(_oOtherDate_, [ :Year, :Month, :Day ])
-	            _oOtherDate_ = new stzDate('' + _oOtherDate_[:Year] + "-" + _oOtherDate_[:Month] + "-" + _oOtherDate_[:Day])
-	        ok
-	    ok
-
-        if isString(_oOtherDate_)
-            _oOtherDate_ = new stzDate(_oOtherDate_)
-        ok
-        return This.YearN() = _oOtherDate_.YearN()
+        _oOther_ = _StzDateArg(_oOtherDate_)
+        return This.YearN() = _oOther_.YearN()
 
     #--- UTILITY CHECKS ---#
 
@@ -1922,7 +1879,7 @@ def LastWeekdayOfMonth()
 	        return "yesterday"
 
 	    but _nDays_ > 0 and _nDays_ <= 7
-	        return "In " + _nDays_ + " day" + Iff(_nDays_=1, "", "s")
+	        return "in " + _nDays_ + " day" + Iff(_nDays_=1, "", "s")
 
 	    but _nDays_ < 0 and _nDays_ >= -7
 	        return '' + (-_nDays_) + " day" + Iff(_nDays_=-1, "", "s") + " ago"
@@ -2100,36 +2057,17 @@ def LastWeekdayOfMonth()
     #                  FALSE
     #   see            IsBefore, IsAfter
     def IsBetween(_oStartDate_, _oEndDate_)
+	_pEnd_ = _oEndDate_
 	if CheckParams()
 		if isList(_oEndDate_) and IsAndNamedParamList(_oEndDate_)
-			_oEndDate_ = _oEndDate_[2]
+			_pEnd_ = _oEndDate_[2]
 		ok
 	ok
 
-        if isList(_oStartDate_) and len(_oStartDate_) = 3
-	        if IsListOfNumbers(_oStartDate_)
-	            _oStartDate_ = new stzDate('' + _oStartDate_[1] + "-" + _oStartDate_[2] + "-" + _oStartDate_[3])
-	        but IsHashList(_oStartDate_) and HasKeys(_oStartDate_, [ :Year, :Month, :Day ])
-	            _oStartDate_ = new stzDate('' + _oStartDate_[:Year] + "-" + _oStartDate_[:Month] + "-" + _oStartDate_[:Day])
-	        ok
-        ok
+        _oStart_ = _StzDateArg(_oStartDate_)
+        _oEnd_ = _StzDateArg(_pEnd_)
 
-        if isList(_oEndDate_) and len(_oEndDate_) = 3
-	        if IsListOfNumbers(_oEndDate_)
-	            _oEndDate_ = new stzDate('' + _oEndDate_[1] + "-" + _oEndDate_[2] + "-" + _oEndDate_[3])
-	        but IsHashList(_oEndDate_) and HasKeys(_oEndDate_, [ :Year, :Month, :Day ])
-	            _oEndDate_ = new stzDate('' + _oEndDate_[:Year] + "-" + _oEndDate_[:Month] + "-" + _oEndDate_[:Day])
-	        ok
-        ok
-
-        if isString(_oStartDate_)
-            _oStartDate_ = new stzDate(_oStartDate_)
-        ok
-        if isString(_oEndDate_)
-            _oEndDate_ = new stzDate(_oEndDate_)
-        ok
-
-        return This.IsAfter(_oStartDate_) and This.IsBefore(_oEndDate_)
+        return This.IsAfter(_oStart_) and This.IsBefore(_oEnd_)
 
     # Returns a new stzDate holding the same year, month and day, so the copy can change without the original.
     #
