@@ -183,7 +183,10 @@ fn ring_CoeffOfVariation(p: *anyopaque) callconv(.c) void {
 }
 
 fn ring_Percentile(p: *anyopaque) callconv(.c) void {
-    rn(p, stats.stz_stats_percentile(getH(p, 1), g(p, 2)));
+    if (R.ring_vm_api_isnumber(p, 2) == 0) return R.ring_vm_error(p, "percentile: the percent must be a number from 0 to 100");
+    const pc = g(p, 2);
+    if (pc != pc or pc < 0 or pc > 100) return R.ring_vm_error(p, "percentile: the percent must be a number from 0 to 100");
+    rn(p, stats.stz_stats_percentile(getH(p, 1), pc));
 }
 
 fn ring_Q1(p: *anyopaque) callconv(.c) void {

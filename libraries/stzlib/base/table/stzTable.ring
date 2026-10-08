@@ -18092,15 +18092,17 @@ func _NormalizeColLookupKey(pVal)
 	def ReplaceInSectionsByMany(aSections, paSubValues, pNewSubValue)
 		This.ReplaceInSectionsByManyCS(aSections, paSubValues, pNewSubValue, 1)
 
-		# Crashes the Ring process today instead of returning a filled copy of the table.
+		# Returns a copy of the table with every cell set to one value; the table itself is unchanged.
 		#
-		#   returns    nothing; the process stops
-		#   warning    Copy().FillQ(...) stops the whole Ring process without an error message in
-		#              the check run; Filled works
-		#   see        Filled
+		#   returns    a stzTable object
+		#   see        Filled, Fill
 		#@ aka  -- Add ReplaceInSectionsByManyXT() : if all replaced restrat at 1st one
 		def FillCQ(pValue) #TODO // Add this to all functions
-			return This.Copy().FillQ(pValue)
+			# A chain returned straight from a method ends the Ring VM without a message:
+			# build the copy in a variable, then return it.
+			_oCopy_ = This.Copy()
+			_oCopy_.Fill(pValue)
+			return _oCopy_
 
 	# Returns the table content with every cell set to one value; the table itself is unchanged.
 	#

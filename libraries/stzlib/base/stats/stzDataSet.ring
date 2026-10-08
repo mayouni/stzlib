@@ -1804,15 +1804,14 @@ class stzDataSet from stzObject
 	    This._SetCache(_cKey_, _nResult_)
 	    return _nResult_
 
-		# Raises error R4 today instead of returning the weighted mean.
+		# Returns the mean of the values, each counted as many times as its weight says.
 		#
 		#   aWeights   a list of weights, one per value
-		#   returns    nothing today
-		#   note       WeightedMean does the work
-		#   warning    known defect: it calls itself, so the stack overflows on every call
+		#   returns    a number; 0 for non-numeric data or when the weights add up to 0
+		#   note       the short spelling of WeightedMean
 		#   see        WeightedMean
 		def WMean(aWeights)
-			return This.WMean(aWeights)
+			return This.WeightedMean(aWeights)
 
 
 	# Returns the mean after dropping a share of the smallest and of the largest values.
@@ -2178,11 +2177,16 @@ class stzDataSet from stzObject
 	#   nPercent   the percentile, from 0 to 100
 	#   returns    a number; 0 for non-numeric or empty data
 	#   note       PercentileXT takes the same percent and clamps it
-	#   warning    known defect: a percent below 0, or far above 100, makes the engine panic and
-	#              ends the Ring process; -1 and 150 did, 110 and 101 did not
+	#   warning    a percent that is not a number from 0 to 100 raises an error
 	#   see        PercentileXT, Q1, Q3, PercentileRank
 	#@ aka  NOTE
 	def Percentile(nPercent)
+		if NOT isNumber(nPercent)
+			StzRaise("Incorrect param type! nPercent must be a number from 0 to 100.")
+		ok
+		if nPercent < 0 or nPercent > 100
+			StzRaise("Incorrect param value! nPercent must be a number from 0 to 100.")
+		ok
 		if This._EngineAvailable()
 			return StzEngineStatsPercentile(@pEngineStats, nPercent)
 		ok

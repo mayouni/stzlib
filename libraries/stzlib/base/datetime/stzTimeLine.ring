@@ -595,17 +595,14 @@ class stzTimeLine from stzObject
 			return 0
 		ok
 		
-		# Raises a stack overflow today instead of telling whether a point carries the label.
+		# Tells whether at least one point carries the label, matched in any case.
 		#
 		#   pcLabelOrDateTime   The point label to look for, as text
-		#   returns             nothing today; the call never returns an answer
-		#   note                HasPoint is the working call
-		#   warning             known defect: the method calls itself, so it recurses until the
-		#                       interpreter stops; its spelling siblings HasInstant, ContainsMoment
-		#                       and ContainsInstant call it and fail the same way
+		#   returns             TRUE or FALSE
+		#   note                the same as HasPoint; HasInstant, ContainsMoment and ContainsInstant too
 		#   see                 HasPoint
 		def HasMoment(pcLabelOrDateTime)
-			return This.HasMoment(pcLabelOrDateTime)
+			return This.HasPoint(pcLabelOrDateTime)
 
 		def HasInstant(pcLabelOrDateTime)
 			return This.HasMoment(pcLabelOrDateTime)
