@@ -1,4 +1,4 @@
-load "../stzmax.ring"
+load "../stzMax.ring"
 
 # These functions are used by stzList for manageing nested lists
 

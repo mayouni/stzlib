@@ -1,4 +1,4 @@
-load "../stklib.ring"
+load "../stkLib.ring"
 
 # Comprehensive test suite for stkBuffer class
 # Demonstrates all major operations and design patterns

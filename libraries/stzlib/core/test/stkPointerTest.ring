@@ -1,4 +1,4 @@
-load "../stklib.ring"
+load "../stkLib.ring"
 
 /*--- Test file for the FIXED stkPointer class
 # This demonstrates that all the synchronization issues have been resolved

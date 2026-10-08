@@ -1,4 +1,4 @@
-load "../stklib.ring"
+load "../stkLib.ring"
 
 #=========================================#
 #  BASIC BUFFER CREATION AND MANAGEMENT   #

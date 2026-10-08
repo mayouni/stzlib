@@ -1,4 +1,4 @@
-load "../stzmax.ring"
+load "../stzMax.ring"
 
 
 o1 = new stzSet([ "a", "c", "c", "d", "e", "f" ])

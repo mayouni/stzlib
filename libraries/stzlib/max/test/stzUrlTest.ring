@@ -2,7 +2,7 @@
 # stzUrl Class - Comprehensive Test Suite
 # Demonstrates all URL manipulation features with didactic progression
 
-load "../stzmax.ring"
+load "../stzMax.ring"
 
 #-------------------------------#
 #  BASIC OBJECT CREATION        #

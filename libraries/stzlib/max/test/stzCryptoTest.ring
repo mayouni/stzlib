@@ -1,5 +1,5 @@
 #TODO: Check this file
-load "../stzmax.ring"
+load "../stzMax.ring"
 #=================================#
 #        BASIC HASHING            #
 #=================================#

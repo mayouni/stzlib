@@ -1,5 +1,5 @@
 
-load "../stzmax.ring"
+load "../stzMax.ring"
 
 
 ? Number2Sci(324_987_182_091_876_345)

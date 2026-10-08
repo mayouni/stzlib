@@ -1,5 +1,5 @@
 
-load "../stzmax.ring"
+load "../stzMax.ring"
 
 /*--- Test 1: Manual Relation Addition and Validation
 

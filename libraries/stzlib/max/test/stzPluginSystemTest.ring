@@ -6,7 +6,7 @@
 # One caution from that re-run: several narrated outputs matched only
 # because the demo string equaled the plugins' embedded sample values.
 
-load "../stzmax.ring"
+load "../stzMax.ring"
 
 
 /*

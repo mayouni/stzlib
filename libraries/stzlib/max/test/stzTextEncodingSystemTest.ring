@@ -1,4 +1,4 @@
-load "../stzmax.ring"
+load "../stzMax.ring"
 
 // Should return error
 //o1 = new stzTextencoding("blabla")

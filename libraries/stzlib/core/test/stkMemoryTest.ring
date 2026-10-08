@@ -1,4 +1,4 @@
-load "../stklib.ring"
+load "../stkLib.ring"
 
 #-----------------------------------------------------#
 # Comined Use of stkBuffer, stkMemory, and stkPointer #

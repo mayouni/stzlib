@@ -5,19 +5,19 @@
 
 # You either load the hole SoftanzaCore library (all classes)
 
-	load "../stklib.ring" # or /SoftanzaCoreLib.ring to be expressive
+	load "../stkLib.ring" # or /SoftanzaCoreLib.ring to be expressive
 
 # Or just the files you actually need
 
 /*
 	load "lightguiLib.ring"
 
-	load "../object/stkobject.ring"
-	load "../string/stkchar.ring"
+	load "../object/stkObject.ring"
+	load "../string/stkChar.ring"
 
-	load "../error/stkerror.ring"
-	load "../common/stkprofiler.ring"
-	load "../common/stkringfuncs.ring"
+	load "../error/stkError.ring"
+	load "../common/stkProfiler.ring"
+	load "../common/stkRingFuncs.ring"
 */
 
 #----------------#
