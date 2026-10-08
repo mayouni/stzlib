@@ -150,3 +150,14 @@ stz_locale, stk_locale must be rebuilt in every checkout (their sources changed)
 file-disjoint classes in the docs worktree reading tools/wave/README.md plus a prompt like scratchpad wave7_prompt.md (copy
 kept as doc/tools/wave/WAVE_PROMPT.md); I verify code-identical-with-comments-stripped, regenerate once, --update the gate.
 
+## 2026-10-09, after midnight: WAVE 8 (payments) ON MAIN (23fe1111a)
+
+19 payments classes, 310 roots, all pass; the UNPERCEIVED / not-scanned / string-not-picture status is in classes[].description
+and in 22 method notes of the record. Library 8,641 of 21,747 pass (39.7 percent). Owed: (1) the STANCE on stzObject 1,944 /
+stzListNamedParams 1,345 / stzQuestion 1,076 unpassed roots: generated or dispatch surfaces, a fifth of the library -- decide
+between a derived-brief rule for them (the exporter labels it derived and the gate accepts it for these three) and hand waves;
+(2) class_rank.py for the next waves (stzStringText 101, stzMathDiagram 82, stzListOfBytes 79 ...); (3) the register rows left:
+stzTable 66, stzCalendar 25, stzGeoMap 18, stzMatrex 17, stzGraph 12; (4) the education and payments findings are in
+w7_defects_education.md and w8_defects_payments.md, routed in CONCLUSIONS, not in the register; (5) the engine DLLs rebuild in
+every checkout; (6) the perception gate: a person reading ten briefs and one class page.
+
