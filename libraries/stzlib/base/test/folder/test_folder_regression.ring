@@ -40,7 +40,10 @@ chk("SystemSeparator non-empty",     isString(oF.SystemSeparator()) and len(oF.S
 ? "--- IsInside / IsOutside ---"
 
 cCur = currentdir()
-chk("IsInside('.') = TRUE",          oF.IsInside(".") = TRUE or oF.IsInside(".") = 1)
+# The position itself is not strictly inside: "." is folded to it, and a child name is read
+# from the position, not from the process folder.
+chk("IsInside('.') = FALSE (the position itself)", oF.IsInside(".") = 0)
+chk("IsInside('child') = TRUE",     oF.IsInside("child") = 1)
 
 # ------------------------------------------------------------
 # Summary
