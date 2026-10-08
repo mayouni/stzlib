@@ -98,8 +98,7 @@ func StzJsonIsArray(cJson)
 # Built from a JSON text or from a Ring list. An object is read and changed by key (HasKey, Value,
 # SetValue, RemoveKey, TakeKey) and an array by position (At, Add, Insert, RemoveAt, TakeAt ...). A
 # call that does not fit the kind of JSON held, or an index outside the array, leaves the object
-# unchanged and records a message in LastError. Writing an array that holds anything back to text
-# fails today (ToString, Copy, Show, Print): see their warnings.
+# unchanged and records a message in LastError.
 #
 #   receiver   o1 = new stzJson('{"name": "John", "age": 30}')
 #   example    ? o1.Value("name")
@@ -176,10 +175,18 @@ def init(p)
 		def Count()
 			return This.Size()
 
-	# JSON String Operations
+	# Returns the content as indented JSON text, one key or item per line.
+	#
+	#   returns    a text
+	#   note       an empty object writes as {} and an empty array as []
+	#   see        ToString, Show
 	def ToStringXT()
+		# ListToJsonXT accepts lists of pairs only, so an array is written
+		# by the array writer directly; an empty object is {}, not []
 		if @bIsArray
-			return ListToJsonXT(@aData)
+			return _ListToJsonArrayXT(@aData, 0)
+		but ring_len(@aData) = 0
+			return "{}"
 		else
 			return ListToJsonXT(@aData)
 		ok
@@ -187,15 +194,16 @@ def init(p)
 	# Returns the content as JSON text on one line, without spaces after the colons and commas.
 	#
 	#   returns    a text
-	#   note       an empty object, like an empty array, comes out as [ ]; ToStringXT gives the
-	#              indented form and fails the same way
-	#   warning    Raises error "aList must be a well-formatted JSON list" today for an array that
-	#              holds anything, because the serializer accepts only lists of pairs and an empty
-	#              list
+	#   note       an empty object writes as {} and an empty array as []; true and false held as 1
+	#              and 0 come out as numbers; ToStringXT gives the indented form
 	#   see        ToList, Print, Show
 	def ToString()
+		# ListToJson accepts lists of pairs only, so an array is written
+		# by the array writer directly; an empty object is {}, not []
 		if @bIsArray
-			return ListToJson(@aData)
+			return _ListToJsonArray(@aData)
+		but ring_len(@aData) = 0
+			return "{}"
 		else
 			return ListToJson(@aData)
 		ok
@@ -553,10 +561,7 @@ def init(p)
 	# Returns a new stzJson built from the text of this one, so changing the copy leaves the original alone.
 	#
 	#   returns    a stzJson
-	#   note       an object and an empty array copy well
-	#   warning    Raises error "aList must be a well-formatted JSON list" today when the array is
-	#              not empty, because the copy goes through the text and the text cannot be built
-	#              for an array; the recorded error is not copied
+	#   note       the recorded error is not copied
 	#   see        FromString
 	def Copy()
 		_oCopy_ = new stzJson(This.ToString())
@@ -565,7 +570,7 @@ def init(p)
 	# Removes every key or item, in place; returns the object itself.
 	#
 	#   returns    the stzJson itself, so calls chain
-	#   note       the object stays an array or an object; an emptied object writes as [ ]; the
+	#   note       the object stays an array or an object; an emptied object writes as {}; the
 	#              recorded error is kept
 	#   see        RemoveKey, IsEmpty
 	#@ aka  Utility Methods
@@ -626,7 +631,7 @@ def init(p)
 	# Returns a new stzJson holding an empty object.
 	#
 	#   returns    a stzJson
-	#   note       it writes as [ ] and IsArray answers FALSE
+	#   note       it writes as {} and IsArray answers FALSE
 	#   see        EmptyArray, FromString
 	def EmptyObject()
 		return new stzJson("{}")
@@ -634,7 +639,7 @@ def init(p)
 	# Returns a new stzJson holding an empty array.
 	#
 	#   returns    a stzJson
-	#   note       it writes as [ ] and IsArray answers TRUE
+	#   note       it writes as [] and IsArray answers TRUE
 	#   see        EmptyObject, FromString
 	def EmptyArray()
 		return new stzJson("[]")
@@ -642,9 +647,7 @@ def init(p)
 	# Prints the content to the console as indented JSON.
 	#
 	#   returns    nothing; the text is printed
-	#   note       the indented text of an object uses tabs
-	#   warning    Raises error "aList must be a well-formatted JSON list" today for an array that
-	#              holds anything, because the serializer cannot write a plain list
+	#   note       the indented text uses tabs
 	#   see        Print, ToString
 	#@ aka  Display
 	def Show()
@@ -653,8 +656,6 @@ def init(p)
 	# Prints the content to the console as JSON on one line.
 	#
 	#   returns    nothing; the text is printed
-	#   warning    Raises error "aList must be a well-formatted JSON list" today for an array that
-	#              holds anything, because the serializer cannot write a plain list
 	#   see        Show, ToString
 	def Print()
 		? This.ToString()
