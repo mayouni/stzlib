@@ -312,6 +312,30 @@ func StzPaymentsWebhookHandle(poReq, poResp)
  #  THE ADAPTER        #
 #=====================#
 
+# Carries the payments contract over HTTP to a participant's API Business, with OAuth2, an API key and optional mutual TLS.
+#
+# UNPERCEIVED. This adapter is proven against the twin served over real HTTP (stzPiSpiHttpFront),
+# plain and with mutual TLS, and has NOT been run against the BCEAO's sandbox. No payment made
+# through it has been watched landing in a real dashboard by a named person, and until one has it
+# stays unperceived: built, not yet proven in the world. It is the live backend of the payments
+# port, answering the same Request(method, path, query, body) as the twin, which is why the port
+# cannot tell the two apart. Before each call it takes an OAuth token with the client credentials
+# read from a secret store, reuses it until a minute before it lapses, retries once on a 401, and
+# sends the API key; it presents a client certificate on an https address when the participant
+# requires one. A hub's problem comes back as the same [ status, problem ] the twin gives, while a
+# transport failure raises. The base address is configuration, nothing in the adapter names a bank,
+# and it promises no homologation. The payments guide, docs/payments-guide.md, is the desk's own
+# account.
+#
+#   receiver   o1 = new stzPispiHttpAdapter()
+#   example    o1.WithParticipant("bia")
+#              o1.AsLive()
+#              ? o1.CertificateSecretName()
+#              #--> pispi-bia-mtls-cert
+#              ? o1.RequiresCertificate()
+#              #--> 1
+#   see        stzPiSpiHttpFront, stzPiSpiSandbox, stzServiceRegistry, stzSecretStore,
+#              stzPaymentsPort
 class stzPispiHttpAdapter from stzObject
 
 	@nId = 0
@@ -331,15 +355,29 @@ class stzPispiHttpAdapter from stzObject
 	@cCa = ""
 	@nPosture = 0        # 0 unset, 1 conformance, 2 live
 
+	# Builds an adapter that asks for every scope the contract names, with no endpoint, no credentials and no posture yet.
+	#
+	#   returns    nothing; the object is built
+	#   note       every setter answers the adapter, so the calls chain
+	#   warning    an adapter that is never told AsLive or AsConformance answers no to
+	#              RequiresCertificate and to IsConformance, so a registry binds it as live without
+	#              asking for a certificate
+	#   see        WithParticipant, WithBaseUrl, AsConformance, AsLive
 	def init()
 		$nPiAdapterSeq = $nPiAdapterSeq + 1
 		@nId = $nPiAdapterSeq
 		@aScopes = StzPispiAllScopes()
 		$aPiTokens + [ @nId, "", 0, 0, 0 ]
 
-	  #-- configuration (each setter answers the adapter) ------------------
-
-	# names the five secrets: pispi-<participant>-client, -api-key, -mtls-cert, -mtls-key
+	# Sets the participant's short name and derives from it the four secret names the adapter looks up in the store.
+	#
+	#   pcParticipant   the participant's short name, kept in lower case, such as bia
+	#   returns         the adapter itself, so calls chain
+	#   note            nothing in the adapter names a bank, the participant is configuration
+	#   warning         the names are pispi-<participant>-client, -api-key, -mtls-cert and -mtls-
+	#                   key; until this is called all four are empty
+	#   see             WithSecretsFrom, ClientSecretName, CertificateSecretName
+	#@ aka  -- configuration (each setter answers the adapter) ------------------
 	def WithParticipant(pcParticipant)
 		@cParticipant = StzLower(ring_trim("" + pcParticipant))
 		@cClientName = StzPispiSecretName(@cParticipant, "client")
@@ -348,7 +386,17 @@ class stzPispiHttpAdapter from stzObject
 		@cKeyName = StzPispiSecretName(@cParticipant, "mtls-key")
 		return This
 
-	# the participant's API Business base URL, version included: https://host/piz/v1
+	# Sets the participant's API Business address, version included, to which every contract path is added.
+	#
+	#   pcUrl      the base address such as https://host/piz/v1, trailing slashes are removed and an
+	#              https address selects the engine's TLS client
+	#   returns    the adapter itself, so calls chain
+	#   note       UNPERCEIVED: pointed at the twin served over real HTTP this has been run, pointed
+	#              at the BCEAO's sandbox or at any participant it has NOT, and no payment through
+	#              it has been watched landing in a real dashboard
+	#   warning    the address is configuration, the contract is the BCEAO's
+	#   see        WithTokenUrl, Request
+	#@ aka  the participant's API Business base URL, version included: https://host/piz/v1
 	def WithBaseUrl(pcUrl)
 		@cBase = "" + pcUrl
 		while ring_len(@cBase) > 0 and @cBase[ring_len(@cBase)] = "/"
@@ -356,94 +404,243 @@ class stzPispiHttpAdapter from stzObject
 		end
 		return This
 
-	# defaults to scheme://host:port/oauth/token of the base URL
+	# Sets the address of the OAuth token endpoint when it is not the one derived from the base address.
+	#
+	#   pcUrl      the full token address
+	#   returns    the adapter itself, so calls chain
+	#   see        WithBaseUrl, WithScopes
+	#@ aka  defaults to scheme://host:port/oauth/token of the base URL
 	def WithTokenUrl(pcUrl)
 		@cTokenUrl = "" + pcUrl
 		return This
 
-	# the scopes to ask for; fewer scopes is a narrower token
+	# Narrows or sets the list of scopes the token asks for, so that fewer scopes make a narrower adapter.
+	#
+	#   paScopes   a list of the contract's scope names such as paiement.read, without the prefix,
+	#              which is added from WithScopePrefix
+	#   returns    the adapter itself, so calls chain
+	#   note       the default is all 23 scopes of the contract
+	#   warning    a call whose operation needs a scope outside the list is refused by the hub with
+	#              a 401 problem naming that scope; the token already cached is not replaced until
+	#              ForgetToken
+	#   see        WithScopePrefix, ForgetToken
+	#@ aka  the scopes to ask for; fewer scopes is a narrower token
 	def WithScopes(paScopes)
 		@aScopes = paScopes
 		return This
 
-	# "piz/" in the BCEAO's sandbox
+	# Sets the text put before every scope, which is piz/ in the BCEAO's sandbox.
+	#
+	#   pcPrefix   the text such as piz/, an empty text for none
+	#   returns    the adapter itself, so calls chain
+	#   warning    a hub that expects the prefix answers every call of an adapter without it with a
+	#              401 problem, while the token is still issued; the twin front refused the calls
+	#              this way
+	#   see        WithScopes, AsConformance
+	#@ aka  "piz/" in the BCEAO's sandbox
 	def WithScopePrefix(pcPrefix)
 		@cScopePrefix = "" + pcPrefix
 		return This
 
-	# the credentials, through the store's governed door. Ring copied the store when it was handed
-	# over: hand it again after a rotation.
+	# Gives the adapter the secret store and the actor through which it reads the OAuth client and the API key.
+	#
+	#   poStore    the stzSecretStore holding pispi-<participant>-client as clientId:clientSecret
+	#              and pispi-<participant>-api-key
+	#   poActor    the effectful actor that may reveal them, a language-model actor is refused
+	#   returns    the adapter itself, so calls chain
+	#   note       UNPERCEIVED: the credentials read here were only ever the test values of the
+	#              twin, never a participant's sandbox or production ones
+	#   warning    the store is copied when handed over, so hand it again after a rotation; without
+	#              a store and an actor the first call raises an error saying no credentials were
+	#              given; the client secret is revealed again at each token fetch and the API key at
+	#              each call
+	#   see        WithParticipant, WithCertificateFrom, Request
+	#@ aka  the credentials, through the store's governed door. Ring copied the store when it was handed over: hand it again after a rotation.
 	def WithSecretsFrom(poStore, poActor)
 		@oStore = poStore
 		@oActor = poActor
 		return This
 
-	# the mTLS identity is two PEM files; a descriptor with a FILE source names where
+	# Gives the adapter the store whose file-sourced certificate and key secrets name the mutual TLS PEM files.
+	#
+	#   poStore    the stzSecretStore holding pispi-<participant>-mtls-cert and -mtls-key as secrets
+	#              with a file source, whose path is the PEM file
+	#   returns    the adapter itself, so calls chain
+	#   note       UNPERCEIVED: mutual TLS is proven only against the twin front with the engine's
+	#              throwaway test certificates, never against a participant
+	#   warning    it keeps the same store as WithSecretsFrom, so a different store passed here
+	#              replaces that one, which is read from the code and not run; the private key stays
+	#              in its file and never enters Ring
+	#   see        WithCertificateFiles, WithSecretsFrom, RequiresCertificate
+	#@ aka  the mTLS identity is two PEM files; a descriptor with a FILE source names where
 	def WithCertificateFrom(poStore)
 		@oStore = poStore
 		return This
 
+	# Sets the client certificate and private key as PEM file paths, used when the store names no file-sourced secret for them.
+	#
+	#   pcCert     the path of the client certificate PEM file
+	#   pcKey      the path of the private key PEM file
+	#   returns    the adapter itself, so calls chain
+	#   note       UNPERCEIVED: mutual TLS has not been run against a participant or the BCEAO's
+	#              sandbox
+	#   warning    a path found in the store takes the place of these two, which is read from the
+	#              code and not run, as is the method itself
+	#   see        WithCertificateFrom, WithCaFile
 	def WithCertificateFiles(pcCert, pcKey)
 		@cCert = "" + pcCert
 		@cKey = "" + pcKey
 		return This
 
-	# the CA that signs the participant's server certificate; empty means the operating system's roots
+	# Sets the PEM file of the authority that signs the participant's server certificate.
+	#
+	#   pcCa       the path of the CA PEM file, an empty text meaning the operating system's roots
+	#   returns    the adapter itself, so calls chain
+	#   note       UNPERCEIVED: no participant's real server certificate chain has been checked with
+	#              it
+	#   warning    it is read only on an https address, a plain http address ignores it
+	#   see        WithCertificateFiles, WithBaseUrl
+	#@ aka  the CA that signs the participant's server certificate; empty means the operating system's roots
 	def WithCaFile(pcCa)
 		@cCa = "" + pcCa
 		return This
 
+	# Declares the adapter to be talking to the BCEAO's sandbox, genuine protocol over virtual money, where no client certificate is required.
+	#
+	#   returns    the adapter itself, so calls chain
+	#   note       UNPERCEIVED: this is the posture of the conformance run that has NOT been done.
+	#              Against the BCEAO's sandbox under the platform's own account the adapter has not
+	#              been run, and it stays unperceived until a named person has watched a payment
+	#              land in the sandbox dashboard
+	#   warning    the last of AsConformance and AsLive wins; a registry refuses a conformance
+	#              binding in a production phase
+	#   see        AsLive, IsConformance, WithScopePrefix
 	def AsConformance()
 		@nPosture = 1
 		return This
 
+	# Declares the adapter to be talking to a participant in production, where a client certificate is required.
+	#
+	#   returns    the adapter itself, so calls chain
+	#   note       UNPERCEIVED: the adapter is proven against the twin served over real HTTP and has
+	#              NOT been run against the BCEAO's sandbox, let alone a participant in production,
+	#              and no payment through it has been watched landing in a real dashboard
+	#   warning    after this call RequiresCertificate answers TRUE, so a registry bound to the
+	#              adapter judges the certificate secret and reports live-without-certificate while
+	#              the store has none
+	#   see        AsConformance, RequiresCertificate, IsConformance
 	def AsLive()
 		@nPosture = 2
 		return This
 
-	  #-- what the registry asks of an adapter ---------------------------------
-
+	# Answers FALSE always, because the adapter is never a fake.
+	#
+	#   returns    FALSE
+	#   warning    the registry asks this first, so an adapter is never taken for a fake
+	#   see        IsConformance, RequiresCertificate
+	#@ aka  -- what the registry asks of an adapter ---------------------------------
 	def IsSandbox()
 		return 0
 
+	# TRUE if the adapter was declared to talk to the BCEAO's sandbox.
+	#
+	#   returns    TRUE or FALSE
+	#   note       UNPERCEIVED: see AsConformance, the conformance run has not been done
+	#   warning    the registry reads it as the conformance posture
+	#   see        AsConformance, IsSandbox
 	def IsConformance()
 		return @nPosture = 1
 
-	# a live participant requires the client certificate; the BCEAO's sandbox does not
+	# TRUE if the adapter was declared live, because a live participant demands a client certificate and the BCEAO's sandbox does not.
+	#
+	#   returns    TRUE or FALSE
+	#   warning    the registry asks it to decide whether to judge the certificate secret
+	#   see        AsLive, CertificateSecretName
+	#@ aka  a live participant requires the client certificate; the BCEAO's sandbox does not
 	def RequiresCertificate()
 		return @nPosture = 2
 
+	# Returns the name of the store secret that holds the mutual TLS client certificate.
+	#
+	#   returns    a text such as pispi-bia-mtls-cert, empty before WithParticipant
+	#   see        WithParticipant, RequiresCertificate
 	def CertificateSecretName()
 		return @cCertName
 
+	# Returns the name of the store secret that holds clientId:clientSecret.
+	#
+	#   returns    a text such as pispi-bia-client, empty before WithParticipant
+	#   see        WithParticipant, ApiKeySecretName
 	def ClientSecretName()
 		return @cClientName
 
+	# Returns the name of the store secret that holds the API key.
+	#
+	#   returns    a text such as pispi-bia-api-key, empty before WithParticipant
+	#   see        WithParticipant, ClientSecretName
 	def ApiKeySecretName()
 		return @cApiKeyName
 
+	# Returns the participant's short name in lower case.
+	#
+	#   returns    a text, empty before WithParticipant
+	#   see        WithParticipant
 	def Participant()
 		return @cParticipant
 
-	  #-- test hooks and stats ---------------------------------------------------
-
-	# FAULT INJECTION: the next request is sent and its response is lost, as a dropped connection
-	# loses it. Money may have moved; the platform cannot know. The port's journal is what handles it.
+	# Makes the next call go out and its answer be lost, as a dropped connection loses it, so a test can meet doubt about money.
+	#
+	#   returns    the adapter itself, so calls chain
+	#   note       a test hook, used with the twin only; the payments port journals the transaction
+	#              id so that a retry reads the payment before it sends it again
+	#   warning    the next call raises a transport error saying the response was lost and the
+	#              request may have been processed, and the call after it works; the hub did process
+	#              the request
+	#   see        Request, TokensFetched
+	#@ aka  -- test hooks and stats ---------------------------------------------------
 	def DropNextResponse()
 		$aPiTokens[This._TokenRow()][5] = 1
 		return This
 
+	# Returns how many tokens this adapter has taken from the token endpoint.
+	#
+	#   returns    a number
+	#   warning    a token is reused until a minute before it lapses, so a count of one after
+	#              several calls shows the cache working
+	#   see        ForgetToken, Request
 	def TokensFetched()
 		return $aPiTokens[This._TokenRow()][4]
 
+	# Drops the cached token so that the next call asks for a fresh one.
+	#
+	#   returns    the adapter itself, so calls chain
+	#   warning    a 401 on a call already does this once by itself
+	#   see        TokensFetched, Request
 	def ForgetToken()
 		$aPiTokens[This._TokenRow()][2] = ""
 		$aPiTokens[This._TokenRow()][3] = 0
 		return This
 
-	  #-- THE CONTRACT ------------------------------------------------------------
-
-	# [ status, body ]: the same shape the twin gives. A 401 drops the token and tries ONCE more.
+	# Sends one call of the hub contract to the participant and answers [ status, body ], taking or reusing an OAuth token.
+	#
+	#   pcMethod   GET, POST, PUT or DELETE
+	#   pcPath     the contract path after the base address, such as /paiements-envoyes
+	#   paQuery    a list of [ key, value ] pairs such as [ "montant[gte]", "4000" ], percent-
+	#              encoded except brackets
+	#   paBody     the body as a list, written as JSON, a non-list meaning no body
+	#   returns    a list of two items, the HTTP status and the body as a list, or an empty text for
+	#              a 204 or an empty answer
+	#   note       UNPERCEIVED: run only against the twin served over real HTTP, plain and with
+	#              mutual TLS, and NOT against the BCEAO's sandbox or any participant, so no payment
+	#              sent here has been watched landing in a real dashboard. The base address decides
+	#              what it reaches
+	#   warning    a 401 drops the token and retries once with a fresh one; a transport failure
+	#              raises an error; a token endpoint that does not answer 200 raises an error naming
+	#              the status; two behaviours are read from the code and not run, an answer that is
+	#              not JSON comes back as a problem record titled Not JSON, and over plain http a
+	#              method other than the four goes as GET
+	#   see        WithBaseUrl, WithSecretsFrom, DropNextResponse, TokensFetched
+	#@ aka  -- THE CONTRACT ------------------------------------------------------------
 	def Request(pcMethod, pcPath, paQuery, paBody)
 		_aQ_ = []
 		if isList(paQuery)

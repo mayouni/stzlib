@@ -1,0 +1,33 @@
+{
+ "brief": "Speaks the BCEAO's PI-SPI payment verbs to a hub: sends money, asks for it, verifies webhooks and raises refusals as problems.",
+ "detail": "An application sends money with Pay, asks for it with RequestPayment, hears about payments with RegisterWebhook and ReceiveWebhook, and reads a refusal with StzLastPaymentsProblem. The port speaks the verbs of the BCEAO's API Business to any backend that has a Request method, so the code tested against the twin (StzPiSpiSandboxQ) is the code that talks to a participant. WHERE THIS STANDS: behind the twin every verb runs and is tested; behind the live adapter (stzPispiHttpAdapter) the port has been proven against the twin served over real HTTP and has NOT been run against the BCEAO's sandbox, so treat that path as unperceived. WHAT THE PORT ADDS: a txId is an idempotency key, since sending it again answers the current state and sends nothing (replayed is 1); money out (Pay, PayInBulk, ReturnFunds, accepting a request or a cancellation) needs a committed plan on a governed port, which is how a port starts; an amount carries its currency and only XOF is spoken; a status of 400 or more raises, and StzLastPaymentsProblem reads it; a webhook is verified before it is believed. The amount is forwarded as built and nothing is added to it. The journal, the webhook secrets and the events already seen are kept per port in shared tables, so copies of a port agree. The card verbs (Authorize, Capture, Refund) are not here: they belong to stzCardPaymentsAdapter. The practical guide is docs/payments-guide.md.",
+ "receiver": "oHub = StzPiSpiSandboxQ(); o1 = StzPaymentsPortQ(oHub); o1.AllowUngovernedPayouts()",
+ "example": [
+  "oOrder = StzPaymentOrderQ().WithTxId(\"APP-2026-000001\").FromAlias(oHub.BusinessAlias()).ToAlias(oHub.Alias(\"fatou\")).WithAmount(StzAmountQ(\"25000\", \"XOF\")).WithoutConfirmation()",
+  "aR = o1.Pay(oOrder)",
+  "? aR[:statut]",
+  "#--> ENVOYE",
+  "oHub.AdvanceSeconds(25)",
+  "? o1.StatusOf(aR[:end2endId])[:statut]",
+  "#--> IRREVOCABLE",
+  "o1.RegisterWebhook(StzWebhookQ().CallingBack(\"https://app.example/pispi\").OnEvents([ \"PAIEMENT_RECU\" ]))",
+  "oHub.SimulateIncomingPayment(\"fatou\", 18500, \"APP-2026-000002\")",
+  "aEv = o1.ReceiveWebhook(oHub.LastCallbackBody(), oHub.LastCallbackSignature())",
+  "? aEv[:accepted]",
+  "#--> 1",
+  "? aEv[:events][1][:motif]",
+  "#--> APP-2026-000002"
+ ],
+ "see": [
+  "stzPaymentOrder",
+  "stzPaymentRequest",
+  "stzPaymentBatch",
+  "stzWebhook",
+  "stzPaymentsProblem",
+  "stzPiSpiSandbox",
+  "stzPispiHttpAdapter",
+  "stzPayoutDesk",
+  "stzServiceRegistry",
+  "StzAmountQ"
+ ]
+}

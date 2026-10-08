@@ -2014,27 +2014,86 @@ func _StzPiIncomingCancellation(nHub, pcE2E, pcMotif)
 #  the face                                                            #
 #---------------------------------------------------------------------#
 
+# Answers the PI-SPI hub contract in process as a twin, with virtual francs and a clock moved by hand, so a platform can be tested without a bank.
+#
+# The twin implements the REST contract of the hub in one method, Request(method, path, query,
+# body), which the payments port and the live adapter both speak. It enforces what the reference
+# enforces, so code that pays twice, sends a field the schema refuses or exceeds the quota fails in
+# a test: a txId replayed is answered REJETE with reason DU03, a payment is pending and becomes
+# final 20 seconds later on the twin's own clock, and the hub's webhooks are signed. It declares
+# itself a fake, so a registry refuses it in a production phase. It holds virtual francs and takes
+# no fee, montantFrais is absent because the participant's fee is the participant's contract. It is
+# a model of the contract, not the hub: the live adapter has not been run against the BCEAO's
+# sandbox, so how closely the twin matches that hub is unperceived. The live adapter that talks to a
+# real hub is UNPERCEIVED for the same reason. The state lives in process-wide tables, so a copy of
+# the object is the same hub.
+#
+#   receiver   o1 = new stzPiSpiSandbox()
+#   example    ? o1.Balance()
+#              #--> 50000000
+#              o1.SimulateIncomingPayment("fatou", 40000, "facture 12")
+#              ? o1.Balance()
+#              #--> 50040000
+#   see        stzPispiHttpAdapter, stzPiSpiHttpFront, stzServiceRegistry, stzPaymentsPort
 class stzPiSpiSandbox from stzObject
 
 	@nId = 0
 
+	# Builds a new twin hub of its own, with a clock, a set of customers and 50 000 000 virtual francs on the platform's account.
+	#
+	#   returns    nothing; the object is built
+	#   note       the state lives in process-wide tables and the object carries only the hub
+	#              number, so a copy of the object is the same hub
+	#   warning    the twin holds virtual francs and takes no fee, montantFrais is absent because
+	#              the participant's fee is the participant's contract
+	#   see        Id, AdoptHub, Request
 	def init()
 		@nId = _StzPiNewHub()
 
-	# a double declares itself -- see stzServiceRegistry
+	# Answers TRUE always, so that a registry takes the twin for a fake and refuses it in a production phase.
+	#
+	#   returns    TRUE
+	#   warning    stzServiceRegistry
+	#   see        Id
+	#@ aka  a double declares itself -- see stzServiceRegistry
 	def IsSandbox()
 		return 1
 
+	# Returns the number of the hub this object is a face of.
+	#
+	#   returns    a number, 1 for the first hub of the process
+	#   see        AdoptHub, init
 	def Id()
 		return @nId
 
-	# a face onto a hub that already exists (state is global, so a face is only an id): how the
-	# HTTP front's handler reaches the twin it serves
+	# Points this object at a hub that already exists, so that two objects drive the same twin.
+	#
+	#   pnId       the number a hub's Id answered
+	#   returns    the object itself, so calls chain
+	#   warning    the HTTP front uses it to reach the twin it serves
+	#   see        Id
+	#@ aka  a face onto a hub that already exists (state is global, so a face is only an id): how the HTTP front's handler reaches the twin it serves
 	def AdoptHub(pnId)
 		@nId = pnId
 		return This
 
-	# THE contract: [ httpStatus, body ]. body is a list, or "" for a 204.
+	# Answers one call of the hub contract in process, as [ status, body ], the method the port and the live adapter both speak.
+	#
+	#   pcMethod   GET, POST, PUT or DELETE
+	#   pcPath     the contract path such as /paiements-envoyes or /comptes
+	#   paQuery    a list of [ key, value ] pairs for paging and filters, a non-list meaning none
+	#   paBody     the body as a list, a non-list meaning none
+	#   returns    a list of two items, the HTTP status and the body as a list, or an empty text for
+	#              a 204
+	#   note       the twin enforces what the reference enforces, so that code which pays twice or
+	#              sends an unknown field fails in a test, but it is a model of the contract and not
+	#              the hub: the live adapter has not been run against the BCEAO's sandbox, so how
+	#              closely the two agree is unperceived
+	#   warning    each call moves the twin's clock forward one second; a missing resource is a 404
+	#              problem, a field the schema does not know a 400, a txId used twice answers 200
+	#              with statut REJETE and statutRaison DU03, and over the quota a 429
+	#   see        Now, AdvanceSeconds, stzPispiHttpAdapter
+	#@ aka  THE contract: [ httpStatus, body ]. body is a list, or "" for a 204.
 	def Request(pcMethod, pcPath, paQuery, paBody)
 		_aQ_ = []
 		if isList(paQuery)
@@ -2046,43 +2105,94 @@ class stzPiSpiSandbox from stzObject
 		ok
 		return _StzPiRequest(@nId, pcMethod, pcPath, _aQ_, _aB_)
 
-	  #-- time ----------------------------------------------------------
-
+	# Returns the twin's clock as an ISO timestamp, which starts at 2026-10-05T09:00:00.000Z.
+	#
+	#   returns    a text such as 2026-10-05T09:00:26.000Z
+	#   warning    the clock moves only by one second per request or when asked, never with the wall
+	#              clock, so a test never waits twenty seconds
+	#   see        AdvanceSeconds, Request
+	#@ aka  -- time ----------------------------------------------------------
 	def Now()
 		return _StzPiNow(@nId)
 
-	# the twin's clock moves only when asked, or by one second per request
+	# Moves the twin's clock forward and settles every payment that has come due, a pending one becoming final after 20 seconds.
+	#
+	#   pn         the number of seconds to move the clock forward
+	#   returns    the object itself, so calls chain
+	#   warning    the webhooks the settlement announces are queued if a registered webhook listens
+	#              to them
+	#   see        SettleEverything, Now
+	#@ aka  the twin's clock moves only when asked, or by one second per request
 	def AdvanceSeconds(pn)
 		$aPiHubs[@nId]["clock"] = $aPiHubs[@nId]["clock"] + pn
 		_StzPiSettle(@nId, 0)
 		return This
 
-	# everything pending becomes final now, as if 20 seconds had passed
+	# Makes every pending payment and request final now, as if 20 seconds had passed.
+	#
+	#   returns    the object itself, so calls chain
+	#   see        AdvanceSeconds, NumberOfPayments
+	#@ aka  everything pending becomes final now, as if 20 seconds had passed
 	def SettleEverything()
 		_StzPiSettle(@nId, 1)
 		return This
 
+	# Sets the hub's quota, so that calls beyond it answer a 429 problem.
+	#
+	#   pnPerMinute   how many calls the hub accepts in a minute of its own clock
+	#   pnPerDay      how many it accepts in a day
+	#   returns       the object itself, so calls chain
+	#   warning       the minute window follows the twin's clock, so advancing it past a minute
+	#                 lifts the limit
+	#   see           Request, AdvanceSeconds
 	def SetRateLimit(pnPerMinute, pnPerDay)
 		$aPiHubs[@nId]["perMin"] = pnPerMinute
 		$aPiHubs[@nId]["perDay"] = pnPerDay
 		return This
 
-	  #-- the world it simulates ----------------------------------------
-
+	# Returns the PI-SPI alias, a UUID, of one of the twin's customers by short name: business, fatou, boutique, kdi, blocked or stubborn.
+	#
+	#   pcWho      the customer's short name, matched without regard to case
+	#   returns    a text; a name the twin does not know comes back unchanged
+	#   see        BusinessAlias, AddCounterparty, SetCounterparty
+	#@ aka  -- the world it simulates ----------------------------------------
 	def Alias(pcWho)
 		return _StzPiWho(pcWho)
 
+	# Returns the alias of the platform's own account on the twin.
+	#
+	#   returns    a text, a UUID
+	#   see        Alias, BusinessAccount
 	def BusinessAlias()
 		return _StzPiOwnAlias()
 
+	# Returns the account number of the platform's own account on the twin.
+	#
+	#   returns    a text, the same for every hub
+	#   see        BusinessAlias, Balance
 	def BusinessAccount()
 		return "NE2344256727788288822"
 
+	# Returns the platform's balance in francs, 50 000 000 at birth.
+	#
+	#   returns    a number
+	#   warning    a payment sent lowers it at once and a payment received raises it at once, before
+	#              any settlement
+	#   see        SimulateIncomingPayment, NumberOfPayments
 	def Balance()
 		return _StzPiBalance(@nId)
 
-	# how a customer's side answers: a payment ("ok" or the reason it rejects with), a
-	# request to pay ("pay" or the reason), a cancellation ("accept" or the reason)
+	# Sets how one customer's side answers: a payment, a request to pay and a cancellation.
+	#
+	#   pcWho      the customer's short name or alias
+	#   pcPay      ok or the ISO reason code that rejects a payment to this customer, such as AM04
+	#   pcRtp      pay or the reason code that declines a request to pay
+	#   pcCancel   accept or the reason code that refuses a cancellation
+	#   returns    the object itself, so calls chain
+	#   warning    raises an error for a customer the twin does not know, naming it; a payment to a
+	#              customer set to AM04 ends REJETE with that reason
+	#   see        AddCounterparty, Alias
+	#@ aka  how a customer's side answers: a payment ("ok" or the reason it rejects with), a request to pay ("pay" or the reason), a cancellation ("accept" or the reason)
 	def SetCounterparty(pcWho, pcPay, pcRtp, pcCancel)
 		_i_ = _StzPiAliasIndex(@nId, _StzPiWho(pcWho))
 		if _i_ = 0
@@ -2093,30 +2203,71 @@ class stzPiSpiSandbox from stzObject
 		$aPiAlias[_i_]["_cancel"] = pcCancel
 		return This
 
+	# Adds a customer to the twin that accepts every payment, request and cancellation until SetCounterparty says otherwise.
+	#
+	#   pcAlias      the new customer's alias, a UUID text
+	#   pcName       the name shown to the platform
+	#   pcCountry    the two-letter country code such as NE
+	#   pcCategory   the category letter, P, B or C as the seeded customers carry
+	#   returns      the object itself, so calls chain
+	#   warning      the customer is known by its alias, not by a short name
+	#   see          SetCounterparty, SimulateIncomingPayment
 	def AddCounterparty(pcAlias, pcName, pcCountry, pcCategory)
 		_StzPiSeedAlias(@nId, pcAlias, "SIM" + ring_len($aPiAlias), pcName, pcCountry, pcCategory, 0, "ok", "pay", "accept")
 		return This
 
-	  #-- what arrives without being asked ------------------------------
-
+	# Makes a customer pay the platform, raising the balance at once and queueing a PAIEMENT_RECU webhook.
+	#
+	#   pcWho       the customer's short name or alias
+	#   pnMontant   the amount in francs
+	#   pcMotif     the label the payer wrote, an empty text for none
+	#   returns     the end2endId of the payment, a text of 35 characters
+	#   warning     raises an error for a customer the twin does not know; the webhook is queued
+	#               only if a registered webhook listens to PAIEMENT_RECU, so a twin with no webhook
+	#               shows no delivery
+	#   see         SimulateIncomingRequest, Balance, Deliveries
+	#@ aka  -- what arrives without being asked ------------------------------
 	def SimulateIncomingPayment(pcWho, pnMontant, pcMotif)
 		return _StzPiIncomingPayment(@nId, pcWho, pnMontant, pcMotif)
 
+	# Makes a customer ask the platform to pay, queueing an RTP_RECU webhook.
+	#
+	#   pcWho       the customer's short name or alias
+	#   pnMontant   the amount asked in francs
+	#   pcMotif     the label the customer wrote
+	#   returns     the end2endId of the request, a text of 35 characters
+	#   warning     raises an error for a customer the twin does not know; the webhook is queued
+	#               only if a registered webhook listens to it
+	#   see         SimulateIncomingPayment, Deliveries
 	def SimulateIncomingRequest(pcWho, pnMontant, pcMotif)
 		return _StzPiIncomingRequest(@nId, pcWho, pnMontant, pcMotif)
 
+	# Makes a customer ask to cancel a payment the platform received, queueing an ANNULATION_DEMANDE webhook.
+	#
+	#   pcEnd2EndId   the end2endId of a payment the platform received
+	#   pcMotif       the reason the customer gives
+	#   returns       the object itself, so calls chain
+	#   warning       raises an error when the id is not a received payment
+	#   see           SimulateIncomingPayment, FailNextAnswer
 	def SimulateCancellationRequest(pcEnd2EndId, pcMotif)
 		_StzPiIncomingCancellation(@nId, pcEnd2EndId, pcMotif)
 		return This
 
-	# the hub rejects the NEXT answer we give (a request to pay, or a cancellation), so
-	# RTP_REPONSE_REJETE and ANNULATION_REPONSE_REJETE can be seen
+	# Makes the hub reject the next answer the platform gives to a request to pay or to a cancellation.
+	#
+	#   returns    the object itself, so calls chain
+	#   warning    it exists so that RTP_REPONSE_REJETE and ANNULATION_REPONSE_REJETE can be seen
+	#   see        SetCounterparty, SimulateIncomingRequest
+	#@ aka  the hub rejects the NEXT answer we give (a request to pay, or a cancellation), so RTP_REPONSE_REJETE and ANNULATION_REPONSE_REJETE can be seen
 	def FailNextAnswer()
 		$aPiHubs[@nId]["failAnswer"] = 1
 		return This
 
-	  #-- the webhooks it sends -----------------------------------------
-
+	# Returns how many signed webhooks this hub has queued since birth, delivered or not.
+	#
+	#   returns    a number
+	#   see        NumberOfUndelivered, Deliveries
+	#@ aka  -- the webhooks it sends -----------------------------------------
 	def NumberOfDeliveries()
 		_n_ = 0
 		for _i_ = 1 to ring_len($aPiOut)
@@ -2126,6 +2277,10 @@ class stzPiSpiSandbox from stzObject
 		next
 		return _n_
 
+	# Returns how many queued webhooks no one has taken yet.
+	#
+	#   returns    a number
+	#   see        NumberOfDeliveries, TakeUndelivered
 	def NumberOfUndelivered()
 		_n_ = 0
 		for _i_ = 1 to ring_len($aPiOut)
@@ -2135,7 +2290,12 @@ class stzPiSpiSandbox from stzObject
 		next
 		return _n_
 
-	# every delivery, oldest first: [ hookId, callbackUrl, evCode, body, signature, delivered ]
+	# Returns every queued webhook, oldest first, without marking any as taken.
+	#
+	#   returns    a list of records with the keys hookId, callbackUrl, evCode, body, signature and
+	#              delivered; [ ] when none
+	#   see        TakeUndelivered, LastCallbackBody
+	#@ aka  every delivery, oldest first: [ hookId, callbackUrl, evCode, body, signature, delivered ]
 	def Deliveries()
 		_a_ = []
 		for _i_ = 1 to ring_len($aPiOut)
@@ -2145,8 +2305,14 @@ class stzPiSpiSandbox from stzObject
 		next
 		return _a_
 
-	# hands each undelivered event to poHandler.ReceiveWebhook(body, signature), marks it
-	# delivered, answers how many it handed over. The port is such a handler.
+	# Hands each webhook no one has taken to a handler and marks it taken, one call per webhook.
+	#
+	#   poHandler   an object with ReceiveWebhook(body, signature), such as the payments port
+	#   returns     how many webhooks were handed over, a number
+	#   warning     the answer of the handler is not read, so a refused webhook is still marked
+	#               taken
+	#   see         TakeUndelivered, Deliveries
+	#@ aka  hands each undelivered event to poHandler.ReceiveWebhook(body, signature), marks it delivered, answers how many it handed over. The port is such a handler.
 	def DeliverTo(poHandler)
 		_n_ = 0
 		for _i_ = 1 to ring_len($aPiOut)
@@ -2158,8 +2324,13 @@ class stzPiSpiSandbox from stzObject
 		next
 		return _n_
 
-	# every undelivered webhook, oldest first, marked delivered: what a hub's delivery loop would POST.
-	# [ hookId, callbackUrl, evCode, body, signature ] as records
+	# Returns every webhook no one has taken, oldest first, and marks them taken, what a hub's delivery loop would post.
+	#
+	#   returns    a list of records with the keys hookId, callbackUrl, evCode, body and signature;
+	#              [ ] when none
+	#   warning    a second call right after answers [ ]
+	#   see        DeliverTo, NumberOfUndelivered
+	#@ aka  every undelivered webhook, oldest first, marked delivered: what a hub's delivery loop would POST. [ hookId, callbackUrl, evCode, body, signature ] as records
 	def TakeUndelivered()
 		_a_ = []
 		for _i_ = 1 to ring_len($aPiOut)
@@ -2172,6 +2343,11 @@ class stzPiSpiSandbox from stzObject
 		next
 		return _a_
 
+	# Returns the JSON body of the newest queued webhook.
+	#
+	#   returns    a text, empty when no webhook was queued
+	#   warning    the body is the thing the signature signs, so pass it unchanged to the port
+	#   see        LastCallbackSignature, Deliveries
 	def LastCallbackBody()
 		_a_ = This.Deliveries()
 		if ring_len(_a_) = 0
@@ -2179,6 +2355,10 @@ class stzPiSpiSandbox from stzObject
 		ok
 		return _a_[ring_len(_a_)]["body"]
 
+	# Returns the signature of the newest queued webhook, 64 hexadecimal characters.
+	#
+	#   returns    a text, empty when no webhook was queued
+	#   see        LastCallbackBody, LastWebhookSecret
 	def LastCallbackSignature()
 		_a_ = This.Deliveries()
 		if ring_len(_a_) = 0
@@ -2186,7 +2366,13 @@ class stzPiSpiSandbox from stzObject
 		ok
 		return _a_[ring_len(_a_)]["signature"]
 
-	# the secret the hub returned when the newest webhook was created or renewed
+	# Returns the secret the hub gave when the newest webhook was registered or renewed.
+	#
+	#   returns    a text of 64 hexadecimal characters, empty when no webhook was registered
+	#   warning    the hub shows the secret once, here it can be read again; it is a test value of
+	#              the twin
+	#   see        LastCallbackSignature
+	#@ aka  the secret the hub returned when the newest webhook was created or renewed
 	def LastWebhookSecret()
 		for _i_ = ring_len($aPiHooks) to 1 step -1
 			if $aPiHooks[_i_]["_hub"] = @nId
@@ -2195,8 +2381,12 @@ class stzPiSpiSandbox from stzObject
 		next
 		return ""
 
-	  #-- a count of what happened, for a test to assert on --------------
-
+	# Returns how many payments this hub holds on one side, ENVOYE for those the platform sent and RECU for those it received.
+	#
+	#   pcSide     ENVOYE or RECU
+	#   returns    a number
+	#   see        SimulateIncomingPayment, Show
+	#@ aka  -- a count of what happened, for a test to assert on --------------
 	def NumberOfPayments(pcSide)
 		_n_ = 0
 		for _i_ = 1 to ring_len($aPiPay)
@@ -2206,6 +2396,10 @@ class stzPiSpiSandbox from stzObject
 		next
 		return _n_
 
+	# Prints one line giving the hub number, its clock, the payments sent and received, the balance and the webhooks.
+	#
+	#   returns    nothing; it prints
+	#   see        NumberOfPayments, Balance
 	def Show()
 		? "stzPiSpiSandbox #" + @nId + " at " + This.Now() + ": " + This.NumberOfPayments("ENVOYE") +
 			" sent, " + This.NumberOfPayments("RECU") + " received, balance " + This.Balance() + " XOF, " +

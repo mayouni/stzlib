@@ -109,11 +109,45 @@ func StzServicesAreSound(poRegistry)
 	return poRegistry.IsSound()
 
 
+# Holds the services a solution depends on and what serves each, so that a fake can be refused when the solution ships.
+#
+# Application code asks the registry for a service by name, never for an implementation, and the
+# phase decides what is in place: a sandbox that captures mail or a local database while
+# programming, a hosted adapter at deploy. Because the whole outside surface is declared in one
+# place it can be listed and judged: Findings names what is unbound, what is still a fake in a
+# production phase, what is a local source that vanishes on restart, and what is live without its
+# credential in the secret store, and IsSound says whether any of that is an error. Each binding
+# carries a posture read off the object itself (sandbox, local, live or conformance), and an object
+# that says nothing is taken as live so that production does not excuse it. The registry holds the
+# NAME of a credential, never the credential. The payments binding comes second. The library ships
+# one live adapter for a payment hub, stzPispiHttpAdapter, and it is UNPERCEIVED: it is proven
+# against the twin served over real HTTP, plain and with mutual TLS, and has NOT been run against
+# the BCEAO's sandbox. No payment made through it has been watched landing in a real dashboard, so a
+# registry that judges it sound has judged the declared surface and not the service. BindLive,
+# BindConformance and BindLiveWithCertificate carry the same status in their notes. The twin and the
+# BCEAO's sandbox are refused in production (sandbox-in-production, conformance-in-production), and
+# so is a payments port told to skip the payout plan. The payments guide, docs/payments-guide.md, is
+# the desk's own account.
+#
+#   receiver   o1 = new stzServiceRegistry("restolean")
+#   example    o1.Declare(:mail)
+#              o1.Bind(:mail, new stzMailSandbox())
+#              ? o1.PostureOf(:mail)
+#              #--> sandbox
+#              ? o1.SetPhaseQ(:production).IsSound()
+#              #--> 0
+#   see        stzSecretStore, stzMailSandbox, stzPispiHttpAdapter, stzPiSpiSandbox
 class stzServiceRegistry from stzObject
 
 	@cName = ""
 	@nId = 0     # the slot in $aStzServiceRegistries -- survives Ring's copy
 
+	# Builds an empty registry for one solution, whose name every finding and report line points at.
+	#
+	#   pcName     the solution's name, a text that is not blank because a blank name raises an
+	#              error
+	#   returns    nothing; the object is built
+	#   see        Declare, Bind
 	def init(pcName)
 		@cName = ring_trim("" + pcName)
 		if @cName = ""
@@ -124,14 +158,23 @@ class stzServiceRegistry from stzObject
 		# [ id, declared, bound, phase ]
 		$aStzServiceRegistries + [ @nId, [], [], :development ]
 
+	# Returns the name the registry was built with.
+	#
+	#   returns    a text
+	#   see        init
 	def Name()
 		return @cName
 
-	  #-- the dependency surface -------------------------------------------
-
-	# Declare a service this solution depends on, before anything is bound. This
-	# is what turns "what does this touch?" from archaeology into a query -- and it
-	# is what lets an UNBOUND dependency be a finding rather than a surprise.
+	# Records a service the solution depends on before anything serves it, so that an unserved one is a finding and not a surprise.
+	#
+	#   pcService   the service's name, as a symbol or a text, kept in lower case with surrounding
+	#               spaces removed
+	#   returns     nothing; use DeclareQ to chain
+	#   note        DeclareQ is the same call and returns the registry, and DeclareMany takes a list
+	#               of names
+	#   warning     declaring a name twice keeps one entry
+	#   see         DeclareQ, Bind, UnboundServices
+	#@ aka  -- the dependency surface -------------------------------------------
 	def Declare(pcService)
 		This.DeclareQ(pcService)
 
@@ -149,71 +192,156 @@ class stzServiceRegistry from stzObject
 		next
 		return This
 
+	# TRUE if the service is on the dependency list, whether or not anything serves it.
+	#
+	#   pcService   the service's name, matched without regard to case
+	#   returns     TRUE or FALSE
+	#   warning     binding a service declares it, so a bound service is always declared
+	#   see         Declare, Has
 	def IsDeclared(pcService)
 		return This._IndexIn($aStzServiceRegistries[This._Slot()][2], This._Key(pcService)) > 0
 
+	# Returns the dependency list, in the order the services were first named.
+	#
+	#   returns    a list of lower-case texts; [ ] when nothing is declared
+	#   see        NumberOfDeclared, BoundServices
 	def DeclaredServices()
 		return $aStzServiceRegistries[This._Slot()][2]
 
+	# Returns how many services the solution depends on, served or not.
+	#
+	#   returns    a number
+	#   see        DeclaredServices, NumberOfBound
 	def NumberOfDeclared()
 		return len($aStzServiceRegistries[This._Slot()][2])
 
-	  #-- binding ----------------------------------------------------------
-
-	# Bind an implementation. The posture is asked OF THE OBJECT: anything with
-	# IsSandbox() answering true is a sandbox. Declaring itself beats guessing from
-	# a class name, and it means a third-party double can opt in.
+	# Attaches an implementation to a service, taking its posture from what the object says it is.
+	#
+	#   pcService   the service's name, declared by this call if it is new
+	#   poImpl      the object that serves it
+	#   returns     nothing; use BindQ to chain
+	#   note        the object is asked IsSandbox() first, then IsConformance(), then IsLocalReal();
+	#               BindQ is the same call and returns the registry
+	#   warning     raises an error when poImpl is not an object; an object that says nothing about
+	#               itself is recorded as live, never as a sandbox, so that production does not
+	#               excuse it; binding a name again replaces the earlier binding in place
+	#   see         BindSandbox, BindLocal, BindLive, PostureOf
+	#@ aka  -- binding ----------------------------------------------------------
 	def Bind(pcService, poImpl)
 		This.BindQ(pcService, poImpl)
 
 	def BindQ(pcService, poImpl)
 		return This._BindWith(pcService, poImpl, This._PostureOf(poImpl), "", "")
 
-	# ...say it explicitly when the object cannot.
+	# Attaches an implementation as a fake that must never ship, whatever the object says about itself.
+	#
+	#   pcService   the service's name, declared by this call if it is new
+	#   poImpl      the fake that serves it
+	#   returns     nothing; use BindSandboxQ to chain
+	#   note        a double that declares itself with IsSandbox() needs only Bind
+	#   warning     in a production phase this binding is an error finding named sandbox-in-
+	#               production
+	#   see         Bind, SandboxedServices, FindingsForProduction
+	#@ aka  ...say it explicitly when the object cannot.
 	def BindSandbox(pcService, poImpl)
 		This.BindSandboxQ(pcService, poImpl)
 
 	def BindSandboxQ(pcService, poImpl)
 		return This._BindWith(pcService, poImpl, :sandbox, "", "")
 
-	# Bind a genuine LOCAL equivalent -- sqlite, the filesystem, a local model. Not
-	# a fake, so unlike a sandbox this may ship; see the posture note above.
+	# Attaches a genuine local equivalent, such as sqlite, the filesystem or a local model, which may ship.
+	#
+	#   pcService   the service's name, declared by this call if it is new
+	#   poImpl      the local implementation that serves it
+	#   returns     nothing; use BindLocalQ to chain
+	#   note        a local source is not a fake, so no other finding is raised for it
+	#   warning     an implementation that answers IsEphemeral() with true, such as an in-memory
+	#               database, is refused in a production phase as ephemeral-in-production
+	#   see         Bind, LocalServices, IsLocal
+	#@ aka  Bind a genuine LOCAL equivalent -- sqlite, the filesystem, a local model. Not a fake, so unlike a sandbox this may ship; see the posture note above.
 	def BindLocal(pcService, poImpl)
 		This.BindLocalQ(pcService, poImpl)
 
 	def BindLocalQ(pcService, poImpl)
 		return This._BindWith(pcService, poImpl, :local, "", "")
 
-	# Bind the real thing, naming the STORE SECRET its credential lives in. The
-	# name, not the key: a registry that held credentials would be one more place
-	# they leak from.
+	# Attaches the real hosted service and names the store secret its credential lives in, never the credential itself.
+	#
+	#   pcService      the service's name, declared by this call if it is new
+	#   poImpl         the adapter that talks to the real service
+	#   pcSecretName   the name of the credential in the secret store, or an empty text to bind
+	#                  without naming one
+	#   returns        nothing; use BindLiveQ to chain
+	#   note           UNPERCEIVED, for the one live adapter this library ships to a payment hub,
+	#                  stzPispiHttpAdapter: it is proven against the twin served over real HTTP and
+	#                  has NOT been run against the BCEAO's sandbox, and no payment made through it
+	#                  has been watched landing in a real dashboard. This call records a binding and
+	#                  runs nothing, and a sound registry says the surface is declared, not that the
+	#                  service works. An adapter for any other service is the caller's and carries
+	#                  its own status
+	#   warning        an empty pcSecretName is a warning named inline-credential, not an error; a
+	#                  name the store does not hold is the error live-without-secret, and only when
+	#                  a store is passed to FindingsVia or IsSoundVia
+	#   see            Bind, BindLiveWithCertificate, BindConformance, IsSoundVia
+	#@ aka  Bind the real thing, naming the STORE SECRET its credential lives in. The name, not the key: a registry that held credentials would be one more place they leak from.
 	def BindLive(pcService, poImpl, pcSecretName)
 		This.BindLiveQ(pcService, poImpl, pcSecretName)
 
 	def BindLiveQ(pcService, poImpl, pcSecretName)
 		return This._BindWith(pcService, poImpl, :live, "" + pcSecretName, "")
 
-	# Bind the genuine protocol over virtual money (see :conformance above), naming the store
-	# secret its credential lives in. Never shippable: production refuses it.
+	# Attaches an adapter of the genuine protocol over virtual money, a trial before going live, naming its credential's store secret.
+	#
+	#   pcService      the service's name, declared by this call if it is new
+	#   poImpl         the adapter that speaks the real protocol to the trial service
+	#   pcSecretName   the name of the credential in the secret store
+	#   returns        nothing; use BindConformanceQ to chain
+	#   note           UNPERCEIVED, for the BCEAO's sandbox: stzPispiHttpAdapter in its conformance
+	#                  posture has NOT been run against it, and stays unperceived until a named
+	#                  person has watched a payment land in the sandbox dashboard. This call records
+	#                  the binding and runs nothing
+	#   warning        this binding is expected in development and is an error finding named
+	#                  conformance-in-production in a production phase; its credential is checked
+	#                  like a live one
+	#   see            Bind, BindLive, ConformanceServices, IsConformance
+	#@ aka  Bind the genuine protocol over virtual money (see :conformance above), naming the store secret its credential lives in. Never shippable: production refuses it.
 	def BindConformance(pcService, poImpl, pcSecretName)
 		This.BindConformanceQ(pcService, poImpl, pcSecretName)
 
 	def BindConformanceQ(pcService, poImpl, pcSecretName)
 		return This._BindWith(pcService, poImpl, :conformance, "" + pcSecretName, "")
 
-	# Bind the real thing AND name the store secret that holds its mTLS client certificate, for
-	# an adapter that cannot say so itself. An adapter that can (RequiresCertificate()) needs
-	# only BindLive.
+	# Attaches the real hosted service and names both the store secret of its credential and the one holding its mTLS client certificate.
+	#
+	#   pcService          the service's name, declared by this call if it is new
+	#   poImpl             the adapter that talks to the real service
+	#   pcSecretName       the name of the credential in the secret store
+	#   pcCertSecretName   the name of the client certificate secret in the secret store
+	#   returns            nothing; use BindLiveWithCertificateQ to chain
+	#   note               UNPERCEIVED, for the live payment adapter: it has been run only against
+	#                      the twin served over real HTTP, plain and with mutual TLS, and NOT
+	#                      against the BCEAO's sandbox, so no mutual-TLS handshake with a real hub
+	#                      has been watched. This call records the names and runs nothing
+	#   warning            a certificate absent from the store, without a value, or past its end
+	#                      date is the error live-without-certificate, judged only when a store is
+	#                      passed and in any phase; an adapter that answers RequiresCertificate()
+	#                      needs only BindLive because the registry asks it
+	#   see                BindLive, CertificateNameOf, IsSoundVia
+	#@ aka  Bind the real thing AND name the store secret that holds its mTLS client certificate, for an adapter that cannot say so itself. An adapter that can (RequiresCertificate()) needs only BindLive.
 	def BindLiveWithCertificate(pcService, poImpl, pcSecretName, pcCertSecretName)
 		This.BindLiveWithCertificateQ(pcService, poImpl, pcSecretName, pcCertSecretName)
 
 	def BindLiveWithCertificateQ(pcService, poImpl, pcSecretName, pcCertSecretName)
 		return This._BindWith(pcService, poImpl, :live, "" + pcSecretName, "" + pcCertSecretName)
 
-	# Remove the IMPLEMENTATION but keep the dependency. The service is then
-	# declared-and-unbound, which IS a finding -- your solution still needs the
-	# thing, it just has nothing to serve it. To retire the dependency itself, use
-	# Undeclare.
+	# Removes the implementation of a service and keeps the dependency, which leaves it declared and unserved.
+	#
+	#   pcService   the service's name
+	#   returns     the registry itself, so calls chain
+	#   warning     an unserved declared service is the error unbound-service; a name that is not
+	#               bound changes nothing
+	#   see         Undeclare, Bind, UnboundServices
+	#@ aka  Remove the IMPLEMENTATION but keep the dependency. The service is then declared-and-unbound, which IS a finding -- your solution still needs the thing, it just has nothing to serve it. To retire the dependency itself, use Undeclare.
 	def Unbind(pcService)
 		_s_ = This._Key(pcService)
 		_aNew_ = []
@@ -226,8 +354,12 @@ class stzServiceRegistry from stzObject
 		$aStzServiceRegistries[This._Slot()][3] = _aNew_
 		return This
 
-	# Retire the dependency altogether -- the solution no longer needs this
-	# service. Unbinds it too, so nothing is left half-declared.
+	# Retires a dependency for good, unbinding it first so that nothing stays half declared.
+	#
+	#   pcService   the service's name
+	#   returns     the registry itself, so calls chain
+	#   see         Unbind, Declare
+	#@ aka  Retire the dependency altogether -- the solution no longer needs this service. Unbinds it too, so nothing is left half-declared.
 	def Undeclare(pcService)
 		_s_ = This._Key(pcService)
 		This.Unbind(_s_)
@@ -241,11 +373,17 @@ class stzServiceRegistry from stzObject
 		$aStzServiceRegistries[This._Slot()][2] = _aNew_
 		return This
 
-	  #-- resolution (what the application actually calls) ------------------
-
-	# The service by name. RAISES when nothing is bound -- an unbound dependency
-	# that silently returned NULL would fail later, somewhere else, as a null-call
-	# with no hint of the real cause.
+	# Returns the implementation bound to a service, the one call the application makes.
+	#
+	#   pcService   the service's name, matched without regard to case
+	#   returns     the object that was bound
+	#   note        Ring copies an object when it is stored and when it is read back, so an
+	#               implementation that keeps state must share it across copies, as the mail sandbox
+	#               does
+	#   warning     raises an error naming the service when nothing is bound, instead of returning
+	#               an empty value that would fail later
+	#   see         Has, Bind, PostureOf
+	#@ aka  -- resolution (what the application actually calls) ------------------
 	def Service(pcService)
 		_i_ = This._BoundIndex(pcService)
 		if _i_ = 0
@@ -254,9 +392,19 @@ class stzServiceRegistry from stzObject
 		ok
 		return $aStzServiceRegistries[This._Slot()][3][_i_][2]
 
+	# TRUE if an implementation is bound to the service.
+	#
+	#   pcService   the service's name, matched without regard to case
+	#   returns     TRUE or FALSE
+	#   see         Service, IsDeclared
 	def Has(pcService)
 		return This._BoundIndex(pcService) > 0
 
+	# Returns the names of the services that have an implementation, in the order they were first bound.
+	#
+	#   returns    a list of lower-case texts; [ ] when nothing is bound
+	#   warning    binding a name again keeps its place in the list
+	#   see        NumberOfBound, DeclaredServices
 	def BoundServices()
 		_out_ = []
 		_n_ = len($aStzServiceRegistries[This._Slot()][3])
@@ -265,9 +413,18 @@ class stzServiceRegistry from stzObject
 		next
 		return _out_
 
+	# Returns how many services have an implementation.
+	#
+	#   returns    a number
+	#   see        BoundServices, NumberOfDeclared
 	def NumberOfBound()
 		return len($aStzServiceRegistries[This._Slot()][3])
 
+	# Returns how a service is bound: sandbox, local, live or conformance.
+	#
+	#   pcService   the service's name
+	#   returns     a text, or an empty text when nothing is bound
+	#   see         Bind, IsSandboxed, IsLocal, IsConformance
 	def PostureOf(pcService)
 		_i_ = This._BoundIndex(pcService)
 		if _i_ = 0
@@ -275,9 +432,19 @@ class stzServiceRegistry from stzObject
 		ok
 		return $aStzServiceRegistries[This._Slot()][3][_i_][3]
 
+	# TRUE if the service is bound as a fake.
+	#
+	#   pcService   the service's name
+	#   returns     TRUE or FALSE; FALSE when nothing is bound
+	#   see         PostureOf, SandboxedServices
 	def IsSandboxed(pcService)
 		return This.PostureOf(pcService) = :sandbox
 
+	# Returns the name of the secret store entry given for the service's credential.
+	#
+	#   pcService   the service's name
+	#   returns     a text, or an empty text when nothing is bound or no name was given
+	#   see         BindLive, CertificateNameOf
 	def SecretNameOf(pcService)
 		_i_ = This._BoundIndex(pcService)
 		if _i_ = 0
@@ -285,7 +452,14 @@ class stzServiceRegistry from stzObject
 		ok
 		return $aStzServiceRegistries[This._Slot()][3][_i_][4]
 
-	# the store secret holding a service's mTLS certificate, when the BINDING named one
+	# Returns the name of the store secret that the binding gave for the service's mTLS client certificate.
+	#
+	#   pcService   the service's name
+	#   returns     a text, or an empty text when the binding named none
+	#   warning     an adapter that names its own certificate through CertificateSecretName() is not
+	#               reported here, only a name given at binding
+	#   see         BindLiveWithCertificate, SecretNameOf
+	#@ aka  the store secret holding a service's mTLS certificate, when the BINDING named one
 	def CertificateNameOf(pcService)
 		_i_ = This._BoundIndex(pcService)
 		if _i_ = 0
@@ -293,7 +467,11 @@ class stzServiceRegistry from stzObject
 		ok
 		return $aStzServiceRegistries[This._Slot()][3][_i_][5]
 
-	# every service bound to the genuine protocol over virtual money
+	# Returns the services bound to the genuine protocol over virtual money.
+	#
+	#   returns    a list of lower-case texts; [ ] when none
+	#   see        IsConformance, BindConformance, LiveServices
+	#@ aka  every service bound to the genuine protocol over virtual money
 	def ConformanceServices()
 		_out_ = []
 		_n_ = len($aStzServiceRegistries[This._Slot()][3])
@@ -304,10 +482,19 @@ class stzServiceRegistry from stzObject
 		next
 		return _out_
 
+	# TRUE if the service is bound to the genuine protocol over virtual money.
+	#
+	#   pcService   the service's name
+	#   returns     TRUE or FALSE; FALSE when nothing is bound
+	#   see         PostureOf, ConformanceServices
 	def IsConformance(pcService)
 		return This.PostureOf(pcService) = :conformance
 
-	# every service still bound to a fake -- the "what is not real yet" list.
+	# Returns the services still bound to a fake, the list of what is not real yet.
+	#
+	#   returns    a list of lower-case texts; [ ] when none
+	#   see        IsSandboxed, LocalServices
+	#@ aka  every service still bound to a fake -- the "what is not real yet" list.
 	def SandboxedServices()
 		_out_ = []
 		_n_ = len($aStzServiceRegistries[This._Slot()][3])
@@ -318,7 +505,11 @@ class stzServiceRegistry from stzObject
 		next
 		return _out_
 
-	# the genuinely-local ones: real, self-hosted, shippable.
+	# Returns the services bound to a genuine local equivalent, which may ship.
+	#
+	#   returns    a list of lower-case texts; [ ] when none
+	#   see        IsLocal, SandboxedServices
+	#@ aka  the genuinely-local ones: real, self-hosted, shippable.
 	def LocalServices()
 		_out_ = []
 		_n_ = len($aStzServiceRegistries[This._Slot()][3])
@@ -329,9 +520,18 @@ class stzServiceRegistry from stzObject
 		next
 		return _out_
 
+	# TRUE if the service is bound to a genuine local equivalent.
+	#
+	#   pcService   the service's name
+	#   returns     TRUE or FALSE; FALSE when nothing is bound
+	#   see         PostureOf, LocalServices
 	def IsLocal(pcService)
 		return This.PostureOf(pcService) = :local
 
+	# Returns the services bound to the real hosted thing.
+	#
+	#   returns    a list of lower-case texts; [ ] when none
+	#   see        BindLive, ConformanceServices
 	def LiveServices()
 		_out_ = []
 		_n_ = len($aStzServiceRegistries[This._Slot()][3])
@@ -342,6 +542,10 @@ class stzServiceRegistry from stzObject
 		next
 		return _out_
 
+	# Returns the declared services that nothing serves, each of which is an error finding.
+	#
+	#   returns    a list of lower-case texts; [ ] when every declared service is bound
+	#   see        Declare, Unbind, Findings
 	def UnboundServices()
 		_out_ = []
 		_n_ = len($aStzServiceRegistries[This._Slot()][2])
@@ -352,11 +556,13 @@ class stzServiceRegistry from stzObject
 		next
 		return _out_
 
-	  #-- the phase --------------------------------------------------------
-
-	# :development / :emulated -> sandboxes are expected. :production -> they are a
-	# violation. The phase is the SAME switch stzDelivery already uses, so nothing
-	# new decides what is real.
+	# Sets the phase the registry is judged in, development or emulated where fakes are expected and production where they are errors.
+	#
+	#   pcPhase    development, emulated or production, as a symbol or a text
+	#   returns    nothing; use SetPhaseQ to chain
+	#   warning    raises an error for any other word and leaves the phase unchanged
+	#   see        Phase, IsProduction, FindingsForProduction
+	#@ aka  -- the phase --------------------------------------------------------
 	def SetPhase(pcPhase)
 		This.SetPhaseQ(pcPhase)
 
@@ -368,21 +574,33 @@ class stzServiceRegistry from stzObject
 		$aStzServiceRegistries[This._Slot()][4] = _p_
 		return This
 
+	# Returns the phase the registry is judged in.
+	#
+	#   returns    a text, development until it is set
+	#   see        SetPhase, IsProduction
 	def Phase()
 		return $aStzServiceRegistries[This._Slot()][4]
 
+	# TRUE if the registry is judged in the production phase.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Phase, SetPhase
 	def IsProduction()
 		return $aStzServiceRegistries[This._Slot()][4] = "production"
 
-	  #-- governance -------------------------------------------------------
-
-	# [ [ :invariant, :severity, :where, :message ], ... ] -- the same shape
-	# stzSecurityPosture and the graph rules use, so one CI gate covers all three.
-	# poStore may be NULL when there is no keyring to check against.
-	# NOTE: each _Check returns its OWN list and this LOOPS to append the elements.
-	# Ring's `+` on a list appends the whole list as ONE element, so
-	# `_aF_ + This._Check...()` would nest rather than accumulate -- and a nested
-	# findings list silently reports zero errors. Same shape as stzSecurityPosture.
+	# Returns what is wrong with the surface in the current phase, one record per broken invariant, judging credentials against a store.
+	#
+	#   poStore    the stzSecretStore that must hold every live credential and certificate, or an
+	#              empty text to skip those two checks
+	#   returns    a list of records with the keys invariant, severity (error or warn), where and
+	#              message; [ ] when nothing is wrong
+	#   note       the record has the shape the security posture and the graph rules use, so one
+	#              gate reads all three
+	#   warning    the checks are unbound-service, sandbox-in-production, ephemeral-in-production,
+	#              conformance-in-production, ungoverned-payouts-in-production, live-without-secret,
+	#              inline-credential (a warning) and live-without-certificate
+	#   see        Findings, IsSoundVia, ReportVia
+	#@ aka  -- governance -------------------------------------------------------
 	def FindingsVia(poStore)
 		_aF_ = []
 		_a1_ = This._CheckUnbound()
@@ -422,9 +640,21 @@ class stzServiceRegistry from stzObject
 		next
 		return _aF_
 
+	# Returns the findings judged without a secret store, so credentials and certificates are not checked.
+	#
+	#   returns    a list of records, [ ] when nothing is wrong
+	#   see        FindingsVia, IsSound, NumberOfFindings
 	def Findings()
 		return This.FindingsVia("")
 
+	# TRUE if no finding judged against the store is an error, warnings not counting.
+	#
+	#   poStore    the stzSecretStore that must hold every live credential and certificate, or an
+	#              empty text to skip those checks
+	#   returns    TRUE or FALSE
+	#   warning    a sound registry says the surface is declared and its credentials exist, not that
+	#              any service answers
+	#   see        IsSound, FindingsVia, MayGoLive
 	def IsSoundVia(poStore)
 		_aF_ = This.FindingsVia(poStore)
 		_n_ = len(_aF_)
@@ -435,12 +665,29 @@ class stzServiceRegistry from stzObject
 		next
 		return 1
 
+	# TRUE if no finding judged without a secret store is an error, warnings not counting.
+	#
+	#   returns    TRUE or FALSE
+	#   warning    credentials and certificates are not checked here, so a live binding naming a
+	#              missing secret still passes
+	#   see        IsSoundVia, Findings
 	def IsSound()
 		return This.IsSoundVia("")
 
+	# Returns how many findings there are without a secret store, errors and warnings together.
+	#
+	#   returns    a number
+	#   see        Findings, IsSound
 	def NumberOfFindings()
 		return len(This.Findings())
 
+	# Prints a header line with the counts per posture and one line per finding, judged against a secret store.
+	#
+	#   poStore    the stzSecretStore that must hold every live credential and certificate, or an
+	#              empty text to skip those checks
+	#   returns    the registry itself, so calls chain
+	#   warning    it prints to the console and does not return the findings
+	#   see        Report, FindingsVia
 	def ReportVia(poStore)
 		_aF_ = This.FindingsVia(poStore)
 		? "Service registry '" + @cName + "' [" + $aStzServiceRegistries[This._Slot()][4] + "] -- " +
@@ -458,20 +705,26 @@ class stzServiceRegistry from stzObject
 		next
 		return This
 
+	# Prints the same lines as ReportVia, judged without a secret store.
+	#
+	#   returns    the registry itself, so calls chain
+	#   see        ReportVia, Findings
 	def Report()
 		return This.ReportVia("")
 
-	# The production gate, mirroring the library's other admission checkpoints:
-	# nothing may go live unless the surface is sound AND an EFFECTFUL,
-	# non-sandboxed actor commits it. Expression is free; admission is governed.
+	# TRUE if an effectful actor that is not sandboxed offers to commit and the surface is sound as production would judge it.
 	#
-	# ASKED IN THE PRODUCTION FRAME, whatever the current phase. "May I go LIVE?"
-	# IS the production question, so answering it from a :development phase would
-	# have said YES with a fake still bound -- the phase-dependent invariants
-	# (sandbox-in-production, ephemeral-in-production) simply had not fired yet.
-	# The phase is set, the surface judged, the phase restored: asking is not
-	# declaring. (Found while writing the narration; the guard had only ever asked
-	# after setting production, so the honest answer and the convenient one agreed.)
+	#   poActor    the actor that would commit the change, a human passes and a language-model or
+	#              guardian actor does not
+	#   poStore    the stzSecretStore that must hold every live credential and certificate, or an
+	#              empty text to skip those checks
+	#   returns    TRUE or FALSE
+	#   note       expression is free and admission is governed, so an agent may compose the whole
+	#              integration and still not be the one who makes it real
+	#   warning    the question is asked in the production frame whatever the current phase, then
+	#              the phase is put back; a value that is not an object answers FALSE
+	#   see        WhyNotLive, FindingsForProduction
+	#@ aka  The production gate, mirroring the library's other admission checkpoints: nothing may go live unless the surface is sound AND an EFFECTFUL, non-sandboxed actor commits it. Expression is free; admission is governed.
 	def MayGoLive(poActor, poStore)
 		if NOT isObject(poActor)
 			return 0
@@ -484,7 +737,13 @@ class stzServiceRegistry from stzObject
 		ok
 		return This._SoundForProductionVia(poStore)
 
-	# the surface judged as production would judge it, then put back
+	# Returns the findings production would give, judging against a secret store, and leaves the phase as it was.
+	#
+	#   poStore    the stzSecretStore that must hold every live credential and certificate, or an
+	#              empty text to skip those checks
+	#   returns    a list of records like those of FindingsVia
+	#   see        FindingsForProduction, MayGoLive
+	#@ aka  the surface judged as production would judge it, then put back
 	def FindingsForProductionVia(poStore)
 		_cWas_ = "" + This.Phase()
 		This.SetPhaseQ(:production)
@@ -492,6 +751,10 @@ class stzServiceRegistry from stzObject
 		This.SetPhaseQ(_cWas_)
 		return _aF_
 
+	# Returns the findings production would give, judged without a secret store, and leaves the phase as it was.
+	#
+	#   returns    a list of records like those of FindingsVia
+	#   see        FindingsForProductionVia, Findings
 	def FindingsForProduction()
 		return This.FindingsForProductionVia("")
 
@@ -505,7 +768,15 @@ class stzServiceRegistry from stzObject
 		next
 		return 1
 
-	# ...and the same, but explaining itself.
+	# Returns the first reason going live is refused, naming the actor or the failed invariant.
+	#
+	#   poActor    the actor that would commit the change
+	#   poStore    the stzSecretStore that must hold every live credential and certificate, or an
+	#              empty text to skip those checks
+	#   returns    a text, an empty text when going live is allowed
+	#   warning    an invariant is named as its name, a colon and its message
+	#   see        MayGoLive, FindingsForProductionVia
+	#@ aka  ...and the same, but explaining itself.
 	def WhyNotLive(poActor, poStore)
 		if NOT isObject(poActor)
 			return "no actor was offered to commit the change"
@@ -525,21 +796,14 @@ class stzServiceRegistry from stzObject
 		next
 		return ""
 
-	  #-- the graph projection (phase 7) -----------------------------------
-
-	# Project the dependency surface into an stzGraph the rule engine can run
-	# over -- the same move stzOrgChart.AsRuleGraph() makes for positions.
+	# Returns the dependency surface as a graph for the rule engine, with one node for the application and one per service.
 	#
-	# The application is a node; every declared service is a node with its
-	# posture, its secret name and the phase as properties; an application
-	# `depends-on` each of its services.
-	#
-	# NOTE this does NOT duplicate the invariants above. Findings from Findings()
-	# already carry the report's shape, so the registry joins the shared CI gate
-	# directly:  oReport.IngestLegacy(oReg.Findings(), "services").
-	# What the GRAPH adds is the question a flag check cannot ask -- which PART of
-	# a solution depends on a fake -- and that needs the delivery's parts joined
-	# to these nodes (see stzDelivery.AsRuleGraph and stzServiceRuleSet).
+	#   returns    an stzGraph whose service nodes carry the phase, posture, secret name, bound and
+	#              ephemeral properties
+	#   warning    it restates what the findings already say as a graph, to ask which part of a
+	#              solution depends on a fake
+	#   see        Findings, Show
+	#@ aka  -- the graph projection (phase 7) -----------------------------------
 	def AsRuleGraph()
 		_oG_ = new stzGraph("services-rules")
 		_app_ = "app:" + @cName
@@ -585,6 +849,10 @@ class stzServiceRegistry from stzObject
 			poG.AddEdgeXTT(pcApp, _id_, "depends-on", [ :type = "service" ])
 		ok
 
+	# Prints one line giving the name, the phase and how many declared services are bound.
+	#
+	#   returns    nothing; it prints
+	#   see        Report
 	def Show()
 		? "stzServiceRegistry(" + @cName + ", " + $aStzServiceRegistries[This._Slot()][4] + ", " +
 		  len($aStzServiceRegistries[This._Slot()][3]) + "/" + len($aStzServiceRegistries[This._Slot()][2]) + " bound)"

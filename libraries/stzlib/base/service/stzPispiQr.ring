@@ -289,6 +289,31 @@ func StzPispiQrParse(pcPayload)
 func StzPispiQrQ()
 	return new stzPispiQr
 
+# Builds the PI-SPI interoperable QR payload, the short text a camera reads, and refuses to build one that would print wrong.
+#
+# The library builds the QR STRING and does not draw the picture, and no QR it made has been scanned
+# by any wallet or bank app: the black and white matrix a phone's camera reads is a second step this
+# library does not do, so hand the string to a QR-drawing component of your front end. The string
+# follows the BCEAO's published merchant-presented format: the receiver's PI-SPI alias, the currency
+# XOF, an optional whole-franc amount, a country of the union, a reference label of at most 25
+# characters and a checksum. A static code serves many payments and a dynamic code one sale. The
+# builder refuses a bad alias, country, label or amount when the payload is asked for, and
+# StzPispiQrParse reads a string back without raising and says what is wrong. It is a builder, not a
+# payment: the payer's banking application makes an ordinary payment to the alias. The checksum
+# matches an independent implementation, which proves the string is well formed and nothing about a
+# scan.
+#
+#   receiver   o1 = StzPispiQrQ()
+#   example    o1.WithAlias("9b1b3499-3e50-435b-b757-ac7a83d8aa96").InCountry("NE").AsDynamic()
+#              o1.WithReference("APP-2026-000002").WithAmount(StzAmountQ("18500", "XOF"))
+#              cQr = o1.Payload()
+#              ? StzPispiQrParse(cQr)[:valid]
+#              #--> 1
+#              ? StzPispiQrParse(cQr)[:data][:amount]
+#              #--> 18500
+#              ? StzPispiQrParse("0002010102126304BEEF")[:valid]
+#              #--> 0
+#   see        stzAmount, stzPiSpiSandbox, stzPaymentsPort
 class stzPispiQr
 
 	@cAlias = ""
@@ -299,38 +324,73 @@ class stzPispiQr
 	@cPurpose = ""
 	@aCustom = []
 
-	  #-- who is paid ---------------------------------------------------
-
-	# the receiver's PI-SPI alias: the twin's BusinessAlias(), or the production one
+	# Sets the PI-SPI alias of the receiver, the one account the code pays.
+	#
+	#   pcAlias    the receiver's PI-SPI alias, a UUID of 36 characters such as the twin's
+	#              BusinessAlias()
+	#   returns    the builder itself, so calls chain
+	#   note       the UUID shape is checked, not the version
+	#   warning    an alias that is not in the shape of a UUID is not refused here but when Payload
+	#              is asked for
+	#   see        InCountry, Payload
+	#@ aka  -- who is paid ---------------------------------------------------
 	def WithAlias(pcAlias)
 		@cAlias = "" + pcAlias
 		return This
 
-	# the country of the receiver, one of BJ BF CI GW ML NE SN TG
+	# Sets the country of the receiver, in capitals whatever case is given.
+	#
+	#   pcCountry   the country code, one of BJ BF CI GW ML NE SN TG
+	#   returns     the builder itself, so calls chain
+	#   warning     a country outside the union is not refused here but when Payload is asked for
+	#   see         WithAlias, Payload
+	#@ aka  the country of the receiver, one of BJ BF CI GW ML NE SN TG
 	def InCountry(pcCountry)
 		@cCountry = upper("" + pcCountry)
 		return This
 
-	  #-- what kind of code ---------------------------------------------
-
-	# one code, many payments: channel 000
+	# Makes the code a static one, printed once and read for many payments, with channel 000.
+	#
+	#   returns    the builder itself, so calls chain
+	#   note       in a static code the payer types the amount unless WithAmount fixes it; the last
+	#              of AsStatic and AsDynamic called wins
+	#   see        AsDynamic, WithAmount
+	#@ aka  -- what kind of code ---------------------------------------------
 	def AsStatic()
 		@cChannel = "000"
 		return This
 
-	# a code made for ONE sale: channel 400
+	# Makes the code a dynamic one, made for one sale, with channel 400.
+	#
+	#   returns    the builder itself, so calls chain
+	#   note       the last of AsStatic and AsDynamic called wins
+	#   see        AsStatic, WithAmount
+	#@ aka  a code made for ONE sale: channel 400
 	def AsDynamic()
 		@cChannel = "400"
 		return This
 
-	  #-- what it asks -----------------------------------------------------
-
-	# the label the payer's application shows and the receiver reconciles on: at most 25 characters
+	# Sets the label the payer's application shows and the receiver reconciles the payment on.
+	#
+	#   pcLabel    the reference label, 1 to 25 printable ASCII characters
+	#   returns    the builder itself, so calls chain
+	#   note       the payment received carries it as its motif
+	#   warning    a label that is empty, over 25 characters or outside printable ASCII is not
+	#              refused here but when Payload is asked for
+	#   see        WithAlias, Payload
+	#@ aka  -- what it asks -----------------------------------------------------
 	def WithReference(pcLabel)
 		@cLabel = "" + pcLabel
 		return This
 
-	# a fixed amount, as an amount that carries its currency: XOF, whole francs, at most 13 digits
+	# Fixes the amount the payer is asked for, which must be whole francs in XOF.
+	#
+	#   poAmount   the stzAmount to ask for, in XOF, above zero and of at most 13 digits
+	#   returns    the builder itself, so calls chain
+	#   warning    raises an error at once for an amount in another currency or an amount that is
+	#              not above zero; without it the payer types the amount
+	#   see        AsDynamic, Payload
+	#@ aka  a fixed amount, as an amount that carries its currency: XOF, whole francs, at most 13 digits
 	def WithAmount(poAmount)
 		if poAmount.Currency() != "XOF"
 			StzRaise("stzPispiQr: the interoperable QR is in XOF only, this amount is in " + poAmount.Currency())
@@ -342,17 +402,45 @@ class stzPispiQr
 		@cAmount = "" + _n_
 		return This
 
+	# Sets the optional purpose text carried in the additional data of the code.
+	#
+	#   pcPurpose   the purpose, in printable ASCII
+	#   returns     the builder itself, so calls chain
+	#   warning     a purpose outside printable ASCII is not refused here but when Payload is asked
+	#               for
+	#   see         WithReference, WithCustom
 	def WithPurpose(pcPurpose)
 		@cPurpose = "" + pcPurpose
 		return This
 
-	# an additional-data tag of the receiver's own: two characters, digits or capital letters
+	# Adds an additional-data tag of the receiver's own to the code.
+	#
+	#   pcTag      the tag, exactly two characters, digits or capital letters
+	#   pcValue    the tag's value, as text
+	#   returns    the builder itself, so calls chain
+	#   note       the receiver's tags are written after the standard ones, in the order of their
+	#              names
+	#   warning    a tag that is not two characters of digits or capital letters is not refused here
+	#              but when Payload is asked for
+	#   see        WithPurpose, Payload
+	#@ aka  an additional-data tag of the receiver's own: two characters, digits or capital letters
 	def WithCustom(pcTag, pcValue)
 		@aCustom + [ "" + pcTag, "" + pcValue ]
 		return This
 
-	  #-- the string ---------------------------------------------------------
-
+	# Returns the QR string, whose last four characters are its checksum, after refusing any value that would print a bad code.
+	#
+	#   returns    a text: the payload string, not a picture
+	#   note       the library builds this string and does not draw the picture, and no code it made
+	#              has been scanned by any wallet or bank app: StzPispiQrParse reads it back and
+	#              checks the checksum, which proves the string is well formed and not that a phone
+	#              accepts it
+	#   warning    raises an error naming the cause when AsStatic or AsDynamic was not called, or
+	#              the alias is not a UUID shape, or the country is outside the union, or the label
+	#              is missing, over 25 characters or not printable ASCII, or a custom tag is
+	#              malformed, or the amount has more than 13 digits
+	#   see        StzPispiQrParse, WithReference
+	#@ aka  -- the string ---------------------------------------------------------
 	def Payload()
 		if @cChannel = ""
 			StzRaise("stzPispiQr: say AsStatic() or AsDynamic() before asking for the payload")

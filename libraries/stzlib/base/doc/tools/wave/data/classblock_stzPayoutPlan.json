@@ -1,0 +1,16 @@
+{
+ "brief": "Holds a proposed payout as a plan to be judged and committed by a person, since money out is never a method call.",
+ "detail": "Money out is a PLAN a human commits. A plan names what it pays, whether one payment, a bulk, the return of a payment received, or the acceptance of a request to pay or of a cancellation, and carries the visas of the people who approve it. Building a plan moves nothing: a stzPayoutDesk rehearses it into a workbench, a policy judges the rehearsed document, and only an actor who may change reality, never a language model, can commit it, after which the port releases exactly what the plan names. The weight of a plan is the sum of what it pays, so a payroll cannot be cut into small lines to slip under a threshold. The policy that judges it is the platform's own data. The whole path was run against the in-process twin, which moves no money.",
+ "receiver": "o1 = new stzPayoutPlan()",
+ "example": [
+  "o1.WithId(\"SUP-2026-10\").ProposedBy(\"treasury-agent\")",
+  "o1.Returning(\"E2E-0001\", 40000)",
+  "o1.Visa(\"comptable\", \"A. Issoufou\")",
+  "o1.Visa(\"DAF\", \"M. Garba\")",
+  "? o1.TotalAmount()",
+  "#--> 40000",
+  "? o1.NumberOfDistinctVisas()",
+  "#--> 2"
+ ],
+ "see": ["stzPayoutDesk", "stzPayoutPolicy", "stzPaymentsPort"]
+}

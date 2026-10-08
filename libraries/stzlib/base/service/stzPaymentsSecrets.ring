@@ -122,10 +122,39 @@ func StzPaymentsDetectionSet()
  #  A PAYMENTS SECRET  #
 #=====================#
 
+# Describes one of the five secrets a live payment needs, by name and kind, as a token that can expire.
+#
+# The five parts are the OAuth client, the API key, the mTLS private key, its certificate and a
+# webhook secret. A descriptor is a stzToken underneath, because a token is the one kind of secret
+# the store already knows how to expire, and its kind says which part it is. It carries no value
+# until a source is given: the value comes from an environment variable, a file outside the
+# repository or a vault, and is shown by no output. Use invented values in a test and never write a
+# real one in a source file, a memo or an example. A descriptor that is only a name is refused by
+# the registry in production, as is one whose certificate has lapsed.
+#
+#   receiver   o1 = new stzPispiSecret("pispi-bia-mtls-cert", "mtls-cert")
+#   example    o1.FromEnv("INVENTED_MTLS_CERT_PATH")
+#              ? o1.Kind()
+#              #--> pispi-mtls-cert
+#              ? o1.Part()
+#              #--> mtls-cert
+#              ? o1.Descriptor()
+#              #--> <secret 'pispi-bia-mtls-cert' (pispi-mtls-cert) from env:INVENTED_MTLS_CERT_PATH>
+#   see        stzSecretStore, stzToken, stzSecretExpiryWatch
 class stzPispiSecret from stzToken
 
 	@cPart = ""
 
+	# Builds an unset descriptor for one of the five parts of a live payment: a name and a kind, and no value.
+	#
+	#   pcName     the name the descriptor is registered under in the store
+	#   pcPart     one of client, api-key, mtls-key, mtls-cert or webhook-secret, in any case
+	#   returns    nothing; the object is built
+	#   note       a descriptor with no value is a name, not a credential: give it a source with
+	#              FromEnv, FromFile or FromVault, and its kind becomes pispi- followed by the part
+	#   warning    raises an error naming the five parts when pcPart is anything else, an empty text
+	#              included
+	#   see        Part, StzPispiSecretQ
 	def init(pcName, pcPart)
 		_p_ = StzLower(ring_trim("" + pcPart))
 		if ring_find(StzPispiSecretParts(), _p_) = 0
@@ -136,6 +165,10 @@ class stzPispiSecret from stzToken
 		@cPart = _p_
 		@cKind = "pispi-" + _p_
 
+	# Returns which of the five elements of a live payment this descriptor stands for, in lower case.
+	#
+	#   returns    a text: client, api-key, mtls-key, mtls-cert or webhook-secret
+	#   see        init, Kind
 	def Part()
 		return @cPart
 
@@ -144,7 +177,28 @@ class stzPispiSecret from stzToken
  #  THE EXPIRY WATCH  #
 #=================#
 
-# A periodic thing, hostable on any stzAgentHost: Name_() and Cycle().
+# Reads a store of secrets on a tick and tells the security ledger, once, which are about to expire or have.
+#
+# Expiry is a detection, not a check at call time: the port never looks at a date. Each cycle
+# compares every expiring secret in the store with the clock and writes secret.expiring or
+# secret.expired once per change of state, naming the secret and never its value. The default window
+# is thirty days. The watch holds the store as it was handed over, so a host that runs it
+# periodically hands it the current store each cycle. It is a periodic thing with a name and a
+# Cycle, hostable on any agent host. Use invented secrets in a test.
+#
+#   receiver   o1 = new stzSecretExpiryWatch(StzSecretStoreQ("billing"))
+#   example    oCert = StzPispiSecretQ("bia", "mtls-cert")
+#              oCert.FromEnv("INVENTED_MTLS_CERT_PATH")
+#              oCert.SetExpiry(1800000000 + 10 * 86400)
+#              oStore = StzSecretStoreQ("billing")
+#              oStore.Register(oCert)
+#              o1.Watch(oStore)
+#              o1.AsOf(1800000000)
+#              ? o1.Cycle()
+#              #--> 1
+#              ? o1.Cycle()
+#              #--> 0
+#   see        stzPispiSecret, stzSecretStore, stzSecurityLedger
 class stzSecretExpiryWatch from stzObject
 
 	@oStore = ""
@@ -152,29 +206,64 @@ class stzSecretExpiryWatch from stzObject
 	@nAsOf = 0
 	@aState = []     # [ [ secretName, "expiring" | "expired" ], ... ] -- what was already announced
 
+	# Builds a watch over the secrets of a store, to announce in the security ledger those about to expire or already expired.
+	#
+	#   poStore    the stzSecretStore to read
+	#   returns    nothing; the object is built
+	#   note       a secret registered after this call is not seen: hand the watch the current store
+	#              with Watch before each cycle
+	#   see        Cycle, Watch
 	def init(poStore)
 		@oStore = poStore
 
+	# Returns the name under which a host schedules this watch on its tick.
+	#
+	#   returns    the text secret-expiry
+	#   see        Cycle
 	def Name_()
 		return "secret-expiry"
 
-	# Hand the watch the CURRENT store: Ring copied the one it was built with.
+	# Replaces the store this object reads with the current one, keeping what it has already announced.
+	#
+	#   poStore    the stzSecretStore to read from now on
+	#   returns    the watch itself, so calls chain
+	#   note       Ring copies an object on assignment, which is why a host calls this each cycle
+	#   see        Cycle, init
+	#@ aka  Hand the watch the CURRENT store: Ring copied the one it was built with.
 	def Watch(poStore)
 		@oStore = poStore
 		return This
 
+	# Sets how many days before its end a secret counts as expiring; thirty days when never set.
+	#
+	#   pnDays     the length of the warning window, in days
+	#   returns    the watch itself, so calls chain
+	#   see        Cycle, AsOf
 	def WarnWithinDays(pnDays)
 		@nWarnDays = pnDays
 		return This
 
-	# judge as of this epoch second (0 = the engine's clock): the testable form
+	# Fixes the moment the watch judges against, so a test does not depend on the clock; 0 returns to the engine clock.
+	#
+	#   pnEpoch    the moment as epoch seconds, 0 for the engine clock
+	#   returns    the watch itself, so calls chain
+	#   see        Cycle, WarnWithinDays
+	#@ aka  judge as of this epoch second (0 = the engine's clock): the testable form
 	def AsOf(pnEpoch)
 		@nAsOf = pnEpoch
 		return This
 
-	# Writes one ledger event for each secret whose STATE changed since the last cycle,
-	# answers how many. A secret that goes back to being fine (renewed) is forgotten, so the
-	# next lapse is announced afresh.
+	# Writes one security-ledger event for each secret whose state changed since the last run, and answers how many it wrote.
+	#
+	#   returns    a number: 0 when nothing changed
+	#   note       an expiring secret goes in the ledger as secret.expiring, a lapsed one as
+	#              secret.expired, by the secret's name and never its value; a renewed secret is
+	#              forgotten, so its next lapse is announced afresh
+	#   warning    a secret with no expiry date, or of a kind that has none, is never judged; the
+	#              state changes are expiring then expired, and the second cycle on an unchanged
+	#              store writes nothing
+	#   see        Watch, WarnWithinDays, AsOf
+	#@ aka  Writes one ledger event for each secret whose STATE changed since the last cycle, answers how many. A secret that goes back to being fine (renewed) is forgotten, so the next lapse is announced afresh.
 	def Cycle()
 		_nNow_ = @nAsOf
 		if _nNow_ = 0

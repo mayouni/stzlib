@@ -1,0 +1,20 @@
+{
+ "brief": "Carries the payments contract over HTTP to a participant's API Business, with OAuth2, an API key and optional mutual TLS.",
+ "detail": "UNPERCEIVED. This adapter is proven against the twin served over real HTTP (stzPiSpiHttpFront), plain and with mutual TLS, and has NOT been run against the BCEAO's sandbox. No payment made through it has been watched landing in a real dashboard by a named person, and until one has it stays unperceived: built, not yet proven in the world. It is the live backend of the payments port, answering the same Request(method, path, query, body) as the twin, which is why the port cannot tell the two apart. Before each call it takes an OAuth token with the client credentials read from a secret store, reuses it until a minute before it lapses, retries once on a 401, and sends the API key; it presents a client certificate on an https address when the participant requires one. A hub's problem comes back as the same [ status, problem ] the twin gives, while a transport failure raises. The base address is configuration, nothing in the adapter names a bank, and it promises no homologation. The payments guide, docs/payments-guide.md, is the desk's own account.",
+ "receiver": "o1 = new stzPispiHttpAdapter()",
+ "example": [
+  "o1.WithParticipant(\"bia\")",
+  "o1.AsLive()",
+  "? o1.CertificateSecretName()",
+  "#--> pispi-bia-mtls-cert",
+  "? o1.RequiresCertificate()",
+  "#--> 1"
+ ],
+ "see": [
+  "stzPiSpiHttpFront",
+  "stzPiSpiSandbox",
+  "stzServiceRegistry",
+  "stzSecretStore",
+  "stzPaymentsPort"
+ ]
+}

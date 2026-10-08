@@ -1,0 +1,19 @@
+{
+ "brief": "Describes one request to pay, who is asked, how much and for what, in the words the hub expects.",
+ "detail": "Build it with its chained setters, then hand it to RequestPayment of stzPaymentsPort. The txId is yours and unique, and a retry reuses it. The amount comes from StzAmountQ and only XOF is accepted. The category says the kind of request: 500 on the spot, 521 e-commerce, 401 invoice, and the twin wants a PayableBy date for the last two. One of WithConfirmation or WithoutConfirmation must be chosen. Asking for money moves none, and building a request sends nothing.",
+ "receiver": "o1 = StzPaymentRequestQ().WithTxId(\"APP-RTP-1\").FromAlias(\"11111111-1111-4111-8111-111111111111\").ToAlias(\"22222222-2222-4222-8222-222222222222\").WithAmount(StzAmountQ(\"350000\", \"XOF\")).InCategory(\"401\").PayableBy(\"2026-10-31\").WithoutConfirmation()",
+ "example": [
+  "? o1.TxId()",
+  "#--> APP-RTP-1",
+  "? @@(o1.AsBody()[6])",
+  "#--> [ \"categorie\", \"401\" ]",
+  "? @@(o1.AsBody()[7])",
+  "#--> [ \"dateLimitePaiement\", \"2026-10-31\" ]"
+ ],
+ "see": [
+  "stzPaymentsPort",
+  "stzPaymentBatch",
+  "stzPaymentOrder",
+  "StzAmountQ"
+ ]
+}

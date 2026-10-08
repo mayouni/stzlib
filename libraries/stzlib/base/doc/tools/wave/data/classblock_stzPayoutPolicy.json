@@ -1,0 +1,13 @@
+{
+ "brief": "Holds the rules of who must approve a payout plan, as data a platform writes, and judges a plan against them.",
+ "detail": "The rule of which people must approve what is a platform's, so it is data in a policy and never a constant in the port. A policy counts people, not signatures: a person who signs twice, in any case, is one visa. The first rule says above, so a total exactly equal to the threshold needs none. A verdict is a list of findings in the house shape [ rule, subject, where, severity, message ], which joins stzRuleReport, the one CI gate. A policy only judges: it moves nothing and commits nothing. StzDikoPayoutPolicyQ builds one platform's policy, four visas above 100 000 FCFA.",
+ "receiver": "o1 = new stzPayoutPolicy(\"mine\")",
+ "example": [
+  "o1.RequireVisasAbove(100000, 4).ProposerCannotVisa()",
+  "oPlan = StzPayoutPlanQ().WithId(\"P1\").ProposedBy(\"agent\").Returning(\"E2E-0001\", 250000)",
+  "oPlan.Visa(\"DAF\", \"M. Garba\")",
+  "? o1.JudgePlan(oPlan)[1][:rule]",
+  "#--> payout-over-100000-needs-4-visas"
+ ],
+ "see": ["stzPayoutPlan", "stzPayoutDesk", "stzRuleReport"]
+}

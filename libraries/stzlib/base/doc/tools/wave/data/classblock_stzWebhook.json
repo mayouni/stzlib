@@ -1,0 +1,12 @@
+{
+ "brief": "Describes a webhook to register: the https address the hub calls back and the events it should call about.",
+ "detail": "Build it with CallingBack and OnEvents, then hand it to RegisterWebhook of stzPaymentsPort, which keeps the secret the hub answers and verifies every call with it. The hub signs each call, and ReceiveWebhook refuses a call that is unsigned, mis-signed, replayed or malformed. Building a webhook sends nothing.",
+ "receiver": "o1 = StzWebhookQ().CallingBack(\"https://app.example/pispi\").OnEvents([ \"PAIEMENT_RECU\" ])",
+ "example": [
+  "? @@(o1.AsBody())",
+  "#--> [ [ \"callbackUrl\", \"https://app.example/pispi\" ], [ \"events\", [ \"PAIEMENT_RECU\" ] ] ]"
+ ],
+ "see": [
+  "stzPaymentsPort"
+ ]
+}
