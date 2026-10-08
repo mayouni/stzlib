@@ -552,6 +552,14 @@ class stzStringFinder from stzObject
 		# the expressive forms (a { ... } block and Q(@char).Method() sugar) are
 		# accepted WITHOUT eval() -- this is the W path that replaced the retired
 		# ...WXT() raw-eval forms. Idempotent for plain-DSL predicates.
+
+		#-- Accept the :Where = '...' named-param form as well as a bare string.
+		# Passed on as the list ["where", cond], it reached the engine where a
+		# string belongs: official Ring then ended the program with no message.
+		if isList(pcCondition) and IsWhereNamedParamList(pcCondition)
+			pcCondition = pcCondition[2]
+		ok
+
 		pcCondition = _StzNormalizeCharCond(pcCondition)
 		_cFcwResult_ = StzEngineStringFindCharsW(This._Str().Content(), pcCondition)
 		return _ParseCSVNumbers(_cFcwResult_)
@@ -561,6 +569,12 @@ class stzStringFinder from stzObject
 
 	def FindWCS(pcCondition, pCaseSensitive)
 		# Dispatch: @substring -> substring-level W; @char (or default) -> char-level.
+
+		#-- Accept the :Where = '...' named-param form as well as a bare string.
+		if isList(pcCondition) and IsWhereNamedParamList(pcCondition)
+			pcCondition = pcCondition[2]
+		ok
+
 		_cLower_ = StzCaseFold(pcCondition)
 		_oTmp_ = new stzStringFinder(_cLower_)
 		if _oTmp_.Contains("@substring")
@@ -573,6 +587,11 @@ class stzStringFinder from stzObject
 	# rewrites @substring -> @item (via _StzNormalizeSubStringCond) and filters
 	# with the list W-DSL, then maps the matching indices back to positions.
 	def FindSubStringsWCS(pcCondition, pCaseSensitive)
+		#-- Accept the :Where = '...' named-param form as well as a bare string.
+		if isList(pcCondition) and IsWhereNamedParamList(pcCondition)
+			pcCondition = pcCondition[2]
+		ok
+
 		_cNorm_ = _StzNormalizeSubStringCond(pcCondition)
 		_nN_ = This._Str().NumberOfChars()
 		if _nN_ = 0 return [] ok

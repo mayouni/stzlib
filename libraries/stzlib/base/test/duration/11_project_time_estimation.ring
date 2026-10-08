@@ -25,7 +25,11 @@ _nTasks1Len_ = len(aTasks)
 for _iLoopTasks1_ = 1 to _nTasks1Len_
 	aTask = aTasks[_iLoopTasks1_]
 	? "  " + aTask[1] + ": " + aTask[2].ToCompact()
-	oTotalProject = oTotalProject + aTask[2]
+	# The duration is taken out of the list first: on Ring 1.27 an object
+	# read from a list, as the right operand of an overloaded operator,
+	# ends the program with no message (oTotal + aTask[2] did).
+	oTaskDuration = aTask[2]
+	oTotalProject = oTotalProject + oTaskDuration
 next
 
 ? ""
