@@ -179,73 +179,76 @@ class stzListOfPairs from stzListOfLists
 			StzRaise("Can't update the stzListOfPairs object! The value you provided is not a list of pairs.")
 		ok
 
-	# Replaces the first or the second pair by the new pair, in place; any other position raises an error.
+	# Puts the new pair at position n, in place of the pair that was there.
 	#
-	#   n           the position of the pair to replace, 1 or 2 only
+	#   n           the position of the pair to replace, from 1 to the number of pairs
 	#   paNewPair   the new pair, as [ first, second ]
 	#   returns     nothing; the content changes
-	#   note        a new pair of three items is refused
-	#   warning     Raises an error today for n above 2 ("n must be a number equal to 1 or 2")
-	#               although the list may hold more pairs: the position is checked against 1 and 2
-	#               instead of against the number of pairs
-	#   see         UpdateFirstPairWith, UpdateSecondPairWith, UpdateWith
+	#   note        a position outside the list, or a new pair that does not hold two items, raises
+	#               an error
+	#   see         UpdateFirstPairWith, ReplacePair
 	def UpdatePairWith(n, paNewPair)
 		if CheckingParams()
-			if NOT (isNumber(n) and ( n = 1 or n = 2 ) )
-				StzRaise("Incorrect param type! n must be a number equal to 1 or 2.")
-			ok
-
-			if NOT isList(paNewPair) and len(paNewPair) = 2
-				StzRaise("Incorrect param type! paNewPair must be a list of 2 items.")
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
 			ok
 		ok
 
+		if NOT (isList(paNewPair) and ring_len(paNewPair) = 2)
+			StzRaise("Incorrect param type! paNewPair must be a list of 2 items.")
+		ok
+
 		_aContent_ = This.Content()
+
+		if NOT (isNumber(n) and n >= 1 and n <= ring_len(_aContent_))
+			StzRaise("Out of range! n must be a position between 1 and the number of pairs.")
+		ok
+
 		_aContent_[n] = paNewPair
 		This.UpdateWith(_aContent_)
 
 
-		# Replaces the first or the second pair by the new pair, in place; any other position raises an error.
+		# Puts the new pair at position n, in place of the pair that was there.
 		#
-		#   n           the position of the pair to replace, 1 or 2 only
+		#   n           the position of the pair to replace, from 1 to the number of pairs
 		#   paNewPair   the new pair, as [ first, second ]
 		#   returns     nothing; the content changes
-		#   warning     Raises an error today for n above 2, because it forwards to a position check
-		#               that only knows 1 and 2
+		#   note        a position outside the list, or a new pair that does not hold two items, raises
+		#               an error
 		#   see         UpdatePairWith
 		#< @FunctionAlternativeForms
 		def UpdateNthPairWith(n, paNewPair)
 			This.UpdatePairWith(n, paNewPair)
 
-		# Replaces the first or the second pair by the new pair, in place; any other position raises an error.
+		# Puts the new pair at position n, in place of the pair that was there.
 		#
-		#   n           the position of the pair to replace, 1 or 2 only
+		#   n           the position of the pair to replace, from 1 to the number of pairs
 		#   paNewPair   the new pair, as [ first, second ]
 		#   returns     nothing; the content changes
-		#   warning     Raises an error today for n above 2, because it forwards to a position check
-		#               that only knows 1 and 2
+		#   note        a position outside the list, or a new pair that does not hold two items, raises
+		#               an error
 		#   see         UpdatePairWith
 		def UpdatePairN(n, paNewPair)
 			This.UpdatePairWith(n, paNewPair)
 
-		# Replaces the first or the second pair by the new pair, in place; any other position raises an error.
+		# Puts the new pair at position n, in place of the pair that was there.
 		#
-		#   n           the position of the pair to replace, 1 or 2 only
+		#   n           the position of the pair to replace, from 1 to the number of pairs
 		#   paNewPair   the new pair, as [ first, second ]
 		#   returns     nothing; the content changes
-		#   warning     Raises an error today for n above 2, because it forwards to a position check
-		#               that only knows 1 and 2
+		#   note        a position outside the list, or a new pair that does not hold two items, raises
+		#               an error
 		#   see         UpdatePairWith
 		def UpdatePair(n, paNewPair)
 			This.UpdatePairWith(n, paNewPair)
 
-		# Replaces the first or the second pair by the new pair, in place; any other position raises an error.
+		# Puts the new pair at position n, in place of the pair that was there.
 		#
-		#   n           the position of the pair to replace, 1 or 2 only
+		#   n           the position of the pair to replace, from 1 to the number of pairs
 		#   paNewPair   the new pair, as [ first, second ]
 		#   returns     nothing; the content changes
-		#   warning     Raises an error today for n above 2, because it forwards to a position check
-		#               that only knows 1 and 2
+		#   note        a position outside the list, or a new pair that does not hold two items, raises
+		#               an error
 		#   see         UpdatePairWith
 		def UpdateNthPair(n, paNewPair)
 			This.UpdatePairWith(n, paNewPair)
@@ -704,32 +707,28 @@ class stzListOfPairs from stzListOfLists
 	 #  REPLACING A PAIR  #
 	#====================#
 
-	# Raises error R20 today instead of replacing the pair at position n by the new pair.
+	# Puts the new pair at position n, in place of the pair that was there.
 	#
-	#   n           the position of the pair to replace
+	#   n           the position of the pair to replace, from 1 to the number of pairs
 	#   paNewPair   the new pair, as [ first, second ]
-	#   returns     nothing today; the call raises
-	#   note        UpdatePairWith does the job for positions 1 and 2
-	#   warning     Raises R20 today on every call: the check IsPair(paNewPair) inside the class
-	#               reaches the IsPair method inherited from stzList, which takes no argument,
-	#               instead of the global IsPair function
-	#   see         UpdatePairWith
+	#   returns     nothing; the content changes
+	#   note        a position outside the list, or a new pair that does not hold two items, raises
+	#               an error
+	#   see         UpdatePairWith, PairReplaced
 	def ReplacePair(n, paNewPair)
-		if isList(paNewPair) and IsPair(paNewPair)
-			This.UpdateNthPairWith(n, paNewPair)
-		ok
+		# IsPair() here would reach the inherited stzList.IsPair method
+		# (no argument), so the shape is checked directly
+		This.UpdatePairWith(n, paNewPair)
 
 		def ReplacePairQ(n, paNewPair)
 			This.ReplacePair(n, paNewPair)
 			return This
 
-	# Raises error R20 today instead of returning a copy of the pairs with the pair at position n replaced.
+	# Returns a copy of the pairs with the pair at position n swapped for a new one.
 	#
-	#   n           the position of the pair to replace
+	#   n           the position of the pair to replace, from 1 to the number of pairs
 	#   paNewPair   the new pair, as [ first, second ]
-	#   returns     nothing today; the call raises
-	#   warning     Raises R20 today on every call, because it goes through ReplacePair, whose
-	#               IsPair check reaches the IsPair method inherited from stzList
+	#   returns     a list of pairs; the list itself is unchanged
 	#   see         ReplacePair, UpdatePairWith
 	def PairReplaced(n, paNewPair)
 		_aResult_ = This.Copy().ReplacePairQ(n, paNewPair).Content()
@@ -846,16 +845,13 @@ class stzListOfPairs from stzListOfLists
 	# Returns a copy of the pairs ordered by their first item, descending; the list is unchanged.
 	#
 	#   returns    a list of pairs
-	#   note       SortedDown itself is correct
-	#   warning    The alias SortedInDescending answers the ASCENDING order today, because its body
-	#              calls Sorted instead of SortedDown
 	#   see        SortDown, Sorted
 	def SortedDown()
 		_aResult_ = This.Copy().SortDownQ().Content()
 		return _aResult_
 
 		def SortedInDescending()
-			return This.Sorted()
+			return This.SortedDown()
 
 	  #------------------------------------------------------------------#
 	 #  SORTING THE PAIRS ON NTH (FIRST OR SECOND) COLUMN IN ASCENDING  #
@@ -1039,26 +1035,16 @@ class stzListOfPairs from stzListOfLists
 	 #  SORTING THE PAIRS BY AN EVALUATED EXPRESSION - IN ASCENDING  #
 	#===============================================================#
  
-	# Leaves the order of the pairs unchanged today instead of ordering them by the key expression, ascending.
+	# Orders the pairs by the value of a key expression on each, ascending, in place.
 	#
-	#   pcExpr     the key expression, as text
-	#   returns    nothing; the content stays as it was
-	#   note       an expression without @pair raises an error; use SortOn to order by the first or
-	#              the second item
-	#   warning    Leaves the order unchanged today for every key expression tried (@pair[2],
-	#              len(@pair[1]), @pair): the key sort it forwards to, stzList.SortBy, orders text
-	#              items by an expression but does not evaluate one on a list item
-	#   see        SortOn, SortedBy
+	#   pcExpr     the key expression, as text holding @pair, such as len(@pair[1])
+	#   returns    nothing; the content changes
+	#   note       pairs with equal keys keep their order; an expression without @pair, or keys
+	#              mixing numbers and texts, raises an error
+	#   see        SortOn, SortedBy, SortByInDescending
 	def SortBy(pcExpr)
 
-		if NOT (isString(pcExpr) and Q(pcExpr).ContainsCS("@pair", 0))
-			StzRaise("Incorrect param! pcExpr must be a string containing @pair keyword.")
-		ok
-
-		pcExpr = Q(pcExpr).ReplaceQ("@pair", "@item").Content()
-
-		_aContent_ = This.ToStzList().SortedBy(pcExpr)
-		This.UpdateWith(_aContent_)
+		This.UpdateWith( This._SortedByExpr(pcExpr, 0) )
 
 		#< @FunctionFluentForm
 
@@ -1066,12 +1052,12 @@ class stzListOfPairs from stzListOfLists
 			This.SortBy(pcExpr)
 			return This
 
-		# Leaves the order of the pairs unchanged today instead of ordering them by the key expression, ascending.
+		# Orders the pairs by the value of a key expression on each, ascending, in place.
 		#
-		#   pcExpr     the key expression, as text
-		#   returns    nothing; the content stays as it was
-		#   warning    Leaves the order unchanged today, because it forwards to SortBy, which does
-		#              not order a list of lists by an expression
+		#   pcExpr     the key expression, as text holding @pair, such as len(@pair[1])
+		#   returns    nothing; the content changes
+		#   note       pairs with equal keys keep their order; an expression without @pair, or keys
+		#              mixing numbers and texts, raises an error
 		#   see        SortBy, SortOnInAscending
 		#>
 		#< @FunctionAlternativeForms
@@ -1081,12 +1067,12 @@ class stzListOfPairs from stzListOfLists
 			def SortByInAscendingQ(pcExpr)
 				return This.SortByQ(pcExpr)
 
-		# Leaves the order of the pairs unchanged today instead of ordering them by the key expression, ascending.
+		# Orders the pairs by the value of a key expression on each, ascending, in place.
 		#
-		#   pcExpr     the key expression, as text
-		#   returns    nothing; the content stays as it was
-		#   warning    Leaves the order unchanged today, because it forwards to SortBy, which does
-		#              not order a list of lists by an expression
+		#   pcExpr     the key expression, as text holding @pair, such as len(@pair[1])
+		#   returns    nothing; the content changes
+		#   note       pairs with equal keys keep their order; an expression without @pair, or keys
+		#              mixing numbers and texts, raises an error
 		#   see        SortBy, SortOnUp
 		def SortByUp(pcExpr)
 			This.SortBy(pcExpr)
@@ -1094,13 +1080,11 @@ class stzListOfPairs from stzListOfLists
 			def SortByUpQ(pcExpr)
 				return This.SortByQ(pcExpr)
 
-	# Returns the pairs in their present order today instead of a copy ordered by the key expression, ascending.
+	# Returns a copy of the pairs ordered by the value of a key expression on each, ascending.
 	#
-	#   pcExpr     the key expression, as text
-	#   returns    a list of pairs, in the order they already had
-	#   note       SortedOn orders the pairs by their first or second item
-	#   warning    Does not order today, whatever the expression: it sorts a copy through SortBy,
-	#              which leaves a list of lists in place
+	#   pcExpr     the key expression, as text holding @pair, such as @pair[2]
+	#   returns    a list of pairs; the list itself is unchanged
+	#   note       pairs with equal keys keep their order
 	#   see        SortBy, SortedOn
 		#>
 	def SortedBy(pcExpr)
@@ -1117,28 +1101,28 @@ class stzListOfPairs from stzListOfLists
 	 #  SORTING THE PAIRS BY AN EXPRESSION - IN DESCENDING  #
 	#------------------------------------------------------#
  
-	# Swaps the two items of every pair, in place, today instead of ordering the pairs by the key expression, descending.
+	# Orders the pairs by the value of a key expression on each, descending, in place.
 	#
-	#   pcExpr     the key expression, as text
-	#   returns    nothing; the content changes, wrongly
-	#   warning    Swaps the items of each pair today: after the ascending sort, which changes
-	#              nothing, it calls Reverse, and Reverse of this class is SwapItems, not a reversal
-	#              of the order of the pairs
+	#   pcExpr     the key expression, as text holding @pair, such as @pair[2]
+	#   returns    nothing; the content changes
+	#   note       pairs with equal keys keep their order; the items inside each pair stay where
+	#              they are
 	#   see        SortBy, SortOnInDescending
 	def SortByInDescending(pcExpr)
-		This.SortByInAscending(pcExpr)
-		This.Reverse()
+		# Reverse() of this class swaps the items INSIDE each pair,
+		# so the descending order is built directly
+		This.UpdateWith( This._SortedByExpr(pcExpr, 1) )
 
 		def SortByInDescendingQ(pcExpr)
 			This.SortByInDescending(pcExpr)
 			return This
 
-		# Swaps the two items of every pair, in place, today instead of ordering the pairs by the key expression, descending.
+		# Orders the pairs by the value of a key expression on each, descending, in place.
 		#
-		#   pcExpr     the key expression, as text
-		#   returns    nothing; the content changes, wrongly
-		#   warning    Swaps the items of each pair today, because it forwards to
-		#              SortByInDescending, which ends with SwapItems
+		#   pcExpr     the key expression, as text holding @pair, such as @pair[2]
+		#   returns    nothing; the content changes
+		#   note       pairs with equal keys keep their order; the items inside each pair stay where
+		#              they are
 		#   see        SortByInDescending, SortOnDown
 		def SortByDown(pcExpr)
 			This.SortByInDescending(pcExpr)
@@ -1146,13 +1130,11 @@ class stzListOfPairs from stzListOfLists
 			def SortByDownQ(pcExpr)
 				return This.SortByInDescendingQ(pcExpr)
 
-	# Returns a copy of the pairs with the two items of every pair swapped, today instead of ordered by the key expression, descending.
+	# Returns a copy of the pairs ordered by the value of a key expression on each, descending.
 	#
-	#   pcExpr     the key expression, as text
-	#   returns    a list of pairs with each pair turned round
-	#   note       the list itself is unchanged
-	#   warning    Swaps the items of each pair today, because it goes through SortByInDescending,
-	#              which ends with SwapItems
+	#   pcExpr     the key expression, as text holding @pair, such as @pair[2]
+	#   returns    a list of pairs; the list itself is unchanged
+	#   note       pairs with equal keys keep their order
 	#   see        SortByInDescending, SortedOnInDescending
 	def SortedByInDescending(pcExpr)
 		_aResult_ = This.Copy().SortByInDescendingQ(pcExpr).Content()
@@ -1160,6 +1142,73 @@ class stzListOfPairs from stzListOfLists
 
 		def SortedByDown(pcExpr)
 			return This.SortedByInDescending(pcExpr)
+
+	# Returns the pairs ordered by the value of a key expression on each, keeping the order of equal keys.
+	#
+	#   pcExpr        the key expression, as text holding @pair
+	#   bDescending   1 for the largest key first, 0 for the smallest first
+	#   returns       a list of pairs; the content is unchanged
+	#   note          the keys must be all numbers or all texts, otherwise an error is raised
+	#   see           SortBy, SortByInDescending
+	def _SortedByExpr(pcExpr, bDescending)
+
+		if NOT ( isString(pcExpr) and ring_len(StzFindCS("@pair", pcExpr, 0)) > 0 )
+			StzRaise("Incorrect param! pcExpr must be a string containing @pair keyword.")
+		ok
+
+		_aContent_ = This.Content()
+		_nLen_ = ring_len(_aContent_)
+		_cCode_ = "_xKey_ = " + pcExpr
+		_aKeyed_ = []
+		_nNumbers_ = 0
+
+		for _iSb_ = 1 to _nLen_
+			@pair = _aContent_[_iSb_]
+			_xKey_ = ""
+			eval(_cCode_)
+			if isNumber(_xKey_)
+				_nNumbers_++
+			but NOT isString(_xKey_)
+				StzRaise("Can't sort! The expression must give a number or a text for every pair.")
+			ok
+			_aKeyed_ + [ _xKey_, _iSb_ ]
+		next
+
+		if _nNumbers_ > 0 and _nNumbers_ < _nLen_
+			StzRaise("Can't sort! The expression gives numbers for some pairs and texts for others.")
+		ok
+
+		_aKeyed_ = ring_sort2(_aKeyed_, 1)
+
+		# Groups of equal keys, each kept in its original order (sort() is not stable)
+		_aGroups_ = []
+		_iSb_ = 1
+		while _iSb_ <= _nLen_
+			_aIdx_ = [ _aKeyed_[_iSb_][2] ]
+			_jSb_ = _iSb_ + 1
+			while _jSb_ <= _nLen_ and _aKeyed_[_jSb_][1] = _aKeyed_[_iSb_][1]
+				_aIdx_ + _aKeyed_[_jSb_][2]
+				_jSb_++
+			end
+			_aGroups_ + ring_sort(_aIdx_)
+			_iSb_ = _jSb_
+		end
+
+		_aResult_ = []
+		_nGroups_ = ring_len(_aGroups_)
+		for _iSb_ = 1 to _nGroups_
+			if bDescending = 1
+				_aIdx_ = _aGroups_[_nGroups_ - _iSb_ + 1]
+			else
+				_aIdx_ = _aGroups_[_iSb_]
+			ok
+			_nIdx_ = ring_len(_aIdx_)
+			for _jSb_ = 1 to _nIdx_
+				_aResult_ + _aContent_[_aIdx_[_jSb_]]
+			next
+		next
+
+		return _aResult_
 
 	  #==================================================================#
 	 #  RETURNING AN EXPANDED LIST OF NUMBERS OUT OF THE LIST OF PAIRS  #
