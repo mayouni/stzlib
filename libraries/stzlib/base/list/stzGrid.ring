@@ -23,9 +23,7 @@ func StzGridQ(panColRow)
 # for the cell above, below or beside, list the neighbours, test whether two cells connect, split
 # the grid into regions, or ask for a route. Moves that would leave the grid or land on an obstacle
 # change nothing, without an error, while the Node and NthNode readers raise an error outside the
-# grid. Several methods are broken today: ShortestPath answers its end cell first, ManhattanPath and
-# ZigZagPath raise when an obstacle is on the way, and Maze, MoveToNthNode, MoveToPreviousNthNode,
-# MoveNRight and its family, ShowAdjacent and AreObstacles raise; see their warnings.
+# grid. ManhattanPath and ZigZagPath raise when an obstacle is on the way; see their warnings.
 #
 #   receiver   o1 = new stzGrid([ 5, 4 ])
 #   example    ? @@( o1.NodeRight() )
@@ -527,59 +525,33 @@ class stzGrid From stzObject
 		def MoveToPreviousCell()
 			This.MoveToPreviousNode()
 
-	# Raises error R14 today instead of moving the current position n steps in the direction the grid faces.
+	# Moves the current position n steps in the direction the grid faces, in one jump.
 	#
 	#   n          The number of steps.
-	#   returns    nothing today; the call raises
-	#   note       MoveN and MoveToNextNthNode do the same job
-	#   warning    Raises R14 today for every direction: each branch calls a method that exists
-	#              nowhere, such as MoveToNthNodeBackward, and the right branch has a doubled Move
-	#              in its name
+	#   returns    nothing; the position changes
+	#   note       a jump that would leave the grid, or land on an obstacle, changes nothing; the
+	#              direction is kept
 	#   see        MoveToNextNthNode, MoveN
 	#@ aka  --
 	def MoveToNthNode(n)
-		if @cDirection = :forward
-			This.MoveToNthNodeBackward()
+		This.MoveToNextNthNode(n)
 
-		but @cDirection = :backward
-			This.MoveToNthNodeForward()
-
-		but @cDirection = :left
-			This.MoveToNthNodeRight()
-
-		but @cDirection = :right
-			This.MoveMoveToNthNodeLeft()
-
-		but @cDirection = :up
-			This.MoveToNthNodeDown()
-
-		but @cDirection = :down
-			This.MoveToNthNodeUp()
-
-		else
-			StzRaise("Can't move! Unsupported direction.")
-		ok
-
-		# Raises error R14 today instead of moving the current position n steps in the direction the grid faces.
+		# Moves the current position n steps in the direction the grid faces, in one jump.
 		#
 		#   n          The number of steps.
-		#   returns    nothing today; the call raises
-		#   note       MoveN and MoveToNextNthNode do the same job
-		#   warning    Raises R14 today for every direction: each branch calls a method that exists
-		#              nowhere, such as MoveToNthNodeBackward, and the right branch has a doubled
-		#              Move in its name
+		#   returns    nothing; the position changes
+		#   note       a jump that would leave the grid, or land on an obstacle, changes nothing; the
+		#              direction is kept
 		#   see        MoveToNextNthNode, MoveN
 		def MoveToNthPosition(n)
 			This.MoveToNthNode(n)
 
-		# Raises error R14 today instead of moving the current position n steps in the direction the grid faces.
+		# Moves the current position n steps in the direction the grid faces, in one jump.
 		#
 		#   n          The number of steps.
-		#   returns    nothing today; the call raises
-		#   note       MoveN and MoveToNextNthNode do the same job
-		#   warning    Raises R14 today for every direction: each branch calls a method that exists
-		#              nowhere, such as MoveToNthNodeBackward, and the right branch has a doubled
-		#              Move in its name
+		#   returns    nothing; the position changes
+		#   note       a jump that would leave the grid, or land on an obstacle, changes nothing; the
+		#              direction is kept
 		#   see        MoveToNextNthNode, MoveN
 		def MoveToNthCell(n)
 			This.MoveToNthNode(n)
@@ -667,101 +639,86 @@ class stzGrid From stzObject
 		def MoveToNthNextCell(n)
 			This.MoveToNextNthNode(n)
 
-	# Raises error R19 today instead of moving the current position n steps against the direction the grid faces.
+	# Moves the current position n steps against the direction the grid faces, in one jump.
 	#
 	#   n          The number of steps.
-	#   returns    nothing today; the call raises
-	#   note       MoveToNode with the two numbers of PreviousNthNode does the job
-	#   warning    Raises R19 today on every call: it hands MoveToNode the whole [ column, row ]
-	#              list that PreviousNthNode returns, where MoveToNode wants the column and the row
-	#              as two arguments
+	#   returns    nothing; the position changes
+	#   note       a jump that would leave the grid, or land on an obstacle, changes nothing; the
+	#              direction is kept
 	#   see        MoveToNextNthNode, PreviousNthNode
 	#@ aka  --
 	def MoveToPreviousNthNode(n)
-		This.MoveToNode(This.PreviousNthNode(n))
+		_aNode_ = This.PreviousNthNode(n)
+		This.MoveToNode(_aNode_[1], _aNode_[2])
 
-		# Raises error R19 today instead of moving the current position n steps against the direction the grid faces.
+		# Moves the current position n steps against the direction the grid faces, in one jump.
 		#
 		#   n          The number of steps.
-		#   returns    nothing today; the call raises
-		#   note       MoveToNode with the two numbers of PreviousNthNode does the job
-		#   warning    Raises R19 today on every call: it hands MoveToNode the whole [ column, row ]
-		#              list that PreviousNthNode returns, where MoveToNode wants the column and the
-		#              row as two arguments
+		#   returns    nothing; the position changes
+		#   note       a jump that would leave the grid, or land on an obstacle, changes nothing; the
+		#              direction is kept
 		#   see        MoveToNextNthNode, PreviousNthNode
 		def MoveToNthPreviousNode(n)
 			This.MoveToPreviousNthNode(n)
 
-		# Raises error R19 today instead of moving the current position n steps against the direction the grid faces.
+		# Moves the current position n steps against the direction the grid faces, in one jump.
 		#
 		#   n          The number of steps.
-		#   returns    nothing today; the call raises
-		#   note       MoveToNode with the two numbers of PreviousNthNode does the job
-		#   warning    Raises R19 today on every call: it hands MoveToNode the whole [ column, row ]
-		#              list that PreviousNthNode returns, where MoveToNode wants the column and the
-		#              row as two arguments
+		#   returns    nothing; the position changes
+		#   note       a jump that would leave the grid, or land on an obstacle, changes nothing; the
+		#              direction is kept
 		#   see        MoveToNextNthNode, PreviousNthNode
 		def MoveToNthPrevious(n)
 			This.MoveToPreviousNthNode(n)
 
-		# Raises error R19 today instead of moving the current position n steps against the direction the grid faces.
+		# Moves the current position n steps against the direction the grid faces, in one jump.
 		#
 		#   n          The number of steps.
-		#   returns    nothing today; the call raises
-		#   note       MoveToNode with the two numbers of PreviousNthNode does the job
-		#   warning    Raises R19 today on every call: it hands MoveToNode the whole [ column, row ]
-		#              list that PreviousNthNode returns, where MoveToNode wants the column and the
-		#              row as two arguments
+		#   returns    nothing; the position changes
+		#   note       a jump that would leave the grid, or land on an obstacle, changes nothing; the
+		#              direction is kept
 		#   see        MoveToNextNthNode, PreviousNthNode
 		def MoveToPreviousNth(n)
 			This.MoveToPreviousNthNode(n)
 
 
-		# Raises error R19 today instead of moving the current position n steps against the direction the grid faces.
+		# Moves the current position n steps against the direction the grid faces, in one jump.
 		#
 		#   n          The number of steps.
-		#   returns    nothing today; the call raises
-		#   note       MoveToNode with the two numbers of PreviousNthNode does the job
-		#   warning    Raises R19 today on every call: it hands MoveToNode the whole [ column, row ]
-		#              list that PreviousNthNode returns, where MoveToNode wants the column and the
-		#              row as two arguments
+		#   returns    nothing; the position changes
+		#   note       a jump that would leave the grid, or land on an obstacle, changes nothing; the
+		#              direction is kept
 		#   see        MoveToNextNthNode, PreviousNthNode
 		def MoveToPreviousNthPosition(n)
 			This.MoveToPreviousNthNode(n)
 
-		# Raises error R19 today instead of moving the current position n steps against the direction the grid faces.
+		# Moves the current position n steps against the direction the grid faces, in one jump.
 		#
 		#   n          The number of steps.
-		#   returns    nothing today; the call raises
-		#   note       MoveToNode with the two numbers of PreviousNthNode does the job
-		#   warning    Raises R19 today on every call: it hands MoveToNode the whole [ column, row ]
-		#              list that PreviousNthNode returns, where MoveToNode wants the column and the
-		#              row as two arguments
+		#   returns    nothing; the position changes
+		#   note       a jump that would leave the grid, or land on an obstacle, changes nothing; the
+		#              direction is kept
 		#   see        MoveToNextNthNode, PreviousNthNode
 		def MoveToNthPreviousPosition(n)
 			This.MoveToPreviousNthNode(n)
 
 
-		# Raises error R19 today instead of moving the current position n steps against the direction the grid faces.
+		# Moves the current position n steps against the direction the grid faces, in one jump.
 		#
 		#   n          The number of steps.
-		#   returns    nothing today; the call raises
-		#   note       MoveToNode with the two numbers of PreviousNthNode does the job
-		#   warning    Raises R19 today on every call: it hands MoveToNode the whole [ column, row ]
-		#              list that PreviousNthNode returns, where MoveToNode wants the column and the
-		#              row as two arguments
+		#   returns    nothing; the position changes
+		#   note       a jump that would leave the grid, or land on an obstacle, changes nothing; the
+		#              direction is kept
 		#   see        MoveToNextNthNode, PreviousNthNode
 		def MoveToPreviousNthCell(n)
 			This.MoveToPreviousNthNode(n)
 
-		# Raises error R19 today instead of moving the current position n steps against the direction the grid faces.
+		# Moves the current position n steps against the direction the grid faces, in one jump.
 		#
 		#   n          The number of steps.
-		#   returns    nothing today; the call raises
-		#   note       MoveToNode with the two numbers of PreviousNthNode does the job
-		#   warning    Raises R19 today on every call: it hands MoveToNode the whole [ column, row ]
-		#              list that PreviousNthNode returns, where MoveToNode wants the column and the
-		#              row as two arguments
+		#   returns    nothing; the position changes
+		#   note       a jump that would leave the grid, or land on an obstacle, changes nothing; the
+		#              direction is kept
 		#   see        MoveToNextNthNode, PreviousNthNode
 		def MoveToNthPreviousCell(n)
 			This.MoveToPreviousNthNode(n)
@@ -1110,22 +1067,22 @@ class stzGrid From stzObject
 		def MoveRightNNodes(n)
 			This.MoveRightN(n)
 
-		# Raises error R24 today instead of moving n cells right.
+		# Turns the grid right and moves n columns right, unless that leaves the grid or lands on an obstacle.
 		#
-		#   returns    nothing today; the call raises
-		#   warning    Raises R24, Using uninitialized variable n, on every call: the method takes
-		#              no argument but passes n on; MoveRightN takes the number of steps
-		#   see        MoveRightN
-		def MoveNRight()
+		#   n          The number of steps.
+		#   returns    nothing; the position changes
+		#   note       the cells in between are not checked
+		#   see        MoveRightN, MoveN
+		def MoveNRight(n)
 			This.MoveRightN(n)
 
-		# Raises error R24 today instead of moving n cells right.
+		# Turns the grid right and moves n columns right, unless that leaves the grid or lands on an obstacle.
 		#
-		#   returns    nothing today; the call raises
-		#   warning    Raises R24, Using uninitialized variable n, on every call: the method takes
-		#              no argument but passes n on; MoveRightN takes the number of steps
-		#   see        MoveRightN
-		def MoveNNodesRight()
+		#   n          The number of steps.
+		#   returns    nothing; the position changes
+		#   note       the cells in between are not checked
+		#   see        MoveRightN, MoveN
+		def MoveNNodesRight(n)
 			This.MoveRightN(n)
 
 		# Turns the grid right and moves n columns right, unless that leaves the grid or lands on an obstacle.
@@ -1138,13 +1095,13 @@ class stzGrid From stzObject
 		def MoveRightNCells(n)
 			This.MoveRightN(n)
 
-		# Raises error R24 today instead of moving n cells right.
+		# Turns the grid right and moves n columns right, unless that leaves the grid or lands on an obstacle.
 		#
-		#   returns    nothing today; the call raises
-		#   warning    Raises R24, Using uninitialized variable n, on every call: the method takes
-		#              no argument but passes n on; MoveRightN takes the number of steps
-		#   see        MoveRightN
-		def MoveNCellsRight()
+		#   n          The number of steps.
+		#   returns    nothing; the position changes
+		#   note       the cells in between are not checked
+		#   see        MoveRightN, MoveN
+		def MoveNCellsRight(n)
 			This.MoveRightN(n)
 
 	# Turns the grid right and moves one cell right.
@@ -1183,22 +1140,22 @@ class stzGrid From stzObject
 		def MoveLeftNNodes(n)
 			This.MoveLeftN(n)
 
-		# Raises error R24 today instead of moving n cells left.
+		# Turns the grid left and moves n columns left, unless that leaves the grid or lands on an obstacle.
 		#
-		#   returns    nothing today; the call raises
-		#   warning    Raises R24, Using uninitialized variable n, on every call: the method takes
-		#              no argument but passes n on; MoveLeftN takes the number of steps
-		#   see        MoveLeftN
-		def MoveNLeft()
+		#   n          The number of steps.
+		#   returns    nothing; the position changes
+		#   note       the cells in between are not checked
+		#   see        MoveLeftN, MoveN
+		def MoveNLeft(n)
 			This.MoveLeftN(n)
 
-		# Raises error R24 today instead of moving n cells left.
+		# Turns the grid left and moves n columns left, unless that leaves the grid or lands on an obstacle.
 		#
-		#   returns    nothing today; the call raises
-		#   warning    Raises R24, Using uninitialized variable n, on every call: the method takes
-		#              no argument but passes n on; MoveLeftN takes the number of steps
-		#   see        MoveLeftN
-		def MoveNNodesLeft()
+		#   n          The number of steps.
+		#   returns    nothing; the position changes
+		#   note       the cells in between are not checked
+		#   see        MoveLeftN, MoveN
+		def MoveNNodesLeft(n)
 			This.MoveLeftN(n)
 
 		# Turns the grid left and moves n columns left, unless that leaves the grid or lands on an obstacle.
@@ -1209,13 +1166,13 @@ class stzGrid From stzObject
 		def MoveLeftNCells(n)
 			This.MoveLeftN(n)
 
-		# Raises error R24 today instead of moving n cells left.
+		# Turns the grid left and moves n columns left, unless that leaves the grid or lands on an obstacle.
 		#
-		#   returns    nothing today; the call raises
-		#   warning    Raises R24, Using uninitialized variable n, on every call: the method takes
-		#              no argument but passes n on; MoveLeftN takes the number of steps
-		#   see        MoveLeftN
-		def MoveNCellsLeft()
+		#   n          The number of steps.
+		#   returns    nothing; the position changes
+		#   note       the cells in between are not checked
+		#   see        MoveLeftN, MoveN
+		def MoveNCellsLeft(n)
 			This.MoveLeftN(n)
 
 	# Turns the grid left and moves one cell left.
@@ -1254,22 +1211,22 @@ class stzGrid From stzObject
 		def MoveUpNNodes(n)
 			This.MoveUpN(n)
 
-		# Raises error R24 today instead of moving n cells up.
+		# Turns the grid up and moves n rows up, unless that leaves the grid or lands on an obstacle.
 		#
-		#   returns    nothing today; the call raises
-		#   warning    Raises R24, Using uninitialized variable n, on every call: the method takes
-		#              no argument but passes n on; MoveUpN takes the number of steps
-		#   see        MoveUpN
-		def MoveNUp()
+		#   n          The number of steps.
+		#   returns    nothing; the position changes
+		#   note       the cells in between are not checked
+		#   see        MoveUpN, MoveN
+		def MoveNUp(n)
 			This.MoveUpN(n)
 
-		# Raises error R24 today instead of moving n cells up.
+		# Turns the grid up and moves n rows up, unless that leaves the grid or lands on an obstacle.
 		#
-		#   returns    nothing today; the call raises
-		#   warning    Raises R24, Using uninitialized variable n, on every call: the method takes
-		#              no argument but passes n on; MoveUpN takes the number of steps
-		#   see        MoveUpN
-		def MoveNNodesUp()
+		#   n          The number of steps.
+		#   returns    nothing; the position changes
+		#   note       the cells in between are not checked
+		#   see        MoveUpN, MoveN
+		def MoveNNodesUp(n)
 			This.MoveUpN(n)
 
 		# Turns the grid up and moves n rows up, unless that leaves the grid or lands on an obstacle.
@@ -1280,13 +1237,13 @@ class stzGrid From stzObject
 		def MoveUpNCells(n)
 			This.MoveUpN(n)
 
-		# Raises error R24 today instead of moving n cells up.
+		# Turns the grid up and moves n rows up, unless that leaves the grid or lands on an obstacle.
 		#
-		#   returns    nothing today; the call raises
-		#   warning    Raises R24, Using uninitialized variable n, on every call: the method takes
-		#              no argument but passes n on; MoveUpN takes the number of steps
-		#   see        MoveUpN
-		def MoveNCellsUp()
+		#   n          The number of steps.
+		#   returns    nothing; the position changes
+		#   note       the cells in between are not checked
+		#   see        MoveUpN, MoveN
+		def MoveNCellsUp(n)
 			This.MoveUpN(n)
 
 	# Turns the grid up and moves one cell up.
@@ -1325,22 +1282,22 @@ class stzGrid From stzObject
 		def MoveDownNNodes(n)
 			This.MoveDownN(n)
 
-		# Raises error R24 today instead of moving n cells down.
+		# Turns the grid down and moves n rows down, unless that leaves the grid or lands on an obstacle.
 		#
-		#   returns    nothing today; the call raises
-		#   warning    Raises R24, Using uninitialized variable n, on every call: the method takes
-		#              no argument but passes n on; MoveDownN takes the number of steps
-		#   see        MoveDownN
-		def MoveNDown()
+		#   n          The number of steps.
+		#   returns    nothing; the position changes
+		#   note       the cells in between are not checked
+		#   see        MoveDownN, MoveN
+		def MoveNDown(n)
 			This.MoveDownN(n)
 
-		# Raises error R24 today instead of moving n cells down.
+		# Turns the grid down and moves n rows down, unless that leaves the grid or lands on an obstacle.
 		#
-		#   returns    nothing today; the call raises
-		#   warning    Raises R24, Using uninitialized variable n, on every call: the method takes
-		#              no argument but passes n on; MoveDownN takes the number of steps
-		#   see        MoveDownN
-		def MoveNNodesDown()
+		#   n          The number of steps.
+		#   returns    nothing; the position changes
+		#   note       the cells in between are not checked
+		#   see        MoveDownN, MoveN
+		def MoveNNodesDown(n)
 			This.MoveDownN(n)
 
 		# Turns the grid down and moves n rows down, unless that leaves the grid or lands on an obstacle.
@@ -1351,13 +1308,13 @@ class stzGrid From stzObject
 		def MoveDownNCells(n)
 			This.MoveDownN(n)
 
-		# Raises error R24 today instead of moving n cells down.
+		# Turns the grid down and moves n rows down, unless that leaves the grid or lands on an obstacle.
 		#
-		#   returns    nothing today; the call raises
-		#   warning    Raises R24, Using uninitialized variable n, on every call: the method takes
-		#              no argument but passes n on; MoveDownN takes the number of steps
-		#   see        MoveDownN
-		def MoveNCellsDown()
+		#   n          The number of steps.
+		#   returns    nothing; the position changes
+		#   note       the cells in between are not checked
+		#   see        MoveDownN, MoveN
+		def MoveNCellsDown(n)
 			This.MoveDownN(n)
 
 	# Turns the grid down and moves one cell down.
@@ -1457,14 +1414,12 @@ class stzGrid From stzObject
 	def ShowNeighbors()
 		This.ShowNodes(This.Neighbors(), @cNeighborChar)
 
-		# Raises error R14 today instead of printing the grid with the neighbours marked.
+		# Prints the grid with the cells around the current position marked by the neighbour character.
 		#
-		#   returns    nothing today; the call raises
-		#   note       ShowNeighbors does the job
-		#   warning    Raises R14 today: it calls PaintNeighbors, a method that exists nowhere
-		#   see        ShowNeighbors
+		#   returns    nothing; the grid is printed
+		#   see        Neighbors, SetNeighborChar, Show
 		def ShowAdjacent()
-			This.PaintNeighbors()
+			This.ShowNeighbors()
 
 		# Prints the grid with the cells around the current position marked by the neighbour character.
 		#
@@ -1766,25 +1721,34 @@ class stzGrid From stzObject
 		def NthNextCell(n)
 			return This.NextNthNode(n)
 
-	# Returns the cell n steps behind the direction the grid faces, without moving, but wrongly for n above 1.
+	# Returns the cell n steps against the direction the grid faces, without moving.
 	#
 	#   n          The number of steps.
 	#   returns    a pair [ column, row ]
-	#   note       n of 1 is right
-	#   warning    Wrong for n of 2 or more: it repeats MoveToPreviousNode, which turns the
-	#              direction round after each step, so the steps cancel out; n of 2 answers the
-	#              current cell and n of 3 the answer of n of 1
-	#   see        NextNthNode, MoveToPreviousNode
+	#   note       a jump out of the grid or onto an obstacle answers the current position; the
+	#              position and the direction are left as they were
+	#   see        NextNthNode, MoveToPreviousNthNode
 	def PreviousNthNode(n)
 		# Save current position
 		_nOldCol_ = @nCurrentCol
 		_nOldRow_ = @nCurrentRow
 		_cOldDirection_ = @cDirection
 		
-		# Move n steps in reverse direction
-		for i = 1 to n
-			This.MoveToPreviousNode()
-		next
+		# Turn round ONCE, then move n steps (turning round per step cancelled the steps)
+		if @cDirection = :forward
+			@cDirection = :backward
+		but @cDirection = :backward
+			@cDirection = :forward
+		but @cDirection = :left
+			@cDirection = :right
+		but @cDirection = :right
+			@cDirection = :left
+		but @cDirection = :up
+			@cDirection = :down
+		but @cDirection = :down
+			@cDirection = :up
+		ok
+		This.MoveNNodes(n)
 		
 		# Get the resulting position
 		_nCol_ = @nCurrentCol
@@ -1975,17 +1939,14 @@ class stzGrid From stzObject
 		next
 		return 0
 
-	# Raises error R20 today instead of telling whether every cell of a list is an obstacle.
+	# Tells whether every cell of a list of [ column, row ] pairs holds an obstacle.
 	#
 	#   panColRow   A list of [ column, row ] pairs.
-	#   returns     nothing today; the call raises
-	#   note        IsObstacle tests one cell
-	#   warning     Raises R20 today on every call: the parameter check is called with an argument
-	#               it does not take; behind it, the loop would test the whole list instead of each
-	#               pair
+	#   returns     TRUE or FALSE; TRUE for an empty list
+	#   note        anything but a list of pairs of numbers raises an error
 	#   see         IsObstacle
 	def AreObstacles(panColRow)
-		if CheckParams(panColRow)
+		if CheckParams()
 			if NOT (isList(panColRow) and IsListOfPairsOfNumbers(panColRow))
 				StzRaise("Incorrect param type! panColrow must be a list of pairs of numbers.")
 			ok
@@ -1995,7 +1956,7 @@ class stzGrid From stzObject
 		_bResult_ = 1
 
 		for i = 1 to _nLen_
-			if NOT This.IsObstacle(panColRow[1], panColRow[2])
+			if NOT This.IsObstacle(panColRow[i][1], panColRow[i][2])
 				_bResult_ = 0
 				exit
 			ok
@@ -2228,16 +2189,13 @@ class stzGrid From stzObject
 		def NeighbourChar()
 			return @cNeighborChar
 			
-	# Returns a shortest route from start to end around the obstacles, but with the end cell first instead of last.
+	# Returns a shortest route from start to end around the obstacles, start first.
 	#
 	#   panStart   The start cell, as [ column, row ].
 	#   panEnd     The end cell, as [ column, row ].
-	#   returns    a list of [ column, row ] pairs; [ ] when no route exists
+	#   returns    a list of [ column, row ] pairs, start first and end last; [ ] when no route exists
 	#   note       moves are up, down, left and right; the route is stored as the path; a start or
 	#              end outside the grid, or on an obstacle, raises an error
-	#   warning    The end cell comes first today, then the start and the cells in order, so [ 1, 1
-	#              ] to [ 3, 1 ] answers [ 3, 1 ], [ 1, 1 ], [ 2, 1 ]: ReconstructPath inserts each
-	#              cell after the first item instead of at the front
 	#   see        ManhattanPath, Path, Regions
 	#TODO // Add this method AddRandomPath()
 	#@ aka  -- PATH FINDING ALGORITHMS
@@ -3562,16 +3520,13 @@ class stzGrid From stzObject
 		next
 		return ""
 
-	# Returns the route that ends on a cell by following a predecessor map back, but with that last cell first instead of last.
+	# Returns the route that ends on a cell by following a predecessor map back, start first.
 	#
 	#   _aCameFrom_   The predecessor map, as a list of [ [ column, row ], [ column, row ] ] items.
 	#   _nEndCol_     The column of the end cell.
 	#   _nEndRow_     The row of the end cell.
-	#   returns       a list of [ column, row ] pairs
+	#   returns       a list of [ column, row ] pairs, from the start to the end cell
 	#   note          an empty map answers the end cell alone
-	#   warning       The end cell comes first today: each earlier cell is inserted after the first
-	#                 item instead of at the front, which is also why ShortestPath answers its end
-	#                 first
 	#   see           SetCameFrom, ShortestPath
 	def ReconstructPath(_aCameFrom_, _nEndCol_, _nEndRow_)
 
@@ -3596,11 +3551,19 @@ class stzGrid From stzObject
 			_nCurrentCol_ = _aPrev_[1]
 			_nCurrentRow_ = _aPrev_[2]
 
-			# Add to path (at the beginning)
-			insert(_aPath_, 1, [_nCurrentCol_, _nCurrentRow_])
+			# Gathered end-first, turned round below
+			_aPath_ + [_nCurrentCol_, _nCurrentRow_]
 		end
 
-		return _aPath_
+		# Ring's insert(list, 1, item) puts the item AFTER item 1, so
+		# the route is gathered from the end and reversed here instead
+		_aResult_ = []
+		_nLenPath_ = len(_aPath_)
+		for i = _nLenPath_ to 1 step -1
+			_aResult_ + _aPath_[i]
+		next
+
+		return _aResult_
 
 	# Returns how many turns the stored path takes, counted as changes of direction after the first step.
 	#
@@ -3852,15 +3815,13 @@ class stzGrid From stzObject
 			next
 		next
 
-		# Raises error R19 today instead of building a random maze.
+		# Replaces the obstacles by random ones, each cell having a 30 percent chance, never on the current position.
 		#
-		#   returns    nothing today; the call raises
-		#   note       RandomMaze does the job
-		#   warning    Raises R19 today on every call: it calls RandomMaze without the density
-		#              RandomMaze requires
-		#   see        RandomMaze
+		#   returns    nothing; the obstacles change
+		#   note       the result differs from call to call
+		#   see        RandomMaze, MazeWithPath
 		def Maze()
-			This.RandomMaze()
+			This.RandomMaze(30)
 	
 	# Clears the obstacles, moves to the start, stores a route to the end, and scatters obstacles at random on the other cells.
 	#
@@ -3869,8 +3830,7 @@ class stzGrid From stzObject
 	#   returns    nothing; the obstacles and the path change
 	#   note       each cell off the route has a 30 percent chance of an obstacle, so the route
 	#              stays free; the current position ends on the start; the result differs from call
-	#              to call
-	#   warning    The stored route lists the end cell first, as ShortestPath does today
+	#              to call; the stored route runs from the start to the end
 	#   see        RandomMaze, ShortestPath
 	def MazeWithPath(panStart, panEnd)
 		# Generate a maze with a guaranteed path between start and end
