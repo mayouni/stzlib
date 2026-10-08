@@ -338,6 +338,24 @@ class stzSystemCapabilities from stzObject
  #  STZSYSTEMPROFILE  #
 #====================#
 
+# Describes one system as a bundle of facts: its operating system, runtime, resources and capabilities.
+#
+# A profile is a named scope the code is written against. A live one (stzDevSystem,
+# stzCurrentSystem) is filled from the machine; a declared one, made with DeclareSystem, holds only
+# the values it was given, so a profile for Android answers android on a Windows machine. The
+# capabilities are drawn from a closed list, and Forbids, Requires and CompareTo set a target
+# against this system. A profile is saved to and read from a .stzsystem text file.
+#
+#   receiver   o1 = new stzSystemProfile("phone")
+#   example    o1.SetOSName("android")
+#              ? o1.SystemClass()
+#              #--> mobile
+#              o1.SetCapabilityList([ "filesystem", "network", "clock" ])
+#              ? o1.Can("network")
+#              #--> 1
+#              ? @@( o1.CapabilityKinds() )
+#              #--> [ "effectful", "sensing" ]
+#   see        DeclareSystem, stzDevSystem, stzCurrentSystem, stzOperatingSystem
 class stzSystemProfile from stzObject
 
 	@cName = ""
@@ -352,83 +370,185 @@ class stzSystemProfile from stzObject
 	@cLangVersion = ""
 	@oCaps = ""
 
+	# Builds a profile with a name and nothing else known: role declared, operating system, architecture and byte order unknown, no capability.
+	#
+	#   pcName     the profile's name, as text
+	#   returns    nothing; the object is built
+	#   see        DeclareSystem, SetOSName, SetCapabilityList
 	def init(pcName)
 		if isString(pcName)
 			@cName = pcName
 		ok
 		@oCaps = new stzSystemCapabilities([])
 
-	  #-- identity / role ------------------------------------
-
+	# Returns the name this profile carries, such as "this-machine" or the name of a target.
+	#
+	#   returns    a text
+	#   see        SetName, Role
+	#@ aka  -- identity / role ------------------------------------
 	def Name()
 		return @cName
 
+	# Sets the profile's name.
+	#
+	#   pcName     the new name
+	#   returns    the profile itself, so calls chain
+	#   see        Name
 	def SetName(pcName)
 		@cName = "" + pcName
 		return This
 
+	# Returns the role of this scope: development, runtime, deployment, or declared when none was set.
+	#
+	#   returns    a text
+	#   see        SetRole, IsDeclared
 	def Role()
 		return @cRole
 
+	# Sets the role of this scope, trimmed and put in lower case.
+	#
+	#   pcRole     the role word, usually development, runtime or deployment
+	#   returns    the profile itself, so calls chain
+	#   note       any word is accepted; only development and runtime make a profile live
+	#   see        Role, IsLive
 	def SetRole(pcRole)
 		@cRole = StzLower(ring_trim("" + pcRole))
 		return This
 
+	# TRUE if the role is development, the machine the code is written on.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsRuntime, IsDeployment, Role
 	def IsDevelopment()
 		return @cRole = "development"
 
+	# TRUE if the role is runtime, the machine the code runs on now.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsDevelopment, Role
 	def IsRuntime()
 		return @cRole = "runtime"
 
+	# TRUE if the role is deployment, a target the dev machine is not.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsDeclared, Role
 	def IsDeployment()
 		return @cRole = "deployment"
 
-	# A declared profile is any scope that is NOT the live machine.
+	# TRUE if the profile is a declared target and not a live reading of this machine.
+	#
+	#   returns    TRUE or FALSE
+	#   note       a profile with the default role declared is declared too; only development and
+	#              runtime are live
+	#   see        IsLive, IsDeployment
+	#@ aka  A declared profile is any scope that is NOT the live machine.
 	def IsDeclared()
 		return NOT (This.IsDevelopment() or This.IsRuntime())
 
+	# TRUE if the role is development or runtime, so the facts came from this machine.
+	#
+	#   returns    TRUE or FALSE
+	#   note       the role is a label: setting it to development on a hand-filled profile makes it
+	#              answer TRUE
+	#   see        IsDeclared, Role
 	def IsLive()
 		return This.IsDevelopment() or This.IsRuntime()
 
-	  #-- OS facet (STORED values -- a declared target never leaks
-	  #   its facts from the live machine) --------------------
-
+	# Returns the stored operating system name, in lower case; unknown until set.
+	#
+	#   returns    a text such as "windows" or "android"
+	#   note       OperatingSystem and OS are the same call; a declared profile never reads the live
+	#              machine
+	#   see        SetOSName, SystemClass
+	#@ aka  -- OS facet (STORED values -- a declared target never leaks its facts from the live machine) --------------------
 	def OSName()
 		return @cOSName
 
+		# Returns the stored operating system name, in lower case; unknown until set.
+		#
+		#   returns    a text such as "windows" or "android"
+		#   see        OSName, SystemClass
 		def OperatingSystem()
 			return @cOSName
 
+		# Returns the stored operating system name, in lower case; unknown until set.
+		#
+		#   returns    a text such as "windows" or "android"
+		#   see        OSName, SystemClass
 		def OS()
 			return @cOSName
 
+	# Stores the operating system name, trimmed and put in lower case.
+	#
+	#   pc         the operating system name, such as windows, linux, macos, android
+	#   returns    the profile itself, so calls chain
+	#   note       the name decides SystemClass and the IsWindows family
+	#   see        OSName, SystemClass
 	def SetOSName(pc)
 		@cOSName = StzLower(ring_trim("" + pc))
 		return This
 
+	# Returns the stored processor family, in lower case; unknown until set.
+	#
+	#   returns    a text such as "x64" or "arm64"
+	#   note       Arch is the same call
+	#   see        SetArchitecture, BitSize
 	def Architecture()
 		return @cArch
 
+		# Returns the stored processor family, in lower case; unknown until set.
+		#
+		#   returns    a text such as "x64" or "arm64"
+		#   see        Architecture, BitSize
 		def Arch()
 			return @cArch
 
+	# Stores the processor family, trimmed and put in lower case.
+	#
+	#   pc         the architecture, such as x64 or arm64
+	#   returns    the profile itself, so calls chain
+	#   see        Architecture
 	def SetArchitecture(pc)
 		@cArch = StzLower(ring_trim("" + pc))
 		return This
 
+	# Returns the stored word width, in bits; 0 until set.
+	#
+	#   returns    a number such as 32 or 64
+	#   note       Bits is the same call
+	#   see        SetBitSize, AddressBits
 	def BitSize()
 		return @nBits
 
+		# Returns the stored word width, in bits; 0 until set.
+		#
+		#   returns    a number such as 32 or 64
+		#   see        BitSize, AddressBits
 		def Bits()
 			return @nBits
 
+	# Stores the word width, in bits.
+	#
+	#   pn         the width in bits, such as 32 or 64
+	#   returns    the profile itself, so calls chain
+	#   see        BitSize, Is64Bit
 	def SetBitSize(pn)
 		@nBits = pn
 		return This
 
+	# Returns the stored byte order; unknown until set.
+	#
+	#   returns    a text, usually "little" or "big"
+	#   see        SetEndianness
 	def Endianness()
 		return @cEndianness
 
+	# Stores the byte order, trimmed and put in lower case.
+	#
+	#   pc         the byte order, little or big
+	#   returns    the profile itself, so calls chain
+	#   see        Endianness
 	def SetEndianness(pc)
 		@cEndianness = StzLower(ring_trim("" + pc))
 		return This
@@ -439,44 +559,93 @@ class stzSystemProfile from stzObject
 	def Is32Bit()
 		return @nBits = 32
 
-	  #-- OS class (from the STORED os name) ------------------
-
+	# Returns the class of the stored operating system: desktop, mobile, embedded or unknown.
+	#
+	#   returns    a text
+	#   note       windows, linux, macos, freebsd, unix and msdos are desktop; android and ios
+	#              mobile; rtos, freertos, bare, espidf and zephyr embedded
+	#   see        IsDesktop, IsMobile, IsEmbedded
+	#@ aka  -- OS class (from the STORED os name) ------------------
 	def SystemClass()
 		return _StzSystemClassOf(@cOSName)
 
+	# TRUE if the stored operating system is a desktop one.
+	#
+	#   returns    TRUE or FALSE
+	#   see        SystemClass, IsMobile
 	def IsDesktop()
 		return This.SystemClass() = "desktop"
 
+	# TRUE if the stored operating system is a mobile one.
+	#
+	#   returns    TRUE or FALSE
+	#   see        SystemClass, IsDesktop
 	def IsMobile()
 		return This.SystemClass() = "mobile"
 
+	# TRUE if the stored operating system is an embedded one.
+	#
+	#   returns    TRUE or FALSE
+	#   see        SystemClass, IsDesktop
 	def IsEmbedded()
 		return This.SystemClass() = "embedded"
 
+	# TRUE if the stored operating system name is windows.
+	#
+	#   returns    TRUE or FALSE
+	#   see        OSName, IsLinux
 	def IsWindows()
 		return @cOSName = "windows"
 
+	# TRUE if the stored operating system name is linux.
+	#
+	#   returns    TRUE or FALSE
+	#   see        OSName, IsWindows
 	def IsLinux()
 		return @cOSName = "linux"
 
+	# TRUE if the stored operating system name is macos.
+	#
+	#   returns    TRUE or FALSE
+	#   see        OSName, IsWindows
 	def IsMacOS()
 		return @cOSName = "macos"
 
+	# TRUE if the stored operating system name is android.
+	#
+	#   returns    TRUE or FALSE
+	#   see        OSName, IsMobile
 	def IsAndroid()
 		return @cOSName = "android"
 
-	  #-- Runtime facet --------------------------------------
-
+	# Returns the language the code runs in, which is always "ring".
+	#
+	#   returns    a text, "ring"
+	#   see        LanguageVersion, Runtime
+	#@ aka  -- Runtime facet --------------------------------------
 	def Language()
 		return "ring"
 
+	# Returns the stored version of the language; an empty text until set.
+	#
+	#   returns    a text such as "1.27"
+	#   see        SetLanguageVersion, Runtime
 	def LanguageVersion()
 		return @cLangVersion
 
+	# Stores the language version.
+	#
+	#   pc         the version, as text
+	#   returns    the profile itself, so calls chain
+	#   see        LanguageVersion
 	def SetLanguageVersion(pc)
 		@cLangVersion = "" + pc
 		return This
 
+	# Returns the runtime facts together: language, its version, architecture, bits, byte order and operating system.
+	#
+	#   returns    a list of [ key, value ] pairs
+	#   see        Language, Resources
 	def Runtime()
 		return [
 			[ "language", "ring" ],
@@ -487,33 +656,68 @@ class stzSystemProfile from stzObject
 			[ "os", @cOSName ]
 		]
 
-	  #-- Resources facet ------------------------------------
-
+	# Returns the stored number of processors; 0 until set.
+	#
+	#   returns    a number
+	#   see        SetCpuCount, Resources
+	#@ aka  -- Resources facet ------------------------------------
 	def CpuCount()
 		return @nCpuCount
 
+	# Stores the number of processors.
+	#
+	#   pn         the number of processors
+	#   returns    the profile itself, so calls chain
+	#   see        CpuCount
 	def SetCpuCount(pn)
 		@nCpuCount = pn
 		return This
 
-	# The maximum address width -- a real resource ceiling.
+	# Returns the width of an address in bits, which is the stored word width.
+	#
+	#   returns    a number such as 32 or 64
+	#   see        BitSize, Resources
+	#@ aka  The maximum address width -- a real resource ceiling.
 	def AddressBits()
 		return @nBits
 
+	# Returns the stored total memory, in bytes; 0 for a declared profile.
+	#
+	#   returns    a number
+	#   see        SetMemTotalBytes, MemFreeBytes
 	def MemTotalBytes()
 		return @nMemTotalBytes
 
+	# Stores the total memory.
+	#
+	#   pn         the total memory, in bytes
+	#   returns    the profile itself, so calls chain
+	#   see        MemTotalBytes
 	def SetMemTotalBytes(pn)
 		@nMemTotalBytes = pn
 		return This
 
+	# Returns the free memory stored when the profile was filled, in bytes.
+	#
+	#   returns    a number
+	#   note       a snapshot taken at that moment, not a live gauge; 0 for a declared profile
+	#   see        SetMemFreeBytes, MemTotalBytes
 	def MemFreeBytes()
 		return @nMemFreeBytes
 
+	# Stores the free memory.
+	#
+	#   pn         the free memory, in bytes
+	#   returns    the profile itself, so calls chain
+	#   see        MemFreeBytes
 	def SetMemFreeBytes(pn)
 		@nMemFreeBytes = pn
 		return This
 
+	# Returns the resource facts together: processors, address width, total memory and free memory.
+	#
+	#   returns    a list of [ key, value ] pairs: cpu_count, address_bits, mem_total, mem_free
+	#   see        CpuCount, MemTotalBytes
 	def Resources()
 		# memory arrived with the perf P1 engine senses (stz_perf.dll,
 		# SOFTANZA_PERF_SYSTEM.md): populated for LIVE profiles
@@ -528,12 +732,19 @@ class stzSystemProfile from stzObject
 			[ "mem_free", @nMemFreeBytes ]
 		]
 
-	  #-- Capabilities facet (the KEYSTONE) ------------------
-
-	# The capabilities as DATA (the plain list) -- display with @@().
+	# Returns the capabilities this system offers, as a plain list.
+	#
+	#   returns    a list of text; empty until some are set or granted
+	#   note       CapabilityList is the same call; CapabilitiesQ answers the chainable envelope
+	#   see        CapabilityList, Can, Grant
+	#@ aka  -- Capabilities facet (the KEYSTONE) ------------------
 	def Capabilities()
 		return @oCaps.List()
 
+		# Returns the capabilities this system offers, as a plain list.
+		#
+		#   returns    a list of text; empty until some are set or granted
+		#   see        Capabilities, SetCapabilityList
 		def CapabilityList()
 			return @oCaps.List()
 
@@ -541,10 +752,29 @@ class stzSystemProfile from stzObject
 	def CapabilitiesQ()
 		return @oCaps
 
+	# Replaces all the capabilities with the given list.
+	#
+	#   paCaps     a list of capability names such as filesystem, network, clock
+	#   returns    the profile itself, so calls chain
+	#   note       an unknown capability raises an error naming the known ones, and the profile then
+	#              keeps its previous list; names are lower-cased and a repeated name is kept once
+	#   warning    an unknown capability raises an error naming the known ones, but the list is then
+	#              left holding the names before the unknown one (the previous list is lost, tried
+	#              with [ network, foo, clock ] and with [ gpio, teleport ]); names are lower-cased
+	#              and a repeated name is kept once
+	#   see        Grant, Capabilities
 	def SetCapabilityList(paCaps)
 		@oCaps = new stzSystemCapabilities(paCaps)
 		return This
 
+	# Adds one capability to the system.
+	#
+	#   pCap       the capability name, such as network
+	#   returns    the profile itself, so calls chain
+	#   note       an unknown capability raises an error naming the known ones: filesystem, process,
+	#              network, environment, dynamic_load, gpio, threads, clock, inference; granting it
+	#              twice changes nothing
+	#   see        Revoke, Can
 	def Grant(pCap)
 		@oCaps.Grant(pCap)
 		return This
@@ -553,47 +783,86 @@ class stzSystemProfile from stzObject
 			This.Grant(pCap)
 			return This
 
+	# Removes one capability from the system; one it does not have changes nothing.
+	#
+	#   pCap       the capability name to remove
+	#   returns    the profile itself, so calls chain
+	#   see        Grant, Lacks
 	def Revoke(pCap)
 		@oCaps.Revoke(pCap)
 		return This
 
+	# TRUE if the system offers the capability.
+	#
+	#   pCap       the capability name
+	#   returns    TRUE or FALSE
+	#   see        Lacks, Grant
 	def Can(pCap)
 		return @oCaps.Can(pCap)
 
+	# TRUE if the system does not offer the capability.
+	#
+	#   pCap       the capability name
+	#   returns    TRUE or FALSE
+	#   see        Can, Revoke
 	def Lacks(pCap)
 		return @oCaps.Lacks(pCap)
 
+	# Returns the kinds of authority the capabilities span: effectful, sensing, compute or inference.
+	#
+	#   returns    a list of text, each kind once
+	#   note       filesystem, process, network, environment, dynamic_load and gpio are effectful;
+	#              threads is compute; clock is sensing
+	#   see        Capabilities, CapabilitiesForActorKinds
 	def CapabilityKinds()
 		return @oCaps.Kinds()
 
-	  #-- the TWO WORLDS (section 2.4): THIS (host/dev) vs a target
-
-	# Capabilities THIS scope has that the TARGET lacks -- code you can run here
-	# but that the target FORBIDS (down-constrain candidates).
+	# Returns the capabilities this system has that a target lacks: code that runs here but that the target forbids.
+	#
+	#   poTarget   the other profile, usually a declared target
+	#   returns    a list of capability names
+	#   see        Requires, CompareTo
+	#@ aka  -- the TWO WORLDS (section 2.4): THIS (host/dev) vs a target
 	def Forbids(poTarget)
 		return @oCaps.Minus(poTarget.CapabilitiesQ())
 
-	# Capabilities the TARGET has that THIS scope lacks -- what the target
-	# REQUIRES that this machine cannot do (up-enable candidates; the Virtual
-	# System twin rehearses these later).
+	# Returns the capabilities a target has that this system lacks: what the target needs and this machine cannot do.
+	#
+	#   poTarget   the other profile, usually a declared target
+	#   returns    a list of capability names
+	#   see        Forbids, CompareTo
+	#@ aka  Capabilities the TARGET has that THIS scope lacks -- what the target REQUIRES that this machine cannot do (up-enable candidates; the Virtual System twin rehearses these later).
 	def Requires(poTarget)
 		return poTarget.CapabilitiesQ().Minus(@oCaps)
 
+	# Returns what a target forbids and requires, compared with this system, in one list.
+	#
+	#   poTarget   the other profile, usually a declared target
+	#   returns    a list of two pairs: [ "forbids", list ] then [ "requires", list ]
+	#   see        Forbids, Requires
 	def CompareTo(poTarget)
 		return [
 			[ "forbids", This.Forbids(poTarget) ],
 			[ "requires", This.Requires(poTarget) ]
 		]
 
-	  #-- the system <-> agent bridge ------------------------
-
-	# Which of THIS system's capabilities an actor holding these lattice kinds
-	# (from stzAgentGraph) may exercise.
+	# Returns the capabilities an actor holding the given kinds of authority may use.
+	#
+	#   paActorKinds   a list of kinds, such as [ "sensing", "compute" ]
+	#   returns        a list of capability names; empty when no capability has a kind the actor
+	#                  holds
+	#   see            CapabilityKinds, Can
+	#@ aka  -- the system <-> agent bridge ------------------------
 	def CapabilitiesForActorKinds(paActorKinds)
 		return @oCaps.ForActorKinds(paActorKinds)
 
-	  #-- the .stzsystem format (Law 1: a domain has a format)
-
+	# Returns the profile as the text of a .stzsystem file: one key and value per line.
+	#
+	#   returns    a text with name, role, os, arch, bits, endianness, cpu_count, memory,
+	#              language_version and capabilities lines
+	#   note       the free memory line carries a comment saying it is a snapshot
+	#   see        Save, FromString
+	#@ aka  -- the .stzsystem format (Law 1: a domain has a format)
 	def ToStzSystem()
 		_nl_ = char(10)
 		_c_ = "# .stzsystem -- a Softanza system profile" + _nl_
@@ -622,6 +891,12 @@ class stzSystemProfile from stzObject
 		_c_ += "capabilities: " + _StzJoinComma(@oCaps.List()) + _nl_
 		return _c_
 
+	# Writes the profile to a file in the .stzsystem format, replacing the file.
+	#
+	#   pcPath     the file to write
+	#   returns    the profile itself, so calls chain
+	#   note       SaveQ is the same call
+	#   see        LoadFrom, ToStzSystem
 	def Save(pcPath)
 		_StzWriteTextFile(pcPath, This.ToStzSystem())
 		return This
@@ -630,13 +905,26 @@ class stzSystemProfile from stzObject
 			This.Save(pcPath)
 			return This
 
-	# Read a .stzsystem file INTO this profile (the mirror of Save).
+	# Reads a .stzsystem file into this profile, replacing the facts the file names.
+	#
+	#   pcPath     the .stzsystem file to read
+	#   returns    the profile itself, so calls chain
+	#   note       the role becomes deployment unless the file names one
+	#   see        FromString, Save
+	#@ aka  Read a .stzsystem file INTO this profile (the mirror of Save).
 	def LoadFrom(pcPath)
 		return This.FromString(_StzReadTextFile(pcPath))
 
-	# Parse .stzsystem text into this profile. Defaults the role to deployment
-	# (a declared target) unless the text says otherwise, and fills class-default
-	# capabilities when no capabilities line is present.
+	# Reads .stzsystem text into this profile, setting each fact a line names; the role defaults to deployment.
+	#
+	#   pcText     the .stzsystem text, one key: value per line
+	#   returns    the profile itself, so calls chain
+	#   note       facts the text does not name keep their value
+	#   warning    an unknown capability in the capabilities line raises an error, and the
+	#              capabilities are then left holding the names before it; without a capabilities
+	#              line, the capabilities become the default of the system class
+	#   see        LoadFrom, ToStzSystem
+	#@ aka  Parse .stzsystem text into this profile. Defaults the role to deployment (a declared target) unless the text says otherwise, and fills class-default capabilities when no capabilities line is present.
 	def FromString(pcText)
 		This.SetRole("deployment")
 		_cText_ = StzReplace(pcText, char(13), "")
@@ -684,8 +972,14 @@ class stzSystemProfile from stzObject
 		ok
 		return This
 
-	  #-- info / show ----------------------------------------
-
+	# Returns the profile's main facts as a list of [ key, value ] pairs.
+	#
+	#   returns    a list of pairs: name, role, os, arch, bits, endianness, cpu_count, class,
+	#              capabilities
+	#   note       the memory and the language version are not in it; Resources and Runtime carry
+	#              them
+	#   see        Show, Resources
+	#@ aka  -- info / show ----------------------------------------
 	def Info()
 		return [
 			[ "name", @cName ],
@@ -699,6 +993,10 @@ class stzSystemProfile from stzObject
 			[ "capabilities", @oCaps.List() ]
 		]
 
+	# Prints the profile on five lines: name and role, system, processors, capabilities and their kinds.
+	#
+	#   returns    nothing; it prints
+	#   see        Info
 	def Show()
 		? "System Profile: " + @cName + "  [role: " + @cRole + "]"
 		? "  os:    " + @cOSName + " (" + This.SystemClass() + "), " +

@@ -1,0 +1,33 @@
+IsStzNumber | TRUE if the object is a stzNumber, judged by its Softanza class name. | TRUE or FALSE | | StzType, IsNotStzNumber, IsNotAStzNumber
+IsNotStzNumber | TRUE if the object is anything but a stzNumber. | TRUE or FALSE | | IsStzNumber
+IsNotAStzNumber | TRUE if the object is anything but a stzNumber, in the article form. | TRUE or FALSE | | IsStzNumber
+IsStzString | TRUE if the object is a stzString, judged by its Softanza class name. | TRUE or FALSE | | StzType, IsNotStzString, IsNotAStzString
+IsNotStzString | TRUE if the object is anything but a stzString. | TRUE or FALSE | | IsStzString
+IsNotAStzString | TRUE if the object is anything but a stzString, in the article form. | TRUE or FALSE | | IsStzString
+IsStzList | TRUE if the object is a stzList, judged by its Softanza class name. | TRUE or FALSE | | StzType, IsNotStzList, IsNotAStzList
+IsNotStzList | TRUE if the object is anything but a stzList. | TRUE or FALSE | | IsStzList
+IsNotAStzList | TRUE if the object is anything but a stzList, in the article form. | TRUE or FALSE | | IsStzList
+IsStzGrid | TRUE if the object is a stzGrid, judged by its Softanza class name. | TRUE or FALSE | | StzType, IsNotStzGrid, IsNotAStzGrid
+IsNotStzGrid | TRUE if the object is anything but a stzGrid. | TRUE or FALSE | | IsStzGrid
+IsNotAStzGrid | TRUE if the object is anything but a stzGrid, in the article form. | TRUE or FALSE | | IsStzGrid
+IsStzObject | TRUE if the object descends from stzObject, which every class of the library does. | always TRUE | | IsNotStzObject, IsAStzObject
+IsAStzObject | TRUE if the object descends from stzObject, in the article form; every class does. | always TRUE | | IsStzObject
+IsNotStzObject | TRUE if the object does not descend from stzObject, which no library object does. | always FALSE | | IsStzObject
+HasSameTypeAs | TRUE if the value given is an object; it compares no types. | TRUE or FALSE | p=the value to test | HasSameStzTypeAs, StzType | the name promises a comparison but the body only tests isObject(p): a stzString and a stzList answer TRUE, a text answers FALSE
+HasSameStzTypeAs | Answers FALSE today instead of telling whether another object has the same Softanza class. | always FALSE in every case tried | p=the other object | HasSameTypeAs, StzType | FALSE for a stzString against a stzString, a stzList against a stzList and a bare stzObject against another, even when the content is the class name; the test asks the other object IsStzType, which is true only when its content is a text naming a class | compare the two StzType answers yourself
+IsOneOfTheseTypes | TRUE if the object is of at least one of the types listed. | TRUE or FALSE | paTypes=the list of type names, each optionally written :Or = type | IsNotOneOfTheseTypes, IsEachOneOfTheseTypes, IsA | a value that is not a list raises "Incorrect param type!"
+IsNotOneOfTheseTypes | TRUE if the object is of none of the types listed. | TRUE or FALSE | paTypes=the list of type names | IsOneOfTheseTypes
+IsEachOneOfTheseTypes | TRUE if the object is of every type listed at once. | TRUE or FALSE | paTypes=the list of type names, each optionally written :Or = type or :And = type | IsOneOfTheseTypes, IsA | a value that is not a list raises "Incorrect param type!"
+IsNumberOrString | TRUE if the content is a number or a text. | TRUE or FALSE | | IsStringOrList, IsOneOfTheseTypes
+IsStringOrList | TRUE if the content is a text or a list. | TRUE or FALSE | | IsNumberOrString, IsListOrString
+IsListOrString | Raises error R4 today instead of telling whether the content is a list or a text. | nothing: it raises | | IsStringOrList | raises "Stack Overflow" (R4): the body calls IsListOrString itself, so it never ends; use IsStringOrList
+IsFalseObject | Answers FALSE today for every object, even the library's false object. | always FALSE in every case tried | | IsTrueObject, IsNullObject | the test compares the class name with the misspelling stzFlaseObject, which no class has; AFalseObject().IsFalseObject() answers FALSE too | compare StzType with stzfalseobject
+IsTrueObject | Answers FALSE today for every object, even the library's true object. | always FALSE in every case tried | | IsFalseObject, IsNullObject | the test compares the class name with the misspelling stzFlaseObject, which no class has; ATrueObject().IsTrueObject() answers FALSE | compare StzType with stztrueobject
+IsNullObject | TRUE if the object is the library's null object. | TRUE or FALSE | | IsFalseObject, IsTrueObject | | ANullObject().IsNullObject() answers TRUE
+IsNotAXT | TRUE if the object is none of the kinds listed, with the list given as one value. | TRUE or FALSE | pacStr=the list of kind words to test, such as [ :Lowercase, :String ] | IsA, IsNotAnXT
+IsNotAnXT | TRUE if the object is none of the kinds listed, in the article form. | TRUE or FALSE | pacStr=the list of kind words to test | IsNotAXT
+IsA | TRUE if the object is of the kind given, or of every kind in the list given. | TRUE or FALSE | pcType=a kind word such as :String or :Number, or a list of kind words that must all hold, such as [ :Lowercase, :Latin, :String ] | Is, IsEitherA, IsOneOfTheseTypes | on a bare stzObject it raises R24 (uninitialized variable @noname) | Q("banana").IsA(:String) is TRUE and Q("Ring").IsA([ :Lowercase, :String ]) is FALSE
+Is | TRUE if the object is of the kind given, comparing the Softanza class name first and then the kinds IsA knows. | TRUE or FALSE | pcType=a kind word with or without the stz prefix, such as :StzString or :String | IsA, IsStzString
+Are | TRUE if every item of a list is of the plural kind given. | TRUE or FALSE | pcType=a plural kind word such as :Numbers or :Strings | IsA, AreBothA | FALSE for an object that is not a list; a plural nothing can judge raises an error saying so
+AreBothA | TRUE if the pair held is of the kind given as a whole; it does not test the two items. | TRUE or FALSE | pcType=a kind word | AreTwo, IsA | a list of two items only; any other object answers a false object; [ "a", "b" ] is FALSE for :String and TRUE for :List, [ 1, 2 ] is FALSE for :Number and TRUE for :List
+AreTwo | TRUE if the pair held is of the kind given as a whole, in the other wording of AreBothA. | TRUE or FALSE | pcType=a kind word | AreBothA, IsA

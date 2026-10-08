@@ -1,0 +1,1 @@
+WhichAreBoth | Raises error R24 today instead of checking that the content is a list of exactly two items. | nothing: it raises | | AreBothA, WhichAre | raises R24 (uninitialized variable _alist_): the body tests _aList_, a variable it never sets, where it meant _aContent_; seen on a list of two numbers

@@ -1,0 +1,61 @@
+# Wave 9 -- stzSystemProfile. Name | brief | returns | params | see | warning | note
+init | Builds a profile with a name and nothing else known: role declared, operating system, architecture and byte order unknown, no capability. | nothing; the object is built | pcName=the profile's name, as text; anything but a text leaves the name empty | DeclareSystem, SetOSName, SetCapabilityList
+Name | Returns the name this profile carries, such as "this-machine" or the name of a target. | a text | | SetName, Role
+SetName | Sets the profile's name. | the profile itself, so calls chain | pcName=the new name; a number is turned into text | Name
+Role | Returns the role of this scope: development, runtime, deployment, or declared when none was set. | a text | | SetRole, IsDeclared
+SetRole | Sets the role of this scope, trimmed and put in lower case. | the profile itself, so calls chain | pcRole=the role word, usually development, runtime or deployment | Role, IsLive | | any word is accepted; only development and runtime make a profile live
+IsDevelopment | TRUE if the role is development, the machine the code is written on. | TRUE or FALSE | | IsRuntime, IsDeployment, Role
+IsRuntime | TRUE if the role is runtime, the machine the code runs on now. | TRUE or FALSE | | IsDevelopment, Role
+IsDeployment | TRUE if the role is deployment, a target the dev machine is not. | TRUE or FALSE | | IsDeclared, Role
+IsDeclared | TRUE if the profile is a declared target and not a live reading of this machine. | TRUE or FALSE | | IsLive, IsDeployment | | a profile with the default role declared is declared too; only development and runtime are live
+IsLive | TRUE if the role is development or runtime, so the facts came from this machine. | TRUE or FALSE | | IsDeclared, Role | | the role is a label: setting it to development on a hand-filled profile makes it answer TRUE
+OSName | Returns the stored operating system name, in lower case; unknown until set. | a text such as "windows" or "android" | | SetOSName, SystemClass | | OperatingSystem and OS are the same call; a declared profile never reads the live machine
+SetOSName | Stores the operating system name, trimmed and put in lower case. | the profile itself, so calls chain | pc=the operating system name, such as windows, linux, macos, android | OSName, SystemClass | | the name decides SystemClass and the IsWindows family
+Architecture | Returns the stored processor family, in lower case; unknown until set. | a text such as "x64" or "arm64" | | SetArchitecture, BitSize | | Arch is the same call
+SetArchitecture | Stores the processor family, trimmed and put in lower case. | the profile itself, so calls chain | pc=the architecture, such as x64 or arm64 | Architecture
+BitSize | Returns the stored word width, in bits; 0 until set. | a number such as 32 or 64 | | SetBitSize, AddressBits | | Bits is the same call
+SetBitSize | Stores the word width, in bits. | the profile itself, so calls chain | pn=the width in bits, such as 32 or 64; it is kept as given | BitSize, Is64Bit
+Endianness | Returns the stored byte order; unknown until set. | a text, usually "little" or "big" | | SetEndianness
+SetEndianness | Stores the byte order, trimmed and put in lower case. | the profile itself, so calls chain | pc=the byte order, little or big | Endianness
+SystemClass | Returns the class of the stored operating system: desktop, mobile, embedded or unknown. | a text | | IsDesktop, IsMobile, IsEmbedded | | windows, linux, macos, freebsd, unix and msdos are desktop; android and ios mobile; rtos, freertos, bare, espidf and zephyr embedded
+IsDesktop | TRUE if the stored operating system is a desktop one. | TRUE or FALSE | | SystemClass, IsMobile
+IsMobile | TRUE if the stored operating system is a mobile one. | TRUE or FALSE | | SystemClass, IsDesktop
+IsEmbedded | TRUE if the stored operating system is an embedded one. | TRUE or FALSE | | SystemClass, IsDesktop
+IsWindows | TRUE if the stored operating system name is windows. | TRUE or FALSE | | OSName, IsLinux
+IsLinux | TRUE if the stored operating system name is linux. | TRUE or FALSE | | OSName, IsWindows
+IsMacOS | TRUE if the stored operating system name is macos. | TRUE or FALSE | | OSName, IsWindows
+IsAndroid | TRUE if the stored operating system name is android. | TRUE or FALSE | | OSName, IsMobile
+Language | Returns the language the code runs in, which is always "ring". | a text, "ring" | | LanguageVersion, Runtime
+LanguageVersion | Returns the stored version of the language; an empty text until set. | a text such as "1.27" | | SetLanguageVersion, Runtime
+SetLanguageVersion | Stores the language version. | the profile itself, so calls chain | pc=the version, as text | LanguageVersion
+Runtime | Returns the runtime facts together: language, its version, architecture, bits, byte order and operating system. | a list of [ key, value ] pairs | | Language, Resources
+CpuCount | Returns the stored number of processors; 0 until set. | a number | | SetCpuCount, Resources
+SetCpuCount | Stores the number of processors. | the profile itself, so calls chain | pn=the number of processors | CpuCount
+AddressBits | Returns the width of an address in bits, which is the stored word width. | a number such as 32 or 64 | | BitSize, Resources
+MemTotalBytes | Returns the stored total memory, in bytes; 0 for a declared profile. | a number | | SetMemTotalBytes, MemFreeBytes
+SetMemTotalBytes | Stores the total memory. | the profile itself, so calls chain | pn=the total memory, in bytes | MemTotalBytes
+MemFreeBytes | Returns the free memory stored when the profile was filled, in bytes. | a number | | SetMemFreeBytes, MemTotalBytes | | a snapshot taken at that moment, not a live gauge; 0 for a declared profile
+SetMemFreeBytes | Stores the free memory. | the profile itself, so calls chain | pn=the free memory, in bytes | MemFreeBytes
+Resources | Returns the resource facts together: processors, address width, total memory and free memory. | a list of [ key, value ] pairs: cpu_count, address_bits, mem_total, mem_free | | CpuCount, MemTotalBytes
+Capabilities | Returns the capabilities this system offers, as a plain list. | a list of text; empty until some are set or granted | | CapabilityList, Can, Grant | | CapabilityList is the same call; CapabilitiesQ answers the chainable envelope
+CapabilityList | Returns the capabilities this system offers, as a plain list. | a list of text; empty until some are set or granted | | Capabilities, SetCapabilityList
+SetCapabilityList | Replaces all the capabilities with the given list. | the profile itself, so calls chain | paCaps=a list of capability names such as filesystem, network, clock | Grant, Capabilities | an unknown capability raises an error naming the known ones, but the list is then left holding the names before the unknown one (the previous list is lost, tried with [ network, foo, clock ] and with [ gpio, teleport ]); names are lower-cased and a repeated name is kept once | an unknown capability raises an error naming the known ones, and the profile then keeps its previous list; names are lower-cased and a repeated name is kept once
+Grant | Adds one capability to the system. | the profile itself, so calls chain | pCap=the capability name, such as network | Revoke, Can | | an unknown capability raises an error naming the known ones: filesystem, process, network, environment, dynamic_load, gpio, threads, clock, inference; granting it twice changes nothing
+Revoke | Removes one capability from the system; one it does not have changes nothing. | the profile itself, so calls chain | pCap=the capability name to remove | Grant, Lacks
+Can | TRUE if the system offers the capability. | TRUE or FALSE | pCap=the capability name; case and spaces around it are ignored | Lacks, Grant
+Lacks | TRUE if the system does not offer the capability. | TRUE or FALSE | pCap=the capability name | Can, Revoke
+CapabilityKinds | Returns the kinds of authority the capabilities span: effectful, sensing, compute or inference. | a list of text, each kind once | | Capabilities, CapabilitiesForActorKinds | | filesystem, process, network, environment, dynamic_load and gpio are effectful; threads is compute; clock is sensing
+Forbids | Returns the capabilities this system has that a target lacks: code that runs here but that the target forbids. | a list of capability names | poTarget=the other profile, usually a declared target | Requires, CompareTo
+Requires | Returns the capabilities a target has that this system lacks: what the target needs and this machine cannot do. | a list of capability names | poTarget=the other profile, usually a declared target | Forbids, CompareTo
+CompareTo | Returns what a target forbids and requires, compared with this system, in one list. | a list of two pairs: [ "forbids", list ] then [ "requires", list ] | poTarget=the other profile, usually a declared target | Forbids, Requires
+CapabilitiesForActorKinds | Returns the capabilities an actor holding the given kinds of authority may use. | a list of capability names; empty when no capability has a kind the actor holds | paActorKinds=a list of kinds, such as [ "sensing", "compute" ] | CapabilityKinds, Can
+ToStzSystem | Returns the profile as the text of a .stzsystem file: one key and value per line. | a text with name, role, os, arch, bits, endianness, cpu_count, memory, language_version and capabilities lines | | Save, FromString | | the free memory line carries a comment saying it is a snapshot
+Save | Writes the profile to a file in the .stzsystem format, replacing the file. | the profile itself, so calls chain | pcPath=the file to write | LoadFrom, ToStzSystem | | SaveQ is the same call
+LoadFrom | Reads a .stzsystem file into this profile, replacing the facts the file names. | the profile itself, so calls chain | pcPath=the .stzsystem file to read | FromString, Save | | the role becomes deployment unless the file names one
+FromString | Reads .stzsystem text into this profile, setting each fact a line names; the role defaults to deployment. | the profile itself, so calls chain | pcText=the .stzsystem text, one key: value per line; lines starting with # and unknown keys are skipped | LoadFrom, ToStzSystem | an unknown capability in the capabilities line raises an error, and the capabilities are then left holding the names before it; without a capabilities line, the capabilities become the default of the system class | facts the text does not name keep their value
+Info | Returns the profile's main facts as a list of [ key, value ] pairs. | a list of pairs: name, role, os, arch, bits, endianness, cpu_count, class, capabilities | | Show, Resources | | the memory and the language version are not in it; Resources and Runtime carry them
+Show | Prints the profile on five lines: name and role, system, processors, capabilities and their kinds. | nothing; it prints | | Info
+OperatingSystem | Returns the stored operating system name, in lower case; unknown until set. | a text such as "windows" or "android" | | OSName, SystemClass
+OS | Returns the stored operating system name, in lower case; unknown until set. | a text such as "windows" or "android" | | OSName, SystemClass
+Arch | Returns the stored processor family, in lower case; unknown until set. | a text such as "x64" or "arm64" | | Architecture, BitSize
+Bits | Returns the stored word width, in bits; 0 until set. | a number such as 32 or 64 | | BitSize, AddressBits

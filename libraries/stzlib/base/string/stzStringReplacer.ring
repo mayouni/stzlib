@@ -13,6 +13,30 @@
 #--------------------------------------------------------------#
 
 
+# Substitutes parts of a text: a substring, an occurrence, a position, the characters of a set, a pair of bounds or a regex match.
+#
+# It is the substitution helper behind many Replace methods of stzString, which builds one over
+# itself and writes the result back; build one directly when you only need the replacements. Each
+# verb changes the held text in place and returns nothing (the Q form returns the replacer so calls
+# chain), and the form in the past tense (Replaced, Surrounded) returns the new text and leaves the
+# replacer alone. Read the result with Content. Positions count characters, not bytes, so Hebrew,
+# Arabic and emoji text is cut where you expect, except in ReplaceByMany. Pass a plain text, not a
+# stzString object: apart from Replace, an edit through a replacer empties the stzString that was
+# passed in. The ranks of ReplaceNth start at 1 but the default RemoveNth starts at 0, RemoveFirst
+# removes the second occurrence and RemoveLast removes nothing, unless the case flag is given as 0.
+#
+#   receiver   o1 = new stzStringReplacer("hello world")
+#   example    o1.Replace("world", "all")
+#              ? o1.Content()
+#              #--> hello all
+#              o2 = new stzStringReplacer("שלום עולם")
+#              o2.Surround("«", "»")
+#              ? o2.Content()
+#              #--> «שלום עולם»
+#              o3 = new stzStringReplacer("a😀b😀c")
+#              ? o3.Replaced("😀", "-")
+#              #--> a-b-c
+#   see        stzString, stzStringRemover, stzStringChecker
 class stzStringReplacer from stzObject
 
 	@oString
@@ -21,6 +45,17 @@ class stzStringReplacer from stzObject
 	 #   INITIALIZATION  #
 	#===================#
 
+	# Builds a replacer over a text, given as a string or as a stzString object.
+	#
+	#   pStrOrStzStrObj   the text to edit, or a stzString whose content is edited
+	#   returns           nothing; the object is built
+	#   note              pass a plain text and read the result with Content; stzString does it
+	#                     safely by writing the replacer result back with Update
+	#   warning           with a stzString argument, Replace edits the stzString you passed in
+	#                     place, but every other edit (ReplaceFirst, Surround, ReplaceNth...) leaves
+	#                     the stzString you passed reading as an empty text; the replacer itself
+	#                     keeps the right text
+	#   see               Content, Replace
 	def init(pStrOrStzStrObj)
 		if isString(pStrOrStzStrObj)
 			@oString = new stzString(pStrOrStzStrObj)
@@ -34,12 +69,24 @@ class stzStringReplacer from stzObject
 	 #     CONTENT ACCESS            #
 	#===============================#
 
+	# Returns the text as it stands now, after the replacements made so far.
+	#
+	#   returns    a text
+	#   see        NumberOfChars, Replaced
 	def Content()
 		return @oString.Content()
 
+	# Returns how many characters the text holds, counting an emoji or a Hebrew letter as one.
+	#
+	#   returns    a number
+	#   see        Content, IsEmpty
 	def NumberOfChars()
 		return @oString.NumberOfChars()
 
+	# TRUE if the text holds no character at all.
+	#
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   see        NumberOfChars, Content
 	def IsEmpty()
 		return @oString.IsEmpty()
 
@@ -86,6 +133,15 @@ class stzStringReplacer from stzObject
 			_oCopy_.ReplaceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 			return _oCopy_.Content()
 
+	# Substitutes every occurrence of a substring by a new one, in place.
+	#
+	#   returns    nothing; the text changes. ReplaceQ returns the replacer for chaining
+	#   note       ReplaceCS("ONE", "1", 0) ignores case; ReplaceMany(["one", "two"], "X") puts one
+	#              new text for several old ones; an empty old substring changes nothing
+	#   warning    the old substring may be a list, which substitutes each member (same as
+	#              ReplaceMany), and the new one a list, which hands the occurrences their own
+	#              replacement (same as ReplaceByMany); a non-text old substring raises an error
+	#   see        Replaced, ReplaceFirst, ReplaceNth, ReplaceByMany
 	def Replace(pcSubStr, pcNewSubStr)
 		This.ReplaceCS(pcSubStr, pcNewSubStr, 1)
 
@@ -93,6 +149,11 @@ class stzStringReplacer from stzObject
 			This.Replace(pcSubStr, pcNewSubStr)
 			return This
 
+		# Returns the text with every occurrence of a substring substituted, leaving the replacer unchanged.
+		#
+		#   returns    a text
+		#   note       ReplacedCS takes the case flag
+		#   see        Replace, ReplaceFirst
 		def Replaced(pcSubStr, pcNewSubStr)
 			_oCopy_ = new stzStringReplacer(This.Content())
 			_oCopy_.Replace(pcSubStr, pcNewSubStr)
@@ -173,6 +234,17 @@ class stzStringReplacer from stzObject
 			This.ReplaceByManyCS(pcSubStr, pacNewSubStr, pCaseSensitive)
 			return This
 
+	# Gives the first occurrences of a substring their own replacement, the first one the first replacement and so on, in place.
+	#
+	#   pacNewSubStr   the list of replacements, in order of occurrence
+	#   returns        nothing; the text changes. ReplaceByManyQ returns the replacer for chaining
+	#   note           with ASCII text one two one two one and a, b gives a two b two one;
+	#                  ReplaceByManyCS("ONE", [...], 0) ignores case
+	#   warning        on any text that is not plain ASCII the result is wrong because positions are
+	#                  counted in bytes: שלום עולם שלום with a pair of letters gives a garbled text,
+	#                  a😀b😀c with 1 and 2 for the emoji gives a12 and loses the b and the c, and éa
+	#                  éb gives 1 é2
+	#   see            Replace, ReplaceNth
 	def ReplaceByMany(pcSubStr, pacNewSubStr)
 		This.ReplaceByManyCS(pcSubStr, pacNewSubStr, 1)
 
@@ -197,6 +269,12 @@ class stzStringReplacer from stzObject
 			This.ReplaceNthCS(_n_, pcSubStr, pcNewSubStr, pCaseSensitive)
 			return This
 
+	# Substitutes one occurrence of a substring, chosen by its rank, in place.
+	#
+	#   _n_        the rank of the occurrence, counted from 1
+	#   returns    nothing; the text changes. ReplaceNthQ returns the replacer for chaining
+	#   note       ReplaceNthCS("ONE", "1", 0) ignores case; unlike RemoveNth, the rank starts at 1
+	#   see        ReplaceFirst, ReplaceLast, RemoveNth
 	def ReplaceNth(_n_, pcSubStr, pcNewSubStr)
 		This.ReplaceNthCS(_n_, pcSubStr, pcNewSubStr, 1)
 
@@ -221,6 +299,11 @@ class stzStringReplacer from stzObject
 			This.ReplaceFirstCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 			return This
 
+	# Substitutes the first occurrence of a substring by a new one, in place.
+	#
+	#   returns    nothing; the text changes. ReplaceFirstQ returns the replacer for chaining
+	#   note       ReplaceFirstCS("ONE", "1", 0) ignores case
+	#   see        ReplaceLast, ReplaceNth, Replace
 	def ReplaceFirst(pcSubStr, pcNewSubStr)
 		This.ReplaceFirstCS(pcSubStr, pcNewSubStr, 1)
 
@@ -245,6 +328,11 @@ class stzStringReplacer from stzObject
 			This.ReplaceLastCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 			return This
 
+	# Substitutes the last occurrence of a substring by a new one, in place.
+	#
+	#   returns    nothing; the text changes. ReplaceLastQ returns the replacer for chaining
+	#   note       ReplaceLastCS("ONE", "1", 0) ignores case
+	#   see        ReplaceFirst, ReplaceNth, Replace
 	def ReplaceLast(pcSubStr, pcNewSubStr)
 		This.ReplaceLastCS(pcSubStr, pcNewSubStr, 1)
 
@@ -304,6 +392,11 @@ class stzStringReplacer from stzObject
 			_oCopy_.RemoveCS(pSubStr, pCaseSensitive)
 			return _oCopy_.Content()
 
+	# Deletes every occurrence of a substring, or of each member when a list of texts is given, in place.
+	#
+	#   returns    nothing; the text changes. RemoveQ returns the replacer for chaining
+	#   note       RemoveCS("ONE", 0) ignores case; RemoveMany deletes several substrings
+	#   see        Removed, RemoveFirst, RemoveNth, Replace
 	def Remove(pcSubStr)
 		This.RemoveCS(pcSubStr, 1)
 
@@ -311,6 +404,11 @@ class stzStringReplacer from stzObject
 			This.Remove(pcSubStr)
 			return This
 
+		# Returns the text with every occurrence of a substring deleted, leaving the replacer unchanged.
+		#
+		#   returns    a text
+		#   note       RemovedCS takes the case flag
+		#   see        Remove, RemoveFirst
 		def Removed(pcSubStr)
 			_oCopy_ = new stzStringReplacer(This.Content())
 			_oCopy_.Remove(pcSubStr)
@@ -369,6 +467,15 @@ class stzStringReplacer from stzObject
 			This.RemoveNthCS(_n_, pcSubStr, pCaseSensitive)
 			return This
 
+	# Deletes one occurrence of a substring, chosen by its rank, in place.
+	#
+	#   _n_        the rank of the occurrence
+	#   returns    nothing; the text changes. RemoveNthQ returns the replacer for chaining
+	#   note       prefer RemoveNthCS(n, s, 0) for a 1-based rank until the two are aligned
+	#   warning    the rank is not the same in the two calls: RemoveNth(1, "one") removes the second
+	#              one of one two one two one, while RemoveNthCS(1, "ONE", 0) removes the first, and
+	#              ReplaceNth counts from 1 as well; a rank past the last occurrence changes nothing
+	#   see        RemoveFirst, RemoveLast, ReplaceNth
 	def RemoveNth(_n_, pcSubStr)
 		This.RemoveNthCS(_n_, pcSubStr, 1)
 
@@ -376,11 +483,15 @@ class stzStringReplacer from stzObject
 			This.RemoveNth(_n_, pcSubStr)
 			return This
 
-		# Softanza universal naming: RemoveNthOccurrence{,CS} are
-		# the long-form aliases. The "Engine"-flavoured form that
-		# used to exist (RemoveNthOccurrenceEngine) has been
-		# folded into RemoveNthCS itself -- callers should never
-		# need to know whether the work lives in Ring or Zig.
+		# Deletes one occurrence of a substring, chosen by its rank, in place.
+		#
+		#   _n_        the rank of the occurrence, counted from 0 in the default case-sensitive call
+		#   returns    nothing; the text changes
+		#   note       it is RemoveNth under a longer name
+		#   warning    same rank problem as RemoveNth: RemoveNthOccurrence(2, "one") removes the
+		#              third one of one two one two one
+		#   see        RemoveNth, RemoveFirst
+		#@ aka  Softanza universal naming: RemoveNthOccurrence{,CS} are the long-form aliases. The "Engine"-flavoured form that used to exist (RemoveNthOccurrenceEngine) has been folded into RemoveNthCS itself -- callers should never need to know whether the work lives in Ring or Zig.
 		def RemoveNthOccurrence(_n_, pcSubStr)
 			This.RemoveNth(_n_, pcSubStr)
 
@@ -390,6 +501,15 @@ class stzStringReplacer from stzObject
 	def RemoveFirstCS(pcSubStr, pCaseSensitive)
 		This.RemoveNthCS(1, pcSubStr, pCaseSensitive)
 
+	# Deletes an occurrence of a substring, but the second one rather than the first, in place.
+	#
+	#   returns    nothing; the text changes. RemoveFirstQ returns the replacer for chaining
+	#   note       on a text with one occurrence it changes nothing
+	#   warning    it calls the nth removal with rank 1, which is counted from 0 in the default
+	#              case-sensitive call: RemoveFirst("one") on one two one two one gives one two  two
+	#              one, and Hebrew שלום עולם שלום loses its second שלום; with the case flag set to 0
+	#              (RemoveFirstCS(..., 0)) the first occurrence goes
+	#   see        RemoveLast, RemoveNth, ReplaceFirst
 	def RemoveFirst(pcSubStr)
 		This.RemoveFirstCS(pcSubStr, 1)
 
@@ -398,6 +518,15 @@ class stzStringReplacer from stzObject
 		_n_ = _oFinder_.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
 		This.RemoveNthCS(_n_, pcSubStr, pCaseSensitive)
 
+	# Leaves the text unchanged today, because the occurrence it aims at is one past the last, in place.
+	#
+	#   returns    nothing; the text does not change in the default call
+	#   note       use RemoveLastCS(s, 0) or ReplaceLast(s, "") meanwhile
+	#   warning    it asks the nth removal for a rank equal to the number of occurrences, and that
+	#              rank counts from 0 in the default case-sensitive call, so nothing is removed: one
+	#              two one two one, aaa bbb and its b stay as they are; RemoveLastCS(..., 0) does
+	#              remove the last occurrence
+	#   see        RemoveFirst, RemoveNth, ReplaceLast
 	def RemoveLast(pcSubStr)
 		This.RemoveLastCS(pcSubStr, 1)
 
@@ -405,6 +534,13 @@ class stzStringReplacer from stzObject
 	 #     INSERT BEFORE / AFTER    #
 	#===============================#
 
+	# Inserts a text just before the character at the given position, in place.
+	#
+	#   nPos       the position of the character the text goes before, counted from 1
+	#   returns    nothing; the text changes. InsertBeforeQ returns the replacer for chaining
+	#   note       works on characters, so an emoji or a Hebrew letter is one position
+	#   warning    a position or text of the wrong type raises an error
+	#   see        InsertAfter, ReplaceAt, Surround
 	def InsertBefore(nPos, pcSubStr)
 		if NOT isNumber(nPos)
 			StzRaise("Incorrect param type! nPos must be a number.")
@@ -433,6 +569,12 @@ class stzStringReplacer from stzObject
 			This.InsertBefore(nPos, pcSubStr)
 			return This
 
+	# Inserts a text just after the character at the given position, in place.
+	#
+	#   nPos       the position of the character the text goes after, counted from 1
+	#   returns    nothing; the text changes. InsertAfterQ returns the replacer for chaining
+	#   note       hello world with 5 and a comma gives hello, world
+	#   see        InsertBefore, ReplaceAt
 	def InsertAfter(nPos, pcSubStr)
 		This.InsertBefore(nPos + 1, pcSubStr)
 
@@ -444,6 +586,13 @@ class stzStringReplacer from stzObject
 	 #     SURROUND                  #
 	#===============================#
 
+	# Wraps the whole text between a text added before it and a text added after it, in place.
+	#
+	#   pcBefore   the text put at the beginning
+	#   pcAfter    the text put at the end, which may be empty
+	#   returns    nothing; the text changes. SurroundQ returns the replacer for chaining
+	#   note       hello world with [ and ] gives [hello world]
+	#   see        Surrounded, InsertBefore
 	def Surround(pcBefore, pcAfter)
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringSurround(_pH_, pcBefore, pcAfter)
@@ -455,6 +604,12 @@ class stzStringReplacer from stzObject
 			This.Surround(pcBefore, pcAfter)
 			return This
 
+	# Returns the text wrapped between a text added before it and a text added after it, leaving the replacer unchanged.
+	#
+	#   pcBefore   the text put at the beginning
+	#   pcAfter    the text put at the end
+	#   returns    a text
+	#   see        Surround, InsertAfter
 	def Surrounded(pcBefore, pcAfter)
 		_oCopy_ = new stzStringReplacer(@oString.Content())
 		_oCopy_.SurroundQ(pcBefore, pcAfter)
@@ -464,6 +619,11 @@ class stzStringReplacer from stzObject
 	 #     STRIP TAGS                #
 	#===============================#
 
+	# Deletes every markup tag written between < and >, keeping the text around them, in place.
+	#
+	#   returns    nothing; the text changes. StripTagsQ returns the replacer for chaining
+	#   note       <p>Hello <b>big</b> world</p> gives Hello big world
+	#   see        TagsStripped, ReplaceBetween
 	def StripTags()
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringStripTags(_pH_)
@@ -475,6 +635,10 @@ class stzStringReplacer from stzObject
 			This.StripTags()
 			return This
 
+	# Returns the text without its markup tags, leaving the replacer unchanged.
+	#
+	#   returns    a text
+	#   see        StripTags, WhitespaceRemoved
 	def TagsStripped()
 		_oCopy_ = new stzStringReplacer(@oString.Content())
 		_oCopy_.StripTagsQ()
@@ -484,6 +648,11 @@ class stzStringReplacer from stzObject
 	 #     REMOVE WHITESPACE         #
 	#===============================#
 
+	# Deletes every blank, tab and line break from the text, in place.
+	#
+	#   returns    nothing; the text changes. RemoveWhitespaceQ returns the replacer for chaining
+	#   note       hello world gives helloworld
+	#   see        WhitespaceRemoved, SqueezeChar, Remove
 	def RemoveWhitespace()
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringRemoveWhitespace(_pH_)
@@ -495,6 +664,10 @@ class stzStringReplacer from stzObject
 			This.RemoveWhitespace()
 			return This
 
+	# Returns the text without any blank, tab or line break, leaving the replacer unchanged.
+	#
+	#   returns    a text
+	#   see        RemoveWhitespace, TagsStripped
 	def WhitespaceRemoved()
 		_oCopy_ = new stzStringReplacer(@oString.Content())
 		_oCopy_.RemoveWhitespaceQ()
@@ -504,6 +677,13 @@ class stzStringReplacer from stzObject
 	 #     SQUEEZE CHAR              #
 	#===============================#
 
+	# Collapses each run of the given character into a single one, in place.
+	#
+	#   pcChar     the character whose runs are collapsed
+	#   returns    nothing; the text changes. SqueezeCharQ returns the replacer for chaining
+	#   note       a  b   c with a blank gives a b c and hello with l gives helo; a character that
+	#              never repeats changes nothing
+	#   see        CharSqueezed, RemoveWhitespace
 	def SqueezeChar(pcChar)
 		_pH_ = @oString.Engine()
 		# Convert char string to codepoint number for the engine
@@ -519,6 +699,11 @@ class stzStringReplacer from stzObject
 			This.SqueezeChar(pcChar)
 			return This
 
+	# Returns the text with each run of the given character collapsed into one, leaving the replacer unchanged.
+	#
+	#   pcChar     the character whose runs are collapsed
+	#   returns    a text
+	#   see        SqueezeChar, WhitespaceRemoved
 	def CharSqueezed(pcChar)
 		_oCopy_ = new stzStringReplacer(@oString.Content())
 		_oCopy_.SqueezeCharQ(pcChar)
@@ -528,6 +713,14 @@ class stzStringReplacer from stzObject
 	 #     REPLACE CHAR (codepoint)  #
 	#===============================#
 
+	# Substitutes every occurrence of one character by another, in place.
+	#
+	#   pcOldChar   the character to replace, one character
+	#   pcNewChar   the character that takes its place
+	#   returns     nothing; the text changes. ReplaceCharCPQ returns the replacer for chaining
+	#   note        works on whole characters: the Hebrew letter ל or the emoji 😀 can be replaced;
+	#               hello world with o and 0 gives hell0 w0rld
+	#   see         CharReplacedCP, ReplaceAnyChar, Replace
 	def ReplaceCharCP(pcOldChar, pcNewChar)
 		_pH_ = @oString.Engine()
 		pHOld = StzEngineString(pcOldChar)
@@ -545,6 +738,12 @@ class stzStringReplacer from stzObject
 			This.ReplaceCharCP(pcOldChar, pcNewChar)
 			return This
 
+	# Returns the text with every occurrence of one character substituted by another, leaving the replacer unchanged.
+	#
+	#   pcOldChar   the character to replace
+	#   pcNewChar   the character that takes its place
+	#   returns     a text
+	#   see         ReplaceCharCP, AnyCharReplaced
 	def CharReplacedCP(pcOldChar, pcNewChar)
 		_oCopy_ = new stzStringReplacer(@oString.Content())
 		_oCopy_.ReplaceCharCP(pcOldChar, pcNewChar)
@@ -554,6 +753,15 @@ class stzStringReplacer from stzObject
 	 #     REPLACE ANY CHAR          #
 	#===============================#
 
+	# Substitutes each character of a given set by one replacement text, in place.
+	#
+	#   pcCharsToReplace   a text whose characters are the ones to replace
+	#   pcReplacement      the text that replaces each of them
+	#   returns            nothing; the text changes. ReplaceAnyCharQ returns the replacer for
+	#                      chaining
+	#   note               hello world with lo and a star gives he*** w*r*d: every matching
+	#                      character gets its own star
+	#   see                AnyCharReplaced, ReplaceCharCP
 	def ReplaceAnyChar(pcCharsToReplace, pcReplacement)
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringReplaceAnyChar(_pH_, pcCharsToReplace, pcReplacement)
@@ -565,6 +773,12 @@ class stzStringReplacer from stzObject
 			This.ReplaceAnyChar(pcCharsToReplace, pcReplacement)
 			return This
 
+	# Returns the text with each character of a given set substituted by one replacement, leaving the replacer unchanged.
+	#
+	#   pcCharsToReplace   a text whose characters are the ones to replace
+	#   pcReplacement      the text that replaces each of them
+	#   returns            a text
+	#   see                ReplaceAnyChar, CharReplacedCP
 	def AnyCharReplaced(pcCharsToReplace, pcReplacement)
 		_oCopy_ = new stzStringReplacer(@oString.Content())
 		_oCopy_.ReplaceAnyChar(pcCharsToReplace, pcReplacement)
@@ -574,6 +788,16 @@ class stzStringReplacer from stzObject
 	 #     REPLACE AT POSITION       #
 	#===============================#
 
+	# Substitutes a number of characters, from a given position, by a new text, in place.
+	#
+	#   nCpPos          the position of the first character to replace, counted from 1
+	#   nCpCount        how many characters to replace, a count past the end being cut at the end
+	#   pcReplacement   the text that takes their place
+	#   returns         nothing; the text changes. ReplaceAtQ returns the replacer for chaining
+	#   note            hello world with 1, 5 and HELLO gives HELLO world
+	#   warning         a count of 0 changes nothing, so it cannot be used to insert; use
+	#                   InsertBefore
+	#   see             ReplaceSubstring, ReplaceCharAt, InsertBefore
 	def ReplaceAt(nCpPos, nCpCount, pcReplacement)
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringReplaceAt(_pH_, nCpPos, nCpCount, pcReplacement)
@@ -589,6 +813,15 @@ class stzStringReplacer from stzObject
 	 #     REPLACE BETWEEN MARKERS   #
 	#===============================#
 
+	# Substitutes every pair made of an opening bound, what lies between and a closing bound, bounds included, by one text, in place.
+	#
+	#   pcOpen          the opening bound
+	#   pcClose         the closing bound
+	#   pcReplacement   the text put in place of each pair
+	#   returns         nothing; the text changes. ReplaceBetweenQ returns the replacer for chaining
+	#   note            hello world with l, o and an underscore gives he_ world; the bounds go with
+	#                   the content
+	#   see             BetweenReplaced, ReplaceFirstBetween, StripTags
 	def ReplaceBetween(pcOpen, pcClose, pcReplacement)
 		# Softanza semantics: replaces ALL open...close pairs
 		_pH_ = @oString.Engine()
@@ -601,6 +834,13 @@ class stzStringReplacer from stzObject
 			This.ReplaceBetween(pcOpen, pcClose, pcReplacement)
 			return This
 
+	# Returns the text with every opening bound, what lies between and the closing bound substituted by one text, leaving the replacer unchanged.
+	#
+	#   pcOpen          the opening bound
+	#   pcClose         the closing bound
+	#   pcReplacement   the text put in place of each pair
+	#   returns         a text
+	#   see             ReplaceBetween, FirstBetweenReplaced
 	def BetweenReplaced(pcOpen, pcClose, pcReplacement)
 		_oCopy_ = new stzStringReplacer(@oString.Content())
 		_oCopy_.ReplaceBetween(pcOpen, pcClose, pcReplacement)
@@ -610,6 +850,16 @@ class stzStringReplacer from stzObject
 	 #     REPLACE FIRST BETWEEN MARKERS     #
 	#=======================================#
 
+	# Substitutes only the first pair made of an opening bound, what lies between and a closing bound, bounds included, in place.
+	#
+	#   pcOpen          the opening bound
+	#   pcClose         the closing bound
+	#   pcReplacement   the text put in place of the pair
+	#   returns         nothing; the text changes. ReplaceFirstBetweenQ returns the replacer for
+	#                   chaining
+	#   note            <p>Hello <b>big</b> world</p> with < , > and # gives #Hello <b>big</b>
+	#                   world</p>
+	#   see             FirstBetweenReplaced, ReplaceBetween
 	def ReplaceFirstBetween(pcOpen, pcClose, pcReplacement)
 		# Replaces only the FIRST open...close pair
 		_pH_ = @oString.Engine()
@@ -622,6 +872,13 @@ class stzStringReplacer from stzObject
 			This.ReplaceFirstBetween(pcOpen, pcClose, pcReplacement)
 			return This
 
+	# Returns the text with its first pair of bounds and what lies between substituted by one text, leaving the replacer unchanged.
+	#
+	#   pcOpen          the opening bound
+	#   pcClose         the closing bound
+	#   pcReplacement   the text put in place of the pair
+	#   returns         a text
+	#   see             ReplaceFirstBetween, BetweenReplaced
 	def FirstBetweenReplaced(pcOpen, pcClose, pcReplacement)
 		_oCopy_ = new stzStringReplacer(@oString.Content())
 		_oCopy_.ReplaceFirstBetween(pcOpen, pcClose, pcReplacement)
@@ -631,6 +888,15 @@ class stzStringReplacer from stzObject
 	 #     REPLACE SUBSTRING (range) #
 	#===============================#
 
+	# Substitutes the characters from one position to another, both included, by a new text, in place.
+	#
+	#   nFrom           the position of the first character to replace, counted from 1
+	#   nTo             the position of the last character to replace
+	#   pcReplacement   the text that takes their place
+	#   returns         nothing; the text changes. ReplaceSubstringQ returns the replacer for
+	#                   chaining
+	#   note            hello world with 1, 5 and bye gives bye world
+	#   see             ReplaceAt, ReplaceCharAt
 	def ReplaceSubstring(nFrom, nTo, pcReplacement)
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringReplaceSubstring(_pH_, nFrom, nTo, pcReplacement)
@@ -646,6 +912,15 @@ class stzStringReplacer from stzObject
 	 #     REPLACE TWO PAIRS         #
 	#===============================#
 
+	# Substitutes two different substrings in one pass, so that the new texts are never searched again, in place.
+	#
+	#   pcOld1     the first substring to replace
+	#   pcNew1     its replacement
+	#   pcOld2     the second substring to replace
+	#   pcNew2     its replacement
+	#   returns    nothing; the text changes. Replace2Q returns the replacer for chaining
+	#   note       swaps work: hello world with hello to world and world to hello gives world hello
+	#   see        Replace, ReplaceAnyChar
 	def Replace2(pcOld1, pcNew1, pcOld2, pcNew2)
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringReplace2(_pH_, pcOld1, pcNew1, pcOld2, pcNew2)
@@ -661,6 +936,13 @@ class stzStringReplacer from stzObject
 	 #     REPLACE CHAR AT POSITION  #
 	#===============================#
 
+	# Substitutes the single character at a given position by a text, in place.
+	#
+	#   nCpPos     the position of the character, counted from 1
+	#   pcNewStr   the text put in its place, which may be longer than one character
+	#   returns    nothing; the text changes. ReplaceCharAtQ returns the replacer for chaining
+	#   note       hello world with 1 and J gives Jello world
+	#   see        CharReplacedAt, ReplaceAt
 	def ReplaceCharAt(nCpPos, pcNewStr)
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringReplaceCharAt(_pH_, nCpPos, pcNewStr)
@@ -672,6 +954,12 @@ class stzStringReplacer from stzObject
 			This.ReplaceCharAt(nCpPos, pcNewStr)
 			return This
 
+	# Returns the text with the character at a given position substituted by a text, leaving the replacer unchanged.
+	#
+	#   nCpPos     the position of the character, counted from 1
+	#   pcNewStr   the text put in its place
+	#   returns    a text
+	#   see        ReplaceCharAt, CharReplacedCP
 	def CharReplacedAt(nCpPos, pcNewStr)
 		_oCopy_ = new stzStringReplacer(@oString.Content())
 		_oCopy_.ReplaceCharAt(nCpPos, pcNewStr)
@@ -681,6 +969,11 @@ class stzStringReplacer from stzObject
 	 #     SPACIFY                    #
 	#===============================#
 
+	# Puts one blank between every two characters, in place.
+	#
+	#   returns    nothing; the text changes. SpacifyQ returns the replacer for chaining
+	#   note       abc gives a b c and a😀b gives a 😀 b; an existing blank gets blanks around it too
+	#   see        Spacified, Surround
 	def Spacify()
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringSpacify(_pH_)
@@ -692,6 +985,10 @@ class stzStringReplacer from stzObject
 			This.Spacify()
 			return This
 
+	# Returns the text with one blank between every two characters, leaving the replacer unchanged.
+	#
+	#   returns    a text
+	#   see        Spacify, CharSqueezed
 	def Spacified()
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringSpacify(_pH_)
@@ -703,6 +1000,12 @@ class stzStringReplacer from stzObject
 	 #     STRIP MARKS                #
 	#===============================#
 
+	# Deletes the combining marks, such as accents written as separate characters, in place.
+	#
+	#   returns    nothing; the text changes. StripMarksQ returns the replacer for chaining
+	#   note       e followed by U+0301 and cole gives ecole; an accented letter written as one
+	#              character is left as it is
+	#   see        MarksStripped, ReplaceCharCP
 	def StripMarks()
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringStripMarks(_pH_)
@@ -714,6 +1017,10 @@ class stzStringReplacer from stzObject
 			This.StripMarks()
 			return This
 
+	# Returns the text without its combining marks, leaving the replacer unchanged.
+	#
+	#   returns    a text
+	#   see        StripMarks, Spacified
 	def MarksStripped()
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringStripMarks(_pH_)
@@ -728,6 +1035,13 @@ class stzStringReplacer from stzObject
 	 #     REGEX REPLACE ALL         #
 	#===============================#
 
+	# Substitutes every match of a regular expression by a replacement text, in place.
+	#
+	#   returns    nothing; the text changes. ReplaceAllRegexQ returns the replacer for chaining
+	#   note       the replacement may use the groups of the pattern: (l+) and [$1] on hello world
+	#              gives he[ll]o wor[l]d; ReplaceAllRegexCS(..., 0) ignores case; no match changes
+	#              nothing
+	#   see        AllRegexReplaced, ReplaceRegex, Replace
 	def ReplaceAllRegex(pcPattern, pcReplacement)
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringRegexReplaceAll(_pH_, pcPattern, pcReplacement, 0)
@@ -740,9 +1054,18 @@ class stzStringReplacer from stzObject
 			This.ReplaceAllRegex(pcPattern, pcReplacement)
 			return This
 
+		# Substitutes every match of a regular expression by a replacement text, in place.
+		#
+		#   returns    nothing; the text changes
+		#   note       same effect as ReplaceAllRegex, under a shorter name
+		#   see        ReplaceAllRegex, AllRegexReplaced
 		def ReplaceRegex(pcPattern, pcReplacement)
 			This.ReplaceAllRegex(pcPattern, pcReplacement)
 
+	# Returns the text with every match of a regular expression substituted, leaving the replacer unchanged.
+	#
+	#   returns    a text
+	#   see        ReplaceAllRegex, Replaced
 	def AllRegexReplaced(pcPattern, pcReplacement)
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringRegexReplaceAll(_pH_, pcPattern, pcReplacement, 0)

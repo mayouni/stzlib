@@ -1,0 +1,22 @@
+{
+ "brief": "Substitutes parts of a text: a substring, an occurrence, a position, the characters of a set, a pair of bounds or a regex match.",
+ "detail": "It is the substitution helper behind many Replace methods of stzString, which builds one over itself and writes the result back; build one directly when you only need the replacements. Each verb changes the held text in place and returns nothing (the Q form returns the replacer so calls chain), and the form in the past tense (Replaced, Surrounded) returns the new text and leaves the replacer alone. Read the result with Content. Positions count characters, not bytes, so Hebrew, Arabic and emoji text is cut where you expect, except in ReplaceByMany. Pass a plain text, not a stzString object: apart from Replace, an edit through a replacer empties the stzString that was passed in. The ranks of ReplaceNth start at 1 but the default RemoveNth starts at 0, RemoveFirst removes the second occurrence and RemoveLast removes nothing, unless the case flag is given as 0.",
+ "receiver": "o1 = new stzStringReplacer(\"hello world\")",
+ "example": [
+  "o1.Replace(\"world\", \"all\")",
+  "? o1.Content()",
+  "#--> hello all",
+  "o2 = new stzStringReplacer(\"שלום עולם\")",
+  "o2.Surround(\"«\", \"»\")",
+  "? o2.Content()",
+  "#--> «שלום עולם»",
+  "o3 = new stzStringReplacer(\"a😀b😀c\")",
+  "? o3.Replaced(\"😀\", \"-\")",
+  "#--> a-b-c"
+ ],
+ "see": [
+  "stzString",
+  "stzStringRemover",
+  "stzStringChecker"
+ ]
+}

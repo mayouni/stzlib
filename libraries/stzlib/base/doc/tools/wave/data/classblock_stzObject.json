@@ -1,0 +1,23 @@
+{
+ "brief": "Holds one value and gives every class of the library its common ground: naming, identity, kind tests, natural chains and constraints.",
+ "detail": "stzObject is the ancestor of every class of the library. A stzString, a stzList, a stzNumber and every other class inherits from it, without writing a line, the questions about what an object is (IsA, Is, IsEitherA, IsOneOfTheseTypes), a variable name and a unique identifier (SetVarName, SetUuid), the self-description that answers plain-English questions about the class (Ask, ExplainMethod, HowTo, DoIntent), the grammar words of natural chains (Only, Exactly, AtLeast, AtMost, MoreThan, LessThan, About, IfSo, Otherwise, and the filler words such as Which or Their that change nothing), constraints that can be declared, verified and enforced at the update point (AddConstraint, EnforceConstraint), a recorded past that tense words can ask about (WasEver, UsedToBe, IsStill), and converters to the other classes (ToStzString, ToStzList, ToStzNumber). Several families here are overridden by the subclasses that know better, so for a stzString the answer to IsAString, Content, Repeat or IsEqualTo comes from stzString, and the version of this class is the one a bare stzObject, a stzNumber or a class with no override of its own runs. A bare stzObject wraps an object, or the global variable whose name is given as text. Some methods of the class raise today and are said so in their blocks: Values, AttributesAndValues, ToPointer, IsListOrString, WhichAreBoth, the time-value family, the OccursForThe...Time family and several of the Of... forms.",
+ "receiver": "o1 = new stzString(\"banana\")",
+ "example": [
+  "? o1.IsA(:String)",
+  "#--> 1",
+  "o1.SetVarName(\"oFruit\")",
+  "? o1.VarName()",
+  "#--> oFruit",
+  "o1.AddConstraint(\"lower\", :Lowercase)",
+  "? o1.VerifyConstraint(\"lower\")",
+  "#--> 1",
+  "? Q(\"AnnIE\").AtLeast(2).VowelNB()",
+  "#--> 1"
+ ],
+ "see": [
+  "stzString",
+  "stzList",
+  "stzNumber",
+  "stzSelfDoc"
+ ]
+}

@@ -1,0 +1,22 @@
+{
+ "brief": "Holds a text as a list of single characters, so that each character can be sorted, reversed, looked up or named on its own.",
+ "detail": "Build it with a text, with a list of single characters or with a list of Unicode code points; the class stzListOfChars is the same class under another name, and StzStringCharListQ(p) builds one in a chain. A Hebrew letter, an Arabic letter, an accented letter and an emoji are one item each, because the text is split into characters and not into bytes. Verbs such as Reverse and ToUpper change the list in place and return nothing, and the forms that end in -ed (Reversed, Uppercased) return a new list and leave the object alone. Unique and the sort methods return their result as ONE joined text inside a one-item list today, not as a list of single characters; RemoveDuplicatesQ and Reversed are the ones to use for a proper list.",
+ "receiver": "o1 = new stzStringCharList(\"hello\")",
+ "example": [
+  "? o1.Join()",
+  "#--> hello",
+  "? @@( o1.Find(\"l\") )",
+  "#--> [ 3, 4 ]",
+  "o2 = new stzStringCharList(\"שלום\")",
+  "? @@( o2.Reversed() )",
+  "#--> [ \"ם\", \"ו\", \"ל\", \"ש\" ]",
+  "o3 = new stzStringCharList(\"a😀b\")",
+  "? @@( o3.Unicodes() )",
+  "#--> [ 97, 128512, 98 ]"
+ ],
+ "see": [
+  "stzString",
+  "stzList",
+  "stzListOfNumbers"
+ ]
+}
