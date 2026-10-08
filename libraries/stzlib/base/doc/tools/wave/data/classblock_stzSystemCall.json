@@ -1,0 +1,15 @@
+{
+ "brief": "Runs an external program from a command line or from a program and a list of arguments, and keeps its output and exit code.",
+ "detail": "Build the call, run it, then read Output, Error and ExitCode. The command is run by the engine with no console window. A list of arguments given with SetArgs reaches a program that is not a shell one by one, with no shell parsing them; a command line that starts with a shell word such as echo or holds a pipe is wrapped to run through the shell. ReturnType asks for the output as text, as lines or as a number. Set the program and arguments only from values you trust, since the call starts a real process.",
+ "receiver": "o1 = new stzSystemCall(\"echo hello world\")",
+ "example": [
+  "o1.Run()",
+  "? o1.Succeeded()",
+  "#--> 1",
+  "? o1.OutputAsLines()[1]",
+  "#--> hello world",
+  "? o1.ExitCode()",
+  "#--> 0"
+ ],
+ "see": ["StzSystem", "StzSystemCallQ", "StzOpenInDefaultApp", "stzProcess"]
+}

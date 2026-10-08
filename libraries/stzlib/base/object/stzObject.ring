@@ -2024,6 +2024,37 @@ func StzObjectToList(cObjectVarName)
  //   CLASS   //
 ///////////////
 
+# Holds one value and gives every class of the library its common ground: naming, identity, kind tests, natural chains and constraints.
+#
+# stzObject is the ancestor of every class of the library. A stzString, a stzList, a stzNumber and
+# every other class inherits from it, without writing a line, the questions about what an object is
+# (IsA, Is, IsEitherA, IsOneOfTheseTypes), a variable name and a unique identifier (SetVarName,
+# SetUuid), the self-description that answers plain-English questions about the class (Ask,
+# ExplainMethod, HowTo, DoIntent), the grammar words of natural chains (Only, Exactly, AtLeast,
+# AtMost, MoreThan, LessThan, About, IfSo, Otherwise, and the filler words such as Which or Their
+# that change nothing), constraints that can be declared, verified and enforced at the update point
+# (AddConstraint, EnforceConstraint), a recorded past that tense words can ask about (WasEver,
+# UsedToBe, IsStill), and converters to the other classes (ToStzString, ToStzList, ToStzNumber).
+# Several families here are overridden by the subclasses that know better, so for a stzString the
+# answer to IsAString, Content, Repeat or IsEqualTo comes from stzString, and the version of this
+# class is the one a bare stzObject, a stzNumber or a class with no override of its own runs. A bare
+# stzObject wraps an object, or the global variable whose name is given as text. Some methods of the
+# class raise today and are said so in their blocks: Values, AttributesAndValues, ToPointer,
+# IsListOrString, WhichAreBoth, the time-value family, the OccursForThe...Time family and several of
+# the Of... forms.
+#
+#   receiver   o1 = new stzString("banana")
+#   example    ? o1.IsA(:String)
+#              #--> 1
+#              o1.SetVarName("oFruit")
+#              ? o1.VarName()
+#              #--> oFruit
+#              o1.AddConstraint("lower", :Lowercase)
+#              ? o1.VerifyConstraint("lower")
+#              #--> 1
+#              ? Q("AnnIE").AtLeast(2).VowelNB()
+#              #--> 1
+#   see        stzString, stzList, stzNumber, stzSelfDoc
 class stzObject
 	@content
 
@@ -2055,6 +2086,17 @@ class stzObject
 	_These_
 	_Those_
 
+	# Builds a stzObject around an existing object, or around the global variable whose name is given as text.
+	#
+	#   pObject    an object to wrap, or the name of a global variable holding an object, as text
+	#   returns    nothing; the object is built
+	#   note       a subclass such as stzString has its own init and takes a text, a number or a
+	#              list; this one serves a bare stzObject
+	#   warning    an empty text raises "Can't create a stzObject from an empty string!"; a number
+	#              or a list also raises; a name that is not a variable raises R24 (uninitialized
+	#              variable) instead of the explanatory message, because the name is evaluated
+	#              before it is checked
+	#   see        Content, VarName, Copy
 	def init(pObject)
 
 		# Creating an object from an existing object
@@ -2092,40 +2134,72 @@ class stzObject
 	  #==========================================================#
 	 #   SELF-DESCRIPTION (ask/explain this object's methods)   #
 	#==========================================================#
-	# Doc()/Ask()/ExplainMethod() let the object describe ITSELF -- harvest its
-	# class's methods + doc-comments from source and answer plain-English
-	# questions (natural programming, no LLM; see base/reflect/stzSelfDoc).
+	# Returns the stzSelfDoc of the object's class, the object that answers plain-English questions about its methods.
+	#
+	#   returns    a stzSelfDoc object
+	#   see        Ask, AskFor, ExplainMethod, HowTo
+	#@ aka  Doc()/Ask()/ExplainMethod() let the object describe ITSELF -- harvest its class's methods + doc-comments from source and answer plain-English questions (natural programming, no LLM; see base/reflect/stzSelfDoc).
 	def Doc()
 		return new stzSelfDoc(_StzClassNameOf(This))
 
+	# Returns the methods of the object's class that best answer a plain-English question, each with a score and its brief.
+	#
+	#   pcQuestion   the question, in plain English
+	#   returns      a list of [ method name, score, brief ] rows, best first
+	#   note         a bare stzObject answers with an empty list for 'uppercase', since the question
+	#                is about the methods of its own class
+	#   see          AskFor, ExplainMethod, HowTo
 	def Ask(pcQuestion)
 		_oSd_ = new stzSelfDoc(_StzClassNameOf(This))
 		return _oSd_.Ask(pcQuestion)
 
+	# Returns only the first few answers to a plain-English question, as Ask ranks them.
+	#
+	#   pcQuestion   the question, in plain English
+	#   _n_          the largest number of rows to return
+	#   returns      a list of [ method name, score, brief ] rows, at most _n_ of them
+	#   see          Ask, ExplainMethod
 	def AskFor(pcQuestion, _n_)
 		_oSd_ = new stzSelfDoc(_StzClassNameOf(This))
 		return _oSd_.AskFor(pcQuestion, _n_)
 
+	# Returns a readable entry for one method of the object's class: its brief, what it returns, related methods and a run example.
+	#
+	#   pcName     the name of a method of the object's class
+	#   returns    a text of several lines
+	#   see        Ask, HowTo, Doc
 	def ExplainMethod(pcName)
 		_oSd_ = new stzSelfDoc(_StzClassNameOf(This))
 		return _oSd_.ExplainMethod(pcName)
 
-	# HowTo(intent) -- natural programming: resolve a plain-English intent to a
-	# runnable method call on THIS object's class (grammar-composed then retrieved).
+	# Returns a ready-to-run call that does what a plain-English intent asks, composed from the object's class.
+	#
+	#   pcIntent   what to do, in plain English
+	#   returns    a text such as Q("...").Uppercase()   -- composed by grammar (uppercase)
+	#   see        MethodForIntent, PlanForIntent, DoIntent
+	#@ aka  HowTo(intent) -- natural programming: resolve a plain-English intent to a runnable method call on THIS object's class (grammar-composed then retrieved).
 	def HowTo(pcIntent)
 		_oSd_ = new stzSelfDoc(_StzClassNameOf(This))
 		return _oSd_.HowTo(pcIntent)
 
+	# Returns the name of the method of the object's class that best fits a plain-English intent.
+	#
+	#   pcIntent   what to do, in plain English
+	#   returns    a text, the method's name
+	#   see        HowTo, Ask
 	def MethodForIntent(pcIntent)
 		_oSd_ = new stzSelfDoc(_StzClassNameOf(This))
 		return _oSd_.MethodForIntent(pcIntent)
 
-	# PlanForIntent(intent) -- the intent as EXECUTABLE NATURAL CODE over
-	# this object's current content: a Create line + the intent's steps.
-	# DoIntent(intent) lint-verifies the plan (raising with suggestions
-	# when a word is not understood -- a plan must be fully understood,
-	# unlike permissive free narration), runs it, returns the result.
-
+	# Returns an intent as natural code over the object's current content: a line that creates the object, then the intent's steps.
+	#
+	#   pcIntent   what to do, in plain English
+	#   returns    a text of lines, such as Create a string with 'banana' followed by the intent
+	#   note       the plan is only text; nothing is run
+	#   warning    raises an error on a bare stzObject, or on any class other than stzString,
+	#              stzList and stzNumber
+	#   see        DoIntent, HowTo
+	#@ aka  PlanForIntent(intent) -- the intent as EXECUTABLE NATURAL CODE over this object's current content: a Create line + the intent's steps. DoIntent(intent) lint-verifies the plan (raising with suggestions when a word is not understood -- a plan must be fully understood, unlike permissive free narration), runs it, returns the result.
 	def PlanForIntent(pcIntent)
 		_cT_ = This.NaturalTypeWord()
 		if _cT_ = ""
@@ -2133,6 +2207,15 @@ class stzObject
 		ok
 		return StzNaturalPlanFor(pcIntent, _cT_, This.Content())
 
+	# Runs a plain-English intent on the object's content and returns its result, leaving the object itself unchanged.
+	#
+	#   pcIntent   what to do, in plain English
+	#   returns    the result of the intent: BANANA for 'make it uppercase' on a stzString holding
+	#              banana
+	#   note       the object is read, not changed: its content is still banana afterwards
+	#   warning    raises an error naming each word it did not understand, with a suggestion when it
+	#              has one; the intent must be fully understood, unlike free narration
+	#   see        PlanForIntent, HowTo
 	def DoIntent(pcIntent)
 		_cPlan_ = This.PlanForIntent(pcIntent)
 		_aLint_ = StzNaturalLint(_cPlan_)
@@ -2151,6 +2234,10 @@ class stzObject
 		_oRun_ = Naturally(_cPlan_)
 		return _oRun_.Result()
 
+	# Returns the word that natural plans use for the object's class: string, list or number.
+	#
+	#   returns    a text; an empty text for any other class
+	#   see        PlanForIntent, DoIntent
 	def NaturalTypeWord()
 		_c_ = lower(_StzClassNameOf(This))
 		if _c_ = "stzstring"
@@ -2162,6 +2249,11 @@ class stzObject
 		ok
 		return ""
 
+	# Returns the value the object holds.
+	#
+	#   returns    the held value: for a bare stzObject the wrapped object, for a stzString its text
+	#   note       the subclasses override it to answer their own kind of value
+	#   see        VarName, Copy
 	def Content()
 		return @content
 
@@ -2180,6 +2272,10 @@ class stzObject
 		def AndThenReturnit()
 			return This.Content()
 
+	# Returns the variable name given to the object, or @noname when it has none.
+	#
+	#   returns    a text
+	#   see        SetVarName, IsNamed, IsUnnamed
 	def VarName()
 		return @cVarName
 
@@ -2210,8 +2306,11 @@ class stzObject
 			def ObjectVarNameQ()
 				return This.VarNameQ()
 
+	# TRUE if the object has not been given a variable name.
+	#
+	#   returns    TRUE or FALSE
+	#   see        VarName, IsNamed
 		#>
-
 	def IsUnnamed()
 		if This.VarName() = :@NoName
 			return 1
@@ -2239,8 +2338,11 @@ class stzObject
 		def IsNotANamedObject()
 			return This.IsUnnamed()
 
+	# TRUE if the object carries a variable name other than @noname.
+	#
+	#   returns    TRUE or FALSE
+	#   see        VarName, SetVarName
 		#>
-
 	def IsNamed()
 		if This.Name() != "" and This.Name() != :@NoName
 			return 1
@@ -2262,8 +2364,16 @@ class stzObject
 		def IsANamedObject()
 			return This.IsNamed()
 
+	# Gives the object a variable name and registers the object under it.
+	#
+	#   pcVarName   the new name, as text
+	#   returns     nothing
+	#   note        read the object back with v(), in LOWER case: after SetVarName("oFruit"),
+	#               v("ofruit") answers the object and v("oFruit") raises "Undefined named
+	#               variable!"
+	#   warning     a name that is not text raises "Incorrect param type!"
+	#   see         VarName, IsNamed
 		#>
-
 	def SetVarName(pcVarName)
 		if isList(pcVarName) and len(pcVarName) = 2 and isString(pcVarName[1]) and (pcVarName[1] = "to" or pcVarName[1] = "as")
 			pcVarName = pcVarName[2]
@@ -2276,28 +2386,60 @@ class stzObject
 		@cVarName = pcVarName
 		SetV([ [pcVarName, This ] ])	# Save the name to read it with v(pcVarName)
 
+		# Gives the object a variable name, as SetVarName does, in the form that reads as English.
+		#
+		#   pcVarName   the new name, as text
+		#   returns     nothing
+		#   see         SetVarName, VarName
 		#< @FunctionAlternativeForms
-
 		def SetVarNameTo(pcVarName)
 			This.SetVarName(pcVarName)
 
+		# Gives the object a variable name, in the long form of the same call.
+		#
+		#   pcVarName   the new name, as text
+		#   returns     nothing
+		#   see         SetVarName, VarName
 		def SetObjectVarName(pcVarName)
 			This.SetVarName(pcVarName)
 
+		# Gives the object a variable name, in the longest form of the same call.
+		#
+		#   pcVarName   the new name, as text
+		#   returns     nothing
+		#   see         SetVarName, VarName
 		def SetObjectVarNameTo(pcVarName)
 			This.SetVarName(pcVarName)
 
+		# Gives the object a variable name through the shorter object-name wording.
+		#
+		#   pcVarName   the new name, as text
+		#   returns     nothing
+		#   see         SetVarName, VarName
 		def SetObjectName(pcVarName)
 			This.SetVarName(pcVarName)
 
+		# Gives the object a variable name through the shortest wording.
+		#
+		#   pcVarName   the new name, as text
+		#   returns     nothing
+		#   see         SetVarName, VarName
 		def SetName(pcVarName)
 			This.SetVarName(pcVarName)
 
+		# Changes the object's variable name to another one.
+		#
+		#   pcVarName   the new name, as text
+		#   returns     nothing
+		#   see         SetVarName, VarName
 		def RenameIt(pcVarName)
 			This.SetVarName(pcVarName)
 
+	# TRUE if a unique identifier has been created for the object.
+	#
+	#   returns    TRUE or FALSE
+	#   see        SetUuid, Uuid
 		#>
-
 	def HasUuid()
 		if @cUuid != ""
 			return 1
@@ -2305,20 +2447,45 @@ class stzObject
 			return 0
 		ok
 
+	# Creates a fresh unique identifier for the object, and keeps its numeric hash beside it.
+	#
+	#   returns    nothing
+	#   see        Uuid, HashedUuid, HasUuid
 	def SetUuid()
 		_oUuid_ = new stzUuid()
 		@cUuid = _oUuid_.Content()
 		@cHashedUuid = ""+ _oUuid_.Hashed()
 		
+	# Returns the object's unique identifier.
+	#
+	#   returns    a text of 36 characters; an empty text before SetUuid has been called
+	#   see        SetUuid, HashedUuid
 	def Uuid()
 		return @cUuid
 
+	# Returns the number computed from the unique identifier.
+	#
+	#   returns    a number; an empty text before SetUuid has been called
+	#   see        SetUuid, Uuid
 	def HashedUuid()
 		return @cHashedUuid
 
+	# Returns a new stzObject wrapping the same content, with no variable name.
+	#
+	#   returns    a stzObject
+	#   note       a stzString, stzList or stzNumber has its own Copy and answers one of its own
+	#              kind
+	#   see        Content, VarName
 	def Copy()
 		return new stzObject(@content)
 
+	# Raises error R24 today instead of returning the values of the object's attributes.
+	#
+	#   returns    nothing: it raises
+	#   warning    raises R24 (uninitialized variable aresult): the list is built in a variable
+	#              named _aResult_ and appended to as aResult; seen on a stzString, a stzList and a
+	#              bare stzObject
+	#   see        Attributes, AttributesAndValues
 	def Values()
 		_aResult_ = []
 		_acAttributes_ = This.Attributes()
@@ -2336,6 +2503,11 @@ class stzObject
 		def ObjectValues()
 			return This.Values()
 
+	# Raises error R24 today instead of pairing each attribute name with its value.
+	#
+	#   returns    nothing: it raises
+	#   warning    raises the R24 of Values, which it calls
+	#   see        Attributes, Values
 	def AttributesAndValues()
 		_aResult_ = Association([
 				This.Attributes(),
@@ -2354,16 +2526,28 @@ class stzObject
 	 #   CHECKING TYPE  #
 	#------------------#
 
+	# Returns what Ring calls the object's data kind, in lower case.
+	#
+	#   returns    the text object
+	#   see        RingType, StzType
 	def Type()
 		return :Object
-		#NOTE: Unlike Ring, Softanza returns the type in lowercase
-
+		# Returns what Ring calls the object's data kind, in lower case.
+		#
+		#   returns    the text object
+		#   see        Type, StzType
+		#@ aka  NOTE: Unlike Ring, Softanza returns the type in lowercase
 		def RingType()
 			return :Object
 
 	def TypeXT()
 		return [ This.Content(), This.Type() ]
 
+	# Returns the Softanza class name of the object, in lower case.
+	#
+	#   returns    a text such as stzobject; a subclass answers its own name, stzstring for a
+	#              stzString
+	#   see        Type, ClassName, IsStzType
 	def StzType()
 		return :stzObject
 		#WARNING: The same function should exist inside each Softanza class
@@ -2374,6 +2558,10 @@ class stzObject
 	def StzTypeXT()
 		return [ :stzObject, This.Content() ]
 
+	# TRUE if the object is a stzNumber, judged by its Softanza class name.
+	#
+	#   returns    TRUE or FALSE
+	#   see        StzType, IsNotStzNumber, IsNotAStzNumber
 	def IsStzNumber()
 		if This.StzType() = :stzNumber
 			return 1
@@ -2386,18 +2574,27 @@ class stzObject
 		def IsAStzNumber()
 			return This.IsStzNumber()
 
+		# TRUE if the object is anything but a stzNumber.
+		#
+		#   returns    TRUE or FALSE
+		#   see        IsStzNumber
 		#>
-
 		#< @FunctionNegativeForm
-
 		def IsNotStzNumber()
 			return NOT This.IsStzNumber()
 
+		# TRUE if the object is anything but a stzNumber, in the article form.
+		#
+		#   returns    TRUE or FALSE
+		#   see        IsStzNumber
 		def IsNotAStzNumber()
 			return NOT This.IsStzNumber()
 
+	# TRUE if the object is a stzString, judged by its Softanza class name.
+	#
+	#   returns    TRUE or FALSE
+	#   see        StzType, IsNotStzString, IsNotAStzString
 		#>
-	
 	def IsStzString()
 
 		if This.StzType() = :stzString
@@ -2411,18 +2608,27 @@ class stzObject
 		def IsAStzString()
 			return This.IsStzString()
 
+		# TRUE if the object is anything but a stzString.
+		#
+		#   returns    TRUE or FALSE
+		#   see        IsStzString
 		#>
-
 		#< @FunctionNegativeForm
-
 		def IsNotStzString()
 			return NOT This.IsStzString()
 
+		# TRUE if the object is anything but a stzString, in the article form.
+		#
+		#   returns    TRUE or FALSE
+		#   see        IsStzString
 		def IsNotAStzString()
 			return NOT This.IsStzString()
 
+	# TRUE if the object is a stzList, judged by its Softanza class name.
+	#
+	#   returns    TRUE or FALSE
+	#   see        StzType, IsNotStzList, IsNotAStzList
 		#>
-	
 	def IsStzList()
 		if This.StzType() = :stzList
 			return 1
@@ -2435,18 +2641,27 @@ class stzObject
 		def IsAStzList()
 			return This.IsStzList()
 
+		# TRUE if the object is anything but a stzList.
+		#
+		#   returns    TRUE or FALSE
+		#   see        IsStzList
 		#>
-
 		#< @FunctionNegativeForm
-
 		def IsNotStzList()
 			return NOT This.IsStzList()
 
+		# TRUE if the object is anything but a stzList, in the article form.
+		#
+		#   returns    TRUE or FALSE
+		#   see        IsStzList
 		def IsNotAStzList()
 			return NOT This.IsStzList()
 
+	# TRUE if the object is a stzGrid, judged by its Softanza class name.
+	#
+	#   returns    TRUE or FALSE
+	#   see        StzType, IsNotStzGrid, IsNotAStzGrid
 		#>
-	
 	def IsStzGrid()
 		if This.StzType() = :stzgrid
 			return 1
@@ -2459,41 +2674,71 @@ class stzObject
 		def IsAStzGrid()
 			return This.IsStzGrid()
 
+		# TRUE if the object is anything but a stzGrid.
+		#
+		#   returns    TRUE or FALSE
+		#   see        IsStzGrid
 		#>
-
 		#< @FunctionNegativeForm
-
 		def IsNotStzGrid()
 			return NOT This.IsStzGrid()
 
+		# TRUE if the object is anything but a stzGrid, in the article form.
+		#
+		#   returns    TRUE or FALSE
+		#   see        IsStzGrid
 		def IsNotAStzGrid()
 			return NOT This.IsStzGrid()
 
+	# TRUE if the object descends from stzObject, which every class of the library does.
+	#
+	#   returns    always TRUE
+	#   see        IsNotStzObject, IsAStzObject
 		#>
-
 	def IsStzObject()
 		return 1
 
+		# TRUE if the object descends from stzObject, in the article form; every class does.
+		#
+		#   returns    always TRUE
+		#   see        IsStzObject
 		#< @FunctionAlternativeForm
-
 		def IsAStzObject()
 			return 1
 
+		# TRUE if the object does not descend from stzObject, which no library object does.
+		#
+		#   returns    always FALSE
+		#   see        IsStzObject
 		#>
-
 		#< @FunctionNegativeForm
-
 		def IsNotStzObject()
 			return 0
 	
 		def IsNotAStzObject()
 			return This.IsNotAnObject()
 
+	# TRUE if the value given is an object; it compares no types.
+	#
+	#   p          the value to test
+	#   returns    TRUE or FALSE
+	#   warning    the name promises a comparison but the body only tests isObject(p): a stzString
+	#              and a stzList answer TRUE, a text answers FALSE
+	#   see        HasSameStzTypeAs, StzType
 		#>
-
 	def HasSameTypeAs(p)
 		return isObject(p)
 
+	# Answers FALSE today instead of telling whether another object has the same Softanza class.
+	#
+	#   p          the other object
+	#   returns    always FALSE in every case tried
+	#   note       compare the two StzType answers yourself
+	#   warning    FALSE for a stzString against a stzString, a stzList against a stzList and a bare
+	#              stzObject against another, even when the content is the class name; the test asks
+	#              the other object IsStzType, which is true only when its content is a text naming
+	#              a class
+	#   see        HasSameTypeAs, StzType
 	def HasSameStzTypeAs(p)
 		if isObject(p) and Q(p).IsStzType() and
 		   Q(p).StzType() = This.StzType()
@@ -2503,6 +2748,12 @@ class stzObject
 			return 0
 		ok
 
+	# TRUE if the object is of at least one of the types listed.
+	#
+	#   paTypes    the list of type names, each optionally written :Or = type
+	#   returns    TRUE or FALSE
+	#   warning    a value that is not a list raises "Incorrect param type!"
+	#   see        IsNotOneOfTheseTypes, IsEachOneOfTheseTypes, IsA
 	def IsOneOfTheseTypes(paTypes)
 
 		/* EXAMPLE
@@ -2549,12 +2800,21 @@ class stzObject
 
 		return _bResult_
 
+		# TRUE if the object is of none of the types listed.
+		#
+		#   paTypes    the list of type names
+		#   returns    TRUE or FALSE
+		#   see        IsOneOfTheseTypes
 		#< @FunctionNegativeForm
-
 		def IsNotOneOfTheseTypes(paTypes)
 			return NOT This.IsOneOfTheseTypes(paTypes)
+	# TRUE if the object is of every type listed at once.
+	#
+	#   paTypes    the list of type names, each optionally written :Or = type or :And = type
+	#   returns    TRUE or FALSE
+	#   warning    a value that is not a list raises "Incorrect param type!"
+	#   see        IsOneOfTheseTypes, IsA
 		#>
-
 	def IsEachOneOfTheseTypes(paTypes)
 		if NOT isList(paTypes)
 			StzRaise("Incorrect param type! paTypes must be a list.")
@@ -2581,6 +2841,10 @@ class stzObject
 
 		return _bResult_
 
+	# TRUE if the content is a number or a text.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsStringOrList, IsOneOfTheseTypes
 	def IsNumberOrString()
 		content = This.Content()
 		if isNumber(content) or isString(content)
@@ -2592,6 +2856,10 @@ class stzObject
 		def IsStringOrNumber()
 			return This.IsNumberOrString()
 
+	# TRUE if the content is a text or a list.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsNumberOrString, IsListOrString
 	def IsStringOrList()
 		content = This.Content()
 
@@ -2601,11 +2869,23 @@ class stzObject
 			return 0
 		ok
 
+		# Raises error R4 today instead of telling whether the content is a list or a text.
+		#
+		#   returns    nothing: it raises
+		#   warning    raises "Stack Overflow" (R4): the body calls IsListOrString itself, so it
+		#              never ends; use IsStringOrList
+		#   see        IsStringOrList
 		def IsListOrString()
 			return This.IsListOrString()
 
-	#==
-
+	# Answers FALSE today for every object, even the library's false object.
+	#
+	#   returns    always FALSE in every case tried
+	#   note       compare StzType with stzfalseobject
+	#   warning    the test compares the class name with the misspelling stzFlaseObject, which no
+	#              class has; AFalseObject().IsFalseObject() answers FALSE too
+	#   see        IsTrueObject, IsNullObject
+	#@ aka  ==
 	def IsFalseObject()
 		if This.StzType() = :stzFlaseObject
 			return 1
@@ -2618,6 +2898,13 @@ class stzObject
 		def IsFalseObejct()
 			return This.IsFalseObject()
 
+	# Answers FALSE today for every object, even the library's true object.
+	#
+	#   returns    always FALSE in every case tried
+	#   note       compare StzType with stztrueobject
+	#   warning    the test compares the class name with the misspelling stzFlaseObject, which no
+	#              class has; ATrueObject().IsTrueObject() answers FALSE
+	#   see        IsFalseObject, IsNullObject
 	def IsTrueObject()
 		if This.StzType() = :stzFlaseObject
 			return 1
@@ -2625,6 +2912,11 @@ class stzObject
 			return 0
 		ok
 
+	# TRUE if the object is the library's null object.
+	#
+	#   returns    TRUE or FALSE
+	#   note       ANullObject().IsNullObject() answers TRUE
+	#   see        IsFalseObject, IsTrueObject
 	def IsNullObject()
 		if This.StzType() = :stzNullObject
 			return 1
@@ -2736,8 +3028,12 @@ class stzObject
 			def IsAnXTQRT(pacStr, pcReturnType)
 				return This.IsAXTQRT(pacStr, pcReturnType)
 
-		#-- @FunctionNegativeForm
-
+		# TRUE if the object is none of the kinds listed, with the list given as one value.
+		#
+		#   pacStr     the list of kind words to test, such as [ :Lowercase, :String ]
+		#   returns    TRUE or FALSE
+		#   see        IsA, IsNotAnXT
+		#@ aka  -- @FunctionNegativeForm
 		def IsNotAXT(pacStr)
 			return NOT This.IsAXT(pacStr)
 
@@ -2747,6 +3043,11 @@ class stzObject
 			def IsNotAXTQRT(pacStr, pcReturnType)
 				return NOT This.IsAXTQRT(pacStr, pcReturnType)
 
+		# TRUE if the object is none of the kinds listed, in the article form.
+		#
+		#   pacStr     the list of kind words to test
+		#   returns    TRUE or FALSE
+		#   see        IsNotAXT
 		def IsNotAnXT(pacStr)
 			return NOT This.IsAXT(pacStr)
 
@@ -2756,6 +3057,15 @@ class stzObject
 			def IsNotAnXTQRT(pacStr, pcReturnType)
 				return NOT This.IsAXTQRT(pacStr, pcReturnType)
 
+	# TRUE if the object is of the kind given, or of every kind in the list given.
+	#
+	#   pcType     a kind word such as :String or :Number, or a list of kind words that must all
+	#              hold, such as [ :Lowercase, :Latin, :String ]
+	#   returns    TRUE or FALSE
+	#   note       Q("banana").IsA(:String) is TRUE and Q("Ring").IsA([ :Lowercase, :String ]) is
+	#              FALSE
+	#   warning    on a bare stzObject it raises R24 (uninitialized variable @noname)
+	#   see        Is, IsEitherA, IsOneOfTheseTypes
 	def IsA(pcType)
 		/* Example
 
@@ -2902,8 +3212,12 @@ class stzObject
 
 
 
+	# TRUE if the object is of the kind given, comparing the Softanza class name first and then the kinds IsA knows.
+	#
+	#   pcType     a kind word with or without the stz prefix, such as :StzString or :String
+	#   returns    TRUE or FALSE
+	#   see        IsA, IsStzString
 		#>
-
 	def Is(pcType)
 		# Is(:StzString) et al: match the StzType directly (with or
 		# without the stz prefix), then fall back to IsA.
@@ -2950,6 +3264,13 @@ class stzObject
 
 
 
+	# TRUE if every item of a list is of the plural kind given.
+	#
+	#   pcType     a plural kind word such as :Numbers or :Strings
+	#   returns    TRUE or FALSE
+	#   warning    FALSE for an object that is not a list; a plural nothing can judge raises an
+	#              error saying so
+	#   see        IsA, AreBothA
 	def Are(pcType)
 
 		/* Example
@@ -3013,6 +3334,14 @@ class stzObject
 
 
 
+	# TRUE if the pair held is of the kind given as a whole; it does not test the two items.
+	#
+	#   pcType     a kind word
+	#   returns    TRUE or FALSE
+	#   warning    a list of two items only; any other object answers a false object; [ "a", "b" ]
+	#              is FALSE for :String and TRUE for :List, [ 1, 2 ] is FALSE for :Number and TRUE
+	#              for :List
+	#   see        AreTwo, IsA
 	def AreBothA(pcType)
 
 		if NOT (This.StzType() = "stzlist" and This.NumberOfItems() = 2)
@@ -3109,8 +3438,12 @@ class stzObject
 
 
 
-		#--
-
+		# TRUE if the pair held is of the kind given as a whole, in the other wording of AreBothA.
+		#
+		#   pcType     a kind word
+		#   returns    TRUE or FALSE
+		#   see        AreBothA, IsA
+		#@ aka  --
 		def AreTwo(pcType)
 			return AreBothA(pcType)
 
@@ -3121,8 +3454,11 @@ class stzObject
 
 
 
+	# Returns the object itself unchanged: the relative pronoun of a natural chain, there only to make it read as English.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   see        Only, Exactly, IfSo
 		#>
-
 	def Which()
 		return This
 
@@ -3133,8 +3469,11 @@ class stzObject
 			return This.Which()
 
 
-		#--
-	
+		# Returns the object itself unchanged: the relative pronoun 'that' of a natural chain, with no effect on the object.
+		#
+		#   returns    the object itself, so the chain goes on
+		#   see        Only, Exactly, IfSo
+		#@ aka  --
 		def That()
 			return This
 
@@ -3145,6 +3484,10 @@ class stzObject
 
 
 
+	# Returns the object itself unchanged: the relative clause 'which is' of a natural chain, with no effect on the object.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   see        Only, Exactly, IfSo
 	def WhichIs()
 		return This
 
@@ -3155,8 +3498,11 @@ class stzObject
 
 
 
-		#--
-
+		# Returns the object itself unchanged: the relative clause 'that is' of a natural chain, with no effect on the object.
+		#
+		#   returns    the object itself, so the chain goes on
+		#   see        Only, Exactly, IfSo
+		#@ aka  --
 		def ThatIs()
 			return This
 
@@ -3166,6 +3512,10 @@ class stzObject
 
 
 
+	# Returns the object itself unchanged: the plural relative clause 'which are' of a natural chain, with no effect.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   see        Only, Exactly, IfSo
 	def WhichAre()
 		return This
 
@@ -3175,8 +3525,11 @@ class stzObject
 
 
 
-		#--
-
+		# Returns the object itself unchanged: the plural relative clause 'that are' of a natural chain, with no effect.
+		#
+		#   returns    the object itself, so the chain goes on
+		#   see        Only, Exactly, IfSo
+		#@ aka  --
 		def ThatAre()
 			return This
 
@@ -3186,6 +3539,12 @@ class stzObject
 
 
 
+	# Raises error R24 today instead of checking that the content is a list of exactly two items.
+	#
+	#   returns    nothing: it raises
+	#   warning    raises R24 (uninitialized variable _alist_): the body tests _aList_, a variable
+	#              it never sets, where it meant _aContent_; seen on a list of two numbers
+	#   see        AreBothA, WhichAre
 	def WhichAreBoth()
 		_aContent_ = This.Content()
 		if NOT (isList(_aList_) and len(_aList_) = 2)
@@ -3259,6 +3618,10 @@ class stzObject
 			return This
 		
 
+	# Returns the object itself unchanged: the preposition 'from' of a natural chain, with no effect on the object.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   see        Only, Exactly, IfSo
 	def FromQ()
 		return This
 
@@ -3269,24 +3632,44 @@ class stzObject
 		def FromThemQ()
 			return This
 
+	# Returns the object itself unchanged: the conjunction 'while' of a natural chain, with no effect on the object.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   see        Only, Exactly, IfSo
 	def WhileQ()
 		return This
 
+	# Returns the object itself unchanged: the adverb 'finally' of a natural chain, with no effect on the object.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   see        Only, Exactly, IfSo
 	def FinallyQ()
 		return This
 
 
 
+	# Returns the object itself unchanged: the connector 'and finally' of a natural chain, with no effect on the object.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   see        Only, Exactly, IfSo
 	def AndFinallyQ()
 		return This
 
 
 
+	# Returns the object itself unchanged: the adverb 'then' of a natural chain, with no effect on the object.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   see        Only, Exactly, IfSo
 	def ThenQ()
 		return This
 
 
 
+	# Returns the object itself unchanged: the connector 'and then' of a natural chain, with no effect on the object.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   see        Only, Exactly, IfSo
 	def AndThen()
 		return This
 
@@ -3295,6 +3678,10 @@ class stzObject
 
 
 
+		# Returns the object itself unchanged: the conjunction 'and' of a natural chain, with no effect on the object.
+		#
+		#   returns    the object itself, so the chain goes on
+		#   see        Only, Exactly, IfSo
 		def AndQ()
 			return This
 
@@ -3303,6 +3690,10 @@ class stzObject
 
 
 
+	# Returns the object itself unchanged: the participle 'having' of a natural chain, with no effect on the object.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   see        Only, Exactly, IfSo
 	def Having()
 		return This
 
@@ -3312,8 +3703,11 @@ class stzObject
 
 
 		
-		#--
-
+		# Returns the object itself unchanged: the connector 'and having' of a natural chain, with no effect on the object.
+		#
+		#   returns    the object itself, so the chain goes on
+		#   see        Only, Exactly, IfSo
+		#@ aka  --
 		def AndHaving()
 			return This
 
@@ -3323,12 +3717,20 @@ class stzObject
 
 
 
+	# Returns the object itself unchanged: the preposition 'with' of a natural chain, with no effect on the object.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   see        Only, Exactly, IfSo
 	def With()
 		return This
 
 		def WithQ()
 			return This
 
+		# Returns the object itself unchanged: the words 'with a' of a natural chain, with no effect on the object.
+		#
+		#   returns    the object itself, so the chain goes on
+		#   see        Only, Exactly, IfSo
 		def WithA()
 			return This
 
@@ -3341,6 +3743,12 @@ class stzObject
 
 
 	
+	# Sets the expectation that the next counted noun equals a count exactly, and returns the object so the chain goes on.
+	#
+	#   value      the count expected
+	#   returns    the object itself
+	#   note       Q([ 1, 2, 3 ]).Only(3).ItemNB() answers TRUE and .Only(2) answers FALSE
+	#   see        Exactly, AtLeast, HasN
 	def Only(value)
 		This._NNLSetExpect(value, :Exactly, 0)
 		return This
@@ -3352,18 +3760,26 @@ class stzObject
 
 
 
+	# Returns the object itself unchanged: the indefinite article of a natural chain, with no effect on the object.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   see        Only, Exactly, IfSo
 	def A()
 		return This
 
+		# Returns the object itself unchanged: the indefinite article of a natural chain, in the form that chains, with no effect.
+		#
+		#   returns    the object itself, so the chain goes on
+		#   see        Only, Exactly, IfSo
 		def AQ()
 			return This
 
 
-		#--
-
-
-
-
+	# Returns the object itself unchanged: the possessive 'their' of a natural chain, with no effect on the object.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   see        Only, Exactly, IfSo
+	#@ aka  --
 	def Their()
 		return This
 
@@ -3383,14 +3799,12 @@ class stzObject
 		return This
 
 		
+		# Returns the object itself unchanged: the words 'all their' of a natural chain, with no effect on the object.
+		#
+		#   returns    the object itself, so the chain goes on
+		#   see        Only, Exactly, IfSo
 		#>
-
-
-	
-
-
 		#< @FunctionAlternativeForms
-
 		def AllTheir()
 			return This
 
@@ -3399,6 +3813,10 @@ class stzObject
 
 
 
+		# Returns the object itself unchanged: the possessive 'its' of a natural chain, with no effect on the object.
+		#
+		#   returns    the object itself, so the chain goes on
+		#   see        Only, Exactly, IfSo
 		def Its()
 			return This
 
@@ -3419,6 +3837,10 @@ class stzObject
 	
 
 
+		# Returns the object itself unchanged: the possessive 'his' of a natural chain, with no effect on the object.
+		#
+		#   returns    the object itself, so the chain goes on
+		#   see        Only, Exactly, IfSo
 		def His()
 			return This
 
@@ -3429,6 +3851,10 @@ class stzObject
 	
 
 
+		# Returns the object itself unchanged: the possessive 'her' of a natural chain, with no effect on the object.
+		#
+		#   returns    the object itself, so the chain goes on
+		#   see        Only, Exactly, IfSo
 		def Her()
 			return This
 
@@ -3439,6 +3865,10 @@ class stzObject
 	
 
 
+		# Returns the object itself unchanged: the possessive 'my' of a natural chain, with no effect on the object.
+		#
+		#   returns    the object itself, so the chain goes on
+		#   see        Only, Exactly, IfSo
 		def My()
 			return This
 
@@ -3450,6 +3880,10 @@ class stzObject
 	
 
 
+		# Returns the object itself unchanged: the possessive 'your' of a natural chain, with no effect on the object.
+		#
+		#   returns    the object itself, so the chain goes on
+		#   see        Only, Exactly, IfSo
 		def Your()
 			return This
 
@@ -3461,8 +3895,11 @@ class stzObject
 	
 
 
+	# Returns the object itself unchanged: the word 'as' of a natural chain, with no effect on the object.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   see        Only, Exactly, IfSo
 		#>
-
 	def As()
 		return This
 
@@ -3501,6 +3938,10 @@ class stzObject
 
 
 
+	# Returns the object itself unchanged: the definite article of a natural chain, with no effect on the object.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   see        Only, Exactly, IfSo
 	def The()
 		return This
 
@@ -3510,6 +3951,10 @@ class stzObject
 
 
 
+	# Returns the object itself unchanged: the pronoun 'them' of a natural chain, with no effect on the object.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   see        Only, Exactly, IfSo
 	def Them()
 		return This
 
@@ -3520,6 +3965,10 @@ class stzObject
 		def ThemQ()
 			return This.Them()
 
+	# Returns the object itself unchanged: the pronoun 'me' of a natural chain, with no effect on the object.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   see        Only, Exactly, IfSo
 	def Me()
 		return This
 
@@ -3530,6 +3979,10 @@ class stzObject
 
 
 
+	# Returns the object itself unchanged: the possessive 'mine' of a natural chain, with no effect on the object.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   see        Only, Exactly, IfSo
 	def Mine()
 		return This
 
@@ -3540,6 +3993,10 @@ class stzObject
 
 
 
+	# Returns the object itself unchanged: the pronoun 'it' of a natural chain, with no effect on the object.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   see        Only, Exactly, IfSo
 	def It()
 		return This
 
@@ -3560,6 +4017,10 @@ class stzObject
 
 
 
+	# Returns the object itself unchanged: the pronoun 'you' of a natural chain, with no effect on the object.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   see        Only, Exactly, IfSo
 	def You()
 		return This
 
@@ -3570,6 +4031,10 @@ class stzObject
 
 
 
+	# Returns the object itself unchanged: the possessive 'yours' of a natural chain, with no effect on the object.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   see        Only, Exactly, IfSo
 	def Yours()
 		return This
 
@@ -3580,6 +4045,10 @@ class stzObject
 
 
 
+	# Returns the object itself unchanged: the pronoun 'him' of a natural chain, with no effect on the object.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   see        Only, Exactly, IfSo
 	def Him()
 		return This
 
@@ -3591,6 +4060,10 @@ class stzObject
 		def HimQ()
 			return This.Him()
 
+	# Returns the object itself unchanged: the verb 'has' of a natural chain, with no effect on the object.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   see        Only, Exactly, IfSo
 	def Has()
 		return This
 
@@ -3601,6 +4074,10 @@ class stzObject
 
 
 
+	# Returns the object itself unchanged: the words 'has a' of a natural chain, with no effect on the object.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   see        Only, Exactly, IfSo
 	def HasA()
 		return This
 
@@ -3611,6 +4088,12 @@ class stzObject
 
 
 
+	# Sets the expectation that the next counted noun equals a count exactly, in the form 'has n'.
+	#
+	#   _n_        the count expected
+	#   returns    the object itself
+	#   warning    a count that is not a number raises 'Incorrect param type! n must be a number.'
+	#   see        Only, Exactly
 	def HasN(_n_)
 		if CheckingParams()
 			if NOT isNumber(_n_)
@@ -3670,9 +4153,24 @@ class stzObject
 
 
 
+	# TRUE if the content equals the value given.
+	#
+	#   _n_        the value to compare the content with
+	#   returns    TRUE or FALSE
+	#   note       Q(8).Of(8) is TRUE, Q(8).Of(5) is FALSE and Q("ab").Of("cd") is FALSE
+	#   warning    a stzString compared with a number ends the Ring process at once, with no
+	#              message: Q("ab").Of(5) prints nothing and never returns
+	#   see        OfCS, OfQ, IsEqualToCS
 	def Of(_n_)
 		return This.OfCS(_n_, 1)
 
+		# Raises error R14 today instead of comparing and keeping the main object of the chain.
+		#
+		#   _n_        the value to compare with
+		#   returns    nothing: it raises
+		#   warning    raises R14 (calling method without definition: ofcsm), the method it forwards
+		#              to
+		#   see        Of, OfQ
 		def OfM(_n_)
 			return This.OfCSM(_n_, 1)
 
@@ -3703,6 +4201,13 @@ class stzObject
 	def OfXT(_n_, cIgnored)
 		return This.OfCS(_n_, 1)
 
+		# Raises error R14 today instead of comparing, ignoring a filler word, and keeping the main object.
+		#
+		#   _n_        the value to compare with
+		#   cIgnored   a filler word that is not used
+		#   returns    nothing: it raises
+		#   warning    raises R14 (calling method without definition: ofcsm)
+		#   see        OfXT, OfQ
 		def OfXTM(_n_, cIgnored)
 			return This.OfCSM(_n_, 1)
 
@@ -3712,8 +4217,15 @@ class stzObject
 
 
 
-	#==
-
+	# TRUE if the value given equals the last value remembered with SetLastValue, with a case dial.
+	#
+	#   _n_              the value to compare
+	#   pCaseSensitive   1 to compare with case, 0 to ignore case
+	#   returns          TRUE or FALSE
+	#   note             after SetLastValue(8), Q(8).OfCSB(8, 1) is TRUE
+	#   warning          with nothing remembered the answer is FALSE
+	#   see              Of, OfCSBQ, OfBQ
+	#@ aka  ==
 	def OfCSB(_n_, pCaseSensitive)
 		if Q(_n_).IsEqualToCS(LastValue(), pCaseSensitive)
 			
@@ -3735,27 +4247,70 @@ class stzObject
 
 
 
+	# Raises error R14 today instead of comparing to the last value and keeping the main object.
+	#
+	#   _n_        the value to compare with
+	#   returns    nothing: it raises
+	#   warning    raises R14 (calling method without definition: ofcsbm), the method it forwards
+	#              to; its body also passes a pCaseSensitive it does not declare
+	#   see        OfCSB, OfBQ
 	def OfBM(_n_)
 		return This.OfCSBM(_n_, pCaseSensitive)
 
 
+		# Raises error R14 today instead of comparing to the last value and keeping the main object.
+		#
+		#   _n_        the value to compare with
+		#   returns    nothing: it raises
+		#   warning    raises R14 (calling method without definition: ofcsmb)
+		#   see        OfCSB, OfBQ
 		def OfMB(_n_)
 			return This.OfCSMB(_n_, 1)
 
+		# Returns the object when the value given equals the last value remembered, and a false object otherwise.
+		#
+		#   _n_        the value to compare with the last value
+		#   returns    the object itself, or a false object
+		#   warning    after SetLastValue(8): Q(8).OfBQ(8) answers the stzNumber, Q(8).OfBQ(7) a
+		#              stzFalseObject
+		#   see        OfCSB, Of
 		def OfBQ(_n_)
 			return This.OfCSBQ(_n_, 1)
 
 
 
-	#==
-
+	# Raises error R24 today instead of comparing to the last value while ignoring a filler word.
+	#
+	#   _n_              the value to compare with
+	#   cIgnored         a filler word that is not used
+	#   pCaseSensitive   1 to compare with case, 0 to ignore case
+	#   returns          nothing: it raises
+	#   warning          raises R24 (uninitialized variable c): the body passes c instead of _n_
+	#   see              OfCSB
+	#@ aka  ==
 	def OfXTCSB(_n_, cIgnored, pCaseSensitive)
 		return This.OfCSB(c, pCaseSensitive)
 
+		# Raises error R14 today instead of comparing to the last value and keeping the main object.
+		#
+		#   _n_              the value to compare with
+		#   cIgnored         a filler word that is not used
+		#   pCaseSensitive   1 to compare with case, 0 to ignore case
+		#   returns          nothing: it raises
+		#   warning          raises R14 (calling method without definition: ofcsbm)
+		#   see              OfCSB
 		def OfXTCSBM(_n_, cIgnored, pCaseSensitive)
 			return This.OfCSBM(_n_, pCaseSensitive)
 
 
+		# Raises error R14 today instead of comparing to the last value and keeping the main object.
+		#
+		#   _n_              the value to compare with
+		#   cIgnored         a filler word that is not used
+		#   pCaseSensitive   1 to compare with case, 0 to ignore case
+		#   returns          nothing: it raises
+		#   warning          raises R14 (calling method without definition: ofcsmb)
+		#   see              OfCSB
 		def OfXTCSMB(_n_, cIgnored, pCaseSensitive)
 			return This.OfCSMB(_n_, pCaseSensitive)
 
@@ -3764,20 +4319,48 @@ class stzObject
 
 
 
+	# Raises error R24 today instead of comparing to the last value and keeping the main object.
+	#
+	#   _n_        the value to compare with
+	#   returns    nothing: it raises
+	#   warning    raises R24 (uninitialized variable cignored): the body uses a parameter it does
+	#              not declare
+	#   see        OfCSB
 	def OfXTBM(_n_)
 		return This.OfXTCSB(_n_, cIgnored, 1)
 
 
+		# Raises error R19 today instead of comparing to the last value and keeping the main object.
+		#
+		#   _n_        the value to compare with
+		#   returns    nothing: it raises
+		#   warning    raises R19 (fewer parameters than required): it calls OfXTCSMB with two
+		#              arguments and that method wants three
+		#   see        OfCSB
 		def OfXTMB(_n_)
 			return This.OfXTCSMB(_n_, 1)
 
+		# Raises error R19 today instead of returning the object when the last value equals the one given.
+		#
+		#   _n_        the value to compare with
+		#   returns    nothing: it raises
+		#   warning    raises R19 (fewer parameters than required): it calls OfXTCSBQ with two
+		#              arguments
+		#   see        OfBQ, OfCSB
 		def OfXTBQ(_n_)
 			return This.OfXTCSBQ(_n_, 1)
 
 
 
-	#==
-
+	# TRUE if the object is of the first kind or of the second kind.
+	#
+	#   pcType1    the first kind word, such as :Number
+	#   pcType2    the second kind word, optionally written :Or = kind
+	#   returns    TRUE or FALSE
+	#   note       Q("banana") IsEitherA(:Number, :String) is TRUE and (:Number, :List) is FALSE
+	#   warning    a value that is not a text raises "Incorrect param type!"
+	#   see        IsNeitherA, IsA, IsEither
+	#@ aka  ==
 	def IsEitherA(pcType1, pcType2)
 		if isList(pcType2) and IsOrNamedParamList(pcType2)
 			pcType2 = pcType2[2]
@@ -3811,8 +4394,15 @@ class stzObject
 		def AreEitherBothAn(pcType1, pcType2)
 			return This.IsEitherA(pcType1, pcType2)
 
+	# TRUE if the object is of neither of the two kinds.
+	#
+	#   pcType1    the first kind word
+	#   pcType2    the second kind word, optionally written :Nor = kind
+	#   returns    TRUE or FALSE
+	#   note       Q("banana") IsNeitherA(:Number, :List) is TRUE
+	#   warning    a value that is not a text raises "Incorrect param type!"
+	#   see        IsEitherA, IsA
 		#>
-
 	def IsNeitherA(pcType1, pcType2)
 		if isList(pcType2) and IsNorNamedParamList(pcType2)
 			pcType2 = pcType2[2]
@@ -3853,6 +4443,14 @@ class stzObject
 	 #  CHECKING OBJECT VALUE  #
 	#-------------------------#
 
+	# TRUE if the content equals the first value or the second value.
+	#
+	#   pValue1    the first value
+	#   pValue2    the second value, optionally written :Or = value
+	#   returns    TRUE or FALSE
+	#   note       Q(12345) IsEither(12345, 2) is TRUE and Q("banana") IsEither("y", "x") is FALSE
+	#   warning    strings, numbers and lists are compared by value, a list through its printed form
+	#   see        IsEitherA, IsOneOfThese
 	def IsEither(pValue1, pValue2)
 		if isList(pValue2) and IsOrNamedParamList(pValue2)
 			pValue2 = pValue2[2]
@@ -3900,34 +4498,53 @@ class stzObject
 		def AreBothEither(pValue1, pValue2)
 			return This.IsEither(pValue1, pValue2)
 
+	# TRUE if the value is an object of the library, as every instance of every class is.
+	#
+	#   returns    always TRUE
+	#   see        IsAObject, IsAString
 		#>
-
-	#--
-
+	#@ aka  --
 	def IsAnObject()
 		return 1
 
+		# TRUE if the value is an object of the library, in the spelling without n.
+		#
+		#   returns    always TRUE
+		#   see        IsAnObject
 		def IsAObject()
 			return 1
 
+	# TRUE if the content is a number; a bare stzObject answers FALSE and stzNumber answers for itself.
+	#
+	#   returns    TRUE or FALSE
+	#   warning    on a bare stzObject the answer is FALSE whatever it wraps
+	#   see        IsAString, IsAList, IsAnObject
 	def IsANumber()
 		return 0
 
+	# TRUE if the content is a text; a bare stzObject answers FALSE and stzString answers for itself.
+	#
+	#   returns    TRUE or FALSE
+	#   warning    on a bare stzObject the answer is FALSE whatever it wraps
+	#   see        IsANumber, IsAList, IsAnObject
 	def IsAString()
 		return 0
 
+	# TRUE if the content is a list; a bare stzObject answers FALSE and stzList answers for itself.
+	#
+	#   returns    TRUE or FALSE
+	#   warning    on a bare stzObject the answer is FALSE whatever it wraps
+	#   see        IsAString, IsANumber, IsAnObject
 	def IsAList()
 		return 0
 
-	# IsStzType: when Content() is a string, answer "is this string the
-	# name of a registered Softanza class?". Used by the return-type
-	# routing in stzNumber.MultiplesUntilQRT etc. -- the user passes
-	# :stzList / :stzListOfNumbers as the return type and the dispatch
-	# validates it via Q(name).IsStzType().
+	# TRUE if the content is a text that names a class of the library, whatever the case.
 	#
-	# The recognised set covers every public Stz... class the library
-	# ships. Names are matched case-insensitively to spare callers
-	# the exact-casing burden.
+	#   returns    TRUE or FALSE; FALSE when the content is not a text
+	#   note       Q("stzList").IsStzType() is TRUE and Q("hello").IsStzType() is FALSE; the test is
+	#              on the content, not on the class of the object itself
+	#   see        StzType, HasSameStzTypeAs
+	#@ aka  IsStzType: when Content() is a string, answer "is this string the name of a registered Softanza class?". Used by the return-type routing in stzNumber.MultiplesUntilQRT etc. -- the user passes :stzList / :stzListOfNumbers as the return type and the dispatch validates it via Q(name).IsStzType().
 	def IsStzType()
 		_cIstContent_ = This.Content()
 		if NOT isString(_cIstContent_)
@@ -3967,6 +4584,13 @@ class stzObject
 	 #  REPEATING THE OBJECT VALUE N TIMES  #
 	#======================================#
 
+	# Returns a list holding the content several times.
+	#
+	#   _n_        how many times, or the pair [ n, :Times ]
+	#   returns    a list of the content repeated n times
+	#   note       a stzString has its own Repeat; this one serves numbers and bare objects:
+	#              Q(7).Repeat(2) answers [ 7, 7 ]
+	#   see        Repeat3Times, RepeatInPair
 	def Repeat(_n_)
 
 		if isList(_n_) and len(_n_) = 2 and
@@ -4042,6 +4666,12 @@ class stzObject
 	 #  REPEATING THE OBJECT VALUE 3 TIMES  #
 	#--------------------------------------#
 
+	# Returns a list holding the content three times.
+	#
+	#   returns    a list of three copies
+	#   note       Q(5).Repeat3Times() answers [ 5, 5, 5 ] and Q([ 1 ]).Repeat3Times() answers [ [ 1
+	#              ], [ 1 ], [ 1 ] ]
+	#   see        Repeat, RepeatInPair
 	def Repeat3Times()
 		return This.RepeatNTimes(3)
 
@@ -4289,6 +4919,11 @@ class stzObject
 	 #  REPEATING THE OBJECT VALUE IN A PAIR  #
 	#----------------------------------------#
 
+	# Returns a list holding the content twice.
+	#
+	#   returns    a list of two copies
+	#   note       Q([ 1 ]).RepeatInPair() answers [ [ 1 ], [ 1 ] ]
+	#   see        Repeat, Repeat3Times
 	def RepeatInPair()
 		return This.RepeatXT(:InA = :List, :OfSize = 2)
 
@@ -4326,6 +4961,15 @@ class stzObject
 	 #  CASTING THE OBJECT VALUE INTO A NUMBER  #
 	#==========================================#
 
+	# Returns the content as a number: a number as it is, a text read as a number.
+	#
+	#   returns    a number
+	#   note       Q("12.5").ToNumber() answers 12.50
+	#   warning    a text that is not a well formed number raises "Incorrect value!"; digit groups
+	#              written with underscores such as "1_250" are refused too, although the code
+	#              strips the underscores after checking; a list raises "Can't cast the object into
+	#              a number."
+	#   see        Numberified, ToStzNumber
 	def ToNumber()
 		if This.IsANumber()
 			return This.NumericValue()
@@ -4343,6 +4987,16 @@ class stzObject
 			StzRaise("Can't cast the object into a number.")
 		ok
 
+	# Returns the content as a number, or as a list of numbers when the content is a list of numbers and numeric texts.
+	#
+	#   returns    a number, or a list of numbers
+	#   note       Q("12").Numberified() answers 12 and Q([ 1, "2", 3 ]).Numberified() answers [ 1,
+	#              2, 3 ]
+	#   warning    raises R14 (calling method without definition: isnumberinstring) on a stzNumber,
+	#              seen with 42 and 7.5; a text that is not a number raises "Incorrect value!"; a
+	#              list holding a non-numeric text raises R41; a bare stzObject raises "Objects
+	#              can't be numberified."
+	#   see        ToNumber
 	def Numberified()
 		# Detect actual underlying content type rather than relying on
 		# the IsA{Number,String,List} dispatch -- those return 0 in the
@@ -4565,10 +5219,17 @@ class stzObject
 		def NFirstOccurrencesCS(_n_, pStrOrItem, pCaseSensitive)
 			return This.FindFirstNOccurrencesCS(_n_, pStrOrItem, pCaseSensitive)
 
+	# Returns the positions of the first n occurrences of an item in the content, scanning from the start.
+	#
+	#   _n_          how many occurrences to find
+	#   pStrOrItem   the text or item to look for
+	#   returns      a list of positions
+	#   note         Q("banana").FindFirstNOccurrences(2, "a") answers [ 2, 4 ] and on [ 1, 2, 1, 2,
+	#                1 ] for 1 answers [ 1, 3 ]
+	#   warning      asking for more than exist returns all of them
+	#   see          FindLastNOccurrences
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindFirstNOccurrences(_n_, pStrOrItem)
 		return This.FindFirstNOccurrencesCS(_n_, pStrOrItem, 1)
 
@@ -4767,10 +5428,17 @@ class stzObject
 		def NLastOccurrencesCS(_n_, pStrOrItem, pCaseSensitive)
 			return This.FindLastNOccurrencesCS(_n_, pStrOrItem, pCaseSensitive)
 
+	# Returns the positions of the last n occurrences of an item in the content, scanning from the end.
+	#
+	#   _n_          how many occurrences to find
+	#   pStrOrItem   the text or item to look for
+	#   returns      a list of positions, in increasing order
+	#   note         Q("banana").FindLastNOccurrences(2, "a") answers [ 4, 6 ] and on [ 1, 2, 1, 2,
+	#                1 ] for 1 answers [ 3, 5 ]
+	#   warning      asking for more than exist returns all of them
+	#   see          FindFirstNOccurrences
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindLastNOccurrences(_n_, pStrOrItem)
 		return This.FindLastNOccurrencesCS(_n_, pStrOrItem, 1)
 
@@ -4925,36 +5593,89 @@ class stzObject
 	 #   MISC.   #
 	#===========#
 
+	# TRUE if the object is one of the values in a list.
+	#
+	#   paList     the list to look in
+	#   returns    TRUE or FALSE
+	#   note       Q("banana").IsOneOfThese([ "a", "banana" ]) is TRUE
+	#   warning    on a bare stzObject it answers FALSE even when the object itself is in the list
+	#   see        IsNotOneOfThese, ExistsIn
 	def IsOneOfThese(paList)
 		return ListContains(paList, This.Object())
 
+		# TRUE if the object is none of the values in a list.
+		#
+		#   paList     the list to look in
+		#   returns    TRUE or FALSE
+		#   see        IsOneOfThese
 		def IsNotOneOfThese(paList)
 			return NOT This.IsOneOfThese(paList)
 
+	# Returns the names of all the methods the object has, those of every ancestor included.
+	#
+	#   returns    a list of texts
+	#   note       a stzString has over five thousand of them
+	#   see        NumberOfMethods, Attributes
 	def Methods()
 		return ring_methods(This)
 
+	# Returns how many methods the object has, those inherited included.
+	#
+	#   returns    a number
+	#   see        Methods, CountMethods
 	def NumberOfMethods()
 		return len(ring_methods(This))
 
+		# Returns how many methods the object has, in the counting wording.
+		#
+		#   returns    a number
+		#   see        NumberOfMethods, Methods
 		def CountMethods()
 			return len(ring_methods(This))
 
+		# Returns how many methods the object has, in the question wording.
+		#
+		#   returns    a number
+		#   see        NumberOfMethods, Methods
 		def HowManyMethods()
 			return len(ring_methods(This))
 
+	# Returns the names of the object's attributes, in lower case.
+	#
+	#   returns    a list of texts, @content first
+	#   note       a bare stzObject has 18 and a stzString 22
+	#   see        NumberOfAttribytes, Methods, Values
 	def Attributes()
 		return ring_attributes(This)
 
+	# Returns how many attributes the object has.
+	#
+	#   returns    a number
+	#   warning    the name carries a misspelling (Attribytes), kept for compatibility
+	#   see        Attributes, CountAttributes
 	def NumberOfAttribytes()
 		return len(ring_attributes(This))
 
+		# Returns how many attributes the object has, in the counting wording.
+		#
+		#   returns    a number
+		#   see        Attributes, NumberOfAttribytes
 		def CountAttributes()
 			return len(ring_attributes(This))
 
+		# Returns how many attributes the object has, in the question wording.
+		#
+		#   returns    a number
+		#   see        Attributes, NumberOfAttribytes
 		def HowManyAttributes()
 			return len(ring_attributes(This))
 
+	# Returns the text stzobject for every object, whatever its real class.
+	#
+	#   returns    the text stzobject
+	#   warning    a stzString answers stzobject too: use classname(o) for the true class name, or
+	#              StzType()
+	#   see        StzType
 	def ClassName()
 		return "stzobject"
 
@@ -4964,13 +5685,31 @@ class stzObject
 		def StzClass()
 			return This.ClassName()
 
+	# Answers FALSE today for every object tried, a stzString holding text included.
+	#
+	#   returns    always FALSE in every case tried
+	#   warning    FALSE for Q("banana") and for a bare stzObject; use IsAString for the question it
+	#              seems to ask
+	#   see        IsAString
 	def IsText()
 		return 0
 
+	# Raises an error today instead of returning a pointer to the object.
+	#
+	#   returns    nothing: it raises
+	#   warning    raises "Bad parameter type!" on a stzString and R21 (operator with incorrect
+	#              type) on a stzList and on a bare stzObject, although the Ring built-in
+	#              object2pointer(o) answers a pointer for the same object
+	#   see        Copy
 	def ToPointer()
 		return object2pointer(This.Object())
 		
 
+	# Returns a list holding the content two times.
+	#
+	#   returns    a list of two copies of the content
+	#   note       Q([ 1, 2, 3 ]).Twice() answers [ [ 1, 2, 3 ], [ 1, 2, 3 ] ]
+	#   see        RepeatInPair, Repeat
 	def Twice()
 		_aResult_ = [] + This.Content() + This.Content()
 		return _aResult_
@@ -4978,9 +5717,21 @@ class stzObject
 		func TwiceQ()
 			return This
 
+	# Returns the object itself unchanged: the words 'the letter' of a natural chain, whatever letter is named.
+	#
+	#   c          the letter named
+	#   returns    the object itself, so the chain goes on
+	#   see        TheNth
 	def TheLetterQ(c)
 		return This
 
+	# Returns the object when the condition, given as text, holds.
+	#
+	#   pcCondition   a Ring expression as text, such as "1 = 1"
+	#   returns       the object itself
+	#   warning       when the condition is false the call raises "Bad parameter type!" instead of
+	#                 answering a false object
+	#   see           IfSo
 	def IfQ(pcCondition)
 		if NOT isString(pcCondition)
 			StzRaise("Incorrect param type!")
@@ -4996,6 +5747,12 @@ class stzObject
 			#--> Error (R13) : Object is required 
 		ok
 
+	# TRUE if the content is a list holding exactly one item.
+	#
+	#   returns    TRUE or FALSE
+	#   warning    this version answers FALSE for a text, since a text is not a list; a stzList has
+	#              its own and answers TRUE for [ 1 ]
+	#   see        IsAList
 	def IsSingle()
 		if This.IsAList() and This.Size() = 1
 			return 1
@@ -5003,8 +5760,16 @@ class stzObject
 			return 0
 		ok
 
-	# Swapping the content of the stzObject with an other stzObject
-
+	# Exchanges the content of the object with that of another object of the same kind.
+	#
+	#   pOtherStzObject   the other object, which must be a stzObject
+	#   returns           nothing
+	#   note              between two stzString: Q("abc") and Q("xyz") hold xyz and abc afterwards
+	#   warning           on a bare stzObject it raises R14 (calling method without definition:
+	#                     updatewith); a value that is not an object raises "Incorrect param type!";
+	#                     a stzNumber refuses a text with its own message
+	#   see               SwapContentWith, UpdateWith
+	#@ aka  Swapping the content of the stzObject with an other stzObject
 	def SwapWith(pOtherStzObject)
 
 		if CheckingParams()
@@ -5025,12 +5790,25 @@ class stzObject
 			This.SwapWith(pOtherStzObject)
 			return This
 
+		# Exchanges the content of the object with that of another object, in the longer wording.
+		#
+		#   pOtherStzObject   the other object, which must be a stzObject
+		#   returns           nothing
+		#   note              same as SwapWith
+		#   see               SwapWith
 		def SwapContentWith(pOtherStzObject)
 			This.SwapWith(pOtherStzObject)
 
 			def SwapContentWithQ(pOtherStzObject)
 				return This.SwapWithQ(pOtherStzObject)
 
+	# TRUE if the object is of neither of the two kinds named, judged through the Softanza class names.
+	#
+	#   pcType1    the first kind word, or the pair [ :Of = kind ]
+	#   pcType2    the second kind word, or the pair [ :Nor = kind ]
+	#   returns    TRUE or FALSE
+	#   warning    Q("banana").@IsNeither(:Number, :List) is TRUE and (:Number, :String) is FALSE
+	#   see        IsNeitherA
 	def @IsNeither(pcType1, pcType2)
 		if CheckingParams()
 			if isList(pcType1) and IsOfTypeNamedParamList(pcType1)
@@ -5092,6 +5870,12 @@ class stzObject
 		def @IsNeitheOfType(pcType1, pcType2)
 			return This.IsNeither(pcType1, pcType2)
 
+	# Runs an empty loop the number of times given.
+	#
+	#   _n_        how many times to loop
+	#   returns    nothing
+	#   warning    the loop body is empty: it does nothing but take time
+	#   see        Repeat
 	def LoopNTimes(_n_)
 		for @i = 1 to _n_
 			// Do nothing
@@ -5105,15 +5889,35 @@ class stzObject
 	 #  CASTING THE oBJECT INTO AN OTHER STZ TYPE  #
 	#=============================================#
 
+	# Returns the content wrapped in a new stzChar.
+	#
+	#   returns    a stzChar
+	#   see        ToStzString, ToStzNumber, ToStzList
 	def ToStzChar()
 		return new stzChar(This.Content())
 
+	# Returns the content wrapped in a new stzString.
+	#
+	#   returns    a stzString
+	#   warning    Q(12).ToStzString().Content() answers 12
+	#   see        ToStzChar, ToStzNumber, ToStzList
 	def ToStzString()
 		return new stzString(This.Content())
 
+	# Returns the content wrapped in a new stzNumber.
+	#
+	#   returns    a stzNumber
+	#   warning    Q("12").ToStzNumber() works on a text of digits
+	#   see        ToStzString, ToStzList
 	def ToStzNumber()
 		return new stzNumber(This.Content())
 
+	# Returns the content wrapped in a new stzList.
+	#
+	#   returns    a stzList
+	#   warning    a content that is not a list raises "Can't create the stzList object! paList must
+	#              be a list."
+	#   see        ToStzString, ToStzNumber
 	def ToStzList()
 		return new stzList(This.Content())
 
@@ -5214,10 +6018,20 @@ class stzObject
 		def OccuresCS(pcBeforeOrAfter, pIn, pCaseSensitive)
 			return This.OccursCS(pcBeforeOrAfter, pIn, pCaseSensitive)
 
+	# TRUE if the content comes before, or after, another value inside a text or a list.
+	#
+	#   pcBeforeOrAfter   the named pair :Before = value or :After = value
+	#   pIn               the text or list to look in, or the named pair :In = text
+	#   returns           TRUE or FALSE
+	#   note              Q("ONE").Occurs(:Before = "TWO", :In = "***ONE***TWO***") is TRUE and with
+	#                     :After it is FALSE; the same holds for a list of texts
+	#   warning           the position must be given as a named pair: the positional form
+	#                     Occurs(:After, "banana") raises R24 (uninitialized variable _ctemp_); a
+	#                     place to look in that is neither a text nor a list raises "Incorrect param
+	#                     type!"
+	#   see               OccursBefore, OccursAfter, OccursBetween
 		#>
-
-	#-- WITHOUT CASESENSITIVTY
-
+	#@ aka  -- WITHOUT CASESENSITIVTY
 	def Occurs(pcBeforeOrAfter, pIn)
 		return This.OccursCS(pcBeforeOrAfter, pIn, 1)
 
@@ -5246,8 +6060,15 @@ class stzObject
 	def OccursBeforeCS( pcSubStr, pIn, pCaseSensitive )
 		return This.OccursCS( :Before = pcSubStr, pIn, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVTY
-
+	# TRUE if the content first appears before another value inside a text or a list.
+	#
+	#   pcSubStr   the value that must come later
+	#   pIn        the text or list to look in
+	#   returns    TRUE or FALSE
+	#   note       Q("b").OccursBefore("a", "banana") is TRUE and Q("n").OccursBefore("b", "banana")
+	#              is FALSE
+	#   see        Occurs, OccursAfter, OccursBetween
+	#@ aka  -- WITHOUT CASESENSITIVTY
 	def OccursBefore(pcSubStr, pIn)
 		return This.OccursBeforeCS( pcSubStr, pIn, 1 )
 
@@ -5259,8 +6080,14 @@ class stzObject
 	def OccursAfterCS( pcSubStr, pIn, pCaseSensitive )
 		return This.OccursCS( :After = pcSubStr, pIn, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVTY
-
+	# TRUE if the content first appears after another value inside a text or a list.
+	#
+	#   pcSubStr   the value that must come earlier
+	#   pIn        the text or list to look in
+	#   returns    TRUE or FALSE
+	#   note       Q("n").OccursAfter("b", "banana") is TRUE
+	#   see        Occurs, OccursBefore, OccursBetween
+	#@ aka  -- WITHOUT CASESENSITIVTY
 	def OccursAfter(pcSubStr, pIn)
 		return This.OccursAfterCS( pcSubStr, pIn, 1 )
 
@@ -5279,8 +6106,17 @@ class stzObject
 			return 0
 		ok
 
-	#-- WITHOUT CASESENSITIVTY
-
+	# TRUE if the content first appears between two other values inside a text or a list.
+	#
+	#   pValue1    the value that must come first
+	#   pValue2    the value that must come last
+	#   pIn        the text or list to look in
+	#   returns    TRUE or FALSE
+	#   note       Q("n").OccursBetween("b", "z", "bnza") is TRUE and with "bzna" it is FALSE; on a
+	#              stzNumber the number is compared as text, so Q(2).OccursBetween(1, 3, [ 1, 2, 3
+	#              ]) is FALSE
+	#   see        OccursBefore, OccursAfter
+	#@ aka  -- WITHOUT CASESENSITIVTY
 	def OccursBetween( pValue1, pValue2, pIn )
 		return This.OccursBetweenCS( pValue1, pValue2, pIn, 1 )
 
@@ -5336,8 +6172,16 @@ class stzObject
 
 		return _bResult_
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# TRUE if the content appears in a text or a list exactly n times.
+	#
+	#   _n_        the number of occurrences expected
+	#   pIn        the text or list to look in, or the named pair :In = text
+	#   returns    TRUE or FALSE
+	#   note       Q("an").OccursNTimes(2, "banana") is TRUE and with 3 it is FALSE
+	#   warning    on a stzNumber the number is compared as text and a list of numbers never
+	#              matches: Q(2).OccursNTimes(2, [ 1, 2, 3, 2 ]) is FALSE
+	#   see        OccursBefore, Occurs
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def OccursNTimes( _n_, pIn )
 		return This.OccursNTimesCS( _n_, pIn, 1 )
 
@@ -5415,10 +6259,17 @@ class stzObject
 		def OccursForTheNthTimeAtCS(_n_, pIn, pnAt, pCaseSensitive)
 			return This.OccursForTheNthTimeCS(_n_, pIn, pnAt, pCaseSensitive)
 
+	# Raises error R14 today instead of telling whether the content is the nth occurrence at a given position.
+	#
+	#   _n_        which occurrence is meant
+	#   pIn        the text or list to look in
+	#   pnAt       the position the occurrence must be at
+	#   returns    nothing: it raises
+	#   warning    raises R14: calling method without definition: nthoccurrencecs on a text and
+	#              nthoccurrence on a list; seen on both with the same call
+	#   see        OccursForTheFirstTime, OccursNTimes
 		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def OccursForTheNthTime(_n_, pIn, pnAt)
 		return This.OccursForTheNthTimeCS(_n_, pIn, pnAt, 1)
 
@@ -5440,8 +6291,15 @@ class stzObject
 		def OccursForTheFirstTimeAtCS(pIn, pnAt, pCaseSensitive)
 			return This.OccursForTheFirstTimeCS(pIn, pnAt, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Raises error R14 today instead of telling whether the content first appears at a given position.
+	#
+	#   pIn        the text or list to look in
+	#   pnAt       the position the first occurrence must be at
+	#   returns    nothing: it raises
+	#   warning    raises R14 (calling method without definition: nthoccurrencecs on a text,
+	#              nthoccurrence on a list)
+	#   see        OccursForTheNthTime, OccursForTheLastTime
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def OccursForTheFirstTime(pIn, pnAt)
 		return This.OccursForTheFirstTimeCS(pIn, pnAt, 1)
 
@@ -5467,8 +6325,15 @@ class stzObject
 		def OccursForTheLastTimeAtCS(pIn, pnAt, pCaseSensitive)
 			return This.OccursForTheLastTimeCS(pIn, pnAt, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Raises error R14 today instead of telling whether the content last appears at a given position.
+	#
+	#   pIn        the text or list to look in
+	#   pnAt       the position the last occurrence must be at
+	#   returns    nothing: it raises
+	#   warning    raises R14 (calling method without definition: nthoccurrencecs on a text,
+	#              nthoccurrence on a list)
+	#   see        OccursForTheNthTime, OccursForTheFirstTime
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def OccursForTheLastTime(pIn, pnAt)
 		return This.OccursForTheLastTimeCS(pIn, pnAt, 1)
 
@@ -5479,6 +6344,11 @@ class stzObject
 	 #  GETTING THE SIZE OF THE OBJECT ~> THE SIZE OF ITS CONTENT()  #
 	#---------------------------------------------------------------#
 
+	# Returns the length of the content: its characters for a text, its items for a list, its digits for a number.
+	#
+	#   returns    a number; 0 for a bare stzObject, whose content is an object
+	#   note       Q("banana").Size() is 6, Q([ 1, 2, 3 ]).Size() is 3 and Q(12345).Size() is 5
+	#   see        SizeInBytes, ContentSize
 	def Size()
 		_aContent_ = This.Content()
 		_nResult_ = 0
@@ -5496,6 +6366,12 @@ class stzObject
 
 		return _nResult_
 
+	# Returns the memory taken by the object's attributes together, in bytes, on this machine's build.
+	#
+	#   returns    a number
+	#   note       a bare stzObject holding a stzString measures 1968 bytes
+	#   warning    a stzString has its own and answers the byte length of its text
+	#   see        SizeInBytes32, SizeInBytes64, ContentSize
 	def SizeInBytes()
 		_aValues_ = []
 		_acAttributes_ = ring_attributes(This)
@@ -5536,8 +6412,12 @@ class stzObject
 		def MSizeInBytes()
 			return This.SizeInBytes()
 
+	# Returns the memory taken by the object's attributes together, in bytes, as a 32-bit build counts it.
+	#
+	#   returns    a number
+	#   note       a bare stzObject holding a stzString measures 1504
+	#   see        SizeInBytes, SizeInBytes64
 		#>
-
 	def SizeInBytes32()
 		_aValues_ = []
 		_acAttributes_ = ring_attributes(This)
@@ -5570,8 +6450,12 @@ class stzObject
 		def MSizeInBytes32()
 			return This.SizeInBytes32()
 
+	# Returns the memory taken by the object's attributes together, in bytes, as a 64-bit build counts it.
+	#
+	#   returns    a number
+	#   note       a bare stzObject holding a stzString measures 1968
+	#   see        SizeInBytes, SizeInBytes32
 		#>
-
 	def SizeInBytes64()
 		_aValues_ = []
 		_acAttributes_ = ring_attributes(This)
@@ -5637,8 +6521,13 @@ class stzObject
 		def MSizeInBytesXT()
 			return This.SizeInBytesXT()
 
+	# Raises error R3 today instead of returning the extended 32-bit memory size.
+	#
+	#   returns    nothing: it raises
+	#   warning    raises R3 (calling function without definition: @sizeinbytesxt32): the function
+	#              it calls does not exist; the profiler defines @MemorySizeInBytes32XT instead
+	#   see        SizeInBytesXT, SizeInBytes32
 		#>
-
 	def SizeInBytesXT32()
 		return @SizeInBytesXT32(This)		
 
@@ -5667,8 +6556,13 @@ class stzObject
 		def MSizeInBytesXT32()
 			return This.SizeInBytesXT32()
 
+	# Raises error R3 today instead of returning the extended 64-bit memory size.
+	#
+	#   returns    nothing: it raises
+	#   warning    raises R3 (calling function without definition: @sizeinbytesxt64): the function
+	#              it calls does not exist
+	#   see        SizeInBytesXT, SizeInBytes64
 		#>
-
 	def SizeInBytesXT64()
 		return @SizeInBytesXT64(This)		
 
@@ -5697,9 +6591,13 @@ class stzObject
 		def MSizeInBytesXT64()
 			return This.SizeInBytesXT64()
 
+	# Returns the bytes of data the object's attributes hold, counting a text by its length and a number by a fixed size.
+	#
+	#   returns    a number
+	#   note       Q("banana").ContentSize() is 184, which includes the object's own bookkeeping
+	#              attributes
+	#   see        SizeInBytes
 		#>
-
-
 	def ContentSize()
 		_aValues_ = []
 		_acAttributes_ = ring_attributes(This)
@@ -5726,10 +6624,17 @@ class stzObject
 	 #  CHECKING OBJECT EQUALITY WITH AN OTHER OBJECT  #
 	#-------------------------------------------------#
 
-	#NOTE
-	# In Softanza, two objects are considered equal when
-	# they are both NamedObjects and have same name
-
+	# TRUE if the other value is an object with the same variable name as this one.
+	#
+	#   pOtherObject   the object to compare with
+	#   returns        TRUE or FALSE
+	#   note           in the base class equality means the same name: two objects both named oa are
+	#                  equal, oa and oc are not
+	#   warning        two unnamed objects are never equal, and a value that is not an object
+	#                  answers FALSE; the stzString, stzList and stzNumber versions compare content
+	#                  instead
+	#   see            EqualsCS, VarName
+	#@ aka  NOTE In Softanza, two objects are considered equal when they are both NamedObjects and have same name
 	def IsEqualTo(pOtherObject)
 
 		if NOT isObject(pOtherObject)
@@ -5756,11 +6661,23 @@ class stzObject
 		def IsEqualCS(pOtherObject, pCaseSensitive)
 			return This.IsEqualTo(pOtherObject)
 
+		# TRUE if the other value is an object with the same variable name; the case flag is not used.
+		#
+		#   pOtherObject     the object to compare with
+		#   pCaseSensitive   ignored: names are compared as they are
+		#   returns          TRUE or FALSE
+		#   warning          the flag has no effect; a name is compared as written
+		#   see              IsEqualTo
 		def EqualsCS(pOtherObject, pCaseSensitive)
 			return This.IsEqualTo(pOtherObject)
 
+	# Prints the content on its own line.
+	#
+	#   returns    nothing; it prints
+	#   note       Q([ 1, 2 ]).Print() prints 1 and 2 on separate lines
+	#   warning    on a bare stzObject it prints nothing useful, since the content is an object
+	#   see        Content
 		#>
-
 	def Print()
 		? This.Content()
 
@@ -5768,25 +6685,49 @@ class stzObject
 	 #  MANAGING HISTORIC VALUES  #
 	#============================#
 
+	# Appends a value to the history list that every object of the process shares.
+	#
+	#   value      the value to remember
+	#   returns    nothing
+	#   warning    one list serves the whole process: a value added on one object is read back from
+	#              another (o1.AddHistoricValue(1) then o2.HistoricValues() answers [ 1 ])
+	#   see        HistoricValues, CleanHistory
 	#TODO // Review all the places in the library where softanza objects
-	# are updated directly without using UpdateWith().
-
-	#~> // UpdateWith() must be the single-update point for all objects
-	# manipulations in the library, so history can be tracked.
-
+	#@ aka  are updated directly without using UpdateWith().
 	def AddHistoricValue(value)
 
 		_aHisto + value
 
+		# Appends a value to the shared history list, in the short wording.
+		#
+		#   value      the value to remember
+		#   returns    nothing
+		#   see        AddHistoricValue, HistoricValues
 		def AddHistValue(value)
 			AddHistoricValue(value)
 
+		# Appends a value to the shared history list, in the sentence wording.
+		#
+		#   value      the value to remember
+		#   returns    nothing
+		#   see        AddHistoricValue, HistoricValues
 		def AddToHistory(value)
 			AddHistoricValue(value)
 
+		# Appends a value to the shared history list, in the shortest sentence wording.
+		#
+		#   value      the value to remember
+		#   returns    nothing
+		#   see        AddHistoricValue, HistoricValues
 		def AddToHist(value)
 			AddHistoricValue(value)
 
+	# Returns the values kept in the shared history and empties it.
+	#
+	#   returns    a list of the values, in the order added; [ ] when none
+	#   warning    reading consumes: a second call answers [ ]; when the extended history is
+	#              switched on (KeepingObjectHistoryXT) it answers that one instead, not run here
+	#   see        AddHistoricValue, CleanHistory
 	def HistoricValues()
 		if KeepingObjectHistoryXT() = 1
 			return This.HistoricValuesXT()
@@ -5796,15 +6737,32 @@ class stzObject
 		_aHisto = []
 		return _aResult_
 		
+		# Returns the shared history and empties it, in the short wording.
+		#
+		#   returns    a list of the values
+		#   see        HistoricValues
 		def HistValues()
 			return HistoricValues()
 
+		# Returns the shared history and empties it, in the one-word wording.
+		#
+		#   returns    a list of the values
+		#   see        HistoricValues
 		def History()
 			return HistoricValues()
 
+		# Returns the shared history and empties it, in the shortest wording.
+		#
+		#   returns    a list of the values
+		#   see        HistoricValues
 		def Histo()
 			return HistoricValues()
 
+	# Empties the shared history without reading it.
+	#
+	#   returns    nothing
+	#   warning    the next HistoricValues answers [ ]
+	#   see        HistoricValues, AddHistoricValue
 	def CleanHistory()
 		_aHisto = []
 
@@ -5844,6 +6802,11 @@ class stzObject
 	 #  TRACING OBJECT EXECUTION TIME  #
 	#---------------------------------#
 
+	# Returns the clock reading, in clocks, taken when time keeping was last started.
+	#
+	#   returns    a number
+	#   warning    one global reading serves every object
+	#   see        ExecutionTime
 	def StartTime()
 		return _nStartTimeInClocks // A global variable
 
@@ -5857,6 +6820,12 @@ class stzObject
 			return This.StartTime()
 
 
+	# Returns the seconds elapsed since time keeping was started.
+	#
+	#   returns    a number of seconds
+	#   warning    raises "Can't proceed! Keeping object execution time must be turned ON." until
+	#              SetKeepingTimeTo(1) is called, which also restarts the clock
+	#   see        StartTime, AddTimeValue
 	def ExecutionTime()
 		if KeepingExecutionTime() = 0
 			StzRaise("Can't proceed! Keeping object execution time must be turned ON.")
@@ -5907,17 +6876,41 @@ class stzObject
 		def ObjectElpasedTimeInSeconds()
 			return This.ExecutionTime()
 
+	# Raises error R24 today instead of appending the elapsed time to a list of times.
+	#
+	#   returns    nothing: it raises
+	#   warning    raises R24 (uninitialized variable _atime) even with SetKeepingTimeTo(1), because
+	#              the list it appends to is never declared; without time keeping ExecutionTime
+	#              raises first
+	#   see        ExecutionTime
 		#>
-
 	def AddTimeValue()
 		_aTime + This.ExecutionTime()
 		
+		# Raises error R24 today instead of appending the elapsed time to a list of times.
+		#
+		#   returns    nothing: it raises
+		#   warning    raises the R24 of AddTimeValue (uninitialized variable _atime)
+		#   see        AddTimeValue, ExecutionTime
 		def AddExecutionTimeValue()
 			This.AddTimeValue()
 
+		# Raises error R24 today instead of appending the elapsed time to a list of times.
+		#
+		#   returns    nothing: it raises
+		#   warning    raises the R24 of AddTimeValue (uninitialized variable _atime)
+		#   see        AddTimeValue, ExecutionTime
 		def AddExecutionTime()
 			This.AddTimeValue()
 
+	# TRUE if the content is one of the values in a list.
+	#
+	#   paList     the list to look in
+	#   returns    TRUE or FALSE
+	#   note       Q(12345).ExistsIn([ 12345, 5 ]) is TRUE and Q("banana").ExistsIn([ "banana" ]) is
+	#              TRUE; on a bare stzObject holding an object it is FALSE even when that object is
+	#              in the list
+	#   see        IsOneOfThese
 	def ExistsIn(paList)
 		return ListContains(paList, This.Content())
 
@@ -6010,15 +7003,21 @@ class stzObject
 		ok
 		StzRaise("NNL: an action must be a name or [ name, params... ].")
 
+	# Stores the main object of a natural chain, the one a later recall of the main object returns.
+	#
+	#   poObj      the object to remember as the main one
+	#   returns    nothing
+	#   note       read back with NNLMainRaw
+	#   see        NNLMainRaw
 	# --- P2: the chain-scoped context machinery -----------------------
-	# A determiner sets the expectation ON the object it returns; a device
-	# that returns a NEW object carries the context over (_NNLCarry); the
-	# *QM recalls read the chain-local main first. Globals stay mirrored
-	# so legacy code and the detached console surface keep working.
-
+	#@ aka  A determiner sets the expectation ON the object it returns; a device that returns a NEW object carries the context over (_NNLCarry); the *QM recalls read the chain-local main first. Globals stay mirrored so legacy code and the detached console surface keep working.
 	def SetNNLMain(poObj)
 		@oNNLMain = poObj
 
+	# Returns the main object stored by SetNNLMain.
+	#
+	#   returns    the stored object; 0 when none was stored
+	#   see        SetNNLMain
 	def NNLMainRaw()
 		return @oNNLMain
 
@@ -6193,13 +7192,14 @@ class stzObject
 		$cStzLastWhyB = @cNNLWhy
 		return 0
 
-	# CHAIN-LOCAL explanations, in the stzChainOfValue naming grammar
-	# (WhyChainStopped / WhyCodeNotYetExecuted): Why + subject + past
-	# verb, always about something NOT proceeding; the reason lives ON
-	# the object -- never on a process global (two interleaved chains
-	# would lie to each other). Successes are not explained -- the
-	# archive never explained them either.
-
+	# Returns, in words, why the last check made on this object failed.
+	#
+	#   returns    a text: the reason, "the last check did not fail", or "no check has been made on
+	#              this object yet"
+	#   note       Q("AnnIE").AtMost(2) then VowelNB() leaves: no: expected atmost 2, found 3
+	#   warning    the reason lives on the object, so two chains never mix their reasons
+	#   see        WhyStopped
+	#@ aka  CHAIN-LOCAL explanations, in the stzChainOfValue naming grammar (WhyChainStopped / WhyCodeNotYetExecuted): Why + subject + past verb, always about something NOT proceeding; the reason lives ON the object -- never on a process global (two interleaved chains would lie to each other). Successes are not explained -- the archive never explained them either.
 	def WhyCheckFailed()
 		if @cNNLWhy = ""
 			return "no check has been made on this object yet"
@@ -6209,19 +7209,36 @@ class stzObject
 		ok
 		return @cNNLWhy
 
+	# Returns the text that a live chain gives when asked why it stopped.
+	#
+	#   returns    the text "the chain is not stopped"
+	#   warning    only a false object, which ends a chain, carries a real reason
+	#   see        WhyCheckFailed
 	def WhyStopped()
 		# a live object means the chain did NOT stop -- answer politely,
 		# exactly like the archived "Chain is not stopped!"
 		return "the chain is not stopped"
 
+	# Returns the object itself unchanged: the indefinite article 'an' of a natural chain, with no effect on the object.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   see        Only, Exactly, IfSo
 	# --- grammar particles that were missing (pure pass-throughs)
-
 	def AnQ()
 		return This
 
+	# Returns the object itself unchanged: the adverb 'also' of a natural chain, with no effect on the object.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   see        Only, Exactly, IfSo
 	def AlsoQ()
 		return This
 
+	# Returns the object itself unchanged: a unit word such as :Letters that says what a count counts.
+	#
+	#   pUnit      the unit word, such as :Letters
+	#   returns    the object itself, so the chain goes on
+	#   see        Exactly, ALengthN
 	def UnitQ(pUnit)
 		# unit annotation: ...ALengthQ().OfQ(4).UnitQ(:Letters) -- says
 		# WHAT the 4 counts; semantically inert, linguistically load-
@@ -6229,8 +7246,15 @@ class stzObject
 		# every child class -- the documented ring_len() trap -- hence UnitQ.)
 		return This
 
+	# Returns the length of the content as a number, taken from whichever of characters, items or digits the object counts.
+	#
+	#   returns    a number
+	#   note       Q("softanza").ALengthN() is 8 and Q(12345).ALengthN() is 5
+	#   warning    for a stzList it counts characters and so answers 0 for [ 1, 2, 3 ] and for [
+	#              "ab", "cd" ] but 4 for [ "a", "b", "c", "d" ]; a bare stzObject raises "NNL: a
+	#              stzobject has no length to speak of."
+	#   see        Exactly, TheNth
 	# --- the article device, generic: "a length" of ANY object
-
 	def ALengthN()
 		if StzFindFirst("numberofchars", ring_methods(This)) > 0
 			return This.NumberOfChars()
@@ -6247,14 +7271,23 @@ class stzObject
 		def ALengthQ()
 			return This._NNLCarry(new stzNumber(This.ALengthN()))
 
+		# TRUE if the length of the content meets the expectation set before it, for example by Exactly.
+		#
+		#   returns    TRUE or FALSE
+		#   warning    Q("softanza").Exactly(8).ALengthNB() is TRUE, with Exactly(5) it is FALSE and
+		#              with no expectation it is FALSE
+		#   see        ALengthN, Exactly
 		def ALengthNB()
 			return This._NNLExpectCompare(This.ALengthN())
 
+	# Sets the expectation that the next counted noun equals a count exactly.
+	#
+	#   n          the count expected
+	#   returns    the object itself
+	#   note       Q("AnnIE").Exactly(3).VowelNB() answers TRUE
+	#   see        Only, AtLeast, AtMost
 	# --- COMPARATIVE DETERMINERS (new devices): degree words for the
-	# expectation register. Only() said "exactly"; language also says
-	# "at least", "at most", "more than", "about" (vagueness!), and
-	# "between". Each returns This (chain on) or MainObject (QM recall).
-
+	#@ aka  expectation register. Only() said "exactly"; language also says "at least", "at most", "more than", "about" (vagueness!), and "between". Each returns This (chain on) or MainObject (QM recall).
 	def Exactly(n)
 		This._NNLSetExpect(n, :Exactly, 0)
 		return This
@@ -6263,6 +7296,12 @@ class stzObject
 			return This.Exactly(n)
 
 
+	# Sets the expectation that the next counted noun reaches a count or goes beyond it.
+	#
+	#   n          the smallest count accepted
+	#   returns    the object itself
+	#   note       Q("AnnIE").AtLeast(2).VowelNB() answers TRUE
+	#   see        AtMost, MoreThan, Exactly
 	def AtLeast(n)
 		This._NNLSetExpect(n, :AtLeast, 0)
 		return This
@@ -6271,6 +7310,12 @@ class stzObject
 			return This.AtLeast(n)
 
 
+	# Sets the expectation that the next counted noun stays at a count or below it.
+	#
+	#   n          the largest count accepted
+	#   returns    the object itself
+	#   note       when the check fails, Why() says: no: expected atmost 2, found 3
+	#   see        AtLeast, LessThan, Exactly
 	def AtMost(n)
 		This._NNLSetExpect(n, :AtMost, 0)
 		return This
@@ -6279,6 +7324,12 @@ class stzObject
 			return This.AtMost(n)
 
 
+	# Sets the expectation that the next counted noun goes strictly beyond a count.
+	#
+	#   n          the count that must be exceeded
+	#   returns    the object itself
+	#   note       'hello brave new world' MoreThan(2) words is TRUE, and 'hello brave' is FALSE
+	#   see        AtLeast, LessThan
 	def MoreThan(n)
 		This._NNLSetExpect(n, :MoreThan, 0)
 		return This
@@ -6287,6 +7338,12 @@ class stzObject
 			return This.MoreThan(n)
 
 
+	# Sets the expectation that the next counted noun stays strictly under a count.
+	#
+	#   n          the count that must not be reached
+	#   returns    the object itself
+	#   note       'hello brave' LessThan(3) words is TRUE, and 'hello brave world' is FALSE
+	#   see        AtMost, MoreThan
 	def LessThan(n)
 		This._NNLSetExpect(n, :LessThan, 0)
 		return This
@@ -6295,6 +7352,12 @@ class stzObject
 			return This.LessThan(n)
 
 
+	# Sets the expectation that the next counted noun lies within ten percent of a count.
+	#
+	#   n          the count aimed at
+	#   returns    the object itself
+	#   note       9 items and 11 items are both about 10; 5 and 12 are not
+	#   see        Exactly, BetweenN
 	def About(n)
 		This._NNLSetExpect(n, :About, 0.1)
 		return This
@@ -6307,8 +7370,16 @@ class stzObject
 			This._NNLSetExpect(n, :About, nTol)
 			return This
 
-	# named BetweenN (not Between) -- stzString owns Between(sub1, sub2)
-	# for text extraction; the N marks the NUMBER expectation
+	# Sets the expectation that the next counted noun lies between two counts.
+	#
+	#   n1         the lower count
+	#   n2         the upper count
+	#   returns    the object itself
+	#   note       named BetweenN because stzString already owns Between
+	#   warning    the explanation after a failed check reads 'expected between between 1 and 2,
+	#              found 3', with the word doubled
+	#   see        Exactly, About, AtLeast
+	#@ aka  named BetweenN (not Between) -- stzString owns Between(sub1, sub2) for text extraction; the N marks the NUMBER expectation
 	def BetweenN(n1, n2)
 		This._NNLSetExpect([ n1, n2 ], :Between, 0)
 		return This
@@ -6317,12 +7388,15 @@ class stzObject
 			return This.BetweenN(n1, n2)
 
 
+	# Runs an action on the object when the premise of the chain held, and returns the object.
+	#
+	#   pAction    the action to run, such as :Uppercase
+	#   returns    the object, after the action
+	#   note       Q("ring").IsAQ(:String).IfSo(:Uppercase).Otherwise(:Reverse).Content() answers
+	#              RING; after a false premise it is the Otherwise that runs
+	#   see        Otherwise, IsAQ
 	# --- CONDITIONAL MOOD (new device): the chain branches on its own
-	# truth. On a live object the premise held: IfSo RUNS, Otherwise
-	# skips. On a false premise (stzFalseObject) IfSo skips and
-	# Otherwise recovers the origin object and runs on it.
-	#   Q("ring").IsAQ(:String).IfSo(:Uppercase).Otherwise(:Trim)
-
+	#@ aka  truth. On a live object the premise held: IfSo RUNS, Otherwise skips. On a false premise (stzFalseObject) IfSo skips and Otherwise recovers the origin object and runs on it. Q("ring").IsAQ(:String).IfSo(:Uppercase).Otherwise(:Trim)
 	def IfSo(pAction)
 		This._NNLDo(pAction)
 		return This
@@ -6330,23 +7404,24 @@ class stzObject
 		def IfSoQ(pAction)
 			return This.IfSo(pAction)
 
+	# Returns the object itself; the action only runs when the premise before it failed.
+	#
+	#   pAction    the action to run on the false branch, such as :Reverse
+	#   returns    the object itself
+	#   note       on a live object it does nothing: Q("ab").Otherwise(:Uppercase) still holds ab
+	#   see        IfSo
 	def Otherwise(pAction)
 		return This
 
 		def OtherwiseQ(pAction)
 			return This
 
+	# Returns the object itself unchanged: the word 'both' of a natural chain, with no effect on the object.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   see        Only, Exactly, IfSo
 	# --- Q3: NEGATION + TRUTH-FUNCTIONAL COORDINATION ------------------
-	# NotQ() flips the NEXT comparison ("has not at most 2 vowels").
-	# EitherQ()/BothQ() are readable openers (pass-throughs). OrQ() on a
-	# LIVE object short-circuits: the disjunction is already satisfied,
-	# so the next disjunct is SKIPPED (one-shot flag honored by the
-	# device layer); on a FALSE premise OrQ() recovers the origin and
-	# the second disjunct gets its chance -- real disjunction, enabled
-	# by the carried origin. NeitherQ()...NorQ() demands every disjunct
-	# FALSE: a passing predicate turns the chain false, a failing one
-	# keeps it alive.
-
+	#@ aka  NotQ() flips the NEXT comparison ("has not at most 2 vowels"). EitherQ()/BothQ() are readable openers (pass-throughs). OrQ() on a LIVE object short-circuits: the disjunction is already satisfied, so the next disjunct is SKIPPED (one-shot flag honored by the device layer); on a FALSE premise OrQ() recovers the origin and the second disjunct gets its chance -- real disjunction, enabled by the carrie
 	def BothQ()
 		return This
 
@@ -6371,16 +7446,27 @@ class stzObject
 		@bNNLSat = 0
 		return This
 
-	# "It IS NEITHER a number nor a list" -- every disjunct must be
-	# false; a holding predicate falsifies the chain
+	# Opens a 'neither ... nor' figure: every disjunct that follows must be false.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   see        NeitherQ, OrQ, NorQ
+	#@ aka  "It IS NEITHER a number nor a list" -- every disjunct must be false; a holding predicate falsifies the chain
 	def IsNeitherQ()
 		@bNNLNeither = 1
 		return This
 
+		# Opens a 'neither ... nor' figure, in the short wording.
+		#
+		#   returns    the object itself, so the chain goes on
+		#   see        IsNeitherQ, NorQ
 		def NeitherQ()
 			@bNNLNeither = 1
 			return This
 
+	# Closes the first branch of an either-or figure: it skips the next disjunct when one already held.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   see        IsNeitherQ, BothQ
 	def OrQ()
 		if @bNNLEither = 1
 			# inside either...or: skip the next disjunct ONLY when one
@@ -6397,53 +7483,86 @@ class stzObject
 		@bNNLSkip = 1
 		return This
 
+	# Returns the object itself unchanged: the conjunction 'nor' of a natural chain, with no effect on the object.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   see        Only, Exactly, IfSo
 	def NorQ()
 		return This
 
+	# Opens a distributive check so that the next predicate must hold for every item.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   note       Q([ "AnnIE", "aeiou" ]).EachQ().AtLeast(2).VowelNB() is TRUE
+	#   see        AnyQ, NoneQ
 	# --- Q3b: DISTRIBUTIVE QUANTIFIERS ---------------------------------
-	# The quantifier opens a figure; the NEXT predicate applies to every
-	# item and the figure folds the answers: EACH demands all hold, ANY
-	# demands one, NONE demands zero. Singular agreement by design
-	# ("each IS a number", "none IS a number"); the collective plural
-	# lives in AreQ(:Numbers). The fold explains itself per item.
-
+	#@ aka  The quantifier opens a figure; the NEXT predicate applies to every item and the figure folds the answers: EACH demands all hold, ANY demands one, NONE demands zero. Singular agreement by design ("each IS a number", "none IS a number"); the collective plural lives in AreQ(:Numbers). The fold explains itself per item.
 	def EachQ()
 		@cNNLQuant = "each"
 		return This
 
+	# Opens a distributive check so that the next predicate must hold for at least one item.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   note       Q([ "sky", "AnnIE" ]).AnyQ().AtLeast(3).VowelNB() is TRUE
+	#   see        EachQ, NoneQ
 	def AnyQ()
 		@cNNLQuant = "any"
 		return This
 
+	# Opens a distributive check so that the next predicate must hold for no item.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   note       Q([ "sky", "by" ]).NoneQ().AtLeast(1).VowelNB() is TRUE
+	#   see        EachQ, AnyQ
 	def NoneQ()
 		@cNNLQuant = "none"
 		return This
 
-	# the quantifier-NOUN units (author's formulations): "each item is",
-	# "any item is", "no item is" -- same figures, the noun spoken.
+	# Opens a check that the next predicate holds for every item, in the wording that names the noun.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   see        EachQ, AnyItemQ
+	#@ aka  the quantifier-NOUN units (author's formulations): "each item is", "any item is", "no item is" -- same figures, the noun spoken.
 	def EachItemQ()
 		@cNNLQuant = "each"
 		return This
 
+	# Opens a check that the next predicate holds for at least one item, in the wording that names the noun.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   see        AnyQ, EachItemQ
 	def AnyItemQ()
 		@cNNLQuant = "any"
 		return This
 
+	# Opens a check that the next predicate holds for no item, in the wording that names the noun.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   see        NoneQ, EachItemQ
 	def NoItemQ()
 		@cNNLQuant = "none"
 		return This
 
-	# "ALL ITEMS ARE numbers" -- the COLLECTIVE side: all takes plural
-	# agreement, so AllItemsQ is the topic particle and AreQ (the
-	# existing collective check) does the work, answering with the
-	# TYPED list. The distributive per-item story belongs to EACH.
+	# Returns the object itself unchanged: the topic words 'all items' of a natural chain, with no effect; AreQ does the checking.
+	#
+	#   returns    the object itself, so the chain goes on
+	#   see        Only, Exactly, IfSo
+	#@ aka  "ALL ITEMS ARE numbers" -- the COLLECTIVE side: all takes plural agreement, so AllItemsQ is the topic particle and AreQ (the existing collective check) does the work, answering with the TYPED list. The distributive per-item story belongs to EACH.
 	def AllItemsQ()
 		return This
 
+	# TRUE if the content satisfies every constraint declared for a kind, such as score.
+	#
+	#   pcKind     the name of a kind whose constraints were declared with ConstrainQ
+	#   returns    TRUE or FALSE
+	#   note       with score declared a positive even number, Q(42).QualifiesAs("score") is TRUE
+	#              and Q(7) is FALSE with: no: 7 is not even (constraint 3 of 'score')
+	#   warning    an unknown kind answers FALSE, never TRUE, and Why() says nothing is known about
+	#              being it
+	#   see        AddConstraint, VerifyConstraints
 	# --- MODALITY gate: "the value QUALIFIES AS a score" -- validates
-	# the content against the kind's declared constraints; monadic
-	# (AsAQ was unavailable: the As-family owns it)
-
+	#@ aka  the content against the kind's declared constraints; monadic (AsAQ was unavailable: the As-family owns it)
 	def QualifiesAs(pcKind)
 		_cQk_ = StzLower(ring_trim(pcKind))
 		_aQc_ = ConstraintsOn(_cQk_)
@@ -6477,16 +7596,18 @@ class stzObject
 			_oFo_.SetWhyStopped(@cNNLWhy)
 			return _oFo_
 
+	# Declares a named rule that the content should satisfy, without enforcing it.
+	#
+	#   pcName     the rule's name, kept in lower case
+	#   pRule      a kind word such as :Lowercase, or a condition as text such as '{ StzLen(@string)
+	#              < 4 }'
+	#   returns    nothing
+	#   note       declaring is passive: the content can still change to a violating value
+	#   warning    a name that is not a text, or is empty, raises "A constraint needs a name."; a
+	#              second rule under the same name replaces the first
+	#   see        EnforceConstraint, VerifyConstraint, Constraints
 	# --- PER-OBJECT CONSTRAINTS (the archived stzString design, finally
-	# generalized -- the author's own TODO said "Generalize this feature
-	# to other classes"). A constraint is NAMED and its rule is either a
-	# DESCRIPTOR symbol (:Lowercase -- the @is<X> dispatch) or a
-	# CONDITION in the archived placeholder style:
-	#     o.AddConstraint("stay-small", '{ len(@string) < 10 }')
-	# VerifyConstraint answers 1/0 with Why; ApplyConstraints ENFORCES:
-	# the archived structured raise ("Execution is cancelled by
-	# Softanza") on the first violation, This when all hold.
-
+	#@ aka  generalized -- the author's own TODO said "Generalize this feature to other classes"). A constraint is NAMED and its rule is either a DESCRIPTOR symbol (:Lowercase -- the @is<X> dispatch) or a CONDITION in the archived placeholder style: o.AddConstraint("stay-small", '{ len(@string) < 10 }') VerifyConstraint answers 1/0 with Why; ApplyConstraints ENFORCES: the archived structured raise ("Execution
 	def AddConstraint(pcName, pRule)
 		if NOT isString(pcName) or ring_trim(pcName) = ""
 			StzRaise("A constraint needs a name.")
@@ -6505,9 +7626,22 @@ class stzObject
 			This.AddConstraint(pcName, pRule)
 			return This
 
+	# Returns the rules declared on the object.
+	#
+	#   returns    a list of [ name, rule ] rows; a rule with a time scope has four items: [ name,
+	#              rule, "while" or "until", condition ]
+	#   note       Q("hello") after AddConstraint("lower", :Lowercase) answers [ [ "lower",
+	#              "lowercase" ] ]
+	#   see        AddConstraint, RemoveConstraint
 	def Constraints()
 		return @aNNLConstraints
 
+	# Removes the rule declared under a name.
+	#
+	#   pcName     the name of the rule to remove
+	#   returns    nothing
+	#   warning    a name that is not declared changes nothing
+	#   see        AddConstraint, Constraints
 	def RemoveConstraint(pcName)
 		_cCn_ = StzLower(ring_trim(pcName))
 		_aKeep_ = []
@@ -6553,6 +7687,16 @@ class stzObject
 		ok
 		return _StzKindHolds(_vCv_, StzLower(ring_trim("" + pRule)))
 
+	# TRUE if the rule declared under a name holds for the content now.
+	#
+	#   pcName     the name of the rule to check
+	#   returns    TRUE or FALSE
+	#   note       for "hello" with lower declared the answer is TRUE and Why() says: yes:
+	#              constraint 'lower' holds
+	#   warning    an unknown name raises "Inexistant constraint!"; a rule whose while-condition is
+	#              false, or whose until-condition was met, is not in force and counts as holding;
+	#              Why() explains either answer
+	#   see        VerifyConstraints, AddConstraint
 	def VerifyConstraint(pcName)
 		_cCn_ = StzLower(ring_trim(pcName))
 		_nCn_ = len(@aNNLConstraints)
@@ -6584,6 +7728,12 @@ class stzObject
 		StzRaise("Inexistant constraint! No constraint named '" + _cCn_ +
 			"' on this object.")
 
+	# TRUE if every rule declared on the object holds for the content now.
+	#
+	#   returns    TRUE or FALSE
+	#   note       TRUE when no rule is declared; after a failure WhyCheckFailed() says which rule
+	#              was violated and by what content
+	#   see        VerifyConstraint, ApplyConstraints
 	def VerifyConstraints()
 		_nCn_ = len(@aNNLConstraints)
 		for _i_ = 1 to _nCn_
@@ -6598,8 +7748,13 @@ class stzObject
 		$cStzLastWhyB = @cNNLWhy
 		return 1
 
-	# ENFORCEMENT -- the archived semantics: execution is cancelled on a
-	# violation, with the structured explanation; chainable when clean
+	# Returns the object when every declared rule holds, and stops the program with an explanation when one does not.
+	#
+	#   returns    the object itself
+	#   warning    a violated rule raises an error with What, Why and Todo parts naming the rule and
+	#              the content
+	#   see        VerifyConstraints, EnforceConstraints
+	#@ aka  ENFORCEMENT -- the archived semantics: execution is cancelled on a violation, with the structured explanation; chainable when clean
 	def ApplyConstraints()
 		_nCn_ = len(@aNNLConstraints)
 		for _i_ = 1 to _nCn_
@@ -6619,15 +7774,18 @@ class stzObject
 		def ApplyConstraintsQ()
 			return This.ApplyConstraints()
 
-	# ENFORCEMENT-ON-UPDATE -- the archived dream, live: a constrained
-	# object REFUSES a violating update at the SINGLE UPDATE POINT
-	# (stzString/stzNumber Update(), stzList _SetContent()).
-	# EnforceConstraint() declares AND arms; RelaxConstraints() disarms
-	# (on-demand verification stays available). Most mutators compute
-	# their result THEN Update, so a refusal leaves the object
-	# untouched; the few in-place engine mutators journal their
-	# pre-state first, so Undo() recovers.
-
+	# Declares a named rule and switches enforcement on, so that updates that would break any declared rule are refused.
+	#
+	#   pcName     the rule's name
+	#   pRule      a kind word such as :Lowercase, or a condition as text such as '{ @number < 100
+	#              }'
+	#   returns    nothing
+	#   note       RelaxConstraints switches it off again
+	#   warning    the guard sits in the update point of stzString and stzNumber (seen on both):
+	#              UpdateWith("hi") on an object holding HI under :Uppercase raises "Updating this
+	#              object to ... would violate the enforced constraint" and the content stays HI
+	#   see        AddConstraint, RelaxConstraints, EnforceConstraintWhile
+	#@ aka  ENFORCEMENT-ON-UPDATE -- the archived dream, live: a constrained object REFUSES a violating update at the SINGLE UPDATE POINT (stzString/stzNumber Update(), stzList _SetContent()). EnforceConstraint() declares AND arms; RelaxConstraints() disarms (on-demand verification stays available). Most mutators compute their result THEN Update, so a refusal leaves the object untouched; the few in-place engi
 	def EnforceConstraint(pcName, pRule)
 		This.AddConstraint(pcName, pRule)
 		@bNNLEnforce = 1
@@ -6636,16 +7794,17 @@ class stzObject
 			This.EnforceConstraint(pcName, pRule)
 			return This
 
-	# TEMPORAL GUARDS -- natural obligation has SCOPE IN TIME:
-	#   "stay uppercase WHILE it is short"   -> in force only while the
-	#                                           condition holds
-	#   "stay positive UNTIL reaching 100"   -> in force until the
-	#                                           condition is met, then the
-	#                                           constraint RETIRES itself
-	# The condition speaks the same rule language as constraints (a
-	# descriptor symbol or a '{ ... }' placeholder condition) and is
-	# checked against the CURRENT value; the rule guards the CANDIDATE.
-
+	# Declares a rule that is enforced only while a condition on the content holds.
+	#
+	#   pcName            the rule's name
+	#   pRule             a kind word or a condition as text
+	#   pWhileCondition   a condition as text, such as '{ StzLen(@string) < 6 }', under which the
+	#                     rule is in force
+	#   returns           nothing
+	#   note              an object holding HI under :Uppercase refuses UpdateWith("hi") while it is
+	#                     short
+	#   see               EnforceConstraint, EnforceConstraintUntil
+	#@ aka  TEMPORAL GUARDS -- natural obligation has SCOPE IN TIME: "stay uppercase WHILE it is short" -> in force only while the condition holds "stay positive UNTIL reaching 100" -> in force until the condition is met, then the constraint RETIRES itself The condition speaks the same rule language as constraints (a descriptor symbol or a '{ ... }' placeholder condition) and is checked against the CURRENT va
 	def EnforceConstraintWhile(pcName, pRule, pWhileCondition)
 		This._NNLAddTemporalConstraint(pcName, pRule, "while", pWhileCondition)
 
@@ -6653,6 +7812,16 @@ class stzObject
 			This.EnforceConstraintWhile(pcName, pRule, pWhileCondition)
 			return This
 
+	# Declares a rule that is enforced until a condition on the content is met, after which it retires.
+	#
+	#   pcName            the rule's name
+	#   pRule             a kind word or a condition as text
+	#   pUntilCondition   a condition as text, such as '{ @number >= 100 }', that ends the rule when
+	#                     met
+	#   returns           nothing
+	#   note              a number holding 5 under :Positive refuses UpdateWith(-3) until it has
+	#                     reached 100
+	#   see               EnforceConstraint, EnforceConstraintWhile
 	def EnforceConstraintUntil(pcName, pRule, pUntilCondition)
 		This._NNLAddTemporalConstraint(pcName, pRule, "until", pUntilCondition)
 
@@ -6707,6 +7876,12 @@ class stzObject
 		next
 		@aNNLConstraints = _aKeep_
 
+	# Switches enforcement on for the rules already declared.
+	#
+	#   returns    nothing
+	#   warning    after it, UpdateWith("HELLO") on an object holding hello under :Lowercase raises
+	#              and the content stays hello
+	#   see        EnforceConstraint, RelaxConstraints, ConstraintsAreEnforced
 	def EnforceConstraints()
 		@bNNLEnforce = 1
 
@@ -6714,6 +7889,11 @@ class stzObject
 			This.EnforceConstraints()
 			return This
 
+	# Switches enforcement off, keeping the rules declared.
+	#
+	#   returns    nothing
+	#   warning    the rules stay, so VerifyConstraints still judges the content
+	#   see        EnforceConstraints, VerifyConstraints
 	def RelaxConstraints()
 		@bNNLEnforce = 0
 
@@ -6721,6 +7901,11 @@ class stzObject
 			This.RelaxConstraints()
 			return This
 
+	# TRUE if updates that break a declared rule are refused.
+	#
+	#   returns    1 or 0
+	#   note       0 until EnforceConstraint or EnforceConstraints is called
+	#   see        EnforceConstraints, RelaxConstraints
 	def ConstraintsAreEnforced()
 		return @bNNLEnforce
 
@@ -6777,6 +7962,15 @@ class stzObject
 		eval("_bTh_ = @is" + pcDesc + "(_vTense_)")
 		return _bTh_
 
+	# TRUE if the object was in the state described at any moment of its recorded history, or is now.
+	#
+	#   pcDesc     the state to look for, as a kind word such as :Uppercase
+	#   returns    TRUE or FALSE
+	#   note       with QH("ring") then UppercaseQ(), WasEver(:Uppercase) is TRUE and Why() says:
+	#              yes: state 2 ("RING") was uppercase
+	#   warning    the history exists only for a chain opened with QH; without it the answer is
+	#              FALSE and Why() says: no: no history was kept (open the chain with QH)
+	#   see        WasNever, UsedToBe, IsStill
 	def WasEver(pcDesc)
 		_aPast_ = This._NNLPastStates()
 		_nTe_ = len(_aPast_)
@@ -6802,6 +7996,15 @@ class stzObject
 		$cStzLastWhyB = @cNNLWhy
 		return 0
 
+	# TRUE if the object was never in the state described, in its recorded history or now.
+	#
+	#   pcDesc     the state to look for, as a kind word such as :Number
+	#   returns    TRUE or FALSE
+	#   note       with QH("ring") then UppercaseQ(), WasNever(:Number) is TRUE and
+	#              WasNever(:Uppercase) is FALSE
+	#   warning    with no history kept it answers TRUE, since no past state is known to have held
+	#              it
+	#   see        WasEver, UsedToBe
 	def WasNever(pcDesc)
 		if This.WasEver(pcDesc) = 1
 			@cNNLWhy = "no: " + @cNNLWhy
@@ -6812,6 +8015,13 @@ class stzObject
 		$cStzLastWhyB = @cNNLWhy
 		return 1
 
+	# TRUE if the object was in the state described earlier but is not any more.
+	#
+	#   pcDesc     the state to look for, as a kind word such as :Lowercase
+	#   returns    TRUE or FALSE
+	#   note       with QH("ring") then UppercaseQ(), UsedToBe(:Lowercase) is TRUE
+	#   warning    needs a chain opened with QH; without one the answer is FALSE
+	#   see        WasEver, IsStill
 	def UsedToBe(pcDesc)
 		_aPast_ = This._NNLPastStates()
 		_nTe_ = len(_aPast_)
@@ -6841,6 +8051,14 @@ class stzObject
 		$cStzLastWhyB = @cNNLWhy
 		return 0
 
+	# TRUE if the object was in the state described earlier and still is.
+	#
+	#   pcDesc     the state to look for, as a kind word such as :Uppercase
+	#   returns    TRUE or FALSE
+	#   note       with QH("ring") then UppercaseQ(), IsStill(:Uppercase) is TRUE and
+	#              IsStill(:Lowercase) is FALSE
+	#   warning    needs a chain opened with QH; without one the answer is FALSE
+	#   see        UsedToBe, WasEver
 	def IsStill(pcDesc)
 		_aPast_ = This._NNLPastStates()
 		_nTe_ = len(_aPast_)
@@ -6870,21 +8088,43 @@ class stzObject
 		$cStzLastWhyB = @cNNLWhy
 		return 0
 
-	# the typed-list converters AreQ answers with (decayed remnants --
-	# AreQ referenced them but modularization had dropped them; strings
-	# map to stzStringList, the plural-strings class)
+	# Returns the content wrapped in a new stzListOfNumbers, keeping the natural chain's state.
+	#
+	#   returns    a stzListOfNumbers
+	#   note       Q([ 1, 2, 3 ]).ToStzListOfNumbers().Sum() is 6
+	#   warning    a list holding a non-number raises "Can't create a stzListOfNumbers object!"
+	#   see        ToStzListOfStrings, ToStzList
+	#@ aka  the typed-list converters AreQ answers with (decayed remnants -- AreQ referenced them but modularization had dropped them; strings map to stzStringList, the plural-strings class)
 	def ToStzListOfNumbers()
 		return This._NNLCarry(new stzListOfNumbers(This.Content()))
 
+	# Returns the content wrapped in a new stzListOfStrings, keeping the natural chain's state.
+	#
+	#   returns    a stzListOfStrings
+	#   see        ToStzListOfNumbers, ToStzList
 	def ToStzListOfStrings()
 		return This._NNLCarry(new stzStringList(This.Content()))
 
+	# Returns the content wrapped in a new stzListOfChars, keeping the natural chain's state.
+	#
+	#   returns    a stzListOfChars
+	#   see        ToStzListOfStrings, ToStzList
 	def ToStzListOfChars()
 		return This._NNLCarry(new stzListOfChars(This.Content()))
 
+	# Returns the content wrapped in a new stzListOfLists, keeping the natural chain's state.
+	#
+	#   returns    a stzListOfLists
+	#   see        ToStzList, ToStzListOfNumbers
 	def ToStzListOfLists()
 		return This._NNLCarry(new stzListOfLists(This.Content()))
 
+	# Raises error R14 today instead of wrapping the content in a stzListOfObjects.
+	#
+	#   returns    nothing: it raises
+	#   warning    raises R14 (calling method without definition: islistofobjects) for a list of
+	#              numbers and for a list of stzString objects alike
+	#   see        ToStzList
 	def ToStzListOfObjects()
 		return This._NNLCarry(new stzListOfObjects(This.Content()))
 
@@ -6964,24 +8204,58 @@ class stzObject
 		ok
 		return This.IsAQ(pcType)
 
+	# Returns the object itself when it is a number, and a false object otherwise.
+	#
+	#   returns    the object, or a false object
+	#   warning    Q(5).ANumberQ() answers the stzNumber
+	#   see        AStringQ, AListQ
 	def ANumberQ()
 		return This._NNLTypeNoun(:Number)
 
+	# Returns the object itself when it is a text, and a false object otherwise.
+	#
+	#   returns    the object, or a false object
+	#   warning    Q(5).AStringQ() answers a stzFalseObject
+	#   see        ANumberQ, AListQ
 	def AStringQ()
 		return This._NNLTypeNoun(:String)
 
+	# Returns the object itself when it is a list, and a false object otherwise.
+	#
+	#   returns    the object, or a false object
+	#   warning    Q([ 1 ]).AListQ() answers the stzList
+	#   see        ANumberQ, AStringQ
 	def AListQ()
 		return This._NNLTypeNoun(:List)
 
+	# Returns the object itself when its content is an object, and a false object otherwise.
+	#
+	#   returns    the object, or a false object
+	#   warning    on a bare stzObject it raises R24 (uninitialized variable @noname);
+	#              Q("a").AnObjectQ() answers a stzFalseObject
+	#   see        ANumberQ, AStringQ
 	def AnObjectQ()
 		return This._NNLTypeNoun(:Object)
 
+	# Returns the object itself when it is a single character, and a false object otherwise.
+	#
+	#   returns    the object, or a false object
+	#   note       Q("a").ACharQ() answers a stzChar
+	#   warning    Q("ab").ACharQ() answers a stzFalseObject
+	#   see        AStringQ
 	def ACharQ()
 		return This._NNLTypeNoun(:Char)
 
+	# Returns the nth item of a plural noun of the content, such as the second word or the third vowel.
+	#
+	#   n          which one, counting from 1
+	#   pcNoun     the plural noun, such as :Words or :Vowels
+	#   returns    the item at that place
+	#   note       Q("hello brave world").TheNth(2, :Words) is brave
+	#   warning    when there are fewer than n it raises "NNL: there is no 9th vowels here."
+	#   see        TheFirst, TheLast
 	# --- ORDINAL REFERENCE (new device): "the second word", "the last
-	# vowel" -- definite reference into a plural noun, stzOrdinal wired.
-
+	#@ aka  vowel" -- definite reference into a plural noun, stzOrdinal wired.
 	def TheNth(n, pcNoun)
 		_aNNL_ = This._NNLCall(pcNoun, [])
 		if isList(_aNNL_) and n >= 1 and n <= ring_len(_aNNL_)
@@ -6993,12 +8267,25 @@ class stzObject
 		def TheNthQ(n, pcNoun)
 			return This._NNLCarry(Q(This.TheNth(n, pcNoun)))
 
+	# Returns the first item of a plural noun of the content, such as the first vowel.
+	#
+	#   pcNoun     the plural noun, such as :Words or :Vowels
+	#   returns    the first item
+	#   note       Q("softanza").TheFirst(:Vowels) is o
+	#   see        TheNth, TheLast
 	def TheFirst(pcNoun)
 		return This.TheNth(1, pcNoun)
 
 		def TheFirstQ(pcNoun)
 			return This._NNLCarry(Q(This.TheFirst(pcNoun)))
 
+	# Returns the last item of a plural noun of the content, such as the last vowel.
+	#
+	#   pcNoun     the plural noun, such as :Words or :Vowels
+	#   returns    the last item
+	#   note       Q("softanza").TheLast(:Vowels) is a
+	#   warning    when there is none it raises "NNL: there is no last vowels here."
+	#   see        TheNth, TheFirst
 	def TheLast(pcNoun)
 		_aNNL_ = This._NNLCall(pcNoun, [])
 		if isList(_aNNL_) and ring_len(_aNNL_) > 0

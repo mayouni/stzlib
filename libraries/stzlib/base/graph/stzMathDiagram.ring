@@ -3579,6 +3579,27 @@ class stzMathStyle from stzObject
 #  THE DIAGRAM -- compile, solve, draw                                  #
 #---------------------------------------------------------------------#
 
+# Solves and draws a mathematical diagram: objects and relations laid out so that every rule about them holds.
+#
+# A diagram is made of three parts: a domain (set theory, geometry, graphs), a substance that
+# declares the objects and asserts relations between them, and a style that turns each object into
+# shapes and each relation into rules. Nothing is drawn by hand. The first question asked of the
+# diagram solves it, a contradictory substance gives a picture that says it is not lawful instead of
+# an error, and every shape, number and mark can be read back, which is what lets a caption quote
+# the picture. The figure can be pinned, dragged, windowed, marked and written out as SVG or PNG.
+#
+#   receiver   os = new stzMathSubstance(StzSetTheoryDomain()); os.DeclareAll("Set", [ "A", "B" ]);
+#              os.Assert("Subset", [ "B", "A" ]); os.AutoLabelAll(); o1 = new
+#              stzMathDiagram(StzSetTheoryDomain(), os, StzEulerStyle())
+#   example    ? @@( o1.Shapes() )
+#              #--> [ "A.icon", "A.text", "B.icon", "B.text" ]
+#              ? o1.IsFeasible()
+#              #--> 1
+#              ? o1.ShapeOf("B.icon")[:kind]
+#              #--> circle
+#              ? o1.Fact(:count, [ "shapes" ])[:message]
+#              #--> the picture reports 4 shapes
+#   see        stzMathSubstance, stzMathDomain, stzMathStyle, StzMathDiagramQ, stzCanvas
 class stzMathDiagram from stzObject
 
 	@oDomain = NULL
@@ -3656,6 +3677,18 @@ class stzMathDiagram from stzObject
 	@aViolTapes = []
 	@cWhy = "not laid out yet"
 
+	# Builds a diagram from what it is about, the rules that read it and the look that draws it; nothing is solved yet.
+	#
+	#   poDomain      the domain, such as StzSetTheoryDomain(), that gives the kinds of object and
+	#                 relation
+	#   poSubstance   the stzMathSubstance holding the declared objects and what is asserted of them
+	#   poStyle       the style, such as StzEulerStyle(), that turns each object into shapes and
+	#                 rules
+	#   returns       nothing; the object is built
+	#   note          the picture is solved on the first question asked of it
+	#   warning       a domain, substance or style that is not an object raises the error
+	#                 stzMathDiagram: give a domain, a substance and a style.
+	#   see           Layout, StzMathScene01
 	def init(poDomain, poSubstance, poStyle)
 		if NOT isObject(poDomain) or NOT isObject(poSubstance) or
 		   NOT isObject(poStyle)
@@ -3665,8 +3698,15 @@ class stzMathDiagram from stzObject
 		@oSubstance = poSubstance
 		@oStyle = poStyle
 
-	#-- knobs ------------------------------------------------------------------
-
+	# Sets the font and size the names are drawn and measured in, and marks the picture to be solved again.
+	#
+	#   poFont     a stzFont
+	#   pnSize     the size, as a number
+	#   returns    the diagram itself, so calls chain
+	#   note       without a font the picture still solves and draws with the default one; SetFontQ
+	#              is the same call
+	#   see        SetVariation, ToSVG
+	#@ aka  -- knobs ------------------------------------------------------------------
 	def SetFont(poFont, pnSize)
 		@oFont = poFont
 		@nFontSize = pnSize
@@ -3676,9 +3716,14 @@ class stzMathDiagram from stzObject
 		def SetFontQ(poFont, pnSize)
 			return This.SetFont(poFont, pnSize)
 
-	# Penrose's "variation": the same string, the same picture. Any text
-	# folds to a seed; a number is used as it is. SeedRandom refuses a
-	# seed at or above 1,999,999,999, so the fold stays under it.
+	# Sets the seed the starting shapes are drawn from: the same text or number always gives the same picture.
+	#
+	#   pVariation   a text, folded to a seed, or a number, used as the seed
+	#   returns      the diagram itself, so calls chain
+	#   note         a different value gives a different picture of the same content (tried with a
+	#                text and with a number); SetVariationQ is the same call
+	#   see          Relayout, StartsTried
+	#@ aka  Penrose's "variation": the same string, the same picture. Any text folds to a seed; a number is used as it is. SeedRandom refuses a seed at or above 1,999,999,999, so the fold stays under it.
 	def SetVariation(pVariation)
 		if isNumber(pVariation)
 			@nSeed = (floor(fabs(pVariation)) % 1999999000) + 1
@@ -3697,18 +3742,21 @@ class stzMathDiagram from stzObject
 		def SetVariationQ(pVariation)
 			return This.SetVariation(pVariation)
 
-	#-- the live figure (DN8g) --------------------------------------------------
-
-	# A RE-SOLVE FROM WHERE THE FIGURE STANDS. Nothing is recompiled and no
-	# start is drawn: the current values are the start, and the solver
-	# settles the picture nearby. LayoutMs() then reports this solve.
-	# where the last solve spent its time, in ms: building the energy text,
-	# compiling it, minimising, reading the violations, and folding derived
-	# names to numbers (counted inside :text) -- plus the rounds
+	# Returns where the last solve spent its time, in milliseconds, with the number of rounds.
+	#
+	#   returns    a list of [ key, value ] pairs: text, compile, minimise, read, fold, rounds,
+	#              rounds0, rounds1, worst1
+	#   see        LayoutMs, Rounds
+	#@ aka  -- the live figure (DN8g) --------------------------------------------------
 	def SolveProfile()
 		This.Layout()
 		return @aProfile
 
+	# Solves the picture again starting from where the figure stands, so the shapes settle near their present places.
+	#
+	#   returns    the diagram itself, so calls chain
+	#   note       the pinned shapes stay where they are; RelayoutQ is the same call
+	#   see        DragTo, Pin, Layout
 	def Relayout()
 		This.Layout()
 		_nT0_ = StzEngineWatchTimestampMs()
@@ -3722,11 +3770,17 @@ class stzMathDiagram from stzObject
 		def RelayoutQ()
 			return This.Relayout()
 
-	# THE DRAG. The shape's centre is put where the author released it,
-	# held there while the rest of the figure re-solves around it, and let
-	# go again unless it was pinned before. A shape whose centre no rule
-	# left free -- a placed name, a square derived from its triangle -- is
-	# refused: there is nothing there to drag.
+	# Moves the centre of a shape to a point, holds it there while the rest of the figure re-solves, then lets it go unless it was pinned.
+	#
+	#   pcPath     the path of the shape, such as A.icon, as Shapes lists them
+	#   pnX        the x of the new centre, in pixels
+	#   pnY        the y of the new centre, in pixels
+	#   returns    the diagram itself, so calls chain
+	#   note       DragToQ is the same call
+	#   warning    a shape whose centre no rule left to the solver, such as a polygon derived from a
+	#              triangle, raises the error ... has no free centre
+	#   see        Pin, OnRelease, Draggable
+	#@ aka  THE DRAG. The shape's centre is put where the author released it, held there while the rest of the figure re-solves around it, and let go again unless it was pinned before. A shape whose centre no rule left free -- a placed name, a square derived from its triangle -- is refused: there is nothing there to drag.
 	def DragTo(pcPath, pnX, pnY)
 		This.Layout()
 		_c_ = ring_trim("" + pcPath)
@@ -3747,9 +3801,16 @@ class stzMathDiagram from stzObject
 		def DragToQ(pcPath, pnX, pnY)
 			return This.DragTo(pcPath, pnX, pnY)
 
-	# A PIN holds every free property of a shape at its current value
-	# through any re-solve, cold or warm -- the plastic editor's pin, for
-	# a figure whose coordinates are solved rather than laid out.
+	# Holds every free value of a shape where it is through any later solve, until Unpin.
+	#
+	#   pcPath     the path of the shape, as Shapes lists them
+	#   returns    the diagram itself, so calls chain
+	#   note       PinQ is the same call
+	#   warning    a path that is not a shape raises the error ... is not a shape any rule minted,
+	#              and a shape with nothing left free raises the error ... has nothing a rule left
+	#              free
+	#   see        Unpin, IsPinned, Pins
+	#@ aka  A PIN holds every free property of a shape at its current value through any re-solve, cold or warm -- the plastic editor's pin, for a figure whose coordinates are solved rather than laid out.
 	def Pin(pcPath)
 		This.Layout()
 		_c_ = ring_trim("" + pcPath)
@@ -3775,6 +3836,12 @@ class stzMathDiagram from stzObject
 		def PinQ(pcPath)
 			return This.Pin(pcPath)
 
+	# Lets the free values of a shape move again in later solves.
+	#
+	#   pcPath     the path of the shape, as Shapes lists them
+	#   returns    the diagram itself, so calls chain
+	#   note       a path that is not a shape changes nothing; UnpinQ is the same call
+	#   see        Pin, UnpinAll
 	def Unpin(pcPath)
 		_c_ = ring_trim("" + pcPath)
 		_i_ = This._ShapeIndex(_c_)
@@ -3789,12 +3856,21 @@ class stzMathDiagram from stzObject
 		def UnpinQ(pcPath)
 			return This.Unpin(pcPath)
 
+	# Lets every pinned shape move again.
+	#
+	#   returns    the diagram itself, so calls chain
+	#   see        Unpin, Pins
 	def UnpinAll()
 		for _i_ = 1 to len(@aPinned)
 			@aPinned[_i_] = 0
 		next
 		return This
 
+	# TRUE if the shape is held in place by a pin.
+	#
+	#   pcPath     the path of the shape, as Shapes lists them
+	#   returns    TRUE or FALSE; FALSE for a path that is not a shape
+	#   see        Pin, Pins
 	def IsPinned(pcPath)
 		_c_ = ring_trim("" + pcPath)
 		_i_ = This._ShapeIndex(_c_)
@@ -3806,7 +3882,11 @@ class stzMathDiagram from stzObject
 		next
 		return FALSE
 
-	# the shapes pinned, by path
+	# Returns the paths of the shapes that are pinned.
+	#
+	#   returns    a list of text; empty when nothing is pinned
+	#   see        Pin, IsPinned
+	#@ aka  the shapes pinned, by path
 	def Pins()
 		This.Layout()
 		_a_ = []
@@ -3815,7 +3895,11 @@ class stzMathDiagram from stzObject
 		next
 		return _a_
 
-	# the shapes a gesture can take hold of: a free centre, and a body
+	# Returns the paths of the visible circles, rectangles, ellipses and texts whose centre is free, which a pointer can take hold of.
+	#
+	#   returns    a list of text
+	#   see        PickAt, DragTo
+	#@ aka  the shapes a gesture can take hold of: a free centre, and a body
 	def Draggable()
 		This.Layout()
 		_a_ = []
@@ -3830,9 +3914,13 @@ class stzMathDiagram from stzObject
 		next
 		return _a_
 
-	# WHAT IS UNDER THE POINTER: the nearest draggable shape whose body --
-	# or a ten-pixel reach around its centre -- holds the point; "" when
-	# the pointer is on the paper.
+	# Returns the path of the nearest draggable shape whose body, or a ten-pixel reach around its centre, holds a point.
+	#
+	#   pnX        the x of the point, in pixels
+	#   pnY        the y of the point, in pixels
+	#   returns    a text; an empty text when the point is on the paper
+	#   see        OnPress, Draggable
+	#@ aka  WHAT IS UNDER THE POINTER: the nearest draggable shape whose body -- or a ten-pixel reach around its centre -- holds the point; "" when the pointer is on the paper.
 	def PickAt(pnX, pnY)
 		_ac_ = This.Draggable()
 		_cBest_ = ""
@@ -3858,10 +3946,13 @@ class stzMathDiagram from stzObject
 		next
 		return _cBest_
 
-	# THE GESTURE, in the plastic editor's three verbs. A press takes hold
-	# of what is under the pointer; a move previews and re-solves NOTHING
-	# -- the window paints the dragged shape where DragPreview() says --
-	# and the release is the one drag, from where the author let go.
+	# Starts a gesture: takes hold of the shape under the pointer, if there is one.
+	#
+	#   pnX        the x of the pointer, in pixels
+	#   pnY        the y of the pointer, in pixels
+	#   returns    the diagram itself, so calls chain
+	#   see        OnMove, OnRelease, UiState
+	#@ aka  THE GESTURE, in the plastic editor's three verbs. A press takes hold of what is under the pointer; a move previews and re-solves NOTHING -- the window paints the dragged shape where DragPreview() says -- and the release is the one drag, from where the author let go.
 	def OnPress(pnX, pnY)
 		@cUiState = :Idle
 		@cUiSubject = ""
@@ -3873,16 +3964,34 @@ class stzMathDiagram from stzObject
 		@aUiAt = [ pnX, pnY ]
 		return This
 
+	# Moves the pointer of a gesture in progress and previews; nothing is solved.
+	#
+	#   pnX        the x of the pointer, in pixels
+	#   pnY        the y of the pointer, in pixels
+	#   returns    the diagram itself, so calls chain
+	#   note       it does nothing when no shape was taken hold of
+	#   see        OnPress, DragPreview
 	def OnMove(pnX, pnY)
 		if @cUiState = :Idle  return This  ok
 		@aUiAt = [ pnX, pnY ]
 		return This
 
+	# Returns where the held shape is to be painted during a gesture.
+	#
+	#   returns    a list [ path, x, y ]; an empty list when no gesture is going on
+	#   see        OnMove, UiState
 	def DragPreview()
 		if @cUiState = :Idle or @cUiSubject = ""  return []  ok
 		if len(@aUiAt) != 2  return []  ok
 		return [ @cUiSubject, @aUiAt[1], @aUiAt[2] ]
 
+	# Ends a gesture: drops the held shape at the pointer, which is the one drag that re-solves the figure.
+	#
+	#   pnX        the x where the pointer was released, in pixels
+	#   pnY        the y where the pointer was released, in pixels
+	#   returns    the diagram itself, so calls chain
+	#   note       the shape goes where it is released, not where OnMove last said
+	#   see        OnPress, DragTo
 	def OnRelease(pnX, pnY)
 		if @cUiState = :Dragging
 			This.DragTo(@cUiSubject, pnX, pnY)
@@ -3892,11 +4001,19 @@ class stzMathDiagram from stzObject
 		@aUiAt = []
 		return This
 
+	# Returns the state of the gesture: idle, or dragging after a press that took hold of a shape.
+	#
+	#   returns    a text, idle or dragging
+	#   see        OnPress, OnRelease
 	def UiState()
 		return @cUiState
 
-	#-- the answer -------------------------------------------------------------
-
+	# Solves the picture if it has not been solved since the last change.
+	#
+	#   returns    the diagram itself, so calls chain
+	#   note       every question about the picture calls it first; LayoutQ is the same call
+	#   see        IsFeasible, Why, Relayout
+	#@ aka  -- the answer -------------------------------------------------------------
 	def Layout()
 		if @bLaidOut = 1  return This  ok
 		_nT0_ = StzEngineWatchTimestampMs()
@@ -3909,19 +4026,33 @@ class stzMathDiagram from stzObject
 		def LayoutQ()
 			return This.Layout()
 
+	# TRUE if every rule is satisfied, to within a hundredth of a pixel.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Violation, Violations, Why
 	def IsFeasible()
 		This.Layout()
 		return This.Violation() <= 0.01
 
-	# The largest constraint violation, in pixels. Zero is a lawful picture.
+	# Returns the largest amount, in pixels, by which a rule is broken; 0 for a lawful picture.
+	#
+	#   returns    a number
+	#   note       a contradictory substance gives a positive number instead of an error: a subset
+	#              that is also disjoint gave 14.31
+	#   see        IsFeasible, Violations
+	#@ aka  The largest constraint violation, in pixels. Zero is a lawful picture.
 	def Violation()
 		This.Layout()
 		return This._MaxViolation()
 
-	# Every constraint with its violation, in the house rule shape so a
-	# CI gate can ingest it: a contradictory substance is a FINDING, not a
-	# crash -- Penrose's Fig. 2, a logically inconsistent program that
-	# "fails gracefully, providing visual intuition for why".
+	# Returns every rule the picture could not satisfy, one finding each.
+	#
+	#   returns    a list of [ :rule, :subject, :where, :severity, :message ] findings; empty when
+	#              every rule holds
+	#   note       the findings are in the shape the rule report takes; a contradictory substance
+	#              gave four
+	#   see        Violation, Why, Fact
+	#@ aka  Every constraint with its violation, in the house rule shape so a CI gate can ingest it: a contradictory substance is a FINDING, not a crash -- Penrose's Fig. 2, a logically inconsistent program that "fails gracefully, providing visual intuition for why".
 	def Violations()
 		This.Layout()
 		_a_ = []
@@ -3938,60 +4069,118 @@ class stzMathDiagram from stzObject
 		next
 		return _a_
 
+	# Returns the final value of the quantity the solver minimised.
+	#
+	#   returns    a number; 0 when every rule is satisfied
+	#   see        Rounds, Violation
 	def Energy()
 		This.Layout()
 		return @nEnergy
 
+	# Returns how many penalty rounds the solve took.
+	#
+	#   returns    a number
+	#   see        Evaluations, Why
 	def Rounds()
 		This.Layout()
 		return @nRounds
 
+	# Returns how many times the solver evaluated the energy.
+	#
+	#   returns    a number
+	#   see        Rounds, LayoutMs
 	def Evaluations()
 		This.Layout()
 		return @nEvaluations
 
+	# Returns how long the last solve took, in milliseconds.
+	#
+	#   returns    a number
+	#   note       a clock reading, so it differs from run to run
+	#   see        SolveProfile, Evaluations
 	def LayoutMs()
 		This.Layout()
 		return @nLayoutMs
 
+	# Returns how many free values the solver had to choose.
+	#
+	#   returns    a number
+	#   see        NumberOfConstraints, Fact
 	def NumberOfUnknowns()
 		This.Layout()
 		return len(@acUnknown)
 
+	# Returns how many rules the picture was compiled into.
+	#
+	#   returns    a number
+	#   see        NumberOfUnknowns, ConstraintText
 	def NumberOfConstraints()
 		This.Layout()
 		return len(@aConstraints)
 
+	# Returns one sentence saying whether the picture is lawful and after how many rounds.
+	#
+	#   returns    a text
+	#   see        IsFeasible, Violations
 	def Why()
 		This.Layout()
 		return @cWhy
 
-	# the paper, and what a shape is beyond its geometry -- for the rules
-	# that judge a picture rather than solve it (DN8c)
+	# Returns the width of the paper, in pixels, as the style fixes it.
+	#
+	#   returns    a number
+	#   see        CanvasHeight, ToCanvas
+	#@ aka  the paper, and what a shape is beyond its geometry -- for the rules that judge a picture rather than solve it (DN8c)
 	def CanvasWidth()   return @oStyle.CanvasWidth()
+	# Returns the height of the paper, in pixels, as the style fixes it.
+	#
+	#   returns    a number
+	#   see        CanvasWidth, ToCanvas
 	def CanvasHeight()  return @oStyle.CanvasHeight()
 
+	# Returns the name of the object a shape draws, such as A for A.icon.
+	#
+	#   pcPath     the path of the shape, as Shapes lists them
+	#   returns    a text; an empty text for a path that is not a shape
+	#   see        Shapes, ShapeOf
 	def ShapeOwnerOf(pcPath)
 		This.Layout()
 		_i_ = This._ShapeIndex(pcPath)
 		if _i_ = 0  return ""  ok
 		return @aShapes[_i_][4]
 
+	# TRUE if the shape is not drawn.
+	#
+	#   pcPath     the path of the shape, as Shapes lists them
+	#   returns    TRUE or FALSE; TRUE for a path that is not a shape
+	#   see        VisibleShapes, ShapeOf
 	def IsHidden(pcPath)
 		This.Layout()
 		_i_ = This._ShapeIndex(pcPath)
 		if _i_ = 0  return TRUE  ok
 		return This._Prop(@aShapes[_i_][3], "hidden", 0) = 1
 
+	# Returns one property a shape was given, such as n for a polygon or fill, or a default when it has none.
+	#
+	#   pcPath     the path of the shape, as Shapes lists them
+	#   pcKey      the property name, such as fill or n
+	#   pDefault   what to answer when the shape or the property is absent
+	#   returns    the property value, or pDefault
+	#   see        ShapeOf, FillOf
 	def PropOf(pcPath, pcKey, pDefault)
 		This.Layout()
 		_i_ = This._ShapeIndex(pcPath)
 		if _i_ = 0  return pDefault  ok
 		return This._Prop(@aShapes[_i_][3], pcKey, pDefault)
 
-	# The solved geometry of one shape: [ :kind, :cx, :cy, :r ] for a circle,
-	# [ :kind, :cx, :cy, :w, :h ] for a rect or text, [ :kind, :x1, :y1,
-	# :x2, :y2 ] for a line.
+	# Returns the solved geometry of one shape, whose keys depend on its kind.
+	#
+	#   pcPath     the path of the shape, as Shapes lists them
+	#   returns    a list of [ key, value ] pairs: kind, cx, cy, r for a circle; cx, cy, w, h for a
+	#              text; x1, y1, x2, y2 for a line; and so on; an empty list for a path that is not
+	#              a shape
+	#   see        Shapes, ValueOf, PolygonOf
+	#@ aka  The solved geometry of one shape: [ :kind, :cx, :cy, :r ] for a circle, [ :kind, :cx, :cy, :w, :h ] for a rect or text, [ :kind, :x1, :y1, :x2, :y2 ] for a line.
 	def ShapeOf(pcPath)
 		This.Layout()
 		_i_ = This._ShapeIndex(pcPath)
@@ -4029,12 +4218,21 @@ class stzMathDiagram from stzObject
 		         :cy = This._V(_cP_ + ".cy"), :w = This._V(_cP_ + ".w"),
 		         :h = This._V(_cP_ + ".h") ]
 
-	# The solved value of any name: an unknown, a constant, a field, a
-	# derived property -- "u.arrow.x2", "U.ox".
+	# Returns the solved value of any name the picture holds: an unknown, a constant or a derived one.
+	#
+	#   pcName     the name, such as A.icon.cx
+	#   returns    a number
+	#   note       a name the picture does not hold gave 0 (A.cx on a picture that holds A.icon.cx)
+	#   see        ShapeOf, Fact
+	#@ aka  The solved value of any name: an unknown, a constant, a field, a derived property -- "u.arrow.x2", "U.ox".
 	def ValueOf(pcName)
 		This.Layout()
 		return This._V(pcName)
 
+	# Returns the path of every shape, in the order the rules made them.
+	#
+	#   returns    a list of text such as A.icon, A.text
+	#   see        NumberOfShapes, ShapeOf, VisibleShapes
 	def Shapes()
 		This.Layout()
 		_a_ = []
@@ -4044,16 +4242,20 @@ class stzMathDiagram from stzObject
 		next
 		return _a_
 
+	# Returns how many shapes the picture holds.
+	#
+	#   returns    a number
+	#   see        Shapes
 	def NumberOfShapes()
 		This.Layout()
 		return len(@aShapes)
 
-	# Where a shape falls in the drawing order: 1 is painted first and so
-	# sits at the back. A shape that must not be buried has to come out
-	# with a HIGHER index than everything that could cover it, and that is
-	# a fact about the picture worth asserting rather than eyeballing --
-	# layering is a partial order, and the depths it relaxes to are not
-	# obvious from reading the rules.
+	# Returns the place of a shape in the drawing order, 1 being painted first and so at the back.
+	#
+	#   pcPath     the path of the shape, as Shapes lists them
+	#   returns    a number; 0 for a path that is not a shape
+	#   see        Shapes, VisibleShapes
+	#@ aka  Where a shape falls in the drawing order: 1 is painted first and so sits at the back. A shape that must not be buried has to come out with a HIGHER index than everything that could cover it, and that is a fact about the picture worth asserting rather than eyeballing -- layering is a partial order, and the depths it relaxes to are not obvious from reading the rules.
 	def DrawIndexOf(pcPath)
 		This.Layout()
 		_i_ = This._ShapeIndex(pcPath)
@@ -4064,8 +4266,12 @@ class stzMathDiagram from stzObject
 		next
 		return 0
 
-	# A polygon's vertices, or a spline's control points, in order:
-	# [ x1, y1, x2, y2, ... ].
+	# Returns the vertices of a polygon, or the control points of a spline, in order.
+	#
+	#   pcPath     the path of a polygon or spline shape
+	#   returns    a list of numbers [ x1, y1, x2, y2, ... ]; empty for any other shape
+	#   see        SplinePointsOf, ShapeOf
+	#@ aka  A polygon's vertices, or a spline's control points, in order: [ x1, y1, x2, y2, ... ].
 	def PolygonOf(pcPath)
 		This.Layout()
 		_i_ = This._ShapeIndex(pcPath)
@@ -4080,13 +4286,14 @@ class stzMathDiagram from stzObject
 		next
 		return _a_
 
-	# The polyline a spline is drawn as, in px -- the control points are in
-	# PolygonOf. CATMULL-ROM, CENTRIPETAL: for each span P1-P2 the four
-	# points P0..P3 are blended with knots spaced by the square root of the
-	# chord, which is the parametrisation that never cusps or loops between
-	# two points however they are spaced (Yuksel, Schaefer, Keyser 2011). An
-	# open spline doubles its end points so the curve reaches them; a closed
-	# one wraps. Twelve samples per span.
+	# Returns the polyline a spline is drawn as, in pixels, from a centripetal Catmull-Rom curve through its control points.
+	#
+	#   pcPath     the path of a spline shape
+	#   returns    a list of numbers [ x1, y1, x2, y2, ... ]; empty for any shape that is not a
+	#              spline
+	#   note       twelve samples per span unless the shape says otherwise
+	#   see        PolygonOf, ShapeOf
+	#@ aka  The polyline a spline is drawn as, in px -- the control points are in PolygonOf. CATMULL-ROM, CENTRIPETAL: for each span P1-P2 the four points P0..P3 are blended with knots spaced by the square root of the chord, which is the parametrisation that never cusps or loops between two points however they are spaced (Yuksel, Schaefer, Keyser 2011). An open spline doubles its end points so the curve reach
 	def SplinePointsOf(pcPath)
 		This.Layout()
 		_i_ = This._ShapeIndex(pcPath)
@@ -4155,7 +4362,13 @@ class stzMathDiagram from stzObject
 	def _Lerp(pa, pb, pt)
 		return [ pa[1] + (pb[1] - pa[1]) * pt, pa[2] + (pb[2] - pa[2]) * pt ]
 
-	# The polyline a geodesic is drawn as: [ x1, y1, x2, y2, ... ] in px.
+	# Returns the polyline a geodesic curve is drawn as, in pixels.
+	#
+	#   pcPath     the path of a curve shape
+	#   returns    a list of numbers [ x1, y1, x2, y2, ... ]; empty for any shape that is not a
+	#              curve
+	#   see        MarkStrokesOf, ShapeOf
+	#@ aka  The polyline a geodesic is drawn as: [ x1, y1, x2, y2, ... ] in px.
 	def CurvePointsOf(pcPath)
 		This.Layout()
 		_i_ = This._ShapeIndex(pcPath)
@@ -4163,15 +4376,25 @@ class stzMathDiagram from stzObject
 		return This._CurvePoints(pcPath,
 			"" + This._Prop(@aShapes[_i_][3], "curve", "greatarc"))
 
-	# The strokes a mark is drawn as: a list of polylines, each flat in px.
+	# Returns the strokes a mark such as a right-angle sign is drawn as.
+	#
+	#   pcPath     the path of a mark shape
+	#   returns    a list of polylines, each a flat list of numbers; empty for any shape that is not
+	#              a mark
+	#   see        CurvePointsOf, ShapeOf
+	#@ aka  The strokes a mark is drawn as: a list of polylines, each flat in px.
 	def MarkStrokesOf(pcPath)
 		This.Layout()
 		_i_ = This._ShapeIndex(pcPath)
 		if _i_ = 0 or @aShapes[_i_][2] != "mark"  return []  ok
 		return This._MarkStrokes(pcPath, @aShapes[_i_][3])
 
-	#-- drawing ------------------------------------------------------------------
-
+	# Draws the picture on a new canvas, in drawing order, and returns it.
+	#
+	#   returns    a stzCanvas holding an engine scene
+	#   note       call Free on the canvas when done with it; ToSVG and ToPNG do so for you
+	#   see        ToSVG, ToPNG
+	#@ aka  -- drawing ------------------------------------------------------------------
 	def ToCanvas()
 		This.Layout()
 		_oC_ = new stzCanvas(@oStyle.CanvasWidth(), @oStyle.CanvasHeight())
@@ -4187,6 +4410,10 @@ class stzMathDiagram from stzObject
 		_oC_.ClearSvgIdent()
 		return _oC_
 
+	# Returns the picture as the text of an SVG document.
+	#
+	#   returns    a text starting with <svg
+	#   see        ToPNG, ToCanvas, Rendition
 	def ToSVG()
 		# the canvas is TRANSIENT: its engine scene (a target texture on the GPU
 		# tier, vertex buffers, the command list) is freed once the answer is taken --
@@ -4196,17 +4423,30 @@ class stzMathDiagram from stzObject
 		_oCv_.Free()
 		return _cOut_
 
-	#-- A VALUE THAT SAYS WHAT IT IS (DN9g) ---------------------------------
-
-	# A picture's natural rendition is its drawn geometry, which travels as
-	# text and needs no file. The raster and the substance's graph are the
-	# same picture seen the other two ways a consumer asked for.
+	# Returns the picture as a vector rendition: a value that says what it is and carries the SVG.
+	#
+	#   returns    a list of [ key, value ] pairs: kind, mime, content, locator, title
+	#   see        RenditionAs, RenditionKinds, ToSVG
+	#@ aka  -- A VALUE THAT SAYS WHAT IT IS (DN9g) ---------------------------------
 	def Rendition()
 		return This.RenditionAs(:vector)
 
+	# Returns the ways the picture can show itself.
+	#
+	#   returns    a list of symbols: vector, image, graph, text
+	#   see        RenditionAs, Rendition
 	def RenditionKinds()
 		return [ :vector, :image, :graph, :text ]
 
+	# Returns the picture as a rendition of the kind asked: its SVG, a PNG file, the graph behind it, or the sentence saying why it is as it is.
+	#
+	#   pcKind     vector, image, graph or text
+	#   returns    a list of [ key, value ] pairs: kind, mime, content, locator, title
+	#   note       the graph kind carries Graphviz text, the text kind carries Why
+	#   warning    an unknown kind raises an error naming the four; the image kind writes a file
+	#              called rendition_ then the domain name in the current folder, which was read from
+	#              the code and not run, so use RenditionAsXT to choose the path
+	#   see        RenditionAsXT, RenditionKinds
 	def RenditionAs(pcKind)
 		return This.RenditionAsXT(pcKind, "")
 
@@ -4262,9 +4502,21 @@ class stzMathDiagram from stzObject
 		def RenditionAtQ(pcKind, pcPath)
 			return This.RenditionAsXT(pcKind, pcPath)
 
+	# Returns the substance the picture is about.
+	#
+	#   returns    a stzMathSubstance
+	#   note       Ring copies an object on assignment, so changing the answer does not change the
+	#              picture; SetSubstanceData does
+	#   see        SetSubstanceData, Fact
 	def Substance()
 		return @oSubstance
 
+	# Draws the picture, writes it to a PNG file and returns the PNG bytes.
+	#
+	#   pcPath     the file to write, as text
+	#   returns    a text holding the bytes of the PNG, which begin with the PNG signature
+	#   note       the file is overwritten
+	#   see        ToSVG, RenditionAsXT
 	def ToPNG(pcPath)
 		# the canvas is TRANSIENT: its engine scene (a target texture on the GPU
 		# tier, vertex buffers, the command list) is freed once the answer is taken --
@@ -4274,20 +4526,23 @@ class stzMathDiagram from stzObject
 		_oCv_.Free()
 		return _cOut_
 
-	#-- WHAT THIS PICTURE CAN ANSWER (DN9b) --------------------------------
-
-	# A narration is facts made visible, in an order. This is the half a
-	# picture owns: everything it can be asked, in the one shape both
-	# planes answer in (StzFact, in stzDiagram.ring). A caption never
-	# carries a typed number -- it carries a hole, and a hole is filled
-	# from here.
+	# Answers one question about the picture, in the shape a caption can quote: a kind, a subject, a value, a unit and a message.
 	#
-	# THE GENERAL KIND IS :expr, and the others are its named shortcuts.
-	# A picture already has a language for talking about itself -- the one
-	# a Style writes its rules in -- so a fact asks a question in that
-	# language and the answer comes off the same tape the solver used.
-	# That is what makes a caption's number the picture's number rather
-	# than a second calculation that could drift from it.
+	#   pcKind     expr, value, distance, angle, datum, position, count, tapenodes, arg, term or
+	#              verdict
+	#   paArgs     a list of the arguments the kind needs, such as [ "A.icon", "B.icon" ] for
+	#              distance, or [ "shapes" ] for count
+	#   returns    a list of [ key, value ] pairs: kind, subject, value, unit, where, message
+	#   note       the angle is read at the second point; tapenodes takes an expression, shared or
+	#              unshared, and its variable names as the third argument; value, expr and distance
+	#              are in pixels
+	#   warning    an unknown kind raises an error naming the eleven, a datum the substance does not
+	#              carry raises an error, and a kind asked without the argument it needs raises an
+	#              error such as value needs argument 1; paArgs given as a bare text and not as a
+	#              list raises the error R21 (tried with value and with count), so write [ "shapes"
+	#              ]
+	#   see        ValueOf, Violations, Measure
+	#@ aka  -- WHAT THIS PICTURE CAN ANSWER (DN9b) --------------------------------
 	def Fact(pcKind, paArgs)
 		This.Layout()
 		_k_ = StzLower(ring_trim("" + pcKind))
@@ -4513,8 +4768,15 @@ class stzMathDiagram from stzObject
 		stzraise("stzMathDiagram.Fact: no rule of this picture is described by '" +
 			pcMatch + "' -- a rule is addressed by words from its own line.")
 
-	# the energy text of a rule, so a narration can show what the engine
-	# was handed and how big it became
+	# Returns the text of a rule as the solver was handed it, chosen by words from the rule's own line.
+	#
+	#   pcMatch    words that all appear in the rule's line, such as lessthan v000
+	#   returns    a text
+	#   note       the first rule matching every word is taken
+	#   warning    a phrase that matches no rule raises an error saying a rule is addressed by words
+	#              from its own line
+	#   see        NumberOfConstraints, Fact
+	#@ aka  the energy text of a rule, so a narration can show what the engine was handed and how big it became
 	def ConstraintText(pcMatch)
 		This.Layout()
 		return @aConstraints[This._FactTermIndex(pcMatch)][2]
@@ -4535,17 +4797,28 @@ class stzMathDiagram from stzObject
 			"every constraint is satisfied, so nothing is found against " +
 			iif(pcSubject = "", "this picture", pcSubject))
 
-	# WHAT A FRAME MAY CHANGE BETWEEN TWO PICTURES (DN9f). Ring copies an
-	# object on assignment, so a caller holding the substance or the style
-	# is holding a different one from the picture's; these are the doors
-	# through which a narration's action reaches the picture it is about.
+	# Changes the theme the picture is coloured in, such as dark or light, without solving it again.
+	#
+	#   pcTheme    the theme name, such as dark or light
+	#   returns    the diagram itself, so calls chain
+	#   note       the paper changed from #FFFFFF to #333333 with dark; a colour the style gave as a
+	#              literal does not change
+	#   see        Background, FillOf
+	#@ aka  WHAT A FRAME MAY CHANGE BETWEEN TWO PICTURES (DN9f). Ring copies an object on assignment, so a caller holding the substance or the style is holding a different one from the picture's; these are the doors through which a narration's action reaches the picture it is about.
 	def SetPictureTheme(pcTheme)
 		@oStyle.SetTheme(pcTheme)
 		This.Touch()
 		return This
 
-	# A DATUM IS CONTENT, so changing one means the picture is compiled
-	# again -- unlike a theme, which changes only what a role resolves to.
+	# Changes a number the substance carries about one object, and marks the picture to be solved again.
+	#
+	#   pcObject   the name of the object
+	#   pcKey      the name of the datum
+	#   pnValue    the new number
+	#   returns    the diagram itself, so calls chain
+	#   note       the marks the picture carried are dropped
+	#   see        Fact, Substance
+	#@ aka  A DATUM IS CONTENT, so changing one means the picture is compiled again -- unlike a theme, which changes only what a role resolves to.
 	def SetSubstanceData(pcObject, pcKey, pnValue)
 		@oSubstance.SetData(pcObject, pcKey, pnValue)
 		@bLaidOut = 0
@@ -4554,26 +4827,17 @@ class stzMathDiagram from stzObject
 		This.Touch()
 		return This
 
-	#-- THE WINDOW (DN9d) ----------------------------------------------------
-
-	# A FRAME MAY SHOW A PART. The same content, looked at closely, is the
-	# commonest move a narration makes: here is the figure, and now here is
-	# the one corner the sentence is about. So a picture carries a window,
-	# and the drawing maps that window onto the paper.
+	# Shows only a part of the picture, a window centred on a point, scaled up to the paper.
 	#
-	# THE WINDOW IS A PROPERTY OF THE VIEW, NOT OF THE FIGURE. Nothing the
-	# solver owns moves when a window is set, and every reader keeps
-	# answering in the picture's own coordinates -- a distance is the
-	# distance in the figure, whatever a frame happens to be showing. Two
-	# frames of the same picture at different zooms therefore report the
-	# same facts, which is the only way a narration can say "the same
-	# figure, closer" and be believed.
-	#
-	# WHAT DOES NOT SCALE IS THE TYPE. A zoom here is for reading, not a
-	# photographic enlargement: the names keep their size and only their
-	# positions move, so a close view is more legible rather than merely
-	# bigger. Stroke widths do scale, because a hairline blown up eight
-	# times and still one pixel wide reads as a different picture.
+	#   pnCx       the x of the window's centre, in pixels
+	#   pnCy       the y of the window's centre, in pixels
+	#   pnW        the width of the window, in pixels
+	#   pnH        the height of the window, in pixels
+	#   returns    the diagram itself, so calls chain
+	#   note       the facts keep reading the whole figure's own coordinates; names keep their size
+	#   warning    a width or height that is not positive raises an error
+	#   see        WindowOn, ClearWindow, WindowScale
+	#@ aka  -- THE WINDOW (DN9d) ----------------------------------------------------
 	def SetWindow(pnCx, pnCy, pnW, pnH)
 		if pnW <= 0 or pnH <= 0
 			stzraise("stzMathDiagram.SetWindow: a window needs a positive width and height.")
@@ -4585,8 +4849,14 @@ class stzMathDiagram from stzObject
 		def SetWindowQ(pnCx, pnCy, pnW, pnH)
 			return This.SetWindow(pnCx, pnCy, pnW, pnH)
 
-	# centred on what a frame is about, with a reach around it -- the form
-	# an author actually writes
+	# Shows a window centred on a shape, with a reach around it.
+	#
+	#   pcPath     the path of the shape to centre on
+	#   pnReach    the half size of the window, in pixels
+	#   returns    the diagram itself, so calls chain
+	#   note       WindowOnQ is the same call
+	#   see        SetWindow, IsInWindow
+	#@ aka  centred on what a frame is about, with a reach around it -- the form an author actually writes
 	def WindowOn(pcPath, pnReach)
 		This.Layout()
 		_e_ = This._MarkExtent(This._MarkShape(pcPath))
@@ -4597,18 +4867,35 @@ class stzMathDiagram from stzObject
 		def WindowOnQ(pcPath, pnReach)
 			return This.WindowOn(pcPath, pnReach)
 
+	# Shows the whole picture again.
+	#
+	#   returns    the diagram itself, so calls chain
+	#   see        SetWindow, HasWindow
 	def ClearWindow()
 		@aWindow = []
 		@bDrawOrdered = FALSE
 		return This
 
+	# TRUE if the picture shows only a window of itself.
+	#
+	#   returns    TRUE or FALSE
+	#   see        SetWindow, Window
 	def HasWindow()
 		return len(@aWindow) = 4
 
+	# Returns the window shown.
+	#
+	#   returns    a list [ cx, cy, w, h ]; an empty list when the whole picture shows
+	#   see        HasWindow, WindowScale
 	def Window()
 		return @aWindow
 
-	# how much bigger the view is than the figure; 1 with no window
+	# Returns how much bigger the view is than the figure.
+	#
+	#   returns    a number; 1 when there is no window
+	#   note       a window of 180 pixels on the 800 by 700 paper gave 3.89
+	#   see        SetWindow, Window
+	#@ aka  how much bigger the view is than the figure; 1 with no window
 	def WindowScale()
 		if NOT This.HasWindow()  return 1  ok
 		_sx_ = @oStyle.CanvasWidth() / @aWindow[3]
@@ -4616,9 +4903,12 @@ class stzMathDiagram from stzObject
 		if _sy_ < _sx_  return _sy_  ok
 		return _sx_
 
-	# IS THIS THING IN VIEW? What a frame shows decides whether a mark is
-	# any use, and a mark pointing at something outside the window is a
-	# narration defect the one gate reports.
+	# TRUE if any part of the shape falls in the window shown.
+	#
+	#   pcPath     the path of the shape
+	#   returns    TRUE or FALSE; TRUE when there is no window
+	#   see        WindowOn, VisibleShapes
+	#@ aka  IS THIS THING IN VIEW? What a frame shows decides whether a mark is any use, and a mark pointing at something outside the window is a narration defect the one gate reports.
 	def IsInWindow(pcPath)
 		if NOT This.HasWindow()  return TRUE  ok
 		_b_ = This._WBox(This._MarkShape(pcPath))
@@ -4677,7 +4967,11 @@ class stzMathDiagram from stzObject
 		next
 		return [ _x0_, _y0_, _x1_, _y1_ ]
 
-	# the shapes a reader can actually see, in draw order
+	# Returns the paths of the shapes a reader can see: not hidden and in the window.
+	#
+	#   returns    a list of text, in drawing order
+	#   see        Shapes, IsInWindow
+	#@ aka  the shapes a reader can actually see, in draw order
 	def VisibleShapes()
 		This.Layout()
 		_a_ = []
@@ -4721,25 +5015,15 @@ class stzMathDiagram from stzObject
 		next
 		return _a_
 
-	#-- THE FIVE MARKS (DN9c) -----------------------------------------------
-
-	# A mark makes a FACT visible. Five kinds and no sixth: showing a rule's
-	# own boundary, measuring between two things, calling out with a
-	# sentence, emphasising, and tinting a region. A sixth is a substance
-	# change to this plane, argued in the plan, the way the narration
-	# grammar guards its three kinds.
+	# Changes how one shape reads: focus gives it a heavy stroke, dim fades it, ring draws a circle around it.
 	#
-	# EVERY MARK IS DERIVED, NEVER PLACED. Its geometry comes from the
-	# picture's solved values or from a rule actually in force -- which is
-	# the whole point of the plane, because a mark a person positions is a
-	# mark nobody checks. Marks are minted AFTER the solve and hold every
-	# existing unknown pinned while they place themselves, so adding one
-	# cannot move the figure it describes: frame two's figure is frame
-	# one's figure, to the last pixel.
-
-	# A RING, A FOCUS OR A DIM. Emphasis changes how a shape already in the
-	# picture reads, so it mints nothing for :focus and :dim -- it rewrites
-	# the shape's own stroke -- and mints one circle for :ring.
+	#   pcTarget   the path of the shape
+	#   pcMode     focus, dim or ring
+	#   returns    the diagram itself, so calls chain
+	#   note       only ring adds a shape, and it is counted in Marks
+	#   warning    any other mode raises an error naming the three
+	#   see        Callout, Region, ClearMarks
+	#@ aka  -- THE FIVE MARKS (DN9c) -----------------------------------------------
 	def Emphasis(pcTarget, pcMode)
 		This.Layout()
 		_c_ = This._MarkShape(pcTarget)
@@ -4767,10 +5051,16 @@ class stzMathDiagram from stzObject
 		This._MarkTouch()
 		return This
 
-	# A DIMENSION BETWEEN TWO THINGS, WITH ITS NUMBER. The line runs centre
-	# to centre, the number is the distance FACT -- so the figure and the
-	# caption cannot disagree -- and the number's own label is solved off
-	# the ink like any other name.
+	# Draws a line between the centres of two shapes with the distance written beside it.
+	#
+	#   pcA        the path of the first shape
+	#   pcB        the path of the second shape
+	#   paOpts     a list of [ key, value ] pairs: stroke, text with {value} and {unit} holes, size
+	#   returns    the diagram itself, so calls chain
+	#   note       the number is the picture's own distance fact; the label is solved off the other
+	#              ink; the two-set picture gave 79.68 px between A and B
+	#   see        Fact, Callout
+	#@ aka  A DIMENSION BETWEEN TWO THINGS, WITH ITS NUMBER. The line runs centre to centre, the number is the distance FACT -- so the figure and the caption cannot disagree -- and the number's own label is solved off the ink like any other name.
 	def Measure(pcA, pcB, paOpts)
 		This.Layout()
 		_a_ = This._MarkShape(pcA)
@@ -4794,11 +5084,15 @@ class stzMathDiagram from stzObject
 		This._MarkSolve()
 		return This
 
-	# A SENTENCE ATTACHED TO A THING. The sentence may carry a hole, and a
-	# hole is filled from a FACT rather than typed -- which is the rule the
-	# whole plane exists to enforce. The label is solved: off the ink, off
-	# other names, on the paper, exactly as a vertex's name is, which is
-	# why a callout needed no new solver.
+	# Writes a sentence near a shape and joins them with a leader line.
+	#
+	#   pcTarget   the path of the shape
+	#   pcText     the sentence, which may hold {value}, {unit}, {message} and {subject} holes
+	#   paOpts     a list of [ key, value ] pairs: fact and args to fill the holes from a fact, size
+	#   returns    the diagram itself, so calls chain
+	#   note       a hole other than those four stays in the text as written
+	#   see        Measure, Fact
+	#@ aka  A SENTENCE ATTACHED TO A THING. The sentence may carry a hole, and a hole is filled from a FACT rather than typed -- which is the rule the whole plane exists to enforce. The label is solved: off the ink, off other names, on the paper, exactly as a vertex's name is, which is why a callout needed no new solver.
 	def Callout(pcTarget, pcText, paOpts)
 		This.Layout()
 		_c_ = This._MarkShape(pcTarget)
@@ -4822,11 +5116,15 @@ class stzMathDiagram from stzObject
 		This._MarkSolve()
 		return This
 
-	# A RULE'S OWN BOUNDARY, AS A SHAPE. The leash a name must stay inside
-	# is a circle nobody ever drew, because it exists only as a term in the
-	# energy; showing it is reading that term's own arguments and turning
-	# them into geometry. Only the forms whose boundary IS a shape are
-	# shown, and the rest are refused by name rather than approximated.
+	# Draws the boundary a rule only states: the circle of a leash or of a clearance around a circle.
+	#
+	#   pcRuleMatch   words that all appear in the rule's line, such as lessthan v000
+	#   returns       the diagram itself, so calls chain
+	#   note          the circle is a mark, counted in Marks
+	#   warning       a rule whose boundary is not such a circle raises an error saying so, and so
+	#                 does a phrase that matches no rule (tried with greaterthan)
+	#   see           Region, ConstraintText
+	#@ aka  A RULE'S OWN BOUNDARY, AS A SHAPE. The leash a name must stay inside is a circle nobody ever drew, because it exists only as a term in the energy; showing it is reading that term's own arguments and turning them into geometry. Only the forms whose boundary IS a shape are shown, and the rest are refused by name rather than approximated.
 	def Show(pcRuleMatch)
 		This.Layout()
 		_i_ = This._FactTermIndex(pcRuleMatch)
@@ -4864,10 +5162,16 @@ class stzMathDiagram from stzObject
 			"lessThan(dist(a, b), r), or a clearance around a circle. Ask Region() " +
 			"for an area instead.")
 
-	# AN AREA, TINTED. Where Show draws a boundary, Region fills what the
-	# boundary encloses -- the strip an edge forbids, the disc a clearance
-	# reserves. A strip is the segment's own rectangle, four corners
-	# derived from the segment's direction, so it bends with the picture.
+	# Tints the area a clearance rule forbids: the strip around a line or the disc around a circle.
+	#
+	#   pcRuleMatch   words that all appear in the rule's line, such as disjoint ABC.lc
+	#   returns       the diagram itself, so calls chain
+	#   note          the area is a mark, counted in Marks
+	#   warning       a rule that is not a disjoint rule raises an error saying it encloses no area
+	#                 (tried with greaterthan), and so does a disjoint rule whose subject is neither
+	#                 a line nor a circle
+	#   see           Show, ClearMarks
+	#@ aka  AN AREA, TINTED. Where Show draws a boundary, Region fills what the boundary encloses -- the strip an edge forbids, the disc a clearance reserves. A strip is the segment's own rectangle, four corners derived from the segment's direction, so it bends with the picture.
 	def Region(pcRuleMatch)
 		This.Layout()
 		_i_ = This._FactTermIndex(pcRuleMatch)
@@ -4910,14 +5214,28 @@ class stzMathDiagram from stzObject
 		This._MarkTouch()
 		return This
 
-	# what this picture carries, as [ path, kind ] -- so a frame can say
-	# what it added and a later frame can take it away again
+	# Returns what the picture carries that a mark added, as [ path, kind ] pairs.
+	#
+	#   returns    a list of pairs; empty when no mark was added
+	#   see        NumberOfMarks, ClearMarks
+	#@ aka  what this picture carries, as [ path, kind ] -- so a frame can say what it added and a later frame can take it away again
 	def Marks()
 		return @acMarks
 
+	# Returns how many shapes marks added.
+	#
+	#   returns    a number
+	#   see        Marks
 	def NumberOfMarks()
 		return len(@acMarks)
 
+	# Removes every shape the marks added.
+	#
+	#   returns    the diagram itself, so calls chain
+	#   note       focus and dim rewrite the stroke of the shape and are not undone by it: after
+	#              Emphasis A focus and ClearMarks the stroke of A was still heavy (width 3, tried
+	#              once)
+	#   see        Marks, NumberOfMarks
 	def ClearMarks()
 		for _i_ = len(@acMarks) to 1 step -1
 			if This._ShapeIndex(@acMarks[_i_][1]) > 0
@@ -5545,14 +5863,24 @@ class stzMathDiagram from stzObject
 			_bx_ + _nHalf_ * _uy_, _by_ - _nHalf_ * _ux_ ])
 		poC.Fill(pcColor)
 
-	# The colour a shape is drawn with, after its rule is resolved: what the
-	# guard reads, and what a consumer of the SVG gets.
+	# Returns the colour a shape is filled with, after its rule is resolved.
+	#
+	#   pcPath     the path of the shape
+	#   returns    a text, a hex colour or a colour name; an empty text for a path that is not a
+	#              shape
+	#   see        StrokeOf, Background
+	#@ aka  The colour a shape is drawn with, after its rule is resolved: what the guard reads, and what a consumer of the SVG gets.
 	def FillOf(pcPath)
 		This.Layout()
 		_i_ = This._ShapeIndex(pcPath)
 		if _i_ = 0  return ""  ok
 		return This._ColourFor(pcPath, This._Prop(@aShapes[_i_][3], "fill", ""))
 
+	# Returns the colour a shape's outline is drawn with, after its rule is resolved.
+	#
+	#   pcPath     the path of the shape
+	#   returns    a text, a hex colour; an empty text for a path that is not a shape
+	#   see        FillOf, Background
 	def StrokeOf(pcPath)
 		This.Layout()
 		_i_ = This._ShapeIndex(pcPath)
@@ -5676,7 +6004,11 @@ class stzMathDiagram from stzObject
 		next
 		return pc
 
-	# the paper's colour: the theme's background
+	# Returns the colour of the paper in the theme now set.
+	#
+	#   returns    a text such as "#FFFFFF"
+	#   see        SetPictureTheme, FillOf
+	#@ aka  the paper's colour: the theme's background
 	def Background()
 		return This._RoleColour("background")
 
@@ -6059,7 +6391,12 @@ class stzMathDiagram from stzObject
 		@nMatchCandidates++
 		return _aQ_
 
-	# how many candidate bindings the last compile enumerated
+	# Returns how many candidate bindings the last compile tried when matching the rules to the objects.
+	#
+	#   returns    a number
+	#   note       a count and not a clock, so it is the same on every run
+	#   see        NumberOfConstraints, StartsTried
+	#@ aka  how many candidate bindings the last compile enumerated
 	def MatchCandidates()
 		This.Layout()
 		return @nMatchCandidates
@@ -7642,23 +7979,28 @@ class stzMathDiagram from stzObject
 		next
 		@aVCache = []
 
-	# Uniform over the canvas, as Penrose samples; radii and sizes from a
-	# band that gives the solver room. Three draws, the one with the least
-	# initial energy kept -- Penrose 4.2.1.
-	# How many starts the last layout needed, and which one it kept. A
-	# start the graph could not give -- a planar one on a tree, a layout
-	# on a substance with no graph -- falls back to random and says so.
+	# Returns how many starting layouts the last solve tried.
+	#
+	#   returns    a number
+	#   see        StartUsed, SetVariation
+	#@ aka  Uniform over the canvas, as Penrose samples; radii and sizes from a band that gives the solver room. Three draws, the one with the least initial energy kept -- Penrose 4.2.1. How many starts the last layout needed, and which one it kept. A start the graph could not give -- a planar one on a tree, a layout on a substance with no graph -- falls back to random and says so.
 	def StartsTried()
 		This.Layout()
 		return @nStartsTried
 
-	# Crossing rules left unmet when the start was not planar and the rule
-	# was therefore advice: zero for a planar start, and for any picture
-	# that has no crossing rule.
+	# Returns how many crossing rules were left unmet when the start was not planar and the rule was therefore advice.
+	#
+	#   returns    a number; 0 for a planar start and for a picture with no crossing rule
+	#   see        StartedPlanar, Violations
+	#@ aka  Crossing rules left unmet when the start was not planar and the rule was therefore advice: zero for a planar start, and for any picture that has no crossing rule.
 	def AdvisoryUnmet()
 		This.Layout()
 		return @nAdvisoryUnmet
 
+	# Returns the kind of start the last layout began from.
+	#
+	#   returns    a text, random or planar
+	#   see        StartedPlanar, StartsTried
 	def StartUsed()
 		This.Layout()
 		return @cStartUsed
@@ -7860,15 +8202,22 @@ class stzMathDiagram from stzObject
 		next
 		return FALSE
 
-	# Did the last layout begin from a planar embedding? False when the
-	# style asked for none, and false when it asked and the graph could not
-	# give one -- a tree, a path, anything Tutte collapses.
+	# TRUE if the last layout began from a planar embedding of the graph.
+	#
+	#   returns    TRUE or FALSE; FALSE when the style asked for none or the graph could not give
+	#              one
+	#   see        OuterFace, StartUsed
+	#@ aka  Did the last layout begin from a planar embedding? False when the style asked for none, and false when it asked and the graph could not give one -- a tree, a path, anything Tutte collapses.
 	def StartedPlanar()
 		This.Layout()
 		return @bPlanarStarted
 
-	# The face the planar start was built on, as object names in cycle
-	# order; empty when there was no planar start.
+	# Returns the face the planar start was built on, as object names in cycle order.
+	#
+	#   returns    a list of text; empty when there was no planar start
+	#   note       the cube Q3 gave [ v001, v011, v010, v000 ]
+	#   see        StartedPlanar
+	#@ aka  The face the planar start was built on, as object names in cycle order; empty when there was no planar start.
 	def OuterFace()
 		This.Layout()
 		return @acOuterFace
@@ -8815,6 +9164,11 @@ class stzMathDiagram from stzObject
 		@aVCache[_k_] = _v_
 		return _v_
 
+	# Forgets the cached values, colours, ink and names, so the next question reads the picture afresh.
+	#
+	#   returns    the diagram itself, so calls chain
+	#   note       the picture is not solved again; the setters that change colours call it for you
+	#   see        SetPictureTheme, Ink
 	def Touch()
 		@aVCache = []
 		@aRoleCache = []
@@ -8823,8 +9177,12 @@ class stzMathDiagram from stzObject
 		@bDrawOrdered = FALSE
 		return This
 
-	# Every drawn stroke as a segment, [ x1, y1, x2, y2, cOwner, cPath ] --
-	# what a rule that judges the picture reads, once per solve
+	# Returns every stroke drawn as a segment with its owner.
+	#
+	#   returns    a list of [ x1, y1, x2, y2, owner, path ] rows
+	#   note       kept once per solve
+	#   see        Texts, ToSVG
+	#@ aka  Every drawn stroke as a segment, [ x1, y1, x2, y2, cOwner, cPath ] -- what a rule that judges the picture reads, once per solve
 	def Ink()
 		This.Layout()
 		if NOT @bInkCached
@@ -8833,11 +9191,11 @@ class stzMathDiagram from stzObject
 		ok
 		return @aInkCache
 
-	# EVERY DRAWN NAME -- the text shapes that are visible and say
-	# something -- once per solve, like the ink. Every name rule's scope
-	# listed them by resolving every shape of the picture, and the
-	# governance asks a scope thousands of times: on the five-thousand-dot
-	# picture that was five thousand resolutions per ask.
+	# Returns the paths of the names drawn: the visible text shapes that say something.
+	#
+	#   returns    a list of text
+	#   see        Ink, Shapes
+	#@ aka  EVERY DRAWN NAME -- the text shapes that are visible and say something -- once per solve, like the ink. Every name rule's scope listed them by resolving every shape of the picture, and the governance asks a scope thousands of times: on the five-thousand-dot picture that was five thousand resolutions per ask.
 	def Texts()
 		This.Layout()
 		if NOT @bTextsCached

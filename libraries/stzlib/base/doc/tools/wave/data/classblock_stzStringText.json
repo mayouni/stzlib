@@ -1,0 +1,26 @@
+{
+ "brief": "Answers questions about a text as prose: its words, sentences, paragraphs and lines, its writing systems, and common clean-ups.",
+ "detail": "stzString builds one of these to answer Script, Words and the other text-level questions; build one directly with a text, or use stzText, which inherits from it and adds meaning-level methods. Words, sentences and lines follow the Unicode rules, so Hebrew, Arabic, Chinese and emoji text is segmented where a reader would expect. Verbs such as ReverseWords and Simplify change the held text in place and return nothing (the Q form returns the object so calls chain), and the past-tense form (WordsReversed, Simplified) returns the new text and leaves the object alone. Pass a plain text, not a stzString: the first edit made through the object empties the stzString that was passed in. Known defects today: UniqueWords keeps the punctuation stuck to a word, so ContainsWord misses it; ReverseEachWord and EachWordReversed break any non-ASCII word; OnlyScript, OnlyArabic and OnlyLatin raise errors; ToSentenceCase capitalizes only the first letter.",
+ "receiver": "o1 = new stzStringText(\"the quick brown fox jumps over the lazy dog\")",
+ "example": [
+  "? o1.NumberOfWords()",
+  "#--> 9",
+  "? o1.WordsReversed()",
+  "#--> dog lazy the over jumps fox brown quick the",
+  "o2 = new stzStringText(\"שלום עולם\")",
+  "? o2.WordsReversed()",
+  "#--> עולם שלום",
+  "? o2.Script()",
+  "#--> hebrew",
+  "o3 = new stzStringText(\"Hello 😀 world مرحبا\")",
+  "? o3.Script()",
+  "#--> hybrid",
+  "? o3.NumberOfWords()",
+  "#--> 3"
+ ],
+ "see": [
+  "stzText",
+  "stzString",
+  "stzStringChecker"
+ ]
+}

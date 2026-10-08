@@ -331,14 +331,31 @@ func _StzDocParamsOf(pcTrim)
 	if _nO_ = 0
 		return _aOut_
 	ok
+	# the parameter list ends at the parenthesis that closes the first one (balanced), not at the LAST one on the
+	# line: `def Width()   return @oStyle.Width()` is a one-line method whose body also holds parentheses
 	_nC_ = 0
 	_nL_ = len(pcTrim)
-	for _i_ = _nL_ to _nO_ + 1 step -1
-		if pcTrim[_i_] = ")"
-			_nC_ = _i_
-			exit
+	_nDepth_ = 0
+	for _i_ = _nO_ to _nL_
+		if pcTrim[_i_] = "("
+			_nDepth_++
+		but pcTrim[_i_] = ")"
+			_nDepth_--
+			if _nDepth_ = 0
+				_nC_ = _i_
+				exit
+			ok
 		ok
 	next
+	if _nC_ = 0
+		# unbalanced (a default value with a stray parenthesis): keep the old reading, the last one on the line
+		for _i_ = _nL_ to _nO_ + 1 step -1
+			if pcTrim[_i_] = ")"
+				_nC_ = _i_
+				exit
+			ok
+		next
+	ok
 	if _nC_ <= _nO_ + 1
 		return _aOut_
 	ok

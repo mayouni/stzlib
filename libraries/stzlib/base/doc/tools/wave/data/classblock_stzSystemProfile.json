@@ -1,0 +1,16 @@
+{
+ "brief": "Describes one system as a bundle of facts: its operating system, runtime, resources and capabilities.",
+ "detail": "A profile is a named scope the code is written against. A live one (stzDevSystem, stzCurrentSystem) is filled from the machine; a declared one, made with DeclareSystem, holds only the values it was given, so a profile for Android answers android on a Windows machine. The capabilities are drawn from a closed list, and Forbids, Requires and CompareTo set a target against this system. A profile is saved to and read from a .stzsystem text file.",
+ "receiver": "o1 = new stzSystemProfile(\"phone\")",
+ "example": [
+  "o1.SetOSName(\"android\")",
+  "? o1.SystemClass()",
+  "#--> mobile",
+  "o1.SetCapabilityList([ \"filesystem\", \"network\", \"clock\" ])",
+  "? o1.Can(\"network\")",
+  "#--> 1",
+  "? @@( o1.CapabilityKinds() )",
+  "#--> [ \"effectful\", \"sensing\" ]"
+ ],
+ "see": ["DeclareSystem", "stzDevSystem", "stzCurrentSystem", "stzOperatingSystem"]
+}

@@ -1,0 +1,22 @@
+{
+ "brief": "Deletes parts of a text: a substring, an occurrence, a position or section, the spaces, the repeats or what lies between two bounds.",
+ "detail": "It is the removal helper behind many Remove methods of stzString, which builds one over itself and writes the result back; build one directly when you only need the removals. Each verb changes the held text in place and returns nothing (the Q form returns the remover so calls chain), and the form that ends in -Removed returns the new text and leaves the remover alone. Read the result with Content. Positions count characters, not bytes, so Hebrew, Arabic and emoji text is cut where you expect. Pass a plain text, not a stzString object: editing through a remover empties the stzString that was passed in. The case-flag forms (CS) of the first, last, nth, from-left, from-right and between removals ignore their flag today, and the nth rank starts at 0 here. An end position before a start position, or a closing-bound removal (IB) that finds no pair, kills the Ring process.",
+ "receiver": "o1 = new stzStringRemover(\"banana split\")",
+ "example": [
+  "o1.RemoveFirst(\"an\")",
+  "? o1.Content()",
+  "#--> bana split",
+  "o2 = new stzStringRemover(\"שלום עולם\")",
+  "o2.RemoveSpaces()",
+  "? o2.Content()",
+  "#--> שלוםעולם",
+  "o3 = new stzStringRemover(\"a😀b😀c\")",
+  "? o3.CharRemovedAt(2)",
+  "#--> ab😀c"
+ ],
+ "see": [
+  "stzString",
+  "stzStringReplacer",
+  "stzStringChecker"
+ ]
+}

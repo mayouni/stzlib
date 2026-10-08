@@ -1,0 +1,52 @@
+# Wave 9 -- stzOperatingSystem. Name | brief | returns | params | see | warning | note
+init | Builds a reader of the machine the program runs on; it takes no argument and holds nothing. | nothing; the object is built | | Name, Architecture
+Architecture | Returns the processor family of this machine, read from the engine: x64, x86, arm or arm64. | a text such as "x64" | | BitSize, IsX64, IsARM64 | | the engine is the one source of the fact, so the answer agrees with stzProcess
+Is32Bit | TRUE if this machine's native pointer is 4 bytes wide. | TRUE or FALSE | | BitSize, Is64Bit, PointerSize |
+BitSize | Returns the width of this machine's native pointer, in bits. | a number, 32 or 64 | | Is32Bit, Is64Bit, PointerSize
+Endianness | Returns the byte order of this machine as a word. | a text, "little" or "big" | | IsLittleEndian, IsBigEndian
+IsLittleEndian | TRUE if this machine stores the least significant byte first. | TRUE or FALSE | | Endianness, IsBigEndian
+IsBigEndian | TRUE if this machine stores the most significant byte first. | TRUE or FALSE | | Endianness, IsLittleEndian
+PointerSize | Returns how many bytes a native pointer takes on this machine. | a number, 4 or 8 | | BitSize
+IsARM | TRUE if the processor is an ARM, 32-bit or 64-bit. | TRUE or FALSE | | Architecture, IsARM32, IsARM64
+IsARM32 | TRUE if the processor is a 32-bit ARM. | TRUE or FALSE | | IsARM, Architecture
+IsARM64 | TRUE if the processor is a 64-bit ARM. | TRUE or FALSE | | IsARM, Architecture
+IsX86 | TRUE if the processor is a 32-bit Intel-compatible one. | TRUE or FALSE | | IsX64, IsIntel
+IsX64 | TRUE if the processor is a 64-bit Intel-compatible one. | TRUE or FALSE | | IsX86, IsIntel
+IsIntel | TRUE if the processor is Intel-compatible, 32-bit or 64-bit. | TRUE or FALSE | | IsX86, IsX64
+Name | Returns the family of operating system this program runs on, as a lower-case word. | a text: windows, msdos, unix, linux, macos, freebsd, android, or unknown | | FullName, NameAndArchitecture, IsWindows | on Linux the answer depends on Ring's own Unix test, which Name asks before the Linux test: this was run on Windows only, so whether Linux answers linux or unix is not run | the other Is... family predicates compare this word
+NameAndArchitecture | Returns the operating system and the processor family together, as a pair. | a list [ name, architecture ], such as [ "windows", "x64" ] | | Name, Architecture
+FullName | Returns the operating system and its pointer width as one sentence-like text. | a text such as "windows 64-bit" | | Name, BitSize
+IsWindows | TRUE if this program runs on Microsoft Windows. | TRUE or FALSE | | IsWindows64, Name
+IsWindows32 | TRUE if this program runs on 32-bit Microsoft Windows. | TRUE or FALSE | | IsWindows, Is32Bit
+IsWindows64 | TRUE if this program runs on 64-bit Microsoft Windows. | TRUE or FALSE | | IsWindows, Is64Bit
+IsMSDOS | TRUE if this program runs on MS-DOS. | TRUE or FALSE | | IsMicrosoft, Name
+IsMSDOS32 | TRUE if this program runs on 32-bit MS-DOS. | TRUE or FALSE | | IsMSDOS, Is32Bit
+IsMSDOS64 | TRUE if this program runs on 64-bit MS-DOS. | TRUE or FALSE | | IsMSDOS, Is64Bit
+IsUnix | TRUE if the family word is unix, which Name tests before linux, macos and freebsd. | TRUE or FALSE | | IsUnixLike, Name | | on a system where Ring's own Unix test is also true for Linux, this answers TRUE and IsLinux FALSE; not run, this was checked on Windows only
+IsUnix32 | TRUE if this program runs on a generic 32-bit Unix system. | TRUE or FALSE | | IsUnix, Is32Bit
+IsUnix64 | TRUE if this program runs on a generic 64-bit Unix system. | TRUE or FALSE | | IsUnix, Is64Bit
+IsLinux | TRUE if this program runs on Linux. | TRUE or FALSE | | IsLinux64, IsUnixLike
+IsLinux32 | TRUE if this program runs on 32-bit Linux. | TRUE or FALSE | | IsLinux, Is32Bit
+IsLinux64 | TRUE if this program runs on 64-bit Linux. | TRUE or FALSE | | IsLinux, Is64Bit
+IsFreeBSD | TRUE if this program runs on FreeBSD. | TRUE or FALSE | | IsUnixLike, Name
+IsFreeBSD32 | TRUE if this program runs on 32-bit FreeBSD. | TRUE or FALSE | | IsFreeBSD, Is32Bit
+IsFreeBSD64 | TRUE if this program runs on 64-bit FreeBSD. | TRUE or FALSE | | IsFreeBSD, Is64Bit
+IsMacOS | TRUE if this program runs on macOS. | TRUE or FALSE | | IsMacOS64, IsUnixLike
+IsMacOS32 | TRUE if this program runs on 32-bit macOS. | TRUE or FALSE | | IsMacOS, Is32Bit
+IsMacOS64 | TRUE if this program runs on 64-bit macOS. | TRUE or FALSE | | IsMacOS, Is64Bit
+IsAndroid | TRUE if this program runs on Android, which is also what IsMobile asks. | TRUE or FALSE | | IsAndroid64, IsDesktop
+IsAndroid32 | TRUE if this program runs on 32-bit Android. | TRUE or FALSE | | IsAndroid, Is32Bit
+IsAndroid64 | TRUE if this program runs on 64-bit Android. | TRUE or FALSE | | IsAndroid, Is64Bit
+IsUnixLike | TRUE if the system follows the Unix tradition: Unix, Linux, macOS or FreeBSD. | TRUE or FALSE | | IsMicrosoft, Name | | IsPOSIX asks the same; Android is not counted
+IsMicrosoft | TRUE if the system is Windows or MS-DOS. | TRUE or FALSE | | IsUnixLike, Name
+IsDesktop | TRUE if the system is not a mobile one, that is not Android. | TRUE or FALSE | | IsAndroid, Name | | a system whose family is unknown also answers TRUE
+Info | Returns a summary of the system as a list of [ key, value ] pairs. | a list of pairs: name, architecture, bits, fullname, isunixlike, ismicrosoft, ismobile | | Show, Name | | SystemInfo and Details are the same call
+Show | Prints a summary of the system, one fact per line, under a heading. | nothing; it prints | | Info | | Print and Display are the same call
+PathSeparator | Returns the character that separates the parts of a file path on this system. | a text, "\" on Windows and "/" elsewhere | | NormalizePath, LineEnding
+LineEnding | Returns the end-of-line marker of this system. | a text, a carriage return then a line feed on Windows and a line feed elsewhere | | PathSeparator
+NormalizePath | Returns a path with its separators changed to this system's own. | a text; backslashes on Windows, slashes elsewhere | _cPath_=the path to convert, as text | PathSeparator | | the path is not checked against the disk; NormalizePathQ is the same call and returns the same text
+ExecutableExtension | Returns the suffix that names a program file on this system. | a text, ".exe" on Windows and an empty text elsewhere | | PathSeparator, IsWindows
+SupportsColor | TRUE if the console can be assumed to show ANSI colours. | TRUE or FALSE | | Info | | it is a guess by operating system, not a test of the console: it answers TRUE on every system
+
+Print | Prints a summary of the system, one fact per line, as Show does. | nothing; it prints | | Show, Info
+Display | Prints a summary of the system, one fact per line, as Show does. | nothing; it prints | | Show, Info

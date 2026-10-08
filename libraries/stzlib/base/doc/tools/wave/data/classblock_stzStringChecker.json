@@ -1,0 +1,22 @@
+{
+ "brief": "Answers yes/no questions about a text: palindrome, anagram, number form, case, composition, marks and regex match.",
+ "detail": "It is the question-answering helper behind many Is... methods of stzString, which builds one over itself and passes the call on; reach for it directly when you only want the checks and not the whole string API. A question answers 1 or 0 and never changes the text. Every question counts characters, not bytes, so a Hebrew or Arabic word and an emoji are one character each. The number checks that expect a prefix (0b, 0o, 0x, U+) answer 0 without it. The case-flag forms (CS) take 1 to compare with case and 0 to ignore it. HasLeadingChars, HasTrailingChars and HasLeadingAndTrailingChars answer 0 for every text today; use the stzString methods of the same names.",
+ "receiver": "o1 = new stzStringChecker(\"level\")",
+ "example": [
+  "? o1.IsPalindrome()",
+  "#--> 1",
+  "? o1.IsMadeOf([ \"lev\", \"el\" ])",
+  "#--> 1",
+  "o2 = new stzStringChecker(\"שלום\")",
+  "? o2.IsReversedCopyOf(\"םולש\")",
+  "#--> 1",
+  "o3 = new stzStringChecker(\"a😀b\")",
+  "? o3.NumberOfChars()",
+  "#--> 3"
+ ],
+ "see": [
+  "stzString",
+  "stzStringRemover",
+  "stzStringReplacer"
+ ]
+}

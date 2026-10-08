@@ -1,0 +1,16 @@
+{
+ "brief": "Holds a run of raw bytes in a Ring text, and reads, cuts and converts it byte by byte.",
+ "detail": "Positions and sizes count bytes, never characters, so a character of several bytes is several items here (Chars and the per-character methods are the exception). The bytes can be read as numbers, as hexadecimal, as Base64 or with percent escapes, and written back from those forms. Methods that change the object say so with a verb such as Clear, Trim or Update; the others return a new text. The name stzBytes is the same class.",
+ "receiver": "o1 = new stzListOfBytes(\"Hi!\")",
+ "example": [
+  "? @@( o1.Bytecodes() )",
+  "#--> [ 72, 105, 33 ]",
+  "? o1.ToHex()",
+  "#--> 0x486921",
+  "? o1.ToBase64()",
+  "#--> SGkh",
+  "? o1.LeftNBytes(2)",
+  "#--> Hi"
+ ],
+ "see": ["stzString", "stzList", "StzListOfBytesQ"]
+}

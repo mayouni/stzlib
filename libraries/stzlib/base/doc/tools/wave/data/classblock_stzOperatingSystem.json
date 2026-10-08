@@ -1,0 +1,14 @@
+{
+ "brief": "Answers what machine and operating system the program runs on, with a predicate for each family and width.",
+ "detail": "It reads the processor facts (architecture, pointer width, byte order) from the engine and the operating-system family from Ring, and offers one TRUE or FALSE question per family and per width, so a program branches on the machine instead of parsing a name. Name gives the family as a lower-case word, Info gathers the facts in a list of pairs, and PathSeparator, LineEnding, NormalizePath and ExecutableExtension answer what a path or a program file looks like here. It only reads: nothing is changed on the machine.",
+ "receiver": "o1 = new stzOperatingSystem()",
+ "example": [
+  "? o1.BitSize() = (o1.PointerSize() * 8)",
+  "#--> 1",
+  "? o1.NormalizePath(\"a/b/c.txt\") = (\"a\" + o1.PathSeparator() + \"b\" + o1.PathSeparator() + \"c.txt\")",
+  "#--> 1",
+  "? len(o1.Info())",
+  "#--> 7"
+ ],
+ "see": ["stzProcess", "stzSystemProfile", "stzCurrentSystem"]
+}

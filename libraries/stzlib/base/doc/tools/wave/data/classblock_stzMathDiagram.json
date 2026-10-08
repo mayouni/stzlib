@@ -1,0 +1,16 @@
+{
+ "brief": "Solves and draws a mathematical diagram: objects and relations laid out so that every rule about them holds.",
+ "detail": "A diagram is made of three parts: a domain (set theory, geometry, graphs), a substance that declares the objects and asserts relations between them, and a style that turns each object into shapes and each relation into rules. Nothing is drawn by hand. The first question asked of the diagram solves it, a contradictory substance gives a picture that says it is not lawful instead of an error, and every shape, number and mark can be read back, which is what lets a caption quote the picture. The figure can be pinned, dragged, windowed, marked and written out as SVG or PNG.",
+ "receiver": "os = new stzMathSubstance(StzSetTheoryDomain()); os.DeclareAll(\"Set\", [ \"A\", \"B\" ]); os.Assert(\"Subset\", [ \"B\", \"A\" ]); os.AutoLabelAll(); o1 = new stzMathDiagram(StzSetTheoryDomain(), os, StzEulerStyle())",
+ "example": [
+  "? @@( o1.Shapes() )",
+  "#--> [ \"A.icon\", \"A.text\", \"B.icon\", \"B.text\" ]",
+  "? o1.IsFeasible()",
+  "#--> 1",
+  "? o1.ShapeOf(\"B.icon\")[:kind]",
+  "#--> circle",
+  "? o1.Fact(:count, [ \"shapes\" ])[:message]",
+  "#--> the picture reports 4 shapes"
+ ],
+ "see": ["stzMathSubstance", "stzMathDomain", "stzMathStyle", "StzMathDiagramQ", "stzCanvas"]
+}

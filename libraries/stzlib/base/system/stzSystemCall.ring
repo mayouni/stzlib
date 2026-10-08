@@ -110,6 +110,24 @@ func StzSystemSilentXT(pcProgram, pacArgs)
 # THE CLASS
 #===========
 
+# Runs an external program from a command line or from a program and a list of arguments, and keeps its output and exit code.
+#
+# Build the call, run it, then read Output, Error and ExitCode. The command is run by the engine
+# with no console window. A list of arguments given with SetArgs reaches a program that is not a
+# shell one by one, with no shell parsing them; a command line that starts with a shell word such as
+# echo or holds a pipe is wrapped to run through the shell. ReturnType asks for the output as text,
+# as lines or as a number. Set the program and arguments only from values you trust, since the call
+# starts a real process.
+#
+#   receiver   o1 = new stzSystemCall("echo hello world")
+#   example    o1.Run()
+#              ? o1.Succeeded()
+#              #--> 1
+#              ? o1.OutputAsLines()[1]
+#              #--> hello world
+#              ? o1.ExitCode()
+#              #--> 0
+#   see        StzSystem, StzSystemCallQ, StzOpenInDefaultApp, stzProcess
 class stzSystemCall from stzObject
 	@cCommandString = ""
 	@cProgram = ""
@@ -133,6 +151,15 @@ class stzSystemCall from stzObject
 	# Return type control for Sys() commands
 	@cReturnType = "string"  # "string", "number", or "list"
 
+	# Builds a call from a command line, splitting it into a program and arguments; nothing runs yet.
+	#
+	#   pcCommandString   the command line, as text
+	#   returns           nothing; the object is built
+	#   note              on Windows a command that starts with a shell word such as echo, or holds
+	#                     a pipe, an ampersand or a redirection, is wrapped to run through cmd.exe
+	#                     /c, so Program answers cmd.exe
+	#   warning           anything but a text raises the error Command must be a string!
+	#   see               Run, SetArgs, SetReturnType
 	def init(pcCommandString)
 		if NOT isString(pcCommandString)
 			stzraise("Command must be a string!")
@@ -142,6 +169,13 @@ class stzSystemCall from stzObject
 		This.ParseCommandString(pcCommandString)
 		This.UseShellIfNeeded()
 
+	# Splits a command line into the program and its arguments, keeping a double-quoted part as one argument.
+	#
+	#   _cCmd_     the command line, as text
+	#   returns    nothing; Program and Args hold the result
+	#   note       the program is the first word, so a program path with spaces must be set with
+	#              SetProgram
+	#   see        Program, Args
 	def ParseCommandString(_cCmd_)
 		# Check for return type suffix (@RETURN:type)
 		_nReturnPos_ = StzFindFirst("@RETURN:", _cCmd_)
@@ -199,6 +233,13 @@ class stzSystemCall from stzObject
 	#  MAIN EXECUTION  #
 	#-------------------#
 
+	# Runs the command and keeps its output, error text and exit code in the object.
+	#
+	#   returns    nothing; read Output, Error and ExitCode afterwards
+	#   note       RunQ is the same call and returns the object; Execute and Exec are the same call;
+	#              the Timeout is stored but not applied, see SetTimeout
+	#   warning    an empty program raises the error No program specified!
+	#   see        RunAndGetOutput, RunSilently, Succeeded
 	def Run()
 
 		if @cProgram = ""
@@ -288,6 +329,10 @@ class stzSystemCall from stzObject
 			This.Run()
 			return This
 
+		# Runs the command and keeps its output, error text and exit code in the object.
+		#
+		#   returns    nothing; read Output, Error and ExitCode afterwards
+		#   see        Run, Exec
 		def Execute()
 			This.Run()
 
@@ -295,6 +340,10 @@ class stzSystemCall from stzObject
 			This.Execute()
 			return This
 
+		# Runs the command and keeps its output, error text and exit code in the object.
+		#
+		#   returns    nothing; read Output, Error and ExitCode afterwards
+		#   see        Run, Execute
 		def Exec()
 			This.Run()
 
@@ -306,6 +355,15 @@ class stzSystemCall from stzObject
 	#  RETURN TYPE CONTROL  #
 	#-----------------------#
 
+	# Chooses how the output is read after a run: as text, as a number or as a list of lines.
+	#
+	#   _cType_    string, number or list
+	#   returns    the object itself, so calls chain
+	#   note       with list or number the output is turned into that type by Run, and then
+	#              OutputAsLines raises an error; a number is read only from output made of digits,
+	#              see ParseOutputAsNumber
+	#   warning    any other word raises the error Return type must be 'string', 'number', or 'list'
+	#   see        ReturnType, Run
 	def SetReturnType(_cType_)
 		_cType_ = StzLower(_cType_)
 		if NOT (_cType_ = "string" or _cType_ = "number" or _cType_ = "list")
@@ -318,6 +376,10 @@ class stzSystemCall from stzObject
 			This.SetReturnType(_cType_)
 			return This
 
+	# Returns how the output is read after a run: string, number or list.
+	#
+	#   returns    a text, "string" by default
+	#   see        SetReturnType, ConvertOutputByType
 	def ReturnType()
 		return @cReturnType
 
@@ -364,6 +426,12 @@ class stzSystemCall from stzObject
 		ok
 		return _cCmd_
 
+	# Turns the text output into a list of lines or a number according to the return type; text stays as it is.
+	#
+	#   returns    nothing; Output holds the converted value
+	#   note       Run calls it for you when the output is captured; calling it again on an already
+	#              converted output does nothing
+	#   see        SetReturnType, ParseOutputAsLines, ParseOutputAsNumber
 	def ConvertOutputByType()
 		if NOT isString(@cOutput)
 			return  # Already converted or empty
@@ -374,8 +442,11 @@ class stzSystemCall from stzObject
 		but @cReturnType = "number"
 			@cOutput = This.ParseOutputAsNumber()
 		ok
-		# "string" type needs no conversion
-
+	# Returns the output split into its non-empty lines, each trimmed.
+	#
+	#   returns    a list of text; an empty list when there is no output
+	#   see        OutputAsLines, ParseOutputAsNumber
+	#@ aka  "string" type needs no conversion
 	def ParseOutputAsLines()
 		if NOT isString(@cOutput) or @cOutput = ""
 			return []
@@ -393,6 +464,15 @@ class stzSystemCall from stzObject
 		next
 		return _aResult_
 
+	# Returns the first number found in the output.
+	#
+	#   returns    a number; 0 when the output is empty
+	#   note       it works only on output made of digits
+	#   warning    raises the error R41 Invalid numeric string when the output holds a character
+	#              that is not a digit, so "12" is read and "42 apples", "3.5", "-8" and "none" all
+	#              raise (its character test compares each character with "0" and raises on a
+	#              letter, a space after the digits, a sign or a point)
+	#   see        ParseOutputAsLines, SetReturnType
 	def ParseOutputAsNumber()
 		if NOT isString(@cOutput) or @cOutput = ""
 			return 0
@@ -426,9 +506,18 @@ class stzSystemCall from stzObject
 	#  CONFIGURATION        #
 	#-----------------------#
 
+	# Returns the program the call will run.
+	#
+	#   returns    a text
+	#   see        SetProgram, Args
 	def Program()
 		return @cProgram
 
+	# Sets the program the call will run.
+	#
+	#   pcProgram   the program name or path, as text
+	#   returns     nothing; use SetProgramQ to chain
+	#   see         Program, SetArgs
 	def SetProgram(pcProgram)
 		@cProgram = pcProgram
 
@@ -436,9 +525,22 @@ class stzSystemCall from stzObject
 			This.SetProgram(pcProgram)
 			return This
 
+	# Returns the arguments the call will pass to the program.
+	#
+	#   returns    a list of text
+	#   see        SetArgs, AddArg
 	def Args()
 		return @acArgs
 
+	# Sets the argument list and, for a program that is not a shell, makes the call run them without any shell parsing.
+	#
+	#   pacArgs    the arguments, as a list of text
+	#   returns    nothing; use SetArgsQ to chain
+	#   note       WithArgs is the same call; a shell program such as cmd.exe, sh, bash or
+	#              powershell keeps shell parsing
+	#   warning    a list holding a non-text raises the error Args must be a list of strings! when
+	#              parameter checking is on
+	#   see        Args, AddArg, SetParam
 	def SetArgs(pacArgs)
 		if CheckingParams()
 			if NOT (isList(pacArgs) and IsListOfStrings(pacArgs))
@@ -458,6 +560,11 @@ class stzSystemCall from stzObject
 			@bArgvMode = 1
 		ok
 
+		# Sets the argument list, as SetArgs does.
+		#
+		#   pacArgs    the arguments, as a list of text
+		#   returns    nothing; use WithArgsQ to chain
+		#   see        SetArgs, Args
 		def WithArgs(pacArgs)
 			This.SetArgs(pacArgs)
 
@@ -468,6 +575,13 @@ class stzSystemCall from stzObject
 		def WithArgsQ(pacArgs)
 			return This.SetArgsQ(pacArgs)
 
+	# Replaces {name} in every argument by a value.
+	#
+	#   cParam     the placeholder name, written without braces
+	#   _cValue_   the text to put in its place
+	#   returns    nothing
+	#   note       on Windows a value holding / or \ gets its slashes turned into backslashes
+	#   see        SetParams, SetArgs
 	def SetParam(cParam, _cValue_)
 		# Convert forward slashes to backslashes on Windows for path-like values
 		if isWindows() and (StzFindFirst("/", _cValue_) > 0 or StzFindFirst("\", _cValue_) > 0)
@@ -479,12 +593,23 @@ class stzSystemCall from stzObject
 			@acArgs[i] = StzReplace(@acArgs[i], "{" + cParam + "}", _cValue_)
 		next
 
+	# Replaces several {name} placeholders in the arguments, one pair after another.
+	#
+	#   aParams    a list of [ name, value ] pairs
+	#   returns    nothing; use SetParamsQ to chain
+	#   note       WithParams is the same call
+	#   see        SetParam, SetArgs
 	def SetParams(aParams)
 		_nLen_ = len(aParams)
 		for i = 1 to _nLen_
 			This.SetParam(aParams[i][1], aParams[i][2])
 		next
 
+		# Replaces several {name} placeholders in the arguments, as SetParams does.
+		#
+		#   aParams    a list of [ name, value ] pairs
+		#   returns    nothing; use WithParamsQ to chain
+		#   see        SetParams, SetArgs
 		def WithParams(aParams)
 			This.SetParams(aParams)
 
@@ -495,9 +620,20 @@ class stzSystemCall from stzObject
 		def WithParamsQ(aParams)
 			return This.SetParamsQ(aParams)
 
+	# Appends one argument to the list.
+	#
+	#   pcArg      the argument to append, as text
+	#   returns    nothing; use AddArgQ to chain
+	#   note       WithArg is the same call
+	#   see        Args, SetArgs
 	def AddArg(pcArg)
 		@acArgs + pcArg
 
+		# Appends one argument to the list, as AddArg does.
+		#
+		#   pcArg      the argument to append, as text
+		#   returns    nothing; use WithArgQ to chain
+		#   see        AddArg, Args
 		def WithArg(pcArg)
 			This.AddArg(pcArg)
 
@@ -508,6 +644,10 @@ class stzSystemCall from stzObject
 		def WithArgQ(pcArg)
 			return This.AddArgQ(pcArg)
 
+	# Empties the argument list.
+	#
+	#   returns    nothing; use ClearArgsQ to chain
+	#   see        Args, Reset
 	def ClearArgs()
 		@acArgs = []
 
@@ -515,9 +655,23 @@ class stzSystemCall from stzObject
 			This.ClearArgs()
 			return This
 
+	# Stores a timeout in milliseconds for the call.
+	#
+	#   nMilliseconds   the timeout, in milliseconds
+	#   returns         nothing; use SetTimeoutQ to chain
+	#   note            WithTimeout is the same call
+	#   warning         the value is only stored: nothing reads it when the command runs, so a call
+	#                   set to 1 ms still ran a 2-second command to its end (ping -n 3 on 127.0.0.1,
+	#                   2083 ms, exit 0, tried also with echo)
+	#   see             Timeout
 	def SetTimeout(nMilliseconds)
 		@nTimeout = nMilliseconds
 
+		# Stores a timeout in milliseconds, as SetTimeout does; like it, the value is not applied when the command runs.
+		#
+		#   nMilliseconds   the timeout, in milliseconds
+		#   returns         nothing; use WithTimeoutQ to chain
+		#   see             SetTimeout, Timeout
 		def WithTimeout(nMilliseconds)
 			This.SetTimeout(nMilliseconds)
 
@@ -528,6 +682,11 @@ class stzSystemCall from stzObject
 		def WithTimeoutQ(nMilliseconds)
 			return This.SetTimeoutQ(nMilliseconds)
 
+	# Returns the stored timeout, in milliseconds; 30000 by default.
+	#
+	#   returns    a number
+	#   note       it is a stored value that Run does not apply
+	#   see        SetTimeout
 	def Timeout()
 		return @nTimeout
 
@@ -535,6 +694,10 @@ class stzSystemCall from stzObject
 	#  OUTPUT CONTROL       #
 	#-----------------------#
 
+	# Asks for the output to be kept after a run, which is the default.
+	#
+	#   returns    nothing; use CaptureOutputQ to chain
+	#   see        DontCaptureOutput, Output
 	def CaptureOutput()
 		@bCaptureOutput = 1
 
@@ -542,6 +705,13 @@ class stzSystemCall from stzObject
 			This.CaptureOutput()
 			return This
 
+	# Asks for the output not to be kept after a run.
+	#
+	#   returns    nothing; use DontCaptureOutputQ to chain
+	#   warning    with the console hidden, which is the default, Output still holds the text (tried
+	#              with echo, twice): only the conversion to a list or a number is skipped; with
+	#              ShowConsole the output is really dropped
+	#   see        CaptureOutput, Output
 	def DontCaptureOutput()
 		@bCaptureOutput = 0
 
@@ -549,6 +719,10 @@ class stzSystemCall from stzObject
 			This.DontCaptureOutput()
 			return This
 
+	# Asks for the error text to be kept after a run, which is the default.
+	#
+	#   returns    nothing; use CaptureErrorQ to chain
+	#   see        DontCaptureError, Error
 	def CaptureError()
 		@bCaptureError = 1
 
@@ -556,6 +730,10 @@ class stzSystemCall from stzObject
 			This.CaptureError()
 			return This
 
+	# Asks for the error text not to be kept after a run.
+	#
+	#   returns    nothing; use DontCaptureErrorQ to chain
+	#   see        CaptureError, Error
 	def DontCaptureError()
 		@bCaptureError = 0
 
@@ -563,6 +741,10 @@ class stzSystemCall from stzObject
 			This.DontCaptureError()
 			return This
 
+	# Makes the next run go through Ring's own system call, with the output and error redirected to temporary files.
+	#
+	#   returns    nothing; use ShowConsoleQ to chain
+	#   see        HideConsole, Run
 	def ShowConsole()
 		@bShowConsole = 1
 
@@ -570,12 +752,25 @@ class stzSystemCall from stzObject
 			This.ShowConsole()
 			return This
 
+	# Makes the next run use the engine, with no console window, which is the default.
+	#
+	#   returns    nothing; use HideConsoleQ to chain
+	#   note       Silent and Silently are the same call
+	#   see        ShowConsole, RunSilently
 	def HideConsole()
 		@bShowConsole = 0
 
+		# Makes the next run use the engine, with no console window.
+		#
+		#   returns    nothing; use SilentQ to chain
+		#   see        HideConsole, RunSilently
 		def Silent()
 			This.HideConsole()
 
+		# Makes the next run use the engine, with no console window.
+		#
+		#   returns    nothing; use SilentlyQ to chain
+		#   see        HideConsole, RunSilently
 		def Silently()
 			This.HideConsole()
 
@@ -593,6 +788,12 @@ class stzSystemCall from stzObject
 	#  SILENT EXECUTION     #
 	#-----------------------#
 
+	# Runs the command through the engine and keeps only its exit code.
+	#
+	#   returns    nothing; read ExitCode afterwards
+	#   note       the command's own output is not kept but is not hidden either: it appears in the
+	#              console that started the program
+	#   see        RunSilently, Run
 	def RunEngineSilent()
 		if @bArgvMode
 			_aRun_ = StzEngineSystemRunArgv(This._PackedArgv())
@@ -627,6 +828,13 @@ class stzSystemCall from stzObject
 		ok
 		return 0
 
+	# Runs the command and keeps only its exit code, with no output or error captured.
+	#
+	#   returns    nothing; read ExitCode afterwards
+	#   note       RunSilentlyQ is the same call and returns the object; RunSilent is the same call
+	#   warning    the command's own output is not kept but it still appears in the console that
+	#              started the program (echo printed its text, tried 4 times)
+	#   see        Run, RunEngineSilent
 	def RunSilently()
 		@bRunSilentMode = 1
 		@bShowConsole = 0
@@ -639,6 +847,10 @@ class stzSystemCall from stzObject
 			This.RunSilently()
 			return This
 
+		# Runs the command and keeps only its exit code, with no output or error captured.
+		#
+		#   returns    nothing; read ExitCode afterwards
+		#   see        RunSilently, Run
 		def RunSilent()
 			This.RunSilently()
 
@@ -650,6 +862,12 @@ class stzSystemCall from stzObject
 	#  RESULTS              #
 	#-----------------------#
 
+	# Returns the text the command wrote to its output, as read after the last run.
+	#
+	#   returns    a text; an empty text before a run; a list or a number when the return type asked
+	#              for one
+	#   note       Result and StdOut are the same call; on Windows echo adds a line feed at the end
+	#   see        OutputAsLines, Error, RunAndGetOutput
 	def Output()
 		return @cOutput
 
@@ -659,6 +877,13 @@ class stzSystemCall from stzObject
 		def StdOut()
 			return This.Output()
 
+	# Returns the output as a list of its non-empty lines, each trimmed.
+	#
+	#   returns    a list of text; an empty list when there is no output
+	#   note       OutputAsList, ResultAsLines and ResultAsList are the same call
+	#   warning    raises an error (Bad parameter type for list, Incorrect param type for number)
+	#              when the return type is list or number, because the output was already converted
+	#   see        Output, ParseOutputAsLines
 	def OutputAsLines()
 		if @cOutput = ""
 			return []
@@ -686,36 +911,71 @@ class stzSystemCall from stzObject
 		def ResultAsList()
 			return This.OutputAsLines()
 
+	# Returns the text the command wrote to its error stream, as read after the last run.
+	#
+	#   returns    a text; an empty text before a run
+	#   note       StdErr is the same call
+	#   see        HasError, Output
 	def Error()
 		return @cError
 
 		def StdErr()
 			return This.Error()
 
+	# Returns the exit code of the last run; -1 before any run.
+	#
+	#   returns    a number; 0 usually means success
+	#   see        Succeeded, Failed
 	def ExitCode()
 		return @nExitCode
 
+	# TRUE if the command has been run since the call was built or reset.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Run, Reset
 	def WasExecuted()
 		return @bExecuted
 
+	# TRUE if the command ran and ended with the exit code 0.
+	#
+	#   returns    TRUE or FALSE; FALSE before any run
+	#   note       Success is the same call
+	#   see        Failed, ExitCode
 	def Succeeded()
 		return @bExecuted and @nExitCode = 0
 
 		def Success()
 			return This.Succeeded()
 
+	# TRUE if the command did not run or ended with an exit code other than 0.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Succeeded, ExitCode
 	def Failed()
 		return NOT This.Succeeded()
 
+	# TRUE if the output is not empty.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Output, HasError
 	def HasOutput()
 		if isString(@cOutput)
 			return StzLen(@cOutput) > 0
 		ok
 		return 1
 
+	# TRUE if the error text is not empty.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Error, HasOutput
 	def HasError()
 		return StzLen(@cError) > 0
 
+	# Runs the command and returns its output in one step.
+	#
+	#   returns    a text, or the converted value for the return type
+	#   note       GetOutput is the same call
+	#   see        Run, Output
 	def RunAndGetOutput()
 		This.Run()
 		return @cOutput
@@ -727,6 +987,12 @@ class stzSystemCall from stzObject
 	#  ENVIRONMENT          #
 	#-----------------------#
 
+	# Returns the value of an environment variable of this process.
+	#
+	#   pcVarName   the name of the environment variable
+	#   returns     a text; an empty text when the variable does not exist
+	#   note        GetEnv and EnvironmentVariable are the same call
+	#   see         EngineIsWindows
 	def Env(pcVarName)
 		return StzEngineSystemEnv(pcVarName)
 
@@ -740,12 +1006,24 @@ class stzSystemCall from stzObject
 	#  OS DETECTION         #
 	#-----------------------#
 
+	# TRUE if the engine reports that this machine runs Windows.
+	#
+	#   returns    TRUE or FALSE
+	#   see        EngineIsLinux, EngineIsMacos
 	def EngineIsWindows()
 		return StzEngineSystemIsWindows()
 
+	# TRUE if the engine reports that this machine runs Linux.
+	#
+	#   returns    TRUE or FALSE
+	#   see        EngineIsWindows, EngineIsMacos
 	def EngineIsLinux()
 		return StzEngineSystemIsLinux()
 
+	# TRUE if the engine reports that this machine runs macOS.
+	#
+	#   returns    TRUE or FALSE
+	#   see        EngineIsWindows, EngineIsLinux
 	def EngineIsMacos()
 		return StzEngineSystemIsMacos()
 
@@ -753,6 +1031,14 @@ class stzSystemCall from stzObject
 	#  UTILITIES            #
 	#-----------------------#
 
+	# Opens a file in the program the system associates with it, by setting cmd.exe, open or xdg-open as the program and running it silently.
+	#
+	#   _cFilePath_   the file or folder to open
+	#   returns       nothing; use OpenFileQ to chain
+	#   warning       not run here: it starts a viewer on the machine; it overwrites the program and
+	#                 arguments of the call, and StzOpenInDefaultApp is the safe form that refuses a
+	#                 path that does not exist
+	#   see           StzOpenInDefaultApp, RunSilently
 	def OpenFile(_cFilePath_)
 		if isWindows()
 			_cFilePath_ = StzReplace(_cFilePath_, "\", "/")
@@ -771,6 +1057,12 @@ class stzSystemCall from stzObject
 			This.OpenFile(_cFilePath_)
 			return This
 
+	# Forgets the results of the last run and the arguments, so the call can be reused.
+	#
+	#   returns    nothing; use ResetQ to chain
+	#   note       the program stays set, so after a Reset the call still holds the program (cmd.exe
+	#              for a command that was wrapped)
+	#   see        Run, ClearArgs
 	def Reset()
 		@acArgs = []
 		@bArgvMode = 0
@@ -784,6 +1076,12 @@ class stzSystemCall from stzObject
 			This.Reset()
 			return This
 
+	# Wraps the command to run through the shell when it holds a shell operator or starts with a shell built-in such as echo or dir.
+	#
+	#   returns    the object itself, so calls chain
+	#   note       init and Run call it for you; the shell is cmd.exe /c on Windows and sh -c
+	#              elsewhere; UseShellIfNeededQ is the same call
+	#   see        init, Run
 	def UseShellIfNeeded()
 		# Detect if command needs shell wrapper
 		_cCmd_ = @cCommandString
