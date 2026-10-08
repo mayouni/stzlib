@@ -219,6 +219,172 @@ func StzDocScoreOf(pcBrief, pcName)
 	ok
 	return [ _nF_, _nR_ ]
 
+# --- derived briefs for the GENERATED families -------------------------------
+# Four classes of the library are largely machine-made forwarders that all call one executor with the noun they
+# stand for; a brief written by hand for each would say the same thing 4,000 times. The exporter derives it from
+# the executor and the name, labels it `derived`, and the gate treats it like any brief (it must still pass the
+# form and the not-restating checks). The families:
+#   _NNLValueIs("n")      XB   TRUE if the result of the noun equals the value the natural-language chain expects
+#   _NNLImmutable("n",[]) XQC  a chainable copy after the action; the original is unchanged
+#   _NNLNounCount("n")    XN   the count the noun answers
+#   _NNLCountIs("n")      XNB  TRUE if that count agrees with the chain's expectation
+#   _Noun("n")            XQ   fills the current side of a natural-language question with the noun
+#   Is<X>NamedParam       a predicate on a list: is it the named param whose keyword is :X
+# Returns [ brief, returns, kind ] or [].
+
+func _StzDocGenKind(pcFwd)
+	_c_ = lower(pcFwd)
+	if _c_ = "_nnlvalueis"
+		return "value"
+	ok
+	if _c_ = "_nnlimmutable"
+		return "immutable"
+	ok
+	if _c_ = "_nnlnouncount"
+		return "count"
+	ok
+	if _c_ = "_nnlcountis"
+		return "countis"
+	ok
+	if _c_ = "_noun"
+		return "noun"
+	ok
+	return ""
+
+# the name without the suffix its family appends (B, QC, N, NB, Q), as lowercase words joined by blanks
+func _StzDocGenWords(pcName, pcKind)
+	_c_ = pcName
+	_cSuf_ = ""
+	if pcKind = "value"
+		_cSuf_ = "B"
+	but pcKind = "immutable"
+		_cSuf_ = "QC"
+	but pcKind = "count"
+		_cSuf_ = "N"
+	but pcKind = "countis"
+		_cSuf_ = "NB"
+	but pcKind = "noun"
+		_cSuf_ = "Q"
+	ok
+	if _cSuf_ != "" and len(_c_) > len(_cSuf_) and strcmp(right(_c_, len(_cSuf_)), _cSuf_) = 0
+		_c_ = left(_c_, len(_c_) - len(_cSuf_))
+	ok
+	_aW_ = _StzDocNameWords(_c_)
+	_cOut_ = ""
+	_nW_ = len(_aW_)
+	for _i_ = 1 to _nW_
+		if _i_ > 1
+			_cOut_ += " "
+		ok
+		_cOut_ += _aW_[_i_]
+	next
+	return _cOut_
+
+# the first string literal of the arguments of a forward, without its quotes ("" when it is not one)
+func _StzDocGenNoun(paArgs)
+	if len(paArgs) < 1
+		return ""
+	ok
+	_c_ = ring_trim(paArgs[1])
+	if len(_c_) >= 2 and left(_c_, 1) = char(34) and right(_c_, 1) = char(34)
+		return substr(_c_, 2, len(_c_) - 2)
+	ok
+	return ""
+
+# the keywords an Is...NamedParam predicate tests, from its name: Of, OfOrIn -> [ Of, In ]; [] when the name
+# is not that shape or the keyword is not in the name (Options, OneOf..., a lone A)
+func _StzDocNamedParamKeys(pcName)
+	_cL_ = lower(pcName)
+	_n_ = len(pcName)
+	_nTail_ = 0
+	if _n_ > 12 and right(_cL_, 11) = "namedparams"
+		_nTail_ = 11
+	but _n_ > 11 and right(_cL_, 10) = "namedparam"
+		_nTail_ = 10
+	ok
+	if _nTail_ = 0 or strcmp(left(pcName, 2), "Is") != 0
+		return []
+	ok
+	_cCore_ = substr(pcName, 3, _n_ - 2 - _nTail_)
+	if len(_cCore_) < 2 or right(lower(_cCore_), 7) = "options" or left(lower(_cCore_), 5) = "oneof"
+		return []
+	ok
+	_aKeys_ = []
+	_cCur_ = ""
+	_nC_ = len(_cCore_)
+	_i_ = 1
+	while _i_ <= _nC_
+		if _i_ > 1 and _i_ < _nC_ - 1 and strcmp(substr(_cCore_, _i_, 2), "Or") = 0
+			_cNx_ = _cCore_[_i_ + 2]
+			if _cNx_ != lower(_cNx_)
+				if _cCur_ != ""
+					_aKeys_ + _cCur_
+				ok
+				_cCur_ = ""
+				_i_ += 2
+				loop
+			ok
+		ok
+		_cCur_ += _cCore_[_i_]
+		_i_++
+	end
+	if _cCur_ != ""
+		_aKeys_ + _cCur_
+	ok
+	return _aKeys_
+
+func _StzDocGenBrief(pcName, pcFwd, paFwdArgs)
+	_aKeys_ = _StzDocNamedParamKeys(pcName)
+	if len(_aKeys_) > 0
+		_cK1_ = ":" + _aKeys_[1]
+		_cKs_ = _cK1_
+		_nK_ = len(_aKeys_)
+		for _i_ = 2 to _nK_
+			_cKs_ += " or :" + _aKeys_[_i_]
+		next
+		_cB_ = "TRUE if the list is a named param: a pair whose first item is the keyword " + _cKs_ +
+		       " (or a variant), as in " + _cK1_ + " = value."
+		if len(_cB_) > 140
+			_cB_ = "TRUE if the list is a named param whose first item is one of the keywords this name spells out."
+		ok
+		return [ _cB_, "TRUE or FALSE.", "namedparam" ]
+	ok
+	_cKind_ = _StzDocGenKind(pcFwd)
+	if _cKind_ = ""
+		return []
+	ok
+	_cNoun_ = _StzDocGenNoun(paFwdArgs)
+	if _cNoun_ = ""
+		return []
+	ok
+	_cW_ = _StzDocGenWords(pcName, _cKind_)
+	if _cKind_ = "immutable"
+		_cB_ = "Returns a chainable copy of the object after the action " + _cW_ + "; the original is unchanged."
+		if len(_cB_) > 140
+			_cB_ = "Returns a chainable copy after " + _cW_ + "; the original is unchanged."
+		ok
+		return [ _cB_, "a chainable copy of the object; the original is not changed.", _cKind_ ]
+	ok
+	if _cKind_ = "value"
+		_cB_ = "TRUE if the result of " + _cW_ + " equals the value the natural-language chain expects; the reason is kept."
+		if len(_cB_) > 140
+			_cB_ = "TRUE if the result of " + _cW_ + " equals the value the chain expects."
+		ok
+		return [ _cB_, "TRUE or FALSE.", _cKind_ ]
+	ok
+	if _cKind_ = "count"
+		return [ "Returns the count that " + _cNoun_ + "() answers, for use in a natural-language chain.", "a number.", _cKind_ ]
+	ok
+	if _cKind_ = "countis"
+		return [ "TRUE if the count that " + _cNoun_ + "() answers agrees with the expectation of the natural-language chain.",
+		         "TRUE or FALSE.", _cKind_ ]
+	ok
+	_cB_ = "Sets the noun " + _cW_ + " on the current side of the question and returns the question."
+	if len(_cB_) > 140
+		_cB_ = "Sets the noun " + _cW_ + " on the current side of the question."
+	ok
+	return [ _cB_, "the question itself, for chaining.", _cKind_ ]
+
 # --- parameters ----------------------------------------------------------
 func _StzDocParamType(pcName)
 	_n_ = len(pcName)
@@ -442,7 +608,19 @@ func _StzDocRootJson(pcClass, paRoot, paExts, pacAliases, pcPassive)
 	# brief
 	_cBrief_ = paRoot[:brief]
 	_cBo_ = "none"
-	if _cBrief_ != ""
+	_aGen_ = []
+	# a generated method with no brief, or with only an OLD ONE-LINE COMMENT that fails the form check, gets the
+	# derived brief; the old comment is kept as the detail, never lost. A doc block written for the method wins.
+	if _cBrief_ = "" or (paRoot[:legacy] and _StzDocBriefForm(_cBrief_) = 0)
+		_aGen_ = _StzDocGenBrief(_cName_, paRoot[:fwd], paRoot[:fwdargs])
+	ok
+	if len(_aGen_) = 3
+		if _cBrief_ != "" and paRoot[:para] = ""
+			paRoot[:para] = _cBrief_
+		ok
+		_cBrief_ = _aGen_[1]
+		_cBo_ = "derived"
+	but _cBrief_ != ""
 		_cBo_ = "written"
 	else
 		_aPr_ = _StzDocPredicate(_cName_)
@@ -502,6 +680,10 @@ func _StzDocRootJson(pcClass, paRoot, paExts, pacAliases, pcPassive)
 				_cOr_ = "derived"
 			ok
 		ok
+		if _cRole_ = "" and len(_aGen_) = 3 and _aGen_[3] = "immutable"
+			_cRole_ = "an argument of the action, passed on as the plain method receives it"
+			_cOr_ = "derived"
+		ok
 		if _cRole_ != ""
 			_nCovered_++
 		ok
@@ -523,7 +705,10 @@ func _StzDocRootJson(pcClass, paRoot, paExts, pacAliases, pcPassive)
 	if _cRet_ != ""
 		_cRo_ = "written"
 	else
-		if len(_StzDocPredicate(_cName_)) = 2
+		if len(_aGen_) = 3
+			_cRet_ = _aGen_[2]
+			_cRo_ = "derived"
+		but len(_StzDocPredicate(_cName_)) = 2
 			_cRet_ = "TRUE or FALSE."
 			_cRo_ = "derived"
 		but NOT paRoot[:hasreturn]
