@@ -654,21 +654,21 @@ func StzNamesOfMonthsIn(pcLangOrCountry)
 # fr-FR, sunday for en-US, saturday for ar-EG), time patterns, DecimalPoint and GroupSeparator. The
 # week methods come in three faces, English, native (the locale's own language) and the abbreviation
 # and one-letter symbol of each, all counted from the locale's first day. A locale the tables do not
-# know answers empty text. Known gaps today, each carried as a warning on its method: the case
-# conversions change only the ASCII letters and ignore the locale; the title-case and capital-case
-# methods and the ToTimeAs methods raise; the fold-case methods answer nothing; the script of most
-# locales comes out as common; and day names exist only for ten languages, the others answer
-# English.
+# know answers empty text. The case methods are Unicode-wide and follow the Turkish and Azerbaijani
+# dotted and dotless i. Day names exist only for ten languages; the others answer English.
 #
 #   receiver   o1 = new stzLocale("fr-FR")
 #   example    ? o1.CountryName()
 #              #--> france
 #   see        stzCountry, stzLanguage, stzScript, stzTime
 class stzLocale from stzObject
-	@cAbbreviation
-	@cLangAbbreviation
-	@cScriptAbbreviation
-	@cCountryAbbreviation
+	# Empty, not bare: a bare attribute starts as the TEXT "NULL", which
+	# passed the != "" test in ScriptNumber and made every locale written
+	# without a script answer the common script
+	@cAbbreviation = ""
+	@cLangAbbreviation = ""
+	@cScriptAbbreviation = ""
+	@cCountryAbbreviation = ""
 
 	  #---------#
 	 #  INIT   #
@@ -1047,14 +1047,12 @@ class stzLocale from stzObject
 	 #  SCRIPT   #
 	#-----------#
 
-	# Returns the library's number for the locale's script, as text, but answers 0 (common) for most locales today.
+	# Returns the library's number for the locale's script, as text, such as 7 for Latin.
 	#
 	#   returns    a string of digits; 0 means common
-	#   note       the ScriptCode form answers the same
-	#   warning    answers 0, the common script, for a locale written without a script, so fr-FR,
-	#              en-US, ar-EG, ja-JP and ru-RU all give common instead of Latin, Arabic or
-	#              Cyrillic; a script written in the code (ar_Arab_TN gives 1) or a locale built
-	#              from a country name (France gives Latin) is honoured
+	#   note       a script written in the code wins (ar_Arab_TN gives 1); otherwise the script of
+	#              the language's own name is taken, so fr-FR gives Latin and ru-RU Cyrillic, and
+	#              ja-JP gives Han, the script of its Japanese name; the ScriptCode form answers the same
 	#   see        ScriptName, ScriptAbbreviation
 	def ScriptNumber()
 		if @cScriptAbbreviation != "" and @cScriptAbbreviation != ""
@@ -1085,12 +1083,10 @@ class stzLocale from stzObject
 		def ScriptCode()
 			return This.ScriptNumber()
 
-	# Returns the English name of the locale's script in lowercase, but answers common for most locales today.
+	# Returns the English name of the locale's script in lowercase, such as latin or arabic.
 	#
-	#   returns    a string such as common or arabic
+	#   returns    a string such as latin or arabic
 	#   note       follows ScriptNumber; the Script form answers the same
-	#   warning    answers common for a locale written without a script, so fr-FR and ar-EG give
-	#              common instead of latin and arabic; ar_Arab_TN gives arabic
 	#   see        ScriptNumber, ScriptAbbreviation
 	def ScriptName()
 		return StzScriptQ(This.ScriptNumber()).Name()
@@ -1098,12 +1094,10 @@ class stzLocale from stzObject
 	def Script()
 		return This.ScriptName()
 
-	# Returns the four-letter script code, such as Latn or Arab, but answers Zyyy (common) for most locales today.
+	# Returns the four-letter script code, such as Latn or Arab.
 	#
-	#   returns    a string such as Zyyy or Arab
+	#   returns    a string such as Latn or Arab; Zyyy for common
 	#   note       follows ScriptNumber
-	#   warning    answers Zyyy for a locale written without a script, so fr-FR gives Zyyy instead
-	#              of Latn
 	#   see        ScriptName, ScriptNumber
 	def ScriptAbbreviation()
 		_cScriptNumber_ = This.ScriptNumber()
@@ -1323,14 +1317,13 @@ class stzLocale from stzObject
 
 		*/
 
-	# Raises error R20 today instead of returning the time text written in a chosen format.
+	# Returns a time text written in the chosen format.
 	#
 	#   cTime      the time text, as hh:mm:ss
-	#   cFormat    the format to use: :Default, :Long, :Short or :Narrow
-	#   returns    nothing today; the call raises
-	#   note       the other ToTimeAs methods call this one and raise the same way
-	#   warning    raises R20 (extra number of parameters) on every call: the body calls the stzTime
-	#              ToString method with an argument it does not take
+	#   cFormat    :Default, :Long, :Short or :Narrow, the locale's formats; any other text is used
+	#              as a format of HH, hh, h, mm, ss, zzz and AP
+	#   returns    a string such as 14:30
+	#   note       the time-zone mark of a long format is left out: a stzTime holds no zone
 	#   see        ToStzTime, TimeFormat
 	def ToTimeAsString(cTime, cFormat)
 		/*
@@ -1347,31 +1340,35 @@ class stzLocale from stzObject
 		on :Narrow		cFormat = This.TimeFormat(:Narrow)
 		off
 
-		return This.ToStzTime(cTime).ToString(:Default)
-	# Raises error R20 today instead of returning the time text in the long format.
+		# A stzTime holds no time zone, so the zone mark (t) that ends the
+		# long formats is dropped rather than printed as a letter
+		if StzRight(cFormat, 2) = " t"
+			cFormat = StzLeft(cFormat, StzLen(cFormat) - 2)
+		ok
+
+		# stzTime.ToString takes no argument; the format goes to ToStringXT
+		return This.ToStzTime(cTime).ToStringXT(cFormat)
+	# Returns a time text in the locale's long time format.
 	#
 	#   cTime      the time text, as hh:mm:ss
-	#   returns    nothing today; the call raises
-	#   warning    raises R20 because ToTimeAsString raises
+	#   returns    a string such as 14:30
 	#   see        ToTimeAsString, TimeLongFormat
 	#@ aka  --------v----------- ---v--- stzTime object "hh:mm:ss"
 	def ToTimeAsLongString(cTime)
 		return This.ToTimeAsString(cTime, :Long)
 
-	# Raises error R20 today instead of returning the time text in the short format.
+	# Returns a time text in the locale's short time format.
 	#
 	#   cTime      the time text, as hh:mm:ss
-	#   returns    nothing today; the call raises
-	#   warning    raises R20 because ToTimeAsString raises
+	#   returns    a string such as 14:30
 	#   see        ToTimeAsString, TimeShortFormat
 	def ToTimeAsShortString(cTime)
 		return This.ToTimeAsString(cTime, :Short)
 
-	# Raises error R20 today instead of returning the time text in the narrow format.
+	# Returns a time text in the locale's narrow time format.
 	#
 	#   cTime      the time text, as hh:mm:ss
-	#   returns    nothing today; the call raises
-	#   warning    raises R20 because ToTimeAsString raises
+	#   returns    a string such as 14:30
 	#   see        ToTimeAsString, TimeNarrowFormat
 	def ToTimeAsNarrowString(cTime)
 		return This.ToTimeAsString(cTime, :Narrow)
@@ -1748,18 +1745,20 @@ class stzLocale from stzObject
 	--> http://unicode.org/Public/UNIDATA/SpecialCasing.txt
 	*/
 
-	# Returns the text with its ASCII capital letters turned to lowercase; accented and non-Latin capitals are not changed today.
+	# Returns the text in lowercase, for every script; Turkish and Azerbaijani turn I into the dotless i.
 	#
 	#   pcStr      the text to convert
 	#   returns    the text, lowercased
-	#   note       the ToLowercase, Lowercase and Lower forms answer the same
-	#   warning    the locale has no effect and only A to Z change, so É stays É and Turkish I gives
-	#              i; a number as argument stops the Ring process without a message, and a list
-	#              answers empty text
+	#   note       the ToLowercase, Lowercase and Lower forms answer the same; anything but a text
+	#              raises an error
 	#   see        StringUppercased, CharLowercased
 	def StringLowercased(pcStr)
-		_cResult_ = StzEngineLocaleToLower(pcStr)
-		return _cResult_
+		# Checked here: a number handed to the engine ended the process
+		if NOT isString(pcStr)
+			StzRaise("Incorrect param type! pcStr must be a string.")
+		ok
+
+		return This._LowercasedIn(pcStr, This._HasTurkicCasing())
 
 		def ToLowercase(pcStr)
 			return This.StringLowercased(pcStr)
@@ -1770,24 +1769,21 @@ class stzLocale from stzObject
 		def Lower(pcStr)
 			return This.StringLowercased(pcStr)
 
-	# Returns one character turned to lowercase when it is an ASCII capital letter, and empty text when the argument is not one character.
+	# Returns one character in lowercase, and empty text when the argument is not one character.
 	#
 	#   pcChar     the character to convert
 	#   returns    a one-character string; empty when not a single character
-	#   warning    only A to Z change, so É stays É
 	#   see        StringLowercased, CharIsLowercased
 	def CharLowercased(pcChar)
 		if @IsChar(pcChar)
 			return This.StringLowercased(pcChar)
 		ok
 
-	# TRUE if lowercasing the text changes nothing, so it holds no ASCII capital letter.
+	# TRUE if lowercasing the text changes nothing, so it holds no capital letter of any script.
 	#
 	#   pcStr      the text to test
 	#   returns    TRUE or FALSE
 	#   note       the StringIsLowercase form answers the same
-	#   warning    accented capitals are not noticed: École answers TRUE, ÉCOLE answers FALSE only
-	#              because of its ASCII letters
 	#   see        StringLowercased, StringIsUppercased
 	def StringIsLowercased(pcStr)
 		return This.StringLowercased(pcStr) = pcStr
@@ -1805,22 +1801,21 @@ class stzLocale from stzObject
 			return This.StringIsLowercased(pcChar)
 		ok
 
-	  #-----------------------#
-	 #   STRING UPPER CASE   #
-	#-----------------------#
-	# Returns the text with its ASCII small letters turned to capitals; accented and non-Latin letters are not changed today.
+	# Returns the text in capitals, for every script; sharp s gives SS, and Turkish and Azerbaijani i gives the dotted I.
 	#
 	#   pcStr      the text to convert
 	#   returns    the text, uppercased
-	#   note       the ToUppercase, Uppercase and Upper forms answer the same
-	#   warning    the locale has no effect and only a to z change, so école gives éCOLE, straße
-	#              gives STRAßE and Turkish i gives I; a number as argument stops the Ring process
-	#              without a message
+	#   note       the ToUppercase, Uppercase and Upper forms answer the same; anything but a text
+	#              raises an error
 	#   see        StringLowercased, CharUppercased
 	#@ aka  --? TODO: support the special cases documented in unicode here: http://unicode.org/Public/UNIDATA/SpecialCasing.txt
 	def StringUppercased(pcStr)
-		_cResult_ = StzEngineLocaleToUpper(pcStr)
-		return _cResult_
+		# Checked here: a number handed to the engine ended the process
+		if NOT isString(pcStr)
+			StzRaise("Incorrect param type! pcStr must be a string.")
+		ok
+
+		return This._UppercasedIn(pcStr, This._HasTurkicCasing())
 
 		def ToUppercase(pcStr)
 			return This.StringUppercased(pcStr)
@@ -1831,23 +1826,21 @@ class stzLocale from stzObject
 		def Upper(pcStr)
 			return This.StringUppercased(pcStr)
 
-	# Returns one character turned to a capital when it is an ASCII small letter, and empty text when the argument is not one character.
+	# Returns one character in capitals, and empty text when the argument is not one character.
 	#
 	#   pcChar     the character to convert
-	#   returns    a one-character string; empty when not a single character
-	#   warning    only a to z change, so é stays é
+	#   returns    a string; empty when not a single character
 	#   see        StringUppercased, CharIsUppercased
 	def CharUppercased(pcChar)
 		if @IsChar(pcChar)
 			return This.StringUppercased(pcChar)
 		ok
 
-	# TRUE if uppercasing the text changes nothing, so it holds no ASCII small letter.
+	# TRUE if uppercasing the text changes nothing, so it holds no small letter of any script.
 	#
 	#   pcStr      the text to test
 	#   returns    TRUE or FALSE
-	#   note       the StringIsUppercase form answers the same
-	#   warning    an empty text answers TRUE
+	#   note       the StringIsUppercase form answers the same; an empty text answers TRUE
 	#   see        StringUppercased, StringIsLowercased
 	def StringIsUppercased(pcStr)
 		return This.StringUppercased(pcStr) = pcStr
@@ -1869,66 +1862,53 @@ class stzLocale from stzObject
 	 #   STRING TITLE CASE   #
 	#-----------------------#
 
-	# Raises error R14 today instead of returning the text in title case.
+	# Returns the text in title case: every word capitalised in English, the first letter only in other languages.
 	#
 	#   pcStr      the text to convert
-	#   returns    nothing today; the call raises
-	#   note       the ToTitleCase form raises the same way
-	#   warning    raises R14 on every call: for English it goes through StringCapitalcased, which
-	#              calls the missing method CharAtPositionQ, and for other Latin-script languages it
-	#              calls the missing method Char
+	#   returns    the text in title case
+	#   note       the other letters are lowercased; the ToTitleCase form answers the same
 	#   see        StringCapitalcased, StringUppercased
 	def StringTitlecased(pcStr)
-		if StzTextQ(pcStr).IsLatinScript()
-
-			if This.Language() = :English
-
-				# In english, every word is capitalized in its first letter
-				#NOTE: we are implementing the simplified variant of titlecase
-				# (also knowan as start case).
-
-				#TODO: Implement the various styles documented in this
-				# Wikipedia article: https://en.wikipedia.org/wiki/Title_case
-
-				# Example:
-
-				# "in search of lost time" becomes
-				# "In Search Of Lost Time"
-
-				return This.StringCapitalised(pcStr)
-
-			else // Including  This.Language() = :French
-
-				# In french a title is capitalised at the beginning
-				# of the sentence. See this example:
-
-				# "a la recherche du temps perdu" becomes
-				# "A la Recherche du temps perdu"
-
-				_oStr_ = new stzString(pcStr)
-				_nLen_ = _oStr_.NumberOfChars()
-				_cResult_ = This.ToUppercase( _oStr_.Char(1) ) +
-					  This.ToLowercase( _oStr_.Section(2,_nLen_) )
-			ok
-
-			return _cResult_
+		if NOT isString(pcStr)
+			StzRaise("Incorrect param type! pcStr must be a string.")
 		ok
 
-		# Raises error R14 today instead of returning the text in title case.
+		# English capitalises every word (the simple "start case");
+		# other languages capitalise the first letter only, so
+		# "a la recherche du temps perdu" gives "A la recherche du temps perdu"
+		if This.LanguageName() = "english"
+			return This.StringCapitalcased(pcStr)
+		ok
+
+		_bTurkic_ = This._HasTurkicCasing()
+		_acChars_ = StzChars(This._LowercasedIn(pcStr, _bTurkic_))
+		_nLen_ = ring_len(_acChars_)
+		_cResult_ = ""
+		_bDone_ = 0
+
+		for i = 1 to _nLen_
+			if _bDone_ = 0 and This._IsCaseSpace(_acChars_[i]) = 0
+				_cResult_ += This._UppercasedIn(_acChars_[i], _bTurkic_)
+				_bDone_ = 1
+			else
+				_cResult_ += _acChars_[i]
+			ok
+		next
+
+		return _cResult_
+
+		# Returns the text in title case: every word capitalised in English, the first letter only in other languages.
 		#
 		#   pcStr      the text to convert
-		#   returns    nothing today; the call raises
-		#   note       the intended result is In Search Of Lost Time for English
-		#   warning    raises R14 on every call, through StringTitlecased
-		#   see        StringTitlecased, StringCapitalcased
+		#   returns    the text in title case
+		#   see        StringTitlecased
 		def ToTitleCase(pcStr)
-			return StringTitlecased(pcStr)
+			return This.StringTitlecased(pcStr)
 
-	# Raises error R14 today instead of telling whether the text is already in title case.
+	# TRUE if putting the text in title case changes nothing.
 	#
 	#   pcStr      the text to test
-	#   returns    nothing today; the call raises
-	#   warning    raises R14 on every call, through StringTitlecased
+	#   returns    TRUE or FALSE
 	#   see        StringTitlecased
 	def StringIsTitlecased(pcStr)
 		return This.StringTitlecased(pcStr) = pcStr
@@ -1940,38 +1920,37 @@ class stzLocale from stzObject
 	 #   STRING FOLD CASE   #
 	#----------------------#
 
-	# Returns nothing today, because its body is an unwritten TODO instead of case folding.
+	# Returns the Unicode case-folded text, for comparing texts whatever their case: Straße gives strasse.
 	#
 	#   pcStr      the text to fold
-	#   returns    nothing today
-	#   note       the intended result is the Unicode case-folded text
-	#   warning    the body is empty, so every call answers empty text; the ToFoldcase form answers
-	#              the same
+	#   returns    the folded text
+	#   note       the ToFoldcase form answers the same; anything but a text raises an error
 	#   see        StringLowercased, StringIsfoldcased
 	def StringFoldcased(pcStr)
-		// TODO
+		if NOT isString(pcStr)
+			StzRaise("Incorrect param type! pcStr must be a string.")
+		ok
+
+		return StzCaseFold(pcStr)
 
 		def ToFoldcase(pcStr)
 			return This.StringFoldcased(pcStr)
 
-	# Returns nothing today instead of the case-folded character, because StringFoldcased is not written.
+	# Returns one character case-folded, and nothing when the argument is not one character.
 	#
 	#   pcChar     the character to fold
-	#   returns    empty text; nothing when the argument is not one character
-	#   warning    answers empty text for every character, because StringFoldcased does
+	#   returns    a string; nothing when not a single character
 	#   see        StringFoldcased
 	def CharFoldcased(pcChar)
 		if @IsChar(pcChar)
 			return This.StringFoldcased(pcChar)
 		ok
 
-	# TRUE if the text is empty today, because the folding it compares with answers empty text for every input.
+	# TRUE if case folding the text changes nothing.
 	#
 	#   pcStr      the text to test
 	#   returns    TRUE or FALSE
 	#   note       the StringIsFoldcase form answers the same
-	#   warning    answers FALSE for any non-empty text, and TRUE for an empty one, because it
-	#              compares the text with an empty fold
 	#   see        StringFoldcased
 	def StringIsfoldcased(pcStr)
 		return This.Stringfoldcased(pcStr) = pcStr
@@ -1979,11 +1958,10 @@ class stzLocale from stzObject
 		def StringIsFoldcase(pcStr)
 			return This.StringIsFoldcased(pcStr)
 
-	# Returns FALSE today for any character, because StringFoldcased answers empty text.
+	# TRUE if case folding the character changes nothing.
 	#
 	#   pcChar     the character to test
-	#   returns    FALSE; nothing when the argument is not one character
-	#   warning    answers FALSE for every character, because StringFoldcased is not written
+	#   returns    TRUE or FALSE; nothing when the argument is not one character
 	#   see        StringIsfoldcased
 	def CharIsFoldcased(pcChar)
 		if @IsChar(pcChar)
@@ -1994,44 +1972,38 @@ class stzLocale from stzObject
 	 #   STRING CAPITAL CASE   #
 	#-------------------------#
 
-	# Raises error R14 today instead of returning the text with the first letter of every word capitalised.
+	# Returns the text lowercased with the first letter of every word, after a space, tab or line break, capitalised.
 	#
 	#   pcStr      the text to convert
-	#   returns    nothing today; the call raises
-	#   note       the StringCapitalised, StringCapitalized and toCapitalcase forms raise the same
-	#              way
-	#   warning    raises R14 on every call: the body calls the missing method CharAtPositionQ on a
-	#              stzString
+	#   returns    the text, capitalised
+	#   note       the StringCapitalised, StringCapitalized and toCapitalcase forms answer the same
 	#   see        StringTitlecased, StringUppercased
 	def StringCapitalcased(pcStr)
-
-		# Lowercasing all the string first
-
-		_oStr_ = StzStringQ(pcStr).LowercaseQ()
-
-		# Getting the positions of the words in the string
-		#TODO: delegate the work to stzText when ready
-
-		_anPos_ = _oStr_.FindAll(" ")
-		if len(_anPos_) = 0
-			_anPos_ = [1]
-
-		else
-			_anPos_ = StzListOfNumbersQ(_anPos_).AddedToEach(1)
-			ring_insert(_anPos_, 1, 1)
-			_oChain_ = new stzList(_anPos_)
-			_anPos_ = _oChain_.Sorted()
+		if NOT isString(pcStr)
+			StzRaise("Incorrect param type! pcStr must be a string.")
 		ok
 
-		_nLen_ = len(_anPos_)
+		# Lowercase all, then raise the first letter after every space
+		_bTurkic_ = This._HasTurkicCasing()
+		_acChars_ = StzChars(This._LowercasedIn(pcStr, _bTurkic_))
+		_nLen_ = ring_len(_acChars_)
+		_cResult_ = ""
+		_bStart_ = 1
 
-		//for n in anPos
 		for i = 1 to _nLen_
-			_cCapitalizedChar_ = _oStr_.CharAtPositionQ(_anPos_[i]).Uppercased()
-			_oStr_.ReplaceCharAtPosition(_anPos_[i], _cCapitalizedChar_)
+			_cChar_ = _acChars_[i]
+			if This._IsCaseSpace(_cChar_) = 1
+				_bStart_ = 1
+				_cResult_ += _cChar_
+			but _bStart_ = 1
+				_cResult_ += This._UppercasedIn(_cChar_, _bTurkic_)
+				_bStart_ = 0
+			else
+				_cResult_ += _cChar_
+			ok
 		next
 
-		return _oStr_.Content()
+		return _cResult_
 
 		#< @FunctionAlternativeFormForms
 
@@ -2044,13 +2016,11 @@ class stzLocale from stzObject
 		def StringCapitalized(pcStr)
 			return This.StringCapitalcased(pcStr)
 
-	# Raises error R14 today instead of telling whether every word of the text starts with a capital.
+	# TRUE if capitalising the text changes nothing.
 	#
 	#   pcStr      the text to test
-	#   returns    nothing today; the call raises
-	#   note       the StringIsCapitalized, StringIsCapitalcased and StringIsCapitalcase forms raise
-	#              the same way
-	#   warning    raises R14 on every call, through StringCapitalcased
+	#   returns    TRUE or FALSE
+	#   note       the StringIsCapitalized, StringIsCapitalcased and StringIsCapitalcase forms answer the same
 	#   see        StringCapitalcased
 		#>
 	def StringIsCapitalised(pcStr)
@@ -2064,6 +2034,58 @@ class stzLocale from stzObject
 
 		def StringIsCapitalcase(pcStr)
 			return This.StringIsCapitalised(pcStr)
+
+	  #------------------------------------#
+	 #   CASE HELPERS (locale-sensitive)  #
+	#------------------------------------#
+
+	# TRUE if the locale's language is Turkish or Azerbaijani, whose dotted and dotless i case differently.
+	#
+	#   returns    TRUE or FALSE
+	#   see        StringLowercased, StringUppercased
+	def _HasTurkicCasing()
+		_cLang_ = This.LanguageName()
+		if _cLang_ = "turkish" or _cLang_ = "azerbaijani"
+			return 1
+		ok
+		return 0
+
+	# Returns the text in lowercase, with the Turkic dotted and dotless i when asked.
+	#
+	#   pcStr      the text to convert
+	#   bTurkic    1 to map I to dotless i and dotted I to i first
+	#   returns    the text, lowercased
+	#   see        StringLowercased
+	def _LowercasedIn(pcStr, bTurkic)
+		if bTurkic = 1
+			pcStr = StzReplaceCS(pcStr, StzEngineCharToUtf8(304), "i", 1)
+			pcStr = StzReplaceCS(pcStr, "I", StzEngineCharToUtf8(305), 1)
+		ok
+		return StzLower(pcStr)
+
+	# Returns the text in capitals, with the Turkic dotted and dotless i when asked.
+	#
+	#   pcStr      the text to convert
+	#   bTurkic    1 to map i to dotted I and dotless i to I first
+	#   returns    the text, uppercased
+	#   see        StringUppercased
+	def _UppercasedIn(pcStr, bTurkic)
+		if bTurkic = 1
+			pcStr = StzReplaceCS(pcStr, "i", StzEngineCharToUtf8(304), 1)
+			pcStr = StzReplaceCS(pcStr, StzEngineCharToUtf8(305), "I", 1)
+		ok
+		return StzUpper(pcStr)
+
+	# TRUE if the char separates words for the case methods: a space, a tab or a line break.
+	#
+	#   pcChar     the char to test
+	#   returns    TRUE or FALSE
+	#   see        StringCapitalcased
+	def _IsCaseSpace(pcChar)
+		if pcChar = " " or pcChar = ring_char(9) or pcChar = ring_char(10) or pcChar = ring_char(13)
+			return 1
+		ok
+		return 0
 
 	  #-----------------------#
 	 #  MEASUREMENT SYSTEM   #
