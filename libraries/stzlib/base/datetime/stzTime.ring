@@ -23,6 +23,23 @@ func StzNowTime()
 	func NowTime()
 		return StzNowTime()
 
+# TRUE if the text is one or more digits and nothing else. Ring's isdigit() tests only the first
+# character, so "23" passed but a two-digit part such as "23" in 23:00 was the very case it missed.
+func _IsAllDigits(_cText_)
+    if not isString(_cText_)
+        return 0
+    ok
+    _nTextLen_ = len(_cText_)
+    if _nTextLen_ = 0
+        return 0
+    ok
+    for _i_ = 1 to _nTextLen_
+        if not isdigit(_cText_[_i_])
+            return 0
+        ok
+    next
+    return 1
+
 func StzIsTime(str)
     if not isString(str) or StzLen(str) = 0
         return 0
@@ -49,7 +66,7 @@ func StzIsTime(str)
             _aSubParts_ = split(_cPart_, ".")
             _cPart_ = _aSubParts_[1]
         ok
-        if not isdigit(_cPart_)
+        if not _IsAllDigits(_cPart_)
             return 0
         ok
     next
@@ -128,7 +145,8 @@ class stzTime from stzObject
     #   see        ParseStringTime, Copy
     def init(pTime)
 
-        if IsNull(pTime) or pTime = ""
+        # the number 0 equals "" in Ring, so only a text can ask for the clock
+        if isString(pTime) and (IsNull(pTime) or pTime = "")
             pHandle = StzEngineTimeNow()
             @nHour = StzEngineTimeHour(pHandle)
             @nMinute = StzEngineTimeMinute(pHandle)
@@ -447,11 +465,14 @@ class stzTime from stzObject
     #                  parameter is overwritten by the object being built before it is read
     #   see            SecsTo
     def MSecsTo(_oOtherTime_)
+        _oOther_ = _oOtherTime_
         if isString(_oOtherTime_)
-            _oOtherTime_ = new stzTime(_oOtherTime_)
+            # built from a separate variable: Ring binds `x = new stzTime(x)` to x before init reads it
+            _cOtherText_ = _oOtherTime_
+            _oOther_ = new stzTime(_cOtherText_)
         ok
         _nThisMs_ = This.pvtToTotalMs()
-        _nOtherMs_ = (_oOtherTime_.HourN() * 3600000) + (_oOtherTime_.MinuteN() * 60000) + (_oOtherTime_.SecondN() * 1000) + _oOtherTime_.MillisecondN()
+        _nOtherMs_ = (_oOther_.HourN() * 3600000) + (_oOther_.MinuteN() * 60000) + (_oOther_.SecondN() * 1000) + _oOther_.MillisecondN()
         return _nOtherMs_ - _nThisMs_
 
     # Returns the number of whole minutes from the time to another one, rounded down.
@@ -517,22 +538,24 @@ class stzTime from stzObject
     #                  gives FALSE for every time
     #   see            IsBefore, IsAfter
     def IsBetween(_oStartTime_, _oEndTime_)
+        _pEnd_ = _oEndTime_
         if CheckParams()
             if isList(_oEndTime_) and IsAndNamedParamList(_oEndTime_)
-                _oEndTime_ = _oEndTime_[2]
+                _pEnd_ = _oEndTime_[2]
             ok
         ok
 
+        # the bounds are read into locals: a list parameter is shared with the caller
+        _oStart_ = _oStartTime_
         if isString(_oStartTime_)
-            _oTempStartTime_ = new stzTime(_oStartTime_)
-			_oStartTime_ = _oTempStartTime_
+            _oStart_ = new stzTime(_oStartTime_)
         ok
-        if isString(_oEndTime_)
-            _oTempEndTime_ = new stzTime(_oEndTime_)
-			_oEndTime_ = _oTempEndTime_
+        _oEnd_ = _pEnd_
+        if isString(_pEnd_)
+            _oEnd_ = new stzTime(_pEnd_)
         ok
 
-        return This.IsAfter(_oStartTime_) and This.IsBefore(_oEndTime_)
+        return This.IsAfter(_oStart_) and This.IsBefore(_oEnd_)
 
     #--- UTILITY CHECKS ---#
 
@@ -951,11 +974,10 @@ class stzTime from stzObject
 		_cFormat_ = trim(_cFormat_)
 		if StzRight(_cFormat_, 2) = "ap"
 
-			return This.ToStringXT(StzLeft(_cFormat_, StzLen(_cFormat_)-2)) +
-				   " " + This.AMPM()
+			return This.ToStringXT(trim(StzLeft(_cFormat_, StzLen(_cFormat_)-2)) + " AP")
 
 		but _cFormat_ = "ampm"
-			return This.ToString() + " " + This.AMPM()
+			return This.ToStringXT("h:mm:ss AP")
 
 		ok
 
@@ -1014,7 +1036,7 @@ class stzTime from stzObject
     #   warning    the hour is NOT converted: 14:30 gives 14:30 PM and 00:05 gives 0:05 AM
     #   see        To12Hour, ToHuman
     def ToSimple()
-        return This.ToStringXT("h:mm") + " " + This.AMPM()
+        return This.ToStringXT("h:mm AP")
 
     #--- HUMAN-READABLE ---#
 
@@ -1041,7 +1063,8 @@ class stzTime from stzObject
             return "Half past " + _nHour_ + " " + _cAmPm_
 
         but _nMinute_ = 45
-            return "Quarter to " + (_nHour_ + 1) + " " + _cAmPm_
+            _nNextHour_ = (@nHour + 1) % 24
+            return "Quarter to " + StzConvertTo12Hour(_nNextHour_) + " " + StzGetAmPmText(_nNextHour_)
 
         else
             return '' + _nHour_ + ":" + StzPadLeftXT(''+ _nMinute_, 2, "0") + " " + _cAmPm_
@@ -1058,7 +1081,8 @@ class stzTime from stzObject
     #   see        ToHuman, IsNow
     def ToRelative()
         _oNow_ = new stzTime("")
-        _nSecs_ = This.SecsTo(_oNow_)
+        # this minus now: negative is the past, positive the future
+        _nSecs_ = -This.SecsTo(_oNow_)
 
         if abs(_nSecs_) < 60
             return "now"
@@ -1215,11 +1239,17 @@ class stzTime from stzObject
     def pvtFormatTime(_cFormat_)
         _cResult_ = _cFormat_
 
+        # with an AP marker the clock is the 12-hour one, so h and hh print the 12-hour hour
+        _nShownHour_ = @nHour
+        if StzFindFirst("AP", _cFormat_) > 0
+            _nShownHour_ = This.Hour12()
+        ok
+
         _cResult_ = StzReplace(_cResult_, "HH", StzPadLeftXT(''+ @nHour, 2, "0"))
-        _cResult_ = StzReplace(_cResult_, "hh", StzPadLeftXT(''+ @nHour, 2, "0"))
+        _cResult_ = StzReplace(_cResult_, "hh", StzPadLeftXT(''+ _nShownHour_, 2, "0"))
 
         if StzFindFirst("h", _cResult_)
-            _cResult_ = StzReplace(_cResult_, "h", ''+ @nHour)
+            _cResult_ = StzReplace(_cResult_, "h", ''+ _nShownHour_)
         ok
 
         _cResult_ = StzReplace(_cResult_, "mm", StzPadLeftXT(''+ @nMinute, 2, "0"))

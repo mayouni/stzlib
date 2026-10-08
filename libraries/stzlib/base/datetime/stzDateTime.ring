@@ -251,25 +251,55 @@ func StzGetAmPmText(_nHour_)
 		return StzGetAmPmText(_nHour_)
 
 func _DateTimeFormatString(_nYear_, _nMonth_, _nDay_, _nHour_, _nMinute_, _nSecond_, _nMs_, _cFormat_)
-    pHandle = StzEngineDateNew(_nYear_, _nMonth_, _nDay_)
-    _cDayName_ = StzEngineDateDayName(pHandle)
-    _cMonthName_ = StzEngineDateMonthName(pHandle)
-    StzEngineDateFree(pHandle)
+    _cDayName_ = ""
+    _cMonthName_ = ""
+    # a month or day outside its range cannot reach the engine: its integer cast stops the whole process
+    if _nMonth_ >= 1 and _nMonth_ <= 12 and _nDay_ >= 1 and _nDay_ <= 31
+        pHandle = StzEngineDateNew(_nYear_, _nMonth_, _nDay_)
+        _cDayName_ = StzEngineDateDayName(pHandle)
+        _cMonthName_ = StzEngineDateMonthName(pHandle)
+        StzEngineDateFree(pHandle)
+    ok
 
-    _cResult_ = _cFormat_
+    # a lone d (a d with no letter beside it) is the day of the month without padding; it is marked
+    # first so that the names inserted below, which contain the letter d, are never read as a token
+    _cResult_ = ""
+    _nFormatLen_ = len(_cFormat_)
+    for _i_ = 1 to _nFormatLen_
+        _cCh_ = _cFormat_[_i_]
+        if _cCh_ = "d"
+            _bLeftOpen_ = 1
+            _bRightOpen_ = 1
+            if _i_ > 1 and isalpha(_cFormat_[_i_ - 1])
+                _bLeftOpen_ = 0
+            ok
+            if _i_ < _nFormatLen_ and isalpha(_cFormat_[_i_ + 1])
+                _bRightOpen_ = 0
+            ok
+            if _bLeftOpen_ and _bRightOpen_
+                _cCh_ = char(2)
+            ok
+        ok
+        _cResult_ += _cCh_
+    next
     _cResult_ = StzReplace(_cResult_, "dddd", _cDayName_)
     _cResult_ = StzReplace(_cResult_, "ddd", StzLeft(_cDayName_, 3))
     _cResult_ = StzReplace(_cResult_, "dd", _PadLeft("" + _nDay_, 2, "0"))
     _cResult_ = StzReplace(_cResult_, "MMMM", _cMonthName_)
     _cResult_ = StzReplace(_cResult_, "MMM", StzLeft(_cMonthName_, 3))
     _cResult_ = StzReplace(_cResult_, "MM", _PadLeft("" + _nMonth_, 2, "0"))
-    _cResult_ = StzReplace(_cResult_, "yyyy", "" + _nYear_)
+    _cYear_ = "" + _nYear_
+    if _nYear_ >= 0
+        _cYear_ = _PadLeft(_cYear_, 4, "0")
+    ok
+    _cResult_ = StzReplace(_cResult_, "yyyy", _cYear_)
     _nYY_ = _nYear_ % 100
     _cResult_ = StzReplace(_cResult_, "yy", _PadLeft("" + _nYY_, 2, "0"))
     _cResult_ = StzReplace(_cResult_, "zzz", _PadLeft("" + _nMs_, 3, "0"))
     _cResult_ = StzReplace(_cResult_, "HH", _PadLeft("" + _nHour_, 2, "0"))
     _cResult_ = StzReplace(_cResult_, "mm", _PadLeft("" + _nMinute_, 2, "0"))
     _cResult_ = StzReplace(_cResult_, "ss", _PadLeft("" + _nSecond_, 2, "0"))
+    _cResult_ = StzReplace(_cResult_, char(2), "" + _nDay_)
     return _cResult_
 
 func _SetComponentsFromUnixMs(_nMs_)
@@ -278,6 +308,9 @@ func _SetComponentsFromUnixMs(_nMs_)
     if _nRemMs_ < 0
         _nRemMs_ += 1000
         _nSecs_ -= 1
+    ok
+    if _nSecs_ < 0
+        return _SetComponentsBeforeEpoch(_nSecs_, _nRemMs_)
     ok
     pHandle = StzEngineDateTimeFromUnix(_nSecs_)
     _nY_ = StzEngineDateTimeYear(pHandle)
@@ -289,7 +322,40 @@ func _SetComponentsFromUnixMs(_nMs_)
     StzEngineDateTimeFree(pHandle)
     return [_nY_, _nMo_, _nD_, _nH_, _nMi_, _nS_, _nRemMs_]
 
+# The engine answers no date for an instant before 1970 (its FromUnix takes a count that cannot be
+# negative), so those instants are split here by whole-day arithmetic on the proleptic Gregorian
+# calendar, which reaches year 1 and beyond.
+func _SetComponentsBeforeEpoch(_nSecs_, _nRemMs_)
+    _nDays_ = floor(_nSecs_ / 86400)
+    _nDaySecs_ = _nSecs_ - (_nDays_ * 86400)
+    _nZ_ = _nDays_ + 719468
+    _nEra_ = floor(_nZ_ / 146097)
+    _nDoe_ = _nZ_ - (_nEra_ * 146097)
+    _nYoe_ = floor((_nDoe_ - floor(_nDoe_ / 1460) + floor(_nDoe_ / 36524) - floor(_nDoe_ / 146096)) / 365)
+    _nY_ = _nYoe_ + (_nEra_ * 400)
+    _nDoy_ = _nDoe_ - ((365 * _nYoe_) + floor(_nYoe_ / 4) - floor(_nYoe_ / 100))
+    _nMp_ = floor(((5 * _nDoy_) + 2) / 153)
+    _nD_ = _nDoy_ - floor(((153 * _nMp_) + 2) / 5) + 1
+    if _nMp_ < 10
+        _nMo_ = _nMp_ + 3
+    else
+        _nMo_ = _nMp_ - 9
+    ok
+    if _nMo_ <= 2
+        _nY_ += 1
+    ok
+    _nH_ = floor(_nDaySecs_ / 3600)
+    _nMi_ = floor((_nDaySecs_ - (_nH_ * 3600)) / 60)
+    _nS_ = _nDaySecs_ - (_nH_ * 3600) - (_nMi_ * 60)
+    return [_nY_, _nMo_, _nD_, _nH_, _nMi_, _nS_, _nRemMs_]
+
 func _ToUnixMs(_nYear_, _nMonth_, _nDay_, _nHour_, _nMinute_, _nSecond_, _nMs_)
+    # a part outside its range cannot reach the engine: its integer cast stops the whole process
+    if _nMonth_ < 1 or _nMonth_ > 12 or _nDay_ < 1 or _nDay_ > 31 or
+       _nHour_ < 0 or _nHour_ > 23 or _nMinute_ < 0 or _nMinute_ > 59 or
+       _nSecond_ < 0 or _nSecond_ > 59
+        return _nMs_
+    ok
     pHandle = StzEngineDateTimeNew(_nYear_, _nMonth_, _nDay_, _nHour_, _nMinute_, _nSecond_)
     _nUnix_ = StzEngineDateTimeToUnix(pHandle)
     StzEngineDateTimeFree(pHandle)
@@ -306,10 +372,8 @@ func _ToUnixMs(_nYear_, _nMonth_, _nDay_, _nHour_, _nMinute_, _nSecond_, _nMs_)
 # chain. Compare with IsBefore, IsAfter, IsEqualTo and IsBetween; measure with the DurationTo family
 # (against another datetime) and the DurationSince family (against a named origin such as :UnixEpoch
 # or :YearOne). The To... methods write it as text: ToIso for storage, ToStandard and ToAmerican for
-# display, ToHuman and ToRelative in words. Known gaps today, each carried as a warning on its
-# method: instants before 1970 and every origin but :UnixEpoch give an invalid date, the Verbose
-# family and ToLongDate print the letter d instead of the day, ParseNaturalEpoch counts plural units
-# twice, and three Milliseconds methods raise.
+# display, ToHuman and ToRelative in words. Instants before 1970 and origins such as :YearOne
+# are read as dates like any other.
 #
 #   receiver   o1 = new stzDateTime("2026-03-15 14:30:00")
 #   example    ? o1.AddDays(3)
@@ -333,10 +397,9 @@ class stzDateTime from stzObject
 	#   returns     nothing; the object is built
 	#   note        a text with a 4-digit first part is read year-first, otherwise day-first; a
 	#               missing time means 00:00:00; the current-clock form drops the milliseconds
-	#   warning     raises Invalid date/time provided! when a part is out of range, when a number is
-	#               negative, when the text is month-first such as 03/15/2026 (read as day-first),
-	#               or for an origin before 1970; a [ stzDate, stzTime ] list raises R41 today;
-	#               phrases such as 2 days from epoch count each plural unit twice
+	#   warning     raises Invalid date/time provided! when a part is out of range, when the text is
+	#               month-first such as 03/15/2026 (read as day-first); a [ stzDate, stzTime ] list
+	#               raises R41 today
 	#   see         stzDate, stzTime
 	def init(pDateTime)
 	    @nYear = 2000
@@ -347,7 +410,8 @@ class stzDateTime from stzObject
 	    @nSecond = 0
 	    @nMs = 0
 
-	    if IsNull(pDateTime) or pDateTime = ""
+	    # the number 0 equals "" in Ring, so only a text can ask for the clock
+	    if isString(pDateTime) and (IsNull(pDateTime) or pDateTime = "")
 	        pHandle = StzEngineDateTimeNow()
 	        @nYear = StzEngineDateTimeYear(pHandle)
 	        @nMonth = StzEngineDateTimeMonth(pHandle)
@@ -871,7 +935,6 @@ class stzDateTime from stzObject
 	#   _nSeconds_   the number of seconds since the Unix epoch
 	#   returns      nothing; the object changes in place
 	#   note         FromSecondsSinceEpochXT adds an origin name as second argument
-	#   warning      a negative count leaves year 0, month 0, day 0, an invalid date, today
 	#   see          FromMillisecondsSinceEpoch, ToUnixTimeStamp
 	def FromSecondsSinceEpoch(_nSeconds_)
 	    return This.FromSecondsSinceEpochXT(_nSeconds_, :UnixEpoch)
@@ -895,7 +958,6 @@ class stzDateTime from stzObject
 	#   nMilliseconds   the number of milliseconds since the Unix epoch
 	#   returns         nothing; the object changes in place
 	#   note            FromMillisecondsSinceEpochXT adds an origin name as second argument
-	#   warning         a negative count leaves year 0, month 0, day 0, an invalid date, today
 	#   see             FromSecondsSinceEpoch
 	def FromMillisecondsSinceEpoch(nMilliseconds)
 	    return This.FromMillisecondsSinceEpochXT(nMilliseconds, :UnixEpoch)
@@ -915,7 +977,6 @@ class stzDateTime from stzObject
 	#   _nMinutes_   the number of minutes since the Unix epoch
 	#   returns      nothing; the object changes in place
 	#   note         FromMinutesSinceEpochXT adds an origin name as second argument
-	#   warning      a negative count leaves year 0, month 0, day 0, an invalid date, today
 	#   see          FromHoursSinceEpoch
 	def FromMinutesSinceEpoch(_nMinutes_)
 	    return This.FromMinutesSinceEpochXT(_nMinutes_, :UnixEpoch)
@@ -935,7 +996,6 @@ class stzDateTime from stzObject
 	#   _nHours_   the number of hours since the Unix epoch
 	#   returns    nothing; the object changes in place
 	#   note       FromHoursSinceEpochXT adds an origin name as second argument
-	#   warning    a negative count leaves year 0, month 0, day 0, an invalid date, today
 	#   see        FromDaysSinceEpoch
 	def FromHoursSinceEpoch(_nHours_)
 	    return This.FromHoursSinceEpochXT(_nHours_, :UnixEpoch)
@@ -955,7 +1015,6 @@ class stzDateTime from stzObject
 	#   _nDays_    the number of days since the Unix epoch
 	#   returns    nothing; the object changes in place
 	#   note       FromDaysSinceEpochXT adds an origin name as second argument
-	#   warning    a negative count leaves year 0, month 0, day 0, an invalid date, today
 	#   see        FromWeeksSinceEpoch
 	def FromDaysSinceEpoch(_nDays_)
 	    return This.FromDaysSinceEpochXT(_nDays_, :UnixEpoch)
@@ -975,7 +1034,6 @@ class stzDateTime from stzObject
 	#   _nWeeks_   the number of weeks since the Unix epoch
 	#   returns    nothing; the object changes in place
 	#   note       FromWeeksSinceEpochXT adds an origin name as second argument
-	#   warning    a negative count leaves year 0, month 0, day 0, an invalid date, today
 	#   see        FromDaysSinceEpoch
 	def FromWeeksSinceEpoch(_nWeeks_)
 	    return This.FromWeeksSinceEpochXT(_nWeeks_, :UnixEpoch)
@@ -995,9 +1053,6 @@ class stzDateTime from stzObject
 	#   _nMonths_   the number of months since January 1970
 	#   returns     nothing; the object changes in place
 	#   note        FromMonthsSinceEpochXT adds an origin name as second argument
-	#   warning     a negative count leaves a month of 0 or less, an invalid date, and formatting a
-	#               negative month (-3 months) stops the whole Ring process with a panic inside the
-	#               engine
 	#   see         FromYearsSinceEpoch, SetFromEpochMonths
 	def FromMonthsSinceEpoch(_nMonths_)
 	    return This.FromMonthsSinceEpochXT(_nMonths_, :UnixEpoch)
@@ -1008,7 +1063,7 @@ class stzDateTime from stzObject
 		ok
 	        _nBaseMs_ = This.GetOriginBase(_cOrigin_)
 	        _nYears_ = floor(_nMonths_ / 12)
-	        _nRemainingMonths_ = _nMonths_ % 12
+	        _nRemainingMonths_ = _nMonths_ - (_nYears_ * 12)
 
 	        @nYear = 1970 + _nYears_
 	        @nMonth = 1 + _nRemainingMonths_
@@ -1066,8 +1121,7 @@ class stzDateTime from stzObject
 	#   returns      nothing; the object changes in place
 	#   note         FromNaturalEpochXT adds an origin name as second argument
 	#   warning      a word instead of a number (two days) raises R41; milliseconds are not read; a
-	#                negative amount gives an invalid date; a year counts 365 days and a month 30.4
-	#                days
+	#                year counts 365 days and a month 30.4 days
 	#   see          FromEpochHash, ParseNaturalDuration
 	def FromNaturalEpoch(_cNatural_)
 	    return This.FromNaturalEpochXT(_cNatural_, :UnixEpoch)
@@ -1090,7 +1144,7 @@ class stzDateTime from stzObject
 	#   aHash      a hash whose keys are years, months, weeks, days, hours, minutes or seconds
 	#   returns    nothing; the object changes in place
 	#   note       FromEpochHashXT adds an origin name as second argument
-	#   warning    a :milliseconds key is ignored today; a negative total gives an invalid date
+	#   warning    a :milliseconds key is ignored today
 	#   see        FromNaturalEpoch, SetFromEpochDuration
 	def FromEpochHash(aHash)
 	    return This.FromEpochHashXT(aHash, :UnixEpoch)
@@ -1600,8 +1654,6 @@ class stzDateTime from stzObject
 	#               :AtomicAge
 	#   returns     a number of seconds
 	#   note        rounds down
-	#   warning     an origin written as mixed-case text such as "YearOne" is not recognised and
-	#               counts as the Unix epoch
 	#   see         ToMillisecondsSinceEpochXT, ToUnixTimeStamp
 	def ToSecondsSinceEpochXT(_cOrigin_)
 		if _cOrigin_ = ""
@@ -1616,8 +1668,6 @@ class stzDateTime from stzObject
 	#   _cOrigin_   the origin name as a symbol or lowercase text, such as :UnixEpoch, :YearOne,
 	#               :AtomicAge
 	#   returns     a number of milliseconds
-	#   warning     an origin written as mixed-case text such as "YearOne" is not recognised and
-	#               counts as the Unix epoch
 	#   see         ToSecondsSinceEpochXT
 	def ToMillisecondsSinceEpochXT(_cOrigin_)
 		if _cOrigin_ = ""
@@ -1633,8 +1683,6 @@ class stzDateTime from stzObject
 	#               :AtomicAge
 	#   returns     a number of minutes
 	#   note        rounds down
-	#   warning     an origin written as mixed-case text such as "YearOne" is not recognised and
-	#               counts as the Unix epoch
 	#   see         ToSecondsSinceEpochXT, ToHoursSinceEpochXT
 	def ToMinutesSinceEpochXT(_cOrigin_)
 		if _cOrigin_ = ""
@@ -1648,8 +1696,6 @@ class stzDateTime from stzObject
 	#               :AtomicAge
 	#   returns     a number of hours
 	#   note        rounds down
-	#   warning     an origin written as mixed-case text such as "YearOne" is not recognised and
-	#               counts as the Unix epoch
 	#   see         ToMinutesSinceEpochXT, ToDaysSinceEpochXT
 	def ToHoursSinceEpochXT(_cOrigin_)
 		if _cOrigin_ = ""
@@ -1663,8 +1709,6 @@ class stzDateTime from stzObject
 	#               :AtomicAge
 	#   returns     a number of days
 	#   note        rounds down
-	#   warning     an origin written as mixed-case text such as "YearOne" is not recognised and
-	#               counts as the Unix epoch
 	#   see         ToHoursSinceEpochXT, ToWeeksSinceEpochXT
 	def ToDaysSinceEpochXT(_cOrigin_)
 		if _cOrigin_ = ""
@@ -1678,8 +1722,6 @@ class stzDateTime from stzObject
 	#               :AtomicAge
 	#   returns     a number of weeks
 	#   note        rounds down
-	#   warning     an origin written as mixed-case text such as "YearOne" is not recognised and
-	#               counts as the Unix epoch
 	#   see         ToDaysSinceEpochXT
 	def ToWeeksSinceEpochXT(_cOrigin_)
 		if _cOrigin_ = ""
@@ -1693,9 +1735,6 @@ class stzDateTime from stzObject
 	#               :AtomicAge
 	#   returns     a number of months
 	#   note        counts month numbers, so 31 March to 1 April is 1
-	#   warning     wrong for every origin before 1970, because the origin's own date comes out as
-	#               year 0 (:AtomicAge gives 24315 instead of 968); mixed-case origin text counts as
-	#               the Unix epoch
 	#   see         ToYearsSinceEpochXT
 	def ToMonthsSinceEpochXT(_cOrigin_)
 		if _cOrigin_ = ""
@@ -1715,9 +1754,6 @@ class stzDateTime from stzObject
 	#   _cOrigin_   the origin name as a symbol or lowercase text, such as :UnixEpoch, :YearOne,
 	#               :AtomicAge
 	#   returns     a number of years
-	#   warning     wrong for every origin before 1970, because the origin's own date comes out as
-	#               year 0 (:AtomicAge gives 2026 instead of 80); mixed-case origin text counts as
-	#               the Unix epoch
 	#   see         ToMonthsSinceEpochXT, ToDecadesSinceEpochXT
 	def ToYearsSinceEpochXT(_cOrigin_)
 		if _cOrigin_ = ""
@@ -1742,7 +1778,6 @@ class stzDateTime from stzObject
 	#   _cOrigin_   the origin name as a symbol or lowercase text, such as :UnixEpoch, :YearOne,
 	#               :AtomicAge
 	#   returns     a number of decades
-	#   warning     wrong for every origin before 1970, because the year count is wrong there
 	#   see         ToYearsSinceEpochXT, ToCenturiesSinceEpochXT
 	def ToDecadesSinceEpochXT(_cOrigin_)
 		if _cOrigin_ = ""
@@ -1755,7 +1790,6 @@ class stzDateTime from stzObject
 	#   _cOrigin_   the origin name as a symbol or lowercase text, such as :UnixEpoch, :YearOne,
 	#               :AtomicAge
 	#   returns     a number of centuries
-	#   warning     wrong for every origin before 1970, because the year count is wrong there
 	#   see         ToDecadesSinceEpochXT
 	def ToCenturiesSinceEpochXT(_cOrigin_)
 		if _cOrigin_ = ""
@@ -2459,102 +2493,75 @@ class stzDateTime from stzObject
 	def ToIsoWithMs()
 	    return This.ToStringXT(:ISOWithMs)
 
-	# Returns the weekday, month name, year and a 12-hour time, with the day number printed as the letter d today.
+	# Returns the weekday, month name, day, year and a 12-hour time.
 	#
 	#   returns    a string
-	#   note       the intended text is weekday, month day, year and a time with seconds
-	#   warning    the day of the month comes out as the letter d (Sunday, March d, 2026 02:30:00
-	#              PM) because the single d of the pattern is never replaced; ToLong prints the day
-	#              correctly
+	#   note       the day of the month is written without a leading zero
 	#   see        ToLong, ToVerbose24h
 	#@ aka  --
 	def ToVerbose()
 	    return This.ToStringXT(:Verbose12h)
 
-		# Returns the weekday, month name, year and a 12-hour time, with the day number printed as the letter d today.
+		# Returns the weekday, month name, day, year and a 12-hour time.
 		#
 		#   returns    a string
-		#   note       the intended text is weekday, month day, year and a time with seconds
-		#   warning    the day of the month comes out as the letter d (Sunday, March d, 2026
-		#              02:30:00 PM) because the single d of the pattern is never replaced; ToLong
-		#              prints the day correctly
+		#   note       the day of the month is written without a leading zero
 		#   see        ToLong, ToVerbose24h
 		def ToVerbose12h()
 		    return This.ToStringXT(:Verbose12h)
 
-		# Returns the weekday, month name, year and a 12-hour time, with the day number printed as the letter d today.
+		# Returns the weekday, month name, day, year and a 12-hour time.
 		#
 		#   returns    a string
-		#   note       the intended text is weekday, month day, year and a time with seconds
-		#   warning    the day of the month comes out as the letter d (Sunday, March d, 2026
-		#              02:30:00 PM) because the single d of the pattern is never replaced; ToLong
-		#              prints the day correctly
+		#   note       the day of the month is written without a leading zero
 		#   see        ToLong, ToVerbose24h
 		def ToVerboseAP()
 		    return This.ToStringXT(:Verbose12h)
 
-		# Returns the weekday, month name, year and a 12-hour time, with the day number printed as the letter d today.
+		# Returns the weekday, month name, day, year and a 12-hour time.
 		#
 		#   returns    a string
-		#   note       the intended text is weekday, month day, year and a time with seconds
-		#   warning    the day of the month comes out as the letter d (Sunday, March d, 2026
-		#              02:30:00 PM) because the single d of the pattern is never replaced; ToLong
-		#              prints the day correctly
+		#   note       the day of the month is written without a leading zero
 		#   see        ToLong, ToVerbose24h
 		def ToVerboseAmPm()
 		    return This.ToStringXT(:Verbose12h)
 
-		# Returns the weekday, month name, year and a 12-hour time, with the day number printed as the letter d today.
+		# Returns the weekday, month name, day, year and a 12-hour time.
 		#
 		#   returns    a string
-		#   note       the intended text is weekday, month day, year and a time with seconds
-		#   warning    the day of the month comes out as the letter d (Sunday, March d, 2026
-		#              02:30:00 PM) because the single d of the pattern is never replaced; ToLong
-		#              prints the day correctly
+		#   note       the day of the month is written without a leading zero
 		#   see        ToLong, ToVerbose24h
 		def ToVerboseWithAP()
 		    return This.ToStringXT(:Verbose12h)
 
-		# Returns the weekday, month name, year and a 12-hour time, with the day number printed as the letter d today.
+		# Returns the weekday, month name, day, year and a 12-hour time.
 		#
 		#   returns    a string
-		#   note       the intended text is weekday, month day, year and a time with seconds
-		#   warning    the day of the month comes out as the letter d (Sunday, March d, 2026
-		#              02:30:00 PM) because the single d of the pattern is never replaced; ToLong
-		#              prints the day correctly
+		#   note       the day of the month is written without a leading zero
 		#   see        ToLong, ToVerbose24h
 		def ToVerboseWithAmPm()
 		    return This.ToStringXT(:Verbose12h)
 
-	# Returns the weekday, month name, year and a 24-hour time, with the day number printed as the letter d today.
+	# Returns the weekday, month name, day, year and a 24-hour time.
 	#
 	#   returns    a string
-	#   note       the intended text is weekday, month day, year and a time with seconds
-	#   warning    the day of the month comes out as the letter d (Sunday, March d, 2026 02:30:00
-	#              PM) because the single d of the pattern is never replaced; ToLong prints the day
-	#              correctly
+	#   note       the day of the month is written without a leading zero
 	#   see        ToLong24h, ToVerbose
 	def ToVerbose24h()
 	    return This.ToStringXT(:Verbose24h)
 
-		# Returns the weekday, month name, year and a 24-hour time, with the day number printed as the letter d today.
+		# Returns the weekday, month name, day, year and a 24-hour time.
 		#
 		#   returns    a string
-		#   note       the intended text is weekday, month day, year and a time with seconds
-		#   warning    the day of the month comes out as the letter d (Sunday, March d, 2026
-		#              02:30:00 PM) because the single d of the pattern is never replaced; ToLong
-		#              prints the day correctly
+		#   note       the day of the month is written without a leading zero
 		#   see        ToLong24h, ToVerbose
 		def ToVerboseWithoutAP()
 		    return This.ToStringXT(:Verbose24h)
 
-		# Returns the weekday, month name, year and a 24-hour time, with the day number printed as the letter d today.
+		# Returns the weekday, month name, day, year and a 24-hour time.
 		#
 		#   returns    a string
-		#   note       the intended text is weekday, month day, year and a time with seconds
-		#   warning    the day of the month comes out as the letter d (Sunday, March d, 2026
-		#              02:30:00 PM) because the single d of the pattern is never replaced; ToLong
-		#              prints the day correctly
+		#   note       the day of the month is written without a leading zero
 		#   see        ToLong24h, ToVerbose
 		def ToVerboseWithoutAmPm()
 		    return This.ToStringXT(:Verbose24h)
@@ -2570,10 +2577,8 @@ class stzDateTime from stzObject
 
     # Returns the weekday, month and day with a 24-hour time and the year, in ddd MMM d HH:mm:ss yyyy order.
     #
-    #   returns    a string such as Sun Mar d 14:30:00 2026 today
-    #   note       the intended text is weekday, month, day, time and year
-    #   warning    the day of the month comes out as the letter d (Sun Mar d 14:30:00 2026) because
-    #              the single d of the pattern is never replaced
+    #   returns    a string such as Sun Mar 15 14:30:00 2026
+    #   note       the day of the month is written without a leading zero
     #   see        ToRFC2822
     def ToTextDate()
         return This.ToStringXT("ddd MMM d HH:mm:ss yyyy")
@@ -2642,22 +2647,18 @@ class stzDateTime from stzObject
 		def ToLong12h()
 			return This.ToLong()
 
-		# Returns the weekday, month name, year and a 24-hour time with seconds, with the day number printed as the letter d today.
+		# Returns the weekday, month name, day, year and a 24-hour time with seconds.
 		#
-		#   returns    a string such as Sunday, March d, 2026 14:30:00 today
-		#   note       the intended text is Sunday, March 15, 2026 14:30:00
-		#   warning    the day of the month comes out as the letter d because the single d of the
-		#              pattern is never replaced; ToLong prints the day correctly
+		#   returns    a string such as Sunday, March 15, 2026 14:30:00
+		#   note       the day of the month is written without a leading zero
 		#   see        ToLong
 		def ToLong24h()
 		    return This.ToStringXT(:Long24h)
 
-	# Returns the weekday, month name and year without a time, with the day number printed as the letter d today.
+	# Returns the weekday, month name, day and year without a time.
 	#
-	#   returns    a string such as Sunday, March d, 2026 today
-	#   note       the intended text is Sunday, March 15, 2026
-	#   warning    the day of the month comes out as the letter d because the single d of the
-	#              pattern is never replaced
+	#   returns    a string such as Sunday, March 15, 2026
+	#   note       the day of the month is written without a leading zero
 	#   see        ToLong
 	def ToLongDate()
 		return This.ToStringXT(:LongDate)
@@ -2864,17 +2865,13 @@ class stzDateTime from stzObject
 
 	    return 0
 
-	# Sets the object to 1970-01-01 plus a duration in words, but counts each plural unit more than once today (2 days gives 4).
+	# Sets the object to 1970-01-01 plus a duration in words such as 3 days 2 hours, each unit counted once.
 	#
 	#   _cNatural_   the duration in words ending with from epoch or since epoch, such as 3 days 2
 	#                hours from epoch
 	#   returns      nothing; the object changes in place
 	#   note         FromNaturalEpoch reads the same words correctly; the constructor uses this
 	#                method for text with from epoch or since epoch
-	#   warning      counts every plural unit twice or three times: the unit list holds days and
-	#                day, minutes, minute and min, seconds, second and sec, and each one is found
-	#                inside the plural word, so 5 minutes gives 15 minutes and 2 days gives 4 days;
-	#                singular units such as 1 week are right
 	#   see          FromNaturalEpoch, IsNaturalEpochString
 	def ParseNaturalEpoch(_cNatural_)
 	    _nTotalMilliseconds_ = 0
@@ -2911,26 +2908,18 @@ class stzDateTime from stzObject
 	        [:ms, 1]
 	    ]
 
+	    # each word that IS a unit takes the number before it; a unit searched for inside the words
+	    # found day inside days, and min and minute inside minutes, and counted them again
+	    _aTokens_ = split(_cNatural_, " ")
+	    _nTokensLen_ = len(_aTokens_)
 	    _nUnits2Len_ = len(_aUnits_)
-	    for _iLoopUnits2_ = 1 to _nUnits2Len_
-	    	_aUnit_ = _aUnits_[_iLoopUnits2_]
-	        _cUnit_ = _aUnit_[1]
-	        _nMultiplier_ = _aUnit_[2]
-
-	        _cPattern_ = "(\d+\.?\d*)\s*" + _cUnit_
-
-	        _nPos_ = StzFindFirst(_cUnit_, _cNatural_)
-	        if _nPos_ > 0
-	            _cBefore_ = StzLeft(_cNatural_, _nPos_ - 1)
-	            _cBefore_ = trim(_cBefore_)
-
-	            _aTokens_ = split(_cBefore_, " ")
-	            if len(_aTokens_) > 0
-	                _cNumber_ = _aTokens_[len(_aTokens_)]
-	                _nValue_ = 0+ _cNumber_
-	                _nTotalMilliseconds_ += (_nValue_ * _nMultiplier_)
+	    for _i_ = 2 to _nTokensLen_
+	        for _iLoopUnits2_ = 1 to _nUnits2Len_
+	            if _aTokens_[_i_] = _aUnits_[_iLoopUnits2_][1]
+	                _nTotalMilliseconds_ += ((0+ _aTokens_[_i_ - 1]) * _aUnits_[_iLoopUnits2_][2])
+	                exit
 	            ok
-	        ok
+	        next
 	    next
 
 	    This._SetFromMsSinceEpoch(_nTotalMilliseconds_)
@@ -2940,11 +2929,10 @@ class stzDateTime from stzObject
 	#   _nMonths_   the number of months since January 1970
 	#   returns     nothing; the object changes in place
 	#   note        the same as FromMonthsSinceEpoch with the Unix origin
-	#   warning     a negative count leaves a month of 0 or less, an invalid date
 	#   see         FromMonthsSinceEpoch
 	def SetFromEpochMonths(_nMonths_)
 	    _nYears_ = floor(_nMonths_ / 12)
-	    _nRemainingMonths_ = _nMonths_ % 12
+	    _nRemainingMonths_ = _nMonths_ - (_nYears_ * 12)
 
 	    @nYear = 1970 + _nYears_
 	    @nMonth = 1 + _nRemainingMonths_
@@ -2974,7 +2962,6 @@ class stzDateTime from stzObject
 	#              milliseconds
 	#   returns    nothing; the object changes in place
 	#   note       unlike FromEpochHash it reads the :milliseconds key
-	#   warning    a negative total gives an invalid date
 	#   see        FromEpochHash, HashToMilliseconds
 	def SetFromEpochDuration(aHash)
 	    _nTotalMs_ = 0
@@ -3033,7 +3020,6 @@ class stzDateTime from stzObject
     #              name in words
     #   returns    nothing; the object changes in place
     #   note       the origin words are turned into an origin name by MapOriginName
-    #   warning    an origin before 1970 (year one, atomic age...) leaves an invalid date today
     #   see        MapOriginName, SetFromNaturalDuration
     def ParseCountingFrom(cStr)
         _cLower_ = StzLower(cStr)
@@ -3091,6 +3077,9 @@ class stzDateTime from stzObject
         but StzFindFirst("internet", _cLower_) > 0
             return :InternetAge
 
+        but StzFindFirst("modern computing", _cLower_) > 0
+            return :ModernComputing
+
         else
             return :UnixEpoch
         ok
@@ -3101,8 +3090,6 @@ class stzDateTime from stzObject
     #   _cOrigin_   the origin name as a symbol or lowercase text
     #   returns     nothing; the object changes in place
     #   note        seconds may carry a fraction, which becomes the milliseconds
-    #   warning     every origin except :UnixEpoch lies before 1970 and leaves an invalid date
-    #               today; mixed-case origin text counts as the Unix epoch
     #   see         GetOriginBase, SetFromNaturalDuration
     def SetCountingFrom(_nValue_, _cOrigin_)
 	if _cOrigin_ = ""
@@ -3123,14 +3110,16 @@ class stzDateTime from stzObject
     #   returns     a number of milliseconds
     #   note        the nine origins are UnixEpoch, YearOne, IslamicHijra, USIndependence,
     #               FrenchRevolution, AtomicAge, SpaceAge, InternetAge and ModernComputing
-    #   warning     an origin written as mixed-case text such as "YearOne" is not found and answers
-    #               0
     #   see         MapOriginName, SetCountingFrom
     def GetOriginBase(_cOrigin_)
+        if not isString(_cOrigin_)
+            return 0
+        ok
+        _cOriginLower_ = StzLower(_cOrigin_)
         _nTimeOrigins1Len_ = len(aTimeOrigins)
         for _iLoopTimeOrigins1_ = 1 to _nTimeOrigins1Len_
         	_aOrigin_ = aTimeOrigins[_iLoopTimeOrigins1_]
-            if _aOrigin_[1] = _cOrigin_
+            if _aOrigin_[1] = _cOriginLower_  # the table keys are symbols, lowercase already
                 return _aOrigin_[2]
             ok
         next
@@ -3143,7 +3132,7 @@ class stzDateTime from stzObject
     #   _cOrigin_     the origin name as a symbol or lowercase text
     #   returns       nothing; the object changes in place
     #   note          a year counts 365 days and a month 30.4 days
-    #   warning       an origin before 1970 leaves an invalid date today; milliseconds are not read
+    #   warning       milliseconds are not read
     #   see           ParseNaturalDuration, SetCountingFrom
     def SetFromNaturalDuration(_cDuration_, _cOrigin_)
 	if _cOrigin_ = ""
@@ -3519,16 +3508,14 @@ class stzDateTime from stzObject
 	    def YearsTo(pcUnit)
 	        return This.DurationTo(pcUnit, :In = :Years)
 
-	# Raises error R24 today instead of returning the decades from the datetime to a target datetime.
+	# Returns the whole decades, a tenth of the calendar years, from the datetime to a target datetime.
 	#
 	#   cTo        the target datetime, as a stzDateTime or a date-time text
-	#   returns    nothing today; the call raises
+	#   returns    a whole number of decades
 	#   note       the object is not changed
-	#   warning    raises R24 today instead of answering the decades: the parameter is named cTo but
-	#              the body reads pcUnit, which does not exist there; DecadesTo works
 	#   see        DecadesTo, DurationTo
 	def DurationInDecadesTo(cTo)
-	    return This.DurationTo(pcUnit, :In = :Decades)
+	    return This.DurationTo(cTo, :In = :Decades)
 
 	    # Returns a tenth of the calendar years between the two datetimes, rounded down.
 	    #
@@ -3566,8 +3553,7 @@ class stzDateTime from stzObject
     #   returns    a number in the unit, or a hash with keys milliseconds, seconds, minutes, hours,
     #              days, weeks, months, years, decades and centuries
     #   note       the origin is a name from the list of nine origins, not a datetime
-    #   warning    an origin written as mixed-case text, or a datetime text, counts as the Unix
-    #              epoch; months, years, decades and centuries are wrong for an origin before 1970
+    #   warning    a datetime text in place of an origin name counts as the Unix epoch
     #   see        DurationTo, ToSecondsSinceEpochXT
     def DurationSince(pOrigin, pcUnit)
 
@@ -3653,44 +3639,38 @@ class stzDateTime from stzObject
     #              :InternetAge or :ModernComputing
     #   returns    a number of milliseconds
     #   note       the object is not changed
-    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text, is
-    #              not recognised and counts as the Unix epoch
+    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+    #              Unix epoch
     #   see        MillisecondsFrom, DurationInMillisecondsSince, DurationSince
     def DurationInMillisecondsFrom(pOrigin)
         return This.DurationSince(pOrigin, :In = :Milliseconds)
 
-	# Raises error R24 today instead of returning the milliseconds elapsed from a named origin up to the datetime.
+	# Returns the milliseconds elapsed from a named origin such as :UnixEpoch or :YearOne up to the datetime.
 	#
-	#   cFrom      the origin the call was meant to take, as a symbol such as :UnixEpoch
-	#   returns    nothing today; the call raises
+	#   cFrom      the origin name as a symbol or lowercase text, such as :UnixEpoch or :YearOne
+	#   returns    a number of milliseconds
 	#   note       the object is not changed
-	#   warning    raises R24 today: the parameter is named cFrom but the body reads pOrigin, which
-	#              does not exist there; DurationInMillisecondsFrom works
 	#   see        DurationInMillisecondsFrom, DurationSince
 	def MillisecondsFrom(cFrom)
-		return This.DurationSince(pOrigin, :In = :Milliseconds)
+		return This.DurationSince(cFrom, :In = :Milliseconds)
 
-	    # Raises error R24 today instead of returning the milliseconds elapsed from a named origin up to the datetime.
+	    # Returns the milliseconds elapsed from a named origin such as :UnixEpoch or :YearOne up to the datetime.
 	    #
-	    #   cFrom      the origin the call was meant to take, as a symbol such as :UnixEpoch
-	    #   returns    nothing today; the call raises
+	    #   cFrom      the origin name as a symbol or lowercase text, such as :UnixEpoch or :YearOne
+	    #   returns    a number of milliseconds
 	    #   note       the object is not changed
-	    #   warning    raises R24 today: the parameter is named cFrom but the body reads pOrigin,
-	    #              which does not exist there; DurationInMillisecondsFrom works
 	    #   see        DurationInMillisecondsFrom, DurationSince
 	    def DurationInMillisecondsSince(cFrom)
-	        return This.DurationSince(pOrigin, :In = :Milliseconds)
+	        return This.DurationSince(cFrom, :In = :Milliseconds)
 
-	# Raises error R24 today instead of returning the milliseconds elapsed from a named origin up to the datetime.
+	# Returns the milliseconds elapsed from a named origin such as :UnixEpoch or :YearOne up to the datetime.
 	#
-	#   cFrom      the origin the call was meant to take, as a symbol such as :UnixEpoch
-	#   returns    nothing today; the call raises
+	#   cFrom      the origin name as a symbol or lowercase text, such as :UnixEpoch or :YearOne
+	#   returns    a number of milliseconds
 	#   note       the object is not changed
-	#   warning    raises R24 today: the parameter is named cFrom but the body reads pOrigin, which
-	#              does not exist there; DurationInMillisecondsFrom works
 	#   see        DurationInMillisecondsFrom, DurationSince
 	def MillisecondsSince(cFrom)
-		return This.DurationSince(pOrigin, :In = :Milliseconds)
+		return This.DurationSince(cFrom, :In = :Milliseconds)
 
     # Returns the whole seconds elapsed from a named origin such as :UnixEpoch or :YearOne up to the datetime.
     #
@@ -3699,8 +3679,8 @@ class stzDateTime from stzObject
     #              :InternetAge or :ModernComputing
     #   returns    a whole number of seconds
     #   note       the object is not changed; rounds down
-    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text, is
-    #              not recognised and counts as the Unix epoch
+    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+    #              Unix epoch
     #   see        SecondsFrom, DurationInSecondsSince, DurationSince
     def DurationInSecondsFrom(pOrigin)
         return This.DurationSince(pOrigin, :In = :Seconds)
@@ -3712,8 +3692,8 @@ class stzDateTime from stzObject
 	    #              :InternetAge or :ModernComputing
 	    #   returns    a whole number of seconds
 	    #   note       the object is not changed; rounds down
-	    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text,
-	    #              is not recognised and counts as the Unix epoch
+	    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+	    #              Unix epoch
 	    #   see        DurationInSecondsFrom, DurationInSecondsSince, DurationSince
 	    def SecondsFrom(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Seconds)
@@ -3725,8 +3705,8 @@ class stzDateTime from stzObject
 	    #              :InternetAge or :ModernComputing
 	    #   returns    a whole number of seconds
 	    #   note       the object is not changed; rounds down
-	    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text,
-	    #              is not recognised and counts as the Unix epoch
+	    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+	    #              Unix epoch
 	    #   see        DurationInSecondsFrom, SecondsFrom, DurationSince
 	    def DurationInSecondsSince(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Seconds)
@@ -3738,8 +3718,8 @@ class stzDateTime from stzObject
 	    #              :InternetAge or :ModernComputing
 	    #   returns    a whole number of seconds
 	    #   note       the object is not changed; rounds down
-	    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text,
-	    #              is not recognised and counts as the Unix epoch
+	    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+	    #              Unix epoch
 	    #   see        DurationInSecondsFrom, SecondsFrom, DurationSince
 	    def SecondsSince(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Seconds)
@@ -3751,8 +3731,8 @@ class stzDateTime from stzObject
     #              :InternetAge or :ModernComputing
     #   returns    a whole number of minutes
     #   note       the object is not changed; rounds down
-    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text, is
-    #              not recognised and counts as the Unix epoch
+    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+    #              Unix epoch
     #   see        MinutesFrom, DurationInMinutesSince, DurationSince
     def DurationInMinutesFrom(pOrigin)
          return This.DurationSince(pOrigin, :In = :Minutes)
@@ -3764,8 +3744,8 @@ class stzDateTime from stzObject
 	    #              :InternetAge or :ModernComputing
 	    #   returns    a whole number of minutes
 	    #   note       the object is not changed; rounds down
-	    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text,
-	    #              is not recognised and counts as the Unix epoch
+	    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+	    #              Unix epoch
 	    #   see        DurationInMinutesFrom, DurationInMinutesSince, DurationSince
 	    def MinutesFrom(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Minutes)
@@ -3777,8 +3757,8 @@ class stzDateTime from stzObject
 	    #              :InternetAge or :ModernComputing
 	    #   returns    a whole number of minutes
 	    #   note       the object is not changed; rounds down
-	    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text,
-	    #              is not recognised and counts as the Unix epoch
+	    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+	    #              Unix epoch
 	    #   see        DurationInMinutesFrom, MinutesFrom, DurationSince
 	    def DurationInMinutesSince(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Minutes)
@@ -3790,8 +3770,8 @@ class stzDateTime from stzObject
 	    #              :InternetAge or :ModernComputing
 	    #   returns    a whole number of minutes
 	    #   note       the object is not changed; rounds down
-	    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text,
-	    #              is not recognised and counts as the Unix epoch
+	    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+	    #              Unix epoch
 	    #   see        DurationInMinutesFrom, MinutesFrom, DurationSince
 	    def MinutesSince(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Minutes)
@@ -3803,8 +3783,8 @@ class stzDateTime from stzObject
     #              :InternetAge or :ModernComputing
     #   returns    a whole number of hours
     #   note       the object is not changed; rounds down
-    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text, is
-    #              not recognised and counts as the Unix epoch
+    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+    #              Unix epoch
     #   see        HoursFrom, DurationInHoursSince, DurationSince
     def DurationInHoursFrom(pOrigin)
          return This.DurationSince(pOrigin, :In = :Hours)
@@ -3816,8 +3796,8 @@ class stzDateTime from stzObject
 	    #              :InternetAge or :ModernComputing
 	    #   returns    a whole number of hours
 	    #   note       the object is not changed; rounds down
-	    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text,
-	    #              is not recognised and counts as the Unix epoch
+	    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+	    #              Unix epoch
 	    #   see        DurationInHoursFrom, DurationInHoursSince, DurationSince
 	    def HoursFrom(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Hours)
@@ -3829,8 +3809,8 @@ class stzDateTime from stzObject
 	    #              :InternetAge or :ModernComputing
 	    #   returns    a whole number of hours
 	    #   note       the object is not changed; rounds down
-	    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text,
-	    #              is not recognised and counts as the Unix epoch
+	    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+	    #              Unix epoch
 	    #   see        DurationInHoursFrom, HoursFrom, DurationSince
 	    def DurationInHoursSince(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Hours)
@@ -3842,8 +3822,8 @@ class stzDateTime from stzObject
 	    #              :InternetAge or :ModernComputing
 	    #   returns    a whole number of hours
 	    #   note       the object is not changed; rounds down
-	    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text,
-	    #              is not recognised and counts as the Unix epoch
+	    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+	    #              Unix epoch
 	    #   see        DurationInHoursFrom, HoursFrom, DurationSince
 	    def HoursSince(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Hours)
@@ -3855,8 +3835,8 @@ class stzDateTime from stzObject
     #              :InternetAge or :ModernComputing
     #   returns    a whole number of days
     #   note       the object is not changed; rounds down
-    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text, is
-    #              not recognised and counts as the Unix epoch
+    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+    #              Unix epoch
     #   see        DaysFrom, DurationInDaysSince, DurationSince
     def DurationInDaysFrom(pOrigin)
          return This.DurationSince(pOrigin, :In = :Days)
@@ -3868,8 +3848,8 @@ class stzDateTime from stzObject
 	    #              :InternetAge or :ModernComputing
 	    #   returns    a whole number of days
 	    #   note       the object is not changed; rounds down
-	    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text,
-	    #              is not recognised and counts as the Unix epoch
+	    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+	    #              Unix epoch
 	    #   see        DurationInDaysFrom, DurationInDaysSince, DurationSince
 	    def DaysFrom(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Days)
@@ -3881,8 +3861,8 @@ class stzDateTime from stzObject
 	    #              :InternetAge or :ModernComputing
 	    #   returns    a whole number of days
 	    #   note       the object is not changed; rounds down
-	    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text,
-	    #              is not recognised and counts as the Unix epoch
+	    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+	    #              Unix epoch
 	    #   see        DurationInDaysFrom, DaysFrom, DurationSince
 	    def DurationInDaysSince(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Days)
@@ -3894,8 +3874,8 @@ class stzDateTime from stzObject
 	    #              :InternetAge or :ModernComputing
 	    #   returns    a whole number of days
 	    #   note       the object is not changed; rounds down
-	    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text,
-	    #              is not recognised and counts as the Unix epoch
+	    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+	    #              Unix epoch
 	    #   see        DurationInDaysFrom, DaysFrom, DurationSince
 	    def DaysSince(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Days)
@@ -3907,8 +3887,8 @@ class stzDateTime from stzObject
     #              :InternetAge or :ModernComputing
     #   returns    a whole number of weeks
     #   note       the object is not changed; rounds down
-    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text, is
-    #              not recognised and counts as the Unix epoch
+    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+    #              Unix epoch
     #   see        WeeksFrom, DurationInWeeksSince, DurationSince
     def DurationInWeeksFrom(pOrigin)
          return This.DurationSince(pOrigin, :In = :Weeks)
@@ -3920,8 +3900,8 @@ class stzDateTime from stzObject
 	    #              :InternetAge or :ModernComputing
 	    #   returns    a whole number of weeks
 	    #   note       the object is not changed; rounds down
-	    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text,
-	    #              is not recognised and counts as the Unix epoch
+	    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+	    #              Unix epoch
 	    #   see        DurationInWeeksFrom, DurationInWeeksSince, DurationSince
 	    def WeeksFrom(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Weeks)
@@ -3933,8 +3913,8 @@ class stzDateTime from stzObject
 	    #              :InternetAge or :ModernComputing
 	    #   returns    a whole number of weeks
 	    #   note       the object is not changed; rounds down
-	    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text,
-	    #              is not recognised and counts as the Unix epoch
+	    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+	    #              Unix epoch
 	    #   see        DurationInWeeksFrom, WeeksFrom, DurationSince
 	    def DurationInWeeksSince(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Weeks)
@@ -3946,8 +3926,8 @@ class stzDateTime from stzObject
 	    #              :InternetAge or :ModernComputing
 	    #   returns    a whole number of weeks
 	    #   note       the object is not changed; rounds down
-	    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text,
-	    #              is not recognised and counts as the Unix epoch
+	    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+	    #              Unix epoch
 	    #   see        DurationInWeeksFrom, WeeksFrom, DurationSince
 	    def WeeksSince(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Weeks)
@@ -3959,9 +3939,8 @@ class stzDateTime from stzObject
     #              :InternetAge or :ModernComputing
     #   returns    a whole number of months
     #   note       the object is not changed; rounds down
-    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text, is
-    #              not recognised and counts as the Unix epoch; wrong for every origin before 1970,
-    #              where the month and year of the origin come out as year 0
+    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+    #              Unix epoch
     #   see        MonthsFrom, DurationInMonthsSince, DurationSince
     def DurationInMonthsFrom(pOrigin)
          return This.DurationSince(pOrigin, :In = :Months)
@@ -3973,9 +3952,8 @@ class stzDateTime from stzObject
 	    #              :InternetAge or :ModernComputing
 	    #   returns    a whole number of months
 	    #   note       the object is not changed; rounds down
-	    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text,
-	    #              is not recognised and counts as the Unix epoch; wrong for every origin before
-	    #              1970, where the month and year of the origin come out as year 0
+	    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+	    #              Unix epoch
 	    #   see        DurationInMonthsFrom, DurationInMonthsSince, DurationSince
 	    def MonthsFrom(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Months)
@@ -3987,9 +3965,8 @@ class stzDateTime from stzObject
 	    #              :InternetAge or :ModernComputing
 	    #   returns    a whole number of months
 	    #   note       the object is not changed; rounds down
-	    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text,
-	    #              is not recognised and counts as the Unix epoch; wrong for every origin before
-	    #              1970, where the month and year of the origin come out as year 0
+	    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+	    #              Unix epoch
 	    #   see        DurationInMonthsFrom, MonthsFrom, DurationSince
 	    def DurationInMonthsSince(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Months)
@@ -4001,9 +3978,8 @@ class stzDateTime from stzObject
 	    #              :InternetAge or :ModernComputing
 	    #   returns    a whole number of months
 	    #   note       the object is not changed; rounds down
-	    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text,
-	    #              is not recognised and counts as the Unix epoch; wrong for every origin before
-	    #              1970, where the month and year of the origin come out as year 0
+	    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+	    #              Unix epoch
 	    #   see        DurationInMonthsFrom, MonthsFrom, DurationSince
 	    def MonthsSince(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Months)
@@ -4015,9 +3991,8 @@ class stzDateTime from stzObject
     #              :InternetAge or :ModernComputing
     #   returns    a whole number of years
     #   note       the object is not changed; rounds down
-    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text, is
-    #              not recognised and counts as the Unix epoch; wrong for every origin before 1970,
-    #              where the month and year of the origin come out as year 0
+    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+    #              Unix epoch
     #   see        YearsFrom, DurationInYearsSince, DurationSince
     def DurationInYearsFrom(pOrigin)
          return This.DurationSince(pOrigin, :In = :Years)
@@ -4029,9 +4004,8 @@ class stzDateTime from stzObject
 	    #              :InternetAge or :ModernComputing
 	    #   returns    a whole number of years
 	    #   note       the object is not changed; rounds down
-	    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text,
-	    #              is not recognised and counts as the Unix epoch; wrong for every origin before
-	    #              1970, where the month and year of the origin come out as year 0
+	    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+	    #              Unix epoch
 	    #   see        DurationInYearsFrom, DurationInYearsSince, DurationSince
 	    def YearsFrom(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Years)
@@ -4043,9 +4017,8 @@ class stzDateTime from stzObject
 	    #              :InternetAge or :ModernComputing
 	    #   returns    a whole number of years
 	    #   note       the object is not changed; rounds down
-	    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text,
-	    #              is not recognised and counts as the Unix epoch; wrong for every origin before
-	    #              1970, where the month and year of the origin come out as year 0
+	    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+	    #              Unix epoch
 	    #   see        DurationInYearsFrom, YearsFrom, DurationSince
 	    def DurationInYearsSince(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Years)
@@ -4057,9 +4030,8 @@ class stzDateTime from stzObject
 	    #              :InternetAge or :ModernComputing
 	    #   returns    a whole number of years
 	    #   note       the object is not changed; rounds down
-	    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text,
-	    #              is not recognised and counts as the Unix epoch; wrong for every origin before
-	    #              1970, where the month and year of the origin come out as year 0
+	    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+	    #              Unix epoch
 	    #   see        DurationInYearsFrom, YearsFrom, DurationSince
 	    def YearsSince(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Years)
@@ -4072,9 +4044,8 @@ class stzDateTime from stzObject
     #              :InternetAge or :ModernComputing
     #   returns    a whole number of decades
     #   note       the object is not changed; rounds down
-    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text, is
-    #              not recognised and counts as the Unix epoch; wrong for every origin before 1970,
-    #              where the month and year of the origin come out as year 0
+    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+    #              Unix epoch
     #   see        DecadesFrom, DurationInDecadesSince, DurationSince
     def DurationInDecadesFrom(pOrigin)
          return This.DurationSince(pOrigin, :In = :Decades)
@@ -4086,9 +4057,8 @@ class stzDateTime from stzObject
 	    #              :InternetAge or :ModernComputing
 	    #   returns    a whole number of decades
 	    #   note       the object is not changed; rounds down
-	    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text,
-	    #              is not recognised and counts as the Unix epoch; wrong for every origin before
-	    #              1970, where the month and year of the origin come out as year 0
+	    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+	    #              Unix epoch
 	    #   see        DurationInDecadesFrom, DurationInDecadesSince, DurationSince
 	    def DecadesFrom(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Decades)
@@ -4100,9 +4070,8 @@ class stzDateTime from stzObject
 	    #              :InternetAge or :ModernComputing
 	    #   returns    a whole number of decades
 	    #   note       the object is not changed; rounds down
-	    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text,
-	    #              is not recognised and counts as the Unix epoch; wrong for every origin before
-	    #              1970, where the month and year of the origin come out as year 0
+	    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+	    #              Unix epoch
 	    #   see        DurationInDecadesFrom, DecadesFrom, DurationSince
 	    def DurationInDecadesSince(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Decades)
@@ -4114,9 +4083,8 @@ class stzDateTime from stzObject
 	    #              :InternetAge or :ModernComputing
 	    #   returns    a whole number of decades
 	    #   note       the object is not changed; rounds down
-	    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text,
-	    #              is not recognised and counts as the Unix epoch; wrong for every origin before
-	    #              1970, where the month and year of the origin come out as year 0
+	    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+	    #              Unix epoch
 	    #   see        DurationInDecadesFrom, DecadesFrom, DurationSince
 	    def DecadesSince(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Decades)
@@ -4129,9 +4097,8 @@ class stzDateTime from stzObject
     #              :InternetAge or :ModernComputing
     #   returns    a whole number of centuries
     #   note       the object is not changed; rounds down
-    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text, is
-    #              not recognised and counts as the Unix epoch; wrong for every origin before 1970,
-    #              where the month and year of the origin come out as year 0
+    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+    #              Unix epoch
     #   see        CenturiesFrom, DurationInCenturiesSince, DurationSince
     def DurationInCenturiesFrom(pOrigin)
          return This.DurationSince(pOrigin, :In = :Centuries)
@@ -4143,9 +4110,8 @@ class stzDateTime from stzObject
 	    #              :InternetAge or :ModernComputing
 	    #   returns    a whole number of centuries
 	    #   note       the object is not changed; rounds down
-	    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text,
-	    #              is not recognised and counts as the Unix epoch; wrong for every origin before
-	    #              1970, where the month and year of the origin come out as year 0
+	    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+	    #              Unix epoch
 	    #   see        DurationInCenturiesFrom, DurationInCenturiesSince, DurationSince
 	    def CenturiesFrom(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Centuries)
@@ -4157,9 +4123,8 @@ class stzDateTime from stzObject
 	    #              :InternetAge or :ModernComputing
 	    #   returns    a whole number of centuries
 	    #   note       the object is not changed; rounds down
-	    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text,
-	    #              is not recognised and counts as the Unix epoch; wrong for every origin before
-	    #              1970, where the month and year of the origin come out as year 0
+	    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+	    #              Unix epoch
 	    #   see        DurationInCenturiesFrom, CenturiesFrom, DurationSince
 	    def DurationInCenturiesSince(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Centuries)
@@ -4171,9 +4136,8 @@ class stzDateTime from stzObject
 	    #              :InternetAge or :ModernComputing
 	    #   returns    a whole number of centuries
 	    #   note       the object is not changed; rounds down
-	    #   warning    an origin written as mixed-case text such as "YearOne", or a datetime text,
-	    #              is not recognised and counts as the Unix epoch; wrong for every origin before
-	    #              1970, where the month and year of the origin come out as year 0
+	    #   warning    a datetime text in place of an origin name is not recognised and counts as the
+	    #              Unix epoch
 	    #   see        DurationInCenturiesFrom, CenturiesFrom, DurationSince
 	    def CenturiesSince(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Centuries)
