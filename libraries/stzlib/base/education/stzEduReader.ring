@@ -197,6 +197,25 @@ func _EduReaderJs()
 	       "links.forEach(function(a){a.classList.toggle('on',a.getAttribute('data-go')===l);});}" +
 	       "window.addEventListener('hashchange',function(){show(location.hash.slice(1));});show(location.hash.slice(1));})();"
 
+# Builds one self-contained HTML page for a course, which stores no output and says where each cell runs.
+#
+# The page follows the chapters that were run and observed, one article per language edition,
+# switched by the URL hash; it needs no build tool and loads nothing from the network. It never
+# holds an output: each cell carries a fixed sentence saying so, and keeps the author's promise
+# lines, which are an expectation and not a result. Each cell is labelled where it ran as the guard
+# observed it, and the cells run on the desktop, not in the browser: running them in the browser
+# waits on ringscript. A translation is marked a draft until a native speaker has signed the unit
+# off: the fr, ar and ha editions are drafts, 0 of 35 units reviewed by a person in each language.
+# No institution has adopted the system yet.
+#
+#   receiver   oC = StzProgramQ("../../education/program").CourseQ("elementary-introduction"); o1 =
+#              new stzEduReader(oC)
+#   example    o1.AddChapter( oC.RunChapterInQ("find-then-apply", [ "en" ])[1] )
+#              ? o1.NumberOfWorldPages()
+#              #--> 0
+#              ? StzFindFirst("stores no output", o1.Html()) > 0
+#              #--> 1
+#   see        stzCourse, stzChapter, stzProgram
 class stzEduReader from stzObject
 
 	@oCourse
@@ -204,9 +223,25 @@ class stzEduReader from stzObject
 	@acKinds = []    # "chapter" or "world", one per entry of @aChapters
 	@aQandA = []     # [ question, class, method, explanation ]
 
+	# Starts a reader for a course: an empty page to which observed chapters, world pages and questions are then added.
+	#
+	#   poCourse   the stzCourse the page is about: its slug titles the page and its exercises are
+	#              shown after the cells
+	#   returns    nothing; the object is built
+	#   note       the page it builds loads nothing from the network and stores no output
+	#   see        AddChapter, AddWorldPage, AddQuestion, Html
 	def init(poCourse)
 		@oCourse = poCourse
 
+	# Adds one edition of a chapter, already run and observed, to the reader, as an entry of its language's menu.
+	#
+	#   poChapter   a stzChapter on which ObserveWhere() has run, as the chapters returned by the
+	#               course's RunChapterInQ
+	#   returns     nothing; use AddChapterQ to chain
+	#   note        each language of a chapter is added separately, one call per edition
+	#   warning     raises an error saying a chapter enters the reader only after ObserveWhere()
+	#               when it was not run: where a cell runs is observed, never assumed
+	#   see         AddWorldPage, Html
 	def AddChapter(poChapter)
 		if len(poChapter.Where()) = 0
 			StzRaise("A chapter enters the reader only after ObserveWhere(): runs-where is observed, never assumed.")
@@ -218,9 +253,15 @@ class stzEduReader from stzObject
 			This.AddChapter(poChapter)
 			return This
 
-	# A world's page: the same article as a chapter, listed in the
-	# language's menu under "World" rather than a number, after the
-	# chapters of that language.
+	# Adds the page of a teaching world, listed after the chapters of its language under the word World.
+	#
+	#   poChapter   a stzChapter made from a world page, on which ObserveWhere() has run
+	#   returns     nothing; use AddWorldPageQ to chain
+	#   note        the page is the same article as a chapter
+	#   warning     raises the same error as AddChapter for a page that was not run; adding the same
+	#               page twice lists it twice (shown: 2 pages)
+	#   see         AddChapter, NumberOfWorldPages
+	#@ aka  A world's page: the same article as a chapter, listed in the language's menu under "World" rather than a number, after the chapters of that language.
 	def AddWorldPage(poChapter)
 		if len(poChapter.Where()) = 0
 			StzRaise("A world page enters the reader only after ObserveWhere(): runs-where is observed, never assumed.")
@@ -232,6 +273,10 @@ class stzEduReader from stzObject
 			This.AddWorldPage(poChapter)
 			return This
 
+	# Returns how many world pages the reader holds.
+	#
+	#   returns    a number
+	#   see        AddWorldPage
 	def NumberOfWorldPages()
 		_n_ = 0
 		_nL_ = len(@acKinds)
@@ -242,7 +287,17 @@ class stzEduReader from stzObject
 		next
 		return _n_
 
-	# A Q&A generated from the library itself, when the page is built.
+	# Adds a question answered from the library's own documentation, for the page's Q&A section.
+	#
+	#   pcQuestion   the question, in words
+	#   pcClass      the class whose documentation answers it
+	#   returns      nothing; the question and its answer are stored
+	#   note         the answer is the best match of the class's documentation, so it follows the
+	#                doc blocks as they are written
+	#   warning      raises an error saying the library has no answer, when the class's
+	#                documentation has none: a page may not invent one
+	#   see          QandA, Html
+	#@ aka  A Q&A generated from the library itself, when the page is built.
 	def AddQuestion(pcQuestion, pcClass)
 		_oDoc_ = StzSelfDocQ(pcClass)
 		_aA_ = _oDoc_.Ask(pcQuestion)
@@ -252,9 +307,21 @@ class stzEduReader from stzObject
 		_cMethod_ = _aA_[1][1]
 		@aQandA + [ pcQuestion, pcClass, _cMethod_, _oDoc_.ExplainMethod(_cMethod_) ]
 
+	# Returns the questions added to the reader, each with the method that answers it.
+	#
+	#   returns    a list of [ question, class, method, explanation ] lists; [ ] when none
+	#   see        AddQuestion, Html
 	def QandA()
 		return @aQandA
 
+	# Returns the whole reader as one self-contained HTML page of the chapters, world pages and Q&A added.
+	#
+	#   returns    a text, the HTML of the page
+	#   note       each cell is labelled where it ran as the guard observed it, and carries a fixed
+	#              sentence saying the page stores no output; every unreviewed translation carries a
+	#              draft notice; the page is right to left for Arabic; with nothing added it is
+	#              still a page, with an empty menu
+	#   see        WriteTo, AddChapter
 	def Html()
 		_c_ = '<!doctype html>' + char(10) + '<html lang="en"><head><meta charset="utf-8">' +
 		      '<meta name="viewport" content="width=device-width,initial-scale=1">' +
@@ -289,6 +356,12 @@ class stzEduReader from stzObject
 		_c_ += '</main>' + char(10) + '<script>' + _EduReaderJs() + '</script></body></html>' + char(10)
 		return _c_
 
+	# Writes the HTML page to a file and returns the path written.
+	#
+	#   pcFile     the file to write, overwritten
+	#   returns    a text, the path
+	#   note       to open the page, open the file in any browser: no server is needed
+	#   see        Html
 	def WriteTo(pcFile)
 		write(pcFile, This.Html())
 		return pcFile

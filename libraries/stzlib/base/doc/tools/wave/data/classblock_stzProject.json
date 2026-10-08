@@ -1,0 +1,20 @@
+{
+ "brief": "Holds a level project: a brief, and a guard that judges a learner's folder by running it.",
+ "detail": "A level is earned by a project that passes, never by a score. The project is a folder with a brief in each language, guard.ring (the court, run in a fresh process with the library loaded, exactly like an exercise's harness), promise.ring (the lines the guard must print for a pass) and wrong/ and right/ sample folders that must be refused and accepted. The guard runs on the desktop only. The fr, ar and ha briefs are drafts, 0 of 35 units reviewed by a person.",
+ "receiver": "o1 = new stzProject(\"../../education/program/projects/project-s0\")",
+ "example": [
+  "? o1.Id()",
+  "#--> project-s0",
+  "? o1.HasGuard()",
+  "#--> 1",
+  "? @@( o1.Promises() )",
+  "#--> [ \"cells five or more: yes\", \"every cell has a promise: yes\", \"every promise kept: yes\", \"stored output: no\" ]",
+  "? o1.Check(o1.RightSamples()[1]).Passed()",
+  "#--> 1"
+ ],
+ "see": [
+  "stzLearner",
+  "stzProgram",
+  "stzExercise"
+ ]
+}

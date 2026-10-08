@@ -305,6 +305,32 @@ func _EduTemplates()
 	[ "exercise-note", "ha", "Ana tabbatarwa ta hanyar gudanar da shirinka a kwamfuta, ba ta hanyar karanta shi ba." ]
 	]
 
+# Asks a learner the question that points at the gap in their attempt, and never writes the answer, without any language model.
+#
+# The tutor keeps three rules: it never writes the learner's code before the exercise is passed,
+# never explains ahead of where the learner is, and never answers before the learner has tried. It
+# keeps them by construction: every reply is built from templates that carry no code, and a last
+# filter blanks any word a right answer calls (ForbiddenWords). What it does: it asks one open
+# question, naming the first step of the exercise that the submitted program does not show, in
+# English, French, Arabic or Hausa; with a course laid on, it names a chapter that is ahead of the
+# learner and does not explain it, and recalls a chapter behind with that chapter's own recap. What
+# it does not do: it does not run or understand the program (it matches words the exercise lists for
+# each step), it does not confirm a solution (only the checker's run does), it answers no question
+# about a method, and it uses no language model and no network. The fr, ar and ha wording is a
+# draft: no native speaker has reviewed it (0 of 35 units reviewed in each language). The programs
+# it reads were run on the desktop only, and no institution has adopted the system yet.
+#
+#   receiver   oC = StzProgramQ("../../education/program").CourseQ("elementary-introduction");
+#              StzEduRemoveTree("t_edu_doc/amina"); o1 = new stzTutor(oC.ExerciseQ("ex-01-01"),
+#              "t_edu_doc/amina", "en")
+#   example    ? o1.Ask("Give me the answer")
+#              #--> I will not write the answer for you: that is the one thing a tutor must never do. Try first. Write your attempt and submit it; then I will tell you what is still missing, as a question.
+#              o1.WithCourse(oC)
+#              ? o1.Ask("How do I use KnowRelation?")
+#              #--> That belongs to chapter 12, 'Teach a world'. You are on chapter 1, and the later chapter stands on what this one teaches, so I will not explain it yet. Which step of your current exercise is still open?
+#              ? o1.FilteredCount()
+#              #--> 0
+#   see        stzLearner, stzExercise, stzCourse
 class stzTutor from stzObject
 
 	@oExercise
@@ -317,28 +343,67 @@ class stzTutor from stzObject
 	@bHasCourse = 0
 	@cLastAbout = ""
 
+	# Builds a tutor for one exercise and one learner's folder, to answer in one language, without any language model.
+	#
+	#   poExercise        the stzExercise the learner is working on, whose forbidden words the tutor
+	#                     blanks from its replies
+	#   pcLearnerFolder   the learner's folder, where the tutor reads the submission and the
+	#                     progress
+	#   pcLang            the language of the replies: en, fr, ar or ha
+	#   returns           nothing; the object is built
+	#   note              the fr, ar and ha wording is a draft: no native speaker has reviewed it (0
+	#                     of 35 units reviewed in each language)
+	#   warning           a language other than those four is not refused here: the first reply that
+	#                     needs a text raises the error No text for that key in that language (law
+	#                     7: a missing translation is red, never English)
+	#   see               WithCourse, Ask, stzLearner
 	def init(poExercise, pcLearnerFolder, pcLang)
 		@oExercise = poExercise
 		@cLearnerFolder = pcLearnerFolder
 		@cLang = pcLang
 		@acForbidden = poExercise.ForbiddenWords()
 
+	# Returns the language code the tutor answers in.
+	#
+	#   returns    a text such as en
+	#   see        init, Ask
 	def Language()
 		return @cLang
 
+	# Returns how many forbidden words the final filter has blanked from replies so far; 0 means the templates alone sufficed.
+	#
+	#   returns    a number
+	#   note       the tutor's guard asserts 0, to prove the filter never had to act
+	#   see        ForbiddenWords, Ask
 	def FilteredCount()
 		return @nFiltered
 
+	# Returns the step the last question found missing from the learner's program, or an empty text when it found none.
+	#
+	#   returns    the name of the exercise's first missing step, such as finds; an empty text when
+	#              none, or when the question was not answered by looking at the program
+	#   note       it is reset by every Ask
+	#   see        Ask, GapIn
 	def LastGap()
 		return @cLastGap
 
+	# Returns the words a right answer calls, which no reply of the tutor may carry.
+	#
+	#   returns    a list of text taken from the exercise
+	#   note       for the first exercise of the elementary course it holds the class and method
+	#              names of the right answer and the promised output
+	#   see        FilteredCount, Ask
 	def ForbiddenWords()
 		return @acForbidden
 
-	#-- the course: what rule 2 needs
-
-	# Rule 2 needs the course: where the learner is in it, and what each
-	# chapter teaches. Without it the tutor knows one exercise only.
+	# Lays the course on the tutor, so that it knows where the learner is and what each chapter teaches.
+	#
+	#   poCourse   the stzCourse the learner follows
+	#   returns    nothing; use WithCourseQ to chain
+	#   warning    without a course ChapterOn raises error R13 Object is required, and Ask cannot
+	#              apply rule 2 (never explain ahead of the learner)
+	#   see        HasCourse, ChapterOn, ChapterAskedAbout, Ask
+	#@ aka  -- the course: what rule 2 needs
 	def WithCourse(poCourse)
 		@oCourse = poCourse
 		@bHasCourse = 1
@@ -347,24 +412,42 @@ class stzTutor from stzObject
 			This.WithCourse(poCourse)
 			return This
 
+	# TRUE if a course has been laid on the tutor, which rule 2 needs.
+	#
+	#   returns    TRUE or FALSE
+	#   see        WithCourse, Ask
 	def HasCourse()
 		return @bHasCourse
 
-	# The chapter the last question was about ("" when it named none).
+	# Returns the chapter the last question was read as being about, or an empty text when it named none.
+	#
+	#   returns    a chapter id, a text
+	#   note       it is reset by every Ask
+	#   see        ChapterAskedAbout, Ask
+	#@ aka  The chapter the last question was about ("" when it named none).
 	def LastAbout()
 		return @cLastAbout
 
-	# Where the learner is: the first chapter of the course with an
-	# exercise not yet passed ("" once every chapter is).
+	# Returns the chapter the learner is on, read from their progress: the first with an exercise not yet passed.
+	#
+	#   returns    a chapter id, a text; an empty text once every chapter is passed
+	#   warning    raises error R13 Object is required when no course was laid on
+	#   see        WithCourse, stzLearner
+	#@ aka  Where the learner is: the first chapter of the course with an exercise not yet passed ("" once every chapter is).
 	def ChapterOn()
 		_oL_ = new stzLearner(@cLearnerFolder)
 		return _oL_.ChapterOn(@oCourse)
 
-	# What a question is ABOUT, read from the course text: the chapter
-	# whose cells first call a name the question mentions; failing that,
-	# the chapter whose title words (in the learner's language) the
-	# question uses -- two of them, or the only one when the title has
-	# one. Nothing is guessed from a word list of the tutor's own.
+	# Returns the chapter a question is about, read from the names its cells call, or else from the title words in the tutor's language.
+	#
+	#   pcQuestion   the learner's question, as typed
+	#   returns      a chapter id, a text; an empty text when no course is laid on or nothing
+	#                matches
+	#   note         a word the question shares with the names a chapter first calls decides first;
+	#                failing that, two title words that belong to one chapter alone (or the only one
+	#                when its title has one) decide, so common words like the or that claim nothing
+	#   see          Ask, LastAbout
+	#@ aka  What a question is ABOUT, read from the course text: the chapter whose cells first call a name the question mentions; failing that, the chapter whose title words (in the learner's language) the question uses -- two of them, or the only one when the title has one. Nothing is guessed from a word list of the tutor's own.
 	def ChapterAskedAbout(pcQuestion)
 		if NOT @bHasCourse
 			return ""
@@ -389,6 +472,23 @@ class stzTutor from stzObject
 		ok
 		return _acCh_[_nIdx_]
 
+	# Answers a learner's question with a template question, never code: it names the missing step or a chapter, or says to try first.
+	#
+	#   pcQuestion   what the learner typed
+	#   returns      a text, one reply in the tutor's language
+	#   note         the order of the tutor: first a head, if the question asks for the answer (a
+	#                refusal) or for confirmation (only the checker confirms); then, with a course,
+	#                a chapter ahead of the learner is named and not explained, and one behind is
+	#                recalled with that chapter's own recap, while only the current chapter goes on;
+	#                then a passed exercise gets the passed sentence; no submission gets try first;
+	#                an error verdict gets read the first error line; else the gap in the submitted
+	#                program, or look at what your program printed
+	#   warning      after the exercise is passed every question, whatever it says, gets one
+	#                sentence inviting the learner to ask about any method, but Ask answers no
+	#                question about a method (shown with three different questions); a request for
+	#                the answer or for confirmation is recognized by fixed lists of words in en, fr,
+	#                ar and ha, so a rephrased one is answered like any other question
+	#   see          GapIn, WithCourse, LastGap, LastAbout, FilteredCount
 	def Ask(pcQuestion)
 		_oL_ = new stzLearner(@cLearnerFolder)
 		_cEx_ = @oExercise.Id()
@@ -442,7 +542,18 @@ class stzTutor from stzObject
 		ok
 		return This._Filter(_cHead_ + @oExercise.GapText(@cLastGap, @cLang))
 
-	# The first missing step, named by the wise-coding conversation.
+	# Returns the first step of the exercise that a program text does not show, or an empty text when every step shows.
+	#
+	#   pcCode     the learner's program, as text
+	#   returns    the name of a step of the exercise, such as finds or applies; an empty text when
+	#              all are shown
+	#   note       a step counts as shown when one of the exercise's words for it occurs in the
+	#              text, whatever the case, comments included (a program holding only the comment
+	#              FindDuplicates shows the finds step); the program is not run or understood here,
+	#              only matched, and the gap is named by the wise-coding conversation of a knowledge
+	#              space (the attempt asks, finds, applies)
+	#   see        Ask, LastGap
+	#@ aka  The first missing step, named by the wise-coding conversation.
 	def GapIn(pcCode)
 		_oKB_ = new stzKnowledgeGraph("attempt")
 		_c_ = StzLower(pcCode)

@@ -49,6 +49,24 @@ func StzOverlayFromTemplate(pcTemplate, pcTarget, paPairs)
 	next
 	return new stzOverlay(pcTarget)
 
+# Describes an institution's adaptation of the core program, laid over it file by file, and judges it before it is used.
+#
+# An overlay is a folder with overlay.zknw (its name, the program it extends, the languages it
+# speaks, its brand, the worlds it replaces) and optional worlds, courses and governance folders. It
+# adds and shadows; it never forks the core: it may replace a world and add chapters and exercises,
+# but a file that would replace a core chapter or a core exercise is refused. Check is its court and
+# returns findings in the house shape; the overlay is valid when none is an error.
+#
+#   receiver   o1 = new stzOverlay("../../education/overlays/bank")
+#   example    ? o1.Name()
+#              #--> bank
+#              ? @@( o1.Languages() )
+#              #--> [ "fr", "en" ]
+#              ? o1.Brand()
+#              #--> sahel-savings
+#              ? @@( o1.ReplacedWorlds() )
+#              #--> [ "workplace" ]
+#   see        stzProgram, stzCohort, stzRuleReport
 class stzOverlay from stzObject
 
 	@cFolder = ""
@@ -56,6 +74,16 @@ class stzOverlay from stzObject
 	@cName = ""
 	@aFacts = []
 
+	# Opens an overlay folder and reads its overlay.zknw, whose is-a overlay fact gives the overlay its name.
+	#
+	#   pcFolder   the overlay's folder: its last segment is the overlay's id
+	#   returns    nothing; the object is built
+	#   note       an overlay adds and shadows the core program file by file, and never forks it
+	#   warning    a folder without overlay.zknw opens without error and has no name (HasManifest
+	#              answers FALSE); a fact whose value holds a space, such as a brand of two words,
+	#              raises the error Incorrect Id! pcNodeId must be one string without spaces nor new
+	#              lines
+	#   see        HasManifest, Check
 	def init(pcFolder)
 		@cFolder = _EduNoSlash(pcFolder)
 		@cId = _EduLastSegment(@cFolder)
@@ -69,24 +97,57 @@ class stzOverlay from stzObject
 			next
 		ok
 
+	# Returns the overlay's folder path, without a trailing slash.
+	#
+	#   returns    a text
+	#   see        Id, Files
 	def Folder()
 		return @cFolder
 
+	# Returns the overlay's identifier, which is the last segment of its folder's path.
+	#
+	#   returns    a text such as bank
+	#   note       Name comes from the manifest and can differ
+	#   see        Name, Folder
 	def Id()
 		return @cId
 
+	# Returns the name the manifest gives the overlay with its is-a overlay fact, or an empty text when there is none.
+	#
+	#   returns    a text such as bank
+	#   see        Id, HasManifest
 	def Name()
 		return @cName
 
+	# TRUE if overlay.zknw names the overlay, which is the one thing an overlay cannot do without.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Name, Check
 	def HasManifest()
 		return @cName != ""
 
+	# Returns the ids of the programs the manifest says the overlay is laid over.
+	#
+	#   returns    a list of text, such as softanza-education; [ ] when it says none
+	#   note       Check demands that it names the id of the program it is judged against
+	#   see        Check, Languages
 	def Extends()
 		return _EduObjects(@aFacts, @cName, "extends")
 
+	# Returns the languages the overlay says it speaks, in the order the manifest gives them.
+	#
+	#   returns    a list of language codes, such as fr and en
+	#   note       each must be a language of the core program: a new language is added to the
+	#              natural pack, not declared here
+	#   see        Check, Extends
 	def Languages()
 		return _EduObjects(@aFacts, @cName, "speaks")
 
+	# Returns the brand the manifest gives the institution, or an empty text when there is none.
+	#
+	#   returns    a text such as sahel-savings
+	#   note       the brand is one word, since a value with a space cannot be read
+	#   see        Name, ReplacedWorlds
 	def Brand()
 		_ac_ = _EduObjects(@aFacts, @cName, "branded")
 		if len(_ac_) = 0
@@ -94,14 +155,37 @@ class stzOverlay from stzObject
 		ok
 		return _ac_[1]
 
+	# Returns the ids of the core teaching worlds the manifest says the overlay replaces.
+	#
+	#   returns    a list of text, such as workplace
+	#   note       Check requires worlds/<id>.zknw to be shipped for each
+	#   see        Check, Files
 	def ReplacedWorlds()
 		return _EduObjects(@aFacts, @cName, "replaces-world")
 
+	# Returns the relative path of every file under the overlay's folder, subfolders included.
+	#
+	#   returns    a list of text, with forward slashes
+	#   see        Folder, Check
 	def Files()
 		return _EduFilesUnder(@cFolder, "")
 
-	#-- the court
-
+	# Judges the overlay against the program it is laid over and returns its findings, none of them an error when it is valid.
+	#
+	#   poProgram   the stzProgram the overlay is laid over
+	#   returns     a list of findings, each [ :rule, :subject, :where, :severity, :message ]; [ ]
+	#               when clean
+	#   note        the rules are overlay-manifest, overlay-extends, overlay-language, overlay-
+	#               world, overlay-world-page, overlay-course, overlay-chapter, overlay-exercise,
+	#               overlay-governance and overlay-no-fork: an overlay may replace a world and add
+	#               chapters and exercises, but a file that would replace a core chapter or exercise
+	#               is a fork and is refused; an overlay without a manifest gets that one finding
+	#               only
+	#   warning     it runs every added exercise and every world page to prove them, so the bank
+	#               overlay takes about 45 seconds, and IsValid and CiteFindings each run it again;
+	#               the runs happen on the desktop only
+	#   see         IsValid, CiteFindings, stzRuleReport
+	#@ aka  -- the court
 	def Check(poProgram)
 		_aF_ = []
 		if NOT This.HasManifest()
@@ -308,6 +392,12 @@ class stzOverlay from stzObject
 	def _Finding(pcRule, pcSubject, pcWhere, pcSeverity, pcMessage)
 		return [ :rule = pcRule, :subject = pcSubject, :where = pcWhere, :severity = pcSeverity, :message = pcMessage ]
 
+	# TRUE if Check finds no error in the overlay.
+	#
+	#   poProgram   the stzProgram the overlay is laid over
+	#   returns     TRUE or FALSE
+	#   note        it runs the whole court, which is slow
+	#   see         Check, CiteFindings
 	def IsValid(poProgram)
 		_aF_ = This.Check(poProgram)
 		_nL_ = len(_aF_)
@@ -318,6 +408,12 @@ class stzOverlay from stzObject
 		next
 		return 1
 
+	# Returns the findings of the court as text, one line per finding as [rule @ where] message.
+	#
+	#   poProgram   the stzProgram the overlay is laid over
+	#   returns     a text; an empty text when the overlay is clean
+	#   note        it runs the whole court, which is slow
+	#   see         Check, IsValid
 	def CiteFindings(poProgram)
 		_aF_ = This.Check(poProgram)
 		_c_ = ""

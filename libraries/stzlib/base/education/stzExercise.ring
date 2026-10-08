@@ -68,6 +68,16 @@ class stzExercise from stzObject
 	@cHarness = ""
 	@cExt = ".ring"
 
+	# Opens an exercise folder and reads what is needed to judge a program against it: the promises, the facts and the optional harness.
+	#
+	#   pcFolder   the exercise folder, with or without a trailing slash
+	#   returns    nothing; the object is built
+	#   note       a check.ring turns the exercise into a harness exercise, where the learner hands
+	#              in a file that is not a program
+	#   warning    raises an error naming the exercise when the folder has no promise.ring, and
+	#              another when promise.ring holds no #--> line; exercise.zknw and check.ring are
+	#              optional
+	#   see        Id, Promises, HasHarness
 	def init(pcFolder)
 		@cFolder = _EduNoSlash(pcFolder)
 		@cId = _EduLastSegment(@cFolder)
@@ -92,15 +102,33 @@ class stzExercise from stzObject
 			ok
 		ok
 
+	# Returns the exercise's id, the last segment of its folder path.
+	#
+	#   returns    a text such as ex-01-01
+	#   see        Folder
 	def Id()
 		return @cId
 
+	# Returns the exercise's folder path, without a trailing slash.
+	#
+	#   returns    a text
+	#   see        Id
 	def Folder()
 		return @cFolder
 
+	# Returns the values the learner's program must print, the text after each #--> line of promise.ring.
+	#
+	#   returns    a list of text, in the order they must appear
+	#   warning    these are the expected values, the teacher's side: never show them to the
+	#              learner, whose Why() never repeats them
+	#   see        ForbiddenWords, Check
 	def Promises()
 		return @acPromises
 
+	# Returns the steps of the mental model the exercise needs, from its needs-step facts.
+	#
+	#   returns    a list of text such as finds and applies; [ ] when exercise.zknw names none
+	#   see        StepWords, GapText
 	def NeededSteps()
 		return _EduObjects(@aFacts, @cId, "needs-step")
 
@@ -157,6 +185,14 @@ class stzExercise from stzObject
 		StzRaise("Exercise '" + @cId + "' has no question for step '" + pcStep + "' in '" + pcLang +
 			"': add `" + pcStep + ": ...` to gaps." + pcLang + ".md (law 7: never another language instead).")
 
+	# Returns the task text a learner reads, in one language, with carriage returns removed so that a CRLF checkout reads like an LF one.
+	#
+	#   pcLang     the language code of the task.<lang>.md file
+	#   returns    a text
+	#   warning    raises an error naming the exercise and the language when there is no task file
+	#              in that language; the fr, ar and ha tasks are drafts, 0 of 35 units reviewed by a
+	#              person
+	#   see        HasTaskIn
 	def Task(pcLang)
 		_cF_ = @cFolder + "/task." + pcLang + ".md"
 		if NOT fexists(_cF_)
@@ -166,22 +202,53 @@ class stzExercise from stzObject
 		# found by MATH-FINDING-EDU-INST-01, which failed on a fresh checkout
 		return StzReplace(read(_cF_), char(13), "")
 
+	# TRUE if the exercise has a task file in one language.
+	#
+	#   pcLang     the language code of the task.<lang>.md file
+	#   returns    TRUE or FALSE
+	#   see        Task
 	def HasTaskIn(pcLang)
 		return fexists(@cFolder + "/task." + pcLang + ".md")
 
-	#-- checking
-
+	# Runs a learner's program in a fresh Ring process with the library loaded and returns the verdict on it as a stzExerciseCheck.
+	#
+	#   pcCode     the learner's program, as text
+	#   returns    a stzExerciseCheck: Passed() says whether every promise was kept, Why() says in
+	#              the learner's terms what to look at; the call itself does not raise when the
+	#              program fails
+	#   note       the program is judged by running it, never by reading it or comparing strings;
+	#              the cells and checks run on the desktop only
+	#   warning    one process per call, so it takes seconds: the child loads the whole library;
+	#              temporary _edu_run_ files are written in the current folder and removed;
+	#              CheckMany does the same for a list of programs, at most 4 side by side; a line
+	#              number in an error counts two library lines the learner never wrote
+	#   see        CheckFile, ProveItself
+	#@ aka  -- checking
 	def Check(pcCode)
 		return This.CheckMany([ pcCode ])[1]
 
+	# TRUE if the exercise has a check.ring, so that it judges a submitted file with the library's own court instead of running it as a program.
+	#
+	#   returns    TRUE or FALSE
+	#   see        SubmissionExtension, Check
 	def HasHarness()
 		return @cHarness != ""
 
-	# What the learner hands in: ".ring" for a program, or the extension
-	# the exercise names with `<id> | submits | pia`.
+	# Returns the extension of what a learner hands in for this exercise.
+	#
+	#   returns    .ring for a program; for a harness exercise the extension its submits fact names,
+	#              such as .pia
+	#   see        HasHarness, WrongAnswers
+	#@ aka  What the learner hands in: ".ring" for a program, or the extension the exercise names with `<id> | submits | pia`.
 	def SubmissionExtension()
 		return @cExt
 
+	# Reads a file and returns the verdict on its content, as Check does.
+	#
+	#   pcFile     the path of the file to read
+	#   returns    a stzExerciseCheck
+	#   warning    raises a file error when pcFile cannot be opened
+	#   see        Check
 	def CheckFile(pcFile)
 		return This.Check(read(pcFile))
 
@@ -200,9 +267,19 @@ class stzExercise from stzObject
 		next
 		return _acRes_
 
+	# Returns the paths of the known wrong answers, the files of the wrong subfolder.
+	#
+	#   returns    a list of text, sorted by name and limited to files with the submission
+	#              extension; [ ] when there is no wrong folder
+	#   see        RightAnswers, ProveItself
 	def WrongAnswers()
 		return This._Answers("wrong")
 
+	# Returns the paths of the known right answers, the files of the right subfolder.
+	#
+	#   returns    a list of text, sorted by name and limited to files with the submission
+	#              extension; [ ] when there is no right folder
+	#   see        WrongAnswers, ProveItself
 	def RightAnswers()
 		return This._Answers("right")
 
@@ -237,9 +314,15 @@ class stzExercise from stzObject
 		next
 		return _aRes_
 
-	# [ :wrong, :wrongrefused, :right, :rightaccepted, :failures, :checks ]
-	# :checks holds [ file, check ] for every known answer, so a caller
-	# reads the verdicts without running the answers a second time.
+	# Runs every known wrong and right answer through the checker and counts the ones it judged correctly.
+	#
+	#   returns    a hash list with wrong, wrongrefused, right, rightaccepted, failures and checks;
+	#              failures names each wrong answer that passed and each right answer that failed,
+	#              and checks holds a file and its verdict for every answer
+	#   warning    one fresh process per answer, at most 4 side by side; an exercise that accepts a
+	#              wrong answer or refuses a right one is a red guard
+	#   see        IsProven, WrongAnswers, RightAnswers
+	#@ aka  [ :wrong, :wrongrefused, :right, :rightaccepted, :failures, :checks ] :checks holds [ file, check ] for every known answer, so a caller reads the verdicts without running the answers a second time.
 	def ProveItself()
 		_acW_ = This.WrongAnswers()
 		_acR_ = This.RightAnswers()
@@ -280,12 +363,22 @@ class stzExercise from stzObject
 		return [ :wrong = _nW_, :wrongrefused = _nWR_,
 		         :right = _nR_, :rightaccepted = _nRA_, :failures = _acFail_, :checks = _aPairs_ ]
 
+	# TRUE if the exercise has at least one wrong and one right answer and the checker refuses every wrong one and accepts every right one.
+	#
+	#   returns    TRUE or FALSE; FALSE for an exercise with no wrong answer or no right answer
+	#   see        ProveItself
 	def IsProven()
 		_aP_ = This.ProveItself()
 		return _aP_[:wrong] > 0 and _aP_[:right] > 0 and len(_aP_[:failures]) = 0
 
-	# Words a tutor must not say before the learner passes: every method
-	# name a right answer calls, and the promised values themselves.
+	# Returns the words a tutor must not say before the learner passes: the names the right answers call and the promised values.
+	#
+	#   returns    a list of text without repeats; the promised values are normalized, with their
+	#              spaces removed
+	#   warning    names are the words of four characters or more written right before "(" in the
+	#              right answers
+	#   see        Promises, Check
+	#@ aka  Words a tutor must not say before the learner passes: every method name a right answer calls, and the promised values themselves.
 	def ForbiddenWords()
 		_acRes_ = []
 		_acR_ = This.RightAnswers()
@@ -317,9 +410,28 @@ class stzExerciseCheck from stzObject
 	@nCheckedAtMs = 0
 	@cKind = ""     # "" for a program, "decl" for a submission a harness judged
 
+	# Sets whether the check judged a program or a declaration that a harness court examined, which changes the wording of Why.
+	#
+	#   pcKind     decl for a submission a harness judged, an empty text for a program
+	#   returns    nothing
+	#   warning    the exercise sets it itself for a harness exercise; a kind other than decl reads
+	#              as a program
+	#   see        WhyIn, Passed
 	def SetKind(pcKind)
 		@cKind = pcKind
 
+	# Builds the verdict on a learner's program: matches the promises against its run and stamps the code's SHA-256 and the time.
+	#
+	#   pcId          the exercise's id
+	#   pacPromises   the promised values, in order
+	#   pcCode        the learner's program, hashed for the evidence
+	#   paRun         the list [ stdout, exit code, stderr ] of a run already made, or [ ] to run
+	#                 pcCode now in a fresh process
+	#   returns       nothing; the object is built
+	#   warning       the promises must appear in order; a promise written error: followed by a text
+	#                 is kept by an error that contains the text, and then a non-zero exit still
+	#                 passes
+	#   see           Passed, Evidence
 	def init(pcId, pacPromises, pcCode, paRun)
 		@cId = pcId
 		_aR_ = paRun
@@ -347,38 +459,99 @@ class stzExerciseCheck from stzObject
 		@cHash = StzEngineCryptoSha256(pcCode)
 		@nCheckedAtMs = StzEngineTimeNowMs()
 
+	# Returns the id of the exercise this verdict belongs to.
+	#
+	#   returns    a text such as ex-01-01
+	#   see        Evidence
 	def Id()
 		return @cId
 
+	# TRUE if every promise was kept in order and the program exited cleanly, or the exercise promises an error.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Why, Report, ExitCode
 	def Passed()
 		return @bPassed
 
+	# Returns everything the program printed, one line per print, each ended by a line break.
+	#
+	#   returns    a text; an empty text when it printed nothing
+	#   warning    for a program that stopped with an error the text also holds the error report,
+	#              including the name of the temporary file it ran from: show a learner Why, not
+	#              this
+	#   see        Error, Report, Why
 	def Output()
 		return @cOutput
 
+	# Returns the first line of the run that reports an error.
+	#
+	#   returns    a text such as Line 5 Error (R14) : Calling Method without definition:
+	#              withouttwins; an empty text when the exit code was 0; "the program stopped (exit
+	#              code not 0)" when the exit was not 0 and no line reports an error
+	#   warning    the line number counts the two library lines placed before the learner's code, so
+	#              it is 2 more than the line the learner wrote
+	#   see        Why, ExitCode
 	def Error()
 		return @cError
 
+	# Returns the exit code of the run.
+	#
+	#   returns    a number; 0 for a clean run
+	#   see        Error, Passed
 	def ExitCode()
 		return @nExit
 
+	# Returns, for every promise in order, whether it was kept.
+	#
+	#   returns    a list of pairs of the promised text and 1 or 0
+	#   warning    each pair holds the expected value, the teacher's side: never show it to a
+	#              learner
+	#   see        Passed, Why
 	def Report()
 		return @aReport
 
+	# Returns the SHA-256 of the checked code, as 64 hexadecimal characters.
+	#
+	#   returns    a text
+	#   see        Evidence, CheckedAtMs
 	def Hash()
 		return @cHash
 
+	# Returns the wall-clock time at which the verdict was built.
+	#
+	#   returns    a number of milliseconds since the epoch
+	#   see        Evidence, Hash
 	def CheckedAtMs()
 		return @nCheckedAtMs
 
-	# The evidence a progress fact carries: what was run, and when.
+	# Returns the evidence a progress fact carries: what was run, and when.
+	#
+	#   returns    a hash list with exercise, sha256, checkedatms and passed
+	#   see        Hash, CheckedAtMs, Passed
+	#@ aka  The evidence a progress fact carries: what was run, and when.
 	def Evidence()
 		return [ :exercise = @cId, :sha256 = @cHash, :checkedatms = @nCheckedAtMs, :passed = @bPassed ]
 
-	# In the learner's terms only: never the expected value.
+	# Returns, in English and in the learner's own terms, what went well or what to look at, never the expected value.
+	#
+	#   returns    a text a learner reads: a statement that every promise was kept, the error the
+	#              program raised, or the first three lines it printed joined with a slash
+	#   warning    a program that printed nothing reads as (nothing), in English also in fr, ar and
+	#              ha
+	#   see        WhyIn, Passed
+	#@ aka  In the learner's terms only: never the expected value.
 	def Why()
 		return This.WhyIn("en")
 
+	# Returns the same message as Why, in one language.
+	#
+	#   pcLang     en, fr, ar or ha
+	#   returns    a text in that language: the passed message, the error line, or the first three
+	#              printed lines, normalized with their spaces removed
+	#   warning    raises an error, saying a missing translation is red and never English, for any
+	#              other language; the fr, ar and ha messages are drafts, 0 of 35 units reviewed by
+	#              a person
+	#   see        Why, SetKind
 	def WhyIn(pcLang)
 		if @bPassed
 			return _EduSay(pcLang, "why-passed" + This._Suffix(), "")

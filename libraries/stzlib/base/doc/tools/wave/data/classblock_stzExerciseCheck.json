@@ -1,0 +1,18 @@
+{
+ "brief": "Holds the verdict on one learner's program: what it printed, the error it raised, and which promises it kept.",
+ "detail": "Exercise.Check builds one of these for each program it runs. Passed says whether every promise was kept in order and the program exited cleanly. Why says in the learner's own terms what happened, in en, fr, ar or ha, and never shows the expected value: the promise is the teacher's, not the learner's to be shown. Report, Output and Error are for the teacher or the tutor, since the report holds the promised values and the output may hold the name of a temporary file. Evidence carries what a progress fact needs: the exercise, the SHA-256 of the program, the time and the verdict. The fr, ar and ha messages are drafts, 0 of 35 units reviewed by a person; the checks run on the desktop only; no institution has adopted the system.",
+ "receiver": "o1 = new stzExerciseCheck(\"ex-01-01\", [ \"tea\" ], \"? 5\", [ \"rice\" + char(10), 0, \"\" ])",
+ "example": [
+  "? o1.Passed()",
+  "#--> 0",
+  "? o1.Why()",
+  "#--> Your program ran, but what it printed is not yet what the task asks. It printed: rice",
+  "? @@( o1.Report() )",
+  "#--> [ [ \"tea\", 0 ] ]"
+ ],
+ "see": [
+  "stzExercise",
+  "stzTutor",
+  "stzLearner"
+ ]
+}

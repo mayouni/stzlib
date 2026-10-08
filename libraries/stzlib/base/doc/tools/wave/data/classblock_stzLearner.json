@@ -1,0 +1,23 @@
+{
+ "brief": "Holds one learner's folder: the work they submitted and their progress, which only the checker writes, with its evidence.",
+ "detail": "A learner is a folder: work/<exercise>.ring is what they submitted, as they wrote it, and progress.zknw is a plain text file of facts. A pass is recorded only by Submit or SubmitProject, after the checker has run the program, and it counts only while the sha256 of the work file (or of the project folder) still equals the evidence recorded then: a pass typed by hand, or a file changed afterwards, reads as not passed. A level is earned when every exercise of its chapters and its project have passed. The checker runs programs on the desktop with Softanza, never in a browser, and each submission takes seconds. The fr, ar and ha editions of the course are drafts, 0 of 35 units reviewed by a person, and no institution has adopted the system yet.",
+ "receiver": "StzEduRemoveTree(\"t_edu_doc/ada\"); o1 = new stzLearner(\"t_edu_doc/ada\")",
+ "example": [
+  "oC = StzProgramQ(\"../../education/program\").CourseQ(\"elementary-introduction\")",
+  "oEx = oC.ExerciseQ(\"ex-01-01\")",
+  "? o1.ChapterOn(oC)",
+  "#--> find-then-apply",
+  "? o1.Submit(oEx, read(oEx.RightAnswers()[1])).Passed()",
+  "#--> 1",
+  "? o1.HasPassed(\"ex-01-01\")",
+  "#--> 1",
+  "? o1.ChapterOn(oC)",
+  "#--> a-first-sentence"
+ ],
+ "see": [
+  "stzTutor",
+  "stzCohort",
+  "stzProject",
+  "stzExercise"
+ ]
+}

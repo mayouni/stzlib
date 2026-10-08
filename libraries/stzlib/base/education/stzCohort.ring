@@ -48,12 +48,43 @@ func _EduAbsolute(pcPath)
 	ok
 	return StzReplace(currentdir(), char(92), "/") + "/" + _c_
 
+# Holds a folder of learners following one course under one overlay, and writes their progress as a narration that checks itself.
+#
+# A cohort is a folder with cohort.zknw, whose facts name the course it follows, the overlay it is
+# under and its learners; each learner is a stzLearner folder inside it. Its report is generated
+# from the learners' progress files, which only the checker writes, and every figure in it sits as a
+# promise beside the cell that computes it, so running the report says whether it is still true. The
+# cells run on the desktop only.
+#
+#   receiver   StzEduRemoveTree("t_edu_doc/espa"); StzEngineDirCreatePath("t_edu_doc/espa");
+#              write("t_edu_doc/espa/cohort.zknw", 'knowledge "espa"' + char(10) + char(10) +
+#              "facts" + char(10) + "    espa | follows | elementary-introduction" + char(10) + "
+#              espa | under | bank" + char(10)); o1 = new stzCohort("t_edu_doc/espa")
+#   example    ? o1.CourseSlug()
+#              #--> elementary-introduction
+#              o1.AddLearner("amina")
+#              ? @@( o1.LearnerIds() )
+#              #--> [ "amina" ]
+#              oP = o1.ProgramQ("../../education/program")
+#              ? len( o1.ExerciseIds(oP) )
+#              #--> 24
+#   see        stzLearner, stzOverlay, stzProgram
 class stzCohort from stzObject
 
 	@cFolder = ""
 	@cName = ""
 	@aFacts = []
 
+	# Opens a cohort from its folder, which must hold cohort.zknw, the facts that name its course, its overlay and its learners.
+	#
+	#   pcFolder   the cohort's folder: its last segment is the cohort's name
+	#   returns    nothing; the object is built
+	#   note       a cohort is a folder of learners following one course under one overlay: each
+	#              learner is a stzLearner folder inside it, and reports/ holds the generated
+	#              narrations
+	#   warning    raises an error saying Not a cohort and naming the missing cohort.zknw when the
+	#              folder lacks that file
+	#   see        AddLearner, CourseSlug, ProgramQ
 	def init(pcFolder)
 		@cFolder = _EduNoSlash(pcFolder)
 		@cName = _EduLastSegment(@cFolder)
@@ -62,12 +93,25 @@ class stzCohort from stzObject
 		ok
 		@aFacts = _EduFactsOf(@cFolder + "/cohort.zknw")
 
+	# Returns the cohort's name, which is the last segment of its folder's path.
+	#
+	#   returns    a text such as espa-2026
+	#   see        Folder, CourseSlug
 	def Name()
 		return @cName
 
+	# Returns the cohort's folder path, without a trailing slash.
+	#
+	#   returns    a text
+	#   see        Name, LearnerQ
 	def Folder()
 		return @cFolder
 
+	# Returns the id of the course the cohort follows, as its cohort.zknw says.
+	#
+	#   returns    a text such as elementary-introduction
+	#   warning    raises an error naming the cohort when the file has no follows fact
+	#   see        OverlayName, ProgramQ
 	def CourseSlug()
 		_ac_ = _EduObjects(@aFacts, @cName, "follows")
 		if len(_ac_) = 0
@@ -75,6 +119,10 @@ class stzCohort from stzObject
 		ok
 		return _ac_[1]
 
+	# Returns the name of the overlay the cohort is under, or an empty text when it names none.
+	#
+	#   returns    a text such as bank; an empty text for none
+	#   see        CourseSlug, ProgramQ
 	def OverlayName()
 		_ac_ = _EduObjects(@aFacts, @cName, "under")
 		if len(_ac_) = 0
@@ -82,12 +130,29 @@ class stzCohort from stzObject
 		ok
 		return _ac_[1]
 
+	# Returns the ids of the learners enrolled in the cohort, in the order they were added.
+	#
+	#   returns    a list of text; [ ] for a cohort with no learner
+	#   see        AddLearner, LearnerQ
 	def LearnerIds()
 		return _EduObjects(@aFacts, @cName, "has-learner")
 
+	# Opens the stzLearner whose folder is the cohort's folder plus the id, creating the folders on disk when they are absent.
+	#
+	#   pcId       the learner's id
+	#   returns    a stzLearner
+	#   note       it does not enroll: an id never added is opened, and its folders are created, but
+	#              it stays out of LearnerIds and of the report
+	#   see        AddLearner, LearnerIds
 	def LearnerQ(pcId)
 		return StzLearnerQ(@cFolder + "/" + pcId)
 
+	# Enrolls a learner by id, saving cohort.zknw, and returns that learner; an id already enrolled is not added twice.
+	#
+	#   pcId       the learner's id, with no space
+	#   returns    the learner's stzLearner
+	#   note       the learner's folder is created at once
+	#   see        LearnerQ, LearnerIds
 	def AddLearner(pcId)
 		if StzFindFirst(pcId, This.LearnerIds()) > 0
 			return This.LearnerQ(pcId)
@@ -104,9 +169,15 @@ class stzCohort from stzObject
 		next
 		write(@cFolder + "/cohort.zknw", _c_)
 
-	# The program this cohort is judged against: the core, with the
-	# cohort's overlay laid on when it names one. Overlays live BESIDE the
-	# program folder, in <parent>/overlays/<name> (base/education/overlays/).
+	# Returns the program the cohort is judged against: the core program, with the cohort's overlay laid on when it names one.
+	#
+	#   pcProgramFolder   the core program's folder, beside which the overlays/<name> folders sit
+	#   returns           a stzProgram
+	#   note              the overlay is found at overlays/<name> beside the program folder
+	#   warning           raises an error naming the cohort and the folder when the overlay it names
+	#                     is not a folder with overlay.zknw
+	#   see               ExerciseIds, Report, stzProgram
+	#@ aka  The program this cohort is judged against: the core, with the cohort's overlay laid on when it names one. Overlays live BESIDE the program folder, in <parent>/overlays/<name> (base/education/overlays/).
 	def ProgramQ(pcProgramFolder)
 		_oP_ = StzProgramQ(pcProgramFolder)
 		_cOv_ = This.OverlayName()
@@ -119,7 +190,14 @@ class stzCohort from stzObject
 		ok
 		return _oP_
 
-	# Every exercise of every chapter of the cohort's course, under its overlay.
+	# Returns the id of every exercise of every chapter of the cohort's course, those an overlay adds included, in course order.
+	#
+	#   poProgram   the stzProgram given by ProgramQ, so that the overlay counts
+	#   returns     a list of text
+	#   note        with the bank reference overlay laid on, the elementary course has 24 exercises,
+	#               one more than the core's 23
+	#   see         PassedBy, ProgramQ
+	#@ aka  Every exercise of every chapter of the cohort's course, under its overlay.
 	def ExerciseIds(poProgram)
 		_oC_ = poProgram.CourseQ(This.CourseSlug())
 		_acCh_ = _oC_.ChapterIds()
@@ -134,6 +212,12 @@ class stzCohort from stzObject
 		next
 		return _acRes_
 
+	# Returns the exercises of the cohort's course that a learner has passed, with evidence that still matches.
+	#
+	#   pcLearner   the learner's id
+	#   poProgram   the stzProgram given by ProgramQ
+	#   returns     a list of exercise ids; [ ] when none
+	#   see         LevelsEarnedBy, ExerciseIds, stzLearner
 	def PassedBy(pcLearner, poProgram)
 		_oL_ = This.LearnerQ(pcLearner)
 		_acAll_ = This.ExerciseIds(poProgram)
@@ -146,6 +230,14 @@ class stzCohort from stzObject
 		next
 		return _acRes_
 
+	# Returns the levels a learner has earned in the cohort's course, in the program's order.
+	#
+	#   pcLearner   the learner's id
+	#   poProgram   the stzProgram given by ProgramQ
+	#   returns     a list of level ids such as s0; [ ] when none
+	#   note        no level is earned by one exercise: a level also needs the passes of its
+	#               chapters and its project
+	#   see         PassedBy, stzLearner
 	def LevelsEarnedBy(pcLearner, poProgram)
 		_oL_ = This.LearnerQ(pcLearner)
 		_oC_ = poProgram.CourseQ(This.CourseSlug())
@@ -159,8 +251,16 @@ class stzCohort from stzObject
 		next
 		return _acRes_
 
-	#-- the report, a narration
-
+	# Returns the cohort's progress report as a narration: a table of its learners, then one cell of promises per learner.
+	#
+	#   pcProgramFolder   the core program's folder, as for ProgramQ
+	#   returns           a text, markdown with ring cells whose figures are #--> promises
+	#   note              every figure is a promise beside the cell that computes it, so the report
+	#                     can say whether it is still true
+	#   warning           the cells hold absolute paths of this machine and run on the desktop only,
+	#                     so a report copied elsewhere cannot be run
+	#   see               WriteReport, IsReportCurrent
+	#@ aka  -- the report, a narration
 	def Report(pcProgramFolder)
 		_oP_ = This.ProgramQ(pcProgramFolder)
 		_cAbsCo_ = _EduAbsolute(@cFolder)
@@ -201,6 +301,13 @@ class stzCohort from stzObject
 		next
 		return _c_
 
+	# Writes the progress report to a file and returns the path written.
+	#
+	#   pcProgramFolder   the core program's folder, as for ProgramQ
+	#   pcFile            the file to write, or an empty text for reports/progress.en.md under the
+	#                     cohort's folder
+	#   returns           a text, the path
+	#   see               Report, IsReportCurrent
 	def WriteReport(pcProgramFolder, pcFile)
 		_cDir_ = @cFolder + "/reports"
 		StzEngineDirCreatePath(_cDir_)
@@ -211,7 +318,15 @@ class stzCohort from stzObject
 		write(_cFile_, This.Report(pcProgramFolder))
 		return _cFile_
 
-	# Runs a report as the narration it is: 1 when every figure still holds.
+	# TRUE if the report, run as the narration it is, still has every cell running and every promise kept.
+	#
+	#   pcFile     a written report, or any narration file
+	#   returns    TRUE or FALSE
+	#   note       it runs the report's cells, so it takes seconds and runs on the desktop only; a
+	#              report written before a learner passed one more exercise answers FALSE (shown),
+	#              and writing it again makes it TRUE
+	#   see        WriteReport, Report
+	#@ aka  Runs a report as the narration it is: 1 when every figure still holds.
 	def IsReportCurrent(pcFile)
 		_oCh_ = StzChapterQ(pcFile, "en")
 		_oCh_.Run("")

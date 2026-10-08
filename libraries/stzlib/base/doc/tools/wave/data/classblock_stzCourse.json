@@ -1,0 +1,21 @@
+{
+ "brief": "Holds one course of a program as a path through its chapters, and answers what a learner or a teacher asks of it.",
+ "detail": "A learner opens a chapter in a language (ChapterQ) or runs it (RunChapterQ); a teacher asks what a chapter needs first (Prerequisites), what it trains (Trains), where a name is first taught (TeachesWhere) and which planned chapters have no text yet (UnwrittenChapterIds). The course is made of two manifests: course.zknw says what ships, in order, and curriculum.zknw says what is planned, with its trains and requires facts; an overlay's course.zknw is merged into the core's, never shadowing it. A course is taken from a program with CourseQ and holds a COPY of that program, so the overlay and the world must be set before. A chapter with no text in a language raises an error, never a quiet fallback to English. LIMITS, stated where you meet them: the translations (fr, ar, ha) are drafts, 0 of 35 units of each reviewed by a person when this was written; the cells of a chapter run on the desktop only, not in a browser, and the Run methods start Ring processes whose executable path must not contain a space; no institution has adopted the system.",
+ "receiver": "o1 = new stzCourse(new stzProgram(\"../../education/program\"), \"elementary-introduction\")",
+ "example": [
+  "? o1.TitleOf(\"find-then-apply\", \"fr\")",
+  "#--> Trouver, puis agir",
+  "? @@( o1.Prerequisites(\"say-it-in-your-language\") )",
+  "#--> [ \"read-the-name-as-a-sentence\", \"a-first-sentence\", \"find-then-apply\" ]",
+  "? o1.TeachesWhere(\"FindDuplicates\")",
+  "#--> find-then-apply",
+  "? @@( o1.Trains(\"find-then-apply\") )",
+  "#--> [ \"ex-01\", \"ex-02\", \"ex-03\" ]"
+ ],
+ "see": [
+  "stzProgram",
+  "stzChapter",
+  "stzExercise",
+  "stzTutor"
+ ]
+}
