@@ -135,3 +135,18 @@ no guard; register 56 rows), stzGrid / stzStringChar / stzLocale (not started), 
 WMean and HasMoment recursion, month <= 0, StringLowercased(5), FillCQ, diagram probe memory). The rows left for stzTable (66)
 and stzCalendar (25) may include stale blocks of fixed methods: call the method before fixing. Worktrees _wtf_* can be removed
 (git worktree remove) once their branches are confirmed on main; stash wave0-list was dropped (its content is on main).
+
+## 2026-10-08, late: WAVE 7 (education) and the six fix tasks are ON MAIN (2c66ec8a6)
+
+All six fix tasks landed (register 706 -> 227); wave 7 documented the 12 Learning System classes (216 roots; the three limits
+sit in eight class blocks); gate step 5 is wired (dead-forward ratchet, deadforward_baseline.txt 96, findings.json).
+Library: 21,747 roots, 8,331 pass (38.3 percent). Owed, in order: (1) the payments wave: 19 classes, 310 roots, 0 pass,
+files under base/service/ (StzAmount, StzPaymentsPort + Order/Request/Batch/Webhook, StzPiSpiSandbox, StzPispiHttpAdapter,
+StzPiSpiHttpFront, StzPispiQr, the payout trio, StzPispiSecret, StzSecretExpiryWatch, StzServiceRegistry); the class blocks of
+stzPispiHttpAdapter and stzPispiQr MUST open with: proven against the twin over real HTTP, NOT run against the BCEAO sandbox
+(UNPERCEIVED); no QR made by the library has been scanned; the library builds the QR string and does not draw it. (2) a
+stance on stzObject 1,944 / stzListNamedParams 1,345 / stzQuestion 1,076 unpassed roots. (3) the engine DLLs stz_stats,
+stz_locale, stk_locale must be rebuilt in every checkout (their sources changed). Wave recipe that worked: three subagents on
+file-disjoint classes in the docs worktree reading tools/wave/README.md plus a prompt like scratchpad wave7_prompt.md (copy
+kept as doc/tools/wave/WAVE_PROMPT.md); I verify code-identical-with-comments-stripped, regenerate once, --update the gate.
+
