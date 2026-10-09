@@ -1,0 +1,22 @@
+{
+ "brief": "Turns attributes into values that notify: a change runs watchers, recalculates dependent attributes and updates bindings.",
+ "detail": "A reactive object holds named attributes, made from nothing or wrapped around an existing object. SetAttribute stores a value and, when it changed, calls the functions registered with Watch, recomputes the attributes declared with Computed from the attributes they depend on, and writes to the targets given to BindTo. WaitForAttributetoSettle calls a function once an attribute stops changing, and Batch notifies a group of changes together afterwards. An error inside a watcher, a calculated attribute or a batch does not stop the caller: it is recorded (Errors, LastError, ErrorCount) and passed to the OnError handler, or printed when there is none. Names are not case sensitive. Two members do not work as intended today: a binding reaches its target only once, when it is made, and StreamAttribute never emits.",
+ "receiver": "oRs = new stzReactive(); o1 = oRs.ReactiveObject()",
+ "example": [
+  "gLog = []",
+  "o1.Watch(:name, func(oSelf, attr, oldV, newV) { gLog + [ oldV, newV ] })",
+  "o1.SetAttribute(:name, \"Ann\")",
+  "o1.SetAttribute(:name, \"Bob\")",
+  "? @@( gLog )",
+  "#--> [ [ \"\", \"Ann\" ], [ \"Ann\", \"Bob\" ] ]",
+  "o1.Computed(:greeting, func oSelf { return \"Hello \" + oSelf.GetAttribute(:name) }, [ :name ])",
+  "o1.SetAttribute(:name, \"Cy\")",
+  "? o1.GetAttribute(:greeting)",
+  "#--> Hello Cy",
+  "o1.OnError(func(w, m) { })",
+  "o1.Watch(:age, \"not a function\")",
+  "? o1.LastError()",
+  "#--> Watch callback is not a function"
+ ],
+ "see": ["stzReactive", "stzReactiveStream", "stzReactiveTask"]
+}

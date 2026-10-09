@@ -23,6 +23,43 @@
 # the storyboard, which is why the marks are forwarded here rather than
 # left to the caller.
 
+# Tells a story over one picture as an ordered list of frames, each with a caption whose numbers are read from the picture's facts.
+#
+# A frame is opened with Frame, changed with marks (Emphasis, Callout, Measure, Show, Region), a
+# window (WindowOn, SetWindow) or an action (Act), and closed by opening the next frame or by asking
+# any question about the frames. The caption carries holes, written {name}, never numbers: Bind ties
+# a hole to a fact read from the picture when the frame closes, and BindFact takes a fact from
+# another plane. Closing a frame draws the picture to a PNG file named after the storyboard, in the
+# folio, and puts it through the picture gate, which prints a line. Judge then checks every frame
+# against the gate and every hole against its fact, and Render writes the HTML page that shows the
+# frames in order. A frame about a picture that is meant to be unlawful says so with ExpectFindings.
+# Marks stay on the picture from frame to frame until ClearMarks. The storyboard keeps its own copy
+# of the picture, so every change goes through it. ToNarration writes the same story as a .narration
+# document, and RenditionAs gives it as markup or text.
+#
+#   receiver   oS = new stzMathSubstance(StzSetTheoryDomain()); oS.DeclareAll("Set", [ "A", "B" ]);
+#              oS.Assert("Subset", [ "B", "A" ]); oS.AutoLabelAll(); oP = new
+#              stzMathDiagram(StzSetTheoryDomain(), oS, StzEulerStyle()); oP.SetFont(new
+#              stzFont("C:/Windows/Fonts/segoeui.ttf"), 28); oP.SetVariation("twosets");
+#              StzEngineDirCreatePath("t_story_doc"); o1 = new stzStoryboard("sets", oP,
+#              "t_story_doc")
+#   example    o1.Frame("B has radius {r} px and A has {ra} px.")
+#              o1.Bind("r", :value, [ "B.icon.r" ])
+#              o1.Bind("ra", :value, [ "A.icon.r" ])
+#              o1.Emphasis("B.icon", :ring)
+#              ? o1.Caption(1)
+#              #--> B has radius 46.40 px and A has 155.32 px.
+#              ? o1.FileOf(1)
+#              #--> sets_01.png
+#              ? o1.NumberOfHoles()
+#              #--> 2
+#              ? o1.IsClean()
+#              #--> 1
+#              o1.Frame("A frame that expects something to be wrong.")
+#              o1.ExpectFindings()
+#              ? o1.Judge()[1][:rule]
+#              #--> expected_a_finding_and_got_none
+#   see        stzMathDiagram, StzCheckPictures
 class stzStoryboard from stzObject
 
 	@cName = ""
@@ -34,6 +71,19 @@ class stzStoryboard from stzObject
 	@bOpen = FALSE
 	@bExpect = FALSE   # this frame is ABOUT something the gate finds
 
+	# Builds a storyboard of frames about one picture, named so that its frame files are named after it.
+	#
+	#   pcName      the storyboard's name, which starts the name of every frame file
+	#   poPicture   the picture the frames are about, such as a stzMathDiagram
+	#   pcFolio     the folder that receives the frame files and the page, or an empty text for the
+	#               current folder
+	#   returns     nothing; the object is built
+	#   note        the storyboard keeps its own copy of the picture, so changes must go through the
+	#               storyboard
+	#   warning     an empty name raises stzStoryboard: a storyboard needs a name, and a picture
+	#               that is not an object raises give the picture the frames are about; the folder
+	#               must already exist
+	#   see         Frame, Folio, PictureName
 	def init(pcName, poPicture, pcFolio)
 		if NOT isObject(poPicture)
 			stzraise("stzStoryboard: give the picture the frames are about.")
@@ -47,11 +97,18 @@ class stzStoryboard from stzObject
 		@cFolio = ring_trim("" + pcFolio)
 		if @cFolio = ""  @cFolio = "."  ok
 
-	#-- the frames -----------------------------------------------------------
-
-	# Open a frame. The one before it closes here: its caption is filled
-	# from the facts bound to it, its picture is drawn and judged, and
-	# neither can be changed afterwards.
+	# Closes the frame being built, if any, and opens a new one with its caption, whose {holes} are filled when it closes.
+	#
+	#   pcCaption   the sentence of the frame, with a hole written {name} wherever a number from a
+	#               fact goes
+	#   returns     the storyboard itself, so calls chain
+	#   note        FrameQ is the same call; a frame closes by itself when another is opened or any
+	#               question about the frames is asked
+	#   warning     the marks of earlier frames stay on the picture: use ClearMarks to start a frame
+	#               clean; closing a frame draws the picture to a PNG file and prints the gate's
+	#               line pictures judged
+	#   see         FrameOf, Bind, Caption
+	#@ aka  -- the frames -----------------------------------------------------------
 	def Frame(pcCaption)
 		This._CloseOpen()
 		@cOpen = "" + pcCaption
@@ -63,8 +120,15 @@ class stzStoryboard from stzObject
 		def FrameQ(pcCaption)
 			return This.Frame(pcCaption)
 
-	# the same, on a different picture: a narration may show two solves of
-	# one content, or two contents that make one point
+	# Closes the frame being built and opens a new one on a different picture, which becomes the picture of the storyboard.
+	#
+	#   poPicture   the picture this frame and the next ones are about
+	#   pcCaption   the sentence of the frame, with its holes
+	#   returns     the storyboard itself, so calls chain
+	#   note        FrameOfQ is the same call
+	#   warning     a picture that is not an object raises give the picture this frame is about
+	#   see         Frame, Bind
+	#@ aka  the same, on a different picture: a narration may show two solves of one content, or two contents that make one point
 	def FrameOf(poPicture, pcCaption)
 		if NOT isObject(poPicture)
 			stzraise("stzStoryboard.FrameOf: give the picture this frame is about.")
@@ -80,19 +144,30 @@ class stzStoryboard from stzObject
 		def FrameOfQ(poPicture, pcCaption)
 			return This.FrameOf(poPicture, pcCaption)
 
-	# A FRAME MAY BE ABOUT A PICTURE THE GATE FINDS FAULT WITH, and that is
-	# not a defect in the telling -- it is often the point. "Here is what
-	# goes wrong" is a frame whose picture is meant to be unlawful. So a
-	# frame says so, and then the gate's findings are its SUBJECT rather
-	# than its failure. A frame that expects findings and gets none is
-	# itself reported, because a flag nobody checks is a flag that rots.
+	# Says the open frame is about a picture the gate finds fault with, so the findings are its subject and not its failure.
+	#
+	#   returns    the storyboard itself, so calls chain
+	#   warning    a frame that expects findings and gets none is itself reported by Judge, as
+	#              expected_a_finding_and_got_none; with no frame open it raises open a frame first
+	#   see        Judge, ExpectsFindings, FindingsOf
+	#@ aka  A FRAME MAY BE ABOUT A PICTURE THE GATE FINDS FAULT WITH, and that is not a defect in the telling -- it is often the point. "Here is what goes wrong" is a frame whose picture is meant to be unlawful. So a frame says so, and then the gate's findings are its SUBJECT rather than its failure. A frame that expects findings and gets none is itself reported, because a flag nobody checks is a flag that ro
 	def ExpectFindings()
 		This._RequireOpen("ExpectFindings")
 		@bExpect = TRUE
 		return This
 
-	# BIND A HOLE TO A FACT. The fact is read when the frame closes, not
-	# now, so an action later in the same frame still moves the number.
+	# Ties a hole of the open frame to a fact read from the picture when the frame closes, and returns the storyboard.
+	#
+	#   pcHole     the hole's name, as written between braces in the caption
+	#   pcKind     the kind of fact, such as :value or :distance
+	#   paArgs     the list of arguments of that fact, such as [ "B.icon.r" ]
+	#   returns    the storyboard itself, so calls chain
+	#   note       BindQ is the same call; the number is read at close, so a later action in the
+	#              same frame still moves it
+	#   warning    with no frame open it raises open a frame first; a hole the caption never quotes
+	#              is reported by Judge as fact_bound_but_never_shown
+	#   see        BindFact, Fact, Caption
+	#@ aka  BIND A HOLE TO A FACT. The fact is read when the frame closes, not now, so an action later in the same frame still moves the number.
 	def Bind(pcHole, pcKind, paArgs)
 		This._RequireOpen("Bind")
 		@aHoles + [ ring_trim("" + pcHole), "" + pcKind, paArgs ]
@@ -101,11 +176,18 @@ class stzStoryboard from stzObject
 		def BindQ(pcHole, pcKind, paArgs)
 			return This.Bind(pcHole, pcKind, paArgs)
 
-	# A FACT FROM ANOTHER PLANE. The fact shape is one shape on purpose
-	# (DN9b), so a verdict an org chart reached, or a count a notation
-	# picture keeps, can be quoted in a caption about a drawing of it. The
-	# caller supplies the fact; the storyboard still holds the caption to
-	# it, which is the whole point of binding rather than typing.
+	# Ties a hole to a fact handed in whole, from another plane, and returns the storyboard.
+	#
+	#   pcHole     the hole's name, as written between braces in the caption
+	#   paFact     a fact, as Fact() answered it or StzFact() built it, with at least a value and a
+	#              message
+	#   returns    the storyboard itself, so calls chain
+	#   note       BindFactQ is the same call; {name.message} and {name.unit} show the fact's
+	#              sentence and unit
+	#   warning    a list that is not a fact raises that is not a fact; with no frame open it raises
+	#              open a frame first
+	#   see        Bind, Judge
+	#@ aka  A FACT FROM ANOTHER PLANE. The fact shape is one shape on purpose (DN9b), so a verdict an org chart reached, or a count a notation picture keeps, can be quoted in a caption about a drawing of it. The caller supplies the fact; the storyboard still holds the caption to it, which is the whole point of binding rather than typing.
 	def BindFact(pcHole, paFact)
 		This._RequireOpen("BindFact")
 		if NOT isList(paFact) or NOT HasKey(paFact, "value") or NOT HasKey(paFact, "message")
@@ -118,56 +200,137 @@ class stzStoryboard from stzObject
 		def BindFactQ(pcHole, paFact)
 			return This.BindFact(pcHole, paFact)
 
-	#-- what a frame may do to the picture -----------------------------------
-
+	# Draws on the picture the boundary a rule states, such as the circle of a leash, for the open frame.
+	#
+	#   pcRule     words that appear in the rule's own line, such as disjoint or lessthan v111
+	#   returns    the storyboard itself, so calls chain
+	#   note       tested on a sets picture: a thin circle appeared around the smaller set
+	#   warning    with no frame open it raises open a frame first; words that match no rule raise
+	#              an error saying a rule is addressed by words from its own line
+	#   see        Region, Emphasis, ClearMarks
+	#@ aka  -- what a frame may do to the picture -----------------------------------
 	def Show(pcRule)
 		This._RequireOpen("Show")
 		@oPic.Show(pcRule)
 		return This
 
+	# Tints on the picture the area a clearance rule forbids, for the open frame.
+	#
+	#   pcRule     words that appear in the rule's own line, such as disjoint
+	#   returns    the storyboard itself, so calls chain
+	#   note       tested on a sets picture: a pink disc appeared around the smaller set
+	#   warning    with no frame open it raises open a frame first; words that match no rule raise
+	#              the same error as Show
+	#   see        Show, ClearMarks
 	def Region(pcRule)
 		This._RequireOpen("Region")
 		@oPic.Region(pcRule)
 		return This
 
+	# Draws on the picture a line between two things, with its length written beside it, for the open frame.
+	#
+	#   pcA        the first thing, such as A.icon
+	#   pcB        the second thing, such as B.icon
+	#   paOpts     the options list, or an empty list
+	#   returns    the storyboard itself, so calls chain
+	#   note       the length is read from the picture; in the test the label was drawn far from the
+	#              line, at the bottom of the larger set
+	#   warning    with no frame open it raises open a frame first
+	#   see        Callout, Fact
 	def Measure(pcA, pcB, paOpts)
 		This._RequireOpen("Measure")
 		@oPic.Measure(pcA, pcB, paOpts)
 		return This
 
+	# Writes a short text with a leader line pointing at a thing on the picture, for the open frame.
+	#
+	#   pcTarget   the thing pointed at, such as B.icon
+	#   pcText     the text to write
+	#   paOpts     the options list, or an empty list
+	#   returns    the storyboard itself, so calls chain
+	#   warning    with no frame open it raises open a frame first; the gate may find the text
+	#              overlapping a name, as it did in the test, and Judge then reports it
+	#   see        Measure, Emphasis
 	def Callout(pcTarget, pcText, paOpts)
 		This._RequireOpen("Callout")
 		@oPic.Callout(pcTarget, pcText, paOpts)
 		return This
 
+	# Marks a thing on the picture for the open frame, as a ring around it, a stronger stroke or a dimmed one.
+	#
+	#   pcTarget   the thing to mark, such as B.icon
+	#   pcMode     :ring, :focus or :dim
+	#   returns    the storyboard itself, so calls chain
+	#   note       the ring was drawn in orange around the smaller set
+	#   warning    with no frame open it raises open a frame first; any other mode raises an error
+	#              naming the three
+	#   see        Callout, ClearMarks
 	def Emphasis(pcTarget, pcMode)
 		This._RequireOpen("Emphasis")
 		@oPic.Emphasis(pcTarget, pcMode)
 		return This
 
+	# Removes every mark the picture carries, so the open frame starts clean.
+	#
+	#   returns    the storyboard itself, so calls chain
+	#   note       marks stay from frame to frame until this call
+	#   warning    with no frame open it raises open a frame first
+	#   see        Emphasis, Callout, Show
 	def ClearMarks()
 		This._RequireOpen("ClearMarks")
 		@oPic.ClearMarks()
 		return This
 
+	# Shows only a part of the picture for the open frame: the window centred on a thing, with some reach around it.
+	#
+	#   pcPath     the thing to centre on, such as B.icon
+	#   pnReach    how far around it to show, in pixels
+	#   returns    the storyboard itself, so calls chain
+	#   note       in the test the window was scaled up to the whole canvas
+	#   warning    with no frame open it raises open a frame first; a mark outside the window is
+	#              reported by Judge as mark_inside_the_window
+	#   see        SetWindow, ClearWindow
 	def WindowOn(pcPath, pnReach)
 		This._RequireOpen("WindowOn")
 		@oPic.WindowOn(pcPath, pnReach)
 		return This
 
+	# Shows only a part of the picture for the open frame: a window given by its centre and its size.
+	#
+	#   pnCx       the x of the window's centre, in pixels
+	#   pnCy       the y of its centre
+	#   pnW        its width
+	#   pnH        its height
+	#   returns    the storyboard itself, so calls chain
+	#   warning    with no frame open it raises open a frame first; a width or height that is not
+	#              positive raises an error
+	#   see        WindowOn, ClearWindow
 	def SetWindow(pnCx, pnCy, pnW, pnH)
 		This._RequireOpen("SetWindow")
 		@oPic.SetWindow(pnCx, pnCy, pnW, pnH)
 		return This
 
+	# Shows the whole picture again for the open frame.
+	#
+	#   returns    the storyboard itself, so calls chain
+	#   warning    with no frame open it raises open a frame first
+	#   see        WindowOn, SetWindow
 	def ClearWindow()
 		This._RequireOpen("ClearWindow")
 		@oPic.ClearWindow()
 		return This
 
-	# AN ACTION IS WHAT TURNS A PICTURE INTO A DEMONSTRATION. Between two
-	# frames something changes -- a point is dragged, a datum is set -- and
-	# the next frame shows what that did. The verbs are the picture's own.
+	# Changes the picture between two frames with one of its verbs, so the next frame shows what the change did.
+	#
+	#   pcVerb     DragTo, SetData or SetTheme
+	#   paArgs     the verb's arguments: a shape, an x and a y for DragTo
+	#   returns    the storyboard itself, so calls chain
+	#   note       with SetTheme dark the paper was dark grey and the sets pale grey
+	#   warning    any other verb raises that it is not an action a frame takes, and too few
+	#              arguments for DragTo or SetData raise an error naming what is needed; with no
+	#              frame open it raises open a frame first
+	#   see        Frame, ClearMarks
+	#@ aka  AN ACTION IS WHAT TURNS A PICTURE INTO A DEMONSTRATION. Between two frames something changes -- a point is dragged, a datum is set -- and the next frame shows what that did. The verbs are the picture's own.
 	def Act(pcVerb, paArgs)
 		This._RequireOpen("Act")
 		_v_ = StzLower(ring_trim("" + pcVerb))
@@ -248,37 +411,81 @@ class stzStoryboard from stzObject
 		@cOpen = ""
 		@aHoles = []
 
-	#-- what the storyboard is, once written --------------------------------
-
+	# Returns how many frames were written, closing the open one first.
+	#
+	#   returns    a number
+	#   see        Caption, FileOf
+	#@ aka  -- what the storyboard is, once written --------------------------------
 	def NumberOfFrames()
 		This._CloseOpen()
 		return len(@aFrames)
 
+	# Returns the sentence of a frame with its holes filled by the facts.
+	#
+	#   pnI        the frame's position, from 1
+	#   returns    a text
+	#   note       it closes the open frame first
+	#   warning    a position out of range raises an error
+	#   see        RawCaption, HolesOf
 	def Caption(pnI)
 		This._CloseOpen()
 		return @aFrames[pnI][2]
 
+	# Returns the sentence of a frame as it was written, with its holes still open.
+	#
+	#   pnI        the frame's position, from 1
+	#   returns    a text
+	#   warning    a position out of range raises an error
+	#   see        Caption
 	def RawCaption(pnI)
 		This._CloseOpen()
 		return @aFrames[pnI][1]
 
+	# Returns the name of the PNG file of a frame, inside the folio.
+	#
+	#   pnI        the frame's position, from 1
+	#   returns    a text such as sets_01.png
+	#   warning    a position out of range raises an error
+	#   see        Folio, Render
 	def FileOf(pnI)
 		This._CloseOpen()
 		return @aFrames[pnI][3]
 
+	# Returns the holes of a frame with the fact each one was filled from.
+	#
+	#   pnI        the frame's position, from 1
+	#   returns    a list of [ hole, fact, shown text, expected texts ]
+	#   warning    a position out of range raises an error
+	#   see        Bind, NumberOfHoles
 	def HolesOf(pnI)
 		This._CloseOpen()
 		return @aFrames[pnI][4]
 
+	# Returns what the picture gate found against a frame, as findings.
+	#
+	#   pnI        the frame's position, from 1
+	#   returns    a list of findings; empty when the frame is lawful
+	#   warning    a position out of range raises an error
+	#   see        Judge, ExpectsFindings
 	def FindingsOf(pnI)
 		This._CloseOpen()
 		return @aFrames[pnI][5]
 
+	# TRUE if the frame was declared to be about something the gate finds.
+	#
+	#   pnI        the frame's position, from 1
+	#   returns    1 or 0
+	#   warning    a position out of range raises an error
+	#   see        ExpectFindings, Judge
 	def ExpectsFindings(pnI)
 		This._CloseOpen()
 		return @aFrames[pnI][7]
 
-	# how many numbers this narration shows, all of them from facts
+	# Returns how many numbers the frames show, all of them read from facts.
+	#
+	#   returns    a number
+	#   see        HolesOf, Judge
+	#@ aka  how many numbers this narration shows, all of them from facts
 	def NumberOfHoles()
 		This._CloseOpen()
 		_n_ = 0
@@ -287,10 +494,15 @@ class stzStoryboard from stzObject
 		next
 		return _n_
 
-	# EVERY FRAME THROUGH THE GATE, EVERY HOLE HELD TO ITS FACT. The second
-	# half is what makes a filled caption evidence rather than decoration:
-	# the number the reader sees must be the number the fact reported, and
-	# a hole the author never bound must not survive into the sentence.
+	# Returns the faults of the storyboard: what the gate found in each frame, and each hole checked against its fact.
+	#
+	#   returns    a list of findings; empty when every frame and every number holds
+	#   note       a frame declared with ExpectFindings does not fail for what the gate finds in it
+	#   warning    the rules are hole_left_open, fact_bound_but_never_shown,
+	#              hole_not_filled_from_its_fact and expected_a_finding_and_got_none, besides the
+	#              gate's own findings
+	#   see        IsClean, FindingsOf, ExpectFindings
+	#@ aka  EVERY FRAME THROUGH THE GATE, EVERY HOLE HELD TO ITS FACT. The second half is what makes a filled caption evidence rather than decoration: the number the reader sees must be the number the fact reported, and a hole the author never bound must not survive into the sentence.
 	def Judge()
 		This._CloseOpen()
 		_a_ = []
@@ -339,13 +551,20 @@ class stzStoryboard from stzObject
 		next
 		return _a_
 
+	# TRUE if Judge finds nothing.
+	#
+	#   returns    1 or 0
+	#   see        Judge
 	def IsClean()
 		return len(This.Judge()) = 0
 
-	#-- the folio, and the page ---------------------------------------------
-
-	# The frames are already drawn, one file each, as they closed. This
-	# writes the page that puts them in order with their sentences.
+	# Writes the page that puts the frames in order with their sentences and the verdict, and returns its path.
+	#
+	#   returns    a text, the path of the HTML page
+	#   note       the page is named after the storyboard and sits in the folio, beside the frame
+	#              files
+	#   see        ToNarration, Rendition
+	#@ aka  -- the folio, and the page ---------------------------------------------
 	def Render()
 		This._CloseOpen()
 		_c_ = "<!doctype html>" + char(10) +
@@ -381,26 +600,19 @@ class stzStoryboard from stzObject
 		write(@cFolio + "/" + @cName + ".html", _c_)
 		return @cFolio + "/" + @cName + ".html"
 
-	#-- the document ---------------------------------------------------------
-
-	# EMITTED IN THE SIBLING'S FORMAT, AND PROVISIONAL UNTIL IT SAYS SO.
-	# Softanza Narrations owns `.narration`; this writes the v0 grammar it
-	# published on 2026-08-11 -- NARRATION, PROSE and CELL, three kinds and
-	# no fourth -- and pins that version here so a change there is a change
-	# this must be told about rather than one it silently diverges from.
+	# Writes the storyboard as a .narration document, with each caption as prose with its holes open and each number as a cell.
 	#
-	# THE ONE LAW OF THAT FORMAT IS HONOURED BY CONSTRUCTION: the document
-	# is plain text and outputs are never stored in it. So a caption goes
-	# out as PROSE with its holes STILL OPEN, and every number is a CELL
-	# that recomputes on arrival. What is written here can be read a year
-	# from now and will either recompute to the same numbers or say why
-	# not -- which is the whole reason that law exists.
-	#
-	# The question of whether this shape conforms was routed to the sibling
-	# through Central as DN9-EMITTER-01 and is unanswered; silence is not a
-	# veto here, so this is written, pinned and marked, and a correction
-	# costs one function.
+	#   pcPath     the file to write
+	#   returns    a text, the path written
+	#   note       the format is the sibling narration grammar v0; the document keeps no output
+	#   see        Render
+	#@ aka  -- the document ---------------------------------------------------------
 	def ToNarration(pcPath)
+		# EMITTED IN THE SIBLING'S FORMAT, AND PROVISIONAL UNTIL IT SAYS SO.
+		# Softanza Narrations owns `.narration`; this writes the v0 grammar it
+		# published on 2026-08-11 -- NARRATION, PROSE and CELL, three kinds and
+		# no fourth -- and pins that version here so a change there is a change
+		# this must be told about rather than one it silently diverges from.
 		This._CloseOpen()
 		_q_ = char(34)
 		_c_ = "-- " + @cName + ".narration -- " + @cName + ", told in " +
@@ -448,18 +660,28 @@ class stzStoryboard from stzObject
 		if _o_ = ""  _o_ = "narration"  ok
 		return _o_
 
-	#-- A VALUE THAT SAYS WHAT IT IS (DN9g) ---------------------------------
-
-	# A STORYBOARD IS NOT A PICTURE, and its rendition says so by its kind:
-	# markup, the page that puts its frames in order. A consumer choosing a
-	# surface from the kind alone therefore opens it as a document rather
-	# than trying to draw it, without knowing what class it came from.
+	# Returns the storyboard as a value that says it is markup, the page of its frames.
+	#
+	#   returns    a rendition of the kind markup
+	#   see        RenditionAs, RenditionKinds
+	#@ aka  -- A VALUE THAT SAYS WHAT IT IS (DN9g) ---------------------------------
 	def Rendition()
 		return This.RenditionAs(:markup)
 
+	# Returns the forms the storyboard can take as a value.
+	#
+	#   returns    a list: markup and text
+	#   see        RenditionAs
 	def RenditionKinds()
 		return [ :markup, :text ]
 
+	# Returns the storyboard as a value of the kind asked: markup, the HTML page, or text, the numbered captions.
+	#
+	#   pcKind     markup or text
+	#   returns    a rendition value with its kind, its media type and its content
+	#   note       text gives one numbered line per caption
+	#   warning    any other kind raises that it is not a way a storyboard shows itself
+	#   see        Rendition, Render
 	def RenditionAs(pcKind)
 		This._CloseOpen()
 		_k_ = StzLower(ring_trim("" + pcKind))
@@ -477,13 +699,27 @@ class stzStoryboard from stzObject
 		stzraise("stzStoryboard.RenditionAs: '" + _k_ + "' is not a way a storyboard " +
 			"shows itself -- markup or text.")
 
-	#-- reading the picture, without being able to mutate it by accident ----
-
+	# Reads a fact from the picture as it stands now, without changing it.
+	#
+	#   pcKind     the kind of fact, such as :value or :distance
+	#   paArgs     the list of arguments of that fact
+	#   returns    a fact, as a hashlist with its kind, subject, value, unit, where and message
+	#   note       Fact(:value, [ "B.icon.r" ]) gave 46.40 px for the smaller set in the test
+	#   see        Bind, BindFact
+	#@ aka  -- reading the picture, without being able to mutate it by accident ----
 	def Fact(pcKind, paArgs)
 		return @oPic.Fact(pcKind, paArgs)
 
+	# Returns the storyboard's name.
+	#
+	#   returns    a text
+	#   see        Folio, FileOf
 	def PictureName()
 		return @cName
 
+	# Returns the folder that receives the frame files and the page.
+	#
+	#   returns    a text; a point when none was given
+	#   see        FileOf, Render
 	def Folio()
 		return @cFolio

@@ -1,0 +1,22 @@
+{
+ "brief": "Stores binary objects by key in a folder on disk, the four verbs of an S3 bucket over a flat key namespace.",
+ "detail": "Save, Fetch, Exists and Remove are the whole port; listing is by prefix. A key is never a file name: each object is a file named by the SHA-256 of its key, with the real key kept in a .key file beside it, so keys that differ only by case stay distinct, a key such as ../x cannot leave the folder, and slashes are ordinary characters. Keys are limited to 1024 bytes, as in S3. It is a real store, not a fake, and it survives a restart. It has no presigned URLs, no versioning and no replication.",
+ "receiver": "o1 = new stzFileBlobStore(\"demo_blobs\")",
+ "example": [
+  "o1.Save(\"photos/2026/a.jpg\", \"abcde\")",
+  "o1.Save(\"Photo.JPG\", \"XY\")",
+  "? o1.NumberOfBlobs()",
+  "#--> 2",
+  "? o1.Fetch(\"photos/2026/a.jpg\")",
+  "#--> abcde",
+  "? o1.Exists(\"photo.jpg\")",
+  "#--> 0",
+  "? @@( o1.KeysWithPrefix(\"photos/\") )",
+  "#--> [ \"photos/2026/a.jpg\" ]",
+  "o1.Clear()"
+ ],
+ "see": [
+  "stzMemoryBlobStore",
+  "stzServiceRegistry"
+ ]
+}

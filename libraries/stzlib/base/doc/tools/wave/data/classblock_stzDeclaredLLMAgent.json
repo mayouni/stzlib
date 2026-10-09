@@ -1,0 +1,20 @@
+{
+ "brief": "An llm agent that came from a declaration: it proposes structured facts into its own memory and can cause no effect.",
+ "detail": "On a tick it reads its input from memory, asks its model function for an answer in the declared structure and learns the fields as facts under the declared subject. It holds no effectful capability. An answer that does not satisfy the structure lands nothing. Seed the answer with SeedProposal to run it without a model; with no seed and no loaded model the tick is refused and WhyLastTick says so.",
+ "receiver": "o1 = new stzDeclaredLLMAgent(\"summarizer\")\no1.SetDeclared(\"proposes a topic\", \"reversible\")",
+ "example": [
+  "? o1.CoverageStatement()",
+  "#--> proposes a topic",
+  "? o1.Cycle()",
+  "#--> 0",
+  "? o1.WhyLastTick()",
+  "#--> no proposal is declared",
+  "? o1.ProposalsMade()",
+  "#--> 0"
+ ],
+ "see": [
+  "stzAgentDeclaration",
+  "stzDeclaredPIAgent",
+  "stzLLMFunction"
+ ]
+}

@@ -256,6 +256,31 @@ func StzAgentDeclarationFromFileQ(pcPath)
 #  THE DECLARATION                                                     #
 #---------------------------------------------------------------------#
 
+# Reads and judges a .pia agent file at load, then builds the runnable agent it declares if, and only if, no rule is broken.
+#
+# An agent is a file: name, kind (pi acts, llm proposes), a coverage sentence, a reversibility
+# class, a schedule, optional seed facts, governance, skills in a small closed vocabulary (always,
+# fact, no-fact, recall, learn, forget, propose, ring:), or a proposal for an llm agent. The
+# declaration is judged in the constructor and every broken rule becomes a finding: IsValid,
+# Findings and CiteFindings read the verdict, and ToAgent refuses to build from a refused one.
+# Reading never calls a model or a network. The format version is 2; version 1 is still read.
+#
+#   receiver   c = "pia: 2" + char(10) + "name: kitchen-bot" + char(10) + "kind: pi" + char(10) +
+#              "coverage: watches stock" + char(10) + "reversibility: compensable" + char(10) +
+#              "schedule:" + char(10) + "  timer: 20" + char(10) + "skills:" + char(10) + "  - name:
+#              restock" + char(10) + "    does: learn stock level ordered" o1 = new
+#              stzAgentDeclaration(c, "kitchen.pia")
+#   example    ? o1.IsValid()
+#              #--> 1
+#              ? o1.Name_()
+#              #--> kitchen-bot
+#              ? o1.Schedule()[:timer]
+#              #--> 20
+#              ? o1.NumberOfSkills()
+#              #--> 1
+#              ? o1.ToAgent().Cycle()
+#              #--> 1
+#   see        stzDeclaredPIAgent, stzDeclaredLLMAgent, stzDeclaredSkill, stzGovernance
 class stzAgentDeclaration from stzObject
 
 	@cText = ""
@@ -275,6 +300,17 @@ class stzAgentDeclaration from stzObject
 	@aSkills = []              # [ :name, :when, :does, :verify, :effect ]
 	@aProposes = []
 
+	# Reads and judges the text of a .pia agent declaration at once, keeping the findings of every rule it breaks.
+	#
+	#   pcText     the declaration text, such as "pia: 2" followed by name, kind, coverage and the
+	#              rest
+	#   pcSource   where it came from, shown in a refusal
+	#   returns    nothing; the object is built
+	#   note       the judgement happens here, not at the first tick
+	#   warning    a text that cannot be read, a missing version, an unknown key, a missing coverage
+	#              statement and an unknown verb are findings, not errors: the object is built and
+	#              IsValid says no
+	#   see        IsValid, CiteFindings, ToAgent
 	def init(pcText, pcSource)
 		@cText = "" + pcText
 		@cSource = "" + pcSource
@@ -282,51 +318,121 @@ class stzAgentDeclaration from stzObject
 		@aGov = [ :authority = "", :risks = [], :grants = [] ]
 		This._Judge()
 
-	#-- what it says ---------------------------------------------------
-
+	# TRUE if the declaration passed every rule and has no finding.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Findings, CiteFindings, ToAgent
+	#@ aka  -- what it says ---------------------------------------------------
 	def IsValid()
 		return @bValid
 
+	# Returns the version number read from the pia header.
+	#
+	#   returns    a number; 0 when the header is missing or its version unknown
+	#   note       a version this build does not know is a finding; the current one is 2 and 1 is
+	#              still read
+	#   see        init
 	def FormatVersion()
 		return @nVer
 
+	# Returns every refusal, each in the unified rule shape the rule report ingests.
+	#
+	#   returns    a list of [ :rule, :subject, :where, :severity, :message ] rows; [ ] when valid
+	#   note       the subject is always pi-agent-declaration and the severity error
+	#   see        CiteFindings, IsValid
 	def Findings()
 		return @aFindings
 
+	# Returns the source label given at construction, such as a file path or (text).
+	#
+	#   returns    a text
+	#   see        init
 	def Source()
 		return @cSource
 
+	# Returns the agent's declared name.
+	#
+	#   returns    a text; the empty text when the declaration has none
+	#   see        Kind
 	def Name_()
 		return @cName
 
+	# Returns the declared kind of agent: pi, which acts, or llm, which only proposes.
+	#
+	#   returns    a text, pi or llm; pi when none is declared
+	#   see        Name_, ToAgent
 	def Kind()
 		return @cKind
 
+	# Returns the sentence saying what the agent covers.
+	#
+	#   returns    a text; the empty text when missing
+	#   see        ReversibilityClass
 	def CoverageStatement()
 		return @cCoverage
 
+	# Returns the declared reversibility class of the agent's work.
+	#
+	#   returns    a text: reversible, compensable or irreversible; the text as written when it is
+	#              refused
+	#   see        CoverageStatement
 	def ReversibilityClass()
 		return @cRev
 
+	# Returns when the agent ticks.
+	#
+	#   returns    a list [ :mode, :timer, :channel ]; the mode is timer (with :timer in
+	#              milliseconds) or event (with :channel), and the empty text before anything is
+	#              read
+	#   see        init
 	def Schedule()
 		return @aSchedule
 
+	# Returns how many skills the declaration lists.
+	#
+	#   returns    a number
+	#   see        SkillAt
 	def NumberOfSkills()
 		return len(@aSkills)
 
+	# Returns one skill as parsed.
+	#
+	#   pnIndex    the position of the skill, from 1
+	#   returns    a list [ :name, :when, :does, :verify, :effect, :posture, :ringfns ]; each clause
+	#              is a list [ :verb, :args ]
+	#   warning    an index out of range raises error R2
+	#   see        NumberOfSkills
 	def SkillAt(pnIndex)
 		return @aSkills[pnIndex]
 
+	# Returns the governance the declaration states.
+	#
+	#   returns    a list [ :authority, :risks, :grants ]: the authority word, a list of [ action,
+	#              tier ] pairs and a list of granted actions
+	#   see        ToAgent
 	def Governance()
 		return @aGov
 
+	# Returns the proposal an llm agent declares: prompt, input clause, target subject, structure and limits.
+	#
+	#   returns    a list [ :prompt, :input, :into, :structure, :budget, :retries, :maxtokens,
+	#              :posture ]; [ ] for a pi agent
+	#   see        Kind, ToAgent
 	def Proposes()
 		return @aProposes
 
+	# Returns the facts the agent starts with in its memory.
+	#
+	#   returns    a list of [ subject, predicate, object ] triples
+	#   see        ToAgent
 	def SeedFacts()
 		return @aMemory
 
-	# One line per refusal, in the order they were found.
+	# Returns the findings as text, one line each, in the form [rule @ where] message.
+	#
+	#   returns    a text; the empty text when valid
+	#   see        Findings, Describe
+	#@ aka  One line per refusal, in the order they were found.
 	def CiteFindings()
 		if len(@aFindings) = 0
 			return ""
@@ -342,6 +448,11 @@ class stzAgentDeclaration from stzObject
 		next
 		return _c_
 
+	# Returns a short report of the declaration: its name, kind, reversibility, coverage, schedule and skills, or the refusal.
+	#
+	#   returns    a text of several lines; for a refused declaration "REFUSED (source):" followed
+	#              by the findings
+	#   see        CiteFindings, IsValid
 	def Describe()
 		if @bValid = 0
 			return "REFUSED (" + @cSource + "):" + char(10) + This.CiteFindings()
@@ -1135,10 +1246,14 @@ class stzAgentDeclaration from stzObject
 			ok
 		next
 
-	#-- from declaration to running agent ------------------------------
-
-	# The valid declaration, built onto the classes that already exist.
-	# Nothing new runs; this only assembles.
+	# Builds the runnable agent a valid declaration describes, from classes that already exist.
+	#
+	#   returns    a stzDeclaredPIAgent for kind pi, a stzDeclaredLLMAgent for kind llm
+	#   note       a pi agent starts with its seeded facts, risks, grants, authority, skills and
+	#              reversibility; an llm agent holds no effectful capability
+	#   warning    a refused declaration raises an error citing its findings and builds nothing
+	#   see        stzDeclaredPIAgent, stzDeclaredLLMAgent, IsValid
+	#@ aka  -- from declaration to running agent ------------------------------
 	def ToAgent()
 		if @bValid = 0
 			stzraise("stzAgentDeclaration.ToAgent: this declaration was " +
@@ -1254,36 +1369,90 @@ class stzAgentDeclaration from stzObject
 	at all.
 */
 
+# Holds a skill read from a declaration as three data clauses and runs them against an agent memory.
+#
+# A closure cannot be read out of a file, so this skill keeps its when, does and verify clauses as
+# lists of a verb and its arguments and interprets them. Apply checks the precondition, performs the
+# action on the memory it is given and verifies the result, answering a list that says whether it
+# ran and whether it verified.
+#
+#   receiver   m = new stzAgentMemory("demo") m.Learn("stock", "level", "low") o1 = new
+#              stzDeclaredSkill("restock") o1.SetClauses([ :verb = "fact", :args = [ "stock",
+#              "level", "low" ] ], [ :verb = "learn", :args = [ "stock", "level", "ordered" ] ], [
+#              :verb = "fact", :args = [ "stock", "level", "ordered" ] ])
+#   example    ? o1.PreconditionHolds(m)
+#              #--> 1
+#              ? o1.Apply(m)[:why]
+#              #--> skill 'restock' ran and VERIFIED
+#              ? m.Fact("stock", "level", "ordered")
+#              #--> 1
+#   see        stzAgentDeclaration, stzAgentSkill
 class stzDeclaredSkill from stzAgentSkill
 
 	@aWhen = []
 	@aDoes = []
 	@aVerify = []
 
+	# Gives the skill its three clauses as data: when it may run, what it does and how it is verified.
+	#
+	#   paWhen     the precondition clause, a list [ :verb, :args ] such as [ :verb = "fact", :args
+	#              = [ "stock", "level", "low" ] ]
+	#   paDoes     the action clause, for example learn or forget
+	#   paVerify   the check clause, or [ ] for none
+	#   returns    the skill itself, so calls chain
+	#   warning    the clauses are not checked here: the declaration court already did
+	#   see        WhenClause, Apply, PreconditionHolds
 	def SetClauses(paWhen, paDoes, paVerify)
 		@aWhen = paWhen
 		@aDoes = paDoes
 		@aVerify = paVerify
 		return This
 
+	# Returns the precondition clause.
+	#
+	#   returns    a list [ :verb, :args ]; [ ] when none was given
+	#   see        SetClauses, PreconditionHolds
 	def WhenClause()
 		return @aWhen
 
+	# Returns the action clause.
+	#
+	#   returns    a list [ :verb, :args ]
+	#   see        SetClauses, Apply
 	def DoesClause()
 		return @aDoes
 
+	# Returns the verification clause.
+	#
+	#   returns    a list [ :verb, :args ]; [ ] when none was given
+	#   see        SetClauses, Apply
 	def VerifyClause()
 		return @aVerify
 
+	# TRUE if the skill may run on a memory: no precondition at all, or the precondition clause is true there.
+	#
+	#   poMemory   the agent memory the clause is judged against
+	#   returns    TRUE or FALSE
+	#   warning    the verbs always, fact, no-fact and recall are judged; a ring clause calls the
+	#              named function
+	#   see        WhenClause, Apply
 	def PreconditionHolds(poMemory)
 		if len(@aWhen) = 0
 			return 1
 		ok
 		return This._Truth(@aWhen, poMemory)
 
-	# Same [ :ran, :verified, :why ] contract as the closure-built skill,
-	# so stzPIAgent.Cycle() cannot tell the two apart -- which is the
-	# point of a front-end.
+	# Runs the skill on a memory when its precondition holds, then checks the verification.
+	#
+	#   poMemory   the agent memory to read and to write
+	#   returns    a list [ :ran, :verified, :why ]: ran is 1 or 0, verified is 1 or 0 and why says
+	#              what happened
+	#   note       the three outcomes read "ran and VERIFIED", "ran but FAILED verification" and
+	#              "skipped: precondition not met"
+	#   warning    when the precondition fails nothing is written and ran is 0; a skill with no
+	#              verification clause counts as verified
+	#   see        PreconditionHolds, VerifyClause
+	#@ aka  Same [ :ran, :verified, :why ] contract as the closure-built skill, so stzPIAgent.Cycle() cannot tell the two apart -- which is the point of a front-end.
 	def Apply(poMemory)
 		if This.PreconditionHolds(poMemory) = 0
 			return [ :ran = 0, :verified = 0,
@@ -1343,40 +1512,93 @@ class stzDeclaredSkill from stzAgentSkill
 		ok
 		return This
 
-# A pi agent that came from a file. The ONLY thing it adds is the pair of
-# answers the engine loop's law-18 gate asks for -- so a declared agent
-# needs no separate Declare() call on the host: the file already said it.
+# A pi agent that came from a declaration, which also answers for its coverage and reversibility class.
+#
+# It adds only the two answers the engine loop's registration asks of every agent, so a declared
+# agent needs no separate declaration on a host. Everything else, the tick, the governance gate and
+# the trace, is the stzPIAgent runtime. A pi agent acts: it holds the effectful capability.
+#
+#   receiver   o1 = new stzDeclaredPIAgent("kitchen-bot") o1.SetDeclared("watches stock",
+#              "compensable")
+#   example    ? o1.CoverageStatement()
+#              #--> watches stock
+#              ? o1.ReversibilityClass()
+#              #--> compensable
+#              ? o1.HoldsEffectful()
+#              #--> 1
+#   see        stzAgentDeclaration, stzDeclaredLLMAgent
 class stzDeclaredPIAgent from stzPIAgent
 
 	@cCoverage = ""
 	@cRevClass = ""
 
+	# Gives the agent the two answers the engine loop asks of every agent: what it covers and how reversible its work is.
+	#
+	#   pcCoverage        one sentence saying what the agent covers
+	#   pcReversibility   reversible, compensable or irreversible
+	#   returns           the agent itself, so calls chain
+	#   note              a declared agent needs no separate declaration on a host
+	#   warning           neither value is checked here: the declaration court does it
+	#   see               CoverageStatement, ReversibilityClass
 	def SetDeclared(pcCoverage, pcReversibility)
 		@cCoverage = "" + pcCoverage
 		@cRevClass = "" + pcReversibility
 		return This
 
+	# Returns the sentence saying what the agent covers.
+	#
+	#   returns    a text; the empty text before SetDeclared
+	#   see        SetDeclared
 	def CoverageStatement()
 		return @cCoverage
 
+	# Returns the reversibility class given to the agent.
+	#
+	#   returns    a text; the empty text before SetDeclared
+	#   see        SetDeclared, CoverageStatement
 	def ReversibilityClass()
 		return @cRevClass
 
+	# Returns the kind of actor the agent is to the agent graph.
+	#
+	#   returns    a text, always pi_actor
+	#   see        HoldsEffectful, Capabilities
 	def Kind()
 		return "pi_actor"
 
+	# Returns the capabilities the agent holds.
+	#
+	#   returns    a list of text: effectful, compute and sensing
+	#   see        HoldsEffectful, Kind
 	def Capabilities()
 		return [ "effectful", "compute", "sensing" ]
 
+	# TRUE if the agent holds the capability to cause effects.
+	#
+	#   returns    TRUE or FALSE; always TRUE for this class
+	#   see        Capabilities, stzDeclaredLLMAgent
 	def HoldsEffectful()
 		return 1
 
-# THE PROPOSER, AND WHAT IT MAY DO ON A TICK: read its input from memory,
-# ask its stzLLMFunction for a STRUCTURED answer, and LEARN the result as
-# facts. That is the whole of it. It writes into its own memory and
-# nowhere else, it holds no effectful capability, and every field it
-# learns had to satisfy the structure the file declared -- so a proposal
-# that does not parse leaves no trace of itself in memory at all.
+# An llm agent that came from a declaration: it proposes structured facts into its own memory and can cause no effect.
+#
+# On a tick it reads its input from memory, asks its model function for an answer in the declared
+# structure and learns the fields as facts under the declared subject. It holds no effectful
+# capability. An answer that does not satisfy the structure lands nothing. Seed the answer with
+# SeedProposal to run it without a model; with no seed and no loaded model the tick is refused and
+# WhyLastTick says so.
+#
+#   receiver   o1 = new stzDeclaredLLMAgent("summarizer") o1.SetDeclared("proposes a topic",
+#              "reversible")
+#   example    ? o1.CoverageStatement()
+#              #--> proposes a topic
+#              ? o1.Cycle()
+#              #--> 0
+#              ? o1.WhyLastTick()
+#              #--> no proposal is declared
+#              ? o1.ProposalsMade()
+#              #--> 0
+#   see        stzAgentDeclaration, stzDeclaredPIAgent, stzLLMFunction
 class stzDeclaredLLMAgent from stzLLMAgent
 
 	@cCoverage = ""
@@ -1389,17 +1611,41 @@ class stzDeclaredLLMAgent from stzLLMAgent
 	@cWhyTick = ""
 	@nProposals = 0
 
+	# Gives the agent the two answers the engine loop asks of every agent: what it covers and how reversible its work is.
+	#
+	#   pcCoverage        one sentence saying what the agent covers
+	#   pcReversibility   reversible, compensable or irreversible
+	#   returns           the agent itself, so calls chain
+	#   warning           neither value is checked here: the declaration court does it
+	#   see               CoverageStatement, ReversibilityClass
 	def SetDeclared(pcCoverage, pcReversibility)
 		@cCoverage = "" + pcCoverage
 		@cRevClass = "" + pcReversibility
 		return This
 
+	# Returns the sentence saying what the agent covers.
+	#
+	#   returns    a text; the empty text before SetDeclared
+	#   see        SetDeclared
 	def CoverageStatement()
 		return @cCoverage
 
+	# Returns the reversibility class given to the agent.
+	#
+	#   returns    a text; the empty text before SetDeclared
+	#   see        SetDeclared, CoverageStatement
 	def ReversibilityClass()
 		return @cRevClass
 
+	# Gives the agent what it proposes and builds the model function that will answer; no model is called.
+	#
+	#   paProposes   the proposal list of a declaration, as Proposes of stzAgentDeclaration returns
+	#                it
+	#   returns      the agent itself, so calls chain
+	#   warning      paProposes holds the prompt, the input clause, the target subject, the
+	#                structure and the limits; a later tick with no seed and no loaded model is
+	#                refused
+	#   see          SeedProposal, Cycle, FunctionQ
 	def SetProposal(paProposes)
 		@aProp = paProposes
 		_o_ = new stzLLMFunction(This.Name_())
@@ -1412,11 +1658,16 @@ class stzDeclaredLLMAgent from stzLLMAgent
 		This.SetSkillFrom(_o_)
 		return This
 
-	# The offline door, and it is a METHOD rather than something a caller
-	# does through FunctionQ(): Ring copies an object on assignment, so
-	# `oF = oAg.FunctionQ()` then `oF.SeedAnswer(...)` seeds a copy the
-	# agent will never read. Seeding from inside the class writes the
-	# agent's own function, which is the only version that ticks.
+	# Seeds the answer the agent's function will give for an input, so a tick needs no model.
+	#
+	#   pcInput    the text the input clause will produce
+	#   pValue     the answer, as "field: value" lines that satisfy the declared structure
+	#   returns    the agent itself, so calls chain
+	#   note       it seeds the agent's own function, which is the one that ticks
+	#   warning    raises an error before the proposal is declared, and for an answer that does not
+	#              satisfy the declared structure
+	#   see        Cycle, FunctionQ
+	#@ aka  The offline door, and it is a METHOD rather than something a caller does through FunctionQ(): Ring copies an object on assignment, so `oF = oAg.FunctionQ()` then `oF.SeedAnswer(...)` seeds a copy the agent will never read. Seeding from inside the class writes the agent's own function, which is the only version that ticks.
 	def SeedProposal(pcInput, pValue)
 		if @oProposer = ""
 			stzraise("stzDeclaredLLMAgent: declare the proposal first.")
@@ -1424,21 +1675,42 @@ class stzDeclaredLLMAgent from stzLLMAgent
 		@oProposer.SeedAnswer(pcInput, pValue)
 		return This
 
-	# The live function, so a caller can seed it, fake it or read its
-	# budget BEFORE the agent is handed to a host. After the handoff the
-	# host's copy is the one that ticks -- the same rule stzAgentHost
-	# already states for every supervised agent.
+	# Returns the model function the agent asks, or the empty text before SetProposal.
+	#
+	#   returns    a stzLLMFunction object, or the empty text
+	#   warning    a copy taken from it is not the agent's own function: seed through SeedProposal
+	#              instead
+	#   see        SeedProposal, SetProposal
+	#@ aka  The live function, so a caller can seed it, fake it or read its budget BEFORE the agent is handed to a host. After the handoff the host's copy is the one that ticks -- the same rule stzAgentHost already states for every supervised agent.
 	def FunctionQ()
 		return @oProposer
 
+	# Returns how many ticks made a proposal that was validated.
+	#
+	#   returns    a number
+	#   see        Cycle, WhyLastTick
 	def ProposalsMade()
 		return @nProposals
 
+	# Returns, in words, what the last tick did or why it did nothing.
+	#
+	#   returns    a text; the empty text before any tick
+	#   note       the texts include "no proposal is declared", "nothing to propose about", "the
+	#              proposal was REFUSED" and "proposed n field(s)"
+	#   see        Cycle
 	def WhyLastTick()
 		return @cWhyTick
 
-	# ONE TICK. Returns 1 when a proposal was made AND validated, 0
-	# otherwise -- and 0 always says why rather than passing for quiet.
+	# Runs one tick: reads the input from memory, asks the function for a structured answer and learns its fields as facts.
+	#
+	#   returns    1 (TRUE) when a proposal was made and validated; 0 otherwise, and WhyLastTick
+	#              says why
+	#   note       the facts land as [ target subject, field, value ]
+	#   warning    with no seeded answer and no loaded model the tick returns 0 and the refusal is
+	#              in WhyLastTick; the agent writes only into its own memory and never causes an
+	#              effect
+	#   see        WhyLastTick, SeedProposal, ProposalsMade
+	#@ aka  ONE TICK. Returns 1 when a proposal was made AND validated, 0 otherwise -- and 0 always says why rather than passing for quiet.
 	def Cycle()
 		if len(@aProp) = 0
 			@cWhyTick = "no proposal is declared"

@@ -1,0 +1,21 @@
+{
+ "brief": "Cross-tabulates a table: groups its rows by one or two label columns against a column of labels, and aggregates a value column in each cell.",
+ "detail": "Give it a source table, then name the row labels, the column labels and the value column, with SetRowLabels, SetColumnLabels and SetValues (or By and Analyze). Value, RowTotal, ColumnTotal and GrandTotal read the cells, ToTable returns the result as a table and Show prints it. The pivot is generated again whenever a setting changes. Use the supported shape: one column label, one or two row labels, one value column; that shape runs in the engine. Known limits, all reproduced: the totals of every function but SUM and COUNT are sums of the cells; any other shape runs in a Ring fallback that drops the first source record; Show raises for two column labels; SaveToFile writes an empty file.",
+ "receiver": "o1 = new stzPivotTable([ [ \"CITY\", \"YEAR\", \"SALES\" ], [ \"Tunis\", 2023, 10 ], [ \"Tunis\", 2024, 5 ], [ \"Sfax\", 2023, 20 ], [ \"Gabes\", 2024, 3 ] ])\no1.SetRowLabels(:CITY)\no1.SetColumnLabels(:YEAR)\no1.SetValues(:SALES)",
+ "example": [
+  "? o1.Value(\"Tunis\", 2023)",
+  "#--> 10",
+  "? o1.RowTotal(\"Tunis\")",
+  "#--> 15",
+  "? o1.ColumnTotal(2023)",
+  "#--> 30",
+  "? o1.GrandTotal()",
+  "#--> 38",
+  "o1.SetNullValue(\"-\")",
+  "? o1.Value(\"Sfax\", 2024)",
+  "#--> -"
+ ],
+ "see": [
+  "stzTable"
+ ]
+}

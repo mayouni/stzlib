@@ -1,0 +1,20 @@
+{
+ "brief": "Holds governance as declared contracts: risk tiers, permissions, authority levels, commitments, decommissioning, postures and reversibility, with a decision lineage.",
+ "detail": "Permission (what an actor can do) is kept apart from authority (what it should do alone). MayProceed composes both with the action's risk tier before anything happens, and every verdict is explained by Why. The same object holds forward-only commitments, decommission contracts, trust postures, reversibility classes (MayExecuteFor composes the last two) and a registration gate (MayRegister). Every decision can be recorded with the authority and risk of that moment, kept in a bounded lineage you can query by id, actor, action or time. Save and LoadFrom keep the regime and the lineage in a .zgov file. The data lives in a shared table, so copies of the object see the same regime.",
+ "receiver": "o1 = new stzGovernance(\"kitchen-ops\")\no1.DeclareRisk(\"send-invoice\", 3)\no1.GrantPermission(\"billing-agent\", \"send-invoice\")\no1.SetAuthority(\"billing-agent\", :Delegated)",
+ "example": [
+  "? o1.MayProceed(\"billing-agent\", \"send-invoice\")",
+  "#--> 0",
+  "? o1.Why()",
+  "#--> refused: 'billing-agent' holds 'delegated' authority (level 2) but 'send-invoice' is risk tier 3 (SHOULD does not cover it)",
+  "o1.SetAuthority(\"billing-agent\", :Autonomous)",
+  "? o1.MayProceed(\"billing-agent\", \"send-invoice\")",
+  "#--> 1",
+  "? o1.Why()",
+  "#--> allowed: permission held AND 'autonomous' authority (level 3) covers risk tier 3"
+ ],
+ "see": [
+  "stzAgentDeclaration",
+  "stzSecurityLedger"
+ ]
+}

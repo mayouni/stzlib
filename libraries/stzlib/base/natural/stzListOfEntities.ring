@@ -506,9 +506,39 @@ func IsListOfEntities(paList)
 
 class stzEntities from stzListOfEntities
 
+# Holds a list of entities, each a name with a type, such as apple/fruit, and answers questions about them by name and by type.
+#
+# An entity is a hashlist with a :name and a :type. AddEntity lowercases both and refuses a
+# duplicate, AppendEntity adds without any check, and the finders answer positions
+# (FindEntityByName, FindEntitiesByType) or the entities themselves (EntitiesOfType, FilterByTypeQ).
+# The shared world registry that WhatIs reads is one such list, reached by WorldEntities().
+# AddEntity refuses too much: a new entity whose name and whose type are both already in the list is
+# refused even when no single entity has both.
+#
+#   receiver   o1 = new stzListOfEntities([ [ :name = "apple", :type = "fruit" ], [ :name = "tesla",
+#              :type = "company" ] ])
+#   example    o1.AddEntity([ :name = "Pear", :type = "Fruit" ])
+#              ? @@( o1.Names() )
+#              #--> [ "apple", "tesla", "pear" ]
+#              ? @@( o1.UniqueTypes() )
+#              #--> [ "fruit", "company" ]
+#              ? o1.CountByType("fruit")
+#              #--> 2
+#              ? @@( o1.FilterByTypeQ("fruit").Names() )
+#              #--> [ "apple", "pear" ]
+#   see        stzEntity, stzList, stzSupposition
 class stzListOfEntities from stzList
 	@aListOfEntities = []
 
+	# Builds the list from a list of entities, each a hashlist with a name and a type; anything else raises an error.
+	#
+	#   paList     the entities, such as [ [ :name = "apple", :type = "fruit" ] ], or an empty list
+	#   returns    nothing; the object is built
+	#   note       the list is stored as given: names and types are not lowercased here, unlike
+	#              AddEntity
+	#   warning    a list that is not empty and not a list of hashlists raises Can't create the
+	#              stzListOfEntities object
+	#   see        AddEntity, Content
 	def init(paList)
 		if isList(paList) and
 		   ( Q(paList).IsEmpty() or Q(paList).IsListOfHashLists() )
@@ -517,12 +547,26 @@ class stzListOfEntities from stzList
 			StzRaise("Can't create the stzListOfEntities object! You must provide a list of hashlists.")
 		ok
 
+	# Returns the held list of entities, each one a hashlist.
+	#
+	#   returns    a list of hashlists
+	#   note       Value is the same call
+	#   see        Entities, EntityN
 	def Content()
 		return @aListOfEntities
 
+		# Returns the held list of entities, each one a hashlist.
+		#
+		#   returns    a list of hashlists
+		#   note       the same call as Content
+		#   see        Content, Entities
 		def Value()
 			return Content()
 
+	# Returns a new list holding the same entities; adding to the copy leaves this list unchanged.
+	#
+	#   returns    a new stzListOfEntities
+	#   see        Content
 	def Copy()
 		return new stzListOfEntities(This.Content())
 
@@ -532,6 +576,16 @@ class stzListOfEntities from stzList
 		def Entities()
 			return This.ListOfEntities()
 
+	# Adds an entity after lowercasing its name and type; raises an error when the entity has no name or is not a hashlist.
+	#
+	#   paEntity   a hashlist with at least a :name key, such as [ :name = "Pear", :type = "Fruit" ]
+	#   returns    nothing
+	#   note       AppendEntity adds without any check
+	#   warning    refuses a new entity as a duplicate whenever its name is already in the list AND
+	#              its type is already in the list, even on different entities, so apple/company is
+	#              refused after apple/fruit and tesla/company; an entity with no :type key raises
+	#              an error as well
+	#   see        AppendEntity, AddEntities, ContainsEntity
 	def AddEntity(paEntity)
 		if @IsHashList(paEntity)
 			if HasKey(paEntity, :name)
@@ -552,9 +606,22 @@ class stzListOfEntities from stzList
 			StzRaise(stzListOfEntitiesError(:CanNotAddNotAHashList))
 		ok
 
+		# Adds the entity exactly as given, without lowercasing it and without any check for duplicates.
+		#
+		#   paEntity   the hashlist to add as it is
+		#   returns    nothing
+		#   note       the world registry uses it to add entities it has already checked
+		#   warning    a hashlist is not required, so a bad entity can enter the list
+		#   see        AddEntity
 		def AppendEntity(paEntity)
 		@aListOfEntities + paEntity
 
+	# Adds each entity of the list with AddEntity, in order; the first refused entity raises and stops the loop.
+	#
+	#   paEntities   a list of hashlists, each as for AddEntity
+	#   returns      nothing
+	#   warning      the entities before the refused one stay added
+	#   see          AddEntity
 	def AddEntities(paEntities)
 			_nEntities1Len_ = len(paEntities)
 			for _iLoopEntities1_ = 1 to _nEntities1Len_
@@ -562,6 +629,11 @@ class stzListOfEntities from stzList
 				This.AddEntity(_aEntity_)
 			next
 
+	# Returns the names of the entities, in order, in lower case.
+	#
+	#   returns    a list of text
+	#   note       Names is the same call
+	#   see        EntitiesTypes, FindEntityByName
 	def EntitiesNames()
 		_aResult_ = []
 		_aThisEntities9_ = This.Entities()
@@ -575,6 +647,11 @@ class stzListOfEntities from stzList
 		def Names()
 			return This.EntitiesNames()
 
+	# Returns the type of every entity, in order, repeated when several entities share one.
+	#
+	#   returns    a list of text
+	#   note       Types is the same call
+	#   see        UniqueTypes, EntitiesNames
 	def EntitiesTypes()
 		_aResult_ = []
 		_aThisEntities8_ = This.Entities()
@@ -588,6 +665,10 @@ class stzListOfEntities from stzList
 		def Types()
 			return This.EntitiesTypes()
 
+	# Returns each type once, in the order it first appears.
+	#
+	#   returns    a list of text
+	#   see        EntitiesTypes, CountByType
 	def UniqueTypes()
 		# Was `StzListQ(...).Duplicates()` -- double bug:
 		# (1) Duplicates() only exists in the monolithic archive,
@@ -597,6 +678,13 @@ class stzListOfEntities from stzList
 		#     to the method name.
 		return StzListQ( This.Types() ).Unique()
 
+	# Returns the entity at a position, counted from 1.
+	#
+	#   _n_        the position, from 1 to NumberOfEntities
+	#   returns    a hashlist
+	#   note       Entity is the same call
+	#   warning    a position out of range raises Index out of range!
+	#   see        FirstEntity, LastEntity, FindEntityByName
 	def EntityN(_n_)
 		if _n_ > 0 and _n_ <= This.NumberOfEntities()
 			return This.Entities()[_n_]
@@ -607,6 +695,11 @@ class stzListOfEntities from stzList
 		def Entity(_n_)
 			return This.EntityN(_n_)
 
+	# Returns the first entity of the list.
+	#
+	#   returns    a hashlist
+	#   warning    an empty list raises List is empty!
+	#   see        LastEntity, EntityN
 	def FirstEntity()
 		if This.NumberOfEntities() > 0
 			return This.EntityN(1)
@@ -614,6 +707,11 @@ class stzListOfEntities from stzList
 			StzRaise("List is empty!")
 		ok
 
+	# Returns the last entity of the list.
+	#
+	#   returns    a hashlist
+	#   warning    an empty list raises List is empty!
+	#   see        FirstEntity, EntityN
 	def LastEntity()
 		if This.NumberOfEntities() > 0
 			return This.EntityN( This.NumberOfEntities() )
@@ -621,6 +719,11 @@ class stzListOfEntities from stzList
 			StzRaise("List is empty!")
 		ok
 
+	# Returns how many entities the list holds.
+	#
+	#   returns    a number
+	#   note       Size and Count are the same call
+	#   see        IsEmpty, CountByType
 	def NumberOfEntities()
 		return len( This.Entities() )
 
@@ -630,9 +733,19 @@ class stzListOfEntities from stzList
 		def Count()
 			return This.NumberOfEntities()
 
+	# TRUE if the list holds no entity.
+	#
+	#   returns    1 or 0
+	#   see        NumberOfEntities, Clear
 	def IsEmpty()
 		return This.NumberOfEntities() = 0
 
+	# Removes the first entity with this name; an unknown name raises an error.
+	#
+	#   pcName     the entity's name, matched without regard to case
+	#   returns    nothing
+	#   warning    an unknown name raises Entity not found!
+	#   see        RemoveEntityN, Clear, FindEntityByName
 	def RemoveEntity(pcName)
 		_n_ = This.FindEntityByName(pcName)
 		if _n_ > 0
@@ -641,6 +754,12 @@ class stzListOfEntities from stzList
 			StzRaise("Entity not found!")
 		ok
 
+		# Removes the entity at a position, counted from 1.
+		#
+		#   _n_        the position, from 1 to NumberOfEntities
+		#   returns    nothing
+		#   warning    a position out of range raises Index out of range!
+		#   see        RemoveEntity, EntityN
 		def RemoveEntityN(_n_)
 			if _n_ > 0 and _n_ <= This.NumberOfEntities()
 				del(@aListOfEntities, _n_)
@@ -648,6 +767,11 @@ class stzListOfEntities from stzList
 				StzRaise("Index out of range!")
 			ok
 
+	# Returns the position of the first entity with this name, or 0 when there is none.
+	#
+	#   pcName     the entity's name, matched without regard to case
+	#   returns    a number
+	#   see        FindEntitiesByType, ContainsName, EntityN
 	def FindEntityByName(pcName)
 		_n_ = 0
 		_aThisEntities7_ = This.Entities()
@@ -661,6 +785,11 @@ class stzListOfEntities from stzList
 		next
 		return 0
 
+	# Returns the positions of every entity of this type, in order.
+	#
+	#   pcType     the type, matched without regard to case
+	#   returns    a list of numbers; an empty list when none
+	#   see        FindEntityByName, EntitiesOfType
 	def FindEntitiesByType(pcType)
 		_aResult_ = []
 		_n_ = 0
@@ -675,6 +804,11 @@ class stzListOfEntities from stzList
 		next
 		return _aResult_
 
+	# Returns the entities of this type, as hashlists, in order.
+	#
+	#   pcType     the type, matched without regard to case
+	#   returns    a list of hashlists; an empty list when none
+	#   see        FilterByTypeQ, FindEntitiesByType
 	def EntitiesOfType(pcType)
 		_aResult_ = []
 		_aThisEntities5_ = This.Entities()
@@ -687,12 +821,24 @@ class stzListOfEntities from stzList
 		next
 		return _aResult_
 
+	# TRUE if an entity with this name is in the list.
+	#
+	#   pcName     the entity's name, matched without regard to case
+	#   returns    1 or 0
+	#   note       HasEntity is the same call
+	#   see        ContainsName, FindEntityByName
 	def ContainsEntity(pcName)
 		return This.FindEntityByName(pcName) > 0
 
 		def HasEntity(pcName)
 			return This.ContainsEntity(pcName)
 
+	# TRUE if an entity with this name is in the list.
+	#
+	#   pcName     the entity's name, matched without regard to case
+	#   returns    1 or 0
+	#   note       HasName is the same call
+	#   see        ContainsEntity, ContainsType
 	def ContainsName(pcName)
 		_bResult_ = 0
 		_aThisEntities4_ = This.Entities()
@@ -709,6 +855,12 @@ class stzListOfEntities from stzList
 		def HasName(pcName)
 			return This.ContainsName(pcName)
 
+	# TRUE if at least one entity has this type.
+	#
+	#   pcType     the type, matched without regard to case
+	#   returns    1 or 0
+	#   note       HasType is the same call
+	#   see        ContainsName, CountByType
 	def ContainsType(pcType)
 		_bResult_ = 0
 		_aThisEntities3_ = This.Entities()
@@ -725,6 +877,11 @@ class stzListOfEntities from stzList
 		def HasType(pcType)
 			return This.ContainsType(pcType)
 
+	# Returns how many entities have this type.
+	#
+	#   pcType     the type, matched without regard to case
+	#   returns    a number
+	#   see        EntitiesOfType, NumberOfEntities
 	def CountByType(pcType)
 		_nCount_ = 0
 		_aThisEntities2_ = This.Entities()
@@ -737,9 +894,17 @@ class stzListOfEntities from stzList
 		next
 		return _nCount_
 
+	# Removes every entity, which leaves an empty list.
+	#
+	#   returns    nothing
+	#   see        RemoveEntity, IsEmpty
 	def Clear()
 		@aListOfEntities = []
 
+	# Reorders the entities by name, in ascending byte order of the lower-case names.
+	#
+	#   returns    nothing
+	#   see        SortByType, EntitiesNames
 	def SortByName()
 		# Sort hashlists by the :name key value. No stzList SortedBy --
 		# do it inline with a hoisted-length pass + insertion sort over
@@ -757,6 +922,10 @@ class stzListOfEntities from stzList
 		next
 		@aListOfEntities = _aData_
 
+	# Reorders the entities by type, in ascending byte order; entities of one type keep their relative order.
+	#
+	#   returns    nothing
+	#   see        SortByName, EntitiesTypes
 	def SortByType()
 		_aData_ = @aListOfEntities
 		_nLen_ = len(_aData_)
@@ -771,11 +940,19 @@ class stzListOfEntities from stzList
 		next
 		@aListOfEntities = _aData_
 
-	# Cuts the entities of one type into their own list -- an OBJECT,
-	# hence Q. For the plain data, EntitiesOfType() already answers.
+	# Returns a new list that holds only the entities of this type, ready for chaining; this list is unchanged.
+	#
+	#   pcType     the type, matched without regard to case
+	#   returns    a new stzListOfEntities
+	#   see        EntitiesOfType, CountByType
+	#@ aka  Cuts the entities of one type into their own list -- an OBJECT, hence Q. For the plain data, EntitiesOfType() already answers.
 	def FilterByTypeQ(pcType)
 		return new stzListOfEntities( This.EntitiesOfType(pcType) )
 
+	# Prints a heading with the number of entities, then one numbered line per entity with its name and type.
+	#
+	#   returns    nothing; it writes to the console
+	#   see        NumberOfEntities, EntitiesNames
 	def Show()
 		? "List of Entities (" + This.NumberOfEntities() + " entities):"
 		? "================================================"
@@ -794,13 +971,42 @@ class stzListOfEntities from stzList
 			next
 		ok
 
+# Records what is supposed about a name, as an overlay on the world that WhatIs reads and that can be forgotten or committed.
+#
+# A supposition is the sentence Suppose X is a fruit: SupposeQ(name) builds it, IsAQ records the
+# assumption and AndQ lets the sentence go on. The world of entities is not changed; WhatIs answers
+# with the supposed types while they are held, ForgetSuppositions discards them and
+# CommitSuppositions makes each one known to the world.
+#
+#   receiver   o1 = SupposeQ("tomato")
+#   example    o1.IsAQ(:Fruit).AndQ().IsAQ(:Company)
+#              ? @@( SuppositionsSoFar() )
+#              #--> [ [ "tomato", "fruit" ], [ "tomato", "company" ] ]
+#              ? @@( WhatIs("tomato") )
+#              #--> [ "fruit", "company" ]
+#              ForgetSuppositions()
+#              ? @@( WhatIs("tomato") )
+#              #--> [ ]
+#   see        stzListOfEntities, stzEntity
 class stzSupposition
 	@cName = ""
 
+	# Builds a supposition about one name, trimmed and lowercased.
+	#
+	#   pcName     the name of the thing supposed about, as text
+	#   returns    nothing; the object is built
+	#   see        IsAQ, Name
 	def init(pcName)
 		@cName = StzLower(trim(pcName))
 
-	# "Suppose X IS A fruit" -- records the assumption in the overlay
+	# Records the assumption that the name is of this type in the shared overlay, once, and returns the supposition so a sentence can go on.
+	#
+	#   pcType     the type supposed, as text, trimmed and lowercased
+	#   returns    the supposition itself, so calls chain
+	#   note       the world is untouched: the overlay is read by WhatIs and ends with
+	#              ForgetSuppositions or CommitSuppositions
+	#   see        AndQ, Name
+	#@ aka  "Suppose X IS A fruit" -- records the assumption in the overlay
 	def IsAQ(pcType)
 		_cT_ = StzLower(trim("" + pcType))
 		_nSp_ = len($aStzSuppositions)
@@ -813,9 +1019,17 @@ class stzSupposition
 		$aStzSuppositions + [ @cName, _cT_ ]
 		return This
 
-	# "...and (is) a company" -- the conjunction keeps supposing
+	# Returns the supposition unchanged, so that a sentence such as Suppose tomato is a fruit and a company reads naturally.
+	#
+	#   returns    the supposition itself
+	#   see        IsAQ
+	#@ aka  "...and (is) a company" -- the conjunction keeps supposing
 	def AndQ()
 		return This
 
+	# Returns the name the supposition is about, trimmed and lowercased.
+	#
+	#   returns    a text
+	#   see        init, IsAQ
 	def Name()
 		return @cName

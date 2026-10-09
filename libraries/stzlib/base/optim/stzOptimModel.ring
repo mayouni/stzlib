@@ -57,6 +57,30 @@ func StzOptimStatusWord(pnStatus)
 	ok
 	return "not solved"
 
+# Holds a linear or integer optimisation model that you write as variables, an objective and constraint texts, then solves it.
+#
+# Declare the variables with Vars or AddVar, set Maximize or Minimize, add constraints with
+# SubjectTo, and Solve. A variable is bounded below (0 by default) and optionally above, and may be
+# :integer or :binary. The built-in solver is a simplex with branch-and-bound; the :highs tier is
+# refused because it is not vendored, so Why always names the engine that ran. Check IsOptimal
+# before reading Solution: an infeasible or unbounded model leaves placeholder values. Violations
+# re-checks the answer against the model. Known limit: a model with no constraint at all raises an
+# error when solved, give it at least one constraint.
+#
+#   receiver   o1 = new stzOptimModel() o1.Vars([ :x = [0, 40], :y = [0, :integer] ])
+#              o1.Maximize("3*x + 2*y") o1.SubjectTo([ "x + y <= 50", "2*x + y <= 80" ])
+#   example    o1.Solve()
+#              ? o1.IsOptimal()
+#              #--> 1
+#              ? o1.Objective()
+#              #--> 130
+#              ? @@( o1.Solution() )
+#              #--> [ [ "x", 30 ], [ "y", 20 ] ]
+#              ? o1.Branched()
+#              #--> 1
+#              ? o1.IsFeasibleAnswer()
+#              #--> 1
+#   see        stzLinearSolver, stzOptimFile, stzOptimSentence
 class stzOptimModel from stzObject
 
 	@acVars = []          # names, in declaration order
@@ -81,15 +105,21 @@ class stzOptimModel from stzObject
 	@cEngine = ""
 	@cWhy = "nothing has been solved yet"
 
+	# Builds an empty model with no variable, no objective and no constraint.
+	#
+	#   returns    nothing; the object is built
+	#   see        Vars, Maximize, SubjectTo
 	def init()
 
-	#-- 1. THE VARIABLES ------------------------------------------------
+	# Declares several variables at once from a list of name = spec pairs.
 	#
-	# [ :x = [0, 40], :y = [0, :integer] ] -- a spec is [lb], [lb, ub],
-	# [lb, :integer] or [lb, ub, :integer]. An omitted upper bound means
-	# UNBOUNDED ABOVE, which the engine models exactly rather than by a
-	# large number standing in for infinity.
-
+	#   paSpec     pairs such as [ :x = [0, 40], :y = [0, :integer] ]
+	#   returns    the model itself, so calls chain
+	#   note       an omitted upper bound means unbounded above; names are kept in lower case
+	#   warning    a non-list, an entry that is not a pair, a name declared twice and an unknown
+	#              qualifier raise an error
+	#   see        AddVar, BoundsOf
+	#@ aka  -- 1. THE VARIABLES ------------------------------------------------
 	def Vars(paSpec)
 		if NOT isList(paSpec)
 			stzraise("stzOptimModel.Vars: a variable block is a list of " +
@@ -109,6 +139,17 @@ class stzOptimModel from stzObject
 		def VarsQ(paSpec)
 			return This.Vars(paSpec)
 
+	# Declares one variable with its bounds and whether it is whole-valued.
+	#
+	#   pcName     the variable's name, lower-cased, never empty
+	#   pSpec      a number (the lower bound) or a list as for Vars: bounds, then :integer or
+	#              :binary
+	#   returns    the model itself, so calls chain
+	#   note       :binary means integer with bounds 0 and 1; a variable declared after the
+	#              constraints widens the earlier rows with zeros
+	#   warning    an empty name, a name declared twice and a qualifier other than :integer, :int,
+	#              :binary or :bool raise an error
+	#   see        Vars, BoundsOf, HasVar
 	def AddVar(pcName, pSpec)
 		_cN_ = StzLower(ring_trim("" + pcName))
 		if _cN_ = ""
@@ -177,15 +218,34 @@ class stzOptimModel from stzObject
 			end
 		next
 
+	# TRUE if a variable of that name is declared.
+	#
+	#   pcName     the variable's name, matched without regard to case
+	#   returns    TRUE or FALSE
+	#   see        VarNames, NumberOfVars
 	def HasVar(pcName)
 		return ring_find(@acVars, StzLower(ring_trim("" + pcName))) > 0
 
+	# Returns how many variables are declared.
+	#
+	#   returns    a number
+	#   see        VarNames, HasVar
 	def NumberOfVars()
 		return len(@acVars)
 
+	# Returns the names of the variables, in lower case, in declaration order.
+	#
+	#   returns    a list of text
+	#   see        NumberOfVars, BoundsOf
 	def VarNames()
 		return @acVars
 
+	# Returns the declared bounds and kind of one variable.
+	#
+	#   pcName     the variable's name
+	#   returns    a list [ :lb, :ub, :bounded, :integer ]; [ ] for an unknown name
+	#   note       :ub is 0 and :bounded is 0 when the variable has no upper bound
+	#   see        AddVar, VarNames
 	def BoundsOf(pcName)
 		_i_ = ring_find(@acVars, StzLower(ring_trim("" + pcName)))
 		if _i_ = 0
@@ -194,14 +254,28 @@ class stzOptimModel from stzObject
 		return [ :lb = @aLb[_i_], :ub = @aUb[_i_],
 			 :bounded = @aHasUb[_i_], :integer = @aInt[_i_] ]
 
-	#-- 2. THE OBJECTIVE ------------------------------------------------
-
+	# Sets the objective to maximize, from a linear expression over the declared variables.
+	#
+	#   pcExpr     a linear expression such as "3*x + 2*y + 1"
+	#   returns    the model itself, so calls chain
+	#   note       a second call replaces the objective
+	#   warning    raises an error when no variable is declared yet or when the expression names
+	#              something that is not a variable
+	#   see        Minimize, ObjectiveCoefficients, SolveWith
+	#@ aka  -- 2. THE OBJECTIVE ------------------------------------------------
 	def Maximize(pcExpr)
 		return This._SetObjective("max", pcExpr)
 
 		def MaximizeQ(pcExpr)
 			return This.Maximize(pcExpr)
 
+	# Sets the objective to minimize, from a linear expression over the declared variables.
+	#
+	#   pcExpr     a linear expression such as "2*p + 3*q"
+	#   returns    the model itself, so calls chain
+	#   note       a second call replaces the objective
+	#   warning    same errors as Maximize
+	#   see        Maximize, SolveWith
 	def Minimize(pcExpr)
 		return This._SetObjective("min", pcExpr)
 
@@ -223,14 +297,33 @@ class stzOptimModel from stzObject
 		@cObjText = ring_trim("" + pcExpr)
 		return This
 
+	# Returns the direction of the objective.
+	#
+	#   returns    a text: max, min, or the empty text before an objective is set
+	#   see        Maximize, Minimize
 	def Sense()
 		return @cSense
 
+	# Returns the coefficient of each variable in the objective.
+	#
+	#   returns    a list of numbers, one per variable in declaration order; [ ] before an objective
+	#              is set
+	#   note       the constant of the expression is not in it; it is added to Objective after
+	#              solving
+	#   see        Maximize, VarNames
 	def ObjectiveCoefficients()
 		return @aObj
 
-	#-- 3. THE CONSTRAINTS ----------------------------------------------
-
+	# Adds constraints from a list of relation texts, or one constraint from a single text.
+	#
+	#   paList     a list of relations such as [ "x + y <= 50", "2*x + y <= 80" ], or one relation
+	#              as text
+	#   returns    the model itself, so calls chain
+	#   note       the constraints are named c1, c2 and so on, in order added
+	#   warning    raises an error for anything else, when no variable is declared, and for a text
+	#              with no <=, >= or =
+	#   see        AddConstraint, AddNamedConstraint
+	#@ aka  -- 3. THE CONSTRAINTS ----------------------------------------------
 	def SubjectTo(paList)
 		if isString(paList)
 			return This.AddConstraint(paList)
@@ -248,10 +341,26 @@ class stzOptimModel from stzObject
 		def SubjectToQ(paList)
 			return This.SubjectTo(paList)
 
+	# Adds one constraint from a relation text, named automatically.
+	#
+	#   pcText     a relation such as "x + y <= 50", with <=, >= or =
+	#   returns    the model itself, so calls chain
+	#   note       the name is c followed by the count of constraints added without a name
+	#   warning    the same errors as SubjectTo
+	#   see        AddNamedConstraint, SubjectTo
 	def AddConstraint(pcText)
 		@nAutoCon++
 		return This.AddNamedConstraint("c" + @nAutoCon, pcText)
 
+	# Adds one constraint from a relation text under a name of your choice.
+	#
+	#   pcName     the constraint's name, kept in lower case
+	#   pcText     a relation such as "n <= 5"
+	#   returns    the model itself, so calls chain
+	#   note       the variables are moved to the left side, so "2 >= x" is stored as the row -1
+	#              against -2
+	#   warning    the same errors as SubjectTo
+	#   see        AddConstraint, ConstraintAt
 	def AddNamedConstraint(pcName, pcText)
 		if len(@acVars) = 0
 			stzraise("stzOptimModel: declare the variables before the " +
@@ -265,18 +374,32 @@ class stzOptimModel from stzObject
 			   _a_[:op], _a_[:rhs], ring_trim("" + pcText) ]
 		return This
 
+	# Returns how many constraints the model holds.
+	#
+	#   returns    a number
+	#   see        ConstraintAt
 	def NumberOfConstraints()
 		return len(@aCons)
 
+	# Returns one stored constraint.
+	#
+	#   pnIndex    the position of the constraint, from 1
+	#   returns    a list [ name, coefficients, operator, right side, text ]; the operator is -1 for
+	#              <=, 1 for >= and 0 for =
+	#   note       the coefficients are one per variable, in declaration order
+	#   warning    an index outside 1 to NumberOfConstraints raises error R2, index out of range
+	#   see        NumberOfConstraints
 	def ConstraintAt(pnIndex)
 		return @aCons[pnIndex]
 
-	#-- THE AST ---------------------------------------------------------
+	# Returns the model as a plain list that two descriptions can be compared by, rather than their answers.
 	#
-	# The comparable form. Two surfaces agree when THIS is equal --
-	# never when their answers are, because two different wrong models
-	# can produce the same number and one guard would pass both.
-
+	#   returns    a list [ :sense, :vars, :obj, :objconst, :cons ]; each var row is [ name, lb, ub,
+	#              bounded, integer ] and each constraint row [ name, coefficients, operator, right
+	#              side ]
+	#   note       two different wrong models can give the same answer, so a guard compares the ASTs
+	#   see        ASTCore, ASTSignature
+	#@ aka  -- THE AST ---------------------------------------------------------
 	def AST()
 		_aV_ = []
 		_n_ = len(@acVars)
@@ -293,8 +416,14 @@ class stzOptimModel from stzObject
 		return [ :sense = @cSense, :vars = _aV_, :obj = @aObj,
 			 :objconst = @nObjConst, :cons = _aC_ ]
 
-	# the same, with the constraint NAMES dropped -- for comparing two
-	# surfaces that agree on the mathematics and label it differently
+	# Returns the same list as AST with the constraint names dropped.
+	#
+	#   returns    a list of the same shape; each constraint row is [ coefficients, operator, right
+	#              side ]
+	#   note       for comparing two descriptions that agree on the mathematics but label it
+	#              differently
+	#   see        AST, ASTSignature
+	#@ aka  the same, with the constraint NAMES dropped -- for comparing two surfaces that agree on the mathematics and label it differently
 	def ASTCore()
 		_a_ = This.AST()
 		_aC_ = []
@@ -306,12 +435,13 @@ class stzOptimModel from stzObject
 		return [ :sense = _a_[:sense], :vars = _a_[:vars],
 			 :obj = _a_[:obj], :objconst = _a_[:objconst], :cons = _aC_ ]
 
-	# THE AST AS ONE CANONICAL STRING, and it exists because Ring's `=`
-	# does not compare two nested lists structurally -- two ASTs whose
-	# every field printed identically still answered "not equal", so a
-	# guard written the obvious way would have failed while the surfaces
-	# agreed. A signature compares exactly, and when it differs it can be
-	# PRINTED side by side, which a list comparison never could.
+	# Returns the model, without constraint names, as one canonical text.
+	#
+	#   returns    a text such as sense=max;const=1;obj=3,2;vars=x[0,3,1,0]...;cons=(1,1<=4)
+	#   note       exists because Ring's = does not compare nested lists structurally; the texts can
+	#              be printed side by side
+	#   see        ASTCore
+	#@ aka  THE AST AS ONE CANONICAL STRING, and it exists because Ring's `=` does not compare two nested lists structurally -- two ASTs whose every field printed identically still answered "not equal", so a guard written the obvious way would have failed while the surfaces agreed. A signature compares exactly, and when it differs it can be PRINTED side by side, which a list comparison never could.
 	def ASTSignature()
 		_a_ = This.ASTCore()
 		_c_ = "sense=" + _a_[:sense] + ";const=" + _a_[:objconst] + ";obj="
@@ -345,7 +475,11 @@ class stzOptimModel from stzObject
 		next
 		return _c_
 
-	# the model as it reads, for a human and for a narration
+	# Returns the model as it reads: the objective, the constraints and the bounds of the variables.
+	#
+	#   returns    a text of several lines
+	#   see        Show
+	#@ aka  the model as it reads, for a human and for a narration
 	def Describe()
 		_c_ = @cSense + " " + @cObjText + char(10)
 		_c_ += "subject to:" + char(10)
@@ -367,14 +501,23 @@ class stzOptimModel from stzObject
 		next
 		return _c_
 
+	# Prints the model as Describe returns it.
+	#
+	#   returns    nothing; it prints
+	#   see        Describe
 	def Show()
 		? This.Describe()
 
-	#-- 4. SOLVING ------------------------------------------------------
-
-	# :auto picks the tier; :floor forces the Zig simplex+B&B; :highs is
-	# the upgrade tier and is REFUSED while it is not vendored, because
-	# answering with the floor would make the two-tier claim untrue.
+	# Solves the model with a named tier of the solver and keeps the answer.
+	#
+	#   pcTier     :auto, :floor or the empty text for the built-in simplex and branch-and-bound
+	#   returns    the model itself, so calls chain
+	#   note       whole-valued variables make the solver branch; Why names the engine that ran
+	#   warning    raises an error for :highs (not vendored), for any other tier, when no objective
+	#              is set, and for a model with no constraint at all, which the engine refuses today
+	#              although the code says it solves
+	#   see        Solve, Why, IsOptimal, Solution
+	#@ aka  -- 4. SOLVING ------------------------------------------------------
 	def SolveWith(pcTier)
 		_cT_ = StzLower(ring_trim("" + pcTier))
 		if _cT_ = ""
@@ -395,6 +538,11 @@ class stzOptimModel from stzObject
 		def SolveWithQ(pcTier)
 			return This.SolveWith(pcTier)
 
+	# Solves the model with the automatic tier.
+	#
+	#   returns    the model itself, so calls chain
+	#   warning    the same errors as SolveWith, including a model with no constraint
+	#   see        SolveWith, Why
 	def Solve()
 		return This.SolveWith(:auto)
 
@@ -486,26 +634,54 @@ class stzOptimModel from stzObject
 			"iteration(s).)"
 		@cWhy = _c_
 
-	#-- 5. READING THE ANSWER -------------------------------------------
-
+	# TRUE if a solve has run, whatever it found.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsOptimal, Status
+	#@ aka  -- 5. READING THE ANSWER -------------------------------------------
 	def IsSolved()
 		return @bSolved
 
+	# Returns the solver's status code.
+	#
+	#   returns    a number: 0 optimal, 1 unbounded, 2 infeasible, 3 iteration limit, 4 node limit;
+	#              -1 before any solve
+	#   see        StatusWord, IsOptimal
 	def Status()
 		return @nStatus
 
+	# Returns the status in words.
+	#
+	#   returns    a text such as optimal, infeasible, unbounded or not solved
+	#   see        Status, IsOptimal
 	def StatusWord()
 		return StzOptimStatusWord(@nStatus)
 
+	# TRUE if a solve ran and found the optimum.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Status, Solution
 	def IsOptimal()
 		if @bSolved = 1 and @nStatus = 0
 			return 1
 		ok
 		return 0
 
+	# Returns the value of the objective at the answer, constant included.
+	#
+	#   returns    a number; 0 before a solve
+	#   note       meaningful only when IsOptimal is TRUE: for an unbounded or infeasible model it
+	#              is the engine's placeholder
+	#   see        Solution, Status
 	def Objective()
 		return @nObjective
 
+	# Returns each variable with its value at the answer.
+	#
+	#   returns    a list of [ name, value ] pairs in declaration order
+	#   note       the values are placeholders when the model is infeasible or unbounded
+	#   warning    before any solve it raises error R2, index out of range
+	#   see        ValueOf, Objective, IsOptimal
 	def Solution()
 		_a_ = []
 		_n_ = len(@acVars)
@@ -514,6 +690,12 @@ class stzOptimModel from stzObject
 		next
 		return _a_
 
+	# Returns the value of one variable at the answer.
+	#
+	#   pcName     the variable's name, matched without regard to case
+	#   returns    a number
+	#   warning    raises an error for an unknown name and before any solve
+	#   see        Solution
 	def ValueOf(pcName)
 		_i_ = ring_find(@acVars, StzLower(ring_trim("" + pcName)))
 		if _i_ = 0
@@ -524,30 +706,58 @@ class stzOptimModel from stzObject
 		ok
 		return @aX[_i_]
 
+	# Returns how many branch-and-bound nodes the last solve explored.
+	#
+	#   returns    a number; 0 before a solve
+	#   see        Iterations, Branched
 	def Nodes()
 		return @nNodes
 
+	# Returns how many simplex iterations the last solve took.
+	#
+	#   returns    a number; 0 before a solve
+	#   see        Nodes
 	def Iterations()
 		return @nIterations
 
+	# Returns 1 when the solve used branch-and-bound, which it does when a variable is whole-valued.
+	#
+	#   returns    1 or 0; 0 before a solve
+	#   see        Nodes, Engine
 	def Branched()
 		return @bBranched
 
+	# Returns the name of the engine that ran the last solve.
+	#
+	#   returns    a text such as "engine floor (Zig simplex + branch-and-bound)"; the empty text
+	#              before a solve
+	#   see        Why
 	def Engine()
 		return @cEngine
 
-	# LAW 3: the verdict explains itself, and NAMES THE TIER THAT RAN
+	# Returns the solver's account of itself: the tier chosen, the result, the objective and the point, and the work done.
+	#
+	#   returns    a text; "nothing has been solved yet" before a solve
+	#   note       for an infeasible or unbounded model it states the result and gives no point
+	#   see        ShowWhy, Engine
+	#@ aka  LAW 3: the verdict explains itself, and NAMES THE TIER THAT RAN
 	def Why()
 		return @cWhy
 
+	# Prints what Why returns.
+	#
+	#   returns    nothing; it prints
+	#   see        Why
 	def ShowWhy()
 		? This.Why()
 
-	#-- the honesty check any caller can run -----------------------------
+	# Checks the reported answer against every constraint, bound and whole-value requirement, to catch a confident wrong answer.
 	#
-	# Does the reported point actually satisfy the model? A solver that
-	# returns a confident wrong answer is the failure this catches, and
-	# it costs one pass over the rows.
+	#   returns    a list of [ name, left side, operator, right side ] rows, one per breach; [ ]
+	#              when none, and also [ ] unless the status is optimal
+	#   note       a tolerance of 0.000001 is allowed
+	#   see        IsFeasibleAnswer, Solution
+	#@ aka  -- the honesty check any caller can run -----------------------------
 	def Violations()
 		_a_ = []
 		if @bSolved = 0 or @nStatus != 0
@@ -591,5 +801,11 @@ class stzOptimModel from stzObject
 		next
 		return _a_
 
+	# TRUE if Violations finds no breach.
+	#
+	#   returns    TRUE or FALSE
+	#   note       it is also TRUE when nothing has been solved or the model is infeasible, because
+	#              Violations is empty then
+	#   see        Violations
 	def IsFeasibleAnswer()
 		return len(This.Violations()) = 0

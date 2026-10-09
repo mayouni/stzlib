@@ -1,0 +1,23 @@
+{
+ "brief": "Describes a whole solution: its development system and its parts, each with the system it deploys to.",
+ "detail": "The architect's common ground. Declare the solution with DevelopedOn and WithApp, WithServer, WithSuperApp or WithPart, then check it with Validate. Feature code is authored per part (ReadPinIn, SpawnIn, ConnectIn and the others) and checked at once against that part's target: an operation the target forbids raises an error, one the live machine cannot perform is rehearsed and recorded for deploy-time lowering. The profile only describes: it builds and deploys nothing, and it is saved as a small .stzplatform text. A part obtained with App and assigned to a variable is a copy; chain the calls instead.",
+ "receiver": "o1 = new stzPlatformProfile(\"my-iot-product\")\no1.DevelopedOn(:Windows)\no1.WithServer(:backend, :LinuxServer)\no1.WithApp(:firmware, :ESP32)",
+ "example": [
+  "? o1.NumberOfApps()",
+  "#--> 2",
+  "? o1.App(:firmware).DeploymentOSName()",
+  "#--> espidf",
+  "? o1.HasApp(\"BACKEND\")",
+  "#--> 1",
+  "? o1.IsSound()",
+  "#--> 1",
+  "? @@( o1.Validate() )",
+  "#--> [ ]"
+ ],
+ "see": [
+  "stzAppProfile",
+  "stzSystemScope",
+  "stzLoweringBridge",
+  "stzPlatform"
+ ]
+}

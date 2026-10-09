@@ -1,0 +1,20 @@
+{
+ "brief": "Stores binary objects by key in memory, with the same four verbs as the file store; it is gone when the process ends.",
+ "detail": "It is a real store for the length of the process, and the service registry reports it as ephemeral so that a production check can refuse it. Keys follow the same rules as the file store: exact comparison, 1024 bytes at most, never empty. Each instance keeps its own objects.",
+ "receiver": "o1 = new stzMemoryBlobStore()",
+ "example": [
+  "o1.Save(\"a/1\", \"abc\")",
+  "o1.Save(\"a/2\", \"de\")",
+  "o1.Save(\"b/1\", \"f\")",
+  "? o1.TotalBytes()",
+  "#--> 6",
+  "? @@( o1.KeysWithPrefix(\"a/\") )",
+  "#--> [ \"a/1\", \"a/2\" ]",
+  "? o1.IsEphemeral()",
+  "#--> 1"
+ ],
+ "see": [
+  "stzFileBlobStore",
+  "stzServiceRegistry"
+ ]
+}

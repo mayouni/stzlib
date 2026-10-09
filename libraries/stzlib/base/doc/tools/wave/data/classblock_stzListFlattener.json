@@ -1,0 +1,24 @@
+{
+ "brief": "Reshapes a list: opens nested lists, pairs and chunks the items, finds repeated ends, and hands the list to the typed list classes.",
+ "detail": "A flattener is built over a list with new stzListFlattener(aList) or StzListFlattenerQ(aList); stzList has its own Flatten methods and does not build one. It works on its own copy, so the list you passed is never changed. The verbs (Flatten, DeepFlatten, FlattenToDepth, AssociateWith) reshape the held list in place and return nothing, the Q form returning the flattener so calls chain; the past-tense forms (Flattened, DeepFlattened, FlattenedToDepth, AssociatedWith) return the new list and leave the flattener alone. Read the held list with Content. Flatten and DeepFlatten open every level; FlattenToDepth opens only n levels. Paired, Chunked, InterleavedWith, Stringify and Objectified return a new list and never change the held one. The ToStz methods hand the content to the typed class named: ToStzGrid needs a pair [ columns, rows ] and raises an error for other content. The repeated-items methods return the copies after the first item (or before the last), so a run of three gives two. Text items of any script (Hebrew, Arabic, emoji) are kept whole.",
+ "receiver": "o1 = new stzListFlattener([ 1, [ 2, [ 3, [ 4 ] ] ], \"a\" ])",
+ "example": [
+  "? @@( o1.Flattened() )",
+  "#--> [ 1, 2, 3, 4, \"a\" ]",
+  "? @@( o1.FlattenedToDepth(1) )",
+  "#--> [ 1, 2, [ 3, [ 4 ] ], \"a\" ]",
+  "o2 = new stzListFlattener([ 1, 2, 2, 3, 3, 3 ])",
+  "? @@( o2.Paired() )",
+  "#--> [ [ 1, 2 ], [ 2, 3 ], [ 3, 3 ] ]",
+  "? @@( o2.RepeatedTrailingItems() )",
+  "#--> [ 3, 3 ]",
+  "o3 = new stzListFlattener([ \"שלום\", [ \"مرحبا\", [ \"😀\" ] ] ])",
+  "? @@( o3.FlattenedToDepth(1) )",
+  "#--> [ \"שלום\", \"مرحبا\", [ \"😀\" ] ]"
+ ],
+ "see": [
+  "stzList",
+  "stzListSorter",
+  "stzListParser"
+ ]
+}

@@ -1,0 +1,29 @@
+init | Builds the list from a list of entities, each a hashlist with a name and a type; anything else raises an error. | nothing; the object is built | paList=the entities, such as [ [ :name = "apple", :type = "fruit" ] ], or an empty list | AddEntity, Content | a list that is not empty and not a list of hashlists raises Can't create the stzListOfEntities object | the list is stored as given: names and types are not lowercased here, unlike AddEntity
+Content | Returns the held list of entities, each one a hashlist. | a list of hashlists | | Entities, EntityN | | Value is the same call
+Value | Returns the held list of entities, each one a hashlist. | a list of hashlists | | Content, Entities | | the same call as Content
+Copy | Returns a new list holding the same entities; adding to the copy leaves this list unchanged. | a new stzListOfEntities | | Content
+AddEntity | Adds an entity after lowercasing its name and type; raises an error when the entity has no name or is not a hashlist. | nothing | paEntity=a hashlist with at least a :name key, such as [ :name = "Pear", :type = "Fruit" ] | AppendEntity, AddEntities, ContainsEntity | refuses a new entity as a duplicate whenever its name is already in the list AND its type is already in the list, even on different entities, so apple/company is refused after apple/fruit and tesla/company; an entity with no :type key raises an error as well | AppendEntity adds without any check
+AppendEntity | Adds the entity exactly as given, without lowercasing it and without any check for duplicates. | nothing | paEntity=the hashlist to add as it is | AddEntity | a hashlist is not required, so a bad entity can enter the list | the world registry uses it to add entities it has already checked
+AddEntities | Adds each entity of the list with AddEntity, in order; the first refused entity raises and stops the loop. | nothing | paEntities=a list of hashlists, each as for AddEntity | AddEntity | the entities before the refused one stay added
+EntitiesNames | Returns the names of the entities, in order, in lower case. | a list of text | | EntitiesTypes, FindEntityByName | | Names is the same call
+EntitiesTypes | Returns the type of every entity, in order, repeated when several entities share one. | a list of text | | UniqueTypes, EntitiesNames | | Types is the same call
+UniqueTypes | Returns each type once, in the order it first appears. | a list of text | | EntitiesTypes, CountByType
+EntityN | Returns the entity at a position, counted from 1. | a hashlist | _n_=the position, from 1 to NumberOfEntities | FirstEntity, LastEntity, FindEntityByName | a position out of range raises Index out of range! | Entity is the same call
+FirstEntity | Returns the first entity of the list. | a hashlist | | LastEntity, EntityN | an empty list raises List is empty!
+LastEntity | Returns the last entity of the list. | a hashlist | | FirstEntity, EntityN | an empty list raises List is empty!
+NumberOfEntities | Returns how many entities the list holds. | a number | | IsEmpty, CountByType | | Size and Count are the same call
+IsEmpty | TRUE if the list holds no entity. | 1 or 0 | | NumberOfEntities, Clear
+RemoveEntity | Removes the first entity with this name; an unknown name raises an error. | nothing | pcName=the entity's name, matched without regard to case | RemoveEntityN, Clear, FindEntityByName | an unknown name raises Entity not found!
+RemoveEntityN | Removes the entity at a position, counted from 1. | nothing | _n_=the position, from 1 to NumberOfEntities | RemoveEntity, EntityN | a position out of range raises Index out of range!
+FindEntityByName | Returns the position of the first entity with this name, or 0 when there is none. | a number | pcName=the entity's name, matched without regard to case | FindEntitiesByType, ContainsName, EntityN
+FindEntitiesByType | Returns the positions of every entity of this type, in order. | a list of numbers; an empty list when none | pcType=the type, matched without regard to case | FindEntityByName, EntitiesOfType
+EntitiesOfType | Returns the entities of this type, as hashlists, in order. | a list of hashlists; an empty list when none | pcType=the type, matched without regard to case | FilterByTypeQ, FindEntitiesByType
+ContainsEntity | TRUE if an entity with this name is in the list. | 1 or 0 | pcName=the entity's name, matched without regard to case | ContainsName, FindEntityByName | | HasEntity is the same call
+ContainsName | TRUE if an entity with this name is in the list. | 1 or 0 | pcName=the entity's name, matched without regard to case | ContainsEntity, ContainsType | | HasName is the same call
+ContainsType | TRUE if at least one entity has this type. | 1 or 0 | pcType=the type, matched without regard to case | ContainsName, CountByType | | HasType is the same call
+CountByType | Returns how many entities have this type. | a number | pcType=the type, matched without regard to case | EntitiesOfType, NumberOfEntities
+Clear | Removes every entity, which leaves an empty list. | nothing | | RemoveEntity, IsEmpty
+SortByName | Reorders the entities by name, in ascending byte order of the lower-case names. | nothing | | SortByType, EntitiesNames
+SortByType | Reorders the entities by type, in ascending byte order; entities of one type keep their relative order. | nothing | | SortByName, EntitiesTypes
+FilterByTypeQ | Returns a new list that holds only the entities of this type, ready for chaining; this list is unchanged. | a new stzListOfEntities | pcType=the type, matched without regard to case | EntitiesOfType, CountByType
+Show | Prints a heading with the number of entities, then one numbered line per entity with its name and type. | nothing; it writes to the console | | NumberOfEntities, EntitiesNames

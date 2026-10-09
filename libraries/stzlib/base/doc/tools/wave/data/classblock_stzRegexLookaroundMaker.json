@@ -1,0 +1,15 @@
+{
+ "brief": "Builds a look-around regular expression: a main pattern that must, or must not, come before or after another pattern.",
+ "detail": "One look-around is held at a time: MustBeFollowedBy and CantBeFollowedBy build a look-ahead, MustBePrecededBy and CantBePrecededBy a look-behind, and the Word, Number and Space forms fill in the common patterns. A second call replaces the first. ThenMatch sets the main pattern, which Pattern writes after the look-around, so a look-behind reads correctly: (?<=\\$)\\d+ finds the digits that follow a dollar sign. A look-ahead followed by a main pattern does not read as the name says: (?=ing)[a-z]+ tests what the main pattern starts on, so it finds ing in walking and not walk. A look-behind of variable length, such as the Number and Space forms, finds nothing in the engine.",
+ "receiver": "o1 = new stzRegexLookaroundMaker",
+ "example": [
+  "o1.MustBePrecededBy(\"\\$\").ThenMatch(\"\\d+\")",
+  "? o1.Pattern()",
+  "#--> (?<=\\$)\\d+",
+  "o2 = new stzRegex(o1.Pattern())",
+  "o2.MatchFirst(\"cost $42 now\")",
+  "? @@( o2.Matches() )",
+  "#--> [ \"42\" ]"
+ ],
+ "see": ["stzRegexMaker", "stzRegex", "stzConditionalRegexMaker"]
+}

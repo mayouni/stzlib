@@ -94,6 +94,30 @@ func StzPostureReversibilityRefusal(pcPosture, pcRevClass)
 		"the harder an act is to undo, the more trusted the code performing " +
 		"it must be (reversibility x posture, ruling 3.2)"
 
+# Holds governance as declared contracts: risk tiers, permissions, authority levels, commitments, decommissioning, postures and reversibility, with a decision lineage.
+#
+# Permission (what an actor can do) is kept apart from authority (what it should do alone).
+# MayProceed composes both with the action's risk tier before anything happens, and every verdict is
+# explained by Why. The same object holds forward-only commitments, decommission contracts, trust
+# postures, reversibility classes (MayExecuteFor composes the last two) and a registration gate
+# (MayRegister). Every decision can be recorded with the authority and risk of that moment, kept in
+# a bounded lineage you can query by id, actor, action or time. Save and LoadFrom keep the regime
+# and the lineage in a .zgov file. The data lives in a shared table, so copies of the object see the
+# same regime.
+#
+#   receiver   o1 = new stzGovernance("kitchen-ops") o1.DeclareRisk("send-invoice", 3)
+#              o1.GrantPermission("billing-agent", "send-invoice") o1.SetAuthority("billing-agent",
+#              :Delegated)
+#   example    ? o1.MayProceed("billing-agent", "send-invoice")
+#              #--> 0
+#              ? o1.Why()
+#              #--> refused: 'billing-agent' holds 'delegated' authority (level 2) but 'send-invoice' is risk tier 3 (SHOULD does not cover it)
+#              o1.SetAuthority("billing-agent", :Autonomous)
+#              ? o1.MayProceed("billing-agent", "send-invoice")
+#              #--> 1
+#              ? o1.Why()
+#              #--> allowed: permission held AND 'autonomous' authority (level 3) covers risk tier 3
+#   see        stzAgentDeclaration, stzSecurityLedger
 class stzGovernance from stzObject
 
 	@cName = ""
@@ -107,6 +131,15 @@ class stzGovernance from stzObject
 	# which is the exact failure this table exists to remove.
 	@nId = 0
 
+	# Builds a governance of declared contracts under a name, with an empty regime and an empty decision lineage.
+	#
+	#   pcName     the governance's name, as text
+	#   returns    nothing; the object is built
+	#   note       the regime and the lineage live in a shared table, so copies of the object see
+	#              the same data; only Name_ and Why belong to each copy
+	#   warning    build it with parentheses: without them init is skipped and every table call
+	#              raises
+	#   see        DeclareRisk, GrantPermission, SetAuthority, MayProceed
 	def init(pcName)
 		@cName = "" + pcName
 		$nStzGovernanceSeq = $nStzGovernanceSeq + 1
@@ -118,17 +151,39 @@ class stzGovernance from stzObject
 	def _EmptySlot(pnId)
 		return [ pnId, [], 512, 0, [], [], [], [], [], [], [] ]
 
+	# Sets the name of the governance.
+	#
+	#   pcName     the new name, as text
+	#   returns    nothing
+	#   see        Name_, Save
 	def SetName(pcName)
 		@cName = "" + pcName
 
+	# Returns the governance's name.
+	#
+	#   returns    a text
+	#   see        SetName
 	def Name_()
 		return @cName
 
+	# Returns the sentence that explains the last verdict this object gave.
+	#
+	#   returns    a text such as "allowed: ..." or "refused: ..."; the empty text before any
+	#              verdict
+	#   note       it is per object: a copy does not read the answer of another copy
+	#   see        MayProceed, MayExecute, MayRetire, MayRegister
 	def Why()
 		return @cWhy
 
-	#-- 1. ACTION RISK TIERS ------------------------------------------------
-
+	# Declares the risk tier of an action, from 1 (low) to 4 (critical), replacing an earlier tier.
+	#
+	#   pcAction   the action's name, kept in lower case
+	#   nTier      the tier, a number from 1 to 4
+	#   returns    the governance itself, so calls chain
+	#   note       an action with no declared tier never proceeds
+	#   warning    a tier below 1 or above 4 raises an error
+	#   see        RiskOf, MayProceed
+	#@ aka  -- 1. ACTION RISK TIERS ------------------------------------------------
 	def DeclareRisk(pcAction, nTier)
 		if nTier < 1 or nTier > 4
 			stzraise("Risk tiers run 1 (low) to 4 (critical).")
@@ -147,6 +202,11 @@ class stzGovernance from stzObject
 		This._SetRisks(_aRisks_)
 		return This
 
+	# Returns the declared risk tier of an action.
+	#
+	#   pcAction   the action's name, matched without regard to case
+	#   returns    a number from 1 to 4; 0 for an undeclared action
+	#   see        DeclareRisk
 	def RiskOf(pcAction)
 		_cA_ = StzLower(ring_trim("" + pcAction))
 		_aRisks_ = This._Risks()
@@ -158,8 +218,14 @@ class stzGovernance from stzObject
 		next
 		return 0   # undeclared
 
-	#-- 2. PERMISSION (CAN) vs AUTHORITY (SHOULD) ----------------------------
-
+	# Records that an actor can perform an action, which is not the same as being allowed to.
+	#
+	#   pcActor    the actor's name
+	#   pcAction   the action's name, both kept in lower case
+	#   returns    the governance itself, so calls chain
+	#   note       granting twice is harmless
+	#   see        HasPermission, SetAuthority, MayProceed
+	#@ aka  -- 2. PERMISSION (CAN) vs AUTHORITY (SHOULD) ----------------------------
 	def GrantPermission(pcActor, pcAction)
 		_cAc_ = StzLower(ring_trim("" + pcActor))
 		_cAn_ = StzLower(ring_trim("" + pcAction))
@@ -174,6 +240,12 @@ class stzGovernance from stzObject
 		This._SetPerms(_aPerms_)
 		return This
 
+	# TRUE if the actor holds the permission to perform the action.
+	#
+	#   pcActor    the actor's name
+	#   pcAction   the action's name, both matched without regard to case
+	#   returns    TRUE or FALSE
+	#   see        GrantPermission
 	def HasPermission(pcActor, pcAction)
 		_cAc_ = StzLower(ring_trim("" + pcActor))
 		_cAn_ = StzLower(ring_trim("" + pcAction))
@@ -186,6 +258,14 @@ class stzGovernance from stzObject
 		next
 		return 0
 
+	# Sets how far the actor should be trusted to act on its own: advisory, delegated, autonomous or emergencyoverride.
+	#
+	#   pcActor    the actor's name
+	#   pcType     :Advisory (level 1), :Delegated (2), :Autonomous (3) or :EmergencyOverride (4)
+	#   returns    the governance itself, so calls chain
+	#   note       the level must reach the action's risk tier for MayProceed to allow it
+	#   warning    any other word raises an error
+	#   see        AuthorityOf, MayProceed
 	def SetAuthority(pcActor, pcType)
 		_cT_ = StzLower(ring_trim("" + pcType))
 		if This._AuthLevel(_cT_) = 0
@@ -205,6 +285,12 @@ class stzGovernance from stzObject
 		This._SetAuths(_aAuths_)
 		return This
 
+	# Returns the authority type declared for an actor.
+	#
+	#   pcActor    the actor's name, matched without regard to case
+	#   returns    a text such as autonomous or emergencyoverride; the empty text when none is
+	#              declared
+	#   see        SetAuthority
 	def AuthorityOf(pcActor)
 		_cAc_ = StzLower(ring_trim("" + pcActor))
 		_aAuths_ = This._Auths()
@@ -228,10 +314,16 @@ class stzGovernance from stzObject
 		ok
 		return 0
 
-	# THE COMPOSITION: CAN + SHOULD + RISK, decided BEFORE the act.
-	# An actor proceeds only when it HAS the permission AND its
-	# authority level covers the action's risk tier. Every verdict
-	# narrates (LAW 3); an undeclared action is REFUSED, not assumed.
+	# Decides whether an actor may perform an action: it needs a tier, a permission and an authority level that reaches the tier.
+	#
+	#   pcActor    the actor's name
+	#   pcAction   the action's name
+	#   returns    TRUE or FALSE; Why gives the sentence
+	#   note       the checks run in that order and Why names the first one that failed
+	#   warning    an undeclared action is refused, as is an actor with no permission or no
+	#              authority at all (level 0)
+	#   see        Why, DeclareRisk, GrantPermission, SetAuthority
+	#@ aka  THE COMPOSITION: CAN + SHOULD + RISK, decided BEFORE the act. An actor proceeds only when it HAS the permission AND its authority level covers the action's risk tier. Every verdict narrates (LAW 3); an undeclared action is REFUSED, not assumed.
 	def MayProceed(pcActor, pcAction)
 		_nTier_ = This.RiskOf(pcAction)
 		if _nTier_ = 0
@@ -254,8 +346,13 @@ class stzGovernance from stzObject
 			"' authority (level " + _nLevel_ + ") covers risk tier " + _nTier_
 		return 1
 
-	#-- 3. COMMITMENT STATE (forward-only) -----------------------------------
-
+	# Opens a commitment in the exploratory state.
+	#
+	#   pcId       the commitment's identifier, kept in lower case
+	#   returns    the governance itself, so calls chain
+	#   warning    opening an identifier that is already open raises an error
+	#   see        AdvanceCommitment, CommitmentStateOf
+	#@ aka  -- 3. COMMITMENT STATE (forward-only) -----------------------------------
 	def OpenCommitment(pcId)
 		_cId_ = StzLower(ring_trim("" + pcId))
 		_aCom_ = This._Commits()
@@ -269,6 +366,13 @@ class stzGovernance from stzObject
 		This._SetCommits(_aCom_)
 		return This
 
+	# Moves a commitment one step forward: exploratory, provisional, committed.
+	#
+	#   pcId       the commitment's identifier
+	#   returns    a text, the new state
+	#   warning    raises an error for an unknown identifier and for a commitment already committed,
+	#              because the state is forward-only
+	#   see        OpenCommitment, CommitmentStateOf
 	def AdvanceCommitment(pcId)
 		_cId_ = StzLower(ring_trim("" + pcId))
 		_aCom_ = This._Commits()
@@ -291,6 +395,12 @@ class stzGovernance from stzObject
 		next
 		stzraise("No commitment '" + _cId_ + "'.")
 
+	# Returns how far a commitment has advanced: exploratory, provisional or committed.
+	#
+	#   pcId       the commitment's identifier
+	#   returns    a text: exploratory, provisional or committed; the empty text for an unknown
+	#              identifier
+	#   see        OpenCommitment, AdvanceCommitment
 	def CommitmentStateOf(pcId)
 		_cId_ = StzLower(ring_trim("" + pcId))
 		_aCom_ = This._Commits()
@@ -302,8 +412,16 @@ class stzGovernance from stzObject
 		next
 		return ""
 
-	#-- 4. DECOMMISSION CONTRACT ---------------------------------------------
-
+	# Declares the obligations an actor must fulfil before it may be retired.
+	#
+	#   pcActor          the actor's name
+	#   pacObligations   a list of obligation names, kept in lower case
+	#   returns          the governance itself, so calls chain
+	#   note             an empty list declares a contract that is already met
+	#   warning          declaring again for the same actor adds a second contract that is never
+	#                    read: the first one declared decides
+	#   see              FulfillObligation, MayRetire
+	#@ aka  -- 4. DECOMMISSION CONTRACT ---------------------------------------------
 	def DeclareDecommission(pcActor, pacObligations)
 		_cAc_ = StzLower(ring_trim("" + pcActor))
 		_acO_ = []
@@ -316,6 +434,15 @@ class stzGovernance from stzObject
 		This._SetDecomms(_aDec_)
 		return This
 
+	# Marks one declared obligation of an actor as fulfilled.
+	#
+	#   pcActor        the actor's name
+	#   pcObligation   the obligation's name, matched without regard to case
+	#   returns        the governance itself, so calls chain
+	#   note           fulfilling twice is harmless
+	#   warning        raises an error for an actor with no contract and for an obligation that was
+	#                  not declared
+	#   see            DeclareDecommission, MayRetire
 	def FulfillObligation(pcActor, pcObligation)
 		_cAc_ = StzLower(ring_trim("" + pcActor))
 		_cO_ = StzLower(ring_trim("" + pcObligation))
@@ -337,7 +464,13 @@ class stzGovernance from stzObject
 		next
 		stzraise("No decommission contract for '" + _cAc_ + "'.")
 
-	# retirement is EARNED: every declared obligation fulfilled first
+	# Decides whether an actor may be retired: it needs a contract and every obligation fulfilled.
+	#
+	#   pcActor    the actor's name
+	#   returns    TRUE or FALSE; Why names the pending obligations or the missing contract
+	#   warning    an actor with no decommission contract never retires
+	#   see        DeclareDecommission, FulfillObligation, Why
+	#@ aka  retirement is EARNED: every declared obligation fulfilled first
 	def MayRetire(pcActor)
 		_cAc_ = StzLower(ring_trim("" + pcActor))
 		_aDec_ = This._Decomms()
@@ -362,24 +495,36 @@ class stzGovernance from stzObject
 		@cWhy = "refused: no decommission contract declared for '" + _cAc_ + "' (retirement without a contract never proceeds)"
 		return 0
 
-	#-- 5. DECISION LINEAGE ----------------------------------------------------
-
-	# a decision records its rationale AND the actor's authority + the
-	# action's risk AT THE TIME -- 'why does this look the way it does'
-	# stays answerable forever
+	# Adds a decision to the lineage, stamped with the wall clock in milliseconds.
 	#
-	# WHEN it was decided is part of that answer, and it used to be
-	# missing: a lineage without time cannot say whether a decision came
-	# before or after the change it is supposed to explain, which is the
-	# first question anyone asks of it. The clock is the WALL clock on
-	# purpose -- this is an absolute "when in the world", not a duration,
-	# and epoch MILLIS stay exact in f64 (nanos would not).
+	#   pcId          the decision's identifier
+	#   pcRationale   why it was decided
+	#   pcActor       who decided
+	#   pcAction      the action it concerns
+	#   returns       the governance itself, so calls chain
+	#   note          the actor's authority and the action's risk are stored as they are at this
+	#                 moment
+	#   warning       the lineage keeps a bounded number of decisions: the oldest are dropped past
+	#                 the capacity
+	#   see           RecordDecisionAt, LineageOf, Decisions
+	#@ aka  -- 5. DECISION LINEAGE ----------------------------------------------------
 	def RecordDecision(pcId, pcRationale, pcActor, pcAction)
 		return This.RecordDecisionAt(pcId, pcRationale, pcActor, pcAction,
 			StzEngineTimeNowMs())
 
-	# the deterministic twin, so a guard can pin an ordering without
-	# racing the clock
+	# Adds a decision to the lineage with a time you give, so an ordering can be fixed in a test.
+	#
+	#   pcId          the decision's identifier
+	#   pcRationale   why it was decided
+	#   pcActor       who decided
+	#   pcAction      the action it concerns
+	#   pnWallMs      the time in milliseconds since 1970
+	#   returns       the governance itself, so calls chain
+	#   note          the authority and the risk are those held now, or the empty text and 0 when
+	#                 none is declared
+	#   warning       the same bounded lineage as RecordDecision
+	#   see           RecordDecision, DecisionsBetween
+	#@ aka  the deterministic twin, so a guard can pin an ordering without racing the clock
 	def RecordDecisionAt(pcId, pcRationale, pcActor, pcAction, pnWallMs)
 		# The ACTION is kept beside its risk tier. Keeping only the tier
 		# (as the first shape did) makes "what was decided about
@@ -418,21 +563,35 @@ class stzGovernance from stzObject
 		$aStzGovernances[_nSlot_][4] = $aStzGovernances[_nSlot_][4] + _nDrop_
 		return This
 
+	# Returns how many decisions the lineage keeps, 512 by default.
+	#
+	#   returns    a number
+	#   see        LineageDropped, SetLineageCapacity
 	def LineageCapacity()
 		return $aStzGovernances[This._Slot()][3]
 
-	# The count the bound cost. Zero means the lineage below is COMPLETE;
-	# anything else means the record starts later than the process did,
-	# and an auditor deserves to know which of the two they are reading.
+	# Returns how many decisions were dropped because the lineage was full.
+	#
+	#   returns    a number; 0 when the lineage is complete
+	#   see        LineageIsComplete, LineageCapacity
+	#@ aka  The count the bound cost. Zero means the lineage below is COMPLETE; anything else means the record starts later than the process did, and an auditor deserves to know which of the two they are reading.
 	def LineageDropped()
 		return $aStzGovernances[This._Slot()][4]
 
+	# TRUE if no decision was ever dropped, so the lineage starts when the governance did.
+	#
+	#   returns    TRUE or FALSE
+	#   see        LineageDropped
 	def LineageIsComplete()
 		return This.LineageDropped() = 0
 
-	# The decision under this id. When an id was recorded more than once
-	# the LATEST wins -- a re-decision supersedes, and the earlier ones
-	# stay reachable through LineageHistoryOf().
+	# Returns the decision recorded under an identifier, the latest one when it was recorded more than once.
+	#
+	#   pcId       the decision's identifier, matched without regard to case
+	#   returns    a list [ :id, :rationale, :actor, :authorityattime, :riskattime, :at, :action ];
+	#              [ ] for an unknown identifier
+	#   see        LineageHistoryOf, Decisions
+	#@ aka  The decision under this id. When an id was recorded more than once the LATEST wins -- a re-decision supersedes, and the earlier ones stay reachable through LineageHistoryOf().
 	def LineageOf(pcId)
 		_cId_ = StzLower(ring_trim("" + pcId))
 		_aRows_ = This.Lineage()
@@ -444,25 +603,47 @@ class stzGovernance from stzObject
 		next
 		return []
 
+	# Returns every decision recorded under an identifier, oldest first.
+	#
+	#   pcId       the decision's identifier
+	#   returns    a list of decision records, as LineageOf returns; [ ] for an unknown identifier
+	#   see        LineageOf
 	def LineageHistoryOf(pcId)
 		return This._DecisionsWhere(1, StzLower(ring_trim("" + pcId)))
 
-	# THE PIVOTS. Answering only by id made the lineage useless for every
-	# question an investigation actually opens with -- "what did this
-	# actor decide", "who decided anything about this action", "what was
-	# decided in the hour before the incident". An audit trail you can
-	# only query by a key you already know is a lookup table.
+	# Returns the decisions made by an actor, in the order recorded.
+	#
+	#   pcActor    the actor's name, matched without regard to case
+	#   returns    a list of decision records
+	#   see        DecisionsAbout, DecisionsSince
+	#@ aka  THE PIVOTS. Answering only by id made the lineage useless for every question an investigation actually opens with -- "what did this actor decide", "who decided anything about this action", "what was decided in the hour before the incident". An audit trail you can only query by a key you already know is a lookup table.
 	def DecisionsOf(pcActor)
 		return This._DecisionsWhere(3, StzLower(ring_trim("" + pcActor)))
 
+	# Returns the decisions that concerned an action, in the order recorded.
+	#
+	#   pcAction   the action's name, matched without regard to case
+	#   returns    a list of decision records
+	#   see        DecisionsOf
 	def DecisionsAbout(pcAction)
 		return This._DecisionsWhere(7, StzLower(ring_trim("" + pcAction)))
 
+	# Returns the decisions made at or after a time.
+	#
+	#   pnWallMs   the earliest time, in milliseconds since 1970
+	#   returns    a list of decision records
+	#   see        DecisionsBetween
 	def DecisionsSince(pnWallMs)
 		return This.DecisionsBetween(pnWallMs, 0)
 
-	# A zero upper bound means "no upper bound" -- an epoch stamp is never
-	# zero, so the sentinel cannot collide with a real one.
+	# Returns the decisions made inside a time window, both ends included.
+	#
+	#   pnFromMs   the start of the window
+	#   pnToMs     the end, where 0 means no end
+	#   returns    a list of decision records
+	#   note       times are wall-clock milliseconds since 1970
+	#   see        DecisionsSince
+	#@ aka  A zero upper bound means "no upper bound" -- an epoch stamp is never zero, so the sentinel cannot collide with a real one.
 	def DecisionsBetween(pnFromMs, pnToMs)
 		_aOut_ = []
 		_aRows_ = This.Lineage()
@@ -476,13 +657,20 @@ class stzGovernance from stzObject
 		next
 		return _aOut_
 
-		# the full decision lineage (every recorded decision), raw rows.
-		# THE SHARED ROWS -- read through the table, so any face sees
-		# every face's decisions.
+		# Returns the stored rows of the lineage, raw.
+		#
+		#   returns    a list of rows [ id, rationale, actor, authority, risk, time, action ],
+		#              oldest first
+		#   see        Decisions, NumberOfDecisions
+		#@ aka  the full decision lineage (every recorded decision), raw rows. THE SHARED ROWS -- read through the table, so any face sees every face's decisions.
 		def Lineage()
 			return $aStzGovernances[This._Slot()][2]
 
-		# ...and the same as readable records
+		# Returns the lineage as readable records, oldest first.
+		#
+		#   returns    a list of decision records, as LineageOf returns
+		#   see        Lineage, LineageOf
+		#@ aka  ...and the same as readable records
 		def Decisions()
 			_aOut_ = []
 			_aRows_ = This.Lineage()
@@ -492,15 +680,21 @@ class stzGovernance from stzObject
 			next
 			return _aOut_
 
+		# Returns how many decisions the lineage holds now.
+		#
+		#   returns    a number
+		#   see        Decisions, LineageCapacity
 		def NumberOfDecisions()
 			return len( This.Lineage() )
 
-	# Release this governance's slot -- the regime AND the lineage. Ring
-	# has no destructor, so this is the OWNER's explicit act, and only
-	# the owner's: a copy calling it would free state every other face is
-	# still reading. Without it the table keeps one slot per governance
-	# ever constructed, which is fine for a regime that lives as long as
-	# the process and a leak for one built per request.
+	# Frees the table slot of this governance, regime and lineage, by explicit act of its owner.
+	#
+	#   returns    the governance itself
+	#   note       there is no destructor, so a governance built per request should release itself
+	#   warning    afterwards every read answers empty: RiskOf gives 0 and NumberOfDecisions gives
+	#              0; call it only from the owner, since every copy shares the slot
+	#   see        init
+	#@ aka  Release this governance's slot -- the regime AND the lineage. Ring has no destructor, so this is the OWNER's explicit act, and only the owner's: a copy calling it would free state every other face is still reading. Without it the table keeps one slot per governance ever constructed, which is fine for a regime that lives as long as the process and a leak for one built per request.
 	def Release()
 		_n_ = len($aStzGovernances)
 		for _i_ = 1 to _n_
@@ -611,8 +805,15 @@ class stzGovernance from stzObject
 		next
 		return _aOut_
 
-	#-- EXECUTION TRUST POSTURES (5.8) -----------------------------------------
-
+	# Declares the trust posture of an executor: trusted, external or sandboxed.
+	#
+	#   pcExecutor   the executor's name
+	#   pcPosture    :Trusted (in-process), :External (out-of-process) or :Sandboxed (composed by a
+	#                language model)
+	#   returns      the governance itself, so calls chain
+	#   warning      any other word raises an error
+	#   see          PostureOf, MayExecute, MayExecuteFor
+	#@ aka  -- EXECUTION TRUST POSTURES (5.8) -----------------------------------------
 	def DeclarePosture(pcExecutor, pcPosture)
 		_cP_ = StzLower(ring_trim("" + pcPosture))
 		if ring_find([ "trusted", "external", "sandboxed" ], _cP_) = 0
@@ -632,6 +833,11 @@ class stzGovernance from stzObject
 		This._SetPostures(_aPos_)
 		return This
 
+	# Returns the posture declared for an executor.
+	#
+	#   pcExecutor   the executor's name, matched without regard to case
+	#   returns      a text; the empty text when none is declared
+	#   see          DeclarePosture
 	def PostureOf(pcExecutor)
 		_cE_ = StzLower(ring_trim("" + pcExecutor))
 		_aPos_ = This._Postures()
@@ -643,7 +849,13 @@ class stzGovernance from stzObject
 		next
 		return ""
 
-	# execution without a declared posture never proceeds
+	# Decides whether an executor may execute at all: it needs a declared posture.
+	#
+	#   pcExecutor   the executor's name
+	#   returns      TRUE or FALSE; Why gives the sentence
+	#   warning      an executor with no posture never executes
+	#   see          DeclarePosture, MayExecuteFor
+	#@ aka  execution without a declared posture never proceeds
 	def MayExecute(pcExecutor)
 		_cP_ = This.PostureOf(pcExecutor)
 		if _cP_ = ""
@@ -653,15 +865,15 @@ class stzGovernance from stzObject
 		@cWhy = "allowed: posture '" + _cP_ + "' declared"
 		return 1
 
-	#-- 6. REVERSIBILITY CLASS (the sixth contract, ruling 3.2) ----------------
-
-	# How UNDOABLE a subject's work is -- orthogonal to how RISKY it is
-	# (contract 1): a tier-1 action that cannot be undone deserves more
-	# ceremony than a tier-3 action that can. The three words are .pia's,
-	# adopted whole: they are the contract's vocabulary now, not one
-	# format's private enum. The subject is whatever the caller governs --
-	# an action, or an actor whose whole tick is being classified.
-
+	# Declares how undoable the work of a subject is: reversible, compensable or irreversible.
+	#
+	#   pcSubject   an action or an actor, as text
+	#   pcClass     :Reversible, :Compensable or :Irreversible
+	#   returns     the governance itself, so calls chain
+	#   note        it is independent of the risk tier
+	#   warning     any other word raises an error
+	#   see         ReversibilityOf, MayExecuteFor
+	#@ aka  -- 6. REVERSIBILITY CLASS (the sixth contract, ruling 3.2) ----------------
 	def DeclareReversibility(pcSubject, pcClass)
 		_cC_ = StzLower(ring_trim("" + pcClass))
 		if ring_find([ "reversible", "compensable", "irreversible" ], _cC_) = 0
@@ -681,6 +893,11 @@ class stzGovernance from stzObject
 		This._SetRevs(_aRev_)
 		return This
 
+	# Returns the reversibility class declared for a subject.
+	#
+	#   pcSubject   the subject's name, matched without regard to case
+	#   returns     a text; the empty text when none is declared
+	#   see         DeclareReversibility
 	def ReversibilityOf(pcSubject)
 		_cS_ = StzLower(ring_trim("" + pcSubject))
 		_aRev_ = This._Revs()
@@ -692,10 +909,15 @@ class stzGovernance from stzObject
 		next
 		return ""   # undeclared
 
-	# posture x reversibility for a DECLARED executor: may code holding
-	# pcExecutor's declared posture perform work of this class? The one
-	# sentence lives in StzPostureReversibilityRefusal so the .pia court
-	# refuses in the same words.
+	# Decides whether an executor, by its posture, may perform work of a given reversibility class.
+	#
+	#   pcExecutor   the executor's name
+	#   pcRevClass   :Reversible, :Compensable or :Irreversible
+	#   returns      TRUE or FALSE; Why gives the sentence
+	#   warning      refused without a posture; trusted covers all three classes, external covers
+	#                reversible and compensable, sandboxed covers reversible only
+	#   see          MayExecute, DeclarePosture
+	#@ aka  posture x reversibility for a DECLARED executor: may code holding pcExecutor's declared posture perform work of this class? The one sentence lives in StzPostureReversibilityRefusal so the .pia court refuses in the same words.
 	def MayExecuteFor(pcExecutor, pcRevClass)
 		if This.MayExecute(pcExecutor) = 0
 			return 0   # @cWhy already says why
@@ -709,15 +931,17 @@ class stzGovernance from stzObject
 			"' covers '" + StzLower(ring_trim("" + pcRevClass)) + "' work"
 		return 1
 
-	#-- THE REGISTRATION GATE (ruling 3.2a) ------------------------------------
-
-	# May this actor EXIST in a loop at all -- asked before any tick, when
-	# the answer is still free. MayProceed gates ACTS; this gates
-	# REGISTRATION, and those are different failures. One rule, two doors,
-	# same words: the sentences are agentloop.zig's own refusals
-	# (AGENTLOOP-R4 / AGENTLOOP-R5), quoted with only the engine's slot
-	# number absent, so a caller who meets the refusal in either door
-	# reads the same law.
+	# Decides whether an actor may be registered in a loop at all: it must state what it covers and declare a reversibility class.
+	#
+	#   pcActor      the actor's name
+	#   pcCoverage   one sentence saying what the actor covers
+	#   pcRevClass   :Reversible, :Compensable or :Irreversible
+	#   returns      TRUE or FALSE; Why gives the sentence
+	#   note         it judges the arguments only and records nothing
+	#   warning      an empty coverage and an unknown class are refused, with the AGENTLOOP-R4 and
+	#                AGENTLOOP-R5 sentences
+	#   see          MayProceed, DeclareReversibility
+	#@ aka  -- THE REGISTRATION GATE (ruling 3.2a) ------------------------------------
 	def MayRegister(pcActor, pcCoverage, pcRevClass)
 		if ring_trim("" + pcCoverage) = ""
 			@cWhy = "AGENTLOOP-R4: agent '" + pcActor + "' declares no coverage " +
@@ -738,10 +962,15 @@ class stzGovernance from stzObject
 		@cWhy = "allowed: coverage stated and reversal declared -- law 18 is met"
 		return 1
 
-	#-- persistence (*.zgov) ------------------------------------------------------
-
-	# LOAD a .zgov back INTO this governance -- the mirror of Save(), and
-	# the object's OWN act (LoadFrom: 'Load' is a Ring keyword).
+	# Reads a .zgov file into this governance, adding its regime (risks to reversibility classes) and its decisions.
+	#
+	#   pcFile     the path of the file to read
+	#   returns    the governance itself, so calls chain
+	#   note       it sets the governance's name from the file, keeps the decisions as saved
+	#              (authority and risk as of the decision) and skips a section it does not know
+	#   warning    a missing file raises error R35
+	#   see        Save
+	#@ aka  -- persistence (*.zgov) ------------------------------------------------------
 	def LoadFrom(pcFile)
 		_cContent_ = StzReplace(read(pcFile), char(13), "")
 		_acLines_ = StzSplit(_cContent_, char(10))
@@ -823,6 +1052,14 @@ class stzGovernance from stzObject
 			ring_trim(_acP_[4]), ring_number(ring_trim(_acP_[5])),
 			ring_number(ring_trim(_acP_[2])), ring_trim(_acP_[6]) ])
 
+	# Writes the regime and the lineage to a .zgov text file.
+	#
+	#   pcFile     the path to write
+	#   returns    a text, the path written, with .zgov appended when missing
+	#   note       a line break inside a rationale is folded to a space
+	#   warning    commitments and decommission contracts are not written, so they do not survive a
+	#              reload
+	#   see        LoadFrom
 	def Save(pcFile)
 		if StzRight(pcFile, 5) != ".zgov"
 			pcFile += ".zgov"

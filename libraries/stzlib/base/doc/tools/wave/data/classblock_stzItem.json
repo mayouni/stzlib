@@ -1,0 +1,17 @@
+{
+ "brief": "Meant to follow an item inside a text; today only its accessors work, because its list methods need a list.",
+ "detail": "It is the text twin of stzItemCS: both the item and the text it belongs to must be texts (new stzItem(\"an\", \"banana\") or StzItemQ(\"an\", \"banana\")), and the case flag is fixed at 1. It inherits every method of stzItemCS, but those methods build a stzList from the stored text and so raise the error paList must be a list; only Item, List and CaseSensitive answer. The named form [ :In = text ] is rejected. For an item in a text use stzString.Find; for an item in a list use stzItemCS.",
+ "receiver": "o1 = new stzItem(\"an\", \"banana\")",
+ "example": [
+  "? o1.Item()",
+  "#--> an",
+  "? o1.List()",
+  "#--> banana",
+  "? o1.CaseSensitive()",
+  "#--> 1"
+ ],
+ "see": [
+  "stzItemCS",
+  "stzString"
+ ]
+}

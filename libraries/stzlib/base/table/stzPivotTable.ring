@@ -6,6 +6,32 @@ func stzPivotTable(pSource)
 	# Creates a new instance of stzPivotTable with the provided source data	# data
 	return new stzPivotTable(pSource)
 
+# Cross-tabulates a table: groups its rows by one or two label columns against a column of labels, and aggregates a value column in each cell.
+#
+# Give it a source table, then name the row labels, the column labels and the value column, with
+# SetRowLabels, SetColumnLabels and SetValues (or By and Analyze). Value, RowTotal, ColumnTotal and
+# GrandTotal read the cells, ToTable returns the result as a table and Show prints it. The pivot is
+# generated again whenever a setting changes. Use the supported shape: one column label, one or two
+# row labels, one value column; that shape runs in the engine. Known limits, all reproduced: the
+# totals of every function but SUM and COUNT are sums of the cells; any other shape runs in a Ring
+# fallback that drops the first source record; Show raises for two column labels; SaveToFile writes
+# an empty file.
+#
+#   receiver   o1 = new stzPivotTable([ [ "CITY", "YEAR", "SALES" ], [ "Tunis", 2023, 10 ], [
+#              "Tunis", 2024, 5 ], [ "Sfax", 2023, 20 ], [ "Gabes", 2024, 3 ] ])
+#              o1.SetRowLabels(:CITY) o1.SetColumnLabels(:YEAR) o1.SetValues(:SALES)
+#   example    ? o1.Value("Tunis", 2023)
+#              #--> 10
+#              ? o1.RowTotal("Tunis")
+#              #--> 15
+#              ? o1.ColumnTotal(2023)
+#              #--> 30
+#              ? o1.GrandTotal()
+#              #--> 38
+#              o1.SetNullValue("-")
+#              ? o1.Value("Sfax", 2024)
+#              #--> -
+#   see        stzTable
 class stzPivotTable from stzList
 	# Instance variables for pivot table configuration and state
 	@oSourceTable
@@ -48,6 +74,14 @@ class stzPivotTable from stzList
 	 #  INITIALIZATION AND SETUP   #
 	#-----------------------------#
 
+	# Builds a pivot over a source table, given as a stzTable or as a list of rows whose first row holds the column names.
+	#
+	#   pSource    the stzTable or the list of rows to pivot
+	#   returns    nothing; the object is built
+	#   note       the table is read at Generate; a pivot needs row labels, column labels and values
+	#              before it can be read
+	#   warning    nothing is computed at construction
+	#   see        SetRowLabels, SetColumnLabels, SetValues, Generate
 	def init(pSource)
 		# Initialize the pivot table with source data
 		if isString(pSource) and StzLower(pSource) = :fromsource
@@ -64,9 +98,17 @@ class stzPivotTable from stzList
 		# Initialize cache
 		@aCellCache = []
 
+	# Returns the class name in lower case.
+	#
+	#   returns    a text, "stzpivottable"
+	#   see        KlassName
 	def ClassName() #TODO // Add it to all the classes in Softanza
 		return "stzpivottable"
 
+		# Returns the class name in lower case.
+		#
+		#   returns    a text, "stzpivottable"
+		#   see        ClassName
 		def KlassName()
 			return "stzpivottable"
 
@@ -74,6 +116,16 @@ class stzPivotTable from stzList
 	 #  CONFIGURATION METHODS   #
 	#--------------------------#
 
+	# Chooses the column to aggregate and the aggregate function in one call.
+	#
+	#   paValues   the value column name, or a list of names
+	#   pcFunc     the function name such as :SUM, :AVG or :COUNT, or a pair such as :Using = :MAX
+	#   returns    nothing
+	#   note       the total label becomes the function name exactly as written here (avg), where
+	#              SetAggregateFunction writes it in capitals
+	#   warning    the totals of every function except SUM and COUNT are not the aggregate: see
+	#              SetAggregateFunction
+	#   see        By, SetValues, SetAggregateFunction
 	def Analyze(paValues, pcFunc)
 		if CheckParams()
 			if isList(pcFunc) and IsWithOrUsingOrInNamedParamList(pcFunc)
@@ -86,6 +138,14 @@ class stzPivotTable from stzList
 		This.SetAggregateFunction(pcFunc)
 		This.SetTotalLabel(pcFunc)
 
+	# Chooses the row labels and the column labels in one call.
+	#
+	#   paRows     the row label column, or a list of names
+	#   paCols     the column label column, or a list, or a pair such as :And = :YEAR
+	#   returns    nothing
+	#   warning    more than one column label, more than two row labels or more than one value
+	#              column leave the fast path: see Generate
+	#   see        Analyze, SetRowLabels, SetColumnLabels
 	def By(paRows, paCols)
 
 		if isList(paCols) and IsAndNamedParamList(paCols)
@@ -95,26 +155,65 @@ class stzPivotTable from stzList
 		This.SetRowsBy(paRows)
 		This.SetColsBy(paCols)
 
+	# Sets which source columns label the rows of the pivot.
+	#
+	#   paLabels   a column name, or a list of names
+	#   returns    nothing
+	#   note       the result is generated again at the next read
+	#   see        SetRowLabels, SetColsBy
 	def SetRowsBy(paLabels)
 		# Set row labels for pivot table
 		This.SetRowLabels(paLabels)
 
+		# Sets which source columns label the rows of the pivot.
+		#
+		#   paLabels   a column name, or a list of names
+		#   returns    nothing
+		#   see        SetRowLabels
 		def InRowsPut(paLabels)
 			This.SetRowLabels(paLabels)
 
+	# Sets which source column labels the columns of the pivot.
+	#
+	#   paLabels   a column name, or a list of names
+	#   returns    nothing
+	#   note       the result is generated again at the next read
+	#   see        SetColumnLabels, SetRowsBy
 	def SetColsBy(paLabels)
 		# Set column labels for pivot table
 		This.SetColumnLabels(paLabels)
 
+		# Sets which source column labels the columns of the pivot.
+		#
+		#   paLabels   a column name, or a list of names
+		#   returns    nothing
+		#   see        SetColumnLabels
 		def SetColumnsBy(paLabels)
 			This.SetColumnLabels(paLabels)
 
+		# Sets which source column labels the columns of the pivot.
+		#
+		#   paLabels   a column name, or a list of names
+		#   returns    nothing
+		#   see        SetColumnLabels
 		def InColsPut(paLabels)
 			This.SetColumnLabels(paLabels)
 
+		# Sets which source column labels the columns of the pivot.
+		#
+		#   paLabels   a column name, or a list of names
+		#   returns    nothing
+		#   see        SetColumnLabels
 		def InColumnsPut(paLabels)
 			This.SetColumnLabels(paLabels)
 
+	# Sets which source columns label the rows of the pivot.
+	#
+	#   paLabels   a column name, or a list of up to two names for the fast path
+	#   returns    nothing
+	#   note       a later read generates the pivot again
+	#   warning    an unknown column name makes Generate raise "Engine pivot failed!"
+	#   see        SetColumnLabels, SetValues, Generate
 	def SetRowLabels(paLabels)
 		# Configure row labels, accepting string or list
 		if isString(paLabels)
@@ -124,11 +223,23 @@ class stzPivotTable from stzList
 		ok
 		@bIsGenerated = 0
 
+	# Sets one source column as the row label, replacing any other.
+	#
+	#   pcLabel    the column name
+	#   returns    nothing
+	#   see        SetRowLabels
 	def SetRowLabel(pcLabel)
 		# Set single row label
 		@aRowLabels = [pcLabel]
 		@bIsGenerated = 0
 
+	# Sets which source column labels the columns of the pivot.
+	#
+	#   paLabels   a column name, or a list of names
+	#   returns    nothing
+	#   warning    a list of two names leaves the fast path, which drops the first source record and
+	#              cannot be shown: see Generate and Show
+	#   see        SetRowLabels, SetValues, Generate
 	def SetColumnLabels(paLabels)
 		# Configure column labels, accepting string or list
 		if isString(paLabels)
@@ -138,11 +249,22 @@ class stzPivotTable from stzList
 		ok
 		@bIsGenerated = 0
 
+	# Sets one source column as the column label, replacing any other.
+	#
+	#   pcLabel    the column name
+	#   returns    nothing
+	#   see        SetColumnLabels
 	def SetColumnLabel(pcLabel)
 		# Set single column label
 		@aColLabels = [pcLabel]
 		@bIsGenerated = 0
 
+	# Sets which source column holds the numbers to aggregate.
+	#
+	#   paValues   a column name, or a list of one name for the fast path
+	#   returns    nothing
+	#   warning    a list of two names leaves the fast path, which drops the first source record
+	#   see        SetValue, SetAggregateFunction, Generate
 	def SetValues(paValues)
 		# Configure values for aggregation
 		if isString(paValues)
@@ -152,49 +274,108 @@ class stzPivotTable from stzList
 		ok
 		@bIsGenerated = 0
 
+	# Sets one source column as the values to aggregate, replacing any other.
+	#
+	#   pcValue    the column name
+	#   returns    nothing
+	#   see        SetValues
 	def SetValue(pcValue)
 		# Set single _value_ for aggregation
 		@aValues = [pcValue]
 		@bIsGenerated = 0
 
+	# Sets how the values of one cell are combined, and names the totals after it.
+	#
+	#   pcFunction   sum, count, average (or avg, mean), min, max, product, stdev, variance or
+	#                median, in any case
+	#   returns      nothing
+	#   note         stdev and variance are the sample ones; the default is SUM
+	#   warning      an unknown name silently sums, and still names the totals after it; on the fast
+	#                path the totals of every function but SUM and COUNT are the sum of the cells,
+	#                not the function over the rows (average, min, max, median, product), as the
+	#                grand total of an AVG pivot shows
+	#   see          Analyze, SetTotalLabel
 	def SetAggregateFunction(pcFunction)
 		# Set aggregation function (e.g., SUM, AVG)
 		@cAggFunc = StzUpper(pcFunction)
 		This.SetTotalLabel(@cAggFunc)
 		@bIsGenerated = 0
 
+	# Sets the text that joins several labels in one heading, "_" by default.
+	#
+	#   pcSeparator   the joining text
+	#   returns       nothing
+	#   warning       despite its name it joins the column labels into one heading (x/p) on the
+	#                 fallback path only; the fast path never joins
+	#   see           SetRowLabelsSeperator
 	def SetRowLabelsSeparator(pcSeparator)
 		# Set separator for multi-level row labels
 		@cRowLabelsSeparator = pcSeparator
 		@bIsGenerated = 0
 
-		#-- @Misspelled
-
+		# Sets the text that joins several labels in one heading, "_" by default.
+		#
+		#   pcSeparator   the joining text
+		#   returns       nothing
+		#   warning       the misspelt twin of SetRowLabelsSeparator, kept for old callers
+		#   see           SetRowLabelsSeparator
+		#@ aka  -- @Misspelled
 		def SetRowLabelsSeperator(pcSeparator)
 			This.SetRowLabelsSeparator(pcSeparator)
 
+	# Chooses whether the total row and the total column are produced.
+	#
+	#   pbShowRow   1 for the total row at the bottom, 0 for none
+	#   pbShowCol   1 for the total column at the right, 0 for none
+	#   returns     nothing
+	#   note        both are on by default
+	#   warning     RowTotal answers the empty text without the column, ColumnTotal without the row,
+	#               GrandTotal without both
+	#   see         SetHideTotals, RowTotal, GrandTotal
 	def SetShowTotals(pbShowRow, pbShowCol)
 		# Configure visibility of total row and column
 		@bShowTotalRow = pbShowRow
 		@bShowTotalColumn = pbShowCol
 		@bIsGenerated = 0
 
+	# Removes both the total row and the total column.
+	#
+	#   returns    nothing
+	#   see        SetShowTotals
 	def SetHideTotals()
 		# Hide both total row and column
 		@bShowTotalRow = 0
 		@bShowTotalColumn = 0
 		@bIsGenerated = 0
 
+	# Sets the label of the total row and the total column.
+	#
+	#   pcLabel    the label, such as "ALL"
+	#   returns    nothing
+	#   warning    SetAggregateFunction and Analyze overwrite it, so call this after them
+	#   see        SetAggregateFunction
 	def SetTotalLabel(pcLabel)
 		# Set label for totals
 		@cTotalLabel = pcLabel
 		@bIsGenerated = 0
 
+	# Sets what an empty cell holds.
+	#
+	#   pcValue    the value for a combination with no source record, such as "-"
+	#   returns    nothing
+	#   warning    with the default an empty cell reads as 0
+	#   see        Value
 	def SetNullValue(pcValue)
 		# Set _value_ for null/empty cells
 		@cCellNullValue = pcValue
 		@bIsGenerated = 0
 
+	# Sets the order of the value columns of the pivot, left to right.
+	#
+	#   paOrder    the column headings in the wanted order, as text, such as [ "2024", "2023" ]
+	#   returns    nothing
+	#   warning    the pivot is generated again after the call
+	#   see        Generate
 	def SetColumnOrder(paOrder)
 		@aColumnOrder = paOrder
 		# every other setter here drops the generated result, and this one did
@@ -205,6 +386,15 @@ class stzPivotTable from stzList
 	 #  PIVOT TABLE GENERATION     #
 	#-----------------------------#
 
+	# Computes the pivot from the source table, with the engine when the shape allows it.
+	#
+	#   returns    nothing; read the result with ToTable or Value
+	#   note       the other methods call it by themselves when the pivot is stale
+	#   warning    raises an error when row labels, column labels or values are missing, or when a
+	#              column does not exist ("Engine pivot failed!"); the fast path needs one column
+	#              label, one or two row labels and one value column, and the Ring fallback that
+	#              takes any other shape drops the first source record
+	#   see        Value, ToTable, SetRowLabels
 	def Generate()
 		if len(@aRowLabels) = 0
 			stzRaise("You must specify at least one row label")
@@ -940,6 +1130,14 @@ class stzPivotTable from stzList
 			return aArray
 		ok
 
+	# Returns the aggregate of one cell: a row and a column of the pivot.
+	#
+	#   paRowValues   the row label value, or a list of values with several row labels
+	#   paColValues   the column label value
+	#   returns       a number; the null value of an empty cell (0 by default); the empty text when
+	#                 the row or column is not in the pivot
+	#   note          generates the pivot first when needed
+	#   see           RowTotal, ColumnTotal, GrandTotal, SetNullValue
 	def Value(paRowValues, paColValues)
 		# Get _value_ for specific row and column combination
 		if not @bIsGenerated
@@ -994,6 +1192,13 @@ class stzPivotTable from stzList
 		
 		return @aPivotData[_nRowIndex_][_nColIndex_]
 
+	# Returns the total of one row of the pivot.
+	#
+	#   paRowValues   the row label value, or a list of values with several row labels
+	#   returns       a number; the empty text when the row is unknown or the total column is hidden
+	#   warning       for any function other than SUM and COUNT it is the sum of the row's cells,
+	#                 not the function over the rows
+	#   see           ColumnTotal, GrandTotal, SetShowTotals
 	def RowTotal(paRowValues)
 		# Get total for specific row
 		if not @bIsGenerated
@@ -1034,6 +1239,13 @@ class stzPivotTable from stzList
 		
 		return @aPivotData[_nRowIndex_][len(@aPivotData[1])]
 
+	# Returns the total of one column of the pivot.
+	#
+	#   paColValues   the column label value
+	#   returns       a number; the empty text when the column is unknown or the total row is hidden
+	#   warning       for any function other than SUM and COUNT it is the sum of the column's cells,
+	#                 not the function over the rows
+	#   see           RowTotal, GrandTotal, SetShowTotals
 	def ColumnTotal(paColValues)
 		# Get total for specific column
 		if not @bIsGenerated
@@ -1064,6 +1276,12 @@ class stzPivotTable from stzList
 		
 		return @aPivotData[len(@aPivotData)][_nColIndex_]
 
+	# Returns the cell where the total row and the total column meet.
+	#
+	#   returns    a number; the empty text when either total is hidden
+	#   warning    for any function other than SUM and COUNT it is a sum of cells, not the function
+	#              over all rows
+	#   see        RowTotal, ColumnTotal
 	def GrandTotal()
 		# Get grand total
 		if not @bIsGenerated
@@ -1080,6 +1298,15 @@ class stzPivotTable from stzList
 	 #  SERIALIZATION METHODS      #
 	#-----------------------------#
 	
+	# Writes the pivot to a file, intended to be read back by LoadFromFile.
+	#
+	#   cFileName   the file to write
+	#   returns     nothing
+	#   note        the pivot is generated first when stale
+	#   warning     writes an empty file today: the serialised text comes from list2str, which gives
+	#               the empty text for a list that holds lists, and LoadFromFile then raises on that
+	#               file
+	#   see         LoadFromFile
 	def SaveToFile(cFileName)
 		# Save pivot table configuration and data to file
 		if not @bIsGenerated
@@ -1101,6 +1328,13 @@ class stzPivotTable from stzList
 		
 		write(cFileName, list2str(_aSerializedData_))
 
+	# Reads a pivot written by SaveToFile, restoring its settings and its result.
+	#
+	#   cFileName   the file to read
+	#   returns     nothing
+	#   warning     raises "File not found" for a missing file; on the file SaveToFile writes it
+	#               raises "paTable must be a list", so a round trip fails today
+	#   see         SaveToFile
 	def LoadFromFile(cFileName)
 		# Load pivot table from file
 		if not fexists(cFileName)
@@ -1130,7 +1364,14 @@ class stzPivotTable from stzList
 	 #  OUTPUT AND DISPLAY         #
 	#=============================#
 
-	# ToTable Method
+	# Returns the generated pivot as a stzTable: a heading row, the data rows, and the total row.
+	#
+	#   returns    a stzTable whose first column holds the row labels and whose other columns are
+	#              the column labels
+	#   note       generates the pivot first when stale; the heading of the first column is the row
+	#              label column name in lower case
+	#   see        Value, Generate
+	#@ aka  ToTable Method
 	def ToTable()
 		# Return pivot table as stzTable object
 		if not @bIsGenerated
@@ -1138,8 +1379,16 @@ class stzPivotTable from stzList
 		ok
 		return @oResultTable
 
-	# Show Method
-
+	# Prints the pivot as a boxed table, with the total row below the box.
+	#
+	#   returns    nothing; it prints
+	#   note       works for one column label with one or two row labels; the total row is drawn
+	#              under the bottom border, and the column headings are capitalised
+	#   warning    raises an error for a pivot with two column labels, on every dataset tried:
+	#              "Indexes out of range" or "Calling function with extra number of parameters";
+	#              more than two labels on either side raise "Can't display the pivot table!"
+	#   see        ToTable
+	#@ aka  Show Method
 	def Show()
 		# Display formatted pivot table
 		if not @bIsGenerated
@@ -3559,6 +3808,13 @@ class stzPivotTable from stzList
 	 #  UTILITY FUNCTIONS          #
 	#-----------------------------#
 
+	# Pads a text with spaces on its right up to a width.
+	#
+	#   text       the text, or a number turned into text
+	#   width      the wanted width in characters
+	#   returns    a text; the text itself when it is not shorter than the width
+	#   note       a helper of the display code
+	#   see        PadLeft, CenterText
 	def PadRight(text, width)
 		# Pad text to the right
 		_cStr_ = "" + text
@@ -3569,6 +3825,13 @@ class stzPivotTable from stzList
 			return _cStr_
 		ok
 	
+	# Pads a text with spaces on its left up to a width.
+	#
+	#   text       the text, or a number turned into text
+	#   width      the wanted width in characters
+	#   returns    a text; the text itself when it is not shorter than the width
+	#   note       a helper of the display code
+	#   see        PadRight, CenterText
 	def PadLeft(text, width)
 		# Pad text to the left
 		_cStr_ = "" + text
@@ -3579,6 +3842,13 @@ class stzPivotTable from stzList
 			return _cStr_
 		ok
 	
+	# Centers a text in a width by padding both sides with spaces.
+	#
+	#   text       the text, or a number turned into text
+	#   width      the wanted width in characters
+	#   returns    a text; the text itself when it is not shorter than the width
+	#   note       an odd leftover space goes to the right
+	#   see        PadLeft, PadRight
 	def CenterText(text, width)
 		# Center text within width
 		_cStr_ = "" + text
@@ -3592,6 +3862,13 @@ class stzPivotTable from stzList
 		
 		return RepeatChar(" ", _nPadLeft_) + _cStr_ + RepeatChar(" ", _nPadRight_)
 	
+	# Returns a character repeated a number of times.
+	#
+	#   nCount     how many times to repeat
+	#   cChar      the text to repeat
+	#   returns    a text; the empty text for 0
+	#   note       a helper of the display code
+	#   see        PadLeft
 	def StrFill(nCount, cChar)
 		# Create string of repeated character
 		_cResult_ = ""

@@ -1,0 +1,21 @@
+{
+ "brief": "Wraps one value in a chain of near-natural questions, such as _(\"ring\").Is(:String)._, whose closing underscore answers 1 or 0.",
+ "detail": "Each step (Is, Which, Where) puts one question to the value and tags the chain true or false, and returns the chain, so steps read as a sentence; the closing _ attribute returns 1 or 0. A chain that was tagged false stays false: later steps do not run, so build a new chain for a new question. The surface is frozen legacy: the same idea lives on as interrogative narrations in stzNatural, and part of this class does not work today: the negative forms (IsNot, IsNotAn, IsNotThe, IsNotA), Containing, ContainingNo, the function-call forms of Is and IsA, and the ordinal forms (st, nd, rd, th, Nth).",
+ "receiver": "o1 = _(\"Ring\")",
+ "example": [
+  "? o1.Is(:String)._",
+  "#--> 1",
+  "? _(\"Ring\").Is(:Lowercase)._",
+  "#--> 0",
+  "? _(1234).Is(:Number).Which(:IsEven)._",
+  "#--> 1",
+  "? _(\"Ring\").Where('NumberOfChars() = 4')._",
+  "#--> 1",
+  "? _(\"Ring\").Is(:Number).Where('NumberOfChars() = 4')._",
+  "#--> 0"
+ ],
+ "see": [
+  "stzChainOfValue",
+  "stzObject"
+ ]
+}

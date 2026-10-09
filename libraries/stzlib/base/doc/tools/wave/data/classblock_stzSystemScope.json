@@ -1,0 +1,20 @@
+{
+ "brief": "Checks feature code written for a deployment target: forbidden operations raise, operations the live machine lacks are rehearsed.",
+ "detail": "A scope is the context feature code is written in. Each capability-tagged operation (ReadPin, Spawn, Connect, UseOp and the others) is compared with the target profile and with the live machine: the target forbids it, so an error is raised during development; the machine can do it, so it is native; the machine cannot, so it is rehearsed and kept for the lowering bridge. Nothing is performed: the scope classifies and records, it never runs the operation.",
+ "receiver": "p = new stzPlatformProfile(\"sol\")\np.WithApp(:firmware, :ESP32)\no1 = p.App(:firmware).System()",
+ "example": [
+  "? o1.OSName()",
+  "#--> espidf",
+  "? o1.Can(\"gpio\")",
+  "#--> 1",
+  "? o1.Forbids(\"process\")",
+  "#--> 1",
+  "? o1.NumberOfChecked()",
+  "#--> 0"
+ ],
+ "see": [
+  "stzPlatformProfile",
+  "stzAppProfile",
+  "stzLoweringBridge"
+ ]
+}

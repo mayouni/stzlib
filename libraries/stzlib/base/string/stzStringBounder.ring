@@ -13,6 +13,37 @@
 #--------------------------------------------------------------#
 
 
+# Cuts a text by position or by its surroundings: sections, ranges, the text between two bounds, and tests of what bounds what.
+#
+# It is the cutting helper behind the Section, Between and IsBoundedBy methods of stzString, which
+# builds one over itself; reach for it directly with new stzStringBounder(cText) or
+# StzStringBounderQ(cText) when you only need the cutting. The reads (Section, Range, Between,
+# FirstBetween, SectionBounds, IsBoundedBy...) return a text, a list or TRUE or FALSE and leave the
+# held text alone; the ReplaceBetween and RemoveBetween verbs change the held text in place and keep
+# the bounds, and the variants ending in IB (ReplaceBetweenIB, RemoveBetweenIB) take the bounds with
+# them. Read the result with Content. Positions count characters from 1, not bytes, so Hebrew,
+# Arabic and emoji text is cut where you expect. The rank of the Nth forms starts at 1. Pass a plain
+# text, not a stzString object: an in-place edit through a bounder empties the stzString that was
+# passed in. At the edges of a text, trust SectionBounds and FindSectionBoundsZZ over their IB
+# forms.
+#
+#   receiver   o1 = new stzStringBounder("one [two] three [four] five")
+#   example    ? o1.Section(5, 9)
+#              #--> [two]
+#              ? @@( o1.Between("[", "]") )
+#              #--> [ "two", "four" ]
+#              ? o1.NthBetween(2, "[", "]")
+#              #--> four
+#              o1.RemoveBetween("[", "]")
+#              ? o1.Content()
+#              #--> one [] three [] five
+#              o2 = new stzStringBounder("שלום [עולם] יפה")
+#              ? o2.FirstBetween("[", "]") = "עולם"
+#              #--> 1
+#              o3 = new stzStringBounder("a😀b😀c")
+#              ? o3.Section(2, 4) = "😀b😀"
+#              #--> 1
+#   see        stzString, stzStringLeadTrail, stzStringFormatter
 class stzStringBounder from stzObject
 
 	@oString
@@ -21,6 +52,18 @@ class stzStringBounder from stzObject
 	 #   INITIALIZATION  #
 	#===================#
 
+	# Builds a bounder over a text, given as a string or as a stzString object.
+	#
+	#   pStrOrStzStrObj   the text to cut, or a stzString whose content is used, any other value
+	#                     raises an error
+	#   returns           nothing; the object is built
+	#   note              pass a plain text and read the result with Content; stzString does it
+	#                     safely by writing the bounder result back with Update
+	#   warning           with a stzString argument, the first in-place edit (ReplaceBetween,
+	#                     RemoveBetween and their kin) leaves the stzString you passed reading as an
+	#                     empty text, while the reads (Section, Between, IsBoundedBy...) leave it
+	#                     alone; the bounder itself keeps the right text
+	#   see               Content, Section
 	def init(pStrOrStzStrObj)
 		if isString(pStrOrStzStrObj)
 			@oString = new stzString(pStrOrStzStrObj)
@@ -34,12 +77,24 @@ class stzStringBounder from stzObject
 	 #     CONTENT ACCESS            #
 	#===============================#
 
+	# Returns the text as it stands now, after the replacements and removals made so far.
+	#
+	#   returns    a text
+	#   see        NumberOfChars, Section
 	def Content()
 		return @oString.Content()
 
+	# Returns how many characters the text holds, counting an emoji or a Hebrew letter as one.
+	#
+	#   returns    a number
+	#   see        Content, IsEmpty
 	def NumberOfChars()
 		return @oString.NumberOfChars()
 
+	# TRUE if the text holds no character at all.
+	#
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   see        NumberOfChars, Content
 	def IsEmpty()
 		return @oString.IsEmpty()
 
@@ -115,6 +170,17 @@ class stzStringBounder from stzObject
 		def SectionCSQ(_n1_, _n2_, pCaseSensitive)
 			return new stzStringBounder( This.SectionCS(_n1_, _n2_, pCaseSensitive) )
 
+	# Returns the characters from one position to another, both included; the two positions may come in either order.
+	#
+	#   _n1_       the first position, counted in characters from 1, or a named :From = n, or a text
+	#              to find (its first occurrence)
+	#   _n2_       the last position, or a named :To = n, or a text to find (the end of its last
+	#              occurrence)
+	#   returns    a text; an error is raised when a position is below 1 or beyond the last
+	#              character
+	#   note       Section(9, 5) answers what Section(5, 9) does; :First and :Last stand for the
+	#              first and last character
+	#   see        Range, Sections, AntiSection
 	def Section(_n1_, _n2_)
 		return This.SectionCS(_n1_, _n2_, 1)
 
@@ -125,6 +191,12 @@ class stzStringBounder from stzObject
 	 #     MULTIPLE SECTIONS         #
 	#===============================#
 
+	# Returns several sections at once, one text per [ start, end ] pair, in the order given.
+	#
+	#   _aSections_   a list of [ start, end ] pairs of positions
+	#   returns       a list of texts
+	#   note          the same call as stzString.Sections
+	#   see           Section, AntiSection
 	def Sections(_aSections_)
 		return @oString.Sections(_aSections_)
 
@@ -132,6 +204,14 @@ class stzStringBounder from stzObject
 	 #     ANTI-SECTION              #
 	#===============================#
 
+	# Returns what lies outside a section: the text before it and the text after it, leaving out an empty side.
+	#
+	#   _n1_       the first position of the section
+	#   _n2_       the last position of the section
+	#   returns    a list of one or two texts
+	#   note       AntiSection(1, 4) answers only the text after position 4, because nothing lies
+	#              before it
+	#   see        Section, SectionBounds
 	def AntiSection(_n1_, _n2_)
 		_nLen_ = @oString.NumberOfChars()
 		_acResult_ = []
@@ -186,6 +266,16 @@ class stzStringBounder from stzObject
 		def RangeCSQ(_nStartPos_, nRange, pCaseSensitive)
 			return new stzStringBounder( This.RangeCS(_nStartPos_, nRange, pCaseSensitive) )
 
+	# Returns a run of characters from a position, backwards when the count is negative; a negative position counts from the end.
+	#
+	#   _nStartPos_   the position to start from, counted from 1, a negative one counted from the
+	#                 end, or a text to find
+	#   nRange        how many characters to take, a negative number takes them backwards ending at
+	#                 the position
+	#   returns       a text; empty when the number is 0
+	#   note          Range(5, 5) and Range(9, -5) both answer the characters 5 to 9; a text start
+	#                 finds its first occurrence
+	#   see           Section
 	def Range(_nStartPos_, nRange)
 		return This.RangeCS(_nStartPos_, nRange, 1)
 
@@ -229,6 +319,16 @@ class stzStringBounder from stzObject
 			return [ _cBtwnResult_ ]
 		ok
 
+	# Returns the text found between every pair of an opening and a closing bound, or the single stretch between two positions.
+	#
+	#   pSubStrOrPos1   the opening text or the position before the stretch
+	#   pSubStrOrPos2   the closing text or the position after the stretch, also accepted as :And =
+	#                   text
+	#   returns         a list of texts; an empty list when no pair is found
+	#   note            the bounds are left out of each result; matching respects case, so
+	#                   Between("ONE", "THREE") finds nothing in one two three; with two positions
+	#                   the answer is a list of one text
+	#   see             FirstBetween, LastBetween, NthBetween
 	def Between(pSubStrOrPos1, pSubStrOrPos2)
 		return This.BetweenCS(pSubStrOrPos1, pSubStrOrPos2, 1)
 
@@ -263,6 +363,13 @@ class stzStringBounder from stzObject
 			return @oString.Section(_n1_, _n2_)
 		ok
 
+	# Returns the text between the first opening bound and its closing bound.
+	#
+	#   pSubStrOrPos1   the opening text or the position before the stretch
+	#   pSubStrOrPos2   the closing text or the position after the stretch
+	#   returns         a text; an empty text when no pair is found
+	#   note            with two positions it answers the stretch between them, like Between
+	#   see             Between, LastBetween, NthBetween
 	def FirstBetween(pSubStrOrPos1, pSubStrOrPos2)
 		return This.FirstBetweenCS(pSubStrOrPos1, pSubStrOrPos2, 1)
 
@@ -296,6 +403,13 @@ class stzStringBounder from stzObject
 			return @oString.Section(_n1_, _n2_)
 		ok
 
+	# Returns the text between the last opening bound and its closing bound.
+	#
+	#   pSubStrOrPos1   the opening text or the position before the stretch
+	#   pSubStrOrPos2   the closing text or the position after the stretch
+	#   returns         a text; an empty text when no pair is found
+	#   note            with two positions it answers the stretch between them, like Between
+	#   see             Between, FirstBetween, NthBetween
 	def LastBetween(pSubStrOrPos1, pSubStrOrPos2)
 		return This.LastBetweenCS(pSubStrOrPos1, pSubStrOrPos2, 1)
 
@@ -330,6 +444,14 @@ class stzStringBounder from stzObject
 			return @oString.Section(_n1_, _n2_)
 		ok
 
+	# Returns the text between the nth pair of bounds, counting pairs from 1.
+	#
+	#   n               which pair, from 1
+	#   pSubStrOrPos1   the opening text or the position before the stretch
+	#   pSubStrOrPos2   the closing text or the position after the stretch
+	#   returns         a text; an empty text when there is no nth pair or n is 0
+	#   note            with two positions n is ignored and the stretch between them is answered
+	#   see             Between, FirstBetween, LastBetween
 	def NthBetween(n, pSubStrOrPos1, pSubStrOrPos2)
 		return This.NthBetweenCS(n, pSubStrOrPos1, pSubStrOrPos2, 1)
 
@@ -337,10 +459,16 @@ class stzStringBounder from stzObject
 	 #     REPLACE BETWEEN (bounds preserved)      #
 	#=============================================#
 
-	# Default: bounds are NOT included (Softanza convention)
-	# ReplaceBetween("[", "]", "X") on "[hello]" => "[X]"
-	# Engine replaces including bounds, so we wrap replacement
-
+	# Replaces the text between every opening and closing bound, keeping the bounds, in place.
+	#
+	#   pcOpen          the opening bound
+	#   pcClose         the closing bound
+	#   pcReplacement   the text that takes the place of what lay between them
+	#   returns         nothing; the text changes. Nothing happens when no pair is found
+	#   note            ReplaceBetween("[", "]", "X") turns one [two] three [four] into one [X]
+	#                   three [X]; the IB form of the same name replaces the bounds too
+	#   see             ReplaceFirstBetween, RemoveBetween, Between
+	#@ aka  Default: bounds are NOT included (Softanza convention) ReplaceBetween("[", "]", "X") on "[hello]" => "[X]" Engine replaces including bounds, so we wrap replacement
 	def ReplaceBetween(pcOpen, pcClose, pcReplacement)
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringReplaceBetween(_pH_, pcOpen, pcClose, pcOpen + pcReplacement + pcClose)
@@ -349,6 +477,13 @@ class stzStringBounder from stzObject
 			StzEngineStringFree(_pR_)
 		ok
 
+	# Replaces the text between the first pair of bounds, keeping the bounds, in place.
+	#
+	#   pcOpen          the opening bound
+	#   pcClose         the closing bound
+	#   pcReplacement   the text that takes the place of what lay between them
+	#   returns         nothing; the text changes. Nothing happens when no pair is found
+	#   see             ReplaceBetween, ReplaceLastBetween, FirstBetween
 	def ReplaceFirstBetween(pcOpen, pcClose, pcReplacement)
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringReplaceFirstBetween(_pH_, pcOpen, pcClose, pcOpen + pcReplacement + pcClose)
@@ -357,6 +492,13 @@ class stzStringBounder from stzObject
 			StzEngineStringFree(_pR_)
 		ok
 
+	# Replaces the text between the last pair of bounds, keeping the bounds, in place.
+	#
+	#   pcOpen          the opening bound
+	#   pcClose         the closing bound
+	#   pcReplacement   the text that takes the place of what lay between them
+	#   returns         nothing; the text changes. Nothing happens when no pair is found
+	#   see             ReplaceBetween, ReplaceFirstBetween, LastBetween
 	def ReplaceLastBetween(pcOpen, pcClose, pcReplacement)
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringReplaceLastBetween(_pH_, pcOpen, pcClose, pcOpen + pcReplacement + pcClose)
@@ -365,6 +507,15 @@ class stzStringBounder from stzObject
 			StzEngineStringFree(_pR_)
 		ok
 
+	# Replaces the text between the nth pair of bounds, keeping the bounds, in place.
+	#
+	#   n               which pair, from 1
+	#   pcOpen          the opening bound
+	#   pcClose         the closing bound
+	#   pcReplacement   the text that takes the place of what lay between them
+	#   returns         nothing; the text changes. Nothing happens when there is no nth pair
+	#   note            the rank starts at 1, like NthBetween
+	#   see             ReplaceBetween, NthBetween, RemoveNthBetween
 	def ReplaceNthBetween(n, pcOpen, pcClose, pcReplacement)
 		_pH_ = @oString.Engine()
 		# Engine is 0-based for nth
@@ -417,9 +568,15 @@ class stzStringBounder from stzObject
 	 #     REMOVE BETWEEN (bounds preserved)       #
 	#=============================================#
 
-	# Default: bounds are NOT included
-	# RemoveBetween("[", "]") on "[hello]" => "[]"
-
+	# Removes the text between every opening and closing bound, keeping the bounds, in place.
+	#
+	#   pcOpen     the opening bound
+	#   pcClose    the closing bound
+	#   returns    nothing; the text changes. Nothing happens when no pair is found
+	#   note       one [two] three [four] becomes one [] three []; the IB form of the same name
+	#              removes the bounds too
+	#   see        RemoveFirstBetween, ReplaceBetween, Between
+	#@ aka  Default: bounds are NOT included RemoveBetween("[", "]") on "[hello]" => "[]"
 	def RemoveBetween(pcOpen, pcClose)
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringReplaceBetween(_pH_, pcOpen, pcClose, pcOpen + pcClose)
@@ -428,6 +585,12 @@ class stzStringBounder from stzObject
 			StzEngineStringFree(_pR_)
 		ok
 
+	# Removes the text between the first pair of bounds, keeping the bounds, in place.
+	#
+	#   pcOpen     the opening bound
+	#   pcClose    the closing bound
+	#   returns    nothing; the text changes. Nothing happens when no pair is found
+	#   see        RemoveBetween, RemoveLastBetween, FirstBetween
 	def RemoveFirstBetween(pcOpen, pcClose)
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringReplaceFirstBetween(_pH_, pcOpen, pcClose, pcOpen + pcClose)
@@ -436,6 +599,12 @@ class stzStringBounder from stzObject
 			StzEngineStringFree(_pR_)
 		ok
 
+	# Removes the text between the last pair of bounds, keeping the bounds, in place.
+	#
+	#   pcOpen     the opening bound
+	#   pcClose    the closing bound
+	#   returns    nothing; the text changes. Nothing happens when no pair is found
+	#   see        RemoveBetween, RemoveFirstBetween, LastBetween
 	def RemoveLastBetween(pcOpen, pcClose)
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringReplaceLastBetween(_pH_, pcOpen, pcClose, pcOpen + pcClose)
@@ -444,6 +613,14 @@ class stzStringBounder from stzObject
 			StzEngineStringFree(_pR_)
 		ok
 
+	# Removes the text between the nth pair of bounds, keeping the bounds, in place.
+	#
+	#   n          which pair, from 1
+	#   pcOpen     the opening bound
+	#   pcClose    the closing bound
+	#   returns    nothing; the text changes. Nothing happens when there is no nth pair
+	#   note       the rank starts at 1, like NthBetween
+	#   see        RemoveBetween, NthBetween, ReplaceNthBetween
 	def RemoveNthBetween(n, pcOpen, pcClose)
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringReplaceNthBetween(_pH_, pcOpen, pcClose, pcOpen + pcClose, n - 1)
@@ -512,6 +689,16 @@ class stzStringBounder from stzObject
 	 #     SECTION BOUNDS            #
 	#===============================#
 
+	# Returns the positions of the characters just before and just after a section, as two [ start, end ] pairs.
+	#
+	#   _n1_             the first position of the section
+	#   _n2_             the last position of the section
+	#   _nCharsBefore_   how many characters to take before the section
+	#   _nCharsAfter_    how many characters to take after it
+	#   returns          a list of two pairs of numbers; a side with nothing to take is [ 0, 0 ]
+	#   note             the counts are cut to what the text has, so asking for 5 before position 2
+	#                    gives [ 1, 1 ]
+	#   see              SectionBounds, FindSectionBoundsIBZZ
 	def FindSectionBoundsZZ(_n1_, _n2_, _nCharsBefore_, _nCharsAfter_)
 
 		if CheckingParams()
@@ -546,6 +733,19 @@ class stzStringBounder from stzObject
 
 		return [ _anSectionBefore_, _anSectionAfter_ ]
 
+	# Returns the bound positions as FindSectionBoundsZZ does, moved one character inward so the section's edge characters are included.
+	#
+	#   _n1_             the first position of the section
+	#   _n2_             the last position of the section
+	#   _nCharsBefore_   how many characters to take before the section
+	#   _nCharsAfter_    how many characters to take after it
+	#   returns          a list of two pairs of numbers
+	#   note             the non-IB form is the one to trust at the edges of the text
+	#   warning          a side with no characters, which FindSectionBoundsZZ marks [ 0, 0 ],
+	#                    becomes [ 1, 1 ] before and [ -1, -1 ] after, so it is no longer
+	#                    recognisable as empty: for abcdefgh, FindSectionBoundsIBZZ(1, 8, 2, 2)
+	#                    answers [ [ 1, 1 ], [ -1, -1 ] ]
+	#   see              FindSectionBoundsZZ, SectionBounds
 	def FindSectionBoundsIBZZ(_n1_, _n2_, _nCharsBefore_, _nCharsAfter_)
 		_aSections_ = This.FindSectionBoundsZZ(_n1_, _n2_, _nCharsBefore_, _nCharsAfter_)
 		_aSections_[1][1]++
@@ -554,6 +754,16 @@ class stzStringBounder from stzObject
 		_aSections_[2][2]--
 		return _aSections_
 
+	# Returns the characters just before and just after a section, as a list of texts.
+	#
+	#   _n1_             the first position of the section
+	#   _n2_             the last position of the section
+	#   _nCharsBefore_   how many characters to take before the section
+	#   _nCharsAfter_    how many characters to take after it
+	#   returns          a list of texts; an empty side is left out
+	#   note             SectionBounds(3, 5, 2, 2) on abcdefgh answers ab and fg; the counts are cut
+	#                    to what the text has
+	#   see              FindSectionBoundsZZ, AntiSection, Section
 	def SectionBounds(_n1_, _n2_, _nCharsBefore_, _nCharsAfter_)
 		_aSections_ = This.FindSectionBoundsZZ(_n1_, _n2_, _nCharsBefore_, _nCharsAfter_)
 		return @oString.Sections(_aSections_)
@@ -600,6 +810,12 @@ class stzStringBounder from stzObject
 			return 0
 		ok
 
+	# TRUE if the text starts with the first bound and ends with the second, or with the same text at both ends.
+	#
+	#   pacBounds   a pair of texts [ start, end ], or one text used at both ends
+	#   returns     TRUE or FALSE, as 1 or 0
+	#   note        case matters; IsBoundedBy("[") is FALSE on [abc] because the end is not [
+	#   see         IsBoundedByIn, SubStringIsBoundedBy, IsBoundOf
 	def IsBoundedBy(pacBounds)
 		return This.IsBoundedByCS(pacBounds, 1)
 
@@ -632,6 +848,13 @@ class stzStringBounder from stzObject
 
 		return _bResult_
 
+	# TRUE if the text, with the two bounds around it, occurs inside another text.
+	#
+	#   pacBounds   a pair of texts [ before, after ], or one text used on both sides
+	#   pIn         the text to look into, also accepted as :In = text
+	#   returns     TRUE or FALSE, as 1 or 0
+	#   note        abc with ["<", ">"] in x <abc> y is TRUE, in x abc y FALSE
+	#   see         IsBoundedBy, SubStringIsBoundedBy
 	def IsBoundedByIn(pacBounds, pIn)
 		return This.IsBoundedByInCS(pacBounds, pIn, 1)
 
@@ -655,6 +878,13 @@ class stzStringBounder from stzObject
 		_oFinder_ = new stzStringFinder(@oString)
 		return _oFinder_.ContainsCS(_cBounded_, pCaseSensitive)
 
+	# TRUE if the held text contains a substring right between the two bounds.
+	#
+	#   pcSubStr    the substring that must sit between the bounds
+	#   pacBounds   a pair of texts [ before, after ], or one text used on both sides
+	#   returns     TRUE or FALSE, as 1 or 0
+	#   note        in x <abc> y, abc with ["<", ">"] is TRUE and with "<" alone FALSE
+	#   see         IsBoundedByIn, SubStringIsBetween
 	def SubStringIsBoundedBy(pcSubStr, pacBounds)
 		return This.SubStringIsBoundedByCS(pcSubStr, pacBounds, 1)
 
@@ -678,6 +908,14 @@ class stzStringBounder from stzObject
 			StzRaise("Incorrect params types! p1 and p2 must be both numbers or both strings.")
 		ok
 
+	# TRUE if a substring lies between two positions or between two texts of the held text.
+	#
+	#   pcSubStr   the substring to look for
+	#   p1         the first position or text
+	#   p2         the second position or text, both of the same kind
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   warning    an error is raised when p1 and p2 are not both numbers or both texts
+	#   see        SubStringIsBetweenPositions, SubStringIsBetweenSubStrings, SubStringIsBoundedBy
 	def SubStringIsBetween(pcSubStr, p1, p2)
 		return This.SubStringIsBetweenCS(pcSubStr, p1, p2, 1)
 
@@ -690,6 +928,14 @@ class stzStringBounder from stzObject
 		_oFinder_ = new stzStringFinder(_cSection_)
 		return _oFinder_.ContainsCS(pcSubStr, pCaseSensitive)
 
+	# TRUE if a substring occurs within the characters from one position to another.
+	#
+	#   pcSubStr   the substring to look for
+	#   _n1_       the first position
+	#   _n2_       the last position
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   note       in x <abc> y, abc is between positions 4 and 9 but not between 1 and 3
+	#   see        SubStringIsBetween, Section
 	def SubStringIsBetweenPositions(pcSubStr, _n1_, _n2_)
 		return This.SubStringIsBetweenPositionsCS(pcSubStr, _n1_, _n2_, 1)
 
@@ -720,6 +966,15 @@ class stzStringBounder from stzObject
 
 		return _bOk1_ or _bOk2_
 
+	# TRUE if a substring occurs between the first occurrence of one text and the last occurrence of another, taken in either order.
+	#
+	#   pcSubStr    the substring to look for
+	#   pcSubStr1   the first limit text, also accepted as :SubStrings = text
+	#   pcSubStr2   the second limit text, also accepted as :And = text
+	#   returns     TRUE or FALSE, as 1 or 0
+	#   note        the two limits may come in either order: x with y and y with x give the same
+	#               answer
+	#   see         SubStringIsBetween, SubStringIsBetweenPositions
 	def SubStringIsBetweenSubStrings(pcSubStr, pcSubStr1, pcSubStr2)
 		return This.SubStringIsBetweenSubStringsCS(pcSubStr, pcSubStr1, pcSubStr2, 1)
 
@@ -742,6 +997,14 @@ class stzStringBounder from stzObject
 		_oFinder_ = new stzStringFinder(pcInStr)
 		return _oFinder_.ContainsCS(_cBounded_, pCaseSensitive)
 
+	# TRUE if the held text stands on both sides of a substring inside another text.
+	#
+	#   pcSubStr   the substring that sits between the two copies of the held text
+	#   pcInStr    the text to look into, also accepted as :In = text
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   note       with the held text << and the substring abc, x <<abc<< y is TRUE and x <<abc< y
+	#              FALSE
+	#   see        IsBoundedBy, SubStringIsBoundedBy
 	def IsBoundOf(pcSubStr, pcInStr)
 		return This.IsBoundOfCS(pcSubStr, pcInStr, 1)
 
@@ -749,14 +1012,28 @@ class stzStringBounder from stzObject
 	 #     CHAR AT                   #
 	#===============================#
 
+	# Returns the character at a position.
+	#
+	#   n          the position, counted in characters from 1
+	#   returns    a text of one character; an error is raised when n is below 1 or beyond the last
+	#              character
+	#   see        FirstChar, LastChar, Section
 	def Char(n)
 		if n < 1 or n > @oString.NumberOfChars()
 			StzRaise("Index out of range!")
 		ok
 		return @oString.NthChar(n)
 
+	# Returns the first character.
+	#
+	#   returns    a text of one character; an error is raised on an empty text
+	#   see        Char, LastChar
 	def FirstChar()
 		return This.Char(1)
 
+	# Returns the last character.
+	#
+	#   returns    a text of one character; an error is raised on an empty text
+	#   see        Char, FirstChar
 	def LastChar()
 		return This.Char(@oString.NumberOfChars())

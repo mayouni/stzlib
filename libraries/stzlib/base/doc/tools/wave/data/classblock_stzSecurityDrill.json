@@ -1,0 +1,21 @@
+{
+ "brief": "Rehearses an attack on a spawned target application and reports whether the detections fired, from sealed and verified evidence.",
+ "detail": "A drill spawns a target (its own ledger, auth and signed-request gate), attacks it with credential stuffing, a forged signature and a replayed request, and then learns what happened only from the ledger the target sealed to a file and the drill verified. Contain then derives a plan from that evidence, commits it as an operator, and ContainmentHolds proves from outside that the account is locked. Timings are measured: TimeToDetectMs and TimeToContainMs. SpawnTarget starts a second process and opens a port on 127.0.0.1, so a drill belongs on a machine set aside for it; the methods that only read state work without a target.",
+ "receiver": "o1 = new stzSecurityDrill(\"nightly\")",
+ "example": [
+  "? o1.Name()",
+  "#--> nightly",
+  "? o1.Passed()",
+  "#--> 0",
+  "? o1.TimeToDetectMs()",
+  "#--> -1",
+  "? o1.AcquisitionWhy() = \"\"",
+  "#--> 1"
+ ],
+ "see": [
+  "stzDrillRemoteResponder",
+  "stzResponsePlan",
+  "stzSecurityLedger",
+  "stzRequestSigner"
+ ]
+}

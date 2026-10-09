@@ -1,0 +1,25 @@
+{
+ "brief": "Holds several named lanes of events on one shared time axis, to ask what happens when across all of them.",
+ "detail": "Build one with new stzListOfTimeLines([ :Lanes = [ ... ], :Start = ..., :End = ... ]); it is also reached as stzTimeLines, TimeLines(p) and StzTimeLinesQ(p). Each lane is a stzTimeLine over the shared bounds. Lane names are stored in upper case and every lookup ignores case, and the dates are read as text, a bare date meaning midnight. What works today: the lane management (AddLane, RemoveLane, Lanes, HasLane), AddPointToLane (and its alias AddMomentToLane), WhatsAt, SetGlobalStart and SetGlobalEnd, Duration, Content, ToTimeLine and Clear. Lane(name) returns a copy of the lane's timeline, and the methods that edit through it silently keep nothing: AddSpanToLane, AddSpansToLane, AddPointsToLane, AddBlockedSpanToLane, AddBlockedPointToLane, RenameLabelInLane and RemovePointFromLane all do nothing, so no span can be stored and the span-based reads (HasOverlapsInLane, CrossLaneOverlaps, UncoveredPeriodsPerLane) were not exercised with real data. Copy keeps the lanes and bounds but not their points. BlockSpanInLane and BlockPointInLane raise R14, and the whole drawing family (Show, ShowShort, ShowUncovered, VizFind) raises R19; each says so in its own entry. Lane names of any script (Hebrew, Arabic, emoji) work.",
+ "receiver": "o1 = new stzListOfTimeLines([ :Lanes = [ \"Team A\", \"Team B\" ], :Start = \"2026-01-01\", :End = \"2026-12-31\" ])",
+ "example": [
+  "? @@( o1.Lanes() )",
+  "#--> [ \"TEAM A\", \"TEAM B\" ]",
+  "? o1.Duration()",
+  "#--> 31449600",
+  "o1.AddPointToLane(\"team a\", \"Kickoff\", \"2026-02-01\")",
+  "? @@( o1.WhatsAt(\"2026-02-01\") )",
+  "#--> [ [ [ \"lane\", \"TEAM A\" ], [ \"events\", [ [ \"KICKOFF\", \"point\" ] ] ] ] ]",
+  "o2 = new stzListOfTimeLines([ :Lanes = [ \"צוות\", \"فريق\", \"😀\" ], :Start = \"2026-01-01 08:00:00\", :End = \"2026-01-01 18:00:00\" ])",
+  "o2.AddPointToLane(\"فريق\", \"اجتماع\", \"2026-01-01 09:30:00\")",
+  "? o2.NumberOfLanes()",
+  "#--> 3",
+  "? o2.Duration()",
+  "#--> 36000"
+ ],
+ "see": [
+  "stzTimeLine",
+  "stzDateTime",
+  "stzDuration"
+ ]
+}

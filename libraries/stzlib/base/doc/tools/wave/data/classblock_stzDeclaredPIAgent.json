@@ -1,0 +1,17 @@
+{
+ "brief": "A pi agent that came from a declaration, which also answers for its coverage and reversibility class.",
+ "detail": "It adds only the two answers the engine loop's registration asks of every agent, so a declared agent needs no separate declaration on a host. Everything else, the tick, the governance gate and the trace, is the stzPIAgent runtime. A pi agent acts: it holds the effectful capability.",
+ "receiver": "o1 = new stzDeclaredPIAgent(\"kitchen-bot\")\no1.SetDeclared(\"watches stock\", \"compensable\")",
+ "example": [
+  "? o1.CoverageStatement()",
+  "#--> watches stock",
+  "? o1.ReversibilityClass()",
+  "#--> compensable",
+  "? o1.HoldsEffectful()",
+  "#--> 1"
+ ],
+ "see": [
+  "stzAgentDeclaration",
+  "stzDeclaredLLMAgent"
+ ]
+}

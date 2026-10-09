@@ -1,0 +1,23 @@
+{
+ "brief": "Reads and judges a .pia agent file at load, then builds the runnable agent it declares if, and only if, no rule is broken.",
+ "detail": "An agent is a file: name, kind (pi acts, llm proposes), a coverage sentence, a reversibility class, a schedule, optional seed facts, governance, skills in a small closed vocabulary (always, fact, no-fact, recall, learn, forget, propose, ring:), or a proposal for an llm agent. The declaration is judged in the constructor and every broken rule becomes a finding: IsValid, Findings and CiteFindings read the verdict, and ToAgent refuses to build from a refused one. Reading never calls a model or a network. The format version is 2; version 1 is still read.",
+ "receiver": "c = \"pia: 2\" + char(10) + \"name: kitchen-bot\" + char(10) + \"kind: pi\" + char(10) + \"coverage: watches stock\" + char(10) + \"reversibility: compensable\" + char(10) + \"schedule:\" + char(10) + \"  timer: 20\" + char(10) + \"skills:\" + char(10) + \"  - name: restock\" + char(10) + \"    does: learn stock level ordered\"\no1 = new stzAgentDeclaration(c, \"kitchen.pia\")",
+ "example": [
+  "? o1.IsValid()",
+  "#--> 1",
+  "? o1.Name_()",
+  "#--> kitchen-bot",
+  "? o1.Schedule()[:timer]",
+  "#--> 20",
+  "? o1.NumberOfSkills()",
+  "#--> 1",
+  "? o1.ToAgent().Cycle()",
+  "#--> 1"
+ ],
+ "see": [
+  "stzDeclaredPIAgent",
+  "stzDeclaredLLMAgent",
+  "stzDeclaredSkill",
+  "stzGovernance"
+ ]
+}

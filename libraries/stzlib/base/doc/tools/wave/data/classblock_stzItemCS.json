@@ -1,0 +1,26 @@
+{
+ "brief": "Follows one item inside a list: where it occurs, how often, and its first, last and nth position.",
+ "detail": "Build one with TheItemInQ(item, list), ItemInCSQ(item, list, flag), StzItemCSQ(item, list, flag) or new stzItemCS(item, list, flag): the three arguments are the item, the list it is looked for in, and a case flag. The reads that work today are Item, List, Positions, NumberOfOccurrence, NthPosition, FirstPosition and LastPosition, IsLowercased and IsUppercased (for a text item present in the list), and NumberOfItems (for an item that is itself a list). Positions count from 1 and an absent item gives 0 or an empty list. The case flag you give is only stored: the plain methods always compare with case, and only the CS forms (PositionsCS(0), NumberOfOccurrenceCS(0)) take the flag; the named form [ :In = list ] is not unpacked. Most of the remaining methods are broken today: Sections, IsBoundedBy, IsBetween, BoundedBy, ReplacedWith, Removed, Uppercased, Lowercased and the whole InsertedBefore and InsertedAfter family raise error R14, because they call stzList methods that do not exist (or misspelled names), and each says so in its own entry. Text items of any script are compared as whole characters.",
+ "receiver": "o1 = new stzItemCS(\"a\", [ \"a\", \"b\", \"A\", \"c\", \"a\", \"b\", \"b\" ], 1)",
+ "example": [
+  "? @@( o1.Positions() )",
+  "#--> [ 1, 5 ]",
+  "? o1.NumberOfOccurrence()",
+  "#--> 2",
+  "? @@( o1.PositionsCS(0) )",
+  "#--> [ 1, 3, 5 ]",
+  "? o1.NthPosition(2)",
+  "#--> 5",
+  "o2 = new stzItemCS(\"שלום\", [ \"שלום\", \"عالم\", \"😀\", \"שלום\" ], 1)",
+  "? @@( o2.Positions() )",
+  "#--> [ 1, 4 ]",
+  "o3 = new stzItemCS(\"😀\", [ \"😀\", \"عالم\", \"😀\" ], 1)",
+  "? o3.LastPosition()",
+  "#--> 3"
+ ],
+ "see": [
+  "stzList",
+  "stzItem",
+  "stzListSorter"
+ ]
+}

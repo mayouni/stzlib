@@ -1,0 +1,15 @@
+{
+ "brief": "Keeps a value as the source to parse; the minimal base class that stzListParser is built on.",
+ "detail": "In base/ this class is a stub: it stores whatever value it is built with and gives it back with Source. The full parser family lives elsewhere and is not loaded by the base library. Nothing else is defined here. stzListParser inherits from it but has its own init that does not call this one, so Source of a stzListParser answers an empty text; build a stzParser directly, or read the list of a stzListParser with List.",
+ "receiver": "o1 = new stzParser(\"some source\")",
+ "example": [
+  "? o1.Source()",
+  "#--> some source",
+  "o2 = new stzParser([ 1, 2 ])",
+  "? @@( o2.Source() )",
+  "#--> [ 1, 2 ]"
+ ],
+ "see": [
+  "stzListParser"
+ ]
+}
