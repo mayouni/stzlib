@@ -184,3 +184,13 @@ file-disjoint; strip-check, regenerate once, --update). A known applier trap: it
 `def` copy inside /* */ -- the agent moved three blocks by hand in stzMultiObjectiveSolver.ring; re-applying that class needs
 the same move. A wave agent killed ring.exe by image name once: tell agents to kill by PID.
 
+## 2026-10-09, midday: WAVE 11 ON MAIN (024ddaf4d)
+
+53 classes, 1,022 roots (file family, xml/html, list helpers; auth stores, response plans, virtual system/env/fs, delivery; Tukey,
+math-diagram helpers, graph rule, notation, duration, string locale). Library 15,564 of 21,747 pass (71.6 percent); gate OK;
+register 316 in 52 classes. Left: 6,183 roots in 399 classes. Held back on purpose: the sound classes (stzSoundScore 49,
+stzSound 40, stzSoundLive 39, stzSoundUniverse 38 ...) need a way to run without an audio device (render to a buffer or WAV only,
+never play); do them last, with that rule in the prompt. Agents can stall on a stream timeout (three did in wave 11): resume with
+SendMessage to the same agent id, nothing is lost. Agents sharing a scratchpad folder overwrite each other's scripts: give each
+agent its own subfolder name in the prompt.
+
