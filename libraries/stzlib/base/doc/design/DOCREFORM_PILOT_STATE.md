@@ -202,3 +202,26 @@ and needs `(` after `def` (agent worked around it with a private pristine snapsh
 classes must be applied in ONE call with all its classes or the other blocks are dropped. stzFileBlobStore's class example uses a
 relative folder `demo_blobs` (a run leaves it in the cwd): no temp-folder helper exists in the library to use instead.
 
+## STOP of 2026-10-09 (afternoon), "save your state until AC comes back" -- read this first on resume
+
+main carries waves up to 12 (574874138 and the state commit after it). WAVE 13 IS HALF IN:
+- COMMITTED LOCALLY (88b88d291, on docs/reform, NOT pushed unless the line below says so): parts B, C, D -- security / neural /
+  conversation / entity / federation (13 classes), graphics / math / common / perf / data wrangler / refinable code / country
+  (12 classes), external code / dot code / super app / http port (5 classes); their data files w13_*_01.txt + classblock_*.json.
+  Checked by me: sources comments-only. NOT yet regenerated: reference.json, DEFECTS.md, doc_baseline.txt are as of wave 12.
+- NOT COMMITTED: part A, stopped mid-work by the stop. Twelve sources are already modified in the worktree (comments only so far,
+  strip-checked): string/stzStringCrypto, stzStringComparator, stzStringFinder, stzStringInserter, stzStringLines, stzTextStream;
+  list/stzListFinder, stzTree; regex/stzTimex, stzListex; number/stzNumBuffer, stzPCA. Some classes there may be only partly
+  documented. Its class list and roots: the 12 files above (353 roots).
+Resume, in order: (1) `cd D:\GitHub\_wtd; git status` and check the worktree is on docs/reform; (2) finish part A: SendMessage to the
+agent id a67402306ffdeefae if it still exists, otherwise launch one general-purpose agent with doc/tools/wave/WAVE_PROMPT_NEUTRAL.md
+(copy of the wave-9 prompt; files named w13_) for exactly those 12 files, telling it to FIRST export its classes and fix only what
+still fails; (3) strip-check all 12 sources, commit them by explicit path with their data files; (4) regenerate ONCE: `cd base/doc;
+ring export_reference.ring <HEAD> <date> reference.json; python tools/wave/mk_defects.py reference.json DEFECTS.md defects.json;
+ring gate.ring --update; ring gate.ring` (must print OK); (5) docrecord / selfdoc / ask_probe guards; (6) commit reference + baselines,
+fetch, rebase, push docs/reform:main and (after the cmdkey cure) codeberg; (7) file the wave-13 CONCLUSIONS line (the findings are in
+w13_defects_stzIncident.md, w13_defects_stzScene.md, w13_defects_stzExterCode.md and part A's own file; the OIDC token-injection
+finding is ALREADY filed) and the memo. Library before wave 13: 16,625 of 21,747 pass; wave 13 adds about 1,100 roots.
+Still held back for good reason: the four sound classes (render to a file, never play), stzDeployment / stzBuilder / stzProcess /
+stzGpu (spawn, deploy, hardware), stzTour / stzLogbook (the testoor desk's files).
+
