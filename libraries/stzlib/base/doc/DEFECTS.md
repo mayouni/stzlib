@@ -5,11 +5,12 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 227 methods in 31 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 268 methods in 36 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
 | table/stzTable.ring | stzTable | 66 |
+| object/stzObject.ring | stzObject | 28 |
 | datetime/stzCalendar.ring | stzCalendar | 25 |
 | geo/stzGeoMap.ring | stzGeoMap | 18 |
 | regex/stzMatrex.ring | stzMatrex | 17 |
@@ -18,12 +19,15 @@ and each was checked with a second call on different data. **None is fixed yet.*
 | regex/stzRegex.ring | stzRegex | 10 |
 | string/stzStringChar.ring | stzStringChar | 10 |
 | reactive/stzReactive.ring | stzReactiveSystem | 7 |
+| number/stzListOfBytes.ring | stzListOfBytes | 6 |
 | geo/stzGeoField.ring | stzGeoField | 5 |
 | geo/stzGeoSamples.ring | stzGeoSamples | 5 |
 | graph/stzDiagram.ring | stzDiagram | 5 |
 | list/stzListOfPairs.ring | stzListOfPairs | 4 |
 | graph/stzGraph.ring | stzGraphComparison | 3 |
 | stats/stzDataSet.ring | stzDataSet | 3 |
+| string/stzStringChecker.ring | stzStringChecker | 3 |
+| string/stzStringText.ring | stzStringText | 3 |
 | appserver/stzAppServer.ring | stzAppServer | 2 |
 | datetime/stzDate.ring | stzDate | 2 |
 | geo/stzGeoFeatures.ring | stzGeoFeatures | 2 |
@@ -40,6 +44,7 @@ and each was checked with a second call on different data. **None is fixed yet.*
 | graph/stzOrgChart.ring | stzOrgChartSimulation | 1 |
 | linguistic/stzText.ring | stzText | 1 |
 | string/stzString.ring | stzString | 1 |
+| string/stzStringReplacer.ring | stzStringReplacer | 1 |
 
 ## stzAppServer -- appserver/stzAppServer.ring (2)
 
@@ -206,6 +211,15 @@ and each was checked with a second call on different data. **None is fixed yet.*
 - `Pin` (line 384): Raises an error today instead of holding a shape where it is during later solves: no shape of any figure kind has a free position to hold. -- the diagram refuses it because the rules fix every shape (checked on 35 sample figures of all ten kinds); an unknown path raises too
 - `DragTo` (line 407): Raises an error today instead of moving a shape to a position and re-solving around it: no shape has a free centre to move. -- refused for every shape of 9 figures tried across the kinds; use MoveNoteTo to move a note
 
+## stzListOfBytes -- number/stzListOfBytes.ring (6)
+
+- `BytesOfThisChar` (line 458): Does nothing today and answers an empty text instead of the bytes of a character. -- the definition has no body, so the argument is never read; BytesOfChar answers the bytes (tried on abc with b, and on héllo with é)
+- `FillWithAsciiCharUpToNChars` (line 585): Raises error R21 today instead of filling the content with one ASCII character repeated for a number of characters. -- raises the error R21 Using operator with values of incorrect type, because nChars is multiplied by NumberOfBytesPerChar, which answers a list of pairs and not a number (tried on abc with 2, and on abcd with 3)
+- `ToUTF8` (line 788): Raises error R14 today instead of answering the bytes as UTF-8. -- raises the error R14 Calling Method without definition: toutf8, because it forwards to a stzString method that does not exist (tried on abc and on aé€)
+- `Bits` (line 1148): Does nothing today and answers an empty text: its body is a TODO that waits for a list of bits class.
+- `ToStzListOfBits` (line 1156): Does nothing today and answers an empty text: its body is a TODO that waits for a list of bits class.
+- `Stripped` (line 1237): Does nothing today and answers an empty text instead of the bytes without the spaces at both ends. -- the definition has no body; Trimmed answers the trimmed bytes (tried on '  ab c  ' and on 'x ')
+
 ## stzMatrix -- number/stzMatrix.ring (2)
 
 - `Diagonal1` (line 2961): Returns nothing today instead of the main diagonal, because its body is empty. -- the method exists but has no body, so it answers an empty value for every matrix; Diagonal gives the main diagonal
@@ -215,6 +229,37 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 - `SetDefaultFormat` (line 8937): Raises an unsupported-feature error today instead of setting the default number format. -- the call raises an unsupported-feature error today
 - `ApplyLocale` (line 8946): Raises an unsupported-feature error today instead of applying a locale to the number. -- the call raises an unsupported-feature error today
+
+## stzObject -- object/stzObject.ring (28)
+
+- `Values` (line 2489): Raises error R24 today instead of returning the values of the object's attributes. -- raises R24 (uninitialized variable aresult): the list is built in a variable named _aResult_ and appended to as aResult; seen on a stzString, a stzList and a bare stzObject
+- `AttributesAndValues` (line 2511): Raises error R24 today instead of pairing each attribute name with its value. -- raises the R24 of Values, which it calls
+- `HasSameStzTypeAs` (line 2742): Answers FALSE today instead of telling whether another object has the same Softanza class. -- FALSE for a stzString against a stzString, a stzList against a stzList and a bare stzObject against another, even when the content is the class name; the test asks the other object IsStzType, which is true only when its content is a text naming a class
+- `IsListOrString` (line 2878): Raises error R4 today instead of telling whether the content is a list or a text. -- raises "Stack Overflow" (R4): the body calls IsListOrString itself, so it never ends; use IsStringOrList
+- `IsFalseObject` (line 2889): Answers FALSE today for every object, even the library's false object. -- the test compares the class name with the misspelling stzFlaseObject, which no class has; AFalseObject().IsFalseObject() answers FALSE too
+- `IsTrueObject` (line 2908): Answers FALSE today for every object, even the library's true object. -- the test compares the class name with the misspelling stzFlaseObject, which no class has; ATrueObject().IsTrueObject() answers FALSE
+- `WhichAreBoth` (line 3548): Raises error R24 today instead of checking that the content is a list of exactly two items. -- raises R24 (uninitialized variable _alist_): the body tests _aList_, a variable it never sets, where it meant _aContent_; seen on a list of two numbers
+- `OfM` (line 4174): Raises error R14 today instead of comparing and keeping the main object of the chain. -- raises R14 (calling method without definition: ofcsm), the method it forwards to
+- `OfXTM` (line 4211): Raises error R14 today instead of comparing, ignoring a filler word, and keeping the main object. -- raises R14 (calling method without definition: ofcsm)
+- `OfBM` (line 4257): Raises error R14 today instead of comparing to the last value and keeping the main object. -- raises R14 (calling method without definition: ofcsbm), the method it forwards to; its body also passes a pCaseSensitive it does not declare
+- `OfMB` (line 4267): Raises error R14 today instead of comparing to the last value and keeping the main object. -- raises R14 (calling method without definition: ofcsmb)
+- `OfXTCSB` (line 4291): Raises error R24 today instead of comparing to the last value while ignoring a filler word. -- raises R24 (uninitialized variable c): the body passes c instead of _n_
+- `OfXTCSBM` (line 4302): Raises error R14 today instead of comparing to the last value and keeping the main object. -- raises R14 (calling method without definition: ofcsbm)
+- `OfXTCSMB` (line 4314): Raises error R14 today instead of comparing to the last value and keeping the main object. -- raises R14 (calling method without definition: ofcsmb)
+- `OfXTBM` (line 4329): Raises error R24 today instead of comparing to the last value and keeping the main object. -- raises R24 (uninitialized variable cignored): the body uses a parameter it does not declare
+- `OfXTMB` (line 4340): Raises error R19 today instead of comparing to the last value and keeping the main object. -- raises R19 (fewer parameters than required): it calls OfXTCSMB with two arguments and that method wants three
+- `OfXTBQ` (line 4350): Raises error R19 today instead of returning the object when the last value equals the one given. -- raises R19 (fewer parameters than required): it calls OfXTCSBQ with two arguments
+- `IsText` (line 5694): Answers FALSE today for every object tried, a stzString holding text included. -- FALSE for Q("banana") and for a bare stzObject; use IsAString for the question it seems to ask
+- `ToPointer` (line 5704): Raises an error today instead of returning a pointer to the object. -- raises "Bad parameter type!" on a stzString and R21 (operator with incorrect type) on a stzList and on a bare stzObject, although the Ring built-in object2pointer(o) answers a pointer for the same object
+- `OccursForTheNthTime` (line 6273): Raises error R14 today instead of telling whether the content is the nth occurrence at a given position. -- raises R14: calling method without definition: nthoccurrencecs on a text and nthoccurrence on a list; seen on both with the same call
+- `OccursForTheFirstTime` (line 6303): Raises error R14 today instead of telling whether the content first appears at a given position. -- raises R14 (calling method without definition: nthoccurrencecs on a text, nthoccurrence on a list)
+- `OccursForTheLastTime` (line 6337): Raises error R14 today instead of telling whether the content last appears at a given position. -- raises R14 (calling method without definition: nthoccurrencecs on a text, nthoccurrence on a list)
+- `SizeInBytesXT32` (line 6531): Raises error R3 today instead of returning the extended 32-bit memory size. -- raises R3 (calling function without definition: @sizeinbytesxt32): the function it calls does not exist; the profiler defines @MemorySizeInBytes32XT instead
+- `SizeInBytesXT64` (line 6566): Raises error R3 today instead of returning the extended 64-bit memory size. -- raises R3 (calling function without definition: @sizeinbytesxt64): the function it calls does not exist
+- `AddTimeValue` (line 6887): Raises error R24 today instead of appending the elapsed time to a list of times. -- raises R24 (uninitialized variable _atime) even with SetKeepingTimeTo(1), because the list it appends to is never declared; without time keeping ExecutionTime raises first
+- `AddExecutionTimeValue` (line 6895): Raises error R24 today instead of appending the elapsed time to a list of times. -- raises the R24 of AddTimeValue (uninitialized variable _atime)
+- `AddExecutionTime` (line 6903): Raises error R24 today instead of appending the elapsed time to a list of times. -- raises the R24 of AddTimeValue (uninitialized variable _atime)
+- `ToStzListOfObjects` (line 8128): Raises error R14 today instead of wrapping the content in a stzListOfObjects. -- raises R14 (calling method without definition: islistofobjects) for a list of numbers and for a list of stzString objects alike
 
 ## stzReactiveSystem -- reactive/stzReactive.ring (7)
 
@@ -287,10 +332,26 @@ and each was checked with a second call on different data. **None is fixed yet.*
 - `DefaultLanguage` (line 2155): Returns the main language of the char's script, such as english, arabic or hebrew, and undefined for chars shared by scripts. -- raises "Can not create char object!" for a char of the Inherited or Unknown script, such as a combining accent, an unassigned code or a private-use char
 - `TaiThamScript` (line 2857): Raises error R14 today instead of testing for the Tai Tham script. -- the body calls ScriptCode, which was retired; ScriptIs("taitham") is the working test
 
+## stzStringChecker -- string/stzStringChecker.ring (3)
+
+- `HasLeadingChars` (line 607): Returns 0 today whatever the text is, instead of telling whether the text starts with a repeated character. -- answers FALSE for aab and for xxyy alike: it compares two engine handles, which are never equal, instead of the two characters; the stzString method of the same name answers 1 for aab
+- `HasTrailingChars` (line 624): Returns 0 today whatever the text is, instead of telling whether the text ends with a repeated character. -- answers FALSE for abb and for xxyy alike: it compares two engine handles, which are never equal, instead of the two characters
+- `HasLeadingAndTrailingChars` (line 642): Returns 0 today whatever the text is, because both of the questions it combines answer 0. -- answers FALSE for aabaa: it is the AND of HasLeadingChars and HasTrailingChars, which are always 0
+
 ## stzStringList -- string/stzStringList.ring (2)
 
 - `SortBy` (line 1311): Sorts the strings in place by a numeric key computed from each one, such as its length; a text key raises. -- @item is not defined here and raises R24, and a key that is text raises R41 because keys are compared with a greater-than, so only numeric keys such as len(@string) work
 - `Matches` (line 1760): TRUE if every string matches the pattern as a whole, so "a." matches ab and "a" does not; an empty list is TRUE. -- the old comment says it returns the strings that match, but it answers one verdict for the whole list
+
+## stzStringReplacer -- string/stzStringReplacer.ring (1)
+
+- `RemoveLast` (line 530): Leaves the text unchanged today, because the occurrence it aims at is one past the last, in place. -- it asks the nth removal for a rank equal to the number of occurrences, and that rank counts from 0 in the default case-sensitive call, so nothing is removed: one two one two one, aaa bbb and its b stay as they are; RemoveLastCS(..., 0) does remove the last occurrence
+
+## stzStringText -- string/stzStringText.ring (3)
+
+- `OnlyScript` (line 386): Raises error R24 today instead of returning the part of the text written in a given script. -- raises Using uninitialized variable pcscript for :Latin, :Hebrew and :Arabic alike: the anonymous function it builds does not see its own parameter
+- `OnlyArabic` (line 402): Raises error R14 today instead of returning the Arabic-script part of the text. -- raises Calling Method without definition: concatenateq on a Latin text and on an Arabic text alike
+- `OnlyLatin` (line 416): Raises error R14 today instead of returning the Latin-script part of the text. -- raises Calling Method without definition: concatenateq on a Latin text and on a mixed text alike
 
 ## stzTable -- table/stzTable.ring (66)
 
