@@ -1,5 +1,5 @@
 {
- "count": 268,
+ "count": 286,
  "defects": [
   {
    "class": "stzAppServer",
@@ -842,6 +842,22 @@
    "cause": "refused for every shape of 9 figures tried across the kinds; use MoveNoteTo to move a note"
   },
   {
+   "class": "stzNaturalEngine",
+   "file": "natural/stzNatural.ring",
+   "method": "FindContextPlaceholders",
+   "line": 588,
+   "symptom": "Returns the {...} holes of a narration, but today only when the text starts with the hole.",
+   "cause": "Returns [ ] today for a hole that is not at the very start: {a} answers {a}, but x{a}, {a} x and Hello {name} from {c} all answer [ ]; the scan tests the character at i with StzMid(text, i, i) where the third argument is a length, so it can match only at the first character"
+  },
+  {
+   "class": "stzUrl",
+   "file": "network/stzUrl.ring",
+   "method": "FromLocalFile",
+   "line": 702,
+   "symptom": "Raises error R19 today instead of returning a file URL for the given path.",
+   "cause": "Raises error R19 today whatever the path, on a drive path with backslashes and on /tmp/y.txt: it calls ReplaceSubstring with two arguments where that method takes a start, an end and a replacement"
+  },
+  {
    "class": "stzListOfBytes",
    "file": "number/stzListOfBytes.ring",
    "method": "BytesOfThisChar",
@@ -1146,6 +1162,14 @@
    "cause": "raises R14 (calling method without definition: islistofobjects) for a list of numbers and for a list of stzString objects alike"
   },
   {
+   "class": "stzMultiObjectiveSolver",
+   "file": "optim/stzMultiObjectiveSolver.ring",
+   "method": "exportParetoFrontCSV",
+   "line": 1154,
+   "symptom": "Raises error R41 today instead of writing the front to a file, one row per solution.",
+   "cause": "a variable value, a number, is joined to a comma with + and Ring cannot add a number to a text; it raises for the front of every problem tried (two problems, epsilon-constraint method)"
+  },
+  {
    "class": "stzReactiveSystem",
    "file": "reactive/stzReactive.ring",
    "method": "StopSafe",
@@ -1434,6 +1458,102 @@
    "cause": "known defect: for a pattern outside the library's named list it builds stzRegexAnalyzer, a class that does not exist, and raises error R11"
   },
   {
+   "class": "stzRegexMaker",
+   "file": "regex/stzRegexMaker.ring",
+   "method": "Quantifiers",
+   "line": 435,
+   "symptom": "Returns an empty text today, because the method is an unwritten placeholder.",
+   "cause": "placeholder: the body is a TODO and nothing is computed"
+  },
+  {
+   "class": "stzRegexMaker",
+   "file": "regex/stzRegexMaker.ring",
+   "method": "QuantifiersCommands",
+   "line": 443,
+   "symptom": "Returns an empty text today, because the method is an unwritten placeholder.",
+   "cause": "placeholder: the body is a TODO and nothing is computed"
+  },
+  {
+   "class": "stzRegexMaker",
+   "file": "regex/stzRegexMaker.ring",
+   "method": "NumberOfSequences",
+   "line": 477,
+   "symptom": "Raises error R24 today instead of returning how many sequences were recorded.",
+   "cause": "Raises error R24 today: the body reads len(acSequences), a variable that is never set, where @aSequences is meant; HowManySequences, CountSequences, NumberOfSeqs, HowManySeqs, CountSeqs, NumberOfCommands, HowManyCommands and CountCommands forward to it and raise the same error"
+  },
+  {
+   "class": "stzRegexMaker",
+   "file": "regex/stzRegexMaker.ring",
+   "method": "CommandAndFragment",
+   "line": 565,
+   "symptom": "Raises error R24 today instead of returning a sequence together with its fragment.",
+   "cause": "Raises error R24 today: the alias passes n to SequenceXT but declares no parameter, so n is an unset variable; SequenceXT(1) itself works and answers [ sequence, piece ]"
+  },
+  {
+   "class": "stzRegexMaker",
+   "file": "regex/stzRegexMaker.ring",
+   "method": "CommandAndFrag",
+   "line": 574,
+   "symptom": "Raises error R24 today instead of returning a sequence together with its fragment.",
+   "cause": "Raises error R24 today: the alias passes an unset n to SequenceXT"
+  },
+  {
+   "class": "stzRegexMaker",
+   "file": "regex/stzRegexMaker.ring",
+   "method": "CommandAndItsFragment",
+   "line": 583,
+   "symptom": "Raises error R24 today instead of returning a sequence together with its fragment.",
+   "cause": "Raises error R24 today: the alias passes an unset n to SequenceXT"
+  },
+  {
+   "class": "stzRegexMaker",
+   "file": "regex/stzRegexMaker.ring",
+   "method": "CommandAndItsFrag",
+   "line": 592,
+   "symptom": "Raises error R24 today instead of returning a sequence together with its fragment.",
+   "cause": "Raises error R24 today: the alias passes an unset n to SequenceXT"
+  },
+  {
+   "class": "stzRegexMaker",
+   "file": "regex/stzRegexMaker.ring",
+   "method": "CanContainAChar",
+   "line": 645,
+   "symptom": "Raises error R14 today instead of adding a character class given as a named parameter such as :Between = [ A, Z ].",
+   "cause": "Raises error R14 today: it calls IsBetweenOrFromNamedParam on a stzList, a method that does not exist; seen with the Between, Among and From forms, and a text instead of a list raises Incorrect param type!"
+  },
+  {
+   "class": "stzRegexMaker",
+   "file": "regex/stzRegexMaker.ring",
+   "method": "CanContaingChar",
+   "line": 688,
+   "symptom": "Raises error R14 today instead of adding a character class given as a named parameter.",
+   "cause": "Raises error R14 today: it calls CanContainAChar, which calls the missing IsBetweenOrFromNamedParam"
+  },
+  {
+   "class": "stzRegexMaker",
+   "file": "regex/stzRegexMaker.ring",
+   "method": "CanContainADigit",
+   "line": 812,
+   "symptom": "Raises error R14 today instead of adding a digit class given as a named parameter such as :Between = [ 0, 9 ].",
+   "cause": "Raises error R14 today: it calls IsBetweenOrFromNamedParam on a stzList, a method that does not exist; seen with the Between, Among and From forms"
+  },
+  {
+   "class": "stzRegexMaker",
+   "file": "regex/stzRegexMaker.ring",
+   "method": "CanContaingdigit",
+   "line": 847,
+   "symptom": "Raises error R14 today instead of adding a digit class given as a named parameter.",
+   "cause": "Raises error R14 today: it calls CanContainADigit, which calls the missing IsBetweenOrFromNamedParam"
+  },
+  {
+   "class": "stzRegexMaker",
+   "file": "regex/stzRegexMaker.ring",
+   "method": "MatchSameContentAs",
+   "line": 1371,
+   "symptom": "Raises error R24 today instead of appending a closing tag that repeats a defined group.",
+   "cause": "Raises error R24 today: after finding the group it uses the variable pcTagGroupName, which is not a parameter of this method; seen with two different group names"
+  },
+  {
    "class": "stzDataSet",
    "file": "stats/stzDataSet.ring",
    "method": "NonParametricCorrelation",
@@ -1456,6 +1576,30 @@
    "line": 3983,
    "symptom": "Raises error R5 today instead of returning a text preview of a plan's steps without running it.",
    "cause": "known defect: the body reads the title from a variable named oPlan, which does not exist, instead of from the plan it built"
+  },
+  {
+   "class": "stzLinearSolver",
+   "file": "stats/stzLinearSolver.ring",
+   "method": "solveWithBranchAndBound",
+   "line": 624,
+   "symptom": "Raises error today instead of solving by branch and bound, which is not implemented yet.",
+   "cause": "an honesty guard stops the method on its first line, so the branching code after it never runs; use \"greedy\" or \"simplex\""
+  },
+  {
+   "class": "stzLinearSolver",
+   "file": "stats/stzLinearSolver.ring",
+   "method": "CalculateFitness",
+   "line": 1274,
+   "symptom": "Raises error R5 today instead of returning the objective value less the constraint penalty, negated when minimizing.",
+   "cause": "it raises whenever the problem has a constraint, because CalculatePenalty fails (two problems); with no constraint it returns the objective value, negated when minimizing"
+  },
+  {
+   "class": "stzLinearSolver",
+   "file": "stats/stzLinearSolver.ring",
+   "method": "CalculatePenalty",
+   "line": 1293,
+   "symptom": "Raises error R5 today instead of returning 1000 times the total constraint violation of a candidate.",
+   "cause": "line 995 reads a variable oConst that is never defined, ahead of the correct line; it raises with one constraint and with two, and returns 0 when the problem has none"
   },
   {
    "class": "stzString",
