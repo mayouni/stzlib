@@ -194,3 +194,11 @@ never play); do them last, with that rule in the prompt. Agents can stall on a s
 SendMessage to the same agent id, nothing is lost. Agents sharing a scratchpad folder overwrite each other's scripts: give each
 agent its own subfolder name in the prompt.
 
+## 2026-10-09, afternoon: WAVE 12 ON MAIN (d589f98bd)
+
+42 classes, 1,061 roots. Library 16,625 of 21,747 pass (76.4 percent); gate OK; register 360 in 58 classes. Left: 5,122 roots in
+357 classes (sound classes about 170 held back). Applier traps met this wave: it stops at the word `class` inside a block comment
+and needs `(` after `def` (agent worked around it with a private pristine snapshot and restored the lines); a file shared by several
+classes must be applied in ONE call with all its classes or the other blocks are dropped. stzFileBlobStore's class example uses a
+relative folder `demo_blobs` (a run leaves it in the cwd): no temp-folder helper exists in the library to use instead.
+
