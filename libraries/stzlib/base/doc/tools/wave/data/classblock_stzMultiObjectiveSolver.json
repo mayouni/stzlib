@@ -1,0 +1,22 @@
+{
+ "brief": "Looks for trade-offs between several objectives at once: a front of solutions none of which beats another on every objective.",
+ "detail": "Declare variables and bounds, add two or more objectives with maximize and minimize (each call appends one), then call solve with nsga_ii, a seeded genetic search, or epsilon_constraint, which bounds the secondary objectives and solves for the first. The search is deterministic: the same seed gives the same front, and SetSeed changes it. NSGA-II refuses a problem that has constraints, and the epsilon-constraint method is only a rough tool today: its greedy sub-solver reads a lower bound as an upper bound, so the front repeats the same few points. exportParetoFrontCSV raises R41. Objective values of a maximize goal are stored negated, so smaller is always better inside the individuals.",
+ "receiver": "o1 = new stzMultiObjectiveSolver()",
+ "example": [
+  "o1.addVariable(\"x\", 0, 10)",
+  "o1.maximize(\"x\")",
+  "o1.maximize(\"-x\")",
+  "o1.setNSGAParameters(8, 3, 0.1, 0.9)",
+  "o1.solve(\"nsga_ii\")",
+  "? len(o1.paretoSolutions())",
+  "#--> 8",
+  "? o1.status()",
+  "#--> optimal",
+  "? o1.dominates([ :objectives = [ -2, -2 ] ], [ :objectives = [ -1, -1 ] ])",
+  "#--> 1"
+ ],
+ "see": [
+  "stzLinearSolver",
+  "stzStochasticSolver"
+ ]
+}

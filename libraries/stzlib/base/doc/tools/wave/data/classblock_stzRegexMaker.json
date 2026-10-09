@@ -1,0 +1,15 @@
+{
+ "brief": "Builds a regular expression piece by piece from calls, then hands it over as one text with Pattern.",
+ "detail": "Each Add call appends a fragment: a class such as [abc] or [a-z] with a repeat suffix (AddRange, AddAmongChars, AddCharsRange and their digit forms), a literal, a shorthand class, a group, a flag or an assertion. Pattern joins the fragments in order. The calls that add ranges also record a sequence, the same call in data form, so Sequences and Fragments are two views of one pattern; literals and groups add a fragment and no sequence, so the two lists do not stay aligned. Groups made with DefineGroup are remembered and can be reused or referred back to. The text is not escaped or validated: a literal goes in as given. Several public names are broken today and raise errors: NumberOfSequences and its aliases, the CommandAndFragment family, ComposePatterns in the or and sequence modes, MatchSameContentAs, the named-parameter forms CanContainAChar and CanContainADigit, and the five names that forward to the misspelled NumberOfFragments; each is flagged in its own entry. For ready-made patterns by name use AddCommonPattern or StzRxp.",
+ "receiver": "o1 = new stzRegexMaker",
+ "example": [
+  "o1.AddAmongChars(\"abc\", :repeatedExactly, 3, 0)",
+  "o1.AddLiteral(\"-\")",
+  "o1.AddCharsRange(\"a-z\", :repeatedAtLeast, 1, 0)",
+  "? o1.Pattern()",
+  "#--> [abc]{3}-[a-z]{1,}",
+  "? o1.NumberOfFragements()",
+  "#--> 3"
+ ],
+ "see": ["stzRegex", "StzRxp", "stzNumbrex"]
+}

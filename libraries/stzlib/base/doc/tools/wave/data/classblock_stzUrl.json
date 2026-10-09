@@ -1,0 +1,17 @@
+{
+ "brief": "Parses a URL with the engine and gives its parts, with setters that rebuild the text; it never fetches anything.",
+ "detail": "Reach for it to read or change the scheme, user information, host, port, path, query and fragment of one URL, or to move between a file URL and a local file path. The parse is done by the engine (stz_url) and is lazy: a part is read the first time it is asked. The setters change the object in place and rebuild Content from the parts, leaving out ports 80 and 443. It is not a fetcher (stzHttpClient is) and it does not split a query into pairs. A relative reference parses poorly: d.html has an empty path and sub/d.html is read with sub as the host. The class sits in network/stzUrl.ring, which neither stzlib.ring nor stzBase.ring loads, so a caller loads the file itself.",
+ "receiver": "o1 = new stzUrl(\"https://bob:pw@example.com:8080/docs/guide.html?x=1&y=2#top\")",
+ "example": [
+  "? o1.Host()",
+  "#--> example.com",
+  "? o1.Port()",
+  "#--> 8080",
+  "? o1.FileName()",
+  "#--> guide.html",
+  "o1.SetQuery(\"a=2\")",
+  "? o1.Content()",
+  "#--> https://bob:pw@example.com:8080/docs/guide.html?a=2#top"
+ ],
+ "see": ["stzHttpClient", "stzString"]
+}

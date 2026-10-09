@@ -1,0 +1,16 @@
+{
+ "brief": "Turns a meaning (danger, warning, info, success, muted) into a short sound and decides when it may play, so a screen state is corroborated by ear.",
+ "detail": "An author names a meaning and gets a motif: ToSoundOf returns it as data, with no audio device, and the audibility and priority questions are answered by pure functions (WouldFireAt, IsAudible, PriorityOf). Muted renders as silence. Start opens a sound pool and Fire plays a cue through the device, dropping it when the same value repeats inside the refractory period or a louder alert is still sounding; Say queues a cue and a spoken phrase, which are only heard through TickSpeech or SpeakQueueToEnd. A sound is not the acknowledgement: it arrives about 419 ms after Fire, against the 100 ms the screen has, so it must repeat what another channel already shows. Every example of this reference rendered to buffers; none played through a device, and what a person hears of the motifs has not been recorded here.",
+ "receiver": "o1 = new stzEarcons()",
+ "example": [
+  "? o1.IsSilentValue(:Muted)",
+  "#--> 1",
+  "? o1.PriorityOf(:Danger)",
+  "#--> 4",
+  "? o1.ToStepOf(\"Danger.Alert\")",
+  "#--> alert",
+  "? o1.WouldFireAt(:Danger, 10)",
+  "#--> 1"
+ ],
+ "see": ["StzEarconsQ", "StzSemanticValues", "stzVoicePool", "stzVoice"]
+}

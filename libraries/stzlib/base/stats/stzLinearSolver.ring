@@ -8,6 +8,31 @@
 */
 
 class stzLinear from stzObject
+# Solves small linear programs written as text: variables with bounds, constraints such as x + y <= 5 and one objective to maximize or minimize.
+#
+# Declare the variables with addVariable, the constraints with addConstraint and the objective with
+# maximize or minimize, then call solve with a solver name. The simplex solver (Big-M, run in the
+# engine) gives the exact optimum and reports optimal, infeasible or unbounded in status. The greedy
+# solver, the default, is a heuristic that raises every variable as far as allowed: it does not
+# honour minimize and reads every constraint as a limit from above. The genetic solver raises an
+# error as soon as the problem has a constraint, and branch_bound is not implemented, so it always
+# raises. The integer and binary marks are recorded but no solver enforces them. The simplex pivot
+# helpers (BuildSimplexTableau and its kin) are placeholders that answer constants. Pass an empty
+# text to solve for the default solver, since the argument cannot be left out.
+#
+#   receiver   o1 = new stzLinearSolver()
+#   example    o1.addVariable("x", 0, 4).addVariable("y", 0, 6)
+#              o1.addConstraint("x + y", "<=", 5).addConstraint("x + 3*y", "<=", 12)
+#              o1.maximize("3*x + 2*y").solve("simplex")
+#              ? o1.solutionValue("x")
+#              #--> 4
+#              ? o1.solutionValue("y")
+#              #--> 1
+#              ? o1.objectiveValue()
+#              #--> 14
+#              ? o1.status()
+#              #--> optimal
+#   see        stzStochasticSolver, stzMultiObjectiveSolver
 class stzLinearSolver from stzObject
 
 	@variables = []
@@ -20,10 +45,18 @@ class stzLinearSolver from stzObject
 	@solveTime = 0
 	@aCoeffCache = []   # expression text -> parsed [ [name, coeff], ... ]
 
+	# Builds an empty linear programming problem, with no variable, no constraint and no objective.
+	#
+	#   returns    nothing; the object is built
+	#   see        clear, addVariable, solve
 	def init()
 		# Initialize with empty problem
 		this.clear()
 
+	# Empties the problem so a new one can be described: variables, constraints, objective, status and the last solution are dropped.
+	#
+	#   returns    nothing; the problem is empty again
+	#   see        init, solve
 	def clear()
 		@variables = []
 		@constraints = []
@@ -38,6 +71,19 @@ class stzLinearSolver from stzObject
 	 #  VARIABLES MANAGEMENT  #
 	#------------------------#
 
+	# Adds a continuous variable with a lower and an upper bound, in declaration order.
+	#
+	#   varName        the variable's name, as text
+	#   _lowerBound_   the smallest value the variable may take
+	#   _upperBound_   the largest value it may take, never below the lower bound
+	#   returns        the solver itself, so calls chain
+	#   note           an empty text given for one bound copies the other bound (a, "" and 6 gives
+	#                  the range 6 to 6); expressions read names without regard to case
+	#   warning        all three arguments must be given: calling with fewer raises R19 Calling
+	#                  function with less number of parameters, so the defaults coded for a missing
+	#                  bound are never reached; a name that is not text, bounds that are not numbers
+	#                  and an upper bound below the lower bound each raise an error
+	#   see            addIntegerVariable, addBinaryVariable, variableNames, addConstraint
 	def addVariable(varName, _lowerBound_, _upperBound_)
 		if NOT isString(varName)
 			stzRaise("Variable name must be a string!")
@@ -76,6 +122,17 @@ class stzLinearSolver from stzObject
 		@variables + _aVar_
 		return this
 
+	# Adds a variable whose type is marked integer, with the same arguments and checks as a continuous one.
+	#
+	#   varName        the variable's name, as text
+	#   _lowerBound_   the smallest value the variable may take
+	#   _upperBound_   the largest value it may take
+	#   returns        the solver itself, so calls chain
+	#   note           all three arguments are needed, as for addVariable
+	#   warning        the mark is only recorded in the variable list: the simplex solver ignores it
+	#                  (maximize n with 2*n <= 5 answers 2.5), the greedy solver floors every value,
+	#                  and branch and bound is not implemented
+	#   see            addVariable, addBinaryVariable
 	def addIntegerVariable(varName, _lowerBound_, _upperBound_)
 		# Was `@variables + [:type, "integer"]` -- appends a malformed
 		# pair to the variables list instead of modifying the just-
@@ -85,15 +142,32 @@ class stzLinearSolver from stzObject
 		@variables[ len(@variables) ][:type] = "integer"
 		return this
 
+	# Adds a variable bounded between 0 and 1 and marked binary.
+	#
+	#   varName    the variable's name, as text
+	#   returns    the solver itself, so calls chain
+	#   warning    the mark is only recorded: the simplex solver ignores it (maximize b with 2*b <=
+	#              1 answers 0.5)
+	#   see        addVariable, addIntegerVariable
 	def addBinaryVariable(varName)
 		# Same bug as addIntegerVariable.
 		this.addVariable(varName, 0, 1)
 		@variables[ len(@variables) ][:type] = "binary"
 		return this
 
+	# Returns the declared variables in order, each as a list of name, lowerbound, upperbound and type pairs.
+	#
+	#   returns    a list with one list of [ key, value ] pairs per variable; [ ] when none is
+	#              declared
+	#   note       the keys are lower case
+	#   see        variableNames, addVariable
 	def variables()
 		return @variables
 
+	# Returns the names of the declared variables, in declaration order.
+	#
+	#   returns    a list of text
+	#   see        variables, addVariable
 	def variableNames()
 		_aNames_ = []
 		_nVariablesLen_ = len(@variables)
@@ -106,6 +180,17 @@ class stzLinearSolver from stzObject
 	 #  CONSTRAINTS MANAGEMENT  #
 	#--------------------------#
 
+	# Adds one linear constraint: an expression such as "x + 3*y", a comparison and a number.
+	#
+	#   expression   the left side, as text, with terms like 2*x, x*2 or x
+	#   operator     the comparison: "<=", ">=" or "="
+	#   _value_      the number the expression is compared with
+	#   returns      the solver itself, so calls chain
+	#   note         constraints are stored as stzHashList objects
+	#   warning      an expression that is not text, another operator, or a value that is neither a
+	#                number nor text raise an error; a value given as text, such as "7" or "", is
+	#                stored as 0 because the text is looked up in the variables list
+	#   see          constraints, maximize, minimize
 	def addConstraint(expression, operator, _value_)
 		# expression: string like "2*x + 3*y"
 		# operator: "<=", ">=", "="
@@ -144,6 +229,10 @@ class stzLinearSolver from stzObject
 		@constraints + _oConstraint_
 		return this
 
+	# Returns the declared constraints in order, each as a stzHashList holding expression, operator and value.
+	#
+	#   returns    a list of stzHashList objects; [ ] when none is declared
+	#   see        addConstraint
 	def constraints()
 		return @constraints
 
@@ -151,19 +240,39 @@ class stzLinearSolver from stzObject
 	 #  OBJECTIVE FUNCTION  #
 	#----------------------#
 
+	# Sets the objective to an expression to make as large as possible, replacing any earlier objective.
+	#
+	#   expression   the objective, as text, such as "3*x + 2*y"
+	#   returns      the solver itself, so calls chain
+	#   see          minimize, objective, solve
 	def maximize(expression)
 		@objective = expression
 		@objectiveType = "maximize"
 		return this
 
+	# Sets the objective to an expression to make as small as possible, replacing any earlier objective.
+	#
+	#   expression   the objective, as text, such as "x + 2*y"
+	#   returns      the solver itself, so calls chain
+	#   warning      the greedy solver does not honour it (minimize x with x <= 4 answers 4); use
+	#                the simplex solver
+	#   see          maximize, objective, solve
 	def minimize(expression)
 		@objective = expression
 		@objectiveType = "minimize"
 		return this
 
+	# Returns the objective expression as text.
+	#
+	#   returns    a text; "" before an objective is set
+	#   see        maximize, minimize, objectiveType
 	def objective()
 		return @objective
 
+	# Returns whether the objective is to be made larger or smaller.
+	#
+	#   returns    the text "maximize" or "minimize"; "maximize" before any objective is set
+	#   see        maximize, minimize, objective
 	def objectiveType()
 		return @objectiveType
 
@@ -171,6 +280,18 @@ class stzLinearSolver from stzObject
 	 #  SOLVING  #
 	#-----------#
 
+	# Runs one of the built-in solvers and keeps its answer: "greedy" (the default), "simplex", "branch_bound" or "genetic".
+	#
+	#   _cSolver_   the solver's name, in lower case, an empty text selects greedy
+	#   returns     the solver itself, so calls chain
+	#   note        on maximize 3*x + 2*y with x + y <= 5 and x + 3*y <= 12, bounds 0..4 and 0..6,
+	#               simplex and greedy both answer x = 4 and y = 1, value 14
+	#   warning     the argument cannot be left out (R19), pass an empty text for the default; no
+	#               variable, no objective or an unknown name raise an error; "branch_bound" always
+	#               raises today and sets the status to unimplemented; "genetic" raises R5 as soon
+	#               as the problem has a constraint; "greedy" is a heuristic and still reports the
+	#               status optimal
+	#   see         solveWithSimplex, solveWithGreedy, Solution, status, objectiveValue
 	def solve(_cSolver_)
 		if isNull(_cSolver_) or _cSolver_ = ""
 			_cSolver_ = "greedy"  # Default solver
@@ -210,6 +331,17 @@ class stzLinearSolver from stzObject
 	 #  BUILT-IN SOLVERS  #
 	#--------------------#
 
+	# Returns a solution that raises each variable, best objective per resource first, to the largest whole value its limits allow.
+	#
+	#   returns    a list of [ name, value ] pairs, one per variable
+	#   note       called directly it returns the pairs and sets the status and iterations but does
+	#              not store the answer; solve does
+	#   warning    a heuristic, reported with status optimal in every case: it raises variables as
+	#              far as allowed even when minimizing (minimize x with x <= 4 answers 4, the
+	#              simplex answers 0), it reads ">=" and "=" as "<=" so an equality can be violated
+	#              (minimize x + 2*y with x + y >= 3 and x - y = -1 answers x = 0 and y = 3, value
+	#              6, where the simplex answers 1 and 2, value 5), and it floors values
+	#   see        solve, solveWithSimplex, CalculateMaxPossibleValue
 	def solveWithGreedy()
 		# Greedy solver: maximize efficiency ratio for each variable
 		@status = "optimal"
@@ -268,6 +400,18 @@ class stzLinearSolver from stzObject
 		
 		return _aSolution_
 
+	# Returns the optimum found by a Big-M simplex run in the engine, after shifting the variables to their lower bounds.
+	#
+	#   returns    a list of [ name, value ] pairs, one per variable; the status is set to optimal,
+	#              infeasible, unbounded or iteration_limit
+	#   note       minimize x + 2*y with x + y >= 3 and x - y = -1, bounds 0..2 and 0..5, answers x
+	#              = 1 and y = 2, which satisfies both rows
+	#   warning    the integer and binary marks are ignored; a problem with no constraint and with
+	#              every bound range at least 1000000000 wide raises 'the engine simplex returned an
+	#              unusable result' (a single variable up to 1000000000000, and two such variables,
+	#              both raised); an unbounded problem that has a constraint answers with the status
+	#              unbounded instead of raising
+	#   see        solve, solveWithGreedy
 	def solveWithSimplex()
 		# REAL SIMPLEX (R4 step 5 floor, 2026-07-14) -- the S0 honesty
 		# raise replaced WITH the capability: Big-M dense tableau.
@@ -470,6 +614,13 @@ class stzLinearSolver from stzObject
 		next
 		return _aSolution_
 
+	# Raises error today instead of solving by branch and bound, which is not implemented yet.
+	#
+	#   returns    nothing; always raises and sets the status to unimplemented
+	#   note       the integer variables are therefore never enforced by any solver
+	#   warning    an honesty guard stops the method on its first line, so the branching code after
+	#              it never runs; use "greedy" or "simplex"
+	#   see        solve, solveWithSimplex
 	def solveWithBranchAndBound()
 		# HONESTY GUARD (S0, 2026-07-14): branch-and-bound rides the
 		# simplex relaxation, which is not implemented yet (see
@@ -537,6 +688,16 @@ class stzLinearSolver from stzObject
 		
 		return _aBestSolution_
 
+	# Returns a solution found by a genetic search of 50 candidates over 100 generations, scored by objective minus a constraint penalty.
+	#
+	#   returns    a list of [ name, value ] pairs, one per variable
+	#   note       the search draws random numbers from the engine
+	#   warning    raises R5 Can't access the list item, Object is not list as soon as the problem
+	#              has a constraint, because CalculatePenalty reads a variable oConst that does not
+	#              exist (two problems, one and two constraints); a problem without constraints
+	#              runs, and bounds 0..100 with maximize x + y answered x = 99 and y = 100, so the
+	#              search is approximate
+	#   see        solve, InitializePopulation, CalculateFitness
 	def solveWithGenetic()
 		# Genetic algorithm for complex problems
 		@status = "optimal"
@@ -596,6 +757,10 @@ class stzLinearSolver from stzObject
 	 #  SOLVER HELPER METHODS  #
 	#-------------------------#
 
+	# Returns the objective's coefficient for each declared variable, in declaration order.
+	#
+	#   returns    a list of numbers; 0 for a variable the objective does not mention
+	#   see        extractCoefficient, maximize
 	def parseObjectiveCoefficients()
 		# Extract coefficients from objective function
 		_aCoeffs_ = []
@@ -722,6 +887,13 @@ class stzLinearSolver from stzObject
 		@aCoeffCache + [ _cExpression_, _aPairs_ ]
 		return _aPairs_
 
+	# Returns the coefficient of one variable in an expression, adding up the terms that name it.
+	#
+	#   _cExpression_   the expression, as text, with terms like 2*x, x*2, -x or x
+	#   _cVarName_      the variable's name, matched without regard to case
+	#   returns         a number; 0 when the variable does not appear
+	#   note            x*2 + y - x gives 1 for x
+	#   see             parseObjectiveCoefficients, calculateResourceCost
 	def extractCoefficient(_cExpression_, _cVarName_)
 		_cV_ = StzLower(ring_trim(_cVarName_))
 		_aPairs_ = This._ParsedTermsOf(_cExpression_)
@@ -733,6 +905,11 @@ class stzLinearSolver from stzObject
 		next
 		return 0
 
+	# Returns the sum, over all constraints, of the absolute coefficients of one variable.
+	#
+	#   _cVarName_   the variable's name
+	#   returns      a number; 0 when no constraint mentions the variable
+	#   see          extractCoefficient, solveWithGreedy
 	def calculateResourceCost(_cVarName_)
 		# Calculate total resource cost for one unit of variable
 		_nTotalCost_ = 0
@@ -745,6 +922,14 @@ class stzLinearSolver from stzObject
 		
 		return _nTotalCost_
 
+	# Returns the largest whole value a variable can take under the constraints when the other variables keep the values in the solution given.
+	#
+	#   _cVarName_    the variable's name
+	#   _aSolution_   a list of [ name, value ] pairs for the other variables
+	#   returns       a whole number, never below 0; 999999 when no constraint with a positive
+	#                 coefficient limits it
+	#   warning       every constraint is read as "<=", whatever its operator
+	#   see           solveWithGreedy, GetSolutionValue
 	def CalculateMaxPossibleValue(_cVarName_, _aSolution_)
 		# Calculate maximum possible value considering constraints
 		_nMinLimit_ = 999999
@@ -780,6 +965,13 @@ class stzLinearSolver from stzObject
 		
 		return max([ 0, floor(_nMinLimit_) ])
 
+	# Returns the value of one variable in a list of [ name, value ] pairs.
+	#
+	#   _aSolution_   a list of [ name, value ] pairs
+	#   _cVarName_    the variable's name, exactly as written
+	#   returns       a number; 0 when the name is not in the list
+	#   note          the name is matched with its exact case
+	#   see           EvaluateSolution, Solution
 	def GetSolutionValue(_aSolution_, _cVarName_)
 		_nLen_ = len(_aSolution_)
 		for i = 1 to _nLen_
@@ -789,6 +981,12 @@ class stzLinearSolver from stzObject
 		next
 		return 0
 
+	# Returns the objective's value for a list of [ name, value ] pairs.
+	#
+	#   _aSolution_   a list of [ name, value ] pairs
+	#   returns       a number
+	#   note          x = 4 and y = 1 give 14 for 3*x + 2*y
+	#   see           objectiveValue, GetSolutionValue
 	def EvaluateSolution(_aSolution_)
 		# Evaluate objective function value
 		_nValue_ = 0
@@ -803,6 +1001,12 @@ class stzLinearSolver from stzObject
 		
 		return _nValue_
 
+	# TRUE if the first value beats the second for the current goal: larger when maximizing, smaller when minimizing.
+	#
+	#   nValue1    the value to test
+	#   nValue2    the value to beat
+	#   returns    TRUE or FALSE
+	#   see        objectiveType, EvaluateSolution
 	def isBetter(nValue1, nValue2)
 		if @objectiveType = "maximize"
 			return nValue1 > nValue2
@@ -810,23 +1014,62 @@ class stzLinearSolver from stzObject
 			return nValue1 < nValue2
 		ok
 
+	# Returns the constant placeholder [ [ 1, 2, 3 ], [ 4, 5, 6 ] ] for every problem.
+	#
+	#   returns    a list of two lists of numbers, always the same
+	#   warning    a stub marked TODO in the code: it builds no tableau, and solveWithSimplex does
+	#              not call it, since its pivoting runs in the engine
+	#   see        solveWithSimplex
 	def BuildSimplexTableau() #TODO // Impplement a full solution
 		# Build initial simplex tableau (simplified)
 		# This is a basic implementation for educational purposes
 		return [[1, 2, 3], [4, 5, 6]]  # Placeholder
 
+	# Returns 0 for every tableau, as a placeholder.
+	#
+	#   _aTableau_   a tableau, which is not read
+	#   returns      the number 0
+	#   warning      a stub: the argument is ignored, even [ [ 1, -2 ] ] answers 0
+	#   see          BuildSimplexTableau
 	def HasNegativeCoefficient(_aTableau_)
 		return 0  # Simplified
 
+	# Returns 1 for every tableau, as a placeholder.
+	#
+	#   _aTableau_   a tableau, which is not read
+	#   returns      the number 1
+	#   warning      a stub: the argument is ignored
+	#   see          BuildSimplexTableau
 	def FindPivotColumn(_aTableau_)
 		return 1  # Simplified
 
+	# Returns 1 for every tableau and column, as a placeholder.
+	#
+	#   _aTableau_   a tableau, which is not read
+	#   nCol         a column number, which is not read
+	#   returns      the number 1
+	#   warning      a stub: both arguments are ignored
+	#   see          BuildSimplexTableau
 	def FindPivotRow(_aTableau_, nCol)
 		return 1  # Simplified
 
+	# Returns the tableau it was given, unchanged, as a placeholder.
+	#
+	#   _aTableau_   a tableau
+	#   nRow         a row number, which is not read
+	#   nCol         a column number, which is not read
+	#   returns      the same list that was passed
+	#   warning      a stub: no pivoting is done
+	#   see          BuildSimplexTableau
 	def PivotTableau(_aTableau_, nRow, nCol)
 		return _aTableau_  # Simplified
 
+	# Returns a pair of each variable's name and 0, whatever the tableau, as a placeholder.
+	#
+	#   _aTableau_   a tableau, which is not read
+	#   returns      a list of [ name, 0 ] pairs, one per variable
+	#   warning      a stub: the tableau is ignored
+	#   see          BuildSimplexTableau, solveWithSimplex
 	def ExtractSimplexSolution(_aTableau_)
 		# Extract solution from final tableau
 		_aSolution_ = []
@@ -839,6 +1082,11 @@ class stzLinearSolver from stzObject
 		
 		return _aSolution_
 
+	# Returns a new solver with the same bounds, constraints and objective in which every variable is continuous.
+	#
+	#   returns    a stzLinearSolver
+	#   note       the integer and binary marks are dropped
+	#   see        solveWithBranchAndBound, addVariable
 	def CreateRelaxedProblem()
 		# Create LP relaxation for integer problem
 		_oRelaxed_ = new stzLinearSolver()
@@ -877,6 +1125,11 @@ class stzLinearSolver from stzObject
 		
 		return _oRelaxed_
 
+	# TRUE if every value of the solution is within 0.001 of a whole number.
+	#
+	#   _aSolution_   a list of [ name, value ] pairs
+	#   returns       TRUE or FALSE
+	#   see           FindFractionalVariable
 	def isIntegerSolution(_aSolution_)
 		_nLen_ = len(_aSolution_)
 		for i = 1 to _nLen_
@@ -887,6 +1140,12 @@ class stzLinearSolver from stzObject
 		next
 		return 1
 
+	# TRUE if the solution satisfies every constraint, within a tolerance of 0.001.
+	#
+	#   _aSolution_   a list of [ name, value ] pairs
+	#   returns       TRUE or FALSE
+	#   note          bounds are not checked, only constraints
+	#   see           EvaluateConstraintLeft, addConstraint
 	def IsFeasible(_aSolution_)
 		# Check if solution satisfies all constraints
 		_nLen_ = len(@constraints)
@@ -914,6 +1173,13 @@ class stzLinearSolver from stzObject
 		next
 		return 1
 
+	# Returns the value of a constraint's left side for a solution.
+	#
+	#   _cExpression_   the left side, as text
+	#   _aSolution_     a list of [ name, value ] pairs
+	#   returns         a number
+	#   note            x + 3*y with x = 4 and y = 1 gives 7
+	#   see             IsFeasible, extractCoefficient
 	def EvaluateConstraintLeft(_cExpression_, _aSolution_)
 		# Evaluate left side of constraint
 		_nValue_ = 0
@@ -928,6 +1194,11 @@ class stzLinearSolver from stzObject
 		
 		return _nValue_
 
+	# Returns the name of the first variable whose value is not whole, within 0.001.
+	#
+	#   _aSolution_   a list of [ name, value ] pairs
+	#   returns       the variable's name; "" when every value is whole
+	#   see           isIntegerSolution
 	def FindFractionalVariable(_aSolution_)
 		_nLen_ = len(_aSolution_)
 		for i = 1 to _nLen_
@@ -938,6 +1209,17 @@ class stzLinearSolver from stzObject
 		next
 		return ""
 
+	# Returns a copy of the solution in which one variable is capped at a value for "<=" or raised to at least that value for any other operator.
+	#
+	#   _aSolution_   a list of [ name, value ] pairs
+	#   _cVarName_    the variable to change
+	#   _cOperator_   "<=" to cap it, anything else to raise it
+	#   _nValue_      the cap or the floor
+	#   returns       a list of [ name, value ] pairs
+	#   note          x = 4 capped with "<=" and 2 gives 2
+	#   warning       it adds no constraint to the problem, despite its name; it only edits a
+	#                 solution, for the branch and bound code that does not run
+	#   see           FindFractionalVariable, solveWithBranchAndBound
 	def AddBranchConstraint(_aSolution_, _cVarName_, _cOperator_, _nValue_)
 		# This would create a new subproblem with additional constraint
 		# Simplified implementation returns modified solution
@@ -957,6 +1239,12 @@ class stzLinearSolver from stzObject
 		next
 		return _aNewSolution_
 
+	# Returns a population of random candidate solutions, each variable drawn as a whole number between its bounds.
+	#
+	#   _nSize_    how many candidates to draw
+	#   returns    a list of solutions, each a list of [ name, value ] pairs
+	#   note       the values are random, so only their shape and bounds can be relied on
+	#   see        solveWithGenetic, Mutate
 	def InitializePopulation(_nSize_)
 		_aPopulation_ = []
 		_aVarNames_ = this.variableNames()
@@ -975,6 +1263,14 @@ class stzLinearSolver from stzObject
 		
 		return _aPopulation_
 
+	# Raises error R5 today instead of returning the objective value less the constraint penalty, negated when minimizing.
+	#
+	#   _aIndividual_   a candidate, as a list of [ name, value ] pairs
+	#   returns         nothing; raises R5 Can't access the list item, Object is not list
+	#   warning         it raises whenever the problem has a constraint, because CalculatePenalty
+	#                   fails (two problems); with no constraint it returns the objective value,
+	#                   negated when minimizing
+	#   see             CalculatePenalty, solveWithGenetic
 	def CalculateFitness(_aIndividual_)
 		# Fitness = objective value - penalty for constraint violations
 		_nObjectiveValue_ = this.evaluateSolution(_aIndividual_)
@@ -986,6 +1282,14 @@ class stzLinearSolver from stzObject
 			return -_nObjectiveValue_ - _nPenalty_
 		ok
 
+	# Raises error R5 today instead of returning 1000 times the total constraint violation of a candidate.
+	#
+	#   _aIndividual_   a candidate, as a list of [ name, value ] pairs
+	#   returns         nothing; raises R5 Can't access the list item, Object is not list
+	#   warning         line 995 reads a variable oConst that is never defined, ahead of the correct
+	#                   line; it raises with one constraint and with two, and returns 0 when the
+	#                   problem has none
+	#   see             CalculateFitness, solveWithGenetic
 	def CalculatePenalty(_aIndividual_)
 		_nPenalty_ = 0
 		_nLen_ = len(@constraints)
@@ -1013,6 +1317,13 @@ class stzLinearSolver from stzObject
 		
 		return _nPenalty_
 
+	# Returns the fitter of two candidates drawn at random from the population.
+	#
+	#   _aPopulation_   a list of candidates
+	#   _aFitness_      a list of numbers, one per candidate, in the same order
+	#   returns         one candidate, a list of [ name, value ] pairs
+	#   note            the draw is random
+	#   see             solveWithGenetic, Crossover
 	def TournamentSelection(_aPopulation_, _aFitness_)
 
 		_nSize_ = len(_aPopulation_)
@@ -1035,6 +1346,13 @@ class stzLinearSolver from stzObject
 			return _aPopulation_[_nIndex2_]
 		ok
 
+	# Returns a child that takes each variable's pair from one parent or the other, chosen at random.
+	#
+	#   _aParent1_   a candidate
+	#   _aParent2_   a candidate with the same variables in the same order
+	#   returns      a list of [ name, value ] pairs
+	#   note         the choice is random
+	#   see          TournamentSelection, Mutate
 	def Crossover(_aParent1_, _aParent2_)
 		_aChild_ = []
 		_nLen_ = len(_aParent1_)
@@ -1048,6 +1366,13 @@ class stzLinearSolver from stzObject
 		return _aChild_
 
 
+	# Returns the candidate after giving one randomly chosen variable a new random whole value between its bounds.
+	#
+	#   _aIndividual_   a candidate, as a list of [ name, value ] pairs
+	#   returns         the changed candidate
+	#   note            over 300 calls on three variables the first was changed 157 times and the
+	#                   other two 72 and 71, so the first variable is favoured
+	#   see             Crossover, InitializePopulation
 	def Mutate(_aIndividual_)
 		_nIndex_ = StzEngineRandomInt(0, len(_aIndividual_))
 		if _nIndex_ = 0
@@ -1074,12 +1399,26 @@ class stzLinearSolver from stzObject
 	 # SOLUTION ACCESS #
 	#-----------------#
 
+	# Returns the answer stored by the last solve.
+	#
+	#   returns    a list of [ name, value ] pairs; an empty list-like object before any solve
+	#   see        solve, solutionValue, objectiveValue
 	def Solution()
 		return @aSolution
 
+	# Returns the stored value of one variable after a solve.
+	#
+	#   varName    the variable's name
+	#   returns    a number; an empty text before any solve or for an unknown name
+	#   see        Solution, objectiveValue
 	def solutionValue(varName)
 		return @aSolution[varName]
 
+	# Returns the objective expression evaluated at the stored solution.
+	#
+	#   returns    a number
+	#   note       after maximize 3*x + 2*y with x = 4 and y = 1 it answers 14
+	#   see        EvaluateSolution, solve
 	def objectiveValue()
 
 		# Calculate objective value from current solution
@@ -1097,6 +1436,13 @@ class stzLinearSolver from stzObject
 		# Evaluate expression (simplified)
 		return this.evaluateExpression(_cExpression_)
 
+	# Returns the value of an arithmetic expression given as text, 0 when it cannot be evaluated.
+	#
+	#   _cExpression_   the arithmetic expression, as text, such as 2+3*4
+	#   returns         a number
+	#   note            2+3*4 gives 14; an invalid text such as 1 + gives 0 after Ring prints an
+	#                   eval error line
+	#   see             objectiveValue
 	def evaluateExpression(_cExpression_)
 		# Simple expression evaluator
 		# In practice, would use a proper math parser
@@ -1109,12 +1455,25 @@ class stzLinearSolver from stzObject
 			return 0
 		done
 
+	# Returns how the last solve ended.
+	#
+	#   returns    a text: optimal, infeasible, unbounded, iteration_limit or unimplemented; ""
+	#              before any solve
+	#   see        solve, iterations
 	def status()
 		return @status
 
+	# Returns the work counted by the last solver: the number of variables for greedy, the pivots for simplex, the generations for genetic.
+	#
+	#   returns    a number; 0 before any solve
+	#   see        solve, status
 	def iterations()
 		return @iterations
 
+	# Returns the time the last solve took, in seconds.
+	#
+	#   returns    a number; 0 before any solve
+	#   see        solve, iterations
 	def solveTime()
 		return @solveTime
 
@@ -1122,6 +1481,12 @@ class stzLinearSolver from stzObject
 	 #  DISPLAY AND REPORTING  #
 	#-------------------------#
 
+	# Prints the problem and, once solved, the status, the time, the variable values and the objective value.
+	#
+	#   returns    nothing; it prints to the console
+	#   warning    every variable, constraint and value is printed twice, once plain and once with a
+	#              bullet, and the plain constraint line leaves out its operator and number
+	#   see        exportReport, solve
 	def show()
 		? BoxRound("Linear Programming Problem")
 		? "Variables:"
@@ -1185,6 +1550,12 @@ class stzLinearSolver from stzObject
 			? "• Objective Value: " + this.objectiveValue()
 		ok
 
+	# Writes the stored solution to a file, one Variable,Value line per variable.
+	#
+	#   cFileName   the path of the file to write
+	#   returns     nothing; the file is written
+	#   note        the first line is Variable,Value
+	#   see         exportReport, Solution
 	def exportToCSV(cFileName)
 		# Export solution to CSV file
 		_oFile_ = new stzFile(cFileName)
@@ -1196,6 +1567,11 @@ class stzLinearSolver from stzObject
 
 		_oFile_.write(_cContent_)
 
+	# Writes a text report of the problem and of the stored solution to a file.
+	#
+	#   cFileName   the path of the file to write
+	#   returns     nothing; the file is written
+	#   see         exportToCSV, show
 	def exportReport(cFileName)
 		# Export full report
 		_oFile_ = new stzFile(cFileName)
@@ -1227,6 +1603,12 @@ class stzLinearSolver from stzObject
 	 # HELPER METHODS #
 	#----------------#
 
+	# TRUE if a variable of that name is declared.
+	#
+	#   cName      the name to look for, exactly as declared
+	#   returns    TRUE or FALSE
+	#   note       X is not found when only x is declared
+	#   see        variableNames, addVariable
 	def isValidVariableName(cName)
 		# Check if variable name is valid
 		_nLen_ = len(@variables)
@@ -1237,6 +1619,11 @@ class stzLinearSolver from stzObject
 		next
 		return 0
 
+	# TRUE if the problem has at least one variable and an objective.
+	#
+	#   returns    TRUE or FALSE
+	#   note       constraints are not required
+	#   see        solve
 	def validateProblem()
 		# Validate problem definition
 		if len(@variables) = 0

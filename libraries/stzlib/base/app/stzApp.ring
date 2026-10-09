@@ -34,6 +34,28 @@
 func StzAppQ(pcName)
     return new stzApp(pcName)
 
+# Holds an application as a world of meaning: its things, instances, flows, reactions, goals, screens and reach, declared in plain words.
+#
+# Declare things with AddThing and their fields with Has, then instances and relations with
+# AddInstance and Relate: these form a graph. Flows, reactions, goals, screens and refinements are
+# cursor builders, each plain verb acting on the one declared last, and each verb has a Q form that
+# returns the world so a brace can follow: AddGoalQ(:Visited) { Means = "every :Client
+# Has(:visited)" }. A goal is a wanted state of the graph; Pursue measures its gap and proposes how
+# to close it through the reactions, and Live and Pulse fire the reactions themselves. Explain
+# prints the whole world in words. The world only describes: a stzPlatform wraps it to build,
+# generate shells and serve it.
+#
+#   receiver   o1 = new stzApp("shop")
+#   example    o1.AddThingQ("Client").Has([ "code", "name" ])
+#              ? o1.Things()[1][1]
+#              #--> Client
+#              o1.AddInstance("anna", "Client")
+#              o1.AddReactionQ("Client").Propose("Visit")
+#              ? o1.Pulse()
+#              #--> 1
+#              ? o1.Proposals()[1][4]
+#              #--> anna
+#   see        StzAppQ, stzPlatform, stzGraph, stzGraphGoal
 class stzApp from stzObject
 
     @cName        = ""
@@ -83,6 +105,11 @@ class stzApp from stzObject
     Files      = ""
     Keep       = ""
 
+    # Builds an empty world with the given name and a graph of the same name that holds its things and instances.
+    #
+    #   pcName     the world's name
+    #   returns    nothing; the object is built
+    #   see        AddThing, GraphQ, Explain
     def init(pcName)
         @cName        = pcName
         @oGraph       = new stzGraph(pcName)
@@ -99,21 +126,29 @@ class stzApp from stzObject
         @bLive        = 0
         @aProposals   = []
 
-    #== Identity & substance =================================================
-
+    # Returns the name the world was given.
+    #
+    #   returns    a text
+    #   see        init
+    #@ aka  == Identity & substance =================================================
     def Name()
         return @cName
 
+    # Returns the graph that holds the world's things and instances.
+    #
+    #   returns    a stzGraph
+    #   note       the graph ids are in lower case, whatever the case of the names given
+    #   see        AddThing, AddInstance, Relate
     def GraphQ()
         return @oGraph
 
-    #== DOMAIN (Being) =======================================================
-    # AddThing() performs the act and returns NOTHING; AddThingQ() performs it
-    # and hands back the app, so the block  AddThingQ(:X) { Has(...) Owns(:Y) }
-    # runs the app's OWN Has/IsTrue/Owns/Of on the current-thing cursor.
-    # (The core law: a plain name acts, the Q chains -- exactly as stzList
-    # does with AddItem() / AddItemQ().)
-
+    # Declares a kind of thing, or selects it if already declared, and makes it the one that Has, IsTrue, Owns and Of describe.
+    #
+    #   pcName     the thing's name
+    #   returns    nothing; use AddThingQ to chain or to open a brace
+    #   note       calling it again with the same name selects the thing and adds no copy
+    #   see        Has, IsTrue, Owns, Of, Things
+    #@ aka  == DOMAIN (Being) ======================================================= AddThing() performs the act and returns NOTHING; AddThingQ() performs it and hands back the app, so the block AddThingQ(:X) { Has(...) Owns(:Y) } runs the app's OWN Has/IsTrue/Owns/Of on the current-thing cursor. (The core law: a plain name acts, the Q chains -- exactly as stzList does with AddItem() / AddItemQ().)
     def AddThing(pcName)
         # sigil'd: a bare `n` binds a caller's global of that name
         _n_ = This._ThingIndex(pcName)
@@ -130,22 +165,53 @@ class stzApp from stzObject
             This.AddThing(pcName)
             return This
 
+    # Sets the field names of the thing just added, replacing any set before.
+    #
+    #   paFields   a list of field names
+    #   returns    the world itself, so calls chain
+    #   note       with no thing added yet it does nothing
+    #   see        AddThing, Things
     def Has(paFields)                       # fields of the current thing
         if @nCur > 0  @aThings[@nCur][2] = paFields  ok
         return This
 
+    # Adds a truth to the thing just added: a field name and the expression that holds for it.
+    #
+    #   pcField    the field the truth is about
+    #   pcExpr     the expression that must hold, such as > 18
+    #   returns    the world itself, so calls chain
+    #   note       Explain shows it as true when
+    #   see        Has, Explain
     def IsTrue(pcField, pcExpr)             # a truth of the current thing
         if @nCur > 0  @aThings[@nCur][3] + [ pcField, pcExpr ]  ok
         return This
 
+    # Adds the relation owns toward another thing to the thing just added.
+    #
+    #   pcThing    the thing that is owned
+    #   returns    the world itself, so calls chain
+    #   see        Of, AddRelation, Explain
     def Owns(pcThing)                       # a relation of the current thing
         if @nCur > 0  @aThings[@nCur][4] + [ "owns", pcThing ]  ok
         return This
 
+    # Adds the relation of toward another thing to the thing just added.
+    #
+    #   pcThing    the thing that this one belongs to
+    #   returns    the world itself, so calls chain
+    #   see        Owns, AddRelation, Explain
     def Of(pcThing)
         if @nCur > 0  @aThings[@nCur][4] + [ "of", pcThing ]  ok
         return This
 
+    # Declares a free relation between two things, kept apart from the things' own Owns and Of.
+    #
+    #   pcFrom       the first thing
+    #   pcRelation   the relation's name
+    #   pcTo         the second thing
+    #   returns      nothing; use AddRelationQ to chain
+    #   note         it is shown by Explain only: it adds no edge to the graph, unlike Relate
+    #   see          Owns, Relate, Explain
     def AddRelation(pcFrom, pcRelation, pcTo)     # a free relation between two things
         @aKnows + [ pcFrom, pcRelation, pcTo ]
 
@@ -158,6 +224,13 @@ class stzApp from stzObject
             This.AddRelation(pcFrom, pcRelation, pcTo)
             return This
 
+    # Adds a named individual to the graph, linked to its kind of thing by an isa edge.
+    #
+    #   pcInstance   the individual's name
+    #   pcThing      the thing it is an instance of
+    #   returns      nothing; use AddInstanceQ to chain
+    #   note         the nodes are created if absent
+    #   see          Relate, AddThing, Pursue
     def AddInstance(pcInstance, pcThing)
         if NOT @oGraph.NodeExists(pcInstance)
             @oGraph.AddNode(pcInstance)
@@ -171,6 +244,14 @@ class stzApp from stzObject
             This.AddInstance(pcInstance, pcThing)
             return This
 
+    # Adds a labelled edge between two nodes of the graph, creating either node when absent.
+    #
+    #   pcFrom       the source node, usually an instance
+    #   pcRelation   the label of the edge
+    #   pcTo         the target node
+    #   returns      the world itself, so calls chain
+    #   note         goals and reactions are judged on these edges
+    #   see          AddInstance, Pursue, Pulse
     def Relate(pcFrom, pcRelation, pcTo)
         if NOT @oGraph.NodeExists(pcFrom)
             @oGraph.AddNode(pcFrom)
@@ -181,10 +262,14 @@ class stzApp from stzObject
         @oGraph.AddEdgeXT(pcFrom, pcTo, "" + pcRelation)
         return This
 
-    #== LIFE - BEHAVIOR (Becoming) ===========================================
-    # When() returns This: the brace  { Require(:x)  Then( Keep(:Y) ) }
-    # runs app methods against the current-flow cursor.
-
+    # Declares that an actor performs a verb on a thing, and makes it the flow that Require and Then complete.
+    #
+    #   pcActor    who acts
+    #   pcVerb     what is done
+    #   pcThing    what it is done to
+    #   returns    nothing; use AddFlowQ to chain
+    #   see        Require, Then, Explain
+    #@ aka  == LIFE - BEHAVIOR (Becoming) =========================================== When() returns This: the brace { Require(:x) Then( Keep(:Y) ) } runs app methods against the current-flow cursor.
     def AddFlow(pcActor, pcVerb, pcThing)
         This._FlushCursors()
         @aFlows + [ pcActor, pcVerb, pcThing, [], [] ]
@@ -194,17 +279,41 @@ class stzApp from stzObject
             This.AddFlow(pcActor, pcVerb, pcThing)
             return This
 
+    # Adds a required field to the flow just added.
+    #
+    #   pcField    the field that must be present
+    #   returns    the world itself, so calls chain
+    #   note       with no flow added yet it does nothing
+    #   see        AddFlow, Then
     def Require(pcField)
         if @nCurFlow > 0  @aFlows[@nCurFlow][4] + pcField  ok
         return This
 
+    # Returns the effect list that tells a flow to keep a thing, for Then to take.
+    #
+    #   pcThing    the thing to keep
+    #   returns    a list of two items, the word keep and the thing
+    #   note       it records nothing by itself, and inside a SetBody brace the name Keep also reads
+    #              as an attribute
+    #   see        Then
     def Keep(pcThing)
         return [ :keep, pcThing ]
 
+    # Adds an effect to the flow just added.
+    #
+    #   paEffect   the effect, such as the list that Keep returns
+    #   returns    the world itself, so calls chain
+    #   note       Explain narrates any effect as then keep followed by the flow's thing
+    #   see        Keep, Require, Explain
     def Then(paEffect)
         if @nCurFlow > 0  @aFlows[@nCurFlow][5] + paEffect  ok
         return This
 
+    # Declares a reaction of a kind of thing, and makes it the one that Unseen, Meets and Propose complete.
+    #
+    #   pcThing    the thing whose instances the reaction watches
+    #   returns    nothing; use AddReactionQ to chain
+    #   see        Unseen, Meets, Propose, Pulse
     def AddReaction(pcThing)
         This._FlushCursors()
         @aReactions + [ pcThing, "", [], [] ]
@@ -214,6 +323,13 @@ class stzApp from stzObject
             This.AddReaction(pcThing)
             return This
 
+    # Sets the condition of the reaction just added to an instance left unseen for a length of time.
+    #
+    #   nQty       the length
+    #   pUnit      its unit, such as Days
+    #   returns    the world itself, so calls chain
+    #   note       the condition is only narrated by Explain: Pulse does not test it
+    #   see        AddReaction, Meets
     def Unseen(nQty, pUnit)
         if @nCurReaction > 0
             @aReactions[@nCurReaction][2] = :unseen
@@ -221,6 +337,12 @@ class stzApp from stzObject
         ok
         return This
 
+    # Sets the condition of the reaction just added to an expression that must hold.
+    #
+    #   pcExpr     the expression, such as total > 100
+    #   returns    the world itself, so calls chain
+    #   note       the condition is only narrated by Explain: Pulse does not test it
+    #   see        AddReaction, Unseen
     def Meets(pcExpr)
         if @nCurReaction > 0
             @aReactions[@nCurReaction][2] = :expr
@@ -228,15 +350,23 @@ class stzApp from stzObject
         ok
         return This
 
+    # Adds to the reaction just added the thing it proposes when it fires.
+    #
+    #   pcThing    the thing to propose
+    #   returns    the world itself, so calls chain
+    #   note       Pulse proposes it for each instance that lacks a relation of that name
+    #   see        AddReaction, Pulse, Proposals
     def Propose(pcThing)
         if @nCurReaction > 0  @aReactions[@nCurReaction][4] + [ :propose, pcThing ]  ok
         return This
 
-    #== LIFE - PURPOSE (Becoming) ============================================
-    # AddGoal() returns This; the brace assigns the goal-cursor ATTRIBUTES
-    # (Means/ReachedBy/Within/Respecting), flushed into the record by
-    # BraceEnd() when the brace closes.
-
+    # Declares a goal, and makes it the one that the brace assigns Means, ReachedBy, Within and Respecting to.
+    #
+    #   pcGoal     the goal's name
+    #   returns    nothing; use AddGoalQ to chain or to open a brace
+    #   note       the Means is read when the brace closes, so assign it inside AddGoalQ(name) { }
+    #   see        Goal, Pursue, GoalSatisfied
+    #@ aka  == LIFE - PURPOSE (Becoming) ============================================ AddGoal() returns This; the brace assigns the goal-cursor ATTRIBUTES (Means/ReachedBy/Within/Respecting), flushed into the record by BraceEnd() when the brace closes.
     def AddGoal(pcGoal)
         This._FlushCursors()
         @aGoals + [ pcGoal, "", :planning, "", [] ]
@@ -263,8 +393,13 @@ class stzApp from stzObject
         next
         return ""
 
-    # THE DATA FORM (the house rule: a plain name returns DATA, the Q form
-    # returns the OBJECT). A goal as a plain record -- nothing to chain on.
+    # Returns a goal as plain data.
+    #
+    #   pcGoal     the goal's name
+    #   returns    a hash list with the keys name, means, reachedby, within and respecting; an empty
+    #              list for an unknown goal
+    #   see        GoalName, GoalNames, Pursue
+    #@ aka  THE DATA FORM (the house rule: a plain name returns DATA, the Q form returns the OBJECT). A goal as a plain record -- nothing to chain on.
     def Goal(pcGoal)
         for i = 1 to len(@aGoals)
             if @aGoals[i][1] = pcGoal
@@ -275,13 +410,22 @@ class stzApp from stzObject
         next
         return []
 
-    # just the goal's NAME -- said precisely, since that is all it returns
+    # Returns the goal's name if the goal is declared.
+    #
+    #   pcGoal     the goal's name
+    #   returns    a text; empty for an unknown goal
+    #   see        Goal, GoalNames
+    #@ aka  just the goal's NAME -- said precisely, since that is all it returns
     def GoalName(pcGoal)
         for i = 1 to len(@aGoals)
             if @aGoals[i][1] = pcGoal  return @aGoals[i][1]  ok
         next
         return ""
 
+    # Returns the names of all declared goals in declaration order.
+    #
+    #   returns    a list of texts
+    #   see        Goal
     def GoalNames()
         _ac_ = []
         for i = 1 to len(@aGoals)
@@ -289,11 +433,17 @@ class stzApp from stzObject
         next
         return _ac_
 
-    # THE REAL PURSUIT: compile the goal's Means into an stzGraphGoal
-    # (a wanted graph state), measure the GAP on the live world graph,
-    # and turn each gap instance into a proposal through the matching
-    # Whenever/Propose reaction (or a bare :attend proposal when no
-    # reaction declares the way).
+    # Measures the gap between the world graph and the goal, and turns each instance in the gap into a proposal.
+    #
+    #   pcGoal     the goal's name
+    #   returns    a list of proposals such as propose Visit for bilal, empty when the gap is closed
+    #              or the goal is unknown
+    #   note       the proposal comes from the reaction that proposes for the goal's kind of thing,
+    #              else the proposal is attend; the list also replaces Proposals
+    #   warning    it prints one pursuing line to the console, and it raises an error when the Means
+    #              has no every :Thing clause
+    #   see        GoalSatisfied, Proposals, Relate
+    #@ aka  THE REAL PURSUIT: compile the goal's Means into an stzGraphGoal (a wanted graph state), measure the GAP on the live world graph, and turn each gap instance into a proposal through the matching Whenever/Propose reaction (or a bare :attend proposal when no reaction declares the way).
     def Pursue(pcGoal)
         nG = 0
         for i = 1 to len(@aGoals)
@@ -316,6 +466,12 @@ class stzApp from stzObject
           len(@aProposals) + " proposal(s)"
         return @aProposals
 
+    # TRUE if the world graph already meets the goal.
+    #
+    #   pcGoal     the goal's name
+    #   returns    1 or 0; 0 for an unknown goal
+    #   warning    it raises an error when the Means has no every :Thing clause
+    #   see        Pursue, Goal
     def GoalSatisfied(pcGoal)
         for i = 1 to len(@aGoals)
             if @aGoals[i][1] = pcGoal
@@ -339,13 +495,14 @@ class stzApp from stzObject
         next
         return ""
 
-    #== BODY (embodiment) ====================================================
-    # SetBody() returns This; the brace assigns the body-cursor
-    # attributes (Graph_/Files/Keep_ -- note: the DSL keywords Graph and
-    # Keep collide with the Graph() accessor and the Keep(thing) flow
-    # verb, so the ATTRIBUTES carry a trailing underscore and BraceEnd
-    # reads whichever was written).
-
+    # Declares where the world is kept, a kind or a list of kinds such as GraphDB, and opens a brace to name its paths.
+    #
+    #   pBody      a kind or a list of kinds of body
+    #   returns    the world itself, so calls chain
+    #   note       inside the brace, assign Graph, Files and Keep, which are read when the brace
+    #              closes
+    #   see        Body, Save, Explain
+    #@ aka  == BODY (embodiment) ==================================================== SetBody() returns This; the brace assigns the body-cursor attributes (Graph_/Files/Keep_ -- note: the DSL keywords Graph and Keep collide with the Graph() accessor and the Keep(thing) flow verb, so the ATTRIBUTES carry a trailing underscore and BraceEnd reads whichever was written).
     def SetBody(pBody)
         This._FlushCursors()
         @aKinds = pBody
@@ -365,11 +522,23 @@ class stzApp from stzObject
         _oB_.Keep  = @aBody[4]
         return _oB_
 
-    # the body as DATA (the Q form above returns the object)
+    # Returns the body as plain data.
+    #
+    #   returns    a hash list with the keys label, graph, files and keep; an empty list when no
+    #              body was set
+    #   see        SetBody, Save
+    #@ aka  the body as DATA (the Q form above returns the object)
     def Body()
         if len(@aBody) = 0  return []  ok
         return [ :label = @aBody[1], :graph = @aBody[2], :files = @aBody[3], :keep = @aBody[4] ]
 
+    # Writes the world graph to its graph file when the body includes GraphDB, and does nothing otherwise.
+    #
+    #   returns    the world itself, so calls chain
+    #   note       with no body it writes nothing
+    #   warning    a path defaults to .stzapp/world.stzgraf in the current folder, which is created
+    #              if needed
+    #   see        SetBody, Body
     def Save()
         if len(@aBody) = 0  return This  ok
         if This._BodyHasKind(:GraphDB)
@@ -396,8 +565,13 @@ class stzApp from stzObject
             StzMakeDir(StzLeft(pcPath, nSlash - 1))
         ok
 
-    #== EMERGENTS (met from without) =========================================
-
+    # Declares a screen, and makes it the one that the To verbs, Shows and Acts describe.
+    #
+    #   pcName     the screen's name
+    #   returns    nothing; use AddScreenQ to chain
+    #   note       its intent is understand until a To verb says otherwise
+    #   see        ToDiscover, Shows, Acts, ScreenNames
+    #@ aka  == EMERGENTS (met from without) =========================================
     def AddScreen(pcName)
         This._FlushCursors()
         @aScreens + [ pcName, "understand", "", [], [] ]
@@ -407,14 +581,39 @@ class stzApp from stzObject
             This.AddScreen(pcName)
             return This
 
+    # Sets the screen just added to the intent discover, about a thing.
+    #
+    #   pcThing    the thing the screen is about
+    #   returns    the world itself, so calls chain
+    #   see        ToUnderstand, ToFocus, ToSelect, ToAct
     def ToDiscover(pcThing)
         return This._ScreenIntent("discover", pcThing)
+    # Sets the screen just added to the intent understand, about a thing.
+    #
+    #   pcThing    the thing the screen is about
+    #   returns    the world itself, so calls chain
+    #   see        ToDiscover, ToFocus
     def ToUnderstand(pcThing)
         return This._ScreenIntent("understand", pcThing)
+    # Sets the screen just added to the intent focus, about a thing.
+    #
+    #   pcThing    the thing the screen is about
+    #   returns    the world itself, so calls chain
+    #   see        ToDiscover, ToSelect
     def ToFocus(pcThing)
         return This._ScreenIntent("focus", pcThing)
+    # Sets the screen just added to the intent select, about a thing.
+    #
+    #   pcThing    the thing the screen is about
+    #   returns    the world itself, so calls chain
+    #   see        ToFocus, ToAct
     def ToSelect(pcThing)
         return This._ScreenIntent("select", pcThing)
+    # Sets the screen just added to the intent act, about a thing.
+    #
+    #   pcThing    the thing the screen is about
+    #   returns    the world itself, so calls chain
+    #   see        ToSelect, Acts
     def ToAct(pcThing)
         return This._ScreenIntent("act", pcThing)
 
@@ -425,14 +624,31 @@ class stzApp from stzObject
         ok
         return This
 
+    # Sets what the screen just added shows.
+    #
+    #   paParts    a list of part names
+    #   returns    the world itself, so calls chain
+    #   note       it replaces any parts set before
+    #   see        AddScreen, Acts
     def Shows(paParts)
         if @nCurScreen > 0  @aScreens[@nCurScreen][4] = paParts  ok
         return This
 
+    # Adds an action of the screen just added, tied to a flow.
+    #
+    #   pcAction   the action's name
+    #   pcFlow     the flow it triggers
+    #   returns    the world itself, so calls chain
+    #   see        Shows, AddFlow
     def Acts(pcAction, pcFlow)
         if @nCurScreen > 0  @aScreens[@nCurScreen][5] + [ pcAction, pcFlow ]  ok
         return This
 
+    # Declares a knob that a person may tune, and makes it the one that Bounds and Options describe.
+    #
+    #   pcKnob     the knob's name
+    #   returns    nothing; use AddRefinementQ to chain
+    #   see        Bounds, Options, Explain
     def AddRefinement(pcKnob)
         This._FlushCursors()
         @aRefinements + [ pcKnob, "", "", [] ]
@@ -442,6 +658,13 @@ class stzApp from stzObject
             This.AddRefinement(pcKnob)
             return This
 
+    # Sets the lowest and highest value of the knob just added.
+    #
+    #   pLow       the lowest value
+    #   pHigh      the highest value
+    #   returns    the world itself, so calls chain
+    #   note       the values are stored as text and Explain narrates them as bounds [1..99]
+    #   see        AddRefinement, Options
     def Bounds(pLow, pHigh)
         if @nCurRefinement > 0
             @aRefinements[@nCurRefinement][2] = "" + pLow
@@ -449,18 +672,31 @@ class stzApp from stzObject
         ok
         return This
 
+    # Sets the list of choices of the knob just added.
+    #
+    #   paOpts     a list of the allowed values
+    #   returns    the world itself, so calls chain
+    #   note       Explain shows the options only when no bounds were set
+    #   see        AddRefinement, Bounds
     def Options(paOpts)
         if @nCurRefinement > 0  @aRefinements[@nCurRefinement][4] = paOpts  ok
         return This
 
-    # THE DECLARATIONS, AS DATA. Anything outside (stzPlatform harvesting a
-    # world, a generator, a doc tool) asks through these -- it never reaches
-    # into the @attributes. AddReaches([...]) DECLARES the surfaces; Surfaces()
-    # reports them.
+    # Returns the surfaces on which the world appears, as declared by AddReaches.
+    #
+    #   returns    a list of surface names
+    #   note       a surface added as a single text or symbol is stored wrongly today, see
+    #              AddReaches
+    #   see        AddReaches, Things
+    #@ aka  THE DECLARATIONS, AS DATA. Anything outside (stzPlatform harvesting a world, a generator, a doc tool) asks through these -- it never reaches into the @attributes. AddReaches([...]) DECLARES the surfaces; Surfaces() reports them.
     def Surfaces()
         return @aReaches
 
-    # [ [ thingName, [fields] ], ... ]
+    # Returns the declared things with their fields.
+    #
+    #   returns    a list of lists, each with the thing's name and its list of field names
+    #   see        AddThing, Has
+    #@ aka  [ [ thingName, [fields] ], ... ]
     def Things()
         _a_ = []
         _n_ = len(@aThings)
@@ -474,6 +710,10 @@ class stzApp from stzObject
         next
         return _a_
 
+    # Returns the names of the declared screens in order.
+    #
+    #   returns    a list of texts
+    #   see        AddScreen
     def ScreenNames()
         _ac_ = []
         _n_ = len(@aScreens)
@@ -482,6 +722,15 @@ class stzApp from stzObject
         next
         return _ac_
 
+    # Declares the surfaces, such as web, desktop or mobile, on which the world appears.
+    #
+    #   paSurfaces   a list of surface names
+    #   returns      nothing; use AddReachesQ to chain
+    #   note         the list is added to the surfaces already declared
+    #   warning      a single text or symbol is stored as [ [ ] ] today, so give a list: Surfaces
+    #                then holds an unusable entry and both Explain and a platform's Generate raise
+    #                an error
+    #   see          Surfaces, AddReachesQ
     def AddReaches(paSurfaces)
         if NOT isList(paSurfaces)  paSurfaces = [ paSurfaces ]  ok
         for i = 1 to len(paSurfaces)
@@ -499,6 +748,12 @@ class stzApp from stzObject
             This.AddReaches(paSurfaces)
             return This
 
+    # Writes the pending goal and body assignments of a brace into their records.
+    #
+    #   returns    nothing
+    #   note       it is called for you when a brace closes, and every builder verb does the same
+    #              first
+    #   see        AddGoal, SetBody
     def BraceEnd()
         This._FlushCursors()
 
@@ -517,12 +772,12 @@ class stzApp from stzObject
             @bBodyPending = 0
         ok
 
-    #== ANIMATION ============================================================
-
-    # Live() wires the world's reactions into a running reactive system
-    # and does a first Pulse() so the live world already reflects what
-    # its Whenever/Propose rules imply. Continuous/temporal firing rides
-    # the R5 stzAgentHost runtime (supervise the world, tick Pulse()).
+    # Turns the world on, runs a first Pulse and prints a one-line summary of its things, flows, reactions, goals and proposals.
+    #
+    #   returns    the world itself, so calls chain
+    #   warning    it prints to the console
+    #   see        Pulse, IsLive, Proposals
+    #@ aka  == ANIMATION ============================================================
     def Live()
         This._FlushCursors()
         @oReactive = new stzReactiveSystem()
@@ -533,16 +788,20 @@ class stzApp from stzObject
           len(@aGoals) + " goal(s); " + len(@aProposals) + " proposal(s)"
         return This
 
+    # TRUE if Live was called.
+    #
+    #   returns    1 or 0
+    #   see        Live
     def IsLive()
         return @bLive
 
-    # PULSE: evaluate every reaction against the live world. A reaction
-    # 'Whenever :Thing ... Propose :Other' fires for each INSTANCE of
-    # Thing that lacks an <other>-labeled relation -- producing one
-    # proposal per gap (the same structural gap the goal machinery
-    # measures). Idempotent: a proposal already standing is not
-    # duplicated, and once the world Relate()s the instance the
-    # proposal clears on the next pulse. Returns proposals added.
+    # Fires every reaction against the graph, adding one proposal for each instance that lacks the relation the reaction proposes.
+    #
+    #   returns    a number, how many proposals were added
+    #   note       it is idempotent: a standing proposal is not repeated, and one clears on the next
+    #              pulse once the instance gets the relation
+    #   see        React, Proposals, Relate
+    #@ aka  PULSE: evaluate every reaction against the live world. A reaction 'Whenever :Thing ... Propose :Other' fires for each INSTANCE of Thing that lacks an <other>-labeled relation -- producing one proposal per gap (the same structural gap the goal machinery measures). Idempotent: a proposal already standing is not duplicated, and once the world Relate()s the instance the proposal clears on the next pul
     def Pulse()
         _nAdded_ = 0
         # drop proposals the world has since satisfied
@@ -563,11 +822,20 @@ class stzApp from stzObject
         next
         return _nAdded_
 
+    # Returns the proposals now standing.
+    #
+    #   returns    a list of lists such as propose Visit for bilal
+    #   see        Pulse, Pursue
     def Proposals()
         return @aProposals
 
-    # React to an EVENT on one instance: pulse just that instance's
-    # reactions. Returns proposals added.
+    # Fires the reactions for one instance only, as Pulse does for all.
+    #
+    #   pcInstance   the instance's name
+    #   returns      a number, how many proposals were added
+    #   note         it first drops the proposals that the graph now satisfies
+    #   see          Pulse, Proposals
+    #@ aka  React to an EVENT on one instance: pulse just that instance's reactions. Returns proposals added.
     def React(pcInstance)
         _nAdded_ = 0
         This._PruneSatisfiedProposals()
@@ -647,8 +915,13 @@ class stzApp from stzObject
         next
         @aProposals = aKept
 
-    #== PRESENCE (emergent) -- make the world visible ========================
-
+    # Prints the world in plain words: its things, relations, flows, reactions, goals, screens, knobs and reaches.
+    #
+    #   returns    the world itself, so calls chain
+    #   note       it raises an error when a surface was added as a single text, see AddReaches
+    #   warning    it prints to the console
+    #   see        Show, Things
+    #@ aka  == PRESENCE (emergent) -- make the world visible ========================
     def Explain()
         This._FlushCursors()
         ? "WORLD " + @cName + "   lives in: " + This._BodyLabel()
@@ -688,6 +961,13 @@ class stzApp from stzObject
         ok
         return This
 
+    # Prints one thing with its fields, truths and relations.
+    #
+    #   pcThing    the name of a declared thing
+    #   returns    the world itself, so calls chain
+    #   note       an unknown name prints a no such thing line instead of failing
+    #   warning    it prints to the console
+    #   see        Explain, Things
     def Show(pcThing)
         _n_ = This._ThingIndex(pcThing)
         if _n_ = 0  ? "(no such thing: " + pcThing + ")"  return This ok

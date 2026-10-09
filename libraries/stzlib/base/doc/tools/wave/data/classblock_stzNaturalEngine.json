@@ -1,0 +1,16 @@
+{
+ "brief": "Reads a narration written in plain words, turns it into Ring code on a text, list or number, runs it and keeps what it understood.",
+ "detail": "Build it with Naturally(\"...\"), NaturallyIn(lang, \"...\") or NaturallyXT(context, \"...\"): the narration runs when the engine is built, so Result, Answers and Understood are ready at once. A narration creates an object (Create a string with 'ring'), applies methods (Uppercase it), asks questions (Is it lowercase ?) and may name objects (called basket, Use basket) or keep values (Keep it as sep). Execution is permissive: a word the language does not know degrades to data and is listed by Unresolved; SetStrict(1) turns that into an error, and SetAllowedOperations limits what may be said. A narration that creates no object raises Unsupported object type!. Understood paraphrases the reading back, Analyze checks a narration without running it, and SuggestNext offers the next words. Most roots are the internal steps of Execute (tokenising, resolving words, writing the code); the reader methods are Result, Answers, Understood, Unresolved, Tokens and Values. Only the English pack covers the full lexicon: other languages (ha, ar and more) understand the words of their pack.",
+ "receiver": "o1 = Naturally(\"Create a string with 'ring' Uppercase it\")",
+ "example": [
+  "? o1.Result()",
+  "#--> RING",
+  "? o1.Understood()",
+  "#--> create a string with ring -> uppercase",
+  "? Naturally(\"Create a string with 'ring' Is it lowercase ? Does it contain 'g' ?\").AllYes()",
+  "#--> 1",
+  "? @@( o1.Analyze(\"Create a string with 'abc' Flibber it\") )",
+  "#--> [ [ \"understood\", 0 ], [ \"unresolved\", [ [ \"Flibber\", \"\" ] ] ] ]"
+ ],
+ "see": ["stzObject", "stzString", "StzNaturalLint", "StzNaturalSuggest", "NaturallyStrict"]
+}

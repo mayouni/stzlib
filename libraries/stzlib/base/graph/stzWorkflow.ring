@@ -226,6 +226,33 @@ func StzStateMachineNotation()
 	func StateMachineNotation()
 		return StzStateMachineNotation()
 
+# Models a business process as steps and arrows, or as a state machine, with actors, durations and SLAs, and reports its critical path, bottlenecks and violations.
+#
+# A workflow is a diagram of one of three types. A sequential workflow is built from steps
+# (AddStepXTT) joined by Then, given actors with AssignStepTo and hours with SetStepDuration and
+# SetStepSLA; it then answers CriticalPath, Bottlenecks, SLAViolations and the three Validate
+# methods, which return the house verdict shape. A state machine is built from AddState and
+# AddTransition, and SetExceptionEvents marks the transitions that mean trouble. A bpmn workflow
+# takes the BPMN notation, and ExpandEndingsPerArrival gives each arrow into an end its own marker.
+# ToWorkflow writes the sequential part as .stzflow text and ImportFlow reads it back. The View
+# methods display the diagram and were not run for this reference. Known today: CriticalPath raises
+# an error when no path has a duration above zero, and for every state machine.
+#
+#   receiver   o1 = new stzWorkflow("order")
+#   example    o1.AddStep_("pack")
+#              o1.AddStep_("ship")
+#              o1.Then("pack", "ship")
+#              o1.SetStepDuration("pack", 4)
+#              o1.SetStepSLA("pack", 3)
+#              o1.SetStepDuration("ship", 8)
+#              ? o1.TotalDuration()
+#              #--> 12
+#              ? o1.SLAViolations()[1][:overrun]
+#              #--> 1
+#              ? o1.CriticalPath()[:path][2]
+#              #--> ship
+#   see        stzDiagram, stzOrgChart, stzWorkflowSimulation, StzBpmnNotation,
+#              StzStateMachineNotation
 class stzWorkflow from stzDiagram
 	@cWorkflowType = "sequential"  # or "statemachine"
 	
@@ -249,6 +276,11 @@ class stzWorkflow from stzDiagram
 	# transition reads as intended -- see SetExceptionEvents().
 	@acExceptionEvents = []
 
+	# Builds an empty sequential workflow diagram with the given id, set to be judged by five validators including deadlock and SLA.
+	#
+	#   pcId       the workflow's id
+	#   returns    nothing; the object is built
+	#   see        SetWorkflowType, AddStep_
 	def init(pcId)
 		super.init(pcId)
 		super.SetGraphType("flow")
@@ -259,6 +291,12 @@ class stzWorkflow from stzDiagram
 	#  WORKFLOW TYPE        #
 	#-----------------------#
 	
+	# Chooses how the workflow is read: sequential, statemachine or bpmn, the last two bringing their own drawing notation.
+	#
+	#   pcType     sequential, statemachine or bpmn, in any case
+	#   returns    nothing
+	#   note       any other word is ignored and the type stays as it was
+	#   see        WorkflowType, IsSequential, IsStateMachine
 	def SetWorkflowType(pcType)
 		_cType_ = StzLower(pcType)
 		if StzFindFirst(_cType_, $acWorkflowTypes) > 0
@@ -275,12 +313,25 @@ class stzWorkflow from stzDiagram
 			ok
 		ok
 	
+	# Returns which kind of process the workflow models, the kind that decides how it is read and drawn.
+	#
+	#   returns    a text: sequential, statemachine or bpmn
+	#   see        SetWorkflowType
 	def WorkflowType()
 		return @cWorkflowType
 	
+	# TRUE if the workflow is of the type sequential.
+	#
+	#   returns    1 or 0
+	#   note       a bpmn workflow answers 0
+	#   see        WorkflowType, IsStateMachine
 	def IsSequential()
 		return @cWorkflowType = "sequential"
 	
+	# TRUE if the workflow is of the type statemachine.
+	#
+	#   returns    1 or 0
+	#   see        WorkflowType, IsSequential
 	def IsStateMachine()
 		return @cWorkflowType = "statemachine"
 	
@@ -288,12 +339,33 @@ class stzWorkflow from stzDiagram
 	#  SEQUENTIAL WORKFLOW  #
 	#-----------------------#
 	
+	# Adds a process step whose label is its own id.
+	#
+	#   pcId       the step's id
+	#   returns    nothing
+	#   note       the trailing underscore avoids a clash with the inherited AddStep
+	#   see        AddStepXT, AddStepXTT, ConnectSteps
 	def AddStep_(pcId)
 		This.AddStepXT(pcId, pcId)
 	
+	# Adds a process step with a label of its own.
+	#
+	#   pcId       the step's id
+	#   pcLabel    the text shown in the step
+	#   returns    nothing
+	#   see        AddStep_, AddStepXTT
 	def AddStepXT(pcId, pcLabel)
 	    This.AddStepXTT(pcId, pcLabel, [ ["_dummy", ""] ])  # Minimal hashlist
 	
+	# Adds a step with a label and a list of properties, and adds it to the diagram as a node of type step.
+	#
+	#   pcId       the step's id
+	#   pcLabel    the text shown
+	#   paProps    a list of name and value pairs such as [ :type = "gateway" ]
+	#   returns    nothing
+	#   note       an empty list is accepted, and a property named type is what the bpmn notation
+	#              reads
+	#   see        AddStepXT, Step_, Steps
 	def AddStepXTT(pcId, pcLabel, paProps)
 	    # Convert empty list to valid hashlist
 	    if isList(paProps) and len(paProps) = 0
@@ -324,6 +396,12 @@ class stzWorkflow from stzDiagram
 	    _aNodeProps_ + ["nodeType", "step"]
 	    This.AddNodeXTT(pcId, pcLabel, _aNodeProps_)
 	
+	# Returns one step as a hash list of its id, label, type, assignedTo, duration, sla and properties.
+	#
+	#   pcId       the step's id
+	#   returns    a hash list; an empty list for an unknown id
+	#   note       the trailing underscore avoids a clash with the inherited Step
+	#   see        Steps, AddStepXTT
 	def Step_(pcId)
 		_nSteps9Len_ = len(@aSteps)
 		for _iLoopSteps9_ = 1 to _nSteps9Len_
@@ -334,32 +412,13 @@ class stzWorkflow from stzDiagram
 		end
 		return []
 	
-	# L7/L8: AN ENDING IS DUPLICATED PER ARRIVAL.
+	# Gives every arrow into an end step its own end marker, the first keeping the id and the next named id__2, id__3.
 	#
-	# The BPMN layout law says every arrow into an ending gets its OWN
-	# event marker, the first arrival carrying the canonical unsuffixed
-	# name and later ones suffixed __2, __3 in arrival order. It is not a
-	# drawing habit: the conformance digest fixes those markers by id, row
-	# and column, and two implementations are held to it.
-	#
-	# THIS IS THE ONLY THING THE SHARED RENDERER WAS MISSING, and that was
-	# measured rather than assumed. Compared cell by cell against the law's
-	# digest over five process shapes, the plastic layout ALREADY places
-	# every node where the law says -- linear, gateway-with-exception and
-	# return-edge agree on every cell with no pins at all. The two that
-	# diverged did so for one reason each, and it was always this: an
-	# ending reached twice is one node in the shared model and two markers
-	# in the law, and merging them moves the survivor.
-	#
-	# So the col/row never needed handing over. What was missing was a
-	# MODEL transform, and this is it.
-	#
-	# Every duplicate carries the ending's name in a `targetof` property,
-	# because L19 says endings are addressed BY CLASS and nodes by
-	# identifier: a consumer selects wf-target-<name> to get all markers of
-	# one ending at once. The renderer turns that property into the class.
-	#
-	# Returns the number of markers it added.
+	#   returns    a number, how many markers were added
+	#   note       only steps whose type is terminal, end or suspension are expanded, and a second
+	#              call adds nothing
+	#   see        AddStepXTT, Steps
+	#@ aka  L7/L8: AN ENDING IS DUPLICATED PER ARRIVAL.
 	def ExpandEndingsPerArrival()
 		_nAdded_ = 0
 		# SNAPSHOT FIRST. This loop adds steps, and re-reading the list
@@ -395,12 +454,28 @@ class stzWorkflow from stzDiagram
 			This.ExpandEndingsPerArrival()
 			return This
 
+	# Returns all the steps in the order they were added.
+	#
+	#   returns    a list of step hash lists
+	#   see        Step_, AddStepXTT
 	def Steps()
 		return @aSteps
 	
+	# Adds an arrow from one step to another.
+	#
+	#   pcFrom     the id of the first step
+	#   pcTo       the id of the next step
+	#   returns    nothing
+	#   see        Then, Steps
 	def ConnectSteps(pcFrom, pcTo)
 		This.Connect(pcFrom, pcTo)
 	
+		# Adds an arrow from one step to the next, as ConnectSteps does, in a form that reads in a chain of steps.
+		#
+		#   pcFrom     the id of the first step
+		#   pcTo       the id of the next step
+		#   returns    nothing
+		#   see        ConnectSteps
 		def Then(pcFrom, pcTo)
 			This.ConnectSteps(pcFrom, pcTo)
 	
@@ -408,6 +483,14 @@ class stzWorkflow from stzDiagram
 	#  STATE MACHINE        #
 	#-----------------------#
 	
+	# Adds a state of a state machine whose label is its own id.
+	#
+	#   pcId       the state's id
+	#   returns    nothing
+	#   note       AddStateXT and AddStateXTT take a label and properties such as isInitial or
+	#              isFinal, but the :isInitial and :isFinal fields of the stored record stay 0, so
+	#              read those flags from the properties
+	#   see        AddTransition, States
 	def AddState(pcId)
 		This.AddStateXT(pcId, pcId)
 	
@@ -450,6 +533,15 @@ class stzWorkflow from stzDiagram
 
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
+	# Adds a transition between two states on an event.
+	#
+	#   pcFrom     the state it leaves
+	#   pcTo       the state it enters
+	#   pcEvent    the event that triggers it
+	#   returns    nothing
+	#   note       two transitions between the same states on different events are both kept, while
+	#              the diagram draws one edge
+	#   see        AddExceptionTransition, Transitions
 	def AddTransition(pcFrom, pcTo, pcEvent)
 		This.AddTransitionXT(pcFrom, pcTo, pcEvent, "")
 
@@ -485,23 +577,13 @@ class stzWorkflow from stzDiagram
 	#--------------------------------#
 	#  INTENDED vs EXCEPTIONAL PATH  #
 	#--------------------------------#
+	# Declares which events mean trouble, so that transitions on them count as exceptional, including those already added.
 	#
-	# A workflow has a path it takes when things go as intended, and paths it
-	# takes when they do not. Nothing in this class could tell them apart: a
-	# transition carried :event and :condition and no notion of which arm was
-	# the happy one. Every consumer that wants to REASON about the process --
-	# a BPMN renderer that must pin the spine, a critical-path metric, a
-	# simulation of the nominal case -- has to invent the distinction, and
-	# each invents it differently.
-	#
-	# It is declared here instead, once, by the workflow's author. Two doors:
-	# name the events that mean trouble, or mark a single transition.
-	#
-	#     oWf.SetExceptionEvents(["timeout", "error", "reject"])
-	#     oWf.AddExceptionTransition("pay", "dispute", "chargeback")
-	#
-	# See the BPMN layout law, section 2, for why this is load-bearing.
-
+	#   pacEvents   a list of event names, matched without regard to case
+	#   returns     nothing; use SetExceptionEventsQ to chain
+	#   note        it replaces the earlier list
+	#   see         ExceptionEvents, IsExceptionalTransition, AddExceptionTransition
+	#@ aka  A workflow has a path it takes when things go as intended, and paths it takes when they do not. Nothing in this class could tell them apart: a transition carried :event and :condition and no notion of which arm was the happy one. Every consumer that wants to REASON about the process -- a BPMN renderer that must pin the spine, a critical-path metric, a simulation of the nominal case -- has to inven
 	def SetExceptionEvents(pacEvents)
 		@acExceptionEvents = []
 		_nLen_ = len(pacEvents)
@@ -518,13 +600,32 @@ class stzWorkflow from stzDiagram
 			This.SetExceptionEvents(pacEvents)
 			return This
 
+	# Returns the events declared to mean trouble, in lower case.
+	#
+	#   returns    a list of texts; empty by default, when no transition reads as exceptional
+	#   see        SetExceptionEvents
 	def ExceptionEvents()
 		return @acExceptionEvents
 
+	# Adds a transition and marks it exceptional whatever its event.
+	#
+	#   pcFrom     the state it leaves
+	#   pcTo       the state it enters
+	#   pcEvent    the event that triggers it
+	#   returns    nothing
+	#   see        AddTransition, IsExceptionalTransition
 	def AddExceptionTransition(pcFrom, pcTo, pcEvent)
 		This.AddTransitionXT(pcFrom, pcTo, pcEvent, "")
 		@aTransitions[len(@aTransitions)][:exceptional] = 1
 
+	# TRUE if the transition between two states on an event was marked exceptional.
+	#
+	#   pcFrom     the state it leaves
+	#   pcTo       the state it enters
+	#   pcEvent    the event
+	#   returns    1 or 0; 0 when there is no such transition
+	#   note       the event name is compared exactly, so give it in the case it was added
+	#   see        SetExceptionEvents, AddExceptionTransition
 	def IsExceptionalTransition(pcFrom, pcTo, pcEvent)
 		_nLen_ = len(@aTransitions)
 		for i = 1 to _nLen_
@@ -541,6 +642,11 @@ class stzWorkflow from stzDiagram
 		ok
 		return StzFindFirst(StzLower("" + pcEvent), @acExceptionEvents) > 0
 	
+	# Returns one state as a hash list of its id, label, isInitial, isFinal and properties.
+	#
+	#   pcId       the state's id
+	#   returns    a hash list; an empty list for an unknown id
+	#   see        States, AddState
 	def State(pcId)
 		_nStates1Len_ = len(@aStates)
 		for _iLoopStates1_ = 1 to _nStates1Len_
@@ -551,9 +657,17 @@ class stzWorkflow from stzDiagram
 		end
 		return []
 	
+	# Returns all the states in the order they were added.
+	#
+	#   returns    a list of state hash lists
+	#   see        State
 	def States()
 		return @aStates
 	
+	# Returns all the transitions, each with from, to, event, condition and exceptional.
+	#
+	#   returns    a list of hash lists
+	#   see        AddTransition
 	def Transitions()
 		return @aTransitions
 	
@@ -561,6 +675,13 @@ class stzWorkflow from stzDiagram
 	#  ACTORS & ROLES       #
 	#-----------------------#
 	
+	# Adds a person or system that can carry out steps, with a role.
+	#
+	#   pcId       the actor's id
+	#   pcName     the actor's name
+	#   pcRole     the role they play
+	#   returns    nothing
+	#   see        AssignStepTo, Actor, MapRoleToPosition
 	def AddActor(pcId, pcName, pcRole)
 		_aActor_ = [
 			:id = pcId,
@@ -569,6 +690,13 @@ class stzWorkflow from stzDiagram
 		]
 		@aActors + _aActor_
 	
+	# Assigns a step to an actor.
+	#
+	#   pcStepId    the id of the step
+	#   pcActorId   the id of the actor
+	#   returns     nothing
+	#   note        the actor is not checked to exist
+	#   see         AddActor, ViewByActor
 	def AssignStepTo(pcStepId, pcActorId)
 		_nStepsLen_3 = len(@aSteps)
 		for i = 1 to _nStepsLen_3
@@ -580,6 +708,11 @@ class stzWorkflow from stzDiagram
 		
 		This.SetNodeProperty(pcStepId, "assignedTo", pcActorId)
 	
+	# Returns one actor as a hash list of id, name and role.
+	#
+	#   pcId       the actor's id
+	#   returns    a hash list; an empty list for an unknown id
+	#   see        Actors, AddActor
 	def Actor(pcId)
 		_nActors2Len_ = len(@aActors)
 		for _iLoopActors2_ = 1 to _nActors2Len_
@@ -590,6 +723,10 @@ class stzWorkflow from stzDiagram
 		end
 		return []
 	
+	# Returns every actor added to the workflow, in the order they were added.
+	#
+	#   returns    a list of hash lists
+	#   see        Actor
 	def Actors()
 		return @aActors
 	
@@ -597,6 +734,13 @@ class stzWorkflow from stzDiagram
 	#  SLA MANAGEMENT       #
 	#-----------------------#
 	
+	# Sets the longest time a step may take, in hours.
+	#
+	#   pcStepId   the id of the step
+	#   nHours     the allowed time in hours
+	#   returns    nothing
+	#   note       0 means no limit
+	#   see        SetStepDuration, SLAViolations
 	def SetStepSLA(pcStepId, nHours)
 		_nStepsLen_2 = len(@aSteps)
 		for i = 1 to _nStepsLen_2
@@ -608,6 +752,12 @@ class stzWorkflow from stzDiagram
 		
 		This.SetNodeProperty(pcStepId, "sla", nHours)
 	
+	# Sets how long a step takes, in hours.
+	#
+	#   pcStepId   the id of the step
+	#   nHours     the time taken in hours
+	#   returns    nothing
+	#   see        SetStepSLA, TotalDuration, CriticalPath
 	def SetStepDuration(pcStepId, nHours)
 		_nStepsLen_ = len(@aSteps)
 		for i = 1 to _nStepsLen_
@@ -619,6 +769,11 @@ class stzWorkflow from stzDiagram
 		
 		This.SetNodeProperty(pcStepId, "duration", nHours)
 	
+	# Returns the steps whose duration exceeds their SLA.
+	#
+	#   returns    a list of hash lists with the keys step, sla, actual and overrun; empty when none
+	#   note       a step with an SLA of 0 is never a violation
+	#   see        SetStepSLA, ValidateSLA
 	def SLAViolations()
 		_acViolations_ = []
 		
@@ -641,15 +796,33 @@ class stzWorkflow from stzDiagram
 	#  ORG CHART LINKING    #
 	#-----------------------#
 	
+	# Links an organisation chart to the workflow, which WorkloadByPosition needs.
+	#
+	#   poOrgChart   the stzOrgChart to link
+	#   returns      nothing
+	#   note         the chart is not queried: it only switches workloads on, and the positions come
+	#                from MapRoleToPosition
+	#   see          MapRoleToPosition, WorkloadByPosition
 	def SetOrgChart(poOrgChart)
 		@oLinkedOrgChart = poOrgChart
 	
+	# Maps a role to a position id of the org chart.
+	#
+	#   pcRole         the role of actors
+	#   pcPositionId   the position id
+	#   returns        nothing
+	#   see            GetPositionForStep, SetOrgChart
 	def MapRoleToPosition(pcRole, pcPositionId)
 		@aRoleAssignments + [
 			:role = pcRole,
 			:position = pcPositionId
 		]
 	
+	# Returns the position that carries out a step, through the step's actor and that actor's role.
+	#
+	#   pcStepId   the id of the step
+	#   returns    a text; empty when the step is unknown, has no actor, or its role is not mapped
+	#   see        MapRoleToPosition, AssignStepTo
 	def GetPositionForStep(pcStepId)
 		_aStep_ = This.Step_(pcStepId)
 		if len(_aStep_) = 0
@@ -678,6 +851,11 @@ class stzWorkflow from stzDiagram
 		
 		return ""
 	
+	# Counts, for each position, the steps assigned to it and their total duration.
+	#
+	#   returns    a list of hash lists with the keys position, stepCount and totalDuration; empty
+	#              when no org chart is linked
+	#   see        SetOrgChart, GetPositionForStep
 	def WorkloadByPosition()
 		_aWorkload_ = []
 		
@@ -718,6 +896,11 @@ class stzWorkflow from stzDiagram
 	#  PERFORMANCE METRICS  #
 	#-----------------------#
 	
+	# Returns the sum of the durations of all steps, in hours.
+	#
+	#   returns    a number
+	#   note       it adds the steps of every branch, so it is not the elapsed time of the process
+	#   see        SetStepDuration, CriticalPath
 	def TotalDuration()
 		_nTotal_ = 0
 		_nSteps6Len_ = len(@aSteps)
@@ -727,6 +910,15 @@ class stzWorkflow from stzDiagram
 		end
 		return _nTotal_
 	
+	# Returns the longest path through a sequential workflow by total duration.
+	#
+	#   returns    a hash list with the keys path, a list of step ids, and duration
+	#   note       ViewCriticalPath fails the same way
+	#   warning    it raises error R24 (uninitialized variable _accriticalpath_) today when no path
+	#              has a duration above 0, as for an empty workflow, a workflow with no durations
+	#              set and every state machine; the variable is assigned only inside the longest-
+	#              path test
+	#   see        AllPathsFromStartToEnd, SetStepDuration
 	def CriticalPath()
 		# For sequential: longest path from start to end
 		# For state machine: longest path to final state
@@ -761,6 +953,10 @@ class stzWorkflow from stzDiagram
 			:duration = _nLongest_
 		]
 	
+	# Returns every path from a step with no incoming arrow to a step with no outgoing arrow.
+	#
+	#   returns    a list of paths, each a list of step ids; empty for a workflow that is a cycle
+	#   see        CriticalPath, Bottlenecks
 	def AllPathsFromStartToEnd()
 		_acStarts_ = []
 		_acEnds_ = []
@@ -796,6 +992,11 @@ class stzWorkflow from stzDiagram
 		
 		return _acAllPaths_
 	
+	# Returns the steps that gather more than two incoming arrows or exceed their SLA.
+	#
+	#   returns    a list of hash lists with the keys step, reason (high fan-in or sla violation)
+	#              and count or overrun
+	#   see        ValidateBottleneck, SLAViolations
 	def Bottlenecks()
 		_acBottlenecks_ = []
 		
@@ -831,6 +1032,13 @@ class stzWorkflow from stzDiagram
 	#  VALIDATION           #
 	#-----------------------#
 	
+	# Checks that a sequential workflow has no cycle, and reports the verdict in the house shape.
+	#
+	#   returns    a hash list with the keys status (pass or fail), domain, ruleGroup, issueCount,
+	#              issues and affectedNodes
+	#   note       only a sequential workflow can fail it: a state machine, which may loop, always
+	#              passes, and affectedNodes is always empty
+	#   see        ValidateSLA, ValidateBottleneck
 	def ValidateDeadlock()
 		# Check for cycles in sequential workflow
 		#
@@ -861,6 +1069,12 @@ class stzWorkflow from stzDiagram
 			:affectedNodes = []
 		]
 	
+	# Checks that no step exceeds its SLA, and reports the verdict in the house shape.
+	#
+	#   returns    a hash list with the keys status, domain, ruleGroup, issueCount, issues and
+	#              affectedNodes
+	#   note       an issue reads Step <id> exceeds SLA by <n>h
+	#   see        SLAViolations, ValidateDeadlock
 	def ValidateSLA()
 		_acViolations_ = This.SLAViolations()
 		
@@ -885,6 +1099,11 @@ class stzWorkflow from stzDiagram
 			:affectedNodes = This._ExtractStepIds(_acViolations_)
 		]
 	
+	# Checks that the workflow has no bottleneck, and reports the verdict in the house shape.
+	#
+	#   returns    a hash list with the keys status, domain, ruleGroup, issueCount, issues and
+	#              affectedNodes
+	#   see        Bottlenecks, ValidateSLA
 	def ValidateBottleneck()
 		_acBottlenecks_ = This.Bottlenecks()
 		
@@ -931,12 +1150,23 @@ class stzWorkflow from stzDiagram
 	#  VISUALIZATION        #
 	#-----------------------#
 	
+	# Highlights the critical path and shows the diagram with a subtitle that gives its duration.
+	#
+	#   returns    nothing
+	#   warning    it displays the diagram on the screen, which was not done in the runs of this
+	#              reference; the call fails before that on the cases where CriticalPath fails
+	#   see        CriticalPath, ViewBottlenecks
 	def ViewCriticalPath()
 		_aCritical_ = This.CriticalPath()
 		This.ApplyFocusTo(_aCritical_[:path])
 		This.SetSubtitle("Critical Path (" + _aCritical_[:duration] + "h)")
 		This.View()
 	
+	# Highlights the bottleneck steps and shows the diagram with a subtitle that counts them.
+	#
+	#   returns    nothing
+	#   warning    it displays the diagram on the screen, which was not done
+	#   see        Bottlenecks, ViewCriticalPath
 	def ViewBottlenecks()
 		_acBottlenecks_ = This.Bottlenecks()
 		_acIds_ = This._ExtractStepIds(_acBottlenecks_)
@@ -944,6 +1174,11 @@ class stzWorkflow from stzDiagram
 		This.SetSubtitle("Bottlenecks (" + len(_acBottlenecks_) + ")")
 		This.View()
 	
+	# Highlights the steps over their SLA and shows the diagram with a subtitle that counts them.
+	#
+	#   returns    nothing
+	#   warning    it displays the diagram on the screen, which was not done
+	#   see        SLAViolations, ViewBottlenecks
 	def ViewSLAViolations()
 		_acViolations_ = This.SLAViolations()
 		_acIds_ = This._ExtractStepIds(_acViolations_)
@@ -951,6 +1186,12 @@ class stzWorkflow from stzDiagram
 		This.SetSubtitle("SLA Violations (" + len(_acViolations_) + ")")
 		This.View()
 	
+	# Highlights the steps assigned to one actor and shows the diagram with a subtitle naming the actor.
+	#
+	#   pcActorId   the id of the actor
+	#   returns     nothing
+	#   warning     it displays the diagram on the screen, which was not done
+	#   see         AssignStepTo, ViewByRole
 	def ViewByActor(pcActorId)
 		_acSteps_ = []
 		_nSteps3Len_ = len(@aSteps)
@@ -968,6 +1209,12 @@ class stzWorkflow from stzDiagram
 		This.SetSubtitle("Steps by " + _cName_)
 		This.View()
 	
+	# Highlights the steps whose actor has a role and shows the diagram with a subtitle naming it.
+	#
+	#   pcRole     the role to highlight
+	#   returns    nothing
+	#   warning    it displays the diagram on the screen, which was not done
+	#   see        AddActor, ViewByActor
 	def ViewByRole(pcRole)
 		_acSteps_ = []
 		_nSteps2Len_ = len(@aSteps)
@@ -989,6 +1236,13 @@ class stzWorkflow from stzDiagram
 	#  EXPORT               #
 	#-----------------------#
 	
+	# Returns the workflow as .stzflow text: its steps with label, actor, duration and SLA, the arrows, and the actors.
+	#
+	#   returns    a text
+	#   note       only a sequential workflow lists steps and arrows: a state machine gives its
+	#              header and actors alone, and a bpmn workflow its header and actors, so its states
+	#              and transitions are not written
+	#   see        ImportFlow
 	def ToWorkflow()
 		_cResult_ = 'workflow "' + @cId + '"' + NL
 		_cResult_ += '    type: ' + @cWorkflowType + NL + NL
@@ -1038,14 +1292,13 @@ class stzWorkflow from stzDiagram
 	#------------------------#
 	#  WORKFLOW FILE FORMAT  #
 	#------------------------#
+	# Reads a .stzflow text, or a file whose name ends in .stzflow, and merges its steps, durations, SLAs, arrows and actors into this workflow.
 	#
-	# The READ side of ToWorkflow() above: it writes .stzflow, this reads it
-	# back. It used to live in stzWorkflowSimulation -- but every line of it
-	# calls stzWorkflow methods (AddStepXTT, AddActor, ConnectSteps,
-	# SetStepDuration, SetStepSLA), none of which a simulation has. It was
-	# written for THIS class and declared in the wrong one, so `This` was
-	# always the wrong object. A simulation proposes CHANGES (OptimizeStep,
-	# ReassignStep, ParallelizeSteps); importing a file is not a what-if.
+	#   pSource    the .stzflow text, or the path of a .stzflow file
+	#   returns    nothing
+	#   note       the loaded steps are added to the steps already present
+	#   see        ToWorkflow, LoadFlow
+	#@ aka  The READ side of ToWorkflow() above: it writes .stzflow, this reads it back. It used to live in stzWorkflowSimulation -- but every line of it calls stzWorkflow methods (AddStepXTT, AddActor, ConnectSteps, SetStepDuration, SetStepSLA), none of which a simulation has. It was written for THIS class and declared in the wrong one, so `This` was always the wrong object. A simulation proposes CHANGES (Op
 	def ImportFlow(pSource)
 		if isString(pSource) and StzRight(pSource, 8) = ".stzflow"
 			_oParser_ = new stzFlowParser()
@@ -1058,6 +1311,11 @@ class stzWorkflow from stzDiagram
 		# Merge loaded workflow
 		This._MergeWorkflow(_oLoaded_)
 	
+		# Reads a .stzflow text or file into this workflow, exactly as ImportFlow does.
+		#
+		#   pSource    the .stzflow text, or the path of a .stzflow file
+		#   returns    nothing
+		#   see        ImportFlow, ToWorkflow
 		def LoadFlow(pSource)
 			This.ImportFlow(pSource)
 

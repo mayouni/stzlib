@@ -1,0 +1,20 @@
+{
+ "brief": "Draws a map of high-dimensional samples in 2 dimensions in which points that are near in the data stay near, using t-SNE.",
+ "detail": "Built for LOOKING at data, not for measuring it: the map is nonlinear, random and one-way, distances and cluster sizes in it mean nothing, and the perplexity changes the picture, so try two values. The usual pipeline is ReduceWithPCA(30) then Fit. The run is seeded: the same SetSeed gives the same embedding, a different one a different layout. Fit refuses a perplexity that is not below the number of samples, so small data needs SetPerplexity first (the default is 30). Ordinary t-SNE can place new rows with Transform only approximately; LearnMapping switches to the parametric variant, whose Transform is exact for the training rows. PreserveDensity adds a term that makes cluster size more readable, and LearnInverse trains a network that goes back from the map to the data. Trustworthiness is the witness that the picture invented no neighbours.",
+ "receiver": "o1 = new stzTSNE([ [0,0,0], [0.1,0,0.1], [0,0.2,0], [0.2,0.1,0.1], [0.1,0.2,0.2], [0.2,0.2,0], [5,5,5], [5.1,5,5.1], [5,5.2,5], [5.2,5.1,5.1], [5.1,5.2,5.2], [5.2,5.2,5] ])",
+ "example": [
+  "o1.SetPerplexity(3)",
+  "o1.SetIterations(120)",
+  "o1.Fit()",
+  "? o1.IsFitted()",
+  "#--> 1",
+  "? len(o1.Embedding())",
+  "#--> 12",
+  "? o1.Trustworthiness() > 0.5",
+  "#--> 1"
+ ],
+ "see": [
+  "stzUMAP",
+  "stzPCA"
+ ]
+}

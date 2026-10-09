@@ -1,0 +1,16 @@
+{
+ "brief": "Stands for a premise that did not hold: the object a failed natural chain returns, which keeps the chain going without turning true.",
+ "detail": "A check written as a chain, such as Q(\"AnnIE\").AtMost(2).VowelNBQ(), answers a stzFalseObject when it fails, so the next words of the sentence can still be read without raising an error. It carries two things: the sentence that tells why the chain stopped (WhyStopped) and the object that was judged (Origin). Every counting, comparing and quantifier device answers 0 or the false object itself, so a false premise absorbs the rest of the chain. Two devices bring it back to life: Otherwise runs an action on the origin and returns it, and OrQ returns the origin so a second alternative is tried. A false object has the content 0. A chain that fails without giving a reason reads a premise in the chain did not hold. To build one honestly, let a real check fail; SetOrigin and SetWhyStopped build one by hand.",
+ "receiver": "o1 = Q(\"AnnIE\").AtMost(2).VowelNBQ()",
+ "example": [
+  "? o1.WhyStopped()",
+  "#--> no: expected atmost 2, found 3",
+  "? o1.Content()",
+  "#--> 0",
+  "? o1.IfSo(:Uppercase).Content()",
+  "#--> 0",
+  "? o1.Otherwise(:Lowercase).Content()",
+  "#--> annie"
+ ],
+ "see": ["stzObject", "stzObjectGuard", "stzString"]
+}

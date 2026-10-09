@@ -1,0 +1,15 @@
+{
+ "brief": "Describes where a solution is deployed and how to reach and drive that place: kind, endpoint, protocol, authentication, storage, commands and capacity.",
+ "detail": "A site is configuration first: set it with the Set methods (each has a Q form that returns the site to chain), read it back as data with Config, as lines with ConfigText or as JSON with ConfigJson, and see the commands it would run with Commands, TransferCommand and LaunchCommandLine before anything runs. Authentication is a plain reference, a stzSecret kept behind a redacted descriptor, or a secret held by name in a stzSecretStore and revealed through ResolveAuthVia so that the store audits it. Store, Launch, Status and Rollback act on the target: a local folder is written directly, a git site runs git, a server runs scp and ssh, and registry, device and object-store sites have commands listed but no store backend. A stzDeployment drives sites under a governed actor. The runs behind this reference only configured and read sites; nothing was stored to, launched on or rolled back.",
+ "receiver": "o1 = new stzDeploymentSite(\"prod-api\")",
+ "example": [
+  "o1.SetKindQ(\"server\").SetEndpointQ(\"deploy@api.example.test:/srv/api\")",
+  "? o1.Protocol()",
+  "#--> ssh",
+  "? o1.TransferCommand()",
+  "#--> scp -r <staged>/. deploy@api.example.test:/srv/api",
+  "? o1.IsLocal()",
+  "#--> 0"
+ ],
+ "see": ["StzDeploymentSiteQ", "stzDeployment", "stzResourceSpec", "stzSecretStore"]
+}

@@ -1,0 +1,21 @@
+{
+ "brief": "Draws positions and items at random from a list, and shuffles the whole list, a section of it or the runs of one kind of item.",
+ "detail": "Built around a list or a stzList. The drawing methods (RandomPosition, RandomItem, NRandomItems and their Except forms) leave the list as it is. Randomize, Shuffle and the section and typed variants change it in place and answer nothing, while Randomized and the other names ending in Randomized answer a shuffled copy. The typed shuffles (numbers, strings, lists, objects) only reorder items of that kind that sit next to each other: [ 1, 2, 3, \"a\", 4, 5 ] can swap 1, 2 and 3 and swap 4 and 5, but a number never crosses the text. Two cautions: NRandomPositions(0) never returns, and RandomItemExceptPosition on a list of one item raises R2. The draws are random, so promises can only be made about shape and ranges.",
+ "receiver": "o1 = new stzListRandom([ 10, 20, 30, 40, 50 ])",
+ "example": [
+  "? o1.NumberOfItems()",
+  "#--> 5",
+  "? o1.RandomPositionGreaterThan(5)",
+  "#--> 0",
+  "? len(o1.NRandomItems(3))",
+  "#--> 3",
+  "? sum(o1.Randomized())",
+  "#--> 150",
+  "? o1.Content()[1]",
+  "#--> 10"
+ ],
+ "see": [
+  "stzList",
+  "stzRandom"
+ ]
+}

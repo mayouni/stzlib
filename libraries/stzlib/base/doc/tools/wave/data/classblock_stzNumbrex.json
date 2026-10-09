@@ -1,0 +1,16 @@
+{
+ "brief": "Tests whole numbers against a small pattern language that describes number structure, such as prime, three digits or a multiple of five.",
+ "detail": "A pattern is written in braces and made of tokens: @Property(Prime), @Digit3 or @Digit(1..5)+, @Factor4, @Relation(Mod:5=0), @Approx(~3.14), @Part(Integer), @Divisor(3) and @Multiple(4). Tokens are joined by -> or & (all must hold) or by a vertical bar (any may hold), and @! negates one. Match answers TRUE or FALSE for a number and, on success, records its digits, factors and properties for Digits, Factors and Properties. MatchingNumberAfter, MatchingNumbersBetween and CountMatchingBetween search for numbers instead of testing one. A digit or factor token with no quantifier means exactly one digit or one factor, so write @Digit3, not @Digit. Several things do not work as the grammar suggests today: a pattern with no readable token matches every number, @Digit(7) can never match, and @Factor(prime) can never match; each is flagged in its entry. The parser steps (NormalizePattern, ParsePattern, the Parse and Check methods) are internal and are listed for completeness.",
+ "receiver": "o1 = new stzNumbrex(\"{@Property(Prime)}\")",
+ "example": [
+  "? o1.Match(17)",
+  "#--> 1",
+  "? o1.Match(18)",
+  "#--> 0",
+  "? @@( o1.MatchingNumbersBetween(1, 20) )",
+  "#--> [ 2, 3, 5, 7, 11, 13, 17, 19 ]",
+  "? o1.MatchingNumberAfter(14)",
+  "#--> 17"
+ ],
+ "see": ["stzNumber", "stzRegexMaker", "Numbrex"]
+}

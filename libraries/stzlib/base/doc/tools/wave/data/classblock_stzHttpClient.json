@@ -1,0 +1,13 @@
+{
+ "brief": "Sends HTTP and HTTPS requests through the engine and keeps the last answer, with settings for headers, cookies, auth, proxy and timeouts.",
+ "detail": "Configure the client with the Set methods, each of which returns the client so calls chain, then send with Get_, Post, Put_, Delete, Head, Options, PostForm or PostJson and read the answer with ResponseCode, ResponseBody and ResponseHeaders. A status of 4xx or 5xx is an answer, not an error; a request that never reached a server gives ResponseCode -1 and sets LastError. GetMany fetches up to 32 addresses in one parallel call. The requests need a network: to try the class offline, start the engine's loopback fixture with StzEngineTestServerStart(0) and stop it with StzEngineTestServerStop(), as test/network/73_http_loopback_narrated.ring does.",
+ "receiver": "o1 = new stzHttpClient()",
+ "example": [
+  "o1.SetTimeout(5)",
+  "? o1.Timeout()",
+  "#--> 5",
+  "? o1.RequestTimeout()",
+  "#--> 5000"
+ ],
+ "see": ["stzNetwork", "stzPiSpiHttpFront"]
+}
