@@ -1,0 +1,27 @@
+{
+ "brief": "Changes how a text looks: its case, its alignment and padding, its white space and its repetition.",
+ "detail": "It is the formatting helper behind the case methods of stzString (Titlecased, CaseFolded...), which builds one over itself and writes the result back; reach for it directly with new stzStringFormatter(cText) or StzStringFormatterQ(cText) when you only need the formatting. Each Apply verb and each Align, Pad, Trim, Simplify and Repeat verb changes the held text in place and returns nothing (the Q form returns the formatter, so calls chain), and the past-tense form (Uppercased, RightAligned, Trimmed...) returns the new text and leaves the formatter alone. Read the result with Content. Widths and reversals count characters, not bytes, so Hebrew, Arabic and emoji text is handled whole. Pass a plain text, not a stzString object: an edit through a formatter empties the stzString that was passed in. PaddedLeft and PaddedRight ignore their padding character; use PadLeft and PadRight.",
+ "receiver": "o1 = new stzStringFormatter(\"hello WORLD\")",
+ "example": [
+  "? o1.Titlecased()",
+  "#--> Hello World",
+  "? \"[\" + o1.RightAligned(14) + \"]\"",
+  "#--> [   hello WORLD]",
+  "o1.PadRight(14, \"*\")",
+  "? o1.Content()",
+  "#--> hello WORLD***",
+  "o2 = new stzStringFormatter(\"שלום עולם\")",
+  "? o2.NumberOfChars()",
+  "#--> 9",
+  "? o2.Reversed() = \"םלוע םולש\"",
+  "#--> 1",
+  "o3 = new stzStringFormatter(\"ab😀\")",
+  "? \"[\" + o3.CenterAligned(7) + \"]\"",
+  "#--> [  ab😀  ]"
+ ],
+ "see": [
+  "stzString",
+  "stzStringEncoder",
+  "stzStringLeadTrail"
+ ]
+}

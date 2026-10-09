@@ -1,0 +1,17 @@
+{
+ "brief": "Holds a list of entities, each a name with a type, such as apple/fruit, and answers questions about them by name and by type.",
+ "detail": "An entity is a hashlist with a :name and a :type. AddEntity lowercases both and refuses a duplicate, AppendEntity adds without any check, and the finders answer positions (FindEntityByName, FindEntitiesByType) or the entities themselves (EntitiesOfType, FilterByTypeQ). The shared world registry that WhatIs reads is one such list, reached by WorldEntities(). AddEntity refuses too much: a new entity whose name and whose type are both already in the list is refused even when no single entity has both.",
+ "receiver": "o1 = new stzListOfEntities([ [ :name = \"apple\", :type = \"fruit\" ], [ :name = \"tesla\", :type = \"company\" ] ])",
+ "example": [
+  "o1.AddEntity([ :name = \"Pear\", :type = \"Fruit\" ])",
+  "? @@( o1.Names() )",
+  "#--> [ \"apple\", \"tesla\", \"pear\" ]",
+  "? @@( o1.UniqueTypes() )",
+  "#--> [ \"fruit\", \"company\" ]",
+  "? o1.CountByType(\"fruit\")",
+  "#--> 2",
+  "? @@( o1.FilterByTypeQ(\"fruit\").Names() )",
+  "#--> [ \"apple\", \"pear\" ]"
+ ],
+ "see": ["stzEntity", "stzList", "stzSupposition"]
+}

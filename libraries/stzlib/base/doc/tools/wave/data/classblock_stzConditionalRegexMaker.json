@@ -1,0 +1,18 @@
+{
+ "brief": "Builds an if-then-else regular expression, a conditional pattern, from a condition, a then part and an optional else part.",
+ "detail": "The condition is one of the If calls (IfMatch, IfNotMatch, IfStartsWith, IfEndsWith, IfContains, IfPrecededBy, IfFollowedBy); the last one called wins. ThenMatch and ElseMatch give the two branches, and Pattern joins them as (?(?=condition)then|else). The pattern stays empty until a condition is set. IfStartsWith, IfEndsWith and IfContains take literal text and escape it; the other calls take a pattern. IfCaptured does not build a conditional today, and the pair forms of IfCaptured and IfPrecededBy raise an error.",
+ "receiver": "o1 = new stzConditionalRegexMaker",
+ "example": [
+  "o1.IfMatch(\"\\d\").ThenMatch(\"\\d+\").ElseMatch(\"[a-z]+\")",
+  "? o1.Pattern()",
+  "#--> (?(?=\\d)\\d+|[a-z]+)",
+  "o2 = new stzRegex(o1.Pattern())",
+  "o2.MatchFirst(\"abc 123\")",
+  "? @@( o2.Matches() )",
+  "#--> [ \"abc\", \"123\" ]",
+  "o1.Reset()",
+  "? o1.IfStartsWith(\"+\").ThenMatch(\"\\d+\").Pattern()",
+  "#--> (?(?=^\\+)\\d+)"
+ ],
+ "see": ["stzRegexMaker", "stzRegex", "stzRegexLookaroundMaker"]
+}

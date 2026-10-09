@@ -1,0 +1,24 @@
+{
+ "brief": "Tells a story over one picture as an ordered list of frames, each with a caption whose numbers are read from the picture's facts.",
+ "detail": "A frame is opened with Frame, changed with marks (Emphasis, Callout, Measure, Show, Region), a window (WindowOn, SetWindow) or an action (Act), and closed by opening the next frame or by asking any question about the frames. The caption carries holes, written {name}, never numbers: Bind ties a hole to a fact read from the picture when the frame closes, and BindFact takes a fact from another plane. Closing a frame draws the picture to a PNG file named after the storyboard, in the folio, and puts it through the picture gate, which prints a line. Judge then checks every frame against the gate and every hole against its fact, and Render writes the HTML page that shows the frames in order. A frame about a picture that is meant to be unlawful says so with ExpectFindings. Marks stay on the picture from frame to frame until ClearMarks. The storyboard keeps its own copy of the picture, so every change goes through it. ToNarration writes the same story as a .narration document, and RenditionAs gives it as markup or text.",
+ "receiver": "oS = new stzMathSubstance(StzSetTheoryDomain()); oS.DeclareAll(\"Set\", [ \"A\", \"B\" ]); oS.Assert(\"Subset\", [ \"B\", \"A\" ]); oS.AutoLabelAll(); oP = new stzMathDiagram(StzSetTheoryDomain(), oS, StzEulerStyle()); oP.SetFont(new stzFont(\"C:/Windows/Fonts/segoeui.ttf\"), 28); oP.SetVariation(\"twosets\"); StzEngineDirCreatePath(\"t_story_doc\"); o1 = new stzStoryboard(\"sets\", oP, \"t_story_doc\")",
+ "example": [
+  "o1.Frame(\"B has radius {r} px and A has {ra} px.\")",
+  "o1.Bind(\"r\", :value, [ \"B.icon.r\" ])",
+  "o1.Bind(\"ra\", :value, [ \"A.icon.r\" ])",
+  "o1.Emphasis(\"B.icon\", :ring)",
+  "? o1.Caption(1)",
+  "#--> B has radius 46.40 px and A has 155.32 px.",
+  "? o1.FileOf(1)",
+  "#--> sets_01.png",
+  "? o1.NumberOfHoles()",
+  "#--> 2",
+  "? o1.IsClean()",
+  "#--> 1",
+  "o1.Frame(\"A frame that expects something to be wrong.\")",
+  "o1.ExpectFindings()",
+  "? o1.Judge()[1][:rule]",
+  "#--> expected_a_finding_and_got_none"
+ ],
+ "see": ["stzMathDiagram", "StzCheckPictures"]
+}

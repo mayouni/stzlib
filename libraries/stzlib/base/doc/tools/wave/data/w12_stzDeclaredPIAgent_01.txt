@@ -1,0 +1,7 @@
+# Wave 12 -- stzDeclaredPIAgent. Name | brief | returns | params | see | warning | note
+SetDeclared | Gives the agent the two answers the engine loop asks of every agent: what it covers and how reversible its work is. | the agent itself, so calls chain | pcCoverage=one sentence saying what the agent covers; pcReversibility=reversible, compensable or irreversible | CoverageStatement, ReversibilityClass | neither value is checked here: the declaration court does it | a declared agent needs no separate declaration on a host
+CoverageStatement | Returns the sentence saying what the agent covers. | a text; the empty text before SetDeclared | | SetDeclared
+ReversibilityClass | Returns the reversibility class given to the agent. | a text; the empty text before SetDeclared | | SetDeclared, CoverageStatement
+Kind | Returns the kind of actor the agent is to the agent graph. | a text, always pi_actor | | HoldsEffectful, Capabilities
+Capabilities | Returns the capabilities the agent holds. | a list of text: effectful, compute and sensing | | HoldsEffectful, Kind
+HoldsEffectful | TRUE if the agent holds the capability to cause effects. | TRUE or FALSE; always TRUE for this class | | Capabilities, stzDeclaredLLMAgent

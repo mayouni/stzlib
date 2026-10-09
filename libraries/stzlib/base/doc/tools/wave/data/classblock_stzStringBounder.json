@@ -1,0 +1,27 @@
+{
+ "brief": "Cuts a text by position or by its surroundings: sections, ranges, the text between two bounds, and tests of what bounds what.",
+ "detail": "It is the cutting helper behind the Section, Between and IsBoundedBy methods of stzString, which builds one over itself; reach for it directly with new stzStringBounder(cText) or StzStringBounderQ(cText) when you only need the cutting. The reads (Section, Range, Between, FirstBetween, SectionBounds, IsBoundedBy...) return a text, a list or TRUE or FALSE and leave the held text alone; the ReplaceBetween and RemoveBetween verbs change the held text in place and keep the bounds, and the variants ending in IB (ReplaceBetweenIB, RemoveBetweenIB) take the bounds with them. Read the result with Content. Positions count characters from 1, not bytes, so Hebrew, Arabic and emoji text is cut where you expect. The rank of the Nth forms starts at 1. Pass a plain text, not a stzString object: an in-place edit through a bounder empties the stzString that was passed in. At the edges of a text, trust SectionBounds and FindSectionBoundsZZ over their IB forms.",
+ "receiver": "o1 = new stzStringBounder(\"one [two] three [four] five\")",
+ "example": [
+  "? o1.Section(5, 9)",
+  "#--> [two]",
+  "? @@( o1.Between(\"[\", \"]\") )",
+  "#--> [ \"two\", \"four\" ]",
+  "? o1.NthBetween(2, \"[\", \"]\")",
+  "#--> four",
+  "o1.RemoveBetween(\"[\", \"]\")",
+  "? o1.Content()",
+  "#--> one [] three [] five",
+  "o2 = new stzStringBounder(\"שלום [עולם] יפה\")",
+  "? o2.FirstBetween(\"[\", \"]\") = \"עולם\"",
+  "#--> 1",
+  "o3 = new stzStringBounder(\"a😀b😀c\")",
+  "? o3.Section(2, 4) = \"😀b😀\"",
+  "#--> 1"
+ ],
+ "see": [
+  "stzString",
+  "stzStringLeadTrail",
+  "stzStringFormatter"
+ ]
+}

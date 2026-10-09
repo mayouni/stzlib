@@ -17,6 +17,38 @@ func TimeLines(p)
 
 class stzTimeLines from stzListOfTimeLines
 
+# Holds several named lanes of events on one shared time axis, to ask what happens when across all of them.
+#
+# Build one with new stzListOfTimeLines([ :Lanes = [ ... ], :Start = ..., :End = ... ]); it is also
+# reached as stzTimeLines, TimeLines(p) and StzTimeLinesQ(p). Each lane is a stzTimeLine over the
+# shared bounds. Lane names are stored in upper case and every lookup ignores case, and the dates
+# are read as text, a bare date meaning midnight. What works today: the lane management (AddLane,
+# RemoveLane, Lanes, HasLane), AddPointToLane (and its alias AddMomentToLane), WhatsAt,
+# SetGlobalStart and SetGlobalEnd, Duration, Content, ToTimeLine and Clear. Lane(name) returns a
+# copy of the lane's timeline, and the methods that edit through it silently keep nothing:
+# AddSpanToLane, AddSpansToLane, AddPointsToLane, AddBlockedSpanToLane, AddBlockedPointToLane,
+# RenameLabelInLane and RemovePointFromLane all do nothing, so no span can be stored and the span-
+# based reads (HasOverlapsInLane, CrossLaneOverlaps, UncoveredPeriodsPerLane) were not exercised
+# with real data. Copy keeps the lanes and bounds but not their points. BlockSpanInLane and
+# BlockPointInLane raise R14, and the whole drawing family (Show, ShowShort, ShowUncovered, VizFind)
+# raises R19; each says so in its own entry. Lane names of any script (Hebrew, Arabic, emoji) work.
+#
+#   receiver   o1 = new stzListOfTimeLines([ :Lanes = [ "Team A", "Team B" ], :Start = "2026-01-01",
+#              :End = "2026-12-31" ])
+#   example    ? @@( o1.Lanes() )
+#              #--> [ "TEAM A", "TEAM B" ]
+#              ? o1.Duration()
+#              #--> 31449600
+#              o1.AddPointToLane("team a", "Kickoff", "2026-02-01")
+#              ? @@( o1.WhatsAt("2026-02-01") )
+#              #--> [ [ [ "lane", "TEAM A" ], [ "events", [ [ "KICKOFF", "point" ] ] ] ] ]
+#              o2 = new stzListOfTimeLines([ :Lanes = [ "צוות", "فريق", "😀" ], :Start = "2026-01-01 08:00:00", :End = "2026-01-01 18:00:00" ])
+#              o2.AddPointToLane("فريق", "اجتماع", "2026-01-01 09:30:00")
+#              ? o2.NumberOfLanes()
+#              #--> 3
+#              ? o2.Duration()
+#              #--> 36000
+#   see        stzTimeLine, stzDateTime, stzDuration
 class stzListOfTimeLines from stzObject
 	@aLanes = []       # List of lane names: ["Team A", "Team B", ...]
 	@aTimeLines = []   # Corresponding list of stzTimeLine objects
@@ -51,6 +83,18 @@ class stzListOfTimeLines from stzObject
 	@nLabelWidth = 15  # For lane labels on the left
 	@acVizCanvas = []  # Global canvas for all lanes
 
+	# Builds a set of parallel timelines, one lane per name, all sharing a start and an end.
+	#
+	#   p          a hash list with :Lanes = a list of lane names, :Start = the first moment and
+	#              :End = the last moment (:From and :To also work), any other value, or a missing
+	#              key, raises an error
+	#   returns    nothing; the object is built with every lane empty
+	#   note       lane names are stored in upper case, so Team A is read back as TEAM A, and every
+	#              lookup ignores case; Hebrew, Arabic and emoji names work; the class is also
+	#              reached as stzTimeLines, TimeLines(p) and StzTimeLinesQ(p)
+	#   warning    a start or end that is only a time, or not a date, raises an error; a date
+	#              without a time becomes midnight
+	#   see        AddLane, GlobalStart
 	def init(p)
 		if isList(p) and IsHashList(p)
 			// Assume named params like :Lanes = [...], :Start = ..., :End = ...
@@ -104,6 +148,12 @@ class stzListOfTimeLines from stzObject
 			@aTimeLines + _oLaneTL_
 		next
 
+	# Returns the whole set as data: the start, the end, the lane names and each lane's content.
+	#
+	#   returns    a hash list with the keys start, end, lanes and timelines
+	#   note       each timeline entry holds the lane name and that lane's start, end, points and
+	#              spans; the keys read back in lower case
+	#   see        Lanes, GlobalStart
 	def Content()
 		_aResult_ = [
 			:Start = @cGlobalStart,
@@ -124,6 +174,11 @@ class stzListOfTimeLines from stzObject
 
 	// Global Boundaries
 
+	# Returns the first moment shared by every lane.
+	#
+	#   returns    a text such as 2026-01-01 00:00:00
+	#   note       GlobalStartQ returns it as a stzDateTime
+	#   see        GlobalEnd, SetGlobalStart
 	def GlobalStart()
 		return @cGlobalStart
 
@@ -133,6 +188,11 @@ class stzListOfTimeLines from stzObject
 			ok
 			return ""
 
+	# Returns the last moment shared by every lane.
+	#
+	#   returns    a text such as 2026-12-31 00:00:00
+	#   note       GlobalEndQ returns it as a stzDateTime
+	#   see        GlobalStart, SetGlobalEnd
 	def GlobalEnd()
 		return @cGlobalEnd
 
@@ -142,6 +202,12 @@ class stzListOfTimeLines from stzObject
 			ok
 			return ""
 
+	# Moves the shared start and applies it to every lane, keeping the points already there.
+	#
+	#   p          the new first moment, a date or a date and time as text
+	#   returns    nothing; the bounds change. SetGlobalStartQ returns the set for chaining
+	#   note       a date alone becomes midnight
+	#   see        SetGlobalEnd, GlobalStart
 	def SetGlobalStart(p)
 		@cGlobalStart = This._normalizeDateTime(p)
 		This._updateAllLanesBounds()
@@ -150,6 +216,11 @@ class stzListOfTimeLines from stzObject
 			This.SetGlobalStart(p)
 			return This
 
+	# Moves the shared end and applies it to every lane, keeping the points already there.
+	#
+	#   p          the new last moment, a date or a date and time as text
+	#   returns    nothing; the bounds change. SetGlobalEndQ returns the set for chaining
+	#   see        SetGlobalStart, GlobalEnd
 	def SetGlobalEnd(p)
 		@cGlobalEnd = This._normalizeDateTime(p)
 		This._updateAllLanesBounds()
@@ -165,6 +236,12 @@ class stzListOfTimeLines from stzObject
 			@aTimeLines[i].SetEnd(@cGlobalEnd)
 		next
 
+	# Returns the time from the shared start to the shared end, in seconds.
+	#
+	#   returns    a number of seconds
+	#   note       2026-01-01 to 2026-12-31 is 31449600 seconds, 364 days; DurationQ returns it as a
+	#              stzDuration
+	#   see        GlobalStart, GlobalEnd
 	def Duration()
 		return This.GlobalStartQ().DurationTo(@cGlobalEnd, :InSeconds)
 
@@ -176,12 +253,28 @@ class stzListOfTimeLines from stzObject
 
 	// Lane Management
 
+	# Returns the lane names, in the order they were added.
+	#
+	#   returns    a list of texts, in upper case
+	#   see        NumberOfLanes, HasLane
 	def Lanes()
 		return @aLanes
 
+	# Returns how many lanes there are.
+	#
+	#   returns    a number
+	#   see        Lanes
 	def NumberOfLanes()
 		return len(@aLanes)
 
+	# Returns the timeline of one lane, as a copy.
+	#
+	#   pcLane     the lane name, without regard to case
+	#   returns    a stzTimeLine; an error is raised for an unknown name
+	#   note       reading it with Points or Spans works; LaneQ is the same call
+	#   warning    the object returned is a copy: adding to it or editing it changes nothing in the
+	#              set, so use the AddPointToLane family to change a lane
+	#   see        Lanes, HasLane
 	def Lane(pcLane)
 		_nIndex_ = StzFindFirst(StzUpper(pcLane), @aLanes)
 		if _nIndex_ > 0
@@ -193,9 +286,19 @@ class stzListOfTimeLines from stzObject
 		def LaneQ(pcLane)
 			return This.Lane(pcLane)  // Already a stzTimeLine object
 
+	# TRUE if a lane of that name exists.
+	#
+	#   pcLane     the lane name, without regard to case
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   see        Lanes, AddLane
 	def HasLane(pcLane)
 		return StzFindFirst(StzUpper(pcLane), @aLanes) > 0
 
+	# Adds an empty lane with the shared start and end.
+	#
+	#   pcLane     the new lane name, stored in upper case, a name already used raises an error
+	#   returns    nothing; a lane is added. AddLaneQ returns the set for chaining
+	#   see        RemoveLane, HasLane
 	def AddLane(pcLane)
 		if This.HasLane(pcLane)
 			StzRaise("Lane already exists: " + pcLane)
@@ -208,6 +311,11 @@ class stzListOfTimeLines from stzObject
 			This.AddLane(pcLane)
 			return This
 
+	# Removes a lane and all it holds; a name that is not there changes nothing.
+	#
+	#   pcLane     the lane name, without regard to case
+	#   returns    nothing; the lane is gone. RemoveLaneQ returns the set for chaining
+	#   see        AddLane, Lanes
 	def RemoveLane(pcLane)
 		_nIndex_ = StzFindFirst(StzUpper(pcLane), @aLanes)
 		if _nIndex_ > 0
@@ -221,6 +329,16 @@ class stzListOfTimeLines from stzObject
 
 	// Adding to Specific Lanes (Delegates to stzTimeLine methods)
 
+	# Adds a labelled point in time to a lane.
+	#
+	#   pcLane      the lane name
+	#   pcLabel     the label of the point, stored in upper case
+	#   pDateTime   when it happens, inside the shared bounds, otherwise an error is raised
+	#   returns     nothing; the lane changes. AddPointToLaneQ returns the set for chaining
+	#   note        AddMomentToLane is the same call; it is the one add method of this class that
+	#               really keeps what it is given
+	#   warning     an unknown lane raises an error
+	#   see         AddMomentToLane, WhatsAt, AddPointsToLane
 	def AddPointToLane(pcLane, pcLabel, pDateTime)
 		# Was `oLaneTL = This.Lane(pcLane); oLaneTL.AddPoint(...)` --
 		# Ring returns a COPY of the stzTimeLine object from list
@@ -237,13 +355,43 @@ class stzListOfTimeLines from stzObject
 			This.AddPointToLane(pcLane, pcLabel, pDateTime)
 			return This
 
+		# Adds a labelled point in time to a lane.
+		#
+		#   pcLane      the lane name
+		#   pcLabel     the label of the point
+		#   pDateTime   when it happens
+		#   returns     nothing; the lane changes
+		#   note        the same call as AddPointToLane
+		#   see         AddPointToLane, WhatsAt
 		def AddMomentToLane(pcLane, pcLabel, pDateTime)
 			This.AddPointToLane(pcLane, pcLabel, pDateTime)
 
+	# Does nothing today instead of adding several points to a lane at once.
+	#
+	#   pcLane     the lane name
+	#   paPoints   a list of [ label, moment ] pairs
+	#   returns    nothing
+	#   note       add points one at a time with AddPointToLane
+	#   warning    it edits the copy that Lane returns, so the lane stays empty and no error is
+	#              raised: after AddPointsToLane("b", [ ["Alpha", "2026-07-01"] ]) the lane holds no
+	#              point, where the same call on the copy gives it
+	#   see        AddPointToLane
 	def AddPointsToLane(pcLane, paPoints)
 		_oLaneTL_ = This.Lane(pcLane)
 		_oLaneTL_.AddPoints(paPoints)
 
+	# Does nothing today instead of adding a labelled span of time to a lane.
+	#
+	#   pcLane     the lane name
+	#   pcLabel    the label of the span
+	#   pStart     when it starts
+	#   pEnd       when it ends
+	#   returns    nothing
+	#   note       AddSpanToLaneQ and AddPeriodToLane are the same call and lose the span too
+	#   warning    it edits the copy that Lane returns, so the lane stays empty and no error is
+	#              raised: AddSpanToLane("team a", "Build", "2026-04-01", "2026-05-01") leaves Spans
+	#              of the lane empty, though the same call on the copy returns the span
+	#   see        AddPointToLane, AddSpansToLane
 	def AddSpanToLane(pcLane, pcLabel, pStart, pEnd)
 		_oLaneTL_ = This.Lane(pcLane)
 		_oLaneTL_.AddSpan(pcLabel, pStart, pEnd)
@@ -252,37 +400,105 @@ class stzListOfTimeLines from stzObject
 			This.AddSpanToLane(pcLane, pcLabel, pStart, pEnd)
 			return This
 
+		# Does nothing today instead of adding a labelled period to a lane.
+		#
+		#   pcLane     the lane name
+		#   pcLabel    the label of the period
+		#   pStart     when it starts
+		#   pEnd       when it ends
+		#   returns    nothing
+		#   warning    it is AddSpanToLane, which edits a copy and keeps nothing
+		#   see        AddSpanToLane
 		def AddPeriodToLane(pcLane, pcLabel, pStart, pEnd)
 			This.AddSpanToLane(pcLane, pcLabel, pStart, pEnd)
 
+	# Does nothing today instead of adding several spans to a lane at once.
+	#
+	#   pcLane     the lane name
+	#   paSpans    a list of [ label, start, end ] triples
+	#   returns    nothing
+	#   warning    it edits the copy that Lane returns, so the lane stays empty and no error is
+	#              raised
+	#   see        AddSpanToLane
 	def AddSpansToLane(pcLane, paSpans)
 		_oLaneTL_ = This.Lane(pcLane)
 		_oLaneTL_.AddSpans(paSpans)
 
 	// Blocking in Lanes
 
+	# Does nothing today instead of blocking a labelled span of a lane.
+	#
+	#   pcLane     the lane name
+	#   pcLabel    the label of the blocked span
+	#   pStart     when it starts
+	#   pEnd       when it ends
+	#   returns    nothing
+	#   warning    it edits the copy that Lane returns: afterwards IsBlockedInLane for a moment
+	#              inside the span answers FALSE
+	#   see        AddBlockedPointToLane, IsBlockedInLane
 	def AddBlockedSpanToLane(pcLane, pcLabel, pStart, pEnd)
 		_oLaneTL_ = This.Lane(pcLane)
 		_oLaneTL_.AddBlockedSpan(pcLabel, pStart, pEnd)
 
+	# Does nothing today instead of blocking a moment of a lane.
+	#
+	#   pcLane      the lane name
+	#   pDateTime   the moment to block
+	#   returns     nothing
+	#   warning     it edits the copy that Lane returns: afterwards IsBlockedInLane for that moment
+	#               answers FALSE
+	#   see         AddBlockedSpanToLane, IsBlockedInLane
 	def AddBlockedPointToLane(pcLane, pDateTime)
 		_oLaneTL_ = This.Lane(pcLane)
 		_oLaneTL_.AddBlockedPoint(pDateTime)
 
+	# Raises error R14 today instead of blocking an existing span of a lane by its label.
+	#
+	#   pcLane     the lane name
+	#   pcLabel    the label of the span to block
+	#   returns    nothing; it raises
+	#   warning    it calls BlockSpan on the lane's timeline, a method stzTimeLine does not have, so
+	#              every call raises R14
+	#   see        AddBlockedSpanToLane
 	def BlockSpanInLane(pcLane, pcLabel)
 		_oLaneTL_ = This.Lane(pcLane)
 		_oLaneTL_.BlockSpan(pcLabel)
 
+	# Raises error R14 today instead of blocking an existing point of a lane by its label.
+	#
+	#   pcLane     the lane name
+	#   pcLabel    the label of the point to block
+	#   returns    nothing; it raises
+	#   warning    it calls BlockPoint on the lane's timeline, a method stzTimeLine does not have,
+	#              so every call raises R14
+	#   see        AddBlockedPointToLane
 	def BlockPointInLane(pcLane, pcLabel)
 		_oLaneTL_ = This.Lane(pcLane)
 		_oLaneTL_.BlockPoint(pcLabel)
 
+	# TRUE if a moment is blocked in a lane.
+	#
+	#   pcLane     the lane name
+	#   p          the moment to test
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   note       nothing can be blocked through this class today, so it answers FALSE for every
+	#              moment (see AddBlockedPointToLane)
+	#   warning    an unknown lane raises an error
+	#   see        AddBlockedPointToLane, Lane
 	def IsBlockedInLane(pcLane, p)
 		_oLaneTL_ = This.Lane(pcLane)
 		return _oLaneTL_.IsBlocked(p)
 
 	// Querying Across Lanes
 
+	# Returns, lane by lane, what happens at a given moment; a lane with nothing is left out.
+	#
+	#   pDateTime   the moment to look at, a date or a date and time as text
+	#   returns     a list of [ :Lane, :Events ] pairs, each event being [ label, kind ]; empty when
+	#               nothing happens
+	#   note        a point shows as [ KICKOFF, point ]; spans cannot be stored through this class
+	#               today, so only points are ever found
+	#   see         AddPointToLane, Lane
 	def WhatsAt(pDateTime)
 		_cDateTime_ = This._normalizeDateTime(pDateTime)
 		_aResult_ = []
@@ -297,10 +513,23 @@ class stzListOfTimeLines from stzObject
 
 		return _aResult_
 
+	# TRUE if two spans of a lane overlap.
+	#
+	#   pcLane     the lane name
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   note       no span can be stored in a lane today (see AddSpanToLane), so it answers FALSE
+	#   warning    an unknown lane raises an error
+	#   see        CrossLaneOverlaps, AddSpanToLane
 	def HasOverlapsInLane(pcLane)
 		_oLaneTL_ = This.Lane(pcLane)
 		return _oLaneTL_.HasOverlaps()
 
+	# Returns the overlaps between spans of different lanes: the two lanes, the two labels and the overlap in seconds.
+	#
+	#   returns    a list of rows [ [ lane, lane ], label, label, seconds ]; empty today
+	#   note       it reads the spans of the lanes, and no span can be stored in a lane today (see
+	#              AddSpanToLane), so it was not exercised with real overlaps
+	#   see        HasOverlapsInLane, UncoveredPeriodsPerLane
 	def CrossLaneOverlaps()
 		// Detect overlaps between events in different lanes at the same time
 		_aResult_ = []
@@ -332,6 +561,12 @@ class stzListOfTimeLines from stzObject
 
 		return _aResult_
 
+	# Returns, for each lane, the periods of the shared bounds that no span covers.
+	#
+	#   returns    a list of [ :Lane, :Uncovered ] pairs
+	#   note       it reads spans, which cannot be stored today, so every lane answered an empty
+	#              list of uncovered periods in the test
+	#   see        CrossLaneOverlaps, Lane
 	def UncoveredPeriodsPerLane()
 		_aResult_ = []
 		_nLen_ = len(@aTimeLines)
@@ -343,10 +578,22 @@ class stzListOfTimeLines from stzObject
 
 	// Visualization (Multi-Lane)
 
+	# Raises error R19 today instead of returning a drawing of all the lanes.
+	#
+	#   returns    nothing; it raises
+	#   note       use WhatsAt, Lane(name).Points() or Content to read the lanes
+	#   warning    it calls an internal drawing routine without the arguments it needs; the drawing
+	#              routines behind it are also unfinished stubs, so no picture exists to return
+	#   see        ShowShort, ShowUncovered, WhatsAt
 	def Show()
 		This._buildVizCanvas()
 		return This._vizCanvasToString()
 
+	# Raises error R19 today instead of returning a short drawing of all the lanes.
+	#
+	#   returns    nothing; it raises
+	#   warning    it fails as Show does, through the same internal drawing routine
+	#   see        Show
 	def ShowShort()
 		This._buildVizCanvas(:Short)
 		return This._vizCanvasToString()
@@ -356,10 +603,21 @@ class stzListOfTimeLines from stzObject
 		This._buildVizCanvas(:Extended, paOptions)
 		return This._vizCanvasToString() + nl + This._buildTable(paOptions)
 
+	# Raises error R19 today instead of returning a drawing that marks the uncovered periods.
+	#
+	#   returns    nothing; it raises
+	#   warning    it fails as Show does, through the same internal drawing routine
+	#   see        Show, UncoveredPeriodsPerLane
 	def ShowUncovered()
 		This._buildVizCanvas(:Uncovered)
 		return This._vizCanvasToString()
 
+	# Raises error R19 today instead of drawing the lanes with one label highlighted.
+	#
+	#   pcLabel    the label to highlight, matched in upper case
+	#   returns    nothing; it raises
+	#   warning    it ends by calling Show, which fails: Show raises error R19
+	#   see        Show
 	def VizFind(pcLabel)
 		@cHighlight = StzUpper(pcLabel)
 		return This.Show()
@@ -488,10 +746,28 @@ class stzListOfTimeLines from stzObject
 	// Other Delegated Methods (with lane param)
 
 	// For example:
+	# Does nothing today instead of removing a point from a lane by label or moment.
+	#
+	#   pcLane              the lane name
+	#   pcLabelOrDateTime   the label or the moment of the point to remove
+	#   returns             nothing
+	#   warning             it edits the copy that Lane returns, so the point stays in the lane and
+	#                       no error is raised: removing KICKOFF2 or the moment 2026-02-01 leaves
+	#                       the lane unchanged
+	#   see                 AddPointToLane
 	def RemovePointFromLane(pcLane, pcLabelOrDateTime)
 		_oLaneTL_ = This.Lane(pcLane)
 		_oLaneTL_.RemovePoint(pcLabelOrDateTime)
 
+	# Does nothing today instead of renaming a point label in a lane.
+	#
+	#   pcLane       the lane name
+	#   pcLabel      the label to change
+	#   pcNewLabel   the new label
+	#   returns      nothing
+	#   warning      it edits the copy that Lane returns, so the label stays as it was and no error
+	#                is raised
+	#   see          AddPointToLane
 	def RenameLabelInLane(pcLane, pcLabel, pcNewLabel)
 		_oLaneTL_ = This.Lane(pcLane)
 		_oLaneTL_.RenameLabel(pcLabel, pcNewLabel)
@@ -499,6 +775,14 @@ class stzListOfTimeLines from stzObject
 	// Add more as needed, following the pattern
 
 	// ToTimeLine(pcMergeStrategy)
+	# Merges every lane into one stzTimeLine over the shared bounds, prefixing each label with its lane name.
+	#
+	#   pcStrategy   how to merge, an empty text or :MergeAll merges everything, and no other
+	#                strategy is read
+	#   returns      a stzTimeLine
+	#   note         a point KICKOFF of lane TEAM A becomes TEAM A-KICKOFF; the spans merge the same
+	#                way
+	#   see          Lane, Content
 	def ToTimeLine(pcStrategy)
 		if pcStrategy = ""
 			pcStrategy = :MergeAll
@@ -524,11 +808,22 @@ class stzListOfTimeLines from stzObject
 		next
 		return _oMerged_
 
+	# Empties every lane of its points and spans, keeping the lanes and the bounds.
+	#
+	#   returns    nothing; the lanes are emptied
+	#   see        RemoveLane, Lanes
 	def Clear()
 		_nLen_ = len(@aTimeLines)
 		for i = 1 to _nLen_
 			@aTimeLines[i].Clear()
 		next
 
+	# Returns a new set built from the same lane names and bounds, without their content.
+	#
+	#   returns    a stzTimeLines with the same lanes and bounds
+	#   note       use Content to read everything
+	#   warning    the points of the lanes are not copied: after AddPointToLane,
+	#              Copy().Lane(name).Points() answers an empty list
+	#   see        Content, Clear
 	def Copy()
 		return new stzTimeLines(This.Content())  // Assuming Content() returns init-compatible hash

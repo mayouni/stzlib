@@ -1,0 +1,23 @@
+{
+ "brief": "Reads one JSON Web Token: its header, its claims and its signature, and checks the signature against a public key.",
+ "detail": "Use it on its own for any signed token with three parts. Reading a claim proves nothing: the token is only data until SignatureIsValidWith has passed against a key you hold, and a token meant for you must also carry your audience and an unexpired exp, which stzOidcClient checks. A malformed token is accepted at construction and simply reads as empty.",
+ "receiver": "o1 = new stzJwt(\"eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InNhbmRib3gta2V5LTEifQ.eyJpc3MiOiJodHRwczovL2lkcC5pbnZlbnRlZC50ZXN0Iiwic3ViIjoiYWxpY2UiLCJhdWQiOiJjbGllbnQtZGVtbyIsImV4cCI6MTgwMDAwMzYwMCwiaWF0IjoxODAwMDAwMDAwLCJlbWFpbCI6ImFsaWNlQGlkcC5pbnZlbnRlZC50ZXN0Iiwibm9uY2UiOiJuLTEifQ.x-227z0Avx-r1tKhwqLnt3CAkCMEX3Zq4jj3zzHPVYpMMP5Z9lgLSy_R5iGQSOFm5WdFJ649b_tg6An7mhqE5Q\")",
+ "example": [
+  "? o1.IsWellFormed()",
+  "#--> 1",
+  "? o1.Algorithm()",
+  "#--> ES256",
+  "? o1.Subject()",
+  "#--> alice",
+  "? o1.ClaimInt(\"exp\")",
+  "#--> 1800003600",
+  "? o1.Audience()",
+  "#--> client-demo",
+  "? o1.SignatureIsValidWith([ [ \"kty\", \"EC\" ], [ \"x\", \"t006lKtxiQpobDOpWwzGDVKazORGwZWNLbK206XQuHc\" ], [ \"y\", \"KGMvZoXXlU8YdR3KS-6Q6A8bqVqlwpoZy0Udq9TPUy4\" ] ])",
+  "#--> 1"
+ ],
+ "see": [
+  "stzOidcClient",
+  "stzOidcSandbox"
+ ]
+}

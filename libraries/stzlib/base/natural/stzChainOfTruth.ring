@@ -82,6 +82,28 @@ func TheLetters(acChars)
 	func TheLettersQ(acChars)
 		return new stzList(TheLetters(acChars))
 
+# Wraps one value in a chain of near-natural questions, such as _("ring").Is(:String)._, whose closing underscore answers 1 or 0.
+#
+# Each step (Is, Which, Where) puts one question to the value and tags the chain true or false, and
+# returns the chain, so steps read as a sentence; the closing _ attribute returns 1 or 0. A chain
+# that was tagged false stays false: later steps do not run, so build a new chain for a new
+# question. The surface is frozen legacy: the same idea lives on as interrogative narrations in
+# stzNatural, and part of this class does not work today: the negative forms (IsNot, IsNotAn,
+# IsNotThe, IsNotA), Containing, ContainingNo, the function-call forms of Is and IsA, and the
+# ordinal forms (st, nd, rd, th, Nth).
+#
+#   receiver   o1 = _("Ring")
+#   example    ? o1.Is(:String)._
+#              #--> 1
+#              ? _("Ring").Is(:Lowercase)._
+#              #--> 0
+#              ? _(1234).Is(:Number).Which(:IsEven)._
+#              #--> 1
+#              ? _("Ring").Where('NumberOfChars() = 4')._
+#              #--> 1
+#              ? _("Ring").Is(:Number).Where('NumberOfChars() = 4')._
+#              #--> 0
+#   see        stzChainOfValue, stzObject
 class stzChainOfTruth from stzObject
 	# This attribute holds the value provided by the user between ()
 	@pValue
@@ -124,6 +146,14 @@ class stzChainOfTruth from stzObject
 	 #   INITIALIZING THE CHAIN   #
 	#----------------------------#
 
+	# Builds a chain around one value of any type and wraps it in the library object of its type, so the chain can ask that object questions.
+	#
+	#   p          the value the chain reasons about: a number, a text, a list or an object
+	#   returns    nothing; the object is built
+	#   note       the chain is a frozen legacy surface; new vocabulary belongs to the interrogative
+	#              narrations of stzNatural
+	#   warning    the chain is usually built by the function _( ), as in _("ring").Is(:String)._
+	#   see        Value, StzObjectQ
 	def init(p)
 		@pValue = p
 		
@@ -141,13 +171,22 @@ class stzChainOfTruth from stzObject
 			@oStzObject = new stzObject(This.Value())
 		off
 	
+	# Returns the value the chain was built with, unchanged.
+	#
+	#   returns    the held value, of any type
+	#   see        StzObjectQ, get_
 	def Value()
 		return @pValue
 
 	def _Type()
 		return ring_type(@pValue)
 
-	# The stz object this chain reasons about -- an OBJECT, hence Q.
+	# Returns the library object that wraps the held value: a stzNumber, stzString, stzList or stzObject.
+	#
+	#   returns    an object
+	#   note       the questions of Which and Where are put to this object
+	#   see        Value, Where
+	#@ aka  The stz object this chain reasons about -- an OBJECT, hence Q.
 	def StzObjectQ()
 		return @oStzObject
 
@@ -155,12 +194,25 @@ class stzChainOfTruth from stzObject
 	 #   CONTROLLING CHAIN PROCESS   #
 	#-------------------------------#
 
+	# Returns whether the next step of the chain is read as its opposite.
+	#
+	#   returns    1 or 0
+	#   note       it is 0 in every chain tested, since no step sets it
+	#   see        NeightherFunction, IsNeighther
 	def ShouldBeNegated()
 		return @bNegateNext
 
+	# Returns the name of the method Nor will call, as set by IsNeighther, IsNor or ContainingNo.
+	#
+	#   returns    a text such as isnot; empty text until one of them is used
+	#   see        Nor, IsNeighther
 	def NeightherFunction()
 		return @cNeightherFunction
 
+	# Returns whether the chain has not yet reached a verdict.
+	#
+	#   returns    1 while no step has decided, 0 once the chain is tagged true or false
+	#   see        ShouldReturnTRUE, ShouldReturnFALSE, SetChainToReturn
 	def ShouldContinue()
 		if @bSouldContinue = 1
 			return 1
@@ -169,6 +221,10 @@ class stzChainOfTruth from stzObject
 			return 0
 		ok
 	
+	# Returns whether the last step tagged the chain as true.
+	#
+	#   returns    1 or 0
+	#   see        ShouldReturnFALSE, SetChainToReturn, get_
 	def ShouldReturnTRUE()
 		if @bShouldReturnTRUE = 1 
 			return 1
@@ -177,6 +233,10 @@ class stzChainOfTruth from stzObject
 			return 0
 		ok
 
+	# Returns whether a step tagged the chain as false, which makes every later step stay false.
+	#
+	#   returns    1 or 0
+	#   see        ShouldReturnTRUE, SetChainToReturn, get_
 	def ShouldReturnFALSE()
 		if @bShouldReturnFALSE = 1
 			return 1
@@ -185,6 +245,14 @@ class stzChainOfTruth from stzObject
 			return 0
 		ok
 
+	# Tags the chain with its verdict: 1 for true, 0 for false, or :CONTINUE to clear it.
+	#
+	#   p          the verdict, 1 or 0, or :CONTINUE
+	#   returns    nothing
+	#   note       after 0 every later step answers false whatever it tests, so a chain cannot be
+	#              reused once it failed
+	#   warning    any other value changes nothing
+	#   see        ShouldReturnTRUE, ShouldReturnFALSE, get_
 	def SetChainToReturn(p) # 1, 0, :CONTINUE
 		switch p
 		on :CONTINUE
@@ -208,6 +276,17 @@ class stzChainOfTruth from stzObject
 	 #   CHECKING THE VALUE IDENTITY WITH Is(), IsA(), and IsThe()   #
 	#---------------------------------------------------------------#
 
+	# Tests the held value against a type word, a trait word, a value or a list of trait words, tags the chain true or false and returns it.
+	#
+	#   pThing     what to test: a type such as :String, a trait such as :Lowercase, a value equal
+	#              to the held one, or a list of traits that must all hold
+	#   returns    the chain itself; close it with the _ attribute to read 1 or 0
+	#   note       a value is equal to the held one without regard to case; an unknown word gives a
+	#              false chain, not an error
+	#   warning    the form with a function call such as 'LetterOf("HUSSEIN")' raises error R13
+	#              Object is required, because the call builds a chain with the name _ which inside
+	#              the class is an attribute; once the chain is false, later steps stay false
+	#   see        IsA, IsThe, Which, get_
 	def Is(pThing)
 
 
@@ -355,8 +434,14 @@ class stzChainOfTruth from stzObject
 
 		return This
 
+		# Returns 0 whatever it is asked, because it negates the chain object that Is returns instead of its verdict.
+		#
+		#   pThing     what to test, as for Is
+		#   returns    0
+		#   warning    tested with "ring" against :Number and against :String, and both answered 0,
+		#              where the first should be true
+		#   see        Is, IsNotThe, IsNotAn
 		#< @FunctionNegativeForm
-
 		def IsNot(pThing)
 			bResult = This.Is(pThing)
 			return NOT bResult
@@ -369,6 +454,13 @@ class stzChainOfTruth from stzObject
 	def AndThe(pThing)
 		return This.IsThe(pThing)
 
+	# Tests the held value like Is, with a rule for function calls ending in in or of; for any other word it behaves exactly like Is.
+	#
+	#   pThing     what to test, as for Is
+	#   returns    the chain itself; close it with the _ attribute to read 1 or 0
+	#   warning    the form 'LetterOf("HUSSEIN")' raises error R3 Calling Function without
+	#              definition: functionnamefinishes..., because the helper it calls has another name
+	#   see        Is, IsNotA, IsNotAn
 	def IsA(pThing)
 
 		# Captures expressions like this: _("H").IsA('LetterOf("HUSSEIN")')._
@@ -461,8 +553,14 @@ class stzChainOfTruth from stzObject
 
 		ok
 
+		# Raises error R24 on every call, because its body reads the name pThing while its parameter is called pcThing.
+		#
+		#   pcThing    what to test
+		#   returns    nothing, since it always raises
+		#   warning    tested with :Number and with :String, and both raised error R24 Using
+		#              uninitialized variable: pthing
+		#   see        IsA, IsNotAn
 		#---
-
 		def IsNotA(pcThing)
 			bResult = This.IsA(pThing)
 			return NOT bResult
@@ -470,6 +568,12 @@ class stzChainOfTruth from stzObject
 		def IsAn(pThing)
 			return This.IsA(pThing)
 	
+		# Returns 0 whatever it is asked, because it negates the chain object that IsAn returns instead of its verdict.
+		#
+		#   pThing     what to test, as for Is
+		#   returns    0
+		#   warning    tested with :Object and with :String, and both answered 0
+		#   see        IsA, IsNot
 		def IsNotAn(pThing)
 			bResult = This.IsAn(pThing)
 			return NOT bResult
@@ -477,6 +581,13 @@ class stzChainOfTruth from stzObject
 	def IsThe(pThing)
 		return This.Is(pThing)
 
+	# Returns 0 whatever it is asked, because it negates the chain object that IsThe returns instead of its verdict.
+	#
+	#   pThing     what to test, as for Is
+	#   returns    0
+	#   warning    tested against "rang" and against "ring" for the value "ring", and both answered
+	#              0
+	#   see        Is, IsNot
 	def IsNotThe(pThing)
 		bResult = This.IsThe(pThing)
 		return NOT bResult
@@ -484,14 +595,36 @@ class stzChainOfTruth from stzObject
 	def IsTheOnly(pThing)
 		return This.IsThe(pThing)
 
+	# Records that the next Nor call is a negative test, ignores its argument and returns the chain.
+	#
+	#   pcThing    a word that is not used
+	#   returns    the chain itself
+	#   warning    the argument is not tested, so IsNeighther(:Number) does not check that the value
+	#              is not a number
+	#   see        Nor, IsNor, NeightherFunction
 	def IsNeighther(pcThing)
 		@cNeightherFunction = :IsNot
 		return This
 
+	# Records that the next Nor call is a negative test, ignores its argument and returns the chain.
+	#
+	#   pcThing    a word that is not used
+	#   returns    the chain itself
+	#   note       the same call as IsNeighther
+	#   warning    the argument is not tested
+	#   see        Nor, IsNeighther, NeightherFunction
 	def IsNor(pcThing)
 		@cNeightherFunction = :IsNot
 		return This
 
+	# Calls one method of the wrapped object on the held value, such as :IsEven, tags the chain with the answer and returns it.
+	#
+	#   pcMethod   the name of the method to call on the wrapped object, with or without its
+	#              brackets
+	#   returns    the chain itself; close it with the _ attribute to read 1 or 0
+	#   note       once the chain is false, later steps stay false
+	#   warning    a name that does not exist raises a Syntax Error naming Which
+	#   see        Where, Is, get_
 	def Which(pcMethod)
 
 		/* Example:
@@ -554,6 +687,16 @@ class stzChainOfTruth from stzObject
 	 #   CHECKING A CONDITION ON THE VALUE   #
 	#---------------------------------------#
 
+	# Evaluates a condition on the wrapped object, such as NumberOfChars() = 4, tags the chain with the answer and returns it.
+	#
+	#   pcCondition   a Ring condition about the wrapped object, written without braces and starting
+	#                 with one of its methods
+	#   returns       the chain itself; close it with the _ attribute to read 1 or 0
+	#   note          Having and That are the same call
+	#   warning       a condition between braces, as '{ NumberOfChars() = 4 }', raises Syntax error!
+	#                 Check the condition, because the braces are sent to the evaluator; an invalid
+	#                 condition raises the same error
+	#   see           Which, Containing, get_
 	def Where(pcCondition)
 		/* Example
 
@@ -617,6 +760,15 @@ class stzChainOfTruth from stzObject
 	 #   CHECKING CONTAINMENT   #
 	#--------------------------#
 
+	# Raises error Syntax error today for any text or list, instead of tagging the chain with whether the value holds p.
+	#
+	#   p          the item the value should contain
+	#   returns    nothing, since it raises; a number gives the chain tagged false
+	#   note       Contains and IsContaining are the same call
+	#   warning    tested with a text and with a list, and both raised Syntax error! Check the
+	#              condition you provided, because it builds the condition between braces and Where
+	#              refuses braces
+	#   see        Where, ContainingNo
 	def Containing(p)
 		/* Example
 
@@ -663,8 +815,15 @@ class stzChainOfTruth from stzObject
 		def IsContaining(p)
 			return This.Containing(p)
 
+	# Raises error Syntax error today for any text or list, instead of tagging the chain with whether the value lacks p.
+	#
+	#   p          the item the value should not contain
+	#   returns    nothing, since it raises; a number gives the chain tagged false
+	#   note       ContainsNo, DoesNotContain and IsContainingNo are the same call
+	#   warning    tested with a text and with a list, and both raised Syntax error! Check the
+	#              condition you provided, for the same reason as Containing
+	#   see        Where, Containing
 		#>
-
 	def ContainingNo(p)
 		/* Example
 
@@ -722,16 +881,28 @@ class stzChainOfTruth from stzObject
 		def ContainingNeighther(p)
 			return This.ContainingNo(p)
 
+	# Calls the method named by NeightherFunction with p and returns its answer, which is always 0 today.
+	#
+	#   p          the thing to test, as for Is
+	#   returns    0
+	#   warning    tested after IsNeighther and IsNor, and the answer was 0 in both, since the
+	#              method it calls is IsNot
+	#   see        IsNeighther, NeightherFunction
 		#>
-
 	def Nor(p)
 		_cCode_ = 'bResult = This.' + This.NeightherFunction() + '(p)'
 		eval(_cCode_)
 
 		return bResult
 
+	# Raises error R13 for a number ending in 1, instead of returning the nth item of a call such as 'LetterOf("HUSSEIN")'.
+	#
+	#   pcThing    a function call as text, such as 'LetterOf("HUSSEIN")'
+	#   returns    nothing for a number that does not end in 1 or for a non-number; raises error R13
+	#              otherwise
+	#   warning    with 21 it raised R13 Object is required, as Nth does
+	#   see        Nth, nd, rd, th
 	#------------------
-
 	def st(pcThing)
 		if This._Type() = "NUMBER" and
 		   StzRight(''+ This.Value(), 1) = "1"
@@ -739,6 +910,13 @@ class stzChainOfTruth from stzObject
 			return This.Nth(pcThing)
 		ok
 
+	# Raises error R13 for a number ending in 2, instead of returning the nth item of a call such as 'LetterOf("HUSSEIN")'.
+	#
+	#   pcThing    a function call as text, such as 'LetterOf("HUSSEIN")'
+	#   returns    nothing for a number that does not end in 2 or for a non-number; raises error R13
+	#              otherwise
+	#   warning    with 2 it raised R13 Object is required, as Nth does
+	#   see        Nth, st, rd, th
 	def nd(pcThing)
 		if This._Type() = "NUMBER" and
 		   StzRight(''+ This.Value(), 1) = "2"
@@ -746,6 +924,13 @@ class stzChainOfTruth from stzObject
 			return This.nth(pcThing)
 		ok
 
+	# Raises error R13 for a number ending in 3, instead of returning the nth item of a call such as 'LetterOf("HUSSEIN")'.
+	#
+	#   pcThing    a function call as text, such as 'LetterOf("HUSSEIN")'
+	#   returns    nothing for a number that does not end in 3 or for a non-number; raises error R13
+	#              otherwise
+	#   warning    with 3 it raised R13 Object is required, as Nth does
+	#   see        Nth, st, nd, th
 	def rd(pcThing)
 		if This._Type() = "NUMBER" and
 		   StzRight(''+ This.Value(), 1) = "3"
@@ -753,6 +938,13 @@ class stzChainOfTruth from stzObject
 			return This.nth(pcThing)
 		ok
 
+	# Raises error R13 for a number ending in 4 to 9 or 0, instead of returning the nth item of a call such as 'LetterOf("HUSSEIN")'.
+	#
+	#   pcThing    a function call as text, such as 'LetterOf("HUSSEIN")'
+	#   returns    nothing for a number that ends in 1, 2 or 3 or for a non-number; raises error R13
+	#              otherwise
+	#   warning    with 7 and with 12 it raised R13 Object is required, as Nth does
+	#   see        Nth, st, nd, rd
 	def th(pcThing)
 		/* Example:
 
@@ -766,6 +958,14 @@ class stzChainOfTruth from stzObject
 
 		ok
 
+	# Raises error R13 Object is required today for a number, instead of returning the nth item such as the 7th letter of HUSSEIN.
+	#
+	#   pcThing    a function call as text, such as 'LetterOf("HUSSEIN")'
+	#   returns    nothing for a non-number; raises error R13 for a number
+	#   warning    the call NthLetterOf(7, "HUSSEIN") on its own works and answers N; the failure is
+	#              in the last line of the method, which builds the result with the name _, an
+	#              attribute inside the class
+	#   see        st, nd, rd, th
 	def Nth(pcThing)
 
 		This.SetChainToReturn(:Value)
@@ -794,6 +994,11 @@ class stzChainOfTruth from stzObject
 		def getQ()
 			return This.StzObjectQ()
 
+	# Returns 1 if the chain was tagged true, 0 if false, and the held value if no step decided; it answers the closing underscore.
+	#
+	#   returns    1, 0 or the held value
+	#   note       _("ring").Is(:String)._ reads this method
+	#   see        Is, Which, Where, get_@
 	def get_()
 		if This.ShouldReturnTRUE()
 			return 1
@@ -806,14 +1011,26 @@ class stzChainOfTruth from stzObject
 
 		ok
 
+	# Returns the held value in the form Ring code would write it, such as "ring" with its quotes; it runs when the _@ attribute is read.
+	#
+	#   returns    a text
+	#   note       a number 5 gives the text 5 and a list gives its bracketed form
+	#   see        get_, Value
 	def get_@
 		return ComputableForm( This.Value() )
 
+	# Returns the chain unchanged, so the words AmongOthers can sit in a sentence without effect.
+	#
+	#   returns    the chain itself
+	#   see        getAtTheSameTime, Is
 	def getAmongOthers
 		return This
 
+	# Returns the chain unchanged, so the words AtTheSameTime can follow a list of traits in Is without effect.
+	#
+	#   returns    the chain itself
+	#   see        getAmongOthers, Is
 	#--------------------
-
 	def getAtTheSameTime()
 		return This
 
@@ -842,6 +1059,12 @@ class stzChainOfTruth from stzObject
 
 	PRIVATE
 
+	# Returns the text between the first brackets of a call written as text, quotes included.
+	#
+	#   pcFunctionCall   a call as text, such as 'LetterOf("HUSSEIN")'
+	#   returns          a text; '"HUSSEIN"' for 'LetterOf("HUSSEIN")'
+	#   note             private; run through a subclass
+	#   see              pvtFunctionName, pvtFunctionParamType
 	def pvtFunctionParam( pcFunctionCall )
 		_oStzStr_ = new stzString(pcFunctionCall)
 
@@ -851,6 +1074,12 @@ class stzChainOfTruth from stzObject
 		return StzMid(pcFunctionCall, _n1_, _n2_ - _n1_ + 1)
 
 
+	# Returns the part of a call written as text that comes before its first bracket.
+	#
+	#   pcFunctionCall   a call as text, such as 'LetterOf("HUSSEIN")'
+	#   returns          a text; LetterOf for 'LetterOf("HUSSEIN")'
+	#   note             private; run through a subclass
+	#   see              pvtFunctionParam
 	def pvtFunctionName( pcFunctionCall )
 		_oStzStr_ = new stzString(pcFunctionCall)
 
@@ -858,6 +1087,15 @@ class stzChainOfTruth from stzObject
 
 		return StzLeft(pcFunctionCall, _n_)
 
+	# Returns 1 when the called name ends in in or of, whatever list it is given.
+	#
+	#   pcFunctionCall   a call as text
+	#   paSubStr         the endings meant to be tested, which are ignored
+	#   returns          1 or 0
+	#   note             private; run through a subclass
+	#   warning          the list paSubStr is ignored: the endings in and of are fixed in the code,
+	#                    so [ "per" ] does not make Upper("H") answer 1
+	#   see              pvtFunctionName
 	def pvtFunctionNameFinishesWithOneOfThese( pcFunctionCall, paSubStr )
 		/*
 		pvtFunctionNameContainsOneOfThese( pThing, [ "in", "of" ], :AtTheEnd )
@@ -872,6 +1110,15 @@ class stzChainOfTruth from stzObject
 			return 0
 		ok
 
+	# Returns the type of the first argument of a call written as text: STRING, LIST or NUMBER.
+	#
+	#   pcFunctionCall   a call as text, such as 'LetterOf("HUSSEIN")'
+	#   returns          the text STRING, LIST or NUMBER
+	#   note             private; run through a subclass
+	#   warning          an argument that is not quoted, bracketed or numeric, such as F(abc),
+	#                    raises error R41 Invalid numeric string, so the OBJECT answer in the code
+	#                    is unreachable
+	#   see              pvtFunctionParam, pvtFunctionParamTypeIsOneOfThese
 	def pvtFunctionParamType( pcFunctionCall )
 		_cParam_ = pvtFunctionParam(pcFunctionCall)
 
@@ -890,6 +1137,13 @@ class stzChainOfTruth from stzObject
 
 		return _cType_
 
+	# Returns 1 when the type of the first argument of a call written as text is in the given list.
+	#
+	#   pcFunctionCall   a call as text
+	#   paSubStr         the list of type names to look in, such as [ "STRING", "LIST" ]
+	#   returns          1 or 0
+	#   note             private; run through a subclass
+	#   see              pvtFunctionParamType
 	def pvtFunctionParamTypeIsOneOfThese( pcFunctionCall, paSubStr )
 		_cType_ = pvtFunctionParamType(pcFunctionCall)
 		return StzFindFirst(_cType_, paSubStr) > 0

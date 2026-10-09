@@ -1,0 +1,3 @@
+# w12 stzParser -- Name | brief | returns | params | see | warning | note
+init | Builds the minimal base parser around any value and keeps it as its source. | nothing; the object is built | pSource=the value to keep as the source, of any type | Source | | stzListParser inherits from it but does not call it: its own init takes a list and leaves Source empty
+Source | Returns the value the parser was built around. | the value given to init, of its own type | | init | | on a stzListParser it answers an empty text, because that class stores its list elsewhere (see List)

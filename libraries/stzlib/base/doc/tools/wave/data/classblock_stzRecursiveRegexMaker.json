@@ -1,0 +1,20 @@
+{
+ "brief": "Describes a pattern as named levels nested inside one another, each with its own piece of pattern and quantifier.",
+ "detail": "A level has a name, a pattern text, a parent, children and a quantifier. AddLevel adds a top level, AddChildLevel adds one inside an existing level, and AddQuantifier gives a level its repeat suffix. The tree can be read back with LevelNames, LevelParent, LevelChildren and Info. With named recursion on, which is the state at birth, each level is meant to become a named capture group. Pattern and SubPattern, which should join the levels into one regular expression, raise error R19 today for any maker that has a level, so the tree is readable but not yet convertible. stzNestedRegexMaker is another name for this class.",
+ "receiver": "o1 = new stzRecursiveRegexMaker()",
+ "example": [
+  "o1.AddLevel(\"open\", \"\\(\")",
+  "o1.AddChildLevel(\"open\", \"inner\", \"[^()]*\")",
+  "o1.AddLevel(\"close\", \"\\)\")",
+  "? @@( o1.LevelNames() )",
+  "#--> [ \"open\", \"inner\", \"close\" ]",
+  "? @@( o1.LevelChildren(\"open\") )",
+  "#--> [ \"inner\" ]",
+  "? o1.LevelParent(\"inner\")",
+  "#--> open",
+  "o1.AddQuantifier(\"inner\", \"+\")",
+  "? o1.Info()[2][:quantifier]",
+  "#--> +"
+ ],
+ "see": ["stzRegexMaker", "stzRegex", "stzNestedRegexMaker"]
+}

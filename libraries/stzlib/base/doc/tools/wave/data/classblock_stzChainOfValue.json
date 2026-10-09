@@ -1,0 +1,23 @@
+{
+ "brief": "Watches one variable of the caller and runs a piece of code only if the variable meets a condition, written as a near-natural chain.",
+ "detail": "A chain is born from an initiator function (Whatever, OnlyWhen, Until, Since, SometimesWhen) that names the variable as a symbol, and each link returns the chain itself: Is compares the value, DoThis runs the code. A link that is not satisfied does not raise an error, it stops the chain: ChainStatus then answers stopped, WhyChainStopped carries the reasons as a list of texts, and DoThis on a stopped chain runs nothing. OnlyWhen runs the code once when the values are equal; Until repeats it until the variable equals the stop value; Since waits for Becomes to name where it ends. The loop mode, the run flag and the stop value are shared by every chain of the process, and a new initiator call resets them. The value held is a snapshot taken when the chain is built. IsANumber, IsNotANumber, IsAList, IsAnObject and ToStzObject on a number do not work today.",
+ "receiver": "v = 5; o1 = OnlyWhen(:v).Is(5)",
+ "example": [
+  "? o1.ChainStatus()",
+  "#--> ongoing",
+  "o1.DoThis('{ v = v + 10 }')",
+  "? v",
+  "#--> 15",
+  "? o1.CodeStatus()",
+  "#--> hasbeenexecuted",
+  "? @@( OnlyWhen(:v).Is(6).WhyChainStopped() )",
+  "#--> [ \"Because value provided is not equal to main value!\" ]",
+  "Until(:v).Is(20).DoThis('{ v = v + 1 }')",
+  "? v",
+  "#--> 20"
+ ],
+ "see": [
+  "stzChainOfTruth",
+  "stzObject"
+ ]
+}

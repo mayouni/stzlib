@@ -1,0 +1,17 @@
+{
+ "brief": "Holds a skill read from a declaration as three data clauses and runs them against an agent memory.",
+ "detail": "A closure cannot be read out of a file, so this skill keeps its when, does and verify clauses as lists of a verb and its arguments and interprets them. Apply checks the precondition, performs the action on the memory it is given and verifies the result, answering a list that says whether it ran and whether it verified.",
+ "receiver": "m = new stzAgentMemory(\"demo\")\nm.Learn(\"stock\", \"level\", \"low\")\no1 = new stzDeclaredSkill(\"restock\")\no1.SetClauses([ :verb = \"fact\", :args = [ \"stock\", \"level\", \"low\" ] ], [ :verb = \"learn\", :args = [ \"stock\", \"level\", \"ordered\" ] ], [ :verb = \"fact\", :args = [ \"stock\", \"level\", \"ordered\" ] ])",
+ "example": [
+  "? o1.PreconditionHolds(m)",
+  "#--> 1",
+  "? o1.Apply(m)[:why]",
+  "#--> skill 'restock' ran and VERIFIED",
+  "? m.Fact(\"stock\", \"level\", \"ordered\")",
+  "#--> 1"
+ ],
+ "see": [
+  "stzAgentDeclaration",
+  "stzAgentSkill"
+ ]
+}

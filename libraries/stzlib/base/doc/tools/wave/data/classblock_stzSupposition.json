@@ -1,0 +1,16 @@
+{
+ "brief": "Records what is supposed about a name, as an overlay on the world that WhatIs reads and that can be forgotten or committed.",
+ "detail": "A supposition is the sentence Suppose X is a fruit: SupposeQ(name) builds it, IsAQ records the assumption and AndQ lets the sentence go on. The world of entities is not changed; WhatIs answers with the supposed types while they are held, ForgetSuppositions discards them and CommitSuppositions makes each one known to the world.",
+ "receiver": "o1 = SupposeQ(\"tomato\")",
+ "example": [
+  "o1.IsAQ(:Fruit).AndQ().IsAQ(:Company)",
+  "? @@( SuppositionsSoFar() )",
+  "#--> [ [ \"tomato\", \"fruit\" ], [ \"tomato\", \"company\" ] ]",
+  "? @@( WhatIs(\"tomato\") )",
+  "#--> [ \"fruit\", \"company\" ]",
+  "ForgetSuppositions()",
+  "? @@( WhatIs(\"tomato\") )",
+  "#--> [ ]"
+ ],
+ "see": ["stzListOfEntities", "stzEntity"]
+}

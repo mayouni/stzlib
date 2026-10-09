@@ -1,0 +1,19 @@
+# Wave 12 -- stzAgentDeclaration. Name | brief | returns | params | see | warning | note
+init | Reads and judges the text of a .pia agent declaration at once, keeping the findings of every rule it breaks. | nothing; the object is built | pcText=the declaration text, such as "pia: 2" followed by name, kind, coverage and the rest; pcSource=where it came from, shown in a refusal | IsValid, CiteFindings, ToAgent | a text that cannot be read, a missing version, an unknown key, a missing coverage statement and an unknown verb are findings, not errors: the object is built and IsValid says no | the judgement happens here, not at the first tick
+IsValid | TRUE if the declaration passed every rule and has no finding. | TRUE or FALSE | | Findings, CiteFindings, ToAgent
+FormatVersion | Returns the version number read from the pia header. | a number; 0 when the header is missing or its version unknown | | init | | a version this build does not know is a finding; the current one is 2 and 1 is still read
+Findings | Returns every refusal, each in the unified rule shape the rule report ingests. | a list of [ :rule, :subject, :where, :severity, :message ] rows; [ ] when valid | | CiteFindings, IsValid | | the subject is always pi-agent-declaration and the severity error
+Source | Returns the source label given at construction, such as a file path or (text). | a text | | init
+Name_ | Returns the agent's declared name. | a text; the empty text when the declaration has none | | Kind
+Kind | Returns the declared kind of agent: pi, which acts, or llm, which only proposes. | a text, pi or llm; pi when none is declared | | Name_, ToAgent
+CoverageStatement | Returns the sentence saying what the agent covers. | a text; the empty text when missing | | ReversibilityClass
+ReversibilityClass | Returns the declared reversibility class of the agent's work. | a text: reversible, compensable or irreversible; the text as written when it is refused | | CoverageStatement
+Schedule | Returns when the agent ticks. | a list [ :mode, :timer, :channel ]; the mode is timer (with :timer in milliseconds) or event (with :channel), and the empty text before anything is read | | init
+NumberOfSkills | Returns how many skills the declaration lists. | a number | | SkillAt
+SkillAt | Returns one skill as parsed. | a list [ :name, :when, :does, :verify, :effect, :posture, :ringfns ]; each clause is a list [ :verb, :args ] | pnIndex=the position of the skill, from 1 | NumberOfSkills | an index out of range raises error R2
+Governance | Returns the governance the declaration states. | a list [ :authority, :risks, :grants ]: the authority word, a list of [ action, tier ] pairs and a list of granted actions | | ToAgent
+Proposes | Returns the proposal an llm agent declares: prompt, input clause, target subject, structure and limits. | a list [ :prompt, :input, :into, :structure, :budget, :retries, :maxtokens, :posture ]; [ ] for a pi agent | | Kind, ToAgent
+SeedFacts | Returns the facts the agent starts with in its memory. | a list of [ subject, predicate, object ] triples | | ToAgent
+CiteFindings | Returns the findings as text, one line each, in the form [rule @ where] message. | a text; the empty text when valid | | Findings, Describe
+Describe | Returns a short report of the declaration: its name, kind, reversibility, coverage, schedule and skills, or the refusal. | a text of several lines; for a refused declaration "REFUSED (source):" followed by the findings | | CiteFindings, IsValid
+ToAgent | Builds the runnable agent a valid declaration describes, from classes that already exist. | a stzDeclaredPIAgent for kind pi, a stzDeclaredLLMAgent for kind llm | | stzDeclaredPIAgent, stzDeclaredLLMAgent, IsValid | a refused declaration raises an error citing its findings and builds nothing | a pi agent starts with its seeded facts, risks, grants, authority, skills and reversibility; an llm agent holds no effectful capability

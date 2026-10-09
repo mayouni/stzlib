@@ -1,0 +1,28 @@
+{
+ "brief": "Turns a text into another representation of itself and back: hexadecimal, binary, octal, code points, URL and HTML escapes, regex escapes and Unicode normal forms.",
+ "detail": "It is the encoding helper behind the encoding methods of stzString (ToHex, UrlEncoded, HtmlDecoded, NormalizedNFC...), which builds one over itself and writes the result back; reach for it directly with new stzStringEncoder(cText) or StzStringEncoderQ(cText) when you only need the encoding. The past-tense forms (UrlEncoded, HtmlDecoded, NormalizedNFC...) return the new text and leave the encoder alone, and the verbs (UrlEncode, FromHex, Reverse...) change the held text in place and return nothing, the Q form returning the encoder so calls chain. Read the result with Content. Note what each form counts: ToHex gives the UTF-8 bytes, ToCharCodes and ToOctal give Unicode code points, and ToBinary gives one group of eight digits per character, which is cut to its low eight bits above code point 255, so it is exact for Latin-1 text only. FromHex does not join UTF-8 bytes back into characters, so it round-trips ASCII only. Pass a plain text, not a stzString object: an edit through an encoder empties the stzString that was passed in.",
+ "receiver": "o1 = new stzStringEncoder(\"Hi é\")",
+ "example": [
+  "? o1.ToHex()",
+  "#--> 486920c3a9",
+  "? o1.UrlEncoded()",
+  "#--> Hi%20%C3%A9",
+  "? o1.ToCharCodes()",
+  "#--> 72 105 32 233",
+  "o2 = new stzStringEncoder(\"שלום\")",
+  "? o2.UrlEncoded()",
+  "#--> %D7%A9%D7%9C%D7%95%D7%9D",
+  "? o2.ToCharCodes()",
+  "#--> 1513 1500 1493 1501",
+  "o3 = new stzStringEncoder(\"a😀\")",
+  "? o3.ToHex()",
+  "#--> 61f09f9880",
+  "? o3.ToCharCodes()",
+  "#--> 97 128512"
+ ],
+ "see": [
+  "stzString",
+  "stzStringFormatter",
+  "stzListOfBytes"
+ ]
+}

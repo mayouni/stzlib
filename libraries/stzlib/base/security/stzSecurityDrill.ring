@@ -40,6 +40,26 @@
 func StzSecurityDrill(pcName)
 	return new stzSecurityDrill(pcName)
 
+# Rehearses an attack on a spawned target application and reports whether the detections fired, from sealed and verified evidence.
+#
+# A drill spawns a target (its own ledger, auth and signed-request gate), attacks it with credential
+# stuffing, a forged signature and a replayed request, and then learns what happened only from the
+# ledger the target sealed to a file and the drill verified. Contain then derives a plan from that
+# evidence, commits it as an operator, and ContainmentHolds proves from outside that the account is
+# locked. Timings are measured: TimeToDetectMs and TimeToContainMs. SpawnTarget starts a second
+# process and opens a port on 127.0.0.1, so a drill belongs on a machine set aside for it; the
+# methods that only read state work without a target.
+#
+#   receiver   o1 = new stzSecurityDrill("nightly")
+#   example    ? o1.Name()
+#              #--> nightly
+#              ? o1.Passed()
+#              #--> 0
+#              ? o1.TimeToDetectMs()
+#              #--> -1
+#              ? o1.AcquisitionWhy() = ""
+#              #--> 1
+#   see        stzDrillRemoteResponder, stzResponsePlan, stzSecurityLedger, stzRequestSigner
 class stzSecurityDrill from stzObject
 
 	@cName = ""
@@ -66,6 +86,13 @@ class stzSecurityDrill from stzObject
 	@aContainment = []	# what Contain() did and verified
 	@cVictimToken = ""	# a real session opened before the attack
 
+	# Builds a named drill with a default evidence file path in the current folder; nothing is started or contacted yet.
+	#
+	#   pcName     the drill's name
+	#   returns    nothing; the object is built
+	#   note       the evidence path is absolute, built from the current folder at construction
+	#   warning    nothing is spawned or contacted until SpawnTarget
+	#   see        SpawnTarget, SetEvidencePath
 	def init(pcName)
 		@cName = "" + pcName
 		@oReactor = new stzReactor()
@@ -75,27 +102,60 @@ class stzSecurityDrill from stzObject
 		# paths against ITS working directory, not ours.
 		@cEvidence = currentdir() + "/_drill_" + @cName + "_evidence.stzledger"
 
+	# Returns the drill's name.
+	#
+	#   returns    a text
+	#   see        init
 	def Name()
 		return @cName
 
+	# Sets the shared secret of the target's signed-request gate, which FireReplay also signs with.
+	#
+	#   pcKey      the secret, as text
+	#   returns    the drill itself, so calls chain
+	#   note       an invented key only: it is a rehearsal secret, never a real one
+	#   warning    the key is handed to the target at SpawnTarget, so set it before
+	#   see        FireReplay, SpawnTarget
 	def SetKey(pcKey)
 		@cKey = "" + pcKey
 		return This
 
+	# Sets the file where the target seals its ledger and from which the drill reads it back.
+	#
+	#   pcPath     the evidence file path, absolute because the target resolves paths in its own
+	#              folder
+	#   returns    the drill itself, so calls chain
+	#   warning    Destroy deletes this file if it exists
+	#   see        EvidencePath, CollectEvidence, Destroy
 	def SetEvidencePath(pcPath)
 		@cEvidence = "" + pcPath
 		return This
 
+	# Returns the path of the evidence file.
+	#
+	#   returns    a text
+	#   see        SetEvidencePath, CollectEvidence
 	def EvidencePath()
 		return @cEvidence
 
+	# Returns the port the target listens on, 0 before SpawnTarget.
+	#
+	#   returns    a number
+	#   see        SpawnTarget
 	def Port()
 		return @nPort
 
-	  #-- the target ----------------------------------------------------
-
-	# Spawn the application under attack: a real stzAppServer child with
-	# an open ledger, a real stzAuth, and a real signed-request gate.
+	# Starts the application under attack as a child ring process on 127.0.0.1 and waits for it to answer.
+	#
+	#   pnPort     the port to listen on
+	#   returns    1 (TRUE) when the target answered within 20 seconds, else 0
+	#   note       the target has its own ledger, auth, signed-request gate and /seal route, and
+	#              ends by itself after 60000 ms
+	#   warning    not run here: it starts a second process, opens a port and writes a generated
+	#              script .stzdrilltarget_gen.ring beside the security sources; a drill is for a
+	#              machine set aside for it, and Destroy stops the child
+	#   see        WaitReady, Destroy, CollectEvidence
+	#@ aka  -- the target ----------------------------------------------------
 	def SpawnTarget(pnPort)
 		if pnPort = 0
 			pnPort = 38000 + (StzEngineTimeWallMs() % 900)
@@ -107,6 +167,13 @@ class stzSecurityDrill from stzObject
 		bSpawned = 1
 		return This.WaitReady(20000)
 
+	# Polls the target's /health route until it answers 200 OK or the time is up.
+	#
+	#   pnTimeoutMs   how long to wait, in milliseconds
+	#   returns       1 (TRUE) when the target answered; 0 on timeout
+	#   warning       not run here: it sends requests to the target's port; on a drill that never
+	#                 spawned a target it can only time out
+	#   see           SpawnTarget
 	def WaitReady(pnTimeoutMs)
 		_nDeadline_ = StzEngineTimeNowMs() + pnTimeoutMs
 		while StzEngineTimeNowMs() < _nDeadline_
@@ -117,9 +184,16 @@ class stzSecurityDrill from stzObject
 		end
 		return 0
 
-	  #-- the attacks ---------------------------------------------------
-
-	# Guess a password until the account's failure counter says so.
+	# Sends a number of login requests with wrong passwords for one account and expects the credential-stuffing detection to fire.
+	#
+	#   pcUser     the account to attack
+	#   pnTimes    how many wrong passwords to send, one request each
+	#   returns    the drill itself, so calls chain
+	#   note       the first attack sent stamps the start of TimeToDetectMs
+	#   warning    the passwords are wrong-1, wrong-2 and so on; the expectation is recorded whether
+	#              or not the target answered
+	#   see        FireForgery, FireReplay, CollectEvidence, Expectations
+	#@ aka  -- the attacks ---------------------------------------------------
 	def FireCredentialStuffing(pcUser, pnTimes)
 		This._MarkAttackStart()
 		for _i_ = 1 to pnTimes
@@ -128,7 +202,12 @@ class stzSecurityDrill from stzObject
 		This._Expect("credential-stuffing", "credential stuffing (" + pnTimes + " bad passwords)")
 		return This
 
-	# Present a signature that does not verify.
+	# Sends one signed request whose signature does not verify and expects the forged-request detection to fire.
+	#
+	#   returns    the drill itself, so calls chain
+	#   note       the request carries the current time and the nonce forge-1
+	#   see        FireCredentialStuffing, FireReplay
+	#@ aka  Present a signature that does not verify.
 	def FireForgery()
 		This._MarkAttackStart()
 		_nTs_ = StzEngineTimeNowMs()
@@ -136,7 +215,13 @@ class stzSecurityDrill from stzObject
 		This._Expect("forged-request", "a forged signature")
 		return This
 
-	# Send a VALID signed request twice -- the second is a replay.
+	# Sends one validly signed request twice, so the second is a replay, and expects the replayed-request detection.
+	#
+	#   returns    the drill itself, so calls chain
+	#   note       it signs with the drill's key (SetKey) and assigns the global $oDrillServer, a
+	#              stzRequestSigner, in the calling process
+	#   see        FireForgery, SetKey
+	#@ aka  Send a VALID signed request twice -- the second is a replay.
 	def FireReplay()
 		This._MarkAttackStart()
 		$oDrillServer = new stzRequestSigner("attacker")
@@ -149,14 +234,23 @@ class stzSecurityDrill from stzObject
 		This._Expect("replayed-request", "a replayed nonce")
 		return This
 
+	# Returns what the attacks fired so far expect to see detected.
+	#
+	#   returns    a list of [ detection name, attack label ] rows, in the order fired; [ ] before
+	#              any attack
+	#   see        FiredDetections, Passed
 	def Expectations()
 		return @aExpected
 
-	  #-- acquisition: evidence crosses the boundary --------------------
-
-	# Ask the target to seal its ledger, then VERIFY the file and
-	# rebuild a working ledger from it. The parent believes nothing it
-	# has not verified.
+	# Asks the target to seal its ledger, verifies the sealed file, rebuilds a working ledger from it and notes which detections fired in it.
+	#
+	#   returns    1 (TRUE) when the evidence was verified and acquired; 0 when the file is missing
+	#              or fails verification, and AcquisitionWhy says why
+	#   note       when every expectation is met, the time of detection is stamped; the rebuilt
+	#              ledger recomputes its own chain
+	#   warning    the drill believes only the sealed and verified file, never the target's memory
+	#   see        AcquiredLedger, FiredDetections, Passed, AcquisitionWhy
+	#@ aka  -- acquisition: evidence crosses the boundary --------------------
 	def CollectEvidence()
 		This._Get("/seal")
 		StzEngineTimeSleepMs(200)
@@ -173,23 +267,29 @@ class stzSecurityDrill from stzObject
 		ok
 		return 1
 
-	  #-- containment: the loop closes ----------------------------------
-
-	# Log the victim in for real BEFORE the attack, so containment has a
-	# live session to end and the drill can prove it ended.
+	# Logs the victim in for real before the attack, so containment has a live session to end.
+	#
+	#   pcUser       the account to log in
+	#   pcPassword   its password
+	#   returns      TRUE if the target returned a session token; FALSE when it refused
+	#   warning      the token is kept inside the drill for ContainmentHolds
+	#   see          Contain, ContainmentHolds
+	#@ aka  -- containment: the loop closes ----------------------------------
 	def OpenVictimSession(pcUser, pcPassword)
 		_cR_ = This._Get("/login?user=" + pcUser + "&pass=" + pcPassword)
 		@cVictimToken = This._Body(_cR_)
 		return @cVictimToken != "" and @cVictimToken != "no"
 
-	# Contain what the evidence shows, as poOperator. The plan is derived
-	# FROM THE ACQUIRED EVIDENCE (an incident per credential-stuffing
-	# finding), governed HERE -- MayCommit is judged on the operator, and
-	# an LLM actor is refused -- and carried to the target, whose REAL
-	# responder (stzAuthResponder over its own stzAuth) performs it. Then
-	# containment is VERIFIED from outside: the right password must now be
-	# refused, and the session opened before the attack must be dead.
-	# Returns the number of actions committed.
+	# Turns the acquired evidence into a response plan and performs on the target what the operator may commit.
+	#
+	#   poOperator   the actor who commits, for example HumanActor("oncall")
+	#   returns      the number of actions committed, 0 when the operator is refused
+	#   note         the plan holds one incident per credential-stuffing finding; when something was
+	#                committed and ContainmentHolds is TRUE, the time of containment is stamped
+	#   warning      raises an error when no evidence was acquired yet; a refused operator commits
+	#                nothing and the plan records the refusal
+	#   see          ContainmentHolds, Containment, CollectEvidence
+	#@ aka  Contain what the evidence shows, as poOperator. The plan is derived FROM THE ACQUIRED EVIDENCE (an incident per credential-stuffing finding), governed HERE -- MayCommit is judged on the operator, and an LLM actor is refused -- and carried to the target, whose REAL responder (stzAuthResponder over its own stzAuth) performs it. Then containment is VERIFIED from outside: the right password must now b
 	def Contain(poOperator)
 		@aContainment = []
 		if @oLedger = ""
@@ -214,25 +314,39 @@ class stzSecurityDrill from stzObject
 		ok
 		return _nDone_
 
-	# Verified from outside the target: the correct password is refused,
-	# and the pre-attack session no longer answers.
+	# TRUE if the right password is refused and the pre-attack session is dead, checked from outside the target.
+	#
+	#   returns    TRUE or FALSE; FALSE before containment
+	#   note       it sends two requests to the target for the account named victim
+	#   see        Contain, OpenVictimSession
+	#@ aka  Verified from outside the target: the correct password is refused, and the pre-attack session no longer answers.
 	def ContainmentHolds()
 		_cLogin_ = This._Get("/login?user=victim&pass=correct-horse")
 		_cWho_ = This._Get("/whoami?token=" + @cVictimToken)
 		return StzFindFirst("401", _cLogin_) > 0 and StzFindFirst("401", _cWho_) > 0
 
-	# The two numbers a drill exists to produce, in milliseconds of wall
-	# time: from the first attack sent to the evidence showing every
-	# expected detection, and from there to containment applied and
-	# verified. -1 when that point was never reached.
+	# Returns the milliseconds from the first attack sent to the evidence showing every expected detection.
+	#
+	#   returns    a number; -1 when that point was not reached
+	#   see        TimeToContainMs, Explain
+	#@ aka  The two numbers a drill exists to produce, in milliseconds of wall time: from the first attack sent to the evidence showing every expected detection, and from there to containment applied and verified. -1 when that point was never reached.
 	def TimeToDetectMs()
 		if @nDetectedMs = 0 or @nAttackStartMs = 0  return -1  ok
 		return @nDetectedMs - @nAttackStartMs
 
+	# Returns the milliseconds from the detection to a containment that was applied and verified.
+	#
+	#   returns    a number; -1 when that point was not reached
+	#   see        TimeToDetectMs, Contain
 	def TimeToContainMs()
 		if @nContainedMs = 0 or @nDetectedMs = 0  return -1  ok
 		return @nContainedMs - @nDetectedMs
 
+	# Returns what Contain did: how many actions were planned, committed and refused.
+	#
+	#   returns    a list of [ :planned, :committed, :refused ] rows, one list per Contain call; [ ]
+	#              before any
+	#   see        Contain
 	def Containment()
 		return @aContainment
 
@@ -244,19 +358,41 @@ class stzSecurityDrill from stzObject
 			stzraise("the target did not perform " + pcVerb + " on '" + pcTarget + "': " + This._Body(_cR_))
 		ok
 
+	# Returns the ledger rebuilt from the verified evidence.
+	#
+	#   returns    a ledger object; the empty text before a successful CollectEvidence
+	#   see        CollectEvidence, Attestor
 	def AcquiredLedger()
 		return @oLedger
 
+	# Returns who attested the sealed evidence.
+	#
+	#   returns    a text, such as target-process; the empty text before a successful
+	#              CollectEvidence
+	#   see        AcquiredLedger
 	def Attestor()
 		return @cAttestor
 
+	# Returns the verdict of the last evidence acquisition, in words.
+	#
+	#   returns    a text such as "acquired 9 verified entr(ies)", or the reason it was refused,
+	#              such as a missing file; empty before CollectEvidence
+	#   see        CollectEvidence
 	def AcquisitionWhy()
 		return @cAcquireWhy
 
+	# Returns the names of the detections found in the acquired evidence.
+	#
+	#   returns    a list of text; [ ] before CollectEvidence
+	#   see        Expectations, Passed, MissedDetections
 	def FiredDetections()
 		return @aFired
 
-	# Did every expected detection actually fire?
+	# TRUE if at least one attack was fired and every expected detection fired in the evidence.
+	#
+	#   returns    TRUE or FALSE
+	#   see        MissedDetections, Explain
+	#@ aka  Did every expected detection actually fire?
 	def Passed()
 		_n_ = ring_len(@aExpected)
 		for _i_ = 1 to _n_
@@ -266,6 +402,10 @@ class stzSecurityDrill from stzObject
 		next
 		return _n_ > 0
 
+	# Returns the expected detections that did not fire.
+	#
+	#   returns    a list of text; [ ] when none missed
+	#   see        Passed, Expectations
 	def MissedDetections()
 		_a_ = []
 		_n_ = ring_len(@aExpected)
@@ -276,8 +416,14 @@ class stzSecurityDrill from stzObject
 		next
 		return _a_
 
-	  #-- legibility ----------------------------------------------------
-
+	# Returns the drill's report as lines: verdict, evidence, one line per expected detection, and the timings.
+	#
+	#   returns    a list of text lines
+	#   warning    one line per expected detection is marked fired or MISSED, and the two timings
+	#              follow when known; with an acquired ledger but no attack fired, the verdict reads
+	#              "MISSED: ." with nothing after it
+	#   see        Show, Passed
+	#@ aka  -- legibility ----------------------------------------------------
 	def Explain()
 		_aL_ = []
 		_cV_ = "NOT RUN"
@@ -311,6 +457,10 @@ class stzSecurityDrill from stzObject
 		ok
 		return _aL_
 
+	# Prints the lines of Explain.
+	#
+	#   returns    nothing; it prints
+	#   see        Explain
 	def Show()
 		_aL_ = This.Explain()
 		_nL_ = ring_len(_aL_)
@@ -318,6 +468,11 @@ class stzSecurityDrill from stzObject
 			? _aL_[_i_]
 		next
 
+	# Kills the child target if one was spawned and deletes the evidence file if it exists.
+	#
+	#   returns    the drill itself, so calls chain
+	#   note       on a drill that spawned nothing it only deletes the evidence file
+	#   see        SpawnTarget, SetEvidencePath
 	def Destroy()
 		if bSpawned and @nJob > 0
 			@oReactor.KillSpawnHard(@nJob)
@@ -449,29 +604,87 @@ class stzSecurityDrill from stzObject
 		next
 		return _c_
 
-# The parent's side of a remote containment: the plan (governed in the
-# parent) calls these verbs, and each one is carried to the target.
+# Carries the verbs of a containment plan to a drill's target, one request per verb.
+#
+# A response plan calls a responder's verbs for each committed action. This one is the drill's: each
+# verb is sent to the target's /contain route by the drill, which raises an error when the target
+# did not perform it. The stock target wires LockAccount and RevokeSession; the other four verbs
+# raise an error naming them as not wired.
+#
+#   receiver   o1 = new stzDrillRemoteResponder(new stzSecurityDrill("nightly"))
+#   example    ? classname(o1)
+#              #--> stzdrillremoteresponder
+#   see        stzSecurityDrill, stzResponsePlan
 class stzDrillRemoteResponder from stzObject
 
 	@pDrill = ""
 
+	# Builds the responder that carries a containment plan's actions to a drill's target.
+	#
+	#   poDrill    the stzSecurityDrill whose target performs the actions
+	#   returns    nothing; the object is built
+	#   note       each verb below is one call to the drill's _ContainRemote with the verb in lower
+	#              case
+	#   see        LockAccount, stzResponsePlan
 	def init(poDrill)
 		@pDrill = object2pointer(poDrill)
 
+	# Asks the drill's target to lock an account, closing its logins and sessions.
+	#
+	#   pcTarget   the account to lock
+	#   returns    nothing
+	#   note       the target wires this verb and RevokeSession only
+	#   warning    the drill raises an error when the target does not answer that it contained it
+	#   see        RevokeSession, Contain
 	def LockAccount(pcTarget)
 		pointer2object(@pDrill)._ContainRemote("lockaccount", pcTarget)
 
+	# Asks the drill's target to end the sessions of an account.
+	#
+	#   pcTarget   the account whose sessions to end
+	#   returns    nothing
+	#   warning    same error as LockAccount when the target does not contain it
+	#   see        LockAccount
 	def RevokeSession(pcTarget)
 		pointer2object(@pDrill)._ContainRemote("revokesession", pcTarget)
 
+	# Asks the drill's target to rotate a secret.
+	#
+	#   pcTarget   the name of the secret
+	#   returns    nothing
+	#   note       the verb is sent as rotatesecret
+	#   warning    read from the code, not run: the stock target does not wire this verb and the
+	#              drill raises an error
+	#   see        LockAccount
 	def RotateSecret(pcTarget)
 		pointer2object(@pDrill)._ContainRemote("rotatesecret", pcTarget)
 
+	# Asks the drill's target to revoke a capability.
+	#
+	#   pcTarget   the capability or actor to cut
+	#   returns    nothing
+	#   warning    read from the code, not run: the stock target does not wire this verb and the
+	#              drill raises an error
+	#   see        LockAccount
 	def RevokeCapability(pcTarget)
 		pointer2object(@pDrill)._ContainRemote("revokecapability", pcTarget)
 
+	# Asks the drill's target to block a source, such as a client address.
+	#
+	#   pcTarget   the source to block
+	#   returns    nothing
+	#   warning    read from the code, not run: the stock target does not wire this verb and the
+	#              drill raises an error
+	#   see        LockAccount
 	def ShedSource(pcTarget)
 		pointer2object(@pDrill)._ContainRemote("shedsource", pcTarget)
 
+	# Asks the drill's target to quarantine a part, such as an agent.
+	#
+	#   pcTarget   the part to quarantine
+	#   returns    nothing
+	#   warning    read from the code, not run: the stock target does not wire this verb and the
+	#              drill raises an error
+	#   see        LockAccount
 	def QuarantinePart(pcTarget)
 		pointer2object(@pDrill)._ContainRemote("quarantinepart", pcTarget)

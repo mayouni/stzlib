@@ -1,0 +1,30 @@
+{
+ "brief": "Carries values one by one through steps (transform, filter, accumulate) to the functions that subscribed to it.",
+ "detail": "Values enter with Recieve (spelt Receive, Feed, Emit or Send as well) and leave through the functions given to OnPassed, after the steps added with Transform and Filter, in the order they were added. Accumulate replaces the per-value output with one final result, handed to the subscribers when the stream concludes: by Conclude, or by itself after a quiet delay once the loop runs. SetOverflowStrategy bounds the buffer and decides what is lost when it is full; OverflowStats counts what was lost. A stream made with new is inactive and ignores values until Start is called, and one made by stzReactive.CreateStream is already started. Known faults: OnBufferFull functions are never called, and a stream that concluded at once through RecieveMany can conclude a second time when its pending timer fires.",
+ "receiver": "oRs = new stzReactive(); o1 = oRs.CreateStream(\"prices\")",
+ "example": [
+  "gOut = []",
+  "o1.Transform(func p { return p * 2 })",
+  "o1.Filter(func p { return p >= 100 })",
+  "o1.OnPassed(func v { gOut + v })",
+  "o1.SetAutoConclude(0)",
+  "o1.Recieve(30)",
+  "o1.Recieve(60)",
+  "o1.Recieve(80)",
+  "? @@( gOut )",
+  "#--> [ 120, 160 ]",
+  "o2 = oRs.CreateStream(\"sum\")",
+  "gSum = []",
+  "o2.Accumulate(func(t, x) { return t + x }, 0)",
+  "o2.OnPassed(func t { gSum + t })",
+  "o2.SetAutoConclude(0)",
+  "o2.Recieve(5)",
+  "o2.Recieve(7)",
+  "? @@( gSum )",
+  "#--> [ ]",
+  "o2.Conclude()",
+  "? @@( gSum )",
+  "#--> [ 12 ]"
+ ],
+ "see": ["stzReactive", "stzReactiveObject", "stzReactiveTask"]
+}

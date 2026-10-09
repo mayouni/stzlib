@@ -1,0 +1,20 @@
+{
+ "brief": "Turns source code into a graph of classes, methods, functions, imports and calls, and answers questions about inheritance and impact.",
+ "detail": "This is the shared head of the code graph family: it holds the model and every query, and each language is a subclass that knows how to read its source (stzRingCodeGraph, stzPyCodeGraph, stzJsCodeGraph). Build a graph with one of their functions, such as StzPyCodeGraphFromSource, then ask: Classes, MethodsOf, OwnersOf, AncestryOf, SubclassesOf, DescendantsOf, ImpactOf (who defines a method and who inherits it) and Cascade (how far a change to a class reaches). The call questions, CallersOf, CalleesOf, DeadCode and CyclicCalls, need call edges, which only a real parse such as ScanSourceViaTreeSitter records; without them DeadCode and CyclicCalls raise an error instead of guessing. The base class cannot parse by itself: Language raises, and so do Stats and any scan. CheckRules and RulesAreSound work on a Ring graph only.",
+ "receiver": "o1 = StzPyCodeGraphFromSource('class Animal:' + char(10) + '    def speak(self):' + char(10) + '        return 1' + char(10) + 'class Dog(Animal):' + char(10) + '    def speak(self):' + char(10) + '        return 2' + char(10) + 'class Puppy(Dog):' + char(10) + '    pass')",
+ "example": [
+  "? @@( o1.Classes() )",
+  "#--> [ \"Animal\", \"Dog\", \"Puppy\" ]",
+  "? @@( o1.AncestryOf(\"Puppy\") )",
+  "#--> [ \"Puppy\", \"Dog\", \"Animal\" ]",
+  "? @@( o1.DescendantsOf(\"Animal\") )",
+  "#--> [ \"Dog\", \"Puppy\" ]",
+  "? @@( o1.OwnersOf(\"speak\") )",
+  "#--> [ \"Animal\", \"Dog\" ]",
+  "? @@( o1.ImpactOf(\"speak\")[:inheritedBy] )",
+  "#--> [ \"Puppy\" ]",
+  "? o1.Cascade(\"Animal\")[:blastRadius]",
+  "#--> 2"
+ ],
+ "see": ["stzRingCodeGraph", "stzPyCodeGraph", "stzJsCodeGraph", "stzGraph"]
+}

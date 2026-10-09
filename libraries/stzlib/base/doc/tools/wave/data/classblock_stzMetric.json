@@ -1,0 +1,25 @@
+{
+ "brief": "Holds one named series of measurements, a counter, a gauge or a timer, and answers the questions that its kind allows.",
+ "detail": "The kind is fixed at birth. A counter counts events (Increment, IncrementBy, Value, RatePerSecond); a gauge holds a sampled level (Set, Mean, Min, Max, SlopePerMs); a timer records durations in milliseconds (Record, RecordWatch, then P50, P95 and P99 from a bucketed histogram, ExactPercentile over the recent samples, and an exact SumMs and MeanMs). A call that belongs to another kind raises an error that names the right kind. The samples are kept in the engine, so a copy of a metric is a second face on the same samples: recording through either is read through both. PromText and OtelMetricJson render the metric in the Prometheus and OpenTelemetry formats. Free a metric with Destroy when done. Readings that depend on the clock, such as RatePerSecond and SlopePerMs, should be tested with ranges and signs, not exact values.",
+ "receiver": "o1 = StzMetric(\"db.query\", :Timer)",
+ "example": [
+  "o1.Record(5).Record(15).Record(25)",
+  "? o1.Count()",
+  "#--> 3",
+  "? o1.SumMs()",
+  "#--> 45",
+  "? o1.MeanMs()",
+  "#--> 15",
+  "? o1.ExactPercentile(50)",
+  "#--> 15",
+  "? o1.P50()",
+  "#--> 20",
+  "o2 = StzMetric(\"app.requests\", :Counter)",
+  "o2.Increment().IncrementBy(4)",
+  "? o2.Value()",
+  "#--> 5",
+  "? o2.RatePerSecond() >= 0",
+  "#--> 1"
+ ],
+ "see": ["StzPerfMonitor", "stzStopwatch", "stzPerfSeries"]
+}

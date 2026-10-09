@@ -1,0 +1,35 @@
+init | Builds a named metric of one kind, :Counter, :Gauge or :Timer, whose samples live in the engine; any other kind raises an error. | nothing; the object is built | pcName=the metric's name, such as app.requests; pcKind=the kind: :Counter, :Gauge or :Timer, matched without regard to case | Name, Kind, Destroy | a kind that is not one of the three raises stzMetric: kind must be :Counter, :Gauge or :Timer | StzMetric(name, kind) is the usual way to build one; a copy of a metric shares the same samples
+Name | Returns the metric's name as given. | a text | | Kind, PromName
+Kind | Returns the metric's kind, in lower case. | the text counter, gauge or timer | | IsCounter, IsGauge, IsTimer
+IsCounter | TRUE if the metric counts events. | 1 or 0 | | Kind, IsGauge, IsTimer
+IsGauge | TRUE if the metric holds a sampled level. | 1 or 0 | | Kind, IsCounter, IsTimer
+IsTimer | TRUE if the metric records durations. | 1 or 0 | | Kind, IsCounter, IsGauge
+SetHelp | Sets the description that the Prometheus and OpenTelemetry outputs carry, and returns the metric. | the metric itself, so calls chain | pcText=the description, as text | Help, PromText, OtelMetricJson
+Help | Returns the description set with SetHelp. | a text; empty until one is set | | SetHelp
+LabelPairs | Returns the label pairs of a metric that is a child of a family. | a list of [ name, value ] pairs; an empty list for a metric made on its own | | PromText, OtelMetricJson
+Increment | Adds one to a counter and returns the metric. | the metric itself, so calls chain | | IncrementBy, Value, RatePerSecond | a gauge or a timer raises an error saying the call belongs to the counter kind | each call is one sample on the counter's timeline
+IncrementBy | Adds a number to a counter and returns the metric. | the metric itself, so calls chain | n=how much to add | Increment, Value | a gauge or a timer raises an error saying the call belongs to the counter kind
+RatePerSecond | Returns the counter's events per second over the retained samples, read from the slope of its own timeline. | a number, 0 or more; it depends on the clock, so test it with a range | | Increment, Value | a gauge or a timer raises an error saying the call belongs to the counter kind | the rate is measured, never configured
+Set | Records a level on a gauge and returns the metric. | the metric itself, so calls chain | nValue=the level to record | Value, Mean, SlopePerMs | a counter or a timer raises an error saying the call belongs to the gauge kind | RecordGauge is the same call
+SlopePerMs | Returns the trend of a gauge, in units per millisecond, over the retained samples. | a number; positive for a rising gauge, negative for a falling one | | Set, Mean | a counter or a timer raises an error saying the call belongs to the gauge kind | it depends on the clock, so test its sign, not its value
+Mean | Returns the mean of the retained samples of a gauge or a timer. | a number | | MeanMs, Min, Max | a counter raises an error and points to RatePerSecond | a timer's lifetime mean is MeanMs
+Min | Returns the smallest retained sample. | a number; 0 before any sample | | Max, Mean
+Max | Returns the largest retained sample. | a number; 0 before any sample | | Min, Mean
+Record | Records a duration on a timer in milliseconds and returns the metric; on a gauge it records a level, as Set does. | the metric itself, so calls chain | nMs=the duration in milliseconds | RecordWatch, P50, SumMs, Set | a counter raises an error saying the call belongs to the timer kind
+RecordWatch | Records the reading of a stopwatch, running or stopped, as one duration and returns the metric. | the metric itself, so calls chain | poStopwatch=a stzStopwatch, as StzStopwatch() builds it | Record, P50
+P50 | Returns the median duration of a timer as the upper bound of its histogram bucket. | a number in milliseconds, rounded up to a bucket bound | | P95, P99, ExactPercentile | a counter or a gauge raises an error saying the call belongs to the timer kind | with the samples 5, 15 and 25 it gave 20; ExactPercentile gives 15
+P95 | Returns the 95th percentile duration of a timer as the upper bound of its histogram bucket. | a number in milliseconds, rounded up to a bucket bound | | P50, P99, ExactPercentile | a counter or a gauge raises an error saying the call belongs to the timer kind
+P99 | Returns the 99th percentile duration of a timer as the upper bound of its histogram bucket. | a number in milliseconds, rounded up to a bucket bound | | P50, P95, ExactPercentile | a counter or a gauge raises an error saying the call belongs to the timer kind
+ExactPercentile | Returns the percentile of the recent samples of a timer, computed by sorting them, with no bucket rounding. | a number in milliseconds | nP=the percentile, from 0 to 100 | P50, Percentile | a counter or a gauge raises an error saying the call belongs to the timer kind | only the last 1024 samples are kept
+SumMs | Returns the total of all the durations recorded on a timer since it was built. | a number in milliseconds | | MeanMs, Count | a counter or a gauge raises an error saying the call belongs to the timer kind
+MeanMs | Returns the exact mean of all the durations recorded on a timer, and 0 before any. | a number in milliseconds | | SumMs, Count, Mean | a counter or a gauge raises an error saying the call belongs to the timer kind | the sum is kept exactly; only the buckets are rounded
+Value | Returns the metric's current reading: a counter's total, a gauge's level, or a timer's last duration. | a number; 0 before any sample | | Count, Increment, Set | | Last is the same call
+Count | Returns how many samples were recorded on the metric. | a number | | Value, SumMs
+SeriesQ | Returns the series object that holds the metric's recent samples. | a stzPerfSeries | | Percentile, Mean
+Percentile | Returns the percentile of the recent samples, whatever the kind. | a number | nP=the percentile, from 0 to 100 | ExactPercentile, P50 | for a timer it is the same as ExactPercentile
+PromName | Returns the name in the Prometheus vocabulary, with dots and dashes folded to underscores. | a text such as app_requests | | PromText, Name
+PromText | Returns the metric in the Prometheus exposition format: help line, type line and samples; a counter gets _total. | a text of several lines | | PromName, OtelMetricJson | | a timer gives the quantiles 0.5, 0.95 and 0.99, then _sum and _count
+OtelMetricJson | Returns one OpenTelemetry metric as JSON text: a sum for a counter, a gauge, or a summary for a timer. | a JSON text | | PromText | | the time stamp in it is the wall clock, so compare the rest
+Explain | Returns the metric's state as a list of plain lines: its total or level, its rate or trend, and its percentiles. | a list of text | | Show, Value
+Show | Prints the lines that Explain returns. | nothing; it writes to the console | | Explain
+Destroy | Frees the engine handles of the metric and returns it; a later call builds fresh, empty ones. | the metric itself, so calls chain | | init | | free every metric when done, since the engine holds the samples

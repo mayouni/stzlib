@@ -1,0 +1,27 @@
+{
+ "brief": "Walks through a list with a cursor, visiting the positions you choose: from a start to an end by a step, forward or backwards.",
+ "detail": "A parser is built over a non-empty list with new stzListParser(aList) or StzListParserQ(aList); no stzList method builds one. Parse chooses the positions to visit (ParsedPositions) and ParsedItems answers the items there; the cursor, read with CurrentPosition and CurrentItem, moves with NextPosition, PreviousPosition and the Nth forms, which count visited positions, not list positions, so with a step of 2 NextNthPosition(2) advances four list positions. NextItem and PreviousItem move the cursor and answer the item, so two calls give two different items. Reset parses again with the default start, end and step (1, the last position, 1 until a SetDefault... call changes them), not with the last Parse. Positions count from 1. Moving past the last visited position, or before the first, raises a Ring error (R2, array access out of range) and leaves the cursor in place; Parse does not check the positions against the list, and ParsedItems raises when one is outside it. The base class stzParser only keeps a source value; a stzListParser does not fill it, so read the list with List.",
+ "receiver": "o1 = new stzListParser([ \"a\", \"b\", \"c\", \"d\", \"e\", \"f\", \"g\", \"h\" ])",
+ "example": [
+  "o1.Parse(3, 8, 2)",
+  "? @@( o1.ParsedPositions() )",
+  "#--> [ 3, 5, 7 ]",
+  "? @@( o1.ParsedItems() )",
+  "#--> [ \"c\", \"e\", \"g\" ]",
+  "? o1.NextItem()",
+  "#--> e",
+  "? o1.CurrentPosition()",
+  "#--> 5",
+  "o1.Reset()",
+  "? o1.CurrentPosition()",
+  "#--> 1",
+  "o2 = new stzListParser([ \"שלום\", \"مرحبا\", \"😀\", \"ok\" ])",
+  "? o2.NextItem()",
+  "#--> مرحبا"
+ ],
+ "see": [
+  "stzList",
+  "stzListSorter",
+  "stzListFlattener"
+ ]
+}

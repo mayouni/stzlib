@@ -1,0 +1,25 @@
+{
+ "brief": "Serves a solution's datasets as live shared state over a real loopback server, so every part reads and writes the same records.",
+ "detail": "A solution model gives each part a role over a dataset, but the datasets are frozen lists. Start turns them into sqlite tables served by a real server in this process, and the parts then Create, Rows, RowCount and Dashboard by real HTTP round trips on the loopback: what one part writes, another sees. Writes are governed (SetActor: only an effectful actor commits; reads stay open) and every crossing is recorded in Traffic with its duration. The same API also drives a backend in another process (ConnectTo, SpawnRemote), signed with a shared key (SetSigningKey), which is required to leave the loopback. Known limits: the reply is parsed by splitting on commas, so a cell containing a comma splits in two; Dashboard expects a dish and a quantity.",
+ "receiver": "oT = new stzAppTopology(\"demo\")\noT.AddDatasetQ(\"menu\", [ [ \"Tajine\", \"clay pot\", 15 ] ])\noT.SetDatasetColumnsQ(\"menu\", [ \"name\", \"descr\", \"price\" ])\noT.AddDatasetQ(\"orders\", [ [ \"Tajine\", 1 ] ])\noT.SetDatasetColumnsQ(\"orders\", [ \"dish\", \"qty\" ])\noT.SetPartRoleQ(:phone, \"menu\", \"menu\")\noT.SetPartRoleQ(:admin, \"dashboard\", \"orders\")\no1 = new stzAppBackend(\"demo\", oT)\no1.Start(0)",
+ "example": [
+  "? o1.IsLive()",
+  "#--> 1",
+  "? o1.RowCount(:admin, \"orders\")",
+  "#--> 1",
+  "? o1.Create(:phone, \"orders\", [ [ \"dish\", \"Tajine\" ], [ \"qty\", 2 ] ])",
+  "#--> 1",
+  "? o1.RowCount(:admin, \"orders\")",
+  "#--> 2",
+  "? o1.Dashboard(:admin)[2]",
+  "#--> 45",
+  "? o1.TrafficCount()",
+  "#--> 4",
+  "o1.Stop()"
+ ],
+ "see": [
+  "stzAppTopology",
+  "stzAppServer",
+  "stzRequestSigner"
+ ]
+}

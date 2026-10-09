@@ -1,0 +1,17 @@
+{
+ "brief": "Turns the operations a target alone can perform into the artifact of that target: firmware source for a microcontroller, a manifest otherwise.",
+ "detail": "The bridge is the deploy-time half of the two worlds: the scope rehearses what the development machine cannot do, and the bridge lowers those operations to real text for the target, such as digitalRead(4) for a pin read. Flashing or uploading the result is a separate act that needs the device. It holds no state.",
+ "receiver": "o1 = new stzLoweringBridge()",
+ "example": [
+  "? o1.ExtensionFor(\"esp32\")",
+  "#--> .ino",
+  "? o1.ExtensionFor(\"linux\")",
+  "#--> .txt",
+  "? len(StzFind(\"digitalRead(4)\", o1.LowerOps([ [ \"gpio\", \"read_pin\", [ 4 ], \"read pin 4\" ] ], \"espidf\"))) > 0",
+  "#--> 1"
+ ],
+ "see": [
+  "stzSystemScope",
+  "stzPlatformProfile"
+ ]
+}

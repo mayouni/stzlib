@@ -1,0 +1,19 @@
+# Wave 12 -- stzAppProfile. Name | brief | returns | params | see | warning | note
+init | Builds a part of a solution with a name, the kind app, no language, no source and no deployment target. | nothing; the object is built | pcName=the part's name, kept in lower case | To, SetKind, stzPlatformProfile | | usually made by WithPart of the profile that owns it
+Name | Returns the part's name, in lower case. | a text | | SetName
+SetName | Sets the part's name, kept in lower case. | the part itself, so calls chain | pcName=the new name | Name
+Kind | Returns the kind of part: app, server, superapp or another word. | a text, app by default | | SetKind
+SetKind | Sets the kind of part, kept in lower case. | the part itself, so calls chain | pcKind=the kind, such as server or superapp | Kind
+SetLanguage | Sets the language the part's code is written in, so a platform build can compile it. | the part itself, so calls chain | pcLang=the language, such as c, cpp, zig or ring, kept in lower case | Language, AddSource
+Language | Returns the language of the part's code. | a text; the empty text when none is set | | SetLanguage, HasLanguage
+HasLanguage | TRUE if a language is set. | TRUE or FALSE | | SetLanguage
+AddSource | Adds one source file to the part. | the part itself, so calls chain | pcFile=the source file path | AddSources, Sources
+AddSources | Adds several source files to the part. | the part itself, so calls chain | paFiles=a list of file paths; anything but a list is ignored | AddSource, Sources
+Sources | Returns the part's source files, in the order added. | a list of text | | AddSource
+To | Declares the system the part deploys to. | the part itself, so calls chain | pTarget=a token such as :ESP32, :Android, :iOS, :LinuxServer or :Windows, or a stzSystemProfile | DeploymentSystem, DeploymentOSName | an unknown token is taken as an operating-system name with default capabilities | DeployedTo is the same call
+DeploymentSystem | Returns the system profile the part deploys to. | a stzSystemProfile; the empty text before To | | To
+DeploymentOSName | Returns the operating-system name of the deployment target. | a text; unknown before To | | To
+System | Returns the scope the part's feature code is written in, creating it on first use. | a stzSystemScope | | Scope, HasScope, stzSystemScope | assigning the result to a variable gives a copy: operations recorded on the variable never reach the retained scope, so Scope and the lowering bridge do not see them; chain the call instead, as in System().ReadPin(4) | call To first: without a target the scope has no profile to check against
+Scope | Returns the retained scope, or the empty text before System was called. | a stzSystemScope or the empty text | | System, HasScope
+HasScope | TRUE if the scope was created. | TRUE or FALSE | | System, Scope
+Show | Prints one line: the kind, the name and the deployment operating system. | nothing; it prints | | DeploymentOSName

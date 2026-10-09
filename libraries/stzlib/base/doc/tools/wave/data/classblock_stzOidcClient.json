@@ -1,0 +1,19 @@
+{
+ "brief": "Acts as the application side of a sign-in with an external identity provider: builds the sign-in address and decides whether the returned id-token may be believed.",
+ "detail": "Give it the issuer, the client id and the provider's public keys (AddKey, or SetJwks with the provider's JWKS document). AuthorizationUrl sends the user to the provider with a state and a nonce, and PKCE when you pass a challenge. VerifyIdToken then checks, in order, the shape, the key, the signature, the issuer, the audience, the expiry, the not-before time and the nonce, and answers a list whose why names the first failure instead of a bare 0. The algorithm is taken from the key the client holds, never from the token. In tests, use stzOidcSandbox to mint tokens offline.",
+ "receiver": "o1 = new stzOidcClient(\"https://idp.invented.test\", \"client-demo\")\no1.SetRedirectUri(\"https://app.invented.test/cb\")",
+ "example": [
+  "? o1.AuthorizationUrl(\"https://idp.invented.test/authorize\", \"s1\", \"n-1\")",
+  "#--> https://idp.invented.test/authorize?response_type=code&client_id=client-demo&redirect_uri=https%3A%2F%2Fapp.invented.test%2Fcb&scope=openid%20profile%20email&state=s1&nonce=n-1",
+  "? o1.PkceChallengeOf(\"dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk\")",
+  "#--> E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM",
+  "? o1.VerifyIdToken(\"junk\", \"n-1\")[:ok]",
+  "#--> 0",
+  "? o1.Why()",
+  "#--> the token is not a well-formed JWT"
+ ],
+ "see": [
+  "stzJwt",
+  "stzOidcSandbox"
+ ]
+}

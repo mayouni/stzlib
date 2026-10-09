@@ -1,0 +1,28 @@
+{
+ "brief": "Looks at the two ends of a text: runs of repeated characters, prefixes and suffixes to test, strip or make sure of.",
+ "detail": "It is the helper behind the ends-of-a-string methods of stzString (RemoveRepeatedLeadingCharsCS, EnsurePrefixCS, RemoveFromStartCS...), which builds one over itself and writes the result back; reach for it directly with new stzStringLeadTrail(cText) when you only need the ends. The reads (RepeatedLeadingChars, StartsWith, LeadingChar...) answer a text, a number or TRUE or FALSE; the verbs (RemoveFromStart, EnsurePrefix, RemoveThisLeadingChar...) change the held text in place and return nothing, the Q form returning the helper so calls chain; the past-tense forms (RemovedFromStart, PrefixEnsured) return the new text and leave the helper alone. Read the result with Content. A run needs at least two identical characters: a single leading character is not repeated. Matching is case-sensitive by default; StartsWithCS, EndsWithCS, EnsurePrefixCS and EnsureSuffixCS honour a case flag, while RepeatedLeadingCharsCS, RepeatedTrailingCharsCS (and so the Has and Number forms built on them) ignore it, and RemoveFromStartCS and RemoveFromEndCS do nothing for a flag of 0 when the case differs. Positions count characters, not bytes, so Hebrew, Arabic and emoji runs are measured as you expect. Pass a plain text, not a stzString object: an in-place edit through the helper empties the stzString that was passed in.",
+ "receiver": "o1 = new stzStringLeadTrail(\"aaabccc\")",
+ "example": [
+  "? o1.RepeatedLeadingChars()",
+  "#--> aaa",
+  "? o1.NumberOfRepeatedTrailingChars()",
+  "#--> 3",
+  "? o1.RepeatedLeadingCharsRemoved()",
+  "#--> abccc",
+  "o2 = new stzStringLeadTrail(\"example.com\")",
+  "o2.EnsurePrefix(\"https://\")",
+  "? o2.Content()",
+  "#--> https://example.com",
+  "o3 = new stzStringLeadTrail(\"םםםשלום!!\")",
+  "? o3.NumberOfRepeatedLeadingChars()",
+  "#--> 3",
+  "o4 = new stzStringLeadTrail(\"😀😀😀ok😀😀\")",
+  "? o4.RepeatedTrailingCharsRemoved() = \"😀😀😀ok😀\"",
+  "#--> 1"
+ ],
+ "see": [
+  "stzString",
+  "stzStringBounder",
+  "stzStringFormatter"
+ ]
+}

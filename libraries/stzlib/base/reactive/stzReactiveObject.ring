@@ -39,11 +39,34 @@ func StzReactiveSetAttr(pObj, pcName, pValue)
 	ok
 	setattribute(pObj, pcName, pValue)
 
-# F5 UNTANGLE (2026-07-14, completes the F3 note): the class now
-# COMPOSES the reactive system (`engine`) and inherits only stzObject.
-# The two timer calls that used to ride the `from stzReactive`
-# inheritance (StopTimer/RunAfter in WaitForAttributetoSettle) route
-# through `engine.` explicitly -- one reactive system, reached one way.
+# Turns attributes into values that notify: a change runs watchers, recalculates dependent attributes and updates bindings.
+#
+# A reactive object holds named attributes, made from nothing or wrapped around an existing object.
+# SetAttribute stores a value and, when it changed, calls the functions registered with Watch,
+# recomputes the attributes declared with Computed from the attributes they depend on, and writes to
+# the targets given to BindTo. WaitForAttributetoSettle calls a function once an attribute stops
+# changing, and Batch notifies a group of changes together afterwards. An error inside a watcher, a
+# calculated attribute or a batch does not stop the caller: it is recorded (Errors, LastError,
+# ErrorCount) and passed to the OnError handler, or printed when there is none. Names are not case
+# sensitive. Two members do not work as intended today: a binding reaches its target only once, when
+# it is made, and StreamAttribute never emits.
+#
+#   receiver   oRs = new stzReactive(); o1 = oRs.ReactiveObject()
+#   example    gLog = []
+#              o1.Watch(:name, func(oSelf, attr, oldV, newV) { gLog + [ oldV, newV ] })
+#              o1.SetAttribute(:name, "Ann")
+#              o1.SetAttribute(:name, "Bob")
+#              ? @@( gLog )
+#              #--> [ [ "", "Ann" ], [ "Ann", "Bob" ] ]
+#              o1.Computed(:greeting, func oSelf { return "Hello " + oSelf.GetAttribute(:name) }, [ :name ])
+#              o1.SetAttribute(:name, "Cy")
+#              ? o1.GetAttribute(:greeting)
+#              #--> Hello Cy
+#              o1.OnError(func(w, m) { })
+#              o1.Watch(:age, "not a function")
+#              ? o1.LastError()
+#              #--> Watch callback is not a function
+#   see        stzReactive, stzReactiveStream, stzReactiveTask
 class stzReactiveObject from stzObject
 
 	# Core reactive infrastructure
@@ -86,40 +109,74 @@ class stzReactiveObject from stzObject
 	@nMaxErrors = 50
 	@fOnError = ""            # optional handler: f(cWhere, cMsg)
 
-	#-- THE ERROR RECORD --------------------------------------------------------
-
-	# Hand it a handler and nothing is printed: f(cWhere, cMsg).
+	# Sets the handler that receives each error the object catches instead of printing it, and returns the object.
+	#
+	#   fCallback   a function taking two arguments, the place that failed and the message
+	#   returns     the object itself, so calls chain
+	#   note        without a handler the error is printed as [stzReactiveObject.place] message, and
+	#               recorded either way
+	#   see         Errors, LastError, ErrorCount
+	#@ aka  -- THE ERROR RECORD --------------------------------------------------------
 	def OnError(fCallback)
 		@fOnError = fCallback
 		return This
 
+	# Returns the errors recorded so far, as pairs of the place that failed and its message, oldest first.
+	#
+	#   returns    a list of [ place, message ] pairs; at most 50 are kept
+	#   note       the places look like Watch:name, Watcher:name, Computed:name,
+	#              Binding:name->target or Batch
+	#   see        LastError, ErrorCount, ClearErrors
 	def Errors()
 		return @aErrors
 
+	# Returns the message of the newest recorded error.
+	#
+	#   returns    a text; empty when nothing was recorded
+	#   see        LastErrorWhere, Errors
 	def LastError()
 		if len(@aErrors) = 0
 			return ""
 		ok
 		return @aErrors[len(@aErrors)][2]
 
-	# Which operation failed -- "Batch", "Watcher:name", "Computed:greeting"...
+	# Returns the place of the newest recorded error, such as Watch:age or Batch.
+	#
+	#   returns    a text; empty when nothing was recorded
+	#   see        LastError, Errors
+	#@ aka  Which operation failed -- "Batch", "Watcher:name", "Computed:greeting"...
 	def LastErrorWhere()
 		if len(@aErrors) = 0
 			return ""
 		ok
 		return @aErrors[len(@aErrors)][1]
 
-	# Everything seen, not merely everything KEPT. A bounded record that
-	# reported only its own length would under-count exactly when it matters.
+	# Returns how many errors were seen, including the ones dropped once 50 were kept.
+	#
+	#   returns    a number
+	#   see        ErrorsDropped, HasErrors, Errors
+	#@ aka  Everything seen, not merely everything KEPT. A bounded record that reported only its own length would under-count exactly when it matters.
 	def ErrorCount()
 		return @nErrorsSeen
 
+	# Returns how many errors were counted but not kept, because the record holds 50.
+	#
+	#   returns    a number
+	#   see        ErrorCount, Errors
 	def ErrorsDropped()
 		return @nErrorsDropped
 
+	# TRUE if at least one error was recorded since the last ClearErrors.
+	#
+	#   returns    1 or 0
+	#   see        ErrorCount, ClearErrors
 	def HasErrors()
 		return @nErrorsSeen > 0
 
+	# Empties the error record and its counters, then returns the object.
+	#
+	#   returns    the object itself, so calls chain
+	#   see        Errors, HasErrors
 	def ClearErrors()
 		@aErrors = []
 		@nErrorsSeen = 0
@@ -145,6 +202,17 @@ class stzReactiveObject from stzObject
 			? "[stzReactiveObject." + _cWhere_ + "] " + _cMsg_
 		ok
 
+	# Builds the reactive object around an existing object, or around nothing when given an empty text, and keeps the engine that serves it.
+	#
+	#   existingObject   the object to wrap, or an empty text for an object made of attributes only
+	#   reactiveEngine   the stzReactive system that serves timers and streams
+	#   returns          nothing; the object is built
+	#   note             the attributes of a wrapped object are read into the storage and the cache
+	#                    when it is built
+	#   warning          the wrapped object is stored as a copy: changing the original afterwards
+	#                    does not reach the reactive object, and setting through the reactive object
+	#                    does not change the original
+	#   see              Reactivate, SetAttribute
 	def Init(existingObject, reactiveEngine)
 	    if existingObject != ""
 	        @wrappedObject = existingObject
@@ -170,17 +238,31 @@ class stzReactiveObject from stzObject
 	    next
 	ok
 
-	# Ring's object access hooks - integrate with reactive system
+	# Runs when Ring opens a brace block on the object, and does nothing today.
+	#
+	#   returns    nothing
+	#   see        BraceEnd, BraceError
+	#@ aka  Ring's object access hooks - integrate with reactive system
 	def BraceStart()
 		if @bReactiveMode = REACTIVE_ON
 			# Notify reactive system of object access start
 		ok
 
+	# Runs when Ring closes a brace block on the object, and notifies the changes queued during the block.
+	#
+	#   returns    nothing
+	#   see        BraceStart, ProcessPendingReactions
 	def BraceEnd()
 		if @bReactiveMode = REACTIVE_ON
 			ProcessPendingReactions()
 		ok
 
+	# Runs when a call in a brace block fails, and hands the error text to the failure function of every SetAsync made so far.
+	#
+	#   returns    nothing
+	#   warning    the SetAsync records are never removed, so a later failed brace call reaches the
+	#              failure handlers of earlier, finished SetAsync calls as well
+	#   see        SetAsync, OnError
 	def BraceError()
 		_cError_ = cCatchError
 		
@@ -200,7 +282,16 @@ class stzReactiveObject from stzObject
 			ok
 		next
 
-	# Universal Attribute setter
+	# Sets an attribute, creating it when new, and on a real change runs its watchers, dependent attributes and bindings.
+	#
+	#   _cAttribute_   the attribute's name, which is lowercased
+	#   _newValue_     the value to store
+	#   returns        the object itself, so calls chain
+	#   note           the name is lowercased, so :Name and :name are one attribute
+	#   warning        inside Batch the notifications are queued and the value is stored at once; an
+	#                  equal value triggers nothing
+	#   see            GetAttribute, Watch, Computed, Batch
+	#@ aka  Universal Attribute setter
 	def SetAttribute(_cAttribute_, _newValue_)
 		_cAttribute_ = StzLower(_cAttribute_)
 
@@ -227,10 +318,21 @@ class stzReactiveObject from stzObject
 		# configuration chain broke at the one call most likely to be in it.
 		return This
 
+	# Sets an attribute from a pair of its name and its value, so that a set reads like an assignment.
+	#
+	#   paAttr     a list of two items, the attribute's name and its value
+	#   returns    nothing
+	#   note       it calls SetAttribute and, unlike it, does not return the object
+	#   see        SetAttribute
 	def @(paAttr)
 		This.SetAttribute(paAttr[1], paAttr[2])
 
-	# Universal Attribute getter
+	# Returns the current value of an attribute, matched without regard to case.
+	#
+	#   _cAttribute_   the attribute's name
+	#   returns        the value; an empty text when the attribute is unknown
+	#   see            SetAttribute, GetAttributeValue
+	#@ aka  Universal Attribute getter
 	def GetAttribute(_cAttribute_)
 		_cAttribute_ = StzLower(_cAttribute_)
 		_value_ = GetAttributeValue(_cAttribute_)
@@ -241,7 +343,14 @@ class stzReactiveObject from stzObject
 		
 		return _value_
 
-	# Core Attribute access methods
+	# Returns the value of an attribute, reading the cache first, then the wrapped object, then the storage.
+	#
+	#   _cAttribute_   the attribute's name
+	#   returns        the value; an empty text when the attribute is unknown
+	#   warning        a value written with SetAttributeValue is not read back while the cache holds
+	#                  an older one
+	#   see            GetAttribute, SetAttributeValue, UpdateAttributeCache
+	#@ aka  Core Attribute access methods
 	def GetAttributeValue(_cAttribute_)
 	    _cAttribute_ = StzLower(_cAttribute_)
 	    
@@ -264,6 +373,15 @@ class stzReactiveObject from stzObject
 	        return GetAttributeFromStorage(_cAttribute_)
 	    ok
 	
+	# Writes a value into the storage, the wrapped object and the object's own attribute, without any notification and without touching the cache.
+	#
+	#   _cAttribute_   the attribute's name
+	#   _value_        the value to write
+	#   returns        nothing
+	#   note           it is the call a binding makes on its target
+	#   warning        GetAttribute keeps answering the older value for an attribute already in the
+	#                  cache; use SetAttribute to set and notify
+	#   see            SetAttribute, UpdateAttributeCache
 	def SetAttributeValue(_cAttribute_, _value_)
 		# R54 FIX (2026-07-14): the old body called addattribute() on
 		# EVERY set -- re-adding an existing attribute REDEFINES it, and
@@ -289,14 +407,18 @@ class stzReactiveObject from stzObject
 	#  PUBLIC REACTIVE API  #
 	#-----------------------#
 
-	# Watch Attribute changes
-	# A CALLBACK THAT IS NOT ONE IS REFUSED AT REGISTRATION.
+	# Registers a function called as f(object, name, oldValue, newValue) each time the attribute changes, and returns the object.
 	#
-	# It used to be stored and only fail when the attribute next changed --
-	# recorded now that the catches report, but reported against the WATCHER
-	# rather than against the call that registered it. isFunction is the test
-	# that works here: a Ring lambda IS a string ("_ring_anonymous_func_NNN"),
-	# so isString cannot tell one from "not a function", and isFunction can.
+	#   _cAttribute_   the attribute to watch
+	#   fCallback      a function taking four arguments: the reactive object, the attribute's name,
+	#                  the old value and the new value
+	#   returns        the object itself, so calls chain
+	#   note           the function runs on every real change, in order of registration; an error
+	#                  inside it is recorded as Watcher:name
+	#   warning        a value that is not a function is refused: nothing is stored and the error
+	#                  Watch callback is not a function is recorded
+	#   see            Computed, WaitForAttributetoSettle, OnError
+	#@ aka  Watch Attribute changes A CALLBACK THAT IS NOT ONE IS REFUSED AT REGISTRATION.
 	def Watch(_cAttribute_, fCallback)
 		if NOT (isString(fCallback) and isFunction(fCallback))
 			This._RecordError("Watch:" + _cAttribute_, WATCH_ERROR_NOT_A_FUNCTION)
@@ -307,11 +429,17 @@ class stzReactiveObject from stzObject
 		@aAttributeWatchers + [_cAttribute_, fCallback]
 		return self
 
-	# Create computed Attribute that auto-updates
-	# The dependency list is walked by find() on every attribute change, so a
-	# non-list is not a problem here -- it is a "Bad parameter type!" raised
-	# from UpdateDependentComputedAttributes on some LATER, unrelated set, a
-	# long way from the registration that caused it.
+	# Creates an attribute whose value is calculated by a function from other attributes, now and again each time one of them changes.
+	#
+	#   _cAttribute_      the name of the calculated attribute
+	#   _fnComputer_      a function taking the reactive object and returning the value
+	#   _aDependencies_   the names of the attributes it depends on, as a list
+	#   returns           the object itself, so calls chain
+	#   note              a watcher on the calculated attribute also fires when it is recomputed
+	#   warning           a function that is not one, or dependencies that are not a list, are
+	#                     refused and recorded, and nothing is created
+	#   see               Watch, SetAttribute, ComputeAttribute
+	#@ aka  Create computed Attribute that auto-updates The dependency list is walked by find() on every attribute change, so a non-list is not a problem here -- it is a "Bad parameter type!" raised from UpdateDependentComputedAttributes on some LATER, unrelated set, a long way from the registration that caused it.
 	def Computed(_cAttribute_, _fnComputer_, _aDependencies_)
 		if NOT (isString(_fnComputer_) and isFunction(_fnComputer_))
 			This._RecordError("Computed:" + _cAttribute_, COMPUTED_ERROR_NOT_A_FUNCTION)
@@ -329,11 +457,20 @@ class stzReactiveObject from stzObject
 	    ComputeAttribute(_cAttribute_)
 	    return self
 
-	# Bind Attribute to another reactive object
-	# THE TARGET HAS TO BE ABLE TO TAKE THE BINDING. A plain object raised R14
-	# "Calling Method without definition: setattributevalue" from inside this
-	# setter, so binding to the wrong kind of thing crashed the caller instead
-	# of being refused.
+	# Binds an attribute to an attribute of another reactive object, copying its current value to the target at once.
+	#
+	#   oTargetObject        the reactive object that receives the value
+	#   _cSourceAttribute_   the attribute of this object to follow
+	#   _cTargetAttribute_   the attribute to write in the target, or an empty text for the same
+	#                        name
+	#   returns              the object itself, so calls chain
+	#   note                 the starting value is written to the object you passed
+	#   warning              a later change of the source does not reach the target object you
+	#                        passed, because the binding keeps a copy of the target: the target
+	#                        holds the value of the moment of binding; a target that is not an
+	#                        object is refused and recorded
+	#   see                  UpdateBoundAttributes, Watch
+	#@ aka  Bind Attribute to another reactive object THE TARGET HAS TO BE ABLE TO TAKE THE BINDING. A plain object raised R14 "Calling Method without definition: setattributevalue" from inside this setter, so binding to the wrong kind of thing crashed the caller instead of being refused.
 	def BindTo(oTargetObject, _cSourceAttribute_, _cTargetAttribute_)
 		if NOT isObject(oTargetObject)
 			This._RecordError("BindTo:" + _cSourceAttribute_, BIND_ERROR_TARGET_NOT_OBJECT)
@@ -364,7 +501,18 @@ class stzReactiveObject from stzObject
 
 		return This
 
-	# Async Attribute update
+	# Sets an attribute at once, completes a task with the value, calls the success function, and returns the task.
+	#
+	#   _cAttribute_   the attribute's name
+	#   _newValue_     the value to set
+	#   fnSuccess      a function taking the value, or an empty text
+	#   fnError        a function taking the error text, or an empty text
+	#   returns        a stzReactiveTask, already completed or failed
+	#   note           the error is also recorded as SetAsync:name
+	#   warning        the name suggests a deferred update, but nothing waits: the value is set
+	#                  before the call returns
+	#   see            SetAttribute, BraceError
+	#@ aka  Async Attribute update
 	def SetAsync(_cAttribute_, _newValue_, fnSuccess, fnError)
 		_cAttribute_ = StzLower(_cAttribute_)
 		_taskId_ = "attr_" + _cAttribute_ + "_" + string(StzEngineRandomInt(0, 999999))
@@ -407,7 +555,17 @@ class stzReactiveObject from stzObject
 
 		return _task_
 
-	# Batch multiple Attribute updates
+	# Runs a function in which attribute changes are stored at once but notified together afterwards, then returns the object.
+	#
+	#   fnUpdates   the function with no argument that makes the changes
+	#   returns     the object itself, so calls chain
+	#   note        each changed attribute is notified once
+	#   warning     the watcher receives the first change of an attribute, with its old value and
+	#               the value it had then, not the last: after sets of 1, 2 and 3 on an attribute
+	#               that held 10 it is told 10 and 1 while the attribute holds 3; an error in the
+	#               function is recorded as Batch and the changes already made stay
+	#   see         SetAttribute, ProcessBatchChanges
+	#@ aka  Batch multiple Attribute updates
 	def Batch(fnUpdates)
 		@bBatchMode = BATCH_MODE_ON
 		@aPendingChanges = []
@@ -433,7 +591,15 @@ class stzReactiveObject from stzObject
 		ProcessBatchChanges()
 		return self
 
-	# Create reactive stream from Attribute changes
+	# Returns a stream that never emits, because the watcher behind it fails at every change; the failure is recorded, not raised.
+	#
+	#   _cAttribute_   the attribute to follow
+	#   returns        a stream object; it stays empty
+	#   warning        the watcher raises error R24 Using uninitialized variable: _stream_, because
+	#                  the function it registers reads a local of the method; the error is recorded
+	#                  as Watcher:name and nothing reaches the stream
+	#   see            Watch, SetAttribute
+	#@ aka  Create reactive stream from Attribute changes
 	def StreamAttribute(_cAttribute_)
 		_cAttribute_ = StzLower(_cAttribute_)
 		
@@ -454,18 +620,26 @@ class stzReactiveObject from stzObject
 		
 		return _stream_
 
-	# The method waits for the attribute to stop changing (settle) before
-	# executing the callback.
+	# Calls a function once an attribute has stopped changing for the given delay, with the last change, and returns the object.
 	#
-	# F5 REWRITE (2026-07-14): the old body stored the pending timer in
-	# a LOCAL that a lambda "captured" -- but Ring lambdas do NOT capture
-	# enclosing locals, so every trigger raised (swallowed silently by
-	# TriggerAttributeWatchers' try/catch) and the feature never worked.
-	# The settle state now lives ON THE OBJECT (aSettleWatchers records)
-	# and the timers go to the GLOBAL detached table, which every
-	# RunLoop drives. The lambda uses only its own params (oSelf!) --
-	# the reason the watcher contract passes `this` first.
+	#   _cAttribute_   the attribute to watch
+	#   nDelay         the quiet time in milliseconds
+	#   fCallback      a function taking three arguments: the name, the old value and the new value
+	#   returns        the object itself, so calls chain
+	#   note           after three quick sets, the function ran once, with the second value as old
+	#                  and the last as new; DebounceAttribute is the same call
+	#   warning        the timer is run by the reactive loop, so nothing fires until the loop runs
+	#   see            OnSettleChange, Watch
+	#@ aka  The method waits for the attribute to stop changing (settle) before executing the callback.
 	def WaitForAttributetoSettle(_cAttribute_, nDelay, fCallback)
+		# F5 REWRITE (2026-07-14): the old body stored the pending timer in
+		# a LOCAL that a lambda "captured" -- but Ring lambdas do NOT capture
+		# enclosing locals, so every trigger raised (swallowed silently by
+		# TriggerAttributeWatchers' try/catch) and the feature never worked.
+		# The settle state now lives ON THE OBJECT (aSettleWatchers records)
+		# and the timers go to the GLOBAL detached table, which every
+		# RunLoop drives. The lambda uses only its own params (oSelf!) --
+		# the reason the watcher contract passes `this` first.
 		_cAttribute_ = StzLower(_cAttribute_)
 		@aSettleWatchers + [ _cAttribute_, nDelay, fCallback, "" ]
 		Watch(_cAttribute_, func(oSelf, attr, oldVal, newVal) {
@@ -476,9 +650,15 @@ class stzReactiveObject from stzObject
 		def DebounceAttribute(_cAttribute_, nDelay, fCallback)
 			return This.WaitForAttributetoSettle(_cAttribute_, nDelay, fCallback)
 
-	# (Internal) a watched-and-settling attribute changed: restart its
-	# settle timer. The user callback fires as f(attr, old, new) once
-	# the value has been quiet for the configured delay.
+	# Restarts the settle timer of an attribute each time it changes, so that the function fires only when the changes stop.
+	#
+	#   cAttr      the attribute that changed
+	#   oldVal     its old value
+	#   newVal     its new value
+	#   returns    nothing
+	#   warning    internal: the object registers it for you
+	#   see        WaitForAttributetoSettle
+	#@ aka  (Internal) a watched-and-settling attribute changed: restart its settle timer. The user callback fires as f(attr, old, new) once the value has been quiet for the configured delay.
 	def OnSettleChange(cAttr, oldVal, newVal)
 		_nLen_ = len(@aSettleWatchers)
 		for _i_ = 1 to _nLen_
@@ -493,7 +673,15 @@ class stzReactiveObject from stzObject
 			ok
 		next
 
-	# Factory method for creating reactive objects
+	# Returns a new reactive object wrapping an object, which is copied.
+	#
+	#   existingObject   the object to wrap, or an empty text
+	#   returns          a new stzReactiveObject
+	#   warning          the new object is given this reactive object as its engine, not the
+	#                    stzReactive system, so StreamAttribute on it raises error R14 Calling
+	#                    Method without definition: createstream
+	#   see              Init
+	#@ aka  Factory method for creating reactive objects
 	def Reactivate(existingObject)
 		return new stzReactiveObject(existingObject, this)
 
@@ -501,6 +689,11 @@ class stzReactiveObject from stzObject
 	#  UTILITY METHODS  #
 	#-------------------#
 
+	# Returns the value of an attribute from the storage only, ignoring the cache and the wrapped object.
+	#
+	#   _cAttribute_   the attribute's name
+	#   returns        the value; an empty text when absent
+	#   see            SetAttributeInStorage, GetAttributeValue
 	def GetAttributeFromStorage(_cAttribute_)
 		_cAttribute_ = StzLower(_cAttribute_)
 
@@ -515,6 +708,12 @@ class stzReactiveObject from stzObject
 		
 		return ""  # Default empty value
 
+	# Writes a value into the storage only, adding the attribute when absent.
+	#
+	#   _cAttribute_   the attribute's name
+	#   _value_        the value to store
+	#   returns        nothing
+	#   see            GetAttributeFromStorage, UpdateAttributeCache
 	def SetAttributeInStorage(_cAttribute_, _value_)
 		_cAttribute_ = StzLower(_cAttribute_)
 
@@ -529,6 +728,12 @@ class stzReactiveObject from stzObject
 		# Attribute doesn't exist, add it
 		@aAttributesOfStandaloneObjects + [_cAttribute_, _value_]
 
+	# Writes a value into the cache that GetAttribute reads first, adding the attribute when absent.
+	#
+	#   _cAttribute_   the attribute's name
+	#   _value_        the value to cache
+	#   returns        nothing
+	#   see            FindAttributeInCache, SetAttributeInStorage
 	def UpdateAttributeCache(_cAttribute_, _value_)
 	    _cAttribute_ = StzLower(_cAttribute_)
 	    _nIndex_ = FindAttributeInCache(_cAttribute_)
@@ -538,6 +743,11 @@ class stzReactiveObject from stzObject
 	        @aCachedAttributeValues + [_cAttribute_, _value_]
 	    ok
 
+	# Returns the position of an attribute in the cache, or 0 when it is not cached.
+	#
+	#   _cAttribute_   the attribute's name
+	#   returns        a number
+	#   see            UpdateAttributeCache
 	def FindAttributeInCache(_cAttribute_)
 	    _cAttribute_ = StzLower(_cAttribute_)
 	    _nLenCacheAttr_ = len(@aCachedAttributeValues)
@@ -548,6 +758,15 @@ class stzReactiveObject from stzObject
 	    next
 	    return 0
 
+	# Notifies one change: runs the watchers, recomputes the calculated attributes that depend on it, and updates the bound targets.
+	#
+	#   _cAttribute_   the attribute that changed
+	#   oldValue       its previous value
+	#   _newValue_     its new value
+	#   returns        nothing
+	#   warning        calling it directly notifies without changing any value
+	#   see            TriggerAttributeWatchers, UpdateDependentComputedAttributes,
+	#                  UpdateBoundAttributes
 	def ProcessAttributeChange(_cAttribute_, oldValue, _newValue_)
 		_cAttribute_ = StzLower(_cAttribute_)
 
@@ -562,11 +781,19 @@ class stzReactiveObject from stzObject
 		# Update bound Attributes
 		UpdateBoundAttributes(_cAttribute_, _newValue_)
 
+	# Notifies the changes queued by Batch, if any.
+	#
+	#   returns    nothing
+	#   see        ProcessBatchChanges, BraceEnd
 	def ProcessPendingReactions()
 		if len(@aPendingChanges) > 0
 			ProcessBatchChanges()
 		ok
 
+	# Notifies each attribute queued by Batch once, using its first queued change, then empties the queue.
+	#
+	#   returns    nothing
+	#   see        Batch, ProcessAttributeChange
 	def ProcessBatchChanges()
 		_aProcessedAttrs_ = []
 		_nLenPend_ = len(@aPendingChanges)
@@ -585,6 +812,13 @@ class stzReactiveObject from stzObject
 		@aPendingChanges = []
 
 
+	# Calls every watcher of an attribute as f(object, name, oldValue, newValue); an error in one is recorded and the others still run.
+	#
+	#   _cAttribute_   the attribute whose watchers to call
+	#   oldValue       the old value to pass
+	#   _newValue_     the new value to pass
+	#   returns        nothing
+	#   see            Watch, ProcessAttributeChange
 	def TriggerAttributeWatchers(_cAttribute_, oldValue, _newValue_)
 	    _cAttribute_ = StzLower(_cAttribute_)
 	    _nLenAttr_ = len(@aAttributeWatchers)
@@ -601,6 +835,11 @@ class stzReactiveObject from stzObject
 	    next
 
 
+	# Recomputes each calculated attribute that lists the changed attribute among its dependencies.
+	#
+	#   _cChangedAttribute_   the attribute that changed
+	#   returns               nothing
+	#   see                   Computed, ComputeAttribute
 	def UpdateDependentComputedAttributes(_cChangedAttribute_)
 		_cChangedAttribute_ = StzLower(_cChangedAttribute_)
 		_nLenAttr_ = len(@aComputedAttributes)
@@ -615,6 +854,14 @@ class stzReactiveObject from stzObject
 			ok
 		next
 
+	# Writes a new value to the target of each binding that follows the attribute.
+	#
+	#   _cAttribute_   the source attribute
+	#   _newValue_     the value to write
+	#   returns        nothing
+	#   warning        the targets written are the copies kept by BindTo, so the object you passed
+	#                  to BindTo does not see the value
+	#   see            BindTo
 	def UpdateBoundAttributes(_cAttribute_, _newValue_)
 		_cAttribute_ = StzLower(_cAttribute_)
 		_nLenAttr_ = len(@aAttributeBindings)
@@ -636,6 +883,12 @@ class stzReactiveObject from stzObject
 		next
 
 
+	# Recomputes one calculated attribute with its function, stores the result and runs the watchers of the attribute.
+	#
+	#   _cAttribute_   the name of a calculated attribute
+	#   returns        nothing
+	#   warning        an error in the function is recorded as Computed:name and the old value stays
+	#   see            Computed, UpdateDependentComputedAttributes
 	def ComputeAttribute(_cAttribute_)
 	    _cAttribute_ = StzLower(_cAttribute_)
 	    _nLenAttr_ = len(@aComputedAttributes)

@@ -279,6 +279,36 @@ func StzLoadAppTopologyFrom(pcPath)
 	next
 	return _oT_
 
+# Serves a solution's datasets as live shared state over a real loopback server, so every part reads and writes the same records.
+#
+# A solution model gives each part a role over a dataset, but the datasets are frozen lists. Start
+# turns them into sqlite tables served by a real server in this process, and the parts then Create,
+# Rows, RowCount and Dashboard by real HTTP round trips on the loopback: what one part writes,
+# another sees. Writes are governed (SetActor: only an effectful actor commits; reads stay open) and
+# every crossing is recorded in Traffic with its duration. The same API also drives a backend in
+# another process (ConnectTo, SpawnRemote), signed with a shared key (SetSigningKey), which is
+# required to leave the loopback. Known limits: the reply is parsed by splitting on commas, so a
+# cell containing a comma splits in two; Dashboard expects a dish and a quantity.
+#
+#   receiver   oT = new stzAppTopology("demo") oT.AddDatasetQ("menu", [ [ "Tajine", "clay pot", 15 ]
+#              ]) oT.SetDatasetColumnsQ("menu", [ "name", "descr", "price" ])
+#              oT.AddDatasetQ("orders", [ [ "Tajine", 1 ] ]) oT.SetDatasetColumnsQ("orders", [
+#              "dish", "qty" ]) oT.SetPartRoleQ(:phone, "menu", "menu") oT.SetPartRoleQ(:admin,
+#              "dashboard", "orders") o1 = new stzAppBackend("demo", oT) o1.Start(0)
+#   example    ? o1.IsLive()
+#              #--> 1
+#              ? o1.RowCount(:admin, "orders")
+#              #--> 1
+#              ? o1.Create(:phone, "orders", [ [ "dish", "Tajine" ], [ "qty", 2 ] ])
+#              #--> 1
+#              ? o1.RowCount(:admin, "orders")
+#              #--> 2
+#              ? o1.Dashboard(:admin)[2]
+#              #--> 45
+#              ? o1.TrafficCount()
+#              #--> 4
+#              o1.Stop()
+#   see        stzAppTopology, stzAppServer, stzRequestSigner
 class stzAppBackend from stzObject
 
 	@cName = ""
@@ -306,6 +336,14 @@ class stzAppBackend from stzObject
 	@cHostScript = ""      # the generated host script
 	@nSpawnJob = 0         # the child process job on @oClient
 
+	# Builds a backend for a solution model, not yet started, with an empty crossing ledger.
+	#
+	#   pcName       the backend's name
+	#   poTopology   the stzAppTopology whose datasets and part roles it will serve
+	#   returns      nothing; the object is built
+	#   note         the topology is copied on purpose: it is a snapshot of the model, and only the
+	#                live state is shared
+	#   see          Start, ConnectTo
 	def init(pcName, poTopology)
 		@cName = "" + pcName
 		@oTopology = poTopology
@@ -315,23 +353,29 @@ class stzAppBackend from stzObject
 	 #  BACKEND LIFECYCLE  #
 	#--------------------#
 
-	# Materialise every dataset of the model as a real sqlite table (seeded
-	# with the model's rows), expose each for REST CRUD, and bind the host.
-	# nPortNum 0 = ephemeral. After this, the state is LIVE: it no longer
-	# lives in the model, it lives in the database the parts share.
+	# Turns the model's datasets into live sqlite tables and serves them over a real server bound to the loopback, in this process.
+	#
+	#   pnPortNum   the port to listen on
+	#   returns     the backend itself, so calls chain
+	#   note        the tables start from the model's rows and then live on independently of the
+	#               model
+	#   warning     raises an error when the backend is already live
+	#   see         StartOn, Stop, Create, Rows
+	#@ aka  Materialise every dataset of the model as a real sqlite table (seeded with the model's rows), expose each for REST CRUD, and bind the host. nPortNum 0 = ephemeral. After this, the state is LIVE: it no longer lives in the model, it lives in the database the parts share.
 	def Start(pnPortNum)
 		return This.StartOn("127.0.0.1", pnPortNum)
 
-	# Bind a CHOSEN interface, so a backend can be reached from another MACHINE:
-	#   StartOn("127.0.0.1", p)  loopback -- this process and its children only
-	#   StartOn("0.0.0.0",   p)  every interface -- reachable across the network
-	#   StartOn("10.0.0.7",  p)  one specific NIC
+	# Starts the backend bound to a chosen interface; the loopback is allowed freely, any other address only once a signing key is set.
 	#
-	# LEAVING THE LOOPBACK REQUIRES A KEY. On 127.0.0.1 the callers are this
-	# machine; on a real interface they are whoever can route to the port, and an
-	# unauthenticated MBaaS floor would take a POST from any of them. So a
-	# non-loopback bind without SetSigningKey() is REFUSED here rather than
-	# quietly exposed -- governed by construction, not by a later audit finding.
+	#   pcHostAddr   the interface to bind, "127.0.0.1" for this machine only, or the empty text for
+	#                the loopback
+	#   pnPortNum    the port, 0 for a free one
+	#   returns      the backend itself, so calls chain
+	#   note         with a key set, every request must carry a valid signature
+	#   warning      a bind outside the loopback without SetSigningKey raises an error and binds
+	#                nothing; raises an error when already live
+	#   see          Start, SetSigningKey, BindHost
+	#@ aka  Bind a CHOSEN interface, so a backend can be reached from another MACHINE: StartOn("127.0.0.1", p) loopback -- this process and its children only StartOn("0.0.0.0", p) every interface -- reachable across the network StartOn("10.0.0.7", p) one specific NIC
 	def StartOn(pcHostAddr, pnPortNum)
 		if @bRunning
 			stzraise("stzAppBackend '" + @cName + "' is already live on port " + @nPort)
@@ -363,7 +407,11 @@ class stzAppBackend from stzObject
 		@bRunning = 1
 		return This
 
-	# The interface this backend is bound to (host mode).
+	# Returns the interface the backend is bound to.
+	#
+	#   returns    a text such as 127.0.0.1; the empty text before it is started
+	#   see        StartOn
+	#@ aka  The interface this backend is bound to (host mode).
 	def BindHost()
 		return @cBindHost
 
@@ -371,9 +419,14 @@ class stzAppBackend from stzObject
 		_c_ = StzLower(ring_trim("" + pcHost))
 		return _c_ = "127.0.0.1" or _c_ = "localhost" or _c_ = "::1"
 
-	# Serve the backend to whoever connects, for nMs. This is what a HOSTING
-	# process runs after Start(): the loop that answers remote parts. (A local
-	# backend never needs it -- it pumps one event per crossing instead.)
+	# Runs the server loop for a number of milliseconds, answering whoever connects; what a hosting process does after Start.
+	#
+	#   pnMs       how long to serve, in milliseconds
+	#   returns    the backend itself, so calls chain
+	#   note       a local backend does not need it: it answers one request per crossing by itself
+	#   warning    raises an error when the backend is not live and when it is a connected client
+	#   see        Start, SpawnRemote
+	#@ aka  Serve the backend to whoever connects, for nMs. This is what a HOSTING process runs after Start(): the loop that answers remote parts. (A local backend never needs it -- it pumps one event per crossing instead.)
 	def Serve(pnMs)
 		This._RequireLive("Serve")
 		if @bRemote
@@ -386,9 +439,16 @@ class stzAppBackend from stzObject
 	 #  REMOTE MODE: a backend in another host  #
 	#-----------------------------------------#
 
-	# Attach to a backend ALREADY RUNNING somewhere else. No database and no
-	# server are created here -- this object becomes a pure client, and every
-	# part-scoped call below goes over the wire instead of over the loopback.
+	# Turns the backend into a client of a backend already running at an address, creating no database and no server.
+	#
+	#   pcHostAddr   the host of the far backend
+	#   pnPortNum    its port
+	#   returns      the backend itself, so calls chain
+	#   note         nothing is sent until the first crossing; the remote client can only read and
+	#                create, not update or delete
+	#   warning      raises an error when the backend is already live
+	#   see          ReachAt, IsReachable, SetSigningKey, Stop
+	#@ aka  Attach to a backend ALREADY RUNNING somewhere else. No database and no server are created here -- this object becomes a pure client, and every part-scoped call below goes over the wire instead of over the loopback.
 	def ConnectTo(pcHostAddr, pnPortNum)
 		if @bRunning
 			stzraise("stzAppBackend '" + @cName + "' is already live -- Stop() before connecting elsewhere.")
@@ -400,11 +460,15 @@ class stzAppBackend from stzObject
 		@bRunning = 1
 		return This
 
-	# The shared secret that authenticates the crossing. Set it on BOTH sides:
-	# the HOST uses it to require a signature, the CLIENT to produce one. It is
-	# the same secret, so this one call serves both roles -- which is also why a
-	# real deployment must deliver it out of band (env, vault, stzSecretStore),
-	# never in the model file or the command line.
+	# Sets the shared secret that signs every crossing, so a host requires signatures and a client produces them.
+	#
+	#   pcKeyId    the identifier of the key
+	#   pcSecret   the shared secret, delivered out of band and never in the model file
+	#   returns    nothing; use SetSigningKeyQ to chain
+	#   note       set it on both sides, before Start or ConnectTo
+	#   warning    raises an error when either value is empty
+	#   see        IsSigned, SetMaxSkew, StartOn
+	#@ aka  The shared secret that authenticates the crossing. Set it on BOTH sides: the HOST uses it to require a signature, the CLIENT to produce one. It is the same secret, so this one call serves both roles -- which is also why a real deployment must deliver it out of band (env, vault, stzSecretStore), never in the model file or the command line.
 	def SetSigningKey(pcKeyId, pcSecret)
 		This.SetSigningKeyQ(pcKeyId, pcSecret)
 
@@ -416,9 +480,20 @@ class stzAppBackend from stzObject
 		@cSignSecret = "" + pcSecret
 		return This
 
+	# TRUE if a signing key is set.
+	#
+	#   returns    TRUE or FALSE
+	#   see        SetSigningKey
 	def IsSigned()
 		return @cSignKeyId != ""
 
+	# Sets how far, in milliseconds, a signed request's time may differ from the host's clock; 30000 by default.
+	#
+	#   pnMs       the freshness window in milliseconds
+	#   returns    nothing; use SetMaxSkewQ to chain
+	#   note       it matters only with a signing key
+	#   warning    a value below 1 raises an error
+	#   see        SetSigningKey
 	def SetMaxSkew(pnMs)
 		This.SetMaxSkewQ(pnMs)
 
@@ -451,19 +526,36 @@ class stzAppBackend from stzObject
 		ok
 		return "?" + _c_
 
-	# The HTTP status of the last crossing, either mode (0 = it never completed).
-	# 401 here means the far side refused the signature.
+	# Returns the HTTP status of the last crossing.
+	#
+	#   returns    a number such as 200, 201, 404 or 401; 0 when none completed
+	#   note       401 means the far side refused the signature
+	#   see        LastMs, Traffic
+	#@ aka  The HTTP status of the last crossing, either mode (0 = it never completed). 401 here means the far side refused the signature.
 	def LastStatus()
 		return @nLastStatus
 
+	# TRUE if this backend is a client of a backend elsewhere.
+	#
+	#   returns    TRUE or FALSE
+	#   see        ConnectTo
 	def IsRemote()
 		return @bRemote
 
+	# Returns the address the backend is reached at, host and port joined by a colon.
+	#
+	#   returns    a text such as 127.0.0.1:65253
+	#   see        Port, ReachAt
 	def Endpoint()
 		return @cHost + ":" + @nPort
 
-	# Is the far backend actually answering? (stzAppServer serves /health with
-	# no route declared, so this needs nothing from the model.)
+	# TRUE if the backend answers: a live local one always does, a remote one is probed on /health with a signed request.
+	#
+	#   pnTimeoutMs   how long to wait for the far answer, in milliseconds
+	#   returns       TRUE or FALSE; FALSE when the backend is not live
+	#   warning       the remote probe sends a request over the network: not run here
+	#   see           ConnectTo, WaitReady
+	#@ aka  Is the far backend actually answering? (stzAppServer serves /health with no route declared, so this needs nothing from the model.)
 	def IsReachable(pnTimeoutMs)
 		if NOT @bRunning
 			return 0
@@ -485,21 +577,32 @@ class stzAppBackend from stzObject
 		ok
 		return @oClient.HttpLastStatus() = 200
 
-	# Launch this model as a backend PROCESS of its own and return its endpoint.
-	# The child gets the serialised model + port + TTL on its command line, and
-	# self-terminates when the TTL expires (so a forgotten host cannot outlive
-	# the run). The spawning reactor is owned by THIS object, so the child's
-	# lifetime is tied to something the caller holds.
+	# Starts this model as a backend in a child ring process on the loopback and returns its endpoint.
+	#
+	#   pnPortNum   the port the child listens on
+	#   pnTtlMs     how long the child lives before it ends itself, in milliseconds
+	#   returns     a text, the endpoint such as 127.0.0.1:38050
+	#   note        read the code: the secret travels in an environment variable, never in the
+	#               command line
+	#   warning     not run here: it starts a second process and writes a model file and a host
+	#               script beside the library sources; raises an error when the backend is already
+	#               live
+	#   see         SpawnRemoteOn, WaitReady, Stop
+	#@ aka  Launch this model as a backend PROCESS of its own and return its endpoint. The child gets the serialised model + port + TTL on its command line, and self-terminates when the TTL expires (so a forgotten host cannot outlive the run). The spawning reactor is owned by THIS object, so the child's lifetime is tied to something the caller holds.
 	def SpawnRemote(pnPortNum, pnTtlMs)
 		return This.SpawnRemoteOn("127.0.0.1", pnPortNum, pnTtlMs)
 
-	# Launch the host bound to a CHOSEN interface, so the spawned backend is
-	# reachable from other machines rather than only from this one. The child
-	# enforces the same leave-the-loopback-needs-a-key rule, because it runs the
-	# very same StartOn().
+	# Starts the model as a child backend bound to a chosen interface, so other machines can reach it.
 	#
-	# The secret is handed over in the ENVIRONMENT (STZ_BACKEND_SECRET), not in
-	# argv -- see _GenerateHostScript.
+	#   pcBindHost   the interface to bind, "0.0.0.0" for every interface
+	#   pnPortNum    the port
+	#   pnTtlMs      the child's lifetime in milliseconds
+	#   returns      a text, the endpoint
+	#   note         it is the only call here that can expose a port to the network
+	#   warning      not run here, as for SpawnRemote; a bind outside the loopback without
+	#                SetSigningKey raises an error before anything starts
+	#   see          SpawnRemote, SetSigningKey
+	#@ aka  Launch the host bound to a CHOSEN interface, so the spawned backend is reachable from other machines rather than only from this one. The child enforces the same leave-the-loopback-needs-a-key rule, because it runs the very same StartOn().
 	def SpawnRemoteOn(pcBindHost, pnPortNum, pnTtlMs)
 		if @bRunning
 			stzraise("stzAppBackend '" + @cName + "' is already live -- SpawnRemote() launches a separate host.")
@@ -534,17 +637,20 @@ class stzAppBackend from stzObject
 		@nPort = pnPortNum
 		return This.Endpoint()
 
-	# The commands that would start this backend on a GENUINELY REMOTE machine,
-	# returned for inspection BEFORE anything runs -- the same rehearse-then-
-	# commit shape stzDeployment uses for its :Server backend. Generating them
-	# needs no host; running them needs one reachable account, which is the only
-	# infra-gated step in the whole remote story.
+	# Returns the shell commands that would start this backend on another machine, without running any.
 	#
-	# THE SECRET IS NEVER IN THE COMMAND. argv is world-readable in the remote
-	# process table, so the launch line only NAMES the environment variable; the
-	# value must already be in the remote environment (deploy it from a vault or
-	# stzSecretStore out of band). A backend that leaks its own key while
-	# starting has authenticated nothing.
+	#   pcSshTarget   the user and host to reach by ssh
+	#   pcRemoteDir   the folder on that machine
+	#   pnPortNum     the port
+	#   pnTtlMs       the lifetime in milliseconds
+	#   returns       a list of four command texts: make the folder, copy the model, copy the host
+	#                 script, start it
+	#   note          the secret is named by an environment variable and is never in a command
+	#   warning       raises an error without a signing key and when the target or folder is empty;
+	#                 not run to completion here, since it writes a model file and a host script
+	#                 beside the library sources
+	#   see           ExplainRemoteLaunch, SetSigningKey
+	#@ aka  The commands that would start this backend on a GENUINELY REMOTE machine, returned for inspection BEFORE anything runs -- the same rehearse-then- commit shape stzDeployment uses for its :Server backend. Generating them needs no host; running them needs one reachable account, which is the only infra-gated step in the whole remote story.
 	def RemoteLaunchCommands(pcSshTarget, pcRemoteDir, pnPortNum, pnTtlMs)
 		if @cSignKeyId = ""
 			stzraise("stzAppBackend.RemoteLaunchCommands: a backend launched on another " +
@@ -567,7 +673,18 @@ class stzAppBackend from stzObject
 		       pnPortNum + " " + pnTtlMs + " 0.0.0.0 " + @cSignKeyId + " STZ_BACKEND_SECRET")
 		return _a_
 
-	# A legible account of what a remote launch would do, and what it needs.
+	# Returns a readable account of what a remote launch would do and need, with its commands.
+	#
+	#   pcSshTarget   the user and host to reach by ssh
+	#   pcRemoteDir   the folder on that machine
+	#   pnPortNum     the port
+	#   pnTtlMs       the lifetime in milliseconds
+	#   returns       a list of text lines
+	#   note          the last line says nothing has run yet
+	#   warning       the same errors and the same file writes as RemoteLaunchCommands, so not run
+	#                 here
+	#   see           RemoteLaunchCommands
+	#@ aka  A legible account of what a remote launch would do, and what it needs.
 	def ExplainRemoteLaunch(pcSshTarget, pcRemoteDir, pnPortNum, pnTtlMs)
 		_out_ = []
 		_out_ + ("Remote launch of backend '" + @cName + "' on " + pcSshTarget)
@@ -584,8 +701,13 @@ class stzAppBackend from stzObject
 		_out_ + "  nothing has run yet -- these are the commands, not their effects"
 		return _out_
 
-	# Point this client at a different address for the SAME backend -- e.g. a
-	# host bound to 0.0.0.0 that another machine reaches at a routable IP.
+	# Points a client at another address for the same backend, such as a routable address of a host bound to every interface.
+	#
+	#   pcHostAddr   the new host address
+	#   returns      nothing; use ReachAtQ to chain
+	#   note         the port is kept
+	#   see          ConnectTo, Endpoint
+	#@ aka  Point this client at a different address for the SAME backend -- e.g. a host bound to 0.0.0.0 that another machine reaches at a routable IP.
 	def ReachAt(pcHostAddr)
 		This.ReachAtQ(pcHostAddr)
 
@@ -593,8 +715,13 @@ class stzAppBackend from stzObject
 		@cHost = ring_trim("" + pcHostAddr)
 		return This
 
-	# Wait until the spawned host answers /health (it must load stzBase and bind
-	# first). Returns TRUE once it does.
+	# Polls a spawned host with signed health requests until it answers or the time is up.
+	#
+	#   pnTimeoutMs   how long to wait, in milliseconds
+	#   returns       1 (TRUE) once it answers, 0 on timeout
+	#   warning       not run here: it sends requests to the host's port
+	#   see           SpawnRemote, IsReachable
+	#@ aka  Wait until the spawned host answers /health (it must load stzBase and bind first). Returns TRUE once it does.
 	def WaitReady(pnTimeoutMs)
 		_nDeadline_ = StzEngineTimeNowMs() + pnTimeoutMs
 		# the probe is a real client, so it needs the real key -- an unsigned
@@ -616,6 +743,12 @@ class stzAppBackend from stzObject
 		_oProbe_.Stop()
 		return 0
 
+	# Stops the server and closes the live state, or releases a client or a spawned-host manager.
+	#
+	#   returns    the backend itself, so calls chain
+	#   note       calling it on a backend that is not live does nothing; a spawned child ends by
+	#              itself at its lifetime
+	#   see        Start, ConnectTo
 	def Stop()
 		if NOT @bRunning and @nSpawnJob = 0
 			return This
@@ -642,12 +775,24 @@ class stzAppBackend from stzObject
 		@bRunning = 0
 		return This
 
+	# TRUE if the backend is started or connected.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Start, Stop
 	def IsLive()
 		return @bRunning
 
+	# Returns the port the backend listens on, or the far port for a client.
+	#
+	#   returns    a number; 0 before Start
+	#   see        Endpoint, Start
 	def Port()
 		return @nPort
 
+	# Returns the backend's name.
+	#
+	#   returns    a text
+	#   see        init
 	def Name()
 		return @cName
 
@@ -655,9 +800,18 @@ class stzAppBackend from stzObject
 	 #  THE PARTS' VIEW OF THE LIVE STATE  #
 	#-------------------------------------#
 
-	# A part WRITES: a real HTTP POST to the running backend, which the MBaaS
-	# floor turns into a sqlite INSERT. Returns TRUE on 201.
-	# paFields: [ [ "dish", "Couscous" ], [ "qty", 2 ] ]
+	# Writes one record into a dataset by a real HTTP POST, on behalf of a part.
+	#
+	#   pcPart      the part that writes, recorded in lower case
+	#   pcDataset   the dataset to insert into
+	#   paFields    the record as [ [ column, value ], ... ]
+	#   returns     TRUE when the backend answered 201, else FALSE, for example 0 for an unknown
+	#               dataset
+	#   note        a dataset that does not exist gives a 404 in LastStatus and no error
+	#   warning     raises an error when the backend is not live, and when it is governed by an
+	#               actor that is not effectful, in which case a 403 is noted and nothing crosses
+	#   see         Rows, RowCount, SetActor
+	#@ aka  A part WRITES: a real HTTP POST to the running backend, which the MBaaS floor turns into a sqlite INSERT. Returns TRUE on 201. paFields: [ [ "dish", "Couscous" ], [ "qty", 2 ] ]
 	def Create(pcPart, pcDataset, paFields)
 		This._RequireLive("Create")
 		_p_ = StzLower(ring_trim("" + pcPart))
@@ -672,7 +826,16 @@ class stzAppBackend from stzObject
 		@aTraffic + [ _p_, "POST", _ds_, @nLastStatus, @nLastMs ]
 		return @nLastStatus = 201
 
-	# A part READS: a real HTTP GET. Returns [ [ cell, cell ], ... ].
+	# Reads every record of a dataset by a real HTTP GET, on behalf of a part.
+	#
+	#   pcPart      the part that reads, recorded in lower case
+	#   pcDataset   the dataset to read
+	#   returns     a list of rows, each a list of cell texts; [ ] for an unknown dataset
+	#   note        cells come back as text, numbers included; the order is the insertion order
+	#   warning     raises an error when the backend is not live; a cell holding a comma is split
+	#               into two cells, because the reply is cut on commas
+	#   see         RowCount, Create, Dashboard
+	#@ aka  A part READS: a real HTTP GET. Returns [ [ cell, cell ], ... ].
 	def Rows(pcPart, pcDataset)
 		This._RequireLive("Rows")
 		_p_ = StzLower(ring_trim("" + pcPart))
@@ -681,6 +844,14 @@ class stzAppBackend from stzObject
 		@aTraffic + [ _p_, "GET", _ds_, @nLastStatus, @nLastMs ]
 		return This._ParseRowsJson(_cResp_)
 
+	# Returns how many records a dataset holds, by a real HTTP GET.
+	#
+	#   pcPart      the part that reads
+	#   pcDataset   the dataset to count
+	#   returns     a number; 0 for an unknown dataset
+	#   note        it is noted in the ledger as <dataset>/count
+	#   warning     raises an error when the backend is not live
+	#   see         Rows
 	def RowCount(pcPart, pcDataset)
 		This._RequireLive("RowCount")
 		_p_ = StzLower(ring_trim("" + pcPart))
@@ -689,10 +860,16 @@ class stzAppBackend from stzObject
 		@aTraffic + [ _p_, "GET", _ds_ + "/count", @nLastStatus, @nLastMs ]
 		return This._CountJson(_cResp_)
 
-	# The part's dashboard, computed over LIVE rows fetched from the running
-	# backend -- the SAME aggregation the static model runs (stzTable SumCol /
-	# MaxColumn: the part's declared :PivotTable), but over state another part
-	# may have written a moment ago. Returns [ rows, total, topDish, topRev ].
+	# Computes a part's dashboard over the live rows of its dataset.
+	#
+	#   pcPart     the part whose dataset is aggregated
+	#   returns    a list [ rows, total, top dish, its revenue ]; each row is [ dish, quantity,
+	#              revenue ]
+	#   note       the total changes as other parts write, because it is computed on every call
+	#   warning    raises an error when the backend is not live and, for a dataset that is not two
+	#              columns of a name and a quantity, error R41 invalid numeric string
+	#   see        Rows, Create
+	#@ aka  The part's dashboard, computed over LIVE rows fetched from the running backend -- the SAME aggregation the static model runs (stzTable SumCol / MaxColumn: the part's declared :PivotTable), but over state another part may have written a moment ago. Returns [ rows, total, topDish, topRev ].
 	def Dashboard(pcPart)
 		This._RequireLive("Dashboard")
 		_ds_ = @oTopology.DatasetNameOf(pcPart)
@@ -715,9 +892,15 @@ class stzAppBackend from stzObject
 	 #  GOVERNANCE + CROSS-PART AUDIT  #
 	#---------------------------------#
 
-	# Bind the acting actor: cross-part WRITES then require an effectful one
-	# (an LLMActor reads the whole solution and commits none of it). Reads are
-	# sensing and stay open. Unbound = ungoverned (dev).
+	# Binds the actor on whose behalf parts act, so a write needs an effectful one.
+	#
+	#   poActor    the acting actor, such as HumanActor("manager") or LLMActor("planner")
+	#   returns    nothing; use SetActorQ to chain
+	#   note       until it is called the backend is ungoverned
+	#   warning    reads stay open to every actor; an actor that is not effectful makes Create raise
+	#              an error
+	#   see        IsGoverned, Create
+	#@ aka  Bind the acting actor: cross-part WRITES then require an effectful one (an LLMActor reads the whole solution and commits none of it). Reads are sensing and stay open. Unbound = ungoverned (dev).
 	def SetActor(poActor)
 		This.SetActorQ(poActor)
 
@@ -726,25 +909,43 @@ class stzAppBackend from stzObject
 		@bGoverned = 1
 		return This
 
+	# TRUE if an actor was bound, so writes are governed.
+	#
+	#   returns    TRUE or FALSE
+	#   see        SetActor
 	def IsGoverned()
 		return @bGoverned
 
-	# [ [ part, verb, dataset, status, durMs ], ... ] -- every crossing,
-	# in order, WITH its cost (perf P3): the ledger now answers not just
-	# what crossed and how it ended, but what it took.
+	# Returns every crossing in order: part, verb, dataset, status and duration in milliseconds.
+	#
+	#   returns    a list of [ part, verb, dataset, status, ms ] rows
+	#   note       the ledger is kept in the object, not in the shared state
+	#   see        TrafficOf, RefusedCrossings, Explain
+	#@ aka  [ [ part, verb, dataset, status, durMs ], ... ] -- every crossing, in order, WITH its cost (perf P3): the ledger now answers not just what crossed and how it ended, but what it took.
 	def Traffic()
 		return @aTraffic
 
-	# The duration of the last crossing (ms, monotonic clock) -- the
-	# marshalling cost of one Create/Rows/RowCount, either mode.
+	# Returns how long the last crossing took, in milliseconds, on a monotonic clock.
+	#
+	#   returns    a number
+	#   see        LastRoundtripMs, MeanCrossingMs
+	#@ aka  The duration of the last crossing (ms, monotonic clock) -- the marshalling cost of one Create/Rows/RowCount, either mode.
 	def LastMs()
 		return @nLastMs
 
+		# Returns how long the last crossing took, in milliseconds, on a monotonic clock.
+		#
+		#   returns    a number
+		#   see        LastMs
 		def LastRoundtripMs()
 			return @nLastMs
 
-	# Mean crossing cost over the whole ledger (refusals, at 0 ms,
-	# excluded -- they never crossed).
+	# Returns the mean duration of the crossings that really crossed.
+	#
+	#   returns    a number; 0 when none
+	#   note       refused writes, which cost 0 ms, are left out
+	#   see        LastMs, Traffic
+	#@ aka  Mean crossing cost over the whole ledger (refusals, at 0 ms, excluded -- they never crossed).
 	def MeanCrossingMs()
 		_nSum_ = 0
 		_nN_ = 0
@@ -760,10 +961,19 @@ class stzAppBackend from stzObject
 		ok
 		return _nSum_ / _nN_
 
+	# Returns how many crossings the ledger holds.
+	#
+	#   returns    a number
+	#   see        Traffic
 	def TrafficCount()
 		return len(@aTraffic)
 
-	# the crossings a given part made
+	# Returns the crossings one part made.
+	#
+	#   pcPart     the part's name, matched without regard to case
+	#   returns    a list of [ part, verb, dataset, status, ms ] rows
+	#   see        Traffic
+	#@ aka  the crossings a given part made
 	def TrafficOf(pcPart)
 		_p_ = StzLower(ring_trim("" + pcPart))
 		_out_ = []
@@ -775,6 +985,10 @@ class stzAppBackend from stzObject
 		next
 		return _out_
 
+	# Returns the writes the governance refused.
+	#
+	#   returns    a list of crossings with status 403
+	#   see        Traffic, SetActor
 	def RefusedCrossings()
 		_out_ = []
 		_n_ = len(@aTraffic)
@@ -785,8 +999,11 @@ class stzAppBackend from stzObject
 		next
 		return _out_
 
-	# a legible account of the live backend (a list of lines, per the plane's
-	# Explain() convention).
+	# Returns a readable account of the backend: its state, port, number of crossings and each crossing.
+	#
+	#   returns    a list of text lines
+	#   see        Show, Traffic
+	#@ aka  a legible account of the live backend (a list of lines, per the plane's Explain() convention).
 	def Explain()
 		_out_ = []
 		_out_ + ("Live backend '" + @cName + "' -- " + This._StateWord() +
@@ -802,6 +1019,10 @@ class stzAppBackend from stzObject
 		next
 		return _out_
 
+	# Prints the lines of Explain.
+	#
+	#   returns    the backend itself, so calls chain
+	#   see        Explain
 	def Show()
 		_a_ = This.Explain()
 		_n_ = len(_a_)
@@ -814,17 +1035,18 @@ class stzAppBackend from stzObject
 	 #  MODEL SERIALISATION (for a host process)  #
 	#-------------------------------------------#
 
-	# Write the MODEL (never the state) so another process can rebuild it:
-	#   N|<name>
-	#   C|<dataset>|<col>|<col>...
-	#   R|<dataset>|<n|s>|<cell>|<n|s>|<cell>...
-	#   P|<part>|<role>|<dataset>
+	# Writes the model, never the live state, to a text file that a host process can rebuild it from.
 	#
-	# Cells carry their TYPE (n/s) rather than being sniffed on the way back in:
-	# a price must stay a NUMBER for the revenue maths, and "looks numeric" is
-	# exactly how "007" silently becomes 7 -- a defect this library already paid
-	# for once in the CSV reader. Fields are percent-escaped (see _StzModelEsc).
+	#   pcPath     the file to write
+	#   returns    the backend itself, so calls chain
+	#   note       each cell keeps its type, number or text, and the separators are percent-escaped
+	#   see        StzLoadAppTopologyFrom
+	#@ aka  Write the MODEL (never the state) so another process can rebuild it: N|<name> C|<dataset>|<col>|<col>... R|<dataset>|<n|s>|<cell>|<n|s>|<cell>... P|<part>|<role>|<dataset>
 	def SaveModelTo(pcPath)
+		# Cells carry their TYPE (n/s) rather than being sniffed on the way back in:
+		# a price must stay a NUMBER for the revenue maths, and "looks numeric" is
+		# exactly how "007" silently becomes 7 -- a defect this library already paid
+		# for once in the CSV reader. Fields are percent-escaped (see _StzModelEsc).
 		_cNL_ = char(10)
 		_cOut_ = "N|" + _StzModelEsc(@oTopology.Name()) + _cNL_
 		_aNames_ = @oTopology.DatasetNames()

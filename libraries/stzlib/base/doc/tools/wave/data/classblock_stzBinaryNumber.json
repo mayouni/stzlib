@@ -1,0 +1,29 @@
+{
+ "brief": "Holds a number written in binary and converts it to decimal, octal and hexadecimal, or builds it from them.",
+ "detail": "It is the binary form behind stzNumber.ToBinaryForm: a stzNumber builds one with new stzBinaryNumber(cText), and you can build one yourself with new stzBinaryNumber(\"0b1011\") or StzBinaryNumberQ(\"0b1011\"). The text starts with b or 0b, followed by binary digits and optionally a dot and more digits; an empty text gives zero. Content returns the text as given, prefix included. ToDecimalForm, ToOctalForm and ToHexForm convert (by hand 0b1011 is 8+2+1 = 11 = 0o13 = 0xB), and FromDecimalForm, FromHexForm and FromOctalForm replace the number in place, the last two needing the 0x and 0o prefixes. The Bitwise methods work on the decimal value and answer a number. Whole numbers convert exactly; the fractional part is exact in decimal and octal but ToHexForm drops it. Several methods are broken today and each says so in its own entry: IntegerPart and Reversed raise R24 when a dot is present, WithPrefix doubles the prefix, the reversals reverse the prefix with the digits, ToScientificNotationForm raises R14, and an uppercase 0B prefix reads as 0.",
+ "receiver": "o1 = new stzBinaryNumber(\"0b1011\")",
+ "example": [
+  "? o1.ToDecimalForm()",
+  "#--> 11",
+  "? o1.ToOctalForm()",
+  "#--> 0o13",
+  "? o1.ToHexForm()",
+  "#--> 0xB",
+  "? o1.BitwiseAND(6)",
+  "#--> 2",
+  "? o1.BitwiseLeftShift(2)",
+  "#--> 44",
+  "o2 = new stzBinaryNumber(\"0b101.11\")",
+  "? o2.ToDecimalForm()",
+  "#--> 5.75",
+  "o3 = new stzBinaryNumber(\"\")",
+  "o3.FromDecimalForm(12500)",
+  "? o3.Content()",
+  "#--> 0b11000011010100"
+ ],
+ "see": [
+  "stzNumber",
+  "stzHexNumber",
+  "stzOctalNumber"
+ ]
+}

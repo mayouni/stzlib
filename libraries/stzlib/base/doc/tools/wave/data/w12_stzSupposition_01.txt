@@ -1,0 +1,4 @@
+init | Builds a supposition about one name, trimmed and lowercased. | nothing; the object is built | pcName=the name of the thing supposed about, as text | IsAQ, Name
+IsAQ | Records the assumption that the name is of this type in the shared overlay, once, and returns the supposition so a sentence can go on. | the supposition itself, so calls chain | pcType=the type supposed, as text, trimmed and lowercased | AndQ, Name | | the world is untouched: the overlay is read by WhatIs and ends with ForgetSuppositions or CommitSuppositions
+AndQ | Returns the supposition unchanged, so that a sentence such as Suppose tomato is a fruit and a company reads naturally. | the supposition itself | | IsAQ
+Name | Returns the name the supposition is about, trimmed and lowercased. | a text | | init, IsAQ

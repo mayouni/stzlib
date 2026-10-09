@@ -1526,18 +1526,51 @@ class stzRegexMaker from stzObject
 
 class stzNestedRegexMaker from stzRecursiveRegexMaker
 
+# Describes a pattern as named levels nested inside one another, each with its own piece of pattern and quantifier.
+#
+# A level has a name, a pattern text, a parent, children and a quantifier. AddLevel adds a top
+# level, AddChildLevel adds one inside an existing level, and AddQuantifier gives a level its repeat
+# suffix. The tree can be read back with LevelNames, LevelParent, LevelChildren and Info. With named
+# recursion on, which is the state at birth, each level is meant to become a named capture group.
+# Pattern and SubPattern, which should join the levels into one regular expression, raise error R19
+# today for any maker that has a level, so the tree is readable but not yet convertible.
+# stzNestedRegexMaker is another name for this class.
+#
+#   receiver   o1 = new stzRecursiveRegexMaker()
+#   example    o1.AddLevel("open", "\(")
+#              o1.AddChildLevel("open", "inner", "[^()]*")
+#              o1.AddLevel("close", "\)")
+#              ? @@( o1.LevelNames() )
+#              #--> [ "open", "inner", "close" ]
+#              ? @@( o1.LevelChildren("open") )
+#              #--> [ "inner" ]
+#              ? o1.LevelParent("inner")
+#              #--> open
+#              o1.AddQuantifier("inner", "+")
+#              ? o1.Info()[2][:quantifier]
+#              #--> +
+#   see        stzRegexMaker, stzRegex, stzNestedRegexMaker
 class stzRecursiveRegexMaker from stzObject
 
 	@aLevels = []
 	@bNamedRecursion = 0
-	# @aParentStack / @nParentIndex lived here to track parents during a
-	# declarative setup that was replaced: nothing ever pushed to the stack, so
-	# the index it derived was always 0, and nothing read it either.
-	# AddChildLevel() finds a parent BY NAME (pvtFindLevelByName).
-
+	# Builds an empty maker of levelled patterns, with named recursion switched on.
+	#
+	#   returns    nothing; the object is built
+	#   note       named recursion is on at birth and off after Reset
+	#   see        AddLevel, Reset
+	#@ aka  @aParentStack / @nParentIndex lived here to track parents during a declarative setup that was replaced: nothing ever pushed to the stack, so the index it derived was always 0, and nothing read it either. AddChildLevel() finds a parent BY NAME (pvtFindLevelByName).
 	def init()
 		This.EnableNamedRecursion()
 
+	# Adds a top level, a named piece of pattern with no parent, after the levels already added.
+	#
+	#   cName        the level's name
+	#   _cPattern_   the pattern text of the level
+	#   returns      nothing
+	#   warning      a name that already exists is added again; the name is matched with case, and
+	#                the first one is found by the other calls
+	#   see          AddChildLevel, AddQuantifier, LevelNames
 	def AddLevel(cName, _cPattern_)
 		@aLevels + [
 			:name    = cName,
@@ -1548,6 +1581,14 @@ class stzRecursiveRegexMaker from stzObject
 		]
 
 
+	# Adds a level inside an existing level, which becomes its parent.
+	#
+	#   cParentName   the name of an existing level
+	#   cChildName    the name of the new level
+	#   _cPattern_    the pattern text of the new level
+	#   returns       nothing
+	#   warning       an unknown parent raises Parent level 'name' not found!
+	#   see           AddLevel, LevelChildren, LevelParent
 	def AddChildLevel(cParentName, cChildName, _cPattern_)
 		_nParent_ = pvtFindLevelByName(cParentName)
 		
@@ -1561,6 +1602,13 @@ class stzRecursiveRegexMaker from stzObject
 		@aLevels[_nChild_][:parent] = _nParent_
 		@aLevels[_nParent_][:children] + _nChild_
 
+	# Sets the repeat suffix of a level, such as + or *, replacing the one it had.
+	#
+	#   cLevelName   the name of an existing level
+	#   cQuant       the suffix text, such as + or {2,3}
+	#   returns      nothing
+	#   warning      an unknown level raises Level 'name' not found!
+	#   see          AddLevel, Info
 	def AddQuantifier(cLevelName, cQuant)
 		_nLevel_ = pvtFindLevelByName(cLevelName)
 		
@@ -1570,12 +1618,27 @@ class stzRecursiveRegexMaker from stzObject
 
 		@aLevels[_nLevel_][:quant] = cQuant
 
+	# Makes each level a named capture group when the pattern is built.
+	#
+	#   returns    nothing
+	#   see        DisableNamedRecursion, Pattern
 	def EnableNamedRecursion()
 		@bNamedRecursion = 1
 		
+	# Stops wrapping each level in a named capture group when the pattern is built.
+	#
+	#   returns    nothing
+	#   see        EnableNamedRecursion, Pattern
 	def DisableNamedRecursion()
 		@bNamedRecursion = 0
 
+	# Raises error R19 today when a level exists, instead of returning the pattern joined from the root levels.
+	#
+	#   returns    nothing when it raises; an empty text when there is no level
+	#   warning    tested with one level, with three levels and with a quantifier, and each raised
+	#              error R19 Calling function with less number of parameters, because the helper
+	#              calls HasKey with one argument
+	#   see        SubPattern, LevelNames
 	def Pattern()
 		if len(@aLevels) = 0
 			return ""
@@ -1594,6 +1657,13 @@ class stzRecursiveRegexMaker from stzObject
 
 		return _cPattern_
 
+	# Raises error R19 today for an existing level, instead of returning the pattern built from that level; an unknown level gives an empty text.
+	#
+	#   cLevelName   the name of a level
+	#   returns      nothing when it raises; an empty text for an unknown level
+	#   warning      tested with a top level and with a child level, and both raised error R19, for
+	#                the same cause as Pattern
+	#   see          Pattern, LevelChildren
 	def SubPattern(cLevelName)
 		_nLevel_ = pvtFindLevelByName(cLevelName)
 		
@@ -1603,6 +1673,10 @@ class stzRecursiveRegexMaker from stzObject
 
 		return pvtBuildPattern(_nLevel_)
 
+	# Returns the names of all the levels, in the order they were added.
+	#
+	#   returns    a list of text
+	#   see        NumberOfLevels, HasLevel
 	def LevelNames()
 		_aResult_ = []
 		_nLevels2Len_ = len(@aLevels)
@@ -1612,12 +1686,26 @@ class stzRecursiveRegexMaker from stzObject
 		next
 		return _aResult_
 
+	# Returns how many levels were added.
+	#
+	#   returns    a number
+	#   see        LevelNames
 	def NumberOfLevels()
 		return len(@aLevels)
 
+	# TRUE if a level of that name exists.
+	#
+	#   cName      the level's name, matched with case
+	#   returns    1 or 0
+	#   see        LevelNames
 	def HasLevel(cName)
 		return pvtFindLevelByName(cName) > 0
 
+	# Returns the name of the level a level sits inside; an empty text for a top level or an unknown level.
+	#
+	#   cName      the level's name
+	#   returns    a text
+	#   see        LevelChildren, AddChildLevel
 	def LevelParent(cName)
 		_nLevel_ = pvtFindLevelByName(cName)
 		if _nLevel_ = 0
@@ -1629,6 +1717,11 @@ class stzRecursiveRegexMaker from stzObject
 		ok
 		return @aLevels[_nParent_][:name]
 
+	# Returns the names of the levels added inside a level, in order; an empty list for an unknown or childless level.
+	#
+	#   cName      the level's name
+	#   returns    a list of text
+	#   see        LevelParent, AddChildLevel
 	def LevelChildren(cName)
 
 		_nLevel_ = pvtFindLevelByName(cName)
@@ -1648,6 +1741,12 @@ class stzRecursiveRegexMaker from stzObject
 
 		return _aResult_
 
+	# Returns one hashlist per level, with its name, pattern, parent, children and quantifier.
+	#
+	#   returns    a list of hashlists; the parent and the children are positions in the list, and
+	#              the parent is an empty text for a top level
+	#   note       the keys are lower case when listed
+	#   see        LevelNames, AddQuantifier
 	def Info()
 
 		_aResult_ = []
@@ -1668,12 +1767,24 @@ class stzRecursiveRegexMaker from stzObject
 
 		return _aResult_
 
+	# Removes every level and switches named recursion off.
+	#
+	#   returns    nothing
+	#   note       after Reset the levels are no longer wrapped in named groups until
+	#              EnableNamedRecursion is called
+	#   see        init, AddLevel
 	def Reset()
 		@aLevels = []
 		@bNamedRecursion = 0
 
 	private
 
+	# Returns the position of the first level with that name, or 0 when there is none.
+	#
+	#   cName      the level's name, matched with case
+	#   returns    a number
+	#   note       private
+	#   see        HasLevel, AddChildLevel
 	def pvtFindLevelByName(cName)
 
 		_nLevelsLen_ = len(@aLevels)
@@ -1685,6 +1796,14 @@ class stzRecursiveRegexMaker from stzObject
 
 		return 0
 
+	# Raises error R19 today for any existing level, instead of returning its pattern with its children and its quantifier.
+	#
+	#   _nLevel_   the position of the level
+	#   returns    nothing when it raises; an empty text for a position out of range
+	#   note       private
+	#   warning    the call HasKey(_level_[:quant]) lacks its second argument, which makes Pattern
+	#              and SubPattern raise
+	#   see        Pattern, SubPattern
 	def pvtBuildPattern(_nLevel_)
 
 		if _nLevel_ < 1 or _nLevel_ > len(@aLevels)
@@ -1745,15 +1864,45 @@ class stzRecursiveRegexMaker from stzObject
 #  CONDITIONAL REGEX MAKER CLASS  #
 #=================================#
 
+# Builds an if-then-else regular expression, a conditional pattern, from a condition, a then part and an optional else part.
+#
+# The condition is one of the If calls (IfMatch, IfNotMatch, IfStartsWith, IfEndsWith, IfContains,
+# IfPrecededBy, IfFollowedBy); the last one called wins. ThenMatch and ElseMatch give the two
+# branches, and Pattern joins them as (?(?=condition)then|else). The pattern stays empty until a
+# condition is set. IfStartsWith, IfEndsWith and IfContains take literal text and escape it; the
+# other calls take a pattern. IfCaptured does not build a conditional today, and the pair forms of
+# IfCaptured and IfPrecededBy raise an error.
+#
+#   receiver   o1 = new stzConditionalRegexMaker
+#   example    o1.IfMatch("\d").ThenMatch("\d+").ElseMatch("[a-z]+")
+#              ? o1.Pattern()
+#              #--> (?(?=\d)\d+|[a-z]+)
+#              o2 = new stzRegex(o1.Pattern())
+#              o2.MatchFirst("abc 123")
+#              ? @@( o2.Matches() )
+#              #--> [ "abc", "123" ]
+#              o1.Reset()
+#              ? o1.IfStartsWith("+").ThenMatch("\d+").Pattern()
+#              #--> (?(?=^\+)\d+)
+#   see        stzRegexMaker, stzRegex, stzRegexLookaroundMaker
 class stzConditionalRegexMaker from stzObject
 
 	@cCondition = ""    # Stores the if condition
 	@cThenPart = ""     # Stores the then pattern
 	@cElsePart = ""     # Stores the else pattern (optional)
 	
+	# Builds a conditional pattern maker with no condition, no then part and no else part.
+	#
+	#   returns    nothing; the object is built
+	#   see        Reset, Pattern
 	def init()
 		Reset()
 
+	# Empties the condition, the then part and the else part.
+	#
+	#   returns    nothing
+	#   note       unlike the look-around maker's Reset, it does not return the maker
+	#   see        init, Pattern
 	def Reset()
 		@cCondition = ""
 		@cThenPart = ""
@@ -1763,6 +1912,14 @@ class stzConditionalRegexMaker from stzObject
 	 #     IF PART      #
 	#------------------#
 
+	# Sets the condition to a look-ahead: the then part applies when pcPattern matches at the current position.
+	#
+	#   pcPattern   the pattern the text must match at this point, such as \d
+	#   returns     the maker itself, so calls chain
+	#   note        a second If call replaces the condition
+	#   warning     a value that is not a text raises Incorrect param type! pcPattern must be a
+	#               string
+	#   see         IfNotMatch, ThenMatch, ElseMatch, Pattern
 	def IfMatch(pcPattern)
 		if isList(pcPattern) and len(pcPattern) = 2 and isString(pcPattern[1]) and pcPattern[1] = "pattern"
 			pcPattern = pcPattern[2]
@@ -1775,6 +1932,14 @@ class stzConditionalRegexMaker from stzObject
 		@cCondition = "(?(?=" + pcPattern + ")"
 		return This
 
+	# Sets the condition to a negative look-ahead: the then part applies when pcPattern does not match at the current position.
+	#
+	#   pcPattern   the pattern the text must not match at this point
+	#   returns     the maker itself, so calls chain
+	#   note        a second If call replaces the condition
+	#   warning     a value that is not a text raises Incorrect param type! pcPattern must be a
+	#               string
+	#   see         IfMatch, ThenMatch, ElseMatch
 	def IfNotMatch(pcPattern)
 		if isList(pcPattern) and len(pcPattern) = 2 and isString(pcPattern[1]) and pcPattern[1] = "pattern"
 			pcPattern = pcPattern[2]
@@ -1787,6 +1952,13 @@ class stzConditionalRegexMaker from stzObject
 		@cCondition = "(?(?!" + pcPattern + ")"
 		return This
 
+	# Sets a condition on a capture group, but builds the text (?1 or (?<name> instead of a conditional, so the pattern is not a conditional.
+	#
+	#   pcGroupName   the group's number or name, as text
+	#   returns       the maker itself, so calls chain
+	#   note          b) for the group 1, where a conditional is written (?(1)a
+	#   warning       with ThenMatch and ElseMatch it gave (?1a
+	#   see           IfMatch, ThenMatch, Pattern
 	def IfCaptured(pcGroupName)
 		if isList(pcGroupName) and len(pcGroupName) = 2 and isString(pcGroupName[1]) and pcGroupName[1] = "group"
 			_cGroupName_ = pGroupName[2]
@@ -1803,6 +1975,14 @@ class stzConditionalRegexMaker from stzObject
 	 #    THEN PART     #
 	#------------------#
 
+	# Sets the pattern that applies when the condition holds.
+	#
+	#   pcPattern   the pattern for the then part
+	#   returns     the maker itself, so calls chain
+	#   note        without an If call, Pattern stays empty
+	#   warning     a value that is not a text raises Incorrect param type! pcPattern must be a
+	#               string
+	#   see         IfMatch, ElseMatch, Pattern
 	def ThenMatch(pcPattern)
 		if isList(pcPattern) and len(pcPattern) = 2 and isString(pcPattern[1]) and pcPattern[1] = "pattern"
 			pcPattern = pcPattern[2]
@@ -1819,6 +1999,13 @@ class stzConditionalRegexMaker from stzObject
 	 #    ELSE PART     #
 	#------------------#
 
+	# Sets the pattern that applies when the condition does not hold.
+	#
+	#   pcPattern   the pattern for the else part
+	#   returns     the maker itself, so calls chain
+	#   warning     a value that is not a text raises Incorrect param type! pcPattern must be a
+	#               string
+	#   see         IfMatch, ThenMatch, Pattern
 	def ElseMatch(pcPattern)
 		if isList(pcPattern) and len(pcPattern) = 2 and isString(pcPattern[1]) and pcPattern[1] = "pattern"
 			pcPattern = pcPattern[2]
@@ -1835,14 +2022,14 @@ class stzConditionalRegexMaker from stzObject
 	 #  COMMON HELPERS  #
 	#------------------#
 
-	# Takes LITERAL TEXT, not a pattern. IfStartsWith("+") means a plus
-	# sign, and it used to build (?=^+) -- a quantifier applied to ^, which
-	# does not even compile. The argument is escaped, so metacharacters mean
-	# themselves.
+	# Sets the condition to the text starting here, taking pcText as literal text whose special characters are escaped.
 	#
-	# IfMatch()/IfNotMatch() are the pattern-taking pair, and IfPrecededBy()/
-	# IfFollowedBy() build look-arounds, which are patterns by nature. The
-	# three text predicates here are the literal ones.
+	#   pcText     the literal text the subject must start with
+	#   returns    the maker itself, so calls chain
+	#   note       IfStartsWith("+") builds the condition (?=^\+)
+	#   warning    a value that is not a text raises Incorrect param type! pcText must be a string
+	#   see        IfEndsWith, IfContains, IfMatch
+	#@ aka  Takes LITERAL TEXT, not a pattern. IfStartsWith("+") means a plus sign, and it used to build (?=^+) -- a quantifier applied to ^, which does not even compile. The argument is escaped, so metacharacters mean themselves.
 	def IfStartsWith(pcText)
 		if isList(pcText) and IsPatternNamedParamList(pcText)
 			pcText = pcText[2]
@@ -1854,8 +2041,14 @@ class stzConditionalRegexMaker from stzObject
 
 		return This.IfMatch("^" + StzRegexEscape(pcText))
 
-	# Literal text -- IfEndsWith(".edu") means the four characters ".edu",
-	# not "any character followed by edu", which is what it built before.
+	# Sets the condition to the text ending here, taking pcText as literal text whose special characters are escaped.
+	#
+	#   pcText     the literal text the subject must end with
+	#   returns    the maker itself, so calls chain
+	#   note       IfEndsWith(".edu") builds the condition (?=\.edu$)
+	#   warning    a value that is not a text raises Incorrect param type! pcText must be a string
+	#   see        IfStartsWith, IfContains, IfMatch
+	#@ aka  Literal text -- IfEndsWith(".edu") means the four characters ".edu", not "any character followed by edu", which is what it built before.
 	def IfEndsWith(pcText)
 		if isList(pcText) and IsPatternNamedParamList(pcText)
 			pcText = pcText[2]
@@ -1867,7 +2060,14 @@ class stzConditionalRegexMaker from stzObject
 
 		return This.IfMatch(StzRegexEscape(pcText) + "$")
 
-	# Literal text.
+	# Sets the condition to the text appearing somewhere ahead, taking pcText as literal text whose special characters are escaped.
+	#
+	#   pcText     the literal text the subject must contain
+	#   returns    the maker itself, so calls chain
+	#   note       IfContains("a.b") builds the condition (?=.*a\.b.*)
+	#   warning    a value that is not a text raises Incorrect param type! pcText must be a string
+	#   see        IfStartsWith, IfEndsWith, IfMatch
+	#@ aka  Literal text.
 	def IfContains(pcText)
 		if isList(pcText) and IsPatternNamedParamList(pcText)
 			pcText = pcText[2]
@@ -1879,6 +2079,15 @@ class stzConditionalRegexMaker from stzObject
 
 		return This.IfMatch(".*" + StzRegexEscape(pcText) + ".*")
 
+	# Sets the condition to a look-behind: the then part applies when pcPattern ends just before the current position.
+	#
+	#   pcPattern   the pattern that must come before this point
+	#   returns     the maker itself, so calls chain
+	#   note        the condition built is a look-ahead around a look-behind
+	#   warning     the pair form [ :pattern, "x" ] raises error R24 Using uninitialized variable,
+	#               because the code reads a name that is not the parameter; a value that is not a
+	#               text raises Incorrect param type!
+	#   see         IfFollowedBy, IfMatch
 	def IfPrecededBy(pcPattern)
 		if isList(pcPattern) and IsPatternNamedParamList(pcPattern)
 			pPattern = pPattern[2]
@@ -1890,6 +2099,14 @@ class stzConditionalRegexMaker from stzObject
 
 		return This.IfMatch("(?<=" + pcPattern + ")")
 
+	# Sets the condition to a look-ahead built from pcPattern, which is the same condition IfMatch builds with a nested look-ahead.
+	#
+	#   pcPattern   the pattern that must come after this point
+	#   returns     the maker itself, so calls chain
+	#   note        IfFollowedBy("x") builds (?(?=(?=x))
+	#   warning     a value that is not a text raises Incorrect param type! pcPattern must be a
+	#               string
+	#   see         IfPrecededBy, IfMatch
 	def IfFollowedBy(pcPattern)
 		if isList(pcPattern) and IsPatternNamedParamList(pcPattern)
 			pcPattern = pcPattern[2]
@@ -1905,6 +2122,10 @@ class stzConditionalRegexMaker from stzObject
 	 #  PATTERN OUTPUT  #
 	#------------------#
 
+	# Returns the conditional pattern as one text: the condition, the then part, and the else part after a bar when there is one.
+	#
+	#   returns    a text such as (?(?=\d)\d+
+	#   warning    Info, IfMatch, ThenMatch, ElseMatch
 	def Pattern()
 		if @cCondition = ""
 			return ""
@@ -1918,6 +2139,11 @@ class stzConditionalRegexMaker from stzObject
 
 		return _cResult_ + ")"
 
+	# Returns the condition, the then part, the else part and the finished pattern, as a hashlist.
+	#
+	#   returns    a hashlist with the keys condition, then, else and pattern
+	#   note       the keys are lower case when listed
+	#   see        Pattern
 	def Info()
 		_aResult_ = [
 			:condition = @cCondition,
@@ -1932,15 +2158,42 @@ class stzConditionalRegexMaker from stzObject
 #  STZ REGEX LOOKING AROUND CLASS  #
 #==================================#
 
+# Builds a look-around regular expression: a main pattern that must, or must not, come before or after another pattern.
+#
+# One look-around is held at a time: MustBeFollowedBy and CantBeFollowedBy build a look-ahead,
+# MustBePrecededBy and CantBePrecededBy a look-behind, and the Word, Number and Space forms fill in
+# the common patterns. A second call replaces the first. ThenMatch sets the main pattern, which
+# Pattern writes after the look-around, so a look-behind reads correctly: (?<=\$)\d+ finds the
+# digits that follow a dollar sign. A look-ahead followed by a main pattern does not read as the
+# name says: (?=ing)[a-z]+ tests what the main pattern starts on, so it finds ing in walking and not
+# walk. A look-behind of variable length, such as the Number and Space forms, finds nothing in the
+# engine.
+#
+#   receiver   o1 = new stzRegexLookaroundMaker
+#   example    o1.MustBePrecededBy("\$").ThenMatch("\d+")
+#              ? o1.Pattern()
+#              #--> (?<=\$)\d+
+#              o2 = new stzRegex(o1.Pattern())
+#              o2.MatchFirst("cost $42 now")
+#              ? @@( o2.Matches() )
+#              #--> [ "42" ]
+#   see        stzRegexMaker, stzRegex, stzConditionalRegexMaker
 class stzRegexLookaroundMaker from stzObject
 	@cDirection = ""	# 'ahead' or 'behind'
 	@cType = ""    		# 'positive' or 'negative' 
 	@cPattern = ""		# The actual pattern to look for
 	@cMainPattern = ""	# The main pattern to match (optional)
 
+	# Builds a look-around maker with no pattern, no direction and no main pattern.
+	#
+	#   returns    nothing; the object is built
+	#   see        Reset, Pattern
 	def init()
-		# Do nothing
-
+	# Forgets the look-around and the main pattern, and returns the maker.
+	#
+	#   returns    the maker itself, so calls chain
+	#   see        init, Pattern
+	#@ aka  Do nothing
 	def Reset()
 		@cDirection = ""
 		@cType = ""
@@ -1952,6 +2205,17 @@ class stzRegexLookaroundMaker from stzObject
 	 #    POSITIVE PATTERNS     #
 	#--------------------------#
 
+	# Sets a positive look-ahead: the match must be followed by pcPattern, which is not part of it.
+	#
+	#   pcPattern   the pattern that must come next
+	#   returns     the maker itself, so calls chain
+	#   note        a second look-around call replaces the first; LookingAhead is the same call
+	#   warning     a value that is not a text raises Incorrect param type! pcPattern must be a
+	#               string; with a main pattern the look-ahead is written BEFORE it, so it tests
+	#               what the main pattern starts on, not what follows it:
+	#               MustBeFollowedBy("ing").ThenMatch("[a-z]+") finds ing in walking, where
+	#               [a-z]+(?=ing) finds walk
+	#   see         MustBePrecededBy, CantBeFollowedBy, ThenMatch, Pattern
 	def MustBeFollowedBy(pcPattern)
 		if isList(pcPattern) and len(pcPattern) = 2 and isString(pcPattern[1]) and pcPattern[1] = "pattern"
 			pcPattern = pcPattern[2]
@@ -1971,8 +2235,15 @@ class stzRegexLookaroundMaker from stzObject
 		def LookingAhead(pcPattern)
 			return This.MustBeFollowedBy(pcPattern)
 
+	# Sets a positive look-behind: the match must be preceded by pcPattern, which is not part of it.
+	#
+	#   pcPattern   the pattern that must come before
+	#   returns     the maker itself, so calls chain
+	#   note        a second look-around call replaces the first; LookingBehind is the same call
+	#   warning     a value that is not a text raises Incorrect param type! pcPattern must be a
+	#               string
+	#   see         MustBeFollowedBy, CantBePrecededBy, ThenMatch, Pattern
 		#>
-
 	def MustBePrecededBy(pcPattern)
 		if isList(pcPattern) and len(pcPattern) = 2 and isString(pcPattern[1]) and pcPattern[1] = "pattern"
 			pcPattern = pcPattern[2]
@@ -1998,6 +2269,17 @@ class stzRegexLookaroundMaker from stzObject
 	 #    NEGATIVE PATTERNS     #
 	#--------------------------#
 
+	# Sets a negative look-ahead: the match must not be followed by pcPattern.
+	#
+	#   pcPattern   the pattern that must not come next
+	#   returns     the maker itself, so calls chain
+	#   note        NotLookingAhead is the same call
+	#   warning     a value that is not a text raises Incorrect param type! pcPattern must be a
+	#               string; with a main pattern the look-ahead is written BEFORE it, so it tests
+	#               what the main pattern starts on, not what follows it:
+	#               MustBeFollowedBy("ing").ThenMatch("[a-z]+") finds ing in walking, where
+	#               [a-z]+(?=ing) finds walk
+	#   see         MustBeFollowedBy, CantBePrecededBy, ThenMatch, Pattern
 	def CantBeFollowedBy(pcPattern)
 		if isList(pcPattern) and len(pcPattern) = 2 and isString(pcPattern[1]) and pcPattern[1] = "pattern"
 			pcPattern = pcPattern[2]
@@ -2017,8 +2299,15 @@ class stzRegexLookaroundMaker from stzObject
 		def NotLookingAhead(pcPattern)
 			return This.CantBeFollowedBy(pcPattern)
 
+	# Sets a negative look-behind: the match must not be preceded by pcPattern.
+	#
+	#   pcPattern   the pattern that must not come before
+	#   returns     the maker itself, so calls chain
+	#   note        NotLookingBehind is the same call
+	#   warning     a value that is not a text raises Incorrect param type! pcPattern must be a
+	#               string
+	#   see         MustBePrecededBy, CantBeFollowedBy, ThenMatch, Pattern
 		#>
-
 	def CantBePrecededBy(pcPattern)
 		if isList(pcPattern) and len(pcPattern) = 2 and isString(pcPattern[1]) and pcPattern[1] = "pattern"
 			pcPattern = pcPattern[2]
@@ -2044,6 +2333,15 @@ class stzRegexLookaroundMaker from stzObject
 	 #   MAIN PATTERN   #
 	#------------------#
 
+	# Sets the main pattern that the look-around is attached to.
+	#
+	#   pcPattern   the pattern to match
+	#   returns     the maker itself, so calls chain
+	#   note        the main pattern is written after the look-around, so a look-behind belongs
+	#               before it
+	#   warning     a value that is not a text raises Incorrect param type! pcPattern must be a
+	#               string; without a look-around call the pattern stays empty
+	#   see         MustBeFollowedBy, MustBePrecededBy, Pattern
 	def ThenMatch(pcPattern)
 		if isList(pcPattern) and len(pcPattern) = 2 and isString(pcPattern[1]) and pcPattern[1] = "pattern"
 			pcPattern = pcPattern[2]
@@ -2060,6 +2358,17 @@ class stzRegexLookaroundMaker from stzObject
 	 #  COMMON HELPERS  #
 	#------------------#
 
+	# Sets a positive look-ahead on a whole word, written with word boundaries.
+	#
+	#   pcWord     the word that must come next
+	#   returns    the maker itself, so calls chain
+	#   note       the look-ahead is (?=\bword\b); LookingForWord is the same call
+	#   warning    a value that is not a text raises Incorrect param type! pcWord must be a string;
+	#              with a main pattern the look-ahead is written BEFORE it, so it tests what the
+	#              main pattern starts on, not what follows it:
+	#              MustBeFollowedBy("ing").ThenMatch("[a-z]+") finds ing in walking, where
+	#              [a-z]+(?=ing) finds walk
+	#   see        MustBeFollowedBy, CantBeFollowedByWord
 	def MustBeFollowedByWord(pcWord)
 		if isList(pcWord) and len(pcWord) = 2 and isString(pcWord[1]) and pcWord[1] = "pattern"
 			pcWord = pcWord[2]
@@ -2076,8 +2385,14 @@ class stzRegexLookaroundMaker from stzObject
 		def LookingForWord(pcWord)
 			return This.MustBeFollowedByWord(pcWord)
 
+	# Sets a positive look-behind on a whole word, written with word boundaries.
+	#
+	#   pcWord     the word that must come before
+	#   returns    the maker itself, so calls chain
+	#   note       the look-behind is (?<=\bword\b); LookingBehindWord is the same call
+	#   warning    a value that is not a text raises Incorrect param type! pcWord must be a string
+	#   see        MustBePrecededBy, CantBePrecededByWord
 		#>
-
 	def MustBePrecededByWord(pcWord)
 		if isList(pcWord) and len(pcWord) = 2 and isString(pcWord[1]) and pcWord[1] = "pattern"
 			pcWord = pcWord[2]
@@ -2094,8 +2409,18 @@ class stzRegexLookaroundMaker from stzObject
 		def LookingBehindWord(pcWord)
 			return This.MustBePrecededByWord(pcWord)
 
+	# Sets a negative look-ahead on a whole word, written with word boundaries.
+	#
+	#   pcWord     the word that must not come next
+	#   returns    the maker itself, so calls chain
+	#   note       the look-ahead is (?!\bword\b); NotFollowedByWord is the same call
+	#   warning    a value that is not a text raises Incorrect param type! pcWord must be a string;
+	#              with a main pattern the look-ahead is written BEFORE it, so it tests what the
+	#              main pattern starts on, not what follows it:
+	#              MustBeFollowedBy("ing").ThenMatch("[a-z]+") finds ing in walking, where
+	#              [a-z]+(?=ing) finds walk
+	#   see        CantBeFollowedBy, MustBeFollowedByWord
 		#>
-
 	def CantBeFollowedByWord(pcWord)
 		if isList(pcWord) and len(pcWord) = 2 and isString(pcWord[1]) and pcWord[1] = "pattern"
 			pcWord = pcWord[2]
@@ -2112,8 +2437,14 @@ class stzRegexLookaroundMaker from stzObject
 		def NotFollowedByWord(pcWord)
 			return This.CantBeFollowedByWord(pcWord)
 
+	# Sets a negative look-behind on a whole word, written with word boundaries.
+	#
+	#   pcWord     the word that must not come before
+	#   returns    the maker itself, so calls chain
+	#   note       the look-behind is (?<!\bword\b); NotPrecededByWord is the same call
+	#   warning    a value that is not a text raises Incorrect param type! pcWord must be a string
+	#   see        CantBePrecededBy, MustBePrecededByWord
 		#>
-
 	def CantBePrecededByWord(pcWord)
 		if isList(pcWord) and len(pcWord) = 2 and isString(pcWord[1]) and pcWord[1] = "pattern"
 			pcWord = pcWord[2]
@@ -2130,8 +2461,16 @@ class stzRegexLookaroundMaker from stzObject
 		def NotPrecededByWord(pcWord)
 			return This.CantBePrecededByWord(pcWord)
 
+	# Sets a positive look-ahead on one or more digits.
+	#
+	#   returns    the maker itself, so calls chain
+	#   note       the look-ahead is (?=\d+); LookingForNumber is the same call
+	#   warning    with a main pattern the look-ahead is written BEFORE it, so it tests what the
+	#              main pattern starts on, not what follows it:
+	#              MustBeFollowedBy("ing").ThenMatch("[a-z]+") finds ing in walking, where
+	#              [a-z]+(?=ing) finds walk
+	#   see        MustBePrecededByNumber, MustBeFollowedBy
 		#>
-
 	def MustBeFollowedByNumber()
 		return This.MustBeFollowedBy("\d+")
 
@@ -2140,8 +2479,15 @@ class stzRegexLookaroundMaker from stzObject
 		def LookingForNumber()
 			return This.MustBeFollowedByNumber()
 
+	# Sets a positive look-behind on one or more digits.
+	#
+	#   returns    the maker itself, so calls chain
+	#   note       the look-behind is (?<=\d+); LookingBehindNumber is the same call
+	#   warning    tested with a main pattern on a text with digits or spaces before it, and the
+	#              engine found nothing, because it does not take a look-behind of variable length
+	#              such as \d+ or \s+: (?<=\d+)a on 12a gives no match
+	#   see        MustBeFollowedByNumber, MustBePrecededBy
 		#>
-
 	def MustBePrecededByNumber()
 		return This.MustBePrecededBy("\d+")
 
@@ -2150,8 +2496,16 @@ class stzRegexLookaroundMaker from stzObject
 		def LookingBehindNumber()
 			return This.MustBePrecededByNumber()
 
+	# Sets a positive look-ahead on one or more white-space characters.
+	#
+	#   returns    the maker itself, so calls chain
+	#   note       the look-ahead is (?=\s+); LookingForSpace is the same call
+	#   warning    with a main pattern the look-ahead is written BEFORE it, so it tests what the
+	#              main pattern starts on, not what follows it:
+	#              MustBeFollowedBy("ing").ThenMatch("[a-z]+") finds ing in walking, where
+	#              [a-z]+(?=ing) finds walk
+	#   see        MustBePrecededBySpace, MustBeFollowedBy
 		#>
-
 	def MustBeFollowedBySpace()
 		return This.MustBeFollowedBy("\s+")
 
@@ -2160,8 +2514,15 @@ class stzRegexLookaroundMaker from stzObject
 		def LookingForSpace()
 			return This.MustBeFollowedBySpace()
 
+	# Sets a positive look-behind on one or more white-space characters.
+	#
+	#   returns    the maker itself, so calls chain
+	#   note       the look-behind is (?<=\s+); LookingBehindSpace is the same call
+	#   warning    tested with a main pattern on a text with digits or spaces before it, and the
+	#              engine found nothing, because it does not take a look-behind of variable length
+	#              such as \d+ or \s+: (?<=\d+)a on 12a gives no match
+	#   see        MustBeFollowedBySpace, MustBePrecededBy
 		#>
-
 	def MustBePrecededBySpace()
 		return This.MustBePrecededBy("\s+")
 
@@ -2176,6 +2537,15 @@ class stzRegexLookaroundMaker from stzObject
 	 #  PATTERN OUTPUT  #
 	#------------------#
 
+	# Returns the look-around group followed by the main pattern as one text; empty when no look-around was set.
+	#
+	#   returns    a text such as (?<=\$)\d+
+	#   note       a main pattern set without a look-around gives an empty text
+	#   warning    with a main pattern the look-ahead is written BEFORE it, so it tests what the
+	#              main pattern starts on, not what follows it:
+	#              MustBeFollowedBy("ing").ThenMatch("[a-z]+") finds ing in walking, where
+	#              [a-z]+(?=ing) finds walk
+	#   see        Info, ThenMatch
 	def Pattern()
 		if @cPattern = "" 
 			return ""
@@ -2205,6 +2575,11 @@ class stzRegexLookaroundMaker from stzObject
 
 		return _cResult_
 
+	# Returns the direction, the type, the look-around pattern, the main pattern and the finished pattern, as a hashlist.
+	#
+	#   returns    a hashlist with the keys direction, type, lookPattern, mainPattern and pattern
+	#   note       the keys are lower case when listed
+	#   see        Pattern
 	def Info()
 		_aResult_ = [
 			:direction = @cDirection,

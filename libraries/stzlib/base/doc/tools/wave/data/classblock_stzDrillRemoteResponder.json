@@ -1,0 +1,13 @@
+{
+ "brief": "Carries the verbs of a containment plan to a drill's target, one request per verb.",
+ "detail": "A response plan calls a responder's verbs for each committed action. This one is the drill's: each verb is sent to the target's /contain route by the drill, which raises an error when the target did not perform it. The stock target wires LockAccount and RevokeSession; the other four verbs raise an error naming them as not wired.",
+ "receiver": "o1 = new stzDrillRemoteResponder(new stzSecurityDrill(\"nightly\"))",
+ "example": [
+  "? classname(o1)",
+  "#--> stzdrillremoteresponder"
+ ],
+ "see": [
+  "stzSecurityDrill",
+  "stzResponsePlan"
+ ]
+}

@@ -1,0 +1,19 @@
+{
+ "brief": "Describes one part of a solution: its name, kind, language, sources and the system it deploys to.",
+ "detail": "A part is declared by the profile that owns it (WithApp, WithServer, WithPart), or built alone and added with AddApp. To names the deployment target, and System gives the scope its feature code is written in, kept so that operations accumulate. The part only describes: stzPlatform compiles the sources with the language set here.",
+ "receiver": "o1 = new stzAppProfile(\"backend\")\no1.SetKind(:server)\no1.To(:LinuxServer)",
+ "example": [
+  "? o1.Name()",
+  "#--> backend",
+  "? o1.Kind()",
+  "#--> server",
+  "? o1.DeploymentOSName()",
+  "#--> linux",
+  "? o1.HasScope()",
+  "#--> 0"
+ ],
+ "see": [
+  "stzPlatformProfile",
+  "stzSystemScope"
+ ]
+}

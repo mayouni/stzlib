@@ -1,0 +1,25 @@
+# Wave 12 -- stzSystemScope. Name | brief | returns | params | see | warning | note
+init | Builds a scope over a target system profile and reads the live machine to compare it with. | nothing; the object is built | poProfile=the stzSystemProfile of the deployment target the feature code is written for | UseOp, System | | build it from a part: App(:x).System() in a chain
+System | Returns the target system profile this scope resolves to. | a stzSystemProfile | | OSName, Can
+OSName | Returns the operating-system name of the target. | a text such as espidf or linux | | System
+Can | TRUE if the target has the capability. | TRUE or FALSE | pCap=the capability name, such as gpio, process, filesystem, network, environment, dynamic_load, threads or clock | Lacks, Allows
+Lacks | TRUE if the target does not have the capability. | TRUE or FALSE | pCap=the capability name | Can, Forbids
+UseOp | Checks one capability-tagged operation against the target and the live machine, and records it. | a text: native when the live machine can do it, rehearsed when only the target can | pcCap=the capability the operation needs, matched without regard to case; pcVerb=the operation's verb, such as read_pin, kept for lowering; paArgs=the arguments, or a single value turned into a list; pcDesc=what it does, in words | Use, WouldRehearse, RehearsedOperations | raises an error when the target lacks the capability; the operation is not performed, only classified and recorded | the record is [ capability, verb, arguments, description, status ]
+Use | Checks and records the use of a capability with no structured verb. | a text: native or rehearsed | pcCap=the capability name; pcDesc=what it is used for | UseOp | the same error as UseOp | lowered later as a comment
+Allows | TRUE if the target allows the capability. | TRUE or FALSE | pCap=the capability name | Can, Forbids
+Forbids | TRUE if the target forbids the capability. | TRUE or FALSE | pCap=the capability name | Allows, Lacks
+WouldRehearse | TRUE if using the capability would be rehearsed: the target has it and the live machine does not. | TRUE or FALSE | pCap=the capability name | UseOp, Allows | | the answer depends on the machine the code runs on
+Spawn | Checks and records the start of a process, which needs the process capability. | a text: native or rehearsed | pcCmd=the command to start | UseOp | a target without processes, such as an ESP32, raises an error | nothing is started
+ReadPin | Checks and records the reading of a pin, which needs the gpio capability. | a text: native or rehearsed | pnPin=the pin number | WritePin, UseOp | a target without gpio raises an error | a desktop has no gpio, so the operation is rehearsed there
+WritePin | Checks and records the writing of a value to a pin, which needs the gpio capability. | a text: native or rehearsed | pnPin=the pin number; pnVal=the value to write | ReadPin | a target without gpio raises an error
+WriteFile | Checks and records the writing of a file, which needs the filesystem capability. | a text: native or rehearsed | pcPath=the file path; pcContent=the content, accepted and not recorded | ReadFile | a target without a filesystem raises an error | no file is written
+ReadFile | Checks and records the reading of a file, which needs the filesystem capability. | a text: native or rehearsed | pcPath=the file path | WriteFile | a target without a filesystem raises an error | no file is read
+Connect | Checks and records a network connection, which needs the network capability. | a text: native or rehearsed | pcHost=the host to connect to | UseOp | a target without network raises an error | no connection is made
+SetEnv | Checks and records the setting of an environment variable, which needs the environment capability. | a text: native or rehearsed | pcName=the variable's name; pcVal=its value | UseOp | a target without an environment raises an error | nothing is set
+LoadLibrary | Checks and records the loading of a dynamic library, which needs the dynamic_load capability. | a text: native or rehearsed | pcName=the library's name | UseOp | a target without dynamic loading raises an error | nothing is loaded
+UseThreads | Checks and records the use of threads, which needs the threads capability. | a text: native or rehearsed | | UseOp
+CheckedOperations | Returns every operation recorded so far, in order. | a list of [ capability, verb, arguments, description, status ] rows | | NativeOperations, RehearsedOperations
+NumberOfChecked | Returns how many operations were recorded. | a number | | CheckedOperations
+NativeOperations | Returns the recorded operations the live machine can perform. | a list of rows | | RehearsedOperations
+RehearsedOperations | Returns the recorded operations only the target can perform, the candidates for deploy-time lowering. | a list of rows | | NativeOperations, stzLoweringBridge
+Show | Prints the scope's target and one line per recorded operation with its status. | nothing; it prints | | CheckedOperations

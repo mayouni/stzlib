@@ -1,0 +1,23 @@
+{
+ "brief": "Holds a linear or integer optimisation model that you write as variables, an objective and constraint texts, then solves it.",
+ "detail": "Declare the variables with Vars or AddVar, set Maximize or Minimize, add constraints with SubjectTo, and Solve. A variable is bounded below (0 by default) and optionally above, and may be :integer or :binary. The built-in solver is a simplex with branch-and-bound; the :highs tier is refused because it is not vendored, so Why always names the engine that ran. Check IsOptimal before reading Solution: an infeasible or unbounded model leaves placeholder values. Violations re-checks the answer against the model. Known limit: a model with no constraint at all raises an error when solved, give it at least one constraint.",
+ "receiver": "o1 = new stzOptimModel()\no1.Vars([ :x = [0, 40], :y = [0, :integer] ])\no1.Maximize(\"3*x + 2*y\")\no1.SubjectTo([ \"x + y <= 50\", \"2*x + y <= 80\" ])",
+ "example": [
+  "o1.Solve()",
+  "? o1.IsOptimal()",
+  "#--> 1",
+  "? o1.Objective()",
+  "#--> 130",
+  "? @@( o1.Solution() )",
+  "#--> [ [ \"x\", 30 ], [ \"y\", 20 ] ]",
+  "? o1.Branched()",
+  "#--> 1",
+  "? o1.IsFeasibleAnswer()",
+  "#--> 1"
+ ],
+ "see": [
+  "stzLinearSolver",
+  "stzOptimFile",
+  "stzOptimSentence"
+ ]
+}
