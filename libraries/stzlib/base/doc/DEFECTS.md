@@ -5,7 +5,7 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 268 methods in 36 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 286 methods in 41 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
@@ -15,6 +15,7 @@ and each was checked with a second call on different data. **None is fixed yet.*
 | geo/stzGeoMap.ring | stzGeoMap | 18 |
 | regex/stzMatrex.ring | stzMatrex | 17 |
 | graph/stzGraph.ring | stzGraph | 12 |
+| regex/stzRegexMaker.ring | stzRegexMaker | 12 |
 | graph/stzOrgChart.ring | stzOrgChart | 10 |
 | regex/stzRegex.ring | stzRegex | 10 |
 | string/stzStringChar.ring | stzStringChar | 10 |
@@ -26,6 +27,7 @@ and each was checked with a second call on different data. **None is fixed yet.*
 | list/stzListOfPairs.ring | stzListOfPairs | 4 |
 | graph/stzGraph.ring | stzGraphComparison | 3 |
 | stats/stzDataSet.ring | stzDataSet | 3 |
+| stats/stzLinearSolver.ring | stzLinearSolver | 3 |
 | string/stzStringChecker.ring | stzStringChecker | 3 |
 | string/stzStringText.ring | stzStringText | 3 |
 | appserver/stzAppServer.ring | stzAppServer | 2 |
@@ -43,6 +45,9 @@ and each was checked with a second call on different data. **None is fixed yet.*
 | graph/stzOrgChart.ring | stzOrgChartReporter | 1 |
 | graph/stzOrgChart.ring | stzOrgChartSimulation | 1 |
 | linguistic/stzText.ring | stzText | 1 |
+| natural/stzNatural.ring | stzNaturalEngine | 1 |
+| network/stzUrl.ring | stzUrl | 1 |
+| optim/stzMultiObjectiveSolver.ring | stzMultiObjectiveSolver | 1 |
 | string/stzString.ring | stzString | 1 |
 | string/stzStringReplacer.ring | stzStringReplacer | 1 |
 
@@ -211,6 +216,14 @@ and each was checked with a second call on different data. **None is fixed yet.*
 - `Pin` (line 384): Raises an error today instead of holding a shape where it is during later solves: no shape of any figure kind has a free position to hold. -- the diagram refuses it because the rules fix every shape (checked on 35 sample figures of all ten kinds); an unknown path raises too
 - `DragTo` (line 407): Raises an error today instead of moving a shape to a position and re-solving around it: no shape has a free centre to move. -- refused for every shape of 9 figures tried across the kinds; use MoveNoteTo to move a note
 
+## stzNaturalEngine -- natural/stzNatural.ring (1)
+
+- `FindContextPlaceholders` (line 588): Returns the {...} holes of a narration, but today only when the text starts with the hole. -- Returns [ ] today for a hole that is not at the very start: {a} answers {a}, but x{a}, {a} x and Hello {name} from {c} all answer [ ]; the scan tests the character at i with StzMid(text, i, i) where the third argument is a length, so it can match only at the first character
+
+## stzUrl -- network/stzUrl.ring (1)
+
+- `FromLocalFile` (line 702): Raises error R19 today instead of returning a file URL for the given path. -- Raises error R19 today whatever the path, on a drive path with backslashes and on /tmp/y.txt: it calls ReplaceSubstring with two arguments where that method takes a start, an end and a replacement
+
 ## stzListOfBytes -- number/stzListOfBytes.ring (6)
 
 - `BytesOfThisChar` (line 458): Does nothing today and answers an empty text instead of the bytes of a character. -- the definition has no body, so the argument is never read; BytesOfChar answers the bytes (tried on abc with b, and on héllo with é)
@@ -261,6 +274,10 @@ and each was checked with a second call on different data. **None is fixed yet.*
 - `AddExecutionTime` (line 6903): Raises error R24 today instead of appending the elapsed time to a list of times. -- raises the R24 of AddTimeValue (uninitialized variable _atime)
 - `ToStzListOfObjects` (line 8128): Raises error R14 today instead of wrapping the content in a stzListOfObjects. -- raises R14 (calling method without definition: islistofobjects) for a list of numbers and for a list of stzString objects alike
 
+## stzMultiObjectiveSolver -- optim/stzMultiObjectiveSolver.ring (1)
+
+- `exportParetoFrontCSV` (line 1154): Raises error R41 today instead of writing the front to a file, one row per solution. -- a variable value, a number, is joined to a comma with + and Ring cannot add a number to a text; it raises for the front of every problem tried (two problems, epsilon-constraint method)
+
 ## stzReactiveSystem -- reactive/stzReactive.ring (7)
 
 - `StopSafe` (line 258): Raises the STOPPED banner error today instead of stopping the system on the next tick, from inside the loop. -- the timer callback it schedules calls Stop without the object, so Ring reaches the global Stop of the profiler, which raises the STOPPED banner and the loop never ends cleanly
@@ -309,11 +326,32 @@ and each was checked with a second call on different data. **None is fixed yet.*
 - `NestedDepth` (line 1898): Returns the number of distinct nested matches found by the last recursive match; the same count as the recursive depth. -- it counts matches, so ((x)(y)(z)) answers 4 although the nesting is 2 deep
 - `Explain` (line 1938): Returns a one-line explanation of the pattern when the library knows it by name; any other pattern raises an error. -- for a pattern outside the library's named list it builds stzRegexAnalyzer, a class that does not exist, and raises error R11
 
+## stzRegexMaker -- regex/stzRegexMaker.ring (12)
+
+- `Quantifiers` (line 435): Returns an empty text today, because the method is an unwritten placeholder. -- placeholder: the body is a TODO and nothing is computed
+- `QuantifiersCommands` (line 443): Returns an empty text today, because the method is an unwritten placeholder. -- placeholder: the body is a TODO and nothing is computed
+- `NumberOfSequences` (line 477): Raises error R24 today instead of returning how many sequences were recorded. -- Raises error R24 today: the body reads len(acSequences), a variable that is never set, where @aSequences is meant; HowManySequences, CountSequences, NumberOfSeqs, HowManySeqs, CountSeqs, NumberOfCommands, HowManyCommands and CountCommands forward to it and raise the same error
+- `CommandAndFragment` (line 565): Raises error R24 today instead of returning a sequence together with its fragment. -- Raises error R24 today: the alias passes n to SequenceXT but declares no parameter, so n is an unset variable; SequenceXT(1) itself works and answers [ sequence, piece ]
+- `CommandAndFrag` (line 574): Raises error R24 today instead of returning a sequence together with its fragment. -- Raises error R24 today: the alias passes an unset n to SequenceXT
+- `CommandAndItsFragment` (line 583): Raises error R24 today instead of returning a sequence together with its fragment. -- Raises error R24 today: the alias passes an unset n to SequenceXT
+- `CommandAndItsFrag` (line 592): Raises error R24 today instead of returning a sequence together with its fragment. -- Raises error R24 today: the alias passes an unset n to SequenceXT
+- `CanContainAChar` (line 645): Raises error R14 today instead of adding a character class given as a named parameter such as :Between = [ A, Z ]. -- Raises error R14 today: it calls IsBetweenOrFromNamedParam on a stzList, a method that does not exist; seen with the Between, Among and From forms, and a text instead of a list raises Incorrect param type!
+- `CanContaingChar` (line 688): Raises error R14 today instead of adding a character class given as a named parameter. -- Raises error R14 today: it calls CanContainAChar, which calls the missing IsBetweenOrFromNamedParam
+- `CanContainADigit` (line 812): Raises error R14 today instead of adding a digit class given as a named parameter such as :Between = [ 0, 9 ]. -- Raises error R14 today: it calls IsBetweenOrFromNamedParam on a stzList, a method that does not exist; seen with the Between, Among and From forms
+- `CanContaingdigit` (line 847): Raises error R14 today instead of adding a digit class given as a named parameter. -- Raises error R14 today: it calls CanContainADigit, which calls the missing IsBetweenOrFromNamedParam
+- `MatchSameContentAs` (line 1371): Raises error R24 today instead of appending a closing tag that repeats a defined group. -- Raises error R24 today: after finding the group it uses the variable pcTagGroupName, which is not a parameter of this method; seen with two different group names
+
 ## stzDataSet -- stats/stzDataSet.ring (3)
 
 - `NonParametricCorrelation` (line 2924): Raises error R24 today instead of returning a rank correlation. -- the body reads a variable named _oOtherStats_ that this method does not receive
 - `MutualInformation` (line 3144): Returns the mutual information, in bits, between this data and another data set of the same length. -- the pairs are joined with an underscore and split again, so a value containing an underscore gives a wrong result: "a_b" and "c_d" against x and y give 0 where ab and cd give 1
 - `PlanSummary` (line 3983): Raises error R5 today instead of returning a text preview of a plan's steps without running it. -- the body reads the title from a variable named oPlan, which does not exist, instead of from the plan it built
+
+## stzLinearSolver -- stats/stzLinearSolver.ring (3)
+
+- `solveWithBranchAndBound` (line 624): Raises error today instead of solving by branch and bound, which is not implemented yet. -- an honesty guard stops the method on its first line, so the branching code after it never runs; use "greedy" or "simplex"
+- `CalculateFitness` (line 1274): Raises error R5 today instead of returning the objective value less the constraint penalty, negated when minimizing. -- it raises whenever the problem has a constraint, because CalculatePenalty fails (two problems); with no constraint it returns the objective value, negated when minimizing
+- `CalculatePenalty` (line 1293): Raises error R5 today instead of returning 1000 times the total constraint violation of a candidate. -- line 995 reads a variable oConst that is never defined, ahead of the correct line; it raises with one constraint and with two, and returns 0 when the problem has none
 
 ## stzString -- string/stzString.ring (1)
 
