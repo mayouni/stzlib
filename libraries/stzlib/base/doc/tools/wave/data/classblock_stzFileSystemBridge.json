@@ -1,0 +1,14 @@
+{
+ "brief": "Is the one door from the file twin to the real disk: it reads files, and commits file operations.",
+ "detail": "The reads (RealExists, RealContent, RealSize, CurrentRealityState) change nothing. ExecuteOperation is the only call that writes: it creates, writes, copies, moves and deletes real files and folders, and answers whether the disk call succeeded. The root given at construction is reported by Constraints and does not confine the paths an operation names. Reach ExecuteOperation only through an update plan that was narrated and reviewed; VerifyOutcome then checks the disk is as asked.",
+ "receiver": "o1 = new stzFileSystemBridge(\"/w\")",
+ "example": [
+  "? o1.RealExists(\"/stz-doc-invented/none.txt\")",
+  "#--> 0",
+  "? o1.RealSize(\"/stz-doc-invented/none.txt\")",
+  "#--> -1",
+  "? @@( o1.Constraints() )",
+  "#--> [ [ \"root\", \"/w\" ] ]"
+ ],
+ "see": ["stzVirtualFileSystem", "stzFileTree", "stzUpdatePlan", "stzEnvironmentBridge"]
+}

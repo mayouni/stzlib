@@ -1,0 +1,16 @@
+{
+ "brief": "Smooths a series resistantly with Tukey's medians-of-three family, Hanning and 4253H, and spots a level shift.",
+ "detail": "The kinds 3, 3R, S, 3RSS, 3RS3R and 3RSR are R's smooth, run in the engine; on 4, 1, 3, 6, 6, 4, 1, 6, 2, 4, 2 all six equal R 4.5.1's output. Hanning and 4253H copy their ends, and 4253H equals a hand computation. Rough returns data minus smooth, and Twice adds the smooth of the rough back. ChangePoint is a verdict with a measured threshold, made from 40 values. A series of fewer than 4 numbers is refused.",
+ "receiver": "o1 = new stzTukeySmoother([ 4, 1, 3, 6, 6, 4, 1, 6, 2, 4, 2 ])",
+ "example": [
+  "? @@( o1.Smooth3R() )",
+  "#--> [ 3, 3, 3, 6, 6, 4, 4, 4, 2, 2, 2 ]",
+  "? @@( o1.WindowMedians(3) )",
+  "#--> [ 3, 3, 6, 6, 4, 4, 2, 4, 2 ]"
+ ],
+ "see": [
+  "stzTukeySummary",
+  "stzTukeyLine",
+  "stzTukeyFit"
+ ]
+}

@@ -16,6 +16,28 @@
  ///   CLASS   ///
 /////////////////
 
+# Changes the items of a list in place: one item, every occurrence of a value, a section, or a chosen set of positions.
+#
+# Reach for it when you need to rewrite part of a list and keep the object: the methods act on the
+# held list and return nothing, so read the result with Content. Replace by value
+# (ReplaceAllOccurrences, ReplaceFirstOccurrence, ReplaceNthOccurrence), by position
+# (ReplaceAnyItemAtPosition, ReplaceAnyItemAtPositions), by section (ReplaceSection puts one item,
+# ReplaceSectionByMany splices several) or by a condition (ReplaceItemsW). The ...ByMany forms take
+# a list of replacements: used in order, or round-robin in the XT forms. Text is compared with case,
+# and a position outside the list is skipped without an error. AllOccurrencesReplaced is the one
+# method that leaves the object alone and returns a changed copy.
+#
+#   receiver   o1 = new stzListReplacer([1, 2, 3, 2, 1])
+#   example    o1.ReplaceAllOccurrences(2, 9)
+#              ? @@( o1.Content() )
+#              #--> [ 1, 9, 3, 9, 1 ]
+#              o1.ReplaceFirstOccurrence(1, 0)
+#              ? @@( o1.Content() )
+#              #--> [ 0, 9, 3, 9, 1 ]
+#              o1.ReplaceSectionByMany(2, 4, [7, 8])
+#              ? @@( o1.Content() )
+#              #--> [ 0, 7, 8, 1 ]
+#   see        stzList, stzListFinder
 class stzListReplacer from stzObject
 
 	@oList
@@ -24,6 +46,13 @@ class stzListReplacer from stzObject
 	 #   INITIALIZATION  #
 	#===================#
 
+	# Builds a replacer over a list or over a stzList object; anything else raises an error.
+	#
+	#   pListOrObj   a list, or a stzList object, whose items will be changed
+	#   returns      nothing; the object is built
+	#   note         a list is wrapped in a new stzList; the error text is Can't create
+	#                stzListReplacer! Parameter must be a list or stzList object.
+	#   see          Content, NumberOfItems
 	def init(pListOrObj)
 		if isList(pListOrObj)
 			@oList = new stzList(pListOrObj)
@@ -37,12 +66,24 @@ class stzListReplacer from stzObject
 	 #     CONTENT ACCESS            #
 	#===============================#
 
+	# Returns the list as it stands after the changes made so far.
+	#
+	#   returns    a list
+	#   see        NumberOfItems, AllOccurrencesReplaced
 	def Content()
 		return @oList.Content()
 
+	# Returns how many items the list has.
+	#
+	#   returns    a number
+	#   see        Content, IsEmpty
 	def NumberOfItems()
 		return @oList.NumberOfItems()
 
+	# Returns TRUE if the list has no item.
+	#
+	#   returns    TRUE or FALSE
+	#   see        NumberOfItems
 	def IsEmpty()
 		return @oList.IsEmpty()
 
@@ -50,6 +91,12 @@ class stzListReplacer from stzObject
 	 #   REPLACING ALL ITEMS WITH A NEW ITEM   #
 	#=========================================#
 
+	# Sets every item of the list to the new item, whatever it was.
+	#
+	#   pNewItem   the item every position receives
+	#   returns    nothing; the list is changed in place
+	#   note       ["a","b"] with "x" gives ["x","x"]
+	#   see        ReplaceAllOccurrences, ReplaceAnyItemAtPositions
 	def ReplaceAllItems(pNewItem)
 
 		_nLen_ = This.NumberOfItems()
@@ -117,8 +164,15 @@ class stzListReplacer from stzObject
 			ok
 			This.ReplaceAllOccurrencesCS(pItem, pNewItem, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Swaps every item equal to pItem for the new item; text is compared with case.
+	#
+	#   pItem      the item to look for
+	#   pNewItem   the item put in its place
+	#   returns    nothing; the list is changed in place
+	#   note       ["a","b","a","A"] with "a" -> "z" gives ["z","b","z","A"], and a list item such
+	#              as [1] can be replaced by a list [7,8]
+	#   see        ReplaceFirstOccurrence, ReplaceLastOccurrence, AllOccurrencesReplaced
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def ReplaceAllOccurrences(pItem, pNewItem)
 		This.ReplaceAllOccurrencesCS(pItem, pNewItem, 1)
 
@@ -126,9 +180,23 @@ class stzListReplacer from stzObject
 			This.ReplaceAllOccurrences(pItem, pNewItem)
 			return This
 
+		# Swaps every item equal to pItem for the new item; text is compared with case.
+		#
+		#   pItem      the item to look for
+		#   pNewItem   the item put in its place
+		#   returns    nothing; the list is changed in place
+		#   note       it does what ReplaceAllOccurrences does
+		#   see        ReplaceAllOccurrences, ReplaceFirstOccurrence
 		def ReplaceAll(pItem, pNewItem)
 			This.ReplaceAllOccurrences(pItem, pNewItem)
 
+		# Swaps every item equal to pItem for the new item; pItem can be written :Each = item.
+		#
+		#   pItem      the item to look for, or :Each = item
+		#   pNewItem   the item put in its place
+		#   returns    nothing; the list is changed in place
+		#   note       text is compared with case
+		#   see        ReplaceAllOccurrences, ReplaceFirstOccurrence
 		def Replace(pItem, pNewItem)
 			if isList(pItem) and IsEachNamedParamList(pItem)
 				pItem = pItem[2]
@@ -141,6 +209,13 @@ class stzListReplacer from stzObject
 		_o.ReplaceAllOccurrencesCS(pItem, pNewItem, pCaseSensitive)
 		return _o.Content()
 
+	# Returns a copy of the list with every item equal to pItem swapped for the new item, leaving the object unchanged.
+	#
+	#   pItem      the item to look for
+	#   pNewItem   the item put in its place
+	#   returns    a list
+	#   note       unlike ReplaceAllOccurrences, Content still shows the old list afterwards
+	#   see        ReplaceAllOccurrences, Content
 	def AllOccurrencesReplaced(pItem, pNewItem)
 		return This.AllOccurrencesReplacedCS(pItem, pNewItem, 1)
 
@@ -172,6 +247,13 @@ class stzListReplacer from stzObject
 			This.ReplaceAnyItemAtPositionCS(n, pNewItem, pCaseSensitive)
 			return This
 
+	# Puts the new item at position n, whatever is there; a position outside the list changes nothing.
+	#
+	#   n          the position, counted from 1
+	#   pNewItem   the item to put there
+	#   returns    nothing; the list is changed in place
+	#   note       no error is raised for a position such as 9 on a five-item list
+	#   see        ReplaceThisItemAt, ReplaceAnyItemAtPositions
 	def ReplaceAnyItemAtPosition(n, pNewItem)
 		This.ReplaceAnyItemAtPositionCS(n, pNewItem, 1)
 
@@ -179,9 +261,23 @@ class stzListReplacer from stzObject
 			This.ReplaceAnyItemAtPosition(n, pNewItem)
 			return This
 
+		# Puts the new item at position n, whatever is there; a position outside the list changes nothing.
+		#
+		#   n          the position, counted from 1
+		#   pNewItem   the item to put there
+		#   returns    nothing; the list is changed in place
+		#   note       it does what ReplaceAnyItemAtPosition does
+		#   see        ReplaceAnyItemAtPosition, ReplaceAt
 		def ReplaceItemAtPosition(n, pNewItem)
 			This.ReplaceAnyItemAtPosition(n, pNewItem)
 
+		# Puts the new item at position n, whatever is there; a position outside the list changes nothing.
+		#
+		#   n          the position, counted from 1
+		#   pNewItem   the item to put there
+		#   returns    nothing; the list is changed in place
+		#   note       it does what ReplaceAnyItemAtPosition does
+		#   see        ReplaceAnyItemAtPosition, ReplaceAnyItemAt
 		def ReplaceAt(n, pNewItem)
 			This.ReplaceAnyItemAtPosition(n, pNewItem)
 
@@ -199,6 +295,14 @@ class stzListReplacer from stzObject
 			This.ReplaceNthOccurrenceCS(n, pItem, pNewItem, pCaseSensitive)
 			return This
 
+	# Swaps the n-th item equal to pItem for the new item, counting from the start; text is compared with case.
+	#
+	#   n          which occurrence, counted from 1
+	#   pItem      the item to look for
+	#   pNewItem   the item put in its place
+	#   returns    nothing; the list is changed in place
+	#   note       when there are fewer than n occurrences nothing changes
+	#   see        ReplaceFirstOccurrence, ReplaceLastOccurrence, ReplaceNextNthOccurrence
 	def ReplaceNthOccurrence(n, pItem, pNewItem)
 		This.ReplaceNthOccurrenceCS(n, pItem, pNewItem, 1)
 
@@ -217,6 +321,13 @@ class stzListReplacer from stzObject
 			This.ReplaceFirstOccurrenceCS(pItem, pNewItem, pCaseSensitive)
 			return This
 
+	# Swaps the first item equal to pItem for the new item; text is compared with case.
+	#
+	#   pItem      the item to look for
+	#   pNewItem   the item put in its place
+	#   returns    nothing; the list is changed in place
+	#   note       when pItem is absent nothing changes
+	#   see        ReplaceLastOccurrence, ReplaceNthOccurrence, ReplaceAllOccurrences
 	def ReplaceFirstOccurrence(pItem, pNewItem)
 		This.ReplaceFirstOccurrenceCS(pItem, pNewItem, 1)
 
@@ -239,6 +350,13 @@ class stzListReplacer from stzObject
 			This.ReplaceLastOccurrenceCS(pItem, pNewItem, pCaseSensitive)
 			return This
 
+	# Swaps the last item equal to pItem for the new item; text is compared with case.
+	#
+	#   pItem      the item to look for
+	#   pNewItem   the item put in its place
+	#   returns    nothing; the list is changed in place
+	#   note       when pItem is absent nothing changes
+	#   see        ReplaceFirstOccurrence, ReplaceNthOccurrence, ReplaceAllOccurrences
 	def ReplaceLastOccurrence(pItem, pNewItem)
 		This.ReplaceLastOccurrenceCS(pItem, pNewItem, 1)
 
@@ -272,9 +390,16 @@ class stzListReplacer from stzObject
 	 #   REPLACING A SECTION OF ITEMS            #
 	#============================================#
 
-	#-- ReplaceSection: the section [n1..n2] is replaced by ONE new item --
-	#-- if that item is a list, it is inserted as a SINGLE element. This is
-	#-- the canonical Softanza semantics (see ReplaceSectionByMany to splice).
+	# Cuts the items from position n1 to n2 and puts ONE new item in their place, even when that item is a list.
+	#
+	#   n1         the first position of the section
+	#   n2         the last position of the section
+	#   pNewItem   the single item that takes the section place, or :By = item
+	#   returns    nothing; the list is changed in place
+	#   note       [1,2,3,2,1] with positions 2 to 4 and [7,8] gives [1,[7,8],1]; n1 below 1 is read
+	#              as 1 and n2 past the end as the last position
+	#   see        ReplaceSectionByMany, ReplaceAnyItemAtPositions
+	#@ aka  -- ReplaceSection: the section [n1..n2] is replaced by ONE new item -- -- if that item is a list, it is inserted as a SINGLE element. This is -- the canonical Softanza semantics (see ReplaceSectionByMany to splice).
 	def ReplaceSection(n1, n2, pNewItem)
 		if isList(pNewItem) and len(pNewItem) = 2 and isString(pNewItem[1]) and
 		   (lower(pNewItem[1]) = "by" or lower(pNewItem[1]) = "with")
@@ -332,6 +457,15 @@ class stzListReplacer from stzObject
 
 		@oList.UpdateWith(_aRsResult_)
 
+	# Cuts the items from position n1 to n2 and splices the given items in their place, one level flat.
+	#
+	#   n1           the first position of the section
+	#   n2           the last position of the section
+	#   paNewItems   the items to splice in, or :By = list
+	#   returns      nothing; the list is changed in place
+	#   note         [1,2,3,2,1] with positions 2 to 4 and [7,8] gives [1,7,8,1]; n1 below 1 is read
+	#                as 1 and n2 past the end as the last position
+	#   see          ReplaceSection, ReplaceManyByMany
 	def ReplaceSectionByMany(n1, n2, paNewItems)
 		This.ReplaceSectionByManyCS(n1, n2, paNewItems, 1)
 
@@ -375,6 +509,15 @@ class stzListReplacer from stzObject
 			This.ReplaceManyByManyCS(paItems, paNewItems, pCaseSensitive)
 			return This
 
+	# Swaps each item of paItems for the item at the same place in paNewItems, everywhere in the list.
+	#
+	#   paItems      the items to look for
+	#   paNewItems   the items that replace them, one for one
+	#   returns      nothing; the list is changed in place
+	#   note         the two lists must have the same size, otherwise the error Incorrect values!
+	#                paItems and paNewItems must have the same size. is raised; an empty list on
+	#                either side does nothing
+	#   see          ReplaceAllOccurrences, ReplaceByMany
 	def ReplaceManyByMany(paItems, paNewItems)
 		This.ReplaceManyByManyCS(paItems, paNewItems, 1)
 
@@ -454,7 +597,14 @@ class stzListReplacer from stzObject
 		next
 		return 0
 
-	#-- Set whatever lives at each of panPos to pNewItem.
+	# Puts the new item at every given position; positions outside the list are skipped.
+	#
+	#   panPos     the positions, counted from 1
+	#   pNewItem   the item to put there, or :With = item
+	#   returns    nothing; the list is changed in place
+	#   note       [1,2,3,2,1] with [1,9] and 0 gives [0,2,3,2,1]
+	#   see        ReplaceAnyItemAtPosition, ReplaceThisItemAtPositions
+	#@ aka  -- Set whatever lives at each of panPos to pNewItem.
 	def ReplaceAnyItemAtPositions(panPos, pNewItem)
 		pNewItem = This._RpVal(pNewItem)
 		_a_ = This.Content()
@@ -468,16 +618,44 @@ class stzListReplacer from stzObject
 		next
 		@oList.UpdateWith(_a_)
 
+		# Puts the new item at every given position; positions outside the list are skipped.
+		#
+		#   panPos     the positions, counted from 1
+		#   pNewItem   the item to put there, or :With = item
+		#   returns    nothing; the list is changed in place
+		#   note       it does what ReplaceAnyItemAtPositions does
+		#   see        ReplaceAnyItemAtPositions, ReplaceAtPositions
 		def ReplaceAnyItemsAtPositions(panPos, pNewItem)
 			This.ReplaceAnyItemAtPositions(panPos, pNewItem)
 
+		# Puts the new item at every given position; positions outside the list are skipped.
+		#
+		#   panPos     the positions, counted from 1
+		#   pNewItem   the item to put there, or :With = item
+		#   returns    nothing; the list is changed in place
+		#   note       it does what ReplaceAnyItemAtPositions does
+		#   see        ReplaceAnyItemAtPositions, ReplaceAtPositions
 		def ReplaceItemsAtPositions(panPos, pNewItem)
 			This.ReplaceAnyItemAtPositions(panPos, pNewItem)
 
+		# Puts the new item at every given position; positions outside the list are skipped.
+		#
+		#   panPos     the positions, counted from 1
+		#   pNewItem   the item to put there, or :With = item
+		#   returns    nothing; the list is changed in place
+		#   note       it does what ReplaceAnyItemAtPositions does
+		#   see        ReplaceAnyItemAtPositions, ReplaceItemsAtPositions
 		def ReplaceAtPositions(panPos, pNewItem)
 			This.ReplaceAnyItemAtPositions(panPos, pNewItem)
 
-	#-- Set the single position n to pNewItem (named-param aware).
+	# Puts the new item at position n, whatever is there.
+	#
+	#   n          the position, counted from 1
+	#   pNewItem   the item to put there
+	#   returns    nothing; the list is changed in place
+	#   note       it is ReplaceAnyItemAtPositions with one position
+	#   see        ReplaceAnyItemAtPosition, ReplaceAnyItemAtPositions
+	#@ aka  -- Set the single position n to pNewItem (named-param aware).
 	def ReplaceAnyItemAt(n, pNewItem)
 		This.ReplaceAnyItemAtPositions([ n ], pNewItem)
 
@@ -495,12 +673,28 @@ class stzListReplacer from stzObject
 		next
 		@oList.UpdateWith(_a_)
 
+	# Puts the new item at the given positions, but only where the item now there equals pItem.
+	#
+	#   panPos     the positions to examine, counted from 1
+	#   pItem      the item that must be there
+	#   pNewItem   the item to put there, or :With = item
+	#   returns    nothing; the list is changed in place
+	#   note       text is compared with case; [1,2,3,2,1] with [1,2,3], 2 and 0 gives [1,0,3,2,1]
+	#   see        ReplaceTheseItemsAtPositions, ReplaceAnyItemAtPositions
 	def ReplaceThisItemAtPositions(panPos, pItem, pNewItem)
 		This.ReplaceThisItemAtPositionsCS(panPos, pItem, pNewItem, 1)
 
 	def ReplaceThisItemAtCS(n, pItem, pNewItem, pCaseSensitive)
 		This.ReplaceThisItemAtPositionsCS([ n ], pItem, pNewItem, pCaseSensitive)
 
+	# Puts the new item at position n, but only if the item now there equals pItem.
+	#
+	#   n          the position, counted from 1
+	#   pItem      the item that must be there
+	#   pNewItem   the item to put there
+	#   returns    nothing; the list is changed in place
+	#   note       at a position holding another item nothing changes
+	#   see        ReplaceThisItemAtPositions, ReplaceAnyItemAt
 	def ReplaceThisItemAt(n, pItem, pNewItem)
 		This.ReplaceThisItemAtCS(n, pItem, pNewItem, 1)
 
@@ -518,6 +712,15 @@ class stzListReplacer from stzObject
 		next
 		@oList.UpdateWith(_a_)
 
+	# Puts the new item at the given positions, but only where the item now there is one of paItems.
+	#
+	#   panPos     the positions to examine, counted from 1
+	#   paItems    the items that may be replaced
+	#   pNewItem   the item to put there, or :With = item
+	#   returns    nothing; the list is changed in place
+	#   note       text is compared with case; [1,2,3,2,1] with [1,2,3,4], [2,3] and 0 gives
+	#              [1,0,0,0,1]
+	#   see        ReplaceThisItemAtPositions, ReplaceAnyItemAtPositions
 	def ReplaceTheseItemsAtPositions(panPos, paItems, pNewItem)
 		This.ReplaceTheseItemsAtPositionsCS(panPos, paItems, pNewItem, 1)
 
@@ -535,6 +738,13 @@ class stzListReplacer from stzObject
 		next
 		@oList.UpdateWith(_a_)
 
+	# Swaps the occurrences of pItem, in order, for the items of paNewItems, one each; extra occurrences are left alone.
+	#
+	#   pItem        the item to look for
+	#   paNewItems   the replacements, used in order
+	#   returns      nothing; the list is changed in place
+	#   note         [1,2,3,2,1] with 2 and [7,8] gives [1,7,3,8,1] and with [7] gives [1,7,3,2,1]
+	#   see          ReplaceItemByManyXT, ReplaceManyByMany, ReplaceOccurrencesByMany
 	def ReplaceByMany(pItem, paNewItems)
 		This.ReplaceByManyCS(pItem, paNewItems, 1)
 
@@ -555,10 +765,25 @@ class stzListReplacer from stzObject
 	def ReplaceByManyXT(pItem, paNewItems)
 		This.ReplaceByManyCSXT(pItem, paNewItems, 1)
 
+		# Swaps the occurrences of pItem, in order, for the items of paNewItems, starting over when they run out.
+		#
+		#   pItem        the item to look for
+		#   paNewItems   the replacements, reused round-robin
+		#   returns      nothing; the list is changed in place
+		#   note         [1,2,3,2,1] with 2 and [7] gives [1,7,3,7,1]; with 1 and [7,8,9] gives
+		#                [7,2,3,2,8]
+		#   see          ReplaceByMany, ReplaceAtByManyXT
 		def ReplaceItemByManyXT(pItem, paNewItems)
 			This.ReplaceByManyXT(pItem, paNewItems)
 
-	#-- Replace items at the GIVEN positions with paNewItems consumed in order.
+	# Puts the items of paNewItems, in order, at the given positions; surplus positions are left alone.
+	#
+	#   panPos       the positions, counted from 1
+	#   paNewItems   the items, one per position
+	#   returns      nothing; the list is changed in place
+	#   note         [1,2,3,2,1] with [1,3,5] and [7,8] gives [7,2,8,2,1]
+	#   see          ReplaceByMany, ReplaceAnyItemAtPositionsByMany
+	#@ aka  -- Replace items at the GIVEN positions with paNewItems consumed in order.
 	def ReplaceOccurrencesByMany(panPos, paNewItems)
 		_a_ = This.Content()
 		_n_ = len(_a_)
@@ -642,6 +867,14 @@ class stzListReplacer from stzObject
 		next
 		@oList.UpdateWith(_a_)
 
+	# Puts the items of paNewItems, in order, at those given positions that hold pItem; surplus positions are left alone.
+	#
+	#   panPos       the positions to examine, counted from 1
+	#   pItem        the item that must be there
+	#   paNewItems   the replacements, used in order
+	#   returns      nothing; the list is changed in place
+	#   note         [1,2,3,2,1] with [2,4,5], 2 and [7,8] gives [1,7,3,8,1]
+	#   see          ReplaceTheseItemsAtPositionsByMany, ReplaceByMany
 	def ReplaceItemAtPositionsByMany(panPos, pItem, paNewItems)
 		This.ReplaceItemAtPositionsByManyCS(panPos, pItem, paNewItems, 1)
 
@@ -672,6 +905,14 @@ class stzListReplacer from stzObject
 			This.ReplaceItemAtPositionsByManyCS(panPos, paItems[_i_], paNewItems, pCaseSensitive)
 		next
 
+	# Does ReplaceItemAtPositionsByMany for each item of paItems in turn, each time giving paNewItems from their start.
+	#
+	#   panPos       the positions to examine, counted from 1
+	#   paItems      the items that may be replaced
+	#   paNewItems   the replacements, restarted for each item
+	#   returns      nothing; the list is changed in place
+	#   note         [1,2,3,2,1] with [1,2,3,4,5], [1,3] and [7,8,9] gives [7,2,7,2,8]
+	#   see          ReplaceItemAtPositionsByMany, ReplaceAnyItemAtPositionsByMany
 	def ReplaceTheseItemsAtPositionsByMany(panPos, paItems, paNewItems)
 		This.ReplaceTheseItemsAtPositionsByManyCS(panPos, paItems, paNewItems, 1)
 
@@ -699,9 +940,23 @@ class stzListReplacer from stzObject
 		next
 		@oList.UpdateWith(_a_)
 
+	# Puts the items of paNewItems at the given positions in order, whatever is there, stopping at the shorter of the two lists.
+	#
+	#   panPos       the positions, counted from 1
+	#   paNewItems   the items, one per position
+	#   returns      nothing; the list is changed in place
+	#   note         [1,2,3,2,1] with [1,3,5] and [7,8] gives [7,2,8,2,1]
+	#   see          ReplaceOccurrencesByMany, ReplaceAtByManyXT
 	def ReplaceAnyItemAtPositionsByMany(panPos, paNewItems)
 		This.ReplaceAnyItemAtPositionsByManyCS(panPos, paNewItems, 1)
 
+		# Puts the items of paNewItems at the given positions in order, whatever is there, stopping at the shorter of the two lists.
+		#
+		#   panPos       the positions, counted from 1
+		#   paNewItems   the items, one per position
+		#   returns      nothing; the list is changed in place
+		#   note         it does what ReplaceAnyItemAtPositionsByMany does
+		#   see          ReplaceAnyItemAtPositionsByMany, ReplaceOccurrencesByMany
 		def ReplaceAnyItemsAtPositionsByMany(panPos, paNewItems)
 			This.ReplaceAnyItemAtPositionsByMany(panPos, paNewItems)
 
@@ -726,6 +981,13 @@ class stzListReplacer from stzObject
 		def ReplaceAnyItemsAtPositionsByManyXT(panPos, paNewItems)
 			This.ReplaceAnyItemAtPositionsByManyXT(panPos, paNewItems)
 
+		# Puts the items of paNewItems at the given positions in order, starting over when they run out, whatever is there.
+		#
+		#   panPos       the positions, counted from 1
+		#   paNewItems   the items, reused round-robin
+		#   returns      nothing; the list is changed in place
+		#   note         [1,2,3,2,1] with [1,2,3,4] and [7,8] gives [7,8,7,8,1]
+		#   see          ReplaceAnyItemAtPositionsByMany, ReplaceItemByManyXT
 		def ReplaceAtByManyXT(panPos, paNewItems)
 			This.ReplaceAnyItemAtPositionsByManyXT(panPos, paNewItems)
 
@@ -748,6 +1010,13 @@ class stzListReplacer from stzObject
 		_pos_  = @oList.FindAllW(_cond_)
 		This.ReplaceAnyItemAtPositions(_pos_, _val_)
 
+		# Swaps every item that satisfies a condition written with @item for a new value.
+		#
+		#   pWhere     the condition, such as '@item > 1', or :Where = condition
+		#   pBy        the value put in place, or :By = value
+		#   returns    nothing; the list is changed in place
+		#   note       [1,2,3,2,1] with '@item > 1' and 0 gives [1,0,0,0,1]
+		#   see        ReplaceAllOccurrences, ReplaceAnyItemAtPositions
 		def ReplaceItemsW(pWhere, pBy)
 			This.ReplaceW(pWhere, pBy)
 
@@ -775,11 +1044,30 @@ class stzListReplacer from stzObject
 			@oList.UpdateWith(_a_)
 		ok
 
+	# Swaps the n-th item equal to pItem found at or after position pnStartingAt; text is compared with case.
+	#
+	#   n              which occurrence after the start, counted from 1
+	#   pItem          the item to look for
+	#   pNewItem       the item put in its place
+	#   pnStartingAt   the position where the search begins
+	#   returns        nothing; the list is changed in place
+	#   note           [1,2,3,2,1] with 1, 2, 9 and 3 gives [1,2,3,9,1] because the 2 at position 2
+	#                  lies before the start
+	#   see            ReplaceNthOccurrence, ReplaceFirstOccurrence
 	def ReplaceNextNthOccurrence(n, pItem, pNewItem, pnStartingAt)
 		This.ReplaceNextNthOccurrenceCS(n, pItem, pNewItem, pnStartingAt, 1)
 
 		def ReplaceNextNthOccurrenceST(n, pItem, pNewItem, pnStartingAt)
 			This.ReplaceNextNthOccurrence(n, pItem, pNewItem, pnStartingAt)
 
+		# Swaps the n-th item equal to pItem found at or after position pnStartingAt; text is compared with case.
+		#
+		#   n              which occurrence after the start, counted from 1
+		#   pItem          the item to look for
+		#   pNewItem       the item put in its place
+		#   pnStartingAt   the position where the search begins
+		#   returns        nothing; the list is changed in place
+		#   note           it does what ReplaceNextNthOccurrence does
+		#   see            ReplaceNextNthOccurrence, ReplaceNthOccurrence
 		def ReplaceNthNextOccurrenceST(n, pItem, pNewItem, pnStartingAt)
 			This.ReplaceNextNthOccurrence(n, pItem, pNewItem, pnStartingAt)

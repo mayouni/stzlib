@@ -1,0 +1,20 @@
+{
+ "brief": "Parses HTML text with the engine and finds its elements by tag, id or class, giving their text and attributes.",
+ "detail": "Reach for it to read a page: Find takes a tag name, #id or .class and returns node handles (stzHtmlNode) whose Text and Attr read the element. Text on the document gives all the visible text with scripts and styles removed. The parser is read-only, so the document cannot be changed, and there are no selector combinators: use ElementsWhere to combine a tag, a class and an id. It holds text, it does not fetch pages; HtmlQ(text-or-file) is the shortcut.",
+ "receiver": "o1 = new stzHtml('<html><body><div id=\"main\" class=\"box big\"><p>Hello</p></div><div class=\"box\">Two</div></body></html>')",
+ "example": [
+  "? o1.CountByTag(\"div\")",
+  "#--> 2",
+  "? o1.FindFirst(\"#main\").Klass()",
+  "#--> box big",
+  "? len(o1.Find(\".box\"))",
+  "#--> 2",
+  "? len(o1.ElementsWhere([ :Tag = \"div\", :Class = \"big\" ]))",
+  "#--> 1"
+ ],
+ "see": [
+  "stzHtmlNode",
+  "stzXml",
+  "stzHtmlBuilder"
+ ]
+}

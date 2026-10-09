@@ -1,0 +1,14 @@
+{
+ "brief": "Holds one change to a system as an object, with its type, its parameters, who proposed it and why.",
+ "detail": "A twin rehearses operations and a plan commits them, so the change is a value that can be read, narrated, scoped and audited before anything real happens. The type names the change (create_file, write_file, create_folder, delete_file, delete_folder, copy_file, move_file, set_var, unset_var, change_dir, spawn_process) and the parameters are [ key, value ] pairs. Describe writes it in plain words, Impact lists what it touches for a commit scope, and RequiredKind says what a committer must be allowed to do.",
+ "receiver": "o1 = new stzVirtualOperation(\"copy_file\", [ [ \"from\", \"/w/a.txt\" ], [ \"to\", \"/w/b.txt\" ] ])",
+ "example": [
+  "? o1.Describe()",
+  "#--> copy '/w/a.txt' -> '/w/b.txt'",
+  "? @@( o1.Impact() )",
+  "#--> [ \"/w/a.txt\", \"/w/b.txt\" ]",
+  "? o1.RequiredKind()",
+  "#--> effectful"
+ ],
+ "see": ["stzVirtualSystem", "stzCommitScope", "stzUpdatePlan"]
+}

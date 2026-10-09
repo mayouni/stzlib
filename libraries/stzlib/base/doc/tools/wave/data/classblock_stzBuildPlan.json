@@ -1,0 +1,14 @@
+{
+ "brief": "Holds the rehearsed placement plan of a solution: per part, each capability with its delivery vector, its reason and its size.",
+ "detail": "It is what stzDelivery.Plan returns, and it changes nothing when read. VectorFor says how a capability reaches a part, EngineCapsFor and EngineKbFor say what the on-device engine of a part carries and weighs, and Explain tells the whole story in plain lines, with the external dependencies, the fakes that remain and the credentials production will need, by name. It is plain data, so it survives copying, and the emulator reads its Parts to render each part.",
+ "receiver": "d = new stzDelivery(\"shop\"); d.AddApp(\"web\", \"browser\"); d.NeedsIn(\"web\", [ :Json, :Pattern ]); o1 = d.Plan()",
+ "example": [
+  "? o1.VectorFor(\"web\", \"Json\")",
+  "#--> native",
+  "? @@( o1.EngineCapsFor(\"web\") )",
+  "#--> [ \"pattern\" ]",
+  "? o1.EngineKbFor(\"web\")",
+  "#--> 5"
+ ],
+ "see": ["stzDelivery", "stzCapabilityCatalog", "stzEmulator"]
+}

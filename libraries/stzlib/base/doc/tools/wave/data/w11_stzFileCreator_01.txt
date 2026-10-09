@@ -1,0 +1,11 @@
+# Wave 11 -- stzFileCreator. Every line was run on invented files in a scratch folder.
+init | Creates a new empty file; a path that already has a file raises an error. | nothing; the file is created | cFileName=the path of the file to create | Write, Capabilities | | the error text is Cannot create file - already exists: followed by the path; the folder must already exist
+Conditions | Returns the hash list of conditions this intent expects of the file. | a hash list, [ :FileExists = 0 ] | | Capabilities | | the file must not exist
+Capabilities | Returns what this intent allows: :Read and :Create are 1, the rest 0. | a hash list of :Read, :Append, :Create, :Overwrite, :Modify | | Conditions | | Skills is the same call
+Write | Adds a text at the end of the new file, with no line break. | 1 | cText=the text to add | WriteLine, WriteLines
+WriteLine | Adds a text and a line break at the end of the file. | 1 | cText=the text to add | Write, WriteLines
+WriteLines | Adds each text of a list as its own line. | 1 | _aLines_=the list of texts, one per line | WriteLine, Write
+WriteHeader | Writes a title block: a line # title, a line # Created: with the date and time, an underline of equals signs, and a blank line. | 1 | cTitle=the title of the file | WriteTemplate, WriteBlankLine | | the underline is two characters longer than the title
+WriteBlankLine | Adds an empty line at the end of the file. | 1 | | WriteLine
+WriteTemplate | Writes a ready-made header: log, config or data; any other name writes a header naming the file. | 1 for log, config and data; nothing for another name | cTemplateType=log, config or data | WriteHeader | | for another name the header reads # File: followed by the path; the three templates add a comment line and a blank line
+Close | Does nothing; creating holds no resource. | nothing | | Write

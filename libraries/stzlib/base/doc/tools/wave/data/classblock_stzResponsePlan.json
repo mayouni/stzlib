@@ -1,0 +1,16 @@
+{
+ "brief": "Holds a containment plan: a list of actions anyone may propose and only an effectful, non-sandboxed actor may commit.",
+ "detail": "Containment is the only step that touches reality, so it is a plan. Expression is free: any actor, a language-model agent included, may compose it with Propose or derive it from an incident with ProposeForIncident. Admission is governed: ExecuteOn performs the actions on a responder only for an actor MayCommit admits, and audits every outcome, committed or refused, in the plan and in the security ledger. The catalog is closed to RevokeSession, LockAccount, RotateSecret, RevokeCapability, ShedSource and QuarantinePart. The responder is any object that answers those verbs: rehearse on a double, or on a responder over in-memory objects. Never point a plan at the real machine to try it.",
+ "receiver": "o1 = new stzResponsePlan(\"contain-1\")",
+ "example": [
+  "o1.Propose(:LockAccount, \"mallory\", \"stolen credentials\")",
+  "o1.Propose(:RotateSecret, \"signing-key\", \"read by the intruder\")",
+  "? o1.NumberOfActions()",
+  "#--> 2",
+  "? o1.MayCommit(LLMActor(\"advisor\"))",
+  "#--> 0",
+  "? o1.MayCommit(HumanActor(\"oncall\"))",
+  "#--> 1"
+ ],
+ "see": ["stzResponderSet", "stzSecretStoreResponder", "stzCapabilityResponder", "stzIncident", "StzResponsePlan"]
+}

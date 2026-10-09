@@ -1,0 +1,17 @@
+{
+ "brief": "Rehearses file and folder changes in memory, so a change can be read, narrated and reviewed before the disk is touched.",
+ "detail": "The file twin of stzVirtualSystem. CreateFile, WriteFile, CreateFolder, DeleteFile, DeleteFolder, CopyFile and MoveFile read like the real file verbs but only record an operation in an in-memory tree; Exists, ContentOf, SizeOf, Paths and the other readers answer from the twin, not from the disk. MirrorFile and MirrorFrom start a rehearsal from what the disk holds. GenerateUpdatePlan turns the rehearsal into a narrated plan, and only executing that plan reaches reality. The twin does not check what a verb names: it accepts a copy of a file it does not hold, which the plan's Validate then flags against the disk.",
+ "receiver": "o1 = new stzVirtualFileSystem()",
+ "example": [
+  "o1.CreateFolder(\"/w\")",
+  "o1.CreateFile(\"/w/a.txt\", \"alpha\")",
+  "o1.CopyFile(\"/w/a.txt\", \"/w/b.txt\")",
+  "? o1.Exists(\"/w/b.txt\")",
+  "#--> 1",
+  "? o1.ContentOf(\"/w/b.txt\")",
+  "#--> alpha",
+  "? o1.NumberOfOperations()",
+  "#--> 3"
+ ],
+ "see": ["stzVirtualSystem", "stzFileTree", "stzFileSystemBridge", "stzUpdatePlan", "StzVirtualFileSystemQ"]
+}

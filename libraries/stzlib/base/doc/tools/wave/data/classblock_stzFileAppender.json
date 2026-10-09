@@ -1,0 +1,17 @@
+{
+ "brief": "Opens a file to add text at its end, creating it when missing, and keeps everything already there.",
+ "detail": "Reach for it for logs and any file that only grows: Write, WriteLine, WriteLines and WriteLogEntry add at the end, and the reading methods of stzFileReadingMixin are available too. The folder must exist. The text must be a text: a number given to Write ends the whole Ring process silently today. The class stzFile is another name for it.",
+ "receiver": "write(\"demo_note.txt\", \"alpha\" + char(10) + \"beta gamma\" + char(10) + \"end\")\no1 = new stzFileAppender(\"demo_note.txt\")",
+ "example": [
+  "o1.WriteLine(\"!\")",
+  "? o1.NumberOfLines()",
+  "#--> 4",
+  "? o1.Line(3)",
+  "#--> end!"
+ ],
+ "see": [
+  "stzFileReader",
+  "stzFileCreator",
+  "stzFileOverwriter"
+ ]
+}

@@ -1,0 +1,14 @@
+{
+ "brief": "Holds what the delivery planner knows about each Softanza capability, as data, and decides how a capability reaches a target.",
+ "detail": "Each record says whether a capability is unique to Softanza, whether it is compute or ergonomics, how heavy it is, how well a browser, a server and a microcontroller already do it, and how many KB its engine adds. VectorFor reads those records and answers native, engine, construct or server with the reason in words: a server hosts the engine, a heavy capability goes to the backend, a strong non-unique one defers to the platform, an ergonomic one becomes a construct on the web, the rest folds into the on-device engine. A name the catalog does not know is assumed to be Softanza-differential and platform-weak.",
+ "receiver": "o1 = new stzCapabilityCatalog()",
+ "example": [
+  "? o1.Has(\"PivotTable\")",
+  "#--> 1",
+  "? o1.SizeOf(\"neural\")",
+  "#--> 900",
+  "? @@( o1.VectorFor(\"Json\", \"browser\") )",
+  "#--> [ \"native\", \"Json: the target-platform is strong at it -> use its own\" ]"
+ ],
+ "see": ["stzDelivery", "stzBuildPlan"]
+}

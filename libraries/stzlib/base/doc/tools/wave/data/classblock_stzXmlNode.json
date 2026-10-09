@@ -1,0 +1,18 @@
+{
+ "brief": "Points at one element of an XML document by its path, and reads the element and its descendants.",
+ "detail": "A node holds the document text and the path that reaches the element, nothing else, so it stays valid and can be chained: NodeQ(...) on a node adds to its path. It is normally made by stzXml.NodeQ or NodesQ. Reads that find nothing answer the empty text or 0, and Exists tells whether the element is really there. Number raises an error on text that is not a number.",
+ "receiver": "d1 = new stzXml('<library><book id=\"b1\"><title>Dune</title><price>12</price></book></library>')\no1 = d1.NodeQ(\"library/book\")",
+ "example": [
+  "? o1.Path()",
+  "#--> library/book",
+  "? o1.Attribute(\"id\")",
+  "#--> b1",
+  "? o1.TextAt(\"title\")",
+  "#--> Dune",
+  "? o1.NodeQ(\"price\").Number()",
+  "#--> 12"
+ ],
+ "see": [
+  "stzXml"
+ ]
+}

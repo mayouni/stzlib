@@ -1,0 +1,10 @@
+# Wave 11 -- stzHtmlBuildNode. Every line was run.
+init | Builds a node with a tag, no text, no attribute and no child; the empty tag makes a container written without a tag of its own. | nothing; the object is built | pcTag=the tag name, or the empty text for a container | Tag, ToHtml
+Tag | Returns the tag name as it was given. | a text | | ToHtml
+SetText | Sets the text written inside the node before its children and returns the node. | the node itself | pcText=the text, written as given | Text, ToHtml | | the text is not escaped: a < stays a <, so do not pass untrusted text
+Text | Returns the text of the node, not counting its children. | a text | | SetText, ToHtml
+SetAttr | Adds an attribute and returns the node. | the node itself | pcName=the attribute name; pcValue=the value, written between double quotes | AppendChild, ToHtml | | the value is not escaped, so a double quote inside it breaks the markup; setting a name twice writes it twice
+AppendChild | Adds a node as the last child and returns the node. | the node itself | poNode=the node to add | Children, ToHtml | | the child is stored as a copy, so changes made to the original afterwards do not appear in the output
+Children | Returns the list of child nodes, in the order they were added. | a list of stzHtmlBuildNode | | AppendChild, ChildrenHtml
+ToHtml | Returns the node as HTML: opening tag with attributes, the text, the children, then the closing tag. | a text | | ChildrenHtml, AppendChild | | a node with the empty tag gives only its children; a node without text or children gives an empty element such as <p></p>
+ChildrenHtml | Returns the HTML of the children only, one after the other, without the tag of this node. | a text | | ToHtml, Children

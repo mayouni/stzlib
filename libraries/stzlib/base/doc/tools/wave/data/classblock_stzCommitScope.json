@@ -1,0 +1,13 @@
+{
+ "brief": "Bounds what an update plan may commit: the operation types, the path prefixes and the number of operations.",
+ "detail": "A human usually commits with no scope; a script or an agent commits only inside a declared, auditable one, by the same mechanism. A new scope admits everything. Each AllowType and AllowUnder narrows it: once a type is allowed, any other type is refused, and once a prefix is allowed, every path an operation touches must start with one of them. Reason says why an operation is refused and Allows says whether it is. The limit on the number of operations is applied by the plan while it commits.",
+ "receiver": "o1 = new stzCommitScope()",
+ "example": [
+  "o1.AllowUnder(\"/w/\").AllowType(\"create_file\")",
+  "? o1.Allows(new stzVirtualOperation(\"create_file\", [ [ \"path\", \"/w/a.txt\" ], [ \"content\", \"\" ] ]))",
+  "#--> 1",
+  "? o1.Reason(new stzVirtualOperation(\"delete_file\", [ [ \"path\", \"/w/a.txt\" ] ]))",
+  "#--> operation type 'delete_file' is not allowed by this scope"
+ ],
+ "see": ["stzUpdatePlan", "stzVirtualOperation"]
+}

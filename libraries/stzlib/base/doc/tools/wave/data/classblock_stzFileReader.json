@@ -1,0 +1,18 @@
+{
+ "brief": "Opens an existing file for reading only and answers questions about its text and lines.",
+ "detail": "Reach for it when you must not change the file: every writing class is built on the same reading methods (Lines, Line, FindText, LinesContaining...), which live in stzFileReadingMixin and are documented there. Building a reader on a path with no file raises an error and creates nothing.",
+ "receiver": "write(\"demo_note.txt\", \"alpha\" + char(10) + \"beta gamma\" + char(10) + \"end\")\no1 = new stzFileReader(\"demo_note.txt\")",
+ "example": [
+  "? o1.NumberOfLines()",
+  "#--> 3",
+  "? o1.FirstLine()",
+  "#--> alpha",
+  "? o1.LineNumber(\"gamma\")",
+  "#--> 2"
+ ],
+ "see": [
+  "stzFileReadingMixin",
+  "stzFileAppender",
+  "stzFileInfo"
+ ]
+}

@@ -1,0 +1,20 @@
+{
+ "brief": "Performs the :RevokeCapability action of a response plan by cutting an actor's paths to the effectful capability in a security graph.",
+ "detail": "The graph is what audits and incidents ask, the live actor is what the runtime gates ask, so the responder cuts both: the graph edges, and the effectful kind of each registered live actor of the same name. Register live actors one at a time with AddLiveActor, because an object placed in a list literal is copied and revoking a copy changes nothing. It answers no other verb: each of those raises an error that names the responder to wire. Other actors that use the same tool keep their capability.",
+ "receiver": "g = StzSecurityGraphQ(\"prod\"); o1 = new stzCapabilityResponder(g)",
+ "example": [
+  "g.AddActor(\"billing-agent\", \"trusted\")",
+  "g.AddTool(\"deploy-tool\")",
+  "g.AddCapability(\"effectful\")",
+  "g.Uses(\"billing-agent\", \"deploy-tool\")",
+  "g.Grants(\"deploy-tool\", \"effectful\")",
+  "? g.ReachesEffectful(\"billing-agent\")",
+  "#--> 1",
+  "o1.RevokeCapability(\"billing-agent\")",
+  "? g.ReachesEffectful(\"billing-agent\")",
+  "#--> 0",
+  "? @@( o1.LastCut() )",
+  "#--> [ [ \"billing-agent\", \"uses\", \"deploy-tool\" ] ]"
+ ],
+ "see": ["stzResponsePlan", "stzResponderSet", "stzSecurityGraph", "StzCapabilityResponder"]
+}

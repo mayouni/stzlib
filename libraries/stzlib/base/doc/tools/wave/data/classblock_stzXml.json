@@ -1,0 +1,22 @@
+{
+ "brief": "Holds an XML document as text and reads it by path, with the parsing done by the engine.",
+ "detail": "Reach for it to read values out of an XML document without walking a tree: TextAt, NumberAt and AttributeAt take a path such as library/book[2]/title (names joined by /, an optional [n] index counted from 1, no namespace prefix). NodeQ returns a node that remembers a path, so reads can go deeper step by step. The object keeps only the text and parses it again at each read. A document with a DOCTYPE or an ENTITY declaration is refused on purpose, which closes XXE: IsValid answers 0 and every read answers the empty text. To build XML rather than read it, use stzXmlBuilder; its values are escaped.",
+ "receiver": "o1 = new stzXml('<library><book id=\"b1\"><title>Dune</title><price>12</price></book><book id=\"b2\"><title>Emma</title><price>8</price></book></library>')",
+ "example": [
+  "? o1.Root()",
+  "#--> library",
+  "? o1.NumberOf(\"library/book\")",
+  "#--> 2",
+  "? o1.TextAt(\"library/book[2]/title\")",
+  "#--> Emma",
+  "? o1.AttributeAt(\"library/book[2]\", \"id\")",
+  "#--> b2",
+  "? o1.NodeQ(\"library/book[1]\").NumberOf(\"price\")",
+  "#--> 1"
+ ],
+ "see": [
+  "stzXmlBuilder",
+  "stzXmlNode",
+  "stzHtml"
+ ]
+}

@@ -1,0 +1,16 @@
+{
+ "brief": "Runs map, filter and reduce steps over a list, each chosen by the name of an operation, with the work done in the engine.",
+ "detail": "Reach for it to transform, select or fold a list without writing a loop: Map applies one named operation to every item, Filter keeps the items that pass a named test, Reduce folds the list to one value. The result of Map and Filter is a new list and the held list is unchanged, unless the Q form (MapQ, FilterQ) is used, which keeps the result and returns the object for chaining. A name that is not known does nothing and raises no error. MapIndexed is broken today (it answers the text <list> for each item).",
+ "receiver": "o1 = new stzYielder([1, -2, 3, -4, 5])",
+ "example": [
+  "? @@( o1.Map(:Abs) )",
+  "#--> [ 1, 2, 3, 4, 5 ]",
+  "? @@( o1.Filter(:IsPositive) )",
+  "#--> [ 1, 3, 5 ]",
+  "? o1.Reduce(:Sum)",
+  "#--> 3",
+  "? @@( o1.MapFiltered(:IsPositive, :Square) )",
+  "#--> [ 1, 9, 25 ]"
+ ],
+ "see": ["stzList", "stzListOfNumbers"]
+}

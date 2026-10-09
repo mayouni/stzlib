@@ -1,0 +1,16 @@
+{
+ "brief": "Builds an XML document element by element, escaping every value so a value cannot change the shape of the document.",
+ "detail": "Reach for it instead of pasting strings: the values given to AddElement and SetAttribute are escaped, so & and < stay text. Open and Close nest elements, and Content gives the finished text, or raises an error while an element is still open. Element and attribute names are written as given and are not checked. The Q forms (AddElementQ, OpenQ, CloseQ) return the builder so calls can be chained; the plain forms return nothing.",
+ "receiver": "o1 = new stzXmlBuilder(\"shop\")",
+ "example": [
+  "o1.AddElement(\"name\", \"A & B\")",
+  "o1.Open(\"items\")",
+  "o1.AddElementXT(\"item\", \"pen\", [ [ \"qty\", \"2\" ] ])",
+  "o1.Close()",
+  "? o1.Content()",
+  "#--> <shop><name>A &amp; B</name><items><item qty=\"2\">pen</item></items></shop>"
+ ],
+ "see": [
+  "stzXml"
+ ]
+}

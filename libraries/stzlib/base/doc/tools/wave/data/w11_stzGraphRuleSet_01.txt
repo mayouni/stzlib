@@ -1,0 +1,14 @@
+init | Builds an empty, named set of graph rules that can be added to and run over a graph in one call. | nothing; the object is built | pcName=the set's name, as text | AddRule, Check
+SetDomain | Sets the domain the set gives to the rules added after it that have none of their own, kept in lower case. | nothing; use SetDomainQ to chain | pcDomain=the registry group name, such as agentic | Domain, AddRule | SetDomainQ is the same call and returns the set | a rule that already has a domain of its own keeps it
+AddRule | Adds a rule to the set, and gives it the set's domain when it still has the default custom one. | nothing; use AddRuleQ to chain | poRule=the stzGraphRule to add | RuleNamed, SetDomain, Check | the rule is passed by reference, so the original rule takes the domain too; the set does not refuse a second rule of the same name | AddRuleQ is the same call and returns the set
+Name | Returns the label the set was given. | a text, as given | | init, Domain
+Domain | Returns the domain the set gives to its rules. | a text; empty until SetDomain is called | | SetDomain
+Rules | Returns the rule objects of the set, in the order added. | a list of stzGraphRule objects | | RuleNames, RuleNamed, NumberOfRules
+NumberOfRules | Returns how many rules the set holds. | a number | | Rules, AddRule
+RuleNamed | Returns the rule that has a given name. | a stzGraphRule, or an empty text when no rule has that name | pcName=the rule's name, matched exactly, with its case | RuleNames, Rules | | the first of two rules with the same name answers
+RuleNames | Returns the names of the rules, in the order added. | a list of text | | Rules, RuleNamed
+Check | Runs every rule over a graph and returns all the findings in one list, in the order of the rules. | a list of rows [ :rule, :subject, :where, :severity, :message ]; empty when no rule finds anything | oGraph=the graph to check, a stzGraph or a kind of one | IsSound, NumberOfFindings, stzGraphRule | | a set with no rule finds nothing
+NumberOfFindings | Returns how many findings all the rules have in the graph together. | a number | oGraph=the graph to check | Check, IsSound
+IsSound | TRUE if no rule found a finding of error severity, so warnings and info do not make the graph unsound. | TRUE or FALSE | oGraph=the graph to check | Check, NumberOfFindings | | a set of rules that only warn is sound on a graph where they all fire
+RegisterAll | Compiles every rule down to an entry of the shared rule registry, in the group of its domain. | the set itself, so calls chain | | stzGraphRule, SetDomain | calling it twice adds each entry a second time, as Register of one rule does | the rules in the set are not changed
+Show | Prints one line for the set with its name, domain and number of rules, then one line per rule with its severity. | the set itself, so calls chain; it prints | | Rules, RuleNames

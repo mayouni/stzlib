@@ -732,6 +732,31 @@ func _StzGraphRuleNormalizeOp(pcOp)
 func StzGraphRuleQ(pcName)
 	return new stzGraphRule(pcName)
 
+# States one rule about a graph, as clauses over node properties or as a checker function, and reports its findings in the house shape.
+#
+# A rule has a name, a type, a domain, a severity and a message. Its scope is the When clauses,
+# which select nodes by a property test and are combined with AND. With no Then clause, every node
+# in scope is a finding, a prohibition; with Then clauses, each node in scope that fails a
+# requirement is a finding, an implication. A rule too rich for clauses takes a checker function
+# with UseChecker, which owns the whole decision. Check returns rows [ :rule, :subject, :where,
+# :severity, :message ], the shape stzRuleReport gates on, and Register compiles the rule into the
+# shared registry. The setters have a plain form that returns nothing and a Q form that returns the
+# rule, so chains use SetSeverityQ, WhenQ and ThenQ; SetReadsQ, SetWritesQ and SetOrderQ exist only
+# in the Q form. Known defects: the greaterequal and lessequal operators match every node when the
+# property or the value is text, and Register called twice adds the entry twice.
+#
+#   receiver   o1 = new stzGraphRule("llm-needs-owner"); o1.WhenQ("kind", "equals", "llm_actor");
+#              o1.ThenQ("owner", "exists", ""); o1.ThenViolationQ("an LLM actor must name an owner")
+#   example    oG = new stzGraph("agents")
+#              oG.AddNodeXTT("planner", "Planner", [ :kind = "llm_actor" ])
+#              oG.AddNodeXTT("deployer", "Deployer", [ :kind = "service" ])
+#              ? @@( o1.SubjectsIn(oG) )
+#              #--> [ "node:planner" ]
+#              ? o1.NumberOfFindings(oG)
+#              #--> 1
+#              ? o1.Check(oG)[1][:message]
+#              #--> an LLM actor must name an owner
+#   see        stzGraphRuleSet, stzGraph, stzRuleReport
 class stzGraphRule from stzObject
 
 	@cName      = ""
@@ -775,14 +800,25 @@ class stzGraphRule from stzObject
 	@acReads    = []
 	@acWrites   = []
 
+	# Builds a rule with a name, as a validation rule of the custom domain, error severity and no clause.
+	#
+	#   pcName     the rule's name, which must not be empty
+	#   returns    nothing; the object is built
+	#   see        SetDomain, When, Check
 	def init(pcName)
 		if ring_trim("" + pcName) = ""
 			stzraise("stzGraphRule: a rule needs a name.")
 		ok
 		@cName = "" + pcName
 
-		#-- the fluent DSL (plain does the act; Q chains) -----------------
-
+	# Sets whether the rule validates a finished graph, guards an operation, or derives new edges and nodes.
+	#
+	#   pcType     validation, constraint or derivation, in any case
+	#   returns    nothing; use SetRuleTypeQ to chain
+	#   note       the type only changes the entry that Register writes to the registry
+	#   warning    SetRuleTypeQ is the same call and returns the rule
+	#   see        RuleType, SetSeverity
+	#@ aka  -- the fluent DSL (plain does the act; Q chains) -----------------
 	def SetRuleType(pcType)
 		This.SetRuleTypeQ(pcType)
 
@@ -794,6 +830,13 @@ class stzGraphRule from stzObject
 		@cType = _t_
 		return This
 
+	# Sets the domain, the registry group the rule joins when registered, kept in lower case.
+	#
+	#   pcDomain   the group name, such as agentic or security
+	#   returns    nothing; use SetDomainQ to chain
+	#   note       the domain is also the subject of each finding the rule reports
+	#   warning    SetDomainQ is the same call and returns the rule
+	#   see        Domain, Register
 	def SetDomain(pcDomain)
 		This.SetDomainQ(pcDomain)
 
@@ -804,6 +847,13 @@ class stzGraphRule from stzObject
 		@cDomain = StzLower(ring_trim("" + pcDomain))
 		return This
 
+	# Sets how serious a finding of this rule is.
+	#
+	#   pcSeverity   error, warning or info, in any case
+	#   returns      nothing; use SetSeverityQ to chain
+	#   note         only error makes a rule set unsound
+	#   warning      SetSeverityQ is the same call and returns the rule
+	#   see          Severity, Check
 	def SetSeverity(pcSeverity)
 		This.SetSeverityQ(pcSeverity)
 
@@ -815,6 +865,12 @@ class stzGraphRule from stzObject
 		@cSeverity = _s_
 		return This
 
+	# Sets the description of what the rule claims, which is also the message of a finding until ThenViolation gives one.
+	#
+	#   pcMsg      the description, as text
+	#   returns    nothing; use SetMessageQ to chain
+	#   warning    SetMessageQ is the same call and returns the rule
+	#   see        Message, ThenViolation
 	def SetMessage(pcMsg)
 		This.SetMessageQ(pcMsg)
 
@@ -822,7 +878,21 @@ class stzGraphRule from stzObject
 		@cMessage = "" + pcMsg
 		return This
 
-	# a node-matching clause: property `pcProp` `pcOp` `pValue`. Clauses AND.
+	# Adds a clause that selects the nodes the rule looks at: a node property tested against a value; clauses are combined with AND.
+	#
+	#   pcProp     the node property to read
+	#   pcOp       the test: equals or =, not-equals or !=, contains, not-contains, exists, missing,
+	#              greaterthan or >, lessthan or <, greaterequal or >=, lessequal or <=
+	#   pValue     the value to compare with
+	#   returns    nothing; use WhenQ to chain
+	#   note       WhenQ is the same call and returns the rule; with no Then clause, a node that
+	#              matches every When clause is the violation
+	#   warning    an empty property name or an unknown operator raises an error; the ordering
+	#              operators compare numbers only: on a text greaterthan and lessthan never match
+	#              but greaterequal and lessequal match every node, which is a defect; an unset
+	#              property reads as 0, so exists fails and missing holds for it
+	#   see        Then, Clauses, SubjectsIn
+	#@ aka  a node-matching clause: property `pcProp` `pcOp` `pValue`. Clauses AND.
 	def When(pcProp, pcOp, pValue)
 		This.WhenQ(pcProp, pcOp, pValue)
 
@@ -833,6 +903,12 @@ class stzGraphRule from stzObject
 		@aClauses + [ "" + pcProp, _StzGraphRuleNormalizeOp(pcOp), pValue ]
 		return This
 
+	# Sets the message attached to each finding, in place of the rule's description.
+	#
+	#   pcMsg      the message of a finding, as text
+	#   returns    nothing; use ThenViolationQ to chain
+	#   warning    ThenViolationQ is the same call and returns the rule
+	#   see        ViolationMessage, SetMessage
 	def ThenViolation(pcMsg)
 		This.ThenViolationQ(pcMsg)
 
@@ -840,10 +916,18 @@ class stzGraphRule from stzObject
 		@cViolation = "" + pcMsg
 		return This
 
-	# a REQUIREMENT clause: on a node in scope (matching every When), this must
-	# hold, else the node is a finding. Turns the rule from a prohibition ("no
-	# node should match") into an implication ("every matching node must satisfy
-	# this"). Same operator set as When, incl. the comparisons.
+	# Adds a requirement that every node selected by the scope clauses must satisfy, which turns the rule into an implication.
+	#
+	#   pcProp     the node property to read
+	#   pcOp       the test, as for When
+	#   pValue     the value to compare with
+	#   returns    nothing; use ThenQ to chain
+	#   note       ThenQ is the same call and returns the rule; a node in scope that fails a
+	#              requirement is the finding, and a rule with Then clauses only applies them to
+	#              every node
+	#   warning    an empty property name or an unknown operator raises an error
+	#   see        When, Requirements, IsImplication
+	#@ aka  a REQUIREMENT clause: on a node in scope (matching every When), this must hold, else the node is a finding. Turns the rule from a prohibition ("no node should match") into an implication ("every matching node must satisfy this"). Same operator set as When, incl. the comparisons.
 	def Then(pcProp, pcOp, pValue)
 		This.ThenQ(pcProp, pcOp, pValue)
 
@@ -854,10 +938,16 @@ class stzGraphRule from stzObject
 		@aRequirements + [ "" + pcProp, _StzGraphRuleNormalizeOp(pcOp), pValue ]
 		return This
 
-	# supply an explicit checker for rules too rich for the clause DSL. It is
-	# called as call fChecker(oGraph) and returns [ [ :where, :message ], ... ].
-	# WHICH SUBJECTS THIS RULE GOVERNS -- declared beside the checker, not
-	# instead of it. See the block at @fGoverns for why both are needed.
+	# Declares a function that lists the subjects the rule governs, for a rule that uses a checker and so has no readable scope.
+	#
+	#   fFunc      a function taking the graph and returning a list of subject keys such as
+	#              node:planner
+	#   returns    nothing; use GovernsQ to chain
+	#   note       GovernsQ is the same call and returns the rule
+	#   warning    the function is read by governance and is not consulted when the rule runs; it
+	#              wins over the clauses in SubjectsIn
+	#   see        SubjectsIn, Excludes, UseChecker
+	#@ aka  supply an explicit checker for rules too rich for the clause DSL. It is called as call fChecker(oGraph) and returns [ [ :where, :message ], ... ]. WHICH SUBJECTS THIS RULE GOVERNS -- declared beside the checker, not instead of it. See the block at @fGoverns for why both are needed.
 	def Governs(fFunc)
 		This.GovernsQ(fFunc)
 
@@ -865,9 +955,14 @@ class stzGraphRule from stzObject
 		@fGoverns = fFunc
 		return This
 
-	# ...AND WHICH IT MUST NOT. The negative sibling, at rule level: a
-	# boundary that is never exercised is a boundary that could be
-	# anywhere.
+	# Declares a function that lists the subjects the rule must not govern, the boundary that governance tests.
+	#
+	#   fFunc      a function taking the graph and returning a list of subject keys
+	#   returns    nothing; use ExcludesQ to chain
+	#   note       ExcludesQ is the same call and returns the rule
+	#   warning    the function is read by governance and is not consulted when the rule runs
+	#   see        CounterSubjectsIn, Governs
+	#@ aka  ...AND WHICH IT MUST NOT. The negative sibling, at rule level: a boundary that is never exercised is a boundary that could be anywhere.
 	def Excludes(fFunc)
 		This.ExcludesQ(fFunc)
 
@@ -875,9 +970,13 @@ class stzGraphRule from stzObject
 		@fExcludes = fFunc
 		return This
 
-	# A rule with no boundary because the claim genuinely has none. The
-	# reason is required: "universal" without one is indistinguishable
-	# from a scope predicate that broke, which is the case worth catching.
+	# Declares that the rule has no boundary because its claim covers the whole graph, with the reason.
+	#
+	#   pcWhy      the reason the rule is universal, as text
+	#   returns    nothing; use DeclareUniversalQ to chain
+	#   warning    DeclareUniversalQ is the same call and returns the rule
+	#   see        IsUniversal, UniversalWhy, Governs
+	#@ aka  A rule with no boundary because the claim genuinely has none. The reason is required: "universal" without one is indistinguishable from a scope predicate that broke, which is the case worth catching.
 	def DeclareUniversal(pcWhy)
 		This.DeclareUniversalQ(pcWhy)
 
@@ -885,46 +984,58 @@ class stzGraphRule from stzObject
 		@cUniversal = "" + pcWhy
 		return This
 
-	# What it reads, what it writes, and when it runs -- so an ordering
-	# defect is a fact about declarations rather than something found by
-	# rendering the world and squinting at it.
+	# Declares the names of the things the rule reads, so an ordering defect is a fact about declarations.
+	#
+	#   pacNames   a list of names, as text
+	#   returns    the rule itself, so calls chain
+	#   warning    there is no plain SetReads: this is the only form
+	#   see        Reads, SetWritesQ, SetOrderQ
+	#@ aka  What it reads, what it writes, and when it runs -- so an ordering defect is a fact about declarations rather than something found by rendering the world and squinting at it.
 	def SetReadsQ(pacNames)
 		@acReads = pacNames
 		return This
 
+	# Declares the names of the things the rule writes.
+	#
+	#   pacNames   a list of names, as text
+	#   returns    the rule itself, so calls chain
+	#   warning    there is no plain SetWrites: this is the only form
+	#   see        Writes, SetReadsQ, SetOrderQ
 	def SetWritesQ(pacNames)
 		@acWrites = pacNames
 		return This
 
+	# Declares the position at which the rule runs among the rules of its set.
+	#
+	#   pnOrder    the position, as a number
+	#   returns    the rule itself, so calls chain
+	#   warning    there is no plain SetOrder: this is the only form
+	#   see        Order, SetReadsQ
 	def SetOrderQ(pnOrder)
 		@nOrder = pnOrder
 		return This
 
-	  #-- the governance interface ---------------------------------------
-	  #
-	  # stzRuleGovernance asks a rule these and nothing else, so an
-	  # stzGraphRule can be governed exactly as a plastic rule is, with no
-	  # wrapper and no second implementation of the same idea.
-
-	# ...AND A CLAUSE RULE ALREADY HAS A SCOPE: its When clauses.
+	# Returns the keys of the nodes the rule looks at in a graph: those selected by its Governs function, else by its When clauses.
 	#
-	# The first governance run over the BPM set reported every clause
-	# rule as scope_empty, which was the governance's own defect and not
-	# the rules'. "When" is the scope -- this file has said so since it
-	# was written -- so a rule that declares one needs no second copy of
-	# it as a closure, and asking for one would have been this layer
-	# demanding duplication in the name of catching duplication.
-	#
-	# A rule with BOTH is answered by the closure, because a closure is
-	# reached for exactly when the clauses cannot say the thing.
+	#   poGraph    the graph to look at
+	#   returns    a list of keys such as node:planner, in lower case; empty for a rule with no
+	#              clause and no Governs function
+	#   note       a rule with only a checker and no Governs answers an empty list
+	#   see        CounterSubjectsIn, Governs, When
+	#@ aka  -- the governance interface ---------------------------------------
 	def SubjectsIn(poGraph)
 		if @fGoverns != ""  return call @fGoverns(poGraph)  ok
 		if len(@aClauses) = 0  return []  ok
 		return This._NodesMatchingClauses(poGraph, 1)
 
-	# ...and the boundary of a clause rule is the complement: the nodes
-	# it looked at and did not take. Free, exact, and available for every
-	# clause rule in the library without anyone writing a line.
+	# Returns the keys of the nodes the rule looks at and does not take, the complement of its scope.
+	#
+	#   poGraph    the graph to look at
+	#   returns    a list of keys such as node:writer; empty for a rule with no clause and no
+	#              Excludes function
+	#   note       its Excludes function wins over the complement
+	#   see        SubjectsIn, Excludes
+	#@ aka  ...and the boundary of a clause rule is the complement: the nodes it looked at and did not take. Free, exact, and available for every clause rule in the library without anyone writing a line.
 	def CounterSubjectsIn(poGraph)
 		if @fExcludes != ""  return call @fExcludes(poGraph)  ok
 		if len(@aClauses) = 0  return []  ok
@@ -949,14 +1060,51 @@ class stzGraphRule from stzObject
 		next
 		return _r_
 
+	# Returns the rule's name, exactly as given.
+	#
+	#   returns    a text
+	#   see        Name, init
 	def Name_()        return @cName
+	# Returns what the rule claims, as set by SetMessage.
+	#
+	#   returns    a text; empty when none was set
+	#   see        Message, ViolationMessage
 	def Claim()        return @cMessage
+	# Returns the names the rule declares it reads.
+	#
+	#   returns    a list of text; empty when none was declared
+	#   see        SetReadsQ, Writes
 	def Reads()        return @acReads
+	# Returns the names the rule declares it writes.
+	#
+	#   returns    a list of text; empty when none was declared
+	#   see        SetWritesQ, Reads
 	def Writes()       return @acWrites
+	# Returns the position the rule declares among the rules of its set.
+	#
+	#   returns    a number; 0 when none was declared
+	#   see        SetOrderQ
 	def Order()        return @nOrder
+	# TRUE if the rule was declared universal, with a reason.
+	#
+	#   returns    TRUE or FALSE
+	#   see        DeclareUniversal, UniversalWhy
 	def IsUniversal()  return @cUniversal != ""
+	# Returns the reason given when the rule was declared universal.
+	#
+	#   returns    a text; empty when the rule is not universal
+	#   see        DeclareUniversal, IsUniversal
 	def UniversalWhy() return @cUniversal
 
+	# Gives the rule a function that decides for the whole graph, for a test the clauses cannot say.
+	#
+	#   fChecker   a function taking the graph and returning a list of [ :where = id, :message =
+	#              text ] rows, empty when the graph is fine
+	#   returns    nothing; use UseCheckerQ to chain
+	#   note       UseCheckerQ is the same call and returns the rule
+	#   warning    a checker replaces the clauses: when both are set, only the checker runs; an
+	#              empty :where means the whole graph
+	#   see        HasChecker, Check, Governs
 	def UseChecker(fChecker)
 		This.UseCheckerQ(fChecker)
 
@@ -964,65 +1112,137 @@ class stzGraphRule from stzObject
 		@fChecker = fChecker
 		return This
 
-		#-- reads ---------------------------------------------------------
-
+	# Returns the rule's name, exactly as given.
+	#
+	#   returns    a text
+	#   see        Name_, init
+	#@ aka  -- reads ---------------------------------------------------------
 	def Name()
 		return @cName
 
+	# Returns the rule's type, in lower case.
+	#
+	#   returns    validation, constraint or derivation
+	#   note       a new rule is a validation
+	#   see        SetRuleType
 	def RuleType()
 		return @cType
 
+	# Returns the domain, the registry group of the rule, in lower case.
+	#
+	#   returns    a text; custom until another is set
+	#   see        SetDomain, Register
 	def Domain()
 		return @cDomain
 
+	# Returns how serious a finding of the rule is.
+	#
+	#   returns    error, warning or info
+	#   note       a new rule is an error
+	#   see        SetSeverity
 	def Severity()
 		return @cSeverity
 
+	# Returns the description of the rule.
+	#
+	#   returns    a text; empty when none was set
+	#   see        SetMessage, ViolationMessage
 	def Message()
 		return @cMessage
 
+	# Returns the message of a finding: the one set by ThenViolation, else the rule's description.
+	#
+	#   returns    a text
+	#   see        ThenViolation, Message
 	def ViolationMessage()
 		if @cViolation != ""
 			return @cViolation
 		ok
 		return @cMessage
 
+	# Returns the scope clauses added by When, in order.
+	#
+	#   returns    a list of [ property, operator, value ] rows, the operator in its canonical form
+	#              such as equals or not-contains; empty when none
+	#   see        When, NumberOfClauses, Requirements
 	def Clauses()
 		return @aClauses
 
+	# Returns how many scope clauses the rule has.
+	#
+	#   returns    a number
+	#   see        Clauses, When
 	def NumberOfClauses()
 		return len(@aClauses)
 
+	# Returns the requirements added by Then, in order.
+	#
+	#   returns    a list of [ property, operator, value ] rows; empty when none
+	#   see        Then, NumberOfRequirements, Clauses
 	def Requirements()
 		return @aRequirements
 
+	# Returns how many requirements the rule has.
+	#
+	#   returns    a number
+	#   see        Requirements, Then
 	def NumberOfRequirements()
 		return len(@aRequirements)
 
+	# TRUE if the rule has at least one requirement, so that it says every node in scope must satisfy it rather than that no node may match.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Then, Requirements
 	def IsImplication()
 		return len(@aRequirements) > 0
 
+	# TRUE if the rule was given a checker function.
+	#
+	#   returns    TRUE or FALSE
+	#   see        UseChecker, Check
 	def HasChecker()
 		return not isNull(@fChecker)
 
-		#-- the engine bridge ---------------------------------------------
-
-	# Run this rule over a graph. Returns findings in the shared shape:
-	#   [ [ :rule, :where, :severity, :message ], ... ]  (empty = the rule holds)
+	# Runs the rule over a graph and returns one finding per offending node, in the house rule shape.
+	#
+	#   oGraph     the graph to check, a stzGraph or a kind of one
+	#   returns    a list of rows [ :rule, :subject, :where, :severity, :message ]; empty when the
+	#              rule holds; the subject is the domain, where is the node id, and the message is
+	#              the violation message
+	#   note       without a Then clause every node in scope is a finding, with one it is each node
+	#              in scope that fails a requirement
+	#   warning    a rule with no clause, no requirement and no checker never finds anything
+	#   see        Holds, NumberOfFindings, SubjectsIn
+	#@ aka  -- the engine bridge ---------------------------------------------
 	def Check(oGraph)
 		return StzGraphRuleFindings(oGraph, This._Spec())
 
-	# TRUE when the rule holds (no findings).
+	# TRUE if the rule finds nothing in the graph.
+	#
+	#   oGraph     the graph to check
+	#   returns    TRUE or FALSE
+	#   note       any severity counts here, a warning as well as an error
+	#   see        Check, NumberOfFindings
+	#@ aka  TRUE when the rule holds (no findings).
 	def Holds(oGraph)
 		return len(This.Check(oGraph)) = 0
 
+	# Returns how many findings the rule has in the graph.
+	#
+	#   oGraph     the graph to check
+	#   returns    a number
+	#   see        Check, Holds
 	def NumberOfFindings(oGraph)
 		return len(This.Check(oGraph))
 
-	# Compile this rule DOWN to an entry in the shared $aGraphRules registry, so
-	# the existing engine runs it like any hand-registered rule. The registered
-	# function is param-driven and delegates to the SAME matcher Check() uses,
-	# so the two faces cannot diverge.
+	# Compiles the rule down to an entry of the shared rule registry, in the group of its domain, so the existing engine runs it.
+	#
+	#   returns    nothing; use RegisterQ to chain
+	#   note       registering the same rule twice adds a second entry and does not replace the
+	#              first
+	#   warning    RegisterQ is the same call and returns the rule
+	#   see        RegistryEntry, SetDomain, stzGraphRuleSet
+	#@ aka  Compile this rule DOWN to an entry in the shared $aGraphRules registry, so the existing engine runs it like any hand-registered rule. The registered function is param-driven and delegates to the SAME matcher Check() uses, so the two faces cannot diverge.
 	def Register()
 		This.RegisterQ()
 
@@ -1036,8 +1256,12 @@ class stzGraphRule from stzObject
 		])
 		return This
 
-	# The registry entry this rule produces (without registering) -- for
-	# inspection and for the equivalence guard.
+	# Returns the registry entry the rule would produce, without registering it.
+	#
+	#   returns    a hash list with the keys name, in upper case, type, function, params, message
+	#              and severity
+	#   see        Register
+	#@ aka  The registry entry this rule produces (without registering) -- for inspection and for the equivalence guard.
 	def RegistryEntry()
 		return [
 			:name     = Upper(@cName),
@@ -1048,6 +1272,10 @@ class stzGraphRule from stzObject
 			:severity = This._RegistrySeverity()
 		]
 
+	# Prints three lines that describe the rule: its name, type, domain and severity, its clauses joined by AND, and its violation message.
+	#
+	#   returns    the rule itself, so calls chain; it prints
+	#   see        Clauses, ViolationMessage
 	def Show()
 		? "graph rule '" + @cName + "' [" + @cType + "] in '" + @cDomain +
 		  "' (" + @cSeverity + ")"
@@ -1122,15 +1350,46 @@ for free -- one engine, many rule bases.
 func StzGraphRuleSetQ(pcName)
 	return new stzGraphRuleSet(pcName)
 
+# Holds a named collection of graph rules, runs them all over a graph in one call and answers whether the graph is sound.
+#
+# A rule set is the container that workflow, org chart and compliance rule bases share: add
+# stzGraphRule objects, call Check for every finding in one list of rows [ :rule, :subject, :where,
+# :severity, :message ], or IsSound, which is TRUE when no rule found an error (warnings and info
+# advise and do not make a graph unsound). A set with a domain gives it to the rules added after it
+# that still have the default custom one, and the rule passed in is changed, since objects are
+# passed by reference. RegisterAll compiles every rule into the shared registry; calling it twice
+# adds each entry twice.
+#
+#   receiver   o1 = new stzGraphRuleSet("agent controls"); o1.SetDomain("agentic")
+#   example    oRule = new stzGraphRule("flag-llm")
+#              oRule.WhenQ("kind", "equals", "llm_actor")
+#              o1.AddRule(oRule)
+#              ? @@( o1.RuleNames() )
+#              #--> [ "flag-llm" ]
+#              ? oRule.Domain()
+#              #--> agentic
+#   see        stzGraphRule, stzGraph, stzRuleReport
 class stzGraphRuleSet from stzObject
 
 	@cName   = ""
 	@cDomain = ""
 	@aRules  = []          # a list of stzGraphRule objects
 
+	# Builds an empty, named set of graph rules that can be added to and run over a graph in one call.
+	#
+	#   pcName     the set's name, as text
+	#   returns    nothing; the object is built
+	#   see        AddRule, Check
 	def init(pcName)
 		@cName = "" + pcName
 
+	# Sets the domain the set gives to the rules added after it that have none of their own, kept in lower case.
+	#
+	#   pcDomain   the registry group name, such as agentic
+	#   returns    nothing; use SetDomainQ to chain
+	#   note       a rule that already has a domain of its own keeps it
+	#   warning    SetDomainQ is the same call and returns the set
+	#   see        Domain, AddRule
 	def SetDomain(pcDomain)
 		This.SetDomainQ(pcDomain)
 
@@ -1138,8 +1397,15 @@ class stzGraphRuleSet from stzObject
 		@cDomain = StzLower(ring_trim("" + pcDomain))
 		return This
 
-	# Add a rule to the set. If the rule has no domain of its own, it inherits
-	# the set's, so a base's rules all land in one registry group when compiled.
+	# Adds a rule to the set, and gives it the set's domain when it still has the default custom one.
+	#
+	#   poRule     the stzGraphRule to add
+	#   returns    nothing; use AddRuleQ to chain
+	#   note       AddRuleQ is the same call and returns the set
+	#   warning    the rule is passed by reference, so the original rule takes the domain too; the
+	#              set does not refuse a second rule of the same name
+	#   see        RuleNamed, SetDomain, Check
+	#@ aka  Add a rule to the set. If the rule has no domain of its own, it inherits the set's, so a base's rules all land in one registry group when compiled.
 	def AddRule(poRule)
 		This.AddRuleQ(poRule)
 
@@ -1150,20 +1416,41 @@ class stzGraphRuleSet from stzObject
 		@aRules + poRule
 		return This
 
-	  #-- reads -----------------------------------------------------------
-
+	# Returns the label the set was given.
+	#
+	#   returns    a text, as given
+	#   see        init, Domain
+	#@ aka  -- reads -----------------------------------------------------------
 	def Name()
 		return @cName
 
+	# Returns the domain the set gives to its rules.
+	#
+	#   returns    a text; empty until SetDomain is called
+	#   see        SetDomain
 	def Domain()
 		return @cDomain
 
+	# Returns the rule objects of the set, in the order added.
+	#
+	#   returns    a list of stzGraphRule objects
+	#   see        RuleNames, RuleNamed, NumberOfRules
 	def Rules()
 		return @aRules
 
+	# Returns how many rules the set holds.
+	#
+	#   returns    a number
+	#   see        Rules, AddRule
 	def NumberOfRules()
 		return len(@aRules)
 
+	# Returns the rule that has a given name.
+	#
+	#   pcName     the rule's name, matched exactly, with its case
+	#   returns    a stzGraphRule, or an empty text when no rule has that name
+	#   note       the first of two rules with the same name answers
+	#   see        RuleNames, Rules
 	def RuleNamed(pcName)
 		_n_ = len(@aRules)
 		for _i_ = 1 to _n_
@@ -1173,6 +1460,10 @@ class stzGraphRuleSet from stzObject
 		next
 		return ""
 
+	# Returns the names of the rules, in the order added.
+	#
+	#   returns    a list of text
+	#   see        Rules, RuleNamed
 	def RuleNames()
 		_out_ = []
 		_n_ = len(@aRules)
@@ -1181,10 +1472,14 @@ class stzGraphRuleSet from stzObject
 		next
 		return _out_
 
-	  #-- the engine bridge -----------------------------------------------
-
-	# Run EVERY rule over the graph; return all findings aggregated in the shared
-	# shape [ [ :rule, :where, :severity, :message ], ... ].
+	# Runs every rule over a graph and returns all the findings in one list, in the order of the rules.
+	#
+	#   oGraph     the graph to check, a stzGraph or a kind of one
+	#   returns    a list of rows [ :rule, :subject, :where, :severity, :message ]; empty when no
+	#              rule finds anything
+	#   note       a set with no rule finds nothing
+	#   see        IsSound, NumberOfFindings, stzGraphRule
+	#@ aka  -- the engine bridge -----------------------------------------------
 	def Check(oGraph)
 		_aAll_ = []
 		_n_ = len(@aRules)
@@ -1197,15 +1492,31 @@ class stzGraphRuleSet from stzObject
 		next
 		return _aAll_
 
+	# Returns how many findings all the rules have in the graph together.
+	#
+	#   oGraph     the graph to check
+	#   returns    a number
+	#   see        Check, IsSound
 	def NumberOfFindings(oGraph)
 		return len(This.Check(oGraph))
 
-	# TRUE when no ERROR-severity finding fired (warnings/info advise, like
-	# stzSecurityPosture.IsSound and stzGovernanceChecks).
+	# TRUE if no rule found a finding of error severity, so warnings and info do not make the graph unsound.
+	#
+	#   oGraph     the graph to check
+	#   returns    TRUE or FALSE
+	#   note       a set of rules that only warn is sound on a graph where they all fire
+	#   see        Check, NumberOfFindings
+	#@ aka  TRUE when no ERROR-severity finding fired (warnings/info advise, like stzSecurityPosture.IsSound and stzGovernanceChecks).
 	def IsSound(oGraph)
 		return StzFindingsAreSound(This.Check(oGraph))
 
-	# Compile every rule down into the shared $aGraphRules registry.
+	# Compiles every rule down to an entry of the shared rule registry, in the group of its domain.
+	#
+	#   returns    the set itself, so calls chain
+	#   note       the rules in the set are not changed
+	#   warning    calling it twice adds each entry a second time, as Register of one rule does
+	#   see        stzGraphRule, SetDomain
+	#@ aka  Compile every rule down into the shared $aGraphRules registry.
 	def RegisterAll()
 		_n_ = len(@aRules)
 		for _i_ = 1 to _n_
@@ -1213,6 +1524,10 @@ class stzGraphRuleSet from stzObject
 		next
 		return This
 
+	# Prints one line for the set with its name, domain and number of rules, then one line per rule with its severity.
+	#
+	#   returns    the set itself, so calls chain; it prints
+	#   see        Rules, RuleNames
 	def Show()
 		? "rule set '" + @cName + "' [" + @cDomain + "] -- " + len(@aRules) + " rule(s)"
 		_n_ = len(@aRules)

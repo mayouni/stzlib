@@ -1,0 +1,19 @@
+{
+ "brief": "Declares the vocabulary of a field of mathematics: its types, the predicates over them and the functions between them.",
+ "detail": "A domain says what can be said, and a substance says it. Types may be kinds of other types (Hydrogen of Atom), and an object of a kind matches wherever its parent is asked for, at any depth. A predicate has argument types, and may be symmetric when its two arguments are of one type. A function, or a constructor whose name is its output type, maps typed arguments to a typed result. Every name check ignores case, and every declaration that names an undeclared type raises an error. Ready-made domains: StzSetTheoryDomain, StzLinearAlgebraDomain, StzGeometryDomain, StzGraphDomain and others. Picture: a rule over Atom drew two Hydrogen and one Helium alike, the bonded pair side by side and the Helium apart (domain_atoms.png in the wave scratch folder).",
+ "receiver": "o1 = new stzMathDomain(\"molecules\"); o1.AddType(\"Atom\"); o1.AddSubtype(\"Hydrogen\", \"Atom\"); o1.AddSymmetricPredicate(\"Bonded\", [ \"Atom\", \"Atom\" ])",
+ "example": [
+  "? o1.TypeMatches(\"Hydrogen\", \"Atom\")",
+  "#--> 1",
+  "? o1.TypeMatches(\"Atom\", \"Hydrogen\")",
+  "#--> 0",
+  "? o1.PredicateArity(\"Bonded\")",
+  "#--> 2"
+ ],
+ "see": [
+  "stzMathSubstance",
+  "stzMathStyle",
+  "stzMathDiagram",
+  "StzSetTheoryDomain"
+ ]
+}

@@ -1,0 +1,16 @@
+{
+ "brief": "Plans where each part of a solution runs and what each ships, before a byte is built, by reasoning from the target platform of each part.",
+ "detail": "You describe the solution: its parts, the target of each (a server, a phone, a browser, a microcontroller) and the Softanza capabilities each uses. Plan rehearses the placement: per capability and target it picks a delivery vector, native, engine, construct or server, says why, and sizes the on-device engine. The same capability lands differently per target, so the target platform is the invisible frame the planner makes visible. UseServices adds the external dependencies and the credentials production will need, and Deploy commits the plan: it is refused while a service is still bound to a fake, and an actor that is not effectful only gets a rehearsal. Read Plan freely; Deploy builds and, in production, launches for real.",
+ "receiver": "o1 = new stzDelivery(\"restolean\")",
+ "example": [
+  "o1.AddBackend(\"api\", \"LinuxServer\").AddSuperApp(\"phone\", \"Android\")",
+  "o1.NeedsIn(\"phone\", [ :Unicode, :PivotTable, :Neural ])",
+  "? o1.NumberOfParts()",
+  "#--> 2",
+  "? o1.Plan().VectorFor(\"phone\", \"PivotTable\")",
+  "#--> engine",
+  "? o1.Plan().VectorFor(\"phone\", \"Neural\")",
+  "#--> server"
+ ],
+ "see": ["stzBuildPlan", "stzCapabilityCatalog", "stzBuilder", "stzDeployment", "stzEmulator", "StzDeliveryQ"]
+}

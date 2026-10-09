@@ -1,0 +1,16 @@
+{
+ "brief": "Fits groups of numbers by one-way median polish: a common value, an effect per group and a residual per value.",
+ "detail": "The common value is the median of the group medians, each effect is a group's median minus it, and each residual is a value minus its group's median. Diagnostics does not need Polish: it warns when the spread of the groups grows with their level, with the power to try.",
+ "receiver": "o1 = new stzTukeyOneWay([ [ 1, 2, 3 ], [ 4, 5, 9 ], [ 10, 12, 20, 30 ] ]); o1.Polish()",
+ "example": [
+  "? o1.Common()",
+  "#--> 5",
+  "? @@( o1.Effects() )",
+  "#--> [ -3, 0, 11 ]"
+ ],
+ "see": [
+  "stzTukeyFit",
+  "stzTukeyReexpression",
+  "stzTukeySummary"
+ ]
+}

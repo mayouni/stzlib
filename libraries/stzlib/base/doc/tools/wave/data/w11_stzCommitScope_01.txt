@@ -1,0 +1,8 @@
+init | Builds an unlimited scope, which admits every operation until a bound is added. | nothing; the scope is built | | AllowUnder, AllowType, SetMaxOperations
+AllowUnder | Adds a path prefix that operations may touch; once one is added, every path an operation touches must start with one of them. | the scope itself, so calls chain | pcPrefix=the path prefix to admit, matched as text from the start | AllowedPrefixes, Reason | the match is on text, not on folders: /w also admits /work/z, so end a folder prefix with a slash
+AllowType | Adds an operation type that is admitted; once one is added, any other type is refused. | the scope itself, so calls chain | pcType=the type to admit, such as create_file, matched without regard to case | AllowUnder, Reason
+SetMaxOperations | Sets the most operations one plan may commit under this scope. | the scope itself, so calls chain | pnMax=the limit; 0 means no limit | MaxOperations, stzUpdatePlan
+MaxOperations | Returns the most operations one plan may commit under this scope. | a number; 0 when there is no limit | | SetMaxOperations
+AllowedPrefixes | Returns the path prefixes admitted so far. | a list of text; empty when paths are unrestricted | | AllowUnder
+Reason | Returns why an operation is refused, or nothing when it is admitted. | a text naming the type or the path that fails; an empty text when the operation is admissible | oOp=the stzVirtualOperation to judge | Allows, AllowUnder, AllowType
+Allows | TRUE if the operation passes the type and path bounds. | TRUE or FALSE | oOp=the stzVirtualOperation to judge | Reason | | the limit on the number of operations is checked by the plan at commit time, not here

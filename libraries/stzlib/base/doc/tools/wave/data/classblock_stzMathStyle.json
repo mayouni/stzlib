@@ -1,0 +1,19 @@
+{
+ "brief": "Turns a substance into a picture by rules: which shapes each object gets and which constraints each relation imposes.",
+ "detail": "A style is data. ForAll adds a rule for every object (or every pair) the selector names, ForAllWhere only where a relation holds, and each row is a shape to draw, a variable for the solver to own, a field or override, a constraint (ensure) or an objective (encourage), or a layer order. Colours are roles that the theme resolves. The canvas, the margin, the start placements the solver tries and the label order are settings of the style. Rows are checked when added, so a mistake is refused at its line. Known defect: StartTrying given one mode as text, not in a list, raises error R21. Picture: the Euler style under the dark theme with a margin drew a large disk A holding a smaller B near its lower edge and a separate C, light strokes and white names on a dark paper (style_euler_dark.png).",
+ "receiver": "o1 = new stzMathStyle(); o1.SetCanvas(640, 480); o1.ForAll(\"Set x\", [ [ :shape, \"x.icon\", :circle, [ :r = 30 ] ] ])",
+ "example": [
+  "? o1.CanvasWidth()",
+  "#--> 640",
+  "? len( o1.Rules() )",
+  "#--> 1",
+  "? o1.Theme()",
+  "#--> light"
+ ],
+ "see": [
+  "stzMathDomain",
+  "stzMathSubstance",
+  "stzMathDiagram",
+  "StzEulerStyle"
+ ]
+}

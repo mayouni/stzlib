@@ -1,0 +1,15 @@
+init | Builds an empty placement plan for a solution, to be filled with parts and their decisions. | nothing; the plan is built | pcName=the name of the solution | AddPart, Explain | | stzDelivery.Plan builds one from the parts and needs declared there
+Name | Returns the name of the solution the plan is for. | a text | | init
+AddPart | Adds one part with its target and the delivery decision of each capability it uses. | the plan itself, so calls chain | pcName=the part name; pcKind=the part kind, such as app or backend; pcTName=the target as named; pcClass=the target class: server, mobile, browser or mcu; paDecisions=a list of [ key, display, vector, reason, kb ] rows | Parts, VectorFor
+SetExternalDependencies | Sets the external services the solution depends on. | nothing; the Q form chains | paDeps=a list of [ :service, :posture, :secret, :bound, :parts ] records | ExternalDependencies, SandboxedDependencies
+ExternalDependencies | Returns the external dependencies recorded on the plan. | a list of [ :service, :posture, :secret, :bound, :parts ] records; an empty list when none | | SetExternalDependencies, NumberOfExternalDependencies
+NumberOfExternalDependencies | Returns how many external dependencies the plan records. | a number | | ExternalDependencies
+ProductionCredentials | Returns the names of the credentials a production deploy will need. | a list of text, names only and never values | | SandboxedDependencies, ExternalDependencies
+SandboxedDependencies | Returns the dependencies that are still fakes, which stand between the plan and a production deploy. | a list of service names | | ProductionCredentials, ExternalDependencies
+NumberOfParts | Returns how many parts the plan holds. | a number | | Parts
+Parts | Returns the parts with their decisions, as a renderer such as the emulator reads them. | a list of [ name, kind, target, class, decisions ] rows | | AddPart, VectorFor
+VectorFor | Returns the delivery vector chosen for a capability in a part. | a text: native, engine, construct or server; an empty text when the part or the capability is not in the plan | pcPart=the part name, matched without regard to case; pcCap=the capability name, matched without regard to case | EngineCapsFor, stzCapabilityCatalog
+EngineCapsFor | Returns the capabilities compiled into the on-device engine of a part. | a list of lower-case keys; an empty list when the part is unknown or ships none | pcPart=the part name, matched without regard to case | EngineKbFor, VectorFor
+EngineKbFor | Returns the size of the on-device engine of a part, which is its engine capabilities added up. | a number of KB; 0 when the part is unknown | pcPart=the part name, matched without regard to case | EngineCapsFor
+Explain | Returns the plan as plain lines: per part, each capability with its vector and reason, a summary, and the external dependencies. | a list of text lines | | Show, VectorFor
+Show | Prints the lines of the plan. | nothing; it prints | | Explain

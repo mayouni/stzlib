@@ -1,0 +1,17 @@
+{
+ "brief": "Rehearses changes to variables, the working directory and processes in memory, without touching the real environment.",
+ "detail": "The environment twin of stzVirtualSystem. SetVar, UnsetVar, ChangeDirectory and Spawn read like the real verbs but only record an operation in the twin; Var, HasVar, Cwd and the other readers answer from the twin, not from the process. MirrorReality fills the twin from the live environment first when a rehearsal should start from what is really there. A rehearsal becomes a narrated, reviewable plan with GenerateUpdatePlan, and only executing that plan reaches reality.",
+ "receiver": "o1 = new stzVirtualEnvironment()",
+ "example": [
+  "o1.SetVar(\"MODE\", \"dev\")",
+  "o1.ChangeDirectory(\"/srv/app\")",
+  "o1.Spawn(\"make test\")",
+  "? o1.Var(\"MODE\")",
+  "#--> dev",
+  "? o1.Cwd()",
+  "#--> /srv/app",
+  "? @@( o1.PendingSpawns() )",
+  "#--> [ \"make test\" ]"
+ ],
+ "see": ["stzVirtualSystem", "stzEnvironmentState", "stzEnvironmentBridge", "stzVirtualFileSystem", "StzVirtualEnvironmentQ"]
+}

@@ -1,0 +1,19 @@
+{
+ "brief": "Holds the content of a mathematical diagram: named objects of the domain's types, relations between them, definitions, data and labels.",
+ "detail": "A substance is written in one domain, and every statement is checked against it when it is made: an object of an unknown type, a relation with the wrong arguments or a function of the wrong arity is refused at the line that made it. Names are case sensitive and head every path a style writes. Define declares an object as a function's result, SetData puts a number on an object for a style to read, Label and AutoLabelAll set what is written, and ToGraph reads the substance as a stzGraph. Known defect: SetData and SetDataFrom on an object that is not declared raise no error and the number is lost. Picture: a 3 by 4 table of products drawn as a heat map from numbers set on its cells, paler for 1 and deeper indigo for 12, digits legible on every cell (substance_heat.png).",
+ "receiver": "o1 = new stzMathSubstance(StzSetTheoryDomain()); o1.DeclareAll(\"Set\", [ \"A\", \"B\" ]); o1.Assert(\"Subset\", [ \"B\", \"A\" ])",
+ "example": [
+  "? @@( o1.ObjectNames() )",
+  "#--> [ \"A\", \"B\" ]",
+  "? o1.Holds(\"Subset\", [ \"B\", \"A\" ])",
+  "#--> 1",
+  "? o1.Holds(\"Subset\", [ \"A\", \"B\" ])",
+  "#--> 0"
+ ],
+ "see": [
+  "stzMathDomain",
+  "stzMathStyle",
+  "stzMathDiagram",
+  "stzGraph"
+ ]
+}

@@ -1,0 +1,23 @@
+init | Builds an empty environment state: no variables, no working directory and no pending spawns. | nothing; the state is built | | Clone, stzVirtualEnvironment
+HasVar | TRUE if a variable of that exact name is in the state. | TRUE or FALSE | pcName=the variable name, matched with case | VarValue, PutVar
+VarValue | Returns the value of a variable. | a text; an empty text when the variable is absent | pcName=the variable name, matched with case | HasVar, OriginOfVar
+OriginOfVar | Returns where a variable came from. | mirrored for one read from reality, virtual for one born in the twin; an empty text when absent | pcName=the variable name, matched with case | VarValue, PutVar
+PutVar | Sets a variable, adding it or replacing its value. | nothing | pcName=the variable name; pcValue=the value, as text; pcOrigin=mirrored or virtual, kept only when the variable is new | VarValue, RemoveVar | an existing variable keeps the origin it first had, so a mirrored one stays mirrored after its value changes
+RemoveVar | Removes a variable; an absent name changes nothing. | nothing | pcName=the variable name, matched with case | PutVar, HasVar
+Cwd | Returns the working directory of the state. | a text; empty until one is set | | SetCwd, CwdOrigin
+CwdOrigin | Returns where the working directory came from. | mirrored or virtual; an empty text until one is set | | Cwd, SetCwd
+SetCwd | Sets the working directory and where it came from. | nothing | pcPath=the directory, as text; pcOrigin=mirrored or virtual | Cwd, CwdOrigin
+PendingSpawns | Returns the commands waiting to be run, in order. | a list of text | | AddSpawn, NumberOfPendingSpawns
+AddSpawn | Queues a command for a later run; nothing is run here. | nothing | pcCommand=the command line, as text | PendingSpawns
+Vars | Returns every variable with its origin. | a list of [ name, value, origin ] rows, in the order added | | VarNames, VarsCopy
+VarNames | Returns the names of the variables, in the order added. | a list of text | | Vars, NumberOfVars
+NumberOfVars | Returns how many variables the state holds. | a number | | VarNames
+NumberOfPendingSpawns | Returns how many commands are queued. | a number | | PendingSpawns
+Apply | Applies one operation to the state: set or unset a variable, change the directory, or queue a spawn; other types change nothing. | nothing | oOp=the stzVirtualOperation to apply | stzVirtualEnvironment, Clone | | this is the hook the generic twin calls when it rehearses
+VarsCopy | Returns a copy of the variable rows, so a clone does not share them. | a list of [ name, value, origin ] rows | | Clone, SetVars
+SpawnsCopy | Returns a copy of the queued commands. | a list of text | | Clone, SetSpawns
+SetVars | Replaces all the variable rows at once. | nothing | paVars=a list of [ name, value, origin ] rows | VarsCopy, Clone
+SetSpawns | Replaces all the queued commands at once. | nothing | paSpawns=a list of command lines | SpawnsCopy, Clone
+SetCwdRaw | Sets the working directory and its origin without any judgement, as Clone needs. | nothing | pcCwd=the directory; pcOrigin=mirrored or virtual | SetCwd, Clone
+Clone | Returns an independent copy of the state, which a snapshot or a rebuild starts from. | a new stzEnvironmentState | | VarsCopy, SetVars
+Show | Prints one summary line: the number of variables, the directory and the queued commands. | nothing; it prints | | Vars, Cwd

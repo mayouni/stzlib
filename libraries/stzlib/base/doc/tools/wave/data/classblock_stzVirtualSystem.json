@@ -1,0 +1,17 @@
+{
+ "brief": "Rehearses changes to a system in memory, keeps their history, and turns them into a plan; the generic core of every twin.",
+ "detail": "A twin drives a state object that can apply an operation to itself and clone itself, and a bridge that is the only thing touching reality. ExecuteOperation applies one operation to the state and records it; UndoLast, CreateSnapshot and RollbackTo move back through the history; GenerateUpdatePlan hands the history to a plan. The twin holds no reference to reality, so nothing real changes until a plan is executed. It is domain-agnostic: use a specialization, stzVirtualFileSystem for files or stzVirtualEnvironment for variables, directory and processes.",
+ "receiver": "o1 = new stzVirtualFileSystem()",
+ "example": [
+  "o1.CreateFile(\"/w/a.txt\", \"alpha\")",
+  "o1.CreateFile(\"/w/b.txt\", \"beta\")",
+  "? o1.NumberOfOperations()",
+  "#--> 2",
+  "o1.UndoLast(1)",
+  "? o1.NumberOfOperations()",
+  "#--> 1",
+  "? o1.History()[1].Describe()",
+  "#--> create file '/w/a.txt' (5 bytes)"
+ ],
+ "see": ["stzVirtualFileSystem", "stzVirtualEnvironment", "stzUpdatePlan", "stzVirtualOperation"]
+}

@@ -1,0 +1,16 @@
+# Wave 11 -- stzFileAppender. Every line was run on invented files in a scratch folder.
+init | Opens a file for appending and creates it empty when it does not exist; existing content is kept. | nothing; the object is built | cFileName=the path of the file to append to | Write, Capabilities | | the folder must already exist
+Conditions | Returns the hash list of conditions this intent expects of the file. | a hash list, [ :FileExists = 1 ] | | Capabilities | | the file is created if missing, so the condition is met by init
+Capabilities | Returns what this intent allows: :Read and :Append are 1, the rest 0. | a hash list of :Read, :Append, :Create, :Overwrite, :Modify | | Conditions | | Skills is the same call
+Write | Adds a text at the end of the file, with no line break. | 1 | cText=the text to add | WriteLine, WriteLines | warning: a number as argument ends the whole Ring process silently with exit code 1, checked with 5 and 1.5; a list or the empty text does not | pass a text; use "" + n for a number
+WrtiteQ | Adds a text at the end of the file and returns the appender, so calls can be chained. | the appender itself | cText=the text to add | Write, WriteLineQ | | the name is misspelt in the source and there is no WriteQ on this class; it ends the process for a number as Write does
+WriteLine | Adds a text and a line break at the end of the file. | 1 | cText=the text to add | Write, WriteLines | | the same number problem as Write
+WriteLines | Adds each text of a list as its own line at the end of the file. | 1 | _aLines_=the list of texts, one per line | WriteLine, Write | | an empty list adds nothing
+WrtiteLinesQ | Adds each text of a list as its own line and returns the appender, so calls can be chained. | the appender itself | _aLines_=the list of texts, one per line | WriteLines | | the name is misspelt in the source
+WriteTimestamp | Adds the current date and time, then a colon and a space, with no line break. | 1 | | WriteLogEntry | | the stamp has the form 09/10/2026 11:37:52 (day, month, year)
+WriteLogEntry | Adds one line made of the current date and time, a dash and the message. | 1 | cMessage=the text of the entry | WriteTimestamp, WriteLine | | the line reads 09/10/2026 11:37:52 - started
+WriteSeparator | Adds a line of 50 identical characters; the empty text means a dash. | 1 | _cChar_=the character to repeat, or "" for - | WriteBlankLine, WriteLine | | only the first character counts; WriteSeperator is the misspelt twin and returns nothing
+WriteSeperator | Adds a line of 50 identical characters, as WriteSeparator does, but returns nothing. | nothing | _cChar_=the character to repeat, or "" for - | WriteSeparator | | the name is misspelt in the source
+WriteBlankLine | Adds an empty line at the end of the file. | 1 | | WriteLine, WriteSeparator
+AppendIfNotExistant | Adds a text at the end of the file only if the file does not contain it yet. | nothing | cText=the text to add | Write, ContainsText | | called twice with the same text it writes it once; no line break is added
+Close | Does nothing; appending holds no resource. | nothing | | Write

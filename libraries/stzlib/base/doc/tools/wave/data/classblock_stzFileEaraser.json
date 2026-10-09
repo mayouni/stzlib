@@ -1,0 +1,15 @@
+{
+ "brief": "Empties a file, keeping its old text in memory; the file stays on the disk with no content.",
+ "detail": "Reach for it to blank a file on purpose. Building the object empties the file at once; Erase empties it again. The old text stays readable through OriginalContent. The class name is spelt Earaser in the source. It does not delete the file: use stzFileManager.Delete for that.",
+ "receiver": "write(\"demo_note.txt\", \"alpha\" + char(10) + \"beta gamma\" + char(10) + \"end\")\no1 = new stzFileEaraser(\"demo_note.txt\")",
+ "example": [
+  "? o1.OriginalLineCount()",
+  "#--> 3",
+  "? o1.OriginalSize()",
+  "#--> 20"
+ ],
+ "see": [
+  "stzFileOverwriter",
+  "stzFileManager"
+ ]
+}

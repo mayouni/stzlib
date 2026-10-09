@@ -1,0 +1,17 @@
+{
+ "brief": "Replaces the whole text of a file: it keeps the old text in memory and empties the file when it is built.",
+ "detail": "Reach for it to rewrite a file from nothing while still being able to read what was there (OriginalContent, OriginalLines). Building the object is itself the destructive step: the file is emptied at once, even if you never write. Write and its kin then add to the emptied file and raise an error for an empty text. PreserveAndModify raises an error today.",
+ "receiver": "write(\"demo_note.txt\", \"alpha\" + char(10) + \"beta gamma\" + char(10) + \"end\")\no1 = new stzFileOverwriter(\"demo_note.txt\")",
+ "example": [
+  "? o1.OriginalLineCount()",
+  "#--> 3",
+  "o1.Write(\"new text\")",
+  "? o1.Content()",
+  "#--> new text"
+ ],
+ "see": [
+  "stzFileModifier",
+  "stzFileEaraser",
+  "stzFileAppender"
+ ]
+}

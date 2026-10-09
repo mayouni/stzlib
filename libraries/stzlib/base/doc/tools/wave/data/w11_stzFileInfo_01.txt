@@ -1,0 +1,27 @@
+# Wave 11 -- stzFileInfo. Every line was run on invented files in a scratch folder.
+init | Builds an information object for a file path; the file is not opened and need not exist. | nothing; the object is built | cFileName=the path of the file | Info, Exists | | the path is kept as given and never made absolute
+Conditions | Returns the hash list of conditions this intent expects of the file. | a hash list, [ :FilesExists = 1 ] | | Capabilities | | the key is spelt FilesExists here and FileExists in the other file classes
+Capabilities | Returns what this intent allows: every right is 0, because it only gives information. | a hash list of :Read, :Append, :Create, :Overwrite, :Modify, all 0 | | Conditions | | even :Read is 0, since the file is never opened; Skills is the same call
+Info | Returns a summary of the file as a hash list: name, size, suffix, path, exists, isWritable, isReadable, lastModified. | a hash list | | Exists, Size, BaseName | | the name stops at the first dot, so a.tar.gz gives a; for a missing file size is -1 and, because IsWritable creates the file, the call leaves an empty file behind
+Exists | Returns TRUE if a file exists at the path. | TRUE or FALSE | | Size, Info
+Size | Returns the size of the file in bytes; -1 when the file does not exist. | a number | | Exists, Info
+FileName | Returns the path the object was built with. | a text | | FilePath, BaseName
+IsWritable | Returns 1 if the file can be opened for appending, but creates an empty file when the path does not exist. | 1 or 0 | | IsReadable, Exists | warning: the test opens the file in append mode, so asking about a missing path creates it empty (checked twice, with ghost1.txt and nope2.txt); a read-only file answers 0 | check Exists first
+IsReadable | Returns 1 if the file can be opened for reading, else 0. | 1 or 0 | | IsWritable, Exists
+IsExecutable | Returns 0 for every file today, because the extension it compares carries a leading dot. | 0 | | Suffix, IsHidden | defect: the extension is read as .exe or .BAT and compared with exe, bat, cmd and com, so a file named prog.exe and one named run.BAT both answer 0; the sibling stzFileManager.IsExecutable fails differently (see there) | read Suffix and compare it yourself until this is repaired
+IsHidden | Returns 1 if the file name starts with a dot, else 0. | 1 or 0 | | BaseName, FileName | | only the dot-name convention is tested, not the hidden attribute of Windows
+CreationTime | Raises an error with the text Unsupported feature! instead of giving the creation time. | nothing; it raises an error | | LastModificationTime, LastReadingTime | | always raises, whatever the file
+LastModificationTime | Returns the time of the last change as epoch seconds; 0 when it cannot be read. | a number | | LastModified, Exists | | a missing file gives 0 only if it is not created by an earlier IsWritable
+LastModified | Returns the time of the last change as text such as 2026-10-09 04:34:06; the empty text when it cannot be read. | a text | | LastModificationTime, Info | | the time zone is that of the engine conversion, not stated by the call
+LastReadingTime | Raises an error with the text Unsupported feature! Use OS-level tools for file timestamps. | nothing; it raises an error | | LastModificationTime, CreationTime | | always raises, and so does InfoXT, which calls it
+FilePath | Returns the path the object was built with. | a text | | FileName, DirPath | | AbsoluteFilePath and CanonicalFilePath return the same text, not a resolved path
+AbsoluteFilePath | Returns the path as given, not resolved against the current folder. | a text | | FilePath, CanonicalFilePath | | a relative path stays relative
+CanonicalFilePath | Returns the path as given, not resolved. | a text | | FilePath, AbsoluteFilePath | | symbolic links and .. are not followed
+DirPath | Returns the folder part of the path, without the file name. | a text | | FilePath, BaseName
+BaseName | Returns the file name up to its first dot; a name that starts with a dot gives the empty text. | a text | | CompleteBaseName, Suffix | | a.tar.gz gives a and .hid gives ""
+CompleteBaseName | Returns the whole file name, extension included. | a text | | BaseName, Suffix | | it is not the name without the last extension: a.tar.gz gives a.tar.gz
+Suffix | Returns the extension of the file with its dot, such as .txt; the empty text when there is none. | a text | | CompleteSuffix, BaseName | | a.tar.gz gives .gz
+CompleteSuffix | Returns the extension with its dot, only the last one. | a text | | Suffix | | it answers what Suffix answers: a.tar.gz gives .gz, not .tar.gz
+IsSymLink | Returns 0 for every file; links are not detected. | 0 | | SymLinkTarget
+SymLinkTarget | Returns the empty text for every file; links are not followed. | a text | | IsSymLink
+Refresh | Does nothing; the information is read afresh at each call. | nothing | | Info

@@ -39,6 +39,21 @@ func StzAuthDbStoreQ(pcPath)
  #  IN-MEMORY STORE (default) -- the reference implementation #
 #=========================================================#
 
+# Keeps the users, sessions, two-factor rows, challenges, roles, passkeys and locks of stzAuth in Ring lists, for development and tests.
+#
+# It is the default store of stzAuth and the reference for the store contract: PutUser, UserHash,
+# PutSession, Session and the rest. Nothing outlives the process; stzAuthDbStore answers the same
+# calls over sqlite. Pass a database store, never a shared memory one, to production: Ring copies an
+# object on assignment, so a memory store handed in from outside diverges from the caller's copy.
+#
+#   receiver   o1 = new stzAuthMemoryStore()
+#   example    o1.PutUser("alice", "hash-of-alice")
+#              o1.GrantRole("alice", "editor")
+#              ? o1.HasUser("alice")
+#              #--> 1
+#              ? @@( o1.RolesOf("alice") )
+#              #--> [ "editor" ]
+#   see        stzAuthDbStore, stzAuth, StzAuthMemoryStoreQ
 class stzAuthMemoryStore from stzObject
 
 	@aUsers      = []  # [ [ user, hash ], ... ]
@@ -49,6 +64,10 @@ class stzAuthMemoryStore from stzObject
 	@aRoles      = []  # [ [ user, role ], ... ] -- the authz grants
 	@aLocks      = []  # [ [ user, reason, lockedAtSecs ], ... ] -- administrative locks
 
+	# Builds an empty in-memory store, the default place stzAuth keeps users and sessions; nothing outlives the process.
+	#
+	#   returns    nothing; the object is built
+	#   see        stzAuthDbStore, StzAuthMemoryStoreQ
 	def init()
 		@aUsers      = []
 		@aSessions   = []
@@ -58,15 +77,24 @@ class stzAuthMemoryStore from stzObject
 		@aRoles      = []
 		@aLocks      = []
 
-	  #-- administrative locks (containment) -------------------------------
+	# Locks a user until someone unlocks them, recording the reason and the time; a lock already held is replaced.
 	#
-	# A lock is an ACT, not a counter: it stays until someone unlocks it,
-	# unlike the failure lockout stzAuth keeps in memory and lets expire.
-
+	#   pcUser     the user to lock
+	#   pcReason   the reason, as text
+	#   pnAt       the time of the lock, in seconds
+	#   returns    nothing; the lock is kept
+	#   note       a lock stays until DeleteLock, unlike a failure lockout that expires
+	#   see        LockOf, DeleteLock
+	#@ aka  -- administrative locks (containment) -------------------------------
 	def PutLock(pcUser, pcReason, pnAt)
 		This.DeleteLock(pcUser)
 		@aLocks + [ "" + pcUser, "" + pcReason, pnAt ]
 
+	# Lifts the lock of a user; a user with no lock changes nothing.
+	#
+	#   pcUser     the user to unlock
+	#   returns    nothing
+	#   see        PutLock, LockOf
 	def DeleteLock(pcUser)
 		_u_ = "" + pcUser
 		_aNew_ = []
@@ -78,7 +106,12 @@ class stzAuthMemoryStore from stzObject
 		next
 		@aLocks = _aNew_
 
-	# [ :reason, :at ] or [] when the user is not locked.
+	# Returns the lock of a user, as a hashlist of its reason and its time.
+	#
+	#   pcUser     the user to look up
+	#   returns    a hashlist [ :reason, :at ], or an empty list when the user is not locked
+	#   see        PutLock, DeleteLock
+	#@ aka  [ :reason, :at ] or [] when the user is not locked.
 	def LockOf(pcUser)
 		_u_ = "" + pcUser
 		_n_ = len(@aLocks)
@@ -89,8 +122,14 @@ class stzAuthMemoryStore from stzObject
 		next
 		return []
 
-	  #-- users -----------------------------------------------------------
-
+	# Stores a user with a password hash, replacing the hash of a user that is already stored.
+	#
+	#   pcUser     the user name, matched exactly and with case
+	#   pcHash     the password hash to keep, as text
+	#   returns    nothing
+	#   note       the hash is stored as given and never computed here
+	#   see        UserHash, HasUser, DeleteUser
+	#@ aka  -- users -----------------------------------------------------------
 	def PutUser(pcUser, pcHash)
 		_u_ = "" + pcUser
 		_i_ = This._UserIndex(_u_)
@@ -100,6 +139,11 @@ class stzAuthMemoryStore from stzObject
 			@aUsers + [ _u_, "" + pcHash ]
 		ok
 
+	# Returns the password hash stored for a user.
+	#
+	#   pcUser     the user name
+	#   returns    a text; an empty text when the user is unknown
+	#   see        PutUser, HasUser
 	def UserHash(pcUser)
 		_i_ = This._UserIndex("" + pcUser)
 		if _i_ = 0
@@ -107,9 +151,21 @@ class stzAuthMemoryStore from stzObject
 		ok
 		return @aUsers[_i_][2]
 
+	# TRUE if a user of that exact name is stored.
+	#
+	#   pcUser     the user name, matched with case
+	#   returns    TRUE or FALSE
+	#   see        PutUser, CountUsers
 	def HasUser(pcUser)
 		return This._UserIndex("" + pcUser) > 0
 
+	# Removes a user and its hash; an unknown user changes nothing.
+	#
+	#   pcUser     the user name to remove
+	#   returns    nothing
+	#   note       the sessions, roles and passkeys of that user are kept; remove them with their
+	#              own Delete calls
+	#   see        PutUser, DeleteUserSessions
 	def DeleteUser(pcUser)
 		_u_ = "" + pcUser
 		_aNew_ = []
@@ -121,21 +177,36 @@ class stzAuthMemoryStore from stzObject
 		next
 		@aUsers = _aNew_
 
+	# Returns how many users are stored.
+	#
+	#   returns    a number
+	#   see        HasUser, PutUser
 	def CountUsers()
 		return len(@aUsers)
 
-	  #-- sessions --------------------------------------------------------
+	# Stores a session under a token, with the user it belongs to, its times and the device that opened it.
 	#
-	# A session is a RECORD: [ :token, :user, :expires, :created, :ip, :ua,
-	# :lastseen ] -- so a "your devices" view can list them, and idle timeout has
-	# a lastseen to compare. paRec (to PutSession) carries everything but :token.
-
+	#   pcToken    the session token, as text
+	#   paRec      a hashlist [ :user, :expires, :created, :ip, :ua, :lastseen ], everything but the
+	#              token
+	#   returns    nothing
+	#   warning    a second call with a token already stored adds a second row instead of replacing
+	#              the first, so Session keeps answering the first and CountSessions grows; the
+	#              sqlite store replaces the row
+	#   see        Session, TouchSession, DeleteSession
+	#@ aka  -- sessions --------------------------------------------------------
 	def PutSession(pcToken, paRec)
 		@aSessions + [ :token = "" + pcToken, :user = paRec[:user],
 		               :expires = paRec[:expires], :created = paRec[:created],
 		               :ip = paRec[:ip], :ua = paRec[:ua], :lastseen = paRec[:lastseen] ]
 
-	# the full record (with :token) or [] when the token is unknown.
+	# Returns the record of a session.
+	#
+	#   pcToken    the session token to look up
+	#   returns    a hashlist [ :token, :user, :expires, :created, :ip, :ua, :lastseen ], or an
+	#              empty list when the token is unknown
+	#   see        PutSession, SessionsOf
+	#@ aka  the full record (with :token) or [] when the token is unknown.
 	def Session(pcToken)
 		_t_ = "" + pcToken
 		_n_ = len(@aSessions)
@@ -146,8 +217,13 @@ class stzAuthMemoryStore from stzObject
 		next
 		return []
 
-	# update a session's last-seen stamp (idle-timeout sliding window). Rebuilds
-	# the row rather than mutating a hashlist field in place (that INSERTS a key).
+	# Sets the last-seen time of a session, which is what an idle timeout compares; an unknown token changes nothing.
+	#
+	#   pcToken      the session token
+	#   pnLastSeen   the new last-seen time, in seconds
+	#   returns      nothing
+	#   see          Session, PutSession
+	#@ aka  update a session's last-seen stamp (idle-timeout sliding window). Rebuilds the row rather than mutating a hashlist field in place (that INSERTS a key).
 	def TouchSession(pcToken, pnLastSeen)
 		_t_ = "" + pcToken
 		_n_ = len(@aSessions)
@@ -161,6 +237,11 @@ class stzAuthMemoryStore from stzObject
 			ok
 		next
 
+	# Removes the session of a token, which logs that device out; an unknown token changes nothing.
+	#
+	#   pcToken    the session token to remove
+	#   returns    nothing
+	#   see        DeleteUserSessions, PutSession
 	def DeleteSession(pcToken)
 		_t_ = "" + pcToken
 		_aNew_ = []
@@ -172,6 +253,11 @@ class stzAuthMemoryStore from stzObject
 		next
 		@aSessions = _aNew_
 
+	# Removes every session of a user, which logs the user out of all devices.
+	#
+	#   pcUser     the user whose sessions go
+	#   returns    nothing
+	#   see        DeleteSession, SessionsOf
 	def DeleteUserSessions(pcUser)
 		_u_ = "" + pcUser
 		_aNew_ = []
@@ -183,14 +269,27 @@ class stzAuthMemoryStore from stzObject
 		next
 		@aSessions = _aNew_
 
+	# Returns how many sessions are stored, whatever their user.
+	#
+	#   returns    a number
+	#   see        Sessions, SessionsOf
 	def CountSessions()
 		return len(@aSessions)
 
-	# all session records -- for purge / enumeration.
+	# Returns every stored session record, for a purge or a listing.
+	#
+	#   returns    a list of session hashlists
+	#   see        SessionsOf, CountSessions
+	#@ aka  all session records -- for purge / enumeration.
 	def Sessions()
 		return @aSessions
 
-	# the records belonging to one user.
+	# Returns the session records of one user, which is what a devices view lists.
+	#
+	#   pcUser     the user whose sessions to list
+	#   returns    a list of session hashlists; an empty list when the user has none
+	#   see        Sessions, Session
+	#@ aka  the records belonging to one user.
 	def SessionsOf(pcUser)
 		_u_ = "" + pcUser
 		_out_ = []
@@ -202,12 +301,15 @@ class stzAuthMemoryStore from stzObject
 		next
 		return _out_
 
-	  #-- two-factor (TOTP) ----------------------------------------------
+	# Stores the two-factor secret of a user with its confirmed flag and its recovery-code hashes, replacing any earlier row of that user.
 	#
-	# One row per user with 2FA: the base32 secret, a confirmed flag (a secret is
-	# stored unconfirmed at enrollment and only enforced once the user proves a
-	# first code), and the list of one-time recovery-code HASHES (never plaintext).
-
+	#   pcUser        the user name
+	#   pcSecret      the base32 secret of the authenticator
+	#   pnConfirmed   1 once the user proved a first code, 0 before
+	#   paHashes      a list of the recovery-code hashes, never the plain codes
+	#   returns       nothing
+	#   see           Totp, SetTotpConfirmed, SetTotpRecovery
+	#@ aka  -- two-factor (TOTP) ----------------------------------------------
 	def PutTotp(pcUser, pcSecret, pnConfirmed, paHashes)
 		_u_ = "" + pcUser
 		_i_ = This._TotpIndex(_u_)
@@ -218,6 +320,12 @@ class stzAuthMemoryStore from stzObject
 			@a2fa + _rec_
 		ok
 
+	# Returns the two-factor row of a user.
+	#
+	#   pcUser     the user name
+	#   returns    a hashlist [ :secret, :confirmed, :recovery ], or an empty list when the user has
+	#              none
+	#   see        PutTotp, DeleteTotp
 	def Totp(pcUser)
 		_i_ = This._TotpIndex("" + pcUser)
 		if _i_ = 0
@@ -226,18 +334,35 @@ class stzAuthMemoryStore from stzObject
 		_r_ = @a2fa[_i_]
 		return [ :secret = _r_[2], :confirmed = _r_[3], :recovery = _r_[4] ]
 
+	# Sets the confirmed flag of a user's two-factor row; a user with no row changes nothing.
+	#
+	#   pcUser        the user name
+	#   pnConfirmed   1 to enforce the secret, 0 to hold it back
+	#   returns       nothing
+	#   see           PutTotp, Totp
 	def SetTotpConfirmed(pcUser, pnConfirmed)
 		_i_ = This._TotpIndex("" + pcUser)
 		if _i_ > 0
 			@a2fa[_i_][3] = pnConfirmed
 		ok
 
+	# Replaces the recovery-code hashes of a user's two-factor row; a user with no row changes nothing.
+	#
+	#   pcUser     the user name
+	#   paHashes   the new list of recovery-code hashes
+	#   returns    nothing
+	#   see        PutTotp, Totp
 	def SetTotpRecovery(pcUser, paHashes)
 		_i_ = This._TotpIndex("" + pcUser)
 		if _i_ > 0
 			@a2fa[_i_][4] = paHashes
 		ok
 
+	# Removes the two-factor row of a user; a user with no row changes nothing.
+	#
+	#   pcUser     the user name
+	#   returns    nothing
+	#   see        PutTotp, Totp
 	def DeleteTotp(pcUser)
 		_u_ = "" + pcUser
 		_aNew_ = []
@@ -249,13 +374,16 @@ class stzAuthMemoryStore from stzObject
 		next
 		@a2fa = _aNew_
 
-	  #-- passwordless challenges (magic-link / email-OTP) ----------------
+	# Stores a short-lived passwordless challenge under a handle, replacing the one that holds the same handle.
 	#
-	# A short-lived, one-time challenge. handle = the lookup key (for magic-link,
-	# sha256 of the emailed token so the raw token is never stored; for email-OTP,
-	# "otp:"+email so a new request replaces the pending one). codehash is empty for
-	# magic-link (the token IS the secret) and a salted hash of the code for OTP.
-
+	#   pcHandle     the lookup key of the challenge
+	#   pcKind       the kind of challenge, such as otp or magic
+	#   pcEmail      the address the challenge was sent to
+	#   pcCodeHash   the hash of the code, empty when the token is the secret
+	#   pnExpires    the time the challenge ends, in seconds
+	#   returns      nothing
+	#   see          Challenge, DeleteChallenge
+	#@ aka  -- passwordless challenges (magic-link / email-OTP) ----------------
 	def PutChallenge(pcHandle, pcKind, pcEmail, pcCodeHash, pnExpires)
 		_h_ = "" + pcHandle
 		_i_ = This._ChallengeIndex(_h_)
@@ -266,6 +394,12 @@ class stzAuthMemoryStore from stzObject
 			@aChallenges + _rec_
 		ok
 
+	# Returns the challenge held under a handle.
+	#
+	#   pcHandle   the lookup key
+	#   returns    a hashlist [ :kind, :email, :codehash, :expires ], or an empty list when the
+	#              handle is unknown
+	#   see        PutChallenge, DeleteChallenge
 	def Challenge(pcHandle)
 		_i_ = This._ChallengeIndex("" + pcHandle)
 		if _i_ = 0
@@ -274,6 +408,11 @@ class stzAuthMemoryStore from stzObject
 		_r_ = @aChallenges[_i_]
 		return [ :kind = _r_[2], :email = _r_[3], :codehash = _r_[4], :expires = _r_[5] ]
 
+	# Removes the challenge held under a handle, which spends it; an unknown handle changes nothing.
+	#
+	#   pcHandle   the lookup key
+	#   returns    nothing
+	#   see        PutChallenge, Challenge
 	def DeleteChallenge(pcHandle)
 		_h_ = "" + pcHandle
 		_aNew_ = []
@@ -285,11 +424,13 @@ class stzAuthMemoryStore from stzObject
 		next
 		@aChallenges = _aNew_
 
-	  #-- authz roles (the authn->authz bridge) ---------------------------
+	# Gives a user a role; granting a role the user already has changes nothing.
 	#
-	# Per-user role GRANTS (durable). The role DEFINITIONS -- what capabilities a
-	# role carries -- are app config held by stzAuth, not stored here.
-
+	#   pcUser     the user name
+	#   pcRole     the role name
+	#   returns    nothing
+	#   see        RevokeRole, HasRole, RolesOf
+	#@ aka  -- authz roles (the authn->authz bridge) ---------------------------
 	def GrantRole(pcUser, pcRole)
 		_u_ = "" + pcUser
 		_r_ = "" + pcRole
@@ -297,6 +438,12 @@ class stzAuthMemoryStore from stzObject
 			@aRoles + [ _u_, _r_ ]
 		ok
 
+	# Takes one role away from a user; a role the user lacks changes nothing.
+	#
+	#   pcUser     the user name
+	#   pcRole     the role name
+	#   returns    nothing
+	#   see        GrantRole, DeleteUserRoles
 	def RevokeRole(pcUser, pcRole)
 		_u_ = "" + pcUser
 		_r_ = "" + pcRole
@@ -309,6 +456,12 @@ class stzAuthMemoryStore from stzObject
 		next
 		@aRoles = _aNew_
 
+	# TRUE if the user holds that role.
+	#
+	#   pcUser     the user name
+	#   pcRole     the role name
+	#   returns    TRUE or FALSE
+	#   see        GrantRole, RolesOf
 	def HasRole(pcUser, pcRole)
 		_u_ = "" + pcUser
 		_r_ = "" + pcRole
@@ -320,6 +473,11 @@ class stzAuthMemoryStore from stzObject
 		next
 		return 0
 
+	# Returns the roles of a user.
+	#
+	#   pcUser     the user name
+	#   returns    a list of text; an empty list when the user has none
+	#   see        GrantRole, HasRole
 	def RolesOf(pcUser)
 		_u_ = "" + pcUser
 		_out_ = []
@@ -331,6 +489,11 @@ class stzAuthMemoryStore from stzObject
 		next
 		return _out_
 
+	# Takes every role away from a user.
+	#
+	#   pcUser     the user name
+	#   returns    nothing
+	#   see        RevokeRole, RolesOf
 	def DeleteUserRoles(pcUser)
 		_u_ = "" + pcUser
 		_aNew_ = []
@@ -342,11 +505,17 @@ class stzAuthMemoryStore from stzObject
 		next
 		@aRoles = _aNew_
 
-	  #-- passkeys (WebAuthn credentials) ---------------------------------
+	# Stores a passkey credential with its owner, its public key and its signature counter, replacing the credential of the same id.
 	#
-	# One row per CREDENTIAL, keyed by its id: a user may enroll several devices,
-	# and each carries its own public key and signature counter.
-
+	#   pcCredId   the credential id
+	#   pcUser     the user that owns it
+	#   pcKty      the key type
+	#   pcK1       the first part of the public key
+	#   pcK2       the second part of the public key
+	#   pnCount    the signature counter
+	#   returns    nothing
+	#   see        Passkey, PasskeysOf, SetPasskeyCounter
+	#@ aka  -- passkeys (WebAuthn credentials) ---------------------------------
 	def PutPasskey(pcCredId, pcUser, pcKty, pcK1, pcK2, pnCount)
 		_c_ = "" + pcCredId
 		_i_ = This._PasskeyIndex(_c_)
@@ -357,6 +526,12 @@ class stzAuthMemoryStore from stzObject
 			@aPasskeys + _rec_
 		ok
 
+	# Returns one passkey credential.
+	#
+	#   pcCredId   the credential id
+	#   returns    a hashlist [ :credentialid, :user, :keytype, :key1, :key2, :signcount ], or an
+	#              empty list when the id is unknown
+	#   see        PutPasskey, PasskeysOf
 	def Passkey(pcCredId)
 		_i_ = This._PasskeyIndex("" + pcCredId)
 		if _i_ = 0
@@ -366,6 +541,11 @@ class stzAuthMemoryStore from stzObject
 		return [ :credentialId = _r_[1], :user = _r_[2], :keyType = _r_[3],
 		         :key1 = _r_[4], :key2 = _r_[5], :signCount = _r_[6] ]
 
+	# Returns the passkey credentials of one user, one per enrolled device.
+	#
+	#   pcUser     the user name
+	#   returns    a list of passkey hashlists; an empty list when the user has none
+	#   see        Passkey, PutPasskey
 	def PasskeysOf(pcUser)
 		_u_ = "" + pcUser
 		_out_ = []
@@ -377,12 +557,23 @@ class stzAuthMemoryStore from stzObject
 		next
 		return _out_
 
+	# Sets the signature counter of a passkey; an unknown id changes nothing.
+	#
+	#   pcCredId   the credential id
+	#   pnCount    the new counter
+	#   returns    nothing
+	#   see        Passkey, PutPasskey
 	def SetPasskeyCounter(pcCredId, pnCount)
 		_i_ = This._PasskeyIndex("" + pcCredId)
 		if _i_ > 0
 			@aPasskeys[_i_][6] = pnCount
 		ok
 
+	# Removes one passkey credential; an unknown id changes nothing.
+	#
+	#   pcCredId   the credential id
+	#   returns    nothing
+	#   see        DeleteUserPasskeys, PutPasskey
 	def DeletePasskey(pcCredId)
 		_c_ = "" + pcCredId
 		_aNew_ = []
@@ -394,6 +585,11 @@ class stzAuthMemoryStore from stzObject
 		next
 		@aPasskeys = _aNew_
 
+	# Removes every passkey credential of a user.
+	#
+	#   pcUser     the user name
+	#   returns    nothing
+	#   see        DeletePasskey, PasskeysOf
 	def DeleteUserPasskeys(pcUser)
 		_u_ = "" + pcUser
 		_aNew_ = []
@@ -448,12 +644,31 @@ class stzAuthMemoryStore from stzObject
  #  SQLITE STORE -- durable, over stzDatabase                #
 #=========================================================#
 
+# Keeps the users, sessions, two-factor rows, challenges, roles, passkeys and locks of stzAuth in a sqlite database, so they outlive the process.
+#
+# It answers the same calls as stzAuthMemoryStore. Its only state is a stzDatabase, whose connection
+# is an engine handle, so a copied store still writes the same database. Every statement binds its
+# values and none is spliced into SQL text. Give it a file path to be durable, or :memory: for a
+# real sqlite that lives only in the process.
+#
+#   receiver   o1 = new stzAuthDbStore(":memory:")
+#   example    o1.PutUser("alice", "hash-of-alice")
+#              o1.GrantRole("alice", "editor")
+#              ? o1.HasUser("alice")
+#              #--> 1
+#              ? @@( o1.RolesOf("alice") )
+#              #--> [ "editor" ]
+#   see        stzAuthMemoryStore, stzAuth, StzAuthDbStoreQ, stzDatabase
 class stzAuthDbStore from stzObject
 
 	@oDb = ""
 
-	# pcPath = a file path (durable) or ":memory:" (a real sqlite, but process-
-	# local). The tables are created on first use.
+	# Opens a sqlite database and creates the auth tables when they are absent, so users and sessions outlive the process.
+	#
+	#   pcPath     a sqlite file path, or :memory: for a database that lives only in the process
+	#   returns    nothing; the object is built
+	#   see        stzAuthMemoryStore, StzAuthDbStoreQ
+	#@ aka  pcPath = a file path (durable) or ":memory:" (a real sqlite, but process- local). The tables are created on first use.
 	def init(pcPath)
 		@oDb = new stzDatabase("" + pcPath)
 		@oDb.Exec("CREATE TABLE IF NOT EXISTS authusers (usr TEXT PRIMARY KEY, hash TEXT)")
@@ -469,20 +684,30 @@ class stzAuthDbStore from stzObject
 		          "PRIMARY KEY (usr, role))")
 		@oDb.Exec("CREATE TABLE IF NOT EXISTS authlocks (usr TEXT PRIMARY KEY, reason TEXT, lockedat INTEGER)")
 
+	# Returns the stzDatabase the store writes to, to read or inspect the tables.
+	#
+	#   returns    a stzDatabase
+	#   see        init
 	def DatabaseQ()
 		return @oDb
 
-	  #-- users -----------------------------------------------------------
+	# Stores a user with a password hash, replacing the hash of a user that is already stored.
 	#
-	# Every statement below BINDS its values (stzDatabase.ExecWith/RowsWith):
-	# a value is never spliced into the SQL text, so none needs escaping and
-	# none can change what a statement says. They used to be ~49 strings
-	# built by concatenation through a hand-written quote-doubler, _Esc().
-
+	#   pcUser     the user name, matched exactly and with case
+	#   pcHash     the password hash to keep, as text
+	#   returns    nothing
+	#   note       the hash is stored as given and never computed here
+	#   see        UserHash, HasUser, DeleteUser
+	#@ aka  -- users -----------------------------------------------------------
 	def PutUser(pcUser, pcHash)
 		@oDb.ExecWith("INSERT OR REPLACE INTO authusers (usr, hash) VALUES (?, ?)",
 		              [ "" + pcUser, "" + pcHash ])
 
+	# Returns the password hash stored for a user.
+	#
+	#   pcUser     the user name
+	#   returns    a text; an empty text when the user is unknown
+	#   see        PutUser, HasUser
 	def UserHash(pcUser)
 		_r_ = @oDb.RowsWith("SELECT hash FROM authusers WHERE usr = ?", [ "" + pcUser ])
 		if len(_r_) = 0
@@ -490,18 +715,40 @@ class stzAuthDbStore from stzObject
 		ok
 		return "" + _r_[1][1]
 
+	# TRUE if a user of that exact name is stored.
+	#
+	#   pcUser     the user name, matched with case
+	#   returns    TRUE or FALSE
+	#   see        PutUser, CountUsers
 	def HasUser(pcUser)
 		return ring_number(@oDb.ValueWith("SELECT COUNT(*) FROM authusers WHERE usr = ?",
 		       [ "" + pcUser ])) > 0
 
+	# Removes a user and its hash; an unknown user changes nothing.
+	#
+	#   pcUser     the user name to remove
+	#   returns    nothing
+	#   note       the sessions, roles and passkeys of that user are kept; remove them with their
+	#              own Delete calls
+	#   see        PutUser, DeleteUserSessions
 	def DeleteUser(pcUser)
 		@oDb.ExecWith("DELETE FROM authusers WHERE usr = ?", [ "" + pcUser ])
 
+	# Returns how many users are stored.
+	#
+	#   returns    a number
+	#   see        HasUser, PutUser
 	def CountUsers()
 		return ring_number(@oDb.Value("SELECT COUNT(*) FROM authusers"))
 
-	  #-- sessions --------------------------------------------------------
-
+	# Stores a session under a token, with the user it belongs to, its times and the device that opened it.
+	#
+	#   pcToken    the session token, as text
+	#   paRec      a hashlist [ :user, :expires, :created, :ip, :ua, :lastseen ], everything but the
+	#              token
+	#   returns    nothing
+	#   see        Session, TouchSession, DeleteSession
+	#@ aka  -- sessions --------------------------------------------------------
 	def PutSession(pcToken, paRec)
 		@oDb.ExecWith("INSERT OR REPLACE INTO authsessions (token, usr, expires, created, ip, ua, lastseen) " +
 		              "VALUES (?, ?, ?, ?, ?, ?, ?)",
@@ -509,6 +756,12 @@ class stzAuthDbStore from stzObject
 		                ring_number(paRec[:created]), "" + paRec[:ip], "" + paRec[:ua],
 		                ring_number(paRec[:lastseen]) ])
 
+	# Returns the record of a session.
+	#
+	#   pcToken    the session token to look up
+	#   returns    a hashlist [ :token, :user, :expires, :created, :ip, :ua, :lastseen ], or an
+	#              empty list when the token is unknown
+	#   see        PutSession, SessionsOf
 	def Session(pcToken)
 		_r_ = @oDb.RowsWith("SELECT usr, expires, created, ip, ua, lastseen FROM authsessions WHERE token = ?",
 		                    [ "" + pcToken ])
@@ -517,36 +770,75 @@ class stzAuthDbStore from stzObject
 		ok
 		return This._Rec("" + pcToken, _r_[1])
 
+	# Sets the last-seen time of a session, which is what an idle timeout compares; an unknown token changes nothing.
+	#
+	#   pcToken      the session token
+	#   pnLastSeen   the new last-seen time, in seconds
+	#   returns      nothing
+	#   see          Session, PutSession
 	def TouchSession(pcToken, pnLastSeen)
 		@oDb.ExecWith("UPDATE authsessions SET lastseen = ? WHERE token = ?",
 		              [ ring_number(pnLastSeen), "" + pcToken ])
 
+	# Removes the session of a token, which logs that device out; an unknown token changes nothing.
+	#
+	#   pcToken    the session token to remove
+	#   returns    nothing
+	#   see        DeleteUserSessions, PutSession
 	def DeleteSession(pcToken)
 		@oDb.ExecWith("DELETE FROM authsessions WHERE token = ?", [ "" + pcToken ])
 
+	# Removes every session of a user, which logs the user out of all devices.
+	#
+	#   pcUser     the user whose sessions go
+	#   returns    nothing
+	#   see        DeleteSession, SessionsOf
 	def DeleteUserSessions(pcUser)
 		@oDb.ExecWith("DELETE FROM authsessions WHERE usr = ?", [ "" + pcUser ])
 
+	# Returns how many sessions are stored, whatever their user.
+	#
+	#   returns    a number
+	#   see        Sessions, SessionsOf
 	def CountSessions()
 		return ring_number(@oDb.Value("SELECT COUNT(*) FROM authsessions"))
 
+	# Returns every stored session record, for a purge or a listing.
+	#
+	#   returns    a list of session hashlists
+	#   see        SessionsOf, CountSessions
 	def Sessions()
 		return This._RowsToRecs(@oDb.Rows("SELECT token, usr, expires, created, ip, ua, lastseen FROM authsessions"))
 
+	# Returns the session records of one user, which is what a devices view lists.
+	#
+	#   pcUser     the user whose sessions to list
+	#   returns    a list of session hashlists; an empty list when the user has none
+	#   see        Sessions, Session
 	def SessionsOf(pcUser)
 		return This._RowsToRecs(@oDb.RowsWith("SELECT token, usr, expires, created, ip, ua, lastseen " +
 		       "FROM authsessions WHERE usr = ?", [ "" + pcUser ]))
 
-	  #-- two-factor (TOTP) ----------------------------------------------
+	# Stores the two-factor secret of a user with its confirmed flag and its recovery-code hashes, replacing any earlier row of that user.
 	#
-	# Recovery-code hashes are stored comma-joined in one TEXT column -- a hash
-	# is "salt:hash" (hex only), so a comma can never occur inside one.
-
+	#   pcUser        the user name
+	#   pcSecret      the base32 secret of the authenticator
+	#   pnConfirmed   1 once the user proved a first code, 0 before
+	#   paHashes      a list of the recovery-code hashes, never the plain codes
+	#   returns       nothing
+	#   see           Totp, SetTotpConfirmed, SetTotpRecovery
+	#@ aka  -- two-factor (TOTP) ----------------------------------------------
 	def PutTotp(pcUser, pcSecret, pnConfirmed, paHashes)
 		@oDb.ExecWith("INSERT OR REPLACE INTO auth2fa (usr, secret, confirmed, recovery) VALUES (?, ?, ?, ?)",
 		              [ "" + pcUser, "" + pcSecret, ring_number(pnConfirmed),
 		                This._JoinHashes(paHashes) ])
 
+	# Returns the two-factor row of a user.
+	#
+	#   pcUser     the user name
+	#   returns    a hashlist [ :secret, :confirmed, :recovery ], or an empty list when the user has
+	#              none
+	#   see        PutTotp, DeleteTotp
 	def Totp(pcUser)
 		_r_ = @oDb.RowsWith("SELECT secret, confirmed, recovery FROM auth2fa WHERE usr = ?", [ "" + pcUser ])
 		if len(_r_) = 0
@@ -555,25 +847,56 @@ class stzAuthDbStore from stzObject
 		return [ :secret = "" + _r_[1][1], :confirmed = ring_number(_r_[1][2]),
 		         :recovery = This._SplitHashes("" + _r_[1][3]) ]
 
+	# Sets the confirmed flag of a user's two-factor row; a user with no row changes nothing.
+	#
+	#   pcUser        the user name
+	#   pnConfirmed   1 to enforce the secret, 0 to hold it back
+	#   returns       nothing
+	#   see           PutTotp, Totp
 	def SetTotpConfirmed(pcUser, pnConfirmed)
 		@oDb.ExecWith("UPDATE auth2fa SET confirmed = ? WHERE usr = ?",
 		              [ ring_number(pnConfirmed), "" + pcUser ])
 
+	# Replaces the recovery-code hashes of a user's two-factor row; a user with no row changes nothing.
+	#
+	#   pcUser     the user name
+	#   paHashes   the new list of recovery-code hashes
+	#   returns    nothing
+	#   see        PutTotp, Totp
 	def SetTotpRecovery(pcUser, paHashes)
 		@oDb.ExecWith("UPDATE auth2fa SET recovery = ? WHERE usr = ?",
 		              [ This._JoinHashes(paHashes), "" + pcUser ])
 
+	# Removes the two-factor row of a user; a user with no row changes nothing.
+	#
+	#   pcUser     the user name
+	#   returns    nothing
+	#   see        PutTotp, Totp
 	def DeleteTotp(pcUser)
 		@oDb.ExecWith("DELETE FROM auth2fa WHERE usr = ?", [ "" + pcUser ])
 
-	  #-- passwordless challenges (magic-link / email-OTP) ----------------
-
+	# Stores a short-lived passwordless challenge under a handle, replacing the one that holds the same handle.
+	#
+	#   pcHandle     the lookup key of the challenge
+	#   pcKind       the kind of challenge, such as otp or magic
+	#   pcEmail      the address the challenge was sent to
+	#   pcCodeHash   the hash of the code, empty when the token is the secret
+	#   pnExpires    the time the challenge ends, in seconds
+	#   returns      nothing
+	#   see          Challenge, DeleteChallenge
+	#@ aka  -- passwordless challenges (magic-link / email-OTP) ----------------
 	def PutChallenge(pcHandle, pcKind, pcEmail, pcCodeHash, pnExpires)
 		@oDb.ExecWith("INSERT OR REPLACE INTO authchallenges (handle, kind, email, codehash, expires) " +
 		              "VALUES (?, ?, ?, ?, ?)",
 		              [ "" + pcHandle, "" + pcKind, "" + pcEmail, "" + pcCodeHash,
 		                ring_number(pnExpires) ])
 
+	# Returns the challenge held under a handle.
+	#
+	#   pcHandle   the lookup key
+	#   returns    a hashlist [ :kind, :email, :codehash, :expires ], or an empty list when the
+	#              handle is unknown
+	#   see        PutChallenge, DeleteChallenge
 	def Challenge(pcHandle)
 		_r_ = @oDb.RowsWith("SELECT kind, email, codehash, expires FROM authchallenges WHERE handle = ?",
 		                    [ "" + pcHandle ])
@@ -583,17 +906,37 @@ class stzAuthDbStore from stzObject
 		return [ :kind = "" + _r_[1][1], :email = "" + _r_[1][2],
 		         :codehash = "" + _r_[1][3], :expires = ring_number(_r_[1][4]) ]
 
+	# Removes the challenge held under a handle, which spends it; an unknown handle changes nothing.
+	#
+	#   pcHandle   the lookup key
+	#   returns    nothing
+	#   see        PutChallenge, Challenge
 	def DeleteChallenge(pcHandle)
 		@oDb.ExecWith("DELETE FROM authchallenges WHERE handle = ?", [ "" + pcHandle ])
 
-	  #-- passkeys (WebAuthn credentials) ---------------------------------
-
+	# Stores a passkey credential with its owner, its public key and its signature counter, replacing the credential of the same id.
+	#
+	#   pcCredId   the credential id
+	#   pcUser     the user that owns it
+	#   pcKty      the key type
+	#   pcK1       the first part of the public key
+	#   pcK2       the second part of the public key
+	#   pnCount    the signature counter
+	#   returns    nothing
+	#   see        Passkey, PasskeysOf, SetPasskeyCounter
+	#@ aka  -- passkeys (WebAuthn credentials) ---------------------------------
 	def PutPasskey(pcCredId, pcUser, pcKty, pcK1, pcK2, pnCount)
 		@oDb.ExecWith("INSERT OR REPLACE INTO authpasskeys (credid, usr, kty, k1, k2, signcount) " +
 		              "VALUES (?, ?, ?, ?, ?, ?)",
 		              [ "" + pcCredId, "" + pcUser, "" + pcKty, "" + pcK1, "" + pcK2,
 		                ring_number(pnCount) ])
 
+	# Returns one passkey credential.
+	#
+	#   pcCredId   the credential id
+	#   returns    a hashlist [ :credentialid, :user, :keytype, :key1, :key2, :signcount ], or an
+	#              empty list when the id is unknown
+	#   see        PutPasskey, PasskeysOf
 	def Passkey(pcCredId)
 		_r_ = @oDb.RowsWith("SELECT usr, kty, k1, k2, signcount FROM authpasskeys WHERE credid = ?",
 		                    [ "" + pcCredId ])
@@ -603,6 +946,11 @@ class stzAuthDbStore from stzObject
 		return [ :credentialId = "" + pcCredId, :user = "" + _r_[1][1], :keyType = "" + _r_[1][2],
 		         :key1 = "" + _r_[1][3], :key2 = "" + _r_[1][4], :signCount = ring_number(_r_[1][5]) ]
 
+	# Returns the passkey credentials of one user, one per enrolled device.
+	#
+	#   pcUser     the user name
+	#   returns    a list of passkey hashlists; an empty list when the user has none
+	#   see        Passkey, PutPasskey
 	def PasskeysOf(pcUser)
 		_rows_ = @oDb.RowsWith("SELECT credid, usr, kty, k1, k2, signcount FROM authpasskeys WHERE usr = ?",
 		                       [ "" + pcUser ])
@@ -615,25 +963,58 @@ class stzAuthDbStore from stzObject
 		next
 		return _out_
 
+	# Sets the signature counter of a passkey; an unknown id changes nothing.
+	#
+	#   pcCredId   the credential id
+	#   pnCount    the new counter
+	#   returns    nothing
+	#   see        Passkey, PutPasskey
 	def SetPasskeyCounter(pcCredId, pnCount)
 		@oDb.ExecWith("UPDATE authpasskeys SET signcount = ? WHERE credid = ?",
 		              [ ring_number(pnCount), "" + pcCredId ])
 
+	# Removes one passkey credential; an unknown id changes nothing.
+	#
+	#   pcCredId   the credential id
+	#   returns    nothing
+	#   see        DeleteUserPasskeys, PutPasskey
 	def DeletePasskey(pcCredId)
 		@oDb.ExecWith("DELETE FROM authpasskeys WHERE credid = ?", [ "" + pcCredId ])
 
+	# Removes every passkey credential of a user.
+	#
+	#   pcUser     the user name
+	#   returns    nothing
+	#   see        DeletePasskey, PasskeysOf
 	def DeleteUserPasskeys(pcUser)
 		@oDb.ExecWith("DELETE FROM authpasskeys WHERE usr = ?", [ "" + pcUser ])
 
-	  #-- administrative locks (containment) -------------------------------
-
+	# Locks a user until someone unlocks them, recording the reason and the time; a lock already held is replaced.
+	#
+	#   pcUser     the user to lock
+	#   pcReason   the reason, as text
+	#   pnAt       the time of the lock, in seconds
+	#   returns    nothing; the lock is kept
+	#   note       a lock stays until DeleteLock, unlike a failure lockout that expires
+	#   see        LockOf, DeleteLock
+	#@ aka  -- administrative locks (containment) -------------------------------
 	def PutLock(pcUser, pcReason, pnAt)
 		@oDb.ExecWith("INSERT OR REPLACE INTO authlocks (usr, reason, lockedat) VALUES (?, ?, ?)",
 		              [ "" + pcUser, "" + pcReason, ring_number("" + pnAt) ])
 
+	# Lifts the lock of a user; a user with no lock changes nothing.
+	#
+	#   pcUser     the user to unlock
+	#   returns    nothing
+	#   see        PutLock, LockOf
 	def DeleteLock(pcUser)
 		@oDb.ExecWith("DELETE FROM authlocks WHERE usr = ?", [ "" + pcUser ])
 
+	# Returns the lock of a user, as a hashlist of its reason and its time.
+	#
+	#   pcUser     the user to look up
+	#   returns    a hashlist [ :reason, :at ], or an empty list when the user is not locked
+	#   see        PutLock, DeleteLock
 	def LockOf(pcUser)
 		_r_ = @oDb.RowsWith("SELECT reason, lockedat FROM authlocks WHERE usr = ?", [ "" + pcUser ])
 		if len(_r_) = 0
@@ -641,19 +1022,41 @@ class stzAuthDbStore from stzObject
 		ok
 		return [ :reason = "" + _r_[1][1], :at = ring_number(_r_[1][2]) ]
 
-	  #-- authz roles (the authn->authz bridge) ---------------------------
-
+	# Gives a user a role; granting a role the user already has changes nothing.
+	#
+	#   pcUser     the user name
+	#   pcRole     the role name
+	#   returns    nothing
+	#   see        RevokeRole, HasRole, RolesOf
+	#@ aka  -- authz roles (the authn->authz bridge) ---------------------------
 	def GrantRole(pcUser, pcRole)
 		@oDb.ExecWith("INSERT OR IGNORE INTO authroles (usr, role) VALUES (?, ?)",
 		              [ "" + pcUser, "" + pcRole ])
 
+	# Takes one role away from a user; a role the user lacks changes nothing.
+	#
+	#   pcUser     the user name
+	#   pcRole     the role name
+	#   returns    nothing
+	#   see        GrantRole, DeleteUserRoles
 	def RevokeRole(pcUser, pcRole)
 		@oDb.ExecWith("DELETE FROM authroles WHERE usr = ? AND role = ?", [ "" + pcUser, "" + pcRole ])
 
+	# TRUE if the user holds that role.
+	#
+	#   pcUser     the user name
+	#   pcRole     the role name
+	#   returns    TRUE or FALSE
+	#   see        GrantRole, RolesOf
 	def HasRole(pcUser, pcRole)
 		return ring_number(@oDb.ValueWith("SELECT COUNT(*) FROM authroles WHERE usr = ? AND role = ?",
 		       [ "" + pcUser, "" + pcRole ])) > 0
 
+	# Returns the roles of a user.
+	#
+	#   pcUser     the user name
+	#   returns    a list of text; an empty list when the user has none
+	#   see        GrantRole, HasRole
 	def RolesOf(pcUser)
 		_r_ = @oDb.RowsWith("SELECT role FROM authroles WHERE usr = ?", [ "" + pcUser ])
 		_out_ = []
@@ -663,6 +1066,11 @@ class stzAuthDbStore from stzObject
 		next
 		return _out_
 
+	# Takes every role away from a user.
+	#
+	#   pcUser     the user name
+	#   returns    nothing
+	#   see        RevokeRole, RolesOf
 	def DeleteUserRoles(pcUser)
 		@oDb.ExecWith("DELETE FROM authroles WHERE usr = ?", [ "" + pcUser ])
 

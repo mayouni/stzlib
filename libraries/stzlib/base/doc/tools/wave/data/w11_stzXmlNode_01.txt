@@ -1,0 +1,17 @@
+# Wave 11 -- stzXml, stzXmlNode, stzXmlBuilder. Every line was run on invented documents; SaveTo ran in a scratch folder.
+init | Builds a node object bound to a document text and a path; nothing is checked at once. | nothing; the object is built | pcText=the XML document as text; pcPath=the path of the element, such as library/book[2] | Path, Exists, NodeQ | | normally made by NodeQ or NodesQ of stzXml rather than by hand
+Path | Returns the path this node was made with. | a text | | Name, Exists
+Exists | Returns TRUE if an element exists at the node path. | TRUE or FALSE | | Name, Text
+Name | Returns the element name, which is the last step of the path without its [n] index. | a text | | Path | | it comes from the path alone, so a path matching nothing still has a name
+Text | Returns the text of the element; the empty text when there is none or it holds only child elements. | a text | | Number, TextAt | | &amp; is read back as &
+Number | Returns the text of the element read as a number; 0 when it is empty or absent. | a number | | Text | | text that is not a number raises the error Invalid numeric string
+Namespace | Returns the namespace URI that applies to the element; the empty text when there is none. | a text | | Attribute, Text
+Attribute | Returns the value of one attribute of the element; the empty text when it is absent. | a text | pcName=the attribute name | AttributeAt, Text
+ChildNames | Returns the names of the child elements, in document order, repeats included. | a list of texts | | NodesQ, NumberOf
+TextAt | Returns the text of a descendant, found by a path read from this node. | a text; empty when there is none | pcRelative=the path below this node, such as title or author/name | Text, AttributeAt | | the relative path is added to the node path with a /, so it works for any depth
+AttributeAt | Returns the value of an attribute of a descendant, found by a path read from this node. | a text; empty when absent | pcRelative=the path below this node; pcName=the attribute name | Attribute, TextAt
+NumberOf | Returns how many descendants match a path read from this node. | a number | pcRelative=the path below this node | NodesQ, ChildNames
+NodeQ | Returns a node object for a descendant, so reads can go deeper step by step. | a stzXmlNode | pcRelative=the path below this node | NodesQ, DocumentQ | | it is also built for a path that matches nothing
+NodesQ | Returns one node object for each descendant matching a path, in document order. | a list of stzXmlNode | pcRelative=the path below this node, without an index | NodeQ, NumberOf | | the paths of the nodes get an index: library/book[1]/title[1]
+DocumentQ | Returns a document object for the whole text this node belongs to. | a stzXml | | NodeQ
+Show | Prints the node path and its text to the console. | nothing | | Text, Path
