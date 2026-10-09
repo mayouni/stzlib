@@ -5,16 +5,18 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 316 methods in 52 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 360 methods in 58 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
 | table/stzTable.ring | stzTable | 66 |
 | object/stzObject.ring | stzObject | 28 |
 | datetime/stzCalendar.ring | stzCalendar | 25 |
+| list/stzItem.ring | stzItemCS | 20 |
 | geo/stzGeoMap.ring | stzGeoMap | 18 |
 | regex/stzMatrex.ring | stzMatrex | 17 |
 | file/stzFile.ring | stzFileManager | 15 |
+| datetime/stzListOfTimeLines.ring | stzListOfTimeLines | 14 |
 | graph/stzGraph.ring | stzGraph | 12 |
 | regex/stzRegexMaker.ring | stzRegexMaker | 12 |
 | graph/stzOrgChart.ring | stzOrgChart | 10 |
@@ -29,6 +31,9 @@ and each was checked with a second call on different data. **None is fixed yet.*
 | list/stzListOfPairs.ring | stzListOfPairs | 4 |
 | file/stzHtml.ring | stzHtmlBuilder | 3 |
 | graph/stzGraph.ring | stzGraphComparison | 3 |
+| natural/stzChainOfTruth.ring | stzChainOfTruth | 3 |
+| natural/stzChainOfValue.ring | stzChainOfValue | 3 |
+| regex/stzRegexMaker.ring | stzRecursiveRegexMaker | 3 |
 | stats/stzDataSet.ring | stzDataSet | 3 |
 | stats/stzLinearSolver.ring | stzLinearSolver | 3 |
 | string/stzStringChecker.ring | stzStringChecker | 3 |
@@ -58,6 +63,7 @@ and each was checked with a second call on different data. **None is fixed yet.*
 | math/stzTukey.ring | stzTukeyLine | 1 |
 | natural/stzNatural.ring | stzNaturalEngine | 1 |
 | network/stzUrl.ring | stzUrl | 1 |
+| number/stzBinaryNumber.ring | stzBinaryNumber | 1 |
 | optim/stzMultiObjectiveSolver.ring | stzMultiObjectiveSolver | 1 |
 | string/stzString.ring | stzString | 1 |
 | string/stzStringReplacer.ring | stzStringReplacer | 1 |
@@ -99,6 +105,23 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 - `ToHuman` (line 1867): Returns today, tomorrow or yesterday for those days, a count of days for the next or last 7, else a long date. -- the future form starts with a capital (In 3 days) and the past form does not (3 days ago)
 - `ToRelative` (line 1901): Returns today, tomorrow or yesterday, a count of days or weeks within a month of today, else the date as dd/MM/yyyy.
+
+## stzListOfTimeLines -- datetime/stzListOfTimeLines.ring (14)
+
+- `AddPointsToLane` (line 379): Does nothing today instead of adding several points to a lane at once. -- it edits the copy that Lane returns, so the lane stays empty and no error is raised: after AddPointsToLane("b", [ ["Alpha", "2026-07-01"] ]) the lane holds no point, where the same call on the copy gives it
+- `AddSpanToLane` (line 395): Does nothing today instead of adding a labelled span of time to a lane. -- it edits the copy that Lane returns, so the lane stays empty and no error is raised: AddSpanToLane("team a", "Build", "2026-04-01", "2026-05-01") leaves Spans of the lane empty, though the same call on the copy returns the span
+- `AddPeriodToLane` (line 412): Does nothing today instead of adding a labelled period to a lane. -- it is AddSpanToLane, which edits a copy and keeps nothing
+- `AddSpansToLane` (line 423): Does nothing today instead of adding several spans to a lane at once. -- it edits the copy that Lane returns, so the lane stays empty and no error is raised
+- `AddBlockedSpanToLane` (line 439): Does nothing today instead of blocking a labelled span of a lane. -- it edits the copy that Lane returns: afterwards IsBlockedInLane for a moment inside the span answers FALSE
+- `AddBlockedPointToLane` (line 451): Does nothing today instead of blocking a moment of a lane. -- it edits the copy that Lane returns: afterwards IsBlockedInLane for that moment answers FALSE
+- `BlockSpanInLane` (line 463): Raises error R14 today instead of blocking an existing span of a lane by its label. -- it calls BlockSpan on the lane's timeline, a method stzTimeLine does not have, so every call raises R14
+- `BlockPointInLane` (line 475): Raises error R14 today instead of blocking an existing point of a lane by its label. -- it calls BlockPoint on the lane's timeline, a method stzTimeLine does not have, so every call raises R14
+- `Show` (line 588): Raises error R19 today instead of returning a drawing of all the lanes. -- it calls an internal drawing routine without the arguments it needs; the drawing routines behind it are also unfinished stubs, so no picture exists to return
+- `ShowShort` (line 597): Raises error R19 today instead of returning a short drawing of all the lanes. -- it fails as Show does, through the same internal drawing routine
+- `ShowUncovered` (line 611): Raises error R19 today instead of returning a drawing that marks the uncovered periods. -- it fails as Show does, through the same internal drawing routine
+- `VizFind` (line 621): Raises error R19 today instead of drawing the lanes with one label highlighted. -- it ends by calling Show, which fails: Show raises error R19
+- `RemovePointFromLane` (line 758): Does nothing today instead of removing a point from a lane by label or moment. -- it edits the copy that Lane returns, so the point stays in the lane and no error is raised: removing KICKOFF2 or the moment 2026-02-01 leaves the lane unchanged
+- `RenameLabelInLane` (line 771): Does nothing today instead of renaming a point label in a lane. -- it edits the copy that Lane returns, so the label stays as it was and no error is raised
 
 ## stzFileInfo -- file/stzFile.ring (1)
 
@@ -263,6 +286,29 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 - `SummarizedAbstractively` (line 1316): Raises error R19 today when no generative model is loaded, instead of falling back to the extractive summary. -- Raises error R19 without a generative model (checked on three texts): the fallback calls Summary without its sentence count
 
+## stzItemCS -- list/stzItem.ring (20)
+
+- `Sections` (line 354): Raises error R14 today instead of answering the positions of the item as runs of consecutive positions. -- it calls FindAsSectionsCS on the list, a method stzList does not have, so every call raises R14, whatever the list
+- `IsBoundedBy` (line 441): Raises error R14 today instead of telling whether the item stands between two bounding items. -- it calls ContainsItemBoundedByCS on the list, a method stzList does not have, so every call raises R14
+- `IsBetween` (line 458): Raises error R14 today instead of telling whether the item stands between two given items. -- it calls ContainsItemBetweenCSQ on the list, a method stzList does not have, so every call raises R14
+- `BoundedBy` (line 474): Raises error R14 today instead of putting two bounding items around the item in the list. -- it calls BoundItemByCSQ on the list, a method stzList does not have, so every call raises R14; its body also reads a name pacBounds that is not its parameter
+- `ReplacedWith` (line 497): Raises error R14 today instead of returning the list with the item replaced by another. -- it calls ReplaceCSQ on the list, a method stzList does not have, so every call raises R14; Replaced and ReplacedBy are the same call
+- `Removed` (line 518): Raises error R14 today instead of returning the list without the item. -- it calls RemoveCSQ on the list, a method stzList does not have, so every call raises R14
+- `Uppercased` (line 570): Raises error R14 today instead of returning the list with the item in upper case. -- it calls UppercaseItemCSQ on the list, a method stzList does not have, so every call raises R14
+- `Lowercased` (line 585): Raises error R14 today instead of returning the list with the item in lower case. -- it calls LowercaseItemCSQ on the list, a method stzList does not have, so every call raises R14
+- `InstertedBeforeCS` (line 598): Raises error R14 today instead of returning the list with a new item put before the item. -- it calls InsertBeforeCSQ on the list, a method stzList does not have, so every call raises R14; the method name is also misspelled: Instertedbefore
+- `InsertedBefore` (line 612): Raises error R14 today instead of returning the list with a new item put before the item. -- it calls InsertedBeforeCS, a name that does not exist because the real method is spelled InstertedBeforeCS, so every call raises R14; InsertedBAt is the same call
+- `InsertedBeforePosition` (line 626): Raises error R14 today instead of returning the list with the item put before a position. -- it calls InsertBeofrePositionQ, a misspelled name that does not exist, so every call raises R14; InsertedAtPosition is the same call
+- `InsertedBeforePositions` (line 640): Raises error R14 today instead of returning the list with the item put before several positions. -- it calls InsertBeofrePositionsQ, a misspelled name that does not exist, so every call raises R14
+- `InsertedBeforeItem` (line 666): Raises error R14 today instead of returning the list with another item put before the item. -- it calls InsertBeforeItemCSQ on the list, a method stzList does not have, so every call raises R14
+- `InsertedBeforeItems` (line 685): Raises error R14 today instead of returning the list with several items put before the item. -- it calls InsertBeforeItemsCSQ on the list, a method stzList does not have, so every call raises R14
+- `InstertedAfterCS` (line 707): Raises error R14 today instead of returning the list with a new item put after the item. -- it calls InsertAfterCSQ on the list, a method stzList does not have, so every call raises R14; the method name is also misspelled: Instertedafter
+- `InsertedAfter` (line 718): Raises error R14 today instead of returning the list with a new item put after the item. -- it calls InsertedAfterCS, a name that does not exist because the real method is spelled InstertedAfterCS, so every call raises R14
+- `InsertedAfterPosition` (line 730): Raises error R14 today instead of returning the list with the item put after a position. -- it calls the misspelled InsertBeofrePositionQ, which does not exist, so every call raises R14; its body is the one of the Before form, so it would insert before
+- `InsertedAfterPositions` (line 742): Raises error R14 today instead of returning the list with the item put after several positions. -- it calls the misspelled InsertBeofrePositionsQ, which does not exist, so every call raises R14; its body is the one of the Before form, so it would insert before
+- `InsertedAfterItem` (line 762): Raises error R14 today instead of returning the list with another item put after the item. -- it calls InsertAfterItemCSQ on the list, a method stzList does not have, so every call raises R14
+- `InsertedAfterItems` (line 781): Raises error R14 today instead of returning the list with several items put after the item. -- it calls InsertAfterItemsCSQ on the list, a method stzList does not have, so every call raises R14
+
 ## stzListChecker -- list/stzListChecker.ring (4)
 
 - `ContainsItem` (line 574): Returns 0 whatever the list holds today, because the item is handed to the engine in a form it does not match. -- defect: ContainsItem(2) on [1,2,3], ContainsItem("a") on ["a","b"] and ContainsItem([3]) on [[1,2],[3]] all answer 0, and so does ContainsItemCS with either case flag; the call StzEngineListContainsCS(list, item, cs) answers 0 on its own for present items; the engine function stz_list_contains_cs expects the needle as a value handle and the class passes the raw item
@@ -290,6 +336,18 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 - `Fit` (line 927): Fits Tukey's three-group line, then improves it with passes over the residuals, as R's line does. -- Fit(0) equals R's line with iter 1 and Fit(1) equals iter 2, so the count here is one less than R's; points that all share one x give slope 0 and intercept 0 with no error, which is a defect
 
+## stzChainOfTruth -- natural/stzChainOfTruth.ring (3)
+
+- `Containing` (line 772): Raises error Syntax error today for any text or list, instead of tagging the chain with whether the value holds p. -- tested with a text and with a list, and both raised Syntax error! Check the condition you provided, because it builds the condition between braces and Where refuses braces
+- `ContainingNo` (line 827): Raises error Syntax error today for any text or list, instead of tagging the chain with whether the value lacks p. -- tested with a text and with a list, and both raised Syntax error! Check the condition you provided, for the same reason as Containing
+- `Nth` (line 969): Raises error R13 Object is required today for a number, instead of returning the nth item such as the 7th letter of HUSSEIN. -- the call NthLetterOf(7, "HUSSEIN") on its own works and answers N; the failure is in the last line of the method, which builds the result with the name _, an attribute inside the class
+
+## stzChainOfValue -- natural/stzChainOfValue.ring (3)
+
+- `IsANumber` (line 761): Returns the chain itself whatever the value holds, so it does not answer today whether the value is a number. -- tested with a number, a text and a list: the answer is always the chain, never 1 or 0
+- `IsAList` (line 925): Returns nothing today: the method has an empty body and does not test the value. -- tested with a number, a text and a list: the answer is always an empty text
+- `IsAnObject` (line 933): Returns nothing today: the method has an empty body and does not test the value. -- tested with a number and a text: the answer is always an empty text
+
 ## stzNaturalEngine -- natural/stzNatural.ring (1)
 
 - `FindContextPlaceholders` (line 588): Returns the {...} holes of a narration, but today only when the text starts with the hole. -- Returns [ ] today for a hole that is not at the very start: {a} answers {a}, but x{a}, {a} x and Hello {name} from {c} all answer [ ]; the scan tests the character at i with StzMid(text, i, i) where the third argument is a length, so it can match only at the first character
@@ -297,6 +355,10 @@ and each was checked with a second call on different data. **None is fixed yet.*
 ## stzUrl -- network/stzUrl.ring (1)
 
 - `FromLocalFile` (line 702): Raises error R19 today instead of returning a file URL for the given path. -- Raises error R19 today whatever the path, on a drive path with backslashes and on /tmp/y.txt: it calls ReplaceSubstring with two arguments where that method takes a start, an end and a replacement
+
+## stzBinaryNumber -- number/stzBinaryNumber.ring (1)
+
+- `ToScientificNotationForm` (line 494): Raises error R14 today instead of returning the number in scientific notation. -- it forwards to a stzNumber method of that name, which does not exist, so every call raises R14
 
 ## stzListOfBytes -- number/stzListOfBytes.ring (6)
 
@@ -399,6 +461,12 @@ and each was checked with a second call on different data. **None is fixed yet.*
 - `RecursiveDepth` (line 1889): Returns the number of distinct nested matches found by the last recursive match, which is the nesting depth only for a single chain. -- it counts matches, so ((x)(y)(z)) answers 4 although the nesting is 2 deep, while (((x))) answers 3
 - `NestedDepth` (line 1898): Returns the number of distinct nested matches found by the last recursive match; the same count as the recursive depth. -- it counts matches, so ((x)(y)(z)) answers 4 although the nesting is 2 deep
 - `Explain` (line 1938): Returns a one-line explanation of the pattern when the library knows it by name; any other pattern raises an error. -- for a pattern outside the library's named list it builds stzRegexAnalyzer, a class that does not exist, and raises error R11
+
+## stzRecursiveRegexMaker -- regex/stzRegexMaker.ring (3)
+
+- `Pattern` (line 1642): Raises error R19 today when a level exists, instead of returning the pattern joined from the root levels. -- tested with one level, with three levels and with a quantifier, and each raised error R19 Calling function with less number of parameters, because the helper calls HasKey with one argument
+- `SubPattern` (line 1667): Raises error R19 today for an existing level, instead of returning the pattern built from that level; an unknown level gives an empty text. -- tested with a top level and with a child level, and both raised error R19, for the same cause as Pattern
+- `pvtBuildPattern` (line 1807): Raises error R19 today for any existing level, instead of returning its pattern with its children and its quantifier. -- the call HasKey(_level_[:quant]) lacks its second argument, which makes Pattern and SubPattern raise
 
 ## stzRegexMaker -- regex/stzRegexMaker.ring (12)
 

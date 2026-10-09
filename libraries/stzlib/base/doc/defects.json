@@ -1,5 +1,5 @@
 {
- "count": 316,
+ "count": 360,
  "defects": [
   {
    "class": "stzAppServer",
@@ -232,6 +232,118 @@
    "line": 1901,
    "symptom": "Returns today, tomorrow or yesterday, a count of days or weeks within a month of today, else the date as dd/MM/yyyy.",
    "cause": ""
+  },
+  {
+   "class": "stzListOfTimeLines",
+   "file": "datetime/stzListOfTimeLines.ring",
+   "method": "AddPointsToLane",
+   "line": 379,
+   "symptom": "Does nothing today instead of adding several points to a lane at once.",
+   "cause": "it edits the copy that Lane returns, so the lane stays empty and no error is raised: after AddPointsToLane(\"b\", [ [\"Alpha\", \"2026-07-01\"] ]) the lane holds no point, where the same call on the copy gives it"
+  },
+  {
+   "class": "stzListOfTimeLines",
+   "file": "datetime/stzListOfTimeLines.ring",
+   "method": "AddSpanToLane",
+   "line": 395,
+   "symptom": "Does nothing today instead of adding a labelled span of time to a lane.",
+   "cause": "it edits the copy that Lane returns, so the lane stays empty and no error is raised: AddSpanToLane(\"team a\", \"Build\", \"2026-04-01\", \"2026-05-01\") leaves Spans of the lane empty, though the same call on the copy returns the span"
+  },
+  {
+   "class": "stzListOfTimeLines",
+   "file": "datetime/stzListOfTimeLines.ring",
+   "method": "AddPeriodToLane",
+   "line": 412,
+   "symptom": "Does nothing today instead of adding a labelled period to a lane.",
+   "cause": "it is AddSpanToLane, which edits a copy and keeps nothing"
+  },
+  {
+   "class": "stzListOfTimeLines",
+   "file": "datetime/stzListOfTimeLines.ring",
+   "method": "AddSpansToLane",
+   "line": 423,
+   "symptom": "Does nothing today instead of adding several spans to a lane at once.",
+   "cause": "it edits the copy that Lane returns, so the lane stays empty and no error is raised"
+  },
+  {
+   "class": "stzListOfTimeLines",
+   "file": "datetime/stzListOfTimeLines.ring",
+   "method": "AddBlockedSpanToLane",
+   "line": 439,
+   "symptom": "Does nothing today instead of blocking a labelled span of a lane.",
+   "cause": "it edits the copy that Lane returns: afterwards IsBlockedInLane for a moment inside the span answers FALSE"
+  },
+  {
+   "class": "stzListOfTimeLines",
+   "file": "datetime/stzListOfTimeLines.ring",
+   "method": "AddBlockedPointToLane",
+   "line": 451,
+   "symptom": "Does nothing today instead of blocking a moment of a lane.",
+   "cause": "it edits the copy that Lane returns: afterwards IsBlockedInLane for that moment answers FALSE"
+  },
+  {
+   "class": "stzListOfTimeLines",
+   "file": "datetime/stzListOfTimeLines.ring",
+   "method": "BlockSpanInLane",
+   "line": 463,
+   "symptom": "Raises error R14 today instead of blocking an existing span of a lane by its label.",
+   "cause": "it calls BlockSpan on the lane's timeline, a method stzTimeLine does not have, so every call raises R14"
+  },
+  {
+   "class": "stzListOfTimeLines",
+   "file": "datetime/stzListOfTimeLines.ring",
+   "method": "BlockPointInLane",
+   "line": 475,
+   "symptom": "Raises error R14 today instead of blocking an existing point of a lane by its label.",
+   "cause": "it calls BlockPoint on the lane's timeline, a method stzTimeLine does not have, so every call raises R14"
+  },
+  {
+   "class": "stzListOfTimeLines",
+   "file": "datetime/stzListOfTimeLines.ring",
+   "method": "Show",
+   "line": 588,
+   "symptom": "Raises error R19 today instead of returning a drawing of all the lanes.",
+   "cause": "it calls an internal drawing routine without the arguments it needs; the drawing routines behind it are also unfinished stubs, so no picture exists to return"
+  },
+  {
+   "class": "stzListOfTimeLines",
+   "file": "datetime/stzListOfTimeLines.ring",
+   "method": "ShowShort",
+   "line": 597,
+   "symptom": "Raises error R19 today instead of returning a short drawing of all the lanes.",
+   "cause": "it fails as Show does, through the same internal drawing routine"
+  },
+  {
+   "class": "stzListOfTimeLines",
+   "file": "datetime/stzListOfTimeLines.ring",
+   "method": "ShowUncovered",
+   "line": 611,
+   "symptom": "Raises error R19 today instead of returning a drawing that marks the uncovered periods.",
+   "cause": "it fails as Show does, through the same internal drawing routine"
+  },
+  {
+   "class": "stzListOfTimeLines",
+   "file": "datetime/stzListOfTimeLines.ring",
+   "method": "VizFind",
+   "line": 621,
+   "symptom": "Raises error R19 today instead of drawing the lanes with one label highlighted.",
+   "cause": "it ends by calling Show, which fails: Show raises error R19"
+  },
+  {
+   "class": "stzListOfTimeLines",
+   "file": "datetime/stzListOfTimeLines.ring",
+   "method": "RemovePointFromLane",
+   "line": 758,
+   "symptom": "Does nothing today instead of removing a point from a lane by label or moment.",
+   "cause": "it edits the copy that Lane returns, so the point stays in the lane and no error is raised: removing KICKOFF2 or the moment 2026-02-01 leaves the lane unchanged"
+  },
+  {
+   "class": "stzListOfTimeLines",
+   "file": "datetime/stzListOfTimeLines.ring",
+   "method": "RenameLabelInLane",
+   "line": 771,
+   "symptom": "Does nothing today instead of renaming a point label in a lane.",
+   "cause": "it edits the copy that Lane returns, so the label stays as it was and no error is raised"
   },
   {
    "class": "stzFileInfo",
@@ -986,6 +1098,166 @@
    "cause": "Raises error R19 without a generative model (checked on three texts): the fallback calls Summary without its sentence count"
   },
   {
+   "class": "stzItemCS",
+   "file": "list/stzItem.ring",
+   "method": "Sections",
+   "line": 354,
+   "symptom": "Raises error R14 today instead of answering the positions of the item as runs of consecutive positions.",
+   "cause": "it calls FindAsSectionsCS on the list, a method stzList does not have, so every call raises R14, whatever the list"
+  },
+  {
+   "class": "stzItemCS",
+   "file": "list/stzItem.ring",
+   "method": "IsBoundedBy",
+   "line": 441,
+   "symptom": "Raises error R14 today instead of telling whether the item stands between two bounding items.",
+   "cause": "it calls ContainsItemBoundedByCS on the list, a method stzList does not have, so every call raises R14"
+  },
+  {
+   "class": "stzItemCS",
+   "file": "list/stzItem.ring",
+   "method": "IsBetween",
+   "line": 458,
+   "symptom": "Raises error R14 today instead of telling whether the item stands between two given items.",
+   "cause": "it calls ContainsItemBetweenCSQ on the list, a method stzList does not have, so every call raises R14"
+  },
+  {
+   "class": "stzItemCS",
+   "file": "list/stzItem.ring",
+   "method": "BoundedBy",
+   "line": 474,
+   "symptom": "Raises error R14 today instead of putting two bounding items around the item in the list.",
+   "cause": "it calls BoundItemByCSQ on the list, a method stzList does not have, so every call raises R14; its body also reads a name pacBounds that is not its parameter"
+  },
+  {
+   "class": "stzItemCS",
+   "file": "list/stzItem.ring",
+   "method": "ReplacedWith",
+   "line": 497,
+   "symptom": "Raises error R14 today instead of returning the list with the item replaced by another.",
+   "cause": "it calls ReplaceCSQ on the list, a method stzList does not have, so every call raises R14; Replaced and ReplacedBy are the same call"
+  },
+  {
+   "class": "stzItemCS",
+   "file": "list/stzItem.ring",
+   "method": "Removed",
+   "line": 518,
+   "symptom": "Raises error R14 today instead of returning the list without the item.",
+   "cause": "it calls RemoveCSQ on the list, a method stzList does not have, so every call raises R14"
+  },
+  {
+   "class": "stzItemCS",
+   "file": "list/stzItem.ring",
+   "method": "Uppercased",
+   "line": 570,
+   "symptom": "Raises error R14 today instead of returning the list with the item in upper case.",
+   "cause": "it calls UppercaseItemCSQ on the list, a method stzList does not have, so every call raises R14"
+  },
+  {
+   "class": "stzItemCS",
+   "file": "list/stzItem.ring",
+   "method": "Lowercased",
+   "line": 585,
+   "symptom": "Raises error R14 today instead of returning the list with the item in lower case.",
+   "cause": "it calls LowercaseItemCSQ on the list, a method stzList does not have, so every call raises R14"
+  },
+  {
+   "class": "stzItemCS",
+   "file": "list/stzItem.ring",
+   "method": "InstertedBeforeCS",
+   "line": 598,
+   "symptom": "Raises error R14 today instead of returning the list with a new item put before the item.",
+   "cause": "it calls InsertBeforeCSQ on the list, a method stzList does not have, so every call raises R14; the method name is also misspelled: Instertedbefore"
+  },
+  {
+   "class": "stzItemCS",
+   "file": "list/stzItem.ring",
+   "method": "InsertedBefore",
+   "line": 612,
+   "symptom": "Raises error R14 today instead of returning the list with a new item put before the item.",
+   "cause": "it calls InsertedBeforeCS, a name that does not exist because the real method is spelled InstertedBeforeCS, so every call raises R14; InsertedBAt is the same call"
+  },
+  {
+   "class": "stzItemCS",
+   "file": "list/stzItem.ring",
+   "method": "InsertedBeforePosition",
+   "line": 626,
+   "symptom": "Raises error R14 today instead of returning the list with the item put before a position.",
+   "cause": "it calls InsertBeofrePositionQ, a misspelled name that does not exist, so every call raises R14; InsertedAtPosition is the same call"
+  },
+  {
+   "class": "stzItemCS",
+   "file": "list/stzItem.ring",
+   "method": "InsertedBeforePositions",
+   "line": 640,
+   "symptom": "Raises error R14 today instead of returning the list with the item put before several positions.",
+   "cause": "it calls InsertBeofrePositionsQ, a misspelled name that does not exist, so every call raises R14"
+  },
+  {
+   "class": "stzItemCS",
+   "file": "list/stzItem.ring",
+   "method": "InsertedBeforeItem",
+   "line": 666,
+   "symptom": "Raises error R14 today instead of returning the list with another item put before the item.",
+   "cause": "it calls InsertBeforeItemCSQ on the list, a method stzList does not have, so every call raises R14"
+  },
+  {
+   "class": "stzItemCS",
+   "file": "list/stzItem.ring",
+   "method": "InsertedBeforeItems",
+   "line": 685,
+   "symptom": "Raises error R14 today instead of returning the list with several items put before the item.",
+   "cause": "it calls InsertBeforeItemsCSQ on the list, a method stzList does not have, so every call raises R14"
+  },
+  {
+   "class": "stzItemCS",
+   "file": "list/stzItem.ring",
+   "method": "InstertedAfterCS",
+   "line": 707,
+   "symptom": "Raises error R14 today instead of returning the list with a new item put after the item.",
+   "cause": "it calls InsertAfterCSQ on the list, a method stzList does not have, so every call raises R14; the method name is also misspelled: Instertedafter"
+  },
+  {
+   "class": "stzItemCS",
+   "file": "list/stzItem.ring",
+   "method": "InsertedAfter",
+   "line": 718,
+   "symptom": "Raises error R14 today instead of returning the list with a new item put after the item.",
+   "cause": "it calls InsertedAfterCS, a name that does not exist because the real method is spelled InstertedAfterCS, so every call raises R14"
+  },
+  {
+   "class": "stzItemCS",
+   "file": "list/stzItem.ring",
+   "method": "InsertedAfterPosition",
+   "line": 730,
+   "symptom": "Raises error R14 today instead of returning the list with the item put after a position.",
+   "cause": "it calls the misspelled InsertBeofrePositionQ, which does not exist, so every call raises R14; its body is the one of the Before form, so it would insert before"
+  },
+  {
+   "class": "stzItemCS",
+   "file": "list/stzItem.ring",
+   "method": "InsertedAfterPositions",
+   "line": 742,
+   "symptom": "Raises error R14 today instead of returning the list with the item put after several positions.",
+   "cause": "it calls the misspelled InsertBeofrePositionsQ, which does not exist, so every call raises R14; its body is the one of the Before form, so it would insert before"
+  },
+  {
+   "class": "stzItemCS",
+   "file": "list/stzItem.ring",
+   "method": "InsertedAfterItem",
+   "line": 762,
+   "symptom": "Raises error R14 today instead of returning the list with another item put after the item.",
+   "cause": "it calls InsertAfterItemCSQ on the list, a method stzList does not have, so every call raises R14"
+  },
+  {
+   "class": "stzItemCS",
+   "file": "list/stzItem.ring",
+   "method": "InsertedAfterItems",
+   "line": 781,
+   "symptom": "Raises error R14 today instead of returning the list with several items put after the item.",
+   "cause": "it calls InsertAfterItemsCSQ on the list, a method stzList does not have, so every call raises R14"
+  },
+  {
    "class": "stzListChecker",
    "file": "list/stzListChecker.ring",
    "method": "ContainsItem",
@@ -1082,6 +1354,54 @@
    "cause": "Fit(0) equals R's line with iter 1 and Fit(1) equals iter 2, so the count here is one less than R's; points that all share one x give slope 0 and intercept 0 with no error, which is a defect"
   },
   {
+   "class": "stzChainOfTruth",
+   "file": "natural/stzChainOfTruth.ring",
+   "method": "Containing",
+   "line": 772,
+   "symptom": "Raises error Syntax error today for any text or list, instead of tagging the chain with whether the value holds p.",
+   "cause": "tested with a text and with a list, and both raised Syntax error! Check the condition you provided, because it builds the condition between braces and Where refuses braces"
+  },
+  {
+   "class": "stzChainOfTruth",
+   "file": "natural/stzChainOfTruth.ring",
+   "method": "ContainingNo",
+   "line": 827,
+   "symptom": "Raises error Syntax error today for any text or list, instead of tagging the chain with whether the value lacks p.",
+   "cause": "tested with a text and with a list, and both raised Syntax error! Check the condition you provided, for the same reason as Containing"
+  },
+  {
+   "class": "stzChainOfTruth",
+   "file": "natural/stzChainOfTruth.ring",
+   "method": "Nth",
+   "line": 969,
+   "symptom": "Raises error R13 Object is required today for a number, instead of returning the nth item such as the 7th letter of HUSSEIN.",
+   "cause": "the call NthLetterOf(7, \"HUSSEIN\") on its own works and answers N; the failure is in the last line of the method, which builds the result with the name _, an attribute inside the class"
+  },
+  {
+   "class": "stzChainOfValue",
+   "file": "natural/stzChainOfValue.ring",
+   "method": "IsANumber",
+   "line": 761,
+   "symptom": "Returns the chain itself whatever the value holds, so it does not answer today whether the value is a number.",
+   "cause": "tested with a number, a text and a list: the answer is always the chain, never 1 or 0"
+  },
+  {
+   "class": "stzChainOfValue",
+   "file": "natural/stzChainOfValue.ring",
+   "method": "IsAList",
+   "line": 925,
+   "symptom": "Returns nothing today: the method has an empty body and does not test the value.",
+   "cause": "tested with a number, a text and a list: the answer is always an empty text"
+  },
+  {
+   "class": "stzChainOfValue",
+   "file": "natural/stzChainOfValue.ring",
+   "method": "IsAnObject",
+   "line": 933,
+   "symptom": "Returns nothing today: the method has an empty body and does not test the value.",
+   "cause": "tested with a number and a text: the answer is always an empty text"
+  },
+  {
    "class": "stzNaturalEngine",
    "file": "natural/stzNatural.ring",
    "method": "FindContextPlaceholders",
@@ -1096,6 +1416,14 @@
    "line": 702,
    "symptom": "Raises error R19 today instead of returning a file URL for the given path.",
    "cause": "Raises error R19 today whatever the path, on a drive path with backslashes and on /tmp/y.txt: it calls ReplaceSubstring with two arguments where that method takes a start, an end and a replacement"
+  },
+  {
+   "class": "stzBinaryNumber",
+   "file": "number/stzBinaryNumber.ring",
+   "method": "ToScientificNotationForm",
+   "line": 494,
+   "symptom": "Raises error R14 today instead of returning the number in scientific notation.",
+   "cause": "it forwards to a stzNumber method of that name, which does not exist, so every call raises R14"
   },
   {
    "class": "stzListOfBytes",
@@ -1696,6 +2024,30 @@
    "line": 1938,
    "symptom": "Returns a one-line explanation of the pattern when the library knows it by name; any other pattern raises an error.",
    "cause": "known defect: for a pattern outside the library's named list it builds stzRegexAnalyzer, a class that does not exist, and raises error R11"
+  },
+  {
+   "class": "stzRecursiveRegexMaker",
+   "file": "regex/stzRegexMaker.ring",
+   "method": "Pattern",
+   "line": 1642,
+   "symptom": "Raises error R19 today when a level exists, instead of returning the pattern joined from the root levels.",
+   "cause": "tested with one level, with three levels and with a quantifier, and each raised error R19 Calling function with less number of parameters, because the helper calls HasKey with one argument"
+  },
+  {
+   "class": "stzRecursiveRegexMaker",
+   "file": "regex/stzRegexMaker.ring",
+   "method": "SubPattern",
+   "line": 1667,
+   "symptom": "Raises error R19 today for an existing level, instead of returning the pattern built from that level; an unknown level gives an empty text.",
+   "cause": "tested with a top level and with a child level, and both raised error R19, for the same cause as Pattern"
+  },
+  {
+   "class": "stzRecursiveRegexMaker",
+   "file": "regex/stzRegexMaker.ring",
+   "method": "pvtBuildPattern",
+   "line": 1807,
+   "symptom": "Raises error R19 today for any existing level, instead of returning its pattern with its children and its quantifier.",
+   "cause": "the call HasKey(_level_[:quant]) lacks its second argument, which makes Pattern and SubPattern raise"
   },
   {
    "class": "stzRegexMaker",
