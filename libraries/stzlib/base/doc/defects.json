@@ -1,5 +1,5 @@
 {
- "count": 227,
+ "count": 268,
  "defects": [
   {
    "class": "stzAppServer",
@@ -842,6 +842,54 @@
    "cause": "refused for every shape of 9 figures tried across the kinds; use MoveNoteTo to move a note"
   },
   {
+   "class": "stzListOfBytes",
+   "file": "number/stzListOfBytes.ring",
+   "method": "BytesOfThisChar",
+   "line": 458,
+   "symptom": "Does nothing today and answers an empty text instead of the bytes of a character.",
+   "cause": "the definition has no body, so the argument is never read; BytesOfChar answers the bytes (tried on abc with b, and on héllo with é)"
+  },
+  {
+   "class": "stzListOfBytes",
+   "file": "number/stzListOfBytes.ring",
+   "method": "FillWithAsciiCharUpToNChars",
+   "line": 585,
+   "symptom": "Raises error R21 today instead of filling the content with one ASCII character repeated for a number of characters.",
+   "cause": "raises the error R21 Using operator with values of incorrect type, because nChars is multiplied by NumberOfBytesPerChar, which answers a list of pairs and not a number (tried on abc with 2, and on abcd with 3)"
+  },
+  {
+   "class": "stzListOfBytes",
+   "file": "number/stzListOfBytes.ring",
+   "method": "ToUTF8",
+   "line": 788,
+   "symptom": "Raises error R14 today instead of answering the bytes as UTF-8.",
+   "cause": "raises the error R14 Calling Method without definition: toutf8, because it forwards to a stzString method that does not exist (tried on abc and on aé€)"
+  },
+  {
+   "class": "stzListOfBytes",
+   "file": "number/stzListOfBytes.ring",
+   "method": "Bits",
+   "line": 1148,
+   "symptom": "Does nothing today and answers an empty text: its body is a TODO that waits for a list of bits class.",
+   "cause": ""
+  },
+  {
+   "class": "stzListOfBytes",
+   "file": "number/stzListOfBytes.ring",
+   "method": "ToStzListOfBits",
+   "line": 1156,
+   "symptom": "Does nothing today and answers an empty text: its body is a TODO that waits for a list of bits class.",
+   "cause": ""
+  },
+  {
+   "class": "stzListOfBytes",
+   "file": "number/stzListOfBytes.ring",
+   "method": "Stripped",
+   "line": 1237,
+   "symptom": "Does nothing today and answers an empty text instead of the bytes without the spaces at both ends.",
+   "cause": "the definition has no body; Trimmed answers the trimmed bytes (tried on '  ab c  ' and on 'x ')"
+  },
+  {
    "class": "stzMatrix",
    "file": "number/stzMatrix.ring",
    "method": "Diagonal1",
@@ -872,6 +920,230 @@
    "line": 8946,
    "symptom": "Raises an unsupported-feature error today instead of applying a locale to the number.",
    "cause": "the call raises an unsupported-feature error today"
+  },
+  {
+   "class": "stzObject",
+   "file": "object/stzObject.ring",
+   "method": "Values",
+   "line": 2489,
+   "symptom": "Raises error R24 today instead of returning the values of the object's attributes.",
+   "cause": "raises R24 (uninitialized variable aresult): the list is built in a variable named _aResult_ and appended to as aResult; seen on a stzString, a stzList and a bare stzObject"
+  },
+  {
+   "class": "stzObject",
+   "file": "object/stzObject.ring",
+   "method": "AttributesAndValues",
+   "line": 2511,
+   "symptom": "Raises error R24 today instead of pairing each attribute name with its value.",
+   "cause": "raises the R24 of Values, which it calls"
+  },
+  {
+   "class": "stzObject",
+   "file": "object/stzObject.ring",
+   "method": "HasSameStzTypeAs",
+   "line": 2742,
+   "symptom": "Answers FALSE today instead of telling whether another object has the same Softanza class.",
+   "cause": "FALSE for a stzString against a stzString, a stzList against a stzList and a bare stzObject against another, even when the content is the class name; the test asks the other object IsStzType, which is true only when its content is a text naming a class"
+  },
+  {
+   "class": "stzObject",
+   "file": "object/stzObject.ring",
+   "method": "IsListOrString",
+   "line": 2878,
+   "symptom": "Raises error R4 today instead of telling whether the content is a list or a text.",
+   "cause": "raises \"Stack Overflow\" (R4): the body calls IsListOrString itself, so it never ends; use IsStringOrList"
+  },
+  {
+   "class": "stzObject",
+   "file": "object/stzObject.ring",
+   "method": "IsFalseObject",
+   "line": 2889,
+   "symptom": "Answers FALSE today for every object, even the library's false object.",
+   "cause": "the test compares the class name with the misspelling stzFlaseObject, which no class has; AFalseObject().IsFalseObject() answers FALSE too"
+  },
+  {
+   "class": "stzObject",
+   "file": "object/stzObject.ring",
+   "method": "IsTrueObject",
+   "line": 2908,
+   "symptom": "Answers FALSE today for every object, even the library's true object.",
+   "cause": "the test compares the class name with the misspelling stzFlaseObject, which no class has; ATrueObject().IsTrueObject() answers FALSE"
+  },
+  {
+   "class": "stzObject",
+   "file": "object/stzObject.ring",
+   "method": "WhichAreBoth",
+   "line": 3548,
+   "symptom": "Raises error R24 today instead of checking that the content is a list of exactly two items.",
+   "cause": "raises R24 (uninitialized variable _alist_): the body tests _aList_, a variable it never sets, where it meant _aContent_; seen on a list of two numbers"
+  },
+  {
+   "class": "stzObject",
+   "file": "object/stzObject.ring",
+   "method": "OfM",
+   "line": 4174,
+   "symptom": "Raises error R14 today instead of comparing and keeping the main object of the chain.",
+   "cause": "raises R14 (calling method without definition: ofcsm), the method it forwards to"
+  },
+  {
+   "class": "stzObject",
+   "file": "object/stzObject.ring",
+   "method": "OfXTM",
+   "line": 4211,
+   "symptom": "Raises error R14 today instead of comparing, ignoring a filler word, and keeping the main object.",
+   "cause": "raises R14 (calling method without definition: ofcsm)"
+  },
+  {
+   "class": "stzObject",
+   "file": "object/stzObject.ring",
+   "method": "OfBM",
+   "line": 4257,
+   "symptom": "Raises error R14 today instead of comparing to the last value and keeping the main object.",
+   "cause": "raises R14 (calling method without definition: ofcsbm), the method it forwards to; its body also passes a pCaseSensitive it does not declare"
+  },
+  {
+   "class": "stzObject",
+   "file": "object/stzObject.ring",
+   "method": "OfMB",
+   "line": 4267,
+   "symptom": "Raises error R14 today instead of comparing to the last value and keeping the main object.",
+   "cause": "raises R14 (calling method without definition: ofcsmb)"
+  },
+  {
+   "class": "stzObject",
+   "file": "object/stzObject.ring",
+   "method": "OfXTCSB",
+   "line": 4291,
+   "symptom": "Raises error R24 today instead of comparing to the last value while ignoring a filler word.",
+   "cause": "raises R24 (uninitialized variable c): the body passes c instead of _n_"
+  },
+  {
+   "class": "stzObject",
+   "file": "object/stzObject.ring",
+   "method": "OfXTCSBM",
+   "line": 4302,
+   "symptom": "Raises error R14 today instead of comparing to the last value and keeping the main object.",
+   "cause": "raises R14 (calling method without definition: ofcsbm)"
+  },
+  {
+   "class": "stzObject",
+   "file": "object/stzObject.ring",
+   "method": "OfXTCSMB",
+   "line": 4314,
+   "symptom": "Raises error R14 today instead of comparing to the last value and keeping the main object.",
+   "cause": "raises R14 (calling method without definition: ofcsmb)"
+  },
+  {
+   "class": "stzObject",
+   "file": "object/stzObject.ring",
+   "method": "OfXTBM",
+   "line": 4329,
+   "symptom": "Raises error R24 today instead of comparing to the last value and keeping the main object.",
+   "cause": "raises R24 (uninitialized variable cignored): the body uses a parameter it does not declare"
+  },
+  {
+   "class": "stzObject",
+   "file": "object/stzObject.ring",
+   "method": "OfXTMB",
+   "line": 4340,
+   "symptom": "Raises error R19 today instead of comparing to the last value and keeping the main object.",
+   "cause": "raises R19 (fewer parameters than required): it calls OfXTCSMB with two arguments and that method wants three"
+  },
+  {
+   "class": "stzObject",
+   "file": "object/stzObject.ring",
+   "method": "OfXTBQ",
+   "line": 4350,
+   "symptom": "Raises error R19 today instead of returning the object when the last value equals the one given.",
+   "cause": "raises R19 (fewer parameters than required): it calls OfXTCSBQ with two arguments"
+  },
+  {
+   "class": "stzObject",
+   "file": "object/stzObject.ring",
+   "method": "IsText",
+   "line": 5694,
+   "symptom": "Answers FALSE today for every object tried, a stzString holding text included.",
+   "cause": "FALSE for Q(\"banana\") and for a bare stzObject; use IsAString for the question it seems to ask"
+  },
+  {
+   "class": "stzObject",
+   "file": "object/stzObject.ring",
+   "method": "ToPointer",
+   "line": 5704,
+   "symptom": "Raises an error today instead of returning a pointer to the object.",
+   "cause": "raises \"Bad parameter type!\" on a stzString and R21 (operator with incorrect type) on a stzList and on a bare stzObject, although the Ring built-in object2pointer(o) answers a pointer for the same object"
+  },
+  {
+   "class": "stzObject",
+   "file": "object/stzObject.ring",
+   "method": "OccursForTheNthTime",
+   "line": 6273,
+   "symptom": "Raises error R14 today instead of telling whether the content is the nth occurrence at a given position.",
+   "cause": "raises R14: calling method without definition: nthoccurrencecs on a text and nthoccurrence on a list; seen on both with the same call"
+  },
+  {
+   "class": "stzObject",
+   "file": "object/stzObject.ring",
+   "method": "OccursForTheFirstTime",
+   "line": 6303,
+   "symptom": "Raises error R14 today instead of telling whether the content first appears at a given position.",
+   "cause": "raises R14 (calling method without definition: nthoccurrencecs on a text, nthoccurrence on a list)"
+  },
+  {
+   "class": "stzObject",
+   "file": "object/stzObject.ring",
+   "method": "OccursForTheLastTime",
+   "line": 6337,
+   "symptom": "Raises error R14 today instead of telling whether the content last appears at a given position.",
+   "cause": "raises R14 (calling method without definition: nthoccurrencecs on a text, nthoccurrence on a list)"
+  },
+  {
+   "class": "stzObject",
+   "file": "object/stzObject.ring",
+   "method": "SizeInBytesXT32",
+   "line": 6531,
+   "symptom": "Raises error R3 today instead of returning the extended 32-bit memory size.",
+   "cause": "raises R3 (calling function without definition: @sizeinbytesxt32): the function it calls does not exist; the profiler defines @MemorySizeInBytes32XT instead"
+  },
+  {
+   "class": "stzObject",
+   "file": "object/stzObject.ring",
+   "method": "SizeInBytesXT64",
+   "line": 6566,
+   "symptom": "Raises error R3 today instead of returning the extended 64-bit memory size.",
+   "cause": "raises R3 (calling function without definition: @sizeinbytesxt64): the function it calls does not exist"
+  },
+  {
+   "class": "stzObject",
+   "file": "object/stzObject.ring",
+   "method": "AddTimeValue",
+   "line": 6887,
+   "symptom": "Raises error R24 today instead of appending the elapsed time to a list of times.",
+   "cause": "raises R24 (uninitialized variable _atime) even with SetKeepingTimeTo(1), because the list it appends to is never declared; without time keeping ExecutionTime raises first"
+  },
+  {
+   "class": "stzObject",
+   "file": "object/stzObject.ring",
+   "method": "AddExecutionTimeValue",
+   "line": 6895,
+   "symptom": "Raises error R24 today instead of appending the elapsed time to a list of times.",
+   "cause": "raises the R24 of AddTimeValue (uninitialized variable _atime)"
+  },
+  {
+   "class": "stzObject",
+   "file": "object/stzObject.ring",
+   "method": "AddExecutionTime",
+   "line": 6903,
+   "symptom": "Raises error R24 today instead of appending the elapsed time to a list of times.",
+   "cause": "raises the R24 of AddTimeValue (uninitialized variable _atime)"
+  },
+  {
+   "class": "stzObject",
+   "file": "object/stzObject.ring",
+   "method": "ToStzListOfObjects",
+   "line": 8128,
+   "symptom": "Raises error R14 today instead of wrapping the content in a stzListOfObjects.",
+   "cause": "raises R14 (calling method without definition: islistofobjects) for a list of numbers and for a list of stzString objects alike"
   },
   {
    "class": "stzReactiveSystem",
@@ -1274,6 +1546,30 @@
    "cause": "known defect: the body calls ScriptCode, which was retired; ScriptIs(\"taitham\") is the working test"
   },
   {
+   "class": "stzStringChecker",
+   "file": "string/stzStringChecker.ring",
+   "method": "HasLeadingChars",
+   "line": 607,
+   "symptom": "Returns 0 today whatever the text is, instead of telling whether the text starts with a repeated character.",
+   "cause": "answers FALSE for aab and for xxyy alike: it compares two engine handles, which are never equal, instead of the two characters; the stzString method of the same name answers 1 for aab"
+  },
+  {
+   "class": "stzStringChecker",
+   "file": "string/stzStringChecker.ring",
+   "method": "HasTrailingChars",
+   "line": 624,
+   "symptom": "Returns 0 today whatever the text is, instead of telling whether the text ends with a repeated character.",
+   "cause": "answers FALSE for abb and for xxyy alike: it compares two engine handles, which are never equal, instead of the two characters"
+  },
+  {
+   "class": "stzStringChecker",
+   "file": "string/stzStringChecker.ring",
+   "method": "HasLeadingAndTrailingChars",
+   "line": 642,
+   "symptom": "Returns 0 today whatever the text is, because both of the questions it combines answer 0.",
+   "cause": "answers FALSE for aabaa: it is the AND of HasLeadingChars and HasTrailingChars, which are always 0"
+  },
+  {
    "class": "stzStringList",
    "file": "string/stzStringList.ring",
    "method": "SortBy",
@@ -1288,6 +1584,38 @@
    "line": 1760,
    "symptom": "TRUE if every string matches the pattern as a whole, so \"a.\" matches ab and \"a\" does not; an empty list is TRUE.",
    "cause": "known defect: the old comment says it returns the strings that match, but it answers one verdict for the whole list"
+  },
+  {
+   "class": "stzStringReplacer",
+   "file": "string/stzStringReplacer.ring",
+   "method": "RemoveLast",
+   "line": 530,
+   "symptom": "Leaves the text unchanged today, because the occurrence it aims at is one past the last, in place.",
+   "cause": "it asks the nth removal for a rank equal to the number of occurrences, and that rank counts from 0 in the default case-sensitive call, so nothing is removed: one two one two one, aaa bbb and its b stay as they are; RemoveLastCS(..., 0) does remove the last occurrence"
+  },
+  {
+   "class": "stzStringText",
+   "file": "string/stzStringText.ring",
+   "method": "OnlyScript",
+   "line": 386,
+   "symptom": "Raises error R24 today instead of returning the part of the text written in a given script.",
+   "cause": "raises Using uninitialized variable pcscript for :Latin, :Hebrew and :Arabic alike: the anonymous function it builds does not see its own parameter"
+  },
+  {
+   "class": "stzStringText",
+   "file": "string/stzStringText.ring",
+   "method": "OnlyArabic",
+   "line": 402,
+   "symptom": "Raises error R14 today instead of returning the Arabic-script part of the text.",
+   "cause": "raises Calling Method without definition: concatenateq on a Latin text and on an Arabic text alike"
+  },
+  {
+   "class": "stzStringText",
+   "file": "string/stzStringText.ring",
+   "method": "OnlyLatin",
+   "line": 416,
+   "symptom": "Raises error R14 today instead of returning the Latin-script part of the text.",
+   "cause": "raises Calling Method without definition: concatenateq on a Latin text and on a mixed text alike"
   },
   {
    "class": "stzTable",
