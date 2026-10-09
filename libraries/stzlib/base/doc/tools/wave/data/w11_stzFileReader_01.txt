@@ -1,0 +1,6 @@
+# Wave 11 -- stzFileReader. Every line was run on invented files in a scratch folder.
+init | Opens a file for reading only; a path with no file raises an error. | nothing; the object is built | cFileName=the path of an existing file | Content, Capabilities | | the error text is Cannot read non-existent file: followed by the path; nothing is created
+Content | Returns the whole text of the file. | a text | | Lines, Size
+Close | Does nothing; reading holds no resource. | nothing | | Content
+Conditions | Returns the hash list of conditions this intent expects of the file. | a hash list, [ :FileExists = 1 ] | | Capabilities
+Capabilities | Returns what this intent allows: only :Read is 1. | a hash list of :Read, :Append, :Create, :Overwrite, :Modify | | Conditions | | Skills is the same call

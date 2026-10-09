@@ -1,0 +1,15 @@
+{
+ "brief": "Measures whether a two-way table needs a change of scale, and recommends the power that makes it additive.",
+ "detail": "Each rung of the ladder -1, -0.5, 0, 0.5, 1, 2 is tried and the slope of the residuals on comparison values is measured; a recommendation fires only when the slope at power 1 passes the threshold 0.5. A table that is the product of a row factor and a column factor gives the log. Known defect: a table holding a zero cannot take the negative powers or the log, and Recommend can then fire with power 1, as is.",
+ "receiver": "o1 = new stzTukeyReexpression([ [ 1, 2, 4 ], [ 2, 4, 8 ], [ 4, 8, 16 ], [ 8, 16, 32 ] ])",
+ "example": [
+  "? o1.Recommend()[:name]",
+  "#--> log",
+  "? o1.Recommend()[:fires]",
+  "#--> 1"
+ ],
+ "see": [
+  "stzTukeyFit",
+  "stzTukeyOneWay"
+ ]
+}

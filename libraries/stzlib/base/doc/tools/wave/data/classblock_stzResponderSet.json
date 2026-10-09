@@ -1,0 +1,16 @@
+{
+ "brief": "Routes each verb of a response plan to the first responder in the set that owns it, so one plan can have several owners.",
+ "detail": "A plan may lock an account and rotate a secret, and no single object owns both. The set asks each member Owns for the verb and passes the call to the first that says yes; a verb no member owns raises an error, and a plan that holds such an action is refused whole by ExecuteOn before anything is performed. The list given to the constructor copies its objects, which is harmless for a responder that holds its target by reference and wrong for one you want to read afterwards; build the set with Add to keep the object itself.",
+ "receiver": "oAuth = new stzAuth(); oAuth.Register(\"mallory\", \"pw-invented-1\"); o1 = new stzResponderSet([ ])",
+ "example": [
+  "o1.Add(StzAuthResponder(oAuth))",
+  "? o1.Owns(\"lockaccount\")",
+  "#--> 1",
+  "? o1.Owns(\"rotatesecret\")",
+  "#--> 0",
+  "o1.LockAccount(\"mallory\")",
+  "? oAuth.IsAccountLocked(\"mallory\")",
+  "#--> 1"
+ ],
+ "see": ["stzResponsePlan", "stzSecretStoreResponder", "stzCapabilityResponder", "StzResponderSet"]
+}

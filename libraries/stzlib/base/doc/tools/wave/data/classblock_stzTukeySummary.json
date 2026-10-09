@@ -1,0 +1,18 @@
+{
+ "brief": "Summarises a batch of numbers resistantly: median, hinges, fences, letter values and spread, with no mean and no p-value.",
+ "detail": "The summary is built on medians, so one wild value does not move it. Tukey's fourths are the default hinges and percentile quartiles are available with SetConvention; Why says which is in force. Fences at 1.5 and 3 fourth-spreads give the outside and far-out values, LetterValues gives the ladder from the median outward, and Skewness, TailWeight and Shape read the form of the batch against thresholds measured on seeded batches (a shape verdict is made from 100 values). Diagnostics returns the verdicts in the house rule shape. There is no inference here. Known defect: Skewness, TailWeight, Shape and Diagnostics raise error R2 for a batch of fewer than 5 values. Checked by hand on 2, 4, 4, 5, 7, 9, 12, 25: median 6, fourths 4 and 10.5, quartiles 4 and 9.75, trimean 6.625, MAD 2.5.",
+ "receiver": "o1 = new stzTukeySummary([ 2, 4, 4, 5, 7, 9, 12, 25 ])",
+ "example": [
+  "? o1.Median()",
+  "#--> 6",
+  "? @@( o1.Fourths() )",
+  "#--> [ 4, 10.50 ]",
+  "? @@( o1.Outside() )",
+  "#--> [ 25 ]"
+ ],
+ "see": [
+  "stzTukeySmoother",
+  "stzTukeyFit",
+  "stzDataSet"
+ ]
+}

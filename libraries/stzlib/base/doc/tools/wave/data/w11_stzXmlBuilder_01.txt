@@ -1,0 +1,11 @@
+# Wave 11 -- stzXml, stzXmlNode, stzXmlBuilder. Every line was run on invented documents; SaveTo ran in a scratch folder.
+init | Starts a document with the given root element and nothing inside it; an empty name raises an error. | nothing; the object is built | pcRootName=the name of the root element | Content, Open | | the name is trimmed; the error text is stzXmlBuilder: a root element name is required.
+SetAttribute | Adds an attribute to the root element; the value is escaped. | nothing; the root gains the attribute | pcName=the attribute name; pcValue=the attribute value, as text | AddElement, Content | | it always lands on the root, whatever is open; a name used twice gives the attribute twice
+AddElement | Adds a leaf element with a text inside the element now open; the text is escaped, so & becomes &amp; and < becomes &lt;. | nothing; the document grows | pcName=the element name; pcValue=the text inside | AddEmptyElement, Open | | the element name itself is written as given, not escaped
+AddEmptyElement | Adds an element with no content, written as <name/>, inside the element now open. | nothing; the document grows | pcName=the element name | AddElement, Open
+Open | Adds an opening tag; every element added until Close goes inside it. | nothing; the document grows | pcName=the element name | Close, NumberOfOpenElements | | Content raises an error while an element is still open
+Close | Closes the element opened last. | nothing; the document grows | | Open, NumberOfOpenElements | | with nothing open it raises the error stzXmlBuilder.Close: nothing is open.
+NumberOfOpenElements | Returns how many elements are open and not yet closed. | a number | | Open, Close
+Content | Returns the finished document: the root with its attributes and everything added. | a text | | XmlQ, Show | | it raises the error stzXmlBuilder: n element(s) still open -- Close them first. while an element is open
+XmlQ | Returns the finished document as a stzXml object, to be read or pretty-printed. | a stzXml | | Content | | it raises the same error as Content while an element is open
+Show | Prints the finished document to the console on one line. | nothing | | Content | | it raises the same error as Content while an element is open

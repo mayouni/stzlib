@@ -1,0 +1,11 @@
+init | Builds one change as an object: a type and its parameters, to be rehearsed in a twin or committed through a bridge. | nothing; the operation is built | pcType=the kind of change, such as create_file, copy_file or set_var, folded to lower case; paParams=a list of [ key, value ] pairs; anything else leaves it without parameters | Type, Param, Describe
+Type | Returns the kind of change, in lower case. | a text such as create_file | | init, Describe
+Params | Returns the parameters the operation was built with. | a list of [ key, value ] pairs | | Param, init
+Param | Returns the value of one parameter. | the value; an empty text when the key is absent | pcKey=the parameter name, such as path, content, from, to, name, value or command | Params, Impact
+Actor | Returns who proposed the operation. | a text; human until another actor is set | | SetActor, Intent
+SetActor | Sets who proposed the operation, which the history then shows. | the operation itself, so calls chain | pcActor=the name of the human, script or agent | Actor, SetIntent | | a twin stamps its own actor on each operation it rehearses
+Intent | Returns why the operation was proposed. | a text; empty until an intent is set | | SetIntent, Actor
+SetIntent | Sets why the operation was proposed, which the history text then shows after the operation. | the operation itself, so calls chain | pcIntent=the reason, in plain words | Intent, SetActor
+Impact | Returns the tokens the operation touches, which is what a commit scope checks. | a list of text: both paths for a copy or move, the variable name for an environment change, the command for a spawn, the path otherwise | | stzCommitScope, Param
+RequiredKind | Returns the capability kind a committer needs for this operation. | a text; effectful for every operation, because each one touches reality | | stzUpdatePlan, stzSystemActor
+Describe | Returns the operation as one plain-language line. | a text such as create file '/w/a.txt' (5 bytes); the bare type for a type it does not know | | Type, Narration

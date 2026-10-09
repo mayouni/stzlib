@@ -1,0 +1,14 @@
+{
+ "brief": "Holds the rehearsed operations of a twin as the one artifact that may cross into reality, narrated, ranked for risk and gated.",
+ "detail": "A twin changes only its own memory; reality changes when a plan is executed. The plan can tell its story in plain words (Narration), rank what deserves a second look (Risks), re-check itself against reality as it is now (Validate), let a reviewer reject steps, and say whether its executor may commit at all (MayCommit). Execute then passes each active operation through three gates, the reviewer, the commit scope and the executor's capabilities, before the bridge touches anything, and records every decision in the audit trail. Narrate and rehearse freely; execute with intent.",
+ "receiver": "v = new stzVirtualFileSystem(); v.CreateFile(\"/w/a.txt\", \"alpha\"); v.DeleteFile(\"/w/old.txt\"); o1 = v.GenerateUpdatePlan()",
+ "example": [
+  "? o1.NumberOfOperations()",
+  "#--> 2",
+  "? @@( o1.Risks() )",
+  "#--> [ [ 2, \"DESTRUCTIVE: delete file '/w/old.txt'\" ] ]",
+  "? @@( o1.MayCommit() )",
+  "#--> [ 1, \"no executor set -- unguarded (a human at the keyboard)\" ]"
+ ],
+ "see": ["stzVirtualSystem", "stzCommitScope", "stzVirtualOperation", "stzSystemActor"]
+}

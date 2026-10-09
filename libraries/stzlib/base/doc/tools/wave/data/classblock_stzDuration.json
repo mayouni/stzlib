@@ -1,0 +1,14 @@
+{
+ "brief": "Holds a length of time, independent of any date, and reads it back as parts, as words or as clock text.",
+ "detail": "A duration is built from a number of seconds, from a text such as 1 hour 30 min, or from a hash list of days, hours, minutes, seconds and milliseconds. It answers totals (TotalHours counts past one day) and parts (Hours is the hour of the day), compares with other durations, numbers or texts, and is changed in place by Add, Subtract, Multiply and Divide, which return the duration so calls chain. Limits today: the fraction of a second is lost when it is built from a number or a text, and AddMilliseconds, Copy and the operator results do not carry milliseconds; a negative duration answers wrong parts.",
+ "receiver": "o1 = new stzDuration(\"1 day 2 hours 3 minutes 4 seconds\")",
+ "example": [
+  "? o1.TotalSeconds()",
+  "#--> 93784",
+  "? o1.ToHuman()",
+  "#--> 1 day, 2 hours, 3 minutes, and 4 seconds",
+  "? o1.ToString()",
+  "#--> 26:03:04"
+ ],
+ "see": ["stzDate", "stzDateTime", "stzTime"]
+}

@@ -1,0 +1,17 @@
+{
+ "brief": "States one rule about a graph, as clauses over node properties or as a checker function, and reports its findings in the house shape.",
+ "detail": "A rule has a name, a type, a domain, a severity and a message. Its scope is the When clauses, which select nodes by a property test and are combined with AND. With no Then clause, every node in scope is a finding, a prohibition; with Then clauses, each node in scope that fails a requirement is a finding, an implication. A rule too rich for clauses takes a checker function with UseChecker, which owns the whole decision. Check returns rows [ :rule, :subject, :where, :severity, :message ], the shape stzRuleReport gates on, and Register compiles the rule into the shared registry. The setters have a plain form that returns nothing and a Q form that returns the rule, so chains use SetSeverityQ, WhenQ and ThenQ; SetReadsQ, SetWritesQ and SetOrderQ exist only in the Q form. Known defects: the greaterequal and lessequal operators match every node when the property or the value is text, and Register called twice adds the entry twice.",
+ "receiver": "o1 = new stzGraphRule(\"llm-needs-owner\"); o1.WhenQ(\"kind\", \"equals\", \"llm_actor\"); o1.ThenQ(\"owner\", \"exists\", \"\"); o1.ThenViolationQ(\"an LLM actor must name an owner\")",
+ "example": [
+  "oG = new stzGraph(\"agents\")",
+  "oG.AddNodeXTT(\"planner\", \"Planner\", [ :kind = \"llm_actor\" ])",
+  "oG.AddNodeXTT(\"deployer\", \"Deployer\", [ :kind = \"service\" ])",
+  "? @@( o1.SubjectsIn(oG) )",
+  "#--> [ \"node:planner\" ]",
+  "? o1.NumberOfFindings(oG)",
+  "#--> 1",
+  "? o1.Check(oG)[1][:message]",
+  "#--> an LLM actor must name an owner"
+ ],
+ "see": ["stzGraphRuleSet", "stzGraph", "stzRuleReport"]
+}

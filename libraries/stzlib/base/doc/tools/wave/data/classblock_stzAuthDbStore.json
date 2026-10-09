@@ -1,0 +1,14 @@
+{
+ "brief": "Keeps the users, sessions, two-factor rows, challenges, roles, passkeys and locks of stzAuth in a sqlite database, so they outlive the process.",
+ "detail": "It answers the same calls as stzAuthMemoryStore. Its only state is a stzDatabase, whose connection is an engine handle, so a copied store still writes the same database. Every statement binds its values and none is spliced into SQL text. Give it a file path to be durable, or :memory: for a real sqlite that lives only in the process.",
+ "receiver": "o1 = new stzAuthDbStore(\":memory:\")",
+ "example": [
+  "o1.PutUser(\"alice\", \"hash-of-alice\")",
+  "o1.GrantRole(\"alice\", \"editor\")",
+  "? o1.HasUser(\"alice\")",
+  "#--> 1",
+  "? @@( o1.RolesOf(\"alice\") )",
+  "#--> [ \"editor\" ]"
+ ],
+ "see": ["stzAuthMemoryStore", "stzAuth", "StzAuthDbStoreQ", "stzDatabase"]
+}

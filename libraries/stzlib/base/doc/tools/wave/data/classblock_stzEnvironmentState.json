@@ -1,0 +1,17 @@
+{
+ "brief": "Holds an in-memory environment: variables with their origin, a working directory, and a queue of commands waiting to run.",
+ "detail": "It is the state the environment twin changes. Each variable is a [ name, value, origin ] row, the origin being mirrored for a value read from reality and virtual for one born in the twin, which is what a diff against reality needs. Apply is the hook the generic twin calls to rehearse an operation, and Clone gives the independent copy a snapshot or a rebuild starts from. Names are matched with case. Nothing here touches the real environment.",
+ "receiver": "o1 = new stzEnvironmentState()",
+ "example": [
+  "o1.PutVar(\"MODE\", \"dev\", \"virtual\")",
+  "o1.SetCwd(\"/srv/app\", \"virtual\")",
+  "o1.AddSpawn(\"make test\")",
+  "? o1.VarValue(\"MODE\")",
+  "#--> dev",
+  "? o1.Cwd()",
+  "#--> /srv/app",
+  "? o1.NumberOfPendingSpawns()",
+  "#--> 1"
+ ],
+ "see": ["stzVirtualEnvironment", "stzEnvironmentBridge", "stzFileTree"]
+}

@@ -1,0 +1,39 @@
+# Wave 11 -- stzYielder. Every line was run on invented lists.
+init | Builds a pipeline over a list; any value that is not a list is ignored and the content stays empty. | nothing; the object is built | paList=the list to run the pipeline over | SetContent, Content | | a list argument is stored as given; the operations never change it
+Content | Returns the list the pipeline holds now. | a list | | SetContent, NumberOfItems | | it shows the effect of the Q forms (MapQ, FilterQ), which replace the content
+SetContent | Replaces the held list; a value that is not a list is ignored and the old content stays. | nothing | paList=the new list | Content, NumberOfItems
+NumberOfItems | Returns how many items the held list has. | a number | | Content, CountItems
+Map | Returns a new list with one named operation applied to every item; the held list is not changed. | a list of the same length; the content unchanged when the operation name is unknown | pcOp=the operation: :Abs, :Negate, :Double, :Square, :TypeName, :ToString, :ToInt, :ToFloat, :StrLen, :StrUpper, :StrLower, :StrTrim, :StrReverse, :Increment, :Decrement, :IsEven, :Sign (or its code 0-16) | MapQ, MapIndexed, Filter | | an operation that does not suit an item (:Abs on text) leaves the item as it is, and an unknown name returns the content without any message
+MapIndexed | Returns the text <list> for every item today, instead of applying an operation together with each item position. | a list of texts, each the text <list> | pcOp=the operation name, as for Map | Map, MapIndexedQ | defect: the result holds the text "<list>" in place of the values, for every operation tried (:Square, :Abs, :Negate, :Increment) and every input; the engine call returns its items in a form the Ring side shows only as that text | do not rely on it until it answers real values
+Filter | Returns a new list of the items for which a named test is true; the held list is not changed. | a list, shorter or equal; the whole list when the test name is unknown | pcOp=the test: :IsString, :IsNumber, :IsInt, :IsFloat, :IsBool, :IsNull, :IsList, :IsPositive, :IsNegative, :IsZero, :IsNonZero, :IsEmpty, :IsNotEmpty, :IsEven, :IsOdd, :IsTrue, :IsFalse (or its code 0-16) | FilterQ, CountWhere, MapFiltered | | an unknown name returns the content unchanged, without a message; the empty text counts as a string and as empty
+Reduce | Folds the whole list to one value with a named operation. | a number, or 0 when the list is empty or the name is unknown | pcOp=the operation: :Sum, :Product, :Min, :Max, :Count, :CountStrings, :CountNumbers, :Concat, :AnyTrue, :AllTrue (or its code 0-9) | ReduceConcat, Sum, MaxValue | | an empty list answers 0 for every operation, including Product, Min and Max
+ReduceConcat | Joins every item, written as text, into one text with the separator between them. | a text | pcSep=the text put between two items | Concat, Reduce | | numbers are written as text; an empty list gives the empty text
+MapFiltered | Returns the items that pass a test, each transformed, in one pass; the held list is not changed. | a list; the content unchanged when either name is unknown | pcFilterOp=the test, as for Filter; pcTransformOp=the operation applied to the survivors, as for Map | Filter, Map, MapFilteredQ | | the test runs first: [1,-2,3,-4,5] with :IsPositive and :Square gives [1, 9, 25]
+CountWhere | Returns how many items pass a named test. | a number; 0 when the test name is unknown | pcOp=the test, as for Filter | Filter, CountItems
+Abs | Returns the list with every number replaced by its absolute value; the held list is not changed. | a list of the same length | | Map, Negate | | text items stay as they are
+Negate | Returns the list with every number given the opposite sign; the held list is not changed. | a list of the same length | | Abs, Map
+DoubleValues | Returns the list with every number multiplied by two; the held list is not changed. | a list of the same length | | Square, Map
+Square | Returns the list with every number multiplied by itself; the held list is not changed. | a list of the same length | | DoubleValues, Map
+TypeNames | Returns the type of every item as a word: int, float, string or list. | a list of texts, same length | | Map, Strings
+StringLengths | Returns the length of every text item; a number item answers 0. | a list of numbers, same length | | Map, Uppercase
+Uppercase | Returns the list with every text item in capitals; numbers stay as they are. | a list of the same length | | Lowercase, Map | | it works on bytes, so a letter outside ASCII is not changed
+Lowercase | Returns the list with every text item in small letters; numbers stay as they are. | a list of the same length | | Uppercase, Map | | it works on bytes, so a letter outside ASCII is not changed
+Trimmed | Returns the list with the spaces cut from both ends of every text item. | a list of the same length | | Map, Reversed
+Reversed | Returns the list with the characters of every text item in reverse order; the order of the items is not changed. | a list of the same length | | Map, Trimmed | | it reverses each item, not the list: " Hello" becomes "olleH "
+Signs | Returns the sign of every number: 1, -1 or 0. | a list of numbers, same length | | Map, Abs
+Strings | Returns only the text items, the empty text included. | a list | | Numbers, Filter
+Numbers | Returns only the number items. | a list | | Strings, Filter
+Positives | Returns only the numbers above zero. | a list | | Negatives, Filter
+Negatives | Returns only the numbers below zero. | a list | | Positives, Filter
+Evens | Returns only the even numbers; zero counts as even. | a list | | Odds, Filter
+Odds | Returns only the odd numbers. | a list | | Evens, Filter
+NonEmpty | Returns the items that are not empty, so the empty text is dropped and every number stays. | a list | | Filter, Strings
+Sum | Returns the sum of the numbers in the list. | a number; 0 for an empty list | | Product, Reduce
+Product | Returns the product of the numbers in the list. | a number; 0 for an empty list | | Sum, Reduce
+MinValue | Returns the smallest number in the list. | a number; 0 for an empty list | | MaxValue, Reduce
+MaxValue | Returns the largest number in the list. | a number; 0 for an empty list | | MinValue, Reduce
+CountItems | Returns how many items the list has, by the engine count. | a number | | NumberOfItems, Reduce
+CountStrings | Returns how many items are text. | a number | | CountNumbers, Strings
+CountNumbers | Returns how many items are numbers. | a number | | CountStrings, Numbers
+AnyTrue | Returns 1 if at least one item is non-zero, else 0. | 1 or 0 | | AllTrue, Reduce | | the answer is a number, not TRUE or FALSE
+AllTrue | Returns 1 if every item is non-zero, else 0. | 1 or 0 | | AnyTrue, Reduce | | the answer is a number, not TRUE or FALSE

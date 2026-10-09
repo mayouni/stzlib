@@ -1,0 +1,15 @@
+{
+ "brief": "Holds one element of an HTML tree to be written out: a tag, a text, attributes and child nodes.",
+ "detail": "Reach for it to produce HTML without pasting strings: create a node, SetText, SetAttr and AppendChild, then call ToHtml on the top node. A node whose tag is the empty text is a container that writes only its children. Texts and attribute values are written as given, with no escaping, and a child is stored as a copy, so build each child fully before appending it.",
+ "receiver": "o1 = new stzHtmlBuildNode(\"ul\")\nli = new stzHtmlBuildNode(\"li\")\nli.SetText(\"one\")\nli.SetAttr(\"class\", \"x\")\no1.AppendChild(li)",
+ "example": [
+  "? o1.ToHtml()",
+  "#--> <ul><li class=\"x\">one</li></ul>",
+  "? len(o1.Children())",
+  "#--> 1"
+ ],
+ "see": [
+  "stzHtmlBuilder",
+  "stzXmlBuilder"
+ ]
+}

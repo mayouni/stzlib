@@ -1,0 +1,22 @@
+{
+ "brief": "Does disk operations on one existing file: copy, move, split, zip, delete and change its permission flags.",
+ "detail": "Reach for it to act on the file as an object on the disk rather than on its text. Working today: CopyToAs, MoveToAs, the Zip... methods, Delete, Remove, MakeReadOnly, MakeWritable and the small readers (Size, Exists, IsWritable). Broken today: CopyTo, CopyAs, MoveTo, MoveAs, RenameAs, CreateBackup, CreateBackupAs, SafeDelete, SafeRemove, ZipBackup and IsExecutable raise error R3 (helpers placed between classes are not global functions), the three Split methods raise error R13, and Backup returns 1 but writes nothing. The destination folder of a copy or move must already exist.",
+ "receiver": "write(\"demo_note.txt\", \"alpha\" + char(10) + \"beta gamma\" + char(10) + \"end\")\no1 = new stzFileManager(\"demo_note.txt\")",
+ "example": [
+  "? o1.Size()",
+  "#--> 20",
+  "? o1.Exists()",
+  "#--> 1",
+  "o1.MakeReadOnly()",
+  "? o1.IsWritable()",
+  "#--> 0",
+  "o1.MakeWritable()",
+  "? o1.IsClosed()",
+  "#--> 0"
+ ],
+ "see": [
+  "stzFileInfo",
+  "stzFolder",
+  "stzFileModifier"
+ ]
+}

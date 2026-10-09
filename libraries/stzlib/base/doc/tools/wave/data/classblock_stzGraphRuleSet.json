@@ -1,0 +1,19 @@
+{
+ "brief": "Holds a named collection of graph rules, runs them all over a graph in one call and answers whether the graph is sound.",
+ "detail": "A rule set is the container that workflow, org chart and compliance rule bases share: add stzGraphRule objects, call Check for every finding in one list of rows [ :rule, :subject, :where, :severity, :message ], or IsSound, which is TRUE when no rule found an error (warnings and info advise and do not make a graph unsound). A set with a domain gives it to the rules added after it that still have the default custom one, and the rule passed in is changed, since objects are passed by reference. RegisterAll compiles every rule into the shared registry; calling it twice adds each entry twice.",
+ "receiver": "o1 = new stzGraphRuleSet(\"agent controls\"); o1.SetDomain(\"agentic\")",
+ "example": [
+  "oRule = new stzGraphRule(\"flag-llm\")",
+  "oRule.WhenQ(\"kind\", \"equals\", \"llm_actor\")",
+  "o1.AddRule(oRule)",
+  "? @@( o1.RuleNames() )",
+  "#--> [ \"flag-llm\" ]",
+  "? oRule.Domain()",
+  "#--> agentic"
+ ],
+ "see": [
+  "stzGraphRule",
+  "stzGraph",
+  "stzRuleReport"
+ ]
+}

@@ -1,0 +1,16 @@
+# Wave 11 -- stzHtml. Every line was run on invented documents; nothing was fetched.
+init | Builds a document object by parsing HTML text with the engine; a value that is not a text raises an error. | nothing; the object is built | pcHtml=the HTML source as text | Content, Reload, IsValid | | the error text is Incorrect param type! pcHtml must be a string.; broken markup is accepted and repaired by the parser
+Content | Returns the HTML source the object was built from, unchanged. | a text | | Text, Reload
+Reload | Parses new HTML text and drops the previous document. | 1 | pcHtml=the new HTML source as text | Content | | Content, Text and every Find now answer for the new source
+Text | Returns the visible text of the whole document, without tags, scripts or styles; neighbouring elements run together. | a text | | Content, Find | | a div holding two p elements, Hello and World, reads HelloWorld; a document without any element gives its plain text back
+NumberOfElements | Returns how many elements the parser found, html, head and body included when the parser adds them. | a number | | CountByTag, Elements | | text without tags answers 0
+CountByTag | Returns how many elements have a given tag, ignoring the case of the tag. | a number | pcTag=the tag name, such as div | HasTag, TagsUsed | | CountByTag("DIV") and CountByTag("div") agree
+Find | Returns the elements matching a selector: a tag name, #id or .class; an empty text, a non-text or no match gives an empty list. | a list of stzHtmlNode | pcSelector=a tag such as div, an id such as #main, or a class such as .box | FindFirst, ElementsWhere, Elements | | only these three forms exist: no combinators and no attribute selectors
+FindFirst | Returns the first element matching a selector, in document order. | a stzHtmlNode; the empty text when nothing matches | pcSelector=a tag, #id or .class, as for Find | Find, ElementsWhere | | test the result with isObject before calling a method on it
+IsValid | Returns TRUE if the parse succeeded and produced at least one element. | TRUE or FALSE | | NumberOfElements | | the empty text and plain text without tags answer FALSE
+Elements | Returns every element of the document as a node, in document order. | a list of stzHtmlNode | | Find, NumberOfElements, TagsUsed | | a page of 12 elements gives 12 nodes, the first being html
+HasTag | Returns TRUE if at least one element has the tag. | TRUE or FALSE | pcTag=the tag name, such as table | CountByTag, HasBody | | the case of the tag does not matter
+HasBody | Returns TRUE if the document has a body element. | TRUE or FALSE | | HasHead, HasTag
+HasHead | Returns TRUE if the document has a head element. | TRUE or FALSE | | HasBody, HasTag
+TagsUsed | Returns the distinct tag names, lower case, in the order they first appear. | a list of texts | | CountByTag, Elements | | for a full page it starts with html, head, title
+ElementsWhere | Returns the elements matching every given constraint among :Tag, :Class and :Id. | a list of stzHtmlNode | paCriteria=a hash list such as [ :Tag = "div", :Class = "box" ] | Find, Elements | | an empty list of criteria gives every element; a value that is not a list gives an empty list; a class matches one word of the class attribute

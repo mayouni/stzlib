@@ -1,0 +1,7 @@
+init | Builds a resistant line to be fitted through paired values, x against y. | nothing; the object is built | paX=the x values, a list of numbers; paY=the y values, a list of numbers of the same length, at least three points; otherwise an error is raised | Fit, Slope
+Fit | Fits Tukey's three-group line, then improves it with passes over the residuals, as R's line does. | the line itself, so calls chain | pnIterations=the number of passes over the residuals after the first fit; a value that is not a number or is negative gives 5 | Slope, Intercept, Residuals | Fit(0) equals R's line with iter 1 and Fit(1) equals iter 2, so the count here is one less than R's; points that all share one x give slope 0 and intercept 0 with no error, which is a defect | on x 1 to 12 with y near twice x it gives slope 2.0056 and intercept 0.0444 after 5 passes, and one wild y barely moves it
+Slope | Returns the slope of the fitted line. | a number | | Intercept, Fit | Raises an error until Fit has run
+Intercept | Returns the intercept of the fitted line, its y at x equal to 0. | a number | | Slope, Fit | Raises an error until Fit has run
+Iterations | Returns how many residual passes the last Fit made. | a number | | Fit | Raises an error until Fit has run
+Residuals | Returns each y minus the line's value at its x, in the order given. | a list of numbers | | Slope, Intercept | Raises an error until Fit has run
+Why | Returns one sentence that gives the fitted equation and the number of passes. | a text; before Fit it says the line is not yet fitted | | Fit

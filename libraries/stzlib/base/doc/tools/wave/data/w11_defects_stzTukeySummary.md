@@ -1,0 +1,26 @@
+# Wave 11 defects (classes: stzTukey*, stzMathDomain/Substance/Style, stzGraphRule*, stzNotation, stzDuration, stzStringLocale)
+
+Found while calling every root method with real data. None was fixed; each is carried as a warning in the doc block. Each was confirmed with a second call on different data unless noted.
+
+| class.method | symptom | cause (as far as seen) | evidence |
+|---|---|---|---|
+| stzTukeySummary.Skewness, TailWeight, Shape, Diagnostics | raise error R2 (index out of range) for a batch of fewer than 5 values | Skewness and TailWeight read four letter values, and LetterValues(4) returns fewer rows for n < 5 | n = 1, 2, 3, 4 raise, n = 5 to 10 work (loop over n; Why still works) |
+| stzTukeyLine.Fit | points that all share one x give slope 0 and intercept 0 with no error | the engine returns a zero line instead of refusing | x = 1,1,1,1,1,1 with y = 1..6; x = 2,2,2,2 with y = 1,5,9,3 |
+| stzTukeyReexpression.Recommend | for a table holding a zero it can answer fires = 1 with power 1 ("as is"), which says to re-express and to leave it | the negative powers and the log cannot be taken (ok = 0), so the flattest rung left is power 1 with slope ~0.99, past the threshold | 4 x 3 tables 0,2,4 / 2,4,8 / 4,8,16 / 8,16,32 and 0,3,9 / 3,9,27 / ... |
+| stzMathSubstance.SetData, SetDataFrom | on an object that is not declared: no error, and the number cannot be read back (HasData FALSE, DataOf raises) | SetData resolves the name through _DeclaredName, which answers an empty text for an unknown name, and stores the row under that empty name | ghost / phantom objects; SetDataFrom("e", ...) with only e1 declared |
+| stzMathStyle.StartTrying | one mode given as text (not a list) raises R21 "Using operator with values of incorrect type" | the single-clause `if NOT isList(_am_) _am_ = [ _am_ ] ok` widening does not fire (CLAUDE.md trap 6) | "mesh" and "ring" as text; the list form works |
+| stzGraphRule (operators greaterequal, lessequal) | on a text property or text value they match every node | _StzGraphRuleValCmp answers 0 (incomparable) and the two operators test >= 0 and <= 0 | When("kind", ">=", "m") and "<=" on two nodes of kinds llm and svc: both nodes matched; greaterthan and lessthan matched none |
+| stzStringLocale.DetectDirection, IsRightToLeft, IsLeftToRight, HasRTL, IsBidiMixed, IsBidiNeutral, DirectionName | Hebrew letters are not read as right to left: a Hebrew text is Neutral, and a Hebrew word next to a Latin one is LTR; Arabic, Syriac and Thaana are right | the engine's direction detection does not count the Hebrew block as strong right-to-left | four Hebrew strings (shalom, alef-bet, ivrit and mixed with Latin); IsHebrewScript is right for the same strings |
+| stzDuration.init (number and text forms) | the fraction of a second is lost: 90.5 and "90 seconds 250 ms" give Milliseconds 0 | init computes round((x - floor(x)) * 1000) and `round()` as called here answers 0 for 500 (round(0.5 * 1000) printed 0, round(2.6) printed 1); only the hash-list form keeps milliseconds | 90.5, 59.999, "2 hr 30 sec 500 ms", "90 seconds 250 ms" |
+| stzDuration.AddMilliseconds | the milliseconds go into a hidden fraction of the total: Milliseconds and ToString do not change until a whole second is carried | AddMilliseconds adds n / 1000.0 to the seconds and never updates the milliseconds field | 500 ms added to 93784 s: Milliseconds 0; 1500 ms then moved 93784 to 93786; from 0, 2500 ms gave total 2 |
+| stzDuration.Copy, Clone, operator (+ - * /) | the milliseconds are dropped from the result | each builds a new stzDuration from the total seconds only | a hash-list duration with milliseconds 250: Copy gives 0, operator + 1 gives 0 |
+| stzDuration.Days, Hours, Minutes, Seconds, Components, ToString, ToHuman | a negative duration gives wrong parts (-90 s: -1 d, -1 h, -2 m, -30 s; ToHuman says 0 seconds) | floor on a negative division and a signed remainder | stzDuration(-90) |
+
+Observations that are not defects of these classes, kept so another desk can judge them:
+
+- stzGraphRule.Register and stzGraphRuleSet.RegisterAll called twice add each entry a second time (the registry does not replace by name): 1 entry became 2 for one rule, and 2 became 4 for a set of two.
+- stzStringLocale.LocaleCompare compares in character order with case ignored, not by the collation of a language: an a with a diaeresis and an accented e sort after z, and 10 sorts before 9. Whether that is the intent for a method named for locale is for the owner of the plane to say.
+- stzDuration.ToSimple pads minutes and seconds with a space and not a zero (26: 3: 4), where ToString pads with zeros.
+- stzNotation: SetNameInside, SetNameOutside, SetPeerChildren and SetBranchSide return nothing, where every other setter returns the notation, so a chain stops at them.
+- Rendering (stzDiagram, not one of my classes): a diagram under a notation whose state glyph is box or rounded drew the return edge of a two-node left-to-right cycle with no arrowhead; the circle glyph drew it with one (arrow_all.png, notation_machine.png, wave scratch folder).
+- stzDiagram.ToPNG and ToSVG without a :Font option draw no label at all (the node boxes are empty); the font has to be passed through ToPNGXT / ToCanvasXT.

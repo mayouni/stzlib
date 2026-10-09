@@ -1,0 +1,18 @@
+{
+ "brief": "Fits a two-way table as common plus row effect plus column effect plus residual, by median polish.",
+ "detail": "The polish is R's medpolish, run in the engine: Data = Fit + Residual, with medians and not means, so one wild cell shows up as a large residual and does not bend the fit. Call Polish first: every read raises an error until then. Check proves the contract, Diagnostics flags a residual past the far-out fence and a polish that hit its cap. Checked against R 4.5.1 on a 3 by 3 and a 5 by 3 table: common, effects and residuals are equal.",
+ "receiver": "o1 = new stzTukeyFit([ [ 10, 12, 14 ], [ 11, 13, 15 ], [ 13, 15, 20 ] ]); o1.Polish()",
+ "example": [
+  "? o1.Common()",
+  "#--> 13",
+  "? @@( o1.Effects(:Row) )",
+  "#--> [ -1, 0, 2 ]",
+  "? o1.Residual(3, 3)",
+  "#--> 3"
+ ],
+ "see": [
+  "stzTukeyOneWay",
+  "stzTukeyReexpression",
+  "stzTukeySummary"
+ ]
+}

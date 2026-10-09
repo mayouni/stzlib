@@ -1,0 +1,18 @@
+# Wave 11 -- stzFileReadingMixin. Every line was run through stzFileReader on an invented four-line file.
+Content | Returns the whole text of the file as it is on disk now. | a text | | Lines, Size | | it reads the file at each call, so it follows changes made by other objects
+Lines | Returns the lines of the file as a list of texts, without the line breaks. | a list of texts | | Line, NumberOfLines | | an empty file gives one empty line: [ "" ]
+Line | Returns the line at position n. | a text | n=the line number, counted from 1 | FirstLine, LastLine, LineNumber | | a number past the last line raises the error Array Access (Index out of range)
+FirstLine | Returns the first line of the file. | a text | | LastLine, Line
+LastLine | Returns the last line of the file. | a text | | FirstLine, Line | | an empty file gives the empty text
+NumberOfLines | Returns how many lines the file has. | a number | | Lines, Size | | an empty file counts 1 line; CountLines and HowManyLine are the same call
+HowManyLine | Returns how many lines the file has. | a number | | NumberOfLines, CountLines | | an empty file counts 1 line
+CountLines | Returns how many lines the file has. | a number | | NumberOfLines, HowManyLine | | an empty file counts 1 line
+ContentAsBytes | Returns the text of the file as a list-of-bytes object. | a list-of-bytes object | | Content, Size
+Size | Returns the size of the file in bytes. | a number | | IsEmpty, Content | | -1 when the file has since been deleted
+IsEmpty | Returns TRUE if the file holds no byte. | TRUE or FALSE | | Size
+FileName | Returns the path the object was built with. | a text | | Size
+FindText | Returns the position of the first occurrence of a text in the file, counted in characters from 1; 0 when absent. | a number | cSearchText=the text to look for | ContainsText, LineNumber | | the line breaks count as characters: in alpha, beta gamma on three lines beta is at 7
+ContainsText | Returns TRUE if the text occurs anywhere in the file. | TRUE or FALSE | cSearchText=the text to look for | FindText, LinesContaining
+CountOccurrences | Returns how many times a text occurs in the file. | a number | cSearchText=the text to count | ContainsText, LinesContaining | | NumberOfOccurrences is the same call
+LinesContaining | Returns the lines that contain a text, each with its line number. | a list of [ number, text ] pairs | cSearchText=the text to look for | LineNumber, ContainsText | | the class stzFileModifier has a method of the same name that answers only the texts
+LineNumber | Returns the number of the first line that contains a text; 0 when none does. | a number | cSearchText=the text to look for | LinesContaining, FindText

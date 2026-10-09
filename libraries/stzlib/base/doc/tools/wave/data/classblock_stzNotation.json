@@ -1,0 +1,19 @@
+{
+ "brief": "Declares a diagram domain as data: its node kinds and glyphs, its colours, its well-formedness rules and its layout grammar.",
+ "detail": "A notation is a profile over the one diagram foundation, not a second renderer. It declares a vocabulary of kinds with a glyph, a fill and a scale each (AddKind, AddKindXT, AddKindXTT), closes it when unknown kinds must be findings (Close), adds rules by the name of a check (Forbid for SelfLink, SecondParent and Cycle, ForbidFor for Inbound and Outbound on one kind), and amends the grammar: direction, routing, arrowheads, one ink, layout mode, where names are written. Check sweeps a diagram against the rules in the house rule shape [ :rule, :subject, :where, :severity, :message ]; MayLink answers the same rules for one link, so an editor can refuse it at the gesture. StzRegisterNotation puts a profile in the registry, StzNotation(name) fetches it, and a diagram takes one with SetNotation. A name that is not registered gives the default profile, not an error. SetNameInside, SetNameOutside, SetPeerChildren and SetBranchSide return nothing, so a chain stops at them. A picture of a diagram under a notation needs a font passed to ToPNGXT; without one no label is drawn. Picture: a start, two states and an end drawn under a closed machine profile with LeftRight showed a small green start dot, two blue rounded boxes named Idle and Running, a small red end dot, and arrows left to right; the return arrow from Running to Idle had no arrowhead in the box glyphs (notation_machine.png).",
+ "receiver": "o1 = new stzNotation(\"machine\"); o1.AddKindXT(\"state\", \"rounded\", \"Info.Solid\"); o1.AddKind(\"start\", \"circle\"); o1.AddKind(\"end\", \"circle\"); o1.ForbidFor(\"end\", :Outbound, \"nothing leaves the end\")",
+ "example": [
+  "? @@( o1.Kinds() )",
+  "#--> [ \"state\", \"start\", \"end\" ]",
+  "? o1.GlyphOf(\"state\")",
+  "#--> rounded",
+  "? @@( o1.SinkKinds() )",
+  "#--> [ \"end\" ]"
+ ],
+ "see": [
+  "stzDiagram",
+  "stzRuleReport",
+  "StzRegisterNotation",
+  "StzNotation"
+ ]
+}

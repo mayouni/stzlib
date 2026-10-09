@@ -1,0 +1,14 @@
+{
+ "brief": "Keeps the users, sessions, two-factor rows, challenges, roles, passkeys and locks of stzAuth in Ring lists, for development and tests.",
+ "detail": "It is the default store of stzAuth and the reference for the store contract: PutUser, UserHash, PutSession, Session and the rest. Nothing outlives the process; stzAuthDbStore answers the same calls over sqlite. Pass a database store, never a shared memory one, to production: Ring copies an object on assignment, so a memory store handed in from outside diverges from the caller's copy.",
+ "receiver": "o1 = new stzAuthMemoryStore()",
+ "example": [
+  "o1.PutUser(\"alice\", \"hash-of-alice\")",
+  "o1.GrantRole(\"alice\", \"editor\")",
+  "? o1.HasUser(\"alice\")",
+  "#--> 1",
+  "? @@( o1.RolesOf(\"alice\") )",
+  "#--> [ \"editor\" ]"
+ ],
+ "see": ["stzAuthDbStore", "stzAuth", "StzAuthMemoryStoreQ"]
+}

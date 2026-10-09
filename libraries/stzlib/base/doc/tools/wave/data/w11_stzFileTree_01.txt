@@ -1,0 +1,18 @@
+init | Builds an empty file tree: a flat map of paths to files and folders. | nothing; the tree is built | | PutFile, Clone
+Exists | TRUE if the tree holds a file or folder at that path. | TRUE or FALSE | pcPath=the path, matched exactly and with case | IsFile, IsFolder
+IsFile | TRUE if the tree holds a file at that path. | TRUE or FALSE | pcPath=the path, matched exactly | IsFolder, Exists
+IsFolder | TRUE if the tree holds a folder at that path. | TRUE or FALSE | pcPath=the path, matched exactly | IsFile, Exists
+PutFile | Adds a file node or replaces the content of the node at that path. | nothing | pcPath=the path; pcContent=the content, as text; pcOrigin=mirrored or virtual, kept only when the node is new | PutFolder, ContentOf | a node that exists keeps the origin it first had, so a mirrored file stays mirrored after its content is replaced; a folder at that path becomes a file
+PutFolder | Adds a folder node; a path already in the tree changes nothing. | nothing | pcPath=the path; pcOrigin=mirrored or virtual | PutFile, IsFolder
+Remove | Removes the node at that path, whatever it is; an absent path changes nothing. | nothing | pcPath=the path | PutFile, Exists | | nodes below a removed folder stay in the tree
+ContentOf | Returns the content of a node. | a text; an empty text for a folder or an absent path | pcPath=the path | SizeOf, PutFile
+SizeOf | Returns the size of the content of a node, in bytes. | a number; 0 for a folder or an absent path | pcPath=the path | ContentOf
+OriginOf | Returns where a node came from. | mirrored for one read from reality, virtual for one born in the twin; an empty text when absent | pcPath=the path | PutFile, Paths
+Paths | Returns every path in the tree, in the order added. | a list of text | | NumberOfNodes, TreeView
+NumberOfNodes | Returns how many nodes the tree holds. | a number | | Paths
+Apply | Applies one file operation to the tree: create, write, copy, move, delete a file, create or delete a folder; other types change nothing. | nothing | oOp=the stzVirtualOperation to apply | stzVirtualFileSystem, Clone | a copy or move of a path the tree does not hold creates an empty file at the destination | this is the hook the generic twin calls when it rehearses
+NodesCopy | Returns a copy of the node rows, so a clone does not share them. | a list of [ path, type, content, origin ] rows | | Clone, SetNodes
+SetNodes | Replaces all the node rows at once. | nothing | paNodes=a list of [ path, type, content, origin ] rows, the type file or folder | NodesCopy, Clone
+Clone | Returns an independent copy of the tree, which a snapshot or a rebuild starts from. | a new stzFileTree | | NodesCopy, SetNodes
+TreeView | Returns the tree as text, one line per node with its type, its path and its origin. | a text, several lines | | Show, Paths
+Show | Prints the number of nodes and the tree view. | nothing; it prints | | TreeView

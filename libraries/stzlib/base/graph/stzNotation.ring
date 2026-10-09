@@ -78,6 +78,34 @@ func StzNotations()
 	next
 	return _a_
 
+# Declares a diagram domain as data: its node kinds and glyphs, its colours, its well-formedness rules and its layout grammar.
+#
+# A notation is a profile over the one diagram foundation, not a second renderer. It declares a
+# vocabulary of kinds with a glyph, a fill and a scale each (AddKind, AddKindXT, AddKindXTT), closes
+# it when unknown kinds must be findings (Close), adds rules by the name of a check (Forbid for
+# SelfLink, SecondParent and Cycle, ForbidFor for Inbound and Outbound on one kind), and amends the
+# grammar: direction, routing, arrowheads, one ink, layout mode, where names are written. Check
+# sweeps a diagram against the rules in the house rule shape [ :rule, :subject, :where, :severity,
+# :message ]; MayLink answers the same rules for one link, so an editor can refuse it at the
+# gesture. StzRegisterNotation puts a profile in the registry, StzNotation(name) fetches it, and a
+# diagram takes one with SetNotation. A name that is not registered gives the default profile, not
+# an error. SetNameInside, SetNameOutside, SetPeerChildren and SetBranchSide return nothing, so a
+# chain stops at them. A picture of a diagram under a notation needs a font passed to ToPNGXT;
+# without one no label is drawn. Picture: a start, two states and an end drawn under a closed
+# machine profile with LeftRight showed a small green start dot, two blue rounded boxes named Idle
+# and Running, a small red end dot, and arrows left to right; the return arrow from Running to Idle
+# had no arrowhead in the box glyphs (notation_machine.png).
+#
+#   receiver   o1 = new stzNotation("machine"); o1.AddKindXT("state", "rounded", "Info.Solid");
+#              o1.AddKind("start", "circle"); o1.AddKind("end", "circle"); o1.ForbidFor("end",
+#              :Outbound, "nothing leaves the end")
+#   example    ? @@( o1.Kinds() )
+#              #--> [ "state", "start", "end" ]
+#              ? o1.GlyphOf("state")
+#              #--> rounded
+#              ? @@( o1.SinkKinds() )
+#              #--> [ "end" ]
+#   see        stzDiagram, stzRuleReport, StzRegisterNotation, StzNotation
 class stzNotation from stzObject
 
 	@cName = "default"
@@ -103,14 +131,34 @@ class stzNotation from stzObject
 	@cRegionFill = ""     # the tinted container a discovered region wears
 	@aKindScale = []      # [ kind, fraction-of-a-cell ] -- a mark is not a cell
 
+	# Builds an empty notation profile with a name, open to any kind and with no rule and no grammar of its own.
+	#
+	#   pcName     the notation's name
+	#   returns    nothing; the object is built
+	#   see        Name_, AddKind, StzRegisterNotation
 	def init(pcName)
 		@cName = StzLower(ring_trim("" + pcName))
 
+	# Returns the notation's name, trimmed and in lower case.
+	#
+	#   returns    a text
+	#   note       the registry looks a notation up by this name
+	#   see        init, StzNotation
 	def Name_()
 		return @cName
 
-	#-- VOCABULARY -------------------------------------------------------
-
+	# Declares a kind of node and the glyph that draws it, replacing the glyph when the kind is already declared.
+	#
+	#   pcKind     the node kind, as the type property of a node
+	#   pcGlyph    the shape name the renderer draws, such as circle, rounded, box, diamond or
+	#              ellipse
+	#   returns    the notation itself, so calls chain
+	#   note       AddKindXT takes a third argument, a colour role such as Info.Solid, and
+	#              AddKindXTT a fourth, the fraction of a cell the glyph is drawn at
+	#   warning    re-declaring a kind with AddKind clears the fill it had; AddKindXT sets the fill
+	#              with the glyph and AddKindXTT adds a scale
+	#   see        AddKindXT, AddKindXTT, GlyphOf, Close
+	#@ aka  -- VOCABULARY -------------------------------------------------------
 	def AddKind(pcKind, pcGlyph)
 		return This.AddKindXT(pcKind, pcGlyph, "")
 
@@ -139,7 +187,14 @@ class stzNotation from stzObject
 		@aKindScale + [ _k_, pnScale ]
 		return This
 
-	# The fraction of a cell this kind is drawn at, 1 when it is a cell.
+	# Returns the fraction of a cell a kind is drawn at, 1 for a kind drawn as a full cell.
+	#
+	#   pcKind     the node kind to ask about, in any case
+	#   returns    a number, such as 0.2 for a dot-sized mark, or 1
+	#   note       an initial or final state is declared small with AddKindXTT, because it is a mark
+	#              and not a cell
+	#   see        AddKind, FillOf
+	#@ aka  The fraction of a cell this kind is drawn at, 1 when it is a cell.
 	def ScaleOf(pcKind)
 		_k_ = StzLower(ring_trim("" + pcKind))
 		_n_ = len(@aKindScale)
@@ -166,9 +221,14 @@ class stzNotation from stzObject
 		def AddKindXTQ(pcKind, pcGlyph, pcFill)
 			return This.AddKindXT(pcKind, pcGlyph, pcFill)
 
-	# The fill this profile declares for a kind, or "" -- which leaves
-	# the renderer's own default in force. A node that names its own
-	# colour always outranks the profile: the author is closer.
+	# Returns the colour role declared for a kind, or an empty text when the profile declares none.
+	#
+	#   pcKind     the node kind to ask about, in any case
+	#   returns    a text such as Info.Solid, or an empty text
+	#   note       an empty text leaves the renderer's own colour in force, and a node that names
+	#              its own colour outranks the profile
+	#   see        AddKind, GlyphOf
+	#@ aka  The fill this profile declares for a kind, or "" -- which leaves the renderer's own default in force. A node that names its own colour always outranks the profile: the author is closer.
 	def FillOf(pcKind)
 		_k_ = StzLower(ring_trim("" + pcKind))
 		_n_ = len(@aKinds)
@@ -179,25 +239,42 @@ class stzNotation from stzObject
 		next
 		return ""
 
-	# The colour a REGION is painted -- the tinted container step of the
-	# role its members carry. Declared with SetRegionFill, and left "" by
-	# a profile that draws no regions.
+	# Declares the colour role a region is painted in, the tinted container drawn around the members of a region.
+	#
+	#   pcFill     a colour role such as Info.Subtle
+	#   returns    the notation itself, so calls chain
+	#   see        RegionFill, FillOf
+	#@ aka  The colour a REGION is painted -- the tinted container step of the role its members carry. Declared with SetRegionFill, and left "" by a profile that draws no regions.
 	def SetRegionFill(pcFill)
 		@cRegionFill = "" + pcFill
 		return This
 
+	# Returns the colour role the notation paints a region in.
+	#
+	#   returns    a text; empty when none was set
+	#   see        SetRegionFill
 	def RegionFill()
 		return @cRegionFill
 
 		def AddKindQ(pcKind, pcGlyph)
 			return This.AddKind(pcKind, pcGlyph)
 
+	# Returns the declared node types, in lower case, in the order they were declared.
+	#
+	#   returns    a list of text; empty for a notation with none declared
+	#   see        AddKind, KnowsKind, IsClosed
 	def Kinds()
 		_a_ = []
 		_n_ = len(@aKinds)
 		for _i_ = 1 to _n_  _a_ + @aKinds[_i_][1]  next
 		return _a_
 
+	# Closes the vocabulary, so a node of an undeclared kind becomes a finding of Check instead of being drawn without comment.
+	#
+	#   returns    the notation itself, so calls chain
+	#   note       a node with no type at all is not a finding; an open notation, the default, lets
+	#              any kind through
+	#   see        IsClosed, Check, KnowsKind
 	def Close()
 		# a CLOSED vocabulary: a kind this profile did not declare is a
 		# finding, not a box. Open is the default because the default
@@ -205,9 +282,20 @@ class stzNotation from stzObject
 		@bClosed = 1
 		return This
 
+	# TRUE if the vocabulary was closed, so only the declared kinds are accepted.
+	#
+	#   returns    1 when closed, 0 when open
+	#   see        Close
 	def IsClosed()
 		return @bClosed
 
+	# TRUE if a kind was declared, in any case.
+	#
+	#   pcKind     the node kind to ask about
+	#   returns    TRUE or FALSE
+	#   note       a kind the glyph table knows is still not declared here, so an open notation
+	#              answers FALSE
+	#   see        Kinds, GlyphOf
 	def KnowsKind(pcKind)
 		_k_ = StzLower(ring_trim("" + pcKind))
 		_n_ = len(@aKinds)
@@ -216,13 +304,14 @@ class stzNotation from stzObject
 		next
 		return FALSE
 
-	# The kind's glyph: the geometric shape the renderer draws. The
-	# DEFAULT profile answers through the SAME shared table both faces
-	# already read (StzNodeShapeForType), so expressing the diagram as a
-	# profile moves no pixel -- DN0's whole claim. A declared kind
-	# outranks the table; an unknown kind in an OPEN profile falls back
-	# to it; in a CLOSED one it answers "", and the renderer's existing
-	# fallback (a box) still draws while Check() reports the finding.
+	# Returns the shape that draws a kind: the declared glyph, else the shared shape table for an open notation, else an empty text.
+	#
+	#   pcKind     the node kind to ask about, in any case
+	#   returns    a text such as rounded; empty for an undeclared kind in a closed notation
+	#   note       in an open notation start answers ellipse, state answers circle and decision
+	#              answers diamond, from the shared table
+	#   see        AddKind, KnowsKind
+	#@ aka  The kind's glyph: the geometric shape the renderer draws. The DEFAULT profile answers through the SAME shared table both faces already read (StzNodeShapeForType), so expressing the diagram as a profile moves no pixel -- DN0's whole claim. A declared kind outranks the table; an unknown kind in an OPEN profile falls back to it; in a CLOSED one it answers "", and the renderer's existing fallback (a b
 	def GlyphOf(pcKind)
 		_k_ = StzLower(ring_trim("" + pcKind))
 		_n_ = len(@aKinds)
@@ -232,8 +321,17 @@ class stzNotation from stzObject
 		if @bClosed  return ""  ok
 		return StzNodeShapeForType(_k_)
 
-	#-- RULES ------------------------------------------------------------
-
+	# Adds a well-formedness rule by the name of a check the notation knows, with the message to report when it is broken.
+	#
+	#   pcWhat      the check: SelfLink, SecondParent or Cycle
+	#   pcMessage   the text reported as the finding and given as the reason for a refused link
+	#   returns     the notation itself, so calls chain
+	#   note        SelfLink forbids an edge from a node to itself, SecondParent a node with two
+	#               incoming edges and Cycle an edge that closes a loop
+	#   warning     a name that is not one of the three checks is stored and never used, with no
+	#               error; the first rule of a name answers when it is repeated
+	#   see         Rules, ForbidFor, Check, MayLink
+	#@ aka  -- RULES ------------------------------------------------------------
 	def Forbid(pcWhat, pcMessage)
 		@aRules + [ StzLower(ring_trim("" + pcWhat)), "" + pcMessage ]
 		return This
@@ -241,6 +339,11 @@ class stzNotation from stzObject
 		def ForbidQ(pcWhat, pcMessage)
 			return This.Forbid(pcWhat, pcMessage)
 
+	# Returns the well-formedness checks added so far, each with the message to report.
+	#
+	#   returns    a list of [ check, message ] pairs, the check in lower case; empty when none was
+	#              added
+	#   see        Forbid, Check
 	def Rules()
 		return @aRules
 
@@ -252,11 +355,15 @@ class stzNotation from stzObject
 		next
 		return ""
 
-	# A rule a KIND carries -- DN2. :Inbound forbidden for an initial
-	# pseudostate means nothing may transition INTO it; :Outbound for a
-	# final state means nothing leaves. The kind is the subject because
-	# that is how the domain speaks: "a final state has no exits" is a
-	# statement about final states, not about any edge.
+	# Adds a rule that belongs to one kind: nothing may enter a kind, or nothing may leave it.
+	#
+	#   pcKind      the node kind the rule is about
+	#   pcWhat      Inbound to forbid edges into the kind, or Outbound to forbid edges out of it
+	#   pcMessage   the text reported when the rule is broken
+	#   returns     the notation itself, so calls chain
+	#   note        an initial state forbids Inbound and a final state forbids Outbound
+	#   see         Forbid, SourceKinds, SinkKinds, Check
+	#@ aka  A rule a KIND carries -- DN2. :Inbound forbidden for an initial pseudostate means nothing may transition INTO it; :Outbound for a final state means nothing leaves. The kind is the subject because that is how the domain speaks: "a final state has no exits" is a statement about final states, not about any edge.
 	def ForbidFor(pcKind, pcWhat, pcMessage)
 		@aKindRules + [ StzLower(ring_trim("" + pcKind)),
 			StzLower(ring_trim("" + pcWhat)), "" + pcMessage ]
@@ -294,15 +401,20 @@ class stzNotation from stzObject
 		next
 		return ""
 
-	# May an edge from -> to exist under this profile? Consulted by the
-	# editor's Link and Rewire commands, so an illegal link is refused at
-	# the gesture -- the domain's rules become the editor's refusals with
-	# no editor code knowing any domain.
+	# TRUE if an edge from one node to another is allowed by the rules, so an editor can refuse the link before it is made.
 	#
-	# Takes the DIAGRAM because two of the primitives are about the graph
-	# the link would join, not about the link alone (DN1, org charts): a
-	# second parent is only a second parent given the edges that exist,
-	# and a cycle is only a cycle given the paths that do.
+	#   poDiag     the diagram the link would join, or an empty text to test the self-link rule
+	#              alone
+	#   pcFrom     the id of the source node
+	#   pcTo       the id of the target node
+	#   returns    TRUE or FALSE
+	#   note       on a chain ceo, vp, mgr with SecondParent and Cycle forbidden, ceo to mgr and mgr
+	#              to ceo are refused and mgr to a new node is allowed
+	#   warning    with no diagram object only SelfLink is tested; SecondParent, Cycle and the kind
+	#              rules need the diagram, and every one of them counts the edges the diagram
+	#              already holds
+	#   see        Check, Forbid, ForbidFor
+	#@ aka  May an edge from -> to exist under this profile? Consulted by the editor's Link and Rewire commands, so an illegal link is refused at the gesture -- the domain's rules become the editor's refusals with no editor code knowing any domain.
 	def MayLink(poDiag, pcFrom, pcTo)
 		_f_ = StzLower("" + pcFrom)
 		_t_ = StzLower("" + pcTo)
@@ -342,8 +454,18 @@ class stzNotation from stzObject
 		ok
 		return TRUE
 
-	# The model swept against the profile, answered in the house rule
-	# shape -- one row per finding, ready for stzRuleReport.Ingest().
+	# Sweeps a diagram against the notation and returns one row per finding, in the house rule shape.
+	#
+	#   poDiagram   the diagram to check
+	#   returns     a list of rows [ :rule, :subject, :where, :severity, :message ]; empty when
+	#               nothing is wrong or when the argument is not an object
+	#   note        a node with two incoming edges is one finding, and each edge that closes a loop
+	#               is one finding
+	#   warning     the rule names are notation-unknown-kind (a warning), notation-self-link,
+	#               notation-second-parent, notation-cycle, notation-inbound and notation-outbound
+	#               (errors); where holds the notation's name
+	#   see         MayLink, Forbid, Close
+	#@ aka  The model swept against the profile, answered in the house rule shape -- one row per finding, ready for stzRuleReport.Ingest().
 	def Check(poDiagram)
 		_aOut_ = []
 		if NOT isObject(poDiagram)  return _aOut_  ok
@@ -480,124 +602,123 @@ class stzNotation from stzObject
 		next
 		return _c_
 
-	#-- GRAMMAR ----------------------------------------------------------
-
+	# Declares the direction the domain is read in, which a diagram takes over when this notation is set on it.
+	#
+	#   pcDir      a layout direction of the diagram: TopDown, BottomUp, LeftRight or RightLeft
+	#   returns    the notation itself, so calls chain
+	#   note       with LeftRight a state machine is drawn from left to right
+	#   warning    the text is stored as given
+	#   see        RankDir, SetSplines
+	#@ aka  -- GRAMMAR ----------------------------------------------------------
 	def SetRankDir(pcDir)
 		@cRankDir = "" + pcDir
 		return This
 
+	# Returns the direction the notation declares.
+	#
+	#   returns    a text; empty when the notation amends nothing
+	#   see        SetRankDir
 	def RankDir()
 		return @cRankDir
 
+	# Declares the way edges are routed, which a diagram takes over when this notation is set on it.
+	#
+	#   pcSpl      an edge routing name such as ortho
+	#   returns    the notation itself, so calls chain
+	#   warning    the text is stored as given
+	#   see        Splines, SetRankDir
 	def SetSplines(pcSpl)
 		@cSplines = "" + pcSpl
 		return This
 
+	# Returns the edge routing the notation declares.
+	#
+	#   returns    a text; empty when the notation amends nothing
+	#   see        SetSplines
 	def Splines()
 		return @cSplines
 
-	# THE STRONGEST GRAMMAR AMENDMENT A DOMAIN CAN MAKE: which layout it
-	# is read in at all. Layered is right where the graph has a
-	# direction; a domain whose objects are PEERS -- a state machine's
-	# states, a network's nodes -- declares :Ring and is drawn in a
-	# space rather than in ranks. Graphviz makes the same split by
-	# shipping dot and circo as different programs; here it is one word
-	# in the profile.
-	# WHEN A NODE SITS. :Latest -- the default -- ranks by distance from
-	# the far end, so every sink lines up at the last rank: right when
-	# the endings are the destination. :Earliest ranks a node as soon as
-	# its sources allow, which is what a domain wants when its endings
-	# are ALTERNATIVES rather than a common destination. BPMN declares
-	# it, because BPMN's own law does (L5).
-	# A DOMAIN WITH A PRINCIPAL PATH SAYS SO.
+	# Declares whether an edge carries a direction, so whether it is drawn with an arrowhead.
 	#
-	# Some domains have one: a business process has the path it takes
-	# when things go as intended, and everything else hangs off it. A
-	# state machine does NOT -- events fire in an order nobody controls,
-	# and naming one chain "the" path would be a claim the graph does not
-	# make. So this is a declaration, never a default.
-	#
-	# Declared, the layout puts that chain on ONE line. The Principal
-	# asked for it in the plainest possible terms -- "why change
-	# direction when a direct line is sufficient" -- and BPMN's own law
-	# says the same thing in L4: the spine must read as one uninterrupted
-	# line and two of its nodes may never share a cell.
-	# DOES AN EDGE IN THIS NOTATION CARRY A DIRECTION?
-	#
-	# Most do: a transition goes one way, a dependency points at what it
-	# needs. A WIRE does not. Current flows both ways along it depending
-	# on the moment, and a schematic draws no arrowheads for that reason
-	# -- an arrow on a wire is a claim about direction the circuit does
-	# not make.
-	#
-	# Declared by the profile, so it is one line in a domain rather than
-	# a special case in the drawer, and it is not electric-only: a UML
-	# association and a communication link are undirected for the same
-	# reason.
+	#   pbYes      1 for edges with an arrowhead, the default
+	#   returns    the notation itself, so calls chain
+	#   note       a diagram of two boxes and one edge draws one polygon more with 1 than with 0,
+	#              the arrowhead
+	#   see        EdgesDirected, SetOneInk
+	#@ aka  THE STRONGEST GRAMMAR AMENDMENT A DOMAIN CAN MAKE: which layout it is read in at all. Layered is right where the graph has a direction; a domain whose objects are PEERS -- a state machine's states, a network's nodes -- declares :Ring and is drawn in a space rather than in ranks. Graphviz makes the same split by shipping dot and circo as different programs; here it is one word in the profile. WHEN 
 	def SetEdgesDirected(pbYes)
 		@bEdgesDirected = pbYes
 		return This
 
+	# Returns whether edges are drawn with a direction.
+	#
+	#   returns    1 for directed, the default, or 0
+	#   see        SetEdgesDirected
 	def EdgesDirected()
 		return @bEdgesDirected
 
+	# Declares whether the layout straightens the main path: HappyPath forces it, None forbids it, and empty lets the layout decide.
+	#
+	#   pcKind     the mode, HappyPath, None or an empty text
+	#   returns    the notation itself, so calls chain
+	#   note       the parameter is named for a kind but the layout reads it as a mode; the setter
+	#              and getter were run, the layout's use of the mode was read in the code and not
+	#              drawn
+	#   see        Spine, SetBranchSide
 	def SetSpine(pcKind)
 		@cSpine = StzLower("" + pcKind)
 		return This
 
+	# Returns the principal-path setting, in lower case.
+	#
+	#   returns    a text; empty when none was set
+	#   see        SetSpine
 	def Spine()
 		return @cSpine
 
+	# Declares when a node takes its rank: latest lines the endings up at the last rank, earliest places a node as soon as its sources allow.
+	#
+	#   pcPolicy   latest or earliest
+	#   returns    the notation itself, so calls chain
+	#   warning    an empty text means latest
+	#   see        RankPolicy, SetLayoutMode
 	def SetRankPolicy(pcPolicy)
 		@cRankPolicy = StzLower("" + pcPolicy)
 		return This
 
+	# Returns the rank policy, in lower case.
+	#
+	#   returns    a text; empty when none was set, which the diagram reads as latest
+	#   see        SetRankPolicy
 	def RankPolicy()
 		return @cRankPolicy
 
-	# ONE INK FOR THE OUTLINE AND THE WIRE.
+	# Declares that the outline of a node and the edges are one drawing, so both use the node ink and no lighter edge colour.
 	#
-	# A chart draws its boxes darker than its arrows on purpose: the
-	# boxes are the subject and the arrows are connective tissue, so the
-	# default is a #3A3A3A outline against a #8A8A8A edge.
-	#
-	# A SCHEMATIC HAS NO SUCH DIVISION. The outline of a resistor and
-	# the wire joined to it are one conductor drawing, and two inks
-	# there state a difference that does not exist -- the wires read as
-	# thinner and lighter than the parts, which is what the Principal
-	# saw. A profile whose edges ARE part of the same object as its
-	# nodes says so here, and the diagram then draws both in the node
-	# ink.
+	#   pbYes      1 for one ink, 0 for the usual lighter edges
+	#   returns    the notation itself, so calls chain
+	#   note       meant for a schematic, where a wire and a part are one conductor
+	#   see        OneInk, SetEdgesDirected
+	#@ aka  ONE INK FOR THE OUTLINE AND THE WIRE.
 	def SetOneInk(pbYes)
 		@bOneInk = pbYes
 		return This
 
+	# Returns whether outlines and edges share one ink.
+	#
+	#   returns    1 for one ink, or 0, the default
+	#   see        SetOneInk
 	def OneInk()
 		return @bOneInk
 
-	# WHICH SIDE OF THE SPINE AN ALTERNATIVE STANDS ON.
+	# Declares that a kind writes its name inside its glyph, even a glyph that would normally hold none, such as a diamond.
 	#
-	# The plane's own law (I7) puts siblings on EITHER side of their
-	# parent, which is right when the two are peers. DRAKON refuses that
-	# for a flow: its main path is the leftmost line and EVERY branch
-	# goes right, so that horizontal distance from the skewer reads as
-	# "how far from the normal case this is". A reader can then answer
-	# "is this the usual outcome?" from position alone, which is a
-	# question a two-sided layout cannot be asked.
-	#
-	# Declared by the notation because it is a claim about the domain --
-	# an algorithm has a normal path, a peer network does not.
-	# A KIND THAT HOLDS ITS OWN NAME.
-	#
-	# The plane writes a name UNDER a glyph that has no inside for a word
-	# -- a dot, a bar, a stick figure. A diamond is on that list because
-	# a diamond is usually drawn as a small mark. DRAKON draws it as a
-	# QUESTION, sized to the question, and the text belongs in it: that
-	# is what makes the rhombus readable as a decision rather than as a
-	# marker with a caption.
-	#
-	# Declared per kind, because it is a claim about how the DOMAIN draws
-	# that glyph, not about the glyph everywhere.
+	#   pcKind     the node kind, in any case
+	#   returns    nothing; it cannot be chained
+	#   note       a decision drawn as a diamond holds its question
+	#   warning    unlike the other setters it returns nothing, so a call chained after it fails
+	#   see        WritesNameInside, SetNameOutside
+	#@ aka  WHICH SIDE OF THE SPINE AN ALTERNATIVE STANDS ON.
 	def SetNameInside(pcKind)
 		_niK_ = StzLower("" + pcKind)
 		_nNi_ = len(@aNameInside)
@@ -606,30 +727,32 @@ class stzNotation from stzObject
 		next
 		@aNameInside + _niK_
 
-	# THE PROPERTIES THIS NOTATION READS AS COMPARTMENTS, in the order
-	# they stack under the name.
+	# Declares a property of a node as a compartment, a ruled section of the box that stacks under the name, in the order added.
 	#
-	# The compartment machinery was written for UML and read exactly two
-	# property names, "attributes" and "operations", written into the
-	# reader. A DRAKON Shelf is a box ruled once across the middle --
-	# which is a two-compartment node and nothing else -- and it could
-	# not have one, because the list of what counts as a compartment was
-	# a list.
-	#
-	# Same fault as the four layout modes and the one shape named
-	# "diamond", and this is the third time in a week: a rule whose
-	# membership is enumerated stops being applied the moment something
-	# new arrives. A notation says what its own compartments are; the
-	# default is UML's pair, so nothing that existed before this changes.
+	#   pcKey      the property name, kept in lower case
+	#   returns    the notation itself, so calls chain
+	#   note       a class box in UML has attributes and operations
+	#   see        CompartmentKeys
+	#@ aka  THE PROPERTIES THIS NOTATION READS AS COMPARTMENTS, in the order they stack under the name.
 	def AddCompartmentKey(pcKey)
 		if @aCompartmentKeys = NULL  @aCompartmentKeys = []  ok
 		@aCompartmentKeys + StzLower("" + pcKey)
 		return This
 
+	# Returns the compartment properties the notation declares, in the order added.
+	#
+	#   returns    a list of text; empty when none was added, in which case the renderer keeps its
+	#              own UML pair
+	#   see        AddCompartmentKey
 	def CompartmentKeys()
 		if @aCompartmentKeys = NULL  return []  ok
 		return @aCompartmentKeys
 
+	# TRUE if the kind was declared to write its name inside its glyph.
+	#
+	#   pcKind     the node kind, in any case
+	#   returns    1 or 0
+	#   see        SetNameInside, WritesNameOutside
 	def WritesNameInside(pcKind)
 		_niK_ = StzLower("" + pcKind)
 		_nNi_ = len(@aNameInside)
@@ -638,11 +761,14 @@ class stzNotation from stzObject
 		next
 		return 0
 
-	# THE OPPOSITE DECLARATION: a kind whose inside is spoken for. The
-	# renderer writes a name inside any glyph big enough to hold it,
-	# which is right until the glyph holds something else -- a Petri
-	# place holds its tokens, and "Key" written over one dot read as
-	# "K.y". Declared per kind, so a notation says it once.
+	# Declares that a kind keeps its inside for something else, so its name is written outside the glyph.
+	#
+	#   pcKind     the node kind, in any case
+	#   returns    nothing; it cannot be chained
+	#   note       a Petri place holds its tokens, and its name written over them is not readable
+	#   warning    unlike the other setters it returns nothing
+	#   see        WritesNameOutside, SetNameInside
+	#@ aka  THE OPPOSITE DECLARATION: a kind whose inside is spoken for. The renderer writes a name inside any glyph big enough to hold it, which is right until the glyph holds something else -- a Petri place holds its tokens, and "Key" written over one dot read as "K.y". Declared per kind, so a notation says it once.
 	def SetNameOutside(pcKind)
 		_noK_ = StzLower("" + pcKind)
 		_nNo_ = len(@aNameOutside)
@@ -651,18 +777,28 @@ class stzNotation from stzObject
 		next
 		@aNameOutside + _noK_
 
-	# A PARENT'S CHILDREN ARE PEERS. The layout gives a parent's column to
-	# the child that carries the longest continuation -- right for a flow,
-	# where the graph itself says "this way onward". A fault tree's gate
-	# has inputs, not a continuation: none of them is the line onward, so
-	# the gate stands at their middle whatever hangs beneath each. Declared
-	# by the notation, read by the layout.
+	# Declares that the children of a parent are peers, so none of them is the line onward and the parent stands at their middle.
+	#
+	#   returns    nothing; it cannot be chained
+	#   note       a fault tree gate has inputs, not a continuation
+	#   warning    unlike the other setters it returns nothing, so a call chained after it fails
+	#   see        PeerChildren, SetBranchSide
+	#@ aka  A PARENT'S CHILDREN ARE PEERS. The layout gives a parent's column to the child that carries the longest continuation -- right for a flow, where the graph itself says "this way onward". A fault tree's gate has inputs, not a continuation: none of them is the line onward, so the gate stands at their middle whatever hangs beneath each. Declared by the notation, read by the layout.
 	def SetPeerChildren()
 		@bPeerChildren = 1
 
+	# Returns whether the children of a parent are peers.
+	#
+	#   returns    1 when declared, or 0, the default
+	#   see        SetPeerChildren
 	def PeerChildren()
 		return @bPeerChildren
 
+	# TRUE if the kind was declared to write its name outside its glyph.
+	#
+	#   pcKind     the node kind, in any case
+	#   returns    1 or 0
+	#   see        SetNameOutside, WritesNameInside
 	def WritesNameOutside(pcKind)
 		_noK_ = StzLower("" + pcKind)
 		_nNo_ = len(@aNameOutside)
@@ -671,24 +807,48 @@ class stzNotation from stzObject
 		next
 		return 0
 
+	# Declares on which side of the main path an alternative stands, kept in lower case.
+	#
+	#   pcSide     a side such as right, kept in lower case
+	#   returns    nothing; it cannot be chained
+	#   note       DRAKON puts every branch to the right of the main line
+	#   warning    unlike the other setters it returns nothing
+	#   see        BranchSide, SetSpine
 	def SetBranchSide(pcSide)
 		@cBranchSide = StzLower("" + pcSide)
 
+	# Returns the side alternatives stand on.
+	#
+	#   returns    a text, both when none was declared
+	#   see        SetBranchSide
 	def BranchSide()
 		if @cBranchSide = ""  return "both"  ok
 		return @cBranchSide
 
+	# Declares the layout the domain is read in, in place of ranks: ring for peers on a circle, and the other modes the diagram knows.
+	#
+	#   pcMode     a layout mode name such as ring, circular, modes, sequence, mesh or silhouette
+	#   returns    the notation itself, so calls chain
+	#   note       a state machine of peer states can be read in a ring
+	#   warning    the text is stored as given, so a leading colon in it is kept and is not
+	#              understood by the diagram
+	#   see        LayoutMode, SetRankDir
 	def SetLayoutMode(pcMode)
 		@cLayoutMode = "" + pcMode
 		return This
 
+	# Returns the layout mode the notation declares.
+	#
+	#   returns    a text; empty for a layered layout
+	#   see        SetLayoutMode
 	def LayoutMode()
 		return @cLayoutMode
 
-	# The kinds this profile declares as SOURCES (nothing may enter) and
-	# SINKS (nothing may leave) -- derived from the kind rules rather
-	# than declared twice, so the placement that reads them can never
-	# disagree with the refusals that enforce them.
+	# Returns the kinds nothing may enter, taken from the Inbound rules of ForbidFor.
+	#
+	#   returns    a list of text, in lower case
+	#   see        SinkKinds, ForbidFor
+	#@ aka  The kinds this profile declares as SOURCES (nothing may enter) and SINKS (nothing may leave) -- derived from the kind rules rather than declared twice, so the placement that reads them can never disagree with the refusals that enforce them.
 	def SourceKinds()
 		_a_ = []
 		_n_ = len(@aKindRules)
@@ -697,6 +857,10 @@ class stzNotation from stzObject
 		next
 		return _a_
 
+	# Returns the kinds nothing may leave, taken from the Outbound rules of ForbidFor.
+	#
+	#   returns    a list of text, in lower case
+	#   see        SourceKinds, ForbidFor
 	def SinkKinds()
 		_a_ = []
 		_n_ = len(@aKindRules)

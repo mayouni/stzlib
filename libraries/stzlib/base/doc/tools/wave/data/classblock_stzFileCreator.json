@@ -1,0 +1,18 @@
+{
+ "brief": "Creates a brand new file and writes into it; it refuses a path that already holds a file.",
+ "detail": "Reach for it when overwriting an existing file would be a mistake: the constructor raises an error if the file exists. Write, WriteLine, WriteLines, WriteHeader and WriteTemplate add to the new file, and the reading methods of stzFileReadingMixin read it back. The folder must exist.",
+ "receiver": "o1 = new stzFileCreator(\"demo_created.txt\")",
+ "example": [
+  "o1.WriteLine(\"first\")",
+  "o1.WriteLine(\"second\")",
+  "? o1.NumberOfLines()",
+  "#--> 3",
+  "? o1.Line(2)",
+  "#--> second"
+ ],
+ "see": [
+  "stzFileAppender",
+  "stzFileOverwriter",
+  "stzFileReader"
+ ]
+}

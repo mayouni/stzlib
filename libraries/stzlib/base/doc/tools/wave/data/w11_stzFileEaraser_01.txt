@@ -1,0 +1,9 @@
+# Wave 11 -- stzFileEaraser. Every line was run on invented files in a scratch folder.
+init | Takes a file for erasing: keeps its old text in memory, then empties the file at once; a missing file is created. | nothing; the file is emptied | cFileName=the path of the file to erase | OriginalContent, Erase | | the emptying happens in the constructor, so building the object is itself destructive; the class name is spelt Earaser in the source
+Conditions | Returns the hash list of conditions this intent expects of the file. | a hash list, [ :FileExists = 1 ] | | Capabilities
+Capabilities | Returns what this intent allows: :Read, :Append and :Overwrite are 1, the rest 0. | a hash list of :Read, :Append, :Create, :Overwrite, :Modify | | Conditions | | Skills is the same call
+OriginalContent | Returns the text the file held before it was emptied. | a text | | OriginalLines, OriginalSize
+OriginalLines | Returns the lines the file held before it was emptied. | a list of texts | | OriginalContent, OriginalLineCount
+OriginalSize | Returns the length of the old text in bytes. | a number | | OriginalContent | | OriginalSizeInBytes is the same call
+OriginalLineCount | Returns how many lines the old text had. | a number | | OriginalLines | | OriginalNumberOfLines is the same call
+Erase | Empties the file again. | 1 | | OriginalContent | | the file keeps existing with zero bytes; it is not deleted

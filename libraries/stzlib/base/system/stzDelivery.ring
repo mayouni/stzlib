@@ -73,16 +73,32 @@ func _StzTargetClass(pcName)
  #  CAPABILITY CATALOG  #
 #=====================#
 
-# The delivery planner's KNOWLEDGE: each capability's differential value, as data (not a
-# heuristic buried in code) so placement decisions are inspectable. A record is
-# [ key, display, unique, nature, weight, js, native, embedded, kb ]: key = the
-# Softanza-named symbol lowercased (:PivotTable -> "pivottable"), display = the
-# readable name; support strong/weak/absent; nature compute/ergonomic; weight
-# light/medium/heavy. Each maps to a module or a granular class.
+# Holds what the delivery planner knows about each Softanza capability, as data, and decides how a capability reaches a target.
+#
+# Each record says whether a capability is unique to Softanza, whether it is compute or ergonomics,
+# how heavy it is, how well a browser, a server and a microcontroller already do it, and how many KB
+# its engine adds. VectorFor reads those records and answers native, engine, construct or server
+# with the reason in words: a server hosts the engine, a heavy capability goes to the backend, a
+# strong non-unique one defers to the platform, an ergonomic one becomes a construct on the web, the
+# rest folds into the on-device engine. A name the catalog does not know is assumed to be Softanza-
+# differential and platform-weak.
+#
+#   receiver   o1 = new stzCapabilityCatalog()
+#   example    ? o1.Has("PivotTable")
+#              #--> 1
+#              ? o1.SizeOf("neural")
+#              #--> 900
+#              ? @@( o1.VectorFor("Json", "browser") )
+#              #--> [ "native", "Json: the target-platform is strong at it -> use its own" ]
+#   see        stzDelivery, stzBuildPlan
 class stzCapabilityCatalog from stzObject
 
 	@aCaps = []
 
+	# Builds the catalog of thirteen Softanza capabilities, each with its differential value as data, so placement decisions can be inspected.
+	#
+	#   returns    nothing; the catalog is built
+	#   see        VectorFor, stzDelivery
 	def init()
 		This._SeedDefaults()
 
@@ -103,9 +119,20 @@ class stzCapabilityCatalog from stzObject
 			[ "neural",           "Neural",           0, "compute",   "heavy",  "weak",   "strong", "absent",  900 ]
 		]
 
+	# Returns every capability record.
+	#
+	#   returns    a list of [ key, display, unique, nature, weight, js, native, embedded, kb ]
+	#              rows: the lower-case key, the readable name, 1 if Softanza-unique, compute or
+	#              ergonomic, light, medium or heavy, then the platform support on a browser or
+	#              mobile, on a server and on a microcontroller, and the engine size in KB
 	def Records()
 		return @aCaps
 
+	# TRUE if the catalog knows a capability of that name.
+	#
+	#   pcName     the capability name, such as :PivotTable, matched without regard to case
+	#   returns    TRUE or FALSE
+	#   see        Record, Records
 	def Has(pcName)
 		return StzFindFirst(StzLower("" + pcName), This._Keys()) > 0
 
@@ -117,7 +144,14 @@ class stzCapabilityCatalog from stzObject
 		next
 		return _out_
 
-	# unknown capability -> assume Softanza-differential compute, platform-weak.
+	# Returns the record of one capability.
+	#
+	#   pcName     the capability name, matched without regard to case
+	#   returns    a record as Records lists them; a medium, compute, Softanza-unique record of 8 KB
+	#              for a name the catalog does not know
+	#   note       an unknown name is not an error: it is assumed to be platform-weak
+	#   see        Has, DisplayOf
+	#@ aka  unknown capability -> assume Softanza-differential compute, platform-weak.
 	def Record(pcName)
 		_c_ = StzLower("" + pcName)
 		_nLen_ = len(@aCaps)
@@ -128,9 +162,19 @@ class stzCapabilityCatalog from stzObject
 		next
 		return [ _c_, "" + pcName, 1, "compute", "medium", "weak", "strong", "absent", 8 ]
 
+	# Returns the readable name of a capability, for display.
+	#
+	#   pcName     the capability name
+	#   returns    a text such as PivotTable; the name as given when unknown
+	#   see        Record, SizeOf
 	def DisplayOf(pcName)
 		return This.Record(pcName)[2]
 
+	# Returns the size the capability adds to an on-device engine.
+	#
+	#   pcName     the capability name
+	#   returns    a number of KB; 8 when unknown
+	#   see        Record, VectorFor
 	def SizeOf(pcName)
 		return This.Record(pcName)[9]
 
@@ -142,11 +186,15 @@ class stzCapabilityCatalog from stzObject
 		ok
 		return paRec[6]        # js (browser / mobile)
 
-	# (capability, target class) -> [ vector, reason ]. The whole reasoning, legibly.
-	# Inclusive across targets: a server hosts the native engine; the heavy is
-	# offloaded; a strong non-unique capability defers to the target-platform;
-	# ergonomics on a language-runtime target become a construct, else fold into
-	# the engine. The reason keeps the capability's readable name.
+	# Decides how a capability is delivered to a target class, and says why.
+	#
+	#   pcCap      the capability name
+	#   pcClass    the target class: server, mobile, browser or mcu
+	#   returns    a list [ vector, reason ], the vector native, engine, construct or server
+	#   note       a server always gets the engine; a heavy capability goes to the backend; a strong
+	#              non-unique one defers to the platform
+	#   see        Record, stzBuildPlan
+	#@ aka  (capability, target class) -> [ vector, reason ]. The whole reasoning, legibly. Inclusive across targets: a server hosts the native engine; the heavy is offloaded; a strong non-unique capability defers to the target-platform; ergonomics on a language-runtime target become a construct, else fold into the engine. The reason keeps the capability's readable name.
 	def VectorFor(pcCap, pcClass)
 		_r_ = This.Record(pcCap)
 		_disp_ = _r_[2]
@@ -174,6 +222,28 @@ class stzCapabilityCatalog from stzObject
  #  DELIVERY PLANNER  #
 #====================#
 
+# Plans where each part of a solution runs and what each ships, before a byte is built, by reasoning from the target platform of each part.
+#
+# You describe the solution: its parts, the target of each (a server, a phone, a browser, a
+# microcontroller) and the Softanza capabilities each uses. Plan rehearses the placement: per
+# capability and target it picks a delivery vector, native, engine, construct or server, says why,
+# and sizes the on-device engine. The same capability lands differently per target, so the target
+# platform is the invisible frame the planner makes visible. UseServices adds the external
+# dependencies and the credentials production will need, and Deploy commits the plan: it is refused
+# while a service is still bound to a fake, and an actor that is not effectful only gets a
+# rehearsal. Read Plan freely; Deploy builds and, in production, launches for real.
+#
+#   receiver   o1 = new stzDelivery("restolean")
+#   example    o1.AddBackend("api", "LinuxServer").AddSuperApp("phone", "Android")
+#              o1.NeedsIn("phone", [ :Unicode, :PivotTable, :Neural ])
+#              ? o1.NumberOfParts()
+#              #--> 2
+#              ? o1.Plan().VectorFor("phone", "PivotTable")
+#              #--> engine
+#              ? o1.Plan().VectorFor("phone", "Neural")
+#              #--> server
+#   see        stzBuildPlan, stzCapabilityCatalog, stzBuilder, stzDeployment, stzEmulator,
+#              StzDeliveryQ
 class stzDelivery from stzObject
 
 	@cName = ""
@@ -188,23 +258,38 @@ class stzDelivery from stzObject
 	@oReg = ""       # the EXTERNAL-DEPENDENCY surface (stzServiceRegistry)
 	@aSvcNeeds = []    # [ partName, [serviceNames] ] -- which part needs which service
 
+	# Builds a delivery planner for a solution, to which parts, their targets and the capabilities each uses are then declared.
+	#
+	#   pcName     the name of the solution
+	#   returns    nothing; the planner is built
+	#   see        AddPart, NeedsIn, Plan
 	def init(pcName)
 		@cName = "" + pcName
 		@oCat = new stzCapabilityCatalog()
 		@oLog = new stzLog("delivery")
 		@oLog.SetLevel(:trace)
 
+	# Returns the name of the solution.
+	#
+	#   returns    a text
+	#   see        init
 	def Name()
 		return @cName
 
-	# the structured log of the delivery's phases (Deploy). Queryable + renderable:
-	# oDelivery.Log().AsJson(), oDelivery.Log().EntriesOfLevel(:error).
+	# Returns the structured log of the delivery phases, which Deploy writes to.
+	#
+	#   returns    a stzLog, queryable and renderable
+	#   see        Deploy
+	#@ aka  the structured log of the delivery's phases (Deploy). Queryable + renderable: oDelivery.Log().AsJson(), oDelivery.Log().EntriesOfLevel(:error).
 	def Log()
 		return @oLog
 
-	# attach the solution's application model -- named datasets + per-part roles.
-	# The emulator renders each part FROM it (its real menu / computed dashboard),
-	# instead of a shared placeholder.
+	# Attaches the application model of the solution, so a part can be rendered from what it does.
+	#
+	#   poApp      the stzAppTopology of the solution
+	#   returns    nothing; SetAppTopologyQ is the form that chains
+	#   see        AppTopology, HasAppTopology
+	#@ aka  attach the solution's application model -- named datasets + per-part roles. The emulator renders each part FROM it (its real menu / computed dashboard), instead of a shared placeholder.
 	def SetAppTopology(poApp)
 		This.SetAppTopologyQ(poApp)
 
@@ -212,28 +297,81 @@ class stzDelivery from stzObject
 		@oApp = poApp
 		return This
 
+	# Returns the attached application model.
+	#
+	#   returns    the stzAppTopology; an empty text when none is attached
+	#   see        SetAppTopology, HasAppTopology
 	def AppTopology()
 		return @oApp
 
+	# TRUE if an application model is attached.
+	#
+	#   returns    TRUE or FALSE
+	#   see        SetAppTopology
 	def HasAppTopology()
 		return isObject(@oApp)
 
+	# Replaces the capability catalog the planner reasons with.
+	#
+	#   poCat      the stzCapabilityCatalog to use in place of the default
+	#   returns    the planner itself, so calls chain
+	#   see        Plan, stzCapabilityCatalog
 	def UseCatalog(poCat)
 		@oCat = poCat
 		return This
 
+	# Adds a part of the solution with its kind and its target platform.
+	#
+	#   pcKind     the kind of part, such as app, backend or firmware
+	#   pcName     the part name
+	#   pcTarget   the target platform, such as Android, browser, Linux or ESP32
+	#   returns    the planner itself, so calls chain
+	#   warning    name, kind and target are stored in lower case; the target decides the class:
+	#              mobile, browser, mcu or server, and a name it does not recognise counts as a
+	#              server
+	#   see        NeedsIn, Parts
 	def AddPart(pcKind, pcName, pcTarget)
 		@aParts + [ StzLower("" + pcName), StzLower("" + pcKind), StzLower("" + pcTarget), [] ]
 		return This
 
+		# Adds a part of kind app.
+		#
+		#   pcName     the part name
+		#   pcTarget   the target platform
+		#   returns    the planner itself, so calls chain
+		#   see        AddPart, AddSuperApp
 		def AddApp(pcName, pcTarget)
 			return This.AddPart("app", pcName, pcTarget)
+		# Adds a part of kind superapp.
+		#
+		#   pcName     the part name
+		#   pcTarget   the target platform
+		#   returns    the planner itself, so calls chain
+		#   see        AddPart, AddApp
 		def AddSuperApp(pcName, pcTarget)
 			return This.AddPart("superapp", pcName, pcTarget)
+		# Adds a part of kind backend.
+		#
+		#   pcName     the part name
+		#   pcTarget   the target platform
+		#   returns    the planner itself, so calls chain
+		#   see        AddPart, AddServer
 		def AddBackend(pcName, pcTarget)
 			return This.AddPart("backend", pcName, pcTarget)
+		# Adds a part of kind server.
+		#
+		#   pcName     the part name
+		#   pcTarget   the target platform
+		#   returns    the planner itself, so calls chain
+		#   see        AddPart, AddBackend
 		def AddServer(pcName, pcTarget)
 			return This.AddPart("server", pcName, pcTarget)
+		# Adds a part of kind firmware.
+		#
+		#   pcName     the part name
+		#   pcTarget   the target platform
+		#   returns    the planner itself, so calls chain
+		#   see        AddPart, NeedsIn
 		def AddFirmware(pcName, pcTarget)
 			return This.AddPart("firmware", pcName, pcTarget)
 
@@ -247,14 +385,29 @@ class stzDelivery from stzObject
 		next
 		return 0
 
+	# Returns the parts declared, in order.
+	#
+	#   returns    a list of [ name, kind, target, capabilities ] rows, all in lower case
+	#   see        NumberOfParts, AddPart
 	def Parts()
 		return @aParts
 
+	# Returns how many parts are declared.
+	#
+	#   returns    a number
+	#   see        Parts
 	def NumberOfParts()
 		return len(@aParts)
 
-	# declare the Softanza capabilities a part's code uses (:PivotTable, :Unicode,
-	# ...). Stored as lowercased keys (the canonical form).
+	# Declares the Softanza capabilities a part uses, which the plan then places.
+	#
+	#   pcPart     the part name, matched without regard to case
+	#   paCaps     a list of capability names such as :PivotTable, stored in lower case
+	#   returns    the planner itself, so calls chain
+	#   warning    the list replaces the capabilities declared before rather than adding to them,
+	#              and anything but a list clears them; an unknown part changes nothing
+	#   see        InferNeedsIn, Plan
+	#@ aka  declare the Softanza capabilities a part's code uses (:PivotTable, :Unicode, ...). Stored as lowercased keys (the canonical form).
 	def NeedsIn(pcPart, paCaps)
 		_i_ = This._PartIndex(pcPart)
 		if _i_ = 0
@@ -270,18 +423,14 @@ class stzDelivery from stzObject
 		@aParts[_i_][4] = _caps_
 		return This
 
-	  #-- the EXTERNAL-DEPENDENCY surface (service-virtualization phase 7) ---
-
-	# Attach the solution's stzServiceRegistry, so the delivery plan can rehearse
-	# every external dependency -- its current binding and the production
-	# credential it will need -- BEFORE anything runs, and so Deploy(:Production)
-	# can REFUSE a surface that still resolves to a fake.
+	# Attaches the solution's service registry, so the plan can show every external dependency before anything runs.
 	#
-	# ONE CAVEAT, and it is Ring's, not this method's: an attribute store COPIES
-	# (probed -- bind a service on your own handle afterwards and this delivery
-	# will not see it). So either finish configuring the registry BEFORE attaching
-	# it, or make later changes THROUGH the accessor, which reaches the stored
-	# object: oDelivery.ServicesQ().BindLiveQ(:payments, oImpl, "stripe_key").
+	#   poReg      the stzServiceRegistry to attach
+	#   returns    nothing; UseServicesQ is the form that chains
+	#   warning    the planner keeps a copy: finish configuring the registry before attaching it, or
+	#              change it through ServicesQ
+	#   see        ServicesQ, ExternalDependencies
+	#@ aka  -- the EXTERNAL-DEPENDENCY surface (service-virtualization phase 7) ---
 	def UseServices(poReg)
 		This.UseServicesQ(poReg)
 
@@ -289,9 +438,17 @@ class stzDelivery from stzObject
 		@oReg = poReg
 		return This
 
+	# Returns the attached service registry.
+	#
+	#   returns    the stzServiceRegistry; an empty text when none is attached
+	#   see        UseServices
 	def ServicesQ()
 		return @oReg
 
+	# TRUE if a service registry is attached.
+	#
+	#   returns    TRUE or FALSE
+	#   see        UseServices
 	def HasServices()
 		return isObject(@oReg)
 
@@ -324,6 +481,11 @@ class stzDelivery from stzObject
 		@aSvcNeeds + [ _p_, _svcs_ ]
 		return This
 
+	# Returns the external services a part calls.
+	#
+	#   pcPart     the part name
+	#   returns    a list of lower-case service names; an empty list when none are declared
+	#   see        ServiceNeeds, ExternalDependencies
 	def ServiceNeedsIn(pcPart)
 		_p_ = StzLower("" + pcPart)
 		_n_ = len(@aSvcNeeds)
@@ -334,13 +496,20 @@ class stzDelivery from stzObject
 		next
 		return []
 
+	# Returns which part needs which service.
+	#
+	#   returns    a list of [ part, services ] rows
+	#   see        ServiceNeedsIn
 	def ServiceNeeds()
 		return @aSvcNeeds
 
-	# The rehearsed surface, one record per service:
-	# [ :service, :posture, :secret, :bound, :parts ]
-	# This is the answer to "what does shipping this actually require of me?",
-	# available before a single byte is built.
+	# Returns the rehearsed external surface: per service, its posture, its secret name, whether it is bound and the parts needing it.
+	#
+	#   returns    a list of [ :service, :posture, :secret, :bound, :parts ] records; empty when no
+	#              registry is attached
+	#   note       it names secrets and never reads their values
+	#   see        ProductionCredentials, ServicesAreProductionReady
+	#@ aka  The rehearsed surface, one record per service: [ :service, :posture, :secret, :bound, :parts ] This is the answer to "what does shipping this actually require of me?", available before a single byte is built.
 	def ExternalDependencies()
 		_aOut_ = []
 		if NOT This.HasServices()
@@ -365,10 +534,18 @@ class stzDelivery from stzObject
 		next
 		return _aOut_
 
+	# Returns how many external services are declared or bound.
+	#
+	#   returns    a number
+	#   see        ExternalDependencies
 	def NumberOfExternalDependencies()
 		return len( This.ExternalDependencies() )
 
-	# The credentials a production deploy will require -- names only, never values.
+	# Returns the names of the credentials a production deploy will require.
+	#
+	#   returns    a list of text, names only and never values
+	#   see        ExternalDependencies
+	#@ aka  The credentials a production deploy will require -- names only, never values.
 	def ProductionCredentials()
 		_aOut_ = []
 		_a_ = This.ExternalDependencies()
@@ -380,11 +557,13 @@ class stzDelivery from stzObject
 		next
 		return _aOut_
 
-	# REHEARSE THE GATE. The registry only reports sandbox-in-production once its
-	# phase IS production, so a pre-flight check asks the question in that frame
-	# and then puts the phase back -- you learn what shipping would say without
-	# declaring that you are shipping. (The plane's own habit: rehearse, then
-	# commit.)
+	# Asks what shipping would say about the external surface, by judging it as if in production and then putting the phase back.
+	#
+	#   returns    a list of finding records with an invariant, a severity, a place and a message;
+	#              an empty list when no registry is attached
+	#   note       the registry phase is restored afterwards, so asking is not declaring
+	#   see        ServicesAreProductionReady, WhyServicesNotReady
+	#@ aka  REHEARSE THE GATE. The registry only reports sandbox-in-production once its phase IS production, so a pre-flight check asks the question in that frame and then puts the phase back -- you learn what shipping would say without declaring that you are shipping. (The plane's own habit: rehearse, then commit.)
 	def ServiceFindingsForProduction()
 		if NOT This.HasServices()
 			return []
@@ -395,6 +574,10 @@ class stzDelivery from stzObject
 		@oReg.SetPhaseQ(_cWas_)
 		return _aF_
 
+	# TRUE if the external surface has no error-level finding for production.
+	#
+	#   returns    TRUE or FALSE
+	#   see        ServiceFindingsForProduction, WhyServicesNotReady
 	def ServicesAreProductionReady()
 		_aF_ = This.ServiceFindingsForProduction()
 		_n_ = len(_aF_)
@@ -405,6 +588,11 @@ class stzDelivery from stzObject
 		next
 		return 1
 
+	# Returns the first reason the external surface is not ready for production.
+	#
+	#   returns    a text such as sandbox-in-production followed by the message; an empty text when
+	#              it is ready
+	#   see        ServicesAreProductionReady
 	def WhyServicesNotReady()
 		_aF_ = This.ServiceFindingsForProduction()
 		_n_ = len(_aF_)
@@ -426,10 +614,13 @@ class stzDelivery from stzObject
 		next
 		return _aOut_
 
-	# Project parts AND services into one graph, so a rule can ask the question
-	# neither side can answer alone: does a part that is BOUND TO A SITE (i.e.
-	# destined for production) depend on a service that is still a fake?
-	# See stzServiceRuleSet.
+	# Projects the parts and the services into one graph, so a rule can ask whether a part destined for production depends on a fake.
+	#
+	#   returns    a stzGraph with a node per part and per service, linked by depends-on edges
+	#   note       a part bound to a site is marked as destined for production, the others as
+	#              unbound
+	#   see        stzServiceRuleSet, ServiceNeedsIn
+	#@ aka  Project parts AND services into one graph, so a rule can ask the question neither side can answer alone: does a part that is BOUND TO A SITE (i.e. destined for production) depend on a service that is still a fake? See stzServiceRuleSet.
 	def AsRuleGraph()
 		_oG_ = new stzGraph("delivery-rules")
 		if This.HasServices()
@@ -478,8 +669,15 @@ class stzDelivery from stzObject
 		next
 		return 0
 
-	# a first inference: scan the app source for capability markers -> keys.
-	# Upgradeable to the stzCodeGraph call-edge analysis (lexical starting point).
+	# Reads a source file and sets the capabilities of a part from the markers found in it, such as Pivot, Solve, Regex or Json.
+	#
+	#   pcPart         the part name
+	#   pcSourcePath   the path of the source file to scan
+	#   returns        the planner itself, so calls chain
+	#   warning        a lexical scan, not an analysis of calls; an unreadable file or an unknown
+	#                  part changes nothing
+	#   see            NeedsIn, Plan
+	#@ aka  a first inference: scan the app source for capability markers -> keys. Upgradeable to the stzCodeGraph call-edge analysis (lexical starting point).
 	def InferNeedsIn(pcPart, pcSourcePath)
 		_i_ = This._PartIndex(pcPart)
 		if _i_ = 0
@@ -520,32 +718,57 @@ class stzDelivery from stzObject
 		next
 		return _found_
 
-	# WHERE each part deploys in production: bind a target site to the part it hosts.
-	# Site-first, part-second -- demystified: "deploy to <site>, the <part>".
-	# (Deploy(:Emulated) needs no sites -- it runs in the browser; production does.)
+	# Binds a target site to the part it hosts, for a production deploy.
+	#
+	#   poSite     the stzDeploymentSite that hosts the part
+	#   pcPart     the part name
+	#   returns    the planner itself, so calls chain
+	#   see        Bindings, Deploy
+	#@ aka  WHERE each part deploys in production: bind a target site to the part it hosts. Site-first, part-second -- demystified: "deploy to <site>, the <part>". (Deploy(:Emulated) needs no sites -- it runs in the browser; production does.)
 	def DeployTo(poSite, pcPart)
 		@aBindings + [ StzLower("" + pcPart), poSite ]
 		return This
 
-	# the executing actor -- governs whether Deploy(:Production) COMMITS or only
-	# rehearses (only an effectful actor may cross the governed bridge to reality).
+	# Sets who deploys; only an effectful actor can commit a production deploy, the others get a rehearsal.
+	#
+	#   poActor    the stzSystemActor executing the deploy
+	#   returns    the planner itself, so calls chain
+	#   see        DeploymentActor, Deploy
+	#@ aka  the executing actor -- governs whether Deploy(:Production) COMMITS or only rehearses (only an effectful actor may cross the governed bridge to reality).
 	def SetActor(poActor)
 		@oActor = poActor
 		return This
 
+	# Returns the sites bound to parts.
+	#
+	#   returns    a list of [ part, site ] rows
+	#   see        DeployTo
 	def Bindings()
 		return @aBindings
 
+	# Returns the actor set to deploy.
+	#
+	#   returns    the actor; an empty text when none is set
+	#   see        SetActor
 	def DeploymentActor()
 		return @oActor
 
-	# what a part NEEDS from its host: memory / compute / storage (a stzResourceSpec).
-	# Parallels NeedsIn (capabilities); here it is the physical footprint the target
-	# must provide -- the CI/IaC "resources.requests" idea.
+	# Declares what a part needs from its host: memory, compute and storage.
+	#
+	#   pcPart     the part name
+	#   poSpec     the stzResourceSpec describing the footprint
+	#   returns    the planner itself, so calls chain
+	#   see        RequirementFor, Requirements
+	#@ aka  what a part NEEDS from its host: memory / compute / storage (a stzResourceSpec). Parallels NeedsIn (capabilities); here it is the physical footprint the target must provide -- the CI/IaC "resources.requests" idea.
 	def RequiresIn(pcPart, poSpec)
 		@aReqs + [ StzLower("" + pcPart), poSpec ]
 		return This
 
+	# Returns the footprint declared for a part.
+	#
+	#   pcPart     the part name, matched without regard to case
+	#   returns    the stzResourceSpec; an empty text when none is declared
+	#   see        RequiresIn
 	def RequirementFor(pcPart)
 		_c_ = StzLower("" + pcPart)
 		_nLen_ = len(@aReqs)
@@ -556,28 +779,48 @@ class stzDelivery from stzObject
 		next
 		return ""
 
+	# Returns every footprint declared.
+	#
+	#   returns    a list of [ part, spec ] rows
+	#   see        RequiresIn
 	def Requirements()
 		return @aReqs
 
-	# ship an emulator's bundle DIRECTORY as a part's production artifact. The bundle
-	# you built and debugged with Deploy(:Emulated) becomes what Deploy(:Production)
-	# ships -- the same tree, one directive. pBundle is a stzEmulator or a dir path.
+	# Declares that a part ships the whole emulator bundle as its production artifact.
+	#
+	#   pcPart     the part name
+	#   pBundle    the stzEmulator or the folder path of the bundle
+	#   returns    the planner itself, so calls chain
+	#   see        ShipSlice, Bundles
+	#@ aka  ship an emulator's bundle DIRECTORY as a part's production artifact. The bundle you built and debugged with Deploy(:Emulated) becomes what Deploy(:Production) ships -- the same tree, one directive. pBundle is a stzEmulator or a dir path.
 	def ShipBundle(pcPart, pBundle)
 		@aBundles + [ StzLower("" + pcPart), pBundle, "bundle" ]
 		return This
 
-	# ship only pcPart's SLICE of the bundle -- its app (index.html) + engine subset
-	# (stz_<part>.wasm) + the bridge (stz.js), not the whole mission-control. A
-	# frontend deploys only what it needs to run.
+	# Declares that a part ships only its own slice of the bundle: its app, its engine subset and the bridge.
+	#
+	#   pcPart     the part name
+	#   pBundle    the stzEmulator or the folder path of the bundle
+	#   returns    the planner itself, so calls chain
+	#   see        ShipBundle, Bundles
+	#@ aka  ship only pcPart's SLICE of the bundle -- its app (index.html) + engine subset (stz_<part>.wasm) + the bridge (stz.js), not the whole mission-control. A frontend deploys only what it needs to run.
 	def ShipSlice(pcPart, pBundle)
 		@aBundles + [ StzLower("" + pcPart), pBundle, "slice" ]
 		return This
 
+	# Returns the bundles declared for shipping.
+	#
+	#   returns    a list of [ part, bundle, bundle or slice ] rows
+	#   see        ShipBundle, ShipSlice
 	def Bundles()
 		return @aBundles
 
-	# REHEARSE the placement & scope plan -- no bytes built. This is Build()'s
-	# thinking made visible (VSF rehearse->plan->commit).
+	# Rehearses the placement and scope plan without building a byte: per part and capability, a delivery vector and why.
+	#
+	#   returns    a stzBuildPlan, readable with Explain or Show
+	#   note       it is the way to read what a build would do, and it changes nothing
+	#   see        stzBuildPlan, Deploy
+	#@ aka  REHEARSE the placement & scope plan -- no bytes built. This is Build()'s thinking made visible (VSF rehearse->plan->commit).
 	def Plan()
 		_oPlan_ = new stzBuildPlan(@cName)
 		_nLen_ = len(@aParts)
@@ -600,15 +843,18 @@ class stzDelivery from stzObject
 		_oPlan_.SetExternalDependenciesQ( This.ExternalDependencies() )
 		return _oPlan_
 
-	# Deploy() covers BOTH phases (Scope-Oriented: the deploy scope is the frame).
-	#   :Emulated   -> the programming phase: generate the web-based mission-control
-	#                  emulator (via stzEmulator) where the whole solution runs and
-	#                  is debugged visually, part by part.
-	#   :Production  -> the same parts cross the governed bridge to real target SITES.
-	#                  Deploy(:Production) DRIVES a stzDeployment: it binds each part to
-	#                  its site (from DeployTo) and, IF the actor may commit (effectful),
-	#                  STORES + LAUNCHES it -- otherwise it returns the deployment as a
-	#                  rehearsal. Emulation rehearses in the browser; production commits.
+	# Commits the solution: :Emulated builds the web emulator bundle, :Production binds parts to sites and launches them if the actor may.
+	#
+	#   pMode      :Emulated or :Production
+	#   returns    a stzEmulator for :Emulated, a stzDeployment for :Production, a stzBuildPlan for
+	#              any other mode
+	#   note       an actor that may not commit gets the deployment back as a rehearsal, and the Log
+	#              says which gate refused
+	#   warning    not run: it builds and, in production, stores and launches for real; read Plan
+	#              first, and note that a production deploy is refused while a service is still
+	#              bound to a fake
+	#   see        Plan, SetActor, DeployTo
+	#@ aka  Deploy() covers BOTH phases (Scope-Oriented: the deploy scope is the frame). :Emulated -> the programming phase: generate the web-based mission-control emulator (via stzEmulator) where the whole solution runs and is debugged visually, part by part. :Production -> the same parts cross the governed bridge to real target SITES. Deploy(:Production) DRIVES a stzDeployment: it binds each part to its sit
 	def Deploy(pMode)
 		_m_ = StzLower("" + pMode)
 		if _m_ = "emulated" or _m_ = ":emulated"
@@ -702,29 +948,64 @@ class stzDelivery from stzObject
  #  BUILD PLAN  #
 #==============#
 
-# The rehearsed placement & scope plan -- the delivery planner's readable output. Per part:
-# every capability, its delivery vector, and the reason; plus the derived on-device
-# engine subset. Plain-data backed; Explain() is the legible signature (named
-# Explain rather than Narration: a narration is the Narrations layer's document,
-# and the conversation's own record is stzTranscript).
+# Holds the rehearsed placement plan of a solution: per part, each capability with its delivery vector, its reason and its size.
+#
+# It is what stzDelivery.Plan returns, and it changes nothing when read. VectorFor says how a
+# capability reaches a part, EngineCapsFor and EngineKbFor say what the on-device engine of a part
+# carries and weighs, and Explain tells the whole story in plain lines, with the external
+# dependencies, the fakes that remain and the credentials production will need, by name. It is plain
+# data, so it survives copying, and the emulator reads its Parts to render each part.
+#
+#   receiver   d = new stzDelivery("shop"); d.AddApp("web", "browser"); d.NeedsIn("web", [ :Json,
+#              :Pattern ]); o1 = d.Plan()
+#   example    ? o1.VectorFor("web", "Json")
+#              #--> native
+#              ? @@( o1.EngineCapsFor("web") )
+#              #--> [ "pattern" ]
+#              ? o1.EngineKbFor("web")
+#              #--> 5
+#   see        stzDelivery, stzCapabilityCatalog, stzEmulator
 class stzBuildPlan from stzObject
 
 	@cName = ""
 	@aParts = []   # [ name, kind, tname, class, [ [key, display, vector, reason, kb], ... ] ]
 	@aExtDeps = [] # [ [ :service, :posture, :secret, :bound, :parts ], ... ] (phase 7)
 
+	# Builds an empty placement plan for a solution, to be filled with parts and their decisions.
+	#
+	#   pcName     the name of the solution
+	#   returns    nothing; the plan is built
+	#   note       stzDelivery.Plan builds one from the parts and needs declared there
+	#   see        AddPart, Explain
 	def init(pcName)
 		@cName = "" + pcName
 
+	# Returns the name of the solution the plan is for.
+	#
+	#   returns    a text
+	#   see        init
 	def Name()
 		return @cName
 
+	# Adds one part with its target and the delivery decision of each capability it uses.
+	#
+	#   pcName        the part name
+	#   pcKind        the part kind, such as app or backend
+	#   pcTName       the target as named
+	#   pcClass       the target class: server, mobile, browser or mcu
+	#   paDecisions   a list of [ key, display, vector, reason, kb ] rows
+	#   returns       the plan itself, so calls chain
+	#   see           Parts, VectorFor
 	def AddPart(pcName, pcKind, pcTName, pcClass, paDecisions)
 		@aParts + [ pcName, pcKind, pcTName, pcClass, paDecisions ]
 		return This
 
-	  #-- the external surface, rehearsed with the capabilities (phase 7) ----
-
+	# Sets the external services the solution depends on.
+	#
+	#   paDeps     a list of [ :service, :posture, :secret, :bound, :parts ] records
+	#   returns    nothing; the Q form chains
+	#   see        ExternalDependencies, SandboxedDependencies
+	#@ aka  -- the external surface, rehearsed with the capabilities (phase 7) ----
 	def SetExternalDependencies(paDeps)
 		This.SetExternalDependenciesQ(paDeps)
 
@@ -732,13 +1013,26 @@ class stzBuildPlan from stzObject
 		@aExtDeps = paDeps
 		return This
 
+	# Returns the external dependencies recorded on the plan.
+	#
+	#   returns    a list of [ :service, :posture, :secret, :bound, :parts ] records; an empty list
+	#              when none
+	#   see        SetExternalDependencies, NumberOfExternalDependencies
 	def ExternalDependencies()
 		return @aExtDeps
 
+	# Returns how many external dependencies the plan records.
+	#
+	#   returns    a number
+	#   see        ExternalDependencies
 	def NumberOfExternalDependencies()
 		return len(@aExtDeps)
 
-	# the credential NAMES a production deploy will require -- never values
+	# Returns the names of the credentials a production deploy will need.
+	#
+	#   returns    a list of text, names only and never values
+	#   see        SandboxedDependencies, ExternalDependencies
+	#@ aka  the credential NAMES a production deploy will require -- never values
 	def ProductionCredentials()
 		_aOut_ = []
 		_n_ = len(@aExtDeps)
@@ -749,8 +1043,11 @@ class stzBuildPlan from stzObject
 		next
 		return _aOut_
 
-	# the dependencies that are still fakes -- i.e. what stands between this plan
-	# and a production deploy
+	# Returns the dependencies that are still fakes, which stand between the plan and a production deploy.
+	#
+	#   returns    a list of service names
+	#   see        ProductionCredentials, ExternalDependencies
+	#@ aka  the dependencies that are still fakes -- i.e. what stands between this plan and a production deploy
 	def SandboxedDependencies()
 		_aOut_ = []
 		_n_ = len(@aExtDeps)
@@ -761,10 +1058,18 @@ class stzBuildPlan from stzObject
 		next
 		return _aOut_
 
+	# Returns how many parts the plan holds.
+	#
+	#   returns    a number
+	#   see        Parts
 	def NumberOfParts()
 		return len(@aParts)
 
-	# the raw per-part decisions -- consumed by stzEmulator to render each part.
+	# Returns the parts with their decisions, as a renderer such as the emulator reads them.
+	#
+	#   returns    a list of [ name, kind, target, class, decisions ] rows
+	#   see        AddPart, VectorFor
+	#@ aka  the raw per-part decisions -- consumed by stzEmulator to render each part.
 	def Parts()
 		return @aParts
 
@@ -840,8 +1145,14 @@ class stzBuildPlan from stzObject
 		ok
 		return "stz.wasm"
 
-	# the delivery vector chosen for a capability in a part (data -- for checks).
-	# Case-insensitive on the key: :PivotTable matches the stored "pivottable".
+	# Returns the delivery vector chosen for a capability in a part.
+	#
+	#   pcPart     the part name, matched without regard to case
+	#   pcCap      the capability name, matched without regard to case
+	#   returns    a text: native, engine, construct or server; an empty text when the part or the
+	#              capability is not in the plan
+	#   see        EngineCapsFor, stzCapabilityCatalog
+	#@ aka  the delivery vector chosen for a capability in a part (data -- for checks). Case-insensitive on the key: :PivotTable matches the stored "pivottable".
 	def VectorFor(pcPart, pcCap)
 		_i_ = This._Idx(pcPart)
 		if _i_ = 0
@@ -857,7 +1168,12 @@ class stzBuildPlan from stzObject
 		next
 		return ""
 
-	# the capability KEYS compiled into a part's on-device engine (stz.wasm/firmware)
+	# Returns the capabilities compiled into the on-device engine of a part.
+	#
+	#   pcPart     the part name, matched without regard to case
+	#   returns    a list of lower-case keys; an empty list when the part is unknown or ships none
+	#   see        EngineKbFor, VectorFor
+	#@ aka  the capability KEYS compiled into a part's on-device engine (stz.wasm/firmware)
 	def EngineCapsFor(pcPart)
 		_i_ = This._Idx(pcPart)
 		if _i_ = 0
@@ -865,6 +1181,11 @@ class stzBuildPlan from stzObject
 		ok
 		return This._KeysByVector(@aParts[_i_][5], "engine")
 
+	# Returns the size of the on-device engine of a part, which is its engine capabilities added up.
+	#
+	#   pcPart     the part name, matched without regard to case
+	#   returns    a number of KB; 0 when the part is unknown
+	#   see        EngineCapsFor
 	def EngineKbFor(pcPart)
 		_i_ = This._Idx(pcPart)
 		if _i_ = 0
@@ -872,6 +1193,10 @@ class stzBuildPlan from stzObject
 		ok
 		return This._EngineKb(@aParts[_i_][5])
 
+	# Returns the plan as plain lines: per part, each capability with its vector and reason, a summary, and the external dependencies.
+	#
+	#   returns    a list of text lines
+	#   see        Show, VectorFor
 	def Explain()
 		_c_ = "Solution '" + @cName + "' -- placement & scope plan (rehearsal; nothing built yet)" + nl
 		_c_ += "==============================================================================" + nl
@@ -959,6 +1284,10 @@ class stzBuildPlan from stzObject
 		_c_ += "  Build() will compile exactly this scope; Deploy() will commit it." + nl
 		return StzSplit(_c_, nl)   # a list of lines -- caller formats; Show() prints
 
+	# Prints the lines of the plan.
+	#
+	#   returns    nothing; it prints
+	#   see        Explain
 	def Show()
 		_aLines_ = This.Explain()
 		_n_ = len(_aLines_)

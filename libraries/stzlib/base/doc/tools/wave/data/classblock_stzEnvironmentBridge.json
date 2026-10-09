@@ -1,0 +1,12 @@
+{
+ "brief": "Is the one door from the environment twin to the live process: it reads variables and directory, and commits operations.",
+ "detail": "The reads (RealVar, RealHasVar, RealCwd, CurrentRealityState) are free. ExecuteOperation is the only call that changes reality: it sets or removes a real variable, changes the real directory, or starts a real command and waits for it. Reach it only through a plan, after the narration and the risks have been read. VerifyOutcome checks afterwards that a variable is as asked.",
+ "receiver": "o1 = new stzEnvironmentBridge()",
+ "example": [
+  "? o1.RealHasVar(\"STZ_DOC_INVENTED_VAR\")",
+  "#--> 0",
+  "? @@( o1.Capabilities() )",
+  "#--> [ \"set_var\", \"unset_var\", \"change_dir\", \"spawn_process\" ]"
+ ],
+ "see": ["stzVirtualEnvironment", "stzEnvironmentState", "stzUpdatePlan"]
+}

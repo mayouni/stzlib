@@ -2648,6 +2648,26 @@ func StzMathComputedFnList()
 #  THE DOMAIN                                                          #
 #---------------------------------------------------------------------#
 
+# Declares the vocabulary of a field of mathematics: its types, the predicates over them and the functions between them.
+#
+# A domain says what can be said, and a substance says it. Types may be kinds of other types
+# (Hydrogen of Atom), and an object of a kind matches wherever its parent is asked for, at any
+# depth. A predicate has argument types, and may be symmetric when its two arguments are of one
+# type. A function, or a constructor whose name is its output type, maps typed arguments to a typed
+# result. Every name check ignores case, and every declaration that names an undeclared type raises
+# an error. Ready-made domains: StzSetTheoryDomain, StzLinearAlgebraDomain, StzGeometryDomain,
+# StzGraphDomain and others. Picture: a rule over Atom drew two Hydrogen and one Helium alike, the
+# bonded pair side by side and the Helium apart (domain_atoms.png in the wave scratch folder).
+#
+#   receiver   o1 = new stzMathDomain("molecules"); o1.AddType("Atom"); o1.AddSubtype("Hydrogen",
+#              "Atom"); o1.AddSymmetricPredicate("Bonded", [ "Atom", "Atom" ])
+#   example    ? o1.TypeMatches("Hydrogen", "Atom")
+#              #--> 1
+#              ? o1.TypeMatches("Atom", "Hydrogen")
+#              #--> 0
+#              ? o1.PredicateArity("Bonded")
+#              #--> 2
+#   see        stzMathSubstance, stzMathStyle, stzMathDiagram, StzSetTheoryDomain
 class stzMathDomain from stzObject
 
 	@cName = ""
@@ -2655,14 +2675,29 @@ class stzMathDomain from stzObject
 	@aPredicates = []   # [ [ cName, acArgTypes, bSymmetric ] ]
 	@aFunctions = []    # [ [ cName, acArgTypes, cOutType ] ]
 
+	# Builds an empty vocabulary for a field of mathematics: no type, no predicate and no function yet.
+	#
+	#   pcName     the domain's name
+	#   returns    nothing; the object is built
+	#   see        AddType, AddPredicate
 	def init(pcName)
 		@cName = StzLower(ring_trim("" + pcName))
 
+	# Returns the domain's name, trimmed and in lower case.
+	#
+	#   returns    a text
+	#   see        init
 	def Name_()
 		return @cName
 
-	#-- types --------------------------------------------------------------
-
+	# Declares a type of object, such as Set or Atom, and returns the domain so calls chain.
+	#
+	#   pcType     the type's name, which must not be empty or already declared in any case
+	#   returns    the domain itself, so calls chain
+	#   note       AddTypeQ is the same call
+	#   warning    an empty name or a type declared twice raises an error
+	#   see        AddSubtype, HasType, Types
+	#@ aka  -- types --------------------------------------------------------------
 	def AddType(pcType)
 		_c_ = ring_trim("" + pcType)
 		if _c_ = ""
@@ -2677,7 +2712,15 @@ class stzMathDomain from stzObject
 		def AddTypeQ(pcType)
 			return This.AddType(pcType)
 
-	# "Hydrogen <: Atom": wherever an Atom is expected, a Hydrogen matches.
+	# Declares a type that is a kind of an earlier one, so that wherever the earlier is expected the new one is accepted.
+	#
+	#   pcType     the new type's name
+	#   pcSuper    the type it is a kind of, which must be declared already, else an error is raised
+	#   returns    the domain itself, so calls chain
+	#   note       Hydrogen is declared a kind of Atom, so a rule over Atom draws a Hydrogen
+	#   warning    the subtype can itself be the super of another, to any depth
+	#   see        AddType, TypeMatches
+	#@ aka  "Hydrogen <: Atom": wherever an Atom is expected, a Hydrogen matches.
 	def AddSubtype(pcType, pcSuper)
 		_s_ = ring_trim("" + pcSuper)
 		if NOT This.HasType(_s_)
@@ -2691,6 +2734,12 @@ class stzMathDomain from stzObject
 		def AddSubtypeQ(pcType, pcSuper)
 			return This.AddSubtype(pcType, pcSuper)
 
+	# TRUE if the domain declares a type, in any case.
+	#
+	#   pcType     the type's name
+	#   returns    TRUE or FALSE
+	#   note       ATOM finds Atom
+	#   see        AddType, Types
 	def HasType(pcType)
 		_c_ = StzLower(ring_trim("" + pcType))
 		_n_ = len(@aTypes)
@@ -2699,6 +2748,11 @@ class stzMathDomain from stzObject
 		next
 		return FALSE
 
+	# Returns the names of the declared types, as written, in the order declared.
+	#
+	#   returns    a list of text
+	#   note       subtypes are in the same list
+	#   see        HasType, AddType
 	def Types()
 		_a_ = []
 		_n_ = len(@aTypes)
@@ -2707,8 +2761,15 @@ class stzMathDomain from stzObject
 		next
 		return _a_
 
-	# TRUE when an object of pcActual may stand where pcWanted is asked
-	# for -- the same type, or a subtype of it, at any depth.
+	# TRUE if an object of one type may stand where another type is asked for: the same type, or a kind of it at any depth.
+	#
+	#   pcActual   the type of the object
+	#   pcWanted   the type that is asked for
+	#   returns    TRUE or FALSE
+	#   note       Hydrogen matches Atom, Atom does not match Hydrogen, and two kinds of Atom do not
+	#              match each other
+	#   see        AddSubtype, HasType
+	#@ aka  TRUE when an object of pcActual may stand where pcWanted is asked for -- the same type, or a subtype of it, at any depth.
 	def TypeMatches(pcActual, pcWanted)
 		_a_ = StzLower(ring_trim("" + pcActual))
 		_w_ = StzLower(ring_trim("" + pcWanted))
@@ -2728,16 +2789,31 @@ class stzMathDomain from stzObject
 		next
 		return ""
 
-	#-- predicates -----------------------------------------------------------
-
+	# Declares a relation over objects of given types, such as Subset over two Sets.
+	#
+	#   pcName        the predicate's name, not empty and not declared already
+	#   pacArgTypes   the types of its arguments in order, or one type name for a one-argument
+	#                 predicate
+	#   returns       the domain itself, so calls chain
+	#   note          the number of types is the arity, so Joins over Bond, Atom, Atom has arity 3
+	#   warning       a name declared twice raises an error
+	#   see           AddSymmetricPredicate, PredicateArity, HasPredicate
+	#@ aka  -- predicates -----------------------------------------------------------
 	def AddPredicate(pcName, pacArgTypes)
 		return This._AddPredicate(pcName, pacArgTypes, 0)
 
 		def AddPredicateQ(pcName, pacArgTypes)
 			return This.AddPredicate(pcName, pacArgTypes)
 
-	# Symmetric: Disjoint(A, B) IS Disjoint(B, A). Penrose restricts this
-	# to binary predicates over one type, and so does this.
+	# Declares a two-argument relation whose arguments may be swapped, such as Disjoint.
+	#
+	#   pcName        the predicate's name
+	#   pacArgTypes   exactly two types, both the same
+	#   returns       the domain itself, so calls chain
+	#   note          the substance's Holds then answers TRUE for either order
+	#   warning       one type, or two different types, raises an error
+	#   see           AddPredicate, IsSymmetric
+	#@ aka  Symmetric: Disjoint(A, B) IS Disjoint(B, A). Penrose restricts this to binary predicates over one type, and so does this.
 	def AddSymmetricPredicate(pcName, pacArgTypes)
 		if NOT isList(pacArgTypes) or len(pacArgTypes) != 2
 			stzraise("stzMathDomain.AddSymmetricPredicate: a symmetric " +
@@ -2772,6 +2848,11 @@ class stzMathDomain from stzObject
 		@aPredicates + [ _c_, _ac_, pbSym ]
 		return This
 
+	# TRUE if the domain declares a predicate, in any case.
+	#
+	#   pcName     the predicate's name
+	#   returns    TRUE or FALSE
+	#   see        AddPredicate, Predicates
 	def HasPredicate(pcName)
 		return len(This._Predicate(pcName)) > 0
 
@@ -2783,16 +2864,30 @@ class stzMathDomain from stzObject
 		next
 		return []
 
+	# Returns how many arguments a predicate takes.
+	#
+	#   pcName     the predicate's name, in any case
+	#   returns    a number; -1 for a predicate the domain does not have
+	#   see        AddPredicate, HasPredicate
 	def PredicateArity(pcName)
 		_p_ = This._Predicate(pcName)
 		if len(_p_) = 0  return -1  ok
 		return len(_p_[2])
 
+	# TRUE if the predicate was declared symmetric.
+	#
+	#   pcName     the predicate's name, in any case
+	#   returns    TRUE or FALSE; FALSE for a predicate the domain does not have
+	#   see        AddSymmetricPredicate, AddPredicate
 	def IsSymmetric(pcName)
 		_p_ = This._Predicate(pcName)
 		if len(_p_) = 0  return FALSE  ok
 		return _p_[3] = 1
 
+	# Returns the names of the declared predicates, as written, in the order declared.
+	#
+	#   returns    a list of text
+	#   see        HasPredicate, AddPredicate
 	def Predicates()
 		_a_ = []
 		_n_ = len(@aPredicates)
@@ -2801,8 +2896,16 @@ class stzMathDomain from stzObject
 		next
 		return _a_
 
-	#-- functions and constructors -----------------------------------------
-
+	# Declares a function from objects of given types to an object of an output type.
+	#
+	#   pcName        the function's name, not empty and not declared already
+	#   pacArgTypes   the argument types in order, or one type name
+	#   pcOutType     the type of the result
+	#   returns       the domain itself, so calls chain
+	#   note          a substance applies it with Define
+	#   warning       AddFunctionQ is the same call
+	#   see           AddConstructor, FunctionArity, FunctionOutputType
+	#@ aka  -- functions and constructors -----------------------------------------
 	def AddFunction(pcName, pacArgTypes, pcOutType)
 		_c_ = ring_trim("" + pcName)
 		if _c_ = ""
@@ -2830,10 +2933,23 @@ class stzMathDomain from stzObject
 		def AddFunctionQ(pcName, pacArgTypes, pcOutType)
 			return This.AddFunction(pcName, pacArgTypes, pcOutType)
 
-		# a constructor is a function whose name is its output type
+		# Declares a function whose name is also the type it makes, such as Pair made from two Atoms.
+		#
+		#   pcName        the function's name and the output type's name
+		#   pacArgTypes   the argument types in order
+		#   returns       the domain itself, so calls chain
+		#   warning       a constructor of an undeclared type raises an error naming the missing
+		#                 type
+		#   see           AddFunction
+		#@ aka  a constructor is a function whose name is its output type
 		def AddConstructor(pcName, pacArgTypes)
 			return This.AddFunction(pcName, pacArgTypes, pcName)
 
+	# TRUE if the domain declares a function or a constructor, in any case.
+	#
+	#   pcName     the function's name
+	#   returns    TRUE or FALSE
+	#   see        AddFunction, FunctionArity
 	def HasFunction(pcName)
 		return len(This._Function(pcName)) > 0
 
@@ -2845,11 +2961,21 @@ class stzMathDomain from stzObject
 		next
 		return []
 
+	# Returns the type a function makes.
+	#
+	#   pcName     the function's name, in any case
+	#   returns    a text; empty for a function the domain does not have
+	#   see        AddFunction, FunctionArity
 	def FunctionOutputType(pcName)
 		_f_ = This._Function(pcName)
 		if len(_f_) = 0  return ""  ok
 		return _f_[3]
 
+	# Returns how many arguments a function takes.
+	#
+	#   pcName     the function's name, in any case
+	#   returns    a number; -1 for a function the domain does not have
+	#   see        AddFunction, FunctionOutputType
 	def FunctionArity(pcName)
 		_f_ = This._Function(pcName)
 		if len(_f_) = 0  return -1  ok
@@ -2859,6 +2985,27 @@ class stzMathDomain from stzObject
 #  THE SUBSTANCE                                                       #
 #---------------------------------------------------------------------#
 
+# Holds the content of a mathematical diagram: named objects of the domain's types, relations between them, definitions, data and labels.
+#
+# A substance is written in one domain, and every statement is checked against it when it is made:
+# an object of an unknown type, a relation with the wrong arguments or a function of the wrong arity
+# is refused at the line that made it. Names are case sensitive and head every path a style writes.
+# Define declares an object as a function's result, SetData puts a number on an object for a style
+# to read, Label and AutoLabelAll set what is written, and ToGraph reads the substance as a
+# stzGraph. Known defect: SetData and SetDataFrom on an object that is not declared raise no error
+# and the number is lost. Picture: a 3 by 4 table of products drawn as a heat map from numbers set
+# on its cells, paler for 1 and deeper indigo for 12, digits legible on every cell
+# (substance_heat.png).
+#
+#   receiver   o1 = new stzMathSubstance(StzSetTheoryDomain()); o1.DeclareAll("Set", [ "A", "B" ]);
+#              o1.Assert("Subset", [ "B", "A" ])
+#   example    ? @@( o1.ObjectNames() )
+#              #--> [ "A", "B" ]
+#              ? o1.Holds("Subset", [ "B", "A" ])
+#              #--> 1
+#              ? o1.Holds("Subset", [ "A", "B" ])
+#              #--> 0
+#   see        stzMathDomain, stzMathStyle, stzMathDiagram, stzGraph
 class stzMathSubstance from stzObject
 
 	@oDomain = NULL
@@ -2874,6 +3021,11 @@ class stzMathSubstance from stzObject
 	@aDataIdx = []      # _MdKey(cName | cKey) -> index in @aData
 	@aDefIdx = []       # _MdKey(cName) -> index in @aDefinitions
 
+	# Builds an empty body of content, objects and relations, to be written in a given domain.
+	#
+	#   poDomain   the stzMathDomain the content is written in
+	#   returns    nothing; the object is built
+	#   see        Declare, Assert
 	def init(poDomain)
 		if NOT isObject(poDomain)
 			stzraise("stzMathSubstance: give the domain this content is " +
@@ -2881,11 +3033,25 @@ class stzMathSubstance from stzObject
 		ok
 		@oDomain = poDomain
 
+	# Returns the domain object the substance is written in.
+	#
+	#   returns    a stzMathDomain
+	#   see        init
 	def DomainQ()
 		return @oDomain
 
-	#-- objects ------------------------------------------------------------
-
+	# Declares an object of a type under a name.
+	#
+	#   pcType     a type of the domain
+	#   pcName     the object's name: a letter or underscore, then letters, digits and underscores,
+	#              because it heads every path a style writes
+	#   returns    the substance itself, so calls chain
+	#   note       DeclareQ is the same call
+	#   warning    an unknown type, an empty name, a name that starts with a digit or holds a space,
+	#              and a name declared twice raise errors; names are case sensitive, but ToGraph
+	#              refuses two that differ only by case
+	#   see        DeclareAll, TypeOf, Assert
+	#@ aka  -- objects ------------------------------------------------------------
 	def Declare(pcType, pcName)
 		_t_ = ring_trim("" + pcType)
 		_n_ = ring_trim("" + pcName)
@@ -2926,7 +3092,14 @@ class stzMathSubstance from stzObject
 		def DeclareQ(pcType, pcName)
 			return This.Declare(pcType, pcName)
 
-	# "Set A, B, C"
+	# Declares several objects of one type, one for each name.
+	#
+	#   pcType     a type of the domain
+	#   pacNames   the list of names
+	#   returns    the substance itself, so calls chain
+	#   warning    a bad name stops the loop, after the earlier names were declared
+	#   see        Declare
+	#@ aka  "Set A, B, C"
 	def DeclareAll(pcType, pacNames)
 		_n_ = len(pacNames)
 		for _i_ = 1 to _n_
@@ -2937,17 +3110,37 @@ class stzMathSubstance from stzObject
 		def DeclareAllQ(pcType, pacNames)
 			return This.DeclareAll(pcType, pacNames)
 
+	# TRUE if an object of that name is declared.
+	#
+	#   pcName     the object's name, matched with its case
+	#   returns    TRUE or FALSE
+	#   note       u is found, U is not
+	#   see        Declare, TypeOf
 	def HasObject(pcName)
 		return This.TypeOf(pcName) != ""
 
+	# Returns the type an object was declared with.
+	#
+	#   pcName     the object's name, matched with its case
+	#   returns    a text; empty for an undeclared name
+	#   note       the declared type, even when it is a subtype
+	#   see        Declare, ObjectsOfType
 	def TypeOf(pcName)
 		_i_ = @aObjIdx[_MdKey(ring_trim("" + pcName))]
 		if isNumber(_i_)  return @aObjects[_i_][2]  ok
 		return ""
 
+	# Returns the declared objects as [ name, type ] pairs, in the order declared.
+	#
+	#   returns    a list of pairs
+	#   see        ObjectNames, ObjectsOfType
 	def Objects()
 		return @aObjects
 
+	# Returns the names of the declared objects, in the order declared.
+	#
+	#   returns    a list of text
+	#   see        Objects
 	def ObjectNames()
 		_a_ = []
 		_n_ = len(@aObjects)
@@ -2956,6 +3149,13 @@ class stzMathSubstance from stzObject
 		next
 		return _a_
 
+	# Returns the names of the objects whose type is a given type or a kind of it.
+	#
+	#   pcType     the type to ask for
+	#   returns    a list of text, in the order declared
+	#   note       asking for Vec returns the objects declared as Unit too, when Unit is a kind of
+	#              Vec
+	#   see        Objects, TypeOf
 	def ObjectsOfType(pcType)
 		_a_ = []
 		_n_ = len(@aObjects)
@@ -2966,12 +3166,17 @@ class stzMathSubstance from stzObject
 		next
 		return _a_
 
-	#-- relations ------------------------------------------------------------
-
-	# Assert("Subset", [ "B", "A" ]) -- typechecked against the domain,
-	# because a relation over the wrong kind of object is a statement about
-	# nothing, and the earlier it is refused the nearer the refusal is to
-	# the line that made it.
+	# States a relation over declared objects, checked against the domain's predicate.
+	#
+	#   pcPredicate   a predicate of the domain, in any case
+	#   pacArgs       the object names in order, or one name for a one-argument predicate
+	#   returns       the substance itself, so calls chain
+	#   note          AssertQ is the same call
+	#   warning       an unknown predicate, a wrong count, an undeclared object or a wrong type
+	#                 raises an error naming which; the same relation can be asserted twice and is
+	#                 then held twice
+	#   see           Holds, Relations, Declare
+	#@ aka  -- relations ------------------------------------------------------------
 	def Assert(pcPredicate, pacArgs)
 		_p_ = ring_trim("" + pcPredicate)
 		if NOT @oDomain.HasPredicate(_p_)
@@ -3005,11 +3210,23 @@ class stzMathSubstance from stzObject
 		def AssertQ(pcPredicate, pacArgs)
 			return This.Assert(pcPredicate, pacArgs)
 
+	# Returns the stated relations as [ predicate, arguments ] pairs, in the order stated.
+	#
+	#   returns    a list of pairs
+	#   see        Assert, Holds
 	def Relations()
 		return @aRelations
 
-	# Does the substance state pcPredicate over exactly these objects?
-	# Order matters unless the domain declared the predicate symmetric.
+	# TRUE if the substance states a predicate over exactly these objects.
+	#
+	#   pcPredicate   the predicate's name, in any case
+	#   pacArgs       the object names in order
+	#   returns       TRUE or FALSE
+	#   note          a relation stated for u and v does not hold for v and u unless it is symmetric
+	#   warning       the order matters unless the domain declared the predicate symmetric; the
+	#                 objects are matched with their case
+	#   see           Assert, Relations
+	#@ aka  Does the substance state pcPredicate over exactly these objects? Order matters unless the domain declared the predicate symmetric.
 	def Holds(pcPredicate, pacArgs)
 		_p_ = StzLower(ring_trim("" + pcPredicate))
 		_bSym_ = @oDomain.IsSymmetric(_p_)
@@ -3032,10 +3249,17 @@ class stzMathSubstance from stzObject
 		next
 		return TRUE
 
-	#-- function applications ------------------------------------------------
-
-	# Define("u", "addV", [ "v", "w" ]): u is declared as the function's
-	# output type and remembered as its result. Typechecked like Assert.
+	# Declares an object as the result of a function applied to declared objects, and remembers the definition.
+	#
+	#   pcName       the new object's name, which takes the function's output type
+	#   pcFunction   a function of the domain
+	#   pacArgs      the argument objects in order
+	#   returns      the substance itself, so calls chain
+	#   note         DefineQ is the same call
+	#   warning      an unknown function, a wrong count, an undeclared object or a wrong type raises
+	#                an error
+	#   see          Definitions, IsDefinedAs, Declare
+	#@ aka  -- function applications ------------------------------------------------
 	def Define(pcName, pcFunction, pacArgs)
 		_f_ = ring_trim("" + pcFunction)
 		if NOT @oDomain.HasFunction(_f_)
@@ -3071,17 +3295,25 @@ class stzMathSubstance from stzObject
 		def DefineQ(pcName, pcFunction, pacArgs)
 			return This.Define(pcName, pcFunction, pacArgs)
 
+	# Returns the definitions as [ name, function, arguments ] triples, in the order made.
+	#
+	#   returns    a list of triples
+	#   see        Define, IsDefinedAs
 	def Definitions()
 		return @aDefinitions
 
-	#-- data ------------------------------------------------------------------
-
-	# A NUMBER ON AN OBJECT. Penrose's Substance carries no numbers, and for
-	# a set or a point that is right: the content is the relation, not the
-	# coordinate. A table is different -- a cell IS its row, its column and
-	# its value -- and a heatmap is nothing but numbers. SetData puts one
-	# on an object under a key; any Style expression reads it as "x.key",
-	# to drive a position or, through a colour rule, a fill.
+	# Puts a number on an object under a key, which a style can read as name.key to drive a position or a colour.
+	#
+	#   pcName     the object, which should be declared
+	#   pcKey      the key: a letter or underscore, then letters, digits and underscores
+	#   pnValue    the number
+	#   returns    the substance itself, so calls chain
+	#   note       SetDataQ is the same call
+	#   warning    an undeclared object raises no error and the number is lost: HasData and DataOf
+	#              then do not find it, which is a defect, seen with ghost and phantom; setting a
+	#              key again replaces its value
+	#   see        DataOf, HasData, SetDataFrom
+	#@ aka  -- data ------------------------------------------------------------------
 	def SetData(pcName, pcKey, pnValue)
 		_c_ = This._DeclaredName(pcName)
 		_k_ = ring_trim("" + pcKey)
@@ -3119,6 +3351,16 @@ class stzMathSubstance from stzObject
 		def DeclareManyQ(pcType, pcPrefix, pnCount)
 			return This.DeclareMany(pcType, pcPrefix, pnCount)
 
+	# Puts a list of numbers on the objects named prefix1, prefix2 and so on, one each, under a key.
+	#
+	#   pcPrefix   the name prefix, such as e for e1, e2
+	#   pcKey      the key
+	#   paValues   the numbers in order
+	#   returns    the substance itself, so calls chain
+	#   note       the objects must have been declared as e1, e2, and so on
+	#   warning    an object that is not declared gets no error and its number is lost, as in
+	#              SetData
+	#   see        SetData, Declare
 	def SetDataFrom(pcPrefix, pcKey, paValues)
 		_n_ = len(paValues)
 		for _i_ = 1 to _n_
@@ -3129,11 +3371,23 @@ class stzMathSubstance from stzObject
 		def SetDataFromQ(pcPrefix, pcKey, paValues)
 			return This.SetDataFrom(pcPrefix, pcKey, paValues)
 
+	# TRUE if an object carries a number under a key.
+	#
+	#   pcName     the object's name
+	#   pcKey      the key
+	#   returns    TRUE or FALSE
+	#   see        SetData, DataOf
 	def HasData(pcName, pcKey)
 		_c_ = ring_trim("" + pcName)
 		_k_ = ring_trim("" + pcKey)
 		return isNumber(@aDataIdx[_MdKey(_c_ + "|" + _k_)])
 
+	# Returns the number an object carries under a key.
+	#
+	#   pcName     the object's name
+	#   pcKey      the key
+	#   returns    a number
+	#   see        SetData, HasData
 	def DataOf(pcName, pcKey)
 		_c_ = ring_trim("" + pcName)
 		_k_ = ring_trim("" + pcKey)
@@ -3141,25 +3395,17 @@ class stzMathSubstance from stzObject
 		if isNumber(_i_)  return @aData[_i_][3]  ok
 		stzraise("stzMathSubstance.DataOf: '" + _c_ + "' carries no '" + _k_ + "'.")
 
-	#-- a substance is a graph (DN8a) ------------------------------------------
-
-	# EVERY OBJECT A NODE, EVERY RELATION AN EDGE -- and where an edge will
-	# not do, a node. stzGraph is a SIMPLE graph: no parallel edges, one
-	# self-loop at most, and its refusal names the remedy, "model the second
-	# relation as its own node". So a binary relation becomes a direct edge
-	# when the pair is free, and is REIFIED as a relation node with one
-	# edge per argument whenever a direct edge would be parallel -- exactly
-	# as a relation of three or more arguments must be anyway. A definition
-	# u := f(a, b) is edges from u to each argument, carrying the function
-	# and the position, unless f is among the constructors the caller asks
-	# to PROJECT, in which case the object u is not a node at all but the
-	# edge a -> b itself: that is how a graph-domain substance becomes the
-	# plain graph the layouts want. Nothing is lost either way: a graph made
-	# here goes back through StzSubstanceFromGraph to the same substance.
+	# Returns the substance as a stzGraph: each object a node, each relation an edge, each definition edges to its arguments.
 	#
-	# stzGraph folds node ids to lower case, and a substance's names are
-	# case-sensitive (DN7b). The true name rides as a node property, and two
-	# names that differ only by case are refused here, with the reason.
+	#   returns    a stzGraph
+	#   note       ToGraphXT takes the option projectConstructors; a one-argument predicate is not
+	#              an edge but is listed in the node's unary property
+	#   warning    a relation that would repeat an existing edge, and any relation over three or
+	#              more objects, becomes a node named rel_ plus the predicate and a number, with an
+	#              edge to each argument; two names that differ only by case raise an error, because
+	#              the graph folds ids to lower case
+	#   see        Relations, Definitions
+	#@ aka  -- a substance is a graph (DN8a) ------------------------------------------
 	def ToGraph()
 		return This.ToGraphXT([])
 
@@ -3303,7 +3549,15 @@ class stzMathSubstance from stzObject
 		next
 		return TRUE
 
-	# Is pcName defined as pcFunction over exactly these objects, in order?
+	# TRUE if an object was defined by a function over exactly these arguments, in order.
+	#
+	#   pcName       the defined object
+	#   pcFunction   the function's name, in any case
+	#   pacArgs      the argument names in order
+	#   returns      TRUE or FALSE
+	#   note         an object that was declared and not defined answers FALSE
+	#   see          Define, Definitions
+	#@ aka  Is pcName defined as pcFunction over exactly these objects, in order?
 	def IsDefinedAs(pcName, pcFunction, pacArgs)
 		_c_ = ring_trim("" + pcName)
 		_f_ = StzLower(ring_trim("" + pcFunction))
@@ -3314,8 +3568,14 @@ class stzMathSubstance from stzObject
 		return StzLower(@aDefinitions[_i_][2]) = _f_ and
 		       This._SameArgs(@aDefinitions[_i_][3], pacArgs)
 
-	#-- labels -----------------------------------------------------------------
-
+	# Gives an object the text a diagram writes for it.
+	#
+	#   pcName     a declared object, else an error is raised
+	#   pcLabel    the text
+	#   returns    the substance itself, so calls chain
+	#   warning    LabelQ is the same call
+	#   see        LabelOf, AutoLabelAll
+	#@ aka  -- labels -----------------------------------------------------------------
 	def Label(pcName, pcLabel)
 		if NOT This.HasObject(pcName)
 			stzraise("stzMathSubstance.Label: '" + pcName + "' is not a " +
@@ -3327,12 +3587,20 @@ class stzMathSubstance from stzObject
 		def LabelQ(pcName, pcLabel)
 			return This.Label(pcName, pcLabel)
 
+	# Makes every object without a label of its own carry its name as its label.
+	#
+	#   returns    the substance itself, so calls chain
+	#   see        Label, LabelOf
 	def AutoLabelAll()
 		@bAutoLabel = 1
 		return This
 
-	# The label an object carries: the one given, else its own name when
-	# AutoLabel is on, else "".
+	# Returns the label of an object: the one given, else its name when automatic labels are on, else an empty text.
+	#
+	#   pcName     the object's name
+	#   returns    a text
+	#   see        Label, AutoLabelAll
+	#@ aka  The label an object carries: the one given, else its own name when AutoLabel is on, else "".
 	def LabelOf(pcName)
 		_c_ = ring_trim("" + pcName)
 		_n_ = len(@aLabels)
@@ -3351,6 +3619,27 @@ class stzMathSubstance from stzObject
 #  THE STYLE                                                           #
 #---------------------------------------------------------------------#
 
+# Turns a substance into a picture by rules: which shapes each object gets and which constraints each relation imposes.
+#
+# A style is data. ForAll adds a rule for every object (or every pair) the selector names,
+# ForAllWhere only where a relation holds, and each row is a shape to draw, a variable for the
+# solver to own, a field or override, a constraint (ensure) or an objective (encourage), or a layer
+# order. Colours are roles that the theme resolves. The canvas, the margin, the start placements the
+# solver tries and the label order are settings of the style. Rows are checked when added, so a
+# mistake is refused at its line. Known defect: StartTrying given one mode as text, not in a list,
+# raises error R21. Picture: the Euler style under the dark theme with a margin drew a large disk A
+# holding a smaller B near its lower edge and a separate C, light strokes and white names on a dark
+# paper (style_euler_dark.png).
+#
+#   receiver   o1 = new stzMathStyle(); o1.SetCanvas(640, 480); o1.ForAll("Set x", [ [ :shape,
+#              "x.icon", :circle, [ :r = 30 ] ] ])
+#   example    ? o1.CanvasWidth()
+#              #--> 640
+#              ? len( o1.Rules() )
+#              #--> 1
+#              ? o1.Theme()
+#              #--> light
+#   see        stzMathDomain, stzMathSubstance, stzMathDiagram, StzEulerStyle
 class stzMathStyle from stzObject
 
 	@nW = 800
@@ -3362,8 +3651,20 @@ class stzMathStyle from stzObject
 	@bLabelsAfter = FALSE
 	@cTheme = ""        # the theme a role resolves in; "" is the light one
 
+	# Builds an empty style with an 800 by 700 canvas, no rule, no start, margin 0 and the light theme.
+	#
+	#   returns    nothing; the object is built
+	#   see        SetCanvas, ForAll
 	def init()
 
+	# Sets the width and height of the paper the picture is drawn on.
+	#
+	#   pnW        the width in pixels
+	#   pnH        the height in pixels
+	#   returns    the style itself, so calls chain
+	#   note       SetCanvasQ is the same call
+	#   warning    the numbers are not checked, so text or a negative value is accepted
+	#   see        CanvasWidth, SetMargin
 	def SetCanvas(pnW, pnH)
 		@nW = pnW
 		@nH = pnH
@@ -3372,30 +3673,50 @@ class stzMathStyle from stzObject
 		def SetCanvasQ(pnW, pnH)
 			return This.SetCanvas(pnW, pnH)
 
+	# Returns how wide the paper is, in pixels.
+	#
+	#   returns    a number, 800 by default
+	#   see        SetCanvas, CanvasHeight
 	def CanvasWidth()
 		return @nW
 
+	# Returns how tall the paper is, in pixels.
+	#
+	#   returns    a number, 700 by default
+	#   see        SetCanvas, CanvasWidth
 	def CanvasHeight()
 		return @nH
 
-	# ForAll("Set x", rows) -- rows are DATA. Each row is one of:
-	#   [ :shape,     "x.icon", :circle | :rect | :text | :line | :curve |
-	#                          :poly | :mark, [ props ] ]
-	#   [ :delete,    "x.icon" ]              unmint a shape an earlier rule made
-	#   [ :unknown,   "p.sx", lo, hi ]        a variable the solver owns
-	#   [ :field,     "U.ox", number | "expression" ]
-	#   [ :override,  "u.arrow.x2", number | "expression" ]
-	#   [ :ensure,    "fn", [ args ] ]        a constraint
-	#   [ :encourage, "fn", [ args ] ]        an objective
-	#   [ :layer,     "x.text", :above | :below, "x.icon" ]
-	# A property or argument is a number, a path ("x.icon.r"), or an
-	# expression over paths ("U.ox + 14*ux(u.arrow)").
+	# Adds a rule: for every combination of objects the selector names, the rows say which shapes to draw and which constraints to hold.
+	#
+	#   pcSelector   the types and variables, such as Set x for each Set, or two Set variables
+	#                joined by a semicolon for each pair
+	#   paRows       the rows, each [ verb, path, ... ] with the verb shape, delete, unknown, field,
+	#                override, ensure, encourage or layer
+	#   returns      the style itself, so calls chain
+	#   note         the rows are data: [ :shape, x.icon, :circle, [ :r = 30 ] ] draws a circle for
+	#                each Set
+	#   warning      an empty selector, a body that is not a list, an unknown verb, a shape kind the
+	#                drawer lacks, a layout function that does not exist, or a malformed row raises
+	#                an error naming the row
+	#   see          ForAllWhere, Rules
+	#@ aka  ForAll("Set x", rows) -- rows are DATA. Each row is one of: [ :shape, "x.icon", :circle | :rect | :text | :line | :curve | :poly | :mark, [ props ] ] [ :delete, "x.icon" ] unmint a shape an earlier rule made [ :unknown, "p.sx", lo, hi ] a variable the solver owns [ :field, "U.ox", number | "expression" ] [ :override, "u.arrow.x2", number | "expression" ] [ :ensure, "fn", [ args ] ] a constraint [ 
 	def ForAll(pcSelector, paRows)
 		return This.ForAllWhere(pcSelector, "", paRows)
 
 		def ForAllQ(pcSelector, paRows)
 			return This.ForAll(pcSelector, paRows)
 
+	# Adds a rule like ForAll, applied only to the combinations for which a condition over the substance holds.
+	#
+	#   pcSelector   the types and variables, as for ForAll
+	#   pcWhere      the condition, such as Subset(x, y), taken from the substance's relations
+	#   paRows       the rows, as for ForAll
+	#   returns      the style itself, so calls chain
+	#   note         ForAllWhereQ is the same call; the Euler style draws containment with a rule
+	#                where Subset(x, y)
+	#   warning      it checks its rows as ForAll does
+	#   see          ForAll, Rules
 	def ForAllWhere(pcSelector, pcWhere, paRows)
 		_cS_ = ring_trim("" + pcSelector)
 		if _cS_ = ""
@@ -3470,29 +3791,52 @@ class stzMathStyle from stzObject
 				"unknown, field, override, ensure, encourage or layer.")
 		ok
 
+	# Returns the rules added so far as [ selector, condition, rows ] triples, in order.
+	#
+	#   returns    a list of triples; empty for a new style
+	#   see        ForAll, ForAllWhere
 	def Rules()
 		return @aRules
 
-	# A PLANAR START. The solver never leaves the basin it starts in -- DN7f
-	# measured 84 crossing terms holding 10,138 energy units at convergence
-	# that no weight could spend -- so the start is where planarity is
-	# decided. A style that draws a graph declares which objects are its
-	# vertices, which shape's centre carries them, and which constructors
-	# are its edges; the diagram then seeds those centres by Tutte's
-	# embedding rather than at random. Everything else in the picture still
-	# starts where it always did.
+	# Asks for the solver to start from a planar placement of the objects that are vertices, joined by the objects that are edges.
+	#
+	#   pcType     the type whose objects are the vertices
+	#   pcShape    the shape whose centre carries each vertex
+	#   pacCtors   the constructors that are edges, as a list or one name
+	#   returns    the style itself, so calls chain
+	#   note       StartPlanarQ is the same call
+	#   warning    the same as StartTrying with the one start planar
+	#   see        StartLayout, StartTrying, PlanarStart
+	#@ aka  A PLANAR START. The solver never leaves the basin it starts in -- DN7f measured 84 crossing terms holding 10,138 energy units at convergence that no weight could spend -- so the start is where planarity is decided. A style that draws a graph declares which objects are its vertices, which shape's centre carries them, and which constructors are its edges; the diagram then seeds those centres by Tutt
 	def StartPlanar(pcType, pcShape, pacCtors)
 		return This.StartTrying([ :planar ], pcType, pcShape, pacCtors)
 
-	# LAYOUTS AS STARTS (DN8b). The graph plane's own engines -- hierarchical,
-	# ring, force, mesh, sequence -- computed on the graph the substance's
-	# vertices and edges make, and overlaid as the solver's start. The planar
-	# start is one of them. StartTrying names SEVERAL: the solver takes them
-	# in order, and the first that ends lawful is the picture -- so the seed
-	# is no longer what decides whether a lattice crosses.
+	# Asks for the solver to start from one of the graph plane's layouts of the vertices and edges.
+	#
+	#   pcMode     planar, hierarchical, ring, force, mesh, sequence or random, in any case
+	#   pcType     the vertex type
+	#   pcShape    the shape that carries a vertex
+	#   pacCtors   the edge constructors, as a list or one name
+	#   returns    the style itself, so calls chain
+	#   note       the same as StartTrying with one mode
+	#   warning    any other mode raises an error
+	#   see        StartTrying, Starts
+	#@ aka  LAYOUTS AS STARTS (DN8b). The graph plane's own engines -- hierarchical, ring, force, mesh, sequence -- computed on the graph the substance's vertices and edges make, and overlaid as the solver's start. The planar start is one of them. StartTrying names SEVERAL: the solver takes them in order, and the first that ends lawful is the picture -- so the seed is no longer what decides whether a lattice 
 	def StartLayout(pcMode, pcType, pcShape, pacCtors)
 		return This.StartTrying([ pcMode ], pcType, pcShape, pacCtors)
 
+	# Sets the starts the solver tries in order, the first that ends lawful being the picture.
+	#
+	#   pacModes   a list of start modes, as for StartLayout
+	#   pcType     the vertex type
+	#   pcShape    the shape that carries a vertex
+	#   pacCtors   the edge constructors, as a list or one name
+	#   returns    the style itself, so calls chain
+	#   note       it replaces the starts set before
+	#   warning    an unknown mode raises an error; a single mode given as text, not in a list,
+	#              raises error R21 although the code tries to widen it, seen with mesh and ring;
+	#              wrap it in a list
+	#   see        StartLayout, Starts
 	def StartTrying(pacModes, pcType, pcShape, pacCtors)
 		_ac_ = []
 		if isString(pacCtors)  _ac_ + pacCtors  else  _ac_ = pacCtors  ok
@@ -3511,25 +3855,42 @@ class stzMathStyle from stzObject
 		next
 		return This
 
-	# the starts to try, in order; empty means one random start
+	# Returns the start modes to try, in lower case and in order.
+	#
+	#   returns    a list of text; empty means one random start
+	#   see        StartTrying, StartLayout
+	#@ aka  the starts to try, in order; empty means one random start
 	def Starts()
 		return @aStarts
 
 		def StartPlanarQ(pcType, pcShape, pacCtors)
 			return This.StartPlanar(pcType, pcShape, pacCtors)
 
+	# Removes every start, so the solver starts from a random placement again.
+	#
+	#   returns    the style itself, so calls chain
+	#   see        StartTrying, PlanarStart
 	def ClearPlanarStart()
 		@aPlanarStart = []
 		@aStarts = []
 		return This
 
+	# Returns what the start asked for names: the vertex type, the shape and the edge constructors.
+	#
+	#   returns    a list [ type, shape, constructors ]; empty when no start is set
+	#   see        StartTrying, ClearPlanarStart
 	def PlanarStart()
 		return @aPlanarStart
 
-	# A MARGIN inside the paper. The on-canvas rule holds every shape inside
-	# the canvas exactly, and a style whose vertices repel one another
-	# pushes them onto that line: the dodecahedron came out with its outer
-	# face touching all four edges. A margin moves the line in.
+	# Sets a margin inside the paper, in pixels, that shapes must keep from its edge.
+	#
+	#   pnPx       the margin in pixels
+	#   returns    the style itself, so calls chain
+	#   note       a style whose vertices repel one another pushes them onto the edge without a
+	#              margin
+	#   warning    SetMarginQ is the same call
+	#   see        Margin, SetCanvas
+	#@ aka  A MARGIN inside the paper. The on-canvas rule holds every shape inside the canvas exactly, and a style whose vertices repel one another pushes them onto that line: the dodecahedron came out with its outer face touching all four edges. A margin moves the line in.
 	def SetMargin(pnPx)
 		@nMargin = pnPx
 		return This
@@ -3537,16 +3898,21 @@ class stzMathStyle from stzObject
 		def SetMarginQ(pnPx)
 			return This.SetMargin(pnPx)
 
+	# Returns the margin inside the paper.
+	#
+	#   returns    a number, 0 by default
+	#   see        SetMargin
 	def Margin()
 		return @nMargin
 
-	# COLOUR AS MEANING (DN8d). A style writes ROLES -- :primary for the one
-	# accent, :neutral for ink, :muted for secondary ink, :background for
-	# the paper -- and the theme decides what each is. A theme is named
-	# here; the diagram resolves every role through it at draw time, and
-	# a text with no colour of its own takes the best of black and white
-	# on what it sits on, measured. Content colours -- Byrne's plate, the
-	# quaternion table's eight -- stay the style's own data.
+	# Sets the colour theme that resolves the style's roles, kept in lower case.
+	#
+	#   pcName     a theme name such as light or dark, trimmed
+	#   returns    the style itself, so calls chain
+	#   note       the Euler style under dark gives light strokes and white names on a dark paper
+	#   warning    SetThemeQ is the same call
+	#   see        Theme
+	#@ aka  COLOUR AS MEANING (DN8d). A style writes ROLES -- :primary for the one accent, :neutral for ink, :muted for secondary ink, :background for the paper -- and the theme decides what each is. A theme is named here; the diagram resolves every role through it at draw time, and a text with no colour of its own takes the best of black and white on what it sits on, measured. Content colours -- Byrne's plat
 	def SetTheme(pcName)
 		@cTheme = StzLower(ring_trim("" + pcName))
 		return This
@@ -3554,17 +3920,21 @@ class stzMathStyle from stzObject
 		def SetThemeQ(pcName)
 			return This.SetTheme(pcName)
 
+	# Returns the theme in force.
+	#
+	#   returns    a text, light until another is set
+	#   see        SetTheme
 	def Theme()
 		if @cTheme = ""  return "light"  ok
 		return @cTheme
 
-	# LABELS AFTER SHAPES. The joint first stage lets a name's constraints
-	# move the shapes -- which an Euler diagram needs, since a set must be
-	# large enough for its name, and which a graph must NOT have: a name
-	# held off an edge pulls on the edge's endpoints, and at a high penalty
-	# weight eight names threw a planar cube away to make room for
-	# themselves. Under this, the first stage sees no label term at all,
-	# and the names find their room against frozen shapes.
+	# Makes the solver place shapes first and the names afterwards, against the frozen shapes.
+	#
+	#   returns    the style itself, so calls chain
+	#   note       right for a graph, where a name held off an edge would pull on the edge's ends
+	#   warning    SolveLabelsAfterQ is the same call
+	#   see        LabelsAfter
+	#@ aka  LABELS AFTER SHAPES. The joint first stage lets a name's constraints move the shapes -- which an Euler diagram needs, since a set must be large enough for its name, and which a graph must NOT have: a name held off an edge pulls on the edge's endpoints, and at a high penalty weight eight names threw a planar cube away to make room for themselves. Under this, the first stage sees no label term at al
 	def SolveLabelsAfter()
 		@bLabelsAfter = TRUE
 		return This
@@ -3572,6 +3942,10 @@ class stzMathStyle from stzObject
 		def SolveLabelsAfterQ()
 			return This.SolveLabelsAfter()
 
+	# Returns whether names are solved after the shapes.
+	#
+	#   returns    1 when on, 0 by default
+	#   see        SolveLabelsAfter
 	def LabelsAfter()
 		return @bLabelsAfter
 

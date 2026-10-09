@@ -1,0 +1,14 @@
+{
+ "brief": "Is meant to build the file object of an intent from its name, but returns an empty object today.",
+ "detail": "The constructor tries to return the object of the chosen intent (info, read, append, create, overwrite, erase, modify, manage), but Ring ignores a value returned by a constructor, so the result is an empty stzFileXT. Build the class of the intent yourself: stzFileInfo, stzFileReader, stzFileAppender, stzFileCreator, stzFileOverwriter, stzFileModifier or stzFileManager.",
+ "receiver": "write(\"demo_note.txt\", \"alpha\" + char(10) + \"beta gamma\" + char(10) + \"end\")\no1 = new stzFileXT(\"demo_note.txt\", \"info\")",
+ "example": [
+  "? isObject(o1)",
+  "#--> 1"
+ ],
+ "see": [
+  "stzFileInfo",
+  "stzFileReader",
+  "stzFileManager"
+ ]
+}

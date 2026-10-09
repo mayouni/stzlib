@@ -1,0 +1,20 @@
+{
+ "brief": "Gives information about a file path (name, size, suffix, times, flags) without opening the file for reading.",
+ "detail": "Reach for it to ask what a file is: Info gives a summary hash list, and the single readers (Size, Suffix, BaseName, DirPath, Exists) give one fact each. The path is kept as given and nothing is resolved. Two traps today: IsWritable opens the path for appending, so asking about a missing file creates it empty (and Info does so too), and IsExecutable answers 0 for every file. CreationTime and LastReadingTime raise an error on purpose.",
+ "receiver": "write(\"demo_note.txt\", \"alpha\" + char(10) + \"beta gamma\" + char(10) + \"end\")\no1 = new stzFileInfo(\"demo_note.txt\")",
+ "example": [
+  "? o1.Exists()",
+  "#--> 1",
+  "? o1.Size()",
+  "#--> 20",
+  "? o1.Suffix()",
+  "#--> .txt",
+  "? o1.BaseName()",
+  "#--> demo_note"
+ ],
+ "see": [
+  "stzFileReader",
+  "stzFileManager",
+  "stzFolder"
+ ]
+}

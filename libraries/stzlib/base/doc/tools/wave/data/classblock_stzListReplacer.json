@@ -1,0 +1,17 @@
+{
+ "brief": "Changes the items of a list in place: one item, every occurrence of a value, a section, or a chosen set of positions.",
+ "detail": "Reach for it when you need to rewrite part of a list and keep the object: the methods act on the held list and return nothing, so read the result with Content. Replace by value (ReplaceAllOccurrences, ReplaceFirstOccurrence, ReplaceNthOccurrence), by position (ReplaceAnyItemAtPosition, ReplaceAnyItemAtPositions), by section (ReplaceSection puts one item, ReplaceSectionByMany splices several) or by a condition (ReplaceItemsW). The ...ByMany forms take a list of replacements: used in order, or round-robin in the XT forms. Text is compared with case, and a position outside the list is skipped without an error. AllOccurrencesReplaced is the one method that leaves the object alone and returns a changed copy.",
+ "receiver": "o1 = new stzListReplacer([1, 2, 3, 2, 1])",
+ "example": [
+  "o1.ReplaceAllOccurrences(2, 9)",
+  "? @@( o1.Content() )",
+  "#--> [ 1, 9, 3, 9, 1 ]",
+  "o1.ReplaceFirstOccurrence(1, 0)",
+  "? @@( o1.Content() )",
+  "#--> [ 0, 9, 3, 9, 1 ]",
+  "o1.ReplaceSectionByMany(2, 4, [7, 8])",
+  "? @@( o1.Content() )",
+  "#--> [ 0, 7, 8, 1 ]"
+ ],
+ "see": ["stzList", "stzListFinder"]
+}

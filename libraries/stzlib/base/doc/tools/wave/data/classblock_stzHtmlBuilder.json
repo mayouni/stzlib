@@ -1,0 +1,14 @@
+{
+ "brief": "Is meant to assemble an HTML document from nodes, but returns an empty text today because appended nodes never reach the root.",
+ "detail": "The builder holds a root container and a current node. Because Ring copies an object on assignment, the current node is a copy of the root and AppendToCurrent adds to the copy, so Build and BuildToFile give nothing. Build the tree on stzHtmlBuildNode objects instead and call ToHtml on the top node, which works.",
+ "receiver": "o1 = new stzHtmlBuilder()",
+ "example": [
+  "o1.AppendToCurrent(new stzHtmlBuildNode(\"p\"))",
+  "? o1.Build() = \"\"",
+  "#--> 1"
+ ],
+ "see": [
+  "stzHtmlBuildNode",
+  "stzHtml"
+ ]
+}

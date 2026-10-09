@@ -1,0 +1,19 @@
+{
+ "brief": "Gives every file class its reading methods: the text, the lines, a search in the text and its size.",
+ "detail": "This is the shared reading half of stzFileReader, stzFileAppender, stzFileCreator, stzFileOverwriter and stzFileModifier; the examples below run through a stzFileReader. The file is read again at every call, so the answers follow the disk. An empty file counts one empty line. The stzFileModifier class redefines LinesContaining to answer texts only.",
+ "receiver": "write(\"demo_note.txt\", \"alpha\" + char(10) + \"beta gamma\" + char(10) + \"end\")\no1 = new stzFileReader(\"demo_note.txt\")",
+ "example": [
+  "? @@( o1.Lines() )",
+  "#--> [ \"alpha\", \"beta gamma\", \"end\" ]",
+  "? o1.FindText(\"beta\")",
+  "#--> 7",
+  "? @@( o1.LinesContaining(\"a\") )",
+  "#--> [ [ 1, \"alpha\" ], [ 2, \"beta gamma\" ] ]",
+  "? o1.Size()",
+  "#--> 20"
+ ],
+ "see": [
+  "stzFileReader",
+  "stzString"
+ ]
+}

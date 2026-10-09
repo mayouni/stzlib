@@ -1,0 +1,9 @@
+# Wave 11 -- stzHtmlNode. Every line was run on invented documents.
+init | Builds a handle to the n-th element with a given tag in a stzHtml document. | nothing; the object is built | oDoc=the stzHtml document that owns the element; pcTag=the tag name; nOccurrence=which element of that tag, counted from 1 | Tag, Text | | normally made by Find, FindFirst or Elements of stzHtml
+Tag | Returns the tag name in lower case. | a text | | Id, Klass
+Text | Returns the text inside the element, descendants included. | a text | | Attr, Tag | | text of child elements runs together: a paragraph with a bold part reads World x; a script element gives its code
+Attr | Returns the value of one attribute of the element; the empty text when it is absent. | a text | cName=the attribute name, such as href | HasAttr, Id, Klass | | an attribute present with an empty value looks absent
+HasAttr | Returns TRUE if the element has the attribute with a value that is not empty. | TRUE or FALSE | cName=the attribute name | Attr | | it is the test of Attr(name) against the empty text
+Id | Returns the id attribute of the element; the empty text when there is none. | a text | | Attr, Klass
+Klass | Returns the whole class attribute as one text; the empty text when there is none. | a text | | HasKlass, Id | | the classes box and big come as one text: box big
+HasKlass | Returns TRUE if one of the words of the class attribute equals the class. | TRUE or FALSE | pcClass=the class name to look for | Klass | | box big has box and big but not bo

@@ -1,0 +1,15 @@
+init | Builds an environment twin with an empty state, a bridge to the live environment and no history. | nothing; the twin is built | | MirrorReality, stzVirtualSystem
+SetVar | Rehearses setting a variable; the real environment is not touched. | the twin itself, so calls chain | pcName=the variable name; pcValue=the value, as text | UnsetVar, Var | | a variable mirrored from reality keeps its mirrored origin after its value is set
+UnsetVar | Rehearses removing a variable; the real environment is not touched. | the twin itself, so calls chain | pcName=the variable name | SetVar, HasVar | | an absent name is recorded as an operation and changes nothing in the state
+ChangeDirectory | Rehearses changing the working directory; no real directory is entered. | the twin itself, so calls chain | pcPath=the directory to move to, as text | Cwd, Spawn
+Spawn | Rehearses starting a process by queueing its command; nothing is run. | the twin itself, so calls chain | pcCommand=the command line, as text | PendingSpawns, GenerateUpdatePlan | | the command only runs if a plan holding it is executed through the real bridge
+MirrorReality | Replaces the twin state with a copy of the live environment: its variables and its working directory. | the twin itself, so calls chain | | Var, Cwd | | it reads the real environment, which can hold secrets, so show counts and names, never values
+Var | Returns the value of a variable in the twin. | a text; an empty text when the twin has no such variable | pcName=the variable name, matched with case | HasVar, SetVar
+HasVar | TRUE if the twin holds a variable of that exact name. | TRUE or FALSE | pcName=the variable name, matched with case | Var, OriginOfVar
+OriginOfVar | Returns where a variable of the twin came from. | mirrored for one read from reality, virtual for one set in the twin; an empty text when absent | pcName=the variable name, matched with case | Var, MirrorReality
+Cwd | Returns the working directory of the twin. | a text; empty until mirrored or changed | | ChangeDirectory, MirrorReality
+PendingSpawns | Returns the commands queued by Spawn, in order. | a list of text | | Spawn, NumberOfPendingSpawns
+NumberOfPendingSpawns | Returns how many commands are queued. | a number | | PendingSpawns
+Vars | Returns every variable of the twin with its origin. | a list of [ name, value, origin ] rows | | NumberOfVars, Var
+NumberOfVars | Returns how many variables the twin holds. | a number | | Vars
+Show | Prints one summary line of the twin state: variables, directory and queued commands. | nothing; it prints | | Vars, Cwd

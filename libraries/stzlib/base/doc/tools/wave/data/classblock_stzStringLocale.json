@@ -1,0 +1,12 @@
+{
+ "brief": "Answers questions about a text that depend on its script, its reading direction and its locale.",
+ "detail": "It wraps a stzString and asks the engine, which counts Unicode characters and not bytes. Case conversion takes a locale, so Turkish dotted and dotless i come out right. Script tests tell the writing system, and a text that mixes two of them, the shape of a homograph attack, is reported by IsMixedScript; digits and spaces never count as a script of their own there. Known limit today: Hebrew letters are not seen as right to left (see DetectDirection), and LocaleCompare orders by character with case ignored, not by the rules of a language.",
+ "receiver": "o1 = new stzStringLocale(\"Hello, World 123\")",
+ "example": [
+  "? o1.ScriptName()",
+  "#--> Latin",
+  "? o1.ContainsDigits()",
+  "#--> 1"
+ ],
+ "see": ["stzString", "stzLocale"]
+}

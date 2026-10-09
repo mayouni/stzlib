@@ -1,0 +1,20 @@
+{
+ "brief": "Changes parts of an existing file line by line, or by text, and rewrites the file after each change.",
+ "detail": "Reach for it to edit a file in place: ModifyLine, InsertLineAt, RemoveLine, Modify (every occurrence of a text) and ReplaceLineContaining each rewrite the file at once. The object keeps its own copy of the text and lines, kept in step with its changes (OriginalContent shows the latest text, not the text at open time), so use one modifier per edit session. Lines are joined with a line feed and no final one is added. InsertLine and the :With form of Modify raise errors today.",
+ "receiver": "write(\"demo_note.txt\", \"alpha\" + char(10) + \"beta gamma\" + char(10) + \"end\")\no1 = new stzFileModifier(\"demo_note.txt\")",
+ "example": [
+  "o1.ModifyLine(2, \"BETA\")",
+  "? o1.OriginalContent() = \"alpha\" + char(10) + \"BETA\" + char(10) + \"end\"",
+  "#--> 1",
+  "o1.InsertLineAtEnd(\"fin\")",
+  "? o1.OriginalLineCount()",
+  "#--> 4",
+  "? o1.RemoveLine(9)",
+  "#--> 0"
+ ],
+ "see": [
+  "stzFileOverwriter",
+  "stzFileReader",
+  "stzString"
+ ]
+}

@@ -1,0 +1,16 @@
+{
+ "brief": "Holds an in-memory tree of files and folders: a flat map of paths to nodes, each with a type, content and origin.",
+ "detail": "It is the state the file twin changes. A node is [ path, type, content, origin ], the origin being mirrored for a node read from the disk and virtual for one born in the twin, which is the seam a diff against reality needs. A node keeps its first origin when its content is replaced. Apply is the hook the generic twin calls to rehearse an operation, and Clone gives the independent copy a snapshot or a rebuild starts from. Paths are matched exactly and the tree is flat: removing a folder does not remove the nodes below it. Nothing here touches the disk.",
+ "receiver": "o1 = new stzFileTree()",
+ "example": [
+  "o1.PutFile(\"/w/a.txt\", \"alpha\", \"virtual\")",
+  "o1.PutFolder(\"/w\", \"virtual\")",
+  "? o1.IsFile(\"/w/a.txt\")",
+  "#--> 1",
+  "? o1.SizeOf(\"/w/a.txt\")",
+  "#--> 5",
+  "? @@( o1.Paths() )",
+  "#--> [ \"/w/a.txt\", \"/w\" ]"
+ ],
+ "see": ["stzVirtualFileSystem", "stzFileSystemBridge", "stzEnvironmentState"]
+}

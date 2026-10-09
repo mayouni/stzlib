@@ -1,0 +1,16 @@
+{
+ "brief": "Answers yes or no questions about a list: what its items are made of, whether they are unique, ordered, equal or paired.",
+ "detail": "Reach for it to validate a list before using it: AllItemsAreOfType and the IsListOf... family check the type of the items, IsMonotonic and the strict variants check their order, IsHashList and IsListOfPairs check the shape, and HasMoreNumberOfItems compares the length with another list. Most checks answer 1 or 0, a few answer TRUE or FALSE; both work in an if. A check made on the empty list is true for IsListOfNumbers, IsListOfStrings and AllItemsAreEqual, and false for IsListOfLists. Broken today: ContainsItem answers 0 for every item, and with it ContainsAllOfThese and ContainsOneOfThese; ContainsW raises error R3.",
+ "receiver": "o1 = new stzListChecker([3, 1, 2])",
+ "example": [
+  "? o1.IsListOfNumbers()",
+  "#--> 1",
+  "? o1.IsMonotonic()",
+  "#--> 0",
+  "? o1.IsEqualTo([3, 1, 2])",
+  "#--> 1",
+  "? o1.HasMoreNumberOfItems([1])",
+  "#--> 1"
+ ],
+ "see": ["stzList", "stzListFinder"]
+}

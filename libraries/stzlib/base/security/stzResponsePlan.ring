@@ -103,6 +103,28 @@ func StzResponseActions()
 	return [ "revokesession", "lockaccount", "rotatesecret",
 		 "revokecapability", "shedsource", "quarantinepart" ]
 
+# Holds a containment plan: a list of actions anyone may propose and only an effectful, non-sandboxed actor may commit.
+#
+# Containment is the only step that touches reality, so it is a plan. Expression is free: any actor,
+# a language-model agent included, may compose it with Propose or derive it from an incident with
+# ProposeForIncident. Admission is governed: ExecuteOn performs the actions on a responder only for
+# an actor MayCommit admits, and audits every outcome, committed or refused, in the plan and in the
+# security ledger. The catalog is closed to RevokeSession, LockAccount, RotateSecret,
+# RevokeCapability, ShedSource and QuarantinePart. The responder is any object that answers those
+# verbs: rehearse on a double, or on a responder over in-memory objects. Never point a plan at the
+# real machine to try it.
+#
+#   receiver   o1 = new stzResponsePlan("contain-1")
+#   example    o1.Propose(:LockAccount, "mallory", "stolen credentials")
+#              o1.Propose(:RotateSecret, "signing-key", "read by the intruder")
+#              ? o1.NumberOfActions()
+#              #--> 2
+#              ? o1.MayCommit(LLMActor("advisor"))
+#              #--> 0
+#              ? o1.MayCommit(HumanActor("oncall"))
+#              #--> 1
+#   see        stzResponderSet, stzSecretStoreResponder, stzCapabilityResponder, stzIncident,
+#              StzResponsePlan
 class stzResponsePlan from stzObject
 
 	@cName = ""
@@ -110,14 +132,32 @@ class stzResponsePlan from stzObject
 	@aAudit = []		# [ n, verdict, kind, target, actor, why ]
 	@bExecuted = 0
 
+	# Builds an empty containment plan with a name, to be proposed into and committed by an effectful actor.
+	#
+	#   pcName     the name of the plan, such as the incident it answers
+	#   returns    nothing; the plan is built
+	#   see        Propose, ExecuteOn
 	def init(pcName)
 		@cName = "" + pcName
 
+	# Returns the name the plan was built with.
+	#
+	#   returns    a text
+	#   see        init
 	def Name()
 		return @cName
 
-	  #-- proposing (expression is free) -------------------------------
-
+	# Adds one containment action to the plan; the action is only recorded, nothing is performed.
+	#
+	#   pcAction      the kind of action, one of :RevokeSession, :LockAccount, :RotateSecret,
+	#                 :RevokeCapability, :ShedSource, :QuarantinePart
+	#   pcTarget      what the action is about, such as an account, a secret name or an address
+	#   pcRationale   the reason, kept with the action in the audit
+	#   returns       the plan itself, so calls chain
+	#   note          the kind is folded to lower case
+	#   warning       an action outside the closed catalog raises an error that lists the catalog
+	#   see           ProposeForIncident, Actions, ExecuteOn
+	#@ aka  -- proposing (expression is free) -------------------------------
 	def Propose(pcAction, pcTarget, pcRationale)
 		_cK_ = StzLower(ring_trim("" + pcAction))
 		if ring_find(StzResponseActions(), _cK_) = 0
@@ -128,10 +168,13 @@ class stzResponsePlan from stzObject
 		@aActions + [ _cK_, "" + pcTarget, "" + pcRationale ]
 		return This
 
-	# Derive a containment from what an incident actually holds -- the
-	# actor it names, the secrets it implicates, the origin it came
-	# from. THE MACHINE PROPOSES: this method invents nothing that is
-	# not in the incident, and commits nothing at all.
+	# Adds the actions an incident calls for: lock and revoke for its actor, a rotation per secret it implicates.
+	#
+	#   poIncident   the stzIncident to read
+	#   returns      the plan itself, so calls chain
+	#   note         it only proposes; the actions are performed by ExecuteOn
+	#   see          Propose, Actions, MayCommit
+	#@ aka  Derive a containment from what an incident actually holds -- the actor it names, the secrets it implicates, the origin it came from. THE MACHINE PROPOSES: this method invents nothing that is not in the incident, and commits nothing at all.
 	def ProposeForIncident(poIncident)
 		_cWhy_ = "incident " + poIncident.Id() + ": " + poIncident.Message()
 		_cActor_ = poIncident.Actor()
@@ -151,16 +194,27 @@ class stzResponsePlan from stzObject
 		next
 		return This
 
+	# Returns the proposed actions, in the order proposed.
+	#
+	#   returns    a list of [ kind, target, rationale ] rows, the kind in lower case
+	#   see        Propose, NumberOfActions
 	def Actions()
 		return @aActions
 
+	# Returns how many actions the plan holds.
+	#
+	#   returns    a number
+	#   see        Actions, Propose
 	def NumberOfActions()
 		return ring_len(@aActions)
 
-	  #-- preflight -----------------------------------------------------
-
-	# Answered BEFORE any attempt: admission demands the effectful
-	# capability, and a sandboxed posture never crosses.
+	# TRUE if the actor may commit a plan: it must be effectful and not sandboxed.
+	#
+	#   poActor    the actor asking to commit
+	#   returns    TRUE or FALSE; always FALSE for a language-model actor
+	#   note       answered before any attempt, and nothing is audited
+	#   see        WhyNot, ExecuteOn
+	#@ aka  -- preflight -----------------------------------------------------
 	def MayCommit(poActor)
 		if NOT poActor.IsEffectful()
 			return 0
@@ -170,6 +224,11 @@ class stzResponsePlan from stzObject
 		ok
 		return 1
 
+	# Returns the reason an actor may not commit, in words.
+	#
+	#   poActor    the actor to explain
+	#   returns    a text; an empty text when the actor may commit
+	#   see        MayCommit, ExecuteOn
 	def WhyNot(poActor)
 		if NOT poActor.IsEffectful()
 			return "actor '" + poActor.Name() + "' is not effectful -- it may propose, not commit"
@@ -179,10 +238,20 @@ class stzResponsePlan from stzObject
 		ok
 		return ""
 
-	  #-- the crossing (admission is governed) --------------------------
-
-	# Apply the plan to a responder. Returns the number of actions
-	# committed; 0 with a full refusal audit when the actor may not.
+	# Performs the actions on a responder when the actor may commit, auditing each; otherwise performs none and audits refusals.
+	#
+	#   poResponder   the object that answers the six verbs, a rehearsal double or a responder over
+	#                 in-memory objects
+	#   poActor       the actor committing, effectful and not sandboxed
+	#   returns       the number of actions committed; 0 when the actor may not, or when no
+	#                 responder owns an action
+	#   note          each outcome also reaches the security ledger as response.action.committed or
+	#                 response.action.refused
+	#   warning       a responder that answers Owns is asked about every action first, and one
+	#                 action nobody owns refuses the whole plan before any is performed; a plan
+	#                 executed twice performs its actions twice
+	#   see           MayCommit, AuditTrail, StzResponderSet
+	#@ aka  -- the crossing (admission is governed) --------------------------
 	def ExecuteOn(poResponder, poActor)
 		_cActor_ = "" + poActor.Name()
 		if NOT This.MayCommit(poActor)
@@ -226,20 +295,40 @@ class stzResponsePlan from stzObject
 		@bExecuted = 1
 		return _nDone_
 
+	# TRUE if a commit has gone through for this plan.
+	#
+	#   returns    TRUE or FALSE
+	#   note       a refused attempt does not set it
+	#   see        ExecuteOn, CommittedCount
 	def WasExecuted()
 		return @bExecuted
 
+	# Returns every outcome recorded, committed and refused alike, in the order they happened.
+	#
+	#   returns    a list of [ number, verdict, kind, target, actor, why ] rows
+	#   see        CommittedCount, RefusedCount, ExecuteOn
 	def AuditTrail()
 		return @aAudit
 
+	# Returns how many actions were committed over the life of the plan.
+	#
+	#   returns    a number
+	#   see        RefusedCount, AuditTrail
 	def CommittedCount()
 		return This._CountVerdict("committed")
 
+	# Returns how many actions were refused over the life of the plan, a signal worth watching.
+	#
+	#   returns    a number
+	#   see        CommittedCount, AuditTrail
 	def RefusedCount()
 		return This._CountVerdict("refused")
 
-	  #-- legibility ----------------------------------------------------
-
+	# Returns the plan as lines of text: each proposed action with its reason, then the audit.
+	#
+	#   returns    a list of text lines
+	#   see        Show, AuditTrail
+	#@ aka  -- legibility ----------------------------------------------------
 	def Explain()
 		_aL_ = []
 		_aL_ + ("Response plan " + @cName + " -- " + ring_len(@aActions) + " proposed action(s).")
@@ -258,6 +347,10 @@ class stzResponsePlan from stzObject
 		ok
 		return _aL_
 
+	# Prints the lines of the plan.
+	#
+	#   returns    nothing; it prints
+	#   see        Explain
 	def Show()
 		_aL_ = This.Explain()
 		_nL_ = ring_len(_aL_)
@@ -336,19 +429,55 @@ class stzAuthResponder from stzObject
  #  stzSecretStoreResponder -- :RotateSecret, for real       #
 #=========================================================#
 
+# Performs the :RotateSecret action of a response plan by replacing a secret of a stzSecretStore with fresh random bytes.
+#
+# It holds the store by reference, not a copy, so the caller's store sees the new value, and it
+# rotates as the service identity it is given, which must be effectful and not sandboxed. Only a
+# secret the store owns can be rotated; one read from an environment variable, a file or a vault
+# raises an error naming where to rotate it. It answers no other verb: each of those raises an error
+# that names the responder to wire. A value is never printed.
+#
+#   receiver   oStore = StzSecretStoreQ("billing"); oStore.Register(StzApiKeyQ("signing-
+#              key").FromLiteralQ("old-invented-value")); o1 = new stzSecretStoreResponder(oStore,
+#              HumanActor("secrets-service"))
+#   example    o1.RotateSecret("signing-key")
+#              ? oStore.Reveal("signing-key", HumanActor("oncall")) != "old-invented-value"
+#              #--> 1
+#              ? o1.Owns("lockaccount")
+#              #--> 0
+#   see        stzResponsePlan, stzResponderSet, stzSecretStore, StzSecretStoreResponder
 class stzSecretStoreResponder from stzObject
 
 	@pStore = ""
 	@oActor = ""
 
+	# Builds a responder that rotates secrets in a secret store, holding the store by reference.
+	#
+	#   poStore    the stzSecretStore whose secrets are rotated, held by reference
+	#   poActor    the service identity allowed to create credentials
+	#   returns    nothing; the responder is built
+	#   see        RotateSecret, Owns
 	def init(poStore, poActor)
 		@pStore = object2pointer(poStore)
 		@oActor = poActor
 
+	# TRUE if the verb is :RotateSecret, the only one this responder answers.
+	#
+	#   pcVerb     the verb, matched without regard to case
+	#   returns    TRUE or FALSE
+	#   see        RotateSecret
 	def Owns(pcVerb)
 		return StzLower("" + pcVerb) = "rotatesecret"
 
-	# the target is the secret's NAME, as the incident names it
+	# Replaces the value of a secret the store owns with fresh random bytes, keeping its name and kind.
+	#
+	#   pcTarget   the secret name, or the form secret:name an incident uses
+	#   returns    nothing
+	#   note       the access log gets a rotated entry; no value is returned or printed
+	#   warning    raises an error for an unknown name, and for a secret read from an environment
+	#              variable, a file or a vault, which the store cannot rotate
+	#   see        Owns
+	#@ aka  the target is the secret's NAME, as the incident names it
 	def RotateSecret(pcTarget)
 		_c_ = "" + pcTarget
 		if StzLeft(StzLower(_c_), 7) = "secret:"
@@ -356,18 +485,48 @@ class stzSecretStoreResponder from stzObject
 		ok
 		pointer2object(@pStore).RotateToFresh(_c_, @oActor)
 
+	# Refuses by raising an error that names the responder to wire, because this responder does not lock accounts.
+	#
+	#   pcTarget   the account the plan named
+	#   returns    nothing; it always raises
+	#   warning    raises an error whatever the target
+	#   see        Owns
 	def LockAccount(pcTarget)
 		stzraise("stzSecretStoreResponder cannot :LockAccount -- wire an auth responder.")
 
+	# Refuses by raising an error that names the responder to wire, because this responder does not revoke sessions.
+	#
+	#   pcTarget   the actor the plan named
+	#   returns    nothing; it always raises
+	#   warning    raises an error whatever the target
+	#   see        Owns
 	def RevokeSession(pcTarget)
 		stzraise("stzSecretStoreResponder cannot :RevokeSession -- wire an auth responder.")
 
+	# Refuses by raising an error that names the responder to wire, because this responder does not revoke capabilities.
+	#
+	#   pcTarget   the actor the plan named
+	#   returns    nothing; it always raises
+	#   warning    raises an error whatever the target
+	#   see        Owns
 	def RevokeCapability(pcTarget)
 		stzraise("stzSecretStoreResponder cannot :RevokeCapability -- wire a capability responder.")
 
+	# Refuses by raising an error that names the responder to wire, because this responder does not block sources.
+	#
+	#   pcTarget   the source the plan named
+	#   returns    nothing; it always raises
+	#   warning    raises an error whatever the target
+	#   see        Owns
 	def ShedSource(pcTarget)
 		stzraise("stzSecretStoreResponder cannot :ShedSource -- wire a rate-limiter responder.")
 
+	# Refuses by raising an error that names the responder to wire, because this responder does not quarantine parts.
+	#
+	#   pcTarget   the part the plan named
+	#   returns    nothing; it always raises
+	#   warning    raises an error whatever the target
+	#   see        Owns
 	def QuarantinePart(pcTarget)
 		stzraise("stzSecretStoreResponder cannot :QuarantinePart -- wire a quarantine responder.")
 
@@ -376,10 +535,35 @@ class stzSecretStoreResponder from stzObject
  #  stzResponderSet -- each verb to the member that owns it  #
 #=========================================================#
 
+# Routes each verb of a response plan to the first responder in the set that owns it, so one plan can have several owners.
+#
+# A plan may lock an account and rotate a secret, and no single object owns both. The set asks each
+# member Owns for the verb and passes the call to the first that says yes; a verb no member owns
+# raises an error, and a plan that holds such an action is refused whole by ExecuteOn before
+# anything is performed. The list given to the constructor copies its objects, which is harmless for
+# a responder that holds its target by reference and wrong for one you want to read afterwards;
+# build the set with Add to keep the object itself.
+#
+#   receiver   oAuth = new stzAuth(); oAuth.Register("mallory", "pw-invented-1"); o1 = new
+#              stzResponderSet([ ])
+#   example    o1.Add(StzAuthResponder(oAuth))
+#              ? o1.Owns("lockaccount")
+#              #--> 1
+#              ? o1.Owns("rotatesecret")
+#              #--> 0
+#              o1.LockAccount("mallory")
+#              ? oAuth.IsAccountLocked("mallory")
+#              #--> 1
+#   see        stzResponsePlan, stzSecretStoreResponder, stzCapabilityResponder, StzResponderSet
 class stzResponderSet from stzObject
 
 	@aMembers = []	# object2pointer of each responder
 
+	# Builds a set of responders, each reached by reference, so one plan can span several owners.
+	#
+	#   paResponders   a list of responders
+	#   returns        nothing; the set is built
+	#   see            Add, Owns
 	def init(paResponders)
 		@aMembers = []
 		_n_ = len(paResponders)
@@ -387,11 +571,21 @@ class stzResponderSet from stzObject
 			@aMembers + object2pointer(paResponders[_i_])
 		next
 
-	# add one responder BY REFERENCE (see StzResponderSet)
+	# Appends one responder to the set, keeping the object itself rather than a copy.
+	#
+	#   poResponder   the responder to add, an object that answers Owns and the verbs it owns
+	#   returns       the set itself, so calls chain
+	#   see           Owns, StzResponderSet
+	#@ aka  add one responder BY REFERENCE (see StzResponderSet)
 	def Add(poResponder)
 		@aMembers + object2pointer(poResponder)
 		return This
 
+	# TRUE if some member of the set owns the verb.
+	#
+	#   pcVerb     the verb, such as lockaccount, matched as each member matches it
+	#   returns    TRUE or FALSE
+	#   see        Add, LockAccount
 	def Owns(pcVerb)
 		return This._OwnerOf(pcVerb) > 0
 
@@ -411,21 +605,57 @@ class stzResponderSet from stzObject
 		ok
 		return pointer2object(@aMembers[_i_])
 
+	# Passes an account lock to the first member that owns it; raises an error when no member does.
+	#
+	#   pcTarget   the account to lock
+	#   returns    nothing
+	#   warning    an unowned verb raises an error stating that the plan cannot be performed in full
+	#   see        Owns, RevokeSession
 	def LockAccount(pcTarget)
 		This._Route("lockaccount").LockAccount(pcTarget)
 
+	# Passes a session revocation to the first member that owns it; raises an error when no member does.
+	#
+	#   pcTarget   the actor whose sessions end
+	#   returns    nothing
+	#   warning    an unowned verb raises an error stating that the plan cannot be performed in full
+	#   see        Owns, LockAccount
 	def RevokeSession(pcTarget)
 		This._Route("revokesession").RevokeSession(pcTarget)
 
+	# Passes a secret rotation to the first member that owns it; raises an error when no member does.
+	#
+	#   pcTarget   the secret to rotate
+	#   returns    nothing
+	#   warning    an unowned verb raises an error stating that the plan cannot be performed in full
+	#   see        Owns, StzSecretStoreResponder
 	def RotateSecret(pcTarget)
 		This._Route("rotatesecret").RotateSecret(pcTarget)
 
+	# Passes a capability revocation to the first member that owns it; raises an error when no member does.
+	#
+	#   pcTarget   the actor whose capability is cut
+	#   returns    nothing
+	#   warning    an unowned verb raises an error stating that the plan cannot be performed in full
+	#   see        Owns, StzCapabilityResponder
 	def RevokeCapability(pcTarget)
 		This._Route("revokecapability").RevokeCapability(pcTarget)
 
+	# Passes a source block to the first member that owns it; raises an error when no member does.
+	#
+	#   pcTarget   the source to block
+	#   returns    nothing
+	#   warning    an unowned verb raises an error stating that the plan cannot be performed in full
+	#   see        Owns
 	def ShedSource(pcTarget)
 		This._Route("shedsource").ShedSource(pcTarget)
 
+	# Passes a quarantine to the first member that owns it; raises an error when no member does.
+	#
+	#   pcTarget   the part to stop
+	#   returns    nothing
+	#   warning    an unowned verb raises an error stating that the plan cannot be performed in full
+	#   see        Owns
 	def QuarantinePart(pcTarget)
 		This._Route("quarantinepart").QuarantinePart(pcTarget)
 
@@ -433,25 +663,71 @@ class stzResponderSet from stzObject
  #  stzCapabilityResponder -- :RevokeCapability, for real    #
 #=========================================================#
 
+# Performs the :RevokeCapability action of a response plan by cutting an actor's paths to the effectful capability in a security graph.
+#
+# The graph is what audits and incidents ask, the live actor is what the runtime gates ask, so the
+# responder cuts both: the graph edges, and the effectful kind of each registered live actor of the
+# same name. Register live actors one at a time with AddLiveActor, because an object placed in a
+# list literal is copied and revoking a copy changes nothing. It answers no other verb: each of
+# those raises an error that names the responder to wire. Other actors that use the same tool keep
+# their capability.
+#
+#   receiver   g = StzSecurityGraphQ("prod"); o1 = new stzCapabilityResponder(g)
+#   example    g.AddActor("billing-agent", "trusted")
+#              g.AddTool("deploy-tool")
+#              g.AddCapability("effectful")
+#              g.Uses("billing-agent", "deploy-tool")
+#              g.Grants("deploy-tool", "effectful")
+#              ? g.ReachesEffectful("billing-agent")
+#              #--> 1
+#              o1.RevokeCapability("billing-agent")
+#              ? g.ReachesEffectful("billing-agent")
+#              #--> 0
+#              ? @@( o1.LastCut() )
+#              #--> [ [ "billing-agent", "uses", "deploy-tool" ] ]
+#   see        stzResponsePlan, stzResponderSet, stzSecurityGraph, StzCapabilityResponder
 class stzCapabilityResponder from stzObject
 
 	@pGraph = ""
 	@aActors = []	# object2pointer of each live stzSystemActor
 	@aLastCut = []
 
+	# Builds a responder that cuts an actor's capability paths in a security graph, holding the graph by reference.
+	#
+	#   poSecurityGraph   the stzSecurityGraph whose paths are cut
+	#   returns           nothing; the responder is built
+	#   see               AddLiveActor, RevokeCapability
 	def init(poSecurityGraph)
 		@pGraph = object2pointer(poSecurityGraph)
 		@aActors = []
 
-	# a live actor whose capability kinds this responder may revoke
+	# Registers a live actor whose effectful kind is revoked together with the graph paths, when the plan names it.
+	#
+	#   poActor    the live actor, passed as an argument one at a time, because an object inside a
+	#              list literal is copied and revoking a copy changes nothing
+	#   returns    the responder itself, so calls chain
+	#   see        RevokeCapability, Owns
+	#@ aka  a live actor whose capability kinds this responder may revoke
 	def AddLiveActor(poActor)
 		@aActors + object2pointer(poActor)
 		return This
 
+	# TRUE if the verb is :RevokeCapability, the only one this responder answers.
+	#
+	#   pcVerb     the verb, matched without regard to case
+	#   returns    TRUE or FALSE
+	#   see        RevokeCapability
 	def Owns(pcVerb)
 		return StzLower("" + pcVerb) = "revokecapability"
 
-	# the incident proposes this when an actor can REACH 'effectful'
+	# Cuts the actor paths to effectful in the graph and revokes that kind from each registered live actor of the same name.
+	#
+	#   pcTarget   the actor name, matched without regard to case
+	#   returns    nothing; LastCut lists the edges removed
+	#   note       other actors that use the same tool keep their capability
+	#   warning    an actor with no path to effectful changes nothing and leaves LastCut empty
+	#   see        LastCut, AddLiveActor
+	#@ aka  the incident proposes this when an actor can REACH 'effectful'
 	def RevokeCapability(pcTarget)
 		_cA_ = StzLower(ring_trim("" + pcTarget))
 		@aLastCut = pointer2object(@pGraph).CutCapability(_cA_, "effectful")
@@ -463,22 +739,56 @@ class stzCapabilityResponder from stzObject
 			ok
 		next
 
-	# the graph edges the last revocation removed, as [ from, label, to ]
+	# Returns the graph edges the last revocation removed.
+	#
+	#   returns    a list of [ from, label, to ] rows; an empty list before any revocation
+	#   see        RevokeCapability
+	#@ aka  the graph edges the last revocation removed, as [ from, label, to ]
 	def LastCut()
 		return @aLastCut
 
+	# Refuses by raising an error that names the responder to wire, because this responder does not lock accounts.
+	#
+	#   pcTarget   the account the plan named
+	#   returns    nothing; it always raises
+	#   warning    raises an error whatever the target
+	#   see        Owns
 	def LockAccount(pcTarget)
 		stzraise("stzCapabilityResponder cannot :LockAccount -- wire an auth responder.")
 
+	# Refuses by raising an error that names the responder to wire, because this responder does not revoke sessions.
+	#
+	#   pcTarget   the actor the plan named
+	#   returns    nothing; it always raises
+	#   warning    raises an error whatever the target
+	#   see        Owns
 	def RevokeSession(pcTarget)
 		stzraise("stzCapabilityResponder cannot :RevokeSession -- wire an auth responder.")
 
+	# Refuses by raising an error that names the responder to wire, because this responder does not rotate secrets.
+	#
+	#   pcTarget   the secret the plan named
+	#   returns    nothing; it always raises
+	#   warning    raises an error whatever the target
+	#   see        Owns
 	def RotateSecret(pcTarget)
 		stzraise("stzCapabilityResponder cannot :RotateSecret -- wire a secret-store responder.")
 
+	# Refuses by raising an error that names the responder to wire, because this responder does not block sources.
+	#
+	#   pcTarget   the source the plan named
+	#   returns    nothing; it always raises
+	#   warning    raises an error whatever the target
+	#   see        Owns
 	def ShedSource(pcTarget)
 		stzraise("stzCapabilityResponder cannot :ShedSource -- wire a rate-limiter responder.")
 
+	# Refuses by raising an error that names the responder to wire, because this responder does not quarantine parts.
+	#
+	#   pcTarget   the part the plan named
+	#   returns    nothing; it always raises
+	#   warning    raises an error whatever the target
+	#   see        Owns
 	def QuarantinePart(pcTarget)
 		stzraise("stzCapabilityResponder cannot :QuarantinePart -- wire a quarantine responder.")
 
