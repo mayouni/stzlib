@@ -64,6 +64,26 @@ func IsStzConversation(pObj)
 		return IsStzConversation(pObj)
 
 
+# Runs a governed question-and-answer session in a knowledge space: the system asks from the gaps of a goal, and answers are admitted by law.
+#
+# A conversation happens inside a stzKnowledgeGraph and never owns one: the space is handed in on
+# each call. You hand the session exactly one goal; NextQuestion is born from the first gap and says
+# why it asks, and Reply admits each answer through the space governed door, so a law such as
+# :Unique refuses a value and the refusal becomes a checkpoint for a human. A number picks an
+# offered option, text such as X and Y is split into values, and a list is taken as data. The goal
+# moves from pursuing to fulfilled when no gap remains, or to revoked; Conclude then writes the
+# space to a knowledge file, and refuses while gaps remain. It needs no model: neural wording is
+# used only when a generative model is really loaded.
+#
+#   receiver   oKB = new stzKnowledgeGraph("restaurant"); oKB.Know("margherita", "dish") o1 = new
+#              stzConversation("setup"); o1.SetGoal(StzGoalQ().RequireEach("dish", "contains"))
+#   example    ? o1.NextQuestion(oKB)
+#              #--> What does 'margherita' have for 'contains'?  (why: every dish needs 'contains')
+#              ? len(o1.Reply(oKB, "tomato and mozzarella")[:admitted])
+#              #--> 2
+#              ? o1.GoalState()
+#              #--> fulfilled
+#   see        stzKnowledgeGraph, stzGoal, stzTranscript, stzNeuralChat
 class stzConversation from stzObject
 
 	@cTopic = ""
@@ -80,21 +100,31 @@ class stzConversation from stzObject
 	@cFluency = "plain"  # plain | neural
 	@nTurns = 0
 
+	# Builds a conversation session on a topic, with no goal, plain fluency and an empty transcript.
+	#
+	#   pcTopic    the topic name, which also tags the source of every answer admitted
+	#   returns    nothing; the object is built
+	#   see        SetGoal, NextQuestion
 	def init(pcTopic)
 		@cTopic = "" + pcTopic
 		@oTranscript = new stzTranscript()
 
+	# Returns the topic the session was built with.
+	#
+	#   returns    a text
+	#   see        Save
 	def Topic()
 		return @cTopic
 
-	#-- THE GOAL: one contract, accepted explicitly, then MONITORED --------
-	# A conversation has exactly ONE goal. It is not assembled from inside
-	# the session -- it is BUILT as a stzGoal and HANDED OVER; from then on
-	# the conversation is accountable for it and watches it until it is
-	# FULFILLED (no gaps left in the space) or REVOKED (abandoned, with a
-	# reason). No goal = no loop: the elicitation is goal-driven, so asking
-	# without one REFUSES rather than inventing something to ask (LAW 3).
-
+	# Hands the session the one goal it is accountable for, and starts pursuing it.
+	#
+	#   poGoal     the stzGoal to pursue, such as StzGoalQ().RequireEach(dish, contains)
+	#   returns    the conversation itself, so calls chain
+	#   note       after a goal is revoked or fulfilled a new one may be set
+	#   warning    raises an error for a value that is not a stzGoal and while another goal is still
+	#              being pursued
+	#   see        GoalQ, MonitorGoal, RevokeGoal
+	#@ aka  -- THE GOAL: one contract, accepted explicitly, then MONITORED -------- A conversation has exactly ONE goal. It is not assembled from inside the session -- it is BUILT as a stzGoal and HANDED OVER; from then on the conversation is accountable for it and watches it until it is FULFILLED (no gaps left in the space) or REVOKED (abandoned, with a reason). No goal = no loop: the elicitation is goal-dri
 	def SetGoal(poGoal)
 		if NOT IsStzGoal(poGoal)
 			stzraise("SetGoal() needs a stzGoal -- build it (StzGoalQ().RequireEach(...)) and hand it over.")
@@ -108,32 +138,68 @@ class stzConversation from stzObject
 		@oTranscript.System("Goal adopted -- this conversation is now accountable for it.")
 		return This
 
+	# Returns the goal object the session is accountable for.
+	#
+	#   returns    the stzGoal object
+	#   warning    raises an error while no goal is set, so test HasGoal first
+	#   see        HasGoal, SetGoal
 	def GoalQ()
 		if @oGoal = ""
 			stzraise("This conversation has no goal -- SetGoal(oGoal) first.")
 		ok
 		return @oGoal
 
+	# TRUE if a goal was handed over.
+	#
+	#   returns    TRUE or FALSE
+	#   see        SetGoal, GoalState
 	def HasGoal()
 		return @oGoal != ""
 
-	# none | pursuing | fulfilled | revoked
+	# Returns where the goal stands: none, pursuing, fulfilled or revoked.
+	#
+	#   returns    a text
+	#   see        GoalWhy, MonitorGoal
+	#@ aka  none | pursuing | fulfilled | revoked
 	def GoalState()
 		return @cGoalState
 
+	# Returns why the goal ended as it did.
+	#
+	#   returns    a text; empty while none or pursuing
+	#   see        GoalState, RevokeGoal
 	def GoalWhy()
 		return @cGoalWhy
 
+	# TRUE if a goal is set and neither fulfilled nor revoked.
+	#
+	#   returns    TRUE or FALSE
+	#   see        GoalState
 	def IsPursuingGoal()
 		return @cGoalState = "pursuing"
 
+	# TRUE if no gap remains for the goal in the space.
+	#
+	#   returns    TRUE or FALSE
+	#   see        GoalState, MonitorGoal
 	def IsGoalFulfilled()
 		return @cGoalState = "fulfilled"
 
+	# TRUE if the goal was abandoned on the record.
+	#
+	#   returns    TRUE or FALSE
+	#   see        GoalState, RevokeGoal
 	def IsGoalRevoked()
 		return @cGoalState = "revoked"
 
-	# abandon the goal, on the record -- the other way out besides fulfilment
+	# Abandons the goal with a reason, clearing the pending question.
+	#
+	#   pcWhy      the reason, kept in GoalWhy and written to the transcript
+	#   returns    the conversation itself, so calls chain
+	#   note       a revoked goal asks nothing more and cannot be concluded
+	#   warning    raises an error unless the goal is being pursued
+	#   see        GoalWhy, SetGoal
+	#@ aka  abandon the goal, on the record -- the other way out besides fulfilment
 	def RevokeGoal(pcWhy)
 		if @cGoalState != "pursuing"
 			stzraise("No goal is being pursued here (state: " + @cGoalState + ") -- nothing to revoke.")
@@ -146,8 +212,13 @@ class stzConversation from stzObject
 		@oTranscript.System("Goal revoked: " + @cGoalWhy)
 		return This
 
-	# THE MONITORING: re-read the goal against the space; the moment no gap
-	# remains, the contract is fulfilled -- recorded, not merely observed.
+	# Re-reads the goal against the space and marks it fulfilled once no gap remains.
+	#
+	#   poSpace    the stzKnowledgeGraph the conversation runs in
+	#   returns    a text, the goal state after the check
+	#   note       NextQuestion and Reply call it themselves
+	#   see        GoalState, Gaps
+	#@ aka  THE MONITORING: re-read the goal against the space; the moment no gap remains, the contract is fulfilled -- recorded, not merely observed.
 	def MonitorGoal(poSpace)
 		if @cGoalState != "pursuing"
 			return @cGoalState
@@ -175,20 +246,41 @@ class stzConversation from stzObject
 		def NarrationQ()
 			return This.TranscriptQ()
 
+	# Returns the transcript lines, in order.
+	#
+	#   returns    a list of [ speaker, text, certainty ] rows, speaker being system, user or
+	#              verdict
+	#   see        Transcript
 	def History()
 		return @oTranscript.Lines()
 
+	# Returns how many turns have passed: one for each question asked and each reply given.
+	#
+	#   returns    a number
+	#   see        History, Checkpoints
 	def NumberOfTurns()
 		return @nTurns
 
-	#-- the wise-coding loop ----------------------------------------------
-
+	# Returns the facts the goal still lacks in the space.
+	#
+	#   poSpace    the stzKnowledgeGraph the conversation runs in
+	#   returns    a list of [ subject, relation, why ] rows; [ ] when the goal is met
+	#   warning    raises an error while no goal is set
+	#   see        NextQuestion, MonitorGoal
+	#@ aka  -- the wise-coding loop ----------------------------------------------
 	def Gaps(poSpace)
 		This._RequireGoal()
 		return @oGoal.Gaps(poSpace)
 
-	# SYSTEM-LED: the next question is BORN FROM THE GAP -- and it can
-	# say why it asks (the elicitation is accountable).
+	# Returns the next question, born from the first gap, and remembers it as the pending one.
+	#
+	#   poSpace    the stzKnowledgeGraph the conversation runs in
+	#   returns    a text, the question with its reason; empty when the goal is fulfilled or revoked
+	#   note       NextQuestionXT gives the same question as data: question, force, subject,
+	#              relation, options and why
+	#   warning    raises an error while no goal is set
+	#   see        Reply, Options, Force
+	#@ aka  SYSTEM-LED: the next question is BORN FROM THE GAP -- and it can say why it asks (the elicitation is accountable).
 	def NextQuestion(poSpace)
 		_aQ_ = This.NextQuestionXT(poSpace)
 		if len(_aQ_) = 0
@@ -226,11 +318,21 @@ class stzConversation from stzObject
 		return [ :question = _cQ_, :force = @cForce, :subject = _cSubj_,
 			:relation = _cRel_, :options = @acOptions, :why = _cWhy_ ]
 
-	# the values offered with the pending question (answer register 1)
+	# Returns the values offered with the pending question.
+	#
+	#   returns    a list of text; [ ] when the question is open
+	#   note       values that the relation already takes elsewhere in the space become numbered
+	#              options
+	#   see        Force, Reply
+	#@ aka  the values offered with the pending question (answer register 1)
 	def Options()
 		return @acOptions
 
-	# the pending question's illocutionary force ("which" | "what" | "")
+	# Returns the kind of the pending question: which for a closed choice, what for an open one.
+	#
+	#   returns    a text; empty when nothing is pending
+	#   see        Options, NextQuestion
+	#@ aka  the pending question's illocutionary force ("which" | "what" | "")
 	def Force()
 		return @cForce
 
@@ -253,8 +355,15 @@ class stzConversation from stzObject
 		next
 		return ring_trim(_c_)
 
-	#-- fluency: a real upgrade when a model IS loaded, else the floor ----
-
+	# Chooses plain or neural wording of the questions.
+	#
+	#   pcMode     plain or neural, without regard to case
+	#   returns    the conversation itself, so calls chain
+	#   note       neural wording needs a generative model loaded; without one the plain wording is
+	#              kept
+	#   warning    raises an error for any other mode
+	#   see        Fluency, IsFluencyNeural
+	#@ aka  -- fluency: a real upgrade when a model IS loaded, else the floor ----
 	def SetFluency(pcMode)
 		_c_ = StzLower(ring_trim("" + pcMode))
 		if _c_ != "neural" and _c_ != "plain"
@@ -263,11 +372,19 @@ class stzConversation from stzObject
 		@cFluency = _c_
 		return This
 
+	# Returns the fluency that was asked for.
+	#
+	#   returns    a text, plain or neural
+	#   see        SetFluency, IsFluencyNeural
 	def Fluency()
 		return @cFluency
 
-	# TRUE only when neural fluency was asked for AND a model is really
-	# loaded -- so a caller can never mistake the floor for the upgrade.
+	# TRUE if neural wording was asked for and a generative model is really loaded.
+	#
+	#   returns    TRUE or FALSE
+	#   note       FALSE means the questions are on the deterministic floor
+	#   see        SetFluency
+	#@ aka  TRUE only when neural fluency was asked for AND a model is really loaded -- so a caller can never mistake the floor for the upgrade.
 	def IsFluencyNeural()
 		return @cFluency = "neural" and StzHasGenerativeModel()
 
@@ -281,11 +398,19 @@ class stzConversation from stzObject
 		ok
 		return pcText   # the deterministic floor (LAW 3: no fake upgrade)
 
-	# THE ANSWER PROTOCOL (0.3): the reply may be a LIST (data
-	# structure), or a STRING (an option / natural phrasing -- comma
-	# and 'and' separated values). Every candidate passes the SAME
-	# governed admission (R1: laws, dual-write); refusals are narrated
-	# AND checkpointed (G7). Verdict: [ :admitted, :refused, :narration ].
+	# Answers the pending question; each value passes the space governed admission, and refusals become checkpoints.
+	#
+	#   poSpace    the stzKnowledgeGraph that admits the values
+	#   pAnswer    a number or list of numbers that pick offered options, text such as X and Y, or a
+	#              list of text
+	#   returns    a hash-list [ :admitted, :refused, :narration, :goalState ]; :refused holds [
+	#              value, reason ] rows
+	#   note       values are split at commas and the word and; one admitted value is enough to
+	#              clear the pending question
+	#   warning    raises an error when no question is pending; a number that matches no offered
+	#              option is refused and checkpointed, not guessed
+	#   see        NextQuestion, Checkpoints, Why
+	#@ aka  THE ANSWER PROTOCOL (0.3): the reply may be a LIST (data structure), or a STRING (an option / natural phrasing -- comma and 'and' separated values). Every candidate passes the SAME governed admission (R1: laws, dual-write); refusals are narrated AND checkpointed (G7). Verdict: [ :admitted, :refused, :narration ].
 	def Reply(poSpace, pAnswer)
 		if len(@aPending) = 0
 			stzraise("Nothing was asked -- call NextQuestion() first (the conversation is system-led).")
@@ -369,15 +494,21 @@ class stzConversation from stzObject
 		return [ :admitted = _acAdmitted_, :refused = _aRefused_,
 			:narration = @cWhy, :goalState = @cGoalState ]
 
+	# Returns the explanation of the last admission or refusal.
+	#
+	#   returns    a text; empty before the first reply
+	#   see        Reply, Checkpoints
 	def Why()
 		return @cWhy
 
-	#-- G7 checkpoints, with a TTL ----------------------------------------
-	# A refusal reaches a human -- but a checkpoint nobody cleared should not
-	# haunt the session forever. TTL(n) lets one LIVE for n turns; 0 (the
-	# default) means it never expires. Nothing is deleted: AllCheckpoints()
-	# still holds the full record -- expiry is about what still NEEDS a human.
-
+	# Sets for how many turns a refusal checkpoint stays live.
+	#
+	#   nTurns     the number of turns, or 0 for never expiring
+	#   returns    the conversation itself, so calls chain
+	#   note       nothing is deleted; AllCheckpoints keeps the full record
+	#   warning    raises an error for a negative number
+	#   see        CheckpointTTL, Checkpoints
+	#@ aka  -- G7 checkpoints, with a TTL ---------------------------------------- A refusal reaches a human -- but a checkpoint nobody cleared should not haunt the session forever. TTL(n) lets one LIVE for n turns; 0 (the default) means it never expires. Nothing is deleted: AllCheckpoints() still holds the full record -- expiry is about what still NEEDS a human.
 	def SetCheckpointTTL(nTurns)
 		if nTurns < 0
 			stzraise("A checkpoint TTL cannot be negative (got " + nTurns + ").")
@@ -385,10 +516,18 @@ class stzConversation from stzObject
 		@nCheckpointTTL = nTurns
 		return This
 
+	# Returns for how many turns a checkpoint stays live.
+	#
+	#   returns    a number; 0 means it never expires
+	#   see        SetCheckpointTTL
 	def CheckpointTTL()
 		return @nCheckpointTTL
 
-	# the checkpoints still LIVE (unexpired) -- what a human must still see
+	# Returns the refusal checkpoints still live, which a human has yet to see.
+	#
+	#   returns    a list of hash-lists with subject, relation, attempted, why and turn
+	#   see        AllCheckpoints, NumberOfExpiredCheckpoints
+	#@ aka  the checkpoints still LIVE (unexpired) -- what a human must still see
 	def Checkpoints()
 		if @nCheckpointTTL = 0
 			return @aCheckpoints
@@ -402,15 +541,30 @@ class stzConversation from stzObject
 		next
 		return _aOut_
 
-	# every checkpoint ever raised, expired or not (the audit record)
+	# Returns every refusal checkpoint ever raised, expired or not.
+	#
+	#   returns    a list of hash-lists with subject, relation, attempted, why and turn
+	#   see        Checkpoints
+	#@ aka  every checkpoint ever raised, expired or not (the audit record)
 	def AllCheckpoints()
 		return @aCheckpoints
 
+	# Returns how many checkpoints have outlived the TTL.
+	#
+	#   returns    a number
+	#   see        Checkpoints, AllCheckpoints
 	def NumberOfExpiredCheckpoints()
 		return len(@aCheckpoints) - len(This.Checkpoints())
 
-	# gaps closed -> WRITE the knowledgebase (the session's real
-	# artifact); gaps remaining -> refuse with the list (LAW 3)
+	# Writes the finished knowledge space to a file, once the goal has no gap left.
+	#
+	#   poSpace      the stzKnowledgeGraph the session grew
+	#   pcKnowFile   the base path of the knowledge file, written as .zknw
+	#   returns      1 when the file was written
+	#   warning      raises an error while no goal is set, when the goal was revoked, and when gaps
+	#                remain
+	#   see          Gaps, MonitorGoal
+	#@ aka  gaps closed -> WRITE the knowledgebase (the session's real artifact); gaps remaining -> refuse with the list (LAW 3)
 	def Conclude(poSpace, pcKnowFile)
 		This._RequireGoal()
 		if This.MonitorGoal(poSpace) = "revoked"
@@ -424,8 +578,13 @@ class stzConversation from stzObject
 		@oTranscript.System("Concluded: the knowledgebase is written (" + pcKnowFile + ").")
 		return 1
 
-	#-- persistence (*.zcnv) ---------------------------------------------
-
+	# Writes the topic and the transcript to a .zcnv file.
+	#
+	#   pcFile     the path to write
+	#   returns    a text, the path written, with .zcnv added when missing
+	#   note       the goal state and checkpoints are not written, and the class has no Load
+	#   see        Transcript, Topic
+	#@ aka  -- persistence (*.zcnv) ---------------------------------------------
 	def Save(pcFile)
 		if StzRight(pcFile, 5) != ".zcnv"
 			pcFile += ".zcnv"
@@ -439,6 +598,10 @@ class stzConversation from stzObject
 		write(pcFile, _c_)
 		return pcFile
 
+	# Returns the transcript as dialogue text, SOFTANZA and YOU lines with each verdict under its answer.
+	#
+	#   returns    a text
+	#   see        History, Save
 	def Transcript()
 		return @oTranscript.Text()
 

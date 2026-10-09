@@ -1,0 +1,22 @@
+{
+ "brief": "States one mathematical claim, an identity, an inequality or a divisibility, checks it numerically and writes it as a Lean 4 theorem.",
+ "detail": "A claim has a kind, a left and a right side, a relation and a domain (natural, integer, rational or real); name its variables with vars and they become the theorem's binders. Check evaluates both sides at sampled points, so a false claim fails with a counterexample on any machine, and IsTrue answers 1 or 0. This floor is a test, not a proof: ToLean writes the theorem for the Lean door, and CheckWithLean runs it through Lean when Lean and a Mathlib project are installed. A side that evaluates to infinity makes the claim hold today (1/0 = 5 passes). The expression subset is + - * / ^, parentheses, numerals, sqrt, abs, exp, log, sin, cos, tan, pi.",
+ "receiver": "o1 = StzMathClaimQ([ :kind = :Identity, :lhs = \"(a+b)^2\", :rhs = \"a^2 + 2*a*b + b^2\", :vars = [ \"a\", \"b\" ], :label = \"square of a sum\" ])",
+ "example": [
+  "? o1.IsTrue()",
+  "#--> 1",
+  "? @@( o1.ToLean() )",
+  "#--> \"theorem square_of_a_sum (a b : ℝ) : (((a+b)^2 : ℝ) = a^2 + 2*a*b + b^2) := by ring\"",
+  "o2 = StzMathClaimQ([ :kind = :Identity, :lhs = \"3^2 + 4^2\", :rhs = \"6^2\", :label = \"a false one\" ])",
+  "? o2.IsTrue()",
+  "#--> 0",
+  "? @@( o2.Check()[:evidence] )",
+  "#--> \"the sides are 25 and 36\"",
+  "o3 = StzMathClaimQ(\"3^2 + 4^2 = 5^2\")",
+  "? o3.IsTrue()",
+  "#--> 1",
+  "? @@( o3.Statement() )",
+  "#--> \"3^2 + 4^2 = 5^2\""
+ ],
+ "see": ["stzMathClaimSet", "stzMathFunction", "StzLeanDoor"]
+}

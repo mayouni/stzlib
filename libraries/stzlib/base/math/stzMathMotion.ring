@@ -69,6 +69,41 @@ func StzMathMotionQ(pcKind, paSpec)
 func StzMathMotionOverQ(poPicture)
 	return new stzMathMotion(:Diagram, poPicture)
 
+# Moves a math figure for real: a declared parameter re-draws its curve every frame, and declared states walk a diagram one caption at a time.
+#
+# A motion is the figure itself, moved, not a film of it. Over a :Function figure it holds sliders,
+# written {name} in the declaration; the curve is recompiled once and re-sampled at frame rate into
+# an overlay, while the figure's marks and notes are solved again only when the slider settles. Over
+# a :Diagram it holds declared states, each a caption and the acts that reach it (a drag, a datum, a
+# theme or a parameter). The same declaration is played in a window (Play, PlayStates), offscreen
+# (Frame, FrameSVG, FramePNG, Apply) or exported as a storyboard of PNG frames and a narration
+# (ExportTo). Moving a parameter marks the motion dirty and Settle takes about a second for a figure
+# with marks. Play and PlayStates need a window and block until Escape.
+#
+#   receiver   o1 = StzMathMotionQ(:Function, [ :f = "{a} * sin(x)", :on = [ -6.3, 6.3 ], :mark = [
+#              :extrema ] ])
+#   example    o1.Param("a", 0.5, 3, 1)
+#              ? o1.Value("a")
+#              #--> 1
+#              o1.Set("a", 2)
+#              ? @@( o1.Resolved()[1] )
+#              #--> [ "f", "(2) * sin(x)" ]
+#              ? o1.IsDirty()
+#              #--> 1
+#              o1.Settle()
+#              ? o1.IsDirty()
+#              #--> 0
+#              ? o1.LiveSampleCount()
+#              #--> 240
+#              ? len( o1.LiveSamples() )
+#              #--> 240
+#              o1.State("a is two", [ [ :Set, "a", 2 ] ])
+#              ? o1.NumberOfStates()
+#              #--> 1
+#              o1.Apply(1)
+#              ? o1.Applied()
+#              #--> 1
+#   see        stzMathFigure, stzMathDiagram, stzStoryboard, stzWindow
 class stzMathMotion from stzObject
 
 	@cKind = ""
@@ -92,6 +127,17 @@ class stzMathMotion from stzObject
 	@nApplyMs = 0        # what the last Apply cost -- the drag budget is 100 ms
 	@oStory = NULL       # the last export
 
+	# Builds a motion over a function figure with named parameters, or over a solved diagram that declared states will move.
+	#
+	#   pcKind     Function or Diagram, in any case
+	#   paSpec     for Function a declaration like a figure's, with {name} where a parameter goes,
+	#              such as [ :f = "{a} * sin(x)", :on = [ -6, 6 ] ], and optionally :livesamples
+	#              between 16 and 4000
+	#   returns    nothing; the object is built
+	#   note       the motion over a diagram takes its own copy of the picture
+	#   warning    Raises an error for any other kind, for an empty or missing declaration, and for
+	#              a Diagram given something that is not a stzMathDiagram
+	#   see        Param, State, StzMathMotionQ, StzMathMotionOverQ
 	def init(pcKind, paSpec)
 		_k_ = StzLower(ring_trim("" + pcKind))
 		if _k_ = "diagram"
@@ -122,10 +168,20 @@ class stzMathMotion from stzObject
 		_n_ = _FfGet(paSpec, "livesamples", 240)
 		if isNumber(_n_) and _n_ >= 16 and _n_ <= 4000  @nSamples = _n_  ok
 
-	#-- the parameters ----------------------------------------------------------
-
-	# a slider: a name the declaration mentions as {name}, its range, and
-	# where it stands now (the range's start when not said)
+	# Declares a slider: a name the declaration writes as {name}, its range and its starting value.
+	#
+	#   pcName     the parameter's name, letters only such as a
+	#   pnFrom     the lowest value
+	#   pnTo       the highest value, above pnFrom
+	#   pnValue    the starting value, clamped into the range, and the range's start when it is not
+	#              a number
+	#   returns    the motion itself, so calls chain
+	#   note       it marks the motion as moved, so the next frame settles
+	#   warning    raises an error for a name with digits, a range that is not from below to, and a
+	#              name that the declaration never writes as {name}; declaring the same name again
+	#              replaces it
+	#   see        Set, Value, Params
+	#@ aka  -- the parameters ----------------------------------------------------------
 	def Param(pcName, pnFrom, pnTo, pnValue)
 		_c_ = ring_trim("" + pcName)
 		if _c_ = "" or NOT _MtIsName(_c_)
@@ -155,9 +211,19 @@ class stzMathMotion from stzObject
 		def ParamQ(pcName, pnFrom, pnTo, pnValue)
 			return This.Param(pcName, pnFrom, pnTo, pnValue)
 
+	# Returns the declared sliders, each with its name, range and current value.
+	#
+	#   returns    a list of [ name, from, to, value ]
+	#   see        Param, Value
 	def Params()
 		return @aParams
 
+	# Returns the current value of a slider.
+	#
+	#   pcName     the parameter's name, in any case
+	#   returns    a number
+	#   warning    raises an error naming a parameter that was not declared
+	#   see        Set, Params
 	def Value(pcName)
 		_i_ = This._ParamIndex(pcName)
 		if _i_ = 0
@@ -165,8 +231,15 @@ class stzMathMotion from stzObject
 		ok
 		return @aParams[_i_][4]
 
-	# MOVE A SLIDER: clamped to its range; the computed half follows on the
-	# next frame, the solved half on the next Settle
+	# Moves a slider to a value, clamped to its range, the curve following on the next frame and the solved figure at the next Settle.
+	#
+	#   pcName     the parameter's name, in any case
+	#   pnValue    the new value, a number
+	#   returns    the motion itself, so calls chain
+	#   warning    raises an error for a parameter that was not declared and for a value that is not
+	#              a number
+	#   see        Value, Settle, IsDirty
+	#@ aka  MOVE A SLIDER: clamped to its range; the computed half follows on the next frame, the solved half on the next Settle
 	def Set(pcName, pnValue)
 		_i_ = This._ParamIndex(pcName)
 		if _i_ = 0
@@ -187,6 +260,10 @@ class stzMathMotion from stzObject
 		def SetQ(pcName, pnValue)
 			return This.Set(pcName, pnValue)
 
+	# TRUE if a parameter moved since the figure was last settled, which is also the state of a new motion.
+	#
+	#   returns    1 or 0
+	#   see        Settle, Set
 	def IsDirty()
 		return @bDirty
 
@@ -198,14 +275,21 @@ class stzMathMotion from stzObject
 		next
 		return 0
 
-	#-- the solved half: the figure where the parameters last settled ----------
-
-	# the declaration with every {name} replaced by its value
+	# Returns the declaration with every {name} replaced by the slider's current value in brackets.
+	#
+	#   returns    a list of key and value pairs such as [ "f", "(2) * sin(x)" ]
+	#   see        Settle, Param
+	#@ aka  -- the solved half: the figure where the parameters last settled ----------
 	def Resolved()
 		return _MtResolve(@aTemplate, @aParams)
 
-	# REBUILD AND RE-SOLVE the figure for the parameters as they stand now,
-	# and keep what it cost -- the solved half's number
+	# Rebuilds the figure and solves it for the parameters as they stand, and keeps what that cost.
+	#
+	#   returns    the motion itself, so calls chain
+	#   note       it takes about a second for a figure with marks, which is why it waits for a
+	#              release rather than running every frame
+	#   see        SettleMs, IsDirty, Figure
+	#@ aka  REBUILD AND RE-SOLVE the figure for the parameters as they stand now, and keep what it cost -- the solved half's number
 	def Settle()
 		_nT0_ = StzEngineWatchTimestampMs()
 		@oFigure = StzMathFigureQ(@cKind, This.Resolved())
@@ -220,10 +304,18 @@ class stzMathMotion from stzObject
 		def SettleQ()
 			return This.Settle()
 
+	# Returns how many milliseconds the last Settle took.
+	#
+	#   returns    a number; 0 before the first Settle
+	#   see        Settle
 	def SettleMs()
 		return @nSettleMs
 
-	# the settled figure -- settled first if it never was
+	# Returns the settled figure, settling first if it never was.
+	#
+	#   returns    the figure object, a stzMathFigure
+	#   see        Settle, Picture
+	#@ aka  the settled figure -- settled first if it never was
 	def Figure()
 		if NOT isObject(@oFigure)  This.Settle()  ok
 		return @oFigure
@@ -245,9 +337,13 @@ class stzMathMotion from stzObject
 		@oLive = new stzMathFunction(_cExpr_, @acLiveVars)
 		return @oLive
 
-	# the live samples of the curve on the settled figure's window, as
-	# pixel pieces: [ [ x1, y1, x2, y2, ... ], ... ], broken where the
-	# function leaves the window or is not finite
+	# Samples the curve at the current slider values as pieces of pixel coordinates, broken where it leaves the window.
+	#
+	#   returns    a list of pieces, each a flat list of x, y, x, y ...
+	#   note       it settles the figure first if needed; each call adds the sample count to the
+	#              tape calls of Counts
+	#   see        LiveSamples, DrawLiveOn
+	#@ aka  the live samples of the curve on the settled figure's window, as pixel pieces: [ [ x1, y1, x2, y2, ... ], ... ], broken where the function leaves the window or is not finite
 	def LiveCurve()
 		_oF_ = This.Figure()
 		_oL_ = This._Live()
@@ -278,7 +374,11 @@ class stzMathMotion from stzObject
 		if ring_len(_aCur_) >= 4  _aPieces_ + _aCur_  ok
 		return _aPieces_
 
-	# the live samples in the author's units, for a check: [ [ x, y ], ... ]
+	# Samples the curve at the current slider values in the author's own units.
+	#
+	#   returns    a list of pairs [ x, y ], 240 of them by default
+	#   see        LiveCurve, LiveSampleCount
+	#@ aka  the live samples in the author's units, for a check: [ [ x, y ], ... ]
 	def LiveSamples()
 		_oF_ = This.Figure()
 		_oL_ = This._Live()
@@ -295,8 +395,12 @@ class stzMathMotion from stzObject
 		next
 		return _a_
 
-	# THE LIVE CURVE DRAWN INTO A CANVAS, cleared first: the overlay the
-	# window draws over the settled picture. Keeps what it cost.
+	# Clears a canvas and draws the live curve on it, the overlay a window shows over the settled picture, and keeps what it cost.
+	#
+	#   poCanvas   the stzCanvas that becomes the overlay, which is cleared first
+	#   returns    the motion itself, so calls chain
+	#   see        FrameMs, Frame, Play
+	#@ aka  THE LIVE CURVE DRAWN INTO A CANVAS, cleared first: the overlay the window draws over the settled picture. Keeps what it cost.
 	def DrawLiveOn(poCanvas)
 		_nT0_ = StzEngineWatchTimestampMs()
 		poCanvas.Clear()
@@ -311,23 +415,33 @@ class stzMathMotion from stzObject
 		@nFrameMs = StzEngineWatchTimestampMs() - _nT0_
 		return This
 
-	# the counts a gate asserts the frame's structure by: settles, tape
-	# calls and flushes since the motion was made
+	# Returns how many settles, tape calls and canvas flushes the motion has made, so a test can assert the structure of a frame.
+	#
+	#   returns    a hash-list with settles, tapecalls and flushes
+	#   see        FrameMs
+	#@ aka  the counts a gate asserts the frame's structure by: settles, tape calls and flushes since the motion was made
 	def Counts()
 		return [ :settles = @nSettles, :tapecalls = @nTapeCalls, :flushes = @nFlushes ]
 
+	# Returns how many milliseconds the last live frame took, overlay only.
+	#
+	#   returns    a number; 0 before any live frame
+	#   see        DrawLiveOn, Counts
 	def FrameMs()
 		return @nFrameMs
 
+	# Returns how many points each live frame samples.
+	#
+	#   returns    a number; 240 by default
+	#   see        LiveSamples
 	def LiveSampleCount()
 		return @nSamples
 
-	#-- a frame, offscreen: the same composition the window shows --------------
-
-	# a fresh canvas with the settled picture and the live curve on it; the
-	# caller frees it. The overlay path of the window draws the two as
-	# separate layers; here they are one canvas, since a saved frame is one
-	# picture.
+	# Composes the settled picture and the live curve into one new canvas, the offscreen twin of what the window shows.
+	#
+	#   returns    a stzCanvas that the caller must free
+	#   see        FrameSVG, FramePNG
+	#@ aka  -- a frame, offscreen: the same composition the window shows --------------
 	def Frame()
 		_oC_ = This.Figure().Diagram().ToCanvas()
 		_aP_ = This.LiveCurve()
@@ -339,24 +453,36 @@ class stzMathMotion from stzObject
 		_oC_.Flush()
 		return _oC_
 
+	# Returns the composed frame as SVG text, without needing a window.
+	#
+	#   returns    a text starting with the svg tag
+	#   see        Frame, FramePNG
 	def FrameSVG()
 		_oC_ = This.Frame()
 		_c_ = _oC_.ToSVG()
 		_oC_.Free()
 		return _c_
 
+	# Writes the composed frame to a PNG file and returns the PNG bytes.
+	#
+	#   pcPath     the file to write
+	#   returns    the PNG as a binary text; empty when this machine has no graphics device
+	#   warning    the returned text is the picture itself, so do not print it
+	#   see        Frame, FrameSVG
 	def FramePNG(pcPath)
 		_oC_ = This.Frame()
 		_c_ = _oC_.ToPNG(pcPath)
 		_oC_.Free()
 		return _c_
 
-	#-- the window loop ----------------------------------------------------------
-
-	# THE PLAYER: the settled picture retained in one canvas, the live curve
-	# redrawn each frame in an overlay; the first parameter on left/right,
-	# the second on up/down, a hundredth of its range per frame held; the
-	# picture settles when no key is held and something moved. Escape closes.
+	# Runs the live window loop, moving the first parameter on left and right and the second on up and down, until Escape.
+	#
+	#   poWindow   an open stzWindow to draw in
+	#   returns    the motion itself
+	#   note       blocks until Escape or the window is closed
+	#   warning    raises an error when the argument is not an object
+	#   see        PlayStates, DrawLiveOn
+	#@ aka  -- the window loop ----------------------------------------------------------
 	def Play(poWindow)
 		if NOT isObject(poWindow)
 			stzraise("stzMathMotion.Play: give an stzWindow.")
@@ -398,16 +524,19 @@ class stzMathMotion from stzObject
 		_oStatic_.Free()
 		return This
 
-	#-- declared STATES ----------------------------------------------------------
-
-	# A STATE is a caption and the acts that reach it from the state before.
-	# An act is a list led by its verb:
-	#     [ :DragTo,   "A.icon", x, y ]      a free shape to a place
-	#     [ :DragBy,   "A.icon", dx, dy ]    the same, from where it stands
-	#     [ :SetData,  "fr", "ymax", 2 ]     a datum into the substance
-	#     [ :SetTheme, "dark" ]              the picture's theme
-	#     [ :Set,      "a", 2 ]              a parameter (a :Function motion)
-	# A state with no act is the picture as it stands -- the opening frame.
+	# Declares a state: a caption and the acts that bring the picture to it from the previous state.
+	#
+	#   pcCaption   what the reader is told, which may write {hole} for a fact
+	#   paActs      a list of acts, each a list led by its verb: DragTo, DragBy, SetData, SetTheme
+	#               (for a diagram) or Set (for a function motion)
+	#   returns     the motion itself, so calls chain
+	#   note        a state with no act is the picture as it stands
+	#   warning     raises an error for an empty caption, an unknown verb, a verb that does not fit
+	#               the kind of motion, a drag of a shape with no free centre, and a missing
+	#               parameter; a single act not wrapped in a list raises an operator error today
+	#               instead of being accepted (confirmed with two different acts)
+	#   see         StateFact, Apply, ExportTo
+	#@ aka  -- declared STATES ----------------------------------------------------------
 	def State(pcCaption, paActs)
 		_c_ = "" + pcCaption
 		if ring_trim(_c_) = ""
@@ -427,8 +556,16 @@ class stzMathMotion from stzObject
 		def StateQ(pcCaption, paActs)
 			return This.State(pcCaption, paActs)
 
-	# a fact the caption of the LAST declared state shows as {hole}: bound
-	# now, computed when the frame is closed, on the picture at that state
+	# Binds a fact that the caption of the last declared state shows as {hole}, computed on the picture at that state.
+	#
+	#   pcHole     the name written as {name} in the caption
+	#   pcKind     the kind of fact, such as expr, angle, value or datum
+	#   paArgs     the arguments of that fact, such as [ expression, unit ]
+	#   returns    the motion itself, so calls chain
+	#   warning    raises an error when no state is declared or when the caption never writes the
+	#              hole
+	#   see        State, FactsOf
+	#@ aka  a fact the caption of the LAST declared state shows as {hole}: bound now, computed when the frame is closed, on the picture at that state
 	def StateFact(pcHole, pcKind, paArgs)
 		_n_ = ring_len(@aStates)
 		if _n_ = 0
@@ -449,45 +586,92 @@ class stzMathMotion from stzObject
 		def StateFactQ(pcHole, pcKind, paArgs)
 			return This.StateFact(pcHole, pcKind, paArgs)
 
+	# Returns every declared state as its caption, its acts and its facts.
+	#
+	#   returns    a list of [ caption, acts, facts ]
+	#   see        NumberOfStates, CaptionOf
 	def States()
 		return @aStates
 
+	# Returns how many states are declared.
+	#
+	#   returns    a number
+	#   see        States
 	def NumberOfStates()
 		return ring_len(@aStates)
 
+	# Returns the caption of one state.
+	#
+	#   pnState    the position of the state, from 1
+	#   returns    a text
+	#   warning    raises an error naming the count when the state is not declared
+	#   see        ActsOf, States
 	def CaptionOf(pnState)
 		This._RequireState("CaptionOf", pnState)
 		return @aStates[pnState][1]
 
+	# Returns the acts of one state, each led by its verb in lowercase.
+	#
+	#   pnState    the position of the state, from 1
+	#   returns    a list of acts such as [ "dragby", "A.icon", 60, -30 ]
+	#   warning    raises an error when the state is not declared
+	#   see        CaptionOf
 	def ActsOf(pnState)
 		This._RequireState("ActsOf", pnState)
 		return @aStates[pnState][2]
 
+	# Returns the facts bound to one state, each as hole, kind and arguments.
+	#
+	#   pnState    the position of the state, from 1
+	#   returns    a list of [ hole, kind, args ]
+	#   warning    raises an error when the state is not declared
+	#   see        StateFact
 	def FactsOf(pnState)
 		This._RequireState("FactsOf", pnState)
 		return @aStates[pnState][3]
 
+	# Returns the number of the state the picture stands in.
+	#
+	#   returns    a number; 0 before any Apply
+	#   see        Apply, ApplyAll
 	def Applied()
 		return @nApplied
 
+	# Returns how many milliseconds the last Apply took.
+	#
+	#   returns    a number; 0 before any Apply
+	#   note       the graph plane's drag budget is 100 ms
+	#   see        Apply
 	def ApplyMs()
 		return @nApplyMs
 
+	# Returns the storyboard made by the last export.
+	#
+	#   returns    the stzStoryboard; empty text before any export
+	#   see        ExportTo
 	def Story()
 		return @oStory
 
-	# the picture as it stands: the motion's own copy for a :Diagram, the
-	# settled figure's diagram for a :Function -- a copy, for reading
+	# Returns the picture as it stands: the motion's own copy for a diagram, the settled figure's diagram for a function.
+	#
+	#   returns    the diagram object
+	#   see        Apply, Figure
+	#@ aka  the picture as it stands: the motion's own copy for a :Diagram, the settled figure's diagram for a :Function -- a copy, for reading
 	def Picture()
 		if @cKind = "function"
 			return This.Figure().Diagram()
 		ok
 		return @oPicture
 
-	# THE LIVE PASS: the acts of one state, on the motion's own picture. States
-	# are steps, so state n is reached from state n-1; a caller that jumps is
-	# asking for the acts of n from wherever the picture stands, which is what
-	# it gets and what Applied() then says.
+	# Performs the acts of one state on the motion's own picture, so the picture then stands in that state.
+	#
+	#   pnState    the position of the state, from 1
+	#   returns    the motion itself, so calls chain
+	#   note       the acts are applied from wherever the picture stands, so jumping over states
+	#              skips their acts
+	#   warning    raises an error when the state is not declared
+	#   see        ApplyAll, Applied, ApplyMs
+	#@ aka  THE LIVE PASS: the acts of one state, on the motion's own picture. States are steps, so state n is reached from state n-1; a caller that jumps is asking for the acts of n from wherever the picture stands, which is what it gets and what Applied() then says.
 	def Apply(pnState)
 		This._RequireState("Apply", pnState)
 		_nT0_ = StzEngineWatchTimestampMs()
@@ -504,6 +688,10 @@ class stzMathMotion from stzObject
 		def ApplyQ(pnState)
 			return This.Apply(pnState)
 
+	# Applies every declared state in order.
+	#
+	#   returns    the motion itself, so calls chain
+	#   see        Apply
 	def ApplyAll()
 		_n_ = ring_len(@aStates)
 		for _i_ = 1 to _n_
@@ -612,16 +800,17 @@ class stzMathMotion from stzObject
 				_n_ + " state(s) are.")
 		ok
 
-	#-- the export: a storyboard driven by the same acts ------------------------
-
-	# EVERY STATE A FRAME. The storyboard takes its own copy of the picture
-	# from where it stands now, replays each state's acts on that copy
-	# through its own Act (so the frame it closes is the picture AFTER the
-	# acts), binds each fact to be computed on that frame, writes the frame
-	# as a PNG in the folio, and the narration beside them. A :Function
-	# motion settles per state and hands each settled figure in as a frame;
-	# its parameters are put back afterwards, so the export leaves the
-	# motion where it found it in both cases.
+	# Writes every state as a PNG frame in a folder with its facts computed, plus a narration file, through a storyboard.
+	#
+	#   pcFolio    the folder to write into, current folder when empty
+	#   pcName     the name of the storyboard, which prefixes name_01.png, name_02.png and so on
+	#   returns    the stzStoryboard of the export
+	#   note       the folder must exist
+	#   warning    raises an error when no state is declared, when the name is empty, when a
+	#              function motion draws its curve live, and when the machine has no graphics
+	#              device; the parameters of a function motion are put back afterwards
+	#   see        Story, Apply, PlayStates
+	#@ aka  -- the export: a storyboard driven by the same acts ------------------------
 	def ExportTo(pcFolio, pcName)
 		_nS_ = ring_len(@aStates)
 		if _nS_ = 0
@@ -688,12 +877,15 @@ class stzMathMotion from stzObject
 		@oStory = _oS_
 		return _oS_
 
-	#-- the player of states ------------------------------------------------------
-
-	# each state applied and held on the window for pnDwellMs; Right or Space
-	# advance early, Escape closes; the last state holds until Escape. A
-	# :Function motion drawn live composes its frame, any other draws its
-	# picture as it stands.
+	# Shows each state on a window in turn, holding each for a time; Right or Space advance early, Escape closes, and the last state holds.
+	#
+	#   poWindow    an open stzWindow to draw in
+	#   pnDwellMs   how long to hold each state in milliseconds, 2000 when not a number
+	#   returns     the motion itself
+	#   note        blocks until Escape or the window is closed
+	#   warning     raises an error when the argument is not an object or no state is declared
+	#   see         Play, Apply
+	#@ aka  -- the player of states ------------------------------------------------------
 	def PlayStates(poWindow, pnDwellMs)
 		if NOT isObject(poWindow)
 			stzraise("stzMathMotion.PlayStates: give an stzWindow.")
@@ -737,6 +929,10 @@ class stzMathMotion from stzObject
 		if isObject(_oC_)  _oC_.Free()  ok
 		return This
 
+	# Describes the motion in one sentence: its kind, its parameters and where they stand, whether it is settled, and its states.
+	#
+	#   returns    a text
+	#   see        Settle, Apply
 	def Why()
 		if @cKind = "diagram"
 			_c_ = "a motion of " + ring_len(@aStates) + " declared state(s) over a picture"

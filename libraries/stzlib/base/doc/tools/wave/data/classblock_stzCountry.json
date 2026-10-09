@@ -1,0 +1,24 @@
+{
+ "brief": "Holds one country of the world and answers its codes, languages, scripts and currency.",
+ "detail": "Build it from any identifier the library knows: a name such as Niger, a two- or three-letter code, a number, a phone code or a language name. The names are lowercase English, the codes uppercase. The currency questions come from the country row, and the symbol, the abbreviation and the native currency name from the country's locale. NativeName raises an error today (it calls a function that does not exist), and Script and ScriptNumber answer only for a country whose default language has a script row of the same name. The Engine methods read the engine's reference table directly.",
+ "receiver": "o1 = new stzCountry(\"Niger\")",
+ "example": [
+  "? @@( o1.Name() )",
+  "#--> \"niger\"",
+  "? @@( o1.ShortAbbreviation() )",
+  "#--> \"NE\"",
+  "? @@( o1.PhoneCode() )",
+  "#--> \"+227\"",
+  "? @@( o1.DefaultLanguage() )",
+  "#--> \"french\"",
+  "? @@( o1.Languages() )",
+  "#--> [ \"zarma\", \"tasawaq\" ]",
+  "? @@( o1.CurrencyAbbreviation() )",
+  "#--> \"XOF\"",
+  "? o1.CurrencyBase()",
+  "#--> 100",
+  "? @@( o1.EngineField(\"alpha3\") )",
+  "#--> \"NER\""
+ ],
+ "see": ["stzLocale", "stzLanguage", "stzString"]
+}

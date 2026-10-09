@@ -1,0 +1,8 @@
+init | Builds the live HTTP client, which sends its requests through a new reactor. | nothing; the object is built | | Request, ReactorQ
+SetTimeout | Sets the longest wait for an answer, in milliseconds; the default is 15000. | nothing; use SetTimeoutQ to chain | pnMs=the wait in milliseconds | Timeout, Request | SetTimeoutQ is the same call and returns the client
+Timeout | Returns the longest wait for an answer, in milliseconds. | a number; 15000 by default | | SetTimeout
+Request | Sends a GET, or a POST for any other method, through the reactor and waits for the body. | a hash list with status, body and from; status 200 with the body, or status 0 with an empty body when nothing came back, from being live | pcMethod=the HTTP method, GET or anything else meaning POST; pcUrl=the address; pcReqBody=the body sent by a POST and ignored by a GET | GetFrom, PostTo, SetTimeout | only the body is returned, never the real status, so (by the source comment) an error page would read as 200, while a refused connection or a timeout reads as 0; by its code any method other than GET is sent as a POST; the 200 answer was not run, because one process cannot answer a request while it waits for it | a closed port and a listener that never answers both gave status 0
+GetFrom | Sends a GET request with no body through Request. | a hash list with status, body and from | pcUrl=the address | Request, PostTo
+PostTo | Sends a POST request with a body through Request. | a hash list with status, body and from | pcUrl=the address; pcBody=the request body | Request, GetFrom
+ReactorQ | Returns the reactor that carries the requests. | a stzReactor object | | Request
+Show | Prints one line giving the client's timeout. | nothing; it prints | | Timeout

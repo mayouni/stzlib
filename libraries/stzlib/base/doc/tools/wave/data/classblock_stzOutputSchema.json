@@ -1,0 +1,14 @@
+{
+ "brief": "Declares the shape of an answer once, then judges raw or parsed values against it whole or not at all.",
+ "detail": "A schema lists fields with a type (string, number, boolean, one of, list) and optional rules such as a numeric band. ParseOutput reads model text as JSON or as field: value lines and returns the validated value in declared order, or a refusal that names the rule and the field that failed. Partial credit is forbidden, a scalar that can be represented is coerced (the text 36 becomes the number 36), a closed enumeration must match exactly, and a required field that is present but empty counts as missing. Fields nobody declared are reported and dropped, unless RefuseUnknownFields closes the schema. ToGBNF compiles the shape into a grammar for the sampler, but a grammar fixes shape and never value, so this court still checks every band. Structure kills malformedness, not falsehood: a lie of the right shape validates.",
+ "receiver": "o1 = new stzOutputSchema([ [ :field = \"name\", :type = :string ], [ :field = \"age\", :type = :number, :must = [ [ \">=\", 0 ], [ \"<=\", 130 ] ] ] ])",
+ "example": [
+  "? @@(o1.ParseOutput(\"name: Ana\" + char(10) + \"age: 36\")[:value])",
+  "#--> [ [ \"name\", \"Ana\" ], [ \"age\", 36 ] ]",
+  "? o1.Accepts(\"name: Ana\" + char(10) + \"age: 900\")",
+  "#--> 0",
+  "? o1.CiteFindings(o1.Check([ [ \"name\", \"Ana\" ], [ \"age\", 900 ] ]))",
+  "#--> [lessequal @ age] field 'age' must be at most '130', and the model answered '900'."
+ ],
+ "see": ["stzLLMFunction", "stzRuleReport", "stzNeuralModel"]
+}

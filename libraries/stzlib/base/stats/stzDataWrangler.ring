@@ -84,6 +84,34 @@ $aWranglingGoals = [
 # stzDataWrangler Class Definition
 # =============================================================================
 
+# Cleans, checks and reshapes a list or a table of values step by step, and keeps a log of what it did.
+#
+# Give it a flat list or a table (a list of rows, with the column names). The operations change the
+# data in place and answer how many values they touched: RemoveDuplicates, HandleMissingValues,
+# TrimWhitespace, NormalizeCase, ConvertDataTypes, NormalizeNumeric and EncodeCategories. The
+# checks, ValidateRanges, DetectOutliers and ValidateDataTypes, report problems and record them as
+# issues. ExecutePlan, QuickClean and the other Quick methods run a whole plan of steps at once, and
+# GetData returns the result. Several things fail today on a table that holds text:
+# ValidateDataTypes, GetDataProfile and ShowReport raise, the analysis plan does not resolve, and
+# the export plan reports errors; each method says so in its own warning.
+#
+#   receiver   o1 = new stzDataWrangler([ [ "Ann", 31 ], [ "Bob", 25 ], [ "Ann", 31 ] ], [ "name",
+#              "age" ])
+#   example    ? o1.RemoveDuplicates()
+#              #--> 1
+#              ? @@( o1.ValidateRanges([ [ "age", 0, 30 ] ]) )
+#              #--> [ "Row 1, age: 31 outside range [0, 30]" ]
+#              ? o1.NormalizeCase("upper")
+#              #--> 2
+#              ? o1.NormalizeNumeric("minmax")
+#              #--> 2
+#              ? @@( o1.GetData() )
+#              #--> [ [ "ANN", 1 ], [ "BOB", 0 ] ]
+#              ? @@( o1.GetHeaders() )
+#              #--> [ "name", "age" ]
+#              ? @@( o1.GetIssues()[1][:type] )
+#              #--> "range_violation"
+#   see        stzTable, stzDataSet, stzMatrix
 class stzDataWrangler from stzObject
     # ATTRIBUTES
     # ==========
@@ -96,9 +124,16 @@ class stzDataWrangler from stzObject
     @aFillRules = []         # Rules for filling missing values
     @bVerbose = 1         # Show detailed operation messages
 
-    # INITIALIZATION
-    # ==============
-    
+    # Builds a wrangler around a list of values or a table, a list of rows, and detects which of the two it is.
+    #
+    #   paData      the dataset, a flat list or a list of rows
+    #   paHeaders   the column names of a table, or [ ] to get Col1, Col2 and so on
+    #   returns     nothing; the object is built
+    #   note        the first item decides: a list there makes it a table
+    #   warning     Raises an error when the data is not a list (a number, for example); an empty
+    #               list is accepted as an empty dataset
+    #   see         GetData, Reset
+    #@ aka  INITIALIZATION ==============
     def init(paData, paHeaders)
         # Initialize the data rangler with your dataset
         #
@@ -142,9 +177,11 @@ class stzDataWrangler from stzObject
             [ :type = "date", :method = "interpolate" ]
         ]
 
-    # PILLAR 1: DATA CLEANING
-    # ======================
-    
+    # Removes repeated items of a list, or repeated whole rows of a table, keeping the first of each.
+    #
+    #   returns    the number of items or rows removed
+    #   see        GetData, GetDataProfile
+    #@ aka  PILLAR 1: DATA CLEANING ======================
     def RemoveDuplicates()
         # Remove duplicate rows from the dataset
         # Returns: Number of duplicates removed
@@ -169,6 +206,16 @@ class stzDataWrangler from stzObject
         This._LogTransformation("RemoveDuplicates", "" + _nRemoved_ + " duplicates removed")
         return _nRemoved_
 
+    # Fills or removes the missing values, which are empty text and NA, NULL, n/a, NaN, nil, - and ?.
+    #
+    #   _cStrategy_   remove, fill_zero, fill_mean, or anything else (auto): the mean of the numbers
+    #                 of the column, or the most frequent value when it holds no number
+    #   returns       the number of values filled; 0 when the strategy is remove
+    #   note          an empty strategy means auto
+    #   warning       on a table the strategy remove does not remove anything: it only records one
+    #                 missing_value issue per cell, and interpolate acts as auto; the comparison
+    #                 with the missing words is case sensitive, so Na is not missing
+    #   see           RemoveDuplicates, TrimWhitespace
     def HandleMissingValues(_cStrategy_)
         # Handle missing values using specified strategy
         #
@@ -251,6 +298,10 @@ class stzDataWrangler from stzObject
         
         return _nFilled_
 
+    # Removes the spaces around every text value, in a list or in every cell of a table.
+    #
+    #   returns    the number of values that changed
+    #   see        NormalizeCase, GetData
     def TrimWhitespace()
         """Remove leading and trailing whitespace from text data"""
         _nCleaned_ = 0
@@ -285,6 +336,11 @@ class stzDataWrangler from stzObject
         This._LogTransformation("TrimWhitespace", "" + _nCleaned_ + " values cleaned")
         return _nCleaned_
 
+    # Changes the letter case of every text value, in a list or in every cell of a table.
+    #
+    #   _cMode_    lower, upper, title or sentence
+    #   returns    the number of values that changed
+    #   see        TrimWhitespace, GetData
     def NormalizeCase(_cMode_)
         # Normalize text case
         # Modes: lower, upper, title, sentence
@@ -325,9 +381,16 @@ class stzDataWrangler from stzObject
         This._LogTransformation("NormalizeCase", "" + _nNormalized_ + " values normalized to " + _cMode_)
         return _nNormalized_
 
-    # PILLAR 2: DATA VALIDATION
-    # =========================
-    
+    # Reports the columns of a table whose values mix several types, among numeric, boolean, date and string.
+    #
+    #   returns    a list of texts such as Column age has mixed types: numeric, string; [ ] for a
+    #              list
+    #   note       a list dataset returns [ ] without looking
+    #   warning    Raises Bad parameter type today instead of reporting the mixed types, as soon as
+    #              the table holds a text that is not boolean-like (confirmed on two tables): the
+    #              helper that tests for a date calls the list search find on the text
+    #   see        ValidateRanges, GetIssues, GetDataProfile
+    #@ aka  PILLAR 2: DATA VALIDATION =========================
     def ValidateDataTypes()
         # Validate data type consistency within columns
         # Returns: List of validation issues found
@@ -358,6 +421,14 @@ class stzDataWrangler from stzObject
         This._LogTransformation("ValidateDataTypes", "" + len(_aIssues_) + " type issues found")
         return _aIssues_
 
+    # Reports the numbers of a table that fall outside the range given for their column.
+    #
+    #   aRangeRules   a list of rules [ column name, lowest, highest ], such as [ [ "age", 0, 120 ]
+    #                 ]
+    #   returns       a list of texts such as Row 2, v: 50 outside range [0, 10]; [ ] when all are
+    #                 inside or the column is unknown
+    #   note          each violation is also added to the issues; a list dataset returns [ ]
+    #   see           ValidateDataTypes, DetectOutliers, GetIssues
     def ValidateRanges(aRangeRules)
         # Validate numeric values against specified ranges
         #
@@ -391,6 +462,13 @@ class stzDataWrangler from stzObject
         This._LogTransformation("ValidateRanges", "" + len(_aIssues_) + " range violations found")
         return _aIssues_
 
+    # Finds the numbers of a table whose distance from the mean of their column, in standard deviations, exceeds a threshold.
+    #
+    #   _nThreshold_   the z-score above which a value is an outlier
+    #   returns        a list of [ row, column, value, z-score ] for each outlier; [ ] when none
+    #   note           a column needs at least 5 numbers to be judged; each outlier is also added to
+    #                  the issues
+    #   see            ValidateRanges, GetIssues
     def DetectOutliers(_nThreshold_)
         # Detect statistical outliers using Z-score method
         # Returns: List of outlier positions
@@ -429,9 +507,18 @@ class stzDataWrangler from stzObject
         This._LogTransformation("DetectOutliers", "" + len(_aOutliers_) + " outliers detected")
         return _aOutliers_
 
-    # PILLAR 3: DATA TRANSFORMATION
-    # =============================
-    
+    # Converts the cells of the named columns of a table to numeric, string, boolean or date, leaving the cells that do not convert.
+    #
+    #   aConversionRules   a list of pairs [ column name, target type ], such as [ [ "age",
+    #                      "numeric" ] ]
+    #   returns            the number of cells converted
+    #   note               missing cells are skipped; text that is not a number stays text
+    #   warning            a boolean target turns true-like texts into 1 and leaves false-like texts
+    #                      such as false, no and 0 as they were (confirmed on two tables), because
+    #                      the converted 0 is taken as no result; the date target changes nothing
+    #                      yet but still counts the cells
+    #   see                NormalizeNumeric, ValidateDataTypes
+    #@ aka  PILLAR 3: DATA TRANSFORMATION =============================
     def ConvertDataTypes(aConversionRules)
         # Convert data types based on rules or auto-detection
         #
@@ -466,6 +553,13 @@ class stzDataWrangler from stzObject
         This._LogTransformation("ConvertDataTypes", "" + _nConverted_ + " values converted")
         return _nConverted_
 
+    # Rescales every column of numbers of a table, replacing the values in place.
+    #
+    #   _cMethod_   minmax (0 to 1), zscore (mean 0) or robust (median based)
+    #   returns     the number of values rescaled
+    #   note        list datasets are left alone
+    #   warning     an unknown method counts the values but leaves them unchanged
+    #   see         EncodeCategories, ConvertDataTypes
     def NormalizeNumeric(_cMethod_)
         # Normalize numeric columns
         # Methods: "minmax" (0-1), "zscore" (mean=0, std=1), "robust" (median-based)
@@ -500,6 +594,14 @@ class stzDataWrangler from stzObject
         This._LogTransformation("NormalizeNumeric", "" + _nNormalized_ + " values normalized using " + _cMethod_)
         return _nNormalized_
 
+    # Replaces the values of every column that looks categorical with whole numbers, in order of first appearance from 0.
+    #
+    #   _cMethod_   label
+    #   returns     the number of values encoded
+    #   note        list datasets are left alone
+    #   warning     a column counts as categorical with fewer than 20 distinct values, so small
+    #               numeric columns are encoded too
+    #   see         NormalizeNumeric
     def EncodeCategories(_cMethod_)
         # Encode categorical variables for analysis
         # Methods: "label" (0,1,2...), "onehot" (binary columns), "ordinal" (custom order)
@@ -525,9 +627,19 @@ class stzDataWrangler from stzObject
         This._LogTransformation("EncodeCategories", "" + _nEncoded_ + " categorical values encoded")
         return _nEncoded_
 
-    # PILLAR 4: PLAN EXECUTION SYSTEM
-    # ===============================
-    
+    # Looks up a wrangling plan by goal or by template name and returns it with an estimated time.
+    #
+    #   cGoalOrTemplate   a goal (clean, validate or export) or a template name such as
+    #                     basic_cleanup, data_validation, prepare_analysis or export_ready, in any
+    #                     case
+    #   returns           a hash-list with name, title, description, steps and estimated_time; empty
+    #                     text when the goal is unknown
+    #   note              an unknown goal is also written to the transformation log
+    #   warning           the goal analyze returns empty text today instead of the analysis plan
+    #                     (confirmed twice), because it maps to prepare_for_analysis while the
+    #                     template is named prepare_analysis; use the template name
+    #   see               ExecutePlan, QuickClean
+    #@ aka  PILLAR 4: PLAN EXECUTION SYSTEM ===============================
     def GeneratePlan(cGoalOrTemplate)
         # Generate a wrangling plan based on goal or template name
         #
@@ -556,6 +668,17 @@ class stzDataWrangler from stzObject
         
         return ""
 
+    # Runs the steps of a plan on the data one after another and collects what each did.
+    #
+    #   cGoalOrTemplate   a goal or template name as for GeneratePlan
+    #   bVerbose          1 to print each step as it runs, 0 for silence
+    #   returns           a hash-list with plan, results, execution_time and summary; empty text
+    #                     when the plan is unknown
+    #   note              the data is changed in place; each step uses default settings
+    #   warning           a step that raises is recorded with status error and the run goes on; the
+    #                     export plan reports 3 errors of 4 steps today because its header and date
+    #                     helpers raise
+    #   see               GeneratePlan, QuickClean
     def ExecutePlan(cGoalOrTemplate, bVerbose)
         # Execute a complete wrangling plan
         # Returns: Execution summary with results and any errors
@@ -625,9 +748,11 @@ class stzDataWrangler from stzObject
             :summary = This._GetExecutionSummary(_aResults_)
         ]
 
-    # PILLAR 5: EXPORT AND INTEGRATION
-    # ================================
-    
+    # Returns the data as it stands now, a flat list or the rows of the table.
+    #
+    #   returns    the list or the rows of the table
+    #   see        ExportForStzTable, ExportForStzMatrix
+    #@ aka  PILLAR 5: EXPORT AND INTEGRATION ================================
     def ExportForStzDataSet()
         # Export cleaned data in format suitable for stzDataSet
         # Returns: Clean list or 2D array ready for statistical analysis
@@ -638,6 +763,10 @@ class stzDataWrangler from stzObject
             return @aData
         ok
 
+    # Returns the data in the shape the table class takes: the headers and then the rows.
+    #
+    #   returns    a pair [ headers, rows ]; for a flat list [ [ "Value" ], [ the items ] ]
+    #   see        ExportForStzDataSet, GetHeaders
     def ExportForStzTable()
         # Export as structured table data for stzTable class
         # Returns: [headers, data] format
@@ -652,6 +781,10 @@ class stzDataWrangler from stzObject
             return [ ["Value"], [ _aItems_ ] ]
         ok
 
+    # Returns the data as rows of numbers, with a 0 in place of every cell that is not a number.
+    #
+    #   returns    a list of rows of numbers; for a flat list a single row holding its numbers
+    #   see        ExportForStzDataSet
     def ExportForStzMatrix()
         # Export numeric data suitable for stzMatrix operations
         # Returns: 2D numeric array
@@ -686,9 +819,16 @@ class stzDataWrangler from stzObject
             return [ _aItems_ ]
         ok
 
-    # REPORTING AND DIAGNOSTICS
-    # =========================
-    
+    # Returns a summary of the data: structure, rows, columns, issues, transformations, types, missing values and duplicates.
+    #
+    #   returns    a hash-list with structure, rows, columns, issues_found, transformations_applied,
+    #              data_types, missing_values and duplicates
+    #   note       the profile of a flat list has columns 0 and data_types empty
+    #   warning    Raises Bad parameter type today instead of the profile for a table holding text
+    #              (confirmed on two tables), for the same reason as ValidateDataTypes; a flat list
+    #              or an empty dataset works
+    #   see        ShowReport, GetIssues
+    #@ aka  REPORTING AND DIAGNOSTICS =========================
     def GetDataProfile()
         """Generate comprehensive data profile report"""
         _aProfile_ = [
@@ -704,14 +844,30 @@ class stzDataWrangler from stzObject
         
         return _aProfile_
 
+    # Returns the log of every operation applied, oldest first, starting with the loading of the data.
+    #
+    #   returns    a list of hash-lists with timestamp, operation and details
+    #   see        GetIssues, Reset
     def GetTransformationLog()
         """Return complete log of all transformations applied"""
         return @aTransformLog
 
+    # Returns the data quality issues recorded by the checks so far.
+    #
+    #   returns    a list of hash-lists with type, description and detected_at
+    #   see        ValidateRanges, DetectOutliers, Reset
     def GetIssues()
         """Return all detected data quality issues"""
         return @aIssues
 
+    # Prints the structure, size, issues and operations of the data as a report on the console.
+    #
+    #   returns    nothing
+    #   note       the heading lines of the report carry garbled symbols because of their source
+    #              encoding
+    #   warning    Raises Bad parameter type today for a table holding text, as the profile does; a
+    #              flat list prints
+    #   see        GetDataProfile
     def ShowReport()
         """Display formatted data quality report"""
         _aProfile_ = This.GetDataProfile()
@@ -1358,66 +1514,130 @@ next
         
         return _aIssues_
 
-    # CONVENIENCE METHODS FOR QUICK OPERATIONS
-    # =======================================
-    
+    # Runs the clean plan silently: removes duplicates, fills missing values, trims spaces and lowers the case.
+    #
+    #   returns    the same hash-list as ExecutePlan
+    #   note       the data is changed in place
+    #   see        Clean, ExecutePlan
+    #@ aka  CONVENIENCE METHODS FOR QUICK OPERATIONS =======================================
     def QuickClean()
         """Perform basic cleaning operations quickly"""
         return This.ExecutePlan("clean", 0)
 
+    # Runs the validation plan silently: types, ranges, formats and outliers.
+    #
+    #   returns    the same hash-list as ExecutePlan
+    #   warning    Reports one error for ValidateDataTypes today on a table holding text, as that
+    #              method raises
+    #   see        Validate, ExecutePlan
     def QuickValidate()
         """Perform validation checks quickly"""  
         return This.ExecutePlan("validate", 0)
 
+    # Runs the analysis plan silently, which should fill, convert, normalize and encode the data.
+    #
+    #   returns    the same hash-list as ExecutePlan when the plan resolves; empty text today
+    #   note       see GeneratePlan
+    #   warning    Returns empty text and does nothing today (confirmed twice), because the goal
+    #              analyze maps to a template name that does not exist; ExecutePlan with
+    #              prepare_analysis works
+    #   see        Transform, GeneratePlan
     def QuickPrepareForAnalysis()
         """Prepare data for statistical analysis quickly"""
         return This.ExecutePlan("analyze", 0)
 
+    # Runs the export plan silently: headers, missing values, dates and a final check.
+    #
+    #   returns    the same hash-list as ExecutePlan
+    #   warning    Reports 3 errors out of 4 steps today, since the header and date helpers raise;
+    #              only the missing-value step does its work
+    #   see        Export, ExecutePlan
     def QuickPrepareForExport()
         """Prepare data for export quickly"""
         return This.ExecutePlan("export", 0)
 
-    # CHAINABLE OPERATIONS
-    # ===================
-    
+    # Runs the clean plan silently and returns the wrangler, so that calls chain.
+    #
+    #   returns    the wrangler itself
+    #   see        QuickClean
+    #@ aka  CHAINABLE OPERATIONS ===================
     def Clean()
         This.ExecutePlan("clean", 0)
         return This
 
+    # Runs the validation plan silently and returns the wrangler, so that calls chain.
+    #
+    #   returns    the wrangler itself
+    #   note       the results of the plan are dropped; read GetIssues
+    #   see        QuickValidate
     def Validate()
         This.ExecutePlan("validate", 0)
         return This
 
+    # Runs the analysis plan silently and returns the wrangler, so that calls chain.
+    #
+    #   returns    the wrangler itself
+    #   warning    Does nothing today, as the analyze goal does not resolve to a plan
+    #   see        QuickPrepareForAnalysis
     def Transform()
         This.ExecutePlan("analyze", 0)
         return This
 
+    # Runs the export plan silently and returns the wrangler, so that calls chain.
+    #
+    #   returns    the wrangler itself
+    #   warning    Its header and date steps fail today, so only the missing values are handled
+    #   see        QuickPrepareForExport
     def Export()
         This.ExecutePlan("export", 0)
         return This
 
-    # DATA ACCESS METHODS
-    # ==================
-    
+    # Returns the dataset in its current state.
+    #
+    #   returns    the list or the rows of the table
+    #   see        GetHeaders, GetCleanData
+    #@ aka  DATA ACCESS METHODS ==================
     def GetData()
         """Return the current dataset"""
         return @aData
 
+    # Returns the column names of the table, or the generated Col1, Col2 names.
+    #
+    #   returns    a list of text; [ ] for a flat list
+    #   see        GetData
     def GetHeaders()
         """Return column headers"""
         return @aHeaders
 
+    # Returns a cleaned copy of the data, running the clean plan on a temporary wrangler, and leaves this wrangler's data untouched.
+    #
+    #   returns    the cleaned list or rows
+    #   see        QuickClean, GetData
     def GetCleanData()
         """Return data with basic cleaning applied"""
         _oTempRangler_ = new stzDataWrangler(@aData, @aHeaders)
         _oTempRangler_.QuickClean()
         return _oTempRangler_.GetData()
 
+    # Sets the flag that says whether plans print their steps, and returns the wrangler.
+    #
+    #   bVerbose   1 to print, 0 for silence
+    #   returns    the wrangler itself
+    #   warning    has no lasting effect today: ExecutePlan overwrites the flag with its own
+    #              argument on every call
+    #   see        ExecutePlan
     def SetVerbose(bVerbose)
         """Enable/disable verbose output"""
         @bVerbose = bVerbose
         return This
 
+    # Clears the recorded issues and the transformation log and restores the default fill rules, and returns the wrangler.
+    #
+    #   returns    the wrangler itself
+    #   warning    does not restore the data despite what its comment says: after cleaning, the
+    #              cleaned rows stay (confirmed on two wranglers); the log is left empty, without
+    #              even the entry for loading the data
+    #   see        GetIssues, GetTransformationLog
     def Reset()
         """Reset to original data state"""
         This._InitializeDefaults()

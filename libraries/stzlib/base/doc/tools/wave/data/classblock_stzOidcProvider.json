@@ -1,0 +1,15 @@
+{
+ "brief": "Makes an application the identity provider that other apps sign in through: it issues single-use codes and signed ID tokens.",
+ "detail": "The authorization-code flow runs in two calls: Authorize hands a short-lived code to an exactly registered redirect URI, and ExchangeCode, a back-channel call that authenticates the client by its hashed secret, turns the code into a signed ID token and access token. A code is single-use and bound to its client, redirect URI, nonce and PKCE challenge. Tokens are signed ES256 with an engine key, or RS256 when you supply one, and RotateKey keeps the outgoing public key in the JWKS so tokens in flight keep verifying. Every refusal gives a reason and an OAuth error code. It runs inside the process: serving the endpoints over HTTP is the caller's job.",
+ "receiver": "o1 = new stzOidcProvider(\"http://localhost:8099\")\no1.RegisterClient(\"app1\", \"invented-client-secret\", [ \"http://localhost:3000/cb\" ])",
+ "example": [
+  "r = o1.Authorize([ :clientId = \"app1\", :redirectUri = \"http://localhost:3000/cb\" ], \"alice\")",
+  "t = o1.ExchangeCode(\"app1\", \"invented-client-secret\", r[:code], \"http://localhost:3000/cb\", \"\")",
+  "? t[:subject]",
+  "#--> alice",
+  "t = o1.ExchangeCode(\"app1\", \"invented-client-secret\", r[:code], \"http://localhost:3000/cb\", \"\")",
+  "? t[:error]",
+  "#--> invalid_grant"
+ ],
+ "see": ["stzOidcClient", "stzAuth", "stzJwt"]
+}

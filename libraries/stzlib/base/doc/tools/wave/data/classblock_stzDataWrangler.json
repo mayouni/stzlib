@@ -1,0 +1,22 @@
+{
+ "brief": "Cleans, checks and reshapes a list or a table of values step by step, and keeps a log of what it did.",
+ "detail": "Give it a flat list or a table (a list of rows, with the column names). The operations change the data in place and answer how many values they touched: RemoveDuplicates, HandleMissingValues, TrimWhitespace, NormalizeCase, ConvertDataTypes, NormalizeNumeric and EncodeCategories. The checks, ValidateRanges, DetectOutliers and ValidateDataTypes, report problems and record them as issues. ExecutePlan, QuickClean and the other Quick methods run a whole plan of steps at once, and GetData returns the result. Several things fail today on a table that holds text: ValidateDataTypes, GetDataProfile and ShowReport raise, the analysis plan does not resolve, and the export plan reports errors; each method says so in its own warning.",
+ "receiver": "o1 = new stzDataWrangler([ [ \"Ann\", 31 ], [ \"Bob\", 25 ], [ \"Ann\", 31 ] ], [ \"name\", \"age\" ])",
+ "example": [
+  "? o1.RemoveDuplicates()",
+  "#--> 1",
+  "? @@( o1.ValidateRanges([ [ \"age\", 0, 30 ] ]) )",
+  "#--> [ \"Row 1, age: 31 outside range [0, 30]\" ]",
+  "? o1.NormalizeCase(\"upper\")",
+  "#--> 2",
+  "? o1.NormalizeNumeric(\"minmax\")",
+  "#--> 2",
+  "? @@( o1.GetData() )",
+  "#--> [ [ \"ANN\", 1 ], [ \"BOB\", 0 ] ]",
+  "? @@( o1.GetHeaders() )",
+  "#--> [ \"name\", \"age\" ]",
+  "? @@( o1.GetIssues()[1][:type] )",
+  "#--> \"range_violation\""
+ ],
+ "see": ["stzTable", "stzDataSet", "stzMatrix"]
+}

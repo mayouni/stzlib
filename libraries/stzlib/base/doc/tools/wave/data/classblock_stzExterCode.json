@@ -1,0 +1,12 @@
+{
+ "brief": "Runs a snippet of another language and brings its answer back as a Ring value, through a result file.",
+ "detail": "Supports python, r, julia, c, prolog and nodejs, found by the paths in $aStzLibConfig or by SetRuntimePath. You set the code, which must assign its answer to a variable named res, and Execute wraps it with a translator, runs it with the language's program in the current folder, and writes the answer as Ring text; Result reads that text back and evaluates it, so a number, a text and nested lists cross the boundary. Output and errors of the program go to a log file. Limits seen on this machine: the R translator is rejected by R 4.5.1, and the run script is started by its bare name, which fails where NoDefaultCurrentDirectoryInExePath is 1. julia, c and prolog were not run, their programs being absent.",
+ "receiver": "o1 = new stzExterCode(\"nodejs\")",
+ "example": [
+  "o1.SetCode(\"var res = [1, 2, 3].reduce((a, b) => a + b, 0);\")",
+  "o1.Execute()",
+  "? o1.Result()",
+  "#--> 6"
+ ],
+ "see": ["stzDotCode", "stzSystemCall"]
+}

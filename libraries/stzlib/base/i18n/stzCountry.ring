@@ -386,9 +386,49 @@ func CountryAbbreviation(pcCountryIdentifier)
 	func @CountryAbbreviation(pcCountryIdentifier)
 		return CountryAbbreviation(pcCountryIdentifier)
 
+# Holds one country of the world and answers its codes, languages, scripts and currency.
+#
+# Build it from any identifier the library knows: a name such as Niger, a two- or three-letter code,
+# a number, a phone code or a language name. The names are lowercase English, the codes uppercase.
+# The currency questions come from the country row, and the symbol, the abbreviation and the native
+# currency name from the country's locale. NativeName raises an error today (it calls a function
+# that does not exist), and Script and ScriptNumber answer only for a country whose default language
+# has a script row of the same name. The Engine methods read the engine's reference table directly.
+#
+#   receiver   o1 = new stzCountry("Niger")
+#   example    ? @@( o1.Name() )
+#              #--> "niger"
+#              ? @@( o1.ShortAbbreviation() )
+#              #--> "NE"
+#              ? @@( o1.PhoneCode() )
+#              #--> "+227"
+#              ? @@( o1.DefaultLanguage() )
+#              #--> "french"
+#              ? @@( o1.Languages() )
+#              #--> [ "zarma", "tasawaq" ]
+#              ? @@( o1.CurrencyAbbreviation() )
+#              #--> "XOF"
+#              ? o1.CurrencyBase()
+#              #--> 100
+#              ? @@( o1.EngineField("alpha3") )
+#              #--> "NER"
+#   see        stzLocale, stzLanguage, stzString
 class stzCountry from stzObject
 	@aCountryInfo
 
+	# Builds a country from its code, name, abbreviation, phone code or default language, looked up in the library's country table.
+	#
+	#   pcCountryIdentifier   the country, as a name such as Niger, an abbreviation such as NE or
+	#                         NER, a number such as 156, a phone code such as +227 or a language
+	#                         name
+	#   returns               nothing; the object is built
+	#   note                  the lookup ignores case
+	#   warning               Raises an error (Can't create the stzCountry object) for text that is
+	#                         none of these; a language name selects the country that language
+	#                         belongs to by default (french gives france); a locale tag such as fr-
+	#                         NE is accepted but selects no country (its branch is a TODO), and Name
+	#                         then answers a stray letter
+	#   see                   Name, Languages
 	def init(pcCountryIdentifier)	# Can be: code, name, abbreviation, phone code, defaultlanguage, or a locale abbreviation
 		_oStr_ = new stzString(pcCountryIdentifier)
 
@@ -467,9 +507,17 @@ class stzCountry from stzObject
 			StzRaise(stzCountryError(:UnsupportedCountryIdentifier))
 		ok
 
+	# Returns the library's number for the country, as text.
+	#
+	#   returns    a text of digits, such as 156 for Niger
+	#   see        Name, PhoneCode
 	def Number()
 		return @aCountryInfo[1]
 
+	# Returns the country's English name in lowercase.
+	#
+	#   returns    a text such as niger
+	#   see        Number, NativeName, ShortAbbreviation
 	def Name()
 		return @aCountryInfo[2]
 
@@ -479,9 +527,21 @@ class stzCountry from stzObject
 		def Content()
 			return This.Name()
 
+		# Returns the same text as the country's name, so the object can stand where a plain value is expected.
+		#
+		#   returns    a text such as niger
+		#   see        Name
 		def Value()
 			return Content()
 	
+	# Returns the name of the country written in its own language.
+	#
+	#   returns    nothing useful today: it raises an error
+	#   note       the same cause on every country tried
+	#   warning    Raises error R3 today instead of the country's native name: it calls a function
+	#              StzLocale that does not exist (only StzLocaleQ does); confirmed on Niger, France
+	#              and Japan
+	#   see        Name, LanguageNativeName
 	def NativeName()
 		return StzLocale(This.LocaleAbbreviation()).CountryNativeName()
 
@@ -489,21 +549,41 @@ class stzCountry from stzObject
 	def Abbreviation()
 		return This.ShortAbbreviation()
 
+	# Returns the two-letter code of the country in uppercase.
+	#
+	#   returns    a text of two letters, such as NE
+	#   see        LongAbbreviation, LocaleAbbreviation
 	def ShortAbbreviation()
 		return @aCountryInfo[3]
 
+	# Returns the three-letter code of the country in uppercase.
+	#
+	#   returns    a text of three letters, such as NER
+	#   see        ShortAbbreviation
 	def LongAbbreviation()
 		return @aCountryInfo[4]
 
 		def AbbreviationXT()
 			return This.LongAbbreviation()
 
+	# Returns the locale tag made of the country's default language and its two-letter code.
+	#
+	#   returns    a text such as fr-NE
+	#   see        ShortAbbreviation, DefaultLanguageAbbreviation
 	def LocaleAbbreviation()
 		return StzLocaleAbbreviationsXT()[ This.Country() ][1][1][2]
 
+	# Returns the international dialling prefix of the country, with its plus sign.
+	#
+	#   returns    a text such as +227
+	#   see        Number
 	def PhoneCode()
 		return @aCountryInfo[5]
 
+	# Returns the library's number for the country's default language, as text.
+	#
+	#   returns    a text of digits, such as 37 for French
+	#   see        DefaultLanguage, DefaultLanguageAbbreviation
 	def DefaultLanguageNumber()
 
 		_cLanguage_ = This.DefaultLanguage()
@@ -520,12 +600,20 @@ class stzCountry from stzObject
 		def LanguageNumber()
 			return This.DefaultLanguageNumber()
 
+	# Returns the short code of the country's default language.
+	#
+	#   returns    a text such as fr
+	#   see        DefaultLanguage, LocaleAbbreviation
 	def DefaultLanguageAbbreviation()
 		return StzLanguageQ(This.Language()).Abbreviation()
 
 		def LanguageAbbreviation()
 			return This.DefaultLanguageAbbreviation()
 
+	# Returns the English name of the language most used in the country, in lowercase.
+	#
+	#   returns    a text such as french
+	#   see        Languages, LanguageNativeName
 	def DefaultLanguage()
 		return @aCountryInfo[6]
 
@@ -554,8 +642,11 @@ class stzCountry from stzObject
 			return This.DefaultLanguage()
 
 
+	# Returns the name of the default language written in that language.
+	#
+	#   returns    a text such as Français
+	#   see        DefaultLanguage
 		#>
-
 	def LanguageNativeName()
 		return StzLocaleQ(This.LocaleAbbreviation()).LanguageNativeName()
 
@@ -571,6 +662,12 @@ class stzCountry from stzObject
 			return This.DefaultLanguage()
 
 
+	# Returns the names of the languages the locale table lists for this country, in table order.
+	#
+	#   returns    a list of text, such as zarma and tasawaq for Niger
+	#   note       it lists locale languages, so the default language of the country (french for
+	#              Niger) may be absent
+	#   see        LanguagesAbbreviations, DefaultLanguage
 	def Languages()
 		_aResult_ = []
 		_aLocaleLanguagesXT2_ = LocaleLanguagesXT()
@@ -595,6 +692,10 @@ class stzCountry from stzObject
 		def LangaugesNames()
 			return This.Languages()
 
+	# Returns the short codes of the languages the locale table lists for this country, in table order.
+	#
+	#   returns    a list of text, such as dje and twq for Niger
+	#   see        Languages
 	def LanguagesAbbreviations()
 		_aResult_ = []
 
@@ -614,6 +715,13 @@ class stzCountry from stzObject
 		def LangaugesAbbreviations()
 			return This.LanguagesAbbreviations()
 
+	# Returns the script row whose name equals the country's default language, or empty text when there is none.
+	#
+	#   returns    a text such as japanese for Japan; empty text for Niger and France
+	#   note       it matches the language name and returns that name, not the name of a writing
+	#              system, so a country whose language has no script row of the same name gets empty
+	#              text
+	#   see        ScriptNumber, DefaultLanguage
 	def Script()
 		/* NOTE:
 		We can't rely on stzLanguage class here, as we did for Language()
@@ -636,6 +744,10 @@ class stzCountry from stzObject
 		def ScriptName()
 			return This.Script()
 
+	# Returns the library's number for the script row named like the country's default language, or empty text.
+	#
+	#   returns    a text of digits such as 19 for Japan; empty text for Niger and France
+	#   see        Script
 	def ScriptNumber()
 		_cLanguage_ = This.DefaultLanguage()
 
@@ -648,38 +760,84 @@ class stzCountry from stzObject
 			ok
 		next
 
+	# Returns the name of the country's currency, in lowercase with underscores.
+	#
+	#   returns    a text such as west_african_cfa_franc
+	#   see        CurrencyAbbreviation, CurrencySymbol
 	def Currency()
 		return @aCountryInfo[7]
 
 		def CurrencyName()
 			return This.Currency()
 
+	# Returns the currency's name from the country's locale.
+	#
+	#   returns    a text such as euro
+	#   see        Currency
 	def CurrencyNativeName()
 		return StzLocaleQ(This.LocaleAbbreviation()).CurrencyNativeName()
 
+	# Returns the sign written for the currency in the country's locale.
+	#
+	#   returns    a text such as CFA or the euro sign
+	#   see        CurrencyAbbreviation
 	def CurrencySymbol()
 		return StzLocaleQ(This.LocaleAbbreviation()).CurrencySymbol()
 
+	# Returns the three-letter ISO code of the currency.
+	#
+	#   returns    a text such as XOF for Niger or EUR for France
+	#   see        Currency, CurrencySymbol
 	def CurrencyAbbreviation()
 		return StzLocaleQ(This.LocaleAbbreviation()).CurrencyAbbreviation()
 
+	# Returns the name of the subunit of the currency.
+	#
+	#   returns    a text such as Centime or Sen
+	#   see        CurrencyBase
 	def CurrencyFractionalUnit()
 		return  @aCountryInfo[8]
 
 		def CurrencyFraction()
 			return This.CurrencyFractionalUnit()
 
+	# Returns how many subunits make one unit of the currency.
+	#
+	#   returns    a number, such as 100
+	#   see        CurrencyFractionalUnit
 	def CurrencyBase()
 		return @aCountryInfo[9]
 
+	# Returns the flag of the country as an emoji.
+	#
+	#   returns    a text holding the flag emoji
+	#   see        Name
 	def CurrencyEmojiFlag()
 		return @aCountryInfo[10]
 
+	# Returns one text field of the country's row in the engine's reference table, looked up by country name.
+	#
+	#   pcField    the field name: id, name, alpha2, alpha3, phone_code, default_language, currency,
+	#              fractional_unit or currency_base
+	#   returns    a text; empty text when the field name is unknown
+	#   note       a field outside that list answers empty text; capital, region and language were
+	#              tried and are empty
+	#   see        EngineFieldByAlpha2, EngineIntField
 	def EngineField(pcField)
 		return StzEngineRefCountryField(This.Name(), pcField)
 
+	# Returns one text field of the country's row in the engine's reference table, looked up by two-letter code.
+	#
+	#   pcField    the field name, as for EngineField
+	#   returns    a text; empty text when the field name is unknown
+	#   see        EngineField
 	def EngineFieldByAlpha2(pcField)
 		return StzEngineRefCountryFieldByAlpha2(This.ShortAbbreviation(), pcField)
 
+	# Returns one whole-number field of the country's row in the engine's reference table, looked up by country name.
+	#
+	#   pcField    the field name: id, phone_code or currency_base
+	#   returns    a number; 0 when the field name is unknown
+	#   see        EngineField
 	def EngineIntField(pcField)
 		return StzEngineRefCountryIntField(This.Name(), pcField)

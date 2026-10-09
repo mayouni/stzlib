@@ -5775,10 +5775,39 @@ func StzView(cFileName)
 #WARNING: Be careful! don't put global functions after theses classes,
 # because Ring will consider them as methods of the classes and not global functons!
 
+# Runs a piece of Ring code once for each item of a list, with every loop variable bound by name; the earlier form of stzForEachObject.
+#
+# Give the variable name or names and the data as :In = ... Then the code, passed as text to @, is
+# evaluated once per item with each name bound to that item's value, one name or several. It has no
+# positions and no reader function: stzForEachObject is the form to use, and this one is kept for
+# older code. Values always answers a list of lists, one inner list per item.
+#
+#   receiver   o1 = new stzForEachObjectOld([ :A, :B ], :In = [ [ "a", 1 ], [ "b", 2 ] ])
+#   example    aOut = []
+#              o1.@('aOut + (A + B)')
+#              ? @@( aOut )
+#              #--> [ "a1", "b2" ]
+#              ? @@( o1.Vars() )
+#              #--> [ "a", "b" ]
+#              ? o1.NumberOfIterations()
+#              #--> 2
+#              ? @@( o1.Values() )
+#              #--> [ [ "a", 1 ], [ "b", 2 ] ]
+#   see        stzForEachObject
 class stzForEachObjectOld from stzObject
 	@acVars
 	@aValues
 
+	# Builds the earlier version of the loop, which runs Ring code once per item with every loop variable bound by name.
+	#
+	#   p          the name of the loop variable as text, or a list of names when each item is
+	#              itself a list
+	#   pIn        the data, written as a named parameter :In = ...
+	#   returns    nothing; the object is built
+	#   note       superseded by stzForEachObject, which adds positions and the v reader
+	#   warning    Raises an error unless pIn is written as :In = ...; a single name wraps each item
+	#              in a list of one, so Values answers [ [ 1 ], [ 2 ] ] for [ 1, 2 ]
+	#   see        @, stzForEachObject
 	def init(p, pIn)
 
 		# Checking params
@@ -5833,12 +5862,20 @@ class stzForEachObjectOld from stzObject
 		@acVars = p
  		@aValues = pIn
 
+	# Returns the names of the loop variables, in lowercase.
+	#
+	#   returns    a list of text, such as [ "a", "b" ]
+	#   see        NumberOfVars, Values
 	def Vars()
 		return @acVars
 
 		def VarNames()
 			return This.Vars()
 
+	# Returns how many loop variables the loop has.
+	#
+	#   returns    a number
+	#   see        Vars
 	def NumberOfVars()
 		return len(@acVars)
 
@@ -5857,9 +5894,17 @@ class stzForEachObjectOld from stzObject
 		def HowManyVarName()
 			return This.NumberOfVars()
 
+	# Returns the data as a list of items, each item a list holding one value per variable.
+	#
+	#   returns    a list of lists, such as [ [ 1 ], [ 2 ] ] for one variable
+	#   see        NumberOfIterations, Vars
 	def Values()
 		return @aValues
 
+	# Returns how many items the loop will go through.
+	#
+	#   returns    a number
+	#   see        Values
 	def NumberOfIterations()
 		return len(@aValues)
 
@@ -5878,6 +5923,11 @@ class stzForEachObjectOld from stzObject
 		def HowManyValue()
 			return This.NumberOfIterations()
 
+	# Runs a piece of Ring code once for each item, with each loop variable bound to that item's value.
+	#
+	#   pcCode     the Ring code as text, such as '? A + B'
+	#   returns    nothing
+	#   see        Vars, Values
 	def @(pcCode)
 
 		_nValuesLen_2 = len(@aValues)
@@ -5894,6 +5944,38 @@ class stzForEachObjectOld from stzObject
 
 		return
 
+# Runs a piece of Ring code once for each item of a list, binding the item's values to named loop variables.
+#
+# Build it with @ForEach(p, pIn), giving the variable name or names and the data as :In = ... Then
+# Exec (or Run, X, @) takes the code as text and evaluates it once per item. With several names,
+# each item of the list is a list and every name is a variable inside the code; with one name, read
+# the item through v(:Name), because the name itself is not bound. ExecN runs the code only at
+# chosen positions, and @SetIterations narrows every later Exec to a list of positions. The code is
+# evaluated inside the object, so collect results in a global variable. A text can be walked with a
+# single name, but byte by byte, and an empty list or text raises an index error when run.
+#
+#   receiver   o1 = new stzForEachObject([ :Char, :Number ], :In = [ [ "A", 1 ], [ "B", 2 ], [ "C",
+#              3 ] ])
+#   example    aOut = []
+#              o1.Exec('aOut + (Char + Number)')
+#              ? @@( aOut )
+#              #--> [ "A1", "B2", "C3" ]
+#              aOut = []
+#              o1.ExecN([ 3, 1 ], 'aOut + v(:Char)')
+#              ? @@( aOut )
+#              #--> [ "C", "A" ]
+#              ? @@( o1.@Vars() )
+#              #--> [ "char", "number" ]
+#              ? o1.@NumberOfIterations()
+#              #--> 3
+#              ? @@( o1.@Content() )
+#              #--> [ [ "char", [ "A", "B", "C" ] ], [ "number", [ 1, 2, 3 ] ] ]
+#              o1.@SetIterations([ 2 ])
+#              aOut = []
+#              o1.Exec('aOut + v(:Number)')
+#              ? @@( aOut )
+#              #--> [ 2 ]
+#   see        @ForEach, stzForEachObjectOld, stzListOfLists
 class stzForEachObject from stzObject
 	@acVars
 	@aValues
@@ -5903,6 +5985,20 @@ class stzForEachObject from stzObject
 
 	@Iterations
 
+	# Builds a loop over a list or a text that runs a piece of Ring code once per item, with one or several loop variables.
+	#
+	#   p          the name of the loop variable as text, or a list of names when each item is
+	#              itself a list
+	#   pIn        the data, written as a named parameter :In = ... holding a list (or a text, for a
+	#              single variable)
+	#   returns    nothing; the object is built
+	#   note       use @ForEach(p, pIn) to build it
+	#   warning    Raises an error unless pIn is written as :In = ...; with several names every item
+	#              of the list must be a list with as many values as there are names; a text can
+	#              only be used with a single name and is walked byte by byte, so a multi-byte
+	#              letter splits into broken pieces; an empty list or text builds the loop, but
+	#              running it raises an index error
+	#   see        Exec, ExecN, v
 	def init(p, pIn)
 
 		# Checking params
@@ -5975,6 +6071,10 @@ class stzForEachObject from stzObject
 
 	
 
+	# Returns the names of the loop variables, in lowercase.
+	#
+	#   returns    a list of text, such as [ "char", "number" ]
+	#   see        @NumberOfVars, @Content
 	def @Vars()
 		if This.@NumberOfVars() = 1
 			return [ @aDataVars[1][1] ]
@@ -5983,76 +6083,179 @@ class stzForEachObject from stzObject
 			return @acVars
 		ok
 
+		# Returns the names of the loop variables, in lowercase.
+		#
+		#   returns    a list of text, such as [ "item" ]
+		#   see        @NumberOfVars, @Content
 		def @VarNames()
 			return This.@Vars()
 
+	# Returns how many loop variables the loop has.
+	#
+	#   returns    a number
+	#   see        @Vars
 	def @NumberOfVars()
 		return len(This.@VarsXT())
 
+		# Returns how many loop variables the loop has.
+		#
+		#   returns    a number
+		#   see        @Vars
 		def @NumbersOfVarNames()
 			return This.@NumberOfVars()
 
+	# Returns the data exactly as it was given in the :In = ... part.
+	#
+	#   returns    the list, or the text, given at construction
+	#   see        @Content, @NumberOfIterations
 	def @Values()
 		return @aValues
 
+	# Returns each loop variable paired with the list of all its values, one pair per variable.
+	#
+	#   returns    a list of pairs, such as [ [ "char", [ "A", "B" ] ], [ "number", [ 1, 2 ] ] ]
+	#   see        @Values, @Vars
 	def @Content()
 		return @aDataVars
 
+		# Returns each loop variable paired with the list of all its values.
+		#
+		#   returns    a list of pairs such as [ [ "item", [ "a", "b" ] ] ]
+		#   see        @Content
 		#< @FunctionAlternativeForms
-
 		def @VarValues()
 			return This.@Content()
 
+		# Returns each loop variable paired with the list of all its values.
+		#
+		#   returns    a list of pairs such as [ [ "item", [ "a", "b" ] ] ]
+		#   see        @Content
 		def @VarsAndValues()
 			return This.@Content()
 
+		# Returns each loop variable paired with the list of all its values.
+		#
+		#   returns    a list of pairs such as [ [ "item", [ "a", "b" ] ] ]
+		#   see        @Content
 		def @VarsAndTheirValues()
 			return This.@Content()
 
 		def @VarsXT()
 			return This.@Content()
 
+		# Returns each loop variable paired with the list of all its values.
+		#
+		#   returns    a list of pairs such as [ [ "item", [ "a", "b" ] ] ]
+		#   see        @Content
 		def @VarVal()
 			return This.@Content()
 
+	# Returns how many items the data holds, which is how many times a full run executes the code.
+	#
+	#   returns    a number; the length in bytes for a text
+	#   see        @Iterations, Exec
 		#>
-
 	def @NumberOfIterations()
 		return len(@aValues)
 
+		# Returns how many items the data holds.
+		#
+		#   returns    a number
+		#   see        @NumberOfIterations
 		def @NumberOfValues()
 			return This.@NumberOfIterations()
 
+	# Returns the position of the item the running code is on, and keeps the last one reached after the run.
+	#
+	#   returns    a number; the text NULL before any run
+	#   see        v, Exec
 	def @CurrentIteration()
 		return @i
 
+		# Returns the position of the item the running code is on, and keeps the last one reached after the run.
+		#
+		#   returns    a number; the text NULL before any run
+		#   see        @CurrentIteration
 		def @CurrentIndex()
 			return This.@CurrentIteration()
 
+	# Restricts the next runs of Exec to these positions, in this order.
+	#
+	#   panPos     a list of positions in the data, such as [ 3, 1 ]
+	#   returns    nothing
+	#   note       it stays in force for every later Exec until set again
+	#   warning    Raises an error at run time for a position beyond the data, and when panPos is a
+	#              single number instead of a list
+	#   see        ExecN, @NumberOfIterations
 	def @SetIterations(panPos)
 		@Iterations = panPos
 
+		# Restricts the next runs of Exec to these positions, in this order.
+		#
+		#   panPos     a list of positions in the data
+		#   returns    nothing
+		#   see        @SetIterations
 		def @Iterations(panPos)
 			@SetIterations(panPos)
 
+		# Restricts the next runs of Exec to these positions, in this order.
+		#
+		#   panPos     a list of positions in the data
+		#   returns    nothing
+		#   see        @SetIterations
 		def @Scope(panPos)
 			@SetIterations(panPos)
 
+		# Restricts the next runs of Exec to these positions, in this order.
+		#
+		#   panPos     a list of positions in the data
+		#   returns    nothing
+		#   see        @SetIterations
 		def @SetScope(panPos)
 			@SetIterations(panPos)
 
+		# Restricts the next runs of Exec to these positions, in this order.
+		#
+		#   panPos     a list of positions in the data
+		#   returns    nothing
+		#   see        @SetIterations
 		def @IterateOn(panPos)
 			@SetIterations(panPos)
 
+		# Restricts the next runs of Exec to these positions, in this order.
+		#
+		#   panPos     a list of positions in the data
+		#   returns    nothing
+		#   see        @SetIterations
 		def @IterateOnThesePositions(panPos)
 			@SetIterations(panPos)
 
+		# Restricts the next runs of Exec to these positions, in this order.
+		#
+		#   panPos     a list of positions in the data
+		#   returns    nothing
+		#   see        @SetIterations
 		def @IterateOnlyOn(panPos)
 			@SetIterations(panPos)
 
+		# Restricts the next runs of Exec to these positions, in this order.
+		#
+		#   panPos     a list of positions in the data
+		#   returns    nothing
+		#   see        @SetIterations
 		def @IterateOnLyOnThesePositions(panPos)
 			@SetIterations(panPos)
 
+	# Runs a piece of Ring code once for each item in scope, with the loop variables set to that item's values.
+	#
+	#   pcCode     the Ring code as text, such as '? v(:Item)'
+	#   returns    nothing
+	#   note       the code is evaluated in the method, so collect results in a global variable
+	#   warning    with several variables each name is a variable inside the code (Char, Number);
+	#              with a single variable the name is NOT bound and using it raises an
+	#              uninitialized-variable error, so read the item with v; running over an empty list
+	#              or text raises an index error
+	#   see        ExecN, v, @SetIterations
 	def Exec(pcCode)
 
 		if isList(pcCode) and len(pcCode) = 2
@@ -6086,21 +6289,54 @@ class stzForEachObject from stzObject
 
 		ok
 
+		# Runs a piece of Ring code once for each item in scope, with the loop variables set to that item's values.
+		#
+		#   pcCode     the Ring code as text
+		#   returns    nothing
+		#   warning    with a single loop variable use v(:Name), as the name itself is not bound
+		#   see        Exec
 		def Execute(pcCode)
 			This.Exec(pcCode)
 
+		# Runs a piece of Ring code once for each item in scope, with the loop variables set to that item's values.
+		#
+		#   pcCode     the Ring code as text
+		#   returns    nothing
+		#   warning    with a single loop variable use v(:Name), as the name itself is not bound
+		#   see        Exec
 		def Run(pcCode)
 			This.Exec(pcCode)
 
+		# Runs a piece of Ring code once for each item in scope, with the loop variables set to that item's values.
+		#
+		#   pcCode     the Ring code as text
+		#   returns    nothing
+		#   warning    with a single loop variable use v(:Name), as the name itself is not bound
+		#   see        Exec
 		def @(pcCode)
 			This.Exec(pcCode)
 
 		def _(pcCode)
 			This.Exec(pcCode)
 
+		# Runs a piece of Ring code once for each item in scope, with the loop variables set to that item's values.
+		#
+		#   pcCode     the Ring code as text
+		#   returns    nothing
+		#   warning    with a single loop variable use v(:Name), as the name itself is not bound
+		#   see        Exec
 		def X(pcCode)
 			This.Exec(pcCode)
 
+	# Runs a piece of Ring code only for the item at one position, or for the items at a list of positions, in the order given.
+	#
+	#   _n_        a position or a list of positions in the data
+	#   pcCode     the Ring code as text
+	#   returns    nothing
+	#   note       the positions given here do not change the scope that Exec uses
+	#   warning    a position given as text does nothing and raises no error; with a single loop
+	#              variable use v(:Name)
+	#   see        Exec, @SetIterations
 	def ExecN(_n_, pcCode)
 		_anPos_ = []
 
@@ -6137,21 +6373,51 @@ class stzForEachObject from stzObject
 
 		ok
 
+		# Runs a piece of Ring code only for the item at one position, or for the items at a list of positions.
+		#
+		#   _n_        a position or a list of positions in the data
+		#   pcCode     the Ring code as text
+		#   returns    nothing
+		#   see        ExecN
 		def ExecuteN(_n_, pcCode)
 			This.ExecN(_n_, pcCode)
 
+		# Runs a piece of Ring code only for the item at one position, or for the items at a list of positions.
+		#
+		#   _n_        a position or a list of positions in the data
+		#   pcCode     the Ring code as text
+		#   returns    nothing
+		#   see        ExecN
 		def RunN(_n_, pcCode)
 			This.ExecN(_n_, pcCode)
 
+		# Runs a piece of Ring code only for the item at one position, or for the items at a list of positions.
+		#
+		#   _n_        a position or a list of positions in the data
+		#   pcCode     the Ring code as text
+		#   returns    nothing
+		#   see        ExecN
 		def @n(_n_, pcCode)
 			This.ExecN(_n_, pcCode)
 
 		def _n(_n_, pcCode)
 			This.ExecN(_n_, pcCode)
 
+		# Runs a piece of Ring code only for the item at one position, or for the items at a list of positions.
+		#
+		#   _n_        a position or a list of positions in the data
+		#   pcCode     the Ring code as text
+		#   returns    nothing
+		#   see        ExecN
 		def Xn(_n_, pcCode)
 			This.ExecN(_n_, pcCode)
 
+	# Returns the value of a loop variable for the item the code is on, the way to read a variable from inside the code.
+	#
+	#   pcVar      the name of the loop variable, such as :Item
+	#   returns    the value of the variable at the current position; the last item reached after a
+	#              run
+	#   see        Exec, @CurrentIteration
 	def v(pcVar)
 
 		if This.@NumberOfVars() = 1

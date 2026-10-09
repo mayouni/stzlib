@@ -1,0 +1,18 @@
+{
+ "brief": "Holds the security surface as a graph of actors, tools, capabilities, secrets, stores and sites, so that escalation is a path query.",
+ "detail": "A flag check sees one object at a time and misses a sandboxed actor that reaches an effect through a tool or a delegation, because that is a path. This graph makes the paths explicit: Uses, Grants, Holds, Delegates, References and StoredIn add labelled edges, and ReachesEffectful, PathToEffectful and AuditEscalations ask whether, and how, a sandboxed node gets to the effectful capability. AttachSecret refuses a live secret for a sandboxed actor, BlastRadius lists who can reach a secret, and CutCapability removes an actor's routes to a capability. Node ids are lower-cased. The postures that gates decide on are also recorded out of reach of GraphQ, and Tampering reports any that were edited around the doors.",
+ "receiver": "o1 = new stzSecurityGraph(\"resto\"); o1.AddActor(\"llm\", \"sandboxed\"); o1.AddTool(\"shell\")\no1.Uses(\"llm\", \"shell\"); o1.Grants(\"shell\", \"effectful\")",
+ "example": [
+  "? o1.ReachesEffectful(\"llm\")",
+  "#--> 1",
+  "? @@(o1.PathToEffectful(\"llm\"))",
+  "#--> [ \"llm\", \"shell\", \"effectful\" ]",
+  "? o1.IsSound()",
+  "#--> 0"
+ ],
+ "see": [
+  "stzSecurityPosture",
+  "stzGraph",
+  "stzIncident"
+ ]
+}

@@ -1,0 +1,25 @@
+{
+ "brief": "Holds a 3D scene, a camera, a light and meshes placed in space, and renders it to a picture.",
+ "detail": "Add meshes with AddMesh, which places one instance each; every instance has a position, a rotation and a scale kept apart from its mesh, so moving, rotating or scaling re-sends matrices and never geometry (Stats makes that checkable). All the instances of a mesh are drawn in one call. Set the eye and target with SetCamera, the lens with SetLens, the light with SetLight and the colour of each instance with SetColor. SetParent makes a chain, and WorldPosition says where an instance really ended up. Project turns a point of the scene into a pixel, for putting a 2D label on a 3D thing. ToPNG renders on the graphics device and returns empty text when there is none: a scene has no vector fallback. The plain forms act and return nothing, and the Q twins return the scene so calls chain.",
+ "receiver": "oCube = new stzMesh([ :Cube, 1 ]); o1 = new stzScene(400, 300)",
+ "example": [
+  "o1.SetCamera(6, 4, 8, 0, 0, 0)",
+  "o1.AddMesh(oCube, 0, 0, 0)",
+  "o1.AddMeshQ(oCube, 2, 0, 0).ColorQ(\"#30a0e0\")",
+  "? o1.InstanceCount()",
+  "#--> 2",
+  "? o1.LastIndex()",
+  "#--> 2",
+  "o1.SetParent(2, 1)",
+  "o1.MoveTo(1, 0, 3, 0)",
+  "? @@( o1.WorldPosition(2) )",
+  "#--> [ 2, 3, 0 ]",
+  "? o1.HierarchyDepth()",
+  "#--> 1",
+  "? @@( o1.Camera() )",
+  "#--> [ 6, 4, 8, 0, 0, 0, 45, 0.10, 200 ]",
+  "? o1.Width()",
+  "#--> 400"
+ ],
+ "see": ["stzMesh", "stzCanvas", "stzMaterialMaker", "stzWindow"]
+}

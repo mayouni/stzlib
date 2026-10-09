@@ -1,0 +1,6 @@
+{
+ "brief": "Opens a window where a canvas or a 3D scene is watched live, with a frame loop, keys, mouse and time built in.",
+ "detail": "A picture saved with ToSVG or ToPNG is computed once; a window recomputes it while somebody looks, and it reports what the user did. The loop is explicit: while IsOpen, call Poll, read DeltaTime, KeyPressed or the mouse, update the picture, and call Draw. The picture goes to the screen's own texture, so no pixels travel back across the bus. Show does the whole loop for a still picture, and EachFrame runs a function once per frame. It is not a widget toolkit: it has no buttons, layout or menus. The windowing module may be absent on a headless machine, in which case building a window raises one clear error; ask StzWindowingAvailable() first, and call Free when done. This block has no run example because a window needs a screen.",
+ "receiver": "o1 = new stzWindow(320, 200, \"Demo\")",
+ "see": ["stzCanvas", "stzScene", "StzWindowingAvailable", "StzDrawableKind"]
+}

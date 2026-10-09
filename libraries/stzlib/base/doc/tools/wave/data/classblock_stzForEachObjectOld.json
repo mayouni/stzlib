@@ -1,0 +1,18 @@
+{
+ "brief": "Runs a piece of Ring code once for each item of a list, with every loop variable bound by name; the earlier form of stzForEachObject.",
+ "detail": "Give the variable name or names and the data as :In = ... Then the code, passed as text to @, is evaluated once per item with each name bound to that item's value, one name or several. It has no positions and no reader function: stzForEachObject is the form to use, and this one is kept for older code. Values always answers a list of lists, one inner list per item.",
+ "receiver": "o1 = new stzForEachObjectOld([ :A, :B ], :In = [ [ \"a\", 1 ], [ \"b\", 2 ] ])",
+ "example": [
+  "aOut = []",
+  "o1.@('aOut + (A + B)')",
+  "? @@( aOut )",
+  "#--> [ \"a1\", \"b2\" ]",
+  "? @@( o1.Vars() )",
+  "#--> [ \"a\", \"b\" ]",
+  "? o1.NumberOfIterations()",
+  "#--> 2",
+  "? @@( o1.Values() )",
+  "#--> [ [ \"a\", 1 ], [ \"b\", 2 ] ]"
+ ],
+ "see": ["stzForEachObject"]
+}

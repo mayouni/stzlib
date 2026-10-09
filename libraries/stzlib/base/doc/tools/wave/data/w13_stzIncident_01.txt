@@ -1,0 +1,32 @@
+init | Builds an empty case file with the given identifier, status open and the opening time set to now. | nothing; the object is built | pcId=the incident's identifier, such as INC-1 | FromCase, FromFinding
+FromCase | Fills the incident from a sentinel case and the ledger it fired on, and correlates the story of the case's actor. | the incident itself, so calls chain | paCase=a sentinel case, a hash-list with rule, where, severity, message, headDigest, at and recent (from a sentinel's LastCase); poLedger=the stzSecurityLedger the case fired on | FromFinding, StzIncidentFromCase, WithGraph | | the actor is the text after the first slash of the case's where; with no actor the case's recent events are the seed; the story is bounded at 64 events, oldest dropped
+FromFinding | Fills the incident from a bare finding judged outside a sentinel, taking a snapshot of the ledger at this moment. | the incident itself, so calls chain | paFinding=a hash-list with where, rule, severity and message; poLedger=the stzSecurityLedger to correlate against | FromCase, WithGraph | | the opening time is now, not the time of the finding
+WithGraph | Gives the incident a security graph so that it can answer the attack path and the blast radius. | the incident itself, so calls chain | poSecurityGraph=the stzSecurityGraph that knows the actors, tools, capabilities and secrets | AttackPath, BlastRadius, ReachesEffectful | | the graph is read, never changed
+Id | Returns the identifier the incident was built with. | a text | | Rule, Status
+Rule | Returns the name of the detection rule that fired. | a text, empty before the incident is filled | | Where, Severity, Message
+Where | Returns the place the detection pointed at, such as rule/actor. | a text, empty before the incident is filled | | Actor, Rule
+Severity | Returns how serious the firing was, such as error or warning. | a text; error by default | | Rule, ToOcsfFindingJson
+Message | Returns the sentence the detection gave to explain what it saw. | a text, empty before the incident is filled | | Rule, Explain
+Actor | Returns the single actor the story is about, taken from the text after the first slash of the where. | a text; empty when the where names no actor | | Actors, Where
+OpenedAt | Returns the moment the incident opened, in epoch milliseconds. | a number | | Timeline, Notes
+HeadDigest | Returns the ledger's chain head as it stood when the detection fired, to compare with the ledger's later head. | a text of 64 hex characters | | Events
+Events | Returns the correlated story as the ledger's event records, in wall-clock order. | a list of event records, at most 64 | | Timeline, NumberOfEvents
+NumberOfEvents | Returns how many events the correlated story holds. | a number | | Events, Timeline
+Timeline | Returns the story as plain rows, oldest first. | a list of [ atWall, kind, actor, subject, reason ] rows | | Events, Explain | | wall time is only as good as the clocks across processes
+Actors | Returns the distinct actors that appear in the story, in order of first appearance. | a list of text | | Actor, Subjects, Kinds
+Subjects | Returns the distinct subjects that the story touched, in order of first appearance. | a list of text | | Actors, SecretsInvolved
+Kinds | Returns the distinct kinds of event that the story holds, in order of first appearance. | a list of text | | Actors, Subjects
+TraceIds | Returns the distinct trace ids that the story touched, to hand to stzLog.OfTrace. | a list of text; empty when no event carried a trace | | Events, Explain
+SecretsInvolved | Returns the names of the secrets that appear among the story's subjects, with the secret: prefix removed. | a list of text (descriptors, never values) | | Subjects, BlastRadius
+AttackPath | Returns the route by which the actor could reach an effectful capability, as the graph sees it. | a list of node names from the actor to the capability; [ ] with no graph, no actor or no route | | ReachesEffectful, WithGraph
+ReachesEffectful | TRUE if the graph says that the actor can reach an effectful capability. | TRUE or FALSE; FALSE with no graph or no actor | | AttackPath, WithGraph
+BlastRadius | Returns, for each secret in the story, the graph nodes that the secret exposes. | a list of [ secret, [ nodes ] ] rows; [ ] with no graph | | SecretsInvolved, WithGraph
+Status | Returns where the response stands: open, contained or closed. | a text | | IsOpen, IsClosed, Contain, Close
+IsOpen | TRUE if no response step has been taken yet. | TRUE or FALSE | | IsClosed, Contain
+IsClosed | TRUE if the incident has been closed. | TRUE or FALSE | | IsOpen, Close
+Contain | Moves an open incident to contained and records the note with the time. | the incident itself, so calls chain | pcNote=what was done to contain it | Close, Notes | raises an error unless the incident is still open, so a contained or closed one cannot be contained again | status moves forward only; a reopened incident is a new incident
+Close | Moves the incident to closed and records the note with the time. | the incident itself, so calls chain | pcNote=what the closing response was | Contain, Notes | raises an error when the incident is already closed; closing straight from open is allowed | status moves forward only
+Notes | Returns the response notes in the order they were written. | a list of [ atWall, status, note ] rows | | Contain, Close
+ToOcsfFindingJson | Returns the incident as an OCSF Security Finding (class 2001) in JSON text, for a SIEM. | a text holding a JSON object | | AttackPath, TraceIds | | the attack path, secret names and trace ids ride in the unmapped field; severity error maps to 4, warning to 3, any other to 1
+Explain | Returns the narrated account of the incident, one line per fact. | a list of text lines: header, message, events, attack path, blast radius, traces and notes | | Show, Timeline
+Show | Prints the narrated account of the incident, one line per fact. | nothing; it prints | | Explain

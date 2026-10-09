@@ -1,0 +1,13 @@
+{
+ "brief": "Sends real HTTP requests through the reactor's curl client and reports only a body, with status 200 or 0.",
+ "detail": "It is the live side of the HTTP port, with the same Request(method, url, body) shape as stzHttpSandbox. The reactor's client returns a body and no status line, so the adapter answers status 200 when content came back and 0 when nothing did; headers, redirects and non-2xx bodies are not seen. It was run only against a listener started on 127.0.0.1 in the same process, which never answers, and against a closed port: both gave status 0. The 200 path was read from the code and not run.",
+ "receiver": "o1 = new stzReactorHttpClient()",
+ "example": [
+  "o1.SetTimeout(500)",
+  "? o1.Timeout()",
+  "#--> 500",
+  "? o1.GetFrom(\"http://127.0.0.1:1/x\")[:status]",
+  "#--> 0"
+ ],
+ "see": ["stzHttpSandbox", "stzReactor"]
+}

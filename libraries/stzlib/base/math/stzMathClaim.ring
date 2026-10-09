@@ -247,6 +247,33 @@ func _LcRelation(pcRel)
 
 #-- THE CLAIM --------------------------------------------------------------------
 
+# States one mathematical claim, an identity, an inequality or a divisibility, checks it numerically and writes it as a Lean 4 theorem.
+#
+# A claim has a kind, a left and a right side, a relation and a domain (natural, integer, rational
+# or real); name its variables with vars and they become the theorem's binders. Check evaluates both
+# sides at sampled points, so a false claim fails with a counterexample on any machine, and IsTrue
+# answers 1 or 0. This floor is a test, not a proof: ToLean writes the theorem for the Lean door,
+# and CheckWithLean runs it through Lean when Lean and a Mathlib project are installed. A side that
+# evaluates to infinity makes the claim hold today (1/0 = 5 passes). The expression subset is + - *
+# / ^, parentheses, numerals, sqrt, abs, exp, log, sin, cos, tan, pi.
+#
+#   receiver   o1 = StzMathClaimQ([ :kind = :Identity, :lhs = "(a+b)^2", :rhs = "a^2 + 2*a*b + b^2",
+#              :vars = [ "a", "b" ], :label = "square of a sum" ])
+#   example    ? o1.IsTrue()
+#              #--> 1
+#              ? @@( o1.ToLean() )
+#              #--> "theorem square_of_a_sum (a b : ℝ) : (((a+b)^2 : ℝ) = a^2 + 2*a*b + b^2) := by ring"
+#              o2 = StzMathClaimQ([ :kind = :Identity, :lhs = "3^2 + 4^2", :rhs = "6^2", :label = "a false one" ])
+#              ? o2.IsTrue()
+#              #--> 0
+#              ? @@( o2.Check()[:evidence] )
+#              #--> "the sides are 25 and 36"
+#              o3 = StzMathClaimQ("3^2 + 4^2 = 5^2")
+#              ? o3.IsTrue()
+#              #--> 1
+#              ? @@( o3.Statement() )
+#              #--> "3^2 + 4^2 = 5^2"
+#   see        stzMathClaimSet, stzMathFunction, StzLeanDoor
 class stzMathClaim from stzObject
 
 	@cKind = ""
@@ -259,6 +286,18 @@ class stzMathClaim from stzObject
 	@cTactic = ""
 	@aLastCheck = []
 
+	# Builds a claim, a statement with two sides and a domain, from a list of keys or from one written statement such as 3^2 + 4^2 = 5^2.
+	#
+	#   paSpec     either keys kind, lhs, rhs, relation, over, vars, label and tactic, such as [
+	#              :kind = :Identity, :lhs = "3^2", :rhs = "9" ], or one text holding the statement
+	#   returns    nothing; the object is built
+	#   note       kind defaults to identity and over to real; a written statement is labelled with
+	#              its own text
+	#   warning    Raises an error naming the problem for an unknown key or kind, a relation that
+	#              does not fit the kind, an expression outside the subset (sqrt, abs, exp, log,
+	#              sin, cos, tan, pi, single-letter variables), a divisibility not declared over
+	#              Integer or Natural, and text with no relation in it
+	#   see        Check, ToLean, StzMathClaimQ
 	def init(paSpec)
 		if isString(paSpec)
 			paSpec = This._FromStatement(paSpec)
@@ -351,23 +390,60 @@ class stzMathClaim from stzObject
 		next
 		stzraise("stzMathClaim: no relation in '" + _c_ + "' -- one of " + @@(StzMathClaimRelations()) + ".")
 
+	# Returns the kind of the claim, in lowercase.
+	#
+	#   returns    a text: identity, inequality or divisibility
+	#   see        Relation
 	def Kind()
 		return @cKind
+	# Returns the relation between the two sides.
+	#
+	#   returns    a text: =, !=, <, <=, >, >= or the bar of divisibility
+	#   note       an identity has =, a divisibility has the bar, and an inequality defaults to <
+	#   see        Kind, Statement
 	def Relation()
 		return @cRelation
+	# Returns the expression on the left side.
+	#
+	#   returns    a text such as 3^2 + 4^2
+	#   see        Rhs, Statement
 	def Lhs()
 		return @cLhs
+	# Returns the expression on the right side.
+	#
+	#   returns    a text such as 5^2
+	#   see        Lhs, Statement
 	def Rhs()
 		return @cRhs
+	# Returns the domain the claim is stated over, in lowercase.
+	#
+	#   returns    a text: natural, integer, rational or real
+	#   see        Vars
 	def Over()
 		return @cOver
+	# Returns the names of the variables of the claim, which become the binders of the Lean theorem.
+	#
+	#   returns    a list of text; [ ] for a closed statement
+	#   see        SamplePoints, Over
 	def Vars()
 		return @acVars
+	# Returns the label given to the claim, which names its theorem.
+	#
+	#   returns    a text
+	#   see        TheoremName
 	def Label()
 		return @cLabel
+	# Returns the Lean tactic the author chose, or empty text when none was chosen.
+	#
+	#   returns    a text such as decide; empty text by default
+	#   see        LeanTactic
 	def Tactic()
 		return @cTactic
 
+	# Returns the claim as one line: the left side, the relation and the right side.
+	#
+	#   returns    a text such as 3^2 + 4^2 = 5^2
+	#   see        Lhs, Rhs, Relation
 	def Statement()
 		return @cLhs + " " + @cRelation + " " + @cRhs
 
@@ -378,8 +454,12 @@ class stzMathClaim from stzObject
 		if ring_len(_acV_) = 0  _acV_ = [ "zz" ]  ok
 		return new stzMathFunction(pcExpr, _acV_)
 
-	# the points the floor samples: one for a closed statement, sixteen per
-	# variable otherwise, integers where the domain is integers
+	# Returns the points at which the numeric check evaluates both sides: one for a closed statement, sixteen otherwise.
+	#
+	#   returns    a list of points, each a list with one number per variable
+	#   note       integers are used when the domain is natural or integer
+	#   see        Check, Vars
+	#@ aka  the points the floor samples: one for a closed statement, sixteen per variable otherwise, integers where the domain is integers
 	def SamplePoints()
 		_nV_ = ring_len(@acVars)
 		if _nV_ = 0  return [ [ 0 ] ]  ok
@@ -414,7 +494,17 @@ class stzMathClaim from stzObject
 		if _nLi_ = 0  return _nRi_ = 0  ok
 		return (_nRi_ % _nLi_) = 0
 
-	# the floor's verdict: every sampled point, the first counterexample kept
+	# Evaluates both sides at the sample points and returns the verdict, the first counterexample if any, and the evidence.
+	#
+	#   returns    a hash-list with verdict (1 or 0), route, points, evidence and counterexample
+	#   note       this is the numeric floor, not a proof: a claim that holds at the sampled points
+	#              is only likely true
+	#   warning    a side that is infinite makes the claim hold at that point: 1/0 = 5 and 1/0 = 1
+	#              both give verdict 1 (confirmed on two claims), because the tolerance grows to
+	#              infinity with the side; a side that is not a number at every point gives verdict
+	#              0 with the evidence that no point gave both sides a value
+	#   see        IsTrue, LastCheck, Why
+	#@ aka  the floor's verdict: every sampled point, the first counterexample kept
 	def Check()
 		_oL_ = This._Compile(@cLhs)
 		_oR_ = This._Compile(@cRhs)
@@ -456,30 +546,56 @@ class stzMathClaim from stzObject
 		                :evidence = "holds at " + _nSeen_ + " sampled point(s) to 1e-9", :counterexample = [] ]
 		return @aLastCheck
 
+	# TRUE if the claim holds at every sampled point; a false claim fails with a counterexample.
+	#
+	#   returns    1 or 0
+	#   warning    see Check for the infinite-side case
+	#   see        Check, Why
 	def IsTrue()
 		_a_ = This.Check()
 		return _a_[:verdict]
 
+	# Returns the result of the most recent Check, without evaluating again.
+	#
+	#   returns    a hash-list as Check returns; [ ] before any check
+	#   see        Check
 	def LastCheck()
 		return @aLastCheck
 
-	#-- THE DOOR: the Lean statement, and the verdict when Lean is present --------
-
+	# Returns the name of the Lean theorem, made from the label with underscores.
+	#
+	#   returns    a text such as three_four_five
+	#   see        Label, ToLean
+	#@ aka  -- THE DOOR: the Lean statement, and the verdict when Lean is present --------
 	def TheoremName()
 		return _LcSlug(@cLabel)
 
-	# the tactic: the author's, or the one the kind and the variables call for
+	# Returns the Lean tactic that will close the theorem: the author's, or ring, nlinarith or norm_num according to the kind and the variables.
+	#
+	#   returns    a text
+	#   note       with variables an identity gets ring and an inequality nlinarith; a closed
+	#              statement gets norm_num
+	#   see        Tactic, ToLean
+	#@ aka  the tactic: the author's, or the one the kind and the variables call for
 	def LeanTactic()
 		if @cTactic != ""  return @cTactic  ok
 		if @cKind = "identity" and ring_len(@acVars) > 0  return "ring"  ok
 		if @cKind = "inequality" and ring_len(@acVars) > 0  return "nlinarith"  ok
 		return "norm_num"
 
+	# Returns the statement spelt for Lean, with the domain symbol attached to the left side.
+	#
+	#   returns    a text such as ((3^2 + 4^2 : ℕ) = 5^2)
+	#   see        ToLean
 	def LeanStatement()
 		_cL_ = _LcExpr(@cLhs)
 		_cR_ = _LcExpr(@cRhs)
 		return "((" + _cL_ + " : " + _LcType(@cOver) + ") " + _LcRelation(@cRelation) + " " + _cR_ + ")"
 
+	# Returns the whole theorem as one line of Lean 4 text, with binders for the variables and the tactic.
+	#
+	#   returns    a text such as theorem three_four_five : ((3^2 + 4^2 : ℕ) = 5^2) := by norm_num
+	#   see        LeanStatement, CheckWithLean, WriteLean
 	def ToLean()
 		_cB_ = ""
 		if ring_len(@acVars) > 0
@@ -492,13 +608,23 @@ class stzMathClaim from stzObject
 		ok
 		return "theorem " + This.TheoremName() + _cB_ + " : " + This.LeanStatement() + " := by " + This.LeanTactic()
 
-	# through the door: a proof when Lean is here, the door's name when it is not;
-	# the floor's verdict rides along either way
+	# Runs the emitted theorem through Lean when it is installed on this machine, and returns the verdict beside the numeric check.
+	#
+	#   returns    a hash-list with floor, route, proved, because and file
+	#   warning    proved is 0 with the reason in because when Lean fails or is stopped, and Lean
+	#              with Mathlib can take minutes: one run on a cold machine was stopped after 5
+	#              minutes and answered proved 0 because lean exited with 143
+	#   see        ToLean, Check
+	#@ aka  through the door: a proof when Lean is here, the door's name when it is not; the floor's verdict rides along either way
 	def CheckWithLean()
 		_f_ = This.Check()
 		_d_ = StzLeanCheck("import Mathlib" + char(10) + char(10) + This.ToLean() + char(10), This.TheoremName())
 		return [ :floor = _f_[:verdict], :route = _d_[:route], :proved = _d_[:proved], :because = _d_[:because], :file = _d_[:file] ]
 
+	# Explains the claim in one sentence: its kind and domain, the numeric verdict with its evidence, and whether the Lean door is open.
+	#
+	#   returns    a text
+	#   see        Check, ToLean
 	def Why()
 		_a_ = This.Check()
 		_cArt_ = "a "
@@ -520,20 +646,58 @@ class stzMathClaim from stzObject
 
 #-- A LESSON'S CLAIMS ----------------------------------------------------------------
 
+# Gathers the claims of one lesson, checks them all on the numeric floor and writes them as a single Lean 4 file.
+#
+# Build it with the lesson's name and Add the claims, each an stzMathClaim. Diagnostics returns one
+# error record for every false claim, Report wraps them in the house rule report that a single CI
+# gate reads, and IsSound answers 1 when none is false. ToLean writes one file for the lesson, with
+# theorems numbered by position so their names stay unique, and WriteLean puts it on disk.
+# CheckWithLean sends the file through Lean when Lean is installed.
+#
+#   receiver   o1 = StzMathClaimSetQ("pythagoras")
+#   example    o1.Add(StzMathClaimQ([ :kind = :Identity, :lhs = "3^2 + 4^2", :rhs = "5^2", :label = "three four five" ]))
+#              ? o1.Count()
+#              #--> 1
+#              ? o1.IsSound()
+#              #--> 1
+#              o1.Add(StzMathClaimQ([ :kind = :Identity, :lhs = "3^2 + 4^2", :rhs = "6^2", :label = "false one" ]))
+#              ? o1.IsSound()
+#              #--> 0
+#              ? @@( o1.Diagnostics()[1][:where] )
+#              #--> "false one"
+#              ? @@( o1.Lesson() )
+#              #--> "pythagoras"
+#   see        stzMathClaim, stzRuleReport
 class stzMathClaimSet from stzObject
 
 	@cLesson = ""
 	@aoClaims = []
 
+	# Builds an empty set of claims for one lesson.
+	#
+	#   pcLesson   the name of the lesson the claims belong to
+	#   returns    nothing; the object is built
+	#   warning    Raises an error when the name is empty
+	#   see        Add, Lesson
 	def init(pcLesson)
 		@cLesson = ring_trim("" + pcLesson)
 		if @cLesson = ""
 			stzraise("stzMathClaimSet: name the lesson the claims belong to.")
 		ok
 
+	# Returns the name of the lesson, with the spaces around it removed.
+	#
+	#   returns    a text
+	#   see        Count
 	def Lesson()
 		return @cLesson
 
+	# Appends one claim to the set.
+	#
+	#   poClaim    an stzMathClaim
+	#   returns    the set itself, so calls chain
+	#   warning    raises an error for anything that is not an stzMathClaim
+	#   see        Claims, Count
 	def Add(poClaim)
 		if NOT isObject(poClaim) or StzLower(ring_classname(poClaim)) != "stzmathclaim"
 			stzraise("stzMathClaimSet.Add: an stzMathClaim.")
@@ -544,13 +708,25 @@ class stzMathClaimSet from stzObject
 		def AddQ(poClaim)
 			return This.Add(poClaim)
 
+	# Returns the claims of the set, in the order they were added.
+	#
+	#   returns    a list of stzMathClaim objects
+	#   see        Add, Count
 	def Claims()
 		return @aoClaims
 
+	# Returns how many claims the set holds.
+	#
+	#   returns    a number
+	#   see        Claims
 	def Count()
 		return ring_len(@aoClaims)
 
-	# one .lean file: Mathlib, the lesson, every theorem; names made unique by position
+	# Returns one Lean 4 file for the whole lesson: a comment header, the Mathlib import and one theorem per claim, numbered to stay unique.
+	#
+	#   returns    a text
+	#   see        WriteLean, CheckWithLean
+	#@ aka  one .lean file: Mathlib, the lesson, every theorem; names made unique by position
 	def ToLean()
 		_c_ = "-- " + @cLesson + ": " + ring_len(@aoClaims) + " claim(s) emitted by stzMathClaimSet (plane stzlib-math, M6)" + char(10)
 		_c_ += "-- check with: lake env lean <this file>   inside a Lake project holding Mathlib" + char(10)
@@ -564,11 +740,21 @@ class stzMathClaimSet from stzObject
 		next
 		return _c_
 
+	# Writes the Lean file of the lesson to a path.
+	#
+	#   pcPath     the file to write
+	#   returns    the path, as text
+	#   see        ToLean
 	def WriteLean(pcPath)
 		write(pcPath, This.ToLean())
 		return pcPath
 
-	# the floor over every claim, in the house rule shape: a false claim is an error
+	# Checks every claim on the numeric floor and returns one error record for each false claim.
+	#
+	#   returns    a list of rule records with rule claim_false, subject, where, severity and
+	#              message; [ ] when all hold
+	#   see        Report, IsSound
+	#@ aka  the floor over every claim, in the house rule shape: a false claim is an error
 	def Diagnostics()
 		_a_ = []
 		for _i_ = 1 to ring_len(@aoClaims)
@@ -581,20 +767,39 @@ class stzMathClaimSet from stzObject
 		next
 		return _a_
 
+	# Returns the diagnostics as a rule report, the house shape that one CI gate reads.
+	#
+	#   returns    an stzRuleReport
+	#   see        Diagnostics, IsSound
 	def Report()
 		_o_ = new stzRuleReport(@cLesson)
 		_o_.Ingest(This.Diagnostics())
 		return _o_
 
+	# TRUE if no claim of the set fails on the numeric floor.
+	#
+	#   returns    1 or 0; 1 for an empty set
+	#   see        Diagnostics, Why
 	def IsSound()
 		return This.Report().IsSound()
 
-	# through the door, once for the whole file
+	# Runs the whole lesson file through Lean when it is installed on this machine, and returns the verdict beside the count of false claims.
+	#
+	#   returns    a hash-list with floor_errors, route, proved, because and file
+	#   warning    proved is 0 with the reason in because when Lean fails or is stopped, and Lean
+	#              with Mathlib can take minutes: one run on a cold machine was stopped after 5
+	#              minutes and answered proved 0 because lean exited with 143
+	#   see        ToLean, Diagnostics
+	#@ aka  through the door, once for the whole file
 	def CheckWithLean()
 		_n_ = ring_len(This.Diagnostics())
 		_d_ = StzLeanCheck(This.ToLean(), @cLesson)
 		return [ :floor_errors = _n_, :route = _d_[:route], :proved = _d_[:proved], :because = _d_[:because], :file = _d_[:file] ]
 
+	# Explains the set in one sentence: how many statements it holds, how many are false on the numeric floor, and whether the Lean door is open.
+	#
+	#   returns    a text
+	#   see        Diagnostics
 	def Why()
 		_n_ = ring_len(This.Diagnostics())
 		_c_ = "the claims of '" + @cLesson + "': " + ring_len(@aoClaims) + " statement(s), " + _n_ + " false on the numeric floor"

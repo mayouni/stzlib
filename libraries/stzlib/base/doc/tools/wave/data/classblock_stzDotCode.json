@@ -1,0 +1,13 @@
+{
+ "brief": "Turns Graphviz graph text into a picture file by running the dot program, and can open the picture.",
+ "detail": "You set the graph in the dot language, choose a format (svg by default; png, pdf and about fifty others), and Execute writes the graph to a working file in the temp folder and runs dot, leaving the picture in the output folder as diagram_ plus a number. The dot program is taken from $aStzLibConfig[:DotPath] or from d:/Graphviz/bin/dot.exe, and SetDotPath overrides it. Graphviz must be installed. View opens the picture in the program the system associates with it; it was read but not run, because it opens a window. Three defects are recorded in the methods: SetOutputFormat refuses upper case, SetOutput does not check, and CleanupAll does not delete the picture.",
+ "receiver": "o1 = new stzDotCode()",
+ "example": [
+  "o1.SetCode(\"digraph G { a -> b; b -> c; }\")",
+  "o1.SetOutputFormat(\"dot\")",
+  "o1.Execute()",
+  "? StzFindFirst(\"a -> b\", o1.ReadFile(o1.OutputFile())) > 0",
+  "#--> 1"
+ ],
+ "see": ["stzExterCode", "stzSystemCall"]
+}

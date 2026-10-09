@@ -29,6 +29,39 @@
 #     RevertTo(step) / Checkpoint(name) + RevertToCheckpoint / Redo(), atomic
 #     and typed, not a single-step button. FORMAT: *.zrfn.
 
+# Treats tagged values in source code as typed, reversible knobs: a change is a proposal that passes a gate, never a diff.
+#
+# Mark the adjustable values of a piece of code with tags such as <R:PARAM name="vat" value="0.20"
+# min="0" max="0.9"> or <R:ALGO name="sort" value="quick" options="quick|merge|heap">.
+# RefinementPoints lists them and Cascade previews what a change touches. Refine(name).To(value)
+# sends the proposal through the gate: the point must exist, the value must respect min and max or
+# the options, then governance (when wired), the trust floor and the derivation rules decide. The
+# answer is a hash-list with admitted and why, and a refused change never alters the source. Every
+# admitted change goes on a timeline that Revert, RevertTo, Checkpoint and Redo walk, and Rendered
+# returns the refined source. Refine only code you own: Save writes a file with the extension zrfn.
+#
+#   receiver   o1 = new stzRefinableCode('vat = <R:PARAM name="vat" value="0.20" min="0" max="0.9">'
+#              + char(10) + 'engine = <R:ALGO name="sort" value="quick"
+#              options="quick|merge|heap">')
+#   example    ? @@( o1.RefinementPoints() )
+#              #--> [ [ "vat", "param", "0.20" ], [ "sort", "algo", "quick" ] ]
+#              ? o1.Refine("vat").To("0.22")[:admitted]
+#              #--> 1
+#              ? o1.Refine("vat").To("0.95")[:admitted]
+#              #--> 0
+#              ? @@( o1.Why() )
+#              #--> "constraint: 0.95 above max 0.9"
+#              ? @@( o1.ValueOf("vat") )
+#              #--> "0.22"
+#              o1.Refine("sort").To("heap")
+#              ? o1.NumberOfSteps()
+#              #--> 2
+#              o1.Revert()
+#              ? @@( o1.ValueOf("sort") )
+#              #--> "quick"
+#              ? o1.CanRedo()
+#              #--> 1
+#   see        stzGovernance, stzPolyCode
 class stzRefinableCode from stzObject
 
 	@cSource = ""
@@ -53,18 +86,38 @@ class stzRefinableCode from stzObject
 	@aRedo = []                   # undone steps available to Redo()
 	@aCheckpoints = []            # [ name, historyLen-at-mark ]
 
+	# Reads source code for its refinement points, the tags that mark a value as an adjustable knob, and keeps the text.
+	#
+	#   pcSource   the code as text, holding tags such as <R:PARAM name="vat" value="0.20" min="0"
+	#              max="0.9"> or <R:ALGO name="sort" value="quick" options="quick
+	#   returns    nothing; the object is built
+	#   note       RefinementPoints, Refine
+	#   warning    heap">
+	#   see        merge
 	def init(pcSource)
 		@cSource = "" + pcSource
 		This._Parse()
 
+	# Returns the code as it stands now, with the current value of every point in place.
+	#
+	#   returns    a text
+	#   see        Rendered, Save
 	def Source()
 		return @cSource
 
+	# Returns the reason given by the last gate decision or timeline move.
+	#
+	#   returns    a text such as admitted: 'vat' 0.20 -> 0.22, or the stage and cause of a refusal;
+	#              empty text before any
+	#   see        To, RevertTo
 	def Why()
 		return @cWhy
 
-	#-- the declared change surface -----------------------------------------
-
+	# Returns the declared change surface: one triple of name, kind and current value for each point, in source order.
+	#
+	#   returns    a list of triples such as [ "vat", "param", "0.20" ]
+	#   see        NumberOfPoints, ValueOf, KindOf
+	#@ aka  -- the declared change surface -----------------------------------------
 	def RefinementPoints()
 		_aOut_ = []
 		_n_ = len(@aPoints)
@@ -73,9 +126,18 @@ class stzRefinableCode from stzObject
 		next
 		return _aOut_
 
+	# Returns how many refinement points the code declares.
+	#
+	#   returns    a number
+	#   see        RefinementPoints
 	def NumberOfPoints()
 		return len(@aPoints)
 
+	# Returns the current value of a point as text.
+	#
+	#   pcName     the name of the point, with the case it was declared in
+	#   returns    a text; empty text when the point does not exist
+	#   see        KindOf, RefinementPoints
 	def ValueOf(pcName)
 		_i_ = This._IndexOf(pcName)
 		if _i_ = 0
@@ -83,6 +145,11 @@ class stzRefinableCode from stzObject
 		ok
 		return @aPoints[_i_][3]
 
+	# Returns the kind of a point, in lowercase: param for a bounded value, algo or lib for a choice among options.
+	#
+	#   pcName     the name of the point
+	#   returns    a text such as param; empty text when the point does not exist
+	#   see        ValueOf
 	def KindOf(pcName)
 		_i_ = This._IndexOf(pcName)
 		if _i_ = 0
@@ -90,11 +157,13 @@ class stzRefinableCode from stzObject
 		ok
 		return @aPoints[_i_][2]
 
-	#-- CASCADE: the pre-commit blast radius (the review artifact) -----------
-
-	# which source LINES the point sits on, plus any point that shares a
-	# line (the floor's cross-point impact). "What you read instead of
-	# the diff" (5.8).
+	# Previews what a change to a point touches: the line it sits on and any other point on the same line.
+	#
+	#   pcName     the name of the point
+	#   returns    a hash-list with point, exists, lines and alsoTouches; exists is 0 and the lists
+	#              are empty for an unknown point
+	#   see        Refine, RefinementPoints
+	#@ aka  -- CASCADE: the pre-commit blast radius (the review artifact) -----------
 	def Cascade(pcName)
 		_i_ = This._IndexOf(pcName)
 		if _i_ = 0
@@ -111,56 +180,88 @@ class stzRefinableCode from stzObject
 		return [ :point = @aPoints[_i_][1], :exists = 1,
 			:lines = [ _nLine_ ], :alsoTouches = _acAlso_ ]
 
-	#-- STAGE 3 wiring: cross-point DERIVATION rules ------------------------
-	# A derivation rule is a named predicate over the code's POST-change
-	# state: fPredicate(oCode) returns TRUE when the state is consistent.
-	# It fires AFTER the value is tentatively applied and rolls the change
-	# back if any rule rejects (so cross-point invariants -- "vat cannot
-	# exceed the ceiling", "heap needs a threshold" -- are enforceable).
-	# Same {name, function, message} record shape as stzGraphRule.
+	# Adds a rule between points that every later change must satisfy, checked on the state the change would produce.
+	#
+	#   pcName       the name of the rule, quoted in the refusal
+	#   fPredicate   a function taking the refinable code and returning 1 when the state is
+	#                consistent
+	#   pcMessage    the text shown when the rule refuses a change
+	#   returns      the code itself, so calls chain
+	#   warning      a change that breaks a rule is rolled back and refused with a derivation reason
+	#   see          NumberOfDerivations, To
+	#@ aka  -- STAGE 3 wiring: cross-point DERIVATION rules ------------------------ A derivation rule is a named predicate over the code's POST-change state: fPredicate(oCode) returns TRUE when the state is consistent. It fires AFTER the value is tentatively applied and rolls the change back if any rule rejects (so cross-point invariants -- "vat cannot exceed the ceiling", "heap needs a threshold" -- are enf
 	def DeclareDerivation(pcName, fPredicate, pcMessage)
 		@aDerivations + [ "" + pcName, fPredicate, "" + pcMessage ]
 		return This
 
+	# Returns how many derivation rules are declared.
+	#
+	#   returns    a number
+	#   see        DeclareDerivation
 	def NumberOfDerivations()
 		return len(@aDerivations)
 
-	#-- STAGE 4 wiring: GOVERNANCE (refining is a governed action) ----------
-	# Wire a (fully configured) stzGovernance. Each point's refinement is
-	# the action "refine-<point>"; To() calls MayProceed(actor, action)
-	# so a refinement needs permission (CAN) + authority (SHOULD) covering
-	# the point's declared risk tier before it can mutate the source.
-	# the NAME of the object that governs this code ("" if none)
+	# Returns the name of the governance object wired to this code, or empty text when there is none.
+	#
+	#   returns    a text
+	#   see        SetGovernedBy, Actor
+	#@ aka  -- STAGE 4 wiring: GOVERNANCE (refining is a governed action) ---------- Wire a (fully configured) stzGovernance. Each point's refinement is the action "refine-<point>"; To() calls MayProceed(actor, action) so a refinement needs permission (CAN) + authority (SHOULD) covering the point's declared risk tier before it can mutate the source. the NAME of the object that governs this code ("" if none)
 	def GovernedBy()
 		if @oGov = ""
 			return ""
 		ok
 		return @oGov.Name_()
 
+	# Wires a governance object, so that every change becomes the governed action refine-point and needs permission and authority.
+	#
+	#   poGov      a stzGovernance, a copy of which is kept
+	#   returns    the code itself, so calls chain
+	#   warning    configure the governance through this code, not through the object you passed:
+	#              the code keeps its own copy
+	#   see        SetRiskFor, SetAllowRefine, SetAuthorityLevel, GovernedBy
 	def SetGovernedBy(poGov)
 		@oGov = poGov
 		return This
 
-	# the actor this code acts as
+	# Returns the name of the actor on whose behalf changes are judged by the governance; refiner by default.
+	#
+	#   returns    a text
+	#   see        SetActor
+	#@ aka  the actor this code acts as
 	def Actor()
 		return @cActor
 
+	# Sets the actor on whose behalf changes are judged by the governance.
+	#
+	#   pcActor    the name of the actor, such as release-bot
+	#   returns    the code itself, so calls chain
+	#   see        Actor, SetAllowRefine
 	def SetActor(pcActor)
 		@cActor = "" + pcActor
 		return This
 
-	#-- EXECUTION TRUST POSTURES (5.8) --------------------------------------
-	# A posture says WHERE a refinement came from. Trust rank (high -> low):
-	# :trusted (3, in-process/verified) > :external (2, an external tool) >
-	# :sandboxed (1, isolated run) > :llm (0, LLM-composed). A proposal
-	# defaults to :trusted; As(posture) declares otherwise for the next
-	# To(). The posture rides into the audit chain; a point's TrustFloor
-	# refuses anything below the required rank (LLM-composed edits to a
-	# critical knob can be forbidden without forbidding a human's).
+	# Declares where the next change comes from, so the gate can compare it with a trust floor; it applies to the next To only.
+	#
+	#   pcPosture   trusted, external, sandboxed or llm, in order of trust from highest to lowest
+	#   returns     the code itself, so calls chain
+	#   note        the posture is recorded in the timeline
+	#   warning     an unknown posture counts as trusted and passes every floor (confirmed: a floor
+	#               of trusted admitted a change made as weird); the posture goes back to trusted
+	#               after each To
+	#   see         TrustFloor, To
+	#@ aka  -- EXECUTION TRUST POSTURES (5.8) -------------------------------------- A posture says WHERE a refinement came from. Trust rank (high -> low): :trusted (3, in-process/verified) > :external (2, an external tool) > :sandboxed (1, isolated run) > :llm (0, LLM-composed). A proposal defaults to :trusted; As(posture) declares otherwise for the next To(). The posture rides into the audit chain; a point'
 	def As(pcPosture)
 		@cPendingPosture = StzLower("" + pcPosture)
 		return This
 
+	# Sets the lowest posture allowed to change a point; changes from a lower posture are refused.
+	#
+	#   pcPoint        the name of the point, in any case
+	#   pcMinPosture   trusted, external, sandboxed or llm
+	#   returns        the code itself, so calls chain
+	#   note           setting it again replaces the earlier floor
+	#   warning        an unknown posture sets the strictest floor, trusted, instead of none
+	#   see            TrustFloorOf, As
 	def TrustFloor(pcPoint, pcMinPosture)
 		_cP_ = StzLower("" + pcPoint)
 		_r_ = This._PostureRank(pcMinPosture)
@@ -176,6 +277,11 @@ class stzRefinableCode from stzObject
 		ok
 		return This
 
+	# Returns the floor of a point as a rank: 3 trusted, 2 external, 1 sandboxed, 0 llm.
+	#
+	#   pcPoint    the name of the point, in any case
+	#   returns    a number; -1 when the point has no floor
+	#   see        TrustFloor
 	def TrustFloorOf(pcPoint)
 		_cP_ = StzLower("" + pcPoint)
 		_n_ = len(@aTrustFloors)
@@ -192,32 +298,50 @@ class stzRefinableCode from stzObject
 		if _p_ = "llm"        return 0  ok
 		return 3   # unknown -> most permissive (an explicit posture opts IN)
 
-	# Governance config MUST go through these delegators: GovernedBy
-	# stores a COPY (governance is pure Ring lists, no shared handle),
-	# so mutating the caller's original would leave this copy stale (the
-	# Ring aliasing doctrine). Delegating keeps @oGov the one live truth.
-
-	# Declare a point's refinement risk tier ("refine-<point>").
+	# Declares how risky it is to change a point, as a tier, in the governance wired to this code.
+	#
+	#   pcPoint    the name of the point
+	#   nTier      the risk tier, a number such as 3
+	#   returns    the code itself, so calls chain
+	#   note       a point with no declared tier can never be changed under governance
+	#   warning    raises an error when no governance is wired yet
+	#   see        SetAllowRefine, SetAuthorityLevel, SetGovernedBy
+	#@ aka  Governance config MUST go through these delegators: GovernedBy stores a COPY (governance is pure Ring lists, no shared handle), so mutating the caller's original would leave this copy stale (the Ring aliasing doctrine). Delegating keeps @oGov the one live truth.
 	def SetRiskFor(pcPoint, nTier)
 		This._NeedGov()
 		@oGov.DeclareRisk("refine-" + StzLower("" + pcPoint), nTier)
 		return This
 
-	# Grant the actor permission (CAN) to refine a point.
+	# Grants the current actor the permission to change a point.
+	#
+	#   pcPoint    the name of the point
+	#   returns    the code itself, so calls chain
+	#   warning    raises an error when no governance is wired yet
+	#   see        SetRiskFor, SetActor
+	#@ aka  Grant the actor permission (CAN) to refine a point.
 	def SetAllowRefine(pcPoint)
 		This._NeedGov()
 		@oGov.GrantPermission(@cActor, "refine-" + StzLower("" + pcPoint))
 		return This
 
-	# Set the actor's authority (SHOULD): :Advisory/:Delegated/
-	# :Autonomous/:EmergencyOverride.
+	# Sets the authority of the current actor, which must cover the risk tier of a point for the change to pass.
+	#
+	#   pcType     advisory, delegated, autonomous or emergencyoverride
+	#   returns    the code itself, so calls chain
+	#   note       delegated is level 2 and autonomous is level 3
+	#   warning    raises an error when no governance is wired yet
+	#   see        SetRiskFor, SetActor
+	#@ aka  Set the actor's authority (SHOULD): :Advisory/:Delegated/ :Autonomous/:EmergencyOverride.
 	def SetAuthorityLevel(pcType)
 		This._NeedGov()
 		@oGov.SetAuthority(@cActor, pcType)
 		return This
 
-	# The wired governance as a chainable object (Q-convention) -- returns
-	# a fresh copy each call; use for READS (Why/Lineage/NumberOfDecisions).
+	# Returns the governance object wired to this code, as a copy for reading its decisions.
+	#
+	#   returns    the stzGovernance; empty text when none
+	#   see        SetGovernedBy
+	#@ aka  The wired governance as a chainable object (Q-convention) -- returns a fresh copy each call; use for READS (Why/Lineage/NumberOfDecisions).
 	def GovernanceQ()
 		return @oGov
 
@@ -226,14 +350,28 @@ class stzRefinableCode from stzObject
 			stzraise("This refinable code is not governed -- SetGovernedBy(oGov) first.")
 		ok
 
-	#-- the typed proposal + the gate ----------------------------------------
-
+	# Sets the point that the next To will change, which opens a typed proposal.
+	#
+	#   pcName     the name of the point to change
+	#   returns    the code itself, so calls chain
+	#   warning    nothing is checked until To
+	#   see        To, As, Cascade
+	#@ aka  -- the typed proposal + the gate ----------------------------------------
 	def Refine(pcName)
 		@cPending = "" + pcName
 		return This
 
-	# apply a value to the pending point THROUGH the gate. Returns
-	# [ :admitted, :why ]; on rejection the source is unchanged.
+	# Sends the value to the point named by Refine through the gate and applies it only if every stage passes.
+	#
+	#   pValue     the new value, taken as text
+	#   returns    a hash-list with admitted, 1 or 0, and why
+	#   note       an admitted change is recorded on the timeline and clears what could be redone
+	#   warning    raises an error when Refine was not called first; the stages in order are the
+	#              point exists, the value is within min and max or among the options, governance,
+	#              trust floor, then the derivation rules; a refused change leaves the source
+	#              untouched
+	#   see        Refine, Why, Revert
+	#@ aka  apply a value to the pending point THROUGH the gate. Returns [ :admitted, :why ]; on rejection the source is unchanged.
 	def To(pValue)
 		if @cPending = ""
 			stzraise("Refine(pointName) first, then To(value).")
@@ -307,23 +445,33 @@ class stzRefinableCode from stzObject
 			" [:" + _cPosture_ + "] (structural + constraint + derivation + governance + trust passed)"
 		return [ :admitted = 1, :why = @cWhy ]
 
-	#-- reversibility (a data-model primitive) -------------------------------
-
+	# TRUE if at least one admitted change can be undone.
+	#
+	#   returns    1 or 0
+	#   see        Revert, CanRedo
+	#@ aka  -- reversibility (a data-model primitive) -------------------------------
 	def CanRevert()
 		return len(@aHistory) > 0
 
-	# undo the last admitted refinement -- a TYPED inverse (single step).
+	# Undoes the last admitted change and keeps it available to redo.
+	#
+	#   returns    the code itself, so calls chain
+	#   warning    raises an error when there is nothing to revert
+	#   see        RevertTo, Redo, CanRevert
+	#@ aka  undo the last admitted refinement -- a TYPED inverse (single step).
 	def Revert()
 		if len(@aHistory) = 0
 			stzraise("Nothing to revert.")
 		ok
 		return This.RevertTo(len(@aHistory) - 1)
 
-	# ATOMIC multi-step revert: roll the source back to exactly nStep applied
-	# refinements (0 = the original source), undoing each step in reverse via
-	# its typed inverse. Every undone step is pushed onto the REDO stack. This
-	# is reversibility as a data-model primitive: time-travel over the
-	# timeline, not a one-off undo button.
+	# Rolls the source back to the state after exactly this many admitted changes, undoing the later ones in reverse.
+	#
+	#   nStep      how many changes to keep, 0 for the original source
+	#   returns    the code itself, so calls chain
+	#   note       the undone changes can be redone, the last undone first
+	#   see        Revert, Checkpoint, Redo
+	#@ aka  ATOMIC multi-step revert: roll the source back to exactly nStep applied refinements (0 = the original source), undoing each step in reverse via its typed inverse. Every undone step is pushed onto the REDO stack. This is reversibility as a data-model primitive: time-travel over the timeline, not a one-off undo button.
 	def RevertTo(nStep)
 		if nStep < 0  nStep = 0  ok
 		_nCnt_ = 0
@@ -340,11 +488,20 @@ class stzRefinableCode from stzObject
 		@cWhy = "reverted " + _nCnt_ + " step(s) -> timeline at " + nStep
 		return This
 
+	# TRUE if some undone change can be applied again.
+	#
+	#   returns    1 or 0
+	#   see        Redo, CanRevert
 	def CanRedo()
 		return len(@aRedo) > 0
 
-	# RE-APPLY the most recently reverted step (undo the undo). A fresh
-	# admitted Refine clears the redo stack (the timeline forked).
+	# Applies again the change that was undone most recently.
+	#
+	#   returns    the code itself, so calls chain
+	#   note       the change is applied without passing the gate again
+	#   warning    raises an error when there is nothing to redo
+	#   see        Revert, CanRedo
+	#@ aka  RE-APPLY the most recently reverted step (undo the undo). A fresh admitted Refine clears the redo stack (the timeline forked).
 	def Redo()
 		if len(@aRedo) = 0
 			stzraise("Nothing to redo.")
@@ -359,11 +516,22 @@ class stzRefinableCode from stzObject
 		@cWhy = "redid: '" + _r_[1] + "' -> " + _r_[3]
 		return This
 
-	# A named marker on the timeline; RevertToCheckpoint rewinds to it.
+	# Marks the current place on the timeline under a name, to come back to it later.
+	#
+	#   pcName     the name of the checkpoint
+	#   returns    the code itself, so calls chain
+	#   see        RevertToCheckpoint
+	#@ aka  A named marker on the timeline; RevertToCheckpoint rewinds to it.
 	def Checkpoint(pcName)
 		@aCheckpoints + [ "" + pcName, len(@aHistory) ]
 		return This
 
+	# Rolls the source back to the place marked by a checkpoint.
+	#
+	#   pcName     the name given to Checkpoint
+	#   returns    the code itself, so calls chain
+	#   warning    raises an error naming the checkpoint when none has that name
+	#   see        Checkpoint, RevertTo
 	def RevertToCheckpoint(pcName)
 		_cN_ = "" + pcName
 		_nStep_ = -1
@@ -376,28 +544,50 @@ class stzRefinableCode from stzObject
 		ok
 		return This.RevertTo(_nStep_)
 
-	# The ordered applied timeline: [ name, old, new, posture ] per step.
+	# Returns the applied changes in order, each as name, old value, new value and posture.
+	#
+	#   returns    a list of lists such as [ "vat", "0.20", "0.22", "trusted" ]
+	#   see        Timeline, NumberOfSteps
+	#@ aka  The ordered applied timeline: [ name, old, new, posture ] per step.
 	def History()
 		return @aHistory
+	# Returns the applied changes in order, each as name, old value, new value and posture.
+	#
+	#   returns    a list of lists such as [ "vat", "0.20", "0.22", "trusted" ]
+	#   see        History
 	def Timeline()
 		return @aHistory
+	# Returns how many changes are applied now, which is the position on the timeline.
+	#
+	#   returns    a number
+	#   see        History, RevertTo
 	def NumberOfSteps()
 		return len(@aHistory)
 
-	# The posture recorded for a given applied step (1-based; "" if none).
+	# Returns the posture recorded for one applied change.
+	#
+	#   nStep      the position of the change, from 1
+	#   returns    a text such as trusted or llm; empty text for a step that does not exist
+	#   see        History, As
+	#@ aka  The posture recorded for a given applied step (1-based; "" if none).
 	def PostureOf(nStep)
 		if nStep < 1 or nStep > len(@aHistory)  return ""  ok
 		return @aHistory[nStep][4]
 
-	#-- rendering ------------------------------------------------------------
-
-	# the source with every point's CURRENT value in place (the R-tags
-	# stay -- the point is a living knob, not a one-shot substitution)
+	# Returns the source with every point's current value in place; the tags stay, so the points remain adjustable.
+	#
+	#   returns    a text
+	#   see        Source, Save
+	#@ aka  -- rendering ------------------------------------------------------------
 	def Rendered()
 		return @cSource
 
-	#-- persistence (*.zrfn) ------------------------------------------------------
-
+	# Writes the source to a file with the extension zrfn, adding the extension when it is missing.
+	#
+	#   pcFile     the path to write
+	#   returns    the path actually written, as text
+	#   see        Rendered
+	#@ aka  -- persistence (*.zrfn) ------------------------------------------------------
 	def Save(pcFile)
 		if StzRight(pcFile, 5) != ".zrfn"
 			pcFile += ".zrfn"

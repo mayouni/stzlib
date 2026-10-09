@@ -1,0 +1,13 @@
+{
+ "brief": "Stands in for an HTTP service offline, answering from rules you script or answers you recorded, and journals every request.",
+ "detail": "It follows the HTTP port contract: any object with Request(method, url, body) that returns a list with status, body and from. Scripted mode drives behaviour, with a rule per method and address pattern, first match winning. Replay mode keeps what a real service said, filed under a hash of method, address and body, and a recording wins over a rule. By default an unscripted, unrecorded request raises an error, because a double that silently answers makes a test pass for the wrong reason; SetStrict(0) answers 501 instead. Every request is journalled, so a test can check what the code tried to do. The state lives in a table shared by copies, so a copy of the sandbox sees the same rules.",
+ "receiver": "o1 = new stzHttpSandbox()",
+ "example": [
+  "o1.Script(\"GET\", \"https://api.test/rates\", 200, '{\"eur\":0.92}')",
+  "? o1.GetFrom(\"https://api.test/rates\")[:body]",
+  "#--> {\"eur\":0.92}",
+  "? o1.NumberOfCallsTo(\"https://api.test/rates\")",
+  "#--> 1"
+ ],
+ "see": ["stzReactorHttpClient", "stzServiceRegistry"]
+}

@@ -1,0 +1,26 @@
+{
+ "brief": "Treats tagged values in source code as typed, reversible knobs: a change is a proposal that passes a gate, never a diff.",
+ "detail": "Mark the adjustable values of a piece of code with tags such as <R:PARAM name=\"vat\" value=\"0.20\" min=\"0\" max=\"0.9\"> or <R:ALGO name=\"sort\" value=\"quick\" options=\"quick|merge|heap\">. RefinementPoints lists them and Cascade previews what a change touches. Refine(name).To(value) sends the proposal through the gate: the point must exist, the value must respect min and max or the options, then governance (when wired), the trust floor and the derivation rules decide. The answer is a hash-list with admitted and why, and a refused change never alters the source. Every admitted change goes on a timeline that Revert, RevertTo, Checkpoint and Redo walk, and Rendered returns the refined source. Refine only code you own: Save writes a file with the extension zrfn.",
+ "receiver": "o1 = new stzRefinableCode('vat = <R:PARAM name=\"vat\" value=\"0.20\" min=\"0\" max=\"0.9\">' + char(10) + 'engine = <R:ALGO name=\"sort\" value=\"quick\" options=\"quick|merge|heap\">')",
+ "example": [
+  "? @@( o1.RefinementPoints() )",
+  "#--> [ [ \"vat\", \"param\", \"0.20\" ], [ \"sort\", \"algo\", \"quick\" ] ]",
+  "? o1.Refine(\"vat\").To(\"0.22\")[:admitted]",
+  "#--> 1",
+  "? o1.Refine(\"vat\").To(\"0.95\")[:admitted]",
+  "#--> 0",
+  "? @@( o1.Why() )",
+  "#--> \"constraint: 0.95 above max 0.9\"",
+  "? @@( o1.ValueOf(\"vat\") )",
+  "#--> \"0.22\"",
+  "o1.Refine(\"sort\").To(\"heap\")",
+  "? o1.NumberOfSteps()",
+  "#--> 2",
+  "o1.Revert()",
+  "? @@( o1.ValueOf(\"sort\") )",
+  "#--> \"quick\"",
+  "? o1.CanRedo()",
+  "#--> 1"
+ ],
+ "see": ["stzGovernance", "stzPolyCode"]
+}

@@ -61,6 +61,23 @@ ok
 #  THE MAIN CLASS  #
 #------------------#
 
+# Runs a snippet of another language and brings its answer back as a Ring value, through a result file.
+#
+# Supports python, r, julia, c, prolog and nodejs, found by the paths in $aStzLibConfig or by
+# SetRuntimePath. You set the code, which must assign its answer to a variable named res, and
+# Execute wraps it with a translator, runs it with the language's program in the current folder, and
+# writes the answer as Ring text; Result reads that text back and evaluates it, so a number, a text
+# and nested lists cross the boundary. Output and errors of the program go to a log file. Limits
+# seen on this machine: the R translator is rejected by R 4.5.1, and the run script is started by
+# its bare name, which fails where NoDefaultCurrentDirectoryInExePath is 1. julia, c and prolog were
+# not run, their programs being absent.
+#
+#   receiver   o1 = new stzExterCode("nodejs")
+#   example    o1.SetCode("var res = [1, 2, 3].reduce((a, b) => a + b, 0);")
+#              o1.Execute()
+#              ? o1.Result()
+#              #--> 6
+#   see        stzDotCode, stzSystemCall
 class stzExterCode from stzObject
     # Configuring supported languages with full paths
     @aLanguages = [
@@ -160,6 +177,12 @@ class stzExterCode from stzObject
     @nEndTime = 0
     @bVerbose = 0  # Toggle with SetVerbose()
 
+    # Builds a runner for one external language: python, r, julia, c, prolog or nodejs, in any letter case.
+    #
+    #   cLang      the language name
+    #   returns    nothing; the object is built
+    #   warning    raises error Language 'x' is not supported for any other name
+    #   see        IsLanguageSupported, SetCode
     def Init(cLang)
 
         if NOT This.IsLanguageSupported(cLang)
@@ -170,9 +193,22 @@ class stzExterCode from stzObject
         @cSourceFile = "temp" + @aLanguages[@cLanguage][:extension]
         @cResultFile = @aLanguages[@cLanguage][:ResultFile]
 
+    # TRUE if the runner knows the language, whatever the letter case.
+    #
+    #   cLang      the language name to test
+    #   returns    TRUE or FALSE
+    #   see        Init
     def IsLanguageSupported(cLang)
         return HasKey(@aLanguages, StzLower(cLang))
 
+    # Sets the program that runs this object's language, in place of the configured path such as d:/nodejs/nodejs-22.20/node.exe.
+    #
+    #   cPath      the full path of the interpreter or compiler
+    #   returns    nothing
+    #   note       the path is used inside a batch file unquoted, so a folder name with a space
+    #              breaks the run (use the short 8.3 form)
+    #   warning    the path is not checked, so a wrong one shows only when Execute fails
+    #   see        RuntimePath, Execute
     def SetRuntimePath(cPath)
         # Set custom runtime path for the language
 	if HasKey(@aLanguages, @cLanguage) and
@@ -183,24 +219,62 @@ class stzExterCode from stzObject
 		StzRaise("Can't set the path! This path does not exist: @aLanguages[@cLanguage][:CustomPath].")
 	ok
 
+    # Stores the source text to run, in memory only; nothing is written to disk until Prepare or Execute.
+    #
+    #   cNewCode   the program text in the external language, which must assign its answer to the
+    #              result variable
+    #   returns    nothing
+    #   see        Code, SetResultVar, Execute
     def SetCode(cNewCode)
         @cCode = cNewCode
 
+    # Stores the source text to run, in memory only, exactly as SetCode does.
+    #
+    #   cNewCode   the program text in the external language
+    #   returns    nothing
+    #   see        SetCode, Code
     def @(cNewCode)
         @cCode = cNewCode
 
+    # Turns on or off the report that Execute prints after a run: command, log, working folder and file checks.
+    #
+    #   bVerbose   1 to print the report, 0 to keep quiet
+    #   returns    nothing
+    #   see        IsVerbose, Execute
     def SetVerbose(bVerbose)
         @bVerbose = bVerbose
 
+    # Chooses the name of the variable that your external code must fill with its answer; res unless changed.
+    #
+    #   cResVar    the variable name in the external language, an empty text being ignored
+    #   returns    nothing
+    #   see        ResultVar, SetCode
     def SetResultVar(cResVar)
         if NOT cResVar = ""
             @cResultVar = cResVar
         ok
 
+    # Deletes the files of an earlier run, then writes the source file: the translator, your code and the lines that save the answer.
+    #
+    #   returns    nothing
+    #   see        PrepareSourceCode, Execute, Code
     def Prepare()
 		This.Cleanup()
         This.WriteToFile(@cSourceFile, This.PrepareSourceCode())
 
+	# Writes the source, runs it with the language's program in the current folder and records the run; the answer is then read with Result.
+	#
+	#   returns    nothing; the answer is kept in a result file
+	#   note       files are created in the current folder: temp plus the language's extension, a
+	#              run script, the result file and log.txt
+	#   warning    it runs real code with a real program, so run only code you trust; with no code
+	#              set it writes the source and returns without running; it raises an error naming
+	#              the log when the program produced no result file, which a syntax error in your
+	#              code or a missing program also causes; the run script is started by its bare
+	#              name, so where the environment variable NoDefaultCurrentDirectoryInExePath is 1
+	#              the command shell refuses it and the log is missing; the R translator is itself
+	#              rejected by R 4.5.1, so the language r always fails
+	#   see        Result, Log, CallTrace, Duration
 	def Execute()
 	    This.Prepare()
 	
@@ -302,15 +376,29 @@ class stzExterCode from stzObject
 	        remove(_cScriptFile_)
 	    ok
 		
+	    	# Writes the source and runs it, exactly as Execute does.
+	    	#
+	    	#   returns    nothing; the answer is kept in a result file
+	    	#   warning    same as Execute
+	    	#   see        Execute, Result
 		#< @FunctionAlternativeForms
-	
 	    	def Run()
 	       		This.Execute()
 	
+		# Writes the source and runs it, exactly as Execute does.
+		#
+		#   returns    nothing; the answer is kept in a result file
+		#   warning    same as Execute
+		#   see        Execute, Result
 		def Exec()
 		        This.Execute()
+    # Deletes the source file, the result file and the log file of this object from the current folder.
+    #
+    #   returns    nothing
+    #   note       the run script is deleted by Execute itself
+    #   warning    a file that is not there is skipped without an error
+    #   see        Cleanup, CleanupRequired
 		#>
-
     def CleanupFiles()
 	# TODO: does this cover cleaning compiled languages files?
 
@@ -322,28 +410,63 @@ class stzExterCode from stzObject
             stzraise(cError)
         done
 
+    	# Deletes the source file, the result file and the log file of this object, as CleanupFiles does.
+    	#
+    	#   returns    nothing
+    	#   see        CleanupFiles
     	def Cleanup()
         	This.CleanupFiles()
 
+    # TRUE if the language's settings ask for the files to be deleted once Result has read them.
+    #
+    #   returns    TRUE or FALSE; FALSE for all six languages as shipped
+    #   see        CleanupFiles, Result
     def CleanupRequired()
         _bResult_ = @aLanguages[@cLanguage][:Cleanup]
         return isNumber(_bResult_) and _bResult_ = 1
 
+    # Returns how long the last run took, in seconds.
+    #
+    #   returns    a number; 0 before any run
+    #   see        Duration, CallTrace
     def LastCallDuration()
         if len(@aCallTrace) > 0
             return @aCallTrace[len(@aCallTrace)][:duration]
         end
         return 0
 
+    	# Returns how long the last run took, in seconds.
+    	#
+    	#   returns    a number; 0 before any run
+    	#   see        LastCallDuration, CallTrace
     	def Duration()
         	return LastCallDuration()
 
+    # Returns the history of runs made by this object, oldest first.
+    #
+    #   returns    a list of hash lists with language, timestamp, duration, log, exitcode and mode
+    #   warning    the exit code is always recorded as 0, even for a run that failed
+    #   see        Trace, LastCallDuration
     def CallTrace()
         return @aCallTrace
 
+    	# Returns the history of runs made by this object, oldest first.
+    	#
+    	#   returns    a list of hash lists with language, timestamp, duration, log, exitcode and
+    	#              mode
+    	#   warning    same as CallTrace
+    	#   see        CallTrace
     	def Trace()
        	 	return @aCallTrace
 
+    # Reads the answer the external code saved and turns it into a Ring value: a number, a text or a list.
+    #
+    #   returns    the value; an empty text when the result file is empty
+    #   warning    the files are deleted afterwards only if CleanupRequired is TRUE
+    #   see        it evaluates the text of the result file as Ring code, so only run external code
+    #              you trust; it raises an error quoting the log when the result file does not
+    #              exist; when the text cannot be evaluated it prints Eval error and returns the raw
+    #              text
     def Result()
 
         if NOT fexists(@cResultFile)
@@ -381,27 +504,57 @@ class stzExterCode from stzObject
 
         done
 
+    # Returns the name of the file that holds the answer, such as jsresult.txt for nodejs.
+    #
+    #   returns    a text
+    #   see        Result, ResultVar
     def FileName()
         return @cResultFile
 
+    # Returns the name of the variable the external code must assign its answer to.
+    #
+    #   returns    a text; res by default
+    #   see        SetResultVar
     def ResultVar()
         return @cResultVar
 
+    # Returns the program that runs this object's language, such as d:/nodejs/nodejs-22.20/node.exe.
+    #
+    #   returns    a text
+    #   see        SetRuntimePath
     def RuntimePath()
         return @aLanguages[@cLanguage][:CustomPath]
 
+    # TRUE if Execute prints its report after each run.
+    #
+    #   returns    TRUE or FALSE
+    #   see        SetVerbose
     def IsVerbose()
         return @bVerbose
 
+    # Sets the name of the file that receives the program's printed output and errors; the default is log.txt.
+    #
+    #   cFileName   the file name, in the current folder
+    #   returns     nothing
+    #   see         LogFile, Execute
     def SetLogFile(cFileName)
         @cLogFile = cFileName
 
+    # Returns the text the program printed during the last run, errors included.
+    #
+    #   returns    a text; empty when there is no log file
+    #   see        Log, SetLogFile
     def LogFile()
         return This.ReadFile(@cLogFile)
 
     def Log()
         return This.LogFile()
 
+    # Returns the source text you set, or, when none is set, the text of the source file on disk.
+    #
+    #   returns    a text; empty when neither exists
+    #   warning    it returns your own code, not the wrapped source that is written to disk
+    #   see        SetCode, PrepareSourceCode
     def Code()
         # In-memory source-of-truth. The source file is only written
         # at Prepare()/Execute() time; until then @cCode is canonical.
@@ -415,11 +568,22 @@ class stzExterCode from stzObject
 
     #====== PRIVATE METHODS ======#
 
+    # Writes a text to a file, replacing any earlier content.
+    #
+    #   cFile        the path of the file to write
+    #   _cContent_   the text to write
+    #   returns      nothing
+    #   see          ReadFile
     def WriteToFile(cFile, _cContent_)
         _fp_ = fopen(cFile, "w")
         fwrite(_fp_, _cContent_)
         fclose(_fp_)
 
+    # Returns the whole text of a file.
+    #
+    #   cFile      the path of the file to read
+    #   returns    a text; empty when the file does not exist or cannot be opened
+    #   see        WriteToFile
     def ReadFile(cFile)
         if NOT fexists(cFile)
             return NULL
@@ -432,6 +596,11 @@ class stzExterCode from stzObject
         fclose(_fp_)
         return _cContent_
 
+    # Returns the command line that would start the source file, for example the program path followed by temp.njs.
+    #
+    #   returns    a text
+    #   warning    Execute does not use it and builds its own run script
+    #   see        Execute, RuntimePath
     def BuildCommand()
 
         # Not used with batch approach, kept for compatibility
@@ -456,6 +625,12 @@ class stzExterCode from stzObject
 
         stzraise("Unsupported language type for " + @cLanguage)
 
+    # Appends one entry to the call trace, taking the duration from the clocks of the last run.
+    #
+    #   _cLog_      the text printed by the run to keep in the entry
+    #   nExitCode   the exit code to keep in the entry
+    #   returns     nothing
+    #   see         CallTrace
     def RecordExecution(_cLog_, nExitCode)
 	if NOT HasPath(@aLanguages, [@clanguage, :type])
 		StzRaise("Incorrect format! Can't access the path @aLanguages[@clanguage][:type].")
@@ -476,6 +651,12 @@ class stzExterCode from stzObject
             :Mode = _cMode_
         ]
 
+    # Returns the full program text that would be run: the translator, your code and the lines that save the answer.
+    #
+    #   returns    a text
+    #   warning    for prolog it looks for a predicate named compute_result, get_factorials or res
+    #              and calls the first one it finds
+    #   see        Prepare, Code
     def PrepareSourceCode()
 	if NOT HasPath(@aLanguages, [@cLanguage, :TransFunc])
 		StzRaise("Incorrect format! Can't access the path @aLanguages[@cLanguage][:TransFunc].")

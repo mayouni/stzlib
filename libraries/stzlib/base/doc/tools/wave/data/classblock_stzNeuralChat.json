@@ -1,0 +1,14 @@
+{
+ "brief": "Holds a multi-turn conversation with a loaded decoder model, processing the transcript once and appending each new turn to the cache.",
+ "detail": "The first Say fills the cache with the system prompt and the user turn; each later Say appends only the new turn instead of re-reading the transcript. Sampling knobs (temperature, top-p, top-k, seed, token budget) set before a turn carry across the following turns. Text from the user is made safe before it enters the prompt, so a control token typed by the user cannot open a turn of its own. It needs a generative model loaded in the engine: with none, Say gives an empty text and records nothing.",
+ "receiver": "o1 = new stzNeuralChat(\"be terse\")",
+ "example": [
+  "? o1.NumberOfTurns()",
+  "#--> 0",
+  "? len(o1.History())",
+  "#--> 0",
+  "? o1.CachedTokens()",
+  "#--> 0"
+ ],
+ "see": ["stzNeuralModel", "StzNeuralChatQ", "stzLLMFunction"]
+}
