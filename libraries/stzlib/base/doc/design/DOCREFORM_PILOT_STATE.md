@@ -175,3 +175,12 @@ stzRegexMaker 53, stzApp 51, stzEarcons 50, stzPlatform 49, stzNumbrex 49, stzWo
 (wave 7/8 form) or the wave-9 prompt (neutral rules; in the session scratchpad, rebuild it from WAVE_PROMPT.md by dropping
 rule 4's status clause). Remember: three agents, file-disjoint, comments only, I verify code-identical-stripped, regenerate once.
 
+## 2026-10-09, morning: WAVE 10 ON MAIN (5397af296)
+
+19 classes, 964 roots (panel / natural engine / false object / regex maker / numbrex / url; the solvers, embeddings, random; app /
+platform / earcons / workflow / cluster / http client / deployment site). Library 14,545 of 21,747 pass (66.9 percent); gate OK;
+register 286 in 41 classes. Left: 7,202 roots in 450 classes. Recipe unchanged (WAVE_PROMPT.md; neutral rules; three agents,
+file-disjoint; strip-check, regenerate once, --update). A known applier trap: it can put a block above an old commented-out
+`def` copy inside /* */ -- the agent moved three blocks by hand in stzMultiObjectiveSolver.ring; re-applying that class needs
+the same move. A wave agent killed ring.exe by image name once: tell agents to kill by PID.
+
