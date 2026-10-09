@@ -1,0 +1,25 @@
+{
+ "brief": "Holds several apps as worlds of one governed constellation, with a shared Commons and cross-world calls that must be bonded and cleared.",
+ "detail": "A world is any app object registered by name, or another constellation, so constellations nest. A call from one world to another goes through CallAcross, which allows it only when both worlds are active, a bond declares the action and the ambient governance clears the caller; Why gives the reason, and Crossings keeps a timed log of every decision. A world can be retired, revived and swapped for a new object without losing its bonds. The Commons holds identities, sessions and a key-value store in a database you open with OpenCommonsOn. CallAcross decides and records; it does not call into the target world. Everything was run offline, with an in-memory database.",
+ "receiver": "o1 = new stzSuperApp(\"acme\")",
+ "example": [
+  "o1.AddWorld(\"resto\", new stzApp(\"resto\"))",
+  "o1.AddWorld(\"supplier\", new stzApp(\"supplier\"))",
+  "o1.Bond(\"resto\", \"supplier\", \"order-produce\")",
+  "o1.GovDeclareRisk(\"order-produce\", 2)",
+  "o1.GovGrant(\"resto\", \"order-produce\")",
+  "o1.GovSetAuthority(\"resto\", :Delegated)",
+  "? o1.CallAcross(\"resto\", \"supplier\", \"order-produce\")",
+  "#--> 1",
+  "? o1.CallAcross(\"resto\", \"supplier\", \"raid\")",
+  "#--> 0",
+  "? o1.Why()",
+  "#--> no bond declares 'raid' from 'resto' to 'supplier'."
+ ],
+ "see": [
+  "stzApp",
+  "stzGovernance",
+  "stzPlatform",
+  "stzGraph"
+ ]
+}

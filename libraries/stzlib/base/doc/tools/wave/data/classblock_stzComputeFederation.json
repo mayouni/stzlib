@@ -1,0 +1,18 @@
+{
+ "brief": "Governs a constellation of compute hosts: it discovers who offers a facet, clears the caller by bond and governance, then transports the call.",
+ "detail": "Member hosts join with an endpoint and the facets they offer. A federated call to a facet is discovered (an active host must offer it), governed (a bond must permit the caller, and the governance lattice must clear the action use-facet against the caller's permission and authority) and only then transported to the first offering host over the reactor, signed when the caller has a registered key, and over mutual TLS when SetMutualTls was called. A refusal returns an empty text, sets the status to -1, says why in Why and is noted to the security ledger. The receiver side checks a signed request with VerifyInbound. The registry, bonds, governance and verification read and run in memory; a call that clears all gates contacts the host, so this reference only ran the refusal paths.",
+ "receiver": "o1 = new stzComputeFederation(\"acme-grid\"); o1.Join(\"gpu-farm\", \"10.0.0.7:8080\", [ :neural, :vision ])\no1.Join(\"math-farm\", \"10.0.0.8:8080\", [ :math ]); o1.Bond(\"web-host\", :neural)",
+ "example": [
+  "? @@(o1.MembersOffering(:neural))",
+  "#--> [ \"gpu-farm\" ]",
+  "? o1.AreBonded(\"web-host\", :neural)",
+  "#--> 1",
+  "? len(o1.FederatedCall(\"stranger\", :neural, \"/work\", \"\"))",
+  "#--> 0",
+  "? o1.Why()",
+  "#--> no bond lets 'stranger' request facet 'neural'",
+  "? o1.CallLastStatus()",
+  "#--> -1"
+ ],
+ "see": ["stzGovernance", "stzReactor", "stzRequestSigner", "stzSuperApp"]
+}

@@ -1,0 +1,14 @@
+{
+ "brief": "Wraps a language-model call as a typed function: the reply validates as the declared type within a budget, or the call refuses.",
+ "detail": "Declare a prompt with {input}, a return type (number, boolean, one of, free text or a whole record) and a mandatory Budget. Call_ then answers a value of that type or raises an error: no unvalidated text escapes. A reply that fails is retried inside the same budget, and the first attempt is greedy while retries draw again. Validated answers are memoized by content hash, so the same input is free and deterministic the second time. For a structured return the schema also gives the model a prompt clause and, when the engine allows, a grammar that fixes the shape of the reply; a grammar never fixes a value or the truth, so the court still checks bands. UseResponder and SeedAnswer let it run with no model for tests, and say so in Why. The object has no capability beyond mapping text to a typed value.",
+ "receiver": "o1 = new stzLLMFunction(\"classify-mood\"); o1.SetPrompt(\"Positive or negative? {input}\"); o1.ReturnsOneOf([ \"positive\", \"negative\" ])\no1.Budget(5); o1.SeedAnswer(\"What a lovely day\", \"positive\")",
+ "example": [
+  "? o1.Call_(\"What a lovely day\")",
+  "#--> positive",
+  "? o1.CallsMade()",
+  "#--> 0",
+  "? o1.HasSchema()",
+  "#--> 0"
+ ],
+ "see": ["stzOutputSchema", "stzNeuralModel", "stzNeuralChat"]
+}

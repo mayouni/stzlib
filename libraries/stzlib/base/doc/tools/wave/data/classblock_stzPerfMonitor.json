@@ -1,0 +1,25 @@
+{
+ "brief": "Samples the process senses into gauges on a cadence, holds your own counters, gauges and timers, and renders them for Prometheus or OpenTelemetry.",
+ "detail": "Declare what to watch (WatchMemory, WatchCpu, WatchSystemMemory), then sample in one of three ways: call Sample yourself, call Tick from any loop (it samples only when the Every interval has passed), or host the monitor on an agent host through Name_ and Cycle. Register your own metrics with NewCounter, NewGauge and NewTimer and read any metric back with MetricQ. Prometheus and OtelJson render all of them, Explain and Show describe them in text, and EnableTracing keeps the last request traces. The numbers are engine-side, so copies of the monitor agree; call Destroy when done. Live values change on every run: test them as ranges and signs, never as exact numbers.",
+ "receiver": "o1 = new stzPerfMonitor(\"shop\")",
+ "example": [
+  "o1.WatchMemory().WatchCpu().Every(250)",
+  "? o1.Sample()",
+  "#--> 2",
+  "? o1.Sample()",
+  "#--> 3",
+  "? o1.MetricQ(\"process.memory.rss\").Value() > 0",
+  "#--> 1",
+  "o1.NewCounter(\"orders\").Increment()",
+  "? o1.MetricQ(\"orders\").Value()",
+  "#--> 1",
+  "? @@( o1.Metrics()[4] )",
+  "#--> [ \"orders\", \"counter\" ]",
+  "? o1.SampleCount()",
+  "#--> 2",
+  "? o1.EveryMs()",
+  "#--> 250",
+  "o1.Destroy()"
+ ],
+ "see": ["stzMetric", "StzPerfMonitor", "stzLog"]
+}

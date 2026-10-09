@@ -1,0 +1,4 @@
+init | Builds a token secret with a name, of kind token and no expiry. | nothing; the object is built | pcName=the token name, which appears in its descriptor | SetExpiry, FromLiteral
+SetExpiry | Sets the moment the token expires, in epoch seconds; 0 means it never expires. | nothing; use SetExpiryQ to chain | nEpoch=the expiry moment in epoch seconds | ExpiresAt, IsExpiredAt
+ExpiresAt | Returns the expiry moment, in epoch seconds. | a number; 0 when the token never expires | | SetExpiry, IsExpiredAt
+IsExpiredAt | TRUE if the given moment is at or after the expiry; a token with expiry 0 is never expired. | TRUE or FALSE | nNowEpoch=the moment to test, in epoch seconds, which the caller reads from its own clock | SetExpiry, ExpiresAt

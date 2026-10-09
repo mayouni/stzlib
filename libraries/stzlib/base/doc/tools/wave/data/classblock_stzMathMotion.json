@@ -1,0 +1,29 @@
+{
+ "brief": "Moves a math figure for real: a declared parameter re-draws its curve every frame, and declared states walk a diagram one caption at a time.",
+ "detail": "A motion is the figure itself, moved, not a film of it. Over a :Function figure it holds sliders, written {name} in the declaration; the curve is recompiled once and re-sampled at frame rate into an overlay, while the figure's marks and notes are solved again only when the slider settles. Over a :Diagram it holds declared states, each a caption and the acts that reach it (a drag, a datum, a theme or a parameter). The same declaration is played in a window (Play, PlayStates), offscreen (Frame, FrameSVG, FramePNG, Apply) or exported as a storyboard of PNG frames and a narration (ExportTo). Moving a parameter marks the motion dirty and Settle takes about a second for a figure with marks. Play and PlayStates need a window and block until Escape.",
+ "receiver": "o1 = StzMathMotionQ(:Function, [ :f = \"{a} * sin(x)\", :on = [ -6.3, 6.3 ], :mark = [ :extrema ] ])",
+ "example": [
+  "o1.Param(\"a\", 0.5, 3, 1)",
+  "? o1.Value(\"a\")",
+  "#--> 1",
+  "o1.Set(\"a\", 2)",
+  "? @@( o1.Resolved()[1] )",
+  "#--> [ \"f\", \"(2) * sin(x)\" ]",
+  "? o1.IsDirty()",
+  "#--> 1",
+  "o1.Settle()",
+  "? o1.IsDirty()",
+  "#--> 0",
+  "? o1.LiveSampleCount()",
+  "#--> 240",
+  "? len( o1.LiveSamples() )",
+  "#--> 240",
+  "o1.State(\"a is two\", [ [ :Set, \"a\", 2 ] ])",
+  "? o1.NumberOfStates()",
+  "#--> 1",
+  "o1.Apply(1)",
+  "? o1.Applied()",
+  "#--> 1"
+ ],
+ "see": ["stzMathFigure", "stzMathDiagram", "stzStoryboard", "stzWindow"]
+}

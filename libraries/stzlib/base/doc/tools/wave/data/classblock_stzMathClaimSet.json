@@ -1,0 +1,23 @@
+{
+ "brief": "Gathers the claims of one lesson, checks them all on the numeric floor and writes them as a single Lean 4 file.",
+ "detail": "Build it with the lesson's name and Add the claims, each an stzMathClaim. Diagnostics returns one error record for every false claim, Report wraps them in the house rule report that a single CI gate reads, and IsSound answers 1 when none is false. ToLean writes one file for the lesson, with theorems numbered by position so their names stay unique, and WriteLean puts it on disk. CheckWithLean sends the file through Lean when Lean is installed.",
+ "receiver": "o1 = StzMathClaimSetQ(\"pythagoras\")",
+ "example": [
+  "o1.Add(StzMathClaimQ([ :kind = :Identity, :lhs = \"3^2 + 4^2\", :rhs = \"5^2\", :label = \"three four five\" ]))",
+  "? o1.Count()",
+  "#--> 1",
+  "? o1.IsSound()",
+  "#--> 1",
+  "o1.Add(StzMathClaimQ([ :kind = :Identity, :lhs = \"3^2 + 4^2\", :rhs = \"6^2\", :label = \"false one\" ]))",
+  "? o1.IsSound()",
+  "#--> 0",
+  "? @@( o1.Diagnostics()[1][:where] )",
+  "#--> \"false one\"",
+  "? @@( o1.Lesson() )",
+  "#--> \"pythagoras\""
+ ],
+ "see": [
+  "stzMathClaim",
+  "stzRuleReport"
+ ]
+}

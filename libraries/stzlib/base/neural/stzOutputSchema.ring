@@ -1382,23 +1382,60 @@ func _StzOutputShapeLines(paFields, pnIndent)
 func StzOutputSchemaQ(paFields)
 	return new stzOutputSchema(paFields)
 
+# Declares the shape of an answer once, then judges raw or parsed values against it whole or not at all.
+#
+# A schema lists fields with a type (string, number, boolean, one of, list) and optional rules such
+# as a numeric band. ParseOutput reads model text as JSON or as field: value lines and returns the
+# validated value in declared order, or a refusal that names the rule and the field that failed.
+# Partial credit is forbidden, a scalar that can be represented is coerced (the text 36 becomes the
+# number 36), a closed enumeration must match exactly, and a required field that is present but
+# empty counts as missing. Fields nobody declared are reported and dropped, unless
+# RefuseUnknownFields closes the schema. ToGBNF compiles the shape into a grammar for the sampler,
+# but a grammar fixes shape and never value, so this court still checks every band. Structure kills
+# malformedness, not falsehood: a lie of the right shape validates.
+#
+#   receiver   o1 = new stzOutputSchema([ [ :field = "name", :type = :string ], [ :field = "age",
+#              :type = :number, :must = [ [ ">=", 0 ], [ "<=", 130 ] ] ] ])
+#   example    ? @@(o1.ParseOutput("name: Ana" + char(10) + "age: 36")[:value])
+#              #--> [ [ "name", "Ana" ], [ "age", 36 ] ]
+#              ? o1.Accepts("name: Ana" + char(10) + "age: 900")
+#              #--> 0
+#              ? o1.CiteFindings(o1.Check([ [ "name", "Ana" ], [ "age", 900 ] ]))
+#              #--> [lessequal @ age] field 'age' must be at most '130', and the model answered '900'.
+#   see        stzLLMFunction, stzRuleReport, stzNeuralModel
 class stzOutputSchema from stzObject
 
 	@cName = "output"
 	@aFields = []
 	@bRefuseUnknown = 0
 
-	# The declaration is compiled -- and judged -- HERE. Nothing about a
-	# schema is discovered at call time; a defective declaration never
-	# reaches a model.
+	# Compiles a declaration of fields into a schema, judging it now so a faulty declaration never reaches a model.
+	#
+	#   paFields   the declaration, a list of field hash-lists with field, type (string, number,
+	#              boolean, oneof, list or structure) and optional choices, of, must and optional
+	#   returns    nothing; the object is built
+	#   note       the operators are equals, not-equals, contains, greaterthan, lessthan,
+	#              greaterequal and lessequal, and symbols such as >= are normalized
+	#   warning    raises an error for an unknown field type, a mistyped key or an unknown operator,
+	#              naming it
+	#   see        Fields, Verify, ParseOutput
+	#@ aka  The declaration is compiled -- and judged -- HERE. Nothing about a schema is discovered at call time; a defective declaration never reaches a model.
 	def init(paFields)
 		@aFields = _StzOutputCompileFields(paFields, "")
 
-	  #-- reads -------------------------------------------------------
-
+	# Returns the schema name.
+	#
+	#   returns    a text; output unless SetName changed it
+	#   see        SetName, Describe
+	#@ aka  -- reads -------------------------------------------------------
 	def Name()
 		return @cName
 
+	# Sets the schema name, shown in descriptions and in the type a function reports.
+	#
+	#   pcName     the new name
+	#   returns    nothing; use SetNameQ to chain
+	#   see        Name, Describe
 	def SetName(pcName)
 		This.SetNameQ(pcName)
 
@@ -1408,12 +1445,27 @@ class stzOutputSchema from stzObject
 		ok
 		return This
 
+	# Returns the compiled fields, in declared order.
+	#
+	#   returns    a list of hash-lists with name, type, required, choices, of, fields, must and
+	#              note
+	#   note       operators in must appear in their normalized spelling, such as greaterequal for
+	#              >=
+	#   see        FieldNames, Field
 	def Fields()
 		return @aFields
 
+	# Returns how many top-level fields the schema declares.
+	#
+	#   returns    a number
+	#   see        Fields, FieldNames
 	def NumberOfFields()
 		return len(@aFields)
 
+	# Returns the names of the declared fields, in declared order.
+	#
+	#   returns    a list of text
+	#   see        RequiredFieldNames, HasField
 	def FieldNames()
 		_ac_ = []
 		_n_ = len(@aFields)
@@ -1422,6 +1474,10 @@ class stzOutputSchema from stzObject
 		next
 		return _ac_
 
+	# Returns the names of the fields that must be answered.
+	#
+	#   returns    a list of text; every field not declared optional
+	#   see        FieldNames, HasField
 	def RequiredFieldNames()
 		_ac_ = []
 		_n_ = len(@aFields)
@@ -1432,6 +1488,11 @@ class stzOutputSchema from stzObject
 		next
 		return _ac_
 
+	# TRUE if a field of that name is declared.
+	#
+	#   pcName     the field name, compared without regard to case
+	#   returns    TRUE or FALSE
+	#   see        Field, FieldNames
 	def HasField(pcName)
 		_c_ = StzLower(ring_trim("" + pcName))
 		_n_ = len(@aFields)
@@ -1442,6 +1503,12 @@ class stzOutputSchema from stzObject
 		next
 		return 0
 
+	# Returns the compiled declaration of one field.
+	#
+	#   pcName     the field name, compared without regard to case
+	#   returns    a hash-list with name, type, required, choices, of, fields, must and note
+	#   warning    raises an error for a name that is not declared, so test HasField first
+	#   see        HasField, Fields
 	def Field(pcName)
 		_c_ = StzLower(ring_trim("" + pcName))
 		_n_ = len(@aFields)
@@ -1452,13 +1519,18 @@ class stzOutputSchema from stzObject
 		next
 		stzraise("stzOutputSchema: no field named '" + pcName + "'.")
 
+	# TRUE if an undeclared field in an answer refuses the whole answer.
+	#
+	#   returns    TRUE or FALSE; FALSE by default
+	#   see        RefuseUnknownFields, AllowUnknownFields
 	def RefusesUnknownFields()
 		return @bRefuseUnknown
 
-	  #-- the one knob ------------------------------------------------
-
-	# Closed-world: a field nobody declared REFUSES the answer instead
-	# of being reported and dropped.
+	# Closes the schema, so that a field nobody declared refuses the answer instead of being reported and dropped.
+	#
+	#   returns    nothing; use RefuseUnknownFieldsQ to chain
+	#   see        AllowUnknownFields, RefusesUnknownFields
+	#@ aka  -- the one knob ------------------------------------------------
 	def RefuseUnknownFields()
 		This.RefuseUnknownFieldsQ()
 
@@ -1466,6 +1538,10 @@ class stzOutputSchema from stzObject
 		@bRefuseUnknown = 1
 		return This
 
+	# Reopens the schema, so that an undeclared field is reported as a warning and dropped.
+	#
+	#   returns    nothing; use AllowUnknownFieldsQ to chain
+	#   see        RefuseUnknownFields, RefusesUnknownFields
 	def AllowUnknownFields()
 		This.AllowUnknownFieldsQ()
 
@@ -1473,10 +1549,15 @@ class stzOutputSchema from stzObject
 		@bRefuseUnknown = 0
 		return This
 
-	  #-- the court ---------------------------------------------------
-
-	# An ALREADY-PARSED value against the declaration.
-	# [ :ok, :value, :findings ]
+	# Judges an already parsed value against the declaration.
+	#
+	#   pvValue    the value to judge, a list of [ field, value ] rows
+	#   returns    a hash-list [ :ok, :value, :findings ]; :value holds the declared fields in
+	#              declared order with scalars coerced, and is [ ] when :ok is 0
+	#   note       no partial credit: one error finding refuses the whole value; a warning, such as
+	#              a dropped extra field, does not
+	#   see        ParseOutput, Check, Holds
+	#@ aka  -- the court ---------------------------------------------------
 	def Verify(pvValue)
 		_aR_ = _StzOutputVerifyFields(pvValue, @aFields, "", @bRefuseUnknown)
 		_bOK_ = 1
@@ -1489,18 +1570,44 @@ class stzOutputSchema from stzObject
 		ok
 		return [ :ok = _bOK_, :value = _vVal_, :findings = _aR_[:findings] ]
 
-	# The family's rule face: run me, hand me back the findings.
+	# Returns the findings of judging a value, as the family of rule checks does.
+	#
+	#   pvValue    the value to judge, a list of [ field, value ] rows
+	#   returns    a list of rule rows [ :rule, :subject, :where, :severity, :message ]; [ ] when
+	#              nothing is found
+	#   note       the subject is always structured-output and the where is the field path; the rows
+	#              go straight to stzRuleReport.Ingest
+	#   see        Verify, Holds
+	#@ aka  The family's rule face: run me, hand me back the findings.
 	def Check(pvValue)
 		return This.Verify(pvValue)[:findings]
 
+	# TRUE if the value satisfies every rule of the declaration.
+	#
+	#   pvValue    the value to judge, a list of [ field, value ] rows
+	#   returns    TRUE or FALSE
+	#   see        Verify, Check
 	def Holds(pvValue)
 		return This.Verify(pvValue)[:ok]
 
+	# Returns how many findings judging a value produces, warnings included.
+	#
+	#   pvValue    the value to judge, a list of [ field, value ] rows
+	#   returns    a number
+	#   see        Check, Holds
 	def NumberOfFindings(pvValue)
 		return len(This.Check(pvValue))
 
-	# RAW MODEL TEXT to a validated whole, or to a refusal that names
-	# the rule it failed. [ :ok, :value, :findings, :shape ]
+	# Reads raw model text as a structure and judges it, returning the validated whole or the refusal.
+	#
+	#   pcRaw      the raw reply text
+	#   returns    a hash-list [ :ok, :value, :findings, :shape ]; :shape is json or memo, and empty
+	#              when the text could not be read
+	#   note       JSON is found inside prose and code fences, but the line form must hold only
+	#              field: value lines, so a sentence before it refuses the answer; field names
+	#              ignore case
+	#   see        Accepts, Verify, CiteFindings
+	#@ aka  RAW MODEL TEXT to a validated whole, or to a refusal that names the rule it failed. [ :ok, :value, :findings, :shape ]
 	def ParseOutput(pcRaw)
 		_aP_ = StzParseModelOutput(pcRaw)
 		if _aP_[:ok] = 0
@@ -1512,21 +1619,41 @@ class stzOutputSchema from stzObject
 		return [ :ok = _aV_[:ok], :value = _aV_[:value], :shape = _aP_[:shape],
 			 :findings = _aV_[:findings] ]
 
+	# TRUE if raw model text reads as a structure that satisfies the declaration.
+	#
+	#   pcRaw      the raw reply text
+	#   returns    TRUE or FALSE
+	#   see        ParseOutput, Holds
 	def Accepts(pcRaw)
 		return This.ParseOutput(pcRaw)[:ok]
 
-	  #-- goldens -----------------------------------------------------
-
+	# TRUE if two values are equal, structures included, which the equals sign cannot say of two lists.
+	#
+	#   pvExpected   the expected value
+	#   pvGot        the value to compare
+	#   returns      TRUE or FALSE
+	#   see          Diff, CiteFindings
+	#@ aka  -- goldens -----------------------------------------------------
 	def Agrees(pvExpected, pvGot)
 		return StzOutputValuesAgree(pvExpected, pvGot)
 
+	# Returns, field by field, how two values differ.
+	#
+	#   pvExpected   the expected value
+	#   pvGot        the value to compare
+	#   returns      a list of rule rows with rule golden, one for each field that moved; [ ] when
+	#                they agree
+	#   see          Agrees, CiteFindings
 	def Diff(pvExpected, pvGot)
 		return StzOutputValueDiff(pvExpected, pvGot, "")
 
-	  #-- saying it out loud ------------------------------------------
-
-	# One sentence per finding, the rule named in every one. Long lists
-	# are cut, and the cut is stated rather than silent.
+	# Writes findings as one sentence each, naming the rule and the field, and cuts a long list to four, saying so.
+	#
+	#   paFindings   the findings to write, as Check or Verify returns them
+	#   returns      a text
+	#   note         an empty list gives a sentence saying nothing is to cite
+	#   see          Check, ParseOutput
+	#@ aka  -- saying it out loud ------------------------------------------
 	def CiteFindings(paFindings)
 		_n_ = len(paFindings)
 		if _n_ = 0
@@ -1549,20 +1676,12 @@ class stzOutputSchema from stzObject
 		ok
 		return _c_
 
-	# The shape, written the way the model should write it. Appended to
-	# a prompt, it is the difference between hoping and asking.
-	# The shape, written the way the model should write it. Appended to a
-	# prompt, it is the difference between hoping and asking.
+	# Returns the instruction that asks a model for exactly this shape, ready to append to a prompt.
 	#
-	# THE CLAUSE IS SHORT BECAUSE A LONGER ONE MEASURED WORSE, and that is
-	# the only reason. Against the shipped 135M model, ten structured
-	# prompts validated 2/10 with the wording below. Adding two instructions
-	# aimed at the observed failures -- "do not explain the structure", and
-	# "replace every <...> with a real value" -- took it to 0/10: a small
-	# model told not to explain explained more, and the negation was the
-	# thing it echoed. Reverted on the measurement. Do not re-add
-	# instructions here without re-running
-	# base/test/neural/_measure_structured.ring; taste is not evidence.
+	#   returns    a text with one placeholder line per field
+	#   note       it is kept short on purpose, since longer wording measured worse on a small model
+	#   see        ToGBNF, Describe
+	#@ aka  The shape, written the way the model should write it. Appended to a prompt, it is the difference between hoping and asking. The shape, written the way the model should write it. Appended to a prompt, it is the difference between hoping and asking.
 	def PromptClause()
 		return "Answer with ONLY this structure, one field per line, " +
 			"nothing before it and nothing after it:" + char(10) + char(10) +
@@ -1590,10 +1709,15 @@ class stzOutputSchema from stzObject
 		what a grammar structurally cannot.
 	*/
 
-	# The GBNF text for this declaration, or a raise naming the construct
-	# that cannot be expressed. Nested structures are REFUSED rather than
-	# flattened: a grammar that accepted what this schema rejects would
-	# put the two layers into disagreement.
+	# Returns the declaration compiled into a GBNF grammar, which the sampler can enforce to fix the shape of a reply.
+	#
+	#   returns    a text, the grammar
+	#   note       a grammar fixes shape, never value or truth, so every must clause is dropped from
+	#              it
+	#   warning    raises an error naming the construct for a declaration a grammar cannot express,
+	#              such as a nested structure
+	#   see        IsExpressibleAsGrammar, UnenforcedByGrammar, Verify
+	#@ aka  The GBNF text for this declaration, or a raise naming the construct that cannot be expressed. Nested structures are REFUSED rather than flattened: a grammar that accepted what this schema rejects would put the two layers into disagreement.
 	def ToGBNF()
 		stzenginegbnfbegin()
 		_n_ = len(@aFields)
@@ -1618,7 +1742,11 @@ class stzOutputSchema from stzObject
 		ok
 		return stzenginegbnftext()
 
-	# TRUE when this declaration can be expressed as a grammar at all.
+	# TRUE if the declaration can become a grammar at all.
+	#
+	#   returns    TRUE or FALSE; FALSE for a nested structure
+	#   see        ToGBNF, UnenforcedByGrammar
+	#@ aka  TRUE when this declaration can be expressed as a grammar at all.
 	def IsExpressibleAsGrammar()
 		try
 			This.ToGBNF()
@@ -1627,25 +1755,39 @@ class stzOutputSchema from stzObject
 		done
 		return 1
 
-	# One line per constraint the grammar does NOT carry. Empty means the
-	# grammar carries everything this schema declared.
+	# Returns one line for each constraint that the grammar does not carry and the court still checks.
+	#
+	#   returns    a text of lines, such as the must clauses; empty when the grammar carries
+	#              everything
+	#   warning    raises an error for a declaration that cannot be compiled to a grammar
+	#   see        ToGBNF, Verify
+	#@ aka  One line per constraint the grammar does NOT carry. Empty means the grammar carries everything this schema declared.
 	def UnenforcedByGrammar()
 		This.ToGBNF()
 		return stzenginegbnfunenforced()
 
-	# Does anything actually CONSTRAIN DECODING with this grammar? Ask
-	# before reporting an answer as grammar-constrained. It answered 0 for
-	# as long as that was true; gbnf_machine.zig is the rung underneath it,
-	# so it answers 1 since 2026-08-20 -- the ENGINE is the authority on
-	# that number, never this comment.
+	# TRUE if the engine enforces a grammar at the sampler.
+	#
+	#   returns    TRUE or FALSE
+	#   note       the engine answers, not the schema
+	#   see        DecodingStatus, ToGBNF
+	#@ aka  Does anything actually CONSTRAIN DECODING with this grammar? Ask before reporting an answer as grammar-constrained. It answered 0 for as long as that was true; gbnf_machine.zig is the rung underneath it, so it answers 1 since 2026-08-20 -- the ENGINE is the authority on that number, never this comment.
 	def IsDecodingConstrained()
 		return stzenginegbnfdecodingsupported()
 
+	# Returns what constrained decoding does and what it does not do.
+	#
+	#   returns    a text
+	#   see        IsDecodingConstrained, UnenforcedByGrammar
 	def DecodingStatus()
 		return stzenginegbnfdecodingstatus()
 
-	# The declaration read back as prose, for a narrated test or a
-	# reader who wants to see what was actually promised.
+	# Returns the declaration read back as prose, one line per field, for a narrated test or a reader.
+	#
+	#   returns    a text with a header and one line per field, ending with a note when the schema
+	#              is closed
+	#   see        Fields, PromptClause
+	#@ aka  The declaration read back as prose, for a narrated test or a reader who wants to see what was actually promised.
 	def Describe()
 		_c_ = "schema '" + @cName + "' -- " + len(@aFields) + " field(s)" + char(10)
 		_n_ = len(@aFields)

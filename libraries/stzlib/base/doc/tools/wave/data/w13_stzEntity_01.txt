@@ -1,0 +1,31 @@
+init | Builds an entity from a hash-list of properties, adding the name, the type and a creation stamp when they are missing. | nothing; the object is built | paEntity=a hash-list of properties, such as [ :name = "Ana", :type = "person", :age = 30 ] | Content, Name | raises an error when the value is not a hash-list | name defaults to @noname and type to undefined; the list you pass is changed in place, and the created stamp is always set to now, even if you gave one
+Content | Returns the whole entity as its hash-list of properties, with name, type and created included. | a hash-list | | Properties, Values
+Value | Returns the whole entity, as Content does. | a hash-list | | Content
+Name | Returns the entity name, in the case it was given. | a text; @noname when none was given | | SetName, HasName
+SetName | Sets the entity name to a single word, keeping its case. | nothing | pcName=the new name, one word | Name, HasName | raises an error for a text of more than one word and for a value that is not text
+Type | Returns the entity type, in the case it was given. | a text; undefined when none was given | | SetType, IsOfType
+SetType | Sets the entity type to a single word, keeping its case. | nothing | pcType=the new type, one word | Type, IsOfType | raises an error for a text of more than one word and for a value that is not text
+Created | Returns the creation stamp, a date and time text set at construction. | a text such as 09/10/2026 13:28:08 | | Copy
+ContainsPropertyOrValue | TRUE if the argument is a property name or a value of the entity. | TRUE or FALSE | pPropOrVal=a property name, or a value to look for | ContainsProperty, ContainsValue | raises an error when the argument is not a text, because the property test runs first; a number or a list is never found this way, so use ContainsValue
+ContainsProperty | TRUE if the entity has a property of that name. | TRUE or FALSE | pcProp=the property name, compared without regard to case | ContainsValue, FindProperty | raises an error when the name is not a text
+ContainsValue | TRUE if any property holds that value, name, type and created included. | TRUE or FALSE | pValue=the value to look for, compared with its exact case | ContainsProperty, Values
+Property | Returns the value of a property. | the value, of any type | pcProp=the property name, compared without regard to case | SetProperty, ContainsProperty | raises an error for a property that does not exist and for a name that is not a text
+@ | Reads or sets properties in one door: a text reads one, a pair sets one, a list of pairs sets several. | the value for a text; nothing for a pair or a list of pairs | p=a property name to read, a [ name, value ] pair to set, or a list of such pairs to set | Property, SetProperty | raises an error for any other kind of argument, and for an unknown property name
+SetProperty | Sets a property, adding it at the end when it is new. | nothing | pcProp=the property name, lower-cased before use; pValue=the value, of any type | Property, RemoveProperty | raises an error when the name is not a text
+SetProp | Sets a property, as SetProperty does, under a shorter name. | nothing | pcProp=the property name; pValue=the value | SetProperty
+Set@ | Sets a property, as SetProperty does, in the symbol form. | nothing | pcProp=the property name; pValue=the value | SetProperty
+@Set | Sets a property, as SetProperty does, in the other symbol form. | nothing | pcProp=the property name; pValue=the value | SetProperty
+FindProperty | Returns the position of a property among the properties. | a number, 1 for the first; 0 when absent | pcProp=the property name | Properties, ContainsProperty | raises an error when the name is not a text | name, type and created count too, so the position is not the position among your own properties
+RemoveProperty | Removes one property from the entity by its name. | nothing | pcProp=the property name | SetProperty, FindProperty | raises an error for a property that does not exist and for a name that is not a text
+RemoveProp | Removes a property, as RemoveProperty does, under a shorter name. | nothing | pcProp=the property name | RemoveProperty
+Remove@ | Removes a property, as RemoveProperty does, in the symbol form. | nothing | pcProp=the property name | RemoveProperty
+@Remove | Removes a property, as RemoveProperty does, in the other symbol form. | nothing | pcProp=the property name | RemoveProperty
+Properties | Returns the property names, in order. | a list of text, starting with those of name and type | | Values, Size
+Props | Returns the property names, as Properties does, under a shorter name. | a list of text | | Properties
+Values | Returns the property values, in the order of the property names. | a list of values | | Properties, Content
+IsOfType | TRUE if the entity type equals the given type. | TRUE or FALSE; always FALSE when the stored type has capital letters | pcType=the type to test, which is lower-cased before the comparison | Type, SetType | the comparison lower-cases only the argument, so a stored type such as Person never matches (w13 defect file)
+HasName | TRUE if the entity name equals the given name. | TRUE or FALSE; always FALSE when the stored name has capital letters | pcName=the name to test, which is lower-cased before the comparison | Name, SetName | the comparison lower-cases only the argument, so a stored name such as Ana never matches (w13 defect file)
+Copy | Returns a new entity with the same properties. | a stzEntity | | Content, Created | | the copy is independent of the original; its created stamp is set to now
+Size | Returns how many properties the entity holds, name, type and created included. | a number; 3 at least | | Properties, IsEmpty
+IsEmpty | TRUE if the entity holds nothing beyond name and type. | TRUE or FALSE; FALSE always, even for a bare entity | | Size | the test is that the size equals 2, but created is always a third property, so it can never be TRUE (w13 defect file)
+Show | Prints the entity name and type, then one line for each other property. | nothing; it prints | | Content, Properties

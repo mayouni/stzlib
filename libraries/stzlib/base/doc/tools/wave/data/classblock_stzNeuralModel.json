@@ -1,0 +1,16 @@
+{
+ "brief": "Loads a neural model from a GGUF file at runtime and exposes its architecture, embeddings, token ids and, for a decoder, generation.",
+ "detail": "The model goes into the engine single active slot, so the text-meaning layer and the similarity operations upgrade from lexical to semantic while one is loaded. A file loads only when its SHA-256 digest was recorded as trusted (StzTrustModel, or StzExpectModelDigest for one process): otherwise LoadFrom answers FALSE and LoadStatus says why. With all-MiniLM-L6-v2 loaded it reports arch bert, embedding width 384, 6 layers, 12 heads and a vocabulary of 30522; EmbeddingOf then returns a unit-length 384-number vector, and SemanticSimilarityBetween is the dot product of two of them. An embedding model cannot generate: Generate and AnswerTo give an empty text unless a decoder model such as SmolLM2 is loaded. Everything answers empty or 0 while no model is loaded.",
+ "receiver": "o1 = new stzNeuralModel(\"\")",
+ "example": [
+  "? o1.IsLoaded()",
+  "#--> 0",
+  "? @@(o1.EmbeddingOf(\"hello\"))",
+  "#--> [ ]",
+  "? o1.LoadFrom(\"no-such-model.gguf\")",
+  "#--> 0",
+  "? o1.LoadStatus()",
+  "#--> -1"
+ ],
+ "see": ["stzNeuralChat", "stzOutputSchema", "stzLLMFunction"]
+}

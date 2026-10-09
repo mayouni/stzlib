@@ -1,0 +1,12 @@
+init | Builds an empty set of claims for one lesson. | nothing; the object is built | pcLesson=the name of the lesson the claims belong to | Add, Lesson | Raises an error when the name is empty
+Lesson | Returns the name of the lesson, with the spaces around it removed. | a text | | Count
+Add | Appends one claim to the set. | the set itself, so calls chain | poClaim=an stzMathClaim | Claims, Count | raises an error for anything that is not an stzMathClaim
+Claims | Returns the claims of the set, in the order they were added. | a list of stzMathClaim objects | | Add, Count
+Count | Returns how many claims the set holds. | a number | | Claims
+ToLean | Returns one Lean 4 file for the whole lesson: a comment header, the Mathlib import and one theorem per claim, numbered to stay unique. | a text | | WriteLean, CheckWithLean
+WriteLean | Writes the Lean file of the lesson to a path. | the path, as text | pcPath=the file to write | ToLean
+Diagnostics | Checks every claim on the numeric floor and returns one error record for each false claim. | a list of rule records with rule claim_false, subject, where, severity and message; [ ] when all hold | | Report, IsSound
+Report | Returns the diagnostics as a rule report, the house shape that one CI gate reads. | an stzRuleReport | | Diagnostics, IsSound
+IsSound | TRUE if no claim of the set fails on the numeric floor. | 1 or 0; 1 for an empty set | | Diagnostics, Why
+CheckWithLean | Runs the whole lesson file through Lean when it is installed on this machine, and returns the verdict beside the count of false claims. | a hash-list with floor_errors, route, proved, because and file | | ToLean, Diagnostics | proved is 0 with the reason in because when Lean fails or is stopped, and Lean with Mathlib can take minutes: one run on a cold machine was stopped after 5 minutes and answered proved 0 because lean exited with 143
+Why | Explains the set in one sentence: how many statements it holds, how many are false on the numeric floor, and whether the Lean door is open. | a text | | Diagnostics

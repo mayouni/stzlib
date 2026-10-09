@@ -1,0 +1,14 @@
+{
+ "brief": "Holds an investigator's case file: a fired detection correlated into a wall-ordered story, with a response status that only moves forward.",
+ "detail": "Build it from a sentinel's case and the ledger it fired on (StzIncidentFromCase), or from a bare finding. It takes the actor's own events and everything that shares a trace id with them, up to 64, and keeps their descriptors, never values. Give it a security graph and it also answers the attack path and the blast radius of the secrets involved. Status runs open, contained, closed and never back: a reopened incident is a new incident. ToOcsfFindingJson exports it as an OCSF security finding.",
+ "receiver": "o1 = new stzIncident(\"INC-1\")",
+ "example": [
+  "o1.FromFinding([ :where = \"guess/billing-agent\", :rule = \"guess\", :severity = \"error\", :message = \"a guess\" ], StzSecurityLedger(16))",
+  "o1.Contain(\"session revoked\")",
+  "? o1.Actor()",
+  "#--> billing-agent",
+  "? o1.Status()",
+  "#--> contained"
+ ],
+ "see": ["stzSecuritySentinel", "stzSecurityLedger", "stzSecurityGraph"]
+}

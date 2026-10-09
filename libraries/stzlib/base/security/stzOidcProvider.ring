@@ -45,6 +45,26 @@ func StzOidcProviderQ(pcIssuer)
 	return new stzOidcProvider(pcIssuer)
 
 
+# Makes an application the identity provider that other apps sign in through: it issues single-use codes and signed ID tokens.
+#
+# The authorization-code flow runs in two calls: Authorize hands a short-lived code to an exactly
+# registered redirect URI, and ExchangeCode, a back-channel call that authenticates the client by
+# its hashed secret, turns the code into a signed ID token and access token. A code is single-use
+# and bound to its client, redirect URI, nonce and PKCE challenge. Tokens are signed ES256 with an
+# engine key, or RS256 when you supply one, and RotateKey keeps the outgoing public key in the JWKS
+# so tokens in flight keep verifying. Every refusal gives a reason and an OAuth error code. It runs
+# inside the process: serving the endpoints over HTTP is the caller's job.
+#
+#   receiver   o1 = new stzOidcProvider("http://localhost:8099") o1.RegisterClient("app1",
+#              "invented-client-secret", [ "http://localhost:3000/cb" ])
+#   example    r = o1.Authorize([ :clientId = "app1", :redirectUri = "http://localhost:3000/cb" ], "alice")
+#              t = o1.ExchangeCode("app1", "invented-client-secret", r[:code], "http://localhost:3000/cb", "")
+#              ? t[:subject]
+#              #--> alice
+#              t = o1.ExchangeCode("app1", "invented-client-secret", r[:code], "http://localhost:3000/cb", "")
+#              ? t[:error]
+#              #--> invalid_grant
+#   see        stzOidcClient, stzAuth, stzJwt
 class stzOidcProvider from stzObject
 
 	@cIssuer = ""
@@ -75,6 +95,13 @@ class stzOidcProvider from stzObject
 	@nSpentMax = 64
 	@cLastClientId = ""
 
+	# Builds an identity provider for an issuer URL and generates a first ES256 signing key.
+	#
+	#   pcIssuer   the issuer URL that tokens carry and the endpoints hang from, such as
+	#              http://localhost:8099
+	#   returns    nothing; the object is built
+	#   warning    raises an error when the issuer is empty after trimming
+	#   see        Issuer, RegisterClient
 	def init(pcIssuer)
 		@cIssuer = ring_trim("" + pcIssuer)
 		if @cIssuer = ""
@@ -85,20 +112,36 @@ class stzOidcProvider from stzObject
 		@aOldKeys = []
 		This.RotateKeyQ("")
 
-	  #-- identity + keys --------------------------------------------------
-
+	# Returns the issuer URL that the provider signs into every token.
+	#
+	#   returns    a text
+	#   see        DiscoveryJson, SigningKeyId
+	#@ aka  -- identity + keys --------------------------------------------------
 	def Issuer()
 		return @cIssuer
 
+	# Returns the key id of the key that signs now, derived from its public half.
+	#
+	#   returns    a text such as stz- followed by 16 hex characters
+	#   see        RotateKey, JwksJson
 	def SigningKeyId()
 		return @cKid
 
+	# Returns the algorithm of the signing key, ES256 or RS256.
+	#
+	#   returns    a text
+	#   see        UseRsaKey, RotateKey
 	def SigningAlgorithm()
 		return @cAlg
 
-	# Sign with RS256 instead, using an RSA private key you already have. Plenty of
-	# older clients accept RS256 and nothing else, so an ES256-only issuer cannot
-	# serve them. The key stays here; only its public parts reach the JWKS.
+	# Switches signing to RS256 with an RSA private key you supply; only its public parts reach the JWKS.
+	#
+	#   pcPem      the RSA private key in PEM text
+	#   returns    nothing; use UseRsaKeyQ to chain
+	#   note       the key in use before stays published when it has signed something
+	#   warning    raises an error when the text is not a readable PEM key
+	#   see        UseNewRsaKey, RotateKey, JwksJson
+	#@ aka  Sign with RS256 instead, using an RSA private key you already have. Plenty of older clients accept RS256 and nothing else, so an ES256-only issuer cannot serve them. The key stays here; only its public parts reach the JWKS.
 	def UseRsaKey(pcPem)
 		This.UseRsaKeyQ(pcPem)
 
@@ -118,16 +161,29 @@ class stzOidcProvider from stzObject
 		@cKid = "stz-" + StzLeft(StzEngineCryptoSha256(@cN), 16)
 		return This
 
-	# generate one, for development
+	# Generates an RSA key pair for development and switches signing to RS256 with it.
+	#
+	#   nBits      the key size in bits, from 2048 to 4096
+	#   returns    nothing; use UseNewRsaKeyQ to chain
+	#   note       generation takes a few seconds at 2048
+	#   warning    raises an error for a size outside 2048 to 4096
+	#   see        UseRsaKey, RotateKey
+	#@ aka  generate one, for development
 	def UseNewRsaKey(nBits)
 		This.UseNewRsaKeyQ(nBits)
 
 	def UseNewRsaKeyQ(nBits)
 		return This.UseRsaKeyQ( StzRsaKeyPair(nBits)[:privateKey] )
 
-	# Start signing with a NEW key. The previous public key stays in the JWKS, so
-	# tokens already issued keep verifying until they expire -- rotation without
-	# an outage. A 32-byte hex seed makes it deterministic ("" = random).
+	# Starts signing with a new ES256 key, keeping the outgoing key published when it has signed anything.
+	#
+	#   pcSeedHex   a 64-hex-character seed that makes the key reproducible, or an empty text for a
+	#               random one
+	#   returns     nothing; use RotateKeyQ to chain
+	#   note        a key that never signed is dropped rather than published, so rotating twice in a
+	#               row adds no key
+	#   see         UseRsaKey, NumberOfPublishedKeys, JwksJson
+	#@ aka  Start signing with a NEW key. The previous public key stays in the JWKS, so tokens already issued keep verifying until they expire -- rotation without an outage. A 32-byte hex seed makes it deterministic ("" = random).
 	def RotateKey(pcSeedHex)
 		This.RotateKeyQ(pcSeedHex)
 
@@ -164,11 +220,18 @@ class stzOidcProvider from stzObject
 			@aOldKeys + [ @cKid, "ES256", @cX, @cY ]
 		ok
 
+	# Returns how many keys the JWKS publishes: the current one plus the retired ones.
+	#
+	#   returns    a number
+	#   see        JwksJson, RotateKey
 	def NumberOfPublishedKeys()
 		return 1 + len(@aOldKeys)
 
-	# what a relying party fetches from jwks_uri: the CURRENT key plus any
-	# still-valid previous ones.
+	# Returns the JSON key set that a relying party fetches from the jwks_uri, public halves only.
+	#
+	#   returns    a text holding a JSON object with a keys list
+	#   see        DiscoveryJson, RotateKey
+	#@ aka  what a relying party fetches from jwks_uri: the CURRENT key plus any still-valid previous ones.
 	def JwksJson()
 		_out_ = '{"keys":['
 		if @cAlg = "RS256"
@@ -186,7 +249,13 @@ class stzOidcProvider from stzObject
 		next
 		return _out_ + "]}"
 
-	# the discovery document served at /.well-known/openid-configuration.
+	# Returns the JSON discovery document served at the well-known openid-configuration path.
+	#
+	#   returns    a text holding a JSON object
+	#   note       it announces the code flow only, PKCE method S256, and the current signing
+	#              algorithm
+	#   see        JwksJson, Issuer
+	#@ aka  the discovery document served at /.well-known/openid-configuration.
 	def DiscoveryJson()
 		return '{"issuer":"' + @cIssuer + '",' +
 		       '"authorization_endpoint":"' + @cIssuer + '/authorize",' +
@@ -199,11 +268,16 @@ class stzOidcProvider from stzObject
 		       '"code_challenge_methods_supported":["S256"],' +
 		       '"scopes_supported":["openid","profile","email"]}'
 
-	  #-- the client registry ---------------------------------------------
-
-	# Register an application. The secret is stored HASHED (a leak of our store
-	# must not yield working client credentials). paRedirectUris is the exact set
-	# a code may be delivered to.
+	# Registers an application with its secret, stored hashed, and the exact redirect URIs a code may go to.
+	#
+	#   pcClientId       the application identifier
+	#   pcSecret         the client secret, kept only as a hash
+	#   paRedirectUris   the list of redirect URIs registered for it
+	#   returns          nothing; use RegisterClientXT to chain and to add a display name
+	#   warning          raises an error for an empty id, for an empty list of redirect URIs and for
+	#                    an id already registered
+	#   see              RegisterClientXT, HasClient, Authorize
+	#@ aka  -- the client registry ---------------------------------------------
 	def RegisterClient(pcClientId, pcSecret, paRedirectUris)
 		This.RegisterClientXT(pcClientId, pcSecret, paRedirectUris, "")
 
@@ -221,9 +295,18 @@ class stzOidcProvider from stzObject
 		@aClients + [ _id_, StzHashSecret("" + pcSecret), paRedirectUris, "" + pcName ]
 		return This
 
+	# TRUE if an application with that id is registered.
+	#
+	#   pcClientId   the application identifier, trimmed before the comparison
+	#   returns      TRUE or FALSE
+	#   see          RegisterClient, ClientIds
 	def HasClient(pcClientId)
 		return This._ClientIndex(ring_trim("" + pcClientId)) > 0
 
+	# Returns the ids of the registered applications, in registration order.
+	#
+	#   returns    a list of text
+	#   see        HasClient, RemoveClient
 	def ClientIds()
 		_out_ = []
 		_n_ = len(@aClients)
@@ -232,6 +315,11 @@ class stzOidcProvider from stzObject
 		next
 		return _out_
 
+	# Returns the redirect URIs registered for an application.
+	#
+	#   pcClientId   the application identifier
+	#   returns      a list of text; [ ] for an unknown id
+	#   see          RegisterClient, Authorize
 	def RedirectUrisOf(pcClientId)
 		_i_ = This._ClientIndex(ring_trim("" + pcClientId))
 		if _i_ = 0
@@ -239,6 +327,13 @@ class stzOidcProvider from stzObject
 		ok
 		return @aClients[_i_][3]
 
+	# Removes an application by id; an unknown id changes nothing.
+	#
+	#   pcClientId   the application identifier
+	#   returns      the provider itself, so calls chain
+	#   note         codes already issued to that client stay pending until they expire and then
+	#                fail at exchange
+	#   see          RegisterClient, HasClient
 	def RemoveClient(pcClientId)
 		_id_ = ring_trim("" + pcClientId)
 		_aNew_ = []
@@ -251,14 +346,32 @@ class stzOidcProvider from stzObject
 		@aClients = _aNew_
 		return This
 
-	  #-- step 1: authorize (the user is already signed in to US) ----------
-
-	# Issue an authorization code for an authenticated user.
-	# paReq: [ :clientId, :redirectUri, :state, :nonce, :codeChallenge, :scope ]
-	# -> [ :ok, :code, :redirectTo, :state, :why, :error ]
+	# Issues a single-use authorization code for an already authenticated user, bound to the client, redirect URI, nonce and PKCE challenge.
+	#
+	#   paReq      the request, a hash-list with clientId, redirectUri, state, nonce, codeChallenge
+	#              and scope
+	#   pcUser     the signed-in user name, which becomes the token subject
+	#   returns    a hash-list [ :ok, :code, :redirectTo, :state, :why, :error ]; :ok is 0 and :why
+	#              and :error say the reason when refused
+	#   note       :redirectTo is the redirect URI with code and state appended, using & when it
+	#              already holds a query
+	#   warning    refuses with unauthorized_client for an unknown client, invalid_request when the
+	#              redirect URI is not an exact match for a registered one, and login_required for
+	#              an empty user; each refusal is also noted to the security ledger as
+	#              oauth.client.rejected
+	#   see        AuthorizeAt, ExchangeCode, Why, ErrorCode
+	#@ aka  -- step 1: authorize (the user is already signed in to US) ----------
 	def Authorize(paReq, pcUser)
 		return This.AuthorizeAt(paReq, pcUser, This._NowSecs())
 
+	# Issues an authorization code as Authorize does, at a clock reading you give, which makes expiry testable.
+	#
+	#   paReq      the request, a hash-list with clientId, redirectUri, state, nonce, codeChallenge
+	#              and scope
+	#   pcUser     the signed-in user name
+	#   pnNow      the current time in epoch seconds, from which the code lifetime counts
+	#   returns    a hash-list [ :ok, :code, :redirectTo, :state, :why, :error ]
+	#   see        Authorize, ExchangeCodeAt
 	def AuthorizeAt(paReq, pcUser, pnNow)
 		_cid_ = ring_trim("" + This._Get(paReq, :clientId))
 		@cLastClientId = _cid_
@@ -295,14 +408,39 @@ class stzOidcProvider from stzObject
 		return [ :ok = 1, :code = _code_, :redirectTo = _to_, :state = _state_,
 		         :why = "", :error = "" ]
 
-	  #-- step 2: token (a back-channel call from the app's server) --------
-
-	# Exchange a code for tokens -> [ :ok, :idToken, :accessToken, :tokenType,
-	# :expiresIn, :subject, :why, :error ].
+	# Redeems a code from the application server for a signed ID token and access token, after checking client, code, redirect URI and PKCE.
+	#
+	#   pcClientId       the application identifier
+	#   pcClientSecret   the secret the client registered with
+	#   pcCode           the code that Authorize issued
+	#   pcRedirectUri    the redirect URI the code was issued for
+	#   pcCodeVerifier   the PKCE verifier, or an empty text when the authorization sent no
+	#                    challenge
+	#   returns          a hash-list [ :ok, :idToken, :accessToken, :tokenType, :expiresIn,
+	#                    :subject, :why, :error ]; :ok is 0 with :error invalid_client or
+	#                    invalid_grant when refused
+	#   note             the access token is a signed JWT as well, with typ access
+	#   warning          a wrong client secret refuses without using up the code, but any later
+	#                    failure (expired, other client, other redirect URI, bad PKCE) has already
+	#                    consumed it, so a code is never usable twice; presenting a spent code is
+	#                    noted as oauth.code.replayed, an unknown one gives the same answer
+	#   see              ExchangeCodeAt, Authorize, PkceChallengeOf, Why
+	#@ aka  -- step 2: token (a back-channel call from the app's server) --------
 	def ExchangeCode(pcClientId, pcClientSecret, pcCode, pcRedirectUri, pcCodeVerifier)
 		return This.ExchangeCodeAt(pcClientId, pcClientSecret, pcCode, pcRedirectUri,
 		           pcCodeVerifier, This._NowSecs())
 
+	# Redeems a code as ExchangeCode does, at a clock reading you give, which makes expiry testable.
+	#
+	#   pcClientId       the application identifier
+	#   pcClientSecret   the secret the client registered with
+	#   pcCode           the code that Authorize issued
+	#   pcRedirectUri    the redirect URI the code was issued for
+	#   pcCodeVerifier   the PKCE verifier, or an empty text
+	#   pnNow            the current time in epoch seconds
+	#   returns          a hash-list [ :ok, :idToken, :accessToken, :tokenType, :expiresIn,
+	#                    :subject, :why, :error ]
+	#   see              ExchangeCode, AuthorizeAt
 	def ExchangeCodeAt(pcClientId, pcClientSecret, pcCode, pcRedirectUri, pcCodeVerifier, pnNow)
 		_cid_ = ring_trim("" + pcClientId)
 		@cLastClientId = _cid_
@@ -361,13 +499,30 @@ class stzOidcProvider from stzObject
 		         :tokenType = "Bearer", :expiresIn = @nTokenTTL,
 		         :subject = _u_, :why = "", :error = "" ]
 
-	  #-- token minting ----------------------------------------------------
-
-	# a signed id-token for a subject + audience (used by the flow above, and
-	# directly when an app trusts this provider in-process).
+	# Signs an ID token for a subject and audience, without going through the code flow.
+	#
+	#   pcSubject    the user the token is about
+	#   pcAudience   the application the token is for
+	#   pcNonce      the nonce to echo, or an empty text for none
+	#   returns      a text, the signed JWT of three dot-separated parts
+	#   warning      subject, audience and nonce are written into the payload without JSON escaping,
+	#                so a quote or backslash in them gives invalid JSON, and a nonce such as
+	#                x","sub":"y adds a second sub claim; the nonce reaches this call from the
+	#                request unchecked
+	#   see          IssueIdTokenAt, ExchangeCode, TokenTTL
+	#@ aka  -- token minting ----------------------------------------------------
 	def IssueIdToken(pcSubject, pcAudience, pcNonce)
 		return This.IssueIdTokenAt(pcSubject, pcAudience, pcNonce, This._NowSecs())
 
+	# Signs an ID token as IssueIdToken does, with the issue time you give, so that exp is pnNow plus the token lifetime.
+	#
+	#   pcSubject    the user the token is about
+	#   pcAudience   the application the token is for
+	#   pcNonce      the nonce to echo, or an empty text for none
+	#   pnNow        the issue time in epoch seconds
+	#   returns      a text, the signed JWT
+	#   warning      same escaping defect as IssueIdToken
+	#   see          IssueIdToken, SetTokenTTL
 	def IssueIdTokenAt(pcSubject, pcAudience, pcNonce, pnNow)
 		_pay_ = '{"iss":"' + @cIssuer + '","sub":"' + pcSubject + '","aud":"' + pcAudience +
 		        '","exp":' + (pnNow + @nTokenTTL) + ',"iat":' + pnNow
@@ -377,6 +532,12 @@ class stzOidcProvider from stzObject
 		_pay_ += "}"
 		return This._Sign(_pay_)
 
+	# Sets how long an issued token stays valid.
+	#
+	#   pnSecs     the lifetime in seconds
+	#   returns    nothing; use SetTokenTTLQ to chain
+	#   note       the default is 3600
+	#   see        TokenTTL, IssueIdToken
 	def SetTokenTTL(pnSecs)
 		This.SetTokenTTLQ(pnSecs)
 
@@ -384,9 +545,19 @@ class stzOidcProvider from stzObject
 		@nTokenTTL = pnSecs
 		return This
 
+	# Returns how many seconds an issued token stays valid.
+	#
+	#   returns    a number; 3600 by default
+	#   see        SetTokenTTL
 	def TokenTTL()
 		return @nTokenTTL
 
+	# Sets how long an authorization code stays redeemable.
+	#
+	#   pnSecs     the lifetime in seconds
+	#   returns    nothing; use SetCodeTTLQ to chain
+	#   note       the default is 300
+	#   see        CodeTTL, Authorize
 	def SetCodeTTL(pnSecs)
 		This.SetCodeTTLQ(pnSecs)
 
@@ -394,14 +565,26 @@ class stzOidcProvider from stzObject
 		@nCodeTTL = pnSecs
 		return This
 
+	# Returns how many seconds an authorization code stays redeemable.
+	#
+	#   returns    a number; 300 by default
+	#   see        SetCodeTTL
 	def CodeTTL()
 		return @nCodeTTL
 
-	  #-- housekeeping + introspection -------------------------------------
-
+	# Returns how many issued codes are neither redeemed nor purged.
+	#
+	#   returns    a number
+	#   see        PurgeExpiredCodes, Authorize
+	#@ aka  -- housekeeping + introspection -------------------------------------
 	def NumberOfPendingCodes()
 		return len(@aCodes)
 
+	# Drops the codes that are expired at the given clock reading.
+	#
+	#   pnNow      the current time in epoch seconds
+	#   returns    a number, how many were dropped
+	#   see        PurgeExpiredCodes, NumberOfPendingCodes
 	def PurgeExpiredCodesAt(pnNow)
 		_aNew_ = []
 		_n_ = 0
@@ -416,10 +599,19 @@ class stzOidcProvider from stzObject
 		@aCodes = _aNew_
 		return _n_
 
+	# Drops the codes that are expired now.
+	#
+	#   returns    a number, how many were dropped
+	#   see        PurgeExpiredCodesAt, NumberOfPendingCodes
 	def PurgeExpiredCodes()
 		return This.PurgeExpiredCodesAt(This._NowSecs())
 
-	# the S256 challenge for a verifier (the same computation a client makes).
+	# Returns the S256 code challenge for a verifier: the base64url of its SHA-256 digest, as a client computes it.
+	#
+	#   pcVerifier   the PKCE code verifier
+	#   returns      a text
+	#   see          ExchangeCode, Authorize
+	#@ aka  the S256 challenge for a verifier (the same computation a client makes).
 	def PkceChallengeOf(pcVerifier)
 		_hex_ = StzEngineCryptoSha256("" + pcVerifier)
 		_raw_ = ""
@@ -431,12 +623,24 @@ class stzOidcProvider from stzObject
 		end
 		return StzB64UrlEncode(_raw_)
 
+	# Returns the reason the last refused call gave, empty after a success.
+	#
+	#   returns    a text
+	#   see        ErrorCode, Authorize
 	def Why()
 		return @cWhy
 
+	# Returns the OAuth error code of the last refused call, empty after a success.
+	#
+	#   returns    a text such as invalid_grant
+	#   see        Why, Authorize
 	def ErrorCode()
 		return @cError
 
+	# Prints one line with the issuer, the key id and the number of registered clients.
+	#
+	#   returns    nothing; it prints
+	#   see        Issuer, SigningKeyId
 	def Show()
 		? "stzOidcProvider(" + @cIssuer + ", kid=" + @cKid + ", " +
 		  len(@aClients) + " client(s))"

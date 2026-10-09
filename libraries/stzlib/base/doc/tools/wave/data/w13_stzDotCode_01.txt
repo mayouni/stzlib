@@ -1,0 +1,29 @@
+Init | Builds a Graphviz runner and creates its temp and output folders in the current folder. | nothing; the object is built | | EnsureDirectories, SetCode
+EnsureDirectories | Creates the temp folder and the output folder in the current folder when they are missing. | nothing | | SetTempDir, Init
+SetCode | Stores the Graphviz graph text to draw, in memory only. | nothing | pcDotCode=the graph in the dot language, such as digraph G { a -> b; } | Code, Execute
+@ | Stores the Graphviz graph text to draw, exactly as SetCode does. | nothing | pcDotCode=the graph in the dot language | SetCode, Code
+SetOutputFormat | Chooses the picture format Execute asks Graphviz for; an empty text or null returns to svg. | nothing | _cFormat_=a format name such as svg, png or pdf, in lower case, surrounding spaces being ignored | OutputFormat, SetOutput | raises an error listing the supported formats for any name not in lower case, so PNG and Svg are refused although the code means to lower-case them | the default is svg
+SetOutput | Chooses the picture format Execute asks Graphviz for, with no check of the name. | nothing | _cFormat_=a format name, kept in lower case | SetOutputFormat, OutputFormat | it accepts a name Graphviz does not know, such as docx, and Execute then fails | SetOutputFormat is the checked form
+SetTempDir | Sets the folder that holds the working dot file and the log, creating it. | nothing | cDir=the folder path, relative to the current folder or absolute | TempDir, EnsureDirectories
+TempDir | Returns the folder that holds the working dot file and the log. | a text; temp by default | | SetTempDir
+SetDotPath | Sets the full path of the Graphviz dot program used by Execute. | nothing | cPath=the full path of dot.exe | Execute | the path is not checked, so a wrong one shows only when Execute fails
+SetVerbose | Turns on or off the report that Execute prints after a run: dot path, format, output file and exit code. | nothing | bVerbose=1 to print the report, 0 to keep quiet | IsVerbose, Execute
+Execute | Writes the graph to the temp folder, runs Graphviz on it and leaves the picture in the output folder as diagram_ plus a number. | nothing; read the picture path with OutputFile | | OutputFile, View, Duration, SetOutputFormat | with no code set it only clears the temp files and returns; it raises an error quoting Graphviz when the graph text has a syntax error or dot is missing; the call waits at most 30 seconds | the file name carries the processor clock, so each run makes a new file and old ones are kept
+Run | Draws the graph, exactly as Execute does. | nothing; read the picture path with OutputFile | | Execute, OutputFile | same as Execute
+Exec | Draws the graph, exactly as Execute does. | nothing; read the picture path with OutputFile | | Execute, OutputFile | same as Execute
+View | Opens the last picture in the program the system associates with its format, drawing it first if nothing was drawn yet. | nothing | | Execute, OutputFile | not run here: it opens a window on the screen
+Display | Opens the last picture in the associated program, as View does. | nothing | | View | not run here: it opens a window on the screen
+Visualise | Opens the last picture in the associated program, as View does. | nothing | | View | not run here: it opens a window on the screen
+ExecuteAndView | Draws the graph, then opens the picture in the associated program. | nothing | | Execute, View | not run here: it opens a window on the screen
+RunAndView | Draws the graph, then opens the picture, exactly as ExecuteAndView does. | nothing | | ExecuteAndView | not run here: it opens a window on the screen
+ExecAndView | Draws the graph, then opens the picture, exactly as ExecuteAndView does. | nothing | | ExecuteAndView | not run here: it opens a window on the screen
+OutputFile | Returns the path of the picture made by the last run, such as output/diagram_3399.svg. | a text; empty before any run | | Execute, View | the number in the name changes at every run
+OutputFormat | Returns the picture format that the next run will ask for. | a text; svg by default | | SetOutputFormat
+Code | Returns the graph text set for drawing. | a text; empty before SetCode | | SetCode
+Duration | Returns how long the last run took, in seconds. | a number; 0 before any run | | Execute
+Log | Returns the text of the log file in the temp folder. | a text; empty when there is no log file | | Execute | nothing in this class writes that file, so it reads empty after any run
+IsVerbose | TRUE if Execute prints its report after each run. | TRUE or FALSE | | SetVerbose
+Cleanup | Deletes the working dot file and the log file from the temp folder; the pictures stay. | nothing | | CleanupAll, Execute
+CleanupAll | Removes the working files only, although it was meant to remove the last picture too. | nothing | | Cleanup | the picture stays: the code misspells its output-folder variable, the error is swallowed, and it looks for diagram.svg rather than the numbered file Execute makes
+WriteToFile | Writes a text to a file, replacing any earlier content. | nothing | cFile=the path of the file to write; _cContent_=the text to write | ReadFile
+ReadFile | Returns the whole text of a file. | a text; empty when the file does not exist or cannot be opened | cFile=the path of the file to read | WriteToFile

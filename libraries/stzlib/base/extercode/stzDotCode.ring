@@ -42,6 +42,24 @@ func StzDotCodeQ()
 		return new stzDotCode()
 
 
+# Turns Graphviz graph text into a picture file by running the dot program, and can open the picture.
+#
+# You set the graph in the dot language, choose a format (svg by default; png, pdf and about fifty
+# others), and Execute writes the graph to a working file in the temp folder and runs dot, leaving
+# the picture in the output folder as diagram_ plus a number. The dot program is taken from
+# $aStzLibConfig[:DotPath] or from d:/Graphviz/bin/dot.exe, and SetDotPath overrides it. Graphviz
+# must be installed. View opens the picture in the program the system associates with it; it was
+# read but not run, because it opens a window. Three defects are recorded in the methods:
+# SetOutputFormat refuses upper case, SetOutput does not check, and CleanupAll does not delete the
+# picture.
+#
+#   receiver   o1 = new stzDotCode()
+#   example    o1.SetCode("digraph G { a -> b; b -> c; }")
+#              o1.SetOutputFormat("dot")
+#              o1.Execute()
+#              ? StzFindFirst("a -> b", o1.ReadFile(o1.OutputFile())) > 0
+#              #--> 1
+#   see        stzExterCode, stzSystemCall
 class stzDotCode from stzObject
 	@cDotCode = ""
 	@cOutputFormat = $cDefaultDotOutputFormat
@@ -56,19 +74,46 @@ class stzDotCode from stzObject
 	@cLastOutputFile = ""
 	@bWasExtecutedAtLeastOnce = 0
 
+	# Builds a Graphviz runner and creates its temp and output folders in the current folder.
+	#
+	#   returns    nothing; the object is built
+	#   see        EnsureDirectories, SetCode
 	def Init()
 		This.EnsureDirectories()
 
+	# Creates the temp folder and the output folder in the current folder when they are missing.
+	#
+	#   returns    nothing
+	#   see        SetTempDir, Init
 	def EnsureDirectories()
 		CreateFolderIfInexistant(@cTempDir)
 		CreateFolderIfInexistant(@cOutputDir)
 
+	# Stores the Graphviz graph text to draw, in memory only.
+	#
+	#   pcDotCode   the graph in the dot language, such as digraph G { a -> b
+	#   returns     nothing
+	#   see         Code, Execute
 	def SetCode(pcDotCode)
 		@cDotCode = pcDotCode
 
+		# Stores the Graphviz graph text to draw, exactly as SetCode does.
+		#
+		#   pcDotCode   the graph in the dot language
+		#   returns     nothing
+		#   see         SetCode, Code
 		def @(pcDotCode)
 			This.SetCode(pcDotCode)
 
+	# Chooses the picture format Execute asks Graphviz for; an empty text or null returns to svg.
+	#
+	#   _cFormat_   a format name such as svg, png or pdf, in lower case, surrounding spaces being
+	#               ignored
+	#   returns     nothing
+	#   note        the default is svg
+	#   warning     raises an error listing the supported formats for any name not in lower case, so
+	#               PNG and Svg are refused although the code means to lower-case them
+	#   see         OutputFormat, SetOutput
 	def SetOutputFormat(_cFormat_)
 
 		_cFormat_ = trim(_cFormat_)
@@ -82,22 +127,59 @@ class stzDotCode from stzObject
 
 		@cOutputFormat = StzLower(_cFormat_)
 
+		# Chooses the picture format Execute asks Graphviz for, with no check of the name.
+		#
+		#   _cFormat_   a format name, kept in lower case
+		#   returns     nothing
+		#   note        SetOutputFormat is the checked form
+		#   warning     it accepts a name Graphviz does not know, such as docx, and Execute then
+		#               fails
+		#   see         SetOutputFormat, OutputFormat
 		def SetOutput(_cFormat_)
 			@cOutputFormat = StzLower(_cFormat_)
 
+	# Sets the folder that holds the working dot file and the log, creating it.
+	#
+	#   cDir       the folder path, relative to the current folder or absolute
+	#   returns    nothing
+	#   see        TempDir, EnsureDirectories
 	def SetTempDir(cDir)
 		@cTempDir = cDir
 		This.EnsureDirectories()
 
+	# Returns the folder that holds the working dot file and the log.
+	#
+	#   returns    a text; temp by default
+	#   see        SetTempDir
 	def TempDir()
 		return @cTempDir
 
+	# Sets the full path of the Graphviz dot program used by Execute.
+	#
+	#   cPath      the full path of dot.exe
+	#   returns    nothing
+	#   warning    the path is not checked, so a wrong one shows only when Execute fails
+	#   see        Execute
 	def SetDotPath(cPath)
 		@cDotPath = cPath
 
+	# Turns on or off the report that Execute prints after a run: dot path, format, output file and exit code.
+	#
+	#   bVerbose   1 to print the report, 0 to keep quiet
+	#   returns    nothing
+	#   see        IsVerbose, Execute
 	def SetVerbose(bVerbose)
 		@bVerbose = bVerbose
 
+	# Writes the graph to the temp folder, runs Graphviz on it and leaves the picture in the output folder as diagram_ plus a number.
+	#
+	#   returns    nothing; read the picture path with OutputFile
+	#   note       the file name carries the processor clock, so each run makes a new file and old
+	#              ones are kept
+	#   warning    with no code set it only clears the temp files and returns; it raises an error
+	#              quoting Graphviz when the graph text has a syntax error or dot is missing; the
+	#              call waits at most 30 seconds
+	#   see        OutputFile, View, Duration, SetOutputFormat
 	def Execute()
 		This.EnsureDirectories()
 		This.Cleanup()
@@ -159,12 +241,27 @@ class stzDotCode from stzObject
 	
 		@bWasExtecutedAtLeastOnce = 1
 
+		# Draws the graph, exactly as Execute does.
+		#
+		#   returns    nothing; read the picture path with OutputFile
+		#   warning    same as Execute
+		#   see        Execute, OutputFile
 		def Run()
 			This.Execute()
 
+		# Draws the graph, exactly as Execute does.
+		#
+		#   returns    nothing; read the picture path with OutputFile
+		#   warning    same as Execute
+		#   see        Execute, OutputFile
 		def Exec()
 			This.Execute()
 
+		# Opens the last picture in the program the system associates with its format, drawing it first if nothing was drawn yet.
+		#
+		#   returns    nothing
+		#   warning    not run here: it opens a window on the screen
+		#   see        Execute, OutputFile
 		def View()
 			if NOT @bWasExtecutedAtLeastOnce
 				This.Execute()
@@ -177,19 +274,44 @@ class stzDotCode from stzObject
 			_oSysCal_ = new stzSystemCall("cmd.exe")
 			_oSysCal_.OpenFile(@cLastOutputFile)
 
+		# Opens the last picture in the associated program, as View does.
+		#
+		#   returns    nothing
+		#   warning    not run here: it opens a window on the screen
+		#   see        View
 		def Display()
 			This.View()
 
+		# Opens the last picture in the associated program, as View does.
+		#
+		#   returns    nothing
+		#   warning    not run here: it opens a window on the screen
+		#   see        View
 		def Visualise()
 			This.View()
 
+	# Draws the graph, then opens the picture in the associated program.
+	#
+	#   returns    nothing
+	#   warning    not run here: it opens a window on the screen
+	#   see        Execute, View
 	def ExecuteAndView()
 		This.Execute()
 		This.View()
 
+		# Draws the graph, then opens the picture, exactly as ExecuteAndView does.
+		#
+		#   returns    nothing
+		#   warning    not run here: it opens a window on the screen
+		#   see        ExecuteAndView
 		def RunAndView()
 			This.ExecuteAndView()
 
+		# Draws the graph, then opens the picture, exactly as ExecuteAndView does.
+		#
+		#   returns    nothing
+		#   warning    not run here: it opens a window on the screen
+		#   see        ExecuteAndView
 		def ExecAndView()
 			This.ExecuteAndView()
 
@@ -202,21 +324,43 @@ class stzDotCode from stzObject
 		def ExecXT()
 			This.ExecuteAndView()
 
+	# Returns the path of the picture made by the last run, such as output/diagram_3399.svg.
+	#
+	#   returns    a text; empty before any run
+	#   warning    the number in the name changes at every run
+	#   see        Execute, View
 	def OutputFile()
 		return @cLastOutputFile
 
+	# Returns the picture format that the next run will ask for.
+	#
+	#   returns    a text; svg by default
+	#   see        SetOutputFormat
 	def OutputFormat()
 		return @cOutputFormat
 
+	# Returns the graph text set for drawing.
+	#
+	#   returns    a text; empty before SetCode
+	#   see        SetCode
 	def Code()
 		return @cDotCode
 
+	# Returns how long the last run took, in seconds.
+	#
+	#   returns    a number; 0 before any run
+	#   see        Execute
 	def Duration()
 		if @nEndTime > 0 and @nStartTime > 0
 			return (@nEndTime - @nStartTime) / clockspersecond()
 		ok
 		return 0
 
+	# Returns the text of the log file in the temp folder.
+	#
+	#   returns    a text; empty when there is no log file
+	#   warning    nothing in this class writes that file, so it reads empty after any run
+	#   see        Execute
 	def Log()
 		_cLogPath_ = @cTempDir + "/" + @cLogFile
 		if NOT fexists(_cLogPath_)
@@ -224,9 +368,17 @@ class stzDotCode from stzObject
 		ok
 		return This.ReadFile(_cLogPath_)
 
+	# TRUE if Execute prints its report after each run.
+	#
+	#   returns    TRUE or FALSE
+	#   see        SetVerbose
 	def IsVerbose()
 		return @bVerbose
 
+	# Deletes the working dot file and the log file from the temp folder; the pictures stay.
+	#
+	#   returns    nothing
+	#   see        CleanupAll, Execute
 	def Cleanup()
 		try
 			_cTempDotPath_ = @cTempDir + "/" + @cTempDotFile
@@ -241,6 +393,13 @@ class stzDotCode from stzObject
 		catch
 		done
 
+	# Removes the working files only, although it was meant to remove the last picture too.
+	#
+	#   returns    nothing
+	#   warning    the picture stays: the code misspells its output-folder variable, the error is
+	#              swallowed, and it looks for diagram.svg rather than the numbered file Execute
+	#              makes
+	#   see        Cleanup
 	def CleanupAll()
 		This.Cleanup()
 		try
@@ -251,11 +410,22 @@ class stzDotCode from stzObject
 		catch
 		done
 
+	# Writes a text to a file, replacing any earlier content.
+	#
+	#   cFile        the path of the file to write
+	#   _cContent_   the text to write
+	#   returns      nothing
+	#   see          ReadFile
 	def WriteToFile(cFile, _cContent_)
 		_fp_ = fopen(cFile, "w")
 		fwrite(_fp_, _cContent_)
 		fclose(_fp_)
 
+	# Returns the whole text of a file.
+	#
+	#   cFile      the path of the file to read
+	#   returns    a text; empty when the file does not exist or cannot be opened
+	#   see        WriteToFile
 	def ReadFile(cFile)
 		if NOT fexists(cFile)
 			return ""

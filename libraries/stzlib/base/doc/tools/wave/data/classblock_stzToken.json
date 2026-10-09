@@ -1,0 +1,14 @@
+{
+ "brief": "Holds a bearer or access token as a secret, with an optional expiry that the caller checks against its own clock.",
+ "detail": "It is a stzSecret of kind token: redacted in every output, revealed only to an effectful actor. It adds an expiry in epoch seconds, where 0 means no expiry, and holds no clock of its own, so IsExpiredAt takes the moment to test.",
+ "receiver": "o1 = new stzToken(\"session\")\no1.SetExpiry(1000)",
+ "example": [
+  "? o1.IsExpiredAt(999)",
+  "#--> 0",
+  "? o1.IsExpiredAt(1000)",
+  "#--> 1",
+  "? o1.Kind()",
+  "#--> token"
+ ],
+ "see": ["stzSecret", "stzSecretStore"]
+}

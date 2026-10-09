@@ -1,0 +1,17 @@
+{
+ "brief": "Holds one named thing as a hash-list of properties: it always has a name, a type and a creation stamp, and answers questions about them.",
+ "detail": "Build it from a hash-list such as [ :name = \"Ana\", :type = \"person\", :age = 30 ]. A missing name becomes @noname and a missing type becomes undefined, and the created stamp is set to now. Properties are read and set by name without regard to case, so Property(\"AGE\") and Property(\"age\") are one property, and the @ method reads, sets one or sets several in a single door. Name and type are single words that keep their case. Known gaps, in the w13 defect file: HasName and IsOfType compare the stored text with a lower-cased argument, so they are FALSE for any stored name or type with a capital letter; IsEmpty is never TRUE; and ContainsPropertyOrValue raises for an argument that is not text.",
+ "receiver": "o1 = new stzEntity([ :name = \"ana\", :type = \"person\", :age = 30 ])",
+ "example": [
+  "? o1.Property(\"AGE\")",
+  "#--> 30",
+  "o1.SetProperty(\"city\", \"Niamey\")",
+  "? o1.ContainsValue(\"Niamey\")",
+  "#--> 1",
+  "? o1.HasName(\"ANA\")",
+  "#--> 1",
+  "? @@(o1.Properties())",
+  "#--> [ \"name\", \"type\", \"age\", \"created\", \"city\" ]"
+ ],
+ "see": ["stzHashList", "stzObject"]
+}

@@ -1,0 +1,6 @@
+init | Builds the earlier version of the loop, which runs Ring code once per item with every loop variable bound by name. | nothing; the object is built | p=the name of the loop variable as text, or a list of names when each item is itself a list; pIn=the data, written as a named parameter :In = ... | @, stzForEachObject | Raises an error unless pIn is written as :In = ...; a single name wraps each item in a list of one, so Values answers [ [ 1 ], [ 2 ] ] for [ 1, 2 ] | superseded by stzForEachObject, which adds positions and the v reader
+Vars | Returns the names of the loop variables, in lowercase. | a list of text, such as [ "a", "b" ] | | NumberOfVars, Values
+NumberOfVars | Returns how many loop variables the loop has. | a number | | Vars
+Values | Returns the data as a list of items, each item a list holding one value per variable. | a list of lists, such as [ [ 1 ], [ 2 ] ] for one variable | | NumberOfIterations, Vars
+NumberOfIterations | Returns how many items the loop will go through. | a number | | Values
+@ | Runs a piece of Ring code once for each item, with each loop variable bound to that item's value. | nothing | pcCode=the Ring code as text, such as '? A + B' | Vars, Values

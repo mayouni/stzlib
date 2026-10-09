@@ -1,0 +1,12 @@
+init | Builds a chat session with a system prompt, or a default brief-answer prompt when none is given. | nothing; the object is built | pcSystem=the system prompt that frames every answer; an empty text selects You are a helpful assistant. Answer briefly. | Say, SetTemperature
+SetTemperature | Sets the sampling temperature that later turns use; 0 is greedy and deterministic. | nothing | n=the temperature, from 0 upward | SetSeed, SetTopP, Say | | the knobs carry across turns
+SetTopP | Sets the nucleus-sampling mass that later turns use. | nothing | n=the cumulative probability to sample from, up to 1 | SetTopK, SetTemperature | | the default is 0.95
+SetTopK | Sets how many of the likeliest tokens later turns sample from. | nothing | n=the number of candidate tokens | SetTopP, SetTemperature | | the default is 40
+SetSeed | Sets the random seed, so that the same turn with the same knobs gives the same text. | nothing | n=the seed number | SetTemperature | | the default is 42
+SetMaxTokens | Sets the most tokens a reply may hold. | nothing | n=the token budget of one reply | Say | | the default is 96
+Say | Sends a user turn and returns the assistant reply, adding only the new turn to the cached conversation. | a text, the reply; empty, with nothing recorded, when no generative model is loaded or the turn is not text | pcUser=the user turn | History, NumberOfTurns, CachedTokens | | the user text is made safe first, so a control token such as <|im_start|> typed by the user cannot open a turn of its own; SayQ gives the reply as a stzString; not run here, since it needs a generative model
+NumberOfTurns | Returns how many turns the transcript holds, counting user and assistant turns each. | a number; 0 before the first answered turn | | History, Say
+History | Returns the transcript as rows, oldest first. | a list of [ role, text ] rows, role being user or assistant | | NumberOfTurns, Content
+CachedTokens | Returns how many tokens the conversation occupies in the engine cache. | a number; 0 when nothing is cached | | Say
+Content | Returns the transcript, as History does. | a list of [ role, text ] rows | | History, Show
+Show | Prints the transcript, one line per turn as role: text. | the chat itself, so calls chain | | History

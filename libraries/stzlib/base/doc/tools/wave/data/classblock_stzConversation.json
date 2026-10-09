@@ -1,0 +1,14 @@
+{
+ "brief": "Runs a governed question-and-answer session in a knowledge space: the system asks from the gaps of a goal, and answers are admitted by law.",
+ "detail": "A conversation happens inside a stzKnowledgeGraph and never owns one: the space is handed in on each call. You hand the session exactly one goal; NextQuestion is born from the first gap and says why it asks, and Reply admits each answer through the space governed door, so a law such as :Unique refuses a value and the refusal becomes a checkpoint for a human. A number picks an offered option, text such as X and Y is split into values, and a list is taken as data. The goal moves from pursuing to fulfilled when no gap remains, or to revoked; Conclude then writes the space to a knowledge file, and refuses while gaps remain. It needs no model: neural wording is used only when a generative model is really loaded.",
+ "receiver": "oKB = new stzKnowledgeGraph(\"restaurant\"); oKB.Know(\"margherita\", \"dish\")\no1 = new stzConversation(\"setup\"); o1.SetGoal(StzGoalQ().RequireEach(\"dish\", \"contains\"))",
+ "example": [
+  "? o1.NextQuestion(oKB)",
+  "#--> What does 'margherita' have for 'contains'?  (why: every dish needs 'contains')",
+  "? len(o1.Reply(oKB, \"tomato and mozzarella\")[:admitted])",
+  "#--> 2",
+  "? o1.GoalState()",
+  "#--> fulfilled"
+ ],
+ "see": ["stzKnowledgeGraph", "stzGoal", "stzTranscript", "stzNeuralChat"]
+}

@@ -83,6 +83,28 @@
 # a grammar cannot express (a nested structure), ConstrainDecoding(0), or
 # a build without the sampler rung. WhyNotConstrained() names which.
 
+# Wraps a language-model call as a typed function: the reply validates as the declared type within a budget, or the call refuses.
+#
+# Declare a prompt with {input}, a return type (number, boolean, one of, free text or a whole
+# record) and a mandatory Budget. Call_ then answers a value of that type or raises an error: no
+# unvalidated text escapes. A reply that fails is retried inside the same budget, and the first
+# attempt is greedy while retries draw again. Validated answers are memoized by content hash, so the
+# same input is free and deterministic the second time. For a structured return the schema also
+# gives the model a prompt clause and, when the engine allows, a grammar that fixes the shape of the
+# reply; a grammar never fixes a value or the truth, so the court still checks bands. UseResponder
+# and SeedAnswer let it run with no model for tests, and say so in Why. The object has no capability
+# beyond mapping text to a typed value.
+#
+#   receiver   o1 = new stzLLMFunction("classify-mood"); o1.SetPrompt("Positive or negative?
+#              {input}"); o1.ReturnsOneOf([ "positive", "negative" ]) o1.Budget(5);
+#              o1.SeedAnswer("What a lovely day", "positive")
+#   example    ? o1.Call_("What a lovely day")
+#              #--> positive
+#              ? o1.CallsMade()
+#              #--> 0
+#              ? o1.HasSchema()
+#              #--> 0
+#   see        stzOutputSchema, stzNeuralModel, stzNeuralChat
 class stzLLMFunction from stzObject
 
 	@cName = ""
@@ -108,28 +130,70 @@ class stzLLMFunction from stzObject
 	@cNoGrammarWhy = ""        # why not, when a schema cannot become a grammar
 	@bLastConstrained = 0      # was the last live answer grammar-constrained?
 
+	# Builds a typed language-model function with a name, an empty prompt, string output and no budget.
+	#
+	#   pcName     the function name, which keys its memo cache
+	#   returns    nothing; the object is built
+	#   see        SetPrompt, Budget, Call_
 	def init(pcName)
 		@cName = "" + pcName
 
+	# Returns the name the function was built with.
+	#
+	#   returns    a text
+	#   see        SetPrompt
 	def Name_()
 		return @cName
 
+	# Sets the prompt template, in which {input} marks where each call puts its input text.
+	#
+	#   pcTemplate   the prompt text with an optional {input} marker
+	#   returns      the function itself, so calls chain
+	#   note         Call_ raises an error while no template is set
+	#   see          Call_, ReturnsStructure
 	def SetPrompt(pcTemplate)
 		@cTemplate = "" + pcTemplate
 		return This
 
+	# Declares that the answer must be a number.
+	#
+	#   returns    the function itself, so calls chain
+	#   note       a comma splits words, so 1,5 reads as 1
+	#   warning    the answer is read as the first word that parses as a number; a reply whose first
+	#              word is not numeric (such as about 42 or none) raises a Ring error R41 inside the
+	#              call instead of being refused or retried (w13 defect file)
+	#   see        ReturnsBoolean, ReturnsOneOf, Call_
 	def ReturnsNumber()
 		@cOutType = "number"
 		return This
 
+	# Declares that the answer must be yes or no, kept as 1 or 0.
+	#
+	#   returns    the function itself, so calls chain
+	#   note       a reply with neither is refused
+	#   warning    the reply is searched for the letters yes or true, then no or false, as
+	#              substrings, so a reply such as unknown reads as 0 (w13 defect file)
+	#   see        ReturnsNumber, ReturnsOneOf, Call_
 	def ReturnsBoolean()
 		@cOutType = "boolean"
 		return This
 
+	# Declares that the answer is free text, trimmed of surrounding whitespace.
+	#
+	#   returns    the function itself, so calls chain
+	#   note       this is the default type
+	#   see        ReturnsNumber, ReturnsOneOf, Call_
 	def ReturnsString()
 		@cOutType = "string"
 		return This
 
+	# Declares that the answer must be one of a fixed set of choices, kept in lower case.
+	#
+	#   pacChoices   the allowed answers as a list of text, compared without regard to case
+	#   returns      the function itself, so calls chain
+	#   note         a reply is accepted when it equals a choice, or contains exactly one of the
+	#                choices
+	#   see          ReturnsString, ReturnsStructure, Call_
 	def ReturnsOneOf(pacChoices)
 		@cOutType = "oneof"
 		@acChoices = []
@@ -139,9 +203,16 @@ class stzLLMFunction from stzObject
 		next
 		return This
 
-	# THE STRUCTURED RUNG. paFields is an stzOutputSchema declaration; it
-	# is compiled and judged HERE, so a defective declaration can never
-	# reach a model.
+	# Declares that the answer must be a record of the given fields, judged now, so a faulty declaration never reaches a model.
+	#
+	#   paFields   the stzOutputSchema declaration, a list of field hash-lists with field, type and
+	#              optional must, choices, of and optional
+	#   returns    the function itself, so calls chain
+	#   note       ReturnsStructureQ is the same call; one missing required field refuses the whole
+	#              answer
+	#   warning    raises an error on the spot for an unknown field type or a mistyped key
+	#   see        Schema, RefuseUnknownFields
+	#@ aka  THE STRUCTURED RUNG. paFields is an stzOutputSchema declaration; it is compiled and judged HERE, so a defective declaration can never reach a model.
 	def ReturnsStructure(paFields)
 		_o_ = new stzOutputSchema(paFields)
 		_o_.SetNameQ(@cName)
@@ -153,12 +224,21 @@ class stzLLMFunction from stzObject
 		def ReturnsStructureQ(paFields)
 			return This.ReturnsStructure(paFields)
 
+	# TRUE if the function returns a declared structure.
+	#
+	#   returns    TRUE or FALSE
+	#   see        ReturnsStructure, Schema
 	def HasSchema()
 		return @bHasSchema
 
-	# A READ. Ring copies on assign, so configuring the returned schema
-	# configures a copy and nothing else -- use RefuseUnknownFields()
-	# below for the one knob that has to land on the stored one.
+	# Returns the stzOutputSchema of the declared structure, as a copy to read.
+	#
+	#   returns    the stzOutputSchema object
+	#   note       changing the returned copy does not change the function; use RefuseUnknownFields
+	#              for that
+	#   warning    raises an error when the function returns anything but a structure
+	#   see        HasSchema, RefuseUnknownFields
+	#@ aka  A READ. Ring copies on assign, so configuring the returned schema configures a copy and nothing else -- use RefuseUnknownFields() below for the one knob that has to land on the stored one.
 	def Schema()
 		if @bHasSchema = 0
 			stzraise("This function returns a " + @cOutType + ", not a structure -- " +
@@ -166,8 +246,13 @@ class stzLLMFunction from stzObject
 		ok
 		return @oSchema
 
-	# Closed-world: a field the schema never declared refuses the answer
-	# instead of being reported and dropped.
+	# Makes the declared structure closed, so that a field the model adds refuses the answer instead of being dropped.
+	#
+	#   returns    the function itself, so calls chain
+	#   note       an answer already memoized is still served from the cache
+	#   warning    raises an error when the function returns anything but a structure
+	#   see        Schema, LastFindings
+	#@ aka  Closed-world: a field the schema never declared refuses the answer instead of being reported and dropped.
 	def RefuseUnknownFields()
 		if @bHasSchema = 0
 			stzraise("RefuseUnknownFields() needs a structure -- declare ReturnsStructure([...]) first.")
@@ -177,29 +262,45 @@ class stzLLMFunction from stzObject
 		@oSchema = _o_
 		return This
 
-	# The findings the LAST validation produced, in the family's unified
-	# shape -- so a refusal can be handed to stzRuleReport.Ingest() and
-	# stand in the same CI gate as every other rule in the library.
+	# Returns the findings of the last validation, the reasons a reply was refused or trimmed.
+	#
+	#   returns    a list of rule rows [ :rule, :subject, :where, :severity, :message ]; [ ] when
+	#              nothing was found
+	#   note       an open structure reports a dropped extra field here as a warning
+	#   see        CallsMade, Why
+	#@ aka  The findings the LAST validation produced, in the family's unified shape -- so a refusal can be handed to stzRuleReport.Ingest() and stand in the same CI gate as every other rule in the library.
 	def LastFindings()
 		return @aLastFindings
 
+	# Sets the most model calls the function may spend; it is mandatory before the first call.
+	#
+	#   nMaxCalls   the number of model calls allowed in the life of the object
+	#   returns     the function itself, so calls chain
+	#   note        Call_ raises an error naming the budget when it is exhausted; a memo hit costs
+	#               nothing
+	#   see         SetRetries, CallsMade, Call_
 	def Budget(nMaxCalls)
 		@nMaxCalls = nMaxCalls
 		return This
 
+	# Sets how many further attempts follow a refused reply.
+	#
+	#   n          the number of retries
+	#   returns    the function itself, so calls chain
+	#   note       the default is 2, so up to 3 attempts
+	#   see        Budget, SetRetrySampling
 	def SetRetries(n)
 		@nRetries = n
 		return This
 
-	# TEST / OFFLINE DOOR, named for what it is. The responder is a FAKE
-	# standing where the model stands: it receives (prompt, attempt) and
-	# returns the raw text a model would have returned. It exists so the
-	# refusal paths -- the ones that matter most and that no seeded cache
-	# can reach -- can be narrated without a GGUF. It spends budget like
-	# a real call, and Why() says "FAKE responder" on every answer it
-	# produces, so nothing it returns can be mistaken for a live one.
-	# (The name follows stzGraphRule.UseChecker(): same escape-hatch
-	# shape, same word.)
+	# Puts a fake in the model place: a function that receives the prompt and the attempt number and returns raw reply text.
+	#
+	#   fResponder   the name of a function with two parameters, prompt text and attempt number
+	#   returns      nothing; use UseResponderQ to chain
+	#   note         for offline tests; it spends budget like a real call and Why says FAKE
+	#                responder
+	#   see          IsUsingResponder, SeedAnswer, Call_
+	#@ aka  TEST / OFFLINE DOOR, named for what it is. The responder is a FAKE standing where the model stands: it receives (prompt, attempt) and returns the raw text a model would have returned. It exists so the refusal paths -- the ones that matter most and that no seeded cache can reach -- can be narrated without a GGUF. It spends budget like a real call, and Why() says "FAKE responder" on every answer it 
 	def UseResponder(fResponder)
 		This.UseResponderQ(fResponder)
 
@@ -208,17 +309,39 @@ class stzLLMFunction from stzObject
 		@bHasResponder = 1
 		return This
 
+	# TRUE if a fake responder stands in for the model.
+	#
+	#   returns    TRUE or FALSE
+	#   see        UseResponder
 	def IsUsingResponder()
 		return @bHasResponder
 
+	# Returns how many model or responder calls were spent.
+	#
+	#   returns    a number
+	#   see        Budget, Call_
 	def CallsMade()
 		return @nCallsMade
 
+	# Returns how the last answer came about: memoized, generated, or from a fake responder.
+	#
+	#   returns    a text; empty before the first call
+	#   see        LastFindings, Call_
 	def Why()
 		return @cWhy
 
-	#-- the call ------------------------------------------------------------
-
+	# Maps an input text to a value of the declared type, from the memo or from the model, or refuses.
+	#
+	#   pcInput    the text that replaces {input} in the prompt
+	#   returns    the validated value: a text, a number, 1 or 0, a choice or a list of [ field,
+	#              value ] rows
+	#   note       the same input gives the same answer free from the memo; of is an alias for this
+	#              call
+	#   warning    raises an error without a prompt, without a budget, when no generative model is
+	#              loaded and nothing is memoized, when the budget is spent, and after the retries
+	#              when no reply validates
+	#   see        Of, Budget, SeedAnswer, Why
+	#@ aka  -- the call ------------------------------------------------------------
 	def Call_(pcInput)
 		if @cTemplate = ""
 			stzraise("Declare the Prompt() template first.")
@@ -277,8 +400,16 @@ class stzLLMFunction from stzObject
 		def Of(pcInput)
 			return This.Call_(pcInput)
 
-	# test/offline door: seed a known answer into the memo cache (the
-	# golden path for model-free environments; the seed is EXPLICIT)
+	# Stores a known answer for an input in the memo, so a later call returns it without a model.
+	#
+	#   pcInput    the input text the answer belongs to
+	#   pValue     the answer, judged against the declared structure first
+	#   returns    the function itself, so calls chain
+	#   note       the key covers name, type and the full prompt, so declare the type and prompt
+	#              before seeding
+	#   warning    raises an error when the answer does not satisfy the declared structure
+	#   see        Call_, UseResponder
+	#@ aka  test/offline door: seed a known answer into the memo cache (the golden path for model-free environments; the seed is EXPLICIT)
 	def SeedAnswer(pcInput, pValue)
 		_cPrompt_ = This._EffectivePrompt(pcInput)
 		_cKey_ = StzEngineCryptoSha256(@cName + "|" + @cOutType + "|" + _cPrompt_)
@@ -439,11 +570,13 @@ class stzLLMFunction from stzObject
 		@cGrammar = _c_
 		return _c_
 
-	#-- constrained decoding, asked and answered ---------------------------
-
-	# ON by default when a structure is declared and the engine enforces
-	# grammars. Turn it OFF to compare, or when a caller wants the model's
-	# unconstrained voice and the court's verdict on it.
+	# Switches grammar-constrained decoding on or off for a structured function.
+	#
+	#   pbYesNo    1 to constrain decoding with the schema grammar, 0 to leave it unconstrained
+	#   returns    nothing; use ConstrainDecodingQ to chain
+	#   note       it is on by default; a grammar fixes the shape, never the value or the truth
+	#   see        IsConstrainingDecoding, WhyNotConstrained
+	#@ aka  -- constrained decoding, asked and answered ---------------------------
 	def ConstrainDecoding(pbYesNo)
 		This.ConstrainDecodingQ(pbYesNo)
 
@@ -455,15 +588,23 @@ class stzLLMFunction from stzObject
 		ok
 		return This
 
-	# Will the NEXT live call be grammar-constrained? Ask this rather than
-	# assuming: a nested structure, an off switch, or a build without the
-	# sampler rung all answer 0, and WhyNotConstrained() says which.
+	# TRUE if the next live call will constrain the sampler with the schema grammar.
+	#
+	#   returns    TRUE or FALSE
+	#   note       FALSE for a scalar type, for ConstrainDecoding(0), for a nested structure and for
+	#              a build without the sampler rung
+	#   see        WhyNotConstrained, ConstrainDecoding
+	#@ aka  Will the NEXT live call be grammar-constrained? Ask this rather than assuming: a nested structure, an off switch, or a build without the sampler rung all answer 0, and WhyNotConstrained() says which.
 	def IsConstrainingDecoding()
 		if This._GrammarOrEmpty() = ""
 			return 0
 		ok
 		return 1
 
+	# Returns the reason the next live call will not be grammar-constrained.
+	#
+	#   returns    a text; empty when it will be constrained
+	#   see        IsConstrainingDecoding
 	def WhyNotConstrained()
 		if This._GrammarOrEmpty() != ""
 			return ""
@@ -474,12 +615,23 @@ class stzLLMFunction from stzObject
 	def GrammarUsed()
 		return This._GrammarOrEmpty()
 
-	# Was the LAST live answer grammar-constrained? (0 for a memo hit and
-	# for a fake responder -- neither of them decoded anything.)
+	# TRUE if the last live answer was drawn under a grammar.
+	#
+	#   returns    TRUE or FALSE
+	#   note       0 for a memo hit and for a fake responder, since neither decoded anything
+	#   see        IsConstrainingDecoding
+	#@ aka  Was the LAST live answer grammar-constrained? (0 for a memo hit and for a fake responder -- neither of them decoded anything.)
 	def WasLastAnswerConstrained()
 		return @bLastConstrained
 
-	# The sampling a RETRY uses. Attempt 1 never sees these -- it is greedy.
+	# Sets the temperature and seed that retries sample with.
+	#
+	#   pnTemperature   the sampling temperature of attempts after the first
+	#   pnSeed          the base seed, to which the attempt number is added
+	#   returns         nothing; use SetRetrySamplingQ to chain
+	#   note            the first attempt is always greedy; defaults are 0.7 and 1000
+	#   see             RetryTemperature, SetRetries
+	#@ aka  The sampling a RETRY uses. Attempt 1 never sees these -- it is greedy.
 	def SetRetrySampling(pnTemperature, pnSeed)
 		This.SetRetrySamplingQ(pnTemperature, pnSeed)
 
@@ -488,6 +640,12 @@ class stzLLMFunction from stzObject
 		@nRetrySeed = pnSeed
 		return This
 
+	# Sets the most tokens a model reply may hold.
+	#
+	#   pnMax      the token budget of one reply
+	#   returns    nothing; use SetMaxTokensQ to chain
+	#   note       the default is 128
+	#   see        SetRetrySampling
 	def SetMaxTokens(pnMax)
 		This.SetMaxTokensQ(pnMax)
 
@@ -495,6 +653,10 @@ class stzLLMFunction from stzObject
 		@nMaxTokens = pnMax
 		return This
 
+	# Returns the temperature that retries sample with.
+	#
+	#   returns    a number; 0.7 by default
+	#   see        SetRetrySampling
 	def RetryTemperature()
 		return @nRetryTemp
 
@@ -510,8 +672,13 @@ class stzLLMFunction from stzObject
 		ok
 		return " WHY: " + @oSchema.CiteFindings(@aLastFindings)
 
-	#-- golden sets -----------------------------------------------------------
-
+	# Adds an input with the answer it must give, for RunGoldens to check.
+	#
+	#   pcInput     the input text
+	#   pExpected   the expected answer, a scalar or a structure
+	#   returns     nothing; use AddGoldenQ to chain
+	#   see         RunGoldens, Call_
+	#@ aka  -- golden sets -----------------------------------------------------------
 	def AddGolden(pcInput, pExpected)
 		@aGoldens + [ "" + pcInput, pExpected ]
 
@@ -519,12 +686,14 @@ class stzLLMFunction from stzObject
 			This.AddGolden(pcInput, pExpected)
 			return This
 
-	# Goldens hold STRUCTURES as readily as scalars now. Two things had
-	# to change for that, and both were real defects rather than gaps:
-	# Ring's own `=` answers 0 for two identical lists, so a structured
-	# golden could never have passed; and a failing structured case that
-	# reports only "expected / got" is unreadable, so the failure now
-	# carries the FIELD that moved.
+	# Calls the function on every golden input and compares each answer with the expected one.
+	#
+	#   returns    a hash-list [ :total, :passed, :failed ]; each failure is a hash-list with input,
+	#              expected, got and findings
+	#   note       it spends budget like any call; a structure that differs lists the fields that
+	#              moved
+	#   see        AddGolden, Call_
+	#@ aka  Goldens hold STRUCTURES as readily as scalars now. Two things had to change for that, and both were real defects rather than gaps: Ring's own `=` answers 0 for two identical lists, so a structured golden could never have passed; and a failing structured case that reports only "expected / got" is unreadable, so the failure now carries the FIELD that moved.
 	def RunGoldens()
 		_nPass_ = 0
 		_aFailed_ = []

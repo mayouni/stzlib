@@ -1,0 +1,27 @@
+{
+ "brief": "Runs a piece of Ring code once for each item of a list, binding the item's values to named loop variables.",
+ "detail": "Build it with @ForEach(p, pIn), giving the variable name or names and the data as :In = ... Then Exec (or Run, X, @) takes the code as text and evaluates it once per item. With several names, each item of the list is a list and every name is a variable inside the code; with one name, read the item through v(:Name), because the name itself is not bound. ExecN runs the code only at chosen positions, and @SetIterations narrows every later Exec to a list of positions. The code is evaluated inside the object, so collect results in a global variable. A text can be walked with a single name, but byte by byte, and an empty list or text raises an index error when run.",
+ "receiver": "o1 = new stzForEachObject([ :Char, :Number ], :In = [ [ \"A\", 1 ], [ \"B\", 2 ], [ \"C\", 3 ] ])",
+ "example": [
+  "aOut = []",
+  "o1.Exec('aOut + (Char + Number)')",
+  "? @@( aOut )",
+  "#--> [ \"A1\", \"B2\", \"C3\" ]",
+  "aOut = []",
+  "o1.ExecN([ 3, 1 ], 'aOut + v(:Char)')",
+  "? @@( aOut )",
+  "#--> [ \"C\", \"A\" ]",
+  "? @@( o1.@Vars() )",
+  "#--> [ \"char\", \"number\" ]",
+  "? o1.@NumberOfIterations()",
+  "#--> 3",
+  "? @@( o1.@Content() )",
+  "#--> [ [ \"char\", [ \"A\", \"B\", \"C\" ] ], [ \"number\", [ 1, 2, 3 ] ] ]",
+  "o1.@SetIterations([ 2 ])",
+  "aOut = []",
+  "o1.Exec('aOut + v(:Number)')",
+  "? @@( aOut )",
+  "#--> [ 2 ]"
+ ],
+ "see": ["@ForEach", "stzForEachObjectOld", "stzListOfLists"]
+}

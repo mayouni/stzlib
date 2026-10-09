@@ -496,10 +496,39 @@ func StzTrustModel(pcPath)
 func StzModelLoadStatus()
 	return StzEngineNeuralModelLoadStatus()
 
+# Loads a neural model from a GGUF file at runtime and exposes its architecture, embeddings, token ids and, for a decoder, generation.
+#
+# The model goes into the engine single active slot, so the text-meaning layer and the similarity
+# operations upgrade from lexical to semantic while one is loaded. A file loads only when its
+# SHA-256 digest was recorded as trusted (StzTrustModel, or StzExpectModelDigest for one process):
+# otherwise LoadFrom answers FALSE and LoadStatus says why. With all-MiniLM-L6-v2 loaded it reports
+# arch bert, embedding width 384, 6 layers, 12 heads and a vocabulary of 30522; EmbeddingOf then
+# returns a unit-length 384-number vector, and SemanticSimilarityBetween is the dot product of two
+# of them. An embedding model cannot generate: Generate and AnswerTo give an empty text unless a
+# decoder model such as SmolLM2 is loaded. Everything answers empty or 0 while no model is loaded.
+#
+#   receiver   o1 = new stzNeuralModel("")
+#   example    ? o1.IsLoaded()
+#              #--> 0
+#              ? @@(o1.EmbeddingOf("hello"))
+#              #--> [ ]
+#              ? o1.LoadFrom("no-such-model.gguf")
+#              #--> 0
+#              ? o1.LoadStatus()
+#              #--> -1
+#   see        stzNeuralChat, stzOutputSchema, stzLLMFunction
 class stzNeuralModel from stzNeural
 
 	@cPath = ""
 
+	# Builds a model object, and loads the GGUF file at the given path when the path is a non-empty text.
+	#
+	#   pcPath     the path of a GGUF model file, or an empty text to build the object without
+	#              loading
+	#   returns    nothing; the object is built
+	#   note       an unrecorded model digest refuses the load without an error: ask IsLoaded
+	#              afterwards
+	#   see        LoadFrom, IsLoaded
 	def init(pcPath)
 		if isString(pcPath) and pcPath != ""
 			This.LoadFrom(pcPath)
@@ -508,61 +537,121 @@ class stzNeuralModel from stzNeural
 	  #==========================================================#
 	 #   LOAD / UNLOAD (runtime GGUF)                           #
 	#==========================================================#
-	# (Named LoadFrom, not Load -- "Load" collides with Ring's load keyword.)
+	# Loads a GGUF model file into the engine single active model slot, if its SHA-256 digest was recorded as trusted.
+	#
+	#   pcPath     the path of a GGUF model file
+	#   returns    TRUE if the model loaded, FALSE if refused
+	#   note       the path is kept even when the load was refused; trust a model first with
+	#              StzTrustModel or StzExpectModelDigest
+	#   warning    a refusal gives FALSE and no error; LoadStatus says why (-1 unreadable, -2 digest
+	#              mismatch, -3 no digest recorded), and a path that is not text gives FALSE
+	#   see        LoadStatus, IsLoaded, Unload
+	#@ aka  (Named LoadFrom, not Load -- "Load" collides with Ring's load keyword.)
 	def LoadFrom(pcPath)
 		if NOT isString(pcPath) return 0 ok
 		@cPath = pcPath
 		# refused unless the file's digest was recorded -- see StzTrustModel
 		return StzEngineNeuralModelLoad(pcPath) = 1
 
-	# Why the last LoadFrom was refused (0 ok, -1 unreadable, -2 digest
-	# mismatch, -3 no recorded digest).
+	# Returns why the last load was accepted or refused.
+	#
+	#   returns    a number: 0 loaded, -1 unreadable or not a GGUF, -2 digest differs from the
+	#              recorded one, -3 no digest recorded
+	#   see        LoadFrom, IsLoaded
+	#@ aka  Why the last LoadFrom was refused (0 ok, -1 unreadable, -2 digest mismatch, -3 no recorded digest).
 	def LoadStatus()
 		return StzEngineNeuralModelLoadStatus()
 
 		def Open(pcPath)
 			return This.LoadFrom(pcPath)
 
+	# TRUE if a model is loaded in the engine slot.
+	#
+	#   returns    TRUE or FALSE
+	#   note       the slot is shared by the whole process, so it answers for any model loaded, not
+	#              only this object
+	#   see        LoadFrom, Unload
 	def IsLoaded()
 		return StzEngineNeuralModelLoaded() = 1
 
+	# Frees the model from the engine slot and forgets the path.
+	#
+	#   returns    the model object itself, so calls chain
+	#   note       the slot is shared by the whole process, so it frees whatever model is loaded
+	#   see        LoadFrom, IsLoaded
 	def Unload()
 		StzEngineNeuralModelFree()
 		@cPath = ""
 		return This
 
+	# Returns the path given to the last LoadFrom.
+	#
+	#   returns    a text; empty before any load and after Unload
+	#   see        LoadFrom
 	def Path()
 		return @cPath
 
 	  #==========================================================#
 	 #   ARCHITECTURE + HYPERPARAMETERS                         #
 	#==========================================================#
+	# Returns the architecture name of the loaded model, such as bert.
+	#
+	#   returns    a text; empty when no model is loaded
+	#   see        Content, EmbeddingDim
 	def Arch()
 		return StzEngineNeuralModelArch()
 
 		def Architecture()
 			return This.Arch()
 
+	# Returns the width of the sentence embedding the loaded model produces.
+	#
+	#   returns    a number; 0 when no model is loaded, 384 for all-MiniLM-L6-v2
+	#   see        EmbeddingOf, Content
 	def EmbeddingDim()
 		return StzEngineNeuralModelNEmbd()
 
+	# Returns how many transformer layers the loaded model has.
+	#
+	#   returns    a number; 0 when no model is loaded
+	#   see        NumberOfHeads, Content
 	def NumberOfLayers()
 		return StzEngineNeuralModelNLayers()
 
+	# Returns how many attention heads each layer of the loaded model has.
+	#
+	#   returns    a number; 0 when no model is loaded
+	#   see        NumberOfLayers, Content
 	def NumberOfHeads()
 		return StzEngineNeuralModelNHeads()
 
+	# Returns the longest token sequence the loaded model accepts.
+	#
+	#   returns    a number; 0 when no model is loaded
+	#   see        Tokenize, Content
 	def ContextLength()
 		return StzEngineNeuralModelNCtx()
 
+	# Returns how many tokens the vocabulary of the loaded model holds.
+	#
+	#   returns    a number; 0 when no model is loaded
+	#   see        Tokenize, Content
 	def VocabSize()
 		return StzEngineNeuralModelNVocab()
 
+	# Returns how many weight tensors the loaded model file holds.
+	#
+	#   returns    a number; 0 when no model is loaded
+	#   see        Content
 	def NumberOfTensors()
 		return StzEngineNeuralModelNTensors()
 
-	# Content() = what the model IS: its architecture + hyperparameters as
-	# [key, value] data. Show() renders it (Softanza Show = visualize Content).
+	# Returns the model architecture and hyperparameters as data.
+	#
+	#   returns    a list of [ key, value ] rows: arch, embedding_dim, layers, heads,
+	#              context_length, vocab_size and tensors
+	#   see        Show, Arch
+	#@ aka  Content() = what the model IS: its architecture + hyperparameters as [key, value] data. Show() renders it (Softanza Show = visualize Content).
 	def Content()
 		return [
 			[ "arch", This.Arch() ],
@@ -577,6 +666,10 @@ class stzNeuralModel from stzNeural
 		def Info()
 			return This.Content()
 
+	# Prints a one-line summary of the loaded model, or says that none is loaded.
+	#
+	#   returns    the model object itself, so calls chain
+	#   see        Content, IsLoaded
 	def Show()
 		if NOT This.IsLoaded()
 			? "stzNeuralModel [ not loaded ]"
@@ -591,9 +684,14 @@ class stzNeuralModel from stzNeural
 		  #==========================================================#
 		 #   FORWARD PASS -- sentence embeddings                    #
 		#==========================================================#
-		# EmbeddingOf(cText) -- run the BERT forward pass (embeddings + N
-		# transformer layers + mean-pool + L2-normalize) and return the
-		# sentence-embedding vector as a list of EmbeddingDim() floats (DATA).
+		# Runs the forward pass and returns the sentence embedding of a text, unit length.
+		#
+		#   pcText     the sentence to embed
+		#   returns    a list of EmbeddingDim numbers; [ ] when no model is loaded, for a text that
+		#              is not text and for an empty text
+		#   note       the vector has length one, so the dot product of two of them is their cosine
+		#   see        SemanticSimilarityBetween, Tokenize, EmbeddingDim
+		#@ aka  EmbeddingOf(cText) -- run the BERT forward pass (embeddings + N transformer layers + mean-pool + L2-normalize) and return the sentence-embedding vector as a list of EmbeddingDim() floats (DATA).
 		def EmbeddingOf(pcText)
 			if NOT isString(pcText) return [] ok
 			StzNeuralVariantsSync()
@@ -608,7 +706,13 @@ class stzNeuralModel from stzNeural
 			def Embedding(pcText)
 				return This.EmbeddingOf(pcText)
 
-		# WordPiece token ids for cText (with [CLS]..[SEP]) -- DATA.
+		# Returns the WordPiece token ids of a text, with the start and end markers.
+		#
+		#   pcText     the text to split into tokens
+		#   returns    a list of numbers; [ ] when no model is loaded or the text is not text
+		#   note       an embedding model gives ids such as 101 first and 102 last
+		#   see        EmbeddingOf, VocabSize
+		#@ aka  WordPiece token ids for cText (with [CLS]..[SEP]) -- DATA.
 		def Tokenize(pcText)
 			if NOT isString(pcText) return [] ok
 			_nCount_ = StzEngineNeuralTokenize(pcText)
@@ -618,23 +722,47 @@ class stzNeuralModel from stzNeural
 			next
 			return _aIds_
 
-		# TRUE if this model can GENERATE text (a causal decoder).
+		# TRUE if the loaded model can generate text, which an embedding model cannot.
+		#
+		#   returns    TRUE or FALSE
+		#   see        Generate, AnswerTo
+		#@ aka  TRUE if this model can GENERATE text (a causal decoder).
 		def IsGenerative()
 			return StzHasGenerativeModel()
 
-		# Greedy generation from a raw prompt ("" when not generative).
+		# Continues a raw prompt greedily with the loaded generative model, up to a number of new tokens.
+		#
+		#   pcPrompt         the raw prompt text to continue
+		#   pnMaxNewTokens   the most tokens to add, 64 when not a positive number
+		#   returns          a text; empty when no generative model is loaded
+		#   see              AnswerTo, IsGenerative
+		#@ aka  Greedy generation from a raw prompt ("" when not generative).
 		def Generate(pcPrompt, pnMaxNewTokens)
 			return StzGenerate(pcPrompt, pnMaxNewTokens)
 
-		# Ask the instruct model a question (ChatML-wrapped, greedy).
+		# Asks the loaded instruct model a question, wrapped as a ChatML prompt, answering greedily.
+		#
+		#   pcQuestion       the question
+		#   pnMaxNewTokens   the most tokens to add, 64 when not a positive number
+		#   returns          a text; empty when no generative model is loaded
+		#   note             AnswerToQ gives the answer as a stzString
+		#   see              Generate, IsGenerative
+		#@ aka  Ask the instruct model a question (ChatML-wrapped, greedy).
 		def AnswerTo(pcQuestion, pnMaxNewTokens)
 			return StzAskModel(pcQuestion, pnMaxNewTokens)
 
 			def AnswerToQ(pcQuestion, pnMaxNewTokens)
 				return new stzString(This.AnswerTo(pcQuestion, pnMaxNewTokens))
 
-		# Cosine similarity of two texts' embeddings, in [-1, 1] (DATA). The
-		# vectors are already L2-normalized, so cosine = dot product.
+		# Returns the cosine similarity of the embeddings of two texts, from -1 to 1.
+		#
+		#   pcA        the first text
+		#   pcB        the second text
+		#   returns    a number; 0 when no model is loaded
+		#   note       for all-MiniLM-L6-v2, a sentence with itself gives 1, two paraphrases about
+		#              0.6 and unrelated sentences near 0
+		#   see        EmbeddingOf, StzSemanticSimilarity
+		#@ aka  Cosine similarity of two texts' embeddings, in [-1, 1] (DATA). The vectors are already L2-normalized, so cosine = dot product.
 		def SemanticSimilarityBetween(pcA, pcB)
 			_aA_ = This.EmbeddingOf(pcA)
 			_aB_ = This.EmbeddingOf(pcB)
@@ -654,6 +782,23 @@ class stzNeuralModel from stzNeural
 # Say() after that APPENDS only the new turn to the KV cache and generates.
 # Sampling knobs carry across turns (SetTemperature/SetSeed/...).
 
+# Holds a multi-turn conversation with a loaded decoder model, processing the transcript once and appending each new turn to the cache.
+#
+# The first Say fills the cache with the system prompt and the user turn; each later Say appends
+# only the new turn instead of re-reading the transcript. Sampling knobs (temperature, top-p, top-k,
+# seed, token budget) set before a turn carry across the following turns. Text from the user is made
+# safe before it enters the prompt, so a control token typed by the user cannot open a turn of its
+# own. It needs a generative model loaded in the engine: with none, Say gives an empty text and
+# records nothing.
+#
+#   receiver   o1 = new stzNeuralChat("be terse")
+#   example    ? o1.NumberOfTurns()
+#              #--> 0
+#              ? len(o1.History())
+#              #--> 0
+#              ? o1.CachedTokens()
+#              #--> 0
+#   see        stzNeuralModel, StzNeuralChatQ, stzLLMFunction
 class stzNeuralChat from stzObject
 
 	@cSystem = ""
@@ -665,6 +810,11 @@ class stzNeuralChat from stzObject
 	@nSeed = 42
 	@aTurns = []   # [ [role, text], ... ] the transcript (for Show/History)
 
+	# Builds a chat session with a system prompt, or a default brief-answer prompt when none is given.
+	#
+	#   pcSystem   the system prompt that frames every answer
+	#   returns    nothing; the object is built
+	#   see        Say, SetTemperature
 	def init(pcSystem)
 		if isString(pcSystem) and pcSystem != ""
 			@cSystem = pcSystem
@@ -672,14 +822,50 @@ class stzNeuralChat from stzObject
 			@cSystem = "You are a helpful assistant. Answer briefly."
 		ok
 
+	# Sets the sampling temperature that later turns use; 0 is greedy and deterministic.
+	#
+	#   n          the temperature, from 0 upward
+	#   returns    nothing
+	#   note       the knobs carry across turns
+	#   see        SetSeed, SetTopP, Say
 	def SetTemperature(n) @nTemperature = n
+	# Sets the nucleus-sampling mass that later turns use.
+	#
+	#   n          the cumulative probability to sample from, up to 1
+	#   returns    nothing
+	#   note       the default is 0.95
+	#   see        SetTopK, SetTemperature
 	def SetTopP(n) @nTopP = n
+	# Sets how many of the likeliest tokens later turns sample from.
+	#
+	#   n          the number of candidate tokens
+	#   returns    nothing
+	#   note       the default is 40
+	#   see        SetTopP, SetTemperature
 	def SetTopK(n) @nTopK = n
+	# Sets the random seed, so that the same turn with the same knobs gives the same text.
+	#
+	#   n          the seed number
+	#   returns    nothing
+	#   note       the default is 42
+	#   see        SetTemperature
 	def SetSeed(n) @nSeed = n
+	# Sets the most tokens a reply may hold.
+	#
+	#   n          the token budget of one reply
+	#   returns    nothing
+	#   note       the default is 96
+	#   see        Say
 	def SetMaxTokens(n) @nMaxTokens = n
 
-	# Say(userText) -> the assistant's reply. First call prefills
-	# system+user; later calls append only the new turn.
+	# Sends a user turn and returns the assistant reply, adding only the new turn to the cached conversation.
+	#
+	#   pcUser     the user turn
+	#   returns    a text, the reply; empty, with nothing recorded, when no generative model is
+	#              loaded or the turn is not text
+	#   note       the user text is made safe first, so a control token such as <
+	#   see        History, NumberOfTurns, CachedTokens
+	#@ aka  Say(userText) -> the assistant's reply. First call prefills system+user; later calls append only the new turn.
 	def Say(pcUser)
 		if StzHasGenerativeModel() = 0 return "" ok
 		if NOT isString(pcUser) return "" ok
@@ -708,19 +894,39 @@ class stzNeuralChat from stzObject
 		def SayQ(pcUser)
 			return new stzString(This.Say(pcUser))
 
+	# Returns how many turns the transcript holds, counting user and assistant turns each.
+	#
+	#   returns    a number; 0 before the first answered turn
+	#   see        History, Say
 	def NumberOfTurns()
 		return len(@aTurns)
 
+	# Returns the transcript as rows, oldest first.
+	#
+	#   returns    a list of [ role, text ] rows, role being user or assistant
+	#   see        NumberOfTurns, Content
 	def History()
 		return @aTurns
 
-	# how many tokens the conversation occupies in the KV cache
+	# Returns how many tokens the conversation occupies in the engine cache.
+	#
+	#   returns    a number; 0 when nothing is cached
+	#   see        Say
+	#@ aka  how many tokens the conversation occupies in the KV cache
 	def CachedTokens()
 		return StzEngineNeuralGenCached()
 
+	# Returns the transcript, as History does.
+	#
+	#   returns    a list of [ role, text ] rows
+	#   see        History, Show
 	def Content()
 		return @aTurns
 
+	# Prints the transcript, one line per turn as role: text.
+	#
+	#   returns    the chat itself, so calls chain
+	#   see        History
 	def Show()
 		_n_ = len(@aTurns)
 		for _i_ = 1 to _n_

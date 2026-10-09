@@ -1,0 +1,21 @@
+{
+ "brief": "Keeps a structured, leveled log in memory that you can filter, query by field and render as text or JSON.",
+ "detail": "A log is a stream of entries, each a hash-list with seq, ts (epoch milliseconds), level, category, message and fields. The levels run trace, debug, info, warn, error, fatal; the threshold (info by default) drops anything below it. Write with Record or the shortcuts Info, Warn and the rest, which return the log so writes chain; read with Entries, EntriesOfLevel, Where, OfTrace and Since; render with AsText, AsJson and OtelJson, or write to a file. A cap keeps only the newest entries.",
+ "receiver": "o1 = new stzLog(\"deploy\")",
+ "example": [
+  "o1.Info(\"build started\")",
+  "o1.Record(:error, \"compile failed\", [ [ :part, \"api\" ], [ :code, 2 ] ])",
+  "o1.Debug(\"hidden\")",
+  "? o1.NumberOfEntries()",
+  "#--> 2",
+  "? o1.CountOfLevel(:error)",
+  "#--> 1",
+  "? @@( o1.LastEntry()[:message] )",
+  "#--> \"compile failed\"",
+  "? @@( o1.Where(:part, \"api\")[1][:fields] )",
+  "#--> [ [ \"part\", \"api\" ], [ \"code\", 2 ] ]",
+  "? @@( o1.Level() )",
+  "#--> \"info\""
+ ],
+ "see": ["StzLogQ", "StzLogLevels", "stzPerfMonitor"]
+}
