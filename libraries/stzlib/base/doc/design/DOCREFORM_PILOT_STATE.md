@@ -161,3 +161,17 @@ stzTable 66, stzCalendar 25, stzGeoMap 18, stzMatrex 17, stzGraph 12; (4) the ed
 w7_defects_education.md and w8_defects_payments.md, routed in CONCLUSIONS, not in the register; (5) the engine DLLs rebuild in
 every checkout; (6) the perception gate: a person reading ten briefs and one class page.
 
+## 2026-10-09: DERIVED BRIEFS for the generated classes, and WAVE 9 (cf2d495af)
+
+The author ruled "derived briefs for the three" (stzObject, stzQuestion, stzListNamedParams): meta/stzDocExport.ring
+_StzDocGenBrief derives the brief of the machine-made forwarders from the executor and the name (XB value test, XQC chainable
+copy, XN count, XNB count agreement, XQ question noun, Is<Keyword>NamedParam); guard test/reflect/docgen_narrated.ring (41).
+Wave 9: stzObject hand core + string helpers + stzMathDiagram + stzListOfBytes + three system classes (1,000 roots), and the
+parameter reader now ends at the matching parenthesis. Library: 13,589 of 21,747 pass (62.5 percent); gate OK; 96 dead forwards
+in deadforward_baseline.txt; register 268 in 36 classes (the new blocks carry warnings). Left: 8,158 roots in 471 classes,
+the long tail -- python tools/wave/class_rank.py <repo>/libraries/stzlib doc/reference.json out.json ranks by use; the
+unpassed top is stzPanel 64, stzNaturalEngine 64, stzLinearSolver 55, stzFalseObject 55, stzUMAP 54, stzStochasticSolver 54,
+stzRegexMaker 53, stzApp 51, stzEarcons 50, stzPlatform 49, stzNumbrex 49, stzWorkflow 48 ... Recipe: tools/wave/WAVE_PROMPT.md
+(wave 7/8 form) or the wave-9 prompt (neutral rules; in the session scratchpad, rebuild it from WAVE_PROMPT.md by dropping
+rule 4's status clause). Remember: three agents, file-disjoint, comments only, I verify code-identical-stripped, regenerate once.
+
