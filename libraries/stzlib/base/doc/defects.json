@@ -1,5 +1,5 @@
 {
- "count": 286,
+ "count": 316,
  "defects": [
   {
    "class": "stzAppServer",
@@ -232,6 +232,182 @@
    "line": 1901,
    "symptom": "Returns today, tomorrow or yesterday, a count of days or weeks within a month of today, else the date as dd/MM/yyyy.",
    "cause": ""
+  },
+  {
+   "class": "stzFileInfo",
+   "file": "file/stzFile.ring",
+   "method": "IsExecutable",
+   "line": 1133,
+   "symptom": "Returns 0 for every file today, because the extension it compares carries a leading dot.",
+   "cause": "defect: the extension is read as .exe or .BAT and compared with exe, bat, cmd and com, so a file named prog.exe and one named run.BAT both answer 0; the sibling stzFileManager.IsExecutable fails differently (see there)"
+  },
+  {
+   "class": "stzFileManager",
+   "file": "file/stzFile.ring",
+   "method": "CopyTo",
+   "line": 2967,
+   "symptom": "Raises error R3 today instead of copying the file into a folder under its own name.",
+   "cause": "defect: the body calls the helper _FileName, which is not a global function (a function placed between two classes belongs to the class before it), so every call raises Calling Function without definition: _filename; same cause as MoveTo, MoveAs, RenameAs, CopyAs, CreateBackup, CreateBackupAs, SafeDelete, SafeRemove, ZipBackup and IsExecutable"
+  },
+  {
+   "class": "stzFileManager",
+   "file": "file/stzFile.ring",
+   "method": "CopyAs",
+   "line": 2988,
+   "symptom": "Raises error R3 today instead of copying the file under a new name in the same folder.",
+   "cause": "defect: the body calls the helper _FileDirPath, which is not a global function, so every call raises Calling Function without definition: _filedirpath"
+  },
+  {
+   "class": "stzFileManager",
+   "file": "file/stzFile.ring",
+   "method": "MoveTo",
+   "line": 3023,
+   "symptom": "Raises error R3 today instead of moving the file into a folder under its own name.",
+   "cause": "defect: calls the missing helper _FileName (see CopyTo)"
+  },
+  {
+   "class": "stzFileManager",
+   "file": "file/stzFile.ring",
+   "method": "MoveAs",
+   "line": 3044,
+   "symptom": "Raises error R3 today instead of renaming the file inside its own folder.",
+   "cause": "defect: calls the missing helper _FileDirPath (see CopyTo)"
+  },
+  {
+   "class": "stzFileManager",
+   "file": "file/stzFile.ring",
+   "method": "RenameAs",
+   "line": 3084,
+   "symptom": "Raises error R3 today instead of renaming the file inside its own folder.",
+   "cause": "defect: calls the missing helper _FileDirPath (see CopyTo)"
+  },
+  {
+   "class": "stzFileManager",
+   "file": "file/stzFile.ring",
+   "method": "Backup",
+   "line": 3107,
+   "symptom": "Returns 1 but writes no backup today, because the name it builds contains the characters / and :.",
+   "cause": "defect: the copy is named file.backup. followed by StzTimeStamp(), which has the form 09/10/2026 11:37:52, so the target path holds folders that do not exist and the copy fails without notice; checked twice, no file appears and the 1 is returned anyway"
+  },
+  {
+   "class": "stzFileManager",
+   "file": "file/stzFile.ring",
+   "method": "SplitByLines",
+   "line": 3122,
+   "symptom": "Raises error R13 today instead of splitting the file into parts of a fixed number of lines.",
+   "cause": "defect: the body treats the text returned by StzFileRead as a reader object and calls Lines() on it, so every call raises Object is required; the helper names it uses (_FileCompleteBaseName and others) are missing too"
+  },
+  {
+   "class": "stzFileManager",
+   "file": "file/stzFile.ring",
+   "method": "SplitBySize",
+   "line": 3166,
+   "symptom": "Raises error R13 today instead of splitting the file into parts of a fixed number of bytes.",
+   "cause": "defect: same cause as SplitByLines, calling a method on the text returned by StzFileRead"
+  },
+  {
+   "class": "stzFileManager",
+   "file": "file/stzFile.ring",
+   "method": "SplitByPattern",
+   "line": 3209,
+   "symptom": "Raises error R13 today instead of splitting the file at every line that contains a pattern.",
+   "cause": "defect: same cause as SplitByLines"
+  },
+  {
+   "class": "stzFileManager",
+   "file": "file/stzFile.ring",
+   "method": "ZipBackup",
+   "line": 3356,
+   "symptom": "Raises error R3 today instead of zipping the file into a backup archive in its own folder.",
+   "cause": "defect: calls the missing helpers _FileDirPath, or _FileCompleteBaseName for the empty text (see CopyTo)"
+  },
+  {
+   "class": "stzFileManager",
+   "file": "file/stzFile.ring",
+   "method": "CreateBackup",
+   "line": 3380,
+   "symptom": "Raises error R3 today instead of copying the file to a timestamped backup name and giving its path.",
+   "cause": "defect: calls the missing helper _FileCompleteBaseName (see CopyTo)"
+  },
+  {
+   "class": "stzFileManager",
+   "file": "file/stzFile.ring",
+   "method": "CreateBackupAs",
+   "line": 3407,
+   "symptom": "Raises error R3 today instead of copying the file to a named backup in its folder and giving its path.",
+   "cause": "defect: calls the missing helper _FileDirPath (see CopyTo)"
+  },
+  {
+   "class": "stzFileManager",
+   "file": "file/stzFile.ring",
+   "method": "SafeDelete",
+   "line": 3459,
+   "symptom": "Raises error R3 today instead of backing the file up and then deleting it.",
+   "cause": "defect: it calls CreateBackup, which calls the missing helper _FileCompleteBaseName (see CopyTo); the file is left in place"
+  },
+  {
+   "class": "stzFileManager",
+   "file": "file/stzFile.ring",
+   "method": "SafeRemove",
+   "line": 3477,
+   "symptom": "Raises error R3 today instead of backing the file up and then deleting it.",
+   "cause": "defect: same cause as SafeDelete"
+  },
+  {
+   "class": "stzFileManager",
+   "file": "file/stzFile.ring",
+   "method": "IsExecutable",
+   "line": 3576,
+   "symptom": "Raises error R3 today instead of telling whether the extension marks an executable.",
+   "cause": "defect: calls the missing helper _FileExtension (see CopyTo)"
+  },
+  {
+   "class": "stzFileModifier",
+   "file": "file/stzFile.ring",
+   "method": "InsertLine",
+   "line": 2549,
+   "symptom": "Raises error R24 today instead of inserting a line at a position.",
+   "cause": "defect: the body passes nNewLine, a name that does not exist (the parameter is cNewLine), so every call raises Using uninitialized variable: nnewline"
+  },
+  {
+   "class": "stzFileOverwriter",
+   "file": "file/stzFile.ring",
+   "method": "PreserveAndModify",
+   "line": 2186,
+   "symptom": "Raises error R12 today instead of writing the old text back and adding a change after it.",
+   "cause": "defect: the body reads This.cOriginalContent where the attribute is @cOriginalContent, so every call raises Error in property name, property not found: coriginalcontent (checked on two files)"
+  },
+  {
+   "class": "stzFileXT",
+   "file": "file/stzFile.ring",
+   "method": "init",
+   "line": 856,
+   "symptom": "Returns an empty stzFileXT object today, instead of the file object of the chosen intent.",
+   "cause": "defect: the constructor returns the object of the chosen class, and Ring ignores the value a constructor returns, so new stzFileXT(path, \"info\") has no FileName and \"read\" answers NULL to Content; the intent erase names a class stzFileEraser that does not exist (it is stzFileEaraser) and raises Error in class name, class not found; an unknown intent raises Can't proceed! The intent you provided is not support in Softanza file API."
+  },
+  {
+   "class": "stzHtmlBuilder",
+   "file": "file/stzHtml.ring",
+   "method": "AppendToCurrent",
+   "line": 498,
+   "symptom": "Adds a node as the last child of the current node and returns the builder.",
+   "cause": "defect: the current node is a copy of the root made at birth, because Ring copies an object on assignment, so the node lands in the copy and Build, Root and BuildToFile still show nothing; checked with two different nodes and after SetCurrent(Root())"
+  },
+  {
+   "class": "stzHtmlBuilder",
+   "file": "file/stzHtml.ring",
+   "method": "Build",
+   "line": 545,
+   "symptom": "Returns the HTML text of the document: the children of the root, one after the other.",
+   "cause": "defect: it answers the empty text after AppendToCurrent, whatever was appended (see AppendToCurrent)"
+  },
+  {
+   "class": "stzHtmlBuilder",
+   "file": "file/stzHtml.ring",
+   "method": "BuildToFile",
+   "line": 558,
+   "symptom": "Writes the HTML text of the document to a file and returns the builder.",
+   "cause": "defect: the file is created empty after AppendToCurrent, for the same reason as Build"
   },
   {
    "class": "stzGeoFeatures",
@@ -674,6 +850,14 @@
    "cause": "known defect: the sort call @SortOn returns the sorted list and the method drops it, so nothing is sorted; asc keeps the match order and desc reverses it; only the first OrderBy is read; both arguments are required, with one Ring raises R19"
   },
   {
+   "class": "stzGraphRule",
+   "file": "graph/stzGraphRule.ring",
+   "method": "When",
+   "line": 896,
+   "symptom": "Adds a clause that selects the nodes the rule looks at: a node property tested against a value; clauses are combined with AND.",
+   "cause": "an empty property name or an unknown operator raises an error; the ordering operators compare numbers only: on a text greaterthan and lessthan never match but greaterequal and lessequal match every node, which is a defect; an unset property reads as 0, so exists fails and missing holds for it"
+  },
+  {
    "class": "stzKnowledgeGraph",
    "file": "graph/stzKnowledgeGraph.ring",
    "method": "ValidateOntology",
@@ -688,6 +872,14 @@
    "line": 1000,
    "symptom": "Raises error R14 today instead of describing the knowledge graph in sections: structure, facts, entities, predicates, ontology and insights.",
    "cause": "known defect: it calls ApplyInference, which is defined nowhere, so the call always raises R14; stzGraph.Explain is shadowed by this version seen in the gallery: drawn through GraphCanvas a knowledge graph shows no predicate on its edges and no arrowheads; Dot() with graphviz draws each fact as an edge labelled with its predicate"
+  },
+  {
+   "class": "stzMathSubstance",
+   "file": "graph/stzMathDiagram.ring",
+   "method": "SetData",
+   "line": 3317,
+   "symptom": "Puts a number on an object under a key, which a style can read as name.key to drive a position or a colour.",
+   "cause": "an undeclared object raises no error and the number is lost: HasData and DataOf then do not find it, which is a defect, seen with ghost and phantom; setting a key again replaces its value"
   },
   {
    "class": "stzOrgChart",
@@ -794,6 +986,38 @@
    "cause": "Raises error R19 without a generative model (checked on three texts): the fallback calls Summary without its sentence count"
   },
   {
+   "class": "stzListChecker",
+   "file": "list/stzListChecker.ring",
+   "method": "ContainsItem",
+   "line": 574,
+   "symptom": "Returns 0 whatever the list holds today, because the item is handed to the engine in a form it does not match.",
+   "cause": "defect: ContainsItem(2) on [1,2,3], ContainsItem(\"a\") on [\"a\",\"b\"] and ContainsItem([3]) on [[1,2],[3]] all answer 0, and so does ContainsItemCS with either case flag; the call StzEngineListContainsCS(list, item, cs) answers 0 on its own for present items; the engine function stz_list_contains_cs expects the needle as a value handle and the class passes the raw item"
+  },
+  {
+   "class": "stzListChecker",
+   "file": "list/stzListChecker.ring",
+   "method": "ContainsAllOfThese",
+   "line": 595,
+   "symptom": "Returns 1 only for an empty list of items today, because every ContainsItem answers 0.",
+   "cause": "defect: ContainsAllOfThese([1,2]) on [1,2,3] answers 0 and ContainsAllOfThese([]) answers 1; the cause is ContainsItem, which never finds an item"
+  },
+  {
+   "class": "stzListChecker",
+   "file": "list/stzListChecker.ring",
+   "method": "ContainsOneOfThese",
+   "line": 614,
+   "symptom": "Returns 0 today, whatever the items are, because every ContainsItem answers 0.",
+   "cause": "defect: ContainsOneOfThese([9,2]) on [1,2,3] and ContainsOneOfThese([\"z\",\"b\"]) on [\"a\",\"b\"] answer 0; the cause is ContainsItem, which never finds an item"
+  },
+  {
+   "class": "stzListChecker",
+   "file": "list/stzListChecker.ring",
+   "method": "ContainsW",
+   "line": 703,
+   "symptom": "Raises error R3 today instead of telling whether an item satisfies the condition.",
+   "cause": "defect: the method calls StzCCodeToRingCode, which no file of the library defines, so every call raises Calling Function without definition: stzccodetoringcode"
+  },
+  {
    "class": "stzListOfPairs",
    "file": "list/stzListOfPairs.ring",
    "method": "ExpandedIfPairsOfNumbers",
@@ -826,6 +1050,14 @@
    "cause": "Raises \"You must provide a list of sections\" today for valid sections such as [ [ 1, 3 ], [ 5, 8 ] ]: the stzSetOfSections constructor refuses what stzListOfSections accepts"
   },
   {
+   "class": "stzYielder",
+   "file": "list/stzYielder.ring",
+   "method": "MapIndexed",
+   "line": 107,
+   "symptom": "Returns the text <list> for every item today, instead of applying an operation together with each item position.",
+   "cause": "defect: the result holds the text \"<list>\" in place of the values, for every operation tried (:Square, :Abs, :Negate, :Increment) and every input; the engine call returns its items in a form the Ring side shows only as that text"
+  },
+  {
    "class": "stzMathFigure",
    "file": "math/stzMathFigure.ring",
    "method": "Pin",
@@ -840,6 +1072,14 @@
    "line": 407,
    "symptom": "Raises an error today instead of moving a shape to a position and re-solving around it: no shape has a free centre to move.",
    "cause": "refused for every shape of 9 figures tried across the kinds; use MoveNoteTo to move a note"
+  },
+  {
+   "class": "stzTukeyLine",
+   "file": "math/stzTukey.ring",
+   "method": "Fit",
+   "line": 927,
+   "symptom": "Fits Tukey's three-group line, then improves it with passes over the residuals, as R's line does.",
+   "cause": "Fit(0) equals R's line with iter 1 and Fit(1) equals iter 2, so the count here is one less than R's; points that all share one x give slope 0 and intercept 0 with no error, which is a defect"
   },
   {
    "class": "stzNaturalEngine",

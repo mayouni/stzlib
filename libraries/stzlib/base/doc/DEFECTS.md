@@ -5,7 +5,7 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 286 methods in 41 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 316 methods in 52 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
@@ -14,6 +14,7 @@ and each was checked with a second call on different data. **None is fixed yet.*
 | datetime/stzCalendar.ring | stzCalendar | 25 |
 | geo/stzGeoMap.ring | stzGeoMap | 18 |
 | regex/stzMatrex.ring | stzMatrex | 17 |
+| file/stzFile.ring | stzFileManager | 15 |
 | graph/stzGraph.ring | stzGraph | 12 |
 | regex/stzRegexMaker.ring | stzRegexMaker | 12 |
 | graph/stzOrgChart.ring | stzOrgChart | 10 |
@@ -24,7 +25,9 @@ and each was checked with a second call on different data. **None is fixed yet.*
 | geo/stzGeoField.ring | stzGeoField | 5 |
 | geo/stzGeoSamples.ring | stzGeoSamples | 5 |
 | graph/stzDiagram.ring | stzDiagram | 5 |
+| list/stzListChecker.ring | stzListChecker | 4 |
 | list/stzListOfPairs.ring | stzListOfPairs | 4 |
+| file/stzHtml.ring | stzHtmlBuilder | 3 |
 | graph/stzGraph.ring | stzGraphComparison | 3 |
 | stats/stzDataSet.ring | stzDataSet | 3 |
 | stats/stzLinearSolver.ring | stzLinearSolver | 3 |
@@ -41,10 +44,18 @@ and each was checked with a second call on different data. **None is fixed yet.*
 | number/stzNumber.ring | stzNumber | 2 |
 | reactive/stzReactor.ring | stzReactor | 2 |
 | string/stzStringList.ring | stzStringList | 2 |
+| file/stzFile.ring | stzFileInfo | 1 |
+| file/stzFile.ring | stzFileModifier | 1 |
+| file/stzFile.ring | stzFileOverwriter | 1 |
+| file/stzFile.ring | stzFileXT | 1 |
 | geo/stzGeoProjection.ring | stzGeoProjection | 1 |
+| graph/stzGraphRule.ring | stzGraphRule | 1 |
+| graph/stzMathDiagram.ring | stzMathSubstance | 1 |
 | graph/stzOrgChart.ring | stzOrgChartReporter | 1 |
 | graph/stzOrgChart.ring | stzOrgChartSimulation | 1 |
 | linguistic/stzText.ring | stzText | 1 |
+| list/stzYielder.ring | stzYielder | 1 |
+| math/stzTukey.ring | stzTukeyLine | 1 |
 | natural/stzNatural.ring | stzNaturalEngine | 1 |
 | network/stzUrl.ring | stzUrl | 1 |
 | optim/stzMultiObjectiveSolver.ring | stzMultiObjectiveSolver | 1 |
@@ -88,6 +99,46 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 - `ToHuman` (line 1867): Returns today, tomorrow or yesterday for those days, a count of days for the next or last 7, else a long date. -- the future form starts with a capital (In 3 days) and the past form does not (3 days ago)
 - `ToRelative` (line 1901): Returns today, tomorrow or yesterday, a count of days or weeks within a month of today, else the date as dd/MM/yyyy.
+
+## stzFileInfo -- file/stzFile.ring (1)
+
+- `IsExecutable` (line 1133): Returns 0 for every file today, because the extension it compares carries a leading dot. -- defect: the extension is read as .exe or .BAT and compared with exe, bat, cmd and com, so a file named prog.exe and one named run.BAT both answer 0; the sibling stzFileManager.IsExecutable fails differently (see there)
+
+## stzFileManager -- file/stzFile.ring (15)
+
+- `CopyTo` (line 2967): Raises error R3 today instead of copying the file into a folder under its own name. -- defect: the body calls the helper _FileName, which is not a global function (a function placed between two classes belongs to the class before it), so every call raises Calling Function without definition: _filename; same cause as MoveTo, MoveAs, RenameAs, CopyAs, CreateBackup, CreateBackupAs, SafeDelete, SafeRemove, ZipBackup and IsExecutable
+- `CopyAs` (line 2988): Raises error R3 today instead of copying the file under a new name in the same folder. -- defect: the body calls the helper _FileDirPath, which is not a global function, so every call raises Calling Function without definition: _filedirpath
+- `MoveTo` (line 3023): Raises error R3 today instead of moving the file into a folder under its own name. -- defect: calls the missing helper _FileName (see CopyTo)
+- `MoveAs` (line 3044): Raises error R3 today instead of renaming the file inside its own folder. -- defect: calls the missing helper _FileDirPath (see CopyTo)
+- `RenameAs` (line 3084): Raises error R3 today instead of renaming the file inside its own folder. -- defect: calls the missing helper _FileDirPath (see CopyTo)
+- `Backup` (line 3107): Returns 1 but writes no backup today, because the name it builds contains the characters / and :. -- defect: the copy is named file.backup. followed by StzTimeStamp(), which has the form 09/10/2026 11:37:52, so the target path holds folders that do not exist and the copy fails without notice; checked twice, no file appears and the 1 is returned anyway
+- `SplitByLines` (line 3122): Raises error R13 today instead of splitting the file into parts of a fixed number of lines. -- defect: the body treats the text returned by StzFileRead as a reader object and calls Lines() on it, so every call raises Object is required; the helper names it uses (_FileCompleteBaseName and others) are missing too
+- `SplitBySize` (line 3166): Raises error R13 today instead of splitting the file into parts of a fixed number of bytes. -- defect: same cause as SplitByLines, calling a method on the text returned by StzFileRead
+- `SplitByPattern` (line 3209): Raises error R13 today instead of splitting the file at every line that contains a pattern. -- defect: same cause as SplitByLines
+- `ZipBackup` (line 3356): Raises error R3 today instead of zipping the file into a backup archive in its own folder. -- defect: calls the missing helpers _FileDirPath, or _FileCompleteBaseName for the empty text (see CopyTo)
+- `CreateBackup` (line 3380): Raises error R3 today instead of copying the file to a timestamped backup name and giving its path. -- defect: calls the missing helper _FileCompleteBaseName (see CopyTo)
+- `CreateBackupAs` (line 3407): Raises error R3 today instead of copying the file to a named backup in its folder and giving its path. -- defect: calls the missing helper _FileDirPath (see CopyTo)
+- `SafeDelete` (line 3459): Raises error R3 today instead of backing the file up and then deleting it. -- defect: it calls CreateBackup, which calls the missing helper _FileCompleteBaseName (see CopyTo); the file is left in place
+- `SafeRemove` (line 3477): Raises error R3 today instead of backing the file up and then deleting it. -- defect: same cause as SafeDelete
+- `IsExecutable` (line 3576): Raises error R3 today instead of telling whether the extension marks an executable. -- defect: calls the missing helper _FileExtension (see CopyTo)
+
+## stzFileModifier -- file/stzFile.ring (1)
+
+- `InsertLine` (line 2549): Raises error R24 today instead of inserting a line at a position. -- defect: the body passes nNewLine, a name that does not exist (the parameter is cNewLine), so every call raises Using uninitialized variable: nnewline
+
+## stzFileOverwriter -- file/stzFile.ring (1)
+
+- `PreserveAndModify` (line 2186): Raises error R12 today instead of writing the old text back and adding a change after it. -- defect: the body reads This.cOriginalContent where the attribute is @cOriginalContent, so every call raises Error in property name, property not found: coriginalcontent (checked on two files)
+
+## stzFileXT -- file/stzFile.ring (1)
+
+- `init` (line 856): Returns an empty stzFileXT object today, instead of the file object of the chosen intent. -- defect: the constructor returns the object of the chosen class, and Ring ignores the value a constructor returns, so new stzFileXT(path, "info") has no FileName and "read" answers NULL to Content; the intent erase names a class stzFileEraser that does not exist (it is stzFileEaraser) and raises Error in class name, class not found; an unknown intent raises Can't proceed! The intent you provided is not support in Softanza file API.
+
+## stzHtmlBuilder -- file/stzHtml.ring (3)
+
+- `AppendToCurrent` (line 498): Adds a node as the last child of the current node and returns the builder. -- defect: the current node is a copy of the root made at birth, because Ring copies an object on assignment, so the node lands in the copy and Build, Root and BuildToFile still show nothing; checked with two different nodes and after SetCurrent(Root())
+- `Build` (line 545): Returns the HTML text of the document: the children of the root, one after the other. -- defect: it answers the empty text after AppendToCurrent, whatever was appended (see AppendToCurrent)
+- `BuildToFile` (line 558): Writes the HTML text of the document to a file and returns the builder. -- defect: the file is created empty after AppendToCurrent, for the same reason as Build
 
 ## stzGeoFeatures -- geo/stzGeoFeatures.ring (2)
 
@@ -174,10 +225,18 @@ and each was checked with a second call on different data. **None is fixed yet.*
 - `ValidateWith` (line 233): Queues a validation of the matched subgraph against rule groups; a single text raises error R21 when the query runs today. -- a single text is wrapped with paValidators = [ paValidators ], which stores [ [ [ ] ] ] and the run then raises R21; a list of names works, and a failing group raises Validation failed
 - `OrderBy` (line 650): Leaves the rows in match order for ascending and reverses them for descending today, instead of sorting by a field. -- the sort call @SortOn returns the sorted list and the method drops it, so nothing is sorted; asc keeps the match order and desc reverses it; only the first OrderBy is read; both arguments are required, with one Ring raises R19
 
+## stzGraphRule -- graph/stzGraphRule.ring (1)
+
+- `When` (line 896): Adds a clause that selects the nodes the rule looks at: a node property tested against a value; clauses are combined with AND. -- an empty property name or an unknown operator raises an error; the ordering operators compare numbers only: on a text greaterthan and lessthan never match but greaterequal and lessequal match every node, which is a defect; an unset property reads as 0, so exists fails and missing holds for it
+
 ## stzKnowledgeGraph -- graph/stzKnowledgeGraph.ring (2)
 
 - `ValidateOntology` (line 865): Returns 1 whatever the ontology holds; the check is not written yet. -- the body only returns 1, so no inconsistency is ever reported
 - `Explain` (line 1000): Raises error R14 today instead of describing the knowledge graph in sections: structure, facts, entities, predicates, ontology and insights. -- it calls ApplyInference, which is defined nowhere, so the call always raises R14; stzGraph.Explain is shadowed by this version seen in the gallery: drawn through GraphCanvas a knowledge graph shows no predicate on its edges and no arrowheads; Dot() with graphviz draws each fact as an edge labelled with its predicate
+
+## stzMathSubstance -- graph/stzMathDiagram.ring (1)
+
+- `SetData` (line 3317): Puts a number on an object under a key, which a style can read as name.key to drive a position or a colour. -- an undeclared object raises no error and the number is lost: HasData and DataOf then do not find it, which is a defect, seen with ghost and phantom; setting a key again replaces its value
 
 ## stzOrgChart -- graph/stzOrgChart.ring (10)
 
@@ -204,6 +263,13 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 - `SummarizedAbstractively` (line 1316): Raises error R19 today when no generative model is loaded, instead of falling back to the extractive summary. -- Raises error R19 without a generative model (checked on three texts): the fallback calls Summary without its sentence count
 
+## stzListChecker -- list/stzListChecker.ring (4)
+
+- `ContainsItem` (line 574): Returns 0 whatever the list holds today, because the item is handed to the engine in a form it does not match. -- defect: ContainsItem(2) on [1,2,3], ContainsItem("a") on ["a","b"] and ContainsItem([3]) on [[1,2],[3]] all answer 0, and so does ContainsItemCS with either case flag; the call StzEngineListContainsCS(list, item, cs) answers 0 on its own for present items; the engine function stz_list_contains_cs expects the needle as a value handle and the class passes the raw item
+- `ContainsAllOfThese` (line 595): Returns 1 only for an empty list of items today, because every ContainsItem answers 0. -- defect: ContainsAllOfThese([1,2]) on [1,2,3] answers 0 and ContainsAllOfThese([]) answers 1; the cause is ContainsItem, which never finds an item
+- `ContainsOneOfThese` (line 614): Returns 0 today, whatever the items are, because every ContainsItem answers 0. -- defect: ContainsOneOfThese([9,2]) on [1,2,3] and ContainsOneOfThese(["z","b"]) on ["a","b"] answer 0; the cause is ContainsItem, which never finds an item
+- `ContainsW` (line 703): Raises error R3 today instead of telling whether an item satisfies the condition. -- defect: the method calls StzCCodeToRingCode, which no file of the library defines, so every call raises Calling Function without definition: stzccodetoringcode
+
 ## stzListOfPairs -- list/stzListOfPairs.ring (4)
 
 - `ExpandedIfPairsOfNumbers` (line 1223): Raises error R14 today instead of returning the number lists that the pairs of numbers expand to. -- Raises R14 today on every call: it calls ExpandedIfPairOfNumbers, a method that exists nowhere in the loaded library
@@ -211,10 +277,18 @@ and each was checked with a second call on different data. **None is fixed yet.*
 - `AreAnagrams` (line 1564): Raises error R14 today instead of telling whether the two items are anagrams of each other. -- Raises R14 today on every call: it reads FirstValue and SecondValue, which this class does not define
 - `ToStzSetOfSections` (line 2317): Raises an error today instead of returning the pairs as a stzSetOfSections. -- Raises "You must provide a list of sections" today for valid sections such as [ [ 1, 3 ], [ 5, 8 ] ]: the stzSetOfSections constructor refuses what stzListOfSections accepts
 
+## stzYielder -- list/stzYielder.ring (1)
+
+- `MapIndexed` (line 107): Returns the text <list> for every item today, instead of applying an operation together with each item position. -- defect: the result holds the text "<list>" in place of the values, for every operation tried (:Square, :Abs, :Negate, :Increment) and every input; the engine call returns its items in a form the Ring side shows only as that text
+
 ## stzMathFigure -- math/stzMathFigure.ring (2)
 
 - `Pin` (line 384): Raises an error today instead of holding a shape where it is during later solves: no shape of any figure kind has a free position to hold. -- the diagram refuses it because the rules fix every shape (checked on 35 sample figures of all ten kinds); an unknown path raises too
 - `DragTo` (line 407): Raises an error today instead of moving a shape to a position and re-solving around it: no shape has a free centre to move. -- refused for every shape of 9 figures tried across the kinds; use MoveNoteTo to move a note
+
+## stzTukeyLine -- math/stzTukey.ring (1)
+
+- `Fit` (line 927): Fits Tukey's three-group line, then improves it with passes over the residuals, as R's line does. -- Fit(0) equals R's line with iter 1 and Fit(1) equals iter 2, so the count here is one less than R's; points that all share one x give slope 0 and intercept 0 with no error, which is a defect
 
 ## stzNaturalEngine -- natural/stzNatural.ring (1)
 
