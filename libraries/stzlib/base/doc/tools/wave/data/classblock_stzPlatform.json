@@ -1,0 +1,16 @@
+{
+ "brief": "Wraps a stzApp world in what makes it operable: build and deploy of its parts, governed capabilities, a Commons of identities and messages, and a world registry.",
+ "detail": "A stzApp models the world and lacks the operational envelope; the platform is that envelope, in five duties. It owns a deployment profile whose parts Build and then Deploy (Build records the compiler command of each part and Deploy lowers it to an artifact text, neither runs anything). SetWorld takes a world, and Generate writes a shell file for each of its reaches. A capability such as the camera is requested with AddCapability and decided by Granted against a governance regime. OpenCommonsOn turns an open database into identities (salted PBKDF2 hashes, never the secret), sessions, messages and a key-value store. ServeBody serves the world and the Commons over HTTP on 127.0.0.1. PushWorld, Bond and CallAcross keep a registry in which a call between worlds goes through only if both are active, a bond names the action and governance agrees. The runs behind this reference were in memory only: no shell file was written and no port was opened.",
+ "receiver": "o1 = new stzPlatform(\"demo\")",
+ "example": [
+  "o1.PushWorld(\"resto\", \"1.0\")",
+  "? o1.IsActiveWorld(\"resto\")",
+  "#--> 1",
+  "o1.RetireWorld(\"resto\")",
+  "? o1.IsActiveWorld(\"resto\")",
+  "#--> 0",
+  "? o1.KdfRounds()",
+  "#--> 100000"
+ ],
+ "see": ["StzPlatformQ", "stzApp", "stzPlatformProfile", "stzGovernance", "stzAppServer"]
+}

@@ -199,6 +199,31 @@ func StzEmbeddingPrepare(poOwner, paData, nRows, nCols, nPcaDims)
 	return [ ref(_aCut_), _nK_ ]
 
 
+# Draws a map of high-dimensional samples in 2 dimensions in which points that are near in the data stay near, using t-SNE.
+#
+# Built for LOOKING at data, not for measuring it: the map is nonlinear, random and one-way,
+# distances and cluster sizes in it mean nothing, and the perplexity changes the picture, so try two
+# values. The usual pipeline is ReduceWithPCA(30) then Fit. The run is seeded: the same SetSeed
+# gives the same embedding, a different one a different layout. Fit refuses a perplexity that is not
+# below the number of samples, so small data needs SetPerplexity first (the default is 30). Ordinary
+# t-SNE can place new rows with Transform only approximately; LearnMapping switches to the
+# parametric variant, whose Transform is exact for the training rows. PreserveDensity adds a term
+# that makes cluster size more readable, and LearnInverse trains a network that goes back from the
+# map to the data. Trustworthiness is the witness that the picture invented no neighbours.
+#
+#   receiver   o1 = new stzTSNE([ [0,0,0], [0.1,0,0.1], [0,0.2,0], [0.2,0.1,0.1], [0.1,0.2,0.2],
+#              [0.2,0.2,0], [5,5,5], [5.1,5,5.1], [5,5.2,5], [5.2,5.1,5.1], [5.1,5.2,5.2],
+#              [5.2,5.2,5] ])
+#   example    o1.SetPerplexity(3)
+#              o1.SetIterations(120)
+#              o1.Fit()
+#              ? o1.IsFitted()
+#              #--> 1
+#              ? len(o1.Embedding())
+#              #--> 12
+#              ? o1.Trustworthiness() > 0.5
+#              #--> 1
+#   see        stzUMAP, stzPCA
 class stzTSNE from stzObject
 
 	@aData = []
@@ -237,23 +262,42 @@ class stzTSNE from stzObject
 	@nDecEpochs = 15000
 	@nDecRate = 0.02
 
+	# Builds a t-SNE embedding job around a table of samples, one list of feature values per sample.
+	#
+	#   paData     the samples, a list of equal-length lists of numbers
+	#   returns    nothing; the object is built
+	#   warning    an empty list, a sample that is not a list, or samples of different widths raise
+	#              an error naming the first bad sample
+	#   see        Fit, SetPerplexity, ReduceWithPCA
 	def init(paData)
 		_a_ = StzEmbeddingCheckData(paData)
 		@aData = paData
 		@nRows = _a_[1]
 		@nCols = _a_[2]
 
+	# Returns how many samples the job was built with.
+	#
+	#   returns    a number
+	#   see        NumberOfFeatures, Embedding
 	def NumberOfSamples()
 		return @nRows
 
+	# Returns how many feature values each sample has.
+	#
+	#   returns    a number
+	#   see        NumberOfSamples
 	def NumberOfFeatures()
 		return @nCols
 
-	# ── the dials ──
-
-	# Roughly "how many neighbours should count". The original paper suggests 5..50,
-	# and the result IS sensitive to it: small values see fine structure and can
-	# fragment a real cluster, large values see the broad shape and can merge two.
+	# Sets the perplexity, roughly how many neighbours should count for each point; 30 by default.
+	#
+	#   n          the perplexity, a number above 0, anything else is ignored
+	#   returns    nothing; use SetPerplexityQ to chain
+	#   note       small values show fine structure and can split a real cluster, large values show
+	#              the broad shape and can merge two
+	#   warning    Fit refuses to run when the perplexity is not smaller than the number of samples
+	#   see        Perplexity, Fit
+	#@ aka  ── the dials ──
 	def SetPerplexity(n)
 		if n > 0
 			@nPerplexity = n
@@ -263,9 +307,18 @@ class stzTSNE from stzObject
 			This.SetPerplexity(n)
 			return This
 
+	# Returns the perplexity in force.
+	#
+	#   returns    a number; 30 by default
+	#   see        SetPerplexity
 	def Perplexity()
 		return @nPerplexity
 
+	# Sets how many coordinates each point gets in the embedding; 2 by default.
+	#
+	#   n          the number of output dimensions, 1 or more, anything else is ignored
+	#   returns    nothing; use SetDimensionsQ to chain
+	#   see        Fit, Embedding
 	def SetDimensions(n)
 		if n >= 1
 			@nDims = n
@@ -275,6 +328,12 @@ class stzTSNE from stzObject
 			This.SetDimensions(n)
 			return This
 
+	# Sets how many optimisation steps the fit takes; 1000 by default.
+	#
+	#   n          the number of iterations, above 0, anything else is ignored
+	#   returns    nothing; use SetIterationsQ to chain
+	#   note       few iterations leave the layout unsettled, and the coordinates large
+	#   see        Fit, KLHistory
 	def SetIterations(n)
 		if n > 0
 			@nIterations = n
@@ -284,6 +343,12 @@ class stzTSNE from stzObject
 			This.SetIterations(n)
 			return This
 
+	# Sets the number that starts the random generator, so a run can be repeated or varied; 42 by default.
+	#
+	#   n          the starting number
+	#   returns    nothing; use SetSeedQ to chain
+	#   note       the same value gives the same embedding, a different one gives a different layout
+	#   see        Fit
 	def SetSeed(n)
 		@nSeed = n
 
@@ -291,8 +356,16 @@ class stzTSNE from stzObject
 			This.SetSeed(n)
 			return This
 
-	# PCA to n dimensions before embedding -- the standard pipeline. See the note at
-	# the top of this file for why it is two benefits and one cost.
+	# Asks for a PCA down to n dimensions before the embedding, the usual first step; off by default.
+	#
+	#   n          the number of components to keep, 1 or more, anything else is ignored
+	#   returns    nothing; use ReduceWithPCAQ to chain
+	#   note       it speeds up the distances and removes noise, at the cost of any structure the
+	#              discarded components held
+	#   warning    when n is not below the number of features the data goes through unchanged and no
+	#              PCA is run
+	#   see        SkipPCA, UsesPCA, PCAQ
+	#@ aka  PCA to n dimensions before embedding -- the standard pipeline. See the note at the top of this file for why it is two benefits and one cost.
 	def ReduceWithPCA(n)
 		if n >= 1
 			@nPcaDims = n
@@ -302,6 +375,10 @@ class stzTSNE from stzObject
 			This.ReduceWithPCA(n)
 			return This
 
+	# Turns off the PCA step, so the fit uses the raw features.
+	#
+	#   returns    nothing; use SkipPCAQ to chain
+	#   see        ReduceWithPCA, UsesPCA
 	def SkipPCA()
 		@nPcaDims = 0
 
@@ -309,23 +386,29 @@ class stzTSNE from stzObject
 			This.SkipPCA()
 			return This
 
+	# TRUE if a PCA reduction has been requested.
+	#
+	#   returns    TRUE or FALSE
+	#   see        ReduceWithPCA, PCAQ
 	def UsesPCA()
 		return @nPcaDims > 0
 
-	# the inner analysis, when there was one -- so a caller can ask how much variance
-	# survived the reduction before reading anything into the picture
+	# Returns the PCA that the last fit ran before embedding, so its explained variance can be read.
+	#
+	#   returns    a stzPCA object; "" before a fit that used PCA
+	#   see        ReduceWithPCA, UsesPCA
+	#@ aka  the inner analysis, when there was one -- so a caller can ask how much variance survived the reduction before reading anything into the picture
 	def PCAQ()
 		return @oPca
 
-	# ── the parametric variant, which is what gives t-SNE a Transform() ──
-
-	# LEARN A MAP instead of a layout: train a network f(x) -> R^dims against the same
-	# KL objective (van der Maaten 2009). The embedding becomes f(X), so a new point
-	# is one forward pass.
+	# Switches to the parametric variant, which trains a neural network from features to coordinates instead of moving free points.
 	#
-	# IT IS A TRADE, not an upgrade. The embedding is generally somewhat worse than
-	# ordinary t-SNE, because free coordinates can go anywhere and a network's outputs
-	# are limited to what it can express.
+	#   returns    nothing; use LearnMappingQ to chain
+	#   note       training rows transform back to their own embedding exactly (largest difference 0
+	#              on twelve points)
+	#   warning    it trades some picture quality for the ability to place new points exactly
+	#   see        SkipMapping, Transform, SetHiddenLayers
+	#@ aka  ── the parametric variant, which is what gives t-SNE a Transform() ──
 	def LearnMapping()
 		@bParametric = 1
 
@@ -333,6 +416,10 @@ class stzTSNE from stzObject
 			This.LearnMapping()
 			return This
 
+	# Switches back to the ordinary t-SNE, where points move freely.
+	#
+	#   returns    nothing; use SkipMappingQ to chain
+	#   see        LearnMapping, IsParametric
 	def SkipMapping()
 		@bParametric = 0
 
@@ -340,12 +427,19 @@ class stzTSNE from stzObject
 			This.SkipMapping()
 			return This
 
+	# TRUE if the parametric variant is switched on.
+	#
+	#   returns    TRUE or FALSE
+	#   see        LearnMapping, SkipMapping
 	def IsParametric()
 		return @bParametric
 
-	# The hidden layer widths. The output layer is always LINEAR and as wide as the
-	# embedding, because a coordinate is unbounded and squashing it through a tanh
-	# would cap the layout at a box.
+	# Sets the widths of the hidden layers of the network of the parametric variant; 50 and 20 by default.
+	#
+	#   paWidths   the layer widths, a list of numbers, an empty list or another value is ignored
+	#   returns    nothing; use SetHiddenLayersQ to chain
+	#   see        HiddenLayers, LearnMapping
+	#@ aka  The hidden layer widths. The output layer is always LINEAR and as wide as the embedding, because a coordinate is unbounded and squashing it through a tanh would cap the layout at a box.
 	def SetHiddenLayers(paWidths)
 		if isList(paWidths) and len(paWidths) > 0
 			@anHidden = paWidths
@@ -355,9 +449,18 @@ class stzTSNE from stzObject
 			This.SetHiddenLayers(paWidths)
 			return This
 
+	# Returns the hidden layer widths of the parametric variant.
+	#
+	#   returns    a list of numbers; [ 50, 20 ] by default
+	#   see        SetHiddenLayers
 	def HiddenLayers()
 		return @anHidden
 
+	# Sets the step size of the network of the parametric variant; 0.01 by default.
+	#
+	#   n          the learning rate, above 0, anything else is ignored
+	#   returns    nothing; use SetLearningRateQ to chain
+	#   see        LearnMapping, SetHiddenLayers
 	def SetLearningRate(n)
 		if n > 0
 			@nLearningRate = n
@@ -367,11 +470,17 @@ class stzTSNE from stzObject
 			This.SetLearningRate(n)
 			return This
 
-	# PLACE POINTS THE FIT NEVER SAW -- one forward pass through the learned network.
+	# Places new rows in the existing map, one forward pass of the network for the parametric variant, a constrained optimisation otherwise.
 	#
-	# Only available after LearnMapping(). Ordinary t-SNE has no map to apply, and
-	# manufacturing one by re-running the optimisation would be a different answer
-	# wearing the same name.
+	#   paRows     the new samples, each with as many feature values as the training samples
+	#   returns    a list of coordinate rows, one per new row
+	#   note       the map does not rearrange for the new point: a point unlike the training data is
+	#              still placed among the nearest training points
+	#   warning    it raises Fit() me first. before a fit, and an error naming the row when a row
+	#              has the wrong width or the list is empty; for the ordinary variant the placement
+	#              is approximate, near the right place rather than on it
+	#   see        LearnMapping, NewLocalRadii, LocalRadiiOf
+	#@ aka  PLACE POINTS THE FIT NEVER SAW -- one forward pass through the learned network.
 	def Transform(paRows)
 		This._MustBeFitted()
 		# WHAT USED TO BE A REFUSAL HERE, AND WHY IT IS NOT ONE ANY MORE.
@@ -477,57 +586,13 @@ class stzTSNE from stzObject
 		ok
 		return _aRes_
 
-	# -- DENSITY PRESERVATION (den-SNE) --
+	# Turns on the density term (den-SNE) so denser regions are drawn tighter; the weight becomes 1, or 0.1 when parametric.
 	#
-	# THE SAME TERM AS densMAP, from the same paper, over the same definition of a local
-	# radius. What it fixes here is worse than what it fixed there.
-	#
-	# MEASURED: on data whose two clusters differ TWENTYFOLD in spread, plain t-SNE
-	# returns a density correlation of -0.186, +0.099, +0.125, -0.048, +0.168 across
-	# five seeds. Scattered around ZERO, negative as often as not. So t-SNE cluster
-	# sizes are not merely unreliable -- they are NOISE, and a conclusion drawn from
-	# them is a conclusion drawn from the initialisation. (Plain UMAP at least came out
-	# consistently positive at +0.226: weak, but pointing the right way.)
-	#
-	# The Student-t kernel is why: its heavy tail is what solves the crowding problem,
-	# and it does that by letting every cluster settle at whatever size the repulsion
-	# allows, regardless of how tight the cluster actually was.
-	#
-	# -- THE DIAL, WHICH HAS AN UNSTABLE BAND --
-	#
-	#     lambda   seed 42   seed 7   seed 1234
-	#      0.5      0.902    0.896     0.827      stable
-	#      1.0      0.957    0.965     0.900      stable  <- the default
-	#      1.5      0.980    0.894     0.705      widening
-	#      2.0     -0.646    0.480     0.910      WILD
-	#      4.0      0.938    0.936     0.933      stable again
-	#
-	# ON THAT DATASET, at lambda 2, THE OUTCOME WAS DECIDED BY THE SEED -- anywhere from
-	# -0.65 to +0.91 on identical inputs. A density term of middling strength can drive
-	# an oscillation that the adaptive gains then amplify, and the layout settles
-	# anti-correlated. Past about 4 it settles again because the term simply dominates,
-	# but by then the separation between clusters has collapsed from 7.13 to near 1.
-	#
-	# THE BAND IS NOT AT A FIXED PLACE, which is the part that matters. On a second
-	# dataset the same sweep was well behaved throughout (0.94 at 0.5, 0.90 at 1, 0.97
-	# at 10) and nothing was unstable anywhere. So lambda cannot be set once and
-	# trusted: WHERE IT WORKS DEPENDS ON THE DATA.
-	#
-	# WHICH IS WHY DensityCorrelation() IS PART OF THE SURFACE RATHER THAN AN INTERNAL.
-	# It is not a diagnostic for the curious -- it is the only way to know the term did
-	# what you asked, and a low or negative value means the picture is not
-	# density-preserving no matter what was requested. Check it.
-	#
-	# The default 1.0 is a starting point measured to be reasonable on both datasets,
-	# not a guarantee. Note also that stzUMAP's density dial was cleanly MONOTONE and
-	# defaults to 2.0 -- same term, different optimiser, and the shape belongs to the
-	# optimiser rather than to the term.
-	#
-	# -- AND HERE THE COST ARRIVES ITEMISED --
-	#
-	# t-SNE reports its own objective, so unlike UMAP the price is directly visible:
-	# KL rises from 0.291 to 0.443 at the default. That is neighbourhood fidelity being
-	# spent on density fidelity, in the units of the thing given up.
+	#   returns    nothing; use PreserveDensityQ to chain
+	#   note       it makes cluster size more readable, at the cost of some separation between
+	#              clusters
+	#   see        IgnoreDensity, SetDensityWeight, DensityCorrelation
+	#@ aka  -- DENSITY PRESERVATION (den-SNE) --
 	def PreserveDensity()
 		@nDensityLambda = 1.0
 		@bDensityAuto = 1
@@ -536,6 +601,10 @@ class stzTSNE from stzObject
 			This.PreserveDensity()
 			return This
 
+	# Turns the density term off.
+	#
+	#   returns    nothing; use IgnoreDensityQ to chain
+	#   see        PreserveDensity, IsDensityPreserving
 	def IgnoreDensity()
 		@nDensityLambda = 0
 		@bDensityAuto = 0
@@ -544,11 +613,21 @@ class stzTSNE from stzObject
 			This.IgnoreDensity()
 			return This
 
+	# TRUE if the density weight is above 0.
+	#
+	#   returns    TRUE or FALSE
+	#   see        PreserveDensity, DensityWeight
 	def IsDensityPreserving()
 		return @nDensityLambda > 0
 
-	# 0 turns the term off EXACTLY -- bit-for-bit the ordinary fit, not a near one.
-	# Values between about 1.5 and 3 are the unstable band described above.
+	# Sets how hard the density term pushes; 0 turns it off exactly.
+	#
+	#   n          the weight, 0 or more, a negative value is ignored
+	#   returns    nothing; use SetDensityWeightQ to chain
+	#   note       with 0 the embedding is identical to the ordinary fit, value for value (twelve
+	#              points, same seed)
+	#   see        DensityWeight, PreserveDensity
+	#@ aka  0 turns the term off EXACTLY -- bit-for-bit the ordinary fit, not a near one. Values between about 1.5 and 3 are the unstable band described above.
 	def SetDensityWeight(n)
 		if n >= 0
 			@nDensityLambda = n
@@ -559,13 +638,19 @@ class stzTSNE from stzObject
 			This.SetDensityWeight(n)
 			return This
 
+	# Returns the weight of the density term.
+	#
+	#   returns    a number; 0 by default
+	#   see        SetDensityWeight, IsDensityPreserving
 	def DensityWeight()
 		return @nDensityLambda
 
-	# the FINAL fraction of iterations during which the term runs. Late on purpose, and
-	# for a reason t-SNE has that UMAP does not: EARLY EXAGGERATION multiplies P by 12
-	# for the first quarter of the run to force gaps open, so density measured during it
-	# would preserve a scale the algorithm is about to throw away.
+	# Sets the last fraction of the iterations during which the density term is active; 0.3 by default.
+	#
+	#   n          the fraction, above 0 and at most 1, anything else is ignored
+	#   returns    nothing; use SetDensityPhaseQ to chain
+	#   see        DensityPhase, SetDensityWeight
+	#@ aka  the FINAL fraction of iterations during which the term runs. Late on purpose, and for a reason t-SNE has that UMAP does not: EARLY EXAGGERATION multiplies P by 12 for the first quarter of the run to force gaps open, so density measured during it would preserve a scale the algorithm is about to throw away.
 	def SetDensityPhase(n)
 		if n > 0 and n <= 1
 			@nDensityFrac = n
@@ -575,47 +660,45 @@ class stzTSNE from stzObject
 			This.SetDensityPhase(n)
 			return This
 
+	# Returns the fraction of the iterations during which the density term runs.
+	#
+	#   returns    a number; 0.3 by default
+	#   see        SetDensityPhase
 	def DensityPhase()
 		return @nDensityFrac
 
-	# how far the term got. NOT a percentage -- an embedding with every density rank
-	# backwards still scores around -0.6 rather than -1.
+	# Returns how closely the drawn local radii follow the original ones at the end of a fit with the density term on.
+	#
+	#   returns    a number from -1 to 1; 0 when the term is off or before a fit
+	#   note       it is a correlation, not a percentage
+	#   see        PreserveDensity, LocalRadii
+	#@ aka  how far the term got. NOT a percentage -- an embedding with every density rank backwards still scores around -0.6 rather than -1.
 	def DensityCorrelation()
 		return @nDensityCorrelation
 
-	# THE ORIGINAL-SPACE LOCAL RADIUS PER POINT: how far each row sits, on average, from
-	# the neighbours it is joined to. A DATA PRODUCT -- it ranks rows by isolation with
-	# no reference to the embedding, and costs nothing because the term computes it.
+	# Returns the average distance of each sample to its neighbours in the original space, as measured by a fit with the density term on.
 	#
-	# Weighted here by t-SNE's joint distribution where stzUMAP weights by the fuzzy
-	# graph. Two different weightings of the same neighbourhoods, agreeing on which rows
-	# are dense.
+	#   returns    a list of numbers, one per sample; [ ] when the term is off
+	#   see        DensityCorrelation, LocalRadiiOf
+	#@ aka  THE ORIGINAL-SPACE LOCAL RADIUS PER POINT: how far each row sits, on average, from the neighbours it is joined to. A DATA PRODUCT -- it ranks rows by isolation with no reference to the embedding, and costs nothing because the term computes it.
 	def LocalRadii()
 		return @anLocalRadii
 
-	# THE OUT-OF-DISTRIBUTION CHECK, and for the parametric variant it is not optional.
+	# Returns the local radii of the rows placed by the last Transform.
 	#
-	# MEASURED, and the reason this method exists: a row at (20,20,20,20) transforms to
-	# (-2.1100, -9.7090) and a row at (200,200,200,200) -- ten times further out in
-	# every coordinate than anything the fit ever saw -- transforms to (-2.1118,
-	# -9.7117). Three thousandths apart. Bounded activations send everything past a
-	# certain magnitude to the same place, so the transform is not merely inaccurate on
-	# unfamiliar input, it is STRUCTURALLY BLIND to it, and it fails SILENTLY: what
-	# comes back is a perfectly ordinary looking pair of coordinates.
-	#
-	# So the answer cannot come from the network. This measures the new rows against
-	# THE TRAINING DATA, where 356 units from anything is 356 units from anything
-	# whatever a model believes. Compare against LocalRadii(): a value far outside that
-	# range is a row the map has no business being asked about.
-	#
-	# Available whether or not the fit preserved density, because it is a property of
-	# the data rather than of the map.
-	# the radii of the rows the last Transform() placed. The classic extension measures
-	# them on its way past; the parametric one cannot, so there it stays empty and
-	# LocalRadiiOf() is the way to ask.
+	#   returns    a list of numbers, one per placed row; [ ] before any Transform
+	#   note       a large value warns that a new row lies outside the region the map was fitted on
+	#   see        Transform, LocalRadiiOf
+	#@ aka  THE OUT-OF-DISTRIBUTION CHECK, and for the parametric variant it is not optional.
 	def NewLocalRadii()
 		return @anNewRadii
 
+	# Returns how far each given row sits from its neighbours in the training data, without placing anything.
+	#
+	#   paRows     the rows to measure, each with as many feature values as the training samples
+	#   returns    a list of numbers, one per row
+	#   warning    it raises before a fit and for rows of the wrong width
+	#   see        NewLocalRadii, Transform
 	def LocalRadiiOf(paRows)
 		This._MustBeFitted()
 		if NOT isList(paRows) or len(paRows) = 0
@@ -670,44 +753,13 @@ class stzTSNE from stzObject
 		ok
 		return _aR_
 
-	# -- THE INVERSE TRANSFORM: from the picture back to the data --
+	# Trains a second network that maps points of the embedding back to rows of data.
 	#
-	# Call it AFTER Fit(). It trains a decoder g(y) ~ x against the frozen embedding,
-	# so the map already looked at is left exactly as it was.
-	#
-	# IT WORKS FOR BOTH VARIANTS HERE, free-form and parametric, because the decoder
-	# never inverts the encoder: it regresses (position, row) pairs, and both variants
-	# have both halves. (A refusal on that point stood briefly in stzUMAP and was wrong.)
-	#
-	# -- WHETHER YOU NEED IT, WHICH IS MEASURABLE --
-	#
-	# The alternative is no model: given a point in the map, return the nearest training
-	# row. A LOOKUP'S ERROR IS THE SAMPLING GAP -- it hands back a stored row, so it can
-	# never be closer to the truth than the nearest row happens to be. A DECODER'S ERROR
-	# IS ITS OWN APPROXIMATION ERROR, which owes nothing to sampling density. Whichever
-	# is smaller wins.
-	#
-	# MEASURED on one curve through six dimensions, inverting midpoints between
-	# consecutive embedded rows (where the curve gives a true answer):
-	#
-	#     fit                24 points          90 points
-	#                      dec    lookup      dec    lookup
-	#     t-SNE           0.1066  0.9025    0.2993  0.7634
-	#     t-SNE param     0.0685  0.9186    0.0212  0.2446
-	#     UMAP            0.5450  1.1516    0.0858  0.2673
-	#     UMAP param      0.2191  0.9886    0.6529  0.4654   <- the only loss
-	#
-	# THE DECODER WINS IN SEVEN OF EIGHT CELLS, and parametric t-SNE is the best
-	# inverter of the four by some way. Which also kills a tidy explanation I offered
-	# earlier -- that a parametric encoder is constrained to be smooth and therefore
-	# settles somewhere contorted and hard to invert. Parametric t-SNE is parametric and
-	# inverts BEST. Invertibility varies by algorithm, thirtyfold across these four, and
-	# is not predicted by whether the encoder is a network.
-	#
-	# -- AND THE LIMIT NO SETTING REMOVES --
-	#
-	# Two dimensions cannot hold six. The inverse recovers what the embedding KEPT and
-	# invents the rest: a plausible row for a location, never a recovered one.
+	#   returns    nothing; use LearnInverseQ to chain
+	#   warning    it needs a fitted job; training is slow with the default 15000 epochs, so a small
+	#              job sets SetInverseEpochs first
+	#   see        Inverse, HasInverse, SetInverseLayers
+	#@ aka  -- THE INVERSE TRANSFORM: from the picture back to the data --
 	def LearnInverse()
 		This._MustBeFitted()
 		# THE FLATTENING TAX (2026-09-10): the embedding goes as rows
@@ -736,9 +788,18 @@ class stzTSNE from stzObject
 			This.LearnInverse()
 			return This
 
+	# TRUE if an inverse network has been trained.
+	#
+	#   returns    TRUE or FALSE
+	#   see        LearnInverse, Inverse
 	def HasInverse()
 		return len(@anDecWeights) > 0
 
+	# Sets the hidden layer widths of the inverse network; 64 and 64 by default.
+	#
+	#   paWidths   the layer widths, a list of numbers, an empty list or another value is ignored
+	#   returns    nothing; use SetInverseLayersQ to chain
+	#   see        LearnInverse, SetInverseEpochs
 	def SetInverseLayers(paWidths)
 		if isList(paWidths) and len(paWidths) > 0
 			@anDecHidden = paWidths
@@ -748,9 +809,12 @@ class stzTSNE from stzObject
 			This.SetInverseLayers(paWidths)
 			return This
 
-	# a decoder is a REGRESSION problem and wants far more epochs than the embedding
-	# itself did -- measured, [32,32] at 3000 was three times WORSE than a plain lookup
-	# and [64,64] at 40000 a third better
+	# Sets how many epochs the inverse network trains for; 15000 by default.
+	#
+	#   n          the number of epochs, above 0, anything else is ignored
+	#   returns    nothing; use SetInverseEpochsQ to chain
+	#   see        LearnInverse, SetInverseLayers
+	#@ aka  a decoder is a REGRESSION problem and wants far more epochs than the embedding itself did -- measured, [32,32] at 3000 was three times WORSE than a plain lookup and [64,64] at 40000 a third better
 	def SetInverseEpochs(n)
 		if n > 0
 			@nDecEpochs = n
@@ -760,9 +824,16 @@ class stzTSNE from stzObject
 			This.SetInverseEpochs(n)
 			return This
 
-	# TAKE POINTS IN THE MAP, RETURN ROWS IN THE DATA. The points need not be positions
-	# of training rows -- somewhere between two clusters is exactly the question worth
-	# asking, and the answer is a plausible row for that location.
+	# Returns rows of data for points of the embedding, using the inverse network.
+	#
+	#   paPoints   points of the map, each with as many coordinates as the embedding
+	#   returns    a list of rows, one per point
+	#   note       the rows come back in the space the fit saw, so with a PCA step they are PCA
+	#              scores, not the original features
+	#   warning    it raises before LearnInverse, and for a point with the wrong number of
+	#              coordinates
+	#   see        LearnInverse, HasInverse
+	#@ aka  TAKE POINTS IN THE MAP, RETURN ROWS IN THE DATA. The points need not be positions of training rows -- somewhere between two clusters is exactly the question worth asking, and the answer is a plausible row for that location.
 	def Inverse(paPoints)
 		This._MustBeFitted()
 		if NOT This.HasInverse()
@@ -800,6 +871,12 @@ class stzTSNE from stzObject
 		next
 		return _aRes_
 
+	# Runs the embedding of the samples, and stores the coordinates and the cost history.
+	#
+	#   returns    nothing; use FitQ to chain
+	#   warning    it raises an error when the perplexity is too large for the number of samples,
+	#              and when there are fewer than 3 samples
+	#   see        Embedding, IsFitted, Why
 	def Fit()
 		_a_ = This._PreparedData()
 		_aX_ = ref(_a_[1])
@@ -875,36 +952,69 @@ class stzTSNE from stzObject
 			This.Fit()
 			return This
 
+	# TRUE if Fit has run.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Fit
 	def IsFitted()
 		return @bFitted
 
+	# Returns the coordinates of every sample after the fit.
+	#
+	#   returns    a list with one list of coordinates per sample
+	#   note       distances and cluster sizes in the picture are not meaningful, only which points
+	#              are near
+	#   warning    it raises Fit() me first. before a fit
+	#   see        Fit, Trustworthiness
 	def Embedding()
 		This._MustBeFitted()
 		return @aEmbedding
 
-	# THE WITNESS (Venna & Kaski 2006, as scikit-learn computes it): 1.0 when the
-	# embedding invented no neighbour; every neighbour a point gained in the map
-	# that was not among its k nearest in the input is charged by how far down
-	# the input ordering it really sat. Needs only the data the fit saw and the
-	# embedding -- no labels, no generator -- and it is the number the field
-	# compares on. Computed by the engine, on the device past its gate.
+	# Returns how faithful the embedding is to the neighbourhoods of the original data, from 0 to 1, looking at 5 neighbours.
+	#
+	#   returns    a number from 0 to 1; 1 means no false neighbour was invented
+	#   note       two separated clusters of six points gave about 0.83 with only 120 iterations
+	#   warning    it raises before a fit
+	#   see        TrustworthinessAt, Embedding
+	#@ aka  THE WITNESS (Venna & Kaski 2006, as scikit-learn computes it): 1.0 when the embedding invented no neighbour; every neighbour a point gained in the map that was not among its k nearest in the input is charged by how far down the input ordering it really sat. Needs only the data the fit saw and the embedding -- no labels, no generator -- and it is the number the field compares on. Computed by the en
 	def Trustworthiness()
 		return This.TrustworthinessAt(5)
 
+	# Returns the trustworthiness of the embedding for a chosen number of neighbours.
+	#
+	#   nK         how many nearest neighbours to compare
+	#   returns    a number from 0 to 1
+	#   warning    it raises before a fit
+	#   see        Trustworthiness
 	def TrustworthinessAt(nK)
 		This._MustBeFitted()
 		return StzEngineEmbeddingTrustworthiness(@aPreparedX, @nRows, @nPreparedDim, @aEmbedding, @nDims, nK, 0)
 
-	# The objective, per iteration. Worth looking at: an embedding is stochastic, and
-	# this is the only evidence the optimisation went anywhere.
+	# Returns the cost of the optimisation at each iteration, the only evidence of how the run went.
+	#
+	#   returns    a list of numbers, one per iteration
+	#   note       the list has as many entries as the iterations
+	#   warning    it raises before a fit
+	#   see        FinalKL, SetIterations
+	#@ aka  The objective, per iteration. Worth looking at: an embedding is stochastic, and this is the only evidence the optimisation went anywhere.
 	def KLHistory()
 		This._MustBeFitted()
 		return @anKL
 
+	# Returns the cost at the last iteration.
+	#
+	#   returns    a number
+	#   warning    it raises before a fit
+	#   see        KLHistory
 	def FinalKL()
 		This._MustBeFitted()
 		return @anKL[len(@anKL)]
 
+	# Returns one sentence describing the fit: variant, size, perplexity, iterations, PCA step and the cost from first to last iteration.
+	#
+	#   returns    a text
+	#   warning    it raises before a fit
+	#   see        Fit, KLHistory
 	def Why()
 		This._MustBeFitted()
 		_c_ = "t-SNE"
@@ -1005,6 +1115,32 @@ class stzTSNE from stzObject
 		ok
 
 
+# Draws a map of high-dimensional samples in 2 dimensions from a neighbour graph, using UMAP, and can place new rows in it.
+#
+# Built for LOOKING at data, not for measuring it: distances and cluster sizes in the map mean
+# nothing, and the neighbour count changes the picture, so try two values. The usual pipeline is
+# ReduceWithPCA(30) then Fit. The default of 15 neighbours needs more than 15 samples, so small data
+# needs SetNeighbors first. The neighbour graph is held in the engine after the first Fit: changing
+# the minimum distance, the spread, the epochs or the seed redoes the layout only, while changing
+# the neighbours, the labels or the PCA step drops the graph. LearnFromLabels reweights the graph
+# with known classes, and the separation it gives is an input, not a finding. Unlike t-SNE,
+# Transform places new rows against the frozen map, and LearnMapping makes that exact for the
+# training rows. PreserveDensity adds the densMAP term, and LearnInverse trains a network that goes
+# back from the map to the data.
+#
+#   receiver   o1 = new stzUMAP([ [0,0,0], [0.1,0,0.1], [0,0.2,0], [0.2,0.1,0.1], [0.1,0.2,0.2],
+#              [0.2,0.2,0], [5,5,5], [5.1,5,5.1], [5,5.2,5], [5.2,5.1,5.1], [5.1,5.2,5.2],
+#              [5.2,5.2,5] ])
+#   example    o1.SetNeighbors(4)
+#              o1.SetEpochs(100)
+#              o1.Fit()
+#              ? o1.HasGraph()
+#              #--> 1
+#              ? len(o1.Embedding())
+#              #--> 12
+#              ? o1.Trustworthiness() > 0.9
+#              #--> 1
+#   see        stzTSNE, stzPCA
 class stzUMAP from stzObject
 
 	@aData = []
@@ -1057,29 +1193,58 @@ class stzUMAP from stzObject
 	# target weight, the PCA width -- drops it; the next Fit() rebuilds.
 	@hGraph_ = ""
 
+	# Builds a UMAP embedding job around a table of samples, one list of feature values per sample.
+	#
+	#   paData     the samples, a list of equal-length lists of numbers
+	#   returns    nothing; the object is built
+	#   warning    an empty list, a sample that is not a list, or samples of different widths raise
+	#              an error naming the first bad sample
+	#   see        Fit, SetNeighbors, ReduceWithPCA
 	def init(paData)
 		_a_ = StzEmbeddingCheckData(paData)
 		@aData = paData
 		@nRows = _a_[1]
 		@nCols = _a_[2]
 
+	# Returns how many samples the job was built with.
+	#
+	#   returns    a number
+	#   see        NumberOfFeatures, Embedding
 	def NumberOfSamples()
 		return @nRows
 
+	# Returns how many feature values each sample has.
+	#
+	#   returns    a number
+	#   see        NumberOfSamples
 	def NumberOfFeatures()
 		return @nCols
 
+	# TRUE if the neighbour graph of a fit is still held in the engine.
+	#
+	#   returns    TRUE or FALSE
+	#   note       it is false before a fit and after any setting that changes the graph
+	#   see        GraphInfo, ReleaseGraph, Fit
 	def HasGraph()
 		return @hGraph_ != ""
 
-	# [ points, width, neighbours, edges ] of the resident graph, or [] before a fit
+	# Returns the size of the held neighbour graph: points, width, neighbours and edges.
+	#
+	#   returns    a list of four numbers; [ ] before a fit
+	#   note       twelve points of three features with 4 neighbours gave 12, 3, 4 and 26
+	#   see        HasGraph, SetNeighbors
+	#@ aka  [ points, width, neighbours, edges ] of the resident graph, or [] before a fit
 	def GraphInfo()
 		if @hGraph_ = ""
 			return []
 		ok
 		return StzEngineUmapGraphInfo(@hGraph_)
 
-	# Give the engine's graph back. The next Fit() builds it again.
+	# Gives the held neighbour graph back to the engine; the next fit builds it again.
+	#
+	#   returns    nothing; use ReleaseGraphQ to chain
+	#   see        HasGraph, Fit
+	#@ aka  Give the engine's graph back. The next Fit() builds it again.
 	def ReleaseGraph()
 		This._DropGraph()
 
@@ -1093,9 +1258,15 @@ class stzUMAP from stzObject
 			@hGraph_ = ""
 		ok
 
-	# THE LOCAL/GLOBAL DIAL. Small values see fine structure and fragment; large
-	# values see the broad shape and smear detail. The reference implementation
-	# defaults to 15.
+	# Sets how many neighbours each point looks at, the dial between local detail and global shape; 15 by default.
+	#
+	#   n          the number of neighbours, 2 or more, anything else is ignored
+	#   returns    nothing; use SetNeighborsQ to chain
+	#   note       small values fragment clusters, large values smear detail
+	#   warning    the graph is dropped; Fit refuses to run when the number is not below the number
+	#              of samples (15 neighbours on 12 samples)
+	#   see        Neighbors, Fit
+	#@ aka  THE LOCAL/GLOBAL DIAL. Small values see fine structure and fragment; large values see the broad shape and smear detail. The reference implementation defaults to 15.
 	def SetNeighbors(n)
 		This._DropGraph()
 		if n >= 2
@@ -1106,11 +1277,21 @@ class stzUMAP from stzObject
 			This.SetNeighbors(n)
 			return This
 
+	# Returns the number of neighbours in force.
+	#
+	#   returns    a number; 15 by default
+	#   see        SetNeighbors
 	def Neighbors()
 		return @nNeighbors
 
-	# How tightly points may pack. Smaller packs tighter, which makes clusters look
-	# more separated -- an appearance you are choosing, not a finding.
+	# Sets how tightly points may pack in the embedding; 0.1 by default.
+	#
+	#   n          the minimum distance, 0 or more, a negative value is ignored
+	#   returns    nothing; use SetMinDistanceQ to chain
+	#   note       a smaller value makes clusters look more separated, an appearance you choose
+	#              rather than a finding; the graph is kept, so only the layout is redone
+	#   see        SetSpread, Fit
+	#@ aka  How tightly points may pack. Smaller packs tighter, which makes clusters look more separated -- an appearance you are choosing, not a finding.
 	def SetMinDistance(n)
 		if n >= 0
 			@nMinDist = n
@@ -1120,6 +1301,11 @@ class stzUMAP from stzObject
 			This.SetMinDistance(n)
 			return This
 
+	# Sets the scale of the embedding that the minimum distance is measured against; 1 by default.
+	#
+	#   n          the spread, above 0, anything else is ignored
+	#   returns    nothing; use SetSpreadQ to chain
+	#   see        SetMinDistance, CurveParameters
 	def SetSpread(n)
 		if n > 0
 			@nSpread = n
@@ -1129,6 +1315,11 @@ class stzUMAP from stzObject
 			This.SetSpread(n)
 			return This
 
+	# Sets how many coordinates each point gets in the embedding; 2 by default.
+	#
+	#   n          the number of output dimensions, 1 or more, anything else is ignored
+	#   returns    nothing; use SetDimensionsQ to chain
+	#   see        Fit, Embedding
 	def SetDimensions(n)
 		if n >= 1
 			@nDims = n
@@ -1138,6 +1329,11 @@ class stzUMAP from stzObject
 			This.SetDimensions(n)
 			return This
 
+	# Sets how many optimisation passes the layout takes; 200 by default.
+	#
+	#   n          the number of epochs, above 0, anything else is ignored
+	#   returns    nothing; use SetEpochsQ to chain
+	#   see        Fit
 	def SetEpochs(n)
 		if n > 0
 			@nEpochs = n
@@ -1147,6 +1343,12 @@ class stzUMAP from stzObject
 			This.SetEpochs(n)
 			return This
 
+	# Sets the number that starts the random generator, so a run can be repeated or varied; 42 by default.
+	#
+	#   n          the starting number
+	#   returns    nothing; use SetSeedQ to chain
+	#   note       the same value gives the same embedding (twelve points), and the graph is kept
+	#   see        Fit
 	def SetSeed(n)
 		@nSeed = n
 
@@ -1154,6 +1356,15 @@ class stzUMAP from stzObject
 			This.SetSeed(n)
 			return This
 
+	# Asks for a PCA down to n dimensions before the embedding, the usual first step; off by default.
+	#
+	#   n          the number of components to keep, 1 or more, anything else is ignored
+	#   returns    nothing; use ReduceWithPCAQ to chain
+	#   note       it removes noise and speeds up the distances, at the cost of any structure the
+	#              discarded components held
+	#   warning    the graph is dropped; when n is not below the number of features the data goes
+	#              through unchanged
+	#   see        SkipPCA, UsesPCA, PCAQ
 	def ReduceWithPCA(n)
 		This._DropGraph()
 		if n >= 1
@@ -1164,6 +1375,11 @@ class stzUMAP from stzObject
 			This.ReduceWithPCA(n)
 			return This
 
+	# Turns off the PCA step, so the fit uses the raw features.
+	#
+	#   returns    nothing; use SkipPCAQ to chain
+	#   warning    the graph is dropped
+	#   see        ReduceWithPCA, UsesPCA
 	def SkipPCA()
 		This._DropGraph()
 		@nPcaDims = 0
@@ -1172,31 +1388,30 @@ class stzUMAP from stzObject
 			This.SkipPCA()
 			return This
 
+	# TRUE if a PCA reduction has been requested.
+	#
+	#   returns    TRUE or FALSE
+	#   see        ReduceWithPCA, PCAQ
 	def UsesPCA()
 		return @nPcaDims > 0
 
+	# Returns the PCA that the last fit ran before embedding, so its explained variance can be read.
+	#
+	#   returns    a stzPCA object; "" before a fit that used PCA
+	#   see        ReduceWithPCA, UsesPCA
 	def PCAQ()
 		return @oPca
 
-	# ── SUPERVISION: let known labels reshape the graph ──
+	# Gives one known label per sample so that the neighbour graph weakens links between different classes; -1 marks an unknown label.
 	#
-	# WHAT THIS DOES, because the name promises more than it is. It does NOT learn a
-	# classifier and does not predict anything. It REWEIGHTS the neighbour graph the
-	# unsupervised algorithm already built: an edge between two points of different
-	# classes is made weak, so the layout stops trying to keep them together.
-	#
-	# Pass one label per sample. A label of -1 means UNKNOWN -- its edges are damped
-	# rather than crushed, which is what makes the semi-supervised case work instead
-	# of forcing every row to be classified.
-	#
-	# ── THE WARNING, WHICH MATTERS MORE THAN THE MECHANISM ──
-	#
-	# A supervised embedding WILL separate your classes. That is what you asked for.
-	# It is therefore NOT evidence that the classes are separable, and the picture
-	# must never be shown as if it were -- the separation is an input, not a finding.
-	# What it is genuinely good for: seeing structure WITHIN classes you already
-	# trust, and laying out data whose grouping is not in question so that something
-	# else can be looked at.
+	#   paLabels   a list with one label per sample
+	#   returns    nothing; use LearnFromLabelsQ to chain
+	#   note       it does not classify anything: the separation of the classes is an input, not
+	#              evidence that they are separable
+	#   warning    the graph is dropped; a list of the wrong length raises an error giving both
+	#              lengths
+	#   see        IgnoreLabels, SetTargetWeight, IsSupervised
+	#@ aka  ── SUPERVISION: let known labels reshape the graph ──
 	def LearnFromLabels(paLabels)
 		This._DropGraph()
 		if NOT isList(paLabels) or len(paLabels) != @nRows
@@ -1209,6 +1424,11 @@ class stzUMAP from stzObject
 			This.LearnFromLabels(paLabels)
 			return This
 
+	# Forgets the labels, so the fit is unsupervised again.
+	#
+	#   returns    nothing; use IgnoreLabelsQ to chain
+	#   warning    the graph is dropped
+	#   see        LearnFromLabels, IsSupervised
 	def IgnoreLabels()
 		This._DropGraph()
 		@anLabels = []
@@ -1217,20 +1437,28 @@ class stzUMAP from stzObject
 			This.IgnoreLabels()
 			return This
 
+	# TRUE if labels have been given.
+	#
+	#   returns    TRUE or FALSE
+	#   see        LearnFromLabels, IgnoreLabels
 	def IsSupervised()
 		return len(@anLabels) > 0
 
+	# Returns the labels given to LearnFromLabels.
+	#
+	#   returns    a list; [ ] when there are none
+	#   see        LearnFromLabels
 	def Labels()
 		return @anLabels
 
-	# HOW MUCH TO TRUST THE LABELS against the data's own structure. 0 ignores them;
-	# the reference implementation's default is 0.5.
+	# Sets how much the labels count against the data's own structure; 0.5 by default.
 	#
-	# MEASURED, and it is not the shape one would assume: separation rises to about
-	# 0.2 and then FALLS, and beyond ~0.9 the setting stops meaning anything at all
-	# because the penalty underflows. Crushing every cross-class edge fragments the
-	# graph -- points lose most of their neighbours and the classes come apart into
-	# pieces instead of two groups. More supervision is not more separation.
+	#   n          the weight from 0 to 1, anything else is ignored
+	#   returns    nothing; use SetTargetWeightQ to chain
+	#   warning    the graph is dropped; more weight is not more separation (a code comment reports
+	#              a peak near 0.2, not run here)
+	#   see        TargetWeight, LearnFromLabels
+	#@ aka  HOW MUCH TO TRUST THE LABELS against the data's own structure. 0 ignores them; the reference implementation's default is 0.5.
 	def SetTargetWeight(n)
 		This._DropGraph()
 		if n >= 0 and n <= 1
@@ -1241,44 +1469,20 @@ class stzUMAP from stzObject
 			This.SetTargetWeight(n)
 			return This
 
+	# Returns the weight given to the labels.
+	#
+	#   returns    a number; 0.5 by default
+	#   see        SetTargetWeight
 	def TargetWeight()
 		return @nTargetWeight
 
-	# -- DENSITY PRESERVATION (densMAP) --
+	# Turns on the density term (densMAP) so denser regions are drawn tighter; the weight becomes 2, or 0.1 when parametric.
 	#
-	# WHAT IT FIXES. Ordinary UMAP preserves NEIGHBOURHOODS and not DENSITY, which is
-	# why every honest description of it -- including this one -- tells you that cluster
-	# SIZE means nothing. Measured on two clusters whose spreads differ twentyfold,
-	# plain UMAP draws them 1.17 times apart. A 20x fact, rendered as 17%.
-	#
-	# Narayan, Berger and Cho (Nature Biotechnology 2021) add one term: give each point
-	# a local radius -- the membership-weighted mean squared distance to the neighbours
-	# it is actually joined to -- and ask the layout to keep the original and embedded
-	# radii CORRELATED. Cluster size then becomes readable.
-	#
-	# -- WHAT YOU MAY READ OFF THE RESULT, AND WHAT YOU MAY NOT --
-	#
-	# The objective is a CORRELATION, so the supported claim is "denser regions are
-	# drawn tighter THAN sparser ones". The unsupported one is "area is proportional to
-	# density": at the paper default the twentyfold difference above still comes out at
-	# 1.31, and only an extreme setting gets it near the truth.
-	#
-	# -- AND IT IS A TRADE, WHICH THE DEFAULT HIDES BY BEING SMALL --
-	#
-	# Measured, with the true ratio 19.96:
-	#
-	#     lambda    correlation    drawn ratio    cluster separation
-	#       0          0.226           1.17             7.36
-	#       2          0.436           1.31             6.28
-	#      30          0.871           1.81             5.85
-	#     300          0.993          23.83             1.44
-	#
-	# Getting the density right COSTS the separation between groups -- the term buys
-	# room by spending what the layout was using to hold clusters apart. There is no
-	# setting that is simply better: a high lambda answers "how dense is each region"
-	# at the expense of "how many groups are there", and the second is usually why the
-	# plot was opened. (Note this dial IS monotone, unlike SetTargetWeight() -- do not
-	# carry either shape over to the other.)
+	#   returns    nothing; use PreserveDensityQ to chain
+	#   note       it makes cluster size more readable, at the cost of some separation between
+	#              clusters
+	#   see        IgnoreDensity, SetDensityWeight, DensityCorrelation
+	#@ aka  -- DENSITY PRESERVATION (densMAP) --
 	def PreserveDensity()
 		@nDensityLambda = 2.0
 		@bDensityAuto = 1
@@ -1287,6 +1491,10 @@ class stzUMAP from stzObject
 			This.PreserveDensity()
 			return This
 
+	# Turns the density term off.
+	#
+	#   returns    nothing; use IgnoreDensityQ to chain
+	#   see        PreserveDensity, IsDensityPreserving
 	def IgnoreDensity()
 		@nDensityLambda = 0
 		@bDensityAuto = 0
@@ -1295,11 +1503,21 @@ class stzUMAP from stzObject
 			This.IgnoreDensity()
 			return This
 
+	# TRUE if the density weight is above 0.
+	#
+	#   returns    TRUE or FALSE
+	#   see        PreserveDensity, DensityWeight
 	def IsDensityPreserving()
 		return @nDensityLambda > 0
 
-	# how hard to push. 0 turns the term off entirely, and does so EXACTLY -- the run
-	# is bit-for-bit the ordinary fit rather than a near one.
+	# Sets how hard the density term pushes; 0 turns it off exactly.
+	#
+	#   n          the weight, 0 or more, a negative value is ignored
+	#   returns    nothing; use SetDensityWeightQ to chain
+	#   note       with 0 the embedding is identical to the ordinary fit, value for value (twelve
+	#              points, same seed)
+	#   see        DensityWeight, PreserveDensity
+	#@ aka  how hard to push. 0 turns the term off entirely, and does so EXACTLY -- the run is bit-for-bit the ordinary fit rather than a near one.
 	def SetDensityWeight(n)
 		if n >= 0
 			@nDensityLambda = n
@@ -1310,12 +1528,19 @@ class stzUMAP from stzObject
 			This.SetDensityWeight(n)
 			return This
 
+	# Returns the weight of the density term.
+	#
+	#   returns    a number; 0 by default
+	#   see        SetDensityWeight, IsDensityPreserving
 	def DensityWeight()
 		return @nDensityLambda
 
-	# the FINAL fraction of epochs during which the term is active. It is switched on
-	# late deliberately: on a random start the embedded radii are noise, so their
-	# correlation with anything is noise, and its gradient is noise with a lever arm.
+	# Sets the last fraction of the epochs during which the density term is active; 0.3 by default.
+	#
+	#   n          the fraction, above 0 and at most 1, anything else is ignored
+	#   returns    nothing; use SetDensityPhaseQ to chain
+	#   see        DensityPhase, SetDensityWeight
+	#@ aka  the FINAL fraction of epochs during which the term is active. It is switched on late deliberately: on a random start the embedded radii are noise, so their correlation with anything is noise, and its gradient is noise with a lever arm.
 	def SetDensityPhase(n)
 		if n > 0 and n <= 1
 			@nDensityFrac = n
@@ -1325,81 +1550,37 @@ class stzUMAP from stzObject
 			This.SetDensityPhase(n)
 			return This
 
+	# Returns the fraction of the epochs during which the density term runs.
+	#
+	#   returns    a number; 0.3 by default
+	#   see        SetDensityPhase
 	def DensityPhase()
 		return @nDensityFrac
 
-	# HOW FAR THE TERM ACTUALLY GOT: the correlation between original and embedded
-	# log-radii at the end of the run. Reported rather than hidden because it is the
-	# only evidence the extra work achieved anything.
+	# Returns how closely the drawn local radii follow the original ones at the end of a fit with the density term on.
 	#
-	# It is NOT a percentage. An embedding that gets every density rank BACKWARDS can
-	# still score around -0.6 rather than -1, because reversing an order is not the
-	# same as negating it.
+	#   returns    a number from -1 to 1; 0 when the term is off or before a fit
+	#   note       it is a correlation, not a percentage
+	#   see        PreserveDensity, LocalRadii
+	#@ aka  HOW FAR THE TERM ACTUALLY GOT: the correlation between original and embedded log-radii at the end of the run. Reported rather than hidden because it is the only evidence the extra work achieved anything.
 	def DensityCorrelation()
 		return @nDensityCorrelation
 
-	# THE ORIGINAL-SPACE LOCAL RADIUS PER POINT -- how far each row sits, on average,
-	# from the neighbours it is joined to. Small means it sits in a crowd.
+	# Returns the average distance of each sample to its neighbours in the original space, as measured by a fit with the density term on.
 	#
-	# This is a DATA PRODUCT, not a by-product of drawing: it ranks rows by isolation
-	# and is meaningful with no reference to the embedding at all. Use it to find
-	# outliers or to weight a downstream model. It costs nothing extra, because the
-	# density term has to compute it anyway.
+	#   returns    a list of numbers, one per sample; [ ] when the term is off
+	#   see        DensityCorrelation, LocalRadiiOf
+	#@ aka  THE ORIGINAL-SPACE LOCAL RADIUS PER POINT -- how far each row sits, on average, from the neighbours it is joined to. Small means it sits in a crowd.
 	def LocalRadii()
 		return @anLocalRadii
 
-	# -- PARAMETRIC UMAP: let a network hold the map --
+	# Switches to parametric UMAP, which trains a neural network from features to coordinates instead of moving free points.
 	#
-	# Sainburg, McInnes and Gentner (2021). The objective does not change at all -- the
-	# same fuzzy neighbour graph, the same a/b curve, the same attraction along an edge
-	# and repulsion from sampled non-neighbours. What changes is where the answer is
-	# allowed to live: instead of moving free coordinates, the layout becomes f(x; W)
-	# and the same gradient is pushed back into the weights.
-	#
-	# -- WHAT IT BUYS --
-	#
-	# A TRANSFORM THAT IS EXACT. A training row put back through Transform() returns
-	# the number it was fitted to; measured displacement 0.0000000000. The ordinary
-	# transform re-optimises against a frozen map and gives 0.807 on the same data,
-	# with only a quarter of rows landing nearest their own position.
-	#
-	# -- WHAT IT COSTS --
-	#
-	# The layout can only be as good as a FUNCTION of x can be. Free coordinates put
-	# any point anywhere; a network must send nearby inputs to nearby outputs, so
-	# anything the data does not express smoothly cannot be drawn.
-	#
-	# AND IT INHERITS THE PARAMETRIC BLINDNESS. A row far outside the training range
-	# saturates onto an ordinary-looking position -- measured at 0.000001 from a
-	# legitimate row. The exactness and the blindness are the same property seen twice.
-	# Use LocalRadiiOf() for that; it asks the data, not the model.
-	# -- AND WHAT IT DOES TO SUPERVISION, WHICH IS THE PART THAT SURPRISES --
-	#
-	# Supervision still applies: labels reshape the neighbour graph before any optimiser
-	# sees it, so LearnFromLabels() works here exactly as it does for the free-form fit.
-	# What differs is HOW MUCH OF IT SURVIVES.
-	#
-	# MEASURED on randomly placed rows with alternating labels -- data with no class
-	# structure at all, so any separation is supervision's doing:
-	#
-	#     one dataset        free-form  1.179 -> 2.413   (x2.05)
-	#                       parametric  1.191 -> 1.635   (x1.37)
-	#     another            free-form  0.987 -> 1.597   (x1.62)
-	#                       parametric  0.972 -> 1.046   (x1.08)
-	#
-	# Same direction both times, magnitude quite different -- so the honest claim is
-	# that supervision reaches a learned map only PARTLY, not that it barely arrives.
-	#
-	# THE REASON IS THE PARAMETERISATION, and it cannot be tuned away. y = f(x) is
-	# smooth, so two rows close together in x MUST come out close together in y. Free
-	# coordinates answer to nothing and can put interleaved points wherever the labels
-	# ask; a function cannot. Checked rather than assumed: eight times the parameters
-	# and seven times the training buy nothing (2x24/400 -> 1.046, 2x64/1500 -> 0.965,
-	# 3x128/3000 -> 1.029).
-	#
-	# So if the point of supervising is to pull apart classes the geometry does NOT
-	# already separate, use SkipMapping() and take the free-form fit -- and give up the
-	# exact transform. That is the trade, stated rather than discovered later.
+	#   returns    nothing; use LearnMappingQ to chain
+	#   note       training rows transform back to their own embedding exactly (largest difference 0
+	#              on twelve points)
+	#   see        SkipMapping, Transform, SetHiddenLayers
+	#@ aka  -- PARAMETRIC UMAP: let a network hold the map --
 	def LearnMapping()
 		@bParametric = 1
 
@@ -1407,6 +1588,10 @@ class stzUMAP from stzObject
 			This.LearnMapping()
 			return This
 
+	# Switches back to the ordinary UMAP, where points move freely.
+	#
+	#   returns    nothing; use SkipMappingQ to chain
+	#   see        LearnMapping, IsParametric
 	def SkipMapping()
 		@bParametric = 0
 
@@ -1414,9 +1599,18 @@ class stzUMAP from stzObject
 			This.SkipMapping()
 			return This
 
+	# TRUE if the parametric variant is switched on.
+	#
+	#   returns    TRUE or FALSE
+	#   see        LearnMapping, SkipMapping
 	def IsParametric()
 		return @bParametric
 
+	# Sets the widths of the hidden layers of the network of the parametric variant; 50 and 20 by default.
+	#
+	#   paWidths   the layer widths, a list of numbers, an empty list or another value is ignored
+	#   returns    nothing; use SetHiddenLayersQ to chain
+	#   see        HiddenLayers, LearnMapping
 	def SetHiddenLayers(paWidths)
 		if isList(paWidths) and len(paWidths) > 0
 			@anHidden = paWidths
@@ -1426,18 +1620,19 @@ class stzUMAP from stzObject
 			This.SetHiddenLayers(paWidths)
 			return This
 
+	# Returns the hidden layer widths of the parametric variant.
+	#
+	#   returns    a list of numbers; [ 50, 20 ] by default
+	#   see        SetHiddenLayers
 	def HiddenLayers()
 		return @anHidden
 
-	# the NETWORK's step size. The free-form optimiser's decaying alpha has no
-	# counterpart in the gradient here, so the schedule belongs to the weights.
+	# Sets the step size of the network of the parametric variant; 0.01 by default.
 	#
-	# MEASURED, and the reason the gradient is AVERAGED per point rather than summed:
-	# with a summed epoch gradient a point's step was proportional to how many edges
-	# touched it, and at a learning rate only twice the default every point of a
-	# cluster collapsed onto the same output -- while the separation ratio reported
-	# 6471293, which reads like a triumph. Averaging made the whole range 0.005 to 0.05
-	# behave. A summary ratio is never evidence on its own.
+	#   n          the learning rate, above 0, anything else is ignored
+	#   returns    nothing; use SetLearningRateQ to chain
+	#   see        LearningRate, LearnMapping
+	#@ aka  the NETWORK's step size. The free-form optimiser's decaying alpha has no counterpart in the gradient here, so the schedule belongs to the weights.
 	def SetLearningRate(n)
 		if n > 0
 			@nLearningRate = n
@@ -1447,62 +1642,20 @@ class stzUMAP from stzObject
 			This.SetLearningRate(n)
 			return This
 
+	# Returns the step size of the network of the parametric variant.
+	#
+	#   returns    a number; 0.01 by default
+	#   see        SetLearningRate
 	def LearningRate()
 		return @nLearningRate
 
-	# -- THE INVERSE TRANSFORM: from the picture back to the data --
+	# Trains a second network that maps points of the embedding back to rows of data.
 	#
-	# Everything else here runs one way, data to embedding. This runs the other, and it
-	# is the only direction needing a second model, because the forward map threw
-	# information away and nothing gets it back.
-	#
-	# Call it AFTER Fit(). It trains a decoder g(y) ~ x against the frozen embedding, so
-	# the map you already looked at is left exactly as it was. (The paper's variant can
-	# instead train the whole thing as an autoencoder, which makes the embedding more
-	# invertible and LESS faithful to the neighbourhood structure -- a real trade, and
-	# one that changes the picture underneath you.)
-	#
-	# -- WHETHER YOU NEED IT AT ALL, WHICH IS MEASURABLE --
-	#
-	# The obvious alternative is no model: given a point in the map, return the nearest
-	# training row. THE RULE THAT DECIDES BETWEEN THEM:
-	#
-	#   A LOOKUP'S ERROR IS THE SAMPLING GAP. It returns a stored row, so it can never
-	#   be closer to the truth than the nearest row happens to be.
-	#
-	#   A DECODER'S ERROR IS ITS OWN APPROXIMATION ERROR, which has nothing to do with
-	#   how densely the data was sampled.
-	#
-	#   Whichever is smaller wins.
-	#
-	# MEASURED on one curve through six dimensions, inverting midpoints between
-	# consecutive embedded rows (where the curve gives a true answer):
-	#
-	#     fit           points     decoder    lookup
-	#     free-form        24       0.5450    1.1516
-	#     free-form        90       0.0858    0.2673
-	#     parametric       24       0.2191    0.9886
-	#     parametric       90       0.6529    0.4654    <- the only loss
-	#
-	# The lookup's error rises as the gaps widen, exactly as the rule says. But note
-	# WHICH cell the decoder loses in, because an earlier version of this note said
-	# "densely sampled data, skip the model" and that was measured on the parametric fit
-	# ALONE. On a free-form embedding the decoder wins at 90 points too, and by threefold.
-	#
-	# THE REASON IS WORTH KNOWING. A free-form layout answers to nothing, so the
-	# optimiser is free to lay a curve out cleanly and y -> x comes out a well-behaved
-	# function. A parametric encoder is CONSTRAINED to be smooth in x, and the embedding
-	# it settles on can be more contorted -- harder to invert, not easier. At 90 points
-	# the free-form decoder scores 0.0858 against the parametric one's 0.6529, sevenfold
-	# better on identical data.
-	#
-	# So the rule stands and the recommendation drawn from it did not: train the decoder
-	# unless the data is dense AND the fit is parametric.
-	#
-	# -- AND THE LIMIT THAT NO SETTING REMOVES --
-	#
-	# Two dimensions cannot hold thirty. The inverse recovers what the embedding KEPT
-	# and invents the rest. It is a plausible row for a location, never a recovered one.
+	#   returns    nothing; use LearnInverseQ to chain
+	#   warning    it needs a fitted job; training is slow with the default 15000 epochs, so a small
+	#              job sets SetInverseEpochs first
+	#   see        Inverse, HasInverse, SetInverseLayers
+	#@ aka  -- THE INVERSE TRANSFORM: from the picture back to the data --
 	def LearnInverse()
 		This._MustBeFitted()
 		# A REFUSAL USED TO STAND HERE, and it was wrong. I reasoned that a free-form
@@ -1536,9 +1689,18 @@ class stzUMAP from stzObject
 			This.LearnInverse()
 			return This
 
+	# TRUE if an inverse network has been trained.
+	#
+	#   returns    TRUE or FALSE
+	#   see        LearnInverse, Inverse
 	def HasInverse()
 		return len(@anDecWeights) > 0
 
+	# Sets the hidden layer widths of the inverse network; 64 and 64 by default.
+	#
+	#   paWidths   the layer widths, a list of numbers, an empty list or another value is ignored
+	#   returns    nothing; use SetInverseLayersQ to chain
+	#   see        LearnInverse, SetInverseEpochs
 	def SetInverseLayers(paWidths)
 		if isList(paWidths) and len(paWidths) > 0
 			@anDecHidden = paWidths
@@ -1548,16 +1710,12 @@ class stzUMAP from stzObject
 			This.SetInverseLayers(paWidths)
 			return This
 
-	# CAPACITY DECIDED THIS ONE, and a first reading of an undertrained net nearly sent
-	# me the wrong way. Reconstruction error against a nearest-row lookup at 0.9155:
+	# Sets how many epochs the inverse network trains for; 15000 by default.
 	#
-	#     [32,32]   3000 epochs   2.4977    <- three times WORSE than the lookup
-	#     [64,64]   3000          0.8947
-	#     [64,64]  15000          0.6314
-	#     [64,64]  40000          0.5771    <- a third BETTER
-	#
-	# Hence the defaults of [64,64] and 15000. A decoder is a regression problem and
-	# wants far more epochs than the embedding itself did.
+	#   n          the number of epochs, above 0, anything else is ignored
+	#   returns    nothing; use SetInverseEpochsQ to chain
+	#   see        LearnInverse, SetInverseLayers
+	#@ aka  CAPACITY DECIDED THIS ONE, and a first reading of an undertrained net nearly sent me the wrong way. Reconstruction error against a nearest-row lookup at 0.9155:
 	def SetInverseEpochs(n)
 		if n > 0
 			@nDecEpochs = n
@@ -1567,11 +1725,16 @@ class stzUMAP from stzObject
 			This.SetInverseEpochs(n)
 			return This
 
-	# TAKE POINTS IN THE MAP, RETURN ROWS IN THE DATA.
+	# Returns rows of data for points of the embedding, using the inverse network.
 	#
-	# The points do not have to be positions of training rows -- somewhere between two
-	# clusters is exactly the question worth asking, and the answer is a plausible row
-	# for that location rather than a recovered one.
+	#   paPoints   points of the map, each with as many coordinates as the embedding
+	#   returns    a list of rows, one per point
+	#   note       the rows come back in the space the fit saw, so with a PCA step they are PCA
+	#              scores, not the original features
+	#   warning    it raises before LearnInverse, and for a point with the wrong number of
+	#              coordinates
+	#   see        LearnInverse, HasInverse
+	#@ aka  TAKE POINTS IN THE MAP, RETURN ROWS IN THE DATA.
 	def Inverse(paPoints)
 		This._MustBeFitted()
 		if NOT This.HasInverse()
@@ -1609,6 +1772,14 @@ class stzUMAP from stzObject
 		next
 		return _aRes_
 
+	# Builds the neighbour graph if none is held, then lays the points out, and stores the coordinates.
+	#
+	#   returns    nothing; use FitQ to chain
+	#   note       with the parametric variant switched on, a network is trained instead
+	#   warning    it raises an error when the neighbour count is not between 2 and one less than
+	#              the number of samples; a second fit that only changes the minimum distance,
+	#              spread, epochs or seed reuses the graph
+	#   see        Embedding, IsFitted, HasGraph, Why
 	def Fit()
 		_a_ = This._PreparedData()
 		_aX_ = ref(_a_[1])
@@ -1676,38 +1847,65 @@ class stzUMAP from stzObject
 			This.Fit()
 			return This
 
+	# TRUE if Fit has run.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Fit
 	def IsFitted()
 		return @bFitted
 
+	# Returns the coordinates of every sample after the fit.
+	#
+	#   returns    a list with one list of coordinates per sample
+	#   note       distances and cluster sizes in the picture are not meaningful, only which points
+	#              are near
+	#   warning    it raises Fit() me first. before a fit
+	#   see        Fit, Trustworthiness
 	def Embedding()
 		This._MustBeFitted()
 		return @aEmbedding
 
-	# THE WITNESS -- see stzTSNE.Trustworthiness(); the same engine call on the
-	# data the fit saw (the PCA scores when reducing) and the embedding
+	# Returns how faithful the embedding is to the neighbourhoods of the original data, from 0 to 1, looking at 5 neighbours.
+	#
+	#   returns    a number from 0 to 1; 1 means no false neighbour was invented
+	#   note       two separated clusters of six points gave 0.96
+	#   warning    it raises before a fit
+	#   see        TrustworthinessAt, Embedding
+	#@ aka  THE WITNESS -- see stzTSNE.Trustworthiness(); the same engine call on the data the fit saw (the PCA scores when reducing) and the embedding
 	def Trustworthiness()
 		return This.TrustworthinessAt(5)
 
+	# Returns the trustworthiness of the embedding for a chosen number of neighbours.
+	#
+	#   nK         how many nearest neighbours to compare
+	#   returns    a number from 0 to 1
+	#   warning    it raises before a fit
+	#   see        Trustworthiness
 	def TrustworthinessAt(nK)
 		This._MustBeFitted()
 		return StzEngineEmbeddingTrustworthiness(@aPrepared, @nRows, @nPreparedDim, @aEmbedding, @nDims, nK, 0)
 
-	# The fitted similarity curve 1/(1 + a*d^(2b)). Reported because a and b are
-	# DERIVED from min_dist and spread by a least-squares fit rather than given, and
-	# a caller may reasonably want to see what their setting turned into.
+	# Returns the two numbers a and b of the curve 1/(1 + a*d^(2b)) that the fit derived from the minimum distance and the spread.
+	#
+	#   returns    a list of [ key, value ] pairs, a and b
+	#   note       the values were a = 1.58 and b = 0.90 for the defaults
+	#   warning    it raises before a fit
+	#   see        SetMinDistance, SetSpread
+	#@ aka  The fitted similarity curve 1/(1 + a*d^(2b)). Reported because a and b are DERIVED from min_dist and spread by a least-squares fit rather than given, and a caller may reasonably want to see what their setting turned into.
 	def CurveParameters()
 		This._MustBeFitted()
 		return [ :a = @nA, :b = @nB ]
 
-	# PLACE POINTS THE FIT NEVER SAW into the existing map.
+	# Places new rows in the existing map, by a forward pass when parametric, otherwise by refining each point against the frozen layout.
 	#
-	# The new rows go through exactly what the training rows went through: the same
-	# PCA (when one was used), then their nearest training neighbours, their own rho
-	# and sigma, an initial position at the weighted average of those neighbours'
-	# coordinates, and a short refinement with THE TRAINING LAYOUT HELD FIXED. A map
-	# that shifted under every lookup would not be a map.
-	#
-	# This is not a refit. See the note at the top of this file for what that costs.
+	#   paRows     the new samples, each with as many feature values as the training samples
+	#   returns    a list of coordinate rows, one per new row
+	#   note       the map does not rearrange for the new point: a point unlike the training data is
+	#              still placed among the nearest training points
+	#   warning    it raises Fit() me first. before a fit, and an error naming the row when a row
+	#              has the wrong width or the list is empty
+	#   see        LearnMapping, NewLocalRadii, LocalRadiiOf
+	#@ aka  PLACE POINTS THE FIT NEVER SAW into the existing map.
 	def Transform(paRows)
 		This._MustBeFitted()
 		if NOT isList(paRows) or len(paRows) = 0
@@ -1816,26 +2014,22 @@ class stzUMAP from stzObject
 		next
 		return _aRes_
 
-	# THE LOCAL RADII OF THE ROWS THE LAST Transform() PLACED. How far each new row
-	# sits, on average, from the training rows nearest it -- IN THE ORIGINAL SPACE.
+	# Returns the local radii of the rows placed by the last Transform.
 	#
-	# This is the counterpart of LocalRadii() for unseen data, and it is the piece worth
-	# having even if the picture is never drawn. A value far outside the training range
-	# says the model is being asked about a region it has no evidence for. The training
-	# rows here span roughly 0.006 to 1.8; a genuinely unfamiliar row measured 356.
-	#
-	# Computed whether or not density preservation is on, because it is a property of
-	# the data rather than of the placement, and it costs nothing -- the transform has
-	# to measure those distances anyway.
+	#   returns    a list of numbers, one per placed row; [ ] before any Transform
+	#   note       a large value warns that a new row lies outside the region the map was fitted on
+	#   see        Transform, LocalRadiiOf
+	#@ aka  THE LOCAL RADII OF THE ROWS THE LAST Transform() PLACED. How far each new row sits, on average, from the training rows nearest it -- IN THE ORIGINAL SPACE.
 	def NewLocalRadii()
 		return @anNewRadii
 
-	# THE SAME NUMBERS WITHOUT PLACING ANYTHING, measured against the TRAINING DATA.
+	# Returns how far each given row sits from its neighbours in the training data, without placing anything.
 	#
-	# It has to be the data rather than the map, and the parametric variant is why: a
-	# network saturates, so a row far outside the training range comes back 0.000001
-	# from a legitimate one. The training set has not saturated -- 356 units from
-	# anything is 356 units from anything.
+	#   paRows     the rows to measure, each with as many feature values as the training samples
+	#   returns    a list of numbers, one per row
+	#   warning    it raises before a fit and for rows of the wrong width
+	#   see        NewLocalRadii, Transform
+	#@ aka  THE SAME NUMBERS WITHOUT PLACING ANYTHING, measured against the TRAINING DATA.
 	def LocalRadiiOf(paRows)
 		This._MustBeFitted()
 		if NOT isList(paRows) or len(paRows) = 0
@@ -1971,6 +2165,11 @@ class stzUMAP from stzObject
 		ok
 		@bFitted = 1
 
+	# Returns one sentence describing the fit: variant, size, neighbours, minimum distance, epochs and PCA step.
+	#
+	#   returns    a text
+	#   warning    it raises before a fit
+	#   see        Fit
 	def Why()
 		This._MustBeFitted()
 		_c_ = "UMAP"

@@ -1,0 +1,56 @@
+# Wave 10 -- stzFalseObject. Receivers used: Q("AnnIE").AtMost(2).VowelNBQ() (carries a reason and an origin), Q("hello").IsAQ(:Number) (default reason), and new stzFalseObject (bare).
+Content | Returns 0, the value of a failed premise, whatever the chain asked before. | the number 0 | | Value, StzType | | Value is the same call; the object itself is truthy as an object, so test Content or StzType, not the object
+Value | Returns 0, the value of a failed premise. | the number 0 | | Content
+StzType | Returns the name that tells a false object from the live object a passing chain hands on. | the text stzFalseObject | | Content, WhyStopped | | compare with :stzFalseObject; a passing chain answers the type of the object it judged
+SetOrigin | Stores the object whose check failed, so that Otherwise and OrQ can hand it back. | nothing | poObj=the object that was judged and failed the premise | Origin, Otherwise, OrQ | | the failing check records it for you: call it only to build a false object by hand
+Origin | Returns the object that failed the premise, or 0 for a false object built bare. | the judged object, or the number 0 | | SetOrigin, Otherwise | | it is the live object itself, not a copy: changing it changes what Otherwise returns
+SetWhyStopped | Records the sentence that tells why the chain stopped. | nothing | pcWhy=the reason, as one sentence | WhyStopped, SetOrigin | | the failing check writes it, for example no: expected atmost 2, found 3
+WhyStopped | Returns the sentence that tells why the chain stopped. | a text | | SetWhyStopped, WhyCheckFailed, Origin | | when the failing check gave no reason it reads a premise in the chain did not hold, as after IsAQ(:Number) on a text
+WhyCheckFailed | Returns the sentence that tells which check failed and what it found. | a text | | WhyStopped | | it is the same call as WhyStopped
+IfSo | Skips the action, because the premise before it was false, and returns the false object. | the false object itself | pAction=the action that would run on the object if the premise held, and it is not run here | Otherwise, OrQ | | on a live object the pair works the other way round
+Otherwise | Runs the action on the object that failed the premise and returns that object, so the chain goes on live. | the origin object; the false object itself when it has no origin | pAction=the action to run on the failed object, for example :Lowercase | IfSo, Origin, OrQ | | the origin is changed in place: Q("AnnIE").AtMost(2).VowelNBQ().Otherwise(:Lowercase) leaves annie behind
+WasEver | Answers 0 and notes that the premise before was already false. | the number 0 | pcDesc=the past state asked about, as text (not read) | WasNever, UsedToBe, IsStill | | it also sets the global explanation to no: the premise before was already false
+WasNever | Answers 0 and notes that the premise before was already false. | the number 0 | pcDesc=the past state asked about, as text (not read) | WasEver, UsedToBe | | the answer is 0 on a false object even though never is vacuously true, because the whole chain is already false
+UsedToBe | Answers 0 and notes that the premise before was already false. | the number 0 | pcDesc=the past state asked about, as text (not read) | WasEver, IsStill
+IsStill | Answers 0 and notes that the premise before was already false. | the number 0 | pcDesc=the state asked about, as text (not read) | WasEver, UsedToBe
+VerifyConstraint | Answers 0 and notes that the premise before was already false; the constraint is not looked up. | the number 0 | pcName=the name of the constraint to check (not read) | VerifyConstraints, QualifiesAs
+VerifyConstraints | Answers 0 and notes that the premise before was already false; no constraint is checked. | the number 0 | | VerifyConstraint
+ApplyConstraints | Does nothing and returns the false object, so the chain goes on. | the false object itself | | EnforceConstraints, RelaxConstraints
+EnforceConstraint | Does nothing and returns the false object; the constraint is not enforced. | the false object itself | pcName=the name of the constraint (not read); pRule=the rule of the constraint (not read) | EnforceConstraints, VerifyConstraint
+EnforceConstraints | Does nothing and returns the false object; no constraint is enforced. | the false object itself | | EnforceConstraint, ApplyConstraints
+EnforceConstraintWhile | Does nothing and returns the false object; the constraint is not enforced. | the false object itself | pcName=the name of the constraint (not read); pRule=the rule of the constraint (not read); pCond=the condition that would keep it enforced (not read) | EnforceConstraintUntil, EnforceConstraint
+EnforceConstraintUntil | Does nothing and returns the false object; the constraint is not enforced. | the false object itself | pcName=the name of the constraint (not read); pRule=the rule of the constraint (not read); pCond=the condition that would end it (not read) | EnforceConstraintWhile, EnforceConstraint
+RelaxConstraints | Does nothing and returns the false object; no constraint is relaxed. | the false object itself | | EnforceConstraints, ApplyConstraints
+QualifiesAs | Answers 0 and notes that the premise before was already false. | the number 0 | pcKind=the kind asked about, as text (not read) | VerifyConstraint, WasEver
+AndQ | Returns the false object itself, so a chain written with and stays false. | the false object itself | | OrQ, NorQ
+OrQ | Returns the object that failed, alive again, so the second alternative gets its chance; the false object itself when it has no origin. | the origin object, or the false object | | AndQ, Otherwise, Origin | | Q("hello").IsAQ(:Number).OrQ().IsAQ(:String) answers a stzString; it is the only Q-form here that turns the chain live
+NorQ | Returns the false object itself, so a chain written with nor stays false. | the false object itself | | NeitherQ, OrQ
+BothQ | Returns the false object itself, so a chain written with both stays false. | the false object itself | | AndQ
+IsNeitherQ | Returns the false object itself, so a chain written with neither stays false. | the false object itself | | NeitherQ, NorQ
+NeitherQ | Returns the false object itself, so a chain written with neither stays false. | the false object itself | | IsNeitherQ, NorQ
+EachQ | Returns the false object itself; a quantifier on a failed chain opens no figure. | the false object itself | | AnyQ, NoneQ, EachItemQ
+AnyQ | Returns the false object itself; a quantifier on a failed chain opens no figure. | the false object itself | | EachQ, NoneQ
+NoneQ | Returns the false object itself; a quantifier on a failed chain opens no figure. | the false object itself | | EachQ, AnyQ
+EachItemQ | Returns the false object itself; a quantifier on a failed chain opens no figure. | the false object itself | | EachQ, AnyItemQ
+AnyItemQ | Returns the false object itself; a quantifier on a failed chain opens no figure. | the false object itself | | AnyQ, EachItemQ
+NoItemQ | Returns the false object itself; a quantifier on a failed chain opens no figure. | the false object itself | | NoneQ, EachItemQ
+ANumberQ | Returns the false object itself, so a type phrase on a failed chain stays false. | the false object itself | | AStringQ, AListQ
+AStringQ | Returns the false object itself, so a type phrase on a failed chain stays false. | the false object itself | | ANumberQ, AListQ
+AListQ | Returns the false object itself, so a type phrase on a failed chain stays false. | the false object itself | | ANumberQ, AStringQ
+AnObjectQ | Returns the false object itself, so a type phrase on a failed chain stays false. | the false object itself | | ANumberQ, AStringQ
+ACharQ | Returns the false object itself, so a type phrase on a failed chain stays false. | the false object itself | | AStringQ, ANumberQ
+StartsWith | Answers 0 for any prefix, because the chain before it already failed. | the number 0 | p=the prefix asked about (not read) | StartsWithAny, EndsWith
+StartsWithAny | Answers 0 for any list of prefixes, because the chain before it already failed. | the number 0 | p=the prefixes asked about (not read) | StartsWith, EndsWithAny
+EndsWith | Answers 0 for any suffix, because the chain before it already failed. | the number 0 | p=the suffix asked about (not read) | EndsWithAny, StartsWith
+EndsWithAny | Answers 0 for any list of suffixes, because the chain before it already failed. | the number 0 | p=the suffixes asked about (not read) | EndsWith, StartsWithAny
+Where | Answers 0 for any condition, because the chain before it already failed; the condition is not evaluated. | the number 0 | pcCondition=the condition text (not evaluated) | W | | on the guard a passing type test returns, the same call evaluates the condition
+W | Answers 0 for any condition, because the chain before it already failed; the condition is not evaluated. | the number 0 | pcCondition=the condition text (not evaluated) | Where
+EqualCSQ | Returns the false object itself; no comparison is made, with or without case. | the false object itself | p=the value it would be compared with (not read) | IsEqualTo, EqualQ
+IsEqualTo | Answers 0 for any value, because the chain before it already failed. | the number 0 | p=the value it would be compared with (not read) | EqualTo, Equals, EqualCSQ
+EqualTo | Answers 0 for any value, because the chain before it already failed. | the number 0 | p=the value it would be compared with (not read) | IsEqualTo, Equals
+Equals | Answers 0 for any value, because the chain before it already failed. | the number 0 | p=the value it would be compared with (not read) | IsEqualTo, EqualTo
+EqualQ | Returns the false object itself; no comparison is made. | the false object itself | p=the value it would be compared with (not read) | EqualCSQ, IsEqualTo
+IsDividableBy | Answers 0 for any divisor, because the chain before it already failed. | the number 0 | n=the divisor (not read) | DividableBy, IsDivisibleBy
+DividableBy | Answers 0 for any divisor, because the chain before it already failed. | the number 0 | n=the divisor (not read) | IsDividableBy, DivisibleBy
+IsDivisibleBy | Answers 0 for any divisor, because the chain before it already failed. | the number 0 | n=the divisor (not read) | IsDividableBy, DivisibleBy
+DivisibleBy | Answers 0 for any divisor, because the chain before it already failed. | the number 0 | n=the divisor (not read) | IsDivisibleBy, DividableBy

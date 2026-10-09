@@ -12,6 +12,30 @@ func Numbrex(_cPattern_)
 func Nx(_cPattern_)
 	return new stzNumbrex(_cPattern_)
 
+# Tests whole numbers against a small pattern language that describes number structure, such as prime, three digits or a multiple of five.
+#
+# A pattern is written in braces and made of tokens: @Property(Prime), @Digit3 or @Digit(1..5)+,
+# @Factor4, @Relation(Mod:5=0), @Approx(~3.14), @Part(Integer), @Divisor(3) and @Multiple(4). Tokens
+# are joined by -> or & (all must hold) or by a vertical bar (any may hold), and @! negates one.
+# Match answers TRUE or FALSE for a number and, on success, records its digits, factors and
+# properties for Digits, Factors and Properties. MatchingNumberAfter, MatchingNumbersBetween and
+# CountMatchingBetween search for numbers instead of testing one. A digit or factor token with no
+# quantifier means exactly one digit or one factor, so write @Digit3, not @Digit. Several things do
+# not work as the grammar suggests today: a pattern with no readable token matches every number,
+# @Digit(7) can never match, and @Factor(prime) can never match; each is flagged in its entry. The
+# parser steps (NormalizePattern, ParsePattern, the Parse and Check methods) are internal and are
+# listed for completeness.
+#
+#   receiver   o1 = new stzNumbrex("{@Property(Prime)}")
+#   example    ? o1.Match(17)
+#              #--> 1
+#              ? o1.Match(18)
+#              #--> 0
+#              ? @@( o1.MatchingNumbersBetween(1, 20) )
+#              #--> [ 2, 3, 5, 7, 11, 13, 17, 19 ]
+#              ? o1.MatchingNumberAfter(14)
+#              #--> 17
+#   see        stzNumber, stzRegexMaker, Numbrex
 class stzNumbrex from stzObject
 	
 	@cPattern           # Pattern string
@@ -24,6 +48,14 @@ class stzNumbrex from stzObject
 	 #  INITIALIZATION   #
 	#-------------------#
 	
+	# Parses a number pattern such as {@Property(Prime)} into tokens, adding the braces when they are missing.
+	#
+	#   pcPattern   the pattern as text
+	#   returns     nothing; the object is built
+	#   note        a pattern with no token it can read still builds, with no tokens, and then
+	#               matches every number
+	#   warning     raises Error: Pattern must be a string for anything but a text
+	#   see         Match, Tokens, Pattern
 	def init(pcPattern)
 		if NOT isString(pcPattern)
 			StzRaise("Error: Pattern must be a string")
@@ -47,6 +79,12 @@ class stzNumbrex from stzObject
 	def _Mid(s, n1, n2)
 		return @StzMid(s, n1, n2 - n1 + 1)
 
+	# Returns the pattern trimmed and wrapped in braces when it is not already.
+	#
+	#   _cPattern_   the pattern as text
+	#   returns      a text
+	#   note         a pattern that starts with { but does not end with } is wrapped again
+	#   see          ParsePattern, Pattern
 	def NormalizePattern(_cPattern_)
 		_cPattern_ = trim(_cPattern_)
 		if NOT (startsWith(_cPattern_, "{") and endsWith(_cPattern_, "}"))
@@ -58,6 +96,13 @@ class stzNumbrex from stzObject
 	 #  PATTERN PARSING   #
 	#--------------------#
 	
+	# Returns the token records of a pattern, one per piece separated by ->.
+	#
+	#   _cPattern_   the pattern with its braces
+	#   returns      a list of token records
+	#   note         each record holds type, value, constraints, min, max and negated; a piece it
+	#                cannot read is dropped
+	#   see          ParseSingleToken, SplitByOperator, Tokens
 	def ParsePattern(_cPattern_)
 
 		_cInner_ = This._Mid(_cPattern_, 2, len(_cPattern_) - 1)
@@ -93,6 +138,13 @@ class stzNumbrex from stzObject
 		
 		return _aTokens_
 	
+	# Returns the parts of a text split at an operator, ignoring operators inside parentheses or braces.
+	#
+	#   _cStr_      the text to split
+	#   cOperator   the operator, for example -> or a vertical bar
+	#   returns     a list of texts
+	#   note        a->b(c->d)->e gives a, b(c->d) and e
+	#   see         ParsePattern, ParseAlternation
 	def SplitByOperator(_cStr_, cOperator)
 		_aParts_ = []
 		_cCurrent_ = ""
@@ -124,6 +176,12 @@ class stzNumbrex from stzObject
 		
 		return _aParts_
 	
+	# Returns an alternation token from pieces joined by a vertical bar, matched when any piece holds.
+	#
+	#   _cTokenStr_   the pieces joined by a vertical bar, with or without outer parentheses
+	#   returns       a token record of type alternation with its alternatives
+	#   note          the pieces are read as single tokens
+	#   see           ParseConjunction, ParseSingleToken
 	def ParseAlternation(_cTokenStr_)
 		if startsWith(_cTokenStr_, "(") and endsWith(_cTokenStr_, ")")
 			_cTokenStr_ = This._Mid(_cTokenStr_, 2, len(_cTokenStr_) - 1)
@@ -149,6 +207,12 @@ class stzNumbrex from stzObject
 			["negated", 0]
 		]
 	
+	# Returns a conjunction token from pieces joined by &, matched when every piece holds.
+	#
+	#   _cTokenStr_   the pieces joined by &, with or without outer parentheses
+	#   returns       a token record of type conjunction with its conditions
+	#   note          the pieces are read as single tokens
+	#   see           ParseAlternation, ParseSingleToken
 	def ParseConjunction(_cTokenStr_)
 		if startsWith(_cTokenStr_, "(") and endsWith(_cTokenStr_, ")")
 			_cTokenStr_ = This._Mid(_cTokenStr_, 2, len(_cTokenStr_) - 1)
@@ -175,6 +239,16 @@ class stzNumbrex from stzObject
 		]
 	
 
+# Returns the token record of one piece such as @Digit(1..5)+ or @!Property(Prime), or an empty list when it is not recognised.
+#
+#   _cTokenStr_   one piece: an optional @!, a type word, an optional parenthesis and an optional
+#                 quantifier
+#   returns       a token record, or [ ]
+#   note          the types are digit, factor, property, part, relation, approx, divisor and
+#                 multiple, with or without the @; with no quantifier a digit or factor token means
+#                 exactly one, so write @Digit3 or @Digit+; a quantifier is a count, a range 2-4, +,
+#                 * or ?
+#   see           ParsePattern, ParseConstraints
 def ParseSingleToken(_cTokenStr_)
 	_cTokenStr_ = trim(_cTokenStr_)
 	if _cTokenStr_ = ""
@@ -456,6 +530,14 @@ def ParseSingleToken(_cTokenStr_)
 		["negated", _bNegated_]
 	]
 
+	# Returns the constraint records inside the parentheses of a digit or factor token.
+	#
+	#   cConstraintStr   the text inside the parentheses
+	#   _cType_          digit or factor
+	#   returns          a list of constraint records; empty for an empty text
+	#   note             for digit: :unique, a range 1..5 or 1-5, a set {1;3;5}, :step, or a single
+	#                    number; for factor: prime, unique or a count
+	#   see              ParseSingleToken, CheckDigits
 	def ParseConstraints(cConstraintStr, _cType_)
 		_aConstraints_ = []
 		
@@ -525,6 +607,14 @@ def ParseSingleToken(_cTokenStr_)
 	 #  MATCHING LOGIC    #
 	#--------------------#
 	
+	# Tests a whole number against the pattern, and on success records its digits, factors and properties.
+	#
+	#   pnNumber   the number to test
+	#   returns    TRUE or FALSE
+	#   note       the number is also kept as the target of Explain
+	#   warning    raises Incorrect param type! for anything but a number; a pattern with no
+	#              readable token matches every number, so {@zzz} and {zzz} answer TRUE for 5 and -7
+	#   see        MatchTokens, MatchedParts, SetTarget
 	def Match(pnNumber)
 
 		if NOT isNumber(pnNumber)
@@ -549,6 +639,13 @@ def ParseSingleToken(_cTokenStr_)
 		
 		return _bResult_
 	
+	# TRUE if every token in the list holds for the number, taking alternations and conjunctions into account.
+	#
+	#   _aTokens_   the token records, as from Tokens
+	#   _nNum_      the number to test
+	#   returns     TRUE or FALSE
+	#   note        an empty list answers TRUE
+	#   see         Match, MatchSingleToken
 	def MatchTokens(_aTokens_, _nNum_)
 		_nLenTokens_ = len(_aTokens_)
 		for _i_ = 1 to _nLenTokens_
@@ -588,6 +685,13 @@ def ParseSingleToken(_cTokenStr_)
 		
 		return 1
 	
+	# TRUE if one token holds for the number, applying its negation.
+	#
+	#   _aToken_   one token record
+	#   _nNum_     the number to test
+	#   returns    TRUE or FALSE
+	#   note       a token of an unknown type answers FALSE, or TRUE when negated
+	#   see        MatchTokens, CheckProperty
 	def MatchSingleToken(_aToken_, _nNum_)
 		_bResult_ = 0
 		
@@ -660,6 +764,15 @@ def ParseSingleToken(_cTokenStr_)
 	 #  PROPERTY CHECKING    #
 	#-----------------------#
 	
+	# TRUE if the number has the named property such as prime, even, odd, square, positive or composite.
+	#
+	#   _cProperty_   the property name, without regard to case
+	#   _nNum_        the number to test
+	#   returns       TRUE or FALSE
+	#   note          the names are prime, even, odd, perfect, fibonacci, palindrome, square,
+	#                 positive, negative, zero, composite, abundant, deficient, triangular and cube;
+	#                 any other name answers FALSE
+	#   see           IsPrime, IsPerfect, Match
 	def CheckProperty(_cProperty_, _nNum_)
 		_cProperty_ = StzLower(trim(_cProperty_))
 		
@@ -697,6 +810,12 @@ def ParseSingleToken(_cTokenStr_)
 		
 		return 0
 	
+	# TRUE if the number is a prime.
+	#
+	#   _nNum_     the number to test
+	#   returns    TRUE or FALSE
+	#   note       2 and 97 are prime; 1 and negatives are not
+	#   see        CheckProperty, IsPerfect
 	def IsPrime(_nNum_)
 		if _nNum_ < 2
 			return 0
@@ -717,6 +836,12 @@ def ParseSingleToken(_cTokenStr_)
 		
 		return 1
 	
+	# TRUE if the number equals the sum of its proper divisors.
+	#
+	#   _nNum_     the number to test
+	#   returns    TRUE or FALSE
+	#   note       6 and 28 are perfect, 12 is not
+	#   see        IsAbundant, IsDeficient, GetProperDivisors
 	def IsPerfect(_nNum_)
 		if _nNum_ < 2
 			return 0
@@ -735,9 +860,21 @@ def ParseSingleToken(_cTokenStr_)
 		
 		return _nSum_ = _nNum_
 	
+	# TRUE if the number is in the Fibonacci sequence.
+	#
+	#   _nNum_     the number to test
+	#   returns    TRUE or FALSE
+	#   note       0, 1 and 13 are, 22 is not
+	#   see        CheckProperty
 	def IsFibonacci(_nNum_)
 		return This.IsSquare(5 * _nNum_ * _nNum_ + 4) or This.IsSquare(5 * _nNum_ * _nNum_ - 4)
 	
+	# TRUE if the number is a perfect square.
+	#
+	#   _nNum_     the number to test
+	#   returns    TRUE or FALSE
+	#   note       16 and 0 are, 15 is not
+	#   see        IsCube, CheckProperty
 	def IsSquare(_nNum_)
 		if _nNum_ < 0
 			return 0
@@ -745,6 +882,12 @@ def ParseSingleToken(_cTokenStr_)
 		_nSqrt_ = sqrt(_nNum_)
 		return _nSqrt_ = floor(_nSqrt_)
 	
+	# TRUE if the digits read the same in both directions.
+	#
+	#   _nNum_     the number to test
+	#   returns    TRUE or FALSE
+	#   note       121 and 7 are, 123 is not
+	#   see        GetDigits, CheckProperty
 	def IsPalindrome(_nNum_)
 		_cStr_ = "" + abs(_nNum_)
 		_cReversed_ = ""
@@ -754,6 +897,12 @@ def ParseSingleToken(_cTokenStr_)
 		next
 		return _cStr_ = _cReversed_
 	
+	# TRUE if the proper divisors add up to more than the number.
+	#
+	#   _nNum_     the number to test
+	#   returns    TRUE or FALSE
+	#   note       12 is, 6 and 7 are not
+	#   see        IsDeficient, IsPerfect
 	def IsAbundant(_nNum_)
 		if _nNum_ < 1
 			return 0
@@ -766,6 +915,12 @@ def ParseSingleToken(_cTokenStr_)
 		next
 		return _nSum_ > _nNum_
 	
+	# TRUE if the proper divisors add up to less than the number.
+	#
+	#   _nNum_     the number to test
+	#   returns    TRUE or FALSE
+	#   note       7 is, 6 and 12 are not
+	#   see        IsAbundant, IsPerfect
 	def IsDeficient(_nNum_)
 		if _nNum_ < 1
 			return 0
@@ -778,9 +933,21 @@ def ParseSingleToken(_cTokenStr_)
 		next
 		return _nSum_ < _nNum_
 	
+	# TRUE if the number is a triangular number 1, 3, 6, 10...
+	#
+	#   _nNum_     the number to test
+	#   returns    TRUE or FALSE
+	#   note       10 and 1 are, 11 is not
+	#   see        IsSquare, CheckProperty
 	def IsTriangular(_nNum_)
 		return This.IsSquare(8 * _nNum_ + 1)
 	
+	# TRUE if the number is a perfect cube.
+	#
+	#   _nNum_     the number to test
+	#   returns    TRUE or FALSE
+	#   note       27 and 8 are, 28 is not, and the negative cube -8 is not either
+	#   see        IsSquare, CheckProperty
 	def IsCube(_nNum_)
 		if _nNum_ < 0
 			return 0
@@ -794,6 +961,12 @@ def ParseSingleToken(_cTokenStr_)
 		_nUpper_ = ceil(_nCubeRoot_)
 		return (_nLower_ * _nLower_ * _nLower_ = _nNum_) or (_nUpper_ * _nUpper_ * _nUpper_ = _nNum_)
 	
+	# Returns the divisors of the number below itself, in increasing order.
+	#
+	#   _nNum_     the number
+	#   returns    a list of numbers
+	#   note       12 gives 1, 2, 3, 4, 6; 1 gives an empty list
+	#   see        GetFactors, IsPerfect
 	def GetProperDivisors(_nNum_)
 		_aFactors_ = This.GetFactors(_nNum_)
 		_aResult_ = []
@@ -809,6 +982,15 @@ def ParseSingleToken(_cTokenStr_)
 	 #  DIGIT CHECKING    #
 	#--------------------#
 	
+# TRUE if the digits of the number satisfy a digit token's count and constraints.
+#
+#   _aToken_   a digit token record
+#   _nNum_     the number to test
+#   returns    TRUE or FALSE
+#   note       the count of digits must lie between the token's min and max, and every digit must
+#              pass a range or a set constraint; an exact constraint compares the digit count to its
+#              value, so @Digit(7) with the default count of one digit matches nothing
+#   see        GetDigits, ParseConstraints
 def CheckDigits(_aToken_, _nNum_)
 	_aDigits_ = This.GetDigits(_nNum_)
 	_nCount_ = len(_aDigits_)
@@ -898,6 +1080,12 @@ def CheckDigits(_aToken_, _nNum_)
 	
 	return 1
 	
+	# Returns the digits of the number as a list of numbers, ignoring the sign and the decimal point.
+	#
+	#   _nNum_     the number
+	#   returns    a list of numbers
+	#   note       4052 gives 4, 0, 5, 2; -71 gives 7, 1
+	#   see        CheckDigits, Digits
 	def GetDigits(_nNum_)
 		_cStr_ = "" + abs(_nNum_)
 		_aDigits_ = []
@@ -914,6 +1102,15 @@ def CheckDigits(_aToken_, _nNum_)
 	 #  FACTOR CHECKING    #
 	#---------------------#
 	
+	# TRUE if the factors of the number satisfy a factor token's count and constraints.
+	#
+	#   _aToken_   a factor token record
+	#   _nNum_     the number to test
+	#   returns    TRUE or FALSE
+	#   note       the factors include 1 and the number itself, so 6 has four; a prime constraint
+	#              demands that every factor be prime, and 1 never is, so @Factor(prime) matched
+	#              none of 1, 2, 3, 7, 15, 6 or 8 today
+	#   see        GetFactors, ParseConstraints
 	def CheckFactors(_aToken_, _nNum_)
 		_aFactors_ = This.GetFactors(_nNum_)
 		_nCount_ = len(_aFactors_)
@@ -970,6 +1167,12 @@ def CheckDigits(_aToken_, _nNum_)
 		
 		return 1
 	
+	# Returns every factor of the number, 1 and itself included, in increasing order.
+	#
+	#   _nNum_     the number, whose sign is ignored
+	#   returns    a list of numbers; empty for 0
+	#   note       12 gives 1, 2, 3, 4, 6, 12
+	#   see        GetProperDivisors, Factors
 	def GetFactors(_nNum_)
 		_nNum_ = abs(_nNum_)
 		_aFactors_ = []
@@ -1006,6 +1209,13 @@ def CheckDigits(_aToken_, _nNum_)
 	 #  RELATION CHECKING    #
 	#-----------------------#
 	
+	# TRUE if the number satisfies a modulo relation written Mod:divisor=remainder.
+	#
+	#   cRelation   the relation, for example Mod:5=0
+	#   _nNum_      the number to test
+	#   returns     TRUE or FALSE
+	#   note        any other text answers FALSE
+	#   see         Match, CheckDivisor
 	def CheckRelation(cRelation, _nNum_)
 		if StzFindFirst("mod:", StzLower(cRelation)) > 0
 			_cRest_ = This._Mid(cRelation, 5, len(cRelation))
@@ -1020,6 +1230,14 @@ def CheckDigits(_aToken_, _nNum_)
 		ok
 		return 0
 	
+	# TRUE if the number equals the target when both are cut to a number of decimals, 2 by default.
+	#
+	#   cApprox    the target after a tilde, for example ~3.14 or ~3.1:decimals1
+	#   _nNum_     the number to test
+	#   returns    TRUE or FALSE
+	#   note       the number is cut, not rounded: 3.141 matches ~3.14, 3.2 does not; a text without
+	#              the tilde answers FALSE
+	#   see        Match
 	def CheckApprox(cApprox, _nNum_)
 		if startsWith(cApprox, "~")
 			_cValue_ = This._Mid(cApprox, 2, len(cApprox))
@@ -1045,6 +1263,15 @@ def CheckDigits(_aToken_, _nNum_)
 		ok
 		return 0
 	
+	# TRUE if the number has the named part: integer or fractional, or a pattern applied to that part.
+	#
+	#   _cPart_    integer, fractional, or integer:pattern or fractional:pattern
+	#   _nNum_     the number to test
+	#   returns    TRUE or FALSE
+	#   note       a part name it does not know answers TRUE for every number, where FALSE would be
+	#              safer; the fractional part is scaled by one million before the inner pattern is
+	#              tried
+	#   see        Match
 	def CheckPart(_cPart_, _nNum_)
 		_cPart_ = StzLower(trim(_cPart_))
 		
@@ -1074,6 +1301,13 @@ def CheckDigits(_aToken_, _nNum_)
 		
 		return 1
 	
+	# TRUE if the number is divisible by the given value.
+	#
+	#   _cValue_   the divisor as text
+	#   _nNum_     the number to test
+	#   returns    TRUE or FALSE
+	#   note       0 and non-numeric text answer FALSE
+	#   see        CheckMultiple, CheckRelation
 	def CheckDivisor(_cValue_, _nNum_)
 		_cValue_ = trim(_cValue_)
 		if This.IsNumeric(_cValue_)
@@ -1085,6 +1319,13 @@ def CheckDigits(_aToken_, _nNum_)
 		ok
 		return 0
 	
+	# TRUE if the number is a multiple of the given base.
+	#
+	#   _cValue_   the base as text
+	#   _nNum_     the number to test
+	#   returns    TRUE or FALSE
+	#   note       it tests the same thing as CheckDivisor, a remainder of 0
+	#   see        CheckDivisor
 	def CheckMultiple(_cValue_, _nNum_)
 		_cValue_ = trim(_cValue_)
 		if This.IsNumeric(_cValue_)
@@ -1100,6 +1341,13 @@ def CheckDigits(_aToken_, _nNum_)
 	 #  PART EXTRACTION     #
 	#----------------------#
 	
+	# Records the digits, factors, properties and value of a number as the matched parts.
+	#
+	#   _nNum_     the number
+	#   returns    nothing; read them with MatchedParts
+	#   note       Match calls it after a success; 28 gives the properties Even, Perfect, Triangular
+	#              and Composite
+	#   see        MatchedParts, Digits
 	def ExtractParts(_nNum_)
 		@aMatchedParts = []
 		
@@ -1153,42 +1401,84 @@ def CheckDigits(_aToken_, _nNum_)
 	 #  QUERY METHODS       #
 	#----------------------#
 	
+	# Returns what the last successful match recorded, as [ name, value ] pairs.
+	#
+	#   returns    a list of pairs; empty before a match
+	#   note       a failed match leaves the earlier record untouched
+	#   see        Digits, Factors, Properties, Value
 	def MatchedParts()
 		return @aMatchedParts
 	
+	# Returns the digits recorded by the last successful match.
+	#
+	#   returns    a list of numbers; empty before a match
+	#   see        MatchedParts, GetDigits
 	def Digits()
 		if HasKey(@aMatchedParts, "Digits")
 			return @aMatchedParts["Digits"]
 		ok
 		return []
 
+	# Returns the factors recorded by the last successful match.
+	#
+	#   returns    a list of numbers; empty before a match
+	#   see        MatchedParts, GetFactors
 	def Factors()
 		if HasKey(@aMatchedParts, "Factors")
 			return @aMatchedParts["Factors"]
 		ok
 		return []
 
+	# Returns the names of the properties the last matched number has, such as Prime, Even or Square.
+	#
+	#   returns    a list of texts; empty before a match
+	#   note       the possible names are Prime, Even, Odd, Perfect, Fibonacci, Palindrome, Square,
+	#              Triangular, Cube, Abundant, Deficient and Composite
+	#   see        MatchedParts, CheckProperty
 	def Properties()
 		if HasKey(@aMatchedParts, "Properties")
 			return @aMatchedParts["Properties"]
 		ok
 		return []
 
+	# Returns the number recorded by the last successful match, or 0.
+	#
+	#   returns    a number
+	#   see        MatchedParts
 	def Value()
 		if HasKey(@aMatchedParts, "Value")
 			return @aMatchedParts["Value"]
 		ok
 		return 0
 	
+	# Returns the parsed token records of the pattern.
+	#
+	#   returns    a list of token records
+	#   see        ParsePattern, Pattern, Explain
 	def Tokens()
 		return @aTokens
 	
+	# Returns the pattern text, with its braces.
+	#
+	#   returns    a text
+	#   see        Tokens, NormalizePattern
 	def Pattern()
 		return @cPattern
 	
+	# Sets the number that Explain reports as the target, without testing it.
+	#
+	#   pnNumber   the number to report
+	#   returns    nothing
+	#   see        Match, Explain
 	def SetTarget(pnNumber)
 		@nNumber = pnNumber
 	
+	# Returns the pattern, the token count, the tokens, the target and the matched parts as a list of pairs.
+	#
+	#   returns    a list of [ name, value ] pairs
+	#   note       the target is the last number given to Match or SetTarget; the matched parts
+	#              appear once a match has succeeded
+	#   see        Tokens, Match, SetTarget
 	def Explain()
 		_aExplanation_ = [
 			["Pattern", @cPattern],
@@ -1210,6 +1500,12 @@ def CheckDigits(_aToken_, _nNum_)
 	 #  ADVANCED QUERY METHODS   #
 	#---------------------------#
 	
+	# Returns the first number at or after a start that matches, searching up to 100000 steps.
+	#
+	#   _nStart_   the number to start from, included
+	#   returns    a number; an empty text when none is found
+	#   note       MatchingNumberNextTo is the same call; 14 with Prime gives 17
+	#   see        MatchingNumberBefore, MatchingNumbersBetween
 	def MatchingNumberAfter(_nStart_)
 		_nCurrent_ = _nStart_
 		_nMaxAttempts_ = 100000
@@ -1226,6 +1522,13 @@ def CheckDigits(_aToken_, _nNum_)
 		def MatchingNumberNextTo(_nStart_)
 			return This.MatchingNumberAfter(_nStart_)
 
+	# Returns the first number at or before a start that matches, searching down up to 100000 steps.
+	#
+	#   _nStart_   the number to start from, included
+	#   returns    a number; an empty text when none is found
+	#   note       MatchingNumberPreviousTo is the same call; 14 with Prime gives 13, and 1 gives an
+	#              empty text
+	#   see        MatchingNumberAfter
 	def MatchingNumberBefore(_nStart_)
 		_nCurrent_ = _nStart_
 		_nMaxAttempts_ = 100000
@@ -1242,6 +1545,14 @@ def CheckDigits(_aToken_, _nNum_)
 		def MatchingNumberPreviousTo(_nStart_)
 			return This.MatchingNumberBefore(_nStart_)
 
+	# Returns every matching whole number from a start to an end, both included.
+	#
+	#   _nStart_   the first number
+	#   _nEnd_     the last number, or a pair such as [ and, 30 ]
+	#   returns    a list of numbers
+	#   note       Perfect between 1 and 500 gives 6, 28, 496; MatchingBetween is the same call
+	#   warning    raises an error when a bound is not a number
+	#   see        CountMatchingBetween, MatchingNumberAfter
 	def MatchingNumbersBetween(_nStart_, _nEnd_)
 		if CheckParams()
 			if NOT isNumber(_nStart_)
@@ -1270,6 +1581,15 @@ def CheckDigits(_aToken_, _nNum_)
 		def MatchingBetween(_nStart_, _nEnd_)
 			return This. MatchingNumbersBetween(_nStart_, _nEnd_)
 
+	# Returns how many whole numbers from a start to an end, both included, match.
+	#
+	#   _nStart_   the first number
+	#   _nEnd_     the last number, or a pair such as [ and, 30 ]
+	#   returns    a number
+	#   note       CountMatchingNumbersBetween, HowManyMatchingNumbersBetween and
+	#              NumberOfMatchingNumbersBetween are the same call
+	#   warning    raises an error when a bound is not a number
+	#   see        MatchingNumbersBetween
 	def CountMatchingBetween(_nStart_, _nEnd_)
 		if CheckParams()
 			if NOT isNumber(_nStart_)
@@ -1308,12 +1628,26 @@ def CheckDigits(_aToken_, _nNum_)
 	 #  DEBUG METHODS       #
 	#----------------------#
 	
+	# Switches on the trace that prints each match step to the console.
+	#
+	#   returns    nothing
+	#   note       the trace prints lines such as Checking token type and Final result
+	#   see        DisableDebug, SetDebug
 	def EnableDebug()
 		@bDebugMode = 1
 	
+	# Switches the trace off.
+	#
+	#   returns    nothing
+	#   see        EnableDebug, SetDebug
 	def DisableDebug()
 		@bDebugMode = 0
 	
+	# Switches the trace on with 1 or off with 0.
+	#
+	#   bFlag      1 for the trace, 0 for none
+	#   returns    nothing
+	#   see        EnableDebug, DisableDebug
 	def SetDebug(bFlag)
 		@bDebugMode = bFlag
 	
@@ -1321,6 +1655,13 @@ def CheckDigits(_aToken_, _nNum_)
 	 #  HELPER METHODS      #
 	#----------------------#
 	
+	# TRUE if a text is made only of digits and dashes, which is how the parser reads counts and ranges.
+	#
+	#   _cStr_     the text to test
+	#   returns    TRUE or FALSE
+	#   note       it is not a general number test: 3.5 and -3.5 answer FALSE, while -3 and 2-4
+	#              answer TRUE
+	#   see        ParseSingleToken
 	def IsNumeric(_cStr_)
 		if _cStr_ = ""
 			return 0

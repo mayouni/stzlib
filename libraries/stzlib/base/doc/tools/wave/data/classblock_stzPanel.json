@@ -1,0 +1,18 @@
+{
+ "brief": "Lays out an interface document with the RmlUi engine and hands the result over as triangles, text commands, boxes and events.",
+ "detail": "A panel is neither a window nor a renderer: it computes where things go and leaves drawing to a canvas, so the same layout reaches an SVG on a machine with no graphics card. The markup is loaded as a text (LoadMarkup), never from a file, because it is meant to be emitted by a higher layer. After Layout the panel answers where an element sits (BoxOf), what lies under a point (ElementAt), which elements the keyboard reaches (TabRing) and what input produced (Events, drained by the caller and never dispatched back into Ring). SetTextOf and SetStyleOf change one element without loading the document again. RML has no default stylesheet, so give a div display: block and the body width: 100% to fill the panel. Pointer verbs act on the layout, so call Layout first. The event queue and the counters belong to the engine and are shared by every panel. Needs stz_gui.dll; ask StzGuiAvailable() first. Free the panel when done.",
+ "receiver": "o1 = new stzPanel(320, 200)",
+ "example": [
+  "o1.LoadMarkup('<rml><head><style>body { width: 100%; height: 100%; } div { display: block; } #bar { height: 48px; background-color: #2b6cb0; } .b { width: 100px; height: 30px; tab-index: auto; }</style></head><body><div id=\"bar\"/><div id=\"one\" class=\"b\"/><div id=\"two\" class=\"b\"/></body></rml>')",
+  "o1.Layout()",
+  "? @@( o1.BoxOf(\"bar\") )",
+  "#--> [ 0, 0, 320, 48 ]",
+  "? @@( o1.TabRing() )",
+  "#--> [ \"one\", \"two\" ]",
+  "? o1.ElementAt(10, 10)",
+  "#--> bar",
+  "? o1.TriangleCount()",
+  "#--> 2"
+ ],
+ "see": ["stzCanvas", "stzWindow", "stzFont", "StzGuiAvailable"]
+}

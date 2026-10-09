@@ -174,6 +174,29 @@ func StzPlatformStoreGetRoute(oReq, oResp)
 	oResp.Send('{"value":"' + StzReplace("" + $oStzPlatformActive.StoreGet(oReq.Query("key")), '"', '\"') + '"}')
 
 
+# Wraps a stzApp world in what makes it operable: build and deploy of its parts, governed capabilities, a Commons of identities and messages, and a world registry.
+#
+# A stzApp models the world and lacks the operational envelope; the platform is that envelope, in
+# five duties. It owns a deployment profile whose parts Build and then Deploy (Build records the
+# compiler command of each part and Deploy lowers it to an artifact text, neither runs anything).
+# SetWorld takes a world, and Generate writes a shell file for each of its reaches. A capability
+# such as the camera is requested with AddCapability and decided by Granted against a governance
+# regime. OpenCommonsOn turns an open database into identities (salted PBKDF2 hashes, never the
+# secret), sessions, messages and a key-value store. ServeBody serves the world and the Commons over
+# HTTP on 127.0.0.1. PushWorld, Bond and CallAcross keep a registry in which a call between worlds
+# goes through only if both are active, a bond names the action and governance agrees. The runs
+# behind this reference were in memory only: no shell file was written and no port was opened.
+#
+#   receiver   o1 = new stzPlatform("demo")
+#   example    o1.PushWorld("resto", "1.0")
+#              ? o1.IsActiveWorld("resto")
+#              #--> 1
+#              o1.RetireWorld("resto")
+#              ? o1.IsActiveWorld("resto")
+#              #--> 0
+#              ? o1.KdfRounds()
+#              #--> 100000
+#   see        StzPlatformQ, stzApp, stzPlatformProfile, stzGovernance, stzAppServer
 class stzPlatform from stzObject
 
 	@cName = ""
@@ -213,42 +236,73 @@ class stzPlatform from stzObject
 	@aDeployReport = []
 	@oLog = ""            # a structured stzLog of Build() + Deploy()
 
+	# Builds a platform named for one solution, with an empty profile, no world, no governance, no Commons and a trace-level log.
+	#
+	#   pcName     the platform's name
+	#   returns    nothing; the object is built
+	#   see        SetProfile, SetWorld, Log
 	def init(pcName)
 		@cName = "" + pcName
 		@oLog = new stzLog("platform")
 		@oLog.SetLevel(:trace)
 
-	# the structured log of the platform's Build() + Deploy() phases -- queryable
-	# and renderable: oPlat.Log().EntriesOfLevel(:error), oPlat.Log().AsJson().
+	# Returns the structured log in which Build and Deploy record each phase.
+	#
+	#   returns    a stzLog; its AsText, CountOfLevel and Where read it
+	#   note       a refused build or deploy is logged at level error before it raises
+	#   see        Build, Deploy
+	#@ aka  the structured log of the platform's Build() + Deploy() phases -- queryable and renderable: oPlat.Log().EntriesOfLevel(:error), oPlat.Log().AsJson().
 	def Log()
 		return @oLog
 
+	# Returns the name the platform was given.
+	#
+	#   returns    a text
+	#   see        init
 	def Name_()
 		return @cName
 
+	# Returns the reason of the last refusal by Granted, RegisterIdentity, OpenSession or CallAcross.
+	#
+	#   returns    a text, empty before any refusal and emptied by a successful CallAcross
+	#   see        Granted, CallAcross, OpenSession
 	def Why()
 		return @cWhy
 
-	#== 0. DEPLOYMENT ARCHITECTURE (own a profile; BUILD then DEPLOY) ========
+	# Gives the platform the deployment profile whose parts it will build and deploy.
 	#
-	# A stzPlatformProfile DESCRIBES the solution -- its constituents (a server,
-	# a superapp, an app, ...) and their target systems. The platform OWNS one
-	# and drives its lifecycle: Build() the platform and its constituents, THEN
-	# Deploy() them -- two separate, ordered operations. (SetProfile snapshots
-	# the profile, so configure it fully first -- the aliasing doctrine.)
-
+	#   poProfile   a stzPlatformProfile, fully configured
+	#   returns     the platform itself, so calls chain
+	#   note        the platform keeps a copy, so configure the profile before this call
+	#   see         Profile, Build
+	#@ aka  == 0. DEPLOYMENT ARCHITECTURE (own a profile; BUILD then DEPLOY) ========
 	def SetProfile(poProfile)
 		@oProfile = poProfile
 		return This
 
+	# Returns the deployment profile the platform owns.
+	#
+	#   returns    a stzPlatformProfile; an empty text before SetProfile
+	#   see        SetProfile, HasProfile
 	def Profile()
 		return @oProfile
 
+	# TRUE if a deployment profile was set.
+	#
+	#   returns    TRUE or FALSE
+	#   see        SetProfile
 	def HasProfile()
 		return @oProfile != ""
 
-	# BUILD the platform and its constituents. Refuses an unsound solution
-	# (LAW 3). Must precede Deploy().
+	# Checks that the profile is sound and records, for each part, its language and the compiler command that would build it.
+	#
+	#   returns    the platform itself, so calls chain
+	#   note       it does not run any compiler: only the commands are recorded, and a part with no
+	#              language is recorded as no language declared
+	#   warning    it raises an error with no profile and when the profile is unsound, such as no
+	#              development system or no apps
+	#   see        Deploy, BuildReport, BuildCommandFor
+	#@ aka  BUILD the platform and its constituents. Refuses an unsound solution (LAW 3). Must precede Deploy().
 	def Build()
 		if @oProfile = ""
 			stzraise("stzPlatform.Build: no deployment profile -- SetProfile(oProfile) first.")
@@ -295,15 +349,20 @@ class stzPlatform from stzObject
 		def BuildQ()
 			return This.Build()
 
+	# TRUE if Build has completed.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Build, IsDeployed
 	def IsBuilt()
 		return @bBuilt
 
-	# DEPLOY the built parts to their target systems. Refuses if the platform was
-	# not built first -- Build() and Deploy() are separate. For each part, the
-	# deploy-time LOWERING bridge turns its rehearsed (up-enable) feature ops into
-	# a real target ARTIFACT (firmware source for an MCU, a manifest otherwise) --
-	# the flash/upload of that artifact to the device is the one remaining
-	# external step.
+	# Lowers each built part to a target artifact, firmware source for a microcontroller or a manifest otherwise, and records it.
+	#
+	#   returns    the platform itself, so calls chain
+	#   note       the artifact is a text kept in the report: nothing is flashed or uploaded
+	#   warning    it raises an error until Build has run
+	#   see        Build, DeployReport, ArtifactFor, DeployAs
+	#@ aka  DEPLOY the built parts to their target systems. Refuses if the platform was not built first -- Build() and Deploy() are separate. For each part, the deploy-time LOWERING bridge turns its rehearsed (up-enable) feature ops into a real target ARTIFACT (firmware source for an MCU, a manifest otherwise) -- the flash/upload of that artifact to the device is the one remaining external step.
 	def Deploy()
 		return This._DeployWith("")
 
@@ -350,17 +409,41 @@ class stzPlatform from stzObject
 		@bDeployed = 1
 		return This
 
+	# TRUE if Deploy has completed.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Deploy, IsBuilt
 	def IsDeployed()
 		return @bDeployed
 
+	# Returns what Build recorded for each part.
+	#
+	#   returns    a list of lists, each with the part's name, kind, target system, language and
+	#              compiler command; empty before Build
+	#   see        Build, LanguageOf, BuildCommandFor
 	def BuildReport()
 		return @aBuildReport
 
-	# the language a part was compiled in (from the build report).
+	# Returns the language in which a part is built.
+	#
+	#   pcName     the part's name, in any case
+	#   returns    a text such as c or ring; empty for a part with no language and for an unknown
+	#              part
+	#   note       the name is matched without regard to case
+	#   see        BuildReport, BuildCommandFor
+	#@ aka  the language a part was compiled in (from the build report).
 	def LanguageOf(pcName)
 		return This._BuildField(pcName, 4)
 
-	# the stzBuilder command that compiles a part (from the build report).
+	# Returns the compiler command recorded for a part.
+	#
+	#   pcName     the part's name, in any case
+	#   returns    a text; no language declared for a part without a language, and empty for an
+	#              unknown part
+	#   note       the command names the compiler found on the machine of the run, so the text
+	#              differs between machines
+	#   see        BuildReport, LanguageOf
+	#@ aka  the stzBuilder command that compiles a part (from the build report).
 	def BuildCommandFor(pcName)
 		return This._BuildField(pcName, 5)
 
@@ -374,10 +457,22 @@ class stzPlatform from stzObject
 		next
 		return ""
 
+	# Returns what Deploy recorded for each part.
+	#
+	#   returns    a list of lists, each with the part's name, kind, target system, the number of
+	#              rehearsed operations lowered and the artifact text; empty before Deploy
+	#   see        Deploy, ArtifactFor
 	def DeployReport()
 		return @aDeployReport
 
-	# The lowered artifact (firmware / manifest) for a part, after Deploy().
+	# Returns the artifact that Deploy produced for a part.
+	#
+	#   pcName     the part's name, in any case
+	#   returns    a text; empty for an unknown part or before Deploy
+	#   note       the firmware artifact of an ESP32 part was a small C source with an empty setup
+	#              and loop
+	#   see        DeployReport, Deploy
+	#@ aka  The lowered artifact (firmware / manifest) for a part, after Deploy().
 	def ArtifactFor(pcName)
 		_c_ = StzLower(ring_trim("" + pcName))
 		_n_ = len(@aDeployReport)
@@ -388,41 +483,57 @@ class stzPlatform from stzObject
 		next
 		return ""
 
-	# -- delegating reads into the owned profile --
-
+	# Returns the parts of the profile.
+	#
+	#   returns    a list of stzAppProfile objects; empty with no profile
+	#   see        NumberOfParts, App
+	#@ aka  -- delegating reads into the owned profile --
 	def Parts()
 		if @oProfile = ""
 			return []
 		ok
 		return @oProfile.Apps()
 
+	# Returns how many parts the profile holds.
+	#
+	#   returns    a number; 0 with no profile
+	#   see        Parts
 	def NumberOfParts()
 		if @oProfile = ""
 			return 0
 		ok
 		return @oProfile.NumberOfApps()
 
+	# Returns one part of the profile by name.
+	#
+	#   pcName     the part's name
+	#   returns    a stzAppProfile
+	#   warning    it raises an error when no profile was set
+	#   see        Parts
 	def App(pcName)
 		if @oProfile = ""
 			stzraise("stzPlatform.App: no profile -- SetProfile(oProfile) first.")
 		ok
 		return @oProfile.App(pcName)
 
+	# Returns the system on which the solution is developed.
+	#
+	#   returns    a stzSystemProfile; an empty text with no profile
+	#   see        SetProfile
 	def DevelopmentSystem()
 		if @oProfile = ""
 			return ""
 		ok
 		return @oProfile.DevelopmentSystem()
 
-	#== 1. GENERATION ========================================================
-
-	# SET the world this platform envelopes -- by HARVESTING its declarations
-	# into the platform's own records, right now. It does NOT hold the world:
-	# Ring copies an object into an attribute, so a held stzApp would be a dead
-	# snapshot the moment the caller touched it (see the aliasing note in the
-	# header). Call this AFTER the world is declared. The world is ASKED through
-	# its own accessors -- a platform never reaches into another object's
-	# attributes. (A constellation ADDs many worlds; a platform SETs its one.)
+	# Reads a world's name, reaches, things and screens into the platform, which keeps no reference to the world.
+	#
+	#   poApp      the stzApp to envelop, already declared
+	#   returns    the platform itself, so calls chain
+	#   note       call it after the world is declared: later changes to the world do not reach the
+	#              platform
+	#   see        Generate, ServeBody
+	#@ aka  == 1. GENERATION ========================================================
 	def SetWorld(poApp)
 		@cWorldName = poApp.Name()
 		@aWorldReaches = poApp.Surfaces()
@@ -431,10 +542,17 @@ class stzPlatform from stzObject
 		@bHasWorld = 1
 		return This
 
-	# Generate(:all) or Generate(:web / :desktop / :mobile).
-	# Writes REAL shell files (one per declared Reach) and returns the
-	# list of written paths. Raises when there is no world, no reach,
-	# or an unknown reach surface (LAW 3: refuse, never stub).
+	# Writes one shell file per declared reach of the world and returns their paths: a web page, a desktop launcher or a mobile page.
+	#
+	#   pWhat      :all for every reach of the world, or one of web, desktop or mobile
+	#   returns    a list of the written file paths
+	#   note       the files go under .stzapp/shells in the current folder, which is created before
+	#              an unknown surface is refused, and only the two error cases were run because the
+	#              write is a change on disk
+	#   warning    it raises an error with no world, with a world that declares no reach, and for an
+	#              unknown surface
+	#   see        SetWorld, ServeBody
+	#@ aka  Generate(:all) or Generate(:web / :desktop / :mobile). Writes REAL shell files (one per declared Reach) and returns the list of written paths. Raises when there is no world, no reach, or an unknown reach surface (LAW 3: refuse, never stub).
 	def Generate(pWhat)
 		if NOT @bHasWorld
 			stzraise("stzPlatform.Generate: no world attached -- SetWorld(oApp) first.")
@@ -515,17 +633,24 @@ class stzPlatform from stzObject
 		_c_ += "</body></html>" + _cNL_
 		return _c_
 
-	#== 2. THE CAPABILITY SEAM ==============================================
-
-	# Wire the (fully configured, sealed) governance regime. Declares
-	# the platform's capability risk tiers into it when undeclared.
-	# the NAME of the object that governs this platform ("" if none)
+	# Returns the name of the governance regime that decides capabilities.
+	#
+	#   returns    a text; empty when none was set
+	#   see        SetGovernedBy, Granted
+	#@ aka  == 2. THE CAPABILITY SEAM ==============================================
 	def GovernedBy()
 		if @oGov = ""
 			return ""
 		ok
 		return @oGov.Name_()
 
+	# Wires a sealed governance regime and declares the risk tiers of the platform's capabilities into it where it has none.
+	#
+	#   poGov      the stzGovernance, fully configured, of which the platform keeps a copy
+	#   returns    the platform itself, so calls chain
+	#   note       the tiers are storage, notifications and offline 1, camera 2, location 3 and
+	#              payments 4
+	#   see        Granted, AddCapability
 	def SetGovernedBy(poGov)
 		@oGov = poGov
 		This._EnsureCapabilityRisks()
@@ -542,8 +667,13 @@ class stzPlatform from stzObject
 			ok
 		next
 
-	# Request a capability for the attached world:
-	#   oPlat.AddCapabilityQ(:camera).SetPurposes([ :scan-dish-photo ])
+	# Requests a device capability for the world and makes it the one SetPurposes fills.
+	#
+	#   pcCapability   the capability, such as camera or payments, kept in lower case
+	#   returns        nothing; use AddCapabilityQ to chain
+	#   note           AddCapabilityQ is the same call and returns the platform
+	#   see            SetPurposes, Granted, Admissions
+	#@ aka  Request a capability for the attached world: oPlat.AddCapabilityQ(:camera).SetPurposes([ :scan-dish-photo ])
 	def AddCapability(pcCapability)
 		_cCap_ = StzLower("" + pcCapability)
 		@aAdmissions + [ _cCap_, [] ]
@@ -555,6 +685,14 @@ class stzPlatform from stzObject
 			This.AddCapability(pcCapability)
 			return This
 
+	# Records the purposes of the capability added last, as a list.
+	#
+	#   paPurposes   a list of purposes
+	#   returns      the platform itself, so calls chain
+	#   note         with no capability added yet it does nothing
+	#   warning      a single text, symbol or number is not wrapped: Admissions then shows [ [ [ ] ]
+	#                ] for it today, so pass a list
+	#   see          AddCapability, Admissions
 	def SetPurposes(paPurposes)
 		if @nCurAdmission > 0
 			if NOT isList(paPurposes)
@@ -564,8 +702,15 @@ class stzPlatform from stzObject
 		ok
 		return This
 
-	# The governed decision: the WORLD is the actor, "use-<cap>" the
-	# action; permission CAN + authority SHOULD vs the risk tier.
+	# TRUE if governance lets the world use a requested capability, a decision of permission against the capability's risk tier.
+	#
+	#   pcCapability   the capability, in any case
+	#   returns        TRUE or FALSE; Why gives the reason
+	#   note           a capability never requested is refused with that reason, and a world without
+	#                  the use-<capability> permission is refused too
+	#   warning        it raises an error with no governance wired or no world attached
+	#   see            AddCapability, SetGovernedBy, Why
+	#@ aka  The governed decision: the WORLD is the actor, "use-<cap>" the action; permission CAN + authority SHOULD vs the risk tier.
 	def Granted(pcCapability)
 		if @oGov = ""
 			stzraise("stzPlatform.Granted: no governance wired -- capabilities are governed by construction (SetGovernedBy first).")
@@ -591,14 +736,21 @@ class stzPlatform from stzObject
 		next
 		return 0
 
+	# Returns the capabilities requested so far with their purposes.
+	#
+	#   returns    a list of lists, each a capability and its list of purposes
+	#   see        AddCapability, SetPurposes
 	def Admissions()
 		return @aAdmissions
 
-	#== 3. THE COMMONS RUNTIME ==============================================
-
-	# Identity / sessions / messaging / stores over an OPEN stzDatabase.
-	# (The stored object shares the engine handle -- live; keep the
-	# original open while the platform runs.)
+	# Wires an open database as the store of identities, sessions, messages and key-value pairs, creating its four tables if absent.
+	#
+	#   poDb       an open stzDatabase
+	#   returns    the platform itself, so calls chain
+	#   note       the platform shares the database's handle, so keep the original open while the
+	#              platform runs, and an in-memory database lasts only as long as it does
+	#   see        RegisterIdentity, OpenSession
+	#@ aka  == 3. THE COMMONS RUNTIME ==============================================
 	def OpenCommonsOn(poDb)
 		@oDb = poDb
 		@oDb.Exec("CREATE TABLE IF NOT EXISTS stz_identity(user TEXT PRIMARY KEY, secret TEXT)")
@@ -613,8 +765,15 @@ class stzPlatform from stzObject
 			stzraise("stzPlatform: the Commons is not wired -- OpenCommonsOn(oDb) first.")
 		ok
 
-	# Tune the KDF cost. Default 100k; lower ONLY in tests. Must be set
-	# before RegisterIdentity (a stored hash is bound to the rounds used).
+	# Sets how many iterations the password hash uses for identities registered afterwards; it starts at 100000.
+	#
+	#   nRounds    the iteration count, at least 1
+	#   returns    the platform itself, so calls chain
+	#   note       lower it only in tests: each identity keeps the rounds it was made with, so
+	#              raising it later does not lock anyone out
+	#   warning    it raises an error below 1
+	#   see        KdfRounds, RegisterIdentity
+	#@ aka  Tune the KDF cost. Default 100k; lower ONLY in tests. Must be set before RegisterIdentity (a stored hash is bound to the rounds used).
 	def SetKdfRounds(nRounds)
 		if nRounds < 1
 			stzraise("KDF rounds must be >= 1.")
@@ -622,12 +781,22 @@ class stzPlatform from stzObject
 		@nKdfRounds = nRounds
 		return This
 
+	# Returns the iteration count that new identities are hashed with.
+	#
+	#   returns    a number, 100000 by default
+	#   see        SetKdfRounds
 	def KdfRounds()
 		return @nKdfRounds
 
-	# KDF-BACKED IDENTITY (the engine KDF closes the plaintext gap): each
-	# identity stores a per-user random SALT + a PBKDF2-HMAC-SHA256 hash
-	# of the secret over @nKdfRounds iterations -- never the secret itself.
+	# Stores a user with a random salt and a PBKDF2 hash of the secret, never the secret itself.
+	#
+	#   pcUser     the user name
+	#   pcSecret   the secret to hash
+	#   returns    TRUE if registered, FALSE if the user already exists (Why says so)
+	#   note       the stored value reads rounds, salt and hash separated by colons
+	#   warning    it raises an error until OpenCommonsOn has run
+	#   see        OpenSession, SetKdfRounds
+	#@ aka  KDF-BACKED IDENTITY (the engine KDF closes the plaintext gap): each identity stores a per-user random SALT + a PBKDF2-HMAC-SHA256 hash of the secret over @nKdfRounds iterations -- never the secret itself.
 	def RegisterIdentity(pcUser, pcSecret)
 		This._NeedCommons()
 		if @oDb.Value("SELECT user FROM stz_identity WHERE user = '" + This._Sql(pcUser) + "'") != ""
@@ -649,9 +818,15 @@ class stzPlatform from stzObject
 		          This._Sql(pcUser) + "', '" + @nKdfRounds + ":" + _cSalt_ + ":" + _cHash_ + "')")
 		return 1
 
-	# Returns a session token, or "" (Why() explains) on refusal. The
-	# secret is verified by re-deriving with the stored salt + rounds and
-	# a CONSTANT-TIME compare (StzEngineCryptoConstEqual).
+	# Checks a user's secret in constant time and opens a session.
+	#
+	#   pcUser     the user name
+	#   pcSecret   the secret to check
+	#   returns    a text, the session token beginning with sess_; empty when refused (Why says so)
+	#   note       an unknown user and a wrong secret give the same reason
+	#   warning    it raises an error until OpenCommonsOn has run
+	#   see        SessionUser, RegisterIdentity
+	#@ aka  Returns a session token, or "" (Why() explains) on refusal. The secret is verified by re-deriving with the stored salt + rounds and a CONSTANT-TIME compare (StzEngineCryptoConstEqual).
 	def OpenSession(pcUser, pcSecret)
 		This._NeedCommons()
 		_cStored_ = @oDb.Value("SELECT secret FROM stz_identity WHERE user = '" + This._Sql(pcUser) + "'")
@@ -697,10 +872,26 @@ class stzPlatform from stzObject
 		_cTry_ = StzEngineCryptoPbkdf2("" + pcSecret, _cSalt_, _nRounds_, 32)
 		return StzEngineCryptoConstEqual(_cTry_, _cHash_) = 1
 
+	# Returns the user to whom a session token belongs.
+	#
+	#   pcToken    a token returned by OpenSession
+	#   returns    a text; empty for an unknown token
+	#   warning    it raises an error until OpenCommonsOn has run
+	#   see        OpenSession
 	def SessionUser(pcToken)
 		This._NeedCommons()
 		return @oDb.Value("SELECT user FROM stz_session WHERE token = '" + This._Sql(pcToken) + "'")
 
+	# Stores a message from one user to another.
+	#
+	#   pcFrom     the sender
+	#   pcTo       the recipient
+	#   pcBody     the message text
+	#   returns    the platform itself, so calls chain
+	#   note       quotes in the text are stored correctly, and the sender is not checked against
+	#              the identities
+	#   warning    it raises an error until OpenCommonsOn has run
+	#   see        Inbox
 	def PostMessage(pcFrom, pcTo, pcBody)
 		This._NeedCommons()
 		@oDb.Exec("INSERT INTO stz_message (sender, recipient, body, sent_ms) VALUES ('" +
@@ -708,17 +899,36 @@ class stzPlatform from stzObject
 		          This._Sql(pcBody) + "', " + StzEngineTimeNowMs() + ")")
 		return This
 
+	# Returns the messages sent to a user, oldest first.
+	#
+	#   pcUser     the recipient
+	#   returns    a list of lists, each with the sender and the body; empty when there are none
+	#   warning    it raises an error until OpenCommonsOn has run
+	#   see        PostMessage
 	def Inbox(pcUser)
 		This._NeedCommons()
 		return @oDb.Rows("SELECT sender, body FROM stz_message WHERE recipient = '" +
 		                 This._Sql(pcUser) + "' ORDER BY sent_ms")
 
+	# Stores a value under a key, replacing any earlier value.
+	#
+	#   pcKey      the key
+	#   pcValue    the value text
+	#   returns    the platform itself, so calls chain
+	#   warning    it raises an error until OpenCommonsOn has run
+	#   see        StoreGet
 	def StorePut(pcKey, pcValue)
 		This._NeedCommons()
 		@oDb.Exec("INSERT OR REPLACE INTO stz_store (k, v) VALUES ('" +
 		          This._Sql(pcKey) + "', '" + This._Sql(pcValue) + "')")
 		return This
 
+	# Returns the value stored under a key.
+	#
+	#   pcKey      the key
+	#   returns    a text; empty for an unknown key
+	#   warning    it raises an error until OpenCommonsOn has run
+	#   see        StorePut
 	def StoreGet(pcKey)
 		This._NeedCommons()
 		return @oDb.Value("SELECT v FROM stz_store WHERE k = '" + This._Sql(pcKey) + "'")
@@ -726,12 +936,16 @@ class stzPlatform from stzObject
 	def _Sql(pcVal)
 		return StzReplace("" + pcVal, "'", "''")
 
-	#== 4. THE NETWORKED BODY ===============================================
-
-	# Serve the harvested world over the R7 reactor host:
-	#   GET /world        -> the world (name, things, screens) as json
-	#   GET /thing?name=x -> one thing's fields
-	# nPort 0 = ephemeral; the bound port via HostQ().Port().
+	# Starts the reactor host on 127.0.0.1 to serve the world and, when a Commons is wired, its sessions, messages and store over HTTP.
+	#
+	#   nPort      the port to listen on, 0 for any free one
+	#   returns    the platform itself, so calls chain
+	#   note       the routes are /world and /thing for the world, and /session, /whoami, /message,
+	#              /inbox and /store for the Commons
+	#   warning    it opens a listening port, so only the refusal with nothing to serve was run: it
+	#              raises an error with neither a world nor a Commons
+	#   see        HostQ, ServeOne, ServeFor, StopServing
+	#@ aka  == 4. THE NETWORKED BODY ===============================================
 	def ServeBody(nPort)
 		if NOT @bHasWorld and @oDb = ""
 			stzraise("stzPlatform.ServeBody: nothing to serve -- attach a world " +
@@ -759,11 +973,22 @@ class stzPlatform from stzObject
 		@bServing = 1
 		return This
 
-	# The serving host (a chainable stz object -- Q-convention). NB: an
-	# accessor returns a handle-sharing copy; use it for Port()/ServeOne.
+	# Returns the serving host, from which the port is read.
+	#
+	#   returns    a stzAppServer; an empty text before ServeBody
+	#   note       only the answer before serving was run
+	#   see        ServeBody
+	#@ aka  The serving host (a chainable stz object -- Q-convention). NB: an accessor returns a handle-sharing copy; use it for Port()/ServeOne.
 	def HostQ()
 		return @oHost
 
+	# Serves requests for a number of milliseconds.
+	#
+	#   nMs        how long to serve in milliseconds
+	#   returns    the platform itself, so calls chain
+	#   note       it occupies the thread while it serves
+	#   warning    it raises an error before ServeBody, which is the only case run
+	#   see        ServeBody, ServeOne
 	def ServeFor(nMs)
 		if NOT @bServing
 			stzraise("stzPlatform.ServeFor: not serving -- ServeBody first.")
@@ -771,12 +996,23 @@ class stzPlatform from stzObject
 		@oHost.RunFor(nMs)
 		return This
 
+	# Serves at most one request, waiting up to the given time.
+	#
+	#   nTimeoutMs   how long to wait for a request in milliseconds
+	#   returns      the result of the host's ServeOne
+	#   warning      it raises an error before ServeBody, which is the only case run
+	#   see          ServeBody, ServeFor
 	def ServeOne(nTimeoutMs)
 		if NOT @bServing
 			stzraise("stzPlatform.ServeOne: not serving -- ServeBody first.")
 		ok
 		return @oHost.ServeOne(nTimeoutMs)
 
+	# Stops the serving host; it does nothing when not serving.
+	#
+	#   returns    the platform itself, so calls chain
+	#   note       only the not-serving case was run
+	#   see        ServeBody
 	def StopServing()
 		if @bServing
 			@oHost.Stop()
@@ -812,8 +1048,13 @@ class stzPlatform from stzObject
 			$aStzPlatformThingJsons + [ @aWorldThings[_i_][1], _cT_ ]
 		next
 
-	#== 5. REGISTRY + ENFORCEMENT ===========================================
-
+	# Registers a world and its version as active, or updates the version and reactivates it if it is already registered.
+	#
+	#   pcName      the world's name, matched exactly
+	#   pcVersion   its version text
+	#   returns     the platform itself, so calls chain
+	#   see         RetireWorld, Worlds
+	#@ aka  == 5. REGISTRY + ENFORCEMENT ===========================================
 	def PushWorld(pcName, pcVersion)
 		_nLen_ = len(@aWorlds)
 		for _i_ = 1 to _nLen_
@@ -826,6 +1067,11 @@ class stzPlatform from stzObject
 		@aWorlds + [ pcName, pcVersion, 1 ]
 		return This
 
+	# Marks a registered world as inactive; an unknown name changes nothing.
+	#
+	#   pcName     the world's name
+	#   returns    the platform itself, so calls chain
+	#   see        PushWorld, IsActiveWorld
 	def RetireWorld(pcName)
 		_nLen_ = len(@aWorlds)
 		for _i_ = 1 to _nLen_
@@ -836,6 +1082,11 @@ class stzPlatform from stzObject
 		next
 		return This
 
+	# TRUE if the world is registered and not retired.
+	#
+	#   pcName     the world's name, matched exactly
+	#   returns    1 or 0
+	#   see        PushWorld, RetireWorld
 	def IsActiveWorld(pcName)
 		_nLen_ = len(@aWorlds)
 		for _i_ = 1 to _nLen_
@@ -845,19 +1096,38 @@ class stzPlatform from stzObject
 		next
 		return 0
 
+	# Returns the registry as a list of lists, each with a world's name, its version and 1 when active or 0 when retired.
+	#
+	#   returns    a list of lists
+	#   see        PushWorld
 	def Worlds()
 		return @aWorlds
 
-	# Declare a norm-bearing bond: from-world may attempt an action on
-	# to-world (still subject to governance at call time).
+	# Declares that one world may attempt an action on another, subject to governance at call time.
+	#
+	#   pcFrom     the calling world's name, matched exactly
+	#   pcTo       the target world, lowered
+	#   pcAction   the action, lowered
+	#   returns    the platform itself, so calls chain
+	#   note       a bond is not a permission: CallAcross still asks governance
+	#   see        CallAcross, PushWorld
+	#@ aka  Declare a norm-bearing bond: from-world may attempt an action on to-world (still subject to governance at call time).
 	def Bond(pcFrom, pcTo, pcAction)
 		@aBonds + [ pcFrom, StzLower("" + pcTo), StzLower("" + pcAction) ]
 		return This
 
-	# The enforcement seam: a cross-world call goes through ONLY when
-	# (a) both worlds are active in the registry, (b) a bond declares
-	# the action, and (c) governance lets the calling world proceed.
-	# Returns TRUE/FALSE; Why() explains every refusal.
+	# TRUE if a call from one world to another may go through: both active, a bond naming the action, and governance agreeing.
+	#
+	#   pcFrom     the calling world
+	#   pcTo       the target world
+	#   pcAction   the action
+	#   returns    1 if allowed, 0 if refused with Why giving the reason
+	#   note       the world names are matched exactly in the registry, while the action and the
+	#              target are compared in lower case in the bonds
+	#   warning    with governance wired, an action that has no declared risk tier is refused, so
+	#              declare the risk of the action in the regime
+	#   see        Bond, PushWorld, Why
+	#@ aka  The enforcement seam: a cross-world call goes through ONLY when (a) both worlds are active in the registry, (b) a bond declares the action, and (c) governance lets the calling world proceed. Returns TRUE/FALSE; Why() explains every refusal.
 	def CallAcross(pcFrom, pcTo, pcAction)
 		if NOT This.IsActiveWorld(pcFrom)
 			@cWhy = "calling world '" + pcFrom + "' is not active in the registry."

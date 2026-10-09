@@ -63,6 +63,28 @@ func StzSemanticValues()
 func StzEarconSteps()
 	return [ "cue", "alert", "ambient" ]
 
+# Turns a meaning (danger, warning, info, success, muted) into a short sound and decides when it may play, so a screen state is corroborated by ear.
+#
+# An author names a meaning and gets a motif: ToSoundOf returns it as data, with no audio device,
+# and the audibility and priority questions are answered by pure functions (WouldFireAt, IsAudible,
+# PriorityOf). Muted renders as silence. Start opens a sound pool and Fire plays a cue through the
+# device, dropping it when the same value repeats inside the refractory period or a louder alert is
+# still sounding; Say queues a cue and a spoken phrase, which are only heard through TickSpeech or
+# SpeakQueueToEnd. A sound is not the acknowledgement: it arrives about 419 ms after Fire, against
+# the 100 ms the screen has, so it must repeat what another channel already shows. Every example of
+# this reference rendered to buffers; none played through a device, and what a person hears of the
+# motifs has not been recorded here.
+#
+#   receiver   o1 = new stzEarcons()
+#   example    ? o1.IsSilentValue(:Muted)
+#              #--> 1
+#              ? o1.PriorityOf(:Danger)
+#              #--> 4
+#              ? o1.ToStepOf("Danger.Alert")
+#              #--> alert
+#              ? o1.WouldFireAt(:Danger, 10)
+#              #--> 1
+#   see        StzEarconsQ, StzSemanticValues, stzVoicePool, stzVoice
 class stzEarcons
 
 	@nRate = 48000
@@ -146,6 +168,11 @@ class stzEarcons
 	@bDuckOn = TRUE
 	@nDucksApplied = 0
 
+	# Builds the vocabulary of four motifs for danger, warning, info and success, with muted left silent; no device is opened.
+	#
+	#   returns    nothing; the object is built
+	#   note       the motifs are rendered by the engine at 48000 Hz into ordinary sample buffers
+	#   see        ToSoundOf, Start
 	def init()
 		This._BuildMotifs()
 		_aV1_ = StzSemanticValues()
@@ -156,10 +183,15 @@ class stzEarcons
 			@aDrops + [ _v_, 0 ]
 		next
 
-	#-- what a meaning sounds like (no device needed) -----------------------
-
-	# The motif as DATA. Works with no audio hardware, which is what lets a CI
-	# machine assert the vocabulary.
+	# Returns the motif that a meaning sounds like, as a sound buffer that needs no audio device.
+	#
+	#   pMeaning   a semantic value (danger, warning, info, success, muted) as a name or a text,
+	#              optionally followed by .cue or .alert
+	#   returns    a stzSound; an empty text for muted and for a meaning that is refused, with
+	#              LastError telling which half was wrong
+	#   note       the danger motif lasts 0.18 seconds at 48000 Hz
+	#   see        ToSoundOfSaying, IsSilentValue, LastError
+	#@ aka  -- what a meaning sounds like (no device needed) -----------------------
 	def ToSoundOf(pMeaning)
 		_p_ = This._Parse(pMeaning)
 		if _p_[1] = ""
@@ -174,13 +206,29 @@ class stzEarcons
 		next
 		return ""
 
-	# Muted is the one value whose rendering is nothing. Asking is legitimate.
+	# TRUE if the meaning is muted, the one value whose rendering is silence.
+	#
+	#   pMeaning   a semantic value, optionally with a step
+	#   returns    TRUE or FALSE; FALSE for an unknown meaning
+	#   see        ToSoundOf, IsAudible
+	#@ aka  Muted is the one value whose rendering is nothing. Asking is legitimate.
 	def IsSilentValue(pMeaning)
 		return This._Parse(pMeaning)[1] = "muted"
 
+	# Returns the step a meaning asks for, cue when none is written.
+	#
+	#   pMeaning   a semantic value, optionally followed by a dot and a step
+	#   returns    a text, cue or alert or ambient; an empty text when the meaning is refused
+	#   see        PriorityOf, RequiredMarginOf
 	def ToStepOf(pMeaning)
 		return This._Parse(pMeaning)[2]
 
+	# Returns how severe a meaning is, from 4 for danger down to 1 for success.
+	#
+	#   pMeaning   a semantic value, optionally with a step
+	#   returns    a number: danger 4, warning 3, info 2, success 1, and 0 for muted or an unknown
+	#              meaning
+	#   see        WouldFireAt, DuckUnder
 	def PriorityOf(pMeaning)
 		switch This._Parse(pMeaning)[1]
 		on "danger"    return 4
@@ -190,67 +238,86 @@ class stzEarcons
 		off
 		return 0
 
-	#-- THE AUDIBILITY FLOOR ------------------------------------------------
+	# Declares the loudness of the room in dB against which audibility is judged; it is never measured.
 	#
-	# Colour's doctrine, transposed: a sound system that cannot fail an
-	# audibility check does not have one. The check is a MARGIN over the floor.
-
+	#   pnDb       the declared ambient level in dB, -40 being a quiet office
+	#   returns    the earcons object itself, so calls chain
+	#   note       a louder floor lowers every margin and can turn IsAudible to FALSE
+	#   see        DeclaredFloor, AudibilityMarginOf
+	#@ aka  -- THE AUDIBILITY FLOOR ------------------------------------------------
 	def SetAmbientFloor(pnDb)
 		@nFloorDb = pnDb
 		return This
 
+	# Returns the ambient level in dB that margins are measured against.
+	#
+	#   returns    a number, -40 until SetAmbientFloor changes it
+	#   see        SetAmbientFloor
 	def DeclaredFloor()
 		return @nFloorDb
 
-	# WHAT THE MARGIN IS MEASURED WITH, said out loud every time it is asked.
+	# Returns the name of the loudness measure that the audibility margin uses.
 	#
-	# SS2 CLOSED THIS. The first version had to use unweighted RMS, because
-	# SN5's Loudness() integrates over 400 ms blocks behind a -70 LUFS gate and
-	# an 880 Hz tone at PEAK 0.50 reports -1000 -- silence -- at every duration
-	# below 400 ms. An earcon is shorter than one block, so the standard cannot
-	# see it.
-	#
-	# The margin now uses LoudnessOfSupport: the SAME K-weighting and the same
-	# -0.691 + 10log10(z) formula, over the sound's own length. It is not a
-	# standard LUFS figure and the metric name says so -- but it is the ear's
-	# own weighting rather than a flat average, which is the difference between
-	# a gate that models hearing and one that models arithmetic.
+	#   returns    a text naming a K-weighted level over the sound's own length, which the text says
+	#              is not an integrated LUFS figure
+	#   see        LevelOf, AudibilityMarginOf
+	#@ aka  WHAT THE MARGIN IS MEASURED WITH, said out loud every time it is asked.
 	def MarginMetric()
 		_s_ = This.ToSoundOf(:Danger)
 		if isObject(_s_)  return _s_.LoudnessMetric() ok
 		return "K-weighted level over the sound's support"
 
+	# Returns the K-weighted level of a meaning's motif over its own length, in dB.
+	#
+	#   pMeaning   a semantic value, optionally with a step
+	#   returns    a number; -1000 for muted and for a refused meaning
+	#   note       the danger motif measured -13.13 and the success motif -14.31
+	#   see        AudibilityMarginOf, MarginMetric
 	def LevelOf(pMeaning)
 		_s_ = This.ToSoundOf(pMeaning)
 		if NOT isObject(_s_)  return -1000 ok
 		return _s_.LoudnessOfSupport()
 
+	# Returns how many dB a meaning's motif lies above the declared ambient floor.
+	#
+	#   pMeaning   a semantic value, optionally with a step
+	#   returns    a number; -1000 when the meaning has no sound
+	#   note       the danger margin was 26.87 over the default floor of -40
+	#   see        LevelOf, RequiredMarginOf, IsAudible
 	def AudibilityMarginOf(pMeaning)
 		_l_ = This.LevelOf(pMeaning)
 		if _l_ <= -999  return -1000 ok
 		return _l_ - @nFloorDb
 
-	# The gate. A cue needs 10 LU of headroom over the room; an alert needs 20.
+	# Returns the headroom over the floor that a meaning must have: 10 for a cue and 20 for an alert.
+	#
+	#   pMeaning   a semantic value, optionally followed by .alert
+	#   returns    a number, 10 or 20
+	#   see        AudibilityMarginOf, IsAudible
+	#@ aka  The gate. A cue needs 10 LU of headroom over the room; an alert needs 20.
 	def RequiredMarginOf(pMeaning)
 		if This._Parse(pMeaning)[2] = "alert"  return 20 ok
 		return 10
 
+	# TRUE if the meaning's motif clears the required margin over the declared floor; muted counts as audible.
+	#
+	#   pMeaning   a semantic value, optionally with a step
+	#   returns    TRUE or FALSE; FALSE for an unknown meaning
+	#   note       muted answers TRUE because silence is lawful
+	#   see        AudibilityMarginOf, RequiredMarginOf, SetAmbientFloor
 	def IsAudible(pMeaning)
 		if This.IsSilentValue(pMeaning)  return TRUE ok    # silence is lawful
 		return This.AudibilityMarginOf(pMeaning) >= This.RequiredMarginOf(pMeaning)
 
-	#-- THE PRIORITY CONTRACT -----------------------------------------------
+	# TRUE if the playing rules let the meaning sound at the given time, and records the reason.
 	#
-	# :OverDanger is REFUSED as a colour-style pair, and plan S.3 argues why:
-	# two sounds in one instant do not layer, they MASK, and masking is
-	# frequency-selective and asymmetric -- so there is no fixed answer to
-	# "what can be heard over danger". The answer is nothing. You drop, or you
-	# duck. Ducking needs a per-bus gain node and is SS3, not this session.
-	#
-	# THE DECISION IS A PURE FUNCTION of (state, meaning, now), so a guard can
-	# assert the contract on a machine with no audio device at all. Fire()
-	# calls exactly this, with the transport's clock.
-
+	#   pMeaning   a semantic value, optionally with a step
+	#   pnNow      the time in seconds on the player's clock
+	#   returns    TRUE or FALSE; LastReason says why, ok when TRUE
+	#   note       it refuses ambient steps, muted, the same value twice inside the refractory
+	#              period, and a quieter meaning while an alert is still sounding
+	#   see        RecordFireAt, LastReason, Fire
+	#@ aka  -- THE PRIORITY CONTRACT -----------------------------------------------
 	def WouldFireAt(pMeaning, pnNow)
 		_p_ = This._Parse(pMeaning)
 		if _p_[1] = ""
@@ -282,8 +349,15 @@ class stzEarcons
 		@cLastReason = "ok"
 		return TRUE
 
-	# The state advance, separated from the decision so both the real path and
-	# a device-less guard drive the same code.
+	# Records that a meaning sounded at a time, so later decisions see the refractory period and any alert in force.
+	#
+	#   pMeaning   a semantic value, optionally with a step
+	#   pnNow      the time in seconds when it sounded
+	#   returns    the earcons object itself, so calls chain
+	#   note       an alert holds the floor for three times its motif length, and nothing happens
+	#              for a refused meaning
+	#   see        WouldFireAt, CountDropAt
+	#@ aka  The state advance, separated from the decision so both the real path and a device-less guard drive the same code.
 	def RecordFireAt(pMeaning, pnNow)
 		_p_ = This._Parse(pMeaning)
 		if _p_[1] = ""  return This ok
@@ -299,6 +373,12 @@ class stzEarcons
 		ok
 		return This
 
+	# Adds one to the count of dropped cues for a meaning.
+	#
+	#   pMeaning   a semantic value, optionally with a step
+	#   returns    the earcons object itself, so calls chain
+	#   note       Fire calls it for you when WouldFireAt says no
+	#   see        DropsOf, WouldFireAt
 	def CountDropAt(pMeaning)
 		_v_ = This._Parse(pMeaning)[1]
 		for _i_ = 1 to len(@aDrops)
@@ -306,6 +386,11 @@ class stzEarcons
 		next
 		return This
 
+	# Returns how many cues of that meaning were dropped.
+	#
+	#   pMeaning   a semantic value, optionally with a step
+	#   returns    a number, 0 for an unknown meaning
+	#   see        CountDropAt
 	def DropsOf(pMeaning)
 		_v_ = This._Parse(pMeaning)[1]
 		for _i_ = 1 to len(@aDrops)
@@ -313,15 +398,31 @@ class stzEarcons
 		next
 		return 0
 
+	# Returns why the last decision about a cue or a phrase went the way it did.
+	#
+	#   returns    a text such as ok, muted renders as silence, or a refractory message; empty
+	#              before any decision
+	#   see        WouldFireAt, Say
 	def LastReason()
 		return @cLastReason
 
+	# Sets the period in seconds inside which a repeat of the same value counts as one event; it starts at 0.15.
+	#
+	#   pnSeconds   the refractory period in seconds
+	#   returns     the earcons object itself, so calls chain
+	#   see         WouldFireAt
 	def SetRefractory(pnSeconds)
 		@nRefractory = pnSeconds
 		return This
 
-	#-- hearing it ----------------------------------------------------------
-
+	# Opens the sound pool so cues can be heard, and does nothing when it is already open.
+	#
+	#   returns    the earcons object itself, so check IsStarted afterwards
+	#   note       when the device cannot open, LastError says why and IsStarted stays FALSE
+	#   warning    it opens the audio device and plays through it, which no run of this reference
+	#              did
+	#   see        Fire, Stop, IsStarted
+	#@ aka  -- hearing it ----------------------------------------------------------
 	def Start()
 		if @bStarted  return This ok
 		@oPool = new stzVoicePool(@nRate)
@@ -343,6 +444,14 @@ class stzEarcons
 		This.Start()
 		return This
 
+	# Plays the cue for a meaning if the rules allow it, ducks the quieter voices, and counts a drop otherwise.
+	#
+	#   pMeaning   a semantic value, optionally with a step
+	#   returns    the earcons object itself, so calls chain
+	#   note       before Start it plays nothing, sets LastError to Fire: call Start() first and
+	#              counts a refusal
+	#   warning    it sounds through the audio device and was not run started
+	#   see        WouldFireAt, Start, DuckUnder
 	def Fire(pMeaning)
 		if NOT @bStarted
 			@cLastError = "Fire: call Start() first"
@@ -365,10 +474,14 @@ class stzEarcons
 		This.Fire(pMeaning)
 		return This
 
-	#-- SS3: ducking --------------------------------------------------------
-
-	# How deep, in dB. Declared, never inferred -- a caller who wants a
-	# different depth argues with a number.
+	# Sets how many dB quieter a lower-priority cue becomes while a higher one sounds; it starts at -12.
+	#
+	#   pnDb       the attenuation in dB, which must be negative
+	#   returns    the earcons object itself, so calls chain
+	#   warning    a positive value is refused: the depth is unchanged, LastError says to give a
+	#              negative value, and a refusal is counted
+	#   see        DuckDepthDb, SetDucking
+	#@ aka  -- SS3: ducking --------------------------------------------------------
 	def SetDuckDepth(pnDb)
 		if pnDb > 0
 			@nRefusals++
@@ -379,40 +492,77 @@ class stzEarcons
 		@nDuckDb = pnDb
 		return This
 
+	# Returns by how many dB a voice is turned down when a louder cue ducks it.
+	#
+	#   returns    a number, -12 until SetDuckDepth changes it
+	#   see        SetDuckDepth
 	def DuckDepthDb()
 		return @nDuckDb
 
+	# Sets the time in milliseconds over which a duck or an unduck moves, so that it cannot click; it starts at 10.
+	#
+	#   pnMs       the ramp length in milliseconds, a negative value being taken as 0
+	#   returns    the earcons object itself, so calls chain
+	#   see        DuckRampMs, Unduck
 	def SetDuckRampMs(pnMs)
 		if pnMs < 0  pnMs = 0 ok
 		@nDuckRampMs = pnMs
 		return This
 
+	# Returns the length of the duck ramp in milliseconds.
+	#
+	#   returns    a number, 10 until SetDuckRampMs changes it
+	#   see        SetDuckRampMs
 	def DuckRampMs()
 		return @nDuckRampMs
 
+	# Switches ducking on or off; it is on by default.
+	#
+	#   pbOn       TRUE to duck quieter voices when a louder cue fires, FALSE to leave them alone
+	#   returns    the earcons object itself, so calls chain
+	#   see        IsDucking, DuckUnder
 	def SetDucking(pbOn)
 		@bDuckOn = pbOn
 		return This
 
+	# TRUE if quieter voices are turned down when a louder cue fires.
+	#
+	#   returns    TRUE or FALSE
+	#   see        SetDucking
 	def IsDucking()
 		return @bDuckOn
 
-	# COUNTED, like everything else this plane does behind a listener's back.
-	# "Why did that get quiet" must have an answer that is a number.
+	# Returns how many times a duck was applied, so that a sudden quiet has a number behind it.
+	#
+	#   returns    a number
+	#   see        DuckUnder, GainOf
+	#@ aka  COUNTED, like everything else this plane does behind a listener's back. "Why did that get quiet" must have an answer that is a number.
 	def DucksApplied()
 		return @nDucksApplied
 
-	# The gain the RENDER is applying to a value's bus right now. During a ramp
-	# this is somewhere between the old value and the target, which is what
-	# lets a guard prove the ramp MOVES rather than jumps.
+	# Returns the gain that the player now applies to a meaning's voice.
+	#
+	#   pMeaning   a semantic value, optionally with a step
+	#   returns    a number, 1 at unity and lower while ducked; -1 before Start or for a refused
+	#              meaning
+	#   note       only the not-started answer was run, since reading a live gain needs the open
+	#              pool
+	#   see        DuckUnder, Unduck
+	#@ aka  The gain the RENDER is applying to a value's bus right now. During a ramp this is somewhere between the old value and the target, which is what lets a guard prove the ramp MOVES rather than jumps.
 	def GainOf(pMeaning)
 		if NOT @bStarted  return -1 ok
 		_p_ = This._Parse(pMeaning)
 		if _p_[1] = ""  return -1 ok
 		return @oPool.VoiceGain(_p_[1])
 
-	# Duck every value QUIETER IN MEANING than this one, and leave the rest
-	# alone. Ramped, so it cannot click.
+	# Turns down every voice that is quieter in meaning than the given one, on the duck ramp.
+	#
+	#   pMeaning   the semantic value that is sounding, optionally with a step
+	#   returns    the earcons object itself, so calls chain
+	#   note       it changes nothing before Start or while ducking is off, and only that no-op was
+	#              run because ducking needs the open pool
+	#   see        Unduck, SetDuckDepth, GainOf
+	#@ aka  Duck every value QUIETER IN MEANING than this one, and leave the rest alone. Ramped, so it cannot click.
 	def DuckUnder(pMeaning)
 		if NOT @bStarted or NOT @bDuckOn  return This ok
 		_p_ = This._Parse(pMeaning)
@@ -433,8 +583,12 @@ class stzEarcons
 		if _any_  @nDucksApplied++ ok
 		return This
 
-	# Everything back to unity, on the same ramp. Restoring with a JUMP would
-	# click exactly as ducking with one would.
+	# Brings every voice back to unity gain on the duck ramp.
+	#
+	#   returns    the earcons object itself, so calls chain
+	#   note       it changes nothing before Start, and only that no-op was run
+	#   see        DuckUnder
+	#@ aka  Everything back to unity, on the same ramp. Restoring with a JUMP would click exactly as ducking with one would.
 	def Unduck()
 		if NOT @bStarted  return This ok
 		_aV3_ = StzSemanticValues()
@@ -446,11 +600,14 @@ class stzEarcons
 		next
 		return This
 
-	#-- VC4: SAY -- the earcon, then the phrase that says WHICH -------------
-
-	# Which language the phrase is spoken in. REFUSED rather than substituted
-	# if the machine has no voice for it -- speaking French to an operator who
-	# asked for English is worse than saying nothing.
+	# Chooses the language in which phrases are spoken, and refuses a language the machine has no voice for.
+	#
+	#   pcTag      the language tag such as en-US or fr-FR
+	#   returns    TRUE if the language was accepted, FALSE if it was refused with LastError naming
+	#              the languages the machine has
+	#   note       it never falls back to another language
+	#   see        VoiceLanguage, CanSpeak, Say
+	#@ aka  -- VC4: SAY -- the earcon, then the phrase that says WHICH -------------
 	def SetVoiceLanguage(pcTag)
 		This._EnsureVoice()
 		if NOT isObject(@oVoice)
@@ -466,26 +623,33 @@ class stzEarcons
 		@cVoiceLang = pcTag
 		return TRUE
 
-	# Which language it is actually speaking -- empty until one is set and
-	# ACCEPTED, so a caller can tell "not asked yet" from "asked and refused".
+	# Returns the language phrases are spoken in.
+	#
+	#   returns    a text, empty until a language has been accepted
+	#   see        SetVoiceLanguage
+	#@ aka  Which language it is actually speaking -- empty until one is set and ACCEPTED, so a caller can tell "not asked yet" from "asked and refused".
 	def VoiceLanguage()
 		return @cVoiceLang
 
+	# TRUE if this machine has a usable speech voice.
+	#
+	#   returns    TRUE or FALSE
+	#   note       the first call loads the voice engine, which is created only on first use
+	#   see        SetVoiceLanguage, ToSoundOfSaying
 	def CanSpeak()
 		This._EnsureVoice()
 		return isObject(@oVoice) and @oVoice.IsUsable()
 
-	# THE COMPOSITE, as DATA: earcon, a gap, then the phrase, in ONE buffer.
+	# Returns one buffer holding the meaning's cue, a short gap, then the spoken phrase, with no audio device needed.
 	#
-	# One buffer rather than two players is what answers VC4's kill criterion.
-	# Two independent players sharing a speaker can mask each other (the phrase
-	# starting under the earcon's tail) and can clip where they overlap. Laid
-	# out in one buffer they are SEQUENTIAL by construction: nothing overlaps,
-	# so nothing masks, and the peak is the louder of the two rather than their
-	# sum.
-	#
-	# Needs no audio device, which is what lets a guard measure the composition
-	# on a machine that cannot play it.
+	#   pMeaning   a semantic value, optionally with a step
+	#   pcPhrase   the text to speak
+	#   returns    a stzSound; the plain cue when no voice is usable or the phrase is empty, and an
+	#              empty text when both are silent or the meaning is refused
+	#   note       the buffer takes the phrase's sample rate (22050 Hz on the run) and ends in 0.2
+	#              seconds of silence so the last syllable is not cut
+	#   see        Say, ToSoundOf, SpeechGapSeconds
+	#@ aka  THE COMPOSITE, as DATA: earcon, a gap, then the phrase, in ONE buffer.
 	def ToSoundOfSaying(pMeaning, pcPhrase)
 		_p_ = This._Parse(pMeaning)
 		if _p_[1] = ""
@@ -530,8 +694,16 @@ class stzEarcons
 		This._Blit(_out_, _say_, _at_)
 		return _out_
 
-	# Say it: the earcon, then the phrase. Queued, not played immediately --
-	# call TickSpeech() (or SpeakQueueToEnd()) to advance.
+	# Queues a cue and its phrase, higher priority first, and cancels a quieter phrase that is being spoken.
+	#
+	#   pMeaning   a semantic value, optionally with a step
+	#   pcPhrase   the text to say
+	#   returns    the earcons object itself, so calls chain
+	#   note       muted queues nothing and gives the reason in LastReason, and a refused meaning is
+	#              counted as a refusal; nothing is heard until TickSpeech or SpeakQueueToEnd
+	#   warning    the queue holds four by default and a fifth is dropped and counted in SpeechDrops
+	#   see        TickSpeech, SpeakQueueToEnd, SetSpeechQueueMax
+	#@ aka  Say it: the earcon, then the phrase. Queued, not played immediately -- call TickSpeech() (or SpeakQueueToEnd()) to advance.
 	def Say(pMeaning, pcPhrase)
 		_p_ = This._Parse(pMeaning)
 		if _p_[1] = ""
@@ -596,8 +768,14 @@ class stzEarcons
 		This.Say(pMeaning, pcPhrase)
 		return This
 
-	# One step. Starts the next phrase when nothing is speaking, and reaps the
-	# transport when it ends. Cheap; call it as often as you like.
+	# Advances the speech queue by one step: reaps a finished phrase, or starts the next one.
+	#
+	#   returns    the earcons object itself, so calls chain
+	#   note       with an empty queue it does nothing, and that was the only case run
+	#   warning    it starts a transport on the audio device when a phrase is queued, which no run
+	#              of this reference did
+	#   see        Say, SpeakQueueToEnd, IsSpeaking
+	#@ aka  One step. Starts the next phrase when nothing is speaking, and reaps the transport when it ends. Cheap; call it as often as you like.
 	def TickSpeech()
 		if isObject(@oSpeaking)
 			@oSpeaking.Tick()
@@ -628,24 +806,14 @@ class stzEarcons
 		@nSpeechSpoken++
 		return This
 
-	# Drive the queue to the end. Occupies the thread, which is honest for a
-	# script; a program with a UI ticks instead.
+	# Speaks everything queued as one buffer through one device and returns when it has finished.
 	#
-	# ONE BUFFER, ONE DEVICE, and the reason it is allowed to work this way is
-	# a property of this method rather than a shortcut.
-	#
-	# Ticking speaks one phrase per transport, and a transport is a DEVICE:
-	# opened, played, closed, per phrase. Three announcements meant three
-	# device open/close cycles, each costing about half a second of silence
-	# before its phrase and risking the end of the one before -- a device is
-	# closed the moment its last frame is READ, which is not when it is heard.
-	#
-	# This method OCCUPIES THE THREAD. Nothing can call Say while it runs, so
-	# the queue it starts with is the queue it finishes with: there is nothing
-	# left to cancel, and rendering the whole of it into one buffer is not a
-	# loss of behaviour, only of churn. TickSpeech keeps the per-phrase
-	# transport precisely because a program that ticks CAN be interrupted, and
-	# there the ability to stop mid-sentence is the point.
+	#   returns    the earcons object itself, so calls chain
+	#   note       with an empty queue it returns at once, and that was the only case run
+	#   warning    it occupies the thread and plays through the audio device, which no run of this
+	#              reference did
+	#   see        Say, TickSpeech
+	#@ aka  Drive the queue to the end. Occupies the thread, which is honest for a script; a program with a UI ticks instead.
 	def SpeakQueueToEnd()
 		# 1. Let whatever a previous TickSpeech already started finish, and do
 		#    NOT start anything new here -- that is step 2's job.
@@ -704,45 +872,88 @@ class stzEarcons
 		@nSpeechSpoken += len(_snds_)
 		return This
 
+	# TRUE if a phrase is being spoken now.
+	#
+	#   returns    TRUE or FALSE
+	#   see        TickSpeech, SpeechQueueDepth
 	def IsSpeaking()
 		return isObject(@oSpeaking)
 
+	# Returns how many phrases wait in the speech queue.
+	#
+	#   returns    a number
+	#   see        Say, SetSpeechQueueMax
 	def SpeechQueueDepth()
 		return len(@aQueue)
 
+	# Returns how many phrases were dropped because the queue was full or a louder one cancelled them.
+	#
+	#   returns    a number
+	#   see        Say, SpeechSpoken
 	def SpeechDrops()
 		return @nSpeechDrops
 
+	# Returns how many phrases were spoken.
+	#
+	#   returns    a number
+	#   see        SpeechDrops, TickSpeech
 	def SpeechSpoken()
 		return @nSpeechSpoken
 
-	# The silence between a cue and its phrase, and between two announcements
-	# when a queue drains as one. Exposed because a guard has to be able to
-	# account for it rather than assume it.
+	# Returns the silence in seconds between a cue and its phrase, and between queued announcements.
+	#
+	#   returns    a number, 0.12
+	#   see        ToSoundOfSaying
+	#@ aka  The silence between a cue and its phrase, and between two announcements when a queue drains as one. Exposed because a guard has to be able to account for it rather than assume it.
 	def SpeechGapSeconds()
 		return @nGapSeconds
 
+	# Sets how many phrases the speech queue holds before it drops more.
+	#
+	#   pn         the queue capacity, a value below 1 being ignored
+	#   returns    the earcons object itself, so calls chain
+	#   note       the capacity starts at 4
+	#   see        SpeechQueueDepth, SpeechDrops
 	def SetSpeechQueueMax(pn)
 		if pn >= 1  @nQueueMax = pn ok
 		return This
 
-	# What a caller must not assume. Ring occupancy plus the measured device
-	# and OS floor -- see plan S.5 for where each number comes from.
+	# Returns the milliseconds between firing a cue and hearing it on this pipeline, a stated figure and not a measurement.
+	#
+	#   returns    a number, 419: 329 for the ring plus 90 for the device
+	#   note       the answer is a constant in the code, whether or not the player is started
+	#   see        CanAcknowledgeWithin
+	#@ aka  What a caller must not assume. Ring occupancy plus the measured device and OS floor -- see plan S.5 for where each number comes from.
 	def TriggerToEarMs()
 		_ring_ = 329
 		if @bStarted  _ring_ = @oPool.Transport().PositionInSeconds() * 0 + 329 ok
 		return _ring_ + 90
 
-	# Rule 18 allows 100 ms. This answers whether a sound can be the
-	# acknowledgement, and on this pipeline the answer is no.
+	# TRUE if a sound can arrive within the given time, which on this pipeline it cannot do inside 100 ms.
+	#
+	#   pnMs       the deadline in milliseconds
+	#   returns    TRUE or FALSE
+	#   note       100 gave FALSE and 500 gave TRUE
+	#   see        TriggerToEarMs
+	#@ aka  Rule 18 allows 100 ms. This answers whether a sound can be the acknowledgement, and on this pipeline the answer is no.
 	def CanAcknowledgeWithin(pnMs)
 		return This.TriggerToEarMs() <= pnMs
 
+	# Stops the sound pool if it is open and marks the object as not started.
+	#
+	#   returns    the earcons object itself, so calls chain
+	#   note       before Start it only clears the flag
+	#   see        Start, Release, IsStarted
 	def Stop()
 		if isObject(@oPool)  @oPool.Stop() ok
 		@bStarted = FALSE
 		return This
 
+	# Stops playing and frees the pool and the motif buffers it holds.
+	#
+	#   returns    nothing; it returns an empty text
+	#   note       call it once, when you are done with the object
+	#   see        Stop
 	def Release()
 		This.Stop()
 		if isObject(@oPool)  @oPool.Release() ok
@@ -750,12 +961,25 @@ class stzEarcons
 			if isObject(@aMotifs[_i_][2])  @aMotifs[_i_][2].Release() ok
 		next
 
+	# TRUE if the sound pool is open.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Start, Stop
 	def IsStarted()
 		return @bStarted
 
+	# Returns the reason of the last refusal or failure.
+	#
+	#   returns    a text, empty when there was none
+	#   note       ToSoundOf also sets it when a meaning is refused
+	#   see        Refusals, LastReason
 	def LastError()
 		return @cLastError
 
+	# Returns how many calls were refused, for example Fire before Start or a positive duck depth.
+	#
+	#   returns    a number
+	#   see        LastError
 	def Refusals()
 		return @nRefusals
 

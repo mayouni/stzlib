@@ -1,0 +1,20 @@
+{
+ "brief": "Describes one optimisation problem under several scenarios, each with a probability, and checks and scores a plan against all of them.",
+ "detail": "Declare variables, constraints and an objective as for stzLinearSolver, then add scenarios: each has a name, a description, parameters such as [ \"d\", 4 ] that are replaced as text inside the expressions and the constraint values, and a probability. The probabilities must add up to 1 when the problem is solved. setSolverType chooses expected, robust, chance or montecarlo. WHAT WORKS TODAY: the description of the problem, the scenario parameters, evaluateConstraintValue, checkScenarioFeasibility, calculateScenarioObjectiveValue, analyzeScenarios and expectedObjectiveValue for a plan you supply. WHAT DOES NOT: solve gives wrong answers. The expected, robust and chance solvers leave every variable at its lower bound, because they update a copy of each solution pair, and calculateScenarioMaxValue answers 999999 (no limit) for every constraint, because its switch label on \"=\" or \"<=\" matches no operator, so the Monte Carlo solver returns upper bounds that break the constraints. The status is optimal in every case. See the defect list of wave 10.",
+ "receiver": "o1 = new stzStochasticSolver()",
+ "example": [
+  "o1.addVariable(\"x\", 0, 10).addVariable(\"y\", 0, 10)",
+  "o1.addScenario(\"low\", \"Low demand\", [ [ \"d\", 4 ] ], 0.4).addScenario(\"high\", \"High demand\", [ [ \"d\", 8 ] ], 0.6)",
+  "o1.addConstraint(\"x + y\", \"<=\", \"d\").maximize(\"3*x + 2*y\")",
+  "? o1.checkScenarioFeasibility([ [ \"x\", 3 ], [ \"y\", 1 ] ], o1.scenarios()[1])",
+  "#--> 1",
+  "? o1.checkScenarioFeasibility([ [ \"x\", 3 ], [ \"y\", 3 ] ], o1.scenarios()[1])",
+  "#--> 0",
+  "? o1.calculateScenarioObjectiveValue([ [ \"x\", 3 ], [ \"y\", 1 ] ], o1.scenarios()[2])",
+  "#--> 11"
+ ],
+ "see": [
+  "stzLinearSolver",
+  "stzMultiObjectiveSolver"
+ ]
+}

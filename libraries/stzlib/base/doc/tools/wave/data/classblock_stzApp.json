@@ -1,0 +1,17 @@
+{
+ "brief": "Holds an application as a world of meaning: its things, instances, flows, reactions, goals, screens and reach, declared in plain words.",
+ "detail": "Declare things with AddThing and their fields with Has, then instances and relations with AddInstance and Relate: these form a graph. Flows, reactions, goals, screens and refinements are cursor builders, each plain verb acting on the one declared last, and each verb has a Q form that returns the world so a brace can follow: AddGoalQ(:Visited) { Means = \"every :Client Has(:visited)\" }. A goal is a wanted state of the graph; Pursue measures its gap and proposes how to close it through the reactions, and Live and Pulse fire the reactions themselves. Explain prints the whole world in words. The world only describes: a stzPlatform wraps it to build, generate shells and serve it.",
+ "receiver": "o1 = new stzApp(\"shop\")",
+ "example": [
+  "o1.AddThingQ(\"Client\").Has([ \"code\", \"name\" ])",
+  "? o1.Things()[1][1]",
+  "#--> Client",
+  "o1.AddInstance(\"anna\", \"Client\")",
+  "o1.AddReactionQ(\"Client\").Propose(\"Visit\")",
+  "? o1.Pulse()",
+  "#--> 1",
+  "? o1.Proposals()[1][4]",
+  "#--> anna"
+ ],
+ "see": ["StzAppQ", "stzPlatform", "stzGraph", "stzGraphGoal"]
+}

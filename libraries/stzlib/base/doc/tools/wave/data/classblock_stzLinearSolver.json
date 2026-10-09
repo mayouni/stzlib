@@ -1,0 +1,22 @@
+{
+ "brief": "Solves small linear programs written as text: variables with bounds, constraints such as x + y <= 5 and one objective to maximize or minimize.",
+ "detail": "Declare the variables with addVariable, the constraints with addConstraint and the objective with maximize or minimize, then call solve with a solver name. The simplex solver (Big-M, run in the engine) gives the exact optimum and reports optimal, infeasible or unbounded in status. The greedy solver, the default, is a heuristic that raises every variable as far as allowed: it does not honour minimize and reads every constraint as a limit from above. The genetic solver raises an error as soon as the problem has a constraint, and branch_bound is not implemented, so it always raises. The integer and binary marks are recorded but no solver enforces them. The simplex pivot helpers (BuildSimplexTableau and its kin) are placeholders that answer constants. Pass an empty text to solve for the default solver, since the argument cannot be left out.",
+ "receiver": "o1 = new stzLinearSolver()",
+ "example": [
+  "o1.addVariable(\"x\", 0, 4).addVariable(\"y\", 0, 6)",
+  "o1.addConstraint(\"x + y\", \"<=\", 5).addConstraint(\"x + 3*y\", \"<=\", 12)",
+  "o1.maximize(\"3*x + 2*y\").solve(\"simplex\")",
+  "? o1.solutionValue(\"x\")",
+  "#--> 4",
+  "? o1.solutionValue(\"y\")",
+  "#--> 1",
+  "? o1.objectiveValue()",
+  "#--> 14",
+  "? o1.status()",
+  "#--> optimal"
+ ],
+ "see": [
+  "stzStochasticSolver",
+  "stzMultiObjectiveSolver"
+ ]
+}

@@ -206,12 +206,28 @@ class stzResourceSpec from stzObject
  #  DEPLOYMENT SITE    #
 #====================#
 
-# A config-described deployment destination (a "target repo"). It carries the
-# ACCESS config -- connection (endpoint/protocol/auth), storage, control -- that
-# makes it reachable and controllable from the programming environment. Distinct
-# from stzSystemProfile (which says what a target CAN DO): this says how to REACH
-# and DRIVE it. Backend-dispatched by kind; :LocalRepo works end to end here, and
-# the config generalizes to real backends (server/git/registry/device) unchanged.
+# Describes where a solution is deployed and how to reach and drive that place: kind, endpoint, protocol, authentication, storage, commands and capacity.
+#
+# A site is configuration first: set it with the Set methods (each has a Q form that returns the
+# site to chain), read it back as data with Config, as lines with ConfigText or as JSON with
+# ConfigJson, and see the commands it would run with Commands, TransferCommand and LaunchCommandLine
+# before anything runs. Authentication is a plain reference, a stzSecret kept behind a redacted
+# descriptor, or a secret held by name in a stzSecretStore and revealed through ResolveAuthVia so
+# that the store audits it. Store, Launch, Status and Rollback act on the target: a local folder is
+# written directly, a git site runs git, a server runs scp and ssh, and registry, device and object-
+# store sites have commands listed but no store backend. A stzDeployment drives sites under a
+# governed actor. The runs behind this reference only configured and read sites; nothing was stored
+# to, launched on or rolled back.
+#
+#   receiver   o1 = new stzDeploymentSite("prod-api")
+#   example    o1.SetKindQ("server").SetEndpointQ("deploy@api.example.test:/srv/api")
+#              ? o1.Protocol()
+#              #--> ssh
+#              ? o1.TransferCommand()
+#              #--> scp -r <staged>/. deploy@api.example.test:/srv/api
+#              ? o1.IsLocal()
+#              #--> 0
+#   see        StzDeploymentSiteQ, stzDeployment, stzResourceSpec, stzSecretStore
 class stzDeploymentSite from stzObject
 
 	@cName = ""
@@ -228,11 +244,21 @@ class stzDeploymentSite from stzObject
 	@bStoreBacked = 0 # auth is a NAME in a central store -- reveal via the store (audited)
 	@cAuthStoreName = ""  # the secret's name in that store
 
+	# Builds a site with the given name, of kind localrepo, with no endpoint, storage, auth, capacity or provider.
+	#
+	#   pcName     the site's name
+	#   returns    nothing; the object is built
+	#   see        SetKind, SetEndpoint
 	def init(pcName)
 		@cName = "" + pcName
 
-	  #-- the access config (Q-fluent: chainable via the ...Q suffix) ---
-
+	# Sets the kind of the site, which decides how it is reached: localrepo, server, gitrepo, registry, device or objectstore.
+	#
+	#   pcKind     the kind, trimmed and lowered
+	#   returns    nothing; use SetKindQ to chain
+	#   note       an unknown kind is accepted and then behaves like a site with no backend
+	#   see        KindName, Protocol, Store
+	#@ aka  -- the access config (Q-fluent: chainable via the ...Q suffix) ---
 	def SetKind(pcKind)
 		This.SetKindQ(pcKind)
 
@@ -240,6 +266,11 @@ class stzDeploymentSite from stzObject
 		@cKind = StzLower(ring_trim("" + pcKind))
 		return This
 
+	# Sets the address of the site, such as a user@host:path or a repository path or URL.
+	#
+	#   pcUrl      the address
+	#   returns    nothing; use SetEndpointQ to chain
+	#   see        EndpointOf, SetProtocol
 	def SetEndpoint(pcUrl)
 		This.SetEndpointQ(pcUrl)
 
@@ -247,6 +278,11 @@ class stzDeploymentSite from stzObject
 		@cEndpoint = "" + pcUrl
 		return This
 
+	# Sets the access protocol, instead of the default of the kind.
+	#
+	#   pcProtocol   the protocol such as ssh, file, git, https or serial, trimmed and lowered
+	#   returns      nothing; use SetProtocolQ to chain
+	#   see          Protocol, SetKind
 	def SetProtocol(pcProtocol)
 		This.SetProtocolQ(pcProtocol)
 
@@ -254,9 +290,15 @@ class stzDeploymentSite from stzObject
 		@cProtocol = StzLower(ring_trim("" + pcProtocol))
 		return This
 
-	# auth is EITHER a plain reference string (e.g. "env/DEPLOY_KEY", back-compat)
-	# OR a stzSecret. When it is a secret, the site stores the OBJECT and displays
-	# only its redacted descriptor -- the key never lands in Config/ConfigJson.
+	# Sets how the site authenticates: a plain reference text, or a stzSecret that the site then keeps behind a redacted descriptor.
+	#
+	#   pRef       a reference text such as env/DEPLOY_KEY, or a stzSecret
+	#   returns    nothing; use SetAuthRefQ to chain
+	#   note       with a secret, the key never appears in Config, ConfigText or ConfigJson, only
+	#              its descriptor
+	#   warning    anything else raises an error
+	#   see        SetAuthFromStore, ResolveAuth, AuthReference
+	#@ aka  auth is EITHER a plain reference string (e.g. "env/DEPLOY_KEY", back-compat) OR a stzSecret. When it is a secret, the site stores the OBJECT and displays only its redacted descriptor -- the key never lands in Config/ConfigJson.
 	def SetAuthRef(pRef)
 		This.SetAuthRefQ(pRef)
 
@@ -276,12 +318,16 @@ class stzDeploymentSite from stzObject
 		ok
 		return This
 
-	# reference the auth secret BY NAME from a central stzSecretStore. The site
-	# holds NO key and NO store object -- only the name (Ring copies objects on
-	# assignment, so a held store would be a private copy whose audit no one sees).
-	# The reveal is done through the SHARED store, passed by reference at reveal
-	# time (ResolveAuthVia), so the store's gate applies AND the store audits it.
-	# This is how a project keeps ONE complete audit trail across every reveal.
+	# Sets the authentication to a secret held by name in a central secret store, so every reveal is audited by that store.
+	#
+	#   poStore    the stzSecretStore that holds the secret
+	#   pcName     the secret's name in that store
+	#   returns    nothing; use SetAuthFromStoreQ to chain
+	#   note       the site keeps the name and the redacted descriptor, never the store or the value
+	#   warning    it raises an error when poStore is not an object and when the store has no secret
+	#              of that name
+	#   see        ResolveAuthVia, SetAuthRef, IsStoreBacked
+	#@ aka  reference the auth secret BY NAME from a central stzSecretStore. The site holds NO key and NO store object -- only the name (Ring copies objects on assignment, so a held store would be a private copy whose audit no one sees). The reveal is done through the SHARED store, passed by reference at reveal time (ResolveAuthVia), so the store's gate applies AND the store audits it. This is how a project k
 	def SetAuthFromStore(poStore, pcName)
 		This.SetAuthFromStoreQ(poStore, pcName)
 
@@ -298,6 +344,11 @@ class stzDeploymentSite from stzObject
 		@cAuthRef = poStore.DescriptorOf(pcName)   # redacted, captured for display/config
 		return This
 
+	# Sets the staging location where artifacts are stored: the folder of a local site, or the staging folder before a copy to a server.
+	#
+	#   pcLocation   the folder path
+	#   returns      nothing; use SetStoreAtQ to chain
+	#   see          StorageLocation, Store
 	def SetStoreAt(pcLocation)
 		This.SetStoreAtQ(pcLocation)
 
@@ -305,6 +356,12 @@ class stzDeploymentSite from stzObject
 		@cStorage = "" + pcLocation
 		return This
 
+	# Sets the command that starts the deployed solution on the site.
+	#
+	#   pcCmd      the command line
+	#   returns    nothing; use SetLaunchWithQ to chain
+	#   note       on a server the command is wrapped in ssh to the host
+	#   see        LaunchCommandLine, Launch
 	def SetLaunchWith(pcCmd)
 		This.SetLaunchWithQ(pcCmd)
 
@@ -312,6 +369,12 @@ class stzDeploymentSite from stzObject
 		@cLaunch = "" + pcCmd
 		return This
 
+	# Sets the command that reports the state of the deployed solution, kept in the config.
+	#
+	#   pcCmd      the command line
+	#   returns    nothing; use SetStatusWithQ to chain
+	#   note       Status does not run it: it is only recorded and shown
+	#   see        Config, Status
 	def SetStatusWith(pcCmd)
 		This.SetStatusWithQ(pcCmd)
 
@@ -319,8 +382,12 @@ class stzDeploymentSite from stzObject
 		@cStatusCmd = "" + pcCmd
 		return This
 
-	# what the host PROVIDES (its capacity). For a real host it is discovered via
-	# the provider API; for a fixed host it is declared here.
+	# Declares what the host provides, as a resource spec, so that feasibility can be checked against what parts need.
+	#
+	#   poSpec     a stzResourceSpec of memory in MB, vCPU and storage in GB
+	#   returns    nothing; use SetCapacityQ to chain
+	#   see        CapacityOf, HasCapacity, SetProvider
+	#@ aka  what the host PROVIDES (its capacity). For a real host it is discovered via the provider API; for a fixed host it is declared here.
 	def SetCapacity(poSpec)
 		This.SetCapacityQ(poSpec)
 
@@ -328,8 +395,12 @@ class stzDeploymentSite from stzObject
 		@oCapacity = poSpec
 		return This
 
-	# name a provisioning provider -> this host can be CREATED/resized to meet a
-	# requirement (IaC-style), not just deployed to.
+	# Declares which cloud or hypervisor, aws or proxmox, can create this host, which makes the site scriptable.
+	#
+	#   pcName     the provider name, trimmed and lowered
+	#   returns    nothing; use SetProviderQ to chain
+	#   see        ProviderName, IsScriptable, ProvisionCommandFor
+	#@ aka  name a provisioning provider -> this host can be CREATED/resized to meet a requirement (IaC-style), not just deployed to.
 	def SetProvider(pcName)
 		This.SetProviderQ(pcName)
 
@@ -337,46 +408,94 @@ class stzDeploymentSite from stzObject
 		@cProvider = StzLower(ring_trim("" + pcName))
 		return This
 
-	  #-- reads ----------------------------------------------
-
+	# Returns the name the site was given.
+	#
+	#   returns    a text
+	#   see        init
+	#@ aka  -- reads ----------------------------------------------
 	def Name()
 		return @cName
 
+	# Returns the kind of the site in lower case.
+	#
+	#   returns    a text, localrepo by default
+	#   see        SetKind
 	def KindName()
 		return @cKind
 
+	# Returns the address of the site.
+	#
+	#   returns    a text; empty when none was set
+	#   see        SetEndpoint
 	def EndpointOf()
 		return @cEndpoint
 
+	# Returns the access protocol: the one set, or the default of the kind.
+	#
+	#   returns    a text: file for localrepo and unknown kinds, ssh for server, git for gitrepo,
+	#              https for registry and objectstore, serial for device
+	#   see        SetProtocol, SetKind
 	def Protocol()
 		if @cProtocol != ""
 			return @cProtocol
 		ok
 		return _StzSiteDefaultProtocol(@cKind)
 
+	# Returns the authentication reference shown for the site.
+	#
+	#   returns    a text: the plain reference, or the redacted descriptor of a secret; empty when
+	#              none
+	#   see        SetAuthRef, ResolveAuth
 	def AuthReference()
 		return @cAuthRef
 
+	# Returns the stzSecret the site holds directly.
+	#
+	#   returns    a stzSecret; an empty text when the site has a plain reference, a store-backed
+	#              secret or nothing
+	#   see        HasAuthSecret, SetAuthRef
 	def AuthSecret()
 		return @oAuthSecret
 
+	# TRUE if the site holds a stzSecret directly.
+	#
+	#   returns    1 or 0
+	#   note       a store-backed secret answers 0 here
+	#   see        HasSecretAuth, AuthSecret
 	def HasAuthSecret()
 		return isObject(@oAuthSecret)
 
+	# TRUE if the authentication is a secret held by name in a central store.
+	#
+	#   returns    1 or 0
+	#   see        SetAuthFromStore, AuthStoreName
 	def IsStoreBacked()
 		return @bStoreBacked
 
+	# Returns the name of the store-held secret used for authentication.
+	#
+	#   returns    a text; empty when the site is not store-backed
+	#   see        SetAuthFromStore, IsStoreBacked
 	def AuthStoreName()
 		return @cAuthStoreName
 
-	# the site holds a secret (directly, or by name in a store) rather than a ref.
+	# TRUE if the authentication is a secret, held directly or by name in a store, rather than a plain reference.
+	#
+	#   returns    1 or 0
+	#   see        HasAuthSecret, IsStoreBacked
+	#@ aka  the site holds a secret (directly, or by name in a store) rather than a ref.
 	def HasSecretAuth()
 		return isObject(@oAuthSecret) or @bStoreBacked
 
-	# the LIVE auth value -- GOVERNED. For a directly-held stzSecret it reveals
-	# with the actor gate; for a plain ref string it returns it as-is. A
-	# STORE-BACKED secret cannot be revealed here -- the store must be passed by
-	# reference so its audit is real; use ResolveAuthVia(store, actor).
+	# Returns the live authentication value: the secret revealed to an actor that may see it, or the plain reference as it is.
+	#
+	#   poActor    the actor asking, which must be effectful and not sandboxed to reveal a secret
+	#   returns    a text
+	#   note       the reveal of a directly held secret is not recorded in a store's access log
+	#   warning    it raises an error for a store-backed site, telling you to use ResolveAuthVia,
+	#              and a language-model actor is refused when the site holds a secret
+	#   see        ResolveAuthVia, SetAuthRef
+	#@ aka  the LIVE auth value -- GOVERNED. For a directly-held stzSecret it reveals with the actor gate; for a plain ref string it returns it as-is. A STORE-BACKED secret cannot be revealed here -- the store must be passed by reference so its audit is real; use ResolveAuthVia(store, actor).
 	def ResolveAuth(poActor)
 		if @bStoreBacked
 			StzRaise("Site '" + @cName + "': auth is store-backed ('" + @cAuthStoreName +
@@ -387,10 +506,16 @@ class stzDeploymentSite from stzObject
 		ok
 		return @cAuthRef
 
-	# the store-aware reveal: the shared store is passed HERE (by reference), so
-	# its gate applies AND it AUDITS the access -- the project's one audit trail
-	# stays complete. For a non-store-backed site the store is ignored and this
-	# behaves like ResolveAuth(actor).
+	# Returns the live authentication value through the shared secret store, so the store's gate applies and the access is logged.
+	#
+	#   poStore    the stzSecretStore that holds the secret
+	#   poActor    the actor asking
+	#   returns    a text
+	#   note       for a site that is not store-backed the store is ignored and the answer is that
+	#              of ResolveAuth
+	#   warning    it raises an error when the site is store-backed and poStore is not an object
+	#   see        ResolveAuth, SetAuthFromStore
+	#@ aka  the store-aware reveal: the shared store is passed HERE (by reference), so its gate applies AND it AUDITS the access -- the project's one audit trail stays complete. For a non-store-backed site the store is ignored and this behaves like ResolveAuth(actor).
 	def ResolveAuthVia(poStore, poActor)
 		if @bStoreBacked
 			if NOT isObject(poStore)
@@ -400,32 +525,55 @@ class stzDeploymentSite from stzObject
 		ok
 		return This.ResolveAuth(poActor)
 
+	# Returns the staging location.
+	#
+	#   returns    a text; empty when none was set
+	#   see        SetStoreAt
 	def StorageLocation()
 		return @cStorage
 
+	# TRUE if the site is a local folder, kind localrepo or local.
+	#
+	#   returns    1 or 0
+	#   see        KindName, Store
 	def IsLocal()
 		return @cKind = "localrepo" or @cKind = "local"
 
+	# Returns the capacity the host was declared to have.
+	#
+	#   returns    a stzResourceSpec; an empty text when none was declared
+	#   see        SetCapacity, HasCapacity
 	def CapacityOf()
 		return @oCapacity
 
+	# TRUE if a capacity was declared.
+	#
+	#   returns    1 or 0
+	#   see        SetCapacity, CapacityOf
 	def HasCapacity()
 		return isObject(@oCapacity)
 
+	# Returns the provisioning provider in lower case.
+	#
+	#   returns    a text; empty when none
+	#   see        SetProvider
 	def ProviderName()
 		return @cProvider
 
+	# TRUE if a provider is named, so that the host can be created by a command.
+	#
+	#   returns    1 or 0
+	#   see        SetProvider, ProvisionCommandFor
 	def IsScriptable()
 		return @cProvider != ""
 
-	# the access config as inspectable DATA -- the LINK between the programming
-	# environment and this site (connection + storage + control).
-	# CAPACITY AND PROVIDER BELONG HERE. They are exactly what _SiteFeasibility()
-	# reads to decide whether a part fits a site or has to be provisioned -- and
-	# they appeared in NONE of the three renderings below. A site could be
-	# declared, printed and saved without the two facts that decide whether the
-	# deployment is possible, and a reloaded site would report "capacity not
-	# declared -- assumed ok", turning a SHORTFALL into a pass.
+	# Returns the access configuration as a nested list of the name, kind, connection, storage, control, capacity and provider.
+	#
+	#   returns    a list of pairs; the connection and control entries are lists of pairs, and
+	#              capacity is a text or (undeclared)
+	#   note       a secret appears only as its descriptor
+	#   see        ConfigText, ConfigJson
+	#@ aka  the access config as inspectable DATA -- the LINK between the programming environment and this site (connection + storage + control). CAPACITY AND PROVIDER BELONG HERE. They are exactly what _SiteFeasibility() reads to decide whether a part fits a site or has to be provisioned -- and they appeared in NONE of the three renderings below. A site could be declared, printed and saved without the two fa
 	def Config()
 		_cap_ = "(undeclared)"
 		if This.HasCapacity()
@@ -441,6 +589,11 @@ class stzDeploymentSite from stzObject
 			[ "provider", @cProvider ]
 		]
 
+	# Returns the configuration as readable lines, naming the site and its kind first.
+	#
+	#   returns    a text with one line per set item: connection, storage, and launch, status,
+	#              capacity and provider when set
+	#   see        Config, Show
 	def ConfigText()
 		_c_ = "site '" + @cName + "' [" + @cKind + "]" + nl
 		_c_ += "  connection: " + This.Protocol() + " -> " + _StzSiteOr(@cEndpoint, "(local)")
@@ -465,8 +618,14 @@ class stzDeploymentSite from stzObject
 		ok
 		return _c_
 
-	# the config, serialized -- so a target site can be SAVED, versioned, shared:
-	# the persistent link the dev/emulation environment reads to reach a site.
+	# Returns the configuration as JSON text, with the capacity as numbers or null.
+	#
+	#   returns    a text
+	#   note       a secret appears only as its descriptor
+	#   warning    quotes and backslashes in a value are not escaped, so a launch command or path
+	#              containing them gives invalid JSON
+	#   see        SaveConfigTo, Config
+	#@ aka  the config, serialized -- so a target site can be SAVED, versioned, shared: the persistent link the dev/emulation environment reads to reach a site.
 	def ConfigJson()
 		_q_ = char(34)
 		_c_ = "{" + nl
@@ -492,21 +651,23 @@ class stzDeploymentSite from stzObject
 		_c_ += "}" + nl
 		return _c_
 
+	# Writes the JSON configuration to a file, overwriting it.
+	#
+	#   pcPath     the file path to write
+	#   returns    the site itself, so calls chain
+	#   warning    the file is overwritten if it exists
+	#   see        ConfigJson
 	def SaveConfigTo(pcPath)
 		write("" + pcPath, This.ConfigJson())
 		return This
 
-	  #-- access + control (LIVE backends, dispatched by kind) --
+	# TRUE if the site can be reached: a local site needs a storage location, a git site answers to git ls-remote, any other needs an endpoint.
 	#
-	# A live backend turns the site config into a REAL command run through the managed
-	# child (SpawnProcess) -- the same path stzBuilder uses to run zig. The commands are
-	# rehearsable (Commands() shows them before anything runs). :LocalRepo uses direct
-	# file ops; :GitRepo runs real git (proven end to end against a local bare repo);
-	# :Server runs scp/ssh; a scriptable host provisions via its provider CLI. The
-	# commands are correct wherever the tool + target exist -- in this sandbox git and
-	# the local repo complete; scp/ssh/docker/aws are generated and run through the same
-	# child, but need a real host/registry/account to finish.
-
+	#   returns    1 or 0
+	#   warning    for a git site it starts a git process against the endpoint, and it was run only
+	#              against a path that is not a repository
+	#   see        Status, Store
+	#@ aka  -- access + control (LIVE backends, dispatched by kind) --
 	def Reachable()
 		if This.IsLocal()
 			return @cStorage != ""
@@ -515,6 +676,15 @@ class stzDeploymentSite from stzObject
 		ok
 		return @cEndpoint != ""
 
+	# Sends artifacts to the site: writes them to the local folder, or commits and pushes them for git, or stages and copies them for a server.
+	#
+	#   paArtifacts   a list of pairs, each a relative file name and its content
+	#   returns       1 if stored, 0 if it failed or the kind has no store backend
+	#   note          this was read from the code and not run against a target
+	#   warning       it writes files and runs git, scp or similar, so only the refusal for a site
+	#                 with no storage was run, and registry, device and objectstore sites return 0
+	#                 although Commands lists a command for the first two
+	#   see           Launch, Status, Commands
 	def Store(paArtifacts)
 		if This.IsLocal()
 			return This._LocalStore(paArtifacts)
@@ -525,6 +695,11 @@ class stzDeploymentSite from stzObject
 		ok
 		return 0
 
+	# Starts the deployed solution: marks a local site as launched, nothing more for git, and runs the launch command over ssh for a server.
+	#
+	#   returns    1 if launched, 0 if it could not be or the kind has no launch backend
+	#   warning    it changes the target, so only the refusal for a site with nothing stored was run
+	#   see        Store, Status, SetLaunchWith
 	def Launch()
 		if This.IsLocal()
 			return This._LocalLaunch()
@@ -535,6 +710,13 @@ class stzDeploymentSite from stzObject
 		ok
 		return 0
 
+	# Returns the state of the site as a word: absent, stored, launched or rolledback.
+	#
+	#   returns    a text; absent for a site with no record and always for server, registry, device
+	#              and objectstore
+	#   note       a local site reads it from its marker file, and a git site is launched when its
+	#              main branch exists
+	#   see        Store, Launch, Rollback
 	def Status()
 		if This.IsLocal()
 			return This._LocalStatus()
@@ -543,6 +725,13 @@ class stzDeploymentSite from stzObject
 		ok
 		return "absent"
 
+	# Withdraws the deployment from a local site by removing its manifest and marking it rolledback.
+	#
+	#   returns    1; it also returns 1 for other kinds, where it does nothing
+	#   warning    it writes into the storage folder, so it was not run on a local site, and reading
+	#              the code shows that with no storage location the paths become /deploy.json and
+	#              /.stzsite at the root of the drive
+	#   see        Store, Status
 	def Rollback()
 		if This.IsLocal()
 			StzFileDelete(@cStorage + "/deploy.json")
@@ -551,8 +740,15 @@ class stzDeploymentSite from stzObject
 		ok
 		return 1   # kind-specific rollback (git revert / instance terminate) -- best effort
 
-	# provision a scriptable host to meet a requirement (the IaC move -- bring the host
-	# into existence, don't just deploy to it). Runs the provider CLI via the child.
+	# Runs the provider command that creates or resizes the host to meet a requirement.
+	#
+	#   poReq      a stzResourceSpec of what the host must provide
+	#   returns    1 if the command ran and exited with 0, 0 if there is no command or it failed
+	#   note       the command to be run is shown first by ProvisionCommandFor
+	#   warning    it runs a provider command line and creates real resources, so only the case with
+	#              no command was run
+	#   see        ProvisionCommandFor, SetProvider
+	#@ aka  provision a scriptable host to meet a requirement (the IaC move -- bring the host into existence, don't just deploy to it). Runs the provider CLI via the child.
 	def Provision(poReq)
 		_cmd_ = This.ProvisionCommandFor(poReq)
 		if _cmd_ = ""
@@ -560,8 +756,12 @@ class stzDeploymentSite from stzObject
 		ok
 		return This._Sh(_cmd_)[1] = 0
 
-	  #-- the real commands, rehearsable (see them before they run) --
-
+	# Returns the store and launch commands that would be run, without running them.
+	#
+	#   returns    a list of pairs, each a step name (store or launch) and its command line; empty
+	#              for a local site with no launch command
+	#   see        TransferCommand, LaunchCommandLine
+	#@ aka  -- the real commands, rehearsable (see them before they run) --
 	def Commands()
 		_out_ = []
 		if This.TransferCommand() != ""
@@ -572,6 +772,12 @@ class stzDeploymentSite from stzObject
 		ok
 		return _out_
 
+	# Returns the command that sends artifacts to the site.
+	#
+	#   returns    a text: git push for gitrepo, scp for server, docker push for registry, esptool
+	#              for device; empty for other kinds
+	#   note       registry and device commands are generated only: Store does not run them
+	#   see        Commands, Store
 	def TransferCommand()
 		if @cKind = "gitrepo" or @cKind = "git"
 			return "git push -f " + @cEndpoint + " HEAD:refs/heads/main"
@@ -584,12 +790,23 @@ class stzDeploymentSite from stzObject
 		ok
 		return ""
 
+	# Returns the command that starts the solution, wrapped in ssh for a server.
+	#
+	#   returns    a text; empty when no launch command was set
+	#   see        SetLaunchWith, Commands
 	def LaunchCommandLine()
 		if @cKind = "server" and @cLaunch != ""
 			return "ssh " + This._SshHost() + " '" + @cLaunch + "'"
 		ok
 		return @cLaunch
 
+	# Returns the provider command that would create a host of the required size, without running it.
+	#
+	#   poReq      a stzResourceSpec giving memory, vCPU and storage
+	#   returns    a text; empty when the provider is not aws or proxmox, or poReq is not an object
+	#   note       the aws command picks t3.micro up to 1024 MB, t3.small to 2048, t3.medium to 4096
+	#              and t3.large above
+	#   see        Provision, SetProvider
 	def ProvisionCommandFor(poReq)
 		if NOT isObject(poReq)
 			return ""
@@ -707,6 +924,10 @@ class stzDeploymentSite from stzObject
 		_o_.Close()
 		return [ _ex_, _out_, _err_ ]
 
+	# Prints the configuration text to the console.
+	#
+	#   returns    nothing
+	#   see        ConfigText
 	def Show()
 		? This.ConfigText()
 

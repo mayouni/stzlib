@@ -30,6 +30,29 @@ func StzAppClusterQ()
 	return new stzAppCluster()
 
 
+# Declares a fleet of worker processes by facet and proxies requests to them round-robin, with failover, circuit breakers, rate limits and latency telemetry.
+#
+# Ring's virtual machine runs one thread, so CPU-bound work is spread over processes: a cluster is a
+# front object plus worker processes, each its own Ring program serving health and work addresses,
+# started and queried through the reactor. Declare the fleet with WithNLP, WithMath, WithSearch,
+# WithVision or WithFacet (any facet of the catalog), AddProfile for a custom one, or
+# RegisterExternalWorker for a worker that already runs. Start spawns the processes, WaitReady waits
+# for their health answers, and Route sends a path to a ready worker of a facet, failing over to the
+# next worker and opening a circuit on a worker that keeps failing. The declaring, reading and
+# refusing parts of this reference were run; Start, the success path of Route and the scale, restart
+# and kill methods start or contact real processes and were read from the code only.
+#
+#   receiver   o1 = new stzAppCluster()
+#   example    o1.WithNLP(2).WithMath(1)
+#              ? o1.FleetSize()
+#              #--> 3
+#              ? o1.WorkersOf("nlp")
+#              #--> 2
+#              ? len(o1.Route("nlp", "/work"))
+#              #--> 0
+#              ? o1.RouteLastStatus()
+#              #--> -1
+#   see        StzAppClusterQ, stzWorkerPool, stzReactor, stzAppServer, stzRequestClassifier
 class stzAppCluster from stzObject
 
 	@oPool = ""          # stzWorkerPool -- profiles + budgets (R8.1)
@@ -56,6 +79,11 @@ class stzAppCluster from stzObject
 		@oLimiter = ""       # stzRateLimiter (per-facet token buckets, opt-in)
 		@nKilled = 0           # lifetime forced-kill count (orphan-cleanup metric)
 
+	# Builds an empty fleet with a worker pool, a reactor, latency telemetry and a rate limiter, and starts no process.
+	#
+	#   returns    nothing; the object is built
+	#   note       the worker program is later run with the interpreter that is running the script
+	#   see        AddProfile, Start
 	def init()
 		@oPool = new stzWorkerPool()
 		@oReactor = new stzReactor()
@@ -64,11 +92,17 @@ class stzAppCluster from stzObject
 		@oTelemetry = new stzClusterTelemetry("cluster")
 		@oLimiter = new stzRateLimiter("cluster")
 
-	#-- declaring the fleet composition ------------------------------------
-
-	# Declare nWorkers processes of a profile (capability tag + caps).
-	# One @aFleet row per worker is created NOW (port assigned at Start),
-	# so FleetSize/WorkersOf are correct before and after launch.
+	# Declares a number of worker processes for a profile, a capability tag with its capabilities, without starting them.
+	#
+	#   pcTag      the profile name, kept in lower case
+	#   paCaps     the list of capabilities of that profile
+	#   nWorkers   how many processes to declare, at least 1
+	#   returns    nothing; use AddProfileQ to chain
+	#   note       declaring the same tag again adds to its worker count, and every row waits with
+	#              port 0 until Start
+	#   warning    it raises an error for fewer than one worker
+	#   see        WithFacet, Start, WorkersOf
+	#@ aka  -- declaring the fleet composition ------------------------------------
 	def AddProfile(pcTag, paCaps, nWorkers)
 		if nWorkers < 1
 			stzraise("A profile needs >= 1 worker.")
@@ -97,31 +131,54 @@ class stzAppCluster from stzObject
 			This.AddProfile(pcTag, paCaps, nWorkers)
 			return This
 
+	# Sets how many workers one routed request may try before giving up; it starts at 3.
+	#
+	#   n          the number of workers to try, a value below 1 being taken as 1
+	#   returns    the cluster itself, so calls chain
+	#   see        Route, SetCircuitBreaker
 	def SetMaxTries(n)
 		if n < 1  n = 1  ok
 		@nMaxTries = n
 		return This
 
-	# Circuit breaker: after nThreshold consecutive failures a worker's
-	# circuit OPENS (it is skipped for nCooldownMs, then half-open: one
-	# probe re-closes on success or re-opens on failure).
+	# Sets how many consecutive failures open a worker's circuit and for how long it then stays skipped; it starts at 3 and 5000 ms.
+	#
+	#   nThreshold    the number of failures that open the circuit, a value below 1 being taken as 1
+	#   nCooldownMs   how long the circuit stays open, in milliseconds
+	#   returns       the cluster itself, so calls chain
+	#   note          after the cooldown one probe request decides whether the circuit closes again
+	#   see           CircuitOpenCount, Route
+	#@ aka  Circuit breaker: after nThreshold consecutive failures a worker's circuit OPENS (it is skipped for nCooldownMs, then half-open: one probe re-closes on success or re-opens on failure).
 	def SetCircuitBreaker(nThreshold, nCooldownMs)
 		if nThreshold < 1  nThreshold = 1  ok
 		@nBreakerThreshold = nThreshold
 		@nBreakerCooldownMs = nCooldownMs
 		return This
 
-	# Rate limit a facet at the front door: nRatePerSec sustained with a
-	# bucket of nBurst (the largest instantaneous burst absorbed). A facet
-	# with no SetRateLimit is UNLIMITED. Requests over the limit are shed
-	# with a -429 status before any worker is touched.
+	# Limits how many requests per second a facet accepts at the front door, so that the excess is refused before any worker is reached.
+	#
+	#   pcFacet       the facet name
+	#   nRatePerSec   the sustained requests per second
+	#   nBurst        the largest burst absorbed at once
+	#   returns       the cluster itself, so calls chain
+	#   note          a facet with no limit is unlimited, and a refused request gives
+	#                 RouteLastStatus -429
+	#   see           TokensAvailable, RateLimitedCount, Route
+	#@ aka  Rate limit a facet at the front door: nRatePerSec sustained with a bucket of nBurst (the largest instantaneous burst absorbed). A facet with no SetRateLimit is UNLIMITED. Requests over the limit are shed with a -429 status before any worker is touched.
 	def SetRateLimit(pcFacet, nRatePerSec, nBurst)
 		@oLimiter.SetLimit(StzLower("" + pcFacet), nRatePerSec, nBurst)
 		return This
 
-	# Register a PRE-EXISTING worker (e.g. a remote/static host) into a
-	# facet's pool -- it participates in routing, failover and health like
-	# a spawned worker. host:port endpoint.
+	# Adds a worker that already runs somewhere, as a ready member of a facet's pool, without spawning anything.
+	#
+	#   pcFacet    the facet name
+	#   pcHost     the worker's host
+	#   nPort      the worker's port
+	#   returns    the cluster itself, so calls chain
+	#   note       it is counted as ready at once and is not verified until HealthCheck or a failed
+	#              request, and Stop and ForceKill leave it alone
+	#   see        AddProfile, Route, HealthCheck
+	#@ aka  Register a PRE-EXISTING worker (e.g. a remote/static host) into a facet's pool -- it participates in routing, failover and health like a spawned worker. host:port endpoint.
 	def RegisterExternalWorker(pcFacet, pcHost, nPort)
 		_cTag_ = StzLower("" + pcFacet)
 		if This._RRIndex(_cTag_) = 0
@@ -132,11 +189,15 @@ class stzAppCluster from stzObject
 		@aFleet + [ _cTag_, nPort, 0, 1, 0, 0, 0, "" + pcHost ]
 		return This
 
-	# THE GENERAL FORM: specialize workers along ANY facet in THIS cluster's
-	# catalog (not just the doc's four). Capabilities, provenance and any
-	# external tool are taken from the pool's own catalog (instance-scoped,
-	# customizable via CatalogQ()/DefineFacet).
-	#   oC.WithFacet(:graph, 2).WithFacet(:knowledge, 2).WithFacet(:neural, 1)
+	# Declares workers for any facet of the cluster's catalog, taking its capabilities and modules from that catalog.
+	#
+	#   pcFacet    a facet name present in the catalog, such as nlp, math, graph or vision
+	#   n          how many worker processes to declare
+	#   returns    the cluster itself, so calls chain
+	#   note       the catalog of this machine held 18 facets, from text and list to vision
+	#   warning    it raises an error for a facet that is not in the catalog
+	#   see        CatalogQ, AddProfile
+	#@ aka  THE GENERAL FORM: specialize workers along ANY facet in THIS cluster's catalog (not just the doc's four). Capabilities, provenance and any external tool are taken from the pool's own catalog (instance-scoped, customizable via CatalogQ()/DefineFacet). oC.WithFacet(:graph, 2).WithFacet(:knowledge, 2).WithFacet(:neural, 1)
 	def WithFacet(pcFacet, n)
 		if NOT @oPool.CatalogQ().Has(pcFacet)
 			stzraise("stzAppCluster.WithFacet: '" + pcFacet + "' is not in this " +
@@ -152,33 +213,79 @@ class stzAppCluster from stzObject
 		ok
 		return This
 
-	# The cluster's facet catalog (instance-scoped -- customize per
-	# deployment: DefineFacet/DefinePolyglotFacet/Drop before WithFacet).
+	# Returns the facet catalog that WithFacet draws from, which can be customised before declaring facets.
+	#
+	#   returns    a catalog object; its Names lists the facets
+	#   see        WithFacet
+	#@ aka  The cluster's facet catalog (instance-scoped -- customize per deployment: DefineFacet/DefinePolyglotFacet/Drop before WithFacet).
 	def CatalogQ()
 		return @oPool.CatalogQ()
 
-	# Sugar for the doc's four (each just a WithFacet over the catalog).
+	# Declares workers for the nlp facet.
+	#
+	#   n          how many worker processes
+	#   returns    the cluster itself, so calls chain
+	#   see        WithFacet, WithMath
+	#@ aka  Sugar for the doc's four (each just a WithFacet over the catalog).
 	def WithNLP(n)
 		return This.WithFacet(:nlp, n)
+	# Declares workers for the math facet.
+	#
+	#   n          how many worker processes
+	#   returns    the cluster itself, so calls chain
+	#   see        WithFacet, WithNLP
 	def WithMath(n)
 		return This.WithFacet(:math, n)
+	# Declares workers for the search facet.
+	#
+	#   n          how many worker processes
+	#   returns    the cluster itself, so calls chain
+	#   see        WithFacet, WithNLP
 	def WithSearch(n)
 		return This.WithFacet(:search, n)
+	# Declares workers for the vision facet.
+	#
+	#   n          how many worker processes
+	#   returns    the cluster itself, so calls chain
+	#   see        WithFacet, WithNLP
 	def WithVision(n)
 		return This.WithFacet(:vision, n)
 
+	# Sets how long each worker process lives before it ends by itself, in milliseconds; it starts at 30000.
+	#
+	#   nMs        the lifetime in milliseconds
+	#   returns    the cluster itself, so calls chain
+	#   note       it applies to workers started afterwards
+	#   see        Start, Stop
 	def SetWorkerTTL(nMs)
 		@nTtlMs = nMs
 		return This
+	# Sets the first port of the fleet; later workers take the next ports in order.
+	#
+	#   nPort      the first port, 47100 by default
+	#   returns    the cluster itself, so calls chain
+	#   see        Start, Ports
 	def SetBasePort(nPort)
 		@nBasePort = nPort
 		return This
+	# Sets the Ring program that launches each worker.
+	#
+	#   pcPath     the path of the Ring executable
+	#   returns    the cluster itself, so calls chain
+	#   note       by default it is the interpreter running the script, or ring
+	#   see        Start
 	def SetRingExe(pcPath)
 		@cRingExe = "" + pcPath
 		return This
 
-	#-- launching the fleet ------------------------------------------------
-
+	# Writes the worker script, spawns one process per declared worker on consecutive ports and records their jobs.
+	#
+	#   returns    the cluster itself, so calls chain
+	#   note       a second call raises an error, and rows added with RegisterExternalWorker are not
+	#              spawned
+	#   warning    it starts real processes and was not run
+	#   see        WaitReady, Stop, SetBasePort
+	#@ aka  -- launching the fleet ------------------------------------------------
 	def Start()
 		if @bStarted
 			stzraise("stzAppCluster already started.")
@@ -203,8 +310,14 @@ class stzAppCluster from stzObject
 		return @oReactor.SubmitSpawn([
 			@cRingExe, @cWorkerScript, "" + nPort, "" + pcTag, "" + @nTtlMs ])
 
-	# Poll every worker's /health until it answers 200 (workers need a
-	# moment to load stzBase + bind). Returns the number now ready.
+	# Polls every worker's health address until all answer or the time runs out, and reports how many are ready.
+	#
+	#   nTimeoutMs   how long to wait in milliseconds
+	#   returns      a number, the workers ready
+	#   warning      it sends requests to the workers' ports, so it was run only on a cluster with
+	#                no worker, where it returned 0 at once
+	#   see          Start, ReadyCount, HealthCheck
+	#@ aka  Poll every worker's /health until it answers 200 (workers need a moment to load stzBase + bind). Returns the number now ready.
 	def WaitReady(nTimeoutMs)
 		_nDeadline_ = StzEngineTimeNowMs() + nTimeoutMs
 		while StzEngineTimeNowMs() < _nDeadline_
@@ -240,13 +353,19 @@ class stzAppCluster from stzObject
 	def _EndpointOf(nIdx)
 		return @aFleet[nIdx][8] + ":" + @aFleet[nIdx][2]
 
-	#-- routing: RETRY-WITH-FAILOVER + per-worker CIRCUIT BREAKER -----------
-
-	# Proxy to a healthy worker of pcTag. On a failed attempt (transport
-	# error or non-2xx), FAIL OVER to the next healthy worker, up to
-	# SetMaxTries. A worker that fails SetCircuitBreaker consecutive times
-	# has its circuit OPENED (skipped for the cooldown, then half-open). A
-	# success resets/closes its circuit. Path is SSRF/CRLF-validated first.
+	# Sends a path to a ready worker of a facet and returns the body, trying other workers of the facet when one fails.
+	#
+	#   pcTag      the facet name
+	#   pcPath     the path and query to request, which must start with a slash and hold no line
+	#              break
+	#   returns    a text, the response body; empty when refused or when every try failed, with Why
+	#              and RouteLastStatus saying why
+	#   note       an unsafe path gives status -1, no ready worker gives -1, a rate limit gives
+	#              -429, and each call gets a trace id that is also sent to the worker as the _trace
+	#              parameter
+	#   warning    the success path sends HTTP to a worker and was not run
+	#   see        RouteLastStatus, Why, SetMaxTries, RouteRequest
+	#@ aka  -- routing: RETRY-WITH-FAILOVER + per-worker CIRCUIT BREAKER -----------
 	def Route(pcTag, pcPath)
 		if NOT This._SafePath(pcPath)
 			@cWhy = "unsafe proxy path rejected (must start with '/', no CRLF): " + pcPath
@@ -316,46 +435,106 @@ class stzAppCluster from stzObject
 			StzEngineTimeNowMs() - _nReqStart_, _nTries_)
 		return ""
 
+	# Returns the HTTP status of the last routed request, or a negative code when none was sent.
+	#
+	#   returns    a number: the status, -1 for no worker or an unsafe path or an undecidable
+	#              request, -429 for a rate-limited one
+	#   see        Route, Why
 	def RouteLastStatus()
 		return @nLastStatus
 
+	# Returns the reason of the last Route.
+	#
+	#   returns    a text such as ok via host:port (attempt 1), no routable worker for facet, or
+	#              rate limited; empty before any Route
+	#   note       RouteRequest does not update it when it cannot classify the request, so it can
+	#              then show an older reason
+	#   see        Route
 	def Why()
 		return @cWhy
 
-	#-- observability (latency percentiles + trace ids) --------------------
-
+	# Returns the telemetry object that holds the latency histograms and recent traces.
+	#
+	#   returns    a stzClusterTelemetry
+	#   see        LatencyStats, RecentTraces
+	#@ aka  -- observability (latency percentiles + trace ids) --------------------
 	def TelemetryQ()
 		return @oTelemetry
 
-	# The trace id assigned to the most recent Route (correlates the front
-	# host's record with the worker's _trace on the wire).
+	# Returns the trace id given to the last Route.
+	#
+	#   returns    a text; empty before any Route
+	#   see        RecentTraces, Route
+	#@ aka  The trace id assigned to the most recent Route (correlates the front host's record with the worker's _trace on the wire).
 	def LastTraceId()
 		return @cLastTrace
 
-	# Tail-aware latency for a facet (ms; the engine histogram bucket bound).
+	# Returns the median latency of a facet's routed requests in milliseconds, as a histogram bucket bound.
+	#
+	#   pcFacet    the facet name
+	#   returns    a number; 0 when no request was timed
+	#   note       a rate-limited request is not timed
+	#   see        LatencyP90, LatencyP99, LatencyStats
+	#@ aka  Tail-aware latency for a facet (ms; the engine histogram bucket bound).
 	def LatencyP50(pcFacet)
 		return @oTelemetry.LatencyP50(pcFacet)
+	# Returns the 90th-percentile latency of a facet's routed requests in milliseconds.
+	#
+	#   pcFacet    the facet name
+	#   returns    a number; 0 when no request was timed
+	#   see        LatencyP50, LatencyP99
 	def LatencyP90(pcFacet)
 		return @oTelemetry.LatencyP90(pcFacet)
+	# Returns the 99th-percentile latency of a facet's routed requests in milliseconds.
+	#
+	#   pcFacet    the facet name
+	#   returns    a number; 0 when no request was timed
+	#   see        LatencyP50, LatencyP90
 	def LatencyP99(pcFacet)
 		return @oTelemetry.LatencyP99(pcFacet)
+	# Returns a facet's request count and latency percentiles as a hash list.
+	#
+	#   pcFacet    the facet name
+	#   returns    a hash list with the keys facet, count, p50, p90, p95 and p99
+	#   see        LatencyP50, RecentTraces
 	def LatencyStats(pcFacet)
 		return @oTelemetry.LatencyStats(pcFacet)
 
-	# The last n request records: [ id, facet, endpoint, status, durMs, attempts ].
+	# Returns the last records of routed requests.
+	#
+	#   n          how many of the latest records to return
+	#   returns    a list of lists, each with the trace id, the facet, the endpoint, the status, the
+	#              duration in milliseconds and the number of attempts
+	#   note       a refused request is recorded too, with the endpoint ratelimited or none
+	#   see        LastTraceId, LatencyStats
+	#@ aka  The last n request records: [ id, facet, endpoint, status, durMs, attempts ].
 	def RecentTraces(n)
 		return @oTelemetry.RecentTraces(n)
 
-	#-- rate limiting (front-door admission) -------------------------------
-
+	# Returns the rate limiter that admits requests at the front door.
+	#
+	#   returns    a stzRateLimiter
+	#   see        SetRateLimit
+	#@ aka  -- rate limiting (front-door admission) -------------------------------
 	def LimiterQ()
 		return @oLimiter
 
-	# How many requests this facet has shed for exceeding its rate limit.
+	# Returns how many requests of a facet were refused for exceeding its rate limit.
+	#
+	#   pcFacet    the facet name
+	#   returns    a number
+	#   see        SetRateLimit, TokensAvailable
+	#@ aka  How many requests this facet has shed for exceeding its rate limit.
 	def RateLimitedCount(pcFacet)
 		return @oLimiter.RejectedCount(pcFacet)
 
-	# Tokens left in a facet's bucket (-1 = unlimited / no limit configured).
+	# Returns how many requests a facet can still admit right now.
+	#
+	#   pcFacet    the facet name
+	#   returns    a number; -1 for a facet with no limit
+	#   note       the bucket refills with time, so the figure drifts between two reads
+	#   see        SetRateLimit, RateLimitedCount
+	#@ aka  Tokens left in a facet's bucket (-1 = unlimited / no limit configured).
 	def TokensAvailable(pcFacet)
 		return @oLimiter.Available(pcFacet)
 
@@ -418,6 +597,10 @@ class stzAppCluster from stzObject
 		ok
 		return This
 
+	# Returns how many workers currently have an open circuit, and so are skipped.
+	#
+	#   returns    a number
+	#   see        SetCircuitBreaker, Route
 	def CircuitOpenCount()
 		_nNow_ = StzEngineTimeNowMs()
 		_n_ = 0
@@ -434,11 +617,18 @@ class stzAppCluster from stzObject
 		next
 		return 0
 
-	#-- introspection ------------------------------------------------------
-
+	# Returns how many workers are declared, ready or not.
+	#
+	#   returns    a number
+	#   see        ReadyCount, WorkersOf
+	#@ aka  -- introspection ------------------------------------------------------
 	def FleetSize()
 		return len(@aFleet)
 
+	# Returns how many workers are marked ready.
+	#
+	#   returns    a number
+	#   see        FleetSize, HealthCheck
 	def ReadyCount()
 		_n_ = 0
 		_nF_ = len(@aFleet)
@@ -447,6 +637,11 @@ class stzAppCluster from stzObject
 		next
 		return _n_
 
+	# Returns how many workers a profile has declared.
+	#
+	#   pcTag      the profile name, in any case
+	#   returns    a number; 0 for an unknown profile
+	#   see        FleetSize, AddProfile
 	def WorkersOf(pcTag)
 		_c_ = StzLower("" + pcTag)
 		_n_ = 0
@@ -456,6 +651,10 @@ class stzAppCluster from stzObject
 		next
 		return _n_
 
+	# Returns the port of each worker in declaration order.
+	#
+	#   returns    a list of numbers; 0 for a worker not yet started
+	#   see        Start, SetBasePort
 	def Ports()
 		_a_ = []
 		_nF_ = len(@aFleet)
@@ -464,16 +663,25 @@ class stzAppCluster from stzObject
 		next
 		return _a_
 
+	# Returns the worker pool that holds the profiles and their budgets.
+	#
+	#   returns    a stzWorkerPool
+	#   see        AddProfile
 	def PoolQ()
 		return @oPool
 
+	# Returns the reactor that spawns the workers and sends the requests.
+	#
+	#   returns    a stzReactor; an empty text after Stop
+	#   see        Start
 	def ReactorQ()
 		return @oReactor
 
-	#-- R8.2 smart routing (classify -> route) -----------------------------
-
-	# A request classifier bound to THIS cluster's facet catalog (created
-	# lazily, after facets are declared).
+	# Returns the request classifier bound to this cluster's facet catalog, creating it on first use.
+	#
+	#   returns    a stzRequestClassifier
+	#   see        RouteRequest, CatalogQ
+	#@ aka  -- R8.2 smart routing (classify -> route) -----------------------------
 	def ClassifierQ()
 		if @oClassifier = ""
 			@oClassifier = new stzRequestClassifier()
@@ -481,9 +689,19 @@ class stzAppCluster from stzObject
 		ok
 		return @oClassifier
 
-	# Classify a request to a facet (R8.2), then proxy it to a worker of
-	# that facet (R8.3). Returns the response body; "" (with negative
-	# RouteLastStatus) when the request is undecidable or has no worker.
+	# Classifies a request to a facet, then routes its path to a worker of that facet.
+	#
+	#   pcMethod        the HTTP method
+	#   pcPath          the request path
+	#   pcContentType   the content type
+	#   pcBody          the request body
+	#   returns         a text, the response body; empty when the request cannot be classified or no
+	#                   worker is ready
+	#   note            the classifier returned math for /math/solve and nothing for /work?q=hello,
+	#                   and no worker was ready in the run
+	#   warning         an unclassified request leaves RouteLastStatus at -1
+	#   see             Route, ClassifierQ
+	#@ aka  Classify a request to a facet (R8.2), then proxy it to a worker of that facet (R8.3). Returns the response body; "" (with negative RouteLastStatus) when the request is undecidable or has no worker.
 	def RouteRequest(pcMethod, pcPath, pcContentType, pcBody)
 		_cFacet_ = This.ClassifierQ().Classify(pcMethod, pcPath, pcContentType, pcBody)
 		if _cFacet_ = ""
@@ -492,11 +710,14 @@ class stzAppCluster from stzObject
 		ok
 		return This.Route(_cFacet_, pcPath)
 
-	#-- R8.4 health + elastic scale (the supervision surface) --------------
-
-	# Re-probe every worker's /health and refresh its ready flag. A worker
-	# that stops answering (crashed, exited its TTL) flips to NOT ready.
-	# Returns the number ready now.
+	# Asks every started worker for its health again and refreshes whether it is ready.
+	#
+	#   returns    a number, the workers ready now
+	#   note       a worker that stops answering turns not ready
+	#   warning    it sends requests to the workers' ports and was run only on a cluster with no
+	#              started worker, where it returned 0
+	#   see        WaitReady, DeadCount, RestartDead
+	#@ aka  -- R8.4 health + elastic scale (the supervision surface) --------------
 	def HealthCheck()
 		_nReady_ = 0
 		_nF_ = len(@aFleet)
@@ -508,7 +729,11 @@ class stzAppCluster from stzObject
 		next
 		return _nReady_
 
-	# Workers that were launched but are not answering (crashed / expired).
+	# Returns how many started workers are not answering and are not being drained.
+	#
+	#   returns    a number
+	#   see        HealthCheck, RestartDead
+	#@ aka  Workers that were launched but are not answering (crashed / expired).
 	def DeadCount()
 		_n_ = 0
 		_nF_ = len(@aFleet)
@@ -519,9 +744,14 @@ class stzAppCluster from stzObject
 		next
 		return _n_
 
-	# Add ONE worker of a profile (elastic scale-up). Spawns a new process
-	# on a fresh port; call WaitReady()/HealthCheck() to see it come up.
-	# Returns the new port.
+	# Spawns one more worker of a profile on a fresh port.
+	#
+	#   pcTag      the profile name
+	#   returns    a number, the new port
+	#   note       the new worker is not ready until WaitReady or HealthCheck sees it answer
+	#   warning    it starts a real process, so only the error for an unknown profile was run
+	#   see        ScaleDown, WaitReady
+	#@ aka  Add ONE worker of a profile (elastic scale-up). Spawns a new process on a fresh port; call WaitReady()/HealthCheck() to see it come up. Returns the new port.
 	def ScaleUp(pcTag)
 		_cTag_ = StzLower("" + pcTag)
 		if This._RRIndex(_cTag_) = 0
@@ -534,11 +764,13 @@ class stzAppCluster from stzObject
 		@oPool.ProfileQ(_cTag_).SetBudget(@oPool.ProfileQ(_cTag_).Budget() + 1)
 		return _nPort_
 
-	# GRACEFUL drain-down: mark one ready worker of a profile DRAINING --
-	# routing stops immediately (it finishes in-flight work), and the
-	# process self-exits on its TTL. Returns the drained port, or 0 if
-	# there is nothing to drain. (Forced kill of a hung worker is a small
-	# future engine add; drain is the graceful path.)
+	# Marks one ready worker of a profile as draining, so it receives no new requests and ends on its own lifetime.
+	#
+	#   pcTag      the profile name
+	#   returns    a number, the drained worker's port; 0 when no ready worker is left to drain
+	#   note       it does not stop the process: only the nothing-to-drain case was run
+	#   see        ScaleUp, ForceKill
+	#@ aka  GRACEFUL drain-down: mark one ready worker of a profile DRAINING -- routing stops immediately (it finishes in-flight work), and the process self-exits on its TTL. Returns the drained port, or 0 if there is nothing to drain. (Forced kill of a hung worker is a small future engine add; drain is the graceful path.)
 	def ScaleDown(pcTag)
 		_cTag_ = StzLower("" + pcTag)
 		_nF_ = len(@aFleet)
@@ -553,8 +785,13 @@ class stzAppCluster from stzObject
 		next
 		return 0
 
-	# Respawn every dead worker in place (health-driven self-healing).
-	# Returns the number restarted.
+	# Respawns every dead worker on a fresh port, killing the old process first.
+	#
+	#   returns    a number, how many workers were restarted
+	#   warning    it starts real processes when a worker is dead, and only the case with none dead
+	#              was run
+	#   see        HealthCheck, DeadCount
+	#@ aka  Respawn every dead worker in place (health-driven self-healing). Returns the number restarted.
 	def RestartDead()
 		_nRestarted_ = 0
 		_nF_ = len(@aFleet)
@@ -579,13 +816,14 @@ class stzAppCluster from stzObject
 		next
 		return _nRestarted_
 
-	#-- forced kill + orphan cleanup (the forceful sibling of drain) --------
-
-	# Force-kill EVERY spawned worker of a facet (SIGKILL). The forceful
-	# counterpart to ScaleDown's graceful drain: use it on a WEDGED worker
-	# that neither answers health nor self-exits on its TTL. Marks each not
-	# ready and returns how many were actually killed. External workers
-	# (RegisterExternalWorker, jobId 0) are NOT ours to kill and are skipped.
+	# Kills every spawned worker of a facet at once and marks it not ready.
+	#
+	#   pcTag      the facet name
+	#   returns    a number, how many processes were killed
+	#   note       workers added with RegisterExternalWorker are skipped
+	#   warning    it ends real processes, and only a facet with no spawned worker was run
+	#   see        ScaleDown, KilledCount
+	#@ aka  -- forced kill + orphan cleanup (the forceful sibling of drain) --------
 	def ForceKill(pcTag)
 		_cTag_ = StzLower("" + pcTag)
 		_n_ = 0
@@ -597,8 +835,11 @@ class stzAppCluster from stzObject
 		next
 		return _n_
 
-	# Total workers force-killed over the cluster's life (a hung-worker /
-	# orphan-cleanup signal for the health console).
+	# Returns how many worker processes were forcibly killed over the cluster's life.
+	#
+	#   returns    a number
+	#   see        ForceKill, Stop
+	#@ aka  Total workers force-killed over the cluster's life (a hung-worker / orphan-cleanup signal for the health console).
 	def KilledCount()
 		return @nKilled
 
@@ -612,7 +853,11 @@ class stzAppCluster from stzObject
 		ok
 		return 0                                 # -3 already exited, etc.
 
-	# A per-profile metrics snapshot the supervisor reads (REAL counts).
+	# Returns, for each profile, how many workers are declared, ready, draining and dead.
+	#
+	#   returns    a list of hash lists with the keys tag, total, ready, draining and dead
+	#   see        HealthCheck, DeadCount
+	#@ aka  A per-profile metrics snapshot the supervisor reads (REAL counts).
 	def FleetMetrics()
 		_a_ = []
 		_aTags_ = @oPool.Tags()
@@ -638,9 +883,12 @@ class stzAppCluster from stzObject
 		next
 		return _a_
 
-	#-- teardown -----------------------------------------------------------
-	# R8.3: workers self-terminate on their TTL. Graceful drain / kill /
-	# health-restart / autoscale is R8.4 (stzAgentHost supervision).
+	# Kills every spawned worker and frees the reactor, telemetry and rate limiter.
+	#
+	#   returns    the cluster itself, so calls chain
+	#   note       it was run only on a cluster that had spawned nothing
+	#   see        Start, ForceKill
+	#@ aka  -- teardown ----------------------------------------------------------- R8.3: workers self-terminate on their TTL. Graceful drain / kill / health-restart / autoscale is R8.4 (stzAgentHost supervision).
 	def Stop()
 		if @oReactor != ""
 			# ORPHAN CLEANUP: force-kill every worker PROCESS we spawned so

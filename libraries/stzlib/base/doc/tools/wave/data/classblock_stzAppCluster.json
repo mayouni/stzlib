@@ -1,0 +1,23 @@
+{
+ "brief": "Declares a fleet of worker processes by facet and proxies requests to them round-robin, with failover, circuit breakers, rate limits and latency telemetry.",
+ "detail": "Ring's virtual machine runs one thread, so CPU-bound work is spread over processes: a cluster is a front object plus worker processes, each its own Ring program serving health and work addresses, started and queried through the reactor. Declare the fleet with WithNLP, WithMath, WithSearch, WithVision or WithFacet (any facet of the catalog), AddProfile for a custom one, or RegisterExternalWorker for a worker that already runs. Start spawns the processes, WaitReady waits for their health answers, and Route sends a path to a ready worker of a facet, failing over to the next worker and opening a circuit on a worker that keeps failing. The declaring, reading and refusing parts of this reference were run; Start, the success path of Route and the scale, restart and kill methods start or contact real processes and were read from the code only.",
+ "receiver": "o1 = new stzAppCluster()",
+ "example": [
+  "o1.WithNLP(2).WithMath(1)",
+  "? o1.FleetSize()",
+  "#--> 3",
+  "? o1.WorkersOf(\"nlp\")",
+  "#--> 2",
+  "? len(o1.Route(\"nlp\", \"/work\"))",
+  "#--> 0",
+  "? o1.RouteLastStatus()",
+  "#--> -1"
+ ],
+ "see": [
+  "StzAppClusterQ",
+  "stzWorkerPool",
+  "stzReactor",
+  "stzAppServer",
+  "stzRequestClassifier"
+ ]
+}

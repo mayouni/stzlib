@@ -47,6 +47,31 @@ func StzGuiAvailable()
 	ok
 	return StzEngineGuiIsAvailable() = 1
 
+# Lays out an interface document with the RmlUi engine and hands the result over as triangles, text commands, boxes and events.
+#
+# A panel is neither a window nor a renderer: it computes where things go and leaves drawing to a
+# canvas, so the same layout reaches an SVG on a machine with no graphics card. The markup is loaded
+# as a text (LoadMarkup), never from a file, because it is meant to be emitted by a higher layer.
+# After Layout the panel answers where an element sits (BoxOf), what lies under a point (ElementAt),
+# which elements the keyboard reaches (TabRing) and what input produced (Events, drained by the
+# caller and never dispatched back into Ring). SetTextOf and SetStyleOf change one element without
+# loading the document again. RML has no default stylesheet, so give a div display: block and the
+# body width: 100% to fill the panel. Pointer verbs act on the layout, so call Layout first. The
+# event queue and the counters belong to the engine and are shared by every panel. Needs
+# stz_gui.dll; ask StzGuiAvailable() first. Free the panel when done.
+#
+#   receiver   o1 = new stzPanel(320, 200)
+#   example    o1.LoadMarkup('<rml><head><style>body { width: 100%; height: 100%; } div { display: block; } #bar { height: 48px; background-color: #2b6cb0; } .b { width: 100px; height: 30px; tab-index: auto; }</style></head><body><div id="bar"/><div id="one" class="b"/><div id="two" class="b"/></body></rml>')
+#              o1.Layout()
+#              ? @@( o1.BoxOf("bar") )
+#              #--> [ 0, 0, 320, 48 ]
+#              ? @@( o1.TabRing() )
+#              #--> [ "one", "two" ]
+#              ? o1.ElementAt(10, 10)
+#              #--> bar
+#              ? o1.TriangleCount()
+#              #--> 2
+#   see        stzCanvas, stzWindow, stzFont, StzGuiAvailable
 class stzPanel from stzObject
 
 	@nId = 0
@@ -55,6 +80,15 @@ class stzPanel from stzObject
 	@bLoaded = FALSE
 	@aFonts = []       # [ [ engineFontId, stzFont ], ... ] -- see UseFont
 
+	# Builds a panel of the given size in pixels, backed by one engine layout context.
+	#
+	#   pnW        the width in pixels, from 1 to 16384
+	#   pnH        the height in pixels, from 1 to 16384
+	#   returns    nothing; the object is built
+	#   note       ask StzGuiAvailable() first: an absent engine is a legitimate state
+	#   warning    raises an error when the machine has no layout engine, when a size is not a
+	#              number, and when a size is out of range (0 by 0 is refused)
+	#   see        LoadMarkup, Free
 	def init(pnW, pnH)
 		if NOT (isNumber(pnW) and isNumber(pnH))
 			StzRaise("stzPanel: give a width and a height in pixels.")
@@ -72,23 +106,48 @@ class stzPanel from stzObject
 		@nW = pnW
 		@nH = pnH
 
-	#-- identity ------------------------------------------------------------
-
+	# Returns the number of the engine context that holds this panel.
+	#
+	#   returns    a number
+	#   note       0 after Free
+	#   see        IsAlive, Free
+	#@ aka  -- identity ------------------------------------------------------------
 	def Id_()
 		return @nId
 
+	# Returns the width of the panel in pixels.
+	#
+	#   returns    a number
+	#   see        Height, Resize
 	def Width()
 		return @nW
 
+	# Returns the height of the panel in pixels.
+	#
+	#   returns    a number
+	#   see        Width, Resize
 	def Height()
 		return @nH
 
+	# TRUE if the engine still holds this panel, FALSE after Free.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Free, Layout
 	def IsAlive()
 		return @nId > 0 and StzEngineGuiUpdate(@nId) = 0
 
-	#-- the document --------------------------------------------------------
-
-	# Markup as a STRING, because markup is emitted. See the header.
+	# Loads a document written in RML, the XML dialect of RmlUi, from a text; no file is read.
+	#
+	#   pcRml      the markup as text
+	#   returns    nothing
+	#   note       RML has no default stylesheet, so a div needs display: block to take a box; a
+	#              body needs width: 100% to fill the panel; a box joins the tab ring with tab-
+	#              index: auto
+	#   warning    does not raise for malformed markup today: an unclosed br and the text this is
+	#              not markup were both accepted, HasDocument answered TRUE, and only the first left
+	#              an error text in LastEngineMessage
+	#   see        LoadMarkupQ, Layout, LastEngineMessage
+	#@ aka  -- the document --------------------------------------------------------
 	def LoadMarkup(pcRml)
 		_n_ = StzEngineGuiLoadRml(@nId, "" + pcRml)
 		if _n_ != 0
@@ -102,11 +161,22 @@ class stzPanel from stzObject
 		This.LoadMarkup(pcRml)
 		return This
 
+	# TRUE if markup has been loaded into this panel.
+	#
+	#   returns    TRUE or FALSE
+	#   note       it records that a load was accepted, not that the markup was well formed
+	#   see        LoadMarkup
 	def HasDocument()
 		return @bLoaded
 
-	# Lay out. Cheap when nothing changed: G0 measured a still frame at
-	# 1/362 of a dirty one, and 500 still frames re-compiled zero geometry.
+	# Lays the loaded document out in the panel; cheap when nothing has changed.
+	#
+	#   returns    nothing
+	#   note       pointer events and ElementAt see the layout, so call it before ClickAt and the
+	#              other pointer verbs: a click made before the first Layout produced no event
+	#   warning    raises an error once the panel has been freed
+	#   see        Record, BoxOf, Resize
+	#@ aka  Lay out. Cheap when nothing changed: G0 measured a still frame at 1/362 of a dirty one, and 500 still frames re-compiled zero geometry.
 	def Layout()
 		if StzEngineGuiUpdate(@nId) != 0
 			StzRaise("stzPanel.Layout: the panel is no longer alive.")
@@ -116,6 +186,13 @@ class stzPanel from stzObject
 		This.Layout()
 		return This
 
+	# Changes the panel size and lays the document out again; FALSE when the engine refuses the size.
+	#
+	#   pnW        the new width in pixels
+	#   pnH        the new height in pixels
+	#   returns    TRUE or FALSE
+	#   note       a body with width: 100% follows the new width
+	#   see        Width, Height, Layout
 	def Resize(pnW, pnH)
 		if StzEngineGuiContextResize(@nId, pnW, pnH) != 0
 			return FALSE
@@ -129,115 +206,158 @@ class stzPanel from stzObject
 		This.Resize(pnW, pnH)
 		return This
 
-	# RmlUi's clock, driven by the caller -- so a test frame is
-	# deterministic instead of depending on when it ran.
+	# Sets the clock RmlUi animates by, in seconds, so a frame does not depend on when it ran.
+	#
+	#   pnSeconds   the time in seconds
+	#   returns     nothing
+	#   see         Layout
+	#@ aka  RmlUi's clock, driven by the caller -- so a test frame is deterministic instead of depending on when it ran.
 	def SetTime(pnSeconds)
 		StzEngineGuiSetTime(pnSeconds)
 
-	#-- the geometry --------------------------------------------------------
-
-	# Lay out if needed, then record the triangles. Called for you by
-	# DrawInto and by Verts/Indices; a caller driving its own frame loop
-	# may call it directly.
+	# Lays out if needed, then records the triangles and text commands the next reads will return.
+	#
+	#   returns    nothing
+	#   note       DrawInto, Verts, Indices and TriangleCount call it for you
+	#   warning    raises an error once the panel has been freed
+	#   see        Verts, Indices, Texts
+	#@ aka  -- the geometry --------------------------------------------------------
 	def Record()
 		This.Layout()
 		if StzEngineGuiRender(@nId) != 0
 			StzRaise("stzPanel.Record: the panel is no longer alive.")
 		ok
 
-	# Flat x, y, r, g, b, a per vertex -- pixel space, channels 0..255.
+	# Returns the vertices of the recorded triangles as one flat list of x, y, r, g, b, a per vertex.
+	#
+	#   returns    a list of numbers, six per vertex, in pixels and 0 to 255
+	#   note       a document with no painted box answers an empty list; a div painted at all needs
+	#              display: block
+	#   see        Indices, TriangleCount
+	#@ aka  Flat x, y, r, g, b, a per vertex -- pixel space, channels 0..255.
 	def Verts()
 		This.Record()
 		return StzEngineGuiVerts()
 
-	# Flat 0-based triangle indices.
+	# Returns the 0-based triangle corners that index into the vertices.
+	#
+	#   returns    a list of numbers, three per triangle
+	#   see        Verts, TriangleCount
+	#@ aka  Flat 0-based triangle indices.
 	def Indices()
 		This.Record()
 		return StzEngineGuiIndices()
 
+	# Returns how many triangles the layout drew.
+	#
+	#   returns    a number
+	#   note       one painted box is two triangles
+	#   warning    raises an error once the panel has been freed
+	#   see        Verts, Indices
 	def TriangleCount()
 		This.Record()
 		return floor(len(StzEngineGuiIndices()) / 3)
 
-	# [ draws, droppedTexturedDraws, ignoredScissors, widthCalls,
-	#   generateCalls, keyboardActivations, widthCacheHits, shapeCalls,
-	#   textMeshes, textDraws, textDrops, textReleases ]
+	# Returns the twelve counters of the engine's last render as one list; the named readers pick single ones.
 	#
-	# A bounded record COUNTS what it drops, which is why the second and
-	# third entries exist: a panel that quietly rendered fewer triangles
-	# than it was given would be indistinguishable from one that rendered
-	# them all.
-	#
-	# The last two are G2's, and they are the phase's own gauge. G0
-	# measured 988 GetStringWidth calls per re-layout, unmemoized by
-	# RmlUi; at ~1 us per real shape that is ~1 ms/frame before a glyph
-	# is drawn, so the plan made a width cache a PRECONDITION. widthCalls
-	# is what RmlUi asked for and shapeCalls is what actually reached the
-	# shaper -- the gap between them is the cache doing its job, and if
-	# they ever converge the precondition has silently lapsed.
+	#   returns    a list of 12 numbers
+	#   note       the twelve, in order, are draws, dropped textured draws, ignored scissors, width
+	#              calls, generate calls, keyboard activations, width cache hits, shape calls, text
+	#              meshes, text draws, text drops, text releases; they belong to the engine, not to
+	#              one panel: a new panel reads the figures of the last render, and a fresh process
+	#              starts at zeros
+	#   see        WidthCalls, TextIsWhole, DroppedTexturedDraws
+	#@ aka  [ draws, droppedTexturedDraws, ignoredScissors, widthCalls, generateCalls, keyboardActivations, widthCacheHits, shapeCalls, textMeshes, textDraws, textDrops, textReleases ]
 	def Counters()
 		return StzEngineGuiCounters()
 
+	# Returns how many times RmlUi asked the font engine for a string width.
+	#
+	#   returns    a number
+	#   see        ShapeCalls, WidthCacheHits
 	def WidthCalls()
 		_a_ = This.Counters()
 		return _a_[4]
 
+	# Returns how many width requests reached the shaper; the gap to WidthCalls is the width cache at work.
+	#
+	#   returns    a number
+	#   see        WidthCalls, WidthCacheHits
 	def ShapeCalls()
 		_a_ = This.Counters()
 		return _a_[8]
 
+	# Returns how many width requests the cache answered without shaping.
+	#
+	#   returns    a number
+	#   see        WidthCalls, ShapeCalls
 	def WidthCacheHits()
 		_a_ = This.Counters()
 		return _a_[7]
 
-	# Every string the font engine was asked to generate must become one
-	# tagged mesh. TextMeshes() < GenerateCalls() means a string was
-	# measured and then produced no geometry -- which is text vanishing
-	# silently, with nothing else moving to say so.
+	# Returns how many strings became one tagged text mesh.
 	#
-	# That is not hypothetical: registering one font family twice used to
-	# free the id the existing faces pointed at, so widths came back -1,
-	# the quads were zero-wide, RmlUi culled them, and whichever panel had
-	# been built first lost its text. Two panels sharing a font is all it
-	# took, and every single-panel guard stayed green. The invariant lives
-	# here now so the next such bug is a failing number, not a screenshot.
+	#   returns    a number
+	#   see        GenerateCalls, TextIsWhole
+	#@ aka  Every string the font engine was asked to generate must become one tagged mesh. TextMeshes() < GenerateCalls() means a string was measured and then produced no geometry -- which is text vanishing silently, with nothing else moving to say so.
 	def TextMeshes()
 		_a_ = This.Counters()
 		return _a_[9]
 
+	# Returns how many strings the font engine was asked to generate.
+	#
+	#   returns    a number
+	#   see        TextMeshes, TextIsWhole
 	def GenerateCalls()
 		_a_ = This.Counters()
 		return _a_[5]
 
+	# Returns how many text draw commands were recorded.
+	#
+	#   returns    a number
+	#   see        TextMeshes, Texts
 	def TextDraws()
 		_a_ = This.Counters()
 		return _a_[10]
 
-	# TRUE when every generated string became geometry.
+	# TRUE if every generated string became geometry and none was released unused.
+	#
+	#   returns    TRUE or FALSE
+	#   note       FALSE means text vanished silently; 1 with no font loaded and no text is still
+	#              TRUE
+	#   see        TextMeshes, GenerateCalls
+	#@ aka  TRUE when every generated string became geometry.
 	def TextIsWhole()
 		_a_ = This.Counters()
 		return _a_[9] = _a_[5] and _a_[11] = 0
 
+	# Returns how many textured draws the bounded record had to drop.
+	#
+	#   returns    a number
+	#   note       a dropped draw is counted, not hidden
+	#   see        Counters, IgnoredScissors
 	def DroppedTexturedDraws()
 		_a_ = This.Counters()
 		return _a_[2]
 
+	# Returns how many scissor rectangles the record ignored.
+	#
+	#   returns    a number
+	#   see        Counters, DroppedTexturedDraws
 	def IgnoredScissors()
 		_a_ = This.Counters()
 		return _a_[3]
 
-	#-- fonts (G2) ----------------------------------------------------------
-
-	# Bind a family name -- what a document's font-family refers to -- to
-	# real TTF/OTF bytes. From here RmlUi lays out with SHAPED widths:
-	# Arabic joins, kerning kerns, and a line breaks where the glyphs
-	# actually end rather than where a monospace guess put them.
+	# Binds a font family name used in the document to the bytes of a TTF or OTF font, and returns the stzFont to paint with.
 	#
-	# The SAME bytes go to both DLLs: this one measures with them, the
-	# graphics plane paints with them. Two copies of one pipeline over one
-	# file cannot disagree; a protocol between them could.
-	#
-	# Answers an stzFont for the caller to paint with, or NULL on refusal.
+	#   pcFamily        the family name the document's font-family refers to
+	#   pcPathOrBytes   a path to a font file, or the font bytes themselves
+	#   returns         an stzFont, or NULL when the engine refuses the bytes
+	#   note            text that is not a font, such as not a font at all, answers NULL; the font
+	#                   engine measures with these bytes and the canvas paints with them
+	#   warning         raises an error when the path or bytes are empty
+	#   see             FontCount, FontFor, LoadMarkup
+	#@ aka  -- fonts (G2) ----------------------------------------------------------
 	def UseFont(pcFamily, pcPathOrBytes)
 		_cBytes_ = "" + pcPathOrBytes
 		if len(_cBytes_) < 512 and fexists(_cBytes_)
@@ -259,12 +379,20 @@ class stzPanel from stzObject
 		This.UseFont(pcFamily, pcPathOrBytes)
 		return This
 
+	# Returns how many font faces the engine holds.
+	#
+	#   returns    a number
+	#   see        UseFont, FontFor
 	def FontCount()
 		return StzEngineGuiFontCount()
 
-	# The stzFont this panel paints a recorded command with. Matching is
-	# by the engine font id the command carries -- not by family name,
-	# which a fallback may have changed under us.
+	# Returns the stzFont registered under an engine font id, or the first one when the id is unknown.
+	#
+	#   pnEngineId   the font id a text command carries, as in the first number of a row of Texts
+	#   returns      an stzFont, or NULL when no font was registered
+	#   note         the match is by engine id, not by family name
+	#   see          UseFont, Texts
+	#@ aka  The stzFont this panel paints a recorded command with. Matching is by the engine font id the command carries -- not by family name, which a fallback may have changed under us.
 	def FontFor(pnEngineId)
 		_n_ = len(@aFonts)
 		for _i_ = 1 to _n_
@@ -277,58 +405,103 @@ class stzPanel from stzObject
 		ok
 		return NULL
 
-	#-- input, focus and events (G3) ----------------------------------------
+	# Moves the pointer to a point in panel pixels and lets the document see it.
 	#
-	# EVERY VERB TAKES PANEL PIXELS, and nothing else. The coordinate-space
-	# frame is dissolved rather than surfaced (§7 of the plan): a panel has
-	# exactly one space, so there is nothing to confuse it with, and the
-	# conversions live at the boundary where they happen -- FromWindow for
-	# a window's pixels, FromTexture for a panel hanging in a 3D scene.
-	# There is no ambient "current space" and no mode.
-	#
-	# EVENTS ARE DRAINED, NEVER DISPATCHED. RmlUi routes and bubbles, the
-	# engine writes down what arrived, and Events() hands over the list.
-	# A callback per event would re-enter Ring from inside a C++ dispatch,
-	# which is not safe, and the house has already settled this shape
-	# twice: the display list and the text commands.
-
+	#   pnX        the x in panel pixels
+	#   pnY        the y in panel pixels
+	#   returns    the engine status, 0 when the move was accepted
+	#   note       it produces enter and leave events only after Layout has run
+	#   see        PointerPressed, ClickAt, Events
+	#@ aka  -- input, focus and events (G3) ----------------------------------------
 	def PointerMovedTo(pnX, pnY)
 		return StzEngineGuiPointerMove(@nId, pnX, pnY, 0)
 
+	# Moves the pointer to a point and presses a button.
+	#
+	#   pnX        the x in panel pixels
+	#   pnY        the y in panel pixels
+	#   pnButton   the button number, 0 for the main one
+	#   returns    the engine status, 0 when accepted
+	#   note       a pressed button stays down until PointerReleased
+	#   see        PointerReleased, ClickAt
 	def PointerPressed(pnX, pnY, pnButton)
 		StzEngineGuiPointerMove(@nId, pnX, pnY, 0)
 		return StzEngineGuiPointerButton(@nId, pnButton, 1, 0)
 
+	# Moves the pointer to a point and releases a button.
+	#
+	#   pnX        the x in panel pixels
+	#   pnY        the y in panel pixels
+	#   pnButton   the button number, 0 for the main one
+	#   returns    the engine status, 0 when accepted
+	#   see        PointerPressed, ClickAt
 	def PointerReleased(pnX, pnY, pnButton)
 		StzEngineGuiPointerMove(@nId, pnX, pnY, 0)
 		return StzEngineGuiPointerButton(@nId, pnButton, 0, 0)
 
-	# The whole gesture, because a click is a press AND a release and a
-	# caller that forgets the second one gets a button stuck down.
+	# Presses and releases the main button at a point, as one gesture.
+	#
+	#   pnX        the x in panel pixels
+	#   pnY        the y in panel pixels
+	#   returns    the engine status of the release, 0 when accepted
+	#   note       after Layout it queues enter, pointer down, pointer up and click events for the
+	#              element hit
+	#   see        PointerPressed, PointerReleased, EventsFor
+	#@ aka  The whole gesture, because a click is a press AND a release and a caller that forgets the second one gets a button stuck down.
 	def ClickAt(pnX, pnY)
 		This.PointerPressed(pnX, pnY, 0)
 		return This.PointerReleased(pnX, pnY, 0)
 
+	# Tells the document the pointer left the panel.
+	#
+	#   returns    the engine status, 0 when accepted
+	#   note       it queues leave events for the elements the pointer was over
+	#   see        PointerMovedTo, Events
 	def PointerLeft()
 		return StzEngineGuiPointerLeave(@nId)
 
+	# Sends a key down and then a key up to the focused element.
+	#
+	#   pnKey      the RmlUi key identifier
+	#   pnMods     the modifier bits, 0 for none
+	#   returns    the engine status of the key up, 0 when accepted
+	#   note       only the key down arrives in Events, as a kind 8 event aimed at the focused
+	#              element
+	#   see        TypeText, Events
 	def KeyPressed(pnKey, pnMods)
 		StzEngineGuiKey(@nId, pnKey, 1, pnMods)
 		return StzEngineGuiKey(@nId, pnKey, 0, pnMods)
 
+	# Sends typed characters to the focused element.
+	#
+	#   pcText     the characters typed
+	#   returns    the engine status, 0 when accepted
+	#   note       it arrives in Events as a kind 9 event aimed at the focused element
+	#   see        KeyPressed, Events
 	def TypeText(pcText)
 		return StzEngineGuiTextInput(@nId, "" + pcText)
 
-	# The element under a point, by name. "" when the point hits nothing
-	# that carries a name -- a fair answer, not a failure.
+	# Returns the name of the element under a point, or an empty text when it hits nothing that has a name.
+	#
+	#   pnX        the x in panel pixels
+	#   pnY        the y in panel pixels
+	#   returns    a text
+	#   note       call Layout first
+	#   see        BoxOf, ClickAt
+	#@ aka  The element under a point, by name. "" when the point hits nothing that carries a name -- a fair answer, not a failure.
 	def ElementAt(pnX, pnY)
 		return StzEngineGuiElementAt(@nId, pnX, pnY)
 
-	#-- the conversions, named at the boundary ------------------------------
-
-	# A window's pixels are the panel's when the panel fills the window,
-	# which is the case stzWindow.Draw arranges. Named anyway: the reader
-	# of a frame loop should see WHERE the space changes.
+	# Converts a point in a window's pixels to panel pixels, scaling by the two sizes.
+	#
+	#   poWindow   the stzWindow, or any object with Width and Height
+	#   pnX        the x in window pixels
+	#   pnY        the y in window pixels
+	#   returns    a list [ x, y ] in panel pixels; [ 0, 0 ] for a window smaller than one pixel
+	#   note       a 640 by 400 window and a 320 by 200 panel turn 320, 200 into 160, 100
+	#   warning    raises an error when the argument is not an object
+	#   see        FromTexture, ElementAt
+	#@ aka  -- the conversions, named at the boundary ------------------------------
 	def FromWindow(poWindow, pnX, pnY)
 		if NOT isObject(poWindow)
 			StzRaise("stzPanel.FromWindow: give an stzWindow.")
@@ -340,35 +513,25 @@ class stzPanel from stzObject
 		ok
 		return [ pnX * @nW / _nW_, pnY * @nH / _nH_ ]
 
-	# A panel hanging in a 3D scene is hit by a RAY, and what the caller
-	# has after the intersection is a texture coordinate. This is the
-	# whole of the in-scene input mapping (§6's tier): uv in, panel
-	# pixels out. v is flipped because a texture's origin is bottom-left
-	# and a panel's is top-left -- the one place that difference is
-	# stated, so no caller has to remember it.
+	# Converts a texture coordinate to panel pixels, flipping v because a texture starts at the bottom.
+	#
+	#   pnU        the horizontal texture coordinate, 0 to 1
+	#   pnV        the vertical texture coordinate, 0 to 1
+	#   returns    a list [ x, y ] in panel pixels
+	#   note       on a 320 by 200 panel, 0.5 and 0.25 give 160 and 150
+	#   see        FromWindow
+	#@ aka  A panel hanging in a 3D scene is hit by a RAY, and what the caller has after the intersection is a texture coordinate. This is the whole of the in-scene input mapping (§6's tier): uv in, panel pixels out. v is flipped because a texture's origin is bottom-left and a panel's is top-left -- the one place that difference is stated, so no caller has to remember it.
 	def FromTexture(pnU, pnV)
 		return [ pnU * @nW, (1 - pnV) * @nH ]
 
-	#-- the update path (G5) -------------------------------------------------
+	# Replaces the words of one element, without loading the document again; markup in the value stays text.
 	#
-	# BEFORE THESE, THIS CLASS COULD ONLY LOAD. Everything after LoadMarkup
-	# was a QUERY -- boxes, hit tests, focus, events -- so the only way to
-	# change what a screen said was to build the whole document again.
-	# `stzScenePanel.Shows` and the showcase's reload both do exactly that,
-	# and both say in their comments that they are the shape G5 replaces.
-	#
-	# This is that replacement. RmlUi re-lays-out what depends on the
-	# change and leaves every other string's shaped geometry alone -- which
-	# is not an optimisation we perform but one it already performs, once
-	# it is TOLD about the change instead of handed a new document.
-	#
-	# The difference is measurable, and the guard measures it: after a
-	# rebuild every string is generated again; after a set, only the ones
-	# that actually changed are. GenerateCalls() reports both.
-
-	# One element's words. The value is DATA -- it is escaped at the seam,
-	# so a model holding "<span>" cannot inject markup into a document the
-	# court already passed.
+	#   pcName     the id of the element
+	#   pcText     the new words, as data
+	#   returns    TRUE if the element was found and changed, FALSE otherwise
+	#   note       the value is escaped, so a text holding a b tag is drawn as that text
+	#   see        SetTextOfQ, SetStyleOf
+	#@ aka  -- the update path (G5) -------------------------------------------------
 	def SetTextOf(pcName, pcText)
 		if @nId = 0
 			return FALSE
@@ -379,13 +542,15 @@ class stzPanel from stzObject
 		This.SetTextOf(pcName, pcText)
 		return This
 
-	# One RCSS property on one element. The property name is the RCSS one,
-	# which §3's divergence table governs -- so a binding and a declaration
-	# cannot disagree about spelling.
+	# Sets one RCSS property on one element and lays out what depends on it; an empty value removes the property.
 	#
-	# An EMPTY value removes the property, handing the element back to the
-	# stylesheet. Without that, a binding that had fired once could never
-	# be undone.
+	#   pcName       the id of the element
+	#   pcProperty   the RCSS property name, for example width
+	#   pcValue      the value, for example 150px
+	#   returns      TRUE if the element was found, FALSE otherwise
+	#   note         the box of an element changes at the next Layout, not at the call
+	#   see          ClearStyleOf, SetTextOf
+	#@ aka  One RCSS property on one element. The property name is the RCSS one, which §3's divergence table governs -- so a binding and a declaration cannot disagree about spelling.
 	def SetStyleOf(pcName, pcProperty, pcValue)
 		if @nId = 0
 			return FALSE
@@ -397,60 +562,97 @@ class stzPanel from stzObject
 		This.SetStyleOf(pcName, pcProperty, pcValue)
 		return This
 
+	# Removes one RCSS property from one element, handing it back to the stylesheet.
+	#
+	#   pcName       the id of the element
+	#   pcProperty   the RCSS property name to remove
+	#   returns      TRUE if the element was found, FALSE otherwise
+	#   see          SetStyleOf
 	def ClearStyleOf(pcName, pcProperty)
 		return This.SetStyleOf(pcName, pcProperty, "")
 
-	#-- focus ---------------------------------------------------------------
+	# Gives the keyboard focus to the named element.
 	#
-	# Rule 80 (Keyboard Sovereignty) is `machine` tier, so this is legally
-	# required rather than polish. RmlUi owns the traversal -- tab order in
-	# document order, and a spatial heuristic for directional moves -- and
-	# what is added here is the QUERY and the COUNTED refusal.
-
+	#   pcName     the id of the element
+	#   returns    the engine status: 0 when focus was placed, 4 for a name that does not exist
+	#   note       an element that is not in the tab ring can still take focus by name
+	#   see        Focused, ClearFocus, FocusNext
+	#@ aka  -- focus ---------------------------------------------------------------
 	def FocusOn(pcName)
 		return StzEngineGuiFocus(@nId, "" + pcName)
 
+	# Removes the keyboard focus from every element.
+	#
+	#   returns    the engine status, 0 when accepted
+	#   see        FocusOn, Focused
 	def ClearFocus()
 		return StzEngineGuiFocus(@nId, "")
 
-	# The focused element's name, or "" when nothing is focused.
+	# Returns the name of the focused element, or an empty text when none is.
+	#
+	#   returns    a text
+	#   see        FocusOn, TabRing
+	#@ aka  The focused element's name, or "" when nothing is focused.
 	def Focused()
 		return StzEngineGuiFocused(@nId)
 
-	# TRUE when focus MOVED. A refusal at the end of a ring is a real
-	# answer, not an error, so it answers FALSE rather than raising.
+	# Moves focus to the next stop of the tab ring, like Tab.
+	#
+	#   returns    TRUE if focus moved, FALSE when refused
+	#   note       with nothing focused it lands on the first stop; the ring wraps, so after the
+	#              last stop it returns to the first
+	#   see        FocusPrevious, TabRing
+	#@ aka  TRUE when focus MOVED. A refusal at the end of a ring is a real answer, not an error, so it answers FALSE rather than raising.
 	def FocusNext()
 		return StzEngineGuiFocusMove(@nId, 0) = 0
 
+	# Moves focus to the previous stop of the tab ring, like Shift+Tab.
+	#
+	#   returns    TRUE if focus moved, FALSE when refused
+	#   see        FocusNext, TabRing
 	def FocusPrevious()
 		return StzEngineGuiFocusMove(@nId, 1) = 0
 
-	# Directional moves, for an arrow key or a gamepad stick. RmlUi picks
-	# the target by a spatial heuristic, which is what the WAI-ARIA APG
-	# contract wants inside a composite widget.
+	# Moves focus to the element above, for an arrow key or a gamepad stick.
+	#
+	#   returns    TRUE if focus moved, FALSE when refused
+	#   note       in a column of three boxes with tab-index: auto all four directional moves
+	#              answered FALSE and left focus where it was, while FocusNext moved it
+	#   see        FocusDown, FocusNext
+	#@ aka  Directional moves, for an arrow key or a gamepad stick. RmlUi picks the target by a spatial heuristic, which is what the WAI-ARIA APG contract wants inside a composite widget.
 	def FocusUp()
 		return StzEngineGuiFocusMove(@nId, 2) = 0
 
+	# Moves focus to the element below, for an arrow key or a gamepad stick.
+	#
+	#   returns    TRUE if focus moved, FALSE when refused
+	#   note       in a column of three boxes with tab-index: auto it answered FALSE and left focus
+	#              where it was
+	#   see        FocusUp, FocusNext
 	def FocusDown()
 		return StzEngineGuiFocusMove(@nId, 3) = 0
 
+	# Moves focus to the element on the left, for an arrow key or a gamepad stick.
+	#
+	#   returns    TRUE if focus moved, FALSE when refused
+	#   see        FocusRight, FocusNext
 	def FocusLeft()
 		return StzEngineGuiFocusMove(@nId, 4) = 0
 
+	# Moves focus to the element on the right, for an arrow key or a gamepad stick.
+	#
+	#   returns    TRUE if focus moved, FALSE when refused
+	#   see        FocusLeft, FocusNext
 	def FocusRight()
 		return StzEngineGuiFocusMove(@nId, 5) = 0
 
-	# Walk the whole tab ring and answer the names in order. THE keyboard
-	# contract made checkable: a screen whose ring omits an action is a
-	# screen a keyboard cannot operate, and Rule 80 says that is a defect.
-	# Bounded, because a ring that never closes would otherwise hang.
+	# Walks the whole tab ring and returns the names of its stops in order.
 	#
-	# A ring is a CYCLE, and this enters it wherever focus currently
-	# sits: RmlUi resumes tabbing from the last focused element even
-	# after a blur, so calling this with `cancel` focused answers the
-	# same cycle rotated. The SET and the ORDER are stable; the entry
-	# point is not. Call it before touching focus if the first stop
-	# matters -- as the guard does.
+	#   returns    a list of texts; empty when no element has tab-index: auto
+	#   note       it clears focus first and leaves focus on the first stop; the walk is bounded at
+	#              200 stops
+	#   see        FocusNext, Focused
+	#@ aka  Walk the whole tab ring and answer the names in order. THE keyboard contract made checkable: a screen whose ring omits an action is a screen a keyboard cannot operate, and Rule 80 says that is a defect. Bounded, because a ring that never closes would otherwise hang.
 	def TabRing()
 		_a_ = []
 		This.ClearFocus()
@@ -470,33 +672,46 @@ class stzPanel from stzObject
 		next
 		return _a_
 
-	#-- events --------------------------------------------------------------
-
-	# [ [ nKind, nSource, nX, nY, nButton, nKey, nMods, cTarget ], ... ]
+	# Returns the events queued so far, each as [ kind, source, x, y, button, key, mods, target ].
 	#
-	# nKind:   1 click  2 pointerDown  3 pointerUp  4 pointerEnter
-	#          5 pointerLeave  6 focus  7 blur  8 keyDown  9 text
-	# nSource: 0 pointer  1 keyboard  2 gamepad  3 synthetic  4 assistive
-	#
-	# The SOURCE is the frame §7 chose to surface, and it earns its place:
-	# Rule 80 makes "reachable by a human keyboard" materially different
-	# from "something dispatched a click", and G4 needs an assistive
-	# activation distinguishable from a pointer one.
+	#   returns    a list of lists of 8 values
+	#   note       kind is 1 click, 2 pointer down, 3 pointer up, 4 pointer enter, 5 pointer leave,
+	#              6 focus, 7 blur, 8 key down, 9 text; the list is the engine's, shared by every
+	#              panel, and reading it does not empty it
+	#   see        ClearEvents, EventsFor, EventCount
+	#@ aka  -- events --------------------------------------------------------------
 	def Events()
 		return StzEngineGuiEvents()
 
+	# Empties the event queue.
+	#
+	#   returns    nothing
+	#   see        Events, EventsDropped
 	def ClearEvents()
 		StzEngineGuiEventsClear()
 
-	# What the bounded queue threw away. A caller that stops draining
-	# stops receiving, and this is how it finds out.
+	# Returns how many events the bounded queue threw away because nobody drained it.
+	#
+	#   returns    a number
+	#   see        Events, ClearEvents
+	#@ aka  What the bounded queue threw away. A caller that stops draining stops receiving, and this is how it finds out.
 	def EventsDropped()
 		return StzEngineGuiEventsDropped()
 
+	# Returns how many events are waiting.
+	#
+	#   returns    a number
+	#   note       the queue is shared by every panel
+	#   see        Events, EventsFor
 	def EventCount()
 		return len(StzEngineGuiEvents())
 
-	# Every event whose target is one named element.
+	# Returns the queued events whose target is the named element.
+	#
+	#   pcName     the id of the target element
+	#   returns    a list of events, each of 8 values
+	#   see        Events, ClickAt
+	#@ aka  Every event whose target is one named element.
 	def EventsFor(pcName)
 		_a_ = []
 		_aE_ = StzEngineGuiEvents()
@@ -508,37 +723,49 @@ class stzPanel from stzObject
 		next
 		return _a_
 
-	#-- the text the layout wants drawn (G2) --------------------------------
-
-	# [ [ nFontId, nSize, nX, nY, nColour, cUtf8 ], ... ] -- what the last
-	# render decided to draw, where (nX, nY) is the BASELINE origin.
+	# Returns the text commands of the last render, each as [ font id, size, x, y, colour, text ].
 	#
-	# Text crosses as COMMANDS, not as quads. RmlUi asked our font engine
-	# for the string; the engine recorded the request instead of
-	# rasterizing it, and the canvas draws it with the same shaper. That
-	# is why this plane owns no glyph atlas and no second rasterizer.
+	#   returns    a list of lists of 6 values; x and y are the baseline origin
+	#   note       it records first, so it works on a freshly loaded document
+	#   see        TextCount, UseFont, DrawInto
+	#@ aka  -- the text the layout wants drawn (G2) --------------------------------
 	def Texts()
 		This.Record()
 		return StzEngineGuiTexts()
 
+	# Returns how many text commands the last render produced.
+	#
+	#   returns    a number
+	#   see        Texts, TextDraws
 	def TextCount()
 		return len(This.Texts())
 
-	# The laid-out box of one element: [x, y, w, h], in panel pixels.
-	# Empty when there is no such element -- an absence, not a raise, since
-	# asking about an element that may not exist is a fair question.
+	# Returns the laid-out box of one element as [ x, y, w, h ] in panel pixels, or an empty list when it does not exist.
+	#
+	#   pcElementId   the id of the element
+	#   returns       a list of 4 numbers, or [ ]
+	#   note          call Layout first; asking for an element that is not there is a fair question
+	#                 and does not raise
+	#   see           Layout, ElementAt
+	#@ aka  The laid-out box of one element: [x, y, w, h], in panel pixels. Empty when there is no such element -- an absence, not a raise, since asking about an element that may not exist is a fair question.
 	def BoxOf(pcElementId)
 		return StzEngineGuiElementBox(@nId, "" + pcElementId)
 
+	# Returns the last error text the layout engine reported, for example why markup was refused.
+	#
+	#   returns    a text; empty when there is none
+	#   note       the message is the engine's, so a new panel can read the last one of another
+	#   see        LoadMarkup
 	def LastEngineMessage()
 		return StzEngineGuiLastError()
 
-	#-- output --------------------------------------------------------------
-
-	# Put the panel's triangles into a canvas. The canvas decides what
-	# happens next -- ToSVG() with no device, ToPNG() with one, a window,
-	# or a texture mapped onto a quad in a 3D scene. The panel does not
-	# know and must not care.
+	# Adds the panel's triangles and text to a canvas; FALSE when there is nothing to draw.
+	#
+	#   poCanvas   the stzCanvas to draw into, and anything that is not an object raises an error
+	#   returns    TRUE if something was drawn, FALSE for a document with no painted box
+	#   note       the canvas decides the output: SVG with no device, PNG with one
+	#   see        DrawIntoQ, ToCanvas, ToSVG
+	#@ aka  -- output --------------------------------------------------------------
 	def DrawInto(poCanvas)
 		if NOT isObject(poCanvas)
 			StzRaise("stzPanel.DrawInto: give an stzCanvas.")
@@ -574,14 +801,22 @@ class stzPanel from stzObject
 				SetFontQ(_oF_, _aT_[_i_][2]).ColorQ(_aT_[_i_][5])
 		next
 
-	# The panel as a picture, on the tier this machine can reach. A canvas
-	# is made, drawn into and answered -- so the caller gets ToSVG/ToPNG/
-	# Show without assembling anything.
+	# Returns a new stzCanvas of the panel's size with the panel drawn into it.
+	#
+	#   returns    a new stzCanvas
+	#   note       free the canvas with Free when done
+	#   see        DrawInto, ToSVG
+	#@ aka  The panel as a picture, on the tier this machine can reach. A canvas is made, drawn into and answered -- so the caller gets ToSVG/ToPNG/ Show without assembling anything.
 	def ToCanvas()
 		_oC_ = new stzCanvas(@nW, @nH)
 		This.DrawInto(_oC_)
 		return _oC_
 
+	# Returns the panel as an SVG picture, drawing into a canvas that is freed afterwards.
+	#
+	#   returns    a text holding the SVG
+	#   note       it needs no graphics device
+	#   see        ToCanvas, ToPNG
 	def ToSVG()
 		# the canvas is TRANSIENT: its engine scene (a target texture on the GPU
 		# tier, vertex buffers, the command list) is freed once the answer is taken --
@@ -591,6 +826,13 @@ class stzPanel from stzObject
 		_oCv_.Free()
 		return _cOut_
 
+	# Draws the panel into a canvas, writes it as a PNG file at the path and frees the canvas.
+	#
+	#   pcPath     the file to write
+	#   returns    whatever the canvas answers for the write
+	#   note       the canvas is freed after the call
+	#   warning    not run in this wave: it needs a graphics device
+	#   see        ToSVG, ToCanvas
 	def ToPNG(pcPath)
 		# the canvas is TRANSIENT: its engine scene (a target texture on the GPU
 		# tier, vertex buffers, the command list) is freed once the answer is taken --
@@ -600,6 +842,12 @@ class stzPanel from stzObject
 		_oCv_.Free()
 		return _cOut_
 
+	# Releases the engine context and the fonts this panel bound; the panel is dead afterwards.
+	#
+	#   returns    nothing
+	#   note       afterwards Layout, Record and TriangleCount raise an error, BoxOf answers [ ],
+	#              SetTextOf answers FALSE and IsAlive answers FALSE
+	#   see        IsAlive, UseFont
 	def Free()
 		if @nId > 0
 			StzEngineGuiContextFree(@nId)

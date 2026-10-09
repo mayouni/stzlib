@@ -420,6 +420,31 @@ func StzNaturalSuggest(_cPartial_)
 
 #-- NATURAL ENGINE CLASS WITH CONTEXT
 
+# Reads a narration written in plain words, turns it into Ring code on a text, list or number, runs it and keeps what it understood.
+#
+# Build it with Naturally("..."), NaturallyIn(lang, "...") or NaturallyXT(context, "..."): the
+# narration runs when the engine is built, so Result, Answers and Understood are ready at once. A
+# narration creates an object (Create a string with 'ring'), applies methods (Uppercase it), asks
+# questions (Is it lowercase ?) and may name objects (called basket, Use basket) or keep values
+# (Keep it as sep). Execution is permissive: a word the language does not know degrades to data and
+# is listed by Unresolved; SetStrict(1) turns that into an error, and SetAllowedOperations limits
+# what may be said. A narration that creates no object raises Unsupported object type!. Understood
+# paraphrases the reading back, Analyze checks a narration without running it, and SuggestNext
+# offers the next words. Most roots are the internal steps of Execute (tokenising, resolving words,
+# writing the code); the reader methods are Result, Answers, Understood, Unresolved, Tokens and
+# Values. Only the English pack covers the full lexicon: other languages (ha, ar and more)
+# understand the words of their pack.
+#
+#   receiver   o1 = Naturally("Create a string with 'ring' Uppercase it")
+#   example    ? o1.Result()
+#              #--> RING
+#              ? o1.Understood()
+#              #--> create a string with ring -> uppercase
+#              ? Naturally("Create a string with 'ring' Is it lowercase ? Does it contain 'g' ?").AllYes()
+#              #--> 1
+#              ? @@( o1.Analyze("Create a string with 'abc' Flibber it") )
+#              #--> [ [ "understood", 0 ], [ "unresolved", [ [ "Flibber", "" ] ] ] ]
+#   see        stzObject, stzString, StzNaturalLint, StzNaturalSuggest, NaturallyStrict
 class stzNaturalEngine from stzObject
 	@cLanguage = "en"
 	@cLangCode = "en"	# normalized code ("fr" even when created as "french")
@@ -458,6 +483,21 @@ class stzNaturalEngine from stzObject
 	@cOriginalCode = ""
 	@aContext = []
 
+	# Builds an engine for one narration in a language and runs it at once, so Result and Answers are ready after the call.
+	#
+	#   cLang          the language code or name, for example en or hausa, where an unknown one
+	#                  falls back to en and a first argument that is not a language is read as the
+	#                  narration
+	#   _cCode_        the narration, or an empty text when the narration comes last
+	#   aContext       the context list of [ key, value ] pairs, or an empty list
+	#   cContextCode   the narration with {key} holes to fill from the context
+	#   returns        nothing; the object is built
+	#   note           Naturally(code), NaturallyIn(lang, code) and NaturallyXT(context, code) are
+	#                  the functions that build it
+	#   warning        raises an error when the narration creates no object, for example
+	#                  Naturally("flibber flobber"): the code generator ends with Unsupported object
+	#                  type!
+	#   see            Execute, Naturally, NaturallyIn
 	def init(cLang, _cCode_, aContext, cContextCode)
 		# Handle context-enabled calls
 		if isList(aContext) and isString(cContextCode)
@@ -501,6 +541,17 @@ class stzNaturalEngine from stzObject
 			This.Execute(@cNaturalCode)
 		ok
 	
+	# Returns the narration with every {key} hole replaced by its context value written in Ring form.
+	#
+	#   _cCode_    the narration with {key} or {a.b.c} holes
+	#   aContext   the list of [ key, value ] pairs
+	#   returns    a text
+	#   note       text values arrive quoted, so write {name} without quotes: '{name}' makes the
+	#              narration fail to evaluate; keys are matched without regard to case
+	#   warning    a hole with no value does not stay: {zip} became the quoted text not_found,
+	#              because the lookup answer is compared in its written form with the not-found
+	#              marker
+	#   see        GetContextValue, FindContextPlaceholders
 	def InterpolateContext(_cCode_, aContext)
 		if len(aContext) = 0
 			return _cCode_
@@ -524,6 +575,16 @@ class stzNaturalEngine from stzObject
 		
 		return _cResult_
 	
+	# Returns the {...} holes of a narration, but today only when the text starts with the hole.
+	#
+	#   _cCode_    the narration to scan
+	#   returns    a list of texts; empty when none is found
+	#   note       InterpolateContext does not use it; it finds its holes by its own scan
+	#   warning    Returns [ ] today for a hole that is not at the very start: {a} answers {a}, but
+	#              x{a}, {a} x and Hello {name} from {c} all answer [ ]; the scan tests the
+	#              character at i with StzMid(text, i, i) where the third argument is a length, so
+	#              it can match only at the first character
+	#   see        InterpolateContext
 	def FindContextPlaceholders(_cCode_)
 		_aResult_ = []
 		_nLen_ = stzlen(_cCode_)
@@ -559,6 +620,15 @@ class stzNaturalEngine from stzObject
 		
 		return _aResult_
 	
+	# Returns the value of a key in the context, following dotted paths such as user.profile.city.
+	#
+	#   _cKey_     the key or the dotted path
+	#   aContext   the list of [ key, value ] pairs, nested for paths
+	#   returns    the value, or the marker not_found when the key or a step of the path is missing
+	#   note       keys are matched without regard to case; the marker is the symbol :NOT_FOUND,
+	#              which is the text not_found, so a value that is that text cannot be told from a
+	#              miss
+	#   see        NormalizeKey, FindInList, InterpolateContext
 	def GetContextValue(_cKey_, aContext)
 		# Handle nested keys like "user.profile.name"
 		if StzFindFirst(".", _cKey_) > 0
@@ -589,6 +659,12 @@ class stzNaturalEngine from stzObject
 			return This.FindInList(aContext, _cNormalized_)
 		ok
 	
+	# Returns a context key in its canonical form: trimmed, first letter upper case, the rest lower case.
+	#
+	#   _cKey_     the key as written
+	#   returns    a text
+	#   note       uSER with spaces becomes User; an empty text stays empty
+	#   see        GetContextValue, FindInList
 	def NormalizeKey(_cKey_)
 		_cKey_ = trim(_cKey_)
 		if StzLen(_cKey_) = 0
@@ -598,6 +674,14 @@ class stzNaturalEngine from stzObject
 		# Capitalize first letter, lowercase rest
 		return StzUpper(@StzMid(_cKey_, 1, 1)) + StzLower(StzMid(_cKey_, 2, stzlen(_cKey_) - 1))
 	
+	# Returns the value of the first [ key, value ] pair whose normalised key equals the given one.
+	#
+	#   aList      the list of [ key, value ] pairs
+	#   _cKey_     the key, already normalised
+	#   returns    the value, or the marker not_found
+	#   note       the key must be given in normalised form (Name, not name); the source marks it
+	#              for review
+	#   see        NormalizeKey, GetContextValue
 	def FindInList(aList, _cKey_) #TODO// Review it
 		_nLen_ = len(aList)
 		for _i_ = 1 to _nLen_
@@ -613,6 +697,15 @@ class stzNaturalEngine from stzObject
 		return :NOT_FOUND
 
 	
+	# Reads a narration, turns it into Ring code and runs it, replacing what an earlier run left.
+	#
+	#   _cCode_    the narration
+	#   returns    nothing; read the outcome with Result, Answers and Understood
+	#   note       Result is the last thing produced; the code is written by
+	#              GenerateCodeFromSemantics and run with eval
+	#   warning    a text that is empty or not a text is ignored and the earlier state stays; a
+	#              narration that creates no object raises an error
+	#   see        Process, Result, Analyze
 	def Execute(_cCode_)
 		if NOT isString(_cCode_) or trim(_cCode_) = ""
 			return
@@ -628,6 +721,13 @@ class stzNaturalEngine from stzObject
 		
 		This.Process()
 	
+	# Splits a narration into its raw tokens and clears the state of any earlier run.
+	#
+	#   _cCode_    the narration
+	#   returns    nothing; read the tokens with Values
+	#   note       internal step of Execute; it also maps foreign digits when the language declares
+	#              a digit map
+	#   see        SmartSplit, Values, Execute
 	def TokenizeCode(_cCode_)
 		@aValues = []
 		@aAnswers = []
@@ -640,6 +740,13 @@ class stzNaturalEngine from stzObject
 		_aTokens_ = This.SmartSplit(_cCode_)
 		@aValues = _aTokens_
 	
+	# Splits a narration into words, keeping a quoted string as one token and a bracketed list as one real list.
+	#
+	#   _cCode_    the narration
+	#   returns    a list of tokens
+	#   note       internal step of TokenizeCode; Create a list with [1, 2, 3] and 'x y' gives the
+	#              words, one list [ 1, 2, 3 ] and the text x y without its quotes
+	#   see        TokenizeCode, PairedQuoteSections
 	def SmartSplit(_cCode_)
 	    _aResult_ = []
 	    _oStr_ = new stzString(_cCode_)
@@ -751,10 +858,13 @@ class stzNaturalEngine from stzObject
 	    
 	    return _aResult_
 	
-	# Only these SHAPES may be eval'd as list literals: a bracketed
-	# [ ... ] form, or a pure numeric range like 1:5. Prose that
-	# isListInString() mistakes for a range ("note:") is rejected.
-
+	# TRUE if a token is bracketed, or is two digit runs joined by a colon, so it may be evaluated as a list.
+	#
+	#   _cVal_     the token text
+	#   returns    1 or 0
+	#   note       [1,2] and 3:4 answer 1, abc answers 0
+	#   see        SmartSplit
+	#@ aka  Only these SHAPES may be eval'd as list literals: a bracketed [ ... ] form, or a pure numeric range like 1:5. Prose that isListInString() mistakes for a range ("note:") is rejected.
 	def LooksEvalSafeList(_cVal_)
 		_cVal_ = trim(_cVal_)
 		if StzLeft(_cVal_, 1) = "[" and StzRight(_cVal_, 1) = "]"
@@ -770,11 +880,15 @@ class stzNaturalEngine from stzObject
 		ok
 		return 0
 
-	# Non-overlapping quote pairing: positions 1-2, 3-4, ... form the
-	# quoted sections. An unmatched trailing quote is simply ignored.
-	# An apostrophe with a LETTER on both sides is part of a word
-	# ("it's", "don't"), not a string delimiter.
-
+	# Returns the start and end positions of the quoted sections, pairing quotes first with second, third with fourth.
+	#
+	#   _cCode_    the narration
+	#   cQuote     the quote character, a single or a double quote
+	#   returns    a list of [ start, end ] pairs, quotes included
+	#   note       an apostrophe between two letters, as in it's, is part of a word and opens
+	#              nothing; an unmatched last quote is ignored
+	#   see        SmartSplit
+	#@ aka  Non-overlapping quote pairing: positions 1-2, 3-4, ... form the quoted sections. An unmatched trailing quote is simply ignored. An apostrophe with a LETTER on both sides is part of a word ("it's", "don't"), not a string delimiter.
 	def PairedQuoteSections(_cCode_, cQuote)
 		_aRaw_ = StzFind(cQuote, _cCode_)
 		_aPos_ = []
@@ -799,10 +913,14 @@ class stzNaturalEngine from stzObject
 		end
 		return _aOut_
 
-	# Normalize the language's digits and list punctuation OUTSIDE quoted
-	# strings (Arabic-Indic numerals in a value list must become ASCII for
-	# the list eval; a quoted string keeps its script untouched).
-
+	# Returns the narration with the language's own digits turned into ASCII digits outside quoted text.
+	#
+	#   _cCode_    the narration
+	#   returns    a text
+	#   note       an Arabic-Indic three becomes 3 when the engine runs ar; the same text for
+	#              English, which declares no digit map
+	#   see        MapDigits, LoadLanguageData
+	#@ aka  Normalize the language's digits and list punctuation OUTSIDE quoted strings (Arabic-Indic numerals in a value list must become ASCII for the list eval; a quoted string keeps its script untouched).
 	def NormalizeForeignDigits(_cCode_)
 		if len(@aDigitMap) = 0
 			return _cCode_
@@ -845,6 +963,12 @@ class stzNaturalEngine from stzObject
 		_cOut_ += This.MapDigits(_cChunk_)
 		return _cOut_
 
+	# Returns a piece of text with each digit of the language's digit map replaced.
+	#
+	#   _cChunk_   the unquoted piece of text
+	#   returns    a text
+	#   note       internal step of NormalizeForeignDigits; the same text for English
+	#   see        NormalizeForeignDigits
 	def MapDigits(_cChunk_)
 		if _cChunk_ = ""
 			return _cChunk_
@@ -855,11 +979,13 @@ class stzNaturalEngine from stzObject
 		next
 		return _cChunk_
 
-	# A word without clinging trailing punctuation ("empty?" -> "empty").
-	# BYTE-based whole-mark matching (StzLeft/StzRight take byte counts
-	# while StzLen counts codepoints -- mixing them mangles multibyte
-	# words; exact byte-suffix comparison is UTF-8-safe).
-
+	# Returns a word without the punctuation that clings to its end, such as ? ! . , ; : and the Arabic question mark and comma.
+	#
+	#   cWord      the word
+	#   returns    a text; a non-text is returned unchanged
+	#   note       empty? becomes empty
+	#   see        PhraseResolve
+	#@ aka  A word without clinging trailing punctuation ("empty?" -> "empty"). BYTE-based whole-mark matching (StzLeft/StzRight take byte counts while StzLen counts codepoints -- mixing them mangles multibyte words; exact byte-suffix comparison is UTF-8-safe).
 	def StripEdgePunct(cWord)
 		if NOT isString(cWord)
 			return cWord
@@ -883,14 +1009,15 @@ class stzNaturalEngine from stzObject
 		end
 		return _cW_
 
-	# MULTI-WORD PHRASE resolution: head word + up to two following
-	# content words (ignored words skipped), longest EXACT method-name
-	# join wins -- "remove [its] duplicates" -> removeduplicates,
-	# "is [it] empty" -> isempty. Returns [ semanticId, nextIndex,
-	# matchedPhrase ] or [ "", 0, "" ]. Only consulted when at least one
-	# word is dictionary-unknown, so pure-dictionary programs never pay
-	# the lazy lexicon growth.
-
+	# Reads up to three words from a position and returns the method they name together, when no single word is known.
+	#
+	#   nStart     the index of the first word in Values
+	#   returns    a list [ semantic id, index of the next token, matched phrase ], or [ "", 0, "" ]
+	#   note       internal step; after tokenising Create a string with abc Remove its duplicates,
+	#              position 6 answers METHOD_REMOVEDUPLICATES, 9 and remove duplicates; ignored
+	#              words such as its are skipped
+	#   see        ToSemantic, ConvertToSemanticTokens
+	#@ aka  MULTI-WORD PHRASE resolution: head word + up to two following content words (ignored words skipped), longest EXACT method-name join wins -- "remove [its] duplicates" -> removeduplicates, "is [it] empty" -> isempty. Returns [ semanticId, nextIndex, matchedPhrase ] or [ "", 0, "" ]. Only consulted when at least one word is dictionary-unknown, so pure-dictionary programs never pay the lazy lexicon gr
 	def PhraseResolve(nStart)
 		# tokens are CANONICALIZED per language (attached articles and
 		# pronoun suffixes stripped), so the inflected Arabic
@@ -1015,6 +1142,11 @@ class stzNaturalEngine from stzObject
 		ok
 		return [ "", 0, "" ]
 
+	# Reads the language pack of the engine's language: its ignored words, mappings, word-order flags and digit map.
+	#
+	#   returns    nothing
+	#   note       init calls it; an unknown language name was already replaced by en
+	#   see        FindLanguageDefinition, IgnoredWords, Mappings
 	def LoadLanguageData()
 		_aLangDef_ = This.FindLanguageDefinition(@cLanguage)
 		if len(_aLangDef_) > 0
@@ -1040,21 +1172,44 @@ class stzNaturalEngine from stzObject
 			ok
 		ok
 
-	# May unknown words of the active language be resolved at all?
-	# English always (the unified lexicon); others when a pack exists.
-
+	# TRUE if words the language does not list may still be resolved through the shared lexicon.
+	#
+	#   returns    1 or 0
+	#   note       always 1 for English; for another language it is whether a language pack exists
+	#   see        LoadLanguageData
+	#@ aka  May unknown words of the active language be resolved at all? English always (the unified lexicon); others when a pack exists.
 	def LangResolvable()
 		if @cLangCode = "en"
 			return 1
 		ok
 		return StzHasLanguagePack(@cLangCode)
 
+	# Switches strict mode on or off; when on, a narration with a word the language does not understand raises an error.
+	#
+	#   pbOn       1 to be strict, 0 to degrade unknown words to literals
+	#   returns    nothing
+	#   note       the error names each word and the nearest known one, for example Strict natural
+	#              mode: not understood: 'Flibber'; set it before Execute
+	#   see        SetAllowedOperations, Unresolved
 	def SetStrict(pbOn)
 		@bStrict = pbOn
 
+	# Sets the list of operations a narration may use; anything else raises an error.
+	#
+	#   pacIds     the operation ids allowed, for example METHOD_TRIM, where an empty list allows
+	#              everything
+	#   returns    nothing
+	#   note       a forbidden operation raises Operation not permitted in this world:
+	#              METHOD_UPPERCASE; set it before Execute
+	#   see        SetStrict, GetSemanticOperation
 	def SetAllowedOperations(pacIds)
 		@aAllowedOps = pacIds
 	
+	# Returns the language pack whose code or name matches, or an empty list.
+	#
+	#   _cCode_    the language code or name, for example ha or hausa
+	#   returns    a list; [ ] when no pack matches
+	#   see        LoadLanguageData, Language
 	def FindLanguageDefinition(_cCode_)
 		_nLen_ = len($aLanguageDefinitions)
 		for _i_ = 1 to _nLen_
@@ -1065,6 +1220,11 @@ class stzNaturalEngine from stzObject
 		next
 		return []
 	
+	# Turns the tokens into semantic tokens, raises in strict mode for unknown words, then generates the code and runs it.
+	#
+	#   returns    nothing
+	#   note       internal step of Execute; calling it again runs the generated code again
+	#   see        Execute, GenerateCodeFromSemantics
 	def Process()
 		@aSemanticTokens = This.ConvertToSemanticTokens()
 
@@ -1093,6 +1253,12 @@ class stzNaturalEngine from stzObject
 			eval(_cCode_)
 		ok
 	
+	# Returns the tokens as semantic records and notes which action words could not be understood.
+	#
+	#   returns    a list of records with type, value and original
+	#   note       internal step of Process; the records are typed semantic or literal, and a
+	#              literal also carries word, 1 for a bare word and 0 for a quoted text or a list
+	#   see        ToSemantic, Unresolved
 	def ConvertToSemanticTokens()
 		_aTokens_ = []
 
@@ -1222,6 +1388,14 @@ class stzNaturalEngine from stzObject
 
 		return _aTokens_
 	
+	# TRUE if the next word must stay data because of the token before it, as after called, use, keep or a method that needs parameters.
+	#
+	#   _aTokens_     the semantic tokens read so far
+	#   _cSemantic_   the meaning found for the word
+	#   _cValue_      the word
+	#   returns       1 or 0
+	#   note          internal step; it answers 0 for an empty list and 1 after a NAME_INDICATOR
+	#   see           FallbackEligible, ConvertToSemanticTokens
 	def ShouldTreatAsLiteral(_aTokens_, _cSemantic_, _cValue_)
 		_nLen_ = len(_aTokens_)
 		if _nLen_ = 0
@@ -1255,13 +1429,13 @@ class stzNaturalEngine from stzObject
 		
 		return 0
 	
-	# May an unknown word at the current position be fallback-resolved to an
-	# action? NO whenever the word sits in a VALUE position: right after an
-	# OBJECT_* (it is the creation value: Create a string with capitals),
-	# right after a VALUE_INDICATOR, or right after a METHOD_* that still
-	# expects parameters (Replace dot with underscore). In all those spots
-	# the word must stay a literal -- resolution would corrupt the program.
-
+	# TRUE if an unknown word here may be guessed as an action; not right after an object, a value marker or a method awaiting parameters.
+	#
+	#   _aTokens_   the semantic tokens read so far
+	#   returns     1 or 0
+	#   note        internal step; it answers 1 for an empty list and 0 after an OBJECT_ token
+	#   see         ShouldTreatAsLiteral
+	#@ aka  May an unknown word at the current position be fallback-resolved to an action? NO whenever the word sits in a VALUE position: right after an OBJECT_* (it is the creation value: Create a string with capitals), right after a VALUE_INDICATOR, or right after a METHOD_* that still expects parameters (Replace dot with underscore). In all those spots the word must stay a literal -- resolution would corru
 	def FallbackEligible(_aTokens_)
 		_nLen_ = len(_aTokens_)
 		if _nLen_ = 0
@@ -1290,9 +1464,22 @@ class stzNaturalEngine from stzObject
 
 		return 1
 
+	# TRUE if the word is one the language skips, such as the, it or please, compared without regard to case.
+	#
+	#   cWord      the word
+	#   returns    1 or 0
+	#   see        LoadLanguageData, IgnoredWords
 	def IsIgnoredWord(cWord)
 		return StzFindFirst(StzLower(cWord), @aIgnoredWords) > 0
 	
+	# Returns the meaning id of a word in the language, for example METHOD_UPPERCASE, or an empty text if it has none.
+	#
+	#   cWord      the word
+	#   returns    a text
+	#   note       a leading @ marks a definition and a trailing @ a recall, giving @METHOD_BOX and
+	#              METHOD_BOX@; English plurals and verb forms are found, so creates gives
+	#              CREATE_OBJECT
+	#   see        PhraseResolve, Mappings
 	def ToSemantic(cWord)
 		_cLower_ = StzLower(cWord)
 
@@ -1345,6 +1532,13 @@ class stzNaturalEngine from stzObject
 		ok
 		return ""
 	
+	# Returns the Ring code the semantic tokens stand for, ending with the line that sets @result.
+	#
+	#   returns    a text of Ring lines
+	#   note       Code is the same call
+	#   warning    raises Unsupported object type! when the narration created no object, as on an
+	#              engine that has run nothing
+	#   see        Execute, Process
 	def GenerateCodeFromSemantics()
 		_aCodeLines_ = []
 		_nLen_ = len(@aSemanticTokens)
@@ -1452,6 +1646,12 @@ class stzNaturalEngine from stzObject
 		ok
 		return _cCode_
 	
+	# Returns the token index where a @-marked definition of a method began, or 0 when there is none.
+	#
+	#   _cSemantic_   the semantic id, for example METHOD_BOX
+	#   returns       a number
+	#   note          internal; it serves the @Box ... box@ define and recall form
+	#   see           ToSemantic
 	def FindDefineIndex(_cSemantic_)
 		_nLen_ = len(@aDefineRecallState)
 		for _i_ = 1 to _nLen_
@@ -1461,6 +1661,13 @@ class stzNaturalEngine from stzObject
 		next
 		return 0
 	
+	# Turns a create-object token and its type and value into the line that builds the object.
+	#
+	#   nIndex     the index of the CREATE_OBJECT token
+	#   returns    a list [ :code = Ring line, :next_index = the next token ]
+	#   note       internal step; index 1 of Create a string with a.b.c gives oStr =
+	#              StzStringQ("a.b.c") and next index 4
+	#   see        ProcessMethod, GenerateCodeFromSemantics
 	def ProcessObjectCreation(nIndex)
 
 		_nLen_ = len(@aSemanticTokens)
@@ -1538,10 +1745,14 @@ class stzNaturalEngine from stzObject
 		_aResult_ = [:code = "", :next_index = nIndex+1]
 		return _aResult_
 
-	# '... called <name>': alias the CURRENT object as o_<name>. The next
-	# literal token after NAME_INDICATOR is the name (guards make sure it
-	# stayed literal even if it collides with a dictionary word).
-
+	# Turns a called or named token into the line that aliases the live object under that name.
+	#
+	#   nIndex     the index of the NAME_INDICATOR token
+	#   returns    a list [ :code, :next_index ]
+	#   note       internal step; the alias is o_ followed by the name, and the name is also
+	#              registered in NamedObjects
+	#   see        ProcessObjectSwitch, NamedObjects
+	#@ aka  '... called <name>': alias the CURRENT object as o_<name>. The next literal token after NAME_INDICATOR is the name (guards make sure it stayed literal even if it collides with a dictionary word).
 	def ProcessObjectNaming(nIndex)
 		_nLen_ = len(@aSemanticTokens)
 		for _k_ = nIndex + 1 to _nLen_
@@ -1578,9 +1789,13 @@ class stzNaturalEngine from stzObject
 		next
 		return [:code = "", :next_index = nIndex + 1]
 
-	# 'Use <name>': switch the live object to a previously named one.
-	# Unknown names are skipped with a debug note (permissive execution).
-
+	# Makes a previously named object the live one and returns the index after the name.
+	#
+	#   nIndex     the index of the SWITCH_OBJECT token
+	#   returns    a number, the next token index
+	#   note       internal step; an unknown name is skipped
+	#   see        ProcessObjectNaming, NamedObjects
+	#@ aka  'Use <name>': switch the live object to a previously named one. Unknown names are skipped with a debug note (permissive execution).
 	def ProcessObjectSwitch(nIndex)
 		_nLen_ = len(@aSemanticTokens)
 		for _k_ = nIndex + 1 to _nLen_
@@ -1603,9 +1818,15 @@ class stzNaturalEngine from stzObject
 		next
 		return nIndex + 1
 
-	# 'Keep it as <name>': bind the current result to a VALUE variable.
-	# pbFromQuery says whether a query line just set @result.
-
+	# Turns a keep token into the line that binds the current result to a named variable.
+	#
+	#   nIndex        the index of the KEEP_INDICATOR token
+	#   pbFromQuery   1 when a query line just set the result, else 0
+	#   returns       a list [ :code, :next_index ]
+	#   note          internal step; the variable is v_ followed by the name, bound to the live
+	#                 content or to the last answer
+	#   see           ValueRefOf
+	#@ aka  'Keep it as <name>': bind the current result to a VALUE variable. pbFromQuery says whether a query line just set @result.
 	def ProcessValueKeep(nIndex, pbFromQuery)
 		_nLen_ = len(@aSemanticTokens)
 		for _k_ = nIndex + 1 to _nLen_
@@ -1634,9 +1855,13 @@ class stzNaturalEngine from stzObject
 		next
 		return [:code = "", :next_index = nIndex + 1]
 
-	# RECALL: the bound variable for a literal token, or "" -- only bare
-	# WORDS recall (a quoted 'sep' is data, never a reference).
-
+	# Returns the variable that a bare word recalls, or an empty text.
+	#
+	#   paToken    a literal token record with type, value and word
+	#   returns    a text
+	#   note       only a bare word recalls; a quoted text never does
+	#   see        ProcessValueKeep
+	#@ aka  RECALL: the bound variable for a literal token, or "" -- only bare WORDS recall (a quoted 'sep' is data, never a reference).
 	def ValueRefOf(paToken)
 		if paToken[:type] != "literal" or NOT isString(paToken[:value])
 			return ""
@@ -1653,6 +1878,12 @@ class stzNaturalEngine from stzObject
 		next
 		return ""
 
+	# Returns a name in lower case, keeping only ASCII letters, digits and underscore.
+	#
+	#   _cValue_   the name as written
+	#   returns    a text
+	#   note       My Basket-1 becomes mybasket1
+	#   see        ProcessObjectNaming
 	def SanitizedName(_cValue_)
 		_cOut_ = ""
 		_cLow_ = StzLower(trim(_cValue_))
@@ -1666,9 +1897,22 @@ class stzNaturalEngine from stzObject
 		next
 		return _cOut_
 
+	# Returns the objects named so far with called, as [ name, variable, type ] rows.
+	#
+	#   returns    a list of rows
+	#   note       rebuilt each time the code is generated
+	#   see        ProcessObjectNaming, ProcessObjectSwitch
 	def NamedObjects()
 		return @aNamedObjects
 
+	# Turns a method token and its parameters into the line that calls it on the live object.
+	#
+	#   nIndex        the index of the METHOD_ token
+	#   _cSemantic_   the semantic id of the method
+	#   returns       a list [ :code, :next_index ]
+	#   note          internal step; METHOD_REPLACE at the right index gives oStr.Replace(".", "_");
+	#                 an unknown id gives an empty code and the next index
+	#   see           ExtractMethodParameters, GetSemanticOperation
 	def ProcessMethod(nIndex, _cSemantic_)
 		This.AddToDebugLog("Processing method: " + _cSemantic_)
 
@@ -1754,6 +1998,14 @@ class stzNaturalEngine from stzObject
 		
 		return [:code = _cCode_, :next_index = nIndex+1]
 	
+	# Collects the literals that follow a method word as its parameters.
+	#
+	#   nIndex        the index of the METHOD_ token
+	#   nParamCount   how many parameters the method takes
+	#   returns       a list [ :params = the values, :next_index ]
+	#   note          internal step; in a language whose parameters come before the verb it reads
+	#                 backwards
+	#   see           ProcessMethod, ExtractParamsBackward
 	def ExtractMethodParameters(nIndex, nParamCount)
 		if @bParamsBeforeVerb = 1
 			return This.ExtractParamsBackward(nIndex, nParamCount)
@@ -1792,11 +2044,14 @@ class stzNaturalEngine from stzObject
 
 		return [:params = _aParams_, :next_index = _nLastIndex_ + 1]
 
-	# VERB-FINAL grammar: the parameters precede their verb ("'.'" instead-
-	# of "'_'" put). Walk backward to the previous action/creation boundary
-	# collecting unconsumed literals, keep the LAST nParamCount in textual
-	# order, and mark them consumed so no later verb re-grabs them.
-
+	# Collects the unused literals before a verb as its parameters, for languages that put them first.
+	#
+	#   nIndex        the index of the verb token
+	#   nParamCount   how many parameters the verb takes
+	#   returns       a list [ :params, :next_index ]
+	#   note          internal step; for English it finds none
+	#   see           ExtractMethodParameters
+	#@ aka  VERB-FINAL grammar: the parameters precede their verb ("'.'" instead- of "'_'" put). Walk backward to the previous action/creation boundary collecting unconsumed literals, keep the LAST nParamCount in textual order, and mark them consumed so no later verb re-grabs them.
 	def ExtractParamsBackward(nIndex, nParamCount)
 		_aFound_ = []    # [ [tokenIndex, value], ... ] in textual order
 		for _i_ = nIndex - 1 to 1 step -1
@@ -1832,6 +2087,13 @@ class stzNaturalEngine from stzObject
 		next
 		return [:params = _aParams_, :next_index = nIndex + 1]
 	
+	# Turns a method token and its modifiers, such as rounded for a box, into the line that calls it.
+	#
+	#   nIndex        the index of the METHOD_ token
+	#   _cSemantic_   the semantic id of the method
+	#   returns       a list [ :code, :next_index ]
+	#   note          internal step; Box with the modifier rounded gives BoxXT with Rounded = 1
+	#   see           ProcessMethod, FindDefineIndex
 	def ProcessMethodWithModifiers(nIndex, _cSemantic_)
 		_aOp_ = This.GetSemanticOperation(_cSemantic_)
 		if len(_aOp_) = 0
@@ -1860,6 +2122,13 @@ class stzNaturalEngine from stzObject
 		
 		return [:code = _cCode_, :next_index = nIndex+1]
 	
+	# Returns the record that tells how a semantic id is turned into Ring code, or an empty list.
+	#
+	#   cSemanticId   the semantic id, for example METHOD_TRIM
+	#   returns       a list; [ ] for an unknown id
+	#   note          the record carries the method name, the call signature and the types it
+	#                 applies to
+	#   see           ProcessMethod, SetAllowedOperations
 	def GetSemanticOperation(cSemanticId)
 		_nLen_ = len($aSemanticOperations)
 		for _i_ = 1 to _nLen_
@@ -1873,17 +2142,19 @@ class stzNaturalEngine from stzObject
 	def Code()
 		return This.GenerateCodeFromSemantics()
 	
+	# Returns the last thing the narration produced: the live object's content, or the answer of a trailing question.
+	#
+	#   returns    the value; empty before any run
+	#   see        Answers, Execute
 	def Result()
 		return @result
 
-	# INTERROGATIVE NARRATIONS (the stzChainOfTruth absorption, NATURAL_VISION
-	# step 4): every QUERY in the narration records its answer, in order.
-	# A chain of truth is now just a narration that asks several questions:
-	#   Naturally("Create a string with 'ring' Is it lowercase ?
-	#              Does it contain 'g' ?").AllYes()  #--> 1
-	# Result() stays "the last thing produced" (unchanged contract);
-	# Answers() exposes the full record; AllYes()/AnyYes() fold it.
-
+	# Returns the answer of every question in the narration, in order.
+	#
+	#   returns    a list
+	#   note       Is it lowercase ? Does it contain 'g' ? on ring gives [ 1, 1 ]
+	#   see        AllYes, AnyYes, Result
+	#@ aka  INTERROGATIVE NARRATIONS (the stzChainOfTruth absorption, NATURAL_VISION step 4): every QUERY in the narration records its answer, in order. A chain of truth is now just a narration that asks several questions: Naturally("Create a string with 'ring' Is it lowercase ? Does it contain 'g' ?").AllYes() #--> 1 Result() stays "the last thing produced" (unchanged contract); Answers() exposes the full re
 	def Answers()
 		return @aAnswers
 
@@ -1899,6 +2170,12 @@ class stzNaturalEngine from stzObject
 		ok
 		return 0
 
+	# TRUE if the narration asked at least one question and every answer is yes.
+	#
+	#   returns    1 or 0
+	#   note       a number is yes when not 0, a text when not empty, a list when not empty; 0 when
+	#              no question was asked
+	#   see        AnyYes, Answers
 	def AllYes()
 		_nAy_ = len(@aAnswers)
 		if _nAy_ = 0
@@ -1914,6 +2191,10 @@ class stzNaturalEngine from stzObject
 		def AllTrue()
 			return This.AllYes()
 
+	# TRUE if at least one answer of the narration is yes.
+	#
+	#   returns    1 or 0
+	#   see        AllYes, Answers
 	def AnyYes()
 		_nAy_ = len(@aAnswers)
 		for _iAy_ = 1 to _nAy_
@@ -1926,17 +2207,28 @@ class stzNaturalEngine from stzObject
 		def AnyTrue()
 			return This.AnyYes()
 
+	# Returns the narration as it was given.
+	#
+	#   returns    a text
+	#   note       with a context it is the text with its {key} holes
+	#   see        NaturalCode
 	def OriginalCode()
 		return @cOriginalCode
 
+	# Returns the narration that was run, after the context was filled in.
+	#
+	#   returns    a text
+	#   see        OriginalCode, InterpolateContext
 	def NaturalCode()
 		return @cNaturalCode
 
-	# PARAPHRASE-BACK (the Boeing-CPL trust loop): say what was UNDERSTOOD,
-	# in plain words derived from the interpreted tokens -- so the writer of
-	# a loosely-phrased (or vocalized Arabic) narration sees the canonical
-	# reading before trusting the result.
-
+	# Returns what the engine understood, in plain words and in order, as steps joined by arrows.
+	#
+	#   returns    a text
+	#   note       Create a string with 'ring' Uppercase it reads create a string with ring ->
+	#              uppercase; read it before trusting a loosely worded narration
+	#   see        Unresolved, UnderstoodAll
+	#@ aka  PARAPHRASE-BACK (the Boeing-CPL trust loop): say what was UNDERSTOOD, in plain words derived from the interpreted tokens -- so the writer of a loosely-phrased (or vocalized Arabic) narration sees the canonical reading before trusting the result.
 	def Understood()
 		_bEn_ = ( @cLangCode = "en" )
 		_aSteps_ = []
@@ -2076,6 +2368,13 @@ class stzNaturalEngine from stzObject
 		next
 		return _cOut_
 
+	# Returns what could be said next after a partial narration, completing a half-typed last word.
+	#
+	#   _cPartial_   the narration so far
+	#   returns      a list of texts; empty for anything but a text
+	#   note         after Create a string with 'abc' it offers uppercase, lowercase, reverse and
+	#                more; the prefix upp completes to uppercase and its kin
+	#   see          StzNaturalSuggest
 	def SuggestNext(_cPartial_)
 		if NOT isString(_cPartial_)
 			return []
@@ -2230,20 +2529,30 @@ class stzNaturalEngine from stzObject
 		ok
 		return _aSug_
 
-	# UNDERSTANDABILITY: the action-position words this run could not
-	# interpret, each with the nearest known word as a suggestion --
-	# [ [word, suggestion], ... ]. Execution is permissive (unknown
-	# words degrade to literals); this is the honest report of it.
-
+	# Returns the action words the engine could not understand, each with the nearest known word.
+	#
+	#   returns    a list of [ word, suggestion ] pairs
+	#   note       the suggestion is an empty text when nothing is near; the words keep the case
+	#              they were written in
+	#   see        UnderstoodAll, Analyze
+	#@ aka  UNDERSTANDABILITY: the action-position words this run could not interpret, each with the nearest known word as a suggestion -- [ [word, suggestion], ... ]. Execution is permissive (unknown words degrade to literals); this is the honest report of it.
 	def Unresolved()
 		return @aUnresolved
 
+	# TRUE if every action word of the narration was understood.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Unresolved, Analyze
 	def UnderstoodAll()
 		return len(@aUnresolved) = 0
 
-	# Dry run: tokenize + interpret WITHOUT generating or executing any
-	# code. Returns the lint report.
-
+	# Reads a narration without running it and reports which words would not be understood.
+	#
+	#   _cCode_    the narration to check, where an empty or non-text one is reported as understood
+	#   returns    a list [ :understood = 1 or 0, :unresolved = pairs of word and suggestion ]
+	#   note       it replaces the engine's narration and tokens but runs no code
+	#   see        Unresolved, StzNaturalLint
+	#@ aka  Dry run: tokenize + interpret WITHOUT generating or executing any code. Returns the lint report.
 	def Analyze(_cCode_)
 		if NOT isString(_cCode_) or trim(_cCode_) = ""
 			return [ :understood = 1, :unresolved = [] ]
@@ -2253,48 +2562,104 @@ class stzNaturalEngine from stzObject
 		@aSemanticTokens = This.ConvertToSemanticTokens()
 		return [ :understood = This.UnderstoodAll(), :unresolved = @aUnresolved ]
 	
+	# Returns the context list the engine was built with.
+	#
+	#   returns    a list; empty without a context
+	#   see        InterpolateContext, NaturalCode
 	def Context()
 		return @aContext
 
+	# Switches the debug log on and empties it.
+	#
+	#   returns    nothing
+	#   see        DisableDebug, DebugLog, AddToDebugLog
 	#--- DEBUG ---
-	
 	def EnableDebug()
 		@bDebugMode = 1
 		@aDebugLog = []
 	
+	# Switches the debug log off, keeping what it holds.
+	#
+	#   returns    nothing
+	#   see        EnableDebug, ClearDebugLog
 	def DisableDebug()
 		@bDebugMode = 0
 	
+	# Appends a message with a clock reading to the debug log, only while debug is on.
+	#
+	#   cMessage   the message
+	#   returns    nothing
+	#   note       when debug is off the call does nothing
+	#   see        EnableDebug, DebugLog
 	def AddToDebugLog(cMessage)
 		if @bDebugMode
 			@aDebugLog + [:timestamp = clock(), :message = cMessage]
 		ok
 	
+	# Returns the debug log as records of timestamp and message.
+	#
+	#   returns    a list of records
+	#   note       a run with debug on logs about twenty lines, starting with Executing natural code
+	#   see        EnableDebug, ClearDebugLog
 	def DebugLog()
 		return @aDebugLog
 	
+	# Empties the debug log.
+	#
+	#   returns    nothing
+	#   see        DebugLog, ClearDebug
 	def ClearDebugLog()
 		@aDebugLog = []
 
+	# Empties the debug log.
+	#
+	#   returns    nothing
+	#   note       the same effect as ClearDebugLog
+	#   see        ClearDebugLog
 	def ClearDebug()
 		@aDebugLog = []
 
+	# Returns the language the engine runs, as given and lower-cased, or en for an unknown one.
+	#
+	#   returns    a text
+	#   note       a name such as hausa stays hausa; it is not turned into the code
+	#   see        LoadLanguageData, FindLanguageDefinition
 	#--- ACCESSORS ---
-
 	def Language()
 		return @cLanguage
 
+	# Returns the words the language skips.
+	#
+	#   returns    a list of texts
+	#   see        IsIgnoredWord, LoadLanguageData
 	def IgnoredWords()
 		return @aIgnoredWords
 
+	# Returns the language's word-to-meaning table.
+	#
+	#   returns    a list of [ :natural = word, :semantic = id ] records
+	#   see        ToSemantic, LoadLanguageData
 	def Mappings()
 		return @aMappings
 
+	# Returns the raw tokens of the last narration read.
+	#
+	#   returns    a list of tokens
+	#   see        TokenizeCode, Tokens
 	def Values()
 		return @aValues
 
+	# Returns the semantic tokens of the last narration, as records of type, value and original.
+	#
+	#   returns    a list of records
+	#   see        Values, ConvertToSemanticTokens
 	def Tokens()
 		return @aSemanticTokens
 
+	# Returns the type name of the object the narration is working on, such as stzString.
+	#
+	#   returns    a text
+	#   note       empty before any object is created
+	#   see        NamedObjects
 	def Object()
 		return @cCurrentObject

@@ -6,6 +6,32 @@
     Features: _scenario_-based optimization, robust optimization, uncertainty modeling, string constraint values
 */
 
+# Describes one optimisation problem under several scenarios, each with a probability, and checks and scores a plan against all of them.
+#
+# Declare variables, constraints and an objective as for stzLinearSolver, then add scenarios: each
+# has a name, a description, parameters such as [ "d", 4 ] that are replaced as text inside the
+# expressions and the constraint values, and a probability. The probabilities must add up to 1 when
+# the problem is solved. setSolverType chooses expected, robust, chance or montecarlo. WHAT WORKS
+# TODAY: the description of the problem, the scenario parameters, evaluateConstraintValue,
+# checkScenarioFeasibility, calculateScenarioObjectiveValue, analyzeScenarios and
+# expectedObjectiveValue for a plan you supply. WHAT DOES NOT: solve gives wrong answers. The
+# expected, robust and chance solvers leave every variable at its lower bound, because they update a
+# copy of each solution pair, and calculateScenarioMaxValue answers 999999 (no limit) for every
+# constraint, because its switch label on "=" or "<=" matches no operator, so the Monte Carlo solver
+# returns upper bounds that break the constraints. The status is optimal in every case. See the
+# defect list of wave 10.
+#
+#   receiver   o1 = new stzStochasticSolver()
+#   example    o1.addVariable("x", 0, 10).addVariable("y", 0, 10)
+#              o1.addScenario("low", "Low demand", [ [ "d", 4 ] ], 0.4).addScenario("high", "High demand", [ [ "d", 8 ] ], 0.6)
+#              o1.addConstraint("x + y", "<=", "d").maximize("3*x + 2*y")
+#              ? o1.checkScenarioFeasibility([ [ "x", 3 ], [ "y", 1 ] ], o1.scenarios()[1])
+#              #--> 1
+#              ? o1.checkScenarioFeasibility([ [ "x", 3 ], [ "y", 3 ] ], o1.scenarios()[1])
+#              #--> 0
+#              ? o1.calculateScenarioObjectiveValue([ [ "x", 3 ], [ "y", 1 ] ], o1.scenarios()[2])
+#              #--> 11
+#   see        stzLinearSolver, stzMultiObjectiveSolver
 class stzStochasticSolver from stzObject
 
     @aVariables = []
@@ -23,10 +49,18 @@ class stzStochasticSolver from stzObject
 
 	@oCoeffExtractor
 
+    # Builds an empty stochastic problem, with no variable, constraint, objective or scenario.
+    #
+    #   returns    nothing; the object is built
+    #   see        clear, addVariable, addScenario, solve
     def init()
         This.clear()
 		@oCoeffExtractor = new stzCoeffExtractor(This.variableNames())
 
+    # Empties the problem and restores the defaults: solver type expected, robustness factor 0.1 and confidence level 0.95.
+    #
+    #   returns    nothing; the problem is empty again
+    #   see        init, setSolverType
     def clear()
         @aVariables = []
         @aConstraints = []
@@ -41,7 +75,17 @@ class stzStochasticSolver from stzObject
         @nRobustnessFactor = 0.1
         @nConfidenceLevel = 0.95
 
-    # Variables Management
+    # Adds a continuous variable with a lower and an upper bound, in declaration order.
+    #
+    #   _varName_    the variable's name, as text
+    #   lowerBound   the smallest value the variable may take
+    #   upperBound   the largest value it may take, never below the lower bound
+    #   returns      the solver itself, so calls chain
+    #   warning      all three arguments must be given (R19 otherwise) and the bounds must be
+    #                numbers; a name that is not text and an upper bound below the lower bound raise
+    #                an error
+    #   see          addIntegerVariable, addBinaryVariable, variableNames
+    #@ aka  Variables Management
     def addVariable(_varName_, lowerBound, upperBound)
         if NOT isString(_varName_) stzRaise("Variable name must be a string!") ok
         if NOT (isNumber(lowerBound) and isNumber(upperBound)) stzRaise("Bounds must be numbers!") ok
@@ -50,19 +94,43 @@ class stzStochasticSolver from stzObject
         @aVariables + [ :name = _varName_, :lowerBound = lowerBound, :upperBound = upperBound, :type = "continuous" ]
         return this
 
+    # Adds a variable marked integer, with the same arguments and checks as a continuous one.
+    #
+    #   _varName_    the variable's name, as text
+    #   lowerBound   the smallest value the variable may take
+    #   upperBound   the largest value it may take
+    #   returns      the solver itself, so calls chain
+    #   warning      the mark is only recorded in the variable list, no solver enforces it
+    #   see          addVariable, addBinaryVariable
     def addIntegerVariable(_varName_, lowerBound, upperBound)
         This.addVariable(_varName_, lowerBound, upperBound)
         @aVariables[len(@aVariables)][:type] = "integer"
         return this
 
+    # Adds a variable bounded between 0 and 1 and marked binary.
+    #
+    #   _varName_   the variable's name, as text
+    #   returns     the solver itself, so calls chain
+    #   warning     the mark is only recorded, no solver enforces it
+    #   see         addVariable, addIntegerVariable
     def addBinaryVariable(_varName_)
         This.addVariable(_varName_, 0, 1)
         @aVariables[len(@aVariables)][:type] = "binary"
         return this
 
+    # Returns the declared variables in order, each as a list of name, lowerbound, upperbound and type pairs.
+    #
+    #   returns    a list with one list of [ key, value ] pairs per variable; [ ] when none is
+    #              declared
+    #   note       the keys are lower case
+    #   see        variableNames, addVariable
     def variables()
         return @aVariables
 
+    # Returns the names of the declared variables, in declaration order.
+    #
+    #   returns    a list of text
+    #   see        variables, addVariable
     def variableNames()
         _aNames_ = []
         _nVariables3Len_ = len(@aVariables)
@@ -75,11 +143,32 @@ class stzStochasticSolver from stzObject
 		def VarNames()
 			return This.VariableNames()
 
+	# Replaces the whole variable list with the list given, without reshaping it.
+	#
+	#   pacNames   the new variable records, each a list holding a name pair such as [ "name", "q" ]
+	#   returns    nothing
+	#   warning    despite its name it replaces the variable records, not only their names:
+	#              SetVariableNames([ "a", "b" ]) makes variables() answer [ "a", "b" ] and
+	#              variableNames() then raises R5, and any bounds are lost; the code carries a TODO
+	#              for more checks
+	#   see        variables, variableNames, addVariable
 	def SetVariableNames(pacNames)
 		#TODO // Add more checks here
 		@aVariables = pacNames
 
-    # Scenario Management
+    # Adds one future state of the world, with the parameter values that define it and its probability.
+    #
+    #   name          the scenario's name, as text
+    #   description   a sentence describing it, as text
+    #   parameters    a list of [ name, value ] pairs, such as [ [ "d", 4 ] ], replaced as text
+    #                 inside expressions and constraint values
+    #   probability   a number from 0 to 1
+    #   returns       the solver itself, so calls chain
+    #   warning       a name or description that is not text, parameters that are not a list, and a
+    #                 probability that is not a number between 0 and 1 each raise an error;
+    #                 probabilities are only checked together when the problem is solved
+    #   see           scenarios, validateScenarios, applyScenarioParameters
+    #@ aka  Scenario Management
     def addScenario(name, description, parameters, probability)
         if NOT isString(name) stzRaise("Scenario name must be a string!") ok
         if NOT isString(description) stzRaise("Description must be a string!") ok
@@ -90,9 +179,18 @@ class stzStochasticSolver from stzObject
         @aScenarios + [ :name = name, :description = description, :parameters = parameters, :probability = probability ]
         return this
 
+    # Returns the declared scenarios in order, each as a list of name, description, parameters and probability pairs.
+    #
+    #   returns    a list of lists of [ key, value ] pairs; [ ] when none is declared
+    #   see        addScenario
     def scenarios()
         return @aScenarios
 
+    # Raises an error unless the probabilities of the scenarios add up to 1, within 0.001.
+    #
+    #   returns    nothing; it raises when the check fails
+    #   note       with no scenario the total is 0 and it raises as well
+    #   see        addScenario, solve
     def validateScenarios()
         _nTotalProb_ = 0
         _nScenarios14Len_ = len(@aScenarios)
@@ -102,7 +200,18 @@ class stzStochasticSolver from stzObject
         next
         if abs(_nTotalProb_ - 1.0) > 0.001 stzRaise("Scenario probabilities must sum to 1.0!") ok
 
-    # Constraints Management - Enhanced to support string values
+    # Adds a constraint that holds in every scenario: an expression, a comparison and a number or a text to evaluate per scenario.
+    #
+    #   expression   the left side, as text
+    #   operator     the comparison: "<=", ">=" or "="
+    #   value        a number, or a text such as "d * 2" in which scenario parameters are replaced
+    #                and one arithmetic operation is evaluated
+    #   returns      the solver itself, so calls chain
+    #   note         the stored constraint has scenario all and chance 1
+    #   warning      an expression that is not text, another operator, or a value that is neither a
+    #                number nor text raise an error
+    #   see          addScenarioConstraint, addChanceConstraint, constraints
+    #@ aka  Constraints Management - Enhanced to support string values
     def addConstraint(expression, operator, value)
         if NOT isString(expression) stzRaise("Expression must be a string!") ok
         if NOT (operator = "<=" or operator = ">=" or operator = "=") stzRaise("Operator must be '<=', '>=', or '='!") ok
@@ -111,6 +220,15 @@ class stzStochasticSolver from stzObject
         @aConstraints + [ :expression = expression, :operator = operator, :value = value, :scenario = "all", :chance = 1.0 ]
         return this
 
+    # Adds a constraint that applies in one named scenario only.
+    #
+    #   expression     the left side, as text
+    #   operator       the comparison: "<=", ">=" or "="
+    #   value          a number or a text to evaluate
+    #   scenarioName   the name of the scenario it applies to, as text
+    #   returns        the solver itself, so calls chain
+    #   warning        the expression and the operator are not checked, unlike addConstraint
+    #   see            addConstraint, addScenario
     def addScenarioConstraint(expression, operator, value, scenarioName)
         if NOT isString(scenarioName) stzRaise("Scenario name must be a string!") ok
         if NOT (isNumber(value) or isString(value)) stzRaise("Value must be a number or string expression!") ok
@@ -118,6 +236,16 @@ class stzStochasticSolver from stzObject
         @aConstraints + [ :expression = expression, :operator = operator, :value = value, :scenario = scenarioName, :chance = 1.0 ]
         return this
 
+    # Adds a constraint that must hold with a given probability, to be read when the solver type is chance.
+    #
+    #   expression        the left side, as text
+    #   operator          the comparison: "<=", ">=" or "="
+    #   value             a number or a text to evaluate
+    #   confidenceLevel   the probability, from 0 to 1, with which it must hold
+    #   returns           the solver itself, so calls chain
+    #   warning           a confidence level outside 0 to 1, or not a number, raises an error; the
+    #                     expression and the operator are not checked
+    #   see               addConstraint, setConfidenceLevel
     def addChanceConstraint(expression, operator, value, confidenceLevel)
         if NOT isNumber(confidenceLevel) stzRaise("Confidence level must be a number!") ok
         if confidenceLevel < 0 or confidenceLevel > 1 stzRaise("Confidence level must be between 0 and 1!") ok
@@ -126,27 +254,55 @@ class stzStochasticSolver from stzObject
         @aConstraints + [ :expression = expression, :operator = operator, :value = value, :scenario = "all", :chance = confidenceLevel ]
         return this
 
+    # Returns the declared constraints in order, each as a list of expression, operator, value, scenario and chance pairs.
+    #
+    #   returns    a list of lists of [ key, value ] pairs; [ ] when none is declared
+    #   see        addConstraint
     def constraints()
         return @aConstraints
 
-    # Objective Function
+    # Sets the objective to an expression to make as large as possible, replacing any earlier objective.
+    #
+    #   expression   the objective, as text, which may name scenario parameters
+    #   returns      the solver itself, so calls chain
+    #   see          minimize, objective, solve
+    #@ aka  Objective Function
     def maximize(expression)
         @cObjective = expression
         @cObjectiveType = "maximize"
         return this
 
+    # Sets the objective to an expression to make as small as possible, replacing any earlier objective.
+    #
+    #   expression   the objective, as text, which may name scenario parameters
+    #   returns      the solver itself, so calls chain
+    #   see          maximize, objective, solve
     def minimize(expression)
         @cObjective = expression
         @cObjectiveType = "minimize"
         return this
 
+    # Returns the objective expression as text.
+    #
+    #   returns    a text; "" before an objective is set
+    #   see        maximize, minimize, objectiveType
     def objective()
         return @cObjective
 
+    # Returns whether the objective is to be made larger or smaller.
+    #
+    #   returns    the text "maximize" or "minimize"; "maximize" before any objective is set
+    #   see        maximize, minimize
     def objectiveType()
         return @cObjectiveType
 
-    # Solver Configuration
+    # Chooses how solve treats the uncertainty: expected, robust, chance or montecarlo.
+    #
+    #   cType      one of "expected", "robust", "chance" or "montecarlo", in lower case
+    #   returns    the solver itself, so calls chain
+    #   warning    any other name raises an error
+    #   see        solverType, solve
+    #@ aka  Solver Configuration
     def setSolverType(cType)
         if NOT (cType = "expected" or cType = "robust" or cType = "chance" or cType = "montecarlo")
             stzRaise("Solver type must be 'expected', 'robust', 'chance', or 'montecarlo'!")
@@ -154,19 +310,38 @@ class stzStochasticSolver from stzObject
         @cSolverType = cType
         return this
 
+    # Sets the fraction, from 0 to 1, by which the robust solver shrinks every scenario limit; 0.1 by default.
+    #
+    #   nFactor    a number from 0 to 1
+    #   returns    the solver itself, so calls chain
+    #   warning    a value outside 0 to 1, or not a number, raises an error
+    #   see        setSolverType, calculateRobustMaxValue
     def setRobustnessFactor(nFactor)
         if NOT isNumber(nFactor) stzRaise("Robustness factor must be a number!") ok
         if nFactor < 0 or nFactor > 1 stzRaise("Robustness factor must be between 0 and 1!") ok
         @nRobustnessFactor = nFactor
         return this
 
+    # Sets the probability, from 0 to 1, that the chance solver aims to cover; 0.95 by default.
+    #
+    #   nLevel     a number from 0 to 1
+    #   returns    the solver itself, so calls chain
+    #   warning    a value outside 0 to 1, or not a number, raises an error
+    #   see        addChanceConstraint, calculateChanceMaxValue
     def setConfidenceLevel(nLevel)
         if NOT isNumber(nLevel) stzRaise("Confidence level must be a number!") ok
         if nLevel < 0 or nLevel > 1 stzRaise("Confidence level must be between 0 and 1!") ok
         @nConfidenceLevel = nLevel
         return this
 
-    # Enhanced Value Evaluation - New method to handle string constraint values
+    # Returns a constraint's right side for one scenario: a number as it is, a text after its parameters are replaced and evaluated.
+    #
+    #   value        a number or a text such as "d * 2"
+    #   _scenario_   a scenario, as returned by scenarios
+    #   returns      a number
+    #   note         with d = 4 the text "d * 2" gives 8 and "d + 3" gives 7
+    #   see          applyScenarioParameters, evaluateExpression
+    #@ aka  Enhanced Value Evaluation - New method to handle string constraint values
     def evaluateConstraintValue(value, _scenario_)
         if isNumber(value)
             return value
@@ -177,6 +352,14 @@ class stzStochasticSolver from stzObject
             return This.evaluateExpression(_cEvaluated_)
         ok
 
+    # Returns the value of a text holding a single number or one operation between two numbers: *, /, + or -.
+    #
+    #   cExpression   the text, such as "6 / 3"
+    #   returns       a number
+    #   note          6 / 3 gives 2, 7 - 2 gives 5, 2 + 3 gives 5
+    #   warning       a text with two operations, such as "2 * 3 + 1", raises R41 Invalid numeric
+    #                 string, and a division by zero raises an error
+    #   see           evaluateConstraintValue
     def evaluateExpression(cExpression)
         # Simple expression evaluator for basic arithmetic
         # Handles: number, number * number, number + number, number - number, number / number
@@ -229,7 +412,16 @@ class stzStochasticSolver from stzObject
         # If no operators, try to convert to number
         return 0+ _cExpr_
 
-    # Main Solving Methods
+    # Validates the problem and runs the solver chosen with setSolverType, then stores its solution.
+    #
+    #   returns    the solver itself, so calls chain
+    #   warning    no variable, no objective, no scenario, or probabilities that do not add up to 1
+    #              raise an error; the solvers expected, robust and chance leave every variable at
+    #              its lower bound today, and no solver respects the constraints (see
+    #              solveExpectedValue and calculateScenarioMaxValue); the status is set to optimal
+    #              in every case
+    #   see        setSolverType, solution, status, expectedObjectiveValue
+    #@ aka  Main Solving Methods
     def solve()
         _nStartTime_ = clock()
         if len(@aVariables) = 0 stzRaise("No variables defined!") ok
@@ -253,7 +445,16 @@ class stzStochasticSolver from stzObject
         @cStatus = "optimal"
         return this
 
-    # Expected Value Method
+    # Returns a solution from the probability-weighted objective, giving each variable in turn the largest value its limits allow.
+    #
+    #   returns    a list of [ name, value ] pairs, one per variable
+    #   warning    it answers every variable at its lower bound: the update writes to a copy of the
+    #              pair (_sol_ is a copy of the list item), so the solution never changes; with one
+    #              variable x in 0..3, x <= 2 and maximize x it answers 0, and in a two-variable
+    #              problem it answers 0 and 0; its limits are also broken, see
+    #              calculateScenarioMaxValue
+    #   see        solve, solveRobust, calculateExpectedMaxValue
+    #@ aka  Expected Value Method
     def solveExpectedValue()
         @nIterations = len(@aVariables)
         _aVarNames_ = This.variableNames()
@@ -321,7 +522,13 @@ class stzStochasticSolver from stzObject
 
         return _aSolution_
 
-    # Robust Optimization
+    # Returns a solution built from the first scenario's objective, with each limit shrunk by the robustness factor.
+    #
+    #   returns    a list of [ name, value ] pairs, one per variable
+    #   warning    it answers every variable at its lower bound, for the same reason as
+    #              solveExpectedValue (a copy of the pair is updated), on two problems
+    #   see        solve, setRobustnessFactor, getWorstCaseObjective
+    #@ aka  Robust Optimization
     def solveRobust()
         _aVarNames_ = This.variableNames()
         _aSolution_ = []
@@ -370,7 +577,13 @@ class stzStochasticSolver from stzObject
 
         return _aSolution_
 
-    # Chance-Constrained Programming
+    # Returns a solution built from the expected objective, with limits read at the confidence level.
+    #
+    #   returns    a list of [ name, value ] pairs, one per variable
+    #   warning    it answers every variable at its lower bound, for the same reason as
+    #              solveExpectedValue (a copy of the pair is updated), on two problems
+    #   see        solve, setConfidenceLevel, calculateChanceMaxValue
+    #@ aka  Chance-Constrained Programming
     def solveChanceConstrained()
         # Simplified chance-constrained approach
         # Uses confidence level to adjust constraints
@@ -434,7 +647,14 @@ class stzStochasticSolver from stzObject
 
         return _aSolution_
 
-    # Monte Carlo Simulation
+    # Returns the best of 100 per-scenario solutions, each for a scenario drawn at random by probability.
+    #
+    #   returns    a list of [ name, value ] pairs, one per variable
+    #   warning    the draws are random; the constraints do not limit anything today, so every
+    #              variable comes back at its upper bound (with x in 0..3 and x <= 2 it answered 3;
+    #              with x + y <= d it answered 10 and 10)
+    #   see        solve, solveForScenario
+    #@ aka  Monte Carlo Simulation
     def solveMonteCarlo()
         _nSimulations_ = 100
         _aBestSolution_ = []
@@ -469,7 +689,15 @@ class stzStochasticSolver from stzObject
 
         return _aBestSolution_
 
-    # Helper Methods
+    # Returns the expression with every parameter name replaced by its value, as text.
+    #
+    #   cExpression   the expression, as text
+    #   aParameters   a list of [ name, value ] pairs
+    #   returns       a text
+    #   note          the replacement is plain text: 2*d + x with d = 4 gives 2*4 + x, and dd + 2*d
+    #                 gives 44 + 2*4
+    #   see           evaluateConstraintValue, addScenario
+    #@ aka  Helper Methods
     def applyScenarioParameters(cExpression, aParameters)
         _cResult_ = cExpression
         _nParameters1Len_ = len(aParameters)
@@ -479,14 +707,32 @@ class stzStochasticSolver from stzObject
         next
         return _cResult_
 
+    # Returns the coefficient of one variable in an expression.
+    #
+    #   cExpression   the expression, as text
+    #   _cVarName_    the variable's name
+    #   returns       a number; 0 when the variable does not appear
+    #   note          in 3*x + 2*y the coefficient of y is 2
+    #   see           parseObjectiveCoefficients
     def extractCoefficient(cExpression, _cVarName_)
         return @oCoeffExtractor.extractCoefficient(cExpression, _cVarName_)
 	
 
+    # Returns the coefficient of each declared variable in an expression, in declaration order.
+    #
+    #   cExpression   the expression, as text
+    #   returns       a list of numbers
+    #   note          3*x + 2*y gives [ 3, 2 ]
+    #   see           extractCoefficient, variableNames
     def parseObjectiveCoefficients(cExpression)
 		@oCoeffExtractor.SetVariableNames(This.VariableNames())
         return @oCoeffExtractor.extractAllCoefficients(cExpression)
 
+    # Returns the probability-weighted sum, over the scenarios, of the absolute coefficients of a variable in the constraints that apply.
+    #
+    #   _cVarName_   the variable's name
+    #   returns      a number
+    #   see          calculateWorstCaseResourceCost, calculateChanceResourceCost
     def calculateExpectedResourceCost(_cVarName_)
         _nExpectedCost_ = 0
         _nScenarios10Len_ = len(@aScenarios)
@@ -506,6 +752,11 @@ class stzStochasticSolver from stzObject
         next
         return _nExpectedCost_
 
+    # Returns the largest, over the scenarios, of the summed absolute coefficients of a variable in the constraints that apply.
+    #
+    #   _cVarName_   the variable's name
+    #   returns      a number
+    #   see          calculateExpectedResourceCost, solveRobust
     def calculateWorstCaseResourceCost(_cVarName_)
         _nWorstCost_ = 0
         _nScenarios9Len_ = len(@aScenarios)
@@ -525,6 +776,11 @@ class stzStochasticSolver from stzObject
         next
         return _nWorstCost_
 
+    # Returns the probability-weighted resource cost of a variable, each constraint weighted by its chance against the confidence level.
+    #
+    #   _cVarName_   the variable's name
+    #   returns      a number
+    #   see          calculateExpectedResourceCost, setConfidenceLevel
     def calculateChanceResourceCost(_cVarName_)
         # Use confidence level to weight resource costs
         _nWeightedCost_ = 0
@@ -546,6 +802,17 @@ class stzStochasticSolver from stzObject
         next
         return _nWeightedCost_
 
+    # Returns the smallest probability-weighted scenario limit on a variable, never below 0.
+    #
+    #   _cVarName_    the variable's name
+    #   _aSolution_   a list of [ name, value ] pairs for the other variables
+    #   returns       a number
+    #   note          the weighting by probability makes the limit smaller than any single scenario
+    #                 allows
+    #   warning       built on calculateScenarioMaxValue, so it answers 399999.6 for a variable
+    #                 whose scenario limit is really 4 and 6: the weighting multiplies the 999999
+    #                 that means no limit
+    #   see           calculateScenarioMaxValue, solveExpectedValue
     def calculateExpectedMaxValue(_cVarName_, _aSolution_)
         _nMinLimit_ = 999999
         _nScenarios7Len_ = len(@aScenarios)
@@ -557,6 +824,14 @@ class stzStochasticSolver from stzObject
         next
         return max([0, _nMinLimit_])
 
+    # Returns the smallest scenario limit on a variable, reduced by the robustness factor, never below 0.
+    #
+    #   _cVarName_    the variable's name
+    #   _aSolution_   a list of [ name, value ] pairs for the other variables
+    #   returns       a number
+    #   warning       built on calculateScenarioMaxValue, so it answers 899999.1 where the limit is
+    #                 really 4 and 6
+    #   see           calculateScenarioMaxValue, setRobustnessFactor
     def calculateRobustMaxValue(_cVarName_, _aSolution_)
         _nMinLimit_ = 999999
         _nScenarios6Len_ = len(@aScenarios)
@@ -568,6 +843,14 @@ class stzStochasticSolver from stzObject
         next
         return max([0, _nMinLimit_])
 
+    # Returns the scenario limit on a variable at which the cumulated probability, from the smallest limit up, reaches the confidence level.
+    #
+    #   _cVarName_    the variable's name
+    #   _aSolution_   a list of [ name, value ] pairs for the other variables
+    #   returns       a number, never below 0
+    #   warning       built on calculateScenarioMaxValue, so it answers 999999 where the limit is
+    #                 really 4 and 6
+    #   see           calculateScenarioMaxValue, setConfidenceLevel
     def calculateChanceMaxValue(_cVarName_, _aSolution_)
         _aLimits_ = []
         _nScenarios5Len_ = len(@aScenarios)
@@ -590,6 +873,16 @@ class stzStochasticSolver from stzObject
         next
         return max([0, _aLimits_[len(_aLimits_)][1]])
 
+    # Returns the largest value a variable can take in one scenario, given the values of the others, from the constraints that apply.
+    #
+    #   _cVarName_    the variable's name
+    #   _aSolution_   a list of [ name, value ] pairs for the other variables
+    #   _scenario_    a scenario, as returned by scenarios
+    #   returns       a number
+    #   warning       it answers 999999, meaning no limit, for every constraint with "<=", ">=" or
+    #                 "=": the switch labelled on "=" or "<=" matches none of the operators; one
+    #                 variable x with x <= 6, x >= 6 or x = 6 gives 999999 each time
+    #   see           calculateExpectedMaxValue, solveForScenario
     def calculateScenarioMaxValue(_cVarName_, _aSolution_, _scenario_)
         _nMinLimit_ = 999999
         _nConstraints3Len_ = len(@aConstraints)
@@ -624,6 +917,12 @@ class stzStochasticSolver from stzObject
         next
         return _nMinLimit_
 
+    # Returns the objective expression of the first scenario, with its parameters replaced.
+    #
+    #   returns    a text
+    #   warning    it does not look for a worst case: it keeps the first scenario's objective, as
+    #              its comment says
+    #   see        solveRobust, applyScenarioParameters
     def getWorstCaseObjective()
         _cWorstObjective_ = @cObjective
         _nWorstValue_ = iff(@cObjectiveType = "maximize", -999999, 999999)
@@ -640,6 +939,14 @@ class stzStochasticSolver from stzObject
         next
         return _cWorstObjective_
 
+    # Returns a solution for one scenario, filling the variables in declaration order with the largest value the limits and the upper bound allow.
+    #
+    #   _scenario_   a scenario, as returned by scenarios
+    #   returns      a list of [ name, value ] pairs, one per variable
+    #   warning      the constraints do not limit anything today (calculateScenarioMaxValue), so
+    #                every variable comes back at its upper bound: with x + y <= d it answered 10
+    #                and 10
+    #   see          solveMonteCarlo, calculateScenarioMaxValue
     def solveForScenario(_scenario_)
         _aVarNames_ = This.variableNames()
         _aSolution_ = []
@@ -666,6 +973,13 @@ class stzStochasticSolver from stzObject
         
         return _aSolution_
 
+    # Returns the objective's value for a solution under one scenario's parameters.
+    #
+    #   _aSolution_   a list of [ name, value ] pairs
+    #   _scenario_    a scenario, as returned by scenarios
+    #   returns       a number
+    #   note          3*x + 2*y with x = 1 and y = 2 gives 7
+    #   see           expectedObjectiveValue, analyzeScenarios
     def calculateScenarioObjectiveValue(_aSolution_, _scenario_)
         _cScenarioObjective_ = This.applyScenarioParameters(@cObjective, _scenario_[:parameters])
         _nResult_ = 0
@@ -678,6 +992,12 @@ class stzStochasticSolver from stzObject
         next
         return _nResult_
 
+    # Returns the value of one variable in a list of [ name, value ] pairs.
+    #
+    #   _aSolution_   a list of [ name, value ] pairs
+    #   _cVarName_    the variable's name
+    #   returns       a number; 0 when the name is not in the list
+    #   see           calculateScenarioObjectiveValue
     def getSolutionValue(_aSolution_, _cVarName_)
         _nSolution3Len_ = len(_aSolution_)
         for _iLoopSolution3_ = 1 to _nSolution3Len_
@@ -686,7 +1006,12 @@ class stzStochasticSolver from stzObject
         next
         return 0
 
-    # Analysis Methods
+    # Returns, for each scenario, the objective value and the feasibility of the stored solution.
+    #
+    #   returns    a list of lists of scenario, probability, objectivevalue and feasible pairs
+    #   warning    raises an error when no solution is stored, so call solve first
+    #   see        checkScenarioFeasibility, expectedObjectiveValue, exportScenarioAnalysis
+    #@ aka  Analysis Methods
     def analyzeScenarios()
         if len(@aSolution) = 0 stzRaise("No solution available! Call solve() first.") ok
         
@@ -701,6 +1026,14 @@ class stzStochasticSolver from stzObject
         next
         return _aScenarioResults_
 
+    # TRUE if a solution satisfies every constraint that applies in one scenario, within 0.001.
+    #
+    #   _aSolution_   a list of [ name, value ] pairs
+    #   _scenario_    a scenario, as returned by scenarios
+    #   returns       TRUE or FALSE
+    #   note          with 2*x + y <= d, d = 4, x = 1 and y = 2 it is TRUE and with x = 2 and y = 2
+    #                 it is FALSE
+    #   see           analyzeScenarios, addScenarioConstraint
     def checkScenarioFeasibility(_aSolution_, _scenario_)
         _nConstraints2Len_ = len(@aConstraints)
         for _iLoopConstraints2_ = 1 to _nConstraints2Len_
@@ -732,6 +1065,10 @@ class stzStochasticSolver from stzObject
         next
         return 1
 
+    # Returns the probability-weighted objective value of the stored solution over all scenarios.
+    #
+    #   returns    a number; 0 before any solve
+    #   see        analyzeScenarios, calculateScenarioObjectiveValue
     def expectedObjectiveValue()
         if len(@aSolution) = 0 return 0 ok
         
@@ -744,23 +1081,47 @@ class stzStochasticSolver from stzObject
         next
         return _nExpectedValue_
 
-    # Solution Access
+    # Returns the solution stored by the last solve.
+    #
+    #   returns    a list of [ name, value ] pairs; [ ] before any solve
+    #   see        solve, getSolutionValue
+    #@ aka  Solution Access
     def solution()
         return @aSolution
 
+    # Returns how the last solve ended.
+    #
+    #   returns    the text optimal after a solve; "" before
+    #   see        solve
     def status()
         return @cStatus
 
+    # Returns the work counted by the last solve: the number of variables, set by the expected solver only.
+    #
+    #   returns    a number; 0 before any solve or for the other solver types
+    #   see        solve
     def iterations()
         return @nIterations
 
+    # Returns the time the last solve took, in seconds.
+    #
+    #   returns    a number; 0 before any solve
+    #   see        solve
     def solveTime()
         return @nSolveTime
 
+    # Returns the solver type in force.
+    #
+    #   returns    the text expected, robust, chance or montecarlo; expected by default
+    #   see        setSolverType
     def solverType()
         return @cSolverType
 
-    # Display and Reporting
+    # Prints the problem, its scenarios and, once solved, the solution, the expected objective and the analysis of every scenario.
+    #
+    #   returns    nothing; it prints to the console
+    #   see        exportToCSV, exportScenarioAnalysis, analyzeScenarios
+    #@ aka  Display and Reporting
     def show()
 
         ? BoxRound("Stochastic Programming Problem")
@@ -828,6 +1189,11 @@ class stzStochasticSolver from stzObject
             next
         ok
 
+    # Writes the stored solution to a file, one Variable,Value line per variable.
+    #
+    #   cFileName   the path of the file to write
+    #   returns     nothing; the file is written
+    #   see         exportScenarioAnalysis, solution
     def exportToCSV(cFileName)
         _oFile_ = new stzFile(cFileName)
         _cContent_ = "Variable,Value" + nl
@@ -838,6 +1204,13 @@ class stzStochasticSolver from stzObject
         next
         _oFile_.write(_cContent_)
 
+    # Writes the objective value and feasibility of the stored solution for each scenario to a file.
+    #
+    #   cFileName   the path of the file to write
+    #   returns     nothing; the file is written
+    #   note        the first line is Scenario,Probability,ObjectiveValue,Feasible; it raises when
+    #               nothing is solved
+    #   see         exportToCSV, analyzeScenarios
     def exportScenarioAnalysis(cFileName)
         _oFile_ = new stzFile(cFileName)
         _cContent_ = "Scenario,Probability,ObjectiveValue,Feasible" + nl

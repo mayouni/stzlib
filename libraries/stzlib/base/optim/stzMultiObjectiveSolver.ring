@@ -6,6 +6,30 @@
     Techniques: NSGA-II (Genetic Algorithm), ε-constraint method
 */
 
+# Looks for trade-offs between several objectives at once: a front of solutions none of which beats another on every objective.
+#
+# Declare variables and bounds, add two or more objectives with maximize and minimize (each call
+# appends one), then call solve with nsga_ii, a seeded genetic search, or epsilon_constraint, which
+# bounds the secondary objectives and solves for the first. The search is deterministic: the same
+# seed gives the same front, and SetSeed changes it. NSGA-II refuses a problem that has constraints,
+# and the epsilon-constraint method is only a rough tool today: its greedy sub-solver reads a lower
+# bound as an upper bound, so the front repeats the same few points. exportParetoFrontCSV raises
+# R41. Objective values of a maximize goal are stored negated, so smaller is always better inside
+# the individuals.
+#
+#   receiver   o1 = new stzMultiObjectiveSolver()
+#   example    o1.addVariable("x", 0, 10)
+#              o1.maximize("x")
+#              o1.maximize("-x")
+#              o1.setNSGAParameters(8, 3, 0.1, 0.9)
+#              o1.solve("nsga_ii")
+#              ? len(o1.paretoSolutions())
+#              #--> 8
+#              ? o1.status()
+#              #--> optimal
+#              ? o1.dominates([ :objectives = [ -2, -2 ] ], [ :objectives = [ -1, -1 ] ])
+#              #--> 1
+#   see        stzLinearSolver, stzStochasticSolver
 class stzMultiObjectiveSolver from stzObject
 
     @aVariables = []
@@ -23,10 +47,19 @@ class stzMultiObjectiveSolver from stzObject
 
 	@oCoeffExtractor
 
+    # Builds an empty multi-objective problem, with no variable, constraint or objective and the generator seed set to 42.
+    #
+    #   returns    nothing; the object is built
+    #   see        clear, addVariable, addObjective, solve
     def init()
         This.clear()
 		@oCoeffExtractor = new stzCoeffExtractor(This.VariableNames())
 
+    # Empties the problem: variables, constraints, objectives, the front found so far and the status are dropped, and the seed returns to 42.
+    #
+    #   returns    nothing; the problem is empty again
+    #   note       the NSGA-II settings made with setNSGAParameters are kept
+    #   see        init, SetSeed
     def clear()
         @aVariables = []
         @aConstraints = []
@@ -37,7 +70,17 @@ class stzMultiObjectiveSolver from stzObject
         @nIterations = 0
         @nSolveTime = 0
 
-    # Variables Management (inherited from stzLinearSolver)
+    # Adds a continuous variable with a lower and an upper bound, in declaration order.
+    #
+    #   varName      the variable's name, as text
+    #   lowerBound   the smallest value the variable may take
+    #   upperBound   the largest value it may take, never below the lower bound
+    #   returns      the solver itself, so calls chain
+    #   warning      all three arguments must be given (R19 otherwise); a name that is not text,
+    #                bounds that are not numbers and an upper bound below the lower bound each raise
+    #                an error
+    #   see          addIntegerVariable, addBinaryVariable, VariableNames
+    #@ aka  Variables Management (inherited from stzLinearSolver)
     def addVariable(varName, lowerBound, upperBound)
         if NOT isString(varName) stzRaise("Variable name must be a string!") ok
         if NOT (isNumber(lowerBound) and isNumber(upperBound)) stzRaise("Bounds must be numbers!") ok
@@ -46,23 +89,51 @@ class stzMultiObjectiveSolver from stzObject
         @aVariables + [ :name = varName, :lowerBound = lowerBound, :upperBound = upperBound, :type = "continuous" ]
         return this
 
+    # Adds a variable marked integer, with the same arguments and checks as a continuous one.
+    #
+    #   varName      the variable's name, as text
+    #   lowerBound   the smallest value the variable may take
+    #   upperBound   the largest value it may take
+    #   returns      the solver itself, so calls chain
+    #   warning      the genetic search floors the values it draws for such a variable, but the
+    #                epsilon-constraint method does not enforce the mark
+    #   see          addVariable, addBinaryVariable
     def addIntegerVariable(varName, lowerBound, upperBound)
         This.addVariable(varName, lowerBound, upperBound)
         @aVariables[len(@aVariables)][:type] = "integer"
         return this
 
+    # Adds a variable bounded between 0 and 1 and marked binary.
+    #
+    #   varName    the variable's name, as text
+    #   returns    the solver itself, so calls chain
+    #   see        addVariable, addIntegerVariable
     def addBinaryVariable(varName)
         This.addVariable(varName, 0, 1)
         @aVariables[len(@aVariables)][:type] = "binary"
         return this
 
+    # Returns the declared variables in order, each as a list of name, lowerbound, upperbound and type pairs.
+    #
+    #   returns    a list with one list of [ key, value ] pairs per variable; [ ] when none is
+    #              declared
+    #   note       the keys are lower case
+    #   see        VariableNames, addVariable
     def Variables()
         return @aVariables
 
+		# Returns the same list of declared variables as the longer accessor does.
+		#
+		#   returns    a list with one list of [ key, value ] pairs per variable
+		#   see        Variables, VariableNames
 		def Vars()
 			return @aVariables
 
 
+    # Returns the names of the declared variables, in declaration order.
+    #
+    #   returns    a list of text
+    #   see        Variables, addVariable
     def VariableNames()
         _aNames_ = []
         _nVarLen_ = len(@aVariables)
@@ -74,7 +145,16 @@ class stzMultiObjectiveSolver from stzObject
 		def VarNames()
 			return This.VariableNames()
 
-    # Constraints Management (inherited from stzLinearSolver)
+    # Adds one linear constraint: an expression such as "x + y", a comparison and a number.
+    #
+    #   expression   the left side, as text
+    #   operator     the comparison: "<=", ">=" or "="
+    #   value        the number the expression is compared with
+    #   returns      the solver itself, so calls chain
+    #   warning      a value that is not a number, even the text "5", raises an error; the NSGA-II
+    #                method refuses to run when any constraint exists
+    #   see          constraints, solveWithEpsilonConstraint
+    #@ aka  Constraints Management (inherited from stzLinearSolver)
     def addConstraint(expression, operator, value)
         if NOT isString(expression) stzRaise("Expression must be a string!") ok
         if NOT (operator = "<=" or operator = ">=" or operator = "=") stzRaise("Operator must be '<=', '>=', or '='!") ok
@@ -83,10 +163,21 @@ class stzMultiObjectiveSolver from stzObject
         @aConstraints + [ :expression = expression, :operator = operator, :value = value ]
         return this
 
+    # Returns the declared constraints in order, each as a list of expression, operator and value pairs.
+    #
+    #   returns    a list of lists of [ key, value ] pairs; [ ] when none is declared
+    #   see        addConstraint
     def constraints()
         return @aConstraints
 
-    # Multi-Objective Functions
+    # Appends one objective: an expression and the goal to maximize or minimize it.
+    #
+    #   expression   the objective, as text, such as "3*x + 2*y"
+    #   type         the goal: "maximize" or "minimize"
+    #   returns      the solver itself, so calls chain
+    #   warning      an expression that is not text, or any other goal, raises an error
+    #   see          maximize, minimize, objectives
+    #@ aka  Multi-Objective Functions
     def addObjective(expression, type)
         if NOT isString(expression) stzRaise("Expression must be a string!") ok
         if NOT (type = "maximize" or type = "minimize") stzRaise("Type must be 'maximize' or 'minimize'!") ok
@@ -94,18 +185,43 @@ class stzMultiObjectiveSolver from stzObject
         @aObjectives + [ :expression = expression, :type = type ]
         return this
 
+    # Appends an objective to make as large as possible; earlier objectives are kept.
+    #
+    #   expression   the objective, as text
+    #   returns      the solver itself, so calls chain
+    #   note         unlike the single-objective solver, calling it twice gives two objectives
+    #   see          minimize, addObjective, objectives
     def maximize(expression)
         This.addObjective(expression, "maximize")
         return this
 
+    # Appends an objective to make as small as possible; earlier objectives are kept.
+    #
+    #   expression   the objective, as text
+    #   returns      the solver itself, so calls chain
+    #   see          maximize, addObjective, objectives
     def minimize(expression)
         This.addObjective(expression, "minimize")
         return this
 
+    # Returns the declared objectives in order, each as a list of expression and type pairs.
+    #
+    #   returns    a list of lists of [ key, value ] pairs; [ ] when none is declared
+    #   see        addObjective
     def objectives()
         return @aObjectives
 
-    # Algorithm Parameters
+    # Sets the population size, the number of generations and the mutation and crossover rates of the genetic search.
+    #
+    #   populationSize   how many individuals each generation holds, 50 by default
+    #   generations      how many generations to breed, 100 by default
+    #   mutationRate     the chance, from 0 to 1, that a variable is redrawn, 0.1 by default
+    #   crossoverRate    the chance, from 0 to 1, that a child takes a variable from the first
+    #                    parent, 0.9 by default
+    #   returns          the solver itself, so calls chain
+    #   warning          nothing is checked: any value is stored
+    #   see              solveWithNSGAII, solve
+    #@ aka  Algorithm Parameters
     def setNSGAParameters(populationSize, generations, mutationRate, crossoverRate)
         @nPopulationSize = populationSize
         @nGenerations = generations
@@ -113,7 +229,17 @@ class stzMultiObjectiveSolver from stzObject
         @nCrossoverRate = crossoverRate
         return this
 
-    # Solving Methods
+    # Finds a set of trade-off solutions with the named method, "nsga_ii" (the default) or "epsilon_constraint", and keeps it.
+    #
+    #   cMethod    the method's name, an empty text selects nsga_ii
+    #   returns    the solver itself, so calls chain
+    #   note       maximize x and maximize -x on 0..10 with 8 individuals and 3 generations gives a
+    #              front of 8, since no point beats another
+    #   warning    the argument cannot be left out (R19), pass an empty text for the default; no
+    #              variable, no objective, a single objective or an unknown method raise an error;
+    #              the status becomes optimal in every case
+    #   see        paretoSolutions, bestCompromiseSolution, status
+    #@ aka  Solving Methods
     def solve(cMethod)
         if isNull(cMethod) or cMethod = "" cMethod = "nsga_ii" ok
         _nStartTime_ = clock()
@@ -136,6 +262,15 @@ class stzMultiObjectiveSolver from stzObject
         return this
 
 
+	# Returns the non-dominated individuals of a genetic search that breeds a seeded population for the set number of generations.
+	#
+	#   returns    a list of individuals, each a list of solution, objectives, rank,
+	#              crowdingdistance, dominatedsolutions and dominationcount pairs
+	#   note       the same seed gives the same front (three runs agreed), and another seed gives
+	#              another; the objectives of a maximize goal are stored negated
+	#   warning    raises an error when the problem has any constraint, because the search does not
+	#              enforce them; the front can hold several copies of one point; it is approximate
+	#   see        solve, setNSGAParameters, SetSeed
 	def solveWithNSGAII()
 	    # REFUSE constraints rather than ignore them. This genetic path samples
 	    # solutions across the full variable bounds and never tests feasibility
@@ -209,6 +344,16 @@ class stzMultiObjectiveSolver from stzObject
 	    return _aParetoFront_
 
 
+    # Returns one solution per combination of bounds on the secondary objectives, each found by the greedy solver on the first objective.
+    #
+    #   returns    a list of individuals, each a list of solution, objectives and rank pairs
+    #   note       the iteration count is set to 10 per objective
+    #   warning    the front collapses: for maximize x and maximize y with x + y <= 10 all eleven
+    #              solutions are x = 10 and y = 0 (the true trade-off is the line x + y = 10), and
+    #              with minimize x + y and maximize x - y most solutions repeat, because the greedy
+    #              solver reads ">=" bounds as "<=" and always raises a variable to its maximum;
+    #              only the first two secondary objectives are used
+    #   see        solve, calculateEpsilonRanges
     def solveWithEpsilonConstraint()
         @nIterations = len(@aObjectives) * 10
         _aParetoSolutions_ = []
@@ -278,7 +423,13 @@ class stzMultiObjectiveSolver from stzObject
         
         return _aParetoSolutions_
 
-    # NSGA-II Helper Methods
+    # Returns the starting population: one random solution per individual, with no objective values yet.
+    #
+    #   returns    a list of individuals, each a list of solution, objectives, rank and
+    #              crowdingdistance pairs
+    #   note       rank starts at 0 and objectives is empty
+    #   see        solveWithNSGAII, generateRandomSolution
+    #@ aka  NSGA-II Helper Methods
     def initializePopulation()
         _aPopulation_ = []
         for i = 1 to @nPopulationSize
@@ -302,31 +453,22 @@ class stzMultiObjectiveSolver from stzObject
         return _aSolution_
 */
 
-	# ── REPRODUCIBLE RANDOMNESS (LAW 3: two runs agree; SetSeed to vary) ──
+	# Sets the state of the pseudo-random generator that drives the genetic search.
 	#
-	# NSGA-II is a genetic algorithm: it seeds a population at random, then breeds
-	# it. With Ring's bare `random()` that made every run different, so ANY assertion
-	# about the resulting Pareto front was probabilistic. The guard in
-	# test/stats/solvers_narrated.ring asserted that the front spreads across the
-	# trade-off (`nMin < 2 and nMax > 8`) and failed about once in twenty-five runs
-	# -- not because the solver was wrong, but because a stochastic assertion without
-	# a seed is flaky by construction.
-	#
-	# stzNeuralNetwork and stzKMeans already settled this for the library:
-	# stzKMeans is deterministic by construction (centroids from the first K distinct
-	# points) and stzNeuralNetwork carries a seeded generator with SetSeed(). This
-	# class was the one that had not been brought into line.
-	#
-	# THE MULTIPLIER IS NOT ARBITRARY, and the reason is copied from
-	# stzNeuralNetwork because it was found the hard way there: Park-Miller's 16807
-	# is chosen for RING'S DOUBLES, since 16807 * 2^31 < 2^53 so the product never
-	# loses integer bits. The classic 1103515245 multiplier OVERFLOWS a double and
-	# degenerates -- in stzNeuralNetwork that showed up live as every seed producing
-	# the same network.
+	#   n          the starting state, a positive whole number, zero or less is replaced by 42 when
+	#              numbers are drawn
+	#   returns    the solver itself, so calls chain
+	#   see        Seed, solveWithNSGAII
+	#@ aka  ── REPRODUCIBLE RANDOMNESS (LAW 3: two runs agree; SetSeed to vary) ──
 	def SetSeed(n)
 		@nSeed = n
 		return This
 
+	# Returns the state of the pseudo-random generator, 42 until it is set or numbers are drawn.
+	#
+	#   returns    a number
+	#   note       the state moves each time a number is drawn, so it differs after a run
+	#   see        SetSeed
 	def Seed()
 		return @nSeed
 
@@ -347,6 +489,11 @@ class stzMultiObjectiveSolver from stzObject
 		ok
 		return floor(This._NextRand01() * (n + 1))
 
+	# Returns one random solution within the bounds, whole numbers for integer and binary variables.
+	#
+	#   returns    a list of [ name, value ] pairs, one per variable
+	#   note       continuous values come in steps of 0.01
+	#   see        initializePopulation, mutate
 	def generateRandomSolution()
 	    _aSolution_ = []
 	    _nVarLen_ = len(@aVariables)
@@ -370,6 +517,13 @@ class stzMultiObjectiveSolver from stzObject
 	    return _aSolution_
 	
 
+    # Returns the value of every objective for a solution, with maximize goals negated so that smaller is always better.
+    #
+    #   _aSolution_   a list of [ name, value ] pairs
+    #   returns       a list of numbers, one per objective
+    #   note          x = 3 and y = 4 under maximize x, minimize x + y and maximize y gives -3, 7
+    #                 and -4
+    #   see           calculateObjectiveValue, dominates
     def evaluateObjectives(_aSolution_)
         _aObjectiveValues_ = []
         _nObjLen_ = len(@aObjectives)
@@ -381,6 +535,13 @@ class stzMultiObjectiveSolver from stzObject
         next
         return _aObjectiveValues_
 
+    # Returns the value of an expression for a solution.
+    #
+    #   cExpression   the expression, as text
+    #   _aSolution_   a list of [ name, value ] pairs
+    #   returns       a number
+    #   note          3*x + 2*y with x = 3 and y = 4 gives 17
+    #   see           evaluateObjectives, extractCoefficient
     def calculateObjectiveValue(cExpression, _aSolution_)
         _nResult_ = 0
         _nVarLen_ = len(@aVariables)
@@ -392,6 +553,14 @@ class stzMultiObjectiveSolver from stzObject
         next
         return _nResult_
 
+    # Returns the fronts of a population as lists of positions, and writes each individual's rank and domination data into the population itself.
+    #
+    #   _aPopulation_   a list of individuals, each with an objectives list, it is changed in place
+    #   returns         a list of fronts, each a list of positions in the population, the last one
+    #                   empty
+    #   note            three individuals with objectives (-1,-1), (-2,-2) and (-3,0) give the
+    #                   fronts [ [ 2, 3 ], [ 1 ], [ ] ] and the ranks 2, 1 and 1
+    #   see             dominates, calculateCrowdingDistance
     def nonDominatedSort(_aPopulation_)
         _aFronts_ = []
         _nPopLen_ = len(_aPopulation_)
@@ -442,6 +611,14 @@ class stzMultiObjectiveSolver from stzObject
         
         return _aFronts_
 
+    # TRUE if the first individual is no worse than the second on every objective and better on at least one.
+    #
+    #   _individual1_   an individual with an objectives list
+    #   _individual2_   an individual with an objectives list
+    #   returns         TRUE or FALSE
+    #   note            objectives are compared as smaller is better; an individual never dominates
+    #                   itself
+    #   see             nonDominatedSort, evaluateObjectives
     def dominates(_individual1_, _individual2_)
         _bAtLeastOneBetter_ = 0
         _nObjLen_ = len(_individual1_[:objectives])
@@ -454,6 +631,12 @@ class stzMultiObjectiveSolver from stzObject
         next
         return _bAtLeastOneBetter_
 
+    # Returns the population with a crowding distance set on each individual: 999999 at the ends of a front, the spread of its neighbours inside.
+    #
+    #   _aFronts_       the fronts returned by nonDominatedSort
+    #   _aPopulation_   the population those fronts index
+    #   returns         the population, a list of individuals
+    #   see             nonDominatedSort, tournamentSelection
     def calculateCrowdingDistance(_aFronts_, _aPopulation_)
         _nFrontsLen_ = len(_aFronts_)
         _nObjLen_ = len(@aObjectives)
@@ -508,6 +691,14 @@ class stzMultiObjectiveSolver from stzObject
         
         return _aPopulation_
 
+    # Returns the positions of a front ordered from the smallest to the largest value of one objective.
+    #
+    #   _front_         a list of positions in the population
+    #   objIndex        the number of the objective to sort by
+    #   _aPopulation_   the population the positions index
+    #   returns         a list of positions
+    #   note            the sort is a bubble sort
+    #   see             calculateCrowdingDistance
     def sortFrontByObjective(_front_, objIndex, _aPopulation_)
         # Simple bubble sort by objective value
         _nFrontLen_ = len(_front_)
@@ -557,6 +748,13 @@ class stzMultiObjectiveSolver from stzObject
         return _aNewPopulation_
 */
 
+	# Returns the next generation: one child per individual of the population size, made by tournament selection, crossover and mutation.
+	#
+	#   _aPopulation_   the current population, each individual with solution and objectives
+	#   returns         a list of individuals with no objective values yet
+	#   warning         with fewer than two usable individuals it prints a warning line and returns
+	#                   a fresh random population
+	#   see             tournamentSelection, crossover, mutate
 	def createNewPopulation(_aPopulation_)
 	    _aNewPopulation_ = []
 	    _nPopLen_ = len(_aPopulation_)
@@ -632,6 +830,13 @@ class stzMultiObjectiveSolver from stzObject
         ok
 */
 
+	# Returns the better of two distinct usable individuals drawn at random: the lower rank, or on a tie the larger crowding distance.
+	#
+	#   _aPopulation_   a list of individuals
+	#   returns         an individual; [ ] when fewer than two individuals have a solution and
+	#                   objectives
+	#   note            the draw uses the seeded generator
+	#   see             createNewPopulation, calculateCrowdingDistance
 	def tournamentSelection(_aPopulation_)
 	    _nPopLen_ = len(_aPopulation_)
 	    if _nPopLen_ = 0 return [] ok
@@ -675,6 +880,12 @@ class stzMultiObjectiveSolver from stzObject
 	        ok
 	    ok
 
+    # Returns a child that takes each variable from the first parent with the crossover rate and from the second otherwise.
+    #
+    #   parent1    an individual with a solution
+    #   parent2    an individual with a solution
+    #   returns    an individual with a solution, no objectives and rank 0
+    #   see        mutate, createNewPopulation, setNSGAParameters
     def crossover(parent1, parent2)
         _aSolution_ = []
         
@@ -693,6 +904,11 @@ class stzMultiObjectiveSolver from stzObject
         next
         return [ :solution = _aSolution_, :objectives = [], :rank = 0, :crowdingDistance = 0 ]
 
+    # Returns the individual after redrawing each variable at random between its bounds, with the mutation rate as the chance for each.
+    #
+    #   individual   an individual with a solution
+    #   returns      the same individual, changed
+    #   see          crossover, setNSGAParameters
     def mutate(individual)
         _nSolLen_ = len(individual[:solution])
         for i = 1 to _nSolLen_
@@ -709,7 +925,16 @@ class stzMultiObjectiveSolver from stzObject
         next
         return individual
 
-    # Epsilon Constraint Helper Methods
+    # Returns every combination of eleven evenly spaced bounds for the secondary objectives, for the epsilon-constraint method.
+    #
+    #   returns    a list of lists of numbers: 11 rows of one bound with two objectives, 121 rows of
+    #              two bounds with three or more
+    #   note       each range runs from the objective's lowest to its highest value over the
+    #              variable bounds
+    #   warning    only the first two secondary objectives are used: four objectives still give 121
+    #              rows of two bounds
+    #   see        solveWithEpsilonConstraint, calculateObjectiveBound
+    #@ aka  Epsilon Constraint Helper Methods
     def calculateEpsilonRanges()
         _aRanges_ = []
         _nSteps_ = 10
@@ -747,6 +972,13 @@ class stzMultiObjectiveSolver from stzObject
         
         return _aEpsilonSets_
 
+    # Returns the lowest or the highest value an expression can reach over the variable bounds.
+    #
+    #   cExpression   the expression, as text
+    #   cType         "min" for the lowest value, anything else for the highest
+    #   returns       a number
+    #   note          3*x - 2*y with x and y between 0 and 10 gives -20 and 30
+    #   see           calculateEpsilonRanges
     def calculateObjectiveBound(cExpression, cType)
         # Simple bound estimation based on variable bounds
         _nBound_ = 0
@@ -762,8 +994,14 @@ class stzMultiObjectiveSolver from stzObject
         next
         return _nBound_
 
-    # Utility Methods (inherited from stzLinearSolver)
-
+    # Returns the coefficient of one variable in an expression.
+    #
+    #   cExpression   the expression, as text
+    #   cVarName      the variable's name
+    #   returns       a number; 0 when the variable does not appear
+    #   note          in 3*x + 2*y the coefficient of y is 2
+    #   see           calculateObjectiveValue
+    #@ aka  Utility Methods (inherited from stzLinearSolver)
     def extractCoefficient(cExpression, cVarName)
         return @oCoeffExtractor.extractCoefficient(cExpression, cVarName)
 	
@@ -773,6 +1011,12 @@ class stzMultiObjectiveSolver from stzObject
         return @oCoeffExtractor.extractAllCoefficients(cExpression)
 */
 
+    # Returns the value of one variable in a list of [ name, value ] pairs.
+    #
+    #   _aSolution_   a list of [ name, value ] pairs
+    #   cVarName      the variable's name
+    #   returns       a number; 0 when the name is not in the list
+    #   see           calculateObjectiveValue
     def getSolutionValue(_aSolution_, cVarName)
         _nSolLen_ = len(_aSolution_)
         for i = 1 to _nSolLen_
@@ -780,10 +1024,20 @@ class stzMultiObjectiveSolver from stzObject
         next
         return 0
 
-    # Solution Access
+    # Returns the trade-off solutions kept by the last solve.
+    #
+    #   returns    a list of individuals; [ ] before any solve
+    #   see        solve, bestCompromiseSolution
+    #@ aka  Solution Access
     def paretoSolutions()
         return @aParetoSolutions
 
+    # Returns the stored solution whose objective values have the smallest sum of absolute values.
+    #
+    #   returns    one individual; [ ] before any solve
+    #   note       the values are not normalised, so an objective with large numbers dominates the
+    #              choice
+    #   see        paretoSolutions, solve
     def bestCompromiseSolution()
         if len(@aParetoSolutions) = 0 return [] ok
         
@@ -807,16 +1061,32 @@ class stzMultiObjectiveSolver from stzObject
         
         return _aBestSolution_
 
+    # Returns how the last solve ended.
+    #
+    #   returns    the text optimal after a solve; "" before
+    #   see        solve
     def status()
         return @cStatus
 
+    # Returns the work counted by the last solve: the number of generations for nsga_ii, ten per objective for the epsilon method.
+    #
+    #   returns    a number; 0 before any solve
+    #   see        solve, status
     def iterations()
         return @nIterations
 
+    # Returns the time the last solve took, in seconds.
+    #
+    #   returns    a number; 0 before any solve
+    #   see        solve
     def solveTime()
         return @nSolveTime
 
-    # Display and Reporting
+    # Prints the problem and, once solved, the status, the size of the front and the best compromise with its objective values.
+    #
+    #   returns    nothing; it prints to the console
+    #   see        exportParetoFrontCSV, bestCompromiseSolution
+    #@ aka  Display and Reporting
     def show()
         ? BoxRound("Multi-Objective Problem")
 
@@ -873,6 +1143,14 @@ class stzMultiObjectiveSolver from stzObject
             ok
         ok
 
+    # Raises error R41 today instead of writing the front to a file, one row per solution.
+    #
+    #   cFileName   the path of the file to write
+    #   returns     nothing; raises R41 Invalid numeric string
+    #   warning     a variable value, a number, is joined to a comma with + and Ring cannot add a
+    #               number to a text; it raises for the front of every problem tried (two problems,
+    #               epsilon-constraint method)
+    #   see         paretoSolutions, show
     def exportParetoFrontCSV(cFileName)
         _oFile_ = new stzFile(cFileName)
         _cContent_ = "Solution,"

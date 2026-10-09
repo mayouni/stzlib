@@ -1,0 +1,20 @@
+{
+ "brief": "Draws a map of high-dimensional samples in 2 dimensions from a neighbour graph, using UMAP, and can place new rows in it.",
+ "detail": "Built for LOOKING at data, not for measuring it: distances and cluster sizes in the map mean nothing, and the neighbour count changes the picture, so try two values. The usual pipeline is ReduceWithPCA(30) then Fit. The default of 15 neighbours needs more than 15 samples, so small data needs SetNeighbors first. The neighbour graph is held in the engine after the first Fit: changing the minimum distance, the spread, the epochs or the seed redoes the layout only, while changing the neighbours, the labels or the PCA step drops the graph. LearnFromLabels reweights the graph with known classes, and the separation it gives is an input, not a finding. Unlike t-SNE, Transform places new rows against the frozen map, and LearnMapping makes that exact for the training rows. PreserveDensity adds the densMAP term, and LearnInverse trains a network that goes back from the map to the data.",
+ "receiver": "o1 = new stzUMAP([ [0,0,0], [0.1,0,0.1], [0,0.2,0], [0.2,0.1,0.1], [0.1,0.2,0.2], [0.2,0.2,0], [5,5,5], [5.1,5,5.1], [5,5.2,5], [5.2,5.1,5.1], [5.1,5.2,5.2], [5.2,5.2,5] ])",
+ "example": [
+  "o1.SetNeighbors(4)",
+  "o1.SetEpochs(100)",
+  "o1.Fit()",
+  "? o1.HasGraph()",
+  "#--> 1",
+  "? len(o1.Embedding())",
+  "#--> 12",
+  "? o1.Trustworthiness() > 0.9",
+  "#--> 1"
+ ],
+ "see": [
+  "stzTSNE",
+  "stzPCA"
+ ]
+}

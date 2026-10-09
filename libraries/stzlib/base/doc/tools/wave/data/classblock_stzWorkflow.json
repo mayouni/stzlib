@@ -1,0 +1,20 @@
+{
+ "brief": "Models a business process as steps and arrows, or as a state machine, with actors, durations and SLAs, and reports its critical path, bottlenecks and violations.",
+ "detail": "A workflow is a diagram of one of three types. A sequential workflow is built from steps (AddStepXTT) joined by Then, given actors with AssignStepTo and hours with SetStepDuration and SetStepSLA; it then answers CriticalPath, Bottlenecks, SLAViolations and the three Validate methods, which return the house verdict shape. A state machine is built from AddState and AddTransition, and SetExceptionEvents marks the transitions that mean trouble. A bpmn workflow takes the BPMN notation, and ExpandEndingsPerArrival gives each arrow into an end its own marker. ToWorkflow writes the sequential part as .stzflow text and ImportFlow reads it back. The View methods display the diagram and were not run for this reference. Known today: CriticalPath raises an error when no path has a duration above zero, and for every state machine.",
+ "receiver": "o1 = new stzWorkflow(\"order\")",
+ "example": [
+  "o1.AddStep_(\"pack\")",
+  "o1.AddStep_(\"ship\")",
+  "o1.Then(\"pack\", \"ship\")",
+  "o1.SetStepDuration(\"pack\", 4)",
+  "o1.SetStepSLA(\"pack\", 3)",
+  "o1.SetStepDuration(\"ship\", 8)",
+  "? o1.TotalDuration()",
+  "#--> 12",
+  "? o1.SLAViolations()[1][:overrun]",
+  "#--> 1",
+  "? o1.CriticalPath()[:path][2]",
+  "#--> ship"
+ ],
+ "see": ["stzDiagram", "stzOrgChart", "stzWorkflowSimulation", "StzBpmnNotation", "StzStateMachineNotation"]
+}
