@@ -1,0 +1,20 @@
+{
+ "brief": "Holds two values side by side and tells whether both are numbers, texts, lists or objects.",
+ "detail": "Build one with new stzPair([ a, b ]) or StzPairQ([ a, b ]); the global IsPair(aList) tells whether a plain list has exactly two items. Item1 and Item2 read the two sides, and it is a stzList, so every list method also works. The list given to init is not checked for holding two items. Update, UpdateWith, Swap and Swapped raise error R24 today, so a pair cannot be changed or swapped through them.",
+ "receiver": "o1 = new stzPair([ \"שלום\", 7 ])",
+ "example": [
+  "? o1.Item1()",
+  "#--> שלום",
+  "? o1.Item2()",
+  "#--> 7",
+  "? o1.BothAreNumbers()",
+  "#--> 0",
+  "? IsPair([ 1, 2 ])",
+  "#--> 1"
+ ],
+ "see": [
+  "stzList",
+  "stzPairOfLists",
+  "stzPairOfNumbers"
+ ]
+}

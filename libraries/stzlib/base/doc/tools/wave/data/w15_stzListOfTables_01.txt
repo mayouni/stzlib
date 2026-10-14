@@ -1,0 +1,5 @@
+init | Builds a list of tables from a list of hash lists, each hash list becoming one stzTable. | nothing; the object is built | paList=a list of hash lists, each one [ :COLUMN = values, ... ] | NumberOfTables, Show | raises Can't create the stzListOfTables object for anything that is not a list of hash lists, but an empty list raises R2 Array Access instead of that message; the rule that every table has the same number of rows is not enforced, since the test compares the length of a column pair, always 2, and tables of 2 and 3 rows are accepted
+NumberOfTables | Returns how many tables the list holds. | a number | | HowManyTables, CountTables, Show
+HowManyTables | Returns how many tables the list holds, as NumberOfTables does. | a number | | NumberOfTables, CountTables
+CountTables | Returns how many tables the list holds, as NumberOfTables does. | a number | | NumberOfTables, HowManyTables
+Show | Prints each table in turn as a boxed grid with capitalized column names. | nothing; it prints | | NumberOfTables, stzTable

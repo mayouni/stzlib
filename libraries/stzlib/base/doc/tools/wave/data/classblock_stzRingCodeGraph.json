@@ -1,0 +1,20 @@
+{
+ "brief": "Holds Ring source as a code graph: classes with their parent, methods and a name-based graph of the calls between them.",
+ "detail": "Its parser reads the Ring source itself: class headers with a single parent, def lines, and the calls in method bodies, found as an identifier before an open parenthesis once string literals and comments are stripped. A call is an edge only when some class defines a method of that name, so the graph is name-based and honest about it. DeadCode is scoped to private helpers that nothing references, and CyclicCalls to two methods of one class that call each other, the signals a name-based graph can assert without guessing. The query surface of the family (classes, owners, ancestry, impact, cascade) is inherited from stzCodeGraph. Build one from a folder with new stzRingCodeGraph(path) or from text with StzRingCodeGraphFromSource.",
+ "receiver": "o1 = StzRingCodeGraphFromSource(\"class Animal\" + nl + \"def Speak()\" + nl + \"return This._Sound()\" + nl + \"def _Sound()\" + nl + \"return 1\" + nl + \"def _Unused()\" + nl + \"return 2\" + nl + \"class Dog from Animal\" + nl + \"def Fetch()\" + nl + \"return This.Speak()\" + nl)",
+ "example": [
+  "? @@( o1.AncestryOf(\"Dog\") )",
+  "#--> [ \"Dog\", \"Animal\" ]",
+  "? @@( o1.CallEdges() )",
+  "#--> [ [ \"Animal\", \"Speak\", \"_Sound\" ], [ \"Dog\", \"Fetch\", \"Speak\" ] ]",
+  "? @@( o1.CalleesOf(\"Dog\", \"Fetch\") )",
+  "#--> [ \"Speak\" ]",
+  "? o1.DeadCode()[1][:method]",
+  "#--> _Unused"
+ ],
+ "see": [
+  "stzCodeGraph",
+  "stzPyCodeGraph",
+  "stzCodeRuleSet"
+ ]
+}

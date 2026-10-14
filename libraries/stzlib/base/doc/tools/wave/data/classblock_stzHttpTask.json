@@ -1,0 +1,21 @@
+{
+ "brief": "Holds one HTTP request, its method, address and body, with a status, a body result and an error, run by the blocking path.",
+ "detail": "A task of the reactive client when no reactor is set. Execute sends the request through the engine and records completed with the response body for a 2xx status, or error with the message HTTP request failed, the status in parentheses when one was received. Anything but GET, POST, PUT or DELETE makes no request and ends in error. Then_ and Catch_ come from stzReactiveTask. The four Perform methods are the requests; none was run for this reference because they reach the network. The example runs the one path that makes no request.",
+ "receiver": "oEngine = new stzReactive()\no1 = new stzHttpTask(HTTP_TASK_GET, \"http://example.invalid/\", \"PATCH\", \"\", oEngine)",
+ "example": [
+  "? o1.Status()",
+  "#--> pending",
+  "o1.Execute()",
+  "? o1.Status()",
+  "#--> error",
+  "? o1.Error()",
+  "#--> HTTP request failed",
+  "? o1.HasFailed()",
+  "#--> 1"
+ ],
+ "see": [
+  "stzReactiveHttp",
+  "stzReactiveTask",
+  "stzHttpClient"
+ ]
+}

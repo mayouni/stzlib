@@ -1,0 +1,7 @@
+init | Builds an empty transcript with no line. | nothing; the object is built | | System, User, Verdict
+System | Appends a line spoken by the system, kept as text with full certainty. | the transcript itself, so calls chain | pcText=what the system says; a number is kept as its text | User, Verdict, Text
+User | Appends a line spoken by the user, kept as text with full certainty. | the transcript itself, so calls chain | pcText=what the user says | System, Verdict, Text
+Verdict | Appends a conclusion line that carries how certain it is. | the transcript itself, so calls chain | pcText=the conclusion; pnCertainty=the evidential certainty, 1 when the admission was deterministic | System, Lines, Text | the certainty is kept in Lines and left out of Text; calling it with one argument raises R19
+Lines | Returns every line in order, as [ speaker, text, certainty ] rows. | a list of three-item lists; the speaker is system, user or verdict | | NumberOfLines, Text
+NumberOfLines | Returns how many lines the transcript holds. | a number | | Lines
+Text | Returns the transcript as a reading text: SOFTANZA and YOU prefixes for the two voices, an arrow for a verdict, one line each. | a text, empty for an empty transcript | | Lines, System

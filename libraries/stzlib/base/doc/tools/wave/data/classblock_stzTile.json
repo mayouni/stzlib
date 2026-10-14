@@ -1,0 +1,19 @@
+{
+ "brief": "Draws a grid of square cells with box lines, marking the current cell, obstacles and a path, for navigation and puzzles.",
+ "detail": "A stzTile is a stzGrid, so build one with new stzTile([ columns, rows ]) or StzTileQ(...) and use every grid method: AddObstacle, MoveToNode, paths, connected regions (Rooms). The class adds the drawing: Show prints it, ToString returns it, Legend names the characters used, and ShowCustomGrid draws other contents in the same frame. Positions count from 1, with the column first.",
+ "receiver": "o1 = new stzTile([ 3, 2 ])",
+ "example": [
+  "o1.AddObstacle(2, 1)",
+  "o1.Show()",
+  "#--> 1   2   3",
+  "#--> ╭─v─┬───┬───╮",
+  "#--> 1 > ♥ │███│   │",
+  "#--> ├───┼───┼───┤",
+  "#--> 2 │   │   │   │",
+  "#--> ╰───┴───┴───╯"
+ ],
+ "see": [
+  "stzGrid",
+  "stzList2D"
+ ]
+}

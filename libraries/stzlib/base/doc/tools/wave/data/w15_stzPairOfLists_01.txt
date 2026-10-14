@@ -1,0 +1,7 @@
+init | Builds a pair of lists from two lists, refusing anything that is not a list. | nothing; the object is built | paList1=the first list; paList2=the second list | FirstList, SecondList | a value that is not a list raises "Can not create object!" |
+Content | Returns the two lists as one list of two lists. | a list of two lists | | FirstList, SecondList, Value | |
+Value | Returns the two lists as one list of two lists, the same answer as Content. | a list of two lists | | Content | |
+FirstList | Returns the first of the two lists. | a list | | SecondList | |
+SecondList | Returns the second of the two lists. | a list | | FirstList | |
+Alternate | Returns the items of the two lists taken in turn: one of the longer list, one of the other. | nothing today: it raises error R24, except for two empty lists, which answer [ ] | | Associate | Raises error R24 "Using uninitialized variable: aresult" today for any non-empty lists, instead of the interleaved list, because its generated code appends to aResult while the variable is named _aResult_ and refers to the lists by names it cannot see |
+Associate | Returns the items of the two lists paired by position, as a list of [ first, second ] pairs. | a list of pairs, as many as the shorter list | | Alternate, AssociateQ | | the extra items of the longer list are dropped; AssociateQ answers a stzList and AssociateQRT(:stzHashList) a stzHashList

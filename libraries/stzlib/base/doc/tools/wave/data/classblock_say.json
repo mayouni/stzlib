@@ -1,0 +1,15 @@
+{
+ "brief": "Closes a say { ... } brace of ported Perl or Raku code and prints the answer that a ternary left in the named variable say.",
+ "detail": "In Raku, say prints the value of an expression. Here the brace body is a Softanza ternary: b(condition) '??' bt(trueValue) '!!' bf(falseValue), which stores its answer in the named variable say, and the end of the brace prints it. The global say is already one of these. A brace that holds anything else prints the previous answer, or an empty line.",
+ "receiver": "o1 = new say",
+ "example": [
+  "rand = 0.7",
+  "say { b(rand < 0.9) '??' bt('Yes') '!!' bf('No') }",
+  "#--> Yes",
+  "say { b(rand < 0.5) '??' bt('Yes') '!!' bf('No') }",
+  "#--> No"
+ ],
+ "see": [
+  "console"
+ ]
+}

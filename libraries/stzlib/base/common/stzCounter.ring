@@ -23,6 +23,17 @@ func IsCounterNamedParamList(paParams)
 func StzCounterQ(paParams)
 	return new stzCounter(paParams)
 
+# Counts in cycles: it starts at a number, steps by a number, and starts over when a limit is reached or after a number of values.
+#
+# Give it a hashlist of options and ask for the first N numbers. :WhenYouReach names the value at
+# which the count restarts, :AfterYouSkip names how many values to skip before it restarts, and
+# :RestartAt is the value it restarts from. The options :StartAt and :Step alone are not enough
+# today: without one of the two cycle options every number comes out as 0.
+#
+#   receiver   o1 = new stzCounter([ :StartAt = 1, :WhenYouReach = 4, :RestartAt = 0 ])
+#   example    ? @@( o1.Counting(10) )
+#              #--> [ 1, 2, 3, 0, 1, 2, 3, 0, 1, 2 ]
+#   see        stzIntSeq
 class stzCounter from stzObject
 	@nStartAt = 1
 	@nAfterYouSkip = 0
@@ -30,6 +41,12 @@ class stzCounter from stzObject
 	@nRestartAt = 0
 	@nStep = 1
 
+	# Builds a cyclic counter from a hashlist of options that say where to start, how far to step and when to start over.
+	#
+	#   paParams   a hashlist with any of :StartAt, :Step, :WhenYouReach, :AfterYouSkip and
+	#              :RestartAt, for example [ :StartAt = 1, :WhenYouReach = 4, :RestartAt = 0 ]
+	#   returns    nothing; the object is built
+	#   see        Counting
 	def init(paParams)
 
 		if isList(paParams) and
@@ -65,26 +82,16 @@ class stzCounter from stzObject
 			StzRaise(stzCounterError(:CanNotCreateCounter))
 		ok		
 
-	#-- Counting (engine-backed, Ring-list-shaped).
+	# Returns the first N numbers the counter produces, as a list, restarting at RestartAt each time a cycle ends.
 	#
-	# Returns a Ring list of N values produced by cycling through
-	# (@nStartAt, @nStep) under the wrap-around modes :WhenYouReach
-	# and :AfterYouSkip. The cycle itself is built by the Zig
-	# engine in O(N) (see ring_bridge_intseq.zig), then marshalled
-	# into a Ring list via the engine bridge. Callers see a plain
-	# list and never need to know an engine handle existed.
-	#
-	# The previous Ring-only loop (aResult + n inside a class
-	# method) was O(N^2) on Ring 1.26 because the attribute table
-	# is re-walked per append; the engine path is the only correct
-	# implementation now and is named with the natural Softanza
-	# verbs (Counting / Count / CountTo / CountingTo). The
-	# engine-flavoured *Seq aliases that existed during the
-	# bring-up phase have been retired -- callers that genuinely
-	# want the raw stzIntSeq handle (e.g. for streaming Sum/Min/Max
-	# over a billion-element cycle without materialising) can call
-	# the dedicated _Handle accessor below.
-
+	#   _nNumber_   how many numbers to produce, or [ :To = n ]
+	#   returns     a list of numbers
+	#   note        with :WhenYouReach = 4 and :RestartAt = 0 the count runs 1, 2, 3, 0, 1, 2, 3, 0;
+	#               with :AfterYouSkip = 2 it runs 1, 2, 0, 1, 2, 0
+	#   warning     without :WhenYouReach or :AfterYouSkip every number is 0 today, whatever
+	#               :StartAt and :Step say (checked with three different option sets)
+	#   see         init
+	#@ aka  -- Counting (engine-backed, Ring-list-shaped).
 	def Counting(_nNumber_)
 		_pHandle_ = This._CountingHandle(_nNumber_)
 		_anResult_ = StzEngineIntSeqToRingList(_pHandle_)

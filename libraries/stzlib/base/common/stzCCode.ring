@@ -23,6 +23,19 @@ func StzConditionalCodeQ(cCode)
 
 class stzConditionalCode from stzCCode 
 
+# Holds a piece of conditional code, the Ring expression of a W or WXT condition, and rewrites it to its basic form.
+#
+# The code is written with the keywords @i and This[@i], or with friendlier words such as
+# @CurrentItem, @NextItem and @PreviousItem. Transpiled turns the friendly words into the basic
+# forms; ExecutableSection says over which positions of a list the code can run without reading
+# outside it.
+#
+#   receiver   o1 = new stzCCode("{ @CurrentItem = @NextItem }")
+#   example    ? o1.Transpiled()
+#              #--> This[@i] = This[@i + 1]
+#              ? o1.Content()
+#              #--> @CurrentItem = @NextItem
+#   see        stzConstraint, stzString
 class stzCCode from stzObject
 
 	@cContent
@@ -31,6 +44,12 @@ class stzCCode from stzObject
 	 #  INITIALIZING THE CCODE OBJECT  #
 	#---------------------------------#
 
+	# Builds a conditional-code object from a Ring expression written in a string, with its outer braces and extra spaces removed.
+	#
+	#   cCode      the conditional code as text, such as '{ This[@i] = This[@i-1] + 1 }'
+	#   returns    nothing; the object is built
+	#   warning    a non-string raises an error
+	#   see        Content
 	def init(cCode)
 
 		if NOT isString(cCode)
@@ -53,6 +72,10 @@ class stzCCode from stzObject
 	 #  GETTING THE CONTENT OF THE CCODE OBJECT  #
 	#-------------------------------------------#
 
+	# Returns the stored code as text, without the outer braces.
+	#
+	#   returns    a text
+	#   see        Update, Transpiled
 	def Content()
 		return @cContent
 
@@ -75,6 +98,14 @@ class stzCCode from stzObject
 	 #  GETTING A COPY OF THE CCODE OBJECT  #
 	#--------------------------------------#
 
+	# Replaces the stored code with a new text, kept exactly as given: braces and spacing are not cleaned up.
+	#
+	#   _cNewCode_   the new code as text, or a named param such as [ :With = '...' ]
+	#   returns      nothing; use UpdateQ to chain
+	#   note         the code is stored as passed, so '{ x }' keeps its braces, unlike the text
+	#                given to the constructor
+	#   warning      a non-string raises an error when parameter checking is on
+	#   see          Updated, UpdateBy
 	def Update(_cNewCode_)
 		if CheckingParams() = 1
 			if isList(_cNewCode_) and Q(_cNewCode_).IsWithOrByOrUsingNamedParam()
@@ -94,30 +125,49 @@ class stzCCode from stzObject
 			This.Update(_cNewCode_)
 			return This
 
+		# Replaces the stored code with a new text, as the call with the shorter name does.
+		#
+		#   _cNewCode_   the new code as text
+		#   returns      nothing; use UpdateWithQ to chain
+		#   see          Update, UpdateBy, UpdateUsing
 		#>
-
 		#< @FunctionAlternativeForms
-
 		def UpdateWith(_cNewCode_)
 			This.Update(_cNewCode_)
 
 			def UpdateWithQ(_cNewCode_)
 				return This.UpdateQ(_cNewCode_)
 	
+		# Replaces the stored code with a new text, as the call with the shorter name does.
+		#
+		#   _cNewCode_   the new code as text
+		#   returns      nothing; use UpdateByQ to chain
+		#   see          Update, UpdateWith, UpdateUsing
 		def UpdateBy(_cNewCode_)
 			This.Update(_cNewCode_)
 
 			def UpdateByQ(_cNewCode_)
 				return This.UpdateQ(_cNewCode_)
 
+		# Replaces the stored code with a new text, as the call with the shorter name does.
+		#
+		#   _cNewCode_   the new code as text
+		#   returns      nothing; use UpdateUsingQ to chain
+		#   see          Update, UpdateWith, UpdateBy
 		def UpdateUsing(_cNewCode_)
 			This.Update(_cNewCode_)
 
 			def UpdateUsingQ(_cNewCode_)
 				return This.UpdateQ(_cNewCode_)
 
+	# Hands back the text it was given and leaves the object untouched.
+	#
+	#   _cNewCode_   the text to hand back
+	#   returns      the text that was passed in
+	#   warning      does not build a new stzCCode: it returns the argument itself, so it cannot be
+	#                used to get an updated copy of the object
+	#   see          Update
 		#>
-
 	def Updated(_cNewCode_)
 		return _cNewCode_
 
@@ -138,6 +188,10 @@ class stzCCode from stzObject
 	 #  GETTING A COPY OF THE CCODE OBJECT  #
 	#--------------------------------------#
 
+	# Returns a new stzCCode holding the same code, so changes to one do not reach the other.
+	#
+	#   returns    a new stzCCode
+	#   see        Content
 	def Copy()
 		return new stzCCode( This.Content() )
 
@@ -145,6 +199,11 @@ class stzCCode from stzObject
 	 #  TRANSPILING THE CODE BY TURNING SOPHISTICATED KEYWORDS TO BASIC KEYWORDS  #
 	#============================================================================#
 
+	# Rewrites the stored code in place, turning words such as @CurrentItem and @NextItem into the basic forms This[@i] and This[@i + 1].
+	#
+	#   returns    nothing; use TranspileQ to chain
+	#   warning    the stored code is changed; call Transpiled to keep the original
+	#   see        Transpiled, ExecutableSection
 	def Transpile()
 
 		#INFO
@@ -329,6 +388,10 @@ class stzCCode from stzObject
 			This.Transpile()
 			return This
 
+	# Returns the code with its sophisticated keywords turned into This[@i] forms, leaving the object itself unchanged.
+	#
+	#   returns    a text
+	#   see        Transpile
 	def Transpiled()
 		_cResult_ = This.Copy().TranspileQ().Content()
 		return _cResult_
@@ -337,6 +400,14 @@ class stzCCode from stzObject
 	 #  IDENTIFIYING THE EXECUTABLE SECTION FROM THE CODE  #
 	#=====================================================#
 
+	# Returns the stretch of positions [ start, end ] of a list over which the code can run without reading outside it.
+	#
+	#   returns    a list [ nStart, nEnd ] where nEnd is a number or the text last
+	#   note       start moves up with the deepest look-behind (This[@i-2] gives 3) and end moves
+	#              down with the deepest look-ahead (This[@i+2] gives -2, counted from the last
+	#              position)
+	#   warning    raises an error when the code contains neither @i nor This[@i]
+	#   see        Transpile
 	def ExecutableSection()
 
 		#WARNING

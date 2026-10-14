@@ -265,8 +265,27 @@ func ORDER_BY(pcColName, pcSortOrder)
 		ORDER_BY(pcColName, pcSortOrder)
 	#>
 
+# Names the intermediate table of an SQL statement so that later code can read it, as a SQL WITH clause does.
+#
+# WITH(name).As(...) stores the current intermediate result under the name, as the rows and as the
+# table. The SQL emulation is a set of functions on global state: CREATE_TABLE, INSERT_INTO, VALUES,
+# SELECT, FROM_, WHERE_ and ORDER_BY. Only the registration is shown here, from an intermediate
+# table set directly. See the warning of As for what is broken today.
+#
+#   receiver   o1 = new WITH("big")
+#   example    _oIntermediateTable = new stzTable([ :ID = [1, 2], :NAME = [ "a", "b" ] ])
+#              o1.As([ 1 ])
+#              ? v("big")[2][2]
+#              #--> b
+#   see        stzTable
 class WITH
 	_cSQL_
+	# Builds the statement part that names a result set, from the name it will be given.
+	#
+	#   pcSQL      the name to give the intermediate result, such as recent
+	#   returns    nothing; the object is built
+	#   warning    raises Incorrect param type for a name that is not a text
+	#   see        As
 	def init(pcSQL)
 		if CheckingParams()
 			if NOT isString(pcSQL)
@@ -274,6 +293,16 @@ class WITH
 			ok
 		ok
 		_cSQL_ = pcSQL
+	# Registers the intermediate table under the name, as four named variables: the name, nameData, nameTable and nameObject.
+	#
+	#   paParams   a list of one to three items, read only for its length
+	#   returns    nothing
+	#   note       the first call is the only one that works; the rows read back with v(name)
+	#   warning    a second call with a name already registered writes all four values into the slot
+	#              of the first, which then reads nameObject, and a third call raises on the hash
+	#              list; CREATE_TABLE itself raises today on an stzTable, so the pipeline that feeds
+	#              the intermediate table does not run end to end
+	#   see        init
 	def As(paParams)
 		if CheckingParams()
 			if NOT ( isList(paParams) and

@@ -1,0 +1,19 @@
+{
+ "brief": "Groups numeric vectors into k clusters by Lloyd's k-means, deterministically, with the whole run done in the engine.",
+ "detail": "Centroids are seeded from the first k distinct points, so two runs agree and nothing is random; shuffle the vectors upstream for randomised restarts. Each iteration assigns every point to its nearest centroid and moves the centroids, stopping when no assignment changes or the iteration limit is reached. An empty cluster keeps its centroid. Because the seeding is fixed, an unlucky order can settle in a poor local minimum, which Inertia shows.",
+ "receiver": "o1 = new stzKMeans([ [1, 1], [1.2, 0.9], [8, 8], [7.9, 8.1] ])",
+ "example": [
+  "o1.SetK(2)",
+  "o1.Run(50)",
+  "? @@( o1.Clusters() )",
+  "#--> [ [ 1, 2 ], [ 3, 4 ] ]",
+  "? o1.ClusterOf([ 7.5, 8.0 ])",
+  "#--> 2",
+  "? o1.Iterations()",
+  "#--> 3"
+ ],
+ "see": [
+  "stzKnn",
+  "stzTrainingSet"
+ ]
+}

@@ -16,6 +16,25 @@
  ///   CLASS   ///
 /////////////////
 
+# Counts the items of a list: by condition, by type, by value, and empty or not, and inserts around the items that meet a condition.
+#
+# Build one with new stzListCounter(aList) or over a stzList object; it keeps its own copy, so what
+# you passed in is never changed. A condition is written in the W notation, a text in braces where
+# @item stands for the item under test, such as '{ @item > 5 }'. Count compares texts case-
+# sensitively; CountCS takes a 0 or 1 flag. The insertion methods InsertAfterW and InsertBeforeW
+# change the list the counter holds. The question forms HowManyItemsW, HowManyUniqueItemsW and the
+# alias InsertAfterWhere raise error R24 today; see their warnings.
+#
+#   receiver   o1 = new stzListCounter([ 5, "a", "A", 12, "", "שלום", 12 ])
+#   example    ? o1.CountNumbers()
+#              #--> 3
+#              ? o1.Count(12)
+#              #--> 2
+#              ? o1.CountItemsW('{ isNumber(@item) and @item > 6 }')
+#              #--> 2
+#              ? o1.CountEmptyItems()
+#              #--> 1
+#   see        stzList, stzListInserter, stzListOfStrings
 class stzListCounter from stzObject
 
 	@oList
@@ -24,6 +43,13 @@ class stzListCounter from stzObject
 	 #   INITIALIZATION  #
 	#===================#
 
+	# Builds a counter over a list or over a stzList object, working on its own copy, so the list passed in is never changed.
+	#
+	#   pListOrObj   a list, or a stzList object, whose items are counted
+	#   returns      nothing; the object is built
+	#   warning      any other kind of value raises "Can't create stzListCounter! Parameter must be
+	#                a list or stzList object."
+	#   see          Content
 	def init(pListOrObj)
 		if isList(pListOrObj)
 			@oList = new stzList(pListOrObj)
@@ -37,12 +63,24 @@ class stzListCounter from stzObject
 	 #     CONTENT ACCESS            #
 	#===============================#
 
+	# Returns the items the counter holds, after any insertion made through it.
+	#
+	#   returns    a list
+	#   see        NumberOfItems
 	def Content()
 		return @oList.Content()
 
+	# Returns how many items the list holds.
+	#
+	#   returns    a number
+	#   see        CountItemsW, Content
 	def NumberOfItems()
 		return @oList.NumberOfItems()
 
+	# TRUE if the list holds no item.
+	#
+	#   returns    TRUE or FALSE
+	#   see        NumberOfItems
 	def IsEmpty()
 		return @oList.IsEmpty()
 
@@ -50,6 +88,11 @@ class stzListCounter from stzObject
 	 #     COUNTING ITEMS VERIFYING A GIVEN CONDITION   #
 	#==================================================#
 
+	# Returns how many items satisfy a condition written in the W notation, where @item stands for the item under test.
+	#
+	#   pCondition   the condition as text in braces, such as '{ isNumber(@item) and @item > 6 }'
+	#   returns      a number
+	#   see          CountIf, NumberOfUniqueItemsW
 	def CountItemsW(pCondition)
 		_aItems_ = @oList.FindW(pCondition)
 		_nResult_ = len(_aItems_)
@@ -64,9 +107,23 @@ class stzListCounter from stzObject
 		def NumberOfItemsW(pCondition)
 			return This.CountItemsW(pCondition)
 
+		# Returns how many items satisfy a W condition, under the question form of CountItemsW.
+		#
+		#   pcCondition   the condition as text in braces, such as '{ isNumber(@item) }'
+		#   returns       nothing today: it raises error R24
+		#   note          the alias passes pCondition on but its own parameter is named pcCondition
+		#   warning       Raises error R24 "Using uninitialized variable: pcondition" today instead
+		#                 of returning the count; use CountItemsW, CountW or NumberOfItemsW
+		#   see           CountItemsW
 		def HowManyItemsW(pcCondition)
 			return This.CountItemsW(pCondition)
 
+	# Returns how many different items, each counted once, satisfy a W condition.
+	#
+	#   pCondition   the condition as text in braces, where @item stands for the item under test
+	#   returns      a number
+	#   note         in [ 5, "a", 12, "a", 12 ] the numbers give 2, not 3
+	#   see          HowManyUniqueItemsW, CountItemsW
 	def NumberOfUniqueItemsW(pCondition)
 		return len( @oList.UniqueItemsW(pCondition) )
 
@@ -76,6 +133,14 @@ class stzListCounter from stzObject
 		def CountItemsUW(pCondition)
 			return This.NumberOfUniqueItemsW(pCondition)
 
+		# Returns how many different items satisfy a W condition, under the question form of NumberOfUniqueItemsW.
+		#
+		#   pcCondition   the condition as text in braces, such as '{ isString(@item) }'
+		#   returns       nothing today: it raises error R24
+		#   note          the alias passes pCondition on but its own parameter is named pcCondition
+		#   warning       Raises error R24 "Using uninitialized variable: pcondition" today instead
+		#                 of returning the count; use NumberOfUniqueItemsW or CountUniqueItemsW
+		#   see           NumberOfUniqueItemsW
 		def HowManyUniqueItemsW(pcCondition)
 			return This.NumberOfUniqueItemsW(pCondition)
 
@@ -96,6 +161,14 @@ class stzListCounter from stzObject
 	 #  INSERTING ITEM AFTER OR BEFORE ITEMS VERIFYING A GIVEN CONDITION  #
 	#====================================================================#
 
+	# Inserts a new item right after every item that satisfies a W condition, changing the list held by the counter.
+	#
+	#   pcCondition   the W condition as text in braces, such as '{ @item > 5 }'
+	#   pNewItem      the item to insert after each match
+	#   returns       nothing; the counter now holds the longer list
+	#   note          no item matching leaves the list as it was; the list given to init is
+	#                 untouched
+	#   see           InsertBeforeW, Content
 	def InsertAfterW( pcCondition, pNewItem )
 		_anPos_ = @oList.FindItemsW(pcCondition)
 		@oList.InsertAfterManyPositions( _anPos_, pNewItem )
@@ -104,9 +177,25 @@ class stzListCounter from stzObject
 			This.InsertAfterW( pCondition, pNewItem )
 			return This
 
+		# Inserts a new item right after every item that satisfies a W condition, under the name Where.
+		#
+		#   pcCondition   the W condition as text in braces
+		#   pNewItem      the item to insert after each match
+		#   returns       nothing today: it raises error R24 and the list is not changed
+		#   note          the alias passes pCondition on but its own parameter is named pcCondition
+		#   warning       Raises error R24 "Using uninitialized variable: pcondition" today instead
+		#                 of inserting after each match; InsertAfterWQ fails the same way; use
+		#                 InsertAfterW
+		#   see           InsertAfterW
 		def InsertAfterWhere(pcCondition, pNewItem)
 			This.InsertAfterW(pCondition, pNewItem)
 
+	# Inserts a new item right before every item that satisfies a W condition, changing the list held by the counter.
+	#
+	#   pcCondition   the W condition as text in braces, such as '{ @item > 5 }'
+	#   pNewItem      the item to insert before each match
+	#   returns       nothing; the counter now holds the longer list
+	#   see           InsertAfterW, InsertAtW
 	def InsertBeforeW(pcCondition, pNewItem)
 		_anPos_ = @oList.FindItemsW(pcCondition)
 		@oList.InsertBeforeManyPositions(_anPos_, pNewItem)
@@ -115,6 +204,12 @@ class stzListCounter from stzObject
 			This.InsertBeforeW(pcCondition, pNewItem)
 			return This
 
+		# Inserts a new item right before every item that satisfies a W condition, the same as InsertBeforeW.
+		#
+		#   pcCondition   the W condition as text in braces
+		#   pNewItem      the item to insert at each match
+		#   returns       nothing
+		#   see           InsertBeforeW
 		def InsertAtW(pcCondition, pNewItem)
 			This.InsertBeforeW(pcCondition, pNewItem)
 
@@ -132,6 +227,11 @@ class stzListCounter from stzObject
 	 #   COUNT ITEMS OF SPECIFIC TYPE                       #
 	#======================================================#
 
+	# Returns how many items of the list are texts.
+	#
+	#   returns    a number
+	#   note       an empty text counts as a text
+	#   see        CountNumbers, CountLists
 	def CountStrings()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -146,6 +246,10 @@ class stzListCounter from stzObject
 		def NumberOfStrings()
 			return This.CountStrings()
 
+	# Returns how many items of the list are numbers.
+	#
+	#   returns    a number
+	#   see        CountStrings, CountLists
 	def CountNumbers()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -160,6 +264,11 @@ class stzListCounter from stzObject
 		def NumberOfNumbers()
 			return This.CountNumbers()
 
+	# Returns how many items of the list are themselves lists.
+	#
+	#   returns    a number
+	#   note       only the top level is looked at, a sublist counts once whatever it holds
+	#   see        CountStrings, CountNumbers
 	def CountLists()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -201,6 +310,12 @@ class stzListCounter from stzObject
 		def NumberOfOccurrencesOfCS(pItem, pCaseSensitive)
 			return This.CountCS(pItem, pCaseSensitive)
 
+	# Returns how many times an item occurs in the list, case-sensitively for texts; sublists are compared by content.
+	#
+	#   pItem      the item to count: a text, a number or a list
+	#   returns    a number
+	#   note       CountCS(pItem, 0) ignores case: "A" counts "a" and "A" alike
+	#   see        CountCS, CountItemsW
 	def Count(pItem)
 		return This.CountCS(pItem, 1)
 
@@ -221,6 +336,11 @@ class stzListCounter from stzObject
 	 #   COUNT EMPTY / NON-EMPTY ITEMS                      #
 	#======================================================#
 
+	# Returns how many items are the empty text.
+	#
+	#   returns    a number
+	#   note       an empty sublist or the number 0 is not an empty item
+	#   see        CountNonEmptyItems
 	def CountEmptyItems()
 		_aContent_ = This.Content()
 		_nLen_ = len(_aContent_)
@@ -235,6 +355,10 @@ class stzListCounter from stzObject
 		def NumberOfEmptyItems()
 			return This.CountEmptyItems()
 
+	# Returns how many items are anything but the empty text.
+	#
+	#   returns    a number
+	#   see        CountEmptyItems
 	def CountNonEmptyItems()
 		return This.NumberOfItems() - This.CountEmptyItems()
 

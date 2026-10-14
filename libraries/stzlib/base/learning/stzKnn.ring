@@ -9,6 +9,26 @@
 #   ? oK.Classify([5.0, 3.4])   #--> "setosa"
 #   ? oK.Why()
 
+# Classifies a point by the majority label of its k nearest training examples, with no training step and a full explanation.
+#
+# The purest explainable classifier: nothing is fitted, and Why lists the neighbours that voted with
+# their distances. The search is exact by default and runs in the engine; the resident index
+# rebuilds when examples have been added through TrainingSetQ. Approximate search is an opt-in
+# switch because the library cannot know how many queries will follow, and because it may change an
+# answer; AgreementWithExact measures the cost on your own queries. Features are compared by
+# Euclidean distance, so scale them first when their units differ.
+#
+#   receiver   o1 = new stzKnn(new stzTrainingSet([ [[5.1, 3.5], "setosa"], [[4.9, 3.0], "setosa"],
+#              [[5.0, 3.4], "setosa"], [[6.5, 2.8], "virginica"], [[6.3, 3.3], "virginica"], [[6.7,
+#              3.0], "virginica"] ]))
+#   example    o1.SetK(3)
+#              ? o1.Classify([5.0, 3.4])
+#              #--> setosa
+#              ? o1.Classify([6.4, 3.0])
+#              #--> virginica
+#              ? o1.Why()
+#              #--> the 3 nearest examples were: #4 'virginica' (d=0.22), #6 'virginica' (d=0.30), #5 'virginica' (d=0.32) -- majority: 'virginica' (3/3)
+#   see        stzTrainingSet, stzKMeans, stzNaiveBayes
 class stzKnn from stzObject
 
 	@oDs = ""
@@ -26,70 +46,46 @@ class stzKnn from stzObject
 	@nWhyVotes_ = 0
 	@nWhyUsed_ = 0
 	@nWhyWin_ = 0         # the WINNING code -- not the first neighbour's, which is
-	                      # a different thing whenever the vote overrules proximity
-
+	# Builds a k-nearest-neighbours classifier over a training set; nothing is trained and k starts at 3.
+	#
+	#   poDataset   a stzTrainingSet
+	#   returns     nothing; the object is built
+	#   see         SetK, Classify
+	#@ aka  a different thing whenever the vote overrules proximity
 	def init(poDataset)
 		@oDs = poDataset
 
-	# THE HELD SET IS LIVE THROUGH HERE. Ring COPIES an object into an
-	# attribute, so the set handed to the constructor is a SNAPSHOT: growing
-	# the caller's own object afterwards would NOT reach this learner. Grow it
-	# through this accessor -- oLearner.TrainingSetQ().AddExample(...) -- which
-	# reaches the real held set (accessor + method call is live in Ring).
+	# Returns the training set the classifier holds, the one to grow if more examples are wanted.
+	#
+	#   returns    a stzTrainingSet
+	#   warning    growing the set you passed to the constructor does not reach the classifier,
+	#              because it keeps a copy; grow it here, and the next Classify sees it
+	#   see        Classify
+	#@ aka  THE HELD SET IS LIVE THROUGH HERE. Ring COPIES an object into an attribute, so the set handed to the constructor is a SNAPSHOT: growing the caller's own object afterwards would NOT reach this learner. Grow it through this accessor -- oLearner.TrainingSetQ().AddExample(...) -- which reaches the real held set (accessor + method call is live in Ring).
 	def TrainingSetQ()
 		return @oDs
 
+	# Sets how many nearest examples vote.
+	#
+	#   n          the number of neighbours, 1 or more
+	#   returns    the classifier itself, so calls chain
+	#   note       a value below 1 is ignored without a message and the earlier k stays
+	#   see        K, Classify
 	def SetK(n)
 		if n >= 1
 			@nK = n
 		ok
 		return This
 
-	# ── APPROXIMATE SEARCH: OPT-IN, AND DELIBERATELY NOT AUTOMATIC ──
+	# Switches between exact search and an approximate one through a projection forest in the engine.
 	#
-	# Exact search is O(n) per query: every example measured, the true k nearest,
-	# the same answer every time. Above a few thousand examples that is the whole
-	# cost of a classification, and the projection forest in the engine answers in
-	# roughly O(budget) instead.
-	#
-	# WHY THIS IS A SWITCH AND NOT A SIZE THRESHOLD. UMAP builds neighbours for
-	# every point at once, so its n alone decides whether approximating pays --
-	# which is why umap.zig can turn it on by itself at 8192. A CLASSIFIER IS
-	# DIFFERENT: it answers one query at a time, and the forest has to be BUILT
-	# before it can answer any. That build is amortised over however many queries
-	# follow, and only the caller knows whether that is three or three million.
-	# Ten queries against 50000 examples are faster exact; ten thousand are not.
-	# A library cannot infer the query count, so it must not guess -- it asks.
-	#
-	# AND IT CHANGES ANSWERS, WHICH A SIZE THRESHOLD WOULD HIDE. Approximate
-	# neighbours can shift a vote. Usually they do not -- a vote survives a swapped
-	# neighbour far more often than a neighbour list survives it -- but "usually" is
-	# a promise no default should make on a caller's behalf. AgreementWithExact()
-	# exists so the cost can be measured on the actual data rather than assumed.
-	#
-	# ── WHAT IT ACTUALLY BUYS, MEASURED, AND IT IS LESS THAN ARITHMETIC SUGGESTS ──
-	#
-	# 16 features, k = 5, 30 queries, on this machine:
-	#
-	#     5000 examples    approximate is NOT faster per query
-	#    20000 examples    1.355x per query; break-even at ~219 queries
-	#
-	# Counting flops predicts far more: exact measures all 20000 examples where the
-	# forest examines a few hundred candidates, which is some sixty-fold less
-	# arithmetic. It does not show up, and the reason is written all over this file
-	# already -- THE BRIDGE AND THE INTERPRETER, NOT THE ARITHMETIC, ARE THE COST OF
-	# A QUERY at these sizes. Cutting the distance computations sixty-fold cuts a
-	# minority of the total.
-	#
-	# So this is a modest win that has to be asked for, not a free upgrade, and the
-	# break-even in QUERIES is the number that decides it. That is also the sharpest
-	# contrast with UMAP: there one call needs n neighbour searches, so the forest is
-	# amortised immediately and 8192 points is enough to turn it on automatically.
-	# Here each query stands alone.
-	#
-	# Label agreement measured 1.000 in both rows above -- on separable data the vote
-	# absorbed every neighbour the forest missed. Do not read that as a guarantee;
-	# read it as the reason AgreementWithExact() takes YOUR queries.
+	#   bFlag      1 for approximate search, 0 for exact
+	#   returns    the classifier itself, so calls chain
+	#   note       off by default: it pays only above a few thousand examples and many queries, and
+	#              it can change an answer; AgreementWithExact measures that on your queries
+	#   warning    raises an error unless the flag is exactly 1 or 0
+	#   see        IsApproximate, AgreementWithExact
+	#@ aka  ── APPROXIMATE SEARCH: OPT-IN, AND DELIBERATELY NOT AUTOMATIC ──
 	def SetApproximate(bFlag)
 		if bFlag != 1 and bFlag != 0
 			stzraise("SetApproximate: TRUE or FALSE.")
@@ -100,10 +96,21 @@ class stzKnn from stzObject
 		ok
 		return This
 
+	# TRUE if approximate search is on.
+	#
+	#   returns    TRUE or FALSE; FALSE by default
+	#   see        SetApproximate
 	def IsApproximate()
 		return @bApprox_
 
-	# More trees, better recall, bigger index and a slower build.
+	# Sets how many trees the approximate index uses: more trees give better recall and a larger, slower index.
+	#
+	#   n          the number of trees, 1 or more
+	#   returns    the classifier itself, so calls chain
+	#   note       the default is 24
+	#   warning    raises an error for a number below 1
+	#   see        ApproximateTrees, SetApproximateBudget
+	#@ aka  More trees, better recall, bigger index and a slower build.
 	def SetApproximateTrees(n)
 		if n < 1
 			stzraise("SetApproximateTrees: at least one tree.")
@@ -112,8 +119,14 @@ class stzKnn from stzObject
 		This._DropResident()
 		return This
 
-	# Candidates examined per query before the true distances decide. 0 lets the
-	# engine scale it from k. This is the recall dial.
+	# Sets how many candidates the approximate search examines per query before true distances decide.
+	#
+	#   n          the candidate count, 0 or more
+	#   returns    the classifier itself, so calls chain
+	#   note       it is the recall dial
+	#   warning    raises an error for a negative number
+	#   see        ApproximateBudget, SetApproximateTrees
+	#@ aka  Candidates examined per query before the true distances decide. 0 lets the engine scale it from k. This is the recall dial.
 	def SetApproximateBudget(n)
 		if n < 0
 			stzraise("SetApproximateBudget: a non-negative budget.")
@@ -122,20 +135,29 @@ class stzKnn from stzObject
 		This._DropResident()
 		return This
 
+	# Returns the number of trees set for the approximate index.
+	#
+	#   returns    a number; 24 by default
+	#   see        SetApproximateTrees
 	def ApproximateTrees()
 		return @nAnnTrees_
 
+	# Returns the candidate budget set for the approximate search.
+	#
+	#   returns    a number; 0 means the engine chooses
+	#   see        SetApproximateBudget
 	def ApproximateBudget()
 		return @nAnnBudget_
 
-	# THE HONEST MEASURE FOR A CLASSIFIER: not how many neighbours the forest
-	# missed, but how often the LABEL still came out the same. Those are very
-	# different numbers -- a majority vote absorbs a swapped neighbour that a
-	# neighbour-recall figure would count as a loss -- and the label is what the
-	# caller actually receives.
+	# Returns the share of the given queries on which approximate and exact search give the same label.
 	#
-	# Returns the fraction of the given queries on which approximate and exact
-	# classification agree. Each mode is built once, not once per query.
+	#   paQueries   a non-empty list of feature lists, each as wide as the training examples
+	#   returns     a number from 0 to 1
+	#   note        the honest measure for a classifier: a vote often survives a swapped neighbour,
+	#               so the label is compared and not the neighbour list
+	#   warning     raises an error for an empty list or a query of the wrong width, naming it
+	#   see         SetApproximate, Classify
+	#@ aka  THE HONEST MEASURE FOR A CLASSIFIER: not how many neighbours the forest missed, but how often the LABEL still came out the same. Those are very different numbers -- a majority vote absorbs a swapped neighbour that a neighbour-recall figure would count as a loss -- and the label is what the caller actually receives.
 	def AgreementWithExact(paQueries)
 		if NOT isList(paQueries) or len(paQueries) = 0
 			stzraise("AgreementWithExact: give me a non-empty list of queries.")
@@ -156,9 +178,22 @@ class stzKnn from stzObject
 		ok
 		return _nR_
 
+	# Returns how many neighbours vote.
+	#
+	#   returns    a number; 3 by default
+	#   see        SetK
 	def K()
 		return @nK
 
+	# Returns the majority label among the k training examples nearest to a feature list, by Euclidean distance.
+	#
+	#   paFeatures   the numbers describing the thing to classify, as many as the training examples
+	#                have
+	#   returns      a text, the label
+	#   note         the search runs in the engine and rebuilds when examples were added
+	#   warning      raises an error for an empty training set and for a query of the wrong width; a
+	#                tie goes to the label that appeared first in the training set
+	#   see          Why, SetK
 	def Classify(paFeatures)
 		# A THIN FACE OVER ONE ENGINE CALL.
 		#
@@ -214,6 +249,11 @@ class stzKnn from stzObject
 		$cStzLastWhyB = ""
 		return @acAlphabet_[_nWin_ + 1]
 
+	# Returns the neighbours behind the last answer, each with its number and distance, and the vote.
+	#
+	#   returns    a text such as the 3 nearest examples were: #3 'setosa' (d=0), ... -- majority:
+	#              'setosa' (3/3); empty before the first Classify
+	#   see        Classify
 	def Why()
 		if @cWhy != ""
 			return @cWhy

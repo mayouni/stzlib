@@ -1,0 +1,13 @@
+{
+ "brief": "Prints a pivot table as text from a TableDisplayConfig: borders, two header lines, the data rows and the total row.",
+ "detail": "It reads the widths already computed by the config and prints with the question-mark statement, one line at a time, using box-drawing characters that a theme can swap for plain ones. It keeps a copy of the config it is given, so build it after the settings are final. Today the printed table does not line up: the header block is narrower than the data rows and the total row falls below the bottom border (see the warning on RenderTable).",
+ "receiver": "o1 = new TableRenderer(new TableDisplayConfig([ [ \"Dept\", \"2024|Q1\", \"2024|Q2\", \"Total\" ], [ \"Sales\", 100, 200, 300 ], [ \"Support\", 50, 60, 110 ], [ \"Total\", 150, 260, 410 ] ], [ \"Dept\" ], [ \"Year\", \"Quarter\" ], \"Total\"))",
+ "example": [
+  "? classname(o1)",
+  "#--> tablerenderer"
+ ],
+ "see": [
+  "TableDisplayConfig",
+  "TableThemeManager"
+ ]
+}

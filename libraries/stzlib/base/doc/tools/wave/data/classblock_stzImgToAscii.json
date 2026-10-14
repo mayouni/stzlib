@@ -1,0 +1,6 @@
+{
+ "brief": "Meant to turn an image into text art (ansi, ascii, svg or html) by running the external im2ansi tool; it does not load today.",
+ "detail": "WARNING: the file extercode/stzImageToAscii.ring does not parse in Ring 1.27: loading it alone reports C27 Syntax Error at lines 41, 55, 56, 58 and a missing bracket at line 79, because the code uses braces after if and in one-line methods and a loop in an unsupported shape. No other file of the library loads it, so the class does not exist in a normal session and none of its methods could be run; they were read from the code. The tool it shells out to, im2ansi.exe, is not in the library either.",
+ "receiver": "o1 = StzImgToAsciiQ(\"photo.png\")",
+ "see": ["stzExterCode", "stzDotCode"]
+}

@@ -1,0 +1,5 @@
+init | Wraps an object and the name of the whole-object keyword its condition may use. | nothing; the object is built | poObj=the object to guard, such as a stzList; pcKeyword=the keyword name, such as @pair, kept for Keyword | Where, Object
+Content | Returns the content of the guarded object. | whatever the guarded object's Content returns | | Object, Value
+Object | Returns the guarded object itself, not its content. | the guarded object | | Content, Keyword
+Keyword | Returns the keyword the guard was built with, as the type guard wrote it. | a text such as pair | | Where
+Where | Evaluates a condition once against the whole guarded object, with @pair, @list, @string, @number and @object each standing for that object. | 1 or 0, numbers | pcCondition=a condition text written with a whole-object keyword, such as @pair[1] = "x" | W, Object | all five keywords are replaced, whichever one the guard was built with; the condition sees the object, so use an element access, @list[1], and not len(@list) | an IsAPairQ() that passes returns this guard, and one that fails returns a stzFalseObject

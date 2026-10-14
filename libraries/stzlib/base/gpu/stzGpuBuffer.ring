@@ -51,26 +51,67 @@ func _BindingValue(paBindings, pcName)
 	next
 	return ""
 
+# A vector that lives on the GPU, so that kernels can be chained on it with no transfer until it is downloaded once.
+#
+# Obtain one from stzGpu.UploadQ, chain single-input kernels with ApplyQ, read the result with
+# Download, and call Free when done. The object holds two numbers, the generation-keyed engine id
+# and the element count, so a copy shares the same device buffer and a stale id after Free or
+# eviction is reported as stale and never answers with another buffer's data. Every method except
+# init, Id_, Count and IsAlive needs the GPU, which sleeps on this machine, so they were read from
+# the code and not run.
+#
+#   receiver   o1 = new stzGpuBuffer([ 0, 5 ])
+#   example    ? o1.Count()
+#              #--> 5
+#              ? o1.IsAlive()
+#              #--> 0
+#   see        stzGpu, stzKernelMaker
 class stzGpuBuffer from stzObject
 
 	@nId = 0
 	@nCount = 0
 
-	# paIdCount = [ nEngineBufferId, nElementCount ]
+	# Wraps a buffer that lives on the GPU, given as its engine id and its element count.
+	#
+	#   paIdCount   a list [ nEngineBufferId, nElementCount ], as stzGpu.UploadQ builds it
+	#   returns     nothing; the object is built
+	#   warning     the object holds only two numbers, so copies of it share the same device buffer
+	#   see         Id_, Count
+	#@ aka  paIdCount = [ nEngineBufferId, nElementCount ]
 	def init(paIdCount)
 		@nId = paIdCount[1]
 		@nCount = paIdCount[2]
 
+	# Returns the engine id of the device buffer, 0 once the buffer was freed through this object.
+	#
+	#   returns    a number
+	#   see        Count, Free
 	def Id_()
 		return @nId
 
+	# Returns how many numbers the buffer holds.
+	#
+	#   returns    a number
+	#   see        Download, Id_
 	def Count()
 		return @nCount
 
+	# TRUE if the engine still knows the buffer, which is not so after Free or an eviction.
+	#
+	#   returns    TRUE or FALSE
+	#   warning    run only with ids the engine does not know, where it answered FALSE; no buffer
+	#              was uploaded
+	#   see        Free, Download
 	def IsAlive()
 		return StzEngineGpuBufferSize(@nId) >= 0
 
-	# The vector, back on the CPU. Raises if the buffer was freed or evicted.
+	# Reads the whole vector back from the device into a list of numbers.
+	#
+	#   returns    a list of numbers
+	#   note       not run: it needs a buffer on the GPU, which sleeps on this machine
+	#   warning    raises an error when the buffer was freed, evicted or lost with the device
+	#   see        Count, ApplyQ
+	#@ aka  The vector, back on the CPU. Raises if the buffer was freed or evicted.
 	def Download()
 		_a_ = StzEngineGpuBufferDownloadList(@nId, @nCount)
 		if len(_a_) != @nCount
@@ -79,12 +120,27 @@ class stzGpuBuffer from stzObject
 		ok
 		return _a_
 
-	# Run a ONE-INPUT kernel over this buffer; the result is a NEW resident
-	# buffer (this one is untouched). No transfer happens -- that is the point.
+	# Runs a one-input kernel over the buffer on the device and returns the result as a new resident buffer, leaving this one untouched.
+	#
+	#   oKernel    a stzKernelMaker with exactly one input vector
+	#   returns    a new stzGpuBuffer
+	#   note       not run: it dispatches on the GPU
+	#   warning    a kernel with more than one input raises an error that points to stzGpu.ApplyOnQ;
+	#              a kernel that does not compile raises an error with the engine's message
+	#   see        ApplyWithQ, Download
+	#@ aka  Run a ONE-INPUT kernel over this buffer; the result is a NEW resident buffer (this one is untouched). No transfer happens -- that is the point.
 	def ApplyQ(oKernel)
 		return This.ApplyWithQ(oKernel, [])
 
-	# Same, with the kernel's scalar values: [ :alpha = 2.5, ... ]
+	# Does the same as the call without scalars, binding the kernel's scalars by name.
+	#
+	#   oKernel     a stzKernelMaker with exactly one input vector
+	#   paScalars   a list such as [ :alpha = 2.5 ] that gives each declared scalar a number
+	#   returns     a new stzGpuBuffer
+	#   note        not run: it dispatches on the GPU
+	#   warning     a scalar missing from the list raises an error naming it instead of binding 0
+	#   see         ApplyQ
+	#@ aka  Same, with the kernel's scalar values: [ :alpha = 2.5, ... ]
 	def ApplyWithQ(oKernel, paScalars)
 		if len(oKernel.InputNames()) != 1
 			StzRaise("ApplyQ: the kernel takes " + len(oKernel.InputNames()) +
@@ -110,6 +166,13 @@ class stzGpuBuffer from stzObject
 		ok
 		return new stzGpuBuffer([_nOut_, @nCount])
 
+	# Frees the device buffer and marks this object empty.
+	#
+	#   returns    nothing
+	#   note       run only on an object with id 0, where it does nothing
+	#   warning    Ring has no destructors, so free what you upload; forgotten buffers are evicted
+	#              first-in-first-out under VRAM pressure and counted
+	#   see        IsAlive, Download
 	def Free()
 		if @nId > 0
 			StzEngineGpuBufferFree(@nId)

@@ -1,0 +1,6 @@
+# w15 stzRingTimer
+init | Builds a timer in pure Ring that calls a function every interval, or once, when driven by a timer manager. | nothing; the timer is built stopped | id=the timer's identifier; intervalMs=the time between calls in milliseconds; f=the function to call; engine=the reactive engine it belongs to; oneTime=1 for a timer that fires once, 0 or an empty text for one that repeats; obj=the object the timer belongs to, kept for the owner | Start, CheckAndTick | | it does not run by itself: a stzTimerManager loop calls CheckAndTick
+Start | Starts the timer, taking the time now as its starting point. | nothing; the timer becomes active | | Stop, CheckAndTick | | starting an active timer does nothing
+Stop | Stops the timer, so CheckAndTick no longer fires it. | nothing; the timer becomes inactive | | Start, Cleanup | |
+CheckAndTick | Calls the function if the interval has passed since the last call, for a manager's loop to call. | 1 while the timer stays active, 0 when it is stopped or has just fired as a one-shot | | Start, Stop | | a call before the interval has passed does nothing and answers 1; it decides whether to stop a one-shot before calling the function, because the function may stop the whole timer system
+Cleanup | Stops the timer when its owner lets go of it. | nothing | | Stop |

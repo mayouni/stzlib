@@ -52,6 +52,29 @@ func StzOptimModelFromZopt(pcText)
 func StzZoptVersion()
 	return 1
 
+# Reads a .zopt optimization file and expands its indexed families into an ordinary stzOptimModel.
+#
+# A .zopt file declares sets, indexed parameters and variable families, an objective and
+# constraints, with sum and forall over a set. Reading it checks the format and lists every fault in
+# Findings; ToModel then expands the families into plain variables and constraint strings before the
+# model ever sees them, so a file and a hand-built model of the same problem are the same model.
+# ToZopt and Save write the expanded model back as a flat file. Adding a product is editing one
+# list.
+#
+#   receiver   o1 = new stzOptimFile("") o1.SetText("zopt: 1" + char(10) + "model: shop" + char(10)
+#              + "set Products: chairs, tables" + char(10) + "param profit[Products]: 30, 45" +
+#              char(10) + "var make[Products]: 0 .. 100 integer" + char(10) + "maximize: sum
+#              profit[p] * make[p] for p in Products" + char(10) + "subject to:" + char(10) + "
+#              forall p in Products: make[p] <= 60")
+#   example    ? o1.IsValid()
+#              #--> 1
+#              ? o1.MembersOf("Products")[2]
+#              #--> tables
+#              ? o1.ParamValue("profit", "tables")
+#              #--> 45
+#              ? o1.ToModel().VarNames()[1]
+#              #--> make_chairs
+#   see        stzOptimModel, stzOptimSentence, StzOptimModelFromZopt
 class stzOptimFile from stzObject
 
 	@cText = ""
@@ -65,6 +88,13 @@ class stzOptimFile from stzObject
 	@aConsSrc = []     # [ [ name, text, forallVar, forallSet ] ]
 	@aFindings = []
 
+	# Opens a .zopt model: reads and parses the file when a path is given, and builds an empty reader for an empty path.
+	#
+	#   pcPath     the .zopt file to read, or an empty text to give the text later with SetText
+	#   returns    nothing; the object is built
+	#   warning    raises stzOptimFile: no file at the path when the file is missing; a file with
+	#              faults does not raise, its faults are listed by Findings
+	#   see        SetText, ToModel
 	def init(pcPath)
 		@cPath = "" + pcPath
 		if @cPath != ""
@@ -75,17 +105,37 @@ class stzOptimFile from stzObject
 			This._Parse()
 		ok
 
+	# Reads the model from a text instead of a file and parses it again, replacing what was read before.
+	#
+	#   pcText     the whole .zopt text
+	#   returns    the file reader itself, so calls chain
+	#   see        Findings, ToModel, StzOptimModelFromZopt
 	def SetText(pcText)
 		@cText = "" + pcText
 		This._Parse()
 		return This
 
+	# Returns the faults found in the text, one sentence each, naming the line when there is one.
+	#
+	#   returns    a list of text; [ ] for a valid model
+	#   note       a reader that has read nothing has no findings and so counts as valid
+	#   see        IsValid, CiteFindings
 	def Findings()
 		return @aFindings
 
+	# TRUE if parsing found no fault, which says nothing yet about whether the model can be solved.
+	#
+	#   returns    1 or 0, numbers
+	#   warning    a reader built with an empty path and no SetText also answers 1; ToModel then
+	#              raises about the missing variables
+	#   see        Findings, ToModel
 	def IsValid()
 		return len(@aFindings) = 0
 
+	# Returns the faults as one text, each on its own line after a dash, ready to print.
+	#
+	#   returns    a text; empty for a valid model
+	#   see        Findings
 	def CiteFindings()
 		_c_ = ""
 		_n_ = len(@aFindings)
@@ -97,12 +147,25 @@ class stzOptimFile from stzObject
 		next
 		return _c_
 
+	# Returns the model's name from its model: line, an empty text when there is none.
+	#
+	#   returns    a text
+	#   see        SetText
 	def Name_()
 		return @cName
 
+	# Returns the sets declared by set lines, with their members in lower case.
+	#
+	#   returns    a list of [ name, [ members ] ] rows
+	#   see        MembersOf
 	def SetsDeclared()
 		return @aSets
 
+	# Returns the members of a declared set, in the order written, in lower case.
+	#
+	#   pcSet      the set's name, in any case
+	#   returns    a list of text; [ ] for an unknown set
+	#   see        SetsDeclared, ParamValue
 	def MembersOf(pcSet)
 		_c_ = StzLower(ring_trim("" + pcSet))
 		_n_ = len(@aSets)
@@ -113,6 +176,14 @@ class stzOptimFile from stzObject
 		next
 		return []
 
+	# Returns the value an indexed parameter gives to one member of its set.
+	#
+	#   pcParam    the parameter's name
+	#   pcMember   the member of the set it is indexed by, in any case
+	#   returns    a number; 0 when the parameter or the member is unknown
+	#   note       names and members are matched without regard to case
+	#   warning    an unknown name is not reported, it reads 0
+	#   see        MembersOf, ToModel
 	def ParamValue(pcParam, pcMember)
 		_cP_ = StzLower(ring_trim("" + pcParam))
 		_cM_ = StzLower(ring_trim("" + pcMember))
@@ -425,12 +496,15 @@ class stzOptimFile from stzObject
 		next
 		return _aOut_
 
-	#-- expansion: families become ordinary variables and strings --------
+	# Expands the families into ordinary variables and constraints and returns the model; a faulty file is refused.
 	#
-	# THE WHOLE POINT OF THE FORMAT, and the reason it is a front end
-	# rather than an engine: after this method there are no families
-	# left, only the longhand a caller would otherwise have typed.
-
+	#   returns    a stzOptimModel
+	#   note       variable make[chairs] becomes make_chairs, a sum becomes its terms one by one and
+	#              a forall one constraint per member
+	#   warning    raises stzOptimFile: this model was REFUSED and the findings, when the text has
+	#              faults
+	#   see        Save, ToZopt, Findings
+	#@ aka  -- expansion: families become ordinary variables and strings --------
 	def ToModel()
 		if NOT This.IsValid()
 			stzraise("stzOptimFile: this model was REFUSED." + char(10) +
@@ -645,18 +719,22 @@ class stzOptimFile from stzObject
 			 "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"
 		return len(StzFind(pcCh, _cSet_)) > 0
 
-	#-- the round trip ---------------------------------------------------
+	# Returns the expanded model written back as a flat .zopt text with no families; reading it again gives the same model.
 	#
-	# Writing is not the mirror of reading and does not pretend to be:
-	# what comes back is the EXPANDED model, because that is what the file
-	# means. A round trip is checked by solving both and comparing the
-	# AST, which is the claim that matters -- not by diffing the text,
-	# which would only prove the writer echoes the reader.
-
+	#   returns    a text
+	#   note       the text is the expansion, not a copy of the original file
+	#   warning    raises like ToModel for a faulty file
+	#   see        ToModel, Save
+	#@ aka  -- the round trip ---------------------------------------------------
 	def ToZopt()
 		_oM_ = This.ToModel()
 		return StzModelToZopt(_oM_, @cName)
 
+	# Writes the expanded model to a file, adding the .zopt extension when the path lacks it.
+	#
+	#   pcPath     where to write
+	#   returns    the path written
+	#   see        ToZopt, init
 	def Save(pcPath)
 		_cP_ = "" + pcPath
 		if StzRight(_cP_, 5) != ".zopt"

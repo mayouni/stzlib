@@ -1,0 +1,13 @@
+{
+ "brief": "Holds a list of grids, each a list of lists, once it can be built; it cannot be built today.",
+ "detail": "The class is marked TODO in its file. Its init checks the argument with a method named IsListOfGrids that stzList does not have (only the global function of that name exists), so new stzListOfGrids(aList) and StzListOfGridsQ(aList) raise error R14 for every list, an empty one included; a value that is not a list raises the intended message. Content has no return statement, so it would answer an empty text even for an object that could be built. For a single grid use stzList2D; for a list of lists, stzListOfLists.",
+ "receiver": "o1 = new stzList2D([ [ 1, 2 ], [ 3, 4 ] ])",
+ "example": [
+  "? @@( o1.Content() )",
+  "#--> [ [ 1, 2 ], [ 3, 4 ] ]"
+ ],
+ "see": [
+  "stzList2D",
+  "stzListOfLists"
+ ]
+}

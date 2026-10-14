@@ -1,0 +1,12 @@
+{
+ "brief": "A pattern is a function of time: it tells which events happen in cycle 0, cycle 1, and so on, written in a small mini-notation.",
+ "detail": "The notation is that of TidalCycles: words in a sequence share the cycle equally, ~ is a rest, [a b] a group, <a b c> alternates one step per cycle, a*2 and a/2 speed a step up or down, a? plays about half the cycles. Fast, Slow, Rev, Every and Off build a new pattern out of the old one, in place, and return the pattern so they chain. The class knows no domain: what a word means belongs to a subclass such as stzSoundPattern. A text that does not parse never raises: IsValid says so and LastError tells why.",
+ "receiver": "o1 = StzPatternQ(\"red ~ blue [green green]\")",
+ "example": [
+  "? @@( o1.CycleEvents(0) )",
+  "#--> [ [ 0, 0.25, \"word\", \"red\" ], [ 0.50, 0.25, \"word\", \"blue\" ], [ 0.75, 0.13, \"word\", \"green\" ], [ 0.88, 0.13, \"word\", \"green\" ] ]",
+  "? o1.Period()",
+  "#--> 1"
+ ],
+ "see": ["stzStateMachine", "stzIntSeq"]
+}

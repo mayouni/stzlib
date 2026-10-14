@@ -52,6 +52,34 @@
 func StzSoundPatternQ(pcText)
 	return new stzSoundPattern(pcText)
 
+# Holds rhythm written as a string, Tidal's mini-notation, as a function of time that answers the events of any cycle.
+#
+# A pattern is not a list of notes but a function from a cycle number to the events in that cycle,
+# so the verbs compose. In the string a b c is a sequence sharing the cycle, ~ a rest, [a b] a group
+# sharing one step, [a, b] a stack, <a b> an alternation by cycle, a*2 twice as fast, a/2 half as
+# fast, a? sometimes, a!3 three times and a@3 three steps long. A word is a note name or a stroke,
+# with bd, sn and hh stored as kick, snare and hihat. ToScoreQ turns cycles into a stzSoundScore,
+# four beats a cycle, which is data a player can render; nothing here opens an audio device or
+# plays. Not here: euclidean rhythms, fractional factors, sample banks and jux. The output has not
+# been heard by a person (UNPERCEIVED): it is checked by the events it holds.
+#
+#   receiver   o1 = StzSoundPatternQ("bd ~ sn [hh hh]")
+#   example    ? o1.IsAllStrokes()
+#              #--> 1
+#              ? o1.HasStroke("kick")
+#              #--> 1
+#              ? o1.HasStroke("crash")
+#              #--> 0
+#              oS = o1.ToScoreQ(2)
+#              ? oS.NumberOfEvents()
+#              #--> 8
+#              ? oS.Beats()
+#              #--> 8
+#              ? oS.Events()[3][1]
+#              #--> 3
+#              ? oS.Events()[3][6]
+#              #--> hihat
+#   see        stzPattern, stzSoundScore, stzSoundTranscriber
 class stzSoundPattern from stzPattern
 
 	@cOct = "4"             # the octave a note name without one takes
@@ -61,7 +89,13 @@ class stzSoundPattern from stzPattern
 	def DistinctNotes(pnCycles)
 		return This.DistinctValues(pnCycles)
 
-	# True when every word is a stroke: the pattern names its own drum.
+	# TRUE if every event of the first cycle is a drum stroke, so the pattern names its own drum.
+	#
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   note       a pattern of notes answers 0 and an empty pattern answers 0; only the first cycle
+	#              is read, so an alternation that has notes in a later cycle can still answer 1
+	#   see        HasStroke, ToScoreQ
+	#@ aka  True when every word is a stroke: the pattern names its own drum.
 	def IsAllStrokes()
 		if isNull(@aRoot)  return FALSE ok
 		_n_ = 0
@@ -71,6 +105,15 @@ class stzSoundPattern from stzPattern
 		next
 		return _n_ > 0
 
+	# TRUE if some event in any cycle of the pattern is the named stroke.
+	#
+	#   pcName     the stroke's canonical name, kick, snare, hihat, dum, tak, ka, crash, ride,
+	#              hightom, midtom, floortom or openhat
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   note       the words bd, sn and hh are spellings: they are stored as kick, snare and hihat,
+	#              so HasStroke("bd") answers 0 and HasStroke("kick") answers 1; all the cycles of
+	#              the pattern's period are searched
+	#   see        IsAllStrokes, ToScoreQ
 	def HasStroke(pcName)
 		for _c_ = 0 to This.Period() - 1
 			for _e_ in This.CycleEvents(_c_)
@@ -79,9 +122,17 @@ class stzSoundPattern from stzPattern
 		next
 		return FALSE
 
-	# `pnCycles` cycles as a stzSoundScore, a cycle being four beats. The pivot:
-	# a pattern is a function, a score is data, and this is where one
-	# becomes the other.
+	# Renders a number of cycles of the pattern as a stzSoundScore, a cycle being four beats.
+	#
+	#   pnCycles   how many cycles to render, from cycle 0
+	#   returns    a stzSoundScore holding one event for each event of each cycle, of length 4 beats
+	#              per cycle
+	#   note       the pivot from a function of time to data: for bd ~ sn [hh hh] one cycle gives a
+	#              kick at beat 0, a snare at 2 and hi-hats at 3 and 3.5, checked by hand; c e g
+	#              gives three notes 1.33 beats long at 261.63, 329.63 and 392 hertz; an alternation
+	#              such as <c e> gives c in cycle 0 and e in cycle 1; nothing is played
+	#   see        HasStroke, IsAllStrokes
+	#@ aka  `pnCycles` cycles as a stzSoundScore, a cycle being four beats. The pivot: a pattern is a function, a score is data, and this is where one becomes the other.
 	def ToScoreQ(pnCycles)
 		_oS_ = StzSoundScoreQ()
 		for _c_ = 0 to pnCycles - 1

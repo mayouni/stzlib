@@ -77,6 +77,28 @@
 func StzBpmnDiagramQ(poWorkflow)
 	return new stzBpmnDiagram(poWorkflow)
 
+# Lays a stzWorkflow out by the BPMN layout law and emits the conformance digest that two implementations are held to.
+#
+# It no longer draws: the shared renderer does that. What it keeps is the law, a column, a row and
+# an arrow class for every step, and LayoutDigest, the text record compared cell by cell with the
+# second implementation. The spine, the happy path, takes row 0; steps off it go below; each arrival
+# at an ending gets its own marker. It reads the workflow's Steps(), so a workflow built only with
+# AddStateXTT yields an empty digest. MarkEnding and MarkResume declare the endings before the
+# layout is computed.
+#
+#   receiver   oWf = new stzWorkflow("order") oWf.AddStep_("receive") oWf.AddStep_("check")
+#              oWf.AddStep_("done") oWf.ConnectSteps("receive", "check") oWf.ConnectSteps("check",
+#              "done") o1 = new stzBpmnDiagram(oWf)
+#   example    o1.MarkEnding("done", :terminal, :success)
+#              ? o1.EntryStep()
+#              #--> receive
+#              ? o1.IsEnding("done")
+#              #--> 1
+#              ? o1.EndingId("done", 2)
+#              #--> terminal_done__2
+#              ? o1.KindOf("check")
+#              #--> invoke
+#   see        stzWorkflow, stzDiagram
 class stzBpmnDiagram from stzObject
 
 	@oWf = NULL
@@ -94,6 +116,13 @@ class stzBpmnDiagram from stzObject
 	@bLaidOut = FALSE
 	@aArrCount = []     # arrivals counted per ending, for L8's suffixing
 
+	# Builds a BPMN layout over a stzWorkflow, with no endings marked yet.
+	#
+	#   poWorkflow   the stzWorkflow whose steps are laid out
+	#   returns      nothing; the object is built
+	#   note         the diagram reads Steps() and Transitions(), not the states: a workflow built
+	#                only with AddStateXTT has no steps and lays out nothing
+	#   see          MarkEnding, LayoutDigest
 	def init(poWorkflow)
 		@oWf = poWorkflow
 
@@ -101,6 +130,15 @@ class stzBpmnDiagram from stzObject
 	#  DECLARATIONS   #
 	#-----------------#
 
+	# Declares a step to be a process ending, drawn as a marker instead of a node.
+	#
+	#   pcName      the id of the step that ends the process
+	#   pcKind      terminal or suspension, case ignored
+	#   pcOutcome   the outcome label such as success or fail, case ignored
+	#   returns     nothing; the ending is recorded. MarkEndingQ returns the diagram for chaining
+	#   note        the kind and outcome are stored in lower case; marking a name again adds a
+	#               second record and the first one is the one read back
+	#   see         MarkResume, IsEnding, EndingKind
 	def MarkEnding(pcName, pcKind, pcOutcome)
 		@aEndings + [pcName, StzLower("" + pcKind), StzLower("" + pcOutcome)]
 		@bLaidOut = FALSE
@@ -109,12 +147,26 @@ class stzBpmnDiagram from stzObject
 			This.MarkEnding(pcName, pcKind, pcOutcome)
 			return This
 
-	# A suspension that re-enters the process at a step (law L10)
+	# Declares that a suspension ending re-enters the process at a step.
+	#
+	#   pcEnding       the name of a suspension ending
+	#   pcTargetStep   the step where the process resumes
+	#   returns        nothing; the resume is recorded
+	#   note           the return arrow only appears in the layout when some step arrives at that
+	#                  ending
+	#   see            MarkEnding, LayoutDigest
+	#@ aka  A suspension that re-enters the process at a step (law L10)
 	def MarkResume(pcEnding, pcTargetStep)
 		@aResumes + [pcEnding, pcTargetStep]
 		@bLaidOut = FALSE
 
-	# An analyzer finding, drawn on the node it names (law L17)
+	# Places every step in a column and a row by the written BPMN layout law, once.
+	#
+	#   returns    nothing; the placement is kept inside the diagram
+	#   note       a second call does nothing until MarkEnding or MarkResume resets it; an empty
+	#              entry step leaves the layout empty
+	#   see        LayoutDigest, EntryStep
+	#@ aka  An analyzer finding, drawn on the node it names (law L17)
 	def Layout()
 		if @bLaidOut  return ok
 
@@ -301,8 +353,13 @@ class stzBpmnDiagram from stzObject
 	#-----------------#
 	#  MODEL ACCESS   #
 	#-----------------#
-	# Projects stzWorkflow onto the law's section 1 model.
-
+	# Returns the id of the step nothing points at, or the first declared step.
+	#
+	#   returns    the step id as text; an empty text when the workflow has no steps
+	#   note       a workflow built only with AddStateXTT answers an empty text, because it reads
+	#              Steps()
+	#   see        ArrowsFrom, Layout
+	#@ aka  Projects stzWorkflow onto the law's section 1 model.
 	def EntryStep()
 		aSteps = @oWf.Steps()
 		if len(aSteps) = 0  return "" ok
@@ -314,7 +371,14 @@ class stzBpmnDiagram from stzObject
 		next
 		return aSteps[1][:id]
 
-	# [ label, to, exceptional ] for each arrow out of a step
+	# Returns the arrows leaving a step, each as label, target and exceptional flag.
+	#
+	#   pcStep     the id of the step the arrows leave
+	#   returns    a list of [ label, target, exceptional ] triples; [ ] when none leave
+	#   note       it reads the transitions when the workflow has any, else its plain edges with
+	#              their label and a flag of 0
+	#   see        EntryStep, Layout
+	#@ aka  [ label, to, exceptional ] for each arrow out of a step
 	def ArrowsFrom(pcStep)
 		aOut = []
 		aT = @oWf.Transitions()
@@ -338,24 +402,49 @@ class stzBpmnDiagram from stzObject
 		next
 		return aOut
 
+	# TRUE if a step has been declared a process ending.
+	#
+	#   pcName     the step id to test
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   see        MarkEnding, EndingKind
 	def IsEnding(pcName)
 		for i = 1 to len(@aEndings)
 			if @aEndings[i][1] = pcName  return TRUE ok
 		next
 		return FALSE
 
+	# Returns whether an ending is a terminal or a suspension.
+	#
+	#   pcName     the ending to ask about
+	#   returns    the kind as text; terminal for a name that is not an ending
+	#   note       the answer for an unknown name is terminal, not an empty text
+	#   see        MarkEnding, EndingOutcome
 	def EndingKind(pcName)
 		for i = 1 to len(@aEndings)
 			if @aEndings[i][1] = pcName  return @aEndings[i][2] ok
 		next
 		return "terminal"
 
+	# Returns the outcome label an ending was declared with.
+	#
+	#   pcName     the ending to ask about
+	#   returns    the outcome as text, in lower case; an empty text for a name that is not an
+	#              ending
+	#   see        MarkEnding, EndingKind
 	def EndingOutcome(pcName)
 		for i = 1 to len(@aEndings)
 			if @aEndings[i][1] = pcName  return @aEndings[i][3] ok
 		next
 		return ""
 
+	# Returns the element id of the nth marker drawn for an ending.
+	#
+	#   pcName     the ending name
+	#   n          the arrival number, from 1
+	#   returns    the id as text
+	#   note       the id is terminal_ or suspended_ followed by the name, with __n added from the
+	#              second arrival on
+	#   see        EndingKind, LayoutDigest
 	def EndingId(pcName, n)
 		cBase = "terminal_" + pcName
 		if This.EndingKind(pcName) = "suspension"
@@ -364,7 +453,14 @@ class stzBpmnDiagram from stzObject
 		if n > 1  cBase += "__" + n ok
 		return cBase
 
-	# stzWorkflow's node `type` property -> the law's NodeKind
+	# Returns the BPMN node kind of a step from its type property.
+	#
+	#   pcStep     the step id to classify
+	#   returns    one of gateway, timer-wait, event-wait, compensate, human or invoke, as text
+	#   note       a decision or gateway type gives gateway, usertask or an assignedTo gives human,
+	#              and anything else is invoke
+	#   see        EndingKind, Layout
+	#@ aka  stzWorkflow's node `type` property -> the law's NodeKind
 	def KindOf(pcStep)
 		cT = StzLower("" + @oWf.NodeProperty(pcStep, "type"))
 		switch cT
@@ -381,6 +477,12 @@ class stzBpmnDiagram from stzObject
 		ok
 		return "invoke"
 
+	# Returns the conformance record of the layout: entry, nodes, endings and arrows, one sorted line each.
+	#
+	#   returns    a multi-line text starting with LAWVER 1.0.0
+	#   note       lines are sorted by character code; a workflow with no steps gives the header and
+	#              an E line only
+	#   see        Layout, EntryStep
 	def LayoutDigest()
 		This.Layout()
 		_dg_ = "LAWVER 1.0.0" + nl

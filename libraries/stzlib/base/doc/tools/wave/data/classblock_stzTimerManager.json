@@ -1,0 +1,16 @@
+{
+ "brief": "Runs a loop that ticks timers every few milliseconds, drains pending HTTP requests and stops when there is nothing left to do.",
+ "detail": "Add started timers with AddTimer and call RunLoop. Each pass ticks every timer, drops the finished one-shots, drains the pending asynchronous requests of the stzReactiveHttp you hand in, advances detached timers and waits SetCheckFrequency milliseconds, on a real timer of the reactor if SetReactor gave one and a sleep otherwise. The loop ends when no timer remains and the patience, a count of idle passes, is used up, or when Stop is called. The manager keeps copies of its timers, so a callback stopping its own copy does not stop the manager's, and a loop with a repeating timer runs until the manager itself is stopped.",
+ "receiver": "$nFired = 0\noEngine = new stzReactive()\no1 = new stzTimerManager()\no1.SetCheckFrequency(5)\no2 = new stzReactiveTimer(\"first\", 20, func { $nFired += 1 }, oEngine, 1)\no3 = new stzReactiveTimer(\"second\", 40, func { $nFired += 10 }, oEngine, 1)\no2.Start()\no3.Start()\no1.AddTimer(o2)\no1.AddTimer(o3)",
+ "example": [
+  "o1.RunLoop(\"\")",
+  "? $nFired",
+  "#--> 11"
+ ],
+ "see": [
+  "stzReactiveTimer",
+  "stzRingTimer",
+  "stzReactiveHttp",
+  "stzReactor"
+ ]
+}

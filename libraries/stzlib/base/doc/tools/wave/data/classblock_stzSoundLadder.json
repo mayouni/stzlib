@@ -1,0 +1,32 @@
+{
+ "brief": "Draws a mode as a ladder, one rung for each degree, spaced by cents, so where the notes sit is visible and not only named.",
+ "detail": "A mode is shown when the question is where its notes sit and not what the melody is. Each degree is a rung whose height is its pitch and whose distance from the next is the step, so on the ladder a half-flat third sits half way between the minor and the major third, which a staff cannot show. Everything drawn is declared by the universe: a degree lowered going down is a dashed rung, a degree the sources disagree on is dotted with its source named, ajnas are brackets beside the rails. Rungs gives the numbers, ToText a text, ToSVG and SaveAs the picture. A mode name the universe does not declare falls back to its default mode without an error. No sound is played; the SVG was rendered by a headless browser and read by a model, not by a person (UNPERCEIVED).",
+ "receiver": "o1 = StzSoundLadderQ(:tunisian, :dhil)",
+ "example": [
+  "? o1.IsUsable()",
+  "#--> 1",
+  "? o1.ModeName()",
+  "#--> dhil",
+  "? len(o1.Rungs())",
+  "#--> 8",
+  "? o1.Rungs()[3][2]",
+  "#--> e-half-flat",
+  "? o1.Rungs()[3][3]",
+  "#--> 350",
+  "? o1.Rungs()[3][4]",
+  "#--> 320.24",
+  "? @@( o1.Steps() )",
+  "#--> [ 200, 150, 150, 200, 200, 150, 150 ]",
+  "? o1.Ajnas()[2][1]",
+  "#--> rast",
+  "? left(o1.ToSVG(), 4)",
+  "#--> <svg",
+  "? StzSoundLadderQ(:nowhere, :x).IsUsable()",
+  "#--> 0"
+ ],
+ "see": [
+  "stzSoundUniverse",
+  "stzSoundStaff",
+  "stzSoundScore"
+ ]
+}

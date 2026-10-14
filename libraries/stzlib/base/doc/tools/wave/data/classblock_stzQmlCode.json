@@ -1,0 +1,13 @@
+{
+ "brief": "Shells a piece of QML out to Qt's standalone qml runtime as a child process, and captures its output and duration.",
+ "detail": "Write the QML with SetCode, run it with Execute (which writes temp/temp.qml and starts the runtime) and read what it printed with Result. It keeps the library free of any Qt binding: the runtime is found by the name qml, by $aStzLibConfig[:QmlPath] or by SetQmlPath. It does not read an exit code, and IsRuntimeAvailable only checks that a path is configured. Use new stzQmlCode() with parentheses so that Init creates the temp folder. A QML view opens a window: the qml runtime is not installed on the machine of this documentation run, so Execute was exercised only against a path that does not exist.",
+ "receiver": "o1 = new stzQmlCode()",
+ "example": [
+  "o1.SetCode(\"import QtQuick 2.0\" + char(10) + \"Item { }\")",
+  "? o1.WasExecuted()",
+  "#--> 0",
+  "? o1.TempSourcePath()",
+  "#--> temp/temp.qml"
+ ],
+ "see": ["stzDotCode", "stzExterCode"]
+}

@@ -1,0 +1,20 @@
+{
+ "brief": "Holds a constituency parse tree of a sentence: nested phrases (S, NP, VP, PP) over words tagged with their part of speech.",
+ "detail": "Where the chunker of stzText gives flat phrases, this gives the nested structure. It is reached from a text, never built by hand in practice: ParseTreeQ() on a stzText returns the root, and ParseTreeWithQ takes your own phrase grammar. The tree answers its yield (Leaves, Text), its shape (Height, Children), the phrases of a kind (NounPhrases, VerbPhrases, PrepositionalPhrases, Phrases) and two renderings (ToBracket, ToTreeString). The tags come from the stzText tagger, so a Hebrew or Arabic sentence is tagged as plain nouns.",
+ "receiver": "o1 = Q(\"The quick brown fox jumps over the lazy dog\").TextQ().ParseTreeQ()",
+ "example": [
+  "? o1.Label()",
+  "#--> S",
+  "? @@( o1.Children() )",
+  "#--> [ \"NP\", \"VP\" ]",
+  "? @@( o1.NounPhrases() )",
+  "#--> [ \"The quick brown fox\", \"the lazy dog\" ]",
+  "? o1.Height()",
+  "#--> 5",
+  "? o1.Text()",
+  "#--> The quick brown fox jumps over the lazy dog"
+ ],
+ "see": [
+  "stzText"
+ ]
+}

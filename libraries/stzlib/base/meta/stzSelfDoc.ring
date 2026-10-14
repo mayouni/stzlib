@@ -22,6 +22,27 @@
 func StzSelfDocQ(pcTarget)
 	return new stzSelfDoc(pcTarget)
 
+# Lets a class describe itself: it reads the methods and doc blocks from the source, then answers plain-English questions and explains each method.
+#
+# The knowledge already lives in the library; this indexes it. A class is read by name, with every
+# method it inherits, or by the path of its source file. ExplainMethod and RecordOf say only what
+# the author wrote in the doc block and what the tests show. Ask ranks the methods by meaning, a
+# word match first with a loaded embedding or reranker model as a rescue, deterministic and with no
+# generation. HowTo goes from an intent to a call template. Retrieval is by shared words, so check
+# the answer when two methods share the question's words.
+#
+#   receiver   o1 = new stzSelfDoc("stzAgentSkill")
+#   example    ? o1.NumberOfMethods()
+#              #--> 9
+#              ? o1.HasMethod("apply")
+#              #--> 1
+#              ? o1.DefiningClassOf("Apply")
+#              #--> stzAgentSkill
+#              ? o1.BestMethodFor("run the action only when the precondition holds")
+#              #--> Apply
+#              ? o1.RecordOf("Kind")[:returns]
+#              #--> the text pi or llm
+#   see        stzLibDoc, StzSelfDocQ, stzDocRecord
 class stzSelfDoc from stzObject
 
 	@cName = ""       # class name (e.g. "stzText")
@@ -33,6 +54,14 @@ class stzSelfDoc from stzObject
 	@aRetHeads = []   # per-method head words (query-independent; built once)
 	@bRetBuilt = 0
 
+	# Reads a class's methods and doc blocks from its source, including the ones it inherits, so it can answer questions about them.
+	#
+	#   pcTarget   a class name, or the path of a .ring file for the class it names
+	#   returns    nothing; the object is built
+	#   note       a path harvests only that file's class, with no inherited methods
+	#   warning    anything that is not a text raises an error; an unknown class name builds an
+	#              object with no methods
+	#   see        ClassName, Ask
 	def init(pcTarget)
 		if NOT isString(pcTarget)
 			StzRaise("stzSelfDoc needs a class name or a source path.")
@@ -63,15 +92,31 @@ class stzSelfDoc from stzObject
 	  #==========================================================#
 	 #   INTROSPECTION                                          #
 	#==========================================================#
+	# Returns the class the object describes.
+	#
+	#   returns    a text
+	#   see        Source
 	def ClassName()
 		return @cName
 
+	# Returns the path of the source file the class was found in.
+	#
+	#   returns    a text; empty when the class is unknown
+	#   see        ClassName
 	def Source()
 		return @cSource
 
+	# Returns how many methods were harvested, own and inherited.
+	#
+	#   returns    a number
+	#   see        MethodNames, NumberOfInheritedMethods
 	def NumberOfMethods()
 		return len(@aMethods)
 
+	# Returns the names of the harvested methods, in source order.
+	#
+	#   returns    a list of text
+	#   see        HasMethod, NumberOfMethods
 	def MethodNames()
 		_aMn_ = []
 		_nN_ = len(@aMethods)
@@ -80,22 +125,40 @@ class stzSelfDoc from stzObject
 		next
 		return _aMn_
 
+	# TRUE if the class has a method of that name, own or inherited; case is ignored.
+	#
+	#   pcName     the method name
+	#   returns    TRUE or FALSE
+	#   see        MethodNames, DescriptionOf
 	def HasMethod(pcName)
 		return This._IndexOf(pcName) > 0
 
+	# Returns the brief written above a method.
+	#
+	#   pcName     the method name, in any case
+	#   returns    a text; empty for an unknown method or an undocumented one
+	#   see        ExplainMethod, RecordOf
 	def DescriptionOf(pcName)
 		_ix_ = This._IndexOf(pcName)
 		if _ix_ = 0 return "" ok
 		return @aMethods[_ix_][2]
 
-	# The class that actually DEFINES pcName (this class or an ancestor it inherits
-	# from). "" if the method is unknown.
+	# Returns the class that defines a method: this class or an ancestor it inherits from.
+	#
+	#   pcName     the method name
+	#   returns    a text; empty for an unknown method
+	#   see        NumberOfInheritedMethods, DescriptionOf
+	#@ aka  The class that actually DEFINES pcName (this class or an ancestor it inherits from). "" if the method is unknown.
 	def DefiningClassOf(pcName)
 		_ix_ = This._IndexOf(pcName)
 		if _ix_ = 0 return "" ok
 		return @aMethods[_ix_][4]
 
-	# How many of the harvested methods are inherited (defined by an ancestor).
+	# Returns how many harvested methods are defined by an ancestor and not by the class itself.
+	#
+	#   returns    a number
+	#   see        DefiningClassOf, NumberOfMethods
+	#@ aka  How many of the harvested methods are inherited (defined by an ancestor).
 	def NumberOfInheritedMethods()
 		_n_ = 0
 		_nN_ = len(@aMethods)
@@ -107,8 +170,14 @@ class stzSelfDoc from stzObject
 	  #==========================================================#
 	 #   EXPLAIN (deterministic, templated -- no model)        #
 	#==========================================================#
-	# ExplainMethod(name) -- a plain-language explanation of one method (DATA,
-	# a string): its name + doc-comment (or a name-derived phrase if undocumented).
+	# Explains a method in plain words: its brief, parameter roles, return, notes, see-also, example and the form its name implies.
+	#
+	#   pcName     the method name
+	#   returns    a multi-line text; a sentence saying the method is absent for an unknown name
+	#   note       everything is read from what the author wrote and from the tests; nothing is
+	#              invented or generated
+	#   see        RecordOf, DescriptionOf
+	#@ aka  ExplainMethod(name) -- a plain-language explanation of one method (DATA, a string): its name + doc-comment (or a name-derived phrase if undocumented).
 	def ExplainMethod(pcName)
 		_ix_ = This._IndexOf(pcName)
 		if _ix_ = 0
@@ -171,13 +240,24 @@ class stzSelfDoc from stzObject
 		ok
 		return _cOut_
 
-	# RecordOf(name) -- what the author wrote in the method's doc block (a hashlist:
-	# :brief :params :returns :notes :see :example :since :status), [ ] if none.
+	# Returns what the author wrote in a method's doc block, field by field.
+	#
+	#   pcName     the method name
+	#   returns    a hash list [ :name, :brief, :params, :fields, :returns, :notes, :see, :example,
+	#              :since, :status ]; an empty list for an unknown method
+	#   note       the record is read from the class's own source, so an inherited method answers
+	#              from its owner's
+	#   see        ExplainMethod, DescriptionOf
+	#@ aka  RecordOf(name) -- what the author wrote in the method's doc block (a hashlist: :brief :params :returns :notes :see :example :since :status), [ ] if none.
 	def RecordOf(pcName)
 		_ix_ = This._IndexOf(pcName)
 		if _ix_ = 0 return [] ok
 		return This._RecordFor(_ix_)
 
+	# Prints one line with the class name and the number of methods.
+	#
+	#   returns    the object itself
+	#   see        NumberOfMethods
 	def Show()
 		? "stzSelfDoc [ " + @cName + " : " + len(@aMethods) + " methods ]"
 		return This
@@ -185,14 +265,26 @@ class stzSelfDoc from stzObject
 	  #==========================================================#
 	 #   ASK (semantic -- embeddings/reranker or lexical)      #
 	#==========================================================#
-	# Ask(question) -- the methods whose MEANING best matches a plain-English
-	# question, as [ [name, score, description], ... ] best first (DATA). Uses the
-	# loaded embedding model (2c) when present, else lexical similarity -- so it
-	# works with zero setup and sharpens with a model. The natural-
-	# programming entry: describe what you want, get the operation.
+	# Returns the three methods whose meaning best matches a plain-English question, best first.
+	#
+	#   pcQuestion   the question in plain English
+	#   returns      a list of [ name, score, description ] rows; empty when nothing shares a word
+	#                with the question
+	#   note         the word match runs first and a loaded embedding or reranker model rescues
+	#                questions that share no word, so a model can help and never hurt
+	#   see          AskFor, BestMethodFor
+	#@ aka  Ask(question) -- the methods whose MEANING best matches a plain-English question, as [ [name, score, description], ... ] best first (DATA). Uses the loaded embedding model (2c) when present, else lexical similarity -- so it works with zero setup and sharpens with a model. The natural- programming entry: describe what you want, get the operation.
 	def Ask(pcQuestion)
 		return This.AskFor(pcQuestion, 3)
 
+	# Returns the methods whose meaning best matches a question, up to a number asked for, best first.
+	#
+	#   pcQuestion   the question in plain English
+	#   n            how many methods to return, 3 when below 1
+	#   returns      a list of [ name, score, description ] rows
+	#   note         a question about an entity of the world, such as what is X, puts a (world) row
+	#                first
+	#   see          Ask, BestMethodFor
 	def AskFor(pcQuestion, n)
 		# THE WORLD DOOR: a "what is X / who is X" question consults the
 		# entity world first -- one interrogative family, two knowledge
@@ -277,7 +369,14 @@ class stzSelfDoc from stzObject
 		ok
 		return []
 
-	# The single best-matching method name for a question (DATA, a string).
+	# Returns the name of the single method that best matches a question.
+	#
+	#   pcQuestion   the question in plain English
+	#   returns      a text; empty when nothing matches
+	#   note         it can pick a method whose words overlap the question rather than the one
+	#                meant, such as init for a question about a precondition
+	#   see          Ask, HowTo
+	#@ aka  The single best-matching method name for a question (DATA, a string).
 	def BestMethodFor(pcQuestion)
 		_aR_ = This._AskForMethods(pcQuestion, 1)
 		if len(_aR_) = 0 return "" ok
@@ -286,13 +385,13 @@ class stzSelfDoc from stzObject
 	  #==========================================================#
 	 #   GENERATE (natural programming: intent -> a call) #
 	#==========================================================#
-	# HowTo(intent) -- resolve a plain-English intent to a runnable method call on
-	# this class, DETERMINISTICALLY (no LLM). Two engines, unified: (1) the GRAMMAR
-	# composes a method name from the intent and grounds it against this class's real
-	# API; if the class implements it, that is the answer (highest confidence, it is
-	# derived not guessed). (2) Otherwise fall back to semantic RETRIEVAL (the ranker:
-	# reranker/embeddings/lexical). Returns a human line: the call template + how it
-	# was resolved + the name's grammatical gloss.
+	# Turns a plain-English intent into a call template on this class, by grammar when the class has the method and by meaning otherwise.
+	#
+	#   pcIntent   what is wanted, in plain English
+	#   returns    a text such as Q(...).Forget("...", "...", "...") followed by how it was resolved
+	#   note       when nothing matches it says that no method in the class does
+	#   see        MethodForIntent, Ask
+	#@ aka  HowTo(intent) -- resolve a plain-English intent to a runnable method call on this class, DETERMINISTICALLY (no LLM). Two engines, unified: (1) the GRAMMAR composes a method name from the intent and grounds it against this class's real API; if the class implements it, that is the answer (highest confidence, it is derived not guessed). (2) Otherwise fall back to semantic RETRIEVAL (the ranker: reran
 	def HowTo(pcIntent)
 		if NOT isString(pcIntent) return "" ok
 		_cComposed_ = _StzComposeName(pcIntent)
@@ -322,7 +421,12 @@ class stzSelfDoc from stzObject
 		if _ix_ > 0 _cOwner_ = @aMethods[_ix_][4] ok
 		return _StzCallTemplate(@cName, _cMethod_, _cOwner_) + "   -- " + _cHow_ + " (" + _StzNameGloss(_cMethod_) + ")"
 
-	# The resolved method NAME only (DATA), grammar-first then retrieval.
+	# Returns the name of the method that an intent resolves to, by grammar first and then by retrieval.
+	#
+	#   pcIntent   what is wanted, in plain English
+	#   returns    a text; empty when nothing matches
+	#   see        HowTo, BestMethodFor
+	#@ aka  The resolved method NAME only (DATA), grammar-first then retrieval.
 	def MethodForIntent(pcIntent)
 		_cComposed_ = _StzComposeName(pcIntent)
 		if _cComposed_ != "" and This.HasMethod(_cComposed_) return _cComposed_ ok

@@ -1,0 +1,16 @@
+{
+ "brief": "Holds one rule about the services a solution depends on, as a declared graph rule in the services domain.",
+ "detail": "A service rule is a stzGraphRule whose domain is services. It runs over a graph that joins the delivery model (parts and their destinations) with the service registry (services and their postures), so it can ask which part of the solution depends on a fake. The rules are declared in stzServiceRuleSet.",
+ "receiver": "o1 = new stzServiceRule(\"production-part-uses-sandbox\")",
+ "example": [
+  "? o1.Name()",
+  "#--> production-part-uses-sandbox",
+  "? o1.Domain()",
+  "#--> services"
+ ],
+ "see": [
+  "stzServiceRuleSet",
+  "stzServiceRegistry",
+  "stzDelivery"
+ ]
+}

@@ -1,0 +1,22 @@
+{
+ "brief": "Wraps a function so that each call is a task recording its status, result and error, with optional handlers.",
+ "detail": "Call_ calls the wrapped function now with a list of up to ten parameters and answers the executed task. CallAsync takes handlers for success and failure; despite its name it runs the task at once on the calling thread and the handlers run before it returns. A failure inside the function is recorded on the task with its real reason and passed to the error handler. The wrapper keeps its engine as a copy, so tasks added to the engine are not seen by the original. It is not Ring's call function.",
+ "receiver": "oEngine = new stzReactive()\no1 = new stzReactiveFunc(func a, b { return a + b }, oEngine)",
+ "example": [
+  "oTask = o1.Call_([ 2, 3 ])",
+  "? oTask.Result()",
+  "#--> 5",
+  "? oTask.Status()",
+  "#--> completed",
+  "oBad = o1.Call_(7)",
+  "? oBad.Status()",
+  "#--> error",
+  "? oBad.Error()",
+  "#--> Reactive call params must be a list"
+ ],
+ "see": [
+  "stzFunctionTask",
+  "stzReactiveTask",
+  "stzReactive"
+ ]
+}

@@ -640,26 +640,68 @@ class stzFalseObject from stzObject
 # makes  o.IsAPairQ().Where('isString(@pair[1]) and isNumber(@pair[2])')
 # answer TRUE for the pair [ :x, 5 ].
 
+# Answers a whole-object condition after a type guard such as IsAPairQ has passed.
+#
+# A passing type guard returns this guard instead of a true value, so that Where can test a
+# condition against the whole object once: in o.IsAPairQ().Where('isString(@pair[1]) and
+# isNumber(@pair[2])') the keyword @pair stands for the pair itself, not for each of its items. A
+# failing guard returns a stzFalseObject whose Where answers 0. Content and Value give back the
+# guarded object's content, and Object the object.
+#
+#   receiver   oL = new stzList([ :x, 5 ]) o1 = oL.IsAPairQ()
+#   example    ? o1.Where('isString(@pair[1]) and isNumber(@pair[2])')
+#              #--> 1
+#              ? o1.Where('@pair[2] > 10')
+#              #--> 0
+#   see        stzFalseObject, stzTrueObject, stzList
 class stzObjectGuard from stzObject
 	@oObj
 	@cKeyword
 
+	# Wraps an object and the name of the whole-object keyword its condition may use.
+	#
+	#   poObj       the object to guard, such as a stzList
+	#   pcKeyword   the keyword name, such as @pair, kept for Keyword
+	#   returns     nothing; the object is built
+	#   see         Where, Object
 	def init(poObj, pcKeyword)
 		@oObj = poObj
 		@cKeyword = pcKeyword
 
+	# Returns the content of the guarded object.
+	#
+	#   returns    whatever the guarded object's Content returns
+	#   see        Object, Value
 	def Content()
 		return @oObj.Content()
 
 		def Value()
 			return This.Content()
 
+	# Returns the guarded object itself, not its content.
+	#
+	#   returns    the guarded object
+	#   see        Content, Keyword
 	def Object()
 		return @oObj
 
+	# Returns the keyword the guard was built with, as the type guard wrote it.
+	#
+	#   returns    a text such as pair
+	#   see        Where
 	def Keyword()
 		return @cKeyword
 
+	# Evaluates a condition once against the whole guarded object, with @pair, @list, @string, @number and @object each standing for that object.
+	#
+	#   pcCondition   a condition text written with a whole-object keyword, such as @pair[1] = "x"
+	#   returns       1 or 0, numbers
+	#   note          an IsAPairQ() that passes returns this guard, and one that fails returns a
+	#                 stzFalseObject
+	#   warning       all five keywords are replaced, whichever one the guard was built with; the
+	#                 condition sees the object, so use an element access, @list[1], and not
+	#                 len(@list)
+	#   see           W, Object
 	def Where(pcCondition)
 		#-- Bind every whole-object keyword to the whole receiver, so
 		#-- @pair[1] -> This[1]. The condition is then item-invariant; a

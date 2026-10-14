@@ -1,0 +1,15 @@
+{
+ "brief": "Holds the route table of the application server and finds the handler for a method and a path.",
+ "detail": "Routes are matched exactly first, then by pattern: a :name segment captures one path segment and a trailing * captures the rest of the path. Among patterns the first registered wins, and the method must match too. The router returns the handler and the captured parameters and never calls the handler. Build it without parentheses, as in new stzAppRouter: with () the call raises R19.",
+ "receiver": "o1 = new stzAppRouter",
+ "example": [
+  "o1.AddRoute(\"get\", \"/user/:id\", \"showUser\")",
+  "? o1.MatchRoute(\"GET\", \"/user/42\")[2][2]",
+  "#--> showUser",
+  "? o1.MatchRoute(\"GET\", \"/user/42\")[3][2][1][2]",
+  "#--> 42",
+  "? o1.MatchRoute(\"GET\", \"/nothing\")[1][2]",
+  "#--> 0"
+ ],
+ "see": ["stzAppServer", "stzAppRequest", "stzAppResponse"]
+}

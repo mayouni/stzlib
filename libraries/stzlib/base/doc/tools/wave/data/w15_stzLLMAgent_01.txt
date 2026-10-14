@@ -1,0 +1,8 @@
+init | Builds a model-backed agent with a name, an empty memory and no model body yet. | nothing; the object is built | pcName=the agent's name, also the name of its memory | SetSkillFrom, Propose
+Name_ | Returns the name the agent was built with. | a text | | init, Kind
+MemoryQ | Returns the agent's memory, a stzAgentMemory built under the same name. | a stzAgentMemory | | stzAgentMemory
+SetSkillFrom | Gives the agent its body: a typed language-model function through which every proposal is made. | the agent itself, so calls chain | poLLMFunction=a stzLLMFunction, such as one with a seeded answer for offline use | Propose, HoldsEffectful
+Propose | Returns the candidate the model function gives for an input; it is a proposal and changes nothing. | what the model function answered, a candidate for a pi-gate to admit | pcInput=the text handed to the model function | SetSkillFrom, HoldsEffectful | raises an error while no body is set, whose text names SkillFrom although the method is called SetSkillFrom; a model function with no Budget, or with no seeded or loaded answer, raises its own refusal | the agent only proposes, and only a guarded pi-actor may commit the effect
+HoldsEffectful | Returns 0 always: a language-model agent never holds the right to commit an effect. | the number 0 | | Capabilities, Kind | | the answer is fixed in the code, a structural guarantee and not a setting
+Capabilities | Returns the capabilities the agent holds, which are inference only. | a list holding the text inference | | HoldsEffectful, Kind
+Kind | Returns the kind of actor the agent is, as the agent graph and its guardrails read it. | the text llm_actor | | Capabilities, HoldsEffectful

@@ -1,0 +1,32 @@
+{
+ "brief": "Holds what a sound analysis returns, a table of numbers whose axes mean seconds and hertz, never a picture.",
+ "detail": "A spectrum is one row, a spectrogram has one row for each window and an onset list is one row of seconds, all the same handle and the same table, with 1-based rows and columns. The axes carry their meaning: SecondsPerRow and HertzPerColumn come from the analysis, and are 0 where a row is not a moment or a column not a frequency. Because the output is data it is assertable: a 1000 hertz sine lies in the bin that contains 1000. ToCanvas hands the grid to the graphics plane as a heat map, low frequencies at the bottom, loudest value under each cell, decibels not amplitude; ToSVG needs no device and ToPNG uses the graphics device without a window. Release frees the grid. Sounds here are rendered to memory and not heard by a person (UNPERCEIVED).",
+ "receiver": "oScore = StzSoundScoreQ()\noScore.Note(1000, 1)\noScore.Tempo(120)\noSound = oScore.ToSound()\no1 = oSound.ToSpectrum()",
+ "example": [
+  "? o1.Rows()",
+  "#--> 1",
+  "? o1.Columns()",
+  "#--> 2049",
+  "? o1.HertzPerColumn()",
+  "#--> 11.72",
+  "? o1.PeakColumnOfRow(1)",
+  "#--> 86",
+  "? o1.PeakFrequencyOfRow(1)",
+  "#--> 996.09",
+  "? o1.At(1, 86) = o1.Max()",
+  "#--> 1",
+  "oSg = oSound.ToSpectrogram()",
+  "? oSg.Rows()",
+  "#--> 81",
+  "? left(oSg.ToSVG(300, 120), 4)",
+  "#--> <svg",
+  "o1.Release()",
+  "? o1.IsEmpty()",
+  "#--> 1"
+ ],
+ "see": [
+  "stzSound",
+  "stzCanvas",
+  "stzSoundGraph"
+ ]
+}

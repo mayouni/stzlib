@@ -1,0 +1,20 @@
+{
+ "brief": "Holds the currency of one country, with its codes, its names and its fractional unit, read from the locale data.",
+ "detail": "The object is built from a country name, spelled as the locale data spells it (lower case, with underscores for spaces), and answers the currency that country uses: its name, its three-letter code, its native symbol, its fractional unit and the number of those units in one. Because it starts from a country, the country stays exact even for a currency many countries share. Building it from a currency name, a symbol or a locale abbreviation is not supported today.",
+ "receiver": "o1 = new stzCurrency(\"niger\")",
+ "example": [
+  "? o1.Currency()",
+  "#--> west_african_cfa_franc",
+  "? o1.ISOSymbol()",
+  "#--> XOF",
+  "? o1.FractionalUnit()",
+  "#--> Centime",
+  "? o1.CountryLocaleAbbreviation()",
+  "#--> fr-NE"
+ ],
+ "see": [
+  "stzCountry",
+  "stzLocale",
+  "stzLanguage"
+ ]
+}

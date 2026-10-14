@@ -8,6 +8,35 @@
 # thread-safe, so no callback ever crosses from libuv into Ring). The
 # pure-Ring sleep() poll remains the documented no-DLL fallback.
 
+# Holds a timer that calls a function every interval, or once, advanced by a timer manager's loop on the engine's clock.
+#
+# The timer does not run by itself: a stzTimerManager loop calls CheckAndTick, which fires the
+# function when the interval has passed since the last firing, on the engine's monotonic clock in
+# milliseconds, and answers whether the timer is still active so the manager can prune finished one-
+# shots. A one-shot timer stops itself after firing. Start takes the time now as the starting point;
+# Tick calls the function at once whatever the clock says.
+#
+#   receiver   $nFired = 0 o1 = new stzReactiveTimer("beat", 30, func { $nFired++ }, new
+#              stzReactive(), 0)
+#   example    ? o1.CheckAndTick()
+#              #--> 0
+#              o1.Tick()
+#              ? $nFired
+#              #--> 1
+#              o1.Start()
+#              ? o1.CheckAndTick()
+#              #--> 1
+#              ? $nFired
+#              #--> 1
+#              StzEngineTimeSleepMs(60)
+#              ? o1.CheckAndTick()
+#              #--> 1
+#              ? $nFired
+#              #--> 2
+#              o1.Stop()
+#              ? o1.CheckAndTick()
+#              #--> 0
+#   see        stzRingTimer, stzTimerManager, stzReactive
 class stzReactiveTimer from stzObject
 
 	@timerId = ""
@@ -20,6 +49,17 @@ class stzReactiveTimer from stzObject
 	@startTime = 0
 	@lastTick = 0
 
+	# Builds a timer that calls a function every interval, or once, when started and driven by a timer manager.
+	#
+	#   id           the timer's identifier
+	#   intervalMs   the time between calls in milliseconds
+	#   f            the function to call
+	#   engine       the reactive engine it belongs to
+	#   oneTime      1 for a timer that fires once and stops, 0 or an empty text for one that
+	#                repeats
+	#   returns      nothing; the timer is built stopped
+	#   note         it does not run by itself: a stzTimerManager loop calls CheckAndTick
+	#   see          Start, CheckAndTick, stzTimerManager
 	def Init(id, intervalMs, f, engine, oneTime)
 		@timerId = id
 		@interval = intervalMs
@@ -33,6 +73,11 @@ class stzReactiveTimer from stzObject
 			@isOneTime = oneTime
 		ok
 
+	# Starts the timer, taking the time now as its starting point.
+	#
+	#   returns    nothing; the timer becomes active
+	#   note       starting an active timer does nothing, and the interval counts from the start
+	#   see        Stop, CheckAndTick
 	def Start()
 		if not @isActive
 			@isActive = 1
@@ -42,16 +87,32 @@ class stzReactiveTimer from stzObject
 			@lastTick = @startTime
 		ok
 
+	# Stops the timer, so CheckAndTick no longer fires it.
+	#
+	#   returns    nothing; the timer becomes inactive
+	#   see        Start, Cleanup
 	def Stop()
 		@isActive = 0
 
+	# Calls the timer's function now, whatever the clock says.
+	#
+	#   returns    nothing
+	#   note       it fires even when the timer is stopped and does not change the timer's state
+	#   see        CheckAndTick
 	def Tick()
 		if @callback != ""
 			call @callback()
 		ok
 
-	# Drive the timer from the manager's poll loop. Returns isActive
-	# so the manager can prune completed one-shot timers.
+	# Calls the function if the interval has passed since the last call, for a manager's loop to call.
+	#
+	#   returns    1 while the timer stays active, 0 when it is stopped or has just fired as a one-
+	#              shot
+	#   note       a repeating timer measures from the time of its last firing; a call before the
+	#              interval has passed does nothing and answers 1; a one-shot stops itself after
+	#              firing
+	#   see        Start, Tick
+	#@ aka  Drive the timer from the manager's poll loop. Returns isActive so the manager can prune completed one-shot timers.
 	def CheckAndTick()
 		if not @isActive
 			return 0
@@ -73,12 +134,41 @@ class stzReactiveTimer from stzObject
 		ok
 		return @isActive
 
+	# Stops the timer when its owner lets go of it.
+	#
+	#   returns    nothing
+	#   see        Stop
 	def Cleanup()
 		Stop()
 
 # Pure Ring timer using clock()
 # Direct object method access, handles timing logic in Ring's native paradigm
 
+# Holds a timer in pure Ring that calls a function every interval, or once, advanced by a timer manager's loop.
+#
+# The same contract as stzReactiveTimer, with an owner object kept for the caller: CheckAndTick
+# fires the function when the interval has passed since the last firing on the engine's clock,
+# answers 1 while the timer stays active and 0 when it is stopped or has just fired as a one-shot.
+# It decides whether to stop a one-shot before it calls the function, because the function may stop
+# the whole timer system.
+#
+#   receiver   $nFired = 0 o1 = new stzRingTimer("once", 20, func { $nFired++ }, new stzReactive(),
+#              1, "")
+#   example    o1.Start()
+#              ? o1.CheckAndTick()
+#              #--> 1
+#              ? $nFired
+#              #--> 0
+#              StzEngineTimeSleepMs(50)
+#              ? o1.CheckAndTick()
+#              #--> 0
+#              ? $nFired
+#              #--> 1
+#              ? o1.CheckAndTick()
+#              #--> 0
+#              ? $nFired
+#              #--> 1
+#   see        stzReactiveTimer, stzTimerManager
 class stzRingTimer from stzObject
 
 	@timerId = ""
@@ -91,6 +181,17 @@ class stzRingTimer from stzObject
 	@startTime = 0
 	@lastTick = 0
 	
+	# Builds a timer in pure Ring that calls a function every interval, or once, when driven by a timer manager.
+	#
+	#   id           the timer's identifier
+	#   intervalMs   the time between calls in milliseconds
+	#   f            the function to call
+	#   engine       the reactive engine it belongs to
+	#   oneTime      1 for a timer that fires once, 0 or an empty text for one that repeats
+	#   obj          the object the timer belongs to, kept for the owner
+	#   returns      nothing; the timer is built stopped
+	#   note         it does not run by itself: a stzTimerManager loop calls CheckAndTick
+	#   see          Start, CheckAndTick
 	def init(id, intervalMs, f, engine, oneTime, obj)
 		@timerId = id
 		@interval = intervalMs
@@ -103,6 +204,11 @@ class stzRingTimer from stzObject
 		ok
 		@isActive = 0
 		
+	# Starts the timer, taking the time now as its starting point.
+	#
+	#   returns    nothing; the timer becomes active
+	#   note       starting an active timer does nothing
+	#   see        Stop, CheckAndTick
 	def Start()
 		if not @isActive
 			@isActive = 1
@@ -112,9 +218,21 @@ class stzRingTimer from stzObject
 			@lastTick = @startTime
 		ok
 		
+	# Stops the timer, so CheckAndTick no longer fires it.
+	#
+	#   returns    nothing; the timer becomes inactive
+	#   see        Start, Cleanup
 	def Stop()
 		@isActive = 0
 		
+	# Calls the function if the interval has passed since the last call, for a manager's loop to call.
+	#
+	#   returns    1 while the timer stays active, 0 when it is stopped or has just fired as a one-
+	#              shot
+	#   note       a call before the interval has passed does nothing and answers 1; it decides
+	#              whether to stop a one-shot before calling the function, because the function may
+	#              stop the whole timer system
+	#   see        Start, Stop
 	def CheckAndTick()
 	    if not @isActive
 	        return 0
@@ -157,6 +275,10 @@ class stzRingTimer from stzObject
 	    ok
 	    return 1
 
+	# Stops the timer when its owner lets go of it.
+	#
+	#   returns    nothing
+	#   see        Stop
 	def Cleanup()
 		Stop()
 
@@ -169,6 +291,24 @@ class stzRingTimer from stzObject
 # (LAW 2). The manager also drains the reactive-http pending set each
 # tick, so async HTTP callbacks dispatch from the same loop.
 
+# Runs a loop that ticks timers every few milliseconds, drains pending HTTP requests and stops when there is nothing left to do.
+#
+# Add started timers with AddTimer and call RunLoop. Each pass ticks every timer, drops the finished
+# one-shots, drains the pending asynchronous requests of the stzReactiveHttp you hand in, advances
+# detached timers and waits SetCheckFrequency milliseconds, on a real timer of the reactor if
+# SetReactor gave one and a sleep otherwise. The loop ends when no timer remains and the patience, a
+# count of idle passes, is used up, or when Stop is called. The manager keeps copies of its timers,
+# so a callback stopping its own copy does not stop the manager's, and a loop with a repeating timer
+# runs until the manager itself is stopped.
+#
+#   receiver   $nFired = 0 oEngine = new stzReactive() o1 = new stzTimerManager()
+#              o1.SetCheckFrequency(5) o2 = new stzReactiveTimer("first", 20, func { $nFired += 1 },
+#              oEngine, 1) o3 = new stzReactiveTimer("second", 40, func { $nFired += 10 }, oEngine,
+#              1) o2.Start() o3.Start() o1.AddTimer(o2) o1.AddTimer(o3)
+#   example    o1.RunLoop("")
+#              ? $nFired
+#              #--> 11
+#   see        stzReactiveTimer, stzRingTimer, stzReactiveHttp, stzReactor
 class stzTimerManager from stzObject
 
 	@timers = []
@@ -178,6 +318,11 @@ class stzTimerManager from stzObject
 	@emptyLoopPatience = DEFAULT_PATIENCE  # How long to wait when no @timers
 	@oReactor = ""       # F5: engine loop backing the waits (NULL = poller)
 
+	# Builds a manager with no timers, a 10 ms wait between ticks and no patience for an idle loop.
+	#
+	#   returns    nothing; the object is built
+	#   note       the manager's loop keeps copies of the timers it is given
+	#   see        AddTimer, RunLoop
 	def init()
 		@timers = []
 		@isRunning = 0
@@ -185,17 +330,14 @@ class stzTimerManager from stzObject
 		@checkFrequency = DEFAULT_TIMER_CHECK
 		@emptyLoopPatience = DEFAULT_PATIENCE
 
-	# HOW LONG THE LOOP WAITS BETWEEN TICKS, in milliseconds.
+	# Sets how long the loop waits between ticks, in milliseconds.
 	#
-	# It used to take anything. Zero was the dangerous one: _WaitTick does
-	# sleep(@checkFrequency / MS_PER_SECOND), so a frequency of 0 is no wait at
-	# all -- 200 idle iterations in 2ms instead of 2000, a loop spinning flat
-	# out on a knob whose entire job is to make it wait. A non-number was the
-	# confusing one: it survived the setter and raised R41 "Invalid numeric
-	# string" inside RunLoop, nowhere near the call that caused it.
-	#
-	# A refused value leaves the old one alone. Answering a bad value by
-	# destroying a good one is its own defect.
+	#   freq       the wait in milliseconds, above 0
+	#   returns    the manager itself, so calls chain
+	#   note       the wait is a real timer on the reactor when SetReactor gave one, and a sleep
+	#              otherwise
+	#   see        SetPatience, RunLoop
+	#@ aka  HOW LONG THE LOOP WAITS BETWEEN TICKS, in milliseconds.
 	def SetCheckFrequency(freq)
 		if NOT isNumber(freq)
 			return This
@@ -206,11 +348,15 @@ class stzTimerManager from stzObject
 		@checkFrequency = freq
 		return This
 
-	# HOW MANY consecutive idle iterations the loop tolerates before it stops.
-	# A count, not a duration -- RunLoop compares it against _emptyLoopCount_.
-	# Zero is meaningful and is the default (PATIENCE_NONE, mirroring libuv's
-	# uv_run: return as soon as there is no work), so only negatives and
-	# non-numbers are refused.
+	# Sets how many idle passes the loop tolerates before it stops.
+	#
+	#   patience   a count of passes with no timer, no pending request and no detached timer, 0 or
+	#              more
+	#   returns    the manager itself, so calls chain
+	#   note       the default 0 stops as soon as there is no work, like libuv; a count, not a
+	#              duration
+	#   see        SetCheckFrequency, RunLoop
+	#@ aka  HOW MANY consecutive idle iterations the loop tolerates before it stops. A count, not a duration -- RunLoop compares it against _emptyLoopCount_. Zero is meaningful and is the default (PATIENCE_NONE, mirroring libuv's uv_run: return as soon as there is no work), so only negatives and non-numbers are refused.
 	def SetPatience(patience)
 		if NOT isNumber(patience)
 			return This
@@ -221,12 +367,13 @@ class stzTimerManager from stzObject
 		@emptyLoopPatience = patience
 		return This
 
-	# NOTE: the stored reactor is a COPY (Ring attribute assignment
-	# copies objects) that SHARES the engine handle -- safe because the
-	# handle is never destroyed while a system lives (see stzReactive.
-	# Stop). The http drain is NOT stored for the same reason: a copy's
-	# aPending would be a dead snapshot; RunLoop takes the LIVE object
-	# as a parameter instead (params are by-reference).
+	# Gives the manager a reactor to wait on between ticks.
+	#
+	#   poReactor   a stzReactor, or an empty text for the plain sleep
+	#   returns     the manager itself, so calls chain
+	#   note        the stored reactor is a copy that shares the engine handle
+	#   see         SetCheckFrequency, RunLoop
+	#@ aka  NOTE: the stored reactor is a COPY (Ring attribute assignment copies objects) that SHARES the engine handle -- safe because the handle is never destroyed while a system lives (see stzReactive. Stop). The http drain is NOT stored for the same reason: a copy's aPending would be a dead snapshot; RunLoop takes the LIVE object as a parameter instead (params are by-reference).
 	def SetReactor(poReactor)
 		@oReactor = poReactor
 		return This
@@ -243,9 +390,22 @@ class stzTimerManager from stzObject
 			sleep(@checkFrequency / MS_PER_SECOND)
 		ok
 
+	# Adds a timer to the manager's list.
+	#
+	#   _timer_    a stzReactiveTimer or stzRingTimer, started by the caller
+	#   returns    nothing; the timer is added
+	#   note       the manager stores a copy, so later changes to the caller's timer do not reach
+	#              it; the timer must have been started or it never fires
+	#   see        RemoveTimer, RunLoop
 	def AddTimer(_timer_)
 		@timers + _timer_
 		
+	# Stops a timer by its id and removes it.
+	#
+	#   timerId    the id the timer was built with
+	#   returns    nothing
+	#   note       an unknown id does nothing; when no timer is left the loop is told to stop
+	#   see        AddTimer, StopAllTimers
 	def RemoveTimer(timerId)
 	    for i = len(@timers) to 1 step -1  # Iterate backwards
 	        if @timers[i].@timerId = timerId
@@ -260,8 +420,17 @@ class stzTimerManager from stzObject
 	        @isRunning = 0
 	    ok
 
-	# poHttpDrain = the LIVE stzReactiveHttp object (by-ref param; an
-	# attribute copy would drain a dead snapshot). NULL = no http.
+	# Runs the loop that ticks the timers and drains requests until no work is left or Stop is called.
+	#
+	#   poHttpDrain   the live stzReactiveHttp whose pending requests are drained each pass, or an
+	#                 empty text for none
+	#   returns       nothing; it returns when the loop has stopped
+	#   note          it ends when no timer remains, no request is pending and the patience is used
+	#                 up, or when Stop is called; a callback that stops a repeating timer copy does
+	#                 not stop the manager's own copy, so a loop with a repeating timer runs until
+	#                 Stop or StopAllTimers is called on the manager itself
+	#   see           Stop, SetPatience, AddTimer
+	#@ aka  poHttpDrain = the LIVE stzReactiveHttp object (by-ref param; an attribute copy would drain a dead snapshot). NULL = no http.
 	def RunLoop(poHttpDrain)
 	    @isRunning = 1
 	    _emptyLoopCount_ = 0
@@ -355,6 +524,11 @@ class stzTimerManager from stzObject
 	        ok
 	    end
 		
+	# Tells the loop to end and stops every timer in it.
+	#
+	#   returns    nothing
+	#   note       once stopped, RunLoop returns at once
+	#   see        RunLoop, StopAllTimers
 	def Stop()
 		@shouldStop = 1
 		@isRunning = 0
@@ -364,6 +538,10 @@ class stzTimerManager from stzObject
 			_timer_.Stop()
 		next
 
+	# Stops every timer, empties the list and stops the loop.
+	#
+	#   returns    nothing
+	#   see        Stop, RemoveTimer
 	def StopAllTimers()
 	    # Stop all timers and clear the list
 	    _nLen_ = len(@timers)

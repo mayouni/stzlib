@@ -1,0 +1,14 @@
+{
+ "brief": "The application model of a solution: named datasets, the role each part plays over them, and device models, all held as data.",
+ "detail": "A solution holds datasets (a menu, an order history) and gives each part a role over them: menu, dashboard, api or device. One model drives both the emulator, where each part renders its own app, and the real deployed app. The dashboard figures are genuine computations: orders joined with the menu prices and aggregated by the engine. Names of datasets and parts are stored in lower case. The Q forms (AddDatasetQ, SetPartRoleQ and so on) return the model so that calls chain; the plain forms return nothing. Attach a model to a delivery with SetAppTopology.",
+ "receiver": "o1 = new stzAppTopology(\"bistro\")\no1.AddDataset(\"menu\", [ [ \"Couscous\", \"semolina\", 12 ], [ \"Tea\", \"mint\", 3 ] ])\no1.AddDataset(\"orders\", [ [ \"Couscous\", 2 ], [ \"Tea\", 4 ] ])\no1.SetPartRole(\"admin\", \"dashboard\", \"orders\")",
+ "example": [
+  "? o1.RoleOf(\"admin\")",
+  "#--> dashboard",
+  "? @@( o1.DashboardOf(\"admin\") )",
+  "#--> [ [ [ \"Couscous\", 2, 24 ], [ \"Tea\", 4, 12 ] ], 36, \"Couscous\", 24 ]",
+  "? @@( o1.ColumnsOf(\"orders\") )",
+  "#--> [ \"c1\", \"c2\" ]"
+ ],
+ "see": ["stzDeployment", "stzEmulator"]
+}

@@ -398,13 +398,43 @@ func LocaleLanguageNumbers()
 func StzLanguageQ(pcLangIdentifier)
 	return new stzLanguage(pcLangIdentifier)
 
+# Holds one human language, with its names, its codes, its default country and the scripts it is the default for, from the locale data.
+#
+# The identifier may be a language name (French), a short or long code (fr, fra), or the name of a
+# country, which picks the first language of the data at home in that country, so it is a
+# convenience and not a lookup of every language spoken there. The accessors read the locale tables:
+# the English name in lower case, the native name in its own script, the number, the codes and the
+# default country. The script accessors answer the scripts for which this language is the default
+# language of the data, which is not the same as every script the language is written in.
+# EngineField and EngineFieldByAbbr call functions that do not exist today and raise error R3.
+#
+#   receiver   o1 = new stzLanguage("Hausa")
+#   example    ? o1.Name()
+#              #--> hausa
+#              ? o1.ShortAbbreviation()
+#              #--> ha
+#              ? o1.LongAbbreviation()
+#              #--> hau
+#              ? o1.DefaultCountry()
+#              #--> nigeria
+#              ? o1.DefaultScript()
+#              #--> boko
+#   see        stzScript, stzCurrency, stzLocale
 class stzLanguage from stzObject
 	
-	#NOTE// the class have a @aLanguageInfo@ attribute in PRIVATE section
-	# We put it there, because we use it just for initializing the object.
-	#--> it does not necesarilay contain all the information the class
-	# could provide about the langauge.
-
+	# Builds a language object from a language code, an English name, an abbreviation or the name of a country, read from the locale data.
+	#
+	#   pcLangIdentifier   a name such as French, a short code such as fr, a three-letter code such
+	#                      as hau, or a country name
+	#   returns            nothing; the object is built
+	#   note               case is free
+	#   warning            a country name picks the first language of the data whose default country
+	#                      it is: France gives Breton and Niger gives Zarma; a locale abbreviation
+	#                      such as fr-FR raises Feature not yet implemented; an unknown identifier
+	#                      raises error R3, because the error function stzLanguageError is not
+	#                      loaded
+	#   see                Name, DefaultCountry
+	#@ aka  NOTE// the class have a @aLanguageInfo@ attribute in PRIVATE section We put it there, because we use it just for initializing the object. --> it does not necesarilay contain all the information the class could provide about the langauge.
 	def init(pcLangIdentifier)
 		_oStr_ = new stzString(pcLangIdentifier)
 
@@ -467,15 +497,31 @@ class stzLanguage from stzObject
 			StzRaise(stzLanguageError(:UnsupportedLanguageIdentifier))
 		ok
 
+	# Returns the language's English name in lower case.
+	#
+	#   returns    a text such as french
+	#   see        Name, Value
 	def Content()
 		return @aLanguageInfo@[2]
 
+		# Returns the language's English name, the value of the object.
+		#
+		#   returns    a text, as Content answers
+		#   see        Content
 		def Value()
 			return Content()
 
+	# Returns the language's number in the locale data.
+	#
+	#   returns    a number
+	#   see        Name, DefaultCountryNumber
 	def Number()
 		return @aLanguageInfo@[1]
 
+	# Returns the language's English name in lower case.
+	#
+	#   returns    a text such as hausa
+	#   see        NativeName, ShortAbbreviation
 	def Name()
 		return @aLanguageInfo@[2]
 
@@ -487,18 +533,34 @@ class stzLanguage from stzObject
 		def Langauge()
 			return This.Name()
 
+	# Returns the language's name in its own script.
+	#
+	#   returns    a text such as Français
+	#   see        Name
 	def NativeName()
 		return @aLanguageInfo@[6]
 
 	def Abbreviation()
 		return This.ShortAbbreviation()
 
+	# Returns the two-letter code of the language.
+	#
+	#   returns    a text such as fr
+	#   see        LongAbbreviation, Name
 	def ShortAbbreviation()
 		return @aLanguageInfo@[3]
 
+	# Returns the three-letter code of the language.
+	#
+	#   returns    a text such as fra
+	#   see        ShortAbbreviation, Name
 	def LongAbbreviation()
 		return @aLanguageInfo@[4]
 
+	# Returns the country where the language is taken to be at home.
+	#
+	#   returns    a text in lower case such as france
+	#   see        DefaultCountryNumber, DefaultCountryLocaleAbbreviation
 	def DefaultCountry()
 		return @aLanguageInfo@[5]
 
@@ -511,6 +573,10 @@ class stzLanguage from stzObject
 		def CountryName()
 			return This.DefaultCountry()
 
+	# Returns the number of the default country in the locale data.
+	#
+	#   returns    a number
+	#   see        DefaultCountry
 	def DefaultCountryNumber()
 		_cCountry_ = This.DefaultCountry()
 
@@ -523,12 +589,25 @@ class stzLanguage from stzObject
 			ok
 		next
 
+	# Returns the locale code of the default country, language and region joined by a hyphen.
+	#
+	#   returns    a text such as fr-FR
+	#   see        DefaultCountry, ShortAbbreviation
 	def DefaultCountryLocaleAbbreviation()
 		return StzLocaleAbbreviationsXT()[ This.DefaultCountry() ][1][1][2]
 
 		def CountryLocaleAbbreviation()
 			return This.DefaultCountryLocaleAbbreviation()
 
+	# Returns the script for which this language is the default language in the locale data.
+	#
+	#   returns    a text such as arabic; the first script found
+	#   note       trust it for a language such as Arabic or Hausa, whose script is the one that
+	#              lists it
+	#   warning    the answer is read from a table of one default language per script, so French
+	#              answers duployan, not latin, and a language that is nobody's default answers
+	#              nothing
+	#   see        Scripts, DefaultScriptNumber
 	def DefaultScript()
 
 		/* We could solve it expressively like this:
@@ -558,6 +637,10 @@ class stzLanguage from stzObject
 		def ScriptName()
 			return This.DefaultScript()
 
+	# Returns the number of the default script in the locale data.
+	#
+	#   returns    a number
+	#   see        DefaultScript
 	def DefaultScriptNumber()
 		_cThisLanguage_ = This.Language()
 
@@ -570,6 +653,12 @@ class stzLanguage from stzObject
 			ok
 		next
 
+	# Returns the scripts whose default language is this one, in lower case.
+	#
+	#   returns    a list of text; one script for most languages
+	#   note       French answers [ duployan ], so the list is the default-language mapping and not
+	#              every script the language is written in
+	#   see        DefaultScript, ScriptsAbbreviations
 	def Scripts()
 		
 		_aResult_ = []
@@ -590,6 +679,10 @@ class stzLanguage from stzObject
 		def ScriptsNames()
 			return This.Scripts()
 
+	# Returns the four-letter codes of the scripts that Scripts lists.
+	#
+	#   returns    a list of text such as dupl
+	#   see        Scripts
 	def ScriptsAbbreviations()
 		_aResult_ = []
 
@@ -606,9 +699,25 @@ class stzLanguage from stzObject
 
 		return _aResult_		
 
+	# Reads one field of the language from the engine's reference tables, by the language's name.
+	#
+	#   pcField    the name of the field to read
+	#   returns    the field's value
+	#   note       use the other accessors of the class
+	#   warning    raises error R3 today: the function it calls, StzEngineRefLanguageField, is not
+	#              defined anywhere in the library
+	#   see        EngineFieldByAbbr, Name
 	def EngineField(pcField)
 		return StzEngineRefLanguageField(This.Name(), pcField)
 
+	# Reads one field of the language from the engine's reference tables, by the language's code.
+	#
+	#   pcField    the name of the field to read
+	#   returns    the field's value
+	#   note       use the other accessors of the class
+	#   warning    raises error R3 today: the function it calls, StzEngineRefLanguageFieldByAbbr, is
+	#              not defined anywhere in the library
+	#   see        EngineField, ShortAbbreviation
 	def EngineFieldByAbbr(pcField)
 		return StzEngineRefLanguageFieldByAbbr(This.Abbreviation(), pcField)
 

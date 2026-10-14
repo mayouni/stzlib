@@ -1,0 +1,1 @@
+init | Builds a code rule of that name in the code domain; it is a graph rule whose checker queries a code graph. | nothing; the object is built | pcName=the rule's name | stzCodeRuleSet, stzGraphRule

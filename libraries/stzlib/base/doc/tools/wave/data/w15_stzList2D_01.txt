@@ -1,0 +1,9 @@
+init | Builds a 2D list from a list of lists that all have the same length, raising an error when they do not. | nothing; the object is built | paList=the rows, a list of lists of equal length | List2D, Transposed | a ragged list such as [ [1,2], [3] ] raises "Can't create the stzList2D object! You must provide a well-formatted 2D list." |
+List2D | Returns the rows of the 2D list as a plain list of lists. | a list of lists, the same as Content | | Transposed | |
+Transpose | Turns rows into columns in place, so a list of 2 rows of 3 becomes 3 rows of 2. | nothing; the object now holds the transposed rows, and use TransposeQ to chain | | Transposed, Turn | | calling it twice gives back the original; Transposed leaves the object alone
+Turn | Turns rows into columns in place, exactly as Transpose does. | nothing; use TurnQ to chain | | Transpose | |
+SwapColsAndRows | Turns rows into columns in place, exactly as Transpose does. | nothing; use SwapColsAndRowsQ to chain | | Transpose | |
+SwapRowsAndCols | Turns rows into columns in place, exactly as Transpose does. | nothing; use SwapRowsAndColsQ to chain | | Transpose | |
+SwitchColsAndRows | Turns rows into columns in place, exactly as Transpose does. | nothing; use SwitchColsAndRowsQ to chain | | Transpose | |
+SwitchRowsAndCols | Turns rows into columns in place, exactly as Transpose does. | nothing; use SwitchRowsAndColsQ to chain | | Transpose | |
+Transposed | Returns a transposed copy, rows turned into columns, and leaves the object unchanged. | a list of lists | | Transpose | |

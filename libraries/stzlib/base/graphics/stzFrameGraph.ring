@@ -44,6 +44,35 @@
 func StzFrameGraphQ(pnW, pnH)
 	return new stzFrameGraph(pnW, pnH)
 
+# Holds the render passes of a frame and the resources they read and write, and derives their order, lifetimes and shared targets.
+#
+# A pass declares what it reads and writes; a pass that reads what another writes must run after it,
+# which is an edge, and the order is a topological sort over an ordinary stzGraph. A resource is
+# live from its first write to its last read, and two resources whose lives do not overlap share one
+# physical target, which is memory a hand-ordered frame pays for. Compile derives all of that and
+# proves the frame: acyclic, no read before write, no resource written and never read. Findings go
+# into a stzRuleReport. Execute runs the bodies in order inside one frame on the graphics device,
+# with no window; without a device it answers 0.
+#
+#   receiver   o1 = new stzFrameGraph(16, 8) o1.AddPass("Geometry", [ :Writes = [ "colour", "depth"
+#              ] ]) o1.AddPass("Blur", [ :Reads = [ "colour" ], :Writes = [ "blurred" ] ])
+#              o1.AddPass("Composite", [ :Reads = [ "colour", "blurred" ], :Writes = [ "screen" ] ])
+#              o1.Compile()
+#   example    ? @@( o1.Order() )
+#              #--> [ "Geometry", "Blur", "Composite" ]
+#              ? o1.ResourceCount()
+#              #--> 4
+#              ? o1.PhysicalTargets()
+#              #--> 3
+#              ? o1.TargetsSaved()
+#              #--> 1
+#              ? @@( o1.Lifetimes()[3] )
+#              #--> [ "blurred", 2, 3 ]
+#              ? o1.Findings()[1][:message]
+#              #--> 'depth' is written but never read
+#              ? o1.IsSound()
+#              #--> 1
+#   see        stzGraph, stzRuleReport, stzMaterialGraph
 class stzFrameGraph from stzObject
 
 	@nW = 0
@@ -58,6 +87,16 @@ class stzFrameGraph from stzObject
 	@bCompiled = 0
 	@aTargets = []       # physical target ids, made at Execute time
 
+	# Builds an empty frame of a given size in pixels, to which render passes are added.
+	#
+	#   pnW        the width of every render target, in pixels
+	#   pnH        the height of every render target, in pixels
+	#   returns    nothing; the object is built
+	#   note       StzFrameGraphQ builds the same object
+	#   warning    a width or height that is not a number raises error stzFrameGraph: give a width
+	#              and a height in pixels; one below 1 raises error stzFrameGraph: a frame needs
+	#              area
+	#   see        AddPass, Compile
 	def init(pnW, pnH)
 		if NOT (isNumber(pnW) and isNumber(pnH))
 			StzRaise("stzFrameGraph: give a width and a height in pixels.")
@@ -68,11 +107,19 @@ class stzFrameGraph from stzObject
 		@nW = pnW
 		@nH = pnH
 
-	#-- declaring the frame -------------------------------------------------
-
-	# paSpec: [ :Reads = [...], :Writes = [...], :Body = func ]
-	# The BODY is what actually draws; the graph only decides when it runs
-	# and what it draws into.
+	# Declares a render pass with the resources it reads and writes, and optionally the body that draws.
+	#
+	#   pcName     the name of the pass, unique in the frame, in any letter case
+	#   paSpec     a hash list with :Reads and :Writes, each a list of resource names, and :Body, a
+	#              function called as fBody(oFrameGraph, cPassName)
+	#   returns    nothing; the pass is added and the graph must be compiled again. AddPassQ returns
+	#              the frame graph for chaining
+	#   note       the body only draws: the graph decides when it runs and what it draws into
+	#   warning    a name used twice, in any letter case, raises error stzFrameGraph: pass ... is
+	#              declared twice; a pass that reads nothing and writes nothing raises error ... it
+	#              cannot be scheduled, because it has no edges to anything
+	#   see        Compile, Order, Execute
+	#@ aka  -- declaring the frame -------------------------------------------------
 	def AddPass(pcName, paSpec)
 		if NOT isString(pcName) and NOT isNumber(pcName)
 			StzRaise("stzFrameGraph.AddPass: a pass needs a name.")
@@ -109,14 +156,28 @@ class stzFrameGraph from stzObject
 		This.AddPass(pcName, paSpec)
 		return This
 
+	# Returns how many passes have been declared.
+	#
+	#   returns    a number
+	#   see        ResourceCount, AddPass
 	def PassCount()      return len(@aPasses)
+	# Returns how many distinct resources the passes read or write.
+	#
+	#   returns    a number
+	#   note       a resource is counted once however many passes use it
+	#   see        PassCount, TargetsSaved
 	def ResourceCount()  return len(@aResources)
 
-	#-- compiling -----------------------------------------------------------
-
-	# Derive the order, the lifetimes and the aliasing, and PROVE the
-	# properties. Everything below is computed from the declaration; nothing
-	# here is a number somebody typed.
+	# Derives the execution order, the lifetimes and the aliasing from the declarations, and proves the frame sound.
+	#
+	#   returns    the frame graph itself, so calls chain
+	#   note       the findings are an acyclic error when the passes form a cycle, a
+	#              read_before_write error for a resource no pass writes, and a dead_resource
+	#              warning for a resource written and never read, except one named screen; adding a
+	#              pass afterwards makes every question refuse until the next Compile
+	#   warning    a frame with no pass raises error stzFrameGraph.Compile: no passes declared
+	#   see        Order, Findings, AddPass
+	#@ aka  -- compiling -----------------------------------------------------------
 	def Compile()
 		@aFindings = []
 		@aOrder = []
@@ -203,60 +264,108 @@ class stzFrameGraph from stzObject
 		@bCompiled = 1
 		return This
 
+	# Returns the passes in the order they must run, derived so that a pass that reads a resource runs after the pass that writes it.
+	#
+	#   returns    a list of pass names; [ ] when the passes form a cycle
+	#   note       the names come back as they were declared, and a name written as a symbol such as
+	#              :Geometry is the lower-case text geometry
+	#   warning    calling it before Compile raises error stzFrameGraph: call Compile() first
+	#   see        Lifetimes, Compile
 	def Order()
 		This._RequireCompiled()
 		return @aOrder
 
+	# Returns, for each resource, the step where it is first written and the step where it is last read.
+	#
+	#   returns    a list of [ resource, first step, last step ] triples, steps counted from 1 in
+	#              execution order
+	#   note       a resource never read is live for its one writing step
+	#   warning    calling it before Compile raises error stzFrameGraph: call Compile() first
+	#   see        Aliasing, Order
 	def Lifetimes()
 		This._RequireCompiled()
 		return @aLive
 
-	# [ logical, physicalSlot ] -- two logicals sharing a slot never overlap
+	# Returns which physical target each resource lives on, two resources sharing one when their lives do not overlap.
+	#
+	#   returns    a list of [ resource, slot ] pairs, slots counted from 1
+	#   note       a greedy placement over the lifetimes; a slot is reused only by a resource that
+	#              starts after the previous one ended
+	#   warning    calling it before Compile raises error stzFrameGraph: call Compile() first
+	#   see        PhysicalTargets, Lifetimes
+	#@ aka  [ logical, physicalSlot ] -- two logicals sharing a slot never overlap
 	def Aliasing()
 		This._RequireCompiled()
 		return @aAlias
 
+	# Returns how many physical render targets the frame needs after aliasing.
+	#
+	#   returns    a number
+	#   note       for a chain a, b, c, d where each pass reads the previous pass's output it is 2
+	#              for 4 resources
+	#   warning    calling it before Compile raises error stzFrameGraph: call Compile() first
+	#   see        TargetsSaved, Aliasing
 	def PhysicalTargets()
 		This._RequireCompiled()
 		return @nPhysical
 
-	# What the schedule SAVED over giving every resource its own target.
-	# This is the number the kill criterion asks for.
+	# Returns how many render targets the schedule saves against giving every resource its own.
+	#
+	#   returns    a number, the resource count minus the physical targets
+	#   note       it is the number the kill criterion of the design asks for: 0 means aliasing
+	#              bought nothing
+	#   warning    calling it before Compile raises error stzFrameGraph: call Compile() first
+	#   see        PhysicalTargets, ResourceCount
+	#@ aka  What the schedule SAVED over giving every resource its own target. This is the number the kill criterion asks for.
 	def TargetsSaved()
 		This._RequireCompiled()
 		return len(@aResources) - @nPhysical
 
-	#-- the proofs ----------------------------------------------------------
-
-	# The house finding shape, so a frame graph is judged by the SAME gate as
-	# code rules and security rules: [ :rule, :subject, :where, :severity,
-	# :message ].
+	# Returns the proofs that failed or warned, in the house finding shape.
+	#
+	#   returns    a list of hash lists with rule, subject framegraph, where as widthxheight,
+	#              severity and message; [ ] for a clean frame
+	#   note       the rules are acyclic, read_before_write and dead_resource
+	#   warning    calling it before Compile raises error stzFrameGraph: call Compile() first
+	#   see        IsSound, Report
+	#@ aka  -- the proofs ----------------------------------------------------------
 	def Findings()
 		This._RequireCompiled()
 		return @aFindings
 
-	# SOUND IS NO ERROR, and StzFindingsAreSound is the house's one answer to
-	# it -- the same one stzRuleReport, stzGraphRuleSet, stzPlasticGovernance
-	# and the picture domains give. This wrote its own loop over position 4
-	# until 2026-09-12.
+	# TRUE if the compiled frame has no finding of severity error.
+	#
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   note       a dead_resource warning does not make it false
+	#   warning    calling it before Compile raises error stzFrameGraph: call Compile() first
+	#   see        Findings, Execute
+	#@ aka  SOUND IS NO ERROR, and StzFindingsAreSound is the house's one answer to it -- the same one stzRuleReport, stzGraphRuleSet, stzPlasticGovernance and the picture domains give. This wrote its own loop over position 4 until 2026-09-12.
 	def IsSound()
 		This._RequireCompiled()
 		return StzFindingsAreSound(@aFindings)
 
+	# Returns the findings as a stzRuleReport, so the frame is judged by the same gate as code and security rules.
+	#
+	#   returns    a stzRuleReport named framegraph
+	#   warning    calling it before Compile raises error stzFrameGraph: call Compile() first
+	#   see        Findings, IsSound
 	def Report()
 		This._RequireCompiled()
 		_o_ = new stzRuleReport("framegraph")
 		_o_.Ingest(@aFindings)
 		return _o_
 
-	#-- executing -----------------------------------------------------------
-
-	# Run the passes in the derived order, inside ONE frame -- so the whole
-	# schedule costs a single submit (GG4 slice 1), and a pass may sample a
-	# target an earlier pass wrote (GG4 slice 0).
+	# Runs the passes in the derived order inside one frame, with one physical target for each alias slot.
 	#
-	# Each body is called as fBody(oFrameGraph, cPassName). It asks the
-	# graph which physical target its writes landed on.
+	#   returns    1 when the frame ran; 0 when no graphics device is available
+	#   note       it needs a graphics device but opens no window; targets are made at each call,
+	#              and a pass body asks TargetOf where its writes landed; release them with
+	#              FreeTargets
+	#   warning    calling it before Compile raises error stzFrameGraph: call Compile() first; a
+	#              frame with an error finding raises error stzFrameGraph.Execute: the frame has
+	#              ERRORS
+	#   see        Order, TargetOf, FreeTargets
+	#@ aka  -- executing -----------------------------------------------------------
 	def Execute()
 		This._RequireCompiled()
 		if NOT This.IsSound()
@@ -292,8 +401,14 @@ class stzFrameGraph from stzObject
 		StzEngineGpuFrameEnd()
 		return 1
 
-	# The physical target a logical resource lives on, for a pass body to
-	# draw into or sample.
+	# Returns the physical target a resource lives on during a frame, for a pass body to draw into or sample.
+	#
+	#   pcResource   the resource name, matched as written
+	#   returns      the engine handle as a number; 0 before Execute, after FreeTargets, or for a
+	#                name the frame does not know
+	#   note         two resources in one alias slot answer the same handle
+	#   see          Execute, Aliasing
+	#@ aka  The physical target a logical resource lives on, for a pass body to draw into or sample.
 	def TargetOf(pcResource)
 		_c_ = "" + pcResource
 		_aA7_ = @aAlias
@@ -308,6 +423,10 @@ class stzFrameGraph from stzObject
 		next
 		return 0
 
+	# Releases the physical targets that Execute made.
+	#
+	#   returns    nothing; TargetOf then answers 0
+	#   see        Execute, TargetOf
 	def FreeTargets()
 		_aT6_ = @aTargets
 		_nT6_ = len(_aT6_)

@@ -1,0 +1,18 @@
+{
+ "brief": "Holds a list of sentences or documents and selects among them by meaning: closest to a query, ranked for a query, or by sentiment.",
+ "detail": "A list of texts is a list of strings that carries meaning, so it inherits everything of stzStringList (Content, NthString, Joined, ThatContain, Longest) and adds the natural layer. Build one with new stzListOfTexts(aList) or StzListOfTextsQ(aList); the sentence splitters of stzText answer a plain stzList, so wrap their result. Without a neural model the meaning methods fall back to word overlap, and the sentiment scorer reads English only; a model loaded through StzNeuralModelQ upgrades the similarity and ranking.",
+ "receiver": "o1 = new stzListOfTexts([ \"The cat sat on the mat.\", \"I love this wonderful sunny day!\", \"This is terrible and I hate it.\" ])",
+ "example": [
+  "? o1.MostSimilarByMeaning(\"a cat on a mat\")",
+  "#--> The cat sat on the mat.",
+  "? @@( o1.ThatAre(\"positive\") )",
+  "#--> [ \"I love this wonderful sunny day!\" ]",
+  "? o1.MostRelevantTo(\"wonderful day\")",
+  "#--> I love this wonderful sunny day!"
+ ],
+ "see": [
+  "stzStringList",
+  "stzText",
+  "stzListOfStrings"
+ ]
+}

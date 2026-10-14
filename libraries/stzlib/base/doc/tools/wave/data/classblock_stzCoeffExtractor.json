@@ -1,0 +1,14 @@
+{
+ "brief": "Reads the coefficient of a variable in a linear expression, for the solvers that turn text into numbers.",
+ "detail": "For a plain linear expression such as 5*x + 3*y - 2*z it reads each term and gives 5, 3 and -2; a variable written without a star has coefficient 1 or -1, an absent one 0. A non-linear expression is meant to be handled by nudging the variable around the point where every variable is 10, but that path raises today. The plain path matches names as substrings, so give variables names that are not parts of one another. Building it sets Ring's display precision to 4 decimals until a brace ends or BraceEnd is called.",
+ "receiver": "o1 = new stzCoeffExtractor([ \"x\", \"y\", \"z\" ])",
+ "example": [
+  "? o1.extract(\"5*x + 3*y - 2*z\", \"z\")",
+  "#--> -2",
+  "? o1.extractAllCoefficients(\"5*x + 3*y - 2*z\")[2]",
+  "#--> 3",
+  "? o1.extract(\"3*y\", \"x\")",
+  "#--> 0"
+ ],
+ "see": ["stzOptimModel", "stzLinearSolver", "StzCoefficientExtractor"]
+}

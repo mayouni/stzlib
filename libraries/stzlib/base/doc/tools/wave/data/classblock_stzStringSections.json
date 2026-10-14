@@ -1,0 +1,20 @@
+{
+ "brief": "Cuts sections out of a text by position: reads a section or a range, lists what lies outside, and removes sections.",
+ "detail": "Build one with new stzStringSections(\"text\"). A section is a pair of positions, start and end, both included; a range is a start and a length. Positions count from 1 in characters, so Hebrew, Arabic and emoji are cut by letter. The readers (Section, Range, Sections, AntiSections) raise for positions outside the text, while the removals clip them. The in-place removals have passive twins that return the text (SectionRemoved, SectionsRemoved, RangeRemoved). Do not pass a stzString object you still need: the first in-place removal empties it. A length of 0 and SectionBetween for close positions go wrong, and RemoveSections needs its pairs in ascending order; see the warnings.",
+ "receiver": "o1 = new stzStringSections(\"abcdefghij\")",
+ "example": [
+  "? o1.Section(2, 4)",
+  "#--> bcd",
+  "? o1.Range(3, 3)",
+  "#--> cde",
+  "? @@( o1.AntiSections([ [ 3, 4 ] ]) )",
+  "#--> [ \"ab\", \"efghij\" ]",
+  "? o1.SectionRemoved(3, 5)",
+  "#--> abfghij"
+ ],
+ "see": [
+  "stzString",
+  "stzListSections",
+  "stzStringExtractor"
+ ]
+}

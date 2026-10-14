@@ -1,0 +1,21 @@
+{
+ "brief": "Holds the connection state shared by the library's network clients: the last request, the last error and the timeout.",
+ "detail": "It is the base of stzHttpClient, stzTcpClient, stzTcpServer and stzWebSocket and keeps no socket itself. Its state is plain attributes: the address and status of the last recorded request, the last error text and code, and a timeout in seconds. The engine HTTP client is request-scoped, so IsConnected only says that a request has run. Subclasses override IsConnected to report an open socket. The class makes no request by itself.",
+ "receiver": "o1 = new stzNetwork()",
+ "example": [
+  "? o1.Timeout()",
+  "#--> 30",
+  "o1.SetTimeout(5)",
+  "? o1.Timeout()",
+  "#--> 5",
+  "? o1.IsConnected()",
+  "#--> 0",
+  "? o1.HasError()",
+  "#--> 0"
+ ],
+ "see": [
+  "stzHttpClient",
+  "stzTcpClient",
+  "stzTcpServer"
+ ]
+}

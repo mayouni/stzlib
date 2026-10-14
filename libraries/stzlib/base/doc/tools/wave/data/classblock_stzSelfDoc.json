@@ -1,0 +1,22 @@
+{
+ "brief": "Lets a class describe itself: it reads the methods and doc blocks from the source, then answers plain-English questions and explains each method.",
+ "detail": "The knowledge already lives in the library; this indexes it. A class is read by name, with every method it inherits, or by the path of its source file. ExplainMethod and RecordOf say only what the author wrote in the doc block and what the tests show. Ask ranks the methods by meaning, a word match first with a loaded embedding or reranker model as a rescue, deterministic and with no generation. HowTo goes from an intent to a call template. Retrieval is by shared words, so check the answer when two methods share the question's words.",
+ "receiver": "o1 = new stzSelfDoc(\"stzAgentSkill\")",
+ "example": [
+  "? o1.NumberOfMethods()",
+  "#--> 9",
+  "? o1.HasMethod(\"apply\")",
+  "#--> 1",
+  "? o1.DefiningClassOf(\"Apply\")",
+  "#--> stzAgentSkill",
+  "? o1.BestMethodFor(\"run the action only when the precondition holds\")",
+  "#--> Apply",
+  "? o1.RecordOf(\"Kind\")[:returns]",
+  "#--> the text pi or llm"
+ ],
+ "see": [
+  "stzLibDoc",
+  "StzSelfDocQ",
+  "stzDocRecord"
+ ]
+}

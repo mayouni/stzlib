@@ -1363,7 +1363,36 @@ class stzWorkflow from stzDiagram
 # ran. The STRUCTURAL rules (orphan, single-start, decision branches) inspect
 # EDGES, so they use the checker escape hatch; the property rules use When/Then.
 
+# Holds the four best-practice rules of a business process and judges a workflow against them.
+#
+# The set, named BPM Best Practices in the bpm domain, carries bpm_no_orphans (a step with no
+# connection in or out), bpm_single_start (exactly one start), bpm_decision_branches (a decision has
+# at least two ways out) and bpm_assignment_required (a step is assigned to an actor), each of
+# severity error. Check(oWorkflow) answers the findings in the house shape and IsSound answers
+# whether none is an error.
+#
+#   receiver   oWf = new stzWorkflow("order") oWf.AddStepXT("receive", "Receive order")
+#              oWf.AddStepXT("pack", "Pack") oWf.AddStepXT("lone", "Lone")
+#              oWf.ConnectSteps("receive", "pack") o1 = new stzBPMRuleBase()
+#   example    ? o1.Name()
+#              #--> BPM Best Practices
+#              ? len(o1.Rules())
+#              #--> 4
+#              ? o1.Check(oWf)[1][:rule]
+#              #--> bpm_no_orphans
+#              ? o1.Check(oWf)[1][:where]
+#              #--> lone
+#              ? o1.IsSound(oWf)
+#              #--> 0
+#   see        stzWorkflow, stzSLARuleBase, stzGraphRuleSet
 class stzBPMRuleBase from stzGraphRuleSet
+	# Builds the set of four business-process best-practice rules, in the BPM Best Practices set.
+	#
+	#   returns    nothing; the object is built
+	#   note       the rules are bpm_no_orphans, bpm_single_start, bpm_decision_branches and
+	#              bpm_assignment_required, all of severity error; Check(oWorkflow) answers the
+	#              findings
+	#   see        stzWorkflow, stzSLARuleBase
 	def init()
 		super.init("BPM Best Practices")
 		This.SetDomainQ("bpm")
@@ -1522,7 +1551,32 @@ class stzBPMRuleBase from stzGraphRuleSet
 		This.AddRule(_oRule4_)
 
 
+# Holds the two service-level rules of a business process and judges a workflow against them.
+#
+# The set, named SLA Compliance in the sla domain, carries sla_defined, which wants a step marked
+# critical to have an sla above 0, and sla_compliance, which flags a step whose duration exceeds its
+# sla. A step with no sla is outside the second rule. Check(oWorkflow) answers the findings in the
+# house shape.
+#
+#   receiver   oWf = new stzWorkflow("order") oWf.AddStepXT("pack", "Pack")
+#              oWf.SetStepDuration("pack", 30) oWf.SetStepSLA("pack", 20) o1 = new stzSLARuleBase()
+#   example    ? o1.Name()
+#              #--> SLA Compliance
+#              ? len(o1.Rules())
+#              #--> 2
+#              ? o1.Check(oWf)[1][:rule]
+#              #--> sla_compliance
+#              ? o1.Check(oWf)[1][:message]
+#              #--> duration 30 exceeds SLA 20: pack
+#   see        stzWorkflow, stzBPMRuleBase, stzGraphRuleSet
 class stzSLARuleBase from stzGraphRuleSet
+	# Builds the set of two service-level rules, in the SLA Compliance set.
+	#
+	#   returns    nothing; the object is built
+	#   note       the rules are sla_defined, which wants a critical step to have an sla above 0,
+	#              and sla_compliance, which flags a step whose duration exceeds its sla;
+	#              Check(oWorkflow) answers the findings
+	#   see        stzWorkflow, stzBPMRuleBase
 	def init()
 		super.init("SLA Compliance")
 		This.SetDomainQ("sla")
@@ -1590,8 +1644,37 @@ class stzSLARuleBase from stzGraphRuleSet
 #  Workflow Simulations                      #
 #============================================#
 
+# Is meant to collect changes to a workflow, a quicker step, a step moved to another actor, steps in parallel, but cannot record any today.
+#
+# The class declares OptimizeStep, ReassignStep and ParallelizeSteps, each of which appends a change
+# to a list called @aChanges. The class never declares that list and has no init of its own, so each
+# of the three raises error R24 Using uninitialized variable: @achanges, and new
+# stzWorkflowSimulation() with empty parentheses raises error R19 because the inherited init takes
+# one parameter. The application of the changes is private and the restructuring for parallel steps
+# is an empty method.
+#
+#   receiver   o1 = new stzWorkflowSimulation
+#   example    try
+#              o1.OptimizeStep("pack", 5)
+#              catch
+#              ? "raised"
+#              #--> raised
+#              done
+#   see        stzWorkflow
 class stzWorkflowSimulation from stzObject
 	
+	# Raises error R24 Using uninitialized variable: @achanges today instead of recording a new duration for a step.
+	#
+	#   pcStepId       the id of the step to speed up
+	#   nNewDuration   the duration to give it
+	#   returns        nothing; it always raises
+	#   note           new stzWorkflowSimulation() with empty parentheses raises error R19 because
+	#                  the inherited init takes one parameter; the class is a stub, and the method
+	#                  that would apply the changes is private
+	#   warning        no object of this class can record a change: the class has no @aChanges list
+	#                  and no init, so the first line of the method raises; building the object with
+	#                  a workflow, new stzWorkflowSimulation(oWf), raises the same error on the call
+	#   see            ReassignStep, ParallelizeSteps
 	def OptimizeStep(pcStepId, nNewDuration)
 		@aChanges + [
 			:type = "optimize_step",
@@ -1599,6 +1682,15 @@ class stzWorkflowSimulation from stzObject
 			:newDuration = nNewDuration
 		]
 	
+	# Raises error R24 Using uninitialized variable: @achanges today instead of recording a move of a step to another actor.
+	#
+	#   pcStepId      the id of the step to move
+	#   pcFromActor   the actor it leaves
+	#   pcToActor     the actor it goes to
+	#   returns       nothing; it always raises
+	#   note          the class is a stub
+	#   warning       raises the same error as OptimizeStep, because the class has no @aChanges list
+	#   see           OptimizeStep, ParallelizeSteps
 	def ReassignStep(pcStepId, pcFromActor, pcToActor)
 		@aChanges + [
 			:type = "reassign_step",
@@ -1607,6 +1699,13 @@ class stzWorkflowSimulation from stzObject
 			:to = pcToActor
 		]
 	
+	# Raises error R24 Using uninitialized variable: @achanges today instead of recording that steps run side by side.
+	#
+	#   pacStepIds   the ids of the steps to run in parallel, a list of text
+	#   returns      nothing; it always raises
+	#   note         the class is a stub; the restructuring it would apply is an empty method
+	#   warning      raises the same error as OptimizeStep, because the class has no @aChanges list
+	#   see          OptimizeStep, ReassignStep
 	def ParallelizeSteps(pacStepIds)
 		@aChanges + [
 			:type = "parallelize",
@@ -1638,20 +1737,65 @@ class stzWorkflowSimulation from stzObject
 #  stzFlowParser - *.stzflow Parser          #
 #============================================#
 
+# Reads the text or file of a .stzflow document and builds the stzWorkflow it records.
+#
+# The document is a workflow header with the quoted id, a type line, then sections: steps, each with
+# label, assignedto, duration and sla lines, flow, one from -> to line per arrow, actors with name
+# and role, and roles. The parser keeps no state and it is what ImportFlow uses; ToWorkflow writes
+# the same format. Today a duration of two or more digits is read as text, and an assignedTo line,
+# the spelling ToWorkflow writes, is not read.
+#
+#   receiver   o1 = new stzFlowParser() cText = 'workflow "order"' + char(10) + "type: sequential" +
+#              char(10) + "steps" + char(10) + "receive" + char(10) + "duration: 5" + char(10) +
+#              "pack" + char(10) + "flow" + char(10) + "receive -> pack"
+#   example    oWf = o1.Parse(cText)
+#              ? oWf.Id()
+#              #--> order
+#              ? len(oWf.Steps())
+#              #--> 2
+#              ? len(oWf.Edges())
+#              #--> 1
+#              ? oWf.Steps()[1][:duration]
+#              #--> 5
+#   see        stzWorkflow, stzKnowParser
 class stzFlowParser from stzObject
 
-	# The parser holds no state -- but it still needs THIS empty init.
+	# Builds a parser for .stzflow text; it keeps no state between parses.
 	#
-	# With no init of its own it inherits stzObject's, which takes one param
-	# (the object to wrap). Every construction here is `new stzFlowParser()`
-	# with none, so it raised R19 "less number of parameters" and took
-	# ImportFlow() -- the whole .stzflow reading path -- down with it.
+	#   returns    nothing; the object is built
+	#   note       one parser can read any number of texts and files
+	#   see        Parse, ParseFile
+	#@ aka  The parser holds no state -- but it still needs THIS empty init.
 	def init()
 
+	# Reads a .stzflow file from disk and builds the workflow it describes.
+	#
+	#   pcFilename   the path of the file to read
+	#   returns      a stzWorkflow; an empty text for an empty file
+	#   note         it does not check the extension
+	#   warning      a path that cannot be opened raises error R35 Can't create/open the file; a
+	#                file with no workflow header raises error R13 Object is required, as Parse does
+	#   see          Parse, ToWorkflow
 	def ParseFile(pcFilename)
 		_cContent_ = read(pcFilename)
 		return This.Parse(_cContent_)
 	
+	# Reads .stzflow text, a workflow header then steps, flow, actors and roles sections, and builds the workflow it describes.
+	#
+	#   pcContent   the text, a header line such as workflow "order" followed by type: and the
+	#               sections
+	#   returns     a stzWorkflow; an empty text for an empty text
+	#   note        blank lines and lines starting with # are ignored; actors are read after steps,
+	#               so an assignment may name an actor not yet known, which the workflow does not
+	#               check
+	#   warning     text with sections but no workflow header raises error R13 Object is required; a
+	#               duration or sla of two or more digits, such as 30, comes back as text "30" and
+	#               not as a number, because the reader tests the whole value with isdigit, which
+	#               looks at one character; a step line assignedTo: ana is not read, because the
+	#               reader compares the key with assignedto and Ring compares text case by case, and
+	#               the text that ToWorkflow writes spells it assignedTo, so a written and re-read
+	#               workflow loses its assignments; the same line spelt assignedto: ana is read
+	#   see         ParseFile, ToWorkflow
 	def Parse(pcContent)
 		_oWorkflow_ = ""
 		_acLines_ = split(pcContent, NL)

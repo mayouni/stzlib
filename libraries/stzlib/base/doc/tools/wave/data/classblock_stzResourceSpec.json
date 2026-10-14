@@ -1,0 +1,21 @@
+{
+ "brief": "Holds an amount of resources, memory, virtual processors, disk and a GPU, either as the need of a part or as the capacity of a host.",
+ "detail": "The same class plays two roles. As a requirement it says what a part needs, including a GPU that is required or optional. As a capacity it says what a host offers, including whether a GPU is present. Meets asks whether a capacity covers a requirement; Plus adds requirements, as for several parts on one host. Nothing is validated: set numbers.",
+ "receiver": "o1 = new stzResourceSpec()\no1.SetMemory(2048)\no1.SetCompute(2)\no1.SetStorage(20)",
+ "example": [
+  "? o1.Text()",
+  "#--> 2048MB / 2 vCPU / 20GB",
+  "oNeed = new stzResourceSpec()",
+  "oNeed.SetMemory(1024)",
+  "oNeed.SetCompute(1)",
+  "? o1.Meets(oNeed)",
+  "#--> 1",
+  "oNeed.SetGpuRequired()",
+  "? o1.Meets(oNeed)",
+  "#--> 0",
+  "o1.SetGpuPresent(1)",
+  "? o1.Meets(oNeed)",
+  "#--> 1"
+ ],
+ "see": ["stzDeployment", "stzDeploymentSite"]
+}

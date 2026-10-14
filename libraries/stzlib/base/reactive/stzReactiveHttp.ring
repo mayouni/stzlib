@@ -10,22 +10,47 @@
 # present) still takes the blocking curl/download path. The old
 # "https is an outbound-TLS gap" caveat is closed.
 
+# Sends HTTP requests for a reactive engine, asynchronously through a reactor when it has one and blocking otherwise.
+#
+# Get_, Post, Put_ and Delete take the address, the body where there is one, and a function for
+# success and one for failure. With a reactor set by SetReactor, http and https requests are
+# submitted as jobs and return a job number at once; the run loop calls DrainPending, which delivers
+# each finished job to its callback, a 2xx status to onSuccess with the body and anything else to
+# onError. Without a reactor, or for another kind of address, each verb runs a blocking stzHttpTask
+# and returns it. None of the four verbs was run for this reference because they reach the network;
+# the example uses what makes no request.
+#
+#   receiver   oEngine = new stzReactive() o1 = new stzReactiveHttp(oEngine)
+#   example    ? o1.PendingCount()
+#              #--> 0
+#              ? o1.DrainPending()
+#              #--> 0
+#              o1.SetReactor(NULL)
+#              ? o1.PendingCount()
+#              #--> 0
+#   see        stzHttpTask, stzReactor, stzHttpClient
 class stzReactiveHttp from stzObject
 
 	@oEngine = ""
 	@oReactor = ""
 	@aPending = []   # [ [ nJobId, fOnSuccess, fOnError ], ... ]
 
+	# Builds an HTTP client for a reactive engine, with no reactor, so its requests are blocking until SetReactor gives one.
+	#
+	#   engine     the reactive engine the blocking tasks are registered with
+	#   returns    nothing; the client is built
+	#   see        SetReactor, Get_
 	def Init(engine)
 		@oEngine = engine
 
-	# The reactor is what makes the request path ASYNC -- _CanAsync answers
-	# FALSE without one and every verb falls back to the blocking task. NULL is
-	# therefore a legitimate value: it means "no reactor, go blocking".
+	# Sets the reactor that makes requests asynchronous, or removes it.
 	#
-	# Anything that is neither is refused rather than stored, because a bad
-	# reactor does not fail here; it fails later inside _SubmitAsync or
-	# DrainPending, a long way from the call that caused it.
+	#   poReactor   a stzReactor, or NULL to go back to blocking requests
+	#   returns     the client itself, so calls chain
+	#   note        with a reactor, http and https requests are submitted as jobs and return at
+	#               once; without one, or for any other address, each verb runs a blocking task
+	#   see         PendingCount, DrainPending
+	#@ aka  The reactor is what makes the request path ASYNC -- _CanAsync answers FALSE without one and every verb falls back to the blocking task. NULL is therefore a legitimate value: it means "no reactor, go blocking".
 	def SetReactor(poReactor)
 		if poReactor != "" and NOT isObject(poReactor)
 			return This
@@ -33,9 +58,25 @@ class stzReactiveHttp from stzObject
 		@oReactor = poReactor
 		return This
 
+	# Returns how many asynchronous requests have not been drained yet.
+	#
+	#   returns    a number; 0 for a new client
+	#   see        DrainPending, Get_
 	def PendingCount()
 		return len(@aPending)
 
+	# Sends a GET request and calls onSuccess with the body or onError with the failure text.
+	#
+	#   url         the address
+	#   onSuccess   a function taking the response body
+	#   onError     a function taking the failure text
+	#   returns     a stzHttpTask, already executed, on the blocking path; the job number on the
+	#               asynchronous path, -1 when the reactor refused it
+	#   note        on the asynchronous path the callbacks run later, from DrainPending in the run
+	#               loop; the failure text is HTTP request failed, with the status in parentheses
+	#               when there is one
+	#   warning     not run: it reaches the network
+	#   see         Post, DrainPending, SetReactor
 	def Get_(url, onSuccess, onError)
 		if This._CanAsync(url)
 			return This._SubmitAsync("GET", url, HTTP_RESPONSE_NULL, onSuccess, onError)
@@ -47,6 +88,16 @@ class stzReactiveHttp from stzObject
 		_task_.Execute()
 		return _task_
 
+	# Sends a POST request with a body and calls onSuccess with the response body or onError with the failure text.
+	#
+	#   url         the address
+	#   data        the body to send
+	#   onSuccess   a function taking the response body
+	#   onError     a function taking the failure text
+	#   returns     a stzHttpTask on the blocking path; the job number on the asynchronous path
+	#   note        success is a status from 200 to 299
+	#   warning     not run: it reaches the network
+	#   see         Get_, Put_
 	def Post(url, data, onSuccess, onError)
 		if This._CanAsync(url)
 			return This._SubmitAsync("POST", url, data, onSuccess, onError)
@@ -58,6 +109,15 @@ class stzReactiveHttp from stzObject
 		_task_.Execute()
 		return _task_
 
+	# Sends a PUT request with a body and calls onSuccess with the response body or onError with the failure text.
+	#
+	#   url         the address
+	#   data        the body to send
+	#   onSuccess   a function taking the response body
+	#   onError     a function taking the failure text
+	#   returns     a stzHttpTask on the blocking path; the job number on the asynchronous path
+	#   warning     not run: it reaches the network
+	#   see         Post, Delete
 	def Put_(url, data, onSuccess, onError)
 		if This._CanAsync(url)
 			return This._SubmitAsync("PUT", url, data, onSuccess, onError)
@@ -69,6 +129,15 @@ class stzReactiveHttp from stzObject
 		_task_.Execute()
 		return _task_
 
+	# Sends a DELETE request and calls onSuccess with the response body or onError with the failure text.
+	#
+	#   url         the address
+	#   onSuccess   a function taking the response body
+	#   onError     a function taking the failure text
+	#   returns     a stzHttpTask on the blocking path; the job number on the asynchronous path
+	#   note        on the blocking path a delete answered with no body counts as a failure
+	#   warning     not run: it reaches the network
+	#   see         Get_, Put_
 	def Delete(url, onSuccess, onError)
 		if This._CanAsync(url)
 			return This._SubmitAsync("DELETE", url, HTTP_RESPONSE_NULL, onSuccess, onError)
@@ -144,10 +213,14 @@ class stzReactiveHttp from stzObject
 	def _HttpFailure(pnStatus)
 		return StzHttpFailureText(pnStatus)
 
-	# Called by the run loop each tick: dispatch every finished job. The
-	# curl path returns the BODY directly (headers stripped) and reports
-	# the HTTP status; success = a 2xx code (same callback contract as
-	# the blocking download() path).
+	# Delivers every finished asynchronous request to its callback, for the run loop to call each tick.
+	#
+	#   returns    the number of requests delivered; 0 when none was pending or none had finished
+	#   note       a 2xx status calls onSuccess with the body, any other status or a failed job
+	#              calls onError; a job still in flight stays pending; run with nothing pending it
+	#              answered 0
+	#   see        PendingCount, SetReactor
+	#@ aka  Called by the run loop each tick: dispatch every finished job. The curl path returns the BODY directly (headers stripped) and reports the HTTP status; success = a 2xx code (same callback contract as the blocking download() path).
 	def DrainPending()
 		_nDone_ = 0
 		for _i_ = len(@aPending) to 1 step -1
@@ -181,6 +254,27 @@ class stzReactiveHttp from stzObject
 		next
 		return _nDone_
 
+# Holds one HTTP request, its method, address and body, with a status, a body result and an error, run by the blocking path.
+#
+# A task of the reactive client when no reactor is set. Execute sends the request through the engine
+# and records completed with the response body for a 2xx status, or error with the message HTTP
+# request failed, the status in parentheses when one was received. Anything but GET, POST, PUT or
+# DELETE makes no request and ends in error. Then_ and Catch_ come from stzReactiveTask. The four
+# Perform methods are the requests; none was run for this reference because they reach the network.
+# The example runs the one path that makes no request.
+#
+#   receiver   oEngine = new stzReactive() o1 = new stzHttpTask(HTTP_TASK_GET,
+#              "http://example.invalid/", "PATCH", "", oEngine)
+#   example    ? o1.Status()
+#              #--> pending
+#              o1.Execute()
+#              ? o1.Status()
+#              #--> error
+#              ? o1.Error()
+#              #--> HTTP request failed
+#              ? o1.HasFailed()
+#              #--> 1
+#   see        stzReactiveHttp, stzReactiveTask, stzHttpClient
 class stzHttpTask from stzReactiveTask
 
 	@url = HTTP_RESPONSE_EMPTY
@@ -188,12 +282,34 @@ class stzHttpTask from stzReactiveTask
 	@data = HTTP_RESPONSE_NULL
 	@lastStatus = 0   # HTTP status of the blocking request, 0 = never got one
 	
+	# Builds a task for one HTTP request with its method, address and body, in the pending state.
+	#
+	#   id         the task's identifier, such as http_get
+	#   url        the address
+	#   method     GET, POST, PUT or DELETE as the HTTP_GET, HTTP_POST, HTTP_PUT and HTTP_DELETE
+	#              constants
+	#   data       the body to send, or an empty text
+	#   engine     the reactive engine it belongs to
+	#   returns    nothing; the task is built and no request is made
+	#   note       the error mode is the default, ERROR_LOG
+	#   see        Execute, stzReactiveHttp
 	def Init(id, url, method, data, engine)
 		super.Init(id, HTTP_RESPONSE_NULL, engine, DEFAULT_ERROR_HANDLING)
 		@url = url
 		@method = method
 		@data = data
 		
+	# Sends the request by the blocking path and records the outcome on the task.
+	#
+	#   returns    nothing; read the outcome with Status, Result and Error
+	#   note       success is a 2xx status with a body: the status is completed, the body is the
+	#              result and Then_ is called; anything else is an error whose message is HTTP
+	#              request failed, with the status in parentheses when one was received, and Catch_
+	#              is called
+	#   warning    not run against a real address: it reaches the network; a method that is none of
+	#              the four makes no request and ends the task in error with the message HTTP
+	#              request failed, which was run
+	#   see        PerformHttpGet, Init
 	def Execute()
 	    # (S0 fix, 2026-07-14): store the status on the TASK, not in a
 	    # local -- the old code wrote _status_ locally and dropped it,
@@ -234,27 +350,51 @@ class stzHttpTask from stzReactiveTask
 	        ok
 	    ok
 			
-	# THE BLOCKING PATH, ENGINE-BACKED.
+	# Sends a GET request through the engine and returns the body, or an empty text on failure.
 	#
-	# These called Ring's download() and then the raw libcurl.ring API --
-	# curl_easy_init / curl_easy_setopt / CURLOPT_* / curl_easy_perform_silent.
-	# The library dropped that extension when HTTP moved into the Zig engine
-	# (stzHttpClient and stzNetwork both say so: "previously loaded
-	# libcurl.ring"), and nothing loads it now. Every verb here raised R3
-	# "Calling Function without definition" on its first line.
-	#
-	# This is the path taken when there is no reactor -- which is exactly what
-	# SetReactor(NULL) selects, and what the reactor switch falls back TO. The
-	# switch had an off position that could not work.
+	#   url        the address to fetch
+	#   returns    the response body as text; an empty text for a status outside 200 to 299 or an
+	#              empty body
+	#   note       the status of the response is kept on the task for the failure message; this
+	#              blocking path is what the client uses when it has no reactor
+	#   warning    not run: it reaches the network
+	#   see        Execute, PerformHttpPost
+	#@ aka  THE BLOCKING PATH, ENGINE-BACKED.
 	def PerformHttpGet(url)
 	    return This._EngineRequest(0, url, HTTP_RESPONSE_EMPTY)
 
+	# Sends a POST request with a body through the engine and returns the response body, or an empty text on failure.
+	#
+	#   url        the address to post to
+	#   data       the body to send, text
+	#   returns    the response body as text; an empty text for a status outside 200 to 299 or an
+	#              empty body
+	#   note       a body that is not text is sent as an empty body
+	#   warning    not run: it reaches the network
+	#   see        Execute, PerformHttpGet
 	def PerformHttpPost(url, data)
 	    return This._EngineRequest(1, url, data)
 
+	# Sends a PUT request with a body through the engine and returns the response body, or an empty text on failure.
+	#
+	#   url        the address to put to
+	#   data       the body to send, text
+	#   returns    the response body as text; an empty text for a status outside 200 to 299 or an
+	#              empty body
+	#   note       a body that is not text is sent as an empty body
+	#   warning    not run: it reaches the network
+	#   see        Execute, PerformHttpPost
 	def PerformHttpPut(url, data)
 	    return This._EngineRequest(2, url, data)
 
+	# Sends a DELETE request through the engine and returns the response body, or an empty text on failure.
+	#
+	#   url        the address to delete
+	#   returns    the response body as text; an empty text for a status outside 200 to 299 or an
+	#              empty body
+	#   note       a successful delete that answers with no body counts as a failure here
+	#   warning    not run: it reaches the network
+	#   see        Execute, PerformHttpGet
 	def PerformHttpDelete(url)
 	    return This._EngineRequest(3, url, HTTP_RESPONSE_EMPTY)
 

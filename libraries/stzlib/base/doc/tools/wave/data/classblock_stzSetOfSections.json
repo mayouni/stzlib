@@ -1,0 +1,16 @@
+{
+ "brief": "Holds a set of sections, [ start, end ] pairs of positions without a repeated pair; no object can be built today.",
+ "detail": "Build one with new stzSetOfSections(aSections) or StzSetOfSectionsQ(aSections). Today every creation raises \"Can't create the stzSetOfSections object\": the validity check calls @IsSetOfSections, a function with an empty body, and the working IsSetOfSections fails in turn because stzList has no IsListOfSections method (the global function of that name exists). The methods below are therefore documented from their code and not run. For sections that already work see stzSection and stzListSections; for lists of sections, stzListOfSections.",
+ "receiver": "o1 = new stzSection(2, 5, 10)",
+ "example": [
+  "? @@( o1.Content() )",
+  "#--> [ 2, 5 ]",
+  "? IsListOfSections([ [ 1, 3 ], [ 5, 7 ] ])",
+  "#--> 1"
+ ],
+ "see": [
+  "stzSection",
+  "stzListOfSections",
+  "stzListSections"
+ ]
+}

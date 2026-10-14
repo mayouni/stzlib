@@ -36,6 +36,31 @@ func StzTotpFromSecretQ(pcSecretBase32)
 	return _o_
 
 
+# Makes and checks RFC 6238 time-based one-time passwords, the second factor of an authenticator app, with the hashing done in the engine.
+#
+# The shared secret is base32, the text a user types into an app; the class decodes it to hex for
+# the engine call, so no raw key bytes cross the text boundary. The defaults, SHA1, 6 digits and a
+# 30-second step, are what Google Authenticator, Authy, 1Password and FreeOTP expect. Verify
+# tolerates a small clock drift, and compares in constant time. A code is not consumed by a check:
+# the same code verifies again within its window, so the caller must remember the last step it
+# accepted to refuse a reuse. The secret itself is shown by Show and Secret and carried in the
+# provisioning address, so treat all three as sensitive. The examples use the public RFC 6238 test
+# secret.
+#
+#   receiver   o1 = new stzTotp() o1.SetSecret("GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ")
+#   example    o1.SetDigits(8)
+#              ? o1.CodeAt(59)
+#              #--> 94287082
+#              o1.SetDigits(6)
+#              ? o1.CodeAt(59)
+#              #--> 287082
+#              ? o1.VerifyAt("287082", 59)
+#              #--> 1
+#              ? o1.VerifyAt("287082", 119)
+#              #--> 0
+#              ? o1.ProvisioningUri("alice", "Softanza")
+#              #--> otpauth://totp/Softanza:alice?secret=GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ&issuer=Softanza&algorithm=SHA1&digits=6&period=30
+#   see        stzAuth, stzPasskeyServer, stzRequestSigner
 class stzTotp from stzObject
 
 	@cSecret = ""      # the shared secret, base32 (RFC 4648, unpadded, upper-case)
@@ -44,13 +69,20 @@ class stzTotp from stzObject
 	@nAlgo   = 1       # 1 = SHA1 (app default), 2 = SHA256
 	@nSkew   = 1       # accept a code from +/- this many steps (clock drift)
 
-	# a brand-new random secret (160-bit -- one SHA1 block, RFC-recommended size).
+	# Builds a TOTP generator with a fresh random 160-bit secret and the settings every authenticator app expects: SHA1, 6 digits, 30 seconds.
+	#
+	#   returns    nothing; the object is built
+	#   see        Secret, ProvisioningUri, Verify
+	#@ aka  a brand-new random secret (160-bit -- one SHA1 block, RFC-recommended size).
 	def init()
 		This.GenerateQ()
 
-	  #-- configuration (plain + Q twins) ---------------------------------
-
-	# replace the secret with a fresh random one.
+	# Replaces the secret with a fresh random one from the engine's secure generator.
+	#
+	#   returns    nothing; use GenerateQ to chain
+	#   note       every code made with the old secret stops verifying
+	#   see        Secret, SetSecret
+	#@ aka  -- configuration (plain + Q twins) ---------------------------------
 	def Generate()
 		This.GenerateQ()
 
@@ -58,6 +90,13 @@ class stzTotp from stzObject
 		@cSecret = This._HexToBase32(StzEngineCryptoRandomHex(20))
 		return This
 
+	# Sets the shared secret from the base32 text a user types into an app, ignoring case, spaces and dashes.
+	#
+	#   pcBase32   the secret in base32, such as GEZDGNBVGY3TQOJQ
+	#   returns    nothing; use SetSecretQ to chain
+	#   note       the characters are not checked, so a wrong secret gives an empty code and a
+	#              verification that always fails
+	#   see        Secret, Generate
 	def SetSecret(pcBase32)
 		This.SetSecretQ(pcBase32)
 
@@ -65,6 +104,13 @@ class stzTotp from stzObject
 		@cSecret = This._NormalizeSecret(pcBase32)
 		return This
 
+	# Sets how many digits a code has.
+	#
+	#   pnDigits   the code length, 1 to 9
+	#   returns    nothing; use SetDigitsQ to chain
+	#   note       an authenticator app expects the value in the provisioning address
+	#   warning    raises an error outside 1 to 9
+	#   see        Digits
 	def SetDigits(pnDigits)
 		This.SetDigitsQ(pnDigits)
 
@@ -75,6 +121,12 @@ class stzTotp from stzObject
 		@nDigits = pnDigits
 		return This
 
+	# Sets how many seconds a code stays valid.
+	#
+	#   pnSeconds   the length of a step, 1 or more
+	#   returns     nothing; use SetPeriodQ to chain
+	#   warning     raises an error below 1
+	#   see         Period
 	def SetPeriod(pnSeconds)
 		This.SetPeriodQ(pnSeconds)
 
@@ -85,6 +137,13 @@ class stzTotp from stzObject
 		@nPeriod = pnSeconds
 		return This
 
+	# Sets how many steps of clock drift, in each direction, Verify tolerates.
+	#
+	#   pnSteps    the tolerance in steps, 0 or more
+	#   returns    nothing; use SetSkewQ to chain
+	#   note       with 0 only the current step passes
+	#   warning    raises an error below 0
+	#   see        Skew, Verify
 	def SetSkew(pnSteps)
 		This.SetSkewQ(pnSteps)
 
@@ -95,7 +154,14 @@ class stzTotp from stzObject
 		@nSkew = pnSteps
 		return This
 
-	# 1 = SHA1 (default, universal app support), 2 = SHA256.
+	# Chooses the hash that makes the codes.
+	#
+	#   pnAlgo     1 for SHA1, the default every app supports, or 2 for SHA256
+	#   returns    nothing; use SetAlgoQ to chain
+	#   note       SHA256 works only with apps that honour the algorithm parameter
+	#   warning    raises an error for any other number
+	#   see        Algo, AlgorithmName
+	#@ aka  1 = SHA1 (default, universal app support), 2 = SHA256.
 	def SetAlgo(pnAlgo)
 		This.SetAlgoQ(pnAlgo)
 
@@ -106,32 +172,63 @@ class stzTotp from stzObject
 		@nAlgo = pnAlgo
 		return This
 
-	  #-- read-out (data methods) -----------------------------------------
-
+	# Returns the shared secret in base32, unpadded and in upper case.
+	#
+	#   returns    a text
+	#   note       it is the whole secret: keep it out of logs and screens
+	#   see        SetSecret, ProvisioningUri
+	#@ aka  -- read-out (data methods) -----------------------------------------
 	def Secret()
 		return @cSecret
 
+	# Returns the number of digits in a code.
+	#
+	#   returns    a number
+	#   see        SetDigits
 	def Digits()
 		return @nDigits
 
+	# Returns the length of a step in seconds.
+	#
+	#   returns    a number
+	#   see        SetPeriod
 	def Period()
 		return @nPeriod
 
+	# Returns the number of steps of clock drift Verify tolerates.
+	#
+	#   returns    a number
+	#   see        SetSkew
 	def Skew()
 		return @nSkew
 
+	# Returns the hash number: 1 for SHA1, 2 for SHA256.
+	#
+	#   returns    a number
+	#   see        SetAlgo, AlgorithmName
 	def Algo()
 		return @nAlgo
 
+	# Returns the name of the hash in use, as the provisioning address spells it.
+	#
+	#   returns    the text SHA1 or SHA256
+	#   see        Algo
 	def AlgorithmName()
 		if @nAlgo = 2
 			return "SHA256"
 		ok
 		return "SHA1"
 
-	# the otpauth:// URI an authenticator app consumes (usually via a QR code).
-	# LABEL is issuer:account; the issuer is repeated as a query parameter, per
-	# the Key-Uri spec, so apps that read either place show the right name.
+	# Returns the otpauth address that an authenticator app reads, usually from a QR code, with the secret, issuer, algorithm, digits and period.
+	#
+	#   pcAccount   the account name shown in the app
+	#   pcIssuer    the service name shown in the app
+	#   returns     a text starting with otpauth://totp/
+	#   note        the account and the issuer are percent-encoded, so quotes, angle brackets and
+	#               ampersands cannot add parameters; the address holds the secret, so show it once,
+	#               to its owner
+	#   see         Secret, Show
+	#@ aka  the otpauth:// URI an authenticator app consumes (usually via a QR code). LABEL is issuer:account; the issuer is repeated as a query parameter, per the Key-Uri spec, so apps that read either place show the right name.
 	def ProvisioningUri(pcAccount, pcIssuer)
 		_label_ = This._UriEnc("" + pcIssuer) + ":" + This._UriEnc("" + pcAccount)
 		return "otpauth://totp/" + _label_ +
@@ -141,22 +238,46 @@ class stzTotp from stzObject
 		       "&digits=" + @nDigits +
 		       "&period=" + @nPeriod
 
-	  #-- codes -----------------------------------------------------------
-
-	# the code valid at an explicit wall-clock instant (epoch seconds).
+	# Returns the code valid at an instant, computed in the engine from the secret by RFC 6238.
+	#
+	#   pnUnixSecs   the instant in epoch seconds
+	#   returns      a text of the configured digits; empty when the secret is empty or invalid
+	#   note         the RFC 6238 test secret gives 94287082 at second 59 with 8 digits
+	#   see          Code, VerifyAt
+	#@ aka  -- codes -----------------------------------------------------------
 	def CodeAt(pnUnixSecs)
 		_counter_ = floor(pnUnixSecs / @nPeriod)
 		return StzEngineCryptoTotp(This._Base32ToHex(@cSecret), _counter_, @nDigits, @nAlgo)
 
-	# the code valid right now.
+	# Returns the code valid now.
+	#
+	#   returns    a text of the configured digits
+	#   see        CodeAt, Verify
+	#@ aka  the code valid right now.
 	def Code()
 		return This.CodeAt(This._NowSecs())
 
-	# verify a submitted code against now, tolerating +/- @nSkew steps of drift.
+	# TRUE if a submitted code matches the current step or one within the skew.
+	#
+	#   pcCode     the code typed by the user
+	#   returns    TRUE or FALSE
+	#   note       the comparison is constant-time; a code is not consumed, so the same code
+	#              verifies again until its step leaves the window: remember the last accepted step
+	#              to refuse a reuse
+	#   see        VerifyAt, Code
+	#@ aka  verify a submitted code against now, tolerating +/- @nSkew steps of drift.
 	def Verify(pcCode)
 		return This.VerifyAt(pcCode, This._NowSecs())
 
-	# deterministic verify against an explicit instant (for tests + the auth layer).
+	# TRUE if a submitted code matches the step of an instant, or one within the skew; the deterministic form.
+	#
+	#   pcCode       the code typed by the user, trimmed
+	#   pnUnixSecs   the instant to judge at, in epoch seconds
+	#   returns      TRUE or FALSE
+	#   note         an empty, non-numeric or wrong-length code gives FALSE; the same code verifies
+	#                repeatedly within the window
+	#   see          Verify, CodeAt
+	#@ aka  deterministic verify against an explicit instant (for tests + the auth layer).
 	def VerifyAt(pcCode, pnUnixSecs)
 		_sub_ = ring_trim("" + pcCode)
 		if _sub_ = ""
@@ -174,6 +295,12 @@ class stzTotp from stzObject
 		end
 		return 0
 
+	# Prints one line with the algorithm, digits, period and the shared secret in clear.
+	#
+	#   returns    nothing; it prints
+	#   note       do not call it in a log or a shared terminal
+	#   warning    the output contains the secret itself
+	#   see        ProvisioningUri
 	def Show()
 		? "stzTotp(" + This.AlgorithmName() + ", " + @nDigits + " digits, " +
 		  @nPeriod + "s) secret=" + @cSecret

@@ -1,0 +1,27 @@
+{
+ "brief": "Draws a graph so that what each node looks like is computed from the graph's own shape, its impact, depth or degree.",
+ "detail": "SizeBy and ColorBy bind to properties the graph computes about itself, not to attributes set by hand: :Impact is how many nodes fail downstream if this one does, :Depth is the layer, :Degree the edge count. A node is big because it is important, and it is important because of the graph's shape. Layouts are hierarchical (longest-path layers with a crossing-reducing sweep, the default), force, ring, modes, sequence and mesh, and the raw coordinates are fitted into the canvas with a margin. ToCanvas answers a stzCanvas, so ToSVG works with no device and ToPNG goes through the graphics device without opening a window. The metrics are computed in the engine.",
+ "receiver": "oG = new stzGraph(\"supply\")\noG.AddNodes([ \"mine\", \"smelt\", \"chip\", \"car\", \"wheel\" ])\noG.AddEdge(\"mine\", \"smelt\")\noG.AddEdge(\"smelt\", \"chip\")\noG.AddEdge(\"chip\", \"car\")\noG.AddEdge(\"wheel\", \"car\")\noG.AddEdge(\"smelt\", \"wheel\")\no1 = new stzGraphCanvas(oG, [ :SizeBy = :Impact, :ColorBy = :Impact, :Width = 400, :Height = 300 ])",
+ "example": [
+  "? @@( o1.MetricValues(:Impact) )",
+  "#--> [ 4, 3, 1, 0, 1 ]",
+  "? @@( o1.MetricValues(:Depth) )",
+  "#--> [ 0, 1, 2, 3, 2 ]",
+  "? o1.LayerCount()",
+  "#--> 4",
+  "? o1.Width()",
+  "#--> 400",
+  "? @@( o1.Positions()[1] )",
+  "#--> [ \"mine\", 200, 70 ]",
+  "? left(o1.ToSVG(), 4)",
+  "#--> <svg",
+  "o1.SetSize(200, 150)",
+  "? o1.Height()",
+  "#--> 150"
+ ],
+ "see": [
+  "stzGraph",
+  "stzCanvas",
+  "stzDiagram"
+ ]
+}

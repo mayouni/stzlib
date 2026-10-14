@@ -1,0 +1,19 @@
+{
+ "brief": "Admits or refuses requests per key with one engine token bucket each, so short bursts pass and the sustained rate stays capped.",
+ "detail": "Give each key a rate and a burst with SetLimit, then ask Allow before serving a request. A key with no limit is unlimited. Block and BlockFor shut a key out whatever its bucket holds; refusals are noted in the refusal ledger. Where stzRetryBudget caps the retries of one workload, this class caps the request rate of many independent keys. Destroy frees the engine buckets.",
+ "receiver": "o1 = new stzRateLimiter(\"api\")\no1.SetLimit(\"alice\", 2, 3)",
+ "example": [
+  "? o1.Allow(\"alice\")",
+  "#--> 1",
+  "? o1.AllowN(\"alice\", 2)",
+  "#--> 1",
+  "? o1.Allow(\"alice\")",
+  "#--> 0",
+  "? o1.RejectedCount(\"alice\")",
+  "#--> 1",
+  "? o1.Allow(\"bob\")",
+  "#--> 1",
+  "o1.Destroy()"
+ ],
+ "see": ["stzRetryBudget", "stzLatencyHistogram"]
+}

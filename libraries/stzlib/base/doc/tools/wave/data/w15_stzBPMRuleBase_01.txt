@@ -1,0 +1,1 @@
+init | Builds the set of four business-process best-practice rules, in the BPM Best Practices set. | nothing; the object is built | | stzWorkflow, stzSLARuleBase | | the rules are bpm_no_orphans, bpm_single_start, bpm_decision_branches and bpm_assignment_required, all of severity error; Check(oWorkflow) answers the findings

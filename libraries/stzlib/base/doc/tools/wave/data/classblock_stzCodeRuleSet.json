@@ -1,0 +1,18 @@
+{
+ "brief": "Holds the house rules of the library that a code graph can check, as one graph rule set in the code domain.",
+ "detail": "Five rules are loaded: no-len-method, no-aggressive-verbs, engine-first, q-has-plain-twin and no-case-collision. The sixth house rule, q-returns-object, needs a model of return statements that the code graph does not have, so StzCheckCode runs it as a text pass and merges the findings. The project set adds no-dead-code, and the deep set adds the slow no-cyclic-calls.",
+ "receiver": "o1 = new stzCodeRuleSet()",
+ "example": [
+  "? o1.Name()",
+  "#--> softanza-house-rules",
+  "? o1.NumberOfRules()",
+  "#--> 5",
+  "? o1.RuleNames()[1]",
+  "#--> no-len-method"
+ ],
+ "see": [
+  "stzCodeProjectRuleSet",
+  "stzCodeDeepRuleSet",
+  "stzCodeRule"
+ ]
+}

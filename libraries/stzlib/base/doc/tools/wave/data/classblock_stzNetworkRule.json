@@ -1,0 +1,16 @@
+{
+ "brief": "Holds one rule about a network topology, a stzGraphRule that belongs to the network domain.",
+ "detail": "The five built-in network rules are stzNetworkRule objects made by stzNetworkRuleSet: every_device_is_linked, addresses_are_unique, address_in_its_subnet, switches_form_no_loop and the_edge_is_guarded. Build one yourself with a name, set its severity, message and checker like any stzGraphRule, and add it to a stzNetworkRuleSet.",
+ "receiver": "o1 = new stzNetworkRule(\"every_switch_named\")",
+ "example": [
+  "? o1.Name()",
+  "#--> every_switch_named",
+  "? o1.Domain()",
+  "#--> network"
+ ],
+ "see": [
+  "stzGraphRule",
+  "stzNetworkRuleSet",
+  "stzNetworkDiagram"
+ ]
+}

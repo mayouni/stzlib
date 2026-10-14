@@ -27,13 +27,54 @@ func StzSecurityRuleQ(pcName)
 func StzSecurityRuleSetQ()
 	return new stzSecurityRuleSet()
 
+# Holds one security invariant over a security graph as a declared rule, in the security domain.
+#
+# A security rule is a stzGraphRule whose domain is security. Unlike the posture checks, which look
+# at one node, these rules run over a whole stzSecurityGraph and see paths, such as an actor that
+# can reach a capability through a tool or a delegate. The library's rules are declared in
+# stzSecurityRuleSet.
+#
+#   receiver   o1 = new stzSecurityRule("sandboxed-reaches-effectful")
+#   example    ? o1.Name()
+#              #--> sandboxed-reaches-effectful
+#              ? o1.Domain()
+#              #--> security
+#   see        stzSecurityRuleSet, stzGraphRule, stzSecurityGraph
 class stzSecurityRule from stzGraphRule
+	# Builds a security rule of that name in the security domain; it is a graph rule over a security graph.
+	#
+	#   pcName     the rule's name
+	#   returns    nothing; the object is built
+	#   see        stzSecurityRuleSet, stzGraphRule
 	def init(pcName)
 		super.init(pcName)
 		This.SetDomainQ("security")
 
 
+# Holds the security invariants that see paths in a security graph, so an escalation by any route is caught, not only a direct grant.
+#
+# Three rules are loaded. sandboxed-reaches-effectful finds a sandboxed actor that can reach the
+# effectful capability by any path, though it holds none itself. sandboxed-holds-secret finds a
+# sandboxed actor attached to a live secret. unstored-secret finds a secret that a site references
+# but that lives in no store, so its reveals are unaudited. Each rule governs only the nodes it is
+# about, so a clean report can tell no sandboxed actor can reach an effect from there is no
+# sandboxed actor.
+#
+#   receiver   o1 = new stzSecurityRuleSet()
+#   example    ? o1.Name()
+#              #--> security-invariants
+#              ? o1.NumberOfRules()
+#              #--> 3
+#              ? o1.RuleNames()[1]
+#              #--> sandboxed-reaches-effectful
+#   see        stzSecurityRule, stzSecurityGraph, stzSecurityPosture
 class stzSecurityRuleSet from stzGraphRuleSet
+	# Builds the security-invariants rule set, already loaded with its three rules.
+	#
+	#   returns    nothing; the object is built
+	#   note       the rules are sandboxed-reaches-effectful, sandboxed-holds-secret and unstored-
+	#              secret
+	#   see        stzSecurityRule, stzGraphRuleSet
 	def init()
 		super.init("security-invariants")
 		This.SetDomainQ("security")

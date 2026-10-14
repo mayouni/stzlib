@@ -28,28 +28,61 @@
 func StzRateLimiter(pcName)
 	return new stzRateLimiter(pcName)
 
+# Admits or refuses requests per key with one engine token bucket each, so short bursts pass and the sustained rate stays capped.
+#
+# Give each key a rate and a burst with SetLimit, then ask Allow before serving a request. A key
+# with no limit is unlimited. Block and BlockFor shut a key out whatever its bucket holds; refusals
+# are noted in the refusal ledger. Where stzRetryBudget caps the retries of one workload, this class
+# caps the request rate of many independent keys. Destroy frees the engine buckets.
+#
+#   receiver   o1 = new stzRateLimiter("api") o1.SetLimit("alice", 2, 3)
+#   example    ? o1.Allow("alice")
+#              #--> 1
+#              ? o1.AllowN("alice", 2)
+#              #--> 1
+#              ? o1.Allow("alice")
+#              #--> 0
+#              ? o1.RejectedCount("alice")
+#              #--> 1
+#              ? o1.Allow("bob")
+#              #--> 1
+#              o1.Destroy()
+#   see        stzRetryBudget, stzLatencyHistogram
 class stzRateLimiter from stzObject
 
 	@cName = ""
 	@aBuckets = []   # [ key, burst, ratePerSec, pHandle, nAllowed, nRejected ]
 	@aBlocked = []   # [ key, reason, untilWallMs (0 = until Unblock), nRefused ]
 
+	# Creates an empty rate limiter with a name, ready to receive one limit per key.
+	#
+	#   pcName     the limiter's name, used in reports and refusal notes
+	#   returns    nothing; the object is built
+	#   see        SetLimit, Name_
 	def init(pcName)
 		@cName = "" + pcName
 		@aBuckets = []
 		@aBlocked = []
 
-	#-- BLOCKING a source (containment's :ShedSource) ------------------------
+	# Blocks a key until it is unblocked, whatever its bucket holds, and notes the refusal reason.
 	#
-	# A limit SLOWS a key; a block STOPS it. A blocked key is refused by
-	# Allow() whether or not it has a limit -- an unconfigured key is
-	# otherwise unlimited, which is exactly the flood a responder must stop.
-	# Every refusal is recorded with the block's reason. A block made with
-	# BlockFor lifts by itself when its time is up; Block holds until Unblock.
-
+	#   pcKey      the key to block, matched without regard to case
+	#   pcReason   why it is blocked, kept for BlockOf and the refusal note
+	#   returns    the limiter itself, so calls chain
+	#   warning    blocking a key again replaces the earlier block and resets its refused count
+	#   see        BlockFor, Unblock, IsBlocked
+	#@ aka  -- BLOCKING a source (containment's :ShedSource) ------------------------
 	def Block(pcKey, pcReason)
 		return This.BlockFor(pcKey, pcReason, 0)
 
+	# Blocks a key for a number of milliseconds, after which the block lifts by itself; 0 or less blocks it without end.
+	#
+	#   pcKey      the key to block, matched without regard to case
+	#   pcReason   why it is blocked
+	#   pnMs       how long the block lasts, in milliseconds
+	#   returns    the limiter itself, so calls chain
+	#   warning    the end of the block is stored as wall-clock epoch milliseconds
+	#   see        Block, Unblock, BlockOf
 	def BlockFor(pcKey, pcReason, pnMs)
 		_cK_ = StzLower("" + pcKey)
 		This.Unblock(_cK_)
@@ -59,6 +92,13 @@ class stzRateLimiter from stzObject
 		StzNoteRefusal("ratelimit.blocked", _cK_, "ratelimit:" + @cName + "/" + _cK_, "" + pcReason)
 		return This
 
+	# Lifts the block on a key; a key that is not blocked changes nothing.
+	#
+	#   pcKey      the key to unblock, matched without regard to case
+	#   returns    the limiter itself, so calls chain
+	#   warning    the bucket keeps whatever it held, so a key blocked for a long time may be
+	#              refused right after
+	#   see        Block, IsBlocked
 	def Unblock(pcKey)
 		_cK_ = StzLower("" + pcKey)
 		_aNew_ = []
@@ -71,15 +111,31 @@ class stzRateLimiter from stzObject
 		@aBlocked = _aNew_
 		return This
 
+	# TRUE if the key is blocked now.
+	#
+	#   pcKey      the key to test, matched without regard to case
+	#   returns    TRUE or FALSE
+	#   see        Block, BlockOf
 	def IsBlocked(pcKey)
 		return This._BlockIndex(StzLower("" + pcKey)) > 0
 
-	# [ :reason, :until, :refused ] or [] when the key is not blocked
+	# Returns the block on a key as [ :reason, :until, :refused ], or an empty list when it is not blocked.
+	#
+	#   pcKey      the key to look up, matched without regard to case
+	#   returns    a hashlist; [ ] when not blocked
+	#   warning    :until is 0 for a block without end, else epoch milliseconds; :refused counts the
+	#              Allow calls the block turned away
+	#   see        Block, BlockFor
+	#@ aka  [ :reason, :until, :refused ] or [] when the key is not blocked
 	def BlockOf(pcKey)
 		_i_ = This._BlockIndex(StzLower("" + pcKey))
 		if _i_ = 0  return []  ok
 		return [ :reason = @aBlocked[_i_][2], :until = @aBlocked[_i_][3], :refused = @aBlocked[_i_][4] ]
 
+	# Returns the keys that are blocked now, lower-cased, after dropping the blocks whose time has run out.
+	#
+	#   returns    a list of texts
+	#   see        BlockOf, Block
 	def BlockedKeys()
 		This._ExpireBlocks()
 		_a_ = []
@@ -109,14 +165,24 @@ class stzRateLimiter from stzObject
 		next
 		return 0
 
+	# Returns the name the limiter was created with.
+	#
+	#   returns    a text
+	#   see        init
 	def Name_()
 		return @cName
 
-	#-- configuring a key --------------------------------------------------
-
-	# Opt a key into rate limiting: nRatePerSec sustained, nBurst bucket
-	# capacity (max tokens = the largest instantaneous burst allowed).
-	# Re-configuring a key replaces its bucket.
+	# Gives a key its own token bucket: it holds nBurst tokens and refills at nRatePerSec tokens a second.
+	#
+	#   pcKey         the key to limit, matched without regard to case
+	#   nRatePerSec   the sustained rate, in tokens a second
+	#   nBurst        the bucket size, the most tokens that can be spent at once
+	#   returns       the limiter itself, so calls chain
+	#   note          a key with no limit is unlimited
+	#   warning       a rate or burst below 1 is raised to 1; setting a key again replaces its
+	#                 bucket, which starts full
+	#   see           Allow, RateOf, BurstOf
+	#@ aka  -- configuring a key --------------------------------------------------
 	def SetLimit(pcKey, nRatePerSec, nBurst)
 		_cK_ = StzLower("" + pcKey)
 		if nBurst < 1  nBurst = 1  ok
@@ -133,9 +199,18 @@ class stzRateLimiter from stzObject
 		              StzEngineRateCreate(nBurst, nRatePerSec), 0, 0 ]
 		return This
 
+	# TRUE if the key has a bucket.
+	#
+	#   pcKey      the key to test, matched without regard to case
+	#   returns    TRUE or FALSE
+	#   see        SetLimit, Keys
 	def HasLimit(pcKey)
 		return This._IndexOf(StzLower("" + pcKey)) > 0
 
+	# Returns the keys that have a bucket, lower-cased, in the order they were set.
+	#
+	#   returns    a list of texts
+	#   see        HasLimit, SetLimit
 	def Keys()
 		_a_ = []
 		_n_ = len(@aBuckets)
@@ -144,16 +219,25 @@ class stzRateLimiter from stzObject
 		next
 		return _a_
 
-	#-- the gate -----------------------------------------------------------
-
-	# Try to admit ONE request for a key. An unconfigured key is UNLIMITED
-	# (always TRUE). A configured key takes a token: TRUE while the bucket
-	# has one, FALSE (rate limited) once spent, recovering as it refills.
+	# Takes one token from the key's bucket and answers whether the request may go ahead.
+	#
+	#   pcKey      the key making the request, matched without regard to case
+	#   returns    TRUE or FALSE
+	#   warning    a key with no limit is always allowed; a blocked key is always refused, and its
+	#              refusal is counted on the block and not in RejectedCount
+	#   see        AllowN, Available, Block
+	#@ aka  -- the gate -----------------------------------------------------------
 	def Allow(pcKey)
 		return This.AllowN(pcKey, 1)
 
-	# Admit n at once (all-or-nothing). Counts one allowed / one rejected
-	# DECISION regardless of n.
+	# Takes n tokens from the key's bucket at once and answers whether the request may go ahead.
+	#
+	#   pcKey      the key making the request, matched without regard to case
+	#   n          how many tokens the request costs
+	#   returns    TRUE or FALSE
+	#   warning    n of 0 is always allowed; a refused request takes nothing from the bucket
+	#   see        Allow, Available
+	#@ aka  Admit n at once (all-or-nothing). Counts one allowed / one rejected DECISION regardless of n.
 	def AllowN(pcKey, n)
 		_cK_ = StzLower("" + pcKey)
 		# a BLOCKED key is refused before any bucket is consulted
@@ -180,35 +264,65 @@ class stzRateLimiter from stzObject
 			"the token bucket had no tokens left for this key")
 		return 0
 
-	#-- metrics ------------------------------------------------------------
-
-	# Tokens currently available for a key (a float; refills continuously).
-	# Returns -1 for an unconfigured (unlimited) key.
+	# Returns how many tokens are left in the key's bucket, as a decimal, or -1 for a key with no limit.
+	#
+	#   pcKey      the key to read, matched without regard to case
+	#   returns    a number
+	#   warning    the bucket refills continuously, so a reading just after a spend is already a
+	#              little above the exact remainder
+	#   see        Allow, SetLimit
+	#@ aka  -- metrics ------------------------------------------------------------
 	def Available(pcKey)
 		_i_ = This._IndexOf(StzLower("" + pcKey))
 		if _i_ = 0  return -1  ok
 		return StzEngineRateAvailable(@aBuckets[_i_][4])
 
+	# Returns how many tokens were granted to the key so far; 0 for an unknown key.
+	#
+	#   pcKey      the key to read, matched without regard to case
+	#   returns    a number
+	#   warning    it counts tokens, not calls: AllowN(key, 2) adds 2
+	#   see        RejectedCount, AllowN
 	def AllowedCount(pcKey)
 		_i_ = This._IndexOf(StzLower("" + pcKey))
 		if _i_ = 0  return 0  ok
 		return @aBuckets[_i_][5]
 
+	# Returns how many requests the key's bucket refused so far; 0 for an unknown key.
+	#
+	#   pcKey      the key to read, matched without regard to case
+	#   returns    a number
+	#   warning    requests turned away by a block are not counted here
+	#   see        AllowedCount, BlockOf
 	def RejectedCount(pcKey)
 		_i_ = This._IndexOf(StzLower("" + pcKey))
 		if _i_ = 0  return 0  ok
 		return @aBuckets[_i_][6]
 
+	# Returns the key's sustained rate in tokens a second; 0 for a key with no limit.
+	#
+	#   pcKey      the key to read, matched without regard to case
+	#   returns    a number
+	#   see        BurstOf, SetLimit
 	def RateOf(pcKey)
 		_i_ = This._IndexOf(StzLower("" + pcKey))
 		if _i_ = 0  return 0  ok
 		return @aBuckets[_i_][3]
 
+	# Returns the key's bucket size; 0 for a key with no limit.
+	#
+	#   pcKey      the key to read, matched without regard to case
+	#   returns    a number
+	#   see        RateOf, SetLimit
 	def BurstOf(pcKey)
 		_i_ = This._IndexOf(StzLower("" + pcKey))
 		if _i_ = 0  return 0  ok
 		return @aBuckets[_i_][2]
 
+	# Returns a few lines of text that describe each limited key with its rate, burst and counts.
+	#
+	#   returns    a text
+	#   see        Keys, AllowedCount
 	def Narrate()
 		_cR_ = "rate limiter " + @cName + " [" + len(@aBuckets) + " key(s)]:"
 		_n_ = len(@aBuckets)
@@ -219,8 +333,12 @@ class stzRateLimiter from stzObject
 		next
 		return _cR_
 
-	#-- teardown (engine buckets hold native handles) ----------------------
-
+	# Frees the engine buckets of every key and forgets the limits.
+	#
+	#   returns    the limiter itself, so calls chain
+	#   warning    the blocks are kept
+	#   see        SetLimit
+	#@ aka  -- teardown (engine buckets hold native handles) ----------------------
 	def Destroy()
 		_n_ = len(@aBuckets)
 		for _i_ = 1 to _n_

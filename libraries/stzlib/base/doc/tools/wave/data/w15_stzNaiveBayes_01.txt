@@ -1,0 +1,7 @@
+init | Builds an empty multinomial naive Bayes text classifier whose model lives in the engine. | nothing; the object is built | | Train, Classify
+Train | Adds one labelled text to the model, counting its words under the label. | the classifier itself, so calls chain | pcText=the document; pcLabel=its class, trimmed and folded to lower case | Classify, Labels | | words are found by Unicode word segmentation and folded to lower case, so Hebrew, Arabic and CJK text work; an empty label is accepted as a label of its own
+Labels | Returns the labels seen so far, in the order they were first trained. | a list of text in lower case; empty before any Train | | Train, NumberOfDocuments
+NumberOfDocuments | Returns how many texts were trained. | a number | | Train, VocabularySize
+VocabularySize | Returns how many distinct words the model has seen. | a number | | NumberOfDocuments
+Classify | Returns the label whose Laplace-smoothed log-score is highest for a text. | a text, the best label | pcText=the text to classify | Why, Train | raises an error telling to train first | a tie goes to the label trained first; a text of unseen words is decided by the label priors alone
+Why | Returns the log-score of every label for the last text and the best one. | a text such as log-scores: 'positive' -9.00, 'negative' -11.93 -- best: 'positive'; empty before the first Classify | | Classify

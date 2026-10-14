@@ -39,6 +39,32 @@
 func StzPerfPlan(pcName)
 	return new stzPerfPlan(pcName)
 
+# Holds a performance tuning plan as proposed actions that only an effectful actor may commit, with every outcome audited.
+#
+# Optimization crosses reality: scaling a fleet, draining workers, healing the dead. Expression is
+# free and admission is governed. The plan's catalog is closed: ScaleUp, ScaleDown and RestartDead,
+# each mapping to one verb on the target. An actor whose effects are empty, such as an inference-
+# only LLMActor, can build the plan, explain it and hand it over, but ExecuteOn refuses it wholesale
+# and audits each refusal; a HumanActor commits. MayCommit answers admissibility before any attempt.
+# The audit trail holds [ n, verdict, action, tag, actor, why ] for every outcome, so refusals are
+# never silent.
+#
+#   receiver   o1 = StzPerfPlan("relieve-nlp") o1.Propose(:ScaleUp, "nlp", "measured load 0.92 >
+#              high-water 0.75") o1.Propose(:RestartDead, "nlp", "2 dead workers") oAdvisor =
+#              LLMActor("advisor") oChief = HumanActor("mansour")
+#   example    ? o1.NumberOfActions()
+#              #--> 2
+#              ? o1.Actions()[1][1]
+#              #--> scaleup
+#              ? o1.MayCommit(oAdvisor)
+#              #--> 0
+#              ? o1.MayCommit(oChief)
+#              #--> 1
+#              ? o1.WasExecuted()
+#              #--> 0
+#              ? o1.Explain()[1]
+#              #--> Perf plan relieve-nlp -- 2 proposed action(s).
+#   see        stzAppCluster, stzSla, stzPerfSentinel
 class stzPerfPlan from stzObject
 
 	@cName = ""
@@ -46,14 +72,34 @@ class stzPerfPlan from stzObject
 	@aAudit = []		# [ n, verdict, kind, tag, actor, why ]
 	@bExecuted = 0
 
+	# Builds an empty plan of tuning actions under a name.
+	#
+	#   pcName     the name of the plan
+	#   returns    nothing; the object is built
+	#   note       StzPerfPlan builds the same object; building and explaining a plan is free, only
+	#              committing it is governed
+	#   see        Propose, ExecuteOn
 	def init(pcName)
 		@cName = "" + pcName
 
+	# Returns the name the plan was built with.
+	#
+	#   returns    the name as text
+	#   see        Explain
 	def Name()
 		return @cName
 
-	# -- Proposing (expression is free) ---------------------------
-
+	# Adds one action to the plan, with the reason for it; nothing is executed.
+	#
+	#   pcAction      ScaleUp, ScaleDown or RestartDead, in any letter case
+	#   pcTag         the tag of the part of the fleet it concerns, kept in lower case
+	#   pcRationale   why, as a sentence, kept in the audit
+	#   returns       the plan itself, so calls chain
+	#   note          the action is stored in lower case, such as scaleup
+	#   warning       an action outside the closed catalog, such as Reboot, raises error
+	#                 stzPerfPlan: unknown action ... The catalog is closed
+	#   see           Actions, ExecuteOn
+	#@ aka  -- Proposing (expression is free) ---------------------------
 	def Propose(pcAction, pcTag, pcRationale)
 		_cK_ = StzLower("" + pcAction)
 		if _cK_ != "scaleup" and _cK_ != "scaledown" and _cK_ != "restartdead"
@@ -63,17 +109,28 @@ class stzPerfPlan from stzObject
 		@aActions + [ _cK_, StzLower("" + pcTag), "" + pcRationale ]
 		return This
 
+	# Returns the proposed actions in order.
+	#
+	#   returns    a list of [ action, tag, rationale ]
+	#   see        Propose, NumberOfActions
 	def Actions()
 		return @aActions
 
+	# Returns how many actions the plan holds.
+	#
+	#   returns    a number
+	#   see        Actions, Propose
 	def NumberOfActions()
 		return ring_len(@aActions)
 
-	# -- Preflight ------------------------------------------------
-
-	# May this actor commit this plan? Answered BEFORE any attempt:
-	# admission demands the effectful capability, and a sandboxed
-	# posture never crosses (the LLMActor doctrine).
+	# TRUE if an actor is admitted to commit the plan, asked before any attempt.
+	#
+	#   poActor    the actor, such as LLMActor or HumanActor
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   note       an actor that is not effectful, or whose posture is sandboxed, is refused, so an
+	#              inference-only advisor may build and explain a plan but never commit it
+	#   see        ExecuteOn, AuditTrail
+	#@ aka  -- Preflight ------------------------------------------------
 	def MayCommit(poActor)
 		if NOT poActor.IsEffectful()
 			return 0
@@ -83,13 +140,18 @@ class stzPerfPlan from stzObject
 		ok
 		return 1
 
-	# -- The crossing (admission is governed) ---------------------
-
-	# Apply the plan to the target -- a stzAppCluster, or any object
-	# answering ScaleUp(tag)/ScaleDown(tag)/RestartDead() (a double in
-	# rehearsal, per the service-virtualization pattern). Returns the
-	# number of actions committed; 0 with a full refusal audit when
-	# the actor may not commit.
+	# Applies the plan to a target when the actor may commit it, and audits every action as committed or refused.
+	#
+	#   poTarget   a stzAppCluster or any object answering ScaleUp(tag), ScaleDown(tag) and
+	#              RestartDead()
+	#   poActor    the actor asking to commit
+	#   returns    the number of actions committed; 0 when the actor was refused, with one refused
+	#              line for each action in the audit
+	#   note       a RestartDead heals every dead worker in one call, and a second RestartDead in
+	#              the same plan is counted as committed without calling the target again; refused
+	#              attempts stay in the trail beside later committed ones
+	#   see        MayCommit, AuditTrail, WasExecuted
+	#@ aka  -- The crossing (admission is governed) ---------------------
 	def ExecuteOn(poTarget, poActor)
 		_cActor_ = poActor.Name()
 		if NOT This.MayCommit(poActor)
@@ -129,20 +191,44 @@ class stzPerfPlan from stzObject
 		@bExecuted = 1
 		return _nDone_
 
+	# TRUE if the plan was committed at least once.
+	#
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   note       a refusal does not set it
+	#   see        ExecuteOn, CommittedCount
 	def WasExecuted()
 		return @bExecuted
 
+	# Returns every outcome so far, refusals included.
+	#
+	#   returns    a list of [ n, verdict, action, tag, actor name, why ], verdict being committed
+	#              or refused, n the action's position in the plan; [ ] before any attempt
+	#   note       a refusal says the actor is not effectful or sandboxed and that expression is
+	#              free while admission is governed
+	#   see        RefusedCount, CommittedCount
 	def AuditTrail()
 		return @aAudit
 
+	# Returns how many audit lines are refusals.
+	#
+	#   returns    a number
+	#   note       an attempt by a refused actor adds one for each action in the plan
+	#   see        CommittedCount, AuditTrail
 	def RefusedCount()
 		return This._CountVerdict("refused")
 
+	# Returns how many audit lines are commits.
+	#
+	#   returns    a number
+	#   see        RefusedCount, AuditTrail
 	def CommittedCount()
 		return This._CountVerdict("committed")
 
-	# -- Legibility -----------------------------------------------
-
+	# Returns the plan as lines of text: a header, each proposed action with its reason, then the audit if there is one.
+	#
+	#   returns    a list of text lines
+	#   see        Show, AuditTrail
+	#@ aka  -- Legibility -----------------------------------------------
 	def Explain()
 		_aL_ = []
 		_aL_ + ("Perf plan " + @cName + " -- " + ring_len(@aActions) + " proposed action(s).")
@@ -162,6 +248,11 @@ class stzPerfPlan from stzObject
 		ok
 		return _aL_
 
+	# Prints the explanation to the console, one line per line.
+	#
+	#   returns    nothing
+	#   note       it prints with the ? statement
+	#   see        Explain
 	def Show()
 		_aL_ = This.Explain()
 		_nL_ = ring_len(_aL_)

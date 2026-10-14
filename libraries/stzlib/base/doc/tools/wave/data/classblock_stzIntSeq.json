@@ -1,0 +1,16 @@
+{
+ "brief": "Wraps a sequence of integers held in the engine, so sums, extremes and counts are computed there without building a Ring list.",
+ "detail": "Obtain one from stzCounter.CountingQ. The sequence stays in the engine: Sum, Min, Max, At and CountValue read it directly, and ToList copies it out when a Ring list is needed. Positions count from 1. The object owns the engine sequence and Release frees it; Disown hands the ownership away.",
+ "receiver": "oC = new stzCounter([ :StartAt = 1, :WhenYouReach = 4, :RestartAt = 0 ])\no1 = oC.CountingQ(10)",
+ "example": [
+  "? o1.NumberOfItems()",
+  "#--> 10",
+  "? o1.Sum()",
+  "#--> 15",
+  "? o1.CountValue(0)",
+  "#--> 2",
+  "? @@( o1.ToList() )",
+  "#--> [ 1, 2, 3, 0, 1, 2, 3, 0, 1, 2 ]"
+ ],
+ "see": ["stzCounter"]
+}

@@ -1,0 +1,14 @@
+{
+ "brief": "Declares a whole node topology as data, then runs it as real supervised processes on one machine or moves a node to another host.",
+ "detail": "Node() makes a node current and the fluent calls On, Requires, Boot, AtHost, AtPort and InboxOf apply to it. A handler is a Ring code string, because code-as-data can cross an OS-process boundary where a closure cannot. Describe() returns the declaration as plain lists and StzNodeAppFromDescription rebuilds an identical app from it. RunLocal starts every node as a child process under a stzNodeSupervisor, all on loopback; Deploy moves a node by changing one host. The declaration methods are pure data and were run; RunLocal, StopAll and the running case of Deploy start processes and open ports, and were not run.",
+ "receiver": "o1 = new stzNodeApp(\"shop\")\no1.Node(\"indexer\")\no1.On(\"embed\", \"return aMsg[2]\")\no1.AtPort(47001)",
+ "example": [
+  "? o1.Name_()",
+  "#--> shop",
+  "? @@( o1.Describe() )",
+  "#--> [ \"app\", \"shop\", [ [ \"node\", \"indexer\", \"\", 47001, [ [ \"embed\", \"return aMsg[2]\" ] ], [ ], 0, \"none\", \"\" ] ], [ ], [ 5, 30000 ] ]",
+  "? o1.RestartsOf(\"indexer\")",
+  "#--> -1"
+ ],
+ "see": ["stzNode", "stzNodeSupervisor", "stzNodeRegistry"]
+}

@@ -1,0 +1,24 @@
+{
+ "brief": "Holds a named colour theme as plain data, with every role resolved to hex, and exports it as CSS, JSON or a Ring list.",
+ "detail": "A theme fills in eight roles: primary, success, warning, danger, info, muted, neutral and background. Each role except background carries four steps, surface, border, solid and text, and the colour that reads best on its solid step. Tokens flattens the theme to 43 name and colour pairs and ToCSS, ToJSON and ToRing all write from that one list, so the exports cannot disagree. A misspelt theme raises an error rather than exporting wrong colours. The themes are neutral, light, dark, vibrant, pro, access, print, gray, lightgray and darkgray.",
+ "receiver": "o1 = new stzTheme(:pro)",
+ "example": [
+  "? o1.Name()",
+  "#--> pro",
+  "? o1.ColorOf(:Primary)",
+  "#--> #4D4DC9",
+  "? o1.StepOf(:Primary, :Surface)",
+  "#--> #EAEDFF",
+  "? len(o1.Tokens())",
+  "#--> 43",
+  "? o1.Tokens()[1][1]",
+  "#--> primary",
+  "? StzThemeTokenOf(StzThemeFromCSS(o1.ToCSS()), \"primary\")",
+  "#--> #4D4DC9"
+ ],
+ "see": [
+  "stzColor",
+  "stzCanvas",
+  "stzGraphCanvas"
+ ]
+}

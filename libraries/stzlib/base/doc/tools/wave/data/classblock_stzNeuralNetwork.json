@@ -1,0 +1,21 @@
+{
+ "brief": "Holds a small feed-forward network of dense layers, with seeded weights, forward prediction and a GGUF export.",
+ "detail": "A network is declared by its input width and grown layer by layer, each layer with relu, sigmoid, tanh, linear or softmax activation. The first weights come from a seeded generator, so the same seed and layers always give the same network. Predict runs the forward pass. Training is the job of stzTrainer, which learns in the engine and writes the layers back through AdoptLayers into this same object. ExportToGguf writes the parameters to a file.",
+ "receiver": "o1 = new stzNeuralNetwork([ :Inputs = 2 ])",
+ "example": [
+  "o1.SetSeed(7)",
+  "o1.AddDenseLayer(3, :Tanh)",
+  "o1.AddDenseLayer(1, :Sigmoid)",
+  "? o1.NumberOfLayers()",
+  "#--> 2",
+  "? o1.Layers()[1][1]",
+  "#--> 3",
+  "? len(o1.Predict([0.5, -0.5]))",
+  "#--> 1"
+ ],
+ "see": [
+  "stzTrainer",
+  "stzLogisticRegression",
+  "stzTrainingSet"
+ ]
+}

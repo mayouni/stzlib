@@ -48,6 +48,26 @@ func IsQ()
 func DoesQ()
 	return new stzQuestion("is")
 
+# Builds a question word by word and returns its answer as data when the first plain-form word closes it.
+#
+# A question is a frame: a force word opens it (WhatQ, HowManyQ, IsQ), articles and nouns fill its
+# slots, and the first closer without a Q (Of, Is, OrNot) computes the answer. A comparison opens
+# the right-hand side with TheSameAsQ, DifferentFromQ, MoreThanQ or LessThanQ. Nouns such as
+# FirstCharQ, VowelsQ or LengthQ are generated from the semantic lexicon and only record the aspect;
+# the computation happens at the closer, through the accountable dispatcher. Every answer is
+# certain, records its reason in Why() and joins the session ask-record. The frame has no stzObject
+# parent on purpose.
+#
+#   receiver   o1 = WhatQ()
+#   example    ? o1.TheQ().FirstCharQ().Of("Ring")
+#              #--> R
+#              ? HowManyQ().VowelsQ().Of("Ring")
+#              #--> 1
+#              ? IsQ().TheQ().LengthQ().OfQ("Ringo").MoreThanQ().TheQ().LengthQ().Of("Ruby")
+#              #--> 1
+#              ? Why()
+#              #--> yes: 5 is more than 4
+#   see        WhatQ, HowManyQ, IsQ, Why
 class stzQuestion
 
 	@cForce = ""       # what | howmany | is
@@ -63,6 +83,12 @@ class stzQuestion
 	@bRightSet = 0
 	@cWhy = ""
 
+	# Opens a question frame with its illocutionary force: what, howmany or is; the force is not validated.
+	#
+	#   pcForce    the force word: what for a wh-question, howmany for a count, is for a polar
+	#              comparison
+	#   returns    nothing; the object is built
+	#   see        WhatQ, HowManyQ, IsQ
 	def init(pcForce)
 		@cForce = pcForce
 
@@ -70,23 +96,32 @@ class stzQuestion
 	 #  GRAMMAR PARTICLES -- one word each, written once             #
 	#--------------------------------------------------------------#
 
+	# Adds the article the to the sentence and changes nothing, so a chain reads as English.
+	#
+	#   returns    the question itself, so the chain goes on
+	#   see        AQ, AnQ
 	def TheQ()
 		return This
 
+	# Adds the article a to the sentence and changes nothing, so a chain reads as English.
+	#
+	#   returns    the question itself, so the chain goes on
+	#   see        TheQ, AnQ
 	def AQ()
 		return This
 
+	# Adds the article an to the sentence and changes nothing, so a chain reads as English.
+	#
+	#   returns    the question itself, so the chain goes on
+	#   see        TheQ, AQ
 	def AnQ()
 		return This
 
-	# NO mid-chain IsQ() and NO NotQ() -- both were linguistically wrong
-	# (author's ruling): the sentence-initial IsQ() IS the fronted copula
-	# (subject-aux inversion), so a second one doubles it; and English
-	# negates comparisons with ANTONYM comparators (DifferentFromQ),
-	# predicates with negative FORMS (IsNot*/DoesNot*), and questions
-	# with the TAG ("..., or not?" -> OrNot()).
-
-	# "the NUMBER OF <noun>" as a constituent: count mode for this side
+	# Puts the current side of the question in count mode, as in the number of letters in ring.
+	#
+	#   returns    the question itself, so the chain goes on
+	#   see        HowManyQ, Of
+	#@ aka  NO mid-chain IsQ() and NO NotQ() -- both were linguistically wrong (author's ruling): the sentence-initial IsQ() IS the fronted copula (subject-aux inversion), so a second one doubles it; and English negates comparisons with ANTONYM comparators (DifferentFromQ), predicates with negative FORMS (IsNot*/DoesNot*), and questions with the TAG ("..., or not?" -> OrNot()).
 	def NumberOfQ()
 		if @nSide = 1
 			@bCount1 = 1
@@ -99,6 +134,10 @@ class stzQuestion
 	 #  COMPARATORS -- open the RIGHT constituent slot               #
 	#--------------------------------------------------------------#
 
+	# Opens the right-hand side of a comparison that asks whether the two aspects are equal.
+	#
+	#   returns    the question itself, so the chain goes on
+	#   see        DifferentFromQ, MoreThanQ, OrNot
 	def TheSameAsQ()
 		@cComparator = "same"
 		@nSide = 2
@@ -107,16 +146,28 @@ class stzQuestion
 		def SameAsQ()
 			return This.TheSameAsQ()
 
+	# Opens the right-hand side of a comparison that asks whether the two aspects differ, the way English negates a comparison.
+	#
+	#   returns    the question itself, so the chain goes on
+	#   see        TheSameAsQ, LessThanQ
 	def DifferentFromQ()
 		@cComparator = "different"
 		@nSide = 2
 		return This
 
+	# Opens the right-hand side of a comparison that asks whether the left aspect is greater than the right.
+	#
+	#   returns    the question itself, so the chain goes on
+	#   see        LessThanQ, TheSameAsQ
 	def MoreThanQ()
 		@cComparator = "more"
 		@nSide = 2
 		return This
 
+	# Opens the right-hand side of a comparison that asks whether the left aspect is smaller than the right.
+	#
+	#   returns    the question itself, so the chain goes on
+	#   see        MoreThanQ, TheSameAsQ
 	def LessThanQ()
 		@cComparator = "less"
 		@nSide = 2
@@ -156,7 +207,15 @@ class stzQuestion
 	 #  CLOSERS -- plain form: answer as DATA (the Q-convention)     #
 	#--------------------------------------------------------------#
 
-	# genitive, CLOSING form: supplies the last missing host and fires
+	# Closes the question with its last host and returns the answer as data; OfQ and InQ record the host and keep the frame open.
+	#
+	#   pHost      the value the aspect is taken of, such as Ring
+	#   returns    the answer: the value asked for, a count, or 1 or 0 for a comparison
+	#   note       on the right-hand side it supplies the second host; In and InQ are the locative
+	#              spelling
+	#   warning    raises when no aspect was named, such as FirstCharQ
+	#   see        OrNot, Is, Why
+	#@ aka  genitive, CLOSING form: supplies the last missing host and fires
 	def Of(pHost)
 		if @nSide = 2
 			return This._Answer(pHost)
@@ -169,9 +228,12 @@ class stzQuestion
 		def In(pHost)
 			return This.Of(pHost)
 
-	# the TAG-QUESTION closer: "Is X the same as Y, or not?" -- plain
-	# form (it returns the answer); the tag does not negate, it just
-	# closes the polar question (author's formulation)
+	# Closes a polar question with the tag or not; it does not negate, it answers the question already asked.
+	#
+	#   returns    the answer, 1 or 0 for a comparison, the value for a wh-question
+	#   warning    raises when no host was given at all
+	#   see        Of, Is, TheSameAsQ
+	#@ aka  the TAG-QUESTION closer: "Is X the same as Y, or not?" -- plain form (it returns the answer); the tag does not negate, it just closes the polar question (author's formulation)
 	def OrNot()
 		if @nSide = 2 and @bRightSet = 1
 			return This._Answer(@pRightHost)
@@ -181,13 +243,22 @@ class stzQuestion
 		ok
 		StzRaise("NNL question: nothing to answer yet -- no constituent was given.")
 
-	# copula, CLOSING form: "What the first char of Ring IS"
+	# Closes a question whose host is already given, as in what the first char of Ring is.
+	#
+	#   returns    the answer: the value asked for, a count, or 1 or 0
+	#   warning    raises when no host was given
+	#   see        Of, OrNot
+	#@ aka  copula, CLOSING form: "What the first char of Ring IS"
 	def Is()
 		if NOT @bLeftSet
 			StzRaise("NNL question: nothing to answer yet -- no constituent was given.")
 		ok
 		return This._Answer("")
 
+	# Returns the reason of the last answer this question gave, such as yes: 4 is the same as 4.
+	#
+	#   returns    a text; empty until the question has been answered
+	#   see        Of, Is
 	def Why()
 		return @cWhy
 

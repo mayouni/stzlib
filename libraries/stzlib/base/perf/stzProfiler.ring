@@ -57,12 +57,51 @@
 func StzProfiler(pnMaxPaths)
 	return new stzProfiler(pnMaxPaths)
 
+# Answers where the time goes by recording the frames you bracket as a call tree with calls, total and self time, and by sampling.
+#
+# Mark frames around the work you care about with Enter and Leave; the profiler keeps, for each path
+# such as checkout;charge, the number of calls, the total time and the self time, which is the total
+# minus the children. StartSampling starts an engine thread that photographs the active path at a
+# fixed cadence, a statistical view with constant cost. Instrumented numbers are exact for what you
+# bracketed; sampled numbers are statistical. Folded writes the folded-stacks format that
+# flamegraph.pl and speedscope read. The frame stack lives in the engine, bounded by the maximum
+# number of paths, and frames are cooperative: only what you bracket is seen. Times depend on the
+# clock, so assert ranges and signs.
+#
+#   receiver   o1 = StzProfiler(16) o1.Enter("checkout") o1.Enter("validate")
+#              StzEngineTimeSleepMs(20) o1.Leave() o1.Enter("charge") StzEngineTimeSleepMs(40)
+#              o1.Leave() o1.Leave()
+#   example    ? o1.Depth()
+#              #--> 0
+#              ? o1.PathCount()
+#              #--> 3
+#              ? o1.Paths()[1][:path]
+#              #--> checkout;validate
+#              ? o1.Paths()[3][:calls]
+#              #--> 1
+#              ? o1.HotSpots(1)[1][:path]
+#              #--> checkout;charge
+#              ? o1.Paths()[3][:totalMs] > o1.Paths()[2][:totalMs]
+#              #--> 1
+#              ? o1.Paths()[3][:selfMs] < o1.Paths()[3][:totalMs]
+#              #--> 1
+#              ? o1.IsSampling()
+#              #--> 0
+#   see        stzStopwatch, stzPerfMonitor, stzPerfSeries
 class stzProfiler from stzObject
 
 	pHandle = ""
 	bReady = 0
 	@nMaxPaths = 256
 
+	# Builds a frame profiler whose frame stack and path table live in the engine, bounded to a number of distinct paths.
+	#
+	#   pnMaxPaths   the most distinct paths kept, 2 or more, otherwise 256
+	#   returns      nothing; the engine handle is made when the object is built
+	#   note         StzProfiler builds the same object; beyond the bound, paths fold into an
+	#                _overflow path that stays visible, so with a bound of 2 only one path of its
+	#                own fits; frames deeper than 32 fold into their parent
+	#   see          Enter, Leave
 	def init(pnMaxPaths)
 		if isNumber(pnMaxPaths) and pnMaxPaths >= 2
 			@nMaxPaths = pnMaxPaths
@@ -77,57 +116,98 @@ class stzProfiler from stzObject
 			bReady = 1
 		ok
 
-	# -- Frames ---------------------------------------------------
-
+	# Opens a frame, a named piece of work whose time is measured until the matching Leave.
+	#
+	#   pcFrameName   the name of the frame
+	#   returns       the profiler itself, so calls chain
+	#   note          frames nest, and a frame's path is its name joined to its parents' with
+	#                 semicolons; a call costs one engine call; a destroyed profiler is made again
+	#                 by it
+	#   see           Leave, Depth
+	#@ aka  -- Frames ---------------------------------------------------
 	def Enter(pcFrameName)
 		This._Ensure()
 		StzEngineProfEnter(pHandle, "" + pcFrameName)
 		return This
 
+	# Closes the innermost open frame and adds its time to its path.
+	#
+	#   returns    the profiler itself, so calls chain
+	#   note       leaving with no frame open does nothing and leaves the depth at 0; a path is
+	#              recorded when its frame is left, so a child path is listed before its parent
+	#   see        Enter, Depth
 	def Leave()
 		This._Ensure()
 		StzEngineProfLeave(pHandle)
 		return This
 
+	# Returns how many frames are open now.
+	#
+	#   returns    a number
+	#   see        Enter, Leave
 	def Depth()
 		This._Ensure()
 		return StzEngineProfDepth(pHandle)
 
-	# -- Sampling -------------------------------------------------
-
-	# Start the engine sampler thread: every pnIntervalMs it
-	# photographs the active frame path. Constant cost, zero Ring
-	# involvement, honest at 1ms+ (the reactor's timeBeginPeriod(1)
-	# holds process-wide once any reactor exists; without one,
-	# Windows rounds the interval up to ~15.6ms -- fewer samples,
-	# same statistics).
+	# Starts the engine's sampler thread, which photographs the active frame path at a fixed interval.
+	#
+	#   pnIntervalMs   the interval between photographs, in milliseconds
+	#   returns        the profiler itself, so calls chain
+	#   note           the cost is constant and does not depend on how often frames are entered;
+	#                  without a running reactor Windows rounds a short interval up to about 15.6
+	#                  ms, so there are fewer samples with the same statistics
+	#   see            StopSampling, Ticks
+	#@ aka  -- Sampling -------------------------------------------------
 	def StartSampling(pnIntervalMs)
 		This._Ensure()
 		StzEngineProfSampleStart(pHandle, pnIntervalMs)
 		return This
 
+	# Stops the sampler thread.
+	#
+	#   returns    the profiler itself, so calls chain
+	#   see        StartSampling, IsSampling
 	def StopSampling()
 		This._Ensure()
 		StzEngineProfSampleStop(pHandle)
 		return This
 
+	# TRUE if the sampler thread is running.
+	#
+	#   returns    TRUE or FALSE
+	#   see        StartSampling, StopSampling
 	def IsSampling()
 		This._Ensure()
 		return StzEngineProfIsSampling(pHandle) = 1
 
-	# Sampler wakeups (in-frame or idle) -- SampleCount/Ticks tell
-	# the coverage story together.
+	# Returns how many times the sampler woke up, in a frame or idle.
+	#
+	#   returns    a number; 0 before sampling
+	#   note       the samples of the paths add up to no more than the ticks; the count is live, so
+	#              assert ranges and signs
+	#   see        StartSampling, Paths
+	#@ aka  Sampler wakeups (in-frame or idle) -- SampleCount/Ticks tell the coverage story together.
 	def Ticks()
 		This._Ensure()
 		return StzEngineProfTicks(pHandle)
 
-	# -- The accumulated tree -------------------------------------
-
+	# Returns how many distinct paths have been recorded.
+	#
+	#   returns    a number
+	#   see        Paths, Reset
+	#@ aka  -- The accumulated tree -------------------------------------
 	def PathCount()
 		This._Ensure()
 		return StzEngineProfPathCount(pHandle)
 
-	# All paths: [ [ :path, :calls, :totalMs, :selfMs, :samples ], ... ]
+	# Returns every recorded path with its instrumented and sampled numbers.
+	#
+	#   returns    a list of hash lists with the keys path, calls, totalms, selfms and samples, in
+	#              the order the frames were left; times are in milliseconds
+	#   note       total includes the children and self does not; instrumented numbers are exact for
+	#              what was bracketed and sampled numbers are statistical
+	#   see        HotSpots, Folded
+	#@ aka  All paths: [ [ :path, :calls, :totalMs, :selfMs, :samples ], ... ]
 	def Paths()
 		This._Ensure()
 		_aOut_ = []
@@ -143,8 +223,14 @@ class stzProfiler from stzObject
 		next
 		return _aOut_
 
-	# The top pnHowMany paths by SELF time (instrumented) -- where
-	# the time actually lives, children excluded.
+	# Returns the paths that spent the most time in themselves, children excluded.
+	#
+	#   pnHowMany   how many paths to return
+	#   returns     a list of the same hash lists as Paths, longest self time first, at most
+	#               pnHowMany
+	#   note        asking for more than exist returns them all
+	#   see         Paths, Folded
+	#@ aka  The top pnHowMany paths by SELF time (instrumented) -- where the time actually lives, children excluded.
 	def HotSpots(pnHowMany)
 		_aAll_ = This.Paths()
 		_aOut_ = []
@@ -165,12 +251,13 @@ class stzProfiler from stzObject
 		next
 		return _aOut_
 
-	# -- Interop: the flame-graph handshake -----------------------
-
-	# Folded-stacks format: one line per path, "a;b;c <weight>".
-	# Weight = SAMPLES when sampling ran (the statistical truth),
-	# else self-ms rounded up -- either way, flamegraph.pl and
-	# speedscope ingest it as-is.
+	# Returns the paths in the folded-stacks format that flame-graph tools read, one line per path as the path then a weight.
+	#
+	#   returns    a text of lines such as checkout;charge 42
+	#   note       the weight is the sample count when sampling ran and otherwise the self time in
+	#              milliseconds rounded up; a path of weight 0 is left out
+	#   see        WriteFoldedTo, HotSpots
+	#@ aka  -- Interop: the flame-graph handshake -----------------------
 	def Folded()
 		_aAll_ = This.Paths()
 		_bSampled_ = 0
@@ -195,12 +282,23 @@ class stzProfiler from stzObject
 		next
 		return _cOut_
 
+	# Writes the folded stacks to a file, ready for flamegraph.pl or speedscope.
+	#
+	#   pcPath     the path of the file to write
+	#   returns    the profiler itself, so calls chain
+	#   note       an existing file is overwritten
+	#   see        Folded
 	def WriteFoldedTo(pcPath)
 		write("" + pcPath, This.Folded())
 		return This
 
-	# -- Legibility -----------------------------------------------
-
+	# Returns the call tree as lines of text: a header, then each path with its calls, total and self time, and its samples if any.
+	#
+	#   returns    a list of text lines
+	#   note       a deeper path is indented, and because children are recorded first they appear
+	#              before their parent
+	#   see        Show, Paths
+	#@ aka  -- Legibility -----------------------------------------------
 	def Explain()
 		_aL_ = []
 		_aAll_ = This.Paths()
@@ -228,6 +326,11 @@ class stzProfiler from stzObject
 		next
 		return _aL_
 
+	# Prints the call tree to the console, one line per line.
+	#
+	#   returns    nothing
+	#   note       it prints with the ? statement
+	#   see        Explain
 	def Show()
 		_aL_ = This.Explain()
 		_nL_ = ring_len(_aL_)
@@ -235,11 +338,21 @@ class stzProfiler from stzObject
 			? _aL_[_i_]
 		next
 
+	# Clears the recorded paths and the open frames.
+	#
+	#   returns    the profiler itself, so calls chain
+	#   see        Destroy, Paths
 	def Reset()
 		This._Ensure()
 		StzEngineProfReset(pHandle)
 		return This
 
+	# Stops the sampler and frees the engine handle.
+	#
+	#   returns    the profiler itself, so calls chain
+	#   note       a later call that needs the engine makes a new handle, so a destroyed profiler
+	#              starts again empty
+	#   see        Reset, init
 	def Destroy()
 		if bReady
 			StzEngineProfDestroy(pHandle)

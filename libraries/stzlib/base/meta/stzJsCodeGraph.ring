@@ -23,10 +23,35 @@ func StzJsCodeGraphTS(pcRootPath)
 	return oG
 
 
+# Holds JavaScript source as a code graph, parsed by the tree-sitter grammar in the engine with no Node runtime.
+#
+# A sibling of stzPyCodeGraph under stzCodeGraph: it inherits the whole query surface (classes,
+# methods, owners, ancestry, call edges, dead code, cyclic calls) and declares only its own
+# identity. Build one from a source string with StzJsCodeGraphFromSourceTS or from a directory of
+# .js files with StzJsCodeGraphTS.
+#
+#   receiver   o1 = StzJsCodeGraphFromSourceTS("class Worker { run() { this.step(); } step() {} }")
+#   example    ? o1.Language()
+#              #--> javascript
+#              ? o1.FileExtension()
+#              #--> .js
+#              ? @@( o1.Classes() )
+#              #--> [ "Worker" ]
+#              ? @@( o1.MethodsOf("Worker") )
+#              #--> [ "run", "step" ]
+#   see        stzCodeGraph, stzPyCodeGraph, stzRingCodeGraph
 class stzJsCodeGraph from stzCodeGraph
 
+	# Returns the name of the language this graph models.
+	#
+	#   returns    the text javascript
+	#   see        FileExtension
 	def Language()
 		return "javascript"
 
+	# Returns the file extension of the source files it scans, with the dot.
+	#
+	#   returns    the text .js
+	#   see        Language
 	def FileExtension()
 		return ".js"

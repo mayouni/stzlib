@@ -1,0 +1,15 @@
+{
+ "brief": "Keeps named events with timestamps in the engine and answers questions about them, such as how many fall in a range.",
+ "detail": "The store lives in the engine and is shared by every stzEngineTimeline object of the process, so call Clear() first when you want a fresh one. Positions are counted from 0, in the order the events were added. Timestamps are plain numbers in the unit you choose. Duration() answers 0 today. It is not the stzTimeLine class of the datetime module.",
+ "receiver": "o1 = new stzEngineTimeline()\no1.Clear()\no1.AddEvent(\"start\", 100)\no1.AddEvent(\"build\", 200)",
+ "example": [
+  "? o1.EventCount()",
+  "#--> 2",
+  "? o1.EventLabel(1)",
+  "#--> build",
+  "? o1.EventsBetween(100, 150)",
+  "#--> 1",
+  "o1.Clear()"
+ ],
+ "see": ["stzLatencyHistogram", "stzTraceContext"]
+}

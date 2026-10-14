@@ -1,0 +1,17 @@
+{
+ "brief": "Keeps weighted subject-relation-object triples in the engine, such as alice knows bob with weight 0.5, and reads them back by position.",
+ "detail": "The store is held by the engine and shared by every stzRelation object of the process, so call Clear() first for a fresh one. Positions count from 0 in the order of adding, and Remove leaves a hole instead of shifting the others. There is no lookup by subject: read the triples by position.",
+ "receiver": "o1 = new stzRelation()\no1.Clear()\no1.Add(\"alice\", \"knows\", \"bob\", 0.5)\no1.AddSimple(\"bob\", \"knows\", \"carol\")",
+ "example": [
+  "? o1.Count()",
+  "#--> 2",
+  "? o1.Subject(0) + \" \" + o1.RelationType(0) + \" \" + o1.Object(0)",
+  "#--> alice knows bob",
+  "? o1.Weight(0)",
+  "#--> 0.50",
+  "? o1.Weight(1)",
+  "#--> 1",
+  "o1.Clear()"
+ ],
+ "see": ["stzEngineTimeline", "stzGraph"]
+}

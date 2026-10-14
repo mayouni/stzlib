@@ -1,0 +1,30 @@
+{
+ "brief": "Holds one piece of asynchronous work, a function with a status, a result, an error and handlers, as the base of every reactive task.",
+ "detail": "A task is pending until Execute runs its function once; it then records completed with the result, or error with the real reason, for example Error (R1) : Can't divide by zero. Then_ sets the handler for success and Catch_ the one for failure. The error mode decides what a failure does: ERROR_LOG prints it, ERROR_THROW raises it again, ERROR_CALLBACK calls the Catch_ function and ERROR_IGNORE stays silent, and the reason is on the task in every mode, readable with Error. Complete and Fail let a caller that did the work itself report through the same surface. The class is the base of stzHttpTask and stzFunctionTask and is not meant for the final programmer.",
+ "receiver": "oEngine = new stzReactive()\no1 = new stzReactiveTask(\"t1\", func { return 6 * 7 }, oEngine, \"\")\no2 = new stzReactiveTask(\"t2\", func { return 1 / 0 }, oEngine, ERROR_IGNORE)",
+ "example": [
+  "? o1.Status()",
+  "#--> pending",
+  "o1.Execute()",
+  "? o1.Status()",
+  "#--> completed",
+  "? o1.Result()",
+  "#--> 42",
+  "o2.Execute()",
+  "? o2.HasFailed()",
+  "#--> 1",
+  "? o2.Error()",
+  "#--> Error (R1) : Can't divide by zero",
+  "? o2.WasReported()",
+  "#--> 0",
+  "o3 = new stzReactiveTask(\"t3\", \"\", oEngine, \"\")",
+  "o3.Complete(\"from outside\")",
+  "? o3.Result()",
+  "#--> from outside"
+ ],
+ "see": [
+  "stzFunctionTask",
+  "stzHttpTask",
+  "stzReactiveFunc"
+ ]
+}

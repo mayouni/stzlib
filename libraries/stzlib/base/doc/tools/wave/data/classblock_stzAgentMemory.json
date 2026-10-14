@@ -1,0 +1,19 @@
+{
+ "brief": "Holds what an agent knows as facts in its own knowledge graph, each one carrying where and when it was learned.",
+ "detail": "A memory owns a stzKnowledgeGraph, named mem-<agent>, rather than being one: it gives the agent a thin face of subject, predicate, object triples. Text is folded to lower case on the way in, so Fact and Recall ignore case. Every fact records its source (agent:<name> unless the caller says otherwise) and the time learned; nothing invents a confidence. Save and Restore carry the facts and their provenance through a .zknw knowledge file. Restore must be given the full file name with the extension.",
+ "receiver": "o1 = new stzAgentMemory(\"waiter\")",
+ "example": [
+  "o1.Learn(\"table-4\", \"wants\", \"water\")",
+  "? o1.Fact(\"table-4\", \"wants\", \"water\")",
+  "#--> 1",
+  "? @@( o1.Recall(\"table-4\", \"wants\") )",
+  "#--> [ \"water\" ]",
+  "? o1.ProvenanceOf(\"table-4\", \"wants\", \"water\")[1][2]",
+  "#--> agent:waiter"
+ ],
+ "see": [
+  "stzKnowledgeGraph",
+  "stzAgentSkill",
+  "stzPIAgent"
+ ]
+}

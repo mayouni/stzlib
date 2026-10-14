@@ -1,0 +1,16 @@
+{
+ "brief": "A finite state machine kept in the engine: add states and transitions, send events, and read the state the machine is in.",
+ "detail": "Declare the states, then the transitions as [ from, event, to ]. Send follows the matching transition and answers the new state. The first state added is the starting state. Mistakes are not reported by the machine: an event that matches no transition, a SetState to an unknown state and a transition naming an unknown state are all ignored without an error, so check CurrentState after the call that matters.",
+ "receiver": "o1 = new stzStateMachine(\"door\")\no1.AddStates([ \"closed\", \"open\", \"locked\" ])\no1.AddTransitions([ [ \"closed\", \"open\", \"open\" ], [ \"open\", \"close\", \"closed\" ], [ \"closed\", \"lock\", \"locked\" ] ])",
+ "example": [
+  "? o1.CurrentState()",
+  "#--> closed",
+  "? o1.Send(\"open\")",
+  "#--> open",
+  "? o1.Send(\"lock\")",
+  "#--> open",
+  "? o1.NumberOfTransitions()",
+  "#--> 3"
+ ],
+ "see": ["stzPattern", "stzDeployment"]
+}

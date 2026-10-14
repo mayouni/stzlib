@@ -1,0 +1,19 @@
+{
+ "brief": "Sends HTTP requests for a reactive engine, asynchronously through a reactor when it has one and blocking otherwise.",
+ "detail": "Get_, Post, Put_ and Delete take the address, the body where there is one, and a function for success and one for failure. With a reactor set by SetReactor, http and https requests are submitted as jobs and return a job number at once; the run loop calls DrainPending, which delivers each finished job to its callback, a 2xx status to onSuccess with the body and anything else to onError. Without a reactor, or for another kind of address, each verb runs a blocking stzHttpTask and returns it. None of the four verbs was run for this reference because they reach the network; the example uses what makes no request.",
+ "receiver": "oEngine = new stzReactive()\no1 = new stzReactiveHttp(oEngine)",
+ "example": [
+  "? o1.PendingCount()",
+  "#--> 0",
+  "? o1.DrainPending()",
+  "#--> 0",
+  "o1.SetReactor(NULL)",
+  "? o1.PendingCount()",
+  "#--> 0"
+ ],
+ "see": [
+  "stzHttpTask",
+  "stzReactor",
+  "stzHttpClient"
+ ]
+}

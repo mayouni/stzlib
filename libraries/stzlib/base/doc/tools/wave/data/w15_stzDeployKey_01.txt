@@ -1,0 +1,1 @@
+init | Builds a deploy key secret with a name, of kind deploykey and no source yet. | nothing; the object is built | pcName=the secret's name, shown in its redacted descriptor | KeyMaterial, FromLiteral

@@ -1,0 +1,20 @@
+{
+ "brief": "Cuts sections out of a list by positions or by start and length, and returns the parts outside a section.",
+ "detail": "Build one with new stzListSections(aList) or over a stzList object; it keeps its own copy. A section is named by its first and last positions (Section), a range by its start and length (Range, Ranges); an anti-section is whatever lies outside. Positions count from 1; negative ones count from the end, and out-of-range ones are clipped, not refused. Section answers a flat list, Range answers a list wrapped one level deeper. Two aliases, ManyRanges and RangesOtherThan, raise errors today.",
+ "receiver": "o1 = new stzListSections([ \"a\", \"b\", \"c\", \"d\", \"e\", \"f\", \"g\" ])",
+ "example": [
+  "? @@( o1.Section(2, 4) )",
+  "#--> [ \"b\", \"c\", \"d\" ]",
+  "? @@( o1.Section(-3, -1) )",
+  "#--> [ \"e\", \"f\", \"g\" ]",
+  "? @@( o1.AntiSection(2, 3) )",
+  "#--> [ [ \"a\" ], [ \"d\", \"e\", \"f\", \"g\" ] ]",
+  "? @@( o1.Range(2, 3) )",
+  "#--> [ [ \"b\", \"c\", \"d\" ] ]"
+ ],
+ "see": [
+  "stzList",
+  "stzListGetter",
+  "stzSection"
+ ]
+}

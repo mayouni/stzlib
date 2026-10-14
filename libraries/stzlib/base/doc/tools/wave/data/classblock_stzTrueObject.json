@@ -1,0 +1,14 @@
+{
+ "brief": "Is an object that holds the value 1 and is equal to everything, as the passing counterpart of the null object.",
+ "detail": "Its content is 1 and every comparison with it answers 1, whatever the other side is; its Where answers 0 because it has nothing to filter. TRUE(), TrueObject(), ATrueObject(), StzTrueQ() and StzTrueObjectQ() return one, and stzTrue is another name of the class. Build it without parentheses: new stzTrueObject.",
+ "receiver": "o1 = new stzTrueObject",
+ "example": [
+  "? o1.Content()",
+  "#--> 1",
+  "? o1.IsEqualTo(\"anything\")",
+  "#--> 1",
+  "? o1.Where(\"x > 1\")",
+  "#--> 0"
+ ],
+ "see": ["stzNullObject", "stzFalseObject", "TRUE"]
+}

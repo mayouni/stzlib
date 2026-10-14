@@ -1,0 +1,13 @@
+init | Wraps an engine integer sequence that already exists, taking ownership of it so Release can free it. | nothing; the object is built | pHandle=the engine handle of the integer sequence, as produced by an engine call such as the one behind CountingQ | Release, Disown, Handle
+Handle | Returns the engine handle of the sequence, a number that identifies it in the engine. | a number; an empty text once released | | Release, init
+Release | Frees the engine sequence, unless the object was told to disown it, and empties the handle. | nothing | | Disown, Handle | after Release the sequence reads as empty | a disowned object keeps the engine sequence alive, so it stays readable and is never freed by this object
+Disown | Tells the object that it no longer owns the engine sequence, so Release will not free it. | nothing | | Release
+NumberOfItems | Returns how many numbers the sequence holds. | a number | | At, ToList
+At | Returns the number at a position, counted from 1; 0 when the position is below 1, beyond the end or not a number. | a number | n=the position of the item, starting at 1 | First, Last, ToList | 0 is also a real value of a cycle, so At(5) of a short sequence cannot be told from a stored 0
+First | Returns the first number of the sequence. | a number | | Last, At
+Last | Returns the last number of the sequence. | a number | | First, At
+Sum | Returns the total of all the numbers, computed in the engine. | a number | | Min, Max
+Min | Returns the smallest number of the sequence. | a number | | Max, Sum
+Max | Returns the largest number of the sequence. | a number | | Min, Sum
+CountValue | Returns how many times a number occurs in the sequence; 0 when it is not a number. | a number | n=the value to count | At, ToList
+ToList | Returns the whole sequence as a list of numbers, copied out of the engine. | a list of numbers | | At, NumberOfItems

@@ -36,6 +36,25 @@
 func StzNodeSupervisorQ()
 	return new stzNodeSupervisor()
 
+# Supervises node processes by declaration: it restarts the dead under a strategy and a budget, and escalates instead of looping.
+#
+# Declare children with Child, then the Strategy (:OneForOne or :AllForOne), the RestartBudget and
+# optionally a Heartbeat and Monitor subscriptions. A death is a process exit or, with heartbeats
+# on, a silent node. Each restart is counted per child and in a sliding window; beyond the budget
+# the supervisor stops, reports through Escalated and EscalationReason, and leaves the child down.
+# It keeps the house contract Name_() and Cycle(), so it can be hosted on an agent host. StartAll
+# spawns real processes; the documentation run declared children and called the read methods only.
+#
+#   receiver   o1 = new stzNodeSupervisor() o1.Child("indexer", "my_indexer.ring", 45810)
+#              o1.Strategy(:AllForOne) o1.RestartBudget(2, 5000)
+#   example    ? o1.Escalated()
+#              #--> 0
+#              ? o1.RestartsOf("indexer")
+#              #--> 0
+#              ? o1.RestartsOf("nobody")
+#              #--> -1
+#              o1.Destroy()
+#   see        stzNode, stzNodeApp, stzClusterSupervisor
 class stzNodeSupervisor from stzObject
 
 	@cName = "node-supervisor"
@@ -60,19 +79,39 @@ class stzNodeSupervisor from stzObject
 	@aMonitors = []        # [ cChildName, cSubscriberAddr ]
 	@nLastHbMs = 0
 
+	# Creates a supervisor of node processes, one-for-one, with 3 restarts per 10 seconds and no heartbeat; starts nothing.
+	#
+	#   returns    nothing; the object is built
+	#   see        Child, StartAll
 	def init()
 		@oSpawner = new stzReactor()
 		@cRingExe = This._RingExecutable()
 
+	# Returns the supervisor's name, 'node-supervisor' unless SetName changed it.
+	#
+	#   returns    a text
+	#   see        SetName, Cycle
 	def Name_()
 		return @cName
 
+	# Sets the name by which an agent host knows the supervisor.
+	#
+	#   pcName     the new name, as text
+	#   returns    the supervisor itself, so calls chain
+	#   see        Name_
 	def SetName(pcName)
 		@cName = "" + pcName
 		return This
 
-	#-- declaration --------------------------------------------------------
-
+	# Declares a node process to supervise: its name, the Ring script that runs it and the port it listens on.
+	#
+	#   pcName     the node's name, stored in lower case
+	#   pcScript   the path of the Ring script the process runs
+	#   pnPort     the port passed to the script as its last argument
+	#   returns    the supervisor itself, so calls chain
+	#   warning    nothing is spawned until StartAll; the host defaults to 127.0.0.1
+	#   see        StartAll, SetChildHost
+	#@ aka  -- declaration --------------------------------------------------------
 	def Child(pcName, pcScript, pnPort)
 		@aChildNames + StzLower("" + pcName)
 		@aChildScripts + ("" + pcScript)
@@ -83,7 +122,14 @@ class stzNodeSupervisor from stzObject
 		@aChildMisses + 0
 		return This
 
-	# Where the child's name resolves on the plane (deployment moves it).
+	# Sets the host on which a child's name resolves on the node plane, so a deployment can move it.
+	#
+	#   pcName     the child's name, matched without regard to case
+	#   pcHost     the host or interface address
+	#   returns    the supervisor itself, so calls chain
+	#   warning    an unknown child name changes nothing
+	#   see        Child
+	#@ aka  Where the child's name resolves on the plane (deployment moves it).
 	def SetChildHost(pcName, pcHost)
 		_i_ = This._ChildIndex(StzLower("" + pcName))
 		if _i_ > 0
@@ -91,8 +137,14 @@ class stzNodeSupervisor from stzObject
 		ok
 		return This
 
-	# Kill a child's OS process (deployment/testing); the death is then
-	# observed and handled by the next Cycle() like any other death.
+	# Kills the operating-system process of a child, for deployment or chaos tests; the next Cycle sees the death and handles it.
+	#
+	#   pcName     the child's name, matched without regard to case
+	#   returns    the supervisor itself, so calls chain
+	#   note       run only while no child was started, where it does nothing
+	#   warning    does nothing for a child that is not running
+	#   see        Cycle, StartAll
+	#@ aka  Kill a child's OS process (deployment/testing); the death is then observed and handled by the next Cycle() like any other death.
 	def KillChild(pcName)
 		_i_ = This._ChildIndex(StzLower("" + pcName))
 		if _i_ > 0 and @aChildJobs[_i_] != 0
@@ -100,6 +152,12 @@ class stzNodeSupervisor from stzObject
 		ok
 		return This
 
+	# Chooses what happens when a child dies: :OneForOne restarts that child, :AllForOne restarts every child.
+	#
+	#   pcStrategy   :OneForOne or :AllForOne
+	#   returns      the supervisor itself, so calls chain
+	#   warning      any other value selects :OneForOne
+	#   see          RestartBudget, Cycle
 	def Strategy(pcStrategy)
 		if pcStrategy = :AllForOne
 			@cStrategy = :AllForOne
@@ -108,28 +166,62 @@ class stzNodeSupervisor from stzObject
 		ok
 		return This
 
+	# Sets how many restarts are allowed within a sliding time window before the supervisor escalates.
+	#
+	#   nMax        the restarts allowed in the window, 3 by default
+	#   nWindowMs   the window length in milliseconds, 10000 by default
+	#   returns     the supervisor itself, so calls chain
+	#   warning     under :AllForOne one death counts as one restart per child
+	#   see         Escalated, Strategy
 	def RestartBudget(nMax, nWindowMs)
 		@nBudgetMax = 0 + nMax
 		@nBudgetWindowMs = 0 + nWindowMs
 		return This
 
+	# Turns on heartbeats: the supervisor pings each running child and treats one that stays silent as dead.
+	#
+	#   nIntervalMs   the time between pings in milliseconds, 0 for none
+	#   nTolerance    how many consecutive misses make a child dead, 3 by default
+	#   returns       the supervisor itself, so calls chain
+	#   warning       a silent child is killed before it is restarted, so that its port frees
+	#   see           Cycle
 	def Heartbeat(nIntervalMs, nTolerance)
 		@nHbIntervalMs = 0 + nIntervalMs
 		@nHbTolerance = 0 + nTolerance
 		return This
 
+	# Subscribes a node to the death of a child: on each death it is sent [ node.down, child, restarts so far ].
+	#
+	#   pcChildName        the child to watch, matched without regard to case
+	#   pcSubscriberAddr   the node address that receives the notice
+	#   returns            the supervisor itself, so calls chain
+	#   warning            the notice is sent over the node plane
+	#   see                Cycle
 	def Monitor(pcChildName, pcSubscriberAddr)
 		@aMonitors + [ StzLower("" + pcChildName), "" + pcSubscriberAddr ]
 		return This
 
-	#-- observability ------------------------------------------------------
-
+	# TRUE if the restart budget was exceeded and the supervisor stopped restarting.
+	#
+	#   returns    1 or 0
+	#   warning    after escalating, Cycle does nothing and the dead child stays down
+	#   see        EscalationReason, RestartBudget
+	#@ aka  -- observability ------------------------------------------------------
 	def Escalated()
 		return @bEscalated
 
+	# Returns the text that says which child exceeded which budget; empty before any escalation.
+	#
+	#   returns    a text
+	#   see        Escalated
 	def EscalationReason()
 		return @cEscalationReason
 
+	# Returns how many times a child was restarted; -1 for an unknown name.
+	#
+	#   pcName     the child's name, matched without regard to case
+	#   returns    a number
+	#   see        TotalRestarts
 	def RestartsOf(pcName)
 		_i_ = This._ChildIndex(StzLower("" + pcName))
 		if _i_ = 0
@@ -137,6 +229,10 @@ class stzNodeSupervisor from stzObject
 		ok
 		return @aChildRestarts[_i_]
 
+	# Returns the restarts of all children added together.
+	#
+	#   returns    a number
+	#   see        RestartsOf
 	def TotalRestarts()
 		nSum = 0
 		nLen = ring_len(@aChildRestarts)
@@ -145,6 +241,11 @@ class stzNodeSupervisor from stzObject
 		next
 		return nSum
 
+	# Returns the spawn job number of a child's current process, 0 when it is not running or unknown.
+	#
+	#   pcName     the child's name, matched without regard to case
+	#   returns    a number
+	#   see        StartAll
 	def JobOf(pcName)
 		_i_ = This._ChildIndex(StzLower("" + pcName))
 		if _i_ = 0
@@ -152,9 +253,13 @@ class stzNodeSupervisor from stzObject
 		ok
 		return @aChildJobs[_i_]
 
-	#-- lifecycle ----------------------------------------------------------
-
-	# Spawn every declared child and register each name on the plane.
+	# Spawns the process of every declared child and registers each name on the node plane.
+	#
+	#   returns    the supervisor itself, so calls chain
+	#   note       not run: it starts child processes
+	#   warning    spawns operating-system processes and registers them on the node plane
+	#   see        Cycle, StopAll
+	#@ aka  -- lifecycle ----------------------------------------------------------
 	def StartAll()
 		nLen = ring_len(@aChildNames)
 		for i = 1 to nLen
@@ -162,9 +267,13 @@ class stzNodeSupervisor from stzObject
 		next
 		return This
 
-	# One supervision tick: detect deaths (process exit; missed
-	# heartbeats), apply the declared strategy under the budget, notify
-	# monitors. Pure policy over observations -- no waiting inside.
+	# Runs one supervision tick: finds dead children, notifies monitors, and restarts them under the strategy and the budget.
+	#
+	#   returns    the supervisor itself, so calls chain
+	#   note       run only while no child was started, where it does nothing
+	#   warning    it never waits and never loops: past the budget it escalates and stops restarting
+	#   see        StartAll, Escalated
+	#@ aka  One supervision tick: detect deaths (process exit; missed heartbeats), apply the declared strategy under the budget, notify monitors. Pure policy over observations -- no waiting inside.
 	def Cycle()
 		if @bEscalated
 			return This
@@ -211,8 +320,13 @@ class stzNodeSupervisor from stzObject
 		next
 		return This
 
-	# Stop supervising and stop every child (kill; the guard of last
-	# resort -- normal shutdown goes through stz.stop messages).
+	# Kills every running child process and forgets their jobs.
+	#
+	#   returns    the supervisor itself, so calls chain
+	#   note       run only while no child was started, where it does nothing
+	#   warning    kills processes
+	#   see        StartAll, Destroy
+	#@ aka  Stop supervising and stop every child (kill; the guard of last resort -- normal shutdown goes through stz.stop messages).
 	def StopAll()
 		nLen = ring_len(@aChildNames)
 		for i = 1 to nLen
@@ -223,6 +337,11 @@ class stzNodeSupervisor from stzObject
 		next
 		return This
 
+	# Stops every child and destroys the supervisor's reactor.
+	#
+	#   returns    nothing
+	#   warning    the supervisor cannot be used afterwards
+	#   see        StopAll
 	def Destroy()
 		This.StopAll()
 		@oSpawner.Destroy()

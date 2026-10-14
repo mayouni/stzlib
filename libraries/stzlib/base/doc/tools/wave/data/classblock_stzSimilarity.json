@@ -1,0 +1,19 @@
+{
+ "brief": "Measures how alike two vectors are: cosine similarity, Euclidean and Manhattan distance, dot product, and the length and unit form of one vector.",
+ "detail": "Build one with new stzSimilarity() or StzSimilarityQ(); it holds nothing, so it is a bundle of calculations done in the Zig engine. The methods ending in 3 take six numbers, for two 3-component vectors; the ones ending in FromLists, and their short names Cosine, Euclidean, Manhattan and Dot, take two lists of any length, 1,536 for a sentence embedding included, and refuse lists of different lengths. The global functions CosineSimilarity3, EuclideanDistance3, ManhattanDistance3 and DotProduct3 do the 3-component case without an object. Cosine is 1 for the same direction, 0 for perpendicular, -1 for opposite.",
+ "receiver": "o1 = new stzSimilarity()",
+ "example": [
+  "? o1.CosineFromLists([ 1, 0 ], [ 0, 1 ])",
+  "#--> 0",
+  "? o1.EuclideanFromLists([ 0, 0 ], [ 3, 4 ])",
+  "#--> 5",
+  "? o1.DotProductFromLists([ 1, 2 ], [ 3, 4 ])",
+  "#--> 11",
+  "? o1.MagnitudeOf([ 3, 4 ])",
+  "#--> 5"
+ ],
+ "see": [
+  "stzVectorIndex",
+  "stzMatrix"
+ ]
+}

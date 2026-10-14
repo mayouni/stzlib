@@ -51,12 +51,36 @@ func _TsAbs(pcTok, pacSources)
 func StzTukeyStoryQ(poFit, poReport)
 	return new stzTukeyStory(poFit, poReport)
 
+# Tells in plain sentences what a median-polish fit and its rule report found, without computing a single number of its own.
+#
+# Every number in the prose is read from the fit (the common value, the effects, the residual scale,
+# the sweeps) or from a finding's message. IsHonest proves it on the story itself: each number in
+# the text must be one the sources carry. The story has a paragraph on the fit, one on the effects,
+# one on the findings when there are some, and a verdict. There is no language-model face on
+# purpose, since templated prose reads well enough. Build it with StzTukeyStoryQ(oFit, oReport)
+# after oFit.Polish().
+#
+#   receiver   oFit = StzTukeyFitQ([ [ 11, 12, 13 ], [ 21, 22, 23 ], [ 31, 32, 33 ] ]) oFit.Polish()
+#              o1 = StzTukeyStoryQ(oFit, StzTukeyReportQ("exact", [ oFit ]))
+#   example    ? len(o1.Paragraphs())
+#              #--> 3
+#              ? o1.IsHonest()
+#              #--> 1
+#   see        stzTukeyFit, stzTranscript, stzRuleReport
 class stzTukeyStory from stzObject
 
 	@oFit = NULL
 	@oReport = NULL
 	@acSources = []      # every numeral token the fit and the findings carry
 
+	# Builds the story of a polished median-polish fit and the rule report about it; nothing is computed.
+	#
+	#   poFit      the stzTukeyFit, already polished
+	#   poReport   the stzRuleReport built from it, as StzTukeyReportQ returns
+	#   returns    nothing; the object is built
+	#   warning    raises when the first argument is not a stzTukeyFit, when the fit has not been
+	#              polished, and when the second is not a stzRuleReport
+	#   see        Text, IsHonest
 	def init(poFit, poReport)
 		if NOT isObject(poFit) or StzLower(ring_classname(poFit)) != "stztukeyfit"
 			stzraise("stzTukeyStory: the first argument is an stzTukeyFit.")
@@ -70,14 +94,25 @@ class stzTukeyStory from stzObject
 		@oFit = poFit
 		@oReport = poReport
 
+	# Returns the fit the story is told about.
+	#
+	#   returns    the stzTukeyFit
+	#   see        Report, Paragraphs
 	def Fit()
 		return @oFit
 
+	# Returns the rule report whose findings the story repeats.
+	#
+	#   returns    the stzRuleReport
+	#   see        Fit, Paragraphs
 	def Report()
 		return @oReport
 
-	#-- the paragraphs, each read from a source ----------------------------
-
+	# Returns the story as a list of paragraphs: the fit, the effects, the findings when there are any, and the verdict.
+	#
+	#   returns    a list of text, three or four items
+	#   see        Text, Transcript
+	#@ aka  -- the paragraphs, each read from a source ----------------------------
 	def Paragraphs()
 		_ac_ = []
 		_ac_ + This._TheFit()
@@ -87,6 +122,10 @@ class stzTukeyStory from stzObject
 		_ac_ + This._TheVerdict()
 		return _ac_
 
+	# Returns the whole story as one text, one paragraph per line.
+	#
+	#   returns    a text
+	#   see        Paragraphs, Transcript, IsHonest
 	def Text()
 		_ac_ = This.Paragraphs()
 		_c_ = ""
@@ -95,8 +134,11 @@ class stzTukeyStory from stzObject
 		next
 		return _c_
 
-	# on the transcript: paragraphs as system lines, the verdict as a
-	# verdict line at certainty 1 -- deterministic, nothing admitted by guess
+	# Returns the story told on a stzTranscript: each paragraph a system line and the verdict a verdict line of certainty 1.
+	#
+	#   returns    a stzTranscript
+	#   see        Text, stzTranscript
+	#@ aka  on the transcript: paragraphs as system lines, the verdict as a verdict line at certainty 1 -- deterministic, nothing admitted by guess
 	def Transcript()
 		_o_ = new stzTranscript()
 		_ac_ = This.Paragraphs()
@@ -164,9 +206,11 @@ class stzTukeyStory from stzObject
 	def _N(pn)
 		return _FfNum(pn, 4)
 
-	#-- the honesty law, checked on the story itself --------------------------
-
-	# every numeral token the sources carry, formatted the one way
+	# Returns every number that the fit and the report carry, written the way the prose writes them.
+	#
+	#   returns    a list of text
+	#   see        Numerals, Unsourced
+	#@ aka  -- the honesty law, checked on the story itself --------------------------
 	def SourceNumerals()
 		_ac_ = []
 		_ac_ + ("" + @oFit.NumberOfRows())
@@ -195,11 +239,19 @@ class stzTukeyStory from stzObject
 		next
 		return _ac_
 
-	# the numeral tokens of the prose, in order
+	# Returns the numbers that appear in the prose, in order, as text without signs.
+	#
+	#   returns    a list of text
+	#   see        SourceNumerals, Unsourced
+	#@ aka  the numeral tokens of the prose, in order
 	def Numerals()
 		return _TsNumerals(This.Text())
 
-	# the numerals of the prose that no source carries -- empty when honest
+	# Returns the numbers of the prose that no source carries, an empty list when the story is honest.
+	#
+	#   returns    a list of text; [ ] when every number is sourced
+	#   see        IsHonest, Numerals
+	#@ aka  the numerals of the prose that no source carries -- empty when honest
 	def Unsourced()
 		_acS_ = This.SourceNumerals()
 		_acN_ = This.Numerals()
@@ -211,9 +263,18 @@ class stzTukeyStory from stzObject
 		next
 		return _ac_
 
+	# TRUE if every number in the story is one that the fit or a finding carries, which proves the story did no arithmetic of its own.
+	#
+	#   returns    1 or 0, numbers
+	#   see        Unsourced, Why
 	def IsHonest()
 		return ring_len(This.Unsourced()) = 0
 
+	# Returns one sentence that counts the paragraphs and numbers and says whether each number was read from a source.
+	#
+	#   returns    a text such as a Tukey story of 4 paragraph(s) and 27 numeral(s), every one read
+	#              from the fit or a finding
+	#   see        IsHonest, Unsourced
 	def Why()
 		_n_ = ring_len(This.Numerals())
 		if This.IsHonest()

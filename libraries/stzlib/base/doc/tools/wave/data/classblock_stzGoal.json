@@ -1,0 +1,16 @@
+{
+ "brief": "Holds the target shape of a domain model, so the gap between it and a knowledgebase says which question to ask next.",
+ "detail": "A goal is a pure specification and reads no global world: Gaps(oKB) is given the knowledgebase and answers what is missing in that one graph. RequireEach demands a relation of every entity of a type, RequireOne of one named subject. The graph is deliberately not stored, because a stored object is copied and would go stale. Build it with new stzGoal() or StzGoalQ().",
+ "receiver": "o1 = new stzGoal()",
+ "example": [
+  "oKB = new stzKnowledgeGraph(\"menu\")",
+  "oKB.Know(\"margherita\", \"dish\")",
+  "o1.RequireEach(\"dish\", \"contains\")",
+  "? o1.Gaps(oKB)[1][3]",
+  "#--> every dish needs 'contains'",
+  "oKB.KnowRelation(\"margherita\", \"contains\", \"tomato-sauce\")",
+  "? o1.IsSatisfied(oKB)",
+  "#--> 1"
+ ],
+ "see": ["stzKnowledgeGraph", "stzConversation", "stzTranscript"]
+}

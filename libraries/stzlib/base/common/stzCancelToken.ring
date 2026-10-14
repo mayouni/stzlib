@@ -21,6 +21,19 @@
 func StzCancelToken()
 	return new stzCancelToken()
 
+# Holds a cancellation flag in the engine: one side raises it, the other side polls it and stops early.
+#
+# A token starts lowered. Cancel() (or Signal()) raises it and IsCancelled() reads it; the flag
+# lives in the engine, so it can be passed to long-running engine work without a callback into Ring.
+# Destroy() frees it.
+#
+#   receiver   o1 = new stzCancelToken()
+#   example    ? o1.IsCancelled()
+#              #--> 0
+#              o1.Cancel()
+#              ? o1.IsCancelled()
+#              #--> 1
+#   see        stzRetryBudget
 class stzCancelToken from stzObject
 
 	pHandle = ""
@@ -30,6 +43,9 @@ class stzCancelToken from stzObject
 	# ensures the handle exists before using it.
 	bReady = 0
 
+	# Builds a cancel token, an engine flag that one party raises and another polls to stop a long job early.
+	#
+	#   returns    nothing; the object is built
 	def init()
 		This._Ensure()
 
@@ -39,28 +55,50 @@ class stzCancelToken from stzObject
 			bReady = 1
 		ok
 
-	# The opaque engine handle, to hand to StzEnginePoolSubmitWithCancel.
+	# Returns the engine pointer of the token, to hand to an engine call that accepts a cancel handle.
+	#
+	#   returns    a pointer
+	#   see        Cancel
+	#@ aka  The opaque engine handle, to hand to StzEnginePoolSubmitWithCancel.
 	def Handle()
 		This._Ensure()
 		return pHandle
 
-	# Ask any operation carrying this token to stop.
+	# Raises the cancel flag, so every holder of the token sees IsCancelled() answer TRUE from now on.
+	#
+	#   returns    the token itself, so calls chain
+	#   note       raising the flag twice changes nothing
+	#   see        IsCancelled, Signal
+	#@ aka  Ask any operation carrying this token to stop.
 	def Cancel()
 		This._Ensure()
 		StzEngineCancelSignal(pHandle)
 		return This
 
-	# Alias for Cancel() -- matches the engine verb name.
+	# Raises the cancel flag, exactly as the call that has the other name does.
+	#
+	#   returns    the token itself, so calls chain
+	#   see        Cancel, IsCancelled
+	#@ aka  Alias for Cancel() -- matches the engine verb name.
 	def Signal()
 		This._Ensure()
 		StzEngineCancelSignal(pHandle)
 		return This
 
+	# TRUE if the flag has been raised.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Cancel, Signal
 	def IsCancelled()
 		This._Ensure()
 		return StzEngineCancelIsCancelled(pHandle) = 1
 
-	# Free the engine handle. The token must not be used afterwards.
+	# Frees the engine flag of the token and marks it unusable.
+	#
+	#   returns    the token itself, so calls chain
+	#   note       a later call that needs the handle builds a new flag
+	#   see        init
+	#@ aka  Free the engine handle. The token must not be used afterwards.
 	def Destroy()
 		if bReady = 1
 			StzEngineCancelDestroy(pHandle)

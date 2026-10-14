@@ -1,0 +1,6 @@
+init | Builds a cancel token, an engine flag that one party raises and another polls to stop a long job early. | nothing; the object is built
+Handle | Returns the engine pointer of the token, to hand to an engine call that accepts a cancel handle. | a pointer | | Cancel
+Cancel | Raises the cancel flag, so every holder of the token sees IsCancelled() answer TRUE from now on. | the token itself, so calls chain | | IsCancelled, Signal | | raising the flag twice changes nothing
+Signal | Raises the cancel flag, exactly as the call that has the other name does. | the token itself, so calls chain | | Cancel, IsCancelled
+IsCancelled | TRUE if the flag has been raised. | TRUE or FALSE | | Cancel, Signal
+Destroy | Frees the engine flag of the token and marks it unusable. | the token itself, so calls chain | | init | | a later call that needs the handle builds a new flag

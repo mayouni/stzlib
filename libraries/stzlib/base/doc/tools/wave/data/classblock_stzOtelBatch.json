@@ -1,0 +1,23 @@
+{
+ "brief": "Collects spans and writes them as the OpenTelemetry resourceSpans envelope that an OTLP collector takes at its traces endpoint.",
+ "detail": "One stopwatch exports as one OTLP span; a real trace is many spans shipped together. The batch holds rendered JSON fragments, so copies of it are harmless, and writes the service identity once at the top, the way the performance monitor does for metrics. Spans that joined one another arrive sharing a traceId, so a collector reassembles the tree. Clear empties the batch for the next shipment. A service name that holds a double quote or a backslash is written unescaped today.",
+ "receiver": "o1 = StzOtelBatch(\"restolean\")\no2 = new stzStopwatch(\"checkout\")\no2.Start()\no2.Stop()\no1.AddSpan(o2)\no1.AddSpanJson('{\"name\":\"manual\",\"kind\":1}')",
+ "example": [
+  "? o1.ServiceName()",
+  "#--> restolean",
+  "? o1.SpanCount()",
+  "#--> 2",
+  "? left(o1.ToJson(), 17)",
+  "#--> {\"resourceSpans\":",
+  "? right(o1.ToJson(), 15)",
+  "#--> \"kind\":1}]}]}]}",
+  "o1.Clear()",
+  "? o1.SpanCount()",
+  "#--> 0"
+ ],
+ "see": [
+  "stzStopwatch",
+  "stzPerfMonitor",
+  "stzMetricFamily"
+ ]
+}

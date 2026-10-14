@@ -1,0 +1,15 @@
+{
+ "brief": "Records the dialogue a conversation holds as an ordered list of speaker-tagged lines, each with a certainty.",
+ "detail": "The system speaks with System, the user with User, and a conclusion is added with Verdict, which carries its evidential certainty. Lines gives the rows back as data and Text renders them for a reader. It is a record, not a document: the document class of the narrations layer is another one.",
+ "receiver": "o1 = new stzTranscript()",
+ "example": [
+  "o1.System(\"What does margherita contain?\")",
+  "o1.User(\"tomato-sauce\")",
+  "o1.Verdict(\"yes: contains tomato-sauce\", 1)",
+  "? o1.NumberOfLines()",
+  "#--> 3",
+  "? o1.Lines()[2][2]",
+  "#--> tomato-sauce"
+ ],
+ "see": ["stzGoal", "stzConversation", "stzKnowledgeGraph"]
+}

@@ -3,6 +3,28 @@
 #  REACTIVE FUNCTION WRAPPER - Makes any function reactive  #
 #-----------------------------------------------------------#
 
+# Wraps a function so that each call is a task recording its status, result and error, with optional handlers.
+#
+# Call_ calls the wrapped function now with a list of up to ten parameters and answers the executed
+# task. CallAsync takes handlers for success and failure; despite its name it runs the task at once
+# on the calling thread and the handlers run before it returns. A failure inside the function is
+# recorded on the task with its real reason and passed to the error handler. The wrapper keeps its
+# engine as a copy, so tasks added to the engine are not seen by the original. It is not Ring's call
+# function.
+#
+#   receiver   oEngine = new stzReactive() o1 = new stzReactiveFunc(func a, b { return a + b },
+#              oEngine)
+#   example    oTask = o1.Call_([ 2, 3 ])
+#              ? oTask.Result()
+#              #--> 5
+#              ? oTask.Status()
+#              #--> completed
+#              oBad = o1.Call_(7)
+#              ? oBad.Status()
+#              #--> error
+#              ? oBad.Error()
+#              #--> Reactive call params must be a list
+#   see        stzFunctionTask, stzReactiveTask, stzReactive
 class stzReactiveFunc from stzObject
 
 	@originalFunc = ""
@@ -13,33 +35,48 @@ class stzReactiveFunc from stzObject
 	# `new stzReactive()`.
 	@oEngine = ""
 
+	# Wraps a function so it can be called as a task that records its outcome.
+	#
+	#   f          the function to wrap
+	#   engine     the reactive engine the tasks are registered with
+	#   returns    nothing; the wrapper is built
+	#   note       the engine is kept as a copy, so a task added to it is not seen by the original
+	#              engine
+	#   see        Call_, CallAsync
 	def Init(f, engine)
 		@originalFunc = f
 		@oEngine = engine
 
-	# THE SYNCHRONOUS CALL. It has to actually call.
+	# Calls the wrapped function now with a list of parameters and returns the task holding the outcome.
 	#
-	# This built the task, handed it to AddTask, and returned it unexecuted. Its
-	# async sibling below calls Execute() on the local task; this one relied on
-	# the engine running it later, and the engine never saw it: @oEngine is an
-	# attribute, so AddTask appends to a COPY of the reactive system. Measured --
-	# the real engine's task list stayed at zero, and after Start() the wrapped
-	# function had run zero times. Call_ did nothing whatsoever.
-	#
-	# AddTask is kept because CallAsync does the same and both are equally
-	# copy-bound; that is the engine-identity problem, not this method's, and
-	# papering over it here would hide it. Execute() on the LOCAL task is what
-	# makes the result real, which is exactly how CallAsync has always worked.
+	#   params     the arguments, a list of up to 10 values
+	#   returns    a stzFunctionTask already executed: read its Status, Result and Error
+	#   note       the call is synchronous and is not run by the engine later: the task is executed
+	#              here, which is what makes the result real; it is not Ring's call function
+	#   warning    a params value that is not a list, or more than 10, leaves a task in error with
+	#              the reason Reactive call params must be a list or Reactive call has too many
+	#              params
+	#   see        CallAsync, Init
+	#@ aka  THE SYNCHRONOUS CALL. It has to actually call.
 	def Call_(params) #TODO //#WARNING May confuse user with the normal Ring call() function
 		_task_ = new stzFunctionTask(FUNC_CALL_SYNC, @originalFunc, params, @oEngine)
 		@oEngine.AddTask(_task_)
 		_task_.Execute()
 		return _task_
 		
-	# CallAsync() for normal operations
+	# Calls the wrapped function with handlers for success and for failure, and returns the task.
+	#
+	#   params       the arguments, a list of up to 10 values
+	#   onComplete   a function taking the result
+	#   onError      a function taking the error text
+	#   returns      a stzFunctionTask already executed
+	#   note         despite the name it runs the task at once on the calling thread, as Call_ does;
+	#                the handlers run before it returns
+	#   warning      a failure inside the function is passed to onError with its real reason, such
+	#                as Error (R1) : Can't divide by zero, and the task is left in error
+	#   see          Call_, Init
 	#TODO // CallAsyncChunked() when they know they have heavy
-	# computations that should yield control to other operations
-
+	#@ aka  CallAsync() for normal operations computations that should yield control to other operations
 	def CallAsync(params, onComplete, onError)
 
 		_task_ = new stzFunctionTask(FUNC_CALL_ASYNC, @originalFunc, params, @oEngine)
@@ -49,16 +86,54 @@ class stzReactiveFunc from stzObject
 		_task_.Execute()
 		return _task_
 
+# Holds one call of a function with a list of up to ten parameters, recording its status, result and error.
+#
+# It is the task a stzReactiveFunc makes. Execute calls the function with the parameters and records
+# completed with the result, or error with the real reason; it refuses a params value that is not a
+# list and more than ten parameters with a message saying so. Then_ and Catch_ come from
+# stzReactiveTask. The error mode is the default, which prints a failure to the console.
+#
+#   receiver   oEngine = new stzReactive() o1 = new stzFunctionTask("add", func a, b { return a + b
+#              }, [ 2, 3 ], oEngine)
+#   example    ? o1.Status()
+#              #--> pending
+#              o1.Execute()
+#              ? o1.Status()
+#              #--> completed
+#              ? o1.Result()
+#              #--> 5
+#              ? o1.Succeeded()
+#              #--> 1
+#   see        stzReactiveFunc, stzReactiveTask
 class stzFunctionTask from stzReactiveTask
 
 	@f = ""
 	@params = []
 	
+	# Builds a task that will call a function with a list of parameters, in the pending state.
+	#
+	#   id         the task's identifier
+	#   f          the function to call
+	#   params     the arguments, a list of up to 10 values
+	#   engine     the reactive engine it belongs to
+	#   returns    nothing; the task is built and not run
+	#   note       the error mode is the default, ERROR_LOG
+	#   see        Execute, stzReactiveFunc
 	def Init(id, f, params, engine)
 		super.Init(id, "", engine, DEFAULT_ERROR_HANDLING)
 		this.@f = f
 		@params = params
 		
+	# Calls the function with the parameters and records the outcome on the task.
+	#
+	#   returns    nothing; read the outcome with Status, Result and Error
+	#   note       on success the status is completed, the result is kept and Then_ is called; on
+	#              failure the status is error, the reason is on the task, and the console prints it
+	#              in the default mode
+	#   warning    a params value that is not a list records the error Reactive call params must be
+	#              a list; more than 10 records Reactive call has too many params: N (the limit is
+	#              10); a failure inside the function records its real reason
+	#   see        Init
 	def Execute()
 		# THE STATUS AND THE REASON LIVE ON THE TASK, not in locals. Writing
 		# _status_ here dropped it the moment Execute() returned, so every

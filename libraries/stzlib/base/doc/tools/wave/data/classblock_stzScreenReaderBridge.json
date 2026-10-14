@@ -1,0 +1,22 @@
+{
+ "brief": "Hands the accessibility tree of a window to the operating system's screen-reader service and counts whether anything read it.",
+ "detail": "The class carries no accessibility knowledge: the tree is built and judged by stzAccessibilityTree, and its JSON crosses unchanged. The bridge owns a platform connection through AccessKit and a lifetime. A machine with no runtime, or a window with no platform handle, is not an error, the bridge is simply not live and LastError says why. TimesAnnounced counts what the program did and TimesRead counts the times an assistive technology asked, which stays 0 on a quiet machine. Attaching to a window hides and re-shows it. The live path needs a real window and was not run for this reference: the example uses an object with no platform handle.",
+ "receiver": "eval(\"class StzNoHandleWindow\" + char(10) + \"def NativeHandle()\" + char(10) + \"return 0\")\no1 = new stzScreenReaderBridge(new StzNoHandleWindow)",
+ "example": [
+  "? o1.IsLive()",
+  "#--> 0",
+  "? o1.LastError()",
+  "#--> the window has no platform handle",
+  "? o1.Announce(\"{}\")",
+  "#--> 0",
+  "? o1.TimesAnnounced()",
+  "#--> 0",
+  "? @@( o1.Stats() )",
+  "#--> [ ]"
+ ],
+ "see": [
+  "stzAccessibilityTree",
+  "stzWindow",
+  "stzPanel"
+ ]
+}

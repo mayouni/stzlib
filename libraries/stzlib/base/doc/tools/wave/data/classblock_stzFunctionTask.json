@@ -1,0 +1,20 @@
+{
+ "brief": "Holds one call of a function with a list of up to ten parameters, recording its status, result and error.",
+ "detail": "It is the task a stzReactiveFunc makes. Execute calls the function with the parameters and records completed with the result, or error with the real reason; it refuses a params value that is not a list and more than ten parameters with a message saying so. Then_ and Catch_ come from stzReactiveTask. The error mode is the default, which prints a failure to the console.",
+ "receiver": "oEngine = new stzReactive()\no1 = new stzFunctionTask(\"add\", func a, b { return a + b }, [ 2, 3 ], oEngine)",
+ "example": [
+  "? o1.Status()",
+  "#--> pending",
+  "o1.Execute()",
+  "? o1.Status()",
+  "#--> completed",
+  "? o1.Result()",
+  "#--> 5",
+  "? o1.Succeeded()",
+  "#--> 1"
+ ],
+ "see": [
+  "stzReactiveFunc",
+  "stzReactiveTask"
+ ]
+}

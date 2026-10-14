@@ -1,0 +1,1 @@
+init | Describes the machine this program runs on, filled live from the operating system, the engine's memory readings and the Ring version. | nothing; the object is built | | Role, CapabilityList | the role is runtime, the name is this-machine, and the capabilities are the defaults of the system class (windows, linux and macos give desktop)

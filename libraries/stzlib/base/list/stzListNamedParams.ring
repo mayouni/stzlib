@@ -17,6 +17,26 @@
  ///   CLASS   ///
 /////////////////
 
+# Asks whether a list is a named parameter, a pair such as [ :At, 3 ] whose first item is a keyword of the library.
+#
+# The library lets a caller pass a value with a keyword, as in Insert(x, [ :After, 2 ]), and each
+# method tells the pair apart with a test. This class holds a list and carries more than 1,300 such
+# tests, one per keyword, named Is<Keyword>NamedParam; they are generated or hand-written one-
+# liners, and only the dozen hand-written ones are described here. For a new test, prefer
+# IsANamedParam (is it any known pair) or IsOneOfTheseNamedParams over adding another method. Build
+# one with new stzListNamedParams(aList) or over a stzList object. Ring keeps symbols in lowercase,
+# so [ :At, 3 ] is stored as [ "at", 3 ]; the comparison ignores case.
+#
+#   receiver   o1 = new stzListNamedParams([ :At, 3 ])
+#   example    ? o1.IsANamedParam()
+#              #--> 1
+#              ? o1.IsOneOfTheseNamedParams([ "At", "Before" ])
+#              #--> 1
+#              ? o1.IsNNamedParam()
+#              #--> 0
+#              ? o1.IsHashList()
+#              #--> 0
+#   see        stzList, stzHashList
 class stzListNamedParams from stzObject
 
 	@oList
@@ -25,6 +45,13 @@ class stzListNamedParams from stzObject
 	 #   INITIALIZATION  #
 	#===================#
 
+	# Builds a checker over a list or over a stzList object, to ask whether that list is a named parameter such as [ :At, 3 ].
+	#
+	#   pListOrObj   a list, or a stzList object, to be tested
+	#   returns      nothing; the object is built
+	#   warning      any other kind of value raises "Can't create stzListNamedParams! Parameter must
+	#                be a list or stzList object."
+	#   see          IsANamedParam
 	def init(pListOrObj)
 		if isList(pListOrObj)
 			@oList = new stzList(pListOrObj)
@@ -38,21 +65,52 @@ class stzListNamedParams from stzObject
 	 #     CONTENT ACCESS            #
 	#===============================#
 
+	# Returns the list under test, as it is stored.
+	#
+	#   returns    a list
+	#   note       Ring stores the keyword symbols in lowercase: [ :At, 3 ] reads back as [ "at", 3
+	#              ]
+	#   see        Item
 	def Content()
 		return @oList.Content()
 
+	# Returns how many items the list under test holds.
+	#
+	#   returns    a number
+	#   note       a named parameter has exactly 2
+	#   see        Content
 	def NumberOfItems()
 		return @oList.NumberOfItems()
 
+	# TRUE if the list under test holds no item.
+	#
+	#   returns    TRUE or FALSE
+	#   see        NumberOfItems
 	def IsEmpty()
 		return @oList.IsEmpty()
 
+	# Returns the item at a position of the list under test, counted from 1.
+	#
+	#   n          the position, from 1
+	#   returns    the item
+	#   see        Content
 	def Item(n)
 		return @oList.Item(n)
 
+	# TRUE if the list under test is a hash list, a list of [ key, value ] pairs such as [ :Width = 3 ].
+	#
+	#   returns    TRUE or FALSE
+	#   note       a lone named parameter [ :At, 3 ] is a pair, not a hash list, and answers FALSE
+	#   see        ToStzHashList, IsANamedParam
 	def IsHashList()
 		return @oList.IsHashList()
 
+	# Returns the list under test as a stzHashList, when it is a well-formed hash list.
+	#
+	#   returns    a stzHashList
+	#   warning    raises "Can't create the stzHashList object! You must provide a well formed
+	#              hashlist." for a list that is not one, such as the pair [ :At, 3 ]
+	#   see        IsHashList
 	def ToStzHashList()
 		return @oList.ToStzHashList()
 
@@ -62,9 +120,24 @@ class stzListNamedParams from stzObject
 	  #  Each call does an O(1) hash lookup in the Zig engine.          #
 	  #=================================================================#
 
+	# TRUE if the list is a named parameter: two items, the first a keyword the library knows.
+	#
+	#   returns    TRUE or FALSE
+	#   note       one engine lookup, so it is the fast test to prefer to the many Is...NamedParam
+	#              methods
+	#   see        IsNamedParamWith, IsOneOfTheseNamedParams
 	def IsANamedParam()
 		return IsNamedParamList(This.Content())
 
+	# TRUE if the list is the named parameter with the given keyword, the case ignored.
+	#
+	#   cKeyword   the keyword to test for, such as "At"
+	#   returns    nothing today: it raises error R20
+	#   note       use IsThisNamedParam(aList, cKeyword) instead
+	#   warning    Raises error R20 "Calling function with extra number of parameters" today instead
+	#              of TRUE or FALSE, whatever the keyword; the global IsThisNamedParam(aList,
+	#              cKeyword) it relies on answers 1 for [ :N, 5 ] and "N" outside the class
+	#   see        IsANamedParam, IsOneOfTheseNamedParams
 	def IsNamedParamWith(cKeyword)
 		return IsThisNamedParam(This.Content(), cKeyword)
 
@@ -675,8 +748,12 @@ class stzListNamedParams from stzObject
 			return 0
 		ok
 
-	#--
-
+	# TRUE if the list is the named parameter :ToPartsOfNItemsXT, a pair whose first item is that keyword.
+	#
+	#   returns    TRUE or FALSE
+	#   note       the only test of the family that is missing the NamedParam suffix in its name
+	#   see        IsANamedParam
+	#@ aka  --
 	def IsToPartsOfNItemsXT()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ToPartsOfNItemsXT)
@@ -948,8 +1025,17 @@ class stzListNamedParams from stzObject
 			return 0
 		ok
 
-	#--
-
+	# TRUE if the list is one of the named parameters whose names are given, such as "At" or "Before".
+	#
+	#   pacParamNames   a non-empty list of texts, each the name of an Is...NamedParam method
+	#                   without the Is and the NamedParam
+	#   returns         TRUE or FALSE
+	#   note            the names are tried in order and the first match stops the search
+	#   warning         A name that has no Is...NamedParam method raises error R14 (Calling Method
+	#                   without definition); an empty list or a text raises "Incorrect param type!
+	#                   pacParamNames must be a list of strings."
+	#   see             IsANamedParam, IsNamedParamWith
+	#@ aka  --
 	def IsOneOfTheseNamedParams(pacParamNames)
 		if CheckingParams()
 			if NOT ( isList(pacParamNames) and @IsListOfStrings(pacParamNames) )
@@ -976,8 +1062,17 @@ class stzListNamedParams from stzObject
 		def IsOneTheseNamedParams(pacParamNames)
 			return This.IsOneOfTheseNamedParams(pacParamNames)
 
+	# TRUE if the list is a set of options for a remove-at call, such as [ :RemoveNCharsBefore = 2, :CS = 0 ].
+	#
+	#   returns    TRUE or FALSE; but see the warning
+	#   note       the intended check that :CaseSensitive and :CS are not both given is what calls
+	#              the missing method
+	#   warning    Raises error R14 (Calling Method without definition: containsbothcs) today for
+	#              any hash list whose keys include one of the remove options, such as [
+	#              :RemoveNCharsBefore = 2 ] or [ :CaseSensitive = 1, :CS = 0 ], instead of TRUE; a
+	#              list with no such key answers FALSE
+	#   see        IsBoxOptionsNamedParam
 		#>
-
 	def IsRemoveAtOptionsNamedParam()
 		_bResult_ = 0
 
@@ -1049,6 +1144,11 @@ class stzListNamedParams from stzObject
 
 		return _bResult_
 
+	# TRUE if the list is empty, or a hash list whose keys are all options of a boxed text, such as :Line, :Width or :TextAdjustedTo.
+	#
+	#   returns    TRUE or FALSE
+	#   note       one key outside the set makes it FALSE: [ :Width = 3, :Zork = 4 ] answers FALSE
+	#   see        IsBoxOptionsNamedParam
 	def IsTextBoxedOptionsNamedParam()
 		/*
 		Example:
@@ -1110,6 +1210,12 @@ class stzListNamedParams from stzObject
 
 		return 0
 
+	# TRUE if the list is empty, or a hash list whose keys are all options of a box, such as :Line, :Width, :Shadowed or :CS.
+	#
+	#   returns    TRUE or FALSE
+	#   note       one key outside the set makes it FALSE; :Shadowed is accepted here and not by
+	#              IsTextBoxedOptionsNamedParam
+	#   see        IsTextBoxedOptionsNamedParam
 	def IsBoxOptionsNamedParam()
 
 		if This.IsEmpty()
@@ -1148,6 +1254,15 @@ class stzListNamedParams from stzObject
 			return 0
 		ok
 
+	# TRUE if the list is a set of constraints keyed by Softanza types, such as [ :OnStzNumber = [ ... ] ].
+	#
+	#   returns    FALSE today, whatever the list
+	#   note       FALSE can mean either not a constraints set or the hidden failure
+	#   warning    Answers FALSE today even for the example in its own comment, instead of TRUE for
+	#              a well-formed set of constraints: its check calls VerifyConstraints with an
+	#              argument list, which that method does not take (error R20), and the try block
+	#              hides the error
+	#   see        IsANamedParam
 	def IsConstraintsOptionsNamedParam()
 		/* EXAMPLE
 		[
@@ -2357,6 +2472,10 @@ class stzListNamedParams from stzObject
 			return 0
 		ok
 
+	# TRUE if the list is the named parameter :N, a pair whose first item is that keyword.
+	#
+	#   returns    TRUE or FALSE
+	#   see        IsANamedParam
 	def IsNNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :N)

@@ -1,0 +1,11 @@
+init | Generates a new random version-4 UUID, held in upper case with hyphens, such as 3F2504E0-4F89-41D3-9A0C-0305E82C3301. | nothing; the object is built | | Content, IsValid
+Content | Returns the UUID as 36 upper-case characters with hyphens. | a text | | WithHyphens, WithoutHyphens
+Copy | Returns a new stzUUID that holds the same value, so the two are independent objects with one identity. | a new stzUUID | | Content | the constructor generates a fresh UUID first, which the copy then overwrites
+WithoutHyphens | Returns the UUID as 32 hexadecimal characters with the hyphens removed. | a text | | WithHyphens, Content
+WithHyphens | Returns the UUID in the 8-4-4-4-12 form. | a text | | WithoutHyphens, Content | it returns the same text as Content for a UUID built by this class
+IsNull | TRUE if the UUID is the nil UUID, all zeros. | TRUE or FALSE | | IsValid | a generated UUID is never nil
+IsValid | TRUE if the engine reads the value as a well-formed UUID. | TRUE or FALSE | | IsNull, Version
+Version | Returns the UUID version number, 4 for a generated one; 0 when the engine cannot read it. | a number | | Variant, IsValid
+Variant | Returns the name of the UUID variant read from its variant bits: RFC 4122, Microsoft, Reserved (NCS) or Future. | a text | | Version
+Hashed | Returns a small number derived from the 32 characters, for use as a hash key. | a number below 2147483647 | | Content | a polynomial hash of the hex text, not a cryptographic one; equal UUIDs give equal numbers
+ToBytes | Returns the 16 bytes of the UUID as numbers from 0 to 255. | a list of 16 numbers | | WithoutHyphens, Hashed

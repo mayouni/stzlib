@@ -52,6 +52,40 @@
 func StzSla(pcName)
 	return new stzSla(pcName)
 
+# Holds the expectations a service must meet, stated in operational terms, and judges them against measured numbers.
+#
+# An SLA is part of the design and not a dashboard threshold added after an incident. Expect names a
+# well-known subject, response time percentiles, throughput, error rate, availability, CPU, memory,
+# and a closer, Under, AtMost, AtLeast or Over, gives the bound; ExpectP95, ExpectMean, ExpectValue,
+# ExpectRate and ExpectStable do the same for a metric of your own. CheckAgainst judges them against
+# a stzPerfMonitor and returns the breaches as findings in the unified shape, subject perf, ready
+# for stzRuleReport. An expectation over a metric the monitor does not carry is an error finding,
+# never a silent pass. AsWarning softens the last expectation to advice. Judged values that depend
+# on the clock, rates and CPU, should be asserted by range.
+#
+#   receiver   oMon = StzPerfMonitor("api") oT = oMon.NewTimer("http.request.ms") oT.Record(20)
+#              oT.Record(40) oT.Record(60) oT.Record(80) oT.Record(400) oReq =
+#              oMon.NewCounter("http.requests") oReq.IncrementBy(200) oErr =
+#              oMon.NewCounter("http.errors") oErr.IncrementBy(1) oDepth =
+#              oMon.NewGauge("queue.depth") oDepth.Set(120) o1 = StzSla("restolean-api")
+#              o1.Expect(:ResponseTimeP95).Under(200) o1.Expect(:ResponseTimeP50).AtMost(100)
+#              o1.Expect(:Availability).AtLeast(99.9) o1.ExpectValue("queue.depth").AtMost(100)
+#   example    ? o1.NumberOfExpectations()
+#              #--> 4
+#              aF = o1.CheckAgainst(oMon)
+#              ? len(aF)
+#              #--> 3
+#              ? aF[1][:rule]
+#              #--> response-time-p95-under-200
+#              ? aF[1][:message]
+#              #--> response-time-p95-under-200: measured 400 (must be <= 200)
+#              ? o1.Verdicts()[2][:ok]
+#              #--> 1
+#              ? o1.Passed()
+#              #--> 0
+#              ? o1.BreachCount()
+#              #--> 3
+#   see        stzPerfMonitor, stzPerfSentinel, stzRuleReport
 class stzSla from stzObject
 
 	@cName = ""
@@ -63,14 +97,36 @@ class stzSla from stzObject
 	@aVerdicts = []		# last check: [ :rule, :ok, :actual, :bound, :message ]
 	@nBreaches = 0
 
+	# Builds an empty service-level agreement under a name, to which expectations are added.
+	#
+	#   pcName     the name of the SLA, written into every finding
+	#   returns    nothing; the object is built
+	#   note       StzSla builds the same object
+	#   see        Expect, CheckAgainst
 	def init(pcName)
 		@cName = "" + pcName
 
+	# Returns the name the SLA was built with.
+	#
+	#   returns    the name as text
+	#   see        Explain
 	def Name()
 		return @cName
 
-	# -- Declaring ------------------------------------------------
-
+	# Opens an expectation on one of the well-known measured subjects, to be closed with a bound.
+	#
+	#   pcSubject   ResponseTimeP50, ResponseTimeP95, ResponseTimeP99, ResponseTimeMean, Throughput,
+	#               ErrorRate, Availability, CpuUtilization, MemoryRss, MemoryGrowthPerHour or
+	#               SystemMemoryFree, in any letter case
+	#   returns     the SLA itself, so the closer can follow
+	#   note        the subjects are resolved against the monitor's metrics, such as http.request.ms
+	#               for the response times and process.cpu.utilization for the CPU
+	#   warning     a subject that is not in the list, such as Happiness, raises error stzSla:
+	#               unknown subject ... with the list; opening a second expectation before closing
+	#               the first raises error stzSla.Expect: the expectation on ... is still open --
+	#               close it with Under()/AtMost()/AtLeast()/Over() first
+	#   see         Under, AtLeast, ExpectP95
+	#@ aka  -- Declaring ------------------------------------------------
 	def Expect(pcSubject)
 		This._MustNotBePending("Expect")
 		_cS_ = StzLower(ring_trim("" + pcSubject))
@@ -91,41 +147,117 @@ class stzSla from stzObject
 		@cPendLabel = This._LabelOf(_cS_)
 		return This
 
+	# Opens an expectation on the 95th percentile of a metric of your own, to be closed with a bound.
+	#
+	#   pcMetric   the name of a metric on the monitor, such as shop.checkout.ms
+	#   returns    the SLA itself, so the closer can follow
+	#   note       a metric the monitor does not carry gives an error finding saying NOT MEASURED,
+	#              never a silent pass
+	#   warning    an expectation still open raises error ... is still open
+	#   see        ExpectMean, Under
 	def ExpectP95(pcMetric)
 		return This._OpenCustom("p95", pcMetric)
 
+	# Opens an expectation on the mean of a metric of your own, to be closed with a bound.
+	#
+	#   pcMetric   the name of a metric on the monitor
+	#   returns    the SLA itself, so the closer can follow
+	#   note       an unmeasured metric is an error finding
+	#   warning    an expectation still open raises error ... is still open
+	#   see        ExpectP95, Under
 	def ExpectMean(pcMetric)
 		return This._OpenCustom("mean", pcMetric)
 
+	# Opens an expectation on the current value of a metric of your own, to be closed with a bound.
+	#
+	#   pcMetric   the name of a counter or gauge on the monitor, such as queue.depth
+	#   returns    the SLA itself, so the closer can follow
+	#   note       an unmeasured metric is an error finding
+	#   warning    an expectation still open raises error ... is still open
+	#   see        ExpectRate, Under
 	def ExpectValue(pcMetric)
 		return This._OpenCustom("value", pcMetric)
 
+	# Opens an expectation on the measured rate per second of a metric of your own, to be closed with a bound.
+	#
+	#   pcMetric   the name of a counter on the monitor, such as shop.orders
+	#   returns    the SLA itself, so the closer can follow
+	#   note       a rate is live: judge it by range, never by an exact number
+	#   warning    an expectation still open raises error ... is still open
+	#   see        ExpectValue, AtLeast
 	def ExpectRate(pcMetric)
 		return This._OpenCustom("rate", pcMetric)
 
-	# Stability closes ITSELF: the judgment is "the newest sample is
-	# no outlier against its own window" (|z| <= 3), so there is no
-	# numeric bound to state.
+	# Declares that a metric must have no outlier: its newest sample must lie within 3 standard deviations of the window before it.
+	#
+	#   pcMetric   the name of a metric on the monitor
+	#   returns    the SLA itself; it closes itself and takes no bound
+	#   note       with fewer than 8 samples it passes and says stability is not judgeable yet; a
+	#              jump off a perfectly flat window is judged infinitely surprising; the rule is
+	#              named stable- followed by the metric
+	#   warning    an expectation still open raises error ... is still open
+	#   see        ExpectValue, CheckAgainst
+	#@ aka  Stability closes ITSELF: the judgment is "the newest sample is no outlier against its own window" (|z| <= 3), so there is no numeric bound to state.
 	def ExpectStable(pcMetric)
 		This._MustNotBePending("ExpectStable")
 		_cM_ = "" + pcMetric
 		@aExpectations + [ "stable-" + _cM_, "stable", _cM_, "stable", 3, "error" ]
 		return This
 
+	# Closes the open expectation: it passes when the measured value is at most the bound.
+	#
+	#   pnBound    the largest value that passes, in the unit of the subject: milliseconds for
+	#              response times, a fraction for CPU, bytes for memory
+	#   returns    the SLA itself, so calls chain
+	#   note       the rule is named from the subject, the closer and the bound, such as response-
+	#              time-p95-under-200; AtMost is the same call
+	#   warning    closing when nothing is open raises error stzSla: no open expectation to close --
+	#              say Expect(...) first
+	#   see        AtMost, AtLeast, AsWarning
 	def Under(pnBound)
 		return This._Close("under", pnBound)
 
+		# Closes the open expectation: it passes when the measured value is at most the bound.
+		#
+		#   pnBound    the largest value that passes
+		#   returns    the SLA itself, so calls chain
+		#   note       the same call as Under
+		#   warning    closing when nothing is open raises error stzSla: no open expectation to
+		#              close
+		#   see        Under, AtLeast
 		def AtMost(pnBound)
 			return This._Close("under", pnBound)
 
+	# Closes the open expectation: it passes when the measured value is at least the bound.
+	#
+	#   pnBound    the smallest value that passes, such as 99.9 for an availability in percent
+	#   returns    the SLA itself, so calls chain
+	#   note       the rule name carries atleast; Over is the same call
+	#   warning    closing when nothing is open raises error stzSla: no open expectation to close
+	#   see        Over, Under, AsWarning
 	def AtLeast(pnBound)
 		return This._Close("atleast", pnBound)
 
+		# Closes the open expectation: it passes when the measured value is at least the bound.
+		#
+		#   pnBound    the smallest value that passes
+		#   returns    the SLA itself, so calls chain
+		#   note       the same call as AtLeast, so the bound itself passes
+		#   warning    closing when nothing is open raises error stzSla: no open expectation to
+		#              close
+		#   see        AtLeast, Under
 		def Over(pnBound)
 			return This._Close("atleast", pnBound)
 
-	# Soften the LAST closed expectation: it advises, it does not fail
-	# the gate (stzRuleReport.IsSound ignores warnings by convention).
+	# Softens the last closed expectation to an advisory one, which does not fail the gate.
+	#
+	#   returns    the SLA itself, so calls chain
+	#   note       its findings carry the severity warning, which stzRuleReport.IsSound ignores;
+	#              Passed and BreachCount still count them
+	#   warning    calling it before any expectation is closed raises error stzSla.AsWarning: no
+	#              expectation closed yet
+	#   see        Under, CheckAgainst
+	#@ aka  Soften the LAST closed expectation: it advises, it does not fail the gate (stzRuleReport.IsSound ignores warnings by convention).
 	def AsWarning()
 		_n_ = ring_len(@aExpectations)
 		if _n_ = 0
@@ -134,16 +266,24 @@ class stzSla from stzObject
 		@aExpectations[_n_][6] = "warning"
 		return This
 
+	# Returns how many expectations have been closed.
+	#
+	#   returns    a number; an expectation still open is not counted
+	#   see        Expect, CheckAgainst
 	def NumberOfExpectations()
 		return ring_len(@aExpectations)
 
-	# -- Judging --------------------------------------------------
-
-	# Judge every expectation against the monitor's MEASURED numbers.
-	# Returns the breaches as findings in the unified rule shape
-	# ([ :rule, :subject, :where, :severity, :message ], subject
-	# "perf") -- hand them to stzRuleReport.Ingest(). Full verdicts
-	# (passes included, with actuals) stay readable via Verdicts().
+	# Judges every expectation against the monitor's measured numbers and returns the breaches.
+	#
+	#   poMonitor   the stzPerfMonitor whose metrics are read
+	#   returns     a list of findings in the unified shape, each a hash list with rule, subject
+	#               perf, where, severity and message; [ ] when everything is met
+	#   note        the finding is ready for stzRuleReport.Ingest; where reads the SLA name, a
+	#               slash, and the metric; a call replaces the verdicts of the call before
+	#   warning     an expectation over a metric the monitor does not carry is an error finding
+	#               whose message says NOT MEASURED and what to watch, never a pass
+	#   see         Verdicts, Findings, Explain
+	#@ aka  -- Judging --------------------------------------------------
 	def CheckAgainst(poMonitor)
 		@aVerdicts = []
 		@nBreaches = 0
@@ -177,8 +317,11 @@ class stzSla from stzObject
 		next
 		return _aFindings_
 
-	# The breaches of the LAST check, unified shape (re-derivable
-	# without re-measuring).
+	# Returns the breaches of the last check again, in the unified shape, without measuring anything.
+	#
+	#   returns    a list of findings; [ ] before any check or when all were met
+	#   see        CheckAgainst, Verdicts
+	#@ aka  The breaches of the LAST check, unified shape (re-derivable without re-measuring).
 	def Findings()
 		_aOut_ = []
 		_nLen_ = ring_len(@aVerdicts)
@@ -193,15 +336,36 @@ class stzSla from stzObject
 		next
 		return _aOut_
 
+	# Returns the verdict of every expectation from the last check, the passes too.
+	#
+	#   returns    a list of hash lists with the keys rule, ok, actual, bound and message
+	#   note       an unmeasured expectation has ok 0 and actual 0
+	#   see        Findings, Passed
 	def Verdicts()
 		return @aVerdicts
 
+	# TRUE if the last check found no breach, of any severity.
+	#
+	#   returns    TRUE or FALSE, as 1 or 0; 1 before any check
+	#   note       an advisory breach makes it 0 though the gate stays sound: with only a warning it
+	#              answered 0 while stzRuleReport.IsSound answered 1
+	#   see        BreachCount, Findings
 	def Passed()
 		return @nBreaches = 0
 
+	# Returns how many expectations breached in the last check.
+	#
+	#   returns    a number, the advisory ones and the not-measured ones included
+	#   see        Passed, Findings
 	def BreachCount()
 		return @nBreaches
 
+	# Returns the last check as lines of text: a verdict line, then each expectation marked MET or BREACH with its message.
+	#
+	#   returns    a list of text lines
+	#   note       the first line gives the number of expectations and MET or BREACHED with the
+	#              count
+	#   see        Show, Verdicts
 	def Explain()
 		_aLines_ = []
 		_cV_ = "MET"
@@ -220,6 +384,11 @@ class stzSla from stzObject
 		next
 		return _aLines_
 
+	# Prints the explanation to the console, one line per line.
+	#
+	#   returns    nothing
+	#   note       it prints with the ? statement
+	#   see        Explain
 	def Show()
 		_aL_ = This.Explain()
 		_nL_ = ring_len(_aL_)

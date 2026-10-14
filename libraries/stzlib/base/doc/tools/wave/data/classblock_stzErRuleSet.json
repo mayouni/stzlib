@@ -1,0 +1,18 @@
+{
+ "brief": "Holds the four rules a schema must keep and judges a graph made from an entity-relationship diagram.",
+ "detail": "The set carries entity_has_key and foreign_key_resolves as errors, relation_backed_by_key and participation_matches_nullability as warnings, in the er-governance set of the er domain. stzErDiagram builds one for GovernanceFindings and hands it the graph from AsRuleGraph; use the set directly to add a rule of your own before checking.",
+ "receiver": "o1 = new stzErRuleSet()",
+ "example": [
+  "? o1.Name()",
+  "#--> er-governance",
+  "? o1.Domain()",
+  "#--> er",
+  "? len(o1.Rules())",
+  "#--> 4"
+ ],
+ "see": [
+  "stzErDiagram",
+  "stzErRule",
+  "stzGraphRuleSet"
+ ]
+}

@@ -1,0 +1,24 @@
+{
+ "brief": "Holds a performance tuning plan as proposed actions that only an effectful actor may commit, with every outcome audited.",
+ "detail": "Optimization crosses reality: scaling a fleet, draining workers, healing the dead. Expression is free and admission is governed. The plan's catalog is closed: ScaleUp, ScaleDown and RestartDead, each mapping to one verb on the target. An actor whose effects are empty, such as an inference-only LLMActor, can build the plan, explain it and hand it over, but ExecuteOn refuses it wholesale and audits each refusal; a HumanActor commits. MayCommit answers admissibility before any attempt. The audit trail holds [ n, verdict, action, tag, actor, why ] for every outcome, so refusals are never silent.",
+ "receiver": "o1 = StzPerfPlan(\"relieve-nlp\")\no1.Propose(:ScaleUp, \"nlp\", \"measured load 0.92 > high-water 0.75\")\no1.Propose(:RestartDead, \"nlp\", \"2 dead workers\")\noAdvisor = LLMActor(\"advisor\")\noChief = HumanActor(\"mansour\")",
+ "example": [
+  "? o1.NumberOfActions()",
+  "#--> 2",
+  "? o1.Actions()[1][1]",
+  "#--> scaleup",
+  "? o1.MayCommit(oAdvisor)",
+  "#--> 0",
+  "? o1.MayCommit(oChief)",
+  "#--> 1",
+  "? o1.WasExecuted()",
+  "#--> 0",
+  "? o1.Explain()[1]",
+  "#--> Perf plan relieve-nlp -- 2 proposed action(s)."
+ ],
+ "see": [
+  "stzAppCluster",
+  "stzSla",
+  "stzPerfSentinel"
+ ]
+}

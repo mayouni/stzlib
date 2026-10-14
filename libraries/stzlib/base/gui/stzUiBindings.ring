@@ -47,6 +47,37 @@
 func StzUiBindingsQ(poDoc, poPanel)
 	return new stzUiBindings(poDoc, poPanel)
 
+# Binds {name} placeholders in a document's texts to values, so setting a value changes the screen without rebuilding it.
+#
+# A placeholder is an ordinary string with braces in it, so the document format is unchanged. Set
+# gives a name a value and re-renders only the elements that mention it; SetMany does several at
+# once and updates each affected element once; Apply pushes everything. The document survives an
+# update, so there is no re-parse, no new font registration and no rebuilt accessibility tree, and
+# focus and hover stay where they were. Text changes still re-shape the whole document, style
+# changes through SetStyle are surgical. The class substitutes text and sets style properties and
+# computes no meanings. Layout needs the engine and a font, no window.
+#
+#   receiver   oDoc = new stzUiDocument('DEFINE PANEL console ( SIZE [400, 200], DIRECTION column,
+#              PADDING 10, CHILDREN [title, readout] ) RATIONALE "A console."' + char(10) + 'DEFINE
+#              TEXT title ( CONTENT "NAV - {mode}", SIZE 20 ) RATIONALE "The mode."' + char(10) +
+#              'DEFINE TEXT readout ( CONTENT "BEARING {bearing} RANGE {range} km", SIZE 16 )
+#              RATIONALE "The numbers."') oDoc.UseFont("C:/Windows/Fonts/segoeui.ttf") oPanel =
+#              oDoc.ToPanel() o1 = new stzUiBindings(oDoc, oPanel)
+#   example    ? @@( o1.Names() )
+#              #--> [ "mode", "bearing", "range" ]
+#              o1.Set(:bearing, "042.9")
+#              ? o1.RenderOf("readout")
+#              #--> BEARING 042.9 RANGE  km
+#              ? @@( o1.Unset() )
+#              #--> [ "mode", "range" ]
+#              o1.SetMany([ :mode = "TRACK", :range = "8.20" ])
+#              ? o1.RenderOf("title")
+#              #--> NAV - TRACK
+#              ? o1.ValueOf("range")
+#              #--> 8.20
+#              ? o1.TimesApplied()
+#              #--> 3
+#   see        stzUiDocument, stzPanel, stzScenePanel
 class stzUiBindings from stzObject
 
 	@oDoc = NULL
@@ -55,6 +86,17 @@ class stzUiBindings from stzObject
 	@aValues = []       # [ [ name, value ], ... ]
 	@nApplied = 0
 
+	# Reads every {name} placeholder out of the text declarations of a document, ready to be given values.
+	#
+	#   poDoc      the stzUiDocument whose CONTENT strings hold placeholders
+	#   poPanel    the stzPanel made from it
+	#   returns    nothing; the placeholders are harvested when the object is built
+	#   note       a placeholder is a name of lower-case letters, digits and underscores in braces;
+	#              a lone brace, an empty pair of braces and braces round anything else, such as
+	#              {Bad Name}, stay as written
+	#   warning    an argument that is not a document and a panel raises error stzUiBindings: give
+	#              an stzUiDocument and its stzPanel
+	#   see        Names, Set
 	def init(poDoc, poPanel)
 		if NOT (isObject(poDoc) and isObject(poPanel))
 			StzRaise("stzUiBindings: give an stzUiDocument and its stzPanel.")
@@ -63,11 +105,13 @@ class stzUiBindings from stzObject
 		@oPanel = poPanel
 		This._Harvest()
 
-	#-- what the document declared -----------------------------------------
-
-	# Every placeholder name the document mentions, in first-seen order.
-	# A caller can ask this BEFORE setting anything, which is how a screen
-	# says what it needs rather than failing when it does not get it.
+	# Returns every placeholder name the document mentions, in the order first met.
+	#
+	#   returns    a list of text; [ ] when the document has none
+	#   note       a screen can say what it needs before anything is set; a name used in two texts
+	#              is listed once
+	#   see        Unset, IsBound, BoundElements
+	#@ aka  -- what the document declared -----------------------------------------
 	def Names()
 		_a_ = []
 		_n_ = len(@aTemplates)
@@ -82,7 +126,11 @@ class stzUiBindings from stzObject
 		next
 		return _a_
 
-	# The elements that carry a placeholder at all.
+	# Returns the text elements that carry at least one placeholder.
+	#
+	#   returns    a list of element names in declaration order
+	#   see        Names, RenderOf
+	#@ aka  The elements that carry a placeholder at all.
 	def BoundElements()
 		_a_ = []
 		_n_ = len(@aTemplates)
@@ -91,13 +139,22 @@ class stzUiBindings from stzObject
 		next
 		return _a_
 
+	# TRUE if the document mentions a placeholder with a name.
+	#
+	#   pcName     the placeholder name, without braces
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   note       a name that is not a plain lower-case name, such as Bad Name, is never bound
+	#   see        Names, ValueOf
 	def IsBound(pcName)
 		return This._Has(This.Names(), "" + pcName)
 
-	# Names the document uses but nothing has given a value to. Rendering
-	# them as empty is the right default -- a screen with a blank field is
-	# better than a screen that refuses to appear -- but a caller that
-	# wants to be strict can ask.
+	# Returns the placeholders that have not been given a value yet.
+	#
+	#   returns    a list of text in the order of Names
+	#   note       an unset placeholder renders as empty text, a blank field rather than a screen
+	#              that refuses to appear
+	#   see        Names, Set
+	#@ aka  Names the document uses but nothing has given a value to. Rendering them as empty is the right default -- a screen with a blank field is better than a screen that refuses to appear -- but a caller that wants to be strict can ask.
 	def Unset()
 		_a_ = []
 		_aN_ = This.Names()
@@ -109,6 +166,11 @@ class stzUiBindings from stzObject
 		next
 		return _a_
 
+	# Returns the value last given to a placeholder.
+	#
+	#   pcName     the placeholder name, without braces
+	#   returns    the value as text; an empty text for a name never set
+	#   see        Set, Unset
 	def ValueOf(pcName)
 		_i_ = This._ValueIndex("" + pcName)
 		if _i_ = 0
@@ -116,10 +178,17 @@ class stzUiBindings from stzObject
 		ok
 		return @aValues[_i_][2]
 
-	#-- the one verb --------------------------------------------------------
-
-	# Give a name a value. Every element whose template mentions it is
-	# re-rendered and set; nothing else is touched.
+	# Gives a placeholder a value and re-renders every element whose text mentions it.
+	#
+	#   pcName     the placeholder name, without braces
+	#   pValue     the value, turned into text
+	#   returns    TRUE when every affected element was updated; TRUE also for a name no element
+	#              mentions, which changes nothing. SetQ returns the bindings for chaining
+	#   note       the value is kept as text, so 7 reads back as 7; SetMany takes a list [ :name =
+	#              value, ... ] and updates each affected element once, so a line built from three
+	#              values is set once and not three times
+	#   see        SetMany, Apply, RenderOf
+	#@ aka  -- the one verb --------------------------------------------------------
 	def Set(pcName, pValue)
 		_c_ = "" + pcName
 		_v_ = "" + pValue
@@ -164,8 +233,13 @@ class stzUiBindings from stzObject
 		This.SetMany(paPairs)
 		return This
 
-	# Push every template again, whatever changed. What a caller does
-	# after loading a screen, to fill it in one go.
+	# Pushes every bound element to the panel again, whatever changed.
+	#
+	#   returns    TRUE when every element was updated
+	#   note       what to call after loading a screen, to fill it in one go; ApplyQ returns the
+	#              bindings for chaining
+	#   see        Set, TimesApplied
+	#@ aka  Push every template again, whatever changed. What a caller does after loading a screen, to fill it in one go.
 	def Apply()
 		_a_ = []
 		_n_ = len(@aTemplates)
@@ -178,15 +252,25 @@ class stzUiBindings from stzObject
 		This.Apply()
 		return This
 
-	# How many element updates have actually been pushed. The honest
-	# counter: a binding that quietly matched nothing would otherwise look
-	# exactly like one that worked.
+	# Returns how many element updates have been pushed to the panel.
+	#
+	#   returns    a number, starting at 0; each text element updated and each style change adds one
+	#   note       an honest counter: a binding that matched nothing leaves it unchanged, as Set of
+	#              a name no element mentions does
+	#   see        Set, Apply
+	#@ aka  How many element updates have actually been pushed. The honest counter: a binding that quietly matched nothing would otherwise look exactly like one that worked.
 	def TimesApplied()
 		return @nApplied
 
-	# What one element's text would be, right now. Inspectable without
-	# touching the panel, which is what makes the substitution testable
-	# separately from the rendering.
+	# Returns what a bound element's text would be right now, without touching the panel.
+	#
+	#   pcElement   the name of the text element
+	#   returns     the text with the current values put in; an empty text for an element that is
+	#               not bound
+	#   note        a placeholder with no value reads as empty text, and braces that are not
+	#               placeholders are left as written
+	#   see         Set, BoundElements
+	#@ aka  What one element's text would be, right now. Inspectable without touching the panel, which is what makes the substitution testable separately from the rendering.
 	def RenderOf(pcElement)
 		_n_ = len(@aTemplates)
 		for _i_ = 1 to _n_
@@ -196,13 +280,17 @@ class stzUiBindings from stzObject
 		next
 		return ""
 
-	#-- style, which IS surgical -------------------------------------------
+	# Sets one style property of an element in the panel, directly.
 	#
-	# Text updates re-shape the whole document; style updates do not. Kept
-	# as its own verb rather than folded into Set(), because the two have
-	# genuinely different costs and a caller choosing between them should
-	# see which is which.
-
+	#   pcElement    the name of the element
+	#   pcProperty   the style property, such as color
+	#   pcValue      the value, such as #ff0000
+	#   returns      TRUE when the panel took it, FALSE for an element it does not know. SetStyleQ
+	#                returns the bindings for chaining
+	#   note         a style change is surgical: unlike a text change it does not re-shape the whole
+	#                document; each success adds one to TimesApplied
+	#   see          ClearStyle, Set
+	#@ aka  -- style, which IS surgical -------------------------------------------
 	def SetStyle(pcElement, pcProperty, pcValue)
 		if NOT @oPanel.SetStyleOf(pcElement, pcProperty, pcValue)
 			return FALSE
@@ -214,7 +302,14 @@ class stzUiBindings from stzObject
 		This.SetStyle(pcElement, pcProperty, pcValue)
 		return This
 
-	# Hand the element back to the stylesheet.
+	# Hands a style property of an element back to the stylesheet.
+	#
+	#   pcElement    the name of the element
+	#   pcProperty   the style property to give back
+	#   returns      TRUE when the panel took it, FALSE for an element it does not know
+	#   note         it sets the property to an empty text
+	#   see          SetStyle
+	#@ aka  Hand the element back to the stylesheet.
 	def ClearStyle(pcElement, pcProperty)
 		return This.SetStyle(pcElement, pcProperty, "")
 

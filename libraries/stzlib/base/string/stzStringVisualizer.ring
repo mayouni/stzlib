@@ -13,10 +13,35 @@
 #--------------------------------------------------------------#
 
 
+# Makes a text visible: prints it, marks where a character or substring occurs, frames it in a box, or wraps matches in markers.
+#
+# Build one with new stzStringVisualizer("text"); it only reads, so a stzString passed in is never
+# changed. Show, ShowShort and ShowNL print; VizFindChar, VizFind, Boxed, BoxedRounded, Stringify
+# and Highlight return a text; EachCharBoxed returns a list of small boxes. The boxes use plain
+# ASCII characters (dots, dashes and bars), so they print on any console, unlike the Unicode frames
+# of stzStringBoxed. Widths count characters, so Hebrew, Arabic and emoji are measured by letter.
+#
+#   receiver   o1 = new stzStringVisualizer("banana band")
+#   example    ? o1.VizFind("an")
+#              #--> "banana band"
+#              #-->  -^^^^---^^-
+#              ? o1.Highlight("an", "*")
+#              #--> b*an**an*a b*an*d
+#              ? o1.Stringify()
+#              #--> "banana band"
+#   see        stzStringBoxed, stzString, stzStringFinder
 class stzStringVisualizer from stzObject
 
 	@oString
 
+	# Builds a visualizer over a text or over a stzString object, to print it, mark things in it or frame it.
+	#
+	#   pStrOrStzStrObj   a text, or a stzString object, to display
+	#   returns           nothing; the object is built
+	#   warning           any other kind of value raises "Can't create stzStringVisualizer!
+	#                     Parameter must be a string or stzString object."; the visualizer only
+	#                     reads, so a stzString passed in is never changed
+	#   see               Show, Boxed
 	def init(pStrOrStzStrObj)
 		if isString(pStrOrStzStrObj)
 			@oString = new stzString(pStrOrStzStrObj)
@@ -26,12 +51,24 @@ class stzStringVisualizer from stzObject
 			StzRaise("Can't create stzStringVisualizer! Parameter must be a string or stzString object.")
 		ok
 
+	# Returns the text the visualizer holds.
+	#
+	#   returns    a text
+	#   see        Stringify
 	def Content()
 		return @oString.Content()
 
+	# Returns how many characters the text holds, counting letters and not bytes.
+	#
+	#   returns    a number
+	#   see        Content
 	def NumberOfChars()
 		return @oString.NumberOfChars()
 
+	# TRUE if the text is empty.
+	#
+	#   returns    TRUE or FALSE
+	#   see        NumberOfChars
 	def IsEmpty()
 		return @oString.IsEmpty()
 
@@ -39,9 +76,18 @@ class stzStringVisualizer from stzObject
 	 #     SHOW                      #
 	#===============================#
 
+	# Prints the text on the console.
+	#
+	#   returns    nothing
+	#   see        ShowShort, ShowNL
 	def Show()
 		? @oString.Content()
 
+	# Prints the text on the console, cut to its first 47 characters followed by three dots when it is longer than 50.
+	#
+	#   returns    nothing
+	#   note       a text of exactly 50 characters is printed whole, one of 51 is cut
+	#   see        Show
 	def ShowShort()
 		_nLen_ = @oString.NumberOfChars()
 		if _nLen_ <= 50
@@ -50,6 +96,10 @@ class stzStringVisualizer from stzObject
 			? @oString.Section(1, 47) + "..."
 		ok
 
+	# Prints the text on the console followed by an extra empty line.
+	#
+	#   returns    nothing
+	#   see        Show
 	def ShowNL()
 		? @oString.Content() + char(10)
 
@@ -79,6 +129,13 @@ class stzStringVisualizer from stzObject
 
 		return _cResult_ + char(10) + _cViz_
 
+	# Returns the text in quotes with a second line of carets under every place the given character occurs.
+	#
+	#   _c_        the one character to mark
+	#   returns    a text of two lines; "" when the argument is not a single character
+	#   note       VizFindCharCS(c, 0) ignores case; the carets line starts with a space to sit
+	#              under the opening quote
+	#   see        VizFind, VizFindCharCS
 	def VizFindChar(_c_)
 		return This.VizFindCharCS(_c_, 1)
 
@@ -110,6 +167,14 @@ class stzStringVisualizer from stzObject
 
 		return _cResult_ + char(10) + _cViz_
 
+	# Returns the text in quotes with a second line of carets under every character covered by an occurrence of a substring.
+	#
+	#   pcSubStr   the substring to mark
+	#   returns    a text of two lines
+	#   note       "banana band" with "an" marks the 2nd to 5th and the 9th to 10th characters;
+	#              overlapping matches are all marked; an absent or empty substring marks nothing;
+	#              VizFindCS(s, 0) ignores case
+	#   see        VizFindChar, Highlight
 	def VizFind(pcSubStr)
 		return This.VizFindCS(pcSubStr, 1)
 
@@ -117,6 +182,13 @@ class stzStringVisualizer from stzObject
 	 #     BOXED                     #
 	#===============================#
 
+	# Returns the text in a box drawn with plain ASCII characters, with round corners drawn as dots.
+	#
+	#   returns    a text of three lines
+	#   note       a text with a line break keeps its break inside the box instead of framing each
+	#              line, and the width is the whole character count; for Unicode lines see
+	#              stzStringBoxed
+	#   see        BoxedXT, BoxedRounded, EachCharBoxed
 	def Boxed()
 		return This.BoxedXT([ :Line = :Thin, :AllCorners = :Round ])
 
@@ -164,6 +236,10 @@ class stzStringVisualizer from stzObject
 
 		return _cTop_ + char(10) + _cMid_ + char(10) + _cBot_
 
+	# Returns the text in a box of plain characters with round corners, the same as Boxed.
+	#
+	#   returns    a text of three lines
+	#   see        Boxed
 	def BoxedRounded()
 		return This.BoxedXT([ :Line = :Thin, :AllCorners = :Round ])
 
@@ -171,6 +247,11 @@ class stzStringVisualizer from stzObject
 	 #     CHARS BOXED               #
 	#===============================#
 
+	# Returns a list holding one small box per character of the text, in order.
+	#
+	#   returns    a list of three-line texts; [ ] for an empty text
+	#   note       a space gets a box too
+	#   see        Boxed
 	def EachCharBoxed()
 		_acResult_ = []
 		_cContent_ = @oString.Content()
@@ -188,6 +269,12 @@ class stzStringVisualizer from stzObject
 	 #     STRINGIFICATION           #
 	#===============================#
 
+	# Returns the text as a Ring literal, in quotes and with embedded quotes kept in view.
+	#
+	#   returns    a text
+	#   note       a text that holds a double quote is wrapped in single quotes: he said "hi" gives
+	#              'he said "hi"'; a text that holds both kinds is not escaped
+	#   see        Content
 	def Stringify()
 		return @@(@oString.Content())
 
@@ -200,5 +287,13 @@ class stzStringVisualizer from stzObject
 		_cResult_ = @ReplaceCS(_cContent_, pcSubStr, pcMarker + pcSubStr + pcMarker, pCaseSensitive)
 		return _cResult_
 
+	# Returns the text with every occurrence of a substring wrapped in a marker, case-sensitively.
+	#
+	#   pcSubStr   the substring to mark
+	#   pcMarker   the text put before and after each occurrence
+	#   returns    a text
+	#   note       "banana band" with "an" and "*" gives b*an**an*a b*an*d; an empty marker or an
+	#              absent substring changes nothing; HighlightCS(s, m, 0) ignores case
+	#   see        VizFind
 	def Highlight(pcSubStr, pcMarker)
 		return This.HighlightCS(pcSubStr, pcMarker, 1)

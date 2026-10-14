@@ -22,9 +22,43 @@ func Section(_n1_, _n2_, _nSize_)
 func StzSectionQ(_n1_, _n2_, _nSize_)
 	return new stzSection(_n1_, _n2_, _nSize_)
 
+# Holds a section, the start and end positions of a stretch of a list or a string, checked against the size of that host.
+#
+# Build one with new stzSection(n1, n2, nSize) or StzSectionQ(n1, n2, nSize); the global Section(n1,
+# n2, nSize) answers just the [ start, end ] list and IsSection(n1, n2, nSize) tells whether the
+# three numbers make a valid section. The positions may be keywords (:First, :Last) or named places
+# ([ :From, 3 ], [ :To, 6 ]). Positions count from 1 and negative ones are refused. The check is
+# incomplete: a start past the size is accepted when the end is inside, and nothing orders the two
+# positions.
+#
+#   receiver   o1 = new stzSection(2, 5, 10)
+#   example    ? @@( o1.Content() )
+#              #--> [ 2, 5 ]
+#              ? o1.StartPosition()
+#              #--> 2
+#              ? o1.EndPosition()
+#              #--> 5
+#              ? IsSection(1, 11, 10)
+#              #--> 0
+#   see        stzSetOfSections, stzListSections, stzList
 class stzSection from stzObject
 	@aContent
 
+	# Builds a section, a pair of start and end positions, checked against the size of the list or string it is meant for.
+	#
+	#   _n1_       the start position, from 1, or a keyword such as :First, :Start or a named place
+	#              such as [ :From, 3 ]
+	#   _n2_       the end position, from 1, or :Last, :End or [ :To, 6 ]
+	#   _nSize_    the number of items or chars of the host, or [ :Size, 10 ]
+	#   returns    nothing; the object is built
+	#   note       negative positions that count from the end are refused here, unlike
+	#              stzList.Section
+	#   warning    A start or end of 0, or not a number, raises "Incorrect params! n1 and n2 must be
+	#              numbers different from zero"; an end past the size, or a negative position,
+	#              raises "Out of range! nSize must between n1 and n2"; a start past the size is
+	#              accepted when the end is inside it: new stzSection(12, 3, 10) answers [ 12, 3 ],
+	#              and a start after the end is kept as given
+	#   see        Content, IsSection
 	def init(_n1_, _n2_, _nSize_)
 		if CheckingParams()
 
@@ -215,22 +249,41 @@ class stzSection from stzObject
 
 		@aContent = [_n1_, _n2_]
 
+	# Returns the section as a list of its start and end positions.
+	#
+	#   returns    a list of two numbers, [ start, end ]
+	#   see        StartPosition, EndPosition
 		#TODO // do same behavior in stzList.Section()
 		#TODO : Add SectionXT() that allows using out of index params and return accurate results
-
-
 	def Content()
 		return @aContent
 
+	# Returns the first position of the section, as given.
+	#
+	#   returns    a number
+	#   note       a section built as (5, 2, 10) is not reordered: its start is 5
+	#   see        EndPosition, StartPos
 	def StartPosition()
 		return @aContent[1]
 
+		# Returns the first position of the section, the same as StartPosition.
+		#
+		#   returns    a number
+		#   see        StartPosition
 		def StartPos()
 			return @aContent[1]
 
+	# Returns the last position of the section, as given.
+	#
+	#   returns    a number
+	#   see        StartPosition, EndPos
 	def EndPosition()
 		return @aContent[2]
 
+		# Returns the last position of the section, the same as EndPosition.
+		#
+		#   returns    a number
+		#   see        EndPosition
 		def EndPos()
 			return @aContent[2]
 
@@ -267,5 +320,8 @@ class stzSection from stzObject
 
 //	def AntiSection()
 
+	# Returns the kind of object this is, in lowercase.
+	#
+	#   returns    the text "stzsection"
 	def StzType()
 		return :stzSection

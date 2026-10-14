@@ -1,0 +1,18 @@
+{
+ "brief": "Holds a sequence of samples and answers what frequencies it is made of: its spectrum, magnitudes, phases, dominant frequency and convolution.",
+ "detail": "Build one with new stzFourier(aSamples), numbers or [ re, im ] pairs. Any length is transformed exactly, with a radix-2 FFT for a power of two and Bluestein's algorithm for the others, and never padded. The convention is NumPy's: the forward transform is unscaled, the inverse carries the 1/n. The Transform, Magnitudes, Phases and PowerSpectrum answers have one entry per bin; bin 1 holds the mean. Content, Real and Imaginary give back the samples. InverseTransform inverts the sequence it holds, which is the spectrum when you built the object from one.",
+ "receiver": "o1 = new stzFourier([ 1, 2, 3, 4 ])",
+ "example": [
+  "? o1.Count()",
+  "#--> 4",
+  "? @@( o1.Magnitudes() )",
+  "#--> [ 10, 2.83, 2, 2.83 ]",
+  "? o1.DominantBin()",
+  "#--> 2"
+ ],
+ "see": [
+  "stzPolynomial",
+  "stzComplex",
+  "stzSequence"
+ ]
+}

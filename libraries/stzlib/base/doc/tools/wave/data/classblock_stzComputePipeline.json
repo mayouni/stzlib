@@ -1,0 +1,16 @@
+{
+ "brief": "Declares a workflow as a chain of facet stages, each transforming the running value, and runs inputs through the chain.",
+ "detail": "A stage is a function tagged with the facet that handles it, so a document flow such as vision, nlp, knowledge, search is declared and not hand-wired. Run threads an input through every stage; RunBatch does it for many inputs. When a worker pool is attached with SetPool, each stage is admitted into its own facet's budget, so a heavy facet cannot starve a light one. A stage that raises stops the run and is reported by Failed and Why. The stages run in-process; running a stage on a fleet worker needs a worker that implements the facet.",
+ "receiver": "o1 = new stzComputePipeline(\"doc-intake\")\no1.Stage(\"vision\", \"ocr\", func x { return StzReplace(x, \"scan:\", \"\") })\no1.Stage(\"nlp\", \"entities\", func x { return x + \" [entities]\" })",
+ "example": [
+  "? o1.Run(\"scan:acme invoice\")",
+  "#--> acme invoice [entities]",
+  "? o1.Narrate()",
+  "#--> pipeline doc-intake: vision -> nlp",
+  "? o1.Failed()",
+  "#--> 0",
+  "? @@( o1.ValidateAgainst(new stzFacetCatalog()) )",
+  "#--> [ ]"
+ ],
+ "see": ["stzFacetCatalog", "stzClusterSupervisor", "stzClusterTelemetry"]
+}

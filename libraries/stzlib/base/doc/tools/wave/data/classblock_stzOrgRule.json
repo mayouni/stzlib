@@ -1,0 +1,16 @@
+{
+ "brief": "Holds one rule about an organisation chart, a stzGraphRule that belongs to the orgchart domain.",
+ "detail": "The four universal rules of stzOrgRuleSet are stzOrgRule objects: no-self-report, no-cyclic-reporting, no-orphan-position and span-of-control. Build one yourself with a name, set its severity, message and checker like any stzGraphRule, and add it to a stzOrgRuleSet or to a compliance base.",
+ "receiver": "o1 = new stzOrgRule(\"every_head_named\")",
+ "example": [
+  "? o1.Name()",
+  "#--> every_head_named",
+  "? o1.Domain()",
+  "#--> orgchart"
+ ],
+ "see": [
+  "stzGraphRule",
+  "stzOrgRuleSet",
+  "stzOrgChart"
+ ]
+}

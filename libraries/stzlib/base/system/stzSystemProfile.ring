@@ -166,14 +166,42 @@ func _StzReadTextFile(pcPath)
 # closed set IS the M2 discipline of Scope-Oriented Programming -- granting an
 # unknown capability is refused.
 
+# Holds what a system can do, as names from a closed catalog, each mapped to one of four lattice kinds.
+#
+# The catalog has nine capabilities: filesystem, process, network, environment, dynamic_load and
+# gpio are effectful, threads is compute, clock is sensing and inference is inference. The kinds are
+# the same lattice an actor holds in stzSystemActor, so ForActorKinds answers which of the system's
+# capabilities an actor may exercise. A name outside the catalog raises an error.
+#
+#   receiver   o1 = new stzSystemCapabilities([ "filesystem", "clock", "threads" ])
+#   example    ? o1.Can("clock")
+#              #--> 1
+#              ? o1.KindOf("network")
+#              #--> effectful
+#              ? @@( o1.Kinds() )
+#              #--> [ "effectful", "sensing", "compute" ]
+#              ? @@( o1.ForActorKinds([ "sensing" ]) )
+#              #--> [ "clock" ]
+#   see        stzSystemActor, stzSystemProfile
 class stzSystemCapabilities from stzObject
 
 	@aCaps = []
 
+	# Creates a set of system capabilities from a list of names such as filesystem, clock or threads.
+	#
+	#   paInit     a list of capability names, each from the closed catalog
+	#   returns    nothing; the object is built
+	#   warning    an unknown name raises an error
+	#   see        SetList, Grant
 	def init(paInit)
 		This.SetList(paInit)
 
-	# The closed catalog: concrete capability -> abstract lattice kind.
+	# Returns the closed catalog: nine pairs [ capability, lattice kind ], such as [ network, effectful ] and [ clock, sensing ].
+	#
+	#   returns    a list of pairs
+	#   warning    the kinds are effectful, sensing, compute and inference
+	#   see        KnownCapabilities, KindOf
+	#@ aka  The closed catalog: concrete capability -> abstract lattice kind.
 	def Catalog()
 		return [
 			[ "filesystem",   "effectful" ],
@@ -187,6 +215,10 @@ class stzSystemCapabilities from stzObject
 			[ "inference",    "inference" ]
 		]
 
+	# Returns the names of the nine capabilities the catalog knows.
+	#
+	#   returns    a list of texts
+	#   see        Catalog, IsKnown
 	def KnownCapabilities()
 		_a_ = []
 		_aCat_ = This.Catalog()
@@ -196,9 +228,20 @@ class stzSystemCapabilities from stzObject
 		next
 		return _a_
 
+	# TRUE if a name is in the catalog, whatever the letter case.
+	#
+	#   pCap       the capability name to test
+	#   returns    TRUE or FALSE
+	#   see        KnownCapabilities, Grant
 	def IsKnown(pCap)
 		return This._InList(This._Norm(pCap), This.KnownCapabilities()) > 0
 
+	# Replaces the held capabilities with a list, granting them one by one.
+	#
+	#   paCaps     a list of capability names, each from the catalog
+	#   returns    the set itself, so calls chain
+	#   warning    an unknown name raises an error; a value that is not a list leaves the set empty
+	#   see        Grant, List
 	def SetList(paCaps)
 		@aCaps = []
 		if isList(paCaps)
@@ -209,8 +252,13 @@ class stzSystemCapabilities from stzObject
 		ok
 		return This
 
-	# EFFECTFUL on the envelope (a builder verb). Refuses an unknown capability
-	# -- the closed set is the contract.
+	# Adds a capability to the set; one it already holds changes nothing.
+	#
+	#   pCap       the capability name to add, matched without regard to case
+	#   returns    the set itself, so calls chain
+	#   warning    an unknown name raises an error that lists the known ones
+	#   see        Revoke, Can
+	#@ aka  EFFECTFUL on the envelope (a builder verb). Refuses an unknown capability -- the closed set is the contract.
 	def Grant(pCap)
 		_c_ = This._Norm(pCap)
 		if NOT This.IsKnown(_c_)
@@ -226,6 +274,11 @@ class stzSystemCapabilities from stzObject
 			This.Grant(pCap)
 			return This
 
+	# Removes a capability from the set; one it does not hold changes nothing.
+	#
+	#   pCap       the capability name to remove, matched without regard to case
+	#   returns    the set itself, so calls chain
+	#   see        Grant, Can
 	def Revoke(pCap)
 		_c_ = This._Norm(pCap)
 		_aNew_ = []
@@ -238,6 +291,11 @@ class stzSystemCapabilities from stzObject
 		@aCaps = _aNew_
 		return This
 
+	# TRUE if the set holds a capability.
+	#
+	#   pCap       the capability name to test, matched without regard to case
+	#   returns    TRUE or FALSE
+	#   see        Lacks, Grant
 	def Can(pCap)
 		return This._InList(This._Norm(pCap), @aCaps) > 0
 
@@ -247,23 +305,40 @@ class stzSystemCapabilities from stzObject
 		def Supports(pCap)
 			return This.Can(pCap)
 
+	# TRUE if the set does not hold a capability.
+	#
+	#   pCap       the capability name to test, matched without regard to case
+	#   returns    TRUE or FALSE
+	#   see        Can
 	def Lacks(pCap)
 		return NOT This.Can(pCap)
 
 		def Cannot(pCap)
 			return This.Lacks(pCap)
 
+	# Returns the held capabilities, lower-cased, in the order granted.
+	#
+	#   returns    a list of texts
+	#   see        NumberOfCapabilities, Kinds
 	def List()
 		return @aCaps
 
+	# Returns how many capabilities the set holds.
+	#
+	#   returns    a number
+	#   see        List
 	def NumberOfCapabilities()
 		return len(@aCaps)
 
 		def Count()
 			return This.NumberOfCapabilities()
 
-	# The abstract lattice kind (effectful / sensing / compute / inference) of a
-	# concrete capability -- the word stzAgentGraph speaks.
+	# Returns the lattice kind of a capability: effectful, sensing, compute or inference; unknown for a name outside the catalog.
+	#
+	#   pCap       the capability name, matched without regard to case
+	#   returns    a text
+	#   see        Catalog, Kinds
+	#@ aka  The abstract lattice kind (effectful / sensing / compute / inference) of a concrete capability -- the word stzAgentGraph speaks.
 	def KindOf(pCap)
 		_c_ = This._Norm(pCap)
 		_aCat_ = This.Catalog()
@@ -275,7 +350,11 @@ class stzSystemCapabilities from stzObject
 		next
 		return "unknown"
 
-	# The distinct kinds this envelope spans -- its "authority shape".
+	# Returns the distinct lattice kinds of the held capabilities, in the order first met.
+	#
+	#   returns    a list of texts
+	#   see        KindOf, IsEffectful
+	#@ aka  The distinct kinds this envelope spans -- its "authority shape".
 	def Kinds()
 		_a_ = []
 		_n_ = len(@aCaps)
@@ -287,10 +366,20 @@ class stzSystemCapabilities from stzObject
 		next
 		return _a_
 
+	# TRUE if any held capability is of the effectful kind.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Kinds, Can
 	def IsEffectful()
 		return This._InList("effectful", This.Kinds()) > 0
 
-	# Capabilities in THIS envelope that are NOT in the other.
+	# Returns the capabilities held here that another set does not hold.
+	#
+	#   poOther    another stzSystemCapabilities
+	#   returns    a list of texts, not a set
+	#   warning    it answers a plain list, so chaining a set method after it fails
+	#   see        List, ForActorKinds
+	#@ aka  Capabilities in THIS envelope that are NOT in the other.
 	def Minus(poOther)
 		_a_ = []
 		_aOther_ = poOther.List()
@@ -302,10 +391,14 @@ class stzSystemCapabilities from stzObject
 		next
 		return _a_
 
-	# The subset of THESE capabilities an actor holding paActorKinds may
-	# exercise -- the system-envelope <-> agentic-authority bridge. An LLM actor
-	# (kinds = [ "inference" ]) may exercise NO effectful/sensing capability:
-	# the empty effect set, realised against a system.
+	# Returns the held capabilities whose lattice kind an actor holds.
+	#
+	#   paActorKinds   the kinds the actor holds, a list from effectful, sensing, compute and
+	#                  inference
+	#   returns        a list of texts
+	#   warning        the actor with an empty list may exercise none
+	#   see            KindOf, Minus
+	#@ aka  The subset of THESE capabilities an actor holding paActorKinds may exercise -- the system-envelope <-> agentic-authority bridge. An LLM actor (kinds = [ "inference" ]) may exercise NO effectful/sensing capability: the empty effect set, realised against a system.
 	def ForActorKinds(paActorKinds)
 		_a_ = []
 		_n_ = len(@aCaps)
@@ -329,6 +422,10 @@ class stzSystemCapabilities from stzObject
 		next
 		return 0
 
+	# Prints two lines: the held capabilities with their number, and their kinds.
+	#
+	#   returns    nothing; it prints
+	#   see        List, Kinds
 	def Show()
 		? "Capabilities (" + This.NumberOfCapabilities() + "): " + _StzJoinComma(@aCaps)
 		? "  kinds: " + _StzJoinComma(This.Kinds())
@@ -1019,8 +1116,26 @@ class stzSystemProfile from stzObject
 #   ? @@( o1.Capabilities() )
 #   #--> [ "filesystem", "process", "network", "environment", "dynamic_load", "threads", "clock" ]
 
+# A system profile of the machine this program is being developed on, read live, with the role development.
+#
+# It reads the same facts as stzCurrentSystem (operating system, architecture, memory, CPU count,
+# default capabilities) and differs only in the role it carries, which lets a plan compare the
+# development machine with the machine that runs the program. Only reads are made.
+#
+#   receiver   o1 = new stzDevSystem()
+#   example    ? o1.Role()
+#              #--> development
+#              ? o1.Name()
+#              #--> this-machine
+#   see        stzCurrentSystem, stzSystemProfile
 class stzDevSystem from stzSystemProfile
 
+	# Describes the machine this program is being developed on, filled live as stzCurrentSystem is but with the role development.
+	#
+	#   returns    nothing; the object is built
+	#   warning    the same live reading as stzCurrentSystem, with the role development in place of
+	#              runtime
+	#   see        Role, CapabilityList
 	def init()
 		This.SetName("this-machine")
 		_StzPopulateLive(This, "development")
@@ -1035,8 +1150,27 @@ class stzDevSystem from stzSystemProfile
 # deployed app it is the deployment system -- and it agrees, by construction,
 # with the scope the code was written against.
 
+# A system profile of the machine this program is running on, read live: operating system, architecture, memory, CPU count and capabilities.
+#
+# It is a stzSystemProfile filled at construction from the operating system, the environment, the
+# engine's memory readings and the Ring version, with the role runtime. Compare it with
+# stzDevSystem, which reads the same machine with the role development. Only reads are made; nothing
+# on the machine changes.
+#
+#   receiver   o1 = new stzCurrentSystem()
+#   example    ? o1.Role()
+#              #--> runtime
+#              ? o1.Name()
+#              #--> this-machine
+#   see        stzDevSystem, stzSystemProfile, stzSystemCapabilities
 class stzCurrentSystem from stzSystemProfile
 
+	# Describes the machine this program runs on, filled live from the operating system, the engine's memory readings and the Ring version.
+	#
+	#   returns    nothing; the object is built
+	#   warning    the role is runtime, the name is this-machine, and the capabilities are the
+	#              defaults of the system class (windows, linux and macos give desktop)
+	#   see        Role, CapabilityList
 	def init()
 		This.SetName("this-machine")
 		_StzPopulateLive(This, "runtime")

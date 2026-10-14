@@ -10,6 +10,28 @@
 #   ? oT.Classify([ "sunny", "high" ])   #--> "no"
 #   ? oT.Why()   #--> outlook='sunny' -> humidity='high' -> 'no'
 
+# Learns a decision tree over categorical features by ID3 and explains each answer as the path it followed.
+#
+# The tree splits on the feature with the greatest information gain and ends in the majority label.
+# It is the most explainable learner of the module: Why narrates the exact path of the last
+# classification, and ToGraph returns the tree as a real stzGraph that the rest of the library can
+# query. Feature values compare without regard to case. A value never seen during training falls to
+# the majority label of the node it reached, and Why says so. The build runs in the engine; the
+# choices are deterministic, with the first feature to reach the highest gain winning a tie. Numeric
+# features are treated as categories, so each distinct number is its own value.
+#
+#   receiver   o1 = new stzDecisionTree(new stzTrainingSet([ [["sunny", "high"], "no"], [["sunny",
+#              "normal"], "yes"], [["rainy", "high"], "no"], [["overcast", "high"], "yes"],
+#              [["rainy", "normal"], "yes"] ]))
+#   example    o1.SetFeatureNames([ "outlook", "humidity" ])
+#              o1.Train()
+#              ? o1.Classify([ "sunny", "high" ])
+#              #--> no
+#              ? o1.Why()
+#              #--> humidity='high' -> outlook='sunny' -> 'no'
+#              ? o1.Classify([ "Rainy", "normal" ])
+#              #--> yes
+#   see        stzTrainingSet, stzGraph, stzNaiveBayes
 class stzDecisionTree from stzObject
 
 	@oTs = ""
@@ -24,42 +46,43 @@ class stzDecisionTree from stzObject
 	@acRaw = []     # raw strings already folded, and...
 	@anRawCode = [] # ...the code each resolved to -- see Train()
 
+	# Builds an untrained decision tree over a training set of categorical features.
+	#
+	#   poTrainingSet   a stzTrainingSet
+	#   returns         nothing; the object is built
+	#   see             Train, TrainingSetQ
 	def init(poTrainingSet)
 		@oTs = poTrainingSet
 
-	# THE HELD SET IS LIVE THROUGH HERE. Ring COPIES an object into an
-	# attribute, so the set handed to the constructor is a SNAPSHOT: growing
-	# the caller's own object afterwards would NOT reach this learner. Grow it
-	# through this accessor -- oLearner.TrainingSetQ().AddExample(...) -- which
-	# reaches the real held set (accessor + method call is live in Ring).
+	# Returns the training set the tree holds, the one to grow if more examples are wanted.
+	#
+	#   returns    a stzTrainingSet
+	#   warning    growing the set you passed to the constructor does not reach the tree, because it
+	#              keeps a copy; grow it here and call Train again
+	#   see        Train
+	#@ aka  THE HELD SET IS LIVE THROUGH HERE. Ring COPIES an object into an attribute, so the set handed to the constructor is a SNAPSHOT: growing the caller's own object afterwards would NOT reach this learner. Grow it through this accessor -- oLearner.TrainingSetQ().AddExample(...) -- which reaches the real held set (accessor + method call is live in Ring).
 	def TrainingSetQ()
 		return @oTs
 
+	# Sets a name for each feature, so that Why and ToGraph can speak of outlook instead of f1.
+	#
+	#   pacNames   a list of text, one name per feature in the order of the examples
+	#   returns    the tree itself, so calls chain
+	#   note       an unnamed feature is called f1, f2 and so on
+	#   see        Why, ToGraph
 	def SetFeatureNames(pacNames)
 		@acNames = pacNames
 		return This
 
-	# THE CASE FOLD HAPPENS ONCE HERE, not at every node (numeric phase 5).
+	# Builds the tree by ID3, choosing at each node the feature with the greatest information gain; the build runs in the engine.
 	#
-	# ID3 compares categorical values case-insensitively, so "Sunny" and "sunny"
-	# are one value. The fold used to live inside _ValuesOf() and _Subset(), which
-	# means every row was re-folded once per (node, feature) pair -- and the value
-	# never changes. Profiled on 4000 examples x 8 features:
-	#
-	#     _ValuesOf x20 over the set          0.338 s
-	#     _Subset   x20 over the set          0.356 s
-	#     StzLower  x20 alone                 0.297 s   <-- of that
-	#     the same loops without it           0.022 s
-	#
-	# The fold was THIRTEEN TIMES the cost of the loop containing it, because
-	# StzLower builds two engine string objects and frees them -- five bridge
-	# crossings to lowercase one character. Folding the whole set once costs
-	# 0.129 s and the inner loops drop 4.2x.
-	#
-	# Third time this phase has found this shape: the CSV module's per-cell regex
-	# recompile, the linear solver's per-variable re-parse, and now this. The
-	# expensive line is rarely the one the plan names -- the plan said "trees ->
-	# engine", and the tree was never the problem.
+	#   returns    the tree itself, so calls chain
+	#   note       values compare without regard to case; calling it again rebuilds the tree from
+	#              the set
+	#   warning    raises an error for an empty set, for examples with no features, and for an
+	#              example whose width differs from the first one, naming it
+	#   see        Classify, Tree
+	#@ aka  THE CASE FOLD HAPPENS ONCE HERE, not at every node (numeric phase 5).
 	def Train()
 		_aEx_ = @oTs.Examples()
 		if len(_aEx_) = 0
@@ -150,6 +173,12 @@ class stzDecisionTree from stzObject
 		@bTrained = 1
 		return This
 
+	# Returns the learned tree as nested lists: [ :feature, :branches, :default ] for a decision and [ :leaf ] for an answer.
+	#
+	#   returns    a nested list; :feature is the position of the feature, :branches a list of [
+	#              value, subtree ] pairs, :default the majority label
+	#   note       an untrained tree answers an empty list
+	#   see        ToGraph, Classify
 	def Tree()
 		return @aTree
 
@@ -197,6 +226,14 @@ class stzDecisionTree from stzObject
 		return [ :feature = _aN_[2] + 1, :branches = _aBr_,
 			:default = @acLabels[_aN_[3] + 1] ]
 
+	# Returns the label the tree gives to a feature list, and keeps the path it followed for Why.
+	#
+	#   paFeatures   the feature values, in the order of the training examples
+	#   returns      a text, the label
+	#   note         values compare without regard to case
+	#   warning      raises an error telling to call Train first; a value never seen at a node falls
+	#                to that node's majority label, which Why says
+	#   see          Why, Train
 	def Classify(paFeatures)
 		if @bTrained = 0
 			stzraise("Train() me first.")
@@ -236,11 +273,23 @@ class stzDecisionTree from stzObject
 		$nStzLastCertainty = 1
 		return _aNode_[:leaf]
 
+	# Returns the path of the last classification as text, such as humidity='high' -> outlook='sunny' -> 'no'.
+	#
+	#   returns    a text; empty before the first Classify
+	#   note       an unseen value is marked in the path with unseen value and the default it fell
+	#              to
+	#   see        Classify, SetFeatureNames
 	def Why()
 		return @cWhy
 
-	# the learned model as a REAL stzGraph: decision nodes + labeled
-	# value edges + leaf nodes -- queryable like any other graph
+	# Returns the learned tree as a real graph of decision nodes, value edges and leaf nodes.
+	#
+	#   returns    a stzGraph; nodes n1, n2 and so on, each with a kind (decision or leaf) and a
+	#              label
+	#   note       the graph can be queried like any other graph
+	#   warning    raises an error telling to call Train first
+	#   see        Tree, SetFeatureNames
+	#@ aka  the learned model as a REAL stzGraph: decision nodes + labeled value edges + leaf nodes -- queryable like any other graph
 	def ToGraph()
 		if @bTrained = 0
 			stzraise("Train() me first.")

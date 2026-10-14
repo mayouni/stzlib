@@ -1,0 +1,1 @@
+init | Builds the house rule set, named softanza-house-rules, loaded with the five rules that a code graph can check. | nothing; the object is built | | stzCodeProjectRuleSet, stzCodeRule | | the rules are no-len-method, no-aggressive-verbs, engine-first, q-has-plain-twin and no-case-collision

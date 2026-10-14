@@ -1,0 +1,16 @@
+{
+ "brief": "Reads a .zopt optimization file and expands its indexed families into an ordinary stzOptimModel.",
+ "detail": "A .zopt file declares sets, indexed parameters and variable families, an objective and constraints, with sum and forall over a set. Reading it checks the format and lists every fault in Findings; ToModel then expands the families into plain variables and constraint strings before the model ever sees them, so a file and a hand-built model of the same problem are the same model. ToZopt and Save write the expanded model back as a flat file. Adding a product is editing one list.",
+ "receiver": "o1 = new stzOptimFile(\"\")\no1.SetText(\"zopt: 1\" + char(10) + \"model: shop\" + char(10) + \"set Products: chairs, tables\" + char(10) + \"param profit[Products]: 30, 45\" + char(10) + \"var make[Products]: 0 .. 100 integer\" + char(10) + \"maximize: sum profit[p] * make[p] for p in Products\" + char(10) + \"subject to:\" + char(10) + \"  forall p in Products: make[p] <= 60\")",
+ "example": [
+  "? o1.IsValid()",
+  "#--> 1",
+  "? o1.MembersOf(\"Products\")[2]",
+  "#--> tables",
+  "? o1.ParamValue(\"profit\", \"tables\")",
+  "#--> 45",
+  "? o1.ToModel().VarNames()[1]",
+  "#--> make_chairs"
+ ],
+ "see": ["stzOptimModel", "stzOptimSentence", "StzOptimModelFromZopt"]
+}

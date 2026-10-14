@@ -1,0 +1,13 @@
+{
+ "brief": "Declares what a kind of value must be, as a list of constraints kept for the whole process.",
+ "detail": "ConstrainQ(\"score\").ToBeQ(:Number).AndQ().ToBeQ(:Positive) declares that a score is a number and positive. A descriptor names a predicate: Number is checked by @isnumber, Positive by @ispositive. The declarations are read by stzCan, for possibility, and stzMust, for necessity. ConstraintsOn lists a kind's descriptors and DropConstraints forgets them.",
+ "receiver": "o1 = ConstrainQ(\"scoreA\")",
+ "example": [
+  "o1.ToBeQ(:Number).AndQ().ToBeQ(:Positive)",
+  "? ConstraintsOn(\"scoreA\")[2]",
+  "#--> positive",
+  "? o1.Kind()",
+  "#--> scorea"
+ ],
+ "see": ["stzCan", "stzMust", "ConstraintsOn"]
+}

@@ -1,0 +1,42 @@
+init | Creates a build description with a name, which also names the default output file. | nothing; the object is built | pcName=the name of the thing to build | AddSource, Build |  | nothing is compiled until Build
+AddSource | Adds a source file to compile. | nothing; use AddSourceQ to chain | pcFile=the path of a source file | AddSources, Args | the order given is the order on the command line; the file is not checked | 
+AddSources | Adds several source files at once. | nothing; use AddSourcesQ to chain | paFiles=a list of source file paths | AddSource | a value that is not a list changes nothing | 
+SetLanguage | Sets the language of the sources: c, cpp, zig or ring; c is the default. | nothing; use SetLanguageQ to chain | pcLang=c, cpp, zig or ring | InC, InZig, Args | c, cpp and ring use zig cc and zig takes build-exe or build-lib; any other word is treated as c; ring lowers the first source to C with ring -geo when Args or Build is called | 
+InC | Sets the language to C, the default. | nothing; use InCQ to chain |  | SetLanguage, InCpp |  | 
+InCpp | Sets the language to C++. | nothing; use InCppQ to chain |  | SetLanguage, InC | the command line is the same as for C | 
+InZig | Sets the language to Zig, built with build-exe or build-lib. | nothing; use InZigQ to chain |  | SetLanguage, InC |  | 
+InRing | Sets the language to Ring, which is lowered to C and compiled with the Ring VM sources. | nothing; use InRingQ to chain |  | SetLanguage, SetRingRoot | Args and Build then run ring -geo on the first source and write a generated C file beside it | 
+EmitExe | Asks for an executable, the default. | nothing; use EmitExeQ to chain |  | EmitLib, OutputPath |  | 
+EmitLib | Asks for a shared library instead of an executable. | nothing; use EmitLibQ to chain |  | EmitExe, OutputPath | the default output name then has no extension, not .dll: set one with SetOutput | 
+SetTarget | Sets what to build for: a stzSystemProfile, a friendly name such as :LinuxServer or :ESP32, or a raw Zig triple such as x86_64-linux-gnu. | nothing; use SetTargetQ to chain | pTarget=a system profile object, a name, or a triple (any text with a dash) | Target, TargetHost, TargetWeb | a value that is neither an object nor a text is ignored; setting a target does not undo TargetWeb | 
+TargetHost | Clears the target so that the build is for this machine. | nothing; use TargetHostQ to chain |  | SetTarget, Target | it clears only the triple: if TargetWeb was called, IsWeb stays TRUE and the freestanding flags and the small optimisation stay | 
+TargetWeb | Builds for the web: the triple wasm32-freestanding, optimised small, with no libc and no start function. | nothing; use TargetWebQ to chain |  | AddExport, IsWeb | use AddExport to name the functions JavaScript may call; pair with stzWebBundle to assemble the page | 
+AddExport | Adds a function that a web build exports to JavaScript. | nothing; use AddExportQ to chain | pcName=the name of the function to export | AddExports, TargetWeb | exports are passed to the linker only for a web build | 
+AddExports | Adds several exported functions at once. | nothing; use AddExportsQ to chain | paNames=a list of function names | AddExport | a value that is not a list changes nothing | 
+IsWeb | TRUE if the build is for the web. | TRUE or FALSE |  | TargetWeb, Target |  | 
+Target | Returns the Zig target triple, or an empty text for this machine. | a text |  | SetTarget, TargetHost |  | 
+SetOptimization | Sets the optimisation mode: debug, safe, fast or small. | nothing; use SetOptimizationQ to chain | pcMode=debug, safe, fast or small, matched without regard to case | OptimizeFast, Args | any other word acts as debug; for cc the flags are -O0, -O2, -O3 and -Os, for zig Debug, ReleaseSafe, ReleaseFast and ReleaseSmall | 
+OptimizeDebug | Sets the mode to debug, the default. | nothing; use OptimizeDebugQ to chain |  | SetOptimization |  | 
+OptimizeFast | Sets the mode to fast, for speed. | nothing; use OptimizeFastQ to chain |  | SetOptimization |  | 
+OptimizeSmall | Sets the mode to small, for size. | nothing; use OptimizeSmallQ to chain |  | SetOptimization |  | 
+OptimizeSafe | Sets the mode to safe, optimised with checks kept. | nothing; use OptimizeSafeQ to chain |  | SetOptimization |  | 
+SetOutput | Sets the path of the file to produce, in place of the default name. | nothing; use SetOutputQ to chain | pcPath=the path of the output file | OutputPath, Build | the folder is not created | 
+OutputPath | Returns the path of the file the build produces: the one set, or the name plus .exe, .wasm or nothing by target. | a text |  | SetOutput, OutputExists | the default adds .exe for an executable for Windows, .wasm for wasm32 and nothing otherwise | 
+AddDefine | Adds a preprocessor definition NAME=value for a C or C++ build. | nothing; use AddDefineQ to chain | pcName=the macro's name; pcVal=its value | AddInclude, Args | ignored for a Zig build | 
+AddInclude | Adds a folder to the C include path. | nothing; use AddIncludeQ to chain | pcDir=the include folder | AddDefine, Args | ignored for a Zig build | 
+AddLink | Adds a library to link, as -l<name>. | nothing; use AddLinkQ to chain | pcLib=the library's name, without the -l | AddInclude, Args | ignored for a Zig build | 
+SetZig | Sets the path of the zig executable, in place of the one found by the search. | nothing; use SetZigQ to chain | pcPath=the path of zig | ZigPath | the path is not checked | 
+ZigPath | Returns the zig executable: the one set, else the file named by the ZIG variable, else a known install path, else the name zig. | a text |  | SetZig, ToCommand | the search reads the environment and the file system and starts nothing | 
+SetRingRoot | Sets the folder of the Ring installation that a Ring build compiles the VM from. | nothing; use SetRingRootQ to chain | pcPath=the Ring root, the folder holding language/include/ring.h | RingRoot, InRing | the path is not checked | 
+RingRoot | Returns the Ring root: the one set, else the RING variable, else a known install folder, else an empty text. | a text |  | SetRingRoot | reads the environment and the file system and starts nothing | 
+Args | Returns the compiler arguments as a list: the zig command, sources, output, target, optimisation, definitions, includes and libraries. | a list of texts |  | ToCommand, Build | pure for the C, C++ and Zig languages; for ring it first runs ring -geo on the first source, which writes a C file, so it was not run for ring | 
+ToCommand | Returns the full command line as one text, so that it can be read before it is run. | a text |  | Args, Build | uses backslashes in the zig path on Windows; it starts nothing | 
+Build | Runs the compiler on the description in a managed child process and keeps its output and exit code. | the builder itself, so calls chain |  | Succeeded, BuildLog, ToCommand | effectful: it starts the zig compiler, which writes the output file and fills the zig cache; a failure shows in ExitCode and the log, not as an error | not run: it starts the Zig compiler, which this documentation pass did not do
+ExitCode | Returns the exit code of the last Build; -1 before any Build. | a number |  | Succeeded, Build |  | 
+OutputExists | TRUE if the output file exists on disk. | TRUE or FALSE |  | OutputPath, Succeeded | true also for a file left by an earlier build | 
+Succeeded | TRUE if Build ran, exited with 0 and left the output file. | TRUE or FALSE |  | Failed, Build | FALSE before any Build | 
+Failed | TRUE if the build did not succeed, which is also so before any Build. | TRUE or FALSE |  | Succeeded |  | 
+Stdout | Returns what the compiler printed on its standard output during the last Build; empty before a Build. | a text |  | Stderr, BuildLog |  | 
+Stderr | Returns what the compiler printed on its error output during the last Build; empty before a Build. | a text |  | Stdout, BuildLog |  | 
+BuildLog | Returns the standard output of the last Build followed by its error output. | a text |  | Stdout, Stderr |  | 
+Show | Prints the builder's name, target, output path and command line. | nothing; it prints |  | ToCommand, Args | for the ring language it would lower the first source, so use it on c or zig builders | 

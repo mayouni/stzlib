@@ -1,0 +1,22 @@
+{
+ "brief": "Treats a text as a list of words: lists, counts and ranks them, finds the longest, and replaces or removes a word.",
+ "detail": "Build one with new stzStringWords(\"text\"). Words, NumberOfWords, NthWord, NFirstWords, NLastWords and the length and frequency readers cut words by Unicode word rules, so punctuation is dropped, \"well-known\" is two words and an emoji is none; UniqueWords and WordAtPosition cut at spaces only and keep punctuation, so the two families can disagree on the same text. WordFrequencies and MostFrequentWord fold case. ReplaceWord and RemoveWord change the text held, but rebuild it from the words, which drops all punctuation and extra spaces: use stzString.ReplaceCS when the text must stay as it is. Do not pass a stzString object you still need.",
+ "receiver": "o1 = new stzStringWords(\"The quick brown fox, the lazy dog. THE end\")",
+ "example": [
+  "? @@( o1.Words() )",
+  "#--> [ \"The\", \"quick\", \"brown\", \"fox\", \"the\", \"lazy\", \"dog\", \"THE\", \"end\" ]",
+  "? o1.NumberOfWords()",
+  "#--> 9",
+  "? @@( o1.WordFrequencies()[1] )",
+  "#--> [ \"The\", 3 ]",
+  "? o1.LongestWord()",
+  "#--> quick",
+  "? o1.ContainsWord(\"fox\")",
+  "#--> 1"
+ ],
+ "see": [
+  "stzString",
+  "stzWordStream",
+  "stzStringGetter"
+ ]
+}

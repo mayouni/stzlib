@@ -1,0 +1,15 @@
+{
+ "brief": "Caps the retries of a whole workload with an engine token bucket, so a storm of failures cannot turn into a retry storm.",
+ "detail": "A budget of N retries refills over a window of W seconds, at floor(N / W) retries a second and never less than one. Ask Allow before every retry; when it answers FALSE, fail instead of retrying. One budget guards one workload; for many independent keys use stzRateLimiter.",
+ "receiver": "o1 = new stzRetryBudget(5, 10)",
+ "example": [
+  "? o1.Allow()",
+  "#--> 1",
+  "? o1.AllowN(5)",
+  "#--> 0",
+  "? o1.RefillPerSecond()",
+  "#--> 1",
+  "o1.Destroy()"
+ ],
+ "see": ["stzRateLimiter", "stzCancelToken"]
+}

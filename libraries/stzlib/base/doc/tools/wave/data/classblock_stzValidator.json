@@ -1,0 +1,20 @@
+{
+ "brief": "Holds named validation rules in the engine, tests values against them, and collects the violations.",
+ "detail": "Add rules with AddMinValueRule, AddMaxLengthRule and their kin; each returns the index of the rule. CheckInt, CheckLength and CheckStringLength answer 1 or 0 for a named rule, but do not record anything: when a check fails, call AddViolation with the rule's index, then read IsValid and RuleMessage. The rules live in the engine and are shared by every stzValidator of the process, so call Clear first. The required-value rule never rejects anything today.",
+ "receiver": "o1 = new stzValidator()\no1.Clear()\no1.AddMinValueRule(\"age_min\", 18, \"too young\")\no1.AddMaxLengthRule(\"name_max\", 5, \"name too long\")",
+ "example": [
+  "? o1.CheckInt(\"age_min\", 20)",
+  "#--> 1",
+  "? o1.CheckInt(\"age_min\", 10)",
+  "#--> 0",
+  "o1.AddViolation(0)",
+  "? o1.IsValid()",
+  "#--> 0",
+  "? o1.RuleMessage(0)",
+  "#--> too young",
+  "? o1.CheckStringLength(\"name_max\", \"Alexandria\")",
+  "#--> 0",
+  "o1.Clear()"
+ ],
+ "see": ["stzRuleReport", "stzConstraint"]
+}

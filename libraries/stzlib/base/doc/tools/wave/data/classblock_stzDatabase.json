@@ -1,0 +1,16 @@
+{
+ "brief": "Opens a SQLite database, a file or a store in memory, to run statements, read rows and keep transactions.",
+ "detail": "Exec runs a statement and Rows reads a query, with every cell as text; the With forms bind their values to ? marks instead of splicing them into the text, which is the way to put user data in. TypedRowsWith returns numbers for numeric cells. Begin takes the write lock at once and Commit or Rollback ends the transaction. A failed call raises, and Why keeps the engine's last message. The engine does the work; this is the Ring face the application server and agents persist through.",
+ "receiver": "o1 = new stzDatabase(\":memory:\")",
+ "example": [
+  "o1.Exec(\"CREATE TABLE dish(name TEXT, price REAL)\")",
+  "o1.ExecWith(\"INSERT INTO dish VALUES (?, ?)\", [ \"margherita\", 8.5 ])",
+  "? o1.Rows(\"SELECT name, price FROM dish\")[1][1]",
+  "#--> margherita",
+  "? o1.ValueWith(\"SELECT price FROM dish WHERE name = ?\", [ \"margherita\" ])",
+  "#--> 8.5",
+  "? o1.TypedRowsWith(\"SELECT price FROM dish\", [])[1][1] + 1",
+  "#--> 9.50"
+ ],
+ "see": ["StzMemoryDatabaseQ", "StzDatabaseQ", "stzAppServer"]
+}

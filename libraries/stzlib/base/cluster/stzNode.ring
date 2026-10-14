@@ -28,6 +28,18 @@
 func StzNodeQ(pcName, pnPort)
 	return new stzNode(pcName, pnPort)
 
+# A node is an operating-system process that listens for STZM messages on a TCP port and dispatches each one to a handler by tag.
+#
+# It holds one bounded inbox with a declared overflow policy that the engine enforces and counts.
+# On(tag, f) declares a handler; a handler's value is returned only when the sender asked for a
+# reply. A message with no handler is counted, never silent; a handler that raises kills the node,
+# on purpose, so that a supervisor sees the exit. stz.stop is the built-in clean shutdown and
+# stz.info makes the node report its identity, binding and counters. Signing and capability gates
+# reuse stzRequestSigner and stzSystemActor. Constructing a node opens a listening port, and Run
+# blocks: none of the networked methods were run for this documentation.
+#
+#   receiver   o1 = StzNodeQ("indexer", 0)
+#   see        stzNodeSupervisor, stzNodeApp, stzNodeRegistry
 class stzNode from stzObject
 
 	@cName = "node"
@@ -55,9 +67,15 @@ class stzNode from stzObject
 	@aAdmitTags = []       # tag -> required capability KIND
 	@aAdmitKinds = []
 
-	# pcName speaks the plane's address vocabulary: "indexer" binds
-	# loopback; "indexer@10.0.0.7" binds that interface (the deployed
-	# form -- same vocabulary Send/Ask resolve).
+	# Starts a node: a reactor that listens for STZM messages on a TCP port, under a name, ready to dispatch each message to a handler.
+	#
+	#   pcName     the node's name
+	#   pnPort     the port to listen on, 0 for any free port
+	#   returns    nothing; the object is built
+	#   note       not run: it opens a listening port, which this documentation pass does not do
+	#   warning    binds a TCP port when it is built
+	#   see        Run, Port, On
+	#@ aka  pcName speaks the plane's address vocabulary: "indexer" binds loopback; "indexer@10.0.0.7" binds that interface (the deployed form -- same vocabulary Send/Ask resolve).
 	def init(pcName, pnPort)
 		@cName = StzLower("" + pcName)
 		nAt = StzFindFirst("@", @cName)
@@ -69,80 +87,158 @@ class stzNode from stzObject
 		@oReactor = new stzReactor()
 		@nSrv = @oReactor.ListenStzm(@cHost, @nPort)
 
+	# Returns the node's name, in lower case and without any @host part.
+	#
+	#   returns    a text
+	#   see        init
 	def Name_()
 		return @cName
 
-	# The actually-bound port (pnPort 0 = ephemeral).
+	# Returns the port the node is actually bound to, which differs from the one asked for when 0 was given.
+	#
+	#   returns    a number
+	#   warning    not run: it needs a node that is listening
+	#   see        init
+	#@ aka  The actually-bound port (pnPort 0 = ephemeral).
 	def Port()
 		return @oReactor.ServerPort(@nSrv)
 
-	# Bounded inbox: at most nCap messages queued; on overflow the policy
-	# applies (:DropOldest / :DropNewest / :Refuse) and the event is
-	# COUNTED. Declare BEFORE Run().
+	# Declares the bounded inbox: at most nCap queued messages, and what to do with the next one when it is full.
+	#
+	#   nCap       the most messages the inbox may hold
+	#   cPolicy    the overflow policy, :DropOldest, :DropNewest or :Refuse
+	#   returns    the node itself, so calls chain
+	#   note       not run: it needs a node that is listening
+	#   warning    call it before Run; every overflow is counted by the engine and never silent
+	#   see        Overflow, Pending
+	#@ aka  Bounded inbox: at most nCap messages queued; on overflow the policy applies (:DropOldest / :DropNewest / :Refuse) and the event is COUNTED. Declare BEFORE Run().
 	def SetInbox(nCap, cPolicy)
 		@nInboxCap = 0 + nCap
 		@cInboxPolicy = StzLower("" + cPolicy)
 		@oReactor.ServerSetInbox(@nSrv, nCap, cPolicy)
 		return This
 
+	# Declares the handler for a message tag; a handler's return value is sent back only when the sender asked for a reply.
+	#
+	#   pcTag       the tag of the messages to handle, matched without regard to case
+	#   pfHandler   a function that takes the message list [ tag, args... ] and returns the reply
+	#   returns     the node itself, so calls chain
+	#   note        run on a node built without a reactor, so only the registration was exercised
+	#   warning     a handler that raises is not caught: the node dies loudly, on purpose, and its
+	#               exit is visible from outside; a message with no handler is counted in Unhandled
+	#   see         Unhandled, Processed
 	def On(pcTag, pfHandler)
 		@aHandlerTags + StzLower("" + pcTag)
 		@aHandlerFns + pfHandler
 		return This
 
-	#-- security (D5: reuse, never mint) -----------------------------------
-
-	# Verify signed messages against this signer's keyring (the SAME
-	# stzRequestSigner discipline the federation uses -- HMAC-SHA256,
-	# freshness window, nonce replay cache).
+	# Makes the node verify signed messages against a signer's keyring.
+	#
+	#   poSigner   a stzRequestSigner holding the shared keyring
+	#   returns    the node itself, so calls chain
+	#   note       read from the code, not run: it needs a signer and a live node
+	#   warning    a message that fails verification (bad signature, stale, replayed) is refused and
+	#              counted in Rejected
+	#   see        RequireSigned, Rejected
+	#@ aka  -- security (D5: reuse, never mint) -----------------------------------
 	def SecureWith(poSigner)
 		@oSigner = poSigner
 		return This
 
-	# Reject UNSIGNED messages too (counted; denied reply on an Ask).
+	# Makes the node refuse every message that is not signed.
+	#
+	#   bYes       1 to refuse unsigned messages, 0 to accept them
+	#   returns    the node itself, so calls chain
+	#   note       run on a node built without a reactor, so only the flag was exercised
+	#   warning    a refused message is counted in Rejected, and an Ask gets a [ stz.denied,
+	#              unsigned ] reply
+	#   see        SecureWith, Rejected
+	#@ aka  Reject UNSIGNED messages too (counted; denied reply on an Ask).
 	def RequireSigned(bYes)
 		@bRequireSigned = bYes
 		return This
 
-	# Register an actor identity (stzSystemActor): the verified key id
-	# names the actor whose capability KINDS gate admitted tags.
+	# Registers an actor identity, so the verified key id of a signed message names the actor whose capabilities gate the admitted tags.
+	#
+	#   poActor    a stzSystemActor, whose Name() is matched to the key id of the sender
+	#   returns    the node itself, so calls chain
+	#   warning    read from the code, not run
+	#   see        Admit, SecureWith
+	#@ aka  Register an actor identity (stzSystemActor): the verified key id names the actor whose capability KINDS gate admitted tags.
 	def AddActor(poActor)
 		@aActorNames + StzLower(poActor.Name())
 		@aActorObjs + poActor
 		return This
 
-	# Serving pcTag requires the sender's actor to hold pcKind
-	# (effectful / sensing / compute / inference -- the ONE lattice).
+	# Requires the sender's actor to hold a capability kind before the node serves a tag.
+	#
+	#   pcTag      the tag to protect, matched without regard to case
+	#   pcKind     the capability kind the actor must hold: effectful, sensing, compute or inference
+	#   returns    the node itself, so calls chain
+	#   note       run on a node built without a reactor, so only the registration was exercised
+	#   warning    an unsigned sender or an unknown actor is denied; each denial is counted in
+	#              Denied and, on an Ask, answered with [ stz.denied, capability ]
+	#   see        AddActor, Denied
+	#@ aka  Serving pcTag requires the sender's actor to hold pcKind (effectful / sensing / compute / inference -- the ONE lattice).
 	def Admit(pcTag, pcKind)
 		@aAdmitTags + StzLower("" + pcTag)
 		@aAdmitKinds + StzLower("" + pcKind)
 		return This
 
+	# Returns how many messages were refused for authentication: a bad signature, a replay, or unsigned when signing is required.
+	#
+	#   returns    a number
+	#   see        SecureWith, RequireSigned, Denied
 	def Rejected()
 		return @nRejected
 
+	# Returns how many messages were refused for lack of capability.
+	#
+	#   returns    a number
+	#   see        Admit, Rejected
 	def Denied()
 		return @nDenied
 
-	#-- observability ------------------------------------------------------
-
+	# Returns how many messages were handled, including the built-in stz.stop and stz.info.
+	#
+	#   returns    a number
+	#   see        Unhandled, Run
+	#@ aka  -- observability ------------------------------------------------------
 	def Processed()
 		return @nProcessed
 
+	# Returns how many messages were dropped because no handler matched their tag or because they did not unpack.
+	#
+	#   returns    a number
+	#   see        On, Processed
 	def Unhandled()
 		return @nUnhandled
 
-	# Overflow events counted by the ENGINE's bounded inbox.
+	# Returns how many messages the engine's bounded inbox dropped or refused for lack of room.
+	#
+	#   returns    a number
+	#   warning    not run: it needs a node that is listening
+	#   see        SetInbox, Pending
+	#@ aka  Overflow events counted by the ENGINE's bounded inbox.
 	def Overflow()
 		return @oReactor.ServerOverflow(@nSrv)
 
+	# Returns how much unread data the node's server holds.
+	#
+	#   returns    a number
+	#   warning    not run: it needs a node that is listening
+	#   see        Overflow, SetInbox
 	def Pending()
 		return @oReactor.ServerPendingData(@nSrv)
 
-	#-- the dispatch loop --------------------------------------------------
-
-	# Serve messages until stz.stop arrives or nTtlMs elapses. Waiting
-	# rides the engine await (1 ms resolution), never a sleep loop.
+	# Serves messages until stz.stop arrives, Stop is called or the time limit elapses, then stops the server and destroys the reactor.
+	#
+	#   nTtlMs     how long to serve at most, in milliseconds
+	#   returns    nothing
+	#   note       not run: it blocks on a live port; read from the code
+	#   warning    blocks the process while it serves, and the node cannot be reused afterwards
+	#   see        Stop, On
+	#@ aka  -- the dispatch loop --------------------------------------------------
 	def Run(nTtlMs)
 		nDeadline = StzEngineWatchTimestampMs() + nTtlMs
 		while StzEngineWatchTimestampMs() < nDeadline and NOT @bStop
@@ -154,6 +250,12 @@ class stzNode from stzObject
 		@oReactor.ServerStop(@nSrv)
 		@oReactor.Destroy()
 
+	# Asks a running node to finish after its current wait.
+	#
+	#   returns    nothing
+	#   note       run on a node built without a reactor, so only the flag was set
+	#   warning    takes effect at the next 100 ms wait inside Run; it does not return the node
+	#   see        Run
 	def Stop()
 		@bStop = 1
 

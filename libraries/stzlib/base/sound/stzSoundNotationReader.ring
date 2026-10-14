@@ -77,6 +77,37 @@ func StzSoundScoreFromMidiQ(pcPath)
 func StzSoundScoreFromAbcQ(pcAbc)
 	return StzSoundNotationReaderQ().FromAbcQ(pcAbc)
 
+# Reads ABC, MIDI and MusicXML back into the stzSoundScore every transform already reads, and counts what it dropped.
+#
+# The other direction from stzSoundNotation: a MIDI file, an ABC tune or a MusicXML score becomes a
+# stzSoundScore, which can be played, transcribed against, analysed for its modes or written out in
+# another format. The reader counts what a score cannot keep, a tempo change, an ornament, a lyric,
+# in Losses and refuses a file it cannot read honestly, with the reason in LastError: a SMPTE-timed
+# or format 2 MIDI file, an ABC tune with no K: line, a MusicXML score-timewise or one that is not
+# well-formed. Pitch in MIDI is the key plus the bend, so quarter tones come back as the frequency
+# they were. Repeats are played out, since a score is what is performed. Reading opens no audio
+# device and plays nothing; what comes back has not been heard by a person (UNPERCEIVED).
+#
+#   receiver   o1 = StzSoundNotationReaderQ() cAbc = "X:1" + char(10) + "T:Tiny study" + char(10) +
+#              "M:4/4" + char(10) + "L:1/16" + char(10) + "Q:1/4=90" + char(10) + "K:C" + char(10) +
+#              "[V:1] C4 D4 E4 C4" + char(10) oS = o1.FromAbcQ(cAbc)
+#   example    ? oS.NumberOfEvents()
+#              #--> 4
+#              ? oS.TempoInBpm()
+#              #--> 90
+#              ? oS.Events()[3][3]
+#              #--> 329.63
+#              ? o1.Title()
+#              #--> Tiny study
+#              ? @@( o1.Losses() )
+#              #--> [ ]
+#              oBad = o1.FromAbcQ("X:1" + char(10) + "C D E")
+#              ? o1.LastError()
+#              #--> ABC: music before the K: line -- a tune's header ends with K:, and this one has none
+#              oM = o1.FromMidiBytesQ("not midi")
+#              ? o1.LastError()
+#              #--> MIDI: not a Standard MIDI File -- 8 bytes, and a header alone is 14
+#   see        stzSoundNotation, stzSoundScore, stzSoundTranscriber
 class stzSoundNotationReader
 
 	@aLosses = []
@@ -107,22 +138,61 @@ class stzSoundNotationReader
 	@nMxTrans = 0          # semitones from written to sounding pitch
 	@nMxVel = 0.8          # the velocity a note takes when it names none
 
+	# Builds a notation reader with no losses, no error and no title.
+	#
+	#   returns    nothing; the object is built
+	#   note       StzSoundNotationReaderQ builds the same object, and StzSoundScoreFromAbcQ,
+	#              StzSoundScoreFromMidiQ and StzSoundScoreFromMusicXMLQ read in one call when the
+	#              losses do not matter
+	#   see        FromAbcQ, FromMidiBytesQ
 	def init()
 
+	# Returns what the last read could not keep of the notation.
+	#
+	#   returns    a list of sentences; [ ] when nothing was dropped
+	#   note       each read starts the list afresh; an ABC tune with an ornament and a lyric line
+	#              gave ABC: decorations (ornaments, dynamics, articulations) are not read and ABC:
+	#              lyrics (w:, W:) are not read
+	#   see        LastError, FromAbcQ
 	def Losses()
 		return @aLosses
 
+	# Returns why the last read was refused.
+	#
+	#   returns    the reason as text; an empty text when the last read was accepted
+	#   note       examples are an ABC tune with music before its K: line, a MIDI file shorter than
+	#              a header, a MusicXML score-timewise and a text that is not well-formed XML
+	#   see        Losses, FromAbcQ
 	def LastError()
 		return @cLastError
 
+	# Returns the title of the last tune or score read.
+	#
+	#   returns    the title as text; an empty text when none
+	#   note       it is set from the header before a refusal, so a refused ABC tune can still leave
+	#              its T: line here
+	#   see        Voices, FromAbcQ
 	def Title()
 		return @cTitle
 
+	# Returns the voices of the last ABC tune.
+	#
+	#   returns    a list of [ voice id, instrument ] pairs, such as [ "1", "piano" ]
+	#   note       only ABC sets it
+	#   see        FromAbcQ, Title
 	def Voices()
 		return @aVoicesRead
 
-	#== MIDI ====================================================================
-
+	# Reads a Standard MIDI File from disk, formats 0 and 1, into a stzSoundScore.
+	#
+	#   pcPath     the path of the file
+	#   returns    a stzSoundScore; an empty text when the file is missing or refused, with the
+	#              reason in LastError
+	#   note       the file is read and handed to FromMidiBytesQ
+	#   warning    a path that does not exist gives an empty text and the error FromMidiFileQ: no
+	#              file at ...
+	#   see        FromMidiBytesQ, Losses
+	#@ aka  == MIDI ====================================================================
 	def FromMidiFileQ(pcPath)
 		@aLosses = []
 		@cLastError = ""
@@ -132,6 +202,20 @@ class stzSoundNotationReader
 		ok
 		return This._FromMidi(read(pcPath))
 
+	# Reads the bytes of a Standard MIDI File, formats 0 and 1, into a stzSoundScore.
+	#
+	#   pcBytes    the bytes of the file, as text
+	#   returns    a stzSoundScore with one event for each note or stroke; an empty text when
+	#              refused, with the reason in LastError
+	#   note       pitch is the key plus the pitch bend, read against each channel's bend range, so
+	#              a quarter tone written as a bend comes back as its frequency; a bend that moves
+	#              during a note makes a glide; channel 10 is drums and a key with no stroke here is
+	#              dropped and counted in Losses; for the file written by ToMidiBytes from C4 D4 E4
+	#              C4 at 90 beats a minute it returned the same four notes at 261.63, 293.66, 329.63
+	#              and 261.63 hertz
+	#   warning    text that is not a MIDI file, a SMPTE-timed file or format 2 is refused with the
+	#              reason in LastError; 8 bytes of text gave MIDI: not a Standard MIDI File
+	#   see        FromMidiFileQ, Losses
 	def FromMidiBytesQ(pcBytes)
 		@aLosses = []
 		@cLastError = ""
@@ -465,8 +549,20 @@ class stzSoundNotationReader
 		next
 		return []
 
-	#== ABC 2.1 =================================================================
-
+	# Reads ABC 2.1 text into a stzSoundScore, with voices, repeats played out and the key signature applied.
+	#
+	#   pcAbc      the ABC text, a header ending with a K: line and then the music
+	#   returns    a stzSoundScore with the instrument named by each voice; an empty text when
+	#              refused, with the reason in LastError
+	#   note       beats are quarter notes, so Q:3/8=100 is 150 beats a minute and a 6/8 bar is
+	#              three beats, checked by hand; repeats such as a repeated pair of notes between
+	#              repeat bars are played out, so the score holds what is performed; lengths, ties,
+	#              broken rhythm, tuplets, chords, rests and bar accidentals are read; decorations
+	#              and lyrics are dropped and counted in Losses
+	#   warning    an empty text, or music before the K: line, gives an empty text and the error
+	#              ABC: the text is empty or ABC: music before the K: line
+	#   see        Voices, Title, Losses
+	#@ aka  == ABC 2.1 =================================================================
 	def FromAbcQ(pcAbc)
 		@aLosses = []
 		@cLastError = ""
@@ -1459,8 +1555,16 @@ class stzSoundNotationReader
 		ok
 		return "piano"
 
-	#== MusicXML (MU9) ==========================================================
-
+	# Reads an uncompressed MusicXML file from disk into a stzSoundScore.
+	#
+	#   pcPath     the path of the file
+	#   returns    a stzSoundScore; an empty text when the file is missing or refused, with the
+	#              reason in LastError
+	#   note       a compressed .mxl is refused: unzip it first
+	#   warning    a path that does not exist gives an empty text and the error FromMusicXMLFileQ:
+	#              no file at ...
+	#   see        FromMusicXMLQ, Losses
+	#@ aka  == MusicXML (MU9) ==========================================================
 	def FromMusicXMLFileQ(pcPath)
 		This._MxReset()
 		if NOT isString(pcPath) or NOT fexists(pcPath)
@@ -1468,6 +1572,16 @@ class stzSoundNotationReader
 		ok
 		return This._FromMusicXML(read(pcPath))
 
+	# Reads MusicXML text, score-partwise, into a stzSoundScore: what sounds, with decimal alterations as quarter tones.
+	#
+	#   pcXml      the MusicXML text
+	#   returns    a stzSoundScore; an empty text when refused, with the reason in LastError
+	#   note       a transposing part is read at its sounding pitch; repeats are played out; the key
+	#              signature is not needed because every alteration is on its note; the score
+	#              written by ToMusicXML from C4 D4 E4 C4 came back as the same four notes
+	#   warning    score-timewise, a text that is not well-formed XML and a duration before any
+	#              divisions are refused with the reason in LastError
+	#   see        FromMusicXMLFileQ, Title
 	def FromMusicXMLQ(pcXml)
 		This._MxReset()
 		if NOT isString(pcXml) or ring_trim(pcXml) = ""

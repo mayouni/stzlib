@@ -58,6 +58,24 @@ func StzVectorIndexQ(paVectors)
 func StzVectorIndex(paVectors)
 	return new stzVectorIndex(paVectors)
 
+# Finds the stored vectors nearest to a query vector quickly, with an approximate forest of random trees, and measures what it misses.
+#
+# Build one with new stzVectorIndex(aVectors), one row per vector, all of the same width. Search,
+# SearchWithBudget and SearchExact answer [ index, distance ] pairs, nearest first, indexes from 1,
+# distance the squared Euclidean one; Search is approximate and quick, SearchExact is the full scan,
+# and RecallAgainstExact measures the share of true neighbours the approximate search returns, which
+# is what makes an approximate index honest. SetTrees, SetMetric and SetSeed are chainable and drop
+# the built index, which is rebuilt at the next search. Use SetMetric(:Cosine) for text embeddings.
+#
+#   receiver   o1 = new stzVectorIndex([ [ 0, 0 ], [ 1, 0 ], [ 0, 1 ], [ 5, 5 ], [ 6, 5 ], [ 10, 10
+#              ] ])
+#   example    ? @@( o1.Search([ 5, 5 ], 2) )
+#              #--> [ [ 4, 0 ], [ 5, 1 ] ]
+#              ? @@( o1.SearchExact([ 9, 9 ], 1) )
+#              #--> [ [ 6, 2 ] ]
+#              ? o1.RecallAgainstExact([ [ 5, 5 ], [ 0, 0 ] ], 2, 0)
+#              #--> 1
+#   see        stzSimilarity, stzKnn
 class stzVectorIndex from stzObject
 
 	@pIndex = ""
@@ -82,7 +100,14 @@ class stzVectorIndex from stzObject
 	@nGpuDist_ = 0
 	@bGpuTried_ = 0
 
-	# paVectors is a list of equal-length lists of numbers -- one row per vector.
+	# Stores the vectors of a corpus to be searched by nearest neighbour; the search structure itself is built at the first search.
+	#
+	#   paVectors   a non-empty list of vectors, each a list of numbers, all of the same length
+	#   returns     nothing; the object is built
+	#   warning     an empty list, a list whose items are not lists, or vectors of different lengths
+	#               raises an error naming the problem
+	#   see         Search, SetMetric
+	#@ aka  paVectors is a list of equal-length lists of numbers -- one row per vector.
 	def init(paVectors)
 		if NOT isList(paVectors) or len(paVectors) = 0
 			StzRaise("stzVectorIndex: give me a non-empty list of vectors.")
@@ -106,9 +131,15 @@ class stzVectorIndex from stzObject
 			ok
 		next
 
+	# Sets how many random trees the index grows; more trees find the true neighbours more often and take more memory.
+	#
+	#   n          the number of trees, at least 1
+	#   returns    the same object, so calls chain; the default is 10
+	#   note       a value below 1 raises "SetTrees: at least one tree."; the index is dropped and
+	#              rebuilt at the next search, so it can be called at any time
+	#   see        SetSeed, RecallAgainstExact
 	# ---- configuration (before the first search) -------------------------
-
-	# More trees means better recall at the same budget, and a bigger index.
+	#@ aka  More trees means better recall at the same budget, and a bigger index.
 	def SetTrees(n)
 		if n < 1
 			StzRaise("SetTrees: at least one tree.")
@@ -117,8 +148,14 @@ class stzVectorIndex from stzObject
 		This._Drop()
 		return This
 
-	# :Euclidean compares positions, :Cosine compares directions. Text
-	# embeddings almost always want :Cosine.
+	# Chooses how closeness is judged: :Euclidean compares positions, :Cosine compares directions after scaling every vector to length 1.
+	#
+	#   pcMetric   :Euclidean or :Cosine
+	#   returns    the same object, so calls chain; the default is :Euclidean
+	#   note       any other value raises "SetMetric: :Euclidean or :Cosine."; text embeddings
+	#              almost always want :Cosine; the index is rebuilt at the next search
+	#   see        CosineFromDistance, Metric
+	#@ aka  :Euclidean compares positions, :Cosine compares directions. Text embeddings almost always want :Cosine.
 	def SetMetric(pcMetric)
 		if pcMetric != :Euclidean and pcMetric != :Cosine
 			StzRaise("SetMetric: :Euclidean or :Cosine.")
@@ -127,60 +164,100 @@ class stzVectorIndex from stzObject
 		This._Drop()
 		return This
 
-	# The forest is random; the seed makes it reproducible, so a recall figure
-	# is a property of the code and not of the run that produced it.
+	# Sets the seed of the random trees so that a build, and any recall figure, can be repeated.
+	#
+	#   n          the seed number
+	#   returns    the same object, so calls chain; the default is 42
+	#   note       the index is rebuilt at the next search
+	#   see        SetTrees, RecallAgainstExact
+	#@ aka  The forest is random; the seed makes it reproducible, so a recall figure is a property of the code and not of the run that produced it.
 	def SetSeed(n)
 		@nSeed = n
 		This._Drop()
 		return This
 
+	# Returns the number of trees the index will grow.
+	#
+	#   returns    a number
+	#   see        SetTrees
 	def Trees()
 		return @nTrees
 
+	# Returns the metric in use, in lowercase: "euclidean" or "cosine".
+	#
+	#   returns    a text
+	#   see        SetMetric
 	def Metric()
 		return @cMetric
 
+	# Returns how many vectors the index holds.
+	#
+	#   returns    a number
+	#   see        Dimensions
 	def Count()
 		return @nCount
 
+	# Returns how many components each vector has.
+	#
+	#   returns    a number
+	#   see        Count
 	def Dimensions()
 		return @nDim
 
-	# ---- searching -------------------------------------------------------
-
-	# The k nearest neighbours, as [ [index, distance], ... ], nearest first.
-	# Indexes are 1-based into the vectors this index was built from.
+	# Returns the k stored vectors nearest to a query, nearest first, with their squared distances, from an approximate search.
 	#
-	# The distance is SQUARED Euclidean over the stored vectors -- squared
-	# because the square root changes nothing about the ordering and costs a
-	# call per candidate. In :Cosine mode the vectors are unit-length, so the
-	# distance is 2 - 2*cos and CosineSimilarityTo() reads it back as a cosine.
+	#   paQuery    the query vector, as many numbers as the stored vectors have
+	#   nK         how many neighbours to return, at least 1
+	#   returns    a list of [ index, distance ] pairs; fewer than nK when the index is smaller
+	#   note       indexes count from 1; the distance is squared Euclidean (in :Cosine mode 2 - 2 x
+	#              cosine), so 5 apart reads 25; the distances are exact, and an approximate answer
+	#              can only omit a true neighbour; Nearest is the same method
+	#   see        SearchWithBudget, SearchExact, RecallAgainstExact
+	# ---- searching -------------------------------------------------------
+	#@ aka  The k nearest neighbours, as [ [index, distance], ... ], nearest first. Indexes are 1-based into the vectors this index was built from.
 	def Search(paQuery, nK)
 		return This._Query(paQuery, nK, 0, 0)
 
 		def Nearest(paQuery, nK)
 			return This.Search(paQuery, nK)
 
-	# The same, with the candidate budget stated. Bigger budget, better recall,
-	# more work. 0 asks for the default.
+	# Returns the k nearest vectors like Search, with the number of candidates examined stated: a bigger budget finds more of the true neighbours.
+	#
+	#   paQuery    the query vector
+	#   nK         how many neighbours to return
+	#   nBudget    how many candidates to examine, 0 for the default
+	#   returns    a list of [ index, distance ] pairs, nearest first
+	#   note       the budget is the dial between speed and recall
+	#   see        Search, RecallAgainstExact
+	#@ aka  The same, with the candidate budget stated. Bigger budget, better recall, more work. 0 asks for the default.
 	def SearchWithBudget(paQuery, nK, nBudget)
 		return This._Query(paQuery, nK, nBudget, 0)
 
-	# The exact answer by full scan -- O(n) and the ground truth. Use it on a
-	# small corpus, or to measure what the approximate path is missing.
+	# Returns the k nearest vectors by scanning every stored vector, the ground truth against which Search is judged.
+	#
+	#   paQuery    the query vector
+	#   nK         how many neighbours to return
+	#   returns    a list of [ index, distance ] pairs, nearest first
+	#   note       the cost grows with the corpus; for a large Euclidean corpus the scan may run on
+	#              the GPU, with distances in single precision; NearestExact is the same method
+	#   see        Search, RecallAgainstExact
+	#@ aka  The exact answer by full scan -- O(n) and the ground truth. Use it on a small corpus, or to measure what the approximate path is missing.
 	def SearchExact(paQuery, nK)
 		return This._Query(paQuery, nK, 0, 1)
 
 		def NearestExact(paQuery, nK)
 			return This.SearchExact(paQuery, nK)
 
-	# RECALL@K over a set of queries: the fraction of the true k nearest
-	# neighbours that the approximate search actually returned. 1.0 means it
-	# missed nothing.
+	# Returns the share of the true k nearest neighbours that the approximate search finds, over a set of queries; 1 means none missed.
 	#
-	# THIS IS THE METHOD THAT MAKES THE INDEX HONEST. Measure it on your own
-	# vectors before trusting a budget -- recall depends on the data, not just
-	# on the settings, and no default can promise a number.
+	#   paQueries   a non-empty list of query vectors
+	#   nK          how many neighbours to compare
+	#   nBudget     the candidate budget, 0 for the default
+	#   returns     a number from 0 to 1
+	#   note        measure it on your own vectors before trusting a budget; a query of the wrong
+	#               width or an empty list raises an error
+	#   see         SearchExact, SearchWithBudget
+	#@ aka  RECALL@K over a set of queries: the fraction of the true k nearest neighbours that the approximate search actually returned. 1.0 means it missed nothing.
 	def RecallAgainstExact(paQueries, nK, nBudget)
 		if NOT isList(paQueries) or len(paQueries) = 0
 			StzRaise("RecallAgainstExact: give me a non-empty list of queries.")
@@ -200,9 +277,14 @@ class stzVectorIndex from stzObject
 		ok
 		return _nR_
 
-	# Cosine similarity of a stored vector to a query, recovered from the
-	# stored distance. Only meaningful in :Cosine mode, where both are unit
-	# vectors and d^2 = 2 - 2*cos.
+	# Returns the cosine similarity that a stored distance stands for, 1 - distance / 2.
+	#
+	#   nDist      a distance returned by a search of a :Cosine index
+	#   returns    a number from -1 to 1
+	#   note       on a :Euclidean index it raises "CosineFromDistance: only meaningful for a
+	#              :Cosine index."
+	#   see        SetMetric, Search
+	#@ aka  Cosine similarity of a stored vector to a query, recovered from the stored distance. Only meaningful in :Cosine mode, where both are unit vectors and d^2 = 2 - 2*cos.
 	def CosineFromDistance(nDist)
 		if @cMetric != :Cosine
 			StzRaise("CosineFromDistance: only meaningful for a :Cosine index.")

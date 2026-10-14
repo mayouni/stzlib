@@ -1,0 +1,19 @@
+{
+ "brief": "Shuffles a text and draws from it at random: characters, words, sections, random case, random removal.",
+ "detail": "Build one with new stzStringRandomizer(\"text\"). The drawing methods (RandomChar, RandomChars, NRandomChars, RandomSection, RandomWord) only read; the in-place verbs (Shuffle, ShuffleWords, RandomCase, RandomRemove) change the text held and have passive twins that return a changed copy (Shuffled, WordsShuffled, RandomCased). The randomness is the engine's random integer, so no two calls need agree; what stays fixed is what a result is made of, its length and its letters. Do not pass a stzString object you still need: the first in-place edit empties it. RandomInsert empties the text in most calls today.",
+ "receiver": "o1 = new stzStringRandomizer(\"hello world\")",
+ "example": [
+  "? len(o1.Shuffled())",
+  "#--> 11",
+  "? lower(o1.RandomCased())",
+  "#--> hello world",
+  "? len(o1.RandomChars(4))",
+  "#--> 4",
+  "? len(o1.RandomSection(5))",
+  "#--> 5"
+ ],
+ "see": [
+  "stzString",
+  "stzListRandomizer"
+ ]
+}

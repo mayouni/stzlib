@@ -1,0 +1,22 @@
+{
+ "brief": "Holds a blocking TCP listener that accepts clients one at a time and hands each back as a connected stzTcpClient.",
+ "detail": "Listen starts the listener and returns at once; the application then calls AcceptOne, or AcceptOneWithin to give up after a time, in its own loop. There is no event loop: the Disconnect and Message callbacks are stored and never called. Pass 127.0.0.1 as the host for a local test, because an empty host listens on every interface. The documentation was run only against a client in the same process on the loopback address, stopped afterwards.",
+ "receiver": "o1 = new stzTcpServer()",
+ "example": [
+  "? o1.IsListening()",
+  "#--> 0",
+  "o1.Listen(47315, \"127.0.0.1\")",
+  "? o1.IsListening()",
+  "#--> 1",
+  "o1.AcceptOneWithin(50)",
+  "? o1.AcceptTimedOut()",
+  "#--> 1",
+  "o1.StopListening()",
+  "? o1.IsListening()",
+  "#--> 0"
+ ],
+ "see": [
+  "stzTcpClient",
+  "stzNetwork"
+ ]
+}

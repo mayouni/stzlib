@@ -36,6 +36,26 @@ func IsStzStateMachine(pObj)
  ///   CLASS   ///
 /////////////////
 
+# A finite state machine kept in the engine: add states and transitions, send events, and read the state the machine is in.
+#
+# Declare the states, then the transitions as [ from, event, to ]. Send follows the matching
+# transition and answers the new state. The first state added is the starting state. Mistakes are
+# not reported by the machine: an event that matches no transition, a SetState to an unknown state
+# and a transition naming an unknown state are all ignored without an error, so check CurrentState
+# after the call that matters.
+#
+#   receiver   o1 = new stzStateMachine("door") o1.AddStates([ "closed", "open", "locked" ])
+#              o1.AddTransitions([ [ "closed", "open", "open" ], [ "open", "close", "closed" ], [
+#              "closed", "lock", "locked" ] ])
+#   example    ? o1.CurrentState()
+#              #--> closed
+#              ? o1.Send("open")
+#              #--> open
+#              ? o1.Send("lock")
+#              #--> open
+#              ? o1.NumberOfTransitions()
+#              #--> 3
+#   see        stzPattern, stzDeployment
 class stzStateMachine from stzObject
 
 	@cName = ""
@@ -45,6 +65,12 @@ class stzStateMachine from stzObject
 	 #     INIT     #
 	#--------------#
 
+	# Creates an empty finite state machine in the engine, identified by a name.
+	#
+	#   cName      the machine's name, a non-empty text
+	#   returns    nothing; the object is built
+	#   warning    a name that is empty or not a text raises an error
+	#   see        AddState, AddTransition
 	def init(cName)
 
 		if CheckingParams()
@@ -64,6 +90,10 @@ class stzStateMachine from stzObject
 	 #     NAME     #
 	#--------------#
 
+	# Returns the name the machine was created with.
+	#
+	#   returns    a text
+	#   see        init
 	def Name()
 		return @cName
 
@@ -71,6 +101,13 @@ class stzStateMachine from stzObject
 	 #     STATES AND TRANSITIONS    #
 	#-------------------------------#
 
+	# Adds a state to the machine; the first state added becomes the current one.
+	#
+	#   cState     the name of the state, a non-empty text
+	#   returns    nothing; use AddStateQ to chain
+	#   note       an empty or non-text name raises an error
+	#   warning    adding a name twice counts it twice in NumberOfStates
+	#   see        AddStates, SetState, NumberOfStates
 	def AddState(cState)
 		if CheckingParams()
 			if NOT isString(cState) or cState = ""
@@ -87,6 +124,11 @@ class stzStateMachine from stzObject
 			This.AddState(cState)
 			return This
 
+	# Adds several states in the order given, by calling AddState for each.
+	#
+	#   paStates   a list of state names, each a non-empty text
+	#   returns    nothing
+	#   see        AddState
 	def AddStates(paStates)
 		if CheckingParams()
 			if NOT isList(paStates)
@@ -103,6 +145,16 @@ class stzStateMachine from stzObject
 			This.AddStates(paStates)
 			return This
 
+	# Adds a transition that moves the machine from one state to another when an event is sent.
+	#
+	#   cFrom      the state the transition leaves
+	#   cEvent     the event that triggers it
+	#   cTo        the state it arrives in
+	#   returns    nothing; use AddTransitionQ to chain
+	#   note       all three must be texts, else an error is raised
+	#   warning    a transition naming a state that was not added is silently dropped:
+	#              NumberOfTransitions does not grow and nothing is raised
+	#   see        AddTransitions, Send
 	def AddTransition(cFrom, cEvent, cTo)
 		if CheckingParams()
 			if NOT isString(cFrom) or NOT isString(cEvent) or NOT isString(cTo)
@@ -119,6 +171,11 @@ class stzStateMachine from stzObject
 			This.AddTransition(cFrom, cEvent, cTo)
 			return This
 
+	# Adds several transitions, each given as a [ from, event, to ] list.
+	#
+	#   paTransitions   a list of [ cFrom, cEvent, cTo ] lists
+	#   returns         nothing
+	#   see             AddTransition
 	def AddTransitions(paTransitions)
 		if CheckingParams()
 			if NOT isList(paTransitions)
@@ -140,6 +197,13 @@ class stzStateMachine from stzObject
 	 #     CURRENT STATE #
 	#-------------------#
 
+	# Forces the machine into a state without going through a transition.
+	#
+	#   cState     the name of the state to enter
+	#   returns    nothing; use SetStateQ to chain
+	#   warning    an unknown state is silently ignored and the current state stays: the error the
+	#              code intends is never raised
+	#   see        CurrentState, Send
 	def SetState(cState)
 		if CheckingParams()
 			if NOT isString(cState) or cState = ""
@@ -156,6 +220,10 @@ class stzStateMachine from stzObject
 			This.SetState(cState)
 			return This
 
+	# Returns the name of the state the machine is in; empty before any state is added.
+	#
+	#   returns    a text
+	#   see        SetState, Send
 	def CurrentState()
 		return StzEngineFsmCurrentState(@nHandle)
 
@@ -166,6 +234,15 @@ class stzStateMachine from stzObject
 	 #     EVENTS        #
 	#-------------------#
 
+	# Feeds an event to the machine, which follows the matching transition from its current state, and returns the state it is in after.
+	#
+	#   cEvent     the event to send, a non-empty text
+	#   returns    the name of the current state, a text
+	#   note       an empty or non-text event raises an error
+	#   warning    an event with no transition from the current state is silently ignored and the
+	#              state stays: the error the code intends is never raised; checked with two
+	#              unmatched events
+	#   see        CurrentState, AddTransition
 	def Send(cEvent)
 		if CheckingParams()
 			if NOT isString(cEvent) or cEvent = ""
@@ -195,6 +272,10 @@ class stzStateMachine from stzObject
 	 #     COUNTING      #
 	#-------------------#
 
+	# Returns how many states were added.
+	#
+	#   returns    a number
+	#   see        AddState
 	def NumberOfStates()
 		return StzEngineFsmStateCount(@nHandle)
 
@@ -204,6 +285,10 @@ class stzStateMachine from stzObject
 		def CountStates()
 			return This.NumberOfStates()
 
+	# Returns how many transitions were accepted by the engine.
+	#
+	#   returns    a number
+	#   see        AddTransition
 	def NumberOfTransitions()
 		return StzEngineFsmTransitionCount(@nHandle)
 
@@ -217,6 +302,11 @@ class stzStateMachine from stzObject
 	 #     CLEANUP       #
 	#-------------------#
 
+	# Frees the engine machine and marks the object unusable.
+	#
+	#   returns    nothing
+	#   warning    afterwards CurrentState answers an empty text
+	#   see        init
 	def Destroy()
 		if @nHandle >= 0
 			StzEngineFsmDestroy(@nHandle)

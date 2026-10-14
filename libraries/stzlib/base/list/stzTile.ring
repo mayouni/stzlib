@@ -15,6 +15,23 @@ func StzTileQ(panColRow)
 	func StzTile(panColRow)
 		return new stzTile(panColRow)
 
+# Draws a grid of square cells with box lines, marking the current cell, obstacles and a path, for navigation and puzzles.
+#
+# A stzTile is a stzGrid, so build one with new stzTile([ columns, rows ]) or StzTileQ(...) and use
+# every grid method: AddObstacle, MoveToNode, paths, connected regions (Rooms). The class adds the
+# drawing: Show prints it, ToString returns it, Legend names the characters used, and ShowCustomGrid
+# draws other contents in the same frame. Positions count from 1, with the column first.
+#
+#   receiver   o1 = new stzTile([ 3, 2 ])
+#   example    o1.AddObstacle(2, 1)
+#              o1.Show()
+#              #--> 1   2   3
+#              #--> ╭─v─┬───┬───╮
+#              #--> 1 > ♥ │███│   │
+#              #--> ├───┼───┼───┤
+#              #--> 2 │   │   │   │
+#              #--> ╰───┴───┴───╯
+#   see        stzGrid, stzList2D
 Class stzTile From stzGrid
 
 	# The stzTile class is a square-based counterpart of stzGrid.
@@ -25,11 +42,30 @@ Class stzTile From stzGrid
 	@cCurrentChar = "♥"
 	@cEmptyChar = " "
 
+	# Builds a tile, a grid of square cells drawn with box lines, from its number of columns and rows.
+	#
+	#   panColRow   a pair of numbers, [ columns, rows ]
+	#   returns     nothing; the object is built, current cell at column 1, row 1
+	#   note        everything stzGrid offers (AddObstacle, MoveToNode, paths, regions) is available
+	#               on a tile
+	#   warning     anything but a pair of numbers raises "Incorrect param type! panColRow must be a
+	#               pair of numbers."
+	#   see         SetObstacleCell, Show
 	def init(panColRow)
 
 		super.init(panColRow)
 	
 
+	# Sets the text that fills an obstacle cell when the tile is drawn, up to 3 characters.
+	#
+	#   cChar      the text drawn in an obstacle cell, 3 bytes at most
+	#   returns    nothing
+	#   note       a one-character text is padded with a space on each side the first time the tile
+	#              is drawn, so Legend afterwards shows " X " for "X"
+	#   warning    A text longer than 3 bytes raises "Incorrect param value! cChar must be a string
+	#              of maximum 3 chars.", and the size is counted in bytes: one emoji, 4 bytes, is
+	#              refused although it is one character
+	#   see        SetObstacleChar, ToString
 	def SetObstacleCell(cChar)
 		if isString(cChar) and len(cChar) < 4
 			@cObstacleChar = cChar
@@ -37,6 +73,12 @@ Class stzTile From stzGrid
 			StzRaise("Incorrect param value! cChar must be a string of maximum 3 chars.")
 		ok
 
+		# Sets the text that fills an obstacle cell when the tile is drawn, the same as SetObstacleCell.
+		#
+		#   cChar      the text drawn in an obstacle cell, 3 bytes at most
+		#   returns    nothing
+		#   warning    the same byte limit: one emoji is refused
+		#   see        SetObstacleCell
 		def SetObstacleChar(cChar)
 			This.SetObstacleCell(cChar)
 
@@ -46,11 +88,21 @@ Class stzTile From stzGrid
 		return This.ConnectedRegions()
 
 	
-	#-- VISUALIZING THE Tile
-	
+	# Prints the tile on the console: column and row numbers, box lines, the current cell as a heart and the obstacles filled in.
+	#
+	#   returns    nothing
+	#   note       the box characters need a UTF-8 console
+	#   see        ToString, Legend
+	#@ aka  -- VISUALIZING THE Tile
 	def Show()
 		? This.ToString()
 
+	# Returns the tile drawn as text with box lines and numbers, the current cell marked by a heart, and the obstacles filled in.
+	#
+	#   returns    a text of several lines
+	#   note       the drawing changes with the grid state: obstacles, the current cell and a path
+	#              if one is shown
+	#   see        Show, Legend
 	def ToString()
 		# Create an empty tile grid
 		_aCells_ = list(@nRows)
@@ -189,6 +241,11 @@ Class stzTile From stzGrid
 	
 		return _cResult_
 
+	# Returns a one-line text that names the size of the tile and the characters used for the current cell, the obstacles and the path.
+	#
+	#   returns    a text that starts "Tile: 4x3" and lists the current, obstacle and path
+	#              characters
+	#   see        ToString
 	def Legend()
 
 		# Create a legend string with all relevant information
@@ -207,6 +264,15 @@ Class stzTile From stzGrid
 		return _cResult_
 
 
+	# Prints the frame of the tile with the given items in its cells instead of its own state.
+	#
+	#   aCustomGrid   a list of rows, each a list of the texts to show, with at least as many rows
+	#                 and columns as the tile
+	#   returns       nothing
+	#   note          the current cell is still marked by the arrow and v, but not by the heart
+	#   warning       A list with fewer rows or columns than the tile raises R2 (Array Access, Index
+	#                 out of range)
+	#   see           ToString
 	def ShowCustomGrid(aCustomGrid)
 		# Display a custom Grid without changing the internal Grid state
 		_cResult_ = ""

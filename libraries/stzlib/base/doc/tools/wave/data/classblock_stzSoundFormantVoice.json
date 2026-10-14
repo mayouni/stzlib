@@ -1,0 +1,28 @@
+{
+ "brief": "Sings the five vowels at a pitch with a formant voice built in the engine, a glottal pulse through five resonators.",
+ "detail": "The voice is a Rosenberg glottal pulse through formant resonators taken from the Csound tenor and soprano tables, and holds a pitch to a fraction of a cent. Vowel gives one vowel at a note, VowelGlide a gliding pitch, VowelsQ a line of vowels at a tempo. It sings vowels only: a consonant needs a model or the neural tier. Sing is present and gated by StzSoundSingingVerdict, and refuses while the formant voice is recorded as UNPERCEIVED. Everything is rendered to memory and checked by frame count, sample rate, peak and measured pitch; no audio device is opened. It has not been heard by a person (UNPERCEIVED), so whether it reads as a voice is not claimed.",
+ "receiver": "o1 = StzSoundFormantVoiceQ()\noV = o1.Vowel(\"a\", \"A3\", 1.5)",
+ "example": [
+  "? oV.SampleRate()",
+  "#--> 48000",
+  "? oV.Frames()",
+  "#--> 79200",
+  "? oV.Peak() > 0.1 and oV.Peak() <= 1",
+  "#--> 1",
+  "? abs(StzEngineSoundPitchOf(oV.BufferId(), 24001, 4096, 50, 2000) - 220) < 2",
+  "#--> 1",
+  "? @@( o1.FormantsOf(\"a\", 220) )",
+  "#--> [ 650, 1080 ]",
+  "oBad = o1.Vowel(\"y\", \"A3\", 1)",
+  "? o1.LastError()",
+  "#--> 'y' is not one of the five vowels a e i o u",
+  "oS = o1.Sing(\"la la\", \"c4 e4\")",
+  "? o1.Refusals()",
+  "#--> 2"
+ ],
+ "see": [
+  "stzSoundRetunedVoice",
+  "stzVoice",
+  "stzSoundScore"
+ ]
+}

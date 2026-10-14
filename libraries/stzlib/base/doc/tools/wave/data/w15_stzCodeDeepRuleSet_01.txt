@@ -1,0 +1,1 @@
+init | Builds the deep audit rule set: the project rules plus no-cyclic-calls, which reports two methods of a class that call each other. | nothing; the object is built | | stzCodeProjectRuleSet | | the extra rule is slow, measured at about 36 seconds over base/graph, so it suits a periodic audit and not a per-commit gate

@@ -1,0 +1,20 @@
+{
+ "brief": "Holds Python source as a code graph: its classes, methods with multiple inheritance, functions and imports.",
+ "detail": "A sibling of stzJsCodeGraph under stzCodeGraph, which gives it the whole query surface (owners, ancestry, impact, cascade, call edges, dead code, cyclic calls). It adds Python's own identity and three ways to read source: the indentation floor, a structural scan with no dependency that finds declarations only; tree-sitter in the engine, through StzPyCodeGraphFromSourceTS, which is the preferred real parse with call edges; and Python's own ast, through a spawned interpreter, as a fallback where the grammar is not built.",
+ "receiver": "o1 = StzPyCodeGraphFromSource(\"class Animal:\" + nl + \"    def speak(self):\" + nl + \"        return 1\" + nl + \"class Puppy(Animal):\" + nl + \"    def fetch(self):\" + nl + \"        return 2\" + nl)",
+ "example": [
+  "? o1.Language()",
+  "#--> python",
+  "? @@( o1.Classes() )",
+  "#--> [ \"Animal\", \"Puppy\" ]",
+  "? @@( o1.AncestryOf(\"Puppy\") )",
+  "#--> [ \"Puppy\", \"Animal\" ]",
+  "? @@( o1.OwnersOf(\"fetch\") )",
+  "#--> [ \"Puppy\" ]"
+ ],
+ "see": [
+  "stzCodeGraph",
+  "stzJsCodeGraph",
+  "stzRingCodeGraph"
+ ]
+}

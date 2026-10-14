@@ -1,0 +1,10 @@
+{
+ "brief": "A node is an operating-system process that listens for STZM messages on a TCP port and dispatches each one to a handler by tag.",
+ "detail": "It holds one bounded inbox with a declared overflow policy that the engine enforces and counts. On(tag, f) declares a handler; a handler's value is returned only when the sender asked for a reply. A message with no handler is counted, never silent; a handler that raises kills the node, on purpose, so that a supervisor sees the exit. stz.stop is the built-in clean shutdown and stz.info makes the node report its identity, binding and counters. Signing and capability gates reuse stzRequestSigner and stzSystemActor. Constructing a node opens a listening port, and Run blocks: none of the networked methods were run for this documentation.",
+ "receiver": "o1 = StzNodeQ(\"indexer\", 0)",
+ "see": [
+  "stzNodeSupervisor",
+  "stzNodeApp",
+  "stzNodeRegistry"
+ ]
+}

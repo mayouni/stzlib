@@ -1,0 +1,17 @@
+init | Builds a language object from a language code, an English name, an abbreviation or the name of a country, read from the locale data. | nothing; the object is built | pcLangIdentifier=a name such as French, a short code such as fr, a three-letter code such as hau, or a country name | Name, DefaultCountry | a country name picks the first language of the data whose default country it is: France gives Breton and Niger gives Zarma; a locale abbreviation such as fr-FR raises Feature not yet implemented; an unknown identifier raises error R3, because the error function stzLanguageError is not loaded | case is free
+Content | Returns the language's English name in lower case. | a text such as french | | Name, Value
+Value | Returns the language's English name, the value of the object. | a text, as Content answers | | Content
+Number | Returns the language's number in the locale data. | a number | | Name, DefaultCountryNumber
+Name | Returns the language's English name in lower case. | a text such as hausa | | NativeName, ShortAbbreviation
+NativeName | Returns the language's name in its own script. | a text such as Français | | Name
+ShortAbbreviation | Returns the two-letter code of the language. | a text such as fr | | LongAbbreviation, Name
+LongAbbreviation | Returns the three-letter code of the language. | a text such as fra | | ShortAbbreviation, Name
+DefaultCountry | Returns the country where the language is taken to be at home. | a text in lower case such as france | | DefaultCountryNumber, DefaultCountryLocaleAbbreviation
+DefaultCountryNumber | Returns the number of the default country in the locale data. | a number | | DefaultCountry
+DefaultCountryLocaleAbbreviation | Returns the locale code of the default country, language and region joined by a hyphen. | a text such as fr-FR | | DefaultCountry, ShortAbbreviation
+DefaultScript | Returns the script for which this language is the default language in the locale data. | a text such as arabic; the first script found | | Scripts, DefaultScriptNumber | the answer is read from a table of one default language per script, so French answers duployan, not latin, and a language that is nobody's default answers nothing | trust it for a language such as Arabic or Hausa, whose script is the one that lists it
+DefaultScriptNumber | Returns the number of the default script in the locale data. | a number | | DefaultScript
+Scripts | Returns the scripts whose default language is this one, in lower case. | a list of text; one script for most languages | | DefaultScript, ScriptsAbbreviations | | French answers [ duployan ], so the list is the default-language mapping and not every script the language is written in
+ScriptsAbbreviations | Returns the four-letter codes of the scripts that Scripts lists. | a list of text such as dupl | | Scripts
+EngineField | Reads one field of the language from the engine's reference tables, by the language's name. | the field's value | pcField=the name of the field to read | EngineFieldByAbbr, Name | raises error R3 today: the function it calls, StzEngineRefLanguageField, is not defined anywhere in the library | use the other accessors of the class
+EngineFieldByAbbr | Reads one field of the language from the engine's reference tables, by the language's code. | the field's value | pcField=the name of the field to read | EngineField, ShortAbbreviation | raises error R3 today: the function it calls, StzEngineRefLanguageFieldByAbbr, is not defined anywhere in the library | use the other accessors of the class

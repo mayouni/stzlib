@@ -1,0 +1,19 @@
+{
+ "brief": "Turns a whole number into its ordinal form, such as 3rd in English, 3e in French or an Arabic ordinal word.",
+ "detail": "The language comes from a global setting at the moment the object is built (SetOrdinalLanguage changes it for objects made afterwards) and SetLanguage changes it for one object. English, French and Arabic are supported. The function Ordinal(n) builds the object and answers the text in one step. Only the three public readers (ToString, Value, Language) are meant for callers; ToEnglish, ToFrench and ToArabic are private helpers of ToString.",
+ "receiver": "o1 = new stzOrdinal(3)",
+ "example": [
+  "? o1.ToString()",
+  "#--> 3rd",
+  "o1.SetLanguage(\"fr\")",
+  "? o1.ToString()",
+  "#--> 3e",
+  "o1.SetLanguage(\"ar\")",
+  "? o1.ToString()",
+  "#--> الثّالث"
+ ],
+ "see": [
+  "stzNumber",
+  "stzString"
+ ]
+}

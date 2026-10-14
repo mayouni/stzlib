@@ -65,6 +65,35 @@ func IsStzWorldGraph(pObj)
 	ok
 	return 0
 
+# Loads the declared world of a project, its symbols and the references between them, and says whether every reference resolves.
+#
+# A world artifact is one derived JSON file with two flat tables: the symbols each court declares,
+# with kind, name and span, and the references between them. The class reads it and never writes it,
+# collects every refusal as a diagnostic instead of raising on the first, and hands back an ordinary
+# stzGraph with one node per symbol and one edge per referenced pair. Kinds are a closed set, ids
+# are the lower-case kind:name, and two symbols that differ only by case are refused. IsLawful is
+# the gate. The class is not loaded by stzlib.ring: load graph/stzWorldGraph.ring first.
+#
+#   receiver   load "../../graph/stzWorldGraph.ring" cJ = '{"world":"bank","contract":"1.0","symbols
+#              ":[{"kind":"entity","name":"member","span":{"file":"a.zql","line":3}},{"kind":"entity
+#              ","name":"deposit","span":{"file":"a.zql","line":9}},{"kind":"flow","name":"accept_de
+#              posit","span":{"file":"f.zql","line":1}}],"refs":[{"from":"flow:accept_deposit","to":
+#              "entity:deposit","kind":"routes_to","span":{"file":"f.zql","line":2}},{"from":"flow:a
+#              ccept_deposit","to":"entity:deposit","kind":"calls","span":{"file":"f.zql","line":5}}
+#              ]}' o1 = new stzWorldGraph(cJ)
+#   example    ? o1.World()
+#              #--> bank
+#              ? o1.SymbolCount()
+#              #--> 3
+#              ? @@( o1.NamesOfKind(:entity) )
+#              #--> [ "member", "deposit" ]
+#              ? len(o1.ReferencesTo("entity:deposit"))
+#              #--> 2
+#              ? len(o1.Graph().Edges())
+#              #--> 1
+#              ? o1.IsLawful()
+#              #--> 1
+#   see        stzGraph, stzGraphGoal, stzApp
 class stzWorldGraph from stzObject
 
 	@cWorld = ""
@@ -74,7 +103,18 @@ class stzWorldGraph from stzObject
 	@aRefs = []		# [ :from, :to, :kind, :file, :line ]
 	@aDiag = []		# C2 envelopes, in the order they were found
 
-	# Give it a path to a world.json, or the JSON text itself.
+	# Loads a world artifact, the declared symbols and references of a project, into a stzGraph and collects every refusal.
+	#
+	#   pSource    the path of a world.json file, or the JSON text itself starting with a brace
+	#   returns    nothing; the object is built and never raises on a bad artifact, it records
+	#              diagnostics
+	#   note       the class is not loaded by stzlib.ring: load graph/stzWorldGraph.ring first; a
+	#              contract other than 1.0 adds CONTRACT_MISMATCH and the symbols are still read
+	#   warning    text that is not JSON, an empty or unreadable path, and a value that is not text
+	#              are not raised: they leave the graph empty and add an MALFORMED_WORLD or
+	#              EMPTY_WORLD diagnostic
+	#   see        IsLawful, Diagnostics
+	#@ aka  Give it a path to a world.json, or the JSON text itself.
 	def init(pSource)
 		@cWorld = ""
 		@cContract = ""
@@ -112,35 +152,79 @@ class stzWorldGraph from stzObject
 		This._ReadRefs(_aRoot_)
 		This._Build()
 
-	#-- what was read -------------------------------------------------------
-
+	# Returns the name of the world the artifact declares.
+	#
+	#   returns    the name as text; an empty text when the artifact has none or was refused
+	#   see        ContractVersion, Graph
+	#@ aka  -- what was read -------------------------------------------------------
 	def World()
 		return @cWorld
 
+	# Returns the contract version the artifact was emitted against.
+	#
+	#   returns    the version as text, such as 1.0
+	#   note       the loader implements 1.0
+	#   see        World, IsLawful
 	def ContractVersion()
 		return @cContract
 
+	# Returns the world as an ordinary stzGraph, one node per symbol and one edge per referenced pair.
+	#
+	#   returns    a stzGraph of type semantic
+	#   note       each node id is the lower-case kind:name; two references between one pair of
+	#              symbols make ONE edge whose label is the first reference's kind and whose refs
+	#              property holds every row
+	#   see        Refs, Symbols
 	def Graph()
 		return @oGraph
 
+	# Returns every lawful symbol, each with id, kind, name, type, file, line and rationale.
+	#
+	#   returns    a list of hash lists in the order they were declared
+	#   note       a refused symbol, unknown kind, bad name or duplicate, is not in it
+	#   see        SymbolCount, Symbol, NamesOfKind
 	def Symbols()
 		return @aSymbols
 
+	# Returns how many lawful symbols were read.
+	#
+	#   returns    a number
+	#   see        Symbols, RefCount
 	def SymbolCount()
 		return len(@aSymbols)
 
+	# Returns every lawful reference, each with from, to, kind, file and line.
+	#
+	#   returns    a list of hash lists in the order they were declared; both ends are lower case
+	#   note       a reference whose end nothing declares is refused and is not in it
+	#   see        RefCount, ReferencesFrom, ReferencesTo
 	def Refs()
 		return @aRefs
 
+	# Returns how many lawful references were read.
+	#
+	#   returns    a number
+	#   note       two references between one pair count twice, though the graph holds one edge for
+	#              them
+	#   see        Refs, SymbolCount
 	def RefCount()
 		return len(@aRefs)
 
-	#-- looking things up ---------------------------------------------------
-
-	# Ids are matched case-insensitively -- the same rule the graph enforces.
+	# TRUE if a symbol with an id exists in the world.
+	#
+	#   pcId       the id as kind:name, matched without regard to case
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   see        Symbol, IdsOfKind
+	#@ aka  -- looking things up ---------------------------------------------------
 	def HasSymbol(pcId)
 		return This._IndexOfSymbol(pcId) > 0
 
+	# Returns one symbol by its id.
+	#
+	#   pcId       the id as kind:name, matched without regard to case
+	#   returns    a hash list with id, kind, name, type, file, line and rationale; [ ] when the
+	#              world has no such symbol
+	#   see        HasSymbol, Symbols
 	def Symbol(pcId)
 		_n_ = This._IndexOfSymbol(pcId)
 		if _n_ = 0
@@ -148,8 +232,13 @@ class stzWorldGraph from stzObject
 		ok
 		return @aSymbols[_n_]
 
-	# The names of every symbol of one kind -- the projection every consumer
-	# of a symbol table starts from.
+	# Returns the names of every symbol of one kind.
+	#
+	#   pcKind     the kind, such as entity or flow, in any letter case
+	#   returns    a list of text in declaration order; [ ] for a kind with none
+	#   note       the names are without the kind prefix
+	#   see        IdsOfKind, Kinds, ZuiSymbolTable
+	#@ aka  The names of every symbol of one kind -- the projection every consumer of a symbol table starts from.
 	def NamesOfKind(pcKind)
 		_cK_ = StzLower(ring_trim("" + pcKind))
 		_ac_ = []
@@ -161,6 +250,12 @@ class stzWorldGraph from stzObject
 		next
 		return _ac_
 
+	# Returns the ids of every symbol of one kind.
+	#
+	#   pcKind     the kind, such as entity or flow, in any letter case
+	#   returns    a list of text such as entity:member, in declaration order; [ ] for a kind with
+	#              none
+	#   see        NamesOfKind, HasSymbol
 	def IdsOfKind(pcKind)
 		_cK_ = StzLower(ring_trim("" + pcKind))
 		_ac_ = []
@@ -172,6 +267,12 @@ class stzWorldGraph from stzObject
 		next
 		return _ac_
 
+	# Returns the kinds of symbol that the world actually uses.
+	#
+	#   returns    a list of text, each kind once, in the order first met
+	#   note       the closed set of kinds is entity, field, type, actor, norm, flow, screen,
+	#              process, element and state
+	#   see        NamesOfKind, StzWorldSymbolKinds
 	def Kinds()
 		_ac_ = []
 		_n_ = len(@aSymbols)
@@ -182,10 +283,13 @@ class stzWorldGraph from stzObject
 		next
 		return _ac_
 
-	# The exact four arrays StzZui's zui verifier reads for its Level-3
-	# checks (tools/zui, --symbols FILE). Without them it SKIPS those checks,
-	# because undecidable is silence, never a pass -- so this projection is
-	# what turns a world artifact into Level-3 coverage.
+	# Returns the four lists of names that the zui verifier reads for its deeper checks.
+	#
+	#   returns    a hash list with the keys entities, actors, state and elements, each a list of
+	#              names
+	#   note       a world with no symbol of a kind gives [ ] for it
+	#   see        NamesOfKind
+	#@ aka  The exact four arrays StzZui's zui verifier reads for its Level-3 checks (tools/zui, --symbols FILE). Without them it SKIPS those checks, because undecidable is silence, never a pass -- so this projection is what turns a world artifact into Level-3 coverage.
 	def ZuiSymbolTable()
 		return [
 			:entities = This.NamesOfKind(:entity),
@@ -194,10 +298,13 @@ class stzWorldGraph from stzObject
 			:elements = This.NamesOfKind(:element)
 		]
 
-	#-- references ----------------------------------------------------------
-
-	# Every reference SITE out of a symbol -- rows, not pairs, so two steps
-	# enforcing one norm are two answers with two spans.
+	# Returns every reference site that leaves a symbol.
+	#
+	#   pcId       the id as kind:name, matched without regard to case
+	#   returns    a list of reference rows, so two references to one target are two rows; [ ] when
+	#              none
+	#   see        ReferencesTo, Refs
+	#@ aka  -- references ----------------------------------------------------------
 	def ReferencesFrom(pcId)
 		_cI_ = StzLower(ring_trim("" + pcId))
 		_a_ = []
@@ -209,6 +316,11 @@ class stzWorldGraph from stzObject
 		next
 		return _a_
 
+	# Returns every reference site that arrives at a symbol.
+	#
+	#   pcId       the id as kind:name, matched without regard to case
+	#   returns    a list of reference rows; [ ] when none
+	#   see        ReferencesFrom, Refs
 	def ReferencesTo(pcId)
 		_cI_ = StzLower(ring_trim("" + pcId))
 		_a_ = []
@@ -220,11 +332,23 @@ class stzWorldGraph from stzObject
 		next
 		return _a_
 
-	#-- the verdict ---------------------------------------------------------
-
+	# Returns every refusal and warning found while loading, in the order found.
+	#
+	#   returns    a list of hash lists, each a diagnostic with code, severity, message, span, cites
+	#              and language world
+	#   note       the codes are EMPTY_WORLD, MALFORMED_WORLD, CONTRACT_MISMATCH,
+	#              UNKNOWN_SYMBOL_KIND, MALFORMED_NAME, MISSING_SPAN (a warning), DUPLICATE_SYMBOL,
+	#              UNKNOWN_REFERENCE_KIND and DANGLING_REFERENCE
+	#   see        ErrorCount, IsLawful
+	#@ aka  -- the verdict ---------------------------------------------------------
 	def Diagnostics()
 		return @aDiag
 
+	# Returns how many diagnostics have severity error.
+	#
+	#   returns    a number
+	#   note       a MISSING_SPAN warning does not count
+	#   see        Diagnostics, IsLawful
 	def ErrorCount()
 		_n_ = 0
 		_nLen_ = len(@aDiag)
@@ -235,6 +359,11 @@ class stzWorldGraph from stzObject
 		next
 		return _n_
 
+	# TRUE if loading raised no diagnostic of severity error.
+	#
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   note       it is the gate a build reads: every reference resolved and no symbol refused
+	#   see        ErrorCount, Diagnostics
 	def IsLawful()
 		return This.ErrorCount() = 0
 

@@ -722,18 +722,47 @@ func CharsNamesContaining(pcPartOfName)
 		return CharsNamesContaining(pcPartOfName)
 
 
+# Looks up characters by their Unicode name and names by their code point, through the engine's Unicode database.
+#
+# A name is the full Unicode name, such as LATIN SMALL LETTER A, compared without regard to case. A
+# code point is given as a decimal number or as hexadecimal text with or without 0x. The search
+# methods take a part of a name and return the matches: names, characters or code points. The
+# database is inside the engine and nothing is loaded from a file.
+#
+#   receiver   o1 = new stzUnicodeData
+#   example    ? o1.CharUnicodeByName("LATIN SMALL LETTER A")
+#              #--> 97
+#              ? o1.CharNameByHexCode("0x41")
+#              #--> LATIN CAPITAL LETTER A
+#              ? o1.UnicodesOfCharsContaining("BLACK HEART SUIT")[1]
+#              #--> 9829
+#   see        stzChar, StzCharNameByUnicode, StzUnicodeFindByName
 class stzUnicodeData from stzObject
-	# All methods now delegate to engine SQLite — no text file needed
-
+	# Builds the lookup object; there is nothing to load, since the engine keeps the Unicode database itself.
+	#
+	#   returns    nothing; the object is built
+	#   see        ContainsCharName, CharNameByUnicode
+	#@ aka  All methods now delegate to engine SQLite — no text file needed
 	def init()
-		# Nothing to load — engine handles the database internally
-
+	# TRUE if a character has exactly this name, compared without regard to case; a part of a name does not count.
+	#
+	#   pcCharName   the full Unicode name, such as LATIN SMALL LETTER A
+	#   returns      1 or 0, numbers
+	#   see          FindCharName, SearchCharName, CharByName
+	#@ aka  Nothing to load — engine handles the database internally
 	def ContainsCharName(pcCharName)
 		return StzUnicodeContainsName(pcCharName)
 
 		def ContainsName(pcCharName)
 			return This.ContainsCharName(pcCharName)
 
+	# TRUE if a character has exactly this name; it is the same answer as ContainsCharName, with a check that the argument is a text.
+	#
+	#   pcCharName   the full Unicode name
+	#   returns      1 or 0, numbers
+	#   note         it answers 1 or 0, never a position
+	#   warning      raises Incorrect param type for a name that is not a text
+	#   see          ContainsCharName, SearchCharName
 	def FindCharName(pcCharName)
 		# Returns 1 if found, 0 if not (position is meaningless with engine)
 		if NOT isString(pcCharName)
@@ -744,6 +773,11 @@ class stzUnicodeData from stzObject
 		def FindcharByName(pcCharName)
 			return This.FindCharName(pcCharName)
 
+	# Returns the names that contain the given words, found by a case-insensitive substring search.
+	#
+	#   pcCharName   the part of a name to look for
+	#   returns      a list of text, in table order; [ ] when no name matches
+	#   see          CharsNamesContaining, UnicodesOfCharsContaining
 	def SearchCharName(pcCharName)
 		# Returns names containing the search term
 		return CharsNamesContaining(pcCharName)
@@ -754,6 +788,12 @@ class stzUnicodeData from stzObject
 		def SearchCharByName(pcCharName)
 			return This.SearchCharName(pcCharName)
 
+	# Returns the character with exactly this name, as a one-character text.
+	#
+	#   pcCharName   the full Unicode name
+	#   returns      a text such as a
+	#   warning      raises Character name not found for a name that does not exist
+	#   see          CharUnicodeByName, CharHexCodeByName, ContainsCharName
 	def CharByName(pcCharName)
 		_nCp_ = StzCodepointByName(pcCharName)
 		if _nCp_ < 0
@@ -761,6 +801,13 @@ class stzUnicodeData from stzObject
 		ok
 		return StzChar(_nCp_)
 
+	# Returns the code point of a named character as a hexadecimal text with the 0x prefix.
+	#
+	#   pcCharName   the full Unicode name
+	#   returns      a text such as 0x61, and the bare prefix 0x for a name that does not exist
+	#   note         digits above 9 are upper case, 0x1F600
+	#   warning      an unknown name is not reported, it gives the prefix alone
+	#   see          CharUnicodeByName, CharNameByHexCode
 	def CharHexCodeByName(pcCharName)
 		if CheckingParams()
 			if NOT isString(pcCharName)
@@ -773,12 +820,22 @@ class stzUnicodeData from stzObject
 		ok
 		return HexPrefix() + upper(hex(_nCp_))
 
+	# Returns the decimal code point of a named character.
+	#
+	#   pcCharName   the full Unicode name
+	#   returns      a number, -1 for a name that does not exist
+	#   see          CharHexCodeByName, CharByName
 	def CharUnicodeByName(pcCharName)
 		return StzCodepointByName(pcCharName)
 
 		def CharDecimalCodeByName(pcCharName)
 			return This.CharUnicodeByName(pcCharName)
 
+	# Returns the character at a hexadecimal code point, with or without the 0x prefix.
+	#
+	#   pcHex      the code point in hexadecimal, such as 0x41 or 05D0
+	#   returns    a one-character text such as A
+	#   see        CharByUnicode, CharNameByHexCode
 	def CharByHexCode(pcHex)
 		_cHex_ = pcHex
 		# Strip prefix if present
@@ -791,12 +848,23 @@ class stzUnicodeData from stzObject
 		_nUnicode_ = dec("0x" + _cHex_)
 		return StzChar(_nUnicode_)
 
+	# Returns the character at a decimal code point.
+	#
+	#   nUnicode   the code point as a number
+	#   returns    a one-character text such as a
+	#   see        CharByHexCode, CharNameByUnicode
 	def CharByUnicode(nUnicode)
 		return StzChar(nUnicode)
 
 		def CharByDecimalCode(nUnicode)
 			return This.CharByUnicode(nUnicode)
 
+	# Returns the Unicode name of the character at a hexadecimal code point, with or without the 0x prefix.
+	#
+	#   pcHex      the code point in hexadecimal, such as 0x41
+	#   returns    a text such as LATIN CAPITAL LETTER A; an empty text for an empty code or an
+	#              unassigned point
+	#   see        CharNameByUnicode, CharByHexCode
 	def CharNameByHexCode(pcHex)
 		# Strip hex prefix if present
 		_cHex_ = pcHex
@@ -812,11 +880,21 @@ class stzUnicodeData from stzObject
 		_nCp_ = dec("0x" + _cHex_)
 		return StzCharNameByUnicode(_nCp_)
 
+	# Returns the Unicode name of the character at a decimal code point.
+	#
+	#   nUnicode   the code point as a number
+	#   returns    a text such as BLACK HEART SUIT; <control> for a control character; an empty text
+	#              for an unassigned point
+	#   see        CharNameByHexCode, CharByUnicode
 	def CharNameByUnicode(nUnicode)
 		return StzCharNameByUnicode(nUnicode)
 
-	#==
-
+	# Returns the code points of the characters whose name contains the given words.
+	#
+	#   cPartOfName   the part of a name to look for, a text
+	#   returns       a list of numbers; [ ] when none
+	#   see           CharsContaining, SearchCharName
+	#@ aka  ==
 	def UnicodesOfCharsContaining(cPartOfName)
 		if CheckingParams()
 			if NOT isString(cPartOfName)
@@ -842,12 +920,28 @@ class stzUnicodeData from stzObject
 		next
 		return _anResult_
 
+	# Returns the characters whose name contains the given words, as a list of one-character texts.
+	#
+	#   cPartOfName   the part of a name to look for
+	#   returns       a list of text; [ ] when none
+	#   see           UnicodesOfCharsContaining, CharsNamesContaining
 	def CharsContaining(cPartOfName)
 		return CharsContainingInTheirName(cPartOfName)
 
+	# Returns the full names of the characters whose name contains the given words.
+	#
+	#   pcPartOfName   the part of a name to look for, in any case
+	#   returns        a list of text, in table order; [ ] when none
+	#   see            CharNamesContaining, SearchCharName
 	def CharsNamesContaining(pcPartOfName)
 		return CharNamesContaining(pcPartOfName)
 
+		# Returns the full names of the characters whose name contains the given words, as CharsNamesContaining does.
+		#
+		#   pcPartOfName   the part of a name to look for, in any case
+		#   returns        a list of text; [ ] when none
+		#   note           the other spelling of CharsNamesContaining, which calls it
+		#   see            CharsNamesContaining, SearchCharName
 		def CharNamesContaining(pcPartOfName)
 			# Delegates to the global function already engine-backed
 			_cResult_ = StzUnicodeFindByName(pcPartOfName)
@@ -869,8 +963,16 @@ class stzUnicodeData from stzObject
 			next
 			return _acResult_
 
-	#==
-
+	# Returns how many entries the engine's Unicode table holds, which is not the count of characters.
+	#
+	#   returns    a number, 34939 today
+	#   note       the two disagree by design of the table; read the global for the count of
+	#              assigned characters
+	#   warning    the table has one entry per line of the Unicode data file, where a range such as
+	#              the CJK ideographs is two lines, so the number is far below the 149186 that the
+	#              global function NumberOfUnicodeChars() gives
+	#   see        CharNamesContaining
+	#@ aka  ==
 	def NumberOfUnicodeChars()
 		return StzUnicodeCharCount()
 

@@ -1,0 +1,22 @@
+{
+ "brief": "Holds a surface material as a graph of operations, derives the order and the reuse, proves it, and emits the shader body.",
+ "detail": "Declare what the material takes, colours, scalars and textures, then nodes, each an operation on named inputs, in any order, and name the output with Emits. Compile derives the emission order by topological sort, counts how many nodes read each node so a node read twice is emitted once, and proves the graph: every input resolves, no cycle, no node computed for nobody. Because the graph is an ordinary stzGraph, Affects and ImpactOf answer what a node influences. ToW emits the material-language body, ToMaterial a stzMaterialMaker and ToWGSL the shader. Today a node that reads the same node in two inputs, such as a squared value, raises at Compile. Rendering is not done here.",
+ "receiver": "o1 = new stzMaterialGraph()\no1.TakesColor(:base)\no1.TakesScalar(:sharp)\no1.TakesTexture(:skin)\no1.AddNode(:out, [ :Op = :Mix, :In = [ :lit, :base, :rim ] ])\no1.AddNode(:tex, [ :Op = :Sample, :In = [ :skin, \"@uv\" ] ])\no1.AddNode(:lit, [ :Op = :Multiply, :In = [ :tex, \"@lambert\" ] ])\no1.AddNode(:rim, [ :Op = :Fresnel, :In = [ :sharp ] ])\no1.Emits(:out)\no1.Compile()",
+ "example": [
+  "? @@( o1.Order() )",
+  "#--> [ \"tex\", \"rim\", \"lit\", \"out\" ]",
+  "? o1.ToW()",
+  "#--> { let n_tex = sample(skin, @uv); let n_rim = pow(1.0 - abs(@normal.z), sharp); let n_lit = (n_tex * @lambert); @out = mix(n_lit, base, n_rim) }",
+  "? @@( o1.Affects(:tex) )",
+  "#--> [ \"out\", \"lit\" ]",
+  "? o1.ImpactOf(\"tex\")",
+  "#--> 2",
+  "? o1.IsSound()",
+  "#--> 1"
+ ],
+ "see": [
+  "stzMaterialMaker",
+  "stzFrameGraph",
+  "stzRuleReport"
+ ]
+}

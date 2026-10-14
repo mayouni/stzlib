@@ -143,21 +143,66 @@ func StzIsE164(pcNumber)
  #  SMS SANDBOX -- records, never delivers, counts the bill   #
 #=========================================================#
 
+# Captures text messages instead of sending them, validates the number, and counts the billable segments a carrier would charge.
+#
+# A capture sink with the shape of stzMailSandbox, whose point is the bill. SMS is charged per
+# segment, and the segment count depends on the alphabet: text within the GSM 7-bit alphabet takes
+# 160 characters in one segment and 153 per part, and one character outside it, such as an Arabic
+# letter or an emoji, makes the whole message UCS-2 with 70 and 67; nine characters of the extension
+# table cost two septets each. Send names the encoding and the segments, and TotalSegments lets a
+# test assert the cost. Numbers must be E.164. An outage is refused and recorded nowhere, while a
+# bad number is rejected, so retrying and fixing the data are told apart. The honest limit: a sink
+# shows what you would have sent, not that a carrier would accept it. The outbox is shared by copies
+# of the object.
+#
+#   receiver   o1 = new stzSmsSandbox()
+#   example    ? o1.Send("+22790123456", "Your code is 482910")[:segments]
+#              #--> 1
+#              ? o1.LastEncoding()
+#              #--> gsm7
+#              ? o1.Send("+22790123456", "Salut, code 482910 😀")[:encoding]
+#              #--> ucs2
+#              ? o1.Send("0612345678", "hi")[:status]
+#              #--> rejected
+#              ? o1.TotalSegments()
+#              #--> 2
+#              ? o1.WasSentTo("+22790123456")
+#              #--> 1
+#   see        stzMailSandbox, stzServiceRegistry, StzSmsSegments
 class stzSmsSandbox from stzObject
 
 	@nId = 0
 
+	# Builds an SMS capture sink with an empty outbox, a shared slot that copies of the object also use.
+	#
+	#   returns    nothing; the object is built
+	#   see        Send, Sent
 	def init()
 		$nStzSmsSandboxSeq = $nStzSmsSandboxSeq + 1
 		@nId = $nStzSmsSandboxSeq
 		$aStzSmsSandboxes + [ @nId, [], 0, [], 0 ]
 
-	# a double declares itself -- see stzServiceRegistry
+	# TRUE if the object is a test double; here it always is, so the registry can refuse it in production.
+	#
+	#   returns    TRUE
+	#   see        stzServiceRegistry
+	#@ aka  a double declares itself -- see stzServiceRegistry
 	def IsSandbox()
 		return 1
 
-	  #-- the PORT contract ------------------------------------------------
-
+	# Records a text message that would have been sent, counting the segments a carrier would bill, and delivers nothing.
+	#
+	#   pcNumber   the destination in E.164 form, + then 8 to 15 digits
+	#   pcText     the message, which may not be empty
+	#   returns    a hash list [ :ok, :id, :segments, :encoding, :status, :why ]; status is sent,
+	#              rejected for bad data, or refused for an outage
+	#   note       rejected means fix the data and refused means retry; the text is kept as given
+	#   warning    a number that is not E.164, a number marked by RejectNumber and an empty text are
+	#              rejected, and an outage set by FailNext is refused with nothing recorded; the
+	#              rejection reason quotes the number as given, without escaping, so show it as text
+	#              and not as markup
+	#   see        FailNext, RejectNumber, TotalSegments
+	#@ aka  -- the PORT contract ------------------------------------------------
 	def Send(pcNumber, pcText)
 		_i_ = This._Slot()
 		_num_ = ring_trim("" + pcNumber)
@@ -192,9 +237,12 @@ class stzSmsSandbox from stzObject
 		return [ :ok = 1, :id = _id_, :segments = _aSeg_[:segments],
 		         :encoding = _aSeg_[:encoding], :status = :sent, :why = "" ]
 
-	  #-- rules, so the FAILURE paths are testable -------------------------
-
-	# a one-shot carrier outage
+	# Makes the next Send fail once as an outage, so the retry path can be tested.
+	#
+	#   returns    nothing; use FailNextQ to chain
+	#   note       the failure is refused and not recorded in the outbox
+	#   see        Send, RejectNumber
+	#@ aka  -- rules, so the FAILURE paths are testable -------------------------
 	def FailNext()
 		This.FailNextQ()
 
@@ -202,6 +250,12 @@ class stzSmsSandbox from stzObject
 		$aStzSmsSandboxes[This._Slot()][3] = 1
 		return This
 
+	# Marks a number as unreachable, so every Send to it is rejected.
+	#
+	#   pcNumber   the number to refuse, as sent
+	#   returns    nothing; use RejectNumberQ to chain
+	#   note       the match is on the number as given after trimming
+	#   see        Send, FailNext
 	def RejectNumber(pcNumber)
 		This.RejectNumberQ(pcNumber)
 
@@ -209,17 +263,32 @@ class stzSmsSandbox from stzObject
 		$aStzSmsSandboxes[This._Slot()][4] + ring_trim("" + pcNumber)
 		return This
 
-	  #-- the outbox: assert on what WOULD have been sent -------------------
-
+	# Returns every recorded message, in order.
+	#
+	#   returns    a list of rows [ id, number, text, segments, encoding, units ]
+	#   see        Last, InboxOf
+	#@ aka  -- the outbox: assert on what WOULD have been sent -------------------
 	def Sent()
 		return $aStzSmsSandboxes[This._Slot()][2]
 
+	# Returns how many messages are recorded.
+	#
+	#   returns    a number
+	#   see        Sent, TotalSegments
 	def NumberOfMessages()
 		return len( This.Sent() )
 
+	# TRUE if nothing has been recorded.
+	#
+	#   returns    TRUE or FALSE
+	#   see        NumberOfMessages
 	def IsEmpty()
 		return This.NumberOfMessages() = 0
 
+	# Returns the last recorded message.
+	#
+	#   returns    a row [ id, number, text, segments, encoding, units ]; an empty list when none
+	#   see        LastText, LastTo, Sent
 	def Last()
 		_a_ = This.Sent()
 		if len(_a_) = 0
@@ -227,6 +296,10 @@ class stzSmsSandbox from stzObject
 		ok
 		return _a_[len(_a_)]
 
+	# Returns the text of the last message.
+	#
+	#   returns    a text; empty when none
+	#   see        Last
 	def LastText()
 		_m_ = This.Last()
 		if len(_m_) = 0
@@ -234,6 +307,10 @@ class stzSmsSandbox from stzObject
 		ok
 		return _m_[3]
 
+	# Returns the destination of the last message.
+	#
+	#   returns    a text; empty when none
+	#   see        Last
 	def LastTo()
 		_m_ = This.Last()
 		if len(_m_) = 0
@@ -241,6 +318,10 @@ class stzSmsSandbox from stzObject
 		ok
 		return _m_[2]
 
+	# Returns how many billable segments the last message takes.
+	#
+	#   returns    a number; 0 when none
+	#   see        TotalSegments, LastEncoding
 	def LastSegments()
 		_m_ = This.Last()
 		if len(_m_) = 0
@@ -248,6 +329,10 @@ class stzSmsSandbox from stzObject
 		ok
 		return _m_[4]
 
+	# Returns the alphabet the last message was billed in: gsm7 or ucs2.
+	#
+	#   returns    the text gsm7 or ucs2; none when nothing was sent
+	#   see        LastSegments
 	def LastEncoding()
 		_m_ = This.Last()
 		if len(_m_) = 0
@@ -255,6 +340,11 @@ class stzSmsSandbox from stzObject
 		ok
 		return _m_[5]
 
+	# Returns the recorded messages addressed to one number.
+	#
+	#   pcNumber   the destination number, trimmed
+	#   returns    a list of message rows
+	#   see        WasSentTo, Sent
 	def InboxOf(pcNumber)
 		_num_ = ring_trim("" + pcNumber)
 		_out_ = []
@@ -267,10 +357,21 @@ class stzSmsSandbox from stzObject
 		next
 		return _out_
 
+	# TRUE if at least one message was recorded for that number.
+	#
+	#   pcNumber   the destination number, trimmed
+	#   returns    TRUE or FALSE
+	#   see        InboxOf
 	def WasSentTo(pcNumber)
 		return len( This.InboxOf(pcNumber) ) > 0
 
-	# THE BILL. A test can assert it, exactly as the LLM port lets you assert tokens.
+	# Returns the billable segments of everything recorded, the bill a test can assert.
+	#
+	#   returns    a number
+	#   note       a message is one segment up to 160 GSM characters or 70 UCS-2 units, then 153 or
+	#              67 per part
+	#   see        LastSegments, Send
+	#@ aka  THE BILL. A test can assert it, exactly as the LLM port lets you assert tokens.
 	def TotalSegments()
 		_t_ = 0
 		_a_ = This.Sent()
@@ -280,6 +381,10 @@ class stzSmsSandbox from stzObject
 		next
 		return _t_
 
+	# Empties the outbox; the failure and rejection rules stay.
+	#
+	#   returns    nothing; use ClearQ to chain
+	#   see        Sent
 	def Clear()
 		This.ClearQ()
 
@@ -287,6 +392,10 @@ class stzSmsSandbox from stzObject
 		$aStzSmsSandboxes[This._Slot()][2] = []
 		return This
 
+	# Prints one line with the number of messages and of billable segments.
+	#
+	#   returns    nothing; it prints
+	#   see        TotalSegments
 	def Show()
 		? "stzSmsSandbox: " + This.NumberOfMessages() + " message(s), " +
 		  This.TotalSegments() + " billable segment(s)"

@@ -1,0 +1,21 @@
+{
+ "brief": "Holds labelled examples, each a list of numbers and a label, in the form every learner of the learning module trains from.",
+ "detail": "A training set is built from [ features, label ] pairs or filled one example at a time. Labels are kept as text. Split is a deterministic head and tail cut and never shuffles, so a run can be repeated exactly; order the examples yourself first when a shuffle is wanted. The learners (stzKnn, stzNaiveBayes, stzDecisionTree, stzLogisticRegression, stzNeuralNetwork) and stzTrainer take a set of this kind.",
+ "receiver": "o1 = new stzTrainingSet([ [ [5.1, 3.5], \"setosa\" ], [ [4.9, 3.0], \"setosa\" ], [ [6.5, 2.8], \"virginica\" ], [ [6.3, 3.3], \"virginica\" ] ])",
+ "example": [
+  "? o1.NumberOfExamples()",
+  "#--> 4",
+  "? @@( o1.Labels() )",
+  "#--> [ \"setosa\", \"virginica\" ]",
+  "o2 = o1.Split(0.75)",
+  "? o2[1].NumberOfExamples()",
+  "#--> 3",
+  "? o2[2].NumberOfExamples()",
+  "#--> 1"
+ ],
+ "see": [
+  "stzTrainer",
+  "stzKnn",
+  "stzNaiveBayes"
+ ]
+}

@@ -1,0 +1,16 @@
+{
+ "brief": "Holds one security invariant over a security graph as a declared rule, in the security domain.",
+ "detail": "A security rule is a stzGraphRule whose domain is security. Unlike the posture checks, which look at one node, these rules run over a whole stzSecurityGraph and see paths, such as an actor that can reach a capability through a tool or a delegate. The library's rules are declared in stzSecurityRuleSet.",
+ "receiver": "o1 = new stzSecurityRule(\"sandboxed-reaches-effectful\")",
+ "example": [
+  "? o1.Name()",
+  "#--> sandboxed-reaches-effectful",
+  "? o1.Domain()",
+  "#--> security"
+ ],
+ "see": [
+  "stzSecurityRuleSet",
+  "stzGraphRule",
+  "stzSecurityGraph"
+ ]
+}

@@ -1,0 +1,17 @@
+{
+ "brief": "Finds the stored vectors nearest to a query vector quickly, with an approximate forest of random trees, and measures what it misses.",
+ "detail": "Build one with new stzVectorIndex(aVectors), one row per vector, all of the same width. Search, SearchWithBudget and SearchExact answer [ index, distance ] pairs, nearest first, indexes from 1, distance the squared Euclidean one; Search is approximate and quick, SearchExact is the full scan, and RecallAgainstExact measures the share of true neighbours the approximate search returns, which is what makes an approximate index honest. SetTrees, SetMetric and SetSeed are chainable and drop the built index, which is rebuilt at the next search. Use SetMetric(:Cosine) for text embeddings.",
+ "receiver": "o1 = new stzVectorIndex([ [ 0, 0 ], [ 1, 0 ], [ 0, 1 ], [ 5, 5 ], [ 6, 5 ], [ 10, 10 ] ])",
+ "example": [
+  "? @@( o1.Search([ 5, 5 ], 2) )",
+  "#--> [ [ 4, 0 ], [ 5, 1 ] ]",
+  "? @@( o1.SearchExact([ 9, 9 ], 1) )",
+  "#--> [ [ 6, 2 ] ]",
+  "? o1.RecallAgainstExact([ [ 5, 5 ], [ 0, 0 ] ], 2, 0)",
+  "#--> 1"
+ ],
+ "see": [
+  "stzSimilarity",
+  "stzKnn"
+ ]
+}

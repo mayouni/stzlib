@@ -1,0 +1,21 @@
+Init | Creates the temp folder in the current folder where the QML source and log will be written, if it is not there. | nothing; the object is built | | EnsureDirectories, SetCode | a paren-less new (the factories StzQmlCodeQ and XQml use it) skips Init, so the folder is then created only by Execute and EnsureDirectories, and WriteSource alone raises R35 when it is missing
+SetCode | Stores the QML source text to run; nothing is written to disk until WriteSource or Execute. | nothing | pcQml=the QML markup, a text | Source, Execute | a value that is not text raises an error
+@ | Stores the QML source text to run, as the call with the longer name does. | nothing | pcQml=the QML markup, a text | SetCode, Source | a value that is not text raises an error
+Code | Stores the QML source text to run, as SetCode does; it does not return the code. | nothing | pcQml=the QML markup, a text | SetCode, Source | unlike the Code of the other external-code classes, this one is a setter: read the text with Source
+Source | Returns the QML source text that was set; empty before SetCode. | a text | | SetCode
+SetQmlPath | Sets the program that runs the QML, in place of the one found by the name qml or by $aStzLibConfig[:QmlPath]. | nothing | pcPath=the path of the qml runtime, a non-empty text | QmlPath, IsRuntimeAvailable | the path is not checked: a wrong one shows only in the log of Execute; an empty or non-text path raises an error
+QmlPath | Returns the program that will run the QML. | a text; qml by default | | SetQmlPath
+IsRuntimeAvailable | TRUE if a runtime path is configured. | TRUE or FALSE | | SetQmlPath, Execute | it never looks for the program: it answered TRUE for the path C:/nowhere/qml.exe, which does not exist
+EnsureDirectories | Creates the temp folder in the current folder if it is missing. | nothing | | Init, WriteSource | starts the mkdir command through the system call
+TempSourcePath | Returns where the QML source is written, temp/temp.qml in the current folder. | a text | | LogPath, WriteSource
+LogPath | Returns where the runtime's output is captured, temp/qmllog.txt in the current folder. | a text | | TempSourcePath, Log
+WriteSource | Writes the QML source to the temp file, replacing what was there. | nothing | | Execute, TempSourcePath | raises R35 when the temp folder does not exist; the file is deleted by CleanupTemp
+Execute | Writes the QML source, starts the qml runtime on it and captures the output and the time taken. | nothing; read the output with Result | | Result, Duration, CleanupTemp | it starts a real program, which for a view opens a window and for a plain script runs until it ends; the exit code is not read, so a failure shows only as text in the log; raises an error when no source is set | not run with a real runtime: the qml runtime is not installed here, so it was run with the path C:/nowhere/qml.exe, which only produced a path-not-found log
+Run | Writes the QML source and starts the runtime, as the call with the other name does. | nothing; read the output with Result | | Execute, Result | same warning as Execute | not run with a real runtime
+Exec | Writes the QML source and starts the runtime, as the call with the other name does. | nothing; read the output with Result | | Execute, Result | same warning as Execute | not run with a real runtime
+Result | Returns what the runtime printed during the last run, errors included; empty before a run. | a text | | Log, Execute | the same text as Log and Trace
+Log | Returns what the runtime printed during the last run, errors included. | a text | | Result, LogPath | the same text as Result and Trace
+Trace | Returns what the runtime printed during the last run, errors included. | a text | | Result, Log | not a history of runs, unlike Trace in the other external-code classes: it is the same text as Result
+Duration | Returns how long the last run took, in seconds; 0 before any run. | a number | | Execute, WasExecuted
+WasExecuted | TRUE if Execute has run at least once. | TRUE or FALSE | | Execute, Duration
+CleanupTemp | Deletes the temp source file and the log file when they exist. | nothing | | WriteSource, Execute | the temp folder itself stays

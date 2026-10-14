@@ -49,12 +49,56 @@
 func StzAccessibilityTreeQ(poDoc, poPanel)
 	return new stzAccessibilityTree(poDoc, poPanel)
 
+# Holds what a screen reader reads from a screen, emitted from the declared document and the laid-out panel and not inferred.
+#
+# A browser infers an accessibility tree from markup; this emits one from declared intent. Each
+# declaration becomes a node with an id (its name), a role (the ROLE field, or window, label or
+# group by default), a name (the LABEL, a text's content, or for a button and the like the text
+# beneath it), a description (the RATIONALE), its bounds from the laid-out panel, whether a keyboard
+# can reach it, and what can be done there. ToJSON gives the whole tree as data. There is no switch
+# to turn it off. The document must be clean, and the tree needs the layout engine but no GPU and no
+# window.
+#
+#   receiver   cDoc = 'DEFINE PANEL form ( SIZE [300, 200], DIRECTION column, CHILDREN [title,
+#              ok_btn] ) RATIONALE "A tiny form."' + char(10) + 'DEFINE TEXT title ( CONTENT
+#              "Transfer", SIZE 20, ROLE heading ) RATIONALE "What the form is for."' + char(10) +
+#              'DEFINE BOX ok_btn ( HEIGHT 40, FOCUSABLE yes, ROLE button, CHILDREN [ok_text] )
+#              RATIONALE "The act."' + char(10) + 'DEFINE TEXT ok_text ( CONTENT "Confirm", SIZE 16
+#              ) RATIONALE "button label"' oU = new stzUiDocument(cDoc)
+#              oU.UseFont("C:/Windows/Fonts/segoeui.ttf") oP = oU.ToPanel() oP.FocusOn("ok_btn") o1
+#              = new stzAccessibilityTree(oU, oP)
+#   example    ? o1.NodeCount()
+#              #--> 4
+#              ? o1.RoleOf("ok_btn")
+#              #--> button
+#              ? o1.NameOf("ok_btn")
+#              #--> Confirm
+#              ? o1.DescriptionOf("ok_btn")
+#              #--> The act.
+#              ? @@( o1.FocusableIds() )
+#              #--> [ "ok_btn" ]
+#              ? @@( o1.NodeOf("ok_btn")[:bounds] )
+#              #--> [ 0, 24, 300, 40 ]
+#              ? o1.ReadingOrder()[3]
+#              #--> button "Confirm"
+#   see        stzUiDocument, stzPanel, stzScreenReaderBridge
 class stzAccessibilityTree from stzObject
 
 	@oDoc = NULL
 	@oPanel = NULL
 	@aNodes = []       # flat, in reading order: see _Build
 
+	# Builds the accessibility tree of a screen from its declared document and, if given, its laid-out panel.
+	#
+	#   poDoc      the stzUiDocument, which must be clean
+	#   poPanel    the stzPanel made from it by ToPanel, or NULL when bounds and focus are not known
+	#   returns    nothing; the tree is built when the object is made
+	#   note       there is no flag to switch it off; with NULL for the panel every bounds is empty
+	#              and no node is focused
+	#   warning    a value that is not a document raises error stzAccessibilityTree: give an
+	#              stzUiDocument; a document that is not clean raises error ... the document is not
+	#              clean -- ask Report() why
+	#   see        NodeOf, ToJSON
 	def init(poDoc, poPanel)
 		if NOT isObject(poDoc)
 			StzRaise("stzAccessibilityTree: give an stzUiDocument.")
@@ -69,16 +113,33 @@ class stzAccessibilityTree from stzObject
 		                       # the tree says so rather than inventing them
 		This._Build()
 
-	#-- the tree ------------------------------------------------------------
-
+	# Returns every node of the tree in reading order, depth first, in the order the author declared them.
+	#
+	#   returns    a list of hash lists with the keys id, role, name, description, bounds,
+	#              focusable, focused, actions, depth and children
+	#   note       the first node is the panel itself, as a window
+	#   see        NodeOf, NodeCount
+	#@ aka  -- the tree ------------------------------------------------------------
 	def Nodes()
 		return @aNodes
 
+	# Returns how many nodes the tree holds.
+	#
+	#   returns    a number
+	#   note       one node for each declaration, the panel included
+	#   see        Nodes, HasNode
 	def NodeCount()
 		return len(@aNodes)
 
-	# One node by id: [ :id, :role, :name, :description, :bounds,
-	#                   :focusable, :focused, :actions, :depth, :children ]
+	# Returns one node by its id.
+	#
+	#   pcId       the name of the declaration, matched as written
+	#   returns    a hash list with the keys id, role, name, description, bounds, focusable,
+	#              focused, actions, depth and children; [ ] for an id the tree does not hold
+	#   note       bounds is [ x, y, width, height ] from the laid-out panel, or [ ] when no panel
+	#              was given; actions is focus and click for a focusable node and empty otherwise
+	#   see        HasNode, RoleOf, Nodes
+	#@ aka  One node by id: [ :id, :role, :name, :description, :bounds, :focusable, :focused, :actions, :depth, :children ]
 	def NodeOf(pcId)
 		_n_ = len(@aNodes)
 		for _i_ = 1 to _n_
@@ -88,9 +149,21 @@ class stzAccessibilityTree from stzObject
 		next
 		return []
 
+	# TRUE if the tree holds a node with an id.
+	#
+	#   pcId       the name of the declaration, matched as written
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   see        NodeOf, NodeCount
 	def HasNode(pcId)
 		return len(This.NodeOf(pcId)) > 0
 
+	# Returns what a screen reader announces a node as.
+	#
+	#   pcId       the name of the declaration
+	#   returns    the role as text such as button, heading or label; the panel is window, a text
+	#              defaults to label and any other box to group; an empty text for an unknown id
+	#   note       the role comes from the ROLE field of the declaration or from the style it uses
+	#   see        NameOf, NodeOf
 	def RoleOf(pcId)
 		_a_ = This.NodeOf(pcId)
 		if len(_a_) = 0
@@ -98,6 +171,15 @@ class stzAccessibilityTree from stzObject
 		ok
 		return _a_[:role]
 
+	# Returns what a screen reader says for a node.
+	#
+	#   pcId       the name of the declaration
+	#   returns    the name as text: the LABEL, else a text's own content, else for a button, link,
+	#              heading, label, list item, tab, checkbox or radio the text of its descendants; an
+	#              empty text for a window, group, textbox or unknown id
+	#   note       name from content is gated by role, as ARIA gates it, so a window is not named
+	#              after the whole screen
+	#   see        RoleOf, DescriptionOf
 	def NameOf(pcId)
 		_a_ = This.NodeOf(pcId)
 		if len(_a_) = 0
@@ -105,6 +187,12 @@ class stzAccessibilityTree from stzObject
 		ok
 		return _a_[:name]
 
+	# Returns the sentence saying why a node exists, taken from the declaration's RATIONALE.
+	#
+	#   pcId       the name of the declaration
+	#   returns    the description as text; an empty text for an unknown id
+	#   note       every declaration carries a rationale, so every node has a description
+	#   see        NameOf, RoleOf
 	def DescriptionOf(pcId)
 		_a_ = This.NodeOf(pcId)
 		if len(_a_) = 0
@@ -112,10 +200,13 @@ class stzAccessibilityTree from stzObject
 		ok
 		return _a_[:description]
 
-	# Every node that a keyboard can reach, in tree order. This must agree
-	# with the panel's tab ring: a reading order that disagrees with the
-	# keyboard order is how a screen-reader user and a keyboard user end
-	# up on different screens.
+	# Returns the ids of the nodes a keyboard can reach, in reading order.
+	#
+	#   returns    a list of text; [ ] when none
+	#   note       it comes from the same FOCUSABLE field that builds the tab ring, so reading order
+	#              and keyboard order cannot drift
+	#   see        ReadingOrder, NodeOf
+	#@ aka  Every node that a keyboard can reach, in tree order. This must agree with the panel's tab ring: a reading order that disagrees with the keyboard order is how a screen-reader user and a keyboard user end up on different screens.
 	def FocusableIds()
 		_a_ = []
 		_n_ = len(@aNodes)
@@ -126,8 +217,12 @@ class stzAccessibilityTree from stzObject
 		next
 		return _a_
 
-	# What a reader would announce, in order: role, name and the
-	# description that the RATIONALE gave it for free.
+	# Returns what a reader would announce, one line per node, as role and then the quoted name.
+	#
+	#   returns    a list of text such as button "Confirm"; a node with no name gives its role alone
+	#   note       the lines follow the order of Nodes
+	#   see        Nodes, NameOf
+	#@ aka  What a reader would announce, in order: role, name and the description that the RATIONALE gave it for free.
 	def ReadingOrder()
 		_a_ = []
 		_n_ = len(@aNodes)
@@ -141,12 +236,13 @@ class stzAccessibilityTree from stzObject
 		next
 		return _a_
 
-	#-- the tree as DATA ----------------------------------------------------
-
-	# Rule 104: "what a screen reader can operate, an agent can operate."
-	# A tree that only a C++ adapter can read serves the first and not the
-	# second, so it goes out as JSON -- inspectable, diffable, assertable
-	# in CI, and the shape an adapter of any language can consume.
+	# Returns the whole tree as JSON text, one object per node, for a tool or an agent to read.
+	#
+	#   returns    a JSON text; bounds is null when unknown, never a zero rectangle
+	#   note       the children are stated explicitly, and depth stays so the flat list reads in
+	#              order
+	#   see        SaveTo, Nodes
+	#@ aka  -- the tree as DATA ----------------------------------------------------
 	def ToJSON()
 		_c_ = "{" + char(10) + '  "nodes": [' + char(10)
 		_n_ = len(@aNodes)
@@ -208,6 +304,12 @@ class stzAccessibilityTree from stzObject
 		_c_ += "  ]" + char(10) + "}" + char(10)
 		return _c_
 
+	# Writes the tree as JSON to a file.
+	#
+	#   pcPath     the path of the file to write
+	#   returns    nothing; the file is written
+	#   note       an existing file is overwritten
+	#   see        ToJSON
 	def SaveTo(pcPath)
 		write(pcPath, This.ToJSON())
 

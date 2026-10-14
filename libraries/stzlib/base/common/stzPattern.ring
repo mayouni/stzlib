@@ -40,6 +40,21 @@
 func StzPatternQ(pcText)
 	return new stzPattern(pcText)
 
+# A pattern is a function of time: it tells which events happen in cycle 0, cycle 1, and so on, written in a small mini-notation.
+#
+# The notation is that of TidalCycles: words in a sequence share the cycle equally, ~ is a rest, [a
+# b] a group, <a b c> alternates one step per cycle, a*2 and a/2 speed a step up or down, a? plays
+# about half the cycles. Fast, Slow, Rev, Every and Off build a new pattern out of the old one, in
+# place, and return the pattern so they chain. The class knows no domain: what a word means belongs
+# to a subclass such as stzSoundPattern. A text that does not parse never raises: IsValid says so
+# and LastError tells why.
+#
+#   receiver   o1 = StzPatternQ("red ~ blue [green green]")
+#   example    ? @@( o1.CycleEvents(0) )
+#              #--> [ [ 0, 0.25, "word", "red" ], [ 0.50, 0.25, "word", "blue" ], [ 0.75, 0.13, "word", "green" ], [ 0.88, 0.13, "word", "green" ] ]
+#              ? o1.Period()
+#              #--> 1
+#   see        stzStateMachine, stzIntSeq
 class stzPattern
 
 	@aRoot = NULL          # the tree; NULL when the text did not parse
@@ -53,30 +68,64 @@ class stzPattern
 	@nPos = 1
 	@nDegrades = 0
 
+	# Parses a pattern written in mini-notation, such as 'red ~ blue [green green]', into a tree of steps.
+	#
+	#   pcText     the pattern in mini-notation: words, ~ for a rest, [ ] groups, < > alternation, *
+	#              and / for speed, ? ! @
+	#   returns    nothing; the object is built
+	#   warning    a text that does not parse leaves the object invalid instead of raising: read
+	#              IsValid and LastError
+	#   see        IsValid, LastError
 	def init(pcText)
 		@cText = "" + pcText
 		@aRoot = This._Parse(@cText)
 
+	# TRUE if the text parsed into a pattern.
+	#
+	#   returns    TRUE or FALSE
+	#   see        LastError, Text
 	def IsValid()
 		return NOT isNull(@aRoot)
 
+	# Returns the mini-notation the pattern was built from, as given.
+	#
+	#   returns    a text
+	#   see        Tree
 	def Text()
 		return @cText
 
+	# Returns the message of the last parse error or refused verb, empty when there was none.
+	#
+	#   returns    a text
+	#   warning    the message of a refused verb (Fast with 1.5, Off with 2) replaces the parse
+	#              message
+	#   see        Refusals, IsValid
 	def LastError()
 		return @cLastError
 
+	# Returns how many times a verb refused its argument since the pattern was built.
+	#
+	#   returns    a number
+	#   warning    a refused verb leaves the pattern unchanged and does not raise
+	#   see        LastError
 	def Refusals()
 		return @nRefusals
 
+	# Returns the parsed pattern as nested lists, each node tagged seq, atom, rest, fast, slow, rev, every or off.
+	#
+	#   returns    a list; NULL when the text did not parse
+	#   see        Text, CycleEvents
 	def Tree()
 		return @aRoot
 
-	#-- querying ------------------------------------------------------------
-
-	# The events of cycle `pnCycle` (a whole number, 0 is the first), sorted
-	# by onset: [ onset, length, kind, name ] with onset in [0, 1) and length
-	# in cycles. `kind` is "note" or "stroke".
+	# Returns the events of one cycle, each as [ onset, length, kind, value ], sorted by onset; onset and length are fractions of the cycle.
+	#
+	#   pnCycle    the cycle number, counted from 0
+	#   returns    a list of lists; empty when the pattern is invalid
+	#   warning    rests give no event; the events of a cycle are computed from its number, so cycle
+	#              100000 costs the same as cycle 0
+	#   see        DistinctValues, Period
+	#@ aka  -- querying ------------------------------------------------------------
 	def CycleEvents(pnCycle)
 		if isNull(@aRoot)  return [] ok
 		_a_ = This._Q(@aRoot, pnCycle)
@@ -86,9 +135,12 @@ class stzPattern
 		next
 		return This._SortByOnset(_out_)
 
-	# Every distinct [ kind, name, length ] over the pattern's first `pnCycles`
-	# cycles -- what a player prepares BEFORE it starts (in sound: renders), so
-	# nothing is prepared while a cycle is being posted.
+	# Returns the distinct [ kind, value, length ] triples that occur over the first pnCycles cycles.
+	#
+	#   pnCycles   how many cycles to scan, starting at cycle 0
+	#   returns    a list of lists
+	#   see        CycleEvents, Period
+	#@ aka  Every distinct [ kind, name, length ] over the pattern's first `pnCycles` cycles -- what a player prepares BEFORE it starts (in sound: renders), so nothing is prepared while a cycle is being posted.
 	def DistinctValues(pnCycles)
 		_a_ = []
 		for _c_ = 0 to pnCycles - 1
@@ -106,15 +158,25 @@ class stzPattern
 		next
 		return _a_
 
-	# How many cycles before the pattern repeats -- alternations, slow
-	# factors and Every all lengthen it. Capped at 64: a pattern that takes
-	# longer than that to come round is rendered as it arrives.
+	# Returns after how many cycles the pattern repeats exactly, at most 64; 1 for an invalid pattern.
+	#
+	#   returns    a number
+	#   warning    '<a b c>' has period 3, a plain sequence has period 1
+	#   see        CycleEvents
+	#@ aka  How many cycles before the pattern repeats -- alternations, slow factors and Every all lengthen it. Capped at 64: a pattern that takes longer than that to come round is rendered as it arrives.
 	def Period()
 		if isNull(@aRoot)  return 1 ok
 		_p_ = This._Period(@aRoot)
 		if _p_ > 64  _p_ = 64 ok
 		return _p_
 
+	# Plays the pattern pnFactor times faster, in place, so its events squeeze into 1/pnFactor of a cycle and repeat.
+	#
+	#   pnFactor   a whole number of 1 or more
+	#   returns    the pattern itself, so calls chain
+	#   note       the pattern is changed in place
+	#   warning    a fractional factor is refused and counted in Refusals
+	#   see        Slow, Every
 	def Fast(pnFactor)
 		if NOT This._WholeFactor(pnFactor, "Fast")  return This ok
 		if isNull(@aRoot)  return This ok
@@ -122,6 +184,13 @@ class stzPattern
 		@aRoot = [ :fast, _t_, pnFactor ]
 		return This
 
+	# Plays the pattern pnFactor times slower, in place, so one cycle shows 1/pnFactor of it.
+	#
+	#   pnFactor   a whole number of 1 or more
+	#   returns    the pattern itself, so calls chain
+	#   note       the pattern is changed in place
+	#   warning    a fractional factor is refused and counted in Refusals
+	#   see        Fast, Every
 	def Slow(pnFactor)
 		if NOT This._WholeFactor(pnFactor, "Slow")  return This ok
 		if isNull(@aRoot)  return This ok
@@ -129,15 +198,28 @@ class stzPattern
 		@aRoot = [ :slow, _t_, pnFactor ]
 		return This
 
-	# Each cycle backwards: an event at onset o of length d moves to 1-o-d.
+	# Reverses the order of the events inside each cycle, in place.
+	#
+	#   returns    the pattern itself, so calls chain
+	#   warning    the pattern is changed in place
+	#   see        Every
+	#@ aka  Each cycle backwards: an event at onset o of length d moves to 1-o-d.
 	def Rev()
 		if isNull(@aRoot)  return This ok
 		_t_ = @aRoot
 		@aRoot = [ :rev, _t_ ]
 		return This
 
-	# On cycles 0, n, 2n, ... apply a transformation: :Rev, or [ :Fast, k ],
-	# or [ :Slow, k ]. The other cycles are left alone.
+	# Applies a transformation to the pattern on every pnN-th cycle, in place, and plays it unchanged on the others.
+	#
+	#   pnN        a whole number of cycles, 1 or more
+	#   pXform     :Rev, [ :Fast, n ] or [ :Slow, n ]
+	#   returns    the pattern itself, so calls chain
+	#   note       the transformed cycle is the first of each group: Every(2, :Rev) reverses cycles
+	#              0, 2, 4
+	#   warning    an unknown transformation or a pnN below 1 is refused and counted in Refusals
+	#   see        Fast, Slow, Rev
+	#@ aka  On cycles 0, n, 2n, ... apply a transformation: :Rev, or [ :Fast, k ], or [ :Slow, k ]. The other cycles are left alone.
 	def Every(pnN, pXform)
 		if NOT isNumber(pnN) or pnN < 1 or pnN != floor(pnN)
 			This._Refuse("Every: a whole number of cycles, 1 or more")
@@ -150,10 +232,15 @@ class stzPattern
 		@aRoot = [ :every, _t_, pnN, _x_ ]
 		return This
 
-	# The pattern PLUS a copy of itself `pnCycles` later (0 < t < 1). What
-	# the shift pushes past the end of a cycle arrives at the start of the
-	# next. `pArg` is handed to _Shift for every copied value: here it changes
-	# nothing; a domain gives it a meaning (in sound: semitones).
+	# Layers a copy of the pattern shifted later by a fraction of a cycle on top of it, in place.
+	#
+	#   pnCycles   the shift, strictly between 0 and 1
+	#   pArg       a value the subclass uses to alter the shifted copy, NULL for none
+	#   returns    the pattern itself, so calls chain
+	#   note       the pattern is changed in place
+	#   warning    a shift of 0 or of 1 and more is refused and counted in Refusals
+	#   see        Every
+	#@ aka  The pattern PLUS a copy of itself `pnCycles` later (0 < t < 1). What the shift pushes past the end of a cycle arrives at the start of the next. `pArg` is handed to _Shift for every copied value: here it changes nothing; a domain gives it a meaning (in sound: semitones).
 	def Off(pnCycles, pArg)
 		if NOT isNumber(pnCycles) or pnCycles <= 0 or pnCycles >= 1
 			This._Refuse("Off: a shift strictly between 0 and 1 cycle")

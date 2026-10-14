@@ -1,0 +1,14 @@
+{
+ "brief": "Answers whether a value can be a given kind, by checking it against every constraint declared for the kind.",
+ "detail": "CanQ(42).BeA(\"score\") is 1 when 42 satisfies all the constraints of score. The verdict is certain, since a check is deterministic, it joins the session's ask-record, and Why() says which constraint failed. A kind with no declared constraint answers 0 and says nothing is known about it.",
+ "receiver": "ConstrainQ(\"scoreB\").ToBeQ(:Number).ToBeQ(:Positive)\no1 = CanQ(42)",
+ "example": [
+  "? o1.BeA(\"scoreB\")",
+  "#--> 1",
+  "? CanQ(-5).BeA(\"scoreB\")",
+  "#--> 0",
+  "? Why()",
+  "#--> no: -5 is not positive (constraint 2 of 'scoreb')"
+ ],
+ "see": ["stzMust", "stzKindConstraint", "Why"]
+}

@@ -1,0 +1,23 @@
+{
+ "brief": "Acts as a local OpenID Connect identity provider with a real signing key, so sign-in is developed without a provider account.",
+ "detail": "It is not a stub that answers true. It holds an ES256 key pair, publishes the public half as a key set and a discovery document, and signs every token in the engine, so the relying party, stzOidcClient, runs its genuine signature check against a genuine key set. It also mints deliberately bad tokens, expired, forged, or with another audience, issuer or nonce, through IssueIdTokenXT, so the refusals can be tested, which a real provider will not do on request. The key comes from the engine's generator or from a seed for a reproducible suite, and is a sandbox key, never a real one. Token claims are joined into the JSON without escaping, so it must not be fed untrusted values.",
+ "receiver": "o1 = new stzOidcSandbox(\"https://idp.local\", \"my-app\")\no2 = new stzOidcClient(\"https://idp.local\", \"my-app\")",
+ "example": [
+  "o2.SetJwks(o1.JwksJson())",
+  "c1 = o1.IssueIdToken(\"dana\", \"nonce-1\")",
+  "? o2.VerifyIdToken(c1, \"nonce-1\")[:ok]",
+  "#--> 1",
+  "? o2.VerifyIdToken(c1, \"another-nonce\")[:ok]",
+  "#--> 0",
+  "c2 = o1.IssueForgedIdTokenAt(\"dana\", \"n\", floor(StzEngineTimeNowMs() / 1000))",
+  "? o2.VerifyIdToken(c2, \"n\")[:ok]",
+  "#--> 0",
+  "? o1.TokenEndpoint()",
+  "#--> https://idp.local/token"
+ ],
+ "see": [
+  "stzOidcClient",
+  "stzServiceRegistry",
+  "stzPasskeySandbox"
+ ]
+}

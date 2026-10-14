@@ -1,0 +1,1 @@
+init | Builds the security-invariants rule set, already loaded with its three rules. | nothing; the object is built | | stzSecurityRule, stzGraphRuleSet | | the rules are sandboxed-reaches-effectful, sandboxed-holds-secret and unstored-secret

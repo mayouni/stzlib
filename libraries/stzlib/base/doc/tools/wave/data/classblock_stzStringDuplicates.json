@@ -1,0 +1,20 @@
+{
+ "brief": "Finds and removes repeated characters or repeated substrings in a text.",
+ "detail": "Build one with new stzStringDuplicates(\"banana\"). DuplicatedChars, UniqueChars and their counts look at single characters, whole letters, not bytes, so Hebrew, Arabic and emoji work; comparisons are case-sensitive. The Remove verbs change the text held (RemoveConsecutiveDuplicateChars collapses runs, RemoveAllDuplicateChars keeps the first of each character, RemoveDuplicateSubString keeps the first occurrence of a substring) and each has a passive twin that returns the result. Do not pass a stzString object you still need: the first in-place edit empties it. RemoveDuplicateSubString mishandles overlapping matches.",
+ "receiver": "o1 = new stzStringDuplicates(\"banana\")",
+ "example": [
+  "? @@( o1.DuplicatedChars() )",
+  "#--> [ \"a\", \"n\" ]",
+  "? o1.AllDuplicateCharsRemoved()",
+  "#--> ban",
+  "? o1.DuplicateSubStringRemoved(\"an\")",
+  "#--> bana",
+  "o2 = new stzStringDuplicates(\"שלומשלום😀😀\")",
+  "? o2.NumberOfUniqueChars()",
+  "#--> 6"
+ ],
+ "see": [
+  "stzString",
+  "stzStringSections"
+ ]
+}

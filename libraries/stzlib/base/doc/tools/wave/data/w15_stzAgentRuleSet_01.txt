@@ -1,0 +1,1 @@
+init | Builds the agent-guardrails rule set, already loaded with its six rules. | nothing; the object is built | | stzAgentRule, stzGraphRuleSet

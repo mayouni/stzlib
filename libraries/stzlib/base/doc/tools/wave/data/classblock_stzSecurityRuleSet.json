@@ -1,0 +1,18 @@
+{
+ "brief": "Holds the security invariants that see paths in a security graph, so an escalation by any route is caught, not only a direct grant.",
+ "detail": "Three rules are loaded. sandboxed-reaches-effectful finds a sandboxed actor that can reach the effectful capability by any path, though it holds none itself. sandboxed-holds-secret finds a sandboxed actor attached to a live secret. unstored-secret finds a secret that a site references but that lives in no store, so its reveals are unaudited. Each rule governs only the nodes it is about, so a clean report can tell no sandboxed actor can reach an effect from there is no sandboxed actor.",
+ "receiver": "o1 = new stzSecurityRuleSet()",
+ "example": [
+  "? o1.Name()",
+  "#--> security-invariants",
+  "? o1.NumberOfRules()",
+  "#--> 3",
+  "? o1.RuleNames()[1]",
+  "#--> sandboxed-reaches-effectful"
+ ],
+ "see": [
+  "stzSecurityRule",
+  "stzSecurityGraph",
+  "stzSecurityPosture"
+ ]
+}

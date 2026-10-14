@@ -1,0 +1,14 @@
+{
+ "brief": "Holds one HTTP request as a plain value: method, path, headers, body, query pairs and the path parameters a route bound.",
+ "detail": "A server builds it from the parsed wire text and a handler reads it. The query string is split off the path at birth, so Path never carries a ?. Header names are matched without regard to case, while query keys and path parameters are matched with their exact case. WantsClose answers the keep-alive question from the protocol and the Connection header.",
+ "receiver": "o1 = new stzAppRequest(\"GET\", \"/users/42?page=2\", [ [ \"Host\", \"shop.test\" ] ], \"\")",
+ "example": [
+  "? o1.Path()",
+  "#--> /users/42",
+  "? o1.Query(\"page\")",
+  "#--> 2",
+  "? o1.Header(\"host\")",
+  "#--> shop.test"
+ ],
+ "see": ["stzAppResponse", "stzAppRouter", "stzAppServer"]
+}

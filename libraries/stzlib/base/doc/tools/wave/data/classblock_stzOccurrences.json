@@ -1,0 +1,10 @@
+{
+ "brief": "Carries the positions where a substring occurs in a string, as a small value object that is meant to act on them.",
+ "detail": "Only the list of positions works today. SubString and String answer an empty text (the constructor and the readers use different field names), Removed raises R14 for a missing stzString method, and ReplacedWithCS, Uppercased and Lowercased are empty stubs. Reach for Occurrences, or for the Find methods of stzString, to get the positions.",
+ "receiver": "o1 = new stzOccurrences([ 2, 4 ], \"an\", \"banana\")",
+ "example": [
+  "? @@( o1.Occurrences() )",
+  "#--> [ 2, 4 ]"
+ ],
+ "see": ["stzString", "stzItem"]
+}

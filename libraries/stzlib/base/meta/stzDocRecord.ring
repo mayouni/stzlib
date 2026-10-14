@@ -362,22 +362,53 @@ func _StzDocParamsOf(pcTrim)
 	_cIn_ = substr(pcTrim, _nO_ + 1, _nC_ - _nO_ - 1)
 	_cCur_ = ""
 	_nI_ = len(_cIn_)
+	# a comma inside brackets or quotes belongs to a default value (`pa = [ 1, 2 ]`), not to the list of parameters;
+	# the NAME of a parameter is what stands before its `=` (`pcImage = ""` is the parameter pcImage)
+	_nDepth_ = 0
+	_cQuote_ = ""
 	for _i_ = 1 to _nI_
-		if _cIn_[_i_] = ","
-			_cCur_ = ring_trim(_cCur_)
+		_c_ = _cIn_[_i_]
+		if _cQuote_ != ""
+			if _c_ = _cQuote_
+				_cQuote_ = ""
+			ok
+			_cCur_ += _c_
+			loop
+		ok
+		if _c_ = char(34) or _c_ = "'"
+			_cQuote_ = _c_
+			_cCur_ += _c_
+			loop
+		ok
+		if _c_ = "(" or _c_ = "[" or _c_ = "{"
+			_nDepth_++
+		but _c_ = ")" or _c_ = "]" or _c_ = "}"
+			_nDepth_--
+		ok
+		if _c_ = "," and _nDepth_ <= 0
+			_cCur_ = _StzDocParamName(_cCur_)
 			if _cCur_ != ""
 				_aOut_ + _cCur_
 			ok
 			_cCur_ = ""
 		else
-			_cCur_ += _cIn_[_i_]
+			_cCur_ += _c_
 		ok
 	next
-	_cCur_ = ring_trim(_cCur_)
+	_cCur_ = _StzDocParamName(_cCur_)
 	if _cCur_ != ""
 		_aOut_ + _cCur_
 	ok
 	return _aOut_
+
+# `pcImage = ""` -> pcImage ; `pa` -> pa
+func _StzDocParamName(pcParam)
+	_c_ = ring_trim(pcParam)
+	_n_ = substr(_c_, "=")
+	if _n_ > 1
+		_c_ = ring_trim(left(_c_, _n_ - 1))
+	ok
+	return _c_
 
 # `return This.Name(args)` -> [ Name, [ args ] ], else [ ]. Any argument text is
 # accepted; the caller decides whether the call is a PURE forward.

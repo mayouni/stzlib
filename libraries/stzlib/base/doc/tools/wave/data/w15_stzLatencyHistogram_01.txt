@@ -1,0 +1,12 @@
+init | Creates the engine histogram that will tally latency samples, in milliseconds. | nothing; the object is built | | Record, Destroy
+Handle | Returns the engine handle of the histogram, to share it with another object through AdoptHandle. | a pointer | | AdoptHandle
+AdoptHandle | Makes this object read and write an engine histogram owned elsewhere, and frees the one it created itself. | nothing | pEngineHandle=the handle of an engine histogram, such as the one Handle returns | Handle, Destroy | the adopted histogram is shared: after adoption the two objects count the same samples, and Destroy on the adopter does not free it | checked with two objects: a sample recorded on the owner showed in the adopter's Count
+Record | Tallies one latency sample, in milliseconds. | the histogram itself, so calls chain | nMs=the latency to tally, in milliseconds | Count, Percentile | a negative number or a text raises no error and is not checked here
+Percentile | Returns the upper bound of the bucket in which a percentile of the samples falls, so the answer is approximate. | a number | nP=the percentile to read, from 0 to 100 | P50, P95, P99 | the answer is a bucket bound, not a recorded sample: the median of 1 to 100 reads 50 and the 95th percentile reads 100 | 0 when no sample has been recorded
+P50 | Returns the median latency, as the upper bound of its bucket. | a number | | Percentile, P95
+P95 | Returns the latency under which 95 percent of the samples fall, as the upper bound of its bucket. | a number | | Percentile, P99
+P99 | Returns the latency under which 99 percent of the samples fall, as the upper bound of its bucket. | a number | | Percentile, P95
+Count | Returns how many samples were recorded. | a number | | Sum, Reset
+Sum | Returns the total of all recorded samples, in milliseconds. | a number | | Count
+Reset | Forgets every sample and keeps the histogram usable. | the histogram itself, so calls chain | | Count, Destroy
+Destroy | Frees the engine histogram, unless it was adopted from another owner, and marks the object unusable. | the histogram itself, so calls chain | | AdoptHandle | a later call builds a fresh, empty histogram

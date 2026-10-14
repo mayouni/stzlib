@@ -1,0 +1,2 @@
+init | Starts the question whether a kind must be something, keeping the kind. | nothing; the object is built | pcKind=the kind, trimmed and lowercased | BeA
+BeA | TRUE if the descriptor is among the constraints declared for the kind, which is what necessity means here; the reason is left for Why. | 1 or 0, numbers; 0 when the kind has no constraint | pcDesc=the descriptor, such as Number, matched without regard to case | stzCan, stzKindConstraint | | BeAn and Be are the same call; no value is checked, only the declared list

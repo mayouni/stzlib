@@ -17,6 +17,25 @@
  ///   CLASS   ///
 /////////////////
 
+# Cuts sections out of a list by positions or by start and length, and returns the parts outside a section.
+#
+# Build one with new stzListSections(aList) or over a stzList object; it keeps its own copy. A
+# section is named by its first and last positions (Section), a range by its start and length
+# (Range, Ranges); an anti-section is whatever lies outside. Positions count from 1; negative ones
+# count from the end, and out-of-range ones are clipped, not refused. Section answers a flat list,
+# Range answers a list wrapped one level deeper. Two aliases, ManyRanges and RangesOtherThan, raise
+# errors today.
+#
+#   receiver   o1 = new stzListSections([ "a", "b", "c", "d", "e", "f", "g" ])
+#   example    ? @@( o1.Section(2, 4) )
+#              #--> [ "b", "c", "d" ]
+#              ? @@( o1.Section(-3, -1) )
+#              #--> [ "e", "f", "g" ]
+#              ? @@( o1.AntiSection(2, 3) )
+#              #--> [ [ "a" ], [ "d", "e", "f", "g" ] ]
+#              ? @@( o1.Range(2, 3) )
+#              #--> [ [ "b", "c", "d" ] ]
+#   see        stzList, stzListGetter, stzSection
 class stzListSections from stzObject
 
 	@oList
@@ -25,6 +44,13 @@ class stzListSections from stzObject
 	 #   INITIALIZATION  #
 	#===================#
 
+	# Builds a section reader over a list or over a stzList object, working on its own copy, so the list passed in is never changed.
+	#
+	#   pListOrObj   a list, or a stzList object, whose sections are read
+	#   returns      nothing; the object is built
+	#   warning      any other kind of value raises "Can't create stzListSections! Parameter must be
+	#                a list or stzList object."
+	#   see          Content
 	def init(pListOrObj)
 		if isList(pListOrObj)
 			@oList = new stzList(pListOrObj)
@@ -38,12 +64,24 @@ class stzListSections from stzObject
 	 #     CONTENT ACCESS            #
 	#===============================#
 
+	# Returns the items the reader holds.
+	#
+	#   returns    a list
+	#   see        Section
 	def Content()
 		return @oList.Content()
 
+	# Returns how many items the list holds.
+	#
+	#   returns    a number
+	#   see        Content
 	def NumberOfItems()
 		return @oList.NumberOfItems()
 
+	# TRUE if the list holds no item.
+	#
+	#   returns    TRUE or FALSE
+	#   see        NumberOfItems
 	def IsEmpty()
 		return @oList.IsEmpty()
 
@@ -147,8 +185,16 @@ class stzListSections from stzObject
 			def SliceCSQ(_n1_, _n2_, pCaseSensitive)
 				return This.SectionCSQ(_n1_, _n2_, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Returns the items from one position to another, both included, as a flat list.
+	#
+	#   _n1_       the first position, from 1
+	#   _n2_       the last position, from 1, in the same forms, [ :To, 3 ] included
+	#   returns    a list; [ ] for an empty list
+	#   note       positions are forgiving: past the end they are clipped (Section(5, 99) on 7 items
+	#              gives items 5 to 7), 0 is read as 1, and a start after the end is swapped, so
+	#              Section(4, 2) equals Section(2, 4)
+	#   see        Sections, Range, AntiSection
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def Section(_n1_, _n2_)
 		return This.SectionCS(_n1_, _n2_, 1)
 
@@ -219,6 +265,11 @@ class stzListSections from stzObject
 	 #   GETTING MANY SECTIONS (SLICES)     #
 	#======================================#
 
+	# Returns several sections at once, one list per pair of positions, in the order given.
+	#
+	#   paSections   a list of [ start, end ] pairs, each read as for Section
+	#   returns      a list of lists
+	#   see          Section, Ranges
 	def Sections(paSections)
 		_aSsResult_ = []
 		_nSsLen_ = len(paSections)
@@ -245,6 +296,13 @@ class stzListSections from stzObject
 	 #   FINDING THE ANTI-SECTION(S) OF GIVEN SECTION(S)      #
 	#========================================================#
 
+	# Returns the positions that lie outside a section, as one or two [ start, end ] pairs.
+	#
+	#   _n1_       the first position of the section
+	#   _n2_       its last position, both numbers
+	#   returns    a list of pairs; [ ] when the section covers the whole list
+	#   note       FindAntiSection(2, 3) on 7 items gives [ [1,1], [4,7] ]
+	#   see        AntiSection, Section
 	def FindAntiSection(_n1_, _n2_)
 		if NOT ( isNumber(_n1_) and isNumber(_n2_) )
 			StzRaise("Incorrect param types! n1 and n2 must be both Numbers.")
@@ -258,6 +316,13 @@ class stzListSections from stzObject
 		def AntiSectionZZ(_n1_, _n2_)
 			return This.FindAntiSection(_n1_, _n2_)
 
+	# Returns the items that lie outside a section, as one list for the part before it and one for the part after it.
+	#
+	#   _n1_       the first position of the section
+	#   _n2_       its last position, both numbers
+	#   returns    a list of one or two lists; [ ] when the section covers the whole list
+	#   note       a section that starts at 1 or ends at the last position leaves only one list
+	#   see        FindAntiSection, Section
 	def AntiSection(_n1_, _n2_)
 		_aAsSecs_ = This.FindAntiSection(_n1_, _n2_)
 		_aAsResult_ = []
@@ -298,6 +363,15 @@ class stzListSections from stzObject
 	 #    GETTING A RANGE OF THE LIST    #
 	#===================================#
 
+	# Returns the section of a given length starting at a position, wrapped in a list; a negative length counts backwards from the start.
+	#
+	#   pnStart    the first position, from 1
+	#   pnRange    how many items, or minus that many going backwards
+	#   returns    a list holding one list of items; "" when the start or the length is 0
+	#   note       the answer is one list deeper than Section's: Range(2, 3) on a to g gives [ [
+	#              "b","c","d" ] ], and RangeXT gives the flat list; a length past the end is
+	#              clipped; an empty list answers [ [ ] ]
+	#   see        RangeXT, Section, Ranges
 	def Range(pnStart, pnRange)
 
 		if CheckingParams()
@@ -364,6 +438,12 @@ class stzListSections from stzObject
 	 #   GETTING MANY RANGES OF THE LIST  #
 	#------------------------------------#
 
+	# Returns several ranges at once, one answer of Range for each [ start, length ] pair.
+	#
+	#   paRanges   a list of [ start, length ] pairs
+	#   returns    a list of the lists Range returns
+	#   note       each range stays wrapped in its own list, as Range does
+	#   see        Range, Sections
 	def Ranges(paRanges)
 		_aRgsResult_ = []
 
@@ -375,6 +455,14 @@ class stzListSections from stzObject
 
 		return _aRgsResult_
 
+		# Returns several ranges at once, the same as Ranges.
+		#
+		#   paSections   a list of [ start, length ] pairs
+		#   returns      nothing today: it raises error R24
+		#   note         the alias passes paRanges on but its own parameter is named paSections
+		#   warning      Raises error R24 "Using uninitialized variable: paranges" today instead of
+		#                the ranges; use Ranges
+		#   see          Ranges
 		def ManyRanges(paSections)
 			return This.Ranges(paRanges)
 
@@ -382,18 +470,38 @@ class stzListSections from stzObject
 	 #   GETTING THE ANTI-RANGES OF A GIVEN SET OF SECTIONS   #
 	#--------------------------------------------------------#
 
+	# Returns the parts of the list that lie outside the given ranges, each part as a list.
+	#
+	#   paRanges   a list of [ start, length ] pairs
+	#   returns    a list of lists
+	#   note       AntiRanges([ [2,2] ]) on a to g leaves a and d to g
+	#   see        RangesAndAntiRanges, AntiSection
 	def AntiRanges(paRanges)
 		_aArSections_ = RangesToSections(paRanges)
 		_aArResult_ = @oList.AntiSections(_aArSections_)
 
 		return _aArResult_
 
+		# Returns the parts of the list that lie outside the given ranges, the same as AntiRanges.
+		#
+		#   paRanges   a list of [ start, length ] pairs
+		#   returns    nothing today: it raises error R19
+		#   note       the alias calls AntiRanges without the ranges it was given
+		#   warning    Raises error R19 "Calling function with less number of parameters" today
+		#              instead of the parts outside the ranges; use AntiRanges
+		#   see        AntiRanges
 		def RangesOtherThan(paRanges)
 			return This.AntiRanges()
 
 		def AntiRangesQ(paRanges)
 			return new stzList( This.AntiRanges(paRanges) )
 
+	# Returns the whole list cut into the given ranges and the parts between them, in list order.
+	#
+	#   paRanges   a list of [ start, length ] pairs
+	#   returns    a list of lists
+	#   note       RangesAndAntiRanges([ [2,2] ]) on a to g gives a, then b c, then d to g
+	#   see        AntiRanges, Ranges
 	def RangesAndAntiRanges(paRanges)
 		_aRarSections_ = RangesToSections(paRanges)
 		_aRarResult_ = @oList.SectionsAndAntiSections(_aRarSections_)

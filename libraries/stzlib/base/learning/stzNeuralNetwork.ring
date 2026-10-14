@@ -11,12 +11,37 @@
 # The ggml backward pass (the R4 step-2 bridge) upgrades training
 # behind the same surface later. Training lives in stzTrainer.
 
+# Holds a small feed-forward network of dense layers, with seeded weights, forward prediction and a GGUF export.
+#
+# A network is declared by its input width and grown layer by layer, each layer with relu, sigmoid,
+# tanh, linear or softmax activation. The first weights come from a seeded generator, so the same
+# seed and layers always give the same network. Predict runs the forward pass. Training is the job
+# of stzTrainer, which learns in the engine and writes the layers back through AdoptLayers into this
+# same object. ExportToGguf writes the parameters to a file.
+#
+#   receiver   o1 = new stzNeuralNetwork([ :Inputs = 2 ])
+#   example    o1.SetSeed(7)
+#              o1.AddDenseLayer(3, :Tanh)
+#              o1.AddDenseLayer(1, :Sigmoid)
+#              ? o1.NumberOfLayers()
+#              #--> 2
+#              ? o1.Layers()[1][1]
+#              #--> 3
+#              ? len(o1.Predict([0.5, -0.5]))
+#              #--> 1
+#   see        stzTrainer, stzLogisticRegression, stzTrainingSet
 class stzNeuralNetwork from stzObject
 
 	@nInputs = 0
 	@aLayers = []      # [ [ units, activation, W(units x prev), b(units) ] ]
 	@nSeed = 42
 
+	# Builds an empty feed-forward network that takes a fixed number of inputs and has no layers yet.
+	#
+	#   paSpec     a hash list [ :Inputs = n ] or a number n, the width of the input
+	#   returns    nothing; the object is built
+	#   warning    raises an error when the number of inputs is missing or below 1
+	#   see        AddDenseLayer, Predict
 	def init(paSpec)
 		if isList(paSpec) and HasKey(paSpec, :Inputs)
 			@nInputs = paSpec[:Inputs]
@@ -27,10 +52,25 @@ class stzNeuralNetwork from stzObject
 			stzraise("Declare the inputs: new stzNeuralNetwork([ :Inputs = n ])")
 		ok
 
+	# Sets the seed of the generator that gives the layers their first weights, so a network can be rebuilt identically.
+	#
+	#   n          the seed, a positive number
+	#   returns    the network itself, so calls chain
+	#   note       it acts on layers added afterwards; the same seed and the same layers give the
+	#              same network
+	#   see        AddDenseLayer
 	def SetSeed(n)
 		@nSeed = n
 		return This
 
+	# Adds a fully connected layer after the last one, with weights and biases drawn from the seeded generator between -1 and 1.
+	#
+	#   nUnits         the number of neurons in the layer
+	#   pcActivation   relu, sigmoid, tanh, linear or softmax, in any case
+	#   returns        nothing; use AddDenseLayerQ to chain
+	#   note           the layer reads as many inputs as the previous layer has units
+	#   warning        raises an error naming the choices for another activation
+	#   see            Layers, Predict
 	def AddDenseLayer(nUnits, pcActivation)
 		_cAct_ = StzLower("" + pcActivation)
 		if ring_find([ "relu", "sigmoid", "tanh", "linear", "softmax" ], _cAct_) = 0
@@ -62,25 +102,48 @@ class stzNeuralNetwork from stzObject
 			This.AddDenseLayer(nUnits, pcActivation)
 			return This
 
+	# Returns how many layers the network has.
+	#
+	#   returns    a number
+	#   see        AddDenseLayer
 	def NumberOfLayers()
 		return len(@aLayers)
 
+	# Returns the width of the input.
+	#
+	#   returns    a number
+	#   see        init
 	def NumberOfInputs()
 		return @nInputs
 
+	# Returns the layers with their parameters.
+	#
+	#   returns    a list of [ units, activation, weights, biases ] rows; the weights are units by
+	#              previous width
+	#   see        AdoptLayers, Predict
 	def Layers()
 		return @aLayers
 
-	# the trainer pushes trained weights back through here (Ring copies
-	# lists on reads -- see the aliasing doctrine)
+	# Replaces all the layers with the given ones, the way a trainer writes back what it learned.
+	#
+	#   paLayers   a list in the shape that Layers returns
+	#   returns    the network itself, so calls chain
+	#   note       nothing is checked: the shapes must match the inputs
+	#   see        Layers
+	#@ aka  the trainer pushes trained weights back through here (Ring copies lists on reads -- see the aliasing doctrine)
 	def AdoptLayers(paLayers)
 		@aLayers = paLayers
 		return This
 
-	# R4 step 8 -- GGUF EXPORT: the trained network written in the
-	# format neural/ reads (arch 'stz-mlp'; tensors blk.N.weight
-	# [units x prev] row-major + blk.N.bias). Softanza writes what it
-	# reads -- the foundry's artifact loop closes.
+	# Writes the weights and biases of every layer to a GGUF file, and returns the path written.
+	#
+	#   pcFile     the path of the file to write
+	#   pcName     the model name stored in the file
+	#   returns    a text, the path, with .gguf added when missing
+	#   note       the file holds one weight tensor and one bias tensor per layer
+	#   warning    raises an error when there are no layers or the engine cannot write the file
+	#   see        Layers
+	#@ aka  R4 step 8 -- GGUF EXPORT: the trained network written in the format neural/ reads (arch 'stz-mlp'; tensors blk.N.weight [units x prev] row-major + blk.N.bias). Softanza writes what it reads -- the foundry's artifact loop closes.
 	def ExportToGguf(pcFile, pcName)
 		if len(@aLayers) = 0
 			stzraise("Nothing to export: add layers first.")
@@ -113,6 +176,14 @@ class stzNeuralNetwork from stzObject
 		ok
 		return pcFile
 
+	# Returns the output of the last layer for an input, by a forward pass.
+	#
+	#   paInput    the list of input values
+	#   returns    a list of numbers, one per unit of the last layer; the input itself when there
+	#              are no layers
+	#   warning    an input longer than the network takes raises error R2, and a shorter one is
+	#              accepted with the missing values counted as absent
+	#   see        AddDenseLayer
 	def Predict(paInput)
 		_aFwd_ = This._Forward(paInput)
 		return _aFwd_[:activations][len(_aFwd_[:activations])]

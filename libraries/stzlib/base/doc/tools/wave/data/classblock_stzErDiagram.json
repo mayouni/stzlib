@@ -1,0 +1,26 @@
+{
+ "brief": "Holds a database schema as entities, keys and relations, draws it in crow's-foot notation and checks its rules about keys.",
+ "detail": "An entity is a box with a name band and a compartment of attributes shown as PK, FK and plain columns; a relation is an undirected line whose ends carry the cardinality. Relate reads the kind from the first entity: OneToMany, ManyToOne, OneToOne or ManyToMany. Four rules judge the schema through GovernanceFindings: every entity declares a primary key, every foreign key names an entity of the diagram, every relation is backed by a foreign key (a junction for a many-to-many), and a participation declared at a key's target end agrees with the column's nullability. A note is drawn but is not an entity and owes no key. Weak entities, inheritance and Chen's diamonds are not here. ToCanvasXT draws the diagram.",
+ "receiver": "o1 = new stzErDiagram(\"shop\")\no1.AddEntity(\"customer\", \"Customer\")\no1.AddKey(\"customer\", \"id\")\no1.AddEntity(\"order\", \"Order\")\no1.AddKey(\"order\", \"id\")\no1.AddForeignKey(\"order\", \"customer_id\", \"customer\")",
+ "example": [
+  "o1.Relate(\"customer\", \"order\", :OneToMany)",
+  "? len(o1.Entities())",
+  "#--> 2",
+  "? o1.Relations()[1][:kind]",
+  "#--> onetomany",
+  "? @@( o1.GovernanceFindings() )",
+  "#--> [ ]",
+  "? o1.GovernanceIsSound()",
+  "#--> 1",
+  "o1.AddEntity(\"tag\", \"Tag\")",
+  "? len(o1.GovernanceFindings())",
+  "#--> 1",
+  "? o1.GovernanceIsSound()",
+  "#--> 0"
+ ],
+ "see": [
+  "stzDiagram",
+  "stzErRuleSet",
+  "stzUmlDiagram"
+ ]
+}

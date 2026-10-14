@@ -1,0 +1,7 @@
+init | Builds a training set from a list of examples, each a pair of a feature list and a label. | nothing; the object is built | p=a list of [ features, label ] pairs, such as [ [ 5.1, 3.5 ], "setosa" ]; any item that is not such a pair is dropped | AddExample, Split | a label is kept as text, so 42 becomes "42"; an argument that is not a list builds an empty set
+AddExample | Appends one labelled example to the set. | nothing; use AddExampleQ to chain | paFeatures=the list of numbers describing the example; pcLabel=its label, kept as text | Examples, NumberOfExamples | | an argument that is not a list is ignored without a message, and the number of features is not checked against the earlier examples
+Examples | Returns every example, in the order added. | a list of [ features, label ] pairs | | AddExample, Labels
+NumberOfExamples | Returns how many examples the set holds. | a number | | Examples, NumberOfFeatures
+Labels | Returns the distinct labels, in the order they first appear. | a list of text | | Examples
+NumberOfFeatures | Returns how many features the first example has, taken as the width of the set. | a number; 0 for an empty set | | NumberOfExamples
+Split | Cuts the set in two by position, the first part for training and the rest for testing; nothing is shuffled. | a list of two training sets, [ train, test ] | nRatio=the fraction of the examples that go to training, from 0 to 1 | Examples | | the training part holds the first floor(count x ratio) examples; a ratio of 1.5 puts all in training and 0 puts none; the set itself is not changed

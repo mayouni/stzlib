@@ -1,0 +1,20 @@
+{
+ "brief": "Cuts pieces out of a text: a section, a run, a character or an occurrence of a substring, returning each piece and removing it.",
+ "detail": "Build one with new stzStringExtractor(\"text\"). Every Extract verb answers the piece and takes it out of the text the extractor holds, which Content shows. Positions count from 1 and are in characters, so Hebrew, Arabic and emoji are cut by letter. A section must have its start before its end: a reversed pair kills the process or removes nothing today. Extract(substr) returns the whole text before removal, not the part removed, and ExtractCharsW raises an error after removing; see their warnings. Do not pass a stzString object you still need: the first extraction empties it.",
+ "receiver": "o1 = new stzStringExtractor(\"hello world, hello moon\")",
+ "example": [
+  "? o1.ExtractSection(1, 5)",
+  "#--> hello",
+  "? o1.NumberOfChars()",
+  "#--> 18",
+  "? o1.ExtractLastChar()",
+  "#--> n",
+  "? o1.ExtractLast(\"hello\")",
+  "#--> hello"
+ ],
+ "see": [
+  "stzString",
+  "stzStringReplacer",
+  "stzStringSections"
+ ]
+}

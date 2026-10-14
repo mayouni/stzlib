@@ -1,0 +1,7 @@
+Content | Returns 1, which is the true object's content. | 1, a number | | Value, Where
+Value | Returns the same 1 as Content. | 1, a number | | Content
+Where | Returns 0 whatever the condition says; the condition is not evaluated. | 0, a number | pcCondition=a condition, ignored | W, stzNullObject
+W | Returns 0 whatever the condition says, like Where. | 0, a number | pcCondition=a condition, ignored | Where
+IsEqualTo | Returns 1 for every argument, whatever it is: the true object is equal to everything. | 1, a number | p=the value to compare, ignored | Equals, IsEqualToQ | | IsEqualToCS gives the same answer, and IsEqualToQ and IsEqualToCSQ return the object so a chain goes on
+Equals | Returns 1 for every argument, as IsEqualTo does. | 1, a number | p=the value to compare, ignored | IsEqualTo | | EqualsQ returns the object so a chain goes on
+StzType | Returns the type name of the object, stzTrueObject, as a symbol. | the symbol stztrueobject | | Content

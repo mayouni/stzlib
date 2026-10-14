@@ -1,0 +1,22 @@
+{
+ "brief": "Changes the case of a text: capitals, small letters, first letter only, each word, or swapped, with Unicode rules.",
+ "detail": "It is the case helper behind the case methods of stzString. Build one with new stzStringCaseChanger(\"text\"). Each in-place verb (Uppercase, Lowercase, Capitalize, CapitalizeEachWord, ToggleCase, DecapitalizeFirst, SetCase) changes the text it holds and has a passive twin that returns the changed text (Uppercased, Lowercased, Capitalized, EachWordCapitalized, CaseToggled, FirstDecapitalized). Accents follow the letter, the German ß uppercases to SS, and scripts without case (Hebrew, Arabic, emoji) are left alone. Do not pass a stzString object you still need: the first in-place edit empties it. IsCapitalized only checks the first character.",
+ "receiver": "o1 = new stzStringCaseChanger(\"ça va ÉTÉ\")",
+ "example": [
+  "? o1.Uppercased()",
+  "#--> ÇA VA ÉTÉ",
+  "? o1.Capitalized()",
+  "#--> Ça va été",
+  "? o1.EachWordCapitalized()",
+  "#--> Ça Va Été",
+  "? o1.CaseToggled()",
+  "#--> ÇA VA été",
+  "o2 = new stzStringCaseChanger(\"שלום\")",
+  "? o2.Uppercased()",
+  "#--> שלום"
+ ],
+ "see": [
+  "stzString",
+  "stzStringAligner"
+ ]
+}

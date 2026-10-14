@@ -1,0 +1,13 @@
+{
+ "brief": "Holds a cancellation flag in the engine: one side raises it, the other side polls it and stops early.",
+ "detail": "A token starts lowered. Cancel() (or Signal()) raises it and IsCancelled() reads it; the flag lives in the engine, so it can be passed to long-running engine work without a callback into Ring. Destroy() frees it.",
+ "receiver": "o1 = new stzCancelToken()",
+ "example": [
+  "? o1.IsCancelled()",
+  "#--> 0",
+  "o1.Cancel()",
+  "? o1.IsCancelled()",
+  "#--> 1"
+ ],
+ "see": ["stzRetryBudget"]
+}

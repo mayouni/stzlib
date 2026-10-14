@@ -1049,30 +1049,64 @@ class stzApp from stzObject
         return cRes
 
 
-# stzAppGoal -- the goal VALUE OBJECT returned by oApp.Goal(:X): a readable
-# snapshot of the goal record (Means/ReachedBy/Within/Respecting).
-# Evaluation happens on the app (Pursue/GoalSatisfied), which holds the
-# live graph.
+# Holds a readable snapshot of one goal of an application, as oApp.GoalQ returns it.
+#
+# It carries the goal's name and the attributes assigned in the AddGoalQ brace: Means, ReachedBy
+# (the profile, planning by default), Within and Respecting. It evaluates nothing: the measuring of
+# a goal's gap happens on the stzApp, which holds the live graph.
+#
+#   receiver   o1 = new stzAppGoal("Visited")
+#   example    ? o1.Name()
+#              #--> Visited
+#              ? o1.Narrate()
+#              #--> wants Visited -> reached by planning
+#   see        stzApp, stzAppBody, stzGraphGoal
 class stzAppGoal from stzObject
     @cName = ""
     Means      = ""
     ReachedBy  = :planning
     Within     = ""
     Respecting = []
+    # Builds a goal snapshot with the given name, the default profile planning and no means, window or respected rules.
+    #
+    #   pcName     the goal's name
+    #   returns    nothing; the object is built
+    #   see        Name, Profile
     def init(pcName)
         @cName = pcName
         Respecting = []
+    # Returns the goal's name as it was declared.
+    #
+    #   returns    a text
+    #   see        Profile, Narrate
     def Name()
         return @cName
+    # Returns how the goal is reached, planning unless the declaration said otherwise.
+    #
+    #   returns    a text such as planning
+    #   see        Name, Narrate
     def Profile()
         return ReachedBy
+    # Returns the goal as one sentence, with its window when it has one and the way it is reached.
+    #
+    #   returns    a text such as wants Visited within a week -> reached by planning
+    #   see        Name, Profile
     def Narrate()
         cW = "" if Within != ""  cW = " within " + Within  ok
         return "wants " + @cName + cW + " -> reached by " + ReachedBy
 
 
-# stzAppBody -- the body VALUE OBJECT returned by oApp.Body(): a readable
-# snapshot of the body record. Persistence happens on the app (Save()).
+# Holds a readable snapshot of where an application's world is kept, as oApp.BodyQ returns it.
+#
+# It carries the kinds of body (graph database, files...) and the paths named in the SetBody brace:
+# Graph, Files and Keep. Saving happens on the stzApp, never here.
+#
+#   receiver   o1 = new stzAppBody([ :graph, :files ])
+#   example    ? o1.Label()
+#              #--> graph + files
+#              ? o1.HasKind(:files)
+#              #--> 1
+#   see        stzApp, stzAppGoal
 class stzAppBody from stzObject
     @aKinds = []
     Graph = ""
@@ -1082,8 +1116,17 @@ class stzAppBody from stzObject
     # in Body(), not in BodyQ() -- so a world that said "Keep = :everything" had
     # no way to be asked what it keeps.
     Keep  = ""
+    # Builds a body snapshot from the list of kinds of storage the world lives in.
+    #
+    #   paKinds    the list of kinds of body, such as [ :graphdb, :files ]
+    #   returns    nothing; the object is built
+    #   see        Label, HasKind
     def init(paKinds)
         @aKinds = paKinds
+    # Returns the kinds joined with a plus sign, an empty text for no kind.
+    #
+    #   returns    a text such as graph + files
+    #   see        HasKind, Narrate
     def Label()
         cRes = ""
         for i = 1 to len(@aKinds)
@@ -1091,10 +1134,19 @@ class stzAppBody from stzObject
             if i < len(@aKinds)  cRes += " + "  ok
         next
         return cRes
+    # TRUE if one of the body's kinds equals the given kind, compared without regard to case.
+    #
+    #   pKind      the kind to look for
+    #   returns    1 or 0, numbers
+    #   see        Label
     def HasKind(pKind)
         for i = 1 to len(@aKinds)
             if @aKinds[i] = pKind  return 1  ok
         next
         return 0
+    # Returns the body as one sentence naming its kinds.
+    #
+    #   returns    a text such as lives in graph + files
+    #   see        Label
     def Narrate()
         return "lives in " + This.Label()

@@ -285,13 +285,39 @@ func Scripts(p)
 func StzScriptQ(pcScriptIdentifier)
 	return new stzScript(pcScriptIdentifier)
 
+# Holds one writing system, with its name, its four-letter code, its default language and the languages written in it.
+#
+# The identifier may be a script name (Arabic), a code (Arab, Latn), or a text whose first character
+# decides, so a Han ideograph gives han. The accessors read the locale tables: the name, the number,
+# the code, the default language and its country, and the list of languages written in the script. A
+# script has one default language in the data, so Latin answers english, and the matching Languages
+# list is a separate table that does not always contain it.
+#
+#   receiver   o1 = new stzScript("Arabic")
+#   example    ? o1.Abbreviation()
+#              #--> Arab
+#              ? o1.DefaultLanguage()
+#              #--> arabic
+#              ? o1.DefaultCountry()
+#              #--> egypt
+#              o2 = new stzScript("Latn")
+#              ? o2.Name()
+#              #--> latin
+#   see        stzLanguage, stzChar, stzLocale
 class stzScript from stzObject
 
-	#NOTE: the class have a @aScriptInfo@ attribute in PRIVATE section
-	# We put it there, because we use it just for initializing the object.
-	#--> it does not necessarilay contain all the information the class
-	# could provide about the script.
-
+	# Builds a script object from a script name, a four-letter code, or a character written in that script.
+	#
+	#   pcScriptIdentifier   a name such as Arabic, a code such as Arab, or a text whose first
+	#                        character is taken to find the script
+	#   returns              nothing; the object is built
+	#   note                 case is free; a character such as a Han ideograph gives han, with the
+	#                        code Hant
+	#   warning              a locale abbreviation such as ar-EG raises Not implemented yet; a text
+	#                        that is neither a script nor a character raises Can not create char
+	#                        object
+	#   see                  Script, DefaultLanguage
+	#@ aka  NOTE: the class have a @aScriptInfo@ attribute in PRIVATE section We put it there, because we use it just for initializing the object. --> it does not necessarilay contain all the information the class could provide about the script.
 	def init(pcScriptIdentifier)
 		_oStr_ = new stzString(pcScriptIdentifier)
 
@@ -350,24 +376,49 @@ class stzScript from stzObject
 			StzRaise("Unsupported script identifier!")
 		ok
 
+	# Returns the script's name in lower case.
+	#
+	#   returns    a text such as arabic
+	#   see        Name, Abbreviation
 	def Script()
 		return @aScriptInfo@[2]
 
 		def Content()
 			return This.Script()
 
+		# Returns the script's name, the value of the object.
+		#
+		#   returns    a text, as Script answers
+		#   see        Script
 		def Value()
 			return Content()
 
+	# Returns the script's number in the locale data.
+	#
+	#   returns    a number
+	#   see        Name, Abbreviation
 	def Number()
 		return @aScriptInfo@[1]
 
+	# Returns the script's name in lower case.
+	#
+	#   returns    a text such as latin
+	#   see        Abbreviation, Number
 	def Name()
 		return @aScriptInfo@[2]
 
+	# Returns the four-letter code of the script.
+	#
+	#   returns    a text such as Latn
+	#   see        Name
 	def Abbreviation()
 		return @aScriptInfo@[3]
 
+	# Returns the language the locale data names as the default for the script.
+	#
+	#   returns    a text in lower case such as english for latin; undefined for a lone Han
+	#              character
+	#   see        DefaultLanguageNumber, Languages
 	def DefaultLanguage()
 		return @aScriptInfo@[4]
 
@@ -396,6 +447,10 @@ class stzScript from stzObject
 		def LangaugeName()
 			return This.DefaultLanguage()
 
+	# Returns the number, in the locale data, of the script's default language.
+	#
+	#   returns    a number
+	#   see        DefaultLanguage
 	def DefaultLanguageNumber()
 		_cLanguage_ = This.DefaultLanguage()
 
@@ -427,6 +482,10 @@ class stzScript from stzObject
 		def LangaugeNumber()
 			return This.DefaultLanguageNumber()
 
+	# Returns the two-letter code of the script's default language.
+	#
+	#   returns    a text such as ar
+	#   see        DefaultLanguage
 	def DefaultLanguageAbbreviation()
 		_cLanguage_ = This.DefaultLanguage()
 
@@ -452,6 +511,10 @@ class stzScript from stzObject
 		def DefaultLangaugeAbbreviation()
 			return This.DefaultLanguageAbbreviation()
 
+	# Returns the country where the default language of the script is at home.
+	#
+	#   returns    a text in lower case
+	#   see        DefaultCountryNumber, DefaultLanguage
 	def DefaultCountry()
 		/* We could solve it expressively like this:
 
@@ -480,6 +543,10 @@ class stzScript from stzObject
 		def CountryName()
 			return This.DefaultCountry()
 	
+	# Returns the number of the default country in the locale data.
+	#
+	#   returns    a number
+	#   see        DefaultCountry
 	def DefaultCountryNumber()
 
 		_cCountry_ = This.DefaultCountry()
@@ -496,6 +563,14 @@ class stzScript from stzObject
 		def CountryNumber()
 			return This.DefaultCountryNumber()
 
+	# Returns the languages written in the script, in the data's own lower-case spelling without separators.
+	#
+	#   returns    a list of text, sorted
+	#   note       names such as judeospanish carry no underscore, unlike the names DefaultLanguage
+	#              answers
+	#   warning    the default language is not always in the list: boko has the default language
+	#              hausa and an empty list
+	#   see        DefaultLanguage
 	def Languages()
 		return LanguagesInScript(This.Script())
 

@@ -1,0 +1,23 @@
+{
+ "brief": "Drives real concurrent load at a server with separate processes and measures the response time clients see, to show the knee of the curve.",
+ "detail": "The knee, response time exploding as throughput nears its ceiling, is the signature of queueing, and queueing needs concurrent arrivals that a serial in-process harness can never produce. The driver spawns a target stzAppServer as a child, or aims at a server already running, then runs a number of driver processes at once, each firing its requests one after another and printing every duration it observed, wait in the accept queue included. It is a closed-loop model: a driver fires its next request when the previous answers. DriveWith gives one level, Curve several, Explain narrates the knee. Spawning processes was not run for this reference; the settings, AimAt, WaitReady against a closed port and Explain were.",
+ "receiver": "o1 = new stzLoadDriver()\no1.SetBusyMs(5)\no1.SetRequestsPerDriver(10)\no1.AimAt(\"127.0.0.1\", 1)",
+ "example": [
+  "? o1.Port()",
+  "#--> 1",
+  "? @@( o1.CurveRows() )",
+  "#--> [ ]",
+  "? o1.WaitReady(200)",
+  "#--> 0",
+  "? o1.Explain()[1]",
+  "#--> Driven load -- target 127.0.0.1:1, D ~5ms CPU/request, 0 level(s).",
+  "? o1.Destroy().Port()",
+  "#--> 1"
+ ],
+ "see": [
+  "stzReactor",
+  "stzAppServer",
+  "stzPerfSeries",
+  "stzSla"
+ ]
+}

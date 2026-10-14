@@ -1,0 +1,10 @@
+{
+ "brief": "Meant to pair an object with a condition that must always hold for it, such as a string that must stay lowercase.",
+ "detail": "WARNING: no stzConstraint can be built today. The constructor calls IsConstraint, which calls RemoveFirstBoundQ on a string, a method that stzString does not have, so every construction raises R14. Once built it would also fail: Expression reads an unassigned variable and CheckConstraint always answers 0. The class is not used anywhere else in the library.",
+ "receiver": "o1 = StzStringQ(\"hello\")",
+ "example": [
+  "? o1.IsLowercase()",
+  "#--> 1"
+ ],
+ "see": ["stzCCode"]
+}

@@ -1,0 +1,1 @@
+braceend | Prints the value that the last ternary b(...) '??' bt(...) '!!' bf(...) put in the named variable say, when the brace closes. | nothing; it prints | | | any other brace body leaves the variable as it was, so say { 5 } prints the previous answer, or an empty line before any | one empty line when no ternary has run yet

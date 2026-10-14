@@ -1,0 +1,16 @@
+{
+ "brief": "Runs a snippet of Python from Ring and brings its answer back as a Ring value, through a result file.",
+ "detail": "You set the code, which must assign its answer to a variable named res; Execute wraps it with a translator, runs it with the language's program in the current folder and writes the answer as Ring text, and Result reads that text back, so numbers, texts and nested lists cross the boundary. The files temp.<ext>, a run script, the result file and log.txt are written in the current folder. It is a thin face over stzExterCode, which has the full set of controls (runtime path, result variable, log file). The Python program is the one configured in $aStzLibConfig[:PythonPath], d:/python/python-3.13.7/python.exe by default, which is not installed on every machine. Where the environment variable NoDefaultCurrentDirectoryInExePath is 1 the run script is not found and Execute raises an error.",
+ "receiver": "o1 = new stzPythonCode",
+ "see": [
+  "stzExterCode",
+  "stzRCode",
+  "stzJuliaCode"
+ ],
+ "example": [
+  "o1.SetCode(\"res = sum([1, 2, 3])\")",
+  "o1.Execute()",
+  "? o1.Result()",
+  "#--> 6"
+ ]
+}

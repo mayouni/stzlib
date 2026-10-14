@@ -1,0 +1,14 @@
+{
+ "brief": "Searches texts by meaning: each text is stored with an embedding and a query returns the closest ones by cosine score.",
+ "detail": "Texts are embedded when they are added, with whatever sentence-embedding model the engine holds (AddText), or the caller brings the vectors (AddEmbedded). Vectors are kept resident in the engine so a search crosses only the query. The search is exact, not approximate, and the reported score is the cosine for unit vectors. SearchByVectorXT needs no model at all; Search and Closest embed the query text, so they need one. Call Close when done.",
+ "receiver": "o1 = new stzSemanticIndex([])\no1.AddEmbedded(\"east\", [ 1, 0, 0 ])\no1.AddEmbedded(\"north\", [ 0, 1, 0 ])",
+ "example": [
+  "? o1.Count()",
+  "#--> 2",
+  "? o1.SearchByVectorXT([ 0, 1, 0 ], 1)[1][1]",
+  "#--> north",
+  "? o1.EmbeddingDim()",
+  "#--> 3"
+ ],
+ "see": ["stzNeuralModel", "stzNeuralEngine", "StzNeuralEmbeddingOf"]
+}

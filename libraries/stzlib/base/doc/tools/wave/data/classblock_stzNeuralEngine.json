@@ -1,0 +1,12 @@
+{
+ "brief": "Reports which inference backend is linked and whether it is ready, as a facade with no state.",
+ "detail": "It is the first thing to ask before loading a model: IsReady (also IsAvailable) says whether the ggml backend runs, Backend names it and Content gives all of it as data, which Show prints. It loads no model and downloads nothing.",
+ "receiver": "o1 = new stzNeuralEngine",
+ "example": [
+  "? o1.Backend()",
+  "#--> ggml (CPU)",
+  "? o1.IsReady()",
+  "#--> 1"
+ ],
+ "see": ["stzNeural", "stzNeuralModel", "stzSemanticIndex"]
+}

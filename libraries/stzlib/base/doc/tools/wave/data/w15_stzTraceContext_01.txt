@@ -1,0 +1,8 @@
+init | Creates a fresh, sampled W3C trace context with a random trace id and span id. | nothing; the object is built | | TraceParent, SetHeader
+SetHeader | Replaces the context with one read from an incoming traceparent header. | the context itself, so calls chain | cHeader=the traceparent header, such as '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01' | IsValid, TraceId | a header that is not well-formed is stored as given: IsValid then answers FALSE and the ids and the child header are empty
+TraceParent | Returns the traceparent header the context holds, ready to send on a request. | a text | | SetHeader, ChildHeader
+IsValid | TRUE if the held header is a well-formed traceparent. | TRUE or FALSE | | SetHeader
+TraceId | Returns the 32-character hexadecimal trace id, shared by every hop of one request. | a text; empty when the header is invalid | | SpanId, ChildHeader
+SpanId | Returns the 16-character hexadecimal span id of this hop. | a text; empty when the header is invalid | | TraceId, ChildHeader
+IsSampled | TRUE if the sampled flag of the header is set, which asks every service to record the trace. | TRUE or FALSE | | TraceParent | an invalid header answers FALSE
+ChildHeader | Returns a traceparent for a downstream call: the same trace id and sampled flag, with a new random span id. | a text; empty when the header is invalid | | TraceId, SpanId | every call returns a different span id

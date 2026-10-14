@@ -1,0 +1,26 @@
+{
+ "brief": "Holds what a screen reader reads from a screen, emitted from the declared document and the laid-out panel and not inferred.",
+ "detail": "A browser infers an accessibility tree from markup; this emits one from declared intent. Each declaration becomes a node with an id (its name), a role (the ROLE field, or window, label or group by default), a name (the LABEL, a text's content, or for a button and the like the text beneath it), a description (the RATIONALE), its bounds from the laid-out panel, whether a keyboard can reach it, and what can be done there. ToJSON gives the whole tree as data. There is no switch to turn it off. The document must be clean, and the tree needs the layout engine but no GPU and no window.",
+ "receiver": "cDoc = 'DEFINE PANEL form ( SIZE [300, 200], DIRECTION column, CHILDREN [title, ok_btn] ) RATIONALE \"A tiny form.\"' + char(10) + 'DEFINE TEXT title ( CONTENT \"Transfer\", SIZE 20, ROLE heading ) RATIONALE \"What the form is for.\"' + char(10) + 'DEFINE BOX ok_btn ( HEIGHT 40, FOCUSABLE yes, ROLE button, CHILDREN [ok_text] ) RATIONALE \"The act.\"' + char(10) + 'DEFINE TEXT ok_text ( CONTENT \"Confirm\", SIZE 16 ) RATIONALE \"button label\"'\noU = new stzUiDocument(cDoc)\noU.UseFont(\"C:/Windows/Fonts/segoeui.ttf\")\noP = oU.ToPanel()\noP.FocusOn(\"ok_btn\")\no1 = new stzAccessibilityTree(oU, oP)",
+ "example": [
+  "? o1.NodeCount()",
+  "#--> 4",
+  "? o1.RoleOf(\"ok_btn\")",
+  "#--> button",
+  "? o1.NameOf(\"ok_btn\")",
+  "#--> Confirm",
+  "? o1.DescriptionOf(\"ok_btn\")",
+  "#--> The act.",
+  "? @@( o1.FocusableIds() )",
+  "#--> [ \"ok_btn\" ]",
+  "? @@( o1.NodeOf(\"ok_btn\")[:bounds] )",
+  "#--> [ 0, 24, 300, 40 ]",
+  "? o1.ReadingOrder()[3]",
+  "#--> button \"Confirm\""
+ ],
+ "see": [
+  "stzUiDocument",
+  "stzPanel",
+  "stzScreenReaderBridge"
+ ]
+}

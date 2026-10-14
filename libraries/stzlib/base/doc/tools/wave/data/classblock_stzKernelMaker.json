@@ -1,0 +1,14 @@
+{
+ "brief": "Describes an elementwise GPU computation with vectors, scalars and one assignment, and has the engine generate and check the WGSL kernel.",
+ "detail": "Declare the inputs with TakesVector, the parameters with TakesScalar, the output with ReturnsVector and the body with ForEachElement, an assignment such as { @C = alpha * @A + @B }. ToWGSL returns the generated kernel verbatim, nothing hidden, and needs no GPU, so kernels can be written and inspected on a machine without one. Anything outside the declared names and the allowed functions refuses at ToWGSL with a message naming it. Limits: up to 5 input vectors, 14 scalars and exactly one output; every value is f32 on the device. Hand the maker to stzGpu to run it.",
+ "receiver": "o1 = new stzKernelMaker\no1.TakesVector(:A)\no1.TakesVector(:B)\no1.TakesScalar(:alpha)\no1.ReturnsVector(:C)\no1.ForEachElement(\"{ @C = alpha * @A + @B }\")",
+ "example": [
+  "? @@( o1.InputNames() )",
+  "#--> [ \"a\", \"b\" ]",
+  "? o1.OutputName()",
+  "#--> c",
+  "? len(o1.ToWGSL()) > 100",
+  "#--> 1"
+ ],
+ "see": ["stzGpu", "stzGpuBuffer"]
+}

@@ -12,11 +12,44 @@
 func StzGraphViewQ(oParent, acNodes)
 	return new stzGraphView(oParent, acNodes)
 
+# Holds an editable cut of a parent graph, with the nodes you chose, that you can commit back to the parent or throw away.
+#
+# A view is a stzGraph made from the chosen nodes of a parent and every edge between them, so
+# everything stzGraph answers it answers about the cut. Edits stay in the view until Commit writes
+# them into the parent; Rollback drops them. Changes says what a commit would do before it is done.
+# The view is a snapshot: later changes of the parent do not reach it.
+#
+#   receiver   oP = new stzGraph("main") oP.AddNodeXT("a", "Alpha") oP.AddNodeXT("b", "Beta")
+#              oP.AddNodeXT("c", "Gamma") oP.AddEdgeXT("a", "b", "ab") oP.AddEdgeXT("b", "c", "bc")
+#              o1 = new stzGraphView(oP, [ "a", "b" ])
+#   example    ? @@( o1.NodesIds() )
+#              #--> [ "a", "b" ]
+#              ? o1.IsView()
+#              #--> 1
+#              o1.AddNodeXT("z", "Zed")
+#              ? @@( o1.Changes()[:nodesadded] )
+#              #--> [ "z" ]
+#              ? oP.NodeExists("z")
+#              #--> 0
+#              o1.Commit()
+#              ? oP.NodeExists("z")
+#              #--> 1
+#   see        stzGraph, stzWorldGraph
 class stzGraphView from stzGraph
 	@oParentGraph
 	@acIncludedNodes
 	@bAutoCommit = 0
 	
+	# Builds a working copy of the chosen nodes of a graph, with the edges that run between them.
+	#
+	#   oParent    the stzGraph the view is cut from
+	#   acNodes    the ids of the nodes to include, a list of text
+	#   returns    nothing; the object is built
+	#   note       the view is a snapshot: nodes added to the parent later do not appear in it; an
+	#              id the parent does not hold is skipped
+	#   warning    a first argument that is not a stzGraph raises error First parameter must be
+	#              stzGraph!
+	#   see        Commit, Rollback
 	def init(oParent, acNodes)
 		if NOT @IsStzGraph(oParent)
 			stzraise("First parameter must be stzGraph!")
@@ -38,6 +71,10 @@ class stzGraphView from stzGraph
 		@bEnforceConstraints = @oParentGraph.@bEnforceConstraints
 		@bAutoDerive = @oParentGraph.@bAutoDerive
 	
+	# TRUE if the graph is a view cut from a parent graph.
+	#
+	#   returns    TRUE, as 1; a stzGraph answers 0
+	#   see        ParentGraph
 	def IsView()
 		return 1
 	
@@ -45,10 +82,21 @@ class stzGraphView from stzGraph
 	def ParentGraphQ()
 		return @oParentGraph
 
-	# ... and its NAME.
+	# Returns the name of the graph this view is cut from.
+	#
+	#   returns    the parent's name as text
+	#   note       ParentGraphQ returns the parent graph object itself
+	#   see        Commit, Changes
+	#@ aka  ... and its NAME.
 	def ParentGraph()
 		return @oParentGraph.Name()
 	
+	# Writes the view's edits into the parent graph: node properties, new nodes and new edges.
+	#
+	#   returns    nothing; the parent changes
+	#   note       a node or edge removed in the view is not removed in the parent; an edge is only
+	#              added when both ends exist in the parent
+	#   see        Rollback, Changes
 	def Commit()
 		# Update node properties
 		_nLen_ = len(@aNodes)
@@ -99,10 +147,21 @@ class stzGraphView from stzGraph
 			ok
 		next
 	
+	# Discards every edit made in the view and re-reads the nodes and edges from the parent.
+	#
+	#   returns    nothing; the view is rebuilt from the parent
+	#   note       nodes added to the parent since the view was cut appear only if their id was in
+	#              the list given to init
+	#   see        Commit, Changes
 	def Rollback()
 		@aNodes = This._FilteredNodes()
 		@aEdges = This._FilteredEdges()
 	
+	# Returns what a commit would do: the nodes whose properties or label differ from the parent and the nodes the parent lacks.
+	#
+	#   returns    a hash list with the keys nodesmodified and nodesadded, each a list of node ids
+	#   note       edges are not reported; the keys are in lower case
+	#   see        Commit, Rollback
 	def Changes()
 		_aChanges_ = [
 			:nodesModified = [],

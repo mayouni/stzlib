@@ -1,0 +1,18 @@
+{
+ "brief": "Holds the rules that ask which part of a solution would ship on a fake service, read from each part's destination.",
+ "detail": "Four rules are loaded, deliberately few, since the registry already checks its own invariants and restating them would let two copies drift. The first three are errors: a part bound to a real site that depends on a sandbox double, on a store that lasts only until the next restart, or on a protocol conformance double. The fourth, a warning, finds a part that declares a need the registry has never heard of. They read a part's destination, so they fire while the phase is still development, as a rehearsal of if I shipped this today.",
+ "receiver": "o1 = new stzServiceRuleSet()",
+ "example": [
+  "? o1.Name()",
+  "#--> service-invariants",
+  "? o1.NumberOfRules()",
+  "#--> 4",
+  "? o1.RuleNames()[4]",
+  "#--> part-uses-undeclared-service"
+ ],
+ "see": [
+  "stzServiceRule",
+  "stzServiceRegistry",
+  "stzRuleReport"
+ ]
+}

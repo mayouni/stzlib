@@ -1,0 +1,17 @@
+{
+ "brief": "Holds a list written as text, such as '[ \"a\", 2 ]', evaluates it, and gives the real list back.",
+ "detail": "Build one with new stzListInString(cText) or StzListInStringQ(cText); StringIsListInString(cText) tells whether a text qualifies. It is a stzString, so the source text answers every string method, and the evaluated list is available as List, Content, Value and ToStzList. The text is evaluated as Ring code, which lets names stand for global variables. The analysis methods (Items, Values, VarNames, Types, VariablesAndTheirTypes) are broken today and the four Contains... methods are empty; see their warnings.",
+ "receiver": "o1 = new stzListInString('[ \"a\", 2, \"שלום\", 5 ]')",
+ "example": [
+  "? @@( o1.List() )",
+  "#--> [ \"a\", 2, \"שלום\", 5 ]",
+  "? o1.ListInString()",
+  "#--> [ \"a\", 2, \"שלום\", 5 ]",
+  "? @@( o1.ToStzList().Content() )",
+  "#--> [ \"a\", 2, \"שלום\", 5 ]"
+ ],
+ "see": [
+  "stzString",
+  "stzList"
+ ]
+}

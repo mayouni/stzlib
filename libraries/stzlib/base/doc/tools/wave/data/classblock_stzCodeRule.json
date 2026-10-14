@@ -1,0 +1,16 @@
+{
+ "brief": "Holds one code rule, a graph rule over a code graph, whose finding carries the line of the offending code.",
+ "detail": "A code rule is a stzGraphRule in the code domain. Its checker queries a stzCodeGraph, which models real method definitions and real call edges, instead of scanning text, so a comment that says def len is not a method and a method definition named substr is not a call. The house rules are declared in stzCodeRuleSet, and StzCheckCode runs them over source.",
+ "receiver": "o1 = new stzCodeRule(\"no-len-method\")",
+ "example": [
+  "? o1.Name()",
+  "#--> no-len-method",
+  "? o1.Domain()",
+  "#--> code"
+ ],
+ "see": [
+  "stzCodeRuleSet",
+  "stzGraphRule",
+  "stzCodeGraph"
+ ]
+}

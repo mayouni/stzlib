@@ -1,0 +1,21 @@
+{
+ "brief": "Reads a text without changing it: a character by position, the first, last or middle, the n first or last, the characters, n-grams.",
+ "detail": "Build one with new stzStringGetter(\"text\"); it only reads, so a stzString passed in is never emptied. Positions count from 1 and in characters, so Hebrew, Arabic and emoji are read by letter. NFirstChars and NLastChars refuse a count outside the text, while NthChar forgives position 0 and a position past the end. CharNgrams and WordNgrams answer the runs of n characters or n words. BytesPerChar answers a text such as \"1 4 2\". NLeftChars and NRightChars should swap sides for right-to-left text and do not today, because the direction test answers TRUE for it.",
+ "receiver": "o1 = new stzStringGetter(\"hello World\")",
+ "example": [
+  "? o1.NthChar(2)",
+  "#--> e",
+  "? o1.NLastChars(3)",
+  "#--> rld",
+  "? @@( o1.CharNgrams(3) )",
+  "#--> [ \"hel\", \"ell\", \"llo\", \"lo \", \"o W\", \" Wo\", \"Wor\", \"orl\", \"rld\" ]",
+  "o2 = new stzStringGetter(\"a😀ب\")",
+  "? o2.BytesPerChar()",
+  "#--> 1 4 2"
+ ],
+ "see": [
+  "stzString",
+  "stzStringSections",
+  "stzStringWords"
+ ]
+}

@@ -1,0 +1,2 @@
+Language | Returns the name of the language this graph models. | the text javascript | | FileExtension
+FileExtension | Returns the file extension of the source files it scans, with the dot. | the text .js | | Language

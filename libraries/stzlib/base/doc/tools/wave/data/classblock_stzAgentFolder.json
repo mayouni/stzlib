@@ -1,0 +1,20 @@
+{
+ "brief": "Reads a folder of agent files, gates each one, and mounts the accepted agents on a host so that dropping a file in the folder deploys it.",
+ "detail": "A .pia file is data: it is judged by stzAgentDeclaration and turned into an agent. A .ring file is a program: the folder does not execute it, the application loads it, and the folder finds its <name>Agent() function and holds the object to the same four gates (it must answer Name_, Cycle, CoverageStatement and ReversibilityClass). A bad file does not stop the others: it is refused, kept in Refusals with the file that caused it, and ReadAgents counts only the accepted. Rescan compares a SHA-256 of each file, since a modification time is not available in this build. The folder does not watch the disk; whoever owns the cadence calls Rescan.",
+ "receiver": "o1 = new stzAgentFolder(\"../agentic/agents\")",
+ "example": [
+  "? o1.ReadAgents()",
+  "#--> 2",
+  "? @@( o1.Names() )",
+  "#--> [ \"kitchen-bot\", \"summarizer\" ]",
+  "? o1.NotationOf(\"kitchen-bot\")",
+  "#--> pia",
+  "? o1.NumberOfRefusedFiles()",
+  "#--> 2"
+ ],
+ "see": [
+  "stzAgentDeclaration",
+  "stzAgentHost",
+  "stzPIAgent"
+ ]
+}

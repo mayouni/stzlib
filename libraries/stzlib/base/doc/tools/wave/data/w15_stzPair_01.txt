@@ -1,0 +1,16 @@
+init | Builds a pair from a list, keeping its items in order; the list is not checked for holding exactly two items. | nothing; the object is built | paList=the list whose items become the pair, expected to hold two | Item1, Item2, IsPair | a list of three items is kept whole and a list of one item makes a pair whose Item2 raises R2; only the global IsPair(aList) tests for two |
+Content | Returns the items of the pair as a list. | a list, normally of two items | | Pair, Value | |
+Value | Returns the items of the pair, the same answer as Content. | a list | | Content | |
+Copy | Returns a new stzPair holding the same items. | a new stzPair | | ToStzList | |
+Update | Replaces the items of the pair by those of another two-item list. | nothing today: it raises error R24 and the pair keeps its items | paPair=the list of two items that should replace the pair | UpdateWith, Swap | Raises error R24 "Using uninitialized variable: panpair" today for every list, instead of replacing the items: the check reads panPair, a name that is not the parameter paPair |
+UpdateWith | Replaces the items of the pair by those of another two-item list, the same as Update. | nothing today: it raises error R24 | paPair=the list of two items that should replace the pair | Update | Raises error R24, as Update does, and leaves the pair unchanged |
+ToStzList | Returns the items of the pair as a stzList, ready for the list methods. | a stzList | | Content | |
+Item1 | Returns the first item of the pair. | the first item | | Item2 | | FirstItem is the same method; an empty pair raises R2
+Item2 | Returns the second item of the pair. | the second item | | Item1 | | SecondItem is the same method; a pair of one item raises R2
+Swap | Exchanges the two items of the pair in place. | nothing today: it raises error R24 and the pair is unchanged | | Swapped, Update | Raises error R24 "Using uninitialized variable: panpair" today instead of swapping, because it ends by calling UpdateWith; SwapQ fails the same way |
+Swapped | Returns a copy of the pair with its two items exchanged, leaving the pair unchanged. | nothing today: it raises error R24 | | Swap | Raises error R24 today instead of the swapped items, because it swaps a copy through Swap; to swap by hand build a new stzPair from [ Item2(), Item1() ] |
+BothAreNumbers | TRUE if both items of the pair are numbers. | TRUE or FALSE | | BothAreStrings, BothAreLists | |
+BothAreStrings | TRUE if both items of the pair are texts. | TRUE or FALSE | | BothAreNumbers | |
+BothAreLists | TRUE if both items of the pair are lists. | TRUE or FALSE | | BothAreNumbers | |
+BothAreObjects | TRUE if both items of the pair are objects. | TRUE or FALSE | | BothAreNumbers | |
+IsStzPair | TRUE if the object is a pair object, which every pair is; it tells pairs from other kinds of object. | TRUE | | IsPair | | the global IsPair(aList) tests a plain list for exactly two items

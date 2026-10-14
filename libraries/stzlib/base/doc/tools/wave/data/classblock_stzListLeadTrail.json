@@ -1,0 +1,21 @@
+{
+ "brief": "Examines and trims the repeated items at the beginning and at the end of a list, and tests what a list starts or ends with.",
+ "detail": "A run is two or more equal items in a row at an end of the list; a single item is not a run. Build one with new stzListLeadTrail(aList) or over a stzList object; it keeps its own copy, so what you passed in is not changed, and Content gives the trimmed list. The remove methods keep one item of the run, never none. Every comparison is case-sensitive; the CS forms (RepeatedLeadingItemsCS, RemoveRepeatedTrailingItemsCS, StartsWithCS ...) take 0 to ignore case, and they honour it.",
+ "receiver": "o1 = new stzListLeadTrail([ \"a\", \"a\", \"b\", \"c\", \"c\", \"c\" ])",
+ "example": [
+  "? @@( o1.RepeatedLeadingItems() )",
+  "#--> [ \"a\", \"a\" ]",
+  "? o1.NumberOfRepeatedTrailingItems()",
+  "#--> 3",
+  "o1.RemoveRepeatedLeadingAndTrailingItems()",
+  "? @@( o1.Content() )",
+  "#--> [ \"a\", \"b\", \"c\" ]",
+  "? o1.StartsWith(\"a\")",
+  "#--> 1"
+ ],
+ "see": [
+  "stzList",
+  "stzListTrimmer",
+  "stzListDuplicates"
+ ]
+}

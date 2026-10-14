@@ -1,0 +1,20 @@
+{
+ "brief": "Extends a text: adds at the end or in front, adds many, repeats it, or puts a separator between its characters.",
+ "detail": "Build one with new stzStringConcat(\"abc\"). Each in-place verb (Concat, Prepend, Append, ConcatMany, RepeatNTimes, JoinWith) changes the text it holds and has a passive twin that returns the new text (Concatenated, Prepended, Appended, ConcatenatedWithMany, RepeatedNTimes, JoinedWith). Characters are whole letters, so Hebrew, Arabic and emoji repeat and join without being cut. JoinWith joins the characters of the text itself, not a list of texts. Do not pass a stzString object you still need: the first in-place edit empties it.",
+ "receiver": "o1 = new stzStringConcat(\"abc\")",
+ "example": [
+  "? o1.Concatenated(\"def\")",
+  "#--> abcdef",
+  "? o1.RepeatedNTimes(2)",
+  "#--> abcabc",
+  "? o1.JoinedWith(\"-\")",
+  "#--> a-b-c",
+  "o2 = new stzStringConcat(\"שלום\")",
+  "? o2.JoinedWith(\"·\")",
+  "#--> ש·ל·ו·ם"
+ ],
+ "see": [
+  "stzString",
+  "stzStringAligner"
+ ]
+}

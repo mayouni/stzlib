@@ -1,0 +1,28 @@
+{
+ "brief": "Reads ABC, MIDI and MusicXML back into the stzSoundScore every transform already reads, and counts what it dropped.",
+ "detail": "The other direction from stzSoundNotation: a MIDI file, an ABC tune or a MusicXML score becomes a stzSoundScore, which can be played, transcribed against, analysed for its modes or written out in another format. The reader counts what a score cannot keep, a tempo change, an ornament, a lyric, in Losses and refuses a file it cannot read honestly, with the reason in LastError: a SMPTE-timed or format 2 MIDI file, an ABC tune with no K: line, a MusicXML score-timewise or one that is not well-formed. Pitch in MIDI is the key plus the bend, so quarter tones come back as the frequency they were. Repeats are played out, since a score is what is performed. Reading opens no audio device and plays nothing; what comes back has not been heard by a person (UNPERCEIVED).",
+ "receiver": "o1 = StzSoundNotationReaderQ()\ncAbc = \"X:1\" + char(10) + \"T:Tiny study\" + char(10) + \"M:4/4\" + char(10) + \"L:1/16\" + char(10) + \"Q:1/4=90\" + char(10) + \"K:C\" + char(10) + \"[V:1] C4 D4 E4 C4\" + char(10)\noS = o1.FromAbcQ(cAbc)",
+ "example": [
+  "? oS.NumberOfEvents()",
+  "#--> 4",
+  "? oS.TempoInBpm()",
+  "#--> 90",
+  "? oS.Events()[3][3]",
+  "#--> 329.63",
+  "? o1.Title()",
+  "#--> Tiny study",
+  "? @@( o1.Losses() )",
+  "#--> [ ]",
+  "oBad = o1.FromAbcQ(\"X:1\" + char(10) + \"C D E\")",
+  "? o1.LastError()",
+  "#--> ABC: music before the K: line -- a tune's header ends with K:, and this one has none",
+  "oM = o1.FromMidiBytesQ(\"not midi\")",
+  "? o1.LastError()",
+  "#--> MIDI: not a Standard MIDI File -- 8 bytes, and a header alone is 14"
+ ],
+ "see": [
+  "stzSoundNotation",
+  "stzSoundScore",
+  "stzSoundTranscriber"
+ ]
+}

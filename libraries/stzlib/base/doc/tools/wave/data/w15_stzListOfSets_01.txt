@@ -1,0 +1,5 @@
+init | Builds a list of sets from a list whose items are sets, with no repeated item inside any one. | nothing; only an empty list builds today | paList=a list whose items are sets, lists with no repeated item, or [ ] | Content | Raises error R14 "Calling Method without definition: islistofsets" today for every non-empty list, valid or not, instead of building the object: the check is written as a method of stzList that does not exist (only the global IsListOfSets does); a value that is not a list raises R3 (stzListOfSetsError is not defined); only [ ] builds |
+Content | Returns the sets the object holds, as they were given. | a list of lists | | Value, Sets | | reachable only for an empty list today, because init fails on the others
+Value | Returns the sets the object holds, the same answer as Content. | a list of lists | | Content | |
+Copy | Returns a new stzListOfSets holding the same sets. | a new stzListOfSets | | Content | |
+Sets | Returns the sets the object holds, the same answer as Content. | a list of lists | | Content | |

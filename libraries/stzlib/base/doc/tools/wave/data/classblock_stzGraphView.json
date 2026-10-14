@@ -1,0 +1,23 @@
+{
+ "brief": "Holds an editable cut of a parent graph, with the nodes you chose, that you can commit back to the parent or throw away.",
+ "detail": "A view is a stzGraph made from the chosen nodes of a parent and every edge between them, so everything stzGraph answers it answers about the cut. Edits stay in the view until Commit writes them into the parent; Rollback drops them. Changes says what a commit would do before it is done. The view is a snapshot: later changes of the parent do not reach it.",
+ "receiver": "oP = new stzGraph(\"main\")\noP.AddNodeXT(\"a\", \"Alpha\")\noP.AddNodeXT(\"b\", \"Beta\")\noP.AddNodeXT(\"c\", \"Gamma\")\noP.AddEdgeXT(\"a\", \"b\", \"ab\")\noP.AddEdgeXT(\"b\", \"c\", \"bc\")\no1 = new stzGraphView(oP, [ \"a\", \"b\" ])",
+ "example": [
+  "? @@( o1.NodesIds() )",
+  "#--> [ \"a\", \"b\" ]",
+  "? o1.IsView()",
+  "#--> 1",
+  "o1.AddNodeXT(\"z\", \"Zed\")",
+  "? @@( o1.Changes()[:nodesadded] )",
+  "#--> [ \"z\" ]",
+  "? oP.NodeExists(\"z\")",
+  "#--> 0",
+  "o1.Commit()",
+  "? oP.NodeExists(\"z\")",
+  "#--> 1"
+ ],
+ "see": [
+  "stzGraph",
+  "stzWorldGraph"
+ ]
+}

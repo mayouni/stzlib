@@ -1,0 +1,20 @@
+{
+ "brief": "Reads the text or file of a .stzflow document and builds the stzWorkflow it records.",
+ "detail": "The document is a workflow header with the quoted id, a type line, then sections: steps, each with label, assignedto, duration and sla lines, flow, one from -> to line per arrow, actors with name and role, and roles. The parser keeps no state and it is what ImportFlow uses; ToWorkflow writes the same format. Today a duration of two or more digits is read as text, and an assignedTo line, the spelling ToWorkflow writes, is not read.",
+ "receiver": "o1 = new stzFlowParser()\ncText = 'workflow \"order\"' + char(10) + \"type: sequential\" + char(10) + \"steps\" + char(10) + \"receive\" + char(10) + \"duration: 5\" + char(10) + \"pack\" + char(10) + \"flow\" + char(10) + \"receive -> pack\"",
+ "example": [
+  "oWf = o1.Parse(cText)",
+  "? oWf.Id()",
+  "#--> order",
+  "? len(oWf.Steps())",
+  "#--> 2",
+  "? len(oWf.Edges())",
+  "#--> 1",
+  "? oWf.Steps()[1][:duration]",
+  "#--> 5"
+ ],
+ "see": [
+  "stzWorkflow",
+  "stzKnowParser"
+ ]
+}

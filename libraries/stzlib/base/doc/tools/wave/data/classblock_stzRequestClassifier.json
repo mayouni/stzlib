@@ -1,0 +1,16 @@
+{
+ "brief": "Maps an incoming request to a facet, the routing target, in three tiers: operator rules, capability-lexical scoring and an optional model.",
+ "detail": "Rules on content type, path prefix and method are tried first and win; then the lexical tier scores the request against each facet's own capability vocabulary and a synonym lexicon; then an optional model function, installed with SetModelClassifier, is asked. It only routes to facets the bound catalog knows. Why() says which tier decided. The lexical tier is deterministic and offline.",
+ "receiver": "o1 = new stzRequestClassifier()\no1.RouteWhenPath(\"/api/risk\", :math)\no1.RouteWhenContentType(\"application/pdf\", :vision)",
+ "example": [
+  "? o1.Classify(\"POST\", \"/api/analyze\", \"application/pdf\", \"review this NDA\")",
+  "#--> vision",
+  "? o1.Why()",
+  "#--> rule: content-type 'application/pdf' -> vision",
+  "? o1.ClassifyText(\"find the shortest path between two nodes\")",
+  "#--> graph",
+  "? o1.ClassifyPath(\"/api/risk/score\")",
+  "#--> math"
+ ],
+ "see": ["stzFacetCatalog", "stzComputePipeline", "stzClusterSupervisor"]
+}

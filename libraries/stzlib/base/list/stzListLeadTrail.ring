@@ -16,6 +16,25 @@
  ///   CLASS   ///
 /////////////////
 
+# Examines and trims the repeated items at the beginning and at the end of a list, and tests what a list starts or ends with.
+#
+# A run is two or more equal items in a row at an end of the list; a single item is not a run. Build
+# one with new stzListLeadTrail(aList) or over a stzList object; it keeps its own copy, so what you
+# passed in is not changed, and Content gives the trimmed list. The remove methods keep one item of
+# the run, never none. Every comparison is case-sensitive; the CS forms (RepeatedLeadingItemsCS,
+# RemoveRepeatedTrailingItemsCS, StartsWithCS ...) take 0 to ignore case, and they honour it.
+#
+#   receiver   o1 = new stzListLeadTrail([ "a", "a", "b", "c", "c", "c" ])
+#   example    ? @@( o1.RepeatedLeadingItems() )
+#              #--> [ "a", "a" ]
+#              ? o1.NumberOfRepeatedTrailingItems()
+#              #--> 3
+#              o1.RemoveRepeatedLeadingAndTrailingItems()
+#              ? @@( o1.Content() )
+#              #--> [ "a", "b", "c" ]
+#              ? o1.StartsWith("a")
+#              #--> 1
+#   see        stzList, stzListTrimmer, stzListDuplicates
 class stzListLeadTrail from stzObject
 
 	@oList
@@ -24,6 +43,13 @@ class stzListLeadTrail from stzObject
 	 #   INITIALIZATION  #
 	#===================#
 
+	# Builds a lead-and-trail helper over a list or over a stzList object, working on its own copy, so the list passed in is never changed.
+	#
+	#   pListOrObj   a list, or a stzList object, whose beginning and end are examined
+	#   returns      nothing; the object is built
+	#   warning      any other kind of value raises "Can't create stzListLeadTrail! Parameter must
+	#                be a list or stzList object."
+	#   see          Content
 	def init(pListOrObj)
 		if isList(pListOrObj)
 			@oList = new stzList(pListOrObj)
@@ -37,12 +63,24 @@ class stzListLeadTrail from stzObject
 	 #     CONTENT ACCESS            #
 	#===============================#
 
+	# Returns the items the helper holds, after any removal made through it.
+	#
+	#   returns    a list
+	#   see        NumberOfItems
 	def Content()
 		return @oList.Content()
 
+	# Returns how many items the list holds now.
+	#
+	#   returns    a number
+	#   see        Content
 	def NumberOfItems()
 		return @oList.NumberOfItems()
 
+	# TRUE if the list holds no item.
+	#
+	#   returns    TRUE or FALSE
+	#   see        NumberOfItems
 	def IsEmpty()
 		return @oList.IsEmpty()
 
@@ -55,6 +93,11 @@ class stzListLeadTrail from stzObject
 			return 0
 		ok
 
+	# TRUE if the list begins with a run of two or more equal items, compared case-sensitively.
+	#
+	#   returns    TRUE or FALSE
+	#   note       HasRepeatedLeadingItemsCS(0) ignores case: a a A counts as a run
+	#   see        HasRepeatedLeadingItemsCS, RepeatedLeadingItems
 	def HasRepeatedLeadingItems()
 		return This.HasRepeatedLeadingItemsCS(1)
 
@@ -100,6 +143,12 @@ class stzListLeadTrail from stzObject
 		ok
 		return _aResult_
 
+	# Returns the run of equal items that opens the list, all of them; [ ] when the list does not open with a run of two or more.
+	#
+	#   returns    a list; [ ] when there is no run
+	#   note       a single first item is not a run; RepeatedLeadingItemsCS(0) ignores case, so a a
+	#              A gives all three
+	#   see        RepeatedLeadingItem, NumberOfRepeatedLeadingItems
 	def RepeatedLeadingItems()
 		return This.RepeatedLeadingItemsCS(1)
 
@@ -112,6 +161,12 @@ class stzListLeadTrail from stzObject
 			return ""
 		ok
 
+	# Returns the item that opens the list in a run of two or more, or an empty text when none does.
+	#
+	#   returns    an item; "" when the list opens with no run
+	#   note       "" is also what a list of empty texts would answer, so test
+	#              HasRepeatedLeadingItems first
+	#   see        RepeatedLeadingItems
 	def RepeatedLeadingItem()
 		return This.RepeatedLeadingItemCS(1)
 
@@ -119,6 +174,11 @@ class stzListLeadTrail from stzObject
 	def NumberOfRepeatedLeadingItemsCS(pCaseSensitive)
 		return len(This.RepeatedLeadingItemsCS(pCaseSensitive))
 
+	# Returns how long the run of equal items at the start of the list is; 0 when there is none.
+	#
+	#   returns    a number
+	#   note       a run of 1 is not counted: a b c answers 0, not 1
+	#   see        RepeatedLeadingItems
 	def NumberOfRepeatedLeadingItems()
 		return This.NumberOfRepeatedLeadingItemsCS(1)
 
@@ -131,6 +191,11 @@ class stzListLeadTrail from stzObject
 			return 0
 		ok
 
+	# TRUE if the list ends with a run of two or more equal items, compared case-sensitively.
+	#
+	#   returns    TRUE or FALSE
+	#   note       HasRepeatedTrailingItemsCS(0) ignores case: c c C counts as a run
+	#   see        HasRepeatedTrailingItemsCS, RepeatedTrailingItems
 	def HasRepeatedTrailingItems()
 		return This.HasRepeatedTrailingItemsCS(1)
 
@@ -177,6 +242,11 @@ class stzListLeadTrail from stzObject
 		ok
 		return ListReversed(_aResult_)
 
+	# Returns the run of equal items that closes the list, all of them; [ ] when the list does not end with a run of two or more.
+	#
+	#   returns    a list; [ ] when there is no run
+	#   note       a single last item is not a run; RepeatedTrailingItemsCS(0) ignores case
+	#   see        RepeatedTrailingItem, NumberOfRepeatedTrailingItems
 	def RepeatedTrailingItems()
 		return This.RepeatedTrailingItemsCS(1)
 
@@ -228,6 +298,12 @@ class stzListLeadTrail from stzObject
 			@oList.RemoveSection(1, _nToRemove_)
 		ok
 
+	# Shortens the run of equal items at the start of the list to one item, in place.
+	#
+	#   returns    nothing; use RemoveRepeatedLeadingItemsQ to chain
+	#   note       the run stays one item, not none: 1 1 1 2 becomes 1 2; the list given to init is
+	#              untouched
+	#   see        RepeatedLeadingItemsRemoved, RemoveRepeatedTrailingItems
 	def RemoveRepeatedLeadingItems()
 		This.RemoveRepeatedLeadingItemsCS(1)
 
@@ -253,6 +329,11 @@ class stzListLeadTrail from stzObject
 			@oList.RemoveSection(_nLen_ - _nToRemove_ + 1, _nLen_)
 		ok
 
+	# Shortens the run of equal items at the end of the list to one item, in place.
+	#
+	#   returns    nothing; use RemoveRepeatedTrailingItemsQ to chain
+	#   note       the run stays one item, not none: 3 3 3 becomes 3
+	#   see        RepeatedTrailingItemsRemoved, RemoveRepeatedLeadingItems
 	def RemoveRepeatedTrailingItems()
 		This.RemoveRepeatedTrailingItemsCS(1)
 
@@ -264,6 +345,11 @@ class stzListLeadTrail from stzObject
 			This.RemoveRepeatedLeadingAndTrailingItemsCS(pCaseSensitive)
 			return This
 
+	# Shortens both the opening run and the closing run to one item each, in place.
+	#
+	#   returns    nothing; use RemoveRepeatedLeadingAndTrailingItemsQ to chain
+	#   note       a list made only of one repeated item, 4 4 4, ends up as 4
+	#   see        RemoveRepeatedLeadingItems, RemoveRepeatedTrailingItems
 	def RemoveRepeatedLeadingAndTrailingItems()
 		This.RemoveRepeatedLeadingAndTrailingItemsCS(1)
 
@@ -301,6 +387,10 @@ class stzListLeadTrail from stzObject
 		_o.RemoveRepeatedLeadingItemsCS(pCaseSensitive)
 		return _o.Content()
 
+	# Returns a copy of the list with the opening run shortened to one item, leaving the object unchanged.
+	#
+	#   returns    a list
+	#   see        RemoveRepeatedLeadingItems
 	def RepeatedLeadingItemsRemoved()
 		return This.RepeatedLeadingItemsRemovedCS(1)
 
@@ -310,6 +400,10 @@ class stzListLeadTrail from stzObject
 		_o.RemoveRepeatedTrailingItemsCS(pCaseSensitive)
 		return _o.Content()
 
+	# Returns a copy of the list with the closing run shortened to one item, leaving the object unchanged.
+	#
+	#   returns    a list
+	#   see        RemoveRepeatedTrailingItems
 	def RepeatedTrailingItemsRemoved()
 		return This.RepeatedTrailingItemsRemovedCS(1)
 
@@ -336,6 +430,12 @@ class stzListLeadTrail from stzObject
 		ok
 		return 0
 
+	# TRUE if the first item equals the given item, compared case-sensitively.
+	#
+	#   pItem      the item expected first
+	#   returns    TRUE or FALSE; FALSE for an empty list
+	#   note       StartsWithCS(pItem, 0) ignores case
+	#   see        EndsWith, StartsWithCS
 	def StartsWith(pItem)
 		return This.StartsWithCS(pItem, 1)
 
@@ -355,5 +455,11 @@ class stzListLeadTrail from stzObject
 		ok
 		return 0
 
+	# TRUE if the last item equals the given item, compared case-sensitively.
+	#
+	#   pItem      the item expected last
+	#   returns    TRUE or FALSE; FALSE for an empty list
+	#   note       EndsWithCS(pItem, 0) ignores case
+	#   see        StartsWith, EndsWithCS
 	def EndsWith(pItem)
 		return This.EndsWithCS(pItem, 1)

@@ -337,14 +337,44 @@ class stzSecret from stzObject
  #  STZAPIKEY #
 #============#
 
-# an API key -- presented to an HTTP consumer as a bearer Authorization header.
+# Holds an API key as a secret that is redacted everywhere and is presented as a bearer Authorization header only to an effectful actor.
+#
+# A stzSecret of kind apikey. Its descriptor, its Show and any configuration it lands in print only
+# the redacted form. AuthorizationHeader is a governed reveal: a human or pi actor gets Bearer
+# followed by the key, an LLM actor or an unknown actor is refused. Use invented values in code and
+# tests.
+#
+#   receiver   o1 = new stzApiKey("stripe") o1.FromLiteral("invented-key-123")
+#   example    ? o1.Descriptor()
+#              #--> <secret 'stripe' (apikey) from literal>
+#              ? o1.AuthorizationHeader(HumanActor("alice"))
+#              #--> Bearer invented-key-123
+#              ? o1.IsRevealableBy(LLMActor("bot"))
+#              #--> 0
+#   see        stzSecret, stzSecretStore, stzToken
 class stzApiKey from stzSecret
 
+	# Builds an API key secret with a name, of kind apikey and no source yet.
+	#
+	#   pcName     the secret's name, shown in its redacted descriptor
+	#   returns    nothing; the object is built
+	#   see        AuthorizationHeader, FromLiteral
 	def init(pcName)
 		@cName = "" + pcName
 		@cKind = "apikey"
 
-	# "Bearer <key>" -- governed (needs the real key), so for an effectful actor.
+	# Returns the value of an HTTP Authorization header, Bearer followed by the key, which reveals the key.
+	#
+	#   poActor    the actor asking, which must be effectful and not sandboxed, such as a human or a
+	#              pi actor
+	#   returns    a text such as Bearer plus the key
+	#   note       never print or log the result: Descriptor and Show are the redacted forms
+	#   warning    raises a refusal error for an LLM actor or any other actor, noted in the security
+	#              ledger, and an error for a key with no source; a value that holds a line break,
+	#              such as the trailing newline of a file, goes into the header as it is and can add
+	#              header lines, so trim it first
+	#   see        Reveal, Descriptor
+	#@ aka  "Bearer <key>" -- governed (needs the real key), so for an effectful actor.
 	def AuthorizationHeader(poActor)
 		return "Bearer " + This.Reveal(poActor)
 
@@ -407,10 +437,27 @@ class stzPassword from stzSecret
  #  STZDEPLOYKEY #
 #==============#
 
-# a deploy / SSH private key -- a credential the deployment backend hands to
-# ssh/scp. A real backend writes the material to a private (chmod 600) file.
+# Holds a deploy or SSH private key as a secret that the deployment backend reads only through the governed reveal.
+#
+# A stzSecret of kind deploykey. KeyMaterial reveals the key to an effectful actor and refuses an
+# LLM actor. A real backend writes the material to a private file readable only by its owner. Use
+# invented values in code and tests.
+#
+#   receiver   o1 = new stzDeployKey("ci-deploy") o1.FromLiteral("invented-private-key-material")
+#   example    ? o1.Kind()
+#              #--> deploykey
+#              ? o1.Descriptor()
+#              #--> <secret 'ci-deploy' (deploykey) from literal>
+#              ? len(o1.KeyMaterial(HumanActor("alice")))
+#              #--> 29
+#   see        stzSecret, stzSecretStore
 class stzDeployKey from stzSecret
 
+	# Builds a deploy key secret with a name, of kind deploykey and no source yet.
+	#
+	#   pcName     the secret's name, shown in its redacted descriptor
+	#   returns    nothing; the object is built
+	#   see        KeyMaterial, FromLiteral
 	def init(pcName)
 		@cName = "" + pcName
 		@cKind = "deploykey"

@@ -1,0 +1,13 @@
+init | Opens a view on the environment of the running process: its variables, working folder, host name, user and CPU count. | nothing; the object is built | | Var, WorkingDirectory | the object holds no state, so every method reads the process itself
+Var | Returns the value of an environment variable; an empty text when it is not set. | a text | pcName=the variable's name | HasVar, SetVar | a name that is not a text raises an error; on Windows the name is matched without regard to case
+HasVar | TRUE if the variable is set to a non-empty value. | TRUE or FALSE | pcName=the variable's name | Var, SetVar | a variable set to an empty text counts as not set
+Variables | Returns all the variables of the process as a list of [ name, value ] pairs. | a list of pairs | | VariableNames, NumberOfVariables | the values can hold secrets: do not print the whole list
+VariableNames | Returns just the names of all the variables of the process. | a list of texts | | Variables, NumberOfVariables
+NumberOfVariables | Returns how many variables the process has. | a number | | Variables
+SetVar | Sets a variable for this process and the processes it starts; the change ends with the process. | TRUE if set | pcName=the variable's name; pcValue=its new value | UnsetVar, Var | both must be texts, else an error is raised; the real environment of the machine is not changed
+UnsetVar | Removes a variable from this process; one that was never set also answers TRUE. | TRUE | pcName=the variable's name | SetVar, HasVar | a name that is not a text raises an error
+WorkingDirectory | Returns the folder the process is working in. | a text | | ChangeDirectory | relative paths, and files written without a path, land here
+ChangeDirectory | Moves the process to another folder. | TRUE if it moved, FALSE if the folder does not exist | pcPath=the folder to move to | WorkingDirectory | a failed move leaves the folder as it was; the move affects the whole process, including how load resolves relative paths
+HostName | Returns the name of the machine. | a text | | UserName
+UserName | Returns the name of the user running the process. | a text | | HostName
+CpuCount | Returns how many logical processors the machine has. | a number | | HostName

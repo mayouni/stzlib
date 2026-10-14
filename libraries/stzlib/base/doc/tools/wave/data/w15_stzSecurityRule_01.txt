@@ -1,0 +1,1 @@
+init | Builds a security rule of that name in the security domain; it is a graph rule over a security graph. | nothing; the object is built | pcName=the rule's name | stzSecurityRuleSet, stzGraphRule

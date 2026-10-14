@@ -1,0 +1,12 @@
+init | Builds a mail capture sink with an empty inbox, a shared slot that copies of the object also use. | nothing; the object is built | | Send, Sent
+Send | Captures a message that would have been sent and delivers nothing, so a test can assert on it. | the sandbox itself, so calls chain | pcTo=the recipient; pcSubject=the subject line; pcBody=the message text | Sent, InboxOf | nothing is validated: a recipient or subject holding a line break, such as a header-injection attempt, is captured as given, so a test passes on input that a real mail adapter must refuse | the message gets a sequence number
+IsSandbox | TRUE if the object is a test double; here it always is, so the registry can refuse it in production. | TRUE | | stzServiceRegistry
+Sent | Returns every captured message, in order. | a list of hash lists [ :to, :subject, :body, :seq ] | | Last, InboxOf
+Count | Returns how many messages are captured. | a number | | Sent, IsEmpty
+IsEmpty | TRUE if nothing has been captured. | TRUE or FALSE | | Count
+Last | Returns the last captured message. | a hash list [ :to, :subject, :body, :seq ]; an empty list when none | | LastBody, LastTo
+LastBody | Returns the body of the last captured message, such as a magic link or a one-time code. | a text; empty when none | | Last
+LastTo | Returns the recipient of the last captured message. | a text; empty when none | | Last
+InboxOf | Returns the captured messages addressed to one recipient. | a list of hash lists | pcTo=the recipient, matched exactly, case included | Sent
+Clear | Removes every captured message from the sink, keeping the sink itself. | nothing; use ClearQ to chain | | Sent
+Show | Prints one line with the number of captured messages. | nothing; it prints | | Count

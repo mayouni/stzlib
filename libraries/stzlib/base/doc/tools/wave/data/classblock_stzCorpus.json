@@ -1,0 +1,20 @@
+{
+ "brief": "Holds a collection of texts and counts their words, scores texts with a bigram language model and ranks the terms of each document by TF-IDF.",
+ "detail": "Your texts are the corpus: pass one text or a list of texts, each one a document, and nothing is downloaded. The counting itself runs in the Zig engine, built on the first question and kept up to date as documents are added; FreeModel releases it. Words are cut and lowercased by the engine with Unicode rules, so Hebrew, Arabic and emoji count like any other word. Documents are numbered from 1. A stzString or stzText is not needed to build one, and the corpus is the entry object of the corpora shelf of the linguistic domain.",
+ "receiver": "o1 = new stzCorpus([ \"the fox jumps over the dog\", \"the dog sleeps\", \"שלום עולם שלום\" ])",
+ "example": [
+  "? o1.NumberOfDocuments()",
+  "#--> 3",
+  "? o1.FreqOf(\"the\")",
+  "#--> 3",
+  "? o1.FreqOf(\"שלום\")",
+  "#--> 2",
+  "? @@( o1.MostFrequent(1) )",
+  "#--> [ [ \"the\", 3 ] ]"
+ ],
+ "see": [
+  "stzText",
+  "stzWordStream",
+  "stzString"
+ ]
+}

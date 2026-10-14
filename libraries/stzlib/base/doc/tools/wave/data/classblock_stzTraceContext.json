@@ -1,0 +1,16 @@
+{
+ "brief": "Carries a W3C traceparent so one request can be followed as it hops across services and agent steps.",
+ "detail": "A new object holds a fresh sampled context. SetHeader loads the header of an incoming request, and ChildHeader builds the header to propagate to a downstream call: same trace id, new span id. It is a pure value type with no I/O; the engine does the parsing and the random ids. A header that is not well-formed makes IsValid answer FALSE rather than raise.",
+ "receiver": "o1 = new stzTraceContext()\no1.SetHeader(\"00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01\")",
+ "example": [
+  "? o1.TraceId()",
+  "#--> 0af7651916cd43dd8448eb211c80319c",
+  "? o1.SpanId()",
+  "#--> b7ad6b7169203331",
+  "? o1.IsSampled()",
+  "#--> 1",
+  "? left(o1.ChildHeader(), 36)",
+  "#--> 00-0af7651916cd43dd8448eb211c80319c-"
+ ],
+ "see": ["stzLatencyHistogram", "stzEngineTimeline"]
+}

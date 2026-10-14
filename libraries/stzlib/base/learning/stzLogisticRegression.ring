@@ -9,6 +9,27 @@
 #   oLR.Train(200)
 #   ? oLR.Classify([1, 0])   ? oLR.Probability([1, 0])   ? oLR.Why()
 
+# Fits a binary logistic regression on numeric features and answers the probability of the second label.
+#
+# Training runs in the engine by gradient descent for the number of epochs given. The model needs
+# exactly two labels; the one that appears second in the training set is the positive class.
+# Probability answers its chance, Classify applies the 0.5 threshold, and Why states the weights
+# behind the last answer. Scale features of very different sizes first. TrainingAccuracy scores the
+# model on its own training examples, which says it learned them and not that it will generalise.
+#
+#   receiver   o1 = new stzLogisticRegression(new stzTrainingSet([ [[1.0, 1.0], "low"], [[1.5, 0.8],
+#              "low"], [[0.8, 1.2], "low"], [[8.0, 8.0], "high"], [[7.5, 8.5], "high"], [[8.2, 7.9],
+#              "high"] ]))
+#   example    o1.Train(200)
+#              ? o1.Classify([8, 8])
+#              #--> high
+#              ? o1.Classify([1, 1])
+#              #--> low
+#              ? o1.TrainingAccuracy()
+#              #--> 1
+#              ? o1.Probability([8, 8]) > 0.9
+#              #--> 1
+#   see        stzTrainingSet, stzNaiveBayes, stzNeuralNetwork
 class stzLogisticRegression from stzObject
 
 	@oTs = ""
@@ -20,6 +41,13 @@ class stzLogisticRegression from stzObject
 	@cWhy = ""
 	@bTrained = 0
 
+	# Builds a binary logistic regression over a training set; the set must hold exactly two labels.
+	#
+	#   poTrainingSet   a stzTrainingSet of numeric features with two labels
+	#   returns         nothing; the object is built
+	#   note            the second label to appear is the positive class that Probability measures
+	#   warning         raises an error naming the count when the set has one label or more than two
+	#   see             Train, TrainingSetQ
 	def init(poTrainingSet)
 		@oTs = poTrainingSet
 		@acLabels = @oTs.Labels()
@@ -28,47 +56,36 @@ class stzLogisticRegression from stzObject
 				len(@acLabels) + ").")
 		ok
 
-	# THE HELD SET IS LIVE THROUGH HERE. Ring COPIES an object into an
-	# attribute, so the set handed to the constructor is a SNAPSHOT: growing
-	# the caller's own object afterwards would NOT reach this learner. Grow it
-	# through this accessor -- oLearner.TrainingSetQ().AddExample(...) -- which
-	# reaches the real held set (accessor + method call is live in Ring).
+	# Returns the training set the model holds.
+	#
+	#   returns    a stzTrainingSet
+	#   see        Train
+	#@ aka  THE HELD SET IS LIVE THROUGH HERE. Ring COPIES an object into an attribute, so the set handed to the constructor is a SNAPSHOT: growing the caller's own object afterwards would NOT reach this learner. Grow it through this accessor -- oLearner.TrainingSetQ().AddExample(...) -- which reaches the real held set (accessor + method call is live in Ring).
 	def TrainingSetQ()
 		return @oTs
 
+	# Sets the step size of the gradient descent.
+	#
+	#   n          the learning rate, above 0
+	#   returns    the model itself, so calls chain
+	#   note       a value of 0 or less is ignored without a message
+	#   see        Train
 	def SetLearningRate(n)
 		if n > 0
 			@nLr = n
 		ok
 		return This
 
-	# THE LOOP RUNS IN THE ENGINE (numeric phase 5), and the arithmetic is
-	# deliberately unchanged rather than merely equivalent.
+	# Fits the weights and the bias by gradient descent in the engine, for a fixed number of epochs.
 	#
-	# Gradient descent is a feedback loop -- each step's weights decide the next
-	# step's gradient -- so a last-bit difference does not stay a last-bit
-	# difference, it compounds. This class promises reproducible runs, and moving
-	# the loop is only allowed to keep that promise. So `logistic.zig` keeps the
-	# updates sequential per example, accumulates the dot product in index order
-	# (a lane-parallel reduction would be faster and would change every model),
-	# and saturates at the same |z| > 35. Only the weight update vectorises, and
-	# only because `w[f] += c * x[f]` is elementwise: lane width cannot change an
-	# individual result.
-	#
-	# Measured, 5000 examples x 16 features x 100 epochs: 10.0s -> 0.062s (161x),
-	# and 20000 x 32 x 100 -- previously out of reach -- in 0.71s. Hoisting the old
-	# Ring loop by hand (the label test done once instead of once per epoch, the
-	# feature row never passed as an argument) gave 5.0s with bit-identical
-	# weights, so half of what was paid was interpreter overhead and half was
-	# arithmetic. The engine collects both.
-	#
-	# The drift against the old loop was measured, not assumed, and it is never
-	# zero: 1e-16 after ONE epoch, 1e-15 at ten, 1e-14 at a hundred and still
-	# 1e-14 at five hundred. That is the one thing that could not be held fixed --
-	# Ring's exp is the C library's, the engine's is Zig's, they agree to within
-	# an ulp, and gradient descent feeds each step into the next so the difference
-	# grows about a decade per five hundred epochs. Against weights of magnitude
-	# 1 to 10 it stays around 1e-15 relative, and both loops classify identically.
+	#   nEpochs    the number of passes over the examples
+	#   returns    the model itself, so calls chain
+	#   note       training again refits from zero; with 0 epochs the weights stay 0 and every
+	#              probability is 0.5
+	#   warning    raises an error for an empty set and for an example whose width differs from the
+	#              first
+	#   see        Probability, TrainingAccuracy
+	#@ aka  THE LOOP RUNS IN THE ENGINE (numeric phase 5), and the arithmetic is deliberately unchanged rather than merely equivalent.
 	def Train(nEpochs)
 		_aEx_ = @oTs.Examples()
 		_nEx_ = len(_aEx_)
@@ -122,11 +139,14 @@ class stzLogisticRegression from stzObject
 		@bTrained = 1
 		return This
 
-	# SCORED BY THE RULE IT WAS FITTED BY. This goes through the engine too, and
-	# not for speed -- one row is dominated by marshalling. It is here because
-	# Ring's exp and Zig's exp agree only to within an ulp, and a model whose
-	# predictions come from a slightly different function than its fit is a
-	# question nobody should have to think about. One definition, both ends.
+	# Returns the model's probability that a feature list belongs to the positive class, the second label.
+	#
+	#   paFeatures   the numbers describing the thing to score, as many as the model was fitted on
+	#   returns      a number from 0 to 1
+	#   warning      raises an error telling to call Train first, and one naming the width when the
+	#                query does not match
+	#   see          Probabilities, Classify
+	#@ aka  SCORED BY THE RULE IT WAS FITTED BY. This goes through the engine too, and not for speed -- one row is dominated by marshalling. It is here because Ring's exp and Zig's exp agree only to within an ulp, and a model whose predictions come from a slightly different function than its fit is a question nobody should have to think about. One definition, both ends.
 	def Probability(paFeatures)
 		if @bTrained = 0
 			stzraise("Train() me first.")
@@ -145,9 +165,14 @@ class stzLogisticRegression from stzObject
 		ok
 		return _aP_[1]
 
-	# Probabilities for many rows in ONE crossing. TrainingAccuracy() below is the
-	# reason this exists: it scores every training example, and a round trip per
-	# row would have made the diagnostic cost more than the fit it diagnoses.
+	# Returns the probability for many feature lists in one call into the engine.
+	#
+	#   paRows     a list of feature lists, each as wide as the fitted model
+	#   returns    a list of numbers, one per row; an empty list for no rows
+	#   warning    raises an error telling to call Train first, and one naming the row of the wrong
+	#              width
+	#   see        Probability
+	#@ aka  Probabilities for many rows in ONE crossing. TrainingAccuracy() below is the reason this exists: it scores every training example, and a round trip per row would have made the diagnostic cost more than the fit it diagnoses.
 	def Probabilities(paRows)
 		if @bTrained = 0
 			stzraise("Train() me first.")
@@ -173,6 +198,12 @@ class stzLogisticRegression from stzObject
 		ok
 		return _aP_
 
+	# Returns the label the model predicts: the second label when its probability reaches 0.5, else the first.
+	#
+	#   paFeatures   the numbers describing the thing to classify
+	#   returns      a text, the label
+	#   warning      raises the errors of Probability
+	#   see          Probability, Why
 	def Classify(paFeatures)
 		_nP_ = This.Probability(paFeatures)
 		_cOut_ = @acLabels[1]
@@ -185,28 +216,25 @@ class stzLogisticRegression from stzObject
 		$nStzLastCertainty = 1
 		return _cOut_
 
+	# Returns the fitted weights, one per feature.
+	#
+	#   returns    a list of numbers; empty before Train
+	#   see        Bias
 	def Weights()
 		return @aW
 
+	# Returns the fitted bias, the term added to the weighted sum.
+	#
+	#   returns    a number; 0 before Train
+	#   see        Weights
 	def Bias()
 		return @nB
 
-	# How well the model fits the data it was TRAINED on.
+	# Returns the share of the training examples the model labels correctly.
 	#
-	# This exists because the way this class fails is SILENT and CONFIDENT.
-	# Gradient descent on UNSCALED features diverges: with values in the tens
-	# of thousands and the default learning rate, each weight update is
-	# thousands wide, the sigmoid saturates, and the model settles on a
-	# confidently WRONG answer -- Probability() returns exactly 1 or 0, which
-	# reads as certainty. Measured on identical data: features 1000..79000
-	# gave weights [5350, 5350] and misclassified a training-range point,
-	# while the SAME data scaled to 0..1 gave weights [8.06, 8.06] and
-	# answered correctly.
-	#
-	# Needing standardised features is the normal requirement for stochastic
-	# gradient descent, not a defect here -- but nothing surfaced the failure.
-	# This does: a diverged model scores around chance on data it has already
-	# seen, where a converged one scores near 1.
+	#   returns    a number from 0 to 1; 0 before Train
+	#   see        Classify, Train
+	#@ aka  How well the model fits the data it was TRAINED on.
 	def TrainingAccuracy()
 		if NOT @bTrained
 			return 0
@@ -241,6 +269,10 @@ class stzLogisticRegression from stzObject
 
 		return StzAccuracy(_acTaPred_, _acTaTruth_)
 
+	# Returns the last answer of Classify as text: the probability, the epochs, the label chosen, the weights and the bias.
+	#
+	#   returns    a text; empty before the first Classify
+	#   see        Classify
 	def Why()
 		return @cWhy
 

@@ -1,0 +1,12 @@
+{
+ "brief": "Answers whether a kind must be something, by looking the descriptor up among the constraints declared for the kind.",
+ "detail": "MustQ(\"score\").BeA(:Number) is 1 when being a number is one of the declared constraints of score: necessity is entailment, and no value is involved. A kind with no declared constraint answers 0. Why() gives the reason and the verdict joins the ask-record.",
+ "receiver": "ConstrainQ(\"scoreC\").ToBeQ(:Number)\no1 = MustQ(\"scoreC\")",
+ "example": [
+  "? o1.BeA(:Number)",
+  "#--> 1",
+  "? o1.BeA(:Even)",
+  "#--> 0"
+ ],
+ "see": ["stzCan", "stzKindConstraint", "Why"]
+}

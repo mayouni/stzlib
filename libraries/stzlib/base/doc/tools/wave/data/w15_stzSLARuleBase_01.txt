@@ -1,0 +1,1 @@
+init | Builds the set of two service-level rules, in the SLA Compliance set. | nothing; the object is built | | stzWorkflow, stzBPMRuleBase | | the rules are sla_defined, which wants a critical step to have an sla above 0, and sla_compliance, which flags a step whose duration exceeds its sla; Check(oWorkflow) answers the findings

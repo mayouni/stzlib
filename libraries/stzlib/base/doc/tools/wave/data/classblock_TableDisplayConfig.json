@@ -1,0 +1,22 @@
+{
+ "brief": "Measures a two-dimension pivot table and computes the width of every column, the layout a console renderer draws from.",
+ "detail": "It is built from the pivot as a list of rows: a header row (the row labels, one dim1|dim2 header per data column, the total label), the data rows and a row of totals. It measures the content into aContentDimensions, then turns measures and settings into aCalculatedLayout; both are attributes you read directly. The settings are in aSettings (MinCellWidth, MaxCellWidth, MaxHeaderWidth, DefaultPadding, CellGrowthRatio and others), and SetSetting recomputes after each change. Known limits: it needs exactly two column dimensions, and today the width of a data column ignores its content, which the warnings on CalculateLayout and MeasureContentDimensions explain.",
+ "receiver": "o1 = new TableDisplayConfig([ [ \"Dept\", \"2024|Q1\", \"2024|Q2\", \"Total\" ], [ \"Sales\", 100, 200, 300 ], [ \"Support\", 50, 60, 110 ], [ \"Total\", 150, 260, 410 ] ], [ \"Dept\" ], [ \"Year\", \"Quarter\" ], \"Total\")",
+ "example": [
+  "? @@( o1.GetUniqueColumnDimensionValues() )",
+  "#--> [ [ \"2024\" ], [ \"Q1\", \"Q2\" ] ]",
+  "? @@( o1.aCalculatedLayout[:RowLabelWidths] )",
+  "#--> [ 11 ]",
+  "? o1.aCalculatedLayout[:TotalColumnWidth]",
+  "#--> 8",
+  "o1.SetSetting(:MinCellWidth, 8)",
+  "? o1.aSettings[:MinCellWidth]",
+  "#--> 8"
+ ],
+ "see": [
+  "TableRenderer",
+  "TableConfigManager",
+  "TableThemeManager",
+  "stzPivotTable"
+ ]
+}

@@ -35,6 +35,27 @@ func StzVaultHttpResolver(pcAddress, poTokenSecret, poActor)
 	return new stzVaultHttpResolver(pcAddress, poTokenSecret, poActor)
 
 
+# Resolves vault-sourced secrets from a real HashiCorp Vault or OpenBao server over its HTTP API, without keeping the token.
+#
+# It satisfies the stzVaultResolver contract, Resolve and Has, so a secret revealed through
+# RevealVia, or the key of a sealed store, comes from the secret manager itself. A locator is
+# path#field; a path holding /data/ is read as KV version 2, any other as KV version 1. It refuses
+# by construction an http address that is not loopback, since the token would cross the network in
+# clear, holds the token only as a stzSecret revealed through the actor gate for each request, and
+# puts it in no message or event. The actor who asks for a secret is gated separately, by the
+# secret's own RevealVia, before the resolver is called. The documentation here was run only against
+# a loopback port that never answers, never against a real vault.
+#
+#   receiver   o1 = new stzVaultHttpResolver("https://vault.internal:8200/", StzSecretQ("vault-
+#              token"), HumanActor("svc"))
+#   example    ? o1.Address()
+#              #--> https://vault.internal:8200
+#              ? o1.LastStatus()
+#              #--> 0
+#              o2 = new stzVaultHttpResolver("http://localhost:8200", StzSecretQ("vault-token"), HumanActor("svc"))
+#              ? o2.Address()
+#              #--> http://localhost:8200
+#   see        stzVaultResolver, stzSecret, stzSecretStore
 class stzVaultHttpResolver from stzObject
 
 	@cAddress = ""
@@ -43,6 +64,19 @@ class stzVaultHttpResolver from stzObject
 	@nTimeoutMs = 5000
 	@nLastStatus = 0
 
+	# Builds a resolver for a HashiCorp Vault or OpenBao server, refusing an address over which the token would travel in clear.
+	#
+	#   pcAddress       the server address, https:// or http:// to 127.0.0.1, localhost or [::1]
+	#                   only, with trailing slashes removed
+	#   poTokenSecret   a stzSecret holding the token
+	#   poActor         the service identity allowed to reveal the token
+	#   returns         nothing; the object is built
+	#   note            the token is never kept in this object: it is revealed for each request
+	#                   through the actor gate
+	#   warning         raises an error for any other http address, including lookalikes such as
+	#                   http://127.0.0.1.evil.example and http://127.0.0.1@evil.example, and one for
+	#                   a token that is not an object
+	#   see             Resolve, Has
 	def init(pcAddress, poTokenSecret, poActor)
 		_c_ = ring_trim("" + pcAddress)
 		while StzRight(_c_, 1) = "/"
@@ -59,22 +93,46 @@ class stzVaultHttpResolver from stzObject
 		@oToken = poTokenSecret
 		@oActor = poActor
 
+	# Returns the server address in use, trimmed of trailing slashes.
+	#
+	#   returns    a text
+	#   see        init
 	def Address()
 		return @cAddress
 
+	# Sets how long a request may take before it counts as unanswered.
+	#
+	#   pnMs       the timeout in milliseconds
+	#   returns    the resolver itself, so calls chain
+	#   see        LastStatus
 	def SetTimeout(pnMs)
 		@nTimeoutMs = pnMs
 		return This
 
-	# the HTTP status of the last request (0 = no answer) -- for diagnostics
+	# Returns the HTTP status of the last request, for diagnosis.
+	#
+	#   returns    a number; 0 before any request, and -1 when the server could not be reached or
+	#              did not answer in time
+	#   see        Resolve, Has
+	#@ aka  the HTTP status of the last request (0 = no answer) -- for diagnostics
 	def LastStatus()
 		return @nLastStatus
 
-	  #-- the contract ------------------------------------------------------
-
-	# The value of the field the locator names. Raises -- never returns "" --
-	# when the vault refuses, has no such secret, has no such field, or does
-	# not answer.
+	# Reads the field a locator names from the vault, as the vault contract requires, and raises when the value cannot be had.
+	#
+	#   pcLocator   path#field, the path after /v1/ and then the field
+	#   returns     a text, the field's value
+	#   note        the token goes in the X-Vault-Token header of one request and appears in no
+	#               message or event; not run against a real vault when documented, only against a
+	#               loopback port that never answers
+	#   warning     raises an error for a locator without a path or a field, for a refusal (403,
+	#               noted to the security ledger), for a missing secret (404) and for a missing
+	#               field; with no answer it raises Vault answered -1, because the did not answer
+	#               message is written for status 0; the locator is appended to the URL as given, so
+	#               never build one from untrusted input, and it is quoted in errors without
+	#               escaping
+	#   see         Has, Address
+	#@ aka  -- the contract ------------------------------------------------------
 	def Resolve(pcLocator)
 		_aL_ = This._Split(pcLocator)
 		_aDoc_ = This._Read(_aL_[1])
@@ -84,8 +142,15 @@ class stzVaultHttpResolver from stzObject
 		ok
 		return "" + _aData_[_aL_[2]]
 
-	# 1 when the vault holds the path AND the field, 0 otherwise (a refusal
-	# or an unreachable vault raises: "cannot tell" is not "absent").
+	# TRUE if the vault holds the path and the field; a missing secret answers FALSE, while a refusal or an unreachable vault raises.
+	#
+	#   pcLocator   path#field, as for Resolve
+	#   returns     TRUE or FALSE
+	#   note        a 404 is the only answer that gives FALSE
+	#   warning     raises as Resolve does for a malformed locator, a refusal or no answer, since
+	#               cannot tell is not absent
+	#   see         Resolve
+	#@ aka  1 when the vault holds the path AND the field, 0 otherwise (a refusal or an unreachable vault raises: "cannot tell" is not "absent").
 	def Has(pcLocator)
 		_aL_ = This._Split(pcLocator)
 		_aDoc_ = This._Get(_aL_[1])

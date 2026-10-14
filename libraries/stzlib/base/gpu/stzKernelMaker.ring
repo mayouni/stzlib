@@ -25,6 +25,25 @@
 func StzKernelMakerQ()
 	return new stzKernelMaker
 
+# Describes an elementwise GPU computation with vectors, scalars and one assignment, and has the engine generate and check the WGSL kernel.
+#
+# Declare the inputs with TakesVector, the parameters with TakesScalar, the output with
+# ReturnsVector and the body with ForEachElement, an assignment such as { @C = alpha * @A + @B }.
+# ToWGSL returns the generated kernel verbatim, nothing hidden, and needs no GPU, so kernels can be
+# written and inspected on a machine without one. Anything outside the declared names and the
+# allowed functions refuses at ToWGSL with a message naming it. Limits: up to 5 input vectors, 14
+# scalars and exactly one output; every value is f32 on the device. Hand the maker to stzGpu to run
+# it.
+#
+#   receiver   o1 = new stzKernelMaker o1.TakesVector(:A) o1.TakesVector(:B) o1.TakesScalar(:alpha)
+#              o1.ReturnsVector(:C) o1.ForEachElement("{ @C = alpha * @A + @B }")
+#   example    ? @@( o1.InputNames() )
+#              #--> [ "a", "b" ]
+#              ? o1.OutputName()
+#              #--> c
+#              ? len(o1.ToWGSL()) > 100
+#              #--> 1
+#   see        stzGpu, stzGpuBuffer
 class stzKernelMaker from stzObject
 
 	@aIns = []
@@ -33,39 +52,85 @@ class stzKernelMaker from stzObject
 	@cBody = ""
 	@cWgsl = ""
 
+	# Creates an empty kernel description, to be filled with the vectors, scalars, output and body of an elementwise computation.
+	#
+	#   returns    nothing; the object is built
+	#   see        TakesVector, ToWGSL
 	def init()
 
+	# Declares an input vector by name; a kernel takes up to 5.
+	#
+	#   pcName     the vector's name, stored in lower case and used as @Name in the body
+	#   returns    the maker itself, so calls chain
+	#   warning    declaring a vector clears the cached kernel text
+	#   see        TakesScalar, ForEachElement
 	def TakesVector(pcName)
 		@aIns + lower("" + pcName)
 		@cWgsl = ""
 		return This
 
+	# Declares a scalar parameter by name; a kernel takes up to 14.
+	#
+	#   pcName     the scalar's name, stored in lower case and used bare in the body
+	#   returns    the maker itself, so calls chain
+	#   warning    declaring a scalar clears the cached kernel text
+	#   see        TakesVector, ForEachElement
 	def TakesScalar(pcName)
 		@aScalars + lower("" + pcName)
 		@cWgsl = ""
 		return This
 
+	# Declares the single output vector by name.
+	#
+	#   pcName     the output's name, stored in lower case and assigned as @Name in the body
+	#   returns    the maker itself, so calls chain
+	#   warning    a kernel without an output refuses at ToWGSL
+	#   see        ForEachElement, OutputName
 	def ReturnsVector(pcName)
 		@cOut = lower("" + pcName)
 		@cWgsl = ""
 		return This
 
+	# Sets the body: one assignment from an expression over the declared vectors, scalars, numbers and a fixed set of functions.
+	#
+	#   pcW        the body in braces, such as '{ @C = alpha * @A + @B }'
+	#   returns    the maker itself, so calls chain
+	#   warning    the expression may call abs, min, max, sqrt, exp, log, sin, cos, tan, floor,
+	#              ceil, pow, clamp, sign, fract and round; anything else refuses at ToWGSL naming
+	#              the offender
+	#   see        ToWGSL, Spec
 	def ForEachElement(pcW)
 		@cBody = "" + pcW
 		@cWgsl = ""
 		return This
 
+	# Returns the declared input vectors, lower-cased, in the order declared.
+	#
+	#   returns    a list of texts
+	#   see        TakesVector, ScalarNames
 	def InputNames()
 		return @aIns
 
+	# Returns the declared scalars, lower-cased, in the order declared.
+	#
+	#   returns    a list of texts
+	#   see        TakesScalar, InputNames
 	def ScalarNames()
 		return @aScalars
 
+	# Returns the declared output vector, lower-cased; empty when none is declared.
+	#
+	#   returns    a text
+	#   see        ReturnsVector
 	def OutputName()
 		return @cOut
 
-	# The engine's spec format -- the declarations, collapsed. Exposed for
-	# transparency and for the guard.
+	# Returns the declarations in the engine's spec format: one in, scalar or out line each, then the body.
+	#
+	#   returns    a text of several lines
+	#   warning    an empty maker gives an empty text
+	#   see        ToWGSL
+	#@ aka  The engine's spec format -- the declarations, collapsed. Exposed for transparency and for the guard.
 	def Spec()
 		_c_ = ""
 		_nL_ = len(@aIns)
@@ -84,9 +149,14 @@ class stzKernelMaker from stzObject
 		ok
 		return _c_
 
-	# Transpile (engine-side) and cache. Pure text work: needs NO device,
-	# so kernels can be authored and inspected on GPU-less machines.
-	# Raises with the engine's refusal message on a bad description.
+	# Returns the WGSL compute kernel the engine generates from the declarations, after checking them; needs no GPU.
+	#
+	#   returns    a text, the kernel source
+	#   note       run: only the text transpiler of the engine, no device was opened
+	#   warning    raises an error with the engine's message for a missing output, an unknown name
+	#              or a function outside the list; the text is cached until a declaration changes
+	#   see        Spec, ForEachElement
+	#@ aka  Transpile (engine-side) and cache. Pure text work: needs NO device, so kernels can be authored and inspected on GPU-less machines. Raises with the engine's refusal message on a bad description.
 	def ToWGSL()
 		if @cWgsl != ""
 			return @cWgsl

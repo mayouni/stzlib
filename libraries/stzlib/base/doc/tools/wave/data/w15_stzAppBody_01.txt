@@ -1,0 +1,4 @@
+init | Builds a body snapshot from the list of kinds of storage the world lives in. | nothing; the object is built | paKinds=the list of kinds of body, such as [ :graphdb, :files ] | Label, HasKind
+Label | Returns the kinds joined with a plus sign, an empty text for no kind. | a text such as graph + files | | HasKind, Narrate
+HasKind | TRUE if one of the body's kinds equals the given kind, compared without regard to case. | 1 or 0, numbers | pKind=the kind to look for | Label
+Narrate | Returns the body as one sentence naming its kinds. | a text such as lives in graph + files | | Label

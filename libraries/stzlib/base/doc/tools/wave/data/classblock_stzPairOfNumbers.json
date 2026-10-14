@@ -1,0 +1,19 @@
+{
+ "brief": "Holds two numbers and compares them: least common multiple, greatest common divisor, speed-up factor and percentage gain.",
+ "detail": "Build one with new stzPairOfNumbers([ a, b ]) or StzPairOfNumbersQ([ a, b ]); it is a stzPair, so Item1, Item2, Swap and the rest of the pair vocabulary are inherited. The measures are written for a before and an after, such as two timings: SpeedUp is a divided by b, GainFactor is b divided by a, PerfGain is the drop as a percentage of a, Gain is the rise as a percentage of b. Global functions of the same names (SpeedUp, PerfGain, GainFactor, RelativeGain, LeastCommonMuliple, GreatestCommonDividor) take the two numbers directly. BothAreBetween has a defect with a large first number.",
+ "receiver": "o1 = new stzPairOfNumbers([ 12, 18 ])",
+ "example": [
+  "? o1.GreatestCommonDividor()",
+  "#--> 6",
+  "? o1.LeastCommonMuliple()",
+  "#--> 36",
+  "? o1.PerfGain()",
+  "#--> -50",
+  "? SpeedUp(10, 2)",
+  "#--> 5"
+ ],
+ "see": [
+  "stzPair",
+  "stzNumber"
+ ]
+}

@@ -36,6 +36,38 @@
 func StzVoicePoolOfQ(pnRate)
 	return new stzVoicePool(pnRate)
 
+# Fires a sound now, again and again, without building anything: the pool is built once and mixed into one stream.
+#
+# A game fires the same footstep thirty times a minute and two overlap, and building a graph per
+# shot would allocate inside the frame that has to draw. The pool is built once, prepared once and
+# mixed into one stream, and firing a voice is an atomic flag the render picks up at its next block.
+# Slots are the policy: a voice of four slots sounds four times at once and the fifth fire steals
+# the oldest, counted and not hidden. Each voice has its own gain bus so one can be ducked with a
+# ramp, never a jump. The pool runs on a stzSoundTransport, so its position is the plane's one
+# device clock. There is no pitch or volume per shot and no panning. Start opens a sound card: for
+# this reference it was never run, the example builds the pool and reads what needs no device, and
+# nothing was heard (UNPERCEIVED).
+#
+#   receiver   o1 = StzVoicePoolOfQ(48000) oBlip = StzSoundScoreQ().Note(880, 0.2).ToSound()
+#              o1.AddVoice(:blip, oBlip, 4) o1.AddToneVoice(:coin, :Square, 880, 0.05, 3)
+#   example    ? @@( o1.VoiceNames() )
+#              #--> [ "blip", "coin" ]
+#              ? o1.SlotsOf(:blip)
+#              #--> 4
+#              ? o1.SlotsOf(:coin)
+#              #--> 3
+#              ? o1.IsStarted()
+#              #--> 0
+#              ? o1.FiresOf(:blip)
+#              #--> 0
+#              o1.Fire(:blip)
+#              ? o1.LastError()
+#              #--> Fire: call Start() first
+#              ? o1.Refusals()
+#              #--> 1
+#              ? o1.VoiceGain(:blip)
+#              #--> -1
+#   see        stzSoundTransport, stzSoundGraph, stzSoundLive, stzSoundScheduler
 class stzVoicePool
 
 	@oGraph = NULL
@@ -61,16 +93,30 @@ class stzVoicePool
 	@cLastError = ""
 	@nRefusals = 0
 
+	# Builds an empty voice pool and its audio graph, stereo at a sample rate, without opening a device.
+	#
+	#   pnRate     the sample rate in hertz
+	#   returns    nothing; the object is built
+	#   note       StzVoicePoolOfQ builds the same object; nothing is audible until Start
+	#   see        AddVoice, Start
 	def init(pnRate)
 		@nRate = pnRate
 		if @nRate <= 0  @nRate = 48000 ok
 		@oGraph = new stzSoundGraph()
 		@oGraph.Reshape(2, @nRate)
 
-	#-- building it ---------------------------------------------------------
-
-	# A voice made from an existing sound. pnSlots is how many of it may
-	# sound at the same time.
+	# Adds a voice made from an existing sound, with a number of slots so it can overlap itself.
+	#
+	#   pName      the voice name, matched in lower case
+	#   poSound    the stzSound to fire
+	#   pnSlots    how many shots may sound at once, 1 or more
+	#   returns    nothing; the voice is added. AddVoiceQ returns the pool for chaining
+	#   note       a slot count below 1 gives 1; the sound is built into the graph once and Fire
+	#              plays that one sound: there is no pitch or volume for each shot and no panning
+	#   warning    adding to a pool that is already started counts a refusal and sets LastError to
+	#              AddVoice: the pool is already started -- build it first
+	#   see        AddToneVoice, Fire
+	#@ aka  -- building it ---------------------------------------------------------
 	def AddVoice(pName, poSound, pnSlots)
 		if @bStarted
 			@cLastError = "AddVoice: the pool is already started -- build it first"
@@ -95,8 +141,19 @@ class stzVoicePool
 		This.AddVoice(pName, poSound, pnSlots)
 		return This
 
-	# A voice made from an oscillator and an envelope -- a blip, a coin, a
-	# beep. pnSeconds is how long one shot lasts.
+	# Adds a voice made from an oscillator and a short envelope, such as a blip or a coin.
+	#
+	#   pName       the voice name, matched in lower case
+	#   pWave       the waveform, such as :Square or :Sine
+	#   pnHz        the pitch in hertz
+	#   pnSeconds   how long one shot lasts
+	#   pnSlots     how many shots may sound at once, 1 or more
+	#   returns     nothing; the voice is added. AddToneVoiceQ returns the pool for chaining
+	#   note        a slot count below 1 gives 1; each slot has its own oscillator and an envelope
+	#               with a 4 ms attack
+	#   warning     adding to a started pool counts a refusal as AddVoice does
+	#   see         AddVoice, Fire
+	#@ aka  A voice made from an oscillator and an envelope -- a blip, a coin, a beep. pnSeconds is how long one shot lasts.
 	def AddToneVoice(pName, pWave, pnHz, pnSeconds, pnSlots)
 		if @bStarted
 			@cLastError = "AddToneVoice: the pool is already started"
@@ -119,9 +176,17 @@ class stzVoicePool
 		This.AddToneVoice(pName, pWave, pnHz, pnSeconds, pnSlots)
 		return This
 
-	# Mix everything, open the device, and start rendering silence. From here
-	# the graph's shape is frozen -- the two-phase contract -- and firing is
-	# the only thing left that costs anything.
+	# Mixes every voice through its own gain bus, opens the device and starts the render, silent until a voice is fired.
+	#
+	#   returns    the pool itself, so calls chain
+	#   note       from here the graph shape is frozen; every voice starts spent, rendered past its
+	#              longest shot and discarded, so the pool makes no noise when it opens; StartQ is
+	#              the same call
+	#   warning    not run: it opens a sound card; with no voice it counts a refusal and sets
+	#              LastError to Start: the pool has no voices, which was run, and a pool that cannot
+	#              start is left not started with the device error in LastError
+	#   see        Fire, Stop, IsStarted
+	#@ aka  Mix everything, open the device, and start rendering silence. From here the graph's shape is frozen -- the two-phase contract -- and firing is the only thing left that costs anything.
 	def Start()
 		if @bStarted  return This ok
 		if len(@aVoices) = 0
@@ -165,10 +230,18 @@ class stzVoicePool
 		This.Start()
 		return This
 
-	#-- using it ------------------------------------------------------------
-
-	# Sound this voice, now. Round-robins the slots, so the same sound can
-	# overlap itself up to as many times as it has slots.
+	# Sounds a voice now, returning at once; the render picks the shot up at its next block.
+	#
+	#   pName      the voice name
+	#   returns    the pool itself, so calls chain; FireQ is the same call
+	#   note       slots are taken in turn, so a voice with four slots can sound four times at once
+	#              and the fifth shot steals the oldest; a steal is counted from the clock only when
+	#              the slot had not finished, so a shot that lands on a spent slot is not a steal
+	#   warning    an unknown name counts a refusal and sets LastError to no voice is named ...; a
+	#              pool not started counts a refusal and sets LastError to Fire: call Start() first,
+	#              both run; the started path was not run: it posts a trigger to the render thread
+	#   see        Start, StealsOf, FiresOf
+	#@ aka  -- using it ------------------------------------------------------------
 	def Fire(pName)
 		_i_ = This._IndexOf(pName)
 		if _i_ = 0
@@ -202,21 +275,20 @@ class stzVoicePool
 		This.Fire(pName)
 		return This
 
-	#-- SS3: DUCKING -------------------------------------------------------
+	# Ramps the gain of one voice bus, so one voice can be turned down without touching another.
 	#
-	# THE KILL CRITERION this was built against: *if ducking cannot be made
-	# click-free at the 10 ms ramp SN3 measured, it is dropped in favour of
-	# drop-and-count -- a missing sound is better than a click.*
-	#
-	# So the gain is RAMPED, never assigned. A gain that jumps is a step
-	# discontinuity in the waveform, and a step is a click: broadband, audible,
-	# and worse than the sound it was trying to make room for. The ramp length
-	# is the caller's, because the right value depends on what is playing --
-	# 10 ms is the default SN3 measured and the guard asserts against.
-	#
-	# The write is a single atomic store on a node the render already reads
-	# every block. Nothing is allocated, nothing is rebuilt, and the audio
-	# thread never learns that a duck happened.
+	#   pName      the voice name
+	#   pnGain     the gain to reach, 1 for unchanged
+	#   pnRampMs   the length of the ramp in milliseconds
+	#   returns    the pool itself, so calls chain; SetVoiceGainQ is the same call
+	#   note       the gain is ramped and never assigned, because a step is a click; the write is
+	#              one atomic store the render reads each block, so nothing is allocated; the ramp
+	#              after Start was not run
+	#   warning    an unknown name, or a call before Start, counts a refusal and sets LastError to
+	#              no voice is named ... or SetVoiceGain: the bus does not exist until Start(), both
+	#              run
+	#   see        VoiceGain, Fire
+	#@ aka  -- SS3: DUCKING -------------------------------------------------------
 	def SetVoiceGain(pName, pnGain, pnRampMs)
 		_i_ = This._IndexOf(pName)
 		if _i_ = 0
@@ -242,72 +314,151 @@ class stzVoicePool
 		This.SetVoiceGain(pName, pnGain, pnRampMs)
 		return This
 
-	# The gain the RENDER is applying right now, which during a ramp is
-	# somewhere between the old value and the target. Read rather than
-	# remembered, so a guard can prove the ramp both MOVES and ARRIVES.
+	# Returns the gain the render is applying to a voice right now.
+	#
+	#   pName      the voice name
+	#   returns    a number, between the old and the new value during a ramp; -1 for an unknown
+	#              voice or before Start
+	#   note       -1 before Start was run; read afresh from the engine, not remembered, so a guard
+	#              can see a ramp both move and arrive
+	#   see        SetVoiceGain, BusNodeOf
+	#@ aka  The gain the RENDER is applying right now, which during a ramp is somewhere between the old value and the target. Read rather than remembered, so a guard can prove the ramp both MOVES and ARRIVES.
 	def VoiceGain(pName)
 		_i_ = This._IndexOf(pName)
 		if _i_ = 0  return -1 ok
 		if @aVoices[_i_][8] = 0  return -1 ok
 		return StzEngineSoundGraphCurrentGain(@oGraph.GraphId(), @aVoices[_i_][8])
 
+	# Returns the graph node of a voice's gain bus.
+	#
+	#   pName      the voice name
+	#   returns    the node number; 0 for an unknown voice or before Start
+	#   note       the bus exists only after Start
+	#   see        VoiceGain, Graph
 	def BusNodeOf(pName)
 		_i_ = This._IndexOf(pName)
 		if _i_ = 0  return 0 ok
 		return @aVoices[_i_][8]
 
+	# Stops the transport and marks the pool as not started.
+	#
+	#   returns    the pool itself, so calls chain
+	#   warning    not run with a started pool: it stops the sound card; before Start it only clears
+	#              the flag
+	#   see        Start, Release
 	def Stop()
 		if isObject(@oTransport)  @oTransport.Stop() ok
 		@bStarted = FALSE
 		return This
 
+	# Stops the pool and frees the transport and the graph.
+	#
+	#   returns    nothing
+	#   note       before Start it frees the graph only; run that way, it did nothing visible
+	#   see        Stop
 	def Release()
 		This.Stop()
 		if isObject(@oTransport)  @oTransport.Release() ok
 		if isObject(@oGraph)  @oGraph.Release() ok
 
-	#-- what it is doing ----------------------------------------------------
-
+	# TRUE if the pool has been started.
+	#
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   see        Start, Stop
+	#@ aka  -- what it is doing ----------------------------------------------------
 	def IsStarted()
 		return @bStarted
 
+	# Returns the stzSoundTransport that plays the pool, the one device clock of the plane.
+	#
+	#   returns    the transport; an empty text before Start
+	#   note       before Start it was an empty text
+	#   see        PositionInSeconds, Underruns
 	def Transport()
 		return @oTransport
 
+	# Returns the audio graph the voices are built into.
+	#
+	#   returns    a stzSoundGraph
+	#   note       the voices' slot nodes are private to the pool
+	#   see        Transport, AddVoice
 	def Graph()
 		return @oGraph
 
+	# Returns the reason of the last refusal.
+	#
+	#   returns    the reason as text; an empty text when nothing was refused
+	#   see        Refusals
 	def LastError()
 		return @cLastError
 
+	# Returns how many calls were refused.
+	#
+	#   returns    a number
+	#   note       it counts an add after Start, a start with no voice, a fire of an unknown voice
+	#              or before Start, and a gain of an unknown voice or before Start
+	#   see        LastError
 	def Refusals()
 		return @nRefusals
 
+	# Returns the names of the voices in the order they were added.
+	#
+	#   returns    a list of text; [ ] for an empty pool
+	#   see        SlotsOf, AddVoice
 	def VoiceNames()
 		return @aNames
 
+	# Returns how many slots a voice has.
+	#
+	#   pName      the voice name, matched in lower case
+	#   returns    a number; 0 for an unknown voice
+	#   note       an added voice with 0 slots has 1
+	#   see        VoiceNames, FiresOf
 	def SlotsOf(pName)
 		_i_ = This._IndexOf(pName)
 		if _i_ = 0  return 0 ok
 		return len(@aVoices[_i_][2])
 
+	# Returns how many times a voice was fired.
+	#
+	#   pName      the voice name
+	#   returns    a number; 0 for an unknown voice or a voice never fired
+	#   see        StealsOf, Fire
 	def FiresOf(pName)
 		_i_ = This._IndexOf(pName)
 		if _i_ = 0  return 0 ok
 		return @aVoices[_i_][4]
 
-	# How many shots landed on a slot that was still sounding. Not an error --
-	# it is the pool doing its job -- but a number worth seeing before
-	# deciding a voice needs more slots.
+	# Returns how many shots landed on a slot that was still sounding.
+	#
+	#   pName      the voice name
+	#   returns    a number; 0 for an unknown voice
+	#   note       not an error, it is the pool doing its job: a number to read before deciding a
+	#              voice needs more slots
+	#   see        FiresOf, SlotsOf
+	#@ aka  How many shots landed on a slot that was still sounding. Not an error -- it is the pool doing its job -- but a number worth seeing before deciding a voice needs more slots.
 	def StealsOf(pName)
 		_i_ = This._IndexOf(pName)
 		if _i_ = 0  return 0 ok
 		return @aVoices[_i_][5]
 
+	# Returns the time on the transport's clock.
+	#
+	#   returns    a number of seconds; 0 before Start
+	#   note       the same clock the rest of the plane reads
+	#   warning    not run after Start: it reads the device clock
+	#   see        Transport, Underruns
 	def PositionInSeconds()
 		if NOT isObject(@oTransport)  return 0 ok
 		return @oTransport.PositionInSeconds()
 
+	# Returns how many blocks the device wanted and the render did not have.
+	#
+	#   returns    a number; 0 before Start
+	#   note       the counter tells delivery, not whether anything sounded right, which only a
+	#              person can say
+	#   warning    not run after Start: it reads the device
+	#   see        PositionInSeconds, Transport
 	def Underruns()
 		if NOT isObject(@oTransport)  return 0 ok
 		return @oTransport.Underruns()

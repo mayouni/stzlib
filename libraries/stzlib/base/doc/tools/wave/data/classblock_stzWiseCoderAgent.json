@@ -1,0 +1,18 @@
+{
+ "brief": "Holds Softanza's own wise-coder agent, which drives a goal's questions in a knowledge graph until the goal is filled or the answers run out.",
+ "detail": "The library consumes its own agent surface here: the agent does not reimplement the elicitation loop, it drives the conversation module as an agent, with a bounded pursuit. The questions come from the gaps of a stzGoal, the answers from a function the caller supplies, and every answer is admitted into the knowledge graph the caller handed over. An empty answer stops the pursuit and leaves the gap for a person. It is the only wired agent of the roster StzOwnAgents lists; asking StzOwnAgent for a reserved one raises an error rather than returning a stub.",
+ "receiver": "o1 = new stzWiseCoderAgent()\no2 = new stzKnowledgeGraph(\"menu\")",
+ "example": [
+  "o2.Know(\"margherita\", \"dish\")",
+  "o3 = StzGoalQ().RequireEach(\"dish\", \"contains\")",
+  "? o1.PursueGoal(o3, o2, func s, r { return \"tomato-sauce\" })[:asked]",
+  "#--> 1",
+  "? o1.Why()",
+  "#--> goal filled in 1 question(s), governed admission throughout"
+ ],
+ "see": [
+  "StzOwnAgents",
+  "stzGoal",
+  "stzKnowledgeGraph"
+ ]
+}

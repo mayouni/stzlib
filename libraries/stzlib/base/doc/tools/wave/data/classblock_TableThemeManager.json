@@ -1,0 +1,19 @@
+{
+ "brief": "Holds named looks for a table layout, four built in and any you create, each a set of widths, padding and border characters.",
+ "detail": "The built-in themes are Default (rounded box-drawing borders), Simple and Compact (plain plus and dash characters), and Elegant (square box-drawing corners). ApplyTheme sets the theme's settings and border characters and recomputes the layout. Like the other managers it works on a copy of the config it is given, readable as its oConfig attribute.",
+ "receiver": "o1 = new TableThemeManager(new TableDisplayConfig([ [ \"Dept\", \"2024|Q1\", \"2024|Q2\", \"Total\" ], [ \"Sales\", 100, 200, 300 ], [ \"Support\", 50, 60, 110 ], [ \"Total\", 150, 260, 410 ] ], [ \"Dept\" ], [ \"Year\", \"Quarter\" ], \"Total\"))",
+ "example": [
+  "? @@( o1.ListThemes() )",
+  "#--> [ \"default\", \"simple\", \"compact\", \"elegant\" ]",
+  "o1.ApplyTheme(:Compact)",
+  "? o1.oConfig.aSettings[:DefaultPadding]",
+  "#--> 0",
+  "? o1.oConfig.aDecorators[:BorderChars][:TopLeft]",
+  "#--> +"
+ ],
+ "see": [
+  "TableDisplayConfig",
+  "TableRenderer",
+  "TableConfigManager"
+ ]
+}

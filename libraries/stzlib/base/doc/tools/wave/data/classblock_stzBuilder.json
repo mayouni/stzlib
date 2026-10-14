@@ -1,0 +1,16 @@
+{
+ "brief": "Describes what to build and for which system, then compiles it with Zig's drop-in C compiler, cross-compiling with one target flag.",
+ "detail": "Declare sources, language (C, C++, Zig or Ring), executable or library, target, optimisation, definitions, includes and libraries, with the fluent Q forms. The target can be a stzSystemProfile, a friendly name such as :LinuxServer or :ESP32, or a raw Zig triple. Args and ToCommand show the command before anything runs, which is the rehearsal. Build then runs the compiler in a managed child process and keeps the output, the error output and the exit code. TargetWeb builds a freestanding wasm module for stzWebBundle. Build starts the Zig compiler and writes the output and the compiler cache: the documentation run declared and read builders only and did not run any Build.",
+ "receiver": "o1 = new stzBuilder(\"hello\")\no1.AddSource(\"hello.c\")\no1.SetTarget(\"x86_64-linux-gnu\")\no1.OptimizeFast()",
+ "example": [
+  "? @@( o1.Args() )",
+  "#--> [ \"cc\", \"hello.c\", \"-o\", \"hello\", \"-target\", \"x86_64-linux-gnu\", \"-O3\" ]",
+  "? o1.Target()",
+  "#--> x86_64-linux-gnu",
+  "? o1.IsWeb()",
+  "#--> 0",
+  "? o1.Failed()",
+  "#--> 1"
+ ],
+ "see": ["stzWebBundle", "stzDeployment", "stzSystemProfile"]
+}

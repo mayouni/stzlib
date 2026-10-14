@@ -1,0 +1,20 @@
+{
+ "brief": "Aligns a text in a field of a given width: pads it on the left, on the right or on both sides with a chosen character.",
+ "detail": "It is the alignment helper behind the padding methods of stzString. Build one with new stzStringAligner(\"abc\") over a text. Each in-place verb (AlignLeft, AlignRight, AlignCenter, PadLeft, PadRight, PadBoth) changes the text it holds and has a passive twin that returns the padded text (AlignedLeft, AlignedRight, AlignedCenter, PaddedLeft ...). Widths count characters, not bytes, so Hebrew, Arabic and emoji align like any other text, and a width smaller than the text changes nothing. Do not pass a stzString object you still need: the first in-place edit empties it.",
+ "receiver": "o1 = new stzStringAligner(\"abc\")",
+ "example": [
+  "? o1.AlignedLeft(6, \".\")",
+  "#--> abc...",
+  "? o1.AlignedRight(6, \".\")",
+  "#--> ...abc",
+  "? o1.AlignedCenter(7, \"-\")",
+  "#--> --abc--",
+  "o2 = new stzStringAligner(\"שלום\")",
+  "? o2.AlignedLeft(6, \"😀\")",
+  "#--> שלום😀😀"
+ ],
+ "see": [
+  "stzString",
+  "stzStringTrimmer"
+ ]
+}

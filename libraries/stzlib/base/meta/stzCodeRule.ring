@@ -71,13 +71,52 @@ func _StzClassHasMethod(paMethods, pcClass, pcName)
 	next
 	return 0
 
+# Holds one code rule, a graph rule over a code graph, whose finding carries the line of the offending code.
+#
+# A code rule is a stzGraphRule in the code domain. Its checker queries a stzCodeGraph, which models
+# real method definitions and real call edges, instead of scanning text, so a comment that says def
+# len is not a method and a method definition named substr is not a call. The house rules are
+# declared in stzCodeRuleSet, and StzCheckCode runs them over source.
+#
+#   receiver   o1 = new stzCodeRule("no-len-method")
+#   example    ? o1.Name()
+#              #--> no-len-method
+#              ? o1.Domain()
+#              #--> code
+#   see        stzCodeRuleSet, stzGraphRule, stzCodeGraph
 class stzCodeRule from stzGraphRule
+	# Builds a code rule of that name in the code domain; it is a graph rule whose checker queries a code graph.
+	#
+	#   pcName     the rule's name
+	#   returns    nothing; the object is built
+	#   see        stzCodeRuleSet, stzGraphRule
 	def init(pcName)
 		super.init(pcName)
 		This.SetDomainQ("code")
 
 
+# Holds the house rules of the library that a code graph can check, as one graph rule set in the code domain.
+#
+# Five rules are loaded: no-len-method, no-aggressive-verbs, engine-first, q-has-plain-twin and no-
+# case-collision. The sixth house rule, q-returns-object, needs a model of return statements that
+# the code graph does not have, so StzCheckCode runs it as a text pass and merges the findings. The
+# project set adds no-dead-code, and the deep set adds the slow no-cyclic-calls.
+#
+#   receiver   o1 = new stzCodeRuleSet()
+#   example    ? o1.Name()
+#              #--> softanza-house-rules
+#              ? o1.NumberOfRules()
+#              #--> 5
+#              ? o1.RuleNames()[1]
+#              #--> no-len-method
+#   see        stzCodeProjectRuleSet, stzCodeDeepRuleSet, stzCodeRule
 class stzCodeRuleSet from stzGraphRuleSet
+	# Builds the house rule set, named softanza-house-rules, loaded with the five rules that a code graph can check.
+	#
+	#   returns    nothing; the object is built
+	#   note       the rules are no-len-method, no-aggressive-verbs, engine-first, q-has-plain-twin
+	#              and no-case-collision
+	#   see        stzCodeProjectRuleSet, stzCodeRule
 	def init()
 		super.init("softanza-house-rules")
 		This.SetDomainQ("code")
@@ -333,12 +372,26 @@ class stzCodeRuleSet from stzGraphRuleSet
 		This.AddRule(_oCase_)
 
 
-# The whole-project rule set: the snippet-safe rules + no-dead-code (which needs
-# the full call graph). Used by StzCheckProject. Deliberately EXCLUDES
-# no-cyclic-calls -- measured at ~36s over base/graph alone (the code graph's
-# CyclicCalls is O(calls^2 . methods)), which is too slow for a per-commit gate.
-# That rule lives in stzCodeDeepRuleSet below, an opt-in for a deeper audit.
+# Holds the house rules plus no-dead-code, the set that StzCheckProject runs over a whole directory.
+#
+# no-dead-code names a defined method or function that no recorded call reaches. It is name-based
+# and cannot see a call through a variable, so it reports candidates and not proof; a graph without
+# call edges yields nothing. The slow no-cyclic-calls rule is not here, so the set is cheap enough
+# for a per-commit gate.
+#
+#   receiver   o1 = new stzCodeProjectRuleSet()
+#   example    ? o1.NumberOfRules()
+#              #--> 6
+#              ? o1.RuleNames()[6]
+#              #--> no-dead-code
+#   see        stzCodeRuleSet, stzCodeDeepRuleSet
 class stzCodeProjectRuleSet from stzCodeRuleSet
+	# Builds the whole-project rule set: the five house rules plus no-dead-code, which needs the call graph of the whole project.
+	#
+	#   returns    nothing; the object is built
+	#   note       it leaves out no-cyclic-calls on purpose, measured at about 36 seconds over
+	#              base/graph
+	#   see        stzCodeDeepRuleSet, stzCodeRuleSet
 	def init()
 		super.init()
 		This._LoadProjectRules()
@@ -370,11 +423,25 @@ class stzCodeProjectRuleSet from stzCodeRuleSet
 		This.AddRule(_oDead_)
 
 
-# The DEEP set: the project set PLUS no-cyclic-calls, which is expensive
-# (measured ~36s over base/graph -- the code graph's CyclicCalls is O(calls^2 .
-# methods)). Opt-in via StzCheckProjectDeep, for a periodic audit rather than a
-# per-commit gate. No silent cap: the default gate documents that it omits this.
+# Holds the project rules plus no-cyclic-calls, the opt-in set for a deeper and slower audit.
+#
+# no-cyclic-calls needs call edges and finds a pair of methods in one class that call each other.
+# Its cost grows with the square of the calls times the methods, so it is opt-in through
+# StzCheckProjectDeep, and the default gate documents that it omits it.
+#
+#   receiver   o1 = new stzCodeDeepRuleSet()
+#   example    ? o1.NumberOfRules()
+#              #--> 7
+#              ? o1.RuleNames()[7]
+#              #--> no-cyclic-calls
+#   see        stzCodeProjectRuleSet, stzCodeRuleSet
 class stzCodeDeepRuleSet from stzCodeProjectRuleSet
+	# Builds the deep audit rule set: the project rules plus no-cyclic-calls, which reports two methods of a class that call each other.
+	#
+	#   returns    nothing; the object is built
+	#   note       the extra rule is slow, measured at about 36 seconds over base/graph, so it suits
+	#              a periodic audit and not a per-commit gate
+	#   see        stzCodeProjectRuleSet
 	def init()
 		super.init()
 		This._LoadDeepRules()

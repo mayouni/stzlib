@@ -45,6 +45,24 @@ func StzOptimNaturally(pcText)
 func StzOptimSentenceQ(pcText)
 	return new stzOptimSentence(pcText)
 
+# Reads an optimization problem said as a sentence and builds the same stzOptimModel a hand-written model would give.
+#
+# The vocabulary is small and closed: maximize or minimize an expression, where a variable is
+# between two numbers, at least or at most one, a whole number or binary, and keeping an expression
+# under, over or at a number. An ambiguity is refused with a finding rather than guessed. The
+# sentence calls the model's own methods, so there is one model class and one expression compiler.
+# StzOptimNaturally(text) reads and builds in one call.
+#
+#   receiver   o1 = new stzOptimSentence("maximize 3*x + 2*y" + char(10) + "where x is between 0 and
+#              40" + char(10) + "and y is a whole number at least 0" + char(10) + "keeping x + y
+#              under 50")
+#   example    ? o1.IsValid()
+#              #--> 1
+#              ? o1.ToModel().VarNames()[2]
+#              #--> y
+#              ? o1.ToModel().ConstraintAt(1)[5]
+#              #--> x + y <= 50
+#   see        stzOptimModel, stzOptimFile, StzOptimNaturally
 class stzOptimSentence from stzObject
 
 	@cText = ""
@@ -54,16 +72,37 @@ class stzOptimSentence from stzObject
 	@acCons = []
 	@aFindings = []
 
+	# Reads an optimization problem written as a short sentence of maximize or minimize, where and keeping clauses.
+	#
+	#   pcText     the sentence, one clause per line or clauses joined by and
+	#   returns    nothing; the object is built
+	#   warning    a faulty sentence does not raise here: its faults are listed by Findings; a where
+	#              clause written on the same line as the objective is not split off, so write it on
+	#              its own line or after and; a bare relation placed after a where clause is read as
+	#              one more variable, so use a keeping clause or put the relation first
+	#   see        Findings, ToModel
 	def init(pcText)
 		@cText = "" + pcText
 		This._Parse()
 
+	# Returns the faults found in the sentence, one text each, empty when the sentence is understood.
+	#
+	#   returns    a list of text; [ ] for a valid sentence
+	#   see        IsValid, CiteFindings
 	def Findings()
 		return @aFindings
 
+	# TRUE if the sentence has an objective, at least one variable and no clause the surface does not know.
+	#
+	#   returns    1 or 0, numbers
+	#   see        Findings, ToModel
 	def IsValid()
 		return len(@aFindings) = 0
 
+	# Returns the faults as one text, each on its own line after a dash, ready to print.
+	#
+	#   returns    a text; empty for a valid sentence
+	#   see        Findings
 	def CiteFindings()
 		_c_ = ""
 		_n_ = len(@aFindings)
@@ -299,8 +338,15 @@ class stzOptimSentence from stzObject
 		next
 		return _aOut_
 
-	#-- the same door the entry object uses ------------------------------
-
+	# Builds the stzOptimModel the sentence says, through the same door a hand-written model uses; a faulty sentence is refused.
+	#
+	#   returns    a stzOptimModel
+	#   note       a variable declared twice, which a bare relation after where can cause, raises
+	#              AddVar: declared twice
+	#   warning    raises stzOptimSentence: this sentence was REFUSED and the findings for a faulty
+	#              sentence
+	#   see        Findings, StzOptimNaturally
+	#@ aka  -- the same door the entry object uses ------------------------------
 	def ToModel()
 		if NOT This.IsValid()
 			stzraise("stzOptimSentence: this sentence was REFUSED." +

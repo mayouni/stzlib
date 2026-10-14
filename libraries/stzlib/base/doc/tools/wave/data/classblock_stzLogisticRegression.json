@@ -1,0 +1,21 @@
+{
+ "brief": "Fits a binary logistic regression on numeric features and answers the probability of the second label.",
+ "detail": "Training runs in the engine by gradient descent for the number of epochs given. The model needs exactly two labels; the one that appears second in the training set is the positive class. Probability answers its chance, Classify applies the 0.5 threshold, and Why states the weights behind the last answer. Scale features of very different sizes first. TrainingAccuracy scores the model on its own training examples, which says it learned them and not that it will generalise.",
+ "receiver": "o1 = new stzLogisticRegression(new stzTrainingSet([ [[1.0, 1.0], \"low\"], [[1.5, 0.8], \"low\"], [[0.8, 1.2], \"low\"], [[8.0, 8.0], \"high\"], [[7.5, 8.5], \"high\"], [[8.2, 7.9], \"high\"] ]))",
+ "example": [
+  "o1.Train(200)",
+  "? o1.Classify([8, 8])",
+  "#--> high",
+  "? o1.Classify([1, 1])",
+  "#--> low",
+  "? o1.TrainingAccuracy()",
+  "#--> 1",
+  "? o1.Probability([8, 8]) > 0.9",
+  "#--> 1"
+ ],
+ "see": [
+  "stzTrainingSet",
+  "stzNaiveBayes",
+  "stzNeuralNetwork"
+ ]
+}

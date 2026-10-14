@@ -1,0 +1,12 @@
+{
+ "brief": "Holds several tables built from a list of hash lists, to count them and show them one after the other.",
+ "detail": "Each hash list of the list becomes one stzTable, whose columns are the hash list's keys. The class counts its tables, under three names, and Show prints them in turn. It inherits from the list of hash lists. Tables of different row counts are accepted today, although the build check says it demands the same count.",
+ "receiver": "o1 = new stzListOfTables([ [ :NAME = [ \"Ann\", \"Bob\" ], :AGE = [ 31, 28 ] ], [ :ID = [ 1, 2 ], :CITY = [ \"Niamey\", \"Dosso\" ] ] ])",
+ "example": [
+  "? o1.NumberOfTables()",
+  "#--> 2",
+  "? o1.CountTables()",
+  "#--> 2"
+ ],
+ "see": ["stzTable", "stzListOfHashLists", "IsListOfTables"]
+}

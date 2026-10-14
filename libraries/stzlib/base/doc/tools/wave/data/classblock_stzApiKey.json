@@ -1,0 +1,18 @@
+{
+ "brief": "Holds an API key as a secret that is redacted everywhere and is presented as a bearer Authorization header only to an effectful actor.",
+ "detail": "A stzSecret of kind apikey. Its descriptor, its Show and any configuration it lands in print only the redacted form. AuthorizationHeader is a governed reveal: a human or pi actor gets Bearer followed by the key, an LLM actor or an unknown actor is refused. Use invented values in code and tests.",
+ "receiver": "o1 = new stzApiKey(\"stripe\")\no1.FromLiteral(\"invented-key-123\")",
+ "example": [
+  "? o1.Descriptor()",
+  "#--> <secret 'stripe' (apikey) from literal>",
+  "? o1.AuthorizationHeader(HumanActor(\"alice\"))",
+  "#--> Bearer invented-key-123",
+  "? o1.IsRevealableBy(LLMActor(\"bot\"))",
+  "#--> 0"
+ ],
+ "see": [
+  "stzSecret",
+  "stzSecretStore",
+  "stzToken"
+ ]
+}

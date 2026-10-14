@@ -16,6 +16,23 @@
  ///   CLASS   ///
 /////////////////
 
+# Inserts items into a list before or after a position, moves an item to another place and swaps two items.
+#
+# Build one with new stzListInserter(aList) or over a stzList object; it keeps its own copy, so the
+# list you passed in is not changed, and Content gives the result. Positions count from 1. Insert,
+# InsertBeforePosition and InsertAfterPosition accept the item as a plain value and the place as a
+# number or a named pair such as [ :After, 2 ]. Out-of-range positions are not handled the same way
+# by every method: most ignore them without a message, InsertAt raises, and a position two or more
+# past the end kills the process through a missing method; see the warnings.
+#
+#   receiver   o1 = new stzListInserter([ "a", "b", "c", "d" ])
+#   example    o1.Insert("X", 2)
+#              ? @@( o1.Content() )
+#              #--> [ "a", "X", "b", "c", "d" ]
+#              o1.SwapItems(1, 5)
+#              ? @@( o1.Content() )
+#              #--> [ "d", "X", "b", "c", "a" ]
+#   see        stzList, stzListMover, stzListCounter
 class stzListInserter from stzObject
 
 	@oList
@@ -24,6 +41,13 @@ class stzListInserter from stzObject
 	 #   INITIALIZATION  #
 	#===================#
 
+	# Builds an inserter over a list or over a stzList object, working on its own copy, so the list passed in is never changed.
+	#
+	#   pListOrObj   a list, or a stzList object, in which items will be inserted, moved or swapped
+	#   returns      nothing; the object is built
+	#   warning      any other kind of value raises "Can't create stzListInserter! Parameter must be
+	#                a list or stzList object."
+	#   see          Content
 	def init(pListOrObj)
 		if isList(pListOrObj)
 			@oList = new stzList(pListOrObj)
@@ -37,12 +61,24 @@ class stzListInserter from stzObject
 	 #     CONTENT ACCESS            #
 	#===============================#
 
+	# Returns the items the inserter holds, after the insertions made through it.
+	#
+	#   returns    a list
+	#   see        NumberOfItems
 	def Content()
 		return @oList.Content()
 
+	# Returns how many items the list holds now.
+	#
+	#   returns    a number
+	#   see        Content
 	def NumberOfItems()
 		return @oList.NumberOfItems()
 
+	# TRUE if the list holds no item.
+	#
+	#   returns    TRUE or FALSE
+	#   see        NumberOfItems
 	def IsEmpty()
 		return @oList.IsEmpty()
 
@@ -50,6 +86,17 @@ class stzListInserter from stzObject
 	 #     INSERTING AN ITEM BEFORE A GIVEN POSITION     #
 	#===================================================#
 
+	# Inserts an item before a position, or after one when the place is written [ :After, n ].
+	#
+	#   pItem      the item to insert
+	#   pWhere     a position (the item goes before it), or a named place such as [ :At, 2 ], [
+	#              :Before, 2 ] or [ :After, 2 ]
+	#   returns    nothing; use InsertQ to chain
+	#   note       a position one past the end appends
+	#   warning    a position of 0, or a named place that is neither of those (such as [ :Foo, 1 ]),
+	#              is ignored without a message; a position two or more past the end kills the
+	#              process with R14 (ExtendToN), see InsertBeforePosition
+	#   see        InsertBeforePosition, InsertAfterPosition
 	def Insert(pItem, pWhere)
 
 		if isList(pItem) and IsItemNamedParamList(pItem)
@@ -77,9 +124,26 @@ class stzListInserter from stzObject
 			This.Insert( pItem, pWhere )
 			return This
 
+		# Inserts an item before a position, or after one when the place is written [ :After, n ], the same as Insert.
+		#
+		#   pItem      the item to insert
+		#   pWhere     a position (the item goes before it), or a named place such as [ :At, 2 ] or
+		#              [ :After, 2 ]
+		#   returns    nothing
+		#   see        Insert
 		def InsertItem(pItem, pWhere)
 			This.Insert(pItem, pWhere)
 
+	# Inserts an item so that it takes the given position, pushing the item there and the ones after it one place on.
+	#
+	#   _n_        the position to take, from 1
+	#   pItem      the item to insert
+	#   returns    nothing; use InsertBeforePositionQ to chain
+	#   note       positions in a list are all counted on the original list
+	#   warning    a position two or more past the end calls ExtendToN, which does not exist, and
+	#              kills the process with error R14; a position of 0 or below is ignored without a
+	#              message
+	#   see        InsertAfterPosition, InsertBeforePositions
 	def InsertBeforePosition(_n_, pItem)
 		if isList(_n_) and IsPositionNamedParamList(_n_)
 			_n_ = _n_[2]
@@ -111,9 +175,27 @@ class stzListInserter from stzObject
 			This.InsertBeforePosition(_n_, pItem)
 			return This
 
+		# Inserts an item so that it takes the given position, the same as InsertBeforePosition.
+		#
+		#   _n_        the position to take, from 1
+		#   pItem      the item to insert
+		#   returns    nothing
+		#   warning    the same R14 process kill for a position two or more past the end; 0 or below
+		#              is ignored without a message
+		#   see        InsertBeforePosition
 		def InsertBefore(_n_, pItem)
 			This.InsertBeforePosition(_n_, pItem)
 
+		# Inserts an item so that it takes the given position, handing the work to Ring's insert.
+		#
+		#   _n_        the position the item takes, from 1
+		#   pItem      the item to insert
+		#   returns    nothing; use InsertAtQ to chain
+		#   note       one past the end appends
+		#   warning    A position of 0 or below raises an error with no message (ERR-) and a
+		#              position past the end plus one raises R2 today, where InsertBefore ignores 0
+		#              and appends one past the end; only 1 up to the length plus one works
+		#   see        InsertBefore
 		def InsertAt(_n_, pItem)
 			if isList(_n_) and IsOneOfTheseNamedParamsList(_n_, [ :Position, :ItemAt, :ItemAtPosition ])
 				_n_ = _n_[2]
@@ -131,6 +213,16 @@ class stzListInserter from stzObject
 	 #     INSERTING AN ITEM AFTER A GIVEN POSITION      #
 	#----------------------------------------------------#
 
+	# Inserts an item right after the given position, so it takes the position after it.
+	#
+	#   _n_        the position to insert after, from 1 to the length
+	#   pItem      the item to insert
+	#   returns    nothing; use InsertAfterPositionQ to chain
+	#   note       the last position appends
+	#   warning    a position of 0, or past the length, is ignored without a message; a list of
+	#              positions calls InsertAfterPositions, which does not exist, and kills the process
+	#              with error R14
+	#   see        InsertBeforePosition, InsertAfter
 	def InsertAfterPosition(_n_, pItem)
 
 		if isList(_n_) and IsListOfNumbers(_n_)
@@ -156,6 +248,14 @@ class stzListInserter from stzObject
 			This.InsertAfterPosition(_n_, pItem)
 			return This
 
+		# Inserts an item right after the given position, the same as InsertAfterPosition.
+		#
+		#   _n_        the position to insert after, from 1 to the length
+		#   pItem      the item to insert
+		#   returns    nothing
+		#   warning    an out-of-range position is ignored without a message; a list of positions
+		#              kills the process with error R14, as in InsertAfterPosition
+		#   see        InsertAfterPosition
 		def InsertAfter(_n_, pItem)
 			This.InsertAfterPosition(_n_, pItem)
 
@@ -163,6 +263,13 @@ class stzListInserter from stzObject
 	 #  INSERTING BEFORE MANY POSITIONS            #
 	#---------------------------------------------#
 
+	# Inserts a copy of an item before each of several positions, all counted on the original list.
+	#
+	#   panPositions   the positions, in any order
+	#   pItem          the item to insert
+	#   returns        nothing; use InsertBeforePositionsQ to chain
+	#   warning        the same R14 process kill if a position is two or more past the end
+	#   see            InsertBeforePosition
 	def InsertBeforePositions(panPositions, pItem)
 		if isList(pItem) and IsItemNamedParamList(pItem)
 			pItem = pItem[2]
@@ -185,6 +292,17 @@ class stzListInserter from stzObject
 	 #  MOVING ITEM AT POSITION N1 TO POSITION N2 #
 	#=============================================#
 
+	# Takes the item out of one position and puts it before the item that stood at another one.
+	#
+	#   _n1_       the position of the item to move
+	#   _n2_       the position it should go before
+	#   returns    nothing; use MoveItemQ to chain
+	#   note       named places [ :From, 1 ] and [ :To, 3 ] are accepted
+	#   warning    Moving an item towards the end lands it one place short of the target:
+	#              MoveItem(1, 3) on a b c d gives b a c d and MoveItem(1, 2) or MoveItem(2, 3)
+	#              changes nothing; moving towards the start is exact, MoveItem(3, 1) gives c a b d.
+	#              A position out of range raises "Position out of range!"
+	#   see        SwapItems
 	def MoveItem(_n1_, _n2_)
 
 		if isList(_n1_) and IsFromNamedParamList(_n1_)
@@ -221,6 +339,14 @@ class stzListInserter from stzObject
 	 #  SWAPPING ITEMS AT TWO GIVEN POSITIONS  #
 	#=========================================#
 
+	# Exchanges the items at two positions.
+	#
+	#   _n1_       the position of the first item
+	#   _n2_       the position of the second item
+	#   returns    nothing; use SwapItemsQ to chain
+	#   warning    a position past the end changes nothing and says nothing, and a position of 0 is
+	#              read as 1: SwapItems(0, 2) on a b c d gives b a c d
+	#   see        Swap, MoveItem
 	def SwapItems(_n1_, _n2_)
 
 		if isList(_n1_) and IsBetweenNamedParamList(_n1_)
@@ -253,5 +379,12 @@ class stzListInserter from stzObject
 			This.SwapItems(_n1_, _n2_)
 			return This
 
+		# Exchanges the items at two positions, the same as SwapItems.
+		#
+		#   _n1_       the position of the first item
+		#   _n2_       the position of the second item
+		#   returns    nothing
+		#   warning    an out-of-range position is ignored without a message, and 0 is read as 1
+		#   see        SwapItems
 		def Swap(_n1_, _n2_)
 			This.SwapItems(_n1_, _n2_)

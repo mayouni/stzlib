@@ -1,0 +1,35 @@
+{
+ "brief": "Judges an SLA on a cadence and turns changes of verdict into alerts, one when a breach appears and one when it clears.",
+ "detail": "An SLA judges when asked; the sentinel judges on a cadence and is edge-triggered, which is the honest flap suppression: a breach fires once when it appears and a recovery once when it clears, so an invariant that stays broken does not page you four hundred times. Run it three ways: Check whenever you like, Every and Tick from any loop, or hosted by an agent host through Name_ and Cycle. Every alert also goes out on the engine event bus, perf.breach and perf.clear, and a new breach takes a black-box snapshot of the process. The ledger keeps the newest 256 alerts. Explain and Show raise error R41 today while a rule is breached.",
+ "receiver": "oMon = StzPerfMonitor(\"api\")\noDepth = oMon.NewGauge(\"queue.depth\")\noDepth.Set(50)\noSla = StzSla(\"api\")\noSla.ExpectValue(\"queue.depth\").AtMost(100)\no1 = StzPerfSentinel(oSla, oMon)",
+ "example": [
+  "? o1.Check()",
+  "#--> 0",
+  "oDepth.Set(150)",
+  "? o1.Check()",
+  "#--> 1",
+  "? o1.IsBreached()",
+  "#--> 1",
+  "? @@( o1.ActiveBreaches() )",
+  "#--> [ \"value-queue.depth-under-100\" ]",
+  "? o1.Check()",
+  "#--> 0",
+  "? o1.LastAlert()[2]",
+  "#--> breach",
+  "? o1.LastBlackBox()[:metrics][1][3]",
+  "#--> 150",
+  "oDepth.Set(10)",
+  "? o1.Check()",
+  "#--> 0",
+  "? o1.LastAlert()[2]",
+  "#--> clear",
+  "? o1.CheckCount()",
+  "#--> 4"
+ ],
+ "see": [
+  "stzSla",
+  "stzPerfMonitor",
+  "stzEventBus",
+  "stzAgentHost"
+ ]
+}

@@ -1,0 +1,16 @@
+{
+ "brief": "Is meant to collect changes to a workflow, a quicker step, a step moved to another actor, steps in parallel, but cannot record any today.",
+ "detail": "The class declares OptimizeStep, ReassignStep and ParallelizeSteps, each of which appends a change to a list called @aChanges. The class never declares that list and has no init of its own, so each of the three raises error R24 Using uninitialized variable: @achanges, and new stzWorkflowSimulation() with empty parentheses raises error R19 because the inherited init takes one parameter. The application of the changes is private and the restructuring for parallel steps is an empty method.",
+ "receiver": "o1 = new stzWorkflowSimulation",
+ "example": [
+  "try",
+  "o1.OptimizeStep(\"pack\", 5)",
+  "catch",
+  "? \"raised\"",
+  "#--> raised",
+  "done"
+ ],
+ "see": [
+  "stzWorkflow"
+ ]
+}

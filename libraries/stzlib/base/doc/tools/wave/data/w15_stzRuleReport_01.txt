@@ -1,0 +1,17 @@
+# w15 stzRuleReport
+init | Builds an empty report under a name, ready to collect findings from any domain. | nothing; the object is built | pcName=the name of the report, shown in its first line | Run, Collect | | StzRuleReportQ builds the same object
+Run | Runs a rule set over a graph and adds the findings it produces to the report. | the report itself, so calls chain | poRuleSet=a rule set such as a stzErRuleSet; oGraph=the graph it judges | Collect, Ingest | | each finding keeps the subject of its rule's domain, so domains coexist in one list
+Collect | Asks a graph to check itself and adds its findings to the report. | the report itself, so calls chain | poGraph=any object that answers CheckRules, such as a stzErDiagram, a stzGraph or an org chart | Run, Ingest | | an object with no CheckRules raises error R14
+Ingest | Adds findings that are already in the unified shape to the report. | the report itself, so calls chain | paFindings=a list of hash lists with rule, subject, where, severity and message | IngestLegacy, Run | | the findings are kept as given and nothing is checked
+IngestLegacy | Adds findings from an older checker, turning invariant and node or line into rule and where. | the report itself, so calls chain | paFindings=a list of hash lists that carry rule or invariant, and where, node or line; pcSubject=the subject to give every finding | Ingest, Collect | | a missing severity becomes error and a missing message an empty text
+Name | Returns the name the report was built with. | the name as text | | Explain |
+Findings | Returns every finding collected so far, in the order they arrived. | a list of hash lists with rule, subject, where, severity and message | | NumberOfFindings, FindingsOfSubject | |
+NumberOfFindings | Returns how many findings the report holds. | a number | | Findings, Errors | |
+FindingsOfSeverity | Returns the collected findings that carry a given level, such as error or warning. | a list of findings; [ ] when none match | pcSeverity=the severity to keep, such as error or warning, in any letter case, with spaces ignored | Errors, Warnings | |
+FindingsOfSubject | Returns the findings of one subject, that is one domain. | a list of findings; [ ] when none match | pcSubject=the subject to keep, such as er or code, in any letter case | Subjects, FindingsOfSeverity | |
+Errors | Returns the findings of severity error. | a list of findings | | Warnings, IsSound | |
+Warnings | Returns the findings of severity warning. | a list of findings | | Errors, FindingsOfSeverity | |
+Subjects | Returns the subjects that produced at least one finding, in the order they first appear. | a list of text | | FindingsOfSubject | |
+IsSound | TRUE if no finding of severity error has been collected. | TRUE or FALSE, as 1 or 0; 1 for an empty report | | Errors, Explain | | warnings advise and do not make it false; this is the CI gate
+Explain | Returns the report as lines of text: a verdict line, then each subject with its findings. | a list of text lines | | Report, IsSound | | the verdict line gives the counts and SOUND or UNSOUND (errors present); subjects come in the order they first appeared, not errors first
+Report | Prints the lines of the explanation to the console, one per line. | the report itself, so calls chain | | Explain | | it prints with the ? statement

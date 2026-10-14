@@ -50,29 +50,55 @@ func StzOwnAgent(pcName)
 	stzraise("Softanza owns no agent named '" + _cN_ + "'.")
 
 
-# THE WIRED OWN AGENT: wise-coder. It does NOT reimplement the
-# elicitation loop -- it DRIVES conversation/ (R3b) as an agent,
-# proving the library consumes its own agentic surface. The loop is
-# still system-led (the gap generates the question); the agent adds
-# the perceive-decide-act framing and a bounded pursuit.
+# Holds Softanza's own wise-coder agent, which drives a goal's questions in a knowledge graph until the goal is filled or the answers run out.
+#
+# The library consumes its own agent surface here: the agent does not reimplement the elicitation
+# loop, it drives the conversation module as an agent, with a bounded pursuit. The questions come
+# from the gaps of a stzGoal, the answers from a function the caller supplies, and every answer is
+# admitted into the knowledge graph the caller handed over. An empty answer stops the pursuit and
+# leaves the gap for a person. It is the only wired agent of the roster StzOwnAgents lists; asking
+# StzOwnAgent for a reserved one raises an error rather than returning a stub.
+#
+#   receiver   o1 = new stzWiseCoderAgent() o2 = new stzKnowledgeGraph("menu")
+#   example    o2.Know("margherita", "dish")
+#              o3 = StzGoalQ().RequireEach("dish", "contains")
+#              ? o1.PursueGoal(o3, o2, func s, r { return "tomato-sauce" })[:asked]
+#              #--> 1
+#              ? o1.Why()
+#              #--> goal filled in 1 question(s), governed admission throughout
+#   see        StzOwnAgents, stzGoal, stzKnowledgeGraph
 class stzWiseCoderAgent from stzObject
 
 	@cConvTopic = ""
 	@nAsked = 0
 	@cWhy = ""
 
+	# Builds the wise-coder agent, Softanza's own agent for filling a goal by asking questions.
+	#
+	#   returns    nothing; the object is built
+	#   see        PursueGoal, StzOwnAgent
 	def init()
 
+	# Returns the fixed name of this agent, which marks it as owned by Softanza.
+	#
+	#   returns    the text wise-coder (Softanza own agent)
+	#   see        init
 	def Name_()
 		return "wise-coder (Softanza own agent)"
 
-	# drive the elicitation over a goal to fixpoint (no gaps left),
-	# answering from a supplied ANSWER SOURCE closure that maps
-	# (subject, relation) -> a value string ("" = the agent stops,
-	# leaving the gap for a human -- it never invents domain facts).
-	# poKB = the SCOPED knowledge SPACE to elicit in (never a global world).
-	# The conversation happens INSIDE that space, so the space drives it and
-	# every admission lands in the CALLER's own graph (params are by-ref).
+	# Asks the questions that a goal's gaps call for, in a knowledge graph, and fills them from an answer function until none are left.
+	#
+	#   poGoal          the stzGoal to fill
+	#   poKB            the knowledge graph to ask in, which receives every admitted answer
+	#   fAnswerSource   a function of (subject, relation) returning the value as a text, or an empty
+	#                   text to stop
+	#   returns         a hash list [ :filled, :asked, :why ]; filled is 1 when no gap remains
+	#   note            an empty answer stops it and leaves the gap for a person: it never invents a
+	#                   fact; each call opens a fresh session named own-wise-coding
+	#   warning         raises an error naming the missing argument when poKB is not a knowledge
+	#                   graph or poGoal is not a goal
+	#   see             ConversationTopic, Why
+	#@ aka  drive the elicitation over a goal to fixpoint (no gaps left), answering from a supplied ANSWER SOURCE closure that maps (subject, relation) -> a value string ("" = the agent stops, leaving the gap for a human -- it never invents domain facts). poKB = the SCOPED knowledge SPACE to elicit in (never a global world). The conversation happens INSIDE that space, so the space drives it and every admissio
 	def PursueGoal(poGoal, poKB, fAnswerSource)
 		if NOT IsStzKnowledgeGraph(poKB)
 			stzraise("PursueGoal needs the knowledge SPACE to elicit in -- PursueGoal(oGoal, oKB, fAnswers).")
@@ -111,8 +137,14 @@ class stzWiseCoderAgent from stzObject
 		@cWhy = "goal filled in " + @nAsked + " question(s), governed admission throughout"
 		return [ :filled = 1, :asked = @nAsked, :why = @cWhy ]
 
+	# Returns the name of the conversation session the last pursuit used.
+	#
+	#   returns    a text; empty before the first PursueGoal
 	def ConversationTopic()
 		return @cConvTopic
 
+	# Returns the sentence that says how the last pursuit ended.
+	#
+	#   returns    a text; empty before the first PursueGoal
 	def Why()
 		return @cWhy

@@ -104,6 +104,33 @@ func StzPlasticRuleQ(pcName)
 func StzPlasticRule(pcName)
 	return new stzScopedRule(pcName)
 
+# Holds a rule as a triple, the subjects it governs, the claim it makes about them and the subjects it must not govern.
+#
+# Most rules are one function that both selects its subjects and judges them, so a rule that selects
+# the wrong subjects and judges them correctly reports a pass. A scoped rule separates the two:
+# SetScope says which subjects, SetClaimCheck says what must hold of one, SetCounter says which
+# subjects it must leave alone, and SetClaim writes the sentence in words. SetReads, SetWrites and
+# SetOrder let a governance find a stale read from declarations. A subject key is any text or number
+# the scope returns. Check judges one case and returns findings in the house shape;
+# stzRuleGovernance judges a set of rules over many cases. StzPlasticRule is the graph plane's
+# spelling of the same class.
+#
+#   receiver   o1 = new stzScopedRule("evens_small") o1.SetClaim("an even number is below 10")
+#              o1.SetScope(func oL { _a_ = []  for i = 1 to len(oL)  if oL[i] % 2 = 0  _a_ + oL[i]
+#              ok  next  return _a_ }) o1.SetCounter(func oL { _a_ = []  for i = 1 to len(oL)  if
+#              oL[i] % 2 = 1  _a_ + oL[i]  ok  next  return _a_ }) o1.SetClaimCheck(func oL, n { if
+#              n < 10  return [ 1, "" ]  ok  return [ 0, "it is " + n ] })
+#   example    ? @@( o1.SubjectsIn([ 1, 2, 3, 12 ]) )
+#              #--> [ 2, 12 ]
+#              ? @@( o1.CounterSubjectsIn([ 1, 2, 3, 12 ]) )
+#              #--> [ 1, 3 ]
+#              ? o1.Check([ 1, 2, 3, 12 ], "list one")[1][:message]
+#              #--> an even number is below 10 -- it is 12
+#              ? o1.Check([ 1, 2, 3, 12 ], "list one")[1][:where]
+#              #--> list one / 12
+#              ? len(o1.Check([ 4, 6 ], "list two"))
+#              #--> 0
+#   see        stzRuleGovernance, stzGraphRule, stzRuleReport
 class stzScopedRule from stzObject
 
 	@cName    = ""
@@ -117,94 +144,190 @@ class stzScopedRule from stzObject
 	@cSeverity = :error
 	@cUniversal = ""
 
+	# Builds a rule with a name and nothing else declared: no claim, scope, counter, reads or writes.
+	#
+	#   pcName     the name of the rule
+	#   returns    nothing; the object is built
+	#   note       severity starts as error and the order as 0; StzScopedRuleQ and StzPlasticRule
+	#              build the same object
+	#   see        SetClaim, SetScope
 	def init(pcName)
 		@cName = "" + pcName
 		@acReads = []
 		@acWrites = []
 
+	# Returns the name the rule was built with.
+	#
+	#   returns    the name as text
+	#   see        Claim
 	def Name_()      return @cName
+	# Returns the sentence the rule asserts.
+	#
+	#   returns    the sentence as text; an empty text until SetClaim is called
+	#   note       the rule governance reports a rule with an empty claim as claim_unstated
+	#   see        SetClaim, Check
 	def Claim()      return @cClaim
+	# Returns the quantities the rule reads, as it declared them.
+	#
+	#   returns    a list of text; [ ] until SetReads is called
+	#   see        SetReads, Writes
 	def Reads()      return @acReads
+	# Returns the quantities the rule writes, as it declared them.
+	#
+	#   returns    a list of text; [ ] until SetWrites is called
+	#   see        SetWrites, Reads
 	def Writes()     return @acWrites
+	# Returns when the rule runs relative to other rules.
+	#
+	#   returns    a number; 0 until SetOrder is called
+	#   note       only the comparison with another rule's order means anything
+	#   see        SetOrder
 	def Order()      return @nOrder
+	# Returns the severity the rule's findings carry.
+	#
+	#   returns    the severity as text; error until SetSeverity is called
+	#   see        SetSeverity, Check
 	def Severity()   return @cSeverity
 
-	# THE SENTENCE THE RULE ASSERTS, in words a reader can disagree with.
-	# Required, and not decoration: half the defects above are a name that
-	# promised something the body did not do, and a name is not a sentence.
+	# Sets the sentence the rule asserts, in words a reader can disagree with.
+	#
+	#   pcClaim    the sentence, shown in the message of every finding
+	#   returns    the rule itself, so calls chain
+	#   see        Claim, SetClaimCheck
+	#@ aka  THE SENTENCE THE RULE ASSERTS, in words a reader can disagree with. Required, and not decoration: half the defects above are a name that promised something the body did not do, and a name is not a sentence.
 	def SetClaim(pcClaim)
 		@cClaim = "" + pcClaim
 		return This
 
-	# WHICH SUBJECTS THIS RULE GOVERNS -- the half no rule in this library
-	# has ever stated separately, and the half every scope defect lived in.
+	# Sets the function that selects the subjects the rule governs in a case.
+	#
+	#   pFunc      a function of one parameter, the case, that returns a list of subject keys
+	#   returns    the rule itself, so calls chain
+	#   note       with no scope the rule governs nothing and Check judges nothing
+	#   see        SubjectsIn, SetCounter
+	#@ aka  WHICH SUBJECTS THIS RULE GOVERNS -- the half no rule in this library has ever stated separately, and the half every scope defect lived in.
 	def SetScope(pFunc)
 		@pScope = pFunc
 		return This
 
-	# WHAT MUST BE TRUE of a subject the scope selected.
+	# Sets the function that judges one governed subject.
+	#
+	#   pFunc      a function of two parameters, the case and one subject, that returns a pair [
+	#              holds, why ]
+	#   returns    the rule itself, so calls chain
+	#   note       an answer that is not a pair is read as not holding, with an empty reason
+	#   see        Check, SetScope
+	#@ aka  WHAT MUST BE TRUE of a subject the scope selected.
 	def SetClaimCheck(pFunc)
 		@pClaimFn = pFunc
 		return This
 
-	# SUBJECTS IT MUST NOT GOVERN. The negative sibling, at rule level.
+	# Sets the function that selects the subjects the rule must NOT govern in a case.
+	#
+	#   pFunc      a function of one parameter, the case, that returns a list of subject keys
+	#   returns    the rule itself, so calls chain
+	#   note       a counter no case in the governance corpus contains is reported as
+	#              boundary_unwitnessed
+	#   see        CounterSubjectsIn, SetScope
+	#@ aka  SUBJECTS IT MUST NOT GOVERN. The negative sibling, at rule level.
 	def SetCounter(pFunc)
 		@pCounter = pFunc
 		return This
 
-	# WHAT IT READS AND WHAT IT WRITES, so an ordering defect is a fact
-	# about declarations rather than something found by rendering a picture
-	# and squinting at it.
+	# Declares the quantities the rule reads, so a stale read can be found from declarations.
+	#
+	#   pacNames   the quantities read, a list of text
+	#   returns    the rule itself, so calls chain
+	#   see        Reads, SetWrites
+	#@ aka  WHAT IT READS AND WHAT IT WRITES, so an ordering defect is a fact about declarations rather than something found by rendering a picture and squinting at it.
 	def SetReads(pacNames)
 		@acReads = pacNames
 		return This
 
+	# Declares the quantities the rule writes, so a stale read or a contest can be found from declarations.
+	#
+	#   pacNames   the quantities written, a list of text
+	#   returns    the rule itself, so calls chain
+	#   see        Writes, SetReads
 	def SetWrites(pacNames)
 		@acWrites = pacNames
 		return This
 
-	# WHEN IT RUNS, in the pipeline it belongs to. Only meaningful against
-	# the other rules' orders; the governor compares, never this class.
+	# Sets when the rule runs, relative to the orders of the other rules.
+	#
+	#   pnOrder    the order, a number
+	#   returns    the rule itself, so calls chain
+	#   note       the governance compares orders and this class never does
+	#   see        Order, SetReads
+	#@ aka  WHEN IT RUNS, in the pipeline it belongs to. Only meaningful against the other rules' orders; the governor compares, never this class.
 	def SetOrder(pnOrder)
 		@nOrder = pnOrder
 		return This
 
+	# Sets the severity that the findings of the rule carry.
+	#
+	#   pcSeverity   the severity, such as error or warning
+	#   returns      the rule itself, so calls chain
+	#   note         the text is not checked
+	#   see          Severity, Check
 	def SetSeverity(pcSeverity)
 		@cSeverity = pcSeverity
 		return This
 
-	# A RULE THAT IS UNIVERSAL ON PURPOSE, and says why.
+	# Declares that the rule has no boundary on purpose, and says why.
 	#
-	# Some claims genuinely have no boundary: equal air applies to every
-	# picture there is, and no counter-example exists to witness. Without
-	# a way to say so, the governor reports every such rule as vacuous
-	# forever -- and a governor that reports work nobody can do is one
-	# its readers learn to skim, which costs more than the check earns.
-	#
-	# The REASON is required and is the whole safeguard. "Universal"
-	# asserted without one is indistinguishable from a scope predicate
-	# that broke, which is the case this layer exists to catch, so the
-	# escape hatch has to cost a sentence somebody can disagree with.
+	#   pcWhy      the reason, which is required: the rule is universal only while this text is not
+	#              empty
+	#   returns    the rule itself, so calls chain
+	#   note       the governance does not report a universal rule as vacuous or as having an
+	#              unwitnessed boundary
+	#   see        IsUniversal, SetCounter
+	#@ aka  A RULE THAT IS UNIVERSAL ON PURPOSE, and says why.
 	def SetUniversal(pcWhy)
 		@cUniversal = "" + pcWhy
 		return This
 
+	# TRUE if the rule was declared universal with a reason.
+	#
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   see        SetUniversal, UniversalWhy
 	def IsUniversal()   return @cUniversal != ""
+	# Returns the reason the rule was declared universal.
+	#
+	#   returns    the reason as text; an empty text when it was not
+	#   see        SetUniversal, IsUniversal
 	def UniversalWhy()  return @cUniversal
 
-	  #-- asking the rule about a picture ---------------------------------
-
+	# Returns the subjects the rule governs in a case, by calling its scope.
+	#
+	#   poDg       the case to look at, such as a rendered diagram or any object the scope
+	#              understands
+	#   returns    a list of subject keys; [ ] when no scope was set
+	#   see        CounterSubjectsIn, Check
+	#@ aka  -- asking the rule about a picture ---------------------------------
 	def SubjectsIn(poDg)
 		if @pScope = NULL  return []  ok
 		return call @pScope(poDg)
 
+	# Returns the subjects the rule must not govern that a case contains, by calling its counter.
+	#
+	#   poDg       the case to look at
+	#   returns    a list of subject keys; [ ] when no counter was set
+	#   see        SubjectsIn, SetCounter
 	def CounterSubjectsIn(poDg)
 		if @pCounter = NULL  return []  ok
 		return call @pCounter(poDg)
 
-	# Findings for one picture, in the house shape. A rule with no claim
-	# check governs subjects and judges nothing, which the governor reports
-	# as its own kind of defect rather than silently passing.
+	# Judges every governed subject of a case and returns a finding for each that fails the claim.
+	#
+	#   poDg       the case to judge
+	#   pcWhere    the name of the case, put before the subject in the finding's where
+	#   returns    a list of findings, each a hash list with rule, subject, where, severity and
+	#              message; [ ] when all hold
+	#   note       the message is the claim, then the reason; with no claim check set it judges
+	#              nothing and answers [ ]; subject is always plastic
+	#   see        SubjectsIn, SetClaimCheck
+	#@ aka  Findings for one picture, in the house shape. A rule with no claim check governs subjects and judges nothing, which the governor reports as its own kind of defect rather than silently passing.
 	def Check(poDg, pcWhere)
 		_aF_ = []
 		if @pClaimFn = NULL  return _aF_  ok

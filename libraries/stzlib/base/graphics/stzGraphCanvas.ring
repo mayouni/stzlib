@@ -173,6 +173,36 @@ func _StzCsr(paFrom, paTo, n)
 	next
 	return [ _off_, _src_ ]
 
+# Draws a graph so that what each node looks like is computed from the graph's own shape, its impact, depth or degree.
+#
+# SizeBy and ColorBy bind to properties the graph computes about itself, not to attributes set by
+# hand: :Impact is how many nodes fail downstream if this one does, :Depth is the layer, :Degree the
+# edge count. A node is big because it is important, and it is important because of the graph's
+# shape. Layouts are hierarchical (longest-path layers with a crossing-reducing sweep, the default),
+# force, ring, modes, sequence and mesh, and the raw coordinates are fitted into the canvas with a
+# margin. ToCanvas answers a stzCanvas, so ToSVG works with no device and ToPNG goes through the
+# graphics device without opening a window. The metrics are computed in the engine.
+#
+#   receiver   oG = new stzGraph("supply") oG.AddNodes([ "mine", "smelt", "chip", "car", "wheel" ])
+#              oG.AddEdge("mine", "smelt") oG.AddEdge("smelt", "chip") oG.AddEdge("chip", "car")
+#              oG.AddEdge("wheel", "car") oG.AddEdge("smelt", "wheel") o1 = new stzGraphCanvas(oG, [
+#              :SizeBy = :Impact, :ColorBy = :Impact, :Width = 400, :Height = 300 ])
+#   example    ? @@( o1.MetricValues(:Impact) )
+#              #--> [ 4, 3, 1, 0, 1 ]
+#              ? @@( o1.MetricValues(:Depth) )
+#              #--> [ 0, 1, 2, 3, 2 ]
+#              ? o1.LayerCount()
+#              #--> 4
+#              ? o1.Width()
+#              #--> 400
+#              ? @@( o1.Positions()[1] )
+#              #--> [ "mine", 200, 70 ]
+#              ? left(o1.ToSVG(), 4)
+#              #--> <svg
+#              o1.SetSize(200, 150)
+#              ? o1.Height()
+#              #--> 150
+#   see        stzGraph, stzCanvas, stzDiagram
 class stzGraphCanvas from stzObject
 
 	# the MODE each node landed in, and how many modes exist -- a property
@@ -222,6 +252,21 @@ class stzGraphCanvas from stzObject
 	# hierarchical layout has run.
 	@nLayoutCrossings = -1
 
+	# Lays a graph out and works out the size and colour of every node from the graph's own shape.
+	#
+	#   poGraph     the stzGraph to draw
+	#   paOptions   a hash list, such as :Layout = :Hierarchical (also :Force, :Ring, :Modes,
+	#               :Sequence, :Mesh), :SizeBy and :ColorBy = :Impact, :Depth, :Degree, :InDegree or
+	#               :OutDegree, :Width, :Height, :Background, :EdgeColor, :Font, :LabelSize and
+	#               :LabelColor
+	#   returns     nothing; the layout is computed when the object is built
+	#   note        the size defaults to 1000 by 620 and both metrics to :Degree; nodes are circles,
+	#               edges are straight lines, and labels are drawn only when a :Font is given
+	#   warning     a value that is not a graph raises error stzGraphCanvas: give me an stzGraph; a
+	#               graph with no node raises error stzGraphCanvas: that graph has no nodes to draw;
+	#               binding :Depth on a graph with a cycle raises an error saying a node cannot be
+	#               deeper than itself
+	#   see         Positions, ToCanvas, SetSize
 	def init(poGraph, paOptions)
 		if NOT isObject(poGraph)
 			StzRaise("stzGraphCanvas: give me an stzGraph.")
@@ -251,17 +296,41 @@ class stzGraphCanvas from stzObject
 
 		This._Compute()
 
+	# Returns the width of the drawing, in pixels.
+	#
+	#   returns    a number, 1000 unless :Width or SetSize gave another
+	#   see        Height, SetSize
 	def Width()   return @nW
+	# Returns the height of the drawing, in pixels.
+	#
+	#   returns    a number, 620 unless :Height or SetSize gave another
+	#   see        Width, SetSize
 	def Height()  return @nH
 
-	# The bend points of every edge that spans more than one rank, in the
-	# SAME normalised space as Positions() -- so a face transforms both
-	# with one rule and cannot place an edge in a different frame from the
-	# nodes it joins.
+	# Returns the route each long edge takes through the ranks it crosses, in the same space as Positions.
+	#
+	#   returns    a list of [ from, to, [ [ x, y ], ... ] ]; [ ] when every edge joins neighbouring
+	#              ranks
+	#   note       an edge a to d over three ranks is one route with two bend points
+	#   see        Positions
+	#@ aka  The bend points of every edge that spans more than one rank, in the SAME normalised space as Positions() -- so a face transforms both with one rule and cannot place an edge in a different frame from the nodes it joins.
 	def EdgeRoutes()  return @aBendOf
 
+	# Returns how wide the layout was before it was fitted to the canvas.
+	#
+	#   returns    a number in layout units; 1 for one minimum separation
+	#   see        RawSpanY, IsUnitX
 	def RawSpanX()    return @nRawSpanX
+	# Returns how tall the layout was before it was fitted to the canvas.
+	#
+	#   returns    a number in layout units
+	#   see        RawSpanX, LayerCount
 	def RawSpanY()    return @nRawSpanY
+	# Returns how many layers, ranks from top to bottom, the layout has.
+	#
+	#   returns    a number; 1 for the layouts that have no layers
+	#   note       the chain mine, smelt, chip, car has 4
+	#   see        RawSpanY, Positions
 	def LayerCount()  return @nLayerCount
 	# a node's signed demand in slot units, zero where none was sent
 	def _DemandOf(paXtra, nId)
@@ -269,14 +338,32 @@ class stzGraphCanvas from stzObject
 		if NOT isNumber(paXtra[nId])  return 0  ok
 		return paXtra[nId]
 
+	# TRUE if the horizontal positions of the layout are in true slot units, not ordinal.
+	#
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   note       it is 1 for the hierarchical layout and 0 for the modes, sequence, mesh and ring
+	#              layouts
+	#   see        RawSpanX, RawPositions
 	def IsUnitX()     return @bUnitX
+	# Returns how many edge crossings the drawn order contains.
+	#
+	#   returns    a number; -1 when no hierarchical layout has run, as with the force layout
+	#   note       the count is of the order that is drawn, after the sweep and after clusters are
+	#              compacted
+	#   see        LayerCount
 	def LayoutCrossings()  return @nLayoutCrossings
 
-	# Validate HERE. Passing 0 used to be accepted and then surfaced much
-	# later as "stzCanvas refused a 0x0 canvas" from inside ToCanvas -- an
-	# error naming a class the caller never touched, pointing away from the
-	# line responsible. A window reports 0x0 while mapping and while
-	# minimised, so this is an ordinary input, not an exotic one.
+	# Changes the size of the drawing and lays the graph out again for it.
+	#
+	#   pnW        the new width in pixels, at least 1
+	#   pnH        the new height in pixels, at least 1
+	#   returns    nothing; the layout is recomputed. SetSizeQ returns the object for chaining
+	#   note       a window reports 0x0 while minimised, so skip that frame rather than call it
+	#   warning    a size below 1, such as 0 by 5, raises error stzGraphCanvas.SetSize: refused ...
+	#              a drawing needs area; a value that is not a number raises error
+	#              stzGraphCanvas.SetSize: give a width and a height
+	#   see        Width, Height
+	#@ aka  Validate HERE. Passing 0 used to be accepted and then surfaced much later as "stzCanvas refused a 0x0 canvas" from inside ToCanvas -- an error naming a class the caller never touched, pointing away from the line responsible. A window reports 0x0 while mapping and while minimised, so this is an ordinary input, not an exotic one.
 	def SetSize(pnW, pnH)
 		if NOT (isNumber(pnW) and isNumber(pnH))
 			StzRaise("stzGraphCanvas.SetSize: give a width and a height.")
@@ -294,11 +381,25 @@ class stzGraphCanvas from stzObject
 		This.SetSize(pnW, pnH)
 		return This
 
-	# The computed values behind the picture, so a caller can ASSERT on
-	# them instead of squinting at pixels.
+	# Returns a property the graph computes about itself, one number per node, in node order.
+	#
+	#   cWhich     the property, one of :Impact, :Depth, :Degree, :InDegree or :OutDegree, in any
+	#              letter case
+	#   returns    a list of numbers: :Impact counts the nodes that fail downstream, :Depth the
+	#              layer, :Degree the edges in or out, :InDegree and :OutDegree each side
+	#   note       for the chain mine, smelt, chip, car with a wheel branch, mine has an impact of 4
+	#   warning    any other name, such as betweenness, raises error stzGraphCanvas: I do not
+	#              compute ...; :Depth on a cyclic graph raises an error, since no layering exists
+	#   see        Positions, init
+	#@ aka  The computed values behind the picture, so a caller can ASSERT on them instead of squinting at pixels.
 	def MetricValues(cWhich)
 		return StzGraphMetric(@oGraph, cWhich)
 
+	# Returns where every node sits on the canvas.
+	#
+	#   returns    a list of [ id, x, y ] in node order, in pixels
+	#   note       positions are fitted into the canvas with a margin, so they change with SetSize
+	#   see        RawPositions, EdgeRoutes
 	def Positions()
 		_a_ = []
 		_n_ = len(@aIds)
@@ -307,9 +408,12 @@ class stzGraphCanvas from stzObject
 		next
 		return _a_
 
-	# The layout's OWN coordinates, before the fit to the canvas -- the
-	# space a pin is expressed in, and therefore the space a cursor
-	# position has to be translated back into.
+	# Returns the horizontal position each node had in the layout before it was fitted to the canvas.
+	#
+	#   returns    a list of [ id, x ] in node order
+	#   note       for the hierarchical layout this is the space a pin lives in
+	#   see        Positions, IsUnitX
+	#@ aka  The layout's OWN coordinates, before the fit to the canvas -- the space a pin is expressed in, and therefore the space a cursor position has to be translated back into.
 	def RawPositions()
 		_a_ = []
 		_n_ = len(@aIds)
@@ -320,8 +424,13 @@ class stzGraphCanvas from stzObject
 		next
 		return _a_
 
-	#-- the two tiers, inherited by handing back an stzCanvas --------------
-
+	# Builds a stzCanvas of the picture, edges first, then nodes sized and coloured by their metrics, then labels.
+	#
+	#   returns    a stzCanvas
+	#   note       labels need a :Font option; the colours run from green for a low value to red for
+	#              a high one; ToCanvasQ is the same call
+	#   see        ToSVG, ToPNG
+	#@ aka  -- the two tiers, inherited by handing back an stzCanvas --------------
 	def ToCanvas()
 		_oC_ = new stzCanvas(@nW, @nH)
 		_oC_.SetBackground(This._Opt(:Background, "#0B1020"))
@@ -362,10 +471,21 @@ class stzGraphCanvas from stzObject
 	def ToCanvasQ()
 		return This.ToCanvas()
 
+	# Returns the picture as SVG text; no graphics device is needed.
+	#
+	#   returns    a text starting with <svg
+	#   see        ToCanvas, ToPNG
 	def ToSVG()
 		_o_ = This.ToCanvas()
 		return _o_.ToSVG()
 
+	# Draws the picture on the graphics device and writes it to a PNG file.
+	#
+	#   pcPath     the path of the file to write
+	#   returns    the PNG bytes as text; empty when no graphics device is available
+	#   note       it needs a device but opens no window, and the temporary canvas is freed; do not
+	#              print the answer, it is binary
+	#   see        ToSVG, ToCanvas
 	def ToPNG(pcPath)
 		_o_ = This.ToCanvas()
 		_c_ = _o_.ToPNG(pcPath)
@@ -721,11 +841,21 @@ class stzGraphCanvas from stzObject
 		for _i_ = 1 to pnN  _comp_[_i_] = _aMap_[ _comp_[_i_] ]  next
 		return _comp_
 
-	# Which mode each node landed in, and how many there are -- read by the
-	# face, which turns a mode of two or more states into a drawn REGION.
+	# Returns the mode each node landed in, for the modes layout.
+	#
+	#   returns    a list of mode numbers in node order; [ ] for the other layouts
+	#   note       a mode of two or more states is drawn as a region by the face
+	#   see        ModeCount
+	#@ aka  Which mode each node landed in, and how many there are -- read by the face, which turns a mode of two or more states into a drawn REGION.
 	def ModeOf()
 		return @aModeOf
 
+	# Returns how many modes the modes layout found.
+	#
+	#   returns    a number; 0 for the other layouts
+	#   note       on the five-node supply chain with a branch the modes layout gave five modes of
+	#              one node each
+	#   see        ModeOf
 	def ModeCount()
 		return @nModeCount
 

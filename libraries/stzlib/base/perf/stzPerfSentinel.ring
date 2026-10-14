@@ -37,6 +37,42 @@
 func StzPerfSentinel(poSla, poMonitor)
 	return new stzPerfSentinel(poSla, poMonitor)
 
+# Judges an SLA on a cadence and turns changes of verdict into alerts, one when a breach appears and one when it clears.
+#
+# An SLA judges when asked; the sentinel judges on a cadence and is edge-triggered, which is the
+# honest flap suppression: a breach fires once when it appears and a recovery once when it clears,
+# so an invariant that stays broken does not page you four hundred times. Run it three ways: Check
+# whenever you like, Every and Tick from any loop, or hosted by an agent host through Name_ and
+# Cycle. Every alert also goes out on the engine event bus, perf.breach and perf.clear, and a new
+# breach takes a black-box snapshot of the process. The ledger keeps the newest 256 alerts. Explain
+# and Show raise error R41 today while a rule is breached.
+#
+#   receiver   oMon = StzPerfMonitor("api") oDepth = oMon.NewGauge("queue.depth") oDepth.Set(50)
+#              oSla = StzSla("api") oSla.ExpectValue("queue.depth").AtMost(100) o1 =
+#              StzPerfSentinel(oSla, oMon)
+#   example    ? o1.Check()
+#              #--> 0
+#              oDepth.Set(150)
+#              ? o1.Check()
+#              #--> 1
+#              ? o1.IsBreached()
+#              #--> 1
+#              ? @@( o1.ActiveBreaches() )
+#              #--> [ "value-queue.depth-under-100" ]
+#              ? o1.Check()
+#              #--> 0
+#              ? o1.LastAlert()[2]
+#              #--> breach
+#              ? o1.LastBlackBox()[:metrics][1][3]
+#              #--> 150
+#              oDepth.Set(10)
+#              ? o1.Check()
+#              #--> 0
+#              ? o1.LastAlert()[2]
+#              #--> clear
+#              ? o1.CheckCount()
+#              #--> 4
+#   see        stzSla, stzPerfMonitor, stzEventBus, stzAgentHost
 class stzPerfSentinel from stzObject
 
 	@cName = "perf-sentinel"
@@ -56,57 +92,116 @@ class stzPerfSentinel from stzObject
 	@nNextDueMs = 0
 	@nChecks = 0
 
+	# Builds a sentinel that judges an SLA against a monitor on a cadence and turns verdict changes into alerts.
+	#
+	#   poSla       the stzSla to judge
+	#   poMonitor   the stzPerfMonitor whose metrics it reads
+	#   returns     nothing; the object is built with its own event bus and no breach
+	#   note        StzPerfSentinel builds the same object; the SLA is copied at birth, the monitor
+	#               copy shares the engine-backed metrics, and the sentinel's own transition state
+	#               lives in Ring, so one copy should drive Check and Tick
+	#   see         Check, Tick, OnBreach
 	def init(poSla, poMonitor)
 		@oSla = poSla
 		@oMon = poMonitor
 		@oBus = new stzEventBus()
 
+	# Returns the sentinel's name.
+	#
+	#   returns    the name as text, perf-sentinel until SetName changes it
+	#   see        SetName, Name_
 	def Name()
 		return @cName
 
+	# Returns the sentinel's name, the form an agent host asks for.
+	#
+	#   returns    the name as text, the same as Name
+	#   see        Name, Cycle
 	def Name_()
 		return @cName
 
+	# Sets the sentinel's name.
+	#
+	#   pcName     the new name, a non-empty text
+	#   returns    the sentinel itself, so calls chain
+	#   see        Name
 	def SetName(pcName)
 		if isString(pcName) and pcName != ""
 			@cName = pcName
 		ok
 		return This
 
+	# Sets the function called once when a rule newly breaches.
+	#
+	#   pfCallback   a function taking the finding, a hash list with rule, subject, where, severity
+	#                and message
+	#   returns      the sentinel itself, so calls chain
+	#   note         it is edge-triggered: a rule that stays broken does not call it again
+	#   see          OnClear, Check
 	def OnBreach(pfCallback)
 		@fOnBreach = pfCallback
 		@bHasOnBreach = 1
 		return This
 
+	# Sets the function called once when a breached rule recovers.
+	#
+	#   pfCallback   a function taking the name of the rule that recovered
+	#   returns      the sentinel itself, so calls chain
+	#   see          OnBreach, Check
 	def OnClear(pfCallback)
 		@fOnClear = pfCallback
 		@bHasOnClear = 1
 		return This
 
-	# The event-bus channels alerts fan out on (process-global).
+	# Sets the names of the process-wide event channels the alerts are also published on.
+	#
+	#   pcBreach   the channel for breaches
+	#   pcClear    the channel for recoveries
+	#   returns    the sentinel itself, so calls chain
+	#   note       the defaults are perf.breach and perf.clear, so an agent supervised on a channel
+	#              wakes when the SLA breaks
+	#   see        BreachChannel, ClearChannel
+	#@ aka  The event-bus channels alerts fan out on (process-global).
 	def SetChannels(pcBreach, pcClear)
 		@cBreachChannel = "" + pcBreach
 		@cClearChannel = "" + pcClear
 		return This
 
+	# Returns the channel breaches are published on.
+	#
+	#   returns    the channel name as text, perf.breach by default
+	#   see        SetChannels, ClearChannel
 	def BreachChannel()
 		return @cBreachChannel
 
+	# Returns the channel recoveries are published on.
+	#
+	#   returns    the channel name as text, perf.clear by default
+	#   see        SetChannels, BreachChannel
 	def ClearChannel()
 		return @cClearChannel
 
+	# Sets the cadence of Tick.
+	#
+	#   pnMs       the interval in milliseconds, 1 or more
+	#   returns    the sentinel itself, so calls chain
+	#   note       the default is 1000
+	#   see        Tick, Check
 	def Every(pnMs)
 		if isNumber(pnMs) and pnMs >= 1
 			@nEveryMs = pnMs
 		ok
 		return This
 
-	# -- Judging --------------------------------------------------
-
-	# One judgment pass. Fires alerts on TRANSITIONS only: a rule
-	# breaching now that was fine before -> breach alert; a rule fine
-	# now that was breached before -> clear alert. Returns the number
-	# of NEW breaches this pass.
+	# Judges the SLA once and fires alerts for the changes since the last judgment only.
+	#
+	#   returns    the number of new breaches in this pass
+	#   note       a new breach logs, photographs the process in the black box, publishes on the
+	#              breach channel and calls OnBreach; a recovery logs, publishes on the clear
+	#              channel and calls OnClear; a breach that persists does nothing, which is the flap
+	#              suppression; an unmeasured expectation counts as a breach
+	#   see        Tick, OnBreach, ActiveBreaches
+	#@ aka  -- Judging --------------------------------------------------
 	def Check()
 		_aF_ = @oSla.CheckAgainst(@oMon)
 		@nChecks++
@@ -133,11 +228,21 @@ class stzPerfSentinel from stzObject
 		@aBreached = _aNow_
 		return _nNew_
 
+	# Returns how many judgments have been made.
+	#
+	#   returns    a number
+	#   see        Check, Tick
 	def CheckCount()
 		return @nChecks
 
-	# Cadence-gated judging, on the monotonic clock -- call from any
-	# loop. Returns the number of new breaches (0 when not due).
+	# Judges the SLA if the cadence says it is due, for any loop to call.
+	#
+	#   returns    the number of new breaches; 0 when it was not due
+	#   note       the first call is always due, then the next one waits for Every milliseconds on
+	#              the monotonic clock; Cycle is the same call, which makes the sentinel hostable by
+	#              a stzAgentHost
+	#   see        Check, Every
+	#@ aka  Cadence-gated judging, on the monotonic clock -- call from any loop. Returns the number of new breaches (0 when not due).
 	def Tick()
 		_nNow_ = StzEngineWatchTimestampMs()
 		if _nNow_ < @nNextDueMs
@@ -150,17 +255,34 @@ class stzPerfSentinel from stzObject
 	def Cycle()
 		return This.Tick()
 
-	# -- Reading --------------------------------------------------
-
+	# Returns the rules in breach as of the last judgment.
+	#
+	#   returns    a list of rule names
+	#   see        IsBreached, Check
+	#@ aka  -- Reading --------------------------------------------------
 	def ActiveBreaches()
 		return @aBreached
 
+	# TRUE if any rule is in breach as of the last judgment.
+	#
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   see        ActiveBreaches
 	def IsBreached()
 		return ring_len(@aBreached) > 0
 
+	# Returns the alerts so far, breaches and recoveries, oldest first.
+	#
+	#   returns    a list of [ time in milliseconds, breach or clear, rule, message ]; at most the
+	#              newest 256
+	#   note       the time is on the monotonic clock; a recovery's message is recovered
+	#   see        LastAlert, BlackBox
 	def AlertLog()
 		return @aAlertLog
 
+	# Returns the newest alert.
+	#
+	#   returns    a list [ time, breach or clear, rule, message ]; [ ] when there is none
+	#   see        AlertLog
 	def LastAlert()
 		_n_ = ring_len(@aAlertLog)
 		if _n_ = 0
@@ -168,6 +290,15 @@ class stzPerfSentinel from stzObject
 		ok
 		return @aAlertLog[_n_]
 
+	# Returns the state as lines of text: the name, the number of checks and whether expectations are met, then each breached rule.
+	#
+	#   returns    a list of text lines
+	#   note       with no breach the single line reads Sentinel name -- N check(s), all
+	#              expectations met.
+	#   warning    raises error R41 Invalid numeric string whenever a rule is in breach, because the
+	#              state text adds the number of breaches to a text; it answers well only while
+	#              nothing is breached
+	#   see        Show, ActiveBreaches
 	def Explain()
 		_aLines_ = []
 		_cState_ = "all expectations met"
@@ -181,6 +312,12 @@ class stzPerfSentinel from stzObject
 		next
 		return _aLines_
 
+	# Prints the explanation to the console, one line per line.
+	#
+	#   returns    nothing
+	#   note       it prints with the ? statement
+	#   warning    raises the same error R41 as Explain while a rule is in breach
+	#   see        Explain
 	def Show()
 		_aL_ = This.Explain()
 		_nL_ = ring_len(_aL_)
@@ -247,9 +384,23 @@ class stzPerfSentinel from stzObject
 			del(@aBlackBox, 1)
 		ok
 
+	# Returns the flight-recorder snapshots, one taken at each new breach.
+	#
+	#   returns    a list of hash lists, the newest 16
+	#   note       each holds at, rule, message, rssBytes, peakBytes, cpuMs, sysFreeBytes, the
+	#              current value of every metric and the recent trace ids; the values are live, so
+	#              assert ranges and signs
+	#   see        LastBlackBox, AlertLog
 	def BlackBox()
 		return @aBlackBox
 
+	# Returns the newest flight-recorder snapshot.
+	#
+	#   returns    a hash list with the keys at, rule, message, rssBytes, peakBytes, cpuMs,
+	#              sysFreeBytes, metrics and traces; [ ] when there is none
+	#   note       metrics is a list of [ name, kind, value ]; traces is [ ] when the monitor does
+	#              not trace
+	#   see        BlackBox
 	def LastBlackBox()
 		_n_ = ring_len(@aBlackBox)
 		if _n_ = 0

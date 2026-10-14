@@ -1,0 +1,19 @@
+init | Builds a complex number from a real part and an imaginary part; a part that is not a number becomes 0. | nothing; the object is built | pnReal=the real part, or a pair [ re, im ] that carries both; pnImaginary=the imaginary part (give 0 when pnReal is a pair) | Parts, Content | Both arguments are required: new stzComplex([2, -3]) with the pair alone raises R19 (less number of parameters), so give new stzComplex([2, -3], 0); a text for a part is silently read as 0: ("x", "y") builds 0+0i |
+RealPart | Returns the real part of the number. | a number | | ImaginaryPart, Parts | |
+ImaginaryPart | Returns the imaginary part of the number, the coefficient of i. | a number | | RealPart, Parts | |
+Parts | Returns the real and imaginary parts together as a pair. | a list [ re, im ] | | RealPart, ImaginaryPart | |
+Content | Returns the number written as text, such as 3+4i or 3-4i, a bare 3 when the imaginary part is 0, 5i when the real part is 0. | a text | | Parts | | i and -i stand for an imaginary part of 1 and -1
+IsReal | TRUE if the imaginary part is 0. | TRUE or FALSE | | IsImaginary, IsZero | | 0 itself is real
+IsImaginary | TRUE if the real part is 0 and the imaginary part is not. | TRUE or FALSE | | IsReal, IsZero | | 0 is not imaginary
+IsZero | TRUE if both parts are 0. | TRUE or FALSE | | IsReal | |
+Modulus | Returns the distance of the number from 0, the length sqrt(re^2 + im^2), computed so that very large parts do not overflow. | a number, 0 or more | | Argument, Magnitude | | Magnitude is the same method; 3+4i has modulus 5
+Argument | Returns the angle of the number from the positive real axis, in radians, between minus pi (excluded) and pi. | a number | | Modulus | | 0 for the number 0; -1 gives pi
+Conjugate | Changes the number into its conjugate in place, the imaginary part changing sign. | nothing; use ConjugateQ to chain | | Conjugated, Negate | | Conjugated leaves the number alone
+Conjugated | Returns the conjugate as a pair [ re, -im ], leaving the number unchanged. | a list [ re, im ] | | Conjugate | | ConjugatedQ answers a new stzComplex
+Negate | Changes the number into its opposite in place, both parts changing sign. | nothing; use NegateQ to chain | | Negated, Conjugate | |
+Negated | Returns the opposite as a pair [ -re, -im ], leaving the number unchanged. | a list [ re, im ] | | Negate | | NegatedQ answers a new stzComplex
+Plus | Returns the sum with another number as a pair [ re, im ], leaving this number unchanged. | a list [ re, im ] | pZ=the other number: a plain number, a pair [ re, im ] or a stzComplex | Minus, Times | | PlusQ answers a new stzComplex to chain on; any other kind of value raises "Give me a number, a [re, im] pair, or another stzComplex."
+Minus | Returns the difference with another number as a pair [ re, im ], leaving this number unchanged. | a list [ re, im ] | pZ=the number to subtract: a plain number, a pair [ re, im ] or a stzComplex | Plus | | MinusQ answers a new stzComplex
+Times | Returns the product with another number as a pair [ re, im ], leaving this number unchanged. | a list [ re, im ] | pZ=the factor: a plain number, a pair [ re, im ] or a stzComplex | DividedBy | | TimesQ answers a new stzComplex; 3+4i times i is -4+3i
+DividedBy | Returns the quotient by another number as a pair [ re, im ], leaving this number unchanged, using a form that does not overflow. | a list [ re, im ] | pZ=the divisor: a plain number, a pair [ re, im ] or a stzComplex, not zero | Times | | dividing by 0 raises "Can't divide a complex number by zero."; DividedByQ answers a new stzComplex
+Equals | TRUE if the other number has the same real and imaginary parts. | TRUE or FALSE | pZ=the number to compare with: a plain number, a pair [ re, im ] or a stzComplex | Plus | | the comparison is exact, with no tolerance for rounding

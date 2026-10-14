@@ -1,0 +1,18 @@
+{
+ "brief": "Generates a random version-4 UUID and answers questions about it: its text forms, validity, version, variant and bytes.",
+ "detail": "A new object is a fresh random UUID held in upper case with hyphens. The generation and the validity check are done by the engine; the rest is reading the text. Two objects built one after the other differ, and a copy made with Copy holds the same value as the original.",
+ "receiver": "o1 = new stzUUID()",
+ "example": [
+  "? len(o1.Content())",
+  "#--> 36",
+  "? len(o1.WithoutHyphens())",
+  "#--> 32",
+  "? o1.Version()",
+  "#--> 4",
+  "? o1.Variant()",
+  "#--> RFC 4122",
+  "? o1.IsValid()",
+  "#--> 1"
+ ],
+ "see": ["stzRandom", "stzSystemActor"]
+}

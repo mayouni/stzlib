@@ -1,0 +1,22 @@
+{
+ "brief": "Holds a model-backed agent that proposes candidates and can never commit an effect on its own.",
+ "detail": "It has the same shape as stzPIAgent but its body is a stzLLMFunction, and its capability set is inference only: HoldsEffectful answers 0 whatever is done to it, so the agent graph and the guardrails treat it as an llm_actor that a guarded pi-actor must admit before anything happens. Propose returns the model function's answer as a candidate. Documented and run here with a seeded answer, so no model is loaded and nothing is called over a network.",
+ "receiver": "o1 = new stzLLMAgent(\"summarizer\")\no2 = new stzLLMFunction(\"sum\")",
+ "example": [
+  "o2.SetPrompt(\"summarize: {input}\")",
+  "o2.Budget(2)",
+  "o2.SeedAnswer(\"hello world\", \"a greeting\")",
+  "o1.SetSkillFrom(o2)",
+  "? o1.Propose(\"hello world\")",
+  "#--> a greeting",
+  "? o1.HoldsEffectful()",
+  "#--> 0",
+  "? o1.Kind()",
+  "#--> llm_actor"
+ ],
+ "see": [
+  "stzPIAgent",
+  "stzLLMFunction",
+  "stzAgentGraph"
+ ]
+}

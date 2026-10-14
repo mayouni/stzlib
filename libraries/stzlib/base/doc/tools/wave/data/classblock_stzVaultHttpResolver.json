@@ -1,0 +1,19 @@
+{
+ "brief": "Resolves vault-sourced secrets from a real HashiCorp Vault or OpenBao server over its HTTP API, without keeping the token.",
+ "detail": "It satisfies the stzVaultResolver contract, Resolve and Has, so a secret revealed through RevealVia, or the key of a sealed store, comes from the secret manager itself. A locator is path#field; a path holding /data/ is read as KV version 2, any other as KV version 1. It refuses by construction an http address that is not loopback, since the token would cross the network in clear, holds the token only as a stzSecret revealed through the actor gate for each request, and puts it in no message or event. The actor who asks for a secret is gated separately, by the secret's own RevealVia, before the resolver is called. The documentation here was run only against a loopback port that never answers, never against a real vault.",
+ "receiver": "o1 = new stzVaultHttpResolver(\"https://vault.internal:8200/\", StzSecretQ(\"vault-token\"), HumanActor(\"svc\"))",
+ "example": [
+  "? o1.Address()",
+  "#--> https://vault.internal:8200",
+  "? o1.LastStatus()",
+  "#--> 0",
+  "o2 = new stzVaultHttpResolver(\"http://localhost:8200\", StzSecretQ(\"vault-token\"), HumanActor(\"svc\"))",
+  "? o2.Address()",
+  "#--> http://localhost:8200"
+ ],
+ "see": [
+  "stzVaultResolver",
+  "stzSecret",
+  "stzSecretStore"
+ ]
+}

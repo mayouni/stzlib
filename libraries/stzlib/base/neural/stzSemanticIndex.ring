@@ -53,6 +53,23 @@ func StzNeuralEmbeddingOf(pcText)
 	next
 	return _aVec_
 
+# Searches texts by meaning: each text is stored with an embedding and a query returns the closest ones by cosine score.
+#
+# Texts are embedded when they are added, with whatever sentence-embedding model the engine holds
+# (AddText), or the caller brings the vectors (AddEmbedded). Vectors are kept resident in the engine
+# so a search crosses only the query. The search is exact, not approximate, and the reported score
+# is the cosine for unit vectors. SearchByVectorXT needs no model at all; Search and Closest embed
+# the query text, so they need one. Call Close when done.
+#
+#   receiver   o1 = new stzSemanticIndex([]) o1.AddEmbedded("east", [ 1, 0, 0 ])
+#              o1.AddEmbedded("north", [ 0, 1, 0 ])
+#   example    ? o1.Count()
+#              #--> 2
+#              ? o1.SearchByVectorXT([ 0, 1, 0 ], 1)[1][1]
+#              #--> north
+#              ? o1.EmbeddingDim()
+#              #--> 3
+#   see        stzNeuralModel, stzNeuralEngine, StzNeuralEmbeddingOf
 class stzSemanticIndex from stzObject
 
 	@acTexts = []
@@ -71,6 +88,13 @@ class stzSemanticIndex from stzObject
 	@nGpuDist_ = 0
 	@bGpuTried_ = 0
 
+	# Builds an index, embedding and adding each text of the list when one is given.
+	#
+	#   paTexts    a list of texts to index now, or an empty list
+	#   returns    nothing; the object is built
+	#   warning    a non-empty list needs a loaded embedding model, and raises AddText: no embedding
+	#              model is loaded without one
+	#   see        AddText, AddEmbedded
 	def init(paTexts)
 		if isList(paTexts) and len(paTexts) > 0
 			This.AddTexts(paTexts)
@@ -80,8 +104,14 @@ class stzSemanticIndex from stzObject
 	 #   FEEDING THE INDEX               #
 	#-----------------------------------#
 
-	# Embeds at ADD time (the model must be loaded), so a bad text fails
-	# loudly here and not in the middle of a search.
+	# Embeds a text with the model the engine holds and stores both; the model must be loaded already.
+	#
+	#   pcText     the text to index, not empty
+	#   returns    the index itself, so calls chain
+	#   warning    raises for an empty or non-text argument, when no model is loaded, and when the
+	#              embedding size changes
+	#   see        AddEmbedded, AddTexts, Search
+	#@ aka  Embeds at ADD time (the model must be loaded), so a bad text fails loudly here and not in the middle of a search.
 	def AddText(pcText)
 		if NOT isString(pcText) or pcText = ""
 			StzRaise("AddText: give me a non-empty string.")
@@ -104,10 +134,15 @@ class stzSemanticIndex from stzObject
 		This._InvalidateDataset()
 		return This
 
-	# Index a text with an embedding the CALLER already has -- another model,
-	# a cache, a wire -- so the index never insists on embedding it again.
-	# The vector must be L2-normalised (the score formula assumes it) and of
-	# the index's dimension.
+	# Stores a text with an embedding the caller already has, so no model is needed; the vector must have unit length.
+	#
+	#   pcText     the text to index
+	#   paVec      its embedding, a list of numbers of the index's size and of norm 1
+	#   returns    the index itself, so calls chain
+	#   note       the norm is not checked, and the score is only a cosine for unit vectors
+	#   warning    raises for an empty text, an empty vector and a size different from the first one
+	#   see        AddText, SearchByVectorXT
+	#@ aka  Index a text with an embedding the CALLER already has -- another model, a cache, a wire -- so the index never insists on embedding it again. The vector must be L2-normalised (the score formula assumes it) and of the index's dimension.
 	def AddEmbedded(pcText, paVec)
 		if NOT isString(pcText) or pcText = ""
 			StzRaise("AddEmbedded: give me a non-empty string.")
@@ -126,6 +161,12 @@ class stzSemanticIndex from stzObject
 		This._InvalidateDataset()
 		return This
 
+	# Adds each text of a list with AddText.
+	#
+	#   paTexts    the list of texts
+	#   returns    the index itself, so calls chain
+	#   warning    raises for a non-list; each text needs the loaded model
+	#   see        AddText
 	def AddTexts(paTexts)
 		if NOT isList(paTexts)
 			StzRaise("AddTexts: give me a list of strings.")
@@ -136,22 +177,42 @@ class stzSemanticIndex from stzObject
 		next
 		return This
 
+	# Returns how many texts the index holds.
+	#
+	#   returns    a number
+	#   see        Texts
 	def Count()
 		return len(@acTexts)
 
+	# Returns the indexed texts in the order they were added.
+	#
+	#   returns    a list of text
+	#   see        Count, Vectors
 	def Texts()
 		return @acTexts
 
+	# Returns the size of the embeddings, 0 while the index is empty.
+	#
+	#   returns    a number
+	#   see        Vectors, AddEmbedded
 	def EmbeddingDim()
 		return @nDim
 
-	# The stored embeddings, 1-based rows -- so a caller (or a guard) can
-	# recompute a cosine independently of the search path.
+	# Returns the stored embeddings, one row per text, in the order added.
+	#
+	#   returns    a list of lists of numbers
+	#   see        Texts, EmbeddingDim
+	#@ aka  The stored embeddings, 1-based rows -- so a caller (or a guard) can recompute a cosine independently of the search path.
 	def Vectors()
 		return @aVecs
 
-	# Is the corpus resident on the GPU right now? Silent seams still owe
-	# an honest answer to whoever asks.
+	# TRUE if the corpus is resident on the graphics card now; a small corpus never is.
+	#
+	#   returns    1 or 0, numbers
+	#   warning    the route is chosen by a measured threshold and none is seeded for this seam, so
+	#              it stays 0 until a calibration finds a win
+	#   see        SearchByVectorXT
+	#@ aka  Is the corpus resident on the GPU right now? Silent seams still owe an honest answer to whoever asks.
 	def UsesGpu()
 		return (@nGpuCorpus_ > 0)
 
@@ -178,10 +239,15 @@ class stzSemanticIndex from stzObject
 		ok
 		return This.SearchByVectorXT(_aQ_, n)
 
-	# The same search from a query embedding the caller already holds (the
-	# companion of AddEmbedded). ONE search path serves both doors: the
-	# route -- CPU resident dataset or GPU resident corpus -- is decided
-	# here and nowhere else.
+	# Returns the n texts closest in meaning to a query embedding, best first, each with its cosine score and position.
+	#
+	#   paQ        the query embedding, of the index's size
+	#   n          how many hits to return, 1 or more
+	#   returns    a list of [ text, cosine, position ] rows; [ ] for an empty index
+	#   note       the score is exact, from the unit-vector distance as 1 minus half its square
+	#   warning    raises when the size of paQ differs from the index's or n is below 1
+	#   see        Search, AddEmbedded
+	#@ aka  The same search from a query embedding the caller already holds (the companion of AddEmbedded). ONE search path serves both doors: the route -- CPU resident dataset or GPU resident corpus -- is decided here and nowhere else.
 	def SearchByVectorXT(paQ, n)
 		if NOT isList(paQ) or len(paQ) != @nDim
 			StzRaise("SearchByVector: the query embedding must have " + @nDim + " dims.")
@@ -218,10 +284,23 @@ class stzSemanticIndex from stzObject
 		next
 		return _aOut_
 
+	# Returns the 5 best matches for a query text, or n with SearchXT; the query is embedded with the loaded model.
+	#
+	#   pcQuery    the query text, not empty
+	#   returns    a list of [ text, cosine, position ] rows, best first
+	#   note       the score is 1 for the same meaning, near 0 for unrelated texts
+	#   warning    with no model loaded it answers [ ] without a message, where AddText raises
+	#   see        SearchByVectorXT, Closest
 	def Search(pcQuery)
 		return This.SearchXT(pcQuery, 5)
 
-	# The single best text (or "" on an empty index).
+	# Returns the single best matching text for a query, an empty text when there is no hit.
+	#
+	#   pcQuery    the query text, not empty
+	#   returns    a text
+	#   warning    with no model loaded it answers an empty text without a message
+	#   see        Search
+	#@ aka  The single best text (or "" on an empty index).
 	def Closest(pcQuery)
 		_aHits_ = This.SearchXT(pcQuery, 1)
 		if len(_aHits_) = 0 return "" ok
@@ -231,8 +310,13 @@ class stzSemanticIndex from stzObject
 	 #   LIFECYCLE                       #
 	#-----------------------------------#
 
-	# Ring has no destructors (the residency lesson): free the resident
-	# dataset explicitly when done with the index.
+	# Frees the resident dataset and empties the index, since Ring has no destructors.
+	#
+	#   returns    nothing
+	#   warning    a closed index is empty and can be fed again; a search by vector on it raises
+	#              about 0 dims
+	#   see        init
+	#@ aka  Ring has no destructors (the residency lesson): free the resident dataset explicitly when done with the index.
 	def Close()
 		This._InvalidateDataset()
 		@acTexts = []
