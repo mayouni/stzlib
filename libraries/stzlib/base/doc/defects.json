@@ -1,5 +1,5 @@
 {
- "count": 426,
+ "count": 476,
  "defects": [
   {
    "class": "stzAppServer",
@@ -160,6 +160,94 @@
    "line": 381,
    "symptom": "Raises error R13 today instead of returning where the storage keeps its entries.",
    "cause": "it forwards to a stzStorage that init never builds"
+  },
+  {
+   "class": "stzConstraint",
+   "file": "common/stzConstraint.ring",
+   "method": "init",
+   "line": 96,
+   "symptom": "Raises error R14 today instead of building a constraint from an object and a condition.",
+   "cause": "every call with an object and a text raises R14 Calling Method without definition: removefirstboundq, thrown by IsConstraint; any other argument raises Incorrect types of object params, so no stzConstraint can be built today"
+  },
+  {
+   "class": "stzConstraint",
+   "file": "common/stzConstraint.ring",
+   "method": "Name",
+   "line": 132,
+   "symptom": "Returns the name of the constraint, which nothing sets today.",
+   "cause": "always empty: the field it reads is never assigned anywhere in the class"
+  },
+  {
+   "class": "stzConstraint",
+   "file": "common/stzConstraint.ring",
+   "method": "Expression",
+   "line": 141,
+   "symptom": "Raises error R24 today instead of returning the Ring code that tests the condition.",
+   "cause": "reads a variable _cConstraint_ that is never assigned (the field is @cConstraint), so it raises R24 Using uninitialized variable on every call"
+  },
+  {
+   "class": "stzConstraint",
+   "file": "common/stzConstraint.ring",
+   "method": "CheckConstraint",
+   "line": 158,
+   "symptom": "Returns 0 on every call today, whether or not the guarded object obeys the condition.",
+   "cause": "always 0: the evaluation runs inside a try, and Expression raises first, so the failure is swallowed and reported as a broken constraint; checked on an object that obeys the condition and one that does not"
+  },
+  {
+   "class": "stzEngineTimeline",
+   "file": "common/stzEngineTimeline.ring",
+   "method": "Duration",
+   "line": 161,
+   "symptom": "Returns 0 on every call today, whatever the events are.",
+   "cause": "answered 0 for timestamps 100, 200, 300, then 1000 and 5000, then 2.5 and 9, then 1700000000 and 1700000060, sorted or not; the span between the first and the last event is not computed"
+  },
+  {
+   "class": "stzOccurrences",
+   "file": "common/stzOccurrences.ring",
+   "method": "SubString",
+   "line": 68,
+   "symptom": "Returns an empty text today instead of the substring that was searched.",
+   "cause": "the constructor stores the substring in @pcSubStr while this method reads @cSubStr, so the answer is always empty; checked with plain texts and with the :Of form"
+  },
+  {
+   "class": "stzOccurrences",
+   "file": "common/stzOccurrences.ring",
+   "method": "String",
+   "line": 80,
+   "symptom": "Returns an empty text today instead of the string that was searched.",
+   "cause": "the constructor stores the string in @pcStr while this method reads @cStr, so the answer is always empty; checked with plain texts and with the :In form"
+  },
+  {
+   "class": "stzOccurrences",
+   "file": "common/stzOccurrences.ring",
+   "method": "Removed",
+   "line": 103,
+   "symptom": "Raises error R14 today instead of returning the string with the substring cut out at every occurrence.",
+   "cause": "calls RemoveSubStringAtPositionsCSQ, a method stzString does not have; the stored string is also empty, see String"
+  },
+  {
+   "class": "stzOccurrences",
+   "file": "common/stzOccurrences.ring",
+   "method": "ReplacedWithCS",
+   "line": 113,
+   "symptom": "Does nothing today: the body is empty.",
+   "cause": "an unfinished stub with no parameters and no code; it answers an empty value"
+  },
+  {
+   "class": "stzOccurrences",
+   "file": "common/stzOccurrences.ring",
+   "method": "Uppercased",
+   "line": 120,
+   "symptom": "Does nothing today: the body is empty.",
+   "cause": "an unfinished stub with no code; it answers an empty value"
+  },
+  {
+   "class": "stzOccurrences",
+   "file": "common/stzOccurrences.ring",
+   "method": "Lowercased",
+   "line": 127,
+   "symptom": "Does nothing today: the body is empty.",
+   "cause": "an unfinished stub with no code; it answers an empty value"
   },
   {
    "class": "stzCalendar",
@@ -490,6 +578,54 @@
    "cause": "it edits the copy that Lane returns, so the label stays as it was and no error is raised"
   },
   {
+   "class": "stzImgToAscii",
+   "file": "extercode/stzImageToAscii.ring",
+   "method": "init",
+   "line": 63,
+   "symptom": "Raises error C27 today, when the file loads, instead of building an image-to-text converter.",
+   "cause": "the file extercode/stzImageToAscii.ring does not parse in Ring 1.27 (C27 Syntax Error at lines 41, 55, 56, 58, 79 and more) because it writes blocks in braces after if and in method bodies; no other file of the library loads it, so the class does not exist in a normal session"
+  },
+  {
+   "class": "stzImgToAscii",
+   "file": "extercode/stzImageToAscii.ring",
+   "method": "EnsureDirs",
+   "line": 74,
+   "symptom": "Raises error C27 today, when the file loads, instead of creating the temp and output folders.",
+   "cause": "same cause as init; the body also calls dir_create and reads a field @cOutputDir that is never defined (the field is @cOutDir)"
+  },
+  {
+   "class": "stzImgToAscii",
+   "file": "extercode/stzImageToAscii.ring",
+   "method": "Execute",
+   "line": 97,
+   "symptom": "Raises error C27 today, when the file loads, instead of running the im2ansi tool on the image and keeping the text or file it produces.",
+   "cause": "same cause as init; the tool path defaults to ../tools/im2ansi/im2ansi.exe, which is not in the library, and the body starts a real program"
+  },
+  {
+   "class": "stzImgToAscii",
+   "file": "extercode/stzImageToAscii.ring",
+   "method": "Content",
+   "line": 157,
+   "symptom": "Raises error C27 today, when the file loads, instead of returning the converted image as text, running Execute first when needed.",
+   "cause": "same cause as init"
+  },
+  {
+   "class": "stzImgToAscii",
+   "file": "extercode/stzImageToAscii.ring",
+   "method": "Show",
+   "line": 171,
+   "symptom": "Raises error C27 today, when the file loads, instead of printing the converted image or opening the output file in the system viewer.",
+   "cause": "same cause as init; for the svg and html formats the body would start the operating system's viewer"
+  },
+  {
+   "class": "stzImgToAscii",
+   "file": "extercode/stzImageToAscii.ring",
+   "method": "BuildArgs",
+   "line": 202,
+   "symptom": "Raises error C27 today, when the file loads, instead of building the command-line options for the im2ansi tool from the settings.",
+   "cause": "same cause as init"
+  },
+  {
    "class": "stzFileInfo",
    "file": "file/stzFile.ring",
    "method": "IsExecutable",
@@ -664,6 +800,22 @@
    "line": 558,
    "symptom": "Writes the HTML text of the document to a file and returns the builder.",
    "cause": "defect: the file is created empty after AppendToCurrent, for the same reason as Build"
+  },
+  {
+   "class": "stzZipFile",
+   "file": "file/stzZipFile.ring",
+   "method": "CreateFromDirectory",
+   "line": 129,
+   "symptom": "Raises error R3 today instead of creating the archive from every file of a folder.",
+   "cause": "the call FilesInDir does not exist anywhere in the library, so an existing folder raises R3 Calling Function without definition: filesindir; a missing folder raises Directory does not exist"
+  },
+  {
+   "class": "stzZipFile",
+   "file": "file/stzZipFile.ring",
+   "method": "AddString",
+   "line": 218,
+   "symptom": "Raises error R3 today instead of storing a text as an entry of the archive.",
+   "cause": "the zip_newentry function it calls does not exist (checked by calling it directly), so every call raises R3 Calling Function without definition: zip_newentry"
   },
   {
    "class": "stzGeoFeatures",
@@ -1114,6 +1266,46 @@
    "cause": "an empty property name or an unknown operator raises an error; the ordering operators compare numbers only: on a text greaterthan and lessthan never match but greaterequal and lessequal match every node, which is a defect; an unset property reads as 0, so exists fails and missing holds for it"
   },
   {
+   "class": "stzGridNav",
+   "file": "graph/stzGridNav.ring",
+   "method": "init",
+   "line": 83,
+   "symptom": "Raises error Can't create stzGridNav! Engine returned error today instead of building a named grid.",
+   "cause": "new stzGridNav(\"g\", 3, 4) and new stzGridNav(\"g5\", 5, 5) both raise, because the engine function StzEngineGridCreate takes (rows, cols) and is handed (name, rows, cols): the text is read as 0 rows and the call returns -1; StzEngineGridCreate(3, 4) called directly succeeds"
+  },
+  {
+   "class": "stzGridNav",
+   "file": "graph/stzGridNav.ring",
+   "method": "CurrentRow",
+   "line": 141,
+   "symptom": "Returns the row of the current position, once a grid exists; none can be built today.",
+   "cause": "unreachable today because init raises"
+  },
+  {
+   "class": "stzGridNav",
+   "file": "graph/stzGridNav.ring",
+   "method": "CurrentCol",
+   "line": 153,
+   "symptom": "Returns the column of the current position, once a grid exists; none can be built today.",
+   "cause": "unreachable today because init raises"
+  },
+  {
+   "class": "stzGridNav",
+   "file": "graph/stzGridNav.ring",
+   "method": "NeighborCount",
+   "line": 251,
+   "symptom": "Returns how many cells touch the current one, up, down, left and right, inside the grid; none can be built today.",
+   "cause": "unreachable today because init raises"
+  },
+  {
+   "class": "stzGridNav",
+   "file": "graph/stzGridNav.ring",
+   "method": "DistanceTo",
+   "line": 284,
+   "symptom": "Returns the Manhattan distance between the current cell and another, once a grid exists; none can be built today.",
+   "cause": "unreachable today because init raises; it also sends 3 arguments to an engine function that takes 4 (both cells), so the answer would not be the distance from the current cell"
+  },
+  {
    "class": "stzKnowledgeGraph",
    "file": "graph/stzKnowledgeGraph.ring",
    "method": "ValidateOntology",
@@ -1232,6 +1424,30 @@
    "line": 3246,
    "symptom": "Applies a list of changes to the copy, never to the original, then records the before and after spans and vacancy rates.",
    "cause": "known defect: a change_reporting change raises \"Cannot add edge: one or both nodes do not exist!\", since the copy has no nodes; an unknown :type is skipped without a word"
+  },
+  {
+   "class": "stzWorkflowSimulation",
+   "file": "graph/stzWorkflow.ring",
+   "method": "OptimizeStep",
+   "line": 1678,
+   "symptom": "Raises error R24 Using uninitialized variable: @achanges today instead of recording a new duration for a step.",
+   "cause": "no object of this class can record a change: the class has no @aChanges list and no init, so the first line of the method raises; building the object with a workflow, new stzWorkflowSimulation(oWf), raises the same error on the call"
+  },
+  {
+   "class": "stzWorkflowSimulation",
+   "file": "graph/stzWorkflow.ring",
+   "method": "ReassignStep",
+   "line": 1694,
+   "symptom": "Raises error R24 Using uninitialized variable: @achanges today instead of recording a move of a step to another actor.",
+   "cause": "raises the same error as OptimizeStep, because the class has no @aChanges list"
+  },
+  {
+   "class": "stzWorkflowSimulation",
+   "file": "graph/stzWorkflow.ring",
+   "method": "ParallelizeSteps",
+   "line": 1709,
+   "symptom": "Raises error R24 Using uninitialized variable: @achanges today instead of recording that steps run side by side.",
+   "cause": "raises the same error as OptimizeStep, because the class has no @aChanges list"
   },
   {
    "class": "stzText",
@@ -1490,6 +1706,54 @@
    "cause": "Raises \"You must provide a list of sections\" today for valid sections such as [ [ 1, 3 ], [ 5, 8 ] ]: the stzSetOfSections constructor refuses what stzListOfSections accepts"
   },
   {
+   "class": "stzListProvidedAsString",
+   "file": "list/stzListProvidedAsString.ring",
+   "method": "IsListOfValues",
+   "line": 85,
+   "symptom": "Raises error R12 today instead of telling whether the list text holds only values and no variable names.",
+   "cause": "Raises error R12 (property not found: list) today instead of TRUE or FALSE, because ContainsOnlyValues reads a property that does not exist"
+  },
+  {
+   "class": "stzListProvidedAsString",
+   "file": "list/stzListProvidedAsString.ring",
+   "method": "IsListOfVariables",
+   "line": 94,
+   "symptom": "Returns an empty text today instead of telling whether the list text holds only variable names and no values.",
+   "cause": "Not implemented: ContainsOnlyVariables is an empty TODO stub, so the answer is \"\" whatever the text, and a test on it is always false"
+  },
+  {
+   "class": "stzListProvidedAsString",
+   "file": "list/stzListProvidedAsString.ring",
+   "method": "IsListOfValuesAndVariables",
+   "line": 103,
+   "symptom": "Returns an empty text today instead of telling whether the list text mixes values and variable names.",
+   "cause": "Not implemented: ContainsValuesAndVariables is an empty TODO stub, so the answer is \"\" whatever the text"
+  },
+  {
+   "class": "stzListProvidedAsString",
+   "file": "list/stzListProvidedAsString.ring",
+   "method": "ContainsOnlyValues",
+   "line": 112,
+   "symptom": "Raises error R12 today instead of telling whether the list text holds only values, such as numbers, texts and lists.",
+   "cause": "Raises error R12 (property not found: list) today, because its first line reads This.List, a property the class does not have"
+  },
+  {
+   "class": "stzListProvidedAsString",
+   "file": "list/stzListProvidedAsString.ring",
+   "method": "ContainsOnlyVariables",
+   "line": 122,
+   "symptom": "Returns an empty text today instead of telling whether the list text holds only variable names.",
+   "cause": "Not implemented: the body is a TODO comment, so the answer is \"\" whatever the text"
+  },
+  {
+   "class": "stzListProvidedAsString",
+   "file": "list/stzListProvidedAsString.ring",
+   "method": "ContainsValuesAndVariables",
+   "line": 131,
+   "symptom": "Returns an empty text today instead of telling whether the list text holds both values and variable names.",
+   "cause": "Not implemented: the body is a TODO comment, so the answer is \"\" whatever the text"
+  },
+  {
    "class": "stzListWalker",
    "file": "list/stzListWalker.ring",
    "method": "AddWalker",
@@ -1536,6 +1800,22 @@
    "line": 522,
    "symptom": "Returns 0 today, because it counts the subsets that Subsets does not compute.",
    "cause": "it is the length of what Subsets answers, an empty text"
+  },
+  {
+   "class": "stzSetOfSections",
+   "file": "list/stzSetOfSections.ring",
+   "method": "init",
+   "line": 46,
+   "symptom": "Raises error \"Can't create the stzSetOfSections object\" today for every argument instead of building a set of sections.",
+   "cause": "Refuses [ [1,3], [5,7] ] and every other list: the check calls @IsSetOfSections, a function whose body is empty, so it answers an empty text and the creation is always refused; the working global IsSetOfSections itself fails with R14 (stzList has no IsListOfSections method)"
+  },
+  {
+   "class": "stzSetOfSections",
+   "file": "list/stzSetOfSections.ring",
+   "method": "IntersectionWith",
+   "line": 117,
+   "symptom": "Raises the error \"Feature not implemented yet!\" today instead of the sections shared with another set.",
+   "cause": "Not run on an object, since none can be built; read from the code, the body is only a StzRaise call, and Intersection forwards to it"
   },
   {
    "class": "stzTree",
@@ -1690,6 +1970,22 @@
    "cause": "Raises error R19 today whatever the path, on a drive path with backslashes and on /tmp/y.txt: it calls ReplaceSubstring with two arguments where that method takes a start, an end and a replacement"
   },
   {
+   "class": "stzWebSocket",
+   "file": "network/stzWebSocket.ring",
+   "method": "Connect",
+   "line": 40,
+   "symptom": "Raises error R3 today instead of opening a WebSocket connection.",
+   "cause": "raises error R3 because it calls curl_easy_init, a libcurl function that the library no longer loads; the class still wraps libcurl while the rest of the network layer moved to the engine, and even with libcurl the later calls would not see the handle, which Connect keeps in a local variable"
+  },
+  {
+   "class": "stzWebSocket",
+   "file": "network/stzWebSocket.ring",
+   "method": "Close",
+   "line": 143,
+   "symptom": "Does nothing today, because no connection can be open.",
+   "cause": ""
+  },
+  {
    "class": "stzLLMFunction",
    "file": "neural/stzLLMFunction.ring",
    "method": "ReturnsNumber",
@@ -1824,6 +2120,46 @@
    "line": 242,
    "symptom": "Raises error R14 today instead of writing the value in scientific notation.",
    "cause": "it forwards to ToScientificNotationForm on stzNumber, a method that does not exist there; stzNumber raises the same R14 on its own"
+  },
+  {
+   "class": "stzListOfNamedObjects",
+   "file": "object/stzListOfNamedObjects.ring",
+   "method": "init",
+   "line": 68,
+   "symptom": "Raises error R14 today instead of building a list of named objects from the given list.",
+   "cause": "the check calls IsListOfNamedObjects on a stzList, a method that does not exist, so every list raises R14 Calling Method without definition: islistofnamedobjects (tried with an empty list and with one object); a value that is not a list raises Incorrect param type"
+  },
+  {
+   "class": "stzListOfNamedObjects",
+   "file": "object/stzListOfNamedObjects.ring",
+   "method": "Copy",
+   "line": 97,
+   "symptom": "Raises error R14 today instead of returning a copy of the list: it builds a new one through init, which raises.",
+   "cause": ""
+  },
+  {
+   "class": "stzListOfObjects",
+   "file": "object/stzListOfObjects.ring",
+   "method": "init",
+   "line": 36,
+   "symptom": "Raises error R14 today instead of building a list of objects from the given list.",
+   "cause": "the type check calls IsListOfObjects on a stzList, a method that does not exist, so every list raises R14 Calling Method without definition: islistofobjects (tried with one object and with two); a value that is not a list raises Incorrect param type"
+  },
+  {
+   "class": "stzListOfObjects",
+   "file": "object/stzListOfObjects.ring",
+   "method": "Content",
+   "line": 50,
+   "symptom": "Returns an empty text today instead of the list of objects, because the method names the list and does not return it.",
+   "cause": "the body is the bare name @aContent with no return, so the list is never handed back, even for a holder built without init"
+  },
+  {
+   "class": "stzListOfObjects",
+   "file": "object/stzListOfObjects.ring",
+   "method": "Copy",
+   "line": 58,
+   "symptom": "Raises error today instead of returning a copy of the list: it calls Content, which returns nothing, and init then refuses it.",
+   "cause": "raises Incorrect param type! paoObjects must be a list of objects"
   },
   {
    "class": "stzObject",
@@ -2554,6 +2890,30 @@
    "cause": "before the loops start every landing is cycle 0 and the heard cycle is -1; a loop redefined twice before the start and once while running is numbered v3 and then v2, so version numbers can go back, see the defects file"
   },
   {
+   "class": "stzCoeffExtractor",
+   "file": "stats/stzCoeffExtractor.ring",
+   "method": "numericalDerivative",
+   "line": 268,
+   "symptom": "Raises error R42 today instead of returning the slope of the expression along one variable at the test point 10.",
+   "cause": "every call raises R42 Error in eval() function (checked on x/8 + y/4 and pow(x, 2)), because evaluateExpression builds an empty formula"
+  },
+  {
+   "class": "stzCoeffExtractor",
+   "file": "stats/stzCoeffExtractor.ring",
+   "method": "evaluateExpression",
+   "line": 309,
+   "symptom": "Raises error R42 today instead of returning the value of an expression at a point.",
+   "cause": "the variables are replaced by calling ManyReplaced with a list of new texts, which takes ONE new text and returns an empty text, so the evaluated formula is empty and eval fails with a syntax error (checked on x + y and x + 1)"
+  },
+  {
+   "class": "stzCoeffExtractor",
+   "file": "stats/stzCoeffExtractor.ring",
+   "method": "validateExpression",
+   "line": 396,
+   "symptom": "Returns 0 for every expression today instead of telling whether it can be evaluated.",
+   "cause": "it calls createTestValues with an argument that method does not take, which raises inside its try, so the answer is always 0 (checked on x + 1 and x + y)"
+  },
+  {
    "class": "stzDataSet",
    "file": "stats/stzDataSet.ring",
    "method": "NonParametricCorrelation",
@@ -2722,6 +3082,22 @@
    "cause": "it calls the function StringNumberOfOccurrenceCS, which does not exist, so CountBetween and CountBetweenCS raise R3 for every input; confirmed with Banana banana and with xyzxyz"
   },
   {
+   "class": "stzStringDuplicates",
+   "file": "string/stzStringDuplicates.ring",
+   "method": "DuplicateSubStringRemoved",
+   "line": 281,
+   "symptom": "Returns the text with the later occurrences of a substring removed, leaving the helper unchanged.",
+   "cause": "the same overlap defect"
+  },
+  {
+   "class": "stzStringIO",
+   "file": "string/stzStringIO.ring",
+   "method": "FromClipboard",
+   "line": 328,
+   "symptom": "Raises the error \"Clipboard access is not supported in this environment!\" today.",
+   "cause": "Always raises, it is a placeholder"
+  },
+  {
    "class": "stzStringInserter",
    "file": "string/stzStringInserter.ring",
    "method": "InsertAfterManyPositions",
@@ -2752,6 +3128,30 @@
    "line": 1760,
    "symptom": "TRUE if every string matches the pattern as a whole, so \"a.\" matches ab and \"a\" does not; an empty list is TRUE.",
    "cause": "known defect: the old comment says it returns the strings that match, but it answers one verdict for the whole list"
+  },
+  {
+   "class": "stzStringPerformer",
+   "file": "string/stzStringPerformer.ring",
+   "method": "Content",
+   "line": 62,
+   "symptom": "Returns the text the performer holds, which no method of this class changes today.",
+   "cause": ""
+  },
+  {
+   "class": "stzStringPerformer",
+   "file": "string/stzStringPerformer.ring",
+   "method": "Perform",
+   "line": 92,
+   "symptom": "Leaves the text unchanged today instead of replacing every character by the result of an expression.",
+   "cause": "Has no effect today: Perform(\"upper(@char)\") on \"abc\" leaves \"abc\", because the result of the engine call is dropped and never written back; use Yield to get the results as a list"
+  },
+  {
+   "class": "stzStringPerformer",
+   "file": "string/stzStringPerformer.ring",
+   "method": "PerformOn",
+   "line": 112,
+   "symptom": "Leaves the text unchanged today instead of replacing the characters at some positions by the result of an expression.",
+   "cause": "Has no effect today: PerformOn([1], \"upper(@char)\") on \"abc\" leaves \"abc\"; the positions are not even read; use YieldOn"
   },
   {
    "class": "stzStringReplacer",
