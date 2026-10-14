@@ -236,3 +236,13 @@ in the session history: rank unpassed roots by file; take ~1,000 in three or fou
 doc/tools/wave/WAVE_PROMPT_NEUTRAL.md with the data file prefix changed (w14_), own scratchpad subfolder per agent, kill by PID.
 Lesson: a stopped agent's scratch folder holds its entries; look there before redoing work.
 
+## 2026-10-14, evening: WAVE 14 ON MAIN (ee46c9fce, both remotes) -- the sound classes are done without a device
+
+69 classes, 1,351 roots. Library 19,079 of 21,747 pass (87.7 percent); gate OK; register 426 in 83 classes. TAIL: 2,668 roots in
+about 190 classes, none above 20 unpassed. The sound recipe that worked (kept in the wave-14 S prompt in this session; the rule is
+in the CONCLUSIONS line): never open an audio device or the microphone; render to buffers and WAVs in a scratch folder; check frames,
+sample rate, peak; capture mode for live sessions; every block says UNPERCEIVED. Still special: stzTour / stzLogbook / stzTraveller
+(testoor's), stzDeployment / stzBuilder / stzProcess / stzGpu (spawn, deploy, hardware: read from the code, harmless reads only),
+stzBytes (unreachable by name: the export lists two stzBytes, the real one is string/stzBytes.ring, 24 of 24). Wave 15 = the
+tail by the same ranking, 4 groups of about 650 roots; after it the reform's remaining work is the long-owed human reading.
+
