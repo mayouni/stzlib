@@ -246,3 +246,16 @@ sample rate, peak; capture mode for live sessions; every block says UNPERCEIVED.
 stzBytes (unreachable by name: the export lists two stzBytes, the real one is string/stzBytes.ring, 24 of 24). Wave 15 = the
 tail by the same ranking, 4 groups of about 650 roots; after it the reform's remaining work is the long-owed human reading.
 
+## 2026-10-15: STZLIB-DOCREFORM-01 CLOSED -- wave 15 on main (bd9af6479 + regeneration 4e84322eb), both remotes
+
+21,693 of 21,747 roots pass checks 1-4 (99.75 percent); written 17,609 (81.0), derived 4,093 (18.8), none 45; gate OK; register 476 defects
+in 99 classes; baseline = the testoor desk's 54 roots (stzTour 17, stzLogbook 15, stzTraveller 22). Cost line written (outcome delivered).
+WHAT IS OWED, nothing of it mechanical: (1) a person reading ten briefs and one class page, and listening to one rendered WAV
+(the perception gate is OPEN; every verdict so far is a model's); (2) the testoor desk documents its three classes in this format;
+(3) stzlib works down the register (doc/DEFECTS.md, defects.json); (4) the engine DLLs of every checkout need a rebuild
+(stz_stats, stz_locale, stk_locale, stz_system); (5) maintenance is the gate: a new public method needs a brief, a new dead forward
+is an error; re-run `ring gate.ring --update` after a wave of documenting. To document a new class later: the neutral recipe in
+doc/tools/wave/WAVE_PROMPT_NEUTRAL.md. Extractor changes of this task: meta/stzDocRecord.ring (parameter reader: matching
+parenthesis, defaults stripped, :fwdargs), stzDocExport.ring (derived briefs for generated classes, findings), stzDocGate.ring
+(dead-forward ratchet, findings.json).
+
