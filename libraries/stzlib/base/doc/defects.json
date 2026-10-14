@@ -1,5 +1,5 @@
 {
- "count": 360,
+ "count": 383,
  "defects": [
   {
    "class": "stzAppServer",
@@ -1290,6 +1290,14 @@
    "cause": "defect: the method calls StzCCodeToRingCode, which no file of the library defines, so every call raises Calling Function without definition: stzccodetoringcode"
   },
   {
+   "class": "stzListFinder",
+   "file": "list/stzListFinder.ring",
+   "method": "CountItemsW",
+   "line": 728,
+   "symptom": "Raises error R14 today instead of counting the items that satisfy a W condition.",
+   "cause": "raises Calling Method without definition: countw for every condition (two conditions tried), because the class it calls has no CountW"
+  },
+  {
    "class": "stzListOfPairs",
    "file": "list/stzListOfPairs.ring",
    "method": "ExpandedIfPairsOfNumbers",
@@ -1320,6 +1328,38 @@
    "line": 2317,
    "symptom": "Raises an error today instead of returning the pairs as a stzSetOfSections.",
    "cause": "Raises \"You must provide a list of sections\" today for valid sections such as [ [ 1, 3 ], [ 5, 8 ] ]: the stzSetOfSections constructor refuses what stzListOfSections accepts"
+  },
+  {
+   "class": "stzTree",
+   "file": "list/stzTree.ring",
+   "method": "RemoveItem",
+   "line": 980,
+   "symptom": "Raises error Not yet implemented! today instead of removing an item from the tree.",
+   "cause": "the removal of items is a TODO in the class"
+  },
+  {
+   "class": "stzTree",
+   "file": "list/stzTree.ring",
+   "method": "RemoveTheseItems",
+   "line": 995,
+   "symptom": "Raises error Not yet implemented! today instead of removing several items from the tree.",
+   "cause": "the removal of items is a TODO in the class"
+  },
+  {
+   "class": "stzTree",
+   "file": "list/stzTree.ring",
+   "method": "RemoveItems",
+   "line": 1005,
+   "symptom": "Raises error Not yet implemented! today instead of removing every item from the tree.",
+   "cause": "the removal of items is a TODO in the class"
+  },
+  {
+   "class": "stzTree",
+   "file": "list/stzTree.ring",
+   "method": "RemoveAllItems",
+   "line": 1014,
+   "symptom": "Raises error Not yet implemented! today instead of removing every item from the tree.",
+   "cause": "it calls RemoveItems, which is a TODO in the class"
   },
   {
    "class": "stzYielder",
@@ -1402,6 +1442,30 @@
    "cause": "tested with a number and a text: the answer is always an empty text"
   },
   {
+   "class": "stzEntity",
+   "file": "natural/stzEntity.ring",
+   "method": "IsOfType",
+   "line": 424,
+   "symptom": "TRUE if the entity type equals the given type.",
+   "cause": "the comparison lower-cases only the argument, so a stored type such as Person never matches (w13 defect file)"
+  },
+  {
+   "class": "stzEntity",
+   "file": "natural/stzEntity.ring",
+   "method": "HasName",
+   "line": 434,
+   "symptom": "TRUE if the entity name equals the given name.",
+   "cause": "the comparison lower-cases only the argument, so a stored name such as Ana never matches (w13 defect file)"
+  },
+  {
+   "class": "stzEntity",
+   "file": "natural/stzEntity.ring",
+   "method": "IsEmpty",
+   "line": 461,
+   "symptom": "TRUE if the entity holds nothing beyond name and type.",
+   "cause": "the test is that the size equals 2, but created is always a third property, so it can never be TRUE (w13 defect file)"
+  },
+  {
    "class": "stzNaturalEngine",
    "file": "natural/stzNatural.ring",
    "method": "FindContextPlaceholders",
@@ -1416,6 +1480,22 @@
    "line": 702,
    "symptom": "Raises error R19 today instead of returning a file URL for the given path.",
    "cause": "Raises error R19 today whatever the path, on a drive path with backslashes and on /tmp/y.txt: it calls ReplaceSubstring with two arguments where that method takes a start, an end and a replacement"
+  },
+  {
+   "class": "stzLLMFunction",
+   "file": "neural/stzLLMFunction.ring",
+   "method": "ReturnsNumber",
+   "line": 166,
+   "symptom": "Declares that the answer must be a number.",
+   "cause": "the answer is read as the first word that parses as a number; a reply whose first word is not numeric (such as about 42 or none) raises a Ring error R41 inside the call instead of being refused or retried (w13 defect file)"
+  },
+  {
+   "class": "stzLLMFunction",
+   "file": "neural/stzLLMFunction.ring",
+   "method": "ReturnsBoolean",
+   "line": 177,
+   "symptom": "Declares that the answer must be yes or no, kept as 1 or 0.",
+   "cause": "the reply is searched for the letters yes or true, then no or false, as substrings, so a reply such as unknown reads as 0 (w13 defect file)"
   },
   {
    "class": "stzBinaryNumber",
@@ -1810,6 +1890,14 @@
    "cause": "known defect: a plain text instead of a list raises error R21, because the wrap into a list is skipped inside SubmitSpawn"
   },
   {
+   "class": "stzListex",
+   "file": "regex/stzListex.ring",
+   "method": "NormalizeListString",
+   "line": 1120,
+   "symptom": "Raises error R3 today instead of removing the spaces from the text of a list.",
+   "cause": "raises Calling Function without definition: @stzreplace (R3), because it calls a function that does not exist"
+  },
+  {
    "class": "stzMatrex",
    "file": "regex/stzMatrex.ring",
    "method": "Match",
@@ -2146,6 +2234,38 @@
    "cause": "Raises error R24 today: after finding the group it uses the variable pcTagGroupName, which is not a parameter of this method; seen with two different group names"
   },
   {
+   "class": "stzTimex",
+   "file": "regex/stzTimex.ring",
+   "method": "SplitByOperator",
+   "line": 177,
+   "symptom": "Returns the whole text as one piece today instead of cutting it at an operator outside brackets.",
+   "cause": "the brackets are tracked correctly, only the comparison fails"
+  },
+  {
+   "class": "stzTimex",
+   "file": "regex/stzTimex.ring",
+   "method": "MatchExact",
+   "line": 506,
+   "symptom": "TRUE if the pattern matches the whole target, with nothing left over.",
+   "cause": "because of the parser defect, only single-token patterns are meaningful; Match is the same call"
+  },
+  {
+   "class": "stzTimex",
+   "file": "regex/stzTimex.ring",
+   "method": "MatchPartial",
+   "line": 527,
+   "symptom": "TRUE if the pattern matches somewhere inside the target, starting at any item.",
+   "cause": "because of the parser defect, only single-token patterns are meaningful; any text in a list counts as an instant, so @Instant matches a list holding the text x"
+  },
+  {
+   "class": "stzOidcProvider",
+   "file": "security/stzOidcProvider.ring",
+   "method": "IssueIdTokenAt",
+   "line": 526,
+   "symptom": "Signs an ID token as IssueIdToken does, with the issue time you give, so that exp is pnNow plus the token lifetime.",
+   "cause": "same escaping defect as IssueIdToken"
+  },
+  {
    "class": "stzDataSet",
    "file": "stats/stzDataSet.ring",
    "method": "NonParametricCorrelation",
@@ -2306,6 +2426,22 @@
    "cause": "answers FALSE for aabaa: it is the AND of HasLeadingChars and HasTrailingChars, which are always 0"
   },
   {
+   "class": "stzStringInserter",
+   "file": "string/stzStringInserter.ring",
+   "method": "InsertAfterManyPositions",
+   "line": 606,
+   "symptom": "Raises error R13 today instead of inserting a fragment after each of several positions.",
+   "cause": "raises Object is required (R13) for every valid list of numbers: [1,3,5] on banana and [2] on abc; probable cause the line that sorts the positions with new stzList(panPos).SortedInDescending(), since the same call made in two statements works; an empty or non-numeric list raises Incorrect param type instead"
+  },
+  {
+   "class": "stzStringInserter",
+   "file": "string/stzStringInserter.ring",
+   "method": "InsertBeforeManyPositions",
+   "line": 638,
+   "symptom": "Raises error R13 today instead of inserting a fragment in front of each of several positions.",
+   "cause": "raises Object is required (R13) for every valid list of numbers: [1,3,5] on banana; probable cause the line that sorts the positions with new stzList(panPos).SortedInDescending(); an empty or non-numeric list raises Incorrect param type instead"
+  },
+  {
    "class": "stzStringList",
    "file": "string/stzStringList.ring",
    "method": "SortBy",
@@ -2352,6 +2488,54 @@
    "line": 416,
    "symptom": "Raises error R14 today instead of returning the Latin-script part of the text.",
    "cause": "raises Calling Method without definition: concatenateq on a Latin text and on a mixed text alike"
+  },
+  {
+   "class": "stzTextStream",
+   "file": "string/stzTextStream.ring",
+   "method": "SetFromFile",
+   "line": 64,
+   "symptom": "Raises error R20 today instead of attaching a file as the source of the stream.",
+   "cause": "raises Calling function with extra number of parameters (R20): it builds new stzFile(pcFile, :WriteToEnd) and stzFile takes one parameter; nothing is attached and SourceOfStream stays NULL (checked on a scratch file, twice)"
+  },
+  {
+   "class": "stzTextStream",
+   "file": "string/stzTextStream.ring",
+   "method": "SetEncoding",
+   "line": 133,
+   "symptom": "Raises error Bad parameter type! today instead of selecting the stream's text encoding by name.",
+   "cause": "raises for UTF-8, utf8 and ISO-8859-1; only an empty text passes, and it selects nothing; the underlying call wants a QTextCodec object, which this class cannot build"
+  },
+  {
+   "class": "stzTextStream",
+   "file": "string/stzTextStream.ring",
+   "method": "IsSetFromFile",
+   "line": 194,
+   "symptom": "Returns a flag meant to tell that the stream reads a file, which stays NULL or 0 whatever is attached today.",
+   "cause": "never TRUE: the setter writes _bSetFromFile_ while the getter reads _bIsSetFromFile_, two different attributes"
+  },
+  {
+   "class": "stzTextStream",
+   "file": "string/stzTextStream.ring",
+   "method": "IsSetFromSocket",
+   "line": 205,
+   "symptom": "Returns a flag meant to tell that the stream reads a socket, which stays NULL or 0 whatever is attached today.",
+   "cause": "never TRUE: after SetFromScocket it answers 0 while SourceOfStream answers socket; the setter writes _bSetFromSocket_ and the getter reads _bIsSetFromSocket_"
+  },
+  {
+   "class": "stzTextStream",
+   "file": "string/stzTextStream.ring",
+   "method": "IsSetFromProcess",
+   "line": 215,
+   "symptom": "Raises error R24 today instead of telling that the stream reads a process.",
+   "cause": "raises Using uninitialized variable: reurn, a misspelled return, before and after SetFromProcess"
+  },
+  {
+   "class": "stzTextStream",
+   "file": "string/stzTextStream.ring",
+   "method": "Flush",
+   "line": 342,
+   "symptom": "Raises error R14 today instead of flushing the stream.",
+   "cause": "raises Calling Method without definition: flash, a misspelled call to flush on the QTextStream"
   },
   {
    "class": "stzTable",
