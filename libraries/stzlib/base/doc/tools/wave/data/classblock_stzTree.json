@@ -1,0 +1,21 @@
+{
+ "brief": "Holds a named tree of nodes and leaf items, and finds, reads and adds nodes and items by name or by path.",
+ "detail": "It extends stzList. A tree is one named root holding nodes, a node being a name paired with a list that may hold items and further nodes: :root = [ :node1 = [ \"X\", :node11 = [ \"A\" ] ], :node2 = [ 1, 2 ] ]. A path names the nodes from the root, as in [:root][:node1], and an item path adds the item's position in its node, as in [:root][:node2][1]. Branches and Nodes list them in depth-first order, Find methods return paths, and NodeAt and ItemAt read what a path points to. Node names are matched without regard to case. Adding goes through AddNodeAt and AddItemAt at the end of a node; a path that does not exist changes nothing without any error. Removing items is not written: RemoveItem and its kin raise Not yet implemented! and RemoveThisItemCS does nothing. FindTheseItems repeats the last path of an item that occurs several times, and FindThisItem answers an empty text.",
+ "receiver": "o1 = StzTreeQ(:root = [ :node1 = [ \"X\", :node11 = [ \"A\", \"B\" ] ], :node2 = [ 1, 2, 3 ] ])",
+ "example": [
+  "? @@( o1.Branches() )",
+  "#--> [ \"[:root]\", \"[:root][:node1]\", \"[:root][:node1][:node11]\", \"[:root][:node2]\" ]",
+  "? @@( o1.Node(\"node2\") )",
+  "#--> [ 1, 2, 3 ]",
+  "? @@( o1.FindItem(\"B\") )",
+  "#--> [ \"[:root][:node1][:node11][2]\" ]",
+  "o2 = StzTreeQ(:root = [ :a = [ \"שלום\", \"😀\" ], :b = [ \"😀\" ] ])",
+  "? @@( o2.FindItem(\"😀\") )",
+  "#--> [ \"[:root][:a][2]\", \"[:root][:b][1]\" ]"
+ ],
+ "see": [
+  "stzList",
+  "stzHashList",
+  "stzTreeCanvas"
+ ]
+}

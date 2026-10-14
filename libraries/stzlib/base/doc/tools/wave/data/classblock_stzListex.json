@@ -1,0 +1,19 @@
+{
+ "brief": "Matches a list against a regex-like pattern of typed items, such as [@N, @S] for a number then a text.",
+ "detail": "A pattern is a list of tokens: @N a number, @S a text, @L a list, @$ any item, each with an optional quantifier (+, *, ?, a count or a range such as 2-3), a set of allowed values written {a; b} with a trailing U for unique values, a negation @! and a case flag @cs:. Match answers 1 or 0 for the whole list, and Tokens, TokensInfo and Explain show how the pattern was read. Build one with StzListexQ, StzListRegexQ or Lx. Found today: the cache key of Match is the same for any reordering of a list, so on one matcher a reordered list gets the stale answer of the first (use ClearCache between them); the first alternative of a group never matches; sets written in single quotes never match, since their closing quote is kept; the unique flag U does not enforce uniqueness; a nested list with a quantifier fails for two sublists; and TokensInfo raises R41 for any token with a variable count. The cause of the quote, alternation and nested defects is probably the same as in stzTimex: calls to @StzMid pass an end position where it now wants a length.",
+ "receiver": "o1 = StzListexQ(\"[@N, @S]\")",
+ "example": [
+  "? o1.Match([ 1, \"a\" ])",
+  "#--> 1",
+  "o2 = StzListexQ(\"[@N, @S]\")",
+  "? o2.Match([ \"a\", 1 ])",
+  "#--> 0",
+  "? o2.Pattern()",
+  "#--> [@N, @S]"
+ ],
+ "see": [
+  "stzList",
+  "stzTimex",
+  "stzRegex"
+ ]
+}

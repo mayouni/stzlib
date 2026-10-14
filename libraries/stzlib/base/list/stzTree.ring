@@ -93,8 +93,41 @@ func IsListOfValidItemsPaths(pacList)
 	func @IsValidListOfItemsPaths(pacList)
 		return IsListOfValidItemsPaths(pacList)
 
+# Holds a named tree of nodes and leaf items, and finds, reads and adds nodes and items by name or by path.
+#
+# It extends stzList. A tree is one named root holding nodes, a node being a name paired with a list
+# that may hold items and further nodes: :root = [ :node1 = [ "X", :node11 = [ "A" ] ], :node2 = [
+# 1, 2 ] ]. A path names the nodes from the root, as in [:root][:node1], and an item path adds the
+# item's position in its node, as in [:root][:node2][1]. Branches and Nodes list them in depth-first
+# order, Find methods return paths, and NodeAt and ItemAt read what a path points to. Node names are
+# matched without regard to case. Adding goes through AddNodeAt and AddItemAt at the end of a node;
+# a path that does not exist changes nothing without any error. Removing items is not written:
+# RemoveItem and its kin raise Not yet implemented! and RemoveThisItemCS does nothing.
+# FindTheseItems repeats the last path of an item that occurs several times, and FindThisItem
+# answers an empty text.
+#
+#   receiver   o1 = StzTreeQ(:root = [ :node1 = [ "X", :node11 = [ "A", "B" ] ], :node2 = [ 1, 2, 3
+#              ] ])
+#   example    ? @@( o1.Branches() )
+#              #--> [ "[:root]", "[:root][:node1]", "[:root][:node1][:node11]", "[:root][:node2]" ]
+#              ? @@( o1.Node("node2") )
+#              #--> [ 1, 2, 3 ]
+#              ? @@( o1.FindItem("B") )
+#              #--> [ "[:root][:node1][:node11][2]" ]
+#              o2 = StzTreeQ(:root = [ :a = [ "שלום", "😀" ], :b = [ "😀" ] ])
+#              ? @@( o2.FindItem("😀") )
+#              #--> [ "[:root][:a][2]", "[:root][:b][1]" ]
+#   see        stzList, stzHashList, stzTreeCanvas
 class stzTree from stzList
 	
+	# Builds a tree from a named root holding nested named nodes and leaf items.
+	#
+	#   paTree     the tree as one named list, such as :root = [ :node1 = [ "X", 1 ], :node2 = [ 2 ]
+	#              ]
+	#   returns    nothing; the object is built
+	#   note       a node is a name paired with a list; what is not a node inside it is an item; the
+	#              tree is held as a one-item list, so Content answers [ tree ]
+	#   see        Root, Nodes, Items
 	def init(paTree)
 
 		if CheckParams()
@@ -112,6 +145,11 @@ class stzTree from stzList
 
 		super.init(_aTemp_)
 
+	# Returns the root entry, the name paired with the whole content below it.
+	#
+	#   returns    a list [ name, content ]
+	#   note       for the sample tree the answer starts with root and holds node1, node2 and node3
+	#   see        Branches, Show
 	def Root()
 		return This.Content()[1]
 
@@ -119,6 +157,10 @@ class stzTree from stzList
 	 #  VISUALIZING THE TREE CONTENT  #
 	#--------------------------------#
 
+	# Prints the whole tree as an indented outline, one entry per line.
+	#
+	#   returns    nothing; it prints
+	#   see        Root, Branches
 	def Show()
 		? @@NL(This.Content()[1])
 
@@ -126,6 +168,11 @@ class stzTree from stzList
 	 #  MANAGING BRANCHES  #
 	#---------------------#
 
+	# Returns the path of every node, the root first, in depth-first order.
+	#
+	#   returns    a list of text such as [:root][:node1][:node11]
+	#   note       AllBranches is the same call; a path is only names, never item positions
+	#   see        Nodes, NodesZ, FindNode
 	def Branches()
 		_aResult_ = [ '[:root]' ]
 
@@ -174,6 +221,11 @@ class stzTree from stzList
 	 #  MANAGING NODES  #
 	#------------------#
 
+	# Returns the name of every node, the root first, in depth-first order.
+	#
+	#   returns    a list of text such as root, node1, node11
+	#   note       AllNodes is the same call
+	#   see        Branches, TheseNodes
 	def Nodes()
 		_aResult_ = [ 'root' ]
 
@@ -187,6 +239,13 @@ class stzTree from stzList
 		def AllNodes()
 			return This.Nodes()
 
+	# Returns the content of each named node, in the order asked.
+	#
+	#   pacNodesNames   the list of node names
+	#   returns         a list of lists
+	#   note            names are matched without regard to case
+	#   warning         an unknown name raises Inexistant node!
+	#   see             Node, Nodes
 	def TheseNodes(pacNodesNames)
 
 		if CheckParams()
@@ -239,6 +298,13 @@ class stzTree from stzList
 		def NodesAndTheirBranches()
 			return This.NodesZ()
 
+	# Returns the path of a node from its name.
+	#
+	#   pcNodeName   the name of the node, matched without regard to case
+	#   returns      a text such as [:root][:node1][:node11]
+	#   note         NODE11 finds node11
+	#   warning      an unknown name raises Inexistant node! and an empty name raises Can't proceed!
+	#   see          FindTheseNodes, Node, Branches
 	def FindNode(pcNodeName)
 		if not isString(pcNodeName)
 			stzraise("Incorrect param type! pcNodeName must be a string.")
@@ -257,6 +323,13 @@ class stzTree from stzList
 
 		return _cResult_
 
+	# Returns the content of a node from its name, nested nodes included.
+	#
+	#   pcNodeName   the name of the node, matched without regard to case
+	#   returns      a list, such as [ 1, 2, 3 ] for node2
+	#   note         node1 returns its own items together with the whole node11 entry
+	#   warning      an unknown name raises Inexistant node!
+	#   see          NodeAt, TheseNodes, FindNode
 	def Node(pcNodeName)
 
 		_cBranch_ = This.FindNode(pcNodeName)
@@ -264,6 +337,14 @@ class stzTree from stzList
 
 		return _aResult_
 
+	# Returns the content of the node found at a path, nested nodes included.
+	#
+	#   pcBranch   the path of the node, such as [:root][:node1][:node11]
+	#   returns    a list; an empty text when no node lies at the path
+	#   note       the path must start with the root
+	#   warning    a path that names no node answers an empty text without any error; a text that is
+	#              not a well formed path raises Can't proceed!
+	#   see        Node, NodesAt, Branches
 	def NodeAt(pcBranch)
 
 		if CheckParams()
@@ -281,6 +362,13 @@ class stzTree from stzList
 
 		return _aResult_
 
+	# Returns the content of each node found at a list of paths.
+	#
+	#   pacBranches   the list of node paths
+	#   returns       a list of lists
+	#   note          an unknown but well formed path adds an empty text
+	#   warning       a path that is not well formed raises Can't proceed!
+	#   see           NodeAt, TheseNodes
 	def NodesAt(pacBranches)
 
 		if CheckParams()
@@ -302,6 +390,13 @@ class stzTree from stzList
 
 		return _aResult_
 
+	# Returns the path of each named node, in the order the names are given.
+	#
+	#   pacNodesNames   the list of node names
+	#   returns         a list of text
+	#   note            node2 then node11 gives the path of node2 and then the path of node11
+	#   warning         an unknown name raises Inexistant node!
+	#   see             FindNode, Branches
 	def FindTheseNodes(pacNodesNames)
 		if CheckParams()
 			if NOT (isList(pacNodesNames) and @IsListOfStrings(pacNodesNames) )
@@ -341,6 +436,12 @@ class stzTree from stzList
 		def AllItemsCS(pCaseSensitive)
 			return This.ItemsCS(pCaseSensitive)
 
+	# Returns every leaf item of the tree in document order, node names left out.
+	#
+	#   returns    a list; repeated items are repeated
+	#   note       for the sample tree, 12 items in all, among them X three times; AllItems is the
+	#              same call; ItemsCS(0) returns the same list
+	#   see        FindItem, Nodes
 	def Items()
 		return This.ItemsCS(1)
 
@@ -489,9 +590,26 @@ class stzTree from stzList
 		def FindThisItemCS(pItem, pCaseSensitive)
 			return This.FindItemCS(pItem, pCaseSensitive)
 
+	# Returns the path of every place where an item occurs, each path ending with the item's position in its node.
+	#
+	#   pItem      the item to look for
+	#   returns    a list of text such as [:root][:node1][2]; [ ] when absent
+	#   note       X in the sample tree gives three paths; a Hebrew, Arabic or emoji item is matched
+	#              whole
+	#   warning    the case flag does not widen the search: FindItemCS(x, 0) and FindItem(x) both
+	#              answer [ ] while X is present
+	#   see        FindItems, ItemAt, FindTheseItems
 	def FindItem(pItem)
 		return This.FindItemCS(pItem, 1)
 
+		# Searches for an item as FindItem does, but returns an empty text instead of the paths.
+		#
+		#   pItem      the item to look for
+		#   returns    an empty text, since the paths are computed and dropped
+		#   note       use FindItem
+		#   warning    it lacks a return: the call computes the paths and answers an empty text,
+		#              where FindItem answers them
+		#   see        FindItem
 		def FindThisItem(pItem)
 			This.FindItem(pItem)
 	
@@ -575,6 +693,16 @@ class stzTree from stzList
 		
 		return _aResult_
 	
+	# Returns paths for several items, but repeats the last path of each item as many times as the item occurs.
+	#
+	#   paItems    the list of items to look for
+	#   returns    a list of text with wrong repeats
+	#   note       call FindItem once per item
+	#   warning    an item that occurs several times gives its LAST path that many times: X, which
+	#              has three places, gives [:root][:node3][1] three times, and asking for X and 5
+	#              gives that path three times and then [:root][:node3][3]; the cause is an index
+	#              taken from the count of paths instead of the loop counter
+	#   see        FindItem, FindItems
 	def FindTheseItems(paItems)
 		return This.FindTheseItemsCS(paItems, 1)
 
@@ -604,11 +732,25 @@ class stzTree from stzList
 		def FindAllItemsCS(pCaseSensitive)
 			return This.FindItemsCS(pCaseSensitive)
 
+	# Returns the path of every item of the tree, each path ending with its position, grouped by item in order of first appearance.
+	#
+	#   returns    a list of text, one per item place
+	#   note       the sample tree gives 12 paths; each repeated item lists all its places at its
+	#              first appearance
+	#   see        FindItem, Items, ItemsZ
 	def FindItems()
 		return This.FindItemsCS(1)
 
-	#--
-
+	# Returns the item found at an item path.
+	#
+	#   pcPath     the path of the item, a node path followed by a position, such as
+	#              [:root][:node2][3]
+	#   returns    the item
+	#   note       FindItem gives the paths this one reads
+	#   warning    a node path with no position raises Syntax error!, and a position past the node
+	#              raises Array Access (Index out of range) (R2)
+	#   see        ItemsAt, FindItem
+	#@ aka  --
 	def ItemAt(pcPath) # Path = Branch that ends with a position
 		if CheckParams()
 			if NOT isString(pcPath)
@@ -624,6 +766,13 @@ class stzTree from stzList
 		eval(_cCode_)
 		return _result_
 
+	# Returns the content of the node found at a node path, items and nested nodes.
+	#
+	#   pcNodePath   the path of the node, such as [:root][:node3]
+	#   returns      a list
+	#   note         the same answer as NodeAt for a well formed path
+	#   warning      a path that is not well formed raises an error
+	#   see          ItemAt, NodeAt
 	def ItemsAt(pcNodePath)
 		if NOT @IsValidNodePath(pcNodePath)
 			stzraise("Incorrect param! pcNodePath is not a valid node path.")
@@ -640,6 +789,15 @@ class stzTree from stzList
 	 #  ADDING NODES AND ITEMS  #
 	#--------------------------#
 
+	# Adds a node at the end of the content of the node found at a path, in place.
+	#
+	#   paNode     the node to add, a pair of a name and a list
+	#   pcBranch   the path of the node that receives it
+	#   returns    nothing; the tree changes
+	#   note       adding node4 with 7 and 8 at [:root] puts it after node3
+	#   warning    a path that is not in Branches changes nothing and raises no error; a node that
+	#              is not a name paired with a list raises an error
+	#   see        AddItemAt, Branches
 	def AddNodeAt(paNode, pcBranch)
 		if CheckParams()
 
@@ -666,6 +824,14 @@ class stzTree from stzList
 		eval(_cCode_)
 
 	
+	# Adds an item at the end of the content of the node found at a path, in place.
+	#
+	#   pItem      the item to add
+	#   pcBranch   the path of the node that receives it
+	#   returns    nothing; the tree changes
+	#   note       adding Z at [:root][:node2] gives 1, 2, 3, Z
+	#   warning    a path that is not in Branches changes nothing and raises no error
+	#   see        AddNodeAt, Items
 	def AddItemAt(pItem, pcBranch)
 		if CheckParams()
 			if NOT isString(pcBranch)
@@ -685,6 +851,12 @@ class stzTree from stzList
 	 #  GEETING NODES FROM A BRANCH  #
 	#-------------------------------#
 	
+	# Returns how many names a node path holds.
+	#
+	#   pcBranch   the node path
+	#   returns    a number
+	#   note       [:root][:node1][:node11] gives 3; CountNodesInBranch is the same call
+	#   see        NodesInBranch, LastNodeInBranch
 	def NumberOfNodesInBranch(pcBranch)
 		return len( @split(pcBranch, "]["))
 
@@ -707,8 +879,14 @@ class stzTree from stzList
 		def HowManyNodesInPath(pcBranch)
 			return THis.NumberOfNodesInBranch(pcBranch)
 
+	# Returns the names along a node path, each written with its colon.
+	#
+	#   pcBranch   the node path
+	#   returns    a list of text such as :root, :node1, :node11
+	#   note       NodesInPath is the same call
+	#   warning    the names keep their colon, where Nodes returns them without
+	#   see        NthNodeInBranch, NumberOfNodesInBranch
 		#>
-
 	def NodesInBranch(pcBranch)
 	
 		_acSplits_ = @split(pcBranch, "][")
@@ -728,6 +906,14 @@ class stzTree from stzList
 		def NodesInPath(pcBranch)
 			return This.NodesInBranch(pcBranch)
 
+	# Returns the name at a rank along a node path, counted from the root.
+	#
+	#   _n_        the rank of the name, 1 for the root
+	#   pcBranch   the node path
+	#   returns    a text such as :node1
+	#   note       the name keeps its colon
+	#   warning    a rank past the last name raises Array Access (Index out of range) (R2)
+	#   see        FirstNodeInBranch, LastNodeInBranch, NodesInBranch
 	def NthNodeInBranch(_n_, pcBranch)
 		if isString(_n_) and isNumber(pcBranch)
 			_temp_ = pcBranch
@@ -740,12 +926,24 @@ class stzTree from stzList
 		def NthNodeInPath(_n_, pcBranch)
 			return This.NthNodeInBranch(_n_, pcBranch)
 
+	# Returns the first name of a node path, which is the root.
+	#
+	#   pcBranch   the node path
+	#   returns    a text such as :root
+	#   note       the name keeps its colon
+	#   see        NthNodeInBranch, LastNodeInBranch
 	def FirstNodeInBranch(pcBranch)
 		return This.NthNodeInBranch(1, pcBranch)
 
 		def FirstNodeInPath(pcBranch)
 			return This.FirstNodeInBranch(pcBranch)
 
+	# Returns the last name of a node path, the deepest node.
+	#
+	#   pcBranch   the node path
+	#   returns    a text such as :node11
+	#   note       the name keeps its colon
+	#   see        NthNodeInBranch, FirstNodeInBranch
 	def LastNodeInBranch(pcBranch)
 		return This.NthNodeInBranch(This.NumberOfNodesInBranch(pcBranch), pcBranch)
 
@@ -761,8 +959,24 @@ class stzTree from stzList
 	def RemoveItemCS(pItem, pCaseSensitive) #TODO
 		stzraise("Not yet implemented!")
 
+		# Accepts an item and a case flag and does nothing, since removal is not written yet.
+		#
+		#   pItem            the item to remove
+		#   pCaseSensitive   1 to match with case, 0 to ignore case
+		#   returns          nothing
+		#   note             the TODO in the class names it
+		#   warning          the body is empty: no error is raised and the tree is unchanged, while
+		#                    RemoveItem raises Not yet implemented!
+		#   see              RemoveItem
 		def RemoveThisItemCS(pItem, pCaseSensitive)
 
+	# Raises error Not yet implemented! today instead of removing an item from the tree.
+	#
+	#   pItem      the item to remove
+	#   returns    nothing
+	#   note       do not call it
+	#   warning    the removal of items is a TODO in the class
+	#   see        RemoveThisItemCS, AddItemAt
 	def RemoveItem(pItem) #TODO
     		This.RemoveItemCS(pItem, 1)
 
@@ -771,14 +985,32 @@ class stzTree from stzList
 	def RemoveTheseItemsCS(paItems, pCaseSensitive) #TODO
 		stzraise("Not yet implemented!")
 
+	# Raises error Not yet implemented! today instead of removing several items from the tree.
+	#
+	#   paItems    the list of items to remove
+	#   returns    nothing
+	#   note       do not call it
+	#   warning    the removal of items is a TODO in the class
+	#   see        RemoveItem
 	def RemoveTheseItems(paItems)
 		This.RemoveTheseItemsCS(paItems, 1)
 
-	#--
-
+	# Raises error Not yet implemented! today instead of removing every item from the tree.
+	#
+	#   returns    nothing
+	#   note       do not call it
+	#   warning    the removal of items is a TODO in the class
+	#   see        RemoveAllItems
+	#@ aka  --
 	def RemoveItems() #TODO
 		stzraise("Not yet implemented!")
 
+	# Raises error Not yet implemented! today instead of removing every item from the tree.
+	#
+	#   returns    nothing
+	#   note       do not call it
+	#   warning    it calls RemoveItems, which is a TODO in the class
+	#   see        RemoveItems
 	def RemoveAllItems()
 		This.RemoveItems()
 

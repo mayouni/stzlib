@@ -1,0 +1,21 @@
+{
+ "brief": "Works on a text line by line: counts, picks, sorts, reverses, deduplicates, indents and filters its lines.",
+ "detail": "It is the line helper of stzString; build one with StzStringLinesQ (or new stzStringLines) over a multi-line text. Lines end at a line feed, and a final line feed makes one more, empty, last line. Each verb without an ending (SortLines, ReverseLinesOrder, IndentLines, RemoveDuplicateLines, RemoveEmptyLines) changes the held text in place and returns nothing (the Q form returns the helper so calls chain), and the matching form (EmptyLinesRemoved, LinesSorted, LinesOrderReversed, LinesIndented, DuplicateLinesRemoved) returns the new text and leaves the helper alone. Read the result with Content. Lengths count characters, so Hebrew, Arabic and emoji lines are measured as you read them. Pass a plain text, not a stzString object: editing through the helper empties the stzString that was passed in. NumberOfEmptyLines does not count blank lines today (it subtracts a text length from a line count): count the empty texts in Lines instead. A carriage return before a line feed stays at the end of its line.",
+ "receiver": "o1 = StzStringLinesQ(\"pear\" + char(10) + \"fig\" + char(10) + \"apple\")",
+ "example": [
+  "? o1.NumberOfLines()",
+  "#--> 3",
+  "? o1.LongestLine()",
+  "#--> apple",
+  "? @@( o1.NLastLines(2) )",
+  "#--> [ \"fig\", \"apple\" ]",
+  "o2 = StzStringLinesQ(\"שלום\" + char(10) + \"עולם יפה\")",
+  "? o2.LongestLine()",
+  "#--> עולם יפה"
+ ],
+ "see": [
+  "stzString",
+  "stzList",
+  "stzStringFinder"
+ ]
+}

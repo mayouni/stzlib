@@ -52,6 +52,30 @@
 # not 96% of anything causal, and a component is a weighted blend of your features
 # rather than one of them. PCA finds directions, not explanations.
 
+# Finds the directions along which a table of samples varies most, by singular value decomposition of the centered data.
+#
+# It is the PCA engine behind stzEmbedding; build one with new stzPCA over a list of samples, each a
+# list of feature values (rows are samples, columns are features). You must choose how to prepare
+# the data before Fit: Center keeps the units (covariance PCA, for comparable features) and
+# Standardize divides each feature by its standard deviation (correlation PCA, for features in
+# different units); Fit refuses until you have said which. The variance convention is the library's
+# one authority: the sample one (n-1) by default, UsePopulationVariance for n. After Fit, Components
+# are the directions (a column per component), Scores the samples in those coordinates,
+# ExplainedVariance and its ratio say how much spread each accounts for, Transform projects new rows
+# with the fit's mean and scale, and Inverse sends scores back, with an error equal to the variance
+# of the dropped components. Checked by hand on four samples, [[2,0],[-2,0],[0,1],[0,-1]] under
+# Center: singular values the square roots of 8 and 2, variances 8/3 and 2/3, ratios 0.8 and 0.2.
+#
+#   receiver   o1 = new stzPCA([ [ 2, 0 ], [ -2, 0 ], [ 0, 1 ], [ 0, -1 ] ])
+#   example    o1.Center()
+#              o1.Fit()
+#              ? @@( o1.ExplainedVarianceRatio() )
+#              #--> [ 0.80, 0.20 ]
+#              ? o1.NumberOfComponentsFor(0.9)
+#              #--> 2
+#              ? o1.Why()
+#              #--> fitted covariance PCA on 4 sample(s) x 2 feature(s): 2 component(s), the first explaining 80% of the variance
+#   see        stzEmbedding, stzNumBuffer, stzListOfNumbers
 class stzPCA from stzObject
 
 	@aData = []
@@ -71,6 +95,13 @@ class stzPCA from stzObject
 	@anVariance = []
 	@aScores = []
 
+	# Builds a principal component analysis over a table of samples, each a list of feature values.
+	#
+	#   paData     the list of samples (rows), each a list of the same number of numbers (columns
+	#              are features)
+	#   returns    nothing; the object is built
+	#   note       nothing is computed yet: choose Center or Standardize, then Fit
+	#   see        Center, Standardize, Fit
 	def init(paData)
 		if NOT isList(paData) or len(paData) = 0
 			stzraise("Give me a list of samples, each a list of feature values.")
@@ -90,25 +121,27 @@ class stzPCA from stzObject
 		next
 		@aData = paData
 
+	# Returns how many samples, rows, the data holds.
+	#
+	#   returns    a number
+	#   see        NumberOfFeatures, Fit
 	def NumberOfSamples()
 		return @nRows
 
+	# Returns how many features, columns, each sample holds.
+	#
+	#   returns    a number
+	#   see        NumberOfSamples, NumberOfComponents
 	def NumberOfFeatures()
 		return @nCols
 
-	# ── the choice you must make ──
+	# Chooses to subtract each feature's mean and keep its units, which gives a covariance PCA.
 	#
-	# THE NAME FORM CARRIES THE SEMANTICS, which is a Softanza law rather than a
-	# style: an ACTIVE verb -- Standardize(), Center() -- DOES the thing and returns
-	# nothing; the PASSIVE form -- Standardized(), Centered() -- returns the
-	# transformed DATA and leaves the object alone; and the Q twin does the thing and
-	# returns the object so calls chain. The first version of this class had
-	# Standardized() mutating the analysis and returning This, which got both halves
-	# wrong at once: a passive name for an active act, and a plain method returning
-	# an object where plain methods return data.
-
-	# CENTER each feature on its mean and leave the units alone -- covariance PCA.
-	# The features that vary most, in their own units, dominate.
+	#   returns    nothing; CenterQ returns the analysis for chaining
+	#   note       for features of comparable units; Fit refuses to run until Center or Standardize
+	#              has been called
+	#   see        Standardize, Centered, Fit
+	#@ aka  ── the choice you must make ──
 	def Center()
 		@bStandardize = 0
 		@bChosen = 1
@@ -117,8 +150,13 @@ class stzPCA from stzObject
 			This.Center()
 			return This
 
-	# CENTER and then divide each feature by its standard deviation -- correlation
-	# PCA. Every feature counts equally, whatever it was measured in.
+	# Chooses to subtract each feature's mean and divide by its standard deviation, which gives a correlation PCA.
+	#
+	#   returns    nothing; StandardizeQ returns the analysis for chaining
+	#   note       for features in different units; a constant column is left as zeros and does not
+	#              break the fit
+	#   see        Center, Standardized, Fit
+	#@ aka  CENTER and then divide each feature by its standard deviation -- correlation PCA. Every feature counts equally, whatever it was measured in.
 	def Standardize()
 		@bStandardize = 1
 		@bChosen = 1
@@ -127,23 +165,39 @@ class stzPCA from stzObject
 			This.Standardize()
 			return This
 
-	# ── and the passive forms, which return the prepared DATA ──
-
-	# The data centered on the column means, original untouched. This is what a
-	# covariance PCA actually decomposes, so it is worth being able to look at.
+	# Returns the data with every feature's mean subtracted, leaving the analysis unchanged.
+	#
+	#   returns    a list of rows
+	#   note       [[2,0],[-2,0],[0,1],[0,-1]] is already centered and comes back as it is
+	#   see        Standardized, Center
+	#@ aka  ── and the passive forms, which return the prepared DATA ──
 	def Centered()
 		return This._Prepared(0)
 
-	# The data centered AND divided by the column standard deviations. What a
-	# correlation PCA decomposes.
+	# Returns the data centered and divided by each feature's standard deviation, leaving the analysis unchanged.
+	#
+	#   returns    a list of rows
+	#   note       the divisor follows the variance convention chosen: [[2,0],[-2,0],[0,1],[0,-1]]
+	#              gives 1.2247 where the entries were 2, with the sample convention; a constant
+	#              column becomes zeros
+	#   see        Centered, Standardize
+	#@ aka  The data centered AND divided by the column standard deviations. What a correlation PCA decomposes.
 	def Standardized()
 		return This._Prepared(1)
 
+	# TRUE if Standardize was chosen, FALSE after Center or before any choice.
+	#
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   see        Standardize, Center
 	def IsStandardized()
 		return @bStandardize
 
-	# ── the variance convention, from the library's one authority ──
-
+	# Chooses the sample convention, dividing by n minus 1, which is the default.
+	#
+	#   returns    nothing; UseSampleVarianceQ returns the analysis for chaining
+	#   note       call it before Fit
+	#   see        UsePopulationVariance, UsesSampleVariance
+	#@ aka  ── the variance convention, from the library's one authority ──
 	def UseSampleVariance()
 		@bSample = 1
 
@@ -151,6 +205,11 @@ class stzPCA from stzObject
 			This.UseSampleVariance()
 			return This
 
+	# Chooses the population convention, dividing by n.
+	#
+	#   returns    nothing; UsePopulationVarianceQ returns the analysis for chaining
+	#   note       call it before Fit; it changes the variances, not the ratios
+	#   see        UseSampleVariance, UsesSampleVariance
 	def UsePopulationVariance()
 		@bSample = 0
 
@@ -158,6 +217,11 @@ class stzPCA from stzObject
 			This.UsePopulationVariance()
 			return This
 
+	# TRUE if the sample convention, dividing by n minus 1, is in force.
+	#
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   note       1 on a new analysis
+	#   see        UseSampleVariance, UsePopulationVariance
 	def UsesSampleVariance()
 		return @bSample
 
@@ -207,6 +271,13 @@ class stzPCA from stzObject
 		next
 		return _aOut_
 
+	# Computes the analysis by singular value decomposition of the prepared data.
+	#
+	#   returns    nothing; FitQ returns the analysis for chaining
+	#   note       the other reads (Components, Scores...) raise Fit() me first until it has run
+	#   warning    raises an error until Center or Standardize has been called, and another with
+	#              fewer than two samples
+	#   see        IsFitted, Components, Scores
 	def Fit()
 		if NOT @bChosen
 			stzraise("Say how to prepare the data first -- Standardize() when the " +
@@ -285,20 +356,32 @@ class stzPCA from stzObject
 			This.Fit()
 			return This
 
+	# TRUE if Fit has run.
+	#
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   see        Fit
 	def IsFitted()
 		return @bFitted
 
+	# Returns how many components the analysis kept, the smaller of the samples and the features.
+	#
+	#   returns    a number
+	#   note       2 for two features
+	#   warning    raises Fit() me first before Fit
+	#   see        NumberOfComponentsFor, Components
 	def NumberOfComponents()
 		This._MustBeFitted()
 		return @nK
 
-	# The DIRECTIONS: row i, column j is how much feature i contributes to component
-	# j. A component is a weighted blend of your features, not one of them.
+	# Returns the directions, one column per component, one row per feature.
 	#
-	# The sign is fixed by convention (the largest loading of each component is made
-	# positive) because a direction has no preferred sign -- v and -v are the same
-	# axis explaining the same variance -- and without a convention two runs can look
-	# like they disagree.
+	#   returns    a list of rows: row i, column j is how much feature i contributes to component j
+	#   note       Loadings is the same call; the sign is fixed so the largest loading of each
+	#              component is positive; two features that move together give 0.71 and 0.71 for the
+	#              first component
+	#   warning    raises Fit() me first before Fit
+	#   see        Scores, SingularValues
+	#@ aka  The DIRECTIONS: row i, column j is how much feature i contributes to component j. A component is a weighted blend of your features, not one of them.
 	def Components()
 		This._MustBeFitted()
 		return @aLoadings
@@ -306,28 +389,60 @@ class stzPCA from stzObject
 		def Loadings()
 			return This.Components()
 
-	# The data in component coordinates: row i is sample i, column j its position
-	# along component j. Centered by construction, so each column averages zero.
+	# Returns the samples in component coordinates, one row per sample.
+	#
+	#   returns    a list of rows, one column per component
+	#   note       each column averages zero; the training rows [[2,0],[-2,0],[0,1],[0,-1]] under
+	#              Center give themselves back
+	#   warning    raises Fit() me first before Fit
+	#   see        Components, Transform
+	#@ aka  The data in component coordinates: row i is sample i, column j its position along component j. Centered by construction, so each column averages zero.
 	def Scores()
 		This._MustBeFitted()
 		return @aScores
 
+	# Returns the singular value of each component, largest first.
+	#
+	#   returns    a list of numbers
+	#   note       the square of each, divided by n minus 1, is the explained variance: 2.83 and
+	#              1.41 for the sample above, whose hand computation is the square roots of 8 and 2
+	#   warning    raises Fit() me first before Fit
+	#   see        ExplainedVariance, Components
 	def SingularValues()
 		This._MustBeFitted()
 		return @anSingularValues
 
-	# How much variance each component accounts for, in the units of the prepared
-	# data. These SUM to TotalVariance() -- the decomposition redistributes the
-	# variance and cannot create or destroy any.
+	# Returns the variance each component accounts for, largest first.
+	#
+	#   returns    a list of numbers that add up to TotalVariance
+	#   note       for the sample [[2,0],[-2,0],[0,1],[0,-1]] it gives 8/3 and 2/3 (2.67 and 0.67)
+	#              with the sample convention and 2 and 0.5 with the population one
+	#   warning    raises Fit() me first before Fit
+	#   see        TotalVariance, ExplainedVarianceRatio
+	#@ aka  How much variance each component accounts for, in the units of the prepared data. These SUM to TotalVariance() -- the decomposition redistributes the variance and cannot create or destroy any.
 	def ExplainedVariance()
 		This._MustBeFitted()
 		return @anVariance
 
+	# Returns the total variance of the prepared data, the sum over the components.
+	#
+	#   returns    a number
+	#   note       10/3 (3.33) for the sample above with the sample convention, and the number of
+	#              features when standardized with the sample convention
+	#   warning    raises Fit() me first before Fit
+	#   see        ExplainedVariance, ExplainedVarianceRatio
 	def TotalVariance()
 		This._MustBeFitted()
 		return @nTotalVariance
 
-	# The same, as fractions of the total. This is the number people quote.
+	# Returns the fraction of the total variance each component accounts for.
+	#
+	#   returns    a list of numbers that add up to 1
+	#   note       0.8 and 0.2 for the sample above, by hand 8 over 10 and 2 over 10; a fraction of
+	#              the spread, not of any cause
+	#   warning    raises Fit() me first before Fit
+	#   see        CumulativeVarianceRatio, ExplainedVariance
+	#@ aka  The same, as fractions of the total. This is the number people quote.
 	def ExplainedVarianceRatio()
 		This._MustBeFitted()
 		_a_ = []
@@ -340,6 +455,12 @@ class stzPCA from stzObject
 		next
 		return _a_
 
+	# Returns the running total of the variance ratios, component by component.
+	#
+	#   returns    a list of numbers ending at 1
+	#   note       0.8 then 1 for the sample above
+	#   warning    raises Fit() me first before Fit
+	#   see        ExplainedVarianceRatio, NumberOfComponentsFor
 	def CumulativeVarianceRatio()
 		_aR_ = This.ExplainedVarianceRatio()
 		_a_ = []
@@ -350,8 +471,14 @@ class stzPCA from stzObject
 		next
 		return _a_
 
-	# How many components to keep to retain a given fraction of the variance --
-	# the usual way the number of components is chosen.
+	# Returns how many leading components are needed to keep a given fraction of the variance.
+	#
+	#   nWanted    the fraction to keep, above 0 and at most 1
+	#   returns    a number of components
+	#   note       0.8 needs 1 component and 0.9 needs 2 for the sample above
+	#   warning    raises Fit() me first before Fit
+	#   see        CumulativeVarianceRatio, NumberOfComponents
+	#@ aka  How many components to keep to retain a given fraction of the variance -- the usual way the number of components is chosen.
 	def NumberOfComponentsFor(nWanted)
 		This._MustBeFitted()
 		if nWanted <= 0 or nWanted > 1
@@ -366,40 +493,37 @@ class stzPCA from stzObject
 		next
 		return @nK
 
-	# The centering that was applied, kept because projecting NEW data needs exactly
-	# the same one. Data centered on its own mean lands in a different space.
+	# Returns the mean of each feature that Fit subtracted.
+	#
+	#   returns    a list of numbers, one per feature
+	#   note       new data must be centered with the same means; Transform does it
+	#   warning    raises Fit() me first before Fit
+	#   see        Scale, Transform
+	#@ aka  The centering that was applied, kept because projecting NEW data needs exactly the same one. Data centered on its own mean lands in a different space.
 	def Mean()
 		This._MustBeFitted()
 		return @anMeans
 
+	# Returns the divisor of each feature that Fit applied: the standard deviations when standardized, 1 otherwise.
+	#
+	#   returns    a list of numbers, one per feature
+	#   note       1 and 1 under Center
+	#   warning    raises Fit() me first before Fit
+	#   see        Mean, Transform
 	def Scale()
 		This._MustBeFitted()
 		return @anScales
 
-	# Project rows the fit has not seen into the component space, using the FIT's
-	# centering and scaling.
-	# -- THE INVERSE, AND IT IS THE TRANSPOSE --
+	# Returns score rows sent back to feature space, undoing the projection, scale and mean.
 	#
-	# This is where PCA differs in KIND from the rest of the embedding family, not
-	# merely in quality. The forward map is a ROTATION onto an orthonormal basis, so
-	# undoing it needs no second model, no training and no lookup: multiply by the same
-	# loadings the other way round, put the scale back, put the mean back.
-	#
-	# t-SNE and UMAP have no analytic inverse at all. They must fit a DECODER to
-	# (position, row) pairs, and what comes back is a plausible row rather than a
-	# recovered one. Here the arithmetic was already sitting in the fit.
-	#
-	# -- AND THE ERROR IS NOT MYSTERIOUS EITHER --
-	#
-	# It is exactly the variance living in the components you dropped. Not
-	# approximately: the residual IS the projection onto the discarded eigenvectors, so
-	# the mean squared reconstruction error over the training rows EQUALS the sum of
-	# their eigenvalues -- the numbers ExplainedVariance() already reports. Keep every
-	# component and the reconstruction is the data back, to rounding.
-	#
-	# That identity is checked in the guard, and it is a far stronger statement than any
-	# reconstruction number the learned inverses can offer. It says the arithmetic is
-	# RIGHT, where they can only say the result looked plausible.
+	#   paScores   the list of score rows to send back
+	#   returns    a list of rows, one column per feature
+	#   note       scores 2, 0 come back as 2, 0 and a single score 2 as 2, 0; the error left is the
+	#              variance of the dropped components
+	#   warning    raises Fit() me first before Fit; a row longer than the kept components raises an
+	#              error
+	#   see        Reconstructed, Transform
+	#@ aka  Project rows the fit has not seen into the component space, using the FIT's centering and scaling. -- THE INVERSE, AND IT IS THE TRANSPOSE --
 	def Inverse(paScores)
 		This._MustBeFitted()
 		if NOT isList(paScores) or len(paScores) = 0
@@ -452,13 +576,25 @@ class stzPCA from stzObject
 		next
 		return _aRes_
 
-	# the training rows put through Transform() and back again -- what the analysis
-	# retained of the data it was given, which is the picture worth looking at when
-	# deciding how many components are enough
+	# Returns the training samples rebuilt from their scores, which shows what the kept components retain.
+	#
+	#   returns    a list of rows
+	#   note       with every component kept the data comes back, to rounding
+	#   warning    raises Fit() me first before Fit
+	#   see        Inverse, Scores
+	#@ aka  the training rows put through Transform() and back again -- what the analysis retained of the data it was given, which is the picture worth looking at when deciding how many components are enough
 	def Reconstructed()
 		This._MustBeFitted()
 		return This.Inverse(This.Scores())
 
+	# Projects new rows into the component space with the mean and scale of the fit.
+	#
+	#   paRows     the list of rows to project, each as long as the fitted features
+	#   returns    a list of rows, one column per component
+	#   note       rows unseen by the fit land in the same space as Scores; [[2,0],[0,1],[1,1]]
+	#              gives 2,0 and 0,1 and 1,1 for the sample above
+	#   warning    raises Fit() me first before Fit
+	#   see        Inverse, Scores
 	def Transform(paRows)
 		This._MustBeFitted()
 		if NOT isList(paRows) or len(paRows) = 0
@@ -492,6 +628,13 @@ class stzPCA from stzObject
 		next
 		return _aRes_
 
+	# Returns one sentence naming the kind of analysis, its shape and the share the first component explains.
+	#
+	#   returns    a text
+	#   note       fitted covariance PCA on 4 sample(s) x 2 feature(s): 2 component(s), the first
+	#              explaining 80% of the variance
+	#   warning    raises Fit() me first before Fit
+	#   see        ExplainedVarianceRatio, Fit
 	def Why()
 		This._MustBeFitted()
 		_aR_ = This.ExplainedVarianceRatio()

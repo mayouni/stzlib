@@ -1,0 +1,18 @@
+{
+ "brief": "Matches a regex-like pattern language for time structures, such as @Event -> @Duration -> @Event, against timelines and lists of dates.",
+ "detail": "A pattern is a sequence of steps joined by ->, each step an @Instant, @Duration, @Event, @Sequence or @Frame with an optional label, a duration constraint and a quantifier (+, *, ?, ~ or a count). The target is a stzTimeLine, a stzCalendar, a list of date texts, or stzDateTime and stzDuration objects: it is first flattened into instants, events and the duration gaps between them. Build one with StzTimexQ, Timex or Tmx. MatchExact needs the pattern to consume the whole target, MatchPartial finds it anywhere, and a success fills MatchedParts. The pattern parser is broken today: the calls to @StzMid pass an end position where it now wants a length, so SplitByOperator never splits, a pattern with several steps is read as one step, labels keep their closing bracket, and a pattern with a parenthesised duration such as @Duration(1h) raises R2 when built. Only single steps without brackets, such as @Instant or @Event, parse correctly. MatchAsYouBuild raises R14 whenever there is no partial match. The matching engine itself (BacktrackMatch) and the constraint check work on hand-built tokens.",
+ "receiver": "o1 = StzTimexQ(\"@Instant\")",
+ "example": [
+  "? o1.Pattern()",
+  "#--> {@Instant}",
+  "? o1.MatchExact([ \"2025-10-22 09:00:00\" ])",
+  "#--> 1",
+  "? o1.ParseDurationToMinutes(\"1h30min\")",
+  "#--> 90"
+ ],
+ "see": [
+  "stzTimeLine",
+  "stzCalendar",
+  "stzListex"
+ ]
+}

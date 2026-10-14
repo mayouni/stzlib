@@ -23,6 +23,29 @@ func Timex(_cPattern_)
 func Tmx(_cPattern_)
 	return new stzTimex(_cPattern_)
 
+# Matches a regex-like pattern language for time structures, such as @Event -> @Duration -> @Event, against timelines and lists of dates.
+#
+# A pattern is a sequence of steps joined by ->, each step an @Instant, @Duration, @Event, @Sequence
+# or @Frame with an optional label, a duration constraint and a quantifier (+, *, ?, ~ or a count).
+# The target is a stzTimeLine, a stzCalendar, a list of date texts, or stzDateTime and stzDuration
+# objects: it is first flattened into instants, events and the duration gaps between them. Build one
+# with StzTimexQ, Timex or Tmx. MatchExact needs the pattern to consume the whole target,
+# MatchPartial finds it anywhere, and a success fills MatchedParts. The pattern parser is broken
+# today: the calls to @StzMid pass an end position where it now wants a length, so SplitByOperator
+# never splits, a pattern with several steps is read as one step, labels keep their closing bracket,
+# and a pattern with a parenthesised duration such as @Duration(1h) raises R2 when built. Only
+# single steps without brackets, such as @Instant or @Event, parse correctly. MatchAsYouBuild raises
+# R14 whenever there is no partial match. The matching engine itself (BacktrackMatch) and the
+# constraint check work on hand-built tokens.
+#
+#   receiver   o1 = StzTimexQ("@Instant")
+#   example    ? o1.Pattern()
+#              #--> {@Instant}
+#              ? o1.MatchExact([ "2025-10-22 09:00:00" ])
+#              #--> 1
+#              ? o1.ParseDurationToMinutes("1h30min")
+#              #--> 90
+#   see        stzTimeLine, stzCalendar, stzListex
 class stzTimex from stzObject
 	
 	@cPattern           # The pattern string, e.g., "{@Instant -> @Duration(1h..2h) -> @Event}"
@@ -47,6 +70,19 @@ class stzTimex from stzObject
 	 #  INITIALIZATION   #
 	#-------------------#
 	
+	# Builds a time-pattern matcher from a pattern text such as @Event(A) -> @Duration(30m) -> @Event(B), wrapping it in braces if needed.
+	#
+	#   _cPattern_   the pattern as text
+	#   returns      nothing; the object is built
+	#   note         build with StzTimexQ, Timex or Tmx; the debug flag prints the parse
+	#   warning      the parser is broken today, so a pattern holding the arrow -> or a vertical bar
+	#                is read as ONE token whose label keeps the closing bracket (A) -> ... gives a
+	#                single event token labelled A)), and a pattern with a parenthesised duration
+	#                such as @Duration(1h) raises Array Access (Index out of range) (R2) at once;
+	#                only single tokens without brackets, such as @Instant or @Event, parse
+	#                correctly; cause: the calls to @StzMid pass an end position where @StzMid now
+	#                wants a length
+	#   see          Pattern, Tokens, MatchExact
 	def init(_cPattern_)
 		if NOT isString(_cPattern_)
 			raise("Error: Pattern must be a string")
@@ -66,6 +102,12 @@ class stzTimex from stzObject
 		ok
 
 	
+	# Returns the pattern text trimmed and wrapped in braces when it is not yet.
+	#
+	#   _cPattern_   the pattern as text
+	#   returns      a text
+	#   note         @Event(A) with spaces around gives {@Event(A)}, and {x} stays {x}
+	#   see          ParsePattern, Pattern
 	def NormalizePattern(_cPattern_)
 		_cPattern_ = trim(_cPattern_)
 		
@@ -80,6 +122,14 @@ class stzTimex from stzObject
 	 #  PATTERN PARSING   #
 	#--------------------#
 	
+	# Splits a pattern into its tokens, one per arrow-separated step.
+	#
+	#   _cPattern_   the braced pattern as text
+	#   returns      a list of tokens, each a list of [ name, value ] pairs
+	#   note         a single token with no brackets parses correctly
+	#   warning      it never splits: {@Instant -> @Duration(1h..2h) -> @Event(X)} gives one token
+	#                instead of three, because SplitByOperator does not split
+	#   see          Tokens, SplitByOperator, ParseSingleToken
 	def ParsePattern(_cPattern_)
 		# Remove outer braces
 		_cInner_ = @StzMid(_cPattern_, 2, StzLen(_cPattern_)-1)
@@ -115,6 +165,15 @@ class stzTimex from stzObject
 		
 		return _aTokens_
 	
+	# Returns the whole text as one piece today instead of cutting it at an operator outside brackets.
+	#
+	#   cStr        the text to cut
+	#   cOperator   the operator, such as -> or the vertical bar ParsePattern, ParseAlternation
+	#   returns     a list of text with one item
+	#   warning     the brackets are tracked correctly, only the comparison fails
+	#   see         it never finds the operator: a -> b(c -> d) -> e, a->b->c and A, B and C joined
+	#               by vertical bars each come back whole, because the operator is read with
+	#               @StzMid(text, i, i + n - 1), which wants a length as its third argument
 	def SplitByOperator(cStr, cOperator)
 		# Split by operator but respect parentheses nesting
 		_aParts_ = []
@@ -149,6 +208,15 @@ class stzTimex from stzObject
 		
 		return _aParts_
 	
+	# Reads a bracketed step that offers alternatives, such as event A or event B, into one alternation token.
+	#
+	#   _cTokenStr_   the text of the alternation, its alternatives written between brackets and
+	#                 joined by vertical bars
+	#   returns       a token: [ type alternation, the alternatives, negated 0 ]
+	#   note          the token shape is right: the type is alternation
+	#   warning       it finds one alternative only, since SplitByOperator does not split, and the
+	#                 label keeps the closing bracket (A))
+	#   see           ParseSingleToken, SplitByOperator
 	def ParseAlternation(_cTokenStr_)
 		# Handle (A | B | C) patterns
 		# Strip outer parentheses if present
@@ -177,6 +245,19 @@ class stzTimex from stzObject
 			["negated", 0]
 		]
 	
+	# Reads one step such as @Event(A)? or @Duration* into a token with its type, label, constraints and quantifier.
+	#
+	#   _cTokenStr_   the text of one step
+	#   returns       a token as a list of [ name, value ] pairs; [ ] for a text that names no known
+	#                 type
+	#   note          types are instant, duration, event, sequence and frame; + means 1 or more, * 0
+	#                 or more, ? 0 or 1, ~ cyclic
+	#   warning       works for @Instant+, @Duration* and @Frame~ with no brackets; with brackets
+	#                 the label keeps the closing bracket (@Event(X) gives X)); a negation such as
+	#                 @!Event(X) returns [ ]; the numeric quantifier 2-3 gives min 3 and max 3
+	#                 instead of 2 and 3; @Event(Session:1h) raises Array Access (Index out of
+	#                 range) (R2)
+	#   see           ParseConstraints, ParsePattern
 	def ParseSingleToken(_cTokenStr_)
 		_cTokenStr_ = @trim(_cTokenStr_)
 		
@@ -301,6 +382,17 @@ class stzTimex from stzObject
 			["negated", _bNegated_]
 		]
 		
+	# Reads the text inside a duration step into constraints: a range with an optional step, or one exact duration.
+	#
+	#   cConstraintStr   the text of the constraints, such as 1h..2h:15min
+	#   returns          a list of constraints, each a list of [ name, value ] pairs; [ ] for an
+	#                    empty text
+	#   note             1h..2h:15min gives a range with start 1h, end 2h and step 15min; 1h gives
+	#                    an exact constraint of 60 minutes
+	#   warning          a set such as {Mon;Wed;Fri} raises Array Access (Index out of range) (R2)
+	#                    instead of returning a set constraint, because it is first read as a
+	#                    duration
+	#   see              ParseDurationToMinutes, CheckConstraints
 	def ParseConstraints(cConstraintStr)
 		# Parse constraints like "1h..2h:15min" or "{Mon;Wed;Fri}" or "1h" (single duration)
 		_aConstraints_ = []
@@ -362,6 +454,13 @@ class stzTimex from stzObject
 		
 		return _aConstraints_
 		
+	# Returns a duration written as hours and minutes as a number of minutes.
+	#
+	#   _cDuration_   the duration as text, such as 1h, 30min, 1h30min, 45 or 30m
+	#   returns       a number of minutes
+	#   note          1h gives 60, 1h30min gives 90, 45 gives 45 (a bare number is minutes), 2H
+	#                 gives 120
+	#   see           ParseConstraints, CheckConstraints
 	def ParseDurationToMinutes(_cDuration_)
 		# Parse duration strings like "1h", "30min", "1h30min", "2h"
 		_cDuration_ = StzLower(@trim(_cDuration_))
@@ -394,6 +493,16 @@ class stzTimex from stzObject
 		# Full match - pattern must match completely
 		return This.MatchExact(oTarget)
 	
+	# TRUE if the pattern matches the whole target, with nothing left over.
+	#
+	#   oTarget    the target: a stzTimeLine, a stzCalendar, a list of date texts, stzDateTime or
+	#              stzDuration objects, or one such object
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   note       a successful match fills MatchedParts; the pattern @Instant matches one date text
+	#              and not two
+	#   warning    because of the parser defect, only single-token patterns are meaningful; Match is
+	#              the same call
+	#   see        MatchPartial, MatchAsYouBuild, MatchedParts
 	def MatchExact(oTarget)
 		# Entire timeline must match pattern exactly
 		@oTarget = oTarget
@@ -406,6 +515,15 @@ class stzTimex from stzObject
 		ok
 		return _bResult_
 	
+	# TRUE if the pattern matches somewhere inside the target, starting at any item.
+	#
+	#   oTarget    the target: a stzTimeLine, a stzCalendar, a list of date texts, stzDateTime or
+	#              stzDuration objects, or one such object
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   note       a successful match fills MatchedParts; an empty list gives FALSE
+	#   warning    because of the parser defect, only single-token patterns are meaningful; any text
+	#              in a list counts as an instant, so @Instant matches a list holding the text x
+	#   see        MatchExact, MatchAsYouBuild
 	def MatchPartial(oTarget)
 		# Pattern exists somewhere in timeline (prefix match)
 		@oTarget = oTarget
@@ -422,6 +540,15 @@ class stzTimex from stzObject
 		next
 		return 0
 	
+	# Returns TRUE when the pattern matches somewhere, and raises error R14 when it does not match yet.
+	#
+	#   oTarget    the target, as for MatchPartial
+	#   returns    TRUE when MatchPartial is TRUE
+	#   note       TRUE results come back as for MatchPartial
+	#   warning    raises Calling Method without definition: couldmatchwithmore (R14) whenever
+	#              MatchPartial answers FALSE, for an empty list and for a list with no instant,
+	#              because the method it falls back on does not exist
+	#   see        MatchPartial, MatchExact
 	def MatchAsYouBuild(oTarget)
 		# For real-time validation as timeline is built
 		# Returns true if pattern matches OR could match with more events
@@ -437,6 +564,12 @@ class stzTimex from stzObject
 		return This.CouldMatchWithMore(_aNormalized_)
 	
 	
+	# Returns the items sorted from the earliest datetime or start to the latest.
+	#
+	#   _aItems_   the list of items, each holding a type and a datetime (instant) or a start
+	#   returns    a list of items
+	#   note       two instants 11:00 and 09:00 come back 09:00 first
+	#   see        NormalizeTarget
 	def SortByDateTime(_aItems_)
 		_nLen_ = len(_aItems_)
 		for _i_ = 1 to _nLen_ - 1
@@ -465,6 +598,17 @@ class stzTimex from stzObject
 		next
 		return _aItems_
 		
+	# TRUE if the tokens from a step on consume the items from a position to the very end.
+	#
+	#   _aTokens_       the list of tokens
+	#   _aNormalized_   the items, as NormalizeTarget gives
+	#   nTokenIdx       the 1-based index of the first token to use
+	#   nDataIdx        the 1-based index of the first item to use
+	#   aMatched        the matches so far, [ ] to start
+	#   returns         TRUE or FALSE, as 1 or 0
+	#   note            tokens can be built by hand; an instant token with 1 to many against two
+	#                   instants gives TRUE, and exactly 1 gives FALSE
+	#   see             BacktrackMatchPartial, MatchExact
 	def BacktrackMatch(_aTokens_, _aNormalized_, nTokenIdx, nDataIdx, aMatched)
 		_nLenTokens_ = len(_aTokens_)
 		_nLenData_ = len(_aNormalized_)
@@ -587,6 +731,16 @@ class stzTimex from stzObject
 		return 0
 
 
+	# TRUE if the tokens from a step on match the items starting at a position, items may be left over after.
+	#
+	#   _aTokens_       the list of tokens
+	#   _aNormalized_   the items, as NormalizeTarget gives
+	#   nTokenIdx       the 1-based index of the first token to use
+	#   nDataIdx        the 1-based index of the first item to use
+	#   aMatched        the matches so far, [ ] to start
+	#   returns         TRUE or FALSE, as 1 or 0
+	#   note            an instant token of exactly 1 matches from item 2 of two instants
+	#   see             BacktrackMatch, MatchPartial
 	def BacktrackMatchPartial(_aTokens_, _aNormalized_, nTokenIdx, nDataIdx, aMatched)
 		_nLenTokens_ = len(_aTokens_)
 		_nLenData_ = len(_aNormalized_)
@@ -737,6 +891,15 @@ class stzTimex from stzObject
 		return 0
 
 
+	# Turns a target into the flat list of items the matcher compares: instants, events and the duration gaps between them.
+	#
+	#   oTarget    a stzTimeLine, a stzCalendar, a list of date texts, stzDateTime or stzDuration
+	#              objects, or one such object
+	#   returns    a list of items, each a list of [ name, value ] pairs; [ ] for a target of
+	#              another kind
+	#   note       a timeline with instants A, B, C half an hour apart gives 5 items: A, a 30 minute
+	#              gap, B, a gap, C; a text or a number gives [ ]
+	#   see        MatchExact, SortByDateTime
 	def NormalizeTarget(oTarget)
 		_aNormalized_ = []
 		
@@ -882,6 +1045,15 @@ class stzTimex from stzObject
 		return _aNormalized_
 	
 
+	# TRUE if an item satisfies every constraint of a step.
+	#
+	#   _aConstraints_   the list of constraints, from ParseConstraints
+	#   _aData_          the item, with its type, label and minutes
+	#   returns          TRUE or FALSE, as 1 or 0; TRUE for no constraints
+	#   note             a 45 minute duration passes the range 30m..1h and a 90 minute one fails; a
+	#                    step of 20m accepts 50 minutes and rejects 45; a set compares the label
+	#                    without regard to case
+	#   see              ParseConstraints, ParseDurationToMinutes
 	def CheckConstraints(_aConstraints_, _aData_)
 		_nLen_ = len(_aConstraints_)
 		
@@ -954,6 +1126,14 @@ class stzTimex from stzObject
 		
 		return 1
 		
+		# Records the items of a successful match as the matched parts.
+		#
+		#   _aNormalized_   the matched items
+		#   returns         nothing; MatchedParts changes
+		#   note            called by the two match methods after a success
+		#   warning         it is defined inside CheckConstraints in the source, but is callable on
+		#                   its own
+		#   see             MatchedParts, MatchExact
 		def ExtractMatches(_aNormalized_)
 			# Extract matched parts for later retrieval
 			@aMatchedParts = []
@@ -972,9 +1152,21 @@ class stzTimex from stzObject
 	 #  QUERY METHODS       #
 	#----------------------#
 	
+	# Returns the parts recorded by the last successful match, as type, label and data.
+	#
+	#   returns    a list of [ type, label, data ] records; [ ] before any success
+	#   note       a list of two dates matched by @Instant+ gives two parts
+	#   warning    a later failed match does not clear it
+	#   see        MatchExact, MatchPartial
 	def MatchedParts()
 		return @aMatchedParts
 	
+	# Returns the tokens parsed from the pattern.
+	#
+	#   returns    a list of tokens, each a list of [ name, value ] pairs
+	#   note       an empty pattern gives [ ]
+	#   warning    see ParsePattern: a pattern with arrows gives a single token today
+	#   see        Explain, ParsePattern
 	def Tokens()
 		return @aTokens
 	
@@ -1009,12 +1201,31 @@ class stzTimex from stzObject
 		
 		return _aInfo_
 	
+	# Stores a target so that Explain can report it, without matching.
+	#
+	#   oTarget    the target to remember
+	#   returns    nothing
+	#   note       the match methods set the target themselves
+	#   warning    Explain reports TargetSet as TRUE even before any target is set
+	#   see        Explain, MatchExact
 	def SetTarget(oTarget)
 		@oTarget = oTarget
 	
+	# Returns the pattern text as stored, wrapped in braces.
+	#
+	#   returns    a text
+	#   note       @Instant gives {@Instant}
+	#   see        NormalizePattern, Tokens
 	def Pattern()
 		return @cPattern
 	
+	# Returns a summary of the pattern: its text, token count, tokens, whether a target is set and whether a match is recorded.
+	#
+	#   returns    a list of [ name, value ] pairs
+	#   note       the keys are Pattern, TokenCount, Tokens, TargetSet and LastMatch
+	#   warning    TargetSet is TRUE on a fresh object, and the token count is wrong whenever the
+	#              parser merges the steps (see ParsePattern)
+	#   see        Tokens, Pattern
 	def Explain()
 		# Return structured explanation
 		return [
@@ -1029,12 +1240,26 @@ class stzTimex from stzObject
 	 #  DEBUG METHODS       #
 	#----------------------#
 	
+	# Turns on the debug printing of the parser and the matcher.
+	#
+	#   returns    nothing
+	#   note       the flag only affects what is printed afterwards
+	#   see        DisableDebug, SetDebug
 	def EnableDebug()
 		@bDebugMode = 1
 	
+	# Turns off the debug printing.
+	#
+	#   returns    nothing
+	#   see        EnableDebug, SetDebug
 	def DisableDebug()
 		@bDebugMode = 0
 	
+	# Sets the debug printing on or off from a flag.
+	#
+	#   bFlag      1 to print debug lines, 0 not to
+	#   returns    nothing
+	#   see        EnableDebug, DisableDebug
 	def SetDebug(bFlag)
 		@bDebugMode = bFlag
 	
@@ -1042,6 +1267,12 @@ class stzTimex from stzObject
 	 #  HELPER METHODS      #
 	#----------------------#
 	
+	# TRUE if the object is a timeline, judged by its class name containing timeline.
+	#
+	#   oObj       the value to test
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   note       a stzTimeLine gives TRUE and a text gives FALSE
+	#   see        NormalizeTarget, @IsStzCalendar
 	def @IsStzTimeLine(oObj)
 		# Check if object is stzTimeLine instance
 		if isObject(oObj)
@@ -1050,6 +1281,11 @@ class stzTimex from stzObject
 		ok
 		return 0
 	
+	# TRUE if the object is a calendar, judged by its class name containing calendar.
+	#
+	#   oObj       the value to test
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   see        NormalizeTarget, @IsStzTimeLine
 	def @IsStzCalendar(oObj)
 		# Check if object is stzCalendar instance
 		if isObject(oObj)
@@ -1058,6 +1294,11 @@ class stzTimex from stzObject
 		ok
 		return 0
 	
+	# TRUE if the object is a date-time, judged by its class name containing datetime.
+	#
+	#   oObj       the value to test
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   see        NormalizeTarget, @IsStzDuration
 	def @IsStzDateTime(oObj)
 		# Check if object is stzDateTime instance
 		if isObject(oObj)
@@ -1066,6 +1307,11 @@ class stzTimex from stzObject
 		ok
 		return 0
 	
+	# TRUE if the object is a duration, judged by its class name containing duration.
+	#
+	#   oObj       the value to test
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   see        NormalizeTarget, @IsStzDateTime
 	def @IsStzDuration(oObj)
 		# Check if object is stzDuration instance
 		if isObject(oObj)
@@ -1074,6 +1320,11 @@ class stzTimex from stzObject
 		ok
 		return 0
 	
+	# Returns the smallest number of a list.
+	#
+	#   aValues    the list of numbers
+	#   returns    a number
+	#   see        BacktrackMatch
 	def @Min(aValues)
 		_nMin_ = aValues[1]
 		_nLen_ = len(aValues)

@@ -1,0 +1,19 @@
+{
+ "brief": "Holds numbers inside the engine so that bulk passes and reductions cross the Ring boundary once, not once per call.",
+ "detail": "It is the number helper of stzListOfNumbers (ToStzNumBuffer brings a list in, ToStzListOfNumbers takes it back): the engine copy is the truth and Ring only holds a handle. Build one with StzNumBufferQ over a list, StzNumBufferOfSizeQ for zeros, or StzNumBufferRangeQ for a sequence. Writes (Scale, AddScalar, FillWith, RangeFrom, SetItem and the buffer-with-buffer verbs) change the buffer in place and return it, so calls chain; reductions (Sum, Mean, Min, Max, Dot, the variances) return a number and marshal nothing; ToList materialises a view when you want to look. Values are f64, Sum is compensated, and the variances name their convention (sample divides by n-1, population by n). Ring has no destructors: call Free on a large buffer when done. Found today: Item, SetItem and Resize with a negative number end the Ring process, an out-of-range positive Item answers 0, Dot of two lengths answers 0 where the other buffer verbs raise, and the reductions of an empty buffer answer 0.",
+ "receiver": "o1 = StzNumBufferQ([ 2, 4, 6, 8 ])",
+ "example": [
+  "o1.Scale(10).AddScalar(1)",
+  "? @@( o1.ToList() )",
+  "#--> [ 21, 41, 61, 81 ]",
+  "? o1.Sum()",
+  "#--> 204",
+  "? o1.Mean()",
+  "#--> 51"
+ ],
+ "see": [
+  "stzListOfNumbers",
+  "stzNumber",
+  "stzList"
+ ]
+}

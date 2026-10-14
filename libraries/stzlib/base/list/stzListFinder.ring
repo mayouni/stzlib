@@ -16,6 +16,29 @@
  ///   CLASS   ///
 /////////////////
 
+# Finds where an item occurs in a list, as positions: all, first, last, nth, the ones that differ, or those before or after a position.
+#
+# It is the search helper of stzList, which builds one over itself for its Find methods; build one
+# with new stzListFinder when you only need to search. It never edits the list, so a stzList passed
+# in stays intact. Positions are 1-based, and an absent item answers 0 for the single-position verbs
+# and [ ] for the list verbs. Items are matched whole: a text, a number or a sublist, and Hebrew,
+# Arabic and emoji texts match as one item each. Case counts unless you call the CS form with 0. The
+# Next verbs look strictly after a position and count ranks forward; FindPreviousNthOccurrence
+# counts ranks backward from the position, while FindPreviousNthOccurrences counts them forward from
+# the start. Found today: AntiFind and AntiFindAsSections answer a wrong list for an empty list, and
+# CountItemsW raises R14.
+#
+#   receiver   o1 = new stzListFinder([ "a", "b", "a", "c", "a" ])
+#   example    ? @@( o1.Find("a") )
+#              #--> [ 1, 3, 5 ]
+#              ? @@( o1.AntiFind("a") )
+#              #--> [ 2, 4 ]
+#              ? o1.FindNextOccurrence("a", 1)
+#              #--> 3
+#              o2 = new stzListFinder([ "שלום", "مرحبا", "😀", "שלום", "😀" ])
+#              ? @@( o2.Find("😀") )
+#              #--> [ 3, 5 ]
+#   see        stzList, stzListOfNumbers, stzStringFinder
 class stzListFinder from stzObject
 
 	@oList
@@ -24,6 +47,13 @@ class stzListFinder from stzObject
 	 #   INITIALIZATION  #
 	#===================#
 
+	# Builds a finder over a list, given as a list or as a stzList object.
+	#
+	#   pListOrObj   the list to search, or a stzList
+	#   returns      nothing; the object is built
+	#   note         finding never edits the list, so a stzList passed in stays intact; stzList
+	#                builds one over itself for its find methods
+	#   see          Content, Find
 	def init(pListOrObj)
 		if isList(pListOrObj)
 			@oList = new stzList(pListOrObj)
@@ -37,12 +67,24 @@ class stzListFinder from stzObject
 	 #     CONTENT ACCESS            #
 	#===============================#
 
+	# Returns the list being searched.
+	#
+	#   returns    a list
+	#   see        NumberOfItems, IsEmpty
 	def Content()
 		return @oList.Content()
 
+	# Returns how many items the list holds.
+	#
+	#   returns    a number
+	#   see        Content, IsEmpty
 	def NumberOfItems()
 		return @oList.NumberOfItems()
 
+	# TRUE if the list holds no item.
+	#
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   see        NumberOfItems, Content
 	def IsEmpty()
 		return @oList.IsEmpty()
 
@@ -176,8 +218,15 @@ class stzListFinder from stzObject
 			ok
 			return This.FindAllOccurrencesCS(pItem, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Returns the position of every item equal to the given one, as a list of numbers.
+	#
+	#   pItem      the item to look for: a text, a number, or a list
+	#   returns    a list of 1-based positions; [ ] when the item is absent
+	#   note       a b a c a d A with a gives [ 1, 3, 5 ], and FindAllOccurrencesCS(item, 0) also
+	#              finds the A at 7; Find is the same call; texts in Hebrew, Arabic and emoji are
+	#              matched whole
+	#   see        Find, FindFirst, FindNth, AntiFind
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def FindAllOccurrences(pItem)
 		_aResult_ = This.FindAllOccurrencesCS(pItem, 1)
 		return _aResult_
@@ -191,6 +240,13 @@ class stzListFinder from stzObject
 		def FindAll(pItem)
 			return This.FindAllOccurrences(pItem)
 
+		# Returns the position of every item equal to the given one, as a list of numbers.
+		#
+		#   pItem      the item to look for: a text, a number, or a list
+		#   returns    a list of 1-based positions; [ ] when the item is absent
+		#   note       a b a c a d A with a gives [ 1, 3, 5 ]; FindCS(item, 0) ignores case; a
+		#              sublist such as [ 1, 2 ] is matched as a whole
+		#   see        FindAllOccurrences, FindFirst, AntiFind
 		def Find(pItem)
 			if isList(pItem) and IsItemNamedParamList(pItem)
 				pItem = pItem[2]
@@ -206,6 +262,14 @@ class stzListFinder from stzObject
 		_anResult_ = Q(1:This.NumberOfItems()) - These(_anPos_)
 		return _anResult_
 
+	# Returns the positions of the items that differ from the given one.
+	#
+	#   pItem      the item to avoid
+	#   returns    a list of 1-based positions
+	#   note       a b a c a d A without a gives [ 2, 4, 6, 7 ]; AntiFindCS(item, 0) ignores case
+	#   warning    an empty list answers [ 1, 0 ] where [ ] is expected, because the positions are
+	#              built as the range 1 to 0 (an empty list with a, and with b)
+	#   see        Find, AntiFindAsSections, AntiPositions
 	def AntiFind(pItem)
 		return This.AntiFindCS(pItem, 1)
 
@@ -221,6 +285,14 @@ class stzListFinder from stzObject
 		def AntiFindCSZZ(pItem, pCaseSensitive)
 			return This.AntiFindAsSectionsCS(pItem, pCaseSensitive)
 
+	# Returns the runs of consecutive positions whose items differ from the given one, as [start, end] pairs.
+	#
+	#   pItem      the item to avoid
+	#   returns    a list of [ number, number ] pairs; [ ] when every item matches
+	#   note       a b a c a d A without a gives [ [ 2, 2 ], [ 4, 4 ], [ 6, 7 ] ]; AntiFindZZ is the
+	#              same call
+	#   warning    an empty list answers [ [ 1, 2 ] ] instead of [ ] (an empty list with a)
+	#   see        AntiFind, Find
 	def AntiFindAsSections(pItem)
 		return This.AntiFindAsSectionsCS(pItem, 1)
 
@@ -231,6 +303,13 @@ class stzListFinder from stzObject
 	 #  GETTING THE ANTI-POSITIONS OF THE GIVEN POSITIONS IN THE LIST  #
 	#-----------------------------------------------------------------#
 
+	# Returns the positions of the list that are not in the given list of positions.
+	#
+	#   _anPos_    the list of positions to leave out
+	#   returns    a list of 1-based positions, ascending
+	#   note       a list of seven items with [ 2, 3 ] gives [ 1, 4, 5, 6, 7 ]; an empty list of
+	#              positions gives every position
+	#   see        AntiFind, Find
 	def AntiPositions(_anPos_)
 
 		if CheckingParams()
@@ -289,6 +368,13 @@ class stzListFinder from stzObject
 
 		return _aFnoResult_
 
+	# Returns the positions of the first n occurrences of an item.
+	#
+	#   n          how many occurrences to keep, counted from the start
+	#   pItem      the item to look for
+	#   returns    a list of positions, fewer than n when the item occurs fewer times; [ ] for 0
+	#   note       a b a c a d A with 2 and a gives [ 1, 3 ]; with 9 it gives all three
+	#   see        FindAllOccurrences, FindGivenOccurrences, FindFirst
 	def FindNOccurrences(n, pItem)
 		return This.FindNOccurrencesCS(n, pItem, 1)
 
@@ -304,6 +390,12 @@ class stzListFinder from stzObject
 			return 0
 		ok
 
+	# Returns the position of the first occurrence of an item.
+	#
+	#   pItem      the item to look for
+	#   returns    a number; 0 when the item is absent
+	#   note       FindFirstCS(item, 0) ignores case
+	#   see        FindLast, FindNth, Find
 	def FindFirst(pItem)
 		return This.FindFirstCS(pItem, 1)
 
@@ -320,6 +412,12 @@ class stzListFinder from stzObject
 			return 0
 		ok
 
+	# Returns the position of the last occurrence of an item.
+	#
+	#   pItem      the item to look for
+	#   returns    a number; 0 when the item is absent
+	#   note       FindLastCS(item, 0) ignores case; a b a c a d A with a gives 5
+	#   see        FindFirst, FindNth
 	def FindLast(pItem)
 		return This.FindLastCS(pItem, 1)
 
@@ -342,6 +440,13 @@ class stzListFinder from stzObject
 
 		return _anFnPos_[n]
 
+	# Returns the position of the occurrence of an item that has the given rank, counted from 1.
+	#
+	#   n          the rank of the occurrence, 1 for the first
+	#   pItem      the item to look for
+	#   returns    a number; 0 when the rank is 0, negative or past the last occurrence
+	#   note       a b a c a d A with rank 2 of a gives 3; FindNthCS(n, item, 0) ignores case
+	#   see        FindFirst, FindLast, FindNOccurrences
 	def FindNth(n, pItem)
 		return This.FindNthCS(n, pItem, 1)
 
@@ -369,6 +474,14 @@ class stzListFinder from stzObject
 
 		return _anFgoResult_
 
+	# Returns the positions of the occurrences that have the listed ranks.
+	#
+	#   panOccurrences   the list of ranks wanted, 1 for the first
+	#   pItem            the item to look for
+	#   returns          a list of positions; ranks past the last occurrence are skipped
+	#   note             a b a c a d A with ranks [ 1, 3 ] of a gives [ 1, 5 ]; with [ 3, 9 ] it
+	#                    gives [ 5 ]
+	#   see              FindNth, FindNOccurrences
 	def FindGivenOccurrences(panOccurrences, pItem)
 		return This.FindGivenOccurrencesCS(panOccurrences, pItem, 1)
 
@@ -414,6 +527,12 @@ class stzListFinder from stzObject
 
 		return _aFefResult_
 
+	# Returns the positions of every occurrence of an item except the first.
+	#
+	#   pItem      the item to look for
+	#   returns    a list of positions; [ ] when the item occurs once or not at all
+	#   note       a b a c a d A with a gives [ 3, 5 ]; FindAllExceptFirstCS(item, 0) ignores case
+	#   see        FindAllExceptLast, Find
 	def FindAllExceptFirst(pItem)
 		return This.FindAllExceptFirstCS(pItem, 1)
 
@@ -436,6 +555,12 @@ class stzListFinder from stzObject
 
 		return _aFelResult_
 
+	# Returns the positions of every occurrence of an item except the last.
+	#
+	#   pItem      the item to look for
+	#   returns    a list of positions; [ ] when the item occurs once or not at all
+	#   note       a b a c a d A with a gives [ 1, 3 ]; FindAllExceptLastCS(item, 0) ignores case
+	#   see        FindAllExceptFirst, Find
 	def FindAllExceptLast(pItem)
 		return This.FindAllExceptLastCS(pItem, 1)
 
@@ -446,6 +571,13 @@ class stzListFinder from stzObject
 	def NumberOfOccurrenceCS(pItem, pCaseSensitive)
 		return len( This.FindAllCS(pItem, pCaseSensitive) )
 
+	# Returns how many times an item occurs in the list.
+	#
+	#   pItem      the item to count
+	#   returns    a number; 0 when absent
+	#   note       a b a c a d A with a gives 3, and 4 when case is ignored
+	#              (NumberOfOccurrenceCS(item, 0))
+	#   see        Find, Contains
 	def NumberOfOccurrence(pItem)
 		return This.NumberOfOccurrenceCS(pItem, 1)
 
@@ -486,6 +618,15 @@ class stzListFinder from stzObject
 
 		return 0
 
+	# Returns the position of the occurrence with the given rank among those lying after a position, counted forward.
+	#
+	#   n              the rank among the later occurrences, 1 for the nearest
+	#   pItem          the item to look for
+	#   pnStartingAt   the position after which to look, which is excluded
+	#   returns        a number; 0 when there are fewer occurrences
+	#   note           a b a c a d A from 2: rank 1 of a gives 3, rank 2 gives 5, rank 9 gives 0;
+	#                  FindNextNthOccurrenceCS adds the case flag
+	#   see            FindNextOccurrence, FindPreviousNthOccurrence
 	def FindNextNthOccurrence(n, pItem, pnStartingAt)
 		return This.FindNextNthOccurrenceCS(n, pItem, pnStartingAt, 1)
 
@@ -496,6 +637,13 @@ class stzListFinder from stzObject
 	def FindNextOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
 		return This.FindNextNthOccurrenceCS(1, pItem, pnStartingAt, pCaseSensitive)
 
+	# Returns the position of the nearest occurrence of an item after a position.
+	#
+	#   pItem          the item to look for
+	#   pnStartingAt   the position after which to look, which is excluded
+	#   returns        a number; 0 when there is none
+	#   note           a b a c a d A from 1 gives 3, from 5 gives 0, from 0 gives 1
+	#   see            FindNextNthOccurrence, FindPreviousOccurrence, FindNext
 	def FindNextOccurrence(pItem, pnStartingAt)
 		return This.FindNextOccurrenceCS(pItem, pnStartingAt, 1)
 
@@ -536,6 +684,15 @@ class stzListFinder from stzObject
 
 		return 0
 
+	# Returns the position of the occurrence with the given rank among those lying before a position, counted backward from the nearest.
+	#
+	#   n              the rank counting back from the position, 1 for the nearest
+	#   pItem          the item to look for
+	#   pnStartingAt   the position before which to look, which is excluded
+	#   returns        a number; 0 when there are fewer occurrences
+	#   note           a b a c a d A from 5: rank 1 of a gives 3, rank 2 gives 1, rank 9 gives 0;
+	#                  unlike FindPreviousNthOccurrences, whose ranks count forward
+	#   see            FindPreviousOccurrence, FindNextNthOccurrence, FindPreviousNthOccurrences
 	def FindPreviousNthOccurrence(n, pItem, pnStartingAt)
 		return This.FindPreviousNthOccurrenceCS(n, pItem, pnStartingAt, 1)
 
@@ -546,6 +703,13 @@ class stzListFinder from stzObject
 	def FindPreviousOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
 		return This.FindPreviousNthOccurrenceCS(1, pItem, pnStartingAt, pCaseSensitive)
 
+	# Returns the position of the nearest occurrence of an item before a position.
+	#
+	#   pItem          the item to look for
+	#   pnStartingAt   the position before which to look, which is excluded
+	#   returns        a number; 0 when there is none
+	#   note           a b a c a d A from 5 gives 3, from 1 gives 0, from 8 gives 5
+	#   see            FindPreviousNthOccurrence, FindNextOccurrence, FindPrevious
 	def FindPreviousOccurrence(pItem, pnStartingAt)
 		return This.FindPreviousOccurrenceCS(pItem, pnStartingAt, 1)
 
@@ -553,6 +717,14 @@ class stzListFinder from stzObject
 	 #  COUNTING ITEMS UNDER A CONDITION  #
 	#=====================================#
 
+	# Raises error R14 today instead of counting the items that satisfy a W condition.
+	#
+	#   pcCondition   the condition as text, such as @item = 'a'
+	#   returns       nothing
+	#   note          count with Find and its length, or use stzList
+	#   warning       raises Calling Method without definition: countw for every condition (two
+	#                 conditions tried), because the class it calls has no CountW
+	#   see           NumberOfOccurrence, Find
 	def CountItemsW(pcCondition)
 
 		if NOT isString(pcCondition)
@@ -582,6 +754,12 @@ class stzListFinder from stzObject
 			return 0
 		ok
 
+	# TRUE if the list holds the given item.
+	#
+	#   pItem      the item to look for
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   note       ContainsCS(item, 0) ignores case: B is found in a b a c a d A only that way
+	#   see        NumberOfOccurrence, Find
 	def Contains(pItem)
 		return This.ContainsCS(pItem, 1)
 
@@ -635,6 +813,13 @@ class stzListFinder from stzObject
 	def FindNextOccurrencesCS(pItem, pnStartingAt, pCaseSensitive)
 		return This._FnAfter(This._FnVal(pItem), This._FnVal(pnStartingAt), pCaseSensitive)
 
+	# Returns the positions of every occurrence of an item after a position.
+	#
+	#   pItem          the item to look for
+	#   pnStartingAt   the position after which to look, which is excluded
+	#   returns        a list of positions in ascending order; [ ] when there is none
+	#   note           a b a c a d A from 1 gives [ 3, 5 ]; FindNextOccurrencesST is the same call
+	#   see            FindPreviousOccurrences, FindNextOccurrence
 	def FindNextOccurrences(pItem, pnStartingAt)
 		return This.FindNextOccurrencesCS(pItem, pnStartingAt, 1)
 
@@ -644,13 +829,30 @@ class stzListFinder from stzObject
 	def FindPreviousOccurrencesCS(pItem, pnStartingAt, pCaseSensitive)
 		return This._FnBefore(This._FnVal(pItem), This._FnVal(pnStartingAt), pCaseSensitive)
 
+	# Returns the positions of every occurrence of an item before a position.
+	#
+	#   pItem          the item to look for
+	#   pnStartingAt   the position before which to look, which is excluded
+	#   returns        a list of positions in ascending order; [ ] when there is none
+	#   note           a b a c a d A from 5 gives [ 1, 3 ]; FindPreviousOccurrencesST is the same
+	#                  call
+	#   see            FindNextOccurrences, FindPreviousOccurrence
 	def FindPreviousOccurrences(pItem, pnStartingAt)
 		return This.FindPreviousOccurrencesCS(pItem, pnStartingAt, 1)
 
 		def FindPreviousOccurrencesST(pItem, pnStartingAt)
 			return This.FindPreviousOccurrences(pItem, pnStartingAt)
 
-	#-- the n-th occurrence after a position (forward; handles :Of/:StartingAt)
+	# Returns the position of the occurrence with the given rank among those lying after a position, counted forward.
+	#
+	#   n              the rank among the later occurrences, 1 for the nearest
+	#   pItem          the item to look for
+	#   pnStartingAt   the position after which to look, which is excluded
+	#   returns        a number; 0 when there are fewer occurrences
+	#   note           the same answer as FindNextNthOccurrence: a b a c a d A from 1 with rank 2 of
+	#                  a gives 5; FindNextNth is the same call
+	#   see            FindNextNthOccurrence, FindNext
+	#@ aka  -- the n-th occurrence after a position (forward; handles :Of/:StartingAt)
 	def FindNthNextOccurrence(n, pItem, pnStartingAt)
 		_a_ = This._FnAfter(This._FnVal(pItem), This._FnVal(pnStartingAt), 1)
 		if n >= 1 and n <= len(_a_) return _a_[n] ok
@@ -659,13 +861,29 @@ class stzListFinder from stzObject
 		def FindNextNth(n, pItem, pnStartingAt)
 			return This.FindNthNextOccurrence(n, pItem, pnStartingAt)
 
+	# Returns the position of the nearest occurrence of an item after a position.
+	#
+	#   pItem          the item to look for
+	#   pnStartingAt   the position after which to look, which is excluded
+	#   returns        a number; 0 when there is none
+	#   note           the same answer as FindNextOccurrence: a b a c a d A from 1 gives 3;
+	#                  FindFirstNext is the same call
+	#   see            FindNextOccurrence, FindPrevious
 	def FindNext(pItem, pnStartingAt)
 		return This.FindNthNextOccurrence(1, pItem, pnStartingAt)
 
 		def FindFirstNext(pItem, pnStartingAt)
 			return This.FindNext(pItem, pnStartingAt)
 
-	#-- nearest occurrence before a position (and its forward-indexed nth)
+	# Returns the position of the nearest occurrence of an item before a position.
+	#
+	#   pItem          the item to look for
+	#   pnStartingAt   the position before which to look, which is excluded
+	#   returns        a number; 0 when there is none
+	#   note           the same answer as FindPreviousOccurrence: a b a c a d A from 5 gives 3;
+	#                  FindFirstPrevious is the same call
+	#   see            FindPreviousOccurrence, FindNext
+	#@ aka  -- nearest occurrence before a position (and its forward-indexed nth)
 	def FindPrevious(pItem, pnStartingAt)
 		_a_ = This._FnBefore(This._FnVal(pItem), This._FnVal(pnStartingAt), 1)
 		if len(_a_) > 0 return _a_[ len(_a_) ] ok
@@ -674,7 +892,15 @@ class stzListFinder from stzObject
 		def FindFirstPrevious(pItem, pnStartingAt)
 			return This.FindPrevious(pItem, pnStartingAt)
 
-	#-- the listed nths (forward index) after / before a position
+	# Returns the positions of the occurrences that have the listed ranks among those lying after a position.
+	#
+	#   panN           the list of ranks wanted, 1 for the nearest after the position
+	#   pItem          the item to look for
+	#   pnStartingAt   the position after which to look, which is excluded
+	#   returns        a list of positions; ranks past the last occurrence are skipped
+	#   note           a b a c a d A from 1 with ranks [ 1, 2 ] of a gives [ 3, 5 ]
+	#   see            FindNextNthOccurrence, FindPreviousNthOccurrences
+	#@ aka  -- the listed nths (forward index) after / before a position
 	def FindNextNthOccurrencesST(panN, pItem, pnStartingAt)
 		_a_ = This._FnAfter(This._FnVal(pItem), This._FnVal(pnStartingAt), 1)
 		_res_ = []
@@ -686,6 +912,18 @@ class stzListFinder from stzObject
 		next
 		return _res_
 
+	# Returns the positions of the occurrences with the listed ranks, counted from the list start, among those before a position.
+	#
+	#   panN           the list of ranks wanted, 1 for the first occurrence of the list
+	#   pItem          the item to look for
+	#   pnStartingAt   the position before which to look, which is excluded
+	#   returns        a list of positions in forward order; ranks past the last occurrence are
+	#                  skipped
+	#   note           it has no case-flag form
+	#   warning        the ranks count forward from the start, while FindPreviousNthOccurrence
+	#                  counts backward from the position: a b a c a d A before 7 with ranks [ 1, 2 ]
+	#                  of a gives [ 1, 3 ], where FindPreviousNthOccurrence(2, a, 7) gives 3
+	#   see            FindPreviousNthOccurrence, FindNextNthOccurrencesST
 	def FindPreviousNthOccurrences(panN, pItem, pnStartingAt)
 		_a_ = This._FnBefore(This._FnVal(pItem), This._FnVal(pnStartingAt), 1)
 		_res_ = []

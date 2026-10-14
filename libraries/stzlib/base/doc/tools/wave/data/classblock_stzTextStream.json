@@ -1,0 +1,22 @@
+{
+ "brief": "Wraps the RingQt text stream to read text from an attached device, line by line or all at once.",
+ "detail": "It is a thin wrapper over QTextStream and needs RingQt: load guilib.ring before stzlib, otherwise building one raises class not found: qtextstream. Attach a device with SetFromProcess or SetFromScocket (any open RingQt device works, such as a QBuffer over a QByteArray), then read with ReadAll, Lines or ReadLine. Reading consumes the device: a second ReadAll finds nothing, and ReadLine takes the whole rest to hand back one line. The class is mostly unfinished today: SetFromFile raises R20, SetEncoding raises Bad parameter type!, SetLocale ends the Ring process, Flush and IsSetFromProcess raise on misspelled names, IsSetFromFile and IsSetFromSocket never become TRUE, SetStatus changes nothing, and text that is not ASCII (Hebrew, Arabic, emoji) is read back garbled. Reading plain ASCII text works.",
+ "receiver": "load \"guilib.ring\"\no1 = new stzTextStream()",
+ "example": [
+  "oBA = new QByteArray()",
+  "oBA.append(\"alpha\" + char(10) + \"beta\")",
+  "oBuf = new QBuffer(NULL)",
+  "oBuf.setData(oBA)",
+  "oBuf.open(1)",
+  "o1.SetFromProcess(oBuf)",
+  "? @@( o1.Lines() )",
+  "#--> [ \"alpha\", \"beta\" ]",
+  "? o1.Status()",
+  "#--> ok"
+ ],
+ "see": [
+  "stzString",
+  "stzFile",
+  "stzStringLines"
+ ]
+}
