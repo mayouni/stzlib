@@ -5,7 +5,7 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 426 methods in 83 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 476 methods in 99 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
@@ -24,45 +24,59 @@ and each was checked with a second call on different data. **None is fixed yet.*
 | regex/stzRegex.ring | stzRegex | 10 |
 | string/stzStringChar.ring | stzStringChar | 10 |
 | reactive/stzReactive.ring | stzReactiveSystem | 7 |
+| common/stzOccurrences.ring | stzOccurrences | 6 |
+| extercode/stzImageToAscii.ring | stzImgToAscii | 6 |
+| list/stzListProvidedAsString.ring | stzListProvidedAsString | 6 |
 | number/stzListOfBytes.ring | stzListOfBytes | 6 |
 | string/stzTextStream.ring | stzTextStream | 6 |
 | common/stzCache.ring | stzCacheStorage | 5 |
 | geo/stzGeoField.ring | stzGeoField | 5 |
 | geo/stzGeoSamples.ring | stzGeoSamples | 5 |
 | graph/stzDiagram.ring | stzDiagram | 5 |
+| graph/stzGridNav.ring | stzGridNav | 5 |
+| common/stzConstraint.ring | stzConstraint | 4 |
 | list/stzListChecker.ring | stzListChecker | 4 |
 | list/stzListOfPairs.ring | stzListOfPairs | 4 |
 | list/stzTree.ring | stzTree | 4 |
 | string/stzStringSplitter.ring | stzStringSplitter | 4 |
 | file/stzHtml.ring | stzHtmlBuilder | 3 |
 | graph/stzGraph.ring | stzGraphComparison | 3 |
+| graph/stzWorkflow.ring | stzWorkflowSimulation | 3 |
 | list/stzListWalker.ring | stzListWalker | 3 |
 | list/stzSet.ring | stzSet | 3 |
 | natural/stzChainOfTruth.ring | stzChainOfTruth | 3 |
 | natural/stzChainOfValue.ring | stzChainOfValue | 3 |
 | natural/stzEntity.ring | stzEntity | 3 |
+| object/stzListOfObjects.ring | stzListOfObjects | 3 |
 | regex/stzRegexMaker.ring | stzRecursiveRegexMaker | 3 |
 | regex/stzTimex.ring | stzTimex | 3 |
 | sound/stzSoundLive.ring | stzSoundLive | 3 |
+| stats/stzCoeffExtractor.ring | stzCoeffExtractor | 3 |
 | stats/stzDataSet.ring | stzDataSet | 3 |
 | stats/stzLinearSolver.ring | stzLinearSolver | 3 |
 | string/stzStringChecker.ring | stzStringChecker | 3 |
+| string/stzStringPerformer.ring | stzStringPerformer | 3 |
 | string/stzStringText.ring | stzStringText | 3 |
 | appserver/stzAppServer.ring | stzAppServer | 2 |
 | datetime/stzDate.ring | stzDate | 2 |
+| file/stzZipFile.ring | stzZipFile | 2 |
 | geo/stzGeoFeatures.ring | stzGeoFeatures | 2 |
 | geo/stzGeoProcess.ring | stzGeoProcess | 2 |
 | graph/stzGraphQuery.ring | stzGraphQuery | 2 |
 | graph/stzKnowledgeGraph.ring | stzKnowledgeGraph | 2 |
+| list/stzSetOfSections.ring | stzSetOfSections | 2 |
 | math/stzMathFigure.ring | stzMathFigure | 2 |
+| network/stzWebSocket.ring | stzWebSocket | 2 |
 | neural/stzLLMFunction.ring | stzLLMFunction | 2 |
 | number/stzHexNumber.ring | stzHexNumber | 2 |
 | number/stzMatrix.ring | stzMatrix | 2 |
 | number/stzNumber.ring | stzNumber | 2 |
 | number/stzOctalNumber.ring | stzOctalNumber | 2 |
+| object/stzListOfNamedObjects.ring | stzListOfNamedObjects | 2 |
 | reactive/stzReactor.ring | stzReactor | 2 |
 | string/stzStringInserter.ring | stzStringInserter | 2 |
 | string/stzStringList.ring | stzStringList | 2 |
+| common/stzEngineTimeline.ring | stzEngineTimeline | 1 |
 | file/stzFile.ring | stzFileInfo | 1 |
 | file/stzFile.ring | stzFileModifier | 1 |
 | file/stzFile.ring | stzFileOverwriter | 1 |
@@ -89,6 +103,8 @@ and each was checked with a second call on different data. **None is fixed yet.*
 | sound/stzSoundGraph.ring | stzSoundGraph | 1 |
 | string/stzString.ring | stzString | 1 |
 | string/stzStringCounter.ring | stzStringCounter | 1 |
+| string/stzStringDuplicates.ring | stzStringDuplicates | 1 |
+| string/stzStringIO.ring | stzStringIO | 1 |
 | string/stzStringReplacer.ring | stzStringReplacer | 1 |
 | string/stzStringSubString.ring | stzStringSubStringCS | 1 |
 | table/stzPivotTableShow.ring | TableDisplayConfig | 1 |
@@ -121,6 +137,26 @@ and each was checked with a second call on different data. **None is fixed yet.*
 - `FileName` (line 365): Raises error R13 today instead of returning the storage file's name. -- it forwards to a stzStorage that init never builds
 - `CompleteFileName` (line 373): Raises error R13 today instead of returning the storage file's name with its folder. -- it forwards to a stzStorage that init never builds
 - `StorageType` (line 381): Raises error R13 today instead of returning where the storage keeps its entries. -- it forwards to a stzStorage that init never builds
+
+## stzConstraint -- common/stzConstraint.ring (4)
+
+- `init` (line 96): Raises error R14 today instead of building a constraint from an object and a condition. -- every call with an object and a text raises R14 Calling Method without definition: removefirstboundq, thrown by IsConstraint; any other argument raises Incorrect types of object params, so no stzConstraint can be built today
+- `Name` (line 132): Returns the name of the constraint, which nothing sets today. -- always empty: the field it reads is never assigned anywhere in the class
+- `Expression` (line 141): Raises error R24 today instead of returning the Ring code that tests the condition. -- reads a variable _cConstraint_ that is never assigned (the field is @cConstraint), so it raises R24 Using uninitialized variable on every call
+- `CheckConstraint` (line 158): Returns 0 on every call today, whether or not the guarded object obeys the condition. -- always 0: the evaluation runs inside a try, and Expression raises first, so the failure is swallowed and reported as a broken constraint; checked on an object that obeys the condition and one that does not
+
+## stzEngineTimeline -- common/stzEngineTimeline.ring (1)
+
+- `Duration` (line 161): Returns 0 on every call today, whatever the events are. -- answered 0 for timestamps 100, 200, 300, then 1000 and 5000, then 2.5 and 9, then 1700000000 and 1700000060, sorted or not; the span between the first and the last event is not computed
+
+## stzOccurrences -- common/stzOccurrences.ring (6)
+
+- `SubString` (line 68): Returns an empty text today instead of the substring that was searched. -- the constructor stores the substring in @pcSubStr while this method reads @cSubStr, so the answer is always empty; checked with plain texts and with the :Of form
+- `String` (line 80): Returns an empty text today instead of the string that was searched. -- the constructor stores the string in @pcStr while this method reads @cStr, so the answer is always empty; checked with plain texts and with the :In form
+- `Removed` (line 103): Raises error R14 today instead of returning the string with the substring cut out at every occurrence. -- calls RemoveSubStringAtPositionsCSQ, a method stzString does not have; the stored string is also empty, see String
+- `ReplacedWithCS` (line 113): Does nothing today: the body is empty. -- an unfinished stub with no parameters and no code; it answers an empty value
+- `Uppercased` (line 120): Does nothing today: the body is empty. -- an unfinished stub with no code; it answers an empty value
+- `Lowercased` (line 127): Does nothing today: the body is empty. -- an unfinished stub with no code; it answers an empty value
 
 ## stzCalendar -- datetime/stzCalendar.ring (25)
 
@@ -172,6 +208,15 @@ and each was checked with a second call on different data. **None is fixed yet.*
 - `RemovePointFromLane` (line 758): Does nothing today instead of removing a point from a lane by label or moment. -- it edits the copy that Lane returns, so the point stays in the lane and no error is raised: removing KICKOFF2 or the moment 2026-02-01 leaves the lane unchanged
 - `RenameLabelInLane` (line 771): Does nothing today instead of renaming a point label in a lane. -- it edits the copy that Lane returns, so the label stays as it was and no error is raised
 
+## stzImgToAscii -- extercode/stzImageToAscii.ring (6)
+
+- `init` (line 63): Raises error C27 today, when the file loads, instead of building an image-to-text converter. -- the file extercode/stzImageToAscii.ring does not parse in Ring 1.27 (C27 Syntax Error at lines 41, 55, 56, 58, 79 and more) because it writes blocks in braces after if and in method bodies; no other file of the library loads it, so the class does not exist in a normal session
+- `EnsureDirs` (line 74): Raises error C27 today, when the file loads, instead of creating the temp and output folders. -- same cause as init; the body also calls dir_create and reads a field @cOutputDir that is never defined (the field is @cOutDir)
+- `Execute` (line 97): Raises error C27 today, when the file loads, instead of running the im2ansi tool on the image and keeping the text or file it produces. -- same cause as init; the tool path defaults to ../tools/im2ansi/im2ansi.exe, which is not in the library, and the body starts a real program
+- `Content` (line 157): Raises error C27 today, when the file loads, instead of returning the converted image as text, running Execute first when needed. -- same cause as init
+- `Show` (line 171): Raises error C27 today, when the file loads, instead of printing the converted image or opening the output file in the system viewer. -- same cause as init; for the svg and html formats the body would start the operating system's viewer
+- `BuildArgs` (line 202): Raises error C27 today, when the file loads, instead of building the command-line options for the im2ansi tool from the settings. -- same cause as init
+
 ## stzFileInfo -- file/stzFile.ring (1)
 
 - `IsExecutable` (line 1133): Returns 0 for every file today, because the extension it compares carries a leading dot. -- defect: the extension is read as .exe or .BAT and compared with exe, bat, cmd and com, so a file named prog.exe and one named run.BAT both answer 0; the sibling stzFileManager.IsExecutable fails differently (see there)
@@ -211,6 +256,11 @@ and each was checked with a second call on different data. **None is fixed yet.*
 - `AppendToCurrent` (line 498): Adds a node as the last child of the current node and returns the builder. -- defect: the current node is a copy of the root made at birth, because Ring copies an object on assignment, so the node lands in the copy and Build, Root and BuildToFile still show nothing; checked with two different nodes and after SetCurrent(Root())
 - `Build` (line 545): Returns the HTML text of the document: the children of the root, one after the other. -- defect: it answers the empty text after AppendToCurrent, whatever was appended (see AppendToCurrent)
 - `BuildToFile` (line 558): Writes the HTML text of the document to a file and returns the builder. -- defect: the file is created empty after AppendToCurrent, for the same reason as Build
+
+## stzZipFile -- file/stzZipFile.ring (2)
+
+- `CreateFromDirectory` (line 129): Raises error R3 today instead of creating the archive from every file of a folder. -- the call FilesInDir does not exist anywhere in the library, so an existing folder raises R3 Calling Function without definition: filesindir; a missing folder raises Directory does not exist
+- `AddString` (line 218): Raises error R3 today instead of storing a text as an entry of the archive. -- the zip_newentry function it calls does not exist (checked by calling it directly), so every call raises R3 Calling Function without definition: zip_newentry
 
 ## stzGeoFeatures -- geo/stzGeoFeatures.ring (2)
 
@@ -301,6 +351,14 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 - `When` (line 896): Adds a clause that selects the nodes the rule looks at: a node property tested against a value; clauses are combined with AND. -- an empty property name or an unknown operator raises an error; the ordering operators compare numbers only: on a text greaterthan and lessthan never match but greaterequal and lessequal match every node, which is a defect; an unset property reads as 0, so exists fails and missing holds for it
 
+## stzGridNav -- graph/stzGridNav.ring (5)
+
+- `init` (line 83): Raises error Can't create stzGridNav! Engine returned error today instead of building a named grid. -- new stzGridNav("g", 3, 4) and new stzGridNav("g5", 5, 5) both raise, because the engine function StzEngineGridCreate takes (rows, cols) and is handed (name, rows, cols): the text is read as 0 rows and the call returns -1; StzEngineGridCreate(3, 4) called directly succeeds
+- `CurrentRow` (line 141): Returns the row of the current position, once a grid exists; none can be built today. -- unreachable today because init raises
+- `CurrentCol` (line 153): Returns the column of the current position, once a grid exists; none can be built today. -- unreachable today because init raises
+- `NeighborCount` (line 251): Returns how many cells touch the current one, up, down, left and right, inside the grid; none can be built today. -- unreachable today because init raises
+- `DistanceTo` (line 284): Returns the Manhattan distance between the current cell and another, once a grid exists; none can be built today. -- unreachable today because init raises; it also sends 3 arguments to an engine function that takes 4 (both cells), so the answer would not be the distance from the current cell
+
 ## stzKnowledgeGraph -- graph/stzKnowledgeGraph.ring (2)
 
 - `ValidateOntology` (line 865): Returns 1 whatever the ontology holds; the check is not written yet. -- the body only returns 1, so no inconsistency is ever reported
@@ -330,6 +388,12 @@ and each was checked with a second call on different data. **None is fixed yet.*
 ## stzOrgChartSimulation -- graph/stzOrgChart.ring (1)
 
 - `ApplyChanges` (line 3246): Applies a list of changes to the copy, never to the original, then records the before and after spans and vacancy rates. -- a change_reporting change raises "Cannot add edge: one or both nodes do not exist!", since the copy has no nodes; an unknown :type is skipped without a word
+
+## stzWorkflowSimulation -- graph/stzWorkflow.ring (3)
+
+- `OptimizeStep` (line 1678): Raises error R24 Using uninitialized variable: @achanges today instead of recording a new duration for a step. -- no object of this class can record a change: the class has no @aChanges list and no init, so the first line of the method raises; building the object with a workflow, new stzWorkflowSimulation(oWf), raises the same error on the call
+- `ReassignStep` (line 1694): Raises error R24 Using uninitialized variable: @achanges today instead of recording a move of a step to another actor. -- raises the same error as OptimizeStep, because the class has no @aChanges list
+- `ParallelizeSteps` (line 1709): Raises error R24 Using uninitialized variable: @achanges today instead of recording that steps run side by side. -- raises the same error as OptimizeStep, because the class has no @aChanges list
 
 ## stzText -- linguistic/stzText.ring (1)
 
@@ -384,6 +448,15 @@ and each was checked with a second call on different data. **None is fixed yet.*
 - `AreAnagrams` (line 1564): Raises error R14 today instead of telling whether the two items are anagrams of each other. -- Raises R14 today on every call: it reads FirstValue and SecondValue, which this class does not define
 - `ToStzSetOfSections` (line 2317): Raises an error today instead of returning the pairs as a stzSetOfSections. -- Raises "You must provide a list of sections" today for valid sections such as [ [ 1, 3 ], [ 5, 8 ] ]: the stzSetOfSections constructor refuses what stzListOfSections accepts
 
+## stzListProvidedAsString -- list/stzListProvidedAsString.ring (6)
+
+- `IsListOfValues` (line 85): Raises error R12 today instead of telling whether the list text holds only values and no variable names. -- Raises error R12 (property not found: list) today instead of TRUE or FALSE, because ContainsOnlyValues reads a property that does not exist
+- `IsListOfVariables` (line 94): Returns an empty text today instead of telling whether the list text holds only variable names and no values. -- Not implemented: ContainsOnlyVariables is an empty TODO stub, so the answer is "" whatever the text, and a test on it is always false
+- `IsListOfValuesAndVariables` (line 103): Returns an empty text today instead of telling whether the list text mixes values and variable names. -- Not implemented: ContainsValuesAndVariables is an empty TODO stub, so the answer is "" whatever the text
+- `ContainsOnlyValues` (line 112): Raises error R12 today instead of telling whether the list text holds only values, such as numbers, texts and lists. -- Raises error R12 (property not found: list) today, because its first line reads This.List, a property the class does not have
+- `ContainsOnlyVariables` (line 122): Returns an empty text today instead of telling whether the list text holds only variable names. -- Not implemented: the body is a TODO comment, so the answer is "" whatever the text
+- `ContainsValuesAndVariables` (line 131): Returns an empty text today instead of telling whether the list text holds both values and variable names. -- Not implemented: the body is a TODO comment, so the answer is "" whatever the text
+
 ## stzListWalker -- list/stzListWalker.ring (3)
 
 - `AddWalker` (line 123): Raises error R24 today instead of registering a named walker for the list. -- it raises error R24 Using uninitialized variable: @awalkers on any list (tried on two lists), because the class reads the attribute @aWalkers without ever declaring or filling it
@@ -395,6 +468,11 @@ and each was checked with a second call on different data. **None is fixed yet.*
 - `Subsets` (line 505): Returns an empty text today, because the method is only a TODO in the code. -- it computes no subsets: the body is the comment TODO
 - `SubSetsOfNElements` (line 514): Returns an empty text today, because the method is only a TODO in the code. -- it computes no subsets: the body is the comment TODO
 - `NumberOfSubsets` (line 522): Returns 0 today, because it counts the subsets that Subsets does not compute. -- it is the length of what Subsets answers, an empty text
+
+## stzSetOfSections -- list/stzSetOfSections.ring (2)
+
+- `init` (line 46): Raises error "Can't create the stzSetOfSections object" today for every argument instead of building a set of sections. -- Refuses [ [1,3], [5,7] ] and every other list: the check calls @IsSetOfSections, a function whose body is empty, so it answers an empty text and the creation is always refused; the working global IsSetOfSections itself fails with R14 (stzList has no IsListOfSections method)
+- `IntersectionWith` (line 117): Raises the error "Feature not implemented yet!" today instead of the sections shared with another set. -- Not run on an object, since none can be built; read from the code, the body is only a StzRaise call, and Intersection forwards to it
 
 ## stzTree -- list/stzTree.ring (4)
 
@@ -442,6 +520,11 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 - `FromLocalFile` (line 702): Raises error R19 today instead of returning a file URL for the given path. -- Raises error R19 today whatever the path, on a drive path with backslashes and on /tmp/y.txt: it calls ReplaceSubstring with two arguments where that method takes a start, an end and a replacement
 
+## stzWebSocket -- network/stzWebSocket.ring (2)
+
+- `Connect` (line 40): Raises error R3 today instead of opening a WebSocket connection. -- raises error R3 because it calls curl_easy_init, a libcurl function that the library no longer loads; the class still wraps libcurl while the rest of the network layer moved to the engine, and even with libcurl the later calls would not see the handle, which Connect keeps in a local variable
+- `Close` (line 143): Does nothing today, because no connection can be open.
+
 ## stzLLMFunction -- neural/stzLLMFunction.ring (2)
 
 - `ReturnsNumber` (line 166): Declares that the answer must be a number. -- the answer is read as the first word that parses as a number; a reply whose first word is not numeric (such as about 42 or none) raises a Ring error R41 inside the call instead of being refused or retried (w13 defect file)
@@ -479,6 +562,17 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 - `ToBaseNForm` (line 228): Raises error R14 today instead of writing the value in another base. -- it forwards to ToBaseNForm on stzNumber, a method that does not exist there (stzNumber has IntegerPartToBaseNForm), so every base raises R14; confirmed with 0o377 and 17
 - `ToScientificNotationForm` (line 242): Raises error R14 today instead of writing the value in scientific notation. -- it forwards to ToScientificNotationForm on stzNumber, a method that does not exist there; stzNumber raises the same R14 on its own
+
+## stzListOfNamedObjects -- object/stzListOfNamedObjects.ring (2)
+
+- `init` (line 68): Raises error R14 today instead of building a list of named objects from the given list. -- the check calls IsListOfNamedObjects on a stzList, a method that does not exist, so every list raises R14 Calling Method without definition: islistofnamedobjects (tried with an empty list and with one object); a value that is not a list raises Incorrect param type
+- `Copy` (line 97): Raises error R14 today instead of returning a copy of the list: it builds a new one through init, which raises.
+
+## stzListOfObjects -- object/stzListOfObjects.ring (3)
+
+- `init` (line 36): Raises error R14 today instead of building a list of objects from the given list. -- the type check calls IsListOfObjects on a stzList, a method that does not exist, so every list raises R14 Calling Method without definition: islistofobjects (tried with one object and with two); a value that is not a list raises Incorrect param type
+- `Content` (line 50): Returns an empty text today instead of the list of objects, because the method names the list and does not return it. -- the body is the bare name @aContent with no return, so the list is never handed back, even for a holder built without init
+- `Copy` (line 58): Raises error today instead of returning a copy of the list: it calls Content, which returns nothing, and init then refuses it. -- raises Incorrect param type! paoObjects must be a list of objects
 
 ## stzObject -- object/stzObject.ring (28)
 
@@ -616,6 +710,12 @@ and each was checked with a second call on different data. **None is fixed yet.*
 - `WaitCycles` (line 410): Lets the session run for a number of heard cycles, starting it first when needed, and then returns. -- in capture mode it never returns when the wait is longer than the capture buffer, see the defects file; without capture it plays on a device, which was not run in this reference
 - `Landings` (line 580): Returns where each definition of a loop took effect. -- before the loops start every landing is cycle 0 and the heard cycle is -1; a loop redefined twice before the start and once while running is numbered v3 and then v2, so version numbers can go back, see the defects file
 
+## stzCoeffExtractor -- stats/stzCoeffExtractor.ring (3)
+
+- `numericalDerivative` (line 268): Raises error R42 today instead of returning the slope of the expression along one variable at the test point 10. -- every call raises R42 Error in eval() function (checked on x/8 + y/4 and pow(x, 2)), because evaluateExpression builds an empty formula
+- `evaluateExpression` (line 309): Raises error R42 today instead of returning the value of an expression at a point. -- the variables are replaced by calling ManyReplaced with a list of new texts, which takes ONE new text and returns an empty text, so the evaluated formula is empty and eval fails with a syntax error (checked on x + y and x + 1)
+- `validateExpression` (line 396): Returns 0 for every expression today instead of telling whether it can be evaluated. -- it calls createTestValues with an argument that method does not take, which raises inside its try, so the answer is always 0 (checked on x + 1 and x + y)
+
 ## stzDataSet -- stats/stzDataSet.ring (3)
 
 - `NonParametricCorrelation` (line 2924): Raises error R24 today instead of returning a rank correlation. -- the body reads a variable named _oOtherStats_ that this method does not receive
@@ -655,6 +755,14 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 - `CountBetween` (line 214): Raises an error today instead of counting a fragment inside a section of the text. -- it calls the function StringNumberOfOccurrenceCS, which does not exist, so CountBetween and CountBetweenCS raise R3 for every input; confirmed with Banana banana and with xyzxyz
 
+## stzStringDuplicates -- string/stzStringDuplicates.ring (1)
+
+- `DuplicateSubStringRemoved` (line 281): Returns the text with the later occurrences of a substring removed, leaving the helper unchanged. -- the same overlap defect
+
+## stzStringIO -- string/stzStringIO.ring (1)
+
+- `FromClipboard` (line 328): Raises the error "Clipboard access is not supported in this environment!" today. -- Always raises, it is a placeholder
+
 ## stzStringInserter -- string/stzStringInserter.ring (2)
 
 - `InsertAfterManyPositions` (line 606): Raises error R13 today instead of inserting a fragment after each of several positions. -- raises Object is required (R13) for every valid list of numbers: [1,3,5] on banana and [2] on abc; probable cause the line that sorts the positions with new stzList(panPos).SortedInDescending(), since the same call made in two statements works; an empty or non-numeric list raises Incorrect param type instead
@@ -664,6 +772,12 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 - `SortBy` (line 1311): Sorts the strings in place by a numeric key computed from each one, such as its length; a text key raises. -- @item is not defined here and raises R24, and a key that is text raises R41 because keys are compared with a greater-than, so only numeric keys such as len(@string) work
 - `Matches` (line 1760): TRUE if every string matches the pattern as a whole, so "a." matches ab and "a" does not; an empty list is TRUE. -- the old comment says it returns the strings that match, but it answers one verdict for the whole list
+
+## stzStringPerformer -- string/stzStringPerformer.ring (3)
+
+- `Content` (line 62): Returns the text the performer holds, which no method of this class changes today.
+- `Perform` (line 92): Leaves the text unchanged today instead of replacing every character by the result of an expression. -- Has no effect today: Perform("upper(@char)") on "abc" leaves "abc", because the result of the engine call is dropped and never written back; use Yield to get the results as a list
+- `PerformOn` (line 112): Leaves the text unchanged today instead of replacing the characters at some positions by the result of an expression. -- Has no effect today: PerformOn([1], "upper(@char)") on "abc" leaves "abc"; the positions are not even read; use YieldOn
 
 ## stzStringReplacer -- string/stzStringReplacer.ring (1)
 
