@@ -1,0 +1,19 @@
+{
+ "brief": "Describes a sound once as nodes joined by name, then renders it to memory or a file, or plays it.",
+ "detail": "A node is something the graph does, not an object you hold: Add... calls add a node and make it the output, NameIt labels the last one, and the ...On calls take a label and build after that node. A node may only take inputs that already exist, so a graph cannot loop. Once Prepare, ToSound, ToFile or PlayFor has frozen the graph, no node can be added: the Add... calls then do nothing and LastError says so. The plain form acts and returns nothing; the Q twin returns the graph. ToSound and ToFile render with no audio device; PlayFor is the only method that opens one. The sound has not been heard by a person (UNPERCEIVED): it is checked by frame count, sample rate and peak level, not by listening.",
+ "receiver": "o1 = StzSoundGraphOfQ(1, 22050)",
+ "example": [
+  "o1.AddOscillator(:Sine, 440, 0.5)",
+  "? o1.NodeCount()",
+  "#--> 1",
+  "? o1.ToSound(0.5).Frames()",
+  "#--> 11025",
+  "? o1.ToSound(0.5).SampleRate()",
+  "#--> 22050"
+ ],
+ "see": [
+  "stzSound",
+  "stzSoundTransport",
+  "stzSoundScheduler"
+ ]
+}

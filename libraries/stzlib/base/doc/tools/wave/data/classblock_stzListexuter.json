@@ -1,0 +1,24 @@
+{
+ "brief": "Matches list-pattern triggers in a list, runs a piece of code on each match and keeps a log of what changed.",
+ "detail": "The list counterpart of stzRegexuter. Register triggers (a name and a list pattern such as [@N, @S]), attach code that edits the match held in @list, then Process a list: every trigger is tried against the whole list and against every contiguous run of its items. Matches, Triggers and Results describe the last run and State logs the matches whose computed list differs. Build one with StzLxuter(), lxuter(), StzLxu() or lxu(). Edit the list in place in the code (@list[1] = @list[1] * 10): assigning @value has no effect and a whole-list assignment that mentions @list reads the new empty list. Found today: a whole list that matches is reported twice; GetDependencyChain overflows the stack once the log holds an entry; StateByPosition sorts by a field the entries do not have; and a single text given to AddTrigger raises R3.",
+ "receiver": "o1 = StzLxuter()",
+ "example": [
+  "o1.AddTrigger([ \"pair\", \"[@N, @S]\" ])",
+  "o1.AddCode(\"pair\", \"@list[1] = @list[1] * 10\")",
+  "o1.Process([ 1, \"a\", 2, \"b\" ])",
+  "? @@( o1.Matches() )",
+  "#--> [ [ 1, \"a\" ], [ 2, \"b\" ] ]",
+  "? @@( o1.Results() )",
+  "#--> [ [ 10, \"a\" ], [ 20, \"b\" ] ]",
+  "o2 = StzLxuter()",
+  "o2.AddTrigger([ \"word\", \"[@S]\" ])",
+  "o2.Process([ \"שלום\", 5 ])",
+  "? @@( o2.Matches() )",
+  "#--> [ [ \"שלום\" ] ]"
+ ],
+ "see": [
+  "stzListex",
+  "stzRegexuter",
+  "stzList"
+ ]
+}

@@ -1,0 +1,12 @@
+{
+ "brief": "Holds one named check of the family-tree governance, run over the rule graph of a tree.",
+ "detail": "It is a graph rule filed under the family domain. The five rules the library ships are built by stzFamilyRuleSet and applied through the tree's GovernanceFindings; a rule of your own can be added to a set the same way.",
+ "receiver": "o1 = new stzFamilyRule(\"my_rule\")",
+ "example": [
+  "? o1.Name()",
+  "#--> my_rule",
+  "? o1.Domain()",
+  "#--> family"
+ ],
+ "see": ["stzFamilyRuleSet", "stzFamilyTree", "stzGraphRule"]
+}

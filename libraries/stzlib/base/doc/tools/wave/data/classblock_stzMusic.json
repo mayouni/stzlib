@@ -1,0 +1,19 @@
+{
+ "brief": "Makes sound in one line from a string of note names, a phrase of degrees in a tradition, lyrics or live loops.",
+ "detail": "It owns no mechanism: each verb is a line over stzSoundScore, stzSoundScoreRenderer, stzSoundScheduler, stzSoundUniverse and stzSoundLive. Tempo, With and Swing apply to the note-string verbs (Play, ToSound, ScoreOf); the phrase verbs take their speed and instrument from the chosen universe. Play, PlayPhrase and the live loops on a sound card open an audio device and were not run in this reference; ToSound, ScoreOf, PhraseToSound and Sing render to memory. Live().CaptureInsteadOfDevice(seconds, FALSE) keeps the live verbs off the sound card. The sound has not been heard by a person (UNPERCEIVED): it is checked by frame count, sample rate and peak level, not by listening.",
+ "receiver": "o1 = StzMusicQ()",
+ "example": [
+  "o1.Tempo(90).With(:Oud)",
+  "? o1.ScoreOf(\"d e f g a\").Beats()",
+  "#--> 5",
+  "? o1.ToSound(\"d e f g a\").SampleRate()",
+  "#--> 48000",
+  "? o1.With(:kazoo).Refusals()",
+  "#--> 1"
+ ],
+ "see": [
+  "stzSoundScore",
+  "stzSoundUniverse",
+  "stzSoundLive"
+ ]
+}

@@ -1,0 +1,25 @@
+{
+ "brief": "Holds a polynomial in one variable, evaluates and differentiates it, adds and multiplies, and finds its real and complex roots.",
+ "detail": "Coefficients are written highest degree first, the way the polynomial is written: [1, -6, 11, -6] is x^3 - 6x^2 + 11x - 6, and leading zeros are dropped. The roots are the eigenvalues of the companion matrix, computed by the engine, so a root repeated m times comes back as a small cluster rather than exactly (the tolerance of RealRoots and RealRootsWithin is how that is surfaced). Plus, Minus, Times and the Derivative return coefficient lists and the Q forms return a new stzPolynomial; none of them changes the object. Checked by hand: x^3 - 6x^2 + 11x - 6 has the roots 1, 2, 3, value 6 at 4, derivative 3x^2 - 12x + 11 and, times x - 1, the product x^4 - 7x^3 + 17x^2 - 17x + 6; x^2 + 1 has the roots i and -i.",
+ "receiver": "o1 = new stzPolynomial([ 1, -6, 11, -6 ])",
+ "example": [
+  "? o1.ToString()",
+  "#--> x^3 - 6x^2 + 11x - 6",
+  "? o1.ValueAt(4)",
+  "#--> 6",
+  "? @@( o1.Derivative() )",
+  "#--> [ 3, -12, 11 ]",
+  "? @@( o1.Times([ 1, -1 ]) )",
+  "#--> [ 1, -7, 17, -17, 6 ]",
+  "? @@( o1.RealRoots() )",
+  "#--> [ 1.00, 2.00, 3.00 ]",
+  "o2 = new stzPolynomial([ 1, 0, 1 ])",
+  "? o2.HasRealRoot()",
+  "#--> 0"
+ ],
+ "see": [
+  "stzComplex",
+  "stzMatrix",
+  "stzFourier"
+ ]
+}

@@ -1,0 +1,1 @@
+init | Builds a named rule of the fault-tree governance, filed under the fault domain. | nothing; the object is built | pcName=the rule's name, such as one_top_event | stzFaultRuleSet, stzFaultTree

@@ -1,0 +1,18 @@
+{
+ "brief": "Declares a kind of worker as a tag, the capabilities it serves and a budget of concurrent slots.",
+ "detail": "Specialization is a budget, not a subclass: the resident engine is shared, so what separates one kind of worker from another is only what it serves and how much of the machine it may use at once. A profile admits work while a slot is free and refuses it otherwise, counting every decision, which isolates a heavy profile from a light one. A profile backed by an outside tool, such as OCR, is marked polyglot. A profile only declares and counts: it never starts a process.",
+ "receiver": "o1 = new stzWorkerProfile(\"nlp\", [ :sentiment, :entities ], 2)",
+ "example": [
+  "? o1.Handles(\"ENTITIES\")",
+  "#--> 1",
+  "? o1.Acquire()",
+  "#--> 1",
+  "? o1.Acquire()",
+  "#--> 1",
+  "? o1.Acquire()",
+  "#--> 0",
+  "? o1.Narrate()",
+  "#--> profile nlp [2/2 slots, serves sentiment, entities]"
+ ],
+ "see": ["stzWorkerPool", "stzFacetCatalog"]
+}

@@ -1,0 +1,17 @@
+{
+ "brief": "Carries out the QuarantinePart action of a response plan by quarantining an agent supervised by a host.",
+ "detail": "A response plan proposes containment as data; a responder performs one verb for real once a committing actor approves. This one answers QuarantinePart only, by calling Quarantine on the host it holds, which stops ticking the agent until an effectful actor releases it. A target written agent:name is accepted. Every other verb raises an error that names the responder to wire. It holds the host by reference.",
+ "receiver": "oHost = new stzAgentHost()\noHost.Supervise(new stzPIAgent(\"kitchen-bot\"), 20)\no1 = new stzAgentHostResponder(oHost)",
+ "example": [
+  "o1.QuarantinePart(\"agent:kitchen-bot\")",
+  "? oHost.IsQuarantined(\"kitchen-bot\")",
+  "#--> 1",
+  "? oHost.QuarantineOf(\"kitchen-bot\")[:reason]",
+  "#--> quarantined by a containment plan"
+ ],
+ "see": [
+  "stzResponsePlan",
+  "stzAgentHost",
+  "stzAuthResponder"
+ ]
+}

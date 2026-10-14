@@ -1,0 +1,22 @@
+{
+ "brief": "Plays a score live, posting each note to an engine timeline just before its frame.",
+ "detail": "The notes are rendered first, all of them, so no instrument tunes itself while the performance runs. Notes are then posted a ring plus half a second ahead of the producer, and the engine counts any that still arrive after their frame in Late. Play and RunToEnd use a sound card through a transport and were not run in this reference. RenderThroughRing runs the same real-time path with this thread draining the ring instead of a card, so it opens no device, and its output matched the offline render of the same score at every 97th sample. The sound has not been heard by a person (UNPERCEIVED): it is checked by frame count, sample rate and peak level, not by listening.",
+ "receiver": "o1 = StzSoundSchedulerQ(StzSoundScoreOfQ(\"c e g c5\"))",
+ "example": [
+  "? o1.Lookahead()",
+  "#--> 40384",
+  "? o1.Prepare()",
+  "#--> 1",
+  "? len(o1.Plan())",
+  "#--> 4",
+  "? o1.RenderThroughRing().Frames()",
+  "#--> 115200",
+  "? o1.Late()",
+  "#--> 0"
+ ],
+ "see": [
+  "stzSoundScore",
+  "stzSoundScoreRenderer",
+  "stzSoundTransport"
+ ]
+}

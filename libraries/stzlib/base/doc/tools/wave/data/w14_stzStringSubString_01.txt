@@ -1,0 +1,2 @@
+# w14 stzStringSubString -- Name | brief | returns | params | see | warning | note
+init | Builds a case-sensitive view of a fragment inside a text. | nothing; the object is built | pcSubStr=the fragment to study; pcStr=the text it is looked for in, or a pair [ :in, text ] | stzStringSubStringCS, Sections | a value that is not text raises Can't create stzStringSubStringCS | the same class as stzStringSubStringCS with the case flag fixed at 1; build one with StzStringSubStringQ(fragment, text)

@@ -1,0 +1,28 @@
+{
+ "brief": "Takes items out of a list and hands them back: by position, by section, by occurrence, the repeats, or all the texts, numbers or sublists.",
+ "detail": "It is the extracting helper of stzList, which builds one over itself for its Extract, ExtractAll, ExtractNth, ExtractSection and ExtractRange methods; build one with new stzListExtractor when you only need to take things out. It works on its own copy, so a stzList passed in is never changed, and what is left is read with Content. Every Extract method does two things at once: it removes the items from the held list and returns them, the items that were taken out being the answer. Extract(pItem) removes every occurrence, while ExtractNthOccurrence, ExtractFirstOccurrence and ExtractLastOccurrence remove just one. A position outside the list raises (ExtractNth, ExtractFirst, ExtractLast, ExtractSection, ExtractRange, Take, TakeLast), except the occurrence methods, which answer an empty text when there is no such occurrence. Positions count from 1; the CS forms take 0 to ignore case. Hebrew, Arabic and emoji items are extracted like any other text.",
+ "receiver": "o1 = new stzListExtractor([ \"a\", \"b\", \"c\", \"b\", \"d\", \"e\" ])",
+ "example": [
+  "? o1.ExtractNth(3)",
+  "#--> c",
+  "? @@( o1.Content() )",
+  "#--> [ \"a\", \"b\", \"b\", \"d\", \"e\" ]",
+  "? @@( o1.ExtractSection(2, 3) )",
+  "#--> [ \"b\", \"b\" ]",
+  "? @@( o1.Content() )",
+  "#--> [ \"a\", \"d\", \"e\" ]",
+  "o2 = new stzListExtractor([ \"a\", \"b\", \"a\", \"c\", \"b\", \"a\" ])",
+  "? @@( o2.ExtractDuplicates() )",
+  "#--> [ \"a\", \"b\", \"a\" ]",
+  "? @@( o2.Content() )",
+  "#--> [ \"a\", \"b\", \"c\" ]",
+  "o3 = new stzListExtractor([ 1, \"a\", [ 1, 2 ], 2, \"שלום\" ])",
+  "? @@( o3.ExtractStrings() )",
+  "#--> [ \"a\", \"שלום\" ]"
+ ],
+ "see": [
+  "stzList",
+  "stzListRemover",
+  "stzListGetter"
+ ]
+}

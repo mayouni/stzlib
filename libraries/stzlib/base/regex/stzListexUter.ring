@@ -12,6 +12,32 @@ func StzLxuter()
     func lxu()
         return StzLxuter()
 
+# Matches list-pattern triggers in a list, runs a piece of code on each match and keeps a log of what changed.
+#
+# The list counterpart of stzRegexuter. Register triggers (a name and a list pattern such as [@N,
+# @S]), attach code that edits the match held in @list, then Process a list: every trigger is tried
+# against the whole list and against every contiguous run of its items. Matches, Triggers and
+# Results describe the last run and State logs the matches whose computed list differs. Build one
+# with StzLxuter(), lxuter(), StzLxu() or lxu(). Edit the list in place in the code (@list[1] =
+# @list[1] * 10): assigning @value has no effect and a whole-list assignment that mentions @list
+# reads the new empty list. Found today: a whole list that matches is reported twice;
+# GetDependencyChain overflows the stack once the log holds an entry; StateByPosition sorts by a
+# field the entries do not have; and a single text given to AddTrigger raises R3.
+#
+#   receiver   o1 = StzLxuter()
+#   example    o1.AddTrigger([ "pair", "[@N, @S]" ])
+#              o1.AddCode("pair", "@list[1] = @list[1] * 10")
+#              o1.Process([ 1, "a", 2, "b" ])
+#              ? @@( o1.Matches() )
+#              #--> [ [ 1, "a" ], [ 2, "b" ] ]
+#              ? @@( o1.Results() )
+#              #--> [ [ 10, "a" ], [ 20, "b" ] ]
+#              o2 = StzLxuter()
+#              o2.AddTrigger([ "word", "[@S]" ])
+#              o2.Process([ "שלום", 5 ])
+#              ? @@( o2.Matches() )
+#              #--> [ [ "שלום" ] ]
+#   see        stzListex, stzRegexuter, stzList
 class stzListexuter from stzObject
 
     # Core data structures
@@ -31,6 +57,11 @@ class stzListexuter from stzObject
 	@nProcessStartTime = 0
 	@nLastProcessDuration = 0
 
+    # Builds an empty reactive list computer with no trigger and no code.
+    #
+    #   returns    nothing; the object is built
+    #   note       build one with StzLxuter(), lxuter(), StzLxu() or lxu()
+    #   see        AddTrigger, Process
     def init()
         # Do nothing
         
@@ -38,6 +69,14 @@ class stzListexuter from stzObject
     # Trigger Methods  #
     #------------------#
     
+    # Registers a trigger: a name paired with a list pattern such as [@N, @S].
+    #
+    #   aTrigger   a pair [ name, list pattern ]
+    #   returns    nothing; the trigger is added
+    #   note       [ "pair", "[@N, @S]" ] makes a trigger that matches a number followed by a text
+    #   warning    a single text, which is meant to name a library pattern, raises R3 because the
+    #              function lpat does not exist
+    #   see        AddCode, Process
     def AddTrigger(aTrigger)
         if isString(aTrigger)
             # Handle string case - convert to pattern
@@ -59,6 +98,12 @@ class stzListexuter from stzObject
         
         @aTriggers + aTrigger
         
+    # TRUE if a trigger of that name is registered.
+    #
+    #   cName      the trigger name
+    #   returns    TRUE or FALSE, as 1 or 0
+    #   note       the name is compared with case
+    #   see        AddTrigger
     def TriggerNameExists(cName)
         _nTriggers2Len_ = len(@aTriggers)
         for _iLoopTriggers2_ = 1 to _nTriggers2Len_
@@ -73,6 +118,19 @@ class stzListexuter from stzObject
     # Code Methods  #
     #---------------#
     
+    # Attaches a piece of Ring code to a trigger, to compute a new list from each match held in @list.
+    #
+    #   _cTriggerName_   the name of a registered trigger
+    #   _cCode_          the code as text, which must mention @value or @list and may be wrapped in
+    #                    braces
+    #   returns          nothing; the code is stored
+    #   note             AddComputation and @C are the same call; @list[1] = @list[1] * 10 turns [1,
+    #                    "a"] into [10, "a"]
+    #   warning          only the FIRST code attached to a trigger runs; only a change made to @list
+    #                    takes effect, and assigning @value changes nothing; edit the list in place:
+    #                    @list[1] = @list[1] * 10 works, whereas @list = [ @list[1] * 10 ] reads the
+    #                    new empty list and leaves the match as it was; a code that raises is silent
+    #   see              AddTrigger, Process
     def AddCode(_cTriggerName_, _cCode_)
         if NOT TriggerNameExists(_cTriggerName_)
             StzRaise("Trigger does not exist: " + _cTriggerName_)
@@ -99,6 +157,18 @@ class stzListexuter from stzObject
     # Process Methods  #
     #------------------#
     
+    # Matches every trigger against a list and its contiguous sublists, runs the attached code on each match and records what changed.
+    #
+    #   aList      the list to analyse
+    #   returns    nothing; read the outcome with Matches, Results and State
+    #   note       Compute is the same call; [1, "a", 2, "b"] with [@N, @S] gives the matches [1,
+    #              "a"] and [2, "b"]
+    #   warning    the whole list is tested and then every contiguous run of items, so a whole list
+    #              that matches is reported twice ([3, "c"] gives two identical matches) and [@N+]
+    #              on [7, 8, 9] gives seven; matches come trigger by trigger; an empty list clears
+    #              the state log but not the last matches; the log keeps growing across calls until
+    #              ResetState
+    #   see        Matches, Results, State
     def Process(aList)
         if NOT isList(aList)
             StzRaise("Invalid input! Expected list to analyze.")
@@ -155,6 +225,16 @@ class stzListexuter from stzObject
     # Helper Methods   #
     #------------------#
     
+    # Returns every sublist of a list that a list pattern matches: the whole list, items nested inside it, and every contiguous run.
+    #
+    #   aList       the list to search
+    #   _oListex_   a stzListex built from the pattern
+    #   returns     a list of matches
+    #   note        [1, "a", 2, "b"] with [@N, @S] gives [1, "a"] and [2, "b"]; the empty list gives
+    #               [ ]
+    #   warning     a match found as the whole list is also found as a run, so it comes back twice,
+    #               and a nested list is searched again as a run of its parent
+    #   see         Process
     def FindAllMatches(aList, _oListex_)
         # Find all sublists that match the pattern
         _aResult_ = []
@@ -201,10 +281,26 @@ class stzListexuter from stzObject
     # State Methods   #
     #-----------------#
     
+    # Empties the log of state entries and the list of active computations.
+    #
+    #   returns    nothing
+    #   warning    it does not clear Matches, Triggers or Results of the last run
+    #   see        State, Process
     def ResetState()
         @aState = []
         @aActiveComputations = []
         
+    # Appends one entry to the state log, recording that a match was turned into another list.
+    #
+    #   _cTriggerName_   the trigger that matched
+    #   _cPattern_       its pattern
+    #   aMatchedValue    the list matched
+    #   aComputedValue   the list the code produced
+    #   returns          nothing; the log grows by one
+    #   note             Process calls it for every match whose computed list differs from the
+    #                    match; the entry keeps timestamp, computationorder, triggername, pattern,
+    #                    matchedvalue, computedvalue, dependson and affects, and no position
+    #   see              State, StateByComputationOrder
     def AddStateEntry(_cTriggerName_, _cPattern_, aMatchedValue, aComputedValue)
         # Create state entry
         _entry_ = [
@@ -227,29 +323,82 @@ class stzListexuter from stzObject
 	#  MISC. REORGANIZE THEM  #
 	#-------------------------#
 	
-	# Alternative method names
+	# Registers a trigger: a name paired with a list pattern.
+	#
+	#   aTrigger   a pair [ name, list pattern ]
+	#   returns    nothing; the trigger is added
+	#   note       the same call as AddTrigger
+	#   warning    same limits as AddTrigger
+	#   see        AddTrigger
+	#@ aka  Alternative method names
 	def Trigger(aTrigger)
 	    This.AddTrigger(aTrigger)
 	
+	# Attaches a piece of Ring code to a trigger, to compute a new list from each match held in @list.
+	#
+	#   _cTriggerName_   the name of a registered trigger
+	#   _cCode_          the code as text, which must mention @value or @list
+	#   returns          nothing; the code is stored
+	#   note             the same call as AddCode
+	#   warning          same limits as AddCode
+	#   see              AddCode
 	def AddComputation(_cTriggerName_, _cCode_)
 	    This.AddCode(_cTriggerName_, _cCode_)
 	
+	# Attaches a piece of Ring code to a trigger, to compute a new list from each match held in @list.
+	#
+	#   _cTriggerName_   the name of a registered trigger
+	#   _cCode_          the code as text, which must mention @value or @list
+	#   returns          nothing; the code is stored
+	#   note             the same call as AddCode
+	#   warning          same limits as AddCode
+	#   see              AddCode
 	def @C(_cTriggerName_, _cCode_)
 	    This.AddCode(_cTriggerName_, _cCode_)
 	
+	# Matches every trigger against a list and its sublists, runs the attached code on each match and records what changed.
+	#
+	#   aList      the list to analyse
+	#   returns    nothing; read the outcome with Matches and Results
+	#   note       the same call as Process
+	#   warning    same limits as Process
+	#   see        Process
 	def Compute(aList)
 	    This.Process(aList)
 	
-	# Result access methods
+	# Returns the state log: one entry per match whose computed list differs from the match.
+	#
+	#   returns    a list of entries, each a list of [ key, value ] pairs; [ ] after ResetState
+	#   note       a match left unchanged by its code is not logged
+	#   see        StateByComputationOrder, ResetState
+	#@ aka  Result access methods
 	def State()
 	    return @aState
 	
+	# Returns the trigger name of each match of the last run.
+	#
+	#   returns    a list of texts, parallel to Matches
+	#   note       pair, pair for [1, "a", 2, "b"]
+	#   see        Matches, Results
 	def Triggers()
 	    return @aLastTriggers
 	
+	# Returns each matched sublist of the last run, trigger by trigger.
+	#
+	#   returns    a list of lists
+	#   note       MatchedValuesXT, MatchesAndResults and MatchesAndTheirResults pair each match
+	#              with its result
+	#   see        Results, Triggers
 	def Matches() 
 	    return @aLastMatches
 	
+	# Returns the list computed for each match of the last run.
+	#
+	#   returns    a list of lists, parallel to Matches
+	#   note       with no code, or with a code that changes nothing, the result is the match
+	#              itself; ResultXT, ResultsAndMatches and ResultsAndTheirMatches pair each result
+	#              with its match
+	#   see        Matches
 	def Results()
 	    return @aLastResults
 	
@@ -277,7 +426,15 @@ class stzListexuter from stzObject
 	    def MatchesAndTheirResults()
 	        return This.MatchesXT()
 	
-	# Dependency chain method
+	# Returns the names of the triggers whose log entries depend on a given trigger.
+	#
+	#   _cTriggerName_   the trigger whose dependants are wanted
+	#   returns          a list of trigger names, repeats removed
+	#   note             an unknown name or an empty log gives [ ]
+	#   warning          because an entry always depends on its own trigger, a trigger that has
+	#                    logged an entry answers itself
+	#   see              GetDependencyChain, State
+	#@ aka  Dependency chain method
 	def getAffectedTriggers(_cTriggerName_)
 	    _aAffected_ = []
 	    
@@ -292,6 +449,15 @@ class stzListexuter from stzObject
 	
 	    return unique(_aAffected_)
 	
+	# Raises a stack overflow today instead of returning the triggers a trigger depends on.
+	#
+	#   _cTriggerName_   the trigger whose chain is wanted
+	#   returns          nothing; the call raises R4 Stack Overflow
+	#   note             an unknown trigger or an empty log gives [ ]
+	#   warning          every log entry lists its own trigger in dependson, so the method calls
+	#                    itself on that same trigger without end; confirmed with the triggers pair
+	#                    and t1
+	#   see              getAffectedTriggers
 	def GetDependencyChain(_cTriggerName_)
 	    _aChain_ = []
 	    
@@ -312,7 +478,14 @@ class stzListexuter from stzObject
 	
 	    return unique(_aChain_)
 	
-	# Additional state management methods
+	# Returns the state log with an empty position field added to each entry, in computation order.
+	#
+	#   returns    a list of entries, each a list of [ key, value ] pairs
+	#   note       use StateByComputationOrder
+	#   warning    the entries of a list computer store no position, so the sort reads an absent
+	#              field, adds position = "" to every entry and orders nothing
+	#   see        StateByComputationOrder, State
+	#@ aka  Additional state management methods
 	def StateByPosition()
 	    # State entries sorted by matched position (ascending)
 	    _aSorted_ = []
@@ -340,6 +513,10 @@ class stzListexuter from stzObject
 
 	    return _aSorted_
 
+	# Returns a copy of the state log in the order the computations ran.
+	#
+	#   returns    a list of entries, each a list of [ key, value ] pairs
+	#   see        State, StateByPosition
 	def StateByComputationOrder()
 	    # Entries are recorded in computation order; return a copy
 	    _aSorted_ = []
@@ -357,6 +534,15 @@ class stzListexuter from stzObject
     
     private
     
+    # Runs the code attached to a trigger on one matched list and returns the list produced.
+    #
+    #   aMatchedValue    the matched list
+    #   _cTriggerName_   the trigger whose code is run
+    #   returns          the list after the code; the match itself when the trigger has no code or
+    #                    the code raises
+    #   note             it is called by Process for every match
+    #   warning          private: calling it from outside raises R26
+    #   see              Process, AddCode
     def executeComputation(aMatchedValue, _cTriggerName_)
         # Find computation code for this trigger
         _cCode_ = ""

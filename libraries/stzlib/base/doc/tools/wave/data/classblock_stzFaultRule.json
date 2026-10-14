@@ -1,0 +1,12 @@
+{
+ "brief": "Holds one named check of the fault-tree governance, run over the rule graph of a tree.",
+ "detail": "It is a graph rule filed under the fault domain. The five rules the library ships are built by stzFaultRuleSet and applied through the tree's GovernanceFindings; a rule of your own can be added to a set the same way.",
+ "receiver": "o1 = new stzFaultRule(\"my_rule\")",
+ "example": [
+  "? o1.Name()",
+  "#--> my_rule",
+  "? o1.Domain()",
+  "#--> fault"
+ ],
+ "see": ["stzFaultRuleSet", "stzFaultTree", "stzGraphRule"]
+}

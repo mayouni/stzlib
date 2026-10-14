@@ -389,39 +389,110 @@ class stzResponsePlan from stzObject
  #  stzAuthResponder -- containment over a real stzAuth     #
 #=========================================================#
 
+# Carries out the LockAccount and RevokeSession actions of a response plan on a stzAuth.
+#
+# A response plan proposes containment as data; a responder performs verbs for real once a
+# committing actor approves. This one answers the two that authentication owns: LockAccount closes
+# every login path of an account with the reason locked by a containment plan, and RevokeSession
+# ends every session of a user. The other four verbs raise an error that names the responder to
+# wire. It holds the stzAuth by reference, so the caller's object sees the change.
+#
+#   receiver   oAuth = new stzAuth() oAuth.Register("dana", "invented-pw") o1 = new
+#              stzAuthResponder(oAuth)
+#   example    cTok = oAuth.LoginAt("dana", "invented-pw", 1700000000)
+#              o1.RevokeSession("dana")
+#              ? oAuth.NumberOfSessions()
+#              #--> 0
+#              o1.LockAccount("dana")
+#              ? oAuth.IsAccountLocked("dana")
+#              #--> 1
+#   see        stzResponsePlan, stzAuth, stzRateLimiterResponder
 class stzAuthResponder from stzObject
 
 	@pAuth = ""
 
+	# Builds a responder that performs the LockAccount and RevokeSession actions of a response plan on a stzAuth.
+	#
+	#   poAuth     the stzAuth whose accounts and sessions are acted on, held by reference
+	#   returns    nothing; the object is built
+	#   note       keep the stzAuth alive as long as the responder is used
+	#   see        Owns, LockAccount, RevokeSession
 	def init(poAuth)
 		@pAuth = object2pointer(poAuth)
 
 	def _Auth()
 		return pointer2object(@pAuth)
 
+	# TRUE if the verb is LockAccount or RevokeSession, the two this responder answers.
+	#
+	#   pcVerb     the verb, matched without regard to case
+	#   returns    TRUE or FALSE
+	#   see        LockAccount, RevokeSession
 	def Owns(pcVerb)
 		return ring_find([ "lockaccount", "revokesession" ], StzLower("" + pcVerb)) > 0
 
-	# The account is closed: every login path and every live session refuse.
+	# Closes the named account until UnlockAccount: every login path refuses it.
+	#
+	#   pcTarget   the user name of the account to lock
+	#   returns    nothing; the stzAuth then answers IsAccountLocked
+	#   note       the lock carries the reason locked by a containment plan, and the stzAuth notes
+	#              it in the security refusal record
+	#   warning    an unknown user name is locked too and no error is raised; the sessions already
+	#              open are kept and work again after UnlockAccount
+	#   see        Owns, RevokeSession
+	#@ aka  The account is closed: every login path and every live session refuse.
 	def LockAccount(pcTarget)
 		This._Auth().LockAccount("" + pcTarget, "locked by a containment plan")
 
-	# The plan targets an ACTOR, so every session of that user ends.
+	# Ends every session of the named user, so the user is logged out everywhere.
+	#
+	#   pcTarget   the user name whose sessions end
+	#   returns    nothing; the stzAuth then counts fewer sessions
+	#   note       the account itself stays open and the user can log in again
+	#   warning    an unknown user name changes nothing and raises no error
+	#   see        Owns, LockAccount
+	#@ aka  The plan targets an ACTOR, so every session of that user ends.
 	def RevokeSession(pcTarget)
 		This._Auth().RevokeAllSessions("" + pcTarget)
 
-	# Not this responder's to perform: authentication owns accounts and
-	# sessions, nothing else. A plan that proposes these needs another
-	# responder -- refused loudly, never pretended.
+	# Refuses by raising an error that names the responder to wire, because authentication owns accounts and sessions only.
+	#
+	#   pcTarget   the secret the plan named
+	#   returns    nothing; it always raises
+	#   warning    raises an error whatever the target, naming the target and the secret-store
+	#              responder to wire
+	#   see        Owns
+	#@ aka  Not this responder's to perform: authentication owns accounts and sessions, nothing else. A plan that proposes these needs another responder -- refused loudly, never pretended.
 	def RotateSecret(pcTarget)
 		stzraise("stzAuthResponder cannot :RotateSecret '" + pcTarget + "' -- wire a secret-store responder.")
 
+	# Refuses by raising an error that names the responder to wire, because this responder does not revoke capabilities.
+	#
+	#   pcTarget   the actor the plan named
+	#   returns    nothing; it always raises
+	#   warning    raises an error whatever the target, naming the target and the capability
+	#              responder to wire
+	#   see        Owns
 	def RevokeCapability(pcTarget)
 		stzraise("stzAuthResponder cannot :RevokeCapability '" + pcTarget + "' -- wire a capability responder.")
 
+	# Refuses by raising an error that names the responder to wire, because this responder does not block sources.
+	#
+	#   pcTarget   the source the plan named
+	#   returns    nothing; it always raises
+	#   warning    raises an error whatever the target, naming the target and the rate-limiter
+	#              responder to wire
+	#   see        Owns
 	def ShedSource(pcTarget)
 		stzraise("stzAuthResponder cannot :ShedSource '" + pcTarget + "' -- wire a rate-limiter responder.")
 
+	# Refuses by raising an error that names the responder to wire, because this responder does not quarantine parts.
+	#
+	#   pcTarget   the part the plan named
+	#   returns    nothing; it always raises
+	#   warning    raises an error whatever the target, naming the target and the quarantine
+	#              responder to wire
+	#   see        Owns
 	def QuarantinePart(pcTarget)
 		stzraise("stzAuthResponder cannot :QuarantinePart '" + pcTarget + "' -- wire a quarantine responder.")
 
@@ -797,33 +868,100 @@ class stzCapabilityResponder from stzObject
  #  stzRateLimiterResponder -- :ShedSource, for real         #
 #=========================================================#
 
+# Carries out the ShedSource action of a response plan by blocking a source in a rate limiter.
+#
+# A response plan proposes containment as data; a responder performs one verb for real once a
+# committing actor approves. This one answers ShedSource only, by calling BlockFor on the limiter it
+# holds, so the source is refused by Allow whether or not it had a limit. A duration of 0 blocks
+# until the limiter's Unblock. Every other verb raises an error that names the responder to wire,
+# rather than pretending. It holds the limiter by reference.
+#
+#   receiver   oRL = new stzRateLimiter("front") o1 = new stzRateLimiterResponder(oRL, 0)
+#   example    o1.ShedSource("Flood-Source")
+#              ? oRL.IsBlocked("flood-source")
+#              #--> 1
+#              ? oRL.Allow("flood-source")
+#              #--> 0
+#              oRL.Destroy()
+#   see        stzResponsePlan, stzRateLimiter, stzAuthResponder
 class stzRateLimiterResponder from stzObject
 
 	@pLimiter = ""
 	@nBlockMs = 0
 
+	# Builds a responder that performs the ShedSource action of a response plan by blocking a source in a rate limiter.
+	#
+	#   poLimiter   the stzRateLimiter in which sources are blocked, held by reference
+	#   pnBlockMs   how long a block lasts in milliseconds, or 0 to block until Unblock
+	#   returns     nothing; the object is built
+	#   note        keep the limiter alive as long as the responder is used
+	#   see         Owns, ShedSource
 	def init(poLimiter, pnBlockMs)
 		@pLimiter = object2pointer(poLimiter)
 		@nBlockMs = pnBlockMs
 
+	# TRUE if the verb is ShedSource, the only one this responder answers.
+	#
+	#   pcVerb     the verb, matched without regard to case
+	#   returns    TRUE or FALSE
+	#   see        ShedSource
 	def Owns(pcVerb)
 		return StzLower("" + pcVerb) = "shedsource"
 
+	# Blocks the named source in the limiter, so every request from it is refused for the configured time.
+	#
+	#   pcTarget   the source to block, such as a client address, kept in lower case
+	#   returns    nothing; the limiter then answers IsBlocked and BlockOf
+	#   note       the block carries the reason shed by a containment plan, and the limiter notes
+	#              the block in the security refusal record; with a duration of 0 the block holds
+	#              until the limiter's Unblock
+	#   see        Owns, init
 	def ShedSource(pcTarget)
 		pointer2object(@pLimiter).BlockFor("" + pcTarget, "shed by a containment plan", @nBlockMs)
 
+	# Refuses by raising an error that names the responder to wire, because this responder does not lock accounts.
+	#
+	#   pcTarget   the account the plan named
+	#   returns    nothing; it always raises
+	#   note       wire an auth responder for this verb
+	#   warning    raises an error whatever the target
+	#   see        Owns
 	def LockAccount(pcTarget)
 		stzraise("stzRateLimiterResponder cannot :LockAccount -- wire an auth responder.")
 
+	# Refuses by raising an error that names the responder to wire, because this responder does not end sessions.
+	#
+	#   pcTarget   the actor the plan named
+	#   returns    nothing; it always raises
+	#   warning    raises an error whatever the target
+	#   see        Owns
 	def RevokeSession(pcTarget)
 		stzraise("stzRateLimiterResponder cannot :RevokeSession -- wire an auth responder.")
 
+	# Refuses by raising an error that names the responder to wire, because this responder does not rotate secrets.
+	#
+	#   pcTarget   the secret the plan named
+	#   returns    nothing; it always raises
+	#   warning    raises an error whatever the target
+	#   see        Owns
 	def RotateSecret(pcTarget)
 		stzraise("stzRateLimiterResponder cannot :RotateSecret -- wire a secret-store responder.")
 
+	# Refuses by raising an error that names the responder to wire, because this responder does not revoke capabilities.
+	#
+	#   pcTarget   the actor the plan named
+	#   returns    nothing; it always raises
+	#   warning    raises an error whatever the target
+	#   see        Owns
 	def RevokeCapability(pcTarget)
 		stzraise("stzRateLimiterResponder cannot :RevokeCapability -- wire a capability responder.")
 
+	# Refuses by raising an error that names the responder to wire, because this responder does not quarantine parts.
+	#
+	#   pcTarget   the part the plan named
+	#   returns    nothing; it always raises
+	#   warning    raises an error whatever the target
+	#   see        Owns
 	def QuarantinePart(pcTarget)
 		stzraise("stzRateLimiterResponder cannot :QuarantinePart -- wire a quarantine responder.")
 
@@ -832,16 +970,54 @@ class stzRateLimiterResponder from stzObject
  #  stzAgentHostResponder -- :QuarantinePart, for real       #
 #=========================================================#
 
+# Carries out the QuarantinePart action of a response plan by quarantining an agent supervised by a host.
+#
+# A response plan proposes containment as data; a responder performs one verb for real once a
+# committing actor approves. This one answers QuarantinePart only, by calling Quarantine on the host
+# it holds, which stops ticking the agent until an effectful actor releases it. A target written
+# agent:name is accepted. Every other verb raises an error that names the responder to wire. It
+# holds the host by reference.
+#
+#   receiver   oHost = new stzAgentHost() oHost.Supervise(new stzPIAgent("kitchen-bot"), 20) o1 =
+#              new stzAgentHostResponder(oHost)
+#   example    o1.QuarantinePart("agent:kitchen-bot")
+#              ? oHost.IsQuarantined("kitchen-bot")
+#              #--> 1
+#              ? oHost.QuarantineOf("kitchen-bot")[:reason]
+#              #--> quarantined by a containment plan
+#   see        stzResponsePlan, stzAgentHost, stzAuthResponder
 class stzAgentHostResponder from stzObject
 
 	@pHost = ""
 
+	# Builds a responder that performs the QuarantinePart action of a response plan on the agents of a host.
+	#
+	#   poHost     the stzAgentHost whose supervised agents are quarantined, held by reference
+	#   returns    nothing; the object is built
+	#   note       keep the host alive as long as the responder is used
+	#   see        Owns, QuarantinePart
 	def init(poHost)
 		@pHost = object2pointer(poHost)
 
+	# TRUE if the verb is QuarantinePart, the only one this responder answers.
+	#
+	#   pcVerb     the verb, matched without regard to case
+	#   returns    TRUE or FALSE
+	#   see        QuarantinePart
 	def Owns(pcVerb)
 		return StzLower("" + pcVerb) = "quarantinepart"
 
+	# Quarantines a supervised agent, so the host stops ticking it until an effectful actor releases it.
+	#
+	#   pcTarget   the agent to quarantine, with or without the agent: prefix, which is removed
+	#              whatever its case
+	#   returns    nothing; the host then answers IsQuarantined
+	#   note       the reason kept is quarantined by a containment plan; the host notes the
+	#              quarantine in the security refusal record
+	#   warning    raises an error for an agent the host does not supervise, and the name is matched
+	#              with its case here although IsQuarantined ignores case: Rogue-Bot is found and
+	#              rogue-bot raises not supervising
+	#   see        Owns, init
 	def QuarantinePart(pcTarget)
 		_c_ = "" + pcTarget
 		if StzLeft(StzLower(_c_), 6) = "agent:"
@@ -849,17 +1025,47 @@ class stzAgentHostResponder from stzObject
 		ok
 		pointer2object(@pHost).Quarantine(_c_, "quarantined by a containment plan")
 
+	# Refuses by raising an error that names the responder to wire, because this responder does not lock accounts.
+	#
+	#   pcTarget   the account the plan named
+	#   returns    nothing; it always raises
+	#   warning    raises an error whatever the target
+	#   see        Owns
 	def LockAccount(pcTarget)
 		stzraise("stzAgentHostResponder cannot :LockAccount -- wire an auth responder.")
 
+	# Refuses by raising an error that names the responder to wire, because this responder does not end sessions.
+	#
+	#   pcTarget   the actor the plan named
+	#   returns    nothing; it always raises
+	#   warning    raises an error whatever the target
+	#   see        Owns
 	def RevokeSession(pcTarget)
 		stzraise("stzAgentHostResponder cannot :RevokeSession -- wire an auth responder.")
 
+	# Refuses by raising an error that names the responder to wire, because this responder does not rotate secrets.
+	#
+	#   pcTarget   the secret the plan named
+	#   returns    nothing; it always raises
+	#   warning    raises an error whatever the target
+	#   see        Owns
 	def RotateSecret(pcTarget)
 		stzraise("stzAgentHostResponder cannot :RotateSecret -- wire a secret-store responder.")
 
+	# Refuses by raising an error that names the responder to wire, because this responder does not revoke capabilities.
+	#
+	#   pcTarget   the actor the plan named
+	#   returns    nothing; it always raises
+	#   warning    raises an error whatever the target
+	#   see        Owns
 	def RevokeCapability(pcTarget)
 		stzraise("stzAgentHostResponder cannot :RevokeCapability -- wire a capability responder.")
 
+	# Refuses by raising an error that names the responder to wire, because this responder does not block sources.
+	#
+	#   pcTarget   the source the plan named
+	#   returns    nothing; it always raises
+	#   warning    raises an error whatever the target
+	#   see        Owns
 	def ShedSource(pcTarget)
 		stzraise("stzAgentHostResponder cannot :ShedSource -- wire a rate-limiter responder.")

@@ -1,0 +1,20 @@
+{
+ "brief": "Recognises a sound against a closed list of accepted phrases, with a confidence, using the local speech recognizer.",
+ "detail": "It does commands, not dictation, on purpose: free dictation measured 66.7 percent exact against 100 percent for a closed grammar, and every miss was a written form rather than a mishearing. A phrase outside the list is a no-match, which is a result and not an error. The text and its Confidence are separate calls so the confidence cannot be skipped. The recognizer runs in the process and reaches no network. Capability is per language and per direction: this machine hears only fr-FR. HearMicrophoneFor opens an input device, the library's consent boundary, and was not run in this reference. The examples feed the machine's own French voice to it; no person has been heard (UNPERCEIVED).",
+ "receiver": "o1 = StzListenerQ()",
+ "example": [
+  "? o1.Accept([ \"ouvrir le fichier\", \"enregistrer\", \"annuler\" ])",
+  "#--> 1",
+  "? o1.PhraseCount()",
+  "#--> 3",
+  "? o1.HearSound(StzVoiceForQ(\"fr-FR\").ToSoundOf(\"ouvrir le fichier\"))",
+  "#--> 1",
+  "? o1.HeardText()",
+  "#--> ouvrir le fichier"
+ ],
+ "see": [
+  "stzVoice",
+  "stzSound",
+  "stzSemanticResolver"
+ ]
+}

@@ -1,0 +1,18 @@
+{
+ "brief": "Issues signed SAML assertions for registered services, so a service provider can be developed and tested without an external identity provider.",
+ "detail": "Assertions are signed by the engine with ECDSA-SHA256 over a P-256 key (random, or derived from a seed for repeatable tests) or with RSA-SHA256 over a key you supply or generate. Only a registered service can be the audience: an identity provider that vouches for any service that asks is an open redirect for identity. Subject and audience are escaped for & < and > before they enter the XML, so a subject holding markup cannot inject elements (checked with a quote, angle brackets and an ampersand); the issuer entity id, set by the operator, is written as given. The private key never leaves the object: PublicKey and TrustMeOn hand over only what a service provider needs. Use invented identities and keys in tests.",
+ "receiver": "o1 = new stzSamlIdentityProvider(\"https://idp.invented.test\")",
+ "example": [
+  "o1.RegisterServiceProvider(\"https://sp.invented.test\", \"https://sp.invented.test/acs\")",
+  "? o1.SigningAlgorithm()",
+  "#--> ES256",
+  "? o1.ServiceProviderIds()[1]",
+  "#--> https://sp.invented.test",
+  "cXml = o1.UnsignedAssertion(\"a<b\", \"https://sp.invented.test\", 1790000000, 300)",
+  "? len(StzFind(\"<saml:NameID>a&lt;b</saml:NameID>\", cXml)) > 0",
+  "#--> 1"
+ ],
+ "see": [
+  "stzSamlServiceProvider"
+ ]
+}

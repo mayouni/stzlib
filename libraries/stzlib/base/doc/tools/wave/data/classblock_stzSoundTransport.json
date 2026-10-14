@@ -1,0 +1,19 @@
+{
+ "brief": "Plays, pauses, resumes and stops a sound graph on the audio device, and keeps a clock the rest of the library can read.",
+ "detail": "The legal moves are declared once in a state machine: stopped to playing, playing to paused, paused to playing, and playing or paused to stopped. Any other move is refused and counted, never obeyed. The position comes from the frames the device has consumed, not from a wall clock, so it cannot drift from what is heard. Pause and Stop fade the master gain over 10 ms first, because cutting the device is an audible click. There is no seek, only Rewind to the top. Play, PlayFor, Resume and RunFor open an audio device and were not run in this reference; the examples use only the refused moves of a stopped transport. Nobody has heard the fades (UNPERCEIVED).",
+ "receiver": "o1 = new stzSoundTransport(StzSoundGraphOfQ(2, 44100).AddOscillatorQ(:Sine, 440, 0.5))",
+ "example": [
+  "? o1.State()",
+  "#--> stopped",
+  "o1.Pause()",
+  "? o1.LastError()",
+  "#--> cannot pause while stopped",
+  "? o1.Refusals()",
+  "#--> 1"
+ ],
+ "see": [
+  "stzSoundGraph",
+  "stzSoundScheduler",
+  "stzStateMachine"
+ ]
+}

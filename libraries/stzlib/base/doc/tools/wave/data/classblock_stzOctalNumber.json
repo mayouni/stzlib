@@ -1,0 +1,26 @@
+{
+ "brief": "Holds an octal number and writes it in decimal, binary and hexadecimal.",
+ "detail": "Built from a text of the digits 0 to 7, with or without the 0o prefix, which is kept as given; the From... methods replace the number in place from a decimal, binary or hexadecimal value and store it with the 0o prefix. It inherits from stzString. Checked by hand: 0o377 is 255 (0b11111111, 0xFF); 0o755 is 493 (0b111101101, 0x1ED); 0o400000000000000000 is 9007199254740992. Found today: WithPrefix doubles a prefix that is already stored (0o0o377); ToDecimalForm gives 0 from 2 to the power 63 up; ToBaseNForm and ToScientificNotationForm raise R14; and a capital 0O17 is accepted and then converts to 0.",
+ "receiver": "o1 = new stzOctalNumber(\"0o377\")",
+ "example": [
+  "? o1.ToDecimalForm()",
+  "#--> 255",
+  "? o1.ToBinaryForm()",
+  "#--> 0b11111111",
+  "? o1.ToHexForm()",
+  "#--> 0xFF",
+  "o2 = new stzOctalNumber(\"755\")",
+  "? o2.ToDecimalForm()",
+  "#--> 493",
+  "? o2.ToHexFormWithoutPrefix()",
+  "#--> 1ED",
+  "o2.FromDecimalForm(8)",
+  "? o2.Content()",
+  "#--> 0o10"
+ ],
+ "see": [
+  "stzNumber",
+  "stzHexNumber",
+  "stzBinaryNumber"
+ ]
+}

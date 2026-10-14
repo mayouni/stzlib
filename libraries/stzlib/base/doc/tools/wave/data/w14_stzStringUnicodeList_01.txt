@@ -1,0 +1,25 @@
+# w14 stzStringUnicodeList -- Name | brief | returns | params | see | warning | note
+init | Builds a list of Unicode code points, checking that every item is a number from 0 to 1114111. | nothing; the object is built | aList=the list of code point numbers; a value that is not a list, an item that is not a number or one outside the range raises an error naming which | Content, StzStringUnicodeListQ | | the object keeps the list as given; stzString does not build one, so reach it with StzStringUnicodeListQ(aList) or new stzStringUnicodeList(aList)
+Content | Returns the list of code points held, in the order given. | a list of numbers | | NumberOfItems, Chars
+NumberOfItems | Returns how many code points the list holds, repeated ones counted each time. | a number | | Content, Unique
+NthUnicode | Returns the code point at a position. | a number | _n_=the 1-based position of the code point | Content, Contains | a position below 1 or past the end raises the error Out of range! | position 2 of the codes of Hello gives 101
+Copy | Returns a second list object holding the same code points. | a stzStringUnicodeList | | Content
+Chars | Returns each code point as the character it stands for, in a list of texts. | a list of texts, one character each; empty for an empty list | | ToString, UnicodesAndChars | | the Hebrew code points 1513 1500 give the letters shin and lamed one by one; an emoji stays one item
+ToString | Returns the characters of all the code points joined into one text. | a text; empty for an empty list | | Chars | | String is the same call; the Arabic code points 1605 1585 1581 1576 1575 give the word marhaba
+UnicodesAndChars | Returns each code point paired with its character. | a list of [ code point, character ] pairs | | CharsAndUnicodes, Chars | | 72 pairs with H
+CharsAndUnicodes | Returns each character paired with its code point. | a list of [ character, code point ] pairs | | UnicodesAndChars, Chars | | H pairs with 72
+IsEmpty | TRUE if the list holds no code point. | TRUE or FALSE, as 1 or 0 | | NumberOfItems
+Contains | TRUE if a code point is in the list. | TRUE or FALSE, as 1 or 0 | nUnicode=the code point number to look for; a text such as "a" never matches | NthUnicode, Unique
+AllAreLetters | TRUE if the characters of the code points are all letters, in any script. | TRUE or FALSE, as 1 or 0; FALSE for an empty list | | AllAreDigits, AllAreLatin | | Hebrew and Arabic letters count; Hi! is FALSE because of the sign
+AllAreDigits | TRUE if the characters of the code points are all digits, in any script. | TRUE or FALSE, as 1 or 0; FALSE for an empty list | | AllAreLetters | | the Arabic-Indic digits 1634 and 1635 count
+AllArePunctuation | TRUE if the characters of the code points are all punctuation marks. | TRUE or FALSE, as 1 or 0; FALSE for an empty list | | AllAreSymbols | | ! , . are punctuation while $ + < are symbols
+AllAreSymbols | TRUE if the characters of the code points are all symbols, such as signs, currency marks and emoji. | TRUE or FALSE, as 1 or 0; FALSE for an empty list | | AllArePunctuation | | the emoji 128512 and the euro sign 8364 are symbols
+AllAreMarks | TRUE if the characters of the code points are all combining marks. | TRUE or FALSE, as 1 or 0; FALSE for an empty list | | AllAreLetters | | the accents 769 and 768 are marks
+AllAreArabic | TRUE if the characters of the code points are all in the Arabic script. | TRUE or FALSE, as 1 or 0; FALSE for an empty list | | AllAreHebrew, AllAreLatin | | Arabic-Indic digits count as Arabic
+AllAreLatin | TRUE if the characters of the code points are all Latin letters. | TRUE or FALSE, as 1 or 0; FALSE for an empty list or a mix with another script | | AllAreGreek, AllAreArabic | | Hello is TRUE, Hi followed by a Hebrew letter is FALSE
+AllAreGreek | TRUE if the characters of the code points are all in the Greek script. | TRUE or FALSE, as 1 or 0; FALSE for an empty list | | AllAreLatin, AllAreCyrillic | | 945 946 947 give alpha beta gamma and TRUE
+AllAreCyrillic | TRUE if the characters of the code points are all in the Cyrillic script. | TRUE or FALSE, as 1 or 0; FALSE for an empty list | | AllAreGreek, AllAreLatin | | 1055 1088 1080 give three Cyrillic letters and TRUE
+AllAreHebrew | TRUE if the characters of the code points are all in the Hebrew script. | TRUE or FALSE, as 1 or 0; FALSE for an empty list or a mix with another script | | AllAreArabic, AllAreLatin | | the code points of shalom give TRUE; adding an Arabic letter gives FALSE
+Unique | Returns the code points with repeats dropped, keeping the first occurrence of each. | a list of numbers | | Sorted, NumberOfItems | | the list held is not changed; 72 101 108 108 111 gives 72 101 108 111
+Sorted | Returns the code points in ascending order. | a list of numbers | | Reversed, Unique | | the list held is not changed; the emoji 128512 sorts after a
+Reversed | Returns the code points in the opposite order. | a list of numbers | | Sorted, ToString | | the list held is not changed

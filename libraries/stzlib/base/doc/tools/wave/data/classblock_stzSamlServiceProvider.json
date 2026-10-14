@@ -1,0 +1,23 @@
+{
+ "brief": "Decides whether to believe a SAML assertion posted back by a single trusted identity provider, and says why when it refuses.",
+ "detail": "The signature check and the anti-wrapping guarantee belong to the engine, which returns claims read only from the signed bytes. This class adds the judgement that depends on your configuration: the issuer must be the trusted identity provider, the audience must be this provider's entity id, the validity window must contain the moment of judgement (with a clock-skew allowance, 120 seconds by default), and an assertion already accepted is refused as a replay. Every refusal returns a reason and is noted in the refusal record. Trust is set with raw key parts, a certificate, or the identity provider's metadata document. Known limits today: the sign-in request (AuthnRequest, AuthnRequestAt) writes its values into attributes without XML escaping and stamps IssueInstant with the clock in milliseconds, and a consumed subject comes back still XML-escaped.",
+ "receiver": "o1 = new stzSamlServiceProvider(\"https://sp.invented.test\", \"https://sp.invented.test/acs\")",
+ "example": [
+  "oIdp = new stzSamlIdentityProvider(\"https://idp.invented.test\")",
+  "oIdp.RegisterServiceProvider(o1.EntityId(), o1.AcsUrl())",
+  "oIdp.TrustMeOn(o1)",
+  "? o1.TrustsAnIdp()",
+  "#--> 1",
+  "cXml = oIdp.IssueAssertionAt(\"dana@x.test\", o1.EntityId(), 1790000000)",
+  "aR = o1.ConsumeXmlAt(cXml, 1790000005)",
+  "? aR[:nameid]",
+  "#--> dana@x.test",
+  "aR = o1.ConsumeXmlAt(cXml, 1790000006)",
+  "? aR[:why]",
+  "#--> this assertion has already been consumed (replay)"
+ ],
+ "see": [
+  "stzSamlIdentityProvider",
+  "stzAuth"
+ ]
+}

@@ -309,6 +309,37 @@ func _FmDatedPair(oGraph, pcId)
 #  THE TREE                                                            #
 #---------------------------------------------------------------------#
 
+# Draws a family tree and answers kinship questions: a person is a box with the years beneath the name, and every child hangs from a union dot.
+#
+# A union is a small dot between two partners and every child hangs from a union, which is what
+# makes two parents drawable: the child has one line up, to the dot, and the dot has one line to
+# each partner. Marry joins two people and answers the union's identifier, Child and ChildOf hang
+# children from it, and the kinship questions (PartnersOf, ChildrenOf, ParentsOf, SiblingsOf,
+# AncestorsOf, DescendantsOf, GenerationOf) are read off the tree. Five rules judge it. Not here:
+# adoption, step-relations, ordering siblings by birth, and dates (years are numbers). ToCanvasXT
+# draws the tree.
+#
+#   receiver   o1 = new stzFamilyTree("kin")
+#   example    o1.AddPersonXT("anna", "Anna", 1930, 2001)
+#              o1.AddPersonXT("boris", "Boris", 1928, 0)
+#              o1.AddPerson("carl", "Carl")
+#              o1.AddPerson("dora", "Dora")
+#              o1.AddPerson("eva", "Eva")
+#              o1.AddPerson("fred", "Fred")
+#              o1.ChildOf("anna", "boris", "carl")
+#              o1.ChildOf("anna", "boris", "dora")
+#              o1.ChildOf("carl", "eva", "fred")
+#              ? @@( o1.ChildrenOf("anna") )
+#              #--> [ "carl", "dora" ]
+#              ? @@( o1.SiblingsOf("carl") )
+#              #--> [ "dora" ]
+#              ? o1.GenerationOf("fred")
+#              #--> 3
+#              ? len(o1.AncestorsOf("fred"))
+#              #--> 4
+#              ? o1.GovernanceIsSound()
+#              #--> 1
+#   see        stzFamilyRuleSet, stzDiagram, stzFaultTree, stzPetriNet
 class stzFamilyTree from stzDiagram
 
 	# [ [ :id, :name, :born, :died ] ], 0 for an unknown year
@@ -319,12 +350,26 @@ class stzFamilyTree from stzDiagram
 	@aBirths = []
 	@aNotes = []
 
+	# Builds an empty family tree that draws top-down with the family notation, with a title.
+	#
+	#   pcTitle    the title of the diagram
+	#   returns    nothing; the object is built
+	#   see        AddPerson, Marry
 	def init(pcTitle)
 		super.init(pcTitle)
 		This.SetNotation(StzFamilyNotation())
 
-	#-- the people ----------------------------------------------------------
-
+	# Declares a person, drawn as a box with a name; AddPersonXT adds the years of birth and death.
+	#
+	#   pcId       the person's identifier, which must be new in the tree
+	#   pcName     the name shown in the box
+	#   returns    the tree itself, so calls chain
+	#   note       AddPersonQ and AddPersonXTQ are the same calls
+	#   warning    an identifier already in the tree raises an error; a year that is not a number,
+	#              or a death before the birth when both are known, raises an error; the years are
+	#              numbers, not dates
+	#   see        Marry, AddNote
+	#@ aka  -- the people ----------------------------------------------------------
 	def AddPerson(pcId, pcName)
 		return This.AddPersonXT(pcId, pcName, 0, 0)
 
@@ -351,6 +396,13 @@ class stzFamilyTree from stzDiagram
 		def AddPersonXTQ(pcId, pcName, pnBorn, pnDied)
 			return This.AddPersonXT(pcId, pcName, pnBorn, pnDied)
 
+	# Adds a free note to the drawing; it is not a person of the tree.
+	#
+	#   pcId       the note's identifier
+	#   pcText     the text of the note
+	#   returns    the tree itself, so calls chain
+	#   warning    the rules and the kinship questions ignore a note
+	#   see        AddPerson
 	def AddNote(pcId, pcText)
 		@aNotes + ("" + pcId)
 		This.AddNodeXTT(pcId, pcText, [ :type = "note" ])
@@ -363,10 +415,18 @@ class stzFamilyTree from stzDiagram
 		if pnDied > 0  _c_ += " - " + pnDied  ok
 		return _c_
 
-	#-- the unions -----------------------------------------------------------
-
-	# Marry(a, b) -> the union's id. A union joins the two; marrying a
-	# pair already married answers the union they have.
+	# Joins two people in a union, a dot between the partners, and returns the union's identifier.
+	#
+	#   pcA        the identifier of the first partner
+	#   pcB        the identifier of the second partner
+	#   returns    a text, the union's identifier, u1 for the first union, u2 for the next
+	#   warning    marrying a pair already joined, in either order, answers the union they have and
+	#              adds none; an unknown person raises an error; the identifier is built from the
+	#              number of unions, so it repeats an identifier you gave AddUnion by hand: after
+	#              AddUnion("u2", ...) the next new pair also gets u2 and Unions lists two unions
+	#              with that identifier
+	#   see        UnionOf, Child, ChildOf, AddUnion
+	#@ aka  -- the unions -----------------------------------------------------------
 	def Marry(pcA, pcB)
 		_cU_ = This.UnionOf(pcA, pcB)
 		if _cU_ != ""  return _cU_  ok
@@ -377,8 +437,16 @@ class stzFamilyTree from stzDiagram
 		This._FmAddUnion(_cU_, [ "" + pcA, "" + pcB ])
 		return _cU_
 
-	# a union with the partners named -- one for a single parent, or
-	# however many the author insists on, which the rules will judge
+	# Adds a union under an identifier you choose, with any number of partners.
+	#
+	#   pcId          the union's identifier, which must be new in the tree
+	#   pacPartners   the identifiers of the partners, as a list
+	#   returns       the tree itself, so calls chain
+	#   warning       one partner is a single parent and three or more is not a union: the rule
+	#                 union_has_two_partners reports both as a warning; an unknown partner raises an
+	#                 error
+	#   see           Marry, Child
+	#@ aka  a union with the partners named -- one for a single parent, or however many the author insists on, which the rules will judge
 	def AddUnion(pcId, pacPartners)
 		This._FmNoNode(pcId)
 		for _i_ = 1 to len(pacPartners)
@@ -398,6 +466,13 @@ class stzFamilyTree from stzDiagram
 			This.AddEdgeXTT(_aP_[_i_], pcId, "", [ :type = "partner" ])
 		next
 
+	# Returns the identifier of the union that joins two people, in either order.
+	#
+	#   pcA        the identifier of one partner
+	#   pcB        the identifier of the other
+	#   returns    a text; empty when the two are not joined
+	#   warning    only unions of exactly two partners are searched
+	#   see        Marry, PartnersOf
 	def UnionOf(pcA, pcB)
 		for _i_ = 1 to len(@aUnions)
 			if len(@aUnions[_i_][:partners]) != 2  loop  ok
@@ -410,6 +485,14 @@ class stzFamilyTree from stzDiagram
 		next
 		return ""
 
+	# Hangs a person from a union as a child of its partners.
+	#
+	#   pcUnion    the identifier of the union
+	#   pcChild    the identifier of the person born of it
+	#   returns    the tree itself, so calls chain
+	#   warning    an unknown union or an unknown person raises an error; a person given two unions
+	#              is reported by the rule child_of_one_union
+	#   see        ChildOf, Marry, ParentsOf
 	def Child(pcUnion, pcChild)
 		if This._FmUnionIndex(pcUnion) = 0
 			stzraise("stzFamilyTree: '" + pcUnion + "' is not a union of this tree.")
@@ -421,7 +504,16 @@ class stzFamilyTree from stzDiagram
 		This.AddEdgeXTT(pcUnion, pcChild, "", [ :type = "child" ])
 		return This
 
-	# ChildOf(a, b, child): the two are married if they are not yet
+	# Records a child of two parents, joining the parents in a union first if they are not joined yet.
+	#
+	#   pcA        the identifier of one parent
+	#   pcB        the identifier of the other parent
+	#   pcChild    the identifier of the child
+	#   returns    the tree itself, so calls chain
+	#   note       ChildOfQ is the same call
+	#   warning    an unknown person raises an error
+	#   see        Child, Marry
+	#@ aka  ChildOf(a, b, child): the two are married if they are not yet
 	def ChildOf(pcA, pcB, pcChild)
 		_cU_ = This.Marry(pcA, pcB)
 		This.Child(_cU_, pcChild)
@@ -430,14 +522,28 @@ class stzFamilyTree from stzDiagram
 		def ChildOfQ(pcA, pcB, pcChild)
 			return This.ChildOf(pcA, pcB, pcChild)
 
+	# Returns the people of the tree, in the order they were added.
+	#
+	#   returns    a list of hashlists with the keys id, name, born and died; 0 stands for an
+	#              unknown year
+	#   see        Unions, AddPerson
 	def People()
 		return @aPeople
 
+	# Returns the unions of the tree, in the order they were made.
+	#
+	#   returns    a list of hashlists with the keys id and partners, the partners being a list of
+	#              identifiers
+	#   see        People, Marry
 	def Unions()
 		return @aUnions
 
-	#-- kinship, read off the tree ----------------------------------------
-
+	# Returns the people a person is joined to in unions, in the order of the unions.
+	#
+	#   pcId       the identifier of the person, without regard to case
+	#   returns    a list of identifiers; empty for a person with no union or an unknown identifier
+	#   see        UnionOf, ChildrenOf
+	#@ aka  -- kinship, read off the tree ----------------------------------------
 	def PartnersOf(pcId)
 		_r_ = []
 		for _i_ = 1 to len(@aUnions)
@@ -449,6 +555,11 @@ class stzFamilyTree from stzDiagram
 		next
 		return _r_
 
+	# Returns the children born of the unions a person belongs to, in the order the unions and births were made.
+	#
+	#   pcId       the identifier of the person, without regard to case
+	#   returns    a list of identifiers; empty when there is none
+	#   see        ParentsOf, DescendantsOf, SiblingsOf
 	def ChildrenOf(pcId)
 		_r_ = []
 		for _i_ = 1 to len(@aUnions)
@@ -459,6 +570,11 @@ class stzFamilyTree from stzDiagram
 		next
 		return _r_
 
+	# Returns the partners of the union a person was born of.
+	#
+	#   pcId       the identifier of the person, without regard to case
+	#   returns    a list of identifiers, usually two; empty when no union was given for the person
+	#   see        ChildrenOf, AncestorsOf
 	def ParentsOf(pcId)
 		_r_ = []
 		for _b_ = 1 to len(@aBirths)
@@ -469,6 +585,13 @@ class stzFamilyTree from stzDiagram
 		next
 		return _r_
 
+	# Returns the other children of the unions a person was born of.
+	#
+	#   pcId       the identifier of the person, without regard to case
+	#   returns    a list of identifiers, each once; empty when there is none
+	#   warning    only children of the same union count: half-siblings through another union are
+	#              not listed
+	#   see        ParentsOf, ChildrenOf
 	def SiblingsOf(pcId)
 		_r_ = []
 		for _b_ = 1 to len(@aBirths)
@@ -481,6 +604,12 @@ class stzFamilyTree from stzDiagram
 		next
 		return _r_
 
+	# Returns every ancestor of a person, parents first and then up each line.
+	#
+	#   pcId       the identifier of the person, without regard to case
+	#   returns    a list of identifiers, each once; empty when no parent is known
+	#   warning    the order is the walk's, not the generation's: the last parent comes first
+	#   see        ParentsOf, DescendantsOf, GenerationOf
 	def AncestorsOf(pcId)
 		_r_ = []
 		_aStack_ = This.ParentsOf(pcId)
@@ -496,6 +625,12 @@ class stzFamilyTree from stzDiagram
 		end
 		return _r_
 
+	# Returns every descendant of a person, children and then down each line.
+	#
+	#   pcId       the identifier of the person, without regard to case
+	#   returns    a list of identifiers, each once; empty when there is no child
+	#   warning    the order is the walk's, not the generation's
+	#   see        ChildrenOf, AncestorsOf
 	def DescendantsOf(pcId)
 		_r_ = []
 		_aStack_ = This.ChildrenOf(pcId)
@@ -511,8 +646,14 @@ class stzFamilyTree from stzDiagram
 		end
 		return _r_
 
-	# the generation counted from the oldest ancestor: 1 for a person
-	# with no known parent, one more per step down
+	# Returns the generation of a person counted from the oldest known ancestor.
+	#
+	#   pcId       the identifier of the person, without regard to case
+	#   returns    a number: 1 for a person with no known parent, then one more for each step down
+	#              the longest line
+	#   warning    an identifier that is not in the tree answers 1
+	#   see        AncestorsOf, ParentsOf
+	#@ aka  the generation counted from the oldest ancestor: 1 for a person with no known parent, one more per step down
 	def GenerationOf(pcId)
 		_aP_ = This.ParentsOf(pcId)
 		if len(_aP_) = 0  return 1  ok
@@ -524,8 +665,12 @@ class stzFamilyTree from stzDiagram
 		next
 		return _best_ + 1
 
-	#-- the projection the rules read ------------------------------------
-
+	# Returns the tree as a plain graph that the five family rules read.
+	#
+	#   returns    a stzGraph with the people, unions and notes as nodes and the partner and child
+	#              lines as edges
+	#   see        GovernanceFindings
+	#@ aka  -- the projection the rules read ------------------------------------
 	def AsRuleGraph()
 		_oG_ = new stzGraph("family-rules")
 		for _i_ = 1 to len(@aPeople)
@@ -559,13 +704,24 @@ class stzFamilyTree from stzDiagram
 		next
 		return _oG_
 
+	# Returns what the five family rules find wrong with the tree, warnings included.
+	#
+	#   returns    a list of findings, each a hashlist with the keys rule, where, severity and
+	#              message; empty when the tree is sound
+	#   note       CheckRules is the same call
+	#   warning    the rules are no_one_is_own_ancestor, union_has_two_partners, child_of_one_union,
+	#              parents_are_older and partners_are_not_kin
+	#   see        GovernanceIsSound, AsRuleGraph
 	def GovernanceFindings()
 		return StzFamilyRuleSetQ().Check(This.AsRuleGraph())
 
-	# SOUND IS NO ERROR, not no finding: this family's rules set their
-	# severity deliberately, and a warning says the picture may stand.
-	# StzFindingsAreSound is the house's one answer; GovernanceFindings()
-	# is still every finding, warnings included, for a caller who wants them.
+	# TRUE if the rules found no error; warnings do not count against it.
+	#
+	#   returns    TRUE or FALSE
+	#   warning    RulesAreSound is the same call; a single parent is a warning, so such a tree is
+	#              still sound
+	#   see        GovernanceFindings
+	#@ aka  SOUND IS NO ERROR, not no finding: this family's rules set their severity deliberately, and a warning says the picture may stand. StzFindingsAreSound is the house's one answer; GovernanceFindings() is still every finding, warnings included, for a caller who wants them.
 	def GovernanceIsSound()
 		return StzFindingsAreSound(This.GovernanceFindings())
 
@@ -596,12 +752,50 @@ class stzFamilyTree from stzDiagram
 			stzraise("stzFamilyTree: '" + pcId + "' is already in this tree.")
 		ok
 
+# Holds one named check of the family-tree governance, run over the rule graph of a tree.
+#
+# It is a graph rule filed under the family domain. The five rules the library ships are built by
+# stzFamilyRuleSet and applied through the tree's GovernanceFindings; a rule of your own can be
+# added to a set the same way.
+#
+#   receiver   o1 = new stzFamilyRule("my_rule")
+#   example    ? o1.Name()
+#              #--> my_rule
+#              ? o1.Domain()
+#              #--> family
+#   see        stzFamilyRuleSet, stzFamilyTree, stzGraphRule
 class stzFamilyRule from stzGraphRule
+	# Builds a named rule of the family-tree governance, filed under the family domain.
+	#
+	#   pcName     the rule's name, such as parents_are_older
+	#   returns    nothing; the object is built
+	#   see        stzFamilyRuleSet, stzFamilyTree
 	def init(pcName)
 		super.init(pcName)
 		This.SetDomainQ("family")
 
+# Holds the five rules a family tree is judged by: no one is their own ancestor, a union has two partners, a child has one union, parents are older, partners are not kin.
+#
+# Check takes the rule graph of a tree (AsRuleGraph) and answers the findings. A tree asks for this
+# through its own GovernanceFindings, so a rule set is built by hand only to add a rule of your own
+# or to run the rules on a graph. A single parent, a union with one partner, is a warning and not an
+# error.
+#
+#   receiver   o1 = new stzFamilyRuleSet()
+#   example    ? o1.Name()
+#              #--> family-governance
+#              ? o1.NumberOfRules()
+#              #--> 5
+#              ? o1.RuleNames()[1]
+#              #--> no_one_is_own_ancestor
+#   see        stzFamilyRule, stzFamilyTree, stzGraphRuleSet
 class stzFamilyRuleSet from stzGraphRuleSet
+	# Builds the family-tree governance, the set of five rules a family tree is judged by.
+	#
+	#   returns    nothing; the object is built
+	#   warning    the rules are no_one_is_own_ancestor, union_has_two_partners, child_of_one_union,
+	#              parents_are_older and partners_are_not_kin, in that order
+	#   see        stzFamilyRule, StzFamilyRuleSetQ, GovernanceFindings
 	def init()
 		super.init("family-governance")
 		This.SetDomainQ("family")

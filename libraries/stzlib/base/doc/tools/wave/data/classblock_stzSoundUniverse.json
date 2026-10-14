@@ -1,0 +1,21 @@
+{
+ "brief": "Holds a musical tradition declared as data, and plays a phrase of degrees inside it as a score.",
+ "detail": "A universe declares a tuning, a pitch vocabulary with movement rules, a rhythmic cycle with accents, ornaments and an instrument set, as a list with no logic; the class reads the declaration and knows no tradition by name. A phrase is written in degrees, so one phrase means something in every universe: 5_ is a degree an octave down and a degree past the mode's size wraps up an octave. Eight traditions ship: western, maqam, tunisian, niger, raga, gamelan, westafrican and flamenco. Every declaration carries its sources and the line listener, UNPERCEIVED until a person from the tradition has heard it, and none has. Nothing here opens an audio device.",
+ "receiver": "o1 = StzSoundUniverseQ(:Maqam)",
+ "example": [
+  "o1.Mode(:Hijaz).Tonic(\"D4\")",
+  "? o1.CentsOf(\"3\", FALSE)",
+  "#--> 400",
+  "? o1.HzOf(\"5\", FALSE)",
+  "#--> 440",
+  "? len(o1.Check(\"1 2 3 4 5\"))",
+  "#--> 0",
+  "? o1.PerformQ(\"1 2 3 4 5 4 3 2\", 2).Beats()",
+  "#--> 16"
+ ],
+ "see": [
+  "stzMusic",
+  "stzSoundScore",
+  "stzSoundLadder"
+ ]
+}

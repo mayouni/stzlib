@@ -1,0 +1,16 @@
+{
+ "brief": "Sketches a cache of function results kept in a file, but cannot be built today because its storage class is not loaded.",
+ "detail": "The class is unfinished. Its init builds a stzCacheStorage, which builds a stzStorage, a class that sits in the future folder and is not loaded, so every construction raises error R11; with that class loaded the next call, TextFileCreateIfInexistant, is not defined either. Of the whole file, only Activate, Deactivate, IsActivated and Content run, and only on an object made without parentheses, which skips init. Every other method raises today, each for the same cause or for an undefined function; each says which in its warning.",
+ "receiver": "o1 = new stzCache",
+ "example": [
+  "? o1.IsActivated()",
+  "#--> 0",
+  "o1.Activate()",
+  "? o1.IsActivated()",
+  "#--> 1",
+  "o1.Deactivate()",
+  "? o1.IsActivated()",
+  "#--> 0"
+ ],
+ "see": ["stzCacheStorage"]
+}

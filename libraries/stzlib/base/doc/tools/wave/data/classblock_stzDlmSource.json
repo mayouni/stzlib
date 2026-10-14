@@ -1,0 +1,17 @@
+{
+ "brief": "Offers a domain language model behind the language-model port, so a bounded, factual assistant needs no external model.",
+ "detail": "Complete asks the model and returns the reply in the port's shape, with from set to dlm. It is a genuine local equivalent rather than a recording or a fake, so a service registry may ship it. It answers deterministically from the facts the model holds and refuses outside its domain with a sentence instead of inventing; that refusal still comes back as ok 1, so check the model's own Why to tell the two apart. The source keeps a copy of the model, so fill the model completely before handing it in.",
+ "receiver": "oDlm = new stzDLM(\"restaurant\")\noDlm.LearnEntity(\"margherita\", \"dish\")\no1 = new stzDlmSource(oDlm)",
+ "example": [
+  "? o1.IsLocalReal()",
+  "#--> 1",
+  "? o1.Complete(\"what is margherita\")[:text]",
+  "#--> Margherita is a dish.",
+  "? o1.Complete(\"what is margherita\")[:from]",
+  "#--> dlm"
+ ],
+ "see": [
+  "stzDLM",
+  "stzLlmSandbox"
+ ]
+}

@@ -1,0 +1,28 @@
+{
+ "brief": "Groups the items of a list by equality or by an expression, counts them, and answers the most and least frequent, plus halves and chunks.",
+ "detail": "It is the grouping helper of stzList, which builds one over itself for its Classify, Classes, ClassifyBy, NumberOfClasses and Frequencies methods; build one with new stzListClassifier when you only need to group. It never changes the list, so a stzList passed in stays intact. Classify answers [ item, positions ] pairs with positions counted from 1, and Frequencies answers [ item, count ] pairs, both in order of first appearance. Two limits found today: Classify, Classes and NumberOfClasses answer nothing for a list made of numbers, and the counting methods (Classify, Frequencies, Mode, MostFrequent, ItemsAppearing...) fold capital and small ASCII letters together and give the numbers back as texts, while FrequencyOf compares with case and type. ItemsAppearingNTimes and its kin keep each item's own type. Partition, Chunks, Bisect, FirstHalf and SecondHalf only cut the list by position. Hebrew, Arabic and emoji items are classed like any other text.",
+ "receiver": "o1 = new stzListClassifier([ \"a\", \"b\", \"a\", \"c\", \"a\", \"b\" ])",
+ "example": [
+  "? @@( o1.Classify() )",
+  "#--> [ [ \"a\", [ 1, 3, 5 ] ], [ \"b\", [ 2, 6 ] ], [ \"c\", [ 4 ] ] ]",
+  "? @@( o1.Frequencies() )",
+  "#--> [ [ \"a\", 3 ], [ \"b\", 2 ], [ \"c\", 1 ] ]",
+  "? o1.MostFrequent()",
+  "#--> a",
+  "? @@( o1.ItemsAppearingMoreThanNTimes(1) )",
+  "#--> [ \"a\", \"b\" ]",
+  "? @@( o1.Chunks(4) )",
+  "#--> [ [ \"a\", \"b\", \"a\", \"c\" ], [ \"a\", \"b\" ] ]",
+  "o2 = new stzListClassifier([ \"apple\", \"bob\", \"kiwi\", \"fig\", \"plum\" ])",
+  "? @@( o2.ClassifyBy(\"len(@item)\") )",
+  "#--> [ [ \"5\", [ 1 ] ], [ \"3\", [ 2, 4 ] ], [ \"4\", [ 3, 5 ] ] ]",
+  "o3 = new stzListClassifier([ \"שלום\", \"😀\", \"שלום\" ])",
+  "? @@( o3.Frequencies() )",
+  "#--> [ [ \"שלום\", 2 ], [ \"😀\", 1 ] ]"
+ ],
+ "see": [
+  "stzList",
+  "stzListDuplicates",
+  "stzListSplits"
+ ]
+}

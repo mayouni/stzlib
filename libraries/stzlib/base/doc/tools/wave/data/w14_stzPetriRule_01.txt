@@ -1,0 +1,1 @@
+init | Builds a named rule of the Petri-net governance, filed under the petri domain. | nothing; the object is built | pcName=the rule's name, such as place_can_be_marked | stzPetriRuleSet, stzPetriNet

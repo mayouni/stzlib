@@ -1,0 +1,31 @@
+{
+ "brief": "Watches a security ledger on a cadence and raises an alert only when a detection starts or stops firing.",
+ "detail": "A detection set judges when asked; the sentinel asks and turns the change of verdict into alerts. A detection is identified by its where text, so one account still under attack is not a new alert at each pass, and a returning attack, after a real clear, fires again. Each start records a case, a snapshot holding the finding, the ledger's head digest and the events nearest the firing; each start and clear is logged in the sentinel's own bounded log and announced on two process-wide event-bus channels. It runs three ways: Check on demand, Tick from any loop, or Cycle under an agent host. It reads the ledger and never writes into it. Test it on an in-memory ledger with invented events.",
+ "receiver": "o1 = StzSecuritySentinel(StzDefaultDetectionSet())",
+ "example": [
+  "oLed = StzSecurityLedger(64)",
+  "o1.Watching(oLed)",
+  "? o1.Check()",
+  "#--> 0",
+  "for i = 1 to 5",
+  "\toE = StzSecurityEvent(\"auth.login.failed\")",
+  "\toE.ByActorNamed(\"victim\", \"external\")",
+  "\toE.About(\"user:victim\")",
+  "\toE.Refused(\"scripted\")",
+  "\toE.OccurredAt(1785600000000 + (i * 3000))",
+  "\toLed.Record(oE)",
+  "next",
+  "? o1.Check()",
+  "#--> 1",
+  "? o1.ActiveDetections()[1]",
+  "#--> credential-stuffing/victim",
+  "? o1.Check()",
+  "#--> 0",
+  "oLed.Destroy()"
+ ],
+ "see": [
+  "stzAgentHost",
+  "stzSecurityLedger",
+  "stzResponsePlan"
+ ]
+}

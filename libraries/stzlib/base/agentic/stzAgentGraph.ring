@@ -16,6 +16,32 @@
 #   oAG.Traces("send", "audit")             # the effect leaves a witness
 #   ? oAG.IsSound()   ? oAG.Violations()
 
+# Declares a multi-agent composition as a colored graph and proves it sound before anything runs.
+#
+# Actors (program, language model, hybrid), guardians, effects, tools, trace sinks, inputs and human
+# checkpoints are nodes, each with a fixed capability set and a taint color; edges say who proposes
+# to, guards, feeds, traces or escalates to whom. The invariants checked are: a language-model actor
+# never holds the effectful capability, every effect has a guardian into it and a path to a trace
+# sink, open model text and external data never reach an effect without a guardian on the path.
+# Grant is the governed door, which refuses effectful for an llm actor at the moment it is
+# expressed, and a sealed record of what the doors granted lets Tampering report any property set
+# around them through GraphQ. Declaring an id again replaces the node.
+#
+#   receiver   o1 = new stzAgentGraph("mailer")
+#   example    o1.AddLLMActor("writer")
+#              o1.AddGuardian("gate")
+#              o1.AddEffect("send")
+#              o1.AddTraceSink("audit")
+#              ? o1.IsSound()
+#              #--> 0
+#              o1.Proposes("writer", "gate")
+#              o1.Guards("gate", "send")
+#              o1.Traces("send", "audit")
+#              ? o1.IsSound()
+#              #--> 1
+#              ? o1.MayGrant("writer", "effectful")
+#              #--> 0
+#   see        stzGraph, stzAgentHost, stzAgentRuleSet
 class stzAgentGraph from stzObject
 
 	@cName = ""
@@ -29,15 +55,34 @@ class stzAgentGraph from stzObject
 	# decision, and it can no longer go unseen.
 	@aSealed = []	# [ id, kind, [ capabilities ] ]
 
+	# Builds an empty composition of agents, drawn as a colored graph that can be proved sound before anything runs.
+	#
+	#   pcName     the composition's name, quoted in its verdicts
+	#   returns    nothing; the object is built
+	#   see        AddLLMActor, IsSound, Explain
 	def init(pcName)
 		@cName = "" + pcName
 		@oG = new stzGraph("agentgraph-" + pcName)
 
+	# Returns the underlying graph, for drawing or inspection.
+	#
+	#   returns    the stzGraph that holds the nodes and edges
+	#   note       a property set on it directly changes the picture but not the decisions, which
+	#              read a sealed record; Tampering reports the difference
+	#   see        Tampering, AddPIActor
 	def GraphQ()
 		return @oG
 
-	#-- nodes (the capability lattice + taint colours) ----------------------
-
+	# Adds a trusted actor that may produce effects, with the capabilities effectful, compute and sensing.
+	#
+	#   pcId       the node's id, trimmed and lower-cased
+	#   returns    nothing; use AddPIActorQ to chain
+	#   note       the id is lower-cased, so Boss and boss are one node
+	#   warning    declaring an id that already exists replaces its kind, capabilities and taint,
+	#              and the sealed record follows: an llm actor declared again as a pi actor is
+	#              accepted
+	#   see        AddLLMActor, AddEffect
+	#@ aka  -- nodes (the capability lattice + taint colours) ----------------------
 	def AddPIActor(pcId)
 		This._Node(pcId, "pi_actor", [ "effectful", "compute", "sensing" ], "trusted")
 
@@ -48,6 +93,14 @@ class stzAgentGraph from stzObject
 			This.AddPIActor(pcId)
 			return This
 
+	# Adds a language-model actor, which holds only the inference capability and whose output is tainted as open text.
+	#
+	#   pcId       the node's id, trimmed and lower-cased
+	#   returns    nothing; use AddLLMActorQ to chain
+	#   note       an llm actor proposes and never commits: it cannot be granted the effectful
+	#              capability
+	#   warning    declaring an id that already exists replaces its kind and capabilities
+	#   see        AddPIActor, Grant, MayGrant
 	def AddLLMActor(pcId)
 		This._Node(pcId, "llm_actor", [ "inference" ], "open_llm_text")
 
@@ -55,6 +108,12 @@ class stzAgentGraph from stzObject
 			This.AddLLMActor(pcId)
 			return This
 
+	# Adds an actor that mixes program and model, which holds the inference capability and whose output is tainted as open text.
+	#
+	#   pcId       the node's id, trimmed and lower-cased
+	#   returns    nothing; use AddHybridActorQ to chain
+	#   note       unlike an llm actor, it can be granted effectful through Grant
+	#   see        AddLLMActor, Grant
 	def AddHybridActor(pcId)
 		This._Node(pcId, "hybrid_actor", [ "inference" ], "open_llm_text")
 
@@ -62,6 +121,11 @@ class stzAgentGraph from stzObject
 			This.AddHybridActor(pcId)
 			return This
 
+	# Adds a guardian, the gate that validates what passes through it, with the capabilities compute and sensing.
+	#
+	#   pcId       the node's id, trimmed and lower-cased
+	#   returns    nothing; use AddGuardianQ to chain
+	#   see        Guards, AddEffect
 	def AddGuardian(pcId)
 		This._Node(pcId, "guardian", [ "compute", "sensing" ], "validated")
 
@@ -69,6 +133,12 @@ class stzAgentGraph from stzObject
 			This.AddGuardian(pcId)
 			return This
 
+	# Adds an effect, a node that changes the world, with the capability effectful.
+	#
+	#   pcId       the node's id, trimmed and lower-cased
+	#   returns    nothing; use AddEffectQ to chain
+	#   note       every effect owes a guardian edge into it and a path to a trace sink
+	#   see        Guards, Traces
 	def AddEffect(pcId)
 		This._Node(pcId, "effect", [ "effectful" ], "trusted")
 
@@ -76,6 +146,11 @@ class stzAgentGraph from stzObject
 			This.AddEffect(pcId)
 			return This
 
+	# Adds a tool, a node that computes, with the capability compute.
+	#
+	#   pcId       the node's id, trimmed and lower-cased
+	#   returns    nothing; use AddToolQ to chain
+	#   see        Feeds, AddEffect
 	def AddTool(pcId)
 		This._Node(pcId, "tool", [ "compute" ], "trusted")
 
@@ -83,6 +158,11 @@ class stzAgentGraph from stzObject
 			This.AddTool(pcId)
 			return This
 
+	# Adds a trace sink, the witness where effects leave a record, with the capability sensing.
+	#
+	#   pcId       the node's id, trimmed and lower-cased
+	#   returns    nothing; use AddTraceSinkQ to chain
+	#   see        Traces, AddEffect
 	def AddTraceSink(pcId)
 		This._Node(pcId, "trace_sink", [ "sensing" ], "trusted")
 
@@ -90,6 +170,13 @@ class stzAgentGraph from stzObject
 			This.AddTraceSink(pcId)
 			return This
 
+	# Adds an external input, a node with no capability whose data is tainted as external.
+	#
+	#   pcId       the node's id, trimmed and lower-cased
+	#   returns    nothing; use AddInputQ to chain
+	#   note       external data that reaches an effect with no guardian or validated checkpoint on
+	#              the path is a violation
+	#   see        Feeds, AddGuardian
 	def AddInput(pcId)
 		This._Node(pcId, "input", [], "external_data")
 
@@ -97,6 +184,11 @@ class stzAgentGraph from stzObject
 			This.AddInput(pcId)
 			return This
 
+	# Adds a human checkpoint, a node where a person validates, with the capability sensing.
+	#
+	#   pcId       the node's id, trimmed and lower-cased
+	#   returns    nothing; use AddCheckpointQ to chain
+	#   see        Escalates, AddGuardian
 	def AddCheckpoint(pcId)
 		This._Node(pcId, "human_checkpoint", [ "sensing" ], "validated")
 
@@ -143,9 +235,14 @@ class stzAgentGraph from stzObject
 		if _i_ = 0  return ""  ok
 		return @aSealed[_i_][2]
 
-	# Nodes whose graph properties no longer match the sealed record: a kind
-	# changed, or a capability present that no governed door granted.
-	# [ [ node, what, recorded, found ], ... ]
+	# Returns the nodes whose graph properties no longer match what the governed doors recorded.
+	#
+	#   returns    a list of rows, each a list of the node, what changed (kind, capability or node),
+	#              the recorded value and the value found; an empty list when untouched
+	#   note       a kind flipped or a capability added through GraphQ shows here and makes IsSound
+	#              answer FALSE
+	#   see        GraphQ, IsSound
+	#@ aka  Nodes whose graph properties no longer match the sealed record: a kind changed, or a capability present that no governed door granted. [ [ node, what, recorded, found ], ... ]
 	def Tampering()
 		_aOut_ = []
 		_n_ = len(@aSealed)
@@ -188,24 +285,60 @@ class stzAgentGraph from stzObject
 		next
 		return _aOut_
 
-	#-- edges (the meaning is the label) -------------------------------------
-
+	# Draws a proposes edge, from an actor to the node it submits its output to.
+	#
+	#   pcFrom     the id of the proposing node
+	#   pcTo       the id of the node it proposes to
+	#   returns    the graph itself, so calls chain
+	#   note       ids are trimmed and lower-cased
+	#   warning    raises an error when either node was not added first, and does nothing when the
+	#              edge already exists
+	#   see        Guards, Feeds
+	#@ aka  -- edges (the meaning is the label) -------------------------------------
 	def Proposes(pcFrom, pcTo)
 		This._Edge(pcFrom, pcTo, "proposes")
 		return This
 
+	# Draws a guards edge, from a guardian to the effect it stands in front of.
+	#
+	#   pcGuardian   the id of the guardian
+	#   pcEffect     the id of the effect it guards
+	#   returns      the graph itself, so calls chain
+	#   warning      raises an error when either node was not added first
+	#   see          Proposes, Traces
 	def Guards(pcGuardian, pcEffect)
 		This._Edge(pcGuardian, pcEffect, "guards")
 		return This
 
+	# Draws a feeds edge, from a node to the node that takes its data.
+	#
+	#   pcFrom     the id of the node that supplies data
+	#   pcTo       the id of the node that consumes it
+	#   returns    the graph itself, so calls chain
+	#   warning    raises an error when either node was not added first
+	#   see        Proposes, AddInput
 	def Feeds(pcFrom, pcTo)
 		This._Edge(pcFrom, pcTo, "feeds")
 		return This
 
+	# Draws a traces edge, from an effect to the sink that keeps its record.
+	#
+	#   pcEffect   the id of the effect
+	#   pcSink     the id of the trace sink
+	#   returns    the graph itself, so calls chain
+	#   warning    raises an error when either node was not added first
+	#   see        Guards, AddTraceSink
 	def Traces(pcEffect, pcSink)
 		This._Edge(pcEffect, pcSink, "traces")
 		return This
 
+	# Draws an escalates edge, from a node to the human checkpoint that takes over when it cannot decide.
+	#
+	#   pcFrom         the id of the node that escalates
+	#   pcCheckpoint   the id of the human checkpoint
+	#   returns        the graph itself, so calls chain
+	#   warning        raises an error when either node was not added first
+	#   see            Proposes, AddCheckpoint
 	def Escalates(pcFrom, pcCheckpoint)
 		This._Edge(pcFrom, pcCheckpoint, "escalates")
 		return This
@@ -217,18 +350,14 @@ class stzAgentGraph from stzObject
 			@oG.AddEdgeXTT(_cF_, _cT_, pcLabel, [ :type = "govern" ])
 		ok
 
-	#-- the CONSTRAINT: no-llm-effectful, refused at construction ------------
+	# TRUE if granting a capability to an actor would keep the graph sound, which is FALSE for effectful on an llm actor and for an unknown actor.
 	#
-	# Violations() below is the AUDIT -- it catches a bad graph after it is
-	# built. Grant() is the GATE: the governed way to add a capability, which
-	# REFUSES granting 'effectful' to an llm actor at the moment of expression,
-	# so the no-llm-effectful violation can never enter the graph through the
-	# sanctioned door. (A raw SetNodeProperty still bypasses it -- the audit
-	# stays the backstop -- but the composition API refuses.) This is the
-	# guardrail moving from audit to gate.
-
-	# TRUE when granting pcCap to pcActor would keep the graph sound w.r.t.
-	# no-llm-effectful (a queryable form of the constraint).
+	#   pcActor    the id of the actor, trimmed and lower-cased
+	#   pcCap      the capability, such as effectful
+	#   returns    TRUE or FALSE
+	#   note       it reads the sealed kind, so a kind flipped through GraphQ does not open the gate
+	#   see        Grant
+	#@ aka  -- the CONSTRAINT: no-llm-effectful, refused at construction ------------
 	def MayGrant(pcActor, pcCap)
 		_cA_ = StzLower(ring_trim("" + pcActor))
 		if NOT @oG.NodeExists(_cA_)
@@ -241,6 +370,15 @@ class stzAgentGraph from stzObject
 		ok
 		return 1
 
+	# Adds a capability to an actor through the governed door.
+	#
+	#   pcActor    the id of the actor
+	#   pcCap      the capability to add, such as compute
+	#   returns    nothing; use GrantQ to chain
+	#   note       granting a capability already held changes nothing
+	#   warning    raises an error for an actor that is not in the composition, and a refusal naming
+	#              the rule for effectful on an llm actor; a hybrid actor may be granted effectful
+	#   see        MayGrant, Tampering
 	def Grant(pcActor, pcCap)
 		This.GrantQ(pcActor, pcCap)
 
@@ -269,8 +407,14 @@ class stzAgentGraph from stzObject
 		ok
 		return This
 
-	#-- the proof (the three gates + four invariants, via meta/) --------------
-
+	# Returns every broken invariant of the composition, as a list of findings, empty when the composition is sound.
+	#
+	#   returns    a list of hash lists with the keys invariant, node, severity and message
+	#   note       the invariants are no-llm-effectful, effects-guarded, open-text-contained,
+	#              external-data-contained and effects-traced, plus governed-property-tampered for a
+	#              node edited around the gate
+	#   see        IsSound, Explain, ViolationsViaRules
+	#@ aka  -- the proof (the three gates + four invariants, via meta/) --------------
 	def Violations()
 		_aF_ = StzCheckAgentGraph(@oG)
 		_aT_ = This._TamperFindings("invariant")
@@ -284,15 +428,28 @@ class stzAgentGraph from stzObject
 	def CheckRules()
 		return This.ViolationsViaRules()
 
+	# TRUE if the rule-set check finds no violation.
+	#
+	#   returns    TRUE or FALSE
+	#   see        ViolationsViaRules, IsSound
 	def RulesAreSound()
 		return len(This.ViolationsViaRules()) = 0
 
-	# The invariants as a declared stzAgentRuleSet (graph-rules plan, phase 4) --
-	# the SAME four findings as Violations(), plus the stronger effects-dominated
-	# rule. Object-based, so a project can add its own agent invariants.
+	# Returns a new agent rule set, to which a project can add its own invariants.
+	#
+	#   returns    a stzAgentRuleSet holding the six built-in rules
+	#   note       the set is not bound to this graph: call its Check with the graph
+	#   see        ViolationsViaRules
+	#@ aka  The invariants as a declared stzAgentRuleSet (graph-rules plan, phase 4) -- the SAME four findings as Violations(), plus the stronger effects-dominated rule. Object-based, so a project can add its own agent invariants.
 	def RuleSetQ()
 		return StzAgentRuleSetQ()
 
+	# Returns the broken rules in the unified finding shape, so one report can collect them with any other graph.
+	#
+	#   returns    a list of hash lists with the keys rule, subject, where, severity and message
+	#   note       it also reports the effects-dominated rule and tampering; a tampering finding
+	#              names the node in subject, the others name agentic
+	#   see        Violations, RulesAreSound
 	def ViolationsViaRules()
 		_aF_ = StzAgentRuleSetQ().Check(@oG)
 		_aT_ = This._TamperFindings("rule")
@@ -300,10 +457,20 @@ class stzAgentGraph from stzObject
 		for _i_ = 1 to _n_  _aF_ + _aT_[_i_]  next
 		return _aF_
 
+	# TRUE if the composition breaks no invariant and no node was edited around the governed doors.
+	#
+	#   returns    TRUE or FALSE
+	#   note       it answers FALSE for an effect with no guardian or no trace, for an llm actor
+	#              that reaches an effect unguarded, and after Tampering finds a change
+	#   see        Violations, Tampering, Explain
 	def IsSound()
 		return StzAgentGraphIsSound(@oG) and len(This.Tampering()) = 0
 
-	# a readable verdict for the composition
+	# Returns a readable verdict: one sentence when governed, or the list of violations when refused.
+	#
+	#   returns    a text
+	#   see        Violations, IsSound
+	#@ aka  a readable verdict for the composition
 	def Explain()
 		_aV_ = This.Violations()
 		if len(_aV_) = 0

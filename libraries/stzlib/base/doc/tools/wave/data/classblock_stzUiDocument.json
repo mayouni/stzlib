@@ -1,0 +1,26 @@
+{
+ "brief": "Parses a .panel file, the interface as text, judges it with a court of four birth-checks, and projects it to RML, HTML or a laid-out panel.",
+ "detail": "A .panel file declares the projection only, boxes, sizes and colours, never a meaning. It has four kinds, PANEL (exactly one), BOX, TEXT and STYLE, written DEFINE <KIND> <name> ( fields ) RATIONALE \"...\", with every box named. The court checks closure (known fields and roles), reference resolution (every name a CHILDREN list gives is declared and placed), duplicate declaration and the round trip. IsClean is its verdict, Report and Diagnostics its findings; ToRml, ToHtml and ToPanel refuse a document that is not clean. ToPanel builds a laid-out stzPanel and opens no window. A CHILDREN cycle ends the process in the constructor today; see the warning on init.",
+ "receiver": "o1 = new stzUiDocument('DEFINE PANEL p ( SIZE [100, 80], CHILDREN [x] ) RATIONALE \"boxes only\"' + char(10) + 'DEFINE BOX x ( WIDTH 40, HEIGHT 30, SATISFIES [open_it] ) RATIONALE \"a box\"')",
+ "example": [
+  "? o1.IsClean()",
+  "#--> 1",
+  "? @@( o1.Names() )",
+  "#--> [ \"p\", \"x\" ]",
+  "oP = o1.ToPanel()",
+  "? @@( oP.BoxOf(\"x\") )",
+  "#--> [ 0, 0, 40, 30 ]",
+  "? @@( o1.SatisfiedIntents() )",
+  "#--> [ \"open_it\" ]",
+  "? @@( o1.Orphans() )",
+  "#--> [ \"p\" ]",
+  "o2 = new stzUiDocument(o1.ToText())",
+  "? o2.ToText() = o1.ToText()",
+  "#--> 1"
+ ],
+ "see": [
+  "stzPanel",
+  "stzUiProfile",
+  "stzWindow"
+ ]
+}

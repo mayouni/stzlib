@@ -1,0 +1,19 @@
+{
+ "brief": "Draws a score on the staff as musicians write it, as a list of marks first and an SVG picture second.",
+ "detail": "The layout is computed as data, with each notehead, accidental, rest, tie, beam, ledger line and barline as a row of Model, and only then written as SVG, so a guard can hold the model to the rules of notation without reading pixels. It draws one staff per instrument with a clef chosen by range, bar splitting with ties, beaming by the beat, key signatures read from the music or set (quarter tones included), key and metre changes at barlines, and percussion staves. The readers Meters, KeyChanges, Key, KeyName, Losses, Model, Bars, Systems and Clefs are filled by ToSVG, ToHTML or SaveAs. A pitch more than 5 cents from the nearest quarter tone is drawn there and listed in Losses. The drawings have not been seen by a musician (UNPERCEIVED).",
+ "receiver": "o1 = StzSoundStaffQ(StzSoundScoreOfQ(\"c e g c5 g e c ~\"))",
+ "example": [
+  "o1.ToSVG(\"Eight notes\")",
+  "? o1.Bars()",
+  "#--> 2",
+  "? o1.KeyName()",
+  "#--> C major (no sharps or flats)",
+  "? o1.Clefs()[1][2]",
+  "#--> treble"
+ ],
+ "see": [
+  "stzSoundScore",
+  "stzSoundUniverse",
+  "stzSoundNotation"
+ ]
+}

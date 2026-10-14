@@ -51,6 +51,29 @@ func StzStopwatch()
 func StzStopwatchXT(pcName)
 	return new stzStopwatch(pcName)
 
+# Measures elapsed time on the monotonic engine clock, with pause, laps, and export as an OpenTelemetry span.
+#
+# A stopwatch starts running when it is made. Pause leaves the paused time out, Resume carries on,
+# Stop also stamps the end of the span, and Start throws everything away and begins again. Elapsed
+# time is a number in the unit named by the method, taken from a clock that wall-clock changes
+# cannot move. A stopped stopwatch is exportable as an OpenTelemetry span with real W3C trace and
+# span ids, its laps as events, so a program can hand its timings to any OTLP backend. Assert ranges
+# and signs on live readings, never exact values.
+#
+#   receiver   o1 = new stzStopwatch("job")
+#   example    ? o1.IsRunning()
+#              #--> 1
+#              o1.Lap("first")
+#              o1.Stop()
+#              ? o1.NumberOfLaps()
+#              #--> 1
+#              ? o1.IsRunning()
+#              #--> 0
+#              ? o1.Record()[:name]
+#              #--> job
+#              ? o1.ElapsedNs() > 0
+#              #--> 1
+#   see        StzStopwatch, stzPerfProfile, stzPerfSeries
 class stzStopwatch from stzObject
 
 	@cName = ""
@@ -63,6 +86,11 @@ class stzStopwatch from stzObject
 	@aLaps = []
 	@oTraceCtx = ""	# W3C trace context, created on first need
 
+	# Builds a stopwatch that starts running at once, under a name that labels its span.
+	#
+	#   pcName     the span's name, kept as given
+	#   returns    nothing; the object is built
+	#   see        StzStopwatch, Name
 	def init(pcName)
 		if isString(pcName)
 			@cName = pcName
@@ -85,24 +113,38 @@ class stzStopwatch from stzObject
 		@bRunning = 1
 		@bStarted = 1
 
+	# Returns the name that labels this stopwatch's span.
+	#
+	#   returns    a text; empty when none was given
+	#   see        SetName, Record
 	def Name()
 		return @cName
 
+	# Sets the name of the span; a value that is not a text is ignored and the old name is kept.
+	#
+	#   pcName     the new name, as text
+	#   returns    the stopwatch itself, so calls chain
+	#   see        Name, init
 	def SetName(pcName)
 		if isString(pcName)
 			@cName = pcName
 		ok
 		return This
 
-	# -- The clock ------------------------------------------------
-
-	# Start() restarts from zero (fresh span, fresh laps, fresh wall
-	# anchor) -- the engine watch_start semantics. To continue after
-	# a Pause()/Stop() without discarding, use Resume().
+	# Restarts the stopwatch from zero, with no laps and a fresh start time, and leaves it running.
+	#
+	#   returns    the stopwatch itself, so calls chain
+	#   note       it throws away the time already counted; use Resume to carry on after a pause
+	#   see        Resume, Reset, Stop
+	#@ aka  -- The clock ------------------------------------------------
 	def Start()
 		This._Begin()
 		return This
 
+	# Stops counting without discarding what was counted, so the time spent paused is left out.
+	#
+	#   returns    the stopwatch itself, so calls chain; pausing twice changes nothing
+	#   see        Resume, Stop, IsRunning
 	def Pause()
 		This._Ensure()
 		if @bRunning
@@ -111,6 +153,10 @@ class stzStopwatch from stzObject
 		ok
 		return This
 
+	# Starts counting again after a pause or a stop and clears the span's end time, keeping the time already counted.
+	#
+	#   returns    the stopwatch itself, so calls chain
+	#   see        Pause, Start, Stop
 	def Resume()
 		This._Ensure()
 		if NOT @bRunning
@@ -120,25 +166,39 @@ class stzStopwatch from stzObject
 		ok
 		return This
 
-	# Stop() = Pause() + stamp the span's wall end, so the record /
-	# OTel export has a closed [start, end] interval.
+	# Pauses the stopwatch and stamps the span's end time, so the record and the export carry a closed interval.
+	#
+	#   returns    the stopwatch itself, so calls chain
+	#   see        Pause, Resume, Record
+	#@ aka  Stop() = Pause() + stamp the span's wall end, so the record / OTel export has a closed [start, end] interval.
 	def Stop()
 		This.Pause()
 		@nStopWallMs = StzEngineTimeWallMs()
 		return This
 
+	# Sets the elapsed time to zero, empties the laps and leaves the stopwatch paused, not running.
+	#
+	#   returns    the stopwatch itself, so calls chain
+	#   see        Start, Pause
 	def Reset()
 		This._Begin()
 		This.Pause()
 		@nAccumNs = 0
 		return This
 
+	# TRUE if the stopwatch is counting, FALSE once it is paused, stopped or reset.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Pause, Resume
 	def IsRunning()
 		This._Ensure()
 		return @bRunning
 
-	# -- Elapsed: numbers, monotonic, unit in the verb ------------
-
+	# Returns the time counted so far in nanoseconds, from the monotonic engine clock.
+	#
+	#   returns    a number
+	#   see        ElapsedUs, ElapsedMs, ElapsedS
+	#@ aka  -- Elapsed: numbers, monotonic, unit in the verb ------------
 	def ElapsedNs()
 		This._Ensure()
 		_nTotal_ = @nAccumNs
@@ -147,12 +207,24 @@ class stzStopwatch from stzObject
 		ok
 		return _nTotal_
 
+	# Returns the time counted so far in microseconds, as a number with a fraction.
+	#
+	#   returns    a number
+	#   see        ElapsedNs, ElapsedMs
 	def ElapsedUs()
 		return This.ElapsedNs() / 1000
 
+	# Returns the time counted so far in milliseconds, as a number with a fraction; the library's house unit.
+	#
+	#   returns    a number
+	#   see        ElapsedNs, ElapsedS, Lap
 	def ElapsedMs()
 		return This.ElapsedNs() / 1000000
 
+	# Returns the time counted so far in seconds, as a number with a fraction.
+	#
+	#   returns    a number
+	#   see        ElapsedMs, ElapsedNs
 	def ElapsedS()
 		return This.ElapsedNs() / 1000000000
 
@@ -160,10 +232,12 @@ class stzStopwatch from stzObject
 	def Elapsed()
 		return This.ElapsedMs()
 
-	# -- Laps -----------------------------------------------------
-
-	# A split reading without stopping: label + elapsed-at-lap (ms,
-	# monotonic) + a wall anchor for serialization.
+	# Records a split reading with a label and the elapsed milliseconds, without stopping the watch.
+	#
+	#   pcLabel    the split's label
+	#   returns    the stopwatch itself, so calls chain
+	#   see        Laps, NumberOfLaps
+	#@ aka  -- Laps -----------------------------------------------------
 	def Lap(pcLabel)
 		This._Ensure()
 		_cLabel_ = ""
@@ -174,16 +248,29 @@ class stzStopwatch from stzObject
 		@aLaps + _aLap_
 		return This
 
+	# Returns the splits recorded so far, oldest first.
+	#
+	#   returns    a list of hashlists with the keys label, atMs and wallMs
+	#   see        Lap, NumberOfLaps
 	def Laps()
 		This._Ensure()
 		return @aLaps
 
+	# Returns how many splits have been recorded since the last start or reset.
+	#
+	#   returns    a number
+	#   see        Laps, Lap
 	def NumberOfLaps()
 		This._Ensure()
 		return ring_len(@aLaps)
 
-	# -- The record (Softanza-native serialization) ---------------
-
+	# Returns the stopwatch as one hashlist, the library's own serialization of a span.
+	#
+	#   returns    a hashlist with the keys name, startWallMs, stopWallMs, durationMs, running and
+	#              laps; stopWallMs is 0 while the span is open
+	#   note       the wall times are epoch milliseconds; durationMs comes from the monotonic clock
+	#   see        ToOtelSpan, Stop
+	#@ aka  -- The record (Softanza-native serialization) ---------------
 	def Record()
 		This._Ensure()
 		return [
@@ -195,36 +282,64 @@ class stzStopwatch from stzObject
 			:laps = @aLaps
 		]
 
-	# -- W3C trace identity (engine tracectx) ---------------------
-
+	# Returns the W3C trace context object of this span, created on first use.
+	#
+	#   returns    a stzTraceContext
+	#   see        TraceId, SpanId, TraceParent
+	#@ aka  -- W3C trace identity (engine tracectx) ---------------------
 	def TraceContextQ()
 		if @oTraceCtx = ""
 			@oTraceCtx = new stzTraceContext()
 		ok
 		return @oTraceCtx
 
+	# Returns the 32-hex-digit trace identity of the span.
+	#
+	#   returns    a text of 32 hexadecimal digits; empty after JoinTrace with a header that is not
+	#              valid
+	#   see        SpanId, TraceParent, JoinTrace
 	def TraceId()
 		return This.TraceContextQ().TraceId()
 
+	# Returns the 16-hex-digit identity of this span inside its trace.
+	#
+	#   returns    a text of 16 hexadecimal digits; empty after JoinTrace with a header that is not
+	#              valid
+	#   see        TraceId, TraceParent
 	def SpanId()
 		return This.TraceContextQ().SpanId()
 
-	# The traceparent header value -- hand it to a downstream call
-	# (stzHttpClient.SetTraceParent) and the export joins one trace.
+	# Returns the W3C traceparent header value to hand to a downstream call so both join one trace.
+	#
+	#   returns    a text such as 00-<trace id>-<span id>-01
+	#   see        TraceId, JoinTrace
+	#@ aka  The traceparent header value -- hand it to a downstream call (stzHttpClient.SetTraceParent) and the export joins one trace.
 	def TraceParent()
 		return This.TraceContextQ().TraceParent()
 
-	# Adopt an incoming traceparent so this span joins an existing
-	# trace instead of opening a fresh one.
+	# Adopts the identity carried by an incoming traceparent header, so this span joins an existing trace.
+	#
+	#   pcTraceParent   the traceparent header text received from the caller
+	#   returns         the stopwatch itself, so calls chain
+	#   note            a valid header gives its trace and span ids back unchanged
+	#   warning         the header is not checked: garbage, a short header such as 00-abc-def-01 and
+	#                   an empty text leave TraceId and SpanId empty, TraceParent echoes the text as
+	#                   given, and the OTLP export then carries an empty traceId and spanId
+	#   see             TraceParent, TraceId
+	#@ aka  Adopt an incoming traceparent so this span joins an existing trace instead of opening a fresh one.
 	def JoinTrace(pcTraceParent)
 		@oTraceCtx = StzTraceContextFrom(pcTraceParent)
 		return This
 
-	# -- OpenTelemetry export (industry interop) ------------------
-
-	# The span as a hashlist in OTel vocabulary. Absolute anchors in
-	# unix NANOS as STRINGS (integer ms + "000000" -- exact, since
-	# f64 cannot hold epoch nanos); exact ns duration as an attribute.
+	# Returns the span in OpenTelemetry vocabulary, with its laps as events and its exact duration as an attribute.
+	#
+	#   returns    a hashlist with the keys name, traceId, spanId, kind, startTimeUnixNano,
+	#              endTimeUnixNano, attributes and events
+	#   note       the absolute times are epoch nanoseconds written as text (milliseconds followed
+	#              by 000000), because a number cannot hold them; a running watch is exported with
+	#              the current time as its end
+	#   see        ToOtelJson, Record
+	#@ aka  -- OpenTelemetry export (industry interop) ------------------
 	def ToOtelSpan()
 		This._Ensure()
 		_nEndWallMs_ = @nStopWallMs
@@ -252,7 +367,11 @@ class stzStopwatch from stzObject
 			:events = _aEvents_
 		]
 
-	# One OTLP-style span as a JSON string.
+	# Returns the span as one OTLP-style JSON text, ready for a backend that speaks OpenTelemetry.
+	#
+	#   returns    a text holding one JSON object
+	#   see        ToOtelSpan, TraceParent
+	#@ aka  One OTLP-style span as a JSON string.
 	def ToOtelJson()
 		_aSpan_ = This.ToOtelSpan()
 		_cEvents_ = ""
@@ -287,8 +406,11 @@ class stzStopwatch from stzObject
 		_cJson_ += ']}'
 		return _cJson_
 
-	# -- Legibility ----------------------------------------------
-
+	# Returns a short narration of the stopwatch: its name, state, elapsed milliseconds and one line per lap.
+	#
+	#   returns    a list of text lines
+	#   see        Show, Record
+	#@ aka  -- Legibility ----------------------------------------------
 	def Explain()
 		This._Ensure()
 		_aLines_ = []
@@ -313,6 +435,10 @@ class stzStopwatch from stzObject
 		ok
 		return _aLines_
 
+	# Prints the narration of the stopwatch, one line per row.
+	#
+	#   returns    nothing; it prints
+	#   see        Explain
 	def Show()
 		_aLines_ = This.Explain()
 		_nLen_ = ring_len(_aLines_)

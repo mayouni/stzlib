@@ -1,0 +1,18 @@
+{
+ "brief": "Counts things in a text: a fragment, overlapping fragments, regex matches, graphemes, marks and the characters of one script.",
+ "detail": "It is the counting helper of stzString, which builds one over itself for its Count family; build one with new stzStringCounter(\"text\") when you only need to count. Every count is by characters, so Hebrew, Arabic and emoji text counts as you expect, and every method answers a number and leaves the text alone. The script counts (CountHebrew, CountCyrillic, CountCjk, CountDevanagari, CountThai) and CountMarks, CountControls and GraphemeCount look at the whole text. Found today: CountBetween and CountBetweenCS raise R3 because they call a function that does not exist; CountOverlappingCS ignores its case flag; NumberOfCharsCS with 0 counts distinct letters; CountLeadingChar and CountTrailingChar stop the Ring process on an empty text; and a counter built from a stzString object reads an empty text once that string is appended to or replaced.",
+ "receiver": "o1 = new stzStringCounter(\"Banana banana\")",
+ "example": [
+  "? o1.Count(\"an\")",
+  "#--> 4",
+  "? o1.CountOverlapping(\"ana\")",
+  "#--> 4",
+  "o2 = new stzStringCounter(\"שלום עולם abc\")",
+  "? o2.CountHebrew()",
+  "#--> 8",
+  "o3 = new stzStringCounter(\"a😀b😀😀\")",
+  "? o3.Count(\"😀\")",
+  "#--> 3"
+ ],
+ "see": ["stzString", "stzStringFinder"]
+}

@@ -1,0 +1,18 @@
+{
+ "brief": "Carries out the ShedSource action of a response plan by blocking a source in a rate limiter.",
+ "detail": "A response plan proposes containment as data; a responder performs one verb for real once a committing actor approves. This one answers ShedSource only, by calling BlockFor on the limiter it holds, so the source is refused by Allow whether or not it had a limit. A duration of 0 blocks until the limiter's Unblock. Every other verb raises an error that names the responder to wire, rather than pretending. It holds the limiter by reference.",
+ "receiver": "oRL = new stzRateLimiter(\"front\")\no1 = new stzRateLimiterResponder(oRL, 0)",
+ "example": [
+  "o1.ShedSource(\"Flood-Source\")",
+  "? oRL.IsBlocked(\"flood-source\")",
+  "#--> 1",
+  "? oRL.Allow(\"flood-source\")",
+  "#--> 0",
+  "oRL.Destroy()"
+ ],
+ "see": [
+  "stzResponsePlan",
+  "stzRateLimiter",
+  "stzAuthResponder"
+ ]
+}

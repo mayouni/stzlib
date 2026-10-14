@@ -1,0 +1,22 @@
+{
+ "brief": "Answers questions about one small domain from recorded facts, refuses everything outside it, and can train a tiny neural model on its own sentences.",
+ "detail": "The first rung has no neurons: entities, relations and facts are kept as lists, every answer is a lookup with a reason, and a question about anything unknown is refused with the domain's name rather than guessed. It can be filled by hand, forged from a knowledge graph with StzDlmQ, and saved to a self-contained .zdlm file that another model reads back with LoadFrom. The second rung is a bigram network trained only on the sentences GenerateCorpus renders from the facts, with no remote teacher; it predicts and generates words but does not own the truth, which stays with Ask. Known limits today: names learned by hand are matched in lower case only, and the recorded laws are saved but not applied by Ask.",
+ "receiver": "o1 = new stzDLM(\"restaurant\")",
+ "example": [
+  "o1.LearnEntity(\"margherita\", \"dish\")",
+  "o1.LearnEntity(\"basil\", \"ingredient\")",
+  "o1.LearnFact(\"margherita\", \"contains\", \"basil\")",
+  "? o1.Ask(\"what is margherita\")",
+  "#--> Margherita is a dish.",
+  "? o1.Ask(\"margherita contains?\")",
+  "#--> Margherita contains basil.",
+  "? o1.Ask(\"what is the weather\")",
+  "#--> That is outside the 'restaurant' domain (I know 2 entities and 1 relations).",
+  "? o1.Complete(\"margherita\")[1]",
+  "#--> contains"
+ ],
+ "see": [
+  "stzKnowledgeGraph",
+  "StzDlmQ"
+ ]
+}

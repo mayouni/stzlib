@@ -1,0 +1,22 @@
+{
+ "brief": "Holds a list of [ start, end ] sections of positions and merges them: the included ones, the overlapping ones, or the touching ones.",
+ "detail": "A section is a pair of positions, [ 3, 7 ] meaning the third to the seventh. Build the list with new stzListOfSections(aSections), or with StzListOfSectionsQ or StzSectionsQ; the string module also builds one internally to merge the sections it finds, and stzListOfPairs hands one back through ToStzListOfSections. The verbs (Merge, MergeIncluded, MergeOverlapping, MergeContiguous) change the held sections in place, the Q form returning the object for chaining. Three things found today. Merge, MergeIncluded and MergeOverlapping sort the sections first and leave side-by-side neighbours apart ([ 1, 5 ] and [ 6, 8 ] stay two), while MergeContiguous joins neighbours but does not sort, so an unsorted input loses sections. And the past-tense forms (Merged, SectionsMerged, IncludedSectionsMerged, OverLappedSectionsMerged, ContiguousSectionsMerged) also change the object, because Copy returns the object itself. The pvt methods are the private helpers of the merges and cannot be called from outside.",
+ "receiver": "o1 = new stzListOfSections([ [ 10, 12 ], [ 1, 5 ], [ 4, 8 ], [ 20, 22 ], [ 11, 15 ] ])",
+ "example": [
+  "? @@( o1.Merged() )",
+  "#--> [ [ 1, 8 ], [ 10, 15 ], [ 20, 22 ] ]",
+  "o2 = new stzListOfSections([ [ 1, 4 ], [ 6, 8 ], [ 9, 10 ], [ 12, 13 ], [ 13, 15 ] ])",
+  "o2.MergeContiguous()",
+  "? @@( o2.Content() )",
+  "#--> [ [ 1, 4 ], [ 6, 10 ], [ 12, 15 ] ]",
+  "o3 = new stzListOfSections([ [ 1, 5 ], [ 6, 8 ] ])",
+  "o3.Merge()",
+  "? @@( o3.Content() )",
+  "#--> [ [ 1, 5 ], [ 6, 8 ] ]"
+ ],
+ "see": [
+  "stzListOfPairs",
+  "stzList",
+  "stzString"
+ ]
+}

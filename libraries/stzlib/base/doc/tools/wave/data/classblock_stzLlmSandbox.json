@@ -1,0 +1,22 @@
+{
+ "brief": "Stands in for a language-model port in tests, replaying seeded answers and counting calls, with no model and no network.",
+ "detail": "A port is any object with a Complete method that answers a hash list with ok, text and from. This one gives three things a real model cannot: determinism (a seeded prompt always gets the same answer), a measurable cost (the number of calls and an approximate token count, so a budget becomes an assertion) and offline use. A seeded answer is tried first, then a fragment rule, then the fallback; in strict mode, the default, anything else raises an error. It cannot reproduce the quality of a real model: use it for the shape of a pipeline, prompts assembled and answers parsed, and judge quality against the real thing separately. Its state lives in a shared table, so a copy of the object sees the same answers and calls.",
+ "receiver": "o1 = new stzLlmSandbox()",
+ "example": [
+  "o1.SeedAnswer(\"What is 2+2?\", \"4\")",
+  "o1.WhenPromptContains(\"summarise\", \"A short summary.\")",
+  "? o1.Complete(\"What is 2+2?\")[:text]",
+  "#--> 4",
+  "? o1.Complete(\"Please summarise this\")[:from]",
+  "#--> scripted",
+  "? o1.NumberOfCalls()",
+  "#--> 2",
+  "? o1.WasAskedAbout(\"SUMMARISE\")",
+  "#--> 1"
+ ],
+ "see": [
+  "stzDlmSource",
+  "stzServiceRegistry",
+  "stzDLM"
+ ]
+}

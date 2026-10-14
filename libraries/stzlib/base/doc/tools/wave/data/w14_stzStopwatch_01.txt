@@ -1,0 +1,26 @@
+init | Builds a stopwatch that starts running at once, under a name that labels its span. | nothing; the object is built | pcName=the span's name, kept as given; any non-text is ignored and the name stays empty | StzStopwatch, Name
+Name | Returns the name that labels this stopwatch's span. | a text; empty when none was given | | SetName, Record
+SetName | Sets the name of the span; a value that is not a text is ignored and the old name is kept. | the stopwatch itself, so calls chain | pcName=the new name, as text | Name, init
+Start | Restarts the stopwatch from zero, with no laps and a fresh start time, and leaves it running. | the stopwatch itself, so calls chain | | Resume, Reset, Stop | | it throws away the time already counted; use Resume to carry on after a pause
+Pause | Stops counting without discarding what was counted, so the time spent paused is left out. | the stopwatch itself, so calls chain; pausing twice changes nothing | | Resume, Stop, IsRunning
+Resume | Starts counting again after a pause or a stop and clears the span's end time, keeping the time already counted. | the stopwatch itself, so calls chain | | Pause, Start, Stop
+Stop | Pauses the stopwatch and stamps the span's end time, so the record and the export carry a closed interval. | the stopwatch itself, so calls chain | | Pause, Resume, Record
+Reset | Sets the elapsed time to zero, empties the laps and leaves the stopwatch paused, not running. | the stopwatch itself, so calls chain | | Start, Pause
+IsRunning | TRUE if the stopwatch is counting, FALSE once it is paused, stopped or reset. | TRUE or FALSE | | Pause, Resume
+ElapsedNs | Returns the time counted so far in nanoseconds, from the monotonic engine clock. | a number | | ElapsedUs, ElapsedMs, ElapsedS
+ElapsedUs | Returns the time counted so far in microseconds, as a number with a fraction. | a number | | ElapsedNs, ElapsedMs
+ElapsedMs | Returns the time counted so far in milliseconds, as a number with a fraction; the library's house unit. | a number | | ElapsedNs, ElapsedS, Lap
+ElapsedS | Returns the time counted so far in seconds, as a number with a fraction. | a number | | ElapsedMs, ElapsedNs
+Lap | Records a split reading with a label and the elapsed milliseconds, without stopping the watch. | the stopwatch itself, so calls chain | pcLabel=the split's label; a value that is not a text is recorded as an empty label | Laps, NumberOfLaps
+Laps | Returns the splits recorded so far, oldest first. | a list of hashlists with the keys label, atMs and wallMs | | Lap, NumberOfLaps
+NumberOfLaps | Returns how many splits have been recorded since the last start or reset. | a number | | Laps, Lap
+Record | Returns the stopwatch as one hashlist, the library's own serialization of a span. | a hashlist with the keys name, startWallMs, stopWallMs, durationMs, running and laps; stopWallMs is 0 while the span is open | | ToOtelSpan, Stop | | the wall times are epoch milliseconds; durationMs comes from the monotonic clock
+TraceContextQ | Returns the W3C trace context object of this span, created on first use. | a stzTraceContext | | TraceId, SpanId, TraceParent
+TraceId | Returns the 32-hex-digit trace identity of the span. | a text of 32 hexadecimal digits; empty after JoinTrace with a header that is not valid | | SpanId, TraceParent, JoinTrace
+SpanId | Returns the 16-hex-digit identity of this span inside its trace. | a text of 16 hexadecimal digits; empty after JoinTrace with a header that is not valid | | TraceId, TraceParent
+TraceParent | Returns the W3C traceparent header value to hand to a downstream call so both join one trace. | a text such as 00-<trace id>-<span id>-01 | | TraceId, JoinTrace
+JoinTrace | Adopts the identity carried by an incoming traceparent header, so this span joins an existing trace. | the stopwatch itself, so calls chain | pcTraceParent=the traceparent header text received from the caller | TraceParent, TraceId | the header is not checked: garbage, a short header such as 00-abc-def-01 and an empty text leave TraceId and SpanId empty, TraceParent echoes the text as given, and the OTLP export then carries an empty traceId and spanId | a valid header gives its trace and span ids back unchanged
+ToOtelSpan | Returns the span in OpenTelemetry vocabulary, with its laps as events and its exact duration as an attribute. | a hashlist with the keys name, traceId, spanId, kind, startTimeUnixNano, endTimeUnixNano, attributes and events | | ToOtelJson, Record | | the absolute times are epoch nanoseconds written as text (milliseconds followed by 000000), because a number cannot hold them; a running watch is exported with the current time as its end
+ToOtelJson | Returns the span as one OTLP-style JSON text, ready for a backend that speaks OpenTelemetry. | a text holding one JSON object | | ToOtelSpan, TraceParent
+Explain | Returns a short narration of the stopwatch: its name, state, elapsed milliseconds and one line per lap. | a list of text lines | | Show, Record
+Show | Prints the narration of the stopwatch, one line per row. | nothing; it prints | | Explain

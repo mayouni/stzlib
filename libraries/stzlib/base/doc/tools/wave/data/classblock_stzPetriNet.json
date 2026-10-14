@@ -1,0 +1,22 @@
+{
+ "brief": "Draws a Petri net whose state is on the picture, and plays the token game: transitions fire only when their input places hold enough tokens.",
+ "detail": "A place holds tokens, a transition moves them, and the same drawing read twice a moment apart shows two different facts. Places and transitions are typed nodes, arcs are directed edges with a weight, and the net is meant to be bipartite: an arc joins a place to a transition or a transition to a place, which the first of five rules reports when it does not. The token game is Tokens, SetTokens, Marking, IsEnabled, Enabled and Fire; a refused firing says which place is short and by how much, and a net never goes negative. Tokens are drawn inside the place, one to four as dots and more as the number, and published by RenderTokens. Not computed: reachability, boundedness and liveness in the full sense. Not here: inhibitor arcs, coloured tokens, timed transitions and priorities.",
+ "receiver": "o1 = new stzPetriNet(\"mutex\")",
+ "example": [
+  "o1.AddPlaceXT(\"idle\", \"Idle\", 3)",
+  "o1.AddPlace(\"busy\", \"Busy\")",
+  "o1.AddTransition(\"start\", \"Start\")",
+  "o1.ArcXT(\"idle\", \"start\", 2)",
+  "o1.Arc(\"start\", \"busy\")",
+  "? o1.IsEnabled(\"start\")",
+  "#--> 1",
+  "o1.Fire(\"start\")",
+  "? @@( o1.Marking() )",
+  "#--> [ [ \"idle\", 1 ], [ \"busy\", 1 ] ]",
+  "? o1.WhyNotEnabled(\"start\")",
+  "#--> place 'Idle' holds 1 and the arc wants 2",
+  "? len(o1.Enabled())",
+  "#--> 0"
+ ],
+ "see": ["stzPetriRuleSet", "stzDiagram", "stzFaultTree", "stzFamilyTree"]
+}

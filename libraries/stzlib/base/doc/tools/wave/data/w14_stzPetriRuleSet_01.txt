@@ -1,0 +1,1 @@
+init | Builds the Petri-net governance, the set of five rules a net is judged by. | nothing; the object is built | | stzPetriRule, StzPetriRuleSetQ, GovernanceFindings | the rules are arc_joins_place_and_transition, transition_has_input, transition_has_output, place_can_be_marked and transition_can_fire, in that order

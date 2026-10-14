@@ -1,0 +1,23 @@
+{
+ "brief": "Keeps the latest samples of a metric in a fixed-size window held by the engine, and answers statistics over it.",
+ "detail": "Recording is constant-time and the memory is fixed at creation: a series left running for a month costs what one left for an hour does. Past its capacity the oldest samples are overwritten, so Count says how many were ever recorded and Size how many are kept; every statistic answers over the kept window only. Percentile is exact (nearest rank), unlike the bucketed latency histogram: choose the histogram for an unbounded stream and the series for a windowed gauge. SlopePerMs is the leak detector. Call Destroy when done, because the samples live in the engine.",
+ "receiver": "o1 = new stzPerfSeries(4)",
+ "example": [
+  "for i = 1 to 6 o1.RecordAt(i * 1000, i * 10) next",
+  "? o1.Size()",
+  "#--> 4",
+  "? o1.Count()",
+  "#--> 6",
+  "? @@( o1.Values() )",
+  "#--> [ 30, 40, 50, 60 ]",
+  "? o1.Percentile(50)",
+  "#--> 40",
+  "? o1.SlopePerMs()",
+  "#--> 0.01"
+ ],
+ "see": [
+  "StzPerfSeries",
+  "stzPerfProfile",
+  "stzStopwatch"
+ ]
+}

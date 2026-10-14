@@ -1,0 +1,27 @@
+{
+ "brief": "Combines lists: opens sublists, appends, prepends, interleaves, zips and unzips, and takes the union, the intersection or the difference of two lists.",
+ "detail": "It is the combining helper of stzList, which builds one over itself for its MergeWith, AssociateWith, InterleaveWith, ZipWith and similar methods; build one with new stzListMerger when you only need to combine. It works on its own copy, so a stzList passed in is never changed. A verb (Merge, MergeWith, Flatten, InterleaveWith, PrependWith) changes the held list in place and returns nothing, its Q form returning the merger for chaining, while the past-tense form (Merged, MergedWith, Flattened, InterleavedWith, PrependedWith) returns the result and leaves the merger alone. Merge opens one level of sublists and Flatten opens them all. ZipWith stops at the shorter list, AssociateWith pads with an empty text. UnionWith, IntersectWith and DiffWith compare with case and take no case flag. Partition cuts into groups of the count divided by n, rounded up.",
+ "receiver": "o1 = new stzListMerger([ 1, [ 2, 3 ], [ 4, [ 5, 6 ] ] ])",
+ "example": [
+  "? @@( o1.Merged() )",
+  "#--> [ 1, 2, 3, 4, [ 5, 6 ] ]",
+  "? @@( o1.Flattened() )",
+  "#--> [ 1, 2, 3, 4, 5, 6 ]",
+  "o2 = new stzListMerger([ \"a\", \"b\", \"c\" ])",
+  "? @@( o2.ZipWith([ 1, 2, 3 ]) )",
+  "#--> [ [ \"a\", 1 ], [ \"b\", 2 ], [ \"c\", 3 ] ]",
+  "? @@( o2.InterleavedWith([ 1, 2, 3 ]) )",
+  "#--> [ \"a\", 1, \"b\", 2, \"c\", 3 ]",
+  "o3 = new stzListMerger([ 1, 2, 3, 4, 5 ])",
+  "? @@( o3.DiffWith([ 2, 4, 9 ]) )",
+  "#--> [ 1, 3, 5 ]",
+  "o4 = new stzListMerger([ \"שלום\", \"😀\" ])",
+  "? @@( o4.ZipWith([ \"a\", \"b\" ]) )",
+  "#--> [ [ \"שלום\", \"a\" ], [ \"😀\", \"b\" ] ]"
+ ],
+ "see": [
+  "stzList",
+  "stzListSplits",
+  "stzListComparator"
+ ]
+}

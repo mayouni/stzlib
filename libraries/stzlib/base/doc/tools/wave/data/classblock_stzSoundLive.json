@@ -1,0 +1,23 @@
+{
+ "brief": "Runs named live loops that can be redefined while they play, each change landing on the next cycle boundary.",
+ "detail": "A cycle is one bar of 4 beats. A loop's notes are posted a whole cycle at a time, well ahead of the render; a redefinition withdraws the loop's notes from the first cycle the producer has not reached and posts the new pattern from there, and the call returns that cycle. The console reports what was heard, not what was posted. Without CaptureInsteadOfDevice the session plays on a sound card through a transport, which was not run in this reference; with it, a producer thread renders into a ring that this session drains into a buffer, so no device is opened. In capture mode WaitCycles for longer than the buffer never returns. The sound has not been heard by a person (UNPERCEIVED): it is checked by frame count, sample rate and peak level, not by listening.",
+ "receiver": "o1 = StzSoundLiveQ(120)",
+ "example": [
+  "o1.CaptureInsteadOfDevice(6, FALSE)",
+  "? o1.OnDevice()",
+  "#--> 0",
+  "? o1.LiveLoopOn(:tune, \"c5 e5 g5 e5\", :Harp)",
+  "#--> 0",
+  "o1.WaitCycles(1)",
+  "? o1.HeardCycle()",
+  "#--> 1",
+  "? o1.ConsoleLog()[1][3]",
+  "#--> cycle 0 | tune v1",
+  "o1.Stop()"
+ ],
+ "see": [
+  "stzMusic",
+  "stzSoundPattern",
+  "stzSoundTransport"
+ ]
+}

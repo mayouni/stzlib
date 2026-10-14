@@ -36,6 +36,27 @@ func StzSamlIdentityProviderQ(pcEntityId)
 	return new stzSamlIdentityProvider(pcEntityId)
 
 
+# Issues signed SAML assertions for registered services, so a service provider can be developed and tested without an external identity provider.
+#
+# Assertions are signed by the engine with ECDSA-SHA256 over a P-256 key (random, or derived from a
+# seed for repeatable tests) or with RSA-SHA256 over a key you supply or generate. Only a registered
+# service can be the audience: an identity provider that vouches for any service that asks is an
+# open redirect for identity. Subject and audience are escaped for & < and > before they enter the
+# XML, so a subject holding markup cannot inject elements (checked with a quote, angle brackets and
+# an ampersand); the issuer entity id, set by the operator, is written as given. The private key
+# never leaves the object: PublicKey and TrustMeOn hand over only what a service provider needs. Use
+# invented identities and keys in tests.
+#
+#   receiver   o1 = new stzSamlIdentityProvider("https://idp.invented.test")
+#   example    o1.RegisterServiceProvider("https://sp.invented.test", "https://sp.invented.test/acs")
+#              ? o1.SigningAlgorithm()
+#              #--> ES256
+#              ? o1.ServiceProviderIds()[1]
+#              #--> https://sp.invented.test
+#              cXml = o1.UnsignedAssertion("a<b", "https://sp.invented.test", 1790000000, 300)
+#              ? len(StzFind("<saml:NameID>a&lt;b</saml:NameID>", cXml)) > 0
+#              #--> 1
+#   see        stzSamlServiceProvider
 class stzSamlIdentityProvider from stzObject
 
 	@cEntityId = ""
@@ -49,6 +70,13 @@ class stzSamlIdentityProvider from stzObject
 	@aSps = []            # [ [ entityId, acsUrl ], ... ] the services we vouch to
 	@nLifetimeSecs = 300  # how long an assertion stays valid (SAML windows are short)
 
+	# Builds an identity provider with a fresh random P-256 signing key.
+	#
+	#   pcEntityId   this provider's entity id, written as the issuer of every assertion
+	#   returns      nothing; the object is built
+	#   note         the issuer is written into the assertion as given, without XML escaping
+	#   warning      raises an error when pcEntityId is empty or only spaces
+	#   see          RegisterServiceProvider, TrustMeOn
 	def init(pcEntityId)
 		@cEntityId = ring_trim("" + pcEntityId)
 		if @cEntityId = ""
@@ -57,13 +85,22 @@ class stzSamlIdentityProvider from stzObject
 		@aSps = []
 		This.UseSeedQ("")
 
-	  #-- identity + key ---------------------------------------------------
-
+	# Returns this provider's entity id, the issuer of its assertions.
+	#
+	#   returns    a text
+	#   see        init
+	#@ aka  -- identity + key ---------------------------------------------------
 	def EntityId()
 		return @cEntityId
 
-	# a deterministic key from a 32-byte hex seed ("" = random), so a test suite
-	# can pin an IdP and reproduce its assertions.
+	# Replaces the signing key with an ES256 key derived from a seed, so assertions can be reproduced in a test.
+	#
+	#   pcSeedHex   the 32-byte seed as 64 hex characters, or an empty text for a random key
+	#   returns     nothing; use UseSeedQ to chain
+	#   note        the same seed always gives the same public key
+	#   warning     raises an error when the seed is not valid hex
+	#   see         UseRsaKey, PublicKey
+	#@ aka  a deterministic key from a 32-byte hex seed ("" = random), so a test suite can pin an IdP and reproduce its assertions.
 	def UseSeed(pcSeedHex)
 		This.UseSeedQ(pcSeedHex)
 
@@ -81,12 +118,21 @@ class stzSamlIdentityProvider from stzObject
 		@cY = _a_[3]
 		return This
 
+	# Returns the signature algorithm in use.
+	#
+	#   returns    the text ES256, or RS256 after an RSA key was set
+	#   see        UseSeed, UseRsaKey
 	def SigningAlgorithm()
 		return @cAlg
 
-	# Sign assertions RSA-SHA256 with a key you already have. This is the one that
-	# matters in practice: a good number of enterprise service providers accept RSA
-	# only, so an ECDSA-only IdP simply cannot federate with them.
+	# Signs assertions RSA-SHA256 with a private key you supply, for service providers that accept RSA only.
+	#
+	#   pcPem      the RSA private key as PEM text
+	#   returns    nothing; use UseRsaKeyQ to chain
+	#   note       the EC key material is cleared, so KeyX and KeyY answer an empty text afterwards
+	#   warning    raises an error when the PEM cannot be read
+	#   see        UseNewRsaKey, SigningAlgorithm
+	#@ aka  Sign assertions RSA-SHA256 with a key you already have. This is the one that matters in practice: a good number of enterprise service providers accept RSA only, so an ECDSA-only IdP simply cannot federate with them.
 	def UseRsaKey(pcPem)
 		This.UseRsaKeyQ(pcPem)
 
@@ -104,26 +150,53 @@ class stzSamlIdentityProvider from stzObject
 		@cD = ""
 		return This
 
+	# Generates a fresh RSA key and signs with it from now on.
+	#
+	#   nBits      the key size in bits, from 2048 to 4096
+	#   returns    nothing; use UseNewRsaKeyQ to chain
+	#   note       for development and first runs
+	#   warning    raises an error for a size outside 2048 to 4096; generating a key takes a moment
+	#   see        UseRsaKey, PublicKey
 	def UseNewRsaKey(nBits)
 		This.UseNewRsaKeyQ(nBits)
 
 	def UseNewRsaKeyQ(nBits)
 		return This.UseRsaKeyQ( StzRsaKeyPair(nBits)[:privateKey] )
 
-	# the PUBLIC half -- what a service provider needs to verify us.
+	# Returns the public half of the signing key, which is all a service provider needs to verify.
+	#
+	#   returns    a hash list with kty EC and crv, x, y, or kty RSA and n, e
+	#   see        TrustMeOn, KeyX
+	#@ aka  the PUBLIC half -- what a service provider needs to verify us.
 	def PublicKey()
 		if @cAlg = "RS256"
 			return [ :kty = "RSA", :n = @cN, :e = @cE ]
 		ok
 		return [ :kty = "EC", :crv = "P-256", :x = @cX, :y = @cY ]
 
+	# Returns the x coordinate of the public EC key in base64url, or an empty text under RSA.
+	#
+	#   returns    a text
+	#   see        KeyY, PublicKey
 	def KeyX()
 		return @cX
 
+	# Returns the y coordinate of the public EC key in base64url, or an empty text under RSA.
+	#
+	#   returns    a text
+	#   see        KeyX, PublicKey
 	def KeyY()
 		return @cY
 
-	# hand a service provider everything it needs to trust us, in one call.
+	# Makes a service provider trust this identity provider, passing it the entity id and the public key.
+	#
+	#   poServiceProvider   the stzSamlServiceProvider that is to trust this issuer
+	#   returns             the identity provider itself, so calls chain
+	#   note                the key handed over is the one in use at the call: change the key and
+	#                       call it again to follow; the service provider's earlier trust is
+	#                       replaced
+	#   see                 PublicKey, RegisterServiceProvider
+	#@ aka  hand a service provider everything it needs to trust us, in one call.
 	def TrustMeOn(poServiceProvider)
 		if @cAlg = "RS256"
 			poServiceProvider.TrustIdpQ(@cEntityId, "RSA", @cN, @cE)
@@ -132,6 +205,12 @@ class stzSamlIdentityProvider from stzObject
 		ok
 		return This
 
+	# Sets, in seconds, how long a new assertion stays valid.
+	#
+	#   pnSecs     the validity of each assertion in seconds
+	#   returns    nothing; use SetLifetimeQ to chain
+	#   note       the default is 300 seconds
+	#   see        Lifetime, IssueAssertionXT
 	def SetLifetime(pnSecs)
 		This.SetLifetimeQ(pnSecs)
 
@@ -139,11 +218,22 @@ class stzSamlIdentityProvider from stzObject
 		@nLifetimeSecs = pnSecs
 		return This
 
+	# Returns how long a new assertion stays valid, in seconds.
+	#
+	#   returns    a number
+	#   see        SetLifetime
 	def Lifetime()
 		return @nLifetimeSecs
 
-	  #-- the services we vouch for ----------------------------------------
-
+	# Registers a service this provider may vouch for.
+	#
+	#   pcEntityId   the service provider's entity id, trimmed
+	#   pcAcsUrl     its assertion consumer URL
+	#   returns      the identity provider itself, so calls chain
+	#   note         only a registered entity id can be the audience of an assertion
+	#   warning      raises an error for an empty entity id and for one already registered
+	#   see          HasServiceProvider, IssueAssertion
+	#@ aka  -- the services we vouch for ----------------------------------------
 	def RegisterServiceProvider(pcEntityId, pcAcsUrl)
 		_id_ = ring_trim("" + pcEntityId)
 		if _id_ = ""
@@ -155,6 +245,11 @@ class stzSamlIdentityProvider from stzObject
 		@aSps + [ _id_, "" + pcAcsUrl ]
 		return This
 
+	# TRUE if a service of that entity id is registered.
+	#
+	#   pcEntityId   the service provider's entity id, trimmed before the comparison
+	#   returns      TRUE or FALSE
+	#   see          RegisterServiceProvider, ServiceProviderIds
 	def HasServiceProvider(pcEntityId)
 		_id_ = ring_trim("" + pcEntityId)
 		_n_ = len(@aSps)
@@ -165,6 +260,10 @@ class stzSamlIdentityProvider from stzObject
 		next
 		return 0
 
+	# Returns the entity ids of the registered services, in registration order.
+	#
+	#   returns    a list of texts
+	#   see        RegisterServiceProvider, AcsUrlOf
 	def ServiceProviderIds()
 		_out_ = []
 		_n_ = len(@aSps)
@@ -173,6 +272,11 @@ class stzSamlIdentityProvider from stzObject
 		next
 		return _out_
 
+	# Returns the consumer URL a service was registered with, or an empty text for an unknown service.
+	#
+	#   pcEntityId   the service provider's entity id
+	#   returns      a text
+	#   see          RegisterServiceProvider
 	def AcsUrlOf(pcEntityId)
 		_id_ = ring_trim("" + pcEntityId)
 		_n_ = len(@aSps)
@@ -183,12 +287,29 @@ class stzSamlIdentityProvider from stzObject
 		next
 		return ""
 
-	  #-- issuing ----------------------------------------------------------
-
-	# A signed assertion for a subject, addressed to a registered service.
+	# Returns a signed assertion XML vouching for a subject to a registered service, valid from now.
+	#
+	#   pcSubject    the subject name, trimmed
+	#   pcAudience   the entity id of a registered service
+	#   returns      a text holding the signed XML
+	#   note         the subject is escaped for & < and > in the XML; a quote is left as it is,
+	#                which element content allows
+	#   warning      raises an error for an empty subject, an empty audience, and an audience that
+	#                is not registered
+	#   see          IssueAssertionAt, IssueAssertionXT, IssueResponse
+	#@ aka  -- issuing ----------------------------------------------------------
 	def IssueAssertion(pcSubject, pcAudience)
 		return This.IssueAssertionAt(pcSubject, pcAudience, This._NowSecs())
 
+	# Returns a signed assertion XML whose validity starts at a given moment.
+	#
+	#   pcSubject    the subject name
+	#   pcAudience   the entity id of a registered service
+	#   pnNow        the start of validity in epoch seconds
+	#   returns      a text holding the signed XML
+	#   note         the window ends Lifetime seconds after pnNow
+	#   warning      raises the same errors as IssueAssertion
+	#   see          IssueAssertion, IssueAssertionXT
 	def IssueAssertionAt(pcSubject, pcAudience, pnNow)
 		return This.IssueAssertionXT(pcSubject, pcAudience, pnNow, @nLifetimeSecs)
 
@@ -219,8 +340,18 @@ class stzSamlIdentityProvider from stzObject
 		ok
 		return _signed_
 
-	# the assertion before signing -- exposed because seeing it makes the shape
-	# obvious, and because a test can sign a deliberately odd one.
+	# Returns the assertion XML before it is signed, with the subject and audience escaped for & < and >.
+	#
+	#   pcSubject    the subject name
+	#   pcAudience   the audience entity id
+	#   pnNow        the start of validity in epoch seconds
+	#   pnLifetime   the length of validity in seconds
+	#   returns      a text holding the XML, with no signature
+	#   note         the registration of the audience is not checked here; a subject such as
+	#                a"b<c>&d gives a"b&lt;c&gt;&amp;d in the NameID element, so markup cannot be
+	#                injected through the subject
+	#   see          IssueAssertionXT
+	#@ aka  the assertion before signing -- exposed because seeing it makes the shape obvious, and because a test can sign a deliberately odd one.
 	def UnsignedAssertion(pcSubject, pcAudience, pnNow, pnLifetime)
 		_id_ = "_" + StzEngineCryptoRandomHex(16)
 		return '<saml:Assertion xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" ' +
@@ -235,13 +366,33 @@ class stzSamlIdentityProvider from stzObject
 		       'SessionIndex="' + StzEngineCryptoRandomHex(8) + '"/>' +
 		       '</saml:Assertion>'
 
-	# the same, base64'd the way a browser would POST it to the SP.
+	# Returns a signed assertion encoded in base64url, ready to post to the service provider.
+	#
+	#   pcSubject    the subject name
+	#   pcAudience   the entity id of a registered service
+	#   returns      a text
+	#   note         the encoding is url-safe base64, which stzSamlServiceProvider accepts
+	#   warning      raises the same errors as IssueAssertion
+	#   see          IssueResponseAt, IssueAssertion
+	#@ aka  the same, base64'd the way a browser would POST it to the SP.
 	def IssueResponse(pcSubject, pcAudience)
 		return StzB64UrlEncode(This.IssueAssertion(pcSubject, pcAudience))
 
+	# Returns a signed assertion in base64url whose validity starts at a given moment.
+	#
+	#   pcSubject    the subject name
+	#   pcAudience   the entity id of a registered service
+	#   pnNow        the start of validity in epoch seconds
+	#   returns      a text
+	#   warning      raises the same errors as IssueAssertion
+	#   see          IssueResponse, IssueAssertionAt
 	def IssueResponseAt(pcSubject, pcAudience, pnNow)
 		return StzB64UrlEncode(This.IssueAssertionAt(pcSubject, pcAudience, pnNow))
 
+	# Prints the provider's entity id and how many services are registered.
+	#
+	#   returns    nothing; it prints a line
+	#   see        RegisterServiceProvider
 	def Show()
 		? "stzSamlIdentityProvider(" + @cEntityId + ", " + len(@aSps) + " service(s))"
 

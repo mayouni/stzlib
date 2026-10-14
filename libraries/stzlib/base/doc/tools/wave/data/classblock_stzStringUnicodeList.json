@@ -1,0 +1,20 @@
+{
+ "brief": "Holds a list of Unicode code points and turns it into characters, text and per-script checks.",
+ "detail": "Reach for it when you hold numbers such as 1513 and want the text, or hold a text's code points and want to ask whether they are all letters, digits, symbols or in one script. It is built with StzStringUnicodeListQ(aList); stzString does not hand one out. The list is validated at birth: every item must be a number from 0 to 1114111. The AllAre... checks build the text of the code points and ask the engine, so one check on a long list costs a string build; they answer FALSE for an empty list. Sorted, Unique and Reversed return new lists and never change the one held.",
+ "receiver": "o1 = StzStringUnicodeListQ([ 72, 105 ])",
+ "example": [
+  "? o1.ToString()",
+  "#--> Hi",
+  "? @@( o1.UnicodesAndChars() )",
+  "#--> [ [ 72, \"H\" ], [ 105, \"i\" ] ]",
+  "o2 = StzStringUnicodeListQ([ 1513, 1500, 1493, 1501 ])",
+  "? o2.ToString()",
+  "#--> שלום",
+  "? o2.AllAreHebrew()",
+  "#--> 1",
+  "o3 = StzStringUnicodeListQ([ 128512, 97, 128512 ])",
+  "? @@( o3.Chars() )",
+  "#--> [ \"😀\", \"a\", \"😀\" ]"
+ ],
+ "see": ["stzString", "StzChar", "stzChar"]
+}

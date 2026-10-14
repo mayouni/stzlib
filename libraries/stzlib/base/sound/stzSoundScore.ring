@@ -41,6 +41,27 @@ func StzSoundScoreQ()
 func StzSoundScoreOfQ(pcNotes)
 	return new stzSoundScore(pcNotes)
 
+# Holds music as data: a flat list of timed notes, rests and drum strokes, measured in beats rather than seconds.
+#
+# Everything from one note to a whole piece is the same type, so Then, Together, Repeat, On and
+# Transpose work on all of it. An event is [ startBeat, beats, hz, instrument, velocity, stroke,
+# glideEndHz ]. The performance settings Tempo, Quantize and Swing turn beats into frames only when
+# a sound is made, in FrameOf, so one score can be rendered at two speeds or swung and straight
+# without being rewritten. A refused call leaves the score unchanged, counts in Refusals and
+# explains itself in LastError. ToSound renders to memory with no audio device; Play goes live
+# through the scheduler. The result has not been heard by a person (UNPERCEIVED): it is checked by
+# frame count, sample rate and peak level.
+#
+#   receiver   o1 = new stzSoundScore("c e g c5")
+#   example    ? o1.Beats()
+#              #--> 4
+#              ? o1.Seconds()
+#              #--> 2
+#              ? o1.Contour()
+#              #--> U U U
+#              ? o1.ToSound().SampleRate()
+#              #--> 48000
+#   see        stzSoundScoreRenderer, stzSoundScheduler, stzSound
 class stzSoundScore
 
 	@aEvents = []          # [ startBeat, beats, hz, instrument, velocity, stroke ]
@@ -54,14 +75,27 @@ class stzSoundScore
 	@cLastError = ""
 	@nRefusals = 0
 
+	# Builds a score, empty or filled from space-separated note names of one beat each.
+	#
+	#   pcNotes    space-separated note names, ~ for a rest, or an empty text for an empty score
+	#   returns    nothing; the object is built
+	#   note       the octave carries from one name to the next
+	#   warning    a name that is not a note is skipped and counted in Refusals
+	#   see        AddNotes, StzSoundScoreOfQ
 	def init(pcNotes)
 		if NOT isString(pcNotes) or ring_trim(pcNotes) = ""  return ok
 		This.AddNotes(pcNotes)
 
-	#-- building ------------------------------------------------------------
-
-	# One pitched note, after everything already in the score. `pNote` is a
-	# note name ("A4", "C#3", "Bb2", "D4+50") or a frequency in Hz.
+	# Appends one pitched note after everything already in the score.
+	#
+	#   pNote      a note name such as A4, C#3, Bb2 or D4+50, or a frequency in hertz
+	#   pnBeats    the length of the note in beats
+	#   returns    the score itself, so calls chain
+	#   note       the note takes the instrument named by On and the velocity set by SetVelocity
+	#   warning    a name or length that is refused leaves the score unchanged, counts in Refusals
+	#              and sets LastError
+	#   see        NoteAt, AddNotes, Rest
+	#@ aka  -- building ------------------------------------------------------------
 	def Note(pNote, pnBeats)
 		_hz_ = pNote
 		if isString(pNote)
@@ -79,8 +113,19 @@ class stzSoundScore
 	def NoteQ(pNote, pnBeats)
 		return This.Note(pNote, pnBeats)
 
-	# MU4: a note whose pitch MOVES from one pitch to another over its whole
-	# length -- a meend, a Zarma slide, a kalangu's squeezed tone. Names or Hz.
+	# Adds a note whose pitch slides from one pitch to another over its whole length, at an explicit beat.
+	#
+	#   pnBeat     the beat where the glide starts, 0 or later
+	#   pFrom      the starting pitch, a note name or a frequency
+	#   pTo        the ending pitch, a note name or a frequency
+	#   pnBeats    the length of the glide in beats
+	#   returns    the score itself, so calls chain
+	#   note       the score length grows to cover the glide
+	#   warning    refused, with LastError set, for a bad pitch, beat or length; a pluck or an FM
+	#              instrument (guitar, harp) refuses to render a glide, so that note is missing from
+	#              ToSound
+	#   see        NoteAt, Note
+	#@ aka  MU4: a note whose pitch MOVES from one pitch to another over its whole length -- a meend, a Zarma slide, a kalangu's squeezed tone. Names or Hz.
 	def GlideAt(pnBeat, pFrom, pTo, pnBeats)
 		_a_ = pFrom
 		if isString(pFrom)  _a_ = StzNoteToHz(pFrom) ok
@@ -99,8 +144,16 @@ class stzSoundScore
 		if pnBeat + pnBeats > @nBeats  @nBeats = pnBeat + pnBeats ok
 		return This
 
-	# MU3: a note at an explicit beat, for a score built from a pattern. It
-	# does not move where the next Note() goes; the length grows to cover it.
+	# Adds a pitched note at an explicit beat without moving where the next appended note goes.
+	#
+	#   pnBeat     the beat where the note starts, 0 or later
+	#   pNote      a note name or a frequency in hertz
+	#   pnBeats    the length of the note in beats
+	#   returns    the score itself, so calls chain
+	#   note       the score length grows to cover the note
+	#   warning    refused, with LastError set, for a bad pitch, beat or length
+	#   see        Note, StrokeAt
+	#@ aka  MU3: a note at an explicit beat, for a score built from a pattern. It does not move where the next Note() goes; the length grows to cover it.
 	def NoteAt(pnBeat, pNote, pnBeats)
 		_hz_ = pNote
 		if isString(pNote)  _hz_ = StzNoteToHz(pNote) ok
@@ -117,6 +170,16 @@ class stzSoundScore
 		if pnBeat + pnBeats > @nBeats  @nBeats = pnBeat + pnBeats ok
 		return This
 
+	# Adds a drum stroke at an explicit beat without moving where the next appended note goes.
+	#
+	#   pnBeat     the beat where the stroke starts, 0 or later
+	#   pStroke    the stroke name: dum, tak, ka, kick, snare, hihat, hat, crash, ride, hightom,
+	#              midtom, floortom or openhat
+	#   pnBeats    the length of the stroke in beats
+	#   returns    the score itself, so calls chain
+	#   note       the stroke's pitch is 0, so the drum instrument decides it
+	#   warning    an unknown stroke name is refused, with LastError set
+	#   see        Stroke, NoteAt
 	def StrokeAt(pnBeat, pStroke, pnBeats)
 		_s_ = lower("" + pStroke)
 		if ring_find([ "dum", "tak", "ka", "kick", "snare", "hihat", "hat", "crash", "ride", "hightom", "midtom", "floortom", "openhat" ], _s_) = 0
@@ -132,12 +195,24 @@ class stzSoundScore
 		if pnBeat + pnBeats > @nBeats  @nBeats = pnBeat + pnBeats ok
 		return This
 
-	# The length in beats, set outright -- a pattern's cycles end where they
-	# end, whatever their last note does.
+	# Sets the length of the score in beats outright, whatever its last note does.
+	#
+	#   pnBeats    the new length in beats, 0 or more
+	#   returns    the score itself, so calls chain
+	#   note       it can shorten the score below its last note
+	#   warning    a negative or non-numeric value is ignored without a refusal
+	#   see        Beats, Rest
+	#@ aka  The length in beats, set outright -- a pattern's cycles end where they end, whatever their last note does.
 	def SetLength(pnBeats)
 		if isNumber(pnBeats) and pnBeats >= 0  @nBeats = pnBeats ok
 		return This
 
+	# Adds silence of the given length after everything already in the score.
+	#
+	#   pnBeats    the length of the silence in beats
+	#   returns    the score itself, so calls chain
+	#   warning    a length that is not positive is refused, with LastError set
+	#   see        Note, SetLength
 	def Rest(pnBeats)
 		if NOT This._GoodBeats(pnBeats, "Rest")  return This ok
 		@nBeats += pnBeats
@@ -146,8 +221,16 @@ class stzSoundScore
 	def RestQ(pnBeats)
 		return This.Rest(pnBeats)
 
-	# A struck sound on a membrane -- :dum, :tak, :ka, or :kick, :snare, :hihat
-	# on the kit. Which drum strikes it is the instrument's business (On).
+	# Appends one drum stroke after everything already in the score.
+	#
+	#   pStroke    the stroke name: dum, tak, ka, kick, snare, hihat, hat, crash, ride, hightom,
+	#              midtom, floortom or openhat
+	#   pnBeats    the length of the stroke in beats
+	#   returns    the score itself, so calls chain
+	#   note       which drum strikes it is decided by the instrument named in On
+	#   warning    an unknown stroke name is refused, with LastError set
+	#   see        StrokeAt, On
+	#@ aka  A struck sound on a membrane -- :dum, :tak, :ka, or :kick, :snare, :hihat on the kit. Which drum strikes it is the instrument's business (On).
 	def Stroke(pStroke, pnBeats)
 		_s_ = lower("" + pStroke)
 		if ring_find([ "dum", "tak", "ka", "kick", "snare", "hihat", "hat", "crash", "ride", "hightom", "midtom", "floortom", "openhat" ], _s_) = 0
@@ -162,7 +245,14 @@ class stzSoundScore
 	def StrokeQ(pStroke, pnBeats)
 		return This.Stroke(pStroke, pnBeats)
 
-	# Space-separated names, one beat each; the octave carries; ~ rests.
+	# Appends space-separated note names of one beat each, where the octave carries and ~ is a rest.
+	#
+	#   pcNotes    the note names, such as c e g c5, with ~ for a one-beat rest
+	#   returns    the score itself, so calls chain
+	#   note       in c e g c5 the first three are octave 4 and a following e would be e5
+	#   warning    a word that is not a note is skipped, counted in Refusals and named in LastError
+	#   see        Note, init
+	#@ aka  Space-separated names, one beat each; the octave carries; ~ rests.
 	def AddNotes(pcNotes)
 		_aTok_ = This._Words("" + pcNotes)
 		_oct_ = "4"
@@ -184,9 +274,14 @@ class stzSoundScore
 	def AddNotesQ(pcNotes)
 		return This.AddNotes(pcNotes)
 
-	#-- the algebra ---------------------------------------------------------
-
-	# SEQUENCE: the other score starts where this one ends.
+	# Appends another score so that it starts where this one ends.
+	#
+	#   poScore    the stzSoundScore to play after this one
+	#   returns    the score itself, so calls chain
+	#   note       the other score is copied, so changing it later does not change this one
+	#   warning    anything but a stzSoundScore is refused, with LastError set
+	#   see        Together, Repeat
+	#@ aka  -- the algebra ---------------------------------------------------------
 	def Then(poScore)
 		if NOT This._IsScore(poScore, "Then")  return This ok
 		for _e_ in poScore.Events()
@@ -200,8 +295,14 @@ class stzSoundScore
 	def ThenQ(poScore)
 		return This.Then(poScore)
 
-	# PARALLEL: the other score starts where this one starts. The length is
-	# the longer of the two.
+	# Overlays another score so that it starts where this one starts.
+	#
+	#   poScore    the stzSoundScore to play at the same time
+	#   returns    the score itself, so calls chain
+	#   note       the length becomes the longer of the two
+	#   warning    anything but a stzSoundScore is refused, with LastError set
+	#   see        Then
+	#@ aka  PARALLEL: the other score starts where this one starts. The length is the longer of the two.
 	def Together(poScore)
 		if NOT This._IsScore(poScore, "Together")  return This ok
 		for _e_ in poScore.Events()
@@ -213,7 +314,14 @@ class stzSoundScore
 	def TogetherQ(poScore)
 		return This.Together(poScore)
 
-	# The same score, n times in sequence.
+	# Plays the score so many times in sequence, by copying its events.
+	#
+	#   pnTimes    how many times in all, a whole number of 1 or more
+	#   returns    the score itself, so calls chain
+	#   note       the length is multiplied by pnTimes
+	#   warning    zero, a fraction or a non-number is refused, with LastError set
+	#   see        Then
+	#@ aka  The same score, n times in sequence.
 	def Repeat(pnTimes)
 		if NOT isNumber(pnTimes) or pnTimes < 1 or pnTimes != floor(pnTimes)
 			This._Refuse("Repeat: a whole number of times, 1 or more")
@@ -234,17 +342,16 @@ class stzSoundScore
 	def RepeatQ(pnTimes)
 		return This.Repeat(pnTimes)
 
-	# THE INSTRUMENT, as a modifier: it names every event that has none yet,
-	# so an inner On() survives an outer one -- the innermost wins, as it does
-	# in Euterpea. Refused when this engine has no such instrument.
+	# Sets the instrument of every event that is still unnamed, and of notes added afterwards.
 	#
-	# AND it names the notes this score gains AFTERWARDS by Note and Stroke.
-	# The first cut was the pure modifier only, and the very first smoke test
-	# fell into it: StzSoundScoreQ().On(:Drumkit) then twenty strokes named NOTHING
-	# (the score was empty when On ran), so every stroke went to the default
-	# piano and was refused. A rule that the first user breaks in the first
-	# line is the rule's fault. Scores joined by Then or Together keep their
-	# own naming -- an unnamed part stays unnamed until an outer On names it.
+	#   pInstrument   the instrument name, such as harp, guitar, bell, flute or drumkit
+	#   returns       the score itself, so calls chain
+	#   note          an inner naming wins over an outer one, since only unnamed events are named; a
+	#                 score joined by Then or Together keeps its own naming
+	#   warning       an unknown instrument is refused and LastError lists the instruments this
+	#                 engine has
+	#   see           Stroke, StzSoundInstruments
+	#@ aka  THE INSTRUMENT, as a modifier: it names every event that has none yet, so an inner On() survives an outer one -- the innermost wins, as it does in Euterpea. Refused when this engine has no such instrument.
 	def On(pInstrument)
 		_c_ = lower("" + pInstrument)
 		if StzEngineSoundInstrumentIndex(_c_) = 0
@@ -262,8 +369,14 @@ class stzSoundScore
 	def OnQ(pInstrument)
 		return This.On(pInstrument)
 
-	# Semitones, fractional allowed (0.5 is a quarter tone). Strokes keep
-	# their pitch: a transposed drum pattern is the same drum pattern.
+	# Shifts the pitch of every pitched note by a number of semitones.
+	#
+	#   pnSemitones   the shift in semitones, fractions allowed, 0.5 being a quarter tone
+	#   returns       the score itself, so calls chain
+	#   note          drum strokes keep their pitch, and the end of a glide moves too
+	#   warning       a non-number is refused, with LastError set
+	#   see           Note
+	#@ aka  Semitones, fractional allowed (0.5 is a quarter tone). Strokes keep their pitch: a transposed drum pattern is the same drum pattern.
 	def Transpose(pnSemitones)
 		if NOT isNumber(pnSemitones)
 			This._Refuse("Transpose: a number of semitones")
@@ -282,7 +395,14 @@ class stzSoundScore
 	def TransposeQ(pnSemitones)
 		return This.Transpose(pnSemitones)
 
-	# The velocity of notes ADDED FROM NOW ON, 0 < v <= 1.
+	# Sets the velocity of the notes added from now on.
+	#
+	#   pnVelocity   the velocity above 0 and at most 1
+	#   returns      the score itself, so calls chain
+	#   note         notes already in the score keep their velocity
+	#   warning      a value outside the range is refused, with LastError set
+	#   see          Note, Stroke
+	#@ aka  The velocity of notes ADDED FROM NOW ON, 0 < v <= 1.
 	def SetVelocity(pnVelocity)
 		if NOT isNumber(pnVelocity) or pnVelocity <= 0 or pnVelocity > 1
 			This._Refuse("SetVelocity: a velocity is above 0 and at most 1")
@@ -294,8 +414,14 @@ class stzSoundScore
 	def SetVelocityQ(pnVelocity)
 		return This.SetVelocity(pnVelocity)
 
-	#-- the performance settings -------------------------------------------
-
+	# Sets the speed of the performance in beats per minute.
+	#
+	#   pnBpm      the speed in beats per minute, from 20 to 400
+	#   returns    the score itself, so calls chain
+	#   note       events stay in beats, so the same score can be rendered at two speeds
+	#   warning    a value outside the range is refused, with LastError set
+	#   see        TempoInBpm, Seconds
+	#@ aka  -- the performance settings -------------------------------------------
 	def Tempo(pnBpm)
 		if NOT isNumber(pnBpm) or pnBpm < 20 or pnBpm > 400
 			This._Refuse("Tempo: beats per minute, 20 to 400")
@@ -307,8 +433,14 @@ class stzSoundScore
 	def TempoQ(pnBpm)
 		return This.Tempo(pnBpm)
 
-	# Snap every start to the nearest multiple of `pnGrid` beats (0.25 = a
-	# sixteenth). 0 turns it off. Durations are left alone.
+	# Snaps every start to the nearest multiple of a grid of beats when frames are computed.
+	#
+	#   pnGrid     the grid in beats, 0.25 being a sixteenth, or 0 for no grid
+	#   returns    the score itself, so calls chain
+	#   note       durations are left alone
+	#   warning    a negative or non-numeric value is refused, with LastError set
+	#   see        Swing, FrameOf
+	#@ aka  Snap every start to the nearest multiple of `pnGrid` beats (0.25 = a sixteenth). 0 turns it off. Durations are left alone.
 	def Quantize(pnGrid)
 		if NOT isNumber(pnGrid) or pnGrid < 0
 			This._Refuse("Quantize: a grid in beats, or 0 for none")
@@ -320,15 +452,25 @@ class stzSoundScore
 	def QuantizeQ(pnGrid)
 		return This.Quantize(pnGrid)
 
-	# SWING: the first of each PAIR of subdivisions lasts `pnRatio` of the
-	# pair. 0.5 is straight, 2/3 is a triplet swing, 0.75 a dotted one. Every
-	# position is warped, not only those on the grid -- the first half of each
-	# pair is stretched and the second compressed, piecewise-linearly -- so a
-	# note between two grid points moves with its neighbours instead of
-	# jumping past one.
+	# Makes the first of each pair of eighth notes last a given share of the pair.
+	#
+	#   pnRatio    the share strictly between 0 and 1, 0.5 being straight and 2/3 a triplet swing
+	#   returns    the score itself, so calls chain
+	#   note       every position is warped, not only those on the grid
+	#   warning    a value outside the range is refused, with LastError set
+	#   see        SwingOn, SwingRatio
+	#@ aka  SWING: the first of each PAIR of subdivisions lasts `pnRatio` of the pair. 0.5 is straight, 2/3 is a triplet swing, 0.75 a dotted one. Every position is warped, not only those on the grid -- the first half of each pair is stretched and the second compressed, piecewise-linearly -- so a note between two grid points moves with its neighbours instead of jumping past one.
 	def Swing(pnRatio)
 		return This.SwingOn(pnRatio, 0.5)
 
+	# Makes the first of each pair of subdivisions last a given share of the pair, on a chosen subdivision.
+	#
+	#   pnRatio    the share strictly between 0 and 1, 0.5 being straight
+	#   pnGrid     the length of one subdivision in beats, 0.5 for eighth notes
+	#   returns    the score itself, so calls chain
+	#   note       Swing is this call with a grid of 0.5
+	#   warning    a bad ratio or a grid that is not positive is refused, with LastError set
+	#   see        Swing, FrameOf
 	def SwingOn(pnRatio, pnGrid)
 		if NOT isNumber(pnRatio) or pnRatio <= 0 or pnRatio >= 1
 			This._Refuse("Swing: a ratio strictly between 0 and 1 -- 0.5 is straight")
@@ -345,21 +487,30 @@ class stzSoundScore
 	def SwingQ(pnRatio)
 		return This.Swing(pnRatio)
 
-	#-- reading it ----------------------------------------------------------
-
-	# The events in start order. A copy: changing it changes nothing here.
+	# Returns the events in order of start beat, as a copy.
+	#
+	#   returns    a list of events, each [ startBeat, beats, hz, instrument, velocity, stroke,
+	#              glideEndHz ]
+	#   note       the instrument is an empty text until On or the performance default names one
+	#   warning    changing the returned list changes nothing in the score; events that start
+	#              together keep the order they were written in
+	#   see        NumberOfEvents, PitchedEvents
+	#@ aka  -- reading it ----------------------------------------------------------
 	def Events()
 		return This._Sorted(@aEvents)
 
+	# Returns how many events the score holds.
+	#
+	#   returns    a number
+	#   see        Events, Beats
 	def NumberOfEvents()
 		return len(@aEvents)
 
-	#-- MU7: ANALYSE -- a score becomes data -------------------------------------
+	# Returns the events that have a pitch, in order of start beat, leaving the drum strokes out.
 	#
-	# The plan's fourth transform: key, mode, density, contour -- Music21's
-	# side, on the same stzSoundScore every other transform makes and reads.
-
-	# the pitched events, in start order
+	#   returns    a list of events as Events gives them
+	#   see        Events, Contour
+	#@ aka  -- MU7: ANALYSE -- a score becomes data -------------------------------------
 	def PitchedEvents()
 		_a_ = []
 		for _e_ in This.Events()
@@ -367,7 +518,11 @@ class stzSoundScore
 		next
 		return _a_
 
-	# lowest to highest pitch, in cents
+	# Returns the distance from the lowest to the highest pitch in cents, 100 being a semitone.
+	#
+	#   returns    a number of cents; 0 when no note has a pitch
+	#   see        PitchedEvents, Contour
+	#@ aka  lowest to highest pitch, in cents
 	def RangeInCents()
 		_a_ = This.PitchedEvents()
 		if len(_a_) = 0  return 0 ok
@@ -379,12 +534,21 @@ class stzSoundScore
 		next
 		return 1200 * log(_hi_ / _lo_) / log(2)
 
-	# pitched notes per beat
+	# Returns how many pitched notes there are per beat of the score.
+	#
+	#   returns    a number; 0 for a score of no length
+	#   see        PitchedEvents, Beats
+	#@ aka  pitched notes per beat
 	def Density()
 		if @nBeats <= 0  return 0 ok
 		return len(This.PitchedEvents()) / @nBeats
 
-	# "U", "D" or "S" from each pitched note to the next -- S within 5 cents
+	# Returns a text of U, D or S for each step from one pitched note to the next, S meaning within 5 cents.
+	#
+	#   returns    a text of letters separated by spaces; an empty text for fewer than two pitched
+	#              notes
+	#   see        PitchedEvents, RangeInCents
+	#@ aka  "U", "D" or "S" from each pitched note to the next -- S within 5 cents
 	def Contour()
 		_a_ = This.PitchedEvents()
 		_s_ = ""
@@ -401,10 +565,16 @@ class stzSoundScore
 		next
 		return _s_
 
-	# WHICH DECLARED MODE FITS: every mode of every universe, every note tried
-	# as its tonic, scored by how far (in cents) each note sits from the
-	# nearest degree of the mode, going up or coming down -- the mean. [ universe, mode, tonicHz, meanCentsOff ],
-	# best first. It ranks the DECLARATIONS; a tie is reported as a tie.
+	# Ranks the declared modes of every sound universe by how well their degrees fit the pitched notes, best first.
+	#
+	#   pnTop      how many rows to keep
+	#   returns    a list of [ universe, mode, tonicHz, meanCentsOff ] rows, at most pnTop of them;
+	#              [ ] when no note has a pitch
+	#   note       it ranks the declarations, it does not say what the music is
+	#   warning    a tie is reported as a tie, so several modes may show 0 cents off; each pitch is
+	#              tried as the tonic
+	#   see        StzSoundUniverses, Contour
+	#@ aka  WHICH DECLARED MODE FITS: every mode of every universe, every note tried as its tonic, scored by how far (in cents) each note sits from the nearest degree of the mode, going up or coming down -- the mean. [ universe, mode, tonicHz, meanCentsOff ], best first. It ranks the DECLARATIONS; a tie is reported as a tie.
 	def BestModes(pnTop)
 		_aP_ = This.PitchedEvents()
 		_aOut_ = []
@@ -475,22 +645,44 @@ class stzSoundScore
 		next
 		return _r_
 
+	# Returns the length of the score in beats, which is where an appended score would start.
+	#
+	#   returns    a number
+	#   see        Seconds, SetLength
 	def Beats()
 		return @nBeats
 
+	# Returns the speed set for the performance, in beats per minute.
+	#
+	#   returns    a number, 120 until set
+	#   see        Tempo, Seconds
 	def TempoInBpm()
 		return @nTempo
 
+	# Returns the swing share set for the performance.
+	#
+	#   returns    a number, 0.5 when straight
+	#   see        Swing, SwingOn
 	def SwingRatio()
 		return @nSwing
 
+	# Returns the length of the score in seconds at the current speed, without any note tail.
+	#
+	#   returns    a number of seconds
+	#   warning    a rendered sound is longer than this by the tail of its last note
+	#   see        Beats, SecondsOf
 	def Seconds()
 		return @nBeats * 60 / @nTempo
 
-	# WHERE A BEAT LANDS, in 0-based frames at `pnRate`: quantised, then
-	# swung, then timed. The one place beats become frames -- the offline
-	# render and the live scheduler both call it, so they cannot disagree
-	# about when a note is.
+	# Returns the 0-based frame at which a beat falls, after the grid and the swing and at the current speed.
+	#
+	#   pnBeat     the beat to place
+	#   pnRate     the sample rate in hertz
+	#   returns    a number of frames
+	#   warning    the offline render and the live scheduler both place notes with it, so they
+	#              cannot disagree
+	#   see        SecondsOf, Quantize
+	#@ aka  WHERE A BEAT LANDS, in 0-based frames at `pnRate`: quantised, then swung, then timed. The one place beats become frames -- the offline render and the live scheduler both call it, so they cannot disagree about when a note is.
 	def FrameOf(pnBeat, pnRate)
 		_b_ = pnBeat
 		if @nQuantize > 0
@@ -510,13 +702,23 @@ class stzSoundScore
 		ok
 		return floor(_b_ * 60 / @nTempo * pnRate + 0.5)
 
+	# Returns how long a number of beats lasts at the current speed.
+	#
+	#   pnBeats    the number of beats
+	#   returns    a number of seconds
+	#   see        Seconds, FrameOf
 	def SecondsOf(pnBeats)
 		return pnBeats * 60 / @nTempo
 
-	#-- performing it -------------------------------------------------------
-
-	# The whole performance, rendered offline into one sound. Every note is
-	# the instrument's (MU1), placed at FrameOf() by mixInto.
+	# Renders the whole performance offline into one stereo sound at 48000 Hz, held in memory.
+	#
+	#   returns    a stzSound; one frame long for an empty score
+	#   note       the sound has not been heard by a person; it is checked by its frame count, rate
+	#              and peak
+	#   warning    no audio device is opened; a note an instrument refuses is missing from the sound
+	#              and named in LastError
+	#   see        StzSoundScoreRenderer, LastError
+	#@ aka  -- performing it -------------------------------------------------------
 	def ToSound()
 		_oR_ = new stzSoundScoreRenderer(This)
 		_o_ = _oR_.Offline()
@@ -527,6 +729,12 @@ class stzSoundScore
 	def ToSoundQ()
 		return This.ToSound()
 
+	# Plays the score live through the scheduler and waits for the end.
+	#
+	#   returns    the score itself
+	#   note       LastError holds what the scheduler reported
+	#   warning    not run in this reference: it opens an audio device through stzSoundScheduler
+	#   see        ToSound, StzSoundSchedulerQ
 	def Play()
 		_oP_ = StzSoundSchedulerQ(This)
 		_oP_.Play()
@@ -535,9 +743,18 @@ class stzSoundScore
 		_oP_.Release()
 		return This
 
+	# Returns the reason the last refused call gave, or an empty text.
+	#
+	#   returns    a text
+	#   see        Refusals
 	def LastError()
 		return @cLastError
 
+	# Returns how many calls the score has refused so far.
+	#
+	#   returns    a number
+	#   warning    a refused call leaves the score unchanged
+	#   see        LastError
 	def Refusals()
 		return @nRefusals
 
@@ -639,11 +856,24 @@ class stzSoundScore
 		return _s_
 
 
-# THE NOTES OF A PERFORMANCE: every event rendered by its instrument once, and
-# the same note -- same instrument, pitch, length, velocity, stroke -- rendered
-# ONCE however often it recurs. A wind instrument tunes itself by listening
-# (MU1) and that is slow; a repeated note must not pay it twice. Shared by the
-# offline render and the scheduler, so both play the same buffers.
+# Renders the events of a score once each into sound buffers that the offline render and the live scheduler share.
+#
+# Every event is rendered by its instrument, and the same note (same instrument, pitch, length,
+# velocity and stroke) is rendered only once however often it recurs, because a wind instrument
+# tunes itself by listening and that is slow. Plan lists a start frame and a buffer id per event;
+# Offline mixes the plan into one stereo sound at 48000 Hz. An instrument that refuses a note, such
+# as a glide on a pluck, is counted in Refusals and the note is missing from the plan. Nothing here
+# opens an audio device. The sound has not been heard by a person (UNPERCEIVED): it is checked by
+# frame count, sample rate and peak level.
+#
+#   receiver   o1 = new stzSoundScoreRenderer(StzSoundScoreOfQ("c e c e"))
+#   example    ? len(o1.Plan())
+#              #--> 4
+#              ? o1.NotesRendered()
+#              #--> 2
+#              ? o1.Offline().Frames()
+#              #--> 115200
+#   see        stzSoundScore, stzSoundScheduler, stzSound
 class stzSoundScoreRenderer
 
 	@oScore = NULL
@@ -659,43 +889,100 @@ class stzSoundScoreRenderer
 	@nRendered = 0          # distinct notes the instruments rendered
 	@nSeconds = 0           # wall time spent rendering them
 
+	# Builds a renderer over a score, to turn its events into sound buffers.
+	#
+	#   poScore    the stzSoundScore whose events are rendered
+	#   returns    nothing; the object is built
+	#   see        stzSoundScore, Plan
 	def init(poScore)
 		@oScore = poScore
 
+	# Sets the factor applied to every note when it is mixed into the offline render.
+	#
+	#   pnGain     the gain per note, 0.6 by default so that a few notes in a chord do not clip
+	#   returns    nothing
+	#   see        Gain, Offline
 	def SetGain(pnGain)
 		@nGain = pnGain
 
+	# Returns the factor applied to each note in the offline render.
+	#
+	#   returns    a number, 0.6 until set
+	#   see        SetGain
 	def Gain()
 		return @nGain
 
+	# Returns the sample rate of the render, in hertz.
+	#
+	#   returns    a number, 48000
+	#   see        Channels, Offline
 	def Rate()
 		return @nRate
 
+	# Returns the number of channels of the render.
+	#
+	#   returns    a number, 2
+	#   see        Rate, Offline
 	def Channels()
 		return @nChannels
 
+	# Returns the reason the last note was refused, or an empty text.
+	#
+	#   returns    a text
+	#   see        Refusals
 	def LastError()
 		return @cLastError
 
+	# Returns how many notes an instrument has refused to render.
+	#
+	#   returns    a number
+	#   see        LastError, NotesRendered
 	def Refusals()
 		return @nRefusals
 
+	# Returns how many distinct notes the instruments have rendered.
+	#
+	#   returns    a number; a note that recurs with the same instrument, pitch, length and velocity
+	#              counts once
+	#   warning    the count is not reset by Release, so rendering again adds to it
+	#   see        Plan, SecondsRendering
 	def NotesRendered()
 		return @nRendered
 
+	# Returns the wall time spent rendering the notes, in seconds.
+	#
+	#   returns    a number
+	#   warning    measured on the processor clock
+	#   see        NotesRendered
 	def SecondsRendering()
 		return @nSeconds
 
+	# Returns the frame where the last note ends, in the sound of the render.
+	#
+	#   returns    a number of frames; 0 until Plan or Offline has run
+	#   warning    it is the length of the rendered sound
+	#   see        Plan, Offline
 	def EndFrame()
 		return @nEndFrame
 
-	# [ frame0, bufferId ] per event, in start order; rendered on first ask.
+	# Returns one row per event giving the frame it starts at and the buffer holding its note, rendering the notes on first use.
+	#
+	#   returns    a list of [ frame, bufferId ] rows in start order; [ ] for an empty score
+	#   warning    an event whose instrument refused it has no row; equal notes share one buffer id
+	#   see        Offline, NotesRendered
+	#@ aka  [ frame0, bufferId ] per event, in start order; rendered on first ask.
 	def Plan()
 		if len(@aPlan) = 0 and @oScore.NumberOfEvents() > 0
 			This._Build()
 		ok
 		return @aPlan
 
+	# Mixes every planned note into one new silent stereo sound at the render's rate and returns it.
+	#
+	#   returns    a stzSound as long as the last note, and one frame long when nothing was rendered
+	#   note       the sound has not been heard by a person
+	#   warning    no audio device is opened; a failed mix sets LastError
+	#   see        Plan, SetGain, Release
 	def Offline()
 		_aP_ = This.Plan()
 		_n_ = @nEndFrame
@@ -710,6 +997,12 @@ class stzSoundScoreRenderer
 		next
 		return _o_
 
+	# Frees the note buffers the renderer holds and forgets the plan.
+	#
+	#   returns    nothing
+	#   warning    the sounds already returned by Offline are separate and stay valid; asking for
+	#              the plan again renders the notes again
+	#   see        Plan, Offline
 	def Release()
 		for _k_ in @aKeys
 			StzEngineSoundFree(_k_[2])

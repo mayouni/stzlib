@@ -1,0 +1,23 @@
+{
+ "brief": "Draws a fault tree and computes it: the probability of the top event and the minimal cut sets, from gates and basic events.",
+ "detail": "A fault tree says how an undesired event, the top, comes about through AND and OR gates down to basic events of known probability. Read up it is a picture of causes; computed up it is the probability of the top and the minimal cut sets, the smallest sets of basic events that bring the top about. An AND gate multiplies its inputs and an OR gate takes one minus the product of their complements, both assuming independence; where a basic event repeats under two gates that number is an approximation and CutSetProbability gives the exact one. Five rules judge the tree. Not here: NOT gates, voting gates, inhibit gates, transfer symbols, common-cause groups and importance measures. ToCanvasXT draws the tree; the probability is written inside each basic event and its name beneath.",
+ "receiver": "o1 = new stzFaultTree(\"pump\")",
+ "example": [
+  "o1.AddTop(\"top\", \"Pump fails to start\")",
+  "o1.AddEvent(\"power\", \"No power\")",
+  "o1.AddBasicXT(\"seized\", \"Motor seized\", 0.05)",
+  "o1.AddBasicXT(\"mains\", \"Mains out\", 0.1)",
+  "o1.AddBasicXT(\"battery\", \"Battery flat\", 0.2)",
+  "o1.Develop(\"top\", :Or, [ \"power\", \"seized\" ])",
+  "o1.Develop(\"power\", :And, [ \"mains\", \"battery\" ])",
+  "? fabs(o1.ProbabilityOf(\"power\") - 0.02) < 0.000001",
+  "#--> 1",
+  "? fabs(o1.TopProbability() - 0.069) < 0.000001",
+  "#--> 1",
+  "? @@( o1.MinimalCutSets() )",
+  "#--> [ [ \"seized\" ], [ \"mains\", \"battery\" ] ]",
+  "? o1.GovernanceIsSound()",
+  "#--> 1"
+ ],
+ "see": ["stzFaultRuleSet", "stzDiagram", "stzPetriNet", "stzFamilyTree"]
+}

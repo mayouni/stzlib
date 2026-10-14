@@ -16,6 +16,41 @@
  ///   CLASS   ///
 /////////////////
 
+# Cuts a list into parts: at an item, at positions, before or after one, into n parts, into parts of n items, by a condition or at a pace.
+#
+# It is the cutting helper of stzList, which builds one over itself for its Split, SplitXT,
+# SplittedXT, SplittedAsSectionsXT and SplittedAtPositions methods; build one with new stzListSplits
+# when you only need to cut. It works on its own copy, so a stzList passed in is never changed. The
+# answer is a list of parts, each part a list. Unlike the split of a text, a cut item is not thrown
+# away: it is kept and starts the next part, and a cut at position 1 or past the end adds no empty
+# part. A verb (Split, SplitAt, SplitBefore ...) cuts the held list in place and returns nothing, so
+# read Content afterwards, its Q form returning the splitter for chaining; the Splitted forms return
+# the parts and leave the splitter alone. SplitXT and SplittedXT take the options in one argument (a
+# position, a list of positions, or a pair such as [ :After, 3 ] or [ :ToNParts, 3 ]), and
+# SplittedAsSectionsXT answers the [ first, last ] positions of the parts. A number is always read
+# as a position, never as an item, so a list of numbers cannot be cut at one of its items.
+# SplitAfter with an item cuts only after its last occurrence. A pace of 0 in SplitAtPacer never
+# ends.
+#
+#   receiver   o1 = new stzListSplits([ "a", "b", "-", "c", "d", "-", "e" ])
+#   example    ? @@( o1.SplittedAt("-") )
+#              #--> [ [ "a", "b" ], [ "-", "c", "d" ], [ "-", "e" ] ]
+#              ? @@( o1.SplittedAfterPosition(3) )
+#              #--> [ [ "a", "b", "-" ], [ "c", "d", "-", "e" ] ]
+#              o2 = new stzListSplits([ 1, 2, 3, 4, 5, 6, 7 ])
+#              ? @@( o2.SplittedToNParts(3) )
+#              #--> [ [ 1, 2, 3 ], [ 4, 5 ], [ 6, 7 ] ]
+#              ? @@( o2.SplittedToPartsOfNItems(3) )
+#              #--> [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7 ] ]
+#              ? @@( o2.SplittedW("@item % 3 = 0") )
+#              #--> [ [ 1, 2 ], [ 3, 4, 5 ], [ 6, 7 ] ]
+#              o2.SplitAtPositions([ 3, 6 ])
+#              ? @@( o2.Content() )
+#              #--> [ [ 1, 2 ], [ 3, 4, 5 ], [ 6, 7 ] ]
+#              o3 = new stzListSplits([ "שלום", "x", "😀", "x", "y" ])
+#              ? @@( o3.SplittedAt("x") )
+#              #--> [ [ "שלום" ], [ "x", "😀" ], [ "x", "y" ] ]
+#   see        stzList, stzListMerger, stzListGetter
 class stzListSplits from stzObject
 
 	@oList
@@ -24,6 +59,14 @@ class stzListSplits from stzObject
 	 #   INITIALIZATION  #
 	#===================#
 
+	# Builds a splitter over a list, given as a list or as a stzList object.
+	#
+	#   pListOrObj   the list to cut, or a stzList whose content is copied, any other value raises
+	#                an error
+	#   returns      nothing; the object is built
+	#   note         the splitter works on its own copy and never changes the list or the stzList
+	#                you passed in
+	#   see          Content, SplittedAt
 	def init(pListOrObj)
 		if isList(pListOrObj)
 			@oList = new stzList(pListOrObj)
@@ -37,12 +80,24 @@ class stzListSplits from stzObject
 	 #     CONTENT ACCESS            #
 	#===============================#
 
+	# Returns the list as it stands now, which is a list of parts after an in-place split.
+	#
+	#   returns    a list
+	#   see        NumberOfItems, SplittedAt
 	def Content()
 		return @oList.Content()
 
+	# Returns how many items the list holds.
+	#
+	#   returns    a number
+	#   see        Content, IsEmpty
 	def NumberOfItems()
 		return @oList.NumberOfItems()
 
+	# TRUE if the list holds no item.
+	#
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   see        NumberOfItems, Content
 	def IsEmpty()
 		return @oList.IsEmpty()
 
@@ -79,8 +134,19 @@ class stzListSplits from stzObject
 
 		return This.SplitAtCS(pItemOrPos, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
+	# Cuts the list into parts at an item or a position, in place, so the content becomes a list of parts.
+	#
+	#   pItemOrPos   an item to cut at, a position, or a pair such as [ :After, 3 ] or [ :Before, 3
+	#                ]
+	#   returns      nothing; the content changes. SplitQ returns the splitter for chaining
+	#   note         the cut item starts the next part and is kept, and an item that is absent
+	#                leaves one part holding everything
+	#   warning      a number is always read as a position, never as an item: Split(30) on 10 20 30
+	#                40 50 cuts nothing and answers one part, even though 30 is an item; the call
+	#                changes the content and returns an empty text, so print Content afterwards; a
+	#                second call on the cut list works on its parts and wraps them again
+	#   see          SplitAt, SplitBefore, SplitAfter, SplittedAt
+	#@ aka  -- WITHOUT CASESENSITIVITY
 	def Split(pItemOrPos)
 		return This.SplitCS(pItemOrPos, 1)
 
@@ -92,6 +158,14 @@ class stzListSplits from stzObject
 	 #  SPLITTING AT POSITIONS -- THE FOUNDATIONAL METHOD  #
 	#=====================================================#
 
+	# Cuts the list so that a new part starts at each given position, in place.
+	#
+	#   panPos     the positions where a new part starts, each from 1
+	#   returns    nothing; the content changes. SplitAtPositionsQ returns the splitter for chaining
+	#   note       position 1 and positions past the end are ignored, and positions given in any
+	#              order or twice are cut once, so [ 4, 2 ] on 1 to 5 gives the parts [ 1 ], [ 2, 3
+	#              ] and [ 4, 5 ]; an empty list of positions gives one part
+	#   see        SplittedAtPositions, SplitAtPosition
 	def SplitAtPositions(panPos)
 		# Engine-backed: marshal list + positions, call split_at
 		# INDEX_BASE=1: convert 1-based positions to 0-based for engine
@@ -115,6 +189,12 @@ class stzListSplits from stzObject
 			This.SplitAtPositions(panPos)
 			return This
 
+		# Cuts the list so that a new part starts at each given position, in place.
+		#
+		#   panPos     the positions where a new part starts, each from 1
+		#   returns    nothing; the content changes
+		#   note       the same call as SplitAtPositions
+		#   see        SplitAtPositions, SplittedAtPositions
 		def SplitAtThesePositions(panPos)
 			This.SplitAtPositions(panPos)
 
@@ -122,6 +202,13 @@ class stzListSplits from stzObject
 				This.SplitAtThesePositions(panPos)
 				return This
 
+	# Returns the list cut into parts, a new part starting at each given position, leaving the splitter as it was.
+	#
+	#   panPos     the positions where a new part starts, each from 1
+	#   returns    a list of lists
+	#   note       position 1 and positions past the end are ignored; [ 3, 6 ] on a b - c d - e
+	#              gives the parts [ a, b ], [ -, c, d ] and [ -, e ]
+	#   see        SplitAtPositions, SplittedAt
 	def SplittedAtPositions(panPos)
 		# INDEX_BASE=1: convert to 0-based for engine
 		_aSadAdj_ = []
@@ -147,6 +234,13 @@ class stzListSplits from stzObject
 	 #  SPLITTING BEFORE A GIVEN POSITION   #
 	#======================================#
 
+	# Cuts the list in two just before a position, in place.
+	#
+	#   _n_        the position that starts the second part, from 1
+	#   returns    nothing; the content changes. SplitBeforePositionQ returns the splitter for
+	#              chaining
+	#   note       a position below 2 or past the end leaves one part
+	#   see        SplittedBeforePosition, SplitAfterPosition
 	def SplitBeforePosition(_n_)
 		# Engine-backed: stz_list_split_before
 		_pSbpList_ = StzEngineMarshalList(@oList.Content())
@@ -161,6 +255,12 @@ class stzListSplits from stzObject
 			This.SplitBeforePosition(_n_)
 			return This
 
+	# Returns the list cut in two just before a position, leaving the splitter as it was.
+	#
+	#   _n_        the position that starts the second part, from 1
+	#   returns    a list of two lists
+	#   note       a position below 2 or past the end gives one part
+	#   see        SplitBeforePosition, SplittedAfterPosition
 	def SplittedBeforePosition(_n_)
 		_pSbdList_ = StzEngineMarshalList(@oList.Content())
 		_pSbdResult_ = StzEngineListSplitBefore(_pSbdList_, _n_)
@@ -188,6 +288,13 @@ class stzListSplits from stzObject
 			This.SplitBeforeCS(pItem, pCaseSensitive)
 			return This
 
+	# Cuts the list just before each occurrence of an item, in place, keeping the item at the start of its part.
+	#
+	#   pItem      the item to cut before
+	#   returns    nothing; the content changes. SplitBeforeQ returns the splitter for chaining
+	#   note       an absent item leaves the list flat, as it was, where SplitAt wraps it as one
+	#              part; SplitBeforeCS(pItem, 0) ignores case
+	#   see        SplitAfter, SplitAt, SplitBeforePosition
 	def SplitBefore(pItem)
 		return This.SplitBeforeCS(pItem, 1)
 
@@ -199,6 +306,13 @@ class stzListSplits from stzObject
 	 #  SPLITTING AFTER A GIVEN POSITION   #
 	#=====================================#
 
+	# Cuts the list in two just after a position, in place.
+	#
+	#   _n_        the position that ends the first part, from 1
+	#   returns    nothing; the content changes. SplitAfterPositionQ returns the splitter for
+	#              chaining
+	#   note       a position at or past the last item leaves one part
+	#   see        SplittedAfterPosition, SplitBeforePosition
 	def SplitAfterPosition(_n_)
 		# Engine-backed: stz_list_split_after
 		_pSfpList_ = StzEngineMarshalList(@oList.Content())
@@ -213,6 +327,12 @@ class stzListSplits from stzObject
 			This.SplitAfterPosition(_n_)
 			return This
 
+	# Returns the list cut in two just after a position, leaving the splitter as it was.
+	#
+	#   _n_        the position that ends the first part, from 1
+	#   returns    a list of two lists
+	#   note       a position at or past the last item gives one part
+	#   see        SplitAfterPosition, SplittedBeforePosition
 	def SplittedAfterPosition(_n_)
 		_pSfdList_ = StzEngineMarshalList(@oList.Content())
 		_pSfdResult_ = StzEngineListSplitAfter(_pSfdList_, _n_)
@@ -241,6 +361,14 @@ class stzListSplits from stzObject
 			This.SplitAfterCS(pItem, pCaseSensitive)
 			return This
 
+	# Cuts the list just after the LAST occurrence of an item, in place, so it makes two parts at most.
+	#
+	#   pItem      the item to cut after
+	#   returns    nothing; the content changes. SplitAfterQ returns the splitter for chaining
+	#   note       unlike SplitBefore it does not cut at every occurrence: a b - c d - e cut after -
+	#              gives the parts [ a, b, -, c, d, - ] and [ e ]; SplitAfterCS(pItem, 0) ignores
+	#              case; an absent item leaves the list as it was
+	#   see        SplitBefore, SplitAfterPosition
 	def SplitAfter(pItem)
 		return This.SplitAfterCS(pItem, 1)
 
@@ -252,6 +380,12 @@ class stzListSplits from stzObject
 	 #  SPLITTING AT A GIVEN POSITION   #
 	#==================================#
 
+	# Cuts the list in two just before a position, in place.
+	#
+	#   _n_        the position that starts the second part, from 1
+	#   returns    nothing; the content changes. SplitAtPositionQ returns the splitter for chaining
+	#   note       the same cut as SplitBeforePosition
+	#   see        SplitBeforePosition, SplitAtPositions
 	def SplitAtPosition(_n_)
 		# "Split at position N" = split before position N
 		This.SplitBeforePosition(_n_)
@@ -279,6 +413,14 @@ class stzListSplits from stzObject
 			This.SplitAtCS(pItem, pCaseSensitive)
 			return This
 
+	# Cuts the list at each occurrence of an item, in place, so the item starts a new part and is kept.
+	#
+	#   pItem      the item to cut at
+	#   returns    nothing; the content changes. SplitAtQ returns the splitter for chaining
+	#   note       a b - c d - e cut at - gives the parts [ a, b ], [ -, c, d ] and [ -, e ]; an
+	#              absent item gives one part holding everything, where SplitBefore leaves the list
+	#              flat; SplitAtCS(pItem, 0) ignores case
+	#   see        SplittedAt, SplitBefore, SplitAfter
 	def SplitAt(pItem)
 		return This.SplitAtCS(pItem, 1)
 
@@ -293,6 +435,13 @@ class stzListSplits from stzObject
 		_anSadcPos_ = @oList.FindAllCS(pItem, pCaseSensitive)
 		return This.SplittedAtPositions(_anSadcPos_)
 
+	# Returns the list cut at each occurrence of an item, leaving the splitter as it was.
+	#
+	#   pItem      the item to cut at
+	#   returns    a list of lists
+	#   note       the item starts the next part and is kept; SplittedAtCS(pItem, 0) ignores case,
+	#              so X and x both cut
+	#   see        SplitAt, SplittedAtPositions
 	def SplittedAt(pItem)
 		return This.SplittedAtCS(pItem, 1)
 
@@ -300,6 +449,13 @@ class stzListSplits from stzObject
 	 #  SPLITTING TO N EQUAL PARTS  #
 	#==============================#
 
+	# Cuts the list into n consecutive parts of nearly equal size, in place.
+	#
+	#   _n_        how many parts to make
+	#   returns    nothing; the content changes. SplitToNPartsQ returns the splitter for chaining
+	#   note       7 items in 3 parts give 3, 2 and 2 items, the extra items going to the first
+	#              parts; an n larger than the count gives one part per item, and 0 gives [ ]
+	#   see        SplittedToNParts, SplitToPartsOfNItems
 	def SplitToNParts(_n_)
 		# Mutator form: divide into n parts (see SplittedToNParts).
 		@oList.UpdateWith( This.SplittedToNParts(_n_) )
@@ -308,6 +464,13 @@ class stzListSplits from stzObject
 			This.SplitToNParts(_n_)
 			return This
 
+	# Returns the list cut into n consecutive parts of nearly equal size, leaving the splitter as it was.
+	#
+	#   _n_        how many parts to make
+	#   returns    a list of lists
+	#   note       7 items in 3 parts give 3, 2 and 2 items; an n larger than the count gives one
+	#              part per item, and 0 or an empty list gives [ ]
+	#   see        SplitToNParts, SplittedToPartsOfNItems
 	def SplittedToNParts(_n_)
 		# Divide the list into n parts of as-equal-as-possible size: the
 		# documented "/ n -> n parts" contract ([1..6] -> [[1,2],[3,4],[5,6]],
@@ -349,6 +512,13 @@ class stzListSplits from stzObject
 	 #  SPLITTING TO PARTS OF N ITEMS  #
 	#=================================#
 
+	# Cuts the list into consecutive parts of n items each, the last one possibly shorter, in place.
+	#
+	#   _n_        how many items each part holds
+	#   returns    nothing; the content changes. SplitToPartsOfNItemsQ returns the splitter for
+	#              chaining
+	#   note       7 items in parts of 3 give 3, 3 and 1 items; 0 gives [ ]
+	#   see        SplittedToPartsOfNItems, SplitToNParts
 	def SplitToPartsOfNItems(_n_)
 		# Engine-backed: stz_list_split_to_parts_of_n
 		_pSpnList_ = StzEngineMarshalList(@oList.Content())
@@ -363,6 +533,12 @@ class stzListSplits from stzObject
 			This.SplitToPartsOfNItems(_n_)
 			return This
 
+		# Cuts the list into consecutive parts of n items each, the last one possibly shorter, in place.
+		#
+		#   _n_        how many items each part holds
+		#   returns    nothing; the content changes
+		#   note       the same call as SplitToPartsOfNItems
+		#   see        SplitToPartsOfNItems, SplittedToPartsOfNItems
 		def SplitToPartsOf(_n_)
 			This.SplitToPartsOfNItems(_n_)
 
@@ -370,6 +546,13 @@ class stzListSplits from stzObject
 				This.SplitToPartsOf(_n_)
 				return This
 
+	# Returns the list cut into consecutive parts of n items each, leaving the splitter as it was.
+	#
+	#   _n_        how many items each part holds
+	#   returns    a list of lists
+	#   note       7 items in parts of 3 give 3, 3 and 1 items; 0 gives [ ]; SplittedToPartsOf is
+	#              the same call
+	#   see        SplitToPartsOfNItems, SplittedToNParts
 	def SplittedToPartsOfNItems(_n_)
 		_pSpdList_ = StzEngineMarshalList(@oList.Content())
 		_pSpdResult_ = StzEngineListSplitToPartsOfN(_pSpdList_, _n_)
@@ -394,6 +577,14 @@ class stzListSplits from stzObject
 			This.SplitW(pcCondition)
 			return This
 
+	# Returns the list cut just before each item that satisfies a condition, leaving the splitter as it was.
+	#
+	#   pcCondition   the test, written with @item for the current item, such as "@item % 3 = 0"
+	#   returns       a list of lists
+	#   note          the item that satisfies the test starts the next part and is kept; 1 to 7 with
+	#                 "@item % 3 = 0" gives the parts [ 1, 2 ], [ 3, 4, 5 ] and [ 6, 7 ]; SplitW
+	#                 cuts in place
+	#   see           SplittedAt, SplittedAtPositions
 	def SplittedW(pcCondition)
 		_anSwdPos_ = @oList.FindW(pcCondition)
 		return This.SplittedAtPositions(_anSwdPos_)
@@ -417,6 +608,15 @@ class stzListSplits from stzObject
 	 #  SPLITTING USING A GIVEN PACER    #
 	#===================================#
 
+	# Cuts the list at a start position and then every given number of positions after it, in place.
+	#
+	#   nPace      the distance between two cuts
+	#   nStart     the first position where a part starts
+	#   returns    nothing; the content changes. SplitAtPacerQ returns the splitter for chaining
+	#   note       1 to 7 with pace 3 from 3 gives the parts [ 1, 2 ], [ 3, 4, 5 ] and [ 6, 7 ]
+	#   warning    a pace of 0 never ends: the code adds positions in a loop that does not advance
+	#              (read from the code, not run, since it would fill the memory)
+	#   see        SplittedAtPacer, SplitAtPositions
 	def SplitAtPacer(nPace, nStart)
 		# Generate positions at the given pace
 		_anPcrPos_ = []
@@ -433,6 +633,14 @@ class stzListSplits from stzObject
 			This.SplitAtPacer(nPace, nStart)
 			return This
 
+	# Returns the list cut at a start position and then every given number of positions after it, leaving the splitter as it was.
+	#
+	#   nPace      the distance between two cuts
+	#   nStart     the first position where a part starts
+	#   returns    a list of lists
+	#   note       1 to 7 with pace 2 from 2 gives the parts [ 1 ], [ 2, 3 ], [ 4, 5 ] and [ 6, 7 ]
+	#   warning    a pace of 0 never ends, as in SplitAtPacer (read from the code, not run)
+	#   see        SplitAtPacer, SplittedAtPositions
 	def SplittedAtPacer(nPace, nStart)
 		_anSdpcrPos_ = []
 		_nSdpcrLen_ = This.NumberOfItems()

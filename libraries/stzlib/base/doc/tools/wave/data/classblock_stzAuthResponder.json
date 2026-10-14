@@ -1,0 +1,19 @@
+{
+ "brief": "Carries out the LockAccount and RevokeSession actions of a response plan on a stzAuth.",
+ "detail": "A response plan proposes containment as data; a responder performs verbs for real once a committing actor approves. This one answers the two that authentication owns: LockAccount closes every login path of an account with the reason locked by a containment plan, and RevokeSession ends every session of a user. The other four verbs raise an error that names the responder to wire. It holds the stzAuth by reference, so the caller's object sees the change.",
+ "receiver": "oAuth = new stzAuth()\noAuth.Register(\"dana\", \"invented-pw\")\no1 = new stzAuthResponder(oAuth)",
+ "example": [
+  "cTok = oAuth.LoginAt(\"dana\", \"invented-pw\", 1700000000)",
+  "o1.RevokeSession(\"dana\")",
+  "? oAuth.NumberOfSessions()",
+  "#--> 0",
+  "o1.LockAccount(\"dana\")",
+  "? oAuth.IsAccountLocked(\"dana\")",
+  "#--> 1"
+ ],
+ "see": [
+  "stzResponsePlan",
+  "stzAuth",
+  "stzRateLimiterResponder"
+ ]
+}

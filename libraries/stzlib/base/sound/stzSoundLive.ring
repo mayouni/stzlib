@@ -57,6 +57,30 @@ func StzSoundLiveTickAll()
 		pointer2object(_p_).Tick()
 	next
 
+# Runs named live loops that can be redefined while they play, each change landing on the next cycle boundary.
+#
+# A cycle is one bar of 4 beats. A loop's notes are posted a whole cycle at a time, well ahead of
+# the render; a redefinition withdraws the loop's notes from the first cycle the producer has not
+# reached and posts the new pattern from there, and the call returns that cycle. The console reports
+# what was heard, not what was posted. Without CaptureInsteadOfDevice the session plays on a sound
+# card through a transport, which was not run in this reference; with it, a producer thread renders
+# into a ring that this session drains into a buffer, so no device is opened. In capture mode
+# WaitCycles for longer than the buffer never returns. The sound has not been heard by a person
+# (UNPERCEIVED): it is checked by frame count, sample rate and peak level, not by listening.
+#
+#   receiver   o1 = StzSoundLiveQ(120)
+#   example    o1.CaptureInsteadOfDevice(6, FALSE)
+#              ? o1.OnDevice()
+#              #--> 0
+#              ? o1.LiveLoopOn(:tune, "c5 e5 g5 e5", :Harp)
+#              #--> 0
+#              o1.WaitCycles(1)
+#              ? o1.HeardCycle()
+#              #--> 1
+#              ? o1.ConsoleLog()[1][3]
+#              #--> cycle 0 | tune v1
+#              o1.Stop()
+#   see        stzMusic, stzSoundPattern, stzSoundTransport
 class stzSoundLive
 
 	@nTempo = 120
@@ -92,12 +116,26 @@ class stzSoundLive
 	@nDrainShort = 0        # paced capture: frames that were due and not there
 	@nUnderruns = 0         # on a device: frames the card asked for and did not get
 
+	# Builds a live session at 120 beats per minute with no loops, started on a sound card unless capture is chosen.
+	#
+	#   returns    nothing; the object is built
+	#   warning    build it with StzSoundLiveQ to set the speed in the same call; a cycle is one bar
+	#              of 4 beats
+	#   see        StzSoundLiveQ, CaptureInsteadOfDevice
 	def init()
 		@oClock = StzSoundScoreQ()
 		@oR = new stzSoundScoreRenderer(@oClock)
 
-	#-- settings ------------------------------------------------------------
-
+	# Sets the speed of the session in beats per minute.
+	#
+	#   pnBpm      the speed in beats per minute, from 20 to 400
+	#   returns    the session itself, so calls chain
+	#   note       it builds a new renderer, because the notes of a loop are rendered at the speed
+	#              in force
+	#   warning    refused, with LastError set and the refusal counted, once the session runs, once
+	#              any loop is defined, or for a value outside the range
+	#   see        Tempo, CycleFrames
+	#@ aka  -- settings ------------------------------------------------------------
 	def SetTempo(pnBpm)
 		if @bRunning
 			This._Refuse("SetTempo: the tempo is set before the loops start -- a live tempo change is not in MU3")
@@ -118,23 +156,38 @@ class stzSoundLive
 		@oR = new stzSoundScoreRenderer(@oClock)
 		return This
 
+	# Returns the speed of the session in beats per minute.
+	#
+	#   returns    a number, 120 until set
+	#   see        SetTempo
 	def Tempo()
 		return @nTempo
 
+	# Sets the instrument given to loops that name none and are made of pitched notes.
+	#
+	#   pcName     the instrument name, such as piano or harp, kept in lower case
+	#   returns    the session itself, so calls chain
+	#   note       an unknown name is refused later, when a loop is defined with it
+	#   warning    a loop of strokes ignores it and takes the drum kit, or the darbouka for dum, tak
+	#              and ka
+	#   see        LiveLoop, LiveLoopOn
 	def SetDefaultInstrument(pcName)
 		@cDefault = lower("" + pcName)
 		return This
 
-	# Drain the ring here instead of on a sound card, for `pnSeconds` at most,
-	# and keep what came out. Paced: drain at the wall clock's rate; unpaced:
-	# as fast as WaitCycles asks.
+	# Chooses to drain the sound into a buffer instead of a sound card, for at most a number of seconds.
 	#
-	# WHAT IT CANNOT STAND IN FOR: a device drains on ITS OWN thread, so while
-	# this thread is busy rendering a new loop's notes the card keeps playing
-	# what was posted. Here THIS thread is the consumer, so it stalls with the
-	# render and nothing is consumed. Whether a render while playing costs a
-	# note its frame is therefore a DEVICE question, and the guard asks it on
-	# the device.
+	#   pnSeconds   the length of the buffer that keeps what came out
+	#   pbPaced     TRUE to drain at the pace of the wall clock, FALSE to drain as fast as
+	#               WaitCycles asks
+	#   returns     the session itself, so calls chain
+	#   note        this is the only way to run the session without opening an audio device; a
+	#               device drains on its own thread, so a render in capture mode stalls the drain
+	#               and proves nothing about late notes
+	#   warning     refused once the loops have started; the buffer is silent beyond what was heard;
+	#               WaitCycles for longer than pnSeconds never returns, see the defects file
+	#   see         Capture, OnDevice
+	#@ aka  Drain the ring here instead of on a sound card, for `pnSeconds` at most, and keep what came out. Paced: drain at the wall clock's rate; unpaced: as fast as WaitCycles asks.
 	def CaptureInsteadOfDevice(pnSeconds, pbPaced)
 		if @bRunning
 			This._Refuse("CaptureInsteadOfDevice: choose before the loops start")
@@ -145,25 +198,53 @@ class stzSoundLive
 		@nCapSeconds = pnSeconds
 		return This
 
+	# Returns the buffer that capture mode fills with what has been heard.
+	#
+	#   returns    a stzSound of the length given to CaptureInsteadOfDevice, with the same rate and
+	#              channels as the session; an empty text before the loops start or when capture was
+	#              not chosen
+	#   warning    read it after WaitCycles; the sound has not been heard by a person
+	#   see        CaptureInsteadOfDevice
 	def Capture()
 		return @oCap
 
+	# Sets the function called each time a cycle boundary is heard, with the console line of that cycle.
+	#
+	#   f          the function, or its name, to call with one text argument
+	#   returns    the session itself, so calls chain
+	#   warning    it fires when the frames consumed cross a cycle boundary, not when the cycle is
+	#              posted, so the console never runs ahead of the sound
+	#   see        ConsoleLog, HeardCycle
 	def OnCycle(f)
 		@fOnCycle = f
 		return This
 
-	#-- the loops -----------------------------------------------------------
-
-	# Define or redefine a loop. Returns the cycle it lands on (0-based), or
-	# -1 when refused -- and a refused redefinition leaves the old one playing.
+	# Defines or redefines a loop from a pattern, naming the instrument itself.
 	#
-	# NAMED LiveLoop, NOT Loop. The plan's section 4 writes oM.Loop(...), and
-	# that line cannot be written in Ring: `loop` is a keyword (it is Ring's
-	# `continue`), and a method may not take its name. LiveLoop is also Sonic
-	# Pi's word for the same thing (live_loop).
+	#   pName       the loop's name, kept in lower case
+	#   pcPattern   a pattern of note names and strokes, such as c5 e5 g5 e5 or bd hh sn hh
+	#   returns     the cycle the loop lands on, counted from 0; -1 when refused
+	#   note        a redefinition lands on the first cycle boundary the producer has not reached
+	#   warning     a bad pattern, an unknown instrument, strokes on an instrument that is not
+	#               struck or notes on a drum are refused with LastError set and the old version
+	#               goes on playing; before the loops start a redefinition replaces and lands on
+	#               cycle 0
+	#   see         LiveLoopOn, LiveLoopOf, Silence
+	#@ aka  -- the loops -----------------------------------------------------------
 	def LiveLoop(pName, pcPattern)
 		return This.LiveLoopOn(pName, pcPattern, "")
 
+	# Defines or redefines a loop from a pattern, played on a chosen instrument.
+	#
+	#   pName         the loop's name, kept in lower case
+	#   pcPattern     a pattern of note names and strokes
+	#   pInstrument   the instrument name, or an empty text for the session's default
+	#   returns       the cycle the loop lands on, counted from 0; -1 when refused
+	#   note          while running, the notes of the loop from the landing cycle on are withdrawn
+	#                 and posted again
+	#   warning       refused like LiveLoop; every distinct note is rendered before anything already
+	#                 posted is touched
+	#   see           LiveLoop, LiveLoopOf
 	def LiveLoopOn(pName, pcPattern, pInstrument)
 		_oP_ = StzSoundPatternQ(pcPattern)
 		if NOT _oP_.IsValid()
@@ -172,7 +253,15 @@ class stzSoundLive
 		ok
 		return This._Define(lower("" + pName), _oP_, "" + pInstrument)
 
-	# A loop given a pattern object -- one already transformed by the algebra.
+	# Defines or redefines a loop from a pattern object that has already been transformed.
+	#
+	#   pName         the loop's name, kept in lower case
+	#   poPattern     a valid stzSoundPattern
+	#   pInstrument   the instrument name, or an empty text for the default
+	#   returns       the cycle the loop lands on, counted from 0; -1 when refused
+	#   warning       anything but a valid stzSoundPattern is refused, with LastError set
+	#   see           LiveLoopOn
+	#@ aka  A loop given a pattern object -- one already transformed by the algebra.
 	def LiveLoopOf(pName, poPattern, pInstrument)
 		if NOT isObject(poPattern) or NOT poPattern.IsValid()
 			This._Refuse("LiveLoopOf: needs a valid stzSoundPattern")
@@ -180,8 +269,17 @@ class stzSoundLive
 		ok
 		return This._Define(lower("" + pName), poPattern, "" + pInstrument)
 
-	# The plan's line: every n cycles, the loop transformed. A redefinition
-	# like any other -- it lands on a boundary.
+	# Redefines a loop as itself transformed every so many cycles.
+	#
+	#   pnN        the period of the transform in cycles
+	#   pName      the name of an existing loop
+	#   pXform     the transform to apply, such as rev
+	#   returns    the cycle the loop lands on; -1 when refused
+	#   note       the change lands on a cycle boundary like any redefinition
+	#   warning    an unknown loop, a silenced loop or a transform the pattern refuses is refused
+	#              with LastError set; the playing version is not touched
+	#   see        LiveLoop, Silence
+	#@ aka  The plan's line: every n cycles, the loop transformed. A redefinition like any other -- it lands on a boundary.
 	def Every(pnN, pName, pXform)
 		_i_ = This._LoopIndex(lower("" + pName))
 		if _i_ = 0
@@ -202,7 +300,13 @@ class stzSoundLive
 		ok
 		return This._Define(lower("" + pName), _oP_, _last_[3])
 
-	# Stop one loop at the next boundary it can land on.
+	# Stops one loop from the first cycle boundary it can land on.
+	#
+	#   pName      the name of the loop to silence
+	#   returns    the cycle on which the loop falls silent; -1 for an unknown loop
+	#   warning    the loop stays defined and can be redefined later
+	#   see        Hush, LiveLoop
+	#@ aka  Stop one loop at the next boundary it can land on.
 	def Silence(pName)
 		_c_ = lower("" + pName)
 		_i_ = This._LoopIndex(_c_)
@@ -212,6 +316,10 @@ class stzSoundLive
 		ok
 		return This._Land(_i_, NULL, "")
 
+	# Silences every loop at the first cycle boundary each can land on.
+	#
+	#   returns    the cycle of the last loop's landing; -1 when there are no loops
+	#   see        Silence
 	def Hush()
 		_k_ = -1
 		for _i_ = 1 to len(@aLoops)
@@ -219,8 +327,15 @@ class stzSoundLive
 		next
 		return _k_
 
-	#-- running -------------------------------------------------------------
-
+	# Posts the first window of notes and starts the performance, on a sound card or into the capture buffer.
+	#
+	#   returns    TRUE if running; FALSE with LastError set when there are no loops or the engine
+	#              refused
+	#   note       asking again while running answers TRUE
+	#   warning    without CaptureInsteadOfDevice it opens an audio device through a transport,
+	#              which was not run in this reference
+	#   see        WaitCycles, DriveWith, Stop
+	#@ aka  -- running -------------------------------------------------------------
 	def Start()
 		if @bRunning  return TRUE ok
 		if len(@aLoops) = 0
@@ -261,7 +376,13 @@ class stzSoundLive
 		This._Heard()
 		return TRUE
 
-	# Post what is due, drain (capture mode), and report what is heard.
+	# Posts what is due, drains the ring in paced capture mode and reports the cycles heard.
+	#
+	#   returns    the session itself, so calls chain
+	#   note       a reactive loop calls it every 20 ms for a driven session
+	#   warning    does nothing unless the session runs
+	#   see        WaitCycles, DriveWith
+	#@ aka  Post what is due, drain (capture mode), and report what is heard.
 	def Tick()
 		if NOT @bRunning  return This ok
 		This._Post()
@@ -276,7 +397,16 @@ class stzSoundLive
 		This._Heard()
 		return This
 
-	# Play for `pnCycles` more cycles of HEARD time, ticking all the while.
+	# Lets the session run for a number of heard cycles, starting it first when needed, and then returns.
+	#
+	#   pnCycles   how many cycles of heard time to wait
+	#   returns    the session itself, so calls chain
+	#   note       the wait counts heard frames, not posted ones
+	#   warning    in capture mode it never returns when the wait is longer than the capture buffer,
+	#              see the defects file; without capture it plays on a device, which was not run in
+	#              this reference
+	#   see        Start, Tick
+	#@ aka  Play for `pnCycles` more cycles of HEARD time, ticking all the while.
 	def WaitCycles(pnCycles)
 		if NOT @bRunning
 			if NOT This.Start()  return This ok
@@ -308,8 +438,15 @@ class stzSoundLive
 		end
 		return This
 
-	# The reactive plane drives it instead: one timer, every 20 ms, for every
-	# session registered -- see StzSoundLiveTickAll above for why it is global.
+	# Starts the session when needed and registers it so that a reactive loop steps it every 20 ms.
+	#
+	#   poReactive   the stzReactive whose loop should call the session
+	#   returns      the session itself, so calls chain
+	#   note         the session is registered by pointer in a global list and Stop removes it
+	#   warning      anything but a stzReactive is refused, with LastError set; the reactive loop
+	#                itself was not run in this reference
+	#   see          Tick, Stop
+	#@ aka  The reactive plane drives it instead: one timer, every 20 ms, for every session registered -- see StzSoundLiveTickAll above for why it is global.
 	def DriveWith(poReactive)
 		if NOT isObject(poReactive)
 			This._Refuse("DriveWith needs a stzReactive")
@@ -322,6 +459,11 @@ class stzSoundLive
 		poReactive.RunEvery(20, func { StzSoundLiveTickAll() })
 		return This
 
+	# Takes the session out of any reactive loop and stops the performance, keeping the loops and the logs.
+	#
+	#   returns    the session itself, so calls chain
+	#   warning    does nothing to a session that is not running
+	#   see        Release, Start
 	def Stop()
 		for _i_ = len($aStzSoundLiveSessions) to 1 step -1
 			if $aStzSoundLiveSessions[_i_] = object2pointer(This)
@@ -340,8 +482,13 @@ class stzSoundLive
 		@bRunning = FALSE
 		return This
 
-	# Free the notes and the graph -- only once stopped: the timeline reads
-	# the notes' samples directly.
+	# Stops the session, then frees the graph and the rendered notes.
+	#
+	#   returns    nothing
+	#   warning    call it once nothing is playing, since the timeline reads the note samples
+	#              directly
+	#   see        Stop
+	#@ aka  Free the notes and the graph -- only once stopped: the timeline reads the notes' samples directly.
 	def Release()
 		This.Stop()
 		if isObject(@oGraph)
@@ -350,75 +497,167 @@ class stzSoundLive
 		ok
 		@oR.Release()
 
-	#-- what happened -------------------------------------------------------
-
+	# TRUE if the performance has started and not been stopped.
+	#
+	#   returns    TRUE or FALSE
+	#   see        Start, Stop
+	#@ aka  -- what happened -------------------------------------------------------
 	def IsRunning()
 		return @bRunning
 
+	# Returns how many frames one cycle of 4 beats lasts at the session's speed.
+	#
+	#   returns    a number of frames; 96000 at 120 beats per minute and 48000 Hz
+	#   see        FrameOfCycle, Tempo
 	def CycleFrames()
 		return 4 * 60 / @nTempo * @nRate
 
+	# Returns the frame at which a cycle begins.
+	#
+	#   pnCycle    the cycle number, counted from 0
+	#   returns    a number of frames, counted from 0
+	#   warning    computed with the same function the offline render uses
+	#   see        CycleFrames
 	def FrameOfCycle(pnCycle)
 		return @oClock.FrameOf(4 * pnCycle, @nRate)
 
-	# Frames the listener has been given: the device's consumed frames, or
-	# what capture mode has drained.
+	# Returns the frames the listener has been given: those the device consumed, or those capture mode drained.
+	#
+	#   returns    a number of frames; 0 before the loops start
+	#   warning    it can pass a cycle boundary by a few hundred frames, since draining is done in
+	#              chunks
+	#   see        HeardCycle, RenderFrames
+	#@ aka  Frames the listener has been given: the device's consumed frames, or what capture mode has drained.
 	def HeardFrames()
 		if @bCapture  return @nHeard ok
 		if isObject(@oT)  return @oT.PositionInFrames() ok
 		return 0
 
+	# Returns the number of the last cycle whose boundary has been heard.
+	#
+	#   returns    a number counted from 0; -1 before any
+	#   see        ConsoleLog, OnCycle
 	def HeardCycle()
 		return @nHeardCycle
 
+	# Returns how far the producer has rendered the timeline, in frames.
+	#
+	#   returns    a number of frames; 0 before the loops start
+	#   warning    it runs ahead of HeardFrames by about a ring, a cycle and half a second
+	#   see        HeardFrames
 	def RenderFrames()
 		if @nTl = 0  return 0 ok
 		return StzEngineSoundGraphTimelineNow(@oGraph.GraphId(), @nTl)
 
-	# [ cycle, heardFrame, text ] -- one line per cycle as it was HEARD
+	# Returns one row per cycle as it was heard.
+	#
+	#   returns    a list of [ cycle, heardFrame, text ] rows, the text such as cycle 1 and each
+	#              loop with its version
+	#   warning    the text reports what was posted for that cycle, not the latest definition
+	#   see        Ledger, OnCycle
+	#@ aka  [ cycle, heardFrame, text ] -- one line per cycle as it was HEARD
 	def ConsoleLog()
 		return @aConsole
 
+	# Returns what was posted for each cycle.
+	#
+	#   returns    a list of [ cycle, loop name, version ] rows
+	#   warning    rows for cycles from a landing cycle on are dropped when a loop is redefined and
+	#              posted again
+	#   see        ConsoleLog, Landings
 	def Ledger()
 		return @aLedger
 
-	# [ name, version, landingCycle, heardCycleAtCall ]
+	# Returns where each definition of a loop took effect.
+	#
+	#   returns    a list of [ loop name, version, landing cycle, cycle heard when it was asked ]
+	#              rows
+	#   warning    before the loops start every landing is cycle 0 and the heard cycle is -1; a loop
+	#              redefined twice before the start and once while running is numbered v3 and then
+	#              v2, so version numbers can go back, see the defects file
+	#   see        Ledger, LiveLoop
+	#@ aka  [ name, version, landingCycle, heardCycleAtCall ]
 	def Landings()
 		return @aLandings
 
+	# Returns how many notes reached the timeline after the producer had rendered their frame.
+	#
+	#   returns    a number; 0 is the answer to want
+	#   warning    0 before the loops start
+	#   see        Cancelled, MidCycleChanges
 	def Late()
 		return This._Ctr(1)
 
+	# Returns how many notes were withdrawn before they sounded, by a redefinition.
+	#
+	#   returns    a number
+	#   warning    measured: redefining a four-note loop at heard cycle 1 withdrew 4 notes
+	#   see        MidCycleChanges
 	def Cancelled()
 		return This._Ctr(6)
 
-	# Withdrawals the engine refused because the note was already sounding --
-	# a change that would have landed MID-CYCLE. MU3's kill criterion is that
-	# this stays 0.
+	# Returns the withdrawals the engine refused because the note was already sounding, which would be a change in the middle of a cycle.
+	#
+	#   returns    a number; it should stay 0
+	#   warning    it is the kill criterion of the live design
+	#   see        Cancelled
+	#@ aka  Withdrawals the engine refused because the note was already sounding -- a change that would have landed MID-CYCLE. MU3's kill criterion is that this stays 0.
 	def MidCycleChanges()
 		return This._Ctr(7)
 
+	# Returns how many notes were rendered while the session was playing, because a pattern ran past its first period.
+	#
+	#   returns    a number
+	#   see        SecondsRendering
 	def NotesRenderedLive()
 		return @nRenderedLive
 
+	# Returns the wall time spent rendering the notes of the loops, in seconds.
+	#
+	#   returns    a number
+	#   see        NotesRenderedLive
 	def SecondsRendering()
 		return @nSecondsRendering
 
+	# Returns the frames that paced capture was due to drain and the ring did not yet hold.
+	#
+	#   returns    a number; 0 outside paced capture
+	#   see        CaptureInsteadOfDevice, Underruns
 	def DrainShortfall()
 		return @nDrainShort
 
+	# Returns the frames the sound card asked for and did not get, as of the last step.
+	#
+	#   returns    a number; 0 in capture mode
+	#   see        DrainShortfall
 	def Underruns()
 		return @nUnderruns
 
+	# TRUE if the session plays on a sound card, FALSE if capture was chosen.
+	#
+	#   returns    TRUE or FALSE; TRUE for a new session
+	#   see        CaptureInsteadOfDevice
 	def OnDevice()
 		return NOT @bCapture
 
+	# Returns the renderer that holds the notes of the loops.
+	#
+	#   returns    a stzSoundScoreRenderer
+	#   see        stzSoundScoreRenderer
 	def Renderer()
 		return @oR
 
+	# Returns the reason the last call was refused, or an empty text.
+	#
+	#   returns    a text
+	#   see        Refusals
 	def LastError()
 		return @cLastError
 
+	# Returns how many calls the session has refused.
+	#
+	#   returns    a number
+	#   see        LastError
 	def Refusals()
 		return @nRefusals
 

@@ -1,0 +1,27 @@
+{
+ "brief": "Draws a family tree and answers kinship questions: a person is a box with the years beneath the name, and every child hangs from a union dot.",
+ "detail": "A union is a small dot between two partners and every child hangs from a union, which is what makes two parents drawable: the child has one line up, to the dot, and the dot has one line to each partner. Marry joins two people and answers the union's identifier, Child and ChildOf hang children from it, and the kinship questions (PartnersOf, ChildrenOf, ParentsOf, SiblingsOf, AncestorsOf, DescendantsOf, GenerationOf) are read off the tree. Five rules judge it. Not here: adoption, step-relations, ordering siblings by birth, and dates (years are numbers). ToCanvasXT draws the tree.",
+ "receiver": "o1 = new stzFamilyTree(\"kin\")",
+ "example": [
+  "o1.AddPersonXT(\"anna\", \"Anna\", 1930, 2001)",
+  "o1.AddPersonXT(\"boris\", \"Boris\", 1928, 0)",
+  "o1.AddPerson(\"carl\", \"Carl\")",
+  "o1.AddPerson(\"dora\", \"Dora\")",
+  "o1.AddPerson(\"eva\", \"Eva\")",
+  "o1.AddPerson(\"fred\", \"Fred\")",
+  "o1.ChildOf(\"anna\", \"boris\", \"carl\")",
+  "o1.ChildOf(\"anna\", \"boris\", \"dora\")",
+  "o1.ChildOf(\"carl\", \"eva\", \"fred\")",
+  "? @@( o1.ChildrenOf(\"anna\") )",
+  "#--> [ \"carl\", \"dora\" ]",
+  "? @@( o1.SiblingsOf(\"carl\") )",
+  "#--> [ \"dora\" ]",
+  "? o1.GenerationOf(\"fred\")",
+  "#--> 3",
+  "? len(o1.AncestorsOf(\"fred\"))",
+  "#--> 4",
+  "? o1.GovernanceIsSound()",
+  "#--> 1"
+ ],
+ "see": ["stzFamilyRuleSet", "stzDiagram", "stzFaultTree", "stzPetriNet"]
+}

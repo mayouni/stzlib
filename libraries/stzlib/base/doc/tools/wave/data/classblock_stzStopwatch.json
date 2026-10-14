@@ -1,0 +1,20 @@
+{
+ "brief": "Measures elapsed time on the monotonic engine clock, with pause, laps, and export as an OpenTelemetry span.",
+ "detail": "A stopwatch starts running when it is made. Pause leaves the paused time out, Resume carries on, Stop also stamps the end of the span, and Start throws everything away and begins again. Elapsed time is a number in the unit named by the method, taken from a clock that wall-clock changes cannot move. A stopped stopwatch is exportable as an OpenTelemetry span with real W3C trace and span ids, its laps as events, so a program can hand its timings to any OTLP backend. Assert ranges and signs on live readings, never exact values.",
+ "receiver": "o1 = new stzStopwatch(\"job\")",
+ "example": [
+  "? o1.IsRunning()",
+  "#--> 1",
+  "o1.Lap(\"first\")",
+  "o1.Stop()",
+  "? o1.NumberOfLaps()",
+  "#--> 1",
+  "? o1.IsRunning()",
+  "#--> 0",
+  "? o1.Record()[:name]",
+  "#--> job",
+  "? o1.ElapsedNs() > 0",
+  "#--> 1"
+ ],
+ "see": ["StzStopwatch", "stzPerfProfile", "stzPerfSeries"]
+}
