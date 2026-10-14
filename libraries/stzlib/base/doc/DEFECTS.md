@@ -5,7 +5,7 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 383 methods in 67 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 426 methods in 83 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
@@ -17,6 +17,7 @@ and each was checked with a second call on different data. **None is fixed yet.*
 | regex/stzMatrex.ring | stzMatrex | 17 |
 | file/stzFile.ring | stzFileManager | 15 |
 | datetime/stzListOfTimeLines.ring | stzListOfTimeLines | 14 |
+| common/stzCache.ring | stzCache | 13 |
 | graph/stzGraph.ring | stzGraph | 12 |
 | regex/stzRegexMaker.ring | stzRegexMaker | 12 |
 | graph/stzOrgChart.ring | stzOrgChart | 10 |
@@ -25,19 +26,24 @@ and each was checked with a second call on different data. **None is fixed yet.*
 | reactive/stzReactive.ring | stzReactiveSystem | 7 |
 | number/stzListOfBytes.ring | stzListOfBytes | 6 |
 | string/stzTextStream.ring | stzTextStream | 6 |
+| common/stzCache.ring | stzCacheStorage | 5 |
 | geo/stzGeoField.ring | stzGeoField | 5 |
 | geo/stzGeoSamples.ring | stzGeoSamples | 5 |
 | graph/stzDiagram.ring | stzDiagram | 5 |
 | list/stzListChecker.ring | stzListChecker | 4 |
 | list/stzListOfPairs.ring | stzListOfPairs | 4 |
 | list/stzTree.ring | stzTree | 4 |
+| string/stzStringSplitter.ring | stzStringSplitter | 4 |
 | file/stzHtml.ring | stzHtmlBuilder | 3 |
 | graph/stzGraph.ring | stzGraphComparison | 3 |
+| list/stzListWalker.ring | stzListWalker | 3 |
+| list/stzSet.ring | stzSet | 3 |
 | natural/stzChainOfTruth.ring | stzChainOfTruth | 3 |
 | natural/stzChainOfValue.ring | stzChainOfValue | 3 |
 | natural/stzEntity.ring | stzEntity | 3 |
 | regex/stzRegexMaker.ring | stzRecursiveRegexMaker | 3 |
 | regex/stzTimex.ring | stzTimex | 3 |
+| sound/stzSoundLive.ring | stzSoundLive | 3 |
 | stats/stzDataSet.ring | stzDataSet | 3 |
 | stats/stzLinearSolver.ring | stzLinearSolver | 3 |
 | string/stzStringChecker.ring | stzStringChecker | 3 |
@@ -50,8 +56,10 @@ and each was checked with a second call on different data. **None is fixed yet.*
 | graph/stzKnowledgeGraph.ring | stzKnowledgeGraph | 2 |
 | math/stzMathFigure.ring | stzMathFigure | 2 |
 | neural/stzLLMFunction.ring | stzLLMFunction | 2 |
+| number/stzHexNumber.ring | stzHexNumber | 2 |
 | number/stzMatrix.ring | stzMatrix | 2 |
 | number/stzNumber.ring | stzNumber | 2 |
+| number/stzOctalNumber.ring | stzOctalNumber | 2 |
 | reactive/stzReactor.ring | stzReactor | 2 |
 | string/stzStringInserter.ring | stzStringInserter | 2 |
 | string/stzStringList.ring | stzStringList | 2 |
@@ -65,6 +73,8 @@ and each was checked with a second call on different data. **None is fixed yet.*
 | graph/stzOrgChart.ring | stzOrgChartReporter | 1 |
 | graph/stzOrgChart.ring | stzOrgChartSimulation | 1 |
 | linguistic/stzText.ring | stzText | 1 |
+| list/stzListBounder.ring | stzListBounder | 1 |
+| list/stzListDuplicates.ring | stzListDuplicates | 1 |
 | list/stzListFinder.ring | stzListFinder | 1 |
 | list/stzYielder.ring | stzYielder | 1 |
 | math/stzTukey.ring | stzTukeyLine | 1 |
@@ -73,14 +83,44 @@ and each was checked with a second call on different data. **None is fixed yet.*
 | number/stzBinaryNumber.ring | stzBinaryNumber | 1 |
 | optim/stzMultiObjectiveSolver.ring | stzMultiObjectiveSolver | 1 |
 | regex/stzListex.ring | stzListex | 1 |
+| regex/stzListexUter.ring | stzListexuter | 1 |
+| regex/stzRegexUter.ring | stzRegexuter | 1 |
 | security/stzOidcProvider.ring | stzOidcProvider | 1 |
+| sound/stzSoundGraph.ring | stzSoundGraph | 1 |
 | string/stzString.ring | stzString | 1 |
+| string/stzStringCounter.ring | stzStringCounter | 1 |
 | string/stzStringReplacer.ring | stzStringReplacer | 1 |
+| string/stzStringSubString.ring | stzStringSubStringCS | 1 |
+| table/stzPivotTableShow.ring | TableDisplayConfig | 1 |
 
 ## stzAppServer -- appserver/stzAppServer.ring (2)
 
 - `Use` (line 492): Leaves every request unchanged today instead of running the middleware before the routes under a path. -- The middleware is stored in the router but nothing ever reads the list, so it never runs (checked with paths /a, / and *)
 - `Static` (line 504): Leaves a folder unserved today instead of serving its files under a path; a request for a file in it answers 404. -- The static routes are stored in the router but nothing ever reads the list (checked with paths /files and /)
+
+## stzCache -- common/stzCache.ring (13)
+
+- `init` (line 127): Raises error R11 today instead of building a cache that stores its entries in a file. -- it builds a stzCacheStorage, which builds a stzStorage; that class sits in the future folder and is not loaded, so the error names class stzstorage not found; with the class loaded the next error is the call to the undefined TextFileCreateIfInexistant; no cache can be built today
+- `StorageType` (line 136): Raises error R13 today instead of returning where the cache keeps its entries. -- the storage object it asks is never built, because init raises
+- `CacheOpen` (line 172): Raises error R13 today instead of opening the cache's file or database. -- it starts by asking StorageType, which raises; the file and database calls it would make (TextFileOpen, DatabaseConnect) are not defined anywhere
+- `CacheFileHandler` (line 186): Raises error R13 today instead of returning the handle of the cache's file. -- the storage object it asks is never built, because init raises
+- `CacheFileColse` (line 195): Raises error R3 today instead of closing the cache's file. -- the name is misspelled (Colse for Close) and no such function exists under either spelling
+- `CacheFindEntry` (line 206): Raises error R13 today instead of returning the line number of the entry for a function call. -- it reads the cache file through the storage object that init never builds
+- `CacheGetCachedResult` (line 229): Raises error R13 today instead of returning the cached result of a function call. -- it starts with CacheFindEntry, which raises
+- `CacheGetResultInLineNumber` (line 243): Raises error R13 today instead of returning the result stored on one line of the cache file. -- it reads the cache file through the storage object that init never builds
+- `CacheFileLines` (line 254): Raises error R13 today instead of returning the lines of the cache file. -- it needs the file name from the storage object that init never builds
+- `CacheFileLineNumber` (line 282): Raises error R13 today instead of returning one line of the cache file. -- it starts with CacheFileLines, which raises
+- `CacheFileNumberOfLines` (line 290): Raises error R13 today instead of returning how many lines the cache file holds. -- it starts with CacheFileLines, which raises
+- `ComposeLine` (line 299): Raises error R3 today instead of joining the parts of an entry into one line with a bar between them. -- the function it calls is not defined anywhere in the library
+- `AddLine` (line 310): Raises error R13 today instead of appending an entry to the cache file. -- it starts by asking StorageType; the file call it would make (TextFileAddLine) is not defined, and the :InMemomry and :InDatabase branches are empty TODOs, the first misspelled
+
+## stzCacheStorage -- common/stzCache.ring (5)
+
+- `init` (line 349): Raises error R11 today instead of building the storage behind a cache. -- it builds a stzStorage, which sits in the future folder and is not loaded, so the error names class stzstorage not found; with that class loaded the next error is the call to the undefined TextFileCreateIfInexistant; a stzCacheStorage cannot be built today
+- `FileHandler` (line 357): Raises error R13 today instead of returning the handle of the storage file. -- it forwards to a stzStorage that init never builds
+- `FileName` (line 365): Raises error R13 today instead of returning the storage file's name. -- it forwards to a stzStorage that init never builds
+- `CompleteFileName` (line 373): Raises error R13 today instead of returning the storage file's name with its folder. -- it forwards to a stzStorage that init never builds
+- `StorageType` (line 381): Raises error R13 today instead of returning where the storage keeps its entries. -- it forwards to a stzStorage that init never builds
 
 ## stzCalendar -- datetime/stzCalendar.ring (25)
 
@@ -318,12 +358,20 @@ and each was checked with a second call on different data. **None is fixed yet.*
 - `InsertedAfterItem` (line 762): Raises error R14 today instead of returning the list with another item put after the item. -- it calls InsertAfterItemCSQ on the list, a method stzList does not have, so every call raises R14
 - `InsertedAfterItems` (line 781): Raises error R14 today instead of returning the list with several items put after the item. -- it calls InsertAfterItemsCSQ on the list, a method stzList does not have, so every call raises R14
 
+## stzListBounder -- list/stzListBounder.ring (1)
+
+- `AreBoundsOf` (line 312): Raises error R14 today instead of telling whether the list's two items are the bounds of a text. -- it raises error R14 Calling Method without definition: isboundedbyin, because the stzString method it calls does not exist; tried on a pair of bounds, on a list of pairs and with the case flag; a list that is neither a pair nor a list of pairs raises Can't check bounds! List must be a pair or a list of pairs instead
+
 ## stzListChecker -- list/stzListChecker.ring (4)
 
 - `ContainsItem` (line 574): Returns 0 whatever the list holds today, because the item is handed to the engine in a form it does not match. -- defect: ContainsItem(2) on [1,2,3], ContainsItem("a") on ["a","b"] and ContainsItem([3]) on [[1,2],[3]] all answer 0, and so does ContainsItemCS with either case flag; the call StzEngineListContainsCS(list, item, cs) answers 0 on its own for present items; the engine function stz_list_contains_cs expects the needle as a value handle and the class passes the raw item
 - `ContainsAllOfThese` (line 595): Returns 1 only for an empty list of items today, because every ContainsItem answers 0. -- defect: ContainsAllOfThese([1,2]) on [1,2,3] answers 0 and ContainsAllOfThese([]) answers 1; the cause is ContainsItem, which never finds an item
 - `ContainsOneOfThese` (line 614): Returns 0 today, whatever the items are, because every ContainsItem answers 0. -- defect: ContainsOneOfThese([9,2]) on [1,2,3] and ContainsOneOfThese(["z","b"]) on ["a","b"] answer 0; the cause is ContainsItem, which never finds an item
 - `ContainsW` (line 703): Raises error R3 today instead of telling whether an item satisfies the condition. -- defect: the method calls StzCCodeToRingCode, which no file of the library defines, so every call raises Calling Function without definition: stzccodetoringcode
+
+## stzListDuplicates -- list/stzListDuplicates.ring (1)
+
+- `RemoveNthDuplicate` (line 487): Leaves the list unchanged today, though it is meant to delete the nth repeat of an item. -- it does nothing: the list is unchanged on a b a c b a d for the first repeat of a, again on a second call, and with an n past the last repeat, because the delete is made on a copy of the list that List returns
 
 ## stzListFinder -- list/stzListFinder.ring (1)
 
@@ -335,6 +383,18 @@ and each was checked with a second call on different data. **None is fixed yet.*
 - `IsListOfSections` (line 1427): Answers TRUE for any list of pairs today, instead of TRUE only when every pair is made of two numbers. -- Answers TRUE whatever the pairs hold, text included: the loop records a failing pair in a variable that is never read, so the result stays at its start value
 - `AreAnagrams` (line 1564): Raises error R14 today instead of telling whether the two items are anagrams of each other. -- Raises R14 today on every call: it reads FirstValue and SecondValue, which this class does not define
 - `ToStzSetOfSections` (line 2317): Raises an error today instead of returning the pairs as a stzSetOfSections. -- Raises "You must provide a list of sections" today for valid sections such as [ [ 1, 3 ], [ 5, 8 ] ]: the stzSetOfSections constructor refuses what stzListOfSections accepts
+
+## stzListWalker -- list/stzListWalker.ring (3)
+
+- `AddWalker` (line 123): Raises error R24 today instead of registering a named walker for the list. -- it raises error R24 Using uninitialized variable: @awalkers on any list (tried on two lists), because the class reads the attribute @aWalkers without ever declaring or filling it
+- `Walkers` (line 161): Raises error R24 today instead of answering the registered walkers. -- it raises error R24 Using uninitialized variable: @awalkers, because the class reads the attribute @aWalkers without ever declaring or filling it (tried on two lists)
+- `Walker` (line 172): Raises error R24 today instead of answering the walker registered under a name. -- it raises error R24 Using uninitialized variable: @awalkers, as Walkers does (tried on two lists)
+
+## stzSet -- list/stzSet.ring (3)
+
+- `Subsets` (line 505): Returns an empty text today, because the method is only a TODO in the code. -- it computes no subsets: the body is the comment TODO
+- `SubSetsOfNElements` (line 514): Returns an empty text today, because the method is only a TODO in the code. -- it computes no subsets: the body is the comment TODO
+- `NumberOfSubsets` (line 522): Returns 0 today, because it counts the subsets that Subsets does not compute. -- it is the length of what Subsets answers, an empty text
 
 ## stzTree -- list/stzTree.ring (4)
 
@@ -391,6 +451,11 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 - `ToScientificNotationForm` (line 494): Raises error R14 today instead of returning the number in scientific notation. -- it forwards to a stzNumber method of that name, which does not exist, so every call raises R14
 
+## stzHexNumber -- number/stzHexNumber.ring (2)
+
+- `FractionalPart` (line 264): Raises error R14 today instead of returning the digits after the point. -- it calls HexNumberWithoutPrefix, a method that does not exist, so FractionalPart and FractPart raise for every input; init also refuses a text with a point, so there is never a fraction to return
+- `ToScientificForm` (line 388): Raises error R14 today instead of returning the value in scientific notation. -- it forwards to stzNumber.ToScientificForm, a method that does not exist, and passes an undefined variable; stzNumber itself raises the same R14; confirmed with 0xFF and 0x41
+
 ## stzListOfBytes -- number/stzListOfBytes.ring (6)
 
 - `BytesOfThisChar` (line 458): Does nothing today and answers an empty text instead of the bytes of a character. -- the definition has no body, so the argument is never read; BytesOfChar answers the bytes (tried on abc with b, and on héllo with é)
@@ -409,6 +474,11 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 - `SetDefaultFormat` (line 8937): Raises an unsupported-feature error today instead of setting the default number format. -- the call raises an unsupported-feature error today
 - `ApplyLocale` (line 8946): Raises an unsupported-feature error today instead of applying a locale to the number. -- the call raises an unsupported-feature error today
+
+## stzOctalNumber -- number/stzOctalNumber.ring (2)
+
+- `ToBaseNForm` (line 228): Raises error R14 today instead of writing the value in another base. -- it forwards to ToBaseNForm on stzNumber, a method that does not exist there (stzNumber has IntegerPartToBaseNForm), so every base raises R14; confirmed with 0o377 and 17
+- `ToScientificNotationForm` (line 242): Raises error R14 today instead of writing the value in scientific notation. -- it forwards to ToScientificNotationForm on stzNumber, a method that does not exist there; stzNumber raises the same R14 on its own
 
 ## stzObject -- object/stzObject.ring (28)
 
@@ -464,6 +534,10 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 - `NormalizeListString` (line 1120): Raises error R3 today instead of removing the spaces from the text of a list. -- raises Calling Function without definition: @stzreplace (R3), because it calls a function that does not exist
 
+## stzListexuter -- regex/stzListexUter.ring (1)
+
+- `GetDependencyChain` (line 461): Raises a stack overflow today instead of returning the triggers a trigger depends on. -- every log entry lists its own trigger in dependson, so the method calls itself on that same trigger without end; confirmed with the triggers pair and t1
+
 ## stzMatrex -- regex/stzMatrex.ring (17)
 
 - `Match` (line 557): TRUE if the matrix satisfies every term of the pattern; a success also records its size, properties and matrix as the matched parts. -- known defects: the terms row, col, pattern, determinant and sum accept every matrix, diagonal accepts every square one, quantifiers are never applied, and size(<n), size(>n) or a size with m or n for a number accept every matrix
@@ -518,6 +592,10 @@ and each was checked with a second call on different data. **None is fixed yet.*
 - `CanContaingdigit` (line 847): Raises error R14 today instead of adding a digit class given as a named parameter. -- Raises error R14 today: it calls CanContainADigit, which calls the missing IsBetweenOrFromNamedParam
 - `MatchSameContentAs` (line 1371): Raises error R24 today instead of appending a closing tag that repeats a defined group. -- Raises error R24 today: after finding the group it uses the variable pcTagGroupName, which is not a parameter of this method; seen with two different group names
 
+## stzRegexuter -- regex/stzRegexUter.ring (1)
+
+- `GetDependencyChain` (line 410): Raises a stack overflow today instead of returning the triggers a trigger depends on. -- every log entry lists its own trigger in dependson, so the method calls itself on that same trigger without end; confirmed with the trigger num and the trigger d
+
 ## stzTimex -- regex/stzTimex.ring (3)
 
 - `SplitByOperator` (line 177): Returns the whole text as one piece today instead of cutting it at an operator outside brackets. -- the brackets are tracked correctly, only the comparison fails
@@ -527,6 +605,16 @@ and each was checked with a second call on different data. **None is fixed yet.*
 ## stzOidcProvider -- security/stzOidcProvider.ring (1)
 
 - `IssueIdTokenAt` (line 526): Signs an ID token as IssueIdToken does, with the issue time you give, so that exp is pnNow plus the token lifetime. -- same escaping defect as IssueIdToken
+
+## stzSoundGraph -- sound/stzSoundGraph.ring (1)
+
+- `OutputNode` (line 183): Returns the index of the node the graph hands to the world. -- a node added after the graph was prepared can reset this to 0, see the defects file
+
+## stzSoundLive -- sound/stzSoundLive.ring (3)
+
+- `CaptureInsteadOfDevice` (line 191): Chooses to drain the sound into a buffer instead of a sound card, for at most a number of seconds. -- refused once the loops have started; the buffer is silent beyond what was heard; WaitCycles for longer than pnSeconds never returns, see the defects file
+- `WaitCycles` (line 410): Lets the session run for a number of heard cycles, starting it first when needed, and then returns. -- in capture mode it never returns when the wait is longer than the capture buffer, see the defects file; without capture it plays on a device, which was not run in this reference
+- `Landings` (line 580): Returns where each definition of a loop took effect. -- before the loops start every landing is cycle 0 and the heard cycle is -1; a loop redefined twice before the start and once while running is numbered v3 and then v2, so version numbers can go back, see the defects file
 
 ## stzDataSet -- stats/stzDataSet.ring (3)
 
@@ -563,6 +651,10 @@ and each was checked with a second call on different data. **None is fixed yet.*
 - `HasTrailingChars` (line 624): Returns 0 today whatever the text is, instead of telling whether the text ends with a repeated character. -- answers FALSE for abb and for xxyy alike: it compares two engine handles, which are never equal, instead of the two characters
 - `HasLeadingAndTrailingChars` (line 642): Returns 0 today whatever the text is, because both of the questions it combines answer 0. -- answers FALSE for aabaa: it is the AND of HasLeadingChars and HasTrailingChars, which are always 0
 
+## stzStringCounter -- string/stzStringCounter.ring (1)
+
+- `CountBetween` (line 214): Raises an error today instead of counting a fragment inside a section of the text. -- it calls the function StringNumberOfOccurrenceCS, which does not exist, so CountBetween and CountBetweenCS raise R3 for every input; confirmed with Banana banana and with xyzxyz
+
 ## stzStringInserter -- string/stzStringInserter.ring (2)
 
 - `InsertAfterManyPositions` (line 606): Raises error R13 today instead of inserting a fragment after each of several positions. -- raises Object is required (R13) for every valid list of numbers: [1,3,5] on banana and [2] on abc; probable cause the line that sorts the positions with new stzList(panPos).SortedInDescending(), since the same call made in two statements works; an empty or non-numeric list raises Incorrect param type instead
@@ -576,6 +668,17 @@ and each was checked with a second call on different data. **None is fixed yet.*
 ## stzStringReplacer -- string/stzStringReplacer.ring (1)
 
 - `RemoveLast` (line 530): Leaves the text unchanged today, because the occurrence it aims at is one past the last, in place. -- it asks the nth removal for a rank equal to the number of occurrences, and that rank counts from 0 in the default case-sensitive call, so nothing is removed: one two one two one, aaa bbb and its b stay as they are; RemoveLastCS(..., 0) does remove the last occurrence
+
+## stzStringSplitter -- string/stzStringSplitter.ring (4)
+
+- `Partition` (line 564): Returns only the text before the first separator, in a one-item list, today instead of the cut into before, separator and after. -- the engine hands back the three pieces in a buffer separated by NUL bytes and Ring reads only up to the first one, so key=value=more with = gives only key; confirmed with a-b, x=y=z, one two and a Hebrew text; stzString.Partition gives the real three-part cut
+- `PartitionAfter` (line 583): Returns only the text behind the first separator, in a one-item list, today instead of the cut that keeps the separator on the first part. -- the NUL-separated engine buffer is read up to its first NUL, so key=value=more with = gives only value=more; confirmed with a-b, x=y=z and a Hebrew text
+- `RPartition` (line 602): Returns only the text before the last separator, in a one-item list, today instead of the cut into before, separator and after. -- the NUL-separated engine buffer is read up to its first NUL, so key=value=more with = gives key=value; confirmed with x=y=z
+- `RPartitionAfter` (line 621): Returns only the text behind the last separator, in a one-item list, today instead of the cut that keeps the separator on the first part. -- the NUL-separated engine buffer is read up to its first NUL, so key=value=more with = gives only more; confirmed with x=y=z and a Hebrew text
+
+## stzStringSubStringCS -- string/stzStringSubString.ring (1)
+
+- `Positions` (line 182): Raises error R14 today instead of returning the position of every occurrence. -- it calls FindAllCS on the finder, a method that does not exist, so Positions and Occurrences raise for every input; confirmed with Banana bandana and with banana
 
 ## stzStringText -- string/stzStringText.ring (3)
 
@@ -591,6 +694,10 @@ and each was checked with a second call on different data. **None is fixed yet.*
 - `IsSetFromSocket` (line 205): Returns a flag meant to tell that the stream reads a socket, which stays NULL or 0 whatever is attached today. -- never TRUE: after SetFromScocket it answers 0 while SourceOfStream answers socket; the setter writes _bSetFromSocket_ and the getter reads _bIsSetFromSocket_
 - `IsSetFromProcess` (line 215): Raises error R24 today instead of telling that the stream reads a process. -- raises Using uninitialized variable: reurn, a misspelled return, before and after SetFromProcess
 - `Flush` (line 342): Raises error R14 today instead of flushing the stream. -- raises Calling Method without definition: flash, a misspelled call to flush on the QTextStream
+
+## TableDisplayConfig -- table/stzPivotTableShow.ring (1)
+
+- `GetDimensionGroupWidth` (line 464): Raises error R5 today instead of returning the width of one group of columns. -- it reads a variable that belongs to CalculateLayout and is empty here; the same error for 1 and for 2
 
 ## stzTable -- table/stzTable.ring (66)
 
