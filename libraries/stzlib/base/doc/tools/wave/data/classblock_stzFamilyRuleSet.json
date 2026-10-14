@@ -1,0 +1,14 @@
+{
+ "brief": "Holds the five rules a family tree is judged by: no one is their own ancestor, a union has two partners, a child has one union, parents are older, partners are not kin.",
+ "detail": "Check takes the rule graph of a tree (AsRuleGraph) and answers the findings. A tree asks for this through its own GovernanceFindings, so a rule set is built by hand only to add a rule of your own or to run the rules on a graph. A single parent, a union with one partner, is a warning and not an error.",
+ "receiver": "o1 = new stzFamilyRuleSet()",
+ "example": [
+  "? o1.Name()",
+  "#--> family-governance",
+  "? o1.NumberOfRules()",
+  "#--> 5",
+  "? o1.RuleNames()[1]",
+  "#--> no_one_is_own_ancestor"
+ ],
+ "see": ["stzFamilyRule", "stzFamilyTree", "stzGraphRuleSet"]
+}

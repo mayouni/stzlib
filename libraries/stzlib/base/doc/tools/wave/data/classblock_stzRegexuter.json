@@ -1,0 +1,26 @@
+{
+ "brief": "Matches regular-expression triggers in a text, runs a piece of code on each match and keeps a log of what changed.",
+ "detail": "Register triggers (a name and a regular expression), attach code to them that works on the match held in @value, then Process a text. Matches, Triggers, Positions and Results describe the last run, trigger by trigger, and State is a log of the matches whose computed value differs, with timestamp, order, pattern, position, dependson and affects. Build one with StzRxuter(), rxuter() or StzRxu(). Positions count characters and the Hebrew class [א-ת] and emoji patterns work. Found today: GetDependencyChain overflows the stack once the log holds an entry; Positions gives the first occurrence for every copy of a repeated match; only the first code attached to a trigger runs; and a code that raises is silently ignored.",
+ "receiver": "o1 = StzRxuter()",
+ "example": [
+  "o1.AddTrigger([ \"num\", \"[0-9]+\" ])",
+  "o1.AddCode(\"num\", \"@value = @value * 2\")",
+  "o1.Process(\"abc 12 de 5\")",
+  "? @@( o1.Matches() )",
+  "#--> [ \"12\", \"5\" ]",
+  "? @@( o1.Results() )",
+  "#--> [ 24, 10 ]",
+  "? @@( o1.Positions() )",
+  "#--> [ 5, 11 ]",
+  "o2 = StzRxuter()",
+  "o2.AddTrigger([ \"he\", \"[א-ת]+\" ])",
+  "o2.Process(\"שלום 12 עולם\")",
+  "? @@( o2.Positions() )",
+  "#--> [ 1, 9 ]"
+ ],
+ "see": [
+  "stzRegex",
+  "stzListexuter",
+  "stzString"
+ ]
+}

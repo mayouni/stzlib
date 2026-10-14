@@ -1,0 +1,12 @@
+{
+ "brief": "Holds one named check of the Petri-net governance, run over the rule graph of a net.",
+ "detail": "It is a graph rule filed under the petri domain. The five rules the library ships are built by stzPetriRuleSet and applied through the net's GovernanceFindings; a rule of your own can be added to a set the same way.",
+ "receiver": "o1 = new stzPetriRule(\"my_rule\")",
+ "example": [
+  "? o1.Name()",
+  "#--> my_rule",
+  "? o1.Domain()",
+  "#--> petri"
+ ],
+ "see": ["stzPetriRuleSet", "stzPetriNet", "stzGraphRule"]
+}

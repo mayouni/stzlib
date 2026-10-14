@@ -1,0 +1,18 @@
+{
+ "brief": "Turns a monitor's measured numbers into operational analysis: throughput, utilization, service demand and response time over an interval.",
+ "detail": "The instruments measure and the profile understands. It speaks the vocabulary of operational analysis: U utilization, R response time, X throughput and D, the CPU milliseconds each request consumed. It applies the laws that bind them (the utilization law and Little's law, each checked against a second, independent measurement), splits a request's time into computing and waiting, and forecasts memory growth. A profile is interval-based: it anchors at birth and every answer covers the time since; Mark starts a fresh interval. Assert ranges and signs on live readings, never exact values, and profile over many requests, because Windows accounts CPU in 15.625 ms ticks.",
+ "receiver": "o1 = new stzPerfProfile(StzPerfMonitor(\"api\"))",
+ "example": [
+  "? o1.Requests()",
+  "#--> 0",
+  "? o1.ServiceDemandMs()",
+  "#--> 0",
+  "? o1.Bottleneck()[:kind]",
+  "#--> cpu",
+  "? o1.UtilizationCheck()[:sampled]",
+  "#--> -1",
+  "? o1.HoursToMemoryCeiling(1000)",
+  "#--> -1"
+ ],
+ "see": ["StzPerfProfile", "stzPerfSeries", "stzStopwatch"]
+}

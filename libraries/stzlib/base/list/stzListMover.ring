@@ -16,6 +16,38 @@
  ///   CLASS   ///
 /////////////////
 
+# Reorders the items of a list: moves one item to another position, swaps two, reverses, rotates, shuffles, or brings an item to either end.
+#
+# It is the reordering helper of stzList, which builds one over itself for its Move, Swap,
+# MoveToStart, MoveToEnd and SwapFirstAndLast methods; build one with new stzListMover when you only
+# need to reorder. It works on its own copy, so a stzList passed in is never changed, and you read
+# the result with Content. A verb (Move, Swap, Reverse, RotateLeft, Shuffle ...) reorders the held
+# list in place and returns nothing, its Q form returning the mover for chaining; the past-tense
+# forms (Reversed, RotatedLeft, RotatedRight, Shuffled) return a reordered copy and leave the mover
+# alone. Positions count from 1, and a position outside the list moves nothing and says nothing.
+# Move and Swap accept the pair forms [ :From, 2 ] and [ :To, 5 ], [ :Between, 2 ] and [ :And, 3 ].
+# A rotation count larger than the list wraps around, and a negative one kills the Ring process
+# today. Shuffle gives a different order on every call.
+#
+#   receiver   o1 = new stzListMover([ "a", "b", "c", "d", "e" ])
+#   example    ? @@( o1.Reversed() )
+#              #--> [ "e", "d", "c", "b", "a" ]
+#              ? @@( o1.RotatedLeft(2) )
+#              #--> [ "c", "d", "e", "a", "b" ]
+#              o1.Move(1, 4)
+#              ? @@( o1.Content() )
+#              #--> [ "b", "c", "d", "a", "e" ]
+#              o1.Swap(1, 5)
+#              ? @@( o1.Content() )
+#              #--> [ "e", "c", "d", "a", "b" ]
+#              o1.MoveItemToStart("d")
+#              ? @@( o1.Content() )
+#              #--> [ "d", "e", "c", "a", "b" ]
+#              o2 = new stzListMover([ "שלום", "😀", "x" ])
+#              o2.MoveToStart(3)
+#              ? @@( o2.Content() )
+#              #--> [ "x", "שלום", "😀" ]
+#   see        stzList, stzListSorter, stzListSplits
 class stzListMover from stzObject
 
 	@oList
@@ -24,6 +56,14 @@ class stzListMover from stzObject
 	 #   INITIALIZATION  #
 	#===================#
 
+	# Builds a mover over a list, given as a list or as a stzList object.
+	#
+	#   pListOrObj   the list to reorder, or a stzList whose content is copied, any other value
+	#                raises an error
+	#   returns      nothing; the object is built
+	#   note         the mover works on its own copy: reordering it never changes the list or the
+	#                stzList you passed in, so read the result with Content
+	#   see          Content, Reversed
 	def init(pListOrObj)
 		if isList(pListOrObj)
 			@oList = new stzList(pListOrObj)
@@ -37,18 +77,43 @@ class stzListMover from stzObject
 	 #     CONTENT ACCESS            #
 	#===============================#
 
+	# Returns the list as it stands now, after the in-place moves made so far.
+	#
+	#   returns    a list
+	#   see        List, Reversed
 	def Content()
 		return @oList.Content()
 
+	# Returns the list as it stands now.
+	#
+	#   returns    a list
+	#   note       the same answer as Content
+	#   see        Content, NumberOfItems
 	def List()
 		return @oList.List()
 
+	# Returns how many items the list holds.
+	#
+	#   returns    a number
+	#   see        Content, IsEmpty
 	def NumberOfItems()
 		return @oList.NumberOfItems()
 
+	# TRUE if the list holds no item.
+	#
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   see        NumberOfItems, Content
 	def IsEmpty()
 		return @oList.IsEmpty()
 
+	# Takes the item at one position and puts it at another, the items in between shifting by one, in place.
+	#
+	#   _n1_       the position to take the item from, or a pair such as [ :From, 2 ]
+	#   _n2_       the position the item must end at, or a pair such as [ :To, 5 ]
+	#   returns    nothing; the content changes. MoveQ returns the mover for chaining
+	#   note       a position outside the list moves nothing and says nothing: Move(9, 1) leaves a b
+	#              c d e as it was
+	#   see        Swap, MoveToStart, MoveToEnd
 	def Move(_n1_, _n2_)
 		# Unconditionally accept named-param forms (the test suite
 		# uses several spellings: :From, :ItemFromPosition,
@@ -85,6 +150,14 @@ class stzListMover from stzObject
 			This.Move(_n1_, _n2_)
 			return This
 
+	# Exchanges the items at two positions, in place.
+	#
+	#   _n1_       the first position, or a pair such as [ :Between, 2 ]
+	#   _n2_       the second position, or a pair such as [ :And, 3 ]
+	#   returns    nothing; the content changes. SwapQ returns the mover for chaining
+	#   note       a position outside the list exchanges nothing and says nothing: Swap(1, 9) leaves
+	#              a b c as it was
+	#   see        Move, SwapFirstAndLast
 	def Swap(_n1_, _n2_)
 		if CheckingParams()
 			if isList(_n1_) and IsOneOfTheseNamedParamsList(_n1_, [:Between, :BetweenPosition, :Position, :ItemAt])
@@ -111,6 +184,12 @@ class stzListMover from stzObject
 			This.Swap(_n1_, _n2_)
 			return This
 
+	# Takes the item at a position and puts it first, in place.
+	#
+	#   n          the position of the item to move
+	#   returns    nothing; the content changes. MoveToStartQ returns the mover for chaining
+	#   note       a position outside the list moves nothing; MoveToFirst is the same call
+	#   see        MoveToEnd, Move, MoveItemToStart
 	def MoveToStart(n)
 		This.Move(n, 1)
 
@@ -118,9 +197,21 @@ class stzListMover from stzObject
 			This.MoveToStart(n)
 			return This
 
+		# Takes the item at a position and puts it first, in place.
+		#
+		#   n          the position of the item to move
+		#   returns    nothing; the content changes
+		#   note       the same call as MoveToStart
+		#   see        MoveToStart, MoveToLast
 		def MoveToFirst(n)
 			This.MoveToStart(n)
 
+	# Takes the item at a position and puts it last, in place.
+	#
+	#   n          the position of the item to move
+	#   returns    nothing; the content changes. MoveToEndQ returns the mover for chaining
+	#   note       a position outside the list moves nothing; MoveToLast is the same call
+	#   see        MoveToStart, Move, MoveItemToEnd
 	def MoveToEnd(n)
 		This.Move(n, This.NumberOfItems())
 
@@ -128,6 +219,12 @@ class stzListMover from stzObject
 			This.MoveToEnd(n)
 			return This
 
+		# Takes the item at a position and puts it last, in place.
+		#
+		#   n          the position of the item to move
+		#   returns    nothing; the content changes
+		#   note       the same call as MoveToEnd
+		#   see        MoveToEnd, MoveToFirst
 		def MoveToLast(n)
 			This.MoveToEnd(n)
 
@@ -135,6 +232,11 @@ class stzListMover from stzObject
 	 #   SWAP FIRST AND LAST                                #
 	#======================================================#
 
+	# Exchanges the first and the last items, in place.
+	#
+	#   returns    nothing; the content changes. SwapFirstAndLastQ returns the mover for chaining
+	#   note       a list of one item or an empty list is left as it is
+	#   see        Swap, Move
 	def SwapFirstAndLast()
 		This.Swap(1, This.NumberOfItems())
 
@@ -181,6 +283,10 @@ class stzListMover from stzObject
 	 #   REVERSE                                            #
 	#======================================================#
 
+	# Reverses the order of the items, in place.
+	#
+	#   returns    nothing; the content changes. ReverseQ returns the mover for chaining
+	#   see        Reversed, RotateLeft
 	def Reverse()
 		_pRevList_ = @oList._EngineListFromContent()
 		if _pRevList_ != ""
@@ -202,6 +308,10 @@ class stzListMover from stzObject
 			This.Reverse()
 			return This
 
+	# Returns the items in the opposite order, leaving the mover as it was.
+	#
+	#   returns    a list
+	#   see        Reverse, RotatedLeft
 	def Reversed()
 		_oRdCopy_ = new stzListMover(This.Content())
 		_oRdCopy_.Reverse()
@@ -211,6 +321,15 @@ class stzListMover from stzObject
 	 #   ROTATE -- CIRCULAR SHIFT                           #
 	#======================================================#
 
+	# Moves the first n items to the end, in place, the others shifting toward the start.
+	#
+	#   n          how many items go from the front to the back
+	#   returns    nothing; the content changes. RotateLeftQ returns the mover for chaining
+	#   note       an n larger than the list wraps around, so 7 on 5 items is 2; 0 changes nothing
+	#   warning    a negative n kills the whole Ring process with panic: integer part of floating
+	#              point value out of bounds in stz_list.dll (RotatedLeft(-1) on 1 to 5, and
+	#              RotateRight(-1) on x y z)
+	#   see        RotatedLeft, RotateRight
 	def RotateLeft(n)
 		_pRlList_ = @oList._EngineListFromContent()
 		StzEngineListRotateLeft(_pRlList_, n)
@@ -221,11 +340,25 @@ class stzListMover from stzObject
 			This.RotateLeft(n)
 			return This
 
+	# Returns the items with the first n moved to the end, leaving the mover as it was.
+	#
+	#   n          how many items go from the front to the back
+	#   returns    a list
+	#   note       an n larger than the list wraps around, so 7 on 5 items is 2
+	#   warning    a negative n kills the whole Ring process, as in RotateLeft
+	#   see        RotateLeft, RotatedRight
 	def RotatedLeft(n)
 		_oRldCopy_ = new stzListMover(This.Content())
 		_oRldCopy_.RotateLeft(n)
 		return _oRldCopy_.Content()
 
+	# Moves the last n items to the front, in place, the others shifting toward the end.
+	#
+	#   n          how many items go from the back to the front
+	#   returns    nothing; the content changes. RotateRightQ returns the mover for chaining
+	#   note       an n larger than the list wraps around; 0 changes nothing
+	#   warning    a negative n kills the whole Ring process, as in RotateLeft
+	#   see        RotatedRight, RotateLeft
 	def RotateRight(n)
 		_pRrList_ = @oList._EngineListFromContent()
 		StzEngineListRotateRight(_pRrList_, n)
@@ -236,6 +369,13 @@ class stzListMover from stzObject
 			This.RotateRight(n)
 			return This
 
+	# Returns the items with the last n moved to the front, leaving the mover as it was.
+	#
+	#   n          how many items go from the back to the front
+	#   returns    a list
+	#   note       an n larger than the list wraps around
+	#   warning    a negative n kills the whole Ring process, as in RotateLeft
+	#   see        RotateRight, RotatedLeft
 	def RotatedRight(n)
 		_oRrdCopy_ = new stzListMover(This.Content())
 		_oRrdCopy_.RotateRight(n)
@@ -245,6 +385,11 @@ class stzListMover from stzObject
 	 #   SHUFFLE -- RANDOM REORDER                          #
 	#======================================================#
 
+	# Puts the items in a random order, in place.
+	#
+	#   returns    nothing; the content changes. ShuffleQ returns the mover for chaining
+	#   note       the order is different on every call
+	#   see        Shuffled, Reverse
 	def Shuffle()
 		_pShufList_ = @oList._EngineListFromContent()
 		if _pShufList_ != ""
@@ -268,6 +413,11 @@ class stzListMover from stzObject
 			This.Shuffle()
 			return This
 
+	# Returns the items in a random order, leaving the mover as it was.
+	#
+	#   returns    a list
+	#   note       the order is different on every call
+	#   see        Shuffle, Reversed
 	def Shuffled()
 		_oShufCopy_ = new stzListMover(This.Content())
 		_oShufCopy_.Shuffle()
@@ -277,12 +427,25 @@ class stzListMover from stzObject
 	 #   MOVE ITEM BY VALUE                                 #
 	#======================================================#
 
+	# Finds the first occurrence of an item and puts it first, in place.
+	#
+	#   pItem      the item to move, looked up with case
+	#   returns    nothing; the content changes
+	#   note       an absent item changes nothing; only the first occurrence moves
+	#   see        MoveItemToEnd, MoveToStart
 	def MoveItemToStart(pItem)
 		_anMisPos_ = @oList.FindAll(pItem)
 		if len(_anMisPos_) > 0
 			This.MoveToStart(_anMisPos_[1])
 		ok
 
+	# Finds the first occurrence of an item and puts it last, in place.
+	#
+	#   pItem      the item to move, looked up with case
+	#   returns    nothing; the content changes
+	#   note       an absent item changes nothing; only the first occurrence moves, so a b a becomes
+	#              b a a
+	#   see        MoveItemToStart, MoveToEnd
 	def MoveItemToEnd(pItem)
 		_anMiePos_ = @oList.FindAll(pItem)
 		if len(_anMiePos_) > 0

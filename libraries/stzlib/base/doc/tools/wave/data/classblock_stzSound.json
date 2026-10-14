@@ -1,0 +1,21 @@
+{
+ "brief": "Holds a buffer of audio samples that you can load, inspect, change, analyse and save as a WAV file.",
+ "detail": "The buffer lives in the sound engine and carries its own sample rate and channel count, so a saved file and a reloaded file keep the rate they were made at. The plain form of a verb acts and returns nothing; the Q twin does the same and returns the sound, so a chain never leaves it. Readers such as Duration, Peak and Rms return data, and the To... analysis methods return stzSoundGrid objects of numbers, never pictures. Play and PlayFor open an audio device and block until the sound ends; they are the only methods here that do. The sound has not been heard by a person (UNPERCEIVED): the examples are checked by frame count, sample rate, peak level and duration, not by listening.",
+ "receiver": "o1 = StzSoundOfSilenceQ(0.5, 2, 48000)",
+ "example": [
+  "? o1.Frames()",
+  "#--> 24000",
+  "? o1.SampleRate()",
+  "#--> 48000",
+  "? o1.Duration()",
+  "#--> 0.50",
+  "o1.SetSampleAt(10, 1, 0.5)",
+  "? o1.Peak()",
+  "#--> 0.50"
+ ],
+ "see": [
+  "stzSoundScore",
+  "stzSoundGraph",
+  "stzSoundGrid"
+ ]
+}

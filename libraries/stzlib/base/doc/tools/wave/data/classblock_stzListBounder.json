@@ -1,0 +1,27 @@
+{
+ "brief": "Answers questions about the ends of a list: its bounds, its middle, a section or range of it, and whether positions and values stay within limits.",
+ "detail": "It is the bounds helper of stzList, which builds one over itself for its SectionXT, IsBoundedByCS, Bounds, BoundsUpToNItems and RemoveBoundsCS methods; build one with new stzListBounder when you only need the ends. It works on its own copy, so a stzList passed in is never changed, and you read the result of an in-place verb (RemoveBounds, ClampTo) with Content. Bounds are the first and last items: IsBoundedBy compares them with a pair [ open, close ], and BoundsRemoved returns the list without them when they match. Positions count from 1. Section raises when a position falls outside the list, where stzListGetter.Section clips; NFirstItems and NLastItems clip to the list. AreBoundsOf raises error R14 today, because the stzString method it calls does not exist. Hebrew, Arabic and emoji items work as bounds like any other value.",
+ "receiver": "o1 = new stzListBounder([ \"<\", \"a\", \"b\", \"c\", \">\" ])",
+ "example": [
+  "? @@( o1.Bounds() )",
+  "#--> [ \"<\", \">\" ]",
+  "? o1.IsBoundedBy([ \"<\", \">\" ])",
+  "#--> 1",
+  "? @@( o1.Middle() )",
+  "#--> [ \"a\", \"b\", \"c\" ]",
+  "? @@( o1.BoundsRemoved([ \"<\", \">\" ]) )",
+  "#--> [ \"a\", \"b\", \"c\" ]",
+  "? @@( o1.Section(2, 4) )",
+  "#--> [ \"a\", \"b\", \"c\" ]",
+  "? @@( o1.BoundsUpToNItems(2) )",
+  "#--> [ [ \"<\", \"a\" ], [ \"c\", \">\" ] ]",
+  "o2 = new stzListBounder([ \"«\", \"שלום\", \"»\" ])",
+  "? o2.IsBoundedBy([ \"«\", \"»\" ])",
+  "#--> 1"
+ ],
+ "see": [
+  "stzList",
+  "stzListGetter",
+  "stzListExtractor"
+ ]
+}

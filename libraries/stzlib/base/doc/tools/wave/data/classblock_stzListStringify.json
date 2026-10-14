@@ -1,0 +1,31 @@
+{
+ "brief": "Writes a list out as text: as Ring code, with every item a text, joined with a separator, or converted between numbers and texts and in case.",
+ "detail": "It is the writing-out helper of stzList, which builds one over itself for its Stringify, ToListInAString and ToListInAStringInShortForm methods; build one with new stzListStringify when you only need a text form. It works on its own copy, so a stzList passed in is never changed. A verb (Stringify, StringifyLists, StringifyObjects, Singlify) converts the held list in place and returns nothing, its Q form returning the stringifier for chaining; the past-tense forms (Stringified, ListsStringified, ObjectsStringified, Singlified) and the others (Lowercased, Uppercased, NumbersToStrings, StringsToNumbers, Join, ToCode) return the result and leave the stringifier alone. A number with decimals is written with two of them: 2.5 reads 2.50. StringsToNumbers raises on a text that is not numeric, and Join turns a sublist into an empty text. An object is written as the name of its variable, which is @noname when it has none. Hebrew, Arabic and emoji items are texts like any other.",
+ "receiver": "o1 = new stzListStringify([ \"a\", 12, 2.5, [ 1, \"b\" ] ])",
+ "example": [
+  "? o1.ToCode()",
+  "#--> [ \"a\", 12, 2.50, [ 1, \"b\" ] ]",
+  "? @@( o1.Stringified() )",
+  "#--> [ \"a\", \"12\", \"2.50\", '[ 1, \"b\" ]' ]",
+  "o2 = new stzListStringify([ \"a\", \"b\", 3, \"c\" ])",
+  "? o2.Join(\"-\")",
+  "#--> a-b-3-c",
+  "o3 = new stzListStringify([ 3, 4, 5, 6 ])",
+  "? o3.ToListInAStringInShortForm()",
+  "#--> 3:6",
+  "o4 = new stzListStringify([ 1, 1, 2, 2, 2, 1 ])",
+  "? @@( o4.Singlified() )",
+  "#--> [ 1, 2, 1 ]",
+  "o5 = new stzListStringify([ \"12\", \"3.5\", 4 ])",
+  "? @@( o5.StringsToNumbers() )",
+  "#--> [ 12, 3.50, 4 ]",
+  "o6 = new stzListStringify([ \"שלום\", \"😀\", \"x\" ])",
+  "? o6.Join(\"|\")",
+  "#--> שלום|😀|x"
+ ],
+ "see": [
+  "stzList",
+  "stzString",
+  "stzListFlattener"
+ ]
+}

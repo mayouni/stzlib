@@ -1,0 +1,25 @@
+{
+ "brief": "Declares a multi-agent composition as a colored graph and proves it sound before anything runs.",
+ "detail": "Actors (program, language model, hybrid), guardians, effects, tools, trace sinks, inputs and human checkpoints are nodes, each with a fixed capability set and a taint color; edges say who proposes to, guards, feeds, traces or escalates to whom. The invariants checked are: a language-model actor never holds the effectful capability, every effect has a guardian into it and a path to a trace sink, open model text and external data never reach an effect without a guardian on the path. Grant is the governed door, which refuses effectful for an llm actor at the moment it is expressed, and a sealed record of what the doors granted lets Tampering report any property set around them through GraphQ. Declaring an id again replaces the node.",
+ "receiver": "o1 = new stzAgentGraph(\"mailer\")",
+ "example": [
+  "o1.AddLLMActor(\"writer\")",
+  "o1.AddGuardian(\"gate\")",
+  "o1.AddEffect(\"send\")",
+  "o1.AddTraceSink(\"audit\")",
+  "? o1.IsSound()",
+  "#--> 0",
+  "o1.Proposes(\"writer\", \"gate\")",
+  "o1.Guards(\"gate\", \"send\")",
+  "o1.Traces(\"send\", \"audit\")",
+  "? o1.IsSound()",
+  "#--> 1",
+  "? o1.MayGrant(\"writer\", \"effectful\")",
+  "#--> 0"
+ ],
+ "see": [
+  "stzGraph",
+  "stzAgentHost",
+  "stzAgentRuleSet"
+ ]
+}

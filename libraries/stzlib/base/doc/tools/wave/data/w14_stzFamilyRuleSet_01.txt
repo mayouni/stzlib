@@ -1,0 +1,1 @@
+init | Builds the family-tree governance, the set of five rules a family tree is judged by. | nothing; the object is built | | stzFamilyRule, StzFamilyRuleSetQ, GovernanceFindings | the rules are no_one_is_own_ancestor, union_has_two_partners, child_of_one_union, parents_are_older and partners_are_not_kin, in that order

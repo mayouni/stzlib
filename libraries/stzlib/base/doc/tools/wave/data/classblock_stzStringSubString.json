@@ -1,0 +1,15 @@
+{
+ "brief": "Studies one fragment inside a text with comparisons that always respect case.",
+ "detail": "It is stzStringSubStringCS with the case flag fixed at 1, so it takes the fragment and the text and nothing else; every method is inherited and described on stzStringSubStringCS. Build one with StzStringSubStringQ(fragment, text).",
+ "receiver": "o1 = new stzStringSubString(\"an\", \"Banana bandana\")",
+ "example": [
+  "? o1.NumberOfOccurrence()",
+  "#--> 4",
+  "? o1.LastPosition()",
+  "#--> 12"
+ ],
+ "see": [
+  "stzStringSubStringCS",
+  "stzString"
+ ]
+}

@@ -66,6 +66,27 @@ func StzVoiceForQ(pcLanguageTag)
 	_o_.UseLanguage(pcLanguageTag)
 	return _o_
 
+# Turns text into a sound buffer with the machine's speech engine, one language at a time, refusing rather than substituting.
+#
+# The primary verb is ToSoundOf: a voice renders to a buffer, and a buffer is a stzSound, so every
+# verb of the sound plane then applies to speech. The sound carries the engine's own sample rate
+# (22050 Hz here, not 48000), which is stored in a saved file too. UseLanguage tries an exact tag
+# and then the same language with another region, and otherwise refuses and says which languages the
+# machine has. Synthesis is under 1 percent of the output latency, so speech is late because the
+# audio path is long, not because it is computed. Say and ToTransportOf open an audio device and
+# were not run in this reference. The speech has not been heard by a person (UNPERCEIVED): it is
+# checked by frame count, rate, duration and peak level.
+#
+#   receiver   o1 = StzVoiceQ()
+#   example    ? o1.IsUsable()
+#              #--> 1
+#              ? o1.UseLanguage("de-DE")
+#              #--> 0
+#              ? o1.UseLanguage("en-US")
+#              #--> 1
+#              ? o1.ToSoundOf("The disk is nearly full").SampleRate()
+#              #--> 22050
+#   see        stzListener, stzSound, stzSoundTransport
 class stzVoice
 
 	@nV = 0
@@ -74,6 +95,13 @@ class stzVoice
 	@bWarm = FALSE
 	@nCurrent = 0            # 1-based index of the selected voice, 0 = platform default
 
+	# Opens the machine's speech engine for a voice that renders text to sound buffers.
+	#
+	#   returns    nothing; the object is built
+	#   note       no audio device is opened
+	#   warning    a machine with no speech engine is a supported configuration: the object is then
+	#              not usable and LastError says why
+	#   see        StzVoiceQ, IsUsable
 	def init()
 		if NOT StzVoiceEngineLoaded()
 			@cLastError = "stz_voice.dll is not loaded"
@@ -88,33 +116,57 @@ class stzVoice
 			@cLastError = StzEngineVoiceLastError()
 		ok
 
+	# Frees the speech engine handle held by the voice.
+	#
+	#   returns    nothing
+	#   warning    afterwards the voice is not usable and every render is refused
+	#   see        IsUsable
 	def Release()
 		if @nV != 0
 			StzEngineVoiceFree(@nV)
 			@nV = 0
 		ok
 
-	#-- can this machine speak at all? --------------------------------------
-
-	# ASK THIS FIRST. A machine with no speech engine is a supported
-	# configuration, not a broken install, and every other path still works.
+	# TRUE if the machine has a speech engine and the voice opened it.
+	#
+	#   returns    TRUE or FALSE
+	#   warning    ask this first
+	#   see        init, LastError
+	#@ aka  -- can this machine speak at all? --------------------------------------
 	def IsUsable()
 		return @nV != 0
 
+	# Returns the reason the last call failed, or the engine's last voice error when none was recorded here.
+	#
+	#   returns    a text
+	#   warning    a render that succeeds does not clear it, so a stale message can outlive the
+	#              failure that made it
+	#   see        Refusals
 	def LastError()
 		if @cLastError != ""  return @cLastError ok
 		if StzVoiceEngineLoaded()  return StzEngineVoiceLastError() ok
 		return ""
 
+	# Returns how many calls the voice refused.
+	#
+	#   returns    a number
+	#   see        LastError
 	def Refusals()
 		return @nRefusals
 
-	#-- what it can do, as DATA ---------------------------------------------
-
+	# Returns how many voices are installed on the machine.
+	#
+	#   returns    a number; 0 when the speech tier is missing
+	#   see        VoiceNames, Languages
+	#@ aka  -- what it can do, as DATA ---------------------------------------------
 	def VoiceCount()
 		if NOT StzVoiceEngineLoaded()  return 0 ok
 		return StzEngineVoiceInstalledCount()
 
+	# Returns the names of the installed voices, in the order UseVoice counts them.
+	#
+	#   returns    a list of text
+	#   see        VoiceCount, ToVoiceList
 	def VoiceNames()
 		_a_ = []
 		for _i_ = 1 to This.VoiceCount()
@@ -122,8 +174,12 @@ class stzVoice
 		next
 		return _a_
 
-	# The BCP-47 tags this machine can SPEAK. Not what it can hear -- that is
-	# stzListener's question and on this machine the answer differs.
+	# Returns the language tags the machine can speak, without repeats.
+	#
+	#   returns    a list of text such as en-US and fr-FR
+	#   warning    this is what the machine can speak, which is not what it can hear
+	#   see        HasLanguage, UseLanguage
+	#@ aka  The BCP-47 tags this machine can SPEAK. Not what it can hear -- that is stzListener's question and on this machine the answer differs.
 	def Languages()
 		_a_ = []
 		for _i_ = 1 to This.VoiceCount()
@@ -134,7 +190,11 @@ class stzVoice
 		next
 		return _a_
 
-	# The whole capability matrix for this direction: [ [name, tag], ... ]
+	# Returns every installed voice with its language.
+	#
+	#   returns    a list of [ name, language tag ] rows
+	#   see        VoiceNames, Languages
+	#@ aka  The whole capability matrix for this direction: [ [name, tag], ... ]
 	def ToVoiceList()
 		_a_ = []
 		for _i_ = 1 to This.VoiceCount()
@@ -143,23 +203,41 @@ class stzVoice
 		next
 		return _a_
 
+	# TRUE if some installed voice speaks the language, an exact tag first and then the language alone.
+	#
+	#   pcTag      a language tag such as en-US, or a bare language such as fr
+	#   returns    TRUE or FALSE
+	#   warning    the bare language fr matches fr-FR
+	#   see        UseLanguage, Languages
 	def HasLanguage(pcTag)
 		return This._FindLanguage(pcTag) > 0
 
+	# Returns the name of the voice chosen with UseLanguage or UseVoice.
+	#
+	#   returns    a text; an empty text while the platform default is in use
+	#   see        CurrentLanguage, UseVoice
 	def CurrentVoiceName()
 		if @nCurrent = 0  return "" ok
 		return StzEngineVoiceInstalledName(@nCurrent)
 
+	# Returns the language tag of the voice chosen with UseLanguage or UseVoice.
+	#
+	#   returns    a text; an empty text while the platform default is in use
+	#   see        CurrentVoiceName
 	def CurrentLanguage()
 		if @nCurrent = 0  return "" ok
 		return StzEngineVoiceInstalledLanguage(@nCurrent)
 
-	#-- choosing ------------------------------------------------------------
-
-	# REFUSES rather than substitutes. An exact tag match is tried first, then a
-	# language-only match ("fr" finds "fr-FR") -- which is a WIDENING within one
-	# language, not a substitution across two. Anything else is a counted
-	# refusal, and the reason names what the machine actually has.
+	# Chooses a voice that speaks a language, and refuses rather than substituting another language.
+	#
+	#   pcTag      a language tag such as en-US, or a bare language such as fr
+	#   returns    TRUE if a voice was chosen; FALSE with LastError naming the languages the machine
+	#              has
+	#   note       with no usable voice it is refused as well
+	#   warning    an exact tag is tried first, then the same language with another region; a
+	#              different language is a counted refusal
+	#   see        UseVoice, HasLanguage
+	#@ aka  -- choosing ------------------------------------------------------------
 	def UseLanguage(pcTag)
 		if NOT This.IsUsable()
 			@nRefusals++
@@ -179,6 +257,14 @@ class stzVoice
 		This.UseLanguage(pcTag)
 		return This
 
+	# Chooses an installed voice by its position.
+	#
+	#   pnIndex    the voice's position in VoiceNames, counted from 1
+	#   returns    TRUE if the voice was chosen; FALSE with LastError set when there is no such
+	#              voice
+	#   note       the error text for a bad position counts from 0, one less than the number given
+	#   warning    choosing a voice makes the voice cold again, so WarmUp pays its start-up cost
+	#   see        UseLanguage, VoiceNames
 	def UseVoice(pnIndex)
 		if NOT This.IsUsable()  return FALSE ok
 		if StzEngineVoiceSelectVoice(@nV, pnIndex) != 0
@@ -195,54 +281,88 @@ class stzVoice
 		This.UseVoice(pnIndex)
 		return This
 
-	#-- prosody -------------------------------------------------------------
+	# Sets the speaking rate of later renders.
 	#
-	# SAPI takes rate -10..10 and volume 0..100 and IGNORES anything else. The
-	# engine clamps and reports, because a setting that silently does nothing is
-	# worse than one that is visibly limited.
-
+	#   pnRate     the rate from -10 for slowest to 10 for fastest, 0 being normal
+	#   returns    the voice itself, so calls chain
+	#   note       measured: a rate of 5 shortened a 2.52 s phrase to 1.47 s
+	#   warning    the engine clamps values outside the range; with no usable voice the call does
+	#              nothing
+	#   see        SetVolume
+	#@ aka  -- prosody -------------------------------------------------------------
 	def SetRate(pnRate)
 		if NOT This.IsUsable()  return This ok
 		StzEngineVoiceSetRate(@nV, pnRate)
 		return This
 
+	# Sets the speaking volume of later renders.
+	#
+	#   pnVolume   the volume from 0 to 100
+	#   returns    the voice itself, so calls chain
+	#   note       measured: a volume of 30 lowered the peak of a phrase from 0.49 to 0.07
+	#   warning    the engine clamps values outside the range; with no usable voice the call does
+	#              nothing
+	#   see        SetRate
 	def SetVolume(pnVolume)
 		if NOT This.IsUsable()  return This ok
 		StzEngineVoiceSetVolume(@nV, pnVolume)
 		return This
 
-	#-- WARMING UP ----------------------------------------------------------
-
-	# Pay the cold cost NOW, not in the middle of the first sentence. VC0
-	# measured a cold synthesis at 4.3x a warm one -- the same trap SN0 found in
-	# ma_device_start, where start-up took 500 ms and callbacks ran ahead of real
-	# time during it. One inaudible syllable, discarded.
+	# Pays the start-up cost of the voice now by synthesising and discarding one syllable.
+	#
+	#   returns    the voice itself, so calls chain
+	#   note       no audio device is opened
+	#   warning    a cold synthesis costs about 4.3 times a warm one
+	#   see        IsWarm, ToSoundOf
+	#@ aka  -- WARMING UP ----------------------------------------------------------
 	def WarmUp()
 		if NOT This.IsUsable()  return This ok
 		StzEngineVoiceSpeak(@nV, "a")
 		@bWarm = TRUE
 		return This
 
+	# TRUE if the voice has rendered something since it was opened or since its voice was changed.
+	#
+	#   returns    TRUE or FALSE
+	#   see        WarmUp
 	def IsWarm()
 		return @bWarm
 
-	#-- THE PRIMARY VERB: text in, DATA out ---------------------------------
-
-	# A stzSound, or "" on refusal. Needs no audio device at all: the whole
-	# point is that a voice becomes a buffer, and a buffer needs no speaker.
+	# Renders text to a sound in memory with the current voice, playing nothing.
+	#
+	#   pcText     the text to speak
+	#   returns    a stzSound mono at the speech engine's rate, 22050 Hz on this machine; an empty
+	#              text with LastError set on refusal
+	#   note       the sound has not been heard by a person; the empty text is not refused and gives
+	#              a sound
+	#   warning    no audio device is opened; the rate is carried in the sound and in a saved file,
+	#              and is not 48000, so resample before measuring loudness
+	#   see        ToSoundOfSsml, SampleRate
+	#@ aka  -- THE PRIMARY VERB: text in, DATA out ---------------------------------
 	def ToSoundOf(pcText)
 		return This._Render(pcText, FALSE)
 
-	# The same, with SSML prosody. The engine validates the markup, because the
-	# platform does not: handed an unclosed tag SAPI silently discards it and
-	# speaks the words, so a typo means the prosody never happens and nobody is
-	# told.
+	# Renders SSML markup to a sound in memory, after the engine has checked that the markup is well formed.
+	#
+	#   pcSsml     the SSML document, such as a speak element holding text and prosody elements
+	#   returns    a stzSound as ToSoundOf gives; an empty text with LastError set on refusal
+	#   note       no audio device is opened
+	#   warning    markup with an unclosed tag is refused by the engine, since the platform would
+	#              discard it silently and speak the words
+	#   see        ToSoundOf
+	#@ aka  The same, with SSML prosody. The engine validates the markup, because the platform does not: handed an unclosed tag SAPI silently discards it and speaks the words, so a typo means the prosody never happens and nobody is told.
 	def ToSoundOfSsml(pcSsml)
 		return This._Render(pcSsml, TRUE)
 
-	#-- the convenience -----------------------------------------------------
-
-	# Say it, and wait. The simple case in one line, for a script.
+	# Speaks the text on the audio device and waits until it has ended.
+	#
+	#   pcText     the text to speak
+	#   returns    the voice itself
+	#   note       for a script that has nothing else to do
+	#   warning    not run in this reference: it opens an audio device through the sound; a refused
+	#              render makes it do nothing
+	#   see        ToSoundOf, ToTransportOf
+	#@ aka  -- the convenience -----------------------------------------------------
 	def Say(pcText)
 		_s_ = This.ToSoundOf(pcText)
 		if NOT isObject(_s_)  return This ok
@@ -253,19 +373,14 @@ class stzVoice
 		This.Say(pcText)
 		return This
 
-	# Say it WITHOUT waiting, through SN6's transport -- so a program with a UI
-	# or a game loop keeps running while it speaks. The transport comes back
-	# started; ask it for the position, pause it, or stop it early.
+	# Speaks the text on the audio device without waiting and returns the transport that is playing it.
 	#
-	# IT STOPS BY ITSELF, and the first version did not. `Play()` means "play
-	# until stopped", so a caller writing the obvious loop --
-	#
-	#     while oT.IsPlaying()   oT.Tick()   end
-	#
-	# -- never left it: the phrase ended, the transport kept rendering silence,
-	# and IsPlaying stayed true forever. A spoken phrase has a KNOWN length, so
-	# the transport is given it. The trap was real enough to hang this face's
-	# own demo before it was found.
+	#   pcText     the text to speak
+	#   returns    a stzSoundTransport already started; an empty text when the render is refused
+	#   note       the transport stops by itself after the phrase's length, which Tick must see
+	#   warning    not run in this reference: it opens an audio device through a transport
+	#   see        Say, ToSoundOf
+	#@ aka  Say it WITHOUT waiting, through SN6's transport -- so a program with a UI or a game loop keeps running while it speaks. The transport comes back started; ask it for the position, pause it, or stop it early.
 	def ToTransportOf(pcText)
 		_s_ = This.ToSoundOf(pcText)
 		if NOT isObject(_s_)  return "" ok
@@ -276,22 +391,30 @@ class stzVoice
 		_t_.PlayFor(_s_.Duration())
 		return _t_
 
-	#-- what a caller must not assume --------------------------------------
-
-	# The format the platform produces. NOT 48 kHz, so anything that measures
-	# loudness must resample first -- BS.1770 refuses another rate rather than
-	# returning a plausible number.
+	# Returns the sample rate of the sounds the speech engine produces, in hertz.
+	#
+	#   returns    a number, 22050 on this machine; 0 without the speech tier
+	#   warning    not 48000, so loudness measures need a resample first
+	#   see        Channels, ToSoundOf
+	#@ aka  -- what a caller must not assume --------------------------------------
 	def SampleRate()
 		if NOT StzVoiceEngineLoaded()  return 0 ok
 		return StzEngineVoiceSampleRate()
 
+	# Returns the number of channels of the sounds the speech engine produces.
+	#
+	#   returns    a number, 1 on this machine; 0 without the speech tier
+	#   see        SampleRate
 	def Channels()
 		if NOT StzVoiceEngineLoaded()  return 0 ok
 		return StzEngineVoiceChannelCount()
 
-	# Synthesis is under one percent of the plane's output latency, so speech is
-	# not slow because it is computed -- it is late because the audio path is
-	# long. See the header, and the sound plan's S.5.
+	# Answers whether computing the speech is what makes it late, which it is not.
+	#
+	#   returns    FALSE always
+	#   warning    synthesis is under 1 percent of the output latency; the audio path is long
+	#   see        WarmUp
+	#@ aka  Synthesis is under one percent of the plane's output latency, so speech is not slow because it is computed -- it is late because the audio path is long. See the header, and the sound plan's S.5.
 	def SynthesisIsTheBottleneck()
 		return FALSE
 

@@ -1,0 +1,26 @@
+{
+ "brief": "Reads items out of a list without changing it: by position, first or last, in sections, at random, by type, or in neighbouring runs.",
+ "detail": "It is the reading helper of stzList, which builds one over itself for its UniqueItems, EveryNthItem, Head, Tail and ItemsBetween methods; build one with new stzListGetter when you only need to read. It works on its own copy, so a stzList passed in is never changed. Positions count from 1. NthItem, NFirstItems, NLastItems, Head, Tail and ItemsAtPositions raise error R2 when a position or a count goes past the list, while Section forgives it by clipping to the list and Range cuts a run that is too long. The Q forms (NFirstItemsQ, PairsQ, SlidingWindowQ ...) return the answer as a stzList to chain on. UniqueItemsCS takes the case flag (0 folds a and A). OnlyChars misses a single non-ASCII character today, and RandomItem and NRandomItems answer differently on every call.",
+ "receiver": "o1 = new stzListGetter([ \"a\", \"b\", \"c\", \"d\", \"e\", \"f\", \"g\" ])",
+ "example": [
+  "? o1.NthItem(3)",
+  "#--> c",
+  "? @@( o1.Section(2, 4) )",
+  "#--> [ \"b\", \"c\", \"d\" ]",
+  "? @@( o1.EveryNthItem(3) )",
+  "#--> [ \"c\", \"f\" ]",
+  "? @@( o1.NLastItems(2) )",
+  "#--> [ \"f\", \"g\" ]",
+  "o2 = new stzListGetter([ 1, 2, 3, 4 ])",
+  "? @@( o2.SlidingWindow(2) )",
+  "#--> [ [ 1, 2 ], [ 2, 3 ], [ 3, 4 ] ]",
+  "o3 = new stzListGetter([ \"שלום\", \"😀\", \"a\", \"שלום\" ])",
+  "? @@( o3.UniqueItems() )",
+  "#--> [ \"שלום\", \"😀\", \"a\" ]"
+ ],
+ "see": [
+  "stzList",
+  "stzListExtractor",
+  "stzListBounder"
+ ]
+}

@@ -1,0 +1,27 @@
+{
+ "brief": "Studies one fragment inside a text: where it occurs, how often, what the text becomes without it, and how it sits among other fragments.",
+ "detail": "Built with a fragment, a text and a flag that says whether comparisons respect case (1) or ignore it (0); stzStringSubString is the same class with the flag fixed at 1. Nothing here changes either text: the Replaced, Removed, Uppercased and Lowercased forms return a new text. Positions count characters, so Hebrew, Arabic and emoji text is located where you expect. Found today: Positions and Occurrences raise R14 because they call a finder method that does not exist; NumberOfOccurrence and Replaced do not count overlapping occurrences while Sections and NthPosition do; and IsBoundedBy compares the enclosed stretch with the fragment exactly, so the flag 0 does not reach that last step.",
+ "receiver": "o1 = new stzStringSubStringCS(\"an\", \"Banana bandana\", 1)",
+ "example": [
+  "? o1.FirstPosition()",
+  "#--> 2",
+  "? @@( o1.Sections() )",
+  "#--> [ [ 2, 3 ], [ 4, 5 ], [ 9, 10 ], [ 12, 13 ] ]",
+  "? o1.Removed()",
+  "#--> Ba bda",
+  "o2 = new stzStringSubStringCS(\"AN\", \"Banana bandana\", 0)",
+  "? o2.NumberOfOccurrence()",
+  "#--> 4",
+  "o3 = new stzStringSubStringCS(\"ל\", \"שלום עולם\", 1)",
+  "? o3.LastPosition()",
+  "#--> 8",
+  "o4 = new stzStringSubStringCS(\"😀\", \"a😀b😀\", 1)",
+  "? @@( o4.Sections() )",
+  "#--> [ [ 2, 2 ], [ 4, 4 ] ]"
+ ],
+ "see": [
+  "stzStringSubString",
+  "stzString",
+  "stzStringFinder"
+ ]
+}

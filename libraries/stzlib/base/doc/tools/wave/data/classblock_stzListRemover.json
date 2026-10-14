@@ -1,0 +1,26 @@
+{
+ "brief": "Deletes items from a list: every occurrence of an item, the nth or the first or the last, the item at a position, a section, or several positions at once.",
+ "detail": "It is the removing helper of stzList, which builds one over itself for its RemoveW method; build one with new stzListRemover when you only need to delete. It works on its own copy, so a stzList passed in is never changed, and you read the result with Content. A verb (RemoveAll, RemoveFirstItem, RemoveSection ...) edits the held list in place and returns nothing, its Q form returning the remover for chaining; the past-tense forms (AllOccurrencesRemoved, NthItemRemoved, FirstItemRemoved, LastItemRemoved) return an edited copy and leave the remover alone. Positions count from 1. Items are matched whole and with case; the CS forms take 0 to ignore case. Three limits found today: a negative position given to RemoveItemAtPosition (and so to RemoveAt, RemoveAtPosition and RemoveNthItem) kills the Ring process, RemoveLastItem raises on an empty list, and a position listed twice in RemoveItemsAtPositions deletes two different items.",
+ "receiver": "o1 = new stzListRemover([ \"a\", \"b\", \"a\", \"c\", \"a\" ])",
+ "example": [
+  "? @@( o1.AllOccurrencesRemoved(\"a\") )",
+  "#--> [ \"b\", \"c\" ]",
+  "? @@( o1.NthItemRemoved(2) )",
+  "#--> [ \"a\", \"a\", \"c\", \"a\" ]",
+  "o1.RemoveNthOccurrence(2, \"a\")",
+  "? @@( o1.Content() )",
+  "#--> [ \"a\", \"b\", \"c\", \"a\" ]",
+  "o1.RemoveSection(2, 3)",
+  "? @@( o1.Content() )",
+  "#--> [ \"a\", \"a\" ]",
+  "o2 = new stzListRemover([ \"שלום\", \"😀\", \"שלום\", \"x\" ])",
+  "o2.RemoveAll(\"שלום\")",
+  "? @@( o2.Content() )",
+  "#--> [ \"😀\", \"x\" ]"
+ ],
+ "see": [
+  "stzList",
+  "stzListExtractor",
+  "stzListDuplicates"
+ ]
+}

@@ -1,0 +1,20 @@
+{
+ "brief": "Holds music as data: a flat list of timed notes, rests and drum strokes, measured in beats rather than seconds.",
+ "detail": "Everything from one note to a whole piece is the same type, so Then, Together, Repeat, On and Transpose work on all of it. An event is [ startBeat, beats, hz, instrument, velocity, stroke, glideEndHz ]. The performance settings Tempo, Quantize and Swing turn beats into frames only when a sound is made, in FrameOf, so one score can be rendered at two speeds or swung and straight without being rewritten. A refused call leaves the score unchanged, counts in Refusals and explains itself in LastError. ToSound renders to memory with no audio device; Play goes live through the scheduler. The result has not been heard by a person (UNPERCEIVED): it is checked by frame count, sample rate and peak level.",
+ "receiver": "o1 = new stzSoundScore(\"c e g c5\")",
+ "example": [
+  "? o1.Beats()",
+  "#--> 4",
+  "? o1.Seconds()",
+  "#--> 2",
+  "? o1.Contour()",
+  "#--> U U U",
+  "? o1.ToSound().SampleRate()",
+  "#--> 48000"
+ ],
+ "see": [
+  "stzSoundScoreRenderer",
+  "stzSoundScheduler",
+  "stzSound"
+ ]
+}

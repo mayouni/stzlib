@@ -16,6 +16,35 @@
  ///   CLASS   ///
 /////////////////
 
+# Answers questions about the ends of a list: its bounds, its middle, a section or range of it, and whether positions and values stay within limits.
+#
+# It is the bounds helper of stzList, which builds one over itself for its SectionXT, IsBoundedByCS,
+# Bounds, BoundsUpToNItems and RemoveBoundsCS methods; build one with new stzListBounder when you
+# only need the ends. It works on its own copy, so a stzList passed in is never changed, and you
+# read the result of an in-place verb (RemoveBounds, ClampTo) with Content. Bounds are the first and
+# last items: IsBoundedBy compares them with a pair [ open, close ], and BoundsRemoved returns the
+# list without them when they match. Positions count from 1. Section raises when a position falls
+# outside the list, where stzListGetter.Section clips; NFirstItems and NLastItems clip to the list.
+# AreBoundsOf raises error R14 today, because the stzString method it calls does not exist. Hebrew,
+# Arabic and emoji items work as bounds like any other value.
+#
+#   receiver   o1 = new stzListBounder([ "<", "a", "b", "c", ">" ])
+#   example    ? @@( o1.Bounds() )
+#              #--> [ "<", ">" ]
+#              ? o1.IsBoundedBy([ "<", ">" ])
+#              #--> 1
+#              ? @@( o1.Middle() )
+#              #--> [ "a", "b", "c" ]
+#              ? @@( o1.BoundsRemoved([ "<", ">" ]) )
+#              #--> [ "a", "b", "c" ]
+#              ? @@( o1.Section(2, 4) )
+#              #--> [ "a", "b", "c" ]
+#              ? @@( o1.BoundsUpToNItems(2) )
+#              #--> [ [ "<", "a" ], [ "c", ">" ] ]
+#              o2 = new stzListBounder([ "«", "שלום", "»" ])
+#              ? o2.IsBoundedBy([ "«", "»" ])
+#              #--> 1
+#   see        stzList, stzListGetter, stzListExtractor
 class stzListBounder from stzObject
 
 	@oList
@@ -24,6 +53,14 @@ class stzListBounder from stzObject
 	 #   INITIALIZATION  #
 	#===================#
 
+	# Builds a bounder over a list, given as a list or as a stzList object.
+	#
+	#   pListOrObj   the list to inspect, or a stzList whose content is copied, any other value
+	#                raises an error
+	#   returns      nothing; the object is built
+	#   note         the bounder works on its own copy: removing bounds never changes the list or
+	#                the stzList you passed in, so read the result with Content
+	#   see          Content, Bounds
 	def init(pListOrObj)
 		if isList(pListOrObj)
 			@oList = new stzList(pListOrObj)
@@ -37,12 +74,24 @@ class stzListBounder from stzObject
 	 #     CONTENT ACCESS            #
 	#===============================#
 
+	# Returns the list as it stands now, after the bounds removed so far.
+	#
+	#   returns    a list
+	#   see        NumberOfItems, BoundsRemoved
 	def Content()
 		return @oList.Content()
 
+	# Returns how many items the list holds.
+	#
+	#   returns    a number
+	#   see        Content, IsEmpty
 	def NumberOfItems()
 		return @oList.NumberOfItems()
 
+	# TRUE if the list holds no item.
+	#
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   see        NumberOfItems, Content
 	def IsEmpty()
 		return @oList.IsEmpty()
 
@@ -120,6 +169,17 @@ class stzListBounder from stzObject
 		def SectionCSQ(_n1_, _n2_, pCaseSensitive)
 			return new stzList( This.SectionCS(_n1_, _n2_, pCaseSensitive) )
 
+	# Returns the items from one position to another, both included.
+	#
+	#   _n1_       the first position, or a pair such as [ :From, 2 ] or the word :First
+	#   _n2_       the last position, or a pair such as [ :To, 3 ] or the word :Last
+	#   returns    a list
+	#   note       a start larger than the end is swapped with it, so Section(4, 2) answers the same
+	#              as Section(2, 4); SectionCS, SectionXT and the Q forms also exist, SectionXT
+	#              counting a negative position back from the end
+	#   warning    a position outside the list raises Indexes out of range! n1 and n2 must be inside
+	#              the list, where the same call of stzListGetter clips to the list
+	#   see        Range, Sections, NFirstItems
 	def Section(_n1_, _n2_)
 		return This.SectionCS(_n1_, _n2_, 1)
 
@@ -167,6 +227,13 @@ class stzListBounder from stzObject
 	 #  GETTING MANY SECTIONS                   #
 	#===========================================#
 
+	# Returns several sections of the list in one call, one list of items per section.
+	#
+	#   paSections   the sections to read, each [ first, last ]
+	#   returns      a list of lists
+	#   note         ManySections is the same call; SectionsQ returns a stzList
+	#   warning      a section outside the list raises the error of Section
+	#   see          Section
 	def Sections(paSections)
 		_nSsLen_ = len(paSections)
 		_aSsResult_ = []
@@ -232,6 +299,16 @@ class stzListBounder from stzObject
 
 		return _bAbResult_
 
+	# Raises error R14 today instead of telling whether the list's two items are the bounds of a text.
+	#
+	#   pIn        the text to look in
+	#   returns    nothing
+	#   note       the case-flag form AreBoundsOfCS raises the same error
+	#   warning    it raises error R14 Calling Method without definition: isboundedbyin, because the
+	#              stzString method it calls does not exist; tried on a pair of bounds, on a list of
+	#              pairs and with the case flag; a list that is neither a pair nor a list of pairs
+	#              raises Can't check bounds! List must be a pair or a list of pairs instead
+	#   see        IsBoundedBy
 	def AreBoundsOf(pItem, pIn)
 		return This.AreBoundsOfCS(pItem, pIn, 1)
 
@@ -258,6 +335,13 @@ class stzListBounder from stzObject
 			return 0
 		ok
 
+	# TRUE if the first item of the list equals the first bound and its last item equals the second.
+	#
+	#   paBounds   the pair of bounds [ open, close ], or one value used for both ends
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   note       case counts: IsBoundedByCS(paBounds, 0) ignores it; on an empty list it raises
+	#              Index outside the list! instead of answering FALSE
+	#   see        Bounds, RemoveBounds
 	def IsBoundedBy(paBounds)
 		return This.IsBoundedByCS(paBounds, 1)
 
@@ -265,6 +349,13 @@ class stzListBounder from stzObject
 	 #  GETTING BOUNDS OF THE LIST UP TO N ITEMS  #
 	#--------------------------------------------#
 
+	# Returns the first n items and the last n items of the list, as a pair of lists.
+	#
+	#   _n_        how many items to take at each end
+	#   returns    a pair, [ first n items, last n items ]
+	#   note       with n = 1 each end is the item itself and not a list of one; an n larger than
+	#              the list gives the whole list at both ends
+	#   see        Bounds, NFirstItems
 	def BoundsUpToNItems(_n_)
 		_aBuFirst_ = This.NFirstItems(_n_)
 		_aBuLast_  = This.NLastItems(_n_)
@@ -279,6 +370,11 @@ class stzListBounder from stzObject
 
 		return [ _aBuFirst_, _aBuLast_ ]
 
+	# Returns the first item and the last item of the list as a pair.
+	#
+	#   returns    a pair, [ first item, last item ]
+	#   note       a list of one item answers that item twice
+	#   see        BoundsUpToNItems, IsBoundedBy
 	def Bounds()
 		return This.BoundsUpToNItems(1)
 
@@ -296,6 +392,13 @@ class stzListBounder from stzObject
 			This.RemoveBoundsCS(paBounds, pCaseSensitive)
 			return This
 
+	# Deletes the first and the last items if they equal the given bounds, in place.
+	#
+	#   paBounds   the pair of bounds [ open, close ], or one value used for both ends
+	#   returns    nothing; the content changes. RemoveBoundsQ returns the bounder for chaining
+	#   note       when the list is not bounded by them nothing happens and nothing is said;
+	#              RemoveBoundsCS(paBounds, 0) ignores case
+	#   see        BoundsRemoved, IsBoundedBy, Middle
 	def RemoveBounds(paBounds)
 		This.RemoveBoundsCS(paBounds, 1)
 
@@ -303,8 +406,13 @@ class stzListBounder from stzObject
 			This.RemoveBounds(paBounds)
 			return This
 
-	# A copy of the list with the given bounds removed; the original
-	# is unchanged.
+	# Returns the list without its first and last items if they equal the given bounds, leaving the bounder as it was.
+	#
+	#   paBounds   the pair of bounds [ open, close ], or one value used for both ends
+	#   returns    a list
+	#   note       the list comes back whole when it is not bounded by them
+	#   see        RemoveBounds, Middle
+	#@ aka  A copy of the list with the given bounds removed; the original is unchanged.
 	def BoundsRemoved(paBounds)
 		_oBrCopy_ = new stzListBounder(@oList.Content())
 		_aBrResult_ = _oBrCopy_.RemoveBoundsQ(paBounds).Content()
@@ -314,9 +422,18 @@ class stzListBounder from stzObject
 	 #  IS PAIR / IS LIST OF PAIRS  #
 	#==============================#
 
+	# TRUE if the list holds exactly two items.
+	#
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   see        IsListOfPairs, Bounds
 	def IsPair()
 		return This.NumberOfItems() = 2
 
+	# TRUE if every item of the list is itself a list of two items.
+	#
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   note       an empty list answers TRUE
+	#   see        IsPair, Sections
 	def IsListOfPairs()
 		_aIlpContent_ = This.Content()
 		_nIlpLen_ = len(_aIlpContent_)
@@ -333,6 +450,11 @@ class stzListBounder from stzObject
 	 #     GETTING THE MIDDLE OF THE LIST    #
 	#=======================================#
 
+	# Returns the items between the first and the last one.
+	#
+	#   returns    a list
+	#   note       a list of fewer than 3 items answers [ ]; WithoutBounds is the same call
+	#   see        Bounds, BoundsRemoved
 	def Middle()
 		_aMdContent_ = This.Content()
 		_nMdLen_ = len(_aMdContent_)
@@ -355,6 +477,15 @@ class stzListBounder from stzObject
 	 #     RANGE (START, COUNT)              #
 	#=======================================#
 
+	# Returns a run of items given its first position and how many items it holds.
+	#
+	#   nStart     the first position
+	#   nCount     how many items to take
+	#   returns    a list
+	#   note       a count that runs past the end is cut at the end of the list and a count of 0
+	#              gives [ ]; a start of 0 raises error R2 Array Access (Index out of range); RangeQ
+	#              returns a stzList
+	#   see        Section, NFirstItems
 	def Range(nStart, nCount)
 		_aRgContent_ = This.Content()
 		_nRgLen_ = len(_aRgContent_)
@@ -378,6 +509,14 @@ class stzListBounder from stzObject
 	 #     CLAMPED TO MIN/MAX VALUES            #
 	#==========================================#
 
+	# Returns the list with each number held between a minimum and a maximum, other items untouched.
+	#
+	#   nMin       the smallest value allowed
+	#   nMax       the largest value allowed
+	#   returns    a list
+	#   note       texts and sublists pass through unchanged; [ 5, 12, 7 ] clamped to 6 and 10 gives
+	#              [ 6, 10, 7 ]; the bounder is left as it was
+	#   see        ClampTo, IsWithinBounds
 	def ClampedTo(nMin, nMax)
 		_aClContent_ = This.Content()
 		_nClLen_ = len(_aClContent_)
@@ -400,6 +539,13 @@ class stzListBounder from stzObject
 
 		return _aClResult_
 
+	# Holds each number of the list between a minimum and a maximum, in place.
+	#
+	#   nMin       the smallest value allowed
+	#   nMax       the largest value allowed
+	#   returns    nothing; the content changes. ClampToQ returns the bounder for chaining
+	#   note       texts and sublists are left as they are
+	#   see        ClampedTo, IsWithinBounds
 	def ClampTo(nMin, nMax)
 		@oList.Update(This.ClampedTo(nMin, nMax))
 
@@ -411,6 +557,13 @@ class stzListBounder from stzObject
 	 #     CHECK IF POSITION IS WITHIN BOUNDS   #
 	#==========================================#
 
+	# TRUE if a position falls inside the list, from 1 to the number of items.
+	#
+	#   _n_        the position to test
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   note       it tests a position and not a value, despite its name; PositionExists and
+	#              HasPosition are the same call
+	#   see        Section, NumberOfItems
 	def IsWithinBounds(_n_)
 		if _n_ >= 1 and _n_ <= This.NumberOfItems()
 			return 1
@@ -428,6 +581,13 @@ class stzListBounder from stzObject
 	 #     FIRST N AND LAST N ITEMS          #
 	#=======================================#
 
+	# Returns the first n items, in their order.
+	#
+	#   _n_        how many items to take from the start
+	#   returns    a list
+	#   note       an n larger than the list gives the whole list and 0 gives [ ], where the same
+	#              call of stzListGetter raises error R2; FirstNItems and Take are the same call
+	#   see        NLastItems, Section
 	def NFirstItems(_n_)
 		_aNfContent_ = This.Content()
 		_nNfLen_ = len(_aNfContent_)
@@ -449,6 +609,13 @@ class stzListBounder from stzObject
 		def Take(_n_)
 			return This.NFirstItems(_n_)
 
+	# Returns the last n items, in their order.
+	#
+	#   _n_        how many items to take from the end
+	#   returns    a list
+	#   note       an n larger than the list gives the whole list and 0 gives [ ], where the same
+	#              call of stzListGetter raises error R2; LastNItems and TakeLast are the same call
+	#   see        NFirstItems, Section
 	def NLastItems(_n_)
 		_aNlContent_ = This.Content()
 		_nNlLen_ = len(_aNlContent_)

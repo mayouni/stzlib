@@ -1,0 +1,5 @@
+init | Builds a language-model port that answers from a domain language model. | nothing; the object is built | poDlm=the stzDLM that answers the prompts | Complete, DlmQ | raises an error when poDlm is not an object; the source keeps a copy of the model, so facts learned in the original afterwards are not seen: fill the model first | StzDlmSourceQ builds one the same way
+IsLocalReal | Returns TRUE to declare this object a genuine local equivalent, which a service registry may ship. | TRUE or FALSE | | Complete
+Complete | Answers a prompt by asking the domain model, and returns the reply in the port's shape. | a hash list with the keys ok, text and from; from is dlm | pcPrompt=the question to put to the model | DlmQ | a question outside the domain still gives ok 1: the refusal sentence comes back as the text, so ok does not tell an answer from a refusal | no network and no language model are used
+DlmQ | Returns the domain model the source answers from. | the stzDLM held by the source | | init, Complete
+Show | Prints one line saying the source is deterministic and local. | nothing; it prints a line | | IsLocalReal

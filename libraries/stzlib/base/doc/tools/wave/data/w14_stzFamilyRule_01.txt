@@ -1,0 +1,1 @@
+init | Builds a named rule of the family-tree governance, filed under the family domain. | nothing; the object is built | pcName=the rule's name, such as parents_are_older | stzFamilyRuleSet, stzFamilyTree

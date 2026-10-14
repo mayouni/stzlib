@@ -1,0 +1,24 @@
+init | Builds a worker profile: a capability tag, the capabilities it serves and a budget of concurrent slots. | nothing; the object is built | pcTag=the profile's tag, kept in lower case; paCapabilities=the capabilities it serves, as a list, or one value that is wrapped into a list; pnBudget=how many slots may be held at once, at least 1 | StzWorkerProfileQ, Budget | a budget below 1 raises an error saying the budget must be at least 1 slot | a budget that is not a whole number is accepted as given
+Tag | Returns the profile's tag, in lower case. | a text | | Handles, init
+Capabilities | Returns the capabilities this profile serves. | a list, as given at birth | | Handles
+Budget | Returns the most slots the profile may hold at once. | a number | | SetBudget, InFlight
+SetBudget | Changes the budget of concurrent slots; slots already held are not taken back. | the profile itself, so calls chain | nBudget=the new number of slots, at least 1 | Budget, CanAdmit | a value below 1 raises an error and keeps the old budget
+InFlight | Returns how many slots are held now. | a number | | Acquire, Release, Budget
+AdmittedCount | Returns how many Acquire calls were admitted since the profile was built. | a number | | RejectedCount, Acquire
+RejectedCount | Returns how many Acquire calls were refused for lack of a free slot since the profile was built. | a number | | AdmittedCount, Acquire
+SetMaxQueue | Caps the queue of waiting work, so sustained overload is shed instead of growing without bound; 0 means unbounded. | the profile itself, so calls chain | nMax=the most queued items allowed; a negative value is taken as 0 | MaxQueue, ShedCount
+MaxQueue | Returns the cap on the queue of waiting work. | a number; 0 means unbounded | | SetMaxQueue
+ShedCount | Returns how many pieces of work were shed, refused because the queue was full. | a number | | Shed, SetMaxQueue
+Shed | Counts one piece of work as shed; the pool calls it when a dispatch meets a full queue. | the profile itself, so calls chain | | ShedCount, SetMaxQueue
+SetExternalTool | Marks the profile as a polyglot worker backed by an outside tool such as an OCR program. | the profile itself, so calls chain | pcTool=the name of the external tool | ExternalTool, IsPolyglot | the tool is only recorded: nothing is launched
+ExternalTool | Returns the name of the outside tool behind the profile. | a text; empty for an engine-native profile | | SetExternalTool, IsPolyglot
+IsPolyglot | TRUE if the profile is backed by an external tool. | TRUE or FALSE | | ExternalTool, MappingKind
+RealizedBy | Returns the names of the library modules recorded as realizing this profile. | a list of text; empty until set | | SetRealizedBy, MappingKind
+SetRealizedBy | Records which library modules realize this profile. | the profile itself, so calls chain | paModules=a list of module names, or one name that is wrapped into a list | RealizedBy, MappingKind
+RealizingModules | Returns the modules that realize this profile, the same list that RealizedBy gives. | a list of text; empty until set | | RealizedBy
+MappingKind | Returns how the profile maps to code: external, logical, grounded or composed. | a symbol: external when an outside tool backs it, else logical for no module, grounded for one module, composed for two or more | | SetRealizedBy, SetExternalTool
+Handles | TRUE if the profile serves a capability, whatever its letter case. | TRUE or FALSE | pcCapability=the capability to look for, as a text or a symbol | Capabilities, Tag
+CanAdmit | TRUE if at least one slot is free. | TRUE or FALSE | | Acquire, Budget
+Acquire | Takes a slot if one is free and counts the decision. | TRUE when a slot was taken, FALSE when the profile is over budget | | Release, CanAdmit, AdmittedCount
+Release | Frees one held slot; it never goes below zero. | the profile itself, so calls chain | | Acquire, InFlight
+Narrate | Returns one line describing the profile: tag, outside tool, slots held out of budget and capabilities. | a text such as profile nlp [0/2 slots, serves sentiment, entities] | | Capabilities, InFlight

@@ -1,0 +1,29 @@
+{
+ "brief": "Cuts a list into parts: at an item, at positions, before or after one, into n parts, into parts of n items, by a condition or at a pace.",
+ "detail": "It is the cutting helper of stzList, which builds one over itself for its Split, SplitXT, SplittedXT, SplittedAsSectionsXT and SplittedAtPositions methods; build one with new stzListSplits when you only need to cut. It works on its own copy, so a stzList passed in is never changed. The answer is a list of parts, each part a list. Unlike the split of a text, a cut item is not thrown away: it is kept and starts the next part, and a cut at position 1 or past the end adds no empty part. A verb (Split, SplitAt, SplitBefore ...) cuts the held list in place and returns nothing, so read Content afterwards, its Q form returning the splitter for chaining; the Splitted forms return the parts and leave the splitter alone. SplitXT and SplittedXT take the options in one argument (a position, a list of positions, or a pair such as [ :After, 3 ] or [ :ToNParts, 3 ]), and SplittedAsSectionsXT answers the [ first, last ] positions of the parts. A number is always read as a position, never as an item, so a list of numbers cannot be cut at one of its items. SplitAfter with an item cuts only after its last occurrence. A pace of 0 in SplitAtPacer never ends.",
+ "receiver": "o1 = new stzListSplits([ \"a\", \"b\", \"-\", \"c\", \"d\", \"-\", \"e\" ])",
+ "example": [
+  "? @@( o1.SplittedAt(\"-\") )",
+  "#--> [ [ \"a\", \"b\" ], [ \"-\", \"c\", \"d\" ], [ \"-\", \"e\" ] ]",
+  "? @@( o1.SplittedAfterPosition(3) )",
+  "#--> [ [ \"a\", \"b\", \"-\" ], [ \"c\", \"d\", \"-\", \"e\" ] ]",
+  "o2 = new stzListSplits([ 1, 2, 3, 4, 5, 6, 7 ])",
+  "? @@( o2.SplittedToNParts(3) )",
+  "#--> [ [ 1, 2, 3 ], [ 4, 5 ], [ 6, 7 ] ]",
+  "? @@( o2.SplittedToPartsOfNItems(3) )",
+  "#--> [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7 ] ]",
+  "? @@( o2.SplittedW(\"@item % 3 = 0\") )",
+  "#--> [ [ 1, 2 ], [ 3, 4, 5 ], [ 6, 7 ] ]",
+  "o2.SplitAtPositions([ 3, 6 ])",
+  "? @@( o2.Content() )",
+  "#--> [ [ 1, 2 ], [ 3, 4, 5 ], [ 6, 7 ] ]",
+  "o3 = new stzListSplits([ \"שלום\", \"x\", \"😀\", \"x\", \"y\" ])",
+  "? @@( o3.SplittedAt(\"x\") )",
+  "#--> [ [ \"שלום\" ], [ \"x\", \"😀\" ], [ \"x\", \"y\" ] ]"
+ ],
+ "see": [
+  "stzList",
+  "stzListMerger",
+  "stzListGetter"
+ ]
+}

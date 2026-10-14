@@ -1,0 +1,29 @@
+{
+ "brief": "Reorders the items of a list: moves one item to another position, swaps two, reverses, rotates, shuffles, or brings an item to either end.",
+ "detail": "It is the reordering helper of stzList, which builds one over itself for its Move, Swap, MoveToStart, MoveToEnd and SwapFirstAndLast methods; build one with new stzListMover when you only need to reorder. It works on its own copy, so a stzList passed in is never changed, and you read the result with Content. A verb (Move, Swap, Reverse, RotateLeft, Shuffle ...) reorders the held list in place and returns nothing, its Q form returning the mover for chaining; the past-tense forms (Reversed, RotatedLeft, RotatedRight, Shuffled) return a reordered copy and leave the mover alone. Positions count from 1, and a position outside the list moves nothing and says nothing. Move and Swap accept the pair forms [ :From, 2 ] and [ :To, 5 ], [ :Between, 2 ] and [ :And, 3 ]. A rotation count larger than the list wraps around, and a negative one kills the Ring process today. Shuffle gives a different order on every call.",
+ "receiver": "o1 = new stzListMover([ \"a\", \"b\", \"c\", \"d\", \"e\" ])",
+ "example": [
+  "? @@( o1.Reversed() )",
+  "#--> [ \"e\", \"d\", \"c\", \"b\", \"a\" ]",
+  "? @@( o1.RotatedLeft(2) )",
+  "#--> [ \"c\", \"d\", \"e\", \"a\", \"b\" ]",
+  "o1.Move(1, 4)",
+  "? @@( o1.Content() )",
+  "#--> [ \"b\", \"c\", \"d\", \"a\", \"e\" ]",
+  "o1.Swap(1, 5)",
+  "? @@( o1.Content() )",
+  "#--> [ \"e\", \"c\", \"d\", \"a\", \"b\" ]",
+  "o1.MoveItemToStart(\"d\")",
+  "? @@( o1.Content() )",
+  "#--> [ \"d\", \"e\", \"c\", \"a\", \"b\" ]",
+  "o2 = new stzListMover([ \"שלום\", \"😀\", \"x\" ])",
+  "o2.MoveToStart(3)",
+  "? @@( o2.Content() )",
+  "#--> [ \"x\", \"שלום\", \"😀\" ]"
+ ],
+ "see": [
+  "stzList",
+  "stzListSorter",
+  "stzListSplits"
+ ]
+}

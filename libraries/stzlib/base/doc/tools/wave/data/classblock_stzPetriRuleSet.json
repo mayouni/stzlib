@@ -1,0 +1,14 @@
+{
+ "brief": "Holds the five rules a Petri net is judged by: arcs join a place and a transition, transitions have inputs and outputs, places can be marked, transitions can fire.",
+ "detail": "Check takes the rule graph of a net (AsRuleGraph) and answers the findings. A net asks for this through its own GovernanceFindings, so a rule set is built by hand only to add a rule of your own or to run the rules on a graph. The last two rules are structural: a place empty forever and a transition starved at birth, not liveness in the full sense.",
+ "receiver": "o1 = new stzPetriRuleSet()",
+ "example": [
+  "? o1.Name()",
+  "#--> petri-governance",
+  "? o1.NumberOfRules()",
+  "#--> 5",
+  "? o1.RuleNames()[1]",
+  "#--> arc_joins_place_and_transition"
+ ],
+ "see": ["stzPetriRule", "stzPetriNet", "stzGraphRuleSet"]
+}

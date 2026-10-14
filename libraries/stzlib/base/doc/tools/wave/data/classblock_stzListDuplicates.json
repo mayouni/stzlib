@@ -1,0 +1,28 @@
+{
+ "brief": "Finds, counts and removes the repeated items of a list: positions of the repeats, items that repeat, items that never do, and the most repeated one.",
+ "detail": "It is the repeats helper of stzList, which builds one over itself for its ContainsDuplicatedItemsCS and DuplicatedItemsCS methods; build one with new stzListDuplicates when you need the rest. It works on its own copy, so a stzList passed in is never changed, and you read the result of an in-place verb (RemoveDuplicates) with Content. A repeat is an occurrence after the first one of its item, so the first occurrence is never a duplicate: on a b a c b a d the repeats sit at positions 3, 5 and 6, and NumberOfDuplicates is 3. Every question has a CS form taking 1 to compare with case and 0 to ignore it. ItemsDuplicatedNTimes and MostDuplicatedItem give the items back as texts, so the number 3 is \"3\". RemoveNthDuplicate does nothing today. Hebrew, Arabic and emoji items repeat like any other text.",
+ "receiver": "o1 = new stzListDuplicates([ \"a\", \"b\", \"a\", \"c\", \"b\", \"a\", \"d\" ])",
+ "example": [
+  "? @@( o1.FindDuplicates() )",
+  "#--> [ 3, 5, 6 ]",
+  "? @@( o1.DuplicatedItems() )",
+  "#--> [ \"a\", \"b\" ]",
+  "? @@( o1.NonDuplicatedItems() )",
+  "#--> [ \"c\", \"d\" ]",
+  "? o1.MostDuplicatedItem()",
+  "#--> a",
+  "? @@( o1.WithoutDuplication() )",
+  "#--> [ \"a\", \"b\", \"c\", \"d\" ]",
+  "o2 = new stzListDuplicates([ \"a\", \"A\", \"b\", \"a\" ])",
+  "? @@( o2.FindDuplicatesCS(0) )",
+  "#--> [ 2, 4 ]",
+  "o3 = new stzListDuplicates([ \"שלום\", \"😀\", \"שלום\" ])",
+  "? @@( o3.FindDuplicates() )",
+  "#--> [ 3 ]"
+ ],
+ "see": [
+  "stzList",
+  "stzListClassifier",
+  "stzListRemover"
+ ]
+}

@@ -1,0 +1,22 @@
+{
+ "brief": "Cuts a text into pieces at fragments, positions or regex matches, with or without keeping the separators.",
+ "detail": "It is the splitting helper of stzString, which builds one over itself for its Split family; build one with new stzStringSplitter(\"text\") when you only need to split. Split and SplitAt drop the separators, SplitBefore and SplitAfter keep them on the piece next to them, so joining the pieces gives the text back. A position names a character, not a byte, so Hebrew, Arabic and emoji text is cut where you expect, and a position split drops the character at that position. The CS forms take 0 to ignore case. Found today: Partition, PartitionAfter, RPartition and RPartitionAfter return a single piece because a NUL-separated engine buffer is cut at its first NUL; SplitAtSubStrings also cuts at a literal <<<SEP>>> in the text; and a splitter built from a stzString object reads an empty text once that string is appended to.",
+ "receiver": "o1 = new stzStringSplitter(\"a,b,,c\")",
+ "example": [
+  "? @@( o1.Split(\",\") )",
+  "#--> [ \"a\", \"b\", \"\", \"c\" ]",
+  "? @@( o1.SplitAfter(\",\") )",
+  "#--> [ \"a,\", \"b,\", \",\", \"c\" ]",
+  "o2 = new stzStringSplitter(\"שלום עולם, שלום\")",
+  "? @@( o2.Split(\" \") )",
+  "#--> [ \"שלום\", \"עולם,\", \"שלום\" ]",
+  "o3 = new stzStringSplitter(\"a😀b😀c\")",
+  "? @@( o3.SplitAtPosition(2) )",
+  "#--> [ \"a\", \"b😀c\" ]"
+ ],
+ "see": [
+  "stzString",
+  "stzStringFinder",
+  "stzStringCounter"
+ ]
+}

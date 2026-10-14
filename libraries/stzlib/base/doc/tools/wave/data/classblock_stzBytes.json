@@ -1,0 +1,20 @@
+{
+ "brief": "Holds a binary buffer in the engine and reads, cuts, edits and encodes it as Base64, hexadecimal or percent text.",
+ "detail": "Positions and sizes count bytes from 1, never characters, so a Hebrew letter is 2 bytes and an emoji 4. Reads (Left, Right, Mid, ToHex...) return text and leave the buffer alone; Append, Insert, Remove, Replace, Fill, Resize, Clear and the From... methods change it in place, and their Q forms return the object for chaining. Found today: string/stzBytes.ring is not loaded by stzlib.ring, and it defines a class named stzBytes that clashes with the alias class of stzListOfBytes.ring, so new stzBytes(...) builds the stzListOfBytes alias and none of the methods below exist on it (R14); a negative count, size or length, a Fill value above 255, and a number given to Append stop the Ring process; FromHex empties the buffer on a bad text. The examples were run on an identical copy of the class under another name.",
+ "receiver": "o1 = new stzBytes(\"Hello\")",
+ "example": [
+  "? o1.ToHex()",
+  "#--> 48656c6c6f",
+  "? o1.Mid(2, 3)",
+  "#--> ell",
+  "o2 = new stzBytes(\"שלום\")",
+  "? o2.Size()",
+  "#--> 8",
+  "? o2.ToPercent()",
+  "#--> %D7%A9%D7%9C%D7%95%D7%9D",
+  "o3 = new stzBytes(\"a😀b\")",
+  "? o3.ToHex()",
+  "#--> 61f09f988062"
+ ],
+ "see": ["stzListOfBytes", "stzString"]
+}

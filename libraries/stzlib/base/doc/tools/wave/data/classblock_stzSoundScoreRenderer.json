@@ -1,0 +1,18 @@
+{
+ "brief": "Renders the events of a score once each into sound buffers that the offline render and the live scheduler share.",
+ "detail": "Every event is rendered by its instrument, and the same note (same instrument, pitch, length, velocity and stroke) is rendered only once however often it recurs, because a wind instrument tunes itself by listening and that is slow. Plan lists a start frame and a buffer id per event; Offline mixes the plan into one stereo sound at 48000 Hz. An instrument that refuses a note, such as a glide on a pluck, is counted in Refusals and the note is missing from the plan. Nothing here opens an audio device. The sound has not been heard by a person (UNPERCEIVED): it is checked by frame count, sample rate and peak level.",
+ "receiver": "o1 = new stzSoundScoreRenderer(StzSoundScoreOfQ(\"c e c e\"))",
+ "example": [
+  "? len(o1.Plan())",
+  "#--> 4",
+  "? o1.NotesRendered()",
+  "#--> 2",
+  "? o1.Offline().Frames()",
+  "#--> 115200"
+ ],
+ "see": [
+  "stzSoundScore",
+  "stzSoundScheduler",
+  "stzSound"
+ ]
+}

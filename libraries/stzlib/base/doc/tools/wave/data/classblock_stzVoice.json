@@ -1,0 +1,20 @@
+{
+ "brief": "Turns text into a sound buffer with the machine's speech engine, one language at a time, refusing rather than substituting.",
+ "detail": "The primary verb is ToSoundOf: a voice renders to a buffer, and a buffer is a stzSound, so every verb of the sound plane then applies to speech. The sound carries the engine's own sample rate (22050 Hz here, not 48000), which is stored in a saved file too. UseLanguage tries an exact tag and then the same language with another region, and otherwise refuses and says which languages the machine has. Synthesis is under 1 percent of the output latency, so speech is late because the audio path is long, not because it is computed. Say and ToTransportOf open an audio device and were not run in this reference. The speech has not been heard by a person (UNPERCEIVED): it is checked by frame count, rate, duration and peak level.",
+ "receiver": "o1 = StzVoiceQ()",
+ "example": [
+  "? o1.IsUsable()",
+  "#--> 1",
+  "? o1.UseLanguage(\"de-DE\")",
+  "#--> 0",
+  "? o1.UseLanguage(\"en-US\")",
+  "#--> 1",
+  "? o1.ToSoundOf(\"The disk is nearly full\").SampleRate()",
+  "#--> 22050"
+ ],
+ "see": [
+  "stzListener",
+  "stzSound",
+  "stzSoundTransport"
+ ]
+}

@@ -14,6 +14,30 @@
 #--------------------------------------------------------------#
 
 
+# Cuts a text into pieces at fragments, positions or regex matches, with or without keeping the separators.
+#
+# It is the splitting helper of stzString, which builds one over itself for its Split family; build
+# one with new stzStringSplitter("text") when you only need to split. Split and SplitAt drop the
+# separators, SplitBefore and SplitAfter keep them on the piece next to them, so joining the pieces
+# gives the text back. A position names a character, not a byte, so Hebrew, Arabic and emoji text is
+# cut where you expect, and a position split drops the character at that position. The CS forms take
+# 0 to ignore case. Found today: Partition, PartitionAfter, RPartition and RPartitionAfter return a
+# single piece because a NUL-separated engine buffer is cut at its first NUL; SplitAtSubStrings also
+# cuts at a literal <<<SEP>>> in the text; and a splitter built from a stzString object reads an
+# empty text once that string is appended to.
+#
+#   receiver   o1 = new stzStringSplitter("a,b,,c")
+#   example    ? @@( o1.Split(",") )
+#              #--> [ "a", "b", "", "c" ]
+#              ? @@( o1.SplitAfter(",") )
+#              #--> [ "a,", "b,", ",", "c" ]
+#              o2 = new stzStringSplitter("שלום עולם, שלום")
+#              ? @@( o2.Split(" ") )
+#              #--> [ "שלום", "עולם,", "שלום" ]
+#              o3 = new stzStringSplitter("a😀b😀c")
+#              ? @@( o3.SplitAtPosition(2) )
+#              #--> [ "a", "b😀c" ]
+#   see        stzString, stzStringFinder, stzStringCounter
 class stzStringSplitter from stzObject
 
 	@oString
@@ -22,6 +46,16 @@ class stzStringSplitter from stzObject
 	 #   INITIALIZATION  #
 	#===================#
 
+	# Builds a splitter over a text, given as a string or as a stzString object.
+	#
+	#   pStrOrStzStrObj   the text to split, or a stzString whose engine handle is shared
+	#   returns           nothing; the object is built
+	#   note              stzString builds one over itself for its Split family; build one yourself
+	#                     with new stzStringSplitter("text")
+	#   warning           a splitter built from a stzString object keeps the engine handle of that
+	#                     object: after the original is appended to the splitter reads an empty
+	#                     text, so build it after the edits
+	#   see               Content, Split
 	def init(pStrOrStzStrObj)
 		if isString(pStrOrStzStrObj)
 			@oString = new stzString(pStrOrStzStrObj)
@@ -35,12 +69,24 @@ class stzStringSplitter from stzObject
 	 #     CONTENT ACCESS            #
 	#===============================#
 
+	# Returns the text being split.
+	#
+	#   returns    a text
+	#   see        NumberOfChars, IsEmpty
 	def Content()
 		return @oString.Content()
 
+	# Returns how many characters the text holds, a Hebrew letter or an emoji counting as one.
+	#
+	#   returns    a number
+	#   see        Content, IsEmpty
 	def NumberOfChars()
 		return @oString.NumberOfChars()
 
+	# TRUE if the text holds no character at all.
+	#
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   see        NumberOfChars
 	def IsEmpty()
 		return @oString.IsEmpty()
 
@@ -82,6 +128,18 @@ class stzStringSplitter from stzObject
 	def SplittedCS(pSubStrOrPos, pCaseSensitive)
 		return This.SplitCS(pSubStrOrPos, pCaseSensitive)
 
+	# Cuts the text at a fragment, at a position, at several of either, or as a named form such as [ :before, "," ].
+	#
+	#   pSubStrOrPos   a text, a position, a list of positions, a list of texts, or a pair [ :with
+	#                  or :by or :using or :at or :atposition or :atpositions or :before or :after,
+	#                  value ]
+	#   returns        a list of texts; the separators are dropped, and an empty text gives [ ]
+	#   note           Splitted is the same call; "a,b,,c" at "," gives a, b, an empty text and c;
+	#                  the flag form SplitCS with 0 ignores case; the position form drops the
+	#                  character at that position
+	#   warning        the pair form :around raises R14 because SplitAroundCS does not exist in this
+	#                  class
+	#   see            SplitAt, SplitBefore, SplitAfter
 	def Split(pSubStrOrPos)
 		return This.SplitCS(pSubStrOrPos, 1)
 
@@ -113,6 +171,13 @@ class stzStringSplitter from stzObject
 			StzRaise("Incorrect param type! pSubStrOrPos must be position(s) or string(s).")
 		ok
 
+	# Cuts the text at a fragment, at a position, at a list of positions or at a list of fragments, dropping the separators.
+	#
+	#   pSubStrOrPos   a text, a number, a list of numbers or a list of texts
+	#   returns        a list of texts; an empty text gives [ ]
+	#   note           a,b,,c at the list [ ",", "b" ] gives a, then three empty texts, then c
+	#   warning        an empty list raises Incorrect param type
+	#   see            Split, SplitAtSubString, SplitAtPosition
 	def SplitAt(pSubStrOrPos)
 		return This.SplitAtCS(pSubStrOrPos, 1)
 
@@ -143,6 +208,14 @@ class stzStringSplitter from stzObject
 
 		return @oString._SplitByStrCS(pcSubStr, pCaseSensitive)
 
+	# Cuts the text at every occurrence of a fragment and drops the fragment.
+	#
+	#   pcSubStr   the fragment to cut at
+	#   returns    a list of texts, with an empty text between two neighbouring separators; the
+	#              whole text in a list when the fragment is absent
+	#   note       one--two--three at -- gives one, two, three; SplitAtSubStringCS with 0 ignores
+	#              case, so One AND two and Three at and gives three pieces
+	#   see        SplitAtSubStrings, SplitBeforeSubString, SplitAfterSubString
 	def SplitAtSubString(pcSubStr)
 		return This.SplitAtSubStringCS(pcSubStr, 1)
 
@@ -165,6 +238,14 @@ class stzStringSplitter from stzObject
 
 		return @SplitCS(_cResult_, _cSep_, 1)
 
+	# Cuts the text at every occurrence of any fragment of a list and drops them.
+	#
+	#   pacSubStrings   the list of fragments to cut at
+	#   returns         a list of texts
+	#   note            a,b;c at , and ; gives a, b, c
+	#   warning         a text that already contains the marker <<<SEP>>> is cut there too, because
+	#                   the method replaces each fragment by that marker and splits on it
+	#   see             SplitAtSubString, SplitAtPositions
 	def SplitAtSubStrings(pacSubStrings)
 		return This.SplitAtSubStringsCS(pacSubStrings, 1)
 
@@ -172,7 +253,15 @@ class stzStringSplitter from stzObject
 	 #     SPLIT AT POSITION         #
 	#===============================#
 
-	# Split the string at the given position.
+	# Cuts the text in two around the character at a position, dropping that character.
+	#
+	#   n          the 1-based position of the character that is dropped
+	#   returns    a list of one or two texts; the whole text in a list when the position is 0 or
+	#              past the end
+	#   note       a,b,,c at 3 gives a, and ,,c; position 1 gives only the rest; Hebrew and emoji
+	#              text is cut by characters
+	#   see        SplitAtPositions, SplitBeforePosition, SplitAfterPosition
+	#@ aka  Split the string at the given position.
 	def SplitAtPosition(n)
 
 		if This.IsEmpty()
@@ -205,7 +294,14 @@ class stzStringSplitter from stzObject
 	 #     SPLIT AT POSITIONS          #
 	#=================================#
 
-	# Split the string at the given positions.
+	# Cuts the text around several characters, dropping each of them.
+	#
+	#   _anPos_    the list of 1-based positions, in any order
+	#   returns    a list of texts
+	#   note       a,b,,c at 2 and 4 gives a, b and ,c
+	#   warning    an empty list raises Incorrect param type
+	#   see        SplitAtPosition, SplitBeforePositions
+	#@ aka  Split the string at the given positions.
 	def SplitAtPositions(_anPos_)
 
 		if This.IsEmpty()
@@ -255,9 +351,24 @@ class stzStringSplitter from stzObject
 
 		StzRaise("Incorrect param type!")
 
+	# Cuts the text in front of every occurrence of a fragment, or in front of a position, keeping the separators.
+	#
+	#   pSubStrOrPos   a text, or a position
+	#   returns        a list of texts that joins back to the original
+	#   note           a,b,,c before "," gives a, then ,b then , then ,c
+	#   warning        any other type raises Incorrect param type!
+	#   see            SplitAfter, SplitAt
 	def SplitBefore(pSubStrOrPos)
 		return This.SplitBeforeCS(pSubStrOrPos, 1)
 
+	# Cuts the text in two just in front of the character at a position.
+	#
+	#   n          the 1-based position of the first character of the second part
+	#   returns    a list of two texts; the whole text in a list when the position is 1 or below, or
+	#              past the end
+	#   note       a,b,,c before 3 gives a, and b,,c
+	#   warning    a text raises R41 Invalid numeric string
+	#   see        SplitAfterPosition, SplitBeforePositions
 	def SplitBeforePosition(n)
 		if This.IsEmpty()
 			return []
@@ -280,9 +391,21 @@ class stzStringSplitter from stzObject
 		ok
 		return This.SplitBeforePositions(_anPos_)
 
+	# Cuts the text in front of every occurrence of a fragment, keeping the fragments.
+	#
+	#   pcSubStr   the fragment to cut in front of
+	#   returns    a list of texts; the whole text in a list when the fragment is absent
+	#   note       a,b,,c before "," gives a, ,b, , and ,c; an emoji separator works
+	#   see        SplitAfterSubString, SplitBefore
 	def SplitBeforeSubString(pcSubStr)
 		return This.SplitBeforeSubStringCS(pcSubStr, 1)
 
+	# Cuts the text in front of each of several characters.
+	#
+	#   _anPos_    the list of 1-based positions, in any order
+	#   returns    a list of texts that joins back to the original
+	#   note       a,b,,c before 2 and 4 gives a, ,b and ,,c
+	#   see        SplitBeforePosition, SplitAfterPositions
 	def SplitBeforePositions(_anPos_)
 		if This.IsEmpty()
 			return []
@@ -327,9 +450,23 @@ class stzStringSplitter from stzObject
 
 		StzRaise("Incorrect param type!")
 
+	# Cuts the text behind every occurrence of a fragment, or behind a position, keeping the separators.
+	#
+	#   pSubStrOrPos   a text, or a position
+	#   returns        a list of texts that joins back to the original
+	#   note           a,b,,c after "," gives a, then b, then , then c
+	#   warning        any other type raises Incorrect param type!
+	#   see            SplitBefore, SplitAt
 	def SplitAfter(pSubStrOrPos)
 		return This.SplitAfterCS(pSubStrOrPos, 1)
 
+	# Cuts the text in two just behind the character at a position.
+	#
+	#   n          the 1-based position of the last character of the first part
+	#   returns    a list of two texts; the whole text in a list when the position is 0 or below, or
+	#              at or past the last character
+	#   note       a,b,,c after 3 gives a,b and ,,c
+	#   see        SplitBeforePosition, SplitAfterPositions
 	def SplitAfterPosition(n)
 		if This.IsEmpty()
 			return []
@@ -361,9 +498,21 @@ class stzStringSplitter from stzObject
 
 		return This.SplitAfterPositions(_anAfterPos_)
 
+	# Cuts the text behind every occurrence of a fragment, keeping the fragments.
+	#
+	#   pcSubStr   the fragment to cut behind
+	#   returns    a list of texts; the whole text in a list when the fragment is absent
+	#   note       a😀b😀c after the emoji gives a😀, b😀 and c
+	#   see        SplitBeforeSubString, SplitAfter
 	def SplitAfterSubString(pcSubStr)
 		return This.SplitAfterSubStringCS(pcSubStr, 1)
 
+	# Cuts the text behind each of several characters.
+	#
+	#   _anPos_    the list of 1-based positions, in any order
+	#   returns    a list of texts that joins back to the original
+	#   note       a,b,,c after 2 and 4 gives a,, b, and ,c
+	#   see        SplitAfterPosition, SplitBeforePositions
 	def SplitAfterPositions(_anPos_)
 		if This.IsEmpty()
 			return []
@@ -402,6 +551,16 @@ class stzStringSplitter from stzObject
 		StzEngineStringFree(_pR_)
 		return _SplitNullDelimited(_cResult_)
 
+	# Returns only the text before the first separator, in a one-item list, today instead of the cut into before, separator and after.
+	#
+	#   pcSep      the separator
+	#   returns    a list with one text; the whole text in a list when the separator is absent
+	#   note       use stzString.Partition
+	#   warning    the engine hands back the three pieces in a buffer separated by NUL bytes and
+	#              Ring reads only up to the first one, so key=value=more with = gives only key;
+	#              confirmed with a-b, x=y=z, one two and a Hebrew text; stzString.Partition gives
+	#              the real three-part cut
+	#   see        RPartition, PartitionAfter
 	def Partition(pcSep)
 		return This.PartitionCS(pcSep, 1)
 
@@ -413,6 +572,14 @@ class stzStringSplitter from stzObject
 		StzEngineStringFree(_pR_)
 		return _SplitNullDelimited(_cResult_)
 
+	# Returns only the text behind the first separator, in a one-item list, today instead of the cut that keeps the separator on the first part.
+	#
+	#   pcSep      the separator
+	#   returns    a list with one text; [ ] when the separator is absent
+	#   note       use stzString.Partition
+	#   warning    the NUL-separated engine buffer is read up to its first NUL, so key=value=more
+	#              with = gives only value=more; confirmed with a-b, x=y=z and a Hebrew text
+	#   see        Partition, RPartitionAfter
 	def PartitionAfter(pcSep)
 		return This.PartitionAfterCS(pcSep, 1)
 
@@ -424,6 +591,14 @@ class stzStringSplitter from stzObject
 		StzEngineStringFree(_pR_)
 		return _SplitNullDelimited(_cResult_)
 
+	# Returns only the text before the last separator, in a one-item list, today instead of the cut into before, separator and after.
+	#
+	#   pcSep      the separator
+	#   returns    a list with one text; [ ] when the separator is absent
+	#   note       use stzString.RPartition
+	#   warning    the NUL-separated engine buffer is read up to its first NUL, so key=value=more
+	#              with = gives key=value; confirmed with x=y=z
+	#   see        Partition, RPartitionAfter
 	def RPartition(pcSep)
 		return This.RPartitionCS(pcSep, 1)
 
@@ -435,6 +610,14 @@ class stzStringSplitter from stzObject
 		StzEngineStringFree(_pR_)
 		return _SplitNullDelimited(_cResult_)
 
+	# Returns only the text behind the last separator, in a one-item list, today instead of the cut that keeps the separator on the first part.
+	#
+	#   pcSep      the separator
+	#   returns    a list with one text; the whole text in a list when the separator is absent
+	#   note       use stzString.RPartition
+	#   warning    the NUL-separated engine buffer is read up to its first NUL, so key=value=more
+	#              with = gives only more; confirmed with x=y=z and a Hebrew text
+	#   see        RPartition, PartitionAfter
 	def RPartitionAfter(pcSep)
 		return This.RPartitionAfterCS(pcSep, 1)
 
@@ -442,7 +625,15 @@ class stzStringSplitter from stzObject
 	 #     REGEX SPLIT              #
 	#==============================#
 
-	# Split the string on the matches of the given regex pattern.
+	# Cuts the text at every match of a regular expression and drops the matches.
+	#
+	#   pcPattern   the regular expression
+	#   returns     a list of texts; the whole text in a list when nothing matches, and [ "" ] for
+	#               an empty text
+	#   note        SplitRegex is the same call; ,+ on a,b,,c gives a, b, c because the match takes
+	#               both commas at once; [, ]+ on שלום עולם, שלום gives three words
+	#   see         Split, SplitAtSubString
+	#@ aka  Split the string on the matches of the given regex pattern.
 	def SplitByRegex(pcPattern)
 		_pH_ = @oString.Engine()
 		_nSbrCount_ = StzEngineStringRegexSplitCount(_pH_, pcPattern, 0)

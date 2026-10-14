@@ -1,0 +1,23 @@
+init | Builds a series that keeps the latest samples of a metric in a fixed-size window held by the engine. | nothing; the object is built | pnCapacity=how many samples the window retains; a value that is not a number, or is below 1, gives 1024 | StzPerfSeries, Capacity
+Handle | Returns the engine pointer that holds the samples, to share the series with other engine calls. | a pointer | | AdoptHandle, Destroy
+AdoptHandle | Makes the series read and write a window owned elsewhere, freeing the one it made for itself. | the series itself, so calls chain | pEngineHandle=the engine pointer of the series to adopt, for example the Handle of another series | Handle, Destroy | an adopted window is never freed by this object: freeing it stays with its owner | Destroy on the adopter leaves the owner's samples untouched
+Capacity | Returns how many samples the window can hold at most. | a number | | Size, Count
+Record | Adds a value to the window, stamped with the engine's monotonic clock in milliseconds. | the series itself, so calls chain | nValue=the number to record | RecordAt, Last
+RecordAt | Adds a value to the window against a time you supply, in milliseconds of your own clock. | the series itself, so calls chain | nTimeMs=the time of the sample, in the unit of the clock you chose; nValue=the number to record | Record, TimeAt
+Count | Returns how many samples were ever recorded, including those the window has already overwritten. | a number | | Size, Capacity
+Size | Returns how many samples the window holds now, never more than its capacity. | a number | | Count, Capacity
+Last | Returns the most recent value recorded. | a number; 0 for an empty series | | Min, Max, ValueAt
+Min | Returns the smallest value in the window. | a number; 0 for an empty series | | Max, Mean
+Max | Returns the largest value in the window. | a number; 0 for an empty series | | Min, Mean
+Mean | Returns the average of the values in the window. | a number; 0 for an empty series | | Min, Max, Percentile
+SlopePerMs | Returns the least-squares slope of the values over time, per millisecond: near 0 is stable, positive is growing. | a number; 0 for an empty series | | Mean, Record | | with a clock in milliseconds, a rise of 10 over 2000 ms is 0.005; use it to spot a leak
+Percentile | Returns the value at a rank, as the exact nearest-rank percentile over the window. | a number; 0 for an empty series | nP=the percentage from 0 to 100, such as 95 | P50, P95, P99 | | 0 gives the smallest value and 100 the largest
+P50 | Returns the median value of the window. | a number; 0 for an empty series | | Percentile, Mean
+P95 | Returns the value under which 95 percent of the window lies. | a number; 0 for an empty series | | Percentile, P99
+P99 | Returns the value under which 99 percent of the window lies. | a number; 0 for an empty series | | Percentile, P95
+TimeAt | Returns the time of the nth sample in the window, oldest first. | a number; -1 when n is 0 or beyond the window | n=the position in the window, from 1 for the oldest sample | ValueAt, Times
+ValueAt | Returns the value of the nth sample in the window, oldest first. | a number; -1 when n is 0 or beyond the window | n=the position in the window, from 1 for the oldest sample | TimeAt, Values | | -1 is also a legal sample value: check Size before reading
+Values | Returns the whole window as a list of numbers, oldest first. | a list of numbers; empty for an empty series | | Times, ValueAt | | it crosses the engine bridge once per sample, so keep it for display and small windows
+Times | Returns the times of the whole window as a list of numbers, oldest first. | a list of numbers; empty for an empty series | | Values, TimeAt
+Reset | Empties the window and the count and keeps the capacity. | the series itself, so calls chain | | Destroy, Size
+Destroy | Frees the engine memory of the series; any later call builds a fresh, empty window. | the series itself, so calls chain | | Reset, AdoptHandle

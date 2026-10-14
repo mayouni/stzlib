@@ -1,0 +1,27 @@
+{
+ "brief": "Holds a list without repeats, a mathematical set, and gives its union, intersection and difference with other lists.",
+ "detail": "A set is built with new stzSet(aList) or StzSetQ(aList) and drops every repeated item on the way in, keeping the first of each; case counts, so a and A are two elements. It is a stzList underneath, so the stzList methods are available on it, and stzListFlattener.ToStzSet hands one back. UnionWith, IntersectionWith and DifferenceWith return a plain list and leave the set as it was, their Q form wrapping the answer in a new stzSet; UnifyWith and the Update family change the set in place. Several guards raise the wrong error today: init, Update and UnionWith call a function (stzSetError) that does not exist, so a bad argument raises R3 instead of the intended message; AddElement only accepts a list element; Includes and Contains take a list of elements and cannot test one item; Updated simply returns its argument; Subsets, SubSetsOfNElements and NumberOfSubsets are TODO and answer nothing. Hebrew, Arabic and emoji elements are kept like any other text.",
+ "receiver": "o1 = new stzSet([ 3, 1, 3, 2, 1 ])",
+ "example": [
+  "? @@( o1.Content() )",
+  "#--> [ 3, 1, 2 ]",
+  "? @@( o1.UnionWith([ 5, 4 ]) )",
+  "#--> [ 3, 1, 2, 5, 4 ]",
+  "? @@( o1.IntersectionWith([ 2, 3, 9 ]) )",
+  "#--> [ 3, 2 ]",
+  "? @@( o1.DifferenceWith([ 2, 9 ]) )",
+  "#--> [ 3, 1 ]",
+  "? o1.Includes([ 1, 2 ])",
+  "#--> 1",
+  "? o1.IsIncludedIn([ 1, 2, 3, 4 ])",
+  "#--> 1",
+  "o2 = new stzSet([ \"שלום\", \"😀\", \"שלום\" ])",
+  "? o2.NumberOfElements()",
+  "#--> 2"
+ ],
+ "see": [
+  "stzList",
+  "stzListComparator",
+  "stzListMerger"
+ ]
+}

@@ -338,6 +338,35 @@ func _FtFormat(pnP)
 #  THE TREE                                                            #
 #---------------------------------------------------------------------#
 
+# Draws a fault tree and computes it: the probability of the top event and the minimal cut sets, from gates and basic events.
+#
+# A fault tree says how an undesired event, the top, comes about through AND and OR gates down to
+# basic events of known probability. Read up it is a picture of causes; computed up it is the
+# probability of the top and the minimal cut sets, the smallest sets of basic events that bring the
+# top about. An AND gate multiplies its inputs and an OR gate takes one minus the product of their
+# complements, both assuming independence; where a basic event repeats under two gates that number
+# is an approximation and CutSetProbability gives the exact one. Five rules judge the tree. Not
+# here: NOT gates, voting gates, inhibit gates, transfer symbols, common-cause groups and importance
+# measures. ToCanvasXT draws the tree; the probability is written inside each basic event and its
+# name beneath.
+#
+#   receiver   o1 = new stzFaultTree("pump")
+#   example    o1.AddTop("top", "Pump fails to start")
+#              o1.AddEvent("power", "No power")
+#              o1.AddBasicXT("seized", "Motor seized", 0.05)
+#              o1.AddBasicXT("mains", "Mains out", 0.1)
+#              o1.AddBasicXT("battery", "Battery flat", 0.2)
+#              o1.Develop("top", :Or, [ "power", "seized" ])
+#              o1.Develop("power", :And, [ "mains", "battery" ])
+#              ? fabs(o1.ProbabilityOf("power") - 0.02) < 0.000001
+#              #--> 1
+#              ? fabs(o1.TopProbability() - 0.069) < 0.000001
+#              #--> 1
+#              ? @@( o1.MinimalCutSets() )
+#              #--> [ [ "seized" ], [ "mains", "battery" ] ]
+#              ? o1.GovernanceIsSound()
+#              #--> 1
+#   see        stzFaultRuleSet, stzDiagram, stzPetriNet, stzFamilyTree
 class stzFaultTree from stzDiagram
 
 	# [ [ :id, :name, :kind, :p ] ] -- kind top | event | basic | undeveloped;
@@ -351,22 +380,50 @@ class stzFaultTree from stzDiagram
 	# what was written inside the basic events: [ id, p, x, y ]
 	@aRenderProbs = []
 
+	# Builds an empty fault tree that draws top-down with the fault notation, with a title.
+	#
+	#   pcTitle    the title of the diagram
+	#   returns    nothing; the object is built
+	#   see        AddTop, Develop
 	def init(pcTitle)
 		super.init(pcTitle)
 		This.SetNotation(StzFaultNotation())
 
-	#-- the events ---------------------------------------------------------
-
+	# Declares the top event, the undesired event the whole tree explains.
+	#
+	#   pcId       the event's identifier, which must be new in the tree
+	#   pcName     the event's name, shown in its box
+	#   returns    the tree itself, so calls chain
+	#   warning    a second top is accepted here and refused by the rule one_top_event; an
+	#              identifier already in the tree raises an error
+	#   see        AddEvent, TopEvent
+	#@ aka  -- the events ---------------------------------------------------------
 	def AddTop(pcId, pcName)
 		This._FtAddEvent(pcId, pcName, "top", -1)
 		return This
 
+	# Declares an intermediate event, one that a gate develops into its causes.
+	#
+	#   pcId       the event's identifier, which must be new in the tree
+	#   pcName     the event's name, shown in its box
+	#   returns    the tree itself, so calls chain
+	#   warning    an identifier already in the tree raises an error
+	#   see        AddTop, Develop, AddBasic
 	def AddEvent(pcId, pcName)
 		This._FtAddEvent(pcId, pcName, "event", -1)
 		return This
 
-	# a basic event whose probability is not yet known -- the third rule
-	# will say so
+	# Declares a basic event, a leaf, whose probability is not known yet; AddBasicXT gives it one.
+	#
+	#   pcId       the event's identifier, which must be new in the tree
+	#   pcName     the event's name, shown beneath its circle
+	#   returns    the tree itself, so calls chain
+	#   warning    AddBasicXT(id, name, p) takes the probability as a number from 0 to 1 and raises
+	#              an error outside that range; without a probability the rule
+	#              basic_event_has_probability reports the leaf, the drawing shows a question mark
+	#              in its circle, and ProbabilityOf raises an error for it
+	#   see        AddUndeveloped, ProbabilityOf
+	#@ aka  a basic event whose probability is not yet known -- the third rule will say so
 	def AddBasic(pcId, pcName)
 		This._FtAddEvent(pcId, pcName, "basic", -1)
 		return This
@@ -378,10 +435,25 @@ class stzFaultTree from stzDiagram
 		This._FtAddEvent(pcId, pcName, "basic", pnP)
 		return This
 
+	# Declares an event the analyst chose not to develop and says so, drawn as a diamond.
+	#
+	#   pcId       the event's identifier, which must be new in the tree
+	#   pcName     the event's name, shown beneath its diamond
+	#   returns    the tree itself, so calls chain
+	#   warning    it owes no probability and the rules leave it alone, but ProbabilityOf raises an
+	#              error for it
+	#   see        AddBasic, AddEvent
 	def AddUndeveloped(pcId, pcName)
 		This._FtAddEvent(pcId, pcName, "undeveloped", -1)
 		return This
 
+	# Adds a free note to the drawing; it is not an event of the tree.
+	#
+	#   pcId       the note's identifier
+	#   pcText     the text of the note
+	#   returns    the tree itself, so calls chain
+	#   warning    the rules and the numbers ignore a note
+	#   see        AddEvent
 	def AddNote(pcId, pcText)
 		@aNotes + ("" + pcId)
 		This.AddNodeXTT(pcId, pcText, [ :type = "note" ])
@@ -392,8 +464,14 @@ class stzFaultTree from stzDiagram
 		@aEvents + [ :id = "" + pcId, :name = "" + pcName, :kind = pcKind, :p = pnP ]
 		This.AddNodeXTT(pcId, pcName, [ :type = pcKind ])
 
-	#-- the gates ----------------------------------------------------------
-
+	# Declares a gate, And or Or, not yet attached to any event.
+	#
+	#   pcId       the gate's identifier, which must be new in the tree
+	#   pcKind     And or Or, in any letter case, as a text or a symbol
+	#   returns    the tree itself, so calls chain
+	#   warning    any other kind, such as Xor, raises an error saying it is not a gate
+	#   see        Under, Feed, Develop
+	#@ aka  -- the gates ----------------------------------------------------------
 	def AddGate(pcId, pcKind)
 		This._FtNoNode(pcId)
 		_k_ = StzLower(ring_trim("" + pcKind))
@@ -409,7 +487,15 @@ class stzFaultTree from stzDiagram
 		This.AddNodeXTT(pcId, "", [ :type = _k_ ])
 		return This
 
-	# Under(event, gate): the gate develops the event
+	# Attaches a gate beneath an event, so the gate develops that event.
+	#
+	#   pcEvent    the identifier of the event to develop
+	#   pcGate     the identifier of the gate that develops it
+	#   returns    the tree itself, so calls chain
+	#   warning    an unknown event or an unknown gate raises an error; an event given two gates is
+	#              reported by the rule event_is_developed
+	#   see        Feed, Develop
+	#@ aka  Under(event, gate): the gate develops the event
 	def Under(pcEvent, pcGate)
 		if This._FtEventIndex(pcEvent) = 0
 			stzraise("stzFaultTree: '" + pcEvent + "' is not an event of this tree.")
@@ -422,9 +508,16 @@ class stzFaultTree from stzDiagram
 		This.AddEdgeXTT(pcEvent, pcGate, "", [ :type = "develops" ])
 		return This
 
-	# Feed(gate, input): an event is an input of the gate. An event may
-	# feed several gates -- a repeated event -- which is why the cut sets
-	# are computed rather than read.
+	# Makes an event an input of a gate, one of the causes the gate combines.
+	#
+	#   pcGate     the identifier of the gate
+	#   pcInput    the identifier of the event that feeds it
+	#   returns    the tree itself, so calls chain
+	#   warning    an input that is a gate raises an error, give it an event of its own; the same
+	#              event may feed several gates, which is what makes the cut sets differ from the
+	#              gate arithmetic
+	#   see        Under, Develop, InputsOf
+	#@ aka  Feed(gate, input): an event is an input of the gate. An event may feed several gates -- a repeated event -- which is why the cut sets are computed rather than read.
 	def Feed(pcGate, pcInput)
 		if This._FtGateIndex(pcGate) = 0
 			stzraise("stzFaultTree: '" + pcGate + "' is not a gate of this tree.")
@@ -440,7 +533,17 @@ class stzFaultTree from stzDiagram
 		This.AddEdgeXTT(pcGate, pcInput, "", [ :type = "feeds" ])
 		return This
 
-	# Develop(event, kind, [ inputs ]): the gate is named after the event
+	# Adds a gate beneath an event and feeds it a list of events, in one call.
+	#
+	#   pcEvent     the identifier of the event to develop
+	#   pcKind      And or Or
+	#   pacInputs   the identifiers of the events that feed the gate
+	#   returns     the tree itself, so calls chain
+	#   note        DevelopQ is the same call
+	#   warning     the gate is named after the event, event.gate; developing the same event twice
+	#               raises an error because that name is taken
+	#   see         AddGate, Under, Feed
+	#@ aka  Develop(event, kind, [ inputs ]): the gate is named after the event
 	def Develop(pcEvent, pcKind, pacInputs)
 		_cG_ = "" + pcEvent + ".gate"
 		This.AddGate(_cG_, pcKind)
@@ -453,15 +556,34 @@ class stzFaultTree from stzDiagram
 		def DevelopQ(pcEvent, pcKind, pacInputs)
 			return This.Develop(pcEvent, pcKind, pacInputs)
 
+	# Returns the events of the tree, in the order they were added.
+	#
+	#   returns    a list of hashlists with the keys id, name, kind (top, event, basic or
+	#              undeveloped) and p; p is -1 where no probability was given
+	#   see        Gates, Inputs
 	def Events()
 		return @aEvents
 
+	# Returns the gates of the tree, in the order they were added.
+	#
+	#   returns    a list of hashlists with the keys id, kind (and or or) and event; event is empty
+	#              for a gate that develops nothing
+	#   see        Events, Inputs
 	def Gates()
 		return @aGates
 
+	# Returns every feed of the tree, one entry per gate and input pair.
+	#
+	#   returns    a list of hashlists with the keys gate and input
+	#   see        InputsOf, Gates
 	def Inputs()
 		return @aInputs
 
+	# Returns the identifier of the gate that develops an event.
+	#
+	#   pcEvent    the identifier of the event, without regard to case
+	#   returns    a text; empty when the event has no gate
+	#   see        InputsOf, Under
 	def GateOf(pcEvent)
 		_c_ = StzLower("" + pcEvent)
 		for _i_ = 1 to len(@aGates)
@@ -469,6 +591,11 @@ class stzFaultTree from stzDiagram
 		next
 		return ""
 
+	# Returns the identifiers of the events that feed a gate, in the order added.
+	#
+	#   pcGate     the identifier of the gate, without regard to case
+	#   returns    a list of text; empty for an unknown gate
+	#   see        GateOf, Feed
 	def InputsOf(pcGate)
 		_r_ = []
 		_c_ = StzLower("" + pcGate)
@@ -477,19 +604,30 @@ class stzFaultTree from stzDiagram
 		next
 		return _r_
 
+	# Returns the identifier of the top event.
+	#
+	#   returns    a text; empty when no top was declared
+	#   warning    with several tops it answers the first one declared
+	#   see        AddTop, TopProbability
 	def TopEvent()
 		for _i_ = 1 to len(@aEvents)
 			if @aEvents[_i_][:kind] = "top"  return @aEvents[_i_][:id]  ok
 		next
 		return ""
 
-	#-- the numbers --------------------------------------------------------
-
-	# THE PROBABILITY OF AN EVENT OR A GATE, computed up from the leaves.
-	# AND multiplies, OR takes one minus the product of the complements;
-	# both assume independent inputs. Refused by name where a leaf has no
-	# number, where an event is undeveloped, or where a cause is among
-	# its own effects.
+	# Returns the probability of an event or a gate, computed up from the basic events.
+	#
+	#   pcId       the identifier of an event or a gate
+	#   returns    a number from 0 to 1
+	#   note       with a basic event repeated under two gates the answer is an approximation;
+	#              CutSetProbability is exact
+	#   warning    an AND gate multiplies its inputs and an OR gate takes 1 minus the product of
+	#              their complements, both assuming the inputs independent; it raises an error for a
+	#              basic event with no probability, for an undeveloped event, for an event with no
+	#              gate, for a gate with no input, for an unknown identifier and for an event among
+	#              its own causes
+	#   see        TopProbability, CutSetProbability
+	#@ aka  -- the numbers --------------------------------------------------------
 	def ProbabilityOf(pcId)
 		return This._FtProb(pcId, [])
 
@@ -542,6 +680,12 @@ class stzFaultTree from stzDiagram
 		next
 		return 1 - _q_
 
+	# Returns the probability of the top event, computed up the tree.
+	#
+	#   returns    a number from 0 to 1
+	#   warning    it raises an error when no top is declared, and for every cause ProbabilityOf
+	#              refuses
+	#   see        ProbabilityOf, CutSetProbability, MinimalCutSets
 	def TopProbability()
 		_cT_ = This.TopEvent()
 		if _cT_ = ""
@@ -549,11 +693,16 @@ class stzFaultTree from stzDiagram
 		ok
 		return This.ProbabilityOf(_cT_)
 
-	# THE MINIMAL CUT SETS of the top: the smallest sets of basic events
-	# that bring it about. Expanded down the tree -- an OR unions its
-	# inputs' sets, an AND crosses them -- then minimised: a set holding
-	# another is dropped, and duplicates fold. Each set is a list of basic
-	# ids in the order added; the sets come smallest first.
+	# Returns the smallest sets of basic events that bring the top event about.
+	#
+	#   returns    a list of lists of identifiers, the smallest sets first, each set in the order
+	#              its events were added
+	#   note       found by expansion: an OR unites the sets of its inputs, an AND crosses them,
+	#              then a set that holds another is dropped
+	#   warning    it raises an error when no top is declared or an event is among its own causes;
+	#              an undeveloped event or an event with no gate counts as a leaf of a set
+	#   see        CutSetProbability, TopProbability
+	#@ aka  THE MINIMAL CUT SETS of the top: the smallest sets of basic events that bring it about. Expanded down the tree -- an OR unions its inputs' sets, an AND crosses them -- then minimised: a set holding another is dropped, and duplicates fold. Each set is a list of basic ids in the order added; the sets come smallest first.
 	def MinimalCutSets()
 		_cT_ = This.TopEvent()
 		if _cT_ = ""
@@ -562,11 +711,15 @@ class stzFaultTree from stzDiagram
 		_aS_ = This._FtCuts(_cT_, [])
 		return This._FtMinimise(_aS_)
 
-	# THE EXACT PROBABILITY OF THE TOP, from the minimal cut sets by
-	# inclusion and exclusion over their unions -- the one number the
-	# gate arithmetic cannot give when a basic event is repeated. Every
-	# basic is still taken independent of every other. Refused above
-	# twelve cut sets, where the subsets outrun what a picture can mean.
+	# Returns the exact probability of the top event, summed over the minimal cut sets by inclusion and exclusion.
+	#
+	#   returns    a number from 0 to 1; 0 when there is no cut set
+	#   note       it differs from TopProbability when a basic event appears under two gates: 0.044
+	#              against 0.0494 for a sensor repeated under two branches
+	#   warning    it raises an error beyond twelve minimal cut sets and when no top is declared;
+	#              every basic event is taken independent of the others
+	#   see        TopProbability, MinimalCutSets
+	#@ aka  THE EXACT PROBABILITY OF THE TOP, from the minimal cut sets by inclusion and exclusion over their unions -- the one number the gate arithmetic cannot give when a basic event is repeated. Every basic is still taken independent of every other. Refused above twelve cut sets, where the subsets outrun what a picture can mean.
 	def CutSetProbability()
 		_aS_ = This.MinimalCutSets()
 		_n_ = len(_aS_)
@@ -683,8 +836,12 @@ class stzFaultTree from stzDiagram
 		next
 		return _r_
 
-	#-- the projection the rules read --------------------------------------
-
+	# Returns the tree as a plain graph that the five fault rules read.
+	#
+	#   returns    a stzGraph with the events, gates and notes as nodes carrying kind, name and p,
+	#              and the develop and feed lines as edges
+	#   see        GovernanceFindings
+	#@ aka  -- the projection the rules read --------------------------------------
 	def AsRuleGraph()
 		_oG_ = new stzGraph("fault-rules")
 		for _i_ = 1 to len(@aEvents)
@@ -716,13 +873,23 @@ class stzFaultTree from stzDiagram
 		next
 		return _oG_
 
+	# Returns what the five fault rules find wrong with the tree, warnings included.
+	#
+	#   returns    a list of findings, each a hashlist with the keys rule, where, severity and
+	#              message; empty when the tree is sound
+	#   note       CheckRules is the same call
+	#   warning    the rules are one_top_event, gate_has_two_inputs, basic_event_has_probability,
+	#              event_is_developed and no_event_causes_itself
+	#   see        GovernanceIsSound, AsRuleGraph
 	def GovernanceFindings()
 		return StzFaultRuleSetQ().Check(This.AsRuleGraph())
 
-	# SOUND IS NO ERROR, not no finding: this tree's rules set their
-	# severity deliberately, and a warning says the picture may stand.
-	# StzFindingsAreSound is the house's one answer; GovernanceFindings()
-	# is still every finding, warnings included, for a caller who wants them.
+	# TRUE if the rules found no error; warnings do not count against it.
+	#
+	#   returns    TRUE or FALSE
+	#   warning    RulesAreSound is the same call
+	#   see        GovernanceFindings
+	#@ aka  SOUND IS NO ERROR, not no finding: this tree's rules set their severity deliberately, and a warning says the picture may stand. StzFindingsAreSound is the house's one answer; GovernanceFindings() is still every finding, warnings included, for a caller who wants them.
 	def GovernanceIsSound()
 		return StzFindingsAreSound(This.GovernanceFindings())
 
@@ -732,10 +899,12 @@ class stzFaultTree from stzDiagram
 	def RulesAreSound()
 		return This.GovernanceIsSound()
 
-	#-- the drawing ----------------------------------------------------------
-
-	# what was written inside the basic events on the last render:
-	# [ id, p, x, y ], p = -1 where none was declared
+	# Returns what the last drawing wrote inside each basic event.
+	#
+	#   returns    a list of [ id, p, x, y ] rows, p being -1 where none was declared; empty before
+	#              the first drawing
+	#   see        ProbabilityOf
+	#@ aka  -- the drawing ----------------------------------------------------------
 	def RenderProbabilities()
 		return @aRenderProbs
 
@@ -789,12 +958,49 @@ class stzFaultTree from stzDiagram
 			stzraise("stzFaultTree: '" + pcId + "' is already in this tree.")
 		ok
 
+# Holds one named check of the fault-tree governance, run over the rule graph of a tree.
+#
+# It is a graph rule filed under the fault domain. The five rules the library ships are built by
+# stzFaultRuleSet and applied through the tree's GovernanceFindings; a rule of your own can be added
+# to a set the same way.
+#
+#   receiver   o1 = new stzFaultRule("my_rule")
+#   example    ? o1.Name()
+#              #--> my_rule
+#              ? o1.Domain()
+#              #--> fault
+#   see        stzFaultRuleSet, stzFaultTree, stzGraphRule
 class stzFaultRule from stzGraphRule
+	# Builds a named rule of the fault-tree governance, filed under the fault domain.
+	#
+	#   pcName     the rule's name, such as one_top_event
+	#   returns    nothing; the object is built
+	#   see        stzFaultRuleSet, stzFaultTree
 	def init(pcName)
 		super.init(pcName)
 		This.SetDomainQ("fault")
 
+# Holds the five rules a fault tree is judged by: one top, gates with two inputs, leaves with a probability, developed events, no event its own cause.
+#
+# Check takes the rule graph of a tree (AsRuleGraph) and answers the findings. A tree asks for this
+# through its own GovernanceFindings, so a rule set is built by hand only to add a rule of your own
+# or to run the rules on a graph.
+#
+#   receiver   o1 = new stzFaultRuleSet()
+#   example    ? o1.Name()
+#              #--> fault-governance
+#              ? o1.NumberOfRules()
+#              #--> 5
+#              ? o1.RuleNames()[1]
+#              #--> one_top_event
+#   see        stzFaultRule, stzFaultTree, stzGraphRuleSet
 class stzFaultRuleSet from stzGraphRuleSet
+	# Builds the fault-tree governance, the set of five rules a fault tree is judged by.
+	#
+	#   returns    nothing; the object is built
+	#   warning    the rules are one_top_event, gate_has_two_inputs, basic_event_has_probability,
+	#              event_is_developed and no_event_causes_itself, in that order
+	#   see        stzFaultRule, StzFaultRuleSetQ, GovernanceFindings
 	def init()
 		super.init("fault-governance")
 		This.SetDomainQ("fault")

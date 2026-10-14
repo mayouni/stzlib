@@ -60,6 +60,26 @@ func StzSoundTransportTickAll()
 		pointer2object(_p_).Tick()
 	next
 
+# Plays, pauses, resumes and stops a sound graph on the audio device, and keeps a clock the rest of the library can read.
+#
+# The legal moves are declared once in a state machine: stopped to playing, playing to paused,
+# paused to playing, and playing or paused to stopped. Any other move is refused and counted, never
+# obeyed. The position comes from the frames the device has consumed, not from a wall clock, so it
+# cannot drift from what is heard. Pause and Stop fade the master gain over 10 ms first, because
+# cutting the device is an audible click. There is no seek, only Rewind to the top. Play, PlayFor,
+# Resume and RunFor open an audio device and were not run in this reference; the examples use only
+# the refused moves of a stopped transport. Nobody has heard the fades (UNPERCEIVED).
+#
+#   receiver   o1 = new stzSoundTransport(StzSoundGraphOfQ(2, 44100).AddOscillatorQ(:Sine, 440,
+#              0.5))
+#   example    ? o1.State()
+#              #--> stopped
+#              o1.Pause()
+#              ? o1.LastError()
+#              #--> cannot pause while stopped
+#              ? o1.Refusals()
+#              #--> 1
+#   see        stzSoundGraph, stzSoundScheduler, stzStateMachine
 class stzSoundTransport
 
 	@oGraph = NULL
@@ -80,6 +100,14 @@ class stzSoundTransport
 	@fOnFinished = NULL
 	@fOnTick = NULL
 
+	# Builds a transport over a graph, with a master gain added for fades and a state machine that starts stopped.
+	#
+	#   poGraph    the stzSoundGraph to start, pause and stop
+	#   returns    nothing; the object is built
+	#   note       nothing starts and no device is opened here
+	#   warning    a non-graph is refused, with LastError set; the master gain is added to the graph
+	#              before it is prepared, which is why the graph gains a node
+	#   see        StzSoundTransportOfQ, State
 	def init(poGraph)
 		if NOT isObject(poGraph)
 			@cLastError = "a transport needs a stzSoundGraph"
@@ -103,54 +131,96 @@ class stzSoundTransport
 			[ :paused,  :stop,   :stopped ] ])
 		@oFsm.SetState(:stopped)
 
-	#-- what it is doing ----------------------------------------------------
-
+	# Returns what the transport is doing now.
+	#
+	#   returns    a text: stopped, playing or paused
+	#   warning    stopped for a transport that was built without a graph
+	#   see        IsPlaying, IsPaused, IsStopped
+	#@ aka  -- what it is doing ----------------------------------------------------
 	def State()
 		if NOT isObject(@oFsm)  return "stopped" ok
 		return @oFsm.CurrentState()
 
+	# TRUE if the transport is in the playing state.
+	#
+	#   returns    TRUE or FALSE
+	#   see        State, Play
 	def IsPlaying()
 		return This.State() = "playing"
 
+	# TRUE if the transport is in the paused state.
+	#
+	#   returns    TRUE or FALSE
+	#   see        State, Resume
 	def IsPaused()
 		return This.State() = "paused"
 
+	# TRUE if the transport is in the stopped state, as it is when built.
+	#
+	#   returns    TRUE or FALSE
+	#   see        State, Play
 	def IsStopped()
 		return This.State() = "stopped"
 
+	# Returns the reason the last move was refused or failed, or an empty text.
+	#
+	#   returns    a text such as cannot pause while stopped
+	#   warning    a successful move clears it
+	#   see        Refusals
 	def LastError()
 		return @cLastError
 
-	# How many moves the state machine refused. A transport that is being
-	# driven wrongly says so in a number rather than misbehaving quietly.
+	# Returns how many moves the state machine refused.
+	#
+	#   returns    a number
+	#   warning    a transport that is driven wrongly says so in this number instead of misbehaving
+	#   see        LastError
+	#@ aka  How many moves the state machine refused. A transport that is being driven wrongly says so in a number rather than misbehaving quietly.
 	def Refusals()
 		return @nRefusals
 
-	#-- THE CLOCK -----------------------------------------------------------
+	# Returns the frames the device has consumed, not the frames the graph has produced.
 	#
-	# Frames the DEVICE has consumed, not frames the graph has produced: the
-	# producer runs ahead by a ring's worth, so asking it would report a
-	# position up to a third of a second in the future. What the listener has
-	# heard is what the device has taken.
-
+	#   returns    a number of frames; 0 before any play
+	#   warning    the producer runs a ring ahead of the device, so the device's count is what has
+	#              been heard
+	#   see        PositionInSeconds, Underruns
+	#@ aka  -- THE CLOCK -----------------------------------------------------------
 	def PositionInFrames()
 		if @nStream = 0  return @nBaseFrames ok
 		return @nBaseFrames + StzEngineSoundStreamFramesRead(@nStream)
 
+	# Returns the device's position in seconds, from its frames and the graph's rate.
+	#
+	#   returns    a number of seconds
+	#   see        PositionInFrames, SampleRate
 	def PositionInSeconds()
 		return This.PositionInFrames() / @nRate
 
+	# Returns the sample rate of the graph the transport drives, in hertz.
+	#
+	#   returns    a number; 48000 when the transport was built without a graph
+	#   see        PositionInSeconds
 	def SampleRate()
 		return @nRate
 
-	# Frames the producer could not supply in time. Zero is the answer you
-	# want, and it is counted rather than guessed.
+	# Returns the frames the producer could not supply in time.
+	#
+	#   returns    a number; 0 is the answer to want, and 0 when nothing is playing
+	#   see        PositionInFrames
+	#@ aka  Frames the producer could not supply in time. Zero is the answer you want, and it is counted rather than guessed.
 	def Underruns()
 		if @nStream = 0  return 0 ok
 		return StzEngineSoundStreamUnderruns(@nStream)
 
-	#-- the moves -----------------------------------------------------------
-
+	# Starts the graph on the audio device from the top and returns at once.
+	#
+	#   returns    the transport itself, so calls chain
+	#   note       with no device the move is undone and LastError says there is no audio device
+	#   warning    not run in this reference: it opens an audio device; from any state but stopped
+	#              it is refused by the state machine, counted, and LastError names the state
+	#   see        PlayFor, Pause, Stop
+	#@ aka  -- the moves -----------------------------------------------------------
 	def Play()
 		if NOT This._Move(:play)  return This ok
 		@nBaseFrames = 0
@@ -166,8 +236,15 @@ class stzSoundTransport
 		This.Play()
 		return This
 
-	# Play, and stop by itself after pnSeconds. The stop happens in Tick(),
-	# so it needs someone to be ticking -- RunFor and DriveWith both do.
+	# Starts the graph on the audio device and arranges for it to stop by itself after a number of seconds.
+	#
+	#   pnSeconds   how long to play before stopping
+	#   returns     the transport itself, so calls chain
+	#   note        a value of 0 or less means play until stopped
+	#   warning     not run in this reference: it opens an audio device; the stop happens in Tick,
+	#               so something must be ticking
+	#   see         Play, RunFor
+	#@ aka  Play, and stop by itself after pnSeconds. The stop happens in Tick(), so it needs someone to be ticking -- RunFor and DriveWith both do.
 	def PlayFor(pnSeconds)
 		This.Play()
 		if This.IsPlaying()
@@ -179,6 +256,13 @@ class stzSoundTransport
 		This.PlayFor(pnSeconds)
 		return This
 
+	# Fades the master gain to silence over 10 ms, closes the device and remembers the position.
+	#
+	#   returns    the transport itself, so calls chain
+	#   note       the fade comes first, because cutting the device dead is an audible click
+	#   warning    the move is refused and counted when the transport is not playing, which is the
+	#              only case run in this reference
+	#   see        Resume, Stop
 	def Pause()
 		if NOT This._Move(:pause)  return This ok
 		# the fade FIRST, then the silence -- the other order is the click
@@ -192,8 +276,14 @@ class stzSoundTransport
 		This.Pause()
 		return This
 
-	# The graph carries on from where it was: pausing did not rewind it, so
-	# an envelope half way through its decay is still half way through it.
+	# Reopens the device after a pause, fades the master gain back up and goes on from where the graph was.
+	#
+	#   returns    the transport itself, so calls chain
+	#   note       the graph is not rewound, so an envelope half way through its decay goes on
+	#   warning    refused and counted unless the transport is paused, which is the only case run in
+	#              this reference; its device path was not run
+	#   see        Pause, Play
+	#@ aka  The graph carries on from where it was: pausing did not rewind it, so an envelope half way through its decay is still half way through it.
 	def Resume()
 		if NOT This._Move(:resume)  return This ok
 		if NOT This._OpenDevice()
@@ -207,6 +297,13 @@ class stzSoundTransport
 		This.Resume()
 		return This
 
+	# Fades the master gain to silence, closes the device, takes the transport out of any reactive loop and calls the finished handler.
+	#
+	#   returns    the transport itself, so calls chain
+	#   note       a stopped transport that was driven is no longer ticked
+	#   warning    refused and counted when already stopped, which is the only case run in this
+	#              reference
+	#   see        Rewind, OnFinished
 	def Stop()
 		This._Undrive()
 		if NOT This._Move(:stop)  return This ok
@@ -221,8 +318,14 @@ class stzSoundTransport
 		This.Stop()
 		return This
 
-	# Back to the top: the graph rewinds and the clock goes with it. Only
-	# legal when stopped, because rewinding under a running device is a jump.
+	# Takes the graph back to its top and the position back to 0, only while stopped.
+	#
+	#   returns    the transport itself, so calls chain
+	#   note       there is no seek: the engine can only rewind to the start
+	#   warning    refused and counted when not stopped, since rewinding under a running device is a
+	#              jump
+	#   see        Stop, PositionInFrames
+	#@ aka  Back to the top: the graph rewinds and the clock goes with it. Only legal when stopped, because rewinding under a running device is a jump.
 	def Rewind()
 		if NOT This.IsStopped()
 			@cLastError = "Rewind: stop first -- rewinding a running graph is a jump"
@@ -237,10 +340,14 @@ class stzSoundTransport
 		This.Rewind()
 		return This
 
-	#-- being driven --------------------------------------------------------
-
-	# One step. Cheap on purpose: it reads a counter and decides whether the
-	# sound has run out. Call it as often as you like.
+	# Reads the device position, calls the tick handler and stops the transport once the stop time passed to PlayFor is reached.
+	#
+	#   returns    the transport itself, so calls chain
+	#   note       cheap enough to call as often as you like
+	#   warning    does nothing unless the transport is playing, which is the only case run in this
+	#              reference
+	#   see        RunToEnd, DriveWith
+	#@ aka  -- being driven --------------------------------------------------------
 	def Tick()
 		if NOT This.IsPlaying()  return This ok
 		@nLastFrames = This.PositionInFrames()
@@ -250,9 +357,13 @@ class stzSoundTransport
 		ok
 		return This
 
-	# Tick until it stops, without a reactive loop. This DOES occupy the
-	# thread -- it is the honest version of PlayFor for a script that has
-	# nothing else to do, and it still reports the position while it runs.
+	# Ticks every 20 ms until the transport is no longer playing.
+	#
+	#   returns    the transport itself, so calls chain
+	#   note       blocks the calling thread while it plays
+	#   warning    returns at once when the transport is not playing
+	#   see        Tick, RunFor
+	#@ aka  Tick until it stops, without a reactive loop. This DOES occupy the thread -- it is the honest version of PlayFor for a script that has nothing else to do, and it still reports the position while it runs.
 	def RunToEnd()
 		while This.IsPlaying()
 			This.Tick()
@@ -260,15 +371,28 @@ class stzSoundTransport
 		end
 		return This
 
+	# Plays for a number of seconds and waits, ticking, until the transport has stopped.
+	#
+	#   pnSeconds   how long to play
+	#   returns     the transport itself, so calls chain
+	#   note        it occupies the thread, like RunToEnd
+	#   warning     not run in this reference: it opens an audio device
+	#   see         PlayFor, RunToEnd
 	def RunFor(pnSeconds)
 		This.PlayFor(pnSeconds)
 		This.RunToEnd()
 		return This
 
-	# THE REACTIVE CONVERGENCE. The transport does not own a loop; it owns a
-	# STEP. Hand it a stzReactive and the loop that already exists calls the
-	# step, alongside every timer, stream and task that loop is already
-	# carrying -- which is the whole point of there being one loop.
+	# Registers the transport so that a reactive loop steps it every 20 ms, alongside its other timers.
+	#
+	#   poReactive   the stzReactive whose loop should call the transport
+	#   returns      the transport itself, so calls chain
+	#   note         the transport is registered by pointer in a global list, and Stop or Release
+	#                removes it
+	#   warning      a non-reactive argument is refused, with LastError set and the refusal counted;
+	#                registering twice adds it once; the loop was not run in this reference
+	#   see          Tick, OnTick
+	#@ aka  THE REACTIVE CONVERGENCE. The transport does not own a loop; it owns a STEP. Hand it a stzReactive and the loop that already exists calls the step, alongside every timer, stream and task that loop is already carrying -- which is the whole point of there being one loop.
 	def DriveWith(poReactive)
 		if NOT isObject(poReactive)
 			@cLastError = "DriveWith needs a stzReactive"
@@ -287,22 +411,43 @@ class stzSoundTransport
 		This.DriveWith(poReactive)
 		return This
 
-	#-- what to call --------------------------------------------------------
-
+	# Sets the function to call when the transport has started.
+	#
+	#   f          the function to call, with no arguments
+	#   returns    the transport itself, so calls chain
+	#   warning    a function that raises is swallowed silently
+	#   see        OnFinished, OnTick
+	#@ aka  -- what to call --------------------------------------------------------
 	def OnStarted(f)
 		@fOnStarted = f
 		return This
 
+	# Sets the function to call when the transport has stopped.
+	#
+	#   f          the function to call, with no arguments
+	#   returns    the transport itself, so calls chain
+	#   warning    a function that raises is swallowed silently
+	#   see        OnStarted
 	def OnFinished(f)
 		@fOnFinished = f
 		return This
 
+	# Sets the function to call at every step of a playing transport.
+	#
+	#   f          the function to call, with no arguments
+	#   returns    the transport itself, so calls chain
+	#   warning    a function that raises is swallowed silently
+	#   see        Tick, DriveWith
 	def OnTick(f)
 		@fOnTick = f
 		return This
 
-	#-- housekeeping --------------------------------------------------------
-
+	# Takes the transport out of any reactive loop, closes the device and discards the state machine.
+	#
+	#   returns    nothing
+	#   warning    afterwards State answers stopped
+	#   see        Stop
+	#@ aka  -- housekeeping --------------------------------------------------------
 	def Release()
 		This._Undrive()
 		This._CloseDevice()

@@ -1,0 +1,27 @@
+{
+ "brief": "Plans walks over a list: answers the positions to visit, forward, backward, in a zigzag, by a condition, by a step or between two positions.",
+ "detail": "It is the walking helper of stzList, which builds one over itself for its WalkNForward, WalkNBackward, WalkW, WalkUntil, WalkWhile and WalkZigZag methods; build one with new stzListWalker when you only need the plan of a walk. It never changes the list, so a stzList passed in stays intact. Every Walk method answers positions counted from 1, in the order the walk visits them, never the items: read the items with the positions, or use the XT forms that take :WalkedItems. The condition methods (WalkW, WalkUntil, WalkWhen, WalkWhile) take a test written with @item for the current item. The positions of WalkBetween and WalkFromTo are not clipped to the list. A walk whose step is 0 (WalkNForward, WalkNBackward, WalkForthAndBack, WalkZigZag) never ends. AddWalker, Walkers and Walker raise error R24 today because the class never declares the attribute they read. WalkAccumulating is a plain map, not a running total.",
+ "receiver": "o1 = new stzListWalker([ 5, 12, 7, 20, 3, 18, 9 ])",
+ "example": [
+  "? @@( o1.WalkNForward(3) )",
+  "#--> [ 1, 4, 7 ]",
+  "? @@( o1.WalkNBackward(3) )",
+  "#--> [ 7, 4, 1 ]",
+  "? @@( o1.WalkW(\"@item > 10\") )",
+  "#--> [ 2, 4, 6 ]",
+  "? @@( o1.WalkUntil(\"@item > 10\") )",
+  "#--> [ 1, 2 ]",
+  "? @@( o1.WalkWhile(\"@item < 10\") )",
+  "#--> [ 1 ]",
+  "? @@( o1.WalkZigZag(3) )",
+  "#--> [ 1, 4, 7, 7, 4, 1 ]",
+  "o2 = new stzListWalker([ \"שלום\", \"😀\", \"x\", \"y\" ])",
+  "? @@( o2.WalkEveryNth(2) )",
+  "#--> [ 2, 4 ]"
+ ],
+ "see": [
+  "stzList",
+  "stzListGetter",
+  "stzWalker"
+ ]
+}

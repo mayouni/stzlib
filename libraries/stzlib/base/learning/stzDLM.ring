@@ -43,6 +43,30 @@ func StzDlmQ(pDomainOrKB)
 
 
 
+# Answers questions about one small domain from recorded facts, refuses everything outside it, and can train a tiny neural model on its own sentences.
+#
+# The first rung has no neurons: entities, relations and facts are kept as lists, every answer is a
+# lookup with a reason, and a question about anything unknown is refused with the domain's name
+# rather than guessed. It can be filled by hand, forged from a knowledge graph with StzDlmQ, and
+# saved to a self-contained .zdlm file that another model reads back with LoadFrom. The second rung
+# is a bigram network trained only on the sentences GenerateCorpus renders from the facts, with no
+# remote teacher; it predicts and generates words but does not own the truth, which stays with Ask.
+# Known limits today: names learned by hand are matched in lower case only, and the recorded laws
+# are saved but not applied by Ask.
+#
+#   receiver   o1 = new stzDLM("restaurant")
+#   example    o1.LearnEntity("margherita", "dish")
+#              o1.LearnEntity("basil", "ingredient")
+#              o1.LearnFact("margherita", "contains", "basil")
+#              ? o1.Ask("what is margherita")
+#              #--> Margherita is a dish.
+#              ? o1.Ask("margherita contains?")
+#              #--> Margherita contains basil.
+#              ? o1.Ask("what is the weather")
+#              #--> That is outside the 'restaurant' domain (I know 2 entities and 1 relations).
+#              ? o1.Complete("margherita")[1]
+#              #--> contains
+#   see        stzKnowledgeGraph, StzDlmQ
 class stzDLM from stzObject
 
 	@cDomain = ""
@@ -58,17 +82,38 @@ class stzDLM from stzObject
 	@bNeuralTrained = 0
 	@cNeuralWhy = ""
 
+	# Builds an empty domain language model for a named domain, to be filled by hand or forged from a knowledge graph.
+	#
+	#   pcDomain   the domain name, which answers that are refused quote
+	#   returns    nothing; the object is built
+	#   note       StzDlmQ forges one straight from a stzKnowledgeGraph, taking the graph's id as
+	#              the domain
+	#   see        SetDomain, ForgeFrom, Save
 	def init(pcDomain)
 		@cDomain = "" + pcDomain
 
+	# Renames the domain the model answers for.
+	#
+	#   pcDomain   the new domain name
+	#   returns    nothing
+	#   see        Domain, init
 	def SetDomain(pcDomain)
 		@cDomain = "" + pcDomain
 
+	# Returns the domain name.
+	#
+	#   returns    a text
+	#   see        SetDomain
 	def Domain()
 		return @cDomain
 
-	#-- forging -------------------------------------------------------------
-
+	# Fills the model from a knowledge graph: is-a facts become entities, other facts become facts, constraints become laws, in lower case.
+	#
+	#   poKG       the stzKnowledgeGraph to forge from
+	#   returns    the model itself, so calls chain
+	#   note       the domain name is not changed; nothing already learned is duplicated
+	#   see        LearnEntity, LearnFact, LearnLaw
+	#@ aka  -- forging -------------------------------------------------------------
 	def ForgeFrom(poKG)
 		_aF_ = poKG.Facts()
 		_n_ = len(_aF_)
@@ -94,6 +139,16 @@ class stzDLM from stzObject
 		next
 		return This
 
+	# Adds an entity of a given type, so the model can say what it is.
+	#
+	#   pcName     the entity's name
+	#   pcType     its type
+	#   returns    the model itself, so calls chain
+	#   note       an entity may bear several types; the same pair twice is kept once
+	#   warning    a name written with capitals is stored as written, but Ask and Complete lower-
+	#              case what they are given, so Pizza learned by hand is never found: learn lower-
+	#              case names
+	#   see        LearnFact, Lexicon, Ask
 	def LearnEntity(pcName, pcType)
 		_n_ = len(@aEntities)
 		for _i_ = 1 to _n_
@@ -104,12 +159,28 @@ class stzDLM from stzObject
 		@aEntities + [ pcName, pcType ]
 		return This
 
+	# Adds a relation name the model may be asked about.
+	#
+	#   pcRel      the relation's name, such as contains
+	#   returns    the model itself, so calls chain
+	#   note       LearnFact adds its relation by itself
+	#   see        LearnFact, Lexicon
 	def LearnRelation(pcRel)
 		if ring_find(@acRelations, pcRel) = 0
 			@acRelations + pcRel
 		ok
 		return This
 
+	# Adds a fact of the form subject, relation, object, and the relation with it.
+	#
+	#   pcS        the subject
+	#   pcP        the relation
+	#   pcO        the object
+	#   returns    the model itself, so calls chain
+	#   note       the same triple twice is kept once
+	#   warning    names written with capitals are stored as written and are not found by Ask or
+	#              Complete, which lower-case their input
+	#   see        LearnEntity, LearnRelation, Ask
 	def LearnFact(pcS, pcP, pcO)
 		_n_ = len(@aFacts)
 		for _i_ = 1 to _n_
@@ -122,6 +193,15 @@ class stzDLM from stzObject
 		This.LearnRelation(pcP)
 		return This
 
+	# Records a law of a relation, such as transitive, which is saved with the model.
+	#
+	#   pcRel      the relation the law governs
+	#   pcLaw      the law's name
+	#   returns    the model itself, so calls chain
+	#   note       the same pair twice is kept once
+	#   warning    no method of the model reads the laws today: Ask answers from the recorded facts
+	#              only, so a transitive law adds no chained answer
+	#   see        ForgeFrom, Save
 	def LearnLaw(pcRel, pcLaw)
 		_n_ = len(@aLaws)
 		for _i_ = 1 to _n_
@@ -132,6 +212,10 @@ class stzDLM from stzObject
 		@aLaws + [ pcRel, pcLaw ]
 		return This
 
+	# Returns the model's vocabulary: its entities, their types and its relations.
+	#
+	#   returns    a hash list with the keys entities, types and relations, each a list of texts
+	#   see        LearnEntity, Tokenizer
 	def Lexicon()
 		_acE_ = []
 		_acT_ = []
@@ -146,10 +230,17 @@ class stzDLM from stzObject
 		next
 		return [ :entities = _acE_, :types = _acT_, :relations = @acRelations ]
 
-	#-- the language surface -------------------------------------------------
-
-	# deterministic domain answering: a graph lookup that SPEAKS --
-	# and REFUSES outside its domain (LAW 3)
+	# Answers a question from the recorded facts, or refuses when it is outside the domain.
+	#
+	#   pcQuestion   the question, in lower or upper case
+	#   returns      a text, the answer or the refusal
+	#   note         what is X lists the types of X; X followed by a relation lists its objects; the
+	#                reason of the last call is in Why
+	#   warning      a question that names no known entity gets a refusal that quotes the domain and
+	#                the counts, not an invented answer; an entity learned with capitals is not
+	#                recognized
+	#   see          Why, Complete, AddGolden
+	#@ aka  -- the language surface -------------------------------------------------
 	def Ask(pcQuestion)
 		_aX_ = This.AskXT(pcQuestion)
 		return _aX_[:answer]
@@ -240,9 +331,13 @@ class stzDLM from stzObject
 		return [ :answer = "I know '" + _cE_ + "', but not what you ask about it.",
 			:certainty = 1, :why = @cWhy, :refused = 1 ]
 
-	# domain-valid continuations (the constrained-grammar spirit):
-	# an entity completes with its relations; a relation with its
-	# objects; a fragment with matching entities
+	# Returns what may follow a word: an entity's relations, a relation's objects, or the entities that start with a fragment.
+	#
+	#   pcPartial   the entity, relation or fragment, lower-cased before matching
+	#   returns     a list of texts; an empty list when nothing matches
+	#   note        the three readings are tried in that order and the first with a result wins
+	#   see         Ask, Lexicon
+	#@ aka  domain-valid continuations (the constrained-grammar spirit): an entity completes with its relations; a relation with its objects; a fragment with matching entities
 	def Complete(pcPartial)
 		_cP_ = StzLower(ring_trim("" + pcPartial))
 		_acOut_ = []
@@ -280,8 +375,12 @@ class stzDLM from stzObject
 		next
 		return _acOut_
 
-	# every fact rendered as a sentence -- RUNG 2's teacher-free
-	# training corpus (correct by construction: these ARE the facts)
+	# Returns every entity and fact as a short sentence, the teacher-free training text of the neural rung.
+	#
+	#   returns    a list of texts
+	#   note       an entity gives name is a type, and a fact gives subject relation object
+	#   see        TrainNeuralRung, Tokenizer
+	#@ aka  every fact rendered as a sentence -- RUNG 2's teacher-free training corpus (correct by construction: these ARE the facts)
 	def GenerateCorpus()
 		_acOut_ = []
 		_n_ = len(@aEntities)
@@ -295,10 +394,11 @@ class stzDLM from stzObject
 		next
 		return _acOut_
 
-	# R4 step 8 -- the word-level DOMAIN TOKENIZER: a closed domain
-	# earns a closed vocabulary (id 1 = <unk>, then entities, types,
-	# relations, and every corpus word). The neural rung trains over
-	# these ids; the deterministic rung already speaks them.
+	# Returns the closed vocabulary of the domain, with the unknown-word marker first.
+	#
+	#   returns    a list of texts, the first being <unk>
+	#   see        Tokenize, Lexicon
+	#@ aka  R4 step 8 -- the word-level DOMAIN TOKENIZER: a closed domain earns a closed vocabulary (id 1 = <unk>, then entities, types, relations, and every corpus word). The neural rung trains over these ids; the deterministic rung already speaks them.
 	def Tokenizer()
 		_acV_ = [ "<unk>" ]
 		_aLex_ = This.Lexicon()
@@ -337,6 +437,13 @@ class stzDLM from stzObject
 		next
 		return _acV_
 
+	# Returns the vocabulary position of each word of a text.
+	#
+	#   pcText     the text to split into words
+	#   returns    a list of numbers, one for each word
+	#   note       a word outside the vocabulary gives 1, the position of <unk>; text is lower-cased
+	#              and full stops are dropped
+	#   see        Tokenizer
 	def Tokenize(pcText)
 		_acV_ = This.Tokenizer()
 		_acW_ = StzSplit(StzReplace(StzLower(ring_trim("" + pcText)), ".", ""), " ")
@@ -354,18 +461,21 @@ class stzDLM from stzObject
 		next
 		return _aOut_
 
+	# Returns the reason behind the last Ask.
+	#
+	#   returns    a text; empty before any question
+	#   see        Ask
 	def Why()
 		return @cWhy
 
-	#-- RUNG 2: the NEURAL domain LM -----------------------------------------
-	# A neural BIGRAM language model: one-hot(current token) -> softmax over
-	# the domain vocabulary -> next token. Trained ONLY on GenerateCorpus()
-	# (sentences correct-by-construction), no remote teacher -- the whole
-	# point of the Foundry: a project's own knowledge becomes a model that
-	# GENERATES domain text. Rung 1 (deterministic Ask/Complete) still owns
-	# truth; this rung learns the corpus's word-transition distribution.
-	# The softmax + categorical-cross-entropy floor makes it possible.
-
+	# Trains a small bigram network on the domain's own sentences, so that it can predict which word follows which.
+	#
+	#   nEpochs    the number of passes over the corpus
+	#   returns    the model itself, so calls chain
+	#   note       no remote teacher is used; the deterministic answers of Ask are not affected
+	#   warning    raises an error when the domain holds nothing to learn
+	#   see        NextToken, NeuralWhy, GenerateCorpus
+	#@ aka  -- RUNG 2: the NEURAL domain LM ----------------------------------------- A neural BIGRAM language model: one-hot(current token) -> softmax over the domain vocabulary -> next token. Trained ONLY on GenerateCorpus() (sentences correct-by-construction), no remote teacher -- the whole point of the Foundry: a project's own knowledge becomes a model that GENERATES domain text. Rung 1 (deterministic Ask
 	def TrainNeuralRung(nEpochs)
 		if nEpochs < 1
 			nEpochs = 300
@@ -405,13 +515,29 @@ class stzDLM from stzObject
 			_nV_ + "-word vocab; " + _oTr_.Why()
 		return This
 
+	# TRUE if the neural rung has been trained.
+	#
+	#   returns    TRUE or FALSE
+	#   see        TrainNeuralRung
 	def IsNeuralTrained()
 		return @bNeuralTrained
 
+	# Returns a summary of the last training: pairs, vocabulary size, epochs and loss.
+	#
+	#   returns    a text; empty before training
+	#   see        TrainNeuralRung
 	def NeuralWhy()
 		return @cNeuralWhy
 
-	# the token (string) the neural rung predicts to follow a word
+	# Returns the word the neural rung predicts to follow a word.
+	#
+	#   pcWord     the word, lower-cased before use
+	#   returns    a text
+	#   note       a bigram sees one word, so it predicts the most frequent follower of the corpus
+	#   warning    raises an error before TrainNeuralRung; a word outside the vocabulary is read as
+	#              the unknown marker
+	#   see        NextTokenConfidence, NeuralGenerate
+	#@ aka  the token (string) the neural rung predicts to follow a word
 	def NextToken(pcWord)
 		if not @bNeuralTrained
 			stzraise("Train the neural rung first: TrainNeuralRung(n).")
@@ -423,8 +549,13 @@ class stzDLM from stzObject
 		_aP_ = @oNeural.Predict(This._OneHot(_nId_, len(@acNeuralVocab)))
 		return @acNeuralVocab[This._ArgMax(_aP_)]
 
-	# the neural rung's confidence in its predicted next token (a real
-	# probability -- softmax normalizes over the whole vocabulary)
+	# Returns the probability the neural rung gives to the word it predicts.
+	#
+	#   pcWord     the word, lower-cased before use
+	#   returns    a number between 0 and 1
+	#   warning    raises an error before TrainNeuralRung
+	#   see        NextToken
+	#@ aka  the neural rung's confidence in its predicted next token (a real probability -- softmax normalizes over the whole vocabulary)
 	def NextTokenConfidence(pcWord)
 		if not @bNeuralTrained
 			stzraise("Train the neural rung first: TrainNeuralRung(n).")
@@ -436,7 +567,16 @@ class stzDLM from stzObject
 		_aP_ = @oNeural.Predict(This._OneHot(_nId_, len(@acNeuralVocab)))
 		return _aP_[This._ArgMax(_aP_)]
 
-	# greedy generation: a seed word + nSteps neural next-tokens
+	# Returns a seed word followed by the words the neural rung predicts one after the other.
+	#
+	#   pcSeed     the first word
+	#   nSteps     how many words to add
+	#   returns    a text of words separated by spaces
+	#   note       the rung learns word transitions of the corpus and does not own the truth, which
+	#              stays with Ask; the text can wander
+	#   warning    raises an error before TrainNeuralRung
+	#   see        NextToken
+	#@ aka  greedy generation: a seed word + nSteps neural next-tokens
 	def NeuralGenerate(pcSeed, nSteps)
 		if nSteps < 1
 			nSteps = 4
@@ -450,7 +590,13 @@ class stzDLM from stzObject
 		next
 		return JoinXT(_acOut_, " ")
 
-	# export the trained neural rung as a real .gguf (the Foundry artifact)
+	# Writes the trained neural rung to a GGUF file.
+	#
+	#   pcFile     the path of the file to write
+	#   returns    the path of the file written
+	#   warning    raises an error before TrainNeuralRung
+	#   see        TrainNeuralRung
+	#@ aka  export the trained neural rung as a real .gguf (the Foundry artifact)
 	def ExportNeuralGguf(pcFile)
 		if not @bNeuralTrained
 			stzraise("Train the neural rung first: TrainNeuralRung(n).")
@@ -480,8 +626,14 @@ class stzDLM from stzObject
 		next
 		return _nArg_
 
-	#-- goldens ---------------------------------------------------------------
-
+	# Records a question with the answer it must always give, to be checked by RunGoldens.
+	#
+	#   pcQuestion   the question to ask
+	#   pcExpected   the exact answer expected
+	#   returns      nothing; use AddGoldenQ to chain
+	#   note         the same pair twice is kept twice
+	#   see          RunGoldens, Ask
+	#@ aka  -- goldens ---------------------------------------------------------------
 	def AddGolden(pcQuestion, pcExpected)
 		@aGoldens + [ "" + pcQuestion, "" + pcExpected ]
 
@@ -489,6 +641,11 @@ class stzDLM from stzObject
 			This.AddGolden(pcQuestion, pcExpected)
 			return This
 
+	# Asks every recorded question and compares each answer with the expected one.
+	#
+	#   returns    a hash list with the keys total, passed and failed, the last a list of hash lists
+	#              with question, expected and got
+	#   see        AddGolden, Ask
 	def RunGoldens()
 		_nPass_ = 0
 		_aFailed_ = []
@@ -504,12 +661,15 @@ class stzDLM from stzObject
 		next
 		return [ :total = _n_, :passed = _nPass_, :failed = _aFailed_ ]
 
-	#-- persistence (*.zdlm -- SELF-CONTAINED) ---------------------------------
-	# (extension ruling 2026-07-14: Softanza formats are z + a short
-	#  abbreviation -- .zdlm, .zknw, .zcnv, .zrlz)
-
-	# LOAD the bundle back INTO this DLM -- the mirror of Save(), and the
-	# object's OWN act (named LoadFrom: 'Load' collides with Ring's keyword).
+	# Reads a saved bundle into this model, so it answers without the original graph.
+	#
+	#   pcFile     the path of a bundle written by Save
+	#   returns    the model itself, so calls chain
+	#   note       it adds to what the model already holds and sets the domain name from the file; a
+	#              name with a vertical bar was not saved readable and is dropped silently
+	#   warning    raises an error when the file cannot be opened
+	#   see        Save
+	#@ aka  -- persistence (*.zdlm -- SELF-CONTAINED) --------------------------------- (extension ruling 2026-07-14: Softanza formats are z + a short abbreviation -- .zdlm, .zknw, .zcnv, .zrlz)
 	def LoadFrom(pcFile)
 	_cContent_ = StzReplace(read(pcFile), char(13), "")
 		_acLines_ = StzSplit(_cContent_, char(10))
@@ -562,6 +722,13 @@ class stzDLM from stzObject
 		next
 		return This
 
+	# Writes the domain, entities, relations, facts, laws and goldens to a text bundle.
+	#
+	#   pcFile     the path to write
+	#   returns    the path written, with the .zdlm extension added when missing
+	#   note       a name that contains a vertical bar cannot be read back by LoadFrom; the neural
+	#              rung is not saved
+	#   see        LoadFrom
 	def Save(pcFile)
 		if StzRight(pcFile, 5) != ".zdlm"
 			pcFile += ".zdlm"

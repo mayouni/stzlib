@@ -1,0 +1,13 @@
+init | Builds a renderer over a score, to turn its events into sound buffers. | nothing; the object is built | poScore=the stzSoundScore whose events are rendered | stzSoundScore, Plan
+SetGain | Sets the factor applied to every note when it is mixed into the offline render. | nothing | pnGain=the gain per note, 0.6 by default so that a few notes in a chord do not clip | Gain, Offline
+Gain | Returns the factor applied to each note in the offline render. | a number, 0.6 until set | | SetGain
+Rate | Returns the sample rate of the render, in hertz. | a number, 48000 | | Channels, Offline
+Channels | Returns the number of channels of the render. | a number, 2 | | Rate, Offline
+LastError | Returns the reason the last note was refused, or an empty text. | a text | | Refusals
+Refusals | Returns how many notes an instrument has refused to render. | a number | | LastError, NotesRendered
+NotesRendered | Returns how many distinct notes the instruments have rendered. | a number; a note that recurs with the same instrument, pitch, length and velocity counts once | | Plan, SecondsRendering | the count is not reset by Release, so rendering again adds to it
+SecondsRendering | Returns the wall time spent rendering the notes, in seconds. | a number | | NotesRendered | measured on the processor clock
+EndFrame | Returns the frame where the last note ends, in the sound of the render. | a number of frames; 0 until Plan or Offline has run | | Plan, Offline | it is the length of the rendered sound
+Plan | Returns one row per event giving the frame it starts at and the buffer holding its note, rendering the notes on first use. | a list of [ frame, bufferId ] rows in start order; [ ] for an empty score | | Offline, NotesRendered | an event whose instrument refused it has no row; equal notes share one buffer id
+Offline | Mixes every planned note into one new silent stereo sound at the render's rate and returns it. | a stzSound as long as the last note, and one frame long when nothing was rendered | | Plan, SetGain, Release | no audio device is opened; a failed mix sets LastError | the sound has not been heard by a person
+Release | Frees the note buffers the renderer holds and forgets the plan. | nothing | | Plan, Offline | the sounds already returned by Offline are separate and stay valid; asking for the plan again renders the notes again

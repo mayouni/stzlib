@@ -5,6 +5,29 @@
 # 1. CORE CONFIGURATION CLASS
 # ===========================
 
+# Measures a two-dimension pivot table and computes the width of every column, the layout a console renderer draws from.
+#
+# It is built from the pivot as a list of rows: a header row (the row labels, one dim1|dim2 header
+# per data column, the total label), the data rows and a row of totals. It measures the content into
+# aContentDimensions, then turns measures and settings into aCalculatedLayout; both are attributes
+# you read directly. The settings are in aSettings (MinCellWidth, MaxCellWidth, MaxHeaderWidth,
+# DefaultPadding, CellGrowthRatio and others), and SetSetting recomputes after each change. Known
+# limits: it needs exactly two column dimensions, and today the width of a data column ignores its
+# content, which the warnings on CalculateLayout and MeasureContentDimensions explain.
+#
+#   receiver   o1 = new TableDisplayConfig([ [ "Dept", "2024|Q1", "2024|Q2", "Total" ], [ "Sales",
+#              100, 200, 300 ], [ "Support", 50, 60, 110 ], [ "Total", 150, 260, 410 ] ], [ "Dept"
+#              ], [ "Year", "Quarter" ], "Total")
+#   example    ? @@( o1.GetUniqueColumnDimensionValues() )
+#              #--> [ [ "2024" ], [ "Q1", "Q2" ] ]
+#              ? @@( o1.aCalculatedLayout[:RowLabelWidths] )
+#              #--> [ 11 ]
+#              ? o1.aCalculatedLayout[:TotalColumnWidth]
+#              #--> 8
+#              o1.SetSetting(:MinCellWidth, 8)
+#              ? o1.aSettings[:MinCellWidth]
+#              #--> 8
+#   see        TableRenderer, TableConfigManager, TableThemeManager, stzPivotTable
 Class TableDisplayConfig
     
     # Container for all configuration and dynamic calculations
@@ -76,7 +99,21 @@ Class TableDisplayConfig
     bShowTotalRow = 1   # Whether to show totals row
     bShowTotalColumn = 1 # Whether to show totals column
     
-    # Initialize with pivot table data
+    # Builds the layout of a console pivot table from its data: measures the content, then computes every width.
+    #
+    #   aPivotTable   the pivot as a list of rows: a header row (the row labels, then one header per
+    #                 data column holding the two column values joined by a vertical bar, such as
+    #                 2024 then Q1, then the total label), the data rows, and a last row of totals
+    #   aRowDims      the names of the row dimensions
+    #   aColDims      the names of the two column dimensions
+    #   cTotalLbl     the label of the total column and of the total row
+    #   returns       nothing; the object is built
+    #   note          the measures land in aContentDimensions and the final widths in
+    #                 aCalculatedLayout, two attributes you can read
+    #   warning       it needs exactly two column dimensions: one raises error R2, an empty pivot
+    #                 raises it too, and a third is ignored
+    #   see           MeasureContentDimensions, CalculateLayout
+    #@ aka  Initialize with pivot table data
     func init(aPivotTable, aRowDims, aColDims, cTotalLbl)
         aPivotData = aPivotTable
         aRowLabels = aRowDims
@@ -88,7 +125,14 @@ Class TableDisplayConfig
         CalculateLayout()
         return self
     
-    # 1. Measure all content to determine natural sizes
+    # Measures the natural width of the row labels, column headers, data cells and totals, and stores them in aContentDimensions.
+    #
+    #   returns    nothing
+    #   warning    the width kept for a data column is that of the LAST data row, not the widest: a
+    #              column holding 20 and then 2 is stored as 1 wide; the test that should keep the
+    #              maximum asks whether a number is a hashlist, which is always false
+    #   see        CalculateLayout, Recalculate
+    #@ aka  1. Measure all content to determine natural sizes
     func MeasureContentDimensions()
         aContentDimensions[:RowLabels] = []
         aContentDimensions[:ColumnDimValues] = []
@@ -210,7 +254,12 @@ Class TableDisplayConfig
             :width = _nMaxTotalWidth_
         ]
     
-    # Helper: Get unique values for each column dimension
+    # Returns the distinct values of each column dimension, read from the two-part headers of the pivot.
+    #
+    #   returns    a list with one list of text per column dimension, in the order of first
+    #              appearance
+    #   see        MeasureContentDimensions, GetDimensionGroupWidth
+    #@ aka  Helper: Get unique values for each column dimension
     func GetUniqueColumnDimensionValues()
         _aResult_ = []
         _nColLabelCount_ = len(aColLabels)
@@ -243,7 +292,15 @@ Class TableDisplayConfig
         
         return _aResult_
     
-    # 2. Calculate final layout dimensions based on content and settings
+    # Computes the final widths from the measures and the settings, and stores them in aCalculatedLayout.
+    #
+    #   returns    nothing
+    #   warning    the measured data-cell widths are never used: each data column gets the
+    #              MinCellWidth setting grown by CellGrowthRatio plus padding, however wide its
+    #              content, because the lookup asks whether a number is a hashlist; row labels and
+    #              the total column do use their measures
+    #   see        MeasureContentDimensions, Recalculate, SetSetting
+    #@ aka  2. Calculate final layout dimensions based on content and settings
     func CalculateLayout()
         # 2.1 Calculate row label widths
         _aFinalRowWidths_ = []
@@ -396,7 +453,14 @@ Class TableDisplayConfig
         
         aCalculatedLayout[:BorderWidthOffsets] = _aBorderOffsets_
     
-    # Helper: Get the overall width for a specific column dimension group
+    # Raises error R5 today instead of returning the width of one group of columns.
+    #
+    #   nDimIndex   the column dimension to measure, which the body does not read
+    #   returns     nothing; it raises Can't access the list item, Object is not list
+    #   warning     it reads a variable that belongs to CalculateLayout and is empty here; the same
+    #               error for 1 and for 2
+    #   see         GetCellWidth, CalculateLayout
+    #@ aka  Helper: Get the overall width for a specific column dimension group
     func GetDimensionGroupWidth(nDimIndex)
         _aColDimValues_ = aContentDimensions[:ColumnDimValues]
         _nGroupWidth_ = 0
@@ -416,7 +480,16 @@ Class TableDisplayConfig
         
         return _nGroupWidth_
     
-    # Helper: Get actual cell width for a specific dimension combination
+    # Returns the MinCellWidth setting, whatever the pair of values, instead of the width computed for that data column.
+    #
+    #   _dim1_     the value of the first column dimension, such as 2024
+    #   _dim2_     the value of the second, such as Q1
+    #   returns    a number: the MinCellWidth setting
+    #   warning    the lookup asks whether a width, which is a number, is a hashlist, which is
+    #              always false, so the fallback is always taken; with MinCellWidth 5 it answers 5
+    #              while the layout holds 8
+    #   see        GetLayoutValue, CalculateLayout
+    #@ aka  Helper: Get actual cell width for a specific dimension combination
     func GetCellWidth(_dim1_, _dim2_)
         _cKey_ = _dim1_ + "|" + _dim2_
         if @IsHashList(aCalculatedLayout[:DataColumnWidths][_cKey_])
@@ -425,27 +498,53 @@ Class TableDisplayConfig
         
         return aSettings[:MinCellWidth]  # Default fallback
     
-    # Apply a custom setting
+    # Sets one display setting, then recomputes the layout.
+    #
+    #   cSetting   the name of the setting, such as MinCellWidth or DefaultPadding
+    #   _value_    the new value
+    #   returns    the config itself, so calls chain
+    #   warning    the settings are in aSettings: MinCellWidth, MaxCellWidth, MaxHeaderWidth,
+    #              DefaultPadding, CellGrowthRatio, RowLabelGrowthRatio, MaxTableWidth and others
+    #   see        Recalculate, GetLayoutValue
+    #@ aka  Apply a custom setting
     func SetSetting(cSetting, _value_)
         aSettings[cSetting] = _value_
         # Recalculate on setting change
         CalculateLayout()
         return self
     
-    # Get a specific layout measurement
+    # Returns one entry of the computed layout, but only when that entry is itself a hashlist.
+    #
+    #   _cKey_     the layout key, such as DataColumnWidths or TableWidth
+    #   returns    the hashlist of data column widths for DataColumnWidths; an empty text for every
+    #              other key, numbers and lists included
+    #   warning    TableWidth, TotalColumnWidth, LeftPadding and RowLabelWidths all answer an empty
+    #              text; read aCalculatedLayout directly for them
+    #   see        CalculateLayout, SetSetting
+    #@ aka  Get a specific layout measurement
     func GetLayoutValue(_cKey_)
         if @IsHashList(aCalculatedLayout[_cKey_])
             return aCalculatedLayout[_cKey_]
         ok
         return ""
     
-    # Update all calculations based on current data
+    # Measures the content again and recomputes the layout, after the data or a setting changed.
+    #
+    #   returns    the config itself, so calls chain
+    #   see        MeasureContentDimensions, CalculateLayout
+    #@ aka  Update all calculations based on current data
     func Recalculate()
         MeasureContentDimensions()
         CalculateLayout()
         return self
     
-    # Debug function to show all calculated dimensions
+    # Prints the computed dimensions: row label widths, data column widths, total column, table width and left padding.
+    #
+    #   returns    nothing; it prints
+    #   warning    the Data Column Widths part prints no line today, for the same hashlist test as
+    #              GetCellWidth
+    #   see        CalculateLayout, GetLayoutValue
+    #@ aka  Debug function to show all calculated dimensions
     func DebugLayout()
         see "=== TABLE LAYOUT DEBUG ===" + nl
         see "Row Label Section Width: " + aCalculatedLayout[:RowLabelSectionWidth] + nl
@@ -482,24 +581,61 @@ end  # End of TableDisplayConfig class
 # 2. RENDERING ENGINE
 # ==================
 
+# Prints a pivot table as text from a TableDisplayConfig: borders, two header lines, the data rows and the total row.
+#
+# It reads the widths already computed by the config and prints with the question-mark statement,
+# one line at a time, using box-drawing characters that a theme can swap for plain ones. It keeps a
+# copy of the config it is given, so build it after the settings are final. Today the printed table
+# does not line up: the header block is narrower than the data rows and the total row falls below
+# the bottom border (see the warning on RenderTable).
+#
+#   receiver   o1 = new TableRenderer(new TableDisplayConfig([ [ "Dept", "2024|Q1", "2024|Q2",
+#              "Total" ], [ "Sales", 100, 200, 300 ], [ "Support", 50, 60, 110 ], [ "Total", 150,
+#              260, 410 ] ], [ "Dept" ], [ "Year", "Quarter" ], "Total"))
+#   example    ? classname(o1)
+#              #--> tablerenderer
+#   see        TableDisplayConfig, TableThemeManager
 Class TableRenderer
     
     # Configuration object reference
     oConfig = ""
     
-    # Initialize with configuration object
+    # Builds a renderer over a table layout, to print the pivot table as text.
+    #
+    #   oTableConfig   the TableDisplayConfig that holds the data, the settings and the computed
+    #                  widths
+    #   returns        nothing; the object is built
+    #   warning        the renderer keeps a COPY of the config: a setting changed on your own config
+    #                  afterwards does not reach it, so build the renderer after the settings are
+    #                  final
+    #   see            RenderTable, TableDisplayConfig
+    #@ aka  Initialize with configuration object
     func init(oTableConfig)
         oConfig = oTableConfig
         return self
     
-    # Render the complete table
+    # Prints the whole table: the headers, the data rows and the footer.
+    #
+    #   returns    nothing; it prints
+    #   warning    the printed table does not line up today: the top border and the two header lines
+    #              are as wide as the column groups alone, narrower than the data rows, the
+    #              separators of the headers do not sit above those of the rows, and the grand-total
+    #              row is printed under the bottom border; the same on two different pivots
+    #   see        RenderTableHeaders, RenderDataRows, RenderTableFooter
+    #@ aka  Render the complete table
     func RenderTable()
         RenderTableHeaders()
         RenderDataRows()
         RenderTableFooter()
         return self
     
-    # 1. Render table headers
+    # Prints the top border, the two header lines (first and second column dimension), and the separator above the data rows.
+    #
+    #   returns    nothing; it prints
+    #   warning    the widths used for each data column come from a lookup that always falls back to
+    #              MinCellWidth, so these lines are narrower than the data rows under them
+    #   see        RenderTable, RenderDataRows
+    #@ aka  1. Render table headers
     func RenderTableHeaders()
         # Extract needed values from config
         _aColDimValues_ = oConfig.aContentDimensions[:ColumnDimValues]
@@ -709,7 +845,12 @@ Class TableRenderer
         _cMainSep_ = copy(" ", _nLeftPadding_ - 1) + _cMainSep_
         ? _cMainSep_
     
-    # 2. Render data rows
+    # Prints one line per data row, with the first row label shown only when it changes and an empty line between two groups.
+    #
+    #   returns    nothing; it prints
+    #   warning    it shows at most two row labels per line, and groups by the first
+    #   see        RenderTable, RenderEmptyRow
+    #@ aka  2. Render data rows
     func RenderDataRows()
         # Extract needed values from config
         _aColDimValues_ = oConfig.aContentDimensions[:ColumnDimValues]
@@ -813,7 +954,11 @@ Class TableRenderer
             ? _cRowData_
         next
     
-    # 3. Render empty row (for visual separation)
+    # Prints one blank line inside the table's side borders, used between two groups of rows.
+    #
+    #   returns    nothing; it prints
+    #   see        RenderDataRows
+    #@ aka  3. Render empty row (for visual separation)
     func RenderEmptyRow()
         _nLeftPadding_ = oConfig.aCalculatedLayout[:LeftPadding]
         _nTableWidth_ = oConfig.aCalculatedLayout[:TableWidth]
@@ -825,7 +970,12 @@ Class TableRenderer
         
         ? _cEmptyRow_
     
-    # 4. Render table footer (total row)
+    # Prints the bottom border, then the total row when the config shows it.
+    #
+    #   returns    nothing; it prints
+    #   warning    the total row is printed below the bottom border, without a left border
+    #   see        RenderTable, RenderDataRows
+    #@ aka  4. Render table footer (total row)
     func RenderTableFooter()
         # Extract needed values from config
         _aColDimValues_ = oConfig.aContentDimensions[:ColumnDimValues]
@@ -980,6 +1130,21 @@ end  # End of TableRenderer class
 # 3. ENHANCED CONFIGURATION MANAGEMENT
 # ===================================
 
+# Changes the settings of a table layout in batches, exports and imports them, and is meant to fire a callback on change.
+#
+# It works on a copy of the config it is given, readable as its oConfig attribute: a change made
+# through the manager does not reach the config you built it from. The change callback does not fire
+# today and OptimizeLayout has no lasting effect; the warnings on those methods give the causes.
+#
+#   receiver   o1 = new TableConfigManager(new TableDisplayConfig([ [ "Dept", "2024|Q1", "2024|Q2",
+#              "Total" ], [ "Sales", 100, 200, 300 ], [ "Support", 50, 60, 110 ], [ "Total", 150,
+#              260, 410 ] ], [ "Dept" ], [ "Year", "Quarter" ], "Total"))
+#   example    o1.UpdateSettings([ [ :MinCellWidth, 9 ] ])
+#              ? o1.oConfig.aSettings[:MinCellWidth]
+#              #--> 9
+#              ? len(o1.ExportConfig())
+#              #--> 2
+#   see        TableDisplayConfig, TableThemeManager
 Class TableConfigManager
     
     # Reference to configuration object
@@ -988,17 +1153,38 @@ Class TableConfigManager
     # Callback function for events
     fOnConfigChanged = ""
     
-    # Initialize with configuration object
+    # Builds a manager that changes the settings of a table layout and fires a callback on change.
+    #
+    #   oTableConfig   the TableDisplayConfig to manage
+    #   returns        nothing; the object is built
+    #   warning        the manager keeps a COPY of the config: every change it makes lands on that
+    #                  copy, readable as its oConfig attribute, and your own config stays as it was
+    #   see            UpdateSettings, ImportConfig
+    #@ aka  Initialize with configuration object
     func init(oTableConfig)
         oConfig = oTableConfig
         return self
     
-    # Set a callback to be called when config changes
+    # Stores a function meant to run after each settings change.
+    #
+    #   fCallback   the function to call, with no argument
+    #   returns     the manager itself, so calls chain
+    #   warning     the callback never runs today: the check compares the type of the stored
+    #               function with BLOCK, and Ring answers STRING for a function value; confirmed on
+    #               UpdateSettings, ImportConfig and OptimizeLayout
+    #   see         UpdateSettings, ImportConfig
+    #@ aka  Set a callback to be called when config changes
     func SetChangeCallback(fCallback)
         fOnConfigChanged = fCallback
         return self
     
-    # Batch update settings
+    # Applies several settings at once, then recomputes the layout.
+    #
+    #   aNewSettings   a list of [ name, value ] pairs, such as [ [ :MinCellWidth, 9 ] ]
+    #   returns        the manager itself, so calls chain
+    #   warning        it changes the manager's own copy of the config, not yours
+    #   see            ImportConfig, SetChangeCallback
+    #@ aka  Batch update settings
     func UpdateSettings(aNewSettings)
         _nNewSettings1Len_ = len(aNewSettings)
         for _iLoopNewSettings1_ = 1 to _nNewSettings1Len_
@@ -1018,7 +1204,15 @@ Class TableConfigManager
         
         return self
     
-    # Auto-optimize table layout based on content
+    # Rebalances the computed widths towards their average and scales them down when the table is wider than MaxTableWidth.
+    #
+    #   returns    the manager itself, so calls chain
+    #   warning    it has no lasting effect today: the last step recomputes the whole layout and
+    #              overwrites the adjusted widths, so the widths after it are the ones a plain
+    #              recomputation gives, with a MaxTableWidth of 20 as with the default; it works on
+    #              the manager's own copy of the config
+    #   see        UpdateSettings
+    #@ aka  Auto-optimize table layout based on content
     func OptimizeLayout()
         # Analyze current content and adjust settings
         
@@ -1136,7 +1330,12 @@ Class TableConfigManager
         
         return self
     
-    # Save current configuration to a map
+    # Returns the current settings and the computed layout as one list.
+    #
+    #   returns    a list [ Settings, Layout ] holding the aSettings and aCalculatedLayout of the
+    #              managed config
+    #   see        ImportConfig
+    #@ aka  Save current configuration to a map
     func ExportConfig()
         _aConfig_ = []
         
@@ -1148,7 +1347,13 @@ Class TableConfigManager
         
         return _aConfig_
     
-    # Load configuration from a map
+    # Applies the settings found in a list made by ExportConfig, then recomputes the layout.
+    #
+    #   _aConfig_   the list, with a Settings entry holding [ name, value ] pairs
+    #   returns     the manager itself, so calls chain
+    #   warning     it changes the manager's own copy of the config, not yours
+    #   see         ExportConfig, UpdateSettings
+    #@ aka  Load configuration from a map
     func ImportConfig(_aConfig_)
         if @IsHashList(_aConfig_[:Settings])
             # Apply all settings
@@ -1177,6 +1382,24 @@ end  # End of TableConfigManager class
 # 4. TABLE THEME MANAGER
 # =====================
 
+# Holds named looks for a table layout, four built in and any you create, each a set of widths, padding and border characters.
+#
+# The built-in themes are Default (rounded box-drawing borders), Simple and Compact (plain plus and
+# dash characters), and Elegant (square box-drawing corners). ApplyTheme sets the theme's settings
+# and border characters and recomputes the layout. Like the other managers it works on a copy of the
+# config it is given, readable as its oConfig attribute.
+#
+#   receiver   o1 = new TableThemeManager(new TableDisplayConfig([ [ "Dept", "2024|Q1", "2024|Q2",
+#              "Total" ], [ "Sales", 100, 200, 300 ], [ "Support", 50, 60, 110 ], [ "Total", 150,
+#              260, 410 ] ], [ "Dept" ], [ "Year", "Quarter" ], "Total"))
+#   example    ? @@( o1.ListThemes() )
+#              #--> [ "default", "simple", "compact", "elegant" ]
+#              o1.ApplyTheme(:Compact)
+#              ? o1.oConfig.aSettings[:DefaultPadding]
+#              #--> 0
+#              ? o1.oConfig.aDecorators[:BorderChars][:TopLeft]
+#              #--> +
+#   see        TableDisplayConfig, TableRenderer, TableConfigManager
 Class TableThemeManager
     
     # Reference to configuration object
@@ -1269,12 +1492,27 @@ Class TableThemeManager
         ]
     ]
     
-    # Initialize with configuration object
+    # Builds a manager of named looks, set of widths and border characters, for a table layout.
+    #
+    #   oTableConfig   the TableDisplayConfig the themes are applied to
+    #   returns        nothing; the object is built
+    #   warning        the manager keeps a COPY of the config: a theme applied lands on that copy,
+    #                  readable as its oConfig attribute, and your own config stays as it was
+    #   see            ApplyTheme, ListThemes
+    #@ aka  Initialize with configuration object
     func init(oTableConfig)
         oConfig = oTableConfig
         return self
     
-    # Apply a predefined theme
+    # Applies a named theme's widths, padding and border characters to the config, then recomputes the layout.
+    #
+    #   _cThemeName_   the theme's name, such as Default, Simple, Compact, Elegant or one made by
+    #                  CreateTheme, without regard to case
+    #   returns        the manager itself, so calls chain
+    #   warning        an unknown name prints Theme not found and applies Default; the theme lands
+    #                  on the manager's own copy of the config, not yours
+    #   see            ListThemes, CreateTheme
+    #@ aka  Apply a predefined theme
     func ApplyTheme(_cThemeName_)
         if !@IsHashList(aThemes[_cThemeName_])
             see "Theme '" + _cThemeName_ + "' not found. Using Default." + nl
@@ -1309,12 +1547,23 @@ Class TableThemeManager
         
         return self
     
-    # Create a custom theme
+    # Adds a named theme, or replaces one, from a list of settings.
+    #
+    #   _cThemeName_     the new theme's name
+    #   aThemeSettings   a hashlist of settings, such as [ :MinCellWidth = 12 ], with an optional
+    #                    BorderChars hashlist
+    #   returns          the manager itself, so calls chain
+    #   see              ApplyTheme, ListThemes
+    #@ aka  Create a custom theme
     func CreateTheme(_cThemeName_, aThemeSettings)
         aThemes[_cThemeName_] = aThemeSettings
         return self
     
-    # Get a list of available themes
+    # Returns the names of the themes available, the four built in and those created.
+    #
+    #   returns    a list of text in lower case, such as default, simple, compact, elegant
+    #   see        ApplyTheme, CreateTheme
+    #@ aka  Get a list of available themes
     func ListThemes()
         _aThemeNames_ = []
         _nThemes1Len_ = len(aThemes)

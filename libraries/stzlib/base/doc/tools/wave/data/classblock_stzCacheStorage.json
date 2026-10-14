@@ -1,0 +1,10 @@
+{
+ "brief": "Sketches the file behind a stzCache, but cannot be built today because the storage class it forwards to is not loaded.",
+ "detail": "The class holds a stzStorage and forwards four questions to it. Its init raises error R11, because stzStorage sits in the future folder and is not loaded, so no usable object exists: made without parentheses, which skips init, each of its methods raises Object is required.",
+ "receiver": "o1 = new stzCacheStorage",
+ "example": [
+  "? classname(o1)",
+  "#--> stzcachestorage"
+ ],
+ "see": ["stzCache"]
+}

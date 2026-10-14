@@ -1,0 +1,14 @@
+{
+ "brief": "Holds the five rules a fault tree is judged by: one top, gates with two inputs, leaves with a probability, developed events, no event its own cause.",
+ "detail": "Check takes the rule graph of a tree (AsRuleGraph) and answers the findings. A tree asks for this through its own GovernanceFindings, so a rule set is built by hand only to add a rule of your own or to run the rules on a graph.",
+ "receiver": "o1 = new stzFaultRuleSet()",
+ "example": [
+  "? o1.Name()",
+  "#--> fault-governance",
+  "? o1.NumberOfRules()",
+  "#--> 5",
+  "? o1.RuleNames()[1]",
+  "#--> one_top_event"
+ ],
+ "see": ["stzFaultRule", "stzFaultTree", "stzGraphRuleSet"]
+}

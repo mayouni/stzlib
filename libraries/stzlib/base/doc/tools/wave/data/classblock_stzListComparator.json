@@ -1,0 +1,30 @@
+{
+ "brief": "Compares a list with another one: equality, subset and superset, common items, union, differences, prefix and suffix, and containment.",
+ "detail": "It is the comparing helper of stzList, which builds one over itself for its ContainsAllOfTheseCS and ContainsOneOfTheseCS methods; build one with new stzListComparator when you only need to compare. It never changes the list, so a stzList passed in stays intact. Every test has a CS form taking 1 to compare with case and 0 to ignore it, and the plain form compares with case. IsEqualTo, IsNotEqualTo and IsPermutationOf compare sets: they ignore order and repeats, so [ 1, 1, 2 ] equals [ 1, 2, 2 ]; IsStrictlyEqualTo is the one that checks positions. Union, CommonItems and IsSubsetOf work on sets too. Found today: IsReverseOf raises error R3 (the function that reverses the other list does not exist), and IsSortedLike answers TRUE for any two lists of the same size. Hebrew, Arabic and emoji items compare like any other text.",
+ "receiver": "o1 = new stzListComparator([ 1, 2, 3, 4 ])",
+ "example": [
+  "? o1.IsStrictlyEqualTo([ 4, 3, 2, 1 ])",
+  "#--> 0",
+  "? o1.IsEqualTo([ 4, 3, 2, 1 ])",
+  "#--> 1",
+  "? @@( o1.CommonItems([ 3, 4, 5, 6 ]) )",
+  "#--> [ 3, 4 ]",
+  "? @@( o1.SymmetricDifference([ 3, 4, 5, 6 ]) )",
+  "#--> [ 1, 2, 5, 6 ]",
+  "? o1.IsSubsetOf([ 1, 2, 3, 4, 5 ])",
+  "#--> 1",
+  "? o1.StartsWith([ 1, 2 ])",
+  "#--> 1",
+  "o2 = new stzListComparator([ \"a\", \"B\", \"c\" ])",
+  "? o2.IsEqualToCS([ \"A\", \"b\", \"C\" ], 0)",
+  "#--> 1",
+  "o3 = new stzListComparator([ \"שלום\", \"😀\" ])",
+  "? o3.IsEqualTo([ \"😀\", \"שלום\" ])",
+  "#--> 1"
+ ],
+ "see": [
+  "stzList",
+  "stzListMerger",
+  "stzListDuplicates"
+ ]
+}

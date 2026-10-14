@@ -1,0 +1,20 @@
+{
+ "brief": "Holds worker profiles, each with its own budget of slots, and runs or queues work against them so a busy kind never starves another.",
+ "detail": "Work is sent to the profile it targets: the profile runs it at once when a slot is free, queues it when not, and sheds it when a bounded queue is full. That is load isolation. A heavy batch of one profile leaves the slots of every other profile alone. Profiles come from a facet catalog the pool owns (AddFacet, SeedAllFacets) or are declared ad hoc (AddProfile). The pool is in-process: work runs in the calling process and no worker process is started.",
+ "receiver": "o1 = new stzWorkerPool()",
+ "example": [
+  "o1.AddProfile(\"nlp\", [ :sentiment, :classify ], 2)",
+  "o1.AddProfile(\"vision\", [ :ocr ], 1)",
+  "? o1.Tags()[2]",
+  "#--> vision",
+  "? o1.ProfileFor(:classify)",
+  "#--> nlp",
+  "? o1.Acquire(\"vision\")",
+  "#--> 1",
+  "? o1.Dispatch(\"vision\", func { return 1 })[:queued]",
+  "#--> 1",
+  "? o1.Dispatch(\"nlp\", func { return 6 * 7 })[:result]",
+  "#--> 42"
+ ],
+ "see": ["stzWorkerProfile", "stzFacetCatalog"]
+}

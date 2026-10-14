@@ -90,6 +90,26 @@
 func StzSoundStaffQ(poScore)
 	return new stzSoundStaff(poScore)
 
+# Draws a score on the staff as musicians write it, as a list of marks first and an SVG picture second.
+#
+# The layout is computed as data, with each notehead, accidental, rest, tie, beam, ledger line and
+# barline as a row of Model, and only then written as SVG, so a guard can hold the model to the
+# rules of notation without reading pixels. It draws one staff per instrument with a clef chosen by
+# range, bar splitting with ties, beaming by the beat, key signatures read from the music or set
+# (quarter tones included), key and metre changes at barlines, and percussion staves. The readers
+# Meters, KeyChanges, Key, KeyName, Losses, Model, Bars, Systems and Clefs are filled by ToSVG,
+# ToHTML or SaveAs. A pitch more than 5 cents from the nearest quarter tone is drawn there and
+# listed in Losses. The drawings have not been seen by a musician (UNPERCEIVED).
+#
+#   receiver   o1 = StzSoundStaffQ(StzSoundScoreOfQ("c e g c5 g e c ~"))
+#   example    o1.ToSVG("Eight notes")
+#              ? o1.Bars()
+#              #--> 2
+#              ? o1.KeyName()
+#              #--> C major (no sharps or flats)
+#              ? o1.Clefs()[1][2]
+#              #--> treble
+#   see        stzSoundScore, stzSoundUniverse, stzSoundNotation
 class stzSoundStaff
 
 	@oS = NULL
@@ -129,9 +149,23 @@ class stzSoundStaff
 	@bKeyChanges = TRUE        # find changes when the key is read from the music
 	@aKeys = []                # [ from bar (0-based), sig, fifths, order, name ]
 
+	# Builds a staff drawing of a score, in 4/4 and 1000 pixels wide until told otherwise.
+	#
+	#   poScore    the stzSoundScore to draw
+	#   returns    nothing; the object is built
+	#   warning    nothing is drawn until ToSVG, ToHTML or SaveAs is called; the score is not
+	#              changed
+	#   see        StzSoundStaffQ, ToSVG
 	def init(poScore)
 		@oS = poScore
 
+	# Sets the time signature of the drawing.
+	#
+	#   pnBeats    the number of beats in a bar, 1 to 32
+	#   pnUnit     the note value that counts a beat: 2, 4, 8 or 16
+	#   returns    the staff itself, so calls chain
+	#   warning    a bad meter is refused, with LastError set, and the old one stays
+	#   see        MeterChangeAt, Meters
 	def SetMeter(pnBeats, pnUnit)
 		if NOT isNumber(pnBeats) or pnBeats < 1 or pnBeats > 32 or ring_find([ 2, 4, 8, 16 ], pnUnit) = 0
 			@cLastError = "SetMeter: beats 1 to 32 over a unit of 2, 4, 8 or 16"
@@ -144,12 +178,27 @@ class stzSoundStaff
 	def SetMeterQ(pnBeats, pnUnit)
 		return This.SetMeter(pnBeats, pnUnit)
 
+	# Sets the width of the drawing in pixels, which decides where systems break.
+	#
+	#   pnPixels   the width in pixels, 400 or more
+	#   returns    the staff itself, so calls chain
+	#   warning    a smaller value is ignored without a message; 500 pixels broke an eight-note
+	#              score into 2 systems where 1000 gave 1
+	#   see        Systems, ToSVG
 	def SetWidth(pnPixels)
 		if isNumber(pnPixels) and pnPixels >= 400  @nWidth = pnPixels ok
 		return This
 
-	# "auto" (read from the music), "none", a key ("D", "Bb", "F#m", "Ddor"),
-	# or a number of fifths: 2 is two sharps, -3 three flats
+	# Sets the key signature drawn, instead of reading it from the music.
+	#
+	#   pKey       auto to read it from the music, none, a key such as D, Bb, F#m or Ddor, or a
+	#              number of fifths from -7 for seven flats to 7 for seven sharps
+	#   returns    the staff itself, so calls chain
+	#   note       the key also spells the notes: with one flat the note between A and B is written
+	#              B flat
+	#   warning    a bad key is refused, with LastError set, and the old setting stays
+	#   see        SetKeyOfMode, KeyChangeAt
+	#@ aka  "auto" (read from the music), "none", a key ("D", "Bb", "F#m", "Ddor"), or a number of fifths: 2 is two sharps, -3 three flats
 	def SetKey(pKey)
 		if isNumber(pKey)
 			if pKey < -7 or pKey > 7
@@ -177,8 +226,16 @@ class stzSoundStaff
 	def SetKeyQ(pKey)
 		return This.SetKey(pKey)
 
-	# the signature a DECLARED mode implies: its degrees spelled on consecutive
-	# letters from the tonic -- quarter tones included, as Arabic notation writes them
+	# Sets the key signature from a declared mode, spelling its seven degrees on consecutive letters, quarter tones included.
+	#
+	#   pUniverse   the universe, such as maqam
+	#   pMode       the mode's name, or an empty text for the universe's own
+	#   returns     the staff itself, so calls chain
+	#   note        maqam hijaz gives B flat, E flat and F sharp
+	#   warning     a mode that does not have seven degrees, or a degree that no signature can
+	#               write, is refused, with LastError set
+	#   see         SetKey, KeyChangeOfModeAt
+	#@ aka  the signature a DECLARED mode implies: its degrees spelled on consecutive letters from the tonic -- quarter tones included, as Arabic notation writes them
 	def SetKeyOfMode(pUniverse, pMode)
 		_r_ = This._SigOfMode(pUniverse, pMode, "SetKeyOfMode")
 		if len(_r_) = 0  return This ok
@@ -224,7 +281,17 @@ class stzSoundStaff
 		next
 		return [ _aSig_, _oU_.Name() + " / " + _oU_.ModeName() ]
 
-	# MU13: the time signature changes at the barline at (or after) `pnBeat`
+	# Asks for a new time signature from the barline at or after a beat.
+	#
+	#   pnBeat     the beat from which the new meter applies, 0 or later
+	#   pnBeats    the number of beats in a bar, 1 to 32
+	#   pnUnit     the note value that counts a beat: 2, 4, 8 or 16
+	#   returns    the staff itself, so calls chain
+	#   note       the change is drawn after the drawing is made
+	#   warning    a bad beat or meter is refused, with LastError set; a beat inside a bar moves to
+	#              the next barline
+	#   see        SetMeter, Meters
+	#@ aka  MU13: the time signature changes at the barline at (or after) `pnBeat`
 	def MeterChangeAt(pnBeat, pnBeats, pnUnit)
 		if NOT isNumber(pnBeat) or pnBeat < 0
 			@cLastError = "MeterChangeAt: a beat is 0 or later"
@@ -240,7 +307,13 @@ class stzSoundStaff
 	def MeterChangeAtQ(pnBeat, pnBeats, pnUnit)
 		return This.MeterChangeAt(pnBeat, pnBeats, pnUnit)
 
-	# [ bar (from 1), beats, unit ] for the first metre and every change -- after ToSVG
+	# Returns the time signature of the first bar and of every bar where it changes.
+	#
+	#   returns    a list of [ bar, beats, unit ] rows with bars counted from 1; [ ] before a
+	#              drawing is made
+	#   warning    filled by ToSVG, ToHTML or SaveAs
+	#   see        MeterChangeAt, SetMeter
+	#@ aka  [ bar (from 1), beats, unit ] for the first metre and every change -- after ToSVG
 	def Meters()
 		_a_ = []
 		for _b_ = 0 to len(@aBars) - 1
@@ -248,7 +321,16 @@ class stzSoundStaff
 		next
 		return _a_
 
-	# MU12: the key changes at the barline at (or after) `pnBeat`
+	# Asks for a new key signature from the barline at or after a beat.
+	#
+	#   pnBeat     the beat from which the new key applies, 0 or later
+	#   pKey       a key such as E or F#m, a number of fifths from -7 to 7, or none
+	#   returns    the staff itself, so calls chain
+	#   note       a change is drawn with a double barline and the naturals that cancel the old key
+	#   warning    a bad beat or key is refused, with LastError set; a beat inside a bar moves to
+	#              the next barline
+	#   see        KeyChangeOfModeAt, SetKey
+	#@ aka  MU12: the key changes at the barline at (or after) `pnBeat`
 	def KeyChangeAt(pnBeat, pKey)
 		if NOT isNumber(pnBeat) or pnBeat < 0
 			@cLastError = "KeyChangeAt: a beat is 0 or later"
@@ -281,6 +363,15 @@ class stzSoundStaff
 	def KeyChangeAtQ(pnBeat, pKey)
 		return This.KeyChangeAt(pnBeat, pKey)
 
+	# Asks for a new key signature taken from a declared mode, from the barline at or after a beat.
+	#
+	#   pnBeat      the beat from which the new key applies, 0 or later
+	#   pUniverse   the universe, such as maqam
+	#   pMode       the mode's name, or an empty text for the universe's own
+	#   returns     the staff itself, so calls chain
+	#   warning     a bad beat, an unknown universe or a mode without seven degrees is refused, with
+	#               LastError set
+	#   see         KeyChangeAt, SetKeyOfMode
 	def KeyChangeOfModeAt(pnBeat, pUniverse, pMode)
 		if NOT isNumber(pnBeat) or pnBeat < 0
 			@cLastError = "KeyChangeOfModeAt: a beat is 0 or later"
@@ -294,12 +385,26 @@ class stzSoundStaff
 	def KeyChangeOfModeAtQ(pnBeat, pUniverse, pMode)
 		return This.KeyChangeOfModeAt(pnBeat, pUniverse, pMode)
 
-	# find key changes when the key is read from the music (TRUE, the default)
+	# Chooses whether key changes are looked for in the music when the key is read from it.
+	#
+	#   pbFind     TRUE to find changes, which is the default, FALSE to keep one key throughout
+	#   returns    the staff itself, so calls chain
+	#   note       measured on a 16-note score that climbs through sharps: with TRUE it was written
+	#              in C major with a change to B major at bar 3, with FALSE in E major throughout
+	#   warning    a change is found only where it saves more accidentals than it costs
+	#   see        KeyChanges, SetKey
+	#@ aka  find key changes when the key is read from the music (TRUE, the default)
 	def SetKeyChanges(pbFind)
 		@bKeyChanges = pbFind
 		return This
 
-	# [ bar (from 1), the key's name ] for every change after the first key -- after ToSVG
+	# Returns every key after the first, with the bar where it begins.
+	#
+	#   returns    a list of [ bar, key text ] rows with bars counted from 1; [ ] when the key never
+	#              changes or before a drawing is made
+	#   warning    filled by ToSVG, ToHTML or SaveAs
+	#   see        KeyChangeAt, SetKeyChanges
+	#@ aka  [ bar (from 1), the key's name ] for every change after the first key -- after ToSVG
 	def KeyChanges()
 		_a_ = []
 		for _i_ = 2 to len(@aKeys)  _a_ + [ @aKeys[_i_][1] + 1, @aKeys[_i_][5] ] next
@@ -308,28 +413,76 @@ class stzSoundStaff
 	def SetKeyOfModeQ(pUniverse, pMode)
 		return This.SetKeyOfMode(pUniverse, pMode)
 
-	# the signature drawn: [ letter, alteration ] in drawing order -- after ToSVG
+	# Returns the key signature that was drawn, in drawing order.
+	#
+	#   returns    a list of [ letter, alteration ] rows, the alteration -1 for a flat, 1 for a
+	#              sharp and -0.5 for a half-flat; [ ] for none or before a drawing is made
+	#   warning    filled by ToSVG, ToHTML or SaveAs
+	#   see        KeyName, SetKey
+	#@ aka  the signature drawn: [ letter, alteration ] in drawing order -- after ToSVG
 	def Key()
 		return @aSigOrder
 
+	# Returns the drawn key signature in words.
+	#
+	#   returns    a text such as D major (2 sharps) or no key signature; an empty text before a
+	#              drawing is made
+	#   warning    filled by ToSVG, ToHTML or SaveAs
+	#   see        Key, SetKey
 	def KeyName()
 		return @cKeyName
 
+	# Returns what the drawing could not show exactly.
+	#
+	#   returns    a list of text, such as a pitch drawn at the nearest quarter tone with its
+	#              distance in cents; [ ] when nothing was lost
+	#   note       a pitch more than 5 cents from the nearest quarter tone is drawn there and
+	#              counted here
+	#   warning    filled by ToSVG, ToHTML or SaveAs
+	#   see        Model
 	def Losses()
 		return @aLosses
 
+	# Returns the reason the last setting was refused, or an empty text.
+	#
+	#   returns    a text
+	#   warning    it is never cleared by a later success
+	#   see        SetKey
 	def LastError()
 		return @cLastError
 
+	# Returns every mark of the drawing as data, before it is written as SVG.
+	#
+	#   returns    a list of rows whose first item is the kind: lines, clef, keysig, meter, barline,
+	#              dblbar, system, head, stroke, ledger, acc, dot, flag, beam, tie, rest or
+	#              openmark; [ ] before a drawing is made
+	#   warning    a guard can hold the model to the rules of notation without reading pixels; for
+	#              the score c e g c5 g e c ~ it holds 15 marks, 7 of them heads
+	#   see        ToSVG, Losses
 	def Model()
 		return @aModel
 
+	# Returns the number of bars of the drawing.
+	#
+	#   returns    a number; 0 before a drawing is made
+	#   warning    an empty score still has 1 bar
+	#   see        Systems, Meters
 	def Bars()
 		return @nBars
 
+	# Returns the number of systems, the lines of staves the drawing is broken into.
+	#
+	#   returns    a number; 0 before a drawing is made
+	#   see        SetWidth, Bars
 	def Systems()
 		return len(@aSystems)
 
+	# Returns one row per staff, the instrument and its clef.
+	#
+	#   returns    a list of [ instrument, clef ] rows, such as piano with treble or drumkit with
+	#              perc5; [ ] before a drawing is made
+	#   warning    a second voice of the drum kit draws no staff of its own
+	#   see        Model
 	def Clefs()
 		_a_ = []
 		for _s_ in @aStaves
@@ -337,6 +490,14 @@ class stzSoundStaff
 		next
 		return _a_
 
+	# Writes the drawing to a file, as SVG when the path ends in .svg and as an HTML page otherwise.
+	#
+	#   pcPath     the file to write, overwritten
+	#   pcTitle    the title drawn above the staff and used as the page title
+	#   returns    the number of characters written
+	#   note       measured: an eight-note score gave 2816 characters of SVG and 3105 of HTML
+	#   warning    the drawing has not been seen by a musician (UNPERCEIVED)
+	#   see        ToHTML, ToSVG
 	def SaveAs(pcPath, pcTitle)
 		_c_ = ""
 		if lower(right(pcPath, 4)) = ".svg"
@@ -347,6 +508,13 @@ class stzSoundStaff
 		write(pcPath, _c_)
 		return len(_c_)
 
+	# Returns a complete HTML page holding the drawing, to open in any browser.
+	#
+	#   pcTitle    the title drawn above the staff and used as the page title
+	#   returns    a text starting with a doctype
+	#   warning    the title is escaped; the page needs no font for any mark but the clefs, which
+	#              use the Unicode musical symbols block
+	#   see        ToSVG, SaveAs
 	def ToHTML(pcTitle)
 		_q_ = char(34)
 		return "<!DOCTYPE html>" + nl + "<html lang=" + _q_ + "en" + _q_ + "><head><meta charset=" + _q_ + "utf-8" + _q_ + ">" +
@@ -355,6 +523,13 @@ class stzSoundStaff
 		       "background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.18)}</style></head><body>" + nl +
 		       This.ToSVG(pcTitle) + nl + "</body></html>" + nl
 
+	# Lays the score out on the staff and returns the drawing as SVG.
+	#
+	#   pcTitle    the title drawn above the staff
+	#   returns    a text starting with an svg element
+	#   warning    the layout is computed first and the SVG written second, so asking twice gives
+	#              the same text; it fills Model, Bars, Key and the other readers
+	#   see        ToHTML, Model
 	def ToSVG(pcTitle)
 		This._Layout()
 		return This._Draw(pcTitle)

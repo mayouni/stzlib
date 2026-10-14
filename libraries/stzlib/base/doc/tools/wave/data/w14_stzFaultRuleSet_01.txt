@@ -1,0 +1,1 @@
+init | Builds the fault-tree governance, the set of five rules a fault tree is judged by. | nothing; the object is built | | stzFaultRule, StzFaultRuleSetQ, GovernanceFindings | the rules are one_top_event, gate_has_two_inputs, basic_event_has_probability, event_is_developed and no_event_causes_itself, in that order

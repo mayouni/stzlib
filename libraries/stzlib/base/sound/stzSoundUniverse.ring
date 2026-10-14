@@ -65,6 +65,27 @@ class stzSoundDegreePattern from stzPattern
 		ok
 		return [ "degree", "" + (0 + _n_) + copy("_", _down_) ]
 
+# Holds a musical tradition declared as data, and plays a phrase of degrees inside it as a score.
+#
+# A universe declares a tuning, a pitch vocabulary with movement rules, a rhythmic cycle with
+# accents, ornaments and an instrument set, as a list with no logic; the class reads the declaration
+# and knows no tradition by name. A phrase is written in degrees, so one phrase means something in
+# every universe: 5_ is a degree an octave down and a degree past the mode's size wraps up an
+# octave. Eight traditions ship: western, maqam, tunisian, niger, raga, gamelan, westafrican and
+# flamenco. Every declaration carries its sources and the line listener, UNPERCEIVED until a person
+# from the tradition has heard it, and none has. Nothing here opens an audio device.
+#
+#   receiver   o1 = StzSoundUniverseQ(:Maqam)
+#   example    o1.Mode(:Hijaz).Tonic("D4")
+#              ? o1.CentsOf("3", FALSE)
+#              #--> 400
+#              ? o1.HzOf("5", FALSE)
+#              #--> 440
+#              ? len(o1.Check("1 2 3 4 5"))
+#              #--> 0
+#              ? o1.PerformQ("1 2 3 4 5 4 3 2", 2).Beats()
+#              #--> 16
+#   see        stzMusic, stzSoundScore, stzSoundLadder
 class stzSoundUniverse
 
 	@aU = []                # the declaration, as loaded
@@ -81,6 +102,16 @@ class stzSoundUniverse
 	@cSonifiedPhrase = ""
 	@nSonifiedTop = 0
 
+	# Loads one of the shipped musical traditions, declared as data, and chooses its default mode and rhythmic cycle.
+	#
+	#   pName      the tradition: western, maqam, tunisian, niger, raga, gamelan, westafrican or
+	#              flamenco, in any case
+	#   returns    nothing; the object is built
+	#   note       the universe's own speed and instrument are taken first, so a rhythm-only
+	#              universe keeps its speed
+	#   warning    an unknown tradition leaves the object unusable, with LastError listing those
+	#              declared
+	#   see        StzSoundUniverseQ, StzSoundUniverses
 	def init(pName)
 		_c_ = lower("" + pName)
 		if ring_find(StzSoundUniverses(), _c_) = 0
@@ -98,36 +129,77 @@ class stzSoundUniverse
 		This.Mode(This._Get(@aU, :defaultmode, ""))
 		This.Cycle(This._Get(@aU, :defaultcycle, ""))
 
+	# TRUE if a declaration was loaded.
+	#
+	#   returns    TRUE or FALSE
+	#   see        init
 	def IsUsable()
 		return len(@aU) > 0
 
+	# Returns the short identifier of the loaded tradition, in lower case.
+	#
+	#   returns    a text such as maqam; an empty text when unusable
+	#   see        Title
 	def Name()
 		return @cName
 
+	# Returns the declaration's full heading.
+	#
+	#   returns    a text such as Arabic maqam
+	#   see        Name, Sources
 	def Title()
 		return This._Get(@aU, :title, @cName)
 
+	# Returns the whole declaration as a list of key and value pairs.
+	#
+	#   returns    a list
+	#   warning    the data a tradition's theorists wrote down; nothing in it is logic
+	#   see        ModeNames, Sources
 	def Declaration()
 		return @aU
 
+	# Returns who has heard this universe, or UNPERCEIVED.
+	#
+	#   returns    a text; UNPERCEIVED until a person from the tradition has heard it, then their
+	#              verdict
+	#   warning    none of the shipped universes has a listener's verdict yet
+	#   see        Sources
 	def Listener()
 		return This._Get(@aU, :listener, "UNPERCEIVED")
 
+	# Returns where the declaration comes from.
+	#
+	#   returns    a list of text, the references of the declaration
+	#   see        Listener, Declaration
 	def Sources()
 		return This._Get(@aU, :sources, [])
 
+	# Returns the modes the tradition declares.
+	#
+	#   returns    a list of text in lower case; [ ] for a rhythm-only tradition
+	#   see        Mode, CycleNames
 	def ModeNames()
 		_a_ = []
 		for _m_ in This._Get(@aU, :modes, [])  _a_ + This._Get(_m_, :name, "") next
 		return _a_
 
+	# Returns the rhythmic cycles the tradition declares.
+	#
+	#   returns    a list of text in lower case
+	#   see        Cycle, ModeNames
 	def CycleNames()
 		_a_ = []
 		for _m_ in This._Get(@aU, :cycles, [])  _a_ + This._Get(_m_, :name, "") next
 		return _a_
 
-	#-- choosing ------------------------------------------------------------
-
+	# Chooses a mode, taking its tonic, instrument and speed from the declaration.
+	#
+	#   pName      the mode's name, in any case
+	#   returns    the universe itself, so calls chain
+	#   note       it overrides a Tonic, Tempo or On given before
+	#   warning    an unknown mode is refused, with LastError listing those declared
+	#   see        ModeNames, Tonic
+	#@ aka  -- choosing ------------------------------------------------------------
 	def Mode(pName)
 		_c_ = lower("" + pName)
 		for _m_ in This._Get(@aU, :modes, [])
@@ -145,6 +217,12 @@ class stzSoundUniverse
 		ok
 		return This
 
+	# Chooses a rhythmic cycle.
+	#
+	#   pName      the cycle's name, in any case
+	#   returns    the universe itself, so calls chain
+	#   warning    an unknown cycle is refused, with LastError listing those declared
+	#   see        CycleNames, NoCycle
 	def Cycle(pName)
 		_c_ = lower("" + pName)
 		for _m_ in This._Get(@aU, :cycles, [])
@@ -159,13 +237,24 @@ class stzSoundUniverse
 		ok
 		return This
 
-	# The phrase ALONE: a cycle of `pnBeats` with no layers and no accents --
-	# to hear a mode without its rhythm, or to measure a melody note with
-	# nothing struck on top of it.
+	# Replaces the rhythmic cycle by a bare one with no layers and no accents, to hear a mode without its rhythm.
+	#
+	#   pnBeats    the length of the bare cycle in beats
+	#   returns    the universe itself, so calls chain
+	#   warning    the cycle is then called none
+	#   see        Cycle, PerformQ
+	#@ aka  The phrase ALONE: a cycle of `pnBeats` with no layers and no accents -- to hear a mode without its rhythm, or to measure a melody note with nothing struck on top of it.
 	def NoCycle(pnBeats)
 		@aCycle = [ [ "name", "none" ], [ "beats", pnBeats ], [ "accents", [] ], [ "layers", [] ] ]
 		return This
 
+	# Sets the note from which the degrees are counted.
+	#
+	#   pcNote     a note name with its octave, such as D4
+	#   returns    the universe itself, so calls chain
+	#   warning    anything that is not a note name is refused, with LastError set, and the old note
+	#              stays
+	#   see        TonicName, Mode
 	def Tonic(pcNote)
 		if StzNoteToHz(pcNote) = 0
 			This._Refuse("Tonic: '" + pcNote + "' is not a note name")
@@ -174,30 +263,69 @@ class stzSoundUniverse
 		@cTonic = pcNote
 		return This
 
+	# Sets the speed of the performance, in beats per minute.
+	#
+	#   pnBpm      the speed in beats per minute
+	#   returns    the universe itself, so calls chain
+	#   warning    the value is stored without a check, and a score refuses a bad one when it is
+	#              made
+	#   see        PerformQ
 	def Tempo(pnBpm)
 		@nTempo = pnBpm
 		return This
 
+	# Sets the instrument that plays the melody.
+	#
+	#   pInstrument   the instrument name, kept in lower case
+	#   returns       the universe itself, so calls chain
+	#   warning       an unknown instrument is refused only later, when the notes are rendered
+	#   see           Melody, Mode
 	def On(pInstrument)
 		@cMelody = lower("" + pInstrument)
 		return This
 
+	# Returns the chosen mode.
+	#
+	#   returns    a text in lower case; an empty text for a rhythm-only tradition
+	#   see        Mode, ModeNames
 	def ModeName()
 		return This._Get(@aMode, :name, "")
 
+	# Returns the chosen rhythmic cycle.
+	#
+	#   returns    a text in lower case
+	#   see        Cycle, NoCycle
 	def CycleName()
 		return This._Get(@aCycle, :name, "")
 
+	# Returns the note from which degrees are counted.
+	#
+	#   returns    a text such as C4
+	#   see        Tonic
 	def TonicName()
 		return @cTonic
 
+	# Returns the instrument that plays the melody.
+	#
+	#   returns    a text in lower case; an empty text for a rhythm-only tradition
+	#   see        On
 	def Melody()
 		return @cMelody
 
+	# TRUE if the chosen mode declares degrees, so phrases can be written in it.
+	#
+	#   returns    TRUE or FALSE
+	#   warning    FALSE for a rhythm-only tradition such as westafrican
+	#   see        ModeNames, PerformQ
 	def HasScale()
 		return len(This._Get(@aMode, :degrees, [])) > 0
 
-	# MU10: this mode drawn as a ladder -- a rung per degree, spaced by cents
+	# Returns the chosen mode drawn as a ladder with a rung per degree, spaced by cents.
+	#
+	#   returns    a stzSoundLadder at the current tonic
+	#   warning    the ladder has not been seen by a person from the tradition
+	#   see        CentsOf
+	#@ aka  MU10: this mode drawn as a ladder -- a rung per degree, spaced by cents
 	def LadderQ()
 		# in steps: a method called on an object returned INSIDE a method's
 		# return dies silently in Ring (MU5's finding, met again here)
@@ -205,10 +333,16 @@ class stzSoundUniverse
 		_o_.Tonic(@cTonic)
 		return _o_
 
-	#-- the pitch vocabulary -------------------------------------------------
-
-	# Cents above the tonic of degree `pcDegree` ("5", "5_", "9"), reached
-	# going UP (pbDown FALSE) or DOWN. -1 when the mode declares no scale.
+	# Returns the distance of a degree above the tonic, in cents, going up or coming down.
+	#
+	#   pcDegree   the degree as text: 5, 5_ for the octave below, 9 for the next octave up
+	#   pbDown     TRUE to take the descending form of the mode where it declares one
+	#   returns    a number of cents; -1 when the mode declares no scale
+	#   note       measured in maqam hijaz: degree 3 is 400 cents, 5 is 700, 8 is 1200 and 5_ is
+	#              -500
+	#   warning    a degree past the mode's size wraps up an octave; 5_ is 1200 cents lower
+	#   see        HzOf, Check
+	#@ aka  -- the pitch vocabulary -------------------------------------------------
 	def CentsOf(pcDegree, pbDown)
 		_aD_ = This._Get(@aMode, :degrees, [])
 		_n_ = len(_aD_)
@@ -226,14 +360,27 @@ class stzSoundUniverse
 		_i_ = ((_d_ - 1) % _n_) + 1
 		return _aUse_[_i_] + (_up_ - _down_) * _oct_
 
+	# Returns the frequency of a degree, from the tonic and the declared cents.
+	#
+	#   pcDegree   the degree as text, such as 5 or 5_
+	#   pbDown     TRUE to take the descending form of the mode where it declares one
+	#   returns    a number of hertz; 0 when the mode declares no scale
+	#   warning    measured: with the tonic D4, degree 1 is 293.66 Hz, degree 5 is 440 and degree 8
+	#              is 587.33
+	#   see        CentsOf
 	def HzOf(pcDegree, pbDown)
 		_c_ = This.CentsOf(pcDegree, pbDown)
 		if _c_ < 0 and NOT This.HasScale()  return 0 ok
 		return StzNoteToHz(@cTonic) * pow(2, _c_ / 1200)
 
-	# The movement rules this mode declares, held against a phrase: a list
-	# of what breaks them, each as text. An empty list is a phrase the
-	# declaration permits -- not a phrase a musician would call right.
+	# Holds a phrase of degrees against the movement rules of the chosen mode and lists what breaks them.
+	#
+	#   pcPhrase   the phrase in degrees, such as 1 2 3 4 5
+	#   returns    a list of text, one per broken rule; [ ] for a phrase the declaration allows
+	#   warning    a phrase that is not made of degrees gives one text, the parser's reason; an
+	#              empty list is not a verdict by a musician of the tradition
+	#   see        PerformQ, CentsOf
+	#@ aka  The movement rules this mode declares, held against a phrase: a list of what breaks them, each as text. An empty list is a phrase the declaration permits -- not a phrase a musician would call right.
 	def Check(pcPhrase)
 		_oP_ = StzSoundDegreePatternQ(pcPhrase)
 		if NOT _oP_.IsValid()  return [ _oP_.LastError() ] ok
@@ -259,11 +406,19 @@ class stzSoundUniverse
 		next
 		return _aOut_
 
-	#-- performing a phrase ---------------------------------------------------
-
-	# The phrase, once per cycle for `pnCycles` cycles, in this mode, over
-	# this cycle, with its ornaments and accents, as a stzSoundScore. One
-	# phrase cycle fills one rhythmic cycle, however many beats that has.
+	# Plays a phrase of degrees through the rhythmic cycle, for a number of cycles, as a score.
+	#
+	#   pcPhrase   the phrase in degrees, such as 1 2 3 4 5 4 3 2, where 5_ is an octave down
+	#   pnCycles   how many times the phrase is repeated
+	#   returns    a stzSoundScore with the universe's speed; an empty score with LastError set when
+	#              the mode has no scale or the phrase is bad
+	#   note       no audio device is opened; the score has not been heard by a person from the
+	#              tradition
+	#   warning    the cycle's accents raise the velocity, the mode's ornaments become slides and
+	#              graces, and the cycle's own layers play beneath; for a rhythm-only tradition the
+	#              rhythm is still returned, with the refusal recorded
+	#   see        ToSound, PlayedNotes, Check
+	#@ aka  -- performing a phrase ---------------------------------------------------
 	def PerformQ(pcPhrase, pnCycles)
 		_oS_ = StzSoundScoreQ().Tempo(@nTempo)
 		@aNotes = []
@@ -326,17 +481,24 @@ class stzSoundUniverse
 		_oS_.SetLength(pnCycles * _B_)
 		return _oS_
 
-	# The declared sentences of a TONAL language, drummed: the plan's MU7 row
-	# (text -> drum) needs the declaration first, and it is here. Each
-	# syllable is a stroke at the pitch its tone asks for -- High, Low, or a
-	# Falling glide from High to Low -- lasting its declared units (a long
-	# vowel takes two). The interval between High and Low is the
-	# declaration's :tonepitch, which says where it came from.
+	# Returns the sentences the tradition declares for its talking drum.
+	#
+	#   returns    a list of text; [ ] when it declares none
+	#   see        SentenceQ, ToneSyllables
+	#@ aka  The declared sentences of a TONAL language, drummed: the plan's MU7 row (text -> drum) needs the declaration first, and it is here. Each syllable is a stroke at the pitch its tone asks for -- High, Low, or a Falling glide from High to Low -- lasting its declared units (a long vowel takes two). The interval between High and Low is the declaration's :tonepitch, which says where it came from.
 	def Sentences()
 		_a_ = []
 		for _s_ in This._Get(@aU, :sentences, [])  _a_ + This._Get(_s_, :text, "") next
 		return _a_
 
+	# Returns a declared sentence as a score of drum notes, each syllable at the pitch of its tone.
+	#
+	#   pcText     the sentence, as listed by Sentences
+	#   returns    a stzSoundScore; an empty score with LastError set for an unknown sentence
+	#   note       no audio device is opened; the drum has not been heard by a Hausa speaker
+	#   warning    a high tone, a low tone or a falling glide per syllable, a long vowel lasting two
+	#              units
+	#   see        Sentences, DrumTonesQ
 	def SentenceQ(pcText)
 		_oS_ = StzSoundScoreQ().Tempo(@nTempo)
 		_aSent_ = []
@@ -371,14 +533,15 @@ class stzSoundUniverse
 		next
 		return _oS_
 
-	#-- MU7: RENDER -- a series of numbers becomes a MELODY in this universe --
+	# Turns a series of numbers into a melody in the chosen mode, the lowest value on degree 1 and the highest two octaves up.
 	#
-	# The plan's MU7 row "data -> melody in a declared universe": sonification
-	# that a listener from the tradition would hear as music, not as a meter.
-	# The lowest value sits on degree 1 and the highest two octaves of the
-	# mode up; one note per beat of the cycle, the cycle's own rhythm under it,
-	# the mode's movement and ornaments applied as for any phrase. A series
-	# with no spread is refused rather than played as one repeated note.
+	#   paValues   the numbers to turn into notes
+	#   returns    a stzSoundScore; an empty score with LastError set when the mode has no scale,
+	#              the series is shorter than two, holds a non-number or does not move
+	#   note       no audio device is opened
+	#   warning    the top degree is lowered when the melody instrument cannot play it
+	#   see        SonifiedDegrees, PerformQ
+	#@ aka  -- MU7: RENDER -- a series of numbers becomes a MELODY in this universe --
 	def SonifyQ(paValues)
 		_oS_ = StzSoundScoreQ().Tempo(@nTempo)
 		_n_ = len(This._Get(@aMode, :degrees, []))
@@ -439,31 +602,41 @@ class stzSoundUniverse
 		@cSonifiedPhrase = _cPh_
 		return This.PerformQ(_cPh_, _k_ / _B_)
 
-	# the degrees the last SonifyQ chose, one per value
+	# Returns the degrees the last SonifyQ chose, one per value.
+	#
+	#   returns    a list of numbers; [ ] before SonifyQ
+	#   see        SonifyQ, SonifiedPhrase
+	#@ aka  the degrees the last SonifyQ chose, one per value
 	def SonifiedDegrees()
 		return @aSonified
 
-	# the highest degree it allowed -- 2n, or fewer when the instrument is short
+	# Returns the highest degree the last SonifyQ allowed.
+	#
+	#   returns    a number: twice the mode's size, or fewer when the instrument's range is short; 0
+	#              before SonifyQ
+	#   see        SonifyQ
+	#@ aka  the highest degree it allowed -- 2n, or fewer when the instrument is short
 	def SonifiedTop()
 		return @nSonifiedTop
 
+	# Returns the degree phrase the last SonifyQ built, one bracket per cycle.
+	#
+	#   returns    a text such as <[3 7 5 9] [1 8 ~ ~]>; an empty text before SonifyQ
+	#   see        SonifyQ, PerformQ
 	def SonifiedPhrase()
 		return @cSonifiedPhrase
 
-	#-- MU7 (Niger's row): TEXT -> DRUM ------------------------------------------
+	# Reads Hausa text with tone marks into syllables, each with its tone and length.
 	#
-	# Hausa is tonal: High, Low, and Falling (High then Low on one heavy
-	# syllable) -- Newman (1996). In writing the tones are marked the way
-	# Newman's dictionary marks them: NO mark is High, a grave (a-grave) is
-	# Low, a circumflex (a-circumflex) is Falling; a doubled vowel or a macron
-	# is long. Everyday Hausa writing marks NO tones at all -- so text without
-	# a single mark is REFUSED: read as all-High it would be a confident lie.
-	#
-	# ToneSyllables returns what was read; DrumTonesQ plays it on the drum.
-	# SayOnDrum is the verb the plan names, and it is GATED: text -> drum is
-	# speech only if a Hausa speaker hears the sentence back, and until one has
-	# (the declaration's :talkingdrum verdict), it refuses with that reason.
-
+	#   pcText     Hausa text in UTF-8 with Newman's tone marks: no mark is high, a grave low, a
+	#              circumflex falling
+	#   returns    a list of [ syllable, tone, units ] rows, the tone H, L or F; [ ] when refused
+	#   note       LastError keeps that reason after a later successful call, which does not clear
+	#              it
+	#   warning    text with no tone mark at all is refused, with LastError set, since reading it as
+	#              all high would be a confident lie
+	#   see        DrumTonesQ, Sentences
+	#@ aka  -- MU7 (Niger's row): TEXT -> DRUM ------------------------------------------
 	def ToneSyllables(pcText)
 		_aL_ = This._HausaLetters("" + pcText)
 		_bMarked_ = FALSE
@@ -514,6 +687,15 @@ class stzSoundUniverse
 		end
 		return _aOut_
 
+	# Returns marked Hausa text as a score of drum notes, each syllable at the pitch of its tone.
+	#
+	#   pcText     Hausa text in UTF-8 with tone marks
+	#   returns    a stzSoundScore; an empty score with LastError set when the text has no tone
+	#              marks or the tradition has no talking drum
+	#   note       the drum has not been heard by a Hausa speaker
+	#   warning    no audio device is opened; it draws the contour of the tones and does not claim
+	#              to be speech
+	#   see        ToneSyllables, SayOnDrum
 	def DrumTonesQ(pcText)
 		_oS_ = StzSoundScoreQ().Tempo(@nTempo)
 		_aSy_ = This.ToneSyllables(pcText)
@@ -543,6 +725,14 @@ class stzSoundUniverse
 		next
 		return _oS_
 
+	# Gives marked Hausa text on the talking drum, once a Hausa speaker has confirmed that the drum speaks.
+	#
+	#   pcText     Hausa text in UTF-8 with tone marks
+	#   returns    a stzSoundScore when the declaration's verdict is SPEAKS; an empty text otherwise
+	#   note       the gate is the declaration's talking drum verdict, not a flag in code
+	#   warning    refused today, with LastError naming the missing verdict, because the verdict is
+	#              UNPERCEIVED
+	#   see        DrumTonesQ
 	def SayOnDrum(pcText)
 		_aV_ = This._Get(@aU, :talkingdrum, [])
 		_v_ = This._Get(_aV_, :verdict, "")
@@ -602,17 +792,40 @@ class stzSoundUniverse
 		end
 		return _aL_
 
+	# Renders a phrase of degrees through the rhythmic cycle to a sound in memory.
+	#
+	#   pcPhrase   the phrase in degrees, such as 1 2 3
+	#   pnCycles   how many times the phrase is repeated
+	#   returns    a stzSound at 48000 Hz, two channels
+	#   note       the sound has not been heard by a person from the tradition
+	#   warning    no audio device is opened; a bad phrase gives a sound of one frame, with
+	#              LastError set
+	#   see        PerformQ
 	def ToSound(pcPhrase, pnCycles)
 		return This.PerformQ(pcPhrase, pnCycles).ToSound()
 
-	# [ beat, degree, cents, hz, ornament ] for every melody note the last
-	# PerformQ placed -- what a guard, or a curious reader, holds it against.
+	# Returns every melody note that the last PerformQ placed.
+	#
+	#   returns    a list of [ beat, degree, cents, hertz, ornament ] rows; [ ] before any
+	#   warning    the drum verbs fill it with [ beat, syllable, tone, hertz, ornament ] rows
+	#              instead
+	#   see        PerformQ, SonifyQ
+	#@ aka  [ beat, degree, cents, hz, ornament ] for every melody note the last PerformQ placed -- what a guard, or a curious reader, holds it against.
 	def PlayedNotes()
 		return @aNotes
 
+	# Returns the reason the last call was refused, or an empty text.
+	#
+	#   returns    a text
+	#   warning    it is never cleared by a later success
+	#   see        Refusals
 	def LastError()
 		return @cLastError
 
+	# Returns how many calls the universe has refused.
+	#
+	#   returns    a number
+	#   see        LastError
 	def Refusals()
 		return @nRefusals
 

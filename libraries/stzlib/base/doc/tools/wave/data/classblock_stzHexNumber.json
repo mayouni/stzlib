@@ -1,0 +1,26 @@
+{
+ "brief": "Holds a hexadecimal number and writes it in decimal, binary, octal or any base up to 36.",
+ "detail": "Built from text with or without a prefix (FF, 0xFF, U+0041); the digits are kept without the prefix and WithPrefix adds 0x back. The conversions go through a floating-point number, so they are exact up to 9007199254740992 and rounded above. The From... methods replace the number in place from a decimal, octal or binary value. Checked by hand: 0xFF is 255, 0b11111111 and 0o377; 0x1A3 is 419, 0b110100011 and 0o643; 0xDEADBEEF is 3735928559. Found today: FractionalPart and ToScientificForm raise R14; IntegerPartWithoutPrefix keeps a stray 0 (0xFF gives 0FF); ToUnicodeHexForm keeps the 0x inside the U+ (U+0x41); and FromDecimalForm stores -1 and FF. for a negative and a fraction.",
+ "receiver": "o1 = new stzHexNumber(\"0xFF\")",
+ "example": [
+  "? o1.ToDecimalForm()",
+  "#--> 255",
+  "? o1.ToBinaryForm()",
+  "#--> 0b11111111",
+  "? o1.ToOctalForm()",
+  "#--> 0o377",
+  "o2 = new stzHexNumber(\"1A3\")",
+  "? o2.WithPrefix()",
+  "#--> 0x1A3",
+  "? o2.ToDecimalForm()",
+  "#--> 419",
+  "o2.FromDecimalForm(4096)",
+  "? o2.Content()",
+  "#--> 1000"
+ ],
+ "see": [
+  "stzNumber",
+  "stzBinaryNumber",
+  "stzOctalNumber"
+ ]
+}

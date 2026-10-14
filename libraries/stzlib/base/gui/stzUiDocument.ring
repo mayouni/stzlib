@@ -41,6 +41,34 @@
 func StzUiDocumentQ(pcTextOrPath)
 	return new stzUiDocument(pcTextOrPath)
 
+# Parses a .panel file, the interface as text, judges it with a court of four birth-checks, and projects it to RML, HTML or a laid-out panel.
+#
+# A .panel file declares the projection only, boxes, sizes and colours, never a meaning. It has four
+# kinds, PANEL (exactly one), BOX, TEXT and STYLE, written DEFINE <KIND> <name> ( fields ) RATIONALE
+# "...", with every box named. The court checks closure (known fields and roles), reference
+# resolution (every name a CHILDREN list gives is declared and placed), duplicate declaration and
+# the round trip. IsClean is its verdict, Report and Diagnostics its findings; ToRml, ToHtml and
+# ToPanel refuse a document that is not clean. ToPanel builds a laid-out stzPanel and opens no
+# window. A CHILDREN cycle ends the process in the constructor today; see the warning on init.
+#
+#   receiver   o1 = new stzUiDocument('DEFINE PANEL p ( SIZE [100, 80], CHILDREN [x] ) RATIONALE
+#              "boxes only"' + char(10) + 'DEFINE BOX x ( WIDTH 40, HEIGHT 30, SATISFIES [open_it] )
+#              RATIONALE "a box"')
+#   example    ? o1.IsClean()
+#              #--> 1
+#              ? @@( o1.Names() )
+#              #--> [ "p", "x" ]
+#              oP = o1.ToPanel()
+#              ? @@( oP.BoxOf("x") )
+#              #--> [ 0, 0, 40, 30 ]
+#              ? @@( o1.SatisfiedIntents() )
+#              #--> [ "open_it" ]
+#              ? @@( o1.Orphans() )
+#              #--> [ "p" ]
+#              o2 = new stzUiDocument(o1.ToText())
+#              ? o2.ToText() = o1.ToText()
+#              #--> 1
+#   see        stzPanel, stzUiProfile, stzWindow
 class stzUiDocument from stzObject
 
 	@aDecls = []        # [ [ :kind, :name, :fields, :rationale, :line ], ... ]
@@ -90,6 +118,19 @@ class stzUiDocument from stzObject
 		"separator", "toolbar", "status", "dialog", "tablist", "tab",
 		"window" ]
 
+	# Parses a .panel interface document, from its text or from a file path, and judges it.
+	#
+	#   pcTextOrPath   the document itself, or the path of a file that holds it
+	#   returns        nothing; the object is built, and its verdict is read with IsClean and Report
+	#   note           the court checks that there is exactly one PANEL, that every name a CHILDREN
+	#                  list gives is declared, that no name is declared twice, that every field and
+	#                  every role is known, and that every element is placed by some CHILDREN list
+	#   warning        a path that does not exist is parsed as text: the report then says Character
+	#                  ':' has no place in .panel; a document whose CHILDREN lists contain a cycle
+	#                  (a box that lists itself, or two boxes that list each other) ends the Ring
+	#                  process with Stack Overflow in the constructor, before the CHILD_CYCLE
+	#                  finding can be read, and the same for a panel that lists itself
+	#   see            IsClean, Report, ToPanel
 	def init(pcTextOrPath)
 		_c_ = "" + pcTextOrPath
 		if len(_c_) < 260 and StzFindFirst(char(10), _c_) = 0 and fexists(_c_)
@@ -110,11 +151,21 @@ class stzUiDocument from stzObject
 				This._IdField(_dP_[:fields], "TEXT_DIRECTION", "ltr"))
 		ok
 
-	#-- the verdict ---------------------------------------------------------
-
+	# Returns every finding of the court, errors and warnings, in the order found.
+	#
+	#   returns    a list of hashlists with the keys code, severity (error or warning), message,
+	#              line, cites and language
+	#   warning    a colour written as a hex value is a LITERAL_COLOUR warning, accepted for now; it
+	#              does not make the document unclean
+	#   see        Errors, Report, IsClean
+	#@ aka  -- the verdict ---------------------------------------------------------
 	def Diagnostics()
 		return @aDiags
 
+	# Returns only the findings of severity error.
+	#
+	#   returns    a list of hashlists, as Diagnostics gives; empty for a clean document
+	#   see        Diagnostics, IsClean
 	def Errors()
 		_a_ = []
 		_n_ = len(@aDiags)
@@ -125,10 +176,19 @@ class stzUiDocument from stzObject
 		next
 		return _a_
 
+	# TRUE if the document has no finding of severity error; warnings do not count.
+	#
+	#   returns    TRUE or FALSE
+	#   warning    ToRml, ToHtml and ToPanel refuse a document that is not clean
+	#   see        Errors, Report
 	def IsClean()
 		return len(This.Errors()) = 0
 
-	# One line per finding, for a human at a terminal.
+	# Returns the findings as text, one line each: severity, code, line number and message.
+	#
+	#   returns    a text; empty when there is no finding
+	#   see        Diagnostics, IsClean
+	#@ aka  One line per finding, for a human at a terminal.
 	def Report()
 		_c_ = ""
 		_n_ = len(@aDiags)
@@ -139,11 +199,21 @@ class stzUiDocument from stzObject
 		next
 		return _c_
 
-	#-- inspection ----------------------------------------------------------
-
+	# Returns every declaration of the document, in file order.
+	#
+	#   returns    a list of hashlists with the keys kind (PANEL, BOX, TEXT or STYLE), name, fields,
+	#              rationale and line
+	#   see        DeclOf, Names
+	#@ aka  -- inspection ----------------------------------------------------------
 	def Declarations()
 		return @aDecls
 
+	# Returns the declaration with a name.
+	#
+	#   pcName     the declared name
+	#   returns    a hashlist with the keys kind, name, fields, rationale and line; an empty list
+	#              when the name is not declared
+	#   see        Declarations, PanelDecl
 	def DeclOf(pcName)
 		_n_ = len(@aDecls)
 		for _i_ = 1 to _n_
@@ -153,6 +223,10 @@ class stzUiDocument from stzObject
 		next
 		return []
 
+	# Returns the declaration of the one PANEL, the root of the interface.
+	#
+	#   returns    a hashlist as DeclOf gives; an empty list when there is no panel
+	#   see        DeclOf, FontFamily
 	def PanelDecl()
 		_n_ = len(@aDecls)
 		for _i_ = 1 to _n_
@@ -162,6 +236,10 @@ class stzUiDocument from stzObject
 		next
 		return []
 
+	# Returns the names of all declarations, in file order.
+	#
+	#   returns    a list of text
+	#   see        Declarations, DeclOf
 	def Names()
 		_a_ = []
 		_n_ = len(@aDecls)
@@ -170,10 +248,15 @@ class stzUiDocument from stzObject
 		next
 		return _a_
 
-	# [ [ id, content, size, color, isRtl ], ... ] for every TEXT -- the G1
-	# bridge: the font engine is a stub until G2, so a caller paints the
-	# glyphs itself at BoxOf(id) with the graphics plane's own pipeline.
-	# This method disappears into the emitter when G2 lands.
+	# Returns, for every TEXT, what a caller needs to paint it: id, content, size, colour and whether it is right to left.
+	#
+	#   returns    a list of [ id, content, size, colour, isRtl ] rows, with the defaults size 14
+	#              and colour #e8e8e8
+	#   warning    isRtl is TRUE only for a text that declares TEXT_DIRECTION rtl itself: a text
+	#              that inherits rtl from its box or panel is reported as 0 while IsRtl answers TRUE
+	#              for it, on two different documents
+	#   see        DeclOf, IsRtl
+	#@ aka  [ [ id, content, size, color, isRtl ], ... ] for every TEXT -- the G1 bridge: the font engine is a stub until G2, so a caller paints the glyphs itself at BoxOf(id) with the graphics plane's own pipeline. This method disappears into the emitter when G2 lands.
 	def TextsToPaint()
 		_a_ = []
 		_n_ = len(@aDecls)
@@ -190,8 +273,14 @@ class stzUiDocument from stzObject
 		next
 		return _a_
 
-	#-- the canonical print (round-trip fixpoint) ---------------------------
-
+	# Returns the canonical text of the document, which reads back to the same document.
+	#
+	#   returns    a text: a header line taken from the panel's rationale, then every declaration
+	#              with one field per line
+	#   warning    the print of a document read from it is the same text, so printing is a fixpoint;
+	#              it prints even a document that is not clean
+	#   see        init, Declarations
+	#@ aka  -- the canonical print (round-trip fixpoint) ---------------------------
 	def ToText()
 		_c_ = "-- interface.panel -- " + This._HeaderSentence() + char(10) + char(10)
 		_n_ = len(@aDecls)
@@ -247,10 +336,13 @@ class stzUiDocument from stzObject
 		ok
 		return "" + pVal
 
-	#-- the projection ------------------------------------------------------
-
-	# The RML this document means. The defaults here are §4b's table: every
-	# divergence G1 found is absorbed so the author never sees it.
+	# Returns the document as RmlUi markup, a style block and a body, with the divergences between engines already absorbed.
+	#
+	#   returns    a text beginning <rml>
+	#   warning    it raises an error, refusing to project a broken contract, when the document is
+	#              not clean; a width or height you declare is a floor, written with flex-shrink 0
+	#   see        ToHtml, ToPanel, IsClean
+	#@ aka  -- the projection ------------------------------------------------------
 	def ToRml()
 		if NOT This.IsClean()
 			StzRaise("stzUiDocument.ToRml: the document is not clean -- " +
@@ -285,19 +377,12 @@ class stzUiDocument from stzObject
 		return "<rml><head><style>" + char(10) + _cCss_ +
 			"</style></head><body>" + _cBody_ + "</body></rml>"
 
-	#-- the WEB projection, and the fixture that compares the two --------
+	# Returns the same document as a complete HTML page, the web projection of what ToRml gives RmlUi.
 	#
-	# §3 says the profile is the contract and RmlUi is ONE conforming
-	# implementation -- "a browser is another. Fixtures render the same
-	# document both ways and compare on stated observables." It also said
-	# G0 would begin the fixture. It did not, and this is the debt.
-	#
-	# THIS SHARES EVERY RULE WITH ToRml. The two projections differ only
-	# where stzUiProfile records a DIVERGENCE, and they ask the profile
-	# for the spelling rather than carrying their own copy -- which is
-	# the whole reason the profile had to become data. If the shared half
-	# ever forks, the fixture below is what says so.
-
+	#   returns    a text beginning <!doctype html>
+	#   warning    it raises an error when the document is not clean
+	#   see        ToRml, ToFixture, IsClean
+	#@ aka  -- the WEB projection, and the fixture that compares the two --------
 	def ToHtml()
 		if NOT This.IsClean()
 			StzRaise("stzUiDocument.ToHtml: the document is not clean -- " +
@@ -389,19 +474,15 @@ class stzUiDocument from stzObject
 		next
 		return _c_
 
-	#-- THE FIXTURE: one document, two renderings, compared --------------
+	# Returns the document as an HTML page whose script compares the browser's boxes with the native ones and shows the verdict.
 	#
-	# A SELF-CHECKING PAGE. It carries the web projection AND the boxes
-	# the native engine produced, and compares them in the browser --
-	# so the verdict is visible to anyone who opens the file, and needs
-	# no harness to read it.
-	#
-	# That shape was chosen for a reason this project keeps relearning:
-	# a fixture only a CI job can run is a fixture nobody looks at, and
-	# every visual defect in this plane was found by a person looking.
-	#
-	# paNativeBoxes is [ [ name, x, y, w, h ], ... ] from the laid-out
-	# panel -- BoxOf() for every named element.
+	#   paNativeBoxes   the laid-out boxes of the native panel, as a list of [ name, x, y, w, h ]
+	#                   rows, such as those BoxOf answers
+	#   returns         an HTML text
+	#   warning         only boxes with a declared size are compared strictly: the page marks each
+	#                   as strict in width, in height and in position
+	#   see             ToHtml, ToPanel, IsStrictWidth
+	#@ aka  -- THE FIXTURE: one document, two renderings, compared --------------
 	def ToFixture(paNativeBoxes)
 		_cHtml_ = This.ToHtml()
 		_cJson_ = "["
@@ -471,9 +552,12 @@ class stzUiDocument from stzObject
 
 		return StzReplace(_cHtml_, "</body>", _cScript_ + "</body>")
 
-	# Is this element's geometry DECLARED, rather than measured from its
-	# text? Only a declared one is a strict observable -- see
-	# StzUiProfileIsStrictBox.
+	# TRUE if the element's width is declared, by itself or by its STYLE, rather than measured from its text.
+	#
+	#   pcName     the declared name
+	#   returns    TRUE or FALSE; FALSE for a name that is not declared
+	#   see        IsStrictHeight, IsStrictlyPlaced
+	#@ aka  Is this element's geometry DECLARED, rather than measured from its text? Only a declared one is a strict observable -- see StzUiProfileIsStrictBox.
 	def IsStrictWidth(pcName)
 		_d_ = This.DeclOf(pcName)
 		if len(_d_) = 0
@@ -482,6 +566,11 @@ class stzUiDocument from stzObject
 		return StzUiProfileIsStrictWidth(
 			len(This._RawField(This._EffectiveFields(_d_), "WIDTH")) > 0)
 
+	# TRUE if the element's height is declared, by itself or by its STYLE, rather than measured from its text.
+	#
+	#   pcName     the declared name
+	#   returns    TRUE or FALSE; FALSE for a name that is not declared
+	#   see        IsStrictWidth, IsStrictlyPlaced
 	def IsStrictHeight(pcName)
 		_d_ = This.DeclOf(pcName)
 		if len(_d_) = 0
@@ -490,8 +579,12 @@ class stzUiDocument from stzObject
 		return StzUiProfileIsStrictHeight(
 			len(This._RawField(This._EffectiveFields(_d_), "HEIGHT")) > 0)
 
-	# A box sits where its predecessors left it, so its POSITION is only
-	# claimed when it and every earlier sibling fix their own size.
+	# TRUE if the element's position is certain: its size is declared and so is the size of every earlier sibling.
+	#
+	#   pcName     the declared name
+	#   returns    TRUE or FALSE; FALSE for a name that is not declared
+	#   see        IsStrictWidth, IsStrictHeight, ToFixture
+	#@ aka  A box sits where its predecessors left it, so its POSITION is only claimed when it and every earlier sibling fix their own size.
 	def IsStrictlyPlaced(pcName)
 		_cP_ = This._ParentOf(pcName)
 		if _cP_ = ""
@@ -582,8 +675,14 @@ class stzUiDocument from stzObject
 			ok
 		next
 
-	# The direction in force for a declaration -- its own, or the nearest
-	# ancestor's. Answers "ltr" for anything the panel does not reach.
+	# Returns the text direction in force for an element: its own TEXT_DIRECTION, or the nearest ancestor's.
+	#
+	#   pcName     the declared name
+	#   returns    the text rtl or ltr; ltr for a name the panel does not reach
+	#   warning    the map is built when the document is made, so it answers at once, before
+	#              anything is rendered
+	#   see        IsRtl, TextsToPaint
+	#@ aka  The direction in force for a declaration -- its own, or the nearest ancestor's. Answers "ltr" for anything the panel does not reach.
 	def DirectionOf(pcName)
 		_n_ = len(@aDirMap)
 		for _i_ = 1 to _n_
@@ -593,6 +692,11 @@ class stzUiDocument from stzObject
 		next
 		return "ltr"
 
+	# TRUE if the element reads right to left.
+	#
+	#   pcName     the declared name
+	#   returns    TRUE or FALSE
+	#   see        DirectionOf, TextsToPaint
 	def IsRtl(pcName)
 		return strcmp(This.DirectionOf(pcName), "rtl") = 0
 
@@ -796,11 +900,15 @@ class stzUiDocument from stzObject
 		_c_ = StzReplace(_c_, ">", "&gt;")
 		return _c_
 
-	#-- to a living panel ---------------------------------------------------
-
-	# Bind the family a document's FONT field names to real bytes. Called
-	# before ToPanel so the layout is measured with the glyphs it will be
-	# painted with -- which is G2's whole point.
+	# Records the font file that ToPanel loads for the document's FONT family.
+	#
+	#   pcPathOrBytes   the path of a font file, kept as given
+	#   returns         nothing; use UseFontQ to chain
+	#   note            UseFontQ is the same call and returns the document
+	#   warning         it must be called before ToPanel, which refuses a document that has a TEXT
+	#                   without it, even when no FONT is declared and the family is the default app
+	#   see             FontFamily, ToPanel
+	#@ aka  -- to a living panel ---------------------------------------------------
 	def UseFont(pcPathOrBytes)
 		@cFontPath = "" + pcPathOrBytes
 
@@ -808,6 +916,10 @@ class stzUiDocument from stzObject
 		This.UseFont(pcPathOrBytes)
 		return This
 
+	# Returns the font family the panel declares.
+	#
+	#   returns    a text; app when the panel declares none or the document has no panel
+	#   see        UseFont, PanelDecl
 	def FontFamily()
 		_d_ = This.PanelDecl()
 		if len(_d_) = 0
@@ -826,6 +938,13 @@ class stzUiDocument from stzObject
 		next
 		return FALSE
 
+	# Builds the laid-out stzPanel of the document, ready to be asked for the box of any element.
+	#
+	#   returns    a stzPanel sized by the panel's SIZE, 800 by 600 when it gives none
+	#   warning    it opens no window; it raises an error when the document is not clean, and when
+	#              it has a TEXT but no UseFont was called, even with no FONT field, because the
+	#              text would silently vanish; a panel of boxes only needs no font
+	#   see        UseFont, ToRml, IsClean
 	def ToPanel()
 		if NOT This.IsClean()
 			StzRaise("stzUiDocument.ToPanel: the document is not clean -- " +
@@ -1315,39 +1434,24 @@ class stzUiDocument from stzObject
 			ok
 		next
 
-	# The closed role vocabulary, for a caller that wants to offer it.
+	# Returns the closed vocabulary of roles a ROLE field may name, the accessibility terms.
+	#
+	#   returns    a list of text, such as group, heading, button and textbox
+	#   warning    a role is a term for the accessibility tree, not a meaning
+	#   see        DeclOf
+	#@ aka  The closed role vocabulary, for a caller that wants to offer it.
 	def Roles()
 		return @aRoles
 
-	#-- the intent slot: parsed, recorded, DELIBERATELY UNRESOLVED --------
+	# Returns the intents an element says it satisfies, from its SATISFIES field.
 	#
-	# StzZui's finding 2. The founding inversion says every UI element
-	# must trace to at least one intent, and until a phase binds a panel
-	# to a flow, every element in every file is an orphan by that test.
-	# The request was not to build the binding -- it was to let the FIELD
-	# EXIST NOW, so a file written this month is complete when the
-	# binding lands rather than needing a pass over every declaration.
-	#
-	# THE FINDING OFFERED A CHEAPER ANSWER AND IT DOES NOT APPLY. It said
-	# to look at Roles() first, because if that were already an intent
-	# concept the slot belonged beside it. It is not: Roles() is a closed
-	# ARIA vocabulary whose own comment says "a role is NOT a meaning" --
-	# it is the accessibility projection's term, in the family of
-	# `display: block`. An intent is the opposite kind of thing. So the
-	# finding's own proposal is what is built.
-	#
-	# NOTHING IS RESOLVED. There is no .zui to resolve against from here,
-	# and resolution stays StzZui's. The court checks the SHAPE of a name
-	# and nothing else -- an intent this plane cannot find is not an
-	# error, because this plane is not where intents live.
-	#
-	# AND NO WARNING ON AN ORPHAN. Every existing document would raise on
-	# every element, which is noise rather than a trail, and the finding
-	# did not ask for one. `Orphans()` answers the question instead, so
-	# the inversion's test is available the moment anyone wants it.
-
-	# The intents one declaration claims to satisfy, [] when it claims
-	# none.
+	#   pcName     the declared name
+	#   returns    a list of text, in the order written; empty when it names none or the name is not
+	#              declared
+	#   warning    the names are recorded and never resolved: this plane checks their shape and
+	#              nothing else
+	#   see        SatisfiedIntents, TracesToIntent, Orphans
+	#@ aka  -- the intent slot: parsed, recorded, DELIBERATELY UNRESOLVED --------
 	def IntentsOf(pcName)
 		_d_ = This.DeclOf(pcName)
 		if len(_d_) = 0
@@ -1355,8 +1459,11 @@ class stzUiDocument from stzObject
 		ok
 		return This._IdListField(_d_[:fields], "SATISFIES")
 
-	# Every intent named anywhere in the document, in first-seen order.
-	# What a later binding phase reads to know what to look for.
+	# Returns every intent named anywhere in the document, each once, in the order first seen.
+	#
+	#   returns    a list of text
+	#   see        IntentsOf, Orphans
+	#@ aka  Every intent named anywhere in the document, in first-seen order. What a later binding phase reads to know what to look for.
 	def SatisfiedIntents()
 		_a_ = []
 		_n_ = len(@aDecls)
@@ -1371,9 +1478,13 @@ class stzUiDocument from stzObject
 		next
 		return _a_
 
-	# The ELEMENTS that trace to no intent -- the founding inversion's own
-	# test, answerable now and without resolving anything. STYLE
-	# declarations are absent by construction, not by omission.
+	# Returns the elements that trace to no intent, the test that every interface element must serve one.
+	#
+	#   returns    a list of names; styles are never listed
+	#   warning    the panel itself is an element and is listed when it names no intent; there is no
+	#              warning for an orphan
+	#   see        IntentsOf, TracesToIntent
+	#@ aka  The ELEMENTS that trace to no intent -- the founding inversion's own test, answerable now and without resolving anything. STYLE declarations are absent by construction, not by omission.
 	def Orphans()
 		_a_ = []
 		_n_ = len(@aDecls)
@@ -1388,6 +1499,11 @@ class stzUiDocument from stzObject
 		next
 		return _a_
 
+	# TRUE if the element names at least one intent in SATISFIES.
+	#
+	#   pcName     the declared name
+	#   returns    TRUE or FALSE; FALSE for a name that is not declared
+	#   see        IntentsOf, Orphans
 	def TracesToIntent(pcName)
 		return len(This.IntentsOf(pcName)) > 0
 

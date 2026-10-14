@@ -16,6 +16,36 @@
  ///   CLASS   ///
 /////////////////
 
+# Plans walks over a list: answers the positions to visit, forward, backward, in a zigzag, by a condition, by a step or between two positions.
+#
+# It is the walking helper of stzList, which builds one over itself for its WalkNForward,
+# WalkNBackward, WalkW, WalkUntil, WalkWhile and WalkZigZag methods; build one with new
+# stzListWalker when you only need the plan of a walk. It never changes the list, so a stzList
+# passed in stays intact. Every Walk method answers positions counted from 1, in the order the walk
+# visits them, never the items: read the items with the positions, or use the XT forms that take
+# :WalkedItems. The condition methods (WalkW, WalkUntil, WalkWhen, WalkWhile) take a test written
+# with @item for the current item. The positions of WalkBetween and WalkFromTo are not clipped to
+# the list. A walk whose step is 0 (WalkNForward, WalkNBackward, WalkForthAndBack, WalkZigZag) never
+# ends. AddWalker, Walkers and Walker raise error R24 today because the class never declares the
+# attribute they read. WalkAccumulating is a plain map, not a running total.
+#
+#   receiver   o1 = new stzListWalker([ 5, 12, 7, 20, 3, 18, 9 ])
+#   example    ? @@( o1.WalkNForward(3) )
+#              #--> [ 1, 4, 7 ]
+#              ? @@( o1.WalkNBackward(3) )
+#              #--> [ 7, 4, 1 ]
+#              ? @@( o1.WalkW("@item > 10") )
+#              #--> [ 2, 4, 6 ]
+#              ? @@( o1.WalkUntil("@item > 10") )
+#              #--> [ 1, 2 ]
+#              ? @@( o1.WalkWhile("@item < 10") )
+#              #--> [ 1 ]
+#              ? @@( o1.WalkZigZag(3) )
+#              #--> [ 1, 4, 7, 7, 4, 1 ]
+#              o2 = new stzListWalker([ "שלום", "😀", "x", "y" ])
+#              ? @@( o2.WalkEveryNth(2) )
+#              #--> [ 2, 4 ]
+#   see        stzList, stzListGetter, stzWalker
 class stzListWalker from stzObject
 
 	@oList
@@ -24,6 +54,13 @@ class stzListWalker from stzObject
 	 #   INITIALIZATION  #
 	#===================#
 
+	# Builds a walker over a list, given as a list or as a stzList object.
+	#
+	#   pListOrObj   the list to walk, or a stzList whose content is copied, any other value raises
+	#                an error
+	#   returns      nothing; the object is built
+	#   note         the walker never changes the list or the stzList you passed in
+	#   see          Content, WalkNForward
 	def init(pListOrObj)
 		if isList(pListOrObj)
 			@oList = new stzList(pListOrObj)
@@ -37,15 +74,32 @@ class stzListWalker from stzObject
 	 #     CONTENT ACCESS            #
 	#===============================#
 
+	# Returns the list the walker walks over.
+	#
+	#   returns    a list
+	#   see        List, NumberOfItems
 	def Content()
 		return @oList.Content()
 
+	# Returns the list the walker walks over.
+	#
+	#   returns    a list
+	#   note       the same answer as Content
+	#   see        Content, NumberOfItems
 	def List()
 		return @oList.List()
 
+	# Returns how many items the list holds.
+	#
+	#   returns    a number
+	#   see        Content, IsEmpty
 	def NumberOfItems()
 		return @oList.NumberOfItems()
 
+	# TRUE if the list holds no item.
+	#
+	#   returns    TRUE or FALSE, as 1 or 0
+	#   see        NumberOfItems, Content
 	def IsEmpty()
 		return @oList.IsEmpty()
 
@@ -53,6 +107,19 @@ class stzListWalker from stzObject
 	 #  WALKING THE LIST ITEMS  #
 	#==========================#
 
+	# Raises error R24 today instead of registering a named walker for the list.
+	#
+	#   pcName     the name of the walker
+	#   pnStart    the position to start from
+	#   pnEnd      the position to stop at
+	#   pnStep     the step between two positions
+	#   returns    nothing
+	#   note       a name that is already registered is meant to raise
+	#              CanNotAddWalkerAlreadyExistant
+	#   warning    it raises error R24 Using uninitialized variable: @awalkers on any list (tried on
+	#              two lists), because the class reads the attribute @aWalkers without ever
+	#              declaring or filling it
+	#   see        Walkers, Walker
 	def AddWalker(pcName, pnStart, pnEnd, pnStep)
 
 		if CheckingParams()
@@ -84,9 +151,24 @@ class stzListWalker from stzObject
 			@aWalkers + [ pcName, _oWalker_ ]
 		ok
 
+	# Raises error R24 today instead of answering the registered walkers.
+	#
+	#   returns    nothing
+	#   warning    it raises error R24 Using uninitialized variable: @awalkers, because the class
+	#              reads the attribute @aWalkers without ever declaring or filling it (tried on two
+	#              lists)
+	#   see        AddWalker, Walker
 	def Walkers()
 		return @aWalkers
 
+	# Raises error R24 today instead of answering the walker registered under a name.
+	#
+	#   pcWalkerNamed   the name the walker was registered under
+	#   returns         nothing
+	#   note            WalkerQ is the same call
+	#   warning         it raises error R24 Using uninitialized variable: @awalkers, as Walkers does
+	#                   (tried on two lists)
+	#   see             AddWalker, Walkers
 	def Walker(pcWalkerNamed)
 		return This.Walkers()[pcWalkerNamed]
 
@@ -97,6 +179,15 @@ class stzListWalker from stzObject
 	 #  WALKING THE LIST N ITEMS FORWARD        #
 	#==========================================#
 
+	# Returns the positions reached by stepping forward n items at a time from the first one.
+	#
+	#   n          the step between two positions
+	#   returns    a list of positions
+	#   note       the answer lists positions, not items: 7 items with n = 2 give 1, 3, 5, 7;
+	#              WalkForwardNSteps is the same call
+	#   warning    an n of 0 never ends, since the loop does not advance (read from the code, not
+	#              run, because it would fill the memory)
+	#   see        WalkNBackward, WalkEveryNth, WalkSkipping
 	def WalkNForward(n)
 		_nWnfLen_ = This.NumberOfItems()
 		_anWnfResult_ = []
@@ -116,6 +207,13 @@ class stzListWalker from stzObject
 	 #  WALKING THE LIST N ITEMS BACKWARD       #
 	#==========================================#
 
+	# Returns the positions reached by stepping backward n items at a time from the last one.
+	#
+	#   n          the step between two positions
+	#   returns    a list of positions
+	#   note       7 items with n = 3 give 7, 4, 1; WalkBackwardNSteps is the same call
+	#   warning    an n of 0 never ends, as in WalkNForward (read from the code, not run)
+	#   see        WalkNForward, WalkZigZag
 	def WalkNBackward(n)
 		_nWnbLen_ = This.NumberOfItems()
 		_anWnbResult_ = []
@@ -135,6 +233,15 @@ class stzListWalker from stzObject
 	 #  WALKING BETWEEN        #
 	#=========================#
 
+	# Returns the positions from one to another, stepping by a given amount, forward or backward.
+	#
+	#   n1         the first position
+	#   n2         the last position
+	#   nStep      the size of each step, always positive
+	#   returns    a list of positions
+	#   note       a start larger than the end walks backward; the positions are not clipped to the
+	#              list, so WalkBetween(1, 99, 3) on 7 items goes on to 97
+	#   see        WalkFromTo, WalkNForward
 	def WalkBetween(n1, n2, nStep)
 		_anWbResult_ = []
 
@@ -154,6 +261,14 @@ class stzListWalker from stzObject
 	 #  WALKING FORTH AND BACK          #
 	#===================================#
 
+	# Returns the positions reached going forward n at a time and then backward n at a time.
+	#
+	#   n          the step between two positions
+	#   returns    a list of positions
+	#   note       the forward walk ends where the backward walk begins, so that position appears
+	#              twice: 7 items with n = 3 give 1, 4, 7, 7, 4, 1
+	#   warning    an n of 0 never ends, as in WalkNForward (read from the code, not run)
+	#   see        WalkZigZag, WalkNForward, WalkNBackward
 	def WalkForthAndBack(n)
 		_anWfbFwd_ = This.WalkNForward(n)
 		_anWfbBwd_ = This.WalkNBackward(n)
@@ -170,7 +285,14 @@ class stzListWalker from stzObject
 	 #  WALKING WHERE          #
 	#=========================#
 
-	# Walk the list collecting where the W condition holds.
+	# Returns the positions of the items that satisfy a condition.
+	#
+	#   pcCondition   the test, written with @item for the current item, such as "@item > 10"
+	#   returns       a list of positions
+	#   note          on 5, 12, 7, 20, 3, 18, 9 the test "@item > 10" gives 2, 4, 6; PositionsWhere
+	#                 is the same call
+	#   see           WalkWhere, WalkUntil, WalkWhen
+	#@ aka  Walk the list collecting where the W condition holds.
 	def WalkW(pcCondition)
 		return @oList.FindAllItemsW(pcCondition)
 
@@ -178,7 +300,15 @@ class stzListWalker from stzObject
 	 #  WALKING UNTIL           #
 	#==========================#
 
-	# Walk the items UNTIL the given condition holds.
+	# Returns the positions from the first item up to and including the first one that satisfies a condition.
+	#
+	#   pcCondition   the test, written with @item, or a pair [ :Before, test ] to stop just before
+	#                 the match
+	#   returns       a list of positions
+	#   note          when nothing satisfies the test every position is returned; on 5, 12, 7, 20,
+	#                 3, 18, 9 the test "@item > 10" gives 1, 2, and the :Before form gives 1
+	#   see           WalkWhen, WalkWhile, WalkW
+	#@ aka  Walk the items UNTIL the given condition holds.
 	def WalkUntil(pcCondition)
 		# Walk forward up to AND INCLUDING the first position where the
 		# condition holds. WalkUntil(:Before = cond) stops just before it.
@@ -257,7 +387,13 @@ class stzListWalker from stzObject
 	 #  WALKING WHERE           #
 	#==========================#
 
-	# Walk the list collecting where the condition holds.
+	# Returns the positions of the items that satisfy a condition.
+	#
+	#   pcCondition   the test, written with @item for the current item
+	#   returns       a list of positions
+	#   note          the same call as WalkW
+	#   see           WalkW, WalkWhen
+	#@ aka  Walk the list collecting where the condition holds.
 	def WalkWhere(pcCondition)
 		return @oList.FindAllItemsW(pcCondition)
 
@@ -266,6 +402,13 @@ class stzListWalker from stzObject
 	 #  WALKING WHEN            #
 	#==========================#
 
+	# Returns the positions from the first item that satisfies a condition to the end of the list.
+	#
+	#   pcCondition   the test, written with @item for the current item
+	#   returns       a list of positions
+	#   note          nothing satisfying the test gives [ ]; on 5, 12, 7, 20, 3, 18, 9 the test
+	#                 "@item > 10" gives 2 to 7
+	#   see           WalkUntil, WalkWhile, WalkW
 	def WalkWhen(pcCondition)
 		_anWnMatch_ = @oList.FindAllItemsW(pcCondition)
 		if len(_anWnMatch_) = 0
@@ -376,7 +519,14 @@ class stzListWalker from stzObject
 	 #  WALKING WHILE           #
 	#==========================#
 
-	# Walk the items WHILE the given condition holds.
+	# Returns the positions from the first item as long as every item satisfies a condition.
+	#
+	#   pcCondition   the test, written with @item for the current item
+	#   returns       a list of positions
+	#   note          the walk stops before the first item that fails the test and gives [ ] when
+	#                 the first item fails; on 5, 12, 7 the test "@item < 10" gives 1
+	#   see           WalkUntil, WalkWhen
+	#@ aka  Walk the items WHILE the given condition holds.
 	def WalkWhile(pcCondition)
 		_pWwList_ = @oList._EngineListFromContent()
 		if _pWwList_ = "" return [] ok
@@ -404,6 +554,15 @@ class stzListWalker from stzObject
 	 #  WALKING IN ZIGZAG PATTERN      #
 	#=================================#
 
+	# Returns the positions going forward by a step to the end and then back by the same step.
+	#
+	#   nStep      the step between two positions
+	#   returns    a list of positions
+	#   note       when the step lands exactly on the last position that position appears twice: 7
+	#              items with step 2 give 1, 3, 5, 7, 7, 5, 3, 1, and 6 items give 1, 3, 5, 6, 4, 2
+	#   warning    a step of 0 never ends, since the loop does not advance (read from the code, not
+	#              run)
+	#   see        WalkForthAndBack, WalkNForward
 	def WalkZigZag(nStep)
 		_nWzLen_ = This.NumberOfItems()
 		_anWzResult_ = []
@@ -432,6 +591,13 @@ class stzListWalker from stzObject
 	 #  WALKING EVERY NTH POSITION      #
 	#==================================#
 
+	# Returns the positions n, 2n, 3n and so on.
+	#
+	#   n          the step between two positions
+	#   returns    a list of positions
+	#   note       the first position is not included unless n is 1; an n of 0 gives [ ]; WalkEach
+	#              is the same call
+	#   see        WalkNForward, WalkSkipping
 	def WalkEveryNth(n)
 		_nWenLen_ = This.NumberOfItems()
 		_anWenResult_ = []
@@ -459,6 +625,14 @@ class stzListWalker from stzObject
 	 #  WALK BETWEEN TWO VALUES     #
 	#==============================#
 
+	# Returns every position from one to another, forward or backward.
+	#
+	#   nFrom      the first position
+	#   nTo        the last position
+	#   returns    a list of positions
+	#   note       a start larger than the end walks backward; the positions are not clipped to the
+	#              list, so WalkFromTo(0, 9) on 7 items answers 0 to 9
+	#   see        WalkBetween, WalkNForward
 	def WalkFromTo(nFrom, nTo)
 		_anWftResult_ = []
 		if nFrom <= nTo
@@ -476,6 +650,13 @@ class stzListWalker from stzObject
 	 #  WALK SKIPPING N ITEMS       #
 	#==============================#
 
+	# Returns the positions reached by skipping n items between two visited ones.
+	#
+	#   n          how many items to skip each time
+	#   returns    a list of positions
+	#   note       it starts at position 1, and skipping 1 visits 1, 3, 5, 7; WalkSkip is the same
+	#              call
+	#   see        WalkNForward, WalkEveryNth
 	def WalkSkipping(n)
 		_nWskLen_ = This.NumberOfItems()
 		_anWskResult_ = []
@@ -495,6 +676,14 @@ class stzListWalker from stzObject
 	 #  WALK WITH CUSTOM ACCUMULATOR   #
 	#=================================#
 
+	# Returns the result of an expression applied to each item, in order, with no running total.
+	#
+	#   pcExpr     the expression of the current item, written with @item, such as "@item * 2"
+	#   returns    a list of the results
+	#   note       the name suggests an accumulation but the call is a plain map: "@item * 2" on 5,
+	#              12, 7 gives 10, 24, 14, and "@item" gives the list itself; WalkAccumulate is the
+	#              same call
+	#   see        WalkW, Content
 	def WalkAccumulating(pcExpr)
 		return @oList.Map(pcExpr)
 

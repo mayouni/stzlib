@@ -311,6 +311,34 @@ func _StzAddPetriRules(poSet)
 #  THE NET                                                             #
 #---------------------------------------------------------------------#
 
+# Draws a Petri net whose state is on the picture, and plays the token game: transitions fire only when their input places hold enough tokens.
+#
+# A place holds tokens, a transition moves them, and the same drawing read twice a moment apart
+# shows two different facts. Places and transitions are typed nodes, arcs are directed edges with a
+# weight, and the net is meant to be bipartite: an arc joins a place to a transition or a transition
+# to a place, which the first of five rules reports when it does not. The token game is Tokens,
+# SetTokens, Marking, IsEnabled, Enabled and Fire; a refused firing says which place is short and by
+# how much, and a net never goes negative. Tokens are drawn inside the place, one to four as dots
+# and more as the number, and published by RenderTokens. Not computed: reachability, boundedness and
+# liveness in the full sense. Not here: inhibitor arcs, coloured tokens, timed transitions and
+# priorities.
+#
+#   receiver   o1 = new stzPetriNet("mutex")
+#   example    o1.AddPlaceXT("idle", "Idle", 3)
+#              o1.AddPlace("busy", "Busy")
+#              o1.AddTransition("start", "Start")
+#              o1.ArcXT("idle", "start", 2)
+#              o1.Arc("start", "busy")
+#              ? o1.IsEnabled("start")
+#              #--> 1
+#              o1.Fire("start")
+#              ? @@( o1.Marking() )
+#              #--> [ [ "idle", 1 ], [ "busy", 1 ] ]
+#              ? o1.WhyNotEnabled("start")
+#              #--> place 'Idle' holds 1 and the arc wants 2
+#              ? len(o1.Enabled())
+#              #--> 0
+#   see        stzPetriRuleSet, stzDiagram, stzFaultTree, stzFamilyTree
 class stzPetriNet from stzDiagram
 
 	# [ [ :id, :name, :tokens ] ]
@@ -323,12 +351,25 @@ class stzPetriNet from stzDiagram
 	# what was drawn inside the places: [ place, count, x, y ]
 	@aRenderTokens = []
 
+	# Builds an empty Petri net that draws left to right with the Petri notation, with a title.
+	#
+	#   pcTitle    the title of the diagram
+	#   returns    nothing; the object is built
+	#   see        AddPlace, AddTransition
 	def init(pcTitle)
 		super.init(pcTitle)
 		This.SetNotation(StzPetriNotation())
 
-	#-- the net ----------------------------------------------------------
-
+	# Declares a place, a circle that holds tokens, with no token; AddPlaceXT gives it an initial marking.
+	#
+	#   pcId       the place's identifier, which must be new in the net
+	#   pcName     the place's name, shown beside its circle
+	#   returns    the net itself, so calls chain
+	#   note       AddPlaceQ and AddPlaceXTQ are the same calls
+	#   warning    an identifier already in the net raises an error; a marking that is negative or
+	#              not a whole number raises an error
+	#   see        AddTransition, SetTokens, Tokens
+	#@ aka  -- the net ----------------------------------------------------------
 	def AddPlace(pcId, pcName)
 		return This.AddPlaceXT(pcId, pcName, 0)
 
@@ -347,6 +388,14 @@ class stzPetriNet from stzDiagram
 		def AddPlaceXTQ(pcId, pcName, pnTokens)
 			return This.AddPlaceXT(pcId, pcName, pnTokens)
 
+	# Declares a transition, the bar across the flow that moves tokens when it fires.
+	#
+	#   pcId       the transition's identifier, which must be new in the net
+	#   pcName     the transition's name, shown beside its bar
+	#   returns    the net itself, so calls chain
+	#   note       AddTransitionQ is the same call
+	#   warning    an identifier already in the net raises an error
+	#   see        AddPlace, Arc, Fire
 	def AddTransition(pcId, pcName)
 		This._PnNoNode(pcId)
 		@aTransitions + [ :id = "" + pcId, :name = "" + pcName ]
@@ -356,14 +405,29 @@ class stzPetriNet from stzDiagram
 		def AddTransitionQ(pcId, pcName)
 			return This.AddTransition(pcId, pcName)
 
+	# Adds a free note to the drawing; it is not a node of the net.
+	#
+	#   pcId       the note's identifier
+	#   pcText     the text of the note
+	#   returns    the net itself, so calls chain
+	#   warning    the rules and the token game ignore a note
+	#   see        AddPlace
 	def AddNote(pcId, pcText)
 		@aNotes + ("" + pcId)
 		This.AddNodeXTT(pcId, pcText, [ :type = "note" ])
 		return This
 
-	# Arc(from, to): a token path. Accepted between any two nodes of the
-	# net so the bipartite rule has something to report; refused only to
-	# a node that is not in the net at all.
+	# Draws a token path from one node to another with weight 1; ArcXT gives the weight.
+	#
+	#   pcFrom     the identifier of the place or transition the arc leaves
+	#   pcTo       the identifier of the place or transition it enters
+	#   returns    the net itself, so calls chain
+	#   note       ArcQ and ArcXTQ are the same calls
+	#   warning    a node that is not in the net raises an error; two places or two transitions are
+	#              accepted here and reported by the rule arc_joins_place_and_transition; a weight
+	#              above 1 is written on the arc
+	#   see        Places, Transitions, Fire
+	#@ aka  Arc(from, to): a token path. Accepted between any two nodes of the net so the bipartite rule has something to report; refused only to a node that is not in the net at all.
 	def Arc(pcFrom, pcTo)
 		return This.ArcXT(pcFrom, pcTo, 1)
 
@@ -390,17 +454,34 @@ class stzPetriNet from stzDiagram
 		def ArcXTQ(pcFrom, pcTo, pnWeight)
 			return This.ArcXT(pcFrom, pcTo, pnWeight)
 
+	# Returns the places, in the order they were added, with their current tokens.
+	#
+	#   returns    a list of hashlists with the keys id, name and tokens
+	#   see        Transitions, Marking, Tokens
 	def Places()
 		return @aPlaces
 
+	# Returns the transitions, in the order they were added.
+	#
+	#   returns    a list of hashlists with the keys id and name
+	#   see        Places, Arcs
 	def Transitions()
 		return @aTransitions
 
+	# Returns the arcs, in the order they were added.
+	#
+	#   returns    a list of hashlists with the keys from, to and weight
+	#   see        Arc, InputsOf, OutputsOf
 	def Arcs()
 		return @aArcs
 
-	#-- the token game ----------------------------------------------------
-
+	# Returns how many tokens a place holds now.
+	#
+	#   pcPlace    the identifier of the place, without regard to case
+	#   returns    a number
+	#   warning    an identifier that is not a place raises an error
+	#   see        SetTokens, Marking
+	#@ aka  -- the token game ----------------------------------------------------
 	def Tokens(pcPlace)
 		_i_ = This._PnPlaceIndex(pcPlace)
 		if _i_ = 0
@@ -408,6 +489,13 @@ class stzPetriNet from stzDiagram
 		ok
 		return @aPlaces[_i_][:tokens]
 
+	# Sets the number of tokens in a place, replacing its marking.
+	#
+	#   pcPlace    the identifier of the place
+	#   pnTokens   the new number of tokens, a whole number from 0
+	#   returns    the net itself, so calls chain
+	#   warning    an unknown place, or a number that is negative or not whole, raises an error
+	#   see        Tokens, Fire
 	def SetTokens(pcPlace, pnTokens)
 		_i_ = This._PnPlaceIndex(pcPlace)
 		if _i_ = 0
@@ -420,7 +508,11 @@ class stzPetriNet from stzDiagram
 		This.SetNodeProperty(pcPlace, "tokens", pnTokens)
 		return This
 
-	# [ [ place, tokens ] ... ] in the order the places were added
+	# Returns the marking: every place with its current tokens, the state of the net.
+	#
+	#   returns    a list of [ place, tokens ] pairs, in the order the places were added
+	#   see        Tokens, Places, Fire
+	#@ aka  [ [ place, tokens ] ... ] in the order the places were added
 	def Marking()
 		_r_ = []
 		for _i_ = 1 to len(@aPlaces)
@@ -428,7 +520,14 @@ class stzPetriNet from stzDiagram
 		next
 		return _r_
 
-	# the input arcs of a transition: [ [ place, weight ] ... ]
+	# Returns the input arcs of a transition: the places it takes tokens from and how many.
+	#
+	#   pcTrans    the identifier of the transition, without regard to case
+	#   returns    a list of [ place, weight ] pairs
+	#   warning    it tests only that the arc leaves a place, so asked of a place that another place
+	#              feeds it answers that arc
+	#   see        OutputsOf, WhyNotEnabled
+	#@ aka  the input arcs of a transition: [ [ place, weight ] ... ]
 	def InputsOf(pcTrans)
 		_r_ = []
 		_c_ = StzLower("" + pcTrans)
@@ -439,6 +538,11 @@ class stzPetriNet from stzDiagram
 		next
 		return _r_
 
+	# Returns the output arcs of a transition: the places it gives tokens to and how many.
+	#
+	#   pcTrans    the identifier of the transition, without regard to case
+	#   returns    a list of [ place, weight ] pairs
+	#   see        InputsOf, Fire
 	def OutputsOf(pcTrans)
 		_r_ = []
 		_c_ = StzLower("" + pcTrans)
@@ -449,7 +553,14 @@ class stzPetriNet from stzDiagram
 		next
 		return _r_
 
-	# why a transition cannot fire, or "" when it can
+	# Returns the reason a transition cannot fire, naming the short place and by how much.
+	#
+	#   pcTrans    the identifier of the transition
+	#   returns    a text such as place 'Idle' holds 1 and the arc wants 2; empty when the
+	#              transition can fire
+	#   warning    an identifier that is not a transition raises an error
+	#   see        IsEnabled, Fire
+	#@ aka  why a transition cannot fire, or "" when it can
 	def WhyNotEnabled(pcTrans)
 		if This._PnTransIndex(pcTrans) = 0
 			stzraise("stzPetriNet: '" + pcTrans + "' is not a transition of this net.")
@@ -464,9 +575,19 @@ class stzPetriNet from stzDiagram
 		next
 		return ""
 
+	# TRUE if every input place of the transition holds at least its arc's weight.
+	#
+	#   pcTrans    the identifier of the transition
+	#   returns    TRUE or FALSE
+	#   warning    an identifier that is not a transition raises an error
+	#   see        WhyNotEnabled, Enabled, Fire
 	def IsEnabled(pcTrans)
 		return This.WhyNotEnabled(pcTrans) = ""
 
+	# Returns the identifiers of the transitions that can fire now.
+	#
+	#   returns    a list of text, in the order the transitions were added
+	#   see        IsEnabled, Fire
 	def Enabled()
 		_r_ = []
 		for _i_ = 1 to len(@aTransitions)
@@ -474,9 +595,15 @@ class stzPetriNet from stzDiagram
 		next
 		return _r_
 
-	# FIRE: take each input arc's weight from its place, give each output
-	# arc's weight to its place. Refused, by name and by number, when an
-	# input is short -- a net never goes negative.
+	# Fires a transition: takes each input arc's weight from its place and gives each output arc's weight to its place.
+	#
+	#   pcTrans    the identifier of the transition to fire
+	#   returns    the net itself, so calls chain
+	#   note       FireQ is the same call
+	#   warning    a transition that is not enabled raises an error naming the short place and the
+	#              numbers, and changes nothing, so a net never goes negative
+	#   see        IsEnabled, WhyNotEnabled, Marking
+	#@ aka  FIRE: take each input arc's weight from its place, give each output arc's weight to its place. Refused, by name and by number, when an input is short -- a net never goes negative.
 	def Fire(pcTrans)
 		_cWhy_ = This.WhyNotEnabled(pcTrans)
 		if _cWhy_ != ""
@@ -496,8 +623,11 @@ class stzPetriNet from stzDiagram
 		def FireQ(pcTrans)
 			return This.Fire(pcTrans)
 
-	#-- the projection the rules read ------------------------------------
-
+	# Returns the net as a plain graph that the five Petri rules read.
+	#
+	#   returns    a stzGraph with the places, transitions and notes as nodes and the arcs as edges
+	#   see        GovernanceFindings
+	#@ aka  -- the projection the rules read ------------------------------------
 	def AsRuleGraph()
 		_oG_ = new stzGraph("petri-rules")
 		for _i_ = 1 to len(@aPlaces)
@@ -524,13 +654,23 @@ class stzPetriNet from stzDiagram
 		next
 		return _oG_
 
+	# Returns what the five Petri rules find wrong with the net, warnings included.
+	#
+	#   returns    a list of findings, each a hashlist with the keys rule, where, severity and
+	#              message; empty when the net is sound
+	#   note       CheckRules is the same call
+	#   warning    the rules are arc_joins_place_and_transition, transition_has_input,
+	#              transition_has_output, place_can_be_marked and transition_can_fire
+	#   see        GovernanceIsSound, AsRuleGraph
 	def GovernanceFindings()
 		return StzPetriRuleSetQ().Check(This.AsRuleGraph())
 
-	# SOUND IS NO ERROR, not no finding: this net's rules set their
-	# severity deliberately, and a warning says the picture may stand.
-	# StzFindingsAreSound is the house's one answer; GovernanceFindings()
-	# is still every finding, warnings included, for a caller who wants them.
+	# TRUE if the rules found no error; warnings do not count against it.
+	#
+	#   returns    TRUE or FALSE
+	#   warning    RulesAreSound is the same call
+	#   see        GovernanceFindings
+	#@ aka  SOUND IS NO ERROR, not no finding: this net's rules set their severity deliberately, and a warning says the picture may stand. StzFindingsAreSound is the house's one answer; GovernanceFindings() is still every finding, warnings included, for a caller who wants them.
 	def GovernanceIsSound()
 		return StzFindingsAreSound(This.GovernanceFindings())
 
@@ -540,9 +680,12 @@ class stzPetriNet from stzDiagram
 	def RulesAreSound()
 		return This.GovernanceIsSound()
 
-	#-- the drawing ---------------------------------------------------------
-
-	# what was drawn inside the places on the last render: [ place, count, x, y ]
+	# Returns what the last drawing wrote inside each place.
+	#
+	#   returns    a list of [ place, count, x, y ] rows; empty before the first drawing
+	#   warning    one to four tokens are drawn as dots, five or more as the number
+	#   see        Marking
+	#@ aka  -- the drawing ---------------------------------------------------------
 	def RenderTokens()
 		return @aRenderTokens
 
@@ -619,12 +762,50 @@ class stzPetriNet from stzDiagram
 			stzraise("stzPetriNet: '" + pcId + "' is already in this net.")
 		ok
 
+# Holds one named check of the Petri-net governance, run over the rule graph of a net.
+#
+# It is a graph rule filed under the petri domain. The five rules the library ships are built by
+# stzPetriRuleSet and applied through the net's GovernanceFindings; a rule of your own can be added
+# to a set the same way.
+#
+#   receiver   o1 = new stzPetriRule("my_rule")
+#   example    ? o1.Name()
+#              #--> my_rule
+#              ? o1.Domain()
+#              #--> petri
+#   see        stzPetriRuleSet, stzPetriNet, stzGraphRule
 class stzPetriRule from stzGraphRule
+	# Builds a named rule of the Petri-net governance, filed under the petri domain.
+	#
+	#   pcName     the rule's name, such as place_can_be_marked
+	#   returns    nothing; the object is built
+	#   see        stzPetriRuleSet, stzPetriNet
 	def init(pcName)
 		super.init(pcName)
 		This.SetDomainQ("petri")
 
+# Holds the five rules a Petri net is judged by: arcs join a place and a transition, transitions have inputs and outputs, places can be marked, transitions can fire.
+#
+# Check takes the rule graph of a net (AsRuleGraph) and answers the findings. A net asks for this
+# through its own GovernanceFindings, so a rule set is built by hand only to add a rule of your own
+# or to run the rules on a graph. The last two rules are structural: a place empty forever and a
+# transition starved at birth, not liveness in the full sense.
+#
+#   receiver   o1 = new stzPetriRuleSet()
+#   example    ? o1.Name()
+#              #--> petri-governance
+#              ? o1.NumberOfRules()
+#              #--> 5
+#              ? o1.RuleNames()[1]
+#              #--> arc_joins_place_and_transition
+#   see        stzPetriRule, stzPetriNet, stzGraphRuleSet
 class stzPetriRuleSet from stzGraphRuleSet
+	# Builds the Petri-net governance, the set of five rules a net is judged by.
+	#
+	#   returns    nothing; the object is built
+	#   warning    the rules are arc_joins_place_and_transition, transition_has_input,
+	#              transition_has_output, place_can_be_marked and transition_can_fire, in that order
+	#   see        stzPetriRule, StzPetriRuleSetQ, GovernanceFindings
 	def init()
 		super.init("petri-governance")
 		This.SetDomainQ("petri")

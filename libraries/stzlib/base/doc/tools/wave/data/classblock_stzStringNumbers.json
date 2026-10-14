@@ -1,0 +1,23 @@
+{
+ "brief": "Reads the numbers written inside a text, and sums, ranks, replaces or removes them.",
+ "detail": "Build one with new stzStringNumbers(\"text\"); stzString does not hand one out. Numbers returns the figures in order as numbers: a sign directly before a digit belongs to the figure, a point between two digits makes a decimal, and only ASCII digits count, so Arabic-Indic digits and the 1 and 0 of 1,000 are read as the characters they are. The statistics (SumOfNumbers, MaxNumber, MinNumber, AverageOfNumbers, NthNumber) are built on Numbers; Max, Min, Average and the First, Last and Nth readers raise when the text holds no number, whereas the sum answers 0. RemoveNumbers and ReplaceNumbers edit the held text in place and work digit run by digit run, so the signs and points stay; NumbersRemoved and NumbersReplaced return the edited text and leave the object alone. Found today: a run with two points such as 1.2.3 raises R41 in Numbers and everything built on it; ScanInteger stops the Ring process above 2147483647; and the in-place edits on an object built from a stzString leave that stzString empty.",
+ "receiver": "o1 = new stzStringNumbers(\"Invoice 12 costs -3.5 and +7, total 10\")",
+ "example": [
+  "? @@( o1.Numbers() )",
+  "#--> [ 12, -3.50, 7, 10 ]",
+  "? o1.SumOfNumbers()",
+  "#--> 25.50",
+  "? o1.NthNumber(2)",
+  "#--> -3.50",
+  "o2 = new stzStringNumbers(\"שלום 12 עולם 7.5\")",
+  "? @@( o2.PositionsOfNumbers() )",
+  "#--> [ 6, 14, 16 ]",
+  "o3 = new stzStringNumbers(\"a😀1😀22\")",
+  "? @@( o3.Numbers() )",
+  "#--> [ 1, 22 ]"
+ ],
+ "see": [
+  "stzString",
+  "stzListOfNumbers"
+ ]
+}
